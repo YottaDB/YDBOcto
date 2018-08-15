@@ -15,8 +15,12 @@ configure_file (
 BISON_TARGET(OctoParser parser.y ${PROJECT_BINARY_DIR}/parser.c)
 FLEX_TARGET(OctoLexer lexer.l ${CMAKE_CURRENT_BINARY_DIR}/lexer.c)
 
+include_directories("${PROJECT_BINARY_DIR}")
+
 add_executable(octo
   octo.c
   ${BISON_OctoParser_OUTPUTS}
   ${FLEX_OctoLexer_OUTPUTS}
 )
+
+include(cmake/tests.cmake)

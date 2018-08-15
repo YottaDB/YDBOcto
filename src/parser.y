@@ -1,22 +1,39 @@
 %require "3.0"
 %debug
 
+%code requires {
+#ifndef YY_TYPEDEF_YY_SCANNER_T
+#define YY_TYPEDEF_YY_SCANNER_T
+typedef void* yyscan_t;
+#endif
+}
+
 %{
 #include <stdio.h>
 #include <stdlib.h>
 
+#ifndef YY_TYPEDEF_YY_SCANNER_T
+#define YY_TYPEDEF_YY_SCANNER_T
+typedef void* yyscan_t;
+#endif
+
 #define YYERROR_VERBOSE
+#define YYDEBUG 1
 #define YYSTYPE struct statement *
-struct statement;
+struct abc {
+  int a;
+} statement;
 
 extern FILE* yyin;
 extern int yylex();
-extern int yyparse();
-extern void yyerror(char const *s);
+extern int yyparse(yyscan_t scan);
+extern void yyerror(yyscan_t scan, char const *s);
 extern char *yytext;
 %}
 
-%expect 0
+%define api.pure
+%lex-param   { yyscan_t scanner }
+%parse-param { yyscan_t scanner }
 
 %token CHAR
 %token CHARACTER
@@ -27,12 +44,18 @@ extern char *yytext;
 %token IDENTIFIER_START
 %token INT
 %token INTEGER
+%token KEY
+%token NOT
 %token NUMERIC
+%token PRIMARY
 %token SMALLINT
 %token TABLE
+%token UNIQUE
 %token VARCHAR
 %token VARYING
 
+%token NULL_TOKEN
+%token ENDOFFILE
 %token COMMA
 %token LEFT_PAREN
 %token RIGHT_PAREN
@@ -45,6 +68,7 @@ extern char *yytext;
 sql_schema_statement
   : sql_schema_definition_statement SEMICOLON { YYACCEPT; }
 //  | sql_schema_manipulation_statement
+  | ENDOFFILE { YYACCEPT; }
   ;
 
 sql_schema_definition_statement
@@ -77,12 +101,44 @@ table_element
 
 /// TODO: not complete
 column_definition
-  : column_name data_type
+  : column_name data_type column_definition_tail
 //  | more stuff
   ;
 
 column_name
   : identifier
+  ;
+
+column_definition_tail
+  : /* Empty */
+  | column_constraint_definition
+  ;
+
+column_constraint_definition
+  : constraint_name_definition column_constraint constraint_attributes
+  ;
+
+/// TODO: not complete
+constraint_name_definition
+  : /* Empty */
+  ;
+
+/// TODO: not complete
+column_constraint
+  : NOT NULL_TOKEN
+  | unique_specifications
+//  | reference_specifications
+//  | check_constraint_definition
+  ;
+
+unique_specifications
+  : UNIQUE
+  | PRIMARY KEY
+  ;
+
+/// TODO: not complete
+constraint_attributes
+  : /* Empty */
   ;
 
 qualified_name

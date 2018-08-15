@@ -13,7 +13,8 @@ configure_file (
 )
 
 BISON_TARGET(OctoParser parser.y ${PROJECT_BINARY_DIR}/parser.c)
-FLEX_TARGET(OctoLexer lexer.l ${CMAKE_CURRENT_BINARY_DIR}/lexer.c)
+FLEX_TARGET(OctoLexer lexer.l ${CMAKE_CURRENT_BINARY_DIR}/lexer.c
+  COMPILE_FLAGS --header-file=${PROJECT_BINARY_DIR}/lexer.h)
 
 include_directories("${PROJECT_BINARY_DIR}")
 

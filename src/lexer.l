@@ -13,7 +13,6 @@
 
 %}
 
-%option outfile="../build/lexer.c" header-file="../build/lexer.h"
 %option stack
 %option yylineno
 %option reentrant noyywrap never-interactive nounistd

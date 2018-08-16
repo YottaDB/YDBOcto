@@ -20,30 +20,62 @@
 
 %%
 
+(?i:ALL) { return ALL; }
+(?i:AND) { return AND; }
+(?i:BY) { return BY; }
 (?i:CHAR) { return CHAR; }
 (?i:CHARACTER) { return CHARACTER; }
 (?i:COMMAND) { return COMMAND; }
+(?i:CORRESPONDING) { return CORRESPONDING; }
+(?i:COLLATE) { return COLLATE; }
 (?i:CREATE) { return CREATE; }
 (?i:DEC) { return DEC; }
 (?i:DECIMAL) { return DECIMAL; }
+(?i:DEFAULT) { return DEFAULT; }
+(?i:DELETE) { return DELETE; }
+(?i:EXCEPT) { return EXCEPT; }
+(?i:FALSE) { return FALSE; }
+(?i:FROM) { return FROM; }
 (?i:IDENTIFIER_START) { return IDENTIFIER_START; }
+(?i:IN) { return IN; }
 (?i:INT) { return INT; }
 (?i:INTEGER) { return INTEGER; }
+(?i:INTERSECT) { return INTERSECT; }
+(?i:IS) { return IS; }
 (?i:KEY) { return KEY; }
 (?i:NOT) { return NOT; }
 (?i:NUMERIC) { return NUMERIC; }
+(?i:OR) { return OR; }
 (?i:PRIMARY) { return PRIMARY; }
 (?i:SMALLINT) { return SMALLINT; }
 (?i:TABLE) { return TABLE; }
+(?i:TRUE) { return TRUE; }
+(?i:UNION) { return UNION; }
 (?i:UNIQUE) { return UNIQUE; }
+(?i:UNKNOWN) { return UNKNOWN; }
 (?i:VARCHAR) { return VARCHAR; }
 (?i:VARYING) { return VARYING; }
+(?i:VALUES) { return VALUES; }
+(?i:WHERE) { return WHERE; }
 
 (?i:NULL) { return NULL_TOKEN; }
 , { return COMMA; }
 \( { return LEFT_PAREN; }
 \) { return RIGHT_PAREN; }
 \; { return SEMICOLON; }
+\+ { return PLUS; }
+- { return MINUS; }
+\* { return ASTERISK; }
+\/ { return SOLIDUS; }
+\. { return PERIOD; }
+\= { return EQUALS; }
+\<= { return LESS_THAN_OR_EQUALS; }
+\>= { return GREATER_THAN_OR_EQUALS; }
+\<\> { return NOT_EQUALS; }
+\< { return LESS_THAN; }
+\> { return GREATER_THAN; }
+\| { return PIPE; }
+
 
 [0-9][0-9]* { return UNSIGNED_INTEGER; }
 [a-zA-Z][a-zA-Z0-9_]* { return IDENTIFIER_START; }

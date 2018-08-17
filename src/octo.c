@@ -1,15 +1,15 @@
 /* Copyright (C) 2018 YottaDB, LLC
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Affero General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
@@ -28,6 +28,8 @@
 typedef void *yyscan_t;
 #endif
 
+#define BUFFER_SIZE 1024
+
 extern int yydebug;
 FILE *yyin;
 
@@ -39,7 +41,7 @@ int main(int argc, char **argv)
   int c, error = 0, i = 0;
   yyscan_t scanner;
   YY_BUFFER_STATE state;
-  char buff[1024];
+  char buff[BUFFER_SIZE];
   FILE *inputFile;
 
   inputFile = NULL;
@@ -98,8 +100,10 @@ int main(int argc, char **argv)
     i = 0;
     while(!feof(inputFile))
     {
+      assert(i < BUFFER_SIZE);
       c = fgetc(inputFile);
-      buff[i++] = c;
+      if(c != -1)
+        buff[i++] = c;
       if(c == ';')
         break;
     }

@@ -52,40 +52,63 @@ extern char *yytext;
 
 %token ALL
 %token AND
+%token AS
+%token ASC
+%token AVG
 %token BY
 %token CHAR
 %token CHARACTER
+%token COLLATE
 %token COMMAND
 %token CORRESPONDING
+%token COUNT
 %token CREATE
-%token COLLATE
+%token CROSS
 %token DEC
 %token DECIMAL
 %token DEFAULT
 %token DELETE
+%token DESC
+%token DISTINCT
 %token EXCEPT
 %token FALSE
 %token FROM
+%token FULL
+%token GROUP
+%token HAVING
 %token IDENTIFIER_START
 %token IN
+%token INNER
 %token INT
 %token INTEGER
 %token INTERSECT
 %token IS
+%token JOIN
 %token KEY
+%token LEFT
+%token MAX
+%token MIN
+%token NATURAL
 %token NOT
 %token NUMERIC
+%token ON
 %token OR
+%token ORDER
+%token OUTER
 %token PRIMARY
+%token RIGHT
+%token SELECT
 %token SMALLINT
+%token SUM
 %token TABLE
 %token TRUE
 %token UNION
 %token UNIQUE
 %token UNKNOWN
+%token USING
+%token VALUES
 %token VARCHAR
 %token VARYING
-%token VALUES
 %token WHERE
 
 %token NULL_TOKEN
@@ -108,14 +131,18 @@ extern char *yytext;
 %token PIPE
 
 %token UNSIGNED_INTEGER
+%token FAKE_TOKEN
 
 %%
 
 sql_statement
   : sql_schema_statement SEMICOLON { YYACCEPT; }
   | sql_data_statement SEMICOLON { YYACCEPT; }
+  | sql_select_statement SEMICOLON { YYACCEPT; }
   | ENDOFFILE { YYACCEPT; }
   ;
+
+%include "parser/select.y"
 
 sql_data_statement
   : sql_data_change_statement
@@ -134,7 +161,7 @@ sql_data_change_statement
   ;
 
 delete_statement_searched
-  : DELETE FROM table_name delete_statement_searched_tail
+  : DELETE FROM column_name delete_statement_searched_tail
   ;
 
 delete_statement_searched_tail
@@ -315,11 +342,63 @@ numeric_primary
 value_expression_primary
   : unsigned_value_specification
   | column_reference
-//  | set_function_specification
+  | set_function_specification
   | scalar_subquery
 //  | case_expression
   | LEFT_PAREN value_expression RIGHT_PAREN
 //  | cast_specification
+  ;
+
+set_function_specification
+  : COUNT LEFT_PAREN ASTERISK RIGHT_PAREN
+  | COUNT LEFT_PAREN value_expression RIGHT_PAREN
+  | COUNT LEFT_PAREN set_quantifier value_expression RIGHT_PAREN
+  | general_set_function
+  ;
+
+general_set_function
+  : set_function_type LEFT_PAREN value_expression RIGHT_PAREN
+  | set_function_type LEFT_PAREN set_quantifier value_expression RIGHT_PAREN
+  ;
+
+set_function_type
+  : AVG
+  | MAX
+  | MIN
+  | SUM
+  ;
+
+non_query_value_expression
+  : non_query_numeric_value_expression
+  ;
+
+non_query_numeric_value_expression
+  : non_query_term
+  | non_query_numeric_value_expression PLUS non_query_term
+  | non_query_numeric_value_expression MINUS non_query_term
+  ;
+
+non_query_term
+  : non_query_factor
+  | non_query_term ASTERISK non_query_factor
+  | non_query_term SOLIDUS non_query_factor
+  | non_query_term concatenation_operator non_query_factor
+
+non_query_factor
+  : sign non_query_numeric_primary factor_tail
+  | non_query_numeric_primary factor_tail
+  ;
+
+non_query_numeric_primary
+  : non_query_value_expression_primary
+//  | numeric_value_function
+  ;
+
+non_query_value_expression_primary
+  : unsigned_value_specification
+  | column_reference
+  | set_function_specification
+  | LEFT_PAREN non_query_value_expression RIGHT_PAREN
   ;
 
 unsigned_value_specification
@@ -357,8 +436,7 @@ column_reference
   ;
 
 qualifier
-  : table_name
-//  | correlation_name
+  : column_name
   ;
 
 scalar_subquery
@@ -371,7 +449,7 @@ subquery
 
 query_expression
   : non_join_query_expression
-//  | joined_table
+  | joined_table
   ;
 
 non_join_query_expression
@@ -400,7 +478,7 @@ corresponding_column_list
   ;
 
 column_name_list
-  : column_name column_name_list_tail
+  : column_reference column_name_list_tail
   ;
 
 column_name_list_tail
@@ -410,7 +488,7 @@ column_name_list_tail
 
 query_term
   : non_join_query_term
-//  | joined_table
+  | joined_table
   ;
 
 comp_op
@@ -449,7 +527,7 @@ non_join_query_primary
 simple_table
   : table_value_constructor
   | explicit_table
-//  | query_specification // this can be enabled after SELECT is implemented
+  | query_specification // this can be enabled after SELECT is implemented
   ;
 
 table_value_constructor
@@ -466,12 +544,12 @@ table_value_constructor_list_tail
   ;
 
 explicit_table
-  : TABLE table_name
+  : TABLE column_name
   ;
 
 query_primary
   : non_join_query_primary
-//  | joined_table
+  | joined_table
   ;
 
 sql_schema_statement
@@ -485,12 +563,7 @@ sql_schema_definition_statement
 
 /// TODO: not complete
 table_definition
-  : CREATE TABLE table_name table_element_list
-  ;
-
-table_name
-  : qualified_name
-//  | qualified_local_table_name
+  : CREATE TABLE column_name table_element_list
   ;
 
 table_element_list

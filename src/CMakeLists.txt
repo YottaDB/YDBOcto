@@ -12,7 +12,16 @@ configure_file (
   "${PROJECT_BINARY_DIR}/octo.h"
 )
 
-BISON_TARGET(OctoParser parser.y ${PROJECT_BINARY_DIR}/parser.c)
+# Combine the parser grammars into a single file
+add_custom_command(OUTPUT ${PROJECT_BINARY_DIR}/parser.y
+  DEPENDS parser.y parser/select.y
+  COMMAND awk -v path=${PROJECT_SOURCE_DIR}/
+    -f ${PROJECT_SOURCE_DIR}/../tools/combine-grammar.awk
+    ${PROJECT_SOURCE_DIR}/parser.y > ${PROJECT_BINARY_DIR}/parser.y
+)
+
+BISON_TARGET(OctoParser ${PROJECT_BINARY_DIR}/parser.y
+  ${PROJECT_BINARY_DIR}/parser.c)
 FLEX_TARGET(OctoLexer lexer.l ${CMAKE_CURRENT_BINARY_DIR}/lexer.c
   COMPILE_FLAGS --header-file=${PROJECT_BINARY_DIR}/lexer.h)
 

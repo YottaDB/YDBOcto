@@ -100,6 +100,7 @@ extern char *yytext;
 %token PRIMARY
 %token RIGHT
 %token SELECT
+%token SET
 %token SMALLINT
 %token SUM
 %token TABLE
@@ -107,6 +108,7 @@ extern char *yytext;
 %token UNION
 %token UNIQUE
 %token UNKNOWN
+%token UPDATE
 %token USING
 %token VALUES
 %token VARCHAR
@@ -146,6 +148,7 @@ sql_statement
 
 %include "parser/select.y"
 %include "parser/insert.y"
+%include "parser/update.y"
 
 sql_data_statement
   : sql_data_change_statement
@@ -160,7 +163,7 @@ sql_data_change_statement
 //  | delete_statement_position
   | insert_statement
 //  | update_statement_positioned
-//  | update_statement_searched
+  | update_statement_searched
   ;
 
 delete_statement_searched

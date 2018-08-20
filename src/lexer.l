@@ -37,6 +37,7 @@
 
 %%
 
+
 (?i:ALL) { return ALL; }
 (?i:AND) { return AND; }
 (?i:AS) { return AS; }
@@ -87,6 +88,7 @@
 (?i:PRIMARY) { return PRIMARY; }
 (?i:RIGHT) { return RIGHT; }
 (?i:SELECT) { return SELECT; }
+(?i:SET) { return SET; }
 (?i:SMALLINT) { return SMALLINT; }
 (?i:SUM) { return SUM; }
 (?i:TABLE) { return TABLE; }
@@ -94,13 +96,14 @@
 (?i:UNION) { return UNION; }
 (?i:UNIQUE) { return UNIQUE; }
 (?i:UNKNOWN) { return UNKNOWN; }
+(?i:UPDATE) { return UPDATE; }
 (?i:USING) { return USING; }
 (?i:VALUES) { return VALUES; }
 (?i:VARCHAR) { return VARCHAR; }
 (?i:VARYING) { return VARYING; }
 (?i:WHERE) { return WHERE; }
-(?i:NULL) { return NULL_TOKEN; }
 
+(?i:NULL) { return NULL_TOKEN; }
 , { return COMMA; }
 \( { return LEFT_PAREN; }
 \) { return RIGHT_PAREN; }

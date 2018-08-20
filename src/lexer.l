@@ -66,9 +66,11 @@
 (?i:IDENTIFIER_START) { return IDENTIFIER_START; }
 (?i:IN) { return IN; }
 (?i:INNER) { return INNER; }
+(?i:INSERT) { return INSERT; }
 (?i:INT) { return INT; }
 (?i:INTEGER) { return INTEGER; }
 (?i:INTERSECT) { return INTERSECT; }
+(?i:INTO) { return INTO; }
 (?i:IS) { return IS; }
 (?i:JOIN) { return JOIN; }
 (?i:KEY) { return KEY; }
@@ -97,8 +99,8 @@
 (?i:VARCHAR) { return VARCHAR; }
 (?i:VARYING) { return VARYING; }
 (?i:WHERE) { return WHERE; }
-
 (?i:NULL) { return NULL_TOKEN; }
+
 , { return COMMA; }
 \( { return LEFT_PAREN; }
 \) { return RIGHT_PAREN; }

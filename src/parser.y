@@ -79,9 +79,11 @@ extern char *yytext;
 %token IDENTIFIER_START
 %token IN
 %token INNER
+%token INSERT
 %token INT
 %token INTEGER
 %token INTERSECT
+%token INTO
 %token IS
 %token JOIN
 %token KEY
@@ -143,6 +145,7 @@ sql_statement
   ;
 
 %include "parser/select.y"
+%include "parser/insert.y"
 
 sql_data_statement
   : sql_data_change_statement
@@ -155,7 +158,7 @@ sql_data_statement
 sql_data_change_statement
   : delete_statement_searched
 //  | delete_statement_position
-//  | insert_statement
+  | insert_statement
 //  | update_statement_positioned
 //  | update_statement_searched
   ;
@@ -255,8 +258,9 @@ in_value_list_tail
 /* !! deviations from BNF due to rr conflicts
 */
 row_value_constructor
-  : VALUES LEFT_PAREN row_value_constructor_list RIGHT_PAREN
+  : LEFT_PAREN row_value_constructor_list RIGHT_PAREN
   | row_value_constructor_element
+//  | subquery
   ;
 
 row_value_constructor_list
@@ -478,7 +482,7 @@ corresponding_column_list
   ;
 
 column_name_list
-  : column_reference column_name_list_tail
+  : column_name column_name_list_tail
   ;
 
 column_name_list_tail

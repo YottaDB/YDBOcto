@@ -27,6 +27,8 @@ typedef void* yyscan_t;
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "octo_types.h"
+
 #ifndef YY_TYPEDEF_YY_SCANNER_T
 #define YY_TYPEDEF_YY_SCANNER_T
 typedef void* yyscan_t;
@@ -34,10 +36,7 @@ typedef void* yyscan_t;
 
 #define YYERROR_VERBOSE
 #define YYDEBUG 1
-#define YYSTYPE struct statement *
-struct abc {
-  int a;
-} statement;
+#define YYSTYPE struct SqlValue *
 
 extern FILE* yyin;
 extern int yylex();
@@ -570,7 +569,9 @@ sql_schema_definition_statement
 
 /// TODO: not complete
 table_definition
-  : CREATE TABLE column_name table_element_list
+  : CREATE TABLE column_name table_element_list {
+        printf(">> CREATE TABLE %s\n", ($column_name)->value.string_literal);
+      }
   ;
 
 table_element_list
@@ -594,7 +595,7 @@ column_definition
   ;
 
 column_name
-  : identifier
+  : identifier  { $$ = $1; }
   ;
 
 column_definition_tail
@@ -639,21 +640,21 @@ qualified_identifier
   ;
 
 identifier
-  : actual_identifier
+  : actual_identifier { $$ = $1; }
 //  | introducer character_set_specification actual_identifier
   ;
 
 actual_identifier
-  : regular_identifier
+  : regular_identifier { $$ = $1; }
 //  | delimited_identifier
   ;
 
 regular_identifier
-  : identifier_body
+  : identifier_body { $$ = $1; }
   ;
 
 identifier_body
-  : IDENTIFIER_START
+  : IDENTIFIER_START { $$ = $1; }
 //  | identifier_start underscore
 //  | identifier_start identifier_part
   ;

@@ -17,6 +17,7 @@
 #include <stdio.h>
 #include <ctype.h>
 
+#include "octo_types.h"
 #include "parser.h"
 
 /*
@@ -24,6 +25,17 @@
 	s/%token \([A-Z_]\+\)/(?i:\1) { return \1; }/
  on the lines
 */
+
+/* Copies from src to dst, incrementing both pointers as it goes
+ * copied will be incremented by the number of characters copied
+ */
+#define COPY_STRING(dst, src, copied, max) while((copied) < (max) && (*src)) {*dst++ = *src++; (copied)++; }
+
+#define YYSTYPE struct SqlValue *
+
+char string_buffer[MAX_STR_CONST];
+char *str_buf_ptr;
+int copied_so_far;
 
 %}
 
@@ -123,19 +135,58 @@
 \| { return PIPE; }
 
 
-[0-9][0-9]* { return UNSIGNED_INTEGER; }
-[a-zA-Z][a-zA-Z0-9_]* { return IDENTIFIER_START; }
+[0-9][0-9]* {
+                copied_so_far = 0;
+                str_buf_ptr = string_buffer;
+                char *yptr = yytext;
+                COPY_STRING(str_buf_ptr, yptr, copied_so_far, MAX_STR_CONST);
+                *str_buf_ptr = '\0';
+                *yylval_param = (struct SqlValue *)malloc(sizeof(struct SqlValue));
+                (*yylval_param)->type = NUMBER_LITERAL;
+                (*yylval_param)->value.string_literal = (char*)malloc(copied_so_far+1);
+                strncpy((*yylval_param)->value.string_literal, string_buffer, copied_so_far+1);
+                return UNSIGNED_INTEGER;
+              }
+[a-zA-Z][a-zA-Z0-9_]* {
+                copied_so_far = 0;
+                str_buf_ptr = string_buffer;
+                char *yptr = yytext;
+                COPY_STRING(str_buf_ptr, yptr, copied_so_far, MAX_STR_CONST);
+                *str_buf_ptr = '\0';
+                *yylval_param = (struct SqlValue *)malloc(sizeof(struct SqlValue));
+                (*yylval_param)->type = STRING_LITERAL;
+                (*yylval_param)->value.string_literal = (char*)malloc(copied_so_far+1);
+                strncpy((*yylval_param)->value.string_literal, string_buffer, copied_so_far+1);
+                return IDENTIFIER_START;
+              }
 -- { BEGIN(COMMENT); }
 
 [ \t\r\n]      ;  /* skip whitespace which is not part of a string */
 
-\" { BEGIN(STRING); }
-<STRING>[^(\"\")]* { /* This should go into a string*/ }
-<STRING>\" { BEGIN(INITIAL); return UNSIGNED_INTEGER; }
+\" { copied_so_far = 0; str_buf_ptr = string_buffer; BEGIN(STRING); }
+<STRING>[^(\"\")]* { char *yptr = yytext; COPY_STRING(str_buf_ptr, yptr, copied_so_far, MAX_STR_CONST); }
+<STRING>\" {
+              *str_buf_ptr = '\0';
+              *yylval_param = (struct SqlValue *)malloc(sizeof(struct SqlValue));
+              (*yylval_param)->type = STRING_LITERAL;
+              (*yylval_param)->value.string_literal = (char*)malloc(copied_so_far+1);
+              strncpy((*yylval_param)->value.string_literal, string_buffer, copied_so_far+1);
+              BEGIN(INITIAL);
+              return UNSIGNED_INTEGER;
+            }
 
 ` { BEGIN(IDENTIFIER); }
-<IDENTIFIER>[^(``)]* { /* This should go into a string*/ }
-<IDENTIFIER>` { BEGIN(INITIAL); return IDENTIFIER_START; }
+<IDENTIFIER>[^(``)]* { char *yptr = yytext; COPY_STRING(str_buf_ptr, yptr, copied_so_far, MAX_STR_CONST); }
+<IDENTIFIER>` {
+                BEGIN(INITIAL);
+                *str_buf_ptr = '\0';
+                *yylval_param = (struct SqlValue *)malloc(sizeof(struct SqlValue));
+                (*yylval_param)->type = STRING_LITERAL;
+                (*yylval_param)->value.string_literal = (char*)malloc(copied_so_far+1);
+                strncpy((*yylval_param)->value.string_literal, string_buffer, copied_so_far+1);
+                BEGIN(INITIAL);
+                return IDENTIFIER_START;
+              }
 
 <COMMENT>[\n\r] { BEGIN(INITIAL); }
 <COMMENT>.* { /* Ignore comments */ }

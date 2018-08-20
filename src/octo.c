@@ -20,13 +20,9 @@
 #include <getopt.h>
 #include <assert.h>
 
+#include "octo.h"
 #include "parser.h"
 #include "lexer.h"
-
-#ifndef YY_TYPEDEF_YY_SCANNER_T
-#define YY_TYPEDEF_YY_SCANNER_T
-typedef void *yyscan_t;
-#endif
 
 #define BUFFER_SIZE 1024
 
@@ -122,14 +118,4 @@ int main(int argc, char **argv)
   yy_delete_buffer(state, scanner);
   yylex_destroy(scanner);
   return error;
-}
-
-void yyerror(yyscan_t scanner, char const *s)
-{
-  printf("yyerror: %s\n", s);
-}
-
-int yywrap ( void )
-{
-  return 1;
 }

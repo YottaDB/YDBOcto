@@ -4,8 +4,11 @@ set(OCTO_SQL_MAJOR_VERSION 0)
 set(OCTO_SQL_MINOR_VERSION 1)
 set(CMAKE_BUILD_TYPE Debug)
 
-find_package(BISON)
-find_package(FLEX)
+SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
+
+find_package(BISON REQUIRED)
+find_package(FLEX REQUIRED)
+find_package(CMOCKA)
 
 configure_file (
   "${PROJECT_SOURCE_DIR}/octo.h.in"
@@ -28,12 +31,24 @@ BISON_TARGET(OctoParser ${PROJECT_BINARY_DIR}/parser.y
 FLEX_TARGET(OctoLexer lexer.l ${CMAKE_CURRENT_BINARY_DIR}/lexer.c
   COMPILE_FLAGS --header-file=${PROJECT_BINARY_DIR}/lexer.h)
 
+include_directories("${PROJECT_SOURCE_DIR}")
 include_directories("${PROJECT_BINARY_DIR}")
 
-add_executable(octo
-  octo.c
+add_library(libocto OBJECT
+  yyerror.c
+  yywrap.c
+  emit_create_table.c
   ${BISON_OctoParser_OUTPUTS}
   ${FLEX_OctoLexer_OUTPUTS}
 )
 
+add_executable(octo
+  octo.c
+  $<TARGET_OBJECTS:libocto>
+)
+
 include(cmake/tests.cmake)
+
+if(CMOCKA_FOUND)
+  include(cmake/cmocka-tests.cmake)
+endif()

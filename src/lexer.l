@@ -34,6 +34,7 @@
 
 %x STRING
 %x IDENTIFIER
+%x COMMENT
 
 %%
 
@@ -124,6 +125,7 @@
 
 [0-9][0-9]* { return UNSIGNED_INTEGER; }
 [a-zA-Z][a-zA-Z0-9_]* { return IDENTIFIER_START; }
+-- { BEGIN(COMMENT); }
 
 [ \t\r\n]      ;  /* skip whitespace which is not part of a string */
 
@@ -134,6 +136,9 @@
 ` { BEGIN(IDENTIFIER); }
 <IDENTIFIER>[^(``)]* { /* This should go into a string*/ }
 <IDENTIFIER>` { BEGIN(INITIAL); return IDENTIFIER_START; }
+
+<COMMENT>[\n\r] { BEGIN(INITIAL); }
+<COMMENT>.* { /* Ignore comments */ }
 
 <<EOF>> { return ENDOFFILE; }
 

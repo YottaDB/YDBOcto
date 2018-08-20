@@ -14,6 +14,7 @@ SELECT * FROM tableA
 INNER JOIN (SELECT personId as id
   FROM tableB WHERE AGE < 15) as tableC
 ON (tableA.id = tableC.id);
+-- Many of these examples were from http://www.complexsql.com/complex-sql-queries-examples-with-answers/
 Select distinct Salary from Employee e1 where 2=(Select count(distinct Salary) from Employee e2 where e1.salary<=e2.salary);
 Select * from Employee a where rowid <>( select max(rowid) from Employee b where a.Employee_num=b.Employee_num);
 Select Employee_name,Salary/12 as `Monthly Salary` from employee;
@@ -23,3 +24,4 @@ Select * from Employee where Rownum <= 5;
 
 select distinct salary from employee a where 3 >= (select count(distinct salary) from employee b where a.salary <= b.salary) order by a.salary desc;
 select min(salary)from(select distinct salary from emp order by salary desc)where rownum<=3;
+-- Some exaples using UNION should be added after it is supported

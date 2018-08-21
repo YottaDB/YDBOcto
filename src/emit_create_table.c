@@ -17,34 +17,41 @@
 #include <assert.h>
 
 #include "octo.h"
+#include "octo_types.h"
 
 /**
  * Emits DDL specification for the given table
  */
-void emit_create_table(FILE *output, struct SqlCreateTableStatement *stmt)
+void emit_create_table(FILE *output, struct SqlStatement *stmt)
 {
   SqlColumn *start_column, *cur_column;
   SqlConstraint *start_constraint, *cur_constraint;
+  SqlTable *table;
   char *column_type, *constraint_text, *primary_key_name = 0;
   if(stmt == NULL)
     return;
-  fprintf(output, "%s {", stmt->tableName);
-  if(stmt->columns)
+  table = stmt->v.table;
+  fprintf(output, "%s {", table->tableName);
+  if(table->columns)
   {
-    cur_column = start_column = stmt->columns;
+    cur_column = start_column = table->columns;
     do {
       if(cur_column != start_column) {
-        fprintf(output, "}, {");
+        fprintf(output, ", ");
       }
       switch (cur_column->type)
       {
       case INTEGER_TYPE:
         column_type = "INTEGER";
+        fprintf(output, "%s { TYPE = %s", cur_column->columnName, column_type);
+        break;
+      case CHARACTER_STRING_TYPE:
+        column_type = "STRING";
+        fprintf(output, "%s { TYPE = %s", cur_column->columnName, column_type);
         break;
       default:
         assert(0);
       }
-      fprintf(output, "%s { TYPE = %s", cur_column->columnName, column_type);
       if(cur_column->constraints) {
         start_constraint = cur_constraint = cur_column->constraints;
         do {
@@ -61,7 +68,7 @@ void emit_create_table(FILE *output, struct SqlCreateTableStatement *stmt)
           fprintf(output, ", CONSTRAINT %s", constraint_text);
         } while(cur_constraint != start_constraint);
       }
-      fprintf(output, "}");
+      fprintf(output, " }");
       cur_column = cur_column->next;
     } while (cur_column != start_column);
     fprintf(output, ", ");
@@ -70,5 +77,8 @@ void emit_create_table(FILE *output, struct SqlCreateTableStatement *stmt)
     /* No primary key was specified, error out */
     assert(0);
   }
-  fprintf(output, "source = ^%s(<%s>) }", stmt->tableName, primary_key_name);
+  if (table->source)
+    fprintf(output, "source = %s }", table->source);
+  else
+    fprintf(output, "source = %s(%s) }", table->tableName, primary_key_name);
 }

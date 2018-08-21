@@ -129,14 +129,24 @@ int main(int argc, char **argv)
       continue;
     if(result == 0)
       continue;
-    if(result->type == SELECT_STATEMENT) {
-      //emit_select_statement(NULL, result);
+    switch(result->type)
+    {
+    case SELECT_STATEMENT:
       out = open_memstream(&buffer, &buffer_size);
       assert(out);
       emit_select_statement(out, result);
       fclose(out);
       printf("%s\n", buffer);
       free(buffer);
+      break;
+    case TABLE_STATEMENT:
+      out = open_memstream(&buffer, &buffer_size);
+      assert(out);
+      emit_create_table(out, result);
+      fclose(out);
+      printf("%s\n", buffer);
+      free(buffer);
+      break;
     }
     free(result);
     result = 0;

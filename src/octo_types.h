@@ -25,17 +25,23 @@ typedef void *yyscan_t;
 // Defines the elements for a DQ struct
 #define dqcreate(struct_type) struct struct_type *next, *prev
 // Inserts an element behind this one in the doubly linked list
-#define dqinsert(self, new_elem) (new_elem)->prev = (self)->prev (self)->prev = new_elem, (new_elem)->next = self;
+#define dqinsert(self, new_elem) (new_elem)->prev = (self)->prev, \
+  (self)->prev->next = (new_elem), (self)->prev = new_elem, (new_elem)->next = self;
+
+long long unsigned int typedef uint8;
 
 enum SqlStatementType {
-  CREATE_TABLE_STATEMENT,
+  TABLE_STATEMENT,
   SELECT_STATEMENT,
   SQL_VALUE,
   BINARY_OPERATION,
   UNARY_OPERATION,
   COLUMN_LIST,
+  SQL_COLUMN,
   JOIN_STATEMENT,
-  TABLE_STATEMENT
+  SQL_DATA_TYPE,
+  SQL_CONSTRAINT,
+  SQL_CONSTRAINT_TYPE
 };
 
 enum UnaryOperations {
@@ -74,7 +80,8 @@ enum SqlConstraintType {
   UNIQUE_CONSTRAINT,
   PRIMARY_KEY,
   REFERENCES,
-  CHECK_CONSTRAINT
+  CHECK_CONSTRAINT,
+  MAX_LENGTH
 };
 
 enum SqlJoinType {
@@ -83,7 +90,6 @@ enum SqlJoinType {
 
 struct SqlColumn;
 struct SqlConstraint;
-struct SqlCreateTableStatement;
 struct SqlSelectStatement;
 struct SqlUnaryOperation;
 struct SqlBinaryOperation;
@@ -92,12 +98,6 @@ struct SqlColumnList typedef SqlColumnList;
 struct SqlTable;
 struct SqlJoin typedef SqlJoin;
 struct SqlStatement typedef SqlStatement;
-
-struct SqlCreateTableStatement
-{
-  char *tableName;
-  struct SqlColumn *columns;
-} typedef SqlCreateTableStatement;
 
 /**
  * Represents a SQL column; doubly linked list
@@ -125,6 +125,7 @@ struct SqlConstraint
   enum SqlConstraintType type;
   char *referencesColumn; // in the form of table.column
   char *check_constraint_definition; // as a piece of MUMPS code
+  uint8 max_length;
   dqcreate(SqlConstraint);
 } typedef SqlConstraint;
 
@@ -134,6 +135,7 @@ struct SqlConstraint
 struct SqlTable
 {
   char *tableName;
+  char *source;
   struct SqlColumn *columns;
 } typedef SqlTable;
 
@@ -196,8 +198,12 @@ struct SqlStatement {
     SqlBinaryOperation *binary;
     SqlUnaryOperation *unary;
     SqlColumnList *columns;
+    SqlColumn *column; // Note singular versus plural
     SqlJoin *join;
     SqlTable *table;
+    SqlConstraint *constraint;
+    enum SqlDataType data_type;
+    enum SqlConstraintType constraint_type;
   } v;
 };
 

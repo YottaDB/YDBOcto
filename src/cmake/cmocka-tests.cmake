@@ -11,3 +11,4 @@ endmacro(ADD_UNIT_TEST_WITH_OPTIONS)
 
 ADD_UNIT_TEST_WITH_OPTIONS(test_emit_create_table "")
 ADD_UNIT_TEST_WITH_OPTIONS(test_parser_negatives "")
+ADD_UNIT_TEST_WITH_OPTIONS(test_emit_select_statement "")

@@ -16,21 +16,22 @@
 static void test_bad_create_statement(void **state) {
   yyscan_t scanner;
   YY_BUFFER_STATE parser_state;
+  SqlStatement *result;
 
   if (yylex_init(&scanner)) {
     fprintf(stderr, "Error initializing the scanner\n");
     return;
   }
   parser_state = yy_scan_string("CREATE TBLE abc (id INTEGER);", scanner);
-  assert_true(yyparse(scanner) == 1);
+  assert_true(yyparse(scanner, &result) == 1);
   parser_state = yy_scan_string("CREATE TABLE abc (id HOTDOG);", scanner);
-  assert_true(yyparse(scanner) == 1);
+  assert_true(yyparse(scanner, &result) == 1);
   parser_state = yy_scan_string("CREATE TABLE abc (id HOTDOG));", scanner);
-  assert_true(yyparse(scanner) == 1);
+  assert_true(yyparse(scanner, &result) == 1);
   parser_state = yy_scan_string("CREATE TABLE -- abc (id HOTDOG);\n", scanner);
-  assert_true(yyparse(scanner) == 1);
+  assert_true(yyparse(scanner, &result) == 1);
   parser_state = yy_scan_string("CREATE TABLE abc (id INTEGER, name);", scanner);
-  assert_true(yyparse(scanner) == 1);
+  assert_true(yyparse(scanner, &result) == 1);
 }
 
 int main(void) {

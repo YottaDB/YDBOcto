@@ -9,5 +9,6 @@
 #define OCTO_SQL_MINOR_VERSION @OCTO_SQL_MINOR_VERSION@
 
 void emit_create_table(FILE *output, struct SqlCreateTableStatement *stmt);
+void emit_select_statement(FILE *output, SqlStatement *stmt);
 
 #endif

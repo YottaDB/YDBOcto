@@ -1,5 +1,5 @@
 sql_select_statement
-  : query_specification
+  : query_specification { $$ = $1; }
   ;
 
 sort_specification_list
@@ -20,7 +20,7 @@ sort_specification
 
 sort_key
   : column_reference
-  | UNSIGNED_INTEGER
+  | LITERAL
   ;
 
 ordering_specification
@@ -29,28 +29,43 @@ ordering_specification
   ;
 
 query_specification
-  : SELECT select_list table_expression
+  : SELECT select_list table_expression {
+      $$ = $table_expression;
+      assert(($$)->type == SELECT_STATEMENT);
+      ($$)->v.select->select_list = ($select_list)->v.columns;
+      free($2);
+    }
   | SELECT set_quantifier select_list table_expression
   | SELECT select_list table_expression ORDER BY sort_specification_list
   | SELECT set_quantifier select_list table_expression ORDER BY sort_specification_list
   ;
 
 select_list
-  : ASTERISK
-  | select_sublist
+  : ASTERISK {
+      $$ = (SqlStatement*)malloc(sizeof(SqlStatement));
+      ($$)->type = COLUMN_LIST;
+      ($$)->v.columns = 0;
+    }
+  | select_sublist { $$ = $1;  }
   ;
 
 select_sublist
-  : derived_column
+  : derived_column { $$ = $1; }
   | derived_column select_sublist_tail
   ;
 
 select_sublist_tail
-  : COMMA select_sublist
+  : COMMA select_sublist { $$ = $2; }
   ;
 
 table_expression
-  : from_clause where_clause group_by_clause having_clause
+  : from_clause where_clause group_by_clause having_clause {
+      $$ = (SqlStatement*)malloc(sizeof(SqlStatement));
+      ($$)->type = SELECT_STATEMENT;
+      ($$)->v.select = (SqlSelectStatement*)malloc(sizeof(SqlSelectStatement));
+      ($$)->v.select->table_list = ($1)->v.join;
+      free($1);
+    }
   ;
 
 set_quantifier
@@ -58,20 +73,36 @@ set_quantifier
   | DISTINCT
   ;
 
-/* !!! deviations from standard; to return an "expression" as a column,
-    it must be surrounded by parens
-*/
 derived_column
-  : non_query_value_expression
+  : non_query_value_expression {
+      assert(($1)->type == SQL_VALUE);
+      $$ = (SqlStatement*)malloc(sizeof(SqlStatement));
+      ($$)->type = COLUMN_LIST;
+      ($$)->v.columns = (SqlColumnList*)malloc(sizeof(SqlColumnList));
+      ($$)->v.columns->next = 0;
+      ($$)->v.columns->value = $1;
+    }
   | non_query_value_expression AS column_name
   ;
 
 from_clause
-  : FROM table_reference
+  : FROM table_reference {$$ = $2; }
   ;
 
+// Just consider these a list of values for all intensive purposes
 table_reference
-  : column_name table_reference_tail
+  : column_name table_reference_tail {
+      $$ = (SqlStatement*)malloc(sizeof(SqlStatement));
+      ($$)->type = JOIN_STATEMENT;
+      ($$)->v.join = (SqlJoin*)malloc(sizeof(SqlJoin));
+      ($$)->v.join->value = (SqlTable*)malloc(sizeof(SqlTable));
+      /// TODO: fetch the table from a list of known tables here
+      ($$)->v.join->value->tableName = ($1)->v.value->v.column_reference;
+      free(($1)->v.value);
+      free($1);
+      ($$)->v.join->next = ($2)->v.join;
+      free($2);
+    }
   | column_name correlation_specification table_reference_tail
   | derived_table
   | derived_table correlation_specification
@@ -79,8 +110,12 @@ table_reference
   ;
 
 table_reference_tail
-  : /* Empty */
-  | COMMA table_reference
+  : /* Empty */ {
+      $$ = (SqlStatement*)malloc(sizeof(SqlStatement));
+      ($$)->type = JOIN_STATEMENT;
+      ($$)->v.join = 0;
+    }
+  | COMMA table_reference { $$ = $1; }
   ;
 
 correlation_specification

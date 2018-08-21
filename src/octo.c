@@ -21,6 +21,7 @@
 #include <assert.h>
 
 #include "octo.h"
+#include "octo_types.h"
 #include "parser.h"
 #include "lexer.h"
 
@@ -31,6 +32,7 @@ FILE *yyin;
 
 static int verbose_flag;
 static int dry_run;
+static int quiet;
 
 int main(int argc, char **argv)
 {
@@ -39,6 +41,10 @@ int main(int argc, char **argv)
   YY_BUFFER_STATE state;
   char buff[BUFFER_SIZE];
   FILE *inputFile;
+  SqlStatement *result = 0;
+  char *buffer;
+  size_t buffer_size = 0;
+  FILE *out;
 
   inputFile = NULL;
   /* Parse input parameters */
@@ -48,12 +54,13 @@ int main(int argc, char **argv)
       {
         {"verbose", no_argument, &verbose_flag, 1},
         {"dry-run", no_argument, &dry_run, 1},
+        {"quiet", no_argument, &dry_run, 1},
         {"input-file", required_argument, 0, 'f'},
         {0, 0, 0, 0}
       };
     int option_index = 0;
 
-    c = getopt_long(argc, argv, "vdf:", long_options, &option_index);
+    c = getopt_long(argc, argv, "vdf:q", long_options, &option_index);
     if(c == -1)
       break;
 
@@ -78,6 +85,9 @@ int main(int argc, char **argv)
         return 1;
       }
       break;
+    case 'q':
+      quiet = 1;
+      break;
     default:
       return 1;
     }
@@ -92,7 +102,8 @@ int main(int argc, char **argv)
     inputFile = stdin;
 
   do {
-    printf("OCTO> ");
+    if (!quiet)
+      printf("OCTO> ");
     i = 0;
     while(!feof(inputFile))
     {
@@ -104,16 +115,31 @@ int main(int argc, char **argv)
         break;
     }
     buff[i] = '\0';
-    printf("Running SQL command %s\n", buff);
+    if (!quiet)
+      printf("Running SQL command %s\n", buff);
     state = yy_scan_string(buff, scanner);
-    if(yyparse(scanner))
+    if(yyparse(scanner, &result))
     {
       error = 1;
       fprintf(stderr, "Error parsing statement\n");
     }
-    printf("Done!\n");
+    if (!quiet)
+      printf("Done!\n");
     if(dry_run)
       continue;
+    if(result == 0)
+      continue;
+    if(result->type == SELECT_STATEMENT) {
+      //emit_select_statement(NULL, result);
+      out = open_memstream(&buffer, &buffer_size);
+      assert(out);
+      emit_select_statement(out, result);
+      fclose(out);
+      printf("%s\n", buffer);
+      free(buffer);
+    }
+    free(result);
+    result = 0;
   } while(!feof(inputFile));
   yy_delete_buffer(state, scanner);
   yylex_destroy(scanner);

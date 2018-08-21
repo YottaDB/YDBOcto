@@ -26,28 +26,24 @@ typedef void* yyscan_t;
 %{
 #include <stdio.h>
 #include <stdlib.h>
+#include <assert.h>
 
 #include "octo_types.h"
 
-#ifndef YY_TYPEDEF_YY_SCANNER_T
-#define YY_TYPEDEF_YY_SCANNER_T
-typedef void* yyscan_t;
-#endif
-
 #define YYERROR_VERBOSE
 #define YYDEBUG 1
-#define YYSTYPE struct SqlValue *
+#define YYSTYPE SqlStatement *
 
 extern FILE* yyin;
 extern int yylex();
-extern int yyparse(yyscan_t scan);
-extern void yyerror(yyscan_t scan, char const *s);
+extern int yyparse(yyscan_t scan, SqlStatement **out);
+extern void yyerror(yyscan_t scan, SqlStatement **out, char const *s);
 extern char *yytext;
 %}
 
 %define api.pure
 %lex-param   { yyscan_t scanner }
-%parse-param { yyscan_t scanner }
+%parse-param { yyscan_t scanner } { SqlStatement **out }
 
 %token ALL
 %token AND
@@ -133,7 +129,7 @@ extern char *yytext;
 %token GREATER_THAN_OR_EQUALS
 %token PIPE
 
-%token UNSIGNED_INTEGER
+%token LITERAL
 %token FAKE_TOKEN
 
 %%
@@ -141,7 +137,7 @@ extern char *yytext;
 sql_statement
   : sql_schema_statement SEMICOLON { YYACCEPT; }
   | sql_data_statement SEMICOLON { YYACCEPT; }
-  | sql_select_statement SEMICOLON { YYACCEPT; }
+  | sql_select_statement SEMICOLON { *out = $1; YYACCEPT; }
   | ENDOFFILE { YYACCEPT; }
   ;
 
@@ -284,7 +280,7 @@ row_value_constructor_element
     types, as we need knowledge of column types
 */
 value_expression
-  : numeric_value_expression
+  : numeric_value_expression { $$ = $1; }
 //  | datetime_value_expression
 //  | interval_expression
   ;
@@ -298,24 +294,74 @@ default_specification
   ;
 
 numeric_value_expression
-  : term
-  | numeric_value_expression PLUS term
-  | numeric_value_expression MINUS term
+  : term { $$ = $1; }
+  | numeric_value_expression PLUS term {
+      $$ = (SqlStatement*)malloc(sizeof(SqlStatement));
+      ($$)->type = BINARY_OPERATION;
+      ($$)->v.binary = (SqlBinaryOperation*)malloc(sizeof(SqlBinaryOperation));
+      ($$)->v.binary->operation = ADDITION;
+      ($$)->v.binary->operands[0] = ($1);
+      ($$)->v.binary->operands[0] = ($3);
+    }
+  | numeric_value_expression MINUS term {
+      $$ = (SqlStatement*)malloc(sizeof(SqlStatement));
+      ($$)->type = BINARY_OPERATION;
+      ($$)->v.binary = (SqlBinaryOperation*)malloc(sizeof(SqlBinaryOperation));
+      ($$)->v.binary->operation = SUBTRACTION;
+      ($$)->v.binary->operands[0] = ($1);
+      ($$)->v.binary->operands[0] = ($3);
+    }
   ;
 
 term
-  : factor
-  | term ASTERISK factor
-  | term SOLIDUS factor
-  | term concatenation_operator factor
+  : factor { $$ = $1; }
+  | term ASTERISK factor {
+      $$ = (SqlStatement*)malloc(sizeof(SqlStatement));
+      ($$)->type = BINARY_OPERATION;
+      ($$)->v.binary = (SqlBinaryOperation*)malloc(sizeof(SqlBinaryOperation));
+      ($$)->v.binary->operation = MULTIPLICATION;
+      ($$)->v.binary->operands[0] = ($1);
+      ($$)->v.binary->operands[0] = ($3);
+    }
+  | term SOLIDUS factor {
+      $$ = (SqlStatement*)malloc(sizeof(SqlStatement));
+      ($$)->type = BINARY_OPERATION;
+      ($$)->v.binary = (SqlBinaryOperation*)malloc(sizeof(SqlBinaryOperation));
+      ($$)->v.binary->operation = DVISION;
+      ($$)->v.binary->operands[0] = ($1);
+      ($$)->v.binary->operands[0] = ($3);
+    }
+  | term concatenation_operator factor {
+      $$ = (SqlStatement*)malloc(sizeof(SqlStatement));
+      ($$)->type = BINARY_OPERATION;
+      ($$)->v.binary = (SqlBinaryOperation*)malloc(sizeof(SqlBinaryOperation));
+      ($$)->v.binary->operation = CONCAT;
+      ($$)->v.binary->operands[0] = ($1);
+      ($$)->v.binary->operands[0] = ($3);
+    }
+  ;
 
 concatenation_operator
   : PIPE PIPE
   ;
 
+/// TODO: collate_clause is thoroughly ignored below
 factor
-  : sign numeric_primary factor_tail
-  | numeric_primary factor_tail
+  : PLUS numeric_primary factor_tail {
+      $$ = (SqlStatement*)malloc(sizeof(SqlStatement));
+      ($$)->type = UNARY_OPERATION;
+      ($$)->v.unary = (SqlUnaryOperation*)malloc(sizeof(SqlUnaryOperation));
+      ($$)->v.unary->operation = FORCE_NUM;
+      ($$)->v.unary->operand = ($2);
+    }
+  | MINUS numeric_primary factor_tail {
+      $$ = (SqlStatement*)malloc(sizeof(SqlStatement));
+      ($$)->type = UNARY_OPERATION;
+      ($$)->v.unary = (SqlUnaryOperation*)malloc(sizeof(SqlUnaryOperation));
+      ($$)->v.unary->operation = NEGATIVE;
+      ($$)->v.unary->operand = ($2);
+    }
+  | numeric_primary factor_tail { $$ = $1; }
   ;
 
 factor_tail
@@ -331,13 +377,8 @@ collation_name
   : qualified_name
   ;
 
-sign
-  : PLUS
-  | MINUS
-  ;
-
 numeric_primary
-  : value_expression_primary
+  : value_expression_primary { $$ = $1; }
 //  | numeric_value_function
   ;
 
@@ -346,7 +387,7 @@ numeric_primary
  *  or strings; the expansion ends up being pretty similar
  */
 value_expression_primary
-  : unsigned_value_specification
+  : LITERAL { $$ = $1; }
   | column_reference
   | set_function_specification
   | scalar_subquery
@@ -375,65 +416,91 @@ set_function_type
   ;
 
 non_query_value_expression
-  : non_query_numeric_value_expression
+  : non_query_numeric_value_expression {
+      $$ = (SqlStatement*)malloc(sizeof(SqlStatement));
+      ($$)->type = SQL_VALUE;
+      ($$)->v.value = (SqlValue*)malloc(sizeof(SqlValue));
+      ($$)->v.value->type = CALCULATED_VALUE;
+      ($$)->v.value->v.calculated = $1;
+    }
   ;
 
 non_query_numeric_value_expression
-  : non_query_term
-  | non_query_numeric_value_expression PLUS non_query_term
-  | non_query_numeric_value_expression MINUS non_query_term
+  : non_query_term { $$ = $1; }
+  | non_query_numeric_value_expression PLUS non_query_term {
+      $$ = (SqlStatement*)malloc(sizeof(SqlStatement));
+      ($$)->type = BINARY_OPERATION;
+      ($$)->v.binary = (SqlBinaryOperation*)malloc(sizeof(SqlBinaryOperation));
+      ($$)->v.binary->operation = ADDITION;
+      ($$)->v.binary->operands[0] = ($1);
+      ($$)->v.binary->operands[1] = ($3);
+    }
+  | non_query_numeric_value_expression MINUS non_query_term {
+      $$ = (SqlStatement*)malloc(sizeof(SqlStatement));
+      ($$)->type = BINARY_OPERATION;
+      ($$)->v.binary = (SqlBinaryOperation*)malloc(sizeof(SqlBinaryOperation));
+      ($$)->v.binary->operation = SUBTRACTION;
+      ($$)->v.binary->operands[0] = ($1);
+      ($$)->v.binary->operands[1] = ($3);
+    }
   ;
 
 non_query_term
-  : non_query_factor
-  | non_query_term ASTERISK non_query_factor
-  | non_query_term SOLIDUS non_query_factor
-  | non_query_term concatenation_operator non_query_factor
+  : non_query_factor { $$ = $1; }
+  | non_query_term ASTERISK non_query_factor {
+      $$ = (SqlStatement*)malloc(sizeof(SqlStatement));
+      ($$)->type = BINARY_OPERATION;
+      ($$)->v.binary = (SqlBinaryOperation*)malloc(sizeof(SqlBinaryOperation));
+      ($$)->v.binary->operation = MULTIPLICATION;
+      ($$)->v.binary->operands[0] = ($1);
+      ($$)->v.binary->operands[1] = ($3);
+    }
+  | non_query_term SOLIDUS non_query_factor {
+      $$ = (SqlStatement*)malloc(sizeof(SqlStatement));
+      ($$)->type = BINARY_OPERATION;
+      ($$)->v.binary = (SqlBinaryOperation*)malloc(sizeof(SqlBinaryOperation));
+      ($$)->v.binary->operation = DVISION;
+      ($$)->v.binary->operands[0] = ($1);
+      ($$)->v.binary->operands[1] = ($3);
+    }
+  | non_query_term concatenation_operator non_query_factor {
+      $$ = (SqlStatement*)malloc(sizeof(SqlStatement));
+      ($$)->type = BINARY_OPERATION;
+      ($$)->v.binary = (SqlBinaryOperation*)malloc(sizeof(SqlBinaryOperation));
+      ($$)->v.binary->operation = CONCAT;
+      ($$)->v.binary->operands[0] = ($1);
+      ($$)->v.binary->operands[1] = ($3);
+    }
+  ;
 
 non_query_factor
-  : sign non_query_numeric_primary factor_tail
-  | non_query_numeric_primary factor_tail
+  : PLUS non_query_numeric_primary factor_tail {
+      $$ = (SqlStatement*)malloc(sizeof(SqlStatement));
+      ($$)->type = UNARY_OPERATION;
+      ($$)->v.unary = (SqlUnaryOperation*)malloc(sizeof(SqlUnaryOperation));
+      ($$)->v.unary->operation = FORCE_NUM;
+      ($$)->v.unary->operand = ($2);
+    }
+  | MINUS non_query_numeric_primary factor_tail {
+      $$ = (SqlStatement*)malloc(sizeof(SqlStatement));
+      ($$)->type = UNARY_OPERATION;
+      ($$)->v.unary = (SqlUnaryOperation*)malloc(sizeof(SqlUnaryOperation));
+      ($$)->v.unary->operation = NEGATIVE;
+      ($$)->v.unary->operand = ($2);
+    }
+  | non_query_numeric_primary factor_tail { $$ = $1; }
   ;
 
 non_query_numeric_primary
-  : non_query_value_expression_primary
+  : non_query_value_expression_primary { $$ = $1; }
 //  | numeric_value_function
   ;
 
 non_query_value_expression_primary
-  : unsigned_value_specification
+  : LITERAL { $$ = $1; }
   | column_reference
   | set_function_specification
   | LEFT_PAREN non_query_value_expression RIGHT_PAREN
-  ;
-
-unsigned_value_specification
-  : unsigned_literal
-//  | general_value_specification
-  ;
-
-unsigned_literal
-  : unsigned_numeric_literal
-//  | general_literal
-  ;
-
-unsigned_numeric_literal
-  : exact_numeric_literal
-//  | approximate_numeric_literal
-  ;
-
-exact_numeric_literal
-  : UNSIGNED_INTEGER exact_numeric_literal_tail
-  | exact_numeric_literal_tail_tail
-  ;
-
-exact_numeric_literal_tail
-  : /* Empty */
-  | exact_numeric_literal_tail_tail
-  ;
-
-exact_numeric_literal_tail_tail
-  : PERIOD UNSIGNED_INTEGER
   ;
 
 column_reference
@@ -533,7 +600,7 @@ non_join_query_primary
 simple_table
   : table_value_constructor
   | explicit_table
-  | query_specification // this can be enabled after SELECT is implemented
+  | query_specification
   ;
 
 table_value_constructor
@@ -570,7 +637,7 @@ sql_schema_definition_statement
 /// TODO: not complete
 table_definition
   : CREATE TABLE column_name table_element_list {
-        printf(">> CREATE TABLE %s\n", ($column_name)->value.string_literal);
+        printf(">> CREATE TABLE %s\n", ($column_name)->v.value->v.string_literal);
       }
   ;
 
@@ -683,7 +750,7 @@ character_string_type_char_tail
   ;
 
 length
-  : UNSIGNED_INTEGER
+  : LITERAL
   ;
 
 numeric_type
@@ -711,11 +778,11 @@ exact_numeric_type_tail_tail
   ;
 
 precision
-  : UNSIGNED_INTEGER
+  : LITERAL
   ;
 
 scale
-  : UNSIGNED_INTEGER
+  : LITERAL
   ;
 
 %%

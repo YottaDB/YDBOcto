@@ -18,7 +18,7 @@
 
 #include "octo.h"
 
-void yyerror(yyscan_t scanner, char const *s)
+void yyerror(yyscan_t scanner, SqlStatement **out, char const *s)
 {
   printf("yyerror: %s\n", s);
 }

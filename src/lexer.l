@@ -31,7 +31,7 @@
  */
 #define COPY_STRING(dst, src, copied, max) while((copied) < (max) && (*src)) {*dst++ = *src++; (copied)++; }
 
-#define YYSTYPE struct SqlValue *
+#define YYSTYPE SqlStatement *
 
 char string_buffer[MAX_STR_CONST];
 char *str_buf_ptr;
@@ -135,17 +135,19 @@ int copied_so_far;
 \| { return PIPE; }
 
 
-[0-9][0-9]* {
+[0-9](\.)?[0-9]* {
                 copied_so_far = 0;
                 str_buf_ptr = string_buffer;
                 char *yptr = yytext;
                 COPY_STRING(str_buf_ptr, yptr, copied_so_far, MAX_STR_CONST);
                 *str_buf_ptr = '\0';
-                *yylval_param = (struct SqlValue *)malloc(sizeof(struct SqlValue));
-                (*yylval_param)->type = NUMBER_LITERAL;
-                (*yylval_param)->value.string_literal = (char*)malloc(copied_so_far+1);
-                strncpy((*yylval_param)->value.string_literal, string_buffer, copied_so_far+1);
-                return UNSIGNED_INTEGER;
+                *yylval_param = (struct SqlStatement *)malloc(sizeof(struct SqlStatement));
+                (*yylval_param)->type = SQL_VALUE;
+                (*yylval_param)->v.value = (SqlValue*)malloc(sizeof(SqlValue));
+                (*yylval_param)->v.value->type = NUMBER_LITERAL;
+                (*yylval_param)->v.value->v.string_literal = (char*)malloc(copied_so_far+1);
+                strncpy((*yylval_param)->v.value->v.string_literal, string_buffer, copied_so_far+1);
+                return LITERAL;
               }
 [a-zA-Z][a-zA-Z0-9_]* {
                 copied_so_far = 0;
@@ -153,10 +155,12 @@ int copied_so_far;
                 char *yptr = yytext;
                 COPY_STRING(str_buf_ptr, yptr, copied_so_far, MAX_STR_CONST);
                 *str_buf_ptr = '\0';
-                *yylval_param = (struct SqlValue *)malloc(sizeof(struct SqlValue));
-                (*yylval_param)->type = STRING_LITERAL;
-                (*yylval_param)->value.string_literal = (char*)malloc(copied_so_far+1);
-                strncpy((*yylval_param)->value.string_literal, string_buffer, copied_so_far+1);
+                *yylval_param = (struct SqlStatement *)malloc(sizeof(struct SqlStatement));
+                (*yylval_param)->type = SQL_VALUE;
+                (*yylval_param)->v.value = (SqlValue*)malloc(sizeof(SqlValue));
+                (*yylval_param)->v.value->type = COLUMN_REFERENCE;
+                (*yylval_param)->v.value->v.string_literal = (char*)malloc(copied_so_far+1);
+                strncpy((*yylval_param)->v.value->v.string_literal, string_buffer, copied_so_far+1);
                 return IDENTIFIER_START;
               }
 -- { BEGIN(COMMENT); }
@@ -167,12 +171,14 @@ int copied_so_far;
 <STRING>[^(\"\")]* { char *yptr = yytext; COPY_STRING(str_buf_ptr, yptr, copied_so_far, MAX_STR_CONST); }
 <STRING>\" {
               *str_buf_ptr = '\0';
-              *yylval_param = (struct SqlValue *)malloc(sizeof(struct SqlValue));
-              (*yylval_param)->type = STRING_LITERAL;
-              (*yylval_param)->value.string_literal = (char*)malloc(copied_so_far+1);
-              strncpy((*yylval_param)->value.string_literal, string_buffer, copied_so_far+1);
+              *yylval_param = (struct SqlStatement *)malloc(sizeof(struct SqlStatement));
+              (*yylval_param)->type = SQL_VALUE;
+              (*yylval_param)->v.value = (SqlValue*)malloc(sizeof(SqlValue));
+              (*yylval_param)->v.value->type = STRING_LITERAL;
+              (*yylval_param)->v.value->v.string_literal = (char*)malloc(copied_so_far+1);
+              strncpy((*yylval_param)->v.value->v.string_literal, string_buffer, copied_so_far+1);
               BEGIN(INITIAL);
-              return UNSIGNED_INTEGER;
+              return LITERAL;
             }
 
 ` { BEGIN(IDENTIFIER); }
@@ -180,10 +186,12 @@ int copied_so_far;
 <IDENTIFIER>` {
                 BEGIN(INITIAL);
                 *str_buf_ptr = '\0';
-                *yylval_param = (struct SqlValue *)malloc(sizeof(struct SqlValue));
-                (*yylval_param)->type = STRING_LITERAL;
-                (*yylval_param)->value.string_literal = (char*)malloc(copied_so_far+1);
-                strncpy((*yylval_param)->value.string_literal, string_buffer, copied_so_far+1);
+                *yylval_param = (struct SqlStatement *)malloc(sizeof(struct SqlStatement));
+                (*yylval_param)->type = SQL_VALUE;
+                (*yylval_param)->v.value = (SqlValue*)malloc(sizeof(SqlValue));
+                (*yylval_param)->v.value->type = COLUMN_REFERENCE;
+                (*yylval_param)->v.value->v.string_literal = (char*)malloc(copied_so_far+1);
+                strncpy((*yylval_param)->v.value->v.string_literal, string_buffer, copied_so_far+1);
                 BEGIN(INITIAL);
                 return IDENTIFIER_START;
               }

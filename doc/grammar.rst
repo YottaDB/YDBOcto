@@ -23,12 +23,9 @@ DELETE
 ==========
 
 .. parsed-literal::
-   delete_statement_searched: DELETE FROM column_name delete_statement_searched_tail;
+   delete_statement_searched: DELETE FROM table_name [WHERE search_condition];
 
-The delete statement consists of the keywords DELETE FROM followed by the column name and possibly a search condition.
-
-.. parsed-literal::
-  delete_statement_searched_tail: /* Empty \*/ | WHERE search_condition;
+The delete statement consists of the keywords DELETE FROM followed by the name of the table and possibly a search condition.
 
 The search condition eventually yields a boolean true or false value, and may contain further search modifications detailing where to look to apply the search_condition and how to compare the resulting values.
 
@@ -36,21 +33,17 @@ The search condition eventually yields a boolean true or false value, and may co
 Other
 -------------
 
-**Here are some deviations from BNF due to Reduce-Reduce conflicts in the grammar:**
+The following rule is currently a deviation from BNF due to a Reduce-Reduce conflict in the grammar:
 
 .. parsed-literal::
-   row_value_constructor 
-   : LEFT_PAREN row_value_constructor_list RIGHT_PAREN 
-   | row_value_constructor_element;
+   row_value_constructor : [(]row_value_constructor_element [, row_value_constructor_element ...][)];
 
 A row_value_constructor consists of a comma-separated list of row value constructor elements:
 
 .. parsed-literal::
-   row_value_constructor_element: value_expression 
-   | null_specification 
-   | default_specification;
+   row_value_constructor_element: value_expression | null_specification | default_specification;
 
-Primary Value Expression:
+A Primary Value Expression is denoted as follows:
 
 .. parsed-literal::
    value_expression_primary 
@@ -58,16 +51,12 @@ Primary Value Expression:
    | column_reference 
    | set_function_specification 
    | scalar_subquery 
-   | LEFT_PAREN value_expression RIGHT_PAREN;
+   | (value_expression);
 
 The primary value expression can either contain an unsigned value, a column reference, a set function or a subquery.
 
 .. parsed-literal::
-   set_function_specification 
-   : COUNT LEFT_PAREN ASTERISK RIGHT_PAREN 
-   | COUNT LEFT_PAREN value_expression RIGHT_PAREN 
-   | COUNT LEFT_PAREN set_quantifier value_expression RIGHT_PAREN 
-   | general_set_function;
+   set_function_specification : COUNT ( * | [set_quantifier] value_expression) | general_set_function;
 
 general_set_function refers to functions on sets like AVG, SUM, MIN, MAX etc. A set function can also contain the keyword COUNT, to count the number of resulting columns or rows that result from the query.
 
@@ -81,26 +70,23 @@ A query expression can be a joined table or a non joined query expression.
 
 The non_join_query_expression includes simple tables and column lists.
 
-.. parsed-literal::
-   comp_op
-  : EQUALS
-  | NOT_EQUALS
-  | LESS_THAN
-  | GREATER_THAN
-  | LESS_THAN_OR_EQUALS
-  | GREATER_THAN_OR_EQUALS
-  ;
+The comparative operators are:
 
-The comparative operators are the equals/not equals, less than/greater than, less than or equal to/greater than or equal to operators that operate on two parameters.
+* EQUALS =
+* NOT EQUALS <>
+* LESS THAN <
+* GREATER THAN >
+* LESS THAN OR EQUALS <=
+* GREATER THAN OR EQUALS >=
 
 =====================
 SELECT
 =====================
 
 .. parsed-literal::
-   sql_select_statement: query_specification;
+   sql_select_statement: query_specification [SORT BY sort_specification];
 
-The SELECT statement is used to select rows from the database by specifying a query.
+The SELECT statement is used to select rows from the database by specifying a query, and optionally sorting the resulting rows.
 
 ---------
 Sorting
@@ -136,20 +122,12 @@ Query Specification
 --------------------
 
 .. parsed-literal::
-   query_specification
-  : SELECT select_list table_expression
-  | SELECT set_quantifier select_list table_expression
-  | SELECT select_list table_expression ORDER BY sort_specification_list
-  | SELECT set_quantifier select_list table_expression ORDER BY sort_specification_list
-  ;
+   query_specification: SELECT [set_quantifier] select_list table_expression [ORDER BY sort_specification_list];
 
 A query is specified by using the SELECT keyword in conjunction with lists, expressions and quantifiers.
 
 .. parsed-literal::
-   select_list
-  : ASTERISK
-  | select_sublist
-  ;
+   select_list: ASTERISK | select_sublist;
 
 The select_list can either be an asterisk (\*) or a list of columns.
 
@@ -189,19 +167,11 @@ Joins
 A joined table consists of the following:
 
 .. parsed-literal::
-   joined_table : cross_join | qualified_join | LEFT_PAREN joined_table RIGHT_PAREN;
+   joined_table : [CROSS | [NATURAL | INNER | [LEFT][RIGHT][FULL] OUTER]] JOIN ON joined_table;
 
 A cross join between two tables provides the number of rows in the first table multiplied by the number of rows in the second table.
 
 A qualified join is a join between two tables that specifies a join condition.
-
-.. parsed-literal::
-   qualified_join
-  : table_reference JOIN table_reference join_specification
-  | table_reference NATURAL JOIN table_reference join_specification
-  | table_reference join_type JOIN table_reference join_specification
-  | table_reference NATURAL join_type JOIN table_reference join_specification
-  ;
 
 join_specification allows the user to specify a condition for the table join.
 
@@ -215,15 +185,13 @@ Types of Joins:
   - Right Outer Join: Matching columns of the left table are returned, along with all the columns of the right table.
   - Full Outer Join: All columns from both tables are returned.
 
-.. parsed-literal::
-   join_type: INNER | [LEFT][RIGHT][FULL] OUTER
 
 ================
 INSERT
 ================
 
 .. parsed-literal::
-   insert_statement: INSERT INTO [LEFT_PAREN] column_name [RIGHT_PAREN] query_expression | DEFAULT VALUES;
+   insert_statement: INSERT INTO table_name ( column name [, column name ...]) [ VALUES ... | (SELECT ...)];
 
 The INSERT statement allows you to insert values into a particular column. These can either be default values or values specified by the query expression i.e. the result of a SELECT statement.
 
@@ -232,15 +200,6 @@ UPDATE
 ===============
 
 .. parsed-literal::
-   update_statement_searched: UPDATE column_name SET set_clause_list [WHERE search_condition]
+   update_statement_searched: UPDATE table_name SET object_column EQUALS update_source [WHERE search_condition]
 
-The UPDATE statement begins with the keyword UPDATE, along with specifying the column_name to be updated and the keyword SET, followed by the set_clause_list. The optional WHERE condition allows you to update columns based on a certain condition you specify.
-
-The set_clause_list is a list of comma-separated statements that are used to update the existing columns.
-
-.. parsed-literal::
-   set_clause: object_column EQUALS update_source;
-
-where the object_column is a particular column and the update_source what the value at that column is set to either NULL or a specific value expression.
-
-
+The UPDATE statement begins with the keyword UPDATE, along with specifying the table_name to be updated and the keyword SET, followed by a list of comma-separated statements that are used to update the existing columns where the object_column is a particular column and the update_source what the value at that column is set to either NULL or a specific value expression. The optional WHERE condition allows you to update columns based on a certain condition you specify.

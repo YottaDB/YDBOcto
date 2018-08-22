@@ -1,0 +1,34 @@
+.wy-nav-content {
+	    max-width: 4000px;
+}
+.wy-side-nav-search {
+	background: #3b1a68;
+}
+.wy-nav-side {
+	background: #3b1a68;
+}
+.wy-side-scroll {
+	background: #3b1a68;
+}
+body {
+	background-color: #3b1a68;
+	width: 150%;
+}
+.cse .gsc-search-button input.gsc-search-button-v2,
+input.gsc-search-button-v2 {
+       height: 26px !important;
+       margin-top: 0 !important;
+       min-width: 13px !important;
+       padding: 5px 26px !important;
+       width: 68px !important;
+}
+.wy-table-responsive table td, .wy-table-responsive table th {
+        white-space: normal;
+}
+
+.wy-table-responsive {
+        margin-bottom: 24px;
+        max-width: 100%;
+        overflow: visible;
+}
+

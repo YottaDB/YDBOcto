@@ -72,7 +72,7 @@ int copied_so_far;
 (?i:DESC) { return DESC; }
 (?i:DISTINCT) { return DISTINCT; }
 (?i:EXCEPT) { return EXCEPT; }
-(?i:FALSE) { return FALSE; }
+(?i:FALSE_TOKEN) { return FALSE_TOKEN; }
 (?i:FROM) { return FROM; }
 (?i:FULL) { return FULL; }
 (?i:GROUP) { return GROUP; }
@@ -103,9 +103,10 @@ int copied_so_far;
 (?i:SELECT) { return SELECT; }
 (?i:SET) { return SET; }
 (?i:SMALLINT) { return SMALLINT; }
+(?i:SOURCE) { return SOURCE; }
 (?i:SUM) { return SUM; }
 (?i:TABLE) { return TABLE; }
-(?i:TRUE) { return TRUE; }
+(?i:TRUE_TOKEN) { return TRUE_TOKEN; }
 (?i:UNION) { return UNION; }
 (?i:UNIQUE) { return UNIQUE; }
 (?i:UNKNOWN) { return UNKNOWN; }

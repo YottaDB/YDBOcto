@@ -68,7 +68,7 @@ extern char *yytext;
 %token DESC
 %token DISTINCT
 %token EXCEPT
-%token FALSE
+%token FALSE_TOKEN
 %token FROM
 %token FULL
 %token GROUP
@@ -99,9 +99,10 @@ extern char *yytext;
 %token SELECT
 %token SET
 %token SMALLINT
+%token SOURCE
 %token SUM
 %token TABLE
-%token TRUE
+%token TRUE_TOKEN
 %token UNION
 %token UNIQUE
 %token UNKNOWN
@@ -146,6 +147,7 @@ sql_statement
 %include "parser/select.y"
 %include "parser/insert.y"
 %include "parser/update.y"
+%include "parser/drop.y"
 
 sql_data_statement
   : sql_data_change_statement
@@ -202,8 +204,8 @@ boolean_test_tail_tail
   ;
 
 truth_value
-  : TRUE
-  | FALSE
+  : TRUE_TOKEN
+  | FALSE_TOKEN
   | UNKNOWN
   ;
 
@@ -630,16 +632,33 @@ sql_schema_definition_statement
 
 /// TODO: not complete
 table_definition
-  : CREATE TABLE column_name LEFT_PAREN table_element_list RIGHT_PAREN {
+  : CREATE TABLE column_name LEFT_PAREN table_element_list RIGHT_PAREN table_definition_tail {
         SQL_STATEMENT($$, TABLE_STATEMENT);
         ($$)->v.table = (SqlTable*)malloc(sizeof(SqlTable));
         assert($column_name->type == SQL_VALUE
           && $column_name->v.value->type == COLUMN_REFERENCE);
         ($$)->v.table->tableName = $column_name->v.value->v.column_reference;
         ($$)->v.table->columns = $table_element_list->v.columns->value->v.column;
+        if($table_definition_tail) {
+          assert($table_definition_tail->type == OPTIONAL_KEYWORD);
+          assert($table_definition_tail->v.keyword->keyword == OPTIONAL_SOURCE);
+          ($$)->v.table->source = $table_definition_tail->v.keyword->v
+            ->v.value->v.string_literal;
+        } else
+          ($$)->v.table->source = 0;
         free($table_element_list);
         printf(">> CREATE TABLE %s\n", ($column_name)->v.value->v.string_literal);
       }
+  ;
+
+table_definition_tail
+  : /* Empty */ { $$ = 0; }
+  | SOURCE LITERAL {
+      SQL_STATEMENT($$, OPTIONAL_KEYWORD);
+      ($$)->v.keyword = (SqlOptionalKeyword*)malloc(sizeof(SqlOptionalKeyword));
+      ($$)->v.keyword->keyword = OPTIONAL_SOURCE;
+      ($$)->v.keyword->v = $2;
+    }
   ;
 
 table_element_list
@@ -702,6 +721,7 @@ column_constraint_definition
       ($$)->v.constraint->type = $column_constraint->v.constraint_type;
       ($$)->v.constraint->referencesColumn = 0;
       ($$)->v.constraint->check_constraint_definition = 0;
+      dqinit(($$)->v.constraint);
     }
   ;
 

@@ -8,6 +8,11 @@ It aims to provide SQL 92 compliance and exceptional performance.
 
 Homepage https://gitlab.com/YottaDB/Octo/YDBDBMS
 
+## Setup
+
+Make sure YottaDB is setup and configured.
+The SQL engine looks for the environment variable ydb_dist.
+
 ## Compiling -- Quickstart
 
 To compile:

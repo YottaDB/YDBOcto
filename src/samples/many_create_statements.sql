@@ -1,0 +1,12342 @@
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);
+CREATE TABLE abc (id INTEGER);
+CREATE TABLE myTable (id INTEGER);
+CREATE TABLE myTable (id INT, name VARCHAR(255));
+CREATE TABLE tableWithManyFields (
+  id INTEGER,
+  name CHARACTER(255),
+  gender CHAR,
+  weight DECIMAL(3)
+);
+CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER NOT NULL);

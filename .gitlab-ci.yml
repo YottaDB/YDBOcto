@@ -1,31 +1,24 @@
-before_script:
-  - apt-get update -qq && apt-get install -y -qq build-essential cmake bison flex libcmocka-dev python-pip
-  - pip install sphinxcontrib-fulltoc sphinx sphinx_rtd_theme
-
 stages:
   - build
   - docs
 
 make:
-  image: ubuntu
+  image: charlescodes/yottadb-shell
   stage: build
   artifacts:
     paths:
       - build/
-  script:
-    - mkdir build && cd build
-    - cmake ..
-    - make && make test
+      - /data/r1.*_x86_64/
+    when: always
+  script: ./tools/ci/build.sh
 
 pages:
-  image: ubuntu
+  image: charlescodes/yottadb-shell
   stage: docs
   dependencies:
     - make
-  script:
-    - cd build
-    - make docs
-    - mv html ../public
+  script: ./tools/ci/docs.sh
   artifacts:
     paths:
       - public
+    when: always

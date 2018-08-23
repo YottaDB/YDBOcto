@@ -41,7 +41,8 @@ enum SqlStatementType {
   JOIN_STATEMENT,
   SQL_DATA_TYPE,
   SQL_CONSTRAINT,
-  SQL_CONSTRAINT_TYPE
+  SQL_CONSTRAINT_TYPE,
+  OPTIONAL_KEYWORD
 };
 
 enum UnaryOperations {
@@ -84,6 +85,10 @@ enum SqlConstraintType {
   MAX_LENGTH
 };
 
+enum OptionalKeyword {
+  OPTIONAL_SOURCE
+};
+
 enum SqlJoinType {
   NO_JOIN
 };
@@ -123,7 +128,7 @@ struct SqlColumnAlias
 struct SqlConstraint
 {
   enum SqlConstraintType type;
-  char *referencesColumn; // in the form of table.column
+  char *referencesColumn; //snprintf(buffer, 255 in the form of table.column
   char *check_constraint_definition; // as a piece of MUMPS code
   uint8 max_length;
   dqcreate(SqlConstraint);
@@ -137,7 +142,16 @@ struct SqlTable
   char *tableName;
   char *source;
   struct SqlColumn *columns;
+  dqcreate(SqlTable);
 } typedef SqlTable;
+
+/**
+ * Represents an optional KEYWORD which has a value associated with it */
+struct SqlOptionalKeyword
+{
+  enum OptionalKeyword keyword;
+  SqlStatement *v;
+} typedef SqlOptionalKeyword;
 
 /**
  * Effectively provides a list of tables that may or may not be joined
@@ -202,9 +216,12 @@ struct SqlStatement {
     SqlJoin *join;
     SqlTable *table;
     SqlConstraint *constraint;
+    SqlOptionalKeyword *keyword;
     enum SqlDataType data_type;
     enum SqlConstraintType constraint_type;
   } v;
 };
+
+SqlTable *definedTables;
 
 #endif

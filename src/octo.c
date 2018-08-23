@@ -19,6 +19,9 @@
 #include <unistd.h>
 #include <getopt.h>
 #include <assert.h>
+#include <string.h>
+
+#include <libyottadb.h>
 
 #include "octo.h"
 #include "octo_types.h"
@@ -36,17 +39,35 @@ static int quiet;
 
 int main(int argc, char **argv)
 {
-  int c, error = 0, i = 0;
+  int c, error = 0, i = 0, status;
   yyscan_t scanner;
   YY_BUFFER_STATE state;
   char buff[BUFFER_SIZE];
-  FILE *inputFile;
+  int done;
   SqlStatement *result = 0;
   char *buffer;
   size_t buffer_size = 0;
+  FILE *inputFile;
   FILE *out;
+  ydb_buffer_t schema_global, table_name_buffer, table_create_buffer, null_buffer;
 
   inputFile = NULL;
+  definedTables = NULL;
+  table_name_buffer.buf_addr = malloc(BUFFER_SIZE);
+  table_name_buffer.len_used = 0;
+  table_name_buffer.len_alloc = BUFFER_SIZE;
+  table_create_buffer.buf_addr = malloc(BUFFER_SIZE);
+  table_create_buffer.len_used = 0;
+  table_create_buffer.len_alloc = BUFFER_SIZE;
+
+  /* This is needed for parsing table definition files */
+  if (yylex_init(&scanner)) {
+    fprintf(stderr, "Error initializing the scanner\n");
+    return 1;
+  }
+  YDB_LITERAL_TO_BUFFER("^schema", &schema_global);
+  YDB_LITERAL_TO_BUFFER("", &null_buffer);
+
   /* Parse input parameters */
   while (1)
   {
@@ -56,11 +77,12 @@ int main(int argc, char **argv)
         {"dry-run", no_argument, &dry_run, 1},
         {"quiet", no_argument, &dry_run, 1},
         {"input-file", required_argument, 0, 'f'},
+        {"table-definition-file", required_argument, 0, 't'},
         {0, 0, 0, 0}
       };
     int option_index = 0;
 
-    c = getopt_long(argc, argv, "vdf:q", long_options, &option_index);
+    c = getopt_long(argc, argv, "vdf:qt:", long_options, &option_index);
     if(c == -1)
       break;
 
@@ -85,6 +107,26 @@ int main(int argc, char **argv)
         return 1;
       }
       break;
+    case 't':
+      inputFile = fopen(optarg, "r");
+      assert(inputFile);
+      yyin = inputFile;
+      yy_switch_to_buffer(
+            yy_create_buffer( yyin, YY_BUF_SIZE, scanner), scanner);
+      if(yyparse(scanner, &result))
+      {
+        error = 1;
+        fprintf(stderr, "Error parsing statement\n");
+      }
+      fclose(inputFile);
+      inputFile = NULL;
+      if(definedTables == NULL) {
+        definedTables = result->v.table;
+        dqinit(definedTables);
+      } else {
+        dqinsert(definedTables, result->v.table);
+      }
+      break;
     case 'q':
       quiet = 1;
       break;
@@ -92,12 +134,31 @@ int main(int argc, char **argv)
       return 1;
     }
   }
-  yydebug = verbose_flag;
 
-  if (yylex_init(&scanner)) {
-    fprintf(stderr, "Error initializing the scanner\n");
+  if(!getenv("ydb_dist")) {
+    fprintf(stderr, "ydb_dist environment variable not set; please setup YottaDB\n");
     return 1;
   }
+
+  /* Load the existing tables */
+  do {
+    status = ydb_subscript_next_s(&schema_global, 1, &table_name_buffer, &table_name_buffer);
+    YDB_ASSERT(YDB_OK == status);
+    if(table_name_buffer.len_used == 0)
+      break;
+    ydb_get_s(&schema_global, 1, &table_name_buffer, &table_create_buffer);
+    table_create_buffer.buf_addr[table_create_buffer.len_used] = '\0';
+    printf("Running command %s\n", table_create_buffer.buf_addr);
+    state = yy_scan_string(table_create_buffer.buf_addr, scanner);
+    if(yyparse(scanner, &result))
+    {
+      error = 1;
+      fprintf(stderr, "Error parsing statement from database\n");
+    }
+    result = NULL;
+  } while(1);
+
+  yydebug = verbose_flag;
   if (inputFile == NULL)
     inputFile = stdin;
 
@@ -145,6 +206,11 @@ int main(int argc, char **argv)
       emit_create_table(out, result);
       fclose(out);
       printf("%s\n", buffer);
+      YDB_COPY_STRING_TO_BUFFER(result->v.table->tableName, &table_name_buffer, done)
+      YDB_COPY_STRING_TO_BUFFER(buffer, &table_create_buffer, done)
+      status = ydb_set_s(&schema_global, 1,
+        &table_name_buffer,
+        &table_create_buffer);
       free(buffer);
       break;
     }

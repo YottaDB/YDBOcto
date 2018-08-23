@@ -48,7 +48,7 @@ static void test_multiple_columns(void **state) {
   YY_BUFFER_STATE parser_state;
   SqlStatement *result;
   char *buffer, *ptr, *e_ptr;
-  char *expected = "name { TYPE = STRING }";
+  char *expected = "name VARCHAR";
   int matching = 0;
   size_t buffer_size = 0;
   FILE *out;
@@ -57,7 +57,7 @@ static void test_multiple_columns(void **state) {
     fprintf(stderr, "Error initializing the scanner\n");
     return;
   }
-  parser_state = yy_scan_string("CREATE TABLE myTable (id INTEGER PRIMARY KEY, name VARCHAR(20), age INTEGER);",
+  parser_state = yy_scan_string("CREATE TABLE myTable (id INTEGER PRIMARY KEY, name VARCHAR(20), age INTEGER) SOURCE \"^myTable(id)\";",
     scanner);
   assert_true(yyparse(scanner, &result) == 0);
 

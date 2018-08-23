@@ -19,6 +19,8 @@
 #include "octo.h"
 #include "octo_types.h"
 
+void emit_column_specification(FILE *output, SqlColumn *column);
+
 /**
  * Emits DDL specification for the given table
  */
@@ -28,57 +30,58 @@ void emit_create_table(FILE *output, struct SqlStatement *stmt)
   SqlConstraint *start_constraint, *cur_constraint;
   SqlTable *table;
   char *column_type, *constraint_text, *primary_key_name = 0;
+  char buffer[255];
   if(stmt == NULL)
     return;
   table = stmt->v.table;
-  fprintf(output, "%s {", table->tableName);
-  if(table->columns)
-  {
-    cur_column = start_column = table->columns;
-    do {
-      if(cur_column != start_column) {
-        fprintf(output, ", ");
-      }
-      switch (cur_column->type)
-      {
-      case INTEGER_TYPE:
-        column_type = "INTEGER";
-        fprintf(output, "%s { TYPE = %s", cur_column->columnName, column_type);
-        break;
-      case CHARACTER_STRING_TYPE:
-        column_type = "STRING";
-        fprintf(output, "%s { TYPE = %s", cur_column->columnName, column_type);
-        break;
-      default:
-        assert(0);
-      }
-      if(cur_column->constraints) {
-        start_constraint = cur_constraint = cur_column->constraints;
-        do {
-          switch(cur_constraint->type)
-          {
-          case PRIMARY_KEY:
-            constraint_text = "PRIMARY KEY";
-            assert(primary_key_name == 0);
-            primary_key_name = cur_column->columnName;
-            break;
-          default:
-            assert(0);
-          }
-          fprintf(output, ", CONSTRAINT %s", constraint_text);
-        } while(cur_constraint != start_constraint);
-      }
-      fprintf(output, " }");
-      cur_column = cur_column->next;
-    } while (cur_column != start_column);
-    fprintf(output, ", ");
-  }
-  if (primary_key_name == 0) {
-    /* No primary key was specified, error out */
-    assert(0);
-  }
-  if (table->source)
-    fprintf(output, "source = %s }", table->source);
-  else
-    fprintf(output, "source = %s(%s) }", table->tableName, primary_key_name);
+  assert(table->tableName);
+  assert(table->columns);
+  fprintf(output, "CREATE TABLE %s (", table->tableName);
+  start_column = cur_column = table->columns;
+  do {
+    assert(cur_column && cur_column->columnName);
+    fprintf(output, "%s", cur_column->columnName);
+    switch(cur_column->type)
+    {
+    case INTEGER_TYPE:
+      fprintf(output, " INTEGER");
+      break;
+    case CHARACTER_STRING_TYPE:
+      // We should determine the actual size based on the constraint
+      fprintf(output, " VARCHAR(%d)", 25);
+      break;
+    default:
+      assert(0);
+    }
+    cur_column = cur_column->next;
+    if(cur_column->constraints) {
+      start_constraint = cur_constraint = cur_column->constraints;
+      do {
+        switch(cur_constraint->type)
+        {
+        case PRIMARY_KEY:
+          fprintf(output, " PRIMARY KEY");
+          break;
+        case NOT_NULL:
+          fprintf(output, " NOT NULL");
+          break;
+        case UNIQUE_CONSTRAINT:
+          fprintf(output, " UNIQUE");
+          break;
+        default:
+          assert(0);
+        }
+        cur_constraint = cur_constraint->next;
+      } while(start_constraint != cur_constraint);
+    }
+    if(start_column != cur_column)
+      fprintf(output, ", ");
+  } while(start_column != cur_column);
+  assert(table->source);
+  fprintf(output, ") SOURCE \"%s\";", table->source);
+}
+
+void emit_column_specification(FILE *output, SqlColumn *column)
+{
+  // pass
 }

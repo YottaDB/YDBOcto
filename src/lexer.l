@@ -50,13 +50,13 @@ int copied_so_far;
 
 %%
 
-
 (?i:ALL) { return ALL; }
 (?i:AND) { return AND; }
 (?i:AS) { return AS; }
 (?i:ASC) { return ASC; }
 (?i:AVG) { return AVG; }
 (?i:BY) { return BY; }
+(?i:CASCADE) { return CASCADE; }
 (?i:CHAR) { return CHAR; }
 (?i:CHARACTER) { return CHARACTER; }
 (?i:COLLATE) { return COLLATE; }
@@ -71,6 +71,7 @@ int copied_so_far;
 (?i:DELETE) { return DELETE; }
 (?i:DESC) { return DESC; }
 (?i:DISTINCT) { return DISTINCT; }
+(?i:DROP) { return DROP; }
 (?i:EXCEPT) { return EXCEPT; }
 (?i:FALSE_TOKEN) { return FALSE_TOKEN; }
 (?i:FROM) { return FROM; }
@@ -99,6 +100,7 @@ int copied_so_far;
 (?i:ORDER) { return ORDER; }
 (?i:OUTER) { return OUTER; }
 (?i:PRIMARY) { return PRIMARY; }
+(?i:RESTRICT) { return RESTRICT; }
 (?i:RIGHT) { return RIGHT; }
 (?i:SELECT) { return SELECT; }
 (?i:SET) { return SET; }

@@ -33,6 +33,7 @@ long long unsigned int typedef uint8;
 enum SqlStatementType {
   TABLE_STATEMENT,
   SELECT_STATEMENT,
+  DROP_STATEMENT,
   SQL_VALUE,
   BINARY_OPERATION,
   UNARY_OPERATION,
@@ -86,7 +87,9 @@ enum SqlConstraintType {
 };
 
 enum OptionalKeyword {
-  OPTIONAL_SOURCE
+  OPTIONAL_SOURCE,
+  OPTIONAL_CASCADE,
+  OPTIONAL_RESTRICT
 };
 
 enum SqlJoinType {
@@ -199,6 +202,10 @@ struct SqlValue {
   } v;
 };
 
+struct SqlDropStatement {
+  SqlStatement *table_name, *optional_keyword;
+} typedef SqlDropStatement;
+
 struct SqlColumnList {
   SqlStatement *value;
   SqlColumnList *next;
@@ -208,6 +215,7 @@ struct SqlStatement {
   enum SqlStatementType type;
   union {
     SqlSelectStatement *select;
+    SqlDropStatement *drop;
     SqlValue *value;
     SqlBinaryOperation *binary;
     SqlUnaryOperation *unary;

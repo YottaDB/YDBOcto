@@ -53,6 +53,7 @@ extern char *yytext;
 %token ASC
 %token AVG
 %token BY
+%token CASCADE
 %token CHAR
 %token CHARACTER
 %token COLLATE
@@ -67,6 +68,7 @@ extern char *yytext;
 %token DELETE
 %token DESC
 %token DISTINCT
+%token DROP
 %token EXCEPT
 %token FALSE_TOKEN
 %token FROM
@@ -95,6 +97,7 @@ extern char *yytext;
 %token ORDER
 %token OUTER
 %token PRIMARY
+%token RESTRICT
 %token RIGHT
 %token SELECT
 %token SET
@@ -623,7 +626,12 @@ query_primary
 
 sql_schema_statement
   : sql_schema_definition_statement { $$ = $1; }
-//  | sql_schema_manipulation_statement
+  | sql_schema_manipulation_statement
+  ;
+
+/// TODO: not complete
+sql_schema_manipulation_statement
+  : drop_table_statement
   ;
 
 sql_schema_definition_statement
@@ -647,7 +655,7 @@ table_definition
         } else
           ($$)->v.table->source = 0;
         free($table_element_list);
-        printf(">> CREATE TABLE %s\n", ($column_name)->v.value->v.string_literal);
+        //printf(">> CREATE TABLE %s\n", ($column_name)->v.value->v.string_literal);
       }
   ;
 

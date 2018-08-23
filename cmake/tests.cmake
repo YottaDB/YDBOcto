@@ -4,3 +4,4 @@ add_test(testSelectValues octo --dry-run --input-file ${PROJECT_SOURCE_DIR}/src/
 add_test(testInsertValues octo --dry-run --input-file ${PROJECT_SOURCE_DIR}/src/samples/insert.sql)
 add_test(testUpdateValues octo --dry-run --input-file ${PROJECT_SOURCE_DIR}/src/samples/update.sql)
 add_test(testManyCreateStatements octo --dry-run --input-file ${PROJECT_SOURCE_DIR}/src/samples/many_create_statements.sql)
+add_test(testDropTables octo --dry-run --input-file ${PROJECT_SOURCE_DIR}/src/samples/drop_table.sql)

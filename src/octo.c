@@ -197,7 +197,8 @@ int main(int argc, char **argv)
       assert(out);
       emit_select_statement(out, result);
       fclose(out);
-      printf("%s\n", buffer);
+      if(!quiet)
+        printf("%s\n", buffer);
       free(buffer);
       break;
     case TABLE_STATEMENT:
@@ -205,13 +206,20 @@ int main(int argc, char **argv)
       assert(out);
       emit_create_table(out, result);
       fclose(out);
-      printf("%s\n", buffer);
+      if(!quiet)
+        printf("%s\n", buffer);
       YDB_COPY_STRING_TO_BUFFER(result->v.table->tableName, &table_name_buffer, done)
       YDB_COPY_STRING_TO_BUFFER(buffer, &table_create_buffer, done)
       status = ydb_set_s(&schema_global, 1,
         &table_name_buffer,
         &table_create_buffer);
       free(buffer);
+      break;
+    case DROP_STATEMENT:
+      YDB_COPY_STRING_TO_BUFFER(result->v.drop->table_name->v.value->v.column_reference, &table_name_buffer, done)
+      status = ydb_delete_s(&schema_global, 1,
+        &table_name_buffer,
+        YDB_DEL_NODE);
       break;
     }
     free(result);

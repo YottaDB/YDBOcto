@@ -14,6 +14,7 @@ add_custom_command(OUTPUT ${PROJECT_BINARY_DIR}/parser.y
           parser/select.y
           parser/insert.y
           parser/update.y
+          parser/drop.y
   COMMAND awk -v path=${PROJECT_SOURCE_DIR}/src/
     -f ${PROJECT_SOURCE_DIR}/tools/combine-grammar.awk
     ${PROJECT_SOURCE_DIR}/src/parser.y > ${PROJECT_BINARY_DIR}/parser.y

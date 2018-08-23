@@ -168,7 +168,8 @@ int copied_so_far;
 [ \t\r\n]      ;  /* skip whitespace which is not part of a string */
 
 \" { copied_so_far = 0; str_buf_ptr = string_buffer; BEGIN(STRING); }
-<STRING>[^(\"\")]* { char *yptr = yytext; COPY_STRING(str_buf_ptr, yptr, copied_so_far, MAX_STR_CONST); }
+<STRING>\"\" { char *yptr = yytext; COPY_STRING(str_buf_ptr, yptr, copied_so_far, MAX_STR_CONST); }
+<STRING>[^\"]* { char *yptr = yytext; COPY_STRING(str_buf_ptr, yptr, copied_so_far, MAX_STR_CONST); }
 <STRING>\" {
               *str_buf_ptr = '\0';
               *yylval_param = (struct SqlStatement *)malloc(sizeof(struct SqlStatement));

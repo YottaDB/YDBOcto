@@ -28,7 +28,9 @@ void emit_create_table(FILE *output, struct SqlStatement *stmt)
 {
   SqlColumn *start_column, *cur_column;
   SqlConstraint *start_constraint, *cur_constraint;
-  SqlTable *table;
+  SqlTable *table, *temp;
+  SqlValue *value;
+  SqlOptionalKeyword *keyword;
   char *column_type, *constraint_text, *primary_key_name = 0;
   char buffer[255];
   if(stmt == NULL)
@@ -36,11 +38,14 @@ void emit_create_table(FILE *output, struct SqlStatement *stmt)
   table = stmt->v.table;
   assert(table->tableName);
   assert(table->columns);
-  fprintf(output, "CREATE TABLE %s (", table->tableName);
-  start_column = cur_column = table->columns;
+  UNPACK_SQL_STATEMENT(value, table->tableName, value);
+  fprintf(output, "CREATE TABLE %s (", value->v.reference);
+  UNPACK_SQL_STATEMENT(start_column, table->columns, column);
+  cur_column = start_column;
   do {
     assert(cur_column && cur_column->columnName);
-    fprintf(output, "%s", cur_column->columnName);
+    UNPACK_SQL_STATEMENT(value, cur_column->columnName, value);
+    fprintf(output, "%s", value->v.reference);
     switch(cur_column->type)
     {
     case INTEGER_TYPE:
@@ -55,7 +60,8 @@ void emit_create_table(FILE *output, struct SqlStatement *stmt)
     }
     cur_column = cur_column->next;
     if(cur_column->constraints) {
-      start_constraint = cur_constraint = cur_column->constraints;
+      UNPACK_SQL_STATEMENT(start_constraint, cur_column->constraints, constraint);
+        cur_constraint = start_constraint;
       do {
         switch(cur_constraint->type)
         {
@@ -78,7 +84,9 @@ void emit_create_table(FILE *output, struct SqlStatement *stmt)
       fprintf(output, ", ");
   } while(start_column != cur_column);
   assert(table->source);
-  fprintf(output, ") SOURCE \"%s\";", table->source);
+  UNPACK_SQL_STATEMENT(keyword, table->source, keyword);
+  UNPACK_SQL_STATEMENT(value, keyword->v, value);
+  fprintf(output, ") SOURCE \"%s\";", value->v.reference);
 }
 
 void emit_column_specification(FILE *output, SqlColumn *column)

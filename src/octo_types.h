@@ -28,22 +28,26 @@ typedef void *yyscan_t;
 #define dqinsert(self, new_elem) (new_elem)->prev = (self)->prev, \
   (self)->prev->next = (new_elem), (self)->prev = new_elem, (new_elem)->next = self;
 
+#define SQL_STATEMENT(VAR, TYPE) (VAR) = (SqlStatement*)malloc(sizeof(SqlStatement)); (VAR)->type = TYPE;
+#define UNPACK_SQL_STATEMENT(result, item, StatementType) assert((item)->type == StatementType##_STATEMENT); \
+  (result) = (item)->v.StatementType
+
 long long unsigned int typedef uint8;
 
 enum SqlStatementType {
-  TABLE_STATEMENT,
-  SELECT_STATEMENT,
-  DROP_STATEMENT,
-  SQL_VALUE,
-  BINARY_OPERATION,
-  UNARY_OPERATION,
-  COLUMN_LIST,
-  SQL_COLUMN,
-  JOIN_STATEMENT,
-  SQL_DATA_TYPE,
-  SQL_CONSTRAINT,
-  SQL_CONSTRAINT_TYPE,
-  OPTIONAL_KEYWORD
+  table_STATEMENT,
+  select_STATEMENT,
+  drop_STATEMENT,
+  value_STATEMENT,
+  binary_STATEMENT,
+  unary_STATEMENT,
+  column_list_STATEMENT,
+  column_STATEMENT,
+  join_STATEMENT,
+  data_type_STATEMENT,
+  constraint_STATEMENT,
+  constraint_type_STATEMENT,
+  keyword_STATEMENT
 };
 
 enum UnaryOperations {
@@ -103,7 +107,7 @@ struct SqlUnaryOperation;
 struct SqlBinaryOperation;
 struct SqlValue typedef SqlValue;
 struct SqlColumnList typedef SqlColumnList;
-struct SqlTable;
+struct SqlTable typedef SqlTable;
 struct SqlJoin typedef SqlJoin;
 struct SqlStatement typedef SqlStatement;
 
@@ -112,17 +116,17 @@ struct SqlStatement typedef SqlStatement;
  */
 struct SqlColumn
 {
-  char *columnName;
+  SqlStatement *columnName;
   enum SqlDataType type;
-  struct SqlConstraint *constraints;
-  char *tableName; // If not null, qualified name was used
+  SqlStatement *constraints;
+  SqlStatement *tableName; // If not null, qualified name was used
   dqcreate(SqlColumn);
 } typedef SqlColumn;
 
 struct SqlColumnAlias
 {
-  SqlColumn *column;
-  char *alias;
+  SqlStatement *column;
+  SqlStatement *alias;
 } typedef SqlColumnAlias;
 
 /**
@@ -131,8 +135,8 @@ struct SqlColumnAlias
 struct SqlConstraint
 {
   enum SqlConstraintType type;
-  char *referencesColumn; //snprintf(buffer, 255 in the form of table.column
-  char *check_constraint_definition; // as a piece of MUMPS code
+  SqlStatement *referencesColumn; //snprintf(buffer, 255 in the form of table.column
+  SqlStatement *check_constraint_definition; // as a piece of MUMPS code
   uint8 max_length;
   dqcreate(SqlConstraint);
 } typedef SqlConstraint;
@@ -142,11 +146,11 @@ struct SqlConstraint
  */
 struct SqlTable
 {
-  char *tableName;
-  char *source;
-  struct SqlColumn *columns;
+  SqlStatement *tableName;
+  SqlStatement *source;
+  SqlStatement *columns;
   dqcreate(SqlTable);
-} typedef SqlTable;
+};
 
 /**
  * Represents an optional KEYWORD which has a value associated with it */
@@ -161,8 +165,8 @@ struct SqlOptionalKeyword
  */
 struct SqlJoin
 {
-  SqlTable *value;
-  SqlJoin *next;
+  SqlStatement *value;
+  SqlStatement *next;
   enum SqlJoinType type;
 };
 
@@ -171,8 +175,8 @@ struct SqlJoin
  */
 struct SqlSelectStatement
 {
-  SqlColumnList *select_list;
-  SqlJoin *table_list;
+  SqlStatement *select_list;
+  SqlStatement *table_list;
 } typedef SqlSelectStatement;
 
 /*
@@ -197,7 +201,7 @@ struct SqlValue {
   enum SqlValueType type;
   union {
     char *string_literal;
-    char *column_reference;
+    char *reference;
     SqlStatement *calculated;
   } v;
 };
@@ -208,7 +212,7 @@ struct SqlDropStatement {
 
 struct SqlColumnList {
   SqlStatement *value;
-  SqlColumnList *next;
+  SqlStatement *next;
 };
 
 struct SqlStatement {
@@ -219,7 +223,7 @@ struct SqlStatement {
     SqlValue *value;
     SqlBinaryOperation *binary;
     SqlUnaryOperation *unary;
-    SqlColumnList *columns;
+    SqlColumnList *column_list;
     SqlColumn *column; // Note singular versus plural
     SqlJoin *join;
     SqlTable *table;

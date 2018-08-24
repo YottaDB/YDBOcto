@@ -25,10 +25,22 @@ static void test_simple_table_definition(void **state) {
 
   SqlConstraint primary_key_constraint = {PRIMARY_KEY, 0, 0, 0, 0};
   dqinit(&primary_key_constraint);
-  SqlColumn column = {"id", INTEGER_TYPE, &primary_key_constraint, 0, 0};
+  SqlValue col_name = {COLUMN_REFERENCE, "id"};
+  SqlStatement stmt1 = {value_STATEMENT, { .value = &col_name } };
+  SqlStatement stmt2 = {constraint_STATEMENT, { .constraint = &primary_key_constraint } };
+  SqlColumn column = {&stmt1, INTEGER_TYPE, &stmt2, 0, 0};
+  SqlStatement stmt6 = { column_STATEMENT, { .column = &column } };
+  SqlColumnList column_list = { &stmt6, &stmt6 };
   dqinit(&column);
-  SqlTable table = {"myTable", "^myTable(id)", &column};
-  SqlStatement stmt = {TABLE_STATEMENT, 0};
+  SqlValue tab_name = {COLUMN_REFERENCE, "myTable"};
+  SqlStatement stmt3 = {value_STATEMENT, { .value = &tab_name } };
+  SqlValue source_name = {COLUMN_REFERENCE, "^myTable(id)"};
+  SqlStatement stmt4 = {value_STATEMENT, { .value = &source_name } };
+  SqlOptionalKeyword keyword = {SOURCE, &stmt4};
+  SqlStatement stmt7 = {keyword_STATEMENT, { .keyword = &keyword } };
+  SqlStatement stmt5 = {column_list_STATEMENT, { .column_list = &column_list } };
+  SqlTable table = {&stmt3, &stmt7, &stmt6};
+  SqlStatement stmt = {table_STATEMENT, 0};
   stmt.v.table = &table;
 
   out = open_memstream(&buffer, &buffer_size);

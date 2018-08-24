@@ -49,6 +49,7 @@ int main(int argc, char **argv)
   size_t buffer_size = 0;
   FILE *inputFile;
   FILE *out;
+  SqlValue *value;
   ydb_buffer_t schema_global, table_name_buffer, table_create_buffer, null_buffer;
 
   inputFile = NULL;
@@ -192,7 +193,7 @@ int main(int argc, char **argv)
       continue;
     switch(result->type)
     {
-    case SELECT_STATEMENT:
+    case select_STATEMENT:
       out = open_memstream(&buffer, &buffer_size);
       assert(out);
       emit_select_statement(out, result);
@@ -201,22 +202,23 @@ int main(int argc, char **argv)
         printf("%s\n", buffer);
       free(buffer);
       break;
-    case TABLE_STATEMENT:
+    case table_STATEMENT:
       out = open_memstream(&buffer, &buffer_size);
       assert(out);
       emit_create_table(out, result);
       fclose(out);
       if(!quiet)
         printf("%s\n", buffer);
-      YDB_COPY_STRING_TO_BUFFER(result->v.table->tableName, &table_name_buffer, done)
+      UNPACK_SQL_STATEMENT(value, result->v.table->tableName, value);
+      YDB_COPY_STRING_TO_BUFFER(value->v.reference, &table_name_buffer, done)
       YDB_COPY_STRING_TO_BUFFER(buffer, &table_create_buffer, done)
       status = ydb_set_s(&schema_global, 1,
         &table_name_buffer,
         &table_create_buffer);
       free(buffer);
       break;
-    case DROP_STATEMENT:
-      YDB_COPY_STRING_TO_BUFFER(result->v.drop->table_name->v.value->v.column_reference, &table_name_buffer, done)
+    case drop_STATEMENT:
+      YDB_COPY_STRING_TO_BUFFER(result->v.drop->table_name->v.value->v.reference, &table_name_buffer, done)
       status = ydb_delete_s(&schema_global, 1,
         &table_name_buffer,
         YDB_DEL_NODE);

@@ -31,9 +31,8 @@ ordering_specification
 query_specification
   : SELECT select_list table_expression {
       $$ = $table_expression;
-      assert(($$)->type == SELECT_STATEMENT);
-      ($$)->v.select->select_list = ($select_list)->v.columns;
-      free($2);
+      assert(($$)->type == select_STATEMENT);
+      ($$)->v.select->select_list = ($select_list);
     }
   | SELECT set_quantifier select_list table_expression
   | SELECT select_list table_expression ORDER BY sort_specification_list
@@ -43,8 +42,8 @@ query_specification
 select_list
   : ASTERISK {
       $$ = (SqlStatement*)malloc(sizeof(SqlStatement));
-      ($$)->type = COLUMN_LIST;
-      ($$)->v.columns = 0;
+      ($$)->type = column_list_STATEMENT;
+      ($$)->v.column_list = 0;
     }
   | select_sublist { $$ = $1;  }
   ;
@@ -61,10 +60,9 @@ select_sublist_tail
 table_expression
   : from_clause where_clause group_by_clause having_clause {
       $$ = (SqlStatement*)malloc(sizeof(SqlStatement));
-      ($$)->type = SELECT_STATEMENT;
+      ($$)->type = select_STATEMENT;
       ($$)->v.select = (SqlSelectStatement*)malloc(sizeof(SqlSelectStatement));
-      ($$)->v.select->table_list = ($1)->v.join;
-      free($1);
+      ($$)->v.select->table_list = ($1);
     }
   ;
 
@@ -75,12 +73,12 @@ set_quantifier
 
 derived_column
   : non_query_value_expression {
-      assert(($1)->type == SQL_VALUE);
+      assert(($1)->type == value_STATEMENT);
       $$ = (SqlStatement*)malloc(sizeof(SqlStatement));
-      ($$)->type = COLUMN_LIST;
-      ($$)->v.columns = (SqlColumnList*)malloc(sizeof(SqlColumnList));
-      ($$)->v.columns->next = 0;
-      ($$)->v.columns->value = $1;
+      ($$)->type = column_list_STATEMENT;
+      ($$)->v.column_list = (SqlColumnList*)malloc(sizeof(SqlColumnList));
+      ($$)->v.column_list->next = 0;
+      ($$)->v.column_list->value = $1;
     }
   | non_query_value_expression AS column_name
   ;
@@ -92,16 +90,11 @@ from_clause
 // Just consider these a list of values for all intensive purposes
 table_reference
   : column_name table_reference_tail {
-      $$ = (SqlStatement*)malloc(sizeof(SqlStatement));
-      ($$)->type = JOIN_STATEMENT;
+      SQL_STATEMENT($$, table_STATEMENT);
+      ($$)->type = join_STATEMENT;
       ($$)->v.join = (SqlJoin*)malloc(sizeof(SqlJoin));
-      ($$)->v.join->value = (SqlTable*)malloc(sizeof(SqlTable));
-      /// TODO: fetch the table from a list of known tables here
-      ($$)->v.join->value->tableName = ($1)->v.value->v.column_reference;
-      free(($1)->v.value);
-      free($1);
-      ($$)->v.join->next = ($2)->v.join;
-      free($2);
+      ($$)->v.join->value = $1;
+      ($$)->v.join->next = ($2);
     }
   | column_name correlation_specification table_reference_tail
   | derived_table
@@ -112,7 +105,7 @@ table_reference
 table_reference_tail
   : /* Empty */ {
       $$ = (SqlStatement*)malloc(sizeof(SqlStatement));
-      ($$)->type = JOIN_STATEMENT;
+      ($$)->type = join_STATEMENT;
       ($$)->v.join = 0;
     }
   | COMMA table_reference { $$ = $1; }

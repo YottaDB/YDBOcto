@@ -40,7 +40,6 @@ extern int yyparse(yyscan_t scan, SqlStatement **out);
 extern void yyerror(yyscan_t scan, SqlStatement **out, char const *s);
 extern char *yytext;
 
-#define SQL_STATEMENT(VAR, TYPE) (VAR) = (SqlStatement*)malloc(sizeof(SqlStatement)); (VAR)->type = TYPE;
 %}
 
 %define api.pure
@@ -304,7 +303,7 @@ numeric_value_expression
   : term { $$ = $1; }
   | numeric_value_expression PLUS term {
       $$ = (SqlStatement*)malloc(sizeof(SqlStatement));
-      ($$)->type = BINARY_OPERATION;
+      ($$)->type = binary_STATEMENT;
       ($$)->v.binary = (SqlBinaryOperation*)malloc(sizeof(SqlBinaryOperation));
       ($$)->v.binary->operation = ADDITION;
       ($$)->v.binary->operands[0] = ($1);
@@ -312,7 +311,7 @@ numeric_value_expression
     }
   | numeric_value_expression MINUS term {
       $$ = (SqlStatement*)malloc(sizeof(SqlStatement));
-      ($$)->type = BINARY_OPERATION;
+      ($$)->type = binary_STATEMENT;
       ($$)->v.binary = (SqlBinaryOperation*)malloc(sizeof(SqlBinaryOperation));
       ($$)->v.binary->operation = SUBTRACTION;
       ($$)->v.binary->operands[0] = ($1);
@@ -324,7 +323,7 @@ term
   : factor { $$ = $1; }
   | term ASTERISK factor {
       $$ = (SqlStatement*)malloc(sizeof(SqlStatement));
-      ($$)->type = BINARY_OPERATION;
+      ($$)->type = binary_STATEMENT;
       ($$)->v.binary = (SqlBinaryOperation*)malloc(sizeof(SqlBinaryOperation));
       ($$)->v.binary->operation = MULTIPLICATION;
       ($$)->v.binary->operands[0] = ($1);
@@ -332,7 +331,7 @@ term
     }
   | term SOLIDUS factor {
       $$ = (SqlStatement*)malloc(sizeof(SqlStatement));
-      ($$)->type = BINARY_OPERATION;
+      ($$)->type = binary_STATEMENT;
       ($$)->v.binary = (SqlBinaryOperation*)malloc(sizeof(SqlBinaryOperation));
       ($$)->v.binary->operation = DVISION;
       ($$)->v.binary->operands[0] = ($1);
@@ -340,7 +339,7 @@ term
     }
   | term concatenation_operator factor {
       $$ = (SqlStatement*)malloc(sizeof(SqlStatement));
-      ($$)->type = BINARY_OPERATION;
+      ($$)->type = binary_STATEMENT;
       ($$)->v.binary = (SqlBinaryOperation*)malloc(sizeof(SqlBinaryOperation));
       ($$)->v.binary->operation = CONCAT;
       ($$)->v.binary->operands[0] = ($1);
@@ -356,14 +355,14 @@ concatenation_operator
 factor
   : PLUS numeric_primary factor_tail {
       $$ = (SqlStatement*)malloc(sizeof(SqlStatement));
-      ($$)->type = UNARY_OPERATION;
+      ($$)->type = unary_STATEMENT;
       ($$)->v.unary = (SqlUnaryOperation*)malloc(sizeof(SqlUnaryOperation));
       ($$)->v.unary->operation = FORCE_NUM;
       ($$)->v.unary->operand = ($2);
     }
   | MINUS numeric_primary factor_tail {
       $$ = (SqlStatement*)malloc(sizeof(SqlStatement));
-      ($$)->type = UNARY_OPERATION;
+      ($$)->type = unary_STATEMENT;
       ($$)->v.unary = (SqlUnaryOperation*)malloc(sizeof(SqlUnaryOperation));
       ($$)->v.unary->operation = NEGATIVE;
       ($$)->v.unary->operand = ($2);
@@ -424,7 +423,7 @@ set_function_type
 
 non_query_value_expression
   : non_query_numeric_value_expression {
-      SQL_STATEMENT($$, SQL_VALUE);
+      SQL_STATEMENT($$, value_STATEMENT);
       ($$)->v.value = (SqlValue*)malloc(sizeof(SqlValue));
       ($$)->v.value->type = CALCULATED_VALUE;
       ($$)->v.value->v.calculated = $1;
@@ -434,14 +433,14 @@ non_query_value_expression
 non_query_numeric_value_expression
   : non_query_term { $$ = $1; }
   | non_query_numeric_value_expression PLUS non_query_term {
-      SQL_STATEMENT($$, BINARY_OPERATION);
+      SQL_STATEMENT($$, binary_STATEMENT);
       ($$)->v.binary = (SqlBinaryOperation*)malloc(sizeof(SqlBinaryOperation));
       ($$)->v.binary->operation = ADDITION;
       ($$)->v.binary->operands[0] = ($1);
       ($$)->v.binary->operands[1] = ($3);
     }
   | non_query_numeric_value_expression MINUS non_query_term {
-      SQL_STATEMENT($$, BINARY_OPERATION);
+      SQL_STATEMENT($$, binary_STATEMENT);
       ($$)->v.binary = (SqlBinaryOperation*)malloc(sizeof(SqlBinaryOperation));
       ($$)->v.binary->operation = SUBTRACTION;
       ($$)->v.binary->operands[0] = ($1);
@@ -452,21 +451,21 @@ non_query_numeric_value_expression
 non_query_term
   : non_query_factor { $$ = $1; }
   | non_query_term ASTERISK non_query_factor {
-      SQL_STATEMENT($$, BINARY_OPERATION);
+      SQL_STATEMENT($$, binary_STATEMENT);
       ($$)->v.binary = (SqlBinaryOperation*)malloc(sizeof(SqlBinaryOperation));
       ($$)->v.binary->operation = MULTIPLICATION;
       ($$)->v.binary->operands[0] = ($1);
       ($$)->v.binary->operands[1] = ($3);
     }
   | non_query_term SOLIDUS non_query_factor {
-      SQL_STATEMENT($$, BINARY_OPERATION);
+      SQL_STATEMENT($$, binary_STATEMENT);
       ($$)->v.binary = (SqlBinaryOperation*)malloc(sizeof(SqlBinaryOperation));
       ($$)->v.binary->operation = DVISION;
       ($$)->v.binary->operands[0] = ($1);
       ($$)->v.binary->operands[1] = ($3);
     }
   | non_query_term concatenation_operator non_query_factor {
-      SQL_STATEMENT($$, BINARY_OPERATION);
+      SQL_STATEMENT($$, binary_STATEMENT);
       ($$)->v.binary = (SqlBinaryOperation*)malloc(sizeof(SqlBinaryOperation));
       ($$)->v.binary->operation = CONCAT;
       ($$)->v.binary->operands[0] = ($1);
@@ -476,13 +475,13 @@ non_query_term
 
 non_query_factor
   : PLUS non_query_numeric_primary factor_tail {
-      SQL_STATEMENT($$, UNARY_OPERATION);
+      SQL_STATEMENT($$, unary_STATEMENT);
       ($$)->v.unary = (SqlUnaryOperation*)malloc(sizeof(SqlUnaryOperation));
       ($$)->v.unary->operation = FORCE_NUM;
       ($$)->v.unary->operand = ($2);
     }
   | MINUS non_query_numeric_primary factor_tail {
-      SQL_STATEMENT($$, UNARY_OPERATION);
+      SQL_STATEMENT($$, unary_STATEMENT);
       ($$)->v.unary = (SqlUnaryOperation*)malloc(sizeof(SqlUnaryOperation));
       ($$)->v.unary->operation = NEGATIVE;
       ($$)->v.unary->operand = ($2);
@@ -641,20 +640,13 @@ sql_schema_definition_statement
 /// TODO: not complete
 table_definition
   : CREATE TABLE column_name LEFT_PAREN table_element_list RIGHT_PAREN table_definition_tail {
-        SQL_STATEMENT($$, TABLE_STATEMENT);
+        SQL_STATEMENT($$, table_STATEMENT);
         ($$)->v.table = (SqlTable*)malloc(sizeof(SqlTable));
-        assert($column_name->type == SQL_VALUE
+        assert($column_name->type == value_STATEMENT
           && $column_name->v.value->type == COLUMN_REFERENCE);
-        ($$)->v.table->tableName = $column_name->v.value->v.column_reference;
-        ($$)->v.table->columns = $table_element_list->v.columns->value->v.column;
-        if($table_definition_tail) {
-          assert($table_definition_tail->type == OPTIONAL_KEYWORD);
-          assert($table_definition_tail->v.keyword->keyword == OPTIONAL_SOURCE);
-          ($$)->v.table->source = $table_definition_tail->v.keyword->v
-            ->v.value->v.string_literal;
-        } else
-          ($$)->v.table->source = 0;
-        free($table_element_list);
+        ($$)->v.table->tableName = $column_name;
+        ($$)->v.table->columns = $table_element_list;
+        ($$)->v.table->source = $table_definition_tail;
         //printf(">> CREATE TABLE %s\n", ($column_name)->v.value->v.string_literal);
       }
   ;
@@ -662,7 +654,7 @@ table_definition
 table_definition_tail
   : /* Empty */ { $$ = 0; }
   | SOURCE LITERAL {
-      SQL_STATEMENT($$, OPTIONAL_KEYWORD);
+      SQL_STATEMENT($$, keyword_STATEMENT);
       ($$)->v.keyword = (SqlOptionalKeyword*)malloc(sizeof(SqlOptionalKeyword));
       ($$)->v.keyword->keyword = OPTIONAL_SOURCE;
       ($$)->v.keyword->v = $2;
@@ -671,15 +663,12 @@ table_definition_tail
 
 table_element_list
   :  table_element table_element_list_tail  {
-      SQL_STATEMENT($$, COLUMN_LIST);
-      ($$)->v.columns = (SqlColumnList*)malloc(sizeof(SqlColumnList));
-      ($$)->v.columns->value = $table_element;
-      ($$)->v.columns->next = 0;
+      $$ = $table_element;
+      assert($$->type = column_STATEMENT);
       if($table_element_list_tail)
       {
-        assert($table_element_list_tail->type == COLUMN_LIST);
-        ($$)->v.columns->next = $table_element_list_tail->v.columns;
-        dqinsert($table_element_list_tail->v.columns->value->v.column, ($$)->v.columns->value->v.column);
+        assert($table_element_list_tail->type = column_STATEMENT);
+        dqinsert($table_element_list_tail->v.column, ($$)->v.column);
       }
     }
   ;
@@ -697,16 +686,15 @@ table_element
 /// TODO: not complete
 column_definition
   : column_name data_type column_definition_tail {
-      SQL_STATEMENT($$, SQL_COLUMN);
+      SQL_STATEMENT($$, column_STATEMENT);
       ($$)->v.column = (SqlColumn*)malloc(sizeof(SqlColumn));
       dqinit(($$)->v.column);
-      ($$)->v.column->columnName = $column_name->v.value->v.column_reference;
-      free($column_name);
-      assert($data_type->type == SQL_DATA_TYPE);
+      ($$)->v.column->columnName = $column_name;
+      assert($data_type->type == data_type_STATEMENT);
       ($$)->v.column->type = $data_type->v.data_type;
       if($column_definition_tail) {
-        assert($column_definition_tail->type == SQL_CONSTRAINT);
-        ($$)->v.column->constraints = $column_definition_tail->v.constraint;
+        assert($column_definition_tail->type == constraint_STATEMENT);
+        ($$)->v.column->constraints = $column_definition_tail;
       }
     }
 //  | more stuff
@@ -723,9 +711,9 @@ column_definition_tail
 
 column_constraint_definition
   : constraint_name_definition column_constraint constraint_attributes {
-      SQL_STATEMENT($$, SQL_CONSTRAINT);
+      SQL_STATEMENT($$, constraint_STATEMENT);
       ($$)->v.constraint = (SqlConstraint*)malloc(sizeof(SqlConstraint));
-      assert($column_constraint->type == SQL_CONSTRAINT_TYPE);
+      assert($column_constraint->type == constraint_type_STATEMENT);
       ($$)->v.constraint->type = $column_constraint->v.constraint_type;
       ($$)->v.constraint->referencesColumn = 0;
       ($$)->v.constraint->check_constraint_definition = 0;
@@ -741,7 +729,7 @@ constraint_name_definition
 /// TODO: not complete
 column_constraint
   : NOT NULL_TOKEN {
-      SQL_STATEMENT($$, SQL_CONSTRAINT_TYPE);
+      SQL_STATEMENT($$, constraint_type_STATEMENT);
       ($$)->v.constraint_type = NOT_NULL;
     }
   | unique_specifications { $$ = $1; }
@@ -751,11 +739,11 @@ column_constraint
 
 unique_specifications
   : UNIQUE {
-      SQL_STATEMENT($$, SQL_CONSTRAINT_TYPE);
+      SQL_STATEMENT($$, constraint_type_STATEMENT);
       ($$)->v.constraint_type = UNIQUE_CONSTRAINT;
     }
   | PRIMARY KEY {
-      SQL_STATEMENT($$, SQL_CONSTRAINT_TYPE);
+      SQL_STATEMENT($$, constraint_type_STATEMENT);
       ($$)->v.constraint_type = PRIMARY_KEY;
     }
   ;
@@ -796,14 +784,14 @@ identifier_body
 
 data_type
   : character_string_type {
-      SQL_STATEMENT($$, SQL_DATA_TYPE);
+      SQL_STATEMENT($$, data_type_STATEMENT);
       ($$)->v.data_type = CHARACTER_STRING_TYPE;
     }
 //  | character_string_type CHARACTER SET character_set_specification
 //  | national_character_string_type
 //  | bit_string_type
   | numeric_type {
-      SQL_STATEMENT($$, SQL_DATA_TYPE);
+      SQL_STATEMENT($$, data_type_STATEMENT);
       ($$)->v.data_type = INTEGER_TYPE;
     }
 //  | datetime_type

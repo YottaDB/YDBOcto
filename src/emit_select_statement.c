@@ -34,7 +34,7 @@ char *extract_expression(SqlStatement *stmt)
 
   switch(stmt->type)
   {
-  case SQL_VALUE:
+  case value_STATEMENT:
     value = stmt->v.value;
     switch(value->type)
     {
@@ -48,12 +48,12 @@ char *extract_expression(SqlStatement *stmt)
       calculated = value->v.calculated;
       switch(calculated->type)
       {
-      case SQL_VALUE:
+      case value_STATEMENT:
         tmp1 = extract_expression(calculated);
         snprintf(buffer, MAX_EXPRESSION_LENGTH, "%s", tmp1);
         free(tmp1);
         break;
-      case BINARY_OPERATION:
+      case binary_STATEMENT:
         binary = calculated->v.binary;
         tmp1 = extract_expression(binary->operands[0]);
         tmp2 = extract_expression(binary->operands[1]);
@@ -87,7 +87,8 @@ char *extract_expression(SqlStatement *stmt)
       assert(0);
     }
     break;
-  case BINARY_OPERATION:
+  case binary_STATEMENT:
+    UNPACK_SQL_STATEMENT(binary, stmt, binary);
     binary = stmt->v.binary;
     tmp1 = extract_expression(binary->operands[0]);
     tmp2 = extract_expression(binary->operands[1]);
@@ -134,11 +135,18 @@ void emit_select_statement(FILE *output, struct SqlStatement *stmt)
 
   fprintf(output, " WRITE ");
 
-  assert(stmt && stmt->type == SELECT_STATEMENT);
+  assert(stmt && stmt->type == select_STATEMENT);
   select = stmt->v.select;
-  for(columns = select->select_list; columns != 0; columns = columns->next) {
+  UNPACK_SQL_STATEMENT(columns, select->select_list, column_list);
+  for(; columns != 0;) {
     tmp1 = extract_expression(columns->value);
     fprintf(output, "%s,!", tmp1);
     free(tmp1);
+    if(columns->next)
+    {
+      UNPACK_SQL_STATEMENT(columns, columns->next, column_list);
+    }
+    else
+      columns = 0;
   }
 }

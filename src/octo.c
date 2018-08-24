@@ -201,6 +201,7 @@ int main(int argc, char **argv)
       if(!quiet)
         printf("%s\n", buffer);
       free(buffer);
+      cleanup_sql_statement(result);
       break;
     case table_STATEMENT:
       out = open_memstream(&buffer, &buffer_size);
@@ -216,15 +217,22 @@ int main(int argc, char **argv)
         &table_name_buffer,
         &table_create_buffer);
       free(buffer);
+      if(definedTables == NULL) {
+        definedTables = result->v.table;
+        dqinit(definedTables);
+      } else {
+        dqinsert(definedTables, result->v.table);
+      }
+      free(result);
       break;
     case drop_STATEMENT:
       YDB_COPY_STRING_TO_BUFFER(result->v.drop->table_name->v.value->v.reference, &table_name_buffer, done)
       status = ydb_delete_s(&schema_global, 1,
         &table_name_buffer,
         YDB_DEL_NODE);
+      cleanup_sql_statement(result);
       break;
     }
-    free(result);
     result = 0;
   } while(!feof(inputFile));
   yy_delete_buffer(state, scanner);

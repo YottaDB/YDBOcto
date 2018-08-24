@@ -35,6 +35,7 @@ add_library(libocto OBJECT
   yywrap.c
   emit_create_table.c
   emit_select_statement.c
+  cleanup_sql_statement.c
   ${BISON_OctoParser_OUTPUTS}
   ${FLEX_OctoLexer_OUTPUTS}
 )

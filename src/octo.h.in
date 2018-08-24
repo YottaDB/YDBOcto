@@ -11,4 +11,6 @@
 void emit_create_table(FILE *output, struct SqlStatement *stmt);
 void emit_select_statement(FILE *output, SqlStatement *stmt);
 
+void cleanup_sql_statement(SqlStatement *stmt);
+
 #endif

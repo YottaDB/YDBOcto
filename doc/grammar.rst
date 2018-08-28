@@ -200,6 +200,18 @@ UPDATE
 ===============
 
 .. parsed-literal::
-   update_statement_searched: UPDATE table_name SET object_column EQUALS update_source [WHERE search_condition]
+   update_statement_searched: UPDATE table_name SET object_column EQUALS update_source [WHERE search_condition];
 
 The UPDATE statement begins with the keyword UPDATE, along with specifying the table_name to be updated and the keyword SET, followed by a list of comma-separated statements that are used to update the existing columns where the object_column is a particular column and the update_source what the value at that column is set to either NULL or a specific value expression. The optional WHERE condition allows you to update columns based on a certain condition you specify.
+
+================
+DROP
+================
+
+.. parsed-literal::
+   drop_table_statement: DROP TABLE table_name [CASCADE | RESTRICT];
+
+The DROP statement is used to remove tables from the database. The keywords DROP TABLE are followed by the name of the table desired to be dropped. Optional parameters include CASCADE and RESTRICT.
+
+The CASCADE parameter is used to specify that all objects depending on the table will also be dropped.
+The RESTRICT parameter is used to specify that the table referred to by table_name will not be dropped if there are existing objects depending on it.

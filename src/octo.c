@@ -50,6 +50,8 @@ int main(int argc, char **argv)
   FILE *inputFile;
   FILE *out;
   SqlValue *value;
+  SqlTable *table;
+  SqlSelectStatement *select;
   ydb_buffer_t schema_global, table_name_buffer, table_create_buffer, null_buffer;
 
   inputFile = NULL;
@@ -149,12 +151,20 @@ int main(int argc, char **argv)
       break;
     ydb_get_s(&schema_global, 1, &table_name_buffer, &table_create_buffer);
     table_create_buffer.buf_addr[table_create_buffer.len_used] = '\0';
-    printf("Running command %s\n", table_create_buffer.buf_addr);
+    if(!quiet)
+      printf("Running command %s\n", table_create_buffer.buf_addr);
     state = yy_scan_string(table_create_buffer.buf_addr, scanner);
     if(yyparse(scanner, &result))
     {
       error = 1;
       fprintf(stderr, "Error parsing statement from database\n");
+    }
+    UNPACK_SQL_STATEMENT(table, result, table);
+    if(definedTables == NULL) {
+      definedTables = table;
+      dqinit(definedTables);
+    } else {
+      dqinsert(definedTables, table);
     }
     result = NULL;
   } while(1);
@@ -198,8 +208,7 @@ int main(int argc, char **argv)
       assert(out);
       emit_select_statement(out, result);
       fclose(out);
-      if(!quiet)
-        printf("%s\n", buffer);
+      printf("%s\n", buffer);
       free(buffer);
       cleanup_sql_statement(result);
       break;

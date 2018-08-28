@@ -32,7 +32,6 @@ void emit_create_table(FILE *output, struct SqlStatement *stmt)
   SqlValue *value;
   SqlOptionalKeyword *keyword;
   char *column_type, *constraint_text, *primary_key_name = 0;
-  char buffer[255];
   if(stmt == NULL)
     return;
   table = stmt->v.table;

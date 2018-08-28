@@ -27,7 +27,9 @@ typedef void* yyscan_t;
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
+#include <string.h>
 
+#include "octo.h"
 #include "octo_types.h"
 
 #define YYERROR_VERBOSE
@@ -646,7 +648,27 @@ table_definition
           && $column_name->v.value->type == COLUMN_REFERENCE);
         ($$)->v.table->tableName = $column_name;
         ($$)->v.table->columns = $table_element_list;
+        if($table_definition_tail == NULL) {
+          char buffer[MAX_STR_CONST], *out_buffer;
+          size_t str_len;
+          SqlColumn *pkey = fetch_primary_key_column(($$)->v.table);
+          assert(pkey != NULL);
+          snprintf(buffer, MAX_STR_CONST, "^%s(<%s>)", $column_name->v.value->v.reference,
+            pkey->columnName->v.value->v.reference);
+          str_len = strnlen(buffer, MAX_STR_CONST) + 1;
+          out_buffer = malloc(str_len);
+          strncpy(out_buffer, buffer, str_len);
+          out_buffer[str_len] = '\0';
+          SQL_STATEMENT($table_definition_tail, keyword_STATEMENT);
+          ($table_definition_tail)->v.keyword = (SqlOptionalKeyword*)malloc(sizeof(SqlOptionalKeyword));
+          ($table_definition_tail)->v.keyword->keyword = OPTIONAL_SOURCE;
+          SQL_STATEMENT(($table_definition_tail)->v.keyword->v, value_STATEMENT);
+          ($table_definition_tail)->v.keyword->v->v.value = (SqlValue*)malloc(sizeof(SqlValue));
+          ($table_definition_tail)->v.keyword->v->v.value->type = COLUMN_REFERENCE;
+          ($table_definition_tail)->v.keyword->v->v.value->v.reference = out_buffer;
+        }
         ($$)->v.table->source = $table_definition_tail;
+        //dqinit(($$)->v.table);
         //printf(">> CREATE TABLE %s\n", ($column_name)->v.value->v.string_literal);
       }
   ;

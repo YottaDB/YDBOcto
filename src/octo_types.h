@@ -18,6 +18,7 @@
 #define OCTO_TYPES_H
 
 #define MAX_STR_CONST 1024
+#define MAX_EXPRESSION_LENGTH 255
 typedef void *yyscan_t;
 
 // Sets a DQ struct to point to itself
@@ -113,6 +114,9 @@ struct SqlStatement typedef SqlStatement;
 
 /**
  * Represents a SQL column; doubly linked list
+ *
+ * WARNING: in some cases, SqlColumnList is used instead of the linked list, namely when
+ *  we are dealing with a SELECT column list because the column may be a calculated column
  */
 struct SqlColumn
 {

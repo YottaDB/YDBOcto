@@ -50,7 +50,10 @@ select_list
 
 select_sublist
   : derived_column { $$ = $1; }
-  | derived_column select_sublist_tail
+  | derived_column select_sublist_tail {
+      $$ = $1;
+      ($$)->v.column_list->next = $2;
+    }
   ;
 
 select_sublist_tail
@@ -90,8 +93,7 @@ from_clause
 // Just consider these a list of values for all intensive purposes
 table_reference
   : column_name table_reference_tail {
-      SQL_STATEMENT($$, table_STATEMENT);
-      ($$)->type = join_STATEMENT;
+      SQL_STATEMENT($$, join_STATEMENT);
       ($$)->v.join = (SqlJoin*)malloc(sizeof(SqlJoin));
       ($$)->v.join->value = $1;
       ($$)->v.join->next = ($2);

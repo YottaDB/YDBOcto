@@ -140,7 +140,7 @@ void emit_select_statement(FILE *output, struct SqlStatement *stmt)
   char *tmp1, *formatted_source_begin, *formatted_source_end, *key, *source;
   int column_name_length;
 
-  char *m_template = "NEW key SET key=$INCREMENT(%s) ";
+  char *m_template = "SET key=$G(%s) FOR  SET key=$O(%skey%s) Q:('key)!('$D(%skey%s))  ";
 
   //fprintf(output, " WRITE ");
   assert(stmt && stmt->type == select_STATEMENT);
@@ -164,8 +164,9 @@ void emit_select_statement(FILE *output, struct SqlStatement *stmt)
   formatted_source_begin = malloc(MAX_STR_CONST);
   formatted_source_end = malloc(MAX_STR_CONST);
   key = malloc(MAX_STR_CONST);
-  fprintf(output, m_template, "^cursor(0)");
   extract_key(source, key, formatted_source_begin, formatted_source_end);
+  fprintf(output, m_template, "^cursor(0)", formatted_source_begin, formatted_source_end,
+    formatted_source_begin, formatted_source_end, formatted_source_begin, formatted_source_end);
 
   UNPACK_SQL_STATEMENT(columns, select->select_list, column_list);
   fprintf(output, "WRITE:$D(%skey%s) ", formatted_source_begin, formatted_source_end);
@@ -176,6 +177,8 @@ void emit_select_statement(FILE *output, struct SqlStatement *stmt)
     columns = t_columns = (SqlColumnList*)malloc(sizeof(SqlColumnList));
     do {
       SQL_STATEMENT(tmp_statement, value_STATEMENT);
+      if(select->select_list == NULL)
+        select->select_list = tmp_statement; // setting this allows it to get cleaned later
       tmp_statement->v.value = (SqlValue*)malloc(sizeof(SqlValue));
       tmp_statement->v.value->type = COLUMN_REFERENCE;
       column_name_length = strnlen(cur_column->columnName->v.value->v.reference, MAX_STR_CONST) + 1;
@@ -188,6 +191,7 @@ void emit_select_statement(FILE *output, struct SqlStatement *stmt)
         t_columns->next = tmp_statement;
         t_columns->next->v.column_list = (SqlColumnList*)malloc(sizeof(SqlColumnList));
         t_columns = t_columns->next->v.column_list;
+        t_columns->next = NULL;
       }
     } while(cur_column != start_column);
   }
@@ -203,7 +207,7 @@ void emit_select_statement(FILE *output, struct SqlStatement *stmt)
     else
       columns = 0;
   }
-  fprintf(output, ",! KILL key");
+  fprintf(output, ",!");
   free(formatted_source_begin);
   free(formatted_source_end);
   free(key);

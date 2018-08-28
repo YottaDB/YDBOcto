@@ -64,14 +64,16 @@ void extract_key(const char *source, char *key, char *formatted_source_begin, ch
       } else
       {
         state = 2;
+        out = formatted_source_end;
       }
       break;
     case 2:
       assert(*in != '<');
-      *formatted_source_end++ = *in;
+      *out++ = *in;
       break;
     default:
       assert(0);
     }
   }
+  *out = '\0';
 }

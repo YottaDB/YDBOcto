@@ -41,7 +41,7 @@ The following rule is currently a deviation from BNF due to a Reduce-Reduce conf
 A Primary Value Expression is denoted as follows:
 
 .. parsed-literal::
-   unsigned_value_specification | column_reference | COUNT ( \*|[set_quantifier] value_expression)|general_set_function | scalar_subquery | (value_expression);
+   value_expression: unsigned_value_specification| column_reference | COUNT (\*|[set_quantifier] value_expression) | general_set_function | scalar_subquery | (value_expression);
 
 The primary value expression can either contain an unsigned value, a column reference, a set function or a subquery.
 

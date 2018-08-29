@@ -18,6 +18,19 @@ The changes to data can be brought about by deleting data, inserting new data or
 .. parsed-literal::
    sql_data_change_statement: delete_statement_searched | insert_statement | update_statement_searched;
 
+---------------
+CREATE
+---------------
+
+.. parsed-literal::
+   CREATE TABLE table_name (column_name data_type [constraints] [... column_name data_type [constraints]]) [SOURCE literal];
+
+The CREATE statement is used to create tables in the database. The keywords CREATE TABLE are used followed by the name of the table to be created.
+
+The names of columns to be created in the database and their datatypes are then specified in a list, along with any constraints that might need to apply (such as denoting if the key is PRIMARY, UNIQUE or FOREIGN).
+
+An optional SOURCE parameter can be added that specifies a source global for each row in the table.
+
 -----------------
 DROP
 -----------------
@@ -30,46 +43,12 @@ The DROP statement is used to remove tables from the database. The keywords DROP
 The CASCADE parameter is used to specify that all objects depending on the table will also be dropped.
 The RESTRICT parameter is used to specify that the table referred to by table_name will not be dropped if there are existing objects depending on it.
 
--------------
-Other
--------------
-
-The following rule is currently a deviation from BNF due to a Reduce-Reduce conflict in the grammar:
-
-.. parsed-literal::
-   row_value_constructor : [(][value_expression|null_specification|default_specification] [, ....][)];
-
-A Primary Value Expression is denoted as follows:
-
-.. parsed-literal::
-   value_expression: unsigned_value_specification| column_reference | COUNT (\*|[set_quantifier] value_expression) | general_set_function | scalar_subquery | (value_expression);
-
-The primary value expression can either contain an unsigned value, a column reference, a set function or a subquery.
-
-general_set_function refers to functions on sets like AVG, SUM, MIN, MAX etc. A set function can also contain the keyword COUNT, to count the number of resulting columns or rows that result from the query.
-
-A query expression can be a joined table or a non joined query expression.
-
-.. parsed-literal::
-   query_expression: non_join_query_expression|joined_table;
-
-The non_join_query_expression includes simple tables and column lists.
-
-The comparative operators are:
-
-* EQUALS =
-* NOT EQUALS <>
-* LESS THAN <
-* GREATER THAN >
-* LESS THAN OR EQUALS <=
-* GREATER THAN OR EQUALS >=
-
 -----------
 SELECT
 -----------
 
 .. parsed-literal::
-   SELECT [ALL|DISTINCT] ASTERISK|column[...,column] from_clause where_clause group_by_clause having_clause [ORDER BY sort_specification_list] [SORT BY sort_specification];
+   SELECT [ALL | DISTINCT] ASTERISK | column[...,column] from_clause where_clause group_by_clause having_clause [ORDER BY sort_specification_list] [SORT BY sort_specification];
 
 The SELECT statement is used to select rows from the database by specifying a query, and optionally sorting the resulting rows.
 
@@ -91,7 +70,7 @@ Sorting
 To sort rows or columns in the database, you need to specify a key on which the rows can be sorted, potentially followed by a collate clause and/or ordered in ascending or descending order..
 
 .. parsed-literal::
-   column_reference|UNSIGNED_INTEGER [COLLATE collation_name] [ASC|DESC];
+   column_reference | UNSIGNED_INTEGER [COLLATE collation_name] [ASC | DESC];
 
 The sort key is either a reference to a column or an unsigned integer.
 
@@ -158,3 +137,38 @@ DELETE
 The delete statement consists of the keywords DELETE FROM followed by the name of the table and possibly a search condition.
 
 The search condition eventually yields a boolean true or false value, and may contain further search modifications detailing where to look to apply the search_condition and how to compare the resulting values.
+
+-------------
+Other
+-------------
+
+The following rule is currently a deviation from BNF due to a Reduce-Reduce conflict in the grammar:
+
+.. parsed-literal::
+   row_value_constructor : [(][value_expression | null_specification | default_specification] [, ....][)];
+
+A Primary Value Expression is denoted as follows:
+
+.. parsed-literal::
+   value_expression: unsigned_value_specification | column_reference | COUNT (\*|[set_quantifier] value_expression) | general_set_function | scalar_subquery | (value_expression);
+
+
+The primary value expression can either contain an unsigned value, a column reference, a set function or a subquery.
+
+general_set_function refers to functions on sets like AVG, SUM, MIN, MAX etc. A set function can also contain the keyword COUNT, to count the number of resulting columns or rows that result from the query.
+
+A query expression can be a joined table or a non joined query expression.
+
+.. parsed-literal::
+   query_expression: non_join_query_expression | joined_table;
+
+The non_join_query_expression includes simple tables and column lists.
+
+The comparative operators are:
+
+* EQUALS =
+* NOT EQUALS <>
+* LESS THAN <
+* GREATER THAN >
+* LESS THAN OR EQUALS <=
+* GREATER THAN OR EQUALS >=

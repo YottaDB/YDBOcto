@@ -304,48 +304,43 @@ default_specification
 numeric_value_expression
   : term { $$ = $1; }
   | numeric_value_expression PLUS term {
-      $$ = (SqlStatement*)malloc(sizeof(SqlStatement));
-      ($$)->type = binary_STATEMENT;
+      SQL_STATEMENT($$, binary_STATEMENT);
       ($$)->v.binary = (SqlBinaryOperation*)malloc(sizeof(SqlBinaryOperation));
       ($$)->v.binary->operation = ADDITION;
       ($$)->v.binary->operands[0] = ($1);
-      ($$)->v.binary->operands[0] = ($3);
+      ($$)->v.binary->operands[1] = ($3);
     }
   | numeric_value_expression MINUS term {
-      $$ = (SqlStatement*)malloc(sizeof(SqlStatement));
-      ($$)->type = binary_STATEMENT;
+      SQL_STATEMENT($$, binary_STATEMENT);
       ($$)->v.binary = (SqlBinaryOperation*)malloc(sizeof(SqlBinaryOperation));
       ($$)->v.binary->operation = SUBTRACTION;
       ($$)->v.binary->operands[0] = ($1);
-      ($$)->v.binary->operands[0] = ($3);
+      ($$)->v.binary->operands[1] = ($3);
     }
   ;
 
 term
   : factor { $$ = $1; }
   | term ASTERISK factor {
-      $$ = (SqlStatement*)malloc(sizeof(SqlStatement));
-      ($$)->type = binary_STATEMENT;
+      SQL_STATEMENT($$, binary_STATEMENT);
       ($$)->v.binary = (SqlBinaryOperation*)malloc(sizeof(SqlBinaryOperation));
       ($$)->v.binary->operation = MULTIPLICATION;
       ($$)->v.binary->operands[0] = ($1);
-      ($$)->v.binary->operands[0] = ($3);
+      ($$)->v.binary->operands[1] = ($3);
     }
   | term SOLIDUS factor {
-      $$ = (SqlStatement*)malloc(sizeof(SqlStatement));
-      ($$)->type = binary_STATEMENT;
+      SQL_STATEMENT($$, binary_STATEMENT);
       ($$)->v.binary = (SqlBinaryOperation*)malloc(sizeof(SqlBinaryOperation));
       ($$)->v.binary->operation = DVISION;
       ($$)->v.binary->operands[0] = ($1);
-      ($$)->v.binary->operands[0] = ($3);
+      ($$)->v.binary->operands[1] = ($3);
     }
   | term concatenation_operator factor {
-      $$ = (SqlStatement*)malloc(sizeof(SqlStatement));
-      ($$)->type = binary_STATEMENT;
+      SQL_STATEMENT($$, binary_STATEMENT);
       ($$)->v.binary = (SqlBinaryOperation*)malloc(sizeof(SqlBinaryOperation));
       ($$)->v.binary->operation = CONCAT;
       ($$)->v.binary->operands[0] = ($1);
-      ($$)->v.binary->operands[0] = ($3);
+      ($$)->v.binary->operands[1] = ($3);
     }
   ;
 
@@ -655,8 +650,8 @@ table_definition
           assert(pkey != NULL);
           snprintf(buffer, MAX_STR_CONST, "^%s(<%s>)", $column_name->v.value->v.reference,
             pkey->columnName->v.value->v.reference);
-          str_len = strnlen(buffer, MAX_STR_CONST) + 1;
-          out_buffer = malloc(str_len);
+          str_len = strnlen(buffer, MAX_STR_CONST);
+          out_buffer = malloc(str_len + 1);
           strncpy(out_buffer, buffer, str_len);
           out_buffer[str_len] = '\0';
           SQL_STATEMENT($table_definition_tail, keyword_STATEMENT);
@@ -668,7 +663,7 @@ table_definition
           ($table_definition_tail)->v.keyword->v->v.value->v.reference = out_buffer;
         }
         ($$)->v.table->source = $table_definition_tail;
-        //dqinit(($$)->v.table);
+        dqinit(($$)->v.table);
         //printf(">> CREATE TABLE %s\n", ($column_name)->v.value->v.string_literal);
       }
   ;
@@ -691,6 +686,7 @@ table_element_list
       {
         assert($table_element_list_tail->type = column_STATEMENT);
         dqinsert($table_element_list_tail->v.column, ($$)->v.column);
+        free($table_element_list_tail);
       }
     }
   ;
@@ -714,6 +710,9 @@ column_definition
       ($$)->v.column->columnName = $column_name;
       assert($data_type->type == data_type_STATEMENT);
       ($$)->v.column->type = $data_type->v.data_type;
+      cleanup_sql_statement($data_type);
+      ($$)->v.column->constraints = NULL;
+      ($$)->v.column->tableName = NULL;
       if($column_definition_tail) {
         assert($column_definition_tail->type == constraint_STATEMENT);
         ($$)->v.column->constraints = $column_definition_tail;
@@ -739,6 +738,7 @@ column_constraint_definition
       ($$)->v.constraint->type = $column_constraint->v.constraint_type;
       ($$)->v.constraint->referencesColumn = 0;
       ($$)->v.constraint->check_constraint_definition = 0;
+      cleanup_sql_statement($column_constraint);
       dqinit(($$)->v.constraint);
     }
   ;
@@ -808,6 +808,7 @@ data_type
   : character_string_type {
       SQL_STATEMENT($$, data_type_STATEMENT);
       ($$)->v.data_type = CHARACTER_STRING_TYPE;
+      cleanup_sql_statement($1); // This should be added as a constraint
     }
 //  | character_string_type CHARACTER SET character_set_specification
 //  | national_character_string_type
@@ -815,6 +816,9 @@ data_type
   | numeric_type {
       SQL_STATEMENT($$, data_type_STATEMENT);
       ($$)->v.data_type = INTEGER_TYPE;
+      if($numeric_type) {
+        cleanup_sql_statement($numeric_type);
+      }
     }
 //  | datetime_type
 //  | interval_type
@@ -822,52 +826,58 @@ data_type
 
 // These should be implemented as constraints
 character_string_type
-  : CHARACTER character_string_type_char_tail
-  | CHAR character_string_type_char_tail
-  | CHARACTER VARYING character_string_type_char_tail
-  | CHAR VARYING character_string_type_char_tail
-  | VARCHAR character_string_type_char_tail
+  : CHARACTER character_string_type_char_tail { $$ = $2; }
+  | CHAR character_string_type_char_tail { $$ = $2; }
+  | CHARACTER VARYING character_string_type_char_tail { $$ = $2; }
+  | CHAR VARYING character_string_type_char_tail { $$ = $2; }
+  | VARCHAR character_string_type_char_tail { $$ = $2; }
   ;
 
 character_string_type_char_tail
-  : /* Empty */
-  | LEFT_PAREN length RIGHT_PAREN
+  : /* Empty */ { $$ = NULL; }
+  | LEFT_PAREN length RIGHT_PAREN { $$ = $2; }
   ;
 
 length
-  : LITERAL
+  : LITERAL { $$ = $1; }
   ;
 
 numeric_type
-  : exact_numeric_type
+  : exact_numeric_type { $$ = $1; }
 //  | approximate_numeric_type
   ;
 
 exact_numeric_type
-  : NUMERIC exact_numeric_type_tail
-  | DECIMAL exact_numeric_type_tail
-  | DEC exact_numeric_type_tail
-  | INTEGER
-  | INT
-  | SMALLINT
+  : NUMERIC exact_numeric_type_tail { $$ = $2; }
+  | DECIMAL exact_numeric_type_tail { $$ = $2; }
+  | DEC exact_numeric_type_tail { $$ = $2; }
+  | INTEGER { $$ = NULL; }
+  | INT { $$ = NULL; }
+  | SMALLINT { $$ = NULL; }
   ;
 
+
+/// TODO: we should have a triple for this type of numeric which includes scale
 exact_numeric_type_tail
-  : /* Empty */
-  | LEFT_PAREN precision exact_numeric_type_tail_tail RIGHT_PAREN
+  : /* Empty */ { $$ = NULL; }
+  | LEFT_PAREN precision exact_numeric_type_tail_tail RIGHT_PAREN {
+      $$ = $precision;
+      if($exact_numeric_type_tail_tail)
+        cleanup_sql_statement($exact_numeric_type_tail_tail);
+    }
   ;
 
 exact_numeric_type_tail_tail
-  : /* Empty */
-  | COMMAND scale
+  : /* Empty */ { $$ = NULL; }
+  | COMMA scale { $$ = $2; }
   ;
 
 precision
-  : LITERAL
+  : LITERAL { $$ = $1; }
   ;
 
 scale
-  : LITERAL
+  : LITERAL { $$ = $1; }
   ;
 
 %%

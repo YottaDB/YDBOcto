@@ -52,6 +52,7 @@ int main(int argc, char **argv)
   SqlValue *value;
   SqlTable *table;
   SqlSelectStatement *select;
+  SqlStatement *tmp_statement;
   ydb_buffer_t schema_global, table_name_buffer, table_create_buffer, null_buffer;
 
   inputFile = NULL;
@@ -166,6 +167,8 @@ int main(int argc, char **argv)
     } else {
       dqinsert(definedTables, table);
     }
+    free(result);
+    yy_delete_buffer(state, scanner);
     result = NULL;
   } while(1);
 
@@ -195,12 +198,16 @@ int main(int argc, char **argv)
       error = 1;
       fprintf(stderr, "Error parsing statement\n");
     }
+    yy_delete_buffer(state, scanner);
     if (!quiet)
       printf("Done!\n");
-    if(dry_run)
-      continue;
     if(result == 0)
       continue;
+    if(dry_run) {
+      cleanup_sql_statement(result);
+      result = NULL;
+      continue;
+    }
     switch(result->type)
     {
     case select_STATEMENT:
@@ -242,9 +249,15 @@ int main(int argc, char **argv)
       cleanup_sql_statement(result);
       break;
     }
-    result = 0;
+    result = NULL;
   } while(!feof(inputFile));
-  yy_delete_buffer(state, scanner);
   yylex_destroy(scanner);
+  free(table_name_buffer.buf_addr);
+  free(table_create_buffer.buf_addr);
+  if(definedTables != NULL) {
+    SQL_STATEMENT(tmp_statement, table_STATEMENT);
+    tmp_statement->v.table = definedTables;
+    cleanup_sql_statement(tmp_statement);
+  }
   return error;
 }

@@ -5,4 +5,6 @@ source /opt/yottadb/current/ydb_env_set
 mkdir build
 cd build
 cmake ..
-make && make test
+make
+source activate
+make test

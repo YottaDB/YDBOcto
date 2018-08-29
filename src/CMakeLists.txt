@@ -8,6 +8,21 @@ configure_file (
   "${PROJECT_BINARY_DIR}/octo.h"
 )
 
+configure_file (
+  "${PROJECT_SOURCE_DIR}/tools/activate.in"
+  "${PROJECT_BINARY_DIR}/activate"
+)
+
+configure_file (
+  "${PROJECT_SOURCE_DIR}/tools/calltab.ci"
+  "${PROJECT_BINARY_DIR}/calltab.ci"
+)
+
+configure_file (
+  "${PROJECT_SOURCE_DIR}/tools/select.m"
+  "${PROJECT_BINARY_DIR}/select.m"
+)
+
 # Combine the parser grammars into a single file
 add_custom_command(OUTPUT ${PROJECT_BINARY_DIR}/parser.y
   DEPENDS parser.y

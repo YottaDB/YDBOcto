@@ -22,6 +22,7 @@
 #include <string.h>
 
 #include <libyottadb.h>
+#include <gtmxc_types.h>
 
 #include "octo.h"
 #include "octo_types.h"
@@ -54,6 +55,8 @@ int main(int argc, char **argv)
   SqlSelectStatement *select;
   SqlStatement *tmp_statement;
   ydb_buffer_t schema_global, table_name_buffer, table_create_buffer, null_buffer;
+  ydb_buffer_t cursor_global, cursor_exe_global[2];
+  gtm_char_t      err_msgbuf[BUFFER_SIZE];
 
   inputFile = NULL;
   definedTables = NULL;
@@ -71,6 +74,9 @@ int main(int argc, char **argv)
   }
   YDB_LITERAL_TO_BUFFER("^schema", &schema_global);
   YDB_LITERAL_TO_BUFFER("", &null_buffer);
+  YDB_LITERAL_TO_BUFFER("^cursor", &cursor_global);
+  YDB_LITERAL_TO_BUFFER("0", &cursor_exe_global[0]);
+  YDB_LITERAL_TO_BUFFER("exe", &cursor_exe_global[1]);
 
   /* Parse input parameters */
   while (1)
@@ -216,6 +222,18 @@ int main(int argc, char **argv)
       emit_select_statement(out, result);
       fclose(out);
       printf("%s\n", buffer);
+      YDB_COPY_STRING_TO_BUFFER(buffer, &table_name_buffer, done)
+      status = ydb_set_s(&cursor_global, 2,
+        cursor_exe_global,
+        &table_name_buffer);
+      assert(0 == status);
+      status = gtm_ci("select");
+       if (status != 0)
+       {
+                gtm_zstatus(err_msgbuf, BUFFER_SIZE);
+                fprintf(stderr, "%s\n", err_msgbuf);
+                return status;
+       }
       free(buffer);
       cleanup_sql_statement(result);
       break;
@@ -232,6 +250,7 @@ int main(int argc, char **argv)
       status = ydb_set_s(&schema_global, 1,
         &table_name_buffer,
         &table_create_buffer);
+      assert(status == 0);
       free(buffer);
       if(definedTables == NULL) {
         definedTables = result->v.table;
@@ -246,6 +265,7 @@ int main(int argc, char **argv)
       status = ydb_delete_s(&schema_global, 1,
         &table_name_buffer,
         YDB_DEL_NODE);
+      assert(status == 0);
       cleanup_sql_statement(result);
       break;
     }

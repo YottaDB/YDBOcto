@@ -14,7 +14,7 @@
  *
  * WARNING: caller is responsible for freeing the buffer
  */
-void emit_simple_select(char *output, const SqlTable *table, const char *column, char *formatted_source_begin, char *formatted_source_end)
+void emit_simple_select(char *output, const SqlTable *table, const char *column, char *source)
 {
   SqlValue *tmp_value;
   SqlColumn *cur_column, *start_column;
@@ -36,7 +36,7 @@ void emit_simple_select(char *output, const SqlTable *table, const char *column,
     piece_number++;
     cur_column = cur_column->next;
   } while(cur_column != start_column);
-  snprintf(output, MAX_EXPRESSION_LENGTH, "$PIECE(%skey%s,\"%s\",%d)", formatted_source_begin, formatted_source_end, delim, piece_number);
+  snprintf(output, MAX_EXPRESSION_LENGTH, "$PIECE(%s,\"%s\",%d)", source, delim, piece_number);
 }
 
 void extract_key(const char *source, char *key, char *formatted_source_begin, char *formatted_source_end)

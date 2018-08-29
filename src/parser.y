@@ -63,6 +63,7 @@ extern char *yytext;
 %token COUNT
 %token CREATE
 %token CROSS
+%token CURSE
 %token DEC
 %token DECIMAL
 %token DEFAULT
@@ -70,6 +71,7 @@ extern char *yytext;
 %token DESC
 %token DISTINCT
 %token DROP
+%token END
 %token EXCEPT
 %token FALSE_TOKEN
 %token FROM
@@ -104,6 +106,7 @@ extern char *yytext;
 %token SET
 %token SMALLINT
 %token SOURCE
+%token START
 %token SUM
 %token TABLE
 %token TRUE_TOKEN
@@ -643,39 +646,78 @@ table_definition
           && $column_name->v.value->type == COLUMN_REFERENCE);
         ($$)->v.table->tableName = $column_name;
         ($$)->v.table->columns = $table_element_list;
-        if($table_definition_tail == NULL) {
-          char buffer[MAX_STR_CONST], *out_buffer;
-          size_t str_len;
-          SqlColumn *pkey = fetch_primary_key_column(($$)->v.table);
-          assert(pkey != NULL);
-          snprintf(buffer, MAX_STR_CONST, "^%s(<%s>)", $column_name->v.value->v.reference,
-            pkey->columnName->v.value->v.reference);
-          str_len = strnlen(buffer, MAX_STR_CONST);
-          out_buffer = malloc(str_len + 1);
-          strncpy(out_buffer, buffer, str_len);
-          out_buffer[str_len] = '\0';
-          SQL_STATEMENT($table_definition_tail, keyword_STATEMENT);
-          ($table_definition_tail)->v.keyword = (SqlOptionalKeyword*)malloc(sizeof(SqlOptionalKeyword));
-          ($table_definition_tail)->v.keyword->keyword = OPTIONAL_SOURCE;
-          SQL_STATEMENT(($table_definition_tail)->v.keyword->v, value_STATEMENT);
-          ($table_definition_tail)->v.keyword->v->v.value = (SqlValue*)malloc(sizeof(SqlValue));
-          ($table_definition_tail)->v.keyword->v->v.value->type = COLUMN_REFERENCE;
-          ($table_definition_tail)->v.keyword->v->v.value->v.reference = out_buffer;
-        }
-        ($$)->v.table->source = $table_definition_tail;
+        ($$)->v.table->source = NULL;
+        ($$)->v.table->curse = NULL;
+        ($$)->v.table->start = NULL;
+        ($$)->v.table->end = NULL;
+        create_table_defaults($$, $table_definition_tail);
         dqinit(($$)->v.table);
         //printf(">> CREATE TABLE %s\n", ($column_name)->v.value->v.string_literal);
       }
   ;
 
 table_definition_tail
-  : /* Empty */ { $$ = 0; }
-  | SOURCE LITERAL {
+  : /* Empty */ {
+      SQL_STATEMENT($$, keyword_STATEMENT);
+      ($$)->v.keyword = (SqlOptionalKeyword*)malloc(sizeof(SqlOptionalKeyword));
+      ($$)->v.keyword->keyword = NO_KEYWORD;
+      ($$)->v.keyword->v = NULL;
+      dqinit(($$)->v.keyword);
+    }
+  | optional_keyword { $$ = $1; }
+  ;
+
+optional_keyword
+  : optional_keyword_element optional_keyword_tail {
+      $$ = $1;
+      if($optional_keyword_tail) {
+        if($optional_keyword_tail->v.keyword)
+          dqinsert(($$)->v.keyword, $optional_keyword_tail->v.keyword);
+        free($optional_keyword_tail);
+      }
+    }
+  ;
+
+optional_keyword_element
+  : SOURCE LITERAL {
       SQL_STATEMENT($$, keyword_STATEMENT);
       ($$)->v.keyword = (SqlOptionalKeyword*)malloc(sizeof(SqlOptionalKeyword));
       ($$)->v.keyword->keyword = OPTIONAL_SOURCE;
       ($$)->v.keyword->v = $2;
+      dqinit(($$)->v.keyword);
     }
+  | CURSE LITERAL {
+      SQL_STATEMENT($$, keyword_STATEMENT);
+      ($$)->v.keyword = (SqlOptionalKeyword*)malloc(sizeof(SqlOptionalKeyword));
+      ($$)->v.keyword->keyword = OPTIONAL_CURSE;
+      ($$)->v.keyword->v = $2;
+      dqinit(($$)->v.keyword);
+    }
+  | END LITERAL {
+      SQL_STATEMENT($$, keyword_STATEMENT);
+      ($$)->v.keyword = (SqlOptionalKeyword*)malloc(sizeof(SqlOptionalKeyword));
+      ($$)->v.keyword->keyword = OPTIONAL_END;
+      ($$)->v.keyword->v = $2;
+      dqinit(($$)->v.keyword);
+    }
+  | START LITERAL {
+      SQL_STATEMENT($$, keyword_STATEMENT);
+      ($$)->v.keyword = (SqlOptionalKeyword*)malloc(sizeof(SqlOptionalKeyword));
+      ($$)->v.keyword->keyword = OPTIONAL_START;
+      ($$)->v.keyword->v = $2;
+      dqinit(($$)->v.keyword);
+    }
+  ;
+
+optional_keyword_tail
+  : /* Empty */ {
+      SQL_STATEMENT($$, keyword_STATEMENT);
+      ($$)->v.keyword = (SqlOptionalKeyword*)malloc(sizeof(SqlOptionalKeyword));
+      ($$)->v.keyword->keyword = NO_KEYWORD;
+      ($$)->v.keyword->v = NULL;
+      dqinit(($$)->v.keyword);
+    }
+  | optional_keyword { $$ = $1; }
   ;
 
 table_element_list

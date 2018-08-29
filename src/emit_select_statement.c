@@ -23,7 +23,7 @@
 /**
  * WARNING: caller is responsible for freeing the buffer
  */
-char *extract_expression(SqlStatement *stmt, const SqlTable *table, char *formatted_source_begin, char *formatted_source_end)
+char *extract_expression(SqlStatement *stmt, const SqlTable *table, char *source)
 {
   SqlStatement *calculated;
   SqlBinaryOperation *binary;
@@ -48,14 +48,14 @@ char *extract_expression(SqlStatement *stmt, const SqlTable *table, char *format
       switch(calculated->type)
       {
       case value_STATEMENT:
-        tmp1 = extract_expression(calculated, table, formatted_source_begin, formatted_source_end);
+        tmp1 = extract_expression(calculated, table, source);
         snprintf(buffer, MAX_EXPRESSION_LENGTH, "%s", tmp1);
         free(tmp1);
         break;
       case binary_STATEMENT:
         binary = calculated->v.binary;
-        tmp1 = extract_expression(binary->operands[0], table, formatted_source_begin, formatted_source_end);
-        tmp2 = extract_expression(binary->operands[1], table, formatted_source_begin, formatted_source_end);
+        tmp1 = extract_expression(binary->operands[0], table, source);
+        tmp2 = extract_expression(binary->operands[1], table, source);
         switch(binary->operation)
         {
         case ADDITION:
@@ -83,7 +83,7 @@ char *extract_expression(SqlStatement *stmt, const SqlTable *table, char *format
       }
       break;
     case COLUMN_REFERENCE:
-      emit_simple_select(buffer, table, value->v.reference, formatted_source_begin, formatted_source_end);
+      emit_simple_select(buffer, table, value->v.reference, source);
       break;
     default:
       assert(0);
@@ -92,8 +92,8 @@ char *extract_expression(SqlStatement *stmt, const SqlTable *table, char *format
   case binary_STATEMENT:
     UNPACK_SQL_STATEMENT(binary, stmt, binary);
     binary = stmt->v.binary;
-    tmp1 = extract_expression(binary->operands[0], table, formatted_source_begin, formatted_source_end);
-    tmp2 = extract_expression(binary->operands[1], table, formatted_source_begin, formatted_source_end);
+    tmp1 = extract_expression(binary->operands[0], table, source);
+    tmp2 = extract_expression(binary->operands[1], table, source);
     switch(binary->operation)
     {
     case ADDITION:
@@ -137,10 +137,10 @@ void emit_select_statement(FILE *output, struct SqlStatement *stmt)
   SqlTable *table, *cur_table, *start_table;
   SqlColumn *cur_column, *start_column;
   SqlJoin *join;
-  char *tmp1, *formatted_source_begin, *formatted_source_end, *key, *source;
+  char *tmp1, *formatted_start, *start, *end, *curse, *source;
   int column_name_length;
 
-  char *m_template = "SET key=$G(%s) FOR  SET key=$O(%skey%s) Q:('key)!('$D(%skey%s))  ";
+  char *m_template = "%s FOR  %s %s ";
 
   //fprintf(output, " WRITE ");
   assert(stmt && stmt->type == select_STATEMENT);
@@ -161,15 +161,18 @@ void emit_select_statement(FILE *output, struct SqlStatement *stmt)
   assert(table->source->type == keyword_STATEMENT && table->source->v.keyword);
   UNPACK_SQL_STATEMENT(tmp_value, table->source->v.keyword->v, value);
   source = tmp_value->v.string_literal;
-  formatted_source_begin = malloc(MAX_STR_CONST);
-  formatted_source_end = malloc(MAX_STR_CONST);
-  key = malloc(MAX_STR_CONST);
-  extract_key(source, key, formatted_source_begin, formatted_source_end);
-  fprintf(output, m_template, "^cursor(0)", formatted_source_begin, formatted_source_end,
-    formatted_source_begin, formatted_source_end, formatted_source_begin, formatted_source_end);
+  UNPACK_SQL_STATEMENT(tmp_value, table->curse->v.keyword->v, value);
+  curse = tmp_value->v.string_literal;
+  UNPACK_SQL_STATEMENT(tmp_value, table->start->v.keyword->v, value);
+  formatted_start = malloc(MAX_STR_CONST);
+  start = tmp_value->v.string_literal;
+  snprintf(formatted_start, MAX_STR_CONST, start, "^cursor(0)");
+  UNPACK_SQL_STATEMENT(tmp_value, table->end->v.keyword->v, value);
+  end = tmp_value->v.string_literal;
+  fprintf(output, m_template, formatted_start, curse, end);
 
   UNPACK_SQL_STATEMENT(columns, select->select_list, column_list);
-  fprintf(output, "WRITE:$D(%skey%s) ", formatted_source_begin, formatted_source_end);
+  fprintf(output, "WRITE ");
   if (columns == NULL) {
     /* This was a SELECT * statement; add all columns to a list */
     UNPACK_SQL_STATEMENT(start_column, table->columns, column);
@@ -196,7 +199,7 @@ void emit_select_statement(FILE *output, struct SqlStatement *stmt)
     } while(cur_column != start_column);
   }
   for(; columns != 0;) {
-    tmp1 = extract_expression(columns->value, table, formatted_source_begin, formatted_source_end);
+    tmp1 = extract_expression(columns->value, table, source);
     fprintf(output, "%s", tmp1);
     free(tmp1);
     if(columns->next)
@@ -208,7 +211,5 @@ void emit_select_statement(FILE *output, struct SqlStatement *stmt)
       columns = 0;
   }
   fprintf(output, ",!");
-  free(formatted_source_begin);
-  free(formatted_source_end);
-  free(key);
+  free(formatted_start);
 }

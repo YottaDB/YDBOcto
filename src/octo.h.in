@@ -29,10 +29,13 @@ SqlColumn *fetch_primary_key_column(const SqlTable *table);
  * @param [out] formatted_source a pre-allocated buffer which will be the start of this expression
  */
 void extract_key(const char *source, char *key, char *formatted_source_begin, char *formatted_source_end);
-void emit_simple_select(char *output, const SqlTable *table, const char *column, char *formatted_source_begin, char *formatted_source_end);
+void emit_simple_select(char *output, const SqlTable *table, const char *column, char *source);
 void emit_create_table(FILE *output, struct SqlStatement *stmt);
 void emit_select_statement(FILE *output, SqlStatement *stmt);
 
 void cleanup_sql_statement(SqlStatement *stmt);
+void create_table_defaults(SqlStatement *table_statement, SqlStatement *keywords_statement);
+
+char *m_escape_string(const char *string);
 
 #endif

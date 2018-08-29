@@ -31,7 +31,7 @@ void emit_create_table(FILE *output, struct SqlStatement *stmt)
   SqlTable *table, *temp;
   SqlValue *value;
   SqlOptionalKeyword *keyword;
-  char *column_type, *constraint_text, *primary_key_name = 0;
+  char *column_type, *constraint_text, *primary_key_name = 0, *escaped_string;
   if(stmt == NULL)
     return;
   table = stmt->v.table;
@@ -57,10 +57,9 @@ void emit_create_table(FILE *output, struct SqlStatement *stmt)
     default:
       assert(0);
     }
-    cur_column = cur_column->next;
     if(cur_column->constraints) {
       UNPACK_SQL_STATEMENT(start_constraint, cur_column->constraints, constraint);
-        cur_constraint = start_constraint;
+      cur_constraint = start_constraint;
       do {
         switch(cur_constraint->type)
         {
@@ -79,13 +78,30 @@ void emit_create_table(FILE *output, struct SqlStatement *stmt)
         cur_constraint = cur_constraint->next;
       } while(start_constraint != cur_constraint);
     }
+    cur_column = cur_column->next;
     if(start_column != cur_column)
       fprintf(output, ", ");
   } while(start_column != cur_column);
   assert(table->source);
   UNPACK_SQL_STATEMENT(keyword, table->source, keyword);
   UNPACK_SQL_STATEMENT(value, keyword->v, value);
-  fprintf(output, ") SOURCE \"%s\";", value->v.reference);
+  escaped_string = m_escape_string(value->v.reference);
+  fprintf(output, ") SOURCE \"%s\"", escaped_string);
+  assert(table->curse);
+  UNPACK_SQL_STATEMENT(keyword, table->curse, keyword);
+  UNPACK_SQL_STATEMENT(value, keyword->v, value);
+  escaped_string = m_escape_string(value->v.reference);
+  fprintf(output, " CURSE \"%s\"", escaped_string);
+  assert(table->start);
+  UNPACK_SQL_STATEMENT(keyword, table->start, keyword);
+  UNPACK_SQL_STATEMENT(value, keyword->v, value);
+  escaped_string = m_escape_string(value->v.reference);
+  fprintf(output, " START \"%s\"", escaped_string);
+  assert(table->end);
+  UNPACK_SQL_STATEMENT(keyword, table->end, keyword);
+  UNPACK_SQL_STATEMENT(value, keyword->v, value);
+  escaped_string = m_escape_string(value->v.reference);
+  fprintf(output, " END \"%s\";", escaped_string);
 }
 
 void emit_column_specification(FILE *output, SqlColumn *column)

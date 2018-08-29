@@ -65,6 +65,7 @@ int copied_so_far;
 (?i:COUNT) { return COUNT; }
 (?i:CREATE) { return CREATE; }
 (?i:CROSS) { return CROSS; }
+(?i:CURSE) { return CURSE; }
 (?i:DEC) { return DEC; }
 (?i:DECIMAL) { return DECIMAL; }
 (?i:DEFAULT) { return DEFAULT; }
@@ -72,6 +73,7 @@ int copied_so_far;
 (?i:DESC) { return DESC; }
 (?i:DISTINCT) { return DISTINCT; }
 (?i:DROP) { return DROP; }
+(?i:END) { return END; }
 (?i:EXCEPT) { return EXCEPT; }
 (?i:FALSE_TOKEN) { return FALSE_TOKEN; }
 (?i:FROM) { return FROM; }
@@ -106,6 +108,7 @@ int copied_so_far;
 (?i:SET) { return SET; }
 (?i:SMALLINT) { return SMALLINT; }
 (?i:SOURCE) { return SOURCE; }
+(?i:START) { return START; }
 (?i:SUM) { return SUM; }
 (?i:TABLE) { return TABLE; }
 (?i:TRUE_TOKEN) { return TRUE_TOKEN; }

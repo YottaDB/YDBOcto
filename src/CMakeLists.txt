@@ -52,6 +52,8 @@ add_library(libocto OBJECT
   emit_select_statement.c
   cleanup_sql_statement.c
   fetch_primary_key_column.c
+  quoting.c
+  create_table_defaults.c
   m_templates/emit_simple_select.c
   ${BISON_OctoParser_OUTPUTS}
   ${FLEX_OctoLexer_OUTPUTS}

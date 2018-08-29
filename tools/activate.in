@@ -1,0 +1,3 @@
+source /usr/library/V976/dbg/ydb_env_set
+export ydb_routines="@PROJECT_BINARY_DIR@ $ydb_routines"
+export ydb_ci="@PROJECT_BINARY_DIR@/calltab.ci"

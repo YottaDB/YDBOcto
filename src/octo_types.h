@@ -92,7 +92,11 @@ enum SqlConstraintType {
 };
 
 enum OptionalKeyword {
+  NO_KEYWORD,
   OPTIONAL_SOURCE,
+  OPTIONAL_CURSE,
+  OPTIONAL_END,
+  OPTIONAL_START,
   OPTIONAL_CASCADE,
   OPTIONAL_RESTRICT
 };
@@ -153,6 +157,9 @@ struct SqlTable
   SqlStatement *tableName;
   SqlStatement *source;
   SqlStatement *columns;
+  SqlStatement *curse;
+  SqlStatement *start;
+  SqlStatement *end;
   dqcreate(SqlTable);
 };
 
@@ -162,6 +169,7 @@ struct SqlOptionalKeyword
 {
   enum OptionalKeyword keyword;
   SqlStatement *v;
+  dqcreate(SqlOptionalKeyword);
 } typedef SqlOptionalKeyword;
 
 /**

@@ -32,7 +32,6 @@
 #define BUFFER_SIZE 1024
 
 extern int yydebug;
-FILE *yyin;
 
 static int verbose_flag;
 static int dry_run;
@@ -120,9 +119,8 @@ int main(int argc, char **argv)
     case 't':
       inputFile = fopen(optarg, "r");
       assert(inputFile);
-      yyin = inputFile;
       yy_switch_to_buffer(
-            yy_create_buffer( yyin, YY_BUF_SIZE, scanner), scanner);
+            yy_create_buffer( inputFile, YY_BUF_SIZE, scanner), scanner);
       if(yyparse(scanner, &result))
       {
         error = 1;

@@ -28,10 +28,10 @@
 #  YOTTADB_LIBRARIES - The libraries needed to use YottaDB
 
 find_path(YOTTADB_INCLUDE_DIR NAMES libyottadb.h
-          HINTS $ENV{ydb_dist})
+          HINTS $ENV{ydb_dist} $ENV{gtm_dist})
 
 find_library(YOTTADB_LIBRARY NAMES yottadb gtmshr
-             HINTS $ENV{ydb_dist})
+             HINTS $ENV{ydb_dist} $ENV{gtm_dist})
 
 set(YOTTADB_LIBRARIES ${YOTTADB_LIBRARY})
 set(YOTTADB_INCLUDE_DIRS ${YOTTADB_INCLUDE_DIR})

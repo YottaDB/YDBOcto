@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 3.4.3)
+cmake_minimum_required (VERSION 2.8)
 project(OctoSQL)
 set(OCTO_SQL_MAJOR_VERSION 0)
 set(OCTO_SQL_MINOR_VERSION 1)

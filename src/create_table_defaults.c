@@ -138,8 +138,8 @@ void create_table_defaults(SqlStatement *table_statement, SqlStatement *keywords
     dqinsert(start_keyword, keyword);
   }
   if(!(options & END)) {
-    snprintf(buffer, MAX_STR_CONST, "USE:('%s) $P Q:('%s)  ",
-      pkey->columnName->v.value->v.reference, pkey->columnName->v.value->v.reference);
+    snprintf(buffer, MAX_STR_CONST, "('%s)",
+      pkey->columnName->v.value->v.reference);
     str_len = strnlen(buffer, MAX_STR_CONST);
     out_buffer = malloc(str_len + 1);
     strncpy(out_buffer, buffer, str_len);

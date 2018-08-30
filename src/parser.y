@@ -184,26 +184,54 @@ delete_statement_searched_tail
   ;
 
 search_condition
-  : boolean_term
-  | search_condition OR boolean_term
+  : boolean_term {$$ = $boolean_term; }
+  | search_condition OR boolean_term  {
+      SQL_STATEMENT($$, binary_STATEMENT);
+      ($$)->v.binary = (SqlBinaryOperation*)malloc(sizeof(SqlBinaryOperation));
+      ($$)->v.binary->operation = BOOLEAN_OR;
+      ($$)->v.binary->operands[0] = ($1);
+      ($$)->v.binary->operands[1] = ($3);
+    }
   ;
 
 boolean_term
-  : boolean_factor
-  | boolean_term AND boolean_factor
+  : boolean_factor { $$ = $boolean_factor; }
+  | boolean_term AND boolean_factor {
+      SQL_STATEMENT($$, binary_STATEMENT);
+      ($$)->v.binary = (SqlBinaryOperation*)malloc(sizeof(SqlBinaryOperation));
+      ($$)->v.binary->operation = BOOLEAN_AND;
+      ($$)->v.binary->operands[0] = ($1);
+      ($$)->v.binary->operands[1] = ($3);
+    }
   ;
 
 boolean_factor
-  : boolean_test
-  | NOT boolean_test
+  : boolean_test { $$ = $1; }
+  | NOT boolean_test {
+      $$ = (SqlStatement*)malloc(sizeof(SqlStatement));
+      ($$)->type = unary_STATEMENT;
+      ($$)->v.unary = (SqlUnaryOperation*)malloc(sizeof(SqlUnaryOperation));
+      ($$)->v.unary->operation = BOOLEAN_NOT;
+      ($$)->v.unary->operand = ($2);
+    }
   ;
 
 boolean_test
-  : boolean_primary boolean_test_tail
+  : boolean_primary boolean_test_tail {
+      if($boolean_test_tail != NULL) {
+        SQL_STATEMENT($$, binary_STATEMENT);
+        ($$)->v.binary = (SqlBinaryOperation*)malloc(sizeof(SqlBinaryOperation));
+        ($$)->v.binary->operation = BOOLEAN_IS;
+        ($$)->v.binary->operands[0] = ($1);
+        ($$)->v.binary->operands[1] = ($2);
+      } else {
+        $$ = $boolean_primary;
+      }
+    }
   ;
 
 boolean_test_tail
-  : /* Empty */
+  : /* Empty */ { $$ = NULL; }
   | IS boolean_test_tail_tail
   ;
 
@@ -219,14 +247,14 @@ truth_value
   ;
 
 boolean_primary
-  : predicate
-  | LEFT_PAREN search_condition RIGHT_PAREN
+  : predicate { $$ = $predicate; }
+  | LEFT_PAREN search_condition RIGHT_PAREN { $$ = $search_condition; }
   ;
 
 predicate
-  : comparison_predicate
+  : comparison_predicate { $$ = $1; }
 //  | between_predicate
-  | in_predicate
+  | in_predicate { $$ = $1; }
 //  | like_predicate
 //  | null_predicate
 //  | quantified_comparison_predicate
@@ -236,18 +264,68 @@ predicate
   ;
 
 comparison_predicate
-  : row_value_constructor comp_op row_value_constructor
+  : row_value_constructor EQUALS row_value_constructor {
+      SQL_STATEMENT($$, binary_STATEMENT);
+      ($$)->v.binary = (SqlBinaryOperation*)malloc(sizeof(SqlBinaryOperation));
+      ($$)->v.binary->operation = BOOLEAN_EQUALS;
+      ($$)->v.binary->operands[0] = ($1);
+      ($$)->v.binary->operands[1] = ($3);
+    }
+  | row_value_constructor NOT_EQUALS row_value_constructor {
+      SQL_STATEMENT($$, binary_STATEMENT);
+      ($$)->v.binary = (SqlBinaryOperation*)malloc(sizeof(SqlBinaryOperation));
+      ($$)->v.binary->operation = BOOLEAN_NOT_EQUALS;
+      ($$)->v.binary->operands[0] = ($1);
+      ($$)->v.binary->operands[1] = ($3);
+    }
+  | row_value_constructor LESS_THAN row_value_constructor {
+      SQL_STATEMENT($$, binary_STATEMENT);
+      ($$)->v.binary = (SqlBinaryOperation*)malloc(sizeof(SqlBinaryOperation));
+      ($$)->v.binary->operation = BOOLEAN_LESS_THAN;
+      ($$)->v.binary->operands[0] = ($1);
+      ($$)->v.binary->operands[1] = ($3);
+    }
+  | row_value_constructor GREATER_THAN row_value_constructor {
+      SQL_STATEMENT($$, binary_STATEMENT);
+      ($$)->v.binary = (SqlBinaryOperation*)malloc(sizeof(SqlBinaryOperation));
+      ($$)->v.binary->operation = BOOLEAN_GREATER_THAN;
+      ($$)->v.binary->operands[0] = ($1);
+      ($$)->v.binary->operands[1] = ($3);
+    }
+  | row_value_constructor LESS_THAN_OR_EQUALS row_value_constructor {
+      SQL_STATEMENT($$, binary_STATEMENT);
+      ($$)->v.binary = (SqlBinaryOperation*)malloc(sizeof(SqlBinaryOperation));
+      ($$)->v.binary->operation = BOOLEAN_LESS_THAN_OR_EQUALS;
+      ($$)->v.binary->operands[0] = ($1);
+      ($$)->v.binary->operands[1] = ($3);
+    }
+  | row_value_constructor GREATER_THAN_OR_EQUALS row_value_constructor {
+      SQL_STATEMENT($$, binary_STATEMENT);
+      ($$)->v.binary = (SqlBinaryOperation*)malloc(sizeof(SqlBinaryOperation));
+      ($$)->v.binary->operation = BOOLEAN_GREATER_THAN_OR_EQUALS;
+      ($$)->v.binary->operands[0] = ($1);
+      ($$)->v.binary->operands[1] = ($3);
+    }
   ;
 
 in_predicate
-  : row_value_constructor in_not_in in_predicate_value
+  : row_value_constructor IN in_predicate_value {
+      SQL_STATEMENT($$, binary_STATEMENT);
+      ($$)->v.binary = (SqlBinaryOperation*)malloc(sizeof(SqlBinaryOperation));
+      ($$)->v.binary->operation = BOOLEAN_IN;
+      ($$)->v.binary->operands[0] = ($1);
+      ($$)->v.binary->operands[1] = ($3);
+    }
+  | row_value_constructor NOT IN in_predicate_value {
+      SQL_STATEMENT($$, binary_STATEMENT);
+      ($$)->v.binary = (SqlBinaryOperation*)malloc(sizeof(SqlBinaryOperation));
+      ($$)->v.binary->operation = BOOLEAN_NOT_IN;
+      ($$)->v.binary->operands[0] = ($1);
+      ($$)->v.binary->operands[1] = ($3);
+    }
   ;
 
-in_not_in
-  : IN
-  | NOT IN
-  ;
-
+/// TODO: these require additional structures in octo_types.h
 in_predicate_value
   : table_subquery
   | LEFT_PAREN in_value_list RIGHT_PAREN
@@ -562,15 +640,6 @@ column_name_list_tail
 query_term
   : non_join_query_term
   | joined_table
-  ;
-
-comp_op
-  : EQUALS
-  | NOT_EQUALS
-  | LESS_THAN
-  | GREATER_THAN
-  | LESS_THAN_OR_EQUALS
-  | GREATER_THAN_OR_EQUALS
   ;
 
 non_join_query_term

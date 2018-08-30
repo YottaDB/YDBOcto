@@ -73,6 +73,42 @@ char *extract_expression(SqlStatement *stmt, const SqlTable *table, char *source
         case CONCAT:
           tmp3 = "_";
           break;
+        case BOOLEAN_OR:
+          tmp3 = "!";
+          break;
+        case BOOLEAN_AND:
+          tmp3 = "&";
+          break;
+        case BOOLEAN_IS:
+          tmp3 = "_";
+          assert(0);
+          break;
+        case BOOLEAN_EQUALS:
+          tmp3 = "=";
+          break;
+        case BOOLEAN_NOT_EQUALS:
+          tmp3 = "'='";
+          break;
+        case BOOLEAN_LESS_THAN:
+          tmp3 = "<";
+          break;
+        case BOOLEAN_GREATER_THAN:
+          tmp3 = ">";
+          break;
+        case BOOLEAN_LESS_THAN_OR_EQUALS:
+          tmp3 = "'>'";
+          break;
+        case BOOLEAN_GREATER_THAN_OR_EQUALS:
+          tmp3 = "'<'";
+          break;
+        case BOOLEAN_IN:
+          tmp3 = "_";
+          assert(0);
+          break;
+        case BOOLEAN_NOT_IN:
+          tmp3 = "_";
+          assert(0);
+          break;
         default:
           assert(0);
         }
@@ -111,6 +147,42 @@ char *extract_expression(SqlStatement *stmt, const SqlTable *table, char *source
     case CONCAT:
       tmp3 = "_";
       break;
+    case BOOLEAN_OR:
+      tmp3 = "!";
+      break;
+    case BOOLEAN_AND:
+      tmp3 = "&";
+      break;
+    case BOOLEAN_IS:
+      tmp3 = "_";
+      assert(0);
+      break;
+    case BOOLEAN_EQUALS:
+      tmp3 = "=";
+      break;
+    case BOOLEAN_NOT_EQUALS:
+      tmp3 = "'='";
+      break;
+    case BOOLEAN_LESS_THAN:
+      tmp3 = "<";
+      break;
+    case BOOLEAN_GREATER_THAN:
+      tmp3 = ">";
+      break;
+    case BOOLEAN_LESS_THAN_OR_EQUALS:
+      tmp3 = "'>'";
+      break;
+    case BOOLEAN_GREATER_THAN_OR_EQUALS:
+      tmp3 = "'<'";
+      break;
+    case BOOLEAN_IN:
+      tmp3 = "_";
+      assert(0);
+      break;
+    case BOOLEAN_NOT_IN:
+      tmp3 = "_";
+      assert(0);
+      break;
     default:
       assert(0);
     }
@@ -140,7 +212,7 @@ void emit_select_statement(FILE *output, struct SqlStatement *stmt)
   char *tmp1, *formatted_start, *start, *end, *curse, *source;
   int column_name_length;
 
-  char *m_template = "%s FOR  %s Q:%s  ";
+  char *m_template = "%s FOR  %s USE:%s $P Q:%s  ";
 
   //fprintf(output, " WRITE ");
   assert(stmt && stmt->type == select_STATEMENT);
@@ -169,10 +241,15 @@ void emit_select_statement(FILE *output, struct SqlStatement *stmt)
   snprintf(formatted_start, MAX_STR_CONST, start, "^cursor(0)");
   UNPACK_SQL_STATEMENT(tmp_value, table->end->v.keyword->v, value);
   end = m_unescape_string(tmp_value->v.string_literal);
-  fprintf(output, m_template, formatted_start, curse, end);
+  fprintf(output, m_template, formatted_start, curse, end, end);
 
   UNPACK_SQL_STATEMENT(columns, select->select_list, column_list);
-  fprintf(output, "WRITE ");
+  if(select->where_expression) {
+    tmp1 = extract_expression(select->where_expression, table, source);
+    fprintf(output, "WRITE:%s ", tmp1);
+  }
+  else
+    fprintf(output, "WRITE ");
   if (columns == NULL) {
     /* This was a SELECT * statement; add all columns to a list */
     UNPACK_SQL_STATEMENT(start_column, table->columns, column);

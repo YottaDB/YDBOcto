@@ -66,6 +66,7 @@ table_expression
       ($$)->type = select_STATEMENT;
       ($$)->v.select = (SqlSelectStatement*)malloc(sizeof(SqlSelectStatement));
       ($$)->v.select->table_list = ($1);
+      ($$)->v.select->where_expression = $where_clause;
     }
   ;
 
@@ -176,8 +177,8 @@ outer_join_type
   ;
 
 where_clause
-  : /* Empty */
-  | WHERE search_condition
+  : /* Empty */ { $$ = NULL; }
+  | WHERE search_condition { $$ = $search_condition; }
   ;
 
 group_by_clause

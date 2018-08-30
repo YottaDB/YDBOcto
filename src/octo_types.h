@@ -53,7 +53,8 @@ enum SqlStatementType {
 
 enum UnaryOperations {
   FORCE_NUM,
-  NEGATIVE
+  NEGATIVE,
+  BOOLEAN_NOT
 };
 
 enum BinaryOperations {
@@ -61,7 +62,18 @@ enum BinaryOperations {
   SUBTRACTION,
   DVISION,
   MULTIPLICATION,
-  CONCAT
+  CONCAT,
+  BOOLEAN_OR,
+  BOOLEAN_AND,
+  BOOLEAN_IS,
+  BOOLEAN_EQUALS,
+  BOOLEAN_NOT_EQUALS,
+  BOOLEAN_LESS_THAN,
+  BOOLEAN_GREATER_THAN,
+  BOOLEAN_LESS_THAN_OR_EQUALS,
+  BOOLEAN_GREATER_THAN_OR_EQUALS,
+  BOOLEAN_IN,
+  BOOLEAN_NOT_IN
 };
 
 enum SqlValueType {
@@ -193,6 +205,7 @@ struct SqlSelectStatement
 {
   SqlStatement *select_list;
   SqlStatement *table_list;
+  SqlStatement *where_expression;
 } typedef SqlSelectStatement;
 
 /*

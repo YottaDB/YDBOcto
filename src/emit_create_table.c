@@ -32,7 +32,7 @@ void emit_create_table(FILE *output, struct SqlStatement *stmt)
   SqlTable *table, *temp;
   SqlValue *value;
   SqlOptionalKeyword *keyword, *cur_keyword, *start_keyword;
-  char *column_type, *constraint_text, *primary_key_name = 0, *escaped_string;
+  char *column_type, *constraint_text, *primary_key_name = 0;
   if(stmt == NULL)
     return;
   table = stmt->v.table;
@@ -102,33 +102,23 @@ void emit_create_table(FILE *output, struct SqlStatement *stmt)
   assert(table->source);
   UNPACK_SQL_STATEMENT(keyword, table->source, keyword);
   UNPACK_SQL_STATEMENT(value, keyword->v, value);
-  escaped_string = m_escape_string(value->v.reference);
   fprintf(output, ") SOURCE \"%s\"", value->v.reference);
-  free(escaped_string);
   assert(table->curse);
   UNPACK_SQL_STATEMENT(keyword, table->curse, keyword);
   UNPACK_SQL_STATEMENT(value, keyword->v, value);
-  escaped_string = m_escape_string(value->v.reference);
   fprintf(output, " CURSE \"%s\"", value->v.reference);
-  free(escaped_string);
   assert(table->start);
   UNPACK_SQL_STATEMENT(keyword, table->start, keyword);
   UNPACK_SQL_STATEMENT(value, keyword->v, value);
-  escaped_string = m_escape_string(value->v.reference);
   fprintf(output, " START \"%s\"", value->v.reference);
-  free(escaped_string);
   assert(table->end);
   UNPACK_SQL_STATEMENT(keyword, table->end, keyword);
   UNPACK_SQL_STATEMENT(value, keyword->v, value);
-  escaped_string = m_escape_string(value->v.reference);
   fprintf(output, " END \"%s\"", value->v.reference);
-  free(escaped_string);
   assert(table->delim);
   UNPACK_SQL_STATEMENT(keyword, table->delim, keyword);
   UNPACK_SQL_STATEMENT(value, keyword->v, value);
-  escaped_string = m_escape_string(value->v.reference);
   fprintf(output, " DELIM \"%s\";", value->v.reference);
-  free(escaped_string);
 }
 
 void emit_column_specification(FILE *output, SqlColumn *column)

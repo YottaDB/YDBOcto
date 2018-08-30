@@ -18,7 +18,8 @@ void emit_simple_select(char *output, const SqlTable *table, const char *column,
 {
   SqlValue *tmp_value;
   SqlColumn *cur_column, *start_column;
-  char *global;
+  SqlOptionalKeyword *start_keyword, *cur_keyword;
+  char *global, *temp;
   char *delim="|";
   int piece_number;
 
@@ -36,6 +37,25 @@ void emit_simple_select(char *output, const SqlTable *table, const char *column,
     piece_number++;
     cur_column = cur_column->next;
   } while(cur_column != start_column);
+  UNPACK_SQL_STATEMENT(start_keyword, cur_column->keywords, keyword);
+  cur_keyword = start_keyword;
+  do {
+    switch(cur_keyword->keyword) {
+    case OPTIONAL_EXTRACT:
+      UNPACK_SQL_STATEMENT(tmp_value, cur_keyword->v, value);
+      temp = m_unescape_string(tmp_value->v.string_literal);
+      snprintf(output, MAX_EXPRESSION_LENGTH, "%s", temp);
+      free(temp);
+      return;
+      break;
+    case NO_KEYWORD:
+      break;
+    default:
+      assert(0);
+      break;
+    }
+    cur_keyword = cur_keyword->next;
+  } while(cur_keyword != start_keyword);
   snprintf(output, MAX_EXPRESSION_LENGTH, "$PIECE(%s,\"%s\",%d)", source, delim, piece_number);
 }
 

@@ -68,11 +68,13 @@ extern char *yytext;
 %token DECIMAL
 %token DEFAULT
 %token DELETE
+%token DELIM
 %token DESC
 %token DISTINCT
 %token DROP
 %token END
 %token EXCEPT
+%token EXTRACT
 %token FALSE_TOKEN
 %token FROM
 %token FULL
@@ -650,6 +652,7 @@ table_definition
         ($$)->v.table->curse = NULL;
         ($$)->v.table->start = NULL;
         ($$)->v.table->end = NULL;
+        ($$)->v.table->delim = NULL;
         create_table_defaults($$, $table_definition_tail);
         dqinit(($$)->v.table);
         //printf(">> CREATE TABLE %s\n", ($column_name)->v.value->v.string_literal);
@@ -669,12 +672,11 @@ table_definition_tail
 
 optional_keyword
   : optional_keyword_element optional_keyword_tail {
-      $$ = $1;
-      if($optional_keyword_tail) {
-        if($optional_keyword_tail->v.keyword)
-          dqinsert(($$)->v.keyword, $optional_keyword_tail->v.keyword);
-        free($optional_keyword_tail);
-      }
+      $$ = $optional_keyword_element;
+      SqlOptionalKeyword *keyword;
+      UNPACK_SQL_STATEMENT(keyword, $optional_keyword_tail, keyword);
+      dqinsert(keyword, ($$)->v.keyword);
+      free($optional_keyword_tail);
     }
   ;
 
@@ -707,6 +709,13 @@ optional_keyword_element
       ($$)->v.keyword->v = $2;
       dqinit(($$)->v.keyword);
     }
+  | DELIM LITERAL {
+       SQL_STATEMENT($$, keyword_STATEMENT);
+       ($$)->v.keyword = (SqlOptionalKeyword*)malloc(sizeof(SqlOptionalKeyword));
+       ($$)->v.keyword->keyword = OPTIONAL_DELIM;
+       ($$)->v.keyword->v = $2;
+       dqinit(($$)->v.keyword);
+     }
   ;
 
 optional_keyword_tail
@@ -717,7 +726,7 @@ optional_keyword_tail
       ($$)->v.keyword->v = NULL;
       dqinit(($$)->v.keyword);
     }
-  | optional_keyword { $$ = $1; }
+  | optional_keyword { assert($optional_keyword->type == keyword_STATEMENT); $$ = $optional_keyword; }
   ;
 
 table_element_list
@@ -745,7 +754,7 @@ table_element
 
 /// TODO: not complete
 column_definition
-  : column_name data_type column_definition_tail {
+  : column_name data_type column_definition_tail column_optional_keyword {
       SQL_STATEMENT($$, column_STATEMENT);
       ($$)->v.column = (SqlColumn*)malloc(sizeof(SqlColumn));
       dqinit(($$)->v.column);
@@ -755,6 +764,7 @@ column_definition
       cleanup_sql_statement($data_type);
       ($$)->v.column->constraints = NULL;
       ($$)->v.column->tableName = NULL;
+      ($$)->v.column->keywords = $column_optional_keyword;
       if($column_definition_tail) {
         assert($column_definition_tail->type == constraint_STATEMENT);
         ($$)->v.column->constraints = $column_definition_tail;
@@ -769,7 +779,7 @@ column_name
 
 column_definition_tail
   : /* Empty */ { $$ = 0; }
-  | column_constraint_definition { $$ = $1; }
+  | column_constraint_definition column_definition_tail { $$ = $1; }
   ;
 
 column_constraint_definition
@@ -782,6 +792,23 @@ column_constraint_definition
       ($$)->v.constraint->check_constraint_definition = 0;
       cleanup_sql_statement($column_constraint);
       dqinit(($$)->v.constraint);
+    }
+  ;
+
+column_optional_keyword
+  : /* Empty */ {
+       SQL_STATEMENT($$, keyword_STATEMENT);
+       ($$)->v.keyword = (SqlOptionalKeyword*)malloc(sizeof(SqlOptionalKeyword));
+       ($$)->v.keyword->keyword = NO_KEYWORD;
+       ($$)->v.keyword->v = NULL;
+       dqinit(($$)->v.keyword);
+    }
+  | EXTRACT LITERAL {
+       SQL_STATEMENT($$, keyword_STATEMENT);
+       ($$)->v.keyword = (SqlOptionalKeyword*)malloc(sizeof(SqlOptionalKeyword));
+       ($$)->v.keyword->keyword = OPTIONAL_EXTRACT;
+       ($$)->v.keyword->v = $2;
+       dqinit(($$)->v.keyword);
     }
   ;
 

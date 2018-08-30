@@ -14,6 +14,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 #include <stdio.h>
+#include <stdlib.h>
 #include <assert.h>
 
 #include "octo.h"
@@ -30,7 +31,7 @@ void emit_create_table(FILE *output, struct SqlStatement *stmt)
   SqlConstraint *start_constraint, *cur_constraint;
   SqlTable *table, *temp;
   SqlValue *value;
-  SqlOptionalKeyword *keyword;
+  SqlOptionalKeyword *keyword, *cur_keyword, *start_keyword;
   char *column_type, *constraint_text, *primary_key_name = 0, *escaped_string;
   if(stmt == NULL)
     return;
@@ -78,6 +79,22 @@ void emit_create_table(FILE *output, struct SqlStatement *stmt)
         cur_constraint = cur_constraint->next;
       } while(start_constraint != cur_constraint);
     }
+    UNPACK_SQL_STATEMENT(start_keyword, cur_column->keywords, keyword);
+    cur_keyword = start_keyword;
+    do {
+      switch(cur_keyword->keyword)
+      {
+      case OPTIONAL_EXTRACT:
+        UNPACK_SQL_STATEMENT(value, cur_keyword->v, value);
+        fprintf(output, " EXTRACT \"%s\"", value->v.reference);
+        break;
+      case NO_KEYWORD:
+        break;
+      default:
+        assert(0);
+        break;
+      }
+    } while(cur_keyword != start_keyword);
     cur_column = cur_column->next;
     if(start_column != cur_column)
       fprintf(output, ", ");
@@ -86,22 +103,32 @@ void emit_create_table(FILE *output, struct SqlStatement *stmt)
   UNPACK_SQL_STATEMENT(keyword, table->source, keyword);
   UNPACK_SQL_STATEMENT(value, keyword->v, value);
   escaped_string = m_escape_string(value->v.reference);
-  fprintf(output, ") SOURCE \"%s\"", escaped_string);
+  fprintf(output, ") SOURCE \"%s\"", value->v.reference);
+  free(escaped_string);
   assert(table->curse);
   UNPACK_SQL_STATEMENT(keyword, table->curse, keyword);
   UNPACK_SQL_STATEMENT(value, keyword->v, value);
   escaped_string = m_escape_string(value->v.reference);
-  fprintf(output, " CURSE \"%s\"", escaped_string);
+  fprintf(output, " CURSE \"%s\"", value->v.reference);
+  free(escaped_string);
   assert(table->start);
   UNPACK_SQL_STATEMENT(keyword, table->start, keyword);
   UNPACK_SQL_STATEMENT(value, keyword->v, value);
   escaped_string = m_escape_string(value->v.reference);
-  fprintf(output, " START \"%s\"", escaped_string);
+  fprintf(output, " START \"%s\"", value->v.reference);
+  free(escaped_string);
   assert(table->end);
   UNPACK_SQL_STATEMENT(keyword, table->end, keyword);
   UNPACK_SQL_STATEMENT(value, keyword->v, value);
   escaped_string = m_escape_string(value->v.reference);
-  fprintf(output, " END \"%s\";", escaped_string);
+  fprintf(output, " END \"%s\"", value->v.reference);
+  free(escaped_string);
+  assert(table->delim);
+  UNPACK_SQL_STATEMENT(keyword, table->delim, keyword);
+  UNPACK_SQL_STATEMENT(value, keyword->v, value);
+  escaped_string = m_escape_string(value->v.reference);
+  fprintf(output, " DELIM \"%s\";", value->v.reference);
+  free(escaped_string);
 }
 
 void emit_column_specification(FILE *output, SqlColumn *column)

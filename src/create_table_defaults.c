@@ -24,6 +24,7 @@
 #define CURSE 2
 #define START 4
 #define END 8
+#define DELIM 16
 
 void create_table_defaults(SqlStatement *table_statement, SqlStatement *keywords_statement) {
   SqlTable *table;
@@ -69,6 +70,13 @@ void create_table_defaults(SqlStatement *table_statement, SqlStatement *keywords
       statement->v.keyword = cur_keyword;
       table->end = statement;
       break;
+    case OPTIONAL_DELIM:
+      assert(0 == (options & DELIM));
+      options |= DELIM;
+      SQL_STATEMENT(statement, keyword_STATEMENT);
+      statement->v.keyword = cur_keyword;
+      table->delim = statement;
+      break;
     case NO_KEYWORD:
       break;
     default:
@@ -77,7 +85,7 @@ void create_table_defaults(SqlStatement *table_statement, SqlStatement *keywords
     }
     cur_keyword = cur_keyword->next;
   } while(cur_keyword != start_keyword);
-  if(options == (SOURCE | CURSE | START | END))
+  if(options == (SOURCE | CURSE | START | END | DELIM))
     return;
 
   pkey = fetch_primary_key_column(table);
@@ -115,7 +123,7 @@ void create_table_defaults(SqlStatement *table_statement, SqlStatement *keywords
     dqinsert(start_keyword, keyword);
   }
   if(!(options & START)) {
-    snprintf(buffer, MAX_STR_CONST, "SET cursor=\"%%s\",%s=$P($G(@cursor),\"|\",1)",
+    snprintf(buffer, MAX_STR_CONST, "SET cursor=\"\"%%s\"\",%s=$P($G(@cursor),\"\"|\"\",1)",
       pkey->columnName->v.value->v.reference);
     str_len = strnlen(buffer, MAX_STR_CONST);
     out_buffer = malloc(str_len + 1);
@@ -138,6 +146,20 @@ void create_table_defaults(SqlStatement *table_statement, SqlStatement *keywords
     out_buffer[str_len] = '\0';
     (keyword) = (SqlOptionalKeyword*)malloc(sizeof(SqlOptionalKeyword));
     (keyword)->keyword = OPTIONAL_END;
+    SQL_STATEMENT(keyword->v, value_STATEMENT);
+    keyword->v->v.value = (SqlValue*)malloc(sizeof(SqlValue));
+    keyword->v->v.value->type = COLUMN_REFERENCE;
+    keyword->v->v.value->v.reference = out_buffer;
+    dqinsert(start_keyword, keyword);
+  }
+  if(!(options & DELIM)) {
+    snprintf(buffer, MAX_STR_CONST, "|");
+    str_len = strnlen(buffer, MAX_STR_CONST);
+    out_buffer = malloc(str_len + 1);
+    strncpy(out_buffer, buffer, str_len);
+    out_buffer[str_len] = '\0';
+    (keyword) = (SqlOptionalKeyword*)malloc(sizeof(SqlOptionalKeyword));
+    (keyword)->keyword = OPTIONAL_DELIM;
     SQL_STATEMENT(keyword->v, value_STATEMENT);
     keyword->v->v.value = (SqlValue*)malloc(sizeof(SqlValue));
     keyword->v->v.value->type = COLUMN_REFERENCE;
@@ -178,6 +200,14 @@ void create_table_defaults(SqlStatement *table_statement, SqlStatement *keywords
       SQL_STATEMENT(statement, keyword_STATEMENT);
       statement->v.keyword = cur_keyword;
       table->end = statement;
+      break;
+    case OPTIONAL_DELIM:
+      if(table->delim != NULL && table->delim->v.keyword == cur_keyword)
+        break;
+      assert(table->delim == NULL);
+      SQL_STATEMENT(statement, keyword_STATEMENT);
+      statement->v.keyword = cur_keyword;
+      table->delim = statement;
       break;
     case NO_KEYWORD:
       break;

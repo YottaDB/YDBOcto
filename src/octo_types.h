@@ -97,6 +97,8 @@ enum OptionalKeyword {
   OPTIONAL_CURSE,
   OPTIONAL_END,
   OPTIONAL_START,
+  OPTIONAL_DELIM,
+  OPTIONAL_EXTRACT,
   OPTIONAL_CASCADE,
   OPTIONAL_RESTRICT
 };
@@ -128,6 +130,7 @@ struct SqlColumn
   enum SqlDataType type;
   SqlStatement *constraints;
   SqlStatement *tableName; // If not null, qualified name was used
+  SqlStatement *keywords;
   dqcreate(SqlColumn);
 } typedef SqlColumn;
 
@@ -160,6 +163,7 @@ struct SqlTable
   SqlStatement *curse;
   SqlStatement *start;
   SqlStatement *end;
+  SqlStatement *delim;
   dqcreate(SqlTable);
 };
 

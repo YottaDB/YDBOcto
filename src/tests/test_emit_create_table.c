@@ -19,33 +19,26 @@ static void null_test_success(void **state) {
  * Test creating the DDL for a simple examle; CREATE TABLE myTable (id INTEGER PRIMARY KEY)
  */
 static void test_simple_table_definition(void **state) {
+  yyscan_t scanner;
+  YY_BUFFER_STATE parser_state;
   char *buffer;
   size_t buffer_size = 0;
+  SqlStatement *result;
   FILE *out;
 
-  SqlConstraint primary_key_constraint = {PRIMARY_KEY, 0, 0, 0, 0};
-  dqinit(&primary_key_constraint);
-  SqlValue col_name = {COLUMN_REFERENCE, "id"};
-  SqlStatement stmt1 = {value_STATEMENT, { .value = &col_name } };
-  SqlStatement stmt2 = {constraint_STATEMENT, { .constraint = &primary_key_constraint } };
-  SqlColumn column = {&stmt1, INTEGER_TYPE, &stmt2, 0, 0};
-  SqlStatement stmt6 = { column_STATEMENT, { .column = &column } };
-  SqlColumnList column_list = { &stmt6, &stmt6 };
-  dqinit(&column);
-  SqlValue tab_name = {COLUMN_REFERENCE, "myTable"};
-  SqlStatement stmt3 = {value_STATEMENT, { .value = &tab_name } };
-  SqlValue source_name = {COLUMN_REFERENCE, "^myTable(id)"};
-  SqlStatement stmt4 = {value_STATEMENT, { .value = &source_name } };
-  SqlOptionalKeyword keyword = {SOURCE, &stmt4};
-  SqlStatement stmt7 = {keyword_STATEMENT, { .keyword = &keyword } };
-  SqlStatement stmt5 = {column_list_STATEMENT, { .column_list = &column_list } };
-  SqlTable table = {&stmt3, &stmt7, &stmt6};
-  SqlStatement stmt = {table_STATEMENT, 0};
-  stmt.v.table = &table;
+
+
+  if (yylex_init(&scanner)) {
+    fprintf(stderr, "Error initializing the scanner\n");
+    return;
+  }
+  parser_state = yy_scan_string("CREATE TABLE myTable (id INTEGER PRIMARY KEY, name VARCHAR(20), age INTEGER) SOURCE \"^myTable(id)\";",
+    scanner);
+  assert_true(yyparse(scanner, &result) == 0);
 
   out = open_memstream(&buffer, &buffer_size);
   assert_non_null(out);
-  emit_create_table(out, &stmt);
+  emit_create_table(out, result);
   fclose(out);
   assert_true(buffer_size > 0);
   printf("%s\n", buffer);

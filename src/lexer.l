@@ -70,11 +70,13 @@ int copied_so_far;
 (?i:DECIMAL) { return DECIMAL; }
 (?i:DEFAULT) { return DEFAULT; }
 (?i:DELETE) { return DELETE; }
+(?i:DELIM) { return DELIM; }
 (?i:DESC) { return DESC; }
 (?i:DISTINCT) { return DISTINCT; }
 (?i:DROP) { return DROP; }
 (?i:END) { return END; }
 (?i:EXCEPT) { return EXCEPT; }
+(?i:EXTRACT) { return EXTRACT; }
 (?i:FALSE_TOKEN) { return FALSE_TOKEN; }
 (?i:FROM) { return FROM; }
 (?i:FULL) { return FULL; }

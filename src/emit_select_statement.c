@@ -140,7 +140,7 @@ void emit_select_statement(FILE *output, struct SqlStatement *stmt)
   char *tmp1, *formatted_start, *start, *end, *curse, *source;
   int column_name_length;
 
-  char *m_template = "%s FOR  %s %s ";
+  char *m_template = "%s FOR  %s Q:%s  ";
 
   //fprintf(output, " WRITE ");
   assert(stmt && stmt->type == select_STATEMENT);
@@ -160,15 +160,15 @@ void emit_select_statement(FILE *output, struct SqlStatement *stmt)
   assert(table != NULL);
   assert(table->source->type == keyword_STATEMENT && table->source->v.keyword);
   UNPACK_SQL_STATEMENT(tmp_value, table->source->v.keyword->v, value);
-  source = tmp_value->v.string_literal;
+  source = m_unescape_string(tmp_value->v.string_literal);
   UNPACK_SQL_STATEMENT(tmp_value, table->curse->v.keyword->v, value);
-  curse = tmp_value->v.string_literal;
+  curse = m_unescape_string(tmp_value->v.string_literal);
   UNPACK_SQL_STATEMENT(tmp_value, table->start->v.keyword->v, value);
   formatted_start = malloc(MAX_STR_CONST);
-  start = tmp_value->v.string_literal;
+  start = m_unescape_string(tmp_value->v.string_literal);
   snprintf(formatted_start, MAX_STR_CONST, start, "^cursor(0)");
   UNPACK_SQL_STATEMENT(tmp_value, table->end->v.keyword->v, value);
-  end = tmp_value->v.string_literal;
+  end = m_unescape_string(tmp_value->v.string_literal);
   fprintf(output, m_template, formatted_start, curse, end);
 
   UNPACK_SQL_STATEMENT(columns, select->select_list, column_list);
@@ -212,4 +212,8 @@ void emit_select_statement(FILE *output, struct SqlStatement *stmt)
   }
   fprintf(output, ",!");
   free(formatted_start);
+  free(start);
+  free(end);
+  free(curse);
+  free(source);
 }

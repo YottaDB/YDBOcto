@@ -17,8 +17,6 @@
 #ifndef OCTO_TYPES_H
 #define OCTO_TYPES_H
 
-#define MAX_STR_CONST 1024
-#define MAX_EXPRESSION_LENGTH 255
 typedef void *yyscan_t;
 
 // Sets a DQ struct to point to itself

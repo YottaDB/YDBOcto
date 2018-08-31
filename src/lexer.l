@@ -17,6 +17,7 @@
 #include <stdio.h>
 #include <ctype.h>
 
+#include "octo.h"
 #include "octo_types.h"
 #include "parser.h"
 

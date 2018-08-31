@@ -29,8 +29,6 @@
 #include "parser.h"
 #include "lexer.h"
 
-#define BUFFER_SIZE 1024
-
 extern int yydebug;
 
 static int verbose_flag;
@@ -42,7 +40,7 @@ int main(int argc, char **argv)
   int c, error = 0, i = 0, status;
   yyscan_t scanner;
   YY_BUFFER_STATE state;
-  char buff[BUFFER_SIZE];
+  char buff[MAX_STR_CONST];
   int done;
   SqlStatement *result = 0;
   char *buffer;
@@ -55,16 +53,16 @@ int main(int argc, char **argv)
   SqlStatement *tmp_statement;
   ydb_buffer_t schema_global, table_name_buffer, table_create_buffer, null_buffer;
   ydb_buffer_t cursor_global, cursor_exe_global[2];
-  gtm_char_t      err_msgbuf[BUFFER_SIZE];
+  gtm_char_t      err_msgbuf[MAX_STR_CONST];
 
   inputFile = NULL;
   definedTables = NULL;
-  table_name_buffer.buf_addr = malloc(BUFFER_SIZE);
+  table_name_buffer.buf_addr = malloc(MAX_STR_CONST);
   table_name_buffer.len_used = 0;
-  table_name_buffer.len_alloc = BUFFER_SIZE;
-  table_create_buffer.buf_addr = malloc(BUFFER_SIZE);
+  table_name_buffer.len_alloc = MAX_STR_CONST;
+  table_create_buffer.buf_addr = malloc(MAX_STR_CONST);
   table_create_buffer.len_used = 0;
-  table_create_buffer.len_alloc = BUFFER_SIZE;
+  table_create_buffer.len_alloc = MAX_STR_CONST;
 
   /* This is needed for parsing table definition files */
   if (yylex_init(&scanner)) {
@@ -186,7 +184,7 @@ int main(int argc, char **argv)
     i = 0;
     while(!feof(inputFile))
     {
-      assert(i < BUFFER_SIZE);
+      assert(i < MAX_STR_CONST);
       c = fgetc(inputFile);
       if(c != -1)
         buff[i++] = c;
@@ -228,7 +226,7 @@ int main(int argc, char **argv)
       status = gtm_ci("select");
        if (status != 0)
        {
-                gtm_zstatus(err_msgbuf, BUFFER_SIZE);
+                gtm_zstatus(err_msgbuf, MAX_STR_CONST);
                 fprintf(stderr, "%s\n", err_msgbuf);
                 return status;
        }

@@ -6,6 +6,14 @@ set(CMAKE_BUILD_TYPE Debug)
 
 SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
 
+if(NOT STRING_BUFFER_LENGTH)
+	set(STRING_BUFFER_LENGTH 4096)
+endif()
+
+if(NOT MAX_EXPRESSION_LENGTH)
+	set(MAX_EXPRESSION_LENGTH 1024)
+endif()
+
 enable_testing()
 add_subdirectory(src)
 

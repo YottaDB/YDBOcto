@@ -15,16 +15,28 @@ The SQL engine looks for the environment variable ydb_dist.
 
 ## Compiling -- Quickstart
 
-To compile:
+Required dependencies are: build-essential cmake bison flex
+
+YottaDB is also required, but currently not in any distribution repositories.
+To download, please see the instructions at https://yottadb.com/product/get-started/
+
+To compile Octo:
 
 ```
 mkdir build
 cd build
-cmake ../src
+cmake ..
 make
 make test
 ```
 
+### Optional CMake parameters
+
+Octo uses some cmake parameters to control generation of fixed-size buffer allocations. These are:
+
+ - STRING_BUFFER_LENGTH -- the maximum length of a string within the system; this supercedes any VARCHAR definitions
+ - MAX_EXPRESSION_LENGTH -- the maximum length of an expression passed to the underlying MUMPS runtime. There is also a YDB limit on the size of these expressions
+
 ## Usage
 
-After building, the 'octo' executable provides access to the SQL interpreter.
+After building, the 'src/octo' executable provides access to the SQL interpreter.

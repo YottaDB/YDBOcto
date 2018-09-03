@@ -1,6 +1,7 @@
 find_package(BISON REQUIRED)
 find_package(FLEX REQUIRED)
 find_package(YOTTADB REQUIRED)
+find_package(Readline REQUIRED)
 find_package(CMOCKA)
 
 configure_file (
@@ -43,6 +44,7 @@ FLEX_TARGET(OctoLexer lexer.l ${CMAKE_CURRENT_BINARY_DIR}/lexer.c
 include_directories("${PROJECT_SOURCE_DIR}/src")
 include_directories("${PROJECT_BINARY_DIR}")
 include_directories("${YOTTADB_INCLUDE_DIRS}")
+include_directories("${Readline_INCLUDE_DIR}")
 link_directories("${YOTTADB_INCLUDE_DIRS}")
 
 add_library(libocto OBJECT
@@ -54,6 +56,7 @@ add_library(libocto OBJECT
   fetch_primary_key_column.c
   quoting.c
   create_table_defaults.c
+  readline_getc.c
   m_templates/emit_simple_select.c
   ${BISON_OctoParser_OUTPUTS}
   ${FLEX_OctoLexer_OUTPUTS}
@@ -64,7 +67,7 @@ add_executable(octo
   $<TARGET_OBJECTS:libocto>
 )
 
-target_link_libraries(octo ${YOTTADB_LIBRARIES})
+target_link_libraries(octo ${YOTTADB_LIBRARIES} ${Readline_LIBRARY})
 
 enable_testing()
 include(${PROJECT_SOURCE_DIR}/cmake/tests.cmake)

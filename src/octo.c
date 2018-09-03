@@ -179,19 +179,8 @@ int main(int argc, char **argv)
     inputFile = stdin;
 
   do {
-    if (!quiet)
-      printf("OCTO> ");
-    i = 0;
-    while(!feof(inputFile))
-    {
-      assert(i < MAX_STR_CONST);
-      c = fgetc(inputFile);
-      if(c != -1)
-        buff[i++] = c;
-      if(c == ';')
-        break;
-    }
-    buff[i] = '\0';
+    if(readline_getc(inputFile, buff, MAX_STR_CONST) == -1)
+      break;
     if (!quiet)
       printf("Running SQL command %s\n", buff);
     state = yy_scan_string(buff, scanner);

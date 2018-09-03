@@ -45,4 +45,8 @@ char *m_unescape_string(const char *string);
 
 int readline_getc(FILE *inputFile, char *buff, int size);
 
+/* Globals */
+SqlTable *definedTables;
+char input_buffer_combined[MAX_STR_CONST];
+
 #endif

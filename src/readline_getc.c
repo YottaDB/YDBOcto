@@ -44,7 +44,7 @@ int readline_getc(FILE *inputFile, char *buff, int size) {
         }
       }
       cur_prompt = prompt2;
-      buff[i++] = ' ';
+      buff[i++] = '\n';
     }
   }
 }

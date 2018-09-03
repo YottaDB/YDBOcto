@@ -2,8 +2,12 @@ stages:
   - build
   - docs
 
+before_script:
+  - apt-get update -qq && apt-get install -y -qq build-essential cmake bison flex libcmocka-dev python-pip libreadline-dev
+  - pip install sphinxcontrib-fulltoc sphinx sphinx_rtd_theme
+
 make:
-  image: charlescodes/yottadb-shell
+  image: yottadb/yottadb-base
   stage: build
   artifacts:
     paths:
@@ -13,7 +17,7 @@ make:
   script: ./tools/ci/build.sh
 
 pages:
-  image: charlescodes/yottadb-shell
+  image: yottadb/yottadb-base
   stage: docs
   dependencies:
     - make

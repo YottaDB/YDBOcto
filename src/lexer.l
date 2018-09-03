@@ -21,6 +21,20 @@
 #include "octo_types.h"
 #include "parser.h"
 
+#define YY_USER_ACTION \
+    yylloc->first_line = yylloc->last_line; \
+    yylloc->first_column = yylloc->last_column; \
+    for(int i = 0; yytext[i] != '\0'; i++) { \
+        if(yytext[i] == '\n') { \
+            yylloc->last_line++; \
+            yylloc->first_column = 1; \
+            yylloc->last_column = 1; \
+        } \
+        else { \
+            yylloc->last_column++; \
+        } \
+    }
+
 /*
  The first set of tokens are auto converted; copy pasts from .y, and run
 	s/%token \([A-Z_]\+\)/(?i:\1) { return \1; }/
@@ -41,9 +55,9 @@ int copied_so_far;
 %}
 
 %option stack
-%option yylineno
 %option reentrant noyywrap never-interactive nounistd
 %option bison-bridge
+%option bison-locations
 
 %x STRING
 %x IDENTIFIER

@@ -40,7 +40,6 @@ int main(int argc, char **argv)
   int c, error = 0, i = 0, status;
   yyscan_t scanner;
   YY_BUFFER_STATE state;
-  char buff[MAX_STR_CONST];
   int done;
   SqlStatement *result = 0;
   char *buffer;
@@ -179,11 +178,11 @@ int main(int argc, char **argv)
     inputFile = stdin;
 
   do {
-    if(readline_getc(inputFile, buff, MAX_STR_CONST) == -1)
+    if(readline_getc(inputFile, input_buffer_combined, MAX_STR_CONST) == -1)
       break;
     if (!quiet)
-      printf("Running SQL command %s\n", buff);
-    state = yy_scan_string(buff, scanner);
+      printf("Running SQL command %s\n", input_buffer_combined);
+    state = yy_scan_string(input_buffer_combined, scanner);
     if(yyparse(scanner, &result))
     {
       error = 1;

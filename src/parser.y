@@ -31,20 +31,20 @@ typedef void* yyscan_t;
 
 #include "octo.h"
 #include "octo_types.h"
+#include "parser.h"
 
 #define YYERROR_VERBOSE
 #define YYDEBUG 1
 #define YYSTYPE SqlStatement *
 
-extern FILE* yyin;
-extern int yylex();
+extern int yylex(YYSTYPE * yylval_param, YYLTYPE *llocp, yyscan_t yyscanner);
 extern int yyparse(yyscan_t scan, SqlStatement **out);
-extern void yyerror(yyscan_t scan, SqlStatement **out, char const *s);
-extern char *yytext;
+extern void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, char const *s);
 
 %}
 
-%define api.pure
+%define api.pure full
+%locations
 %lex-param   { yyscan_t scanner }
 %parse-param { yyscan_t scanner } { SqlStatement **out }
 

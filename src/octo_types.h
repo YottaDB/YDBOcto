@@ -261,6 +261,4 @@ struct SqlStatement {
   } v;
 };
 
-SqlTable *definedTables;
-
 #endif

@@ -27,20 +27,22 @@ Example:
 .. parsed-literal::
    CREATE TABLE Employee (ID int PRIMARY KEY, FirstName char(20), LastName char(30));
 
-An optional_keyword can be added to further enhance the CREATE statement. The following keywords are MUMPS command-expressions and literals:
+If mapping to an existing MUMPS database, an optional_keyword can be added to further enhance the CREATE statement:
 
 .. parsed-literal::
    [CURSOR | DELIM | END | EXTRACT | GLOBAL | PACK | PIECE | START | UNPACK LITERAL]
 
-* CURSOR LITERAL is a table keyword used to increment the cursor by one element.
-* DELIM LITERAL is a table/column keyword that represents the "PIECE" string to be used in `$PIECE <https://docs.yottadb.com/ProgrammersGuide/functions.html#piece>`_. If present in a column, it overrides the table/default DELIM setting.
-* END LITERAL is a table keyword which indicates that the cursor has hit the last record in the table.
-* EXTRACT LITERAL is a column keyword that extracts the value of the column from the database.
-* GLOBAL LITERAL is a table/column keyword representing the "source" location for a table.
-* PACK LITERAL is a table keyword that packs the cursor into a single value to be stored in a global specified by the SQL engine.
-* PIECE LITERAL is a column keyword representing the $PIECE number of the row this column refers to - if present, it overrides the default (which is the column number, starting at 1).  
-* START LITERAL is a table keyword that defines the local variables when a cursor first begins running.
-* UNPACK LITERAL is a table keyword that unpacks the cursor from a global filled in by the SQL engine.
+* CURSOR LITERAL is a MUMPS command-expression used to increment the cursor by one element.
+* DELIM LITERAL is a MUMPS literal that represents the "PIECE" string to be used in `$PIECE <https://docs.yottadb.com/ProgrammersGuide/functions.html#piece>`_. If present in a column, it overrides the table/default DELIM setting.
+* END LITERAL is a MUMPS boolean expression which indicates that the cursor has hit the last record in the table.
+* EXTRACT LITERAL is a MUMPS expression that extracts the value of the column from the database. If present, it overrides the PIECE and GLOBAL keywords.
+* GLOBAL LITERAL is a MUMPS literal representing the "source" location for a table. If used on a column, it overrides the table/default GLOBAL setting.
+* PACK LITERAL is a MUMPS command-expression that packs the cursor into a single value to be stored in a global specified by the SQL engine.
+* PIECE LITERAL is a MUMPS literal representing the $PIECE number of the row this column refers to - if present, it overrides the default (which is the column number, starting at 1).  
+* START LITERAL is a MUMPS command-expression that defines the local variables when a cursor first begins running.
+* UNPACK LITERAL is a MUMPS command-expression that unpacks the cursor from a global filled in by the SQL engine.
+
+PIECE LITERAL and EXTRACT LITERAL are column keywords, DELIM LITERAL and GLOBAL LITERAL are both table and column keywords and the rest are table keywords.
 
 -----------------
 DROP

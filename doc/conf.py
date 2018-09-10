@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# GTMAdminOps documentation build configuration file, created by
+# YDBDBMS documentation build configuration file, created by
 # sphinx-quickstart on Mon Nov 27 09:22:04 2017.
 #
 # This file is execfile()d with the current directory set to its
@@ -54,7 +54,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'YDBDBMS'
-copyright = u'2017-2018, YottaDB LLC'
+copyright = u'2018, YottaDB LLC'
 author = u'Ranjani Hathaway'
 
 # The version info for the project you're documenting, acts as replacement for
@@ -155,7 +155,7 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'GTMAdminOps.tex', u'GTMAdminOps Documentation',
+    (master_doc, 'YDBDBMS.tex', u'YDBDBMS Documentation',
      u'Ranjani Hathaway', 'manual'),
 ]
 
@@ -165,7 +165,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'gtmadminops', u'GTMAdminOps Documentation',
+    (master_doc, 'YDBDBMS', u'YDBDBMS Documentation',
      [author], 1)
 ]
 
@@ -176,8 +176,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, 'GTMAdminOps', u'GTMAdminOps Documentation',
-     author, 'GTMAdminOps', 'One line description of project.',
+    (master_doc, 'YDBDBMS', u'YDBDBMS Documentation',
+     author, 'YDBDBMS', 'One line description of project.',
      'Miscellaneous'),
 ]
 

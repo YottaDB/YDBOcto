@@ -145,6 +145,6 @@ void cleanup_sql_statement(SqlStatement *stmt)
     free(stmt);
     break;
   default:
-    assert(0);
+    FATAL(ERR_UNKNOWN_KEYWORD_STATE);
   }
 }

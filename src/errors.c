@@ -4,6 +4,8 @@
 #include <time.h>
 #include <stdlib.h>
 
+#include <libyottadb.h>
+
 #include "octo.h"
 #include "errors.h"
 
@@ -64,6 +66,7 @@ void octo_log(enum ERROR_LEVEL level, enum ERROR error, ...) {
   va_end(args);
   fprintf(stderr, log_postfix);
   if(level == FATAL) {
+    ydb_fork_n_core();
     exit(error);
   }
   return;

@@ -51,49 +51,10 @@ void emit_simple_select(char *output, const SqlTable *table, const char *column,
     case NO_KEYWORD:
       break;
     default:
-      assert(0);
+      FATAL(ERR_UNKNOWN_KEYWORD_STATE);
       break;
     }
     cur_keyword = cur_keyword->next;
   } while(cur_keyword != start_keyword);
   snprintf(output, MAX_EXPRESSION_LENGTH, "$PIECE(%s,\"%s\",%d)", source, delim, piece_number);
-}
-
-void extract_key(const char *source, char *key, char *formatted_source_begin, char *formatted_source_end)
-{
-  const char *in;
-  char *out;
-  int state = 0; // 0 = parsing start, 1 = parsing key, 2 = done
-
-  for(in = source, out = formatted_source_begin; *in != '\0'; in++) {
-    switch(state)
-    {
-    case 0:
-      if(*in != '<') {
-        *out++ = *in;
-      } else
-      {
-        state = 1;
-        *out = '\0';
-        out = key;
-      }
-      break;
-    case 1:
-      if(*in != '>') {
-        *out++ = *in;
-      } else
-      {
-        state = 2;
-        out = formatted_source_end;
-      }
-      break;
-    case 2:
-      assert(*in != '<');
-      *out++ = *in;
-      break;
-    default:
-      assert(0);
-    }
-  }
-  *out = '\0';
 }

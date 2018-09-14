@@ -81,7 +81,7 @@ char *extract_expression(SqlStatement *stmt, const SqlTable *table, char *source
           break;
         case BOOLEAN_IS:
           tmp3 = "_";
-          assert(0);
+          FATAL(ERR_FEATURE_NOT_IMPLEMENTED, "BOOLEAN_IS");
           break;
         case BOOLEAN_EQUALS:
           tmp3 = "=";
@@ -103,26 +103,26 @@ char *extract_expression(SqlStatement *stmt, const SqlTable *table, char *source
           break;
         case BOOLEAN_IN:
           tmp3 = "_";
-          assert(0);
+          FATAL(ERR_FEATURE_NOT_IMPLEMENTED, "BOOLEAN_IN");
           break;
         case BOOLEAN_NOT_IN:
           tmp3 = "_";
-          assert(0);
+          FATAL(ERR_FEATURE_NOT_IMPLEMENTED, "BOOLEAN_NOT_IN");
           break;
         default:
-          assert(0);
+          FATAL(ERR_UNKNOWN_KEYWORD_STATE);
         }
         snprintf(buffer, MAX_EXPRESSION_LENGTH, "(%s%s%s)", tmp1, tmp3, tmp2);
         break;
       default:
-        assert(0);
+        FATAL(ERR_UNKNOWN_KEYWORD_STATE);
       }
       break;
     case COLUMN_REFERENCE:
       emit_simple_select(buffer, table, value->v.reference, source);
       break;
     default:
-      assert(0);
+      FATAL(ERR_UNKNOWN_KEYWORD_STATE);
     }
     break;
   case binary_STATEMENT:
@@ -155,7 +155,7 @@ char *extract_expression(SqlStatement *stmt, const SqlTable *table, char *source
       break;
     case BOOLEAN_IS:
       tmp3 = "_";
-      assert(0);
+      FATAL(ERR_FEATURE_NOT_IMPLEMENTED, "BOOLEAN_IS");
       break;
     case BOOLEAN_EQUALS:
       tmp3 = "=";
@@ -177,19 +177,19 @@ char *extract_expression(SqlStatement *stmt, const SqlTable *table, char *source
       break;
     case BOOLEAN_IN:
       tmp3 = "_";
-      assert(0);
+      FATAL(ERR_FEATURE_NOT_IMPLEMENTED, "BOOLEAN_IN");
       break;
     case BOOLEAN_NOT_IN:
       tmp3 = "_";
-      assert(0);
+      FATAL(ERR_FEATURE_NOT_IMPLEMENTED, "BOOLEAN_NOT_IN");
       break;
     default:
-      assert(0);
+      FATAL(ERR_UNKNOWN_KEYWORD_STATE);
     }
     snprintf(buffer, MAX_EXPRESSION_LENGTH, "(%s%s%s)", tmp1, tmp3, tmp2);
     break;
   default:
-    assert(0);
+    FATAL(ERR_UNKNOWN_KEYWORD_STATE);
   }
   return buffer;
 }

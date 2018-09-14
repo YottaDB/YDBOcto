@@ -56,7 +56,7 @@ void emit_create_table(FILE *output, struct SqlStatement *stmt)
       fprintf(output, " VARCHAR(%d)", 25);
       break;
     default:
-      assert(0);
+      FATAL(ERR_UNKNOWN_KEYWORD_STATE);
     }
     if(cur_column->constraints) {
       UNPACK_SQL_STATEMENT(start_constraint, cur_column->constraints, constraint);
@@ -74,7 +74,7 @@ void emit_create_table(FILE *output, struct SqlStatement *stmt)
           fprintf(output, " UNIQUE");
           break;
         default:
-          assert(0);
+          FATAL(ERR_UNKNOWN_KEYWORD_STATE);
         }
         cur_constraint = cur_constraint->next;
       } while(start_constraint != cur_constraint);
@@ -91,7 +91,7 @@ void emit_create_table(FILE *output, struct SqlStatement *stmt)
       case NO_KEYWORD:
         break;
       default:
-        assert(0);
+        FATAL(ERR_UNKNOWN_KEYWORD_STATE);
         break;
       }
     } while(cur_keyword != start_keyword);

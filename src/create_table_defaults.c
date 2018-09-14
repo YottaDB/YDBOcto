@@ -80,7 +80,7 @@ void create_table_defaults(SqlStatement *table_statement, SqlStatement *keywords
     case NO_KEYWORD:
       break;
     default:
-      assert(0);
+      FATAL(ERR_UNKNOWN_KEYWORD_STATE);
       break;
     }
     cur_keyword = cur_keyword->next;
@@ -212,7 +212,7 @@ void create_table_defaults(SqlStatement *table_statement, SqlStatement *keywords
     case NO_KEYWORD:
       break;
     default:
-      assert(0);
+      FATAL(ERR_UNKNOWN_KEYWORD_STATE);
       break;
     }
     cur_keyword = cur_keyword->next;

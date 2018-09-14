@@ -20,20 +20,6 @@
  */
 SqlColumn *fetch_primary_key_column(const SqlTable *table);
 
-/**
- * Parses source and copies values to formatted_source_begin such that the next character
- *  should be the key value for this row. Next, formatted_source_end should be copied right away.
- *
- * For example, if source = "^myTable(<id>)", then
- *  - key = "id"
- *  - formatted_source_begin = "^myTable("
- *  - formatted_source_end = ")"
- *
- * @param [in] source the "source description" for this table; '\0' delimited
- * @param [out] key the name of the column which acts as key
- * @param [out] formatted_source a pre-allocated buffer which will be the start of this expression
- */
-void extract_key(const char *source, char *key, char *formatted_source_begin, char *formatted_source_end);
 void emit_simple_select(char *output, const SqlTable *table, const char *column, char *source);
 void emit_create_table(FILE *output, struct SqlStatement *stmt);
 void emit_select_statement(FILE *output, SqlStatement *stmt);

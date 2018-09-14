@@ -3,6 +3,9 @@
 
 #include <stdarg.h>
 
+#define TRUE 1
+#define FALSE 0
+
 enum ERROR_LEVEL {
   TRACE,
   INFO,

@@ -27,6 +27,7 @@ typedef void *yyscan_t;
 #define dqinsert(self, new_elem) (new_elem)->prev = (self)->prev, \
   (self)->prev->next = (new_elem), (self)->prev = new_elem, (new_elem)->next = self;
 
+#define INIT_YDB_BUFFER(buffer, len) (buffer)->buf_addr = malloc(len); (buffer)->len_used = 0; (buffer)->len_alloc = len;
 #define SQL_STATEMENT(VAR, TYPE) (VAR) = (SqlStatement*)malloc(sizeof(SqlStatement)); (VAR)->type = TYPE;
 #define UNPACK_SQL_STATEMENT(result, item, StatementType) assert((item)->type == StatementType##_STATEMENT); \
   (result) = (item)->v.StatementType
@@ -260,5 +261,10 @@ struct SqlStatement {
     enum SqlConstraintType constraint_type;
   } v;
 };
+
+struct OctoConfig {
+  enum ERROR_LEVEL record_error_level;
+  int dry_run;
+} typedef OctoConfig;
 
 #endif

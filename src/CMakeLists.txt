@@ -50,6 +50,7 @@ link_directories("${YOTTADB_INCLUDE_DIRS}")
 add_library(libocto OBJECT
   yyerror.c
   yywrap.c
+  errors.c
   emit_create_table.c
   emit_select_statement.c
   cleanup_sql_statement.c

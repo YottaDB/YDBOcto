@@ -1,0 +1,6 @@
+ERROR_DEF(ERR_TABLE_NOT_FOUND, "Table not found; %s")
+ERROR_DEF(ERR_PARSING_COMMAND, "Error parsing statement: %s")
+ERROR_DEF(ERR_FILE_NOT_FOUND, "Error opening input file %s")
+ERROR_DEF(ERR_YOTTADB, "YottaDB error: %s")
+ERROR_DEF(ERR_INIT_SCANNER, "Error initializing the scanner")
+ERROR_END(CUSTOM_ERROR, "Error not found")

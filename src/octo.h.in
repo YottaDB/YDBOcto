@@ -3,6 +3,7 @@
 
 #include <stdio.h>
 
+#include "errors.h"
 #include "octo_types.h"
 
 #define OCTO_SQL_MAJOR_VERSION @OCTO_SQL_MAJOR_VERSION@
@@ -48,5 +49,6 @@ int readline_getc(FILE *inputFile, char *buff, int size);
 /* Globals */
 SqlTable *definedTables;
 char input_buffer_combined[MAX_STR_CONST];
+OctoConfig *config;
 
 #endif

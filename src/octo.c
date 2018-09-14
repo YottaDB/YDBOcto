@@ -31,10 +31,6 @@
 
 extern int yydebug;
 
-static int verbose_flag;
-static int dry_run;
-static int quiet;
-
 int main(int argc, char **argv)
 {
   int c, error = 0, i = 0, status;
@@ -52,7 +48,12 @@ int main(int argc, char **argv)
   SqlStatement *tmp_statement;
   ydb_buffer_t schema_global, table_name_buffer, table_create_buffer, null_buffer;
   ydb_buffer_t cursor_global, cursor_exe_global[2];
+  ydb_buffer_t z_status, z_status_value;
   gtm_char_t      err_msgbuf[MAX_STR_CONST];
+
+  config = malloc(sizeof(OctoConfig));
+  config->record_error_level = WARNING;
+  config->dry_run = FALSE;
 
   inputFile = NULL;
   definedTables = NULL;
@@ -64,10 +65,8 @@ int main(int argc, char **argv)
   table_create_buffer.len_alloc = MAX_STR_CONST;
 
   /* This is needed for parsing table definition files */
-  if (yylex_init(&scanner)) {
-    fprintf(stderr, "Error initializing the scanner\n");
-    return 1;
-  }
+  if (yylex_init(&scanner))
+    FATAL(ERR_INIT_SCANNER);
   YDB_LITERAL_TO_BUFFER("^schema", &schema_global);
   YDB_LITERAL_TO_BUFFER("", &null_buffer);
   YDB_LITERAL_TO_BUFFER("^cursor", &cursor_global);
@@ -79,11 +78,10 @@ int main(int argc, char **argv)
   {
     static struct option long_options[] =
       {
-        {"verbose", no_argument, &verbose_flag, 1},
-        {"dry-run", no_argument, &dry_run, 1},
-        {"quiet", no_argument, &dry_run, 1},
-        {"input-file", required_argument, 0, 'f'},
-        {"table-definition-file", required_argument, 0, 't'},
+        {"verbose", no_argument, NULL, 'v'},
+        {"dry-run", no_argument, NULL, 'd'},
+        {"quiet", no_argument, NULL, 'q'},
+        {"input-file", required_argument, NULL, 'f'},
         {0, 0, 0, 0}
       };
     int option_index = 0;
@@ -99,67 +97,50 @@ int main(int argc, char **argv)
         break;
       break;
     case 'v':
-      verbose_flag = 1;
+      config->record_error_level = config->record_error_level > TRACE
+        ? config->record_error_level - 1 : config->record_error_level;
+      break;
+    case 'q':
+      config->record_error_level = config->record_error_level < ERROR
+        ? config->record_error_level + 1 : config->record_error_level;
       break;
     case 'd':
-      dry_run = 1;
+      config->dry_run = 1;
       break;
     case 'f':
       assert(inputFile == NULL);
       inputFile = fopen(optarg, "r");
       if (inputFile == NULL)
       {
-        fprintf(stderr, "Error opening input file %s\n", optarg);
-        return 1;
+        FATAL(ERR_FILE_NOT_FOUND, optarg);
       }
-      break;
-    case 't':
-      inputFile = fopen(optarg, "r");
-      assert(inputFile);
-      yy_switch_to_buffer(
-            yy_create_buffer( inputFile, YY_BUF_SIZE, scanner), scanner);
-      if(yyparse(scanner, &result))
-      {
-        error = 1;
-        fprintf(stderr, "Error parsing statement\n");
-      }
-      fclose(inputFile);
-      inputFile = NULL;
-      if(definedTables == NULL) {
-        definedTables = result->v.table;
-        dqinit(definedTables);
-      } else {
-        dqinsert(definedTables, result->v.table);
-      }
-      break;
-    case 'q':
-      quiet = 1;
       break;
     default:
       return 1;
     }
   }
 
-  if(!getenv("ydb_dist")) {
-    fprintf(stderr, "ydb_dist environment variable not set; please setup YottaDB\n");
-    return 1;
-  }
+  TRACE(CUSTOM_ERROR, "Octo started");
 
   /* Load the existing tables */
   do {
     status = ydb_subscript_next_s(&schema_global, 1, &table_name_buffer, &table_name_buffer);
-    YDB_ASSERT(YDB_OK == status);
+    YDB_ERROR_CHECK(status, &z_status, &z_status_value);
     if(table_name_buffer.len_used == 0)
       break;
     ydb_get_s(&schema_global, 1, &table_name_buffer, &table_create_buffer);
+    YDB_ERROR_CHECK(status, &z_status, &z_status_value);
     table_create_buffer.buf_addr[table_create_buffer.len_used] = '\0';
-    if(!quiet)
-      printf("Running command %s\n", table_create_buffer.buf_addr);
+    INFO(CUSTOM_ERROR, "Running command %s\n", table_create_buffer.buf_addr);
     state = yy_scan_string(table_create_buffer.buf_addr, scanner);
     if(yyparse(scanner, &result))
     {
-      error = 1;
-      fprintf(stderr, "Error parsing statement from database\n");
+      /// TODO: we should emit a useful syntax error when this happens
+      ERROR(ERR_PARSING_COMMAND, table_create_buffer.buf_addr);
+      free(result);
+      yy_delete_buffer(state, scanner);
+      result = NULL;
+      continue;
     }
     UNPACK_SQL_STATEMENT(table, result, table);
     if(definedTables == NULL) {
@@ -173,27 +154,25 @@ int main(int argc, char **argv)
     result = NULL;
   } while(1);
 
-  yydebug = verbose_flag;
+  yydebug = config->record_error_level > INFO;
   if (inputFile == NULL)
     inputFile = stdin;
 
   do {
     if(readline_getc(inputFile, input_buffer_combined, MAX_STR_CONST) == -1)
       break;
-    if (!quiet)
-      printf("Running SQL command %s\n", input_buffer_combined);
+    INFO(CUSTOM_ERROR, "Running SQL command %s", input_buffer_combined);
     state = yy_scan_string(input_buffer_combined, scanner);
     if(yyparse(scanner, &result))
     {
       error = 1;
-      fprintf(stderr, "Error parsing statement\n");
+      ERROR(ERR_PARSING_COMMAND, input_buffer_combined);
     }
     yy_delete_buffer(state, scanner);
-    if (!quiet)
-      printf("Done!\n");
+    INFO(CUSTOM_ERROR, "Done!");
     if(result == 0)
       continue;
-    if(dry_run) {
+    if(config->dry_run) {
       cleanup_sql_statement(result);
       result = NULL;
       continue;
@@ -205,18 +184,17 @@ int main(int argc, char **argv)
       assert(out);
       emit_select_statement(out, result);
       fclose(out);
-      printf("%s\n", buffer);
+      INFO(CUSTOM_ERROR, "%s", buffer);
       YDB_COPY_STRING_TO_BUFFER(buffer, &table_name_buffer, done)
       status = ydb_set_s(&cursor_global, 2,
         cursor_exe_global,
         &table_name_buffer);
-      assert(0 == status);
+      YDB_ERROR_CHECK(status, &z_status, &z_status_value);
       status = gtm_ci("select");
        if (status != 0)
        {
                 gtm_zstatus(err_msgbuf, MAX_STR_CONST);
-                fprintf(stderr, "%s\n", err_msgbuf);
-                return status;
+                FATAL(ERR_YOTTADB, err_msgbuf);
        }
       free(buffer);
       cleanup_sql_statement(result);
@@ -226,15 +204,14 @@ int main(int argc, char **argv)
       assert(out);
       emit_create_table(out, result);
       fclose(out);
-      if(!quiet)
-        printf("%s\n", buffer);
+      INFO(CUSTOM_ERROR, "%s", buffer);
       UNPACK_SQL_STATEMENT(value, result->v.table->tableName, value);
       YDB_COPY_STRING_TO_BUFFER(value->v.reference, &table_name_buffer, done)
       YDB_COPY_STRING_TO_BUFFER(buffer, &table_create_buffer, done)
       status = ydb_set_s(&schema_global, 1,
         &table_name_buffer,
         &table_create_buffer);
-      assert(status == 0);
+      YDB_ERROR_CHECK(status, &z_status, &z_status_value);
       free(buffer);
       if(definedTables == NULL) {
         definedTables = result->v.table;
@@ -249,7 +226,7 @@ int main(int argc, char **argv)
       status = ydb_delete_s(&schema_global, 1,
         &table_name_buffer,
         YDB_DEL_NODE);
-      assert(status == 0);
+      YDB_ERROR_CHECK(status, &z_status, &z_status_value);
       cleanup_sql_statement(result);
       break;
     }

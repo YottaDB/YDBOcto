@@ -78,15 +78,14 @@ int main(int argc, char **argv)
   {
     static struct option long_options[] =
       {
-        {"verbose", no_argument, NULL, 'v'},
+        {"verbose", optional_argument, NULL, 'v'},
         {"dry-run", no_argument, NULL, 'd'},
-        {"quiet", no_argument, NULL, 'q'},
         {"input-file", required_argument, NULL, 'f'},
         {0, 0, 0, 0}
       };
     int option_index = 0;
 
-    c = getopt_long(argc, argv, "vdf:qt:", long_options, &option_index);
+    c = getopt_long(argc, argv, "vdf:t:", long_options, &option_index);
     if(c == -1)
       break;
 
@@ -97,12 +96,17 @@ int main(int argc, char **argv)
         break;
       break;
     case 'v':
-      config->record_error_level = config->record_error_level > TRACE
-        ? config->record_error_level - 1 : config->record_error_level;
-      break;
-    case 'q':
-      config->record_error_level = config->record_error_level < ERROR
-        ? config->record_error_level + 1 : config->record_error_level;
+      if(optarg) {
+        c = atoi(optarg);
+        if(c > FATAL || c < TRACE) {
+          ERROR(CUSTOM_ERROR, "Invalid value specified for --verbose");
+          return 1;
+        }
+        config->record_error_level = FATAL - c;
+      } else {
+        config->record_error_level = config->record_error_level > TRACE
+          ? config->record_error_level - 1 : config->record_error_level;
+      }
       break;
     case 'd':
       config->dry_run = 1;
@@ -116,6 +120,7 @@ int main(int argc, char **argv)
       }
       break;
     default:
+      ERROR(CUSTOM_ERROR, "Uknown argument");
       return 1;
     }
   }

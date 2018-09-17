@@ -10,9 +10,9 @@ set from = '"courier new",monospace'
 set to   = 'Inconsolata,"Courier New",monospace'
 perl -p -i -e "s/$from/$to/g" $filelist
 
-echo '# "Lato","proxima-nova","Helvetica Neue",Arial,sans-serif -> Raleway,Tahoma,sans-serif'
+echo '# "Lato","proxima-nova","Helvetica Neue",Arial,sans-serif -> "Raleway Medium",Tahoma,sans-serif'
 set from = '"Lato","proxima-nova","Helvetica Neue",Arial,sans-serif'
-set to   = 'Raleway,Tahoma,sans-serif'
+set to   = '"Raleway Medium",Tahoma,sans-serif'
 perl -p -i -e "s/$from/$to/g" $filelist
 
 echo '# "Roboto Slab","ff-tisa-web-pro","Georgia",Arial,sans-serif -> Lora,Georgia,serif'

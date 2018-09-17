@@ -258,13 +258,14 @@ void emit_select_statement(FILE *output, struct SqlStatement *stmt)
     do {
       SQL_STATEMENT(tmp_statement, value_STATEMENT);
       if(select->select_list == NULL)
-        select->select_list = tmp_statement; // setting this allows it to get cleaned later
+        assert(FALSE);
       tmp_statement->v.value = (SqlValue*)malloc(sizeof(SqlValue));
       tmp_statement->v.value->type = COLUMN_REFERENCE;
       column_name_length = strnlen(cur_column->columnName->v.value->v.reference, MAX_STR_CONST) + 1;
       tmp_statement->v.value->v.reference = malloc(column_name_length);
       strncpy(tmp_statement->v.value->v.reference, cur_column->columnName->v.value->v.reference, column_name_length);
       t_columns->value = tmp_statement;
+      t_columns->next = NULL;
       cur_column = cur_column->next;
       if(cur_column != start_column) {
         SQL_STATEMENT(tmp_statement, column_list_STATEMENT);

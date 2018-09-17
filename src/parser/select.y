@@ -41,30 +41,28 @@ query_specification
 
 select_list
   : ASTERISK {
-      $$ = (SqlStatement*)malloc(sizeof(SqlStatement));
-      ($$)->type = column_list_STATEMENT;
+      SQL_STATEMENT($$, column_list_STATEMENT);
       ($$)->v.column_list = 0;
     }
   | select_sublist { $$ = $1;  }
   ;
 
 select_sublist
-  : derived_column { $$ = $1; }
-  | derived_column select_sublist_tail {
+  : derived_column select_sublist_tail {
       $$ = $1;
       ($$)->v.column_list->next = $2;
     }
   ;
 
 select_sublist_tail
-  : COMMA select_sublist { $$ = $2; }
+  : /* Empty */ { $$ = NULL; }
+  | COMMA select_sublist { $$ = $2; }
   ;
 
 table_expression
   : from_clause where_clause group_by_clause having_clause {
-      $$ = (SqlStatement*)malloc(sizeof(SqlStatement));
-      ($$)->type = select_STATEMENT;
-      ($$)->v.select = (SqlSelectStatement*)malloc(sizeof(SqlSelectStatement));
+      SQL_STATEMENT($$, select_STATEMENT);
+      MALLOC_STATEMENT($$, select, SqlSelectStatement);
       ($$)->v.select->table_list = ($1);
       ($$)->v.select->where_expression = $where_clause;
     }
@@ -77,9 +75,8 @@ set_quantifier
 
 derived_column
   : non_query_value_expression {
+      SQL_STATEMENT($$, column_list_STATEMENT);
       assert(($1)->type == value_STATEMENT);
-      $$ = (SqlStatement*)malloc(sizeof(SqlStatement));
-      ($$)->type = column_list_STATEMENT;
       ($$)->v.column_list = (SqlColumnList*)malloc(sizeof(SqlColumnList));
       ($$)->v.column_list->next = 0;
       ($$)->v.column_list->value = $1;

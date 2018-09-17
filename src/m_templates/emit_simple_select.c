@@ -20,7 +20,7 @@ void emit_simple_select(char *output, const SqlTable *table, const char *column,
   SqlColumn *cur_column, *start_column;
   SqlOptionalKeyword *start_keyword, *cur_keyword;
   char *global, *temp;
-  char *delim="|";
+  char *delim="|", *piece_string = NULL;
   int piece_number;
 
   //char *m_template = "NEW temporaryVar,key SET temporaryVar=$INCREMENT(%s),key=temporaryVar";
@@ -48,6 +48,10 @@ void emit_simple_select(char *output, const SqlTable *table, const char *column,
       free(temp);
       return;
       break;
+    case OPTIONAL_PIECE:
+      UNPACK_SQL_STATEMENT(tmp_value, cur_keyword->v, value);
+      piece_string = m_unescape_string(tmp_value->v.string_literal);
+      break;
     case NO_KEYWORD:
       break;
     default:
@@ -56,5 +60,8 @@ void emit_simple_select(char *output, const SqlTable *table, const char *column,
     }
     cur_keyword = cur_keyword->next;
   } while(cur_keyword != start_keyword);
-  snprintf(output, MAX_EXPRESSION_LENGTH, "$PIECE(%s,\"%s\",%d)", source, delim, piece_number);
+  if(piece_string)
+    snprintf(output, MAX_EXPRESSION_LENGTH, "$PIECE(%s,\"%s\",%s)", source, delim, piece_string);
+  else
+    snprintf(output, MAX_EXPRESSION_LENGTH, "$PIECE(%s,\"%s\",%d)", source, delim, piece_number);
 }

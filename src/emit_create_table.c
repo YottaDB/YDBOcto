@@ -28,7 +28,7 @@ void emit_column_specification(FILE *output, SqlColumn *column);
 void emit_create_table(FILE *output, struct SqlStatement *stmt)
 {
   SqlColumn *start_column, *cur_column;
-  SqlConstraint *start_constraint, *cur_constraint;
+  SqlOptionalKeyword *start_constraint, *cur_constraint;
   SqlTable *table, *temp;
   SqlValue *value;
   SqlOptionalKeyword *keyword, *cur_keyword, *start_keyword;
@@ -58,35 +58,31 @@ void emit_create_table(FILE *output, struct SqlStatement *stmt)
     default:
       FATAL(ERR_UNKNOWN_KEYWORD_STATE);
     }
-    if(cur_column->constraints) {
-      UNPACK_SQL_STATEMENT(start_constraint, cur_column->constraints, constraint);
-      cur_constraint = start_constraint;
-      do {
-        switch(cur_constraint->type)
-        {
-        case PRIMARY_KEY:
-          fprintf(output, " PRIMARY KEY");
-          break;
-        case NOT_NULL:
-          fprintf(output, " NOT NULL");
-          break;
-        case UNIQUE_CONSTRAINT:
-          fprintf(output, " UNIQUE");
-          break;
-        default:
-          FATAL(ERR_UNKNOWN_KEYWORD_STATE);
-        }
-        cur_constraint = cur_constraint->next;
-      } while(start_constraint != cur_constraint);
-    }
     UNPACK_SQL_STATEMENT(start_keyword, cur_column->keywords, keyword);
     cur_keyword = start_keyword;
     do {
       switch(cur_keyword->keyword)
       {
+      case PRIMARY_KEY:
+        fprintf(output, " PRIMARY KEY");
+        break;
+      case NOT_NULL:
+        fprintf(output, " NOT NULL");
+        break;
+      case UNIQUE_CONSTRAINT:
+        fprintf(output, " UNIQUE");
+        break;
       case OPTIONAL_EXTRACT:
         UNPACK_SQL_STATEMENT(value, cur_keyword->v, value);
         fprintf(output, " EXTRACT \"%s\"", value->v.reference);
+        break;
+      case OPTIONAL_PIECE:
+        UNPACK_SQL_STATEMENT(value, cur_keyword->v, value);
+        fprintf(output, " PIECE \"%s\"", value->v.reference);
+        break;
+      case OPTIONAL_SOURCE:
+        UNPACK_SQL_STATEMENT(value, cur_keyword->v, value);
+        fprintf(output, " GLOBAL \"%s\"", value->v.reference);
         break;
       case NO_KEYWORD:
         break;
@@ -102,7 +98,7 @@ void emit_create_table(FILE *output, struct SqlStatement *stmt)
   assert(table->source);
   UNPACK_SQL_STATEMENT(keyword, table->source, keyword);
   UNPACK_SQL_STATEMENT(value, keyword->v, value);
-  fprintf(output, ") SOURCE \"%s\"", value->v.reference);
+  fprintf(output, ") GLOBAL \"%s\"", value->v.reference);
   assert(table->curse);
   UNPACK_SQL_STATEMENT(keyword, table->curse, keyword);
   UNPACK_SQL_STATEMENT(value, keyword->v, value);
@@ -110,7 +106,7 @@ void emit_create_table(FILE *output, struct SqlStatement *stmt)
   assert(table->start);
   UNPACK_SQL_STATEMENT(keyword, table->start, keyword);
   UNPACK_SQL_STATEMENT(value, keyword->v, value);
-  fprintf(output, " START \"%s\"", value->v.reference);
+  fprintf(output, " UNPACK \"%s\"", value->v.reference);
   assert(table->end);
   UNPACK_SQL_STATEMENT(keyword, table->end, keyword);
   UNPACK_SQL_STATEMENT(value, keyword->v, value);
@@ -118,7 +114,11 @@ void emit_create_table(FILE *output, struct SqlStatement *stmt)
   assert(table->delim);
   UNPACK_SQL_STATEMENT(keyword, table->delim, keyword);
   UNPACK_SQL_STATEMENT(value, keyword->v, value);
-  fprintf(output, " DELIM \"%s\";", value->v.reference);
+  fprintf(output, " DELIM \"%s\"", value->v.reference);
+  assert(table->pack);
+  UNPACK_SQL_STATEMENT(keyword, table->pack, keyword);
+  UNPACK_SQL_STATEMENT(value, keyword->v, value);
+  fprintf(output, " PACK \"%s\";", value->v.reference);
 }
 
 void emit_column_specification(FILE *output, SqlColumn *column)

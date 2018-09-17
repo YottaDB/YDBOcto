@@ -32,7 +32,7 @@ static void test_simple_table_definition(void **state) {
     fprintf(stderr, "Error initializing the scanner\n");
     return;
   }
-  parser_state = yy_scan_string("CREATE TABLE myTable (id INTEGER PRIMARY KEY, name VARCHAR(20), age INTEGER) SOURCE \"^myTable(id)\";",
+  parser_state = yy_scan_string("CREATE TABLE myTable (id INTEGER PRIMARY KEY, name VARCHAR(20), age INTEGER) GLOBAL \"^myTable(id)\";",
     scanner);
   assert_true(yyparse(scanner, &result) == 0);
 
@@ -62,7 +62,7 @@ static void test_multiple_columns(void **state) {
     fprintf(stderr, "Error initializing the scanner\n");
     return;
   }
-  parser_state = yy_scan_string("CREATE TABLE myTable (id INTEGER PRIMARY KEY, name VARCHAR(20), age INTEGER) SOURCE \"^myTable(id)\";",
+  parser_state = yy_scan_string("CREATE TABLE myTable (id INTEGER PRIMARY KEY, name VARCHAR(20), age INTEGER) GLOBAL \"^myTable(id)\";",
     scanner);
   assert_true(yyparse(scanner, &result) == 0);
 

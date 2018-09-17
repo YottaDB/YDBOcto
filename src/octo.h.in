@@ -25,7 +25,13 @@ void emit_create_table(FILE *output, struct SqlStatement *stmt);
 void emit_select_statement(FILE *output, SqlStatement *stmt);
 
 void cleanup_sql_statement(SqlStatement *stmt);
-void create_table_defaults(SqlStatement *table_statement, SqlStatement *keywords_statement);
+/**
+ * Examines the table to make sure needed columns are specified, and fills out
+ * any that are needed but not present.
+ *
+ * @returns 0 if success, 1 otherwise
+ */
+int create_table_defaults(SqlStatement *table_statement, SqlStatement *keywords_statement);
 
 char *m_escape_string(const char *string);
 char *m_unescape_string(const char *string);

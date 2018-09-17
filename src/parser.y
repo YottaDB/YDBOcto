@@ -63,7 +63,7 @@ extern void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, char cons
 %token COUNT
 %token CREATE
 %token CROSS
-%token CURSE
+%token CURSOR
 %token DEC
 %token DECIMAL
 %token DEFAULT
@@ -78,6 +78,7 @@ extern void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, char cons
 %token FALSE_TOKEN
 %token FROM
 %token FULL
+%token GLOBAL
 %token GROUP
 %token HAVING
 %token IDENTIFIER_START
@@ -101,20 +102,21 @@ extern void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, char cons
 %token OR
 %token ORDER
 %token OUTER
+%token PACK
+%token PIECE
 %token PRIMARY
 %token RESTRICT
 %token RIGHT
 %token SELECT
 %token SET
 %token SMALLINT
-%token SOURCE
-%token START
 %token SUM
 %token TABLE
 %token TRUE_TOKEN
 %token UNION
 %token UNIQUE
 %token UNKNOWN
+%token UNPACK
 %token UPDATE
 %token USING
 %token VALUES
@@ -713,18 +715,15 @@ table_definition
   : CREATE TABLE column_name LEFT_PAREN table_element_list RIGHT_PAREN table_definition_tail {
         SQL_STATEMENT($$, table_STATEMENT);
         ($$)->v.table = (SqlTable*)malloc(sizeof(SqlTable));
+        memset(($$)->v.table, 0, sizeof(SqlTable));
         assert($column_name->type == value_STATEMENT
           && $column_name->v.value->type == COLUMN_REFERENCE);
         ($$)->v.table->tableName = $column_name;
         ($$)->v.table->columns = $table_element_list;
-        ($$)->v.table->source = NULL;
-        ($$)->v.table->curse = NULL;
-        ($$)->v.table->start = NULL;
-        ($$)->v.table->end = NULL;
-        ($$)->v.table->delim = NULL;
-        create_table_defaults($$, $table_definition_tail);
+        if(create_table_defaults($$, $table_definition_tail)) {
+          YYABORT;
+        }
         dqinit(($$)->v.table);
-        //printf(">> CREATE TABLE %s\n", ($column_name)->v.value->v.string_literal);
       }
   ;
 
@@ -750,14 +749,14 @@ optional_keyword
   ;
 
 optional_keyword_element
-  : SOURCE LITERAL {
+  : GLOBAL LITERAL {
       SQL_STATEMENT($$, keyword_STATEMENT);
       ($$)->v.keyword = (SqlOptionalKeyword*)malloc(sizeof(SqlOptionalKeyword));
       ($$)->v.keyword->keyword = OPTIONAL_SOURCE;
       ($$)->v.keyword->v = $2;
       dqinit(($$)->v.keyword);
     }
-  | CURSE LITERAL {
+  | CURSOR LITERAL {
       SQL_STATEMENT($$, keyword_STATEMENT);
       ($$)->v.keyword = (SqlOptionalKeyword*)malloc(sizeof(SqlOptionalKeyword));
       ($$)->v.keyword->keyword = OPTIONAL_CURSE;
@@ -771,7 +770,7 @@ optional_keyword_element
       ($$)->v.keyword->v = $2;
       dqinit(($$)->v.keyword);
     }
-  | START LITERAL {
+  | UNPACK LITERAL {
       SQL_STATEMENT($$, keyword_STATEMENT);
       ($$)->v.keyword = (SqlOptionalKeyword*)malloc(sizeof(SqlOptionalKeyword));
       ($$)->v.keyword->keyword = OPTIONAL_START;
@@ -785,6 +784,13 @@ optional_keyword_element
        ($$)->v.keyword->v = $2;
        dqinit(($$)->v.keyword);
      }
+ | PACK LITERAL {
+      SQL_STATEMENT($$, keyword_STATEMENT);
+      ($$)->v.keyword = (SqlOptionalKeyword*)malloc(sizeof(SqlOptionalKeyword));
+      ($$)->v.keyword->keyword = OPTIONAL_PACK;
+      ($$)->v.keyword->v = $2;
+      dqinit(($$)->v.keyword);
+    }
   ;
 
 optional_keyword_tail
@@ -823,7 +829,7 @@ table_element
 
 /// TODO: not complete
 column_definition
-  : column_name data_type column_definition_tail column_optional_keyword {
+  : column_name data_type column_definition_tail {
       SQL_STATEMENT($$, column_STATEMENT);
       ($$)->v.column = (SqlColumn*)malloc(sizeof(SqlColumn));
       dqinit(($$)->v.column);
@@ -831,13 +837,8 @@ column_definition
       assert($data_type->type == data_type_STATEMENT);
       ($$)->v.column->type = $data_type->v.data_type;
       cleanup_sql_statement($data_type);
-      ($$)->v.column->constraints = NULL;
       ($$)->v.column->tableName = NULL;
-      ($$)->v.column->keywords = $column_optional_keyword;
-      if($column_definition_tail) {
-        assert($column_definition_tail->type == constraint_STATEMENT);
-        ($$)->v.column->constraints = $column_definition_tail;
-      }
+      ($$)->v.column->keywords = $column_definition_tail;
     }
 //  | more stuff
   ;
@@ -847,37 +848,45 @@ column_name
   ;
 
 column_definition_tail
-  : /* Empty */ { $$ = 0; }
-  | column_constraint_definition column_definition_tail { $$ = $1; }
-  ;
-
-column_constraint_definition
-  : constraint_name_definition column_constraint constraint_attributes {
-      SQL_STATEMENT($$, constraint_STATEMENT);
-      ($$)->v.constraint = (SqlConstraint*)malloc(sizeof(SqlConstraint));
-      assert($column_constraint->type == constraint_type_STATEMENT);
-      ($$)->v.constraint->type = $column_constraint->v.constraint_type;
-      ($$)->v.constraint->referencesColumn = 0;
-      ($$)->v.constraint->check_constraint_definition = 0;
-      cleanup_sql_statement($column_constraint);
-      dqinit(($$)->v.constraint);
-    }
-  ;
-
-column_optional_keyword
   : /* Empty */ {
        SQL_STATEMENT($$, keyword_STATEMENT);
-       ($$)->v.keyword = (SqlOptionalKeyword*)malloc(sizeof(SqlOptionalKeyword));
-       ($$)->v.keyword->keyword = NO_KEYWORD;
-       ($$)->v.keyword->v = NULL;
+       MALLOC_STATEMENT($$, keyword, SqlOptionalKeyword);
        dqinit(($$)->v.keyword);
     }
-  | EXTRACT LITERAL {
+  | EXTRACT LITERAL column_definition_tail {
        SQL_STATEMENT($$, keyword_STATEMENT);
        ($$)->v.keyword = (SqlOptionalKeyword*)malloc(sizeof(SqlOptionalKeyword));
        ($$)->v.keyword->keyword = OPTIONAL_EXTRACT;
        ($$)->v.keyword->v = $2;
        dqinit(($$)->v.keyword);
+    }
+  | PIECE LITERAL column_definition_tail {
+       SQL_STATEMENT($$, keyword_STATEMENT);
+       ($$)->v.keyword = (SqlOptionalKeyword*)malloc(sizeof(SqlOptionalKeyword));
+       ($$)->v.keyword->keyword = OPTIONAL_PIECE;
+       ($$)->v.keyword->v = $2;
+       dqinit(($$)->v.keyword);
+    }
+  | DELIM LITERAL {
+       SQL_STATEMENT($$, keyword_STATEMENT);
+       ($$)->v.keyword = (SqlOptionalKeyword*)malloc(sizeof(SqlOptionalKeyword));
+       ($$)->v.keyword->keyword = OPTIONAL_DELIM;
+       ($$)->v.keyword->v = $2;
+       dqinit(($$)->v.keyword);
+     }
+  | GLOBAL LITERAL column_definition_tail {
+       SQL_STATEMENT($$, keyword_STATEMENT);
+       ($$)->v.keyword = (SqlOptionalKeyword*)malloc(sizeof(SqlOptionalKeyword));
+       ($$)->v.keyword->keyword = OPTIONAL_SOURCE;
+       ($$)->v.keyword->v = $2;
+       dqinit(($$)->v.keyword);
+    }
+  | column_constraint_definition column_definition_tail { $$ = $1; }
+  ;
+
+column_constraint_definition
+  : constraint_name_definition column_constraint constraint_attributes {
+      ($$) = $column_constraint;
     }
   ;
 
@@ -889,8 +898,10 @@ constraint_name_definition
 /// TODO: not complete
 column_constraint
   : NOT NULL_TOKEN {
-      SQL_STATEMENT($$, constraint_type_STATEMENT);
-      ($$)->v.constraint_type = NOT_NULL;
+      SQL_STATEMENT($$, keyword_STATEMENT);
+      MALLOC_STATEMENT($$, keyword, SqlOptionalKeyword);
+      ($$)->v.keyword->keyword = NOT_NULL;
+      dqinit(($$)->v.keyword);
     }
   | unique_specifications { $$ = $1; }
 //  | reference_specifications
@@ -899,12 +910,16 @@ column_constraint
 
 unique_specifications
   : UNIQUE {
-      SQL_STATEMENT($$, constraint_type_STATEMENT);
-      ($$)->v.constraint_type = UNIQUE_CONSTRAINT;
+      SQL_STATEMENT($$, keyword_STATEMENT);
+      MALLOC_STATEMENT($$, keyword, SqlOptionalKeyword);
+      ($$)->v.keyword->keyword = UNIQUE_CONSTRAINT;
+      dqinit(($$)->v.keyword);
     }
   | PRIMARY KEY {
-      SQL_STATEMENT($$, constraint_type_STATEMENT);
-      ($$)->v.constraint_type = PRIMARY_KEY;
+      SQL_STATEMENT($$, keyword_STATEMENT);
+      MALLOC_STATEMENT($$, keyword, SqlOptionalKeyword);
+      ($$)->v.keyword->keyword = PRIMARY_KEY;
+      dqinit(($$)->v.keyword);
     }
   ;
 

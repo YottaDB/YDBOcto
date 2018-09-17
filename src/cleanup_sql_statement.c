@@ -8,7 +8,6 @@ void cleanup_sql_statement(SqlStatement *stmt)
 {
   SqlTable *cur_table, *start_table;
   SqlColumn *cur_column, *start_column;
-  SqlConstraint *cur_constraint, *start_constraint;
   if(stmt == NULL)
     return;
   switch(stmt->type)
@@ -87,7 +86,6 @@ void cleanup_sql_statement(SqlStatement *stmt)
       start_column = cur_column;
       do {
         cleanup_sql_statement(cur_column->columnName);
-        cleanup_sql_statement(cur_column->constraints);
         cleanup_sql_statement(cur_column->tableName);
         assert(cur_column->next == start_column ||
           cur_column->next->prev == cur_column);
@@ -114,29 +112,11 @@ void cleanup_sql_statement(SqlStatement *stmt)
     /* No op */
     free(stmt);
     break;
-  case constraint_STATEMENT:
-    if(stmt->v.constraint) {
-      UNPACK_SQL_STATEMENT(cur_constraint, stmt, constraint);
-      start_constraint = cur_constraint;
-      do {
-        cleanup_sql_statement(stmt->v.constraint->referencesColumn);
-        cleanup_sql_statement(stmt->v.constraint->check_constraint_definition);
-        if(cur_constraint->next == start_constraint) {
-          free(cur_constraint);
-          cur_constraint = start_constraint;
-        } else {
-          assert(cur_constraint->next->prev == cur_constraint);
-          cur_constraint = cur_constraint->next;
-          free(cur_constraint->prev);
-        }
-      } while (cur_constraint != start_constraint);
-    }
-    free(stmt);
-    break;
   case constraint_type_STATEMENT:
     /* No op */
     free(stmt);
     break;
+  case constraint_STATEMENT:
   case keyword_STATEMENT:
     if(stmt->v.keyword) {
       cleanup_sql_statement(stmt->v.keyword->v);

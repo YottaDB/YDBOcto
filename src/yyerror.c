@@ -25,21 +25,26 @@
 void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, char const *s)
 {
   int cur_line = 1, cur_column = 1, i = 0;
-  char *expr_begin, *expr_end, t, *c;
-  for(c = input_buffer_combined; *c != '\0' && cur_line != llocp->first_line; c++) {
-    if(*c == '\n')
+  char *expr_begin, *expr_end, t, *c, *expr_line_begin;
+  expr_line_begin = c = input_buffer_combined;
+  for(; *c != '\0' && cur_line != llocp->first_line; c++) {
+    if(*c == '\n') {
       cur_line++;
+      expr_line_begin = c+1;
+    }
     assert(++i < MAX_STR_CONST);
   }
   expr_begin = c;
-  printf("Error with syntax near (line %d, column %d):\n%s\n", llocp->first_line, llocp->first_column, expr_begin);
-  for(; *c != '\0' && cur_column != llocp->first_column; c++, cur_column++) {
-    assert(++i < MAX_STR_CONST);
-    printf(" ");
-  }
   for(; *c != '\0' && cur_line != llocp->last_line; c++) {
     if(*c == '\n')
       cur_line++;
+  }
+  for(; *c != '\0' && *c != '\n'; c++); // NOTE comma
+  *c = '\0'; // end at EOL
+  printf("Error with syntax near (line %d, column %d):\n%s\n", llocp->first_line, llocp->first_column, expr_begin);
+  for(c = expr_line_begin; *c != '\0' && cur_column != llocp->first_column; c++, cur_column++) {
+    assert(++i < MAX_STR_CONST);
+    printf(" ");
   }
   for(; *c != '\0' && cur_column != llocp->last_column; c++, cur_column++) {
     printf("^");
@@ -48,5 +53,5 @@ void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, char const *s)
   t = *c;
   *c = '\0';
   *c = t;
-  printf("\n%s\n", s);
+  printf("\n", s);
 }

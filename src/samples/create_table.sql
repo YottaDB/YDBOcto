@@ -9,3 +9,14 @@ CREATE TABLE tableWithManyFields (
 );
 CREATE TABLE abc (id INTEGER PRIMARY KEY);
 CREATE TABLE abc (id INTEGER PRIMARY KEY);
+create table abc (id INTEGER PRIMARY KEY) PACK "$$PACK(%s,.keys)" UNPACK "$$UNPACK(%s,.keys)";
+CREATE TABLE abc (id INTEGER PRIMARY KEY PIECE "keys(0)");
+CREATE TABLE abc (id INTEGER PRIMARY KEY PIECE "keys(0)" GLOBAL "^aDifferentVar(keys(0))");
+CREATE TABLE abc (
+  id INTEGER PRIMARY KEY EXTRACT "abc"
+  GLOBAL "someGLobal"
+  PIECE "0"
+  DELIM "|"
+) CURSOR "$$CURSE" DELIM "|"
+END "keys(0)" GLOBAL "someGLobal"
+PACK "$$PACK" UNPACK "$$UNPACK" ;

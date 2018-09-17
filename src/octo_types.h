@@ -28,7 +28,13 @@ typedef void *yyscan_t;
   (self)->prev->next = (new_elem), (self)->prev = new_elem, (new_elem)->next = self;
 
 #define INIT_YDB_BUFFER(buffer, len) (buffer)->buf_addr = malloc(len); (buffer)->len_used = 0; (buffer)->len_alloc = len;
-#define SQL_STATEMENT(VAR, TYPE) (VAR) = (SqlStatement*)malloc(sizeof(SqlStatement)); (VAR)->type = TYPE;
+#define SQL_STATEMENT(VAR, TYPE)                        \
+  (VAR) = (SqlStatement*)malloc(sizeof(SqlStatement));  \
+  memset((VAR), 0, sizeof(SqlStatement));               \
+  (VAR)->type = TYPE;
+#define MALLOC_STATEMENT(VAR, NAME, TYPE)       \
+  (VAR)->v.NAME = malloc(sizeof(TYPE));         \
+  memset((VAR)->v.NAME, 0, sizeof(TYPE));
 #define UNPACK_SQL_STATEMENT(result, item, StatementType) assert((item)->type == StatementType##_STATEMENT); \
   (result) = (item)->v.StatementType
 
@@ -92,16 +98,6 @@ enum SqlDataType {
   INTERVAL_TYPE
 };
 
-enum SqlConstraintType {
-  UNKNOWN_SqlConstraintType,
-  NOT_NULL,
-  UNIQUE_CONSTRAINT,
-  PRIMARY_KEY,
-  REFERENCES,
-  CHECK_CONSTRAINT,
-  MAX_LENGTH
-};
-
 enum OptionalKeyword {
   NO_KEYWORD,
   OPTIONAL_SOURCE,
@@ -111,7 +107,16 @@ enum OptionalKeyword {
   OPTIONAL_DELIM,
   OPTIONAL_EXTRACT,
   OPTIONAL_CASCADE,
-  OPTIONAL_RESTRICT
+  OPTIONAL_RESTRICT,
+  OPTIONAL_PIECE,
+  OPTIONAL_PACK,
+  UNKNOWN_SqlConstraintType,
+  NOT_NULL,
+  UNIQUE_CONSTRAINT,
+  PRIMARY_KEY,
+  REFERENCES,
+  CHECK_CONSTRAINT,
+  MAX_LENGTH
 };
 
 enum SqlJoinType {
@@ -119,7 +124,7 @@ enum SqlJoinType {
 };
 
 struct SqlColumn;
-struct SqlConstraint;
+//struct SqlConstraint;
 struct SqlSelectStatement;
 struct SqlUnaryOperation;
 struct SqlBinaryOperation;
@@ -139,7 +144,6 @@ struct SqlColumn
 {
   SqlStatement *columnName;
   enum SqlDataType type;
-  SqlStatement *constraints;
   SqlStatement *tableName; // If not null, qualified name was used
   SqlStatement *keywords;
   dqcreate(SqlColumn);
@@ -154,14 +158,14 @@ struct SqlColumnAlias
 /**
  * Represents a SQL constraint type; doubly linked list
  */
-struct SqlConstraint
+/*struct SqlConstraint
 {
   enum SqlConstraintType type;
   SqlStatement *referencesColumn; //snprintf(buffer, 255 in the form of table.column
   SqlStatement *check_constraint_definition; // as a piece of MUMPS code
   uint8 max_length;
   dqcreate(SqlConstraint);
-} typedef SqlConstraint;
+} typedef SqlConstraint;*/
 
 /**
  * Represents a SQL table
@@ -175,6 +179,7 @@ struct SqlTable
   SqlStatement *start;
   SqlStatement *end;
   SqlStatement *delim;
+  SqlStatement *pack;
   dqcreate(SqlTable);
 };
 
@@ -255,10 +260,9 @@ struct SqlStatement {
     SqlColumn *column; // Note singular versus plural
     SqlJoin *join;
     SqlTable *table;
-    SqlConstraint *constraint;
+    SqlOptionalKeyword *constraint;
     SqlOptionalKeyword *keyword;
     enum SqlDataType data_type;
-    enum SqlConstraintType constraint_type;
   } v;
 };
 

@@ -20,13 +20,15 @@
 #include "octo.h"
 #include "octo_types.h"
 
-#define SOURCE 1
-#define CURSE 2
-#define START 4
-#define END 8
-#define DELIM 16
+#define SOURCE (1 << 0)
+#define CURSE (1 << 1)
+#define START (1 << 2)
+#define END (1 << 3)
+#define DELIM (1 << 4)
+#define PACK (1 << 5)
+#define UNPACK (1 << 6)
 
-void create_table_defaults(SqlStatement *table_statement, SqlStatement *keywords_statement) {
+int create_table_defaults(SqlStatement *table_statement, SqlStatement *keywords_statement) {
   SqlTable *table;
   SqlOptionalKeyword *keyword, *cur_keyword, *start_keyword;
   SqlColumn *pkey;
@@ -77,6 +79,13 @@ void create_table_defaults(SqlStatement *table_statement, SqlStatement *keywords
       statement->v.keyword = cur_keyword;
       table->delim = statement;
       break;
+    case OPTIONAL_PACK:
+      assert(0 == (options & PACK));
+      options |= PACK;
+      SQL_STATEMENT(statement, keyword_STATEMENT);
+      statement->v.keyword = cur_keyword;
+      table->pack = statement;
+      break;
     case NO_KEYWORD:
       break;
     default:
@@ -85,14 +94,17 @@ void create_table_defaults(SqlStatement *table_statement, SqlStatement *keywords
     }
     cur_keyword = cur_keyword->next;
   } while(cur_keyword != start_keyword);
-  if(options == (SOURCE | CURSE | START | END | DELIM))
-    return;
+  if(options == (SOURCE | CURSE | START | END | DELIM | PACK))
+    return 0;
 
   pkey = fetch_primary_key_column(table);
+  if(pkey == NULL) {
+    ERROR(ERR_PRIMARY_KEY_NOT_FOUND, table->tableName->v.value->v.reference);
+    return 1;
+  }
   assert(pkey != NULL);
   if(!(options & SOURCE)) {
-    snprintf(buffer, MAX_STR_CONST, "^%s(%s)", table->tableName->v.value->v.reference,
-      pkey->columnName->v.value->v.reference);
+    snprintf(buffer, MAX_STR_CONST, "^%s(keys(0))", table->tableName->v.value->v.reference);
     str_len = strnlen(buffer, MAX_STR_CONST);
     out_buffer = malloc(str_len + 1);
     strncpy(out_buffer, buffer, str_len);
@@ -106,10 +118,8 @@ void create_table_defaults(SqlStatement *table_statement, SqlStatement *keywords
     dqinsert(start_keyword, keyword);
   }
   if(!(options & CURSE)) {
-    snprintf(buffer, MAX_STR_CONST, "SET %s=$O(^%s(%s))",
-      pkey->columnName->v.value->v.reference,
-      table->tableName->v.value->v.reference,
-      pkey->columnName->v.value->v.reference);
+    snprintf(buffer, MAX_STR_CONST, "SET keys(0)=$O(^%s(keys(0)))",
+      table->tableName->v.value->v.reference);
     str_len = strnlen(buffer, MAX_STR_CONST);
     out_buffer = malloc(str_len + 1);
     strncpy(out_buffer, buffer, str_len);
@@ -123,8 +133,8 @@ void create_table_defaults(SqlStatement *table_statement, SqlStatement *keywords
     dqinsert(start_keyword, keyword);
   }
   if(!(options & START)) {
-    snprintf(buffer, MAX_STR_CONST, "SET cursor=\"\"%%s\"\",%s=$P($G(@cursor),\"\"|\"\",1)",
-      pkey->columnName->v.value->v.reference);
+    snprintf(buffer, MAX_STR_CONST,
+      "SET cursor=\"\"%%s\"\",keys(0)=$P($G(@cursor),\"\"|\"\",1)");
     str_len = strnlen(buffer, MAX_STR_CONST);
     out_buffer = malloc(str_len + 1);
     strncpy(out_buffer, buffer, str_len);
@@ -138,8 +148,7 @@ void create_table_defaults(SqlStatement *table_statement, SqlStatement *keywords
     dqinsert(start_keyword, keyword);
   }
   if(!(options & END)) {
-    snprintf(buffer, MAX_STR_CONST, "('%s)",
-      pkey->columnName->v.value->v.reference);
+    snprintf(buffer, MAX_STR_CONST, "(\"\"\"\"=keys(0))");
     str_len = strnlen(buffer, MAX_STR_CONST);
     out_buffer = malloc(str_len + 1);
     strncpy(out_buffer, buffer, str_len);
@@ -160,6 +169,20 @@ void create_table_defaults(SqlStatement *table_statement, SqlStatement *keywords
     out_buffer[str_len] = '\0';
     (keyword) = (SqlOptionalKeyword*)malloc(sizeof(SqlOptionalKeyword));
     (keyword)->keyword = OPTIONAL_DELIM;
+    SQL_STATEMENT(keyword->v, value_STATEMENT);
+    keyword->v->v.value = (SqlValue*)malloc(sizeof(SqlValue));
+    keyword->v->v.value->type = STRING_LITERAL;
+    keyword->v->v.value->v.reference = out_buffer;
+    dqinsert(start_keyword, keyword);
+  }
+  if(!(options & PACK)) {
+    snprintf(buffer, MAX_STR_CONST, "SET storeKey=$$STOREKEY(\"\"%%s\"\",.keys),@storeKey");
+    str_len = strnlen(buffer, MAX_STR_CONST);
+    out_buffer = malloc(str_len + 1);
+    strncpy(out_buffer, buffer, str_len);
+    out_buffer[str_len] = '\0';
+    (keyword) = (SqlOptionalKeyword*)malloc(sizeof(SqlOptionalKeyword));
+    (keyword)->keyword = OPTIONAL_PACK;
     SQL_STATEMENT(keyword->v, value_STATEMENT);
     keyword->v->v.value = (SqlValue*)malloc(sizeof(SqlValue));
     keyword->v->v.value->type = COLUMN_REFERENCE;
@@ -211,10 +234,19 @@ void create_table_defaults(SqlStatement *table_statement, SqlStatement *keywords
       break;
     case NO_KEYWORD:
       break;
+    case OPTIONAL_PACK:
+      if(table->pack != NULL && table->pack->v.keyword == cur_keyword)
+        break;
+      assert(table->pack == NULL);
+      SQL_STATEMENT(statement, keyword_STATEMENT);
+      statement->v.keyword = cur_keyword;
+      table->pack = statement;
+      break;
     default:
       FATAL(ERR_UNKNOWN_KEYWORD_STATE);
       break;
     }
     cur_keyword = cur_keyword->next;
   } while(cur_keyword != start_keyword);
+  return 0;
 }

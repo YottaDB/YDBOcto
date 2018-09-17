@@ -60,8 +60,6 @@ The keywords denoted above are MUMPS expressions and literals. They are explaine
 |                                |                               |                        | `$PIECE <https://docs.yottadb.com/ProgrammersGuide/functions.html#piece>`_     | starting at 1)               |
 |                                |                               |                        | number of the row this column refers to                                        |                              |
 +--------------------------------+-------------------------------+------------------------+--------------------------------------------------------------------------------+------------------------------+
-| START                          | Command expression            | Table                  | Defines the local variables when a cursor first starts running                 | \-                           |
-+--------------------------------+-------------------------------+------------------------+--------------------------------------------------------------------------------+------------------------------+
 | UNPACK                         | Command expression            | Table                  | Unpacks the cursor from a global filled in by the SQL engine                   | \-                           |
 +--------------------------------+-------------------------------+------------------------+--------------------------------------------------------------------------------+------------------------------+
 

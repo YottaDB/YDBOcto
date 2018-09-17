@@ -35,7 +35,7 @@ Mapping to a MUMPS database
 If mapping to an existing MUMPS database, an optional_keyword can be added to further enhance the CREATE statement:
 
 .. parsed-literal::
-   [CURSOR | DELIM | END | EXTRACT | GLOBAL | PACK | PIECE | START | UNPACK LITERAL]
+   [CURSOR | DELIM | END | EXTRACT | GLOBAL | PACK | PIECE | UNPACK LITERAL]
 
 The keywords denoted above are MUMPS expressions and literals. They are explained in the following table:
 
@@ -184,13 +184,12 @@ UPDATE
 .. parsed-literal::
    UPDATE table_name SET object_column EQUALS update_source [WHERE search_condition];
 
-The UPDATE statement begins with the keyword UPDATE, along with specifying the table_name to be updated and the keyword SET, followed by a list of comma-separated statements that are used to update the existing columns where the object_column is a particular column and the update_source what the value at that column is set to either NULL or a specific value expression. The optional WHERE condition allows you to update columns based on a certain condition you specify.
+The UPDATE statement begins with the keyword UPDATE. The table_name to be updated and the keyword SET is followed by a list of comma-separated statements that are used to update the existing columns, where object_column is a particular column and  update_source is set to either NULL or a specific value expression. The optional WHERE condition allows you to update columns based on a certain condition you specify.
 
 Example:
 
 .. parsed-literal::
    UPDATE Employee SET FirstName = "John" WHERE ID = 220; 
-
 
 ------------
 DELETE
@@ -201,7 +200,7 @@ DELETE
 
 The delete statement consists of the keywords DELETE FROM followed by the name of the table and possibly a search condition.
 
-The search condition eventually yields a boolean true or false value, and may contain further search modifications detailing where to look to apply the search_condition and how to compare the resulting values.
+The search condition eventually yields a boolean true or false value, and may contain further search modifications detailing where to apply the search_condition and how to compare the resulting values.
 
 Example:
 

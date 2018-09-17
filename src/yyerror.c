@@ -53,5 +53,5 @@ void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, char const *s)
   t = *c;
   *c = '\0';
   *c = t;
-  printf("\n", s);
+  printf("\n");
 }

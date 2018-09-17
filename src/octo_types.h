@@ -25,7 +25,7 @@ typedef void *yyscan_t;
 #define dqcreate(struct_type) struct struct_type *next, *prev
 // Inserts an element behind this one in the doubly linked list
 #define dqinsert(self, new_elem) (new_elem)->prev = (self)->prev, \
-  (self)->prev->next = (new_elem), (self)->prev = new_elem, (new_elem)->next = self;
+  (self)->prev->next = (new_elem), (self)->prev = (new_elem), (new_elem)->next = (self);
 
 #define INIT_YDB_BUFFER(buffer, len) (buffer)->buf_addr = malloc(len); (buffer)->len_used = 0; (buffer)->len_alloc = len;
 #define SQL_STATEMENT(VAR, TYPE)                        \

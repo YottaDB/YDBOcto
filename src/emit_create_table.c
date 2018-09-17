@@ -84,12 +84,17 @@ void emit_create_table(FILE *output, struct SqlStatement *stmt)
         UNPACK_SQL_STATEMENT(value, cur_keyword->v, value);
         fprintf(output, " GLOBAL \"%s\"", value->v.reference);
         break;
+      case OPTIONAL_DELIM:
+        UNPACK_SQL_STATEMENT(value, cur_keyword->v, value);
+        fprintf(output, " DELIM \"%s\"", value->v.reference);
+        break;
       case NO_KEYWORD:
         break;
       default:
         FATAL(ERR_UNKNOWN_KEYWORD_STATE);
         break;
       }
+      cur_keyword = cur_keyword->next;
     } while(cur_keyword != start_keyword);
     cur_column = cur_column->next;
     if(start_column != cur_column)
@@ -102,7 +107,7 @@ void emit_create_table(FILE *output, struct SqlStatement *stmt)
   assert(table->curse);
   UNPACK_SQL_STATEMENT(keyword, table->curse, keyword);
   UNPACK_SQL_STATEMENT(value, keyword->v, value);
-  fprintf(output, " CURSE \"%s\"", value->v.reference);
+  fprintf(output, " CURSOR \"%s\"", value->v.reference);
   assert(table->start);
   UNPACK_SQL_STATEMENT(keyword, table->start, keyword);
   UNPACK_SQL_STATEMENT(value, keyword->v, value);

@@ -159,7 +159,7 @@ int main(int argc, char **argv)
     result = NULL;
   } while(1);
 
-  yydebug = config->record_error_level < TRACE;
+  yydebug = config->record_error_level == TRACE;
   if (inputFile == NULL)
     inputFile = stdin;
 

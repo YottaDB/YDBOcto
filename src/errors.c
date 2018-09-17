@@ -9,8 +9,7 @@
 #include "octo.h"
 #include "errors.h"
 
-const char *log_prefix = "[%s] %04d-%02d-%02d %02d:%02d:%02d : ";
-const char *log_postfix = "\n";
+const char *log_prefix = "[%5s] %04d-%02d-%02d %02d:%02d:%02d : ";
 
 void octo_log(enum ERROR_LEVEL level, enum ERROR error, ...) {
   va_list args;
@@ -36,7 +35,7 @@ void octo_log(enum ERROR_LEVEL level, enum ERROR error, ...) {
     type = "DEBUG";
     break;
   case WARNING:
-    type = "WARNING";
+    type = "WARN";
     break;
   case ERROR:
     type = "ERROR";
@@ -45,7 +44,7 @@ void octo_log(enum ERROR_LEVEL level, enum ERROR error, ...) {
     type = "FATAL";
     break;
   default:
-    type = "UNKNOWN";
+    type = "UNKNW";
     break;
   }
   fprintf(stderr, log_prefix, type,
@@ -64,7 +63,7 @@ void octo_log(enum ERROR_LEVEL level, enum ERROR error, ...) {
     break;
   }
   va_end(args);
-  fprintf(stderr, log_postfix);
+  fprintf(stderr, "\n");
   if(level == FATAL) {
     ydb_fork_n_core();
     exit(error);

@@ -52,7 +52,15 @@ void emit_simple_select(char *output, const SqlTable *table, const char *column,
       UNPACK_SQL_STATEMENT(tmp_value, cur_keyword->v, value);
       piece_string = m_unescape_string(tmp_value->v.string_literal);
       break;
+    case OPTIONAL_SOURCE:
+      UNPACK_SQL_STATEMENT(tmp_value, cur_keyword->v, value);
+      source = m_unescape_string(tmp_value->v.string_literal);
+      break;
+    case PRIMARY_KEY:
+    case NOT_NULL:
+    case UNIQUE_CONSTRAINT:
     case NO_KEYWORD:
+      /* These are known states that have nothing to do with rendering the SELECT code */
       break;
     default:
       FATAL(ERR_UNKNOWN_KEYWORD_STATE);

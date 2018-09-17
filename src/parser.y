@@ -855,33 +855,59 @@ column_definition_tail
     }
   | EXTRACT LITERAL column_definition_tail {
        SQL_STATEMENT($$, keyword_STATEMENT);
-       ($$)->v.keyword = (SqlOptionalKeyword*)malloc(sizeof(SqlOptionalKeyword));
+       MALLOC_STATEMENT($$, keyword, SqlOptionalKeyword);
        ($$)->v.keyword->keyword = OPTIONAL_EXTRACT;
        ($$)->v.keyword->v = $2;
        dqinit(($$)->v.keyword);
+
+       SqlOptionalKeyword *keyword;
+       UNPACK_SQL_STATEMENT(keyword, $3, keyword);
+       dqinsert(keyword, ($$)->v.keyword);
+       free($3);
     }
   | PIECE LITERAL column_definition_tail {
        SQL_STATEMENT($$, keyword_STATEMENT);
-       ($$)->v.keyword = (SqlOptionalKeyword*)malloc(sizeof(SqlOptionalKeyword));
+       MALLOC_STATEMENT($$, keyword, SqlOptionalKeyword);
        ($$)->v.keyword->keyword = OPTIONAL_PIECE;
        ($$)->v.keyword->v = $2;
        dqinit(($$)->v.keyword);
+
+       SqlOptionalKeyword *keyword;
+       UNPACK_SQL_STATEMENT(keyword, $3, keyword);
+       dqinsert(keyword, ($$)->v.keyword);
+       free($3);
     }
-  | DELIM LITERAL {
+  | DELIM LITERAL column_definition_tail {
        SQL_STATEMENT($$, keyword_STATEMENT);
-       ($$)->v.keyword = (SqlOptionalKeyword*)malloc(sizeof(SqlOptionalKeyword));
+       MALLOC_STATEMENT($$, keyword, SqlOptionalKeyword);
        ($$)->v.keyword->keyword = OPTIONAL_DELIM;
        ($$)->v.keyword->v = $2;
        dqinit(($$)->v.keyword);
+
+       SqlOptionalKeyword *keyword;
+       UNPACK_SQL_STATEMENT(keyword, $3, keyword);
+       dqinsert(keyword, ($$)->v.keyword);
+       free($3);
      }
   | GLOBAL LITERAL column_definition_tail {
        SQL_STATEMENT($$, keyword_STATEMENT);
-       ($$)->v.keyword = (SqlOptionalKeyword*)malloc(sizeof(SqlOptionalKeyword));
+       MALLOC_STATEMENT($$, keyword, SqlOptionalKeyword);
        ($$)->v.keyword->keyword = OPTIONAL_SOURCE;
        ($$)->v.keyword->v = $2;
        dqinit(($$)->v.keyword);
+
+       SqlOptionalKeyword *keyword;
+       UNPACK_SQL_STATEMENT(keyword, $3, keyword);
+       dqinsert(keyword, ($$)->v.keyword);
+       free($3);
     }
-  | column_constraint_definition column_definition_tail { $$ = $1; }
+  | column_constraint_definition column_definition_tail {
+       $$ = $column_constraint_definition;
+       SqlOptionalKeyword *keyword;
+       UNPACK_SQL_STATEMENT(keyword, $2, keyword);
+       dqinsert(keyword, ($$)->v.keyword);
+       free($2);
+    }
   ;
 
 column_constraint_definition

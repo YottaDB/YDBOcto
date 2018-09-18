@@ -3,6 +3,8 @@
 
 #include <stdio.h>
 
+#include <libyottadb.h>
+
 #include "errors.h"
 #include "octo_types.h"
 
@@ -22,7 +24,7 @@ SqlColumn *fetch_primary_key_column(const SqlTable *table);
 
 void emit_simple_select(char *output, const SqlTable *table, const char *column, char *source);
 void emit_create_table(FILE *output, struct SqlStatement *stmt);
-void emit_select_statement(FILE *output, SqlStatement *stmt);
+SqlTable *emit_select_statement(ydb_buffer_t *cursor_global, ydb_buffer_t *cursor_exe_global, struct SqlStatement *stmt);
 
 void cleanup_sql_statement(SqlStatement *stmt);
 /**
@@ -37,6 +39,9 @@ char *m_escape_string(const char *string);
 char *m_unescape_string(const char *string);
 
 int readline_getc(FILE *inputFile, char *buff, int size);
+char *extract_expression(SqlStatement *stmt, const SqlTable *table, char *source);
+SqlStatement *parse_line(const char *line);
+void print_temporary_table(SqlTable *table);
 
 /* Globals */
 SqlTable *definedTables;

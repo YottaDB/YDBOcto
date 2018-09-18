@@ -19,6 +19,7 @@
 
 #include "octo.h"
 #include "octo_types.h"
+#include "template_strings.h"
 
 #define SOURCE (1 << 0)
 #define CURSE (1 << 1)
@@ -104,7 +105,7 @@ int create_table_defaults(SqlStatement *table_statement, SqlStatement *keywords_
   }
   assert(pkey != NULL);
   if(!(options & SOURCE)) {
-    snprintf(buffer, MAX_STR_CONST, "^%s(keys(0))", table->tableName->v.value->v.reference);
+    snprintf(buffer, MAX_STR_CONST, TEMPLATE_TABLE_DEFAULT_GLOBAL, table->tableName->v.value->v.reference);
     str_len = strnlen(buffer, MAX_STR_CONST);
     out_buffer = malloc(str_len + 1);
     strncpy(out_buffer, buffer, str_len);
@@ -118,7 +119,7 @@ int create_table_defaults(SqlStatement *table_statement, SqlStatement *keywords_
     dqinsert(start_keyword, keyword);
   }
   if(!(options & CURSE)) {
-    snprintf(buffer, MAX_STR_CONST, "SET keys(0)=$O(^%s(keys(0)))",
+    snprintf(buffer, MAX_STR_CONST, TEMPLATE_TABLE_DEFAULT_CURSOR,
       table->tableName->v.value->v.reference);
     str_len = strnlen(buffer, MAX_STR_CONST);
     out_buffer = malloc(str_len + 1);
@@ -148,7 +149,7 @@ int create_table_defaults(SqlStatement *table_statement, SqlStatement *keywords_
     dqinsert(start_keyword, keyword);
   }
   if(!(options & END)) {
-    snprintf(buffer, MAX_STR_CONST, "(\"\"\"\"=keys(0))");
+    snprintf(buffer, MAX_STR_CONST, TEMPLATE_TABLE_DEFAULT_END);
     str_len = strnlen(buffer, MAX_STR_CONST);
     out_buffer = malloc(str_len + 1);
     strncpy(out_buffer, buffer, str_len);
@@ -162,7 +163,7 @@ int create_table_defaults(SqlStatement *table_statement, SqlStatement *keywords_
     dqinsert(start_keyword, keyword);
   }
   if(!(options & DELIM)) {
-    snprintf(buffer, MAX_STR_CONST, "|");
+    snprintf(buffer, MAX_STR_CONST, TEMPLATE_TABLE_DEFAULT_DELIM);
     str_len = strnlen(buffer, MAX_STR_CONST);
     out_buffer = malloc(str_len + 1);
     strncpy(out_buffer, buffer, str_len);
@@ -176,7 +177,7 @@ int create_table_defaults(SqlStatement *table_statement, SqlStatement *keywords_
     dqinsert(start_keyword, keyword);
   }
   if(!(options & PACK)) {
-    snprintf(buffer, MAX_STR_CONST, "SET storeKey=$$STOREKEY(\"\"%%s\"\",.keys),@storeKey");
+    snprintf(buffer, MAX_STR_CONST, TEMPLATE_TABLE_DEFAULT_PACK);
     str_len = strnlen(buffer, MAX_STR_CONST);
     out_buffer = malloc(str_len + 1);
     strncpy(out_buffer, buffer, str_len);

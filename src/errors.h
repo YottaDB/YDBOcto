@@ -47,17 +47,17 @@ void octo_log(enum ERROR_LEVEL level, enum ERROR error, ...) ;
   }                                                   \
 } while(0);
 
-#define TRACE(err, ...) TRACE > config->record_error_level  \
+#define TRACE(err, ...) TRACE >= config->record_error_level  \
   ? octo_log(TRACE, err, ##__VA_ARGS__) : FALSE;
-#define INFO(err, ...) INFO > config->record_error_level  \
+#define INFO(err, ...) INFO >= config->record_error_level  \
   ? octo_log(INFO, err, ##__VA_ARGS__) : FALSE;
-#define DEBUG(err, ...) DEBUG > config->record_error_level  \
+#define DEBUG(err, ...) DEBUG >= config->record_error_level  \
   ? octo_log(DEBUG, err, ##__VA_ARGS__) : FALSE;
-#define WARNING(err, ...) WARNING > config->record_error_level  \
+#define WARNING(err, ...) WARNING >= config->record_error_level  \
   ? octo_log(WARNING, err, ##__VA_ARGS__) : FALSE;
-#define ERROR(err, ...) ERROR > config->record_error_level  \
+#define ERROR(err, ...) ERROR >= config->record_error_level  \
   ? octo_log(ERROR, err, ##__VA_ARGS__) : FALSE;
-#define FATAL(err, ...) FATAL > config->record_error_level  \
+#define FATAL(err, ...) FATAL >= config->record_error_level  \
   ? octo_log(FATAL, err, ##__VA_ARGS__) : FALSE;
 
 #endif

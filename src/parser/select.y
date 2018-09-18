@@ -97,7 +97,12 @@ table_reference
       ($$)->v.join->next = ($2);
     }
   | column_name correlation_specification table_reference_tail
-  | derived_table
+  | derived_table {
+      SQL_STATEMENT($$, join_STATEMENT);
+      MALLOC_STATEMENT($$, join, SqlJoin);
+      ($$)->v.join->type = TABLE_SPEC;
+      ($$)->v.join->value = $1;
+    }
   | derived_table correlation_specification
   | joined_table
   ;
@@ -122,7 +127,7 @@ optional_as
   ;
 
 derived_table
-  : table_subquery
+  : table_subquery {$$ = $1; }
   ;
 
 joined_table

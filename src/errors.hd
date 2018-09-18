@@ -7,4 +7,6 @@ ERROR_DEF(ERR_UNKNOWN_KEYWORD_STATE, "Unknown state reached; please contact your
 ERROR_DEF(ERR_FEATURE_NOT_IMPLEMENTED, "Feature not implemented: %s")
 ERROR_DEF(ERR_PRIMARY_KEY_NOT_FOUND, "No primary key specified when creating table %s; please consult the documentation for more information.")
 ERROR_DEF(ERR_MULTIPLE_VALUES_PROVIDED, "Multiple values provided for %s; undefined behavior")
+ERROR_DEF(ERR_GENERATING_TEMPORARY_TABLE, "Generating temporary table: %s")
+ERROR_DEF(ERR_UNKNOWN_TABLE, "Unknown table: %s")
 ERROR_END(CUSTOM_ERROR, "Error not found")

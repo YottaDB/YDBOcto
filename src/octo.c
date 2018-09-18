@@ -34,20 +34,18 @@ extern int yydebug;
 int main(int argc, char **argv)
 {
   int c, error = 0, i = 0, status;
-  yyscan_t scanner;
-  YY_BUFFER_STATE state;
   int done;
-  SqlStatement *result = 0;
   char *buffer;
   size_t buffer_size = 0;
   FILE *inputFile;
   FILE *out;
   SqlValue *value;
   SqlTable *table;
+  SqlStatement *result = 0;
   SqlSelectStatement *select;
   SqlStatement *tmp_statement;
   ydb_buffer_t schema_global, table_name_buffer, table_create_buffer, null_buffer;
-  ydb_buffer_t cursor_global, cursor_exe_global[2];
+  ydb_buffer_t cursor_global, cursor_exe_global[3];
   ydb_buffer_t z_status, z_status_value;
   gtm_char_t      err_msgbuf[MAX_STR_CONST];
 
@@ -64,14 +62,17 @@ int main(int argc, char **argv)
   table_create_buffer.len_used = 0;
   table_create_buffer.len_alloc = MAX_STR_CONST;
 
-  /* This is needed for parsing table definition files */
-  if (yylex_init(&scanner))
-    FATAL(ERR_INIT_SCANNER);
   YDB_LITERAL_TO_BUFFER("^schema", &schema_global);
   YDB_LITERAL_TO_BUFFER("", &null_buffer);
   YDB_LITERAL_TO_BUFFER("^cursor", &cursor_global);
-  YDB_LITERAL_TO_BUFFER("0", &cursor_exe_global[0]);
+  INIT_YDB_BUFFER(&cursor_exe_global[0], MAX_STR_CONST);
+  status = ydb_incr_s(&schema_global, 0, NULL, NULL, &cursor_exe_global[0]);
+  YDB_ERROR_CHECK(status, &z_status, &z_status_value);
+  cursor_exe_global[0].buf_addr[cursor_exe_global[0].len_used] = '\0';
   YDB_LITERAL_TO_BUFFER("exe", &cursor_exe_global[1]);
+  INIT_YDB_BUFFER(&cursor_exe_global[2], MAX_STR_CONST);
+  cursor_exe_global[2].len_used = 1;
+  *cursor_exe_global[2].buf_addr = '0';
 
   /* Parse input parameters */
   while (1)
@@ -137,14 +138,8 @@ int main(int argc, char **argv)
     YDB_ERROR_CHECK(status, &z_status, &z_status_value);
     table_create_buffer.buf_addr[table_create_buffer.len_used] = '\0';
     INFO(CUSTOM_ERROR, "Running command %s\n", table_create_buffer.buf_addr);
-    state = yy_scan_string(table_create_buffer.buf_addr, scanner);
-    if(yyparse(scanner, &result))
-    {
-      /// TODO: we should emit a useful syntax error when this happens
-      ERROR(ERR_PARSING_COMMAND, table_create_buffer.buf_addr);
-      free(result);
-      yy_delete_buffer(state, scanner);
-      result = NULL;
+    result = parse_line(table_create_buffer.buf_addr);
+    if(result == NULL) {
       continue;
     }
     UNPACK_SQL_STATEMENT(table, result, table);
@@ -155,7 +150,6 @@ int main(int argc, char **argv)
       dqinsert(definedTables, table);
     }
     free(result);
-    yy_delete_buffer(state, scanner);
     result = NULL;
   } while(1);
 
@@ -167,15 +161,9 @@ int main(int argc, char **argv)
     if(readline_getc(inputFile, input_buffer_combined, MAX_STR_CONST) == -1)
       break;
     INFO(CUSTOM_ERROR, "Running SQL command %s", input_buffer_combined);
-    state = yy_scan_string(input_buffer_combined, scanner);
-    if(yyparse(scanner, &result))
-    {
-      error = 1;
-      ERROR(ERR_PARSING_COMMAND, input_buffer_combined);
-    }
-    yy_delete_buffer(state, scanner);
+    result = parse_line(input_buffer_combined);
     INFO(CUSTOM_ERROR, "Done!");
-    if(result == 0)
+    if(result == NULL)
       continue;
     if(config->dry_run) {
       cleanup_sql_statement(result);
@@ -185,23 +173,17 @@ int main(int argc, char **argv)
     switch(result->type)
     {
     case select_STATEMENT:
-      out = open_memstream(&buffer, &buffer_size);
-      assert(out);
-      emit_select_statement(out, result);
-      fclose(out);
-      INFO(CUSTOM_ERROR, "%s", buffer);
-      YDB_COPY_STRING_TO_BUFFER(buffer, &table_name_buffer, done)
-      status = ydb_set_s(&cursor_global, 2,
-        cursor_exe_global,
-        &table_name_buffer);
-      YDB_ERROR_CHECK(status, &z_status, &z_status_value);
-      status = gtm_ci("select");
-       if (status != 0)
-       {
-                gtm_zstatus(err_msgbuf, MAX_STR_CONST);
-                FATAL(ERR_YOTTADB, err_msgbuf);
-       }
-      free(buffer);
+      table = emit_select_statement(&cursor_global, cursor_exe_global, result);
+      fprintf(stdout, "\n");
+      fflush(stdout); /// TODO: random outputting character ^^
+      gtm_long_t cursorId = atol(cursor_exe_global[0].buf_addr);
+      status = gtm_ci("select", cursorId);
+      if (status != 0)
+      {
+              gtm_zstatus(err_msgbuf, MAX_STR_CONST);
+              FATAL(ERR_YOTTADB, err_msgbuf);
+      }
+      print_temporary_table(table);
       cleanup_sql_statement(result);
       break;
     case table_STATEMENT:
@@ -237,7 +219,6 @@ int main(int argc, char **argv)
     }
     result = NULL;
   } while(!feof(inputFile));
-  yylex_destroy(scanner);
   free(table_name_buffer.buf_addr);
   free(table_create_buffer.buf_addr);
   if(definedTables != NULL) {

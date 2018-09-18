@@ -18,217 +18,83 @@
 #include <assert.h>
 #include <string.h>
 
+#include <libyottadb.h>
+
 #include "octo.h"
-
-/**
- * WARNING: caller is responsible for freeing the buffer
- */
-char *extract_expression(SqlStatement *stmt, const SqlTable *table, char *source)
-{
-  SqlStatement *calculated;
-  SqlBinaryOperation *binary;
-  SqlValue *value;
-  char *buffer = malloc(MAX_EXPRESSION_LENGTH);
-  char *tmp1,  *tmp2, *tmp3;
-
-  switch(stmt->type)
-  {
-  case value_STATEMENT:
-    value = stmt->v.value;
-    switch(value->type)
-    {
-    case STRING_LITERAL:
-      snprintf(buffer, MAX_EXPRESSION_LENGTH, "\"%s\"", value->v.string_literal);
-      break;
-    case NUMBER_LITERAL:
-      snprintf(buffer, MAX_EXPRESSION_LENGTH, "%s", value->v.string_literal);
-      break;
-    case CALCULATED_VALUE:
-      calculated = value->v.calculated;
-      switch(calculated->type)
-      {
-      case value_STATEMENT:
-        tmp1 = extract_expression(calculated, table, source);
-        snprintf(buffer, MAX_EXPRESSION_LENGTH, "%s", tmp1);
-        free(tmp1);
-        break;
-      case binary_STATEMENT:
-        binary = calculated->v.binary;
-        tmp1 = extract_expression(binary->operands[0], table, source);
-        tmp2 = extract_expression(binary->operands[1], table, source);
-        switch(binary->operation)
-        {
-        case ADDITION:
-          tmp3 = "+";
-          break;
-        case SUBTRACTION:
-          tmp3 = "-";
-          break;
-        case DVISION:
-          tmp3 = "/";
-          break;
-        case MULTIPLICATION:
-          tmp3 = "*";
-          break;
-        case CONCAT:
-          tmp3 = "_";
-          break;
-        case BOOLEAN_OR:
-          tmp3 = "!";
-          break;
-        case BOOLEAN_AND:
-          tmp3 = "&";
-          break;
-        case BOOLEAN_IS:
-          tmp3 = "_";
-          FATAL(ERR_FEATURE_NOT_IMPLEMENTED, "BOOLEAN_IS");
-          break;
-        case BOOLEAN_EQUALS:
-          tmp3 = "=";
-          break;
-        case BOOLEAN_NOT_EQUALS:
-          tmp3 = "'='";
-          break;
-        case BOOLEAN_LESS_THAN:
-          tmp3 = "<";
-          break;
-        case BOOLEAN_GREATER_THAN:
-          tmp3 = ">";
-          break;
-        case BOOLEAN_LESS_THAN_OR_EQUALS:
-          tmp3 = "'>'";
-          break;
-        case BOOLEAN_GREATER_THAN_OR_EQUALS:
-          tmp3 = "'<'";
-          break;
-        case BOOLEAN_IN:
-          tmp3 = "_";
-          FATAL(ERR_FEATURE_NOT_IMPLEMENTED, "BOOLEAN_IN");
-          break;
-        case BOOLEAN_NOT_IN:
-          tmp3 = "_";
-          FATAL(ERR_FEATURE_NOT_IMPLEMENTED, "BOOLEAN_NOT_IN");
-          break;
-        default:
-          FATAL(ERR_UNKNOWN_KEYWORD_STATE);
-        }
-        snprintf(buffer, MAX_EXPRESSION_LENGTH, "(%s%s%s)", tmp1, tmp3, tmp2);
-        break;
-      default:
-        FATAL(ERR_UNKNOWN_KEYWORD_STATE);
-      }
-      break;
-    case COLUMN_REFERENCE:
-      emit_simple_select(buffer, table, value->v.reference, source);
-      break;
-    default:
-      FATAL(ERR_UNKNOWN_KEYWORD_STATE);
-    }
-    break;
-  case binary_STATEMENT:
-    UNPACK_SQL_STATEMENT(binary, stmt, binary);
-    binary = stmt->v.binary;
-    tmp1 = extract_expression(binary->operands[0], table, source);
-    tmp2 = extract_expression(binary->operands[1], table, source);
-    switch(binary->operation)
-    {
-    case ADDITION:
-      tmp3 = "+";
-      break;
-    case SUBTRACTION:
-      tmp3 = "-";
-      break;
-    case DVISION:
-      tmp3 = "/";
-      break;
-    case MULTIPLICATION:
-      tmp3 = "*";
-      break;
-    case CONCAT:
-      tmp3 = "_";
-      break;
-    case BOOLEAN_OR:
-      tmp3 = "!";
-      break;
-    case BOOLEAN_AND:
-      tmp3 = "&";
-      break;
-    case BOOLEAN_IS:
-      tmp3 = "_";
-      FATAL(ERR_FEATURE_NOT_IMPLEMENTED, "BOOLEAN_IS");
-      break;
-    case BOOLEAN_EQUALS:
-      tmp3 = "=";
-      break;
-    case BOOLEAN_NOT_EQUALS:
-      tmp3 = "'='";
-      break;
-    case BOOLEAN_LESS_THAN:
-      tmp3 = "<";
-      break;
-    case BOOLEAN_GREATER_THAN:
-      tmp3 = ">";
-      break;
-    case BOOLEAN_LESS_THAN_OR_EQUALS:
-      tmp3 = "'>'";
-      break;
-    case BOOLEAN_GREATER_THAN_OR_EQUALS:
-      tmp3 = "'<'";
-      break;
-    case BOOLEAN_IN:
-      tmp3 = "_";
-      FATAL(ERR_FEATURE_NOT_IMPLEMENTED, "BOOLEAN_IN");
-      break;
-    case BOOLEAN_NOT_IN:
-      tmp3 = "_";
-      FATAL(ERR_FEATURE_NOT_IMPLEMENTED, "BOOLEAN_NOT_IN");
-      break;
-    default:
-      FATAL(ERR_UNKNOWN_KEYWORD_STATE);
-    }
-    snprintf(buffer, MAX_EXPRESSION_LENGTH, "(%s%s%s)", tmp1, tmp3, tmp2);
-    break;
-  default:
-    FATAL(ERR_UNKNOWN_KEYWORD_STATE);
-  }
-  return buffer;
-}
+#include "template_strings.h"
 
 /**
  * Emits M code for retrieving values representing this SELECT statement
  *
- * The emitted code should be formatted as follows:
- *  fprintf(buffer, output, cursor_name)
+ * @param cursor_exe_global an array of size 3
+ * Returns a table describing the temporary table containing the resulting
+ *  values
  */
-void emit_select_statement(FILE *output, struct SqlStatement *stmt)
+SqlTable *emit_select_statement(ydb_buffer_t *cursor_global,
+    ydb_buffer_t *cursor_exe_global, struct SqlStatement *stmt)
 {
+  FILE *output, *temp_table;
   SqlSelectStatement *select;
   SqlColumnList *columns, *t_columns;
   SqlValue *value, *tmp_value;
   SqlStatement *tmp_statement;
   SqlTable *table, *cur_table, *start_table;
   SqlColumn *cur_column, *start_column;
+  SqlStatement *result = 0;
   SqlJoin *join;
+  char *temp_table_buffer, *output_buffer;
+  size_t temp_table_buffer_size = 0, output_buffer_size = 0;
   char *tmp1, *formatted_start, *start, *end, *curse, *source;
-  int column_name_length;
+  char temp_table_name[MAX_STR_CONST], temp_cursor_name[MAX_STR_CONST];
+  int column_name_length, column_counter = 0, status, temporary_table = 0;
+  ydb_buffer_t schema_global, latest_schema_id;
+  ydb_buffer_t m_exe_buffer_value;
+  ydb_buffer_t z_status, z_status_value;
 
-  char *m_template = "%s FOR  %s USE:%s $P Q:%s  ";
+
+  YDB_LITERAL_TO_BUFFER("^schema", &schema_global);
+  INIT_YDB_BUFFER(&latest_schema_id, MAX_STR_CONST);
+  status = ydb_incr_s(&schema_global, 0, NULL, NULL, &latest_schema_id);
+  YDB_ERROR_CHECK(status, &z_status, &z_status_value);
+
+  // Create a temporary table
+  temp_table = open_memstream(&temp_table_buffer, &temp_table_buffer_size);
+  latest_schema_id.buf_addr[latest_schema_id.len_used] = '\0';
+  snprintf(temp_table_name, MAX_STR_CONST, "^tempTbl%s", latest_schema_id.buf_addr);
+  fprintf(temp_table, TEMPLATE_CREATE_TABLE_START, temp_table_name);
+
+  output = open_memstream(&output_buffer, &output_buffer_size);
 
   //fprintf(output, " WRITE ");
   assert(stmt && stmt->type == select_STATEMENT);
   UNPACK_SQL_STATEMENT(select, stmt, select);
   UNPACK_SQL_STATEMENT(join, select->table_list, join);
-  UNPACK_SQL_STATEMENT(value, join->value, value);
-  table = NULL;
-  start_table = cur_table = definedTables;
-  do {
-    UNPACK_SQL_STATEMENT(tmp_value, cur_table->tableName, value);
-    if(strcmp(tmp_value->v.reference, value->v.reference) == 0) {
-      table = cur_table;
-      break;
+  switch(join->type) {
+  case NO_JOIN:
+    UNPACK_SQL_STATEMENT(value, join->value, value);
+    table = NULL;
+    start_table = cur_table = definedTables;
+    do {
+      UNPACK_SQL_STATEMENT(tmp_value, cur_table->tableName, value);
+      if(strcmp(tmp_value->v.reference, value->v.reference) == 0) {
+        table = cur_table;
+        break;
+      }
+      cur_table = cur_table->next;
+    } while(start_table != cur_table);
+    if(table == NULL) {
+      ERROR(ERR_UNKNOWN_TABLE, value->v.reference);
+      return NULL;
     }
-    cur_table = cur_table->next;
-  } while(start_table != cur_table);
+    break;
+  case TABLE_SPEC:
+    //UNPACK_SQL_STATEMENT(value, join->value, value);
+    temporary_table = TRUE;
+    table = emit_select_statement(cursor_global, cursor_exe_global, join->value);
+    status = ydb_incr_s(cursor_global, 2, cursor_exe_global, NULL, &cursor_exe_global[2]);
+    YDB_ERROR_CHECK(status, &z_status, &z_status_value);
+    break;
+  }
   assert(table != NULL);
   assert(table->source->type == keyword_STATEMENT && table->source->v.keyword);
   UNPACK_SQL_STATEMENT(tmp_value, table->source->v.keyword->v, value);
@@ -238,23 +104,28 @@ void emit_select_statement(FILE *output, struct SqlStatement *stmt)
   UNPACK_SQL_STATEMENT(tmp_value, table->start->v.keyword->v, value);
   formatted_start = malloc(MAX_STR_CONST);
   start = m_unescape_string(tmp_value->v.string_literal);
-  snprintf(formatted_start, MAX_STR_CONST, start, "^cursor(0)");
+  cursor_exe_global[0].buf_addr[cursor_exe_global[0].len_used] = '\0';
+  snprintf(temp_cursor_name, MAX_STR_CONST, "^cursor(%s)", cursor_exe_global[0].buf_addr);
+  snprintf(formatted_start, MAX_STR_CONST, start, temp_cursor_name);
   UNPACK_SQL_STATEMENT(tmp_value, table->end->v.keyword->v, value);
   end = m_unescape_string(tmp_value->v.string_literal);
-  fprintf(output, m_template, formatted_start, curse, end, end);
+  fprintf(output, TEMPLATE_SELECT_BASIC, formatted_start, curse, end, end, end);
 
   UNPACK_SQL_STATEMENT(columns, select->select_list, column_list);
   if(select->where_expression) {
     tmp1 = extract_expression(select->where_expression, table, source);
-    fprintf(output, "WRITE:%s ", tmp1);
+    fprintf(output, "SET:%s ", tmp1);
   }
   else
-    fprintf(output, "WRITE ");
+    fprintf(output, "SET ");
+  fprintf(output, "%s(rowId)=keys(0)_\"|\"", temp_table_name);
   if (columns == NULL) {
     /* This was a SELECT * statement; add all columns to a list */
     UNPACK_SQL_STATEMENT(start_column, table->columns, column);
     cur_column = start_column;
     columns = t_columns = (SqlColumnList*)malloc(sizeof(SqlColumnList));
+    if(temporary_table)
+      cur_column = cur_column->next;
     do {
       SQL_STATEMENT(tmp_statement, value_STATEMENT);
       if(select->select_list == NULL)
@@ -277,21 +148,37 @@ void emit_select_statement(FILE *output, struct SqlStatement *stmt)
     } while(cur_column != start_column);
   }
   for(; columns != 0;) {
+    fprintf(temp_table, TEMPLATE_CREATE_TABLE_COLUMN, column_counter);
+    column_counter++;
     tmp1 = extract_expression(columns->value, table, source);
-    fprintf(output, "%s", tmp1);
+    fprintf(output, "_%s_\"|\"", tmp1);
     free(tmp1);
     if(columns->next)
     {
       UNPACK_SQL_STATEMENT(columns, columns->next, column_list);
-      fprintf(output, "_$C(9)_");
     }
     else
       columns = 0;
   }
-  fprintf(output, ",!");
+
+  fprintf(temp_table, ");");
+  fclose(temp_table);
+  INFO(ERR_GENERATING_TEMPORARY_TABLE, temp_table_buffer)
+  result = parse_line(temp_table_buffer);
+  UNPACK_SQL_STATEMENT(table, result, table);
   free(formatted_start);
   free(start);
   free(end);
   free(curse);
   free(source);
+  fclose(output);
+  INFO(CUSTOM_ERROR, "Adding EXE to cursor: %s", output_buffer);
+  m_exe_buffer_value.buf_addr = output_buffer;
+  m_exe_buffer_value.len_used = m_exe_buffer_value.len_alloc = output_buffer_size;
+  status = ydb_set_s(cursor_global, 3,
+    cursor_exe_global,
+    &m_exe_buffer_value);
+  YDB_ERROR_CHECK(status, &z_status, &z_status_value);
+  free(output_buffer);
+  return table;
 }

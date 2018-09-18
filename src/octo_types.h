@@ -38,6 +38,8 @@ typedef void *yyscan_t;
 #define UNPACK_SQL_STATEMENT(result, item, StatementType) assert((item)->type == StatementType##_STATEMENT); \
   (result) = (item)->v.StatementType
 
+#define INIT_YDB_BUFFER(buffer, len) (buffer)->buf_addr = malloc(len); (buffer)->len_used = 0; (buffer)->len_alloc = len;
+
 long long unsigned int typedef uint8;
 
 enum SqlStatementType {
@@ -120,7 +122,8 @@ enum OptionalKeyword {
 };
 
 enum SqlJoinType {
-  NO_JOIN
+  NO_JOIN,
+  TABLE_SPEC
 };
 
 struct SqlColumn;

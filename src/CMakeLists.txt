@@ -51,17 +51,22 @@ add_library(libocto OBJECT
   yyerror.c
   yywrap.c
   errors.c
+  extract_expression.c
+  parse_line.c
   emit_create_table.c
   emit_select_statement.c
   cleanup_sql_statement.c
   fetch_primary_key_column.c
   quoting.c
   create_table_defaults.c
+  print_temporary_table.c
   readline_getc.c
   m_templates/emit_simple_select.c
   ${BISON_OctoParser_OUTPUTS}
   ${FLEX_OctoLexer_OUTPUTS}
 )
+
+set_property(TARGET libocto PROPERTY C_STANDARD 11)
 
 add_executable(octo
   octo.c

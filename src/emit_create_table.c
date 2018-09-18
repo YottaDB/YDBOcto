@@ -86,7 +86,7 @@ void emit_create_table(FILE *output, struct SqlStatement *stmt)
         break;
       case OPTIONAL_DELIM:
         UNPACK_SQL_STATEMENT(value, cur_keyword->v, value);
-        fprintf(output, " DELIM \"%s\"", value->v.reference);
+        fprintf(output, " GLOBAL \"%s\"", value->v.reference);
         break;
       case NO_KEYWORD:
         break;

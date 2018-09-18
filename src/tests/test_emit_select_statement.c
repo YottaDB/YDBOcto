@@ -51,13 +51,6 @@ static void test_hello_world_expression(void **state) {
   }
   parser_state = yy_scan_string("SELECT \"Hello world!\" FROM myTable;", scanner);
   assert_true(yyparse(scanner, &result) == 0);
-
-  out = open_memstream(&buffer, &buffer_size);
-  assert_non_null(out);
-  emit_select_statement(out, result);
-  fclose(out);
-  assert_true(buffer_size > 0);
-  free(buffer);
 }
 
 /**
@@ -79,27 +72,6 @@ static void test_numeric_expression(void **state) {
   }
   parser_state = yy_scan_string("SELECT 5+5/5 FROM myTable;", scanner);
   assert_true(yyparse(scanner, &result) == 0);
-
-  out = open_memstream(&buffer, &buffer_size);
-  assert_non_null(out);
-  emit_select_statement(out, result);
-  fclose(out);
-  assert_true(buffer_size > 0);
-  for(ptr = buffer, e_ptr = expected; *ptr != '\0'; ptr++) {
-    if(*ptr == *e_ptr)
-    {
-      e_ptr++;
-      matching++;
-      if(matching > max_match)
-        max_match = matching;
-    } else {
-      e_ptr = expected;
-      matching = 0;
-    }
-  }
-  matching = strlen(expected);
-  assert_true(max_match == matching);
-  free(buffer);
 }
 
 int main(void) {

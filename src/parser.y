@@ -334,7 +334,7 @@ in_predicate_value
   ;
 
 table_subquery
-  : subquery
+  : subquery { $$ = $1; }
   ;
 
 in_value_list
@@ -597,16 +597,16 @@ scalar_subquery
   ;
 
 subquery
-  : LEFT_PAREN query_expression RIGHT_PAREN
+  : LEFT_PAREN query_expression RIGHT_PAREN { $$ = $2; }
   ;
 
 query_expression
-  : non_join_query_expression
-  | joined_table
+  : non_join_query_expression { $$ = $1; }
+  | joined_table { $$ = $1; }
   ;
 
 non_join_query_expression
-  : non_join_query_term
+  : non_join_query_term { $$ = $1; }
   | query_expression UNION non_join_query_expression_tail
   | query_expression EXCEPT non_join_query_expression_tail
   ;
@@ -645,7 +645,7 @@ query_term
   ;
 
 non_join_query_term
-  : non_join_query_primary
+  : non_join_query_primary {$$ = $1; }
   | query_term INTERSECT query_term_tail query_primary
   ;
 
@@ -664,14 +664,14 @@ corresponding_spec_tail
   ;
 
 non_join_query_primary
-  : simple_table
+  : simple_table {$$ = $1; }
   | LEFT_PAREN non_join_query_expression RIGHT_PAREN
   ;
 
 simple_table
   : table_value_constructor
   | explicit_table
-  | query_specification
+  | query_specification { $$ = $1; }
   ;
 
 table_value_constructor

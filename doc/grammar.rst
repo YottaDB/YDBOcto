@@ -39,29 +39,42 @@ If mapping to an existing MUMPS database, an optional_keyword can be added to fu
 
 The keywords denoted above are MUMPS expressions and literals. They are explained in the following table:
 
-+--------------------------------+-------------------------------+------------------------+--------------------------------------------------------------------------------+------------------------------+
-| Keyword                        | Type                          | Range                  | Purpose                                                                        | Overrides                    |
-+================================+===============================+========================+================================================================================+==============================+
-| CURSOR                         | Command expression            | Table                  | Increment the cursor by one element                                            | \-                           |
-+--------------------------------+-------------------------------+------------------------+--------------------------------------------------------------------------------+------------------------------+
-| DELIM                          | Literal                       | Table, Column          | Represents the "PIECE" string to be used in                                    | table/default DELIM setting  |
-|                                |                               |                        | `$PIECE <https://docs.yottadb.com/ProgrammersGuide/functions.html#piece>`_     |                              |
-+--------------------------------+-------------------------------+------------------------+--------------------------------------------------------------------------------+------------------------------+
-| END                            | Boolean expression            | Table                  | Indicates that the cursor has hit the last record in the table                 | \-                           |
-+--------------------------------+-------------------------------+------------------------+--------------------------------------------------------------------------------+------------------------------+
-| EXTRACT                        | Expression                    | Column                 | Extracts the value of the column from the database                             | PIECE, GLOBAL                |
-+--------------------------------+-------------------------------+------------------------+--------------------------------------------------------------------------------+------------------------------+
-| GLOBAL                         | Literal                       | Table, Column          | Represents the "source" location for a table                                   | table/default GLOBAL setting |
-+--------------------------------+-------------------------------+------------------------+--------------------------------------------------------------------------------+------------------------------+
-| PACK                           | Command expression            | Table                  | Packs the cursor into a single value to be stored in a global                  | \-                           |
-|                                |                               |                        | specified by the SQL engine.                                                   |                              |
-+--------------------------------+-------------------------------+------------------------+--------------------------------------------------------------------------------+------------------------------+
-| PIECE                          | Literal                       | Column                 | Represents the                                                                 | default (column number,      |
-|                                |                               |                        | `$PIECE <https://docs.yottadb.com/ProgrammersGuide/functions.html#piece>`_     | starting at 1)               |
-|                                |                               |                        | number of the row this column refers to                                        |                              |
-+--------------------------------+-------------------------------+------------------------+--------------------------------------------------------------------------------+------------------------------+
-| UNPACK                         | Command expression            | Table                  | Unpacks the cursor from a global filled in by the SQL engine                   | \-                           |
-+--------------------------------+-------------------------------+------------------------+--------------------------------------------------------------------------------+------------------------------+
++--------------------------------+-------------------------------+------------------------+--------------------------------------------------------------------------------+------------------------------+------------------------------+
+| Keyword                        | Type                          | Range                  | Purpose                                                                        | Overrides                    | Default Value                |
++================================+===============================+========================+================================================================================+==============================+==============================+
+| CURSOR                         | Command expression            | Table                  | Increment the cursor by one element                                            | \-                           | SET keys(0)=$0(table_name(   |
+|                                |                               |                        |                                                                                |                              | keys(0)))                    |
++--------------------------------+-------------------------------+------------------------+--------------------------------------------------------------------------------+------------------------------+------------------------------+
+| DELIM                          | Literal                       | Table, Column          | Represents the "PIECE" string to be used in                                    | table/default DELIM setting  | \|                           |
+|                                |                               |                        | `$PIECE <https://docs.yottadb.com/ProgrammersGuide/functions.html#piece>`_     |                              |                              |
++--------------------------------+-------------------------------+------------------------+--------------------------------------------------------------------------------+------------------------------+------------------------------+
+| END                            | Boolean expression            | Table                  | Indicates that the cursor has hit the last record in the table                 | \-                           | \"\"=keys(0)                 |
++--------------------------------+-------------------------------+------------------------+--------------------------------------------------------------------------------+------------------------------+------------------------------+
+| EXTRACT                        | Expression                    | Column                 | Extracts the value of the column from the database                             | PIECE, GLOBAL                | \-                           |
++--------------------------------+-------------------------------+------------------------+--------------------------------------------------------------------------------+------------------------------+------------------------------+
+| GLOBAL                         | Literal                       | Table, Column          | Represents the "source" location for a table                                   | table/default GLOBAL setting | table_name(keys(0))          |
++--------------------------------+-------------------------------+------------------------+--------------------------------------------------------------------------------+------------------------------+------------------------------+
+| PACK                           | Command expression            | Table                  | Packs the cursor into a single value to be stored in a global                  | \-                           | SET storeKey=$$STOREKEY("cur |
+|                                |                               |                        | specified by the SQL engine.                                                   |                              | sor_name",.keys),@storeKey   |
++--------------------------------+-------------------------------+------------------------+--------------------------------------------------------------------------------+------------------------------+------------------------------+
+| PIECE                          | Literal                       | Column                 | Represents the                                                                 | default (column number,      | \-                           |
+|                                |                               |                        | `$PIECE <https://docs.yottadb.com/ProgrammersGuide/functions.html#piece>`_     | starting at 1)               |                              | 
+|                                |                               |                        | number of the row this column refers to                                        |                              |                              |
++--------------------------------+-------------------------------+------------------------+--------------------------------------------------------------------------------+------------------------------+------------------------------+
+| UNPACK                         | Command expression            | Table                  | Unpacks the cursor from a global filled in by the SQL engine                   | \-                           | SET cursor="cursor_name",    |
+|                                |                               |                        |                                                                                |                              | keys(0)=$P($G(@cursor),      |
+|                                |                               |                        |                                                                                |                              | "|",1)                       |
++--------------------------------+-------------------------------+------------------------+--------------------------------------------------------------------------------+------------------------------+------------------------------+
+
+In the table above:
+
+* table_name and cursor_name are variables representing the names of the table and the cursor being used.
+* keys is a special local variable that contains all the keys used by the table.
+* $$STOREKEY is an M routine that converts an array of keys (keys) to a format that can be stored in the cursor as ^cursor(sessionId,keys(0),keys(1)).
+* @storeKey is an M-expression which does indirection on the value stored in storeKey.
+* @cursor does indirection on the cursor variable.
+* $P represents $PRINCIPAL, which is a MUMPS intrinsic special variable which represents the current IO device.
+* $G represents `$GET <https://docs.yottadb.com/ProgrammersGuide/functions.html#get>`_ , an M function that returns the value of a local or global variable if the variable has a value.
 
 -----------------
 DROP
@@ -184,7 +197,7 @@ UPDATE
 .. parsed-literal::
    UPDATE table_name SET object_column EQUALS update_source [WHERE search_condition];
 
-The UPDATE statement begins with the keyword UPDATE. The table_name to be updated and the keyword SET is followed by a list of comma-separated statements that are used to update the existing columns, where object_column is a particular column and  update_source is set to either NULL or a specific value expression. The optional WHERE condition allows you to update columns based on a certain condition you specify.
+The UPDATE statement begins with the keyword UPDATE. The table_name to be updated and the keyword SET is followed by a list of comma-separated statements that are used to update the existing columns, where object_column is a particular column and update_source is set to either NULL or a specific value expression. The optional WHERE condition allows you to update columns based on a certain condition you specify.
 
 Example:
 

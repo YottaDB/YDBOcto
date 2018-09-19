@@ -6,9 +6,9 @@ Introduction
 .. contents::
    :depth: 3
 
-This manual documents the YottaDB Database Management System and the language Octo. 
+This manual documents the YottaDB Database Management System i.e Octo. 
 
-The YottaDB Database Management System is a SQL access layer built on top of the not-only-SQL database YottaDB. It aims to provide SQL 92 compliance and exceptional performance.
+The YottaDB Database Management System (Octo) is a layered application with a relational access model, built on top of the not-only-SQL database YottaDB. It aims to provide SQL 92 compliance and exceptional performance.
 
 --------------------
 Launching Octo
@@ -48,10 +48,10 @@ Compile Octo using the following steps:
 Launch Octo (without options) with the following command:
 
 .. parsed-literal::
-   octo
+   octo@test:~$ octo
+   OCTO>
 
-.. image::
-   octoprompt.png
+The terminal will return with the OCTO> command prompt.
 
 +++++++++++++++++++
 Launching Options

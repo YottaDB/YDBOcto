@@ -9,7 +9,8 @@ YDBDBMS Grammar Documentation
 .. toctree::
    :maxdepth: 2
  
-   grammar.rst
+   intro
+   grammar
 
 Indices and tables
 ==================

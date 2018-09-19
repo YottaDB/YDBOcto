@@ -30,6 +30,12 @@ Obtain Octo from our `repository on GitLab <https://gitlab.com/YottaDB/Octo/YDBD
 .. parsed-literal::
    wget https://gitlab.com/YottaDB/Octo/YDBDBMS/-/archive/master/YDBDBMS-master.tar.gz
 
+Uncompress the file and move to the directory.
+
+.. parsed-literal::
+   tar -xzf YDBDBMS*.tar.gz
+   cd YDBDBMS-master/
+
 Compile Octo using the following steps:
 
 .. parsed-literal::

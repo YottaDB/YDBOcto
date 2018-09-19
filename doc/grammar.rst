@@ -3,6 +3,9 @@
 DBMS Grammar
 ================
 
+.. contents::
+   :depth: 4
+
 A statement in SQL is either a schema statement, a data statement or a SELECT statement.
 
 A schema statement creates and manipulates a unique schema within the database.

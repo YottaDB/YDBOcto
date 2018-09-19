@@ -10,8 +10,6 @@ This manual documents the YottaDB Database Management System and the language Oc
 
 The YottaDB Database Management System is a SQL access layer built on top of the not-only-SQL database YottaDB. It aims to provide SQL 92 compliance and exceptional performance.
 
-Octo is a superset of the MUMPS programming language that adds object-oriented language features.
-
 --------------------
 Launching Octo
 --------------------

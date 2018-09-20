@@ -13,6 +13,7 @@
 body {
 	background-color: #3b1a68;
 	width: 150%;
+	font-family: "Raleway Medium",Tahoma,sans-serif;
 }
 .cse .gsc-search-button input.gsc-search-button-v2,
 input.gsc-search-button-v2 {
@@ -31,13 +32,19 @@ input.gsc-search-button-v2 {
         max-width: 100%;
         overflow: visible;
 }
-pre.literal-block {
-  white-space: pre;
-  margin: 0 !important;
-  padding: 12px 12px !important;
-  font-family: Consolas,"Andale Mono WT","Andale Mono","Lucida Console","Lucida Sans Typewriter","DejaVu Sans Mono","Bitstream Vera Sans Mono","Liberation Mono","Nimbus Mono L",Monaco,"Courier New",Courier,monospace;
-  font-size: 12px;
-  display: block;
-  overflow: auto;
-  color: #404040;
+
+pre,code,.rst-content tt,.rst-content code,kbd,samp {
+	font-family: Inconsolata,"Courier New",monospace;
+}
+
+.btn mark {
+	font-family: Lora,Georgia,serif;
+}
+
+.admonition-todo{
+	background:#3b1a68;
+}
+
+.admonition-title{
+	background:#3b1a68
 }

@@ -30,7 +30,7 @@ project_source_path = '@CMAKE_SOURCE_DIR@/doc/'
 # needs_sphinx = '1.0'
 
 def setup(app):
-                app.add_stylesheet(os.path.join(project_source_path, 'css/custom.css'))
+  app.add_stylesheet(os.path.join(project_source_path, 'css/custom.css'))
 
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
@@ -93,8 +93,13 @@ todo_include_todos = False
 #
 html_theme = 'sphinx_rtd_theme'
 html_context = {
-    'css_files': [os.path.join(project_source_path, '_static/custom.css')],
-                                                            }
+    'css_files': [
+      os.path.join(project_source_path, '_static/css/custom.css'),
+      'https://fonts.googleapis.com/css?family=Raleway',
+      'https://fonts.googleapis.com/css?family=Lora',
+      'https://fonts.googleapis.com/css?family=Inconsolata'
+    ],
+}
 html_show_sourcelink = False
 
 # Theme options are theme-specific and customize the look and feel of a theme
@@ -203,5 +208,3 @@ epub_copyright = copyright
 
 # A list of files that should not be packed into the epub file.
 epub_exclude_files = ['search.html']
-
-

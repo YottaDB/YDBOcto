@@ -63,10 +63,10 @@ int qualify_column_name(char **column_name, SqlJoin *tables) {
           if(table_name_ptr == NULL) {
             table_name_ptr = table_name->v.reference;
             table_name_len = strlen(table_name_ptr);
-            new_column_name = malloc(table_name_len = column_name_length + 2);
+            new_column_name = malloc(table_name_len + column_name_length + 2);
             strncpy(new_column_name, table_name_ptr, table_name_len);
-            *(new_column_name + table_name_len - 1) = '.';
-            strncpy(new_column_name + table_name_len, table_column_name->v.reference, column_name_length + 2);
+            *(new_column_name + table_name_len) = '.';
+            strncpy(new_column_name + table_name_len + 1, table_column_name->v.reference, column_name_length + 2);
             free(*column_name);
             (*column_name) = new_column_name;
           }

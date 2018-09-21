@@ -87,7 +87,7 @@ char *extract_expression(SqlStatement *stmt, const SqlTable *table, char *source
           tmp3 = "=";
           break;
         case BOOLEAN_NOT_EQUALS:
-          tmp3 = "'='";
+          tmp3 = "'=";
           break;
         case BOOLEAN_LESS_THAN:
           tmp3 = "<";
@@ -161,7 +161,7 @@ char *extract_expression(SqlStatement *stmt, const SqlTable *table, char *source
       tmp3 = "=";
       break;
     case BOOLEAN_NOT_EQUALS:
-      tmp3 = "'='";
+      tmp3 = "'=";
       break;
     case BOOLEAN_LESS_THAN:
       tmp3 = "<";

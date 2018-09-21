@@ -1,0 +1,28 @@
+load test_helpers
+
+setup() {
+  init_test
+}
+
+@test "make sure the test system works" {
+  run echo "Hello world!"
+}
+
+@test "ensure that we can create a database for testing" {
+  createdb
+  run ls mumps.dat
+  copy_test_files helloBats/hello.sql
+  $ydb_dist/mumps -r %XCMD "set ^abc(0)=0"
+  run octo -f helloBats/hello.sql
+  [[ "$output" =~ "Hello world" ]]
+}
+
+@test "can load basic fixtures" {
+  createdb
+  load_fixture names.sql
+  load_fixture names.zwr
+  run octo <<OCTO
+select * from names;
+OCTO
+  [[ "$output" =~ "Lord|Nikon" ]]
+}

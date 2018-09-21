@@ -3,6 +3,7 @@ find_package(FLEX REQUIRED)
 find_package(YOTTADB REQUIRED)
 find_package(Readline REQUIRED)
 find_package(CMOCKA)
+find_package(BATS)
 
 configure_file (
   "${PROJECT_SOURCE_DIR}/src/octo.h.in"
@@ -87,4 +88,7 @@ include(${PROJECT_SOURCE_DIR}/cmake/tests.cmake)
 
 if(CMOCKA_FOUND)
   include(${PROJECT_SOURCE_DIR}/cmake/cmocka-tests.cmake)
+endif()
+if(BATS_FOUND)
+  include(${PROJECT_SOURCE_DIR}/cmake/bats-tests.cmake)
 endif()

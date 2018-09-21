@@ -1,0 +1,42 @@
+load test_helpers
+
+setup() {
+  init_test
+  createdb
+  load_fixture names.sql
+  load_fixture names.zwr
+}
+
+@test "where with string limits return values" {
+  run octo <<OCTO
+select * from names where firstName = "Zero";
+OCTO
+  [[ "$output" =~ "Zero|Cool" ]]
+  ! [[ "$output" =~ "Joey" ]]
+}
+
+@test "where with invalid comparisons should return an error" {
+  octo <<OCTO &> output.txt
+select * from names where firstName = 5;
+OCTO
+  run cat output.txt
+  [[ "$output" =~ "ERROR" ]]
+  [[ "$output" =~ "Type mismatch" ]]
+}
+
+@test "expressions should evaluate with correct precedence" {
+  run octo <<OCTO
+select * from names where id = 3+3/3;
+OCTO
+  [[ "$output" =~ "Joey" ]]
+  ! [[ "$output" =~ "Cereal|Killer" ]]
+}
+
+@test "where does not equal" {
+  run octo <<OCTO
+select * from names where firstName <> "Cereal";
+OCTO
+  echo $output
+  [[ "$output" =~ "Joey" ]]
+  ! [[ "$output" =~ "Cereal|Killer" ]]
+}

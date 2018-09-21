@@ -22,13 +22,11 @@
 #include "octo_types.h"
 
 int qualify_column_list(SqlColumnList *select_columns, SqlJoin *tables) {
-  SqlJoin *cur_join, *start_join;
-  SqlColumn *cur_column, *start_column;
   SqlColumnList *cur_column_list, *start_column_list;
-  SqlValue *column_name, *table_name;
-  SqlTable *table;
-  char *column_name_ptr = NULL, *table_name_ptr = NULL, *new_column_name = NULL;
-  int table_name_len = 0, column_name_length = 0, column_matched = 0, result = 0;
+  int result = 0;
+
+  if(select_columns == NULL)
+    return 0;
 
   cur_column_list = start_column_list = select_columns;
   do {

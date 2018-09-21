@@ -1,0 +1,49 @@
+load test_helpers
+
+setup() {
+  init_test
+  createdb
+  load_fixture names.sql
+  load_fixture names.zwr
+}
+
+@test "select wildcard columns" {
+  run octo <<OCTO
+select * from names;
+OCTO
+  [[ "$output" =~ "Zero|Cool" ]]
+}
+
+@test "select columns via short name" {
+  run octo <<OCTO
+select firstName, lastName from names;
+OCTO
+  [[ "$output" =~ "Zero|Cool" ]]
+  ! [[ "$output" =~ "0|Zero|Cool" ]]
+}
+
+@test "select columns via long name" {
+  run octo <<OCTO
+select names.firstName, names.lastName from names;
+OCTO
+  [[ "$output" =~ "Zero|Cool" ]]
+  ! [[ "$output" =~ "0|Zero|Cool" ]]
+}
+
+@test "select column which doesn't exist" {
+  octo <<OCTO &> output.txt
+select names.hackName from names;
+OCTO
+  run cat output.txt
+  [[ "$output" =~ "ERROR" ]]
+  [[ "$output" =~ "Unknown column" ]]
+}
+
+@test "select column with invalid typing" {
+  octo <<OCTO &> output.txt
+select names.firstName + 5 from names;
+OCTO
+  run cat output.txt
+  [[ "$output" =~ "ERROR" ]]
+  [[ "$output" =~ "Type mismatch" ]]
+}

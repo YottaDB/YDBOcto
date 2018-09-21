@@ -38,7 +38,7 @@ query_specification
       SqlColumnList *column_list;
       SqlValueType type;
       UNPACK_SQL_STATEMENT(column_list, $select_list, column_list);
-      if(qualify_column_list(column_list, join) || populate_data_type($select_list, &type)) {
+      if(column_list && (qualify_column_list(column_list, join) || populate_data_type($select_list, &type))) {
         YYABORT;
       }
     }

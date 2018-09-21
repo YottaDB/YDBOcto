@@ -347,16 +347,18 @@ in_value_list_tail
   | COMMA in_value_list
   ;
 
-/* !! deviations from BNF due to rr conflicts
-*/
 row_value_constructor
   : LEFT_PAREN row_value_constructor_list RIGHT_PAREN
   | row_value_constructor_element
-//  | subquery
+  ;
+
+row_value_constructor_subquery
+  : query_expression { $$ = $1; }
   ;
 
 row_value_constructor_list
   : row_value_constructor_element row_value_constructor_list_tail
+  | row_value_constructor_subquery
   ;
 
 row_value_constructor_list_tail

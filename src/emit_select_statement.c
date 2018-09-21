@@ -135,7 +135,7 @@ SqlTable *emit_select_statement(ydb_buffer_t *cursor_global,
         new_column_list = (SqlColumnList*)malloc(sizeof(SqlColumnList));
         memset(new_column_list, 0, sizeof(SqlColumnList));
         dqinit(new_column_list);
-        dqinsert(cur_column_list, new_column_list);
+        dqinsert(start_column_list, new_column_list);
         cur_column_list = new_column_list;
       }
     } while(cur_column != start_column);

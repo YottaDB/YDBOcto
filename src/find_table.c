@@ -13,37 +13,30 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
+#include <stdio.h>
+#include <stdlib.h>
+#include <assert.h>
+#include <string.h>
 
 #include "octo.h"
 #include "octo_types.h"
-#include "parser.h"
-#include "lexer.h"
 
-/**
- * Parses line, which should end with a semicolon, and returns the resolt
- *
- * NOTE: caller is responsiblefor freeing the return value
- *
- * @returns the parsed statement, or NULL if there was an error parsing.
- */
-SqlStatement *parse_line(const char *line) {
-  SqlStatement *result = 0;
-  yyscan_t scanner;
-  YY_BUFFER_STATE state;
-  int status;
+SqlTable *find_table(const char *table_name) {
+  SqlValue *tmp_value;
+  SqlTable *start_table, *cur_table;
 
-  strncpy(input_buffer_combined, line, MAX_STR_CONST);
+  TRACE(CUSTOM_ERROR, "Searching for table %s",
+    table_name);
 
-  if (yylex_init(&scanner))
-    FATAL(ERR_INIT_SCANNER);
-
-  state = yy_scan_string(line, scanner);
-  if(yyparse(scanner, &result))
-  {
-    ERROR(ERR_PARSING_COMMAND, input_buffer_combined);
+  if(definedTables == NULL)
     return NULL;
-  }
-  yy_delete_buffer(state, scanner);
-  yylex_destroy(scanner);
-  return result;
+  start_table = cur_table = definedTables;
+  do {
+    UNPACK_SQL_STATEMENT(tmp_value, cur_table->tableName, value);
+    if(strcmp(tmp_value->v.reference, table_name) == 0) {
+      return cur_table;
+    }
+    cur_table = cur_table->next;
+  } while(start_table != cur_table);
+  return NULL;
 }

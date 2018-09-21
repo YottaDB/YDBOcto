@@ -20,8 +20,17 @@ void emit_simple_select(char *output, const SqlTable *table, const char *column,
   SqlColumn *cur_column, *start_column;
   SqlOptionalKeyword *start_keyword, *cur_keyword;
   char *global, *temp;
+  const char *c;
   char *delim="|", *piece_string = NULL;
   int piece_number;
+
+  /* Assert that this is a qualified references for this table */
+  for(c = column; *c != '.' && *c != '\0'; c++) {
+    // Empty
+  }
+  assert(*c == '.');
+  assert(strncmp(table->tableName->v.value->v.reference, column, c - column) == 0);
+  column = (c+1);
 
   //char *m_template = "NEW temporaryVar,key SET temporaryVar=$INCREMENT(%s),key=temporaryVar";
 

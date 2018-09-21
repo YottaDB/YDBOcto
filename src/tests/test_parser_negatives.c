@@ -18,6 +18,7 @@ static void test_bad_create_statement(void **state) {
   YY_BUFFER_STATE parser_state;
   SqlStatement *result;
 
+  octo_init();
   if (yylex_init(&scanner)) {
     fprintf(stderr, "Error initializing the scanner\n");
     return;

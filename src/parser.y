@@ -145,6 +145,7 @@ extern void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, char cons
 
 %token LITERAL
 %token FAKE_TOKEN
+%token INVALID_TOKEN
 
 %%
 
@@ -475,7 +476,7 @@ numeric_primary
  *  or strings; the expansion ends up being pretty similar
  */
 value_expression_primary
-  : LITERAL { $$ = $1; }
+  : literal_value { $$ = $1; }
   | column_reference
   | set_function_specification
   | scalar_subquery
@@ -577,7 +578,7 @@ non_query_numeric_primary
   ;
 
 non_query_value_expression_primary
-  : LITERAL { $$ = $1; }
+  : literal_value { $$ = $1; }
   | column_reference
   | set_function_specification
   | LEFT_PAREN non_query_value_expression RIGHT_PAREN
@@ -749,42 +750,42 @@ optional_keyword
   ;
 
 optional_keyword_element
-  : GLOBAL LITERAL {
+  : GLOBAL literal_value {
       SQL_STATEMENT($$, keyword_STATEMENT);
       ($$)->v.keyword = (SqlOptionalKeyword*)malloc(sizeof(SqlOptionalKeyword));
       ($$)->v.keyword->keyword = OPTIONAL_SOURCE;
       ($$)->v.keyword->v = $2;
       dqinit(($$)->v.keyword);
     }
-  | CURSOR LITERAL {
+  | CURSOR literal_value {
       SQL_STATEMENT($$, keyword_STATEMENT);
       ($$)->v.keyword = (SqlOptionalKeyword*)malloc(sizeof(SqlOptionalKeyword));
       ($$)->v.keyword->keyword = OPTIONAL_CURSE;
       ($$)->v.keyword->v = $2;
       dqinit(($$)->v.keyword);
     }
-  | END LITERAL {
+  | END literal_value {
       SQL_STATEMENT($$, keyword_STATEMENT);
       ($$)->v.keyword = (SqlOptionalKeyword*)malloc(sizeof(SqlOptionalKeyword));
       ($$)->v.keyword->keyword = OPTIONAL_END;
       ($$)->v.keyword->v = $2;
       dqinit(($$)->v.keyword);
     }
-  | UNPACK LITERAL {
+  | UNPACK literal_value {
       SQL_STATEMENT($$, keyword_STATEMENT);
       ($$)->v.keyword = (SqlOptionalKeyword*)malloc(sizeof(SqlOptionalKeyword));
       ($$)->v.keyword->keyword = OPTIONAL_START;
       ($$)->v.keyword->v = $2;
       dqinit(($$)->v.keyword);
     }
-  | DELIM LITERAL {
+  | DELIM literal_value {
        SQL_STATEMENT($$, keyword_STATEMENT);
        ($$)->v.keyword = (SqlOptionalKeyword*)malloc(sizeof(SqlOptionalKeyword));
        ($$)->v.keyword->keyword = OPTIONAL_DELIM;
        ($$)->v.keyword->v = $2;
        dqinit(($$)->v.keyword);
      }
- | PACK LITERAL {
+ | PACK literal_value {
       SQL_STATEMENT($$, keyword_STATEMENT);
       ($$)->v.keyword = (SqlOptionalKeyword*)malloc(sizeof(SqlOptionalKeyword));
       ($$)->v.keyword->keyword = OPTIONAL_PACK;
@@ -853,7 +854,7 @@ column_definition_tail
        MALLOC_STATEMENT($$, keyword, SqlOptionalKeyword);
        dqinit(($$)->v.keyword);
     }
-  | EXTRACT LITERAL column_definition_tail {
+  | EXTRACT literal_value column_definition_tail {
        SQL_STATEMENT($$, keyword_STATEMENT);
        MALLOC_STATEMENT($$, keyword, SqlOptionalKeyword);
        ($$)->v.keyword->keyword = OPTIONAL_EXTRACT;
@@ -865,7 +866,7 @@ column_definition_tail
        dqinsert(keyword, ($$)->v.keyword);
        free($3);
     }
-  | PIECE LITERAL column_definition_tail {
+  | PIECE literal_value column_definition_tail {
        SQL_STATEMENT($$, keyword_STATEMENT);
        MALLOC_STATEMENT($$, keyword, SqlOptionalKeyword);
        ($$)->v.keyword->keyword = OPTIONAL_PIECE;
@@ -877,7 +878,7 @@ column_definition_tail
        dqinsert(keyword, ($$)->v.keyword);
        free($3);
     }
-  | DELIM LITERAL column_definition_tail {
+  | DELIM literal_value column_definition_tail {
        SQL_STATEMENT($$, keyword_STATEMENT);
        MALLOC_STATEMENT($$, keyword, SqlOptionalKeyword);
        ($$)->v.keyword->keyword = OPTIONAL_DELIM;
@@ -889,7 +890,7 @@ column_definition_tail
        dqinsert(keyword, ($$)->v.keyword);
        free($3);
      }
-  | GLOBAL LITERAL column_definition_tail {
+  | GLOBAL literal_value column_definition_tail {
        SQL_STATEMENT($$, keyword_STATEMENT);
        MALLOC_STATEMENT($$, keyword, SqlOptionalKeyword);
        ($$)->v.keyword->keyword = OPTIONAL_SOURCE;
@@ -978,7 +979,7 @@ regular_identifier
   ;
 
 identifier_body
-  : IDENTIFIER_START { $$ = $1; }
+  : IDENTIFIER_START { $$ = $1; ($$)->loc =  yyloc; }
 //  | identifier_start underscore
 //  | identifier_start identifier_part
   ;
@@ -1018,7 +1019,7 @@ character_string_type_char_tail
   ;
 
 length
-  : LITERAL { $$ = $1; }
+  : literal_value { $$ = $1; }
   ;
 
 numeric_type
@@ -1052,11 +1053,14 @@ exact_numeric_type_tail_tail
   ;
 
 precision
-  : LITERAL { $$ = $1; }
+  : literal_value { $$ = $1; }
   ;
 
 scale
-  : LITERAL { $$ = $1; }
+  : literal_value { $$ = $1; }
   ;
+
+literal_value
+  : LITERAL { $$ = $1; ($$)->loc = yyloc; }
 
 %%

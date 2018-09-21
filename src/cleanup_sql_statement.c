@@ -8,6 +8,8 @@ void cleanup_sql_statement(SqlStatement *stmt)
 {
   SqlTable *cur_table, *start_table;
   SqlColumn *cur_column, *start_column;
+  SqlColumnList *cur_column_list, *start_column_list;
+  SqlJoin *cur_join, *start_join;
   if(stmt == NULL)
     return;
   switch(stmt->type)
@@ -73,10 +75,19 @@ void cleanup_sql_statement(SqlStatement *stmt)
     free(stmt);
     break;
   case column_list_STATEMENT:
-    if(stmt->v.column_list) {
-      cleanup_sql_statement(stmt->v.column_list->value);
-      cleanup_sql_statement(stmt->v.column_list->next);
-      free(stmt->v.column_list);
+    UNPACK_SQL_STATEMENT(start_column_list, stmt, column_list);
+    if(start_column_list) {
+      cur_column_list = start_column_list;
+      do {
+        cleanup_sql_statement(cur_column_list->value);
+        if(cur_column_list-> next == start_column_list) {
+          free(cur_column_list);
+          cur_column_list = start_column_list;
+        } else {
+          cur_column_list = cur_column_list->next;
+          free(cur_column_list->prev);
+        }
+      } while(cur_column_list != start_column_list);
     }
     free(stmt);
     break;
@@ -101,11 +112,19 @@ void cleanup_sql_statement(SqlStatement *stmt)
     free(stmt);
     break;
   case join_STATEMENT:
-    if(stmt->v.join) {
-      cleanup_sql_statement(stmt->v.join->next);
-      cleanup_sql_statement(stmt->v.join->value);
-      free(stmt->v.join);
-    }
+    UNPACK_SQL_STATEMENT(start_join, stmt, join);
+    cur_join = start_join;
+    do {
+      // We don't want to cleanup tables themselves
+      //cleanup_sql_statement(cur_join->value);
+      if(cur_join-> next == start_join) {
+        free(cur_join);
+        cur_join = start_join;
+      } else {
+        cur_join = cur_join->next;
+        free(cur_join->prev);
+      }
+    } while(cur_join != start_join);
     free(stmt);
     break;
   case data_type_STATEMENT:

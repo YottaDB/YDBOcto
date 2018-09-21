@@ -49,12 +49,9 @@ int main(int argc, char **argv)
   ydb_buffer_t z_status, z_status_value;
   gtm_char_t      err_msgbuf[MAX_STR_CONST];
 
-  config = malloc(sizeof(OctoConfig));
-  config->record_error_level = WARNING;
-  config->dry_run = FALSE;
+  octo_init();
 
   inputFile = NULL;
-  definedTables = NULL;
   table_name_buffer.buf_addr = malloc(MAX_STR_CONST);
   table_name_buffer.len_used = 0;
   table_name_buffer.len_alloc = MAX_STR_CONST;
@@ -153,14 +150,14 @@ int main(int argc, char **argv)
     result = NULL;
   } while(1);
 
-  yydebug = config->record_error_level == TRACE;
+  yydebug = config->record_error_level == TRACE && FALSE;
   if (inputFile == NULL)
     inputFile = stdin;
 
   do {
     if(readline_getc(inputFile, input_buffer_combined, MAX_STR_CONST) == -1)
       break;
-    INFO(CUSTOM_ERROR, "Running SQL command %s", input_buffer_combined);
+    INFO(CUSTOM_ERROR, "Parsing SQL command %s", input_buffer_combined);
     result = parse_line(input_buffer_combined);
     INFO(CUSTOM_ERROR, "Done!");
     if(result == NULL)
@@ -174,8 +171,6 @@ int main(int argc, char **argv)
     {
     case select_STATEMENT:
       table = emit_select_statement(&cursor_global, cursor_exe_global, result);
-      fprintf(stdout, "\n");
-      fflush(stdout); /// TODO: random outputting character ^^
       gtm_long_t cursorId = atol(cursor_exe_global[0].buf_addr);
       status = gtm_ci("select", cursorId);
       if (status != 0)

@@ -90,7 +90,7 @@ enum SqlValueType {
   DATE_TIME,
   COLUMN_REFERENCE,
   CALCULATED_VALUE
-};
+} typedef SqlValueType;
 
 enum SqlDataType {
   UNKNOWN_SqlDataType,
@@ -124,6 +124,17 @@ enum OptionalKeyword {
 enum SqlJoinType {
   NO_JOIN,
   TABLE_SPEC
+};
+
+#define YYLTYPE yyltype
+
+typedef struct YYLTYPE YYLTYPE;
+struct YYLTYPE
+{
+  int first_line;
+  int first_column;
+  int last_line;
+  int last_column;
 };
 
 struct SqlColumn;
@@ -186,6 +197,12 @@ struct SqlTable
   dqcreate(SqlTable);
 };
 
+struct SqlTableAlias
+{
+  SqlTable *table;
+  SqlValue *alias;
+};
+
 /**
  * Represents an optional KEYWORD which has a value associated with it */
 struct SqlOptionalKeyword
@@ -201,7 +218,7 @@ struct SqlOptionalKeyword
 struct SqlJoin
 {
   SqlStatement *value;
-  SqlStatement *next;
+  dqcreate(SqlJoin);
   enum SqlJoinType type;
 };
 
@@ -235,6 +252,7 @@ struct SqlBinaryOperation
 
 struct SqlValue {
   enum SqlValueType type;
+  enum SqlDataType data_type;
   union {
     char *string_literal;
     char *reference;
@@ -246,13 +264,17 @@ struct SqlDropStatement {
   SqlStatement *table_name, *optional_keyword;
 } typedef SqlDropStatement;
 
+/**
+ * Used to represent a SELECT column list, not a table column list
+ */
 struct SqlColumnList {
   SqlStatement *value;
-  SqlStatement *next;
+  dqcreate(SqlColumnList);
 };
 
 struct SqlStatement {
   enum SqlStatementType type;
+  struct YYLTYPE loc;
   union {
     SqlSelectStatement *select;
     SqlDropStatement *drop;

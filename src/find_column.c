@@ -13,37 +13,29 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
+#include <stdio.h>
+#include <stdlib.h>
+#include <assert.h>
+#include <string.h>
 
 #include "octo.h"
 #include "octo_types.h"
-#include "parser.h"
-#include "lexer.h"
 
-/**
- * Parses line, which should end with a semicolon, and returns the resolt
- *
- * NOTE: caller is responsiblefor freeing the return value
- *
- * @returns the parsed statement, or NULL if there was an error parsing.
- */
-SqlStatement *parse_line(const char *line) {
-  SqlStatement *result = 0;
-  yyscan_t scanner;
-  YY_BUFFER_STATE state;
-  int status;
+SqlColumn *find_column(char *column_name, SqlTable *table) {
+  SqlColumn *cur_column = NULL, *start_column = NULL;
+  SqlValue *value = NULL;
 
-  strncpy(input_buffer_combined, line, MAX_STR_CONST);
+  TRACE(CUSTOM_ERROR, "Searching for column %s in table %s",
+    column_name, table->tableName->v.value->v.reference);
 
-  if (yylex_init(&scanner))
-    FATAL(ERR_INIT_SCANNER);
-
-  state = yy_scan_string(line, scanner);
-  if(yyparse(scanner, &result))
-  {
-    ERROR(ERR_PARSING_COMMAND, input_buffer_combined);
-    return NULL;
-  }
-  yy_delete_buffer(state, scanner);
-  yylex_destroy(scanner);
-  return result;
+  UNPACK_SQL_STATEMENT(start_column, table->columns, column);
+  cur_column = start_column;
+  do {
+    UNPACK_SQL_STATEMENT(value, cur_column->columnName, value);
+    if(strcmp(column_name, value->v.reference) == 0) {
+      return cur_column;
+    }
+    cur_column = cur_column->next;
+  } while(cur_column != start_column);
+  return NULL;
 }

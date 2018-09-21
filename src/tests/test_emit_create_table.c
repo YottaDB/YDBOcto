@@ -26,8 +26,7 @@ static void test_simple_table_definition(void **state) {
   SqlStatement *result;
   FILE *out;
 
-
-
+  octo_init();
   if (yylex_init(&scanner)) {
     fprintf(stderr, "Error initializing the scanner\n");
     return;
@@ -58,6 +57,7 @@ static void test_multiple_columns(void **state) {
   size_t buffer_size = 0;
   FILE *out;
 
+  octo_init();
   if (yylex_init(&scanner)) {
     fprintf(stderr, "Error initializing the scanner\n");
     return;

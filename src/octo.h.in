@@ -42,6 +42,14 @@ int readline_getc(FILE *inputFile, char *buff, int size);
 char *extract_expression(SqlStatement *stmt, const SqlTable *table, char *source);
 SqlStatement *parse_line(const char *line);
 void print_temporary_table(SqlTable *table);
+int populate_data_type(SqlStatement *v, SqlValueType *type);
+SqlTable *find_table(const char *table_name);
+SqlColumn *find_column(char *column_name, SqlTable *table);
+int qualify_column_list(SqlColumnList *select_columns, SqlJoin *tables);
+int qualify_column_name(char **column_name, SqlJoin *tables);
+int qualify_statement(SqlStatement *stmt, SqlJoin *tables);
+int octo_init();
+void print_yyloc(YYLTYPE *llocp);
 
 /* Globals */
 SqlTable *definedTables;

@@ -186,6 +186,19 @@ int copied_so_far;
                 strncpy((*yylval_param)->v.value->v.string_literal, string_buffer, copied_so_far+1);
                 return IDENTIFIER_START;
               }
+[a-zA-Z][a-zA-Z0-9_]*\.[a-zA-Z][a-zA-Z0-9_]* {
+                copied_so_far = 0;
+                str_buf_ptr = string_buffer;
+                char *yptr = yytext;
+                COPY_STRING(str_buf_ptr, yptr, copied_so_far, MAX_STR_CONST);
+                *str_buf_ptr = '\0';
+                SQL_STATEMENT(*yylval_param, value_STATEMENT);
+                (*yylval_param)->v.value = (SqlValue*)malloc(sizeof(SqlValue));
+                (*yylval_param)->v.value->type = COLUMN_REFERENCE;
+                (*yylval_param)->v.value->v.string_literal = (char*)malloc(copied_so_far+1);
+                strncpy((*yylval_param)->v.value->v.string_literal, string_buffer, copied_so_far+1);
+                return IDENTIFIER_START;
+              }
 -- { BEGIN(COMMENT); }
 
 [ \t\r\n]      ;  /* skip whitespace which is not part of a string */
@@ -222,5 +235,8 @@ int copied_so_far;
 <COMMENT>.* { /* Ignore comments */ }
 
 <<EOF>> { return ENDOFFILE; }
+
+
+. { return INVALID_TOKEN; }
 
 %%

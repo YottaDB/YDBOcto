@@ -9,4 +9,8 @@ ERROR_DEF(ERR_PRIMARY_KEY_NOT_FOUND, "No primary key specified when creating tab
 ERROR_DEF(ERR_MULTIPLE_VALUES_PROVIDED, "Multiple values provided for %s; undefined behavior")
 ERROR_DEF(ERR_GENERATING_TEMPORARY_TABLE, "Generating temporary table: %s")
 ERROR_DEF(ERR_UNKNOWN_TABLE, "Unknown table: %s")
+ERROR_DEF(ERR_UNKNOWN_COLUMN_NAME, "Unknown column: %s")
+ERROR_DEF(ERR_ENTERING_FUNCTION, "Entering %s")
+ERROR_DEF(ERR_LEAVING_FUNCTION, "LEAVING %s")
+ERROR_DEF(ERR_TYPE_MISMATCH, "Type mismatch, left %s, right %s")
 ERROR_END(CUSTOM_ERROR, "Error not found")

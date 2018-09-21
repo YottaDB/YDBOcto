@@ -61,6 +61,13 @@ add_library(libocto OBJECT
   create_table_defaults.c
   print_temporary_table.c
   readline_getc.c
+  populate_data_type.c
+  find_table.c
+  find_column.c
+  qualify_column_list.c
+  qualify_column_name.c
+  qualify_statement.c
+  octo_init.c
   m_templates/emit_simple_select.c
   ${BISON_OctoParser_OUTPUTS}
   ${FLEX_OctoLexer_OUTPUTS}

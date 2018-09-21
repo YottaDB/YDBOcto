@@ -13,37 +13,27 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
+#include <stdio.h>
+#include <stdlib.h>
+#include <assert.h>
+#include <string.h>
 
 #include "octo.h"
 #include "octo_types.h"
-#include "parser.h"
-#include "lexer.h"
 
-/**
- * Parses line, which should end with a semicolon, and returns the resolt
- *
- * NOTE: caller is responsiblefor freeing the return value
- *
- * @returns the parsed statement, or NULL if there was an error parsing.
- */
-SqlStatement *parse_line(const char *line) {
-  SqlStatement *result = 0;
-  yyscan_t scanner;
-  YY_BUFFER_STATE state;
-  int status;
+int qualify_column_list(SqlColumnList *select_columns, SqlJoin *tables) {
+  SqlJoin *cur_join, *start_join;
+  SqlColumn *cur_column, *start_column;
+  SqlColumnList *cur_column_list, *start_column_list;
+  SqlValue *column_name, *table_name;
+  SqlTable *table;
+  char *column_name_ptr = NULL, *table_name_ptr = NULL, *new_column_name = NULL;
+  int table_name_len = 0, column_name_length = 0, column_matched = 0, result = 0;
 
-  strncpy(input_buffer_combined, line, MAX_STR_CONST);
-
-  if (yylex_init(&scanner))
-    FATAL(ERR_INIT_SCANNER);
-
-  state = yy_scan_string(line, scanner);
-  if(yyparse(scanner, &result))
-  {
-    ERROR(ERR_PARSING_COMMAND, input_buffer_combined);
-    return NULL;
-  }
-  yy_delete_buffer(state, scanner);
-  yylex_destroy(scanner);
+  cur_column_list = start_column_list = select_columns;
+  do {
+    result |= qualify_statement(cur_column_list->value, tables);
+    cur_column_list = cur_column_list->next;
+  } while(cur_column_list != start_column_list);
   return result;
 }

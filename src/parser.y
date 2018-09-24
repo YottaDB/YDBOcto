@@ -150,8 +150,8 @@ extern void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, char cons
 %%
 
 sql_statement
-  : sql_schema_statement { *out = $1; } SEMICOLON { YYACCEPT; }
-  | sql_data_statement SEMICOLON { YYACCEPT; }
+  : sql_schema_statement SEMICOLON { *out = $1; YYACCEPT; }
+  | sql_data_statement SEMICOLON { *out = $1; YYACCEPT; }
   | sql_select_statement SEMICOLON { *out = $1; YYACCEPT; }
   | ENDOFFILE { YYACCEPT; }
   ;
@@ -162,7 +162,7 @@ sql_statement
 %include "parser/drop.y"
 
 sql_data_statement
-  : sql_data_change_statement
+  : sql_data_change_statement { $$ = $1; }
 //  | open_statement
 //  | fetch_statement
 //  | close_statement
@@ -172,7 +172,7 @@ sql_data_statement
 sql_data_change_statement
   : delete_statement_searched
 //  | delete_statement_position
-  | insert_statement
+  | insert_statement { $$ = $1; }
 //  | update_statement_positioned
   | update_statement_searched
   ;

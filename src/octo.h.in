@@ -24,8 +24,11 @@ SqlColumn *fetch_primary_key_column(const SqlTable *table);
 
 void emit_simple_select(char *output, const SqlTable *table, const char *column, char *source);
 void emit_create_table(FILE *output, struct SqlStatement *stmt);
-SqlTable *emit_select_statement(ydb_buffer_t *cursor_global, ydb_buffer_t *cursor_exe_global, struct SqlStatement *stmt);
-
+SqlTable *emit_select_statement(ydb_buffer_t *cursor_global,
+  ydb_buffer_t *cursor_exe_global, struct SqlStatement *stmt,
+  SqlTable *destination_table);
+SqlTable *emit_insert_statement(ydb_buffer_t *cursor_global,
+    ydb_buffer_t *cursor_exe_global, struct SqlStatement *stmt);
 void cleanup_sql_statement(SqlStatement *stmt);
 /**
  * Examines the table to make sure needed columns are specified, and fills out
@@ -50,6 +53,9 @@ int qualify_column_name(char **column_name, SqlJoin *tables);
 int qualify_statement(SqlStatement *stmt, SqlJoin *tables);
 int octo_init();
 void print_yyloc(YYLTYPE *llocp);
+void get_table_parts(SqlTable *table, char **curse, char **start, char **end,
+    char **source);
+SqlOptionalKeyword *get_keyword(SqlColumn *column, enum OptionalKeyword keyword);
 
 /* Globals */
 SqlTable *definedTables;

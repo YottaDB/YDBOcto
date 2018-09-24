@@ -48,6 +48,7 @@ int main(int argc, char **argv)
   ydb_buffer_t cursor_global, cursor_exe_global[3];
   ydb_buffer_t z_status, z_status_value;
   gtm_char_t      err_msgbuf[MAX_STR_CONST];
+  gtm_long_t cursorId;
 
   octo_init();
 
@@ -170,8 +171,8 @@ int main(int argc, char **argv)
     switch(result->type)
     {
     case select_STATEMENT:
-      table = emit_select_statement(&cursor_global, cursor_exe_global, result);
-      gtm_long_t cursorId = atol(cursor_exe_global[0].buf_addr);
+      table = emit_select_statement(&cursor_global, cursor_exe_global, result, NULL);
+      cursorId = atol(cursor_exe_global[0].buf_addr);
       status = gtm_ci("select", cursorId);
       if (status != 0)
       {
@@ -211,6 +212,19 @@ int main(int argc, char **argv)
       YDB_ERROR_CHECK(status, &z_status, &z_status_value);
       cleanup_sql_statement(result);
       break;
+    case insert_STATEMENT:
+      table = emit_insert_statement(&cursor_global, cursor_exe_global, result);
+      cursorId = atol(cursor_exe_global[0].buf_addr);
+      status = gtm_ci("select", cursorId);
+      if (status != 0)
+      {
+              gtm_zstatus(err_msgbuf, MAX_STR_CONST);
+              FATAL(ERR_YOTTADB, err_msgbuf);
+      }
+      cleanup_sql_statement(result);
+      break;
+    default:
+      FATAL(ERR_FEATURE_NOT_IMPLEMENTED, input_buffer_combined);
     }
     result = NULL;
   } while(!feof(inputFile));

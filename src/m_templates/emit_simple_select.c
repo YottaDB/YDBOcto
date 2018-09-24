@@ -66,6 +66,9 @@ void emit_simple_select(char *output, const SqlTable *table, const char *column,
       source = m_unescape_string(tmp_value->v.string_literal);
       break;
     case PRIMARY_KEY:
+      snprintf(output, MAX_EXPRESSION_LENGTH, "keys(0)");
+      return;
+      break;
     case NOT_NULL:
     case UNIQUE_CONSTRAINT:
     case NO_KEYWORD:

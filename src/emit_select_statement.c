@@ -31,7 +31,8 @@
  *  values
  */
 SqlTable *emit_select_statement(ydb_buffer_t *cursor_global,
-    ydb_buffer_t *cursor_exe_global, struct SqlStatement *stmt)
+    ydb_buffer_t *cursor_exe_global, SqlStatement *stmt,
+    SqlTable *destination_table)
 {
   FILE *output, *temp_table;
   SqlSelectStatement *select;
@@ -53,13 +54,12 @@ SqlTable *emit_select_statement(ydb_buffer_t *cursor_global,
 
   TRACE(ERR_ENTERING_FUNCTION, "emit_select_statement")
 
+  // Create a temporary table
+  temp_table = open_memstream(&temp_table_buffer, &temp_table_buffer_size);
   YDB_LITERAL_TO_BUFFER("^schema", &schema_global);
   INIT_YDB_BUFFER(&latest_schema_id, MAX_STR_CONST);
   status = ydb_incr_s(&schema_global, 0, NULL, NULL, &latest_schema_id);
   YDB_ERROR_CHECK(status, &z_status, &z_status_value);
-
-  // Create a temporary table
-  temp_table = open_memstream(&temp_table_buffer, &temp_table_buffer_size);
   latest_schema_id.buf_addr[latest_schema_id.len_used] = '\0';
   snprintf(temp_table_name, MAX_STR_CONST, "tempTbl%s", latest_schema_id.buf_addr);
   fprintf(temp_table, TEMPLATE_CREATE_TABLE_START, temp_table_name);
@@ -74,28 +74,23 @@ SqlTable *emit_select_statement(ydb_buffer_t *cursor_global,
   case NO_JOIN:
     UNPACK_SQL_STATEMENT(table, join->value, table);
     break;
+  case INNER_JOIN:
+    //create_temporary_join_table();
+    break;
   case TABLE_SPEC:
     //UNPACK_SQL_STATEMENT(value, join->value, value);
     temporary_table = TRUE;
-    table = emit_select_statement(cursor_global, cursor_exe_global, join->value);
-    status = ydb_incr_s(cursor_global, 2, cursor_exe_global, NULL, &cursor_exe_global[2]);
-    YDB_ERROR_CHECK(status, &z_status, &z_status_value);
+    table = emit_select_statement(cursor_global, cursor_exe_global, join->value, NULL);
     break;
   }
-  assert(table != NULL);
-  assert(table->source->type == keyword_STATEMENT && table->source->v.keyword);
-  UNPACK_SQL_STATEMENT(tmp_value, table->source->v.keyword->v, value);
-  source = m_unescape_string(tmp_value->v.string_literal);
-  UNPACK_SQL_STATEMENT(tmp_value, table->curse->v.keyword->v, value);
-  curse = m_unescape_string(tmp_value->v.string_literal);
-  UNPACK_SQL_STATEMENT(tmp_value, table->start->v.keyword->v, value);
-  formatted_start = malloc(MAX_STR_CONST);
-  start = m_unescape_string(tmp_value->v.string_literal);
+  status = ydb_incr_s(cursor_global, 2, cursor_exe_global, NULL, &cursor_exe_global[2]);
+  YDB_ERROR_CHECK(status, &z_status, &z_status_value);
   cursor_exe_global[0].buf_addr[cursor_exe_global[0].len_used] = '\0';
+  assert(table != NULL);
+  get_table_parts(table, &curse, &start, &end, &source);
+  formatted_start = malloc(MAX_STR_CONST);
   snprintf(temp_cursor_name, MAX_STR_CONST, "^cursor(%s)", cursor_exe_global[0].buf_addr);
   snprintf(formatted_start, MAX_STR_CONST, start, temp_cursor_name);
-  UNPACK_SQL_STATEMENT(tmp_value, table->end->v.keyword->v, value);
-  end = m_unescape_string(tmp_value->v.string_literal);
   fprintf(output, TEMPLATE_SELECT_BASIC, formatted_start, curse, end, end, end);
 
   UNPACK_SQL_STATEMENT(start_column_list, select->select_list, column_list);

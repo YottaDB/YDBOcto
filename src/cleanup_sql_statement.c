@@ -10,6 +10,8 @@ void cleanup_sql_statement(SqlStatement *stmt)
   SqlColumn *cur_column, *start_column;
   SqlColumnList *cur_column_list, *start_column_list;
   SqlJoin *cur_join, *start_join;
+  SqlInsertStatement *insert;
+  SqlStatement *tmp_statement = NULL;
   if(stmt == NULL)
     return;
   switch(stmt->type)
@@ -140,6 +142,14 @@ void cleanup_sql_statement(SqlStatement *stmt)
     if(stmt->v.keyword) {
       cleanup_sql_statement(stmt->v.keyword->v);
       free(stmt->v.keyword);
+    }
+    free(stmt);
+    break;
+  case insert_STATEMENT:
+    UNPACK_SQL_STATEMENT(insert, stmt, insert);
+    cleanup_sql_statement(insert->source);
+    if(insert->columns) {
+      cleanup_sql_statement(insert->columns);
     }
     free(stmt);
     break;

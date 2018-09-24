@@ -45,6 +45,7 @@ long long unsigned int typedef uint8;
 enum SqlStatementType {
   table_STATEMENT,
   select_STATEMENT,
+  insert_STATEMENT,
   drop_STATEMENT,
   value_STATEMENT,
   binary_STATEMENT,
@@ -123,7 +124,8 @@ enum OptionalKeyword {
 
 enum SqlJoinType {
   NO_JOIN,
-  TABLE_SPEC
+  TABLE_SPEC,
+  INNER_JOIN
 };
 
 #define YYLTYPE yyltype
@@ -232,6 +234,13 @@ struct SqlSelectStatement
   SqlStatement *where_expression;
 } typedef SqlSelectStatement;
 
+struct SqlInsertStatement
+{
+  SqlTable *destination;
+  SqlStatement *source;
+  SqlStatement *columns;
+} typedef SqlInsertStatement;
+
 /*
  * Represents an binary operation
  */
@@ -277,6 +286,7 @@ struct SqlStatement {
   struct YYLTYPE loc;
   union {
     SqlSelectStatement *select;
+    SqlInsertStatement *insert;
     SqlDropStatement *drop;
     SqlValue *value;
     SqlBinaryOperation *binary;

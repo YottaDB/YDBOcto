@@ -43,6 +43,9 @@ char *extract_expression(SqlStatement *stmt, const SqlTable *table, char *source
     case NUMBER_LITERAL:
       snprintf(buffer, MAX_EXPRESSION_LENGTH, "%s", value->v.string_literal);
       break;
+    case COLUMN_REFERENCE:
+      emit_simple_select(buffer, table, value->v.reference, source);
+      break;
     case CALCULATED_VALUE:
       calculated = value->v.calculated;
       switch(calculated->type)
@@ -117,9 +120,6 @@ char *extract_expression(SqlStatement *stmt, const SqlTable *table, char *source
       default:
         FATAL(ERR_UNKNOWN_KEYWORD_STATE);
       }
-      break;
-    case COLUMN_REFERENCE:
-      emit_simple_select(buffer, table, value->v.reference, source);
       break;
     default:
       FATAL(ERR_UNKNOWN_KEYWORD_STATE);

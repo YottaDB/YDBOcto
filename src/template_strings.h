@@ -12,3 +12,5 @@
 #define TEMPLATE_TABLE_DEFAULT_UNPACK "SET cursor=\"\"%%s\"\",keys(0)=$P($G(@cursor),\"\"|\"\",1)"
 #define TEMPLATE_TABLE_DEFAULT_END "(\"\"\"\"=keys(0))"
 #define TEMPLATE_TABLE_DEFAULT_DELIM "|"
+
+#define TEMPLATE_INSERT_VALUES "TEMPLATE_SELECT_BASIC "

@@ -25,6 +25,11 @@ configure_file (
   "${PROJECT_BINARY_DIR}/select.m"
 )
 
+configure_file (
+  "${PROJECT_SOURCE_DIR}/tools/insert.m"
+  "${PROJECT_BINARY_DIR}/INSERT.m"
+)
+
 # Combine the parser grammars into a single file
 add_custom_command(OUTPUT ${PROJECT_BINARY_DIR}/parser.y
   DEPENDS parser.y
@@ -69,6 +74,9 @@ add_library(libocto OBJECT
   qualify_column_name.c
   qualify_statement.c
   octo_init.c
+  get_keyword.c
+  get_table_parts.c
+  emit_insert_statement.c
   m_templates/emit_simple_select.c
   ${BISON_OctoParser_OUTPUTS}
   ${FLEX_OctoLexer_OUTPUTS}

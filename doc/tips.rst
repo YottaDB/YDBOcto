@@ -10,8 +10,10 @@ Tips and Tricks
 Creating N-key CURSOR Statements
 ----------------------------------
 
+If you ae mapping an existing MUMPS schema, you may need to generate a CURSOR statement for multiple keys.
+
 .. note::
-   It may be beneficial to refresh your memory with the definitions and working of `$ORDER <https://docs.yottadb.com/ProgrammersGuide/functions.html#order>`_ and `$SELECT <https://docs.yottadb.com/ProgrammersGuide/functions.html#select>`_.
+   It may be beneficial to refresh your memory with the definitions of `$ORDER <https://docs.yottadb.com/ProgrammersGuide/functions.html#order>`_ and `$SELECT <https://docs.yottadb.com/ProgrammersGuide/functions.html#select>`_ and how they work.
 
 For the sake of clarity, the extra quotes needed to escape these in SQL are omitted.
 
@@ -54,7 +56,7 @@ The above command advances the cursor by one when there are two keys.
    ^LastName("Greene",0)=""
    ^LastName("Brown",3)=""
 
-In the above example, keys(0)= "Doe" and keys(1)= 1. We want to use the cursor to advance, so that keys(0) becomes "Smith" and keys(1) becomes 2.
+In the above example, keys(0)= "Doe" and keys(1)= 2. We want to use the cursor to advance, so that keys(0) becomes "Smith" and keys(1) becomes 1.
 
 .. parsed-literal::
    set k0=keys(0)
@@ -64,15 +66,23 @@ k0 ="Doe"
 .. parsed-literal::
    SET keys(1)=$SELECT(""=keys(0):"",1:$ORDER(^global(keys(0),keys(1)))
 
-`$SELECT <https://docs.yottadb.com/ProgrammersGuide/functions.html#select>`_ returns a value associated with the first true truth-valued expression in a list of paired expression arguments.
-
 keys(0)="Doe", keys(1)=2
 
-Since keys(0) is not "", we run $ORDER on keys(0) and keys(1).
+Since keys(0) is not "", we run $ORDER on keys(1).
 
-Now, keys(0) = "Smith"
+.. note::
+    The purpose of checking keys(0) for "" is to safeguard against a `NULSUBSC <https://docs.yottadb.com/MessageRecovery/errors.html#nulsubsc>`_ error.
 
-keys(1) is "" because if $ORDER finds no node (or name) at the specified level after the specified variable, it returns an empty string (” “).
+keys(1) is "" because if $ORDER finds no node (or name) at the specified level after the specified variable, it returns an null string (”“).
+
+.. parsed-literal::
+   SET keys(0)=$SELECT(""=keys(1):$ORDER(^global(keys(0))),1:keys(0))
+
+keys(0)="Doe", keys(1)=""
+
+keys(1) is "" now, so we run $ORDER on keys(0).
+
+keys(0) is now "Smith".
 
 .. parsed-literal::
    SET keys(1)=$SELECT(""=keys(0):"",keys(0)'=k0:$ORDER(^global(keys(0),"")),1:keys(1))

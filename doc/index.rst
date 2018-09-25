@@ -7,10 +7,11 @@ YDBDBMS Grammar Documentation
 ===================================
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 5
  
    intro
    grammar
+   tips
 
 Indices and tables
 ==================

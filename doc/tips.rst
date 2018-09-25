@@ -109,13 +109,6 @@ For 3 keys
    SET keys(1)=$SELECT(""=keys(0):"",keys(0)'=k0:$ORDER(^global(keys(0),"")),1:keys(1))                                          # If keys(0) changed, restart keys(1), else, leave keys(1)
    SET keys(2)=$SELECT(""=keys(1):"",keys(1)'=k1:$ORDER(^global(keys(0),keys(1),"")),1:keys(2))                                  # If keys(1) changed, restart keys(2), else, leave keys(2)
 
-
-""=keys(0):"",""=keys(1):"",1:$O(^global(keys(0),keys(1),keys(2))) # Advance keys(2)
-SET keys(1)=$S(""=keys(0):"",""=keys(2):$O(^global(keys(0),keys(1)),1:keys(1)) # advance keys(1)
-SET keys(0)=$S(""=keys(1):$O(^global(keys(0))),1:keys(0)) # Check if keys(1) is NULL, if so, advance keys(0)
-SET keys(1)=$S(""=keys(0):"",keys(0)'=k0:$O(^global(keys(0),"")),1:keys(1)) # If keys(0) changed, restart keys(1), else, leave keys(1)
-SET keys(2)=$S(""=keys(0):"",""=keys(1):"",keys(1)'=k1:$O(^global(keys(0),keys(1),"")),1:keys(2)) # If keys(1) changed, restart keys(2), else, leave keys(2)
-
 Here, keys(0), keys(1) and keys(2) are the three keys.
 
 **Example and Explanation**:

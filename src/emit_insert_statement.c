@@ -78,7 +78,7 @@ SqlTable *emit_insert_statement(ydb_buffer_t *cursor_global,
     columnId++;
     cur_column = cur_column->next;
   } while(cur_column != start_column);
-  fprintf(insert_string, " SET ^%s(keys(0))=row", value2->v.reference);
+  fprintf(insert_string, " SET t=$$^PACK(\"^%s\",.keys)_\"=row\",@t", value2->v.reference);
   fclose(insert_string);
   fprintf(output, "SET oldRow=%s DO ^INSERT(\"%s\")", source, m_escape_string(insert_string_buffer));
   fclose(output);

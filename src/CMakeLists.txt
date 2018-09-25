@@ -30,6 +30,11 @@ configure_file (
   "${PROJECT_BINARY_DIR}/INSERT.m"
 )
 
+configure_file (
+  "${PROJECT_SOURCE_DIR}/tools/pack.m"
+  "${PROJECT_BINARY_DIR}/PACK.m"
+)
+
 # Combine the parser grammars into a single file
 add_custom_command(OUTPUT ${PROJECT_BINARY_DIR}/parser.y
   DEPENDS parser.y

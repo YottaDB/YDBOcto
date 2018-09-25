@@ -64,13 +64,8 @@ int main(int argc, char **argv)
   YDB_LITERAL_TO_BUFFER("", &null_buffer);
   YDB_LITERAL_TO_BUFFER("^cursor", &cursor_global);
   INIT_YDB_BUFFER(&cursor_exe_global[0], MAX_STR_CONST);
-  status = ydb_incr_s(&schema_global, 0, NULL, NULL, &cursor_exe_global[0]);
-  YDB_ERROR_CHECK(status, &z_status, &z_status_value);
-  cursor_exe_global[0].buf_addr[cursor_exe_global[0].len_used] = '\0';
   YDB_LITERAL_TO_BUFFER("exe", &cursor_exe_global[1]);
   INIT_YDB_BUFFER(&cursor_exe_global[2], MAX_STR_CONST);
-  cursor_exe_global[2].len_used = 1;
-  *cursor_exe_global[2].buf_addr = '0';
 
   /* Parse input parameters */
   while (1)
@@ -168,6 +163,11 @@ int main(int argc, char **argv)
       result = NULL;
       continue;
     }
+    status = ydb_incr_s(&schema_global, 0, NULL, NULL, &cursor_exe_global[0]);
+    YDB_ERROR_CHECK(status, &z_status, &z_status_value);
+    cursor_exe_global[0].buf_addr[cursor_exe_global[0].len_used] = '\0';
+    cursor_exe_global[2].len_used = 1;
+    *cursor_exe_global[2].buf_addr = '0';
     switch(result->type)
     {
     case select_STATEMENT:

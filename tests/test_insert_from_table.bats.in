@@ -1,0 +1,54 @@
+load test_helpers
+
+setup() {
+  init_test
+  createdb
+  load_fixture names.sql
+  load_fixture names.zwr
+}
+
+@test "insert with firstName=Zero" {
+  octo <<OCTO &>> output.txt
+create table names2 (id integer primary key, firstName varchar(30), lastName varchar(30));
+insert into names2 (SELECT * FROM names WHERE firstName="Zero");
+OCTO
+  octo <<OCTO &>> output.txt
+select * from names2;
+OCTO
+  run cat output.txt
+  [[ "$output" =~ "Zero|Cool" ]]
+  ! [[ "$output" =~ "Joey" ]]
+}
+
+@test "insert to a xfer table" {
+  octo -vvv <<OCTO &> output.txt
+create table namesLastNameXref (
+  lastName VARCHAR(30) EXTRACT "keys(0)",
+  id INTEGER EXTRACT "keys(1)" PRIMARY KEY
+)
+UNPACK "SET keys(0)=\$O(^namesLastNameXref("""")),keys(1)="""",rowId=0"
+CURSOR "SET k0=keys(0),keys(1)=\$S(""""=keys(0):"""",1:\$O(^namesLastNameXref(k0,keys(1)))),keys(0)=\$S(""""=keys(1):\$O(^namesLastNameXref(keys(0))),1:keys(0)),keys(1)=\$S(""""=keys(0):"""",keys(0)'=k0:\$O(^namesLastNameXref(keys(0),"""")),1:keys(1)),rowId=rowId+1"
+END "(keys(0)="""")";
+insert into namesLastNameXref (select lastName, id from names where lastName <> "");
+select * from namesLastNameXref;
+OCTO
+  run cat output.txt
+  [[ "$output" =~ "Cool" ]]
+}
+
+@test "insert to 3-key table" {
+  octo -vvv <<OCTO &> output.txt
+create table namesXfer (
+  id INTEGER EXTRACT "keys(2)" PRIMARY KEY
+, firstName VARCHAR(30) EXTRACT "keys(1)"
+, lastName VARCHAR(30) EXTRACT "keys(0)"
+)
+CURSOR "SET k0=keys(0),k1=keys(1),k2=keys(2),keys(2)=\$O(^namesXfer(keys(0),keys(1),keys(2))),keys(1)=\$s(keys(2)="""":\$O(^namesXfer(keys(0),keys(1))),1:keys(1)),keys(0)=\$s(keys(1)="""":\$O(^namesXfer(keys(0))),1:keys(0)),keys(1)=\$s(""""=keys(0):"""",k0'=keys(0):\$O(^namesXfer(keys(0),"""")),1:keys(1)),keys(2)=\$s(""""=keys(1):"""",k1'=keys(1):\$O(^namesXfer(keys(0),keys(1),"""")),1:keys(2)),rowId=rowId+1"
+UNPACk "SET keys(0)=\$O(^namesXfer("""")),keys(1)=\$O(^namesXfer(keys(0),"""")),keys(2)="""",rowId=0"
+;
+insert into namesXfer (select * from names where lastName <> "");
+select * from namesXfer;
+OCTO
+  run cat output.txt
+  [[ "$output" =~ "Zero|Cool" ]]
+}

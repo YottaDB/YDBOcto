@@ -32,6 +32,8 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables) {
     return 0;
 
   switch(stmt->type) {
+  case select_STATEMENT:
+    break;
   case value_STATEMENT:
     UNPACK_SQL_STATEMENT(value, stmt, value);
     switch(value->type) {

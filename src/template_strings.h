@@ -1,4 +1,4 @@
-#define TEMPLATE_SELECT_BASIC "NEW rowId %s FOR  %s USE:%s $P KILL:%s rowId Q:%s  "
+#define TEMPLATE_SELECT_BASIC "NEW rowId,t %s FOR  %s USE:%s $P KILL:%s rowId,t Q:%s  "
 #define TEMPLATE_CREATE_TABLE_START "CREATE TABLE %s (rowIdSpecialKey INTEGER PRIMARY KEY"
 #define TEMPLATE_CREATE_TABLE_COLUMN ", clmn%d VARCHAR(30)"
 
@@ -14,3 +14,7 @@
 #define TEMPLATE_TABLE_DEFAULT_DELIM "|"
 
 #define TEMPLATE_INSERT_VALUES "TEMPLATE_SELECT_BASIC "
+
+#define TEMPLATE_CREATE_XREF_TABLE "CREATE TABLE %s (tableKey VARCHAR(30) PRIMARY KEY);"
+// The SELECT part gets replaced with the source; it's here as a placeholder
+#define TEMPLATE_INSERT_XREF_TABLE "INSERT INTO %s (SELECT %s FROM %s);"

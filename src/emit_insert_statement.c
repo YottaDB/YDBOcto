@@ -82,7 +82,10 @@ SqlTable *emit_insert_statement(ydb_buffer_t *cursor_global,
   fclose(insert_string);
   fprintf(output, "SET oldRow=%s DO ^insert(\"%s\")", source, m_escape_string(insert_string_buffer));
   fclose(output);
-  INFO(CUSTOM_ERROR, "Adding EXE to cursor: %s", output_buffer);
+  status = ydb_incr_s(cursor_global, 2, cursor_exe_global, NULL, &cursor_exe_global[2]);
+  YDB_ERROR_CHECK(status, &z_status, &z_status_value);
+  cursor_exe_global[2].buf_addr[cursor_exe_global[2].len_used] = '\0';
+  INFO(ERR_ADDING_EXE, cursor_exe_global[2].buf_addr, output_buffer);
   m_exe_buffer_value.buf_addr = output_buffer;
   m_exe_buffer_value.len_used = m_exe_buffer_value.len_alloc = output_buffer_size;
   status = ydb_set_s(cursor_global, 3,

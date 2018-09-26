@@ -15,5 +15,6 @@ configure_file (
 
 ADD_BATS_TEST(hello_bats)
 ADD_BATS_TEST(test_where)
+ADD_BATS_TEST(test_where_in)
 ADD_BATS_TEST(test_select_columns)
 ADD_BATS_TEST(test_insert_from_table)

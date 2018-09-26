@@ -1,0 +1,16 @@
+load test_helpers
+
+setup() {
+  init_test
+  createdb
+  load_fixture names.sql
+  load_fixture names.zwr
+}
+
+@test "where with basic in statement" {
+  run octo <<OCTO
+select * from names where firstName in (select firstName from names where firstName="zero" or firstName="Zero");
+OCTO
+  [[ "$output" =~ "Zero|Cool" ]]
+  ! [[ "$output" =~ "Joey" ]]
+}

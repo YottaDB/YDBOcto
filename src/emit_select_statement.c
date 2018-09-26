@@ -83,9 +83,6 @@ SqlTable *emit_select_statement(ydb_buffer_t *cursor_global,
     table = emit_select_statement(cursor_global, cursor_exe_global, join->value, NULL);
     break;
   }
-  status = ydb_incr_s(cursor_global, 2, cursor_exe_global, NULL, &cursor_exe_global[2]);
-  YDB_ERROR_CHECK(status, &z_status, &z_status_value);
-  cursor_exe_global[0].buf_addr[cursor_exe_global[0].len_used] = '\0';
   assert(table != NULL);
   get_table_parts(table, &curse, &start, &end, &source);
   formatted_start = malloc(MAX_STR_CONST);
@@ -95,7 +92,7 @@ SqlTable *emit_select_statement(ydb_buffer_t *cursor_global,
 
   UNPACK_SQL_STATEMENT(start_column_list, select->select_list, column_list);
   if(select->where_expression) {
-    tmp1 = extract_expression(select->where_expression, table, source);
+    tmp1 = extract_expression(cursor_global, cursor_exe_global, select->where_expression, table, source);
     fprintf(output, "SET:%s ", tmp1);
   }
   else
@@ -139,7 +136,7 @@ SqlTable *emit_select_statement(ydb_buffer_t *cursor_global,
   do {
     fprintf(temp_table, TEMPLATE_CREATE_TABLE_COLUMN, column_counter);
     column_counter++;
-    tmp1 = extract_expression(cur_column_list->value, table, source);
+    tmp1 = extract_expression(cursor_global, cursor_exe_global, cur_column_list->value, table, source);
     fprintf(output, "_%s_\"|\"", tmp1);
     free(tmp1);
     cur_column_list = cur_column_list->next;
@@ -156,7 +153,10 @@ SqlTable *emit_select_statement(ydb_buffer_t *cursor_global,
   free(curse);
   free(source);
   fclose(output);
-  INFO(CUSTOM_ERROR, "Adding EXE to cursor: %s", output_buffer);
+  status = ydb_incr_s(cursor_global, 2, cursor_exe_global, NULL, &cursor_exe_global[2]);
+  YDB_ERROR_CHECK(status, &z_status, &z_status_value);
+  cursor_exe_global[2].buf_addr[cursor_exe_global[2].len_used] = '\0';
+  INFO(ERR_ADDING_EXE, cursor_exe_global[2].buf_addr, output_buffer);
   m_exe_buffer_value.buf_addr = output_buffer;
   m_exe_buffer_value.len_used = m_exe_buffer_value.len_alloc = output_buffer_size;
   status = ydb_set_s(cursor_global, 3,

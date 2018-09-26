@@ -90,7 +90,8 @@ enum SqlValueType {
   STRING_LITERAL,
   DATE_TIME,
   COLUMN_REFERENCE,
-  CALCULATED_VALUE
+  CALCULATED_VALUE,
+  TEMPORARY_TABLE_TYPE
 } typedef SqlValueType;
 
 enum SqlDataType {

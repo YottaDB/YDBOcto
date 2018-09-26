@@ -62,6 +62,7 @@ add_library(libocto OBJECT
   get_keyword.c
   get_table_parts.c
   emit_insert_statement.c
+  emit_xref_table.c
   m_templates/emit_simple_select.c
   ${BISON_OctoParser_OUTPUTS}
   ${FLEX_OctoLexer_OUTPUTS}

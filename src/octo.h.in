@@ -29,6 +29,8 @@ SqlTable *emit_select_statement(ydb_buffer_t *cursor_global,
   SqlTable *destination_table);
 SqlTable *emit_insert_statement(ydb_buffer_t *cursor_global,
     ydb_buffer_t *cursor_exe_global, struct SqlStatement *stmt);
+SqlTable *emit_xref_table(ydb_buffer_t *cursor_global,
+    ydb_buffer_t *cursor_exe_global, struct SqlStatement *stmt);
 void cleanup_sql_statement(SqlStatement *stmt);
 /**
  * Examines the table to make sure needed columns are specified, and fills out
@@ -42,7 +44,9 @@ char *m_escape_string(const char *string);
 char *m_unescape_string(const char *string);
 
 int readline_getc(FILE *inputFile, char *buff, int size);
-char *extract_expression(SqlStatement *stmt, const SqlTable *table, char *source);
+char *extract_expression(ydb_buffer_t *cursor_global,
+    ydb_buffer_t *cursor_exe_global, SqlStatement *stmt,
+    const SqlTable *table, char *source);
 SqlStatement *parse_line(const char *line);
 void print_temporary_table(SqlTable *table);
 int populate_data_type(SqlStatement *v, SqlValueType *type);

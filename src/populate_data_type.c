@@ -32,6 +32,9 @@ char *get_type_string(SqlValueType type) {
   case DATE_TIME:
     return "DATE TIME";
     break;
+  case TEMPORARY_TABLE_TYPE:
+    return "TEMPORARY TABLE TYPE";
+    break;
   case COLUMN_REFERENCE:
   case CALCULATED_VALUE:
   case UNKNOWN_SqlValueType:
@@ -59,6 +62,9 @@ int populate_data_type(SqlStatement *v, SqlValueType *type) {
     return 0;
 
   switch(v->type) {
+  case select_STATEMENT:
+    *type = TEMPORARY_TABLE_TYPE;
+    break;
   case value_STATEMENT:
     UNPACK_SQL_STATEMENT(value, v, value);
     switch(value->type) {
@@ -114,7 +120,7 @@ int populate_data_type(SqlStatement *v, SqlValueType *type) {
     result = populate_data_type(binary->operands[0], &child_type1);
     result |= populate_data_type(binary->operands[1], &child_type2);
     *type = child_type1;
-    if(child_type1 != child_type2) {
+    if(child_type1 != child_type2 && child_type2 != TEMPORARY_TABLE_TYPE) {
       WARNING(ERR_TYPE_MISMATCH, get_type_string(child_type1), get_type_string(child_type2));
       location = binary->operands[0]->loc;
       location.last_line = binary->operands[1]->loc.last_line;

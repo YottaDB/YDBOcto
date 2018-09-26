@@ -15,26 +15,6 @@ configure_file (
   "${PROJECT_BINARY_DIR}/activate"
 )
 
-configure_file (
-  "${PROJECT_SOURCE_DIR}/tools/calltab.ci"
-  "${PROJECT_BINARY_DIR}/calltab.ci"
-)
-
-configure_file (
-  "${PROJECT_SOURCE_DIR}/tools/select.m"
-  "${PROJECT_BINARY_DIR}/select.m"
-)
-
-configure_file (
-  "${PROJECT_SOURCE_DIR}/tools/insert.m"
-  "${PROJECT_BINARY_DIR}/INSERT.m"
-)
-
-configure_file (
-  "${PROJECT_SOURCE_DIR}/tools/pack.m"
-  "${PROJECT_BINARY_DIR}/PACK.m"
-)
-
 # Combine the parser grammars into a single file
 add_custom_command(OUTPUT ${PROJECT_BINARY_DIR}/parser.y
   DEPENDS parser.y
@@ -87,12 +67,26 @@ add_library(libocto OBJECT
   ${FLEX_OctoLexer_OUTPUTS}
 )
 
-set_property(TARGET libocto PROPERTY C_STANDARD 11)
-
 add_executable(octo
   octo.c
   $<TARGET_OBJECTS:libocto>
 )
+
+set(aux_files
+  ${PROJECT_BINARY_DIR}/calltab.ci
+  ${PROJECT_BINARY_DIR}/select.m
+  ${PROJECT_BINARY_DIR}/insert.m
+  ${PROJECT_BINARY_DIR}/pack.m
+)
+add_custom_target(place_aux_files ALL DEPENDS ${aux_files})
+foreach (auxFile ${aux_files})
+  get_filename_component(fileName ${auxFile} NAME)
+  add_custom_command(OUTPUT ${auxFile}
+    DEPENDS "${PROJECT_SOURCE_DIR}/src/aux/${fileName}"
+    COMMAND ${CMAKE_COMMAND} -E copy "${PROJECT_SOURCE_DIR}/src/aux/${fileName}" "${auxFile}")
+endforeach()
+
+set_property(TARGET libocto PROPERTY C_STANDARD 11)
 
 target_link_libraries(octo ${YOTTADB_LIBRARIES} ${Readline_LIBRARY})
 

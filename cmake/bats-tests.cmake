@@ -2,6 +2,7 @@ macro(ADD_BATS_TEST TEST_NAME)
   configure_file (
     "${PROJECT_SOURCE_DIR}/tests/${TEST_NAME}.bats.in"
     "${PROJECT_BINARY_DIR}/bats_tests/${TEST_NAME}.bats"
+    @ONLY
   )
   add_test(${TEST_NAME} ${BATS} ${PROJECT_BINARY_DIR}/bats_tests/${TEST_NAME}.bats)
 endmacro(ADD_BATS_TEST)

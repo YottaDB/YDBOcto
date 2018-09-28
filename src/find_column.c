@@ -22,20 +22,20 @@
 #include "octo_types.h"
 
 SqlColumn *find_column(char *column_name, SqlTable *table) {
-  SqlColumn *cur_column = NULL, *start_column = NULL;
-  SqlValue *value = NULL;
+	SqlColumn *cur_column = NULL, *start_column = NULL;
+	SqlValue *value = NULL;
 
-  TRACE(CUSTOM_ERROR, "Searching for column %s in table %s",
-    column_name, table->tableName->v.value->v.reference);
+	TRACE(CUSTOM_ERROR, "Searching for column %s in table %s",
+	      column_name, table->tableName->v.value->v.reference);
 
-  UNPACK_SQL_STATEMENT(start_column, table->columns, column);
-  cur_column = start_column;
-  do {
-    UNPACK_SQL_STATEMENT(value, cur_column->columnName, value);
-    if(strcmp(column_name, value->v.reference) == 0) {
-      return cur_column;
-    }
-    cur_column = cur_column->next;
-  } while(cur_column != start_column);
-  return NULL;
+	UNPACK_SQL_STATEMENT(start_column, table->columns, column);
+	cur_column = start_column;
+	do {
+		UNPACK_SQL_STATEMENT(value, cur_column->columnName, value);
+		if(strcmp(column_name, value->v.reference) == 0) {
+			return cur_column;
+		}
+		cur_column = cur_column->next;
+	} while(cur_column != start_column);
+	return NULL;
 }

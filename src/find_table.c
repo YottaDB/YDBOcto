@@ -22,21 +22,21 @@
 #include "octo_types.h"
 
 SqlTable *find_table(const char *table_name) {
-  SqlValue *tmp_value;
-  SqlTable *start_table, *cur_table;
+	SqlValue *tmp_value;
+	SqlTable *start_table, *cur_table;
 
-  TRACE(CUSTOM_ERROR, "Searching for table %s",
-    table_name);
+	TRACE(CUSTOM_ERROR, "Searching for table %s",
+	      table_name);
 
-  if(definedTables == NULL)
-    return NULL;
-  start_table = cur_table = definedTables;
-  do {
-    UNPACK_SQL_STATEMENT(tmp_value, cur_table->tableName, value);
-    if(strcmp(tmp_value->v.reference, table_name) == 0) {
-      return cur_table;
-    }
-    cur_table = cur_table->next;
-  } while(start_table != cur_table);
-  return NULL;
+	if(definedTables == NULL)
+		return NULL;
+	start_table = cur_table = definedTables;
+	do {
+		UNPACK_SQL_STATEMENT(tmp_value, cur_table->tableName, value);
+		if(strcmp(tmp_value->v.reference, table_name) == 0) {
+			return cur_table;
+		}
+		cur_table = cur_table->next;
+	} while(start_table != cur_table);
+	return NULL;
 }

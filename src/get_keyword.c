@@ -22,13 +22,13 @@
 #include "octo_types.h"
 
 SqlOptionalKeyword *get_keyword(SqlColumn *column, enum OptionalKeyword keyword) {
-  SqlOptionalKeyword *cur_keyword, *start_keyword;
+	SqlOptionalKeyword *cur_keyword, *start_keyword;
 
-  UNPACK_SQL_STATEMENT(start_keyword, column->keywords, keyword);
-  do {
-    if(cur_keyword->keyword == keyword)
-      return cur_keyword;
-    cur_keyword = cur_keyword->next;
-  } while(cur_keyword != start_keyword);
-  return NULL;
+	UNPACK_SQL_STATEMENT(start_keyword, column->keywords, keyword);
+	do {
+		if(cur_keyword->keyword == keyword)
+			return cur_keyword;
+		cur_keyword = cur_keyword->next;
+	} while(cur_keyword != start_keyword);
+	return NULL;
 }

@@ -30,224 +30,224 @@
 #define UNPACK (1 << 6)
 
 int create_table_defaults(SqlStatement *table_statement, SqlStatement *keywords_statement) {
-  SqlTable *table;
-  SqlOptionalKeyword *keyword, *cur_keyword, *start_keyword;
-  SqlColumn *pkey;
-  SqlStatement *statement;
-  char buffer[MAX_STR_CONST], *out_buffer;
-  size_t str_len;
-  unsigned int options = 0;
+	SqlTable *table;
+	SqlOptionalKeyword *keyword, *cur_keyword, *start_keyword;
+	SqlColumn *pkey;
+	SqlStatement *statement;
+	char buffer[MAX_STR_CONST], *out_buffer;
+	size_t str_len;
+	unsigned int options = 0;
 
-  assert(keywords_statement != NULL);
+	assert(keywords_statement != NULL);
 
-  UNPACK_SQL_STATEMENT(start_keyword, keywords_statement, keyword);
-  UNPACK_SQL_STATEMENT(table, table_statement, table);
-  cur_keyword = start_keyword;
-  do {
-    switch(cur_keyword->keyword) {
-    case OPTIONAL_SOURCE:
-      assert(0 == (options & SOURCE));
-      options |= SOURCE;
-      SQL_STATEMENT(statement, keyword_STATEMENT);
-      statement->v.keyword = cur_keyword;
-      table->source = statement;
-      break;
-    case OPTIONAL_CURSE:
-      assert(0 == (options & CURSE));
-      options |= CURSE;
-      SQL_STATEMENT(statement, keyword_STATEMENT);
-      statement->v.keyword = cur_keyword;
-      table->curse = statement;
-      break;
-    case OPTIONAL_START:
-      assert(0 == (options & START));
-      options |= START;
-      SQL_STATEMENT(statement, keyword_STATEMENT);
-      statement->v.keyword = cur_keyword;
-      table->start = statement;
-      break;
-    case OPTIONAL_END:
-      assert(0 == (options & END));
-      options |= END;
-      SQL_STATEMENT(statement, keyword_STATEMENT);
-      statement->v.keyword = cur_keyword;
-      table->end = statement;
-      break;
-    case OPTIONAL_DELIM:
-      assert(0 == (options & DELIM));
-      options |= DELIM;
-      SQL_STATEMENT(statement, keyword_STATEMENT);
-      statement->v.keyword = cur_keyword;
-      table->delim = statement;
-      break;
-    case OPTIONAL_PACK:
-      assert(0 == (options & PACK));
-      options |= PACK;
-      SQL_STATEMENT(statement, keyword_STATEMENT);
-      statement->v.keyword = cur_keyword;
-      table->pack = statement;
-      break;
-    case NO_KEYWORD:
-      break;
-    default:
-      FATAL(ERR_UNKNOWN_KEYWORD_STATE);
-      break;
-    }
-    cur_keyword = cur_keyword->next;
-  } while(cur_keyword != start_keyword);
-  if(options == (SOURCE | CURSE | START | END | DELIM | PACK))
-    return 0;
+	UNPACK_SQL_STATEMENT(start_keyword, keywords_statement, keyword);
+	UNPACK_SQL_STATEMENT(table, table_statement, table);
+	cur_keyword = start_keyword;
+	do {
+		switch(cur_keyword->keyword) {
+		case OPTIONAL_SOURCE:
+			assert(0 == (options & SOURCE));
+			options |= SOURCE;
+			SQL_STATEMENT(statement, keyword_STATEMENT);
+			statement->v.keyword = cur_keyword;
+			table->source = statement;
+			break;
+		case OPTIONAL_CURSE:
+			assert(0 == (options & CURSE));
+			options |= CURSE;
+			SQL_STATEMENT(statement, keyword_STATEMENT);
+			statement->v.keyword = cur_keyword;
+			table->curse = statement;
+			break;
+		case OPTIONAL_START:
+			assert(0 == (options & START));
+			options |= START;
+			SQL_STATEMENT(statement, keyword_STATEMENT);
+			statement->v.keyword = cur_keyword;
+			table->start = statement;
+			break;
+		case OPTIONAL_END:
+			assert(0 == (options & END));
+			options |= END;
+			SQL_STATEMENT(statement, keyword_STATEMENT);
+			statement->v.keyword = cur_keyword;
+			table->end = statement;
+			break;
+		case OPTIONAL_DELIM:
+			assert(0 == (options & DELIM));
+			options |= DELIM;
+			SQL_STATEMENT(statement, keyword_STATEMENT);
+			statement->v.keyword = cur_keyword;
+			table->delim = statement;
+			break;
+		case OPTIONAL_PACK:
+			assert(0 == (options & PACK));
+			options |= PACK;
+			SQL_STATEMENT(statement, keyword_STATEMENT);
+			statement->v.keyword = cur_keyword;
+			table->pack = statement;
+			break;
+		case NO_KEYWORD:
+			break;
+		default:
+			FATAL(ERR_UNKNOWN_KEYWORD_STATE);
+			break;
+		}
+		cur_keyword = cur_keyword->next;
+	} while(cur_keyword != start_keyword);
+	if(options == (SOURCE | CURSE | START | END | DELIM | PACK))
+		return 0;
 
-  pkey = fetch_primary_key_column(table);
-  if(pkey == NULL) {
-    ERROR(ERR_PRIMARY_KEY_NOT_FOUND, table->tableName->v.value->v.reference);
-    return 1;
-  }
-  assert(pkey != NULL);
-  if(!(options & SOURCE)) {
-    snprintf(buffer, MAX_STR_CONST, TEMPLATE_TABLE_DEFAULT_GLOBAL, table->tableName->v.value->v.reference);
-    str_len = strnlen(buffer, MAX_STR_CONST);
-    out_buffer = malloc(str_len + 1);
-    strncpy(out_buffer, buffer, str_len);
-    out_buffer[str_len] = '\0';
-    (keyword) = (SqlOptionalKeyword*)malloc(sizeof(SqlOptionalKeyword));
-    (keyword)->keyword = OPTIONAL_SOURCE;
-    SQL_STATEMENT(keyword->v, value_STATEMENT);
-    keyword->v->v.value = (SqlValue*)malloc(sizeof(SqlValue));
-    keyword->v->v.value->type = COLUMN_REFERENCE;
-    keyword->v->v.value->v.reference = out_buffer;
-    dqinsert(start_keyword, keyword);
-  }
-  if(!(options & CURSE)) {
-    snprintf(buffer, MAX_STR_CONST, TEMPLATE_TABLE_DEFAULT_CURSOR,
-      table->tableName->v.value->v.reference);
-    str_len = strnlen(buffer, MAX_STR_CONST);
-    out_buffer = malloc(str_len + 1);
-    strncpy(out_buffer, buffer, str_len);
-    out_buffer[str_len] = '\0';
-    (keyword) = (SqlOptionalKeyword*)malloc(sizeof(SqlOptionalKeyword));
-    (keyword)->keyword = OPTIONAL_CURSE;
-    SQL_STATEMENT(keyword->v, value_STATEMENT);
-    keyword->v->v.value = (SqlValue*)malloc(sizeof(SqlValue));
-    keyword->v->v.value->type = COLUMN_REFERENCE;
-    keyword->v->v.value->v.reference = out_buffer;
-    dqinsert(start_keyword, keyword);
-  }
-  if(!(options & START)) {
-    snprintf(buffer, MAX_STR_CONST,
-      "SET cursor=\"\"%%s\"\",keys(0)=$P($G(@cursor),\"\"|\"\",1)");
-    str_len = strnlen(buffer, MAX_STR_CONST);
-    out_buffer = malloc(str_len + 1);
-    strncpy(out_buffer, buffer, str_len);
-    out_buffer[str_len] = '\0';
-    (keyword) = (SqlOptionalKeyword*)malloc(sizeof(SqlOptionalKeyword));
-    (keyword)->keyword = OPTIONAL_START;
-    SQL_STATEMENT(keyword->v, value_STATEMENT);
-    keyword->v->v.value = (SqlValue*)malloc(sizeof(SqlValue));
-    keyword->v->v.value->type = COLUMN_REFERENCE;
-    keyword->v->v.value->v.reference = out_buffer;
-    dqinsert(start_keyword, keyword);
-  }
-  if(!(options & END)) {
-    snprintf(buffer, MAX_STR_CONST, TEMPLATE_TABLE_DEFAULT_END);
-    str_len = strnlen(buffer, MAX_STR_CONST);
-    out_buffer = malloc(str_len + 1);
-    strncpy(out_buffer, buffer, str_len);
-    out_buffer[str_len] = '\0';
-    (keyword) = (SqlOptionalKeyword*)malloc(sizeof(SqlOptionalKeyword));
-    (keyword)->keyword = OPTIONAL_END;
-    SQL_STATEMENT(keyword->v, value_STATEMENT);
-    keyword->v->v.value = (SqlValue*)malloc(sizeof(SqlValue));
-    keyword->v->v.value->type = COLUMN_REFERENCE;
-    keyword->v->v.value->v.reference = out_buffer;
-    dqinsert(start_keyword, keyword);
-  }
-  if(!(options & DELIM)) {
-    snprintf(buffer, MAX_STR_CONST, TEMPLATE_TABLE_DEFAULT_DELIM);
-    str_len = strnlen(buffer, MAX_STR_CONST);
-    out_buffer = malloc(str_len + 1);
-    strncpy(out_buffer, buffer, str_len);
-    out_buffer[str_len] = '\0';
-    (keyword) = (SqlOptionalKeyword*)malloc(sizeof(SqlOptionalKeyword));
-    (keyword)->keyword = OPTIONAL_DELIM;
-    SQL_STATEMENT(keyword->v, value_STATEMENT);
-    keyword->v->v.value = (SqlValue*)malloc(sizeof(SqlValue));
-    keyword->v->v.value->type = STRING_LITERAL;
-    keyword->v->v.value->v.reference = out_buffer;
-    dqinsert(start_keyword, keyword);
-  }
-  if(!(options & PACK)) {
-    snprintf(buffer, MAX_STR_CONST, TEMPLATE_TABLE_DEFAULT_PACK);
-    str_len = strnlen(buffer, MAX_STR_CONST);
-    out_buffer = malloc(str_len + 1);
-    strncpy(out_buffer, buffer, str_len);
-    out_buffer[str_len] = '\0';
-    (keyword) = (SqlOptionalKeyword*)malloc(sizeof(SqlOptionalKeyword));
-    (keyword)->keyword = OPTIONAL_PACK;
-    SQL_STATEMENT(keyword->v, value_STATEMENT);
-    keyword->v->v.value = (SqlValue*)malloc(sizeof(SqlValue));
-    keyword->v->v.value->type = COLUMN_REFERENCE;
-    keyword->v->v.value->v.reference = out_buffer;
-    dqinsert(start_keyword, keyword);
-  }
-  cur_keyword = start_keyword;
-  do {
-    switch(cur_keyword->keyword) {
-    case OPTIONAL_SOURCE:
-      if(table->source != NULL && table->source->v.keyword == cur_keyword)
-        break;
-      assert(table->source == NULL);
-      SQL_STATEMENT(statement, keyword_STATEMENT);
-      statement->v.keyword = cur_keyword;
-      table->source = statement;
-      break;
-    case OPTIONAL_CURSE:
-      if(table->curse != NULL && table->curse->v.keyword == cur_keyword)
-        break;
-      assert(table->curse == NULL);
-      SQL_STATEMENT(statement, keyword_STATEMENT);
-      statement->v.keyword = cur_keyword;
-      table->curse = statement;
-      break;
-    case OPTIONAL_START:
-      if(table->start != NULL && table->start->v.keyword == cur_keyword)
-        break;
-      assert(table->start == NULL);
-      SQL_STATEMENT(statement, keyword_STATEMENT);
-      statement->v.keyword = cur_keyword;
-      table->start = statement;
-      break;
-    case OPTIONAL_END:
-      if(table->end != NULL && table->end->v.keyword == cur_keyword)
-        break;
-      assert(table->end == NULL);
-      SQL_STATEMENT(statement, keyword_STATEMENT);
-      statement->v.keyword = cur_keyword;
-      table->end = statement;
-      break;
-    case OPTIONAL_DELIM:
-      if(table->delim != NULL && table->delim->v.keyword == cur_keyword)
-        break;
-      assert(table->delim == NULL);
-      SQL_STATEMENT(statement, keyword_STATEMENT);
-      statement->v.keyword = cur_keyword;
-      table->delim = statement;
-      break;
-    case NO_KEYWORD:
-      break;
-    case OPTIONAL_PACK:
-      if(table->pack != NULL && table->pack->v.keyword == cur_keyword)
-        break;
-      assert(table->pack == NULL);
-      SQL_STATEMENT(statement, keyword_STATEMENT);
-      statement->v.keyword = cur_keyword;
-      table->pack = statement;
-      break;
-    default:
-      FATAL(ERR_UNKNOWN_KEYWORD_STATE);
-      break;
-    }
-    cur_keyword = cur_keyword->next;
-  } while(cur_keyword != start_keyword);
-  return 0;
+	pkey = fetch_primary_key_column(table);
+	if(pkey == NULL) {
+		ERROR(ERR_PRIMARY_KEY_NOT_FOUND, table->tableName->v.value->v.reference);
+		return 1;
+	}
+	assert(pkey != NULL);
+	if(!(options & SOURCE)) {
+		snprintf(buffer, MAX_STR_CONST, TEMPLATE_TABLE_DEFAULT_GLOBAL, table->tableName->v.value->v.reference);
+		str_len = strnlen(buffer, MAX_STR_CONST);
+		out_buffer = malloc(str_len + 1);
+		strncpy(out_buffer, buffer, str_len);
+		out_buffer[str_len] = '\0';
+		(keyword) = (SqlOptionalKeyword*)malloc(sizeof(SqlOptionalKeyword));
+		(keyword)->keyword = OPTIONAL_SOURCE;
+		SQL_STATEMENT(keyword->v, value_STATEMENT);
+		keyword->v->v.value = (SqlValue*)malloc(sizeof(SqlValue));
+		keyword->v->v.value->type = COLUMN_REFERENCE;
+		keyword->v->v.value->v.reference = out_buffer;
+		dqinsert(start_keyword, keyword);
+	}
+	if(!(options & CURSE)) {
+		snprintf(buffer, MAX_STR_CONST, TEMPLATE_TABLE_DEFAULT_CURSOR,
+		         table->tableName->v.value->v.reference);
+		str_len = strnlen(buffer, MAX_STR_CONST);
+		out_buffer = malloc(str_len + 1);
+		strncpy(out_buffer, buffer, str_len);
+		out_buffer[str_len] = '\0';
+		(keyword) = (SqlOptionalKeyword*)malloc(sizeof(SqlOptionalKeyword));
+		(keyword)->keyword = OPTIONAL_CURSE;
+		SQL_STATEMENT(keyword->v, value_STATEMENT);
+		keyword->v->v.value = (SqlValue*)malloc(sizeof(SqlValue));
+		keyword->v->v.value->type = COLUMN_REFERENCE;
+		keyword->v->v.value->v.reference = out_buffer;
+		dqinsert(start_keyword, keyword);
+	}
+	if(!(options & START)) {
+		snprintf(buffer, MAX_STR_CONST,
+		         "SET cursor=\"\"%%s\"\",keys(0)=$P($G(@cursor),\"\"|\"\",1)");
+		str_len = strnlen(buffer, MAX_STR_CONST);
+		out_buffer = malloc(str_len + 1);
+		strncpy(out_buffer, buffer, str_len);
+		out_buffer[str_len] = '\0';
+		(keyword) = (SqlOptionalKeyword*)malloc(sizeof(SqlOptionalKeyword));
+		(keyword)->keyword = OPTIONAL_START;
+		SQL_STATEMENT(keyword->v, value_STATEMENT);
+		keyword->v->v.value = (SqlValue*)malloc(sizeof(SqlValue));
+		keyword->v->v.value->type = COLUMN_REFERENCE;
+		keyword->v->v.value->v.reference = out_buffer;
+		dqinsert(start_keyword, keyword);
+	}
+	if(!(options & END)) {
+		snprintf(buffer, MAX_STR_CONST, TEMPLATE_TABLE_DEFAULT_END);
+		str_len = strnlen(buffer, MAX_STR_CONST);
+		out_buffer = malloc(str_len + 1);
+		strncpy(out_buffer, buffer, str_len);
+		out_buffer[str_len] = '\0';
+		(keyword) = (SqlOptionalKeyword*)malloc(sizeof(SqlOptionalKeyword));
+		(keyword)->keyword = OPTIONAL_END;
+		SQL_STATEMENT(keyword->v, value_STATEMENT);
+		keyword->v->v.value = (SqlValue*)malloc(sizeof(SqlValue));
+		keyword->v->v.value->type = COLUMN_REFERENCE;
+		keyword->v->v.value->v.reference = out_buffer;
+		dqinsert(start_keyword, keyword);
+	}
+	if(!(options & DELIM)) {
+		snprintf(buffer, MAX_STR_CONST, TEMPLATE_TABLE_DEFAULT_DELIM);
+		str_len = strnlen(buffer, MAX_STR_CONST);
+		out_buffer = malloc(str_len + 1);
+		strncpy(out_buffer, buffer, str_len);
+		out_buffer[str_len] = '\0';
+		(keyword) = (SqlOptionalKeyword*)malloc(sizeof(SqlOptionalKeyword));
+		(keyword)->keyword = OPTIONAL_DELIM;
+		SQL_STATEMENT(keyword->v, value_STATEMENT);
+		keyword->v->v.value = (SqlValue*)malloc(sizeof(SqlValue));
+		keyword->v->v.value->type = STRING_LITERAL;
+		keyword->v->v.value->v.reference = out_buffer;
+		dqinsert(start_keyword, keyword);
+	}
+	if(!(options & PACK)) {
+		snprintf(buffer, MAX_STR_CONST, TEMPLATE_TABLE_DEFAULT_PACK);
+		str_len = strnlen(buffer, MAX_STR_CONST);
+		out_buffer = malloc(str_len + 1);
+		strncpy(out_buffer, buffer, str_len);
+		out_buffer[str_len] = '\0';
+		(keyword) = (SqlOptionalKeyword*)malloc(sizeof(SqlOptionalKeyword));
+		(keyword)->keyword = OPTIONAL_PACK;
+		SQL_STATEMENT(keyword->v, value_STATEMENT);
+		keyword->v->v.value = (SqlValue*)malloc(sizeof(SqlValue));
+		keyword->v->v.value->type = COLUMN_REFERENCE;
+		keyword->v->v.value->v.reference = out_buffer;
+		dqinsert(start_keyword, keyword);
+	}
+	cur_keyword = start_keyword;
+	do {
+		switch(cur_keyword->keyword) {
+		case OPTIONAL_SOURCE:
+			if(table->source != NULL && table->source->v.keyword == cur_keyword)
+				break;
+			assert(table->source == NULL);
+			SQL_STATEMENT(statement, keyword_STATEMENT);
+			statement->v.keyword = cur_keyword;
+			table->source = statement;
+			break;
+		case OPTIONAL_CURSE:
+			if(table->curse != NULL && table->curse->v.keyword == cur_keyword)
+				break;
+			assert(table->curse == NULL);
+			SQL_STATEMENT(statement, keyword_STATEMENT);
+			statement->v.keyword = cur_keyword;
+			table->curse = statement;
+			break;
+		case OPTIONAL_START:
+			if(table->start != NULL && table->start->v.keyword == cur_keyword)
+				break;
+			assert(table->start == NULL);
+			SQL_STATEMENT(statement, keyword_STATEMENT);
+			statement->v.keyword = cur_keyword;
+			table->start = statement;
+			break;
+		case OPTIONAL_END:
+			if(table->end != NULL && table->end->v.keyword == cur_keyword)
+				break;
+			assert(table->end == NULL);
+			SQL_STATEMENT(statement, keyword_STATEMENT);
+			statement->v.keyword = cur_keyword;
+			table->end = statement;
+			break;
+		case OPTIONAL_DELIM:
+			if(table->delim != NULL && table->delim->v.keyword == cur_keyword)
+				break;
+			assert(table->delim == NULL);
+			SQL_STATEMENT(statement, keyword_STATEMENT);
+			statement->v.keyword = cur_keyword;
+			table->delim = statement;
+			break;
+		case NO_KEYWORD:
+			break;
+		case OPTIONAL_PACK:
+			if(table->pack != NULL && table->pack->v.keyword == cur_keyword)
+				break;
+			assert(table->pack == NULL);
+			SQL_STATEMENT(statement, keyword_STATEMENT);
+			statement->v.keyword = cur_keyword;
+			table->pack = statement;
+			break;
+		default:
+			FATAL(ERR_UNKNOWN_KEYWORD_STATE);
+			break;
+		}
+		cur_keyword = cur_keyword->next;
+	} while(cur_keyword != start_keyword);
+	return 0;
 }

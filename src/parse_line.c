@@ -27,23 +27,23 @@
  * @returns the parsed statement, or NULL if there was an error parsing.
  */
 SqlStatement *parse_line(const char *line) {
-  SqlStatement *result = 0;
-  yyscan_t scanner;
-  YY_BUFFER_STATE state;
-  int status;
+	SqlStatement *result = 0;
+	yyscan_t scanner;
+	YY_BUFFER_STATE state;
+	int status;
 
-  strncpy(input_buffer_combined, line, MAX_STR_CONST);
+	strncpy(input_buffer_combined, line, MAX_STR_CONST);
 
-  if (yylex_init(&scanner))
-    FATAL(ERR_INIT_SCANNER);
+	if (yylex_init(&scanner))
+		FATAL(ERR_INIT_SCANNER);
 
-  state = yy_scan_string(line, scanner);
-  if(yyparse(scanner, &result))
-  {
-    ERROR(ERR_PARSING_COMMAND, input_buffer_combined);
-    return NULL;
-  }
-  yy_delete_buffer(state, scanner);
-  yylex_destroy(scanner);
-  return result;
+	state = yy_scan_string(line, scanner);
+	if(yyparse(scanner, &result))
+	{
+		ERROR(ERR_PARSING_COMMAND, input_buffer_combined);
+		return NULL;
+	}
+	yy_delete_buffer(state, scanner);
+	yylex_destroy(scanner);
+	return result;
 }

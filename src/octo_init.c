@@ -22,11 +22,11 @@
 #include "octo_types.h"
 
 int octo_init() {
-  config = malloc(sizeof(OctoConfig));
-  config->record_error_level = WARNING;
-  config->dry_run = FALSE;
-  
-  definedTables = NULL;
+	config = malloc(sizeof(OctoConfig));
+	config->record_error_level = WARNING;
+	config->dry_run = FALSE;
 
-  return 0;
+	definedTables = NULL;
+
+	return 0;
 }

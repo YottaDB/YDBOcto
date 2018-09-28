@@ -22,20 +22,20 @@
 #include "octo_types.h"
 
 void get_table_parts(SqlTable *table, char **curse, char **start, char **end,
-    char **source) {
-  SqlValue *value;
-  SqlOptionalKeyword *keyword;
+                     char **source) {
+	SqlValue *value;
+	SqlOptionalKeyword *keyword;
 
-  UNPACK_SQL_STATEMENT(keyword, table->curse, keyword);
-  UNPACK_SQL_STATEMENT(value, keyword->v, value);
-  (*curse) = m_unescape_string(value->v.string_literal);
-  UNPACK_SQL_STATEMENT(keyword, table->source, keyword);
-  UNPACK_SQL_STATEMENT(value, keyword->v, value);
-  (*source) = m_unescape_string(value->v.string_literal);
-  UNPACK_SQL_STATEMENT(keyword, table->start, keyword);
-  UNPACK_SQL_STATEMENT(value, keyword->v, value);
-  (*start) = m_unescape_string(value->v.string_literal);
-  UNPACK_SQL_STATEMENT(keyword, table->end, keyword);
-  UNPACK_SQL_STATEMENT(value, keyword->v, value);
-  (*end) = m_unescape_string(value->v.string_literal);
+	UNPACK_SQL_STATEMENT(keyword, table->curse, keyword);
+	UNPACK_SQL_STATEMENT(value, keyword->v, value);
+	(*curse) = m_unescape_string(value->v.string_literal);
+	UNPACK_SQL_STATEMENT(keyword, table->source, keyword);
+	UNPACK_SQL_STATEMENT(value, keyword->v, value);
+	(*source) = m_unescape_string(value->v.string_literal);
+	UNPACK_SQL_STATEMENT(keyword, table->start, keyword);
+	UNPACK_SQL_STATEMENT(value, keyword->v, value);
+	(*start) = m_unescape_string(value->v.string_literal);
+	UNPACK_SQL_STATEMENT(keyword, table->end, keyword);
+	UNPACK_SQL_STATEMENT(value, keyword->v, value);
+	(*end) = m_unescape_string(value->v.string_literal);
 }

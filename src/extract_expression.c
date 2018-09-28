@@ -24,127 +24,127 @@
  * WARNING: caller is responsible for freeing the buffer
  */
 char *extract_expression(ydb_buffer_t *cursor_global,
-    ydb_buffer_t *cursor_exe_global,
-    SqlStatement *stmt, const SqlTable *table, char *source)
+                         ydb_buffer_t *cursor_exe_global,
+                         SqlStatement *stmt, const SqlTable *table, char *source)
 {
-  SqlStatement *calculated;
-  SqlOptionalKeyword *keyword;
-  SqlBinaryOperation *binary;
-  SqlValue *value;
-  SqlTable *sub_table;
-  char *buffer = malloc(MAX_EXPRESSION_LENGTH);
-  char *tmp1,  *tmp2, *tmp3;
+	SqlStatement *calculated;
+	SqlOptionalKeyword *keyword;
+	SqlBinaryOperation *binary;
+	SqlValue *value;
+	SqlTable *sub_table;
+	char *buffer = malloc(MAX_EXPRESSION_LENGTH);
+	char *tmp1,  *tmp2, *tmp3;
 
-  switch(stmt->type)
-  {
-  case select_STATEMENT:
-    buffer[0] = '\0'; // this is a special case hopefully only seen by IN
-    break;
-  case value_STATEMENT:
-    value = stmt->v.value;
-    switch(value->type)
-    {
-    case STRING_LITERAL:
-      snprintf(buffer, MAX_EXPRESSION_LENGTH, "\"%s\"", value->v.string_literal);
-      break;
-    case NUMBER_LITERAL:
-      snprintf(buffer, MAX_EXPRESSION_LENGTH, "%s", value->v.string_literal);
-      break;
-    case COLUMN_REFERENCE:
-      emit_simple_select(buffer, table, value->v.reference, source);
-      break;
-    case CALCULATED_VALUE:
-      calculated = value->v.calculated;
-      switch(calculated->type)
-      {
-      case value_STATEMENT:
-        tmp1 = extract_expression(cursor_global, cursor_exe_global, calculated, table, source);
-        snprintf(buffer, MAX_EXPRESSION_LENGTH, "%s", tmp1);
-        free(tmp1);
-        break;
-      case binary_STATEMENT:
-        free(buffer);
-        buffer = extract_expression(cursor_global, cursor_exe_global, calculated, table, source);
-        break;
-      default:
-        FATAL(ERR_UNKNOWN_KEYWORD_STATE);
-      }
-      break;
-    default:
-      FATAL(ERR_UNKNOWN_KEYWORD_STATE);
-    }
-    break;
-  case binary_STATEMENT:
-    UNPACK_SQL_STATEMENT(binary, stmt, binary);
-    binary = stmt->v.binary;
-    tmp1 = extract_expression(cursor_global, cursor_exe_global, binary->operands[0], table, source);
-    tmp2 = extract_expression(cursor_global, cursor_exe_global, binary->operands[1], table, source);
-    switch(binary->operation)
-    {
-    case ADDITION:
-      tmp3 = "+";
-      break;
-    case SUBTRACTION:
-      tmp3 = "-";
-      break;
-    case DVISION:
-      tmp3 = "/";
-      break;
-    case MULTIPLICATION:
-      tmp3 = "*";
-      break;
-    case CONCAT:
-      tmp3 = "_";
-      break;
-    case BOOLEAN_OR:
-      tmp3 = "!";
-      break;
-    case BOOLEAN_AND:
-      tmp3 = "&";
-      break;
-    case BOOLEAN_IS:
-      tmp3 = "_";
-      FATAL(ERR_FEATURE_NOT_IMPLEMENTED, "BOOLEAN_IS");
-      break;
-    case BOOLEAN_EQUALS:
-      tmp3 = "=";
-      break;
-    case BOOLEAN_NOT_EQUALS:
-      tmp3 = "'=";
-      break;
-    case BOOLEAN_LESS_THAN:
-      tmp3 = "<";
-      break;
-    case BOOLEAN_GREATER_THAN:
-      tmp3 = ">";
-      break;
-    case BOOLEAN_LESS_THAN_OR_EQUALS:
-      tmp3 = "'>'";
-      break;
-    case BOOLEAN_GREATER_THAN_OR_EQUALS:
-      tmp3 = "'<'";
-      break;
-    case BOOLEAN_IN:
-    case BOOLEAN_NOT_IN:
-      /* This is a somewhat special case since we need to evaluate the
-          temporary table passed as the second argument */
-      sub_table = emit_xref_table(cursor_global, cursor_exe_global, binary->operands[1]);
-      // The generated table should be a single column table with the primary key
-      //  being the only column
-      free(tmp2);
-      //UNPACK_SQL_STATEMENT(keyword, sub_table->tableName, keyword);
-      UNPACK_SQL_STATEMENT(value, sub_table->tableName, value);
-      snprintf(buffer, MAX_EXPRESSION_LENGTH, "($D(^%s(%s))'=0)",
-        value->v.reference, tmp1);
-      return buffer;
-      break;
-    default:
-      FATAL(ERR_UNKNOWN_KEYWORD_STATE);
-    }
-    snprintf(buffer, MAX_EXPRESSION_LENGTH, "(%s%s%s)", tmp1, tmp3, tmp2);
-    break;
-  default:
-    FATAL(ERR_UNKNOWN_KEYWORD_STATE);
-  }
-  return buffer;
+	switch(stmt->type)
+	{
+	case select_STATEMENT:
+		buffer[0] = '\0'; // this is a special case hopefully only seen by IN
+		break;
+	case value_STATEMENT:
+		value = stmt->v.value;
+		switch(value->type)
+		{
+		case STRING_LITERAL:
+			snprintf(buffer, MAX_EXPRESSION_LENGTH, "\"%s\"", value->v.string_literal);
+			break;
+		case NUMBER_LITERAL:
+			snprintf(buffer, MAX_EXPRESSION_LENGTH, "%s", value->v.string_literal);
+			break;
+		case COLUMN_REFERENCE:
+			emit_simple_select(buffer, table, value->v.reference, source);
+			break;
+		case CALCULATED_VALUE:
+			calculated = value->v.calculated;
+			switch(calculated->type)
+			{
+			case value_STATEMENT:
+				tmp1 = extract_expression(cursor_global, cursor_exe_global, calculated, table, source);
+				snprintf(buffer, MAX_EXPRESSION_LENGTH, "%s", tmp1);
+				free(tmp1);
+				break;
+			case binary_STATEMENT:
+				free(buffer);
+				buffer = extract_expression(cursor_global, cursor_exe_global, calculated, table, source);
+				break;
+			default:
+				FATAL(ERR_UNKNOWN_KEYWORD_STATE);
+			}
+			break;
+		default:
+			FATAL(ERR_UNKNOWN_KEYWORD_STATE);
+		}
+		break;
+	case binary_STATEMENT:
+		UNPACK_SQL_STATEMENT(binary, stmt, binary);
+		binary = stmt->v.binary;
+		tmp1 = extract_expression(cursor_global, cursor_exe_global, binary->operands[0], table, source);
+		tmp2 = extract_expression(cursor_global, cursor_exe_global, binary->operands[1], table, source);
+		switch(binary->operation)
+		{
+		case ADDITION:
+			tmp3 = "+";
+			break;
+		case SUBTRACTION:
+			tmp3 = "-";
+			break;
+		case DVISION:
+			tmp3 = "/";
+			break;
+		case MULTIPLICATION:
+			tmp3 = "*";
+			break;
+		case CONCAT:
+			tmp3 = "_";
+			break;
+		case BOOLEAN_OR:
+			tmp3 = "!";
+			break;
+		case BOOLEAN_AND:
+			tmp3 = "&";
+			break;
+		case BOOLEAN_IS:
+			tmp3 = "_";
+			FATAL(ERR_FEATURE_NOT_IMPLEMENTED, "BOOLEAN_IS");
+			break;
+		case BOOLEAN_EQUALS:
+			tmp3 = "=";
+			break;
+		case BOOLEAN_NOT_EQUALS:
+			tmp3 = "'=";
+			break;
+		case BOOLEAN_LESS_THAN:
+			tmp3 = "<";
+			break;
+		case BOOLEAN_GREATER_THAN:
+			tmp3 = ">";
+			break;
+		case BOOLEAN_LESS_THAN_OR_EQUALS:
+			tmp3 = "'>'";
+			break;
+		case BOOLEAN_GREATER_THAN_OR_EQUALS:
+			tmp3 = "'<'";
+			break;
+		case BOOLEAN_IN:
+		case BOOLEAN_NOT_IN:
+			/* This is a somewhat special case since we need to evaluate the
+			    temporary table passed as the second argument */
+			sub_table = emit_xref_table(cursor_global, cursor_exe_global, binary->operands[1]);
+			// The generated table should be a single column table with the primary key
+			//  being the only column
+			free(tmp2);
+			//UNPACK_SQL_STATEMENT(keyword, sub_table->tableName, keyword);
+			UNPACK_SQL_STATEMENT(value, sub_table->tableName, value);
+			snprintf(buffer, MAX_EXPRESSION_LENGTH, "($D(^%s(%s))'=0)",
+			         value->v.reference, tmp1);
+			return buffer;
+			break;
+		default:
+			FATAL(ERR_UNKNOWN_KEYWORD_STATE);
+		}
+		snprintf(buffer, MAX_EXPRESSION_LENGTH, "(%s%s%s)", tmp1, tmp3, tmp2);
+		break;
+	default:
+		FATAL(ERR_UNKNOWN_KEYWORD_STATE);
+	}
+	return buffer;
 }

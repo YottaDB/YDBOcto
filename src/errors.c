@@ -12,61 +12,61 @@
 const char *log_prefix = "[%5s] %04d-%02d-%02d %02d:%02d:%02d : ";
 
 void octo_log(enum ERROR_LEVEL level, enum ERROR error, ...) {
-  va_list args;
-  va_start(args, error);
-  const char *type;
-  time_t log_time;
-  struct tm local_time;
+	va_list args;
+	va_start(args, error);
+	const char *type;
+	time_t log_time;
+	struct tm local_time;
 
-  if(level < config->record_error_level)
-    return;
+	if(level < config->record_error_level)
+		return;
 
-  log_time = time(NULL);
-  local_time = *localtime(&log_time);
+	log_time = time(NULL);
+	local_time = *localtime(&log_time);
 
-  switch(level) {
-  case TRACE:
-    type = "TRACE";
-    break;
-  case INFO:
-    type = "INFO";
-    break;
-  case DEBUG:
-    type = "DEBUG";
-    break;
-  case WARNING:
-    type = "WARN";
-    break;
-  case ERROR:
-    type = "ERROR";
-    break;
-  case FATAL:
-    type = "FATAL";
-    break;
-  default:
-    type = "UNKNW";
-    break;
-  }
-  fprintf(stderr, log_prefix, type,
-    local_time.tm_year + 1900,
-    local_time.tm_mon + 1,
-    local_time.tm_mday,
-    local_time.tm_hour,
-    local_time.tm_min,
-    local_time.tm_sec);
-  switch(error) {
-  case CUSTOM_ERROR:
-    vfprintf(stderr, va_arg(args, const char *), args);
-    break;
-  default:
-    vfprintf(stderr, err_format_str[error], args);
-    break;
-  }
-  va_end(args);
-  fprintf(stderr, "\n");
-  if(level == FATAL) {
-    ydb_fork_n_core();
-    exit(error);
-  }
-  return;
+	switch(level) {
+	case TRACE:
+		type = "TRACE";
+		break;
+	case INFO:
+		type = "INFO";
+		break;
+	case DEBUG:
+		type = "DEBUG";
+		break;
+	case WARNING:
+		type = "WARN";
+		break;
+	case ERROR:
+		type = "ERROR";
+		break;
+	case FATAL:
+		type = "FATAL";
+		break;
+	default:
+		type = "UNKNW";
+		break;
+	}
+	fprintf(stderr, log_prefix, type,
+	        local_time.tm_year + 1900,
+	        local_time.tm_mon + 1,
+	        local_time.tm_mday,
+	        local_time.tm_hour,
+	        local_time.tm_min,
+	        local_time.tm_sec);
+	switch(error) {
+	case CUSTOM_ERROR:
+		vfprintf(stderr, va_arg(args, const char *), args);
+		break;
+	default:
+		vfprintf(stderr, err_format_str[error], args);
+		break;
+	}
+	va_end(args);
+	fprintf(stderr, "\n");
+	if(level == FATAL) {
+		ydb_fork_n_core();
+		exit(error);
+	}
+	return;
 }

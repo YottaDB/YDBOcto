@@ -11,6 +11,11 @@
 
 const char *log_prefix = "[%5s] %04d-%02d-%02d %02d:%02d:%02d : ";
 
+/**
+ * Logs error at level, formatting output and sending to the correct location.
+ *
+ * If level is FATAL, terminates the process and calls ydb_fork_n_core
+ */
 void octo_log(enum ERROR_LEVEL level, enum ERROR error, ...) {
 	va_list args;
 	va_start(args, error);
@@ -43,9 +48,6 @@ void octo_log(enum ERROR_LEVEL level, enum ERROR error, ...) {
 	case FATAL:
 		type = "FATAL";
 		break;
-	default:
-		type = "UNKNW";
-		break;
 	}
 	fprintf(stderr, log_prefix, type,
 	        local_time.tm_year + 1900,
@@ -54,13 +56,10 @@ void octo_log(enum ERROR_LEVEL level, enum ERROR error, ...) {
 	        local_time.tm_hour,
 	        local_time.tm_min,
 	        local_time.tm_sec);
-	switch(error) {
-	case CUSTOM_ERROR:
+	if(error == CUSTOM_ERROR) {
 		vfprintf(stderr, va_arg(args, const char *), args);
-		break;
-	default:
+	} else {
 		vfprintf(stderr, err_format_str[error], args);
-		break;
 	}
 	va_end(args);
 	fprintf(stderr, "\n");

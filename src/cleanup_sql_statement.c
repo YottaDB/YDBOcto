@@ -11,7 +11,6 @@ void cleanup_sql_statement(SqlStatement *stmt)
 	SqlColumnList *cur_column_list, *start_column_list;
 	SqlJoin *cur_join, *start_join;
 	SqlInsertStatement *insert;
-	SqlStatement *tmp_statement = NULL;
 	if(stmt == NULL)
 		return;
 	switch(stmt->type)
@@ -155,5 +154,6 @@ void cleanup_sql_statement(SqlStatement *stmt)
 		break;
 	default:
 		FATAL(ERR_UNKNOWN_KEYWORD_STATE);
+		break;
 	}
 }

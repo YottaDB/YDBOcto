@@ -25,6 +25,7 @@ SqlOptionalKeyword *get_keyword(SqlColumn *column, enum OptionalKeyword keyword)
 	SqlOptionalKeyword *cur_keyword, *start_keyword;
 
 	UNPACK_SQL_STATEMENT(start_keyword, column->keywords, keyword);
+	cur_keyword = start_keyword;
 	do {
 		if(cur_keyword->keyword == keyword)
 			return cur_keyword;

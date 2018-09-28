@@ -31,14 +31,12 @@ SqlTable *emit_insert_statement(ydb_buffer_t *cursor_global,
 	int status = 0, columnId=2;
 	size_t output_buffer_size = 0, insert_string_buffer_size = 0;
 	SqlInsertStatement *insert;
-	SqlSelectStatement *select;
 	SqlColumn *start_column, *cur_column;
 	SqlTable *source_table;
 	SqlValue *value, *value2;
 	char *curse, *start, *end, *source, *formatted_start, temp_cursor_name[MAX_STR_CONST];
 	char buffer[MAX_STR_CONST], buffer2[MAX_STR_CONST];
 	ydb_buffer_t z_status, z_status_value;
-	ydb_buffer_t schema_global, latest_schema_id;
 	ydb_buffer_t m_exe_buffer_value;
 
 	TRACE(ERR_ENTERING_FUNCTION, "emit_insert_statement");
@@ -65,6 +63,7 @@ SqlTable *emit_insert_statement(ydb_buffer_t *cursor_global,
 	snprintf(temp_cursor_name, MAX_STR_CONST, "^cursor(%s)", cursor_exe_global[0].buf_addr);
 	snprintf(formatted_start, MAX_STR_CONST, start, temp_cursor_name);
 	fprintf(output, TEMPLATE_SELECT_BASIC, formatted_start, curse, end, end, end);
+	free(formatted_start);
 
 	fprintf(insert_string, "SET row=\"\"");
 	UNPACK_SQL_STATEMENT(value2, insert->destination->tableName, value);

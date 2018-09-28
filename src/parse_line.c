@@ -30,7 +30,6 @@ SqlStatement *parse_line(const char *line) {
 	SqlStatement *result = 0;
 	yyscan_t scanner;
 	YY_BUFFER_STATE state;
-	int status;
 
 	strncpy(input_buffer_combined, line, MAX_STR_CONST);
 

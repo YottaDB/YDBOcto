@@ -10,23 +10,21 @@
  * Returns a buffer containing some M code which can be used to retrieve columns from
  *  the specified global
  *
- * The global should be in the form of ^someGlobal(<columnName>)
- *
  * WARNING: caller is responsible for freeing the buffer
  */
-void emit_simple_select(char *output, const SqlTable *table, const char *column, char *source)
+void emit_simple_select(char *output, const SqlTable *table, const char *column_name, char *source_raw)
 {
 	SqlValue *tmp_value;
 	SqlColumn *cur_column, *start_column;
 	SqlOptionalKeyword *start_keyword, *cur_keyword;
-	char *global, *temp;
-	const char *c;
+	char *temp, *source = source_raw;
+	const char *c, *column = column_name;
 	char *delim="|", *piece_string = NULL;
 	int piece_number;
 
 	/* Assert that this is a qualified references for this table */
 	for(c = column; *c != '.' && *c != '\0'; c++) {
-		// Empty
+		// Intentionally left blank
 	}
 	assert(*c == '.');
 	assert(strncmp(table->tableName->v.value->v.reference, column, c - column) == 0);
@@ -56,7 +54,6 @@ void emit_simple_select(char *output, const SqlTable *table, const char *column,
 			snprintf(output, MAX_EXPRESSION_LENGTH, "%s", temp);
 			free(temp);
 			return;
-			break;
 		case OPTIONAL_PIECE:
 			UNPACK_SQL_STATEMENT(tmp_value, cur_keyword->v, value);
 			piece_string = m_unescape_string(tmp_value->v.string_literal);
@@ -68,7 +65,6 @@ void emit_simple_select(char *output, const SqlTable *table, const char *column,
 		case PRIMARY_KEY:
 			snprintf(output, MAX_EXPRESSION_LENGTH, "keys(0)");
 			return;
-			break;
 		case NOT_NULL:
 		case UNIQUE_CONSTRAINT:
 		case NO_KEYWORD:

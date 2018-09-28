@@ -25,21 +25,18 @@ char *get_type_string(SqlValueType type) {
 	switch(type) {
 	case NUMBER_LITERAL:
 		return "NUMBER";
-		break;
 	case STRING_LITERAL:
 		return "STRING";
-		break;
 	case DATE_TIME:
 		return "DATE TIME";
-		break;
 	case TEMPORARY_TABLE_TYPE:
 		return "TEMPORARY TABLE TYPE";
-		break;
 	case COLUMN_REFERENCE:
 	case CALCULATED_VALUE:
 	case UNKNOWN_SqlValueType:
 	default:
 		FATAL(ERR_UNKNOWN_KEYWORD_STATE);
+		break;
 	}
 	return "";
 }
@@ -100,10 +97,12 @@ int populate_data_type(SqlStatement *v, SqlValueType *type) {
 				break;
 			case DATE_TIME_TYPE:
 				*type = DATE_TIME;
+				break;
 			case INTERVAL_TYPE:
 			case UNKNOWN_SqlDataType:
 			default:
 				FATAL(ERR_UNKNOWN_KEYWORD_STATE);
+				break;
 			}
 			break;
 		case NUMBER_LITERAL:
@@ -113,6 +112,7 @@ int populate_data_type(SqlStatement *v, SqlValueType *type) {
 			break;
 		default:
 			FATAL(ERR_UNKNOWN_KEYWORD_STATE);
+			break;
 		}
 		break;
 	case binary_STATEMENT:
@@ -144,6 +144,7 @@ int populate_data_type(SqlStatement *v, SqlValueType *type) {
 		break;
 	default:
 		FATAL(ERR_UNKNOWN_KEYWORD_STATE);
+		break;
 	}
 	return result;
 }

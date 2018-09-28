@@ -1,0 +1,15 @@
+
+
+OCLint Report
+
+Summary: TotalFiles=26 FilesWithViolations=5 P1=0 P2=2 P3=5 
+
+src/octo.c:34:1: high ncss method [size|P2] Method of 265 non-commenting source statements exceeds limit of 250
+src/yyerror.c:25:30: unused method parameter [unused|P3] The parameter 'scan' is unused.
+src/yyerror.c:25:45: unused method parameter [unused|P3] The parameter 'out' is unused.
+src/emit_create_table.c:128:32: unused method parameter [unused|P3] The parameter 'output' is unused.
+src/emit_create_table.c:128:46: unused method parameter [unused|P3] The parameter 'column' is unused.
+src/emit_select_statement.c:35:33: unused method parameter [unused|P3] The parameter 'destination_table' is unused.
+src/print_temporary_table.c:36:87: empty while statement [empty|P2] 
+
+[OCLint (http://oclint.org) v0.13.1]

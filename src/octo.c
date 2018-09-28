@@ -33,7 +33,7 @@ extern int yydebug;
 
 int main(int argc, char **argv)
 {
-	int c, error = 0, i = 0, status;
+	int c, error = 0, status;
 	int done;
 	char *buffer;
 	size_t buffer_size = 0;
@@ -42,7 +42,6 @@ int main(int argc, char **argv)
 	SqlValue *value;
 	SqlTable *table;
 	SqlStatement *result = 0;
-	SqlSelectStatement *select;
 	SqlStatement *tmp_statement;
 	ydb_buffer_t schema_global, table_name_buffer, table_create_buffer, null_buffer;
 	ydb_buffer_t cursor_global, cursor_exe_global[3];
@@ -53,19 +52,6 @@ int main(int argc, char **argv)
 	octo_init();
 
 	inputFile = NULL;
-	table_name_buffer.buf_addr = malloc(MAX_STR_CONST);
-	table_name_buffer.len_used = 0;
-	table_name_buffer.len_alloc = MAX_STR_CONST;
-	table_create_buffer.buf_addr = malloc(MAX_STR_CONST);
-	table_create_buffer.len_used = 0;
-	table_create_buffer.len_alloc = MAX_STR_CONST;
-
-	YDB_LITERAL_TO_BUFFER("^schema", &schema_global);
-	YDB_LITERAL_TO_BUFFER("", &null_buffer);
-	YDB_LITERAL_TO_BUFFER("^cursor", &cursor_global);
-	INIT_YDB_BUFFER(&cursor_exe_global[0], MAX_STR_CONST);
-	YDB_LITERAL_TO_BUFFER("exe", &cursor_exe_global[1]);
-	INIT_YDB_BUFFER(&cursor_exe_global[2], MAX_STR_CONST);
 
 	/* Parse input parameters */
 	while (1)
@@ -118,6 +104,19 @@ int main(int argc, char **argv)
 			return 1;
 		}
 	}
+	table_name_buffer.buf_addr = malloc(MAX_STR_CONST);
+	table_name_buffer.len_used = 0;
+	table_name_buffer.len_alloc = MAX_STR_CONST;
+	table_create_buffer.buf_addr = malloc(MAX_STR_CONST);
+	table_create_buffer.len_used = 0;
+	table_create_buffer.len_alloc = MAX_STR_CONST;
+
+	YDB_LITERAL_TO_BUFFER("^schema", &schema_global);
+	YDB_LITERAL_TO_BUFFER("", &null_buffer);
+	YDB_LITERAL_TO_BUFFER("^cursor", &cursor_global);
+	INIT_YDB_BUFFER(&cursor_exe_global[0], MAX_STR_CONST);
+	YDB_LITERAL_TO_BUFFER("exe", &cursor_exe_global[1]);
+	INIT_YDB_BUFFER(&cursor_exe_global[2], MAX_STR_CONST);
 
 	TRACE(CUSTOM_ERROR, "Octo started");
 
@@ -222,9 +221,13 @@ int main(int argc, char **argv)
 				FATAL(ERR_YOTTADB, err_msgbuf);
 			}
 			cleanup_sql_statement(result);
+			SQL_STATEMENT(tmp_statement, table_STATEMENT);
+			tmp_statement->v.table = table;
+			cleanup_sql_statement(tmp_statement);
 			break;
 		default:
 			FATAL(ERR_FEATURE_NOT_IMPLEMENTED, input_buffer_combined);
+			break;
 		}
 		result = NULL;
 	} while(!feof(inputFile));

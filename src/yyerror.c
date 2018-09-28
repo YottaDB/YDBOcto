@@ -26,11 +26,12 @@ void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, char const *s)
 {
 	printf("Error with syntax near (line %d, column %d):", llocp->first_line, llocp->first_column);
 	print_yyloc(llocp);
+	printf("%s\n", s);
 }
 
 void print_yyloc(YYLTYPE *llocp) {
 	int cur_line = 1, cur_column = 1, i = 0;
-	char *expr_begin, *expr_end, t, *c, *expr_line_begin;
+	char *expr_begin, t, *c, *expr_line_begin;
 	expr_line_begin = c = input_buffer_combined;
 	for(; *c != '\0' && cur_line < llocp->first_line; c++) {
 		if(*c == '\n') {

@@ -47,4 +47,5 @@ int readline_getc(FILE *inputFile, char *buff, int size) {
 			buff[i++] = '\n';
 		}
 	}
+	return 1;
 }

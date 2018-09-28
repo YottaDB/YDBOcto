@@ -28,12 +28,11 @@ char *extract_expression(ydb_buffer_t *cursor_global,
                          SqlStatement *stmt, const SqlTable *table, char *source)
 {
 	SqlStatement *calculated;
-	SqlOptionalKeyword *keyword;
 	SqlBinaryOperation *binary;
 	SqlValue *value;
 	SqlTable *sub_table;
 	char *buffer = malloc(MAX_EXPRESSION_LENGTH);
-	char *tmp1,  *tmp2, *tmp3;
+	char *tmp1 = NULL,  *tmp2 = NULL, *tmp3 = NULL;
 
 	switch(stmt->type)
 	{
@@ -60,7 +59,6 @@ char *extract_expression(ydb_buffer_t *cursor_global,
 			case value_STATEMENT:
 				tmp1 = extract_expression(cursor_global, cursor_exe_global, calculated, table, source);
 				snprintf(buffer, MAX_EXPRESSION_LENGTH, "%s", tmp1);
-				free(tmp1);
 				break;
 			case binary_STATEMENT:
 				free(buffer);
@@ -68,10 +66,12 @@ char *extract_expression(ydb_buffer_t *cursor_global,
 				break;
 			default:
 				FATAL(ERR_UNKNOWN_KEYWORD_STATE);
+				break;
 			}
 			break;
 		default:
 			FATAL(ERR_UNKNOWN_KEYWORD_STATE);
+			break;
 		}
 		break;
 	case binary_STATEMENT:
@@ -131,20 +131,25 @@ char *extract_expression(ydb_buffer_t *cursor_global,
 			sub_table = emit_xref_table(cursor_global, cursor_exe_global, binary->operands[1]);
 			// The generated table should be a single column table with the primary key
 			//  being the only column
-			free(tmp2);
-			//UNPACK_SQL_STATEMENT(keyword, sub_table->tableName, keyword);
 			UNPACK_SQL_STATEMENT(value, sub_table->tableName, value);
 			snprintf(buffer, MAX_EXPRESSION_LENGTH, "($D(^%s(%s))'=0)",
 			         value->v.reference, tmp1);
+			 free(tmp1);
+			 free(tmp2);
 			return buffer;
-			break;
 		default:
 			FATAL(ERR_UNKNOWN_KEYWORD_STATE);
+			break;
 		}
 		snprintf(buffer, MAX_EXPRESSION_LENGTH, "(%s%s%s)", tmp1, tmp3, tmp2);
 		break;
 	default:
 		FATAL(ERR_UNKNOWN_KEYWORD_STATE);
+		break;
 	}
+	if(tmp1)
+		free(tmp1);
+	if(tmp2)
+		free(tmp2);
 	return buffer;
 }

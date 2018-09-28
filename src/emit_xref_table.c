@@ -28,17 +28,16 @@
  */
 SqlTable *emit_xref_table(ydb_buffer_t *cursor_global,
                           ydb_buffer_t *cursor_exe_global, struct SqlStatement *stmt) {
-	FILE *output, *temp_table;
+	FILE *temp_table;
 	SqlSelectStatement *select;
 	SqlTable *table;
 	SqlStatement *result = NULL;
 	SqlInsertStatement *insert = NULL;
 	int status = 0;
-	char *temp_table_buffer, *output_buffer;
-	char temp_table_name[MAX_STR_CONST], temp_cursor_name[MAX_STR_CONST];
-	size_t temp_table_buffer_size = 0, output_buffer_size = 0;
+	char *temp_table_buffer;
+	char temp_table_name[MAX_STR_CONST];
+	size_t temp_table_buffer_size = 0;
 	ydb_buffer_t schema_global, latest_schema_id;
-	ydb_buffer_t m_exe_buffer_value;
 	ydb_buffer_t z_status, z_status_value;
 
 	TRACE(ERR_ENTERING_FUNCTION, "emit_xref_table");

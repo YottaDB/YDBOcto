@@ -37,9 +37,8 @@ SqlTable *emit_select_statement(ydb_buffer_t *cursor_global,
 	FILE *output, *temp_table;
 	SqlSelectStatement *select;
 	SqlColumnList *cur_column_list, *start_column_list, *new_column_list;
-	SqlValue *value, *tmp_value;
 	SqlStatement *tmp_statement;
-	SqlTable *table, *cur_table, *start_table;
+	SqlTable *table = NULL;
 	SqlColumn *cur_column, *start_column;
 	SqlStatement *result = 0;
 	SqlJoin *join;
@@ -123,7 +122,6 @@ SqlTable *emit_select_statement(ydb_buffer_t *cursor_global,
 			cur_column_list->value = tmp_statement;
 			cur_column = cur_column->next;
 			if(cur_column != start_column) {
-				SQL_STATEMENT(tmp_statement, column_list_STATEMENT);
 				new_column_list = (SqlColumnList*)malloc(sizeof(SqlColumnList));
 				memset(new_column_list, 0, sizeof(SqlColumnList));
 				dqinit(new_column_list);

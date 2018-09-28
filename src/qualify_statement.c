@@ -22,7 +22,6 @@
 #include "octo_types.h"
 
 int qualify_statement(SqlStatement *stmt, SqlJoin *tables) {
-	SqlStatement *calculated;
 	SqlUnaryOperation *unary;
 	SqlBinaryOperation *binary;
 	SqlValue *value;
@@ -62,6 +61,7 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables) {
 		break;
 	default:
 		FATAL(ERR_UNKNOWN_KEYWORD_STATE);
+		break;
 	}
 	return result;
 }

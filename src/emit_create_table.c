@@ -28,11 +28,9 @@ void emit_column_specification(FILE *output, SqlColumn *column);
 void emit_create_table(FILE *output, struct SqlStatement *stmt)
 {
 	SqlColumn *start_column, *cur_column;
-	SqlOptionalKeyword *start_constraint, *cur_constraint;
-	SqlTable *table, *temp;
+	SqlTable *table;
 	SqlValue *value;
 	SqlOptionalKeyword *keyword, *cur_keyword, *start_keyword;
-	char *column_type, *constraint_text, *primary_key_name = 0;
 	if(stmt == NULL)
 		return;
 	table = stmt->v.table;
@@ -57,6 +55,7 @@ void emit_create_table(FILE *output, struct SqlStatement *stmt)
 			break;
 		default:
 			FATAL(ERR_UNKNOWN_KEYWORD_STATE);
+			break;
 		}
 		UNPACK_SQL_STATEMENT(start_keyword, cur_column->keywords, keyword);
 		cur_keyword = start_keyword;

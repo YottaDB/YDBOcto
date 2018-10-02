@@ -123,6 +123,8 @@ extern void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, char cons
 %token VARCHAR
 %token VARYING
 %token WHERE
+%token NUM
+%token ADVANCE
 
 %token NULL_TOKEN
 %token ENDOFFILE
@@ -896,6 +898,30 @@ column_definition_tail
        SQL_STATEMENT($$, keyword_STATEMENT);
        MALLOC_STATEMENT($$, keyword, SqlOptionalKeyword);
        ($$)->v.keyword->keyword = OPTIONAL_SOURCE;
+       ($$)->v.keyword->v = $2;
+       dqinit(($$)->v.keyword);
+
+       SqlOptionalKeyword *keyword;
+       UNPACK_SQL_STATEMENT(keyword, $3, keyword);
+       dqinsert(keyword, ($$)->v.keyword);
+       free($3);
+    }
+  | KEY NUM literal_value column_definition_tail {
+       SQL_STATEMENT($$, keyword_STATEMENT);
+       MALLOC_STATEMENT($$, keyword, SqlOptionalKeyword);
+       ($$)->v.keyword->keyword = OPTIONAL_KEY_NUM;
+       ($$)->v.keyword->v = $3;
+       dqinit(($$)->v.keyword);
+
+       SqlOptionalKeyword *keyword;
+       UNPACK_SQL_STATEMENT(keyword, $4, keyword);
+       dqinsert(keyword, ($$)->v.keyword);
+       free($4);
+    }
+  | ADVANCE literal_value column_definition_tail {
+       SQL_STATEMENT($$, keyword_STATEMENT);
+       MALLOC_STATEMENT($$, keyword, SqlOptionalKeyword);
+       ($$)->v.keyword->keyword = OPTIONAL_ADVANCE;
        ($$)->v.keyword->v = $2;
        dqinit(($$)->v.keyword);
 

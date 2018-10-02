@@ -119,12 +119,8 @@ int create_table_defaults(SqlStatement *table_statement, SqlStatement *keywords_
 		dqinsert(start_keyword, keyword);
 	}
 	if(!(options & CURSE)) {
-		snprintf(buffer, MAX_STR_CONST, TEMPLATE_TABLE_DEFAULT_CURSOR,
-		         table->tableName->v.value->v.reference);
-		str_len = strnlen(buffer, MAX_STR_CONST);
-		out_buffer = malloc(str_len + 1);
-		strncpy(out_buffer, buffer, str_len);
-		out_buffer[str_len] = '\0';
+		generate_cursor(buffer, MAX_STR_CONST, table);
+		out_buffer = m_escape_string(buffer);
 		(keyword) = (SqlOptionalKeyword*)malloc(sizeof(SqlOptionalKeyword));
 		(keyword)->keyword = OPTIONAL_CURSE;
 		SQL_STATEMENT(keyword->v, value_STATEMENT);

@@ -14,6 +14,7 @@
 
 #define MAX_STR_CONST @STRING_BUFFER_LENGTH@
 #define MAX_EXPRESSION_LENGTH @MAX_EXPRESSION_LENGTH@
+#define MAX_KEY_COUNT @MAX_KEY_COUNT@
 
 /**
  * Returns the column containing the primary key for this table
@@ -60,6 +61,7 @@ void print_yyloc(YYLTYPE *llocp);
 void get_table_parts(SqlTable *table, char **curse, char **start, char **end,
     char **source);
 SqlOptionalKeyword *get_keyword(SqlColumn *column, enum OptionalKeyword keyword);
+int generate_cursor(char *buffer, int buffer_size, SqlTable *table);
 
 /* Globals */
 SqlTable *definedTables;

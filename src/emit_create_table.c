@@ -87,6 +87,10 @@ void emit_create_table(FILE *output, struct SqlStatement *stmt)
 				UNPACK_SQL_STATEMENT(value, cur_keyword->v, value);
 				fprintf(output, " GLOBAL \"%s\"", value->v.reference);
 				break;
+			case OPTIONAL_KEY_NUM:
+				UNPACK_SQL_STATEMENT(value, cur_keyword->v, value);
+				fprintf(output, " KEY NUM \"%s\"", value->v.reference);
+				break;
 			case NO_KEYWORD:
 				break;
 			default:

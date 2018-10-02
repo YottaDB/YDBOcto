@@ -1,11 +1,11 @@
-#define TEMPLATE_SELECT_BASIC "NEW rowId,t %s FOR  %s USE:%s $P KILL:%s rowId,t Q:%s  "
+#define TEMPLATE_SELECT_BASIC "NEW rowId,t %s SET junkVar=$I(rowId) FOR  %s SET junkVar=$I(rowId) USE:%s $P KILL:%s rowId,t Q:%s  "
 #define TEMPLATE_CREATE_TABLE_START "CREATE TABLE %s (rowIdSpecialKey INTEGER PRIMARY KEY"
 #define TEMPLATE_CREATE_TABLE_COLUMN ", clmn%d VARCHAR(30)"
 
 // INPUTS: table_name
 #define TEMPLATE_TABLE_DEFAULT_GLOBAL "^%s(keys(0))"
 // INPUTS: table_name
-#define TEMPLATE_TABLE_DEFAULT_CURSOR "SET keys(0)=$O(^%s(keys(0))),j=$I(rowId)"
+#define TEMPLATE_TABLE_DEFAULT_CURSOR "SET keys(0)=$O(^%s(keys(0)))"
 // INPUTS: cursor_name
 #define TEMPLATE_TABLE_DEFAULT_PACK "SET storeKey=$$STOREKEY(\"\"%%s\"\",.keys),@storeKey"
 // INPUTS: cursor_name

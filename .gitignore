@@ -1,5 +1,5 @@
 doc/_build/
-build/
+build*/
 doc/make.bat
 .tags
 .tags1

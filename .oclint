@@ -1,0 +1,24 @@
+rule-configurations:
+  - key: LONG_LINE
+    value: 132
+  - key: SHORT_VARIABLE_NAME
+    value: 1
+  - key: NCSS_METHOD
+    value: 250
+  - key: LONG_METHOD
+    value: 150
+  - key: NESTED_BLOCK_DEPTH
+    value: 6
+disable-rules:
+  - EmptyIfStatement
+  - BitwiseOperatorInConditional
+  - LongMethod
+  - LongVariableName
+  - EmptyForStatement
+  - UnnecessaryDefaultStatement
+  - TooFewBranchesInSwitchStatement
+  - HighCyclomaticComplexity
+  - HighNPathComplexity
+  - InvertedLogic
+output: build/report.txt
+enable-clang-static-analyzer: true

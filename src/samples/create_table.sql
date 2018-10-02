@@ -20,3 +20,4 @@ CREATE TABLE abc (
 ) CURSOR "$$CURSE" DELIM "|"
 END "keys(0)" GLOBAL "someGLobal"
 PACK "$$PACK" UNPACK "$$UNPACK" ;
+create table abc (id integer primary key, oid integer key num 1, name varchar(30), oid2 integer key num 2);

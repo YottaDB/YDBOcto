@@ -140,6 +140,8 @@ int copied_so_far;
 (?i:VARCHAR) { return VARCHAR; }
 (?i:VARYING) { return VARYING; }
 (?i:WHERE) { return WHERE; }
+(?i:NUM) { return NUM; }
+(?i:ADVANCE) { return ADVANCE; }
 
 (?i:NULL) { return NULL_TOKEN; }
 , { return COMMA; }

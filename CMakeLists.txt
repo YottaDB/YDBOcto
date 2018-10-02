@@ -16,6 +16,10 @@ if(NOT MAX_EXPRESSION_LENGTH)
 	set(MAX_EXPRESSION_LENGTH 8192)
 endif()
 
+if(NOT MAX_KEY_COUNT)
+	set(MAX_KEY_COUNT 255)
+endif()
+
 enable_testing()
 add_subdirectory(src)
 

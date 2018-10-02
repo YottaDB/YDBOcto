@@ -38,14 +38,14 @@ Mapping to a MUMPS database
 If mapping to an existing MUMPS database, an optional_keyword can be added to further enhance the CREATE statement:
 
 .. parsed-literal::
-   [CURSOR | DELIM | END | EXTRACT | GLOBAL | PACK | PIECE | UNPACK LITERAL]
+   [ADVANCE | CURSOR | DELIM | END | EXTRACT | GLOBAL | KEY NUM | PACK | PIECE | UNPACK LITERAL]
 
 The keywords denoted above are MUMPS expressions and literals. They are explained in the following table:
 
 +--------------------------------+-------------------------------+------------------------+--------------------------------------------------------------------------------+------------------------------+------------------------------+
 | Keyword                        | Type                          | Range                  | Purpose                                                                        | Overrides                    | Default Value                |
 +================================+===============================+========================+================================================================================+==============================+==============================+
-| ADVANCE                        | Command expression            | Column                 | Indicates how to move the column forward                                       | \-                           | $O(^<tableName>(keys(0),...))|
+| ADVANCE                        | Command expression            | Column                 | Indicates how to advance the key by one value                                  | \-                           | $O(^<tableName>(keys(0),...))|
 +--------------------------------+-------------------------------+------------------------+--------------------------------------------------------------------------------+------------------------------+------------------------------+
 | CURSOR                         | Command expression            | Table                  | Increment the cursor by one element                                            | \-                           | SET keys(0)=$0(table_name(   |
 |                                |                               |                        |                                                                                |                              | keys(0)))                    |
@@ -59,7 +59,7 @@ The keywords denoted above are MUMPS expressions and literals. They are explaine
 +--------------------------------+-------------------------------+------------------------+--------------------------------------------------------------------------------+------------------------------+------------------------------+
 | GLOBAL                         | Literal                       | Table, Column          | Represents the "source" location for a table                                   | table/default GLOBAL setting | table_name(keys(0))          |
 +--------------------------------+-------------------------------+------------------------+--------------------------------------------------------------------------------+------------------------------+------------------------------+
-| KEY_NUM                        | Literal                       | Column                 | Specifies that the column maps to keys(<number>)                               | \-                           | \-                           |
+| KEY NUM                        | Literal                       | Column                 | Specifies that the column maps to keys(<number>)                               | \-                           | \-                           |
 +--------------------------------+-------------------------------+------------------------+--------------------------------------------------------------------------------+------------------------------+------------------------------+
 | PACK                           | Command expression            | Table                  | Packs the cursor into a single value to be stored in a global                  | \-                           | SET storeKey=$$STOREKEY("cur |
 |                                |                               |                        | specified by the SQL engine.                                                   |                              | sor_name",.keys),@storeKey   |

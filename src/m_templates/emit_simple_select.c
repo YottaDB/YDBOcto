@@ -41,13 +41,14 @@ void emit_simple_select(char *output, const SqlTable *table, const char *column_
 	for(c = column; *c != '.' && *c != '\0'; c++) {
 		// Intentionally left blank
 	}
-	assert(*c == '.');
-	assert(strncmp(table->tableName->v.value->v.reference, column, c - column) == 0);
-	column = (c+1);
+	if(*c == '.')
+		column = (c+1);
+	else
+		column = column_name;
 
 	//char *m_template = "NEW temporaryVar,key SET temporaryVar=$INCREMENT(%s),key=temporaryVar";
 
-	assert(table != NULL && table->source != NULL);
+	assert(table != NULL);
 
 	piece_number = 1;
 	UNPACK_SQL_STATEMENT(start_column, table->columns, column);

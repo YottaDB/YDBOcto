@@ -30,7 +30,7 @@ SqlTable *emit_xref_table(ydb_buffer_t *cursor_global,
                           ydb_buffer_t *cursor_exe_global, struct SqlStatement *stmt) {
 	FILE *temp_table;
 	SqlSelectStatement *select;
-	SqlTable *table;
+	SqlTable *table, *t_table;
 	SqlStatement *result = NULL;
 	SqlInsertStatement *insert = NULL;
 	int status = 0;
@@ -60,7 +60,7 @@ SqlTable *emit_xref_table(ydb_buffer_t *cursor_global,
 		definedTables = result->v.table;
 		dqinit(definedTables);
 	} else {
-		dqinsert(definedTables, result->v.table);
+		dqinsert(definedTables, result->v.table, t_table);
 	}
 	free(temp_table_buffer);
 	free(result);

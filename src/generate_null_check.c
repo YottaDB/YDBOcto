@@ -13,37 +13,28 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
+#include <stdlib.h>
+#include <stdarg.h>
+#include <assert.h>
+#include <string.h>
 
 #include "octo.h"
 #include "octo_types.h"
-#include "parser.h"
-#include "lexer.h"
 
-/**
- * Parses line, which should end with a semicolon, and returns the resolt
- *
- * NOTE: caller is responsiblefor freeing the return value
- *
- * @returns the parsed statement, or NULL if there was an error parsing.
- */
-SqlStatement *parse_line(const char *line) {
-	SqlStatement *result = 0;
-	yyscan_t scanner;
-	YY_BUFFER_STATE state;
+int generate_null_check(char *buffer, int buffer_size, int max_key) {
+	char *buff_ptr = buffer;
+	int cur_key = 0;
 
-	if(line != input_buffer_combined)
-		strncpy(input_buffer_combined, line, MAX_STR_CONST);
-
-	if (yylex_init(&scanner))
-		FATAL(ERR_INIT_SCANNER);
-
-	state = yy_scan_string(line, scanner);
-	if(yyparse(scanner, &result))
-	{
-		ERROR(ERR_PARSING_COMMAND, input_buffer_combined);
-		return NULL;
+	for(; cur_key < max_key; cur_key++) {
+		if(cur_key != 0) {
+			buff_ptr += snprintf(buff_ptr, buffer_size - (buff_ptr - buffer), "!");
+			if(buff_ptr - buffer >= buffer_size)
+				return 1;
+		}
+		buff_ptr += snprintf(buff_ptr, buffer_size - (buff_ptr - buffer), "(keys(%d)=\"\")", cur_key);
+		if(buff_ptr - buffer >= buffer_size)
+			return 1;
 	}
-	yy_delete_buffer(state, scanner);
-	yylex_destroy(scanner);
-	return result;
+	*buff_ptr = '\0';
+	return 0;
 }

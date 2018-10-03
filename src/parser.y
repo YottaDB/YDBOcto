@@ -746,9 +746,9 @@ table_definition_tail
 optional_keyword
   : optional_keyword_element optional_keyword_tail {
       $$ = $optional_keyword_element;
-      SqlOptionalKeyword *keyword;
+      SqlOptionalKeyword *keyword, *t_keyword;
       UNPACK_SQL_STATEMENT(keyword, $optional_keyword_tail, keyword);
-      dqinsert(keyword, ($$)->v.keyword);
+      dqinsert(keyword, ($$)->v.keyword, t_keyword);
       free($optional_keyword_tail);
     }
   ;
@@ -815,8 +815,9 @@ table_element_list
       assert($$->type = column_STATEMENT);
       if($table_element_list_tail)
       {
+        SqlColumn *t_column;
         assert($table_element_list_tail->type = column_STATEMENT);
-        dqinsert($table_element_list_tail->v.column, ($$)->v.column);
+        dqinsert($table_element_list_tail->v.column, ($$)->v.column, t_column);
         free($table_element_list_tail);
       }
     }
@@ -865,9 +866,9 @@ column_definition_tail
        ($$)->v.keyword->v = $2;
        dqinit(($$)->v.keyword);
 
-       SqlOptionalKeyword *keyword;
+       SqlOptionalKeyword *keyword, *t_keyword;
        UNPACK_SQL_STATEMENT(keyword, $3, keyword);
-       dqinsert(keyword, ($$)->v.keyword);
+       dqinsert(keyword, ($$)->v.keyword, t_keyword);
        free($3);
     }
   | PIECE literal_value column_definition_tail {
@@ -877,9 +878,9 @@ column_definition_tail
        ($$)->v.keyword->v = $2;
        dqinit(($$)->v.keyword);
 
-       SqlOptionalKeyword *keyword;
+       SqlOptionalKeyword *keyword, *t_keyword;
        UNPACK_SQL_STATEMENT(keyword, $3, keyword);
-       dqinsert(keyword, ($$)->v.keyword);
+       dqinsert(keyword, ($$)->v.keyword, t_keyword);
        free($3);
     }
   | DELIM literal_value column_definition_tail {
@@ -889,9 +890,9 @@ column_definition_tail
        ($$)->v.keyword->v = $2;
        dqinit(($$)->v.keyword);
 
-       SqlOptionalKeyword *keyword;
+       SqlOptionalKeyword *keyword, *t_keyword;
        UNPACK_SQL_STATEMENT(keyword, $3, keyword);
-       dqinsert(keyword, ($$)->v.keyword);
+       dqinsert(keyword, ($$)->v.keyword, t_keyword);
        free($3);
      }
   | GLOBAL literal_value column_definition_tail {
@@ -901,9 +902,9 @@ column_definition_tail
        ($$)->v.keyword->v = $2;
        dqinit(($$)->v.keyword);
 
-       SqlOptionalKeyword *keyword;
+       SqlOptionalKeyword *keyword, *t_keyword;
        UNPACK_SQL_STATEMENT(keyword, $3, keyword);
-       dqinsert(keyword, ($$)->v.keyword);
+       dqinsert(keyword, ($$)->v.keyword, t_keyword);
        free($3);
     }
   | KEY NUM literal_value column_definition_tail {
@@ -913,9 +914,9 @@ column_definition_tail
        ($$)->v.keyword->v = $3;
        dqinit(($$)->v.keyword);
 
-       SqlOptionalKeyword *keyword;
+       SqlOptionalKeyword *keyword, *t_keyword;
        UNPACK_SQL_STATEMENT(keyword, $4, keyword);
-       dqinsert(keyword, ($$)->v.keyword);
+       dqinsert(keyword, ($$)->v.keyword, t_keyword);
        free($4);
     }
   | ADVANCE literal_value column_definition_tail {
@@ -925,16 +926,16 @@ column_definition_tail
        ($$)->v.keyword->v = $2;
        dqinit(($$)->v.keyword);
 
-       SqlOptionalKeyword *keyword;
+       SqlOptionalKeyword *keyword, *t_keyword;
        UNPACK_SQL_STATEMENT(keyword, $3, keyword);
-       dqinsert(keyword, ($$)->v.keyword);
+       dqinsert(keyword, ($$)->v.keyword, t_keyword);
        free($3);
     }
   | column_constraint_definition column_definition_tail {
        $$ = $column_constraint_definition;
-       SqlOptionalKeyword *keyword;
+       SqlOptionalKeyword *keyword, *t_keyword;
        UNPACK_SQL_STATEMENT(keyword, $2, keyword);
-       dqinsert(keyword, ($$)->v.keyword);
+       dqinsert(keyword, ($$)->v.keyword, t_keyword);
        free($2);
     }
   ;

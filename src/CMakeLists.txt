@@ -55,6 +55,8 @@ add_library(libocto OBJECT
   populate_data_type.c
   find_table.c
   find_column.c
+  find_qualified_column.c
+  generate_end.c
   qualify_column_list.c
   qualify_column_name.c
   qualify_statement.c
@@ -64,6 +66,10 @@ add_library(libocto OBJECT
   emit_insert_statement.c
   emit_xref_table.c
   generate_cursor.c
+  generate_null_check.c
+  get_key_columns.c
+  optimize_where.c
+  optimization_transforms/constant_equal_column.c
   m_templates/emit_simple_select.c
   ${BISON_OctoParser_OUTPUTS}
   ${FLEX_OctoLexer_OUTPUTS}

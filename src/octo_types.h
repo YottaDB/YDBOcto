@@ -24,8 +24,12 @@ typedef void *yyscan_t;
 // Defines the elements for a DQ struct
 #define dqcreate(struct_type) struct struct_type *next, *prev
 // Inserts an element behind this one in the doubly linked list
-#define dqinsert(self, new_elem) (new_elem)->prev = (self)->prev, \
-	(self)->prev->next = (new_elem), (self)->prev = (new_elem), (new_elem)->next = (self);
+#define dqinsert(self, new_elem, temp)		\
+	(temp) = (self)->prev;			\
+	(self)->prev->next = (new_elem);	\
+	(self)->prev = (new_elem)->prev;	\
+	(new_elem)->prev->next = (self);	\
+	(new_elem)->prev = (temp);
 
 #define INIT_YDB_BUFFER(buffer, len) (buffer)->buf_addr = malloc(len); (buffer)->len_used = 0; (buffer)->len_alloc = len;
 #define SQL_STATEMENT(VAR, TYPE)                        \

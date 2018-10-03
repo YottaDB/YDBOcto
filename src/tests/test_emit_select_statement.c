@@ -15,7 +15,7 @@ static int setup_myTable(void **state) {
 	yyscan_t scanner;
 	YY_BUFFER_STATE parser_state;
 	SqlStatement *result;
-	SqlTable *table;
+	SqlTable *table, *t_table;
 
 	octo_init();
 	if (yylex_init(&scanner)) {
@@ -30,7 +30,7 @@ static int setup_myTable(void **state) {
 		definedTables = table;
 		dqinit(definedTables);
 	} else {
-		dqinsert(definedTables, table);
+		dqinsert(definedTables, table, t_table);
 	}
 	return 0;
 }

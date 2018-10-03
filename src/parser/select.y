@@ -60,11 +60,12 @@ select_sublist
       $$ = $1;
       // deviation from pattern here so we don't have to deal with "NOT_A_COLUMN" elsewhere
       if(($2) != NULL) {
-        SqlColumnList *list;
-        UNPACK_SQL_STATEMENT(list, $2, column_list);
-        dqinsert(($$)->v.column_list, list);
+        SqlColumnList *list1, *list2, *t_column_list;
+        UNPACK_SQL_STATEMENT(list1, $$, column_list);
+        UNPACK_SQL_STATEMENT(list2, $2, column_list);
+        dqinsert(list2, list1, t_column_list);
+        //free($2);
       }
-      free($2);
     }
   ;
 
@@ -96,15 +97,15 @@ set_quantifier
 derived_column
   : non_query_value_expression {
       SQL_STATEMENT($$, column_list_STATEMENT);
-      assert(($1)->type == value_STATEMENT);
       MALLOC_STATEMENT($$, column_list, SqlColumnList);
+      assert(($1)->type == value_STATEMENT);
       dqinit(($$)->v.column_list);
       ($$)->v.column_list->value = $1;
     }
   | non_query_value_expression AS column_name {
       SQL_STATEMENT($$, column_list_STATEMENT);
-      assert(($1)->type == value_STATEMENT);
       MALLOC_STATEMENT($$, column_list, SqlColumnList);
+      assert(($1)->type == value_STATEMENT);
       dqinit(($$)->v.column_list);
       ($$)->v.column_list->value = $1;
   }
@@ -129,9 +130,9 @@ table_reference
       ($$)->v.join->value->v.table = table;
       dqinit(($$)->v.join);
       if($table_reference_tail) {
-        SqlJoin *join;
+        SqlJoin *join, *t_join;
         UNPACK_SQL_STATEMENT(join, $table_reference_tail, join);
-        dqinsert(($$)->v.join, join);
+        dqinsert(($$)->v.join, join, t_join);
         free($table_reference_tail);
       }
     }
@@ -148,9 +149,9 @@ table_reference
       ($$)->v.join->value->v.table = table;
       dqinit(($$)->v.join);
       if($table_reference_tail) {
-        SqlJoin *join;
+        SqlJoin *join, *t_join;
         UNPACK_SQL_STATEMENT(join, $table_reference_tail, join);
-        dqinsert(($$)->v.join, join);
+        dqinsert(($$)->v.join, join, t_join);
         free($table_reference_tail);
       }
     }

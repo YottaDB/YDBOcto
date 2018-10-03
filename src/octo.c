@@ -40,7 +40,7 @@ int main(int argc, char **argv)
 	FILE *inputFile;
 	FILE *out;
 	SqlValue *value;
-	SqlTable *table;
+	SqlTable *table, *t_table;
 	SqlStatement *result = 0;
 	SqlStatement *tmp_statement;
 	ydb_buffer_t schema_global, table_name_buffer, table_create_buffer, null_buffer;
@@ -139,7 +139,7 @@ int main(int argc, char **argv)
 			definedTables = table;
 			dqinit(definedTables);
 		} else {
-			dqinsert(definedTables, table);
+			dqinsert(definedTables, table, t_table);
 		}
 		free(result);
 		result = NULL;
@@ -199,7 +199,7 @@ int main(int argc, char **argv)
 				definedTables = result->v.table;
 				dqinit(definedTables);
 			} else {
-				dqinsert(definedTables, result->v.table);
+				dqinsert(definedTables, result->v.table, t_table);
 			}
 			free(result);
 			break;

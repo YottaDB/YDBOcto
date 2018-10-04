@@ -27,8 +27,9 @@ static void test_primary_key_cursor(void **state) {
 	                              scanner);
 	assert_true(yyparse(scanner, &result) == 0);
 	UNPACK_SQL_STATEMENT(table, result, table);
+	printf("%s\n", buffer);
 	assert_true(generate_cursor(buffer, MAX_STR_CONST, table) == 0);
-	assert_true(strcmp("SET keys(0)=$S($G(keys(1))=\"\"\"\":$O(^myTable(keys(0))),1:keys(0))", buffer) == 0);
+	assert_true(strstr(buffer, "$O(^myTable($G(keys(0))))") != NULL);
 
 	cleanup_sql_statement(result);
 }
@@ -50,8 +51,8 @@ static void test_two_key_cursor(void **state) {
 	assert_true(yyparse(scanner, &result) == 0);
 	UNPACK_SQL_STATEMENT(table, result, table);
 	assert_true(generate_cursor(buffer, MAX_STR_CONST, table) == 0);
-	assert_true(strcmp("SET keys(1)=$S((keys(0)=\"\"\"\"):\"\"\"\",$G(keys(2))=\"\"\"\":$O(^myTable(keys(0),"
-		"keys(1))),1:keys(1)),keys(0)=$S($G(keys(1))=\"\"\"\":$O(^myTable(keys(0))),1:keys(0))", buffer) == 0);
+	assert_true(strstr(buffer, "$O(^myTable($G(keys(0))))") != NULL);
+	assert_true(strstr(buffer, "$O(^myTable($G(keys(0)),$G(keys(1))))") != NULL);
 	cleanup_sql_statement(result);
 }
 
@@ -72,12 +73,13 @@ static void test_three_key_cursor(void **state) {
 	assert_true(yyparse(scanner, &result) == 0);
 	UNPACK_SQL_STATEMENT(table, result, table);
 	assert_true(generate_cursor(buffer, MAX_STR_CONST, table) == 0);
-	assert_true(strcmp("SET keys(2)=$S((keys(0)=\"\"\"\")!(keys(1)=\"\"\"\"):\"\"\"\",$G(keys(3))=\"\"\"\":$O(^myTable(keys(0),keys(1),keys(2))),1:keys(2)),"
-			"keys(1)=$S((keys(0)=\"\"\"\"):\"\"\"\",$G(keys(2))=\"\"\"\":$O(^myTable(keys(0),keys(1))),1:keys(1)),"
-			"keys(0)=$S($G(keys(1))=\"\"\"\":$O(^myTable(keys(0))),1:keys(0))", buffer) == 0);
-
+	assert_true(strstr(buffer, "$O(^myTable($G(keys(0))))") != NULL);
+	assert_true(strstr(buffer, "$O(^myTable($G(keys(0)),$G(keys(1)))") != NULL);
+	assert_true(strstr(buffer, "$O(^myTable($G(keys(0)),$G(keys(1)),$G(keys(2))))") != NULL);
 	cleanup_sql_statement(result);
-}static void test_two_key_cursor_with_advance(void **state) {
+}
+
+static void test_two_key_cursor_with_advance(void **state) {
 	yyscan_t scanner;
 	YY_BUFFER_STATE parser_state;
 	char buffer[MAX_STR_CONST];
@@ -97,9 +99,8 @@ static void test_three_key_cursor(void **state) {
 	assert_true(yyparse(scanner, &result) == 0);
 	UNPACK_SQL_STATEMENT(table, result, table);
 	assert_true(generate_cursor(buffer, MAX_STR_CONST, table) == 0);
-	assert_true(strcmp("SET keys(1)=$S((keys(0)=\"\"\"\"):\"\"\"\",$G(keys(2))=\"\"\"\":$O(^va(200,keys(0),53,keys(1))),1:keys(1)),"
-		"keys(0)=$S($G(keys(1))=\"\"\"\":$O(^va(200,keys(0))),1:keys(0))", buffer) == 0);
-
+	assert_true(strstr(buffer, "$O(^va(200,keys(0))") != NULL);
+	assert_true(strstr(buffer, "$O(^va(200,keys(0),53,keys(1))") != NULL);
 	cleanup_sql_statement(result);
 }
 

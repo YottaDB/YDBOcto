@@ -88,7 +88,7 @@ SqlTable *emit_select_statement(ydb_buffer_t *cursor_global,
 	assert(table != NULL);
 	get_table_parts(table, &curse, &start, &end, &source);
 
-	// If there was an optimization, recalculate the cursor
+	// If there was an optimization, recalculate the cursor and end condition
 	if(optimizations > 0) {
 		table->curse = NULL;
 		generate_cursor(buffer, MAX_STR_CONST, table);

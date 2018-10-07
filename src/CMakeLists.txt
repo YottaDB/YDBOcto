@@ -67,6 +67,7 @@ add_library(libocto OBJECT
   emit_xref_table.c
   generate_cursor.c
   generate_null_check.c
+  generate_key_name.c
   get_key_columns.c
   optimize_where.c
   optimization_transforms/constant_equal_column.c

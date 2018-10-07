@@ -29,7 +29,7 @@ static void test_primary_key_cursor(void **state) {
 	UNPACK_SQL_STATEMENT(table, result, table);
 	printf("%s\n", buffer);
 	assert_true(generate_cursor(buffer, MAX_STR_CONST, table) == 0);
-	assert_true(strstr(buffer, "$O(^myTable($G(keys(0))))") != NULL);
+	assert_true(strstr(buffer, "$O(^myTable($G(keys(\"\"myTable\"\",\"\"id\"\"))))") != NULL);
 
 	cleanup_sql_statement(result);
 }
@@ -51,8 +51,8 @@ static void test_two_key_cursor(void **state) {
 	assert_true(yyparse(scanner, &result) == 0);
 	UNPACK_SQL_STATEMENT(table, result, table);
 	assert_true(generate_cursor(buffer, MAX_STR_CONST, table) == 0);
-	assert_true(strstr(buffer, "$O(^myTable($G(keys(0))))") != NULL);
-	assert_true(strstr(buffer, "$O(^myTable($G(keys(0)),$G(keys(1))))") != NULL);
+	assert_true(strstr(buffer, "$O(^myTable($G(keys(\"\"myTable\"\",\"\"id\"\")))") != NULL);
+	assert_true(strstr(buffer, "$O(^myTable($G(keys(\"\"myTable\"\",\"\"id\"\")),$G(keys(\"\"myTable\"\",\"\"oid\"\")))") != NULL);
 	cleanup_sql_statement(result);
 }
 
@@ -73,9 +73,9 @@ static void test_three_key_cursor(void **state) {
 	assert_true(yyparse(scanner, &result) == 0);
 	UNPACK_SQL_STATEMENT(table, result, table);
 	assert_true(generate_cursor(buffer, MAX_STR_CONST, table) == 0);
-	assert_true(strstr(buffer, "$O(^myTable($G(keys(0))))") != NULL);
-	assert_true(strstr(buffer, "$O(^myTable($G(keys(0)),$G(keys(1)))") != NULL);
-	assert_true(strstr(buffer, "$O(^myTable($G(keys(0)),$G(keys(1)),$G(keys(2))))") != NULL);
+	assert_true(strstr(buffer, "$O(^myTable($G(keys(\"\"myTable\"\",\"\"id\"\")))") != NULL);
+	assert_true(strstr(buffer, "$O(^myTable($G(keys(\"\"myTable\"\",\"\"id\"\")),$G(keys(\"\"myTable\"\",\"\"oid\"\"))") != NULL);
+	assert_true(strstr(buffer, "$O(^myTable($G(keys(\"\"myTable\"\",\"\"id\"\")),$G(keys(\"\"myTable\"\",\"\"oid\"\")),$G(keys(\"\"myTable\"\",\"\"oid2\"\")))") != NULL);
 	cleanup_sql_statement(result);
 }
 

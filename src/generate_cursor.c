@@ -24,6 +24,7 @@
 int generate_cursor(char *buffer, int buffer_size, SqlTable *table) {
 	int key_num, num_printed = 0, max_key = 0, i;
 	char *advance = NULL, buff[MAX_STR_CONST], buff2[MAX_STR_CONST], *buffer_ptr;
+	char *key_names[MAX_KEY_COUNT];
 	SqlOptionalKeyword *keyword;
 	SqlColumn *key_columns[MAX_KEY_COUNT], *start_column, *cur_column;
 	SqlValue *value;
@@ -39,13 +40,16 @@ int generate_cursor(char *buffer, int buffer_size, SqlTable *table) {
 
 	memset(key_columns, 0, MAX_KEY_COUNT * sizeof(SqlColumn*));
 	max_key = get_key_columns(table, key_columns);
+	key_names[max_key + 1] = "keys(\"_fakeKey\")";
 
 	key_num = 0;
 	buffer_ptr += snprintf(buffer_ptr, buffer_size - (buffer_ptr - buffer), "SET ");
 	while(key_num <= max_key) {
+		key_names[key_num] = malloc(MAX_STR_CONST);
+		generate_key_name(key_names[key_num], MAX_STR_CONST, key_num, table, key_columns);
 		if(key_num != 0)
 			buffer_ptr += snprintf(buffer_ptr, buffer_size - (buffer_ptr - buffer), ",");
-		buffer_ptr += snprintf(buffer_ptr, buffer_size - (buffer_ptr - buffer), "oldKey%d=$G(keys(%d))", key_num, key_num);
+		buffer_ptr += snprintf(buffer_ptr, buffer_size - (buffer_ptr - buffer), "oldKey%d=$G(%s)", key_num, key_names[key_num]);
 		key_num++;
 	}
 	buffer_ptr += snprintf(buffer_ptr, buffer_size - (buffer_ptr - buffer), " SET ");
@@ -58,7 +62,7 @@ int generate_cursor(char *buffer, int buffer_size, SqlTable *table) {
 		}
 		if(key_num != 0)
 			buffer_ptr += snprintf(buffer_ptr, buffer_size - (buffer_ptr - buffer), ",");
-		buffer_ptr += snprintf(buffer_ptr, buffer_size - (buffer_ptr - buffer), "keys(%d)=", key_num);
+		buffer_ptr += snprintf(buffer_ptr, buffer_size - (buffer_ptr - buffer), "%s=", key_names[key_num]);
 		keyword = get_keyword(key_columns[key_num], OPTIONAL_ADVANCE);
 		if(keyword) {
 			UNPACK_SQL_STATEMENT(value, keyword->v, value);
@@ -70,7 +74,7 @@ int generate_cursor(char *buffer, int buffer_size, SqlTable *table) {
 			for(i = 0; i <= key_num; i++) {
 				if(i != 0)
 					advance += snprintf(advance, MAX_STR_CONST - (advance - buff), ",");
-				advance += snprintf(advance, MAX_STR_CONST - (advance - buff), "$G(keys(%d))", i);
+				advance += snprintf(advance, MAX_STR_CONST - (advance - buff), "$G(%s)", key_names[i]);
 			}
 			advance += snprintf(advance, MAX_STR_CONST - (advance - buff), "))");
 			*advance = '\0';
@@ -78,11 +82,11 @@ int generate_cursor(char *buffer, int buffer_size, SqlTable *table) {
 		}
 		buffer_ptr += snprintf(buffer_ptr, buffer_size - (buffer_ptr - buffer), "$S(");
 		if(key_num != 0) {
-			generate_null_check(buff2, MAX_STR_CONST, key_num);
+			generate_null_check(buff2, MAX_STR_CONST, table, key_num-1);
 			buffer_ptr += snprintf(buffer_ptr, buffer_size - (buffer_ptr - buffer), "%s:\"\",", buff2);
 		}
-		buffer_ptr += snprintf(buffer_ptr, buffer_size - (buffer_ptr - buffer), "$G(keys(%d))=\"\":%s,1:$G(keys(%d)))",
-			key_num + 1, advance, key_num);
+		buffer_ptr += snprintf(buffer_ptr, buffer_size - (buffer_ptr - buffer), "$G(%s)=\"\":%s,1:$G(%s))",
+			key_names[key_num + 1], advance, key_names[key_num]);
 		key_num++;
 	}
 	// If nothing changed, mark all keys as NULL
@@ -91,7 +95,7 @@ int generate_cursor(char *buffer, int buffer_size, SqlTable *table) {
 	while(key_num <= max_key) {
 		if(key_num != 0)
 			buffer_ptr += snprintf(buffer_ptr, buffer_size - (buffer_ptr - buffer), "&");
-		buffer_ptr += snprintf(buffer_ptr, buffer_size - (buffer_ptr - buffer), "(oldKey%d=keys(%d))", key_num, key_num);
+		buffer_ptr += snprintf(buffer_ptr, buffer_size - (buffer_ptr - buffer), "(oldKey%d=$G(%s))", key_num, key_names[key_num]);
 		key_num++;
 	}
 	buffer_ptr += snprintf(buffer_ptr, buffer_size - (buffer_ptr - buffer), " ");
@@ -99,7 +103,8 @@ int generate_cursor(char *buffer, int buffer_size, SqlTable *table) {
 	while(key_num <= max_key) {
 		if(key_num != 0)
 			buffer_ptr += snprintf(buffer_ptr, buffer_size - (buffer_ptr - buffer), ",");
-		buffer_ptr += snprintf(buffer_ptr, buffer_size - (buffer_ptr - buffer), "keys(%d)=\"\"", key_num);
+		buffer_ptr += snprintf(buffer_ptr, buffer_size - (buffer_ptr - buffer), "%s=\"\"", key_names[key_num]);
+		free(key_names[key_num]);
 		key_num++;
 	}
 	*buffer_ptr = '\0';

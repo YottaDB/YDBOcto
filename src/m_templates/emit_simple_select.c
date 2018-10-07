@@ -32,7 +32,7 @@ void emit_simple_select(char *output, const SqlTable *table, const char *column_
 	SqlValue *tmp_value;
 	SqlColumn *cur_column, *start_column;
 	SqlOptionalKeyword *start_keyword, *cur_keyword;
-	char *temp, *source = source_raw;
+	char *temp, *source = source_raw, *tableName;
 	const char *c, *column = column_name;
 	char *delim="|", *piece_string = NULL;
 	int piece_number;
@@ -79,11 +79,11 @@ void emit_simple_select(char *output, const SqlTable *table, const char *column_
 			source = m_unescape_string(tmp_value->v.string_literal);
 			break;
 		case OPTIONAL_KEY_NUM:
-			UNPACK_SQL_STATEMENT(tmp_value, cur_keyword->v, value);
-			snprintf(output, MAX_EXPRESSION_LENGTH, "keys(%s)", tmp_value->v.string_literal);
-			return;
 		case PRIMARY_KEY:
-			snprintf(output, MAX_EXPRESSION_LENGTH, "keys(0)");
+			/// TODO: we should refector this to use generate_key_name, but there is a performance cost with the current design
+			UNPACK_SQL_STATEMENT(tmp_value, table->tableName, value);
+			tableName = tmp_value->v.reference;
+			snprintf(output, MAX_EXPRESSION_LENGTH, "keys(\"%s\",\"%s\")", tableName, column);
 			return;
 		case NOT_NULL:
 		case UNIQUE_CONSTRAINT:

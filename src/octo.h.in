@@ -62,9 +62,10 @@ void get_table_parts(SqlTable *table, char **curse, char **start, char **end,
     char **source);
 SqlOptionalKeyword *get_keyword(SqlColumn *column, enum OptionalKeyword keyword);
 int generate_cursor(char *buffer, int buffer_size, SqlTable *table);
-int generate_null_check(char *buffer, int buffer_size, int max_key);
+int generate_null_check(char *buffer, int buffer_size, SqlTable *table, int max_key);
 int generate_end(char *buffer, int buffer_size, SqlTable *table);
 int get_key_columns(SqlTable *table, SqlColumn **key_columns);
+int generate_key_name(char *buffer, int buffer_size, int target_key_num, SqlTable *table, SqlColumn **key_columns);
 int find_qualified_column(SqlValue *column_reference, SqlTable **table, SqlColumn **column);
 
 /* Optimizations */

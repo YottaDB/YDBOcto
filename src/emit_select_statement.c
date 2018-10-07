@@ -112,8 +112,7 @@ SqlTable *emit_select_statement(ydb_buffer_t *cursor_global,
 	snprintf(formatted_start, MAX_STR_CONST, start, temp_cursor_name);
 	fprintf(output, TEMPLATE_SELECT_BASIC, formatted_start, curse, end, end, end);
 
-	max_key = get_key_columns(table, NULL) + 1;
-	if(generate_null_check(buffer, MAX_STR_CONST, max_key) == 1)
+	if(generate_null_check(buffer, MAX_STR_CONST, table, -1) == 1)
 		FATAL(ERR_UNKNOWN_KEYWORD_STATE);
 	fprintf(output, "SET:'(%s)", buffer);
 	UNPACK_SQL_STATEMENT(start_column_list, select->select_list, column_list);
@@ -121,7 +120,7 @@ SqlTable *emit_select_statement(ydb_buffer_t *cursor_global,
 		tmp1 = extract_expression(cursor_global, cursor_exe_global, select->where_expression, table, source);
 		fprintf(output, "&(%s)", tmp1);
 	}
-	fprintf(output, " ^%s(rowId)=keys(0)_\"|\"", temp_table_name);
+	fprintf(output, " ^%s(rowId)=\"|\"", temp_table_name);
 	if (start_column_list == NULL) {
 		/* This was a SELECT * statement; add all columns to a list */
 		UNPACK_SQL_STATEMENT(start_column, table->columns, column);

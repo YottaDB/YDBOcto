@@ -22,7 +22,7 @@
 #include "octo_types.h"
 
 /**
- * Returns the maximu KEY PART set, and if not NULL sets key_column[i] to the corresponding KEY PART
+ * Returns the maximum KEY PART set, and if not NULL sets key_column[i] to the corresponding KEY PART
  */
 int get_key_columns(SqlTable *table, SqlColumn **key_columns) {
 	int key_num, max_key = 0;
@@ -57,6 +57,7 @@ int get_key_columns(SqlTable *table, SqlColumn **key_columns) {
 				max_key = key_num;
 		}
 		cur_column = cur_column->next;
+		assert(max_key < MAX_KEY_COUNT);
 	} while(start_column != cur_column);
 	return max_key;
 }

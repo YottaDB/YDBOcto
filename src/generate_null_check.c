@@ -21,20 +21,36 @@
 #include "octo.h"
 #include "octo_types.h"
 
-int generate_null_check(char *buffer, int buffer_size, int max_key) {
-	char *buff_ptr = buffer;
-	int cur_key = 0;
 
-	for(; cur_key < max_key; cur_key++) {
+/**
+ * Generates a string to check values up to max_key_null_check for lack of value
+ *
+ * If max_key_null_check is less than 0, checks all keys
+ */
+int generate_null_check(char *buffer, int buffer_size, SqlTable *table, int max_key_null_check) {
+	char *buff_ptr = buffer, *key_name;
+	int cur_key = 0, max_key = 0;
+	SqlColumn *key_columns[MAX_KEY_COUNT], *column;
+
+
+	memset(key_columns, 0, MAX_KEY_COUNT * sizeof(SqlColumn*));
+	max_key = get_key_columns(table, key_columns);
+	if(max_key_null_check >= 0)
+	  max_key = max_key_null_check;
+	key_name = malloc(MAX_STR_CONST);
+
+	for(; cur_key <= max_key; cur_key++) {
+		generate_key_name(key_name, MAX_STR_CONST, cur_key, table, key_columns);
 		if(cur_key != 0) {
 			buff_ptr += snprintf(buff_ptr, buffer_size - (buff_ptr - buffer), "!");
 			if(buff_ptr - buffer >= buffer_size)
 				return 1;
 		}
-		buff_ptr += snprintf(buff_ptr, buffer_size - (buff_ptr - buffer), "(keys(%d)=\"\")", cur_key);
+		buff_ptr += snprintf(buff_ptr, buffer_size - (buff_ptr - buffer), "($G(%s)=\"\")", key_name);
 		if(buff_ptr - buffer >= buffer_size)
 			return 1;
 	}
+	free(key_name);
 	*buff_ptr = '\0';
 	return 0;
 }

@@ -24,6 +24,7 @@
 int generate_end(char *buffer, int buffer_size, SqlTable *table) {
 	int key_num, num_printed = 0, max_key = 0, i;
 	char *advance = NULL, buff[MAX_STR_CONST], buff2[MAX_STR_CONST], *buffer_ptr;
+	char *key_names[MAX_KEY_COUNT];
 	SqlOptionalKeyword *keyword;
 	SqlColumn *key_columns[MAX_KEY_COUNT], *column;
 	SqlValue *value;
@@ -42,6 +43,10 @@ int generate_end(char *buffer, int buffer_size, SqlTable *table) {
 
 	key_num = max_key;
 	while(key_num >= 0) {
+		// This could be replaced with a single char*, rather than array, but staying consistent
+		//  makes it easier at this point
+		key_names[key_num] = malloc(MAX_STR_CONST);
+		generate_key_name(key_names[key_num], MAX_STR_CONST, key_num, table, key_columns);
 		if(key_num != max_key)
 			buffer_ptr += snprintf(buffer_ptr, buffer_size - (buffer_ptr - buffer), "&");
 		column = key_columns[key_num];
@@ -54,6 +59,7 @@ int generate_end(char *buffer, int buffer_size, SqlTable *table) {
 			buffer_ptr += snprintf(buffer_ptr, buffer_size - (buffer_ptr - buffer), "!(%s=%s)", buff, value->v.string_literal);
 		}
 		buffer_ptr += snprintf(buffer_ptr, buffer_size - (buffer_ptr - buffer), ")");
+		free(key_names[key_num]);
 		key_num--;
 	}
 	*buffer_ptr = '\0';

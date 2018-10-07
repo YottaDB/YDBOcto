@@ -32,16 +32,23 @@
 int create_table_defaults(SqlStatement *table_statement, SqlStatement *keywords_statement) {
 	SqlTable *table;
 	SqlOptionalKeyword *keyword, *cur_keyword, *start_keyword, *t_keyword;
-	SqlColumn *pkey;
+	SqlColumn *pkey, *key_columns[MAX_KEY_COUNT];
 	SqlStatement *statement;
-	char buffer[MAX_STR_CONST], *out_buffer;
+	SqlValue *value;
+	char buffer[MAX_STR_CONST], buffer2[MAX_STR_CONST], *out_buffer;
+	char *buff_ptr;
 	size_t str_len;
+	int max_key = 0, i;
 	unsigned int options = 0;
 
 	assert(keywords_statement != NULL);
 
 	UNPACK_SQL_STATEMENT(start_keyword, keywords_statement, keyword);
 	UNPACK_SQL_STATEMENT(table, table_statement, table);
+
+	memset(key_columns, 0, MAX_KEY_COUNT * sizeof(SqlColumn*));
+	max_key = get_key_columns(table, key_columns);
+
 	cur_keyword = start_keyword;
 	do {
 		switch(cur_keyword->keyword) {
@@ -106,11 +113,19 @@ int create_table_defaults(SqlStatement *table_statement, SqlStatement *keywords_
 	assert(pkey != NULL);
 	/// TODO: if CURSOR is set, make sure there are no KEY NUMs on the keys
 	if(!(options & SOURCE)) {
-		snprintf(buffer, MAX_STR_CONST, TEMPLATE_TABLE_DEFAULT_GLOBAL, table->tableName->v.value->v.reference);
-		str_len = strnlen(buffer, MAX_STR_CONST);
-		out_buffer = malloc(str_len + 1);
-		strncpy(out_buffer, buffer, str_len);
-		out_buffer[str_len] = '\0';
+		UNPACK_SQL_STATEMENT(value, table->tableName, value);
+		buff_ptr = buffer;
+		buff_ptr += snprintf(buff_ptr, MAX_STR_CONST - (buff_ptr - buffer), "^%s(",
+				     value->v.reference);
+		for(i = 0; i <= max_key; i++) {
+			generate_key_name(buffer2, MAX_STR_CONST, i, table, key_columns);
+			if(i != 0)
+				buff_ptr += snprintf(buff_ptr, MAX_STR_CONST - (buff_ptr - buffer), ",");
+			buff_ptr += snprintf(buff_ptr, MAX_STR_CONST - (buff_ptr - buffer), "%s", buffer2);
+		}
+		buff_ptr += snprintf(buff_ptr, MAX_STR_CONST - (buff_ptr - buffer), ")");
+		*buff_ptr++ = '\0';
+		out_buffer = m_escape_string(buffer);
 		(keyword) = (SqlOptionalKeyword*)malloc(sizeof(SqlOptionalKeyword));
 		(keyword)->keyword = OPTIONAL_SOURCE;
 		SQL_STATEMENT(keyword->v, value_STATEMENT);
@@ -133,12 +148,18 @@ int create_table_defaults(SqlStatement *table_statement, SqlStatement *keywords_
 		dqinsert(start_keyword, keyword, t_keyword);
 	}
 	if(!(options & START)) {
-		snprintf(buffer, MAX_STR_CONST,
-		         "SET cursor=\"\"%%s\"\",keys(0)=$P($G(@cursor),\"\"|\"\",1)");
-		str_len = strnlen(buffer, MAX_STR_CONST);
-		out_buffer = malloc(str_len + 1);
-		strncpy(out_buffer, buffer, str_len);
-		out_buffer[str_len] = '\0';
+		UNPACK_SQL_STATEMENT(value, table->tableName, value);
+		buff_ptr = buffer;
+		buff_ptr += snprintf(buff_ptr, MAX_STR_CONST - (buff_ptr - buffer), "SET ",
+				     value->v.reference);
+		for(i = 0; i <= max_key; i++) {
+			generate_key_name(buffer2, MAX_STR_CONST, i, table, key_columns);
+			if(i != 0)
+				buff_ptr += snprintf(buff_ptr, MAX_STR_CONST - (buff_ptr - buffer), ",");
+			buff_ptr += snprintf(buff_ptr, MAX_STR_CONST - (buff_ptr - buffer), "%s=\"\"", buffer2);
+		}
+		*buff_ptr++ = '\0';
+		out_buffer = m_escape_string(buffer);
 		(keyword) = (SqlOptionalKeyword*)malloc(sizeof(SqlOptionalKeyword));
 		(keyword)->keyword = OPTIONAL_START;
 		SQL_STATEMENT(keyword->v, value_STATEMENT);

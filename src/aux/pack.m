@@ -1,5 +1,4 @@
 PACK(source,keys)
-  write "here",!
   SET res=source_"(",i=0
   SET table=$O(keys(""))
   FOR  QUIT:table=""  DO  SET table=$O(keys(table))

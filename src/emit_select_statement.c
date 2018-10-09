@@ -108,6 +108,8 @@ SqlTable *emit_select_statement(ydb_buffer_t *cursor_global,
 		SQL_STATEMENT(cur_join->value, table_STATEMENT);
 		cur_join->value->v.table = table;
 		qualify_statement(select->where_expression, cur_join);
+		UNPACK_SQL_STATEMENT(cur_column_list, select->select_list, column_list);
+		qualify_column_list(cur_column_list, cur_join);
 		break;
 	case TABLE_SPEC:
 		//UNPACK_SQL_STATEMENT(value, join->value, value);

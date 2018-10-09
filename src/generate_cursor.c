@@ -63,23 +63,8 @@ int generate_cursor(char *buffer, int buffer_size, SqlTable *table) {
 		if(key_num != 0)
 			buffer_ptr += snprintf(buffer_ptr, buffer_size - (buffer_ptr - buffer), ",");
 		buffer_ptr += snprintf(buffer_ptr, buffer_size - (buffer_ptr - buffer), "%s=", key_names[key_num]);
-		keyword = get_keyword(key_columns[key_num], OPTIONAL_ADVANCE);
-		if(keyword) {
-			UNPACK_SQL_STATEMENT(value, keyword->v, value);
-			advance = value->v.string_literal;
-		} else {
-			advance = buff;
-			UNPACK_SQL_STATEMENT(value, table->tableName, value);
-			advance += snprintf(advance, MAX_STR_CONST, "$O(^%s(", value->v.reference);
-			for(i = 0; i <= key_num; i++) {
-				if(i != 0)
-					advance += snprintf(advance, MAX_STR_CONST - (advance - buff), ",");
-				advance += snprintf(advance, MAX_STR_CONST - (advance - buff), "$G(%s)", key_names[i]);
-			}
-			advance += snprintf(advance, MAX_STR_CONST - (advance - buff), "))");
-			*advance = '\0';
-			advance = buff;
-		}
+		get_advance(buff, MAX_STR_CONST, key_columns[key_num], key_columns, key_names, table);
+		advance = buff;
 		buffer_ptr += snprintf(buffer_ptr, buffer_size - (buffer_ptr - buffer), "$S(");
 		if(key_num != 0) {
 			generate_null_check(buff2, MAX_STR_CONST, table, key_num-1);

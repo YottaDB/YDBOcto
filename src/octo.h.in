@@ -24,6 +24,7 @@
 SqlColumn *fetch_primary_key_column(const SqlTable *table);
 
 void emit_simple_select(char *output, const SqlTable *table, const char *column, char *source);
+int emit_column_specification(char *buffer, int buffer_size, SqlColumn *column);
 void emit_create_table(FILE *output, struct SqlStatement *stmt);
 SqlTable *emit_select_statement(ydb_buffer_t *cursor_global,
   ydb_buffer_t *cursor_exe_global, struct SqlStatement *stmt,
@@ -32,6 +33,7 @@ SqlTable *emit_insert_statement(ydb_buffer_t *cursor_global,
     ydb_buffer_t *cursor_exe_global, struct SqlStatement *stmt);
 SqlTable *emit_xref_table(ydb_buffer_t *cursor_global,
     ydb_buffer_t *cursor_exe_global, struct SqlStatement *stmt);
+SqlTable *emit_temporary_join_table(SqlTable *table[], int tableCount);
 void cleanup_sql_statement(SqlStatement *stmt);
 /**
  * Examines the table to make sure needed columns are specified, and fills out
@@ -65,6 +67,7 @@ int generate_cursor(char *buffer, int buffer_size, SqlTable *table);
 int generate_null_check(char *buffer, int buffer_size, SqlTable *table, int max_key);
 int generate_end(char *buffer, int buffer_size, SqlTable *table);
 int get_key_columns(SqlTable *table, SqlColumn **key_columns);
+int get_advance(char *buffer, int buffer_size, SqlColumn *column, SqlColumn **key_columns, char **key_names, SqlTable *table);
 int generate_key_name(char *buffer, int buffer_size, int target_key_num, SqlTable *table, SqlColumn **key_columns);
 int find_qualified_column(SqlValue *column_reference, SqlTable **table, SqlColumn **column);
 

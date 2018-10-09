@@ -22,30 +22,34 @@
 #include "octo_types.h"
 
 /**
- * Populates buffer with the M representation of the specified target_key_num for this key from table
+ * Fills buffer with a string representation of this columns advance
  *
- * @returns the number of characters written
+ * Requires a list of key columns and their names
  */
-int generate_key_name(char *buffer, int buffer_size, int target_key_num, SqlTable *table, SqlColumn **key_columns) {
-	char *buffer_ptr = buffer, *tableName, *columnName, *temp;
-	SqlValue *value;
+int get_advance(char *buffer, int buffer_size, SqlColumn *column, SqlColumn **key_columns, char **key_names, SqlTable *table) {
 	SqlOptionalKeyword *keyword;
+	SqlValue *value;
+	char *buff_ptr = buffer, key_name[MAX_STR_CONST], *temp;
+	int i =0;
 
-	keyword = get_keyword(key_columns[target_key_num], OPTIONAL_EXTRACT);
-	if(keyword != NULL) {
+	keyword = get_keyword(column, OPTIONAL_ADVANCE);
+	if(keyword) {
 		UNPACK_SQL_STATEMENT(value, keyword->v, value);
 		temp = m_unescape_string(value->v.string_literal);
-		SAFE_SNPRINTF(buffer_ptr, buffer, buffer_size, "%s", temp);
+		SAFE_SNPRINTF(buff_ptr, buffer, buffer_size, "%s", temp);
 		free(temp);
-		return buffer_ptr - buffer;
+	} else {
+		UNPACK_SQL_STATEMENT(value, table->tableName, value);
+		SAFE_SNPRINTF(buff_ptr, buffer, buffer_size, "$O(^%s(", value->v.reference);
+		for(i = 0; i <= MAX_KEY_COUNT && key_columns[i] != NULL; i++) {
+			if(i != 0)
+				SAFE_SNPRINTF(buff_ptr, buffer, buffer_size, ",");
+			SAFE_SNPRINTF(buff_ptr, buffer, buffer_size, "$G(%s)", key_names[i]);
+			if(key_columns[i] == column)
+				break;
+		}
+		SAFE_SNPRINTF(buff_ptr, buffer, buffer_size, "))");
 	}
-	UNPACK_SQL_STATEMENT(value, table->tableName, value);
-	tableName = value->v.reference;
-	UNPACK_SQL_STATEMENT(value, key_columns[target_key_num]->columnName, value);
-	columnName = value->v.reference;
-
-	buffer_ptr += snprintf(buffer_ptr, buffer_size - (buffer_ptr - buffer), "keys(\"%s\",\"%s\")", tableName, columnName);
-	*buffer_ptr++ = '\0';
-
-	return buffer_ptr - buffer;
+	*buff_ptr = '\0';
+	return buff_ptr - buffer;
 }

@@ -44,6 +44,10 @@ typedef void *yyscan_t;
 
 #define INIT_YDB_BUFFER(buffer, len) (buffer)->buf_addr = malloc(len); (buffer)->len_used = 0; (buffer)->len_alloc = len;
 
+#define SAFE_SNPRINTF(buff_ptr, buffer, buffer_size, ...) \
+	(buff_ptr) += snprintf((buff_ptr), (buffer_size) - ((buff_ptr) - (buffer)), ## __VA_ARGS__);
+
+
 long long unsigned int typedef uint8;
 
 enum SqlStatementType {
@@ -132,7 +136,7 @@ enum OptionalKeyword {
 enum SqlJoinType {
 	NO_JOIN,
 	TABLE_SPEC,
-	INNER_JOIN
+	CROSS_JOIN
 };
 
 #define YYLTYPE yyltype

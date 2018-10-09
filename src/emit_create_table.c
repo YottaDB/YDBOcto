@@ -20,8 +20,6 @@
 #include "octo.h"
 #include "octo_types.h"
 
-void emit_column_specification(FILE *output, SqlColumn *column);
-
 /**
  * Emits DDL specification for the given table
  */
@@ -31,6 +29,7 @@ void emit_create_table(FILE *output, struct SqlStatement *stmt)
 	SqlTable *table;
 	SqlValue *value;
 	SqlOptionalKeyword *keyword, *cur_keyword, *start_keyword;
+	char buffer[MAX_STR_CONST];
 	if(stmt == NULL)
 		return;
 	table = stmt->v.table;
@@ -41,68 +40,8 @@ void emit_create_table(FILE *output, struct SqlStatement *stmt)
 	UNPACK_SQL_STATEMENT(start_column, table->columns, column);
 	cur_column = start_column;
 	do {
-		assert(cur_column && cur_column->columnName);
-		UNPACK_SQL_STATEMENT(value, cur_column->columnName, value);
-		fprintf(output, "%s", value->v.reference);
-		switch(cur_column->type)
-		{
-		case INTEGER_TYPE:
-			fprintf(output, " INTEGER");
-			break;
-		case CHARACTER_STRING_TYPE:
-			// We should determine the actual size based on the constraint
-			fprintf(output, " VARCHAR(%d)", 25);
-			break;
-		default:
-			FATAL(ERR_UNKNOWN_KEYWORD_STATE);
-			break;
-		}
-		UNPACK_SQL_STATEMENT(start_keyword, cur_column->keywords, keyword);
-		cur_keyword = start_keyword;
-		do {
-			switch(cur_keyword->keyword)
-			{
-			case PRIMARY_KEY:
-				fprintf(output, " PRIMARY KEY");
-				break;
-			case NOT_NULL:
-				fprintf(output, " NOT NULL");
-				break;
-			case UNIQUE_CONSTRAINT:
-				fprintf(output, " UNIQUE");
-				break;
-			case OPTIONAL_EXTRACT:
-				UNPACK_SQL_STATEMENT(value, cur_keyword->v, value);
-				fprintf(output, " EXTRACT \"%s\"", value->v.reference);
-				break;
-			case OPTIONAL_PIECE:
-				UNPACK_SQL_STATEMENT(value, cur_keyword->v, value);
-				fprintf(output, " PIECE \"%s\"", value->v.reference);
-				break;
-			case OPTIONAL_SOURCE:
-				UNPACK_SQL_STATEMENT(value, cur_keyword->v, value);
-				fprintf(output, " GLOBAL \"%s\"", value->v.reference);
-				break;
-			case OPTIONAL_DELIM:
-				UNPACK_SQL_STATEMENT(value, cur_keyword->v, value);
-				fprintf(output, " GLOBAL \"%s\"", value->v.reference);
-				break;
-			case OPTIONAL_KEY_NUM:
-				UNPACK_SQL_STATEMENT(value, cur_keyword->v, value);
-				fprintf(output, " KEY NUM \"%s\"", value->v.reference);
-				break;
-			case OPTIONAL_ADVANCE:
-				UNPACK_SQL_STATEMENT(value, cur_keyword->v, value);
-				fprintf(output, " ADVANCE \"%s\"", value->v.reference);
-				break;
-			case NO_KEYWORD:
-				break;
-			default:
-				FATAL(ERR_UNKNOWN_KEYWORD_STATE);
-				break;
-			}
-			cur_keyword = cur_keyword->next;
-		} while(cur_keyword != start_keyword);
+		emit_column_specification(buffer, MAX_STR_CONST, cur_column);
+		fprintf(output, "%s", buffer);
 		cur_column = cur_column->next;
 		if(start_column != cur_column)
 			fprintf(output, ", ");
@@ -131,9 +70,4 @@ void emit_create_table(FILE *output, struct SqlStatement *stmt)
 	UNPACK_SQL_STATEMENT(keyword, table->pack, keyword);
 	UNPACK_SQL_STATEMENT(value, keyword->v, value);
 	fprintf(output, " PACK \"%s\";", value->v.reference);
-}
-
-void emit_column_specification(FILE *output, SqlColumn *column)
-{
-	// pass
 }

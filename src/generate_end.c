@@ -24,7 +24,7 @@
 int generate_end(char *buffer, int buffer_size, SqlTable *table) {
 	int key_num, num_printed = 0, max_key = 0, i;
 	char *advance = NULL, buff[MAX_STR_CONST], buff2[MAX_STR_CONST], *buffer_ptr;
-	char *key_names[MAX_KEY_COUNT];
+	char *key_names[MAX_KEY_COUNT], *temp;
 	SqlOptionalKeyword *keyword;
 	SqlColumn *key_columns[MAX_KEY_COUNT], *column;
 	SqlValue *value;
@@ -49,15 +49,17 @@ int generate_end(char *buffer, int buffer_size, SqlTable *table) {
 		generate_key_name(key_names[key_num], MAX_STR_CONST, key_num, table, key_columns);
 		if(key_num != max_key)
 			buffer_ptr += snprintf(buffer_ptr, buffer_size - (buffer_ptr - buffer), "&");
-		column = key_columns[key_num];
+		/*column = key_columns[key_num];
 		UNPACK_SQL_STATEMENT(value, column->columnName, value);
-		emit_simple_select(buff, table, value->v.reference, NULL);
-		buffer_ptr += snprintf(buffer_ptr, buffer_size - (buffer_ptr - buffer), "((%s=\"\")", buff);
-		keyword = get_keyword(column, OPTIONAL_ADVANCE);
+		emit_simple_select(buff, table, value->v.reference, NULL);*/
+		buffer_ptr += snprintf(buffer_ptr, buffer_size - (buffer_ptr - buffer), "((%s=\"\")", key_names[key_num]);
+		/*		keyword = get_keyword(column, OPTIONAL_ADVANCE);
 		if(keyword != NULL) {
 			UNPACK_SQL_STATEMENT(value, keyword->v, value);
-			buffer_ptr += snprintf(buffer_ptr, buffer_size - (buffer_ptr - buffer), "!(%s=%s)", buff, value->v.string_literal);
-		}
+			temp = m_unescape_string(value->v.string_literal);
+			buffer_ptr += snprintf(buffer_ptr, buffer_size - (buffer_ptr - buffer), "!(%s=%s)", buff, temp);
+			free(temp);
+			}*/
 		buffer_ptr += snprintf(buffer_ptr, buffer_size - (buffer_ptr - buffer), ")");
 		free(key_names[key_num]);
 		key_num--;

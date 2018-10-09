@@ -163,7 +163,7 @@ table_reference
       dqinit(($$)->v.join);
     }
   | derived_table correlation_specification
-  | joined_table
+  | joined_table { $$ = $1; }
   ;
 
 table_reference_tail
@@ -188,13 +188,21 @@ derived_table
   ;
 
 joined_table
-  : cross_join
+  : cross_join { $$ = $1; }
   | qualified_join
   | LEFT_PAREN joined_table RIGHT_PAREN
   ;
 
 cross_join
-  : table_reference CROSS JOIN table_reference
+  : table_reference CROSS JOIN table_reference {
+      SqlJoin *left, *right, *t_join;
+      $$ = $1;
+      UNPACK_SQL_STATEMENT(left, $$, join);
+      UNPACK_SQL_STATEMENT(right, $4, join);
+      left->type = CROSS_JOIN;
+      dqinsert(left, right, t_join);
+      free($4);
+    }
   ;
 
 qualified_join

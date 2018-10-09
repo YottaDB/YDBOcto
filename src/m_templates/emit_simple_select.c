@@ -31,7 +31,7 @@ void emit_simple_select(char *output, const SqlTable *table, const char *column_
 {
 	SqlValue *tmp_value;
 	SqlColumn *cur_column, *start_column;
-	SqlOptionalKeyword *start_keyword, *cur_keyword;
+	SqlOptionalKeyword *start_keyword, *cur_keyword, *keyword;
 	char *temp, *source = source_raw, *tableName;
 	const char *c, *column = column_name;
 	char *delim="|", *piece_string = NULL;
@@ -60,16 +60,22 @@ void emit_simple_select(char *output, const SqlTable *table, const char *column_
 		piece_number++;
 		cur_column = cur_column->next;
 	} while(cur_column != start_column);
+	keyword = get_keyword(cur_column, OPTIONAL_EXTRACT);
+	if(keyword != NULL) {
+		UNPACK_SQL_STATEMENT(tmp_value, keyword->v, value);
+		temp = m_unescape_string(tmp_value->v.string_literal);
+		snprintf(output, MAX_EXPRESSION_LENGTH, "%s", temp);
+		free(temp);
+		return;
+	}
 	UNPACK_SQL_STATEMENT(start_keyword, cur_column->keywords, keyword);
 	cur_keyword = start_keyword;
 	do {
 		switch(cur_keyword->keyword) {
 		case OPTIONAL_EXTRACT:
-			UNPACK_SQL_STATEMENT(tmp_value, cur_keyword->v, value);
-			temp = m_unescape_string(tmp_value->v.string_literal);
-			snprintf(output, MAX_EXPRESSION_LENGTH, "%s", temp);
-			free(temp);
-			return;
+			// This should be handled above since it has priority
+			assert(FALSE);
+			break;
 		case OPTIONAL_PIECE:
 			UNPACK_SQL_STATEMENT(tmp_value, cur_keyword->v, value);
 			piece_string = m_unescape_string(tmp_value->v.string_literal);
@@ -87,6 +93,7 @@ void emit_simple_select(char *output, const SqlTable *table, const char *column_
 			return;
 		case NOT_NULL:
 		case UNIQUE_CONSTRAINT:
+		case OPTIONAL_ADVANCE:
 		case NO_KEYWORD:
 			/* These are known states that have nothing to do with rendering the SELECT code */
 			break;

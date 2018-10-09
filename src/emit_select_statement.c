@@ -38,16 +38,17 @@ SqlTable *emit_select_statement(ydb_buffer_t *cursor_global,
 	SqlSelectStatement *select;
 	SqlColumnList *cur_column_list, *start_column_list, *new_column_list, *t_column_list;
 	SqlStatement *tmp_statement;
-	SqlTable *table = NULL;
+	SqlTable *table = NULL, *join_tables[2];
 	SqlColumn *cur_column, *start_column;
 	SqlStatement *result = 0;
-	SqlJoin *join;
+	SqlJoin *join, *start_join, *cur_join;
+	SqlValue *value;
 	char *temp_table_buffer, *output_buffer;
 	size_t temp_table_buffer_size = 0, output_buffer_size = 0;
 	char *tmp1, *formatted_start, *start, *end, *curse, *source;
 	char temp_table_name[MAX_STR_CONST], temp_cursor_name[MAX_STR_CONST], buffer[MAX_STR_CONST];
 	int column_name_length, table_name_length, column_counter = 0, status, temporary_table = 0, max_key = 0;
-	int optimizations = 0, len = 0;
+	int optimizations = 0, len = 0, i = 0;
 	ydb_buffer_t schema_global, latest_schema_id;
 	ydb_buffer_t m_exe_buffer_value;
 	ydb_buffer_t z_status, z_status_value;
@@ -70,14 +71,43 @@ SqlTable *emit_select_statement(ydb_buffer_t *cursor_global,
 	/// TODO: we should copy all tables from the join so we don't screw them up
 	assert(stmt && stmt->type == select_STATEMENT);
 	UNPACK_SQL_STATEMENT(select, stmt, select);
-	optimizations = optimize_where(select->where_expression, join);
+
+	optimizations = 0;
 	UNPACK_SQL_STATEMENT(join, select->table_list, join);
 	switch(join->type) {
 	case NO_JOIN:
 		UNPACK_SQL_STATEMENT(table, join->value, table);
 		break;
-	case INNER_JOIN:
-		//create_temporary_join_table();
+	case CROSS_JOIN:
+		start_join = cur_join = join;
+		i = 0;
+		do {
+			switch(cur_join->value->type) {
+			case select_STATEMENT:
+				join_tables[i++] = emit_select_statement(cursor_global, cursor_exe_global, cur_join->value, NULL);
+				break;
+			case table_STATEMENT:
+				UNPACK_SQL_STATEMENT(join_tables[i], cur_join->value, table);
+				i++;
+				break;
+			default:
+				FATAL(ERR_UNKNOWN_KEYWORD_STATE);
+			}
+			if(i == 2) {
+				join_tables[0] = emit_temporary_join_table(join_tables, 2);
+				i = 1;
+			}
+			cur_join = cur_join->next;
+		} while(cur_join != start_join);
+		table = join_tables[0];
+		// Qualify the WHERE expression
+		cur_join = (SqlJoin*)malloc(sizeof(SqlJoin));
+		memset(cur_join, 0, sizeof(SqlJoin));
+		dqinit(cur_join);
+		cur_join->type = TABLE_SPEC;
+		SQL_STATEMENT(cur_join->value, table_STATEMENT);
+		cur_join->value->v.table = table;
+		qualify_statement(select->where_expression, cur_join);
 		break;
 	case TABLE_SPEC:
 		//UNPACK_SQL_STATEMENT(value, join->value, value);
@@ -86,6 +116,7 @@ SqlTable *emit_select_statement(ydb_buffer_t *cursor_global,
 		break;
 	}
 	assert(table != NULL);
+	//optimizations = optimize_where(select->where_expression, join);
 	get_table_parts(table, &curse, &start, &end, &source);
 
 	// If there was an optimization, recalculate the cursor and end condition

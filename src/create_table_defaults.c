@@ -150,8 +150,7 @@ int create_table_defaults(SqlStatement *table_statement, SqlStatement *keywords_
 	if(!(options & START)) {
 		UNPACK_SQL_STATEMENT(value, table->tableName, value);
 		buff_ptr = buffer;
-		buff_ptr += snprintf(buff_ptr, MAX_STR_CONST - (buff_ptr - buffer), "SET ",
-				     value->v.reference);
+		buff_ptr += snprintf(buff_ptr, MAX_STR_CONST - (buff_ptr - buffer), "SET ");
 		for(i = 0; i <= max_key; i++) {
 			generate_key_name(buffer2, MAX_STR_CONST, i, table, key_columns);
 			if(i != 0)

@@ -46,6 +46,8 @@ add_library(libocto OBJECT
   parse_line.c
   emit_create_table.c
   emit_select_statement.c
+  emit_column_specification.c
+  emit_temporary_join_table.c
   cleanup_sql_statement.c
   fetch_primary_key_column.c
   quoting.c
@@ -63,6 +65,7 @@ add_library(libocto OBJECT
   octo_init.c
   get_keyword.c
   get_table_parts.c
+  get_advance.c
   emit_insert_statement.c
   emit_xref_table.c
   generate_cursor.c

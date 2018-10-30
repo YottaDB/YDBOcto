@@ -76,7 +76,6 @@ char *extract_expression(ydb_buffer_t *cursor_global,
 		break;
 	case binary_STATEMENT:
 		UNPACK_SQL_STATEMENT(binary, stmt, binary);
-		binary = stmt->v.binary;
 		tmp1 = extract_expression(cursor_global, cursor_exe_global, binary->operands[0], table, source);
 		tmp2 = extract_expression(cursor_global, cursor_exe_global, binary->operands[1], table, source);
 		switch(binary->operation)

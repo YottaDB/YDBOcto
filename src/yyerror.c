@@ -22,7 +22,7 @@
 
 #include "parser.h"
 
-void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, char const *s)
+void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, int *plan_id, char const *s)
 {
 	printf("Error with syntax near (line %d, column %d):", llocp->first_line, llocp->first_column);
 	print_yyloc(llocp);

@@ -3,3 +3,10 @@ build*/
 doc/make.bat
 .tags
 .tags1
+*/*.sc*
+cscope.*
+gen_cscope.sh
+\#*\#
+**/*~
+TAGS
+

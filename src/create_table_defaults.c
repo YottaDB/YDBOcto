@@ -38,7 +38,7 @@ int create_table_defaults(SqlStatement *table_statement, SqlStatement *keywords_
 	char buffer[MAX_STR_CONST], buffer2[MAX_STR_CONST], *out_buffer;
 	char *buff_ptr;
 	size_t str_len;
-	int max_key = 0, i;
+	int max_key = 0, i, len;
 	unsigned int options = 0;
 
 	assert(keywords_statement != NULL);
@@ -125,21 +125,12 @@ int create_table_defaults(SqlStatement *table_statement, SqlStatement *keywords_
 		}
 		buff_ptr += snprintf(buff_ptr, MAX_STR_CONST - (buff_ptr - buffer), ")");
 		*buff_ptr++ = '\0';
+		/*len = buff_ptr - buffer;
+		out_buffer = malloc(len);
+		memcpy(out_buffer, buffer, len);*/
 		out_buffer = m_escape_string(buffer);
 		(keyword) = (SqlOptionalKeyword*)malloc(sizeof(SqlOptionalKeyword));
 		(keyword)->keyword = OPTIONAL_SOURCE;
-		SQL_STATEMENT(keyword->v, value_STATEMENT);
-		keyword->v->v.value = (SqlValue*)malloc(sizeof(SqlValue));
-		keyword->v->v.value->type = COLUMN_REFERENCE;
-		keyword->v->v.value->v.reference = out_buffer;
-		dqinit(keyword);
-		dqinsert(start_keyword, keyword, t_keyword);
-	}
-	if(!(options & CURSE)) {
-		generate_cursor(buffer, MAX_STR_CONST, table);
-		out_buffer = m_escape_string(buffer);
-		(keyword) = (SqlOptionalKeyword*)malloc(sizeof(SqlOptionalKeyword));
-		(keyword)->keyword = OPTIONAL_CURSE;
 		SQL_STATEMENT(keyword->v, value_STATEMENT);
 		keyword->v->v.value = (SqlValue*)malloc(sizeof(SqlValue));
 		keyword->v->v.value->type = COLUMN_REFERENCE;

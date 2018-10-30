@@ -1,0 +1,73 @@
+{%
+
+#include "physical_plan.h"
+#include "template_helpers.h"
+
+TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
+    TEMPLATE_INIT();
+    int cur_key;
+    SqlKey *key;
+    SqlTable *table;
+
+    %}
+;; This is a generate file; do not modify.
+{{ plan->plan_name }}(cursorId) ; we could put arguments here
+    {% // The whitespace here is needed for proper M formatting
+
+    for(cur_key = 0; cur_key < plan->total_iter_keys; cur_key++) {
+    	// For each key, output the key start, a loop, quit, and increment
+	key = plan->iterKeys[cur_key];
+    %}{% TMPL(print_dots, cur_key); %}{% TMPL(tmpl_key_start, key); %}
+    {% TMPL(print_dots, cur_key); %}FOR i{{ cur_key|%d }}=1:1 SET {% TMPL(tmpl_key, key) %}={% TMPL(tmpl_key_advance, plan, key)
+    %} QUIT:{% TMPL(tmpl_key, key); %}=""  DO
+    {%
+    }
+
+    // Output the value
+    TMPL(print_dots, cur_key); %} SET{%
+
+    if(plan->where && plan->where->v.operand[0]) {
+        %}:{%
+	TMPL(tmpl_print_expression, plan->where->v.operand[0], plan);
+    }
+
+    /// TODO: key has overloaded meaning here to mean table; we need to
+    // increment something somewhere
+    if(plan->outputKey && plan->outputKey->insert) {
+        %}{{ plan->outputKey->insert->v.string_literal }}{%
+    } else if(plan->outputKey) {
+        // This is probably super dangerous, but who cares...
+        %} {%
+	TMPL(tmpl_key, plan->outputKey);
+	// Go back on in the buffer
+	buff_ptr -= 1;
+	if(plan->stash_columns_in_keys) {
+	  %},{%
+	  TMPL(tmpl_column_list_combine, plan->projection, plan, ",");
+	  %}){%
+	} else {
+	  %},$I(i{{ cur_key|%d }})){%
+	}
+	// Then assign value
+	%}={%
+	if(plan->stash_columns_in_keys) {
+	    %}""{%
+	} else {
+	    TMPL(tmpl_column_list_combine, plan->projection, plan, "_\"|\"_");
+	}
+    } else if (plan->outputTable) {
+        // We are putting the value directly into a table
+	UNPACK_SQL_STATEMENT(table, plan->outputTable->table, table);
+	//TMPL(tmpl_table_set, plan->outputTable);
+    } else {
+        assert(FALSE);
+    }
+    if(plan->next) {
+        %}
+    DO {{ plan->next->plan_name }}(cursorId){%
+    }
+    %}
+    QUIT  {%
+    TEMPLATE_END();
+}
+%}

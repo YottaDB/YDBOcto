@@ -1,0 +1,23 @@
+{%
+#include "octo_types.h"
+
+#include "physical_plan.h"
+#include "template_helpers.h"
+
+TEMPLATE(tmpl_column_list_combine, LogicalPlan *plan, PhysicalPlan *pplan, char *delim) {
+    TEMPLATE_INIT();
+
+    if(plan == NULL) {
+        TEMPLATE_END();
+    }
+    assert(plan->type == LP_COLUMN_LIST);
+
+    TMPL(tmpl_print_expression, plan->v.operand[0]->v.operand[0], pplan);
+    if(plan->v.operand[1]) {
+        %}{{ delim }}{%
+        TMPL(tmpl_column_list_combine, plan->v.operand[1], pplan, delim);
+    }
+
+    TEMPLATE_END();
+}
+%}

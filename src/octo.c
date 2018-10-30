@@ -26,6 +26,7 @@
 
 #include "octo.h"
 #include "octo_types.h"
+#include "physical_plan.h"
 #include "parser.h"
 #include "lexer.h"
 
@@ -48,6 +49,7 @@ int main(int argc, char **argv)
 	ydb_buffer_t z_status, z_status_value;
 	gtm_char_t err_msgbuf[MAX_STR_CONST];
 	gtm_long_t cursorId;
+	PhysicalPlan *pplan;
 
 	octo_init();
 
@@ -170,7 +172,9 @@ int main(int argc, char **argv)
 		switch(result->type)
 		{
 		case select_STATEMENT:
-			table = emit_select_statement(&cursor_global, cursor_exe_global, result, NULL);
+			pplan = emit_select_statement(&cursor_global, cursor_exe_global, result, NULL);
+			if(pplan == NULL)
+				break;
 			cursorId = atol(cursor_exe_global[0].buf_addr);
 			status = gtm_ci("select", cursorId);
 			if (status != 0)
@@ -178,8 +182,8 @@ int main(int argc, char **argv)
 				gtm_zstatus(err_msgbuf, MAX_STR_CONST);
 				FATAL(ERR_YOTTADB, err_msgbuf);
 			}
-			print_temporary_table(table);
-			cleanup_sql_statement(result);
+			print_temporary_table(pplan, cursorId);
+			//cleanup_sql_statement(result);
 			break;
 		case table_STATEMENT:
 			out = open_memstream(&buffer, &buffer_size);
@@ -212,7 +216,9 @@ int main(int argc, char **argv)
 			cleanup_sql_statement(result);
 			break;
 		case insert_STATEMENT:
-			table = emit_insert_statement(&cursor_global, cursor_exe_global, result);
+			pplan = emit_insert_statement(&cursor_global, cursor_exe_global, result);
+			if(pplan == NULL)
+				break;
 			cursorId = atol(cursor_exe_global[0].buf_addr);
 			status = gtm_ci("select", cursorId);
 			if (status != 0)
@@ -220,10 +226,8 @@ int main(int argc, char **argv)
 				gtm_zstatus(err_msgbuf, MAX_STR_CONST);
 				FATAL(ERR_YOTTADB, err_msgbuf);
 			}
-			cleanup_sql_statement(result);
-			SQL_STATEMENT(tmp_statement, table_STATEMENT);
-			tmp_statement->v.table = table;
-			cleanup_sql_statement(tmp_statement);
+			print_temporary_table(pplan, cursorId);
+			//cleanup_sql_statement(result);
 			break;
 		default:
 			FATAL(ERR_FEATURE_NOT_IMPLEMENTED, input_buffer_combined);

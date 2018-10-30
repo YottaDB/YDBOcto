@@ -1,0 +1,10 @@
+{%
+#include "physical_plan.h"
+#include "template_helpers.h"
+
+TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
+    TEMPLATE_INIT();
+    
+    TEMPLATE_END();
+}
+%}

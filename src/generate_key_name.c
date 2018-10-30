@@ -31,6 +31,8 @@ int generate_key_name(char *buffer, int buffer_size, int target_key_num, SqlTabl
 	SqlValue *value;
 	SqlOptionalKeyword *keyword;
 
+	if(key_columns[target_key_num] == NULL)
+		return 0;
 	keyword = get_keyword(key_columns[target_key_num], OPTIONAL_EXTRACT);
 	if(keyword != NULL) {
 		UNPACK_SQL_STATEMENT(value, keyword->v, value);
@@ -44,7 +46,7 @@ int generate_key_name(char *buffer, int buffer_size, int target_key_num, SqlTabl
 	UNPACK_SQL_STATEMENT(value, key_columns[target_key_num]->columnName, value);
 	columnName = value->v.reference;
 
-	buffer_ptr += snprintf(buffer_ptr, buffer_size - (buffer_ptr - buffer), "keys(\"%s\",\"%s\")", tableName, columnName);
+	buffer_ptr += snprintf(buffer_ptr, buffer_size - (buffer_ptr - buffer), "keys(\"%s\")", columnName);
 	*buffer_ptr++ = '\0';
 
 	return buffer_ptr - buffer;

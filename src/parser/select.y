@@ -36,11 +36,24 @@ query_specification
       SqlJoin *join;
       UNPACK_SQL_STATEMENT(join, ($$)->v.select->table_list, join);
       SqlColumnList *column_list;
+      SqlColumnListAlias *cur_column_list_alias, *start_column_list_alias;
       SqlValueType type;
-      UNPACK_SQL_STATEMENT(column_list, $select_list, column_list);
-      if(column_list && (qualify_column_list(column_list, join) || populate_data_type($select_list, &type))) {
-        YYABORT;
+      int result;
+      UNPACK_SQL_STATEMENT(start_column_list_alias, $select_list, column_list_alias);
+      cur_column_list_alias = start_column_list_alias;
+      if(cur_column_list_alias != NULL) {
+	  result = qualify_column_list_alias(cur_column_list_alias, join);
+	  if(result != 0) {
+	      YYABORT;
+	  }
+	  result = populate_data_type($select_list, &type);
+	  if(result != 0) {
+	      YYABORT;
+	  }
       }
+      //if(column_list && (qualify_column_list(column_list, join) || populate_data_type($select_list, &type))) {
+      //  YYABORT;
+      //}
     }
   | SELECT set_quantifier select_list table_expression
   | SELECT select_list table_expression ORDER BY sort_specification_list
@@ -49,7 +62,7 @@ query_specification
 
 select_list
   : ASTERISK {
-      SQL_STATEMENT($$, column_list_STATEMENT);
+      SQL_STATEMENT($$, column_list_alias_STATEMENT);
       ($$)->v.column_list = 0;
     }
   | select_sublist { $$ = $1;  }
@@ -60,9 +73,9 @@ select_sublist
       $$ = $1;
       // deviation from pattern here so we don't have to deal with "NOT_A_COLUMN" elsewhere
       if(($2) != NULL) {
-        SqlColumnList *list1, *list2, *t_column_list;
-        UNPACK_SQL_STATEMENT(list1, $$, column_list);
-        UNPACK_SQL_STATEMENT(list2, $2, column_list);
+        SqlColumnListAlias *list1, *list2, *t_column_list;
+        UNPACK_SQL_STATEMENT(list1, $$, column_list_alias);
+        UNPACK_SQL_STATEMENT(list2, $2, column_list_alias);
         dqinsert(list2, list1, t_column_list);
         //free($2);
       }
@@ -96,19 +109,36 @@ set_quantifier
 
 derived_column
   : non_query_value_expression {
-      SQL_STATEMENT($$, column_list_STATEMENT);
-      MALLOC_STATEMENT($$, column_list, SqlColumnList);
+      SQL_STATEMENT($$, column_list_alias_STATEMENT);
+      MALLOC_STATEMENT($$, column_list_alias, SqlColumnListAlias);
+      SqlColumnListAlias *alias;
+      UNPACK_SQL_STATEMENT(alias, $$, column_list_alias);
+      SQL_STATEMENT(alias->column_list, column_list_STATEMENT);
+      MALLOC_STATEMENT(alias->column_list, column_list, SqlColumnList);
+      dqinit(alias);
+      SqlColumnList *column_list;
+      UNPACK_SQL_STATEMENT(column_list, alias->column_list, column_list);
       assert(($1)->type == value_STATEMENT);
-      dqinit(($$)->v.column_list);
-      ($$)->v.column_list->value = $1;
+      dqinit(column_list);
+      column_list->value = $1;
+      PACK_SQL_STATEMENT(alias->column_list, column_list, column_list);
     }
   | non_query_value_expression AS column_name {
-      SQL_STATEMENT($$, column_list_STATEMENT);
-      MALLOC_STATEMENT($$, column_list, SqlColumnList);
+      SQL_STATEMENT($$, column_list_alias_STATEMENT);
+      MALLOC_STATEMENT($$, column_list_alias, SqlColumnListAlias);
+      SqlColumnListAlias *alias;
+      UNPACK_SQL_STATEMENT(alias, $$, column_list_alias);
+      SQL_STATEMENT(alias->column_list, column_list_STATEMENT);
+      dqinit(alias);
+      MALLOC_STATEMENT(alias->column_list, column_list, SqlColumnList);
+      SqlColumnList *column_list;
+      UNPACK_SQL_STATEMENT(column_list, alias->column_list, column_list);
       assert(($1)->type == value_STATEMENT);
-      dqinit(($$)->v.column_list);
-      ($$)->v.column_list->value = $1;
-  }
+      dqinit(column_list);
+      column_list->value = $1;
+      PACK_SQL_STATEMENT(alias->column_list, column_list, column_list);
+      alias->alias = $column_name;
+    }
   ;
 
 from_clause
@@ -121,18 +151,26 @@ table_reference
       SQL_STATEMENT($$, join_STATEMENT);
       MALLOC_STATEMENT($$, join, SqlJoin);
       SqlTable *table = find_table($column_name->v.value->v.reference);
+      SqlJoin *join = $$->v.join, *join_tail, *t_join;
+      SqlTableAlias *alias;
       if(table == NULL) {
         ERROR(ERR_UNKNOWN_TABLE, $column_name->v.value->v.reference);
         print_yyloc(&($column_name)->loc);
         YYABORT;
       }
-      SQL_STATEMENT(($$)->v.join->value, table_STATEMENT);
-      ($$)->v.join->value->v.table = table;
-      dqinit(($$)->v.join);
+      SQL_STATEMENT(join->value, table_alias_STATEMENT);
+      MALLOC_STATEMENT(join->value, table_alias, SqlTableAlias);
+      UNPACK_SQL_STATEMENT(alias, join->value, table_alias);
+      SQL_STATEMENT(alias->table, table_STATEMENT);
+      alias->table->v.table = copy_sql_table(table);
+      alias->alias = copy_sql_statement(table->tableName);
+      // We can probably put a variable in the bison local for this
+      alias->unique_id = *plan_id;
+      (*plan_id)++;
+      dqinit(join);
       if($table_reference_tail) {
-        SqlJoin *join, *t_join;
-        UNPACK_SQL_STATEMENT(join, $table_reference_tail, join);
-        dqinsert(($$)->v.join, join, t_join);
+        UNPACK_SQL_STATEMENT(join_tail, $table_reference_tail, join);
+        dqinsert(join, join_tail, t_join);
         free($table_reference_tail);
       }
     }
@@ -140,29 +178,64 @@ table_reference
       SQL_STATEMENT($$, join_STATEMENT);
       MALLOC_STATEMENT($$, join, SqlJoin);
       SqlTable *table = find_table($column_name->v.value->v.reference);
+      SqlJoin *join = $$->v.join, *join_tail, *t_join;
+      SqlTableAlias *alias;
       if(table == NULL) {
-        ERROR(ERR_UNKNOWN_TABLE, $column_name->v.value->v.reference)
+        ERROR(ERR_UNKNOWN_TABLE, $column_name->v.value->v.reference);
         print_yyloc(&($column_name)->loc);
         YYABORT;
       }
-      SQL_STATEMENT(($$)->v.join->value, table_STATEMENT);
-      ($$)->v.join->value->v.table = table;
-      dqinit(($$)->v.join);
+      SQL_STATEMENT(join->value, table_alias_STATEMENT);
+      MALLOC_STATEMENT(join->value, table_alias, SqlTableAlias);
+      UNPACK_SQL_STATEMENT(alias, join->value, table_alias);
+      SQL_STATEMENT(alias->table, table_STATEMENT);
+      alias->table->v.table = copy_sql_table(table);
+      alias->alias = $correlation_specification;
+      // We can probably put a variable in the bison local for this
+      alias->unique_id = *plan_id;
+      (*plan_id)++;
+      dqinit(join);
       if($table_reference_tail) {
-        SqlJoin *join, *t_join;
-        UNPACK_SQL_STATEMENT(join, $table_reference_tail, join);
-        dqinsert(($$)->v.join, join, t_join);
+        UNPACK_SQL_STATEMENT(join_tail, $table_reference_tail, join);
+        dqinsert(join, join_tail, t_join);
         free($table_reference_tail);
       }
     }
   | derived_table {
       SQL_STATEMENT($$, join_STATEMENT);
       MALLOC_STATEMENT($$, join, SqlJoin);
-      ($$)->v.join->type = TABLE_SPEC;
-      ($$)->v.join->value = $1;
-      dqinit(($$)->v.join);
+      SqlJoin *join = $$->v.join, *join_tail, *t_join;
+      SqlTableAlias *alias;
+      SQL_STATEMENT(join->value, table_alias_STATEMENT);
+      MALLOC_STATEMENT(join->value, table_alias, SqlTableAlias);
+      UNPACK_SQL_STATEMENT(alias, join->value, table_alias);
+      SQL_STATEMENT(alias->table, select_STATEMENT);
+      alias->table = $derived_table;
+      SqlValue *value;
+      char *string = "temp_table";
+      int string_len = strlen(string);
+      value = (SqlValue*)malloc(sizeof(SqlValue));
+      value->v.string_literal = malloc(string_len + 1);
+      memcpy(value->v.string_literal, string, string_len + 1);
+      PACK_SQL_STATEMENT(alias->alias, value, value);
+      alias->unique_id = *plan_id;
+      (*plan_id)++;
+      dqinit(join);
     }
-  | derived_table correlation_specification
+  | derived_table correlation_specification {
+      SQL_STATEMENT($$, join_STATEMENT);
+      MALLOC_STATEMENT($$, join, SqlJoin);
+      ($$)->v.join->type = TABLE_SPEC;
+      //      ($$)->v.join->value = $1;
+      dqinit(($$)->v.join);
+      SqlTableAlias *alias;
+      alias = (SqlTableAlias*)malloc(sizeof(SqlTableAlias));
+      alias->table =  $1;
+      alias->alias = $2;
+      alias->unique_id = *plan_id;
+      (*plan_id)++;
+      //($$)->v.join->value = alias;
+    }
   | joined_table { $$ = $1; }
   ;
 
@@ -173,8 +246,9 @@ table_reference_tail
   | COMMA table_reference { $$ = $1; }
   ;
 
+/// TODO: what is this (column_name_list) syntax?
 correlation_specification
-  : optional_as column_name
+  : optional_as column_name { $$ = $1; }
   | optional_as column_name LEFT_PAREN column_name_list RIGHT_PAREN
   ;
 

@@ -25,6 +25,7 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables) {
 	SqlUnaryOperation *unary;
 	SqlBinaryOperation *binary;
 	SqlValue *value;
+	SqlColumnAlias *alias;
 	int result = 0, column_found = 0;
 
 	if(stmt == NULL)
@@ -33,15 +34,29 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables) {
 	switch(stmt->type) {
 	case select_STATEMENT:
 		break;
+	case column_alias_STATEMENT:
+		// We should never get here; we do the conversion from
+		//  SqlValue
+		assert(FALSE);
+		UNPACK_SQL_STATEMENT(alias, stmt, column_alias);
+		//column_found = qualify_column_name(alias, tables) == 0;
+		if(!column_found) {
+			print_yyloc(&stmt->loc);
+		}
+		result |= !column_found;
+		break;
 	case value_STATEMENT:
 		UNPACK_SQL_STATEMENT(value, stmt, value);
 		switch(value->type) {
 		case COLUMN_REFERENCE:
-			column_found = qualify_column_name(&value->v.reference, tables) == 0;
-			if(!column_found) {
+			// Convert this statement to a qualified one
+			stmt->type = column_alias_STATEMENT;
+			/// TODO: the value is being leaked here
+			stmt->v.column_alias = qualify_column_name(value, tables);
+			result |= stmt->v.column_alias == NULL;
+			if(result) {
 				print_yyloc(&stmt->loc);
 			}
-			result |= !column_found;
 			break;
 		case CALCULATED_VALUE:
 			result |= qualify_statement(value->v.calculated, tables);

@@ -21,8 +21,7 @@
 #include "octo.h"
 #include "octo_types.h"
 
-// Private funcion to simplify logic in main one
-int _qualify_column_name(char **column_name, SqlJoin *tables, char *table_name_ptr, int table_name_len, char *column_name_ptr, int column_name_length);
+SqlStatement *match_column_in_table(SqlTableAlias *table, char *column_name, int column_name_len);
 
 /**
  * Tries to find the column in the list of tables
@@ -31,86 +30,106 @@ int _qualify_column_name(char **column_name, SqlJoin *tables, char *table_name_p
  * For the case of join tables, searches using the <tableName>.<columnName>
  *  followed by searching without seperating the two parts
  */
-int qualify_column_name(char **column_name, SqlJoin *tables) {
-	char *column_name_ptr = NULL, *table_name_ptr = NULL;
-	int table_name_len = 0, column_name_length = 0;
-
-	// First try searching assuming not a JOIN
-	column_name_ptr = *column_name;
-	// Verify that this isn't already a long name
-	for(; *column_name_ptr != '.' && *column_name_ptr != '\0'; column_name_ptr++) {
-		// Empty
-	}
-	if(*column_name_ptr == '.') {
-		table_name_ptr = *column_name;
-		table_name_len = column_name_ptr - *column_name;
-		column_name_ptr++;
-		column_name_length = strlen(column_name_ptr);
-	} else {
-		column_name_length = column_name_ptr - *column_name;
-		column_name_ptr = *column_name;
-	}
-	if(_qualify_column_name(column_name, tables, table_name_ptr, table_name_len, column_name_ptr, column_name_length) == 0) {
-		return 0;
-	}
-	// Try searching with an unmodified name
-	if(_qualify_column_name(column_name, tables, NULL, 0, *column_name, strlen(*column_name)) == 0) {
-		return 0;
-	}
-	ERROR(ERR_UNKNOWN_COLUMN_NAME, *column_name);
-	return 1;
-}
-
-
-int _qualify_column_name(char **column_name, SqlJoin *tables, char *table_name_ptr, int table_name_len, char *column_name_ptr, int column_name_length) {
+SqlColumnAlias *qualify_column_name(SqlValue *column_value, SqlJoin *tables) {
+	int table_name_len = 0, column_name_len = 0;
+	char *table_name = NULL, *column_name = NULL, *c;
+	SqlColumnAlias *ret;
+	SqlStatement *column = NULL, *t_column;
+	SqlTableAlias *cur_alias, *matching_alias;
 	SqlJoin *cur_join, *start_join;
-	SqlColumn *cur_column, *start_column;
-	SqlValue *table_column_name, *table_name;
-	SqlTable *table;
-	char *new_column_name;
-	int column_matched = 0;
+	SqlValue *value;
+
+
+	// If the value is not a column_reference, we should not be here
+	assert(column_value->type == COLUMN_REFERENCE);
+
+	// Find the first period; if it is missing, we need to match against
+	//  all columns in all tables
+	for(c = column_value->v.reference; *c != '\0' && *c != '.'; c++) {
+		// Pass
+	}
+	if(*c == '.') {
+		table_name = column_value->v.reference;
+		table_name_len = c - table_name;
+		column_name = c+1;
+		column_name_len = strlen(column_name);
+	} else {
+		column_name = column_value->v.reference;
+		column_name_len = c - column_name;
+	}
 
 	cur_join = start_join = tables;
-	column_matched = FALSE;
 	do {
-		UNPACK_SQL_STATEMENT(table, cur_join->value, table);
-		UNPACK_SQL_STATEMENT(table_name, table->tableName, value);
-		// If we have a matching table (this was already a long name) and this isn't
-		//  the right table, continue
-		if(table_name_ptr && (strlen(table_name->v.reference) != table_name_len
-		                      || strncmp(table_name->v.reference, table_name_ptr, table_name_len) != 0)) {
-			cur_join = cur_join->next;
-			continue;
+		// If we need to match a table, ensure this table
+		//  is the correct one before calling the helper
+		UNPACK_SQL_STATEMENT(cur_alias, cur_join->value, table_alias);
+		if(table_name) {
+			UNPACK_SQL_STATEMENT(value, cur_alias->alias, value);
+			if(memcmp(value->v.reference, table_name, table_name_len) == 0) {
+				matching_alias = cur_alias;
+				column = match_column_in_table(cur_alias, column_name, column_name_len);
+				break;
+			}
+		} else {
+			t_column = match_column_in_table(cur_alias, column_name, column_name_len);
+			if(t_column != NULL) {
+				if(column != NULL) {
+					WARNING(CUSTOM_ERROR, "Ambgious column name");
+					return NULL;
+				}
+				matching_alias = cur_alias;
+				column = t_column;
+			}
+
 		}
+		cur_join = cur_join->next;
+	} while(cur_join != start_join);
+
+	if(column == NULL) {
+		WARNING(CUSTOM_ERROR, "Unknown column");
+		return NULL;
+	}
+
+	ret = (SqlColumnAlias*)malloc(sizeof(SqlColumnAlias));
+	ret->column = column;
+	PACK_SQL_STATEMENT(ret->table_alias, matching_alias, table_alias);
+
+	return ret;
+}
+
+SqlStatement *match_column_in_table(SqlTableAlias *table_alias, char *column_name, int column_name_len) {
+	SqlSelectStatement *select;
+	SqlColumnListAlias *cur_column_list, *start_column_list;
+	SqlColumn *cur_column, *start_column;
+	SqlTable *table;
+	SqlValue *value;
+	SqlStatement *ret = NULL;
+
+	if(table_alias->table->type == table_STATEMENT) {
+		UNPACK_SQL_STATEMENT(table, table_alias->table, table);
 		UNPACK_SQL_STATEMENT(start_column, table->columns, column);
 		cur_column = start_column;
 		do {
-			UNPACK_SQL_STATEMENT(table_column_name, cur_column->columnName, value);
-			if(strlen(table_column_name->v.reference) == column_name_length
-			   && strncmp(table_column_name->v.reference, column_name_ptr, column_name_length) == 0) {
-				column_matched = TRUE;
-				if(table_name_ptr == NULL) {
-					table_name_ptr = table_name->v.reference;
-					table_name_len = strlen(table_name_ptr);
-					new_column_name = malloc(table_name_len + column_name_length + 3);
-					strncpy(new_column_name, table_name_ptr, table_name_len);
-					*(new_column_name + table_name_len) = '.';
-					strncpy(new_column_name + table_name_len + 1, table_column_name->v.reference, column_name_length + 2);
-					free(*column_name);
-					(*column_name) = new_column_name;
-				}
-			}
-			if(column_matched)
+			UNPACK_SQL_STATEMENT(value, cur_column->columnName, value);
+			if(memcmp(value->v.reference, column_name, column_name_len) == 0) {
+				PACK_SQL_STATEMENT(ret, cur_column, column);
 				break;
+			}
 			cur_column = cur_column->next;
 		} while(cur_column != start_column);
-		if(column_matched)
-			break;
-		cur_join = cur_join->next;
-	} while(cur_join != start_join);
-	if(!column_matched) {
-		return 1;
+	} else if(table_alias->table->type == select_STATEMENT) {
+		UNPACK_SQL_STATEMENT(start_column_list, table_alias->table, column_list_alias);
+		cur_column_list = start_column_list;
+		do {
+			UNPACK_SQL_STATEMENT(value, cur_column_list->alias, value);
+			if(memcmp(value->v.reference, column_name, column_name_len) == 0) {
+				PACK_SQL_STATEMENT(ret, cur_column_list, column_list_alias);
+				break;
+			}
+			cur_column_list = cur_column_list->next;
+		} while(cur_column_list != start_column_list);
+	} else {
+		assert(FALSE);
 	}
-
-	return 0;
+	return ret;
 }

@@ -1,0 +1,111 @@
+{%
+#include <assert.h>
+
+#include "logical_plan.h"
+#include "physical_plan.h"
+#include "template_helpers.h"
+
+TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan) {
+    TEMPLATE_INIT();
+    char *mid = NULL, *column, *table, *c, *extract_expression;
+    int qualified = FALSE, i, columnId;
+    SqlValue *value;
+    SqlTable *src_table;
+    SqlColumn *start_column, *cur_column;
+    SqlOptionalKeyword *keyword, *piece_keyword, *source_keyword;
+
+    assert(plan != NULL);
+
+    switch(plan->type) {
+    case LP_VALUE:
+    	 value = plan->v.value;
+	 switch(value->type) {
+	 case NUMBER_LITERAL:
+	 case STRING_LITERAL:
+	 case DATE_TIME:
+    	     %}"{{ value->v.string_literal }}"{%
+	     break;
+	 case COLUMN_REFERENCE:
+	     // We should only pass LP_COLUMN_ALIASes to this funciton
+	     assert(FALSE);
+	     break;
+	 default:
+	     FATAL(ERR_UNKNOWN_KEYWORD_STATE);
+	 }
+        break;
+    case LP_COLUMN_ALIAS:
+        TMPL(tmpl_column_reference, pplan, plan->v.column_alias);
+        break;
+    case LP_KEY:
+        TMPL(tmpl_key, plan->v.key);
+	break;
+    case LP_ADDITION:
+        mid = "+";
+        break;
+    case LP_SUBTRACTION:
+        mid = "-";
+        break;
+    case LP_DIVISION:
+        mid = "/";
+        break;
+    case LP_MULTIPLICATION:
+        mid = "*";
+        break;
+    case LP_CONCAT:
+        mid = "_";
+        break;
+    case LP_BOOLEAN_OR:
+        mid = "!";
+        break;
+    case LP_BOOLEAN_AND:
+        mid = "&";
+        break;
+    case LP_BOOLEAN_IS:
+        mid = "=";
+        break;
+    case LP_BOOLEAN_EQUALS:
+        mid = "=";
+        break;
+    case LP_BOOLEAN_NOT_EQUALS:
+        mid = "'=";
+        break;
+    case LP_BOOLEAN_LESS_THAN:
+        mid = "<";
+        break;
+    case LP_BOOLEAN_GREATER_THAN:
+        mid = ">";
+        break;
+    case LP_BOOLEAN_LESS_THAN_OR_EQUALS:
+        mid = "'>";
+        break;
+    case LP_BOOLEAN_GREATER_THAN_OR_EQUALS:
+        mid = "'<";
+        break;
+    case LP_BOOLEAN_IN:
+	// IN expressions require a key; we should resolve the keys in generate_physical_plan
+	//  so enforce that the search list is a key to search in
+	assert(plan->v.operand[1]->type == LP_KEY);
+	%}($D({%
+	TMPL(tmpl_key, plan->v.operand[1]->v.key);
+	/// WARNING: this happens in tmpl_physical_plan, but it is probably dangerous
+	buff_ptr -= 1;
+	%},{% TMPL(tmpl_print_expression, plan->v.operand[0], pplan); %}))'=0){%
+        break;
+    case LP_BOOLEAN_NOT_IN:
+        mid = "=";
+        break;
+    default:
+        FATAL(ERR_UNKNOWN_KEYWORD_STATE);
+    }
+
+    if(mid) {
+        %}({%
+        TMPL(tmpl_print_expression, plan->v.operand[0], pplan);
+	%}{{ mid }}{%
+	TMPL(tmpl_print_expression, plan->v.operand[1], pplan);
+	%}){%
+    }
+    
+    TEMPLATE_END();
+}
+%}

@@ -1,3 +1,18 @@
+/* Copyright (C) 2018 YottaDB, LLC
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
 #ifndef OCTO_H
 #define OCTO_H
 
@@ -7,6 +22,7 @@
 
 #include "errors.h"
 #include "octo_types.h"
+#include "config.h"
 
 #define OCTO_SQL_MAJOR_VERSION @OCTO_SQL_MAJOR_VERSION@
 #define OCTO_SQL_MINOR_VERSION @OCTO_SQL_MINOR_VERSION@
@@ -26,15 +42,14 @@ SqlColumn *fetch_primary_key_column(const SqlTable *table);
 void emit_simple_select(char *output, const SqlTable *table, const char *column, char *source);
 int emit_column_specification(char *buffer, int buffer_size, SqlColumn *column);
 void emit_create_table(FILE *output, struct SqlStatement *stmt);
-SqlTable *emit_select_statement(ydb_buffer_t *cursor_global,
-  ydb_buffer_t *cursor_exe_global, struct SqlStatement *stmt,
-  SqlTable *destination_table);
-SqlTable *emit_insert_statement(ydb_buffer_t *cursor_global,
-    ydb_buffer_t *cursor_exe_global, struct SqlStatement *stmt);
 SqlTable *emit_xref_table(ydb_buffer_t *cursor_global,
     ydb_buffer_t *cursor_exe_global, struct SqlStatement *stmt);
 SqlTable *emit_temporary_join_table(SqlTable *table[], int tableCount);
 void cleanup_sql_statement(SqlStatement *stmt);
+// Recursively copies all of stmt, including making copies of strings
+SqlStatement *copy_sql_statement(SqlStatement *stmt);
+SqlTable *copy_sql_table(SqlTable *table);
+
 /**
  * Examines the table to make sure needed columns are specified, and fills out
  * any that are needed but not present.
@@ -51,14 +66,14 @@ char *extract_expression(ydb_buffer_t *cursor_global,
     ydb_buffer_t *cursor_exe_global, SqlStatement *stmt,
     const SqlTable *table, char *source);
 SqlStatement *parse_line(const char *line);
-void print_temporary_table(SqlTable *table);
+
 int populate_data_type(SqlStatement *v, SqlValueType *type);
 SqlTable *find_table(const char *table_name);
 SqlColumn *find_column(char *column_name, SqlTable *table);
+int qualify_column_list_alias(SqlColumnListAlias *alias, SqlJoin *tables);
 int qualify_column_list(SqlColumnList *select_columns, SqlJoin *tables);
-int qualify_column_name(char **column_name, SqlJoin *tables);
+SqlColumnAlias *qualify_column_name(SqlValue *column_value, SqlJoin *tables);
 int qualify_statement(SqlStatement *stmt, SqlJoin *tables);
-int octo_init();
 void print_yyloc(YYLTYPE *llocp);
 void get_table_parts(SqlTable *table, char **curse, char **start, char **end,
     char **source);
@@ -71,6 +86,15 @@ int get_advance(char *buffer, int buffer_size, SqlColumn *column, SqlColumn **ke
 int generate_key_name(char *buffer, int buffer_size, int target_key_num, SqlTable *table, SqlColumn **key_columns);
 int find_qualified_column(SqlValue *column_reference, SqlTable **table, SqlColumn **column);
 
+void assign_table_to_columns(SqlStatement *table_statement);
+
+/**
+ * Returns TRUE if the columns are equal, FALSE otherwise
+ */
+int columns_equal(SqlColumn *a, SqlColumn *b);
+int tables_equal(SqlTable *a, SqlTable *b);
+int values_equal(SqlValue *a, SqlValue *b);
+
 /* Optimizations */
 int optimize_where(SqlStatement *stmt, SqlJoin *join);
 int constant_equal_column(SqlStatement *stmt, SqlJoin *join);
@@ -78,6 +102,5 @@ int constant_equal_column(SqlStatement *stmt, SqlJoin *join);
 /* Globals */
 SqlTable *definedTables;
 char input_buffer_combined[MAX_STR_CONST];
-OctoConfig *config;
 
 #endif

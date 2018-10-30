@@ -1,0 +1,14 @@
+{%
+
+#include "octo_types.h"
+#include "logical_plan.h"
+
+#include "template_helpers.h"
+
+TEMPLATE(tmpl_key_start, SqlKey *key) {
+    TEMPLATE_INIT();
+    %}SET {% TMPL(tmpl_key, key); %}=""{%
+    TEMPLATE_END();
+}
+
+%}

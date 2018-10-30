@@ -46,28 +46,36 @@ void emit_create_table(FILE *output, struct SqlStatement *stmt)
 		if(start_column != cur_column)
 			fprintf(output, ", ");
 	} while(start_column != cur_column);
-	assert(table->source);
-	UNPACK_SQL_STATEMENT(keyword, table->source, keyword);
-	UNPACK_SQL_STATEMENT(value, keyword->v, value);
-	fprintf(output, ") GLOBAL \"%s\"", value->v.reference);
-	assert(table->curse);
-	UNPACK_SQL_STATEMENT(keyword, table->curse, keyword);
-	UNPACK_SQL_STATEMENT(value, keyword->v, value);
-	fprintf(output, " CURSOR \"%s\"", value->v.reference);
-	assert(table->start);
-	UNPACK_SQL_STATEMENT(keyword, table->start, keyword);
-	UNPACK_SQL_STATEMENT(value, keyword->v, value);
-	fprintf(output, " UNPACK \"%s\"", value->v.reference);
-	assert(table->end);
-	UNPACK_SQL_STATEMENT(keyword, table->end, keyword);
-	UNPACK_SQL_STATEMENT(value, keyword->v, value);
-	fprintf(output, " END \"%s\"", value->v.reference);
-	assert(table->delim);
-	UNPACK_SQL_STATEMENT(keyword, table->delim, keyword);
-	UNPACK_SQL_STATEMENT(value, keyword->v, value);
-	fprintf(output, " DELIM \"%s\"", value->v.reference);
-	assert(table->pack);
-	UNPACK_SQL_STATEMENT(keyword, table->pack, keyword);
-	UNPACK_SQL_STATEMENT(value, keyword->v, value);
-	fprintf(output, " PACK \"%s\";", value->v.reference);
+	fprintf(output, ")");
+	if(table->source) {
+		UNPACK_SQL_STATEMENT(keyword, table->source, keyword);
+		UNPACK_SQL_STATEMENT(value, keyword->v, value);
+		fprintf(output, " GLOBAL \"%s\"", value->v.reference);
+	}
+	if(table->curse) {
+		UNPACK_SQL_STATEMENT(keyword, table->curse, keyword);
+		UNPACK_SQL_STATEMENT(value, keyword->v, value);
+		fprintf(output, " CURSOR \"%s\"", value->v.reference);
+	}
+	if(table->start) {
+		UNPACK_SQL_STATEMENT(keyword, table->start, keyword);
+		UNPACK_SQL_STATEMENT(value, keyword->v, value);
+		fprintf(output, " UNPACK \"%s\"", value->v.reference);
+	}
+	if(table->end) {
+		UNPACK_SQL_STATEMENT(keyword, table->end, keyword);
+		UNPACK_SQL_STATEMENT(value, keyword->v, value);
+		fprintf(output, " END \"%s\"", value->v.reference);
+	}
+	if(table->delim) {
+		UNPACK_SQL_STATEMENT(keyword, table->delim, keyword);
+		UNPACK_SQL_STATEMENT(value, keyword->v, value);
+		fprintf(output, " DELIM \"%s\"", value->v.reference);
+	}
+	if(table->pack) {
+		UNPACK_SQL_STATEMENT(keyword, table->pack, keyword);
+		UNPACK_SQL_STATEMENT(value, keyword->v, value);
+		fprintf(output, " PACK \"%s\";", value->v.reference);
+	}
+	fprintf(output, ";");
 }

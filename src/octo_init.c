@@ -18,13 +18,25 @@
 #include <assert.h>
 #include <string.h>
 
+#include <sys/types.h>
+#include <dirent.h>
+#include <errno.h>
+
 #include "octo.h"
 #include "octo_types.h"
 
 int octo_init() {
+	DIR *dir;
 	config = malloc(sizeof(OctoConfig));
 	config->record_error_level = WARNING;
 	config->dry_run = FALSE;
+	config->tmp_dir = "/tmp/";
+
+	// Verify that the directory exists, or issue an error
+	dir = opendir(config->tmp_dir);
+	if(dir == NULL) {
+		FATAL(ERR_SYSCALL, "opendir (config.tmp_dir)", errno);
+	}
 
 	definedTables = NULL;
 

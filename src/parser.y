@@ -38,15 +38,15 @@ typedef void* yyscan_t;
 #define YYSTYPE SqlStatement *
 
 extern int yylex(YYSTYPE * yylval_param, YYLTYPE *llocp, yyscan_t yyscanner);
-extern int yyparse(yyscan_t scan, SqlStatement **out);
-extern void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, char const *s);
+extern int yyparse(yyscan_t scan, SqlStatement **out, int *plan_id);
+extern void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, int *plan_id, char const *s);
 
 %}
 
 %define api.pure full
 %locations
 %lex-param   { yyscan_t scanner }
-%parse-param { yyscan_t scanner } { SqlStatement **out }
+%parse-param { yyscan_t scanner } { SqlStatement **out } { int *plan_id }
 
 %token ALL
 %token AND
@@ -725,6 +725,7 @@ table_definition
           && $column_name->v.value->type == COLUMN_REFERENCE);
         ($$)->v.table->tableName = $column_name;
         ($$)->v.table->columns = $table_element_list;
+        assign_table_to_columns($$);
         if(create_table_defaults($$, $table_definition_tail)) {
           YYABORT;
         }
@@ -843,7 +844,6 @@ column_definition
       assert($data_type->type == data_type_STATEMENT);
       ($$)->v.column->type = $data_type->v.data_type;
       cleanup_sql_statement($data_type);
-      ($$)->v.column->tableName = NULL;
       ($$)->v.column->keywords = $column_definition_tail;
     }
 //  | more stuff

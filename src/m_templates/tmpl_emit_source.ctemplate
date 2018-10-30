@@ -1,0 +1,88 @@
+{%
+#include <assert.h>
+
+#include "physical_plan.h"
+#include "template_helpers.h"
+
+// If we are given something like ^myTable(keys("id")), we should
+//  transform this to ^myTable(^cursor(cursorId,"keys",###,"myTable","id"))
+
+/**
+ * Returns n > 0 if this start marks the beginning of a keys(..) expression
+ *  Populates column with the column expression, and returns the length
+ * Returns -1 if the column won't fit in the buffer
+ * Returns 0 if this is not a  match
+ */
+int match_expression(char *start, char *column, int column_size);
+
+/**
+ * Emits the source given, replacing keys("columnName") with
+ *  references to this PhysicalPlan's keys
+ */
+TEMPLATE(tmpl_emit_source, char *source, char *table_name, int unique_id) {
+    TEMPLATE_INIT();
+    char *source_ptr, *c;
+    char column[MAX_STR_CONST];
+    int t, i;
+
+    source_ptr = source;
+    while(*source_ptr != '\0') {
+        t = match_expression(source_ptr, column, MAX_STR_CONST);
+	assert(t != -1);
+	if(t > 0) {
+	    // Note that we don't add quotes to column in case the user users a
+	    //  extrinsic or something
+	    %}^cursor(cursorId,"keys",{{ unique_id|%d }},"{{ table_name }}",{{ column }}){%
+	    source_ptr += t;
+	} else {
+	    %}{{ *source_ptr|%c }}{%
+	    source_ptr++;
+	}
+    }
+    
+    TEMPLATE_END();
+}
+
+int match_expression(char *start, char *column, int column_size) {
+    char *c, *c2, *column_start;
+    char *keys = "keys(";
+    int paren_count = 0;
+
+    // First match on keys( and we can start parsing table name
+    c = start;
+    for(c2 = keys; *c != '\0' && *c2 != '\0'; c2++, c++) {
+        if(*c != *c2) {
+	    return 0;
+	}
+    }
+
+    paren_count = 1;
+    column_start = c;
+
+    while(paren_count != 0 && *c != '\0') {
+        switch(*c) {
+	case '(':
+	    paren_count++;
+	    break;
+	case ')':
+	    paren_count--;
+	    break;
+	default:
+	    break;
+	}
+	c++;
+    }
+
+    if(paren_count == 0) {
+        // Go back a few places as c will include the paren
+	c -= 1;
+        if(column_size < c - column_start || c < column_start)
+	    return -1;
+	memcpy(column, column_start, c - column_start);
+	column[c - column_start] = '\0';
+	assert(!(column[0] == '"' && column[1] == '"'));
+	return c - start + 1;
+    }
+    return 0;
+}
+%}

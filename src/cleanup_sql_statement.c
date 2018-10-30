@@ -9,6 +9,7 @@ void cleanup_sql_statement(SqlStatement *stmt)
 	SqlTable *cur_table, *start_table;
 	SqlColumn *cur_column, *start_column;
 	SqlColumnList *cur_column_list, *start_column_list;
+	SqlColumnListAlias *start_cla, *cur_cla, *t_cla;
 	SqlJoin *cur_join, *start_join;
 	SqlInsertStatement *insert;
 	if(stmt == NULL)
@@ -98,7 +99,7 @@ void cleanup_sql_statement(SqlStatement *stmt)
 			start_column = cur_column;
 			do {
 				cleanup_sql_statement(cur_column->columnName);
-				cleanup_sql_statement(cur_column->tableName);
+				//cleanup_sql_statement(cur_column->table);
 				assert(cur_column->next == start_column ||
 				       cur_column->next->prev == cur_column);
 				if(cur_column->next == start_column) {
@@ -116,6 +117,7 @@ void cleanup_sql_statement(SqlStatement *stmt)
 		UNPACK_SQL_STATEMENT(start_join, stmt, join);
 		cur_join = start_join;
 		do {
+			/// TODO: this should be cleaned
 			// We don't want to cleanup tables themselves
 			//cleanup_sql_statement(cur_join->value);
 			if(cur_join->next == start_join) {
@@ -138,6 +140,7 @@ void cleanup_sql_statement(SqlStatement *stmt)
 		break;
 	case constraint_STATEMENT:
 	case keyword_STATEMENT:
+		/// TODO: this is now a double queue
 		if(stmt->v.keyword) {
 			cleanup_sql_statement(stmt->v.keyword->v);
 			free(stmt->v.keyword);
@@ -151,6 +154,19 @@ void cleanup_sql_statement(SqlStatement *stmt)
 			cleanup_sql_statement(insert->columns);
 		}
 		free(stmt);
+		break;
+	case column_list_alias_STATEMENT:
+		UNPACK_SQL_STATEMENT(start_cla, stmt, column_list_alias);
+		cur_cla = start_cla;
+		if(cur_cla == NULL)
+			break;
+		do {
+			cleanup_sql_statement(cur_cla->column_list);
+			cleanup_sql_statement(cur_cla->alias);
+			t_cla = cur_cla->next;
+			free(cur_cla);
+			cur_cla = t_cla;
+		} while(cur_cla != start_cla);
 		break;
 	default:
 		FATAL(ERR_UNKNOWN_KEYWORD_STATE);

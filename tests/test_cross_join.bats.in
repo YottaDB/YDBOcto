@@ -5,12 +5,14 @@ setup() {
   createdb
   load_fixture names.sql
   load_fixture names.zwr
+  load_fixture names2.zwr
+  load_fixture names2.sql
 }
 
 @test "cross join" {
   octo <<OCTO &> output.txt
-create table names2 (id integer primary key, firstName varchar key num "1", lastName varchar);
-insert into names2 (select * from names);
+-- create table names2 (id integer primary key, firstName varchar key num "1", lastName varchar);
+-- insert into names2 (select * from names);
 select * from names cross join names2;
 OCTO
   run cat output.txt
@@ -19,8 +21,8 @@ OCTO
 
 @test "cross join with where statement in table 1" {
   octo -vvv <<OCTO &> output.txt
-create table names2 (id integer primary key, firstName varchar key num "1", lastName varchar);
-insert into names2 (select * from names);
+-- create table names2 (id integer primary key, firstName varchar key num "1", lastName varchar);
+; insert into names2 (select * from names);
 select * from names cross join names2 where names.firstName = "Zero";
 OCTO
   run cat output.txt
@@ -31,7 +33,7 @@ OCTO
 @test "cross join with where statement in table 2" {
   octo -vvv <<OCTO &> output.txt
 create table names2 (id integer primary key, firstName varchar key num "1", lastName varchar);
-insert into names2 (select * from names);
+-- insert into names2 (select * from names);
 select * from names cross join names2 where names2.firstName = "Zero";
 OCTO
   run cat output.txt
@@ -42,7 +44,7 @@ OCTO
 @test "cross join with where statement in table 1 and table 2" {
   octo -vvv <<OCTO &> output.txt
 create table names2 (id integer primary key, firstName varchar key num "1", lastName varchar);
-insert into names2 (select * from names);
+-- insert into names2 (select * from names);
 select * from names cross join names2 where names.firstName = "Zero" AND names2.firstName = "Acid";
 OCTO
   run cat output.txt

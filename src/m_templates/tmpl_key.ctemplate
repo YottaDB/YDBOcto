@@ -1,0 +1,26 @@
+{%
+#include "octo_types.h"
+#include "logical_plan.h"
+
+#include "physical_plan.h"
+#include "template_helpers.h"
+
+TEMPLATE(tmpl_key, SqlKey *key) {
+    TEMPLATE_INIT();
+    char *tableName = " ";
+    char *columnName = " ";
+    SqlValue *value;
+
+    if(key->table) {
+        UNPACK_SQL_STATEMENT(value, key->table->tableName, value);
+	tableName = value->v.reference;
+    }
+    if(key->column) {
+        UNPACK_SQL_STATEMENT (value, key->column->columnName, value);
+	columnName = value->v.reference;
+    }
+    %}^cursor(cursorId,"keys",{{ key->random_id|%d }},"{{ tableName }}","{{ columnName }}"){%
+    TEMPLATE_END();
+}
+
+%}

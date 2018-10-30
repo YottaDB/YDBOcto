@@ -1,0 +1,12 @@
+{%
+#include "physical_plan.h"
+#include "template_helpers.h"
+
+
+TEMPLATE(tmpl_table_source, SqlTable *table) {
+    TEMPLATE_INIT();
+    
+    
+    TEMPLATE_END();
+}
+%}

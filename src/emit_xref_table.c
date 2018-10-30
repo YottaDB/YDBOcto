@@ -77,7 +77,9 @@ SqlTable *emit_xref_table(ydb_buffer_t *cursor_global,
 	// Override the insert select part
 	cleanup_sql_statement(insert->source);
 	insert->source = stmt;
-	emit_insert_statement(cursor_global, cursor_exe_global, result);
+	// Below is commented out and needs to be updated
+	assert(FALSE);
+	//emit_insert_statement(cursor_global, cursor_exe_global, result);
 
 	TRACE(ERR_LEAVING_FUNCTION, "emit_xref_table");
 

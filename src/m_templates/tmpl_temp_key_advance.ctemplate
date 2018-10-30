@@ -1,0 +1,14 @@
+{%
+#include "physical_plan.h"
+#include "template_helpers.h"
+
+TEMPLATE(tmpl_temp_key_advance, SqlKey *key) {
+    TEMPLATE_INIT();
+
+    %}$O(^cursor(cursorId,"keys",{{ key->random_id|%d }}," "," ",{%
+    TMPL(tmpl_key, key);
+    %})){%
+    
+    TEMPLATE_END();
+}
+%}

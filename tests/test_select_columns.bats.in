@@ -48,16 +48,18 @@ OCTO
   [[ "$output" =~ "Type mismatch" ]]
 }
 
-@test "select from table with multiple keys" {
-  octo <<OCTO &> output.txt
-create table names2 (
-  id INTEGER PRIMARY KEY,
-  firstName VARCHAR(30) KEY NUM 1,
-  lastName VARCHAR(30) KEY NUM 2
-);
-insert into names2 (select * from names where firstName <> "" AND lastName <> "");
-select * from names2;
-OCTO
-  run cat output.txt
-  [[ "$output" =~ "Zero|Cool" ]]
-}
+
+# @test "select from table with multiple keys" {
+#   octo <<OCTO &> output.txt
+# create table names2 (
+#   id INTEGER PRIMARY KEY,
+#   firstName VARCHAR(30) KEY NUM 1,
+#   lastName VARCHAR(30) KEY NUM 2
+# );
+# insert into names2 (select * from names where firstName <> "" AND lastName <> "");
+# select * from names2;
+# OCTO
+#   run cat output.txt
+#   [[ "$output" =~ "Zero|Cool" ]]
+# }
+# 

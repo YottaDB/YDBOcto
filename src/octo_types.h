@@ -32,15 +32,22 @@ typedef void *yyscan_t;
 	(new_elem)->prev = (temp);
 
 #define INIT_YDB_BUFFER(buffer, len) (buffer)->buf_addr = malloc(len); (buffer)->len_used = 0; (buffer)->len_alloc = len;
-#define SQL_STATEMENT(VAR, TYPE)                        \
+
+#define SQL_STATEMENT(VAR, TYPE)			      \
 	(VAR) = (SqlStatement*)malloc(sizeof(SqlStatement));  \
 	memset((VAR), 0, sizeof(SqlStatement));               \
 	(VAR)->type = TYPE;
-#define MALLOC_STATEMENT(VAR, NAME, TYPE)       \
+
+#define MALLOC_STATEMENT(VAR, NAME, TYPE)	      \
 	(VAR)->v.NAME = malloc(sizeof(TYPE));         \
 	memset((VAR)->v.NAME, 0, sizeof(TYPE));
+
 #define UNPACK_SQL_STATEMENT(result, item, StatementType) assert((item)->type == StatementType ## _STATEMENT); \
 	(result) = (item)->v.StatementType
+
+#define PACK_SQL_STATEMENT(out, item, StatementType) \
+	SQL_STATEMENT(out, StatementType ## _STATEMENT); \
+	(out)->v.StatementType = item;
 
 #define INIT_YDB_BUFFER(buffer, len) (buffer)->buf_addr = malloc(len); (buffer)->len_used = 0; (buffer)->len_alloc = len;
 
@@ -64,7 +71,10 @@ enum SqlStatementType {
 	data_type_STATEMENT,
 	constraint_STATEMENT,
 	constraint_type_STATEMENT,
-	keyword_STATEMENT
+	keyword_STATEMENT,
+	column_list_alias_STATEMENT,
+	column_alias_STATEMENT,
+	table_alias_STATEMENT
 };
 
 enum UnaryOperations {
@@ -73,6 +83,7 @@ enum UnaryOperations {
 	BOOLEAN_NOT
 };
 
+// The order of these must be mainted with LPActionType
 enum BinaryOperations {
 	ADDITION,
 	SUBTRACTION,
@@ -150,15 +161,20 @@ struct YYLTYPE
 	int last_column;
 };
 
-struct SqlColumn;
+struct SqlColumn typedef SqlColumn;
+struct SqlColumnAlias typedef SqlColumnAlias;
 //struct SqlConstraint;
-struct SqlSelectStatement;
-struct SqlUnaryOperation;
-struct SqlBinaryOperation;
+struct SqlSelectStatement typedef SqlSelectStatement;
+struct SqlInsertStatement typedef SqlInsertStatement;
+struct SqlDropStatement  typedef SqlDropStatement;
+struct SqlUnaryOperation typedef SqlUnaryOperation;
+struct SqlBinaryOperation typedef SqlBinaryOperation;
 struct SqlValue typedef SqlValue;
 struct SqlColumnList typedef SqlColumnList;
 struct SqlTable typedef SqlTable;
+struct SqlTableAlias typedef SqlTableAlias;
 struct SqlJoin typedef SqlJoin;
+struct SqlColumnListAlias typedef SqlColumnListAlias;
 struct SqlStatement typedef SqlStatement;
 
 /**
@@ -171,28 +187,21 @@ struct SqlColumn
 {
 	SqlStatement *columnName;
 	enum SqlDataType type;
-	SqlStatement *tableName; // If not null, qualified name was used
+	SqlStatement *table;
 	SqlStatement *keywords;
 	dqcreate(SqlColumn);
-} typedef SqlColumn;
+};
 
 struct SqlColumnAlias
 {
+	// SqlColumn or SqlColumnListAlias
 	SqlStatement *column;
-	SqlStatement *alias;
-} typedef SqlColumnAlias;
-
-/**
- * Represents a SQL constraint type; doubly linked list
- */
-/*struct SqlConstraint
-   {
-   enum SqlConstraintType type;
-   SqlStatement *referencesColumn; //snprintf(buffer, 255 in the form of table.column
-   SqlStatement *check_constraint_definition; // as a piece of MUMPS code
-   uint8 max_length;
-   dqcreate(SqlConstraint);
-   } typedef SqlConstraint;*/
+	// This can only happen to SqlColumnListAlias
+	// SqlValue (name of alias)
+	//	SqlStatement *alias;
+	// SqlTableAlias
+	SqlStatement *table_alias;
+};
 
 /**
  * Represents a SQL table
@@ -212,8 +221,11 @@ struct SqlTable
 
 struct SqlTableAlias
 {
-	SqlTable *table;
-	SqlValue *alias;
+	// SqlTable or SqlSelectStatement
+	SqlStatement *table;
+	// SqlValue
+	SqlStatement *alias;
+	int unique_id;
 };
 
 /**
@@ -230,6 +242,8 @@ struct SqlOptionalKeyword
  */
 struct SqlJoin
 {
+	// SqlTableAlias
+	//  -> was SqlTable, should be changed everywhere
 	SqlStatement *value;
 	dqcreate(SqlJoin);
 	enum SqlJoinType type;
@@ -243,14 +257,20 @@ struct SqlSelectStatement
 	SqlStatement *select_list;
 	SqlStatement *table_list;
 	SqlStatement *where_expression;
-} typedef SqlSelectStatement;
+};
 
 struct SqlInsertStatement
 {
 	SqlTable *destination;
 	SqlStatement *source;
 	SqlStatement *columns;
-} typedef SqlInsertStatement;
+};
+
+struct SqlDropStatement
+{
+	SqlStatement *table_name, *optional_keyword;
+};
+
 
 /*
  * Represents an binary operation
@@ -259,7 +279,7 @@ struct SqlUnaryOperation
 {
 	enum UnaryOperations operation; // '+', '-'
 	struct SqlStatement *operand;
-} typedef SqlUnaryOperation;
+};
 
 /*
  * Represents an arithmetic operation
@@ -268,7 +288,7 @@ struct SqlBinaryOperation
 {
 	enum BinaryOperations operation; // '+', '-', '*', '/'
 	struct SqlStatement *operands[2];
-} typedef SqlBinaryOperation;
+};
 
 struct SqlValue {
 	enum SqlValueType type;
@@ -280,16 +300,20 @@ struct SqlValue {
 	} v;
 };
 
-struct SqlDropStatement {
-	SqlStatement *table_name, *optional_keyword;
-} typedef SqlDropStatement;
-
 /**
  * Used to represent a SELECT column list, not a table column list
  */
 struct SqlColumnList {
 	SqlStatement *value;
 	dqcreate(SqlColumnList);
+};
+
+struct SqlColumnListAlias {
+	// SqlColumnList
+	SqlStatement *column_list;
+	// SqlValue
+	SqlStatement *alias;
+	dqcreate(SqlColumnListAlias);
 };
 
 struct SqlStatement {
@@ -308,13 +332,11 @@ struct SqlStatement {
 		SqlTable *table;
 		SqlOptionalKeyword *constraint;
 		SqlOptionalKeyword *keyword;
+		SqlColumnListAlias *column_list_alias;
+		SqlColumnAlias *column_alias;
+		SqlTableAlias *table_alias;
 		enum SqlDataType data_type;
 	} v;
 };
-
-struct OctoConfig {
-	enum ERROR_LEVEL record_error_level;
-	int dry_run;
-} typedef OctoConfig;
 
 #endif

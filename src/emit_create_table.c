@@ -50,32 +50,38 @@ void emit_create_table(FILE *output, struct SqlStatement *stmt)
 	if(table->source) {
 		UNPACK_SQL_STATEMENT(keyword, table->source, keyword);
 		UNPACK_SQL_STATEMENT(value, keyword->v, value);
-		fprintf(output, " GLOBAL \"%s\"", value->v.reference);
+		m_escape_string2(buffer, MAX_STR_CONST, value->v.reference);
+		fprintf(output, " GLOBAL \"%s\"", buffer);
 	}
 	if(table->curse) {
 		UNPACK_SQL_STATEMENT(keyword, table->curse, keyword);
 		UNPACK_SQL_STATEMENT(value, keyword->v, value);
-		fprintf(output, " CURSOR \"%s\"", value->v.reference);
+		m_escape_string2(buffer, MAX_STR_CONST, value->v.reference);
+		fprintf(output, " CURSOR \"%s\"", buffer);
 	}
 	if(table->start) {
 		UNPACK_SQL_STATEMENT(keyword, table->start, keyword);
 		UNPACK_SQL_STATEMENT(value, keyword->v, value);
-		fprintf(output, " UNPACK \"%s\"", value->v.reference);
+		m_escape_string2(buffer, MAX_STR_CONST, value->v.reference);
+		fprintf(output, " UNPACK \"%s\"", buffer);
 	}
 	if(table->end) {
 		UNPACK_SQL_STATEMENT(keyword, table->end, keyword);
 		UNPACK_SQL_STATEMENT(value, keyword->v, value);
-		fprintf(output, " END \"%s\"", value->v.reference);
+		m_escape_string2(buffer, MAX_STR_CONST, value->v.reference);
+		fprintf(output, " END \"%s\"", buffer);
 	}
 	if(table->delim) {
 		UNPACK_SQL_STATEMENT(keyword, table->delim, keyword);
 		UNPACK_SQL_STATEMENT(value, keyword->v, value);
-		fprintf(output, " DELIM \"%s\"", value->v.reference);
+		m_escape_string2(buffer, MAX_STR_CONST, value->v.reference);
+		fprintf(output, " DELIM \"%s\"", buffer);
 	}
 	if(table->pack) {
 		UNPACK_SQL_STATEMENT(keyword, table->pack, keyword);
 		UNPACK_SQL_STATEMENT(value, keyword->v, value);
-		fprintf(output, " PACK \"%s\";", value->v.reference);
+		m_escape_string2(buffer, MAX_STR_CONST, value->v.reference);
+		fprintf(output, " PACK \"%s\";", buffer);
 	}
 	fprintf(output, ";");
 }

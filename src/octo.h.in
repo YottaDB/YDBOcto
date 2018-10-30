@@ -59,6 +59,7 @@ SqlTable *copy_sql_table(SqlTable *table);
 int create_table_defaults(SqlStatement *table_statement, SqlStatement *keywords_statement);
 
 char *m_escape_string(const char *string);
+int m_escape_string2(char *buffer, int buffer_len, char *string);
 char *m_unescape_string(const char *string);
 
 int readline_getc(FILE *inputFile, char *buff, int size);

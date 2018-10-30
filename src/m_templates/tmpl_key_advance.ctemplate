@@ -7,6 +7,7 @@ TEMPLATE(tmpl_key_advance, PhysicalPlan *pplan, SqlKey *key) {
     char *key_fixed, *tableName;
     SqlKey *cur_key, *first_key;
     SqlValue *value;
+    SqlTable *table;
     SqlOptionalKeyword *keyword = NULL;
     int iter_key_index = 0;
 
@@ -17,9 +18,18 @@ TEMPLATE(tmpl_key_advance, PhysicalPlan *pplan, SqlKey *key) {
 	TEMPLATE_END();
     }
 
+    table = key->table;
+    UNPACK_SQL_STATEMENT(value, table->tableName, value);
+    tableName = value->v.reference;
+        
+
     if(key->value) {
         key_fixed = key->value->v.string_literal;	
         %}{{ key_fixed }}{%
+    } else if(table->source) {
+        UNPACK_SQL_STATEMENT(keyword, table->source, keyword);
+	UNPACK_SQL_STATEMENT(value, keyword->v, value);
+	%}$O({% TMPL(tmpl_emit_source, value->v.string_literal, tableName, key->random_id); %}){%
     } else {
       	// Check to see if the column has an advance keyword; if so, return it
 	if(key->column)
@@ -31,9 +41,7 @@ TEMPLATE(tmpl_key_advance, PhysicalPlan *pplan, SqlKey *key) {
 	    TEMPLATE_END();
 	}
         // Construct the ADVANCE
-	UNPACK_SQL_STATEMENT(value, key->table->tableName, value);
-	tableName = value->v.reference;
-        %}$O(^{{ tableName }}({%
+	%}$O(^{{ tableName }}({%
 	while(pplan->iterKeys[iter_key_index] != key
 	    && iter_key_index < pplan->total_iter_keys) {
 	    if(pplan->iterKeys[iter_key_index]->random_id == key->random_id) {

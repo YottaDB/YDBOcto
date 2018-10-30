@@ -105,6 +105,7 @@ add_library(libocto OBJECT
   physical/generate_physical_plan.c
   physical/emit_physical_plan.c
   m_templates/print_dots.c
+  m_escape_string2.c
   ${BISON_OctoParser_OUTPUTS}
   ${FLEX_OctoLexer_OUTPUTS}
 )

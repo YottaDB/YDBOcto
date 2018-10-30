@@ -191,6 +191,7 @@ int main(int argc, char **argv)
 			emit_create_table(out, result);
 			fclose(out);
 			INFO(CUSTOM_ERROR, "%s", buffer);
+			//buffer2 = m_escape_string(buffer);
 			UNPACK_SQL_STATEMENT(value, result->v.table->tableName, value);
 			YDB_COPY_STRING_TO_BUFFER(value->v.reference, &table_name_buffer, done)
 			YDB_COPY_STRING_TO_BUFFER(buffer, &table_create_buffer, done)

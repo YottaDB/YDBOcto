@@ -125,10 +125,9 @@ int create_table_defaults(SqlStatement *table_statement, SqlStatement *keywords_
 		}
 		buff_ptr += snprintf(buff_ptr, MAX_STR_CONST - (buff_ptr - buffer), ")");
 		*buff_ptr++ = '\0';
-		/*len = buff_ptr - buffer;
+		len = buff_ptr - buffer;
 		out_buffer = malloc(len);
-		memcpy(out_buffer, buffer, len);*/
-		out_buffer = m_escape_string(buffer);
+		memcpy(out_buffer, buffer, len);
 		(keyword) = (SqlOptionalKeyword*)malloc(sizeof(SqlOptionalKeyword));
 		(keyword)->keyword = OPTIONAL_SOURCE;
 		SQL_STATEMENT(keyword->v, value_STATEMENT);
@@ -149,7 +148,9 @@ int create_table_defaults(SqlStatement *table_statement, SqlStatement *keywords_
 			buff_ptr += snprintf(buff_ptr, MAX_STR_CONST - (buff_ptr - buffer), "%s=\"\"", buffer2);
 		}
 		*buff_ptr++ = '\0';
-		out_buffer = m_escape_string(buffer);
+		len = buff_ptr - buffer;
+		out_buffer = malloc(len);
+		memcpy(out_buffer, buffer, len);
 		(keyword) = (SqlOptionalKeyword*)malloc(sizeof(SqlOptionalKeyword));
 		(keyword)->keyword = OPTIONAL_START;
 		SQL_STATEMENT(keyword->v, value_STATEMENT);
@@ -161,7 +162,9 @@ int create_table_defaults(SqlStatement *table_statement, SqlStatement *keywords_
 	}
 	if(!(options & END)) {
 		generate_end(buffer, MAX_STR_CONST, table);
-		out_buffer = m_escape_string(buffer);
+		len = buff_ptr - buffer;
+		out_buffer = malloc(len);
+		memcpy(out_buffer, buffer, len);
 		(keyword) = (SqlOptionalKeyword*)malloc(sizeof(SqlOptionalKeyword));
 		(keyword)->keyword = OPTIONAL_END;
 		SQL_STATEMENT(keyword->v, value_STATEMENT);

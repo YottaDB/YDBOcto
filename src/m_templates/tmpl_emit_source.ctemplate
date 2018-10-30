@@ -19,14 +19,15 @@ int match_expression(char *start, char *column, int column_size);
  * Emits the source given, replacing keys("columnName") with
  *  references to this PhysicalPlan's keys
  */
-TEMPLATE(tmpl_emit_source, char *source, char *table_name, int unique_id) {
+TEMPLATE(tmpl_emit_source, char *source, char *table_name, int unique_id, int num_vars_to_match) {
     TEMPLATE_INIT();
     char *source_ptr, *c;
     char column[MAX_STR_CONST];
-    int t, i;
+    int t, i, matched_vars = 0;
+    int paren_count = 0;
 
     source_ptr = source;
-    while(*source_ptr != '\0') {
+    while(*source_ptr != '\0' && matched_vars < num_vars_to_match) {
         t = match_expression(source_ptr, column, MAX_STR_CONST);
 	assert(t != -1);
 	if(t > 0) {
@@ -34,10 +35,22 @@ TEMPLATE(tmpl_emit_source, char *source, char *table_name, int unique_id) {
 	    //  extrinsic or something
 	    %}^cursor(cursorId,"keys",{{ unique_id|%d }},"{{ table_name }}",{{ column }}){%
 	    source_ptr += t;
+	    matched_vars += 1;
 	} else {
 	    %}{{ *source_ptr|%c }}{%
+	    if(*source_ptr == '(') {
+	        paren_count++;
+	    }
+	    if(*source_ptr == ')') {
+	        paren_count--;
+	    }
 	    source_ptr++;
 	}
+    }
+
+    while(paren_count > 0) {
+        paren_count--;
+	%}){%
     }
     
     TEMPLATE_END();

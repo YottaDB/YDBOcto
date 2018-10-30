@@ -21,8 +21,9 @@ setup() {
   createdb
   load_fixture names.sql
   load_fixture names.zwr
-  run octo <<OCTO
+  octo -vvv >& output.txt <<OCTO
 select * from names;
 OCTO
+  run cat output.txt
   [[ "$output" =~ "Lord|Nikon" ]]
 }

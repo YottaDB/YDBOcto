@@ -45,6 +45,6 @@ TEMPLATE(tmpl_temp_key_advance, SqlKey *key);
 TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan);
 TEMPLATE(tmpl_column_reference, PhysicalPlan *pplan, SqlColumnAlias *column_alias);
 TEMPLATE(tmpl_column_list_combine, LogicalPlan *plan, PhysicalPlan *pplan, char *delim);
-TEMPLATE(tmpl_emit_source, char *source, char *table_name, int unique_id);
+TEMPLATE(tmpl_emit_source, char *source, char *table_name, int unique_id, int keys_to_match);
 
 #endif

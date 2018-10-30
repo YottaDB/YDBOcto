@@ -30,7 +30,7 @@ int octo_init() {
 	config = malloc(sizeof(OctoConfig));
 	config->record_error_level = WARNING;
 	config->dry_run = FALSE;
-	config->tmp_dir = "/tmp/";
+	config->tmp_dir = "./";
 
 	// Verify that the directory exists, or issue an error
 	dir = opendir(config->tmp_dir);

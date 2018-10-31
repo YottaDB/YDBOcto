@@ -33,18 +33,15 @@ LogicalPlan *table_join_to_column_list(LogicalPlan *table_join);
 LogicalPlan *generate_logical_plan(SqlStatement *stmt, int *plan_id) {
 	SqlSelectStatement *select_stmt;
 	LogicalPlan *insert, *project, *column_list, *select, *dst, *dst_key;
-	LogicalPlan *criteria, *table, *keys, *where, *order_by;
+	LogicalPlan *criteria, *table, *keys, *where, *order_by, *select_options;
 	LogicalPlan *join_left, *join_right, *temp, *select_right, *select_left;
+	LogicalPlan *keywords;
 	SqlJoin *cur_join, *start_join;
 	SqlColumnListAlias *list;
 	SqlTableAlias *table_alias;
 
 	UNPACK_SQL_STATEMENT(select_stmt, stmt, select);
 	UNPACK_SQL_STATEMENT(start_join, select_stmt->table_list, join);
-
-	// If there is an ORDER BY, we really want this plan wrapped in another one
-	//  where the the output key if this plan is the input key of the next one
-	// Not true; if we simply have the physical plan
 
 	MALLOC_LP(insert, LP_INSERT);
 	insert->counter = plan_id;
@@ -115,11 +112,15 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt, int *plan_id) {
 
 	criteria = MALLOC_LP(select->v.operand[1], LP_CRITERIA);
 	keys = MALLOC_LP(criteria->v.operand[0], LP_KEYS);
-	where = MALLOC_LP(criteria->v.operand[1], LP_WHERE);
+	select_options = MALLOC_LP(criteria->v.operand[1], LP_SELECT_OPTIONS);
+	where = MALLOC_LP(select_options->v.operand[0], LP_WHERE);
 
 	// The actual work of populating the plan
 	where->v.operand[0] = generate_lp_where(select_stmt->where_expression, plan_id);
 	where->v.operand[1] = NULL;
+
+	keywords = MALLOC_LP(select_options->v.operand[1], LP_KEYWORDS);
+	UNPACK_SQL_STATEMENT(keywords->v.keywords, select_stmt->optional_words, keyword);
 
 	// At this point, we need to populate keys
 	//  Before we can do that, we need to resolve the JOINs, which are

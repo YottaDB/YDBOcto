@@ -13,19 +13,22 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-#include <stdio.h>
 #include <stdlib.h>
+#include <stdarg.h>
 #include <assert.h>
+#include <string.h>
 
 #include "octo.h"
 #include "octo_types.h"
-#include "logical_plan.h"
 
-LogicalPlan *lp_get_select_where(LogicalPlan *plan) {
-	LogicalPlan *select = lp_get_select(plan);
+SqlOptionalKeyword *get_keyword_from_keywords(SqlOptionalKeyword *start_keyword, enum OptionalKeyword keyword) {
+	SqlOptionalKeyword *cur_keyword;
 
-	GET_LP(select, select, 1, LP_CRITERIA);
-	GET_LP(select, select, 1, LP_SELECT_OPTIONS);
-	GET_LP(select, select, 0, LP_WHERE);
-	return select;
+	cur_keyword = start_keyword;
+	do {
+		if(cur_keyword->keyword == keyword)
+			return cur_keyword;
+		cur_keyword = cur_keyword->next;
+	} while(cur_keyword != start_keyword);
+	return NULL;
 }

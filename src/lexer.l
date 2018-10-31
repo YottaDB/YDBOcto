@@ -143,6 +143,7 @@ int copied_so_far;
 (?i:NUM) { return NUM; }
 (?i:ADVANCE) { return ADVANCE; }
 (?i:START) { return START; }
+(?i:LIMIT) { return LIMIT; }
 
 (?i:NULL) { return NULL_TOKEN; }
 , { return COMMA; }

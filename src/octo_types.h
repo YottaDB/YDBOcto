@@ -135,6 +135,7 @@ enum OptionalKeyword {
 	OPTIONAL_PACK,
 	OPTIONAL_KEY_NUM,
 	OPTIONAL_ADVANCE,
+	OPTIONAL_LIMIT,
 	UNKNOWN_SqlConstraintType,
 	NOT_NULL,
 	UNIQUE_CONSTRAINT,
@@ -258,6 +259,8 @@ struct SqlSelectStatement
 	SqlStatement *table_list;
 	SqlStatement *where_expression;
 	SqlStatement *order_expression;
+	// SqlOptionalKeyword
+	SqlStatement *optional_words;
 };
 
 struct SqlInsertStatement

@@ -126,6 +126,7 @@ extern void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, int *plan
 %token NUM
 %token ADVANCE
 %token START
+%token LIMIT
 
 %token NULL_TOKEN
 %token ENDOFFILE
@@ -677,7 +678,7 @@ non_join_query_primary
 simple_table
   : table_value_constructor
   | explicit_table
-  | query_specification { $$ = $1; }
+  | sql_select_statement { $$ = $1; }
   ;
 
 table_value_constructor

@@ -21,11 +21,11 @@
 #include "octo_types.h"
 #include "logical_plan.h"
 
-LogicalPlan *lp_get_select_where(LogicalPlan *plan) {
+LogicalPlan *lp_get_select_keywords(LogicalPlan *plan) {
 	LogicalPlan *select = lp_get_select(plan);
 
 	GET_LP(select, select, 1, LP_CRITERIA);
 	GET_LP(select, select, 1, LP_SELECT_OPTIONS);
-	GET_LP(select, select, 0, LP_WHERE);
+	GET_LP(select, select, 1, LP_KEYWORDS);
 	return select;
 }

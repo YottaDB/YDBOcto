@@ -43,7 +43,8 @@ LogicalPlan *join_tables(LogicalPlan *root, LogicalPlan *plan) {
 		sub = optimize_logical_plan(plan->v.operand[0]);
 		root->counter = plan->counter;
 		// Append that plans output keys to my list of keys
-		GET_LP(cur_lp_key, sub, 1, LP_KEY);
+		GET_LP(cur_lp_key, sub, 1, LP_OUTPUT);
+		GET_LP(cur_lp_key, cur_lp_key, 0, LP_KEY);
 		lp_insert_key(root, cur_lp_key);
 		return plan;
 	}

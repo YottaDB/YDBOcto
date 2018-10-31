@@ -1,0 +1,24 @@
+load test_helpers
+
+setup() {
+  init_test
+  createdb
+  load_fixture names.sql
+  load_fixture names.zwr
+}
+
+@test "select with limit of one row" {
+  octo >& output.txt <<OCTO
+select * from names limit 1;
+OCTO
+  run cat output.txt
+  ! [[ "$output" =~ "1|Acid|Burn" ]]
+}
+
+@test "select with limit of one row from nested query" {
+  octo >& output.txt <<OCTO
+select * from (select * from names limit 1);
+OCTO
+  run cat output.txt
+  ! [[ "$output" =~ "1|Acid|Burn" ]]
+}

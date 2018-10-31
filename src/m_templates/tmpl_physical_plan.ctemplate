@@ -8,6 +8,8 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
     int cur_key;
     SqlKey *key;
     SqlTable *table;
+    SqlValue *value;
+    SqlOptionalKeyword *keyword;
 
     %}
 ;; This is a generate file; do not modify.
@@ -19,7 +21,14 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
 	key = plan->iterKeys[cur_key];
     %}{% TMPL(print_dots, cur_key); %}{% TMPL(tmpl_key_start, key); %}
     {% TMPL(print_dots, cur_key); %}FOR i{{ cur_key|%d }}=1:1 SET {% TMPL(tmpl_key, key) %}={% TMPL(tmpl_key_advance, plan, key)
-    %} QUIT:{% TMPL(tmpl_key_end, key); %}  DO
+    %} QUIT:({%
+        TMPL(tmpl_key_end, key);
+	keyword = get_keyword_from_keywords(plan->keywords, OPTIONAL_LIMIT);
+	if(keyword != NULL) {
+	    UNPACK_SQL_STATEMENT(value, keyword->v, value);
+	    %})!(({{ value->v.string_literal }})<i{{ cur_key|%d }}{%
+	}
+    %})  DO
     {%
     }
 

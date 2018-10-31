@@ -74,6 +74,8 @@ struct LogicalPlan {
 		SqlTableAlias *table_alias;
 		// Set if type == LP_KEY
 		SqlKey *key;
+		// Set if type == LP_KEYWORD
+		SqlOptionalKeyword *keywords;
 	} v;
 };
 
@@ -123,6 +125,8 @@ LogicalPlan *lp_get_select(LogicalPlan *plan);
 LogicalPlan *lp_get_select_key(LogicalPlan *plan, SqlKey *key);
 // Returns the WHERE statement for the given LP
 LogicalPlan *lp_get_select_where(LogicalPlan *plan);
+// Returns the LP_KEYWORDS for the given LP
+LogicalPlan *lp_get_select_keywords(LogicalPlan *plan);
 // Returns the selected columns for this plan
 LogicalPlan *lp_get_projection_columns(LogicalPlan *plan);
 // Returns the LP_KEYS from the select criteria

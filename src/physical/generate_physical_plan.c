@@ -128,6 +128,7 @@ PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlan *next) {
 
 	// Is this most convenient representation of the WHERE?
 	out->where = walk_where_statement(out, lp_get_select_where(plan));
+	out->keywords = lp_get_select_keywords(plan)->v.keywords;
 
 	out->projection = lp_get_projection_columns(plan);
 	// As a temporary measure, wrap all tables in a SqlTableAlias

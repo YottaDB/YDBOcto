@@ -76,6 +76,7 @@ add_library(libocto OBJECT
   qualify_statement.c
   octo_init.c
   get_keyword.c
+  get_keyword_from_keywords.c
   get_table_parts.c
   get_advance.c
   emit_insert_statement.c
@@ -93,6 +94,7 @@ add_library(libocto OBJECT
   optimization_transforms/optimize_logical_plan.c
   optimization_transforms/lp_get_select.c
   optimization_transforms/lp_get_select_where.c
+  optimization_transforms/lp_get_select_keywords.c
   optimization_transforms/lp_verify_structure.c
   optimization_transforms/lp_emit_plan.c
   optimization_transforms/lp_get_keys.c

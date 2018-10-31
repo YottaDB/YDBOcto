@@ -75,6 +75,9 @@ int emit_plan_helper(char *buffer, size_t buffer_len, int depth, LogicalPlan *pl
 		UNPACK_SQL_STATEMENT(value, column->columnName, value);
 		SAFE_SNPRINTF(buff_ptr, buffer, buffer_len, "%s\n", value->v.string_literal);
 		break;
+	case LP_KEYWORDS:
+		SAFE_SNPRINTF(buff_ptr, buffer, buffer_len, "keywords\n");
+		break;
 	default:
 		SAFE_SNPRINTF(buff_ptr, buffer, buffer_len, "\n");
 		buff_ptr += emit_plan_helper(buff_ptr, buffer_len - (buff_ptr - buffer), depth + 2, plan->v.operand[0]);

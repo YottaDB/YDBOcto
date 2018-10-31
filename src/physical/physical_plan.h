@@ -45,6 +45,7 @@ struct PhysicalPlan {
 	LogicalPlan *projection;
 	LogicalPlan *order_by;
 	SqlTableAlias **symbols;
+	SqlOptionalKeyword *keywords;
 	unsigned int total_symbols;
 	unsigned int total_iter_keys;
 	unsigned int total_source_keys;

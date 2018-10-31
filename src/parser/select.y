@@ -1,6 +1,47 @@
 sql_select_statement
-  : query_specification { $$ = $1; }
+  : query_specification optional_query_words {
+      $$ = $1;
+      ($$)->v.select->optional_words = $optional_query_words;
+    }
   ;
+
+
+optional_query_words
+  : optional_query_word_element optional_query_word_tail {
+      $$ = $optional_query_word_element;
+      SqlOptionalKeyword *keyword, *t_keyword;
+      UNPACK_SQL_STATEMENT(keyword, $optional_query_word_tail, keyword);
+      dqinsert(keyword, ($$)->v.keyword, t_keyword);
+      free($optional_query_word_tail);
+    }
+  | /* Empty */ {
+      SQL_STATEMENT($$, keyword_STATEMENT);
+      ($$)->v.keyword = (SqlOptionalKeyword*)malloc(sizeof(SqlOptionalKeyword));
+      ($$)->v.keyword->keyword = NO_KEYWORD;
+      ($$)->v.keyword->v = NULL;
+      dqinit(($$)->v.keyword);
+    }
+  ;
+
+ optional_query_word_tail
+  : /* Empty */ {
+      SQL_STATEMENT($$, keyword_STATEMENT);
+      ($$)->v.keyword = (SqlOptionalKeyword*)malloc(sizeof(SqlOptionalKeyword));
+      ($$)->v.keyword->keyword = NO_KEYWORD;
+      ($$)->v.keyword->v = NULL;
+      dqinit(($$)->v.keyword);
+    }
+  | COMMA optional_query_words { $$ = $1; }
+  ;
+
+optional_query_word_element
+  : LIMIT literal_value {
+      SQL_STATEMENT($$, keyword_STATEMENT);
+      ($$)->v.keyword = (SqlOptionalKeyword*)malloc(sizeof(SqlOptionalKeyword));
+      ($$)->v.keyword->keyword = OPTIONAL_LIMIT;
+      ($$)->v.keyword->v = $2;
+      dqinit(($$)->v.keyword);
+  }
 
 sort_specification_list
   : sort_specification sort_specification_list_tail {

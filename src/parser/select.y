@@ -112,6 +112,10 @@ query_specification
 	  }
       }
       ($$)->v.select->order_expression = NULL;
+      result = qualify_join_conditions(join, join);
+      if(result != 0) {
+	  YYABORT;
+      }
     }
   | SELECT set_quantifier select_list table_expression
   | SELECT select_list table_expression ORDER BY sort_specification_list {
@@ -142,6 +146,10 @@ query_specification
 	  YYABORT;
       }
       ($$)->v.select->order_expression = $sort_specification_list;
+      result = qualify_join_conditions(join, join);
+      if(result != 0) {
+	  YYABORT;
+      }
     }
   | SELECT set_quantifier select_list table_expression ORDER BY sort_specification_list
   ;
@@ -334,7 +342,7 @@ table_reference_tail
 
 /// TODO: what is this (column_name_list) syntax?
 correlation_specification
-  : optional_as column_name { $$ = $1; }
+  : optional_as column_name { $$ = $2; }
   | optional_as column_name LEFT_PAREN column_name_list RIGHT_PAREN
   ;
 
@@ -349,7 +357,7 @@ derived_table
 
 joined_table
   : cross_join { $$ = $1; }
-  | qualified_join
+  | qualified_join { $$ = $1; }
   | LEFT_PAREN joined_table RIGHT_PAREN
   ;
 
@@ -368,13 +376,22 @@ cross_join
 qualified_join
   : table_reference JOIN table_reference join_specification
   | table_reference NATURAL JOIN table_reference join_specification
-  | table_reference join_type JOIN table_reference join_specification
+  | table_reference join_type JOIN table_reference join_specification {
+      SqlJoin *left, *right, *t_join;
+      $$ = $1;
+      UNPACK_SQL_STATEMENT(left, $$, join);
+      UNPACK_SQL_STATEMENT(right, $4, join);
+      UNPACK_SQL_STATEMENT(right->type, $join_type, join_type);
+      right->condition = $join_specification;
+      dqinsert(left, right, t_join);
+      free($4);
+    }
   | table_reference NATURAL join_type JOIN table_reference join_specification
   ;
 
 join_specification
   : /* Empty */
-  | join_condition
+  | join_condition { $$ = $1; }
   | named_column_joins
   ;
 
@@ -387,11 +404,11 @@ join_column_list
   ;
 
 join_condition
-  : ON search_condition
+  : ON search_condition { $$ = $2; }
   ;
 
 join_type
-  : INNER
+  : INNER { SQL_STATEMENT($$, join_type_STATEMENT); ($$)->v.join_type = INNER_JOIN; }
   | outer_join_type
   | outer_join_type OUTER
 //  | UNION // This conflicts with non_join_query_expression

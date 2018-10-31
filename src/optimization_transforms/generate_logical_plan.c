@@ -35,6 +35,7 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt, int *plan_id) {
 	LogicalPlan *insert, *project, *column_list, *select, *dst, *dst_key;
 	LogicalPlan *criteria, *table, *keys, *where, *order_by, *select_options;
 	LogicalPlan *join_left, *join_right, *temp, *select_right, *select_left;
+	LogicalPlan *start_join_condition = NULL, *cur_join_condition = NULL, *t_join_condition;
 	LogicalPlan *keywords;
 	SqlJoin *cur_join, *start_join;
 	SqlColumnListAlias *list;
@@ -42,6 +43,8 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt, int *plan_id) {
 
 	UNPACK_SQL_STATEMENT(select_stmt, stmt, select);
 	UNPACK_SQL_STATEMENT(start_join, select_stmt->table_list, join);
+	//MALLOC_LP(start_join_condition, LP_WHERE);
+	//start_join_condition->v.operand[0] = generate_lp_where(start_join->condition, plan_id);
 
 	MALLOC_LP(insert, LP_INSERT);
 	insert->counter = plan_id;
@@ -78,6 +81,11 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt, int *plan_id) {
 		} else {
 			join_left = generate_logical_plan(table_alias->table, plan_id);
 			join_right->v.operand[0] = join_left;
+		}
+		if(cur_join->condition) {
+			MALLOC_LP(t_join_condition, LP_WHERE);
+			t_join_condition->v.operand[0] = generate_lp_where(cur_join->condition, plan_id);
+			start_join_condition = lp_join_where(start_join_condition, t_join_condition);
 		}
 		cur_join = cur_join->next;
 	} while(cur_join != start_join);
@@ -117,6 +125,10 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt, int *plan_id) {
 
 	// The actual work of populating the plan
 	where->v.operand[0] = generate_lp_where(select_stmt->where_expression, plan_id);
+	if(start_join_condition) {
+		where = lp_join_where(where, start_join_condition);
+		select_options->v.operand[0] = where;
+	}
 	where->v.operand[1] = NULL;
 
 	keywords = MALLOC_LP(select_options->v.operand[1], LP_KEYWORDS);

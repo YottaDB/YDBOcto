@@ -133,6 +133,8 @@ LogicalPlan *lp_get_projection_columns(LogicalPlan *plan);
 LogicalPlan *lp_get_keys(LogicalPlan *plan);
 // Inserts a key at the end of the plans keys
 void lp_insert_key(LogicalPlan *plan, LogicalPlan *key);
+// Returns LP_WHERE with an AND of the two wheres
+LogicalPlan *lp_join_where(LogicalPlan *where1, LogicalPlan *where2);
 
 // Given a plan, attempts to calculate a "cost" estimate of that plan
 int lp_calculate_plan_cost(LogicalPlan *plan);

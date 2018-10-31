@@ -74,6 +74,7 @@ add_library(libocto OBJECT
   qualify_column_list_alias.c
   qualify_column_name.c
   qualify_statement.c
+  qualify_join_conditions.c
   octo_init.c
   get_keyword.c
   get_keyword_from_keywords.c
@@ -102,6 +103,7 @@ add_library(libocto OBJECT
   optimization_transforms/get_plan_unique_number.c
   optimization_transforms/lp_insert_key.c
   optimization_transforms/lp_copy_plan.c
+  optimization_transforms/lp_join_where.c
   m_templates/emit_simple_select.c
   optimization_transforms/generate_logical_plan.c
   physical/generate_physical_plan.c

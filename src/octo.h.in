@@ -75,6 +75,7 @@ int qualify_column_list_alias(SqlColumnListAlias *alias, SqlJoin *tables);
 int qualify_column_list(SqlColumnList *select_columns, SqlJoin *tables);
 SqlColumnAlias *qualify_column_name(SqlValue *column_value, SqlJoin *tables);
 int qualify_statement(SqlStatement *stmt, SqlJoin *tables);
+int qualify_join_conditions(SqlJoin *join, SqlJoin *tables);
 void print_yyloc(YYLTYPE *llocp);
 void get_table_parts(SqlTable *table, char **curse, char **start, char **end,
     char **source);

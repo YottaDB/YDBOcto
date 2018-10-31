@@ -1,0 +1,18 @@
+load test_helpers
+
+setup() {
+  init_test
+  createdb
+  load_fixture names.sql
+  load_fixture names.zwr
+}
+
+@test "inner join with simple ON condition" {
+  octo >& output.txt <<OCTO
+select * from names as t1 inner join names as t2
+on (t1.id = t2.id);
+OCTO
+  run cat output.txt
+  [[ "$output" =~ "0|Zero|Cool|0|Zero|Cool" ]]
+  ! [[ "$output" =~ "0|Zero|Cool|1|Acid|Burn" ]]
+}

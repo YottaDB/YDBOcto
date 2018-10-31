@@ -74,7 +74,8 @@ enum SqlStatementType {
 	keyword_STATEMENT,
 	column_list_alias_STATEMENT,
 	column_alias_STATEMENT,
-	table_alias_STATEMENT
+	table_alias_STATEMENT,
+	join_type_STATEMENT
 };
 
 enum UnaryOperations {
@@ -148,7 +149,8 @@ enum OptionalKeyword {
 enum SqlJoinType {
 	NO_JOIN,
 	TABLE_SPEC,
-	CROSS_JOIN
+	CROSS_JOIN,
+	INNER_JOIN
 };
 
 #define YYLTYPE yyltype
@@ -246,6 +248,8 @@ struct SqlJoin
 	// SqlTableAlias
 	//  -> was SqlTable, should be changed everywhere
 	SqlStatement *value;
+	// SqlValue
+	SqlStatement *condition;
 	dqcreate(SqlJoin);
 	enum SqlJoinType type;
 };
@@ -342,6 +346,7 @@ struct SqlStatement {
 		SqlColumnAlias *column_alias;
 		SqlTableAlias *table_alias;
 		enum SqlDataType data_type;
+		enum SqlJoinType join_type;
 	} v;
 };
 

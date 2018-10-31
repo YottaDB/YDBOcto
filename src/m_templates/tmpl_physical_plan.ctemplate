@@ -19,7 +19,7 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
 	key = plan->iterKeys[cur_key];
     %}{% TMPL(print_dots, cur_key); %}{% TMPL(tmpl_key_start, key); %}
     {% TMPL(print_dots, cur_key); %}FOR i{{ cur_key|%d }}=1:1 SET {% TMPL(tmpl_key, key) %}={% TMPL(tmpl_key_advance, plan, key)
-    %} QUIT:{% TMPL(tmpl_key, key); %}=""  DO
+    %} QUIT:{% TMPL(tmpl_key_end, key); %}  DO
     {%
     }
 

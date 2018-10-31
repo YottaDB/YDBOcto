@@ -86,6 +86,16 @@ int emit_column_specification(char *buffer, int buffer_size, SqlColumn *cur_colu
 			break;
 		case NO_KEYWORD:
 			break;
+		case OPTIONAL_START:
+			UNPACK_SQL_STATEMENT(value, cur_keyword->v, value);
+			m_escape_string2(buffer2, MAX_STR_CONST, value->v.reference);
+			buff_ptr += snprintf(buff_ptr, buffer_size - (buff_ptr - buffer), " START \"%s\"", buffer2);
+			break;
+		case OPTIONAL_END:
+			UNPACK_SQL_STATEMENT(value, cur_keyword->v, value);
+			m_escape_string2(buffer2, MAX_STR_CONST, value->v.reference);
+			buff_ptr += snprintf(buff_ptr, buffer_size - (buff_ptr - buffer), " END \"%s\"", buffer2);
+			break;
 		default:
 			FATAL(ERR_UNKNOWN_KEYWORD_STATE);
 			break;

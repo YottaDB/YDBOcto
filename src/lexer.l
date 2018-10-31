@@ -142,6 +142,7 @@ int copied_so_far;
 (?i:WHERE) { return WHERE; }
 (?i:NUM) { return NUM; }
 (?i:ADVANCE) { return ADVANCE; }
+(?i:START) { return START; }
 
 (?i:NULL) { return NULL_TOKEN; }
 , { return COMMA; }

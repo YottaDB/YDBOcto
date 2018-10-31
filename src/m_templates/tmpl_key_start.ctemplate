@@ -7,7 +7,17 @@
 
 TEMPLATE(tmpl_key_start, SqlKey *key) {
     TEMPLATE_INIT();
-    %}SET {% TMPL(tmpl_key, key); %}=""{%
+    char *start = "\"\"";
+    SqlOptionalKeyword *keyword;
+    SqlValue *value;
+    if(key->column) {
+        keyword = get_keyword(key->column, OPTIONAL_START);
+	if(keyword != NULL) {
+	    UNPACK_SQL_STATEMENT(value, keyword->v, value);
+	    start = value->v.string_literal;
+	}
+    }
+    %}SET {% TMPL(tmpl_key, key); %}={{ start }}{%
     TEMPLATE_END();
 }
 

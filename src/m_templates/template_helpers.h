@@ -39,6 +39,7 @@
 TEMPLATE(print_dots, int dots);
 TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan);
 TEMPLATE(tmpl_key_start, SqlKey *key);
+TEMPLATE(tmpl_key_end, SqlKey *key);
 TEMPLATE(tmpl_key, SqlKey *key);
 TEMPLATE(tmpl_key_advance, PhysicalPlan *pplan, SqlKey *key);
 TEMPLATE(tmpl_temp_key_advance, SqlKey *key);

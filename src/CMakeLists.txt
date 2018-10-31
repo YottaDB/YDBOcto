@@ -129,6 +129,7 @@ set(template_files
   ${template_dir}/simpleFor.ctemplate
   ${template_dir}/tmpl_physical_plan.ctemplate
   ${template_dir}/tmpl_key_start.ctemplate
+  ${template_dir}/tmpl_key_end.ctemplate
   ${template_dir}/tmpl_key.ctemplate
   ${template_dir}/tmpl_key_advance.ctemplate
   ${template_dir}/tmpl_temp_key_advance.ctemplate

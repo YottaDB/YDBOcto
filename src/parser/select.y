@@ -3,7 +3,26 @@ sql_select_statement
   ;
 
 sort_specification_list
-  : sort_specification sort_specification_list_tail
+  : sort_specification sort_specification_list_tail {
+      SQL_STATEMENT($$, column_list_alias_STATEMENT);
+      MALLOC_STATEMENT($$, column_list_alias, SqlColumnListAlias);
+      SqlColumnListAlias *alias;
+      UNPACK_SQL_STATEMENT(alias, $$, column_list_alias);
+      dqinit(alias);
+      assert(alias->next == alias);
+      // Allocate the column list
+      SQL_STATEMENT(alias->column_list, column_list_STATEMENT);
+      MALLOC_STATEMENT(alias->column_list, column_list, SqlColumnList);
+      SqlColumnList *column_list;
+      // Get the allocated column list
+      UNPACK_SQL_STATEMENT(column_list, alias->column_list, column_list);
+      dqinit(column_list);
+      // The sort spec should be a value column_REFERENCE
+      SqlValue *value;
+      UNPACK_SQL_STATEMENT(value, $sort_specification, value);
+      assert(value->type == COLUMN_REFERENCE);
+      column_list->value = $sort_specification;
+    }
   ;
 
 sort_specification_list_tail
@@ -12,15 +31,15 @@ sort_specification_list_tail
   ;
 
 sort_specification
-  : sort_key
+  : sort_key { $$ = $1; }
   | sort_key collate_clause
   | sort_key ordering_specification
   | sort_key collate_clause ordering_specification
   ;
 
 sort_key
-  : column_reference
-  | LITERAL
+  : column_reference { $$ = $1; }
+  | LITERAL { $$ = $1; }
   ;
 
 ordering_specification
@@ -51,12 +70,38 @@ query_specification
 	      YYABORT;
 	  }
       }
-      //if(column_list && (qualify_column_list(column_list, join) || populate_data_type($select_list, &type))) {
-      //  YYABORT;
-      //}
+      ($$)->v.select->order_expression = NULL;
     }
   | SELECT set_quantifier select_list table_expression
-  | SELECT select_list table_expression ORDER BY sort_specification_list
+  | SELECT select_list table_expression ORDER BY sort_specification_list {
+      $$ = $table_expression;
+      assert(($$)->type == select_STATEMENT);
+      ($$)->v.select->select_list = ($select_list);
+      SqlJoin *join;
+      UNPACK_SQL_STATEMENT(join, ($$)->v.select->table_list, join);
+      SqlColumnList *column_list;
+      SqlColumnListAlias *cur_column_list_alias, *start_column_list_alias;
+      SqlValueType type;
+      int result;
+      UNPACK_SQL_STATEMENT(start_column_list_alias, $select_list, column_list_alias);
+      cur_column_list_alias = start_column_list_alias;
+      if(cur_column_list_alias != NULL) {
+	  result = qualify_column_list_alias(cur_column_list_alias, join);
+	  if(result != 0) {
+	      YYABORT;
+	  }
+	  result = populate_data_type($select_list, &type);
+	  if(result != 0) {
+	      YYABORT;
+	  }
+      }
+      UNPACK_SQL_STATEMENT(start_column_list_alias, $sort_specification_list, column_list_alias);
+      result = qualify_column_list_alias(start_column_list_alias, join);
+      if(result != 0) {
+	  YYABORT;
+      }
+      ($$)->v.select->order_expression = $sort_specification_list;
+    }
   | SELECT set_quantifier select_list table_expression ORDER BY sort_specification_list
   ;
 

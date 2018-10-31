@@ -17,21 +17,25 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan) {
     assert(plan != NULL);
 
     switch(plan->type) {
+    case LP_WHERE:
+        TMPL(tmpl_print_expression, plan->v.operand[0], pplan);
+	TEMPLATE_END();
+        break;
     case LP_VALUE:
-    	 value = plan->v.value;
-	 switch(value->type) {
-	 case NUMBER_LITERAL:
-	 case STRING_LITERAL:
-	 case DATE_TIME:
-    	     %}"{{ value->v.string_literal }}"{%
-	     break;
-	 case COLUMN_REFERENCE:
-	     // We should only pass LP_COLUMN_ALIASes to this funciton
-	     assert(FALSE);
-	     break;
-	 default:
-	     FATAL(ERR_UNKNOWN_KEYWORD_STATE);
-	 }
+        value = plan->v.value;
+        switch(value->type) {
+        case NUMBER_LITERAL:
+        case STRING_LITERAL:
+        case DATE_TIME:
+            %}"{{ value->v.string_literal }}"{%
+            break;
+        case COLUMN_REFERENCE:
+            // We should only pass LP_COLUMN_ALIASes to this funciton
+            assert(FALSE);
+            break;
+        default:
+            FATAL(ERR_UNKNOWN_KEYWORD_STATE);
+	}
         break;
     case LP_COLUMN_ALIAS:
         TMPL(tmpl_column_reference, pplan, plan->v.column_alias);

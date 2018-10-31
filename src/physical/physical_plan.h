@@ -43,6 +43,7 @@ struct PhysicalPlan {
 	SqlTableAlias *outputTable;
 	LogicalPlan *where;
 	LogicalPlan *projection;
+	LogicalPlan *order_by;
 	SqlTableAlias **symbols;
 	unsigned int total_symbols;
 	unsigned int total_iter_keys;

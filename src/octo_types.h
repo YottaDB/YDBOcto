@@ -257,6 +257,7 @@ struct SqlSelectStatement
 	SqlStatement *select_list;
 	SqlStatement *table_list;
 	SqlStatement *where_expression;
+	SqlStatement *order_expression;
 };
 
 struct SqlInsertStatement
@@ -313,6 +314,8 @@ struct SqlColumnListAlias {
 	SqlStatement *column_list;
 	// SqlValue
 	SqlStatement *alias;
+	// Keywords used for the SORT column
+	SqlStatement *keywords;
 	dqcreate(SqlColumnListAlias);
 };
 

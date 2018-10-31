@@ -1,0 +1,16 @@
+load test_helpers
+
+setup() {
+  init_test
+  createdb
+  load_fixture names.sql
+  load_fixture names.zwr
+}
+
+@test "where with string limits return values" {
+  octo >& output.txt <<OCTO
+select * from names order by firstName;
+OCTO
+  run cat output.txt
+  [[ "$output" =~ /1|Acid|Burn.*0|Zero|Cool/ ]]
+}

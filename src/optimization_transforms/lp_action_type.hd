@@ -9,6 +9,7 @@ LP_ACTION_TYPE(LP_SELECT)
 // Start of they where subtree
 LP_ACTION_TYPE(LP_WHERE)
 LP_ACTION_TYPE(LP_CRITERIA)
+LP_ACTION_TYPE(LP_OUTPUT)
 // Start of the key subtree
 LP_ACTION_TYPE(LP_KEYS)
 // Each key is one of the below; the LP_KEY type is the start of a

@@ -45,6 +45,10 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
 	  %},{%
 	  TMPL(tmpl_column_list_combine, plan->projection, plan, ",");
 	  %}){%
+	} else if (plan->order_by) {
+	  %},{%
+	  TMPL(tmpl_column_list_combine, plan->order_by, plan, ",");
+	  %}){%
 	} else {
 	  %},$I(i{{ cur_key|%d }})){%
 	}

@@ -30,7 +30,7 @@ void iterate_keys(PhysicalPlan *out, LogicalPlan *plan);
 LogicalPlan *walk_where_statement(PhysicalPlan *out, LogicalPlan *stmt);
 
 PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlan *next) {
-	LogicalPlan *keys, *table_joins, *select, *insert, *output_key;
+	LogicalPlan *keys, *table_joins, *select, *insert, *output_key, *output;
 	PhysicalPlan *out, *prev = NULL;
 	char buffer[MAX_STR_CONST], *temp;
 	SqlTable *table;
@@ -48,14 +48,20 @@ PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlan *next) {
 	out->next = next;
 
 	// Set my output key
-	if(plan->v.operand[1]->type == LP_KEY) {
-		GET_LP(output_key, plan, 1, LP_KEY);
+	GET_LP(output, plan, 1, LP_OUTPUT);
+	if(output->v.operand[0]->type == LP_KEY) {
+		GET_LP(output_key, output, 0, LP_KEY);
 		out->outputKey = output_key->v.key;
-	} else if(plan->v.operand[1]->type == LP_TABLE) {
+	} else if(output->v.operand[0]->type == LP_TABLE) {
 		out->outputKey = NULL;
-		out->outputTable = plan->v.operand[1]->v.table_alias;
+		out->outputTable = output->v.operand[1]->v.table_alias;
 	} else {
 		assert(FALSE);
+	}
+
+	// If there is an order by, note it down
+	if(output->v.operand[1]) {
+		GET_LP(out->order_by, output, 1, LP_COLUMN_LIST);
 	}
 	// If there is someone next, my output key should be their first
 	//  input key

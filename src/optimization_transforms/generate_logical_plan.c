@@ -32,8 +32,8 @@ LogicalPlan *table_join_to_column_list(LogicalPlan *table_join);
 
 LogicalPlan *generate_logical_plan(SqlStatement *stmt, int *plan_id) {
 	SqlSelectStatement *select_stmt;
-	LogicalPlan *insert, *project, *column_list, *select, *dst;
-	LogicalPlan *criteria, *table, *keys, *where;
+	LogicalPlan *insert, *project, *column_list, *select, *dst, *dst_key;
+	LogicalPlan *criteria, *table, *keys, *where, *order_by;
 	LogicalPlan *join_left, *join_right, *temp, *select_right, *select_left;
 	SqlJoin *cur_join, *start_join;
 	SqlColumnListAlias *list;
@@ -42,16 +42,26 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt, int *plan_id) {
 	UNPACK_SQL_STATEMENT(select_stmt, stmt, select);
 	UNPACK_SQL_STATEMENT(start_join, select_stmt->table_list, join);
 
+	// If there is an ORDER BY, we really want this plan wrapped in another one
+	//  where the the output key if this plan is the input key of the next one
+	// Not true; if we simply have the physical plan
+
 	MALLOC_LP(insert, LP_INSERT);
 	insert->counter = plan_id;
 	project = MALLOC_LP(insert->v.operand[0], LP_PROJECT);
-	dst = MALLOC_LP(insert->v.operand[1], LP_KEY);
-	dst->v.key = (SqlKey*)malloc(sizeof(SqlKey));
-	memset(dst->v.key, 0, sizeof(SqlKey));
-	dst->v.key->random_id = get_plan_unique_number(insert);
+	dst = MALLOC_LP(insert->v.operand[1], LP_OUTPUT);
+	dst_key = MALLOC_LP(dst->v.operand[0], LP_KEY);
+	dst_key->v.key = (SqlKey*)malloc(sizeof(SqlKey));
+	memset(dst_key->v.key, 0, sizeof(SqlKey));
+	dst_key->v.key->random_id = get_plan_unique_number(insert);
+	if(select_stmt->order_expression != NULL) {
+		order_by = MALLOC_LP(dst->v.operand[1], LP_COLUMN_LIST);
+		UNPACK_SQL_STATEMENT(list, select_stmt->order_expression, column_list_alias);
+		order_by->v.operand[0] = column_list_to_lp(list);
+	}
 	/// TODO: we should look at the columns to decide which values
 	//   are keys, and if none, create a rowId as part of the advance
-	dst->v.key->type = LP_KEY_ADVANCE;
+	dst_key->v.key->type = LP_KEY_ADVANCE;
 	select = MALLOC_LP(project->v.operand[1], LP_SELECT);
 	//join_right = table = MALLOC_LP(select->v.operand[0], LP_TABLE_JOIN);
 	join_right = NULL;

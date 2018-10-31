@@ -106,7 +106,7 @@ SELECT
 -----------
 
 .. parsed-literal::
-   SELECT [ALL | DISTINCT] ASTERISK | column[...,column] FROM table_name [WHERE search_condition] [GROUP BY column[,..column]] [HAVING search_condition] [ORDER BY sort_specification];
+   SELECT [ALL | DISTINCT] ASTERISK | column[...,column] FROM table_name [WHERE search_condition] [GROUP BY column[,..column]] [HAVING search_condition] [ORDER BY sort_specification] [LIMIT number];
 
 The SELECT statement is used to select rows from the database by specifying a query, and optionally sorting the resulting rows.
 
@@ -125,6 +125,15 @@ Example:
 
 .. parsed-literal::
    SELECT ID, FirstName, LastName FROM Employee WHERE ID > 100 GROUP BY LastName;
+
+The LIMIT clause allows the user to specify the number of rows they want to retrieve from the results of the query.
+
+Example:
+
+.. parsed-literal::
+   SELECT * FROM Employee LIMIT 5;
+
+The above example returns no more than 5 rows.
 
 ++++++++
 Sorting

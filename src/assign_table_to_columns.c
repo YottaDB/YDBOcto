@@ -37,7 +37,9 @@ void assign_table_to_columns(SqlStatement *table_statement) {
 
 	do {
 		i++;
-		cur_column->table = table_statement;
+		// We need to create a new SqlStatement here because only the table is propegated
+		//  long term; the SqlStatement gets reused by the compiler
+		PACK_SQL_STATEMENT(cur_column->table, table, table);
 		// Also a good time to assign each column a PIECE number if it doesn't have one
 		keyword = get_keyword(cur_column, OPTIONAL_PIECE);
 		if(keyword == NULL) {

@@ -103,16 +103,15 @@ PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlan *next) {
 			// This is a sub plan, and should be inserted as prev
 			GET_LP(insert, table_joins, 0, LP_INSERT);
 			if(prev == NULL) {
-				prev = generate_physical_plan(insert, prev);
+				prev = generate_physical_plan(insert, out);
 				out->prev = prev;
 			} else {
 				prev->prev = generate_physical_plan(insert, prev);
 				prev = prev->prev;
 			}
-		} else {
-			if(table_joins->v.operand[1] != NULL)
-				table_joins = table_joins->v.operand[1];
 		}
+		if(table_joins->v.operand[1] != NULL)
+				table_joins = table_joins->v.operand[1];
 	} while(table_joins->v.operand[1] != NULL);
 
 	// Iterate through the key substructures and fill out the source keys
@@ -182,6 +181,9 @@ LogicalPlan *walk_where_statement(PhysicalPlan *out, LogicalPlan *stmt) {
 		ret->v.operand[1] = walk_where_statement(out, stmt->v.operand[1]);
 	} else {
 		switch(stmt->type) {
+		case LP_DERIVED_COLUMN:
+			ret = stmt;
+			break;
 		case LP_WHERE:
 			MALLOC_LP(ret, stmt->type);
 			ret->v.operand[0] = walk_where_statement(out, stmt->v.operand[0]);

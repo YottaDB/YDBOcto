@@ -148,27 +148,38 @@ int populate_data_type(SqlStatement *v, SqlValueType *type) {
 		UNPACK_SQL_STATEMENT(start_column_list_alias, v, column_list_alias);
 		cur_column_list_alias = start_column_list_alias;
 		do {
-			result |= populate_data_type(cur_column_list_alias->column_list, type);
+			/// TODO: there is a high chance of a bug here if data types occur at different nested errors
+			result |= populate_data_type(cur_column_list_alias->column_list, &child_type1);
+			cur_column_list_alias->type = child_type1;
+			if(*type == UNKNOWN_SqlValueType) {
+				*type = child_type1;
+			} else if (*type != child_type1) {
+				//result |= 1;
+			}
 			cur_column_list_alias = cur_column_list_alias->next;
 		} while(cur_column_list_alias != start_column_list_alias);
 		break;
 	case column_alias_STATEMENT:
-		UNPACK_SQL_STATEMENT(column, v->v.column_alias->column, column);
-		switch(column->type) {
-		case CHARACTER_STRING_TYPE:
-			*type = STRING_LITERAL;
-			break;
-		case INTEGER_TYPE:
-			*type = NUMBER_LITERAL;
-			break;
-		case DATE_TIME_TYPE:
-			*type = DATE_TIME;
-			break;
-		case INTERVAL_TYPE:
-		case UNKNOWN_SqlDataType:
-		default:
-			FATAL(ERR_UNKNOWN_KEYWORD_STATE);
-			break;
+		if(v->v.column_alias->column->type == column_list_alias_STATEMENT) {
+			populate_data_type(v->v.column_alias->column, type);
+		} else {
+			UNPACK_SQL_STATEMENT(column, v->v.column_alias->column, column);
+			switch(column->type) {
+			case CHARACTER_STRING_TYPE:
+				*type = STRING_LITERAL;
+				break;
+			case INTEGER_TYPE:
+				*type = NUMBER_LITERAL;
+				break;
+			case DATE_TIME_TYPE:
+				*type = DATE_TIME;
+				break;
+			case INTERVAL_TYPE:
+			case UNKNOWN_SqlDataType:
+			default:
+				FATAL(ERR_UNKNOWN_KEYWORD_STATE);
+				break;
+			}
 		}
 		break;
 	default:

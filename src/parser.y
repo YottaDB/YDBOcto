@@ -33,6 +33,10 @@ typedef void* yyscan_t;
 #include "octo_types.h"
 #include "parser.h"
 
+// Included for function lp_columns_to_column_list
+//  this function should be moved
+#include "logical_plan.h"
+
 #define YYERROR_VERBOSE
 #define YYDEBUG 1
 #define YYSTYPE SqlStatement *
@@ -840,7 +844,7 @@ table_element
 column_definition
   : column_name data_type column_definition_tail {
       SQL_STATEMENT($$, column_STATEMENT);
-      ($$)->v.column = (SqlColumn*)malloc(sizeof(SqlColumn));
+      MALLOC_STATEMENT($$, column, SqlColumn);
       dqinit(($$)->v.column);
       ($$)->v.column->columnName = $column_name;
       assert($data_type->type == data_type_STATEMENT);

@@ -34,22 +34,28 @@ int copied_so_far;
 
 %x VALUE_STATE
 %x EXPR_STATE
+%x EXPR_STATE_END
 
 %%
 
-\{\% { BEGIN(EXPR_STATE); return START_EXPR; }
-<EXPR_STATE>\%\} { BEGIN(INITIAL); return END_EXPR; }
-<EXPR_STATE>[^\%]* {
-   copied_so_far = 0;
-   str_buf_ptr = string_buffer;
-   char *yptr = yytext;
-   COPY_STRING(str_buf_ptr, yptr, copied_so_far, MAX_STR_CONST);
-   (*yylval_param) = (Expr*)malloc(sizeof(Expr));
-   (*yylval_param)->type = EXPR_TYPE;
-   (*yylval_param)->value = malloc(copied_so_far + 1);
-   strncpy((*yylval_param)->value, string_buffer, copied_so_far);
-   return LITERAL;
-   }
+"{%" { BEGIN(EXPR_STATE);
+       str_buf_ptr = string_buffer;
+       copied_so_far = 0;
+       return START_EXPR;
+     }
+<EXPR_STATE>"%}" {
+          BEGIN(EXPR_STATE_END);
+          (*yylval_param) = (Expr*)malloc(sizeof(Expr));
+          (*yylval_param)->type = EXPR_TYPE;
+          (*yylval_param)->value = malloc(copied_so_far + 1);
+          strncpy((*yylval_param)->value, string_buffer, copied_so_far);
+          yyless(0);
+          return LITERAL;
+}
+<EXPR_STATE>. { *str_buf_ptr++ = *yytext; copied_so_far++; }
+<EXPR_STATE>\n { *str_buf_ptr++ = *yytext; copied_so_far++; }
+
+<EXPR_STATE_END>"%}" { BEGIN(INITIAL); return END_EXPR; }
 
 \{\{ { BEGIN(VALUE_STATE); return START_VALUE; }
 <VALUE_STATE>\}\} { BEGIN(INITIAL); return END_VALUE; }

@@ -229,6 +229,8 @@ struct SqlTableAlias
 	// SqlValue
 	SqlStatement *alias;
 	int unique_id;
+	// SqlColumnListAlias list of available columns
+	SqlStatement *column_list;
 };
 
 /**
@@ -259,9 +261,13 @@ struct SqlJoin
  */
 struct SqlSelectStatement
 {
+	// SqlColumnListAlias
 	SqlStatement *select_list;
+	// SqlJoin
 	SqlStatement *table_list;
+	// SqlValue (?)
 	SqlStatement *where_expression;
+	// SqlValue (?)
 	SqlStatement *order_expression;
 	// SqlOptionalKeyword
 	SqlStatement *optional_words;
@@ -323,6 +329,7 @@ struct SqlColumnListAlias {
 	SqlStatement *alias;
 	// Keywords used for the SORT column
 	SqlStatement *keywords;
+	SqlValueType type;
 	dqcreate(SqlColumnListAlias);
 };
 

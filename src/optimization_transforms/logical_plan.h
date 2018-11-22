@@ -76,6 +76,8 @@ struct LogicalPlan {
 		SqlKey *key;
 		// Set if type == LP_KEYWORD
 		SqlOptionalKeyword *keywords;
+		// Set if type == LP_PIECE_NUMBER
+		int piece_number;
 	} v;
 };
 
@@ -131,10 +133,20 @@ LogicalPlan *lp_get_select_keywords(LogicalPlan *plan);
 LogicalPlan *lp_get_projection_columns(LogicalPlan *plan);
 // Returns the LP_KEYS from the select criteria
 LogicalPlan *lp_get_keys(LogicalPlan *plan);
+// Returns the output key
+LogicalPlan *lp_get_output_key(LogicalPlan *plan);
 // Inserts a key at the end of the plans keys
 void lp_insert_key(LogicalPlan *plan, LogicalPlan *key);
 // Returns LP_WHERE with an AND of the two wheres
 LogicalPlan *lp_join_where(LogicalPlan *where1, LogicalPlan *where2);
+// Returns a new logical plan representing the boolean structure from stmt
+LogicalPlan *lp_generate_where(SqlStatement *stmt, int *plan_id);
+// Returns a logical plan representing the provided ColumnListAlias
+LogicalPlan *lp_column_list_to_lp(SqlColumnListAlias *list);
+// Converts a list of columns to a column list associated with the given table alias
+SqlColumnListAlias *lp_columns_to_column_list(SqlColumn *column, SqlTableAlias *table_alias);
+LogicalPlan *lp_table_join_to_column_list(LogicalPlan *table_join);
+LogicalPlan *lp_replace_derived_table_references(LogicalPlan *root, LogicalPlan *new_plan, SqlTableAlias *table_alias);
 
 // Given a plan, attempts to calculate a "cost" estimate of that plan
 int lp_calculate_plan_cost(LogicalPlan *plan);

@@ -90,6 +90,8 @@ int generate_key_name(char *buffer, int buffer_size, int target_key_num, SqlTabl
 int find_qualified_column(SqlValue *column_reference, SqlTable **table, SqlColumn **column);
 
 void assign_table_to_columns(SqlStatement *table_statement);
+SqlColumn *column_list_alias_to_columns(SqlTableAlias *table_alias);
+int get_column_piece_number(SqlColumnAlias *alias, SqlTableAlias *table_alias);
 
 /**
  * Returns TRUE if the columns are equal, FALSE otherwise

@@ -1,0 +1,22 @@
+load test_helpers
+
+setup() {
+  init_test
+  createdb
+  load_fixture pizza.sql
+  load_fixture pizza.zwr
+}
+
+@test "case with join and derived tables" {
+  octo >& output.txt <<OCTO
+SELECT t1.toppings, t3.firstName
+FROM (SELECT id AS id, toppings as toppings FROM pizza) AS t1 
+INNER JOIN favoritePizza AS t2
+ON (t1.id = t2.pizza_id)
+INNER JOIN people AS t3
+ON (t2.people_id = t3.id);
+OCTO
+  run cat output.txt
+  [[ "$output" =~ "" ]]
+  ! [[ "$output" =~ "0|Zero|Cool|1|Acid|Burn" ]]
+}

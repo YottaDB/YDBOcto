@@ -16,60 +16,57 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
-#include <string.h>
 
 #include "octo.h"
 #include "octo_types.h"
+#include "logical_plan.h"
 
-int qualify_statement(SqlStatement *stmt, SqlJoin *tables) {
-	SqlUnaryOperation *unary;
-	SqlBinaryOperation *binary;
+LogicalPlan *lp_generate_where(SqlStatement *stmt, int *plan_id) {
+	LogicalPlan *ret = NULL;
+	LPActionType type;
 	SqlValue *value;
-	SqlColumnAlias *alias;
-	int result = 0, column_found = 0;
+	SqlBinaryOperation *binary;
 
 	if(stmt == NULL)
-		return 0;
+		return NULL;
 
 	switch(stmt->type) {
 	case select_STATEMENT:
-		break;
-	case column_alias_STATEMENT:
-		// We can get here if the select list was empty and we took
-		//  all columns from the table
+		ret = generate_logical_plan(stmt, plan_id);
+		/// TODO: should this be moved to the optimize phase for this plan?
+		ret = optimize_logical_plan(ret);
 		break;
 	case value_STATEMENT:
 		UNPACK_SQL_STATEMENT(value, stmt, value);
 		switch(value->type) {
-		case COLUMN_REFERENCE:
-			// Convert this statement to a qualified one
-			stmt->type = column_alias_STATEMENT;
-			/// TODO: the value is being leaked here
-			stmt->v.column_alias = qualify_column_name(value, tables);
-			result |= stmt->v.column_alias == NULL;
-			if(result) {
-				print_yyloc(&stmt->loc);
-			}
-			break;
 		case CALCULATED_VALUE:
-			result |= qualify_statement(value->v.calculated, tables);
+			ret = lp_generate_where(value->v.calculated, plan_id);
 			break;
 		default:
-			break;
+			MALLOC_LP(ret, LP_VALUE);
+			ret->v.value = value;
 		}
 		break;
 	case binary_STATEMENT:
 		UNPACK_SQL_STATEMENT(binary, stmt, binary);
-		result |= qualify_statement(binary->operands[0], tables);
-		result |= qualify_statement(binary->operands[1], tables);
+		/// WARNING: we simply add the enum offset to find the type
+		type = binary->operation + LP_ADDITION;
+		MALLOC_LP(ret, type);
+		ret->v.operand[0] = lp_generate_where(binary->operands[0], plan_id);
+		ret->v.operand[1] = lp_generate_where(binary->operands[1], plan_id);
 		break;
-	case unary_STATEMENT:
-		UNPACK_SQL_STATEMENT(unary, stmt, unary);
-		result |= qualify_statement(unary->operand, tables);
+	case column_alias_STATEMENT:
+		MALLOC_LP(ret, LP_COLUMN_ALIAS);
+		// If this column_alias referes to a select statement, replace it with
+		//  LP_DERIVED_COLUMN
+		UNPACK_SQL_STATEMENT(ret->v.column_alias, stmt, column_alias);
+		//ret->v.column_alias = stmt->v.column_alias;
+		/// TODO: free stmt?
 		break;
+
 	default:
 		FATAL(ERR_UNKNOWN_KEYWORD_STATE);
-		break;
 	}
-	return result;
+
+	return ret;
 }

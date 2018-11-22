@@ -22,7 +22,8 @@
 #include "octo_types.h"
 
 SqlStatement *copy_sql_statement(SqlStatement *stmt) {
-	SqlTable *cur_table, *start_table;
+	SqlTable *cur_table, *start_table, *table;
+	SqlTableAlias *table_alias, *new_table_alias;
 	SqlColumn *cur_column, *start_column, *new_column, *t_column;
 	SqlColumnList *cur_column_list, *start_column_list, *new_column_list, *t_column_list;
 	SqlJoin *cur_join, *start_join, *new_join, *t_join;
@@ -34,6 +35,8 @@ SqlStatement *copy_sql_statement(SqlStatement *stmt) {
 	SqlBinaryOperation *binary;
 	SqlUnaryOperation *unary;
 	SqlOptionalKeyword *cur_keyword, *start_keyword, *new_keyword, *t_keyword;
+	SqlColumnListAlias *new_cl_alias, *cur_cl_alias, *start_cl_alias, *t_cl_alias;
+	SqlColumnAlias *new_column_alias, *cur_column_alias, *start_column_alias, *t_column_alias;
 	int len;
 
 	if(stmt == NULL)
@@ -49,7 +52,19 @@ SqlStatement *copy_sql_statement(SqlStatement *stmt) {
 		//  no reason
 		/// TODO: fill this out if needed
 		UNPACK_SQL_STATEMENT(cur_table, stmt, table);
-		copy_sql_table(cur_table);
+		SQL_STATEMENT(ret, table_STATEMENT);
+		ret->v.table = copy_sql_table(cur_table);
+		break;
+	case table_alias_STATEMENT:
+		UNPACK_SQL_STATEMENT(table_alias, stmt, table_alias);
+		MALLOC_STATEMENT(ret, table_alias, SqlTableAlias);
+		new_table_alias = ret->v.table_alias;
+		new_table_alias->table = copy_sql_statement(table_alias->table);
+		new_table_alias->alias = copy_sql_statement(table_alias->alias);
+		new_table_alias->unique_id = table_alias->unique_id;
+		// the column list has a reference to this table, so don't copy it
+		//new_table_alias->column_list = copy_sql_statement(table_alias->column_list);
+		new_table_alias->column_list = table_alias->column_list;
 		break;
 	case select_STATEMENT:
 		select = stmt->v.select;
@@ -90,7 +105,8 @@ SqlStatement *copy_sql_statement(SqlStatement *stmt) {
 		break;
 	case column_list_STATEMENT:
 		UNPACK_SQL_STATEMENT(start_column_list, stmt, column_list);
-		MALLOC_STATEMENT(ret, column_list, SqlColumnList);
+		//MALLOC_STATEMENT(ret, column_list, SqlColumnList);
+		SQL_STATEMENT(ret, column_list_STATEMENT);
 		if(start_column_list) {
 			cur_column_list = start_column_list;
 			do {
@@ -106,8 +122,32 @@ SqlStatement *copy_sql_statement(SqlStatement *stmt) {
 			} while(cur_column_list != start_column_list);
 		}
 		break;
+	case column_list_alias_STATEMENT:
+		UNPACK_SQL_STATEMENT(start_cl_alias, stmt, column_list_alias);
+		SQL_STATEMENT(ret, column_list_alias_STATEMENT);
+		if(start_cl_alias) {
+			cur_cl_alias = start_cl_alias;
+			do {
+				new_cl_alias = (SqlColumnListAlias*)malloc(sizeof(SqlColumnListAlias));
+				memset(new_cl_alias, 0, sizeof(SqlColumnListAlias));
+				dqinit(new_cl_alias);
+				new_cl_alias->column_list = copy_sql_statement(cur_cl_alias->column_list);
+				new_cl_alias->alias = copy_sql_statement(cur_cl_alias->alias);
+				new_cl_alias->keywords = copy_sql_statement(new_cl_alias->keywords);
+				if(ret->v.column_list_alias == NULL) {
+					ret->v.column_list_alias = new_cl_alias;
+				} else {
+					dqinsert(new_cl_alias, ret->v.column_list_alias, t_cl_alias);
+				}
+				cur_cl_alias = cur_cl_alias->next;
+			} while(cur_cl_alias != start_cl_alias);
+		}
+		break;
 	case column_STATEMENT:
-		if(stmt->v.column) {
+		// Columns should only be copied as part of a table copy, in copy_sql_table
+		//  Otherwise, they should be wrapped in a column_alias
+		assert(FALSE);
+		/*		if(stmt->v.column) {
 			UNPACK_SQL_STATEMENT(cur_column, stmt, column);
 			start_column = cur_column;
 			do {
@@ -117,8 +157,10 @@ SqlStatement *copy_sql_statement(SqlStatement *stmt) {
 				new_column->columnName = copy_sql_statement(cur_column->columnName);
 				// This gives us trouble with a table copying the column itself;
 				//  just setup a pointer
-				//new_column->table = copy_sql_statement(cur_column->table);
-				new_column->table = cur_column->table;
+				new_column->table = copy_sql_statement(cur_column->table);
+				//SQL_STATEMENT(new_column->table, table_STATEMENT);
+				//new_column->table->v.table = cur_column->table->v.table;
+				//new_column->table = cur_column->table;
 				new_column->keywords = copy_sql_statement(cur_column->keywords);
 				if(ret->v.column == NULL) {
 					MALLOC_STATEMENT(ret, column, SqlColumn);
@@ -128,14 +170,32 @@ SqlStatement *copy_sql_statement(SqlStatement *stmt) {
 				}
 				cur_column = cur_column->next;
 			} while(cur_column != start_column);
-		}
+			}*/
 		break;
+	case column_alias_STATEMENT:
+		UNPACK_SQL_STATEMENT(start_column_alias, stmt, column_alias);
+		MALLOC_STATEMENT(ret, column_alias, SqlColumnAlias);
+		if(start_column_alias) {
+			new_column_alias = ret->v.column_alias;
+			SQL_STATEMENT(new_column_alias->column, column_STATEMENT);
+			//*new_column_alias->column = *start_column_alias->column;
+			new_column_alias->table_alias = copy_sql_statement(start_column_alias->table_alias);
+			// Find the correct column in the table
+			UNPACK_SQL_STATEMENT(table_alias, new_column_alias->table_alias, table_alias);
+			UNPACK_SQL_STATEMENT(table, table_alias->table, table);
+			UNPACK_SQL_STATEMENT(value, start_column_alias->column->v.column->columnName, value);
+			PACK_SQL_STATEMENT(new_column_alias->column, find_column(value->v.string_literal, table), column);
+		}
+
+		break;
+
 	case join_STATEMENT:
 		UNPACK_SQL_STATEMENT(start_join, stmt, join);
-		MALLOC_STATEMENT(ret, join, SqlJoin);
+		//MALLOC_STATEMENT(ret, join, SqlJoin);
 		cur_join = start_join;
 		do {
 			new_join = (SqlJoin*)malloc(sizeof(SqlJoin));
+			memset(new_join, 0, sizeof(SqlJoin));
 			dqinit(new_join);
 			new_join->value = copy_sql_statement(cur_join->value);
 			if(ret->v.join == NULL) {

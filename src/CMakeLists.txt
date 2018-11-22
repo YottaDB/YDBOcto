@@ -91,6 +91,8 @@ add_library(libocto OBJECT
   columns_equal.c
   tables_equal.c
   values_equal.c
+  column_list_alias_to_columns.c
+  get_column_piece_number.c
   optimization_transforms/constant_equal_column.c
   optimization_transforms/optimize_logical_plan.c
   optimization_transforms/lp_get_select.c
@@ -104,6 +106,13 @@ add_library(libocto OBJECT
   optimization_transforms/lp_insert_key.c
   optimization_transforms/lp_copy_plan.c
   optimization_transforms/lp_join_where.c
+  optimization_transforms/lp_generate_where.c
+  optimization_transforms/lp_column_list_to_lp.c
+  optimization_transforms/lp_columns_to_column_list.c
+  optimization_transforms/lp_table_join_to_column_list.c
+  optimization_transforms/lp_replace_derived_table_references.c
+  optimization_transforms/lp_get_output_key.c
+  optimization_transforms/lp_get_project.c
   m_templates/emit_simple_select.c
   optimization_transforms/generate_logical_plan.c
   physical/generate_physical_plan.c

@@ -39,9 +39,9 @@ int emit_plan_helper(char *buffer, size_t buffer_len, int depth, LogicalPlan *pl
 		return 0;
 	SAFE_SNPRINTF(buff_ptr, buffer, buffer_len, "%*s%s: ", depth, "", lp_action_type_str[plan->type]);
 	switch(plan->type) {
-		/*	case LP_TABLE_JOIN:
-		SAFE_SNPRINTF(buff_ptr, buffer, buffer_len, "\n");
-		break;*/
+	case LP_PIECE_NUMBER:
+		SAFE_SNPRINTF(buff_ptr, buffer, buffer_len, "%d\n", plan->v.piece_number);
+		break;
 	case LP_KEY:
 		key = plan->v.key;
 		if(key->column) {
@@ -71,9 +71,16 @@ int emit_plan_helper(char *buffer, size_t buffer_len, int depth, LogicalPlan *pl
 		SAFE_SNPRINTF(buff_ptr, buffer, buffer_len, "%s\n", value->v.string_literal);
 		break;
 	case LP_COLUMN_ALIAS:
-		UNPACK_SQL_STATEMENT(column, plan->v.column_alias->column, column);
-		UNPACK_SQL_STATEMENT(value, column->columnName, value);
-		SAFE_SNPRINTF(buff_ptr, buffer, buffer_len, "%s\n", value->v.string_literal);
+		if(plan->v.column_alias->column->type == column_STATEMENT) {
+			UNPACK_SQL_STATEMENT(value, plan->v.column_alias->column->v.column->columnName, value);
+			column_name = value->v.string_literal;
+		} else {
+			UNPACK_SQL_STATEMENT(value, plan->v.column_alias->column->v.column_list_alias->alias, value);
+			column_name = value->v.string_literal;
+		}
+		UNPACK_SQL_STATEMENT(value, plan->v.column_alias->table_alias->v.table_alias->alias, value);
+		table_name = value->v.string_literal;
+		SAFE_SNPRINTF(buff_ptr, buffer, buffer_len, "%s.%s\n", table_name, column_name);
 		break;
 	case LP_KEYWORDS:
 		SAFE_SNPRINTF(buff_ptr, buffer, buffer_len, "keywords\n");

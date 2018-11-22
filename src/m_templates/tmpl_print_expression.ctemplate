@@ -13,6 +13,7 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan) {
     SqlTable *src_table;
     SqlColumn *start_column, *cur_column;
     SqlOptionalKeyword *keyword, *piece_keyword, *source_keyword;
+    LogicalPlan *key, *piece_num;
 
     assert(plan != NULL);
 
@@ -36,6 +37,16 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan) {
         default:
             FATAL(ERR_UNKNOWN_KEYWORD_STATE);
 	}
+        break;
+    case LP_DERIVED_COLUMN:
+        GET_LP(key, plan, 0, LP_KEY);
+	GET_LP(piece_num, plan, 1, LP_PIECE_NUMBER);
+        %}($P({%
+	TMPL(tmpl_key, key->v.key);
+	// We're getting a bit abusive again; go back one, removing paren, comma and print
+	buff_ptr--;
+	%},{% TMPL(tmpl_key, key->v.key); 
+	%}),"|",{{ piece_num->v.piece_number|%d }})){%
         break;
     case LP_COLUMN_ALIAS:
         TMPL(tmpl_column_reference, pplan, plan->v.column_alias);

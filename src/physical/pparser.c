@@ -32,7 +32,7 @@ int main(int argc, char **argv) {
 
 	octo_init();
 
-	//	yydebug = TRUE;
+	//yydebug = TRUE;
 
 	/*if(yylex_init(&scanner))
 		FATAL(ERR_INIT_SCANNER);

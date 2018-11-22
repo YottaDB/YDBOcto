@@ -21,6 +21,8 @@
 #include "octo.h"
 #include "octo_types.h"
 
+#include "logical_plan.h"
+
 SqlStatement *match_column_in_table(SqlTableAlias *table, char *column_name, int column_name_len);
 
 /**
@@ -100,36 +102,22 @@ SqlColumnAlias *qualify_column_name(SqlValue *column_value, SqlJoin *tables) {
 SqlStatement *match_column_in_table(SqlTableAlias *table_alias, char *column_name, int column_name_len) {
 	SqlSelectStatement *select;
 	SqlColumnListAlias *cur_column_list, *start_column_list;
-	SqlColumn *cur_column, *start_column;
-	SqlTable *table;
 	SqlValue *value;
 	SqlStatement *ret = NULL;
 
-	if(table_alias->table->type == table_STATEMENT) {
-		UNPACK_SQL_STATEMENT(table, table_alias->table, table);
-		UNPACK_SQL_STATEMENT(start_column, table->columns, column);
-		cur_column = start_column;
-		do {
-			UNPACK_SQL_STATEMENT(value, cur_column->columnName, value);
-			if(memcmp(value->v.reference, column_name, column_name_len) == 0) {
-				PACK_SQL_STATEMENT(ret, cur_column, column);
-				break;
-			}
-			cur_column = cur_column->next;
-		} while(cur_column != start_column);
-	} else if(table_alias->table->type == select_STATEMENT) {
-		UNPACK_SQL_STATEMENT(start_column_list, table_alias->table, column_list_alias);
-		cur_column_list = start_column_list;
-		do {
+	UNPACK_SQL_STATEMENT(start_column_list, table_alias->column_list, column_list_alias);
+	cur_column_list = start_column_list;
+	do {
+		if(cur_column_list->alias != NULL) {
 			UNPACK_SQL_STATEMENT(value, cur_column_list->alias, value);
 			if(memcmp(value->v.reference, column_name, column_name_len) == 0) {
 				PACK_SQL_STATEMENT(ret, cur_column_list, column_list_alias);
+				//ret = cur_column_list->column_list;
 				break;
 			}
-			cur_column_list = cur_column_list->next;
-		} while(cur_column_list != start_column_list);
-	} else {
-		assert(FALSE);
-	}
+		}
+		cur_column_list = cur_column_list->next;
+	} while(cur_column_list != start_column_list);
+
 	return ret;
 }

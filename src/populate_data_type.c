@@ -31,6 +31,8 @@ char *get_type_string(SqlValueType type) {
 		return "DATE TIME";
 	case TEMPORARY_TABLE_TYPE:
 		return "TEMPORARY TABLE TYPE";
+	case BOOLEAN_VALUE:
+		return "BOOLEAN";
 	case COLUMN_REFERENCE:
 	case CALCULATED_VALUE:
 	case UNKNOWN_SqlValueType:
@@ -121,7 +123,18 @@ int populate_data_type(SqlStatement *v, SqlValueType *type) {
 		UNPACK_SQL_STATEMENT(binary, v, binary);
 		result = populate_data_type(binary->operands[0], &child_type1);
 		result |= populate_data_type(binary->operands[1], &child_type2);
-		*type = child_type1;
+		switch(binary->operation) {
+		case ADDITION:
+		case SUBTRACTION:
+		case DVISION:
+		case MULTIPLICATION:
+		case CONCAT:
+			*type = child_type1;
+			break;
+		default:
+			*type = BOOLEAN_VALUE;
+			break;
+		}
 		if(child_type1 != child_type2 && child_type2 != TEMPORARY_TABLE_TYPE) {
 			WARNING(ERR_TYPE_MISMATCH, get_type_string(child_type1), get_type_string(child_type2));
 			location = binary->operands[0]->loc;
@@ -130,6 +143,7 @@ int populate_data_type(SqlStatement *v, SqlValueType *type) {
 			print_yyloc(&location);
 			return 1;
 		}
+
 		break;
 	case unary_STATEMENT:
 		UNPACK_SQL_STATEMENT(unary, v, unary);

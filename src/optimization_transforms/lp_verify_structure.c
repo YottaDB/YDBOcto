@@ -98,13 +98,13 @@ int lp_verify_structure_helper(LogicalPlan *plan, LPActionType expected) {
 			return FALSE;
 		if(plan->v.operand[0]->v.key->value == NULL)
 			return FALSE;
-		value = plan->v.operand[0]->v.key->value;
+		/*value = plan->v.operand[0]->v.key->value;
 		if(value == NULL)
 			return FALSE;
 		if(value->type != STRING_LITERAL)
 			return FALSE;
 		if(value->v.string_literal == NULL)
-			return FALSE;
+		return FALSE;*/
 		break;
 	case LP_KEY_ADVANCE:
 		if(plan->v.operand[0] == NULL)

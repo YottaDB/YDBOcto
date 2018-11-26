@@ -24,8 +24,9 @@ TEMPLATE(tmpl_key_advance, PhysicalPlan *pplan, SqlKey *key) {
         
 
     if(key->value) {
-        key_fixed = key->value->v.string_literal;	
-        %}{{ key_fixed }}{%
+        //assert(FALSE);
+        key_fixed = key->value->v.value->v.string_literal;	
+        %}$S({% TMPL(tmpl_key, key); %}="":"{{ key_fixed }}",1:""){%
     } else if(table->source) {
         iter_key_index = 0;
         while(pplan->iterKeys[iter_key_index] != key

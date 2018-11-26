@@ -113,6 +113,8 @@ add_library(libocto OBJECT
   optimization_transforms/lp_replace_derived_table_references.c
   optimization_transforms/lp_get_output_key.c
   optimization_transforms/lp_get_project.c
+  optimization_transforms/lp_opt_fix_key_to_const.c
+  optimization_transforms/lp_get_key.c
   m_templates/emit_simple_select.c
   optimization_transforms/generate_logical_plan.c
   physical/generate_physical_plan.c

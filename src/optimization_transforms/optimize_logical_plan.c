@@ -99,11 +99,37 @@ LogicalPlan *join_tables(LogicalPlan *root, LogicalPlan *plan) {
 }
 
 LogicalPlan *optimize_logical_plan(LogicalPlan *plan) {
-	LogicalPlan *select, *table_join;
+	LogicalPlan *select, *table_join, *where, *t, *left, *right;
+	SqlKey *key;
+	int result;
 	// First, "join" all the tables; we should do a search here to find the
 	//  optimal join order
 	select = lp_get_select(plan);
 	GET_LP(table_join, select, 0, LP_TABLE_JOIN);
 	join_tables(plan, table_join);
+
+	// If there are no "OR" or "AND" statements, fix key values
+	where = lp_get_select_where(plan);
+	while(TRUE) {
+		if(where == NULL)
+			break;
+		t = where->v.operand[0];
+		if(t == NULL)
+			break;
+		if(t->type != LP_BOOLEAN_EQUALS)
+			break;
+		left = t->v.operand[0];
+		if(left->type != LP_COLUMN_ALIAS)
+			break;
+		right = t->v.operand[1];
+		if(right->type != LP_VALUE)
+			break;
+		key = lp_get_key(plan, left);
+		if(key == NULL)
+			break;
+		result = lp_opt_fix_key_to_const(plan, key, right);
+		assert(result == TRUE);
+		break;
+	}
 	return plan;
 };

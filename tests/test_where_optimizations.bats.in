@@ -1,0 +1,32 @@
+load test_helpers
+
+setup() {
+  init_test
+  createdb
+  load_fixture names.sql
+  load_fixture names.zwr
+}
+
+@test "simple fixed key optimization" {
+  octo >& output.txt <<OCTO
+select * from names where id = 2;
+OCTO
+  run cat output.txt
+  [[ "$output" =~ "2|Cereal|Killer" ]]
+  ! [[ "$output" =~ "0|Zero|Cool" ]]
+  run grep "FOR" ./*.m
+  [[ "$output" =~ $S\(.cursor\(.*\)=\"\":\"2\" ]]
+}
+
+@test "cases that contain OR or AND do not allow optimization to occur" {
+  octo >& output.txt <<OCTO
+select * from names where id = 2 or firstName = "Zero";
+OCTO
+  run cat output.txt
+  [[ "$output" =~ "2|Cereal|Killer" ]]
+  [[ "$output" =~ "0|Zero|Cool" ]]
+  ! [[ "$output" =~ "Acid|Burn" ]]
+  run grep "FOR" ./*.m
+  ! [[ "$output" =~ $S\(.cursor\(.*\)=\"\":\"2\" ]]
+
+}

@@ -87,7 +87,7 @@ struct SqlKey {
 	int key_num;
 	int random_id;
 	// If this key is fixed, this is the value
-	SqlValue *value;
+	LogicalPlan *value;
 	// Used to customize how insert works; default is to
 	//  get the key and add an integer column
 	SqlValue *insert;
@@ -133,6 +133,8 @@ LogicalPlan *lp_get_select_keywords(LogicalPlan *plan);
 LogicalPlan *lp_get_projection_columns(LogicalPlan *plan);
 // Returns the LP_KEYS from the select criteria
 LogicalPlan *lp_get_keys(LogicalPlan *plan);
+// Returns the key corresponding to a column, or NULL
+SqlKey *lp_get_key(LogicalPlan *plan, LogicalPlan *column_alias);
 // Returns the output key
 LogicalPlan *lp_get_output_key(LogicalPlan *plan);
 // Inserts a key at the end of the plans keys
@@ -173,5 +175,7 @@ int lp_optimize_where_replace_non_key_equal(LogicalPlan *plan, LogicalPlan *wher
 //  maybe not be unique in terms of global numbers
 int get_plan_unique_number(LogicalPlan *plan);
 
+// Optimization routines
+int lp_opt_fix_key_to_const(LogicalPlan *root, SqlKey *key, LogicalPlan *value);
 
 #endif

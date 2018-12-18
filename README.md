@@ -1,12 +1,12 @@
-# YDB DBMS
+# YDB Octo
 
-[![pipeline status](https://gitlab.com/YottaDB/Octo/YDBDBMS/badges/master/pipeline.svg)](https://gitlab.com/YottaDB/Octo/YDBDBMS/commits/master)
+[![pipeline status](https://gitlab.com/YottaDB/DBMS/YDBOcto/badges/master/pipeline.svg)](https://gitlab.com/YottaDB/DBMS/YDBOcto/commits/master)
 
 
-The YottaDB Database Management System is a SQL access layer built on top of the not-only-SQL database YottaDB.
+The YottaDB Octo Database Management System is a SQL access layer built on top of the not-only-SQL database YottaDB.
 It aims to provide SQL 92 compliance and exceptional performance.
 
-Homepage https://gitlab.com/YottaDB/Octo/YDBDBMS
+Homepage https://gitlab.com/YottaDB/DBMS/YDBOcto
 
 ## Setup
 

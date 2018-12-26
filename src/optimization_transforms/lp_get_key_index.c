@@ -21,15 +21,15 @@
 #include "octo_types.h"
 #include "logical_plan.h"
 
-SqlKey *lp_get_key(LogicalPlan *plan, LogicalPlan *lp_column_alias) {
-	SqlColumnAlias *column_alias;
+int lp_get_key_index(LogicalPlan *plan, LogicalPlan *lp_column_alias) {
+  	SqlColumnAlias *column_alias;
 	SqlColumn *column;
 	SqlValue *key_table_name, *search_table_name, *key_column_name, *search_column_name;
 	SqlTableAlias *table_alias;
 	SqlTable *table;
 	SqlColumnListAlias *cl_alias;
 	SqlKey *key;
-	int key_id, search_id;
+	int key_id, search_id, cur_key_index;
 	LogicalPlan *cur_key, *lp_key;
 
 	column_alias = lp_column_alias->v.column_alias;
@@ -47,6 +47,7 @@ SqlKey *lp_get_key(LogicalPlan *plan, LogicalPlan *lp_column_alias) {
 	}
 
 	cur_key = lp_get_keys(plan);
+	cur_key_index = 0;
 
 	do {
 		GET_LP(lp_key, cur_key, 0, LP_KEY);
@@ -61,10 +62,10 @@ SqlKey *lp_get_key(LogicalPlan *plan, LogicalPlan *lp_column_alias) {
 				break;
 			if(strcmp(search_column_name->v.string_literal, key_column_name->v.string_literal) != 0)
 				break;
-			return key;
+			return cur_key_index;
 		} while(TRUE);
 		cur_key = cur_key->v.operand[1];
+		cur_key_index++;
 	} while(cur_key != NULL);
-
-	return NULL;
+	return -1;
 }

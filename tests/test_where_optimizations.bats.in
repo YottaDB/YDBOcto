@@ -14,8 +14,8 @@ OCTO
   run cat output.txt
   [[ "$output" =~ "2|Cereal|Killer" ]]
   ! [[ "$output" =~ "0|Zero|Cool" ]]
-  run grep "FOR" ./*.m
-  [[ "$output" =~ $S\(.cursor\(.*\)=\"\":\"2\" ]]
+  run grep -c "FOR" ./*.m
+  [[ "$output" =~ "0" ]]
 }
 
 @test "cases that contain OR or AND do not allow optimization to occur" {
@@ -29,4 +29,17 @@ OCTO
   run grep "FOR" ./*.m
   ! [[ "$output" =~ $S\(.cursor\(.*\)=\"\":\"2\" ]]
 
+}
+
+@test "simple fixed column optimizations" {
+  octo >& output.txt <<OCTO
+SELECT * FROM names AS t1
+CROSS JOIN names AS t2
+WHERE t1.id = t2.id;
+OCTO
+  run cat output.txt
+  [[ "$output" =~ "1|Acid|Burn|1|Acid|Burn" ]]
+  ! [[ "$output" =~ "0|Zero|Cool|1|Acid|Burn" ]]
+  run grep -c "FOR" ./*.m
+  [[ "$output" =~ "1" ]]
 }

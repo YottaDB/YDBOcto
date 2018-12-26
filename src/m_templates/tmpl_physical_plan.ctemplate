@@ -5,10 +5,11 @@
 
 TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
     TEMPLATE_INIT();
-    int cur_key;
+    int cur_key, dot_count;
     SqlKey *key;
     SqlTable *table;
     SqlValue *value;
+    char *key_fixed;
     SqlOptionalKeyword *keyword;
 
     %}
@@ -16,11 +17,31 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
 {{ plan->plan_name }}(cursorId) ; we could put arguments here
     {% // The whitespace here is needed for proper M formatting
 
-    for(cur_key = 0; cur_key < plan->total_iter_keys; cur_key++) {
+    for(cur_key = 0, dot_count = 0; cur_key < plan->total_iter_keys; cur_key++) {
     	// For each key, output the key start, a loop, quit, and increment
 	key = plan->iterKeys[cur_key];
-    %}{% TMPL(print_dots, cur_key); %}{% TMPL(tmpl_key_start, key); %}
-    {% TMPL(print_dots, cur_key); %}FOR i{{ cur_key|%d }}=1:1 SET {% TMPL(tmpl_key, key) %}={% TMPL(tmpl_key_advance, plan, key)
+	if(key->value) {
+	    TMPL(print_dots, dot_count);
+            switch(key->value->type) {
+            case LP_VALUE:
+                key_fixed = key->value->v.value->v.string_literal;
+                %}S {% TMPL(tmpl_key, key); %}="{{ key_fixed }}"
+    {%
+                break;
+            case LP_COLUMN_ALIAS:
+                %}S {% TMPL(tmpl_key, key); %}={%
+		TMPL(tmpl_print_expression, key->value, plan);
+		%}
+    {%
+	        break;
+	    default:
+	        FATAL(ERR_UNKNOWN_KEYWORD_STATE);
+                break;
+            }
+            continue;
+        } 
+    %}{% TMPL(print_dots, dot_count); %}{% TMPL(tmpl_key_start, key); %}
+    {% TMPL(print_dots, dot_count); %}FOR i{{ cur_key|%d }}=1:1 SET {% TMPL(tmpl_key, key) %}={% TMPL(tmpl_key_advance, plan, key)
     %} QUIT:({%
         TMPL(tmpl_key_end, key);
 	keyword = get_keyword_from_keywords(plan->keywords, OPTIONAL_LIMIT);
@@ -30,10 +51,11 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
 	}
     %})  DO
     {%
+        dot_count++;
     }
 
     // Output the value
-    TMPL(print_dots, cur_key); %} SET{%
+    TMPL(print_dots, dot_count); %}SET{%
 
     if(plan->where && plan->where->v.operand[0]) {
         %}:{%

@@ -101,7 +101,7 @@ LogicalPlan *join_tables(LogicalPlan *root, LogicalPlan *plan) {
 LogicalPlan *optimize_logical_plan(LogicalPlan *plan) {
 	LogicalPlan *select, *table_join, *where, *t, *left, *right;
 	SqlKey *key;
-	int result;
+	int result, i1, i2;
 	// First, "join" all the tables; we should do a search here to find the
 	//  optimal join order
 	select = lp_get_select(plan);
@@ -111,6 +111,10 @@ LogicalPlan *optimize_logical_plan(LogicalPlan *plan) {
 	// If there are no "OR" or "AND" statements, fix key values
 	where = lp_get_select_where(plan);
 	while(TRUE) {
+		// Handle an equality; if one side is a constant, fix the other
+		// If both sides are keys, fix the one which occurs first to the second
+		//  Note: the order of the keys is part of the optimization phase
+		//  prior to this
 		if(where == NULL)
 			break;
 		t = where->v.operand[0];
@@ -119,11 +123,35 @@ LogicalPlan *optimize_logical_plan(LogicalPlan *plan) {
 		if(t->type != LP_BOOLEAN_EQUALS)
 			break;
 		left = t->v.operand[0];
-		if(left->type != LP_COLUMN_ALIAS)
+		if(!(left->type == LP_VALUE || left->type == LP_COLUMN_ALIAS))
 			break;
 		right = t->v.operand[1];
-		if(right->type != LP_VALUE)
+		if(!(right->type == LP_VALUE || right->type == LP_COLUMN_ALIAS))
 			break;
+		// When we come out of this branching tree, left will be the value
+		//  that should be fixed too, and right the value to fix it too
+		if(right->type == LP_COLUMN_ALIAS && left->type == LP_COLUMN_ALIAS) {
+			// Both are column references; find which occurs first
+			i1 = lp_get_key_index(plan, left);
+			i2 = lp_get_key_index(plan, right);
+			if(i1 == -1 || i2 == -1) {
+				break;
+			}
+			if(i2 > i1) {
+				t = left;
+				left = right;
+				right = t;
+			}
+		} else if(right->type == LP_COLUMN_ALIAS) {
+			// The left is a value, right a column, swap'em
+			t = left;
+			left = right;
+			right = t;
+		} else if(left->type == LP_VALUE) {
+			// This something like 5=5; dumb and senseless, but the M
+			//  compiler will optimize it away. Nothing we can do here
+			break;
+		}
 		key = lp_get_key(plan, left);
 		if(key == NULL)
 			break;

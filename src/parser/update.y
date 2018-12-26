@@ -1,6 +1,6 @@
 update_statement_searched
-  : UPDATE column_name SET set_clause_list
-  | UPDATE column_name SET set_clause_list WHERE search_condition
+  : UPDATE column_name SET set_clause_list { $$ = NULL; }
+  | UPDATE column_name SET set_clause_list WHERE search_condition { $$ = NULL; }
   ;
 
 set_clause_list

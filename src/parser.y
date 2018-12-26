@@ -178,15 +178,16 @@ sql_data_statement
   ;
 
 sql_data_change_statement
-  : delete_statement_searched
+  
+  : delete_statement_searched { $$ = $1; }
 //  | delete_statement_position
   | insert_statement { $$ = $1; }
 //  | update_statement_positioned
-  | update_statement_searched
+  | update_statement_searched { $$ = $1; }
   ;
 
 delete_statement_searched
-  : DELETE FROM column_name delete_statement_searched_tail
+  : DELETE FROM column_name delete_statement_searched_tail { $$ = NULL; }
   ;
 
 delete_statement_searched_tail

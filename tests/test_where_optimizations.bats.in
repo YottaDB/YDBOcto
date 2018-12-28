@@ -43,3 +43,17 @@ OCTO
   run grep -c "FOR" ./*.m
   [[ "$output" =~ "1" ]]
 }
+
+@test "fixed value with chained SQL" {
+  octo >& output.txt <<OCTO
+select firstName
+FROM (
+  select * from names as t1
+  inner join names as t2
+  on t1.id = t2.id
+  order by t1.firstName
+);
+OCTO
+  run cat output.txt
+  # Success in this test is not crashing
+}

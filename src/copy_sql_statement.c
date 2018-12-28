@@ -28,7 +28,7 @@ SqlStatement *copy_sql_statement(SqlStatement *stmt) {
 	SqlColumnList *cur_column_list, *start_column_list, *new_column_list, *t_column_list;
 	SqlJoin *cur_join, *start_join, *new_join, *t_join;
 	SqlInsertStatement *insert;
-	SqlStatement *ret;
+	SqlStatement *ret, *temp_statement;
 	SqlSelectStatement *select;
 	SqlDropStatement *drop;
 	SqlValue *value;
@@ -183,8 +183,14 @@ SqlStatement *copy_sql_statement(SqlStatement *stmt) {
 			// Find the correct column in the table
 			UNPACK_SQL_STATEMENT(table_alias, new_column_alias->table_alias, table_alias);
 			UNPACK_SQL_STATEMENT(table, table_alias->table, table);
-			UNPACK_SQL_STATEMENT(value, start_column_alias->column->v.column->columnName, value);
-			PACK_SQL_STATEMENT(new_column_alias->column, find_column(value->v.string_literal, table), column);
+			if(start_column_alias->column->type == column_STATEMENT) {
+				UNPACK_SQL_STATEMENT(value, start_column_alias->column->v.column->columnName, value);
+				PACK_SQL_STATEMENT(new_column_alias->column, find_column(value->v.string_literal, table), column);
+			} else {
+				assert(start_column_alias->column->type == column_list_alias_STATEMENT);
+				temp_statement = copy_sql_statement(start_column_alias->column);
+				new_column_alias->column = temp_statement;
+			}
 		}
 
 		break;

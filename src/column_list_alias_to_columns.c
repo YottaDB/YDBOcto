@@ -36,7 +36,9 @@ SqlColumn *column_list_alias_to_columns(SqlTableAlias *table_alias) {
 		cur_column = (SqlColumn*)malloc(sizeof(SqlColumn));
 		memset(cur_column, 0, sizeof(SqlColumn));
 		cur_column->table = copy_sql_statement(table_alias->table);
-		cur_column->columnName = copy_sql_statement(cla_cur->alias);
+		if(cla_cur != NULL) {
+			cur_column->columnName = copy_sql_statement(cla_cur->alias);
+		}
 		SQL_STATEMENT(cur_column->keywords, keyword_STATEMENT);
 		MALLOC_STATEMENT(cur_column->keywords, keyword, SqlOptionalKeyword);
 		dqinit(cur_column->keywords->v.keyword);

@@ -41,3 +41,25 @@ OCTO
   [[ "$output" =~ "Joey" ]]
   ! [[ "$output" =~ "Cereal|Killer" ]]
 }
+
+@test "where with * from list" {
+  run oct >& output.txt <<OCTO
+select * from (select id from names);
+OCTO
+  run cat output.txt
+  # Success on this test is just it not getting a sig11
+}
+
+@test "where with * from *" {
+  run oct >& output.txt <<OCTO
+select *
+FROM (
+  select * from names as t1
+  inner join names as t2
+  on t1.id = t2.id
+  order by t1.firstName
+);
+OCTO
+  run cat output.txt
+  # Success on this test is just it not getting a sig11
+}

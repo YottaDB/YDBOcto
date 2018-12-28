@@ -200,9 +200,6 @@ struct SqlColumnAlias
 {
 	// SqlColumn or SqlColumnListAlias
 	SqlStatement *column;
-	// This can only happen to SqlColumnListAlias
-	// SqlValue (name of alias)
-	//	SqlStatement *alias;
 	// SqlTableAlias
 	SqlStatement *table_alias;
 };

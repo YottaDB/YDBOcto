@@ -125,6 +125,10 @@ int main(int argc, char **argv)
 	/* Load the existing tables */
 	do {
 		status = ydb_subscript_next_s(&schema_global, 1, &table_name_buffer, &table_name_buffer);
+		if(status == YDB_ERR_NODEEND) {
+			break;
+		}
+
 		YDB_ERROR_CHECK(status, &z_status, &z_status_value);
 		if(table_name_buffer.len_used == 0)
 			break;

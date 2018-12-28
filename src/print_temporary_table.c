@@ -55,6 +55,9 @@ void print_temporary_table(PhysicalPlan *plan, int cursor_id) {
 	INIT_YDB_BUFFER(row_value_b, MAX_STR_CONST);
 
 	status = ydb_subscript_next_s(cursor_b, 6, cursor_id_b, row_id_b);
+	if(status == YDB_ERR_NODEEND) {
+		return;
+	}
 	YDB_ERROR_CHECK(status, &z_status, &z_status_value);
 
 	while(!YDB_BUFFER_IS_SAME(empty_buffer, row_id_b)) {
@@ -63,6 +66,9 @@ void print_temporary_table(PhysicalPlan *plan, int cursor_id) {
 		row_value_b->buf_addr[row_value_b->len_used] = '\0';
 		fprintf(stdout, "%s\n", row_value_b->buf_addr);
 		status = ydb_subscript_next_s(cursor_b, 6, cursor_id_b, row_id_b);
+		if(status == YDB_ERR_NODEEND) {
+			break;
+		}
 		YDB_ERROR_CHECK(status, &z_status, &z_status_value);
 	}
 	free(cursor_id_b->buf_addr);

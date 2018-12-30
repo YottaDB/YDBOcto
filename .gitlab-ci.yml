@@ -7,7 +7,7 @@ before_script:
   - pip install sphinxcontrib-fulltoc sphinx sphinx_rtd_theme
 
 make:
-  image: yottadb/yottadb-base
+  image: yottadb/yottadb-base:latest-master
   stage: build
   artifacts:
     paths:

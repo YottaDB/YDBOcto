@@ -158,7 +158,7 @@ query_specification
       SqlColumn *t_column;
       SqlColumnListAlias *cl_alias = NULL, *t_cl_alias, *tt_cl_alias;
       UNPACK_SQL_STATEMENT(join, select->table_list, join);
-      if(select->select_list == NULL) {
+      if(select->select_list->v.column_list_alias == NULL) {
           start_join = cur_join = join;
           do {
 	      UNPACK_SQL_STATEMENT(table_alias, cur_join->value, table_alias);

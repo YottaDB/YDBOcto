@@ -42,6 +42,21 @@ optional_query_word_element
       ($$)->v.keyword->v = $2;
       dqinit(($$)->v.keyword);
   }
+/*  | UNION ALL sql_select_statement {
+      SQL_STATEMENT($$, keyword_STATEMENT);
+      ($$)->v.keyword = (SqlOptionalKeyword*)malloc(sizeof(SqlOptionalKeyword));
+      ($$)->v.keyword->keyword = OPTIONAL_UNION_ALL;
+      ($$)->v.keyword->v = $3;
+      dqinit(($$)->v.keyword);
+  }
+  | UNION sql_select_statement {
+      SQL_STATEMENT($$, keyword_STATEMENT);
+      ($$)->v.keyword = (SqlOptionalKeyword*)malloc(sizeof(SqlOptionalKeyword));
+      ($$)->v.keyword->keyword = OPTIONAL_UNION;
+      ($$)->v.keyword->v = $2;
+      dqinit(($$)->v.keyword);
+      }*/
+  ;
 
 sort_specification_list
   : sort_specification sort_specification_list_tail {
@@ -483,15 +498,21 @@ join_condition
 
 join_type
   : INNER { SQL_STATEMENT($$, join_type_STATEMENT); ($$)->v.join_type = INNER_JOIN; }
-  | outer_join_type
-  | outer_join_type OUTER
+  | outer_join_type { $$ = $1; }
+// AFAIK, LEFT JOIN is shorthande for LEFT OUTER JOIN, so just pass through
+  | outer_join_type OUTER { $$ = $1; }
+// After some time looking at this, I can't seee any cases where this would be used
+//  So it's in the BNF, but no implementations I could find allow for something
+//  like SELECT * FROM table UNION JOIN table2; this is also the cause
+//  of the confluct with non_join_query_expression. So this should remain
+//  disabled until someone can demonstrate proper syntax
 //  | UNION // This conflicts with non_join_query_expression
   ;
 
 outer_join_type
-  : RIGHT
-  | LEFT
-  | FULL
+  : RIGHT { SQL_STATEMENT($$, join_type_STATEMENT); ($$)->v.join_type = RIGHT_JOIN; }
+  | LEFT{ SQL_STATEMENT($$, join_type_STATEMENT); ($$)->v.join_type = LEFT_JOIN; }
+  | FULL{ SQL_STATEMENT($$, join_type_STATEMENT); ($$)->v.join_type = FULL_JOIN; }
   ;
 
 where_clause

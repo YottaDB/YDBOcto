@@ -98,6 +98,8 @@ struct SqlKey {
 	SqlKey *prevSubscript, *nextSubscript;
 	// Table that owns this key; used to extract key from plan
 	//  when generating an extract for a given column
+	// If this key is part of a UNION, this is the LP_INSERT
+	//  plan which outputs this key
 	LogicalPlan *owner;
 };
 
@@ -106,6 +108,9 @@ struct SqlKey {
 // Generates a base plan given a SELECT statement
 LogicalPlan *generate_logical_plan(SqlStatement *stmt, int *plan_id);
 LogicalPlan *optimize_logical_plan(LogicalPlan *plan);
+
+// Generate a logical plan for a SET operation
+LogicalPlan *lp_generate_set_logical_plan(SqlStatement *stmt, int *plan_id);
 
 // Provides a copy of the plan
 LogicalPlan *lp_copy_plan(LogicalPlan *plan);

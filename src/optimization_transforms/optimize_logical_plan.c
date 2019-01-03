@@ -34,7 +34,7 @@ LogicalPlan *join_tables(LogicalPlan *root, LogicalPlan *plan) {
 	SqlTableAlias *table_alias;
 	SqlColumn *key_columns[MAX_KEY_COUNT];
 	int max_key, cur_key, unique_id;
-	if(plan->type != LP_TABLE_JOIN)
+	if(plan->type != LP_TABLE_JOIN || plan->v.operand[0] == NULL)
 		return plan;
 	if(plan->v.operand[0]->type == LP_INSERT) {
 		// This plan needs to be inserted as a physical plan

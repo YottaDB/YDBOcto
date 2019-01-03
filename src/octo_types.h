@@ -75,7 +75,8 @@ enum SqlStatementType {
 	column_list_alias_STATEMENT,
 	column_alias_STATEMENT,
 	table_alias_STATEMENT,
-	join_type_STATEMENT
+	join_type_STATEMENT,
+	set_operation_STATEMENT
 };
 
 enum UnaryOperations {
@@ -147,11 +148,23 @@ enum OptionalKeyword {
 	MAX_LENGTH
 };
 
+enum SqlSetOperationType {
+	SET_UNION,
+	SET_UNION_ALL,
+	SET_EXCEPT,
+	SET_EXCEPT_ALL,
+	SET_INTERSECT,
+	SET_INTERSECT_ALL
+} typedef SqlSetOperationType;
+
 enum SqlJoinType {
 	NO_JOIN,
 	TABLE_SPEC,
 	CROSS_JOIN,
-	INNER_JOIN
+	INNER_JOIN,
+	RIGHT_JOIN,
+	LEFT_JOIN,
+	FULL_JOIN
 };
 
 #define YYLTYPE yyltype
@@ -180,6 +193,7 @@ struct SqlTableAlias typedef SqlTableAlias;
 struct SqlJoin typedef SqlJoin;
 struct SqlColumnListAlias typedef SqlColumnListAlias;
 struct SqlStatement typedef SqlStatement;
+struct SqlSetOperation typedef SqlSetOperation;
 
 /**
  * Represents a SQL column; doubly linked list
@@ -236,6 +250,7 @@ struct SqlTableAlias
 struct SqlOptionalKeyword
 {
 	enum OptionalKeyword keyword;
+	// Keyword value (SqlValue) or UNION statement (SqlSelectStatement)
 	SqlStatement *v;
 	dqcreate(SqlOptionalKeyword);
 } typedef SqlOptionalKeyword;
@@ -269,6 +284,8 @@ struct SqlSelectStatement
 	SqlStatement *order_expression;
 	// SqlOptionalKeyword
 	SqlStatement *optional_words;
+	// SqlSetOperation
+	SqlStatement *set_operation;
 };
 
 struct SqlInsertStatement
@@ -331,6 +348,18 @@ struct SqlColumnListAlias {
 	dqcreate(SqlColumnListAlias);
 };
 
+/*
+ * A SQL set operation, such as UNION, EXCEPT, or INTERSECT
+ *
+ * This is seperated from a binary operation because, at this time, I believe it
+ *  to be not useable as part of an expression; if this proves to be wrong,
+ *  we should consider merging it
+ */
+struct SqlSetOperation {
+	SqlSetOperationType type;
+	SqlStatement *operand[2];
+};
+
 struct SqlStatement {
 	enum SqlStatementType type;
 	struct YYLTYPE loc;
@@ -350,6 +379,7 @@ struct SqlStatement {
 		SqlColumnListAlias *column_list_alias;
 		SqlColumnAlias *column_alias;
 		SqlTableAlias *table_alias;
+		SqlSetOperation *set_operation;
 		enum SqlDataType data_type;
 		enum SqlJoinType join_type;
 	} v;

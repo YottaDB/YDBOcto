@@ -98,6 +98,10 @@ PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlan *next) {
 	select = lp_get_select(plan);
 	GET_LP(table_joins, select, 0, LP_TABLE_JOIN);
 	do {
+		// If this is a plan that doesn't have a source table,
+		//  this will be null and we need to skip this step
+		if(table_joins->v.operand[0] == NULL)
+			break;
 		table_count++;
 		if(table_joins->v.operand[0]->type == LP_INSERT) {
 			// This is a sub plan, and should be inserted as prev

@@ -160,7 +160,7 @@ extern void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, int *plan
 sql_statement
   : sql_schema_statement SEMICOLON { *out = $1; YYACCEPT; }
   | sql_data_statement SEMICOLON { *out = $1; YYACCEPT; }
-  | sql_select_statement SEMICOLON { *out = $1; YYACCEPT; }
+  | query_expression SEMICOLON { *out = $1; YYACCEPT; }
   | ENDOFFILE { YYACCEPT; }
   ;
 
@@ -619,7 +619,20 @@ query_expression
 
 non_join_query_expression
   : non_join_query_term { $$ = $1; }
-  | query_expression UNION non_join_query_expression_tail
+  | query_expression UNION non_join_query_expression_tail {
+        $$ = $1;
+        SqlSetOperation *set_operation;
+        SqlSelectStatement *select;
+        SqlStatement *stmt;
+        SQL_STATEMENT(stmt, set_operation_STATEMENT);
+        MALLOC_STATEMENT(stmt, set_operation, SqlSetOperation);
+        UNPACK_SQL_STATEMENT(set_operation, stmt, set_operation);
+        set_operation->type = SET_UNION;
+        set_operation->operand[0] = $1;
+        set_operation->operand[1] = $3;
+        UNPACK_SQL_STATEMENT(select, $$, select);
+        select->set_operation = stmt;
+    }
   | query_expression EXCEPT non_join_query_expression_tail
   ;
 

@@ -26,7 +26,6 @@
  * Generates a LP for the given column list, with a root element of
  *  LP_COLUMN_LIST and child elements of LP_WHERE and LP_COLUMN_LIST
  */
-
 LogicalPlan *generate_logical_plan(SqlStatement *stmt, int *plan_id) {
 	SqlSelectStatement *select_stmt;
 	LogicalPlan *insert, *project, *column_list, *select, *dst, *dst_key;
@@ -40,6 +39,14 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt, int *plan_id) {
 
 	UNPACK_SQL_STATEMENT(select_stmt, stmt, select);
 	UNPACK_SQL_STATEMENT(start_join, select_stmt->table_list, join);
+
+	// If this is a SELECT involved with a SET operation, we want to perform
+	//  that operation on the output keys of this plan and the next one, in order,
+	//  so we should generate a placeholder plan which does a LP_KEY_<set operation> on
+	//  those keys
+	if(select_stmt->set_operation != NULL) {
+		return lp_generate_set_logical_plan(stmt, plan_id);
+	}
 	//MALLOC_LP(start_join_condition, LP_WHERE);
 	//start_join_condition->v.operand[0] = generate_lp_where(start_join->condition, plan_id);
 
@@ -69,6 +76,10 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt, int *plan_id) {
 	join_right = NULL;
 	cur_join = start_join;
 	do {
+		if(cur_join->type != INNER_JOIN
+		   && cur_join->type != CROSS_JOIN && cur_join->type != NO_JOIN) {
+			FATAL(ERR_FEATURE_NOT_IMPLEMENTED, "OUTER JOIN");
+		}
 		if(join_right == NULL) {
 			join_right =  MALLOC_LP(select->v.operand[0], LP_TABLE_JOIN);
 		}

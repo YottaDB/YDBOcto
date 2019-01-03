@@ -25,6 +25,7 @@ createdb() {
   $ydb_dist/mumps -r ^GDE <<FILE
 change -r DEFAULT -key_size=1019 -record_size=32768
 change -segment DEFAULT -file_name=$test_temp/mumps.dat
+change -r DEFAULT -NULL_SUBSCRIPTS=true
 exit
 FILE
   $ydb_dist/mupip create

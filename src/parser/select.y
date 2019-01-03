@@ -1,7 +1,11 @@
 sql_select_statement
   : query_specification optional_query_words {
       $$ = $1;
-      ($$)->v.select->optional_words = $optional_query_words;
+      SqlOptionalKeyword *select_words, *new_words, *t;
+      UNPACK_SQL_STATEMENT(select_words, ($$)->v.select->optional_words, keyword);
+      UNPACK_SQL_STATEMENT(new_words, $optional_query_words, keyword);
+      dqinsert(select_words, new_words, t);
+      free($optional_query_words);
     }
   ;
 
@@ -104,7 +108,7 @@ ordering_specification
   ;
 
 query_specification
-  : SELECT select_list table_expression {
+  : SELECT set_quantifier select_list table_expression {
       $$ = $table_expression;
       assert(($$)->type == select_STATEMENT);
       SqlSelectStatement *select;
@@ -136,6 +140,7 @@ query_specification
           } while(cur_join != start_join);
 	  select->select_list->v.column_list_alias = cl_alias;
       }
+      ($$)->v.select->optional_words = $set_quantifier;
       SqlColumnList *column_list;
       SqlColumnListAlias *cur_column_list_alias, *start_column_list_alias;
       SqlValueType type;
@@ -158,8 +163,7 @@ query_specification
 	  YYABORT;
       }
     }
-  | SELECT set_quantifier select_list table_expression
-  | SELECT select_list table_expression ORDER BY sort_specification_list {
+  | SELECT set_quantifier select_list table_expression ORDER BY sort_specification_list {
       $$ = $table_expression;
       assert(($$)->type == select_STATEMENT);
             SqlSelectStatement *select;
@@ -186,11 +190,12 @@ query_specification
 	      } else {
 	          dqinsert(cl_alias, t_cl_alias, tt_cl_alias);
 	      }
-	      free(t_stmt);
+	      //free(t_stmt);
 	      cur_join = cur_join->next;
           } while(cur_join != start_join);
 	  PACK_SQL_STATEMENT(select->select_list, cl_alias, column_list_alias);
       }
+      ($$)->v.select->optional_words = $set_quantifier;
       SqlColumnList *column_list;
       SqlColumnListAlias *cur_column_list_alias, *start_column_list_alias;
       SqlValueType type;
@@ -218,7 +223,6 @@ query_specification
 	  YYABORT;
       }
     }
-  | SELECT set_quantifier select_list table_expression ORDER BY sort_specification_list
   ;
 
 select_list
@@ -264,8 +268,27 @@ table_expression
   ;
 
 set_quantifier
-  : ALL
-  | DISTINCT
+  : /* Empty; default ALL */ {
+      SQL_STATEMENT($$, keyword_STATEMENT);
+      ($$)->v.keyword = (SqlOptionalKeyword*)malloc(sizeof(SqlOptionalKeyword));
+      ($$)->v.keyword->keyword = NO_KEYWORD;
+      ($$)->v.keyword->v = NULL;
+      dqinit(($$)->v.keyword);
+    }
+  | ALL {
+      SQL_STATEMENT($$, keyword_STATEMENT);
+      ($$)->v.keyword = (SqlOptionalKeyword*)malloc(sizeof(SqlOptionalKeyword));
+      ($$)->v.keyword->keyword = NO_KEYWORD;
+      ($$)->v.keyword->v = NULL;
+      dqinit(($$)->v.keyword);
+    }
+  | DISTINCT {
+      SQL_STATEMENT($$, keyword_STATEMENT);
+      ($$)->v.keyword = (SqlOptionalKeyword*)malloc(sizeof(SqlOptionalKeyword));
+      ($$)->v.keyword->keyword = OPTIONAL_DISTINCT;
+      ($$)->v.keyword->v = NULL;
+      dqinit(($$)->v.keyword);
+    }
   ;
 
 derived_column

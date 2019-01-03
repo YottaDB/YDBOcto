@@ -52,6 +52,12 @@ struct PhysicalPlan {
 	// If set to 1, this plan should emit the columns as subscripts of the key,
 	//  rather than using a row id
 	int stash_columns_in_keys;
+
+	// If true, maintain a column-wise index of known types
+	int maintain_columnwise_index;
+	// If true, only add the value to the output key if it doesn't already exist in
+	//  the columnwise index; requires the columnwise index
+	int distinct_values;
 };
 
 PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlan *next);

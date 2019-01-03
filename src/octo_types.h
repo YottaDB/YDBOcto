@@ -139,6 +139,8 @@ enum OptionalKeyword {
 	OPTIONAL_KEY_NUM,
 	OPTIONAL_ADVANCE,
 	OPTIONAL_LIMIT,
+	OPTIONAL_DISTINCT,
+	OPTIONAL_POPULATE_INDEX, // not sure if this should be here; gets populated through LP
 	UNKNOWN_SqlConstraintType,
 	NOT_NULL,
 	UNIQUE_CONSTRAINT,

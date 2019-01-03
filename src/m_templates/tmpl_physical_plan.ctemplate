@@ -55,11 +55,18 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
     }
 
     // Output the value
-    TMPL(print_dots, dot_count); %}SET{%
-
+    TMPL(print_dots, dot_count); %}SET:1{%
+    
     if(plan->where && plan->where->v.operand[0]) {
-        %}:{%
+        %}&({%
 	TMPL(tmpl_print_expression, plan->where->v.operand[0], plan);
+	%}){%
+    }
+    // Distinct values if needed
+    if(plan->distinct_values) {
+        %}&($D(^cursor(cursorId,"index",{%
+	TMPL(tmpl_column_list_combine, plan->projection, plan, ",");
+	%}))=0){%
     }
 
     /// TODO: key has overloaded meaning here to mean table; we need to
@@ -96,6 +103,27 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
 	//TMPL(tmpl_table_set, plan->outputTable);
     } else {
         assert(FALSE);
+    }
+
+    // If we are maintaing the columnwise index
+    if(plan->maintain_columnwise_index) {
+        // Newline for the M code
+        %}
+    {%
+        TMPL(print_dots, dot_count);
+	%}SET:1{%
+
+
+        if(plan->where && plan->where->v.operand[0]) {
+            %}&({%
+            TMPL(tmpl_print_expression, plan->where->v.operand[0], plan);
+            %}){%
+        }
+        %}&($D(^cursor(cursorId,"index",{%
+	TMPL(tmpl_column_list_combine, plan->projection, plan, ",");
+	%}))=0) ^cursor(cursorId,"index",{%
+	TMPL(tmpl_column_list_combine, plan->projection, plan, ",");
+	%})=(i1-1){%
     }
     if(plan->next) {
         %}

@@ -4,7 +4,7 @@ macro(ADD_BATS_TEST TEST_NAME)
     "${PROJECT_BINARY_DIR}/bats_tests/${TEST_NAME}.bats"
     @ONLY
   )
-  add_test(${TEST_NAME} ${BATS} ${PROJECT_BINARY_DIR}/bats_tests/${TEST_NAME}.bats)
+  add_test(${TEST_NAME} ${BATS} --tap ${PROJECT_BINARY_DIR}/bats_tests/${TEST_NAME}.bats)
 endmacro(ADD_BATS_TEST)
 
 # Copy over the setup script
@@ -24,3 +24,4 @@ ADD_BATS_TEST(test_limit)
 ADD_BATS_TEST(test_inner_join)
 ADD_BATS_TEST(test_where_optimizations)
 ADD_BATS_TEST(test_select_distinct)
+ADD_BATS_TEST(test_set_operations)

@@ -31,7 +31,7 @@ int lp_verify_structure(LogicalPlan *plan) {
 	LogicalPlan *cur;
 
 	cur = plan;
-	if(cur->type != LP_INSERT)
+	if(cur->type != LP_INSERT && cur->type != LP_SET_OPERATION)
 		return FALSE;
 	return TRUE;
 }
@@ -48,6 +48,12 @@ int lp_verify_structure_helper(LogicalPlan *plan, LPActionType expected) {
 	case LP_INSERT:
 		ret &= lp_verify_structure_helper(plan->v.operand[0], LP_KEY);
 		ret &= lp_verify_structure_helper(plan->v.operand[1], LP_PROJECT);
+		break;
+	case LP_SET_OPERATION:
+		ret &= lp_verify_structure_helper(plan->v.operand[0], LP_INSERT)
+			| lp_verify_structure_helper(plan->v.operand[0], LP_SET_OPERATION);
+		ret &= lp_verify_structure_helper(plan->v.operand[1], LP_INSERT)
+			| lp_verify_structure_helper(plan->v.operand[1], LP_SET_OPERATION);;
 		break;
 	case LP_TABLE:
 		// NULL is valid here, so just verify the type
@@ -86,9 +92,9 @@ int lp_verify_structure_helper(LogicalPlan *plan, LPActionType expected) {
 			return FALSE;
 		ret &= lp_verify_structure_helper(plan->v.operand[0], LP_KEY_FIX)
 			| lp_verify_structure_helper(plan->v.operand[0], LP_KEY_ADVANCE)
-			| lp_verify_structure_helper(plan->v.operand[0], LP_KEY_UNION)
-			| lp_verify_structure_helper(plan->v.operand[0], LP_KEY_INTERSECT)
-			| lp_verify_structure_helper(plan->v.operand[0], LP_KEY_DIFFERENCE);
+			| lp_verify_structure_helper(plan->v.operand[0], LP_SET_UNION)
+			| lp_verify_structure_helper(plan->v.operand[0], LP_SET_INTERSECT)
+			| lp_verify_structure_helper(plan->v.operand[0], LP_SET_DIFFERENCE);
 	case LP_KEY_FIX:
 		if(plan->v.operand[0] == NULL)
 			return FALSE;
@@ -118,21 +124,21 @@ int lp_verify_structure_helper(LogicalPlan *plan, LPActionType expected) {
 		if(plan->v.operand[0]->v.key->column == NULL)
 			return FALSE;
 		break;
-	case LP_KEY_UNION:
-	case LP_KEY_INTERSECT:
-	case LP_KEY_DIFFERENCE:
+	case LP_SET_UNION:
+	case LP_SET_INTERSECT:
+	case LP_SET_DIFFERENCE:
 		if(plan->v.operand[0] == NULL || plan->v.operand[1] == NULL)
 			return FALSE;
 		ret &= lp_verify_structure_helper(plan->v.operand[0], LP_KEY_FIX)
 			| lp_verify_structure_helper(plan->v.operand[0], LP_KEY_ADVANCE)
-			| lp_verify_structure_helper(plan->v.operand[0], LP_KEY_UNION)
-			| lp_verify_structure_helper(plan->v.operand[0], LP_KEY_INTERSECT)
-			| lp_verify_structure_helper(plan->v.operand[0], LP_KEY_DIFFERENCE);
+			| lp_verify_structure_helper(plan->v.operand[0], LP_SET_UNION)
+			| lp_verify_structure_helper(plan->v.operand[0], LP_SET_INTERSECT)
+			| lp_verify_structure_helper(plan->v.operand[0], LP_SET_DIFFERENCE);
 		ret &= lp_verify_structure_helper(plan->v.operand[1], LP_KEY_FIX)
 			| lp_verify_structure_helper(plan->v.operand[1], LP_KEY_ADVANCE)
-			| lp_verify_structure_helper(plan->v.operand[1], LP_KEY_UNION)
-			| lp_verify_structure_helper(plan->v.operand[1], LP_KEY_INTERSECT)
-			| lp_verify_structure_helper(plan->v.operand[1], LP_KEY_DIFFERENCE);
+			| lp_verify_structure_helper(plan->v.operand[1], LP_SET_UNION)
+			| lp_verify_structure_helper(plan->v.operand[1], LP_SET_INTERSECT)
+			| lp_verify_structure_helper(plan->v.operand[1], LP_SET_DIFFERENCE);
 		break;
 	case LP_WHERE:
 		if(plan->v.operand[0] == NULL || plan->v.operand[1] != NULL)

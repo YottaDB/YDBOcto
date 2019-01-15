@@ -25,7 +25,7 @@ OCTO
 }
 
 @test "expressions should evaluate with correct precedence" {
-  octo <<OCTO > output.txt
+  octo <<OCTO &> output.txt
 select * from names where id = 3+3/3;
 OCTO
   run cat output.txt
@@ -37,7 +37,6 @@ OCTO
   run octo <<OCTO
 select * from names where firstName <> "Cereal";
 OCTO
-  echo $output
   [[ "$output" =~ "Joey" ]]
   ! [[ "$output" =~ "Cereal|Killer" ]]
 }

@@ -28,7 +28,7 @@
 LogicalPlan *join_tables(LogicalPlan *root, LogicalPlan *plan) {
 	LogicalPlan *next = NULL, *table_plan;
 	LogicalPlan *keys = NULL, *where, *criteria, *cur_lp_key = NULL;
-	LogicalPlan *sub;
+	LogicalPlan *sub, *sub1, *sub2;
 	LogicalPlan *first_key;
 	SqlTable *table;
 	SqlTableAlias *table_alias;
@@ -36,6 +36,17 @@ LogicalPlan *join_tables(LogicalPlan *root, LogicalPlan *plan) {
 	int max_key, cur_key, unique_id;
 	if(plan->type != LP_TABLE_JOIN || plan->v.operand[0] == NULL)
 		return plan;
+	sub = plan->v.operand[0];
+	if(sub->type == LP_SET_OPERATION) {
+		sub1 = optimize_logical_plan(sub->v.operand[0]);
+		sub2 = optimize_logical_plan(sub->v.operand[1]);
+		// Each of the sub plans should have the same output key, so we can
+		//  grab from either
+		GET_LP(cur_lp_key, sub1, 1, LP_OUTPUT);
+		GET_LP(cur_lp_key, cur_lp_key, 0, LP_KEY);
+		lp_insert_key(root, cur_lp_key);
+		return plan;
+	}
 	if(plan->v.operand[0]->type == LP_INSERT) {
 		// This plan needs to be inserted as a physical plan
 		//  Leave it alone here, and let the physical planner grab it
@@ -102,6 +113,13 @@ LogicalPlan *optimize_logical_plan(LogicalPlan *plan) {
 	LogicalPlan *select, *table_join, *where, *t, *left, *right;
 	SqlKey *key;
 	int result, i1, i2;
+
+	if(plan->type == LP_SET_OPERATION) {
+		optimize_logical_plan(plan->v.operand[1]->v.operand[0]);
+		optimize_logical_plan(plan->v.operand[1]->v.operand[1]);
+		return plan;
+	}
+
 	// First, "join" all the tables; we should do a search here to find the
 	//  optimal join order
 	select = lp_get_select(plan);

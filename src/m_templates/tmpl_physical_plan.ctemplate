@@ -55,7 +55,19 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
     }
 
     // Output the value
-    TMPL(print_dots, dot_count); %}SET:1{%
+    TMPL(print_dots, dot_count);
+    if(plan->set_operation == PP_EXCEPT_SET) {
+        %}IF 1{%
+    } else {
+        switch(plan->action_type) {
+        case PP_PROJECT:
+            %}SET:1{%
+            break;
+        case PP_DELETE:
+            %}KILL:1{%
+            break;
+        }
+    }
     
     if(plan->where && plan->where->v.operand[0]) {
         %}&({%
@@ -63,7 +75,8 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
 	%}){%
     }
     // Distinct values if needed
-    if(plan->distinct_values) {
+    //  NOTE: the EXCEPT set doesn't need to check if a value exists before clearing it
+    if(plan->distinct_values && plan->set_operation != PP_EXCEPT_SET) {
         %}&($D(^cursor(cursorId,"index",{%
 	TMPL(tmpl_column_list_combine, plan->projection, plan, ",");
 	%}))=0){%
@@ -73,30 +86,44 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
     // increment something somewhere
     if(plan->outputKey && plan->outputKey->insert) {
         %}{{ plan->outputKey->insert->v.string_literal }}{%
+    } else if(plan->set_operation == PP_EXCEPT_SET) {
+        %} SET v=$O(^cursor(cursorId,"index",{% TMPL(tmpl_column_list_combine, plan->projection, plan, ","); %},"")) KILL:v'="" {% TMPL(tmpl_key, plan->outputKey); buff_ptr--; %},v),^cursor(cursorId,"index",{% TMPL(tmpl_column_list_combine, plan->projection, plan, ","); %},v){%
     } else if(plan->outputKey) {
         // This is probably super dangerous, but who cares...
         %} {%
-	TMPL(tmpl_key, plan->outputKey);
-	// Go back on in the buffer
-	buff_ptr -= 1;
-	if(plan->stash_columns_in_keys) {
-	  %},{%
-	  TMPL(tmpl_column_list_combine, plan->projection, plan, ",");
-	  %}){%
-	} else if (plan->order_by) {
-	  %},{%
-	  TMPL(tmpl_column_list_combine, plan->order_by, plan, ",");
-	  %}){%
-	} else {
-	  %},$I(i{{ cur_key|%d }})){%
-	}
-	// Then assign value
-	%}={%
-	if(plan->stash_columns_in_keys) {
-	    %}""{%
-	} else {
-	    TMPL(tmpl_column_list_combine, plan->projection, plan, "_\"|\"_");
-	}
+        TMPL(tmpl_key, plan->outputKey);
+        // Go back on in the buffer
+        buff_ptr -= 1;
+	if(plan->set_operation == PP_INTERSECT_SET) {
+	    // Do nothing; we're interested in the index, not the values themselves
+	    // Kill a non existent variable so we can logic consice
+	    assert(plan->action_type == PP_DELETE);
+	    /// TODO: rework this so this fake kill doesn't have to happen
+	    %},"this variable should never exist"){%
+	} else if(plan->action_type == PP_DELETE) {
+	    %},^cursor(cursorId,"index",{%
+            TMPL(tmpl_column_list_combine, plan->projection, plan, ",");
+            %})){%
+	} else if(plan->stash_columns_in_keys) {
+            %},{%
+            TMPL(tmpl_column_list_combine, plan->projection, plan, ",");
+            %}){%
+        } else if (plan->order_by) {
+            %},{%
+            TMPL(tmpl_column_list_combine, plan->order_by, plan, ",");
+            %}){%
+        } else {
+            %},$I(i{{ cur_key|%d }})){%
+        }
+        // Then assign value
+        if(plan->action_type == PP_PROJECT) {
+            %}={%
+            if(plan->stash_columns_in_keys) {
+                %}""{%
+            } else {
+                TMPL(tmpl_column_list_combine, plan->projection, plan, "_\"|\"_");
+            }
+        }
     } else if (plan->outputTable) {
         // We are putting the value directly into a table
 	UNPACK_SQL_STATEMENT(table, plan->outputTable->table, table);
@@ -106,12 +133,16 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
     }
 
     // If we are maintaing the columnwise index
-    if(plan->maintain_columnwise_index) {
+    if(plan->maintain_columnwise_index && plan->set_operation != PP_EXCEPT_SET) {
         // Newline for the M code
         %}
     {%
         TMPL(print_dots, dot_count);
-	%}SET:1{%
+	if(plan->set_operation == PP_INTERSECT_SET) {
+	    %}KILL:1{%
+	} else {
+	    %}SET:1{%
+	}
 
 
         if(plan->where && plan->where->v.operand[0]) {
@@ -119,11 +150,32 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
             TMPL(tmpl_print_expression, plan->where->v.operand[0], plan);
             %}){%
         }
-        %}&($D(^cursor(cursorId,"index",{%
-	TMPL(tmpl_column_list_combine, plan->projection, plan, ",");
-	%}))=0) ^cursor(cursorId,"index",{%
-	TMPL(tmpl_column_list_combine, plan->projection, plan, ",");
-	%})=(i1-1){%
+        // Distinct values if needed
+        //  NOTE: the EXCEPT set doesn't need to check if a value exists before clearing it
+        if(plan->distinct_values && plan->set_operation != PP_EXCEPT_SET && plan->set_operation != PP_INTERSECT_SET) {
+            %}&($D(^cursor(cursorId,"index",{%
+            TMPL(tmpl_column_list_combine, plan->projection, plan, ",");
+            %}))=0){%
+        }
+        %} ^cursor(cursorId,"index",{%
+        TMPL(tmpl_column_list_combine, plan->projection, plan, ",");
+	if(plan->set_operation != PP_INTERSECT_SET) {
+	    %},(i{{ cur_key|%d }}))="",tmpVar=$I(^cursor(cursorId,"index",{% TMPL(tmpl_column_list_combine, plan->projection, plan, ","); %})){%
+	} else {
+	    %}){%
+	}
+    }
+    // If this is a INTERSECT set, we need to delete any keys remaining in the
+    //  the index; these were in the first set, but not the second
+    if(plan->set_operation == PP_INTERSECT_SET) {
+        %}
+    SET var="^cursor("_cursorId_",""index"")" FOR  S var=$Q(@var),var=$Q(@var) Q:$P(var,",",2)'="""index"""  DO
+    . SET index=$P($P(var,",",$LENGTH(var,",")),")",1),^index($i(dsfasf))=index
+    . KILL:index'="" {%
+    TMPL(tmpl_key, plan->outputKey);
+    // Go back on in the buffer
+    buff_ptr -= 1;
+    %},index){%
     }
     if(plan->next) {
         %}

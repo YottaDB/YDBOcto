@@ -64,11 +64,15 @@ PhysicalPlan *emit_select_statement(ydb_buffer_t *cursor_global,
 	plan = generate_logical_plan(stmt, &config->plan_id);
 	if(lp_verify_structure(plan) == FALSE)
 		FATAL(ERR_PLAN_NOT_WELL_FORMED);
-	lp_emit_plan(buffer, MAX_STR_CONST, plan);
-	printf("Plan: %s\n", buffer);
+	if(config->record_error_level <= DEBUG) {
+		lp_emit_plan(buffer, MAX_STR_CONST, plan);
+		DEBUG(ERR_CURPLAN, buffer);
+	}
 	optimize_logical_plan(plan);
-	lp_emit_plan(buffer, MAX_STR_CONST, plan);
-	printf("Plan: %s\n", buffer);
+	if(config->record_error_level <= DEBUG) {
+		lp_emit_plan(buffer, MAX_STR_CONST, plan);
+		DEBUG(ERR_CURPLAN, buffer);
+	}
 	pplan = generate_physical_plan(plan, NULL);
 	emit_physical_plan(pplan);
 

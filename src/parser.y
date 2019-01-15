@@ -619,7 +619,7 @@ query_expression
 
 non_join_query_expression
   : non_join_query_term { $$ = $1; }
-  | query_expression UNION non_join_query_expression_tail {
+  | query_expression UNION query_term non_join_query_expression_tail_tail {
         $$ = $1;
         SqlSetOperation *set_operation;
         SqlSelectStatement *select;
@@ -633,12 +633,48 @@ non_join_query_expression
         UNPACK_SQL_STATEMENT(select, $$, select);
         select->set_operation = stmt;
     }
-  | query_expression EXCEPT non_join_query_expression_tail
-  ;
-
-non_join_query_expression_tail
-  : ALL non_join_query_expression_tail_tail query_term
-  | query_term
+  | query_expression UNION ALL query_term non_join_query_expression_tail_tail {
+        $$ = $1;
+        SqlSetOperation *set_operation;
+        SqlSelectStatement *select;
+        SqlStatement *stmt;
+        SQL_STATEMENT(stmt, set_operation_STATEMENT);
+        MALLOC_STATEMENT(stmt, set_operation, SqlSetOperation);
+        UNPACK_SQL_STATEMENT(set_operation, stmt, set_operation);
+        set_operation->type = SET_UNION_ALL;
+        set_operation->operand[0] = $1;
+        set_operation->operand[1] = $4;
+        UNPACK_SQL_STATEMENT(select, $$, select);
+        select->set_operation = stmt;
+    }
+  | query_expression EXCEPT query_term {
+        $$ = $1;
+        SqlSetOperation *set_operation;
+        SqlSelectStatement *select;
+        SqlStatement *stmt;
+        SQL_STATEMENT(stmt, set_operation_STATEMENT);
+        MALLOC_STATEMENT(stmt, set_operation, SqlSetOperation);
+        UNPACK_SQL_STATEMENT(set_operation, stmt, set_operation);
+        set_operation->type = SET_EXCEPT;
+        set_operation->operand[0] = $1;
+        set_operation->operand[1] = $3;
+        UNPACK_SQL_STATEMENT(select, $$, select);
+        select->set_operation = stmt;
+    }
+  | query_expression EXCEPT ALL query_term non_join_query_expression_tail_tail {
+        $$ = $1;
+        SqlSetOperation *set_operation;
+        SqlSelectStatement *select;
+        SqlStatement *stmt;
+        SQL_STATEMENT(stmt, set_operation_STATEMENT);
+        MALLOC_STATEMENT(stmt, set_operation, SqlSetOperation);
+        UNPACK_SQL_STATEMENT(set_operation, stmt, set_operation);
+        set_operation->type = SET_EXCEPT_ALL;
+        set_operation->operand[0] = $1;
+        set_operation->operand[1] = $4;
+        UNPACK_SQL_STATEMENT(select, $$, select);
+        select->set_operation = stmt;
+    }
   ;
 
 non_join_query_expression_tail_tail
@@ -671,12 +707,34 @@ query_term
 
 non_join_query_term
   : non_join_query_primary {$$ = $1; }
-  | query_term INTERSECT query_term_tail query_primary
-  ;
-
-query_term_tail
-  : ALL corresponding_spec
-  | corresponding_spec
+  | query_term INTERSECT corresponding_spec query_primary {
+        $$ = $1;
+        SqlSetOperation *set_operation;
+        SqlSelectStatement *select;
+        SqlStatement *stmt;
+        SQL_STATEMENT(stmt, set_operation_STATEMENT);
+        MALLOC_STATEMENT(stmt, set_operation, SqlSetOperation);
+        UNPACK_SQL_STATEMENT(set_operation, stmt, set_operation);
+        set_operation->type = SET_INTERSECT;
+        set_operation->operand[0] = $1;
+        set_operation->operand[1] = $4;
+        UNPACK_SQL_STATEMENT(select, $$, select);
+        select->set_operation = stmt;
+    }
+  | query_term INTERSECT ALL corresponding_spec query_primary {
+        $$ = $1;
+        SqlSetOperation *set_operation;
+        SqlSelectStatement *select;
+        SqlStatement *stmt;
+        SQL_STATEMENT(stmt, set_operation_STATEMENT);
+        MALLOC_STATEMENT(stmt, set_operation, SqlSetOperation);
+        UNPACK_SQL_STATEMENT(set_operation, stmt, set_operation);
+        set_operation->type = SET_INTERSECT_ALL;
+        set_operation->operand[0] = $1;
+        set_operation->operand[1] = $5;
+        UNPACK_SQL_STATEMENT(select, $$, select);
+        select->set_operation = stmt;
+    }
   ;
 
 corresponding_spec

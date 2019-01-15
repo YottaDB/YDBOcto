@@ -94,9 +94,6 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt, int *plan_id) {
 		} else {
 			join_left = generate_logical_plan(table_alias->table, plan_id);
 			join_right->v.operand[0] = join_left;
-			// Create a list of columns from this subquery and replace all references to SqlColumnListAlias in the column
-			//  field of a SqlColumnAlias with the correct column
-			//lp_replace_derived_table_references(insert, join_left, table_alias);
 		}
 		if(cur_join->condition) {
 			MALLOC_LP(t_join_condition, LP_WHERE);

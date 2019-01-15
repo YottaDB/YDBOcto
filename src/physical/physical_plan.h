@@ -27,8 +27,19 @@
 
 enum PPActionType {
 	PP_PROJECT,
+	PP_DELETE,
 	PP_ADVANCE
-};
+} typedef PPActionType;
+
+// Some SET operations require special post-condition stuff;
+//  this allows us to track what set operation we are doing in
+//  in the physical plan
+enum PPSetOperation {
+	PP_NOT_SET,
+	PP_UNION_SET,
+	PP_EXCEPT_SET,
+	PP_INTERSECT_SET
+} typedef PPSetOperation;
 
 struct PhysicalPlan typedef PhysicalPlan;
 
@@ -58,6 +69,9 @@ struct PhysicalPlan {
 	// If true, only add the value to the output key if it doesn't already exist in
 	//  the columnwise index; requires the columnwise index
 	int distinct_values;
+	// The type of action to perform; project inserts value, delete removes them
+	PPActionType action_type;
+	PPSetOperation set_operation;
 };
 
 PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlan *next);

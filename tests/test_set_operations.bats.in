@@ -1,0 +1,74 @@
+load test_helpers
+
+setup() {
+  init_test
+  createdb
+  load_fixture names.sql
+  load_fixture names.zwr
+}
+
+@test "union returns combined rows with no duplicates" {
+  octo <<OCTO &> output.txt
+select firstName, lastName from names union select firstName, lastName from names;
+OCTO
+  run cat output.txt
+  [[ "$(grep -c "Zero" output.txt)" == "1" ]]
+  [[ "$(grep -c "|" output.txt)" == "5" ]]
+}
+
+@test "union all returns combined rows with duplicates" {
+  octo <<OCTO &> output.txt
+select firstName, lastName from names union all select firstName, lastName from names;
+OCTO
+  run cat output.txt
+  [[ "$(grep -c "Zero" output.txt)" == "4" ]]
+  [[ "$(grep -c "|" output.txt)" == "12" ]]
+}
+
+@test "intersect provides items in both sets, with duplicates removed" {
+  octo <<OCTO &> output.txt
+select firstName, lastName from names
+intersect
+select firstName, lastName from names where firstName = "Zero";
+OCTO
+  # Remove original command so it doesn't screw with grep'ing
+  grep -v "OCTO" output.txt > output2.txt
+  [[ "$(grep -c "Zero" output2.txt)" == "1" ]]
+  [[ "$(grep -c "|" output2.txt)" == "1" ]]
+}
+
+@test "intersect provides items in both sets, with duplicates min. from both sets" {
+  octo <<OCTO &> output.txt
+select firstName, lastName from names
+intersect all
+select firstName, lastName from names where firstName = "Zero";
+OCTO
+  # Remove original command so it doesn't screw with grep'ing
+  grep -v "OCTO" output.txt > output2.txt
+  [[ "$(grep -c "Zero" output2.txt)" == "2" ]]
+  [[ "$(grep -c "|" output2.txt)" == "2" ]]
+}
+
+@test "except removed items from second set in the first set" {
+  octo <<OCTO &> output.txt
+select firstName, lastName from names
+except
+select firstName, lastName from names where firstName = "Zero";
+OCTO
+  # Remove original command so it doesn't screw with grep'ing
+  grep -v "OCTO" output.txt > output2.txt
+  [[ "$(grep -c "Zero" output2.txt)" == "0" ]]
+  [[ "$(grep -c "|" output2.txt)" == "4" ]]
+}
+
+@test "except all removed the same count of items from the first set as exist in the second set" {
+  octo <<OCTO &> output.txt
+select firstName, lastName from names
+except all
+select firstName, lastName from names where firstName = "Zero" and id = 0;
+OCTO
+  # Remove original command so it doesn't screw with grep'ing
+  grep -v "OCTO" output.txt > output2.txt
+  [[ "$(grep -c "Zero" output2.txt)" == "1" ]]
+  [[ "$(grep -c "|" output2.txt)" == "5" ]]
+}

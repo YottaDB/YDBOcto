@@ -122,6 +122,9 @@ void lp_free_plan(LogicalPlan *plan);
 //   PROJECT has COLUMN_LIST and SELECT as parameters
 //     SELECT has TABLE and CRITERIA as parameters
 //       CRITERIA has KEYS and WHERE as criteria
+//  OR: root is SET_OPERATION, and has SET_OPTIONS and PLANS as parameters
+//    SET_OPTION has <set type>
+//    PLANS has <INSERT|SET_OPERATION> as both operands
 int lp_verify_structure(LogicalPlan *plan);
 
 // Returns the projection triple

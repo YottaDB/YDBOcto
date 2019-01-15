@@ -39,6 +39,52 @@ PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlan *next) {
 	SqlStatement *stmt;
 	char *table_name;
 	int len, table_count, i;
+
+	// If this is a union plan, construct physical plans for the two children
+	if(plan->type == LP_SET_OPERATION) {
+		out = generate_physical_plan(plan->v.operand[1]->v.operand[1], next);
+		prev = generate_physical_plan(plan->v.operand[1]->v.operand[0], out);
+
+		// Switch what operation the second plan does
+		switch(plan->v.operand[0]->v.operand[0]->type) {
+		case LP_SET_UNION:
+		case LP_SET_UNION_ALL:
+			out->set_operation = PP_UNION_SET;
+			out->action_type = PP_PROJECT;
+			break;
+		case LP_SET_EXCEPT:
+		case LP_SET_EXCEPT_ALL:
+			out->set_operation = PP_EXCEPT_SET;
+			out->action_type = PP_DELETE;
+			break;
+		case LP_SET_INTERSECT:
+		case LP_SET_INTERSECT_ALL:
+			out->set_operation = PP_INTERSECT_SET;
+			out->action_type = PP_DELETE;
+			break;
+		}
+
+		// If the SET is not an "ALL" type, we need to keep resulting rows
+		//  unique
+		switch(plan->v.operand[0]->v.operand[0]->type) {
+		case LP_SET_UNION:
+		case LP_SET_EXCEPT:
+		case LP_SET_INTERSECT:
+			out->distinct_values = TRUE;
+			prev->distinct_values = TRUE;
+			out->maintain_columnwise_index = TRUE;
+			prev->maintain_columnwise_index = TRUE;
+			break;
+		case LP_SET_UNION_ALL:
+		case LP_SET_EXCEPT_ALL:
+		case LP_SET_INTERSECT_ALL:
+			out->maintain_columnwise_index = TRUE;
+			prev->maintain_columnwise_index = TRUE;
+			break;
+		}
+		return prev;
+	}
+
 	// Make sure the plan is in good shape
 	if(lp_verify_structure(plan) == FALSE) {
 		/// TODO: replace this with a real error message

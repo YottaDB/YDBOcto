@@ -132,6 +132,15 @@ add_executable(octo
   $<TARGET_OBJECTS:libocto>
 )
 
+add_library(liboctod OBJECT
+  octod/read_bind.c
+)
+
+add_executable(octod
+  octod.c
+  $<TARGET_OBJECTS:liboctod>
+)
+
 add_executable(pparser
   physical/pparser.c
   errors.c
@@ -191,7 +200,7 @@ enable_testing()
 include(${PROJECT_SOURCE_DIR}/cmake/tests.cmake)
 
 if(CMOCKA_FOUND)
-  # include(${PROJECT_SOURCE_DIR}/cmake/cmocka-tests.cmake)
+  include(${PROJECT_SOURCE_DIR}/cmake/cmocka-tests.cmake)
 endif()
 if(BATS_FOUND)
   include(${PROJECT_SOURCE_DIR}/cmake/bats-tests.cmake)

@@ -84,8 +84,6 @@ typedef struct __attribute__((packed)) {
 	char data[];
 } Bind;
 
-Bind *read_bind(BaseMessage *message);
-
 typedef struct {
 	char type;
 	char *value;
@@ -154,5 +152,7 @@ static const char *psql_sqlstate_codes_str[] = {
 
 // varargs should be of type ErrorResponseArg
 ErrorResponse *make_error_response(PSQL_ErrorSeverity severity, PSQL_SQLSTATECode code, char *message, size_t num_args, ...);
+
+Bind *read_bind(BaseMessage *message, ErrorResponse **err);
 
 #endif

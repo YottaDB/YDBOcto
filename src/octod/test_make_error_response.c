@@ -84,11 +84,34 @@ static void test_with_additional_parms(void **state) {
 	free(response);
 }
 
+static void test_verify_args_pointers_correct(void **state) {
+	char *message = "Seems OK to me man", *detail = "This is a more complicated message";
+	ErrorResponseArg a = {PSQL_Error_Detail, detail};
+	ErrorResponse *response = make_error_response(PSQL_Error_ERROR,
+						      PSQL_Code_Success,
+						      message,
+						      1, &a);
+	// Expected length is each string + null terminating bytes + format +
+	//  length part (5) + type (1)
+	int expected_length = strlen("ERROR")
+		+ strlen(psql_sqlstate_codes_str[PSQL_Code_Success])
+		+ strlen(message) + strlen(detail) + 4 + 4 + 4 + 1;
+	// Standard checks
+	assert_non_null(response);
+	assert_int_equal(response->length, htonl(expected_length));
+
+	assert_non_null(response->args[0].value);
+	assert_string_equal(message, response->args[2].value + 1);
+
+	free(response);
+}
+
 int main(void) {
 	const struct CMUnitTest tests[] = {
 		cmocka_unit_test(test_valid_input),
 		cmocka_unit_test(test_with_no_additional_parms),
-		cmocka_unit_test(test_with_additional_parms)
+		cmocka_unit_test(test_with_additional_parms),
+		cmocka_unit_test(test_verify_args_pointers_correct)
 	};
 	return cmocka_run_group_tests(tests, NULL, NULL);
 }

@@ -1,2 +1,7 @@
+// Class 00 - Successful completion
 ERROR_DEF(PSQL_Code_Success, "00000")
+// Class 01 - Warning
+// Class 02 - No Data
+// Class 08 - Connection exception
+ERROR_DEF(PSQL_Code_Protocol_Violation, "08P01")
 ERROR_END(PSQL_Code_Unknown, "00000")

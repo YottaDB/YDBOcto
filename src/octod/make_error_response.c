@@ -25,7 +25,7 @@
 
 ErrorResponse *make_error_response(PSQL_ErrorSeverity severity, PSQL_SQLSTATECode code, char *message, size_t num_args, ...) {
 	unsigned int new_length;
-	int i;
+	int i, cur_arg;
 	va_list args;
 	ErrorResponseArg *arg;
 	ErrorResponse *ret;
@@ -54,24 +54,40 @@ ErrorResponse *make_error_response(PSQL_ErrorSeverity severity, PSQL_SQLSTATECod
 	new_length += 1;
 	ret = (ErrorResponse*)malloc(sizeof(ErrorResponse) + new_length);
 	memset(ret, 0, sizeof(ErrorResponse) + new_length);
-	ret->type = PSQL_ErrorResponse;
+
+	// This is mostly for testing; eventually, we should
+	//  check whether this is a debug build, and if so, not do this maloc
+	//  or the sets
+	ret->args = (ErrorResponseArg*)malloc(sizeof(ErrorResponseArg) * (num_args+3));
+	cur_arg = 0;
+
 	// Add 4 length field
+	ret->type = PSQL_ErrorResponse;
 	ret->length = htonl(new_length + 4);
 	ptr = ret->data;
 
 	// Copy first three parameters
+	ret->args[cur_arg].type = PSQL_Error_SEVERITY;
+	ret->args[cur_arg].value = ptr;
+	cur_arg++;
 	*ptr++ = PSQL_Error_SEVERITY;
 	i = strlen(psql_error_severity_str[severity]);
 	memcpy(ptr, psql_error_severity_str[severity], i);
 	ptr += i;
 	*ptr++ = '\0';
 
+	ret->args[cur_arg].type = PSQL_Error_Code;
+	ret->args[cur_arg].value = ptr;
+	cur_arg++;
 	*ptr++ = PSQL_Error_Code;
 	i = strlen(psql_sqlstate_codes_str[code]);
 	memcpy(ptr, psql_sqlstate_codes_str[code], i);
 	ptr += i;
 	*ptr++ = '\0';
 
+	ret->args[cur_arg].type = PSQL_Error_Message;
+	ret->args[cur_arg].value = ptr;
+	cur_arg++;
 	*ptr++ = PSQL_Error_Message;
 	i = strlen(message);
 	memcpy(ptr, message, i);
@@ -79,13 +95,13 @@ ErrorResponse *make_error_response(PSQL_ErrorSeverity severity, PSQL_SQLSTATECod
 	*ptr++ = '\0';
 
 	// Copy values to the array
-	ret->args = (ErrorResponseArg*)malloc(sizeof(ErrorResponseArg) * num_args);
 	va_start(args, num_args);
 	for(i = 0; i < num_args; i++) {
 		arg = va_arg(args, ErrorResponseArg*);
 		*ptr++ = arg->type;
-		ret->args[i].type = arg->type;
-		ret->args[i].value = ptr;
+		ret->args[cur_arg].type = arg->type;
+		ret->args[cur_arg].value = ptr;
+		cur_arg++;
 		strcpy(ptr, arg->value);
 		ptr += strlen(arg->value);
 		*ptr++ = '\0';

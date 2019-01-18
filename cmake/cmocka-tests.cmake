@@ -15,3 +15,4 @@ endmacro(ADD_UNIT_TEST_WITH_OPTIONS)
 #ADD_UNIT_TEST_WITH_OPTIONS(test_generate_cursor "")
 
 ADD_UNIT_TEST_WITH_OPTIONS(test_read_bind src/octod/test_read_bind "")
+ADD_UNIT_TEST_WITH_OPTIONS(test_make_error_response src/octod/test_make_error_response "")

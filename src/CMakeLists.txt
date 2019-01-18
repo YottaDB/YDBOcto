@@ -134,6 +134,7 @@ add_executable(octo
 
 add_library(liboctod OBJECT
   octod/read_bind.c
+  octod/make_error_response.c
 )
 
 add_executable(octod
@@ -171,7 +172,7 @@ foreach(template ${template_files})
     DEPENDS "${template}" pparser
     COMMAND ${PROJECT_BINARY_DIR}/src/pparser < ${template} > ${fileName}.c
     )
-  target_sources(libocto PUBLIC ${fileName}.c)
+  target_sources(libocto PUBLIC ${PROJECT_BINARY_DIR}/src/${fileName}.c)
 endforeach()
 
 

@@ -1,0 +1,2 @@
+ERROR_DEF(PSQL_Code_Success, "00000")
+ERROR_END(PSQL_Code_Unknown, "00000")

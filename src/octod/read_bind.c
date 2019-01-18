@@ -25,7 +25,7 @@
 Bind *read_bind(BaseMessage *message) {
 	Bind *ret;
 	char *cur_pointer, *last_byte;
-	size_t remaining_length;
+	unsigned int remaining_length;
 	int i = 0;
 
 	// We must be sure ALL bytes are initialized, otherwise we could have
@@ -35,7 +35,7 @@ Bind *read_bind(BaseMessage *message) {
 	memset(ret, 0, remaining_length + sizeof(Bind));
 	memcpy(&ret->type, message, remaining_length);
 	// The data section doesn't include the length or format code
-	remaining_length -= 5;
+	remaining_length -= 4;
 	cur_pointer = ret->data;
 	last_byte = cur_pointer + remaining_length;
 	ret->dest = cur_pointer;

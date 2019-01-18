@@ -35,8 +35,8 @@ static void test_valid_input(void **state) {
 	short int num_parm_format_codes = htons(0);
 	short int num_parms = htons(0);
 	short int num_result_col_format_codes = htons(0);
-	// 5 is the size of message code (1) and length (4)
-	int message_length = 5 + strlen(dest) + strlen(source) + sizeof(short int) * 3;
+	// 4 is the size of length (4)
+	int message_length = 4 + strlen(dest) + strlen(source) + sizeof(short int) * 3;
 	BaseMessage *test_data = (BaseMessage*)malloc(message_length);
 	test_data->type = PSQL_Bind;
 	test_data->length = htonl(message_length);

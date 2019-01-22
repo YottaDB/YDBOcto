@@ -227,7 +227,7 @@ DELETE
 .. parsed-literal::
    DELETE FROM table_name [WHERE search_condition];
 
-The delete statement consists of the keywords DELETE FROM followed by the name of the table and possibly a search condition.
+The DELETE statement consists of the keywords DELETE FROM followed by the name of the table and possibly a search condition.
 
 The search condition eventually yields a boolean true or false value, and may contain further search modifications detailing where to apply the search_condition and how to compare the resulting values.
 
@@ -235,6 +235,61 @@ Example:
 
 .. parsed-literal::
    DELETE FROM Employee WHERE ID = 220;
+
+-------------------
+Set Operations
+-------------------
+
+These are operations that work on the results of two or more queries.
+
+The conditions are:
+
+- The data types in the results of each query need to be compatible.
+- The order and number of the columns in each result set need to be the same. 
+
++++++++++++++++++
+UNION
++++++++++++++++++
+
+.. parsed-literal::
+   SELECT [.....] FROM table_name[...]  UNION [ALL] SELECT [.....] FROM table_name2[...]....;
+
+The UNION operation consists of two or more queries joined together with the word UNION.  It combines the results of two individual queries into a single set of results.
+
+The keyword ALL ensures that duplicate rows of results are not removed during the UNION.
+
+Example:
+
+.. parsed-literal::
+   SELECT FirstName FROM Employee UNION SELECT FirstName FROM AddressBook;
+
+++++++++++++++++
+INTERSECT
+++++++++++++++++
+
+.. parsed-literal::
+   SELECT [.....] FROM table_name[......] INTERSECT [ALL] SELECT [.....] FROM table_name2[....]......;
+
+The INTERSECT operation consists of two or more queries joined together with the word INTERSECT. It returns distinct non-duplicate results that are returned by both queries on either side of the operation.
+
+The keyword ALL ensures that duplicate rows of results returned by both queries are not eliminated during the INTERSECT.
+
+.. parsed-literal::
+   SELECT ID FROM Employee INTERSECT SELECT ID FROM AddressBook;
+
+++++++++++++++
+EXCEPT
+++++++++++++++
+
+.. parsed-literal::
+   SELECT [.....] FROM table_name[.....] EXCEPT [ALL] SELECT [.....] FROM table_name2[......].......;
+
+The EXCEPT operation consists of two or more queries joined together with the word EXCEPT. It returns (non-duplicate) results from the query on the left side except those that are also part of the results from the query on the right side.
+
+The keyword ALL affects the resulting rows such that duplicate results are allowed but rows in the first table are eliminated if there is a corresponding row in the second table.
+
+.. parsed-literal::
+   SELECT LastName FROM Employee EXCEPT SELECT LastName FROM AddressBook;
 
 -------------
 Other

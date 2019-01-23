@@ -31,16 +31,16 @@ Example:
    CREATE TABLE Employee (ID int PRIMARY KEY, FirstName char(20), LastName char(30));
 
 
-+++++++++++++++++++++++++++++++++++++
-Mapping to a MUMPS database
-+++++++++++++++++++++++++++++++++++++
++++++++++++++++++++++++++++++++++++++++++++++
+Mapping to existing YottaDB global variables
+++++++++++++++++++++++++++++++++++++++++++++++
 
-If mapping to an existing MUMPS database, an optional_keyword can be added to further enhance the CREATE statement:
+If mapping to existing YottaDB global variables, an optional_keyword can be added to further enhance the CREATE statement:
 
 .. parsed-literal::
    [ADVANCE | CURSOR | DELIM | END | EXTRACT | GLOBAL | KEY NUM | PACK | PIECE | UNPACK LITERAL]
 
-The keywords denoted above are MUMPS expressions and literals. They are explained in the following table:
+The keywords denoted above are expressions and literals. They are explained in the following table:
 
 +--------------------------------+-------------------------------+------------------------+--------------------------------------------------------------------------------+------------------------------+------------------------------+
 | Keyword                        | Type                          | Range                  | Purpose                                                                        | Overrides                    | Default Value                |
@@ -80,7 +80,7 @@ In the table above:
 * $$STOREKEY is an M routine that converts an array of keys (keys) to a format that can be stored in the cursor as ^cursor(sessionId,keys(0),keys(1)).
 * @storeKey is an M-expression which does indirection on the value stored in storeKey.
 * @cursor does indirection on the cursor variable.
-* $P represents $PRINCIPAL, which is a MUMPS intrinsic special variable which represents the current IO device.
+* $P represents $PRINCIPAL, which is an intrinsic special variable which represents the current IO device.
 * $G represents `$GET <https://docs.yottadb.com/ProgrammersGuide/functions.html#get>`_ , an M function that returns the value of a local or global variable if the variable has a value.
 
 -----------------

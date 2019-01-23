@@ -10,7 +10,7 @@ Tips and Tricks
 Creating N-key CURSOR Statements
 ----------------------------------
 
-If you ae mapping an existing MUMPS schema, you may need to generate a CURSOR statement for multiple keys.
+If you are mapping an existing schema, you may need to generate a CURSOR statement for multiple keys.
 
 .. note::
    It may be beneficial to refresh your memory with the definitions of `$ORDER <https://docs.yottadb.com/ProgrammersGuide/functions.html#order>`_ and `$SELECT <https://docs.yottadb.com/ProgrammersGuide/functions.html#select>`_ and how they work.

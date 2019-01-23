@@ -33,7 +33,7 @@ Example:
 
 +++++++++++++++++++++++++++++++++++++++++++++
 Mapping to existing YottaDB global variables
-++++++++++++++++++++++++++++++++++++++++++++++
++++++++++++++++++++++++++++++++++++++++++++++
 
 If mapping to existing YottaDB global variables, an optional_keyword can be added to further enhance the CREATE statement:
 

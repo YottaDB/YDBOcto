@@ -40,7 +40,7 @@ If mapping to existing YottaDB global variables, an optional_keyword can be adde
 .. parsed-literal::
    [ADVANCE | CURSOR | DELIM | END | EXTRACT | GLOBAL | KEY NUM | PACK | PIECE | UNPACK LITERAL]
 
-The keywords denoted above are expressions and literals. They are explained in the following table:
+The keywords denoted above are M expressions and literals. They are explained in the following table:
 
 +--------------------------------+-------------------------------+------------------------+--------------------------------------------------------------------------------+------------------------------+------------------------------+
 | Keyword                        | Type                          | Range                  | Purpose                                                                        | Overrides                    | Default Value                |

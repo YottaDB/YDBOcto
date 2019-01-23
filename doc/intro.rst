@@ -25,16 +25,16 @@ i.e.
 .. parsed-literal::
    source /usr/local/lib/yottadb/r122/ydb_env_set
 
-Obtain Octo from our `repository on GitLab <https://gitlab.com/YottaDB/Octo/YDBDBMS>`_.
+Obtain Octo from our `repository on GitLab <https://gitlab.com/YottaDB/DBMS/YDBOcto>`_.
 
 .. parsed-literal::
-   wget https://gitlab.com/YottaDB/Octo/YDBDBMS/-/archive/master/YDBDBMS-master.tar.gz
+   wget https://gitlab.com/YottaDB/DBMS/YDBOcto/-/archive/master/YDBOcto-master.tar.gz
 
 Uncompress the file and move to the directory.
 
 .. parsed-literal::
-   tar -xzf YDBDBMS*.tar.gz
-   cd YDBDBMS-master/
+   tar -xzf YDBOcto*.tar.gz
+   cd YDBOcto-master/
 
 Compile Octo using the following steps:
 

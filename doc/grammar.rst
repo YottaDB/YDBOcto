@@ -80,7 +80,7 @@ In the table above:
 * $$STOREKEY is an M routine that converts an array of keys (keys) to a format that can be stored in the cursor as ^cursor(sessionId,keys(0),keys(1)).
 * @storeKey is an M-expression which does indirection on the value stored in storeKey.
 * @cursor does indirection on the cursor variable.
-* $P represents $PRINCIPAL, which is an intrinsic special variable which represents the current IO device.
+* $P represents `$PIECE <https://docs.yottadb.com/ProgrammersGuide/functions.html#piece>`_, which is a function that returns a logical field from a logical record.
 * $G represents `$GET <https://docs.yottadb.com/ProgrammersGuide/functions.html#get>`_ , an M function that returns the value of a local or global variable if the variable has a value.
 
 -----------------

@@ -104,6 +104,7 @@ int values_equal(SqlValue *a, SqlValue *b);
 int optimize_where(SqlStatement *stmt, SqlJoin *join);
 int constant_equal_column(SqlStatement *stmt, SqlJoin *join);
 
+
 /* Globals */
 SqlTable *definedTables;
 char input_buffer_combined[MAX_STR_CONST];

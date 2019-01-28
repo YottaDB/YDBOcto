@@ -93,6 +93,7 @@ add_library(libocto OBJECT
   values_equal.c
   column_list_alias_to_columns.c
   get_column_piece_number.c
+  handle_query.c
   optimization_transforms/constant_equal_column.c
   optimization_transforms/optimize_logical_plan.c
   optimization_transforms/lp_get_select.c

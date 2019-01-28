@@ -85,6 +85,14 @@ int key_equals_column(SqlKey *key, SqlColumn *column);
 
 void print_temporary_table(PhysicalPlan *plan, int cursor_id);
 
+/**
+ * Parses query, and calls the callback if it is a select statement. Otherwise, the query is a data altering
+ *  query and gets executed
+ *
+ * @returns TRUE on success, FALSE on failure
+ */
+int handle_query(char *query, void (*callback)(PhysicalPlan *, int));
+
 PhysicalPlan *emit_select_statement(ydb_buffer_t *cursor_global,
   ydb_buffer_t *cursor_exe_global, struct SqlStatement *stmt,
   SqlTable *destination_table);

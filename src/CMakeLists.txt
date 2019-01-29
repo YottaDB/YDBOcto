@@ -42,10 +42,17 @@ include_directories("${PROJECT_SOURCE_DIR}/src")
 include_directories("${PROJECT_SOURCE_DIR}/src/optimization_transforms")
 include_directories("${PROJECT_SOURCE_DIR}/src/physical")
 include_directories("${PROJECT_SOURCE_DIR}/src/m_templates")
+include_directories("${PROJECT_SOURCE_DIR}/src/helpers")
 include_directories("${PROJECT_BINARY_DIR}")
 include_directories("${YOTTADB_INCLUDE_DIRS}")
 include_directories("${Readline_INCLUDE_DIR}")
 link_directories("${YOTTADB_INCLUDE_DIRS}")
+
+add_library(libhelpers OBJECT
+  helpers/set.c
+  helpers/get.c
+  helpers/make_buffers.c
+)
 
 add_library(libocto OBJECT
   yyerror.c
@@ -135,12 +142,16 @@ add_executable(octo
 
 add_library(liboctod OBJECT
   octod/read_bind.c
+  octod/handle_bind.c
   octod/make_error_response.c
+  octod/make_bind_complete.c
+  octod/send_message.c
 )
 
 add_executable(octod
   octod.c
   $<TARGET_OBJECTS:liboctod>
+  $<TARGET_OBJECTS:libocto>
 )
 
 add_executable(pparser
@@ -196,6 +207,7 @@ endforeach()
 set_property(TARGET libocto PROPERTY C_STANDARD 11)
 
 target_link_libraries(octo ${YOTTADB_LIBRARIES} ${Readline_LIBRARY})
+target_link_libraries(octod ${YOTTADB_LIBRARIES} ${Readline_LIBRARY})
 target_link_libraries(pparser ${YOTTADB_LIBRARIES} ${Readline_LIBRARY})
 
 enable_testing()

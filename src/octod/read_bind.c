@@ -20,6 +20,7 @@
 // Used to convert between network and host endian
 #include <arpa/inet.h>
 
+#include "octod.h"
 #include "message_formats.h"
 
 Bind *read_bind(BaseMessage *message, ErrorResponse **err) {

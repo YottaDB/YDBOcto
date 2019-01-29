@@ -25,6 +25,7 @@
 // Used to convert between network and host endian
 #include <arpa/inet.h>
 
+#include "octod.h"
 #include "message_formats.h"
 
 static void test_valid_input(void **state) {

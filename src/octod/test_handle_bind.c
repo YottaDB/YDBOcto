@@ -65,6 +65,7 @@ static void test_valid_input(void **state) {
 /// TODO: more testing is needed of this function
 
 int main(void) {
+	octo_init();
 	const struct CMUnitTest tests[] = {
 		cmocka_unit_test(test_valid_input)
 	};

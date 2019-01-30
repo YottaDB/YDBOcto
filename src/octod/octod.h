@@ -27,7 +27,7 @@ typedef struct {
 } OctodSession;
 
 int send_message(OctodSession *session, BaseMessage *message);
-
+void free_error_response(ErrorResponse *err);
 
 // make_* produces a structure for the correct type, taking in arguments specific to that type
 // These should be viewed as helpers for other functions

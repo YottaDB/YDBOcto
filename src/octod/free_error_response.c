@@ -13,31 +13,18 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-
+#include <stdlib.h>
 #include <string.h>
+#include <assert.h>
+
+#include <libyottadb.h>
 
 #include "octo.h"
+#include "octo_types.h"
+#include "message_formats.h"
+#include "octod.h"
 
-#include "helpers.h"
-
-void set(char *new_value, char *global, size_t num_args, ...) {
-	va_list args;
-	ydb_buffer_t *ret, *buffers;
-	ydb_buffer_t z_status, z_status_value;
-	int status, i;
-
-	va_start(args, num_args);
-	buffers = make_buffers(global, num_args, args);
-	va_end(args);
-
-	ret = (ydb_buffer_t*)malloc(sizeof(ydb_buffer_t));
-	YDB_MALLOC_BUFFER(ret, MAX_STR_CONST);
-	YDB_COPY_STRING_TO_BUFFER(new_value, ret, status);
-
-	status = ydb_set_s(&buffers[0], num_args, &buffers[1], ret);
-	YDB_ERROR_CHECK(status, &z_status, &z_status_value);
-
-	free(buffers);
-	free(ret->buf_addr);
-	free(ret);
+void free_error_response(ErrorResponse *err) {
+	free(err->args);
+	free(err);
 }

@@ -4,4 +4,8 @@ ERROR_DEF(PSQL_Code_Success, "00000")
 // Class 02 - No Data
 // Class 08 - Connection exception
 ERROR_DEF(PSQL_Code_Protocol_Violation, "08P01")
+// Class 26 - Invalid SQL Statement Name
+ERROR_DEF(PSQL_Code_Invalid_Sql_Statement_Name, "26000")
+// Class 42 - Syntax Error or Access Rule Violation
+ERROR_DEF(PSQL_Code_Syntax_Error, "42601")
 ERROR_END(PSQL_Code_Unknown, "00000")

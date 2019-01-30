@@ -28,7 +28,8 @@
 enum PSQL_MessageTypes {
 	PSQL_Authenication = 'R',
 	PSQL_Bind = 'B',
-	PSQL_ErrorResponse = 'E'
+	PSQL_ErrorResponse = 'E',
+	PSQL_BindComplete = '2'
 };
 
 typedef struct __attribute__((packed)) {

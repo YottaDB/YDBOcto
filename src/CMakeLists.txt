@@ -146,6 +146,7 @@ add_library(liboctod OBJECT
   octod/make_error_response.c
   octod/make_bind_complete.c
   octod/send_message.c
+  octod/free_error_response.c
 )
 
 add_executable(octod

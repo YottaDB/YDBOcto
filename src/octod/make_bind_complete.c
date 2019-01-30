@@ -30,7 +30,7 @@ BindComplete *make_bind_complete() {
 	ret = (BindComplete*)malloc(sizeof(BindComplete));
 	memset(ret, 0, sizeof(BindComplete));
 
-	ret->type = '2';
+	ret->type = PSQL_BindComplete;
 	ret->length = htonl(4);
 
 	return ret;

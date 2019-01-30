@@ -39,6 +39,7 @@ int handle_bind(Bind *bind, OctodSession *session) {
 	char *int_start, *new_query_ptr, *end_new_query_ptr;
 	char *new_value_start, *new_value_end, c;
 	BindComplete *response;
+	ErrorResponse *err;
 
 	// zstatus buffers
 	YDB_LITERAL_TO_BUFFER("$ZSTATUS", &z_status);
@@ -55,7 +56,19 @@ int handle_bind(Bind *bind, OctodSession *session) {
 	INIT_YDB_BUFFER(&sql_expression, MAX_STR_CONST);
 
 	status = ydb_get_s(&session_global, 3, subs_array, &sql_expression);
-	/// TODO: we should add an error check here for an invalid, non existing BIND option
+	free(source_session_id->buf_addr);
+	if(status == YDB_ERR_GVUNDEF) {
+		err = make_error_response(PSQL_Error_ERROR,
+				    PSQL_Code_Invalid_Sql_Statement_Name,
+				    "Bind to unknown query attempted", 0);
+		send_message(session, (BaseMessage*)(&err->type));
+		free_error_response(err);
+		free(sql_expression.buf_addr);
+		free(z_status_value.buf_addr);
+		return -1;
+	}
+	// Handle other errors; this will crash the process with an error,
+	//  which should be OK
 	YDB_ERROR_CHECK(status, &z_status, &z_status_value);
 
 	// Scan through and calculate a new length for the query
@@ -83,16 +96,38 @@ int handle_bind(Bind *bind, OctodSession *session) {
 			} else {
 				// Copy in the value; if the type is a string, wrap it in
 				//  quotes, otherwise just place it
+				if(bind_parm >= bind->num_parms || bind_parm < 0) {
+					err = make_error_response(PSQL_Error_ERROR,
+								  PSQL_Code_Syntax_Error,
+								  "wrong number of parameters for prepared statement",
+								  0);
+					send_message(session, (BaseMessage*)(&err->type));
+					free_error_response(err);
+					free(sql_expression.buf_addr);
+					free(z_status_value.buf_addr);
+					return -1;
+				}
 				assert(bind_parm < bind->num_parms);
 				*new_query_ptr++ = '"';
 				new_value_start = bind->parms[bind_parm].value;
 				new_value_end = new_value_start + bind->parms[bind_parm].length;
 				while(new_value_start < new_value_end) {
 					*new_query_ptr++ = *new_value_start++;
-					assert(new_query_ptr < end_new_query_ptr);
+					// We need to leave an extra place for the closing quote, hence
+					//  the +1
+					if(new_query_ptr + 1 >= end_new_query_ptr) {
+						err = make_error_response(PSQL_Error_ERROR,
+									  PSQL_Code_Syntax_Error,
+									  "expression exceed maximum buffer length",
+									  0);
+						send_message(session, (BaseMessage*)(&err->type));
+						free_error_response(err);
+						free(sql_expression.buf_addr);
+						free(z_status_value.buf_addr);
+						return -1;
+					}
 				}
 				*new_query_ptr++ = '"';
-				assert(new_query_ptr < end_new_query_ptr);
 			}
 		} else {
 			*new_query_ptr++ = *ptr;
@@ -108,16 +143,22 @@ int handle_bind(Bind *bind, OctodSession *session) {
 	YDB_LITERAL_TO_BUFFER(bind->dest, bind_name);
 	bind_name->len_alloc = bind_name->len_used = strlen(bind->dest);
 
+	free(sql_expression.buf_addr);
 	sql_expression.buf_addr = new_query;
 	sql_expression.len_alloc = MAX_STR_CONST;
 	sql_expression.len_used = new_query_ptr - new_query;
 
 	status = ydb_set_s(&session_global, 3, dest_subs, &sql_expression);
+	free(dest_session_id->buf_addr);
 	YDB_ERROR_CHECK(status, &z_status, &z_status_value);
 
 	// Construct the response message
 	response = make_bind_complete();
 	send_message(session, (BaseMessage*)response);
+	free(response);
+
+	//free(sql_expression.buf_addr);
+	free(z_status_value.buf_addr);
 
 	// All done!
 	return 0;

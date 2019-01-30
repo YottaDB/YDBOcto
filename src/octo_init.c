@@ -37,6 +37,7 @@ int octo_init() {
 	if(dir == NULL) {
 		FATAL(ERR_SYSCALL, "opendir (config.tmp_dir)", errno);
 	}
+	free(dir);
 
 	definedTables = NULL;
 

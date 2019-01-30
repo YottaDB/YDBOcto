@@ -38,6 +38,7 @@ BindComplete *make_bind_complete();
 // read_* messages parse the message and return a pointer to the filled out message type
 // If the message was invalid, the return is NULL and *err is populated with an error message
 Bind *read_bind(BaseMessage *message, ErrorResponse **err);
+StartupMessage *read_startup_message(char *data, int data_length, ErrorResponse **err);
 
 // handle_* messages respond to a message of a given type, using send_message if needed
 //  and returns 0 if the exchange is a "success", or non-zero if there was a problem

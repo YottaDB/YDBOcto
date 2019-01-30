@@ -142,6 +142,7 @@ add_executable(octo
 
 add_library(liboctod OBJECT
   octod/read_bind.c
+  octod/read_startup_message.c
   octod/handle_bind.c
   octod/make_error_response.c
   octod/make_bind_complete.c

@@ -92,6 +92,22 @@ typedef struct __attribute__((packed)) {
 } BindComplete;
 
 typedef struct {
+	char *name;
+	char *value;
+} StartupMessageParm;
+
+// F
+// This message is a special case; it's two hard-coded integers, followed by a series of
+//  string => string mappings
+typedef struct __attribute__((packed)) {
+	StartupMessageParm *parameters;
+
+	unsigned int length;
+	int protocol_version;
+	char data[];
+} StartupMessage;
+
+typedef struct {
 	char type;
 	char *value;
 } ErrorResponseArg;

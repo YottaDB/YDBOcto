@@ -29,7 +29,8 @@ enum PSQL_MessageTypes {
 	PSQL_Authenication = 'R',
 	PSQL_Bind = 'B',
 	PSQL_ErrorResponse = 'E',
-	PSQL_BindComplete = '2'
+	PSQL_BindComplete = '2',
+	PSQL_ReadyForQuery = 'Z'
 };
 
 typedef struct __attribute__((packed)) {
@@ -107,6 +108,13 @@ typedef struct __attribute__((packed)) {
 	char data[];
 } StartupMessage;
 
+// B
+typedef struct __attribute__((packed)) {
+	char type;
+	unsigned int length;
+	char status;
+} ReadyForQuery;
+
 typedef struct {
 	char type;
 	char *value;
@@ -172,5 +180,11 @@ static const char *psql_sqlstate_codes_str[] = {
 };
 #undef ERROR_DEF
 #undef ERROR_END
+
+typedef enum {
+	      PSQL_TransactionStatus_IDLE = 'I',
+	      PSQL_TransactionStatus_TRANSACTIOn = 'T',
+	      PSQL_TransactionStatus_FAILED = 'E'
+} PSQL_TransactionStatus;
 
 #endif

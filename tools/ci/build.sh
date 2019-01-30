@@ -12,6 +12,6 @@ cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON ..
 make
 source activate
 pushd src
-mupip set -n=true -reg '*'
+$ydb_dist/mupip set -n=true -reg '*'
 popd
 make test

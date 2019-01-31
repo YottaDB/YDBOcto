@@ -30,7 +30,8 @@ enum PSQL_MessageTypes {
 	PSQL_Bind = 'B',
 	PSQL_ErrorResponse = 'E',
 	PSQL_BindComplete = '2',
-	PSQL_ReadyForQuery = 'Z'
+	PSQL_ReadyForQuery = 'Z',
+	PSQL_Query = 'F'
 };
 
 typedef struct __attribute__((packed)) {
@@ -114,6 +115,14 @@ typedef struct __attribute__((packed)) {
 	unsigned int length;
 	char status;
 } ReadyForQuery;
+
+// B
+typedef struct __attribute__((packed)) {
+	char *query;
+	char type;
+	unsigned int length;
+	char data[];
+} Query;
 
 typedef struct {
 	char type;

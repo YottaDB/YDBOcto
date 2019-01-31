@@ -39,6 +39,7 @@ ReadyForQuery *make_ready_for_query(PSQL_TransactionStatus status);
 // read_* messages parse the message and return a pointer to the filled out message type
 // If the message was invalid, the return is NULL and *err is populated with an error message
 Bind *read_bind(BaseMessage *message, ErrorResponse **err);
+Query *read_query(BaseMessage *message, ErrorResponse **err);
 StartupMessage *read_startup_message(char *data, int data_length, ErrorResponse **err);
 
 // handle_* messages respond to a message of a given type, using send_message if needed

@@ -32,13 +32,16 @@
 
 extern int yydebug;
 
+int no_more() {
+	return 0;
+}
+
 int main(int argc, char **argv)
 {
 	int c, error = 0, status;
 	int done;
 	char *buffer;
 	size_t buffer_size = 0;
-	FILE *inputFile;
 	FILE *out;
 	SqlValue *value;
 	SqlTable *table, *t_table;
@@ -54,6 +57,7 @@ int main(int argc, char **argv)
 	octo_init();
 
 	inputFile = NULL;
+	cur_input_more = &no_more;
 
 	/* Parse input parameters */
 	while (1)
@@ -152,13 +156,18 @@ int main(int argc, char **argv)
 	} while(1);
 
 	yydebug = config->record_error_level == TRACE && FALSE;
+	cur_input_more = &readline_get_more;
 	if (inputFile == NULL)
 		inputFile = stdin;
 
 	do {
-		if(readline_getc(inputFile, input_buffer_combined, MAX_STR_CONST) == -1)
+		//if(readline_getc(inputFile, input_buffer_combined, MAX_STR_CONST) == -1)
+		//	break;
+		//cur_input_index = cur_input_max;
+		cur_input_index = 0;
+		input_buffer_combined[cur_input_index] = '\0';
+		if(run_query(input_buffer_combined, &print_temporary_table, NULL) == 0)
 			break;
-		handle_query(input_buffer_combined, &print_temporary_table);
 	} while(!feof(inputFile));
 	free(table_name_buffer.buf_addr);
 	free(table_create_buffer.buf_addr);

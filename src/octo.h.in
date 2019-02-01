@@ -63,6 +63,7 @@ int m_escape_string2(char *buffer, int buffer_len, char *string);
 char *m_unescape_string(const char *string);
 
 int readline_getc(FILE *inputFile, char *buff, int size);
+int readline_get_more();
 char *extract_expression(ydb_buffer_t *cursor_global,
     ydb_buffer_t *cursor_exe_global, SqlStatement *stmt,
     const SqlTable *table, char *source);
@@ -107,6 +108,11 @@ int constant_equal_column(SqlStatement *stmt, SqlJoin *join);
 
 /* Globals */
 SqlTable *definedTables;
-char input_buffer_combined[MAX_STR_CONST];
+int cur_input_index;
+int cur_input_max;
+FILE *inputFile;
+char *input_buffer_combined;
+int (*cur_input_more)();
 
+int get_input(char *buf, int size);
 #endif

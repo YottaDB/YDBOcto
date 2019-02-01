@@ -48,6 +48,14 @@ OCTO
   [[ "$output" =~ "Type mismatch" ]]
 }
 
+@test "select with a semicolon in string" {
+  octo <<OCTO &> output.txt
+select * from names where firstName = "; hello world";
+OCTO
+  run cat output.txt
+  ! [[ "$output" =~ "ERROR" ]]
+  [[ $(grep -c "|" output.txt) == "0" ]]
+}
 
 # @test "select from table with multiple keys" {
 #   octo <<OCTO &> output.txt

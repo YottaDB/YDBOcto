@@ -30,7 +30,7 @@
 #include "parser.h"
 #include "lexer.h"
 
-int handle_query(char *query, void (*callback)(PhysicalPlan *, int)) {
+int run_query(char *query, void (*callback)(PhysicalPlan *, int, void*), void *parms) {
 	int c, error = 0, i = 0, status;
 	int done;
 	char *buffer;
@@ -98,7 +98,7 @@ int handle_query(char *query, void (*callback)(PhysicalPlan *, int)) {
 			gtm_zstatus(err_msgbuf, MAX_STR_CONST);
 			FATAL(ERR_YOTTADB, err_msgbuf);
 		}
-		(*callback)(pplan, cursorId);
+		(*callback)(pplan, cursorId, parms);
 		cleanup_sql_statement(result);
 		break;
 	case table_STATEMENT:

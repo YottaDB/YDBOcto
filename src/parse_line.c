@@ -30,20 +30,29 @@ SqlStatement *parse_line(const char *line) {
 	SqlStatement *result = 0;
 	yyscan_t scanner;
 	YY_BUFFER_STATE state;
+	int line_length;
 
-	if(line != input_buffer_combined)
-		strncpy(input_buffer_combined, line, MAX_STR_CONST);
+	if(line != input_buffer_combined) {
+		line_length = strlen(line);
+		if(line_length >= MAX_STR_CONST - 1) {
+			ERROR(ERR_LINE_TOO_LONG);
+			return NULL;
+		}
+		strncpy(input_buffer_combined, line, line_length);
+		input_buffer_combined[line_length] = '\0';
+		cur_input_index = 0;
+	}
 
 	if (yylex_init(&scanner))
 		FATAL(ERR_INIT_SCANNER);
 
-	state = yy_scan_string(line, scanner);
+	//state = yy_scan_string(line, scanner);
 	if(yyparse(scanner, &result, &config->plan_id))
 	{
 		ERROR(ERR_PARSING_COMMAND, input_buffer_combined);
 		return NULL;
 	}
-	yy_delete_buffer(state, scanner);
+	//yy_delete_buffer(state, scanner);
 	yylex_destroy(scanner);
 	return result;
 }

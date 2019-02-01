@@ -1,20 +1,39 @@
-#include <stdio.h>
+/* Copyright (C) 2018-2019 YottaDB, LLC
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
 #include <stdlib.h>
-#include <assert.h>
 #include <string.h>
+#include <assert.h>
 
 #include <libyottadb.h>
 
 #include "octo.h"
 #include "octo_types.h"
-
+#include "message_formats.h"
+#include "octod.h"
 #include "physical_plan.h"
 
-/**
- * Iterates over the last output of the plan and prints it to the screen
- */
-void print_temporary_table(PhysicalPlan *plan, int cursor_id, void *parms) {
-	char buffer[MAX_STR_CONST];
+typedef struct {
+	OctodSession *session;
+	int data_sent;
+} QueryResponseParms;
+
+void handle_response(PhysicalPlan *plan, int cursor_id, void *_parms) {
+	QueryResponseParms *parms = (QueryResponseParms*)_parms;
+	OctodSession *session = parms->session;
+	// Large chunks copied from print_temporary table, mostly ydb_buffer stuff
 	/// WARNING: the ordering of these buffers is essential to the ydb calls;
 	//   if altered, make sure the order is correct
 	ydb_buffer_t ydb_buffers[9];
@@ -25,7 +44,13 @@ void print_temporary_table(PhysicalPlan *plan, int cursor_id, void *parms) {
 		*empty_buffer = &ydb_buffers[8];
 	ydb_buffer_t z_status, z_status_value;
 	PhysicalPlan *deep_plan = plan;
+	char buffer[MAX_STR_CONST];
 	int status;
+
+	// Go through and make rows for each row in the output plan
+	parms->data_sent = TRUE;
+
+	// make_row_description()
 
 	while(deep_plan->next != NULL) {
 		deep_plan = deep_plan->next;
@@ -64,7 +89,7 @@ void print_temporary_table(PhysicalPlan *plan, int cursor_id, void *parms) {
 		status = ydb_get_s(cursor_b, 6, cursor_id_b, row_value_b);
 		YDB_ERROR_CHECK(status, &z_status, &z_status_value);
 		row_value_b->buf_addr[row_value_b->len_used] = '\0';
-		fprintf(stdout, "%s\n", row_value_b->buf_addr);
+		// make_data_row()
 		status = ydb_subscript_next_s(cursor_b, 6, cursor_id_b, row_id_b);
 		if(status == YDB_ERR_NODEEND) {
 			break;
@@ -75,5 +100,32 @@ void print_temporary_table(PhysicalPlan *plan, int cursor_id, void *parms) {
 	free(key_id_b->buf_addr);
 	free(row_id_b->buf_addr);
 	free(row_value_b->buf_addr);
+	// make_command_complete()
 	return;
+}
+
+int handle_query(Query *query, OctodSession *session) {
+	QueryResponseParms parms;
+	char input_buffer[MAX_STR_CONST], *c, *end_query;
+	int query_length = 0;
+	memset(&parms, 0, sizeof(QueryResponseParms));
+	parms.session = session;
+	query_length = strlen(query->query);
+
+	if(query_length == 0) {
+		// make_empty_query_response();
+	}
+	c = query->query;
+	end_query = c + query_length;
+
+	while(*c != '\0') {
+		run_query(input_buffer, &handle_response, (void*)&parms);
+	}
+
+	// If no data was sent (CREATE, DELETE, INSERT statement), send something back
+	if(!parms.data_sent) {
+	} else {
+		// All done!
+	}
+	return 0;
 }

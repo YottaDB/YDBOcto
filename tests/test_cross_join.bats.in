@@ -22,7 +22,7 @@ OCTO
 @test "cross join with where statement in table 1" {
   octo -vvv <<OCTO &> output.txt
 -- create table names2 (id integer primary key, firstName varchar key num "1", lastName varchar);
-; insert into names2 (select * from names);
+-- ; insert into names2 (select * from names);
 select * from names cross join names2 where names.firstName = "Zero";
 OCTO
   run cat output.txt

@@ -72,6 +72,7 @@ add_library(libocto OBJECT
   create_table_defaults.c
   print_temporary_table.c
   readline_getc.c
+  readline_get_more.c
   populate_data_type.c
   find_table.c
   find_column.c
@@ -100,7 +101,7 @@ add_library(libocto OBJECT
   values_equal.c
   column_list_alias_to_columns.c
   get_column_piece_number.c
-  handle_query.c
+  run_query.c
   optimization_transforms/constant_equal_column.c
   optimization_transforms/optimize_logical_plan.c
   optimization_transforms/lp_get_select.c
@@ -145,6 +146,7 @@ add_library(liboctod OBJECT
   octod/read_startup_message.c
   octod/read_query.c
   octod/handle_bind.c
+  octod/handle_query.c
   octod/make_error_response.c
   octod/make_bind_complete.c
   octod/make_ready_for_query.c

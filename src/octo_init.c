@@ -40,6 +40,11 @@ int octo_init() {
 	free(dir);
 
 	definedTables = NULL;
+	cur_input_max = MAX_STR_CONST;
+	input_buffer_combined = malloc(MAX_STR_CONST);
+	memset(input_buffer_combined, 0, MAX_STR_CONST);
+	cur_input_index = 0;
+	cur_input_more = NULL;
 
 	return 0;
 }

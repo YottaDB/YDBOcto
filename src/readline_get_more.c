@@ -73,8 +73,7 @@ int readline_get_more() {
 		c = fgetc(inputFile);
 		if(c == -1)
 			return 0;
-		input_buffer_combined[cur_input_index++] = c;
-		input_buffer_combined[cur_input_index++] = '\0';
+		input_buffer_combined[cur_input_index] = c;
 		return 1;
 	}
 }

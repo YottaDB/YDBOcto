@@ -23,26 +23,6 @@
 
 #define YY_INPUT(buf, result, max_size) result = get_input(buf, max_size);
 
-// input_buffer_combined contains the current input
-// cur_input_index is the latest value
-
-/*static int get_input(char *buf, int size) {
-    int line_length;
-    char *line;
-    char *prompt1 = "OCTO> ", *prompt2 = "OCTO# ", *cur_prompt = prompt1;
-    if(feof(yyin)) return YY_NULL;
-    line = readline(cur_prompt);
-    if(line == NULL) return YY_NULL;
-    line_length = strlen(line);
-    if(strlen(line) > max_size) {
-	ERROR(ERR_LINE_TOO_LONG);
-	return YY_NULL;
-    }
-    sprintf(buf, "%s", line);
-    free(line);
-    return line_length;
-}*/
-
 #define YY_USER_ACTION \
     yylloc->first_line = yylloc->last_line; \
     yylloc->first_column = yylloc->last_column; \

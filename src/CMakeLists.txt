@@ -71,7 +71,6 @@ add_library(libocto OBJECT
   quoting.c
   create_table_defaults.c
   print_temporary_table.c
-  readline_getc.c
   readline_get_more.c
   populate_data_type.c
   find_table.c

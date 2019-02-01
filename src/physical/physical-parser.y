@@ -18,6 +18,7 @@
 
 %code requires
 {
+  #include "physical-parser.h"
   #define YYDEBUG 1
   struct Expr typedef Expr;
 
@@ -34,9 +35,10 @@
     char *value;
     Expr *next;
   };
+  typedef struct Expr * YYSTYPE;
 
   extern struct Expr *parser_value;
-  
+  extern int yylex(YYSTYPE * yylval_param);
 }
 
 %{

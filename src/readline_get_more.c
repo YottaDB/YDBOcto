@@ -29,7 +29,7 @@ int get_input(char *buf, int size) {
 	//printf("current left: %s\n", &input_buffer_combined[cur_input_index]);
 	if(cur_input_index == cur_input_max
 	   || input_buffer_combined[cur_input_index] == '\0') {
-		cur_input_index = 0;
+		//cur_input_index = 0;
 		//printf("Looking for more input...\n");
 		if(cur_input_more() == 0)
 			return YY_NULL;
@@ -46,8 +46,10 @@ int readline_get_more() {
 	char *line, c;
 	if(isatty(fileno(inputFile))) {
 		line = readline("OCTO> ");
-		if(line == NULL)
+		if(line == NULL) {
+			eof_hit = 1;
 			return 0;
+		}
 		line_length = strlen(line);
 		if(line_length == 0) {
 			// This means a user hit enter
@@ -60,9 +62,9 @@ int readline_get_more() {
 			ERROR(ERR_LINE_TOO_LONG);
 			return 0;
 		}
-		memcpy(input_buffer_combined, line, line_length);
-		input_buffer_combined[line_length] = '\n';
-		input_buffer_combined[line_length+1] = '\0';
+		memcpy(&input_buffer_combined[cur_input_index], line, line_length);
+		input_buffer_combined[cur_input_index + line_length] = '\n';
+		input_buffer_combined[cur_input_index + line_length+1] = '\0';
 		free(line);
 		return line_length;
 	} else {
@@ -71,8 +73,8 @@ int readline_get_more() {
 		c = fgetc(inputFile);
 		if(c == -1)
 			return 0;
-		input_buffer_combined[0] = c;
-		input_buffer_combined[1] = '\0';
+		input_buffer_combined[cur_input_index++] = c;
+		input_buffer_combined[cur_input_index++] = '\0';
 		return 1;
 	}
 }

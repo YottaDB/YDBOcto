@@ -166,8 +166,10 @@ int main(int argc, char **argv)
 		//cur_input_index = cur_input_max;
 		cur_input_index = 0;
 		input_buffer_combined[cur_input_index] = '\0';
-		if(run_query(input_buffer_combined, &print_temporary_table, NULL) == 0)
-			break;
+		if(run_query(input_buffer_combined, &print_temporary_table, NULL) == 0) {
+			if(eof_hit)
+				break;
+		}
 	} while(!feof(inputFile));
 	free(table_name_buffer.buf_addr);
 	free(table_create_buffer.buf_addr);

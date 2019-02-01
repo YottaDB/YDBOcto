@@ -45,6 +45,7 @@ int octo_init() {
 	memset(input_buffer_combined, 0, MAX_STR_CONST);
 	cur_input_index = 0;
 	cur_input_more = NULL;
+	eof_hit = 0;
 
 	return 0;
 }

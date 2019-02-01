@@ -110,6 +110,7 @@ int constant_equal_column(SqlStatement *stmt, SqlJoin *join);
 SqlTable *definedTables;
 int cur_input_index;
 int cur_input_max;
+int eof_hit;
 FILE *inputFile;
 char *input_buffer_combined;
 int (*cur_input_more)();

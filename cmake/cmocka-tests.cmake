@@ -27,3 +27,4 @@ ADD_UNIT_TEST_WITH_OPTIONS(test_make_error_response src/octod/test_make_error_re
 ADD_UNIT_TEST_WITH_OPTIONS(test_make_bind_complete src/octod/test_make_bind_complete "")
 ADD_UNIT_TEST_WITH_OPTIONS(test_make_ready_for_query src/octod/test_make_ready_for_query "")
 ADD_UNIT_TEST_WITH_OPTIONS(test_handle_bind src/octod/test_handle_bind "send_message")
+ADD_UNIT_TEST_WITH_OPTIONS(test_make_row_description src/octod/test_make_row_description "")

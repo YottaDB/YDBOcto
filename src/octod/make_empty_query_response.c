@@ -24,15 +24,14 @@
 #include "message_formats.h"
 
 
-ReadyForQuery *make_ready_for_query(PSQL_TransactionStatus status) {
-	ReadyForQuery *ret;
+EmptyQueryResponse *make_empty_query_response() {
+	EmptyQueryResponse *ret;
 
-	ret = (ReadyForQuery*)malloc(sizeof(ReadyForQuery));
-	memset(ret, 0, sizeof(ReadyForQuery));
+	ret = (EmptyQueryResponse*)malloc(sizeof(EmptyQueryResponse));
+	memset(ret, 0, sizeof(EmptyQueryResponse));
 
-	ret->type = PSQL_ReadyForQuery;
+	ret->type = PSQL_EmptyQueryResponse;
 	ret->length = htonl(5);
-	ret->status = status;
 
 	return ret;
 }

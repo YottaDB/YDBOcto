@@ -35,6 +35,8 @@ void free_error_response(ErrorResponse *err);
 ErrorResponse *make_error_response(PSQL_ErrorSeverity severity, PSQL_SQLSTATECode code, char *message, size_t num_args, ...);
 BindComplete *make_bind_complete();
 ReadyForQuery *make_ready_for_query(PSQL_TransactionStatus status);
+EmptyQueryResponse *make_empty_query_response();
+RowDescription *make_row_description(RowDescriptionParm *parms, short num_parms);
 
 // read_* messages parse the message and return a pointer to the filled out message type
 // If the message was invalid, the return is NULL and *err is populated with an error message

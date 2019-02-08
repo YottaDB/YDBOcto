@@ -25,6 +25,12 @@
 #include "octod.h"
 #include "physical_plan.h"
 
+
+int no_more() {
+	eof_hit = 1;
+	return 0;
+}
+
 typedef struct {
 	OctodSession *session;
 	int data_sent;
@@ -106,21 +112,42 @@ void handle_response(PhysicalPlan *plan, int cursor_id, void *_parms) {
 
 int handle_query(Query *query, OctodSession *session) {
 	QueryResponseParms parms;
+	EmptyQueryResponse *empty_query_response;
+	ErrorResponse *err;
 	char input_buffer[MAX_STR_CONST], *c, *end_query;
 	int query_length = 0;
+	int run_query_result = 0;
 	memset(&parms, 0, sizeof(QueryResponseParms));
 	parms.session = session;
 	query_length = strlen(query->query);
 
 	if(query_length == 0) {
-		// make_empty_query_response();
+		empty_query_response = make_empty_query_response();
+		send_message(session, (BaseMessage*)(&empty_query_response->type));
+		free(empty_query_response);
+		return 0;
 	}
 	c = query->query;
 	end_query = c + query_length;
-
-	while(*c != '\0') {
-		run_query(input_buffer, &handle_response, (void*)&parms);
+	eof_hit = 0;
+	// If the query is bigger than the buffer, we would need to copy data from
+	//  the query to the buffer after each block is consumed, but right now
+	//  this buffer is large enough that this won't happen
+	// Enforced by this check
+	if(query_length > cur_input_max) {
+		err = make_error_response(PSQL_Error_ERROR,
+					  PSQL_Code_Protocol_Violation,
+					  "query length exceeeded maximum size",
+					  0);
+		send_message(session, (BaseMessage*)(&err->type));
+		free_error_response(err);
+		return 0;
 	}
+	cur_input_more = &no_more;
+
+	do {
+		run_query_result = run_query(input_buffer, &handle_response, (void*)&parms);
+	} while(!eof_hit);
 
 	// If no data was sent (CREATE, DELETE, INSERT statement), send something back
 	if(!parms.data_sent) {

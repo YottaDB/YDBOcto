@@ -31,7 +31,9 @@ enum PSQL_MessageTypes {
 	PSQL_ErrorResponse = 'E',
 	PSQL_BindComplete = '2',
 	PSQL_ReadyForQuery = 'Z',
-	PSQL_Query = 'F'
+	PSQL_Query = 'F',
+	PSQL_EmptyQueryResponse = 'I',
+	PSQL_RowDescription = 'T'
 };
 
 typedef struct __attribute__((packed)) {
@@ -93,6 +95,12 @@ typedef struct __attribute__((packed)) {
 	unsigned int length;
 } BindComplete;
 
+// B
+typedef struct {
+	char type;
+	unsigned int length;
+} EmptyQueryResponse;
+
 typedef struct {
 	char *name;
 	char *value;
@@ -123,6 +131,29 @@ typedef struct __attribute__((packed)) {
 	unsigned int length;
 	char data[];
 } Query;
+
+// This must be packed because we use it to calculate size
+//  of the RowDescription
+typedef struct __attribute__((packed)) {
+	char *name;
+	int table_id;
+	short column_id;
+	int data_type;
+	short data_type_size;
+	int type_modifier;
+	short format_code;
+} RowDescriptionParm;
+
+// B
+typedef struct __attribute__((packed)) {
+	short num_fields;
+	RowDescriptionParm *parms;
+
+	char type;
+	unsigned int length;
+	short num_parms;
+	char data[];
+} RowDescription;
 
 typedef struct {
 	char type;
@@ -192,7 +223,7 @@ static const char *psql_sqlstate_codes_str[] = {
 
 typedef enum {
 	      PSQL_TransactionStatus_IDLE = 'I',
-	      PSQL_TransactionStatus_TRANSACTIOn = 'T',
+	      PSQL_TransactionStatus_TRANSACTION = 'T',
 	      PSQL_TransactionStatus_FAILED = 'E'
 } PSQL_TransactionStatus;
 

@@ -33,7 +33,8 @@ enum PSQL_MessageTypes {
 	PSQL_ReadyForQuery = 'Z',
 	PSQL_Query = 'F',
 	PSQL_EmptyQueryResponse = 'I',
-	PSQL_RowDescription = 'T'
+	PSQL_RowDescription = 'T',
+	PSQL_DataRow = 'D'
 };
 
 typedef struct __attribute__((packed)) {
@@ -154,6 +155,20 @@ typedef struct __attribute__((packed)) {
 	short num_parms;
 	char data[];
 } RowDescription;
+
+typedef struct {
+	unsigned int length;
+	char *value;
+} DataRowParm;
+
+typedef struct __attribute__((packed)) {
+	DataRowParm *parms;
+
+	char type;
+	unsigned int length;
+	short num_columns;
+	char data[];
+} DataRow;
 
 typedef struct {
 	char type;

@@ -38,6 +38,10 @@ typedef struct {
 
 void handle_response(PhysicalPlan *plan, int cursor_id, void *_parms) {
 	QueryResponseParms *parms = (QueryResponseParms*)_parms;
+	RowDescription *row_description;
+	DataRow *data_row;
+	/// TODO: we should add a new constant to define the maxium number of rows
+	DataRowParm data_row_parms[MAX_STR_CONST];
 	OctodSession *session = parms->session;
 	// Large chunks copied from print_temporary table, mostly ydb_buffer stuff
 	/// WARNING: the ordering of these buffers is essential to the ydb calls;
@@ -50,17 +54,20 @@ void handle_response(PhysicalPlan *plan, int cursor_id, void *_parms) {
 		*empty_buffer = &ydb_buffers[8];
 	ydb_buffer_t z_status, z_status_value;
 	PhysicalPlan *deep_plan = plan;
-	char buffer[MAX_STR_CONST];
-	int status;
+	char buffer[MAX_STR_CONST], *c;
+	int status, number_of_columns = 0;
 
 	// Go through and make rows for each row in the output plan
 	parms->data_sent = TRUE;
 
-	// make_row_description()
-
 	while(deep_plan->next != NULL) {
 		deep_plan = deep_plan->next;
 	}
+
+	row_description = get_plan_row_description(deep_plan);
+	send_message(parms->session, (BaseMessage*)(&row_description->type));
+	free(row_description->parms);
+	free(row_description);
 
 	YDB_LITERAL_TO_BUFFER("^cursor", cursor_b);
 
@@ -95,7 +102,24 @@ void handle_response(PhysicalPlan *plan, int cursor_id, void *_parms) {
 		status = ydb_get_s(cursor_b, 6, cursor_id_b, row_value_b);
 		YDB_ERROR_CHECK(status, &z_status, &z_status_value);
 		row_value_b->buf_addr[row_value_b->len_used] = '\0';
-		// make_data_row()
+		number_of_columns = 0;
+		data_row_parms[number_of_columns].value = row_value_b->buf_addr;
+		for(c = row_value_b->buf_addr; *c != '\0'; c++) {
+			if(*c == '|') {
+				data_row_parms[number_of_columns].length = c - data_row_parms[number_of_columns].value;
+				number_of_columns++;
+				c++;
+				data_row_parms[number_of_columns].value = c;
+			}
+		}
+		data_row_parms[number_of_columns].length = c - data_row_parms[number_of_columns].value;
+		if(c != row_value_b->buf_addr)
+			number_of_columns++;
+		data_row = make_data_row(data_row_parms, number_of_columns);
+		send_message(parms->session, (BaseMessage*)(&data_row->type));
+		free(data_row->parms);
+		free(data_row);
+		// Move to the next subscript
 		status = ydb_subscript_next_s(cursor_b, 6, cursor_id_b, row_id_b);
 		if(status == YDB_ERR_NODEEND) {
 			break;

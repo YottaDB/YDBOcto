@@ -19,6 +19,7 @@
 
 #include <libyottadb.h>
 
+#include "physical_plan.h"
 #include "message_formats.h"
 
 typedef struct {
@@ -37,6 +38,7 @@ BindComplete *make_bind_complete();
 ReadyForQuery *make_ready_for_query(PSQL_TransactionStatus status);
 EmptyQueryResponse *make_empty_query_response();
 RowDescription *make_row_description(RowDescriptionParm *parms, short num_parms);
+DataRow *make_data_row(DataRowParm *parms, short num_parms);
 
 // read_* messages parse the message and return a pointer to the filled out message type
 // If the message was invalid, the return is NULL and *err is populated with an error message
@@ -48,5 +50,10 @@ StartupMessage *read_startup_message(char *data, int data_length, ErrorResponse 
 //  and returns 0 if the exchange is a "success", or non-zero if there was a problem
 // A return of 1 means "done" and that we should close the session
 int handle_bind(Bind *bind, OctodSession *session);
+
+/**
+ * Returns a RowDescription object for sending based on the provided physical plan
+ */
+RowDescription *get_plan_row_description(PhysicalPlan *plan);
 
 #endif

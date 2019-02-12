@@ -151,8 +151,10 @@ add_library(liboctod OBJECT
   octod/make_ready_for_query.c
   octod/make_empty_query_response.c
   octod/make_row_description.c
+  octod/make_data_row.c
   octod/send_message.c
   octod/free_error_response.c
+  octod/get_plan_row_description.c
 )
 
 add_executable(octod

@@ -39,6 +39,7 @@ ReadyForQuery *make_ready_for_query(PSQL_TransactionStatus status);
 EmptyQueryResponse *make_empty_query_response();
 RowDescription *make_row_description(RowDescriptionParm *parms, short num_parms);
 DataRow *make_data_row(DataRowParm *parms, short num_parms);
+CommandComplete *make_command_complete(char *command_tag);
 
 // read_* messages parse the message and return a pointer to the filled out message type
 // If the message was invalid, the return is NULL and *err is populated with an error message

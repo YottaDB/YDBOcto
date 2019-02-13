@@ -39,6 +39,7 @@ typedef struct {
 void handle_response(PhysicalPlan *plan, int cursor_id, void *_parms) {
 	QueryResponseParms *parms = (QueryResponseParms*)_parms;
 	RowDescription *row_description;
+  CommandComplete *command_complete;
 	DataRow *data_row;
 	/// TODO: we should add a new constant to define the maxium number of rows
 	DataRowParm data_row_parms[MAX_STR_CONST];
@@ -55,7 +56,7 @@ void handle_response(PhysicalPlan *plan, int cursor_id, void *_parms) {
 	ydb_buffer_t z_status, z_status_value;
 	PhysicalPlan *deep_plan = plan;
 	char buffer[MAX_STR_CONST], *c;
-	int status, number_of_columns = 0;
+	int status, number_of_columns = 0, row_count;
 
 	// Go through and make rows for each row in the output plan
 	parms->data_sent = TRUE;
@@ -97,8 +98,10 @@ void handle_response(PhysicalPlan *plan, int cursor_id, void *_parms) {
 		return;
 	}
 	YDB_ERROR_CHECK(status, &z_status, &z_status_value);
+  row_count = 0;
 
 	while(!YDB_BUFFER_IS_SAME(empty_buffer, row_id_b)) {
+    row_count++;
 		status = ydb_get_s(cursor_b, 6, cursor_id_b, row_value_b);
 		YDB_ERROR_CHECK(status, &z_status, &z_status_value);
 		row_value_b->buf_addr[row_value_b->len_used] = '\0';
@@ -130,7 +133,11 @@ void handle_response(PhysicalPlan *plan, int cursor_id, void *_parms) {
 	free(key_id_b->buf_addr);
 	free(row_id_b->buf_addr);
 	free(row_value_b->buf_addr);
-	// make_command_complete()
+
+  snprintf(buffer, MAX_STR_CONST, "SELECT %d", row_count);
+	command_complete = make_command_complete(buffer);
+  send_message(parms->session, (BaseMessage*)(&command_complete->type));
+  free(command_complete);
 	return;
 }
 

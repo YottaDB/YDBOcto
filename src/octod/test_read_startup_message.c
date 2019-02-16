@@ -28,6 +28,15 @@
 #include "octod.h"
 #include "message_formats.h"
 
+int __wrap_read_bytes(OctodSession *session, char *buffer, int buffer_size, int bytes_to_read) {
+	int data_len = mock_type(int);
+	if (data_len > 0) {
+		char *data = mock_type(char*);
+		memcpy(buffer, data, bytes_to_read);
+	}
+	return 0;
+}
+
 static void test_valid_input(void **state) {
 	// Test a single startup message
 	unsigned int message_length = 0;
@@ -55,10 +64,13 @@ static void test_valid_input(void **state) {
 	c += strlen(parm1_value);
 	*c++ = '\0';
 	*c++ = '\0';
-	
+
+	will_return(__wrap_read_bytes, message_length - 8);
+	will_return(__wrap_read_bytes, test_data->data);
+
 
 	// The actual test
-	StartupMessage *startup = read_startup_message((char*)(&test_data->length), message_length, &err);
+	StartupMessage *startup = read_startup_message(NULL, (char*)(&test_data->length), message_length, &err);
 
 	// Standard checks
 	assert_non_null(startup);
@@ -94,10 +106,11 @@ static void test_wrong_version(void **state) {
 	c += strlen(parm1_value);
 	*c++ = '\0';
 	*c++ = '\0';
-	
+
+	will_return(__wrap_read_bytes, 0);
 
 	// The actual test
-	StartupMessage *startup = read_startup_message((char*)(&test_data->length), message_length, &err);
+	StartupMessage *startup = read_startup_message(NULL, (char*)(&test_data->length), message_length, &err);
 
 	// Standard checks
 	assert_null(startup);
@@ -123,10 +136,11 @@ static void test_non_terminated_name(void **state) {
 	c = test_data->data;
 	memcpy(c, parm1_name, strlen(parm1_name));
 	c += strlen(parm1_name);
-	
+
+	will_return(__wrap_read_bytes, 0);
 
 	// The actual test
-	StartupMessage *startup = read_startup_message((char*)(&test_data->length), message_length, &err);
+	StartupMessage *startup = read_startup_message(NULL, (char*)(&test_data->length), message_length, &err);
 
 	// Standard checks
 	assert_null(startup);
@@ -156,10 +170,11 @@ static void test_non_terminated_value(void **state) {
 	*c++ = '\0';
 	memcpy(c, parm1_value, strlen(parm1_value));
 	c += strlen(parm1_value);
-	
+
+	will_return(__wrap_read_bytes, 0);
 
 	// The actual test
-	StartupMessage *startup = read_startup_message((char*)(&test_data->length), message_length, &err);
+	StartupMessage *startup = read_startup_message(NULL, (char*)(&test_data->length), message_length, &err);
 
 	// Standard checks
 	assert_null(startup);

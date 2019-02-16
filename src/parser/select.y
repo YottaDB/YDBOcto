@@ -150,17 +150,17 @@ query_specification
       if(cur_column_list_alias != NULL) {
 	  result = qualify_column_list_alias(cur_column_list_alias, join);
 	  if(result != 0) {
-	      YYABORT;
+	      YYERROR;
 	  }
 	  result = populate_data_type($select_list, &type);
 	  if(result != 0) {
-	      YYABORT;
+	      YYERROR;
 	  }
       }
       ($$)->v.select->order_expression = NULL;
       result = qualify_join_conditions(join, join);
       if(result != 0) {
-	  YYABORT;
+	  YYERROR;
       }
     }
   | SELECT set_quantifier select_list table_expression ORDER BY sort_specification_list {
@@ -205,22 +205,22 @@ query_specification
       if(cur_column_list_alias != NULL) {
 	  result = qualify_column_list_alias(cur_column_list_alias, join);
 	  if(result != 0) {
-	      YYABORT;
+	      YYERROR;
 	  }
 	  result = populate_data_type($select_list, &type);
 	  if(result != 0) {
-	      YYABORT;
+	      YYERROR;
 	  }
       }
       UNPACK_SQL_STATEMENT(start_column_list_alias, $sort_specification_list, column_list_alias);
       result = qualify_column_list_alias(start_column_list_alias, join);
       if(result != 0) {
-	  YYABORT;
+	  YYERROR;
       }
       ($$)->v.select->order_expression = $sort_specification_list;
       result = qualify_join_conditions(join, join);
       if(result != 0) {
-	  YYABORT;
+	  YYERROR;
       }
     }
   ;
@@ -262,7 +262,7 @@ table_expression
       UNPACK_SQL_STATEMENT(join, $from_clause, join);
       SqlValueType type;
       if(qualify_statement($where_clause, join) || populate_data_type($where_clause, &type)) {
-        YYABORT;
+        YYERROR;
       }
     }
   ;
@@ -306,6 +306,12 @@ derived_column
       dqinit(column_list);
       column_list->value = $1;
       PACK_SQL_STATEMENT(alias->column_list, column_list, column_list);
+      /// TODO: we should search here for a reasonable "name" for the column
+      SQL_STATEMENT(alias->alias, value_STATEMENT);
+      MALLOC_STATEMENT(alias->alias, value, SqlValue);
+      alias->alias->v.value->type = STRING_LITERAL;
+      alias->alias->v.value->v.string_literal = malloc(strlen(" "));
+      strcpy(alias->alias->v.value->v.string_literal, " ");
     }
   | non_query_value_expression AS column_name {
       SQL_STATEMENT($$, column_list_alias_STATEMENT);
@@ -341,7 +347,7 @@ table_reference
       if(table == NULL) {
         ERROR(ERR_UNKNOWN_TABLE, $column_name->v.value->v.reference);
         print_yyloc(&($column_name)->loc);
-        YYABORT;
+        YYERROR;
       }
       SQL_STATEMENT(join->value, table_alias_STATEMENT);
       MALLOC_STATEMENT(join->value, table_alias, SqlTableAlias);
@@ -372,7 +378,7 @@ table_reference
       if(table == NULL) {
         ERROR(ERR_UNKNOWN_TABLE, $column_name->v.value->v.reference);
         print_yyloc(&($column_name)->loc);
-        YYABORT;
+        YYERROR;
       }
       SQL_STATEMENT(join->value, table_alias_STATEMENT);
       MALLOC_STATEMENT(join->value, table_alias, SqlTableAlias);

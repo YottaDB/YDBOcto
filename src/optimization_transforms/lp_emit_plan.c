@@ -28,7 +28,7 @@ int lp_emit_plan(char *buffer, size_t buffer_len, LogicalPlan *plan) {
 }
 
 int emit_plan_helper(char *buffer, size_t buffer_len, int depth, LogicalPlan *plan) {
-	char *buff_ptr = buffer, *table_name = " ", *column_name = " ";
+	char *buff_ptr = buffer, *table_name = " ", *column_name = " ", *data_type_ptr = " ";
 	SqlValue *value;
 	SqlJoin *cur_join, *start_join;
 	SqlKey *key;
@@ -81,6 +81,38 @@ int emit_plan_helper(char *buffer, size_t buffer_len, int depth, LogicalPlan *pl
 		UNPACK_SQL_STATEMENT(value, plan->v.column_alias->table_alias->v.table_alias->alias, value);
 		table_name = value->v.string_literal;
 		SAFE_SNPRINTF(buff_ptr, buffer, buffer_len, "%s.%s\n", table_name, column_name);
+		break;
+	case LP_COLUMN_LIST_ALIAS:
+		switch(plan->v.column_list_alias->type) {
+			case UNKNOWN_SqlValueType:
+				data_type_ptr = "UNKNOWN_SqlValueType";
+				break;
+			case NUMBER_LITERAL:
+				data_type_ptr = "NUMBER_LITERAL";
+				break;
+			case STRING_LITERAL:
+				data_type_ptr = "STRING_LITERAL";
+				break;
+			case DATE_TIME:
+				data_type_ptr = "DATE_TIME";
+				break;
+			case COLUMN_REFERENCE:
+				data_type_ptr = "COLUMN_REFERENCE";
+				break;
+			case CALCULATED_VALUE:
+				data_type_ptr = "CALCULATED_VALUE";
+				break;
+			case TEMPORARY_TABLE_TYPE:
+				data_type_ptr = "TEMPORARY_TABLE_TYPE";
+				break;
+			case BOOLEAN_VALUE:
+				data_type_ptr = "BOOLEAN_VALUE";
+				break;
+		}
+		SAFE_SNPRINTF(buff_ptr, buffer, buffer_len, "\n%*s- type: %s", depth, "", data_type_ptr);
+		UNPACK_SQL_STATEMENT(value, plan->v.column_list_alias->alias, value);
+		column_name = value->v.string_literal;
+		SAFE_SNPRINTF(buff_ptr, buffer, buffer_len, "\n%*s- alias: %s\n", depth, "", column_name);
 		break;
 	case LP_KEYWORDS:
 		SAFE_SNPRINTF(buff_ptr, buffer, buffer_len, "keywords\n");

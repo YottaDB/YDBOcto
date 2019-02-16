@@ -13,5 +13,8 @@ make
 source activate
 pushd src
 $ydb_dist/mupip set -n=true -reg '*'
+# Load the data
+./octo -f ../../tests/fixtures/names.sql
+$ydb_dist/mupip load ../../tests/fixtures/names.zwr
 popd
 make test

@@ -153,7 +153,12 @@ add_library(liboctod OBJECT
   octod/make_row_description.c
   octod/make_data_row.c
   octod/make_command_complete.c
+  octod/make_authentication_md5_password.c
+  octod/make_authentication_ok.c
   octod/send_message.c
+  octod/read_message.c
+  octod/read_bytes.c
+  octod/octod_main_loop.c
   octod/free_error_response.c
   octod/get_plan_row_description.c
 )
@@ -167,7 +172,7 @@ add_executable(octod
 add_executable(pparser
   physical/pparser.c
   errors.c
-  octo_init.c
+  #octo_init.c
   ${BISON_PhysicalParser_OUTPUTS}
   ${FLEX_PhysicalLexer_OUTPUTS}
 )

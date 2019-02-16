@@ -16,25 +16,28 @@
 #include <stdarg.h>
 #include <stdlib.h>
 #include <string.h>
-#include <errno.h>
 #include <assert.h>
 
 // Used to convert between network and host endian
 #include <arpa/inet.h>
 
-#include "octod.h"
 #include "message_formats.h"
 
-int send_message(OctodSession *session, BaseMessage *message) {
-	int result;
 
-	// +1 for the message format flag
-	result = send(session->connection_fd, (char*)message, ntohl(message->length) + 1, 0);
-	if(result < 0) {
-		if(errno == ECONNRESET)
-			return 1;
-		FATAL(ERR_SYSCALL, "send", errno);
-		return 1;
-	}
-	return 0;
+AuthenticationMD5Password *make_authentication_md5_password() {
+	AuthenticationMD5Password *ret;
+
+	ret = (AuthenticationMD5Password*)malloc(sizeof(ReadyForQuery));
+	memset(ret, 0, sizeof(AuthenticationMD5Password));
+
+	ret->type = PSQL_AuthenticationMD5Password;
+	ret->length = htonl(12);
+	ret->md5_required = htonl(5);
+	/// TODO: this should be a random number
+	ret->salt[0] = 42;
+	ret->salt[1] = 42;
+	ret->salt[2] = 42;
+	ret->salt[3] = 42;
+
+	return ret;
 }

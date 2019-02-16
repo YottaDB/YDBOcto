@@ -29,28 +29,35 @@ RowDescription *get_plan_row_description(PhysicalPlan *plan) {
 	SqlTableAlias *source_table;
 	SqlColumnListAlias *cla_cur, *cla_end;
 	SqlValue *value;
+	RowDescription *ret;
 	RowDescriptionParm *parms;
+	LogicalPlan *cur_plan, *column_alias;
 	int num_columns, i;
 
 	if(plan == NULL)
 		return NULL;
 	// Count the number of columns in the table
-	source_table = plan->outputTable;
-	UNPACK_SQL_STATEMENT(cla_end, source_table->column_list, column_list_alias);
-	cla_cur = cla_end;
+	cur_plan = plan->projection;
+	num_columns = 0;
 	do {
+		assert(cur_plan->type == LP_COLUMN_LIST);
+		GET_LP(column_alias, cur_plan, 0, LP_WHERE);
+		GET_LP(column_alias, column_alias, 1, LP_COLUMN_LIST_ALIAS);
 		num_columns++;
-		cla_cur = cla_cur->next;
-	} while (cla_end != cla_cur);
+		cur_plan = cur_plan->v.operand[1];
+	} while(cur_plan != NULL);
 
 	parms = malloc(sizeof(RowDescriptionParm) * num_columns);
 	memset(parms, 0, sizeof(RowDescriptionParm));
 
 	// Setup each parm
-	cla_cur = cla_end;
 	i = 0;
+	cur_plan = plan->projection;
 	do {
-		UNPACK_SQL_STATEMENT(value, cla_cur->alias, value);
+		assert(cur_plan->type == LP_COLUMN_LIST);
+		GET_LP(column_alias, cur_plan, 0, LP_WHERE);
+		GET_LP(column_alias, column_alias, 1, LP_COLUMN_LIST_ALIAS);
+		UNPACK_SQL_STATEMENT(value, column_alias->v.column_list_alias->alias, value);
 		// This assumes the SqlValue will outlive this RowDescription
 		parms[i].name = value->v.string_literal;
 		// We don't currently deal with table_id's, so just set it to zero
@@ -66,9 +73,11 @@ RowDescription *get_plan_row_description(PhysicalPlan *plan) {
 		parms[i].type_modifier = -1;
 		// 0 = text, 1 = binary
 		parms[i].format_code = 0;
-		cla_cur = cla_cur->next;
 		i++;
-	} while(cla_end != cla_cur);
+		cur_plan = cur_plan->v.operand[1];
+	} while(cur_plan != NULL);
 
-	return make_row_description(parms, num_columns);
+	ret = make_row_description(parms, num_columns);
+	free(parms);
+	return ret;
 }

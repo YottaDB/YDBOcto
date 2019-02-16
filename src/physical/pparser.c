@@ -30,7 +30,7 @@ int main(int argc, char **argv) {
 	//YY_BUFFER_STATE state;
 	char *test = "{% int myfunc() { %}ok";
 
-	octo_init();
+	//octo_init();
 
 	//yydebug = TRUE;
 

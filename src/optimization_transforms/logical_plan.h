@@ -68,6 +68,8 @@ struct LogicalPlan {
 		LogicalPlan *operand[2];
 		// Set if type == LP_COLUMN_ALIAS
 		SqlColumnAlias *column_alias;
+		// Set if type == LP_COLUMN_LIST_ALIAS
+		SqlColumnListAlias *column_list_alias;
 		// Set if type == LP_VALUE
 		SqlValue *value;
 		// Set if type == LP_TABLE

@@ -27,6 +27,8 @@ void print_temporary_table(PhysicalPlan *plan, int cursor_id, void *parms) {
 	PhysicalPlan *deep_plan = plan;
 	int status;
 
+	INFO(CUSTOM_ERROR, "%s", "print_temporary_table()");
+
 	while(deep_plan->next != NULL) {
 		deep_plan = deep_plan->next;
 	}

@@ -40,19 +40,9 @@ int main(int argc, char **argv)
 {
 	int c, error = 0, status;
 	int done;
-	char *buffer;
-	size_t buffer_size = 0;
-	FILE *out;
 	SqlValue *value;
 	SqlTable *table, *t_table;
-	SqlStatement *result = 0;
 	SqlStatement *tmp_statement;
-	ydb_buffer_t schema_global, table_name_buffer, table_create_buffer, null_buffer;
-	ydb_buffer_t cursor_global, cursor_exe_global[3];
-	ydb_buffer_t z_status, z_status_value;
-	gtm_char_t err_msgbuf[MAX_STR_CONST];
-	gtm_long_t cursorId;
-	PhysicalPlan *pplan;
 
 	octo_init();
 
@@ -110,50 +100,10 @@ int main(int argc, char **argv)
 			return 1;
 		}
 	}
-	table_name_buffer.buf_addr = malloc(MAX_STR_CONST);
-	table_name_buffer.len_used = 0;
-	table_name_buffer.len_alloc = MAX_STR_CONST;
-	table_create_buffer.buf_addr = malloc(MAX_STR_CONST);
-	table_create_buffer.len_used = 0;
-	table_create_buffer.len_alloc = MAX_STR_CONST;
-
-	YDB_LITERAL_TO_BUFFER("^schema", &schema_global);
-	YDB_LITERAL_TO_BUFFER("", &null_buffer);
-	YDB_LITERAL_TO_BUFFER("^cursor", &cursor_global);
-	INIT_YDB_BUFFER(&cursor_exe_global[0], MAX_STR_CONST);
-	YDB_LITERAL_TO_BUFFER("exe", &cursor_exe_global[1]);
-	INIT_YDB_BUFFER(&cursor_exe_global[2], MAX_STR_CONST);
 
 	TRACE(CUSTOM_ERROR, "Octo started");
 
 	/* Load the existing tables */
-	do {
-		status = ydb_subscript_next_s(&schema_global, 1, &table_name_buffer, &table_name_buffer);
-		if(status == YDB_ERR_NODEEND) {
-			break;
-		}
-
-		YDB_ERROR_CHECK(status, &z_status, &z_status_value);
-		if(table_name_buffer.len_used == 0)
-			break;
-		ydb_get_s(&schema_global, 1, &table_name_buffer, &table_create_buffer);
-		YDB_ERROR_CHECK(status, &z_status, &z_status_value);
-		table_create_buffer.buf_addr[table_create_buffer.len_used] = '\0';
-		INFO(CUSTOM_ERROR, "Running command %s\n", table_create_buffer.buf_addr);
-		result = parse_line(table_create_buffer.buf_addr);
-		if(result == NULL) {
-			continue;
-		}
-		UNPACK_SQL_STATEMENT(table, result, table);
-		if(definedTables == NULL) {
-			definedTables = table;
-			dqinit(definedTables);
-		} else {
-			dqinsert(definedTables, table, t_table);
-		}
-		free(result);
-		result = NULL;
-	} while(1);
 
 	yydebug = config->record_error_level == TRACE && FALSE;
 	cur_input_more = &readline_get_more;
@@ -172,8 +122,6 @@ int main(int argc, char **argv)
 				break;
 		}
 	} while(!feof(inputFile));
-	free(table_name_buffer.buf_addr);
-	free(table_create_buffer.buf_addr);
 	if(definedTables != NULL) {
 		SQL_STATEMENT(tmp_statement, table_STATEMENT);
 		tmp_statement->v.table = definedTables;

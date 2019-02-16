@@ -161,6 +161,7 @@ sql_statement
   : sql_schema_statement SEMICOLON { *out = $1; YYACCEPT; }
   | sql_data_statement SEMICOLON { *out = $1; YYACCEPT; }
   | query_expression SEMICOLON { *out = $1; YYACCEPT; }
+  | error SEMICOLON { *out = NULL; YYABORT; }
   | ENDOFFILE { YYACCEPT; }
   ;
 

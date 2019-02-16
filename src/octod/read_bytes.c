@@ -13,8 +13,12 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-#include <stdarg.h>
+#include <stdio.h>
+#include <unistd.h>
+#include <stdio.h>
+#include <sys/socket.h>
 #include <stdlib.h>
+#include <netinet/in.h>
 #include <string.h>
 #include <errno.h>
 #include <assert.h>
@@ -25,16 +29,22 @@
 #include "octod.h"
 #include "message_formats.h"
 
-int send_message(OctodSession *session, BaseMessage *message) {
-	int result;
+int read_bytes(OctodSession *session, char *buffer, int buffer_size, int bytes_to_read) {
+	int read_so_far = 0, read_now = 0;
 
-	// +1 for the message format flag
-	result = send(session->connection_fd, (char*)message, ntohl(message->length) + 1, 0);
-	if(result < 0) {
-		if(errno == ECONNRESET)
+	while(read_so_far < bytes_to_read) {
+		read_now = read(session->connection_fd, &buffer[read_so_far],
+				bytes_to_read - read_so_far);
+		if(read_now < 0) {
+			if(errno == EINTR)
+				continue;
+			if(errno == ECONNRESET)
+				return 1;
+			FATAL(ERR_SYSCALL, "read", errno);
 			return 1;
-		FATAL(ERR_SYSCALL, "send", errno);
-		return 1;
-	}
+		}
+		read_so_far += read_now;
+	};
+
 	return 0;
 }

@@ -16,7 +16,6 @@
 #include <stdarg.h>
 #include <stdlib.h>
 #include <string.h>
-#include <errno.h>
 #include <assert.h>
 
 // Used to convert between network and host endian
@@ -25,16 +24,19 @@
 #include "octod.h"
 #include "message_formats.h"
 
-int send_message(OctodSession *session, BaseMessage *message) {
+BaseMessage *read_message(OctodSession *session, char *buffer, int buffer_size) {
+	BaseMessage *message;
 	int result;
 
-	// +1 for the message format flag
-	result = send(session->connection_fd, (char*)message, ntohl(message->length) + 1, 0);
-	if(result < 0) {
-		if(errno == ECONNRESET)
-			return 1;
-		FATAL(ERR_SYSCALL, "send", errno);
-		return 1;
-	}
-	return 0;
+	message = (void*)buffer;
+	result = read_bytes(session, (char*)message, buffer_size, 5);
+	if(result == 1)
+		return NULL;
+
+	// Read the rest of the message
+	read_bytes(session, (char*)(&message->data), buffer_size, ntohl(message->length) - 4);
+	if(result == 1)
+		return NULL;
+
+	return message;
 }

@@ -22,7 +22,7 @@
 /**
  * Parses line, which should end with a semicolon, and returns the resolt
  *
- * NOTE: caller is responsiblefor freeing the return value
+ * NOTE: caller is responsible for freeing the return value
  *
  * @returns the parsed statement, or NULL if there was an error parsing.
  */

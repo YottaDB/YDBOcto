@@ -31,11 +31,13 @@ enum PSQL_MessageTypes {
 	PSQL_ErrorResponse = 'E',
 	PSQL_BindComplete = '2',
 	PSQL_ReadyForQuery = 'Z',
-	PSQL_Query = 'F',
+	PSQL_Query = 'Q',
 	PSQL_EmptyQueryResponse = 'I',
 	PSQL_RowDescription = 'T',
 	PSQL_DataRow = 'D',
-  PSQL_CommandComplete = 'C'
+	PSQL_CommandComplete = 'C',
+	PSQL_AuthenticationMD5Password = 'R',
+	PSQL_AuthenticationOk = 'R'
 };
 
 typedef struct __attribute__((packed)) {
@@ -178,6 +180,13 @@ typedef struct __attribute__((packed)) {
   unsigned int length;
   char data[];
 } CommandComplete;
+
+typedef struct __attribute__((packed)) {
+	char type;
+	unsigned int length;
+	unsigned int md5_required;
+	char salt[4];
+} AuthenticationMD5Password;
 
 typedef struct {
 	char type;

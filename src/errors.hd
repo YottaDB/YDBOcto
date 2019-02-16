@@ -20,4 +20,8 @@ ERROR_DEF(ERR_PLAN_NOT_WELL_FORMED, "Plan produced by optimizer appears incorrec
 ERROR_DEF(ERR_SYSCALL, "System call failed: %s, return %d")
 ERROR_DEF(ERR_CURPLAN, "%s")
 ERROR_DEF(ERR_LINE_TOO_LONG, "Input line too long")
+ERROR_DEF(ERR_CLIENT_CONNECTED, "Client connected")
+ERROR_DEF(ERR_PSQL_STARTUP_PAIR, "Got pair %s=%s")
+ERROR_DEF(ERR_READ_MESSAGE, "Read message of length %d")
+ERROR_DEF(ERR_PROCESSING_MESSAGE_TYPE, "Processing message type %c")
 ERROR_END(CUSTOM_ERROR, "Error not found")

@@ -111,6 +111,7 @@ int cur_input_index;
 int cur_input_max;
 int eof_hit;
 FILE *inputFile;
+FILE *err_buffer;
 char *input_buffer_combined;
 int (*cur_input_more)();
 

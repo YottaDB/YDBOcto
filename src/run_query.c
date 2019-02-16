@@ -49,6 +49,7 @@ int run_query(char *query, void (*callback)(PhysicalPlan *, int, void*), void *p
 	gtm_char_t      err_msgbuf[MAX_STR_CONST];
 	gtm_long_t cursorId;
 
+
 	inputFile = NULL;
 	table_name_buffer.buf_addr = malloc(MAX_STR_CONST);
 	table_name_buffer.len_used = 0;
@@ -63,6 +64,14 @@ int run_query(char *query, void (*callback)(PhysicalPlan *, int, void*), void *p
 	INIT_YDB_BUFFER(&cursor_exe_global[0], MAX_STR_CONST);
 	YDB_LITERAL_TO_BUFFER("exe", &cursor_exe_global[1]);
 	INIT_YDB_BUFFER(&cursor_exe_global[2], MAX_STR_CONST);
+
+	status = ydb_incr_s(&schema_global, 0, NULL, NULL, &cursor_exe_global[0]);
+	YDB_ERROR_CHECK(status, &z_status, &z_status_value);
+	cursor_exe_global[0].buf_addr[cursor_exe_global[0].len_used] = '\0';
+	cursor_exe_global[2].len_used = 1;
+	*cursor_exe_global[2].buf_addr = '0';
+
+	INFO(CUSTOM_ERROR, "Generating SQL for cursor %s", cursor_exe_global[0].buf_addr);
 
 	INFO(CUSTOM_ERROR, "Parsing SQL command %s", query);
 	result = parse_line(query);
@@ -83,11 +92,6 @@ int run_query(char *query, void (*callback)(PhysicalPlan *, int, void*), void *p
 		free(cursor_exe_global[2].buf_addr);
 		return 1;
 	}
-	status = ydb_incr_s(&schema_global, 0, NULL, NULL, &cursor_exe_global[0]);
-	YDB_ERROR_CHECK(status, &z_status, &z_status_value);
-	cursor_exe_global[0].buf_addr[cursor_exe_global[0].len_used] = '\0';
-	cursor_exe_global[2].len_used = 1;
-	*cursor_exe_global[2].buf_addr = '0';
 	switch(result->type) {
 	case select_STATEMENT:
 		pplan = emit_select_statement(&cursor_global, cursor_exe_global, result, NULL);

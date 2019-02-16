@@ -16,25 +16,23 @@
 #include <stdarg.h>
 #include <stdlib.h>
 #include <string.h>
-#include <errno.h>
 #include <assert.h>
 
 // Used to convert between network and host endian
 #include <arpa/inet.h>
 
-#include "octod.h"
 #include "message_formats.h"
 
-int send_message(OctodSession *session, BaseMessage *message) {
-	int result;
 
-	// +1 for the message format flag
-	result = send(session->connection_fd, (char*)message, ntohl(message->length) + 1, 0);
-	if(result < 0) {
-		if(errno == ECONNRESET)
-			return 1;
-		FATAL(ERR_SYSCALL, "send", errno);
-		return 1;
-	}
-	return 0;
+AuthenticationOk *make_authentication_ok() {
+	AuthenticationOk *ret;
+
+	ret = (AuthenticationOk*)malloc(sizeof(ReadyForQuery));
+	memset(ret, 0, sizeof(AuthenticationOk));
+
+	ret->type = PSQL_AuthenticationOk;
+	ret->length = htonl(8);
+	ret->result = htonl(0);
+
+	return ret;
 }

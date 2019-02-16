@@ -23,7 +23,7 @@
 #include "octod.h"
 #include "message_formats.h"
 
-StartupMessage *read_startup_message(char *data, int data_length, ErrorResponse **err) {
+StartupMessage *read_startup_message(OctodSession *session, char *data, int data_length, ErrorResponse **err) {
 	StartupMessage *ret = NULL;
 	int num_parms = 0, read = 0, cur_parm;
 	char *c, *message_end;
@@ -33,16 +33,16 @@ StartupMessage *read_startup_message(char *data, int data_length, ErrorResponse 
 	memcpy(&ret->length, data, 8);
 
 	// The hard-coded value seems to be fixed by the protocol version 3.0
-	if(ntohl(ret->protocol_version) != 196608) {
+	/*if(ret->protocol_version != 790024708) {
 		*err = make_error_response(PSQL_Error_FATAL,
 					   PSQL_Code_Protocol_Violation,
 					   "Protocol version did not match expected",
 					   0);
 		free(ret);
 		return NULL;
-	}
+	}*/
 
-	if(ntohl(ret->length) != data_length) {
+	/*if(ntohl(ret->length) != data_length) {
 		// The routine starting this up should fill this out, but really
 		//  we expect it to always be the same since both processes are
 		//  looking at the same data
@@ -52,13 +52,20 @@ StartupMessage *read_startup_message(char *data, int data_length, ErrorResponse 
 					   0);
 		free(ret);
 		return NULL;
+	}*/
+
+	// No parameters send
+	if(ntohl(ret->length) == 8) {
+		return ret;
 	}
 
 	free(ret);
+	data_length = ntohl(ret->length);
 	// Size is length in packet + other stuff in the struct, minus the hard-coded
 	//  elements in the struct (two int4's)
 	ret = (StartupMessage*)malloc(sizeof(StartupMessage) + data_length - 8);
-	memcpy(&ret->length, data, data_length);
+	memcpy(&ret->length, data, 8);
+	read_bytes(session, (char*)&ret->data, data_length - 8, data_length - 8);
 	c = ret->data;
 	message_end = (char*)(&ret->length) + data_length;
 

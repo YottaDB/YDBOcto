@@ -39,7 +39,7 @@ typedef struct {
 void handle_response(PhysicalPlan *plan, int cursor_id, void *_parms) {
 	QueryResponseParms *parms = (QueryResponseParms*)_parms;
 	RowDescription *row_description;
-  CommandComplete *command_complete;
+	CommandComplete *command_complete;
 	DataRow *data_row;
 	/// TODO: we should add a new constant to define the maxium number of rows
 	DataRowParm data_row_parms[MAX_STR_CONST];
@@ -49,10 +49,10 @@ void handle_response(PhysicalPlan *plan, int cursor_id, void *_parms) {
 	//   if altered, make sure the order is correct
 	ydb_buffer_t ydb_buffers[9];
 	ydb_buffer_t *cursor_b = &ydb_buffers[0], *cursor_id_b = &ydb_buffers[1],
-		*keys_b = &ydb_buffers[2], *key_id_b = &ydb_buffers[3],
-		*space_b = &ydb_buffers[4], *space_b2 = &ydb_buffers[5],
-		*row_id_b = &ydb_buffers[6], *row_value_b = &ydb_buffers[7],
-		*empty_buffer = &ydb_buffers[8];
+	*keys_b = &ydb_buffers[2], *key_id_b = &ydb_buffers[3],
+	*space_b = &ydb_buffers[4], *space_b2 = &ydb_buffers[5],
+	*row_id_b = &ydb_buffers[6], *row_value_b = &ydb_buffers[7],
+	*empty_buffer = &ydb_buffers[8];
 	ydb_buffer_t z_status, z_status_value;
 	PhysicalPlan *deep_plan = plan;
 	char buffer[MAX_STR_CONST], *c;
@@ -67,7 +67,6 @@ void handle_response(PhysicalPlan *plan, int cursor_id, void *_parms) {
 
 	row_description = get_plan_row_description(deep_plan);
 	send_message(parms->session, (BaseMessage*)(&row_description->type));
-	free(row_description->parms);
 	free(row_description);
 
 	YDB_LITERAL_TO_BUFFER("^cursor", cursor_b);
@@ -98,10 +97,10 @@ void handle_response(PhysicalPlan *plan, int cursor_id, void *_parms) {
 		return;
 	}
 	YDB_ERROR_CHECK(status, &z_status, &z_status_value);
-  row_count = 0;
+	row_count = 0;
 
 	while(!YDB_BUFFER_IS_SAME(empty_buffer, row_id_b)) {
-    row_count++;
+		row_count++;
 		status = ydb_get_s(cursor_b, 6, cursor_id_b, row_value_b);
 		YDB_ERROR_CHECK(status, &z_status, &z_status_value);
 		row_value_b->buf_addr[row_value_b->len_used] = '\0';
@@ -120,7 +119,6 @@ void handle_response(PhysicalPlan *plan, int cursor_id, void *_parms) {
 			number_of_columns++;
 		data_row = make_data_row(data_row_parms, number_of_columns);
 		send_message(parms->session, (BaseMessage*)(&data_row->type));
-		free(data_row->parms);
 		free(data_row);
 		// Move to the next subscript
 		status = ydb_subscript_next_s(cursor_b, 6, cursor_id_b, row_id_b);
@@ -134,10 +132,10 @@ void handle_response(PhysicalPlan *plan, int cursor_id, void *_parms) {
 	free(row_id_b->buf_addr);
 	free(row_value_b->buf_addr);
 
-  snprintf(buffer, MAX_STR_CONST, "SELECT %d", row_count);
+	snprintf(buffer, MAX_STR_CONST, "SELECT %d", row_count);
 	command_complete = make_command_complete(buffer);
-  send_message(parms->session, (BaseMessage*)(&command_complete->type));
-  free(command_complete);
+	send_message(parms->session, (BaseMessage*)(&command_complete->type));
+	free(command_complete);
 	return;
 }
 
@@ -148,6 +146,8 @@ int handle_query(Query *query, OctodSession *session) {
 	char input_buffer[MAX_STR_CONST], *c, *end_query;
 	int query_length = 0;
 	int run_query_result = 0;
+	char *err_buff;
+	size_t err_buff_size;
 	memset(&parms, 0, sizeof(QueryResponseParms));
 	parms.session = session;
 	query_length = strlen(query->query);
@@ -167,17 +167,32 @@ int handle_query(Query *query, OctodSession *session) {
 	// Enforced by this check
 	if(query_length > cur_input_max) {
 		err = make_error_response(PSQL_Error_ERROR,
-					  PSQL_Code_Protocol_Violation,
-					  "query length exceeeded maximum size",
-					  0);
+				PSQL_Code_Protocol_Violation,
+				"query length exceeeded maximum size",
+				0);
 		send_message(session, (BaseMessage*)(&err->type));
 		free_error_response(err);
 		return 0;
 	}
+	memcpy(input_buffer_combined, query->query, query_length);
+	input_buffer_combined[query_length] = '\0';
+	cur_input_index = 0;
 	cur_input_more = &no_more;
+	err_buffer = open_memstream(&err_buff, &err_buff_size);
 
 	do {
-		run_query_result = run_query(input_buffer, &handle_response, (void*)&parms);
+		run_query_result = run_query(input_buffer_combined, &handle_response, (void*)&parms);
+		if(run_query_result == FALSE) {
+			fclose(err_buffer);
+			err = make_error_response(PSQL_Error_ERROR,
+					PSQL_Code_Syntax_Error,
+					err_buff,
+					0);
+			send_message(session, (BaseMessage*)(&err->type));
+			free_error_response(err);
+			free(err_buff);
+			err_buffer = open_memstream(&err_buff, &err_buff_size);
+		}
 	} while(!eof_hit);
 
 	// If no data was sent (CREATE, DELETE, INSERT statement), send something back

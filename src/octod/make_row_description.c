@@ -48,13 +48,14 @@ RowDescription *make_row_description(RowDescriptionParm *parms, short num_parms)
 	ret->type = PSQL_RowDescription;
 	ret->length = htonl(length);
 	ret->num_parms = htons(num_parms);
+	ret->parms = (void*)(&ret->data);
 
 	// Copy in each parm
 	c = ret->data;
 	for(i = 0; i < num_parms; i++) {
 		// Copy string
 		cur_str_length = strlen(parms[i].name);
-		memcpy(ret, parms[i].name, cur_str_length);
+		memcpy(c, parms[i].name, cur_str_length);
 		c += cur_str_length;
 		*c++ = '\0';
 

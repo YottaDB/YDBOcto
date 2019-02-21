@@ -223,6 +223,87 @@ query_specification
 	  YYERROR;
       }
     }
+  | SELECT set_quantifier select_list {
+      // We're going to run against a secret table with one row so the list gets found
+      SqlJoin *join, *cur_join, *start_join;
+      SqlTable *table;
+      SqlStatement *join_statement;
+      SqlTableAlias *table_alias, *alias;
+
+      SQL_STATEMENT($$, select_STATEMENT);
+      MALLOC_STATEMENT($$, select, SqlSelectStatement);
+      SQL_STATEMENT(join_statement, join_STATEMENT);
+      MALLOC_STATEMENT(join_statement, join, SqlJoin);
+      UNPACK_SQL_STATEMENT(join, join_statement, join);
+      dqinit(join);
+      table = find_table("octoOneRowTable");
+      if(table == NULL) {
+        ERROR(ERR_UNKNOWN_TABLE, "octoOneRowTable");
+        print_yyloc(&($select_list)->loc);
+        YYERROR;
+      }
+      SQL_STATEMENT(join->value, table_alias_STATEMENT);
+      MALLOC_STATEMENT(join->value, table_alias, SqlTableAlias);
+      UNPACK_SQL_STATEMENT(alias, join->value, table_alias);
+      SQL_STATEMENT(alias->table, table_STATEMENT);
+      alias->table->v.table = copy_sql_table(table);
+      alias->alias = copy_sql_statement(table->tableName);
+      // We can probably put a variable in the bison local for this
+      alias->unique_id = *plan_id;
+      (*plan_id)++;
+      ($$)->v.select->table_list = join_statement;
+
+      assert(($$)->type == select_STATEMENT);
+      SqlSelectStatement *select;
+      UNPACK_SQL_STATEMENT(select, $$, select);
+      select->select_list = ($select_list);
+      // If the select list is empty, we need all columns from the joins in
+      //  the order in which they are mentioned
+      SqlStatement *t_stmt;
+      SqlColumn *t_column;
+      SqlColumnListAlias *cl_alias = NULL, *t_cl_alias, *tt_cl_alias;
+      UNPACK_SQL_STATEMENT(join, select->table_list, join);
+      if(select->select_list->v.column_list_alias == NULL) {
+          start_join = cur_join = join;
+          do {
+	      UNPACK_SQL_STATEMENT(table_alias, cur_join->value, table_alias);
+	      //t_stmt = copy_sql_statement(table_alias->column_list);
+	      //UNPACK_SQL_STATEMENT(t_cl_alias, t_stmt, column_list_alias);
+	      t_column = column_list_alias_to_columns(table_alias);
+	      t_cl_alias = lp_columns_to_column_list(t_column, table_alias);
+	      if(cl_alias == NULL) {
+		  cl_alias = t_cl_alias;
+	      } else {
+	          dqinsert(cl_alias, t_cl_alias, tt_cl_alias);
+	      }
+	      //free(t_stmt);
+	      cur_join = cur_join->next;
+          } while(cur_join != start_join);
+	  select->select_list->v.column_list_alias = cl_alias;
+      }
+      ($$)->v.select->optional_words = $set_quantifier;
+      SqlColumnList *column_list;
+      SqlColumnListAlias *cur_column_list_alias, *start_column_list_alias;
+      SqlValueType type;
+      int result;
+      UNPACK_SQL_STATEMENT(start_column_list_alias, $select_list, column_list_alias);
+      cur_column_list_alias = start_column_list_alias;
+      if(cur_column_list_alias != NULL) {
+	  result = qualify_column_list_alias(cur_column_list_alias, join);
+	  if(result != 0) {
+	      YYERROR;
+	  }
+	  result = populate_data_type($select_list, &type);
+	  if(result != 0) {
+	      YYERROR;
+	  }
+      }
+      ($$)->v.select->order_expression = NULL;
+      result = qualify_join_conditions(join, join);
+      if(result != 0) {
+	  YYERROR;
+      }
+    }
   ;
 
 select_list

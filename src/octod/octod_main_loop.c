@@ -26,6 +26,10 @@
 
 int octod_main_loop(OctodSession *session) {
 	Query *query;
+	Bind *bind;
+	Execute *execute;
+	Parse *parse;
+	Describe *describe;
 	ErrorResponse *err;
 	BaseMessage *message;
 	ReadyForQuery *ready_for_query;
@@ -40,11 +44,19 @@ int octod_main_loop(OctodSession *session) {
 			break;
 		free(ready_for_query);
 		message = read_message(session, buffer, MAX_STR_CONST);
+		TRACE(ERR_READ_MESSAGE, message->type, ntohl(message->length));
 		switch(message->type) {
 		case PSQL_Bind:
-			break;
-		case PSQL_ErrorResponse:
-			// We don't expect this, issue an error
+			bind = read_bind(message, &err);
+			if(bind == NULL) {
+				send_message(session, (BaseMessage*)(&err->type));
+				free_error_response(err);
+				break;
+			}
+			result = handle_bind(bind, session);
+			if(result == 1) {
+				return 0;
+			}
 			break;
 		case PSQL_BindComplete:
 			break;
@@ -69,9 +81,6 @@ int octod_main_loop(OctodSession *session) {
 		case PSQL_RowDescription:
 			// We don't expect this, issue an error
 			break;
-		case PSQL_DataRow:
-			// We don't expect this, issue an error
-			break;
 		case PSQL_CommandComplete:
 			// We don't expect this, issue an error
 			break;
@@ -80,6 +89,50 @@ int octod_main_loop(OctodSession *session) {
 		//case PSQL_Authenication:
 		//case PSQL_AuthenticationOk:
 			// We don't expect this, issue an error
+			break;
+		case PSQL_Execute:
+		//case PSQL_ErrorResponse: // Same letter code, different meaning
+			execute = read_execute(message, &err);
+			if(execute == NULL) {
+				send_message(session, (BaseMessage*)(&err->type));
+				free_error_response(err);
+				break;
+			}
+			result = handle_execute(execute, session);
+			if(result == 1) {
+				return 0;
+			}
+			break;
+		case PSQL_Parse:
+			parse = read_parse(message, &err);
+			if(parse == NULL) {
+				send_message(session, (BaseMessage*)(&err->type));
+				free_error_response(err);
+				break;
+			}
+			result = handle_parse(parse, session);
+			if(result == 1) {
+				return 0;
+			}
+			break;
+		case PSQL_Sync:
+			// This requires no action right now, but eventually we will have to end transactions
+			break;
+		case PSQL_Describe:
+		// case PSQL_DataRow: // Same letter, different meaning
+			describe = read_describe(message, &err);
+			if(describe == NULL) {
+				send_message(session, (BaseMessage*)(&err->type));
+				free_error_response(err);
+				break;
+			}
+			result = handle_describe(describe, session);
+			if(result == 1) {
+				return 0;
+			}
+			break;
+		default:
+			TRACE(ERR_UNKNOWN_MESSAGE_TYPE, message->type);
 			break;
 		};
 	}

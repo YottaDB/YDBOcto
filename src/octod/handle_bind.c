@@ -41,6 +41,8 @@ int handle_bind(Bind *bind, OctodSession *session) {
 	BindComplete *response;
 	ErrorResponse *err;
 
+	TRACE(ERR_ENTERING_FUNCTION, "handle_bind");
+
 	// zstatus buffers
 	YDB_LITERAL_TO_BUFFER("$ZSTATUS", &z_status);
 	INIT_YDB_BUFFER(&z_status_value, MAX_STR_CONST);
@@ -51,7 +53,9 @@ int handle_bind(Bind *bind, OctodSession *session) {
 	YDB_COPY_BUFFER_TO_BUFFER(session->session_id, source_session_id, done);
 	assert(done == TRUE);
 	YDB_LITERAL_TO_BUFFER("prepared", prepared);
-	YDB_LITERAL_TO_BUFFER(bind->source, source_name);
+	//YDB_LITERAL_TO_BUFFER(bind->source, source_name);
+	source_name->buf_addr = bind->source;
+	source_name->len_alloc = source_name->len_used = strlen(bind->source);
 
 	INIT_YDB_BUFFER(&sql_expression, MAX_STR_CONST);
 
@@ -140,7 +144,8 @@ int handle_bind(Bind *bind, OctodSession *session) {
 	INIT_YDB_BUFFER(dest_session_id, session->session_id->len_used);
 	YDB_COPY_BUFFER_TO_BUFFER(session->session_id, dest_session_id, done);
 	YDB_LITERAL_TO_BUFFER("bound", bound);
-	YDB_LITERAL_TO_BUFFER(bind->dest, bind_name);
+	//YDB_LITERAL_TO_BUFFER(bind->dest, bind_name);
+	bind_name->buf_addr = bind->dest;
 	bind_name->len_alloc = bind_name->len_used = strlen(bind->dest);
 
 	free(sql_expression.buf_addr);

@@ -144,8 +144,15 @@ add_library(liboctod OBJECT
   octod/read_bind.c
   octod/read_startup_message.c
   octod/read_query.c
+  octod/read_parse.c
+  octod/read_execute.c
+  octod/read_sync.c
+  octod/read_describe.c
   octod/handle_bind.c
   octod/handle_query.c
+  octod/handle_parse.c
+  octod/handle_execute.c
+  octod/handle_describe.c
   octod/make_error_response.c
   octod/make_bind_complete.c
   octod/make_ready_for_query.c
@@ -155,12 +162,14 @@ add_library(liboctod OBJECT
   octod/make_command_complete.c
   octod/make_authentication_md5_password.c
   octod/make_authentication_ok.c
+  octod/make_parse_complete.c
   octod/send_message.c
   octod/read_message.c
   octod/read_bytes.c
   octod/octod_main_loop.c
   octod/free_error_response.c
   octod/get_plan_row_description.c
+  octod/handle_query_response.c
 )
 
 add_executable(octod

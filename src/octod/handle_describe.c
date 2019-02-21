@@ -13,31 +13,24 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-#include <stdarg.h>
 #include <stdlib.h>
 #include <string.h>
-#include <errno.h>
 #include <assert.h>
 
-// Used to convert between network and host endian
-#include <arpa/inet.h>
+#include <libyottadb.h>
 
-#include "octod.h"
+#include "octo.h"
+#include "octo_types.h"
 #include "message_formats.h"
+#include "octod.h"
 
-int send_message(OctodSession *session, BaseMessage *message) {
-	int result;
-
-	TRACE(ERR_ENTERING_FUNCTION, "send_message");
-
-	// +1 for the message format flag
-	TRACE(ERR_SEND_MESSAGE, message->type, ntohl(message->length));
-	result = send(session->connection_fd, (char*)message, ntohl(message->length) + 1, 0);
-	if(result < 0) {
-		if(errno == ECONNRESET)
-			return 1;
-		FATAL(ERR_SYSCALL, "send", errno);
-		return 1;
-	}
+int handle_describe(Describe *describe, OctodSession *session) {
+	RowDescription *description;
+	// Check if portal exists
+	// If portal exists, and has not been bound, return 0 for format field codes
+	// in row description
+	// If it has been bound, return RowDescription messages
+	description = make_row_description(NULL, 0);
+	send_message(session, (BaseMessage*)(&description->type));
 	return 0;
 }

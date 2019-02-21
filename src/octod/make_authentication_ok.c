@@ -27,7 +27,7 @@
 AuthenticationOk *make_authentication_ok() {
 	AuthenticationOk *ret;
 
-	ret = (AuthenticationOk*)malloc(sizeof(ReadyForQuery));
+	ret = (AuthenticationOk*)malloc(sizeof(AuthenticationOk));
 	memset(ret, 0, sizeof(AuthenticationOk));
 
 	ret->type = PSQL_AuthenticationOk;

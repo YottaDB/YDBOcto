@@ -37,7 +37,12 @@ enum PSQL_MessageTypes {
 	PSQL_DataRow = 'D',
 	PSQL_CommandComplete = 'C',
 	PSQL_AuthenticationMD5Password = 'R',
-	PSQL_AuthenticationOk = 'R'
+	PSQL_AuthenticationOk = 'R',
+	PSQL_Parse = 'P',
+	PSQL_ParseComplete = '1',
+	PSQL_Execute = 'E',
+	PSQL_Sync = 'S',
+	PSQL_Describe = 'D'
 };
 
 typedef struct __attribute__((packed)) {
@@ -187,6 +192,43 @@ typedef struct __attribute__((packed)) {
 	unsigned int md5_required;
 	char salt[4];
 } AuthenticationMD5Password;
+
+typedef struct __attribute__((packed)) {
+	char *dest;
+	char *query;
+	short num_parms;
+	unsigned int *parm_data_types;
+
+	char type;
+	unsigned int length;
+	char data[];
+} Parse;
+
+typedef struct {
+	char type;
+	unsigned int length;
+} ParseComplete;
+
+typedef struct {
+	char *source;
+	unsigned int rows_to_return;
+
+	char type;
+	unsigned int length;
+	char data[];
+} Execute;
+
+typedef struct {
+	char type;
+	unsigned int length;
+} Sync;
+
+typedef struct __attribute__((packed)) {
+	char type;
+	unsigned int length;
+	char item;
+	char name[];
+} Describe;
 
 typedef struct {
 	char type;

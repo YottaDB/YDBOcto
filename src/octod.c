@@ -58,7 +58,7 @@ int main() {
 
 	address.sin_family = AF_INET;
 	address.sin_addr.s_addr = INADDR_ANY;
-	address.sin_port = htons(1338);
+	address.sin_port = htons(1337);
 
 	if(bind(sfd, (struct sockaddr *)&address, sizeof(address)) < 0) {
 		FATAL(ERR_SYSCALL, "bind", errno);

@@ -27,6 +27,12 @@ typedef struct {
 	ydb_buffer_t *session_id;
 } OctodSession;
 
+typedef struct {
+	OctodSession *session;
+	int data_sent;
+	int max_data_to_send;
+} QueryResponseParms;
+
 int send_message(OctodSession *session, BaseMessage *message);
 BaseMessage *read_message(OctodSession *session, char *buffer, int buffer_size);
 int read_bytes(OctodSession *session, char *buffer, int buffer_size, int bytes_to_read);
@@ -45,11 +51,16 @@ DataRow *make_data_row(DataRowParm *parms, short num_parms);
 CommandComplete *make_command_complete(char *command_tag);
 AuthenticationMD5Password *make_authentication_md5_password();
 AuthenticationOk *make_authentication_ok();
+ParseComplete *make_parse_complete();
 
 // read_* messages parse the message and return a pointer to the filled out message type
 // If the message was invalid, the return is NULL and *err is populated with an error message
 Bind *read_bind(BaseMessage *message, ErrorResponse **err);
 Query *read_query(BaseMessage *message, ErrorResponse **err);
+Parse *read_parse(BaseMessage *message, ErrorResponse **err);
+Execute *read_execute(BaseMessage *message, ErrorResponse **err);
+Sync *read_sync(BaseMessage *message, ErrorResponse **err);
+Describe *read_describe(BaseMessage *message, ErrorResponse **err);
 
 // This is a special case because it must read more from the buffer
 StartupMessage *read_startup_message(OctodSession *session, char *data, int data_length, ErrorResponse **err);
@@ -59,6 +70,15 @@ StartupMessage *read_startup_message(OctodSession *session, char *data, int data
 // A return of 1 means "done" and that we should close the session
 int handle_bind(Bind *bind, OctodSession *session);
 int handle_query(Query *query, OctodSession *session);
+int handle_parse(Parse *parse, OctodSession *session);
+int handle_execute(Execute *execute, OctodSession *session);
+int handle_describe(Describe *describe, OctodSession *session);
+
+// This isn't a handle function in-of itself, but a helper to handle the results of a query
+void handle_query_response(PhysicalPlan *plan, int cursor_id, void *_parms);
+
+// Helper to indicate that there is no more input
+int no_more();
 
 /**
  * Returns a RowDescription object for sending based on the provided physical plan

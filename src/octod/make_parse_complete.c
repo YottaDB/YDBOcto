@@ -16,28 +16,22 @@
 #include <stdarg.h>
 #include <stdlib.h>
 #include <string.h>
-#include <errno.h>
 #include <assert.h>
 
 // Used to convert between network and host endian
 #include <arpa/inet.h>
 
-#include "octod.h"
 #include "message_formats.h"
 
-int send_message(OctodSession *session, BaseMessage *message) {
-	int result;
 
-	TRACE(ERR_ENTERING_FUNCTION, "send_message");
+ParseComplete *make_parse_complete() {
+	ParseComplete *ret;
 
-	// +1 for the message format flag
-	TRACE(ERR_SEND_MESSAGE, message->type, ntohl(message->length));
-	result = send(session->connection_fd, (char*)message, ntohl(message->length) + 1, 0);
-	if(result < 0) {
-		if(errno == ECONNRESET)
-			return 1;
-		FATAL(ERR_SYSCALL, "send", errno);
-		return 1;
-	}
-	return 0;
+	ret = (ParseComplete*)malloc(sizeof(ParseComplete));
+	memset(ret, 0, sizeof(ParseComplete));
+
+	ret->type = PSQL_ParseComplete;
+	ret->length = htonl(4);
+
+	return ret;
 }

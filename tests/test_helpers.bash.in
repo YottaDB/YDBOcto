@@ -15,6 +15,18 @@ copy_test_files() {
   done
 }
 
+# load_fixture <fixture name, relative to tests/fixtures
+load_fixture() {
+  fixture_name=$1
+  if [[ $fixture_name == *.zwr ]]; then
+    $ydb_dist/mupip load  @PROJECT_SOURCE_DIR@/tests/fixtures/$fixture_name
+  elif [[ $fixture_name == *.sql ]]; then
+    octo -f @PROJECT_SOURCE_DIR@/tests/fixtures/$fixture_name
+  else
+    exit 1
+  fi
+}
+
 createdb() {
   source @YOTTADB_INCLUDE_DIRS@/ydb_env_set
   export ydb_routines=". @PROJECT_BINARY_DIR@ $ydb_routines"
@@ -29,17 +41,9 @@ change -r DEFAULT -NULL_SUBSCRIPTS=true
 exit
 FILE
   $ydb_dist/mupip create
+  echo "Populating seed data"
+  load_fixture seed.sql
+  load_fixture seed.zwr
   exec 1>&3
 }
 
-# load_fixture <fixture name, relative to tests/fixtures
-load_fixture() {
-  fixture_name=$1
-  if [[ $fixture_name == *.zwr ]]; then
-    $ydb_dist/mupip load  @PROJECT_SOURCE_DIR@/tests/fixtures/$fixture_name
-  elif [[ $fixture_name == *.sql ]]; then
-    octo -f @PROJECT_SOURCE_DIR@/tests/fixtures/$fixture_name
-  else
-    exit 1
-  fi
-}

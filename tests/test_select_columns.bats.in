@@ -71,3 +71,10 @@ OCTO
 #   [[ "$output" =~ "Zero|Cool" ]]
 # }
 # 
+
+@test "select without a from statement" {
+  octo <<OCTO &> output.txt
+select 17+5*5;
+OCTO
+  [[ $( grep -c "42" output.txt) == "1" ]]
+}

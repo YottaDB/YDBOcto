@@ -81,6 +81,7 @@ int run_query(char *query, void (*callback)(PhysicalPlan *, int, void*), void *p
 		free(table_create_buffer.buf_addr);
 		free(cursor_exe_global[0].buf_addr);
 		free(cursor_exe_global[2].buf_addr);
+		INFO(CUSTOM_ERROR, "Returning failure from run_query");
 		return 0;
 	}
 	if(config->dry_run) {
@@ -139,6 +140,11 @@ int run_query(char *query, void (*callback)(PhysicalPlan *, int, void*), void *p
 		break;
 	case insert_STATEMENT:
 		WARNING(ERR_FEATURE_NOT_IMPLEMENTED, "table inserts");
+		break;
+	case begin_STATEMENT:
+	case commit_STATEMENT:
+		WARNING(ERR_FEATURE_NOT_IMPLEMENTED, "transactions");
+		cleanup_sql_statement(result);
 		break;
 	default:
 		FATAL(ERR_FEATURE_NOT_IMPLEMENTED, query);

@@ -62,6 +62,7 @@ int copied_so_far;
 %option bison-locations
 
 %x STRING
+%x SINGLE_STRING
 %x IDENTIFIER
 %x COMMENT
 
@@ -73,11 +74,13 @@ int copied_so_far;
 (?i:ASC) { return ASC; }
 (?i:AVG) { return AVG; }
 (?i:BY) { return BY; }
+(?i:BEGIN) { return BEG; }
 (?i:CASCADE) { return CASCADE; }
 (?i:CHAR) { return CHAR; }
 (?i:CHARACTER) { return CHARACTER; }
 (?i:COLLATE) { return COLLATE; }
 (?i:COMMAND) { return COMMAND; }
+(?i:COMMIT) { return COMMIT; }
 (?i:CORRESPONDING) { return CORRESPONDING; }
 (?i:COUNT) { return COUNT; }
 (?i:CREATE) { return CREATE; }
@@ -208,6 +211,21 @@ int copied_so_far;
 -- { BEGIN(COMMENT); }
 
 [ \t\r\n]      ;  /* skip whitespace which is not part of a string */
+
+\' { copied_so_far = 0; str_buf_ptr = string_buffer; BEGIN(SINGLE_STRING); }
+<SINGLE_STRING>\'\' { char *yptr = yytext + 1; COPY_STRING(str_buf_ptr, yptr, copied_so_far, MAX_STR_CONST); }
+<SINGLE_STRING>[^\']* { char *yptr = yytext; COPY_STRING(str_buf_ptr, yptr, copied_so_far, MAX_STR_CONST); }
+<SINGLE_STRING>\' {
+              *str_buf_ptr = '\0';
+              SQL_STATEMENT(*yylval_param, value_STATEMENT);
+              (*yylval_param)->v.value = (SqlValue*)malloc(sizeof(SqlValue));
+              (*yylval_param)->v.value->type = STRING_LITERAL;
+              (*yylval_param)->v.value->v.string_literal = (char*)malloc(copied_so_far+1);
+              strncpy((*yylval_param)->v.value->v.string_literal, string_buffer, copied_so_far+1);
+              BEGIN(INITIAL);
+              return LITERAL;
+            }
+
 
 \" { copied_so_far = 0; str_buf_ptr = string_buffer; BEGIN(STRING); }
 <STRING>\"\" { char *yptr = yytext + 1; COPY_STRING(str_buf_ptr, yptr, copied_so_far, MAX_STR_CONST); }

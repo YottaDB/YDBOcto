@@ -17,6 +17,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
+#include <errno.h>
+#include <sys/time.h>
+#include <sys/types.h>
+#include <unistd.h>
 
 // Used to convert between network and host endian
 #include <arpa/inet.h>
@@ -33,16 +37,42 @@ int octod_main_loop(OctodSession *session) {
 	ErrorResponse *err;
 	BaseMessage *message;
 	ReadyForQuery *ready_for_query;
+	fd_set rfds;
+	struct timeval select_timeout;
 	int result;
 	char buffer[MAX_STR_CONST];
+	size_t bytes_available = 0;
+
+	TRACE(ERR_ENTERING_FUNCTION, "octod_main_loop");
+	// Send an initial ready
+	FD_ZERO(&rfds);
+	FD_SET(session->connection_fd, &rfds);
+	ready_for_query = make_ready_for_query(PSQL_TransactionStatus_IDLE);
+	result = send_message(session, (BaseMessage*)(&ready_for_query->type));
+	if(result)
+		return 0;
+	free(ready_for_query);
+	memset(&select_timeout, 0, sizeof(struct timeval));
 
 	while (TRUE) {
-		// Send ready
-		ready_for_query = make_ready_for_query(PSQL_TransactionStatus_IDLE);
-		result = send_message(session, (BaseMessage*)(&ready_for_query->type));
-		if(result)
-			break;
-		free(ready_for_query);
+
+		// Send ready if there is not a pending message
+		do {
+			result = select(1, &rfds, NULL, NULL, &select_timeout);
+			printf("Result: %d", result);
+		} while(result == -1 && errno == EINTR);
+
+		if(result == -1) {
+			FATAL(ERR_SYSCALL, "select", errno);
+		}
+		if(!result) {
+			ready_for_query = make_ready_for_query(PSQL_TransactionStatus_IDLE);
+			result = send_message(session, (BaseMessage*)(&ready_for_query->type));
+			if(result)
+				break;
+			free(ready_for_query);
+		}
+		printf("Waiting for message...");
 		message = read_message(session, buffer, MAX_STR_CONST);
 		TRACE(ERR_READ_MESSAGE, message->type, ntohl(message->length));
 		switch(message->type) {

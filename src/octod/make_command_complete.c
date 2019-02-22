@@ -26,28 +26,28 @@
 
 CommandComplete *make_command_complete(char *command_tag) {
 	CommandComplete *ret;
-  char *c;
-  int length, command_tag_length;
+	char *c;
+	int length, command_tag_length;
 
-  // Rather than have special logic for the NULL, just use an empty string
-  if(command_tag == NULL)
-    command_tag = "";
+	// Rather than have special logic for the NULL, just use an empty string
+	if(command_tag == NULL)
+		command_tag = "";
 
-  length = 0;
-  length += sizeof(unsigned int);
-  command_tag_length = strlen(command_tag);
-  length += command_tag_length;
-  // +1 for the null character
-  length += 1;
+	length = 0;
+	length += sizeof(unsigned int);
+	command_tag_length = strlen(command_tag);
+	length += command_tag_length;
+	// +1 for the null character
+	length += 1;
 	ret = (CommandComplete*)malloc(sizeof(CommandComplete) + command_tag_length + 1);
 	memset(ret, 0, sizeof(CommandComplete) + command_tag_length + 1);
 
 	ret->type = PSQL_CommandComplete;
 	ret->length = htonl(length);
-  c = ret->data;
-  memcpy(c, command_tag, command_tag_length);
-  c += command_tag_length;
-  *c = '\0';
+	c = ret->data;
+	memcpy(c, command_tag, command_tag_length);
+	c += command_tag_length;
+	*c = '\0';
 
 	return ret;
 }

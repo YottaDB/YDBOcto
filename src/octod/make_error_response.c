@@ -13,6 +13,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
+#include <stdio.h>
 #include <stdarg.h>
 #include <stdlib.h>
 #include <string.h>
@@ -30,6 +31,8 @@ ErrorResponse *make_error_response(PSQL_ErrorSeverity severity, PSQL_SQLSTATECod
 	ErrorResponseArg *arg;
 	ErrorResponse *ret;
 	char *ptr;
+
+	printf("Making error %s", message);
 
 	// Go through all the args and count their size
 	new_length = 0;

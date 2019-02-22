@@ -68,6 +68,7 @@ int handle_query(Query *query, OctodSession *session) {
 	}
 	memcpy(input_buffer_combined, query->query, query_length);
 	input_buffer_combined[query_length] = '\0';
+	eof_hit = FALSE;
 	cur_input_index = 0;
 	cur_input_more = &no_more;
 	err_buffer = open_memstream(&err_buff, &err_buff_size);

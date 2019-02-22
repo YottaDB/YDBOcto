@@ -58,11 +58,13 @@ extern void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, int *plan
 %token ASC
 %token AVG
 %token BY
+%token BEG;
 %token CASCADE
 %token CHAR
 %token CHARACTER
 %token COLLATE
 %token COMMAND
+%token COMMIT
 %token CORRESPONDING
 %token COUNT
 %token CREATE
@@ -161,8 +163,17 @@ sql_statement
   : sql_schema_statement SEMICOLON { *out = $1; YYACCEPT; }
   | sql_data_statement SEMICOLON { *out = $1; YYACCEPT; }
   | query_expression SEMICOLON { *out = $1; YYACCEPT; }
+  | BEG SEMICOLON {
+      // For now, we don't do transaction, so just say OK to this word
+      SQL_STATEMENT(*out, begin_STATEMENT);
+      YYACCEPT;
+    }
+  | COMMIT SEMICOLON {
+      SQL_STATEMENT(*out, commit_STATEMENT);
+      YYACCEPT;
+    }
   | error SEMICOLON { *out = NULL; YYABORT; }
-  | ENDOFFILE { YYACCEPT; }
+  | ENDOFFILE { eof_hit = TRUE; YYACCEPT; }
   ;
 
 %include "parser/select.y"
@@ -591,22 +602,42 @@ non_query_numeric_primary
 
 non_query_value_expression_primary
   : literal_value { $$ = $1; }
-  | column_reference
+  | column_reference { $$ = $1; }
   | set_function_specification
   | LEFT_PAREN non_query_value_expression RIGHT_PAREN
   ;
 
 column_reference
-  : qualifier PERIOD column_name
-  | column_name
+  : qualifier PERIOD column_name {
+      SqlValue *qual, *col_name;
+      char *new_string, *c;
+      int len_qual, len_col_name;
+      UNPACK_SQL_STATEMENT(qual, $qualifier, value);
+      UNPACK_SQL_STATEMENT(col_name, $column_name, value);
+      len_qual = strlen(qual->v.string_literal);
+      len_col_name = strlen(qual->v.string_literal);
+      // +1 for null, +1 for '.'
+      new_string = malloc(len_qual + len_col_name + 2);
+      c = new_string;
+      memcpy(c, qual->v.string_literal, len_qual);
+      c += len_qual;
+      *c++ = '.';
+      memcpy(c, col_name->v.string_literal, len_col_name);
+      c += len_col_name;
+      *c++ = '\0';
+      free(qual->v.string_literal);
+      qual->v.string_literal = new_string;
+      cleanup_sql_statement($column_name);
+    }
+  | column_name { $$ = $1; }
   ;
 
 qualifier
-  : column_name
+  : column_name { $$ = $1; }
   ;
 
 scalar_subquery
-  : subquery
+  : subquery { $$ = $1; }
   ;
 
 subquery

@@ -13,6 +13,8 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
+#include <assert.h>
+
 
 #include "octo.h"
 #include "octo_types.h"
@@ -33,6 +35,7 @@ SqlStatement *parse_line(const char *line) {
 	int line_length;
 
 	if(line != input_buffer_combined) {
+		INFO(CUSTOM_ERROR, "Moving line to input_buffer_combined");
 		line_length = strlen(line);
 		if(line_length >= MAX_STR_CONST - 1) {
 			ERROR(ERR_LINE_TOO_LONG);

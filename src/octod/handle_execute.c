@@ -79,15 +79,19 @@ int handle_execute(Execute *execute, OctodSession *session) {
 	if(input_buffer_combined[query_length-1] != ';' ) {
 		input_buffer_combined[query_length++] = ';';
 	}
+	eof_hit = FALSE;
 	input_buffer_combined[query_length] = '\0';
 	cur_input_index = 0;
 	cur_input_more = &no_more;
+	//err_buffer = stderr;
 	err_buffer = open_memstream(&err_buff, &err_buff_size);
 
 	do {
 		run_query_result = run_query(input_buffer_combined, &handle_query_response, (void*)&parms);
-		if(run_query_result == FALSE) {
+		if(run_query_result == FALSE && !eof_hit) {
+			fflush(err_buffer);
 			fclose(err_buffer);
+			printf("Here! errbuff (%ld): %s\n\n", err_buff_size, err_buff);
 			err = make_error_response(PSQL_Error_ERROR,
 					PSQL_Code_Syntax_Error,
 					err_buff,
@@ -105,7 +109,8 @@ int handle_execute(Execute *execute, OctodSession *session) {
 	// TODO: we need to limit the returns and provide a PortalSuspend if a limit on rows was requested
 	// For now, we always return all rows
 	response = make_command_complete("SELECT 25");
-	send_message(session, (BaseMessage*)response);
+	printf("Response type is %c\n\n", response->type);
+	send_message(session, (BaseMessage*)(&response->type));
 	free(response);
 
 	// All done!

@@ -76,7 +76,9 @@ enum SqlStatementType {
 	column_alias_STATEMENT,
 	table_alias_STATEMENT,
 	join_type_STATEMENT,
-	set_operation_STATEMENT
+	set_operation_STATEMENT,
+	begin_STATEMENT,
+	commit_STATEMENT
 };
 
 enum UnaryOperations {
@@ -196,6 +198,8 @@ struct SqlJoin typedef SqlJoin;
 struct SqlColumnListAlias typedef SqlColumnListAlias;
 struct SqlStatement typedef SqlStatement;
 struct SqlSetOperation typedef SqlSetOperation;
+struct SqlBeginStatement typedef SqlBeginStatement;
+struct SqlCommitStatement typedef SqlCommitStatement;
 
 /**
  * Represents a SQL column; doubly linked list
@@ -362,10 +366,18 @@ struct SqlSetOperation {
 	SqlStatement *operand[2];
 };
 
+struct SqlBeginStatement {
+};
+
+struct SqlCommitStatement {
+};
+
 struct SqlStatement {
 	enum SqlStatementType type;
 	struct YYLTYPE loc;
 	union {
+		SqlBeginStatement *begin;
+		SqlCommitStatement *commit;
 		SqlSelectStatement *select;
 		SqlInsertStatement *insert;
 		SqlDropStatement *drop;

@@ -536,7 +536,7 @@ table_reference_tail
   : /* Empty */ {
       $$ = NULL;
     }
-  | COMMA table_reference { $$ = $1; }
+  | COMMA table_reference { $$ = $2; }
   ;
 
 /// TODO: what is this (column_name_list) syntax?

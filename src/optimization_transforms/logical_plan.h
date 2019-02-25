@@ -157,10 +157,10 @@ LogicalPlan *lp_join_where(LogicalPlan *where1, LogicalPlan *where2);
 // Returns a new logical plan representing the boolean structure from stmt
 LogicalPlan *lp_generate_where(SqlStatement *stmt, int *plan_id);
 // Returns a logical plan representing the provided ColumnListAlias
-LogicalPlan *lp_column_list_to_lp(SqlColumnListAlias *list);
+LogicalPlan *lp_column_list_to_lp(SqlColumnListAlias *list, int *plan_id);
 // Converts a list of columns to a column list associated with the given table alias
 SqlColumnListAlias *lp_columns_to_column_list(SqlColumn *column, SqlTableAlias *table_alias);
-LogicalPlan *lp_table_join_to_column_list(LogicalPlan *table_join);
+LogicalPlan *lp_table_join_to_column_list(LogicalPlan *table_join, int *plan_id);
 LogicalPlan *lp_replace_derived_table_references(LogicalPlan *root, LogicalPlan *new_plan, SqlTableAlias *table_alias);
 
 // Given a plan, attempts to calculate a "cost" estimate of that plan

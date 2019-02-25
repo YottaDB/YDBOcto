@@ -67,7 +67,7 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt, int *plan_id) {
 	if(select_stmt->order_expression != NULL) {
 		order_by = MALLOC_LP(dst->v.operand[1], LP_COLUMN_LIST);
 		UNPACK_SQL_STATEMENT(list, select_stmt->order_expression, column_list_alias);
-		order_by->v.operand[0] = lp_column_list_to_lp(list);
+		order_by->v.operand[0] = lp_column_list_to_lp(list, plan_id);
 	}
 	/// TODO: we should look at the columns to decide which values
 	//   are keys, and if none, create a rowId as part of the advance
@@ -104,7 +104,7 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt, int *plan_id) {
 	} while(cur_join != start_join);
 
 	if(select_stmt->select_list->v.column_list == NULL) {
-		temp = lp_table_join_to_column_list(select->v.operand[0]);
+		temp = lp_table_join_to_column_list(select->v.operand[0], plan_id);
 		// Append the columns from any subqueries to the list
 		select_right = temp;
 		while(select_right != NULL && select_right->v.operand[1] != NULL) {
@@ -127,7 +127,7 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt, int *plan_id) {
 		}
 	} else {
 		UNPACK_SQL_STATEMENT(list, select_stmt->select_list, column_list_alias);
-		temp = lp_column_list_to_lp(list);
+		temp = lp_column_list_to_lp(list, plan_id);
 	}
 	project->v.operand[0] = temp;
 

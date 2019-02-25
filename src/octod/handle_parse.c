@@ -33,11 +33,13 @@ int handle_parse(Parse *parse, OctodSession *session) {
 	ydb_buffer_t session_global, sql_expression, *source_name = &subs_array[2], *prepared = &subs_array[1], *source_session_id = &subs_array[0];
 	ydb_buffer_t *dest_session_id = &dest_subs[0], *bound = &dest_subs[1], *parse_name = &dest_subs[2];
 	ydb_buffer_t z_status, z_status_value;
-	size_t new_length = 0;
+	size_t query_length = 0, err_buff_size;
 	int done = FALSE, length, status, parse_parm;
 	char *ptr, *end_ptr, new_query[MAX_STR_CONST];
 	char *int_start, *new_query_ptr, *end_new_query_ptr;
 	char *new_value_start, *new_value_end, c;
+	char *err_buff;
+	SqlStatement *statement;
 	ParseComplete *response;
 	ErrorResponse *err;
 
@@ -65,6 +67,8 @@ int handle_parse(Parse *parse, OctodSession *session) {
 	response = make_parse_complete();
 	send_message(session, (BaseMessage*)(&response->type));
 	free(response);
+
+	// Some clients depend on getting the rows back here; parse the expression, but don't execute it
 
 	free(z_status_value.buf_addr);
 

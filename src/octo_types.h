@@ -63,6 +63,7 @@ enum SqlStatementType {
 	insert_STATEMENT,
 	drop_STATEMENT,
 	value_STATEMENT,
+	function_call_STATEMENT,
 	binary_STATEMENT,
 	unary_STATEMENT,
 	column_list_STATEMENT,
@@ -115,7 +116,9 @@ enum SqlValueType {
 	COLUMN_REFERENCE,
 	CALCULATED_VALUE,
 	TEMPORARY_TABLE_TYPE,
-	BOOLEAN_VALUE
+	FUNCTION_NAME,
+	BOOLEAN_VALUE,
+	PARAMETER_VALUE
 } typedef SqlValueType;
 
 enum SqlDataType {
@@ -190,6 +193,7 @@ struct SqlInsertStatement typedef SqlInsertStatement;
 struct SqlDropStatement  typedef SqlDropStatement;
 struct SqlUnaryOperation typedef SqlUnaryOperation;
 struct SqlBinaryOperation typedef SqlBinaryOperation;
+struct SqlFunctionCall typedef SqlFunctionCall;
 struct SqlValue typedef SqlValue;
 struct SqlColumnList typedef SqlColumnList;
 struct SqlTable typedef SqlTable;
@@ -325,12 +329,20 @@ struct SqlBinaryOperation
 	struct SqlStatement *operands[2];
 };
 
+struct SqlFunctionCall {
+	// SqlValue
+	SqlStatement *function_name;
+	// SqlColumnList
+	SqlStatement *parameters;
+};
+
 struct SqlValue {
 	enum SqlValueType type;
 	enum SqlDataType data_type;
 	union {
 		char *string_literal;
 		char *reference;
+		// SqlBinaryOperation, SqlUnaryOperation, SqlFunctionCall
 		SqlStatement *calculated;
 	} v;
 };
@@ -382,6 +394,7 @@ struct SqlStatement {
 		SqlInsertStatement *insert;
 		SqlDropStatement *drop;
 		SqlValue *value;
+		SqlFunctionCall *function_call;
 		SqlBinaryOperation *binary;
 		SqlUnaryOperation *unary;
 		SqlColumnList *column_list;

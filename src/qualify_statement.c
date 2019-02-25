@@ -24,6 +24,8 @@
 int qualify_statement(SqlStatement *stmt, SqlJoin *tables) {
 	SqlUnaryOperation *unary;
 	SqlBinaryOperation *binary;
+	SqlFunctionCall *fc;
+	SqlColumnList *column_list;
 	SqlValue *value;
 	SqlColumnAlias *alias;
 	int result = 0, column_found = 0;
@@ -54,6 +56,11 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables) {
 		case CALCULATED_VALUE:
 			result |= qualify_statement(value->v.calculated, tables);
 			break;
+		case FUNCTION_NAME:
+			// If it starts with '$$', trim those off and leave it alone (MUMPS expression)
+			// Else, match it with a value from the dictionary in ^octo("functions")
+			result = qualify_function_name(stmt, tables);
+			break;
 		default:
 			break;
 		}
@@ -66,6 +73,14 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables) {
 	case unary_STATEMENT:
 		UNPACK_SQL_STATEMENT(unary, stmt, unary);
 		result |= qualify_statement(unary->operand, tables);
+		break;
+	case function_call_STATEMENT:
+		UNPACK_SQL_STATEMENT(fc, stmt, function_call);
+		UNPACK_SQL_STATEMENT(column_list, fc->parameters, column_list);
+		// TODO: qualify function name?
+		result |= qualify_statement(fc->function_name, tables);
+		//result |= qualify_statement(fc->function_name, tables);
+		result |= qualify_column_list(column_list, tables);
 		break;
 	default:
 		FATAL(ERR_UNKNOWN_KEYWORD_STATE);

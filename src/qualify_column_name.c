@@ -47,7 +47,7 @@ SqlColumnAlias *qualify_column_name(SqlValue *column_value, SqlJoin *tables) {
 
 	// Find the first period; if it is missing, we need to match against
 	//  all columns in all tables
-	for(c = column_value->v.reference; *c != '\0' && *c != '.'; c++) {
+	for(c = column_value->v.string_literal; *c != '\0' && *c != '.'; c++) {
 		// Pass
 	}
 	if(*c == '.') {
@@ -105,6 +105,9 @@ SqlStatement *match_column_in_table(SqlTableAlias *table_alias, char *column_nam
 	SqlValue *value;
 	SqlStatement *ret = NULL;
 
+	// If there is no column list for this table alias, we won't match anything
+	if(table_alias->column_list == NULL)
+		return NULL;
 	UNPACK_SQL_STATEMENT(start_column_list, table_alias->column_list, column_list_alias);
 	cur_column_list = start_column_list;
 	do {

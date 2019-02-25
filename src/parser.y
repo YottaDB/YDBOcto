@@ -351,8 +351,8 @@ in_predicate
 
 /// TODO: these require additional structures in octo_types.h
 in_predicate_value
-  : table_subquery
-  | LEFT_PAREN in_value_list RIGHT_PAREN
+  : table_subquery { $$ = $1; }
+  | LEFT_PAREN in_value_list RIGHT_PAREN { $$ = $in_value_list; }
   ;
 
 table_subquery
@@ -360,12 +360,32 @@ table_subquery
   ;
 
 in_value_list
-  : value_expression in_value_list_tail
+  : /* Empty */ {
+      SQL_STATEMENT($$, column_list_STATEMENT);
+      MALLOC_STATEMENT($$, column_list, SqlColumnList);
+      SqlColumnList *column_list, *cl_tail, *cl_temp;
+      UNPACK_SQL_STATEMENT(column_list, $$, column_list);
+      dqinit(column_list);
+    }
+
+  | value_expression in_value_list_tail {
+      SQL_STATEMENT($$, column_list_STATEMENT);
+      MALLOC_STATEMENT($$, column_list, SqlColumnList);
+      SqlColumnList *column_list, *cl_tail, *cl_temp;
+      UNPACK_SQL_STATEMENT(column_list, $$, column_list);
+      column_list->value = $value_expression;
+      dqinit(column_list);
+      if($in_value_list_tail != NULL) {
+        UNPACK_SQL_STATEMENT(cl_tail, $in_value_list_tail, column_list);
+        free($in_value_list_tail);
+        dqinsert(column_list, cl_tail, cl_temp);
+      }
+    }
   ;
 
 in_value_list_tail
-  : /* Empty */
-  | COMMA in_value_list
+  : /* Empty */ { $$ = NULL; }
+  | COMMA in_value_list { $$ = $in_value_list; }
   ;
 
 row_value_constructor
@@ -501,7 +521,7 @@ numeric_primary
 value_expression_primary
   : literal_value { $$ = $1; }
   | column_reference
-  | set_function_specification
+  | set_function_specification { $$ = $1; }
   | scalar_subquery
 //  | case_expression
   | LEFT_PAREN value_expression RIGHT_PAREN
@@ -513,6 +533,7 @@ set_function_specification
   | COUNT LEFT_PAREN value_expression RIGHT_PAREN
   | COUNT LEFT_PAREN set_quantifier value_expression RIGHT_PAREN
   | general_set_function
+  | generic_function_call { $$ = $1; }
   ;
 
 general_set_function
@@ -525,6 +546,29 @@ set_function_type
   | MAX
   | MIN
   | SUM
+  ;
+
+generic_function_call
+  : column_name LEFT_PAREN in_value_list RIGHT_PAREN {
+      SQL_STATEMENT($$, value_STATEMENT);
+      MALLOC_STATEMENT($$, value, SqlValue);
+      SqlStatement *fc_statement;
+      SqlFunctionCall *fc;
+      SqlValue *value;
+      UNPACK_SQL_STATEMENT(value, $$, value);
+
+      value->type = CALCULATED_VALUE;
+      SQL_STATEMENT(fc_statement, function_call_STATEMENT);
+      MALLOC_STATEMENT(fc_statement, function_call, SqlFunctionCall);
+      UNPACK_SQL_STATEMENT(fc, fc_statement, function_call);
+      fc->function_name = $column_name;
+      fc->parameters = $in_value_list;
+      value->v.calculated = fc_statement;
+
+      // Change the value to be a string literal rather than column reference
+      UNPACK_SQL_STATEMENT(value, $column_name, value);
+      value->type = FUNCTION_NAME;
+    }
   ;
 
 non_query_value_expression

@@ -22,10 +22,12 @@
 #include "logical_plan.h"
 
 LogicalPlan *lp_generate_where(SqlStatement *stmt, int *plan_id) {
-	LogicalPlan *ret = NULL;
+	LogicalPlan *ret = NULL, *next, *cur_lp;
 	LPActionType type;
 	SqlValue *value;
 	SqlBinaryOperation *binary;
+	SqlFunctionCall *function_call;
+	SqlColumnList *cur_cl, *start_cl;
 
 	if(stmt == NULL)
 		return NULL;
@@ -54,6 +56,26 @@ LogicalPlan *lp_generate_where(SqlStatement *stmt, int *plan_id) {
 		MALLOC_LP(ret, type);
 		ret->v.operand[0] = lp_generate_where(binary->operands[0], plan_id);
 		ret->v.operand[1] = lp_generate_where(binary->operands[1], plan_id);
+		break;
+	case function_call_STATEMENT:
+		UNPACK_SQL_STATEMENT(function_call, stmt, function_call);
+		type = LP_FUNCTION_CALL;
+		MALLOC_LP(ret, type);
+		ret->v.operand[0] = lp_generate_where(function_call->function_name, plan_id);
+		// TODO: we should move the logic to loop through the list to a seperate function and reuse it
+		// Too bad this isn't written in Go :'(
+		UNPACK_SQL_STATEMENT(start_cl, function_call->parameters, column_list);
+		cur_cl = start_cl;
+		cur_lp = ret;
+		do {
+			next = lp_generate_where(cur_cl->value, plan_id);
+			if(next != NULL) {
+				MALLOC_LP(cur_lp->v.operand[1], LP_COLUMN_LIST);
+				cur_lp = cur_lp->v.operand[1];
+				cur_lp->v.operand[0] = next;
+			}
+			cur_cl = cur_cl->next;
+		} while(cur_cl != start_cl);
 		break;
 	case column_alias_STATEMENT:
 		MALLOC_LP(ret, LP_COLUMN_ALIAS);

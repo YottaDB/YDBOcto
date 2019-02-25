@@ -78,7 +78,7 @@ typedef struct __attribute__((packed)) {
 
 //# BackendKeyData
 
-typedef struct {
+typedef struct __attribute__((packed)) {
 	void *value;
 	int length;
 } BindParm;
@@ -105,7 +105,7 @@ typedef struct __attribute__((packed)) {
 } BindComplete;
 
 // B
-typedef struct {
+typedef struct __attribute__((packed)) {
 	char type;
 	unsigned int length;
 } EmptyQueryResponse;
@@ -204,12 +204,12 @@ typedef struct __attribute__((packed)) {
 	char data[];
 } Parse;
 
-typedef struct {
+typedef struct __attribute__((packed)) {
 	char type;
 	unsigned int length;
 } ParseComplete;
 
-typedef struct {
+typedef struct __attribute__((packed)) {
 	char *source;
 	unsigned int rows_to_return;
 
@@ -218,7 +218,7 @@ typedef struct {
 	char data[];
 } Execute;
 
-typedef struct {
+typedef struct __attribute__((packed)) {
 	char type;
 	unsigned int length;
 } Sync;

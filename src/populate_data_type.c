@@ -33,6 +33,8 @@ char *get_type_string(SqlValueType type) {
 		return "TEMPORARY TABLE TYPE";
 	case BOOLEAN_VALUE:
 		return "BOOLEAN";
+	case PARAMETER_VALUE:
+		return "PARAMETER";
 	case COLUMN_REFERENCE:
 	case CALCULATED_VALUE:
 	case UNKNOWN_SqlValueType:
@@ -52,6 +54,7 @@ int populate_data_type(SqlStatement *v, SqlValueType *type) {
 	SqlValueType child_type1, child_type2;
 	SqlColumnList *cur_list, *start_list, *t_list;
 	SqlColumnListAlias *start_column_list_alias, *cur_column_list_alias;
+	SqlFunctionCall *function_call;
 	SqlStatement *tmp;
 	YYLTYPE location;
 	int result = 0;
@@ -112,6 +115,7 @@ int populate_data_type(SqlStatement *v, SqlValueType *type) {
 		case NUMBER_LITERAL:
 		case STRING_LITERAL:
 		case DATE_TIME:
+		case PARAMETER_VALUE:
 			*type = value->type;
 			break;
 		default:
@@ -123,6 +127,11 @@ int populate_data_type(SqlStatement *v, SqlValueType *type) {
 		UNPACK_SQL_STATEMENT(binary, v, binary);
 		result = populate_data_type(binary->operands[0], &child_type1);
 		result |= populate_data_type(binary->operands[1], &child_type2);
+		if(child_type1 == PARAMETER_VALUE || child_type1 == UNKNOWN_SqlValueType) {
+			child_type1 = child_type2;
+		} else if(child_type2 == PARAMETER_VALUE || child_type2 == UNKNOWN_SqlValueType) {
+			child_type2 = child_type1;
+		}
 		switch(binary->operation) {
 		case ADDITION:
 		case SUBTRACTION:
@@ -195,6 +204,13 @@ int populate_data_type(SqlStatement *v, SqlValueType *type) {
 				break;
 			}
 		}
+		break;
+	case function_call_STATEMENT:
+		// TODO: we will need to know the return types of functions to do this
+		// For now, just say STRING_LITERAL
+		UNPACK_SQL_STATEMENT(function_call, v, function_call);
+		populate_data_type(function_call->parameters, type);
+		*type = STRING_LITERAL;
 		break;
 	default:
 		FATAL(ERR_UNKNOWN_KEYWORD_STATE);

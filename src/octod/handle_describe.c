@@ -25,12 +25,105 @@
 #include "octod.h"
 
 int handle_describe(Describe *describe, OctodSession *session) {
+	ydb_buffer_t subs_array[3], dest_subs[3];
+	ydb_buffer_t session_global, sql_expression, *source_name = &subs_array[2], *prepared = &subs_array[1], *source_session_id = &subs_array[0];
+	ydb_buffer_t *dest_session_id = &dest_subs[0], *bound = &dest_subs[1], *parse_name = &dest_subs[2];
+	ydb_buffer_t z_status, z_status_value;
+	size_t query_length = 0, err_buff_size;
+	int done = FALSE, length, status, parse_parm, found = 0;
+	char *ptr, *end_ptr, new_query[MAX_STR_CONST];
+	char *int_start, *new_query_ptr, *end_new_query_ptr;
+	char *new_value_start, *new_value_end, c;
+	char *err_buff;
+	ydb_buffer_t schema_global, table_name_buffer, table_create_buffer, null_buffer;
+	ydb_buffer_t cursor_global, cursor_exe_global[3];
+	PhysicalPlan *pplan;
+	SqlStatement *statement;
+	ParseComplete *response;
+	ErrorResponse *err;
 	RowDescription *description;
+
+	// zstatus buffers
+	YDB_LITERAL_TO_BUFFER("$ZSTATUS", &z_status);
+	INIT_YDB_BUFFER(&z_status_value, MAX_STR_CONST);
+
+	// Fetch the named SQL query from the session ^session(id, "prepared", <name>)
+	YDB_LITERAL_TO_BUFFER("^session", &session_global);
+	INIT_YDB_BUFFER(source_session_id, session->session_id->len_used);
+	YDB_COPY_BUFFER_TO_BUFFER(session->session_id, source_session_id, done);
+	assert(done == TRUE);
+	YDB_LITERAL_TO_BUFFER("prepared", prepared);
+	source_name->buf_addr = describe->name;
+	source_name->len_used = source_name->len_alloc = strlen(describe->name);
+
+	INIT_YDB_BUFFER(&sql_expression, MAX_STR_CONST);
+
 	// Check if portal exists
-	// If portal exists, and has not been bound, return 0 for format field codes
-	// in row description
-	// If it has been bound, return RowDescription messages
-	description = make_row_description(NULL, 0);
-	send_message(session, (BaseMessage*)(&description->type));
+	status = ydb_data_s(&session_global, 3, subs_array, &found);
+	YDB_ERROR_CHECK(status, &z_status, &z_status_value);
+	if(found == 0) {
+		// TODO: return error here
+		// Not found, return error
+	}
+
+	status = ydb_get_s(&session_global, 3, subs_array, &sql_expression);
+	YDB_ERROR_CHECK(status, &z_status, &z_status_value);
+
+	query_length = sql_expression.len_used;
+	memcpy(input_buffer_combined, sql_expression.buf_addr, query_length);
+	if(input_buffer_combined[query_length-1] != ';' ) {
+		input_buffer_combined[query_length++] = ';';
+	}
+	eof_hit = FALSE;
+	input_buffer_combined[query_length] = '\0';
+	cur_input_index = 0;
+	cur_input_more = &no_more;
+	//err_buffer = stderr;
+	err_buffer = open_memstream(&err_buff, &err_buff_size);
+	do {
+		statement = parse_line(input_buffer_combined);
+		if(statement == NULL) {
+			fflush(err_buffer);
+			fclose(err_buffer);
+			err = make_error_response(PSQL_Error_ERROR,
+					PSQL_Code_Syntax_Error,
+					err_buff,
+					0);
+			send_message(session, (BaseMessage*)(&err->type));
+			free_error_response(err);
+			free(err_buff);
+			err_buffer = open_memstream(&err_buff, &err_buff_size);
+			continue;
+		}
+		// Else, send back the row description
+		// Allocate items to create the cursor_exe_global
+		YDB_LITERAL_TO_BUFFER("^schema", &schema_global);
+		YDB_LITERAL_TO_BUFFER("", &null_buffer);
+		YDB_LITERAL_TO_BUFFER("^cursor", &cursor_global);
+		INIT_YDB_BUFFER(&cursor_exe_global[0], MAX_STR_CONST);
+		YDB_LITERAL_TO_BUFFER("exe", &cursor_exe_global[1]);
+		INIT_YDB_BUFFER(&cursor_exe_global[2], MAX_STR_CONST);
+
+		status = ydb_incr_s(&schema_global, 0, NULL, NULL, &cursor_exe_global[0]);
+		YDB_ERROR_CHECK(status, &z_status, &z_status_value);
+		cursor_exe_global[0].buf_addr[cursor_exe_global[0].len_used] = '\0';
+		cursor_exe_global[2].len_used = 1;
+		*cursor_exe_global[2].buf_addr = '0';
+
+		switch(statement->type) {
+			case select_STATEMENT:
+				pplan = emit_select_statement(&cursor_global, cursor_exe_global, statement, NULL);
+				assert(pplan != NULL);
+				description = get_plan_row_description(pplan);
+				send_message(session, (BaseMessage*)(&description->type));
+				free(description);
+				break;
+			default:
+				description = make_row_description(NULL, 0);
+				send_message(session, (BaseMessage*)(&description->type));
+				free(description);
+		}
+	} while(!eof_hit);
+
 	return 0;
 }

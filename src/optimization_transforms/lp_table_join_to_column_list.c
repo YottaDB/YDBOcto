@@ -28,7 +28,7 @@
  * @returns a LogicalPlan of type LP_COLUMN_LIST which contains a series of
  *  LP_WHEREs
  */
-LogicalPlan *lp_table_join_to_column_list(LogicalPlan *table_join) {
+LogicalPlan *lp_table_join_to_column_list(LogicalPlan *table_join, int *plan_id) {
 	LogicalPlan *ret;
 	LogicalPlan *t;
 	LogicalPlan *next_insert, *next_project, *next_column_list;
@@ -80,7 +80,7 @@ LogicalPlan *lp_table_join_to_column_list(LogicalPlan *table_join) {
 		} else {
 			assert(FALSE);
 		}
-		ret = lp_column_list_to_lp(sql_column_list);
+		ret = lp_column_list_to_lp(sql_column_list, plan_id);
 		break;
 	default:
 		FATAL(ERR_UNKNOWN_KEYWORD_STATE);
@@ -92,7 +92,7 @@ LogicalPlan *lp_table_join_to_column_list(LogicalPlan *table_join) {
 		while(t->v.operand[1]) {
 			t = t->v.operand[1];
 		}
-		t->v.operand[1] = lp_table_join_to_column_list(table_join->v.operand[1]);
+		t->v.operand[1] = lp_table_join_to_column_list(table_join->v.operand[1], plan_id);
 	}
 	return ret;
 }

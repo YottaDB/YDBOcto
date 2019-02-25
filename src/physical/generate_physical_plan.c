@@ -160,6 +160,7 @@ PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlan *next) {
 
 	// Is this most convenient representation of the WHERE?
 	out->where = walk_where_statement(out, lp_get_select_where(plan));
+	out->projection = walk_where_statement(out, lp_get_project(plan)->v.operand[0]->v.operand[0]);
 	out->keywords = lp_get_select_keywords(plan)->v.keywords;
 
 	out->projection = lp_get_projection_columns(plan);
@@ -202,6 +203,7 @@ LogicalPlan *walk_where_statement(PhysicalPlan *out, LogicalPlan *stmt) {
 	LPActionType type;
 	SqlValue *value;
 	SqlBinaryOperation *binary;
+	SqlColumnList *cur_cl, *start_cl;
 	PhysicalPlan *t;
 	LogicalPlan *project, *column_list, *where, *column_alias;
 
@@ -244,6 +246,16 @@ LogicalPlan *walk_where_statement(PhysicalPlan *out, LogicalPlan *stmt) {
 			t->prev->stash_columns_in_keys = 1;
 			MALLOC_LP(ret, LP_KEY);
 			ret->v.key = t->prev->outputKey;
+			break;
+		case LP_FUNCTION_CALL:
+			MALLOC_LP(ret, stmt->type);
+			ret->v.operand[0] = walk_where_statement(out, stmt->v.operand[0]);
+			ret->v.operand[1] = walk_where_statement(out, stmt->v.operand[1]);
+			break;
+		case LP_COLUMN_LIST:
+			MALLOC_LP(ret, stmt->type);
+			ret->v.operand[0] = walk_where_statement(out, stmt->v.operand[0]);
+			ret->v.operand[1] = walk_where_statement(out, stmt->v.operand[1]);
 			break;
 		case LP_TABLE:
 			// This should never happen; fall through to error case

@@ -164,6 +164,7 @@ int copied_so_far;
 \<= { return LESS_THAN_OR_EQUALS; }
 \>= { return GREATER_THAN_OR_EQUALS; }
 \<\> { return NOT_EQUALS; }
+\!\= { return NOT_EQUALS; }
 \< { return LESS_THAN; }
 \> { return GREATER_THAN; }
 \| { return PIPE; }
@@ -182,7 +183,7 @@ int copied_so_far;
                 strncpy((*yylval_param)->v.value->v.string_literal, string_buffer, copied_so_far+1);
                 return LITERAL;
               }
-[a-zA-Z][a-zA-Z0-9_]* {
+[a-zA-Z$][a-zA-Z0-9_$^]* {
                 copied_so_far = 0;
                 str_buf_ptr = string_buffer;
                 char *yptr = yytext;
@@ -191,6 +192,9 @@ int copied_so_far;
                 SQL_STATEMENT(*yylval_param, value_STATEMENT);
                 (*yylval_param)->v.value = (SqlValue*)malloc(sizeof(SqlValue));
                 (*yylval_param)->v.value->type = COLUMN_REFERENCE;
+                if(*string_buffer == '$') {
+                  (*yylval_param)->v.value->type = PARAMETER_VALUE;
+                  }
                 (*yylval_param)->v.value->v.string_literal = (char*)malloc(copied_so_far+1);
                 strncpy((*yylval_param)->v.value->v.string_literal, string_buffer, copied_so_far+1);
                 return IDENTIFIER_START;

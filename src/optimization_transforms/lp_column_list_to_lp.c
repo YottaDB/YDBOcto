@@ -21,7 +21,7 @@
 #include "octo_types.h"
 #include "logical_plan.h"
 
-LogicalPlan *lp_column_list_to_lp(SqlColumnListAlias *list) {
+LogicalPlan *lp_column_list_to_lp(SqlColumnListAlias *list, int *plan_id) {
 	LogicalPlan *column_list, *ret_column_list = NULL;
 	LogicalPlan *where;
 	LogicalPlan *column_list_alias;
@@ -36,7 +36,7 @@ LogicalPlan *lp_column_list_to_lp(SqlColumnListAlias *list) {
 		where = MALLOC_LP(column_list->v.operand[0], LP_WHERE);
 		/// TODO: handle the absence of prev
 		UNPACK_SQL_STATEMENT(t_column_list, cur_column_list->column_list, column_list);
-		where->v.operand[0] = lp_generate_where(t_column_list->value, NULL);
+		where->v.operand[0] = lp_generate_where(t_column_list->value, plan_id);
 		column_list_alias = MALLOC_LP(where->v.operand[1], LP_COLUMN_LIST_ALIAS);
 		// When we do this copy, we only want a single CLA; this prevents the copy from
 		//   grabbing more

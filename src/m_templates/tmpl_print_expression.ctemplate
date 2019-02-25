@@ -13,7 +13,7 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan) {
     SqlTable *src_table;
     SqlColumn *start_column, *cur_column;
     SqlOptionalKeyword *keyword, *piece_keyword, *source_keyword;
-    LogicalPlan *key, *piece_num;
+    LogicalPlan *key, *piece_num, *cur_plan;
 
     assert(plan != NULL);
 
@@ -33,6 +33,12 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan) {
         case COLUMN_REFERENCE:
             // We should only pass LP_COLUMN_ALIASes to this funciton
             assert(FALSE);
+            break;
+        case FUNCTION_NAME:
+            %}{{ value->v.string_literal }}{%
+            break;
+        case PARAMETER_VALUE:
+            %}parm{{ value->v.string_literal + 1 }}{%
             break;
         default:
             FATAL(ERR_UNKNOWN_KEYWORD_STATE);
@@ -108,6 +114,23 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan) {
         break;
     case LP_BOOLEAN_NOT_IN:
         mid = "=";
+        break;
+    case LP_FUNCTION_CALL:
+        cur_plan = plan;
+        %}{% TMPL(tmpl_print_expression, plan->v.operand[0], pplan); %}({%
+        while(cur_plan->v.operand[1] != NULL) {
+            if(cur_plan != plan) {
+                %},{%
+            }
+            cur_plan = cur_plan->v.operand[1];
+            TMPL(tmpl_print_expression, cur_plan->v.operand[0], pplan);
+        }
+        %}){%
+        break;
+    case LP_INSERT:
+        // Fetch the first value from the output key of this table
+        key = lp_get_output_key(plan);
+        %}$O({% TMPL(tmpl_key, key->v.key); buff_ptr -= 1; %},"")){%
         break;
     default:
         FATAL(ERR_UNKNOWN_KEYWORD_STATE);

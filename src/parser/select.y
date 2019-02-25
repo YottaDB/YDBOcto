@@ -536,12 +536,12 @@ table_reference_tail
   : /* Empty */ {
       $$ = NULL;
     }
-  | COMMA table_reference { $$ = $2; }
+  | COMMA table_reference { $$ = $table_reference; }
   ;
 
 /// TODO: what is this (column_name_list) syntax?
 correlation_specification
-  : optional_as column_name { $$ = $2; }
+  : optional_as column_name { $$ = $column_name; }
   | optional_as column_name LEFT_PAREN column_name_list RIGHT_PAREN
   ;
 
@@ -573,7 +573,16 @@ cross_join
   ;
 
 qualified_join
-  : table_reference JOIN table_reference join_specification
+  : table_reference JOIN table_reference join_specification {
+      SqlJoin *left, *right, *t_join;
+      $$ = $1;
+      UNPACK_SQL_STATEMENT(left, $$, join);
+      UNPACK_SQL_STATEMENT(right, $3, join);
+      right->type = INNER_JOIN;
+      right->condition = $join_specification;
+      dqinsert(left, right, t_join);
+      free($3);
+    }
   | table_reference NATURAL JOIN table_reference join_specification
   | table_reference join_type JOIN table_reference join_specification {
       SqlJoin *left, *right, *t_join;

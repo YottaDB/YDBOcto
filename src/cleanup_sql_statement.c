@@ -18,6 +18,7 @@ void cleanup_sql_statement(SqlStatement *stmt)
 	SqlDropStatement *drop;
 	SqlValue *value;
 	SqlBinaryOperation *binary;
+	SqlFunctionCall *function_call;
 	if(stmt == NULL)
 		return;
 	// In each case below, after storing the pointer of the statement in
@@ -216,6 +217,14 @@ void cleanup_sql_statement(SqlStatement *stmt)
 		//cleanup_sql_statement(table_alias->table);
 		cleanup_sql_statement(table_alias->alias);
 		cleanup_sql_statement(table_alias->column_list);
+		break;
+	case function_call_STATEMENT:
+		UNPACK_SQL_STATEMENT(function_call, stmt, function_call);
+		if(function_call == NULL)
+			break;
+		stmt->v.value = NULL;
+		cleanup_sql_statement(function_call->function_name);
+		cleanup_sql_statement(function_call->parameters);
 		break;
 	default:
 		FATAL(ERR_UNKNOWN_KEYWORD_STATE);

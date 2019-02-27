@@ -2,6 +2,7 @@ find_package(BISON REQUIRED)
 find_package(FLEX REQUIRED)
 find_package(YOTTADB REQUIRED)
 find_package(Readline REQUIRED)
+find_package(Config REQUIRED)
 find_package(CMOCKA)
 find_package(BATS)
 
@@ -46,6 +47,7 @@ include_directories("${PROJECT_SOURCE_DIR}/src/helpers")
 include_directories("${PROJECT_BINARY_DIR}")
 include_directories("${YOTTADB_INCLUDE_DIRS}")
 include_directories("${Readline_INCLUDE_DIR}")
+include_directories("${CONFIG_INCLUDE_DIR}")
 link_directories("${YOTTADB_INCLUDE_DIRS}")
 
 add_library(libhelpers OBJECT
@@ -102,6 +104,7 @@ add_library(libocto OBJECT
   column_list_alias_to_columns.c
   get_column_piece_number.c
   run_query.c
+  parse_startup_flags.c
   optimization_transforms/constant_equal_column.c
   optimization_transforms/optimize_logical_plan.c
   optimization_transforms/lp_get_select.c
@@ -221,6 +224,7 @@ set(aux_files
   ${PROJECT_BINARY_DIR}/insert.m
   ${PROJECT_BINARY_DIR}/pack.m
 )
+
 add_custom_target(place_aux_files ALL DEPENDS ${aux_files})
 foreach (auxFile ${aux_files})
   get_filename_component(fileName ${auxFile} NAME)
@@ -231,9 +235,9 @@ endforeach()
 
 set_property(TARGET libocto PROPERTY C_STANDARD 11)
 
-target_link_libraries(octo ${YOTTADB_LIBRARIES} ${Readline_LIBRARY})
-target_link_libraries(octod ${YOTTADB_LIBRARIES} ${Readline_LIBRARY})
-target_link_libraries(pparser ${YOTTADB_LIBRARIES} ${Readline_LIBRARY})
+target_link_libraries(octo ${YOTTADB_LIBRARIES} ${Readline_LIBRARY} ${CONFIG_LIBRARY})
+target_link_libraries(octod ${YOTTADB_LIBRARIES} ${Readline_LIBRARY} ${CONFIG_LIBRARY})
+target_link_libraries(pparser ${YOTTADB_LIBRARIES} ${Readline_LIBRARY} ${CONFIG_LIBRARY})
 
 enable_testing()
 include(${PROJECT_SOURCE_DIR}/cmake/tests.cmake)

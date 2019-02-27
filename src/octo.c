@@ -44,62 +44,12 @@ int main(int argc, char **argv)
 	SqlTable *table, *t_table;
 	SqlStatement *tmp_statement;
 
-	octo_init();
-
 	inputFile = NULL;
+	octo_init(argc, argv);
+
 	cur_input_more = &no_more;
 
 	/* Parse input parameters */
-	while (1)
-	{
-		static struct option long_options[] =
-		{
-			{"verbose", optional_argument, NULL, 'v'},
-			{"dry-run", no_argument, NULL, 'd'},
-			{"input-file", required_argument, NULL, 'f'},
-			{0, 0, 0, 0}
-		};
-		int option_index = 0;
-
-		c = getopt_long(argc, argv, "vdf:t:", long_options, &option_index);
-		if(c == -1)
-			break;
-
-		switch(c)
-		{
-		case 0:
-			if(long_options[option_index].flag != 0)
-				break;
-			break;
-		case 'v':
-			if(optarg) {
-				c = atoi(optarg);
-				if(c > FATAL || c < TRACE) {
-					ERROR(CUSTOM_ERROR, "Invalid value specified for --verbose");
-					return 1;
-				}
-				config->record_error_level = FATAL - c;
-			} else {
-				config->record_error_level = config->record_error_level > TRACE
-				                             ? config->record_error_level - 1 : config->record_error_level;
-			}
-			break;
-		case 'd':
-			config->dry_run = 1;
-			break;
-		case 'f':
-			assert(inputFile == NULL);
-			inputFile = fopen(optarg, "r");
-			if (inputFile == NULL)
-			{
-				FATAL(ERR_FILE_NOT_FOUND, optarg);
-			}
-			break;
-		default:
-			ERROR(CUSTOM_ERROR, "Uknown argument");
-			return 1;
-		}
-	}
 
 	TRACE(CUSTOM_ERROR, "Octo started");
 

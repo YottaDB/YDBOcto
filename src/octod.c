@@ -22,18 +22,20 @@
 #include <string.h>
 #include <errno.h>
 #include <assert.h>
+#include <arpa/inet.h>
 
 #include "octo.h"
 #include "octod/octod.h"
 #include "octod/message_formats.h"
 
-int main() {
+int main(int argc, char **argv) {
 	BaseMessage *base_message;
 	StartupMessage *startup_message;
 	ErrorResponse *err;
 	AuthenticationMD5Password *md5auth;
 	AuthenticationOk *authok;
-	struct sockaddr_in address;
+	struct sockaddr_in6 addressv6;
+	struct sockaddr_in *address;
 	int sfd, cfd, opt, addrlen, result, status;
 	pid_t child_id;
 	char buffer[MAX_STR_CONST];
@@ -43,10 +45,22 @@ int main() {
 	ydb_buffer_t *global_buffer = &ydb_buffers[0], *session_id_buffer = &ydb_buffers[1];
 	ydb_buffer_t z_status, z_status_value;
 
-	octo_init();
+	octo_init(argc, argv);
 	config->record_error_level = TRACE;
 
-	if((sfd = socket(AF_INET, SOCK_STREAM, 0)) == -1)
+	// Setup the address first so we know which protocol to use
+	memset(&addressv6, 0, sizeof(struct sockaddr_in6));
+	address = (struct sockaddr_in *)(&addressv6);
+	address->sin_family = AF_INET;
+	if(inet_pton(AF_INET, config->octod_config.address, &address->sin_addr) != 1) {
+		addressv6.sin6_family = AF_INET6;
+		if(inet_pton(AF_INET6, config->octod_config.address, &addressv6.sin6_addr) != 1) {
+			FATAL(ERR_BAD_ADDRESS, config->octod_config.address);
+		}
+	}
+	address->sin_port = htons(config->octod_config.port);
+
+	if((sfd = socket(address->sin_family, SOCK_STREAM, 0)) == -1)
 	{
 		FATAL(ERR_SYSCALL, "socket", errno);
 	}
@@ -56,11 +70,9 @@ int main() {
 		FATAL(ERR_SYSCALL, "setsockopt", errno);
 	}
 
-	address.sin_family = AF_INET;
-	address.sin_addr.s_addr = INADDR_ANY;
-	address.sin_port = htons(1337);
 
-	if(bind(sfd, (struct sockaddr *)&address, sizeof(address)) < 0) {
+
+	if(bind(sfd, (struct sockaddr *)&addressv6, sizeof(addressv6)) < 0) {
 		FATAL(ERR_SYSCALL, "bind", errno);
 	}
 

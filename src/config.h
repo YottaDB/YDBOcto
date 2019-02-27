@@ -17,14 +17,24 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
+#include <libconfig.h>
+
 #include "errors.h"
 
-int octo_init();
+int octo_init(int argc, char **argv);
+int parse_startup_flags(int argc, char **argv);
+
+struct OctodConfig {
+	int port;
+	const char *address;
+} typedef OctodConfig;
 
 struct OctoConfig {
+	config_t config_file;
+	OctodConfig octod_config;
 	enum ERROR_LEVEL record_error_level;
 	int dry_run, plan_id;
-	char *tmp_dir;
+	const char *tmp_dir, *global_directory, *config_file_name;
 } typedef OctoConfig;
 
 OctoConfig *config;

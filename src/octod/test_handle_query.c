@@ -79,7 +79,7 @@ static void test_bad_sql(void **state) {
 }
 
 int main(void) {
-	octo_init();
+	octo_init(0, NULL);
 	const struct CMUnitTest tests[] = {
 		   cmocka_unit_test(test_valid_input),
 		   cmocka_unit_test(test_bad_sql)

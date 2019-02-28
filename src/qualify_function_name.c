@@ -47,7 +47,7 @@ int qualify_function_name(SqlStatement *stmt, SqlJoin *tables) {
 	function_name_sub = &subs_array[2];
 	new_name_value = &subs_array[3];
 
-	YDB_LITERAL_TO_BUFFER("^octo", octo_global);
+	YDB_STRING_TO_BUFFER(config->global_names.octo, octo_global);
 	YDB_LITERAL_TO_BUFFER("functions", functions_sub);
 	function_name_sub->buf_addr = value->v.string_literal;
 	function_name_sub->len_alloc = function_name_sub->len_used = name_length;

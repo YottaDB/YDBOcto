@@ -48,7 +48,7 @@ int handle_describe(Describe *describe, OctodSession *session) {
 	INIT_YDB_BUFFER(&z_status_value, MAX_STR_CONST);
 
 	// Fetch the named SQL query from the session ^session(id, "prepared", <name>)
-	YDB_LITERAL_TO_BUFFER("^session", &session_global);
+	YDB_STRING_TO_BUFFER(config->global_names.session, &session_global);
 	INIT_YDB_BUFFER(source_session_id, session->session_id->len_used);
 	YDB_COPY_BUFFER_TO_BUFFER(session->session_id, source_session_id, done);
 	assert(done == TRUE);
@@ -97,9 +97,9 @@ int handle_describe(Describe *describe, OctodSession *session) {
 		}
 		// Else, send back the row description
 		// Allocate items to create the cursor_exe_global
-		YDB_LITERAL_TO_BUFFER("^schema", &schema_global);
+		YDB_STRING_TO_BUFFER(config->global_names.schema, &schema_global);
 		YDB_LITERAL_TO_BUFFER("", &null_buffer);
-		YDB_LITERAL_TO_BUFFER("^cursor", &cursor_global);
+		YDB_STRING_TO_BUFFER(config->global_names.cursor, &cursor_global);
 		INIT_YDB_BUFFER(&cursor_exe_global[0], MAX_STR_CONST);
 		YDB_LITERAL_TO_BUFFER("exe", &cursor_exe_global[1]);
 		INIT_YDB_BUFFER(&cursor_exe_global[2], MAX_STR_CONST);

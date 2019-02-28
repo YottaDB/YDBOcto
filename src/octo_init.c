@@ -44,6 +44,13 @@ void merge_config_file(const char *path, config_t *config_file) {
 	}
 }
 
+void populate_global_names() {
+	config->global_names.schema = "^schema";
+	config->global_names.session = "^session";
+	config->global_names.cursor = "^cursor";
+	config->global_names.octo = "^octo";
+}
+
 int octo_init(int argc, char **argv) {
 	int c, error = 0, status, i;
 	ydb_buffer_t schema_global, table_name_buffer, table_create_buffer, null_buffer;
@@ -180,6 +187,8 @@ int octo_init(int argc, char **argv) {
 	}
 	free(dir);
 
+	populate_global_names();
+
 	definedTables = NULL;
 	cur_input_max = MAX_STR_CONST;
 	input_buffer_combined = malloc(MAX_STR_CONST);
@@ -196,7 +205,7 @@ int octo_init(int argc, char **argv) {
 	table_create_buffer.len_used = 0;
 	table_create_buffer.len_alloc = MAX_STR_CONST;
 
-	YDB_LITERAL_TO_BUFFER("^schema", &schema_global);
+	YDB_STRING_TO_BUFFER(config->global_names.schema, &schema_global);
 	YDB_LITERAL_TO_BUFFER("", &null_buffer);
 	do {
 		status = ydb_subscript_next_s(&schema_global, 1, &table_name_buffer, &table_name_buffer);

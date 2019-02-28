@@ -29,9 +29,14 @@ struct OctodConfig {
 	const char *address;
 } typedef OctodConfig;
 
+typedef struct {
+	char *schema, *session, *cursor, *octo;
+} GlobalNames;
+
 struct OctoConfig {
 	config_t config_file;
 	OctodConfig octod_config;
+	GlobalNames global_names;
 	enum ERROR_LEVEL record_error_level;
 	int dry_run, plan_id;
 	const char *tmp_dir, *global_directory, *config_file_name;

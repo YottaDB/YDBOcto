@@ -48,7 +48,7 @@ int handle_bind(Bind *bind, OctodSession *session) {
 	INIT_YDB_BUFFER(&z_status_value, MAX_STR_CONST);
 
 	// Fetch the named SQL query from the session ^session(id, "prepared", <name>)
-	YDB_LITERAL_TO_BUFFER("^session", &session_global);
+	YDB_STRING_TO_BUFFER(config->global_names.session, &session_global);
 	INIT_YDB_BUFFER(source_session_id, session->session_id->len_used);
 	YDB_COPY_BUFFER_TO_BUFFER(session->session_id, source_session_id, done);
 	assert(done == TRUE);

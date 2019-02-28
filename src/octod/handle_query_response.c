@@ -59,7 +59,7 @@ void handle_query_response(PhysicalPlan *plan, int cursor_id, void *_parms) {
 	send_message(parms->session, (BaseMessage*)(&row_description->type));
 	free(row_description);
 
-	YDB_LITERAL_TO_BUFFER("^cursor", cursor_b);
+	YDB_STRING_TO_BUFFER(config->global_names.cursor, cursor_b);
 
 	snprintf(buffer, MAX_STR_CONST, "%d", cursor_id);
 	cursor_id_b->len_used = strlen(buffer);

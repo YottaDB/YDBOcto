@@ -77,7 +77,7 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
     // Distinct values if needed
     //  NOTE: the EXCEPT set doesn't need to check if a value exists before clearing it
     if(plan->distinct_values && plan->set_operation != PP_EXCEPT_SET) {
-        %}&($D(^cursor(cursorId,"index",{%
+        %}&($D({{ config->global_names.cursor }}(cursorId,"index",{%
 	TMPL(tmpl_column_list_combine, plan->projection, plan, ",");
 	%}))=0){%
     }
@@ -87,7 +87,7 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
     if(plan->outputKey && plan->outputKey->insert) {
         %}{{ plan->outputKey->insert->v.string_literal }}{%
     } else if(plan->set_operation == PP_EXCEPT_SET) {
-        %} SET v=$O(^cursor(cursorId,"index",{% TMPL(tmpl_column_list_combine, plan->projection, plan, ","); %},"")) KILL:v'="" {% TMPL(tmpl_key, plan->outputKey); buff_ptr--; %},v),^cursor(cursorId,"index",{% TMPL(tmpl_column_list_combine, plan->projection, plan, ","); %},v){%
+        %} SET v=$O({{ config->global_names.cursor }}(cursorId,"index",{% TMPL(tmpl_column_list_combine, plan->projection, plan, ","); %},"")) KILL:v'="" {% TMPL(tmpl_key, plan->outputKey); buff_ptr--; %},v),{{ config->global_names.cursor }}(cursorId,"index",{% TMPL(tmpl_column_list_combine, plan->projection, plan, ","); %},v){%
     } else if(plan->outputKey) {
         // This is probably super dangerous, but who cares...
         %} {%
@@ -101,7 +101,7 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
 	    /// TODO: rework this so this fake kill doesn't have to happen
 	    %},"this variable should never exist"){%
 	} else if(plan->action_type == PP_DELETE) {
-	    %},^cursor(cursorId,"index",{%
+	    %},{{ config->global_names.cursor }}(cursorId,"index",{%
             TMPL(tmpl_column_list_combine, plan->projection, plan, ",");
             %})){%
 	} else if(plan->stash_columns_in_keys) {
@@ -153,14 +153,14 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
         // Distinct values if needed
         //  NOTE: the EXCEPT set doesn't need to check if a value exists before clearing it
         if(plan->distinct_values && plan->set_operation != PP_EXCEPT_SET && plan->set_operation != PP_INTERSECT_SET) {
-            %}&($D(^cursor(cursorId,"index",{%
+            %}&($D({{ config->global_names.cursor }}(cursorId,"index",{%
             TMPL(tmpl_column_list_combine, plan->projection, plan, ",");
             %}))=0){%
         }
-        %} ^cursor(cursorId,"index",{%
+        %} {{ config->global_names.cursor }}(cursorId,"index",{%
         TMPL(tmpl_column_list_combine, plan->projection, plan, ",");
 	if(plan->set_operation != PP_INTERSECT_SET) {
-	    %},(i{{ cur_key|%d }}))="",tmpVar=$I(^cursor(cursorId,"index",{% TMPL(tmpl_column_list_combine, plan->projection, plan, ","); %})){%
+	    %},(i{{ cur_key|%d }}))="",tmpVar=$I({{ config->global_names.cursor }}(cursorId,"index",{% TMPL(tmpl_column_list_combine, plan->projection, plan, ","); %})){%
 	} else {
 	    %}){%
 	}
@@ -169,7 +169,7 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
     //  the index; these were in the first set, but not the second
     if(plan->set_operation == PP_INTERSECT_SET) {
         %}
-    SET var="^cursor("_cursorId_",""index"")" FOR  S var=$Q(@var),var=$Q(@var) Q:$P(var,",",2)'="""index"""  DO
+    SET var="{{ config->global_names.cursor }}("_cursorId_",""index"")" FOR  S var=$Q(@var),var=$Q(@var) Q:$P(var,",",2)'="""index"""  DO
     . SET index=$P($P(var,",",$LENGTH(var,",")),")",1),^index($i(dsfasf))=index
     . KILL:index'="" {%
     TMPL(tmpl_key, plan->outputKey);

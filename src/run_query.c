@@ -58,9 +58,9 @@ int run_query(char *query, void (*callback)(PhysicalPlan *, int, void*), void *p
 	table_create_buffer.len_used = 0;
 	table_create_buffer.len_alloc = MAX_STR_CONST;
 
-	YDB_LITERAL_TO_BUFFER("^schema", &schema_global);
+	YDB_STRING_TO_BUFFER(config->global_names.schema, &schema_global);
 	YDB_LITERAL_TO_BUFFER("", &null_buffer);
-	YDB_LITERAL_TO_BUFFER("^cursor", &cursor_global);
+	YDB_STRING_TO_BUFFER(config->global_names.cursor, &cursor_global);
 	INIT_YDB_BUFFER(&cursor_exe_global[0], MAX_STR_CONST);
 	YDB_LITERAL_TO_BUFFER("exe", &cursor_exe_global[1]);
 	INIT_YDB_BUFFER(&cursor_exe_global[2], MAX_STR_CONST);

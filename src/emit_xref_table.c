@@ -45,7 +45,7 @@ SqlTable *emit_xref_table(ydb_buffer_t *cursor_global,
 	UNPACK_SQL_STATEMENT(select, stmt, select);
 
 	temp_table = open_memstream(&temp_table_buffer, &temp_table_buffer_size);
-	YDB_LITERAL_TO_BUFFER("^schema", &schema_global);
+	YDB_STRING_TO_BUFFER(config->global_names.schema, &schema_global);
 	INIT_YDB_BUFFER(&latest_schema_id, MAX_STR_CONST);
 	status = ydb_incr_s(&schema_global, 0, NULL, NULL, &latest_schema_id);
 	YDB_ERROR_CHECK(status, &z_status, &z_status_value);

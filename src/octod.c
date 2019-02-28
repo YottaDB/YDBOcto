@@ -120,7 +120,7 @@ int main(int argc, char **argv) {
 		// Enter the main loop
 		YDB_LITERAL_TO_BUFFER("$ZSTATUS", &z_status);
 		INIT_YDB_BUFFER(&z_status_value, MAX_STR_CONST);
-		YDB_LITERAL_TO_BUFFER("^session", global_buffer);
+		YDB_STRING_TO_BUFFER(config->global_names.session, global_buffer);
 		INIT_YDB_BUFFER(session_id_buffer, MAX_STR_CONST);
 		printf("session length: %d\n", global_buffer->len_used);
 		status = ydb_incr_s(global_buffer, 1, session_id_buffer, NULL, session_id_buffer);

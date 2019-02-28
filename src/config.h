@@ -25,10 +25,10 @@
 int octo_init(int argc, char **argv);
 int parse_startup_flags(int argc, char **argv);
 
-struct OctodConfig {
+struct RoctoConfig {
 	int port;
 	const char *address;
-} typedef OctodConfig;
+} typedef RoctoConfig;
 
 typedef struct {
 	char *schema, *session, *cursor, *octo;
@@ -37,7 +37,7 @@ typedef struct {
 
 struct OctoConfig {
 	config_t config_file;
-	OctodConfig octod_config;
+	RoctoConfig rocto_config;
 	GlobalNames global_names;
 	enum ERROR_LEVEL record_error_level;
 	int dry_run, plan_id;

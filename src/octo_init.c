@@ -128,8 +128,8 @@ int octo_init(int argc, char **argv) {
 	if(config_setting_set_string(setting, "%ydbocto") == CONFIG_FALSE) {
 		assert(FALSE);
 	}
-	// Octod setting
-	setting = config_setting_add(config_root, "octod", CONFIG_TYPE_GROUP);
+	// Rocto setting
+	setting = config_setting_add(config_root, "rocto", CONFIG_TYPE_GROUP);
 	if(setting == NULL) {
 		assert(FALSE);
 	}
@@ -184,13 +184,13 @@ int octo_init(int argc, char **argv) {
 			== CONFIG_FALSE) {
 		FATAL(ERR_BAD_CONFIG, "octo_global_directory");
 	}
-	if(config_lookup_string(config_file, "octod.address", &config->octod_config.address)
+	if(config_lookup_string(config_file, "rocto.address", &config->rocto_config.address)
 			== CONFIG_FALSE) {
-		FATAL(ERR_BAD_CONFIG, "octod.address");
+		FATAL(ERR_BAD_CONFIG, "rocto.address");
 	}
-	if(config_lookup_int(config_file, "octod.port", &config->octod_config.port)
+	if(config_lookup_int(config_file, "rocto.port", &config->rocto_config.port)
 			== CONFIG_FALSE) {
-		FATAL(ERR_BAD_CONFIG, "octod.port");
+		FATAL(ERR_BAD_CONFIG, "rocto.port");
 	}
 
 	// Read in YDB settings

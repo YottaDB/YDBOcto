@@ -33,6 +33,28 @@
 #define MAX_KEY_COUNT @MAX_KEY_COUNT@
 
 /**
+ * Switches to the octo global directory
+ */
+#define SWITCH_TO_OCTO_GLOBAL_DIRECTORY()						\
+	do {										\
+		int result = 0;								\
+		result = ydb_get_s(&config->zgbldir, 0, NULL, &config->prev_gbldir);	\
+		assert(result == 0);							\
+		result = ydb_set_s(&config->zgbldir, 0, NULL, &config->octo_gbldir);	\
+		assert(result == 0);							\
+	} while(FALSE);
+
+/**
+ * Switches from the octo global directory
+ */
+#define SWITCH_FROM_OCTO_GLOBAL_DIRECTORY()						\
+	do {										\
+		int result = 0;								\
+		result = ydb_set_s(&config->zgbldir, 0, NULL, &config->prev_gbldir);	\
+		assert(result == 0);							\
+	} while(FALSE);
+
+/**
  * Returns the column containing the primary key for this table
  *
  * @param [in] table to search

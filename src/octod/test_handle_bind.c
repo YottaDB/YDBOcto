@@ -57,7 +57,7 @@ static void test_valid_input(void **state) {
 	bind.result_col_format_codes = NULL;
 
 	// Store a value in ^session(id, "prepared", "sample1")
-	set("select * from names where firstName = $0", "^session", 3, "0", "prepared", "sample1");
+	set("select * from names where firstName = $0", config->global_names.session, 3, "0", "prepared", "sample1");
 
 	will_return(__wrap_send_message, PSQL_BindComplete);
 
@@ -65,7 +65,7 @@ static void test_valid_input(void **state) {
 
 	assert_int_equal(result, 0);
 
-	result_buffer = get("^session", 3, "0", "bound", "");
+	result_buffer = get(config->global_names.session, 3, "0", "bound", "");
 	result_buffer->buf_addr[result_buffer->len_used] = '\0';
 	assert_string_equal("select * from names where firstName = \"hello\"", result_buffer->buf_addr);
 	free(result_buffer->buf_addr);
@@ -157,7 +157,7 @@ static void test_bind_greater_than_max_str_const(void **state) {
 	bind.result_col_format_codes = NULL;
 
 	// Store a value in ^session(id, "prepared", "sample1")
-	set("select * from names where firstName = $0", "^session", 3, "0", "prepared", "sample1");
+	set("select * from names where firstName = $0", config->global_names.session, 3, "0", "prepared", "sample1");
 
 	will_return(__wrap_send_message, PSQL_ErrorResponse);
 

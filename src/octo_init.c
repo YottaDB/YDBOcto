@@ -45,10 +45,35 @@ void merge_config_file(const char *path, config_t *config_file) {
 }
 
 void populate_global_names() {
-	config->global_names.schema = "^schema";
-	config->global_names.session = "^session";
-	config->global_names.cursor = "^cursor";
-	config->global_names.octo = "^octo";
+	char buff[MAX_STR_CONST];
+
+	YDB_LITERAL_TO_BUFFER("$ZSTATUS", &config->zgbldir);
+	YDB_MALLOC_BUFFER(&config->prev_gbldir, MAX_STR_CONST);
+	YDB_STRING_TO_BUFFER((char*)config->global_directory, &config->octo_gbldir);
+	//config->global_names.schema = "^schema";
+	snprintf(buff, MAX_STR_CONST, "^%sschema", config->global_prefix);
+	buff[MAX_STR_CONST - 1] = '\0';
+	config->global_names.schema = malloc(strlen(buff));
+	strcpy(config->global_names.schema, buff);
+	config->global_names.raw_schema = &config->global_names.schema[1];
+
+	snprintf(buff, MAX_STR_CONST, "^%ssession", config->global_prefix);
+	buff[MAX_STR_CONST - 1] = '\0';
+	config->global_names.session = malloc(strlen(buff));
+	strcpy(config->global_names.session, buff);
+	config->global_names.raw_session = &config->global_names.session[1];
+
+	snprintf(buff, MAX_STR_CONST, "^%scursor", config->global_prefix);
+	buff[MAX_STR_CONST - 1] = '\0';
+	config->global_names.cursor = malloc(strlen(buff));
+	strcpy(config->global_names.cursor, buff);
+	config->global_names.raw_cursor = &config->global_names.cursor[1];
+
+	snprintf(buff, MAX_STR_CONST, "^%socto", config->global_prefix);
+	buff[MAX_STR_CONST - 1] = '\0';
+	config->global_names.octo = malloc(strlen(buff));
+	strcpy(config->global_names.octo, buff);
+	config->global_names.raw_octo = &config->global_names.octo[1];
 }
 
 int octo_init(int argc, char **argv) {
@@ -61,6 +86,7 @@ int octo_init(int argc, char **argv) {
 	config_t *config_file;
 	config_setting_t *ydb_settings, *cur_ydb_setting, *setting, *config_root, *cur_root;
 	const char *item_name, *item_value;
+	char *global_dir;
 	DIR *dir;
 
 	const char *verbosity;
@@ -91,7 +117,11 @@ int octo_init(int argc, char **argv) {
 		assert(FALSE);
 	}
 	setting = config_setting_add(cur_root, "octo_global_directory", CONFIG_TYPE_STRING);
-	if(config_setting_set_string(setting, "mumps.gld") == CONFIG_FALSE) {
+	global_dir = getenv("ydb_gbldir");
+	if(global_dir == NULL) {
+		global_dir = "mumps.gld";
+	}
+	if(config_setting_set_string(setting, global_dir) == CONFIG_FALSE) {
 		assert(FALSE);
 	}
 	setting = config_setting_add(cur_root, "octo_global_prefix", CONFIG_TYPE_STRING);
@@ -150,6 +180,10 @@ int octo_init(int argc, char **argv) {
 			== CONFIG_FALSE) {
 		FATAL(ERR_BAD_CONFIG, "octo_global_directory");
 	}
+	if(config_lookup_string(config_file, "octo_global_prefix", &config->global_prefix)
+			== CONFIG_FALSE) {
+		FATAL(ERR_BAD_CONFIG, "octo_global_directory");
+	}
 	if(config_lookup_string(config_file, "octod.address", &config->octod_config.address)
 			== CONFIG_FALSE) {
 		FATAL(ERR_BAD_CONFIG, "octod.address");
@@ -204,6 +238,7 @@ int octo_init(int argc, char **argv) {
 	table_create_buffer.buf_addr = malloc(MAX_STR_CONST);
 	table_create_buffer.len_used = 0;
 	table_create_buffer.len_alloc = MAX_STR_CONST;
+	SWITCH_TO_OCTO_GLOBAL_DIRECTORY();
 
 	YDB_STRING_TO_BUFFER(config->global_names.schema, &schema_global);
 	YDB_LITERAL_TO_BUFFER("", &null_buffer);

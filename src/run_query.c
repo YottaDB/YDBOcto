@@ -98,7 +98,9 @@ int run_query(char *query, void (*callback)(PhysicalPlan *, int, void*), void *p
 		pplan = emit_select_statement(&cursor_global, cursor_exe_global, result, NULL);
 		assert(pplan != NULL);
 		cursorId = atol(cursor_exe_global[0].buf_addr);
+		SWITCH_FROM_OCTO_GLOBAL_DIRECTORY();
 		status = gtm_ci("select", cursorId);
+		SWITCH_TO_OCTO_GLOBAL_DIRECTORY();
 		if (status != 0) {
 			gtm_zstatus(err_msgbuf, MAX_STR_CONST);
 			FATAL(ERR_YOTTADB, err_msgbuf);

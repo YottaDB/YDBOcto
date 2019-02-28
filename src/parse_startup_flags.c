@@ -34,6 +34,8 @@ int parse_startup_flags(int argc, char **argv) {
 	int c, error = 0, status;
 	int done;
 
+	optind = 1;
+
 	/* Parse input parameters */
 	while (1)
 	{
@@ -74,7 +76,6 @@ int parse_startup_flags(int argc, char **argv) {
 			config->dry_run = TRUE;
 			break;
 		case 'f':
-			assert(inputFile == NULL);
 			inputFile = fopen(optarg, "r");
 			if (inputFile == NULL)
 			{

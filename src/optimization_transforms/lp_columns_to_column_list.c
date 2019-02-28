@@ -28,6 +28,9 @@ SqlColumnListAlias *lp_columns_to_column_list(SqlColumn *column, SqlTableAlias *
 	SqlColumnAlias *alias;
 	SqlColumn *cur_column, *start_column;
 
+	if(column == NULL)
+		return NULL;
+
 	cur_column = start_column = column;
 	do {
 		cur = (SqlColumnList*)malloc(sizeof(SqlColumnList));

@@ -30,6 +30,8 @@ SqlColumn *column_list_alias_to_columns(SqlTableAlias *table_alias) {
 	SqlColumn *start_column = NULL, *cur_column, *t_column;
 	SqlOptionalKeyword *keyword;
 
+	if(table_alias->column_list == NULL)
+		return NULL;
 	UNPACK_SQL_STATEMENT(cla_start, table_alias->column_list, column_list_alias);
 	cla_cur = cla_start;
 	do {

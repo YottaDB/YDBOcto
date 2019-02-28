@@ -171,8 +171,10 @@ LogicalPlan *optimize_logical_plan(LogicalPlan *plan) {
 			break;
 		}
 		key = lp_get_key(plan, left);
-		if(key == NULL)
+		if(key == NULL) {
+			// TODO: we could insert a cross reference here
 			break;
+		}
 		result = lp_opt_fix_key_to_const(plan, key, right);
 		assert(result == TRUE);
 		break;

@@ -20,33 +20,42 @@ TEMPLATE(tmpl_column_reference, PhysicalPlan *pplan, SqlColumnAlias *column_alia
     char piece_buffer[MAX_STR_CONST];
     int i, piece_i;
 
+
     // First check for EXTRACT, then GLOBAL & PIECE, and lastly assembly it ourselves
     //  based on table_alias->source
     if(column_alias->column->type == column_list_alias_STATEMENT) {
         /// TODO: to handle this case, we need to know which subquery this
-	//   statement belonged too, which requires changes in generate_logical_plan
-	//   to replace these references with a LP_GENERATED_COLUMN
-	// We should just change ColumnAlias to be an LP_* with LP_COLUMN_SOURCE
-	//  and LP_COLUMN_
-	UNPACK_SQL_STATEMENT(cl_alias, column_alias->column, column_list_alias);
-	UNPACK_SQL_STATEMENT(column_list, cl_alias->column_list, column_list);
-	if(column_list->value->type == column_alias_STATEMENT) {
-	    TMPL(tmpl_column_reference, pplan, column_list->value->v.column_alias);
-	    TEMPLATE_END();
-	}
-	// UNPACK_SQL_STATEMENT(column, cl_alias->column
-	assert(FALSE);
-    } else {
-        UNPACK_SQL_STATEMENT(column, column_alias->column, column);
+        //   statement belonged too, which requires changes in generate_logical_plan
+        //   to replace these references with a LP_GENERATED_COLUMN
+        // We should just change ColumnAlias to be an LP_* with LP_COLUMN_SOURCE
+        //  and LP_COLUMN_
+        UNPACK_SQL_STATEMENT(cl_alias, column_alias->column, column_list_alias);
+        UNPACK_SQL_STATEMENT(column_list, cl_alias->column_list, column_list);
+        if(column_list->value->type == column_alias_STATEMENT) {
+          TMPL(tmpl_column_reference, pplan, column_list->value->v.column_alias);
+	        TEMPLATE_END();
+	      }
+	      // UNPACK_SQL_STATEMENT(column, cl_alias->column
+	      assert(FALSE);
     }
+    UNPACK_SQL_STATEMENT(column, column_alias->column, column);
     UNPACK_SQL_STATEMENT(table_alias, column_alias->table_alias, table_alias);
     UNPACK_SQL_STATEMENT(table, table_alias->table, table);
-    UNPACK_SQL_STATEMENT(value, table->tableName, value);
-    table_name = value->v.string_literal;
+    UNPACK_SQL_STATEMENT(value, column->columnName, value);
+    // Find the columns in the table so we can look at the correct keywords
+    column = find_column(value->v.string_literal, table);
+    keyword = get_keyword(column, OPTIONAL_SOURCE);
+    if(keyword == NULL) {
+        UNPACK_SQL_STATEMENT(value, table->tableName, value);
+        table_name = value->v.string_literal;
+    } else {
+        UNPACK_SQL_STATEMENT(value, keyword->v, value);
+        table_name = value->v.string_literal;
+    }
     if(table->delim) {
         UNPACK_SQL_STATEMENT(keyword, table->delim, keyword);
-	UNPACK_SQL_STATEMENT(value, keyword->v, value);
-	table_delim = value->v.string_literal;
+        UNPACK_SQL_STATEMENT(value, keyword->v, value);
+        table_delim = value->v.string_literal;
     }
 
     /// OPTIMIZATION: use key rather than column value when possible
@@ -54,41 +63,40 @@ TEMPLATE(tmpl_column_reference, PhysicalPlan *pplan, SqlColumnAlias *column_alia
     for(i = 0; i < pplan->total_iter_keys; i++) {
         key = pplan->iterKeys[i];
         if(key->random_id == table_alias->unique_id) {
-	    key_column = key->column;
-	    // If key_column == column, we have the correct item and can carry on
-	    if(columns_equal(key_column, column)) {
-	        TMPL(tmpl_key, key);
-		TEMPLATE_END();
-	    }
-	}
+          key_column = key->column;
+          // If key_column == column, we have the correct item and can carry on
+          if(columns_equal(key_column, column)) {
+            TMPL(tmpl_key, key);
+            TEMPLATE_END();
+          }
+        }
     }
 
     keyword = get_keyword(column, OPTIONAL_EXTRACT);
     if(keyword != NULL) {
         UNPACK_SQL_STATEMENT(value, keyword->v, value);
-	%}{{ value->v.string_literal }}{%
-	TEMPLATE_END();
+        %}{{ value->v.string_literal }}{%
+        TEMPLATE_END();
     }
-
     keyword = get_keyword(column, OPTIONAL_PIECE);
     if(keyword != NULL) {
         UNPACK_SQL_STATEMENT(value, keyword->v, value);
-	piece = value->v.string_literal;
+        piece = value->v.string_literal;
     } else {
         // Search through the table for this column, convert that number to the piece number
-	piece_i = get_column_piece_number(column_alias, table_alias);
-	snprintf(piece_buffer, MAX_STR_CONST, "%d", piece_i);
-	piece = piece_buffer;
+        piece_i = get_column_piece_number(column_alias, table_alias);
+        snprintf(piece_buffer, MAX_STR_CONST, "%d", piece_i);
+        piece = piece_buffer;
     }
 
     keyword = get_keyword(column, OPTIONAL_SOURCE);
     if(keyword != NULL) {
         UNPACK_SQL_STATEMENT(value, keyword->v, value);
-	source = value->v.string_literal;
+        source = value->v.string_literal;
     } else {
         UNPACK_SQL_STATEMENT(keyword, table->source, keyword);
         UNPACK_SQL_STATEMENT(value, keyword->v, value);
-	source = value->v.string_literal;
+        source = value->v.string_literal;
     }
 
     %}$P($G({% TMPL(tmpl_emit_source, source, table_name, table_alias->unique_id, MAX_KEY_COUNT); %}),"{{ table_delim }}",{{ piece }}){%

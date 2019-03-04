@@ -15,7 +15,7 @@ TEMPLATE(tmpl_key_advance, PhysicalPlan *pplan, SqlKey *key) {
     //  use cursor to store the value
     if(key->value == NULL && key->table == NULL) {
         TMPL(tmpl_temp_key_advance, key);
-	TEMPLATE_END();
+        TEMPLATE_END();
     }
 
     table = key->table;
@@ -23,44 +23,42 @@ TEMPLATE(tmpl_key_advance, PhysicalPlan *pplan, SqlKey *key) {
     tableName = value->v.reference;
         
 
-    if(key->value) {
-        // This must be handled in tmpl_physical_plan so that we can adjust dots/FOR statements
-	assert(FALSE);
-    } else if(table->source) {
+    // We ignore the key value here, so we can check if there is data in this key in some cases
+    if(table->source) {
         iter_key_index = 0;
         while(pplan->iterKeys[iter_key_index] != key
-	    && iter_key_index < pplan->total_iter_keys) {
-	    if(pplan->iterKeys[iter_key_index]->random_id == key->random_id) {
-	        keys_to_match++;
-	    }
-	    iter_key_index++;
-	}
-	keys_to_match++;
+            && iter_key_index < pplan->total_iter_keys) {
+            if(pplan->iterKeys[iter_key_index]->random_id == key->random_id) {
+                keys_to_match++;
+            }
+            iter_key_index++;
+        }
+        keys_to_match++;
         UNPACK_SQL_STATEMENT(keyword, table->source, keyword);
-	UNPACK_SQL_STATEMENT(value, keyword->v, value);
-	%}$O({% TMPL(tmpl_emit_source, value->v.string_literal, tableName, key->random_id, keys_to_match); %}){%
-    } else {
-      	// Check to see if the column has an advance keyword; if so, return it
-	if(key->column)
-	    keyword = get_keyword(key->column, OPTIONAL_ADVANCE);
-	if(keyword) {
-	    UNPACK_SQL_STATEMENT(value, keyword->v, value);
-	    key_fixed = value->v.string_literal;
-	    %}{{ key_fixed }}{%
-	    TEMPLATE_END();
-	}
-        // Construct the ADVANCE
-	%}$O(^{{ tableName }}({%
-	while(pplan->iterKeys[iter_key_index] != key
-	    && iter_key_index < pplan->total_iter_keys) {
-	    if(pplan->iterKeys[iter_key_index]->random_id == key->random_id) {
-	        TMPL(tmpl_key, pplan->iterKeys[iter_key_index]);
-		%},{%
-	    }
-	    iter_key_index++;
-	}
-	TMPL(tmpl_key, key);
-	%})){%
+        UNPACK_SQL_STATEMENT(value, keyword->v, value);
+        %}{% TMPL(tmpl_emit_source, value->v.string_literal, tableName, key->random_id, keys_to_match); %}{%
+      } else {
+          // Check to see if the column has an advance keyword; if so, return it
+          if(key->column)
+              keyword = get_keyword(key->column, OPTIONAL_ADVANCE);
+          if(keyword) {
+              UNPACK_SQL_STATEMENT(value, keyword->v, value);
+              key_fixed = value->v.string_literal;
+              %}{{ key_fixed }}{%
+              TEMPLATE_END();
+          }
+          // Construct the ADVANCE
+          %}^{{ tableName }}{%
+          while(pplan->iterKeys[iter_key_index] != key
+              && iter_key_index < pplan->total_iter_keys) {
+              if(pplan->iterKeys[iter_key_index]->random_id == key->random_id) {
+                  TMPL(tmpl_key, pplan->iterKeys[iter_key_index]);
+                  %},{%
+              }
+              iter_key_index++;
+          }
+          TMPL(tmpl_key, key);
+          %})){%
     }
     
     TEMPLATE_END();

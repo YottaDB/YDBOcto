@@ -32,6 +32,11 @@
 int read_bytes(RoctoSession *session, char *buffer, int buffer_size, int bytes_to_read) {
 	int read_so_far = 0, read_now = 0;
 
+	if(bytes_to_read > buffer_size) {
+		WARNING(ERR_READ_TOO_LARGE, bytes_to_read, buffer_size);
+		return 1;
+	}
+
 	while(read_so_far < bytes_to_read) {
 		read_now = read(session->connection_fd, &buffer[read_so_far],
 				bytes_to_read - read_so_far);

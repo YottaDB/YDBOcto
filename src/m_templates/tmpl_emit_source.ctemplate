@@ -29,28 +29,28 @@ TEMPLATE(tmpl_emit_source, char *source, char *table_name, int unique_id, int nu
     source_ptr = source;
     while(*source_ptr != '\0' && matched_vars < num_vars_to_match) {
         t = match_expression(source_ptr, column, MAX_STR_CONST);
-	assert(t != -1);
-	if(t > 0) {
-	    // Note that we don't add quotes to column in case the user users a
-	    //  extrinsic or something
-	    %}^|"{{ config->global_directory }}"|{{ config->global_names.raw_cursor }}(cursorId,"keys",{{ unique_id|%d }},"{{ table_name }}",{{ column }}){%
-	    source_ptr += t;
-	    matched_vars += 1;
-	} else {
-	    %}{{ *source_ptr|%c }}{%
-	    if(*source_ptr == '(') {
-	        paren_count++;
-	    }
-	    if(*source_ptr == ')') {
-	        paren_count--;
-	    }
-	    source_ptr++;
-	}
+        assert(t != -1);
+        if(t > 0) {
+            // Note that we don't add quotes to column in case the user users a
+            //  extrinsic or something
+            %}^|"{{ config->global_directory }}"|{{ config->global_names.raw_cursor }}(cursorId,"keys",{{ unique_id|%d }},"{{ table_name }}",{{ column }}){%
+            source_ptr += t;
+            matched_vars += 1;
+        } else {
+            %}{{ *source_ptr|%c }}{%
+            if(*source_ptr == '(') {
+                paren_count++;
+            }
+            if(*source_ptr == ')') {
+                paren_count--;
+            }
+            source_ptr++;
+        }
     }
 
     while(paren_count > 0) {
         paren_count--;
-	%}){%
+        %}){%
     }
     
     TEMPLATE_END();
@@ -65,8 +65,8 @@ int match_expression(char *start, char *column, int column_size) {
     c = start;
     for(c2 = keys; *c != '\0' && *c2 != '\0'; c2++, c++) {
         if(*c != *c2) {
-	    return 0;
-	}
+            return 0;
+        }
     }
 
     paren_count = 1;
@@ -74,27 +74,27 @@ int match_expression(char *start, char *column, int column_size) {
 
     while(paren_count != 0 && *c != '\0') {
         switch(*c) {
-	case '(':
-	    paren_count++;
-	    break;
-	case ')':
-	    paren_count--;
-	    break;
-	default:
-	    break;
-	}
-	c++;
+        case '(':
+            paren_count++;
+            break;
+        case ')':
+            paren_count--;
+            break;
+        default:
+            break;
+        }
+        c++;
     }
 
     if(paren_count == 0) {
         // Go back a few places as c will include the paren
-	c -= 1;
+        c -= 1;
         if(column_size < c - column_start || c < column_start)
-	    return -1;
-	memcpy(column, column_start, c - column_start);
-	column[c - column_start] = '\0';
-	assert(!(column[0] == '"' && column[1] == '"'));
-	return c - start + 1;
+            return -1;
+        memcpy(column, column_start, c - column_start);
+        column[c - column_start] = '\0';
+        assert(!(column[0] == '"' && column[1] == '"'));
+        return c - start + 1;
     }
     return 0;
 }

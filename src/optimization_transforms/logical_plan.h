@@ -143,6 +143,8 @@ LogicalPlan *lp_get_select_keywords(LogicalPlan *plan);
 LogicalPlan *lp_get_projection_columns(LogicalPlan *plan);
 // Returns the LP_KEYS from the select criteria
 LogicalPlan *lp_get_keys(LogicalPlan *plan);
+// Returns the LP_CRITERIA
+LogicalPlan *lp_get_criteria(LogicalPlan *plan);
 // Returns the key corresponding to a column, or NULL
 SqlKey *lp_get_key(LogicalPlan *plan, LogicalPlan *column_alias);
 // Returns the index of the specified column in the key ordering, or -1

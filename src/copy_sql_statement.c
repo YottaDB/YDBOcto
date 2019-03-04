@@ -147,30 +147,6 @@ SqlStatement *copy_sql_statement(SqlStatement *stmt) {
 		// Columns should only be copied as part of a table copy, in copy_sql_table
 		//  Otherwise, they should be wrapped in a column_alias
 		assert(FALSE);
-		/*		if(stmt->v.column) {
-			UNPACK_SQL_STATEMENT(cur_column, stmt, column);
-			start_column = cur_column;
-			do {
-				new_column = (SqlColumn*)malloc(sizeof(SqlColumn));
-				*new_column = *cur_column;
-				dqinit(new_column);
-				new_column->columnName = copy_sql_statement(cur_column->columnName);
-				// This gives us trouble with a table copying the column itself;
-				//  just setup a pointer
-				new_column->table = copy_sql_statement(cur_column->table);
-				//SQL_STATEMENT(new_column->table, table_STATEMENT);
-				//new_column->table->v.table = cur_column->table->v.table;
-				//new_column->table = cur_column->table;
-				new_column->keywords = copy_sql_statement(cur_column->keywords);
-				if(ret->v.column == NULL) {
-					MALLOC_STATEMENT(ret, column, SqlColumn);
-					ret->v.column = new_column;
-				} else {
-					dqinsert(new_column, ret->v.column, t_column);
-				}
-				cur_column = cur_column->next;
-			} while(cur_column != start_column);
-			}*/
 		break;
 	case column_alias_STATEMENT:
 		UNPACK_SQL_STATEMENT(start_column_alias, stmt, column_alias);

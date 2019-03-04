@@ -13,11 +13,11 @@ TEMPLATE(tmpl_key, SqlKey *key) {
 
     if(key->table) {
         UNPACK_SQL_STATEMENT(value, key->table->tableName, value);
-	tableName = value->v.reference;
+        tableName = value->v.reference;
     }
     if(key->column) {
         UNPACK_SQL_STATEMENT (value, key->column->columnName, value);
-	columnName = value->v.reference;
+        columnName = value->v.reference;
     }
     %}^|"{{ config->global_directory }}"|{{ config->global_names.raw_cursor }}(cursorId,"keys",{{ key->random_id|%d }},"{{ tableName }}","{{ columnName }}"){%
     TEMPLATE_END();

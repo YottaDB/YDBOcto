@@ -127,6 +127,7 @@ add_library(libocto OBJECT
   optimization_transforms/lp_get_project.c
   optimization_transforms/lp_opt_fix_key_to_const.c
   optimization_transforms/lp_get_key.c
+  optimization_transforms/lp_get_criteria.c
   optimization_transforms/lp_get_key_index.c
   optimization_transforms/lp_generate_set_logical_plan.c
   m_templates/emit_simple_select.c

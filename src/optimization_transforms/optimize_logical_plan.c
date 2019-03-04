@@ -111,6 +111,7 @@ LogicalPlan *join_tables(LogicalPlan *root, LogicalPlan *plan) {
 
 LogicalPlan *optimize_logical_plan(LogicalPlan *plan) {
 	LogicalPlan *select, *table_join, *where, *t, *left, *right;
+	LogicalPlan *first_key, *last_key, *before_first_key, *keys, *before_last_key;
 	SqlKey *key;
 	int result, i1, i2;
 
@@ -152,8 +153,57 @@ LogicalPlan *optimize_logical_plan(LogicalPlan *plan) {
 			// Both are column references; find which occurs first
 			i1 = lp_get_key_index(plan, left);
 			i2 = lp_get_key_index(plan, right);
-			if(i1 == -1 || i2 == -1) {
-				break;
+			/// TODO: when we get xref table, this may need to be revisited
+			// For now, we know the keys will be ordered if the left hand key will
+			// be the variant key
+			if(i2 == -1) {
+				if(i1 == -1 && i2 == -1) {
+					break;
+				}
+				// Make sure the table which owns the key gets sorted second
+				if(i1 == -1) {
+					// Left key wasn't the key, so it's the constant value
+					// Find the table for the right key
+					key = lp_get_key(plan, right);
+					assert(FALSE);
+				} else {
+					key = lp_get_key(plan, left);
+				}
+				// Find the first part of the key that has the same
+				// random_id
+				before_first_key = lp_get_criteria(plan);
+				first_key = keys = lp_get_keys(plan);
+				do {
+					GET_LP(t, first_key, 0, LP_KEY);
+					if(t->v.key->random_id == key->random_id) {
+						break;
+					}
+					before_first_key = first_key;
+					GET_LP(first_key, first_key, 1, LP_KEYS);
+				} while(TRUE);
+				// Find the last key
+				last_key = first_key;
+				do {
+					GET_LP(t, last_key, 0, LP_KEY);
+					if(t->v.key->random_id != key->random_id) {
+						break;
+					}
+					before_last_key = last_key;
+					GET_LP(last_key, last_key, 1, LP_KEYS);
+				} while(TRUE);
+				// Move this key to the end of the statement
+				if(before_first_key->type == LP_CRITERIA) {
+					before_first_key->v.operand[0] = last_key;
+				} else {
+					assert(before_first_key->type == LP_KEYS);
+					before_first_key->v.operand[1] = last_key;
+				}
+				// Drill down until we get to the last key
+				while(last_key->v.operand[1] != NULL) {
+					GET_LP(last_key, last_key, 1, LP_KEYS);
+				}
+				last_key->v.operand[1] = first_key;
+				before_last_key->v.operand[1] = NULL;
 			}
 			if(i2 > i1) {
 				t = left;

@@ -8,9 +8,11 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
     int cur_key, dot_count;
     SqlKey *key;
     SqlTable *table;
+    SqlColumn *column;
     SqlValue *value;
     char *key_fixed;
     SqlOptionalKeyword *keyword;
+    char *table_name, *source;
 
     %}
 ;; This is a generate file; do not modify.
@@ -18,10 +20,10 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
     {% // The whitespace here is needed for proper M formatting
 
     for(cur_key = 0, dot_count = 0; cur_key < plan->total_iter_keys; cur_key++) {
-    	// For each key, output the key start, a loop, quit, and increment
-	key = plan->iterKeys[cur_key];
-	if(key->value) {
-	    TMPL(print_dots, dot_count);
+        // For each key, output the key start, a loop, quit, and increment
+        key = plan->iterKeys[cur_key];
+        if(key->value) {
+            TMPL(print_dots, dot_count);
             switch(key->value->type) {
             case LP_VALUE:
                 key_fixed = key->value->v.value->v.string_literal;
@@ -30,25 +32,25 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
                 break;
             case LP_COLUMN_ALIAS:
                 %}S {% TMPL(tmpl_key, key); %}={%
-		TMPL(tmpl_print_expression, key->value, plan);
-		%}
+                TMPL(tmpl_print_expression, key->value, plan);
+                %}
     {%
-	        break;
-	    default:
-	        FATAL(ERR_UNKNOWN_KEYWORD_STATE);
+            break;
+        default:
+            FATAL(ERR_UNKNOWN_KEYWORD_STATE);
                 break;
             }
             continue;
         } 
     %}{% TMPL(print_dots, dot_count); %}{% TMPL(tmpl_key_start, key); %}
-    {% TMPL(print_dots, dot_count); %}FOR i{{ cur_key|%d }}=1:1 SET {% TMPL(tmpl_key, key) %}={% TMPL(tmpl_key_advance, plan, key)
-    %} QUIT:({%
+    {% TMPL(print_dots, dot_count); %}FOR i{{ cur_key|%d }}=1:1 SET {% TMPL(tmpl_key, key) %}=$O({% TMPL(tmpl_key_advance, plan, key)
+    %}) QUIT:({%
         TMPL(tmpl_key_end, key);
-	keyword = get_keyword_from_keywords(plan->keywords, OPTIONAL_LIMIT);
-	if(keyword != NULL) {
-	    UNPACK_SQL_STATEMENT(value, keyword->v, value);
-	    %})!(({{ value->v.string_literal }})<i{{ cur_key|%d }}{%
-	}
+        keyword = get_keyword_from_keywords(plan->keywords, OPTIONAL_LIMIT);
+        if(keyword != NULL) {
+            UNPACK_SQL_STATEMENT(value, keyword->v, value);
+            %})!(({{ value->v.string_literal }})<i{{ cur_key|%d }}{%
+        }
     %})  DO
     {%
         dot_count++;
@@ -71,15 +73,21 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
     
     if(plan->where && plan->where->v.operand[0]) {
         %}&({%
-	TMPL(tmpl_print_expression, plan->where->v.operand[0], plan);
-	%}){%
+        TMPL(tmpl_print_expression, plan->where->v.operand[0], plan);
+        %}){%
+    }
+    // Ensure that all keys have a value
+    for(cur_key = 0; cur_key < plan->total_iter_keys; cur_key++) {
+        // For each key, output the key start, a loop, quit, and increment
+        key = plan->iterKeys[cur_key];
+        //%}&($D({% TMPL(tmpl_key_advance, plan, key); %})){%
     }
     // Distinct values if needed
     //  NOTE: the EXCEPT set doesn't need to check if a value exists before clearing it
     if(plan->distinct_values && plan->set_operation != PP_EXCEPT_SET) {
         %}&($D(^|"{{ config->global_directory }}"|{{ config->global_names.raw_cursor }}(cursorId,"index",{%
-	TMPL(tmpl_column_list_combine, plan->projection, plan, ",");
-	%}))=0){%
+        TMPL(tmpl_column_list_combine, plan->projection, plan, ",");
+        %}))=0){%
     }
 
     /// TODO: key has overloaded meaning here to mean table; we need to
@@ -94,17 +102,17 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
         TMPL(tmpl_key, plan->outputKey);
         // Go back on in the buffer
         buff_ptr -= 1;
-	if(plan->set_operation == PP_INTERSECT_SET) {
-	    // Do nothing; we're interested in the index, not the values themselves
-	    // Kill a non existent variable so we can logic consice
-	    assert(plan->action_type == PP_DELETE);
-	    /// TODO: rework this so this fake kill doesn't have to happen
-	    %},"this variable should never exist"){%
-	} else if(plan->action_type == PP_DELETE) {
-	    %},^|"{{ config->global_directory }}"|{{ config->global_names.raw_cursor }}(cursorId,"index",{%
+        if(plan->set_operation == PP_INTERSECT_SET) {
+            // Do nothing; we're interested in the index, not the values themselves
+            // Kill a non existent variable so we can logic consice
+            assert(plan->action_type == PP_DELETE);
+            /// TODO: rework this so this fake kill doesn't have to happen
+            %},"this variable should never exist"){%
+        } else if(plan->action_type == PP_DELETE) {
+            %},^|"{{ config->global_directory }}"|{{ config->global_names.raw_cursor }}(cursorId,"index",{%
             TMPL(tmpl_column_list_combine, plan->projection, plan, ",");
             %})){%
-	} else if(plan->stash_columns_in_keys) {
+        } else if(plan->stash_columns_in_keys) {
             %},{%
             TMPL(tmpl_column_list_combine, plan->projection, plan, ",");
             %}){%
@@ -126,8 +134,8 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
         }
     } else if (plan->outputTable) {
         // We are putting the value directly into a table
-	UNPACK_SQL_STATEMENT(table, plan->outputTable->table, table);
-	//TMPL(tmpl_table_set, plan->outputTable);
+        UNPACK_SQL_STATEMENT(table, plan->outputTable->table, table);
+        //TMPL(tmpl_table_set, plan->outputTable);
     } else {
         assert(FALSE);
     }
@@ -138,11 +146,11 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
         %}
     {%
         TMPL(print_dots, dot_count);
-	if(plan->set_operation == PP_INTERSECT_SET) {
-	    %}KILL:1{%
-	} else {
-	    %}SET:1{%
-	}
+        if(plan->set_operation == PP_INTERSECT_SET) {
+            %}KILL:1{%
+        } else {
+            %}SET:1{%
+        }
 
 
         if(plan->where && plan->where->v.operand[0]) {
@@ -159,11 +167,11 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
         }
         %} ^|"{{ config->global_directory }}"|{{ config->global_names.raw_cursor }}(cursorId,"index",{%
         TMPL(tmpl_column_list_combine, plan->projection, plan, ",");
-	if(plan->set_operation != PP_INTERSECT_SET) {
-	    %},(i{{ cur_key|%d }}))="",tmpVar=$I(^|"{{ config->global_directory }}"|{{ config->global_names.raw_cursor }}(cursorId,"index",{% TMPL(tmpl_column_list_combine, plan->projection, plan, ","); %})){%
-	} else {
-	    %}){%
-	}
+        if(plan->set_operation != PP_INTERSECT_SET) {
+            %},(i{{ cur_key|%d }}))="",tmpVar=$I(^|"{{ config->global_directory }}"|{{ config->global_names.raw_cursor }}(cursorId,"index",{% TMPL(tmpl_column_list_combine, plan->projection, plan, ","); %})){%
+        } else {
+            %}){%
+        }
     }
     // If this is a INTERSECT set, we need to delete any keys remaining in the
     //  the index; these were in the first set, but not the second

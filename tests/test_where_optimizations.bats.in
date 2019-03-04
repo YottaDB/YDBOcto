@@ -57,3 +57,23 @@ OCTO
   run cat output.txt
   # Success in this test is not crashing
 }
+
+@test "fixed column optimiations where second column isn't a key" {
+  octo >& output.txt <<OCTO
+SELECT * FROM namesWithAges AS t1
+CROSS JOIN namesWithAges AS t2
+WHERE t1.id = t2.age;
+OCTO
+  [[ "$(grep -c FOR ./*.m)" == "1" ]]
+}
+
+@test "fixed column optimiations where first column isn't a key" {
+  octo >& output.txt <<OCTO
+SELECT * FROM namesWithAges AS t1
+CROSS JOIN namesWithAges AS t2
+WHERE t1.age = t2.id;
+OCTO
+  run grep -c "FOR" ./*.m
+  [[ "$output" =~ "1" ]]
+}
+

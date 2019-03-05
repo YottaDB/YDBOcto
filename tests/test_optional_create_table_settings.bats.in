@@ -1,0 +1,24 @@
+load test_helpers
+
+setup() {
+  init_test
+  createdb
+  load_fixture names.sql
+}
+
+@test "global in both table and column DDL" {
+  run octo <<OCTO >& output.txt
+CREATE TABLE abc (id INTEGER PRIMARY KEY, name VARCHAR GLOBAL "^people(keys(""id""))")
+GLOBAL "^people(keys(""id""))";
+SELECT * FROM abc;
+OCTO
+}
+
+@test "piece is actually applied to columns" {
+  # Fetch the last names from the names schema, which is stored in the 3rd piece
+  run octo <<OCTO >& output.txt
+CREATE TABLE abc (id INTEGER PRIMARY KEY, name VARCHAR PIECE 3) GLOBAL "^names(keys(""id""))";
+SELECT * FROM abc;
+OCTO
+  [[ "$(grep -c Zero ./output.txt)" == "0" ]]
+}

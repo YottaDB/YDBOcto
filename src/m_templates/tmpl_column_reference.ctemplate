@@ -45,13 +45,8 @@ TEMPLATE(tmpl_column_reference, PhysicalPlan *pplan, SqlColumnAlias *column_alia
     // Find the columns in the table so we can look at the correct keywords
     column = find_column(value->v.string_literal, table);
     keyword = get_keyword(column, OPTIONAL_SOURCE);
-    if(keyword == NULL) {
-        UNPACK_SQL_STATEMENT(value, table->tableName, value);
-        table_name = value->v.string_literal;
-    } else {
-        UNPACK_SQL_STATEMENT(value, keyword->v, value);
-        table_name = value->v.string_literal;
-    }
+    UNPACK_SQL_STATEMENT(value, table->tableName, value);
+    table_name = value->v.string_literal;
     if(table->delim) {
         UNPACK_SQL_STATEMENT(keyword, table->delim, keyword);
         UNPACK_SQL_STATEMENT(value, keyword->v, value);

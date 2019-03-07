@@ -41,7 +41,7 @@ static void test_valid_input(void **state) {
 	char *c;
 	ErrorResponse *err = NULL;
 
-  BaseMessage *test_data = (BaseMessage*)malloc(message_length + sizeof(BaseMessage) - 4);
+        BaseMessage *test_data = (BaseMessage*)malloc(message_length + sizeof(BaseMessage) - 4);
 	test_data->type = PSQL_Describe;
 	test_data->length = htonl(message_length);
 	c = test_data->data;

@@ -41,7 +41,7 @@ static void test_valid_input(void **state) {
 	char *c;
 	ErrorResponse *err = NULL;
 
-        BaseMessage *test_data = (BaseMessage*)malloc(message_length + sizeof(BaseMessage) - 6);
+  BaseMessage *test_data = (BaseMessage*)malloc(message_length + sizeof(BaseMessage) - 4);
 	test_data->type = PSQL_Describe;
 	test_data->length = htonl(message_length);
 	c = test_data->data;
@@ -60,6 +60,7 @@ static void test_valid_input(void **state) {
 	assert_string_equal(message, describe->name);
 
 	free(describe);
+	free(test_data);
 }
 
 static void test_non_terminated_input(void **state) {
@@ -74,7 +75,7 @@ static void test_non_terminated_input(void **state) {
 	char *c;
 	ErrorResponse *err = NULL;
 
-        BaseMessage *test_data = (BaseMessage*)malloc(message_length + sizeof(BaseMessage) - 6);
+  BaseMessage *test_data = (BaseMessage*)malloc(message_length + sizeof(BaseMessage) - 3);
 	test_data->type = PSQL_Describe;
 	test_data->length = htonl(message_length - 2);
 	c = test_data->data;
@@ -90,6 +91,9 @@ static void test_non_terminated_input(void **state) {
 	assert_non_null(err);
 
 	free(describe);
+	free(test_data);
+  free(err->args);
+	free(err);
 }
 
 int main(void) {

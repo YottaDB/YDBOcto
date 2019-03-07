@@ -51,6 +51,7 @@ Describe *read_describe(BaseMessage *message, ErrorResponse **err) {
 					   PSQL_Code_Protocol_Violation,
 					   "describe message has trailing characters",
 					   0);
+    free(ret);
 		return NULL;
 	}
 

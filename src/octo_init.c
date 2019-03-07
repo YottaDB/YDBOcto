@@ -74,6 +74,12 @@ void populate_global_names() {
 	config->global_names.octo = malloc(strlen(buff));
 	strcpy(config->global_names.octo, buff);
 	config->global_names.raw_octo = &config->global_names.octo[1];
+
+	snprintf(buff, MAX_STR_CONST, "^%sxref", config->global_prefix);
+	buff[MAX_STR_CONST - 1] = '\0';
+	config->global_names.xref = malloc(strlen(buff));
+	strcpy(config->global_names.xref, buff);
+	config->global_names.raw_xref = &config->global_names.xref[1];
 }
 
 int octo_init(int argc, char **argv) {

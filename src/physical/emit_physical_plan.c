@@ -26,13 +26,13 @@
 
 #include "template_helpers.h"
 
-int get_unique_number();
-
 int emit_physical_plan(PhysicalPlan *pplan) {
 	int plan_id, len, fd;
 	PhysicalPlan *cur_plan = pplan, *first_plan;
 	char buffer[MAX_STR_CONST], plan_name_buffer[MAX_STR_CONST];
-	char filename[MAX_STR_CONST];
+	char filename[MAX_STR_CONST], *tableName, *columnName;
+	SqlValue *value;
+	SqlKey *key;
 	FILE *output_file;
 
 	assert(cur_plan != NULL);
@@ -40,9 +40,42 @@ int emit_physical_plan(PhysicalPlan *pplan) {
 	// Walk the plans back to the first
 	while(cur_plan->prev != NULL)
 		cur_plan = cur_plan->prev;
-
 	first_plan = cur_plan;
+
+	// Output the cross reference plans
 	do {
+		if(!(cur_plan->outputKey && cur_plan->outputKey->is_cross_reference_key)) {
+			cur_plan = cur_plan->next;
+			continue;
+		}
+		key = cur_plan->outputKey;
+		UNPACK_SQL_STATEMENT(value, key->table->tableName, value);
+		tableName = value->v.reference;
+		UNPACK_SQL_STATEMENT (value, key->column->columnName, value);
+		columnName = value->v.reference;
+		len = snprintf(plan_name_buffer, MAX_STR_CONST, "myEvilPlan%d", plan_id);
+		cur_plan->plan_name = malloc(len+1);
+		memcpy(cur_plan->plan_name, plan_name_buffer, len);
+		cur_plan->plan_name[len] = '\0';
+		snprintf(filename, MAX_STR_CONST, "%s/genOctoXref%s%s.m", config->tmp_dir, tableName, columnName);
+		output_file = fopen(filename, "w");
+		tmpl_physical_plan(buffer, MAX_STR_CONST, cur_plan);
+		assert(output_file != NULL);
+		fprintf(output_file, "%s\n", buffer);
+		fd = fileno(output_file);
+		fsync(fd);
+		fclose(output_file);
+
+		cur_plan = cur_plan->next;
+	} while(cur_plan != NULL);
+
+	cur_plan = first_plan;
+	do {
+		while(cur_plan && cur_plan->outputKey && cur_plan->outputKey->is_cross_reference_key) {
+			cur_plan = cur_plan->next;
+		}
+		if(cur_plan == NULL)
+			break;
 		plan_id++;
 		len = snprintf(plan_name_buffer, MAX_STR_CONST, "myEvilPlan%d", plan_id);
 		cur_plan->plan_name = malloc(len+1);
@@ -58,8 +91,12 @@ int emit_physical_plan(PhysicalPlan *pplan) {
 	output_file = fopen(filename, "w");
 	cur_plan = first_plan;
 	do {
-		//printf("\n%s\n\n", buffer);
-		/// TODO: error handling here
+		// Skip any plans that are cross references
+		while(cur_plan && cur_plan->outputKey && cur_plan->outputKey->is_cross_reference_key) {
+			cur_plan = cur_plan->next;
+		}
+		if(cur_plan == NULL)
+			break;
 		tmpl_physical_plan(buffer, MAX_STR_CONST, cur_plan);
 		assert(output_file != NULL);
 		fprintf(output_file, "%s\n", buffer);
@@ -69,9 +106,4 @@ int emit_physical_plan(PhysicalPlan *pplan) {
 	fsync(fd);
 	fclose(output_file);
 	return TRUE;
-}
-
-int get_unique_number() {
-	// https://xkcd.com/221/
-	return 4;
 }

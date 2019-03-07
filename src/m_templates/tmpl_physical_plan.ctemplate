@@ -6,18 +6,48 @@
 TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
     TEMPLATE_INIT();
     int cur_key, dot_count;
-    SqlKey *key;
+    SqlKey *key, *t_key;
     SqlTable *table;
     SqlColumn *column;
     SqlValue *value;
+    PhysicalPlan *next_plan;
     char *key_fixed;
     SqlOptionalKeyword *keyword;
-    char *table_name, *source;
+    char *source;
+    char *tableName = " ";
+    char *columnName = " ";
 
     %}
 ;; This is a generate file; do not modify.
 {{ plan->plan_name }}(cursorId) ; we could put arguments here
     {% // The whitespace here is needed for proper M formatting
+
+
+    // Check if there are any cross references that need to be built
+    // If this a plan for a cross reference, but safeguards in place to prevent building twice
+    if(plan->outputKey && plan->outputKey->is_cross_reference_key) {
+        UNPACK_SQL_STATEMENT(value, plan->outputKey->table->tableName, value);
+        tableName = value->v.reference;
+        UNPACK_SQL_STATEMENT (value, plan->outputKey->column->columnName, value);
+        columnName = value->v.reference;
+    %}LOCK +^|"{{ config->global_directory }}"|{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}")
+    IF $G(^|"{{ config->global_directory }}"|{{ config->global_names.raw_octo }}("xref_status","{{ tableName }}","{{ columnName }}"))="done" LOCK -^|"{{ config->global_directory }}"|{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}") QUIT
+    SET ^|"{{ config->global_directory }}"|{{ config->global_names.raw_octo }}("xref_status","{{ tableName }}","{{ columnName }}")="building"
+    {% // Whitespace needed
+    } else {
+        for(cur_key = 0; cur_key < plan->total_iter_keys; cur_key++) {
+            key = plan->iterKeys[cur_key];
+            t_key = key->cross_reference_output_key;
+            if(t_key == NULL)
+                continue;
+            UNPACK_SQL_STATEMENT(value, t_key->table->tableName, value);
+            tableName = value->v.reference;
+            UNPACK_SQL_STATEMENT (value, t_key->column->columnName, value);
+            columnName = value->v.reference;
+            %}DO:$G(^|"{{ config->global_directory }}"|{{ config->global_names.raw_octo }}("xref_status","{{ tableName }}","{{ columnName }}"))'="done" ^genOctoXref{{ tableName}}{{ columnName}}(cursorId)
+    {%
+        }
+    }
 
     for(cur_key = 0, dot_count = 0; cur_key < plan->total_iter_keys; cur_key++) {
         // For each key, output the key start, a loop, quit, and increment
@@ -76,12 +106,6 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
         TMPL(tmpl_print_expression, plan->where->v.operand[0], plan);
         %}){%
     }
-    // Ensure that all keys have a value
-    for(cur_key = 0; cur_key < plan->total_iter_keys; cur_key++) {
-        // For each key, output the key start, a loop, quit, and increment
-        key = plan->iterKeys[cur_key];
-        //%}&($D({% TMPL(tmpl_key_advance, plan, key); %})){%
-    }
     // Distinct values if needed
     //  NOTE: the EXCEPT set doesn't need to check if a value exists before clearing it
     if(plan->distinct_values && plan->set_operation != PP_EXCEPT_SET) {
@@ -94,6 +118,11 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
     // increment something somewhere
     if(plan->outputKey && plan->outputKey->insert) {
         %}{{ plan->outputKey->insert->v.string_literal }}{%
+    } else if(plan->outputKey && plan->outputKey->is_cross_reference_key) {
+        %} ^|"{{ config->global_directory }}"|{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}"{%
+        %},{%
+        TMPL(tmpl_column_list_combine, plan->projection, plan, ",");
+        %})=""{%
     } else if(plan->set_operation == PP_EXCEPT_SET) {
         %} SET v=$O(^|"{{ config->global_directory }}"|{{ config->global_names.raw_cursor }}(cursorId,"index",{% TMPL(tmpl_column_list_combine, plan->projection, plan, ","); %},"")) KILL:v'="" {% TMPL(tmpl_key, plan->outputKey); buff_ptr--; %},v),^|"{{ config->global_directory }}"|{{ config->global_names.raw_cursor }}(cursorId,"index",{% TMPL(tmpl_column_list_combine, plan->projection, plan, ","); %},v){%
     } else if(plan->outputKey) {
@@ -185,9 +214,17 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
     buff_ptr -= 1;
     %},index){%
     }
-    if(plan->next) {
+    if(plan->outputKey && plan->outputKey->is_cross_reference_key) {
+    %}
+    SET ^|"{{ config->global_directory }}"|{{ config->global_names.raw_octo }}("xref_status","{{ tableName }}","{{ columnName }}")="done"
+    LOCK -^|"{{ config->global_directory }}"|{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}"){%
+    } else if(plan->next) {
+        next_plan = plan->next;
+        while(next_plan->outputKey && next_plan->outputKey->is_cross_reference_key) {
+            next_plan = next_plan->next;
+        }
         %}
-    DO {{ plan->next->plan_name }}(cursorId){%
+    DO {{ next_plan->plan_name }}(cursorId){%
     }
     %}
     QUIT  {%

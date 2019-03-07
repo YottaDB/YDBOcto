@@ -152,7 +152,7 @@ enum OptionalKeyword {
 	PRIMARY_KEY,
 	REFERENCES,
 	CHECK_CONSTRAINT,
-	MAX_LENGTH
+	MAX_LENGTH,
 };
 
 enum SqlSetOperationType {
@@ -351,6 +351,7 @@ struct SqlValue {
  * Used to represent a SELECT column list, not a table column list
  */
 struct SqlColumnList {
+	// SqlValue or SqlColumnAlias
 	SqlStatement *value;
 	dqcreate(SqlColumnList);
 };

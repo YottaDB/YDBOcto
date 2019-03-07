@@ -31,8 +31,8 @@ struct RoctoConfig {
 } typedef RoctoConfig;
 
 typedef struct {
-	char *schema, *session, *cursor, *octo;
-	char *raw_schema, *raw_session, *raw_cursor, *raw_octo;
+	char *schema, *session, *cursor, *octo, *xref;
+	char *raw_schema, *raw_session, *raw_cursor, *raw_octo, *raw_xref;
 } GlobalNames;
 
 struct OctoConfig {

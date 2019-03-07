@@ -63,6 +63,8 @@ struct PhysicalPlan {
 	// If set to 1, this plan should emit the columns as subscripts of the key,
 	//  rather than using a row id
 	int stash_columns_in_keys;
+	// If true, this plan outputs a cross reference key, and should be treated thusly
+	int is_cross_reference_key;
 
 	// If true, maintain a column-wise index of known types
 	int maintain_columnwise_index;

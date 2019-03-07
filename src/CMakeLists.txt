@@ -130,6 +130,8 @@ add_library(libocto OBJECT
   optimization_transforms/lp_get_criteria.c
   optimization_transforms/lp_get_key_index.c
   optimization_transforms/lp_generate_set_logical_plan.c
+  optimization_transforms/lp_get_table_join.c
+  optimization_transforms/lp_make_key.c
   m_templates/emit_simple_select.c
   optimization_transforms/generate_logical_plan.c
   physical/generate_physical_plan.c

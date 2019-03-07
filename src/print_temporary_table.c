@@ -73,6 +73,7 @@ void print_temporary_table(PhysicalPlan *plan, int cursor_id, void *parms) {
 		}
 		YDB_ERROR_CHECK(status, &z_status, &z_status_value);
 	}
+	fflush(stdout);
 	free(cursor_id_b->buf_addr);
 	free(key_id_b->buf_addr);
 	free(row_id_b->buf_addr);

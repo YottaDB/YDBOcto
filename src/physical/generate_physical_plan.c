@@ -32,7 +32,7 @@ LogicalPlan *walk_where_statement(PhysicalPlan *out, LogicalPlan *stmt);
 PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlan *next) {
 	SqlOptionalKeyword *keywords, *keyword;
 	LogicalPlan *keys, *table_joins, *select, *insert, *output_key, *output;
-	PhysicalPlan *out, *prev = NULL;
+	PhysicalPlan *out, *prev = NULL, *real_out;
 	char buffer[MAX_STR_CONST], *temp;
 	SqlTable *table;
 	SqlValue *value;
@@ -42,8 +42,11 @@ PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlan *next) {
 
 	// If this is a union plan, construct physical plans for the two children
 	if(plan->type == LP_SET_OPERATION) {
-		out = generate_physical_plan(plan->v.operand[1]->v.operand[1], next);
-		prev = generate_physical_plan(plan->v.operand[1]->v.operand[0], out);
+		out = real_out = generate_physical_plan(plan->v.operand[1]->v.operand[1], next);
+		while(out->outputKey && out->outputKey->is_cross_reference_key) {
+			out = out->next;
+		}
+		prev = generate_physical_plan(plan->v.operand[1]->v.operand[0], real_out);
 
 		// Switch what operation the second plan does
 		switch(plan->v.operand[0]->v.operand[0]->type) {
@@ -99,6 +102,7 @@ PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlan *next) {
 	if(output->v.operand[0]->type == LP_KEY) {
 		GET_LP(output_key, output, 0, LP_KEY);
 		out->outputKey = output_key->v.key;
+		out->is_cross_reference_key = out->outputKey->is_cross_reference_key;
 	} else if(output->v.operand[0]->type == LP_TABLE) {
 		out->outputKey = NULL;
 		out->outputTable = output->v.operand[1]->v.table_alias;

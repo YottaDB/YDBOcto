@@ -56,6 +56,8 @@ int emit_plan_helper(char *buffer, size_t buffer_len, int depth, LogicalPlan *pl
 		SAFE_SNPRINTF(buff_ptr, buffer, buffer_len, "%*s- column_name: %s\n", depth, "", column_name);
 		SAFE_SNPRINTF(buff_ptr, buffer, buffer_len, "%*s- random_id: %d\n", depth, "", key->random_id);
 		SAFE_SNPRINTF(buff_ptr, buffer, buffer_len, "%*s- method: %s\n", depth, "", lp_action_type_str[key->type]);
+		SAFE_SNPRINTF(buff_ptr, buffer, buffer_len, "%*s- xref_key: %s\n", depth, "", key->is_cross_reference_key ? "true" :
+				"false");
 		break;
 	case LP_COLUMN_LIST:
 		SAFE_SNPRINTF(buff_ptr, buffer, buffer_len, "\n");

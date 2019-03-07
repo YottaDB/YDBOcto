@@ -109,10 +109,163 @@ LogicalPlan *join_tables(LogicalPlan *root, LogicalPlan *plan) {
 	return plan;
 }
 
+LogicalPlan *lp_generate_xref_plan(LogicalPlan *plan, SqlTable *table, SqlColumn *column, int unique_id);
+
+/**
+ * Returns the keys corresponding to the cross reference for column in table, and updates
+ * the LP_TABLE_JOIN of plan to include the plan which needs to be execute to generate the cross
+ * reference
+ */
+LogicalPlan *lp_generate_xref_keys(LogicalPlan *plan, SqlTable *table, SqlColumnAlias *column_alias, SqlTableAlias *table_alias) {
+	LogicalPlan *root, *keys, *cur_lp_key, *table_join, *lp_table_alias, *lp_output_key;
+	int cur_key, max_key, unique_id;
+	SqlColumn *key_columns[MAX_KEY_COUNT], *column;
+	SqlKey *output_key;
+
+	unique_id = table_alias->unique_id;
+	UNPACK_SQL_STATEMENT(column, column_alias->column, column);
+	// Scan through and replace the table
+	table_join = lp_get_table_join(plan);
+	do {
+		GET_LP(lp_table_alias, table_join, 0, LP_TABLE);
+		if(lp_table_alias->v.table_alias->unique_id == table_alias->unique_id)
+			break;
+		GET_LP(table_join, table_join, 1, LP_TABLE_JOIN);
+	} while(table_join != NULL);
+	assert(table_join != NULL);
+	/// TODO: free the old table
+	table_join->v.operand[0] = lp_generate_xref_plan(plan, table, column, unique_id);
+	lp_output_key = lp_get_output_key(table_join->v.operand[0]);
+	output_key = lp_output_key->v.key;
+	output_key->cross_reference_column_alias = column_alias;
+
+
+	keys = MALLOC_LP(root, LP_KEYS);
+	memset(key_columns, 0, MAX_KEY_COUNT * sizeof(SqlColumn*));
+	max_key = get_key_columns(table, key_columns);
+	for(cur_key = 0; cur_key <= max_key; cur_key++) {
+		cur_lp_key = MALLOC_LP(keys->v.operand[0], LP_KEY);
+		cur_lp_key->v.key = (SqlKey*)malloc(sizeof(SqlKey));
+		memset(cur_lp_key->v.key, 0, sizeof(SqlKey));
+		cur_lp_key->v.key->column = key_columns[cur_key];
+		cur_lp_key->v.key->key_num = cur_key;
+		cur_lp_key->v.key->random_id = unique_id;
+		cur_lp_key->v.key->table = table;
+		cur_lp_key->v.key->type = LP_KEY_ADVANCE;
+		cur_lp_key->v.key->cross_reference_output_key = output_key;
+		if(cur_key != max_key) {
+			MALLOC_LP(keys->v.operand[1], LP_KEYS);
+			keys = keys->v.operand[1];
+		}
+	}
+	// Replace references in the original plan
+	//lp_replace_derived_table_references(plan, plan, table_alias);
+
+	return root;
+}
+
+LogicalPlan *lp_generate_xref_plan(LogicalPlan *plan, SqlTable *table, SqlColumn *column, int unique_id) {
+	LogicalPlan *root, *project, *output, *column_list, *select, *cur, *lp_cla;
+	LogicalPlan *table_join, *criteria, *lp_output_key, *lp_table, *select_options, *lp_keywords;
+	SqlColumnAlias *cla;
+	SqlTableAlias *table_alias;
+	SqlStatement *table_alias_statement;
+	SqlColumn *key_columns[MAX_KEY_COUNT];
+	SqlOptionalKeyword *keywords;
+	SqlKey *output_key;
+	int cur_key, max_key;
+
+	// Setup the output key
+	output_key = (SqlKey*)malloc(sizeof(SqlKey));
+	memset(output_key, 0, sizeof(SqlKey));
+	output_key->table = table;
+	output_key->column = column;
+	output_key->random_id = unique_id;
+	output_key->is_cross_reference_key = TRUE;
+
+	MALLOC_LP(root, LP_INSERT);
+	project = MALLOC_LP(root->v.operand[0], LP_PROJECT);
+	output = MALLOC_LP(root->v.operand[1], LP_OUTPUT);
+	column_list = MALLOC_LP(project->v.operand[0], LP_COLUMN_LIST);
+	select = MALLOC_LP(project->v.operand[1], LP_SELECT);
+
+	// Setup the table alias that will be shared for all columns
+	SQL_STATEMENT(table_alias_statement, table_alias_STATEMENT);
+	MALLOC_STATEMENT(table_alias_statement, table_alias, SqlTableAlias);
+	UNPACK_SQL_STATEMENT(table_alias, table_alias_statement, table_alias);
+	/// TODO: copy table so we can more easily clean? Fill out other fields?
+	PACK_SQL_STATEMENT(table_alias->table, table, table);
+	table_alias->unique_id = get_plan_unique_number(plan);
+	table_alias->alias = copy_sql_statement(table->tableName);
+
+	// Populate column list with a the column, followed by all the keys for this table
+	cur = MALLOC_LP(column_list->v.operand[0], LP_WHERE);
+	lp_cla = MALLOC_LP(cur->v.operand[0], LP_COLUMN_ALIAS);
+	// This is used to pass information about types to the functions which output the final result
+	// to the user; this table should never get there, so leave it out
+	//MALLOC_LP(cur->v.operand[1], LP_COLUMN_LIST_ALIAS);
+	lp_cla->v.column_alias = (SqlColumnAlias*)malloc(sizeof(SqlColumnAlias));
+	memset(lp_cla->v.column_alias, 0, sizeof(SqlColumnAlias));
+	cla = lp_cla->v.column_alias;
+	/// TODO: copy column so we can more easily clean things up?
+	PACK_SQL_STATEMENT(cla->column, column, column);
+	cla->table_alias = table_alias_statement;
+	// Get a list of key columns
+	memset(key_columns, 0, MAX_KEY_COUNT * sizeof(SqlColumn*));
+	max_key = get_key_columns(table, key_columns);
+	for(cur_key = 0; cur_key <= max_key; cur_key++) {
+		MALLOC_LP(column_list->v.operand[1], LP_COLUMN_LIST);
+		column_list = column_list->v.operand[1];
+		cur = MALLOC_LP(column_list->v.operand[0], LP_WHERE);
+		lp_cla = MALLOC_LP(cur->v.operand[0], LP_COLUMN_ALIAS);
+		// This is used to pass information about types to the functions which output the final result
+		// to the user; this table should never get there, so leave it out
+		//MALLOC_LP(cur->v.operand[1], LP_COLUMN_LIST_ALIAS);
+		lp_cla->v.column_alias = (SqlColumnAlias*)malloc(sizeof(SqlColumnAlias));
+		memset(lp_cla->v.column_alias, 0, sizeof(SqlColumnAlias));
+		cla = lp_cla->v.column_alias;
+		/// TODO: copy column so we can more easily clean things up?
+		PACK_SQL_STATEMENT(cla->column, key_columns[cur_key], column);
+		cla->table_alias = table_alias_statement;
+	}
+
+	// Generate a normal table join for SELECT, then populate CRITERIA and KEYS
+	table_join = MALLOC_LP(select->v.operand[0], LP_TABLE_JOIN);
+	criteria = MALLOC_LP(select->v.operand[1], LP_CRITERIA);
+	lp_table = MALLOC_LP(table_join->v.operand[0], LP_TABLE);
+	lp_table->v.table_alias = table_alias;
+	MALLOC_LP(criteria->v.operand[0], LP_KEYS);
+	select_options = MALLOC_LP(criteria->v.operand[1], LP_SELECT_OPTIONS);
+	MALLOC_LP(select_options->v.operand[0], LP_WHERE);
+	lp_keywords = MALLOC_LP(select_options->v.operand[1], LP_KEYWORDS);
+	// Insert a keyword indicating that we are building an index
+	lp_keywords->v.keywords = (SqlOptionalKeyword*)malloc(sizeof(SqlOptionalKeyword));
+	memset(lp_keywords->v.keywords, 0, sizeof(SqlOptionalKeyword));
+	keywords = lp_keywords->v.keywords;
+	dqinit(keywords);
+	keywords->keyword = OPTIONAL_POPULATE_INDEX;
+
+	// Select an LP_KEY to output things to that is correct
+	lp_output_key = MALLOC_LP(output->v.operand[0], LP_KEY);
+	lp_output_key->v.key = output_key;
+
+	// Optimize this new plan
+	optimize_logical_plan(root);
+	return root;
+}
+
 LogicalPlan *optimize_logical_plan(LogicalPlan *plan) {
 	LogicalPlan *select, *table_join, *where, *t, *left, *right;
 	LogicalPlan *first_key, *last_key, *before_first_key, *keys, *before_last_key;
+	LogicalPlan *xref_keys;
 	SqlKey *key;
+	SqlColumn *column;
+	SqlColumnAlias *column_alias;
+	SqlTable *table;
+	SqlTableAlias *table_alias;
+	SqlColumnList *column_list;
+	SqlColumnListAlias *column_list_alias;
+	SqlValue *value;
 	int result, i1, i2;
 
 	if(plan->type == LP_SET_OPERATION) {
@@ -178,6 +331,9 @@ LogicalPlan *optimize_logical_plan(LogicalPlan *plan) {
 					if(t->v.key->random_id == key->random_id) {
 						break;
 					}
+					if(first_key->v.operand[1] == NULL) {
+						break;
+					}
 					before_first_key = first_key;
 					GET_LP(first_key, first_key, 1, LP_KEYS);
 				} while(TRUE);
@@ -186,6 +342,9 @@ LogicalPlan *optimize_logical_plan(LogicalPlan *plan) {
 				do {
 					GET_LP(t, last_key, 0, LP_KEY);
 					if(t->v.key->random_id != key->random_id) {
+						break;
+					}
+					if(last_key->v.operand[1] == NULL) {
 						break;
 					}
 					before_last_key = last_key;
@@ -223,7 +382,62 @@ LogicalPlan *optimize_logical_plan(LogicalPlan *plan) {
 		key = lp_get_key(plan, left);
 		if(key == NULL) {
 			// TODO: we could insert a cross reference here
-			break;
+			// Get the table alias and column for left
+			column_alias = left->v.column_alias;
+			UNPACK_SQL_STATEMENT(table_alias, column_alias->table_alias, table_alias);
+			/// TODO: how do we handle triggers on generated tables?
+			if(table_alias->table->type != table_STATEMENT)
+				break;
+			UNPACK_SQL_STATEMENT(table, table_alias->table, table);
+			if(column_alias->column->type != column_STATEMENT) {
+				UNPACK_SQL_STATEMENT(column_list_alias, column_alias->column, column_list_alias);
+				UNPACK_SQL_STATEMENT(column_list, column_list_alias->column_list, column_list);
+				UNPACK_SQL_STATEMENT(column_alias, column_list->value, column_alias);
+			}
+			UNPACK_SQL_STATEMENT(column, column_alias->column, column);
+			// Remove all keys for the table alias
+			before_first_key = lp_get_criteria(plan);
+			first_key = keys = lp_get_keys(plan);
+			do {
+				GET_LP(t, first_key, 0, LP_KEY);
+				if(t->v.key->random_id == table_alias->unique_id) {
+					break;
+				}
+				if(first_key->v.operand[1] == NULL) {
+					break;
+				}
+				before_first_key = first_key;
+				GET_LP(first_key, first_key, 1, LP_KEYS);
+			} while(TRUE);
+			// Find the last key
+			last_key = first_key;
+			do {
+				GET_LP(t, last_key, 0, LP_KEY);
+				if(t->v.key->random_id != table_alias->unique_id) {
+					break;
+				}
+				if(last_key->v.operand[1] == NULL) {
+					break;
+				}
+				before_last_key = last_key;
+				GET_LP(last_key, last_key, 1, LP_KEYS);
+			} while(TRUE);
+			// Generate the new key structure
+			// First, insert a new key corresponding to the column in question
+			xref_keys = lp_make_key(column_alias);
+			key = xref_keys->v.key;
+			if(before_first_key->type == LP_CRITERIA) {
+				MALLOC_LP(before_first_key->v.operand[0], LP_KEYS);
+				before_first_key = before_first_key->v.operand[0];
+			} else {
+				MALLOC_LP(before_first_key->v.operand[1], LP_KEYS);
+				before_first_key = before_first_key->v.operand[1];
+			}
+			before_first_key->v.operand[0] = xref_keys;
+			xref_keys = lp_generate_xref_keys(plan, table, column_alias, table_alias);
+			before_first_key->v.operand[1] = xref_keys;
+			if(last_key != first_key)
+				xref_keys->v.operand[1] = last_key;
 		}
 		result = lp_opt_fix_key_to_const(plan, key, right);
 		assert(result == TRUE);

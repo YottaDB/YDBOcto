@@ -103,6 +103,13 @@ struct SqlKey {
 	// If this key is part of a UNION, this is the LP_INSERT
 	//  plan which outputs this key
 	LogicalPlan *owner;
+	// If true, this is an output key for a cross reference
+	int is_cross_reference_key;
+	// If this is a cross reference key which is not an output key, this will point to the
+	// output key, which we can snag the column name from
+	SqlKey *cross_reference_output_key;
+	// The source of the cross reference
+	SqlColumnAlias *cross_reference_column_alias;
 };
 
 // Helper functions
@@ -135,6 +142,8 @@ LogicalPlan *lp_get_project(LogicalPlan *plan);
 LogicalPlan *lp_get_select(LogicalPlan *plan);
 // Returns the key for the given LP
 LogicalPlan *lp_get_select_key(LogicalPlan *plan, SqlKey *key);
+// Returns the TABLE_JOIN statement for the given LP
+LogicalPlan *lp_get_table_join(LogicalPlan *plan);
 // Returns the WHERE statement for the given LP
 LogicalPlan *lp_get_select_where(LogicalPlan *plan);
 // Returns the LP_KEYWORDS for the given LP
@@ -152,6 +161,7 @@ SqlKey *lp_get_key(LogicalPlan *plan, LogicalPlan *column_alias);
 int lp_get_key_index(LogicalPlan *plan, LogicalPlan *column_alias);
 // Returns the output key
 LogicalPlan *lp_get_output_key(LogicalPlan *plan);
+// Returns the
 // Inserts a key at the end of the plans keys
 void lp_insert_key(LogicalPlan *plan, LogicalPlan *key);
 // Returns LP_WHERE with an AND of the two wheres
@@ -180,6 +190,11 @@ int lp_remove_keys(LogicalPlan *plan);
 int lp_optimize_keys(LogicalPlan *plan);
 // Replaces JOINs with WHERE criteria and a new table
 int lp_replace_joins(LogicalPlan *plan);
+
+// Inserts a new key into the plan for the given column alias (column, table, unique_id
+// This key *must* be fixed to a value later, is it may not be resolvable before then
+// Returned value will be a LP_KEY
+LogicalPlan *lp_make_key(SqlColumnAlias *column_alias);
 
 // Specific optimizations we can perform
 //  These return 1 if the optimization succeeded, 0 otherwise

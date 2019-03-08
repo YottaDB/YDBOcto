@@ -45,6 +45,7 @@ static void test_valid_input(void **state) {
 	assert_non_null(response);
 	assert_int_equal(response->length, htonl(expected_length));
 
+	free(response->args);
 	free(response);
 }
 
@@ -63,6 +64,7 @@ static void test_with_no_additional_parms(void **state) {
 	assert_non_null(response);
 	assert_int_equal(response->length, htonl(expected_length));
 
+	free(response->args);
 	free(response);
 }
 
@@ -82,6 +84,7 @@ static void test_with_additional_parms(void **state) {
 	assert_non_null(response);
 	assert_int_equal(response->length, htonl(expected_length));
 
+	free(response->args);
 	free(response);
 }
 
@@ -104,6 +107,7 @@ static void test_verify_args_pointers_correct(void **state) {
 	assert_non_null(response->args[0].value);
 	assert_string_equal(message, response->args[2].value + 1);
 
+	free(response->args);
 	free(response);
 }
 

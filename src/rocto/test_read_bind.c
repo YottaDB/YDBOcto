@@ -73,6 +73,9 @@ static void test_valid_input(void **state) {
 	assert_null(bind->parms);
 	assert_null(bind->result_col_format_codes);
 	assert_null(err);
+
+        free(test_data);
+        free(bind);
 }
 
 static void test_input_to_short(void **state) {
@@ -109,6 +112,11 @@ static void test_input_to_short(void **state) {
 
 	assert_null(bind);
 	assert_non_null(err);
+
+        free(test_data);
+        free(bind);
+        free(err->args);
+        free(err);
 }
 
 static void test_input_to_long(void **state) {
@@ -157,6 +165,11 @@ static void test_input_to_long(void **state) {
 	assert_null(bind->result_col_format_codes);
 	// Verify an error was issued
 	assert_non_null(err);
+
+        free(test_data);
+        free(bind);
+        free(err->args);
+        free(err);
 }
 
 static void test_no_null_terminators_on_dest(void **state) {
@@ -184,6 +197,11 @@ static void test_no_null_terminators_on_dest(void **state) {
 	// Ensure the return error mentions "dest"
 	assert_string_equal("bind destination missing null termination",
 	  err->args[2].value + 1);
+
+        free(test_data);
+        free(bind);
+        free(err->args);
+        free(err);
 }
 
 static void test_no_null_terminators_on_source(void **state) {
@@ -215,6 +233,11 @@ static void test_no_null_terminators_on_source(void **state) {
 	// Ensure the return error mentions "dest"
 	assert_string_equal("bind SQL missing null termination",
 	  err->args[2].value + 1);
+
+        free(test_data);
+        free(bind);
+        free(err->args);
+        free(err);
 }
 
 static void test_missing_parameter_types(void **state) {
@@ -249,6 +272,11 @@ static void test_missing_parameter_types(void **state) {
 	// Ensure the return error mentions "dest"
 	assert_string_equal("bind incomplete/missing parameter format code list",
 	  err->args[2].value + 1);
+
+        free(test_data);
+        free(bind);
+        free(err->args);
+        free(err);
 }
 
 static void test_missing_parameters(void **state) {
@@ -286,6 +314,11 @@ static void test_missing_parameters(void **state) {
 	// Ensure the return error mentions "dest"
 	assert_string_equal("bind incomplete/missing parameters",
 	  err->args[2].value + 1);
+
+        free(test_data);
+        free(bind);
+        free(err->args);
+        free(err);
 }
 
 static void test_missing_result_col_format_codes(void **state) {
@@ -326,6 +359,11 @@ static void test_missing_result_col_format_codes(void **state) {
 	// Ensure the return error mentions "dest"
 	assert_string_equal("bind missing/incomplete result format codes",
 	  err->args[2].value + 1);
+
+        free(test_data);
+        free(bind);
+        free(err->args);
+        free(err);
 }
 
 int main(void) {

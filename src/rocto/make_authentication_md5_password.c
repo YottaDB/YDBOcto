@@ -23,11 +23,10 @@
 
 #include "message_formats.h"
 
-
 AuthenticationMD5Password *make_authentication_md5_password() {
 	AuthenticationMD5Password *ret;
 
-	ret = (AuthenticationMD5Password*)malloc(sizeof(ReadyForQuery));
+	ret = (AuthenticationMD5Password*)malloc(sizeof(AuthenticationMD5Password));
 	memset(ret, 0, sizeof(AuthenticationMD5Password));
 
 	ret->type = PSQL_AuthenticationMD5Password;

@@ -11,6 +11,7 @@ YDBDBMS Grammar Documentation
  
    intro
    grammar
+   config
    tips
 
 Indices and tables

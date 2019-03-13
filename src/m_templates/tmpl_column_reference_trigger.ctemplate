@@ -5,7 +5,7 @@
 #include "physical_plan.h"
 #include "template_helpers.h"
 
-TEMPLATE(tmpl_column_reference, PhysicalPlan *pplan, SqlColumnAlias *column_alias) {
+TEMPLATE(tmpl_column_reference_trigger, PhysicalPlan *pplan, SqlColumnAlias *column_alias) {
     TEMPLATE_INIT();
     SqlColumn *column = NULL, *key_column;
     SqlTable *table;
@@ -15,7 +15,7 @@ TEMPLATE(tmpl_column_reference, PhysicalPlan *pplan, SqlColumnAlias *column_alia
     SqlColumnList *column_list;
     SqlOptionalKeyword *keyword;
     SqlKey *key;
-    char *column_raw, *table_name, *table_delim = "|";
+    char *column_raw, *table_name, *table_delim = NULL;
     char *piece = NULL, *source;
     char piece_buffer[MAX_STR_CONST];
     int i, piece_i;
@@ -94,7 +94,10 @@ TEMPLATE(tmpl_column_reference, PhysicalPlan *pplan, SqlColumnAlias *column_alia
         source = value->v.string_literal;
     }
 
-    %}$P($G({% TMPL(tmpl_emit_source, source, table_name, table_alias->unique_id, MAX_KEY_COUNT, EmitSourceForm_Value); %}),"{{ table_delim }}",{{ piece }}){%
+    TMPL(tmpl_emit_source, source, table_name, table_alias->unique_id, MAX_KEY_COUNT, EmitSourceForm_Trigger);
+    if(table_delim != NULL) {
+        %}-delim=""{{ table_delim }}"" -pieces=""{{ piece }}""{%
+    }
     
     TEMPLATE_END();
 }

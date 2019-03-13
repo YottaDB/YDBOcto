@@ -72,3 +72,17 @@ OCTO
   [[ "$(grep -c "Zero" output2.txt)" == "1" ]]
   [[ "$(grep -c "|" output2.txt)" == "5" ]]
 }
+
+@test "simulate outer join using UNION" {
+  octo <<OCTO &> output.txt
+SELECT a.id as A_id, b.id as B_id
+FROM names a INNER JOIN names b ON a.firstName = b.firstName
+
+UNION
+
+SELECT id as A_id, "" AS B_id
+FROM names a
+WHERE a.firstName NOT IN (SELECT firstName FROM names b);
+OCTO
+  [[ "$(grep -c '0|' ./output.txt)" == 2 ]]
+}

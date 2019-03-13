@@ -44,7 +44,7 @@ enum PPSetOperation {
 struct PhysicalPlan typedef PhysicalPlan;
 
 struct PhysicalPlan {
-	char *plan_name;
+	char *plan_name, *filename;
 	PhysicalPlan *prev, *next;
 	// These represent keys which we are iterating over; usually a single key
 	SqlKey *sourceKeys[MAX_KEY_COUNT];

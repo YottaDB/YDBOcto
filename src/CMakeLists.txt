@@ -208,6 +208,7 @@ set(template_files
   ${template_dir}/tmpl_column_list_combine.ctemplate
   ${template_dir}/tmpl_emit_source.ctemplate
   ${template_dir}/tmpl_table_set.ctemplate
+  ${template_dir}/tmpl_column_reference_trigger.ctemplate
   )
 foreach(template ${template_files})
   get_filename_component(fileName ${template} NAME)

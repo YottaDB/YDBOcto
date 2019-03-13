@@ -113,7 +113,14 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan) {
         %},{% TMPL(tmpl_print_expression, plan->v.operand[0], pplan); %}))'=0){%
         break;
     case LP_BOOLEAN_NOT_IN:
-        mid = "=";
+        // IN expressions require a key; we should resolve the keys in generate_physical_plan
+        //  so enforce that the search list is a key to search in
+        assert(plan->v.operand[1]->type == LP_KEY);
+        %}($D({%
+        TMPL(tmpl_key, plan->v.operand[1]->v.key);
+        /// WARNING: this happens in tmpl_physical_plan, but it is probably dangerous
+        buff_ptr -= 1;
+        %},{% TMPL(tmpl_print_expression, plan->v.operand[0], pplan); %}))=0){%
         break;
     case LP_FUNCTION_CALL:
         cur_plan = plan;

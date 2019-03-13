@@ -5,14 +5,16 @@
 
 TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
     TEMPLATE_INIT();
-    int cur_key, dot_count;
+    int cur_key, dot_count, i;
     SqlKey *key, *t_key;
     SqlTable *table;
     SqlColumn *column;
+    SqlColumnAlias *column_alias;
     SqlValue *value;
     PhysicalPlan *next_plan;
     char *key_fixed;
     SqlOptionalKeyword *keyword;
+    LogicalPlan *lp_temp;
     char *source;
     char *tableName = " ";
     char *columnName = " ";
@@ -30,9 +32,12 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
         tableName = value->v.reference;
         UNPACK_SQL_STATEMENT (value, plan->outputKey->column->columnName, value);
         columnName = value->v.reference;
-    %}LOCK +^|"{{ config->global_directory }}"|{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}")
+        GET_LP(lp_temp, plan->projection, 0, LP_WHERE);
+        GET_LP(lp_temp, lp_temp, 0, LP_COLUMN_ALIAS);
+        column_alias = lp_temp->v.column_alias;
+    %}LOCK +^|"{{ config->global_directory }}"|{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}"):10
     IF $G(^|"{{ config->global_directory }}"|{{ config->global_names.raw_octo }}("xref_status","{{ tableName }}","{{ columnName }}"))="done" LOCK -^|"{{ config->global_directory }}"|{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}") QUIT
-    SET ^|"{{ config->global_directory }}"|{{ config->global_names.raw_octo }}("xref_status","{{ tableName }}","{{ columnName }}")="building"
+    IF '$ZTRIGGER("item","+{% TMPL(tmpl_column_reference_trigger, plan, column_alias); %} -commands=SET,KILL -xecute=""DO handleSet^{{ plan->filename }}""") HALT
     {% // Whitespace needed
     } else {
         for(cur_key = 0; cur_key < plan->total_iter_keys; cur_key++) {
@@ -44,7 +49,7 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
             tableName = value->v.reference;
             UNPACK_SQL_STATEMENT (value, t_key->column->columnName, value);
             columnName = value->v.reference;
-            %}DO:$G(^|"{{ config->global_directory }}"|{{ config->global_names.raw_octo }}("xref_status","{{ tableName }}","{{ columnName }}"))'="done" ^genOctoXref{{ tableName}}{{ columnName}}(cursorId)
+            %}DO:'$D(^|"{{ config->global_directory }}"|{{ config->global_names.raw_octo }}("xref_status","{{ tableName }}","{{ columnName }}")) ^genOctoXref{{ tableName}}{{ columnName}}(cursorId)
     {%
         }
     }
@@ -122,7 +127,17 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
         %} ^|"{{ config->global_directory }}"|{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}"{%
         %},{%
         TMPL(tmpl_column_list_combine, plan->projection, plan, ",");
-        %})=""{%
+        %})=""
+    {% // White space needed
+        TMPL(print_dots, dot_count);
+        %}IF $I(^|"{{ config->global_directory }}"|{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}"{%
+        %})),$I(^|"{{ config->global_directory }}"|{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}",{%
+        // Temporarily sever the key from the projection
+        lp_temp = plan->projection->v.operand[1];
+        plan->projection->v.operand[1] = NULL;
+        TMPL(tmpl_column_list_combine, plan->projection, plan, ",");
+        plan->projection->v.operand[1] = lp_temp;
+        %})) {%
     } else if(plan->set_operation == PP_EXCEPT_SET) {
         %} SET v=$O(^|"{{ config->global_directory }}"|{{ config->global_names.raw_cursor }}(cursorId,"index",{% TMPL(tmpl_column_list_combine, plan->projection, plan, ","); %},"")) KILL:v'="" {% TMPL(tmpl_key, plan->outputKey); buff_ptr--; %},v),^|"{{ config->global_directory }}"|{{ config->global_names.raw_cursor }}(cursorId,"index",{% TMPL(tmpl_column_list_combine, plan->projection, plan, ","); %},v){%
     } else if(plan->outputKey) {
@@ -228,6 +243,64 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
     }
     %}
     QUIT  {%
+
+    // If this is a cross reference key, put the trigger definitions here
+    if(plan->outputKey && plan->outputKey->is_cross_reference_key) {
+    %}
+handleSet
+    NEW t
+    IF $ZTRIGGEROP="K" DO  
+    . SET val=""
+    . FOR  SET val=$O(^|"{{ config->global_directory }}"|{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}",val)) Q:val=""  DO:$D(^|"{{ config->global_directory }}"|{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}",val{%
+        lp_temp = plan->projection->v.operand[1];
+        i = 0;
+        while(lp_temp != NULL) {
+            %},sub{{ i|%d }}{%
+            lp_temp = lp_temp->v.operand[1];
+            i++;
+        }
+        %}))'=0
+    .. KILL ^|"{{ config->global_directory }}"|{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}",val{%
+        lp_temp = plan->projection->v.operand[1];
+        i = 0;
+        while(lp_temp != NULL) {
+            %},sub{{ i|%d }}{%
+            lp_temp = lp_temp->v.operand[1];
+            i++;
+        }
+        %})
+    .. KILL:$I(^|"{{ config->global_directory }}"|{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}",val),-1)=0 ^|"{{ config->global_directory }}"|{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}",val)
+    .. KILL:$I(^|"{{ config->global_directory }}"|{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}"),-1)=0 ^|"{{ config->global_directory }}"|{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}")
+    ELSE  DO
+    . SET newValue=$P($ZTVALUE,$ZTDELIM,$ZTUPDATE)
+    . SET oldValue=$P($ZTOLDVAL,$ZTDELIM,$ZTUPDATE)
+    . KILL:oldValue'="" ^|"{{ config->global_directory }}"|{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}",oldValue{%
+        lp_temp = plan->projection->v.operand[1];
+        i = 0;
+        while(lp_temp != NULL) {
+            %},sub{{ i|%d }}{%
+            lp_temp = lp_temp->v.operand[1];
+            i++;
+        }
+        %}){%
+        // Now decrement the counts for the globals
+    %}
+    . IF oldValue'="" IF $I(^|"{{ config->global_directory }}"|{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}",oldValue),-1),$I(^|"{{ config->global_directory }}"|{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}"),-1)
+    . KILL:(oldValue'="")&(^|"{{ config->global_directory }}"|{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}",oldValue)=0) ^|"{{ config->global_directory }}"|{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}",oldValue)
+    . SET:newValue'="" ^|"{{ config->global_directory }}"|{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}",newValue{%
+        lp_temp = plan->projection->v.operand[1];
+        i = 0;
+        while(lp_temp != NULL) {
+            %},sub{{ i|%d }}{%
+            lp_temp = lp_temp->v.operand[1];
+            i++;
+        }
+        %})=""{%
+        // Now decrement the counts for the globals
+    %}
+    . IF newValue'="" IF $I(^|"{{ config->global_directory }}"|{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}",newValue)),$I(^|"{{ config->global_directory }}"|{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}"))
+    QUIT{%
+    }
     TEMPLATE_END();
 }
 %}

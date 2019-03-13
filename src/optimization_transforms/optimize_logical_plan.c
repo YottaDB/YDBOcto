@@ -262,7 +262,7 @@ LogicalPlan *optimize_logical_plan(LogicalPlan *plan) {
 	SqlColumn *column;
 	SqlColumnAlias *column_alias;
 	SqlTable *table;
-	SqlTableAlias *table_alias;
+	SqlTableAlias *table_alias, *table_alias2;
 	SqlColumnList *column_list;
 	SqlColumnListAlias *column_list_alias;
 	SqlValue *value;
@@ -306,13 +306,20 @@ LogicalPlan *optimize_logical_plan(LogicalPlan *plan) {
 			// Both are column references; find which occurs first
 			i1 = lp_get_key_index(plan, left);
 			i2 = lp_get_key_index(plan, right);
+			if(i1 == -1 && i2 == -1) {
+				break;
+			}
+			// If the key is in the same table as the temporary value, we can't do anything
+			if(i1 == -1 || i2 == -1) {
+				UNPACK_SQL_STATEMENT(table_alias, left->v.column_alias->table_alias, table_alias);
+				UNPACK_SQL_STATEMENT(table_alias2, right->v.column_alias->table_alias, table_alias);
+				if(table_alias->unique_id == table_alias2->unique_id)
+					break;
+			}
 			/// TODO: when we get xref table, this may need to be revisited
 			// For now, we know the keys will be ordered if the left hand key will
 			// be the variant key
 			if(i2 == -1) {
-				if(i1 == -1 && i2 == -1) {
-					break;
-				}
 				// Make sure the table which owns the key gets sorted second
 				if(i1 == -1) {
 					// Left key wasn't the key, so it's the constant value
@@ -411,15 +418,16 @@ LogicalPlan *optimize_logical_plan(LogicalPlan *plan) {
 			} while(TRUE);
 			// Find the last key
 			last_key = first_key;
+			before_last_key = first_key;
 			do {
 				GET_LP(t, last_key, 0, LP_KEY);
 				if(t->v.key->random_id != table_alias->unique_id) {
 					break;
 				}
+				before_last_key = last_key;
 				if(last_key->v.operand[1] == NULL) {
 					break;
 				}
-				before_last_key = last_key;
 				GET_LP(last_key, last_key, 1, LP_KEYS);
 			} while(TRUE);
 			// Generate the new key structure
@@ -436,8 +444,9 @@ LogicalPlan *optimize_logical_plan(LogicalPlan *plan) {
 			before_first_key->v.operand[0] = xref_keys;
 			xref_keys = lp_generate_xref_keys(plan, table, column_alias, table_alias);
 			before_first_key->v.operand[1] = xref_keys;
-			if(last_key != first_key)
-				xref_keys->v.operand[1] = last_key;
+			if(before_last_key->v.operand[1] != NULL) {
+				xref_keys->v.operand[1] = before_last_key->v.operand[1];
+			}
 		}
 		result = lp_opt_fix_key_to_const(plan, key, right);
 		assert(result == TRUE);

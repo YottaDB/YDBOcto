@@ -345,7 +345,7 @@ in_predicate
       ($$)->v.binary = (SqlBinaryOperation*)malloc(sizeof(SqlBinaryOperation));
       ($$)->v.binary->operation = BOOLEAN_NOT_IN;
       ($$)->v.binary->operands[0] = ($1);
-      ($$)->v.binary->operands[1] = ($3);
+      ($$)->v.binary->operands[1] = ($4);
     }
   ;
 

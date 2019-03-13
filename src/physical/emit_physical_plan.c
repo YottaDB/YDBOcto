@@ -59,6 +59,8 @@ int emit_physical_plan(PhysicalPlan *pplan) {
 		cur_plan->plan_name[len] = '\0';
 		snprintf(filename, MAX_STR_CONST, "%s/genOctoXref%s%s.m", config->tmp_dir, tableName, columnName);
 		output_file = fopen(filename, "w");
+		filename[strlen(filename)-2] = '\0';
+		cur_plan->filename = &filename[strlen(config->tmp_dir)+1];
 		tmpl_physical_plan(buffer, MAX_STR_CONST, cur_plan);
 		assert(output_file != NULL);
 		fprintf(output_file, "%s\n", buffer);
@@ -97,6 +99,7 @@ int emit_physical_plan(PhysicalPlan *pplan) {
 		}
 		if(cur_plan == NULL)
 			break;
+		cur_plan->filename = filename;
 		tmpl_physical_plan(buffer, MAX_STR_CONST, cur_plan);
 		assert(output_file != NULL);
 		fprintf(output_file, "%s\n", buffer);

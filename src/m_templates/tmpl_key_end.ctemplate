@@ -13,15 +13,15 @@ TEMPLATE(tmpl_key_end, SqlKey *key) {
     SqlTable *table;
     if(key->column) {
         keyword = get_keyword(key->column, OPTIONAL_END);
-	if(keyword != NULL) {
-	    UNPACK_SQL_STATEMENT(value, keyword->v, value);
-	    end = value->v.string_literal;
-	    table = key->table;
-	    UNPACK_SQL_STATEMENT(value, table->tableName, value);
-	    table_name = value->v.string_literal;
-	    TMPL(tmpl_emit_source, end, table_name, key->random_id, MAX_KEY_COUNT);
-	    TEMPLATE_END();
-	}
+        if(keyword != NULL) {
+            UNPACK_SQL_STATEMENT(value, keyword->v, value);
+            end = value->v.string_literal;
+            table = key->table;
+            UNPACK_SQL_STATEMENT(value, table->tableName, value);
+            table_name = value->v.string_literal;
+            TMPL(tmpl_emit_source, end, table_name, key->random_id, MAX_KEY_COUNT, EmitSourceForm_Value);
+            TEMPLATE_END();
+        }
     }
     TMPL(tmpl_key, key);
     %}=""{%

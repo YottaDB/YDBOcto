@@ -9,7 +9,7 @@ TEMPLATE(tmpl_key_advance, PhysicalPlan *pplan, SqlKey *key) {
     SqlValue *value;
     SqlTable *table;
     SqlOptionalKeyword *keyword = NULL;
-    int iter_key_index = 0, keys_to_match = 0;
+    int iter_key_index = 0, keys_to_match = 0, hit_key = 0;
     char *columnName = " ";
 
     // If there is no table, this is a temporary key;
@@ -25,7 +25,7 @@ TEMPLATE(tmpl_key_advance, PhysicalPlan *pplan, SqlKey *key) {
 
     // We ignore the key value here, so we can check if there is data in this key in some cases
     if(key->cross_reference_output_key) {
-        UNPACK_SQL_STATEMENT (value, key->cross_reference_output_key->column->columnName, value);
+        UNPACK_SQL_STATEMENT(value, key->cross_reference_output_key->column->columnName, value);
         columnName = value->v.reference;
         %}^|"{{ config->global_directory }}"|{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}"{%
         //TMPL(tmpl_column_reference, pplan, key->cross_reference_output_key->cross_reference_column_alias);
@@ -38,8 +38,10 @@ TEMPLATE(tmpl_key_advance, PhysicalPlan *pplan, SqlKey *key) {
             %},{%
             TMPL(tmpl_key, pplan->iterKeys[iter_key_index]);
             iter_key_index++;
-            if(pplan->iterKeys[iter_key_index] != key)
+            if(hit_key && pplan->iterKeys[iter_key_index] != key)
               break;
+            if(pplan->iterKeys[iter_key_index] == key)
+              hit_key = TRUE;
         }
         %}){%
     } else if(table->source) {
@@ -54,7 +56,7 @@ TEMPLATE(tmpl_key_advance, PhysicalPlan *pplan, SqlKey *key) {
         keys_to_match++;
         UNPACK_SQL_STATEMENT(keyword, table->source, keyword);
         UNPACK_SQL_STATEMENT(value, keyword->v, value);
-        %}{% TMPL(tmpl_emit_source, value->v.string_literal, tableName, key->random_id, keys_to_match); %}{%
+        TMPL(tmpl_emit_source, value->v.string_literal, tableName, key->random_id, keys_to_match, EmitSourceForm_Value);
     } else {
         // Check to see if the column has an advance keyword; if so, return it
         if(key->column)

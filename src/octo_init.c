@@ -50,7 +50,6 @@ void populate_global_names() {
 	YDB_LITERAL_TO_BUFFER("$ZSTATUS", &config->zgbldir);
 	YDB_MALLOC_BUFFER(&config->prev_gbldir, MAX_STR_CONST);
 	YDB_STRING_TO_BUFFER((char*)config->global_directory, &config->octo_gbldir);
-	//config->global_names.schema = "^schema";
 	snprintf(buff, MAX_STR_CONST, "^%sschema", config->global_prefix);
 	buff[MAX_STR_CONST - 1] = '\0';
 	config->global_names.schema = malloc(strlen(buff));

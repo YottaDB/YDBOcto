@@ -1,0 +1,89 @@
+
+load test_helpers
+
+setup() {
+  init_test
+  createdb
+  load_fixture names.sql
+  load_fixture names.zwr
+  load_fixture names2.sql
+  load_fixture names2.zwr
+}
+
+@test "where with string limits return values" {
+  octo <<OCTO &> output.txt
+select * from names where firstName = "Zero";
+OCTO
+  run cat output.txt
+  [[ "$output" =~ "Zero|Cool" ]]
+  ! [[ "$output" =~ "Joey" ]]
+  [[ -e genOctoXrefnamesfirstName.m ]]
+  [[ "$(grep -c xref outputPlan1.m)" > 0 ]]
+  run $ydb_dist/mumps -r %XCMD zwrite ^%ydboctoxref
+  [[ "$output" =~ "^%ydboctoxref(\"names\",\"firstName\",\"Zero\")=" ]]
+  [[ "$output" =~ "^%ydboctoxref(\"names\",\"firstName\")=" ]]
+}
+
+@test "where from table with two keys" {
+  octo <<OCTO &> output.txt
+select * from names2 where lastName = "Cool";
+OCTO
+  run cat output.txt
+  [[ "$output" =~ "Zero|Cool" ]]
+  ! [[ "$output" =~ "Joey" ]]
+  [[ -e genOctoXrefnames2lastName.m ]]
+  [[ "$(grep -c xref outputPlan1.m)" > 0 ]]
+  run $ydb_dist/mumps -r %XCMD zwrite ^%ydboctoxref
+  [[ "$output" =~ "^%ydboctoxref(\"names2\",\"lastName\",\"Cool\")=" ]]
+  [[ "$output" =~ "^%ydboctoxref(\"names2\",\"lastName\")=" ]]
+}
+
+@test "where from table with two keys and where is key" {
+  octo <<OCTO &> output.txt
+select * from names2 where firstName = "Zero";
+OCTO
+  run cat output.txt
+  [[ "$output" =~ "Zero|Cool" ]]
+  ! [[ "$output" =~ "Joey" ]]
+}
+@test "where from table with two keys inverted where" {
+  octo <<OCTO &> output.txt
+select * from names2 where "Cool" = lastName;
+OCTO
+  run cat output.txt
+  [[ "$output" =~ "Zero|Cool" ]]
+  ! [[ "$output" =~ "Joey" ]]
+  [[ -e genOctoXrefnames2lastName.m ]]
+  [[ "$(grep -c xref outputPlan1.m)" > 0 ]]
+  run $ydb_dist/mumps -r %XCMD zwrite ^%ydboctoxref
+  [[ "$output" =~ "^%ydboctoxref(\"names2\",\"lastName\",\"Cool\")=" ]]
+  [[ "$output" =~ "^%ydboctoxref(\"names2\",\"lastName\")=" ]]
+}
+
+@test "where from table with two keys and one key is equal to non-key" {
+  ## TODO: this test is skipped until we get the optimization engine to "order" expressions
+  octo <<OCTO &> output.txt
+select * from names2 where firstName = lastName;
+OCTO
+  # We can't know the lastName before getting the firstName, so there are no optimizations in this case
+}
+
+@test "where from table with two keys and one key is equal to non-key inverted" {
+  octo <<OCTO &> output.txt
+select * from names2 where lastName = firstName;
+OCTO
+}
+
+
+@test "verify that triggers create new indexes and delete them" {
+  octo <<OCTO &> output.txt
+SELECT * FROM names WHERE firstName = "Zero";
+OCTO
+  [[ -e genOctoXrefnamesfirstName.m ]]
+  $ydb_dist/mumps -r %XCMD 'SET ^names(6)="|Charles|Hathaway"'
+  run $ydb_dist/mumps -r %XCMD zwrite ^%ydboctoxref
+  [[ "$output" =~ "%ydboctoxref(\"names\",\"firstName\",\"Charles\",6)" ]]
+  $ydb_dist/mumps -r %XCMD 'kill ^names(6)'
+  run $ydb_dist/mumps -r %XCMD 'ZWRITE ^ydboctoxref'
+  [[ ! ( "$output" =~ "%ydboctoxref(\"names\",\"firstName\",\"Charles\",6)" ) ]]
+}

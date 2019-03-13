@@ -19,21 +19,35 @@ int match_expression(char *start, char *column, int column_size);
  * Emits the source given, replacing keys("columnName") with
  *  references to this PhysicalPlan's keys
  */
-TEMPLATE(tmpl_emit_source, char *source, char *table_name, int unique_id, int num_vars_to_match) {
+TEMPLATE(tmpl_emit_source, char *source, char *table_name, int unique_id, int num_vars_to_match, enum EmitSourceForm form) {
     TEMPLATE_INIT();
     char *source_ptr, *c;
     char column[MAX_STR_CONST];
     int t, i, matched_vars = 0;
+    int sub_count;
     int paren_count = 0;
 
     source_ptr = source;
+    sub_count = 0;
+    /// TODO: how does this handle globals that have things like "abc"_keys("id")?
     while(*source_ptr != '\0' && matched_vars < num_vars_to_match) {
         t = match_expression(source_ptr, column, MAX_STR_CONST);
         assert(t != -1);
         if(t > 0) {
             // Note that we don't add quotes to column in case the user users a
             //  extrinsic or something
-            %}^|"{{ config->global_directory }}"|{{ config->global_names.raw_cursor }}(cursorId,"keys",{{ unique_id|%d }},"{{ table_name }}",{{ column }}){%
+            switch(form) {
+            case EmitSourceForm_Value:
+                %}^|"{{ config->global_directory }}"|{{ config->global_names.raw_cursor }}(cursorId,"keys",{{ unique_id|%d }},"{{ table_name }}",{{ column }}){%
+                break;
+            case EmitSourceForm_Trigger:
+                %}sub{{ sub_count|%d }}=:{%
+                sub_count++;
+                break;
+            default:
+                FATAL(ERR_UNKNOWN_KEYWORD_STATE);
+                break;
+            }
             source_ptr += t;
             matched_vars += 1;
         } else {

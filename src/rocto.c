@@ -123,7 +123,7 @@ int main(int argc, char **argv) {
 		YDB_STRING_TO_BUFFER(config->global_names.session, global_buffer);
 		INIT_YDB_BUFFER(session_id_buffer, MAX_STR_CONST);
 		printf("session length: %d\n", global_buffer->len_used);
-		status = ydb_incr_s(global_buffer, 1, session_id_buffer, NULL, session_id_buffer);
+		status = ydb_incr_s(global_buffer, 0, NULL, NULL, session_id_buffer);
 		YDB_ERROR_CHECK(status, &z_status, &z_status_value);
 		session.session_id = session_id_buffer;
 		rocto_main_loop(&session);

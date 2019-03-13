@@ -95,6 +95,11 @@ PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlan *next) {
 	}
 	out = (PhysicalPlan*)malloc(sizeof(PhysicalPlan));
 	memset(out, 0, sizeof(PhysicalPlan));
+	if(next != NULL) {
+		while(next->prev != NULL) {
+			next = next->prev;
+		}
+	}
 	out->next = next;
 
 	// Set my output key
@@ -214,7 +219,7 @@ LogicalPlan *walk_where_statement(PhysicalPlan *out, LogicalPlan *stmt) {
 	if(stmt == NULL)
 		return NULL;
 
-	if(stmt->type >= LP_ADDITION && stmt->type <= LP_BOOLEAN_IN) {
+	if(stmt->type >= LP_ADDITION && stmt->type <= LP_BOOLEAN_NOT_IN) {
 		// This is a binary operation; clone it, and reasign the left-right options
 		MALLOC_LP(ret, stmt->type);
 		ret->v.operand[0] = walk_where_statement(out, stmt->v.operand[0]);

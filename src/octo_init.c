@@ -47,7 +47,7 @@ void merge_config_file(const char *path, config_t *config_file) {
 void populate_global_names() {
 	char buff[MAX_STR_CONST];
 
-	YDB_LITERAL_TO_BUFFER("$ZSTATUS", &config->zgbldir);
+	YDB_LITERAL_TO_BUFFER("$ZGBLDIR", &config->zgbldir);
 	YDB_MALLOC_BUFFER(&config->prev_gbldir, MAX_STR_CONST);
 	YDB_STRING_TO_BUFFER((char*)config->global_directory, &config->octo_gbldir);
 	snprintf(buff, MAX_STR_CONST, "^%sschema", config->global_prefix);

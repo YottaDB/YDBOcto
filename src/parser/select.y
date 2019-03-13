@@ -557,7 +557,7 @@ derived_table
 joined_table
   : cross_join { $$ = $1; }
   | qualified_join { $$ = $1; }
-  | LEFT_PAREN joined_table RIGHT_PAREN
+  | LEFT_PAREN joined_table RIGHT_PAREN { $$ = $2; }
   ;
 
 cross_join

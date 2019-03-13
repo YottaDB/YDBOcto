@@ -42,7 +42,7 @@ int main(int argc, char **argv) {
 	RoctoSession session;
 
 	ydb_buffer_t ydb_buffers[2];
-	ydb_buffer_t *global_buffer = &ydb_buffers[0], *session_id_buffer = &ydb_buffers[1];
+	ydb_buffer_t *global_buffer = &(ydb_buffers[0]), *session_id_buffer = &(ydb_buffers[1]);
 	ydb_buffer_t z_status, z_status_value;
 
 	octo_init(argc, argv);
@@ -118,6 +118,8 @@ int main(int argc, char **argv) {
 		free(authok);
 
 		// Enter the main loop
+		global_buffer = &(ydb_buffers[0]);
+		session_id_buffer = &(ydb_buffers[1]);
 		YDB_LITERAL_TO_BUFFER("$ZSTATUS", &z_status);
 		INIT_YDB_BUFFER(&z_status_value, MAX_STR_CONST);
 		YDB_STRING_TO_BUFFER(config->global_names.session, global_buffer);

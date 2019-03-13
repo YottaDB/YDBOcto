@@ -38,7 +38,7 @@ Mapping to existing YottaDB global variables
 If mapping to existing YottaDB global variables, an optional_keyword can be added to further enhance the CREATE statement:
 
 .. parsed-literal::
-   [ADVANCE | CURSOR | DELIM | END | EXTRACT | GLOBAL | KEY NUM | PACK | PIECE | UNPACK LITERAL]
+   [ADVANCE | CURSOR | DELIM | END | EXTRACT | GLOBAL | KEY NUM | PIECE LITERAL]
 
 The keywords denoted above are M expressions and literals. They are explained in the following table:
 
@@ -61,16 +61,9 @@ The keywords denoted above are M expressions and literals. They are explained in
 +--------------------------------+-------------------------------+------------------------+--------------------------------------------------------------------------------+------------------------------+------------------------------+
 | KEY NUM                        | Literal                       | Column                 | Specifies that the column maps to keys(<number>)                               | \-                           | \-                           |
 +--------------------------------+-------------------------------+------------------------+--------------------------------------------------------------------------------+------------------------------+------------------------------+
-| PACK                           | Command expression            | Table                  | Packs the cursor into a single value to be stored in a global                  | \-                           | SET storeKey=$$STOREKEY("cur |
-|                                |                               |                        | specified by the SQL engine.                                                   |                              | sor_name",.keys),@storeKey   |
-+--------------------------------+-------------------------------+------------------------+--------------------------------------------------------------------------------+------------------------------+------------------------------+
 | PIECE                          | Literal                       | Column                 | Represents the                                                                 | default (column number,      | \-                           |
 |                                |                               |                        | `$PIECE <https://docs.yottadb.com/ProgrammersGuide/functions.html#piece>`_     | starting at 1)               |                              | 
 |                                |                               |                        | number of the row this column refers to                                        |                              |                              |
-+--------------------------------+-------------------------------+------------------------+--------------------------------------------------------------------------------+------------------------------+------------------------------+
-| UNPACK                         | Command expression            | Table                  | Unpacks the cursor from a global filled in by the SQL engine                   | \-                           | SET cursor="cursor_name",    |
-|                                |                               |                        |                                                                                |                              | keys(0)=$P($G(@cursor),      |
-|                                |                               |                        |                                                                                |                              | "|",1)                       |
 +--------------------------------+-------------------------------+------------------------+--------------------------------------------------------------------------------+------------------------------+------------------------------+
 
 In the table above:
@@ -80,8 +73,6 @@ In the table above:
 * $$STOREKEY is an M routine that converts an array of keys (keys) to a format that can be stored in the cursor as ^cursor(sessionId,keys(0),keys(1)).
 * @storeKey is an M-expression which does indirection on the value stored in storeKey.
 * @cursor does indirection on the cursor variable.
-* $P represents `$PIECE <https://docs.yottadb.com/ProgrammersGuide/functions.html#piece>`_, which is a function that returns a logical field from a logical record.
-* $G represents `$GET <https://docs.yottadb.com/ProgrammersGuide/functions.html#get>`_ , an M function that returns the value of a local or global variable if the variable has a value.
 
 -----------------
 DROP

@@ -18,6 +18,10 @@
 #include <assert.h>
 #include <unistd.h>
 
+#include <openssl/conf.h>
+#include <openssl/evp.h>
+#include <openssl/err.h>
+
 #include "octo.h"
 #include "octo_types.h"
 
@@ -26,14 +30,35 @@
 
 #include "template_helpers.h"
 
+void generateHash(EVP_MD_CTX *mdctx, const unsigned char *message, size_t message_len, char **digest, unsigned int *digest_len) {
+	if(1 != EVP_DigestInit_ex(mdctx, EVP_md5(), NULL)) {
+		FATAL(ERR_LIBSSL_ERROR);
+	}
+
+	if(1 != EVP_DigestUpdate(mdctx, message, message_len)) {
+		FATAL(ERR_LIBSSL_ERROR);
+	}
+
+	if((*digest = (unsigned char *)OPENSSL_malloc(EVP_MD_size(EVP_md5()))) == NULL) {
+		FATAL(ERR_LIBSSL_ERROR);
+	}
+
+	if(1 != EVP_DigestFinal_ex(mdctx, *digest, digest_len)) {
+		FATAL(ERR_LIBSSL_ERROR);
+	}
+}
+
 int emit_physical_plan(PhysicalPlan *pplan) {
 	int plan_id, len, fd;
 	PhysicalPlan *cur_plan = pplan, *first_plan;
 	char buffer[MAX_STR_CONST], plan_name_buffer[MAX_STR_CONST];
 	char filename[MAX_STR_CONST], *tableName, *columnName;
+	char *tableNameHash, *columnNameHash;
+	int tableNameHashLen, columnNameHashLen, filename_len;
 	SqlValue *value;
 	SqlKey *key;
 	FILE *output_file;
+	EVP_MD_CTX *mdctx = NULL;
 
 	assert(cur_plan != NULL);
 
@@ -48,6 +73,9 @@ int emit_physical_plan(PhysicalPlan *pplan) {
 			cur_plan = cur_plan->next;
 			continue;
 		}
+		if(mdctx == NULL && ((mdctx = EVP_MD_CTX_create()) == NULL)) {
+			FATAL(ERR_LIBSSL_ERROR);
+		}
 		key = cur_plan->outputKey;
 		UNPACK_SQL_STATEMENT(value, key->table->tableName, value);
 		tableName = value->v.reference;
@@ -57,10 +85,15 @@ int emit_physical_plan(PhysicalPlan *pplan) {
 		cur_plan->plan_name = malloc(len+1);
 		memcpy(cur_plan->plan_name, plan_name_buffer, len);
 		cur_plan->plan_name[len] = '\0';
-		snprintf(filename, MAX_STR_CONST, "%s/genOctoXref%s%s.m", config->tmp_dir, tableName, columnName);
+		generateHash(mdctx, tableName, strlen(tableName), &tableNameHash, &tableNameHashLen);
+		generateHash(mdctx, columnName, strlen(columnName), &columnNameHash, &columnNameHashLen);
+		filename_len = strlen("genOctoXref")+17;
+		key->cross_reference_filename = malloc(filename_len);
+		snprintf(key->cross_reference_filename, filename_len, "genOctoXref%x%x",
+				*(unsigned int*)tableNameHash, *(unsigned int*)columnNameHash);
+		snprintf(filename, MAX_STR_CONST, "%s/%s.m", config->tmp_dir, key->cross_reference_filename);
 		output_file = fopen(filename, "w");
-		filename[strlen(filename)-2] = '\0';
-		cur_plan->filename = &filename[strlen(config->tmp_dir)+1];
+		cur_plan->filename = key->cross_reference_filename;
 		tmpl_physical_plan(buffer, MAX_STR_CONST, cur_plan);
 		assert(output_file != NULL);
 		fprintf(output_file, "%s\n", buffer);
@@ -108,5 +141,8 @@ int emit_physical_plan(PhysicalPlan *pplan) {
 	fd = fileno(output_file);
 	fsync(fd);
 	fclose(output_file);
+	if(mdctx != NULL) {
+		EVP_MD_CTX_destroy(mdctx);
+	}
 	return TRUE;
 }

@@ -100,8 +100,7 @@ void handle_query_response(PhysicalPlan *plan, int cursor_id, void *_parms) {
 			if(*c == '|') {
 				data_row_parms[number_of_columns].length = c - data_row_parms[number_of_columns].value;
 				number_of_columns++;
-				c++;
-				data_row_parms[number_of_columns].value = c;
+				data_row_parms[number_of_columns].value = c + 1;
 			}
 		}
 		data_row_parms[number_of_columns].length = c - data_row_parms[number_of_columns].value;

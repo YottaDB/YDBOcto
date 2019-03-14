@@ -76,6 +76,9 @@ int rocto_main_loop(RoctoSession *session) {
 		}
 		send_ready_for_query = TRUE;
 		message = read_message(session, buffer, MAX_STR_CONST);
+		if(message == NULL) {
+			break;
+		}
 		TRACE(ERR_READ_MESSAGE, message->type, ntohl(message->length));
 		switch(message->type) {
 		case PSQL_Bind:

@@ -49,7 +49,7 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
             tableName = value->v.reference;
             UNPACK_SQL_STATEMENT (value, t_key->column->columnName, value);
             columnName = value->v.reference;
-            %}DO:'$D(^|"{{ config->global_directory }}"|{{ config->global_names.raw_octo }}("xref_status","{{ tableName }}","{{ columnName }}")) ^genOctoXref{{ tableName}}{{ columnName}}(cursorId)
+            %}DO:'$D(^|"{{ config->global_directory }}"|{{ config->global_names.raw_octo }}("xref_status","{{ tableName }}","{{ columnName }}")) ^{{ t_key->cross_reference_filename }}(cursorId)
     {%
         }
     }

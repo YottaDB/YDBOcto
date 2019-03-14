@@ -110,6 +110,9 @@ struct SqlKey {
 	SqlKey *cross_reference_output_key;
 	// The source of the cross reference
 	SqlColumnAlias *cross_reference_column_alias;
+	// If this is a cross refence key, this value will point to the filename used to store the
+	// code to provide the cross reference
+	char *cross_reference_filename;
 };
 
 // Helper functions

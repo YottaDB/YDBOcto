@@ -23,6 +23,9 @@
 #include <dirent.h>
 #include <errno.h>
 
+#include <openssl/conf.h>
+#include <openssl/evp.h>
+#include <openssl/err.h>
 
 #include "octo.h"
 #include "octo_types.h"
@@ -79,6 +82,17 @@ void populate_global_names() {
 	config->global_names.xref = malloc(strlen(buff));
 	strcpy(config->global_names.xref, buff);
 	config->global_names.raw_xref = &config->global_names.xref[1];
+}
+
+void init_crypto() {
+	/* Load the human readable error strings for libcrypto */
+	ERR_load_crypto_strings();
+
+	/* Load all digest and cipher algorithms */
+	OpenSSL_add_all_algorithms();
+
+	/* Load config file, and other important initialisation */
+	OPENSSL_config(NULL);
 }
 
 int octo_init(int argc, char **argv) {
@@ -227,6 +241,7 @@ int octo_init(int argc, char **argv) {
 	free(dir);
 
 	populate_global_names();
+	init_crypto();
 
 	definedTables = NULL;
 	cur_input_max = MAX_STR_CONST;

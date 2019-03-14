@@ -3,7 +3,7 @@ stages:
   - docs
 
 before_script:
-  - apt-get update -qq && apt-get install -y -qq build-essential cmake bison flex libcmocka-dev python-pip libreadline-dev git libconfig-dev
+  - apt-get update -qq && apt-get install -y -qq build-essential cmake bison flex libcmocka-dev python-pip libreadline-dev git libconfig-dev libssl-dev
   - pip install sphinxcontrib-fulltoc sphinx sphinx_rtd_theme
 
 make:

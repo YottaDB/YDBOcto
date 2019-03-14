@@ -3,6 +3,7 @@ find_package(FLEX REQUIRED)
 find_package(YOTTADB REQUIRED)
 find_package(Readline REQUIRED)
 find_package(Config REQUIRED)
+find_package(OpenSSL REQUIRED)
 find_package(CMOCKA)
 find_package(BATS)
 
@@ -47,6 +48,7 @@ include_directories("${PROJECT_SOURCE_DIR}/src/helpers")
 include_directories("${PROJECT_BINARY_DIR}")
 include_directories("${YOTTADB_INCLUDE_DIRS}")
 include_directories("${Readline_INCLUDE_DIR}")
+include_directories("${OPENSSL_INCLUDE_DIR}")
 include_directories("${CONFIG_INCLUDE_DIR}")
 link_directories("${YOTTADB_INCLUDE_DIRS}")
 
@@ -239,9 +241,9 @@ endforeach()
 
 set_property(TARGET libocto PROPERTY C_STANDARD 11)
 
-target_link_libraries(octo ${YOTTADB_LIBRARIES} ${Readline_LIBRARY} ${CONFIG_LIBRARY})
-target_link_libraries(rocto ${YOTTADB_LIBRARIES} ${Readline_LIBRARY} ${CONFIG_LIBRARY})
-target_link_libraries(pparser ${YOTTADB_LIBRARIES} ${Readline_LIBRARY} ${CONFIG_LIBRARY})
+target_link_libraries(octo ${YOTTADB_LIBRARIES} ${Readline_LIBRARY} ${CONFIG_LIBRARY} ${OPENSSL_LIBRARIES})
+target_link_libraries(rocto ${YOTTADB_LIBRARIES} ${Readline_LIBRARY} ${CONFIG_LIBRARY} ${OPENSSL_LIBRARIES})
+target_link_libraries(pparser ${YOTTADB_LIBRARIES} ${Readline_LIBRARY} ${CONFIG_LIBRARY} ${OPENSSL_LIBRARIES})
 
 enable_testing()
 include(${PROJECT_SOURCE_DIR}/cmake/tests.cmake)

@@ -17,7 +17,7 @@ OCTO
   run cat output.txt
   [[ "$output" =~ "Zero|Cool" ]]
   ! [[ "$output" =~ "Joey" ]]
-  [[ -e genOctoXrefnamesfirstName.m ]]
+  [[ -e genOctoXref318c99a87b3889ed.m ]]
   [[ "$(grep -c xref outputPlan1.m)" > 0 ]]
   run $ydb_dist/mumps -r %XCMD zwrite ^%ydboctoxref
   [[ "$output" =~ "^%ydboctoxref(\"names\",\"firstName\",\"Zero\")=" ]]
@@ -31,7 +31,7 @@ OCTO
   run cat output.txt
   [[ "$output" =~ "Zero|Cool" ]]
   ! [[ "$output" =~ "Joey" ]]
-  [[ -e genOctoXrefnames2lastName.m ]]
+  [[ -e genOctoXref5fc7b93c5f9221ef.m ]]
   [[ "$(grep -c xref outputPlan1.m)" > 0 ]]
   run $ydb_dist/mumps -r %XCMD zwrite ^%ydboctoxref
   [[ "$output" =~ "^%ydboctoxref(\"names2\",\"lastName\",\"Cool\")=" ]]
@@ -53,7 +53,7 @@ OCTO
   run cat output.txt
   [[ "$output" =~ "Zero|Cool" ]]
   ! [[ "$output" =~ "Joey" ]]
-  [[ -e genOctoXrefnames2lastName.m ]]
+  [[ -e genOctoXref5fc7b93c5f9221ef.m ]]
   [[ "$(grep -c xref outputPlan1.m)" > 0 ]]
   run $ydb_dist/mumps -r %XCMD zwrite ^%ydboctoxref
   [[ "$output" =~ "^%ydboctoxref(\"names2\",\"lastName\",\"Cool\")=" ]]
@@ -79,7 +79,7 @@ OCTO
   octo <<OCTO &> output.txt
 SELECT * FROM names WHERE firstName = "Zero";
 OCTO
-  [[ -e genOctoXrefnamesfirstName.m ]]
+  [[ -e genOctoXref318c99a87b3889ed.m ]]
   $ydb_dist/mumps -r %XCMD 'SET ^names(6)="|Charles|Hathaway"'
   run $ydb_dist/mumps -r %XCMD zwrite ^%ydboctoxref
   [[ "$output" =~ "%ydboctoxref(\"names\",\"firstName\",\"Charles\",6)" ]]

@@ -75,7 +75,7 @@ static void test_non_terminated_input(void **state) {
 	char *c;
 	ErrorResponse *err = NULL;
 
-  BaseMessage *test_data = (BaseMessage*)malloc(message_length + sizeof(BaseMessage) - 3);
+	BaseMessage *test_data = (BaseMessage*)malloc(message_length + sizeof(BaseMessage) - 3);
 	test_data->type = PSQL_Describe;
 	test_data->length = htonl(message_length - 2);
 	c = test_data->data;
@@ -92,8 +92,7 @@ static void test_non_terminated_input(void **state) {
 
 	free(describe);
 	free(test_data);
-  free(err->args);
-	free(err);
+	free_error_response(err);
 }
 
 int main(void) {

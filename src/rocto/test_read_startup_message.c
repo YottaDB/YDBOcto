@@ -77,6 +77,8 @@ static void test_valid_input(void **state) {
 	assert_null(err);
 	assert_string_equal(parm1_name, startup->parameters[0].name);
 	assert_string_equal(parm1_value, startup->parameters[0].value);
+
+	free(test_data);
 }
 
 static void test_wrong_version(void **state) {
@@ -115,6 +117,9 @@ static void test_wrong_version(void **state) {
 	// Standard checks
 	assert_null(startup);
 	assert_non_null(err);
+
+	free_error_response(err);
+	free(test_data);
 }
 
 static void test_non_terminated_name(void **state) {
@@ -145,6 +150,9 @@ static void test_non_terminated_name(void **state) {
 	// Standard checks
 	assert_null(startup);
 	assert_non_null(err);
+
+	free_error_response(err);
+	free(test_data);
 }
 
 static void test_non_terminated_value(void **state) {
@@ -179,6 +187,9 @@ static void test_non_terminated_value(void **state) {
 	// Standard checks
 	assert_null(startup);
 	assert_non_null(err);
+
+	free_error_response(err);
+	free(test_data);
 }
 
 int main(void) {

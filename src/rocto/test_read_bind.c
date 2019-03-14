@@ -115,8 +115,7 @@ static void test_input_to_short(void **state) {
 
         free(test_data);
         free(bind);
-        free(err->args);
-        free(err);
+	free_error_response(err);
 }
 
 static void test_input_to_long(void **state) {
@@ -168,8 +167,7 @@ static void test_input_to_long(void **state) {
 
         free(test_data);
         free(bind);
-        free(err->args);
-        free(err);
+	free_error_response(err);
 }
 
 static void test_no_null_terminators_on_dest(void **state) {
@@ -200,8 +198,7 @@ static void test_no_null_terminators_on_dest(void **state) {
 
         free(test_data);
         free(bind);
-        free(err->args);
-        free(err);
+	free_error_response(err);
 }
 
 static void test_no_null_terminators_on_source(void **state) {
@@ -236,8 +233,7 @@ static void test_no_null_terminators_on_source(void **state) {
 
         free(test_data);
         free(bind);
-        free(err->args);
-        free(err);
+	free_error_response(err);
 }
 
 static void test_missing_parameter_types(void **state) {
@@ -275,8 +271,7 @@ static void test_missing_parameter_types(void **state) {
 
         free(test_data);
         free(bind);
-        free(err->args);
-        free(err);
+	free_error_response(err);
 }
 
 static void test_missing_parameters(void **state) {
@@ -317,8 +312,7 @@ static void test_missing_parameters(void **state) {
 
         free(test_data);
         free(bind);
-        free(err->args);
-        free(err);
+	free_error_response(err);
 }
 
 static void test_missing_result_col_format_codes(void **state) {
@@ -362,8 +356,7 @@ static void test_missing_result_col_format_codes(void **state) {
 
         free(test_data);
         free(bind);
-        free(err->args);
-        free(err);
+	free_error_response(err);
 }
 
 int main(void) {

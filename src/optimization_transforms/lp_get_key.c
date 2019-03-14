@@ -52,13 +52,20 @@ SqlKey *lp_get_key(LogicalPlan *plan, LogicalPlan *lp_column_alias) {
 		GET_LP(lp_key, cur_key, 0, LP_KEY);
 		key = lp_key->v.key;
 		key_id = key->random_id;
-		UNPACK_SQL_STATEMENT(key_table_name, key->table->tableName, value);
-		UNPACK_SQL_STATEMENT(key_column_name, key->column->columnName, value);
 		do {
 			if(key_id != search_id)
 				break;
+			/// TODO: the only way something has a name of NULL is if it's an output key
+			// Which means we're looking for the key in a derived table; we don't currently
+			// support this
+			if(key->table == NULL) {
+				assert(key->column == NULL);
+				break;
+			}
+			UNPACK_SQL_STATEMENT(key_table_name, key->table->tableName, value);
 			if(strcmp(search_table_name->v.string_literal, key_table_name->v.string_literal) != 0)
 				break;
+			UNPACK_SQL_STATEMENT(key_column_name, key->column->columnName, value);
 			if(strcmp(search_column_name->v.string_literal, key_column_name->v.string_literal) != 0)
 				break;
 			return key;

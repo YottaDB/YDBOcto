@@ -51,3 +51,20 @@ OCTO
   ! [[ "$output" =~ "0|Zero|Cool|0|Zero|Cool" ]]
   [[ "$output" =~ "0|Zero|Cool|1|Acid|Burn" ]]
 }
+
+@test "join of temporary table with real table" {
+  octo <<OCTO &> output.txt
+select *
+FROM (
+    select t1.firstName as firstName
+        , t2.id as id
+    FROM names t1
+    INNER JOIN names t2
+    ON t1.id = t2.id
+) as t0
+INNER JOIN names t3
+on t3.id = t0.id;
+OCTO
+  [[ "$(grep -c 'Zero|Cool'  output.txt)" == "2" ]]
+  [[ "$(grep -c 'Acid|Burn'  output.txt)" == "1" ]]
+}

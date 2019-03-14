@@ -129,7 +129,15 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt, int *plan_id) {
 		UNPACK_SQL_STATEMENT(list, select_stmt->select_list, column_list_alias);
 		temp = lp_column_list_to_lp(list, plan_id);
 	}
+
+	// Ensure that any added conditions as a result of a join are added to the WHERE
+	// before we go through and replace derived table references
 	project->v.operand[0] = temp;
+	if(start_join_condition) {
+		where = lp_join_where(where, start_join_condition);
+		select_options->v.operand[0] = where;
+	}
+	where->v.operand[1] = NULL;
 
 	// Handle factoring in derived columns
 	left = select->v.operand[0];
@@ -142,18 +150,13 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt, int *plan_id) {
 		// We need to call this function on the WHERE and PROJECT fields
 		if(left->v.operand[0]->type == LP_INSERT) {
 			UNPACK_SQL_STATEMENT(table_alias, cur_join->value, table_alias);
-			lp_replace_derived_table_references(insert, join_left, table_alias);
+			lp_replace_derived_table_references(insert, left->v.operand[0], table_alias);
 		}
 		left = left->v.operand[1];
 		cur_join = cur_join->next;
 	}
 
 
-	if(start_join_condition) {
-		where = lp_join_where(where, start_join_condition);
-		select_options->v.operand[0] = where;
-	}
-	where->v.operand[1] = NULL;
 
 	keywords = MALLOC_LP(select_options->v.operand[1], LP_KEYWORDS);
 	UNPACK_SQL_STATEMENT(keywords->v.keywords, select_stmt->optional_words, keyword);

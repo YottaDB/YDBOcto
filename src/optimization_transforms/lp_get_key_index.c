@@ -35,8 +35,13 @@ int lp_get_key_index(LogicalPlan *plan, LogicalPlan *lp_column_alias) {
 	column_alias = lp_column_alias->v.column_alias;
 	UNPACK_SQL_STATEMENT(table_alias, column_alias->table_alias, table_alias);
 	search_id = table_alias->unique_id;
-	UNPACK_SQL_STATEMENT(table, table_alias->table, table);
-	UNPACK_SQL_STATEMENT(search_table_name, table->tableName, value);
+	if(table_alias->table->type == table_STATEMENT) {
+		UNPACK_SQL_STATEMENT(table, table_alias->table, table);
+		UNPACK_SQL_STATEMENT(search_table_name, table->tableName, value);
+	} else {
+		assert(table_alias->table->type == select_STATEMENT);
+		UNPACK_SQL_STATEMENT(search_table_name, table_alias->alias, value);
+	}
 
 	if(column_alias->column->type == column_STATEMENT) {
 		UNPACK_SQL_STATEMENT(column, column_alias->column, column);
@@ -53,13 +58,20 @@ int lp_get_key_index(LogicalPlan *plan, LogicalPlan *lp_column_alias) {
 		GET_LP(lp_key, cur_key, 0, LP_KEY);
 		key = lp_key->v.key;
 		key_id = key->random_id;
-		UNPACK_SQL_STATEMENT(key_table_name, key->table->tableName, value);
-		UNPACK_SQL_STATEMENT(key_column_name, key->column->columnName, value);
+		/// TODO: the only way something has a name of NULL is if it's an output key
+		// Which means we're looking for the key in a derived table; we don't currently
+		// support this
+		if(key->table == NULL) {
+			assert(key->column == NULL);
+			return -2;
+		}
 		do {
 			if(key_id != search_id)
 				break;
+			UNPACK_SQL_STATEMENT(key_table_name, key->table->tableName, value);
 			if(strcmp(search_table_name->v.string_literal, key_table_name->v.string_literal) != 0)
 				break;
+			UNPACK_SQL_STATEMENT(key_column_name, key->column->columnName, value);
 			if(strcmp(search_column_name->v.string_literal, key_column_name->v.string_literal) != 0)
 				break;
 			return cur_key_index;

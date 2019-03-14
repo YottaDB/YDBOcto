@@ -38,14 +38,17 @@ int read_bytes(RoctoSession *session, char *buffer, int buffer_size, int bytes_t
 	}
 
 	while(read_so_far < bytes_to_read) {
-		read_now = read(session->connection_fd, &buffer[read_so_far],
-				bytes_to_read - read_so_far);
+		read_now = recv(session->connection_fd, &buffer[read_so_far],
+				bytes_to_read - read_so_far, 0);
 		if(read_now < 0) {
 			if(errno == EINTR)
 				continue;
 			if(errno == ECONNRESET)
 				return 1;
 			FATAL(ERR_SYSCALL, "read", errno);
+			return 1;
+		} else if(read_now == 0) {
+			// This means the socket was cleanly closed
 			return 1;
 		}
 		read_so_far += read_now;

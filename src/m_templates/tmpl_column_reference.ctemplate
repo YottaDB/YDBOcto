@@ -31,6 +31,15 @@ TEMPLATE(tmpl_column_reference, PhysicalPlan *pplan, SqlColumnAlias *column_alia
         //  and LP_COLUMN_
         UNPACK_SQL_STATEMENT(cl_alias, column_alias->column, column_list_alias);
         UNPACK_SQL_STATEMENT(column_list, cl_alias->column_list, column_list);
+        if(column_list->value->type == value_STATEMENT) {
+            // This can happen when we are referencing a column in a generated table; simply unwrap
+            //  one layer. The next layer should be just the column_alias, so let it fall through
+            //  to the next if
+            UNPACK_SQL_STATEMENT(value, column_list->value, value);
+            UNPACK_SQL_STATEMENT(column_alias, value->v.calculated, column_alias);
+            TMPL(tmpl_column_reference, pplan, column_alias);
+            TEMPLATE_END();
+        }
         if(column_list->value->type == column_alias_STATEMENT) {
           TMPL(tmpl_column_reference, pplan, column_list->value->v.column_alias);
 	        TEMPLATE_END();

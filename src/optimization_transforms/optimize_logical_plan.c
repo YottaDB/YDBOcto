@@ -47,6 +47,9 @@ LogicalPlan *join_tables(LogicalPlan *root, LogicalPlan *plan) {
 		lp_insert_key(root, cur_lp_key);
 		return plan;
 	}
+	if(plan->v.operand[1] != NULL) {
+		GET_LP(next, plan, 1, LP_TABLE_JOIN);
+	}
 	if(plan->v.operand[0]->type == LP_INSERT) {
 		// This plan needs to be inserted as a physical plan
 		//  Leave it alone here, and let the physical planner grab it
@@ -57,12 +60,11 @@ LogicalPlan *join_tables(LogicalPlan *root, LogicalPlan *plan) {
 		GET_LP(cur_lp_key, sub, 1, LP_OUTPUT);
 		GET_LP(cur_lp_key, cur_lp_key, 0, LP_KEY);
 		lp_insert_key(root, cur_lp_key);
+		if(next)
+			join_tables(root, next);
 		return plan;
 	}
 	GET_LP(table_plan, plan, 0, LP_TABLE);
-	if(plan->v.operand[1] != NULL) {
-		GET_LP(next, plan, 1, LP_TABLE_JOIN);
-	}
 	where = lp_get_select(root);
 	GET_LP(criteria, where, 1, LP_CRITERIA);
 	GET_LP(keys, criteria, 0, LP_KEYS);
@@ -268,6 +270,12 @@ LogicalPlan *optimize_logical_plan(LogicalPlan *plan) {
 	SqlValue *value;
 	int result, i1, i2;
 
+	first_key = NULL;
+	last_key = NULL;
+	before_first_key = NULL;
+	before_last_key = NULL;
+	keys = NULL;
+
 	if(plan->type == LP_SET_OPERATION) {
 		optimize_logical_plan(plan->v.operand[1]->v.operand[0]);
 		optimize_logical_plan(plan->v.operand[1]->v.operand[1]);
@@ -316,6 +324,10 @@ LogicalPlan *optimize_logical_plan(LogicalPlan *plan) {
 				if(table_alias->unique_id == table_alias2->unique_id)
 					break;
 			}
+			// If the temporary value is a key from a compound statement, we can't do anything
+			if(i1 == -2 || i2 == -2) {
+				break;
+			}
 			/// TODO: when we get xref table, this may need to be revisited
 			// For now, we know the keys will be ordered if the left hand key will
 			// be the variant key
@@ -345,6 +357,7 @@ LogicalPlan *optimize_logical_plan(LogicalPlan *plan) {
 					GET_LP(first_key, first_key, 1, LP_KEYS);
 				} while(TRUE);
 				// Find the last key
+				before_last_key = before_first_key;
 				last_key = first_key;
 				do {
 					GET_LP(t, last_key, 0, LP_KEY);

@@ -22,3 +22,11 @@ OCTO
   run cat output.txt
   ! [[ "$output" =~ "1|Acid|Burn" ]]
 }
+@test "select with limit of one on outer statement of join" {
+  octo >& output.txt <<OCTO
+select * from names n1 INNER JOIN names n2 ON (n1.id = n2.id) WHERE n1.firstName = "Joey" LIMIT 1;
+OCTO
+  run cat output.txt
+  ! [[ "$output" =~ "1|Acid|Burn" ]]
+  [[ "$output" =~ "Joey" ]]
+}

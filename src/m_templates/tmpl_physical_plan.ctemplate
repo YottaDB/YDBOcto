@@ -84,7 +84,7 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
         keyword = get_keyword_from_keywords(plan->keywords, OPTIONAL_LIMIT);
         if(keyword != NULL) {
             UNPACK_SQL_STATEMENT(value, keyword->v, value);
-            %})!(({{ value->v.string_literal }})<i{{ cur_key|%d }}{%
+            %})!(({{ value->v.string_literal }})'>$G(i{{ plan->total_iter_keys|%d }}){%
         }
     %})  DO
     {%

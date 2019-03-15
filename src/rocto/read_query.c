@@ -25,27 +25,35 @@
 
 Query *read_query(BaseMessage *message, ErrorResponse **err) {
 	Query *ret;
-	int length;
+	unsigned int length;
 	char *c, *message_end;
-	
+
 	assert(message->type == PSQL_Query);
 
 	length = ntohl(message->length);
-	ret = (Query*)malloc(sizeof(Query) + length - 4);
+	ret = (Query*)malloc(sizeof(Query) + length - sizeof(unsigned int));
 	ret->type = message->type;
 	ret->length = length;
-	memcpy(ret->data, message->data, length - 4);
+	memcpy(ret->data, message->data, length - sizeof(unsigned int));
 	c = ret->data;
-	message_end = c + length - 4;
+	message_end = c + length - sizeof(unsigned int);
 
 	// Ensure that there is a trailing null character
 	for(; c < message_end && *c != '\0'; c++) {
 		// Left blank
 	}
-	if(*c != '\0') {
+	if(c == message_end) {
 		*err = make_error_response(PSQL_Error_ERROR,
 					   PSQL_Code_Syntax_Error,
 					   "No null terminating character on input",
+					   0);
+		free(ret);
+		return NULL;
+	}
+	else if(c < message_end - 1) {
+		*err = make_error_response(PSQL_Error_ERROR,
+					   PSQL_Code_Syntax_Error,
+					   "Unexpected terminating character in input",
 					   0);
 		free(ret);
 		return NULL;

@@ -77,3 +77,15 @@ OCTO
   [[ "$output" =~ "1" ]]
 }
 
+
+@test "three way inner join" {
+  octo <<OCTO &> output.txt
+SELECT t1.firstName, t2.firstName, t3.firstName
+FROM names t1
+INNER JOIN names t2
+ON t1.id = t2.id
+INNER JOIN names t3
+ON t2.id = t3.id;
+OCTO
+  [[ "$(grep -c FOR ./*.m)" == "1" ]]
+}

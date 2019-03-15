@@ -171,6 +171,14 @@ void lp_insert_key(LogicalPlan *plan, LogicalPlan *key);
 LogicalPlan *lp_join_where(LogicalPlan *where1, LogicalPlan *where2);
 // Returns a new logical plan representing the boolean structure from stmt
 LogicalPlan *lp_generate_where(SqlStatement *stmt, int *plan_id);
+// Given a column and a table, generates a cross reference plan and returns it
+LogicalPlan *lp_generate_xref_plan(LogicalPlan *plan, SqlTable *table, SqlColumn *column, int unique_id);
+/**
+ * Returns the keys corresponding to the cross reference for column in table, and updates
+ * the LP_TABLE_JOIN of plan to include the plan which needs to be execute to generate the cross
+ * reference
+ */
+LogicalPlan *lp_generate_xref_keys(LogicalPlan *plan, SqlTable *table, SqlColumnAlias *column_alias, SqlTableAlias *table_alias);
 // Returns a logical plan representing the provided ColumnListAlias
 LogicalPlan *lp_column_list_to_lp(SqlColumnListAlias *list, int *plan_id);
 // Converts a list of columns to a column list associated with the given table alias
@@ -203,6 +211,11 @@ LogicalPlan *lp_make_key(SqlColumnAlias *column_alias);
 //  These return 1 if the optimization succeeded, 0 otherwise
 /// Attempts to replace this EQUALS statement with a xref IN
 int lp_optimize_where_replace_non_key_equal(LogicalPlan *plan, LogicalPlan *where);
+/**
+ * Attempts to optimize there WHERE statement which contains nothing but items like
+ *   "X = Y AND Y = Z AND Z = A"
+ */
+int lp_optimize_where_multi_equal_ands(LogicalPlan *plan, LogicalPlan *where);
 
 // Returns a unique number within the context of this plan;
 //  maybe not be unique in terms of global numbers

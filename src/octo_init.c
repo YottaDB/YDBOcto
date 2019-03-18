@@ -248,7 +248,7 @@ int octo_init(int argc, char **argv) {
 	input_buffer_combined = malloc(MAX_STR_CONST);
 	memset(input_buffer_combined, 0, MAX_STR_CONST);
 	cur_input_index = 0;
-	cur_input_more = NULL;
+	cur_input_more = &no_more;
 	eof_hit = 0;
 
 	// Load existing tables
@@ -277,6 +277,8 @@ int octo_init(int argc, char **argv) {
 		INFO(CUSTOM_ERROR, "Running command %s\n", table_create_buffer.buf_addr);
 		result = parse_line(table_create_buffer.buf_addr);
 		if(result == NULL) {
+			table_name_buffer.buf_addr[table_name_buffer.len_used] = '\0';
+			WARNING(ERR_FAILED_TO_PARSE_SCHEMA, table_name_buffer.buf_addr);
 			continue;
 		}
 		UNPACK_SQL_STATEMENT(table, result, table);

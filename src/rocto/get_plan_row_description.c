@@ -29,6 +29,7 @@ RowDescription *get_plan_row_description(PhysicalPlan *plan) {
 	SqlTableAlias *source_table;
 	SqlColumnListAlias *cla_cur, *cla_end;
 	SqlValue *value;
+	SqlColumn *column;
 	RowDescription *ret;
 	RowDescriptionParm *parms;
 	LogicalPlan *cur_plan, *column_alias;
@@ -42,7 +43,12 @@ RowDescription *get_plan_row_description(PhysicalPlan *plan) {
 	do {
 		assert(cur_plan->type == LP_COLUMN_LIST);
 		GET_LP(column_alias, cur_plan, 0, LP_WHERE);
-		GET_LP(column_alias, column_alias, 1, LP_COLUMN_LIST_ALIAS);
+		if(column_alias->v.operand[1] != NULL) {
+			GET_LP(column_alias, column_alias, 1, LP_COLUMN_LIST_ALIAS);
+			// This assumes the SqlValue will outlive this RowDescription
+		} else {
+			GET_LP(column_alias, column_alias, 0, LP_COLUMN_ALIAS);
+		}
 		num_columns++;
 		cur_plan = cur_plan->v.operand[1];
 	} while(cur_plan != NULL);
@@ -56,9 +62,15 @@ RowDescription *get_plan_row_description(PhysicalPlan *plan) {
 	do {
 		assert(cur_plan->type == LP_COLUMN_LIST);
 		GET_LP(column_alias, cur_plan, 0, LP_WHERE);
-		GET_LP(column_alias, column_alias, 1, LP_COLUMN_LIST_ALIAS);
-		UNPACK_SQL_STATEMENT(value, column_alias->v.column_list_alias->alias, value);
-		// This assumes the SqlValue will outlive this RowDescription
+		if(column_alias->v.operand[1] != NULL) {
+			GET_LP(column_alias, column_alias, 1, LP_COLUMN_LIST_ALIAS);
+			UNPACK_SQL_STATEMENT(value, column_alias->v.column_list_alias->alias, value);
+			// This assumes the SqlValue will outlive this RowDescription
+		} else {
+			GET_LP(column_alias, column_alias, 0, LP_COLUMN_ALIAS);
+			UNPACK_SQL_STATEMENT(column, column_alias->v.column_alias->column, column);
+			UNPACK_SQL_STATEMENT(value, column->columnName, value);
+		}
 		parms[i].name = value->v.string_literal;
 		// We don't currently deal with table_id's, so just set it to zero
 		parms[i].table_id = 0;

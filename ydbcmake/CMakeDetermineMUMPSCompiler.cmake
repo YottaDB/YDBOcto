@@ -27,15 +27,79 @@
 # Sets the following variables:
 #  CMAKE_MUMPS_COMPILER
 
-find_path(YOTTADB_INCLUDE_DIR NAMES libyottadb.h
-          HINTS $ENV{ydb_dist} $ENV{gtm_dist})
+find_package(PkgConfig QUIET)
+if(PKG_CONFIG_FOUND)
+    # On cmake versions 3.12.1 thru at least 3.13.4, we noticed the following error in pkg_check_modules()
+    # when trying to build the posix_plugin.
+    #
+    # CMake Error: Error required internal CMake variable not set, cmake may not be built correctly.
+    # Missing variable is:
+    # CMAKE_FIND_LIBRARY_PREFIXES
+    #
+    # It is suspected to be a cmake bug so for now we define the variables that show up as Missing to work around this.
+    # Hence the "set" commands below before the pkg_check_modules() call.
+    set(CMAKE_FIND_LIBRARY_PREFIXES "lib")
+    set(CMAKE_FIND_LIBRARY_SUFFIXES "so")
+    pkg_check_modules(PC_YOTTADB QUIET yottadb)
+endif()
 
-set(YOTTADB_INCLUDE_DIRS ${YOTTADB_INCLUDE_DIR})
+# If $ydb_dist is defined, use that as YottaDB dir, if not check $gtm_dist (for a pure-GT.M version build)
+# and if neither is defined, check if pkg-config found YottaDB installed.
+# Note: We check for "mumps" executable (instead of say "libyottadb.h") since this is guaranteed to be present
+#       both in a YottaDB and GT.M build/install directory.
+find_path(mumps_dir NAMES mumps
+	HINTS $ENV{ydb_dist} $ENV{gtm_dist} ${PC_YOTTADB_INCLUDEDIR} )
 
 if(MUMPS_UTF8_MODE)
-  set(CMAKE_MUMPS_COMPILER ${YOTTADB_INCLUDE_DIRS}/utf8/mumps)
+  find_program(ICUCONFIG NAMES icu-config)
+  if(ICUCONFIG)
+    execute_process(
+      COMMAND ${ICUCONFIG} --version
+      OUTPUT_VARIABLE icu_version
+      RESULT_VARIABLE icu_failed
+      OUTPUT_STRIP_TRAILING_WHITESPACE
+      )
+    if(icu_failed)
+      message(FATAL_ERROR "Command\n ${ICUCONFIG} --version\nfailed (${icu_failed}).")
+    elseif("x${icu_version}" MATCHES "^x([0-9]+\\.[0-9]+)")
+      set(ydb_icu_version "${CMAKE_MATCH_1}")
+    else()
+      message(FATAL_ERROR "Command\n ${ICUCONFIG} --version\nproduced unrecognized output:\n ${icu_version}")
+    endif()
+  else()
+    message(FATAL_ERROR "Unable to find 'icu-config'.  Set ICUCONFIG in CMake cache.")
+  endif()
+  
+  find_program(LOCALECFG NAMES locale)
+  if(LOCALECFG)
+    execute_process(
+      COMMAND ${LOCALECFG} -a
+      OUTPUT_VARIABLE locale_list
+      RESULT_VARIABLE locale_failed
+      OUTPUT_STRIP_TRAILING_WHITESPACE
+      )
+    if(locale_failed)
+      message(FATAL_ERROR "Command\n ${LOCALECFG} -a\nfailed (${locale_failed}).")
+    endif()
+    STRING(REGEX REPLACE "\n" ";" locale_list "${locale_list}")
+    foreach(lc ${locale_list})
+      string(TOLOWER "${lc}" lc_lower)
+      if("x${lc_lower}" MATCHES "^x[a-zA-Z_]+\\.?utf-?8")
+        set(LC_ALL ${lc})
+        message("-- Setting locale to ${LC_ALL}")
+        break()
+      endif()
+    endforeach(lc)
+    if("${LC_ALL}" STREQUAL "")
+      message("Locale undefined. Expect to see NONUTF8LOCALE during MUMPS routine compilation: ${locale_list}\n")
+    endif()
+  else()
+    message(FATAL_ERROR "Unable to find 'locale'.  Set LOCALECFG in CMake cache.")
+  endif()
+  set(CMAKE_MUMPS_COMPILER ${mumps_dir}/utf8/mumps)
+  set(ydb_chset "UTF-8")
 else()
-  set(CMAKE_MUMPS_COMPILER ${YOTTADB_INCLUDE_DIRS}/mumps)
+  set(CMAKE_MUMPS_COMPILER ${mumps_dir}/mumps)
 endif()
 
 

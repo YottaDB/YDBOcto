@@ -59,12 +59,6 @@ void emit_create_table(FILE *output, struct SqlStatement *stmt)
 		m_escape_string2(buffer, MAX_STR_CONST, value->v.reference);
 		fprintf(output, " CURSOR \"%s\"", buffer);
 	}
-	if(table->start) {
-		UNPACK_SQL_STATEMENT(keyword, table->start, keyword);
-		UNPACK_SQL_STATEMENT(value, keyword->v, value);
-		m_escape_string2(buffer, MAX_STR_CONST, value->v.reference);
-		fprintf(output, " UNPACK \"%s\"", buffer);
-	}
 	if(table->end) {
 		UNPACK_SQL_STATEMENT(keyword, table->end, keyword);
 		UNPACK_SQL_STATEMENT(value, keyword->v, value);
@@ -76,12 +70,6 @@ void emit_create_table(FILE *output, struct SqlStatement *stmt)
 		UNPACK_SQL_STATEMENT(value, keyword->v, value);
 		m_escape_string2(buffer, MAX_STR_CONST, value->v.reference);
 		fprintf(output, " DELIM \"%s\"", buffer);
-	}
-	if(table->pack) {
-		UNPACK_SQL_STATEMENT(keyword, table->pack, keyword);
-		UNPACK_SQL_STATEMENT(value, keyword->v, value);
-		m_escape_string2(buffer, MAX_STR_CONST, value->v.reference);
-		fprintf(output, " PACK \"%s\";", buffer);
 	}
 	fprintf(output, ";");
 }

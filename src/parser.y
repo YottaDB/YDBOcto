@@ -916,27 +916,6 @@ optional_keyword_element
       ($$)->v.keyword->v = $2;
       dqinit(($$)->v.keyword);
     }
-  | CURSOR literal_value {
-      SQL_STATEMENT($$, keyword_STATEMENT);
-      ($$)->v.keyword = (SqlOptionalKeyword*)malloc(sizeof(SqlOptionalKeyword));
-      ($$)->v.keyword->keyword = OPTIONAL_CURSE;
-      ($$)->v.keyword->v = $2;
-      dqinit(($$)->v.keyword);
-    }
-  | END literal_value {
-      SQL_STATEMENT($$, keyword_STATEMENT);
-      ($$)->v.keyword = (SqlOptionalKeyword*)malloc(sizeof(SqlOptionalKeyword));
-      ($$)->v.keyword->keyword = OPTIONAL_END;
-      ($$)->v.keyword->v = $2;
-      dqinit(($$)->v.keyword);
-    }
-  | UNPACK literal_value {
-      SQL_STATEMENT($$, keyword_STATEMENT);
-      ($$)->v.keyword = (SqlOptionalKeyword*)malloc(sizeof(SqlOptionalKeyword));
-      ($$)->v.keyword->keyword = OPTIONAL_START;
-      ($$)->v.keyword->v = $2;
-      dqinit(($$)->v.keyword);
-    }
   | DELIM literal_value {
        SQL_STATEMENT($$, keyword_STATEMENT);
        ($$)->v.keyword = (SqlOptionalKeyword*)malloc(sizeof(SqlOptionalKeyword));
@@ -944,13 +923,6 @@ optional_keyword_element
        ($$)->v.keyword->v = $2;
        dqinit(($$)->v.keyword);
      }
- | PACK literal_value {
-      SQL_STATEMENT($$, keyword_STATEMENT);
-      ($$)->v.keyword = (SqlOptionalKeyword*)malloc(sizeof(SqlOptionalKeyword));
-      ($$)->v.keyword->keyword = OPTIONAL_PACK;
-      ($$)->v.keyword->v = $2;
-      dqinit(($$)->v.keyword);
-    }
   ;
 
 optional_keyword_tail
@@ -1077,18 +1049,6 @@ column_definition_tail
        SQL_STATEMENT($$, keyword_STATEMENT);
        MALLOC_STATEMENT($$, keyword, SqlOptionalKeyword);
        ($$)->v.keyword->keyword = OPTIONAL_ADVANCE;
-       ($$)->v.keyword->v = $2;
-       dqinit(($$)->v.keyword);
-
-       SqlOptionalKeyword *keyword, *t_keyword;
-       UNPACK_SQL_STATEMENT(keyword, $3, keyword);
-       dqinsert(keyword, ($$)->v.keyword, t_keyword);
-       free($3);
-    }
-  | START literal_value column_definition_tail {
-       SQL_STATEMENT($$, keyword_STATEMENT);
-       MALLOC_STATEMENT($$, keyword, SqlOptionalKeyword);
-       ($$)->v.keyword->keyword = OPTIONAL_START;
        ($$)->v.keyword->v = $2;
        dqinit(($$)->v.keyword);
 

@@ -62,12 +62,10 @@ add_library(libocto OBJECT
   yyerror.c
   yywrap.c
   errors.c
-  extract_expression.c
   parse_line.c
   emit_create_table.c
   emit_select_statement.c
   emit_column_specification.c
-  emit_temporary_join_table.c
   cleanup_sql_statement.c
   copy_sql_statement.c
   copy_sql_table.c
@@ -80,7 +78,6 @@ add_library(libocto OBJECT
   find_table.c
   find_column.c
   find_qualified_column.c
-  generate_end.c
   qualify_column_list.c
   qualify_column_list_alias.c
   qualify_column_name.c
@@ -90,15 +87,9 @@ add_library(libocto OBJECT
   octo_init.c
   get_keyword.c
   get_keyword_from_keywords.c
-  get_table_parts.c
-  get_advance.c
   emit_insert_statement.c
-  emit_xref_table.c
-  generate_cursor.c
-  generate_null_check.c
   generate_key_name.c
   get_key_columns.c
-  optimize_where.c
   assign_table_to_columns.c
   columns_equal.c
   tables_equal.c

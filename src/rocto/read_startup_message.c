@@ -25,22 +25,26 @@
 
 StartupMessage *read_startup_message(RoctoSession *session, char *data, int data_length, ErrorResponse **err) {
 	StartupMessage *ret = NULL;
-	int num_parms = 0, read = 0, cur_parm;
+	int num_parms = 0, read = 0, cur_parm = 0;
 	char *c, *message_end;
+	// Length plus protocol version
+	unsigned int hard_coded_ints = sizeof(unsigned int) + sizeof(unsigned int);
 
 	// First read length and protocol type, then we will reallocate things
 	ret = (StartupMessage*)malloc(sizeof(StartupMessage));
-	memcpy(&ret->length, data, 8);
+	memcpy(&ret->length, data, hard_coded_ints);
 
-	// The hard-coded value seems to be fixed by the protocol version 3.0
-	/*if(ret->protocol_version != 790024708) {
+	// Protocol version number format:
+	// 	most significant 16 bits:  major version #, i.e. 3
+	// 	least significant 16 bits: minor version #, i.e. 0
+	if(ntohl(ret->protocol_version) != 0x00030000) {
 		*err = make_error_response(PSQL_Error_FATAL,
 					   PSQL_Code_Protocol_Violation,
 					   "Protocol version did not match expected",
 					   0);
 		free(ret);
 		return NULL;
-	}*/
+	}
 
 	/*if(ntohl(ret->length) != data_length) {
 		// The routine starting this up should fill this out, but really
@@ -55,17 +59,20 @@ StartupMessage *read_startup_message(RoctoSession *session, char *data, int data
 	}*/
 
 	// No parameters send
-	if(ntohl(ret->length) == 8) {
+	if(ntohl(ret->length) == hard_coded_ints) {
 		return ret;
 	}
 
-	free(ret);
+	// Prepare to reallocate
 	data_length = ntohl(ret->length);
+	free(ret);
+
 	// Size is length in packet + other stuff in the struct, minus the hard-coded
 	//  elements in the struct (two int4's)
-	ret = (StartupMessage*)malloc(sizeof(StartupMessage) + data_length - 8);
-	memcpy(&ret->length, data, 8);
-	read_bytes(session, (char*)&ret->data, data_length - 8, data_length - 8);
+	ret = (StartupMessage*)malloc(sizeof(StartupMessage) + data_length - hard_coded_ints);
+	memcpy(&ret->length, data, hard_coded_ints);
+	read_bytes(session, (char*)&ret->data, data_length - hard_coded_ints, data_length - hard_coded_ints);
+
 	c = ret->data;
 	message_end = (char*)(&ret->length) + data_length;
 
@@ -75,7 +82,7 @@ StartupMessage *read_startup_message(RoctoSession *session, char *data, int data
 		for(; c < message_end && *c != '\0'; c++) {
 			// Left blank
 		}
-		if(*c != '\0') {
+		if(c == message_end || *c != '\0') {
 			*err = make_error_response(PSQL_Error_ERROR,
 						   PSQL_Code_Protocol_Violation,
 						   "Non-terminated parameter name",
@@ -88,7 +95,7 @@ StartupMessage *read_startup_message(RoctoSession *session, char *data, int data
 		for(; c < message_end && *c != '\0'; c++) {
 			// Left blank
 		}
-		if(*c != '\0') {
+		if(c == message_end || *c != '\0') {
 			*err = make_error_response(PSQL_Error_ERROR,
 						   PSQL_Code_Protocol_Violation,
 						   "Non-terminated parameter value",

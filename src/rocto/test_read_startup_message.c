@@ -41,33 +41,33 @@ static void test_valid_input(void **state) {
 	// Test a single startup message
 	unsigned int message_length = 0;
 	message_length += sizeof(unsigned int);
-	unsigned int protocol_version = htonl(196608);
+	unsigned int protocol_version = 196608;		// version 3.0
 	message_length += sizeof(unsigned int);
-	char *parm1_name = "user";
-	message_length += strlen(parm1_name) + 1;
-	char *parm1_value = "charles";
-	message_length += strlen(parm1_value) + 1;
+	char *parm1_name = "user\0";
+	message_length += strlen(parm1_name) + 1;	// count null
+	char *parm1_value = "charles\0";
+	message_length += strlen(parm1_value) + 1;	// count null
 	// Terminating null
 	message_length += 1;
 	char *c;
 	ErrorResponse *err = NULL;
 
-	// Length + extra stuff - already counted (length, protocol version_
-	StartupMessage *test_data = (StartupMessage*)malloc(message_length + sizeof(StartupMessage) - 8);
+	// Length + extra stuff - already counted (length, protocol version)
+	StartupMessage *test_data = (StartupMessage*)malloc(message_length + sizeof(StartupMessage) - 2 * sizeof(unsigned int));
 	test_data->length = htonl(message_length);
-	test_data->protocol_version = protocol_version;
+	test_data->protocol_version = htonl(protocol_version);
+
+	// Copy parms into message
 	c = test_data->data;
-	memcpy(c, parm1_name, strlen(parm1_name));
-	c += strlen(parm1_name);
-	*c++ = '\0';
-	memcpy(c, parm1_value, strlen(parm1_value));
-	c += strlen(parm1_value);
-	*c++ = '\0';
-	*c++ = '\0';
+	memcpy(c, parm1_name, strlen(parm1_name) + 1);		// copy null
+	c += strlen(parm1_name) + 1;
+	memcpy(c, parm1_value, strlen(parm1_value) + 1);	// copy null
+	c += strlen(parm1_value) + 1;
+	*c = '\0';
 
-	will_return(__wrap_read_bytes, message_length - 8);
+	// mock read_bytes from socket
+	will_return(__wrap_read_bytes, message_length - 2 * sizeof(unsigned int));
 	will_return(__wrap_read_bytes, test_data->data);
-
 
 	// The actual test
 	StartupMessage *startup = read_startup_message(NULL, (char*)(&test_data->length), message_length, &err);
@@ -79,37 +79,37 @@ static void test_valid_input(void **state) {
 	assert_string_equal(parm1_value, startup->parameters[0].value);
 
 	free(test_data);
+	free(startup->parameters);
+	free(startup);
 }
 
 static void test_wrong_version(void **state) {
 	// Test a single startup message
 	unsigned int message_length = 0;
 	message_length += sizeof(unsigned int);
-	unsigned int protocol_version = 0xdeadbeef;
+	unsigned int protocol_version = 0xdeadbeef;	// bad version number
 	message_length += sizeof(unsigned int);
-	char *parm1_name = "user";
-	message_length += strlen(parm1_name) + 1;
-	char *parm1_value = "charles";
-	message_length += strlen(parm1_value) + 1;
+	char *parm1_name = "user\0";
+	message_length += strlen(parm1_name) + 1;	// count null
+	char *parm1_value = "charles\0";
+	message_length += strlen(parm1_value) + 1;	// count null
 	// Terminating null
 	message_length += 1;
 	char *c;
 	ErrorResponse *err = NULL;
 
 	// Length + extra stuff - already counted (length, protocol version_
-	StartupMessage *test_data = (StartupMessage*)malloc(message_length + sizeof(StartupMessage) - 8);
+	StartupMessage *test_data = (StartupMessage*)malloc(message_length + sizeof(StartupMessage) - 2 * sizeof(unsigned int));
 	test_data->length = htonl(message_length);
-	test_data->protocol_version = protocol_version;
-	c = test_data->data;
-	memcpy(c, parm1_name, strlen(parm1_name));
-	c += strlen(parm1_name);
-	*c++ = '\0';
-	memcpy(c, parm1_value, strlen(parm1_value));
-	c += strlen(parm1_value);
-	*c++ = '\0';
-	*c++ = '\0';
+	test_data->protocol_version = htonl(protocol_version);
 
-	will_return(__wrap_read_bytes, 0);
+	// Copy parms into message
+	c = test_data->data;
+	memcpy(c, parm1_name, strlen(parm1_name) + 1);		// copy null
+	c += strlen(parm1_name) + 1;
+	memcpy(c, parm1_value, strlen(parm1_value) + 1);	// copy null
+	c += strlen(parm1_value) + 1;
+	*c = '\0';
 
 	// The actual test
 	StartupMessage *startup = read_startup_message(NULL, (char*)(&test_data->length), message_length, &err);
@@ -126,23 +126,34 @@ static void test_non_terminated_name(void **state) {
 	// Test a single startup message
 	unsigned int message_length = 0;
 	message_length += sizeof(unsigned int);
-	unsigned int protocol_version = htonl(196608);
+	unsigned int protocol_version = 196608;		// version 3.0
 	message_length += sizeof(unsigned int);
 	char *parm1_name = "user";
-	// Pretend the messageis horter than it is
-	message_length += strlen(parm1_name) + 1 - 2;
+	// Pretend the name is shorter than it is
+	message_length += strlen(parm1_name) - 1;	// exclude null
+	char *parm1_value = "charles\0";
+	message_length += strlen(parm1_value) + 1;	// count null
 	char *c;
 	ErrorResponse *err = NULL;
+	// Terminating null
+	// message_length += 1;
 
-	// Length + extra stuff - already counted (length, protocol version_
-	StartupMessage *test_data = (StartupMessage*)malloc(message_length + sizeof(StartupMessage) - 8);
+	// Length + extra stuff - already counted (length, protocol version)
+	StartupMessage *test_data = (StartupMessage*)malloc(message_length + sizeof(StartupMessage) - 2 * sizeof(unsigned int));
 	test_data->length = htonl(message_length);
-	test_data->protocol_version = protocol_version;
-	c = test_data->data;
-	memcpy(c, parm1_name, strlen(parm1_name));
-	c += strlen(parm1_name);
+	test_data->protocol_version = htonl(protocol_version);
 
-	will_return(__wrap_read_bytes, 0);
+	// Copy parms into message
+	c = test_data->data;
+	memcpy(c, parm1_name, strlen(parm1_name) - 1);
+	c += strlen(parm1_name) - 1;
+	memcpy(c, parm1_value, strlen(parm1_value) + 1);	// copy null
+	c += strlen(parm1_value) + 1;
+	// *c = '\0';
+
+	// mock read_bytes from socket
+	will_return(__wrap_read_bytes, message_length - 2 * sizeof(unsigned int));
+	will_return(__wrap_read_bytes, test_data->data);
 
 	// The actual test
 	StartupMessage *startup = read_startup_message(NULL, (char*)(&test_data->length), message_length, &err);
@@ -163,23 +174,25 @@ static void test_non_terminated_value(void **state) {
 	message_length += sizeof(unsigned int);
 	char *parm1_name = "user";
 	message_length += strlen(parm1_name) + 1;
+	// Pretend the name is shorter than it is
 	char *parm1_value = "charles";
-	message_length += strlen(parm1_value) + 1 - 3;
+	message_length += strlen(parm1_value) - 2;	// exclude nulls
 	char *c;
 	ErrorResponse *err = NULL;
 
 	// Length + extra stuff - already counted (length, protocol version_
-	StartupMessage *test_data = (StartupMessage*)malloc(message_length + sizeof(StartupMessage) - 8);
+	StartupMessage *test_data = (StartupMessage*)malloc(message_length + sizeof(StartupMessage) - 2 * sizeof(unsigned int));
 	test_data->length = htonl(message_length);
 	test_data->protocol_version = protocol_version;
 	c = test_data->data;
-	memcpy(c, parm1_name, strlen(parm1_name));
-	c += strlen(parm1_name);
-	*c++ = '\0';
-	memcpy(c, parm1_value, strlen(parm1_value));
+	memcpy(c, parm1_name, strlen(parm1_name) + 1);		// include null
+	c += strlen(parm1_name) + 1;
+	memcpy(c, parm1_value, strlen(parm1_value) - 2);	// exclude nulls
 	c += strlen(parm1_value);
 
-	will_return(__wrap_read_bytes, 0);
+	// mock read_bytes from socket
+	will_return(__wrap_read_bytes, message_length - 2 * sizeof(unsigned int));
+	will_return(__wrap_read_bytes, test_data->data);
 
 	// The actual test
 	StartupMessage *startup = read_startup_message(NULL, (char*)(&test_data->length), message_length, &err);

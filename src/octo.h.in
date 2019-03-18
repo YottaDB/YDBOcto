@@ -92,18 +92,9 @@
 		assert(result == 0);							\
 	} while(FALSE);
 
-/**
- * Returns the column containing the primary key for this table
- *
- * @param [in] table to search
- */
-SqlColumn *fetch_primary_key_column(const SqlTable *table);
-
 void emit_simple_select(char *output, const SqlTable *table, const char *column, char *source);
 int emit_column_specification(char *buffer, int buffer_size, SqlColumn *column);
 void emit_create_table(FILE *output, struct SqlStatement *stmt);
-SqlTable *emit_xref_table(ydb_buffer_t *cursor_global,
-    ydb_buffer_t *cursor_exe_global, struct SqlStatement *stmt);
 void cleanup_sql_statement(SqlStatement *stmt);
 // Recursively copies all of stmt, including making copies of strings
 SqlStatement *copy_sql_statement(SqlStatement *stmt);

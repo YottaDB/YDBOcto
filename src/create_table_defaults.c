@@ -27,7 +27,7 @@
 int create_table_defaults(SqlStatement *table_statement, SqlStatement *keywords_statement) {
 	SqlTable *table;
 	SqlOptionalKeyword *keyword, *cur_keyword, *start_keyword, *t_keyword;
-	SqlColumn *pkey, *key_columns[MAX_KEY_COUNT];
+	SqlColumn *key_columns[MAX_KEY_COUNT];
 	SqlStatement *statement;
 	SqlValue *value;
 	char buffer[MAX_STR_CONST], buffer2[MAX_STR_CONST], *out_buffer;
@@ -72,13 +72,6 @@ int create_table_defaults(SqlStatement *table_statement, SqlStatement *keywords_
 	if(options == (SOURCE | DELIM))
 		return 0;
 
-	pkey = fetch_primary_key_column(table);
-	if(pkey == NULL) {
-		ERROR(ERR_PRIMARY_KEY_NOT_FOUND, table->tableName->v.value->v.reference);
-		return 1;
-	}
-	assert(pkey != NULL);
-	/// TODO: if CURSOR is set, make sure there are no KEY NUMs on the keys
 	if(!(options & SOURCE)) {
 		UNPACK_SQL_STATEMENT(value, table->tableName, value);
 		buff_ptr = buffer;

@@ -92,7 +92,6 @@
 		assert(result == 0);							\
 	} while(FALSE);
 
-void emit_simple_select(char *output, const SqlTable *table, const char *column, char *source);
 int emit_column_specification(char *buffer, int buffer_size, SqlColumn *column);
 void emit_create_table(FILE *output, struct SqlStatement *stmt);
 void cleanup_sql_statement(SqlStatement *stmt);
@@ -129,7 +128,6 @@ SqlOptionalKeyword *get_keyword(SqlColumn *column, enum OptionalKeyword keyword)
 SqlOptionalKeyword *get_keyword_from_keywords(SqlOptionalKeyword *start_keyword, enum OptionalKeyword keyword);
 int get_key_columns(SqlTable *table, SqlColumn **key_columns);
 int generate_key_name(char *buffer, int buffer_size, int target_key_num, SqlTable *table, SqlColumn **key_columns);
-int find_qualified_column(SqlValue *column_reference, SqlTable **table, SqlColumn **column);
 
 void assign_table_to_columns(SqlStatement *table_statement);
 SqlColumn *column_list_alias_to_columns(SqlTableAlias *table_alias);

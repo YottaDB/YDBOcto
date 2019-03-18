@@ -10,7 +10,7 @@ macro(ADD_UNIT_TEST_WITH_OPTIONS TEST_NAME TEST_FILE WRAP_FUNCTION)
     ${test_link_flags}
     ${CMOCKA_LIBRARIES}
     ${Readline_LIBRARY}
-    ${YOTTADB_LIBRARIES}
+    yottadb
     ${CONFIG_LIBRARY}
     ${OPENSSL_LIBRARIES}
   )

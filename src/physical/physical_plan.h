@@ -98,8 +98,5 @@ int run_query(char *query, void (*callback)(PhysicalPlan *, int, void *), void *
 PhysicalPlan *emit_select_statement(ydb_buffer_t *cursor_global,
   ydb_buffer_t *cursor_exe_global, struct SqlStatement *stmt,
   SqlTable *destination_table);
-PhysicalPlan *emit_insert_statement(ydb_buffer_t *cursor_global,
-    ydb_buffer_t *cursor_exe_global, struct SqlStatement *stmt);
-
 
 #endif

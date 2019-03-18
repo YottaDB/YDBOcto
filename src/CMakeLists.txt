@@ -69,7 +69,6 @@ add_library(libocto OBJECT
   cleanup_sql_statement.c
   copy_sql_statement.c
   copy_sql_table.c
-  fetch_primary_key_column.c
   quoting.c
   create_table_defaults.c
   print_temporary_table.c
@@ -77,7 +76,6 @@ add_library(libocto OBJECT
   populate_data_type.c
   find_table.c
   find_column.c
-  find_qualified_column.c
   qualify_column_list.c
   qualify_column_list_alias.c
   qualify_column_name.c
@@ -87,7 +85,6 @@ add_library(libocto OBJECT
   octo_init.c
   get_keyword.c
   get_keyword_from_keywords.c
-  emit_insert_statement.c
   generate_key_name.c
   get_key_columns.c
   assign_table_to_columns.c
@@ -98,7 +95,6 @@ add_library(libocto OBJECT
   get_column_piece_number.c
   run_query.c
   parse_startup_flags.c
-  optimization_transforms/constant_equal_column.c
   optimization_transforms/optimize_logical_plan.c
   optimization_transforms/lp_get_select.c
   optimization_transforms/lp_get_select_where.c
@@ -128,7 +124,6 @@ add_library(libocto OBJECT
   optimization_transforms/lp_get_table_join.c
   optimization_transforms/lp_make_key.c
   optimization_transforms/lp_optimize_where_multi_equals_ands.c
-  m_templates/emit_simple_select.c
   optimization_transforms/generate_logical_plan.c
   physical/generate_physical_plan.c
   physical/emit_physical_plan.c
@@ -192,7 +187,6 @@ add_executable(pparser
 # Generate C files from templates
 set(template_dir ${PROJECT_SOURCE_DIR}/src/m_templates)
 set(template_files
-  ${template_dir}/simpleFor.ctemplate
   ${template_dir}/tmpl_physical_plan.ctemplate
   ${template_dir}/tmpl_key_start.ctemplate
   ${template_dir}/tmpl_key_end.ctemplate
@@ -203,7 +197,6 @@ set(template_files
   ${template_dir}/tmpl_column_reference.ctemplate
   ${template_dir}/tmpl_column_list_combine.ctemplate
   ${template_dir}/tmpl_emit_source.ctemplate
-  ${template_dir}/tmpl_table_set.ctemplate
   ${template_dir}/tmpl_column_reference_trigger.ctemplate
   )
 foreach(template ${template_files})
@@ -235,9 +228,9 @@ endforeach()
 
 set_property(TARGET libocto PROPERTY C_STANDARD 11)
 
-target_link_libraries(octo ${YOTTADB_LIBRARIES} ${Readline_LIBRARY} ${CONFIG_LIBRARY} ${OPENSSL_LIBRARIES})
-target_link_libraries(rocto ${YOTTADB_LIBRARIES} ${Readline_LIBRARY} ${CONFIG_LIBRARY} ${OPENSSL_LIBRARIES})
-target_link_libraries(pparser ${YOTTADB_LIBRARIES} ${Readline_LIBRARY} ${CONFIG_LIBRARY} ${OPENSSL_LIBRARIES})
+target_link_libraries(octo yottadb ${Readline_LIBRARY} ${CONFIG_LIBRARY} ${OPENSSL_LIBRARIES})
+target_link_libraries(rocto yottadb ${Readline_LIBRARY} ${CONFIG_LIBRARY} ${OPENSSL_LIBRARIES})
+target_link_libraries(pparser yottadb ${Readline_LIBRARY} ${CONFIG_LIBRARY} ${OPENSSL_LIBRARIES})
 
 enable_testing()
 include(${PROJECT_SOURCE_DIR}/cmake/tests.cmake)

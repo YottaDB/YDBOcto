@@ -1,0 +1,27 @@
+load test_helpers
+
+setup() {
+  init_test
+  createdb
+  load_fixture names.sql
+  load_fixture names.zwr
+  start_rocto
+}
+
+teardown() {
+  stop_rocto
+}
+
+@test "select wildcard columns" {
+  run_psql <<OCTO &> output.txt
+SELECT * FROM names;
+OCTO
+  [[ "$(grep -c -E "Zero.\+|Cool" output.txt)" == "2" ]]
+}
+
+@test "invalid syntax should get an error message" {
+  run_psql <<OCTO &> output.txt
+SELECT * AFRO names;
+OCTO
+  [[ "$(grep -c -E "syntax error" output.txt)" == "1" ]]
+}

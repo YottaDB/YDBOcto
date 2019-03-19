@@ -27,3 +27,8 @@ ADD_BATS_TEST(test_select_distinct)
 ADD_BATS_TEST(test_set_operations)
 ADD_BATS_TEST(test_optional_create_table_settings)
 ADD_BATS_TEST(test_cross_index_optimization)
+
+find_program(psql NAMES psql)
+if(psql)
+  ADD_BATS_TEST(test_psql_connection)
+endif()

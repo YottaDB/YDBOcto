@@ -13,7 +13,6 @@ YDBDBMS Grammar Documentation
    grammar
    rocto
    config
-   tips
 
 Indices and tables
 ==================

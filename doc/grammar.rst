@@ -70,9 +70,6 @@ In the table above:
 
 * table_name and cursor_name are variables representing the names of the table and the cursor being used.
 * keys is a special local variable that contains all the keys used by the table.
-* $$STOREKEY is an M routine that converts an array of keys (keys) to a format that can be stored in the cursor as ^cursor(sessionId,keys(0),keys(1)).
-* @storeKey is an M-expression which does indirection on the value stored in storeKey.
-* @cursor does indirection on the cursor variable.
 
 -----------------
 DROP

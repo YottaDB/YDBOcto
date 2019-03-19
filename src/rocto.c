@@ -45,7 +45,7 @@ int main(int argc, char **argv) {
 	ydb_buffer_t *global_buffer = &(ydb_buffers[0]), *session_id_buffer = &(ydb_buffers[1]);
 	ydb_buffer_t z_status, z_status_value;
 
-	octo_init(argc, argv);
+	octo_init(argc, argv, TRUE);
 	config->record_error_level = TRACE;
 
 	// Setup the address first so we know which protocol to use

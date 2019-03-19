@@ -95,7 +95,7 @@ void init_crypto() {
 	OPENSSL_config(NULL);
 }
 
-int octo_init(int argc, char **argv) {
+int octo_init(int argc, char **argv, int scan_tables) {
 	int c, error = 0, status, i;
 	ydb_buffer_t schema_global, table_name_buffer, table_create_buffer, null_buffer;
 	ydb_buffer_t cursor_global, cursor_exe_global[3];
@@ -250,6 +250,9 @@ int octo_init(int argc, char **argv) {
 	cur_input_index = 0;
 	cur_input_more = &no_more;
 	eof_hit = 0;
+
+	if(!scan_tables)
+		return 0;
 
 	// Load existing tables
 	table_name_buffer.buf_addr = malloc(MAX_STR_CONST);

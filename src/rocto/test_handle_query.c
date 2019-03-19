@@ -36,6 +36,12 @@ int __wrap_send_message(RoctoSession *session, BaseMessage *message) {
 	return 0;
 }
 
+int __wrap_run_query(char *query, void (*callback)(PhysicalPlan *, int, void *), void *parms) {
+	int expected_return = mock_type(int);
+	eof_hit = TRUE;
+	return expected_return;
+}
+
 static void test_valid_input(void **state) {
 	Query *query;
 	RoctoSession session;
@@ -50,9 +56,7 @@ static void test_valid_input(void **state) {
 	query->type = PSQL_Query;
 	query->query = query->data;
 
-	will_return(__wrap_send_message, PSQL_RowDescription);
-	will_return(__wrap_send_message, PSQL_DataRow);
-	will_return(__wrap_send_message, PSQL_CommandComplete);
+	will_return(__wrap_run_query, TRUE);
 	result = handle_query(query, &session);
 
 	assert_int_equal(result, 0);
@@ -73,13 +77,14 @@ static void test_bad_sql(void **state) {
 	query->query = query->data;
 
 	will_return(__wrap_send_message, PSQL_ErrorResponse);
+	will_return(__wrap_run_query, FALSE);
 	result = handle_query(query, &session);
 
 	assert_int_equal(result, 0);
 }
 
 int main(void) {
-	octo_init(0, NULL);
+	octo_init(0, NULL, FALSE);
 	const struct CMUnitTest tests[] = {
 		   cmocka_unit_test(test_valid_input),
 		   cmocka_unit_test(test_bad_sql)

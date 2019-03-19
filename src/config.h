@@ -22,7 +22,7 @@
 
 #include "errors.h"
 
-int octo_init(int argc, char **argv);
+int octo_init(int argc, char **argv, int scan_tables);
 int parse_startup_flags(int argc, char **argv);
 
 struct RoctoConfig {

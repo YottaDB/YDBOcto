@@ -45,7 +45,7 @@ int main(int argc, char **argv)
 	SqlStatement *tmp_statement;
 
 	inputFile = NULL;
-	octo_init(argc, argv);
+	octo_init(argc, argv, TRUE);
 
 	cur_input_more = &no_more;
 

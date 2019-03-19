@@ -275,6 +275,7 @@ int octo_init(int argc, char **argv) {
 		YDB_ERROR_CHECK(status, &z_status, &z_status_value);
 		table_create_buffer.buf_addr[table_create_buffer.len_used] = '\0';
 		INFO(CUSTOM_ERROR, "Running command %s\n", table_create_buffer.buf_addr);
+		eof_hit = 0;
 		result = parse_line(table_create_buffer.buf_addr);
 		if(result == NULL) {
 			table_name_buffer.buf_addr[table_name_buffer.len_used] = '\0';

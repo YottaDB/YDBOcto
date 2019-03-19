@@ -1057,6 +1057,18 @@ column_definition_tail
        dqinsert(keyword, ($$)->v.keyword, t_keyword);
        free($3);
     }
+  | START literal_value column_definition_tail {
+       SQL_STATEMENT($$, keyword_STATEMENT);
+       MALLOC_STATEMENT($$, keyword, SqlOptionalKeyword);
+       ($$)->v.keyword->keyword = OPTIONAL_START;
+       ($$)->v.keyword->v = $2;
+       dqinit(($$)->v.keyword);
+
+       SqlOptionalKeyword *keyword, *t_keyword;
+       UNPACK_SQL_STATEMENT(keyword, $3, keyword);
+       dqinsert(keyword, ($$)->v.keyword, t_keyword);
+       free($3);
+    }
   | END literal_value column_definition_tail {
        SQL_STATEMENT($$, keyword_STATEMENT);
        MALLOC_STATEMENT($$, keyword, SqlOptionalKeyword);

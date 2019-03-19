@@ -31,7 +31,6 @@
 SqlStatement *parse_line(const char *line) {
 	SqlStatement *result = 0;
 	yyscan_t scanner;
-	YY_BUFFER_STATE state;
 	int line_length;
 
 	if(line != input_buffer_combined) {
@@ -49,13 +48,11 @@ SqlStatement *parse_line(const char *line) {
 	if (yylex_init(&scanner))
 		FATAL(ERR_INIT_SCANNER);
 
-	//state = yy_scan_string(line, scanner);
 	if(yyparse(scanner, &result, &config->plan_id))
 	{
 		ERROR(ERR_PARSING_COMMAND, input_buffer_combined);
 		return NULL;
 	}
-	//yy_delete_buffer(state, scanner);
 	yylex_destroy(scanner);
 	return result;
 }

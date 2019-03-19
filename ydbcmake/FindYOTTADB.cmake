@@ -41,9 +41,11 @@ endif()
 #       both in a YottaDB and GT.M build/install directory.
 find_path(YOTTADB_INCLUDE_DIRS NAMES mumps
 	HINTS $ENV{ydb_dist} $ENV{gtm_dist} ${PC_YOTTADB_INCLUDEDIR} )
+find_library(YOTTADB_LIBRARY NAMES yottadb gtmshr
+  HINTS $ENV{ydb_dist} $ENV{gtm_dist} ${PC_YOTTADB_LIBS} )
 
 # For YottaDB, the directory where we install header files is same as directory where we install libraries
-set(YOTTADB_LIBRARIES ${YOTTADB_INCLUDE_DIRS})
+set(YOTTADB_LIBRARIES ${YOTTADB_LIBRARY})
 
 include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(YOTTADB  DEFAULT_MSG

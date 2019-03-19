@@ -21,7 +21,7 @@
 #include "octo_types.h"
 #include "parser.h"
 
-#define YY_INPUT(buf, result, max_size) while((result = get_input(buf, max_size)) == -1) { };
+#define YY_INPUT(buf, result, max_size) while((result = get_input(buf, max_size)) == -1 && result != YY_NULL) { };
 
 #define YY_USER_ACTION \
     yylloc->first_line = yylloc->last_line; \

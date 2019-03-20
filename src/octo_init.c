@@ -55,31 +55,31 @@ void populate_global_names() {
 	YDB_STRING_TO_BUFFER((char*)config->global_directory, &config->octo_gbldir);
 	snprintf(buff, MAX_STR_CONST, "^%sschema", config->global_prefix);
 	buff[MAX_STR_CONST - 1] = '\0';
-	config->global_names.schema = malloc(strlen(buff));
+	config->global_names.schema = malloc(strlen(buff) + 1);
 	strcpy(config->global_names.schema, buff);
 	config->global_names.raw_schema = &config->global_names.schema[1];
 
 	snprintf(buff, MAX_STR_CONST, "^%ssession", config->global_prefix);
 	buff[MAX_STR_CONST - 1] = '\0';
-	config->global_names.session = malloc(strlen(buff));
+	config->global_names.session = malloc(strlen(buff) + 1);
 	strcpy(config->global_names.session, buff);
 	config->global_names.raw_session = &config->global_names.session[1];
 
 	snprintf(buff, MAX_STR_CONST, "^%scursor", config->global_prefix);
 	buff[MAX_STR_CONST - 1] = '\0';
-	config->global_names.cursor = malloc(strlen(buff));
+	config->global_names.cursor = malloc(strlen(buff) + 1);
 	strcpy(config->global_names.cursor, buff);
 	config->global_names.raw_cursor = &config->global_names.cursor[1];
 
 	snprintf(buff, MAX_STR_CONST, "^%socto", config->global_prefix);
 	buff[MAX_STR_CONST - 1] = '\0';
-	config->global_names.octo = malloc(strlen(buff));
+	config->global_names.octo = malloc(strlen(buff) + 1);
 	strcpy(config->global_names.octo, buff);
 	config->global_names.raw_octo = &config->global_names.octo[1];
 
 	snprintf(buff, MAX_STR_CONST, "^%sxref", config->global_prefix);
 	buff[MAX_STR_CONST - 1] = '\0';
-	config->global_names.xref = malloc(strlen(buff));
+	config->global_names.xref = malloc(strlen(buff) + 1);
 	strcpy(config->global_names.xref, buff);
 	config->global_names.raw_xref = &config->global_names.xref[1];
 }
@@ -112,6 +112,7 @@ int octo_init(int argc, char **argv, int scan_tables) {
 	int verbosity_int;
 
 	config = malloc(sizeof(OctoConfig));
+	memset(config, 0, sizeof(OctoConfig));
 	config_file = &config->config_file;
 
 	// If OCTO_SETTINGS env is set, we previously parsed the config and stashed it

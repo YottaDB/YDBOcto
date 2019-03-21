@@ -40,6 +40,8 @@ PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlan *next) {
 	char *table_name;
 	int len, table_count, i;
 
+	table_count = 0;
+
 	// If this is a union plan, construct physical plans for the two children
 	if(plan->type == LP_SET_OPERATION) {
 		out = real_out = generate_physical_plan(plan->v.operand[1]->v.operand[1], next);

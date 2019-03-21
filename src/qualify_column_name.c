@@ -104,6 +104,7 @@ SqlStatement *match_column_in_table(SqlTableAlias *table_alias, char *column_nam
 	SqlColumnListAlias *cur_column_list, *start_column_list;
 	SqlValue *value;
 	SqlStatement *ret = NULL;
+	int value_len;
 
 	// If there is no column list for this table alias, we won't match anything
 	if(table_alias->column_list == NULL)
@@ -113,9 +114,9 @@ SqlStatement *match_column_in_table(SqlTableAlias *table_alias, char *column_nam
 	do {
 		if(cur_column_list->alias != NULL) {
 			UNPACK_SQL_STATEMENT(value, cur_column_list->alias, value);
-			if(memcmp(value->v.reference, column_name, column_name_len) == 0) {
+			value_len = strlen(value->v.string_literal);
+			if(value_len == column_name_len && memcmp(value->v.string_literal, column_name, column_name_len) == 0) {
 				PACK_SQL_STATEMENT(ret, cur_column_list, column_list_alias);
-				//ret = cur_column_list->column_list;
 				break;
 			}
 		}

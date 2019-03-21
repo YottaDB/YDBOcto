@@ -14,11 +14,13 @@ DROP_BEHAVIOR
       ($$)->v.keyword = (SqlOptionalKeyword*)malloc(sizeof(SqlOptionalKeyword));
       ($$)->v.keyword->keyword = OPTIONAL_CASCADE;
       ($$)->v.keyword->v = NULL;
+      dqinit(($$)->v.keyword);
     }
   | RESTRICT {
       SQL_STATEMENT($$, keyword_STATEMENT);
       ($$)->v.keyword = (SqlOptionalKeyword*)malloc(sizeof(SqlOptionalKeyword));
       ($$)->v.keyword->keyword = OPTIONAL_RESTRICT;
       ($$)->v.keyword->v = NULL;
+      dqinit(($$)->v.keyword);
     }
   ;

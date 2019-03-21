@@ -61,6 +61,7 @@ int emit_physical_plan(PhysicalPlan *pplan) {
 	EVP_MD_CTX *mdctx = NULL;
 
 	assert(cur_plan != NULL);
+	plan_id = 0;
 
 	// Walk the plans back to the first
 	while(cur_plan->prev != NULL)

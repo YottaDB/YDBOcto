@@ -76,7 +76,7 @@ int main(int argc, char **argv)
 	if(definedTables != NULL) {
 		SQL_STATEMENT(tmp_statement, table_STATEMENT);
 		tmp_statement->v.table = definedTables;
-		cleanup_sql_statement(tmp_statement);
+		//cleanup_sql_statement(tmp_statement);
 	}
 	return error;
 }

@@ -20,7 +20,8 @@ if(NOT MAX_KEY_COUNT)
 	set(MAX_KEY_COUNT 255)
 endif()
 
-enable_testing()
+#enable_testing()
+include(CTest)
 add_subdirectory(src)
 
 # Stuff related to documentation building

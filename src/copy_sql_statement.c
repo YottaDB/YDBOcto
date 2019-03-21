@@ -44,8 +44,7 @@ SqlStatement *copy_sql_statement(SqlStatement *stmt) {
 	ret = (SqlStatement*)malloc(sizeof(SqlStatement));
 	memset(ret, 0, sizeof(SqlStatement));
 	ret->type = stmt->type;
-	switch(stmt->type)
-	{
+	switch(stmt->type) {
 	case table_STATEMENT:
 		// Although there is a dq within table, we should not copy it,
 		//  otherwise we might copy the entire list of tables for

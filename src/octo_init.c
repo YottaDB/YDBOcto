@@ -297,5 +297,8 @@ int octo_init(int argc, char **argv, int scan_tables) {
 		result = NULL;
 	} while(1);
 
+	free(table_create_buffer.buf_addr);
+	free(table_name_buffer.buf_addr);
+
 	return 0;
 }

@@ -53,18 +53,6 @@ void emit_create_table(FILE *output, struct SqlStatement *stmt)
 		m_escape_string2(buffer, MAX_STR_CONST, value->v.reference);
 		fprintf(output, " GLOBAL \"%s\"", buffer);
 	}
-	if(table->curse) {
-		UNPACK_SQL_STATEMENT(keyword, table->curse, keyword);
-		UNPACK_SQL_STATEMENT(value, keyword->v, value);
-		m_escape_string2(buffer, MAX_STR_CONST, value->v.reference);
-		fprintf(output, " CURSOR \"%s\"", buffer);
-	}
-	if(table->end) {
-		UNPACK_SQL_STATEMENT(keyword, table->end, keyword);
-		UNPACK_SQL_STATEMENT(value, keyword->v, value);
-		m_escape_string2(buffer, MAX_STR_CONST, value->v.reference);
-		fprintf(output, " END \"%s\"", buffer);
-	}
 	if(table->delim) {
 		UNPACK_SQL_STATEMENT(keyword, table->delim, keyword);
 		UNPACK_SQL_STATEMENT(value, keyword->v, value);

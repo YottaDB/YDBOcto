@@ -235,11 +235,7 @@ struct SqlTable
 	SqlStatement *tableName;
 	SqlStatement *source;
 	SqlStatement *columns;
-	SqlStatement *curse;
-	SqlStatement *start;
-	SqlStatement *end;
 	SqlStatement *delim;
-	SqlStatement *pack;
 	dqcreate(SqlTable);
 };
 

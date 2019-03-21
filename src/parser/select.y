@@ -125,20 +125,20 @@ query_specification
       if(select->select_list->v.column_list_alias == NULL) {
           start_join = cur_join = join;
           do {
-	      UNPACK_SQL_STATEMENT(table_alias, cur_join->value, table_alias);
-	      //t_stmt = copy_sql_statement(table_alias->column_list);
-	      //UNPACK_SQL_STATEMENT(t_cl_alias, t_stmt, column_list_alias);
-	      t_column = column_list_alias_to_columns(table_alias);
-	      t_cl_alias = lp_columns_to_column_list(t_column, table_alias);
-	      if(cl_alias == NULL) {
-		  cl_alias = t_cl_alias;
-	      } else {
-	          dqinsert(cl_alias, t_cl_alias, tt_cl_alias);
-	      }
-	      //free(t_stmt);
-	      cur_join = cur_join->next;
+              UNPACK_SQL_STATEMENT(table_alias, cur_join->value, table_alias);
+              //t_stmt = copy_sql_statement(table_alias->column_list);
+              //UNPACK_SQL_STATEMENT(t_cl_alias, t_stmt, column_list_alias);
+              t_column = column_list_alias_to_columns(table_alias);
+              t_cl_alias = lp_columns_to_column_list(t_column, table_alias);
+              if(cl_alias == NULL) {
+                  cl_alias = t_cl_alias;
+              } else {
+                  dqinsert(cl_alias, t_cl_alias, tt_cl_alias);
+              }
+              //free(t_stmt);
+              cur_join = cur_join->next;
           } while(cur_join != start_join);
-	  select->select_list->v.column_list_alias = cl_alias;
+          select->select_list->v.column_list_alias = cl_alias;
       }
       ($$)->v.select->optional_words = $set_quantifier;
       SqlColumnList *column_list;
@@ -148,19 +148,19 @@ query_specification
       UNPACK_SQL_STATEMENT(start_column_list_alias, $select_list, column_list_alias);
       cur_column_list_alias = start_column_list_alias;
       if(cur_column_list_alias != NULL) {
-	  result = qualify_column_list_alias(cur_column_list_alias, join);
-	  if(result != 0) {
-	      YYERROR;
-	  }
-	  result = populate_data_type($select_list, &type);
-	  if(result != 0) {
-	      YYERROR;
-	  }
+          result = qualify_column_list_alias(cur_column_list_alias, join);
+          if(result != 0) {
+              YYERROR;
+          }
+          result = populate_data_type($select_list, &type);
+          if(result != 0) {
+              YYERROR;
+          }
       }
       ($$)->v.select->order_expression = NULL;
       result = qualify_join_conditions(join, join);
       if(result != 0) {
-	  YYERROR;
+          YYERROR;
       }
     }
   | SELECT set_quantifier select_list table_expression ORDER BY sort_specification_list {
@@ -180,20 +180,20 @@ query_specification
       if(select->select_list->v.column_list_alias == NULL) {
           start_join = cur_join = join;
           do {
-	      UNPACK_SQL_STATEMENT(table_alias, cur_join->value, table_alias);
-	      //t_stmt = copy_sql_statement(table_alias->column_list);
-	      //UNPACK_SQL_STATEMENT(t_cl_alias, table_alias->column_list, column_list_alias);
-	      t_column = column_list_alias_to_columns(table_alias);
-	      t_cl_alias = lp_columns_to_column_list(t_column, table_alias);
-	      if(cl_alias == NULL) {
-		  cl_alias = t_cl_alias;
-	      } else {
-	          dqinsert(cl_alias, t_cl_alias, tt_cl_alias);
-	      }
-	      //free(t_stmt);
-	      cur_join = cur_join->next;
+              UNPACK_SQL_STATEMENT(table_alias, cur_join->value, table_alias);
+              //t_stmt = copy_sql_statement(table_alias->column_list);
+              //UNPACK_SQL_STATEMENT(t_cl_alias, table_alias->column_list, column_list_alias);
+              t_column = column_list_alias_to_columns(table_alias);
+              t_cl_alias = lp_columns_to_column_list(t_column, table_alias);
+              if(cl_alias == NULL) {
+                  cl_alias = t_cl_alias;
+              } else {
+                  dqinsert(cl_alias, t_cl_alias, tt_cl_alias);
+              }
+              //free(t_stmt);
+              cur_join = cur_join->next;
           } while(cur_join != start_join);
-	  PACK_SQL_STATEMENT(select->select_list, cl_alias, column_list_alias);
+          PACK_SQL_STATEMENT(select->select_list, cl_alias, column_list_alias);
       }
       ($$)->v.select->optional_words = $set_quantifier;
       SqlColumnList *column_list;
@@ -203,24 +203,24 @@ query_specification
       UNPACK_SQL_STATEMENT(start_column_list_alias, $select_list, column_list_alias);
       cur_column_list_alias = start_column_list_alias;
       if(cur_column_list_alias != NULL) {
-	  result = qualify_column_list_alias(cur_column_list_alias, join);
-	  if(result != 0) {
-	      YYERROR;
-	  }
-	  result = populate_data_type($select_list, &type);
-	  if(result != 0) {
-	      YYERROR;
-	  }
+          result = qualify_column_list_alias(cur_column_list_alias, join);
+          if(result != 0) {
+              YYERROR;
+          }
+          result = populate_data_type($select_list, &type);
+          if(result != 0) {
+              YYERROR;
+          }
       }
       UNPACK_SQL_STATEMENT(start_column_list_alias, $sort_specification_list, column_list_alias);
       result = qualify_column_list_alias(start_column_list_alias, join);
       if(result != 0) {
-	  YYERROR;
+          YYERROR;
       }
       ($$)->v.select->order_expression = $sort_specification_list;
       result = qualify_join_conditions(join, join);
       if(result != 0) {
-	  YYERROR;
+          YYERROR;
       }
     }
   | SELECT set_quantifier select_list {
@@ -266,20 +266,20 @@ query_specification
       if(select->select_list->v.column_list_alias == NULL) {
           start_join = cur_join = join;
           do {
-	      UNPACK_SQL_STATEMENT(table_alias, cur_join->value, table_alias);
-	      //t_stmt = copy_sql_statement(table_alias->column_list);
-	      //UNPACK_SQL_STATEMENT(t_cl_alias, t_stmt, column_list_alias);
-	      t_column = column_list_alias_to_columns(table_alias);
-	      t_cl_alias = lp_columns_to_column_list(t_column, table_alias);
-	      if(cl_alias == NULL) {
-		  cl_alias = t_cl_alias;
-	      } else {
-	          dqinsert(cl_alias, t_cl_alias, tt_cl_alias);
-	      }
-	      //free(t_stmt);
-	      cur_join = cur_join->next;
+              UNPACK_SQL_STATEMENT(table_alias, cur_join->value, table_alias);
+              //t_stmt = copy_sql_statement(table_alias->column_list);
+              //UNPACK_SQL_STATEMENT(t_cl_alias, t_stmt, column_list_alias);
+              t_column = column_list_alias_to_columns(table_alias);
+              t_cl_alias = lp_columns_to_column_list(t_column, table_alias);
+              if(cl_alias == NULL) {
+                  cl_alias = t_cl_alias;
+              } else {
+                  dqinsert(cl_alias, t_cl_alias, tt_cl_alias);
+              }
+              //free(t_stmt);
+              cur_join = cur_join->next;
           } while(cur_join != start_join);
-	  select->select_list->v.column_list_alias = cl_alias;
+          select->select_list->v.column_list_alias = cl_alias;
       }
       ($$)->v.select->optional_words = $set_quantifier;
       SqlColumnList *column_list;
@@ -289,19 +289,19 @@ query_specification
       UNPACK_SQL_STATEMENT(start_column_list_alias, $select_list, column_list_alias);
       cur_column_list_alias = start_column_list_alias;
       if(cur_column_list_alias != NULL) {
-	  result = qualify_column_list_alias(cur_column_list_alias, join);
-	  if(result != 0) {
-	      YYERROR;
-	  }
-	  result = populate_data_type($select_list, &type);
-	  if(result != 0) {
-	      YYERROR;
-	  }
+          result = qualify_column_list_alias(cur_column_list_alias, join);
+          if(result != 0) {
+              YYERROR;
+          }
+          result = populate_data_type($select_list, &type);
+          if(result != 0) {
+              YYERROR;
+          }
       }
       ($$)->v.select->order_expression = NULL;
       result = qualify_join_conditions(join, join);
       if(result != 0) {
-	  YYERROR;
+          YYERROR;
       }
     }
   ;
@@ -386,12 +386,11 @@ derived_column
       assert(($1)->type == value_STATEMENT);
       dqinit(column_list);
       column_list->value = $1;
-      PACK_SQL_STATEMENT(alias->column_list, column_list, column_list);
       /// TODO: we should search here for a reasonable "name" for the column
       SQL_STATEMENT(alias->alias, value_STATEMENT);
       MALLOC_STATEMENT(alias->alias, value, SqlValue);
       alias->alias->v.value->type = STRING_LITERAL;
-      alias->alias->v.value->v.string_literal = malloc(strlen(" "));
+      alias->alias->v.value->v.string_literal = malloc(strlen(" ") + 2);
       strcpy(alias->alias->v.value->v.string_literal, " ");
     }
   | non_query_value_expression AS column_name {
@@ -407,7 +406,6 @@ derived_column
       assert(($1)->type == value_STATEMENT);
       dqinit(column_list);
       column_list->value = $1;
-      PACK_SQL_STATEMENT(alias->column_list, column_list, column_list);
       alias->alias = $column_name;
     }
   ;
@@ -441,7 +439,7 @@ table_reference
       (*plan_id)++;
       UNPACK_SQL_STATEMENT(column, table->columns, column);
       PACK_SQL_STATEMENT(alias->column_list,
-			 lp_columns_to_column_list(column, alias), column_list_alias);
+                         lp_columns_to_column_list(column, alias), column_list_alias);
       dqinit(join);
       if($table_reference_tail) {
         UNPACK_SQL_STATEMENT(join_tail, $table_reference_tail, join);
@@ -472,7 +470,7 @@ table_reference
       (*plan_id)++;
       UNPACK_SQL_STATEMENT(column, table->columns, column);
       PACK_SQL_STATEMENT(alias->column_list,
-			 lp_columns_to_column_list(column, alias), column_list_alias);
+                         lp_columns_to_column_list(column, alias), column_list_alias);
       dqinit(join);
       if($table_reference_tail) {
         UNPACK_SQL_STATEMENT(join_tail, $table_reference_tail, join);

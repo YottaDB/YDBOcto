@@ -113,7 +113,17 @@ int run_query(char *query, void (*callback)(PhysicalPlan *, int, void*), void *p
 		INFO(CUSTOM_ERROR, "%s", buffer);
 		UNPACK_SQL_STATEMENT(value, result->v.table->tableName, value);
 		YDB_COPY_STRING_TO_BUFFER(value->v.reference, &table_name_buffer, done);
+		if(!done) {
+			FATAL(ERR_TABLE_DEFINITION_TOO_LONG, value->v.reference,
+					table_name_buffer.len_alloc,
+					strlen(value->v.reference));
+		}
 		YDB_COPY_STRING_TO_BUFFER(buffer, &table_create_buffer, done);
+		if(!done) {
+			FATAL(ERR_TABLE_DEFINITION_TOO_LONG, value->v.reference,
+					table_create_buffer.len_alloc,
+					strlen(buffer));
+		}
 		status = ydb_set_s(&schema_global, 1,
 				   &table_name_buffer,
 				   &table_create_buffer);

@@ -275,7 +275,7 @@ int octo_init(int argc, char **argv, int scan_tables) {
 		YDB_ERROR_CHECK(status, &z_status, &z_status_value);
 		if(table_name_buffer.len_used == 0)
 			break;
-		ydb_get_s(&schema_global, 1, &table_name_buffer, &table_create_buffer);
+		status = ydb_get_s(&schema_global, 1, &table_name_buffer, &table_create_buffer);
 		YDB_ERROR_CHECK(status, &z_status, &z_status_value);
 		table_create_buffer.buf_addr[table_create_buffer.len_used] = '\0';
 		INFO(CUSTOM_ERROR, "Running command %s\n", table_create_buffer.buf_addr);

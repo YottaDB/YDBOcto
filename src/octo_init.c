@@ -91,8 +91,8 @@ void init_crypto() {
 	/* Load all digest and cipher algorithms */
 	OpenSSL_add_all_algorithms();
 
-	/* Load config file, and other important initialisation */
-	OPENSSL_config(NULL);
+	/* Load default config file, and other important initialisation */
+	CONF_modules_load_file(NULL, NULL, 0);
 }
 
 int octo_init(int argc, char **argv, int scan_tables) {

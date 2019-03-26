@@ -1,0 +1,35 @@
+load test_helpers
+
+setup() {
+  init_test
+  createdb
+  load_fixture names.sql
+  load_fixture names.zwr
+}
+
+@test "create a table so large it can't fit in the buffer" {
+  # Generate a file with the mapping
+  cat <<OCTO > table1.sql
+CREATE TABLE table1 (
+  id INTEGER PRIMARY KEY
+  $(for i in $(seq 1 1000); do echo ", column$i VARCHAR"; done)
+);
+OCTO
+  run octo -f table1.sql
+  [ "$status" -ne 0 ]
+  [[ "$output" =~ "FATAL" ]]
+}
+
+@test "create table with key in extract" {
+  octo <<OCTO &> output.txt
+CREATE TABLE namesE(
+  id INTEGER PRIMARY KEY,
+  firstName VARCHAR EXTRACT "^names(keys(""id""))",
+  lastName VARCHAR
+) GLOBAL "^names(keys(""id""))";
+OCTO
+  run octo <<OCTO
+SELECT * FROM namesE;
+OCTO
+  [ "$status" -eq 0 ]
+}

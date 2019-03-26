@@ -15,6 +15,7 @@
  */
 
 #include <stdio.h>
+#include <assert.h>
 
 #include "config.h"
 #include "errors.h"
@@ -26,19 +27,8 @@ Expr *print_template(Expr *expr, Expr *prev);
 int print_active;
 
 int main(int argc, char **argv) {
-	//yyscan_t scanner;
-	//YY_BUFFER_STATE state;
-	char *test = "{% int myfunc() { %}ok";
-
-	//octo_init();
-
-	//yydebug = TRUE;
-
-	/*if(yylex_init(&scanner))
-		FATAL(ERR_INIT_SCANNER);
-		//state = yy_scan_string(test, scanner);*/
 	if(yyparse()) {
-		ERROR(ERR_PARSING_COMMAND, test);
+		ERROR(ERR_PARSING_COMMAND, "Trouble parsing input");
 		return 1;
 	}
 	print_active = 0;
@@ -78,23 +68,24 @@ Expr *print_template(Expr *expr, Expr *prev) {
 			safe_print_string(expr->value);
 			break;
 		}
-		print_active = 1;
 		if(next == NULL)
-			return NULL;
+			break;
+		print_active = 1;
 		printf(SNPRINT_HEADER);
 		safe_print_string(expr->value);
-		if(next && next->type == VALUE_TYPE)
+		if(next && next->type == VALUE_TYPE) {
 			next = print_template(next, expr);
+		}
 		printf("\"");
 		t = expr;
-		if(t->next && t->next->type == VALUE_TYPE) {
-			do {
-				t = t->next;
-				if(t->type == VALUE_TYPE && t->value) {
-					printf(",");
-					safe_print_string(t->value);
-				}
-			} while(t && t->next && t != next);
+		while(t->next != next) {
+			t = t->next;
+			if(t == NULL)
+				break;
+			if(t->type == VALUE_TYPE && t->value) {
+				printf(",");
+				safe_print_string(t->value);
+			}
 		}
 		printf(");\n");
 		print_active = 0;

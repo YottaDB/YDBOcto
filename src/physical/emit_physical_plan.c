@@ -51,7 +51,7 @@ void generateHash(EVP_MD_CTX *mdctx, const unsigned char *message, size_t messag
 int emit_physical_plan(PhysicalPlan *pplan) {
 	int plan_id, len, fd;
 	PhysicalPlan *cur_plan = pplan, *first_plan;
-	char buffer[MAX_STR_CONST], plan_name_buffer[MAX_STR_CONST];
+	char *buffer, plan_name_buffer[MAX_STR_CONST];
 	char filename[MAX_STR_CONST], *tableName, *columnName;
 	char *tableNameHash, *columnNameHash;
 	int tableNameHashLen, columnNameHashLen, filename_len;
@@ -62,6 +62,8 @@ int emit_physical_plan(PhysicalPlan *pplan) {
 
 	assert(cur_plan != NULL);
 	plan_id = 0;
+	buffer = malloc(MAX_ROUTINE_LENGTH);
+	memset(buffer, 0, MAX_ROUTINE_LENGTH);
 
 	// Walk the plans back to the first
 	while(cur_plan->prev != NULL)
@@ -95,7 +97,7 @@ int emit_physical_plan(PhysicalPlan *pplan) {
 		snprintf(filename, MAX_STR_CONST, "%s/%s.m", config->tmp_dir, key->cross_reference_filename);
 		output_file = fopen(filename, "w");
 		cur_plan->filename = key->cross_reference_filename;
-		tmpl_physical_plan(buffer, MAX_STR_CONST, cur_plan);
+		tmpl_physical_plan(buffer, MAX_ROUTINE_LENGTH, cur_plan);
 		assert(output_file != NULL);
 		fprintf(output_file, "%s\n", buffer);
 		fd = fileno(output_file);
@@ -134,7 +136,7 @@ int emit_physical_plan(PhysicalPlan *pplan) {
 		if(cur_plan == NULL)
 			break;
 		cur_plan->filename = filename;
-		tmpl_physical_plan(buffer, MAX_STR_CONST, cur_plan);
+		tmpl_physical_plan(buffer, MAX_ROUTINE_LENGTH, cur_plan);
 		assert(output_file != NULL);
 		fprintf(output_file, "%s\n", buffer);
 		cur_plan = cur_plan->next;

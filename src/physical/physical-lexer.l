@@ -49,6 +49,7 @@ int copied_so_far;
           (*yylval_param)->type = EXPR_TYPE;
           (*yylval_param)->value = malloc(copied_so_far + 1);
           strncpy((*yylval_param)->value, string_buffer, copied_so_far);
+          (*yylval_param)->value[copied_so_far] = '\0';
           yyless(0);
           return LITERAL;
 }
@@ -68,6 +69,7 @@ int copied_so_far;
    (*yylval_param)->type = VALUE_TYPE;
    (*yylval_param)->value = malloc(copied_so_far + 1);
    strncpy((*yylval_param)->value, string_buffer, copied_so_far);
+   (*yylval_param)->value[copied_so_far] = '\0';
    return LITERAL;
    }
 
@@ -80,6 +82,7 @@ int copied_so_far;
    (*yylval_param)->type = LITERAL_TYPE;
    (*yylval_param)->value = malloc(copied_so_far + 1);
    strncpy((*yylval_param)->value, string_buffer, copied_so_far);
+   (*yylval_param)->value[copied_so_far] = '\0';
    return LITERAL;
    }
 

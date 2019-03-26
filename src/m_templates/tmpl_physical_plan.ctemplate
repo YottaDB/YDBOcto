@@ -18,6 +18,11 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
     char *source;
     char *tableName = " ";
     char *columnName = " ";
+    char *start_table_reference, *end_table_reference;
+    char *start_resume = NULL;
+    char *end_resume = NULL;
+    char *old_buff_ptr, c;
+    int resume_length;
 
     %}
 ;; This is a generate file; do not modify.
@@ -92,6 +97,8 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
     }
 
     // Output the value
+    // Note down where the "resume" pointer starts, incuding the preceeding whitespace
+    start_resume = buff_ptr - 4;
     TMPL(print_dots, dot_count);
     if(plan->set_operation == PP_EXCEPT_SET) {
         %}IF 1{%
@@ -115,7 +122,7 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
     //  NOTE: the EXCEPT set doesn't need to check if a value exists before clearing it
     if(plan->distinct_values && plan->set_operation != PP_EXCEPT_SET) {
         %}&($D(^|"{{ config->global_directory }}"|{{ config->global_names.raw_cursor }}(cursorId,"index",{%
-        TMPL(tmpl_column_list_combine, plan->projection, plan, ",");
+        TMPL(tmpl_column_list_combine, plan->projection, plan, ",", NULL, 0);
         %}))=0){%
     }
 
@@ -126,7 +133,7 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
     } else if(plan->outputKey && plan->outputKey->is_cross_reference_key) {
         %} ^|"{{ config->global_directory }}"|{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}"{%
         %},{%
-        TMPL(tmpl_column_list_combine, plan->projection, plan, ",");
+        TMPL(tmpl_column_list_combine, plan->projection, plan, ",", NULL, 0);
         %})=""
     {% // White space needed
         TMPL(print_dots, dot_count);
@@ -135,14 +142,28 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
         // Temporarily sever the key from the projection
         lp_temp = plan->projection->v.operand[1];
         plan->projection->v.operand[1] = NULL;
-        TMPL(tmpl_column_list_combine, plan->projection, plan, ",");
+        TMPL(tmpl_column_list_combine, plan->projection, plan, ",", NULL, 0);
         plan->projection->v.operand[1] = lp_temp;
         %})) {%
     } else if(plan->set_operation == PP_EXCEPT_SET) {
-        %} SET v=$O(^|"{{ config->global_directory }}"|{{ config->global_names.raw_cursor }}(cursorId,"index",{% TMPL(tmpl_column_list_combine, plan->projection, plan, ","); %},"")) KILL:v'="" {% TMPL(tmpl_key, plan->outputKey); buff_ptr--; %},v),^|"{{ config->global_directory }}"|{{ config->global_names.raw_cursor }}(cursorId,"index",{% TMPL(tmpl_column_list_combine, plan->projection, plan, ","); %},v){%
+        %} SET v=$O(^|"{{ config->global_directory }}"|{{ config->global_names.raw_cursor }}(cursorId,"index",{% TMPL(tmpl_column_list_combine, plan->projection, plan, ",", NULL, 0); %},"")) KILL:v'="" {% TMPL(tmpl_key, plan->outputKey); buff_ptr--; %},v),^|"{{ config->global_directory }}"|{{ config->global_names.raw_cursor }}(cursorId,"index",{% TMPL(tmpl_column_list_combine, plan->projection, plan, ",", NULL, 0); %},v){%
     } else if(plan->outputKey) {
-        // This is probably super dangerous, but who cares...
-        %} {%
+        // Note down where we are, do a dummy assignment to increment the row count, then paste our row again
+        end_resume = buff_ptr;
+        %}&$I(i{{ cur_key|%d }}) {%
+        if(plan->set_operation == PP_INTERSECT_SET) {
+            %}z{%
+        } else {
+            %}z=42{%
+        }
+        c = *end_resume;
+        *end_resume = '\0';
+        resume_length = end_resume - start_resume;
+        buff_ptr += snprintf(buff_ptr, buffer_len - (buff_ptr - buffer), "\n%s ", start_resume);
+        *end_resume = c;
+        start_resume = buff_ptr - resume_length;
+        // Track the output of the table so we can copy-paste it instead of repeating the below logic
+        start_table_reference = buff_ptr;
         TMPL(tmpl_key, plan->outputKey);
         // Go back on in the buffer
         buff_ptr -= 1;
@@ -154,26 +175,33 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
             %},"this variable should never exist"){%
         } else if(plan->action_type == PP_DELETE) {
             %},^|"{{ config->global_directory }}"|{{ config->global_names.raw_cursor }}(cursorId,"index",{%
-            TMPL(tmpl_column_list_combine, plan->projection, plan, ",");
+            TMPL(tmpl_column_list_combine, plan->projection, plan, ",", NULL, 0);
             %})){%
         } else if(plan->stash_columns_in_keys) {
             %},{%
-            TMPL(tmpl_column_list_combine, plan->projection, plan, ",");
+            TMPL(tmpl_column_list_combine, plan->projection, plan, ",", NULL, 0);
             %}){%
         } else if (plan->order_by) {
             %},{%
-            TMPL(tmpl_column_list_combine, plan->order_by, plan, ",");
+            TMPL(tmpl_column_list_combine, plan->order_by, plan, ",", NULL, 0);
             %}){%
         } else {
-            %},$I(i{{ cur_key|%d }})){%
+            %},i{{ cur_key|%d }}){%
         }
         // Then assign value
         if(plan->action_type == PP_PROJECT) {
-            %}={%
+            end_table_reference = buff_ptr;
+            %}=$G({%
+            c = *end_table_reference,
+            *end_table_reference = '\0';
+            buff_ptr += snprintf(buff_ptr, buffer_len - (buff_ptr - buffer), "%s", start_table_reference);
+            *end_table_reference = c;
+            %})_{%
+            end_resume = buff_ptr;
             if(plan->stash_columns_in_keys) {
                 %}""{%
             } else {
-                TMPL(tmpl_column_list_combine, plan->projection, plan, "_\"|\"_");
+                TMPL(tmpl_column_list_combine, plan->projection, plan, "_\"|\"_", start_resume, end_resume - start_resume);
             }
         }
     } else if (plan->outputTable) {
@@ -206,13 +234,13 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
         //  NOTE: the EXCEPT set doesn't need to check if a value exists before clearing it
         if(plan->distinct_values && plan->set_operation != PP_EXCEPT_SET && plan->set_operation != PP_INTERSECT_SET) {
             %}&($D(^|"{{ config->global_directory }}"|{{ config->global_names.raw_cursor }}(cursorId,"index",{%
-            TMPL(tmpl_column_list_combine, plan->projection, plan, ",");
+            TMPL(tmpl_column_list_combine, plan->projection, plan, ",", NULL, 0);
             %}))=0){%
         }
         %} ^|"{{ config->global_directory }}"|{{ config->global_names.raw_cursor }}(cursorId,"index",{%
-        TMPL(tmpl_column_list_combine, plan->projection, plan, ",");
+        TMPL(tmpl_column_list_combine, plan->projection, plan, ",", NULL, 0);
         if(plan->set_operation != PP_INTERSECT_SET) {
-            %},(i{{ cur_key|%d }}))="",tmpVar=$I(^|"{{ config->global_directory }}"|{{ config->global_names.raw_cursor }}(cursorId,"index",{% TMPL(tmpl_column_list_combine, plan->projection, plan, ","); %})){%
+            %},(i{{ cur_key|%d }}))="",tmpVar=$I(^|"{{ config->global_directory }}"|{{ config->global_names.raw_cursor }}(cursorId,"index",{% TMPL(tmpl_column_list_combine, plan->projection, plan, ",", NULL, 0); %})){%
         } else {
             %}){%
         }

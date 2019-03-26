@@ -36,6 +36,7 @@ Octo uses some cmake parameters to control generation of fixed-size buffer alloc
 
  - STRING_BUFFER_LENGTH -- the maximum length of a string within the system; this supercedes any VARCHAR definitions
  - MAX_EXPRESSION_LENGTH -- the maximum length of an expression passed to the underlying MUMPS runtime. There is also a YDB limit on the size of these expressions
+ - MAX_ROUTINE_LENGTH -- the maximum length of a generated routine. The default is 10MB
 
 ## Usage
 

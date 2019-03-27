@@ -70,7 +70,10 @@ TEMPLATE(tmpl_column_reference_trigger, PhysicalPlan *pplan, SqlColumnAlias *col
     keyword = get_keyword(column, OPTIONAL_EXTRACT);
     if(keyword != NULL) {
         UNPACK_SQL_STATEMENT(value, keyword->v, value);
-        %}{{ value->v.string_literal }}{%
+        TMPL(tmpl_emit_source, value->v.string_literal, table_name, table_alias->unique_id, MAX_KEY_COUNT, EmitSourceForm_Trigger);
+        if(table_delim != NULL) {
+          %}-delim=""{{ table_delim }}"" -pieces=""{{ piece }}""{%
+        }
         TEMPLATE_END();
     }
     keyword = get_keyword(column, OPTIONAL_PIECE);

@@ -22,7 +22,7 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
     char *start_resume = NULL;
     char *end_resume = NULL;
     char *old_buff_ptr, c;
-    int resume_length;
+    int resume_length, limit;
 
     %}
 ;; This is a generate file; do not modify.
@@ -58,6 +58,16 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
     {%
         }
     }
+    %}NEW %%ydboctoz{%
+    limit = plan->total_iter_keys;
+    if(plan->set_operation != PP_NOT_SET) {
+        limit--;
+    }
+    for(cur_key = 0; cur_key <= limit; cur_key++) {
+        %},%%ydboctoi{{ cur_key|%d }}{%
+    }
+    %}
+    {% // Whitespace for MUMPS
 
     for(cur_key = 0, dot_count = 0; cur_key < plan->total_iter_keys; cur_key++) {
         // For each key, output the key start, a loop, quit, and increment

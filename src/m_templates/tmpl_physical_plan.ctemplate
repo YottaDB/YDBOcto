@@ -83,13 +83,13 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
             continue;
         } 
     %}{% TMPL(print_dots, dot_count); %}{% TMPL(tmpl_key_start, key); %}
-    {% TMPL(print_dots, dot_count); %}FOR i{{ cur_key|%d }}=1:1 SET {% TMPL(tmpl_key, key) %}=$O({% TMPL(tmpl_key_advance, plan, key)
+    {% TMPL(print_dots, dot_count); %}FOR %%ydboctoi{{ cur_key|%d }}=1:1 SET {% TMPL(tmpl_key, key) %}=$O({% TMPL(tmpl_key_advance, plan, key)
     %}) QUIT:({%
         TMPL(tmpl_key_end, key);
         keyword = get_keyword_from_keywords(plan->keywords, OPTIONAL_LIMIT);
         if(keyword != NULL) {
             UNPACK_SQL_STATEMENT(value, keyword->v, value);
-            %})!(({{ value->v.string_literal }})'>$G(i{{ plan->total_iter_keys|%d }}){%
+            %})!(({{ value->v.string_literal }})'>$G(%%ydboctoi{{ plan->total_iter_keys|%d }}){%
         }
     %})  DO
     {%
@@ -150,11 +150,11 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
     } else if(plan->outputKey) {
         // Note down where we are, do a dummy assignment to increment the row count, then paste our row again
         end_resume = buff_ptr;
-        %}&$I(i{{ cur_key|%d }}) {%
+        %}&$I(%%ydboctoi{{ cur_key|%d }}) {%
         if(plan->set_operation == PP_INTERSECT_SET) {
-            %}z{%
+            %}%%ydboctoz{%
         } else {
-            %}z=42{%
+            %}%%ydboctoz=42{%
         }
         c = *end_resume;
         *end_resume = '\0';
@@ -186,7 +186,7 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
             TMPL(tmpl_column_list_combine, plan->order_by, plan, ",", NULL, 0);
             %}){%
         } else {
-            %},i{{ cur_key|%d }}){%
+            %},%%ydboctoi{{ cur_key|%d }}){%
         }
         // Then assign value
         if(plan->action_type == PP_PROJECT) {
@@ -240,7 +240,7 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
         %} ^|"{{ config->global_directory }}"|{{ config->global_names.raw_cursor }}(cursorId,"index",{%
         TMPL(tmpl_column_list_combine, plan->projection, plan, ",", NULL, 0);
         if(plan->set_operation != PP_INTERSECT_SET) {
-            %},(i{{ cur_key|%d }}))="",tmpVar=$I(^|"{{ config->global_directory }}"|{{ config->global_names.raw_cursor }}(cursorId,"index",{% TMPL(tmpl_column_list_combine, plan->projection, plan, ",", NULL, 0); %})){%
+            %},(%%ydboctoi{{ cur_key|%d }}))="",tmpVar=$I(^|"{{ config->global_directory }}"|{{ config->global_names.raw_cursor }}(cursorId,"index",{% TMPL(tmpl_column_list_combine, plan->projection, plan, ",", NULL, 0); %})){%
         } else {
             %}){%
         }

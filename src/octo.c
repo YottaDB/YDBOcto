@@ -47,27 +47,19 @@ int main(int argc, char **argv)
 	inputFile = NULL;
 	octo_init(argc, argv, TRUE);
 
-	cur_input_more = &no_more;
-
-	/* Parse input parameters */
-
 	TRACE(CUSTOM_ERROR, "Octo started");
 
 	/* Load the existing tables */
 
 	yydebug = config->record_error_level == TRACE;
 	cur_input_more = &readline_get_more;
-	if (inputFile == NULL)
+	if (inputFile == NULL) {
 		inputFile = stdin;
+		config->is_tty = TRUE;
+	}
 	cur_input_index = 0;
+	memset(input_buffer_combined, 0, MAX_STR_CONST);
 	do {
-		//if(readline_getc(inputFile, input_buffer_combined, MAX_STR_CONST) == -1)
-		//	break;
-		//cur_input_index = cur_input_max;
-		//cur_input_index = 0;
-		//input_buffer_combined[cur_input_index] = '\0';
-		memset(input_buffer_combined, 0, MAX_STR_CONST);
-		cur_input_index = 0;
 		if(run_query(input_buffer_combined, &print_temporary_table, NULL) == 0) {
 			if(eof_hit)
 				break;

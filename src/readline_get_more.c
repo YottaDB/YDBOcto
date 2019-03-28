@@ -17,6 +17,7 @@
 #include <stdlib.h>
 #include <assert.h>
 #include <unistd.h>
+#include <errno.h>
 #include <readline/readline.h>
 #include <readline/history.h>
 
@@ -26,7 +27,6 @@
 #define YY_NULL 0
 
 int get_input(char *buf, int size) {
-	//printf("current left: %s\n", &input_buffer_combined[cur_input_index]);
 	if(eof_hit)
 		return YY_NULL;
 	if(cur_input_index == cur_input_max) {
@@ -37,20 +37,19 @@ int get_input(char *buf, int size) {
 	if(input_buffer_combined[cur_input_index] == '\0') {
 		//cur_input_index = 0;
 		//printf("Looking for more input...\n");
-		if(cur_input_more() == 0)
+		if(cur_input_more() == 0) {
 			return YY_NULL;
+		}
 		return -1;
 	}
 	buf[0] = input_buffer_combined[cur_input_index++];
-	//buf[1] = '\0';
-	//printf("%c", buf[0]);
 	return 1;
 }
 
 int readline_get_more() {
-	int line_length;
+	int line_length, data_read;
 	char *line, c;
-	if(isatty(fileno(inputFile))) {
+	if(config->is_tty) {
 		line = readline("OCTO> ");
 		if(line == NULL) {
 			eof_hit = 1;
@@ -76,10 +75,12 @@ int readline_get_more() {
 	} else {
 		if(feof(inputFile))
 			return 0;
-		c = fgetc(inputFile);
-		if(c == -1)
-			return 0;
-		input_buffer_combined[cur_input_index] = c;
-		return 1;
+		cur_input_index = 0;
+		data_read = read(fileno(inputFile), input_buffer_combined, cur_input_max);
+		if(data_read == -1) {
+			FATAL(ERR_SYSCALL, "read", errno);
+		}
+		input_buffer_combined[data_read] = '\0';
+		return data_read;
 	}
 }

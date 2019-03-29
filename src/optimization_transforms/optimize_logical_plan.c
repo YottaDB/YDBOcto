@@ -147,6 +147,7 @@ LogicalPlan *optimize_logical_plan(LogicalPlan *plan) {
 	// If there are no "OR" or "AND" statements, fix key values
 	where = lp_get_select_where(plan);
 	while(TRUE) {
+		/// TODO: do we need this enture section of code, with the more general optimization?
 		// Handle an equality; if one side is a constant, fix the other
 		// If both sides are keys, fix the one which occurs first to the second
 		//  Note: the order of the keys is part of the optimization phase
@@ -296,6 +297,9 @@ LogicalPlan *optimize_logical_plan(LogicalPlan *plan) {
 			// First, insert a new key corresponding to the column in question
 			xref_keys = lp_make_key(column_alias);
 			key = xref_keys->v.key;
+			result = lp_opt_fix_key_to_const(plan, key, right);
+			if(!result)
+				break;
 			if(before_first_key->type == LP_CRITERIA) {
 				MALLOC_LP(before_first_key->v.operand[0], LP_KEYS);
 				before_first_key = before_first_key->v.operand[0];
@@ -305,13 +309,16 @@ LogicalPlan *optimize_logical_plan(LogicalPlan *plan) {
 			}
 			before_first_key->v.operand[0] = xref_keys;
 			xref_keys = lp_generate_xref_keys(plan, table, column_alias, table_alias);
+			if(xref_keys == NULL) {
+				break;
+			}
 			before_first_key->v.operand[1] = xref_keys;
 			if(before_last_key->v.operand[1] != NULL) {
 				xref_keys->v.operand[1] = before_last_key->v.operand[1];
 			}
+		} else {
+			result = lp_opt_fix_key_to_const(plan, key, right);
 		}
-		result = lp_opt_fix_key_to_const(plan, key, right);
-		assert(result == TRUE);
 		break;
 	}
 	lp_optimize_where_multi_equal_ands(plan, where);

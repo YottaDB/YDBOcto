@@ -244,7 +244,7 @@ boolean_test
   : boolean_primary boolean_test_tail {
       if($boolean_test_tail != NULL) {
         SQL_STATEMENT($$, binary_STATEMENT);
-        ($$)->v.binary = (SqlBinaryOperation*)malloc(sizeof(SqlBinaryOperation));
+        MALLOC_STATEMENT($$, binary, SqlBinaryOperation);
         ($$)->v.binary->operation = BOOLEAN_IS;
         ($$)->v.binary->operands[0] = ($1);
         ($$)->v.binary->operands[1] = ($2);

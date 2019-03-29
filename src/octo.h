@@ -113,6 +113,7 @@ SqlColumn *find_column(char *column_name, SqlTable *table);
 int qualify_column_list_alias(SqlColumnListAlias *alias, SqlJoin *tables);
 int qualify_column_list(SqlColumnList *select_columns, SqlJoin *tables);
 SqlColumnAlias *qualify_column_name(SqlValue *column_value, SqlJoin *tables);
+SqlStatement *match_column_in_table(SqlTableAlias *table, char *column_name, int column_name_len);
 int qualify_statement(SqlStatement *stmt, SqlJoin *tables);
 int qualify_join_conditions(SqlJoin *join, SqlJoin *tables);
 int qualify_function_name(SqlStatement *stmt, SqlJoin *tables);

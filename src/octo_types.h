@@ -399,4 +399,6 @@ struct SqlStatement {
 	} v;
 };
 
+/// TODO: this should be located in octo.h, but for some reason it's not being detected there
+SqlStatement *natural_join_condition(SqlStatement *left, SqlStatement *right);
 #endif

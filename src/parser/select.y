@@ -437,6 +437,7 @@ table_reference
       dqinit(join);
       if($table_reference_tail) {
         UNPACK_SQL_STATEMENT(join_tail, $table_reference_tail, join);
+        join->type = CROSS_JOIN;
         dqinsert(join, join_tail, t_join);
       }
     }
@@ -467,6 +468,7 @@ table_reference
       dqinit(join);
       if($table_reference_tail) {
         UNPACK_SQL_STATEMENT(join_tail, $table_reference_tail, join);
+        join->type = CROSS_JOIN;
         dqinsert(join, join_tail, t_join);
       }
     }
@@ -576,8 +578,9 @@ qualified_join
       $$ = $1;
       UNPACK_SQL_STATEMENT(left, $$, join);
       UNPACK_SQL_STATEMENT(right, $4, join);
-      right->type = NATURAL_JOIN;
-      //right->condition = NATURAL_JOIN;
+      left->type = NATURAL_JOIN;
+      assert(left->condition == NULL);
+      left->condition = natural_join_condition($1, $4);
       dqinsert(left, right, t_join);
     }
 

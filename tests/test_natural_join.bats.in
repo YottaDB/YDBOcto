@@ -1,0 +1,38 @@
+load test_helpers
+
+setup() {
+  init_test
+  createdb
+  load_fixture names.sql
+  load_fixture names.zwr
+}
+
+@test "natural join no matches" {
+  octo <<OCTO &> output.txt
+SELECT *
+FROM (SELECT id as A FROM names) n1
+NATURAL JOIN (SELECT id as B FROM names) n2;
+OCTO
+  [[ "$(grep -c "|" output.txt)" == "0" ]]
+}
+
+@test "natural join many matches" {
+  octo <<OCTO &> output.txt
+SELECT *
+FROM names n1
+NATURAL JOIN names n2;
+OCTO
+  [[ "$(grep -c "|" output.txt)" == "6" ]]
+}
+
+@test "natural join many matches with many tables" {
+  octo <<OCTO &> output.txt
+SELECT *
+FROM names n1
+NATURAL JOIN names n2
+NATURAL JOIN names n3
+NATURAL JOIN names n4;
+OCTO
+  [[ "$(grep -c "|" output.txt)" == "6" ]]
+}
+

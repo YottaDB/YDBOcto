@@ -77,7 +77,8 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt, int *plan_id) {
 	cur_join = start_join;
 	do {
 		if(cur_join->type != INNER_JOIN
-		   && cur_join->type != CROSS_JOIN && cur_join->type != NO_JOIN) {
+		   && cur_join->type != CROSS_JOIN && cur_join->type != NO_JOIN
+		   && cur_join->type != NATURAL_JOIN) {
 			FATAL(ERR_FEATURE_NOT_IMPLEMENTED, "OUTER JOIN");
 		}
 		if(join_right == NULL) {

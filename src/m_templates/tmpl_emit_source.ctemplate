@@ -51,7 +51,11 @@ TEMPLATE(tmpl_emit_source, char *source, char *table_name, int unique_id, int nu
             source_ptr += t;
             matched_vars += 1;
         } else {
-            %}{{ *source_ptr|%c }}{%
+            if(form == EmitSourceForm_Trigger && *source_ptr == '"') {
+                %}""{%
+            } else {
+                %}{{ *source_ptr|%c }}{%
+            }
             if(*source_ptr == '(') {
                 paren_count++;
             }

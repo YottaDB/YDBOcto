@@ -37,12 +37,19 @@ LogicalPlan *lp_generate_xref_keys(LogicalPlan *plan, SqlTable *table, SqlColumn
 	// Scan through and replace the table
 	table_join = lp_get_table_join(plan);
 	do {
-		GET_LP(lp_table_alias, table_join, 0, LP_TABLE);
-		if(lp_table_alias->v.table_alias->unique_id == table_alias->unique_id)
-			break;
-		GET_LP(table_join, table_join, 1, LP_TABLE_JOIN);
+		if(table_join->v.operand[0]->type == LP_TABLE) {
+			GET_LP(lp_table_alias, table_join, 0, LP_TABLE);
+			if(lp_table_alias->v.table_alias->unique_id == table_alias->unique_id)
+				break;
+		}
+		if(table_join->v.operand[1] != NULL) {
+			GET_LP(table_join, table_join, 1, LP_TABLE_JOIN);
+		} else {
+			table_join = NULL;
+		}
 	} while(table_join != NULL);
-	assert(table_join != NULL);
+	if(table_join == NULL)
+		return NULL;
 	/// TODO: free the old table
 	table_join->v.operand[0] = lp_generate_xref_plan(plan, table, column, unique_id);
 	lp_output_key = lp_get_output_key(table_join->v.operand[0]);

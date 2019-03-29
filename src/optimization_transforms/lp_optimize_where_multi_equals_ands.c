@@ -72,6 +72,7 @@ int lp_verify_valid_for_key_fix(LogicalPlan *plan, LogicalPlan *equals) {
 int lp_optimize_where_multi_equal_ands(LogicalPlan *plan, LogicalPlan *where) {
 	LogicalPlan *cur, *equals, *lp_key, *left, *right, *t, *keys, *prev;
 	LogicalPlan *first_key, *before_first_key, *last_key, *before_last_key, *xref_keys;
+	LogicalPlan *generated_xref_keys;
 	SqlColumnList *column_list;
 	SqlColumnListAlias *column_list_alias;
 	SqlColumnAlias *column_alias;
@@ -84,27 +85,33 @@ int lp_optimize_where_multi_equal_ands(LogicalPlan *plan, LogicalPlan *where) {
 	int key_unique_id_ordering[MAX_STR_CONST];
 	cur = where->v.operand[0];
 	prev = NULL;
+	result = FALSE;
 	while(cur != NULL) {
-		if(cur->type != LP_BOOLEAN_AND)
+		if(cur->type == LP_BOOLEAN_EQUALS) {
+			equals = cur;
+			cur = NULL;
+		} else if(cur->type != LP_BOOLEAN_AND)
 			return 0;
-		// Get the one with equals
-		if(cur->v.operand[0]->type == LP_BOOLEAN_EQUALS &&
-				cur->v.operand[1]->type == LP_BOOLEAN_EQUALS) {
-			if(prev == NULL) {
+		else {
+			// Get the one with equals
+			if(cur->v.operand[0]->type == LP_BOOLEAN_EQUALS &&
+					cur->v.operand[1]->type == LP_BOOLEAN_EQUALS) {
+				if(prev == NULL) {
+					equals = cur->v.operand[0];
+					prev = cur;
+				} else {
+					equals = cur->v.operand[1];
+					cur = NULL;
+				}
+			} else if(cur->v.operand[0]->type == LP_BOOLEAN_EQUALS) {
 				equals = cur->v.operand[0];
-				prev = cur;
-			} else {
+				cur = cur->v.operand[1];
+			} else if(cur->v.operand[1]->type == LP_BOOLEAN_EQUALS) {
 				equals = cur->v.operand[1];
-				cur = NULL;
+				cur = cur->v.operand[0];
+			} else {
+				return 0;
 			}
-		} else if(cur->v.operand[0]->type == LP_BOOLEAN_EQUALS) {
-			equals = cur->v.operand[0];
-			cur = cur->v.operand[1];
-		} else if(cur->v.operand[1]->type == LP_BOOLEAN_EQUALS) {
-			equals = cur->v.operand[1];
-			cur = cur->v.operand[0];
-		} else {
-			return 0;
 		}
 		if(lp_verify_valid_for_key_fix(plan, equals) == FALSE)
 			return 0;
@@ -127,26 +134,34 @@ int lp_optimize_where_multi_equal_ands(LogicalPlan *plan, LogicalPlan *where) {
 	cur = where->v.operand[0];
 	prev = NULL;
 	while(cur != NULL) {
-		if(cur->type != LP_BOOLEAN_AND)
+		if(cur->type == LP_BOOLEAN_EQUALS) {
+			equals = cur;
+			cur = NULL;
+		} else if(cur->type != LP_BOOLEAN_AND) {
 			return 0;
-		// Get the one with equals
-		if(cur->v.operand[0]->type == LP_BOOLEAN_EQUALS &&
-				cur->v.operand[1]->type == LP_BOOLEAN_EQUALS) {
-			if(prev == NULL) {
-				equals = cur->v.operand[0];
-				prev = cur;
-			} else {
-				equals = cur->v.operand[1];
-				cur = NULL;
-			}
-		} else if(cur->v.operand[0]->type == LP_BOOLEAN_EQUALS) {
-			equals = cur->v.operand[0];
-			cur = cur->v.operand[1];
-		} else if(cur->v.operand[1]->type == LP_BOOLEAN_EQUALS) {
-			equals = cur->v.operand[1];
-			cur = cur->v.operand[0];
 		} else {
-			return 0;
+			// Get the one with equals
+			if(cur->v.operand[0]->type == LP_BOOLEAN_EQUALS &&
+					cur->v.operand[1]->type == LP_BOOLEAN_EQUALS) {
+				if(prev == NULL) {
+					equals = cur->v.operand[0];
+					prev = cur;
+				} else {
+					equals = cur->v.operand[1];
+					cur = NULL;
+				}
+			} else if(cur->v.operand[0]->type == LP_BOOLEAN_EQUALS) {
+				equals = cur->v.operand[0];
+				cur = cur->v.operand[1];
+			} else if(cur->v.operand[1]->type == LP_BOOLEAN_EQUALS) {
+				equals = cur->v.operand[1];
+				cur = cur->v.operand[0];
+			} else {
+				return 0;
+			}
+		}
+		if(lp_verify_valid_for_key_fix(plan, equals) == FALSE) {
+			continue;
 		}
 		left = equals->v.operand[0];
 		right = equals->v.operand[1];
@@ -189,6 +204,9 @@ int lp_optimize_where_multi_equal_ands(LogicalPlan *plan, LogicalPlan *where) {
 				UNPACK_SQL_STATEMENT(column_alias, column_list->value, column_alias);
 			}
 			UNPACK_SQL_STATEMENT(column, column_alias->column, column);
+			generated_xref_keys = lp_generate_xref_keys(plan, table, column_alias, table_alias);
+			if(generated_xref_keys == NULL)
+				continue;
 			// Remove all keys for the table alias
 			before_first_key = lp_get_criteria(plan);
 			first_key = keys = lp_get_keys(plan);
@@ -229,14 +247,14 @@ int lp_optimize_where_multi_equal_ands(LogicalPlan *plan, LogicalPlan *where) {
 				before_first_key = before_first_key->v.operand[1];
 			}
 			before_first_key->v.operand[0] = xref_keys;
-			xref_keys = lp_generate_xref_keys(plan, table, column_alias, table_alias);
+			xref_keys = generated_xref_keys;
+			assert(xref_keys != NULL);
 			before_first_key->v.operand[1] = xref_keys;
 			if(before_last_key->v.operand[1] != NULL) {
 				xref_keys->v.operand[1] = before_last_key->v.operand[1];
 			}
 		}
 		result = lp_opt_fix_key_to_const(plan, key, right);
-		assert(result == TRUE);
 	}
-	return 1;
+	return result;
 }

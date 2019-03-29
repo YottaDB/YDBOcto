@@ -96,6 +96,8 @@ add_library(libocto OBJECT
   run_query.c
   parse_startup_flags.c
   memory_chunk.c
+  match_column_in_table.c
+  natural_join_condition.c
   optimization_transforms/optimize_logical_plan.c
   optimization_transforms/lp_get_select.c
   optimization_transforms/lp_get_select_where.c

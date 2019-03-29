@@ -68,3 +68,28 @@ OCTO
   [[ "$(grep -c 'Zero|Cool'  output.txt)" == "2" ]]
   [[ "$(grep -c 'Acid|Burn'  output.txt)" == "1" ]]
 }
+
+@test "cross join many matches with comma" {
+  octo <<OCTO &> output.txt
+SELECT *
+FROM names n1, names n2;
+OCTO
+  [[ "$(grep -c "|" output.txt)" == "36" ]]
+}
+
+@test "cross join many matches with comma with many tables" {
+  octo <<OCTO &> output.txt
+SELECT *
+FROM names n1, names n2, names n3, names n4;
+OCTO
+  [[ "$(grep -c "|" output.txt)" == "1296" ]]
+}
+
+@test "cross join many matches with comma with additional criteria" {
+  octo <<OCTO &> output.txt
+SELECT *
+FROM names n1, names n2
+WHERE n1.firstName = "Zero";
+OCTO
+  [[ "$(grep -c "|" output.txt)" == "12" ]]
+}

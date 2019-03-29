@@ -98,30 +98,3 @@ SqlColumnAlias *qualify_column_name(SqlValue *column_value, SqlJoin *tables) {
 
 	return ret;
 }
-
-SqlStatement *match_column_in_table(SqlTableAlias *table_alias, char *column_name, int column_name_len) {
-	SqlSelectStatement *select;
-	SqlColumnListAlias *cur_column_list, *start_column_list;
-	SqlValue *value;
-	SqlStatement *ret = NULL;
-	int value_len;
-
-	// If there is no column list for this table alias, we won't match anything
-	if(table_alias->column_list == NULL)
-		return NULL;
-	UNPACK_SQL_STATEMENT(start_column_list, table_alias->column_list, column_list_alias);
-	cur_column_list = start_column_list;
-	do {
-		if(cur_column_list->alias != NULL) {
-			UNPACK_SQL_STATEMENT(value, cur_column_list->alias, value);
-			value_len = strlen(value->v.string_literal);
-			if(value_len == column_name_len && memcmp(value->v.string_literal, column_name, column_name_len) == 0) {
-				PACK_SQL_STATEMENT(ret, cur_column_list, column_list_alias);
-				break;
-			}
-		}
-		cur_column_list = cur_column_list->next;
-	} while(cur_column_list != start_column_list);
-
-	return ret;
-}

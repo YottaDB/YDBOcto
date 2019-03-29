@@ -38,7 +38,7 @@ Octo uses some cmake parameters to control generation of fixed-size buffer alloc
  - MAX_EXPRESSION_LENGTH -- the maximum length of an expression passed to the underlying MUMPS runtime. There is also a YDB limit on the size of these expressions
  - MAX_ROUTINE_LENGTH -- the maximum length of a generated routine. The default is 10MB
  - MEMORY_CHUNK_SIZE -- size of memory chunks to allocate; default is 32MB
- - MEMORY_CHUNK_PROTECT -- if non-zero, memory following chunks if protected to detect buffer overflows. If 2, data is places closer to the protected region to increase the chances of detecting an error
+ - MEMORY_CHUNK_PROTECT -- if non-zero, memory following chunks is protected to detect buffer overflows. If 2, data is placed closer to the protected region to increase the chances of detecting an error
 
 ## Usage
 

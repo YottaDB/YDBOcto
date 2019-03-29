@@ -290,42 +290,42 @@ predicate
 comparison_predicate
   : row_value_constructor EQUALS row_value_constructor {
       SQL_STATEMENT($$, binary_STATEMENT);
-      ($$)->v.binary = (SqlBinaryOperation*)malloc(sizeof(SqlBinaryOperation));
+      MALLOC_STATEMENT($$, binary, SqlBinaryOperation);
       ($$)->v.binary->operation = BOOLEAN_EQUALS;
       ($$)->v.binary->operands[0] = ($1);
       ($$)->v.binary->operands[1] = ($3);
     }
   | row_value_constructor NOT_EQUALS row_value_constructor {
       SQL_STATEMENT($$, binary_STATEMENT);
-      ($$)->v.binary = (SqlBinaryOperation*)malloc(sizeof(SqlBinaryOperation));
+      MALLOC_STATEMENT($$, binary, SqlBinaryOperation);
       ($$)->v.binary->operation = BOOLEAN_NOT_EQUALS;
       ($$)->v.binary->operands[0] = ($1);
       ($$)->v.binary->operands[1] = ($3);
     }
   | row_value_constructor LESS_THAN row_value_constructor {
       SQL_STATEMENT($$, binary_STATEMENT);
-      ($$)->v.binary = (SqlBinaryOperation*)malloc(sizeof(SqlBinaryOperation));
+      MALLOC_STATEMENT($$, binary, SqlBinaryOperation);
       ($$)->v.binary->operation = BOOLEAN_LESS_THAN;
       ($$)->v.binary->operands[0] = ($1);
       ($$)->v.binary->operands[1] = ($3);
     }
   | row_value_constructor GREATER_THAN row_value_constructor {
       SQL_STATEMENT($$, binary_STATEMENT);
-      ($$)->v.binary = (SqlBinaryOperation*)malloc(sizeof(SqlBinaryOperation));
+      MALLOC_STATEMENT($$, binary, SqlBinaryOperation);
       ($$)->v.binary->operation = BOOLEAN_GREATER_THAN;
       ($$)->v.binary->operands[0] = ($1);
       ($$)->v.binary->operands[1] = ($3);
     }
   | row_value_constructor LESS_THAN_OR_EQUALS row_value_constructor {
       SQL_STATEMENT($$, binary_STATEMENT);
-      ($$)->v.binary = (SqlBinaryOperation*)malloc(sizeof(SqlBinaryOperation));
+      MALLOC_STATEMENT($$, binary, SqlBinaryOperation);
       ($$)->v.binary->operation = BOOLEAN_LESS_THAN_OR_EQUALS;
       ($$)->v.binary->operands[0] = ($1);
       ($$)->v.binary->operands[1] = ($3);
     }
   | row_value_constructor GREATER_THAN_OR_EQUALS row_value_constructor {
       SQL_STATEMENT($$, binary_STATEMENT);
-      ($$)->v.binary = (SqlBinaryOperation*)malloc(sizeof(SqlBinaryOperation));
+      MALLOC_STATEMENT($$, binary, SqlBinaryOperation);
       ($$)->v.binary->operation = BOOLEAN_GREATER_THAN_OR_EQUALS;
       ($$)->v.binary->operands[0] = ($1);
       ($$)->v.binary->operands[1] = ($3);
@@ -335,14 +335,14 @@ comparison_predicate
 in_predicate
   : row_value_constructor IN in_predicate_value {
       SQL_STATEMENT($$, binary_STATEMENT);
-      ($$)->v.binary = (SqlBinaryOperation*)malloc(sizeof(SqlBinaryOperation));
+      MALLOC_STATEMENT($$, binary, SqlBinaryOperation);
       ($$)->v.binary->operation = BOOLEAN_IN;
       ($$)->v.binary->operands[0] = ($1);
       ($$)->v.binary->operands[1] = ($3);
     }
   | row_value_constructor NOT IN in_predicate_value {
       SQL_STATEMENT($$, binary_STATEMENT);
-      ($$)->v.binary = (SqlBinaryOperation*)malloc(sizeof(SqlBinaryOperation));
+      MALLOC_STATEMENT($$, binary, SqlBinaryOperation);
       ($$)->v.binary->operation = BOOLEAN_NOT_IN;
       ($$)->v.binary->operands[0] = ($1);
       ($$)->v.binary->operands[1] = ($4);
@@ -433,14 +433,14 @@ numeric_value_expression
   : term { $$ = $1; }
   | numeric_value_expression PLUS term {
       SQL_STATEMENT($$, binary_STATEMENT);
-      ($$)->v.binary = (SqlBinaryOperation*)malloc(sizeof(SqlBinaryOperation));
+      MALLOC_STATEMENT($$, binary, SqlBinaryOperation);
       ($$)->v.binary->operation = ADDITION;
       ($$)->v.binary->operands[0] = ($1);
       ($$)->v.binary->operands[1] = ($3);
     }
   | numeric_value_expression MINUS term {
       SQL_STATEMENT($$, binary_STATEMENT);
-      ($$)->v.binary = (SqlBinaryOperation*)malloc(sizeof(SqlBinaryOperation));
+      MALLOC_STATEMENT($$, binary, SqlBinaryOperation);
       ($$)->v.binary->operation = SUBTRACTION;
       ($$)->v.binary->operands[0] = ($1);
       ($$)->v.binary->operands[1] = ($3);
@@ -451,21 +451,21 @@ term
   : factor { $$ = $1; }
   | term ASTERISK factor {
       SQL_STATEMENT($$, binary_STATEMENT);
-      ($$)->v.binary = (SqlBinaryOperation*)malloc(sizeof(SqlBinaryOperation));
+      MALLOC_STATEMENT($$, binary, SqlBinaryOperation);
       ($$)->v.binary->operation = MULTIPLICATION;
       ($$)->v.binary->operands[0] = ($1);
       ($$)->v.binary->operands[1] = ($3);
     }
   | term SOLIDUS factor {
       SQL_STATEMENT($$, binary_STATEMENT);
-      ($$)->v.binary = (SqlBinaryOperation*)malloc(sizeof(SqlBinaryOperation));
+      MALLOC_STATEMENT($$, binary, SqlBinaryOperation);
       ($$)->v.binary->operation = DVISION;
       ($$)->v.binary->operands[0] = ($1);
       ($$)->v.binary->operands[1] = ($3);
     }
   | term concatenation_operator factor {
       SQL_STATEMENT($$, binary_STATEMENT);
-      ($$)->v.binary = (SqlBinaryOperation*)malloc(sizeof(SqlBinaryOperation));
+      MALLOC_STATEMENT($$, binary, SqlBinaryOperation);
       ($$)->v.binary->operation = CONCAT;
       ($$)->v.binary->operands[0] = ($1);
       ($$)->v.binary->operands[1] = ($3);
@@ -479,16 +479,14 @@ concatenation_operator
 /// TODO: collate_clause is thoroughly ignored below
 factor
   : PLUS numeric_primary factor_tail {
-      $$ = (SqlStatement*)malloc(sizeof(SqlStatement));
-      ($$)->type = unary_STATEMENT;
-      ($$)->v.unary = (SqlUnaryOperation*)malloc(sizeof(SqlUnaryOperation));
+      SQL_STATEMENT($$, unary_STATEMENT);
+      MALLOC_STATEMENT($$, unary, SqlBinaryOperation);
       ($$)->v.unary->operation = FORCE_NUM;
       ($$)->v.unary->operand = ($2);
     }
   | MINUS numeric_primary factor_tail {
-      $$ = (SqlStatement*)malloc(sizeof(SqlStatement));
-      ($$)->type = unary_STATEMENT;
-      ($$)->v.unary = (SqlUnaryOperation*)malloc(sizeof(SqlUnaryOperation));
+      SQL_STATEMENT($$, unary_STATEMENT);
+      MALLOC_STATEMENT($$, unary, SqlBinaryOperation);
       ($$)->v.unary->operation = NEGATIVE;
       ($$)->v.unary->operand = ($2);
     }

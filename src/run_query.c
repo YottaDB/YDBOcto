@@ -49,6 +49,9 @@ int run_query(char *query, void (*callback)(PhysicalPlan *, int, void*), void *p
 	gtm_char_t      err_msgbuf[MAX_STR_CONST];
 	gtm_long_t cursorId;
 
+	memory_chunks = alloc_chunk(MEMORY_CHUNK_SIZE);
+
+	buffer = octo_cmalloc(memory_chunks, 5);
 
 	inputFile = NULL;
 	table_name_buffer.buf_addr = malloc(MAX_STR_CONST);
@@ -103,7 +106,10 @@ int run_query(char *query, void (*callback)(PhysicalPlan *, int, void*), void *p
 		YDB_ERROR_CHECK(status, &z_status, &z_status_value);
 		SWITCH_TO_OCTO_GLOBAL_DIRECTORY();
 		(*callback)(pplan, cursorId, parms);
-		cleanup_sql_statement(result);
+		// Deciding to free the select_STATEMENT must be done by the caller, as they may want to rerun it or send row
+		// descriptions
+		//octo_cfree(memory_chunks);
+		//memory_chunks = NULL;
 		break;
 	case table_STATEMENT:
 		out = open_memstream(&buffer, &buffer_size);
@@ -136,7 +142,6 @@ int run_query(char *query, void (*callback)(PhysicalPlan *, int, void*), void *p
 		} else {
 			dqinsert(definedTables, result->v.table, temp_table);
 		}
-		free(result);
 		break;
 	case drop_STATEMENT:
 		YDB_COPY_STRING_TO_BUFFER(result->v.drop->table_name->v.value->v.reference, &table_name_buffer, done);

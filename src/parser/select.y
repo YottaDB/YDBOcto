@@ -5,7 +5,6 @@ sql_select_statement
       UNPACK_SQL_STATEMENT(select_words, ($$)->v.select->optional_words, keyword);
       UNPACK_SQL_STATEMENT(new_words, $optional_query_words, keyword);
       dqinsert(select_words, new_words, t);
-      free($optional_query_words);
     }
   ;
 
@@ -16,7 +15,6 @@ optional_query_words
       SqlOptionalKeyword *keyword, *t_keyword;
       UNPACK_SQL_STATEMENT(keyword, $optional_query_word_tail, keyword);
       dqinsert(keyword, ($$)->v.keyword, t_keyword);
-      free($optional_query_word_tail);
     }
   | /* Empty */ {
       SQL_STATEMENT($$, keyword_STATEMENT);
@@ -135,7 +133,6 @@ query_specification
               } else {
                   dqinsert(cl_alias, t_cl_alias, tt_cl_alias);
               }
-              //free(t_stmt);
               cur_join = cur_join->next;
           } while(cur_join != start_join);
           select->select_list->v.column_list_alias = cl_alias;
@@ -190,7 +187,6 @@ query_specification
               } else {
                   dqinsert(cl_alias, t_cl_alias, tt_cl_alias);
               }
-              //free(t_stmt);
               cur_join = cur_join->next;
           } while(cur_join != start_join);
           PACK_SQL_STATEMENT(select->select_list, cl_alias, column_list_alias);
@@ -276,7 +272,6 @@ query_specification
               } else {
                   dqinsert(cl_alias, t_cl_alias, tt_cl_alias);
               }
-              //free(t_stmt);
               cur_join = cur_join->next;
           } while(cur_join != start_join);
           select->select_list->v.column_list_alias = cl_alias;
@@ -323,7 +318,6 @@ select_sublist
         UNPACK_SQL_STATEMENT(list1, $$, column_list_alias);
         UNPACK_SQL_STATEMENT(list2, $2, column_list_alias);
         dqinsert(list2, list1, t_column_list);
-        //free($2);
       }
     }
   ;
@@ -444,7 +438,6 @@ table_reference
       if($table_reference_tail) {
         UNPACK_SQL_STATEMENT(join_tail, $table_reference_tail, join);
         dqinsert(join, join_tail, t_join);
-        free($table_reference_tail);
       }
     }
   | column_name correlation_specification table_reference_tail {
@@ -475,7 +468,6 @@ table_reference
       if($table_reference_tail) {
         UNPACK_SQL_STATEMENT(join_tail, $table_reference_tail, join);
         dqinsert(join, join_tail, t_join);
-        free($table_reference_tail);
       }
     }
   | derived_table {
@@ -566,7 +558,6 @@ cross_join
       UNPACK_SQL_STATEMENT(right, $4, join);
       left->type = CROSS_JOIN;
       dqinsert(left, right, t_join);
-      free($4);
     }
   ;
 
@@ -579,9 +570,17 @@ qualified_join
       right->type = INNER_JOIN;
       right->condition = $join_specification;
       dqinsert(left, right, t_join);
-      free($3);
     }
-  | table_reference NATURAL JOIN table_reference join_specification
+  | table_reference NATURAL JOIN table_reference join_specification {
+      SqlJoin *left, *right, *t_join;
+      $$ = $1;
+      UNPACK_SQL_STATEMENT(left, $$, join);
+      UNPACK_SQL_STATEMENT(right, $4, join);
+      right->type = NATURAL_JOIN;
+      //right->condition = NATURAL_JOIN;
+      dqinsert(left, right, t_join);
+    }
+
   | table_reference join_type JOIN table_reference join_specification {
       SqlJoin *left, *right, *t_join;
       $$ = $1;
@@ -590,7 +589,6 @@ qualified_join
       UNPACK_SQL_STATEMENT(right->type, $join_type, join_type);
       right->condition = $join_specification;
       dqinsert(left, right, t_join);
-      free($4);
     }
   | table_reference NATURAL join_type JOIN table_reference join_specification
   ;

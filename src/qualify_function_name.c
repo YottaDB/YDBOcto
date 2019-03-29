@@ -63,8 +63,6 @@ int qualify_function_name(SqlStatement *stmt, SqlJoin *tables) {
 	}
 	YDB_ERROR_CHECK(status, &z_status, &z_status_value);
 
-	// Free the old value
-	free(value->v.string_literal);
 	// Replace the pointer in the value with the new value
 	new_name_value->buf_addr[new_name_value->len_used] = '\0';
 	value->v.string_literal = new_name_value->buf_addr;

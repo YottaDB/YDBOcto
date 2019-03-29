@@ -37,7 +37,7 @@ void print_temporary_table(PhysicalPlan *plan, int cursor_id, void *parms) {
 
 	snprintf(buffer, MAX_STR_CONST, "%d", cursor_id);
 	cursor_id_b->len_used = strlen(buffer);
-	cursor_id_b->buf_addr = malloc(cursor_id_b->len_used);
+	cursor_id_b->buf_addr = malloc(cursor_id_b->len_used + 1);
 	memcpy(cursor_id_b->buf_addr, buffer, cursor_id_b->len_used+1);
 	cursor_id_b->len_alloc = cursor_id_b->len_used;
 
@@ -45,7 +45,7 @@ void print_temporary_table(PhysicalPlan *plan, int cursor_id, void *parms) {
 
 	snprintf(buffer, MAX_STR_CONST, "%d", deep_plan->outputKey->random_id);
 	key_id_b->len_used = strlen(buffer);
-	key_id_b->buf_addr = malloc(key_id_b->len_used);
+	key_id_b->buf_addr = malloc(key_id_b->len_used + 1);
 	memcpy(key_id_b->buf_addr, buffer, key_id_b->len_used+1);
 	key_id_b->len_alloc = key_id_b->len_used;
 

@@ -19,28 +19,17 @@
 
 typedef void *yyscan_t;
 
-// Sets a DQ struct to point to itself
-#define dqinit(object) (object)->next = object, (object)->prev = object
-// Defines the elements for a DQ struct
-#define dqcreate(struct_type) struct struct_type *next, *prev
-// Inserts an element behind this one in the doubly linked list
-#define dqinsert(self, new_elem, temp)		\
-	(temp) = (self)->prev;			\
-	(self)->prev->next = (new_elem);	\
-	(self)->prev = (new_elem)->prev;	\
-	(new_elem)->prev->next = (self);	\
-	(new_elem)->prev = (temp);
+#include "memory_chunk.h"
+#include "double_list.h"
 
 #define INIT_YDB_BUFFER(buffer, len) (buffer)->buf_addr = malloc(len); (buffer)->len_used = 0; (buffer)->len_alloc = len;
 
 #define SQL_STATEMENT(VAR, TYPE)			      \
-	(VAR) = (SqlStatement*)malloc(sizeof(SqlStatement));  \
-	memset((VAR), 0, sizeof(SqlStatement));               \
+	(VAR) = (SqlStatement*)octo_cmalloc(memory_chunks, sizeof(SqlStatement));  \
 	(VAR)->type = TYPE;
 
 #define MALLOC_STATEMENT(VAR, NAME, TYPE)	      \
-	(VAR)->v.NAME = malloc(sizeof(TYPE));         \
-	memset((VAR)->v.NAME, 0, sizeof(TYPE));
+	(VAR)->v.NAME = octo_cmalloc(memory_chunks, sizeof(TYPE));
 
 #define UNPACK_SQL_STATEMENT(result, item, StatementType) assert((item)->type == StatementType ## _STATEMENT); \
 	(result) = (item)->v.StatementType
@@ -52,7 +41,8 @@ typedef void *yyscan_t;
 #define INIT_YDB_BUFFER(buffer, len) (buffer)->buf_addr = malloc(len); (buffer)->len_used = 0; (buffer)->len_alloc = len;
 
 #define SAFE_SNPRINTF(buff_ptr, buffer, buffer_size, ...) \
-	(buff_ptr) += snprintf((buff_ptr), (buffer_size) - ((buff_ptr) - (buffer)), ## __VA_ARGS__);
+	(buff_ptr) += snprintf((buff_ptr), (buffer_size) - ((buff_ptr) - (buffer)), ## __VA_ARGS__); \
+	assert(buff_ptr - buffer > 0);
 
 
 long long unsigned int typedef uint8;
@@ -170,7 +160,8 @@ enum SqlJoinType {
 	INNER_JOIN,
 	RIGHT_JOIN,
 	LEFT_JOIN,
-	FULL_JOIN
+	FULL_JOIN,
+	NATURAL_JOIN
 };
 
 #define YYLTYPE yyltype

@@ -25,6 +25,14 @@ if(NOT MAX_KEY_COUNT)
 	set(MAX_KEY_COUNT 255)
 endif()
 
+if(NOT MEMORY_CHUNK_SIZE)
+  set(MEMORY_CHUNK_SIZE 33554432)
+endif()
+
+if(NOT MEMORY_CHUNK_PROTECT)
+  set(MEMORY_CHUNK_PROTECT 0)
+endif()
+
 #enable_testing()
 include(CTest)
 add_subdirectory(src)

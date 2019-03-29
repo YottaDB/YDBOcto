@@ -61,7 +61,7 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt, int *plan_id) {
 	insert->counter = plan_id;
 	dst = MALLOC_LP(insert->v.operand[1], LP_OUTPUT);
 	dst_key = MALLOC_LP(dst->v.operand[0], LP_KEY);
-	dst_key->v.key = (SqlKey*)malloc(sizeof(SqlKey));
+	dst_key->v.key = (SqlKey*)octo_cmalloc(memory_chunks, sizeof(SqlKey));
 	memset(dst_key->v.key, 0, sizeof(SqlKey));
 	dst_key->v.key->random_id = get_plan_unique_number(insert);
 	if(select_stmt->order_expression != NULL) {

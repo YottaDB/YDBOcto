@@ -23,10 +23,10 @@
 
 #include "octo.h"
 #include "octo_types.h"
+#include "memory_chunk.h"
 
 #define MALLOC_LP(dest, dest_type)					\
-	(dest) = (LogicalPlan*)malloc(sizeof(LogicalPlan));		\
-	memset((dest), 0, sizeof(LogicalPlan));				\
+	(dest) = (LogicalPlan*)octo_cmalloc(memory_chunks, sizeof(LogicalPlan));		\
 	(dest)->type = dest_type;
 
 #define GET_LP(dest, source, side, dest_type)			\

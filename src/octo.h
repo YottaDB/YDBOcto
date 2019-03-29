@@ -23,16 +23,8 @@
 #include "errors.h"
 #include "octo_types.h"
 #include "config.h"
-
-#define OCTO_SQL_MAJOR_VERSION @OCTO_SQL_MAJOR_VERSION@
-#define OCTO_SQL_MINOR_VERSION @OCTO_SQL_MINOR_VERSION@
-
-
-#define MAX_STR_CONST @STRING_BUFFER_LENGTH@
-#define MAX_EXPRESSION_LENGTH @MAX_EXPRESSION_LENGTH@
-#define MAX_ROUTINE_LENGTH @MAX_ROUTINE_LENGTH@
-#define MAX_KEY_COUNT @MAX_KEY_COUNT@
-
+#include "constants.h"
+#include "memory_chunk.h"
 
 #if YDB_RELEASE < 125
 /* Macro to copy a string (i.e. "char *" pointer in C) to an already allocated ydb_buffer_t structure.

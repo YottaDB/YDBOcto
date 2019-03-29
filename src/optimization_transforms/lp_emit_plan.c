@@ -35,6 +35,8 @@ int emit_plan_helper(char *buffer, size_t buffer_len, int depth, LogicalPlan *pl
 	SqlColumn *column;
 	SqlColumnList *cur_column_list, *start_column_list;
 
+	if(buffer_len == 0)
+		return 0;
 	if(plan == NULL)
 		return 0;
 	SAFE_SNPRINTF(buff_ptr, buffer, buffer_len, "%*s%s: ", depth, "", lp_action_type_str[plan->type]);
@@ -128,5 +130,6 @@ int emit_plan_helper(char *buffer, size_t buffer_len, int depth, LogicalPlan *pl
 		break;
 	}
 
+	assert(buff_ptr - buffer > 0);
 	return buff_ptr - buffer;
 }

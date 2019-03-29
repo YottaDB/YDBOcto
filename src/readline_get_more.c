@@ -30,13 +30,9 @@ int get_input(char *buf, int size) {
 	if(eof_hit)
 		return YY_NULL;
 	if(cur_input_index == cur_input_max) {
-		memset(input_buffer_combined, 0, cur_input_max);
-		cur_input_index = 0;
 		return -1;
 	}
 	if(input_buffer_combined[cur_input_index] == '\0') {
-		//cur_input_index = 0;
-		//printf("Looking for more input...\n");
 		if(cur_input_more() == 0) {
 			return YY_NULL;
 		}
@@ -73,8 +69,10 @@ int readline_get_more() {
 		free(line);
 		return line_length;
 	} else {
-		if(feof(inputFile))
+		if(feof(inputFile)) {
+			eof_hit = TRUE;
 			return 0;
+		}
 		cur_input_index = 0;
 		data_read = read(fileno(inputFile), input_buffer_combined, cur_input_max);
 		if(data_read == -1) {

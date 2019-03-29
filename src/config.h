@@ -43,7 +43,7 @@ struct OctoConfig {
 	int dry_run, plan_id;
 	const char *tmp_dir, *global_directory, *config_file_name, *global_prefix;
 	ydb_buffer_t zgbldir, octo_gbldir, prev_gbldir;
-	int is_tty;
+	int is_tty, page_size;
 } typedef OctoConfig;
 
 OctoConfig *config;

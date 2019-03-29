@@ -1,4 +1,4 @@
-/* Copyright (C) 2018 YottaDB, LLC
+/* Copyright (C) 2019 YottaDB, LLC
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -13,26 +13,22 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-#include <stdlib.h>
 
-#include "logical_plan.h"
+#ifndef DOUBLE_LIST_H
+#define DOUBLE_LIST_H
 
-LogicalPlan *lp_copy_plan(LogicalPlan *plan) {
-	LogicalPlan *new_plan;
-	if(plan == NULL)
-		return NULL;
-	new_plan = (LogicalPlan *)octo_cmalloc(memory_chunks, sizeof(LogicalPlan));
-	*new_plan = *plan;
-	/// TODO: should this also clone tables and what not?
-	switch(plan->type) {
-	case LP_VALUE:
-	case LP_TABLE:
-	case LP_KEY:
-	case LP_COLUMN_ALIAS:
-		break;
-	default:
-		new_plan->v.operand[0] = lp_copy_plan(plan->v.operand[0]);
-		new_plan->v.operand[1] = lp_copy_plan(plan->v.operand[1]);
-	}
-	return new_plan;
-}
+typedef void *yyscan_t;
+
+// Sets a DQ struct to point to itself
+#define dqinit(object) (object)->next = object, (object)->prev = object
+// Defines the elements for a DQ struct
+#define dqcreate(struct_type) struct struct_type *next, *prev
+// Inserts an element behind this one in the doubly linked list
+#define dqinsert(self, new_elem, temp)		\
+	(temp) = (self)->prev;			\
+	(self)->prev->next = (new_elem);	\
+	(self)->prev = (new_elem)->prev;	\
+	(new_elem)->prev->next = (self);	\
+	(new_elem)->prev = (temp);
+
+#endif

@@ -33,7 +33,7 @@ LogicalPlan *lp_generate_xref_plan(LogicalPlan *plan, SqlTable *table, SqlColumn
 	int cur_key, max_key;
 
 	// Setup the output key
-	output_key = (SqlKey*)malloc(sizeof(SqlKey));
+	output_key = (SqlKey*)octo_cmalloc(memory_chunks, sizeof(SqlKey));
 	memset(output_key, 0, sizeof(SqlKey));
 	output_key->table = table;
 	output_key->column = column;
@@ -61,7 +61,7 @@ LogicalPlan *lp_generate_xref_plan(LogicalPlan *plan, SqlTable *table, SqlColumn
 	// This is used to pass information about types to the functions which output the final result
 	// to the user; this table should never get there, so leave it out
 	//MALLOC_LP(cur->v.operand[1], LP_COLUMN_LIST_ALIAS);
-	lp_cla->v.column_alias = (SqlColumnAlias*)malloc(sizeof(SqlColumnAlias));
+	lp_cla->v.column_alias = (SqlColumnAlias*)octo_cmalloc(memory_chunks, sizeof(SqlColumnAlias));
 	memset(lp_cla->v.column_alias, 0, sizeof(SqlColumnAlias));
 	cla = lp_cla->v.column_alias;
 	/// TODO: copy column so we can more easily clean things up?
@@ -78,7 +78,7 @@ LogicalPlan *lp_generate_xref_plan(LogicalPlan *plan, SqlTable *table, SqlColumn
 		// This is used to pass information about types to the functions which output the final result
 		// to the user; this table should never get there, so leave it out
 		//MALLOC_LP(cur->v.operand[1], LP_COLUMN_LIST_ALIAS);
-		lp_cla->v.column_alias = (SqlColumnAlias*)malloc(sizeof(SqlColumnAlias));
+		lp_cla->v.column_alias = (SqlColumnAlias*)octo_cmalloc(memory_chunks, sizeof(SqlColumnAlias));
 		memset(lp_cla->v.column_alias, 0, sizeof(SqlColumnAlias));
 		cla = lp_cla->v.column_alias;
 		/// TODO: copy column so we can more easily clean things up?
@@ -96,7 +96,7 @@ LogicalPlan *lp_generate_xref_plan(LogicalPlan *plan, SqlTable *table, SqlColumn
 	MALLOC_LP(select_options->v.operand[0], LP_WHERE);
 	lp_keywords = MALLOC_LP(select_options->v.operand[1], LP_KEYWORDS);
 	// Insert a keyword indicating that we are building an index
-	lp_keywords->v.keywords = (SqlOptionalKeyword*)malloc(sizeof(SqlOptionalKeyword));
+	lp_keywords->v.keywords = (SqlOptionalKeyword*)octo_cmalloc(memory_chunks, sizeof(SqlOptionalKeyword));
 	memset(lp_keywords->v.keywords, 0, sizeof(SqlOptionalKeyword));
 	keywords = lp_keywords->v.keywords;
 	dqinit(keywords);

@@ -1,4 +1,4 @@
-/* Copyright (C) 2018 YottaDB, LLC
+/* Copyright (C) 2019 YottaDB, LLC
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -13,26 +13,29 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-#include <stdlib.h>
 
-#include "logical_plan.h"
+#ifndef MEMORY_CHUNK_H
+#define MEMORY_CHUNK_H
 
-LogicalPlan *lp_copy_plan(LogicalPlan *plan) {
-	LogicalPlan *new_plan;
-	if(plan == NULL)
-		return NULL;
-	new_plan = (LogicalPlan *)octo_cmalloc(memory_chunks, sizeof(LogicalPlan));
-	*new_plan = *plan;
-	/// TODO: should this also clone tables and what not?
-	switch(plan->type) {
-	case LP_VALUE:
-	case LP_TABLE:
-	case LP_KEY:
-	case LP_COLUMN_ALIAS:
-		break;
-	default:
-		new_plan->v.operand[0] = lp_copy_plan(plan->v.operand[0]);
-		new_plan->v.operand[1] = lp_copy_plan(plan->v.operand[1]);
-	}
-	return new_plan;
-}
+#include <sys/types.h>
+#include <unistd.h>
+
+#include "constants.h"
+#include "double_list.h"
+
+struct MemoryChunk typedef MemoryChunk;
+
+struct MemoryChunk {
+	dqcreate(MemoryChunk);
+	size_t offset, max_size;
+	char *value;
+};
+
+MemoryChunk *alloc_chunk(size_t size);
+void *octo_cmalloc(MemoryChunk *root, size_t size);
+void octo_cfree(MemoryChunk *root);
+
+// GLOBAL
+MemoryChunk *memory_chunks;
+
+#endif

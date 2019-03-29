@@ -20,6 +20,7 @@
 #include "octo.h"
 #include "octo_types.h"
 #include "parser.h"
+#include "memory_chunk.h"
 
 #define YY_INPUT(buf, result, max_size) while((result = get_input(buf, max_size)) == -1 && result != YY_NULL) { };
 
@@ -177,9 +178,9 @@ int copied_so_far;
                 COPY_STRING(str_buf_ptr, yptr, copied_so_far, MAX_STR_CONST);
                 *str_buf_ptr = '\0';
                 SQL_STATEMENT(*yylval_param, value_STATEMENT);
-                (*yylval_param)->v.value = (SqlValue*)malloc(sizeof(SqlValue));
+                (*yylval_param)->v.value = (SqlValue*)octo_cmalloc(memory_chunks, sizeof(SqlValue));
                 (*yylval_param)->v.value->type = NUMBER_LITERAL;
-                (*yylval_param)->v.value->v.string_literal = (char*)malloc(copied_so_far+1);
+                (*yylval_param)->v.value->v.string_literal = (char*)octo_cmalloc(memory_chunks, copied_so_far+1);
                 strncpy((*yylval_param)->v.value->v.string_literal, string_buffer, copied_so_far+1);
                 return LITERAL;
               }
@@ -190,12 +191,12 @@ int copied_so_far;
                 COPY_STRING(str_buf_ptr, yptr, copied_so_far, MAX_STR_CONST);
                 *str_buf_ptr = '\0';
                 SQL_STATEMENT(*yylval_param, value_STATEMENT);
-                (*yylval_param)->v.value = (SqlValue*)malloc(sizeof(SqlValue));
+                (*yylval_param)->v.value = (SqlValue*)octo_cmalloc(memory_chunks, sizeof(SqlValue));
                 (*yylval_param)->v.value->type = COLUMN_REFERENCE;
                 if(*string_buffer == '$') {
                   (*yylval_param)->v.value->type = PARAMETER_VALUE;
                   }
-                (*yylval_param)->v.value->v.string_literal = (char*)malloc(copied_so_far+1);
+                (*yylval_param)->v.value->v.string_literal = (char*)octo_cmalloc(memory_chunks, copied_so_far+1);
                 strncpy((*yylval_param)->v.value->v.string_literal, string_buffer, copied_so_far+1);
                 return IDENTIFIER_START;
               }
@@ -206,9 +207,9 @@ int copied_so_far;
                 COPY_STRING(str_buf_ptr, yptr, copied_so_far, MAX_STR_CONST);
                 *str_buf_ptr = '\0';
                 SQL_STATEMENT(*yylval_param, value_STATEMENT);
-                (*yylval_param)->v.value = (SqlValue*)malloc(sizeof(SqlValue));
+                (*yylval_param)->v.value = (SqlValue*)octo_cmalloc(memory_chunks, sizeof(SqlValue));
                 (*yylval_param)->v.value->type = COLUMN_REFERENCE;
-                (*yylval_param)->v.value->v.string_literal = (char*)malloc(copied_so_far+1);
+                (*yylval_param)->v.value->v.string_literal = (char*)octo_cmalloc(memory_chunks, copied_so_far+1);
                 strncpy((*yylval_param)->v.value->v.string_literal, string_buffer, copied_so_far+1);
                 return IDENTIFIER_START;
               }
@@ -222,9 +223,9 @@ int copied_so_far;
 <SINGLE_STRING>\' {
               *str_buf_ptr = '\0';
               SQL_STATEMENT(*yylval_param, value_STATEMENT);
-              (*yylval_param)->v.value = (SqlValue*)malloc(sizeof(SqlValue));
+              (*yylval_param)->v.value = (SqlValue*)octo_cmalloc(memory_chunks, sizeof(SqlValue));
               (*yylval_param)->v.value->type = STRING_LITERAL;
-              (*yylval_param)->v.value->v.string_literal = (char*)malloc(copied_so_far+1);
+              (*yylval_param)->v.value->v.string_literal = (char*)octo_cmalloc(memory_chunks, copied_so_far+1);
               strncpy((*yylval_param)->v.value->v.string_literal, string_buffer, copied_so_far+1);
               BEGIN(INITIAL);
               return LITERAL;
@@ -237,9 +238,9 @@ int copied_so_far;
 <STRING>\" {
               *str_buf_ptr = '\0';
               SQL_STATEMENT(*yylval_param, value_STATEMENT);
-              (*yylval_param)->v.value = (SqlValue*)malloc(sizeof(SqlValue));
+              (*yylval_param)->v.value = (SqlValue*)octo_cmalloc(memory_chunks, sizeof(SqlValue));
               (*yylval_param)->v.value->type = STRING_LITERAL;
-              (*yylval_param)->v.value->v.string_literal = (char*)malloc(copied_so_far+1);
+              (*yylval_param)->v.value->v.string_literal = (char*)octo_cmalloc(memory_chunks, copied_so_far+1);
               strncpy((*yylval_param)->v.value->v.string_literal, string_buffer, copied_so_far+1);
               BEGIN(INITIAL);
               return LITERAL;
@@ -251,9 +252,9 @@ int copied_so_far;
                 BEGIN(INITIAL);
                 *str_buf_ptr = '\0';
                 SQL_STATEMENT(*yylval_param, value_STATEMENT);
-                (*yylval_param)->v.value = (SqlValue*)malloc(sizeof(SqlValue));
+                (*yylval_param)->v.value = (SqlValue*)octo_cmalloc(memory_chunks, sizeof(SqlValue));
                 (*yylval_param)->v.value->type = COLUMN_REFERENCE;
-                (*yylval_param)->v.value->v.string_literal = (char*)malloc(copied_so_far+1);
+                (*yylval_param)->v.value->v.string_literal = (char*)octo_cmalloc(memory_chunks, copied_so_far+1);
                 strncpy((*yylval_param)->v.value->v.string_literal, string_buffer, copied_so_far+1);
                 BEGIN(INITIAL);
                 return IDENTIFIER_START;

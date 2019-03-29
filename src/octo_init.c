@@ -241,6 +241,7 @@ int octo_init(int argc, char **argv, int scan_tables) {
 	}
 	free(dir);
 
+	config->page_size = sysconf(_SC_PAGESIZE);
 	populate_global_names();
 	init_crypto();
 
@@ -266,6 +267,7 @@ int octo_init(int argc, char **argv, int scan_tables) {
 
 	YDB_STRING_TO_BUFFER(config->global_names.schema, &schema_global);
 	YDB_LITERAL_TO_BUFFER("", &null_buffer);
+	memory_chunks = alloc_chunk(MEMORY_CHUNK_SIZE);
 	do {
 		status = ydb_subscript_next_s(&schema_global, 1, &table_name_buffer, &table_name_buffer);
 		if(status == YDB_ERR_NODEEND) {
@@ -293,7 +295,6 @@ int octo_init(int argc, char **argv, int scan_tables) {
 		} else {
 			dqinsert(definedTables, table, t_table);
 		}
-		free(result);
 		result = NULL;
 	} while(1);
 

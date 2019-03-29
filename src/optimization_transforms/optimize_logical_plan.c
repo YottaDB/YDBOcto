@@ -86,7 +86,7 @@ LogicalPlan *join_tables(LogicalPlan *root, LogicalPlan *plan) {
 		max_key = get_key_columns(table, key_columns);
 		for(cur_key = 0; cur_key <= max_key; cur_key++) {
 			cur_lp_key = MALLOC_LP(keys->v.operand[0], LP_KEY);
-			cur_lp_key->v.key = (SqlKey*)malloc(sizeof(SqlKey));
+			cur_lp_key->v.key = (SqlKey*)octo_cmalloc(memory_chunks, sizeof(SqlKey));
 			memset(cur_lp_key->v.key, 0, sizeof(SqlKey));
 			cur_lp_key->v.key->column = key_columns[cur_key];
 			cur_lp_key->v.key->key_num = cur_key;

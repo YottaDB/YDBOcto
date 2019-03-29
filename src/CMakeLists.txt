@@ -8,8 +8,8 @@ find_package(CMOCKA)
 find_package(BATS)
 
 configure_file (
-  "${PROJECT_SOURCE_DIR}/src/octo.h.in"
-  "${PROJECT_BINARY_DIR}/octo.h"
+  "${PROJECT_SOURCE_DIR}/src/constants.h.in"
+  "${PROJECT_BINARY_DIR}/constants.h"
 )
 
 configure_file (
@@ -95,6 +95,7 @@ add_library(libocto OBJECT
   get_column_piece_number.c
   run_query.c
   parse_startup_flags.c
+  memory_chunk.c
   optimization_transforms/optimize_logical_plan.c
   optimization_transforms/lp_get_select.c
   optimization_transforms/lp_get_select_where.c

@@ -14,6 +14,8 @@ void cleanup_sql_statement(SqlStatement *stmt) {
 	void *items_to_free[MAX_STR_CONST];
 	size_t max_item_to_free, i, j;
 
+	return;
+
 	memset(items_to_free, 0, sizeof(void*) * MAX_STR_CONST);
 	max_item_to_free = 0;
 

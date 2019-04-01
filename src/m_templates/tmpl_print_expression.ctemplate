@@ -40,6 +40,9 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan) {
         case PARAMETER_VALUE:
             %}parm{{ value->v.string_literal + 1 }}{%
             break;
+        case NUL_VALUE:
+            %}""{%
+            break;
         default:
             FATAL(ERR_UNKNOWN_KEYWORD_STATE);
         }

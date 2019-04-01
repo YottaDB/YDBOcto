@@ -43,7 +43,7 @@ OCTO
 }
 
 @test "where with * from list" {
-  run oct >& output.txt <<OCTO
+  run octo<<OCTO &> output.txt
 select * from (select id from names);
 OCTO
   run cat output.txt
@@ -51,7 +51,7 @@ OCTO
 }
 
 @test "where with * from *" {
-  run oct >& output.txt <<OCTO
+  run octo >& output.txt <<OCTO
 select *
 FROM (
   select * from names as t1
@@ -62,4 +62,12 @@ FROM (
 OCTO
   run cat output.txt
   # Success on this test is just it not getting a sig11
+}
+
+@test "where IS NULL" {
+  octo <<OCTO &> output.txt
+select * from names where lastName IS NULL;
+OCTO
+  # We should find Joey
+  [[ "$(grep -c "|" output.txt)" == "1" ]]
 }

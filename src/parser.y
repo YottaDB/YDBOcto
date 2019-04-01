@@ -280,7 +280,7 @@ predicate
 //  | between_predicate
   | in_predicate { $$ = $1; }
 //  | like_predicate
-//  | null_predicate
+  | null_predicate { $$ = $1; }
 //  | quantified_comparison_predicate
 //  | exists_predicate
 //  | match_predicate
@@ -385,6 +385,30 @@ in_value_list
 in_value_list_tail
   : /* Empty */ { $$ = NULL; }
   | COMMA in_value_list { $$ = $in_value_list; }
+  ;
+
+null_predicate
+  : row_value_constructor IS NULL_TOKEN {
+      SQL_STATEMENT($$, binary_STATEMENT);
+      MALLOC_STATEMENT($$, binary, SqlBinaryOperation);
+      ($$)->v.binary->operation = BOOLEAN_EQUALS;
+      ($$)->v.binary->operands[0] = ($1);
+      SQL_STATEMENT(($$)->v.binary->operands[1], value_STATEMENT);
+      MALLOC_STATEMENT(($$)->v.binary->operands[1], value, SqlValue);
+      ($$)->v.binary->operands[1]->v.value->type = NUL_VALUE;
+      ($$)->v.binary->operands[1]->v.value->v.string_literal = "";
+    }
+  | row_value_constructor IS NOT NULL_TOKEN {
+      SQL_STATEMENT($$, binary_STATEMENT);
+      MALLOC_STATEMENT($$, binary, SqlBinaryOperation);
+      ($$)->v.binary->operation = BOOLEAN_NOT_EQUALS;
+      ($$)->v.binary->operands[0] = ($1);
+      SQL_STATEMENT(($$)->v.binary->operands[1], value_STATEMENT);
+      MALLOC_STATEMENT(($$)->v.binary->operands[1], value, SqlValue);
+      ($$)->v.binary->operands[1]->v.value->type = NUL_VALUE;
+      ($$)->v.binary->operands[1]->v.value->v.string_literal = "";
+    }
+
   ;
 
 row_value_constructor

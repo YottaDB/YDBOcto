@@ -118,6 +118,9 @@ int populate_data_type(SqlStatement *v, SqlValueType *type) {
 		case PARAMETER_VALUE:
 			*type = value->type;
 			break;
+		case NUL_VALUE:
+			*type = UNKNOWN_SqlValueType;
+			break;
 		default:
 			FATAL(ERR_UNKNOWN_KEYWORD_STATE);
 			break;

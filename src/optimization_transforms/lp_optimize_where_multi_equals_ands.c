@@ -81,13 +81,15 @@ int lp_optimize_where_multi_equal_ands(LogicalPlan *plan, LogicalPlan *where) {
 	SqlTableAlias *table_alias;
 	SqlKey *key;
 	int i, left_id, right_id, result;
+	int total_optimizations_done;
 	// keys_unique_id_ordering[unique_id] = index in the ordered list
 	int key_unique_id_ordering[MAX_STR_CONST];
+	total_optimizations_done  = 0;
 	cur = where->v.operand[0];
 	prev = NULL;
 	result = FALSE;
 	while(cur != NULL) {
-		if(cur->type == LP_BOOLEAN_EQUALS) {
+		if(cur->type == LP_BOOLEAN_EQUALS || cur->type == LP_BOOLEAN_NOT_EQUALS) {
 			equals = cur;
 			cur = NULL;
 		} else if(cur->type != LP_BOOLEAN_AND)
@@ -114,7 +116,7 @@ int lp_optimize_where_multi_equal_ands(LogicalPlan *plan, LogicalPlan *where) {
 			}
 		}
 		if(lp_verify_valid_for_key_fix(plan, equals) == FALSE)
-			return 0;
+			continue;
 	}
 	// Look at the sorting of the keys in the plan ordering; when selecting which to fix,
 	// always pick the "lower" one; this should ensure that we will always have the right
@@ -134,7 +136,7 @@ int lp_optimize_where_multi_equal_ands(LogicalPlan *plan, LogicalPlan *where) {
 	cur = where->v.operand[0];
 	prev = NULL;
 	while(cur != NULL) {
-		if(cur->type == LP_BOOLEAN_EQUALS) {
+		if(cur->type == LP_BOOLEAN_EQUALS || cur->type == LP_BOOLEAN_NOT_EQUALS) {
 			equals = cur;
 			cur = NULL;
 		} else if(cur->type != LP_BOOLEAN_AND) {
@@ -255,6 +257,7 @@ int lp_optimize_where_multi_equal_ands(LogicalPlan *plan, LogicalPlan *where) {
 			}
 		}
 		result = lp_opt_fix_key_to_const(plan, key, right);
+		total_optimizations_done += result;
 	}
-	return result;
+	return total_optimizations_done;
 }

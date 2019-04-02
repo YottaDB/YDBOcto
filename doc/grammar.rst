@@ -312,3 +312,26 @@ The comparative operators are:
 * GREATER THAN >
 * LESS THAN OR EQUALS <=
 * GREATER THAN OR EQUALS >=
+
+
+-------------------------
+Considerations
+-------------------------
+
++++++++++++++++++++++
+Empty string and NULL
++++++++++++++++++++++
+
+Currently, queries in Octo do not differentiate between "" and NULL in columns.
+
+For example,
+
+.. parsed-literal::
+   SELECT * FROM Employee WHERE FirstName IS NULL;
+
+and
+
+.. parsed-literal::
+   SELECT * FROM names WHERE firstName = "";
+
+return the same results.

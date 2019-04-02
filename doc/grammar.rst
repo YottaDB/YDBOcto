@@ -30,6 +30,37 @@ Example:
 .. parsed-literal::
    CREATE TABLE Employee (ID int PRIMARY KEY, FirstName char(20), LastName char(30));
 
+++++++++++++++++++++
+Accepted Data Types
+++++++++++++++++++++
+
+~~~~~~~~~~~~~~~~~~~~~
+Character Data Types
+~~~~~~~~~~~~~~~~~~~~~
+
+* CHARACTER
+* CHAR
+* CHARACTER VARYING 
+* CHAR VARYING
+* VARCHAR
+
+Octo does not differentiate between these data types. They can be used to represent character values, and can optionally be followed by a precision value in parentheses. Example: char(20).
+
+~~~~~~~~~~~~~~~~~~~
+Numeric Data Types
+~~~~~~~~~~~~~~~~~~~
+
+* NUMERIC
+* DECIMAL
+* DEC
+* INTEGER
+* INT
+* SMALLINT
+
+NUMERIC, DECIMAL and DEC can optionally be followed by a precision value in parentheses. Example: dec(10).
+
+.. note::
+   The specified precision values are ignored when queries are executed.
 
 +++++++++++++++++++++++++++++++++++++++++++++
 Mapping to existing YottaDB global variables

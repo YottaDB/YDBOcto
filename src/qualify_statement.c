@@ -28,6 +28,8 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables) {
 	SqlColumnList *column_list;
 	SqlValue *value;
 	SqlColumnAlias *alias;
+	SqlCaseStatement *cas;
+	SqlCaseBranchStatement *cas_branch, *cur_branch;
 	int result = 0, column_found = 0;
 
 	if(stmt == NULL)
@@ -81,6 +83,20 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables) {
 		result |= qualify_statement(fc->function_name, tables);
 		//result |= qualify_statement(fc->function_name, tables);
 		result |= qualify_column_list(column_list, tables);
+		break;
+	case cas_STATEMENT:
+		UNPACK_SQL_STATEMENT(cas, stmt, cas);
+		result |= qualify_statement(cas->value, tables);
+		result |= qualify_statement(cas->branches, tables);
+		break;
+	case cas_branch_STATEMENT:
+		UNPACK_SQL_STATEMENT(cas_branch, stmt, cas_branch);
+		cur_branch = cas_branch;
+		do {
+			result |= qualify_statement(cur_branch->condition, tables);
+			result |= qualify_statement(cur_branch->value, tables);
+			cur_branch = cur_branch->next;
+		} while (cur_branch != cas_branch);
 		break;
 	default:
 		FATAL(ERR_UNKNOWN_KEYWORD_STATE);

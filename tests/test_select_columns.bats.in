@@ -124,3 +124,18 @@ SELECT firstName, firstName, firstName, firstName, firstName, firstName, firstNa
 FROM names;
 OCTO
 }
+
+@test "select using a CASE statement" {
+  octo <<OCTO &> output.txt
+SELECT
+  firstName
+  , CASE firstName
+    WHEN "Zero" THEN "Zero Cool"
+    WHEN "Acid" THEN "Acid Burn"
+    WHEN "Cereal" THEN "Cereal Killer"
+    ELSE firstName
+    END
+FROM names;
+OCTO
+  [[ "$(grep -c "Zero" output.txt)" == "3" ]]
+}

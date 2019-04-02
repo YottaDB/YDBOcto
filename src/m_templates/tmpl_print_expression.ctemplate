@@ -13,7 +13,8 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan) {
     SqlTable *src_table;
     SqlColumn *start_column, *cur_column;
     SqlOptionalKeyword *keyword, *piece_keyword, *source_keyword;
-    LogicalPlan *key, *piece_num, *cur_plan;
+    LogicalPlan *key, *piece_num, *cur_plan, *branch_value, *cas_value, *condition;
+    LogicalPlan *cur_branch, *default_value;
 
     assert(plan != NULL);
 
@@ -141,6 +142,32 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan) {
         // Fetch the first value from the output key of this table
         key = lp_get_output_key(plan);
         %}$O({% TMPL(tmpl_key, key->v.key); buff_ptr -= 1; %},"")){%
+        break;
+    case LP_CASE:
+        %}$S({%
+        // We don't use GET_LP_ because we don't know the type
+        GET_LP(cur_plan, plan, 0, LP_CASE_STATEMENT);
+        cas_value = cur_plan->v.operand[0];
+        default_value = cur_plan->v.operand[0];
+        GET_LP(cur_plan, plan, 1, LP_CASE_BRANCH);
+        while(cur_plan != NULL) {
+            GET_LP(cur_branch, cur_plan, 0, LP_CASE_BRANCH_STATEMENT);
+            condition = cur_branch->v.operand[0];
+            branch_value = cur_branch->v.operand[1];
+            %}({%
+            TMPL(tmpl_print_expression, condition, pplan);
+            %})=({%
+            TMPL(tmpl_print_expression, cas_value, pplan);
+            %}):({%
+            TMPL(tmpl_print_expression, branch_value, pplan);
+            %}),{%
+            cur_plan = cur_plan->v.operand[1];
+        }
+        if(default_value != NULL) {
+            %}1:{% TMPL(tmpl_print_expression, default_value, pplan); %}){%
+        } else {
+            %}1:""){%
+        }
         break;
     default:
         FATAL(ERR_UNKNOWN_KEYWORD_STATE);

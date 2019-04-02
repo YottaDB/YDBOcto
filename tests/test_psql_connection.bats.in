@@ -23,5 +23,5 @@ OCTO
   run_psql <<OCTO &> output.txt
 SELECT * AFRO names;
 OCTO
-  [[ "$(grep -c -E "syntax error" output.txt)" == "1" ]]
+  [[ "$(grep -c -E "syntax error" output.txt)" == "2" ]]
 }

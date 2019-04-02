@@ -56,6 +56,8 @@ int populate_data_type(SqlStatement *v, SqlValueType *type) {
 	SqlColumnListAlias *start_column_list_alias, *cur_column_list_alias;
 	SqlFunctionCall *function_call;
 	SqlStatement *tmp;
+	SqlCaseStatement *cas;
+	SqlCaseBranchStatement *cas_branch, *cur_branch;
 	YYLTYPE location;
 	int result = 0;
 	char *c = NULL;
@@ -214,6 +216,23 @@ int populate_data_type(SqlStatement *v, SqlValueType *type) {
 		UNPACK_SQL_STATEMENT(function_call, v, function_call);
 		populate_data_type(function_call->parameters, type);
 		*type = STRING_LITERAL;
+		break;
+	case cas_STATEMENT:
+		UNPACK_SQL_STATEMENT(cas, v, cas);
+		// We expect type to get overriden here; only the last type matters
+		result |= populate_data_type(cas->value, type);
+		result |= populate_data_type(cas->branches, type);
+		break;
+	case cas_branch_STATEMENT:
+		UNPACK_SQL_STATEMENT(cas_branch, v, cas_branch);
+		cur_branch = cas_branch;
+		do {
+			result |= populate_data_type(cur_branch->condition, type);
+			/// TODO: we should check type here to make sure all branches have the
+			// same type
+			result |= populate_data_type(cur_branch->value, type);
+			cur_branch = cur_branch->next;
+		} while (cur_branch != cas_branch);
 		break;
 	default:
 		FATAL(ERR_UNKNOWN_KEYWORD_STATE);

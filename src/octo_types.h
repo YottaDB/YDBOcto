@@ -69,7 +69,9 @@ enum SqlStatementType {
 	join_type_STATEMENT,
 	set_operation_STATEMENT,
 	begin_STATEMENT,
-	commit_STATEMENT
+	commit_STATEMENT,
+	cas_STATEMENT,
+	cas_branch_STATEMENT
 };
 
 enum UnaryOperations {
@@ -197,6 +199,8 @@ struct SqlStatement typedef SqlStatement;
 struct SqlSetOperation typedef SqlSetOperation;
 struct SqlBeginStatement typedef SqlBeginStatement;
 struct SqlCommitStatement typedef SqlCommitStatement;
+struct SqlCaseStatement typedef SqlCaseStatement;
+struct SqlCaseBranchStatement typedef SqlCaseBranchStatement;
 
 /**
  * Represents a SQL column; doubly linked list
@@ -374,6 +378,23 @@ struct SqlBeginStatement {
 struct SqlCommitStatement {
 };
 
+struct SqlCaseStatement {
+	// SqlValue
+	SqlStatement *value;
+	// SqlCaseBranchStatement
+	SqlStatement *branches;
+	// SqlValue
+	SqlStatement *optional_else;
+};
+
+struct SqlCaseBranchStatement {
+	// SqlValue
+	SqlStatement *condition;
+	// SqlValue
+	SqlStatement *value;
+	dqcreate(SqlCaseBranchStatement);
+};
+
 struct SqlStatement {
 	enum SqlStatementType type;
 	struct YYLTYPE loc;
@@ -397,6 +418,8 @@ struct SqlStatement {
 		SqlColumnAlias *column_alias;
 		SqlTableAlias *table_alias;
 		SqlSetOperation *set_operation;
+		SqlCaseStatement *cas;
+		SqlCaseBranchStatement *cas_branch;
 		enum SqlDataType data_type;
 		enum SqlJoinType join_type;
 	} v;

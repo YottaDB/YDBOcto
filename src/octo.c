@@ -61,9 +61,9 @@ int main(int argc, char **argv)
 	memset(input_buffer_combined, 0, MAX_STR_CONST);
 	do {
 		if(run_query(input_buffer_combined, &print_temporary_table, NULL) == 0) {
-			if(eof_hit)
-				break;
 		}
+		if(eof_hit)
+			break;
 	} while(!feof(inputFile));
 	if(definedTables != NULL) {
 		SQL_STATEMENT(tmp_statement, table_STATEMENT);

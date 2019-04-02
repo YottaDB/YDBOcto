@@ -52,14 +52,16 @@ extern void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, int *plan
 %lex-param   { yyscan_t scanner }
 %parse-param { yyscan_t scanner } { SqlStatement **out } { int *plan_id }
 
+%token ADVANCE
 %token ALL
 %token AND
 %token AS
 %token ASC
 %token AVG
+%token BEG
 %token BY
-%token BEG;
 %token CASCADE
+%token CASE
 %token CHAR
 %token CHARACTER
 %token COLLATE
@@ -79,6 +81,7 @@ extern void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, int *plan
 %token DISTINCT
 %token DROP
 %token END
+%token ELSE
 %token EXCEPT
 %token EXTRACT
 %token FALSE_TOKEN
@@ -99,10 +102,12 @@ extern void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, int *plan
 %token JOIN
 %token KEY
 %token LEFT
+%token LIMIT
 %token MAX
 %token MIN
 %token NATURAL
 %token NOT
+%token NUM
 %token NUMERIC
 %token ON
 %token OR
@@ -116,8 +121,10 @@ extern void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, int *plan
 %token SELECT
 %token SET
 %token SMALLINT
+%token START
 %token SUM
 %token TABLE
+%token THEN
 %token TRUE_TOKEN
 %token UNION
 %token UNIQUE
@@ -128,11 +135,8 @@ extern void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, int *plan
 %token VALUES
 %token VARCHAR
 %token VARYING
+%token WHEN
 %token WHERE
-%token NUM
-%token ADVANCE
-%token START
-%token LIMIT
 
 %token NULL_TOKEN
 %token ENDOFFILE
@@ -173,6 +177,7 @@ sql_statement
       YYACCEPT;
     }
   | error SEMICOLON { *out = NULL; YYABORT; }
+  | error { *out = NULL; YYABORT; }
   | ENDOFFILE { eof_hit = TRUE; YYACCEPT; }
   ;
 
@@ -549,6 +554,65 @@ value_expression_primary
 //  | cast_specification
   ;
 
+case_expression
+  : case_specification { $$ = $1; }
+//  | case_abbreviation
+  ;
+
+case_specification
+  : simple_case { $$ = $1; }
+//  | searched_case
+  ;
+
+simple_case
+  : CASE value_expression simple_when_clause optional_else_clause END {
+      SQL_STATEMENT($$, cas_STATEMENT);
+      MALLOC_STATEMENT($$, cas, SqlCaseStatement);
+      SqlCaseStatement *cas;
+      UNPACK_SQL_STATEMENT(cas, $$, cas);
+      cas->value = $value_expression;
+      cas->branches = $simple_when_clause;
+      cas->optional_else = $optional_else_clause;
+    }
+  ;
+
+simple_when_clause
+  : WHEN value_expression THEN result simple_when_clause_tail {
+      SQL_STATEMENT($$, cas_branch_STATEMENT);
+      MALLOC_STATEMENT($$, cas_branch, SqlCaseBranchStatement);
+      SqlCaseBranchStatement *cas_branch, *tail_cas_branch, *t_cas_branch;
+      UNPACK_SQL_STATEMENT(cas_branch, $$, cas_branch);
+      cas_branch->condition = $value_expression;
+      cas_branch->value = $result;
+      dqinit(cas_branch);
+      if($simple_when_clause_tail != NULL) {
+        UNPACK_SQL_STATEMENT(tail_cas_branch, $simple_when_clause_tail, cas_branch);
+        dqinsert(cas_branch, tail_cas_branch, t_cas_branch);
+      }
+    }
+  ;
+
+simple_when_clause_tail
+  : /* None */ { $$ = NULL; }
+  | simple_when_clause { $$ = $1; }
+  ;
+
+optional_else_clause
+  : /* Empty */ { $$ = NULL; }
+  | ELSE result { $$ = $result; }
+  ;
+
+result
+  : value_expression { $$ = $1; }
+  | NULL_TOKEN {
+      SQL_STATEMENT(($$), value_STATEMENT);
+      MALLOC_STATEMENT(($$), value, SqlValue);
+      ($$)->v.value->type = NUL_VALUE;
+      ($$)->v.value->v.string_literal = "";
+    }
+  ;
+  
+
 set_function_specification
   : COUNT LEFT_PAREN ASTERISK RIGHT_PAREN
   | COUNT LEFT_PAREN value_expression RIGHT_PAREN
@@ -669,6 +733,7 @@ non_query_value_expression_primary
   : literal_value { $$ = $1; }
   | column_reference { $$ = $1; }
   | set_function_specification
+  | case_expression
   | LEFT_PAREN non_query_value_expression RIGHT_PAREN
   ;
 

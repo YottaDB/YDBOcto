@@ -22,12 +22,14 @@
 #include "logical_plan.h"
 
 LogicalPlan *lp_generate_where(SqlStatement *stmt, int *plan_id) {
-	LogicalPlan *ret = NULL, *next, *cur_lp;
+	LogicalPlan *ret = NULL, *next, *cur_lp, *t;
 	LPActionType type;
 	SqlValue *value;
 	SqlBinaryOperation *binary;
 	SqlFunctionCall *function_call;
 	SqlColumnList *cur_cl, *start_cl;
+	SqlCaseStatement *cas;
+	SqlCaseBranchStatement *cas_branch, *cur_branch;
 
 	if(stmt == NULL)
 		return NULL;
@@ -83,9 +85,30 @@ LogicalPlan *lp_generate_where(SqlStatement *stmt, int *plan_id) {
 		//  LP_DERIVED_COLUMN
 		UNPACK_SQL_STATEMENT(ret->v.column_alias, stmt, column_alias);
 		//ret->v.column_alias = stmt->v.column_alias;
-		/// TODO: free stmt?
 		break;
-
+	case cas_STATEMENT:
+		MALLOC_LP(ret, LP_CASE);
+		UNPACK_SQL_STATEMENT(cas, stmt, cas);
+		// First put in the default branch, if needed, and value
+		cur_lp = MALLOC_LP(ret->v.operand[0], LP_CASE_STATEMENT);
+		cur_lp->v.operand[0] = lp_generate_where(cas->value, plan_id);
+		if(cas->optional_else != NULL) {
+			cur_lp->v.operand[1] = lp_generate_where(cas->optional_else, plan_id);
+		}
+		UNPACK_SQL_STATEMENT(cas_branch, cas->branches, cas_branch);
+		cur_branch = cas_branch;
+		cur_lp = MALLOC_LP(ret->v.operand[1], LP_CASE_BRANCH);
+		do {
+			t = MALLOC_LP(cur_lp->v.operand[0], LP_CASE_BRANCH_STATEMENT);
+			t->v.operand[0] = lp_generate_where(cur_branch->condition, plan_id);
+			t->v.operand[1] = lp_generate_where(cur_branch->value, plan_id);
+			cur_branch = cur_branch->next;
+			if(cur_branch != cas_branch) {
+				MALLOC_LP(cur_lp->v.operand[1], LP_CASE_BRANCH);
+				cur_lp = cur_lp->v.operand[1];
+			}
+		} while(cur_branch != cas_branch);
+		break;
 	default:
 		FATAL(ERR_UNKNOWN_KEYWORD_STATE);
 	}

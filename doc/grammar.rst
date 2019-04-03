@@ -322,6 +322,19 @@ CASE
   
 CASE tests a condition_expression. If the condition_expression following any of the WHEN keywords is TRUE, then the value is the "result" following THEN. If none of the conditions are matched, the value is the "result" following ELSE. The result is NULL if ELSE is omitted and none of the conditions are matched.
 
+-----------------
+Operators
+-----------------
+
+The comparative operators in Octo are:
+
+* EQUALS =
+* NOT EQUALS <>
+* LESS THAN <
+* GREATER THAN >
+* LESS THAN OR EQUALS <=
+* GREATER THAN OR EQUALS >=
+
 ----------
 Functions
 ----------
@@ -348,9 +361,32 @@ Similarly, an extrinsic (user-defined) function $$AGE can be added to Octo using
    YDB> set ^%ydboctoocto("functions","AGE")="$$AGE"
 
 
--------------
-Other
--------------
+-------------------------
+Considerations
+-------------------------
+
++++++++++++++++++++++
+Empty string and NULL
++++++++++++++++++++++
+
+Currently, queries in Octo do not differentiate between "" and NULL in columns.
+
+For example,
+
+.. parsed-literal::
+   SELECT * FROM Employee WHERE FirstName IS NULL;
+
+and
+
+.. parsed-literal::
+   SELECT * FROM names WHERE firstName = "";
+
+return the same results.
+
+
+---------------------
+Technical Notes
+---------------------
 
 The following rule for a row_value_constructor is currently a deviation from BNF due to a Reduce-Reduce conflict in the grammar:
 
@@ -373,34 +409,3 @@ A query expression can be a joined table or a non joined query expression.
 
 The non_join_query_expression includes simple tables and column lists.
 
-The comparative operators are:
-
-* EQUALS =
-* NOT EQUALS <>
-* LESS THAN <
-* GREATER THAN >
-* LESS THAN OR EQUALS <=
-* GREATER THAN OR EQUALS >=
-
-
--------------------------
-Considerations
--------------------------
-
-+++++++++++++++++++++
-Empty string and NULL
-+++++++++++++++++++++
-
-Currently, queries in Octo do not differentiate between "" and NULL in columns.
-
-For example,
-
-.. parsed-literal::
-   SELECT * FROM Employee WHERE FirstName IS NULL;
-
-and
-
-.. parsed-literal::
-   SELECT * FROM names WHERE firstName = "";
-
-return the same results.

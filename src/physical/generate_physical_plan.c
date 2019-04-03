@@ -222,26 +222,21 @@ LogicalPlan *walk_where_statement(PhysicalPlan *out, LogicalPlan *stmt) {
 		return NULL;
 
 	if(stmt->type >= LP_ADDITION && stmt->type <= LP_BOOLEAN_NOT_IN) {
-		// This is a binary operation; clone it, and reasign the left-right options
-		MALLOC_LP(ret, stmt->type);
-		ret->v.operand[0] = walk_where_statement(out, stmt->v.operand[0]);
-		ret->v.operand[1] = walk_where_statement(out, stmt->v.operand[1]);
+		stmt->v.operand[0] = walk_where_statement(out, stmt->v.operand[0]);
+		stmt->v.operand[1] = walk_where_statement(out, stmt->v.operand[1]);
 	} else {
 		switch(stmt->type) {
 		case LP_DERIVED_COLUMN:
-			ret = stmt;
+			/* No action */
 			break;
 		case LP_WHERE:
-			MALLOC_LP(ret, stmt->type);
-			ret->v.operand[0] = walk_where_statement(out, stmt->v.operand[0]);
+			stmt->v.operand[0] = walk_where_statement(out, stmt->v.operand[0]);
 			break;
 		case LP_COLUMN_ALIAS:
-			MALLOC_LP(ret, stmt->type);
-			ret->v.column_alias = stmt->v.column_alias;
+			/* No action */
 			break;
 		case LP_VALUE:
-			MALLOC_LP(ret, stmt->type);
-			ret->v.value = stmt->v.value;
+			/* No action */
 			break;
 		case LP_INSERT:
 			// Insert this to the physical plan, then create a
@@ -250,23 +245,18 @@ LogicalPlan *walk_where_statement(PhysicalPlan *out, LogicalPlan *stmt) {
 			while(t->prev != NULL)
 				t = t->prev;
 			t->prev = generate_physical_plan(stmt, t);
-			/*GET_LP(project, stmt, 0, LP_PROJECT);
-			GET_LP(column_list, project, 0, LP_COLUMN_LIST);
-			GET_LP(where, column_list, 0, LP_WHERE);
-			GET_LP(column_alias, where, 0, LP_COLUMN_ALIAS);*/
 			t->prev->stash_columns_in_keys = 1;
-			MALLOC_LP(ret, LP_KEY);
-			ret->v.key = t->prev->outputKey;
+			MALLOC_LP(stmt, LP_KEY);
+			stmt->v.key = t->prev->outputKey;
 			break;
 		case LP_FUNCTION_CALL:
-			MALLOC_LP(ret, stmt->type);
-			ret->v.operand[0] = walk_where_statement(out, stmt->v.operand[0]);
-			ret->v.operand[1] = walk_where_statement(out, stmt->v.operand[1]);
-			break;
 		case LP_COLUMN_LIST:
-			MALLOC_LP(ret, stmt->type);
-			ret->v.operand[0] = walk_where_statement(out, stmt->v.operand[0]);
-			ret->v.operand[1] = walk_where_statement(out, stmt->v.operand[1]);
+		case LP_CASE:
+		case LP_CASE_STATEMENT:
+		case LP_CASE_BRANCH:
+		case LP_CASE_BRANCH_STATEMENT:
+			stmt->v.operand[0] = walk_where_statement(out, stmt->v.operand[0]);
+			stmt->v.operand[1] = walk_where_statement(out, stmt->v.operand[1]);
 			break;
 		case LP_TABLE:
 			// This should never happen; fall through to error case
@@ -275,5 +265,5 @@ LogicalPlan *walk_where_statement(PhysicalPlan *out, LogicalPlan *stmt) {
 			break;
 		}
 	}
-	return ret;
+	return stmt;
 }

@@ -71,3 +71,16 @@ OCTO
   # We should find Joey
   [[ "$(grep -c "|" output.txt)" == "1" ]]
 }
+
+@test "where with subquery and SELECT" {
+  octo <<OCTO &> output.txt
+SELECT CASE firstName
+  WHEN 'Zero' THEN 'Zero'
+  WHEN 'Acid' THEN 'Acid'
+  END as firstName,
+  lastName
+FROM names
+WHERE firstName = "Zero";
+OCTO
+  [[ "$(grep -c "|" output.txt)" == "2" ]]
+}

@@ -87,10 +87,7 @@
 
 int emit_column_specification(char *buffer, int buffer_size, SqlColumn *column);
 void emit_create_table(FILE *output, struct SqlStatement *stmt);
-void cleanup_sql_statement(SqlStatement *stmt);
 // Recursively copies all of stmt, including making copies of strings
-SqlStatement *copy_sql_statement(SqlStatement *stmt);
-SqlTable *copy_sql_table(SqlTable *table);
 
 /**
  * Examines the table to make sure needed columns are specified, and fills out

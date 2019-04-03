@@ -124,8 +124,6 @@ query_specification
           start_join = cur_join = join;
           do {
               UNPACK_SQL_STATEMENT(table_alias, cur_join->value, table_alias);
-              //t_stmt = copy_sql_statement(table_alias->column_list);
-              //UNPACK_SQL_STATEMENT(t_cl_alias, t_stmt, column_list_alias);
               t_column = column_list_alias_to_columns(table_alias);
               t_cl_alias = lp_columns_to_column_list(t_column, table_alias);
               if(cl_alias == NULL) {
@@ -178,8 +176,6 @@ query_specification
           start_join = cur_join = join;
           do {
               UNPACK_SQL_STATEMENT(table_alias, cur_join->value, table_alias);
-              //t_stmt = copy_sql_statement(table_alias->column_list);
-              //UNPACK_SQL_STATEMENT(t_cl_alias, table_alias->column_list, column_list_alias);
               t_column = column_list_alias_to_columns(table_alias);
               t_cl_alias = lp_columns_to_column_list(t_column, table_alias);
               if(cl_alias == NULL) {
@@ -242,8 +238,8 @@ query_specification
       MALLOC_STATEMENT(join->value, table_alias, SqlTableAlias);
       UNPACK_SQL_STATEMENT(alias, join->value, table_alias);
       SQL_STATEMENT(alias->table, table_STATEMENT);
-      alias->table->v.table = copy_sql_table(table);
-      alias->alias = copy_sql_statement(table->tableName);
+      alias->table->v.table = table;
+      alias->alias = table->tableName;
       // We can probably put a variable in the bison local for this
       alias->unique_id = *plan_id;
       (*plan_id)++;
@@ -263,8 +259,6 @@ query_specification
           start_join = cur_join = join;
           do {
               UNPACK_SQL_STATEMENT(table_alias, cur_join->value, table_alias);
-              //t_stmt = copy_sql_statement(table_alias->column_list);
-              //UNPACK_SQL_STATEMENT(t_cl_alias, t_stmt, column_list_alias);
               t_column = column_list_alias_to_columns(table_alias);
               t_cl_alias = lp_columns_to_column_list(t_column, table_alias);
               if(cl_alias == NULL) {
@@ -426,8 +420,8 @@ table_reference
       MALLOC_STATEMENT(join->value, table_alias, SqlTableAlias);
       UNPACK_SQL_STATEMENT(alias, join->value, table_alias);
       SQL_STATEMENT(alias->table, table_STATEMENT);
-      alias->table->v.table = copy_sql_table(table);
-      alias->alias = copy_sql_statement(table->tableName);
+      alias->table->v.table = table;
+      alias->alias = table->tableName;
       // We can probably put a variable in the bison local for this
       alias->unique_id = *plan_id;
       (*plan_id)++;
@@ -457,7 +451,7 @@ table_reference
       MALLOC_STATEMENT(join->value, table_alias, SqlTableAlias);
       UNPACK_SQL_STATEMENT(alias, join->value, table_alias);
       SQL_STATEMENT(alias->table, table_STATEMENT);
-      alias->table->v.table = copy_sql_table(table);
+      alias->table->v.table = table;
       alias->alias = $correlation_specification;
       // We can probably put a variable in the bison local for this
       alias->unique_id = *plan_id;

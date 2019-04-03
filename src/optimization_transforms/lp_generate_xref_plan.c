@@ -53,7 +53,7 @@ LogicalPlan *lp_generate_xref_plan(LogicalPlan *plan, SqlTable *table, SqlColumn
 	/// TODO: copy table so we can more easily clean? Fill out other fields?
 	PACK_SQL_STATEMENT(table_alias->table, table, table);
 	table_alias->unique_id = get_plan_unique_number(plan);
-	table_alias->alias = copy_sql_statement(table->tableName);
+	table_alias->alias = table->tableName;
 
 	// Populate column list with a the column, followed by all the keys for this table
 	cur = MALLOC_LP(column_list->v.operand[0], LP_WHERE);

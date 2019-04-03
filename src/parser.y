@@ -755,7 +755,6 @@ column_reference
       c += len_col_name;
       *c++ = '\0';
       qual->v.string_literal = new_string;
-      cleanup_sql_statement($column_name);
     }
   | column_name { $$ = $1; }
   ;
@@ -1051,7 +1050,6 @@ column_definition
       ($$)->v.column->columnName = $column_name;
       assert($data_type->type == data_type_STATEMENT);
       ($$)->v.column->type = $data_type->v.data_type;
-      cleanup_sql_statement($data_type);
       ($$)->v.column->keywords = $column_definition_tail;
     }
 //  | more stuff
@@ -1240,7 +1238,6 @@ data_type
   : character_string_type {
       SQL_STATEMENT($$, data_type_STATEMENT);
       ($$)->v.data_type = CHARACTER_STRING_TYPE;
-      cleanup_sql_statement($1); // This should be added as a constraint
     }
 //  | character_string_type CHARACTER SET character_set_specification
 //  | national_character_string_type
@@ -1248,9 +1245,6 @@ data_type
   | numeric_type {
       SQL_STATEMENT($$, data_type_STATEMENT);
       ($$)->v.data_type = INTEGER_TYPE;
-      if($numeric_type) {
-        cleanup_sql_statement($numeric_type);
-      }
     }
 //  | datetime_type
 //  | interval_type
@@ -1294,8 +1288,6 @@ exact_numeric_type_tail
   : /* Empty */ { $$ = NULL; }
   | LEFT_PAREN precision exact_numeric_type_tail_tail RIGHT_PAREN {
       $$ = $precision;
-      if($exact_numeric_type_tail_tail)
-        cleanup_sql_statement($exact_numeric_type_tail_tail);
     }
   ;
 

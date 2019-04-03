@@ -66,9 +66,6 @@ add_library(libocto OBJECT
   emit_create_table.c
   emit_select_statement.c
   emit_column_specification.c
-  cleanup_sql_statement.c
-  copy_sql_statement.c
-  copy_sql_table.c
   quoting.c
   create_table_defaults.c
   print_temporary_table.c

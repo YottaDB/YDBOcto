@@ -88,7 +88,7 @@ int run_query(char *query, void (*callback)(PhysicalPlan *, int, void*), void *p
 		return 0;
 	}
 	if(config->dry_run) {
-		cleanup_sql_statement(result);
+		octo_cfree(memory_chunks);
 		result = NULL;
 		free(table_name_buffer.buf_addr);
 		free(table_create_buffer.buf_addr);

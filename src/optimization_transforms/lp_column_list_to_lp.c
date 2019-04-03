@@ -43,7 +43,7 @@ LogicalPlan *lp_column_list_to_lp(SqlColumnListAlias *list, int *plan_id) {
 		next_column_list_alias = cur_column_list->next;
 		column_list_alias->v.column_list_alias = (SqlColumnListAlias*)malloc(sizeof(SqlColumnListAlias));
 		memset(column_list_alias->v.column_list_alias, 0, sizeof(SqlColumnListAlias));
-		column_list_alias->v.column_list_alias->alias = copy_sql_statement(cur_column_list->alias);
+		column_list_alias->v.column_list_alias->alias = cur_column_list->alias;
 		column_list_alias->v.column_list_alias->type = cur_column_list->type;
 		cur_column_list = cur_column_list->next;
 		if(ret_column_list == NULL)

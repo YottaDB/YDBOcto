@@ -87,7 +87,7 @@ OCTO
 }
 
 @test "select so many columns it would exceed the M line length" {
-  octo <<OCTO &> output.txt
+  octo -vv <<OCTO &> output.txt
 SELECT firstName, firstName, firstName, firstName, firstName, firstName, firstName, firstName,
  firstName, firstName, firstName, firstName, firstName, firstName, firstName, firstName, firstName,
  firstName, firstName, firstName, firstName, firstName, firstName, firstName, firstName, firstName,

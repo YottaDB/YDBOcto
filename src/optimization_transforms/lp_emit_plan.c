@@ -29,6 +29,7 @@ int lp_emit_plan(char *buffer, size_t buffer_len, LogicalPlan *plan) {
 
 int emit_plan_helper(char *buffer, size_t buffer_len, int depth, LogicalPlan *plan) {
 	char *buff_ptr = buffer, *table_name = " ", *column_name = " ", *data_type_ptr = " ";
+	int written;
 	SqlValue *value;
 	SqlJoin *cur_join, *start_join;
 	SqlKey *key;
@@ -39,10 +40,10 @@ int emit_plan_helper(char *buffer, size_t buffer_len, int depth, LogicalPlan *pl
 		return 0;
 	if(plan == NULL)
 		return 0;
-	SAFE_SNPRINTF(buff_ptr, buffer, buffer_len, "%*s%s: ", depth, "", lp_action_type_str[plan->type]);
+	SAFE_SNPRINTF(written, buff_ptr, buffer, buffer_len, "%*s%s: ", depth, "", lp_action_type_str[plan->type]);
 	switch(plan->type) {
 	case LP_PIECE_NUMBER:
-		SAFE_SNPRINTF(buff_ptr, buffer, buffer_len, "%d\n", plan->v.piece_number);
+		SAFE_SNPRINTF(written, buff_ptr, buffer, buffer_len, "%d\n", plan->v.piece_number);
 		break;
 	case LP_KEY:
 		key = plan->v.key;
@@ -54,27 +55,28 @@ int emit_plan_helper(char *buffer, size_t buffer_len, int depth, LogicalPlan *pl
 			UNPACK_SQL_STATEMENT(value, key->table->tableName, value);
 			table_name = value->v.string_literal;
 		}
-		SAFE_SNPRINTF(buff_ptr, buffer, buffer_len, "\n%*s- table_name: %s\n", depth, "", table_name);
-		SAFE_SNPRINTF(buff_ptr, buffer, buffer_len, "%*s- column_name: %s\n", depth, "", column_name);
-		SAFE_SNPRINTF(buff_ptr, buffer, buffer_len, "%*s- random_id: %d\n", depth, "", key->random_id);
-		SAFE_SNPRINTF(buff_ptr, buffer, buffer_len, "%*s- method: %s\n", depth, "", lp_action_type_str[key->type]);
-		SAFE_SNPRINTF(buff_ptr, buffer, buffer_len, "%*s- xref_key: %s\n", depth, "", key->is_cross_reference_key ? "true" :
+		SAFE_SNPRINTF(written, buff_ptr, buffer, buffer_len, "\n%*s- table_name: %s\n", depth, "", table_name);
+		SAFE_SNPRINTF(written, buff_ptr, buffer, buffer_len, "%*s- column_name: %s\n", depth, "", column_name);
+		SAFE_SNPRINTF(written, buff_ptr, buffer, buffer_len, "%*s- random_id: %d\n", depth, "", key->random_id);
+		SAFE_SNPRINTF(written, buff_ptr, buffer, buffer_len, "%*s- method: %s\n", depth, "", lp_action_type_str[key->type]);
+		SAFE_SNPRINTF(written, buff_ptr, buffer, buffer_len, "%*s- xref_key: %s\n", depth, "", key->is_cross_reference_key ? "true" :
 				"false");
-		SAFE_SNPRINTF(buff_ptr, buffer, buffer_len, "%*s- uses_xref_key: %s\n", depth, "", key->cross_reference_output_key ? "true" :
+		SAFE_SNPRINTF(written, buff_ptr, buffer, buffer_len, "%*s- uses_xref_key: %s\n", depth, "", key->cross_reference_output_key ? "true" :
 				"false");
 		break;
 	case LP_COLUMN_LIST:
-		SAFE_SNPRINTF(buff_ptr, buffer, buffer_len, "\n");
+		SAFE_SNPRINTF(written, buff_ptr, buffer, buffer_len, "\n");
+		assert(buffer_len >= buff_ptr - buffer);
 		buff_ptr += emit_plan_helper(buff_ptr, buffer_len - (buff_ptr - buffer), depth + 2, plan->v.operand[0]);
 		buff_ptr += emit_plan_helper(buff_ptr, buffer_len - (buff_ptr - buffer), depth + 2, plan->v.operand[1]);
 		break;
 	case LP_VALUE:
 		value = plan->v.value;
-		SAFE_SNPRINTF(buff_ptr, buffer, buffer_len, "%s\n", value->v.string_literal);
+		SAFE_SNPRINTF(written, buff_ptr, buffer, buffer_len, "%s\n", value->v.string_literal);
 		break;
 	case LP_TABLE:
 		UNPACK_SQL_STATEMENT(value, plan->v.table_alias->alias, value);
-		SAFE_SNPRINTF(buff_ptr, buffer, buffer_len, "%s\n", value->v.string_literal);
+		SAFE_SNPRINTF(written, buff_ptr, buffer, buffer_len, "%s\n", value->v.string_literal);
 		break;
 	case LP_COLUMN_ALIAS:
 		if(plan->v.column_alias->column->type == column_STATEMENT) {
@@ -86,7 +88,7 @@ int emit_plan_helper(char *buffer, size_t buffer_len, int depth, LogicalPlan *pl
 		}
 		UNPACK_SQL_STATEMENT(value, plan->v.column_alias->table_alias->v.table_alias->alias, value);
 		table_name = value->v.string_literal;
-		SAFE_SNPRINTF(buff_ptr, buffer, buffer_len, "%s.%s\n", table_name, column_name);
+		SAFE_SNPRINTF(written, buff_ptr, buffer, buffer_len, "%s.%s\n", table_name, column_name);
 		break;
 	case LP_COLUMN_LIST_ALIAS:
 		switch(plan->v.column_list_alias->type) {
@@ -115,21 +117,20 @@ int emit_plan_helper(char *buffer, size_t buffer_len, int depth, LogicalPlan *pl
 				data_type_ptr = "BOOLEAN_VALUE";
 				break;
 		}
-		SAFE_SNPRINTF(buff_ptr, buffer, buffer_len, "\n%*s- type: %s", depth, "", data_type_ptr);
+		SAFE_SNPRINTF(written, buff_ptr, buffer, buffer_len, "\n%*s- type: %s", depth, "", data_type_ptr);
 		UNPACK_SQL_STATEMENT(value, plan->v.column_list_alias->alias, value);
 		column_name = value->v.string_literal;
-		SAFE_SNPRINTF(buff_ptr, buffer, buffer_len, "\n%*s- alias: %s\n", depth, "", column_name);
+		SAFE_SNPRINTF(written, buff_ptr, buffer, buffer_len, "\n%*s- alias: %s\n", depth, "", column_name);
 		break;
 	case LP_KEYWORDS:
-		SAFE_SNPRINTF(buff_ptr, buffer, buffer_len, "keywords\n");
+		SAFE_SNPRINTF(written, buff_ptr, buffer, buffer_len, "keywords\n");
 		break;
 	default:
-		SAFE_SNPRINTF(buff_ptr, buffer, buffer_len, "\n");
+		SAFE_SNPRINTF(written, buff_ptr, buffer, buffer_len, "\n");
 		buff_ptr += emit_plan_helper(buff_ptr, buffer_len - (buff_ptr - buffer), depth + 2, plan->v.operand[0]);
 		buff_ptr += emit_plan_helper(buff_ptr, buffer_len - (buff_ptr - buffer), depth + 2, plan->v.operand[1]);
 		break;
 	}
 
-	assert(buff_ptr - buffer > 0);
 	return buff_ptr - buffer;
 }

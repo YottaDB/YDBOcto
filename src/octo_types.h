@@ -40,9 +40,11 @@ typedef void *yyscan_t;
 
 #define INIT_YDB_BUFFER(buffer, len) (buffer)->buf_addr = malloc(len); (buffer)->len_used = 0; (buffer)->len_alloc = len;
 
-#define SAFE_SNPRINTF(buff_ptr, buffer, buffer_size, ...) \
-	(buff_ptr) += snprintf((buff_ptr), (buffer_size) - ((buff_ptr) - (buffer)), ## __VA_ARGS__); \
-	assert(buff_ptr - buffer > 0);
+#define SAFE_SNPRINTF(written, buff_ptr, buffer, buffer_size, ...) \
+	(written) = snprintf((buff_ptr), (buffer_size) - ((buff_ptr) - (buffer)), ## __VA_ARGS__); \
+	if((written) < (buffer_size)) { \
+		buff_ptr += written; \
+	}
 
 
 long long unsigned int typedef uint8;

@@ -28,6 +28,7 @@
  */
 int generate_key_name(char *buffer, int buffer_size, int target_key_num, SqlTable *table, SqlColumn **key_columns) {
 	char *buffer_ptr = buffer, *tableName, *columnName, *temp;
+	int written;
 	SqlValue *value;
 	SqlOptionalKeyword *keyword;
 
@@ -37,7 +38,7 @@ int generate_key_name(char *buffer, int buffer_size, int target_key_num, SqlTabl
 	if(keyword != NULL) {
 		UNPACK_SQL_STATEMENT(value, keyword->v, value);
 		temp = m_unescape_string(value->v.string_literal);
-		SAFE_SNPRINTF(buffer_ptr, buffer, buffer_size, "%s", temp);
+		SAFE_SNPRINTF(written, buffer_ptr, buffer, buffer_size, "%s", temp);
 		free(temp);
 		return buffer_ptr - buffer;
 	}

@@ -142,6 +142,7 @@ int run_query(char *query, void (*callback)(PhysicalPlan *, int, void*), void *p
 		} else {
 			dqinsert(definedTables, result->v.table, temp_table);
 		}
+		octo_cfree(memory_chunks);
 		break;
 	case drop_STATEMENT:
 		YDB_COPY_STRING_TO_BUFFER(result->v.drop->table_name->v.value->v.reference, &table_name_buffer, done);
@@ -150,15 +151,16 @@ int run_query(char *query, void (*callback)(PhysicalPlan *, int, void*), void *p
 				      YDB_DEL_NODE);
 		YDB_ERROR_CHECK(status, &z_status, &z_status_value);
 		/// TODO: we should drop tables here
-		cleanup_sql_statement(result);
+		octo_cfree(memory_chunks);
 		break;
 	case insert_STATEMENT:
 		WARNING(ERR_FEATURE_NOT_IMPLEMENTED, "table inserts");
+		octo_cfree(memory_chunks);
 		break;
 	case begin_STATEMENT:
 	case commit_STATEMENT:
 		WARNING(ERR_FEATURE_NOT_IMPLEMENTED, "transactions");
-		cleanup_sql_statement(result);
+		octo_cfree(memory_chunks);
 		break;
 	default:
 		FATAL(ERR_FEATURE_NOT_IMPLEMENTED, query);

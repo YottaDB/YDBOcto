@@ -29,9 +29,6 @@
 int get_input(char *buf, int size) {
 	if(eof_hit)
 		return YY_NULL;
-	if(cur_input_index == cur_input_max) {
-		return -1;
-	}
 	if(input_buffer_combined[cur_input_index] == '\0') {
 		if(cur_input_more() == 0) {
 			return YY_NULL;

@@ -47,6 +47,7 @@ int main(int argc, char **argv) {
 
 	octo_init(argc, argv, TRUE);
 	config->record_error_level = TRACE;
+	INFO(CUSTOM_ERROR, "rocto started");
 
 	// Setup the address first so we know which protocol to use
 	memset(&addressv6, 0, sizeof(struct sockaddr_in6));

@@ -75,6 +75,8 @@ PhysicalPlan *emit_select_statement(ydb_buffer_t *cursor_global,
 	}
 	pplan = generate_physical_plan(plan, NULL);
 	emit_physical_plan(pplan);
+	while(pplan->next != NULL)
+		pplan = pplan->next;
 
 	// Create a table from the last physical table which reads from the output
 	//  values

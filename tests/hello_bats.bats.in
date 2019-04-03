@@ -11,9 +11,11 @@ setup() {
 @test "ensure that we can create a database for testing" {
   createdb
   run ls mumps.dat
-  copy_test_files helloBats/hello.sql
+  copy_test_files helloBats/hello1.sql
+  copy_test_files helloBats/hello2.sql
   $ydb_dist/mumps -r %XCMD "set ^abc(0)=0"
-  run octo -f helloBats/hello.sql
+  run octo -f helloBats/hello1.sql
+  run octo -f helloBats/hello2.sql
   [[ "$output" =~ "Hello world" ]]
 }
 

@@ -177,7 +177,6 @@ sql_statement
       YYACCEPT;
     }
   | error SEMICOLON { *out = NULL; YYABORT; }
-  | error { *out = NULL; YYABORT; }
   | ENDOFFILE { eof_hit = TRUE; YYACCEPT; }
   ;
 

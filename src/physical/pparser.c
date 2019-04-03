@@ -56,7 +56,9 @@ void safe_print_string(char *s) {
 }
 
 #define SNPRINT_HEADER \
-	"buff_ptr += snprintf(buff_ptr, buffer_len - (buff_ptr - buffer), \""
+	"do { written = snprintf(buff_ptr, buffer_len - (buff_ptr - buffer), \""
+#define SNPRINT_FOOTER \
+	"if(written > buffer_len - (buff_ptr - buffer)) { FATAL(ERR_BUFFER_TOO_SMALL); } buff_ptr += written; } while(0);"
 
 Expr *print_template(Expr *expr, Expr *prev) {
 	Expr *next, *t;
@@ -87,7 +89,7 @@ Expr *print_template(Expr *expr, Expr *prev) {
 				safe_print_string(t->value);
 			}
 		}
-		printf(");\n");
+		printf(");\n%s\n", SNPRINT_FOOTER);
 		print_active = 0;
 		break;
 	case EXPR_TYPE:
@@ -118,7 +120,7 @@ Expr *print_template(Expr *expr, Expr *prev) {
 			printf(SNPRINT_HEADER);
 		printf("%s", rformat);
 		if(prev && prev->type == EXPR_TYPE && !print_active)
-			printf("\", %s);", expr->value);
+			printf("\", %s);\n%s\n", expr->value, SNPRINT_FOOTER);
 		break;
 	};
 	if(next)

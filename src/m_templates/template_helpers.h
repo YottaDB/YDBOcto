@@ -31,7 +31,8 @@
 	int name(char *buffer, int buffer_len, ## __VA_ARGS__)
 
 #define TEMPLATE_INIT()				\
-	char *buff_ptr = buffer;
+	char *buff_ptr = buffer;		\
+	int written;
 
 #define TEMPLATE_END()				\
 	return buff_ptr - buffer;

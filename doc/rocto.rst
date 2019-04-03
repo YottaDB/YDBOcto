@@ -15,7 +15,7 @@ Connecting to SquirrelSQL
 
 * Add a PostgreSQL `JAR <https://en.wikipedia.org/wiki/JAR_(file_format)>`_ file as a driver to SquirrelSQL.
 
-* Configure the PostgreSQL driver to use the provided JAR file. The URL format for PostgreSQL in Squirrel SQL is :code:`jdbc:postgresql:[<host>[:<5432>/]]<database>`.
+* Configure the PostgreSQL driver to use the provided JAR file. The URL format for PostgreSQL in Squirrel SQL is :code:`jdbc:postgresql:[<//host>[:<5432>/]]<database>`.
 
 .. figure:: driver.png
  

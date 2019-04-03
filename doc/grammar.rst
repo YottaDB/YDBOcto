@@ -322,6 +322,32 @@ CASE
   
 CASE tests a condition_expression. If the condition_expression following any of the WHEN keywords is TRUE, then the value is the "result" following THEN. If none of the conditions are matched, the value is the "result" following ELSE. The result is NULL if ELSE is omitted and none of the conditions are matched.
 
+----------
+Functions
+----------
+
+++++++++++++++++++++++++++++
+Adding Functions into Octo
+++++++++++++++++++++++++++++
+
+To add a function from M into Octo, you can run the following command at the YDB prompt:
+
+.. parsed-literal::
+   YDB> set <Octo prefix>octo("functions","<function name>")="<M function>"
+
+The default configured Octo prefix is "^%ydbocto".
+
+So, for example, if you want to add a function in Octo for the intrinsic function $PIECE, use:
+
+.. parsed-literal::
+   YDB> set ^%ydboctoocto("functions","MPIECE")="$PIECE"
+
+Similarly, an extrinsic (user-defined) function $$AGE can be added to Octo using:
+
+.. parsed-literal::
+   YDB> set ^%ydboctoocto("functions","AGE")="$$AGE"
+
+
 -------------
 Other
 -------------

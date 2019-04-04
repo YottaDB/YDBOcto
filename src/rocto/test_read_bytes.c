@@ -47,37 +47,189 @@ static void test_valid_input(void **state) {
 
 	// Initialize relevant variables
 	buffer = malloc(sizeof(char) * buffer_size);
-	memset(buffer, 0, buffer_size);
+	memset(buffer, 'X', buffer_size);
 	session.connection_fd = 0;
 
-	will_return(__wrap_recv, 10);	// Number of bytes read
+	will_return(__wrap_recv, 10);	// All bytes read
 	will_return(__wrap_recv, 0);	// No error
 
 	rt = read_bytes(&session, buffer, buffer_size, bytes_to_read);
 
 	assert_int_equal(rt, 0);
+	assert_int_equal(errno, 0);
 
 	free(buffer);
 }
 
 static void test_read_too_large(void **state) {
+	int buffer_size = 0, bytes_to_read = 0;
+	int rt = 1;
+
+	// Bytes larger than buffer size
+	buffer_size = 10;
+	bytes_to_read = 100;
+
+	rt = read_bytes(NULL, NULL, buffer_size, bytes_to_read);
+
+	assert_int_equal(rt, 1);
 }
 
 static void test_invalid_read_size(void **state) {
+	int buffer_size = 0, bytes_to_read = 0;
+	int rt = 1;
+
+	// Bytes less than 0
+	buffer_size = 10;
+	bytes_to_read = -1;
+
+	rt = read_bytes(NULL, NULL, buffer_size, bytes_to_read);
+
+	assert_int_equal(rt, 1);
 }
 
 static void test_recv_interrupted(void **state) {
+	char *buffer;
+	int buffer_size = 0, bytes_to_read = 0;
+	int rt = 1;
+	RoctoSession session;
+
+	// valid input
+	buffer_size = 10;
+	bytes_to_read = 10;
+
+	// Initialize relevant variables
+	buffer = malloc(sizeof(char) * buffer_size);
+	memset(buffer, 0, buffer_size);
+	session.connection_fd = 0;
+
+	will_return(__wrap_recv, -1);		// recv failed
+	will_return(__wrap_recv, EINTR);	// received interrupt
+
+	will_return(__wrap_recv, 10);	// continued to read all bytes
+	will_return(__wrap_recv, 0);	// no error
+
+	rt = read_bytes(&session, buffer, buffer_size, bytes_to_read);
+
+	assert_int_equal(rt, 0);
+	assert_int_equal(errno, 0);
+
+	free(buffer);
 }
 
 static void test_recv_connection_reset(void **state) {
+	char *buffer;
+	int buffer_size = 0, bytes_to_read = 0;
+	int rt = 1;
+	RoctoSession session;
+
+	// valid input
+	buffer_size = 10;
+	bytes_to_read = 10;
+
+	// Initialize relevant variables
+	buffer = malloc(sizeof(char) * buffer_size);
+	memset(buffer, 0, buffer_size);
+	session.connection_fd = 0;
+
+	will_return(__wrap_recv, -1);		// recv failed
+	will_return(__wrap_recv, ECONNRESET);	// connection lost
+
+	rt = read_bytes(&session, buffer, buffer_size, bytes_to_read);
+
+	assert_int_equal(rt, 1);
+	assert_int_equal(errno, ECONNRESET);
+
+	free(buffer);
 }
 
+static void test_recv_broken_pipe(void **state) {
+	char *buffer;
+	int buffer_size = 0, bytes_to_read = 0;
+	int rt = 1;
+	RoctoSession session;
+
+	// valid input
+	buffer_size = 10;
+	bytes_to_read = 10;
+
+	// Initialize relevant variables
+	buffer = malloc(sizeof(char) * buffer_size);
+	memset(buffer, 0, buffer_size);
+	session.connection_fd = 0;
+
+	will_return(__wrap_recv, -1);		// recv failed
+	will_return(__wrap_recv, EPIPE);	// pipe receiver lost
+
+	rt = read_bytes(&session, buffer, buffer_size, bytes_to_read);
+
+	assert_int_equal(rt, 1);
+	assert_int_equal(errno, EPIPE);
+
+	free(buffer);
+}
+
+static void test_recv_timed_out(void **state) {
+	char *buffer;
+	int buffer_size = 0, bytes_to_read = 0;
+	int rt = 1;
+	RoctoSession session;
+
+	// valid input
+	buffer_size = 10;
+	bytes_to_read = 10;
+
+	// Initialize relevant variables
+	buffer = malloc(sizeof(char) * buffer_size);
+	memset(buffer, 0, buffer_size);
+	session.connection_fd = 0;
+
+	will_return(__wrap_recv, -1);		// recv failed
+	will_return(__wrap_recv, ETIMEDOUT);	// connection timed out
+
+	rt = read_bytes(&session, buffer, buffer_size, bytes_to_read);
+
+	assert_int_equal(rt, 1);
+	assert_int_equal(errno, ETIMEDOUT);
+
+	free(buffer);
+}
 static void test_socket_closed(void **state) {
+	char *buffer;
+	int buffer_size = 0, bytes_to_read = 0;
+	int rt = 1;
+	RoctoSession session;
+
+	// valid input
+	buffer_size = 10;
+	bytes_to_read = 10;
+
+	// Initialize relevant variables
+	buffer = malloc(sizeof(char) * buffer_size);
+	memset(buffer, 0, buffer_size);
+	session.connection_fd = 0;
+
+	will_return(__wrap_recv, 0);	// No bytes read
+	will_return(__wrap_recv, 0);	// No error - socket cleanly closed
+
+	rt = read_bytes(&session, buffer, buffer_size, bytes_to_read);
+
+	assert_int_equal(rt, 1);
+	assert_int_equal(errno, 0);
+
+	free(buffer);
 }
 
 int main(void) {
+	octo_init(0, NULL, FALSE);
 	const struct CMUnitTest tests[] = {
 		cmocka_unit_test(test_valid_input),
+		cmocka_unit_test(test_read_too_large),
+		cmocka_unit_test(test_invalid_read_size),
+		cmocka_unit_test(test_recv_interrupted),
+		cmocka_unit_test(test_recv_connection_reset),
+		cmocka_unit_test(test_recv_broken_pipe),
+		cmocka_unit_test(test_recv_timed_out),
+		cmocka_unit_test(test_socket_closed),
 	};
 	return cmocka_run_group_tests(tests, NULL, NULL);
 }

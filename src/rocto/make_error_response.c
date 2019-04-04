@@ -32,7 +32,7 @@ ErrorResponse *make_error_response(PSQL_ErrorSeverity severity, PSQL_SQLSTATECod
 	ErrorResponse *ret;
 	char *ptr;
 
-	printf("Making error %s", message);
+	printf("Making error: %s", message);
 
 	// Go through all the args and count their size
 	new_length = 0;

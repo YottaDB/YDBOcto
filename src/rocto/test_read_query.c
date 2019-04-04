@@ -103,6 +103,7 @@ static void test_unexpectedly_terminated_input(void **state) {
 	free_error_response(err);
 	free(test_data);
 }
+
 int main(void) {
 	const struct CMUnitTest tests[] = {
 		   cmocka_unit_test(test_valid_input),

@@ -56,7 +56,6 @@ static void test_valid_input(void **state) {
 	rt = read_bytes(&session, buffer, buffer_size, bytes_to_read);
 
 	assert_int_equal(rt, 0);
-	assert_int_equal(errno, 0);
 
 	free(buffer);
 }
@@ -111,7 +110,6 @@ static void test_recv_interrupted(void **state) {
 	rt = read_bytes(&session, buffer, buffer_size, bytes_to_read);
 
 	assert_int_equal(rt, 0);
-	assert_int_equal(errno, 0);
 
 	free(buffer);
 }
@@ -137,7 +135,6 @@ static void test_recv_connection_reset(void **state) {
 	rt = read_bytes(&session, buffer, buffer_size, bytes_to_read);
 
 	assert_int_equal(rt, 1);
-	assert_int_equal(errno, ECONNRESET);
 
 	free(buffer);
 }
@@ -163,7 +160,6 @@ static void test_recv_broken_pipe(void **state) {
 	rt = read_bytes(&session, buffer, buffer_size, bytes_to_read);
 
 	assert_int_equal(rt, 1);
-	assert_int_equal(errno, EPIPE);
 
 	free(buffer);
 }
@@ -189,7 +185,6 @@ static void test_recv_timed_out(void **state) {
 	rt = read_bytes(&session, buffer, buffer_size, bytes_to_read);
 
 	assert_int_equal(rt, 1);
-	assert_int_equal(errno, ETIMEDOUT);
 
 	free(buffer);
 }

@@ -26,33 +26,56 @@
 Execute *read_execute(BaseMessage *message, ErrorResponse **err) {
 	Execute *ret;
 	char *cur_pointer, *last_byte;
-	unsigned int remaining_length, i;
+	unsigned int remaining_length;
 
+	// Create Execute message and initialize ALL bytes
 	remaining_length = ntohl(message->length);
 	ret = (Execute*)malloc(remaining_length + sizeof(Execute));
 	memset(ret, 0, remaining_length + sizeof(Execute));
-	memcpy(&ret->type, message, remaining_length + 1);
-	remaining_length -= 4;
+
+	// Populate Execute message values
+	memcpy(&ret->type, message, remaining_length + 1);	// Include type field
+	remaining_length -= sizeof(unsigned int);	// Length field precedes data field
 	cur_pointer = ret->data;
+	ret->source = cur_pointer;
 	last_byte = cur_pointer + remaining_length;
 
-	ret->source = cur_pointer;
-	while(*cur_pointer != '\0' && cur_pointer < last_byte) {
-		cur_pointer++;
-	}
-	if(*cur_pointer != '\0' || cur_pointer == last_byte) {
+	// Ensure message has correct type
+	if(ret->type != PSQL_Execute) {
 		*err = make_error_response(PSQL_Error_ERROR,
 					   PSQL_Code_Protocol_Violation,
-					   "execute destination missing null termination",
+					   "execute message has incorrect type: must be 'E'",
 					   0);
 		free(ret);
 		return NULL;
 	}
+	// Ensure message has null terminator
+	while(cur_pointer < last_byte && *cur_pointer != '\0') {
+		cur_pointer++;
+	}
+	if(cur_pointer == last_byte || *cur_pointer != '\0') {
+		*err = make_error_response(PSQL_Error_ERROR,
+					   PSQL_Code_Protocol_Violation,
+					   "execute destination missing null terminator",
+					   0);
+		free(ret);
+		return NULL;
+	}
+	// Check for unexpected null terminator
+	if(cur_pointer != last_byte - sizeof(unsigned int) - 1) {
+		*err = make_error_response(PSQL_Error_ERROR,
+					   PSQL_Code_Protocol_Violation,
+					   "execute destination contains unexpected null terminator",
+					   0);
+		free(ret);
+		return NULL;
+	}
+	// Ensure rows_to_return field included
 	cur_pointer++;
 	if(cur_pointer + 4 > last_byte) {
 		*err = make_error_response(PSQL_Error_ERROR,
 					   PSQL_Code_Protocol_Violation,
-					   "execute missing rows_to_returns",
+					   "execute missing rows_to_return",
 					   0);
 		free(ret);
 		return NULL;

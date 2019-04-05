@@ -37,7 +37,7 @@ ParameterStatus *make_parameter_status(StartupMessageParm *parm) {
 	value_len = strlen(parm->value);
 	length += value_len + 1;
 
-	// malloc space for everything, but don't count lenght twice
+	// malloc space for everything, but don't count length twice
 	ret = (ParameterStatus*)malloc(sizeof(ParameterStatus) + length - sizeof(unsigned int));
 	memset(ret, 0, sizeof(ParseComplete));
 

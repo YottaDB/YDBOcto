@@ -43,8 +43,9 @@ int main(int argc, char **argv) {
 	pid_t child_id;
 	char buffer[MAX_STR_CONST];
 	RoctoSession session;
+	StartupMessageParm message_parm;
 
-	ydb_buffer_t ydb_buffers[2];
+	ydb_buffer_t ydb_buffers[2], *var_defaults, *var_sets, var_value;
 	ydb_buffer_t *global_buffer = &(ydb_buffers[0]), *session_id_buffer = &(ydb_buffers[1]);
 	ydb_buffer_t z_status, z_status_value;
 
@@ -133,18 +134,56 @@ int main(int argc, char **argv) {
 		YDB_ERROR_CHECK(status, &z_status, &z_status_value);
 		session.session_id = session_id_buffer;
 
+		// Populate default parameters
+		var_defaults = make_buffers(config->global_names.octo, 2, "variables", "");
+		INIT_YDB_BUFFER(&var_defaults[2], MAX_STR_CONST);
+		INIT_YDB_BUFFER(&var_value, MAX_STR_CONST);
+		var_sets = make_buffers(config->global_names.session, 3, session.session_id->buf_addr,
+				"variables", "");
+		var_sets[3] = var_defaults[2];
+		do {
+			status = ydb_subscript_next_s(&var_defaults[0], 2, &var_defaults[1], &var_defaults[2]);
+			if(status == YDB_ERR_NODEEND)
+				break;
+			YDB_ERROR_CHECK(status, &z_status, &z_status_value);
+			status = ydb_get_s(&var_defaults[0], 2, &var_defaults[1], &var_value);
+			YDB_ERROR_CHECK(status, &z_status, &z_status_value);
+			var_sets[3] = var_defaults[2];
+			status = ydb_set_s(&var_sets[0], 3, &var_sets[1], &var_value);
+		} while(TRUE);
+
 		// Set parameters
 		for(cur_parm = 0; i < startup_message->num_parameters; i++) {
 			set(startup_message->parameters[i].value, config->global_names.session, 3,
 					session.session_id->buf_addr, "variables",
 					startup_message->parameters[i].name);
-			parameter_status = make_parameter_status(&startup_message->parameters[i]);
+		}
+
+		var_sets[3].len_used = 0;
+		do {
+			status = ydb_subscript_next_s(&var_sets[0], 3, &var_sets[1], &var_sets[3]);
+			if(status == YDB_ERR_NODEEND)
+				break;
+			YDB_ERROR_CHECK(status, &z_status, &z_status_value);
+			var_sets[3].buf_addr[var_sets[3].len_used] = '\0';
+			status = ydb_get_s(&var_sets[0], 3, &var_sets[1], &var_value);
+			YDB_ERROR_CHECK(status, &z_status, &z_status_value);
+			var_value.buf_addr[var_value.len_used] = '\0';
+			message_parm.name = var_sets[3].buf_addr;
+			message_parm.value = var_value.buf_addr;
+			parameter_status = make_parameter_status(&message_parm);
 			result = send_message(&session, (BaseMessage*)(&parameter_status->type));
 			free(parameter_status);
 			if(result) {
 				return 0;
 			}
-		}
+		} while(TRUE);
+
+		// Free temporary buffers
+		free(var_defaults[2].buf_addr);
+		free(var_value.buf_addr);
+		free(var_defaults);
+		free(var_sets);
 		rocto_main_loop(&session);
 		break;
 	}

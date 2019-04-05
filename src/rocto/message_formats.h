@@ -42,7 +42,8 @@ enum PSQL_MessageTypes {
 	PSQL_ParseComplete = '1',
 	PSQL_Execute = 'E',
 	PSQL_Sync = 'S',
-	PSQL_Describe = 'D'
+	PSQL_Describe = 'D',
+	PSQL_ParameterStatus = 'S'
 };
 
 typedef struct __attribute__((packed)) {
@@ -120,6 +121,7 @@ typedef struct {
 //  string => string mappings
 typedef struct __attribute__((packed)) {
 	StartupMessageParm *parameters;
+	int num_parameters;
 
 	unsigned int length;
 	int protocol_version;
@@ -229,6 +231,12 @@ typedef struct __attribute__((packed)) {
 	char item;
 	char name[];
 } Describe;
+
+typedef struct __attribute__((packed)) {
+	char type;
+	unsigned int length;
+	char data[];
+} ParameterStatus;
 
 typedef struct {
 	char type;

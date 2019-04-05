@@ -52,6 +52,7 @@ CommandComplete *make_command_complete(char *command_tag);
 AuthenticationMD5Password *make_authentication_md5_password();
 AuthenticationOk *make_authentication_ok();
 ParseComplete *make_parse_complete();
+ParameterStatus *make_parameter_status(StartupMessageParm *parm);
 
 // read_* messages parse the message and return a pointer to the filled out message type
 // If the message was invalid, the return is NULL and *err is populated with an error message

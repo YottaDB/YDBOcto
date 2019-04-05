@@ -163,6 +163,7 @@ add_library(librocto OBJECT
   rocto/make_authentication_md5_password.c
   rocto/make_authentication_ok.c
   rocto/make_parse_complete.c
+  rocto/make_parameter_status.c
   rocto/send_message.c
   rocto/read_message.c
   rocto/read_bytes.c

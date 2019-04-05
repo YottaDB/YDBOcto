@@ -132,5 +132,7 @@ StartupMessage *read_startup_message(RoctoSession *session, char *data, int data
 		cur_parm++;
 	}
 
+	ret->num_parameters = cur_parm;
+
 	return ret;
 }

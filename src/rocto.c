@@ -27,6 +27,7 @@
 #include "octo.h"
 #include "rocto/rocto.h"
 #include "rocto/message_formats.h"
+#include "helpers.h"
 
 int main(int argc, char **argv) {
 	BaseMessage *base_message;
@@ -34,9 +35,11 @@ int main(int argc, char **argv) {
 	ErrorResponse *err;
 	AuthenticationMD5Password *md5auth;
 	AuthenticationOk *authok;
+	ParameterStatus *parameter_status;
 	struct sockaddr_in6 addressv6;
 	struct sockaddr_in *address;
 	int sfd, cfd, opt, addrlen, result, status;
+	int cur_parm, i;
 	pid_t child_id;
 	char buffer[MAX_STR_CONST];
 	RoctoSession session;
@@ -129,6 +132,19 @@ int main(int argc, char **argv) {
 		status = ydb_incr_s(global_buffer, 0, NULL, NULL, session_id_buffer);
 		YDB_ERROR_CHECK(status, &z_status, &z_status_value);
 		session.session_id = session_id_buffer;
+
+		// Set parameters
+		for(cur_parm = 0; i < startup_message->num_parameters; i++) {
+			set(startup_message->parameters[i].value, config->global_names.session, 3,
+					session.session_id->buf_addr, "variables",
+					startup_message->parameters[i].name);
+			parameter_status = make_parameter_status(&startup_message->parameters[i]);
+			result = send_message(&session, (BaseMessage*)(&parameter_status->type));
+			free(parameter_status);
+			if(result) {
+				return 0;
+			}
+		}
 		rocto_main_loop(&session);
 		break;
 	}

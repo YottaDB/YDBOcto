@@ -28,13 +28,14 @@ BaseMessage *read_message(RoctoSession *session, char *buffer, int buffer_size) 
 	BaseMessage *message;
 	int result;
 
+	// Read BaseMessage fields (type, length)
 	message = (void*)buffer;
 	result = read_bytes(session, (char*)message, buffer_size, 5);
 	if(result == 1)
 		return NULL;
 
 	// Read the rest of the message
-	read_bytes(session, (char*)(&message->data), buffer_size, ntohl(message->length) - 4);
+	result = read_bytes(session, (char*)(&message->data), buffer_size, ntohl(message->length) - 4);
 	if(result == 1)
 		return NULL;
 

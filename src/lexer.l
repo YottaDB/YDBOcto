@@ -137,6 +137,7 @@ int copied_so_far;
 (?i:RIGHT) { return RIGHT; }
 (?i:SELECT) { return SELECT; }
 (?i:SET) { return SET; }
+(?i:SHOW) { return SHOW; }
 (?i:SMALLINT) { return SMALLINT; }
 (?i:START) { return START; }
 (?i:SUM) { return SUM; }

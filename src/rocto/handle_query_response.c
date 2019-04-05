@@ -24,9 +24,10 @@
 #include "message_formats.h"
 #include "rocto.h"
 #include "physical_plan.h"
+#include "helpers.h"
 
 
-void handle_query_response(PhysicalPlan *plan, int cursor_id, void *_parms) {
+void handle_query_response(SqlStatement *stmt, PhysicalPlan *plan, int cursor_id, void *_parms) {
 	QueryResponseParms *parms = (QueryResponseParms*)_parms;
 	RowDescription *row_description;
 	CommandComplete *command_complete;
@@ -42,11 +43,72 @@ void handle_query_response(PhysicalPlan *plan, int cursor_id, void *_parms) {
 	*keys_b = &ydb_buffers[2], *key_id_b = &ydb_buffers[3],
 	*space_b = &ydb_buffers[4], *space_b2 = &ydb_buffers[5],
 	*row_id_b = &ydb_buffers[6], *row_value_b = &ydb_buffers[7],
-	*empty_buffer = &ydb_buffers[8];
+	*empty_buffer = &ydb_buffers[8], *val_buff;
 	ydb_buffer_t z_status, z_status_value;
 	PhysicalPlan *deep_plan = plan;
+	SqlSetStatement *set_stmt;
+	SqlShowStatement *show_stmt;
+	SqlValue *val1, *val2;
+	RowDescription *description;
+	RowDescriptionParm row_desc_parm;
 	char buffer[MAX_STR_CONST], *c;
 	int status, number_of_columns = 0, row_count;
+
+	YDB_LITERAL_TO_BUFFER(" ", space_b);
+	YDB_LITERAL_TO_BUFFER(" ", space_b2);
+	INIT_YDB_BUFFER(row_id_b, MAX_STR_CONST);
+
+	YDB_LITERAL_TO_BUFFER("", empty_buffer);
+	INIT_YDB_BUFFER(row_value_b, MAX_STR_CONST);
+
+	session->session_id->buf_addr[session->session_id->len_used] = '\0';
+
+	if(stmt->type == set_STATEMENT) {
+		UNPACK_SQL_STATEMENT(set_stmt, stmt, set);
+		UNPACK_SQL_STATEMENT(val1, set_stmt->value, value);
+		UNPACK_SQL_STATEMENT(val2, set_stmt->variable, value);
+		set(val1->v.string_literal, config->global_names.session, 3,
+				session->session_id->buf_addr, "variables", val2->v.string_literal);
+		snprintf(buffer, MAX_STR_CONST, "SET");
+		command_complete = make_command_complete(buffer);
+		send_message(parms->session, (BaseMessage*)(&command_complete->type));
+		free(command_complete);
+		return;
+	}
+	if(stmt->type == show_STATEMENT) {
+		UNPACK_SQL_STATEMENT(show_stmt, stmt, show);
+		UNPACK_SQL_STATEMENT(val1, show_stmt->variable, value);
+		val_buff = get(config->global_names.session, 3, session->session_id->buf_addr, "variables",
+				val1->v.string_literal);
+		if(val_buff == NULL) {
+			val_buff = get(config->global_names.octo, 2, session->session_id->buf_addr,
+					"variables", val1->v.string_literal);
+		}
+		if(val_buff == NULL) {
+			val_buff = empty_buffer;
+		}
+		// Send RowDescription
+		memset(&row_desc_parm, 0, sizeof(RowDescriptionParm));
+		row_desc_parm.name = val1->v.string_literal;
+		description = make_row_description(&row_desc_parm, 1);
+		send_message(session, (BaseMessage*)(&description->type));
+		free(description);
+
+		// Send DataRow
+		data_row_parms[0].value = val_buff->buf_addr;
+		data_row_parms[0].length = strlen(val_buff->buf_addr);
+		data_row = make_data_row(data_row_parms, 1);
+		send_message(parms->session, (BaseMessage*)(&data_row->type));
+		free(data_row);
+		parms->data_sent = TRUE;
+
+		// Done
+		snprintf(buffer, MAX_STR_CONST, "SHOW");
+		command_complete = make_command_complete(buffer);
+		send_message(parms->session, (BaseMessage*)(&command_complete->type));
+		free(command_complete);
+		return;
+	}
 
 	// Go through and make rows for each row in the output plan
 	parms->data_sent = TRUE;
@@ -75,12 +137,6 @@ void handle_query_response(PhysicalPlan *plan, int cursor_id, void *_parms) {
 	memcpy(key_id_b->buf_addr, buffer, key_id_b->len_used+1);
 	key_id_b->len_alloc = key_id_b->len_used;
 
-	YDB_LITERAL_TO_BUFFER(" ", space_b);
-	YDB_LITERAL_TO_BUFFER(" ", space_b2);
-	INIT_YDB_BUFFER(row_id_b, MAX_STR_CONST);
-
-	YDB_LITERAL_TO_BUFFER("", empty_buffer);
-	INIT_YDB_BUFFER(row_value_b, MAX_STR_CONST);
 
 	status = ydb_subscript_next_s(cursor_b, 6, cursor_id_b, row_id_b);
 	if(status == YDB_ERR_NODEEND) {

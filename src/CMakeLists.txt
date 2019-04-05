@@ -137,6 +137,7 @@ add_library(libocto OBJECT
 add_executable(octo
   octo.c
   $<TARGET_OBJECTS:libocto>
+  $<TARGET_OBJECTS:libhelpers>
 )
 
 add_library(librocto OBJECT
@@ -175,6 +176,7 @@ add_executable(rocto
   rocto.c
   $<TARGET_OBJECTS:librocto>
   $<TARGET_OBJECTS:libocto>
+  $<TARGET_OBJECTS:libhelpers>
 )
 
 add_executable(pparser

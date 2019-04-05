@@ -30,7 +30,7 @@
 #include "parser.h"
 #include "lexer.h"
 
-int run_query(char *query, void (*callback)(PhysicalPlan *, int, void*), void *parms) {
+int run_query(char *query, void (*callback)(SqlStatement *, PhysicalPlan *, int, void*), void *parms) {
 	int c, error = 0, i = 0, status;
 	int done;
 	char *buffer;
@@ -42,6 +42,8 @@ int run_query(char *query, void (*callback)(PhysicalPlan *, int, void*), void *p
 	SqlStatement *result = 0;
 	SqlSelectStatement *select;
 	SqlStatement *tmp_statement;
+	SqlShowStatement *show;
+	SqlSetStatement *set;
 	PhysicalPlan *pplan;
 	ydb_buffer_t schema_global, table_name_buffer, table_create_buffer, null_buffer;
 	ydb_buffer_t cursor_global, cursor_exe_global[3];
@@ -105,7 +107,7 @@ int run_query(char *query, void (*callback)(PhysicalPlan *, int, void*), void *p
 		status = ydb_ci("select", cursorId);
 		YDB_ERROR_CHECK(status, &z_status, &z_status_value);
 		SWITCH_TO_OCTO_GLOBAL_DIRECTORY();
-		(*callback)(pplan, cursorId, parms);
+		(*callback)(result, pplan, cursorId, parms);
 		// Deciding to free the select_STATEMENT must be done by the caller, as they may want to rerun it or send row
 		// descriptions
 		//octo_cfree(memory_chunks);
@@ -163,7 +165,8 @@ int run_query(char *query, void (*callback)(PhysicalPlan *, int, void*), void *p
 		octo_cfree(memory_chunks);
 		break;
 	case set_STATEMENT:
-		WARNING(ERR_FEATURE_NOT_IMPLEMENTED, "SET statements");
+	case show_STATEMENT:
+		(*callback)(result, NULL, cursorId, parms);
 		octo_cfree(memory_chunks);
 		break;
 	default:

@@ -23,11 +23,13 @@
 #include "octo_types.h"
 #include "message_formats.h"
 #include "rocto.h"
+#include "helpers.h"
 
 int handle_describe(Describe *describe, RoctoSession *session) {
 	ydb_buffer_t subs_array[3], dest_subs[3];
 	ydb_buffer_t session_global, sql_expression, *source_name = &subs_array[2], *prepared = &subs_array[1], *source_session_id = &subs_array[0];
 	ydb_buffer_t *dest_session_id = &dest_subs[0], *bound = &dest_subs[1], *parse_name = &dest_subs[2];
+	ydb_buffer_t *val_buff, empty_buffer;
 	ydb_buffer_t z_status, z_status_value;
 	size_t query_length = 0, err_buff_size;
 	int done = FALSE, length, status, parse_parm, found = 0;
@@ -42,10 +44,15 @@ int handle_describe(Describe *describe, RoctoSession *session) {
 	ParseComplete *response;
 	ErrorResponse *err;
 	RowDescription *description;
+	RowDescriptionParm row_desc_parm;
+	SqlSetStatement *set_stmt;
+	SqlShowStatement *show_stmt;
+	SqlValue *val1, *val2;
 
 	// zstatus buffers
 	YDB_LITERAL_TO_BUFFER("$ZSTATUS", &z_status);
 	INIT_YDB_BUFFER(&z_status_value, MAX_STR_CONST);
+	YDB_LITERAL_TO_BUFFER("", &empty_buffer);
 
 	// Fetch the named SQL query from the session ^session(id, "prepared", <name>)
 	YDB_STRING_TO_BUFFER(config->global_names.session, &session_global);

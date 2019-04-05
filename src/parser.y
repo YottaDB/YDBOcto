@@ -120,6 +120,7 @@ extern void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, int *plan
 %token RIGHT
 %token SELECT
 %token SET
+%token SHOW
 %token SMALLINT
 %token START
 %token SUM

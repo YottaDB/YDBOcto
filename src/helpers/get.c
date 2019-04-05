@@ -26,13 +26,18 @@ ydb_buffer_t *get(char *global, size_t num_args, ...) {
 	int status;
 
 	va_start(args, num_args);
-	buffers = make_buffers(global, num_args, args);
+	buffers = vmake_buffers(global, num_args, args);
 	va_end(args);
 
 	ret = (ydb_buffer_t*)malloc(sizeof(ydb_buffer_t));
 	YDB_MALLOC_BUFFER(ret, MAX_STR_CONST);
 
 	status = ydb_get_s(&buffers[0], num_args, &buffers[1], ret);
+	if(status == YDB_ERR_GVUNDEF || status == YDB_ERR_LVUNDEF) {
+		YDB_FREE_BUFFER(ret);
+		free(ret);
+		return NULL;
+	}
 	YDB_ERROR_CHECK(status, &z_status, &z_status_value);
 
 	free(buffers);

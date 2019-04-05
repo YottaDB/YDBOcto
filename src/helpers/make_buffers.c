@@ -19,7 +19,18 @@
 
 #include "helpers.h"
 
-ydb_buffer_t *make_buffers(char *global, size_t num_args, va_list args) {
+ydb_buffer_t *make_buffers(char *global, size_t num_args, ...) {
+	va_list args;
+	ydb_buffer_t *ret;
+
+	va_start(args, num_args);
+	ret = vmake_buffers(global, num_args, args);
+	va_end(args);
+
+	return ret;
+}
+
+ydb_buffer_t *vmake_buffers(char *global, size_t num_args, va_list args) {
 	ydb_buffer_t *buffers;
 	char *arg;
 	int i;

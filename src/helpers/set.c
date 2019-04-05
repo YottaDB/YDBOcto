@@ -24,10 +24,10 @@ void set(char *new_value, char *global, size_t num_args, ...) {
 	va_list args;
 	ydb_buffer_t *ret, *buffers;
 	ydb_buffer_t z_status, z_status_value;
-	int status, i;
+	int status;
 
 	va_start(args, num_args);
-	buffers = make_buffers(global, num_args, args);
+	buffers = vmake_buffers(global, num_args, args);
 	va_end(args);
 
 	ret = (ydb_buffer_t*)malloc(sizeof(ydb_buffer_t));

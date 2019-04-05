@@ -46,18 +46,6 @@ StartupMessage *read_startup_message(RoctoSession *session, char *data, int data
 		return NULL;
 	}
 
-	/*if(ntohl(ret->length) != data_length) {
-		// The routine starting this up should fill this out, but really
-		//  we expect it to always be the same since both processes are
-		//  looking at the same data
-		*err = make_error_response(PSQL_Error_PANIC,
-					   PSQL_Code_Protocol_Violation,
-					   "Length read does match what is expected",
-					   0);
-		free(ret);
-		return NULL;
-	}*/
-
 	// No parameters send
 	if(ntohl(ret->length) == hard_coded_ints) {
 		return ret;

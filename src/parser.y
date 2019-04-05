@@ -165,22 +165,26 @@ extern void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, int *plan
 %%
 
 sql_statement
-  : sql_schema_statement SEMICOLON { *out = $1; YYACCEPT; }
-  | sql_data_statement SEMICOLON { *out = $1; YYACCEPT; }
-  | query_expression SEMICOLON { *out = $1; YYACCEPT; }
-  | BEG SEMICOLON {
+  : sql_schema_statement semicolon_or_eof { *out = $1; YYACCEPT; }
+  | sql_data_statement semicolon_or_eof { *out = $1; YYACCEPT; }
+  | query_expression semicolon_or_eof { *out = $1; YYACCEPT; }
+  | BEG semicolon_or_eof {
       // For now, we don't do transaction, so just say OK to this word
       SQL_STATEMENT(*out, begin_STATEMENT);
       YYACCEPT;
     }
-  | COMMIT SEMICOLON {
+  | COMMIT semicolon_or_eof {
       SQL_STATEMENT(*out, commit_STATEMENT);
       YYACCEPT;
     }
-  | error SEMICOLON { *out = NULL; YYABORT; }
-  | error ENDOFFILE { eof_hit = TRUE; YYABORT; }
-  | sql_set_statement SEMICOLON { *out = $1; YYACCEPT; }
+  | error semicolon_or_eof { *out = NULL; YYABORT; }
+  | sql_set_statement semicolon_or_eof { *out = $1; YYACCEPT; }
   | ENDOFFILE { eof_hit = TRUE; YYACCEPT; }
+  ;
+
+semicolon_or_eof
+  : SEMICOLON
+  | ENDOFFILE { eof_hit = TRUE; }
   ;
 
 %include "parser/select.y"

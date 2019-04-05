@@ -154,9 +154,8 @@ PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlan *next) {
 				prev = prev->prev;
 			}
 		}
-		if(table_joins->v.operand[1] != NULL)
-				table_joins = table_joins->v.operand[1];
-	} while(table_joins->v.operand[1] != NULL);
+		table_joins = table_joins->v.operand[1];
+	} while(table_joins != NULL);
 
 	// Iterate through the key substructures and fill out the source keys
 	keys = lp_get_keys(plan);

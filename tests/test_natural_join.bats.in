@@ -8,12 +8,13 @@ setup() {
 }
 
 @test "natural join no matches" {
+  # If there are no matches in a natural join, it is effectively a cross join
   octo <<OCTO &> output.txt
 SELECT *
 FROM (SELECT id as A FROM names) n1
 NATURAL JOIN (SELECT id as B FROM names) n2;
 OCTO
-  [[ "$(grep -c "|" output.txt)" == "0" ]]
+  [[ "$(grep -c "|" output.txt)" == "36" ]]
 }
 
 @test "natural join many matches" {

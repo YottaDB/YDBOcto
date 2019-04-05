@@ -177,6 +177,8 @@ sql_statement
       YYACCEPT;
     }
   | error SEMICOLON { *out = NULL; YYABORT; }
+  | error ENDOFFILE { eof_hit = TRUE; YYABORT; }
+  | sql_set_statement SEMICOLON { *out = $1; YYACCEPT; }
   | ENDOFFILE { eof_hit = TRUE; YYACCEPT; }
   ;
 
@@ -184,6 +186,7 @@ sql_statement
 %include "parser/insert.y"
 %include "parser/update.y"
 %include "parser/drop.y"
+%include "parser/set.y"
 
 sql_data_statement
   : sql_data_change_statement { $$ = $1; }

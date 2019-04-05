@@ -159,7 +159,7 @@ int copied_so_far;
 , { return COMMA; }
 \( { return LEFT_PAREN; }
 \) { return RIGHT_PAREN; }
-\; { return SEMICOLON; }
+; { return SEMICOLON; }
 \+ { return PLUS; }
 - { return MINUS; }
 \* { return ASTERISK; }

@@ -162,6 +162,10 @@ int run_query(char *query, void (*callback)(PhysicalPlan *, int, void*), void *p
 		WARNING(ERR_FEATURE_NOT_IMPLEMENTED, "transactions");
 		octo_cfree(memory_chunks);
 		break;
+	case set_STATEMENT:
+		WARNING(ERR_FEATURE_NOT_IMPLEMENTED, "SET statements");
+		octo_cfree(memory_chunks);
+		break;
 	default:
 		FATAL(ERR_FEATURE_NOT_IMPLEMENTED, query);
 	}

@@ -54,5 +54,10 @@ SqlStatement *parse_line(const char *line) {
 		return NULL;
 	}
 	yylex_destroy(scanner);
+
+	// For some reason, the lexer reads one past the end; decrement that
+	if(cur_input_index > 0) {
+		cur_input_index--;
+	}
 	return result;
 }

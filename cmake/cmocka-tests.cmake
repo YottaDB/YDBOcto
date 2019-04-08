@@ -46,3 +46,4 @@ ADD_UNIT_TEST_WITH_OPTIONS(test_make_authentication_ok src/rocto/test_make_authe
 ADD_UNIT_TEST_WITH_OPTIONS(test_read_parse src/rocto/test_read_parse "")
 set(functions_to_wrap recv)
 ADD_UNIT_TEST_WITH_OPTIONS(test_read_bytes src/rocto/test_read_bytes "${functions_to_wrap}")
+ADD_UNIT_TEST_WITH_OPTIONS(test_read_sync src/rocto/test_read_sync "")

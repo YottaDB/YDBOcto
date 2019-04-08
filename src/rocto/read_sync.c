@@ -27,9 +27,17 @@
 Sync *read_sync(BaseMessage *message, ErrorResponse **err) {
 	Sync *ret;
 
+	if(message->type != PSQL_Sync) {
+		*err = make_error_response(PSQL_Error_WARNING,
+					   PSQL_Code_Protocol_Violation,
+					   "Sync message has invalid type field: must be 'S'",
+					   0);
+		return NULL;
+	}
+
 	ret = (Sync*)malloc(sizeof(Sync));
 	ret->type = PSQL_Sync;
-	ret->length = 4;
+	ret->length = sizeof(unsigned int);
 
 	return ret;
 }

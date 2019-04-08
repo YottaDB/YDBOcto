@@ -104,11 +104,60 @@ static void test_unexpectedly_terminated_input(void **state) {
 	free(test_data);
 }
 
+static void test_missing_query(void **state) {
+	// Test a single startup message
+	unsigned int message_length = 0;
+	message_length += sizeof(unsigned int);		// count length member
+
+	// Populate base message
+	BaseMessage *test_data = (BaseMessage*)malloc(message_length + sizeof(BaseMessage) - sizeof(unsigned int));
+	test_data->type = PSQL_Query;
+	test_data->length = htonl(message_length);
+
+	// The actual test
+	ErrorResponse *err = NULL;
+	Query *query = read_query(test_data, &err);
+
+	// Standard checks
+	assert_null(query);
+	assert_non_null(err);
+
+	free_error_response(err);
+	free(test_data);
+}
+
+static void test_invalid_type(void **state) {
+	// Test a single startup message
+	unsigned int message_length = 0;
+	message_length += sizeof(unsigned int);		// count length member
+	char *message = "SELECT * FROM names;";
+	message_length += strlen(message) + 1;		// expecting extra char after null
+
+	// Populate base message
+	BaseMessage *test_data = (BaseMessage*)malloc(message_length + sizeof(BaseMessage) - sizeof(unsigned int));
+	test_data->type = 'X';
+	test_data->length = htonl(message_length);
+	strncpy(test_data->data, message, message_length - sizeof(unsigned int));
+
+	// The actual test
+	ErrorResponse *err = NULL;
+	Query *query = read_query(test_data, &err);
+
+	// Standard checks
+	assert_null(query);
+	assert_non_null(err);
+
+	free_error_response(err);
+	free(test_data);
+}
+
 int main(void) {
 	const struct CMUnitTest tests[] = {
 		   cmocka_unit_test(test_valid_input),
 		   cmocka_unit_test(test_non_terminated_input),
-		   cmocka_unit_test(test_unexpectedly_terminated_input)
+		   cmocka_unit_test(test_unexpectedly_terminated_input),
+		   cmocka_unit_test(test_missing_query),
+		   cmocka_unit_test(test_invalid_type),
 	};
 	return cmocka_run_group_tests(tests, NULL, NULL);
 }

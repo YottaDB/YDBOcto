@@ -28,8 +28,6 @@ Query *read_query(BaseMessage *message, ErrorResponse **err) {
 	unsigned int length;
 	char *c, *message_end;
 
-	assert(message->type == PSQL_Query);
-
 	length = ntohl(message->length);
 	ret = (Query*)malloc(sizeof(Query) + length - sizeof(unsigned int));
 	ret->type = message->type;
@@ -38,11 +36,30 @@ Query *read_query(BaseMessage *message, ErrorResponse **err) {
 	c = ret->data;
 	message_end = c + length - sizeof(unsigned int);
 
-	// Ensure that there is a trailing null character
-	for(; c < message_end && *c != '\0'; c++) {
-		// Left blank
+	// Ensure that message has correct type
+	if(ret->type != PSQL_Query) {
+		*err = make_error_response(PSQL_Error_ERROR,
+					   PSQL_Code_Syntax_Error,
+					   "Query has incorrect type",
+					   0);
+		free(ret);
+		return NULL;
+	}
+	// Find end of query string
+	while(c < message_end && *c != '\0') {
+		c++;
 	}
 	if(c == message_end) {
+		// Ensure a query string is included
+		if(length == sizeof(unsigned int)) {
+			*err = make_error_response(PSQL_Error_ERROR,
+						   PSQL_Code_Syntax_Error,
+						   "Query missing query string",
+						   0);
+			free(ret);
+			return NULL;
+		}
+		// Ensure that there is a trailing null character
 		*err = make_error_response(PSQL_Error_ERROR,
 					   PSQL_Code_Syntax_Error,
 					   "No null terminating character on input",

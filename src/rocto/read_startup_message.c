@@ -28,7 +28,7 @@ StartupMessage *read_startup_message(RoctoSession *session, char *data, int data
 	int num_parms = 0, read = 0, cur_parm = 0;
 	char *c, *message_end;
 	// Length plus protocol version
-	unsigned int hard_coded_ints = sizeof(unsigned int) + sizeof(unsigned int);
+	unsigned int hard_coded_ints = sizeof(unsigned int) + sizeof(int);
 
 	// First read length and protocol type, then we will reallocate things
 	ret = (StartupMessage*)malloc(sizeof(StartupMessage));

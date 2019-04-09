@@ -29,13 +29,21 @@
 #include "message_formats.h"
 
 static void test_valid_input(void **state) {
-	BindComplete *response = make_bind_complete();
-	int expected_length = 4;
+	BindComplete *response;
+	BindComplete *received_response;
+	ErrorResponse *err = NULL;
+
+	int expected_length = sizeof(unsigned int);
+	response = make_bind_complete();
+	received_response = read_bind_complete((BaseMessage*)&response->type, &err);
+
 	// Standard checks
-	assert_non_null(response);
-	assert_int_equal(response->length, htonl(expected_length));
+	assert_null(err);
+	assert_non_null(received_response);
+	assert_int_equal(received_response->length, expected_length);
 
 	free(response);
+	free(received_response);
 }
 
 int main(void) {

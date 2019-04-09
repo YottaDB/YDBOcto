@@ -27,7 +27,6 @@ Parse *read_parse(BaseMessage *message, ErrorResponse **err) {
 	Parse *ret;
 	char *cur_pointer, *last_byte;
 	unsigned int remaining_length, i;
-
 	// Begin Parse initialization from message
 	remaining_length = ntohl(message->length);
 	ret = (Parse*)malloc(remaining_length + sizeof(Parse));
@@ -52,10 +51,10 @@ Parse *read_parse(BaseMessage *message, ErrorResponse **err) {
 	last_byte = cur_pointer + remaining_length;
 
 	// Ensure destination null terminated
-	while(*cur_pointer != '\0' && cur_pointer < last_byte) {
+	while(cur_pointer < last_byte && *cur_pointer != '\0') {
 		cur_pointer++;
 	}
-	if(*cur_pointer != '\0' || cur_pointer == last_byte) {
+	if(cur_pointer == last_byte || *cur_pointer != '\0') {
 		*err = make_error_response(PSQL_Error_ERROR,
 					   PSQL_Code_Protocol_Violation,
 					   "Parse destination missing null termination",
@@ -100,25 +99,21 @@ Parse *read_parse(BaseMessage *message, ErrorResponse **err) {
 	cur_pointer += sizeof(short);
 	// Ensure parameter data types in bounds
 	if(cur_pointer + sizeof(unsigned int) * ret->num_parms < last_byte) {
-		if(*cur_pointer != '\0' || cur_pointer == last_byte) {
-			*err = make_error_response(PSQL_Error_ERROR,
-					PSQL_Code_Protocol_Violation,
-					"Parse parameter data type list too long",
-					0);
-			free(ret);
-			return NULL;
-		}
+		*err = make_error_response(PSQL_Error_ERROR,
+				PSQL_Code_Protocol_Violation,
+				"Parse parameter data type list too long",
+				0);
+		free(ret);
+		return NULL;
 	}
 	// Ensure all parameter data types included
 	if(cur_pointer + sizeof(unsigned int) * ret->num_parms > last_byte) {
-		if(*cur_pointer != '\0' || cur_pointer == last_byte) {
-			*err = make_error_response(PSQL_Error_ERROR,
-					PSQL_Code_Protocol_Violation,
-					"Parse parameter data type list too short",
-					0);
-			free(ret);
-			return NULL;
-		}
+		*err = make_error_response(PSQL_Error_ERROR,
+				PSQL_Code_Protocol_Violation,
+				"Parse parameter data type list too short",
+				0);
+		free(ret);
+		return NULL;
 	}
 	// We could malloc a new array to store the values converted from network endian here,
 	//  but that makes cleanup a bit more messy. Given that there is no reason for a backend

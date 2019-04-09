@@ -29,46 +29,70 @@ Bind *read_bind(BaseMessage *message, ErrorResponse **err) {
 	unsigned int remaining_length;
 	int i = 0;
 
-	// We must be sure ALL bytes are initialized, otherwise we could have
-	//  unpredictability or leak private data to clients when we respond
+	// Initialize Bind struct
 	remaining_length = ntohl(message->length);
 	ret = (Bind*)malloc(remaining_length + sizeof(Bind));
-	memset(ret, 0, remaining_length + sizeof(Bind));
-	// Since the length does not include the type, we need one more byte to be copied
-	memcpy(&ret->type, message, remaining_length + 1);
-	// The data section doesn't include the length or format code
-	remaining_length -= 4;
+	memset(ret, 0, remaining_length + sizeof(Bind));	// prevent leaks
+	memcpy(&ret->type, message, remaining_length + 1);	// include type indicator (char)
+	remaining_length -= sizeof(unsigned int);		// exclude length from data section
+
+	// Ensure message has correct type
+	if(ret->type != PSQL_Bind) {
+		*err = make_error_response(PSQL_Error_ERROR,
+					   PSQL_Code_Protocol_Violation,
+					   "Bind has incorrect type: must be 'B'",
+					   0);
+		free(ret);
+		return NULL;
+	}
+
+	// Utility pointers
 	cur_pointer = ret->data;
 	last_byte = cur_pointer + remaining_length;
+	// Set destination
 	ret->dest = cur_pointer;
+	// Ensure destination has null terminator
 	while(*cur_pointer != '\0' && cur_pointer < last_byte)
 		cur_pointer++;
 	if(*cur_pointer != '\0' || cur_pointer == last_byte) {
 		*err = make_error_response(PSQL_Error_ERROR,
 					   PSQL_Code_Protocol_Violation,
-					   "bind destination missing null termination",
+					   "Bind destination missing null terminator",
 					   0);
 		free(ret);
 		return NULL;
 	}
 	cur_pointer++;
+	// Set source SQL message
 	ret->source = cur_pointer;
+	// Ensure source SQL message has null terminator
 	while(*cur_pointer != '\0' && cur_pointer < last_byte)
 		cur_pointer++;
 	if(*cur_pointer != '\0' || cur_pointer == last_byte) {
 		*err = make_error_response(PSQL_Error_ERROR,
 					   PSQL_Code_Protocol_Violation,
-					   "bind SQL missing null termination",
+					   "Bind SQL missing null terminator",
 					   0);
 		free(ret);
 		return NULL;
 	}
 	cur_pointer++;
+	// Set number of parameter format codes and ensure valid value
 	ret->num_parm_format_codes = ntohs(*((short int *)cur_pointer));
+	if (ret->num_parm_format_codes < 0) {
+		*err = make_error_response(PSQL_Error_ERROR,
+					   PSQL_Code_Protocol_Violation,
+					   "Bind has invalid number of parameter format codes",
+					   0);
+		free(ret);
+		return NULL;
+	}
 	cur_pointer += sizeof(short int);
+	// Set pointer to parameter format codes within data section
 	if(ret->num_parm_format_codes > 0)
 		ret->parm_format_codes = (void*)cur_pointer;
 	cur_pointer += ret->num_parm_format_codes * sizeof(short int);
+	// Ensure all parameter format codes present
 	if(cur_pointer > last_byte) {
 		*err = make_error_response(PSQL_Error_ERROR,
 					   PSQL_Code_Protocol_Violation,
@@ -77,8 +101,18 @@ Bind *read_bind(BaseMessage *message, ErrorResponse **err) {
 		free(ret);
 		return NULL;
 	}
+	// Set number of parameters and ensure valid value
 	ret->num_parms = ntohs(*((short int*)cur_pointer));
+	if (ret->num_parms < 0) {
+		*err = make_error_response(PSQL_Error_ERROR,
+					   PSQL_Code_Protocol_Violation,
+					   "Bind has invalid number of parameters",
+					   0);
+		free(ret);
+		return NULL;
+	}
 	cur_pointer += sizeof(short int);
+	// Ensure parameters are present
 	if(cur_pointer > last_byte) {
 		*err = make_error_response(PSQL_Error_ERROR,
 					   PSQL_Code_Protocol_Violation,
@@ -88,17 +122,15 @@ Bind *read_bind(BaseMessage *message, ErrorResponse **err) {
 		free(ret);
 		return NULL;
 	}
-	// We don't know how long each parameter is, so advance the
-	//  pointer by hand past each parameter, and record pointers to them so the handler knows
-	//  where they are
+	// Read parameters: length of each parameter is unknown in advance, so manually
+	// read each parameter and create pointer to its location in the data section
 	if(ret->num_parms > 0) {
 		ret->parms = (BindParm*)malloc(sizeof(BindParm) * ret->num_parms);
-		memset(ret->parms, 0, sizeof(BindParm) * ret->num_parms);
+		memset(ret->parms, 0, sizeof(BindParm) * ret->num_parms);	// prevent leaks
 		for(i = 0; i < ret->num_parms; i++) {
 			// This length does not include the length value; go past that too
-			ret->parms[i].value = cur_pointer + 4;
 			length_ptr = cur_pointer;
-			cur_pointer += 4;
+			cur_pointer += sizeof(unsigned int);
 			if(cur_pointer > last_byte) {
 				*err = make_error_response(PSQL_Error_ERROR,
 							   PSQL_Code_Protocol_Violation,
@@ -108,7 +140,8 @@ Bind *read_bind(BaseMessage *message, ErrorResponse **err) {
 				free(ret);
 				return NULL;
 			}
-			ret->parms[i].length = *((long int*)(length_ptr));
+			ret->parms[i].length = ntohl(*((long int*)(length_ptr)));
+			ret->parms[i].value = cur_pointer;
 			cur_pointer += ret->parms[i].length;
 			if(cur_pointer > last_byte) {
 				*err = make_error_response(PSQL_Error_ERROR,
@@ -121,7 +154,16 @@ Bind *read_bind(BaseMessage *message, ErrorResponse **err) {
 			}
 		}
 	}
+	// Set number of column format codes and ensure correct values
 	ret->num_result_col_format_codes = ntohs(*((short int*)cur_pointer));
+	if (ret->num_result_col_format_codes < 0) {
+		*err = make_error_response(PSQL_Error_ERROR,
+					   PSQL_Code_Protocol_Violation,
+					   "Bind has invalid number of column format codes",
+					   0);
+		free(ret);
+		return NULL;
+	}
 	cur_pointer += sizeof(short int);
 	if(ret->num_result_col_format_codes > 0) {
 		ret->result_col_format_codes = (void*)cur_pointer;

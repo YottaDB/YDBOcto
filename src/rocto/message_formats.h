@@ -80,8 +80,8 @@ typedef struct __attribute__((packed)) {
 //# BackendKeyData
 
 typedef struct __attribute__((packed)) {
-	void *value;
 	int length;
+	void *value;
 } BindParm;
 
 typedef struct __attribute__((packed)) {

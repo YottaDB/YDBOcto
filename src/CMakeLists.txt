@@ -185,7 +185,7 @@ add_library(librocto OBJECT
   rocto/get_plan_row_description.c
   rocto/handle_query_response.c
   #  rocto/read_authentication_md5_password.c
-  #  rocto/read_authentication_ok.c
+  rocto/read_authentication_ok.c
   rocto/read_bind_complete.c
   #  rocto/read_command_complete.c
   #  rocto/read_data_row.c

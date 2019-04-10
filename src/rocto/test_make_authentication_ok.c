@@ -29,17 +29,25 @@
 #include "message_formats.h"
 
 static void test_valid_input(void **state) {
-	AuthenticationOk *response = make_authentication_ok();
+	AuthenticationOk *response = NULL;
+	AuthenticationOk *received_response = NULL;
+	ErrorResponse *err = NULL;
 	int expected_type = 'R';
-	int expected_length = 8;
+	unsigned int expected_length = sizeof(unsigned int) + sizeof(int);
 	int expected_result = 0;
+
+	response = make_authentication_ok();
+	received_response = read_authentication_ok((BaseMessage*)response, &err);
+
 	// Standard checks
-	assert_non_null(response);
-	assert_int_equal(response->type, expected_type);
-	assert_int_equal(response->length, htonl(expected_length));
-	assert_int_equal(response->result, htonl(expected_result));
+	assert_non_null(received_response);
+	assert_null(err);
+	assert_int_equal(received_response->type, expected_type);
+	assert_int_equal(received_response->length, htonl(expected_length));
+	assert_int_equal(received_response->result, htonl(expected_result));
 
 	free(response);
+	free(received_response);
 }
 
 int main(void) {

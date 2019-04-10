@@ -31,6 +31,8 @@ int handle_execute(Execute *execute, RoctoSession *session) {
 	// This is not super great because it means one could have a SQLI attack
 	CommandComplete *response;
 	QueryResponseParms parms;
+	NoData *no_data;
+	EmptyQueryResponse *empty;
 	ydb_buffer_t subs_array[3];
 	ydb_buffer_t session_global, sql_expression, *source_name = &subs_array[2], *prepared = &subs_array[1], *source_session_id = &subs_array[0];
 	ydb_buffer_t z_status, z_status_value;
@@ -76,9 +78,9 @@ int handle_execute(Execute *execute, RoctoSession *session) {
 		return 0;
 	}
 	memcpy(input_buffer_combined, sql_expression.buf_addr, query_length);
-	if(input_buffer_combined[query_length-1] != ';' ) {
+	/*if(input_buffer_combined[query_length-1] != ';' ) {
 		input_buffer_combined[query_length++] = ';';
-	}
+	}*/
 	eof_hit = FALSE;
 	input_buffer_combined[query_length] = '\0';
 	cur_input_index = 0;
@@ -87,6 +89,7 @@ int handle_execute(Execute *execute, RoctoSession *session) {
 	err_buffer = open_memstream(&err_buff, &err_buff_size);
 
 	do {
+		parms.data_sent = FALSE;
 		run_query_result = run_query(input_buffer_combined, &handle_query_response, (void*)&parms);
 		if(run_query_result == FALSE && !eof_hit) {
 			fflush(err_buffer);
@@ -99,6 +102,11 @@ int handle_execute(Execute *execute, RoctoSession *session) {
 			free_error_response(err);
 			free(err_buff);
 			err_buffer = open_memstream(&err_buff, &err_buff_size);
+		}
+		if(!parms.data_sent) {
+			empty = make_empty_query_response();
+			send_message(session, (BaseMessage*)(&empty->type));
+			free(empty);
 		}
 	} while(!eof_hit);
 

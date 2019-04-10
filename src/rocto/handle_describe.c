@@ -48,6 +48,7 @@ int handle_describe(Describe *describe, RoctoSession *session) {
 	SqlSetStatement *set_stmt;
 	SqlShowStatement *show_stmt;
 	SqlValue *val1, *val2;
+	NoData *no_data;
 
 	// zstatus buffers
 	YDB_LITERAL_TO_BUFFER("$ZSTATUS", &z_status);
@@ -69,8 +70,7 @@ int handle_describe(Describe *describe, RoctoSession *session) {
 	status = ydb_data_s(&session_global, 3, subs_array, &found);
 	YDB_ERROR_CHECK(status, &z_status, &z_status_value);
 	if(found == 0) {
-		// TODO: return error here
-		// Not found, return error
+		/// TODO: return error here
 	}
 
 	status = ydb_get_s(&session_global, 3, subs_array, &sql_expression);
@@ -78,9 +78,9 @@ int handle_describe(Describe *describe, RoctoSession *session) {
 
 	query_length = sql_expression.len_used;
 	memcpy(input_buffer_combined, sql_expression.buf_addr, query_length);
-	if(input_buffer_combined[query_length-1] != ';' ) {
+	/*if(input_buffer_combined[query_length-1] != ';' ) {
 		input_buffer_combined[query_length++] = ';';
-	}
+	}*/
 	eof_hit = FALSE;
 	input_buffer_combined[query_length] = '\0';
 	cur_input_index = 0;
@@ -88,6 +88,7 @@ int handle_describe(Describe *describe, RoctoSession *session) {
 	//err_buffer = stderr;
 	err_buffer = open_memstream(&err_buff, &err_buff_size);
 	do {
+		memory_chunks = alloc_chunk(MEMORY_CHUNK_SIZE);
 		statement = parse_line(input_buffer_combined);
 		if(statement == NULL) {
 			fflush(err_buffer);
@@ -100,6 +101,7 @@ int handle_describe(Describe *describe, RoctoSession *session) {
 			free_error_response(err);
 			free(err_buff);
 			err_buffer = open_memstream(&err_buff, &err_buff_size);
+			octo_cfree(memory_chunks);
 			continue;
 		}
 		// Else, send back the row description
@@ -125,11 +127,17 @@ int handle_describe(Describe *describe, RoctoSession *session) {
 				send_message(session, (BaseMessage*)(&description->type));
 				free(description);
 				break;
+			case no_data_STATEMENT:
+				no_data = make_no_data();
+				send_message(session, (BaseMessage*)(&no_data->type));
+				free(no_data);
+				break;
 			default:
 				description = make_row_description(NULL, 0);
 				send_message(session, (BaseMessage*)(&description->type));
 				free(description);
 		}
+		octo_cfree(memory_chunks);
 	} while(!eof_hit);
 
 	return 0;

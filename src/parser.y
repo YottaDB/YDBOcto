@@ -126,6 +126,7 @@ extern void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, int *plan
 %token SUM
 %token TABLE
 %token THEN
+%token TO
 %token TRUE_TOKEN
 %token UNION
 %token UNIQUE
@@ -179,7 +180,11 @@ sql_statement
     }
   | error semicolon_or_eof { *out = NULL; YYABORT; }
   | sql_set_statement semicolon_or_eof { *out = $1; YYACCEPT; }
-  | ENDOFFILE { eof_hit = TRUE; YYACCEPT; }
+  | semicolon_or_eof {
+      SQL_STATEMENT(*out, no_data_STATEMENT);
+      eof_hit = TRUE;
+      YYACCEPT;
+    }
   ;
 
 semicolon_or_eof

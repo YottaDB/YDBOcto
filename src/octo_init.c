@@ -31,7 +31,7 @@
 #include "octo_types.h"
 
 // Read binary file with default config settings
-#include "aux_octo_conf.h"
+#include "default_octo_conf.h"
 
 void merge_config_file_helper(config_setting_t *a, config_setting_t *b);
 
@@ -66,7 +66,7 @@ void merge_config_file_helper(config_setting_t *a, config_setting_t *b) {
 	config_setting_t *t_setting, *b_setting, *a_setting;
 	char *setting_name;
 	int setting_type;
-	int a_index, b_index;
+	int b_index;
 	b_index = 0;
 	while(TRUE) {
 		b_setting = config_setting_get_elem(b, b_index);
@@ -174,7 +174,7 @@ int octo_init(int argc, char **argv, int scan_tables) {
 	config_t *config_file;
 	config_setting_t *ydb_settings, *cur_ydb_setting, *setting, *config_root, *cur_root;
 	const char *item_name, *item_value;
-	char *global_dir, *initial_octo_conf, buff[MAX_STR_CONST];
+	char *global_dir, *default_octo_conf, buff[MAX_STR_CONST];
 	char *home;
 	DIR *dir;
 
@@ -196,24 +196,26 @@ int octo_init(int argc, char **argv, int scan_tables) {
 	// Search for the config file in /etc/octo.conf, ~/.octo.conf, and ./.octo.conf
 	config_init(config_file);
 
-	initial_octo_conf = malloc(aux_octo_conf_len + 1);
-	memcpy(initial_octo_conf, aux_octo_conf, aux_octo_conf_len);
-	initial_octo_conf[aux_octo_conf_len] = '\0';
+	default_octo_conf = malloc(octo_conf_default_len + 1);
+	memcpy(default_octo_conf, octo_conf_default, octo_conf_default_len);
+	default_octo_conf[octo_conf_default_len] = '\0';
 
-	config_read_string(config_file, initial_octo_conf);
+	config_read_string(config_file, default_octo_conf);
 
 	// Load config file
 	if(config->config_file_name == NULL) {
 		merge_config_file("/etc/octo.conf", config_file);
 		home = getenv("HOME");
+		if(home != NULL) {
 		c = snprintf(buff, MAX_STR_CONST, "%s/.octo.conf", home);
 		buff[c] = '\0';
 		merge_config_file(buff, config_file);
+		}
 		merge_config_file(".octo.conf", config_file);
 	} else {
 		merge_config_file(config->config_file_name, config_file);
 	}
-	free(initial_octo_conf);
+	free(default_octo_conf);
 
 	if(config_lookup_string(config_file, "verbosity", &verbosity) == CONFIG_TRUE) {
 		if(strcmp(verbosity, "TRACE") == 0) {

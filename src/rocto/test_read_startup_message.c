@@ -37,6 +37,39 @@ int __wrap_read_bytes(RoctoSession *session, char *buffer, int buffer_size, int 
 	return 0;
 }
 
+static void test_valid_input_no_parms(void **state) {
+	// Test a single startup message
+	unsigned int message_length = 0;
+	message_length += sizeof(unsigned int);
+	unsigned int protocol_version = 0x00030000;		// version 3.0
+	message_length += sizeof(unsigned int);
+	message_length += 1;		// count parameter list terminator
+	ErrorResponse *err = NULL;
+
+	// Length + extra stuff - already counted (length, protocol version)
+	StartupMessage *test_data = (StartupMessage*)malloc(
+			message_length + sizeof(StartupMessage) - sizeof(unsigned int) - sizeof(unsigned int));
+	test_data->length = htonl(message_length);
+	test_data->protocol_version = htonl(protocol_version);
+	*test_data->data = '\0';
+
+	// mock read_bytes from socket
+	will_return(__wrap_read_bytes, message_length - sizeof(unsigned int) - sizeof(unsigned int));
+	will_return(__wrap_read_bytes, "");
+
+	// The actual test
+	StartupMessage *startup = read_startup_message(NULL, (char*)(&test_data->length), message_length, &err);
+
+	// Standard checks
+	assert_non_null(startup);
+	assert_null(err);
+	assert_int_equal(0, startup->num_parameters);
+
+	free(test_data);
+	free(startup->parameters);
+	free(startup);
+}
+
 static void test_valid_input_one_parm(void **state) {
 	// Test a single startup message
 	unsigned int message_length = 0;
@@ -137,6 +170,119 @@ static void test_valid_input_multi_parm(void **state) {
 	free(startup->parameters);
 	free(startup);
 }
+
+static void test_no_parms_without_null(void **state) {
+	// Test a single startup message
+	unsigned int message_length = 0;
+	message_length += sizeof(unsigned int);
+	unsigned int protocol_version = 0x00030000;		// version 3.0
+	message_length += sizeof(unsigned int);
+	ErrorResponse *err = NULL;
+
+	// Length + extra stuff - already counted (length, protocol version)
+	StartupMessage *test_data = (StartupMessage*)malloc(
+			message_length + sizeof(StartupMessage) - sizeof(unsigned int) - sizeof(unsigned int));
+	test_data->length = htonl(message_length);
+	test_data->protocol_version = htonl(protocol_version);
+
+	// The actual test
+	StartupMessage *startup = read_startup_message(NULL, (char*)(&test_data->length), message_length, &err);
+
+	// Standard checks
+	assert_non_null(err);
+	assert_null(startup);
+
+	free_error_response(err);
+	free(test_data);
+}
+
+static void test_one_parm_without_null(void **state) {
+	// Test a single startup message
+	unsigned int message_length = 0;
+	message_length += sizeof(unsigned int);
+	unsigned int protocol_version = 0x00030000;		// version 3.0
+	message_length += sizeof(unsigned int);
+	char *parm1_name = "user";
+	message_length += strlen(parm1_name) + 1;	// count null
+	char *parm1_value = "charles";
+	message_length += strlen(parm1_value) + 1;	// count null
+	char *c;
+	ErrorResponse *err = NULL;
+
+	// Length + extra stuff - already counted (length, protocol version)
+	StartupMessage *test_data = (StartupMessage*)malloc(
+			message_length + sizeof(StartupMessage) - sizeof(unsigned int) - sizeof(unsigned int));
+	test_data->length = htonl(message_length);
+	test_data->protocol_version = htonl(protocol_version);
+
+	// Copy parms into message
+	c = test_data->data;
+	memcpy(c, parm1_name, strlen(parm1_name) + 1);		// copy null
+	c += strlen(parm1_name) + 1;
+	memcpy(c, parm1_value, strlen(parm1_value) + 1);	// copy null
+
+	// mock read_bytes from socket
+	will_return(__wrap_read_bytes, message_length - sizeof(unsigned int) - sizeof(unsigned int));
+	will_return(__wrap_read_bytes, test_data->data);
+
+	// The actual test
+	StartupMessage *startup = read_startup_message(NULL, (char*)(&test_data->length), message_length, &err);
+
+	// Standard checks
+	assert_non_null(err);
+	assert_null(startup);
+
+	free(test_data);
+	free_error_response(err);
+}
+
+static void test_multi_parm_without_null(void **state) {
+	// Test a single startup message
+	unsigned int message_length = 0;
+	message_length += sizeof(unsigned int);
+	unsigned int protocol_version = 0x00030000;		// version 3.0
+	message_length += sizeof(unsigned int);
+	char *parm1_name = "user";
+	message_length += strlen(parm1_name) + 1;	// count null
+	char *parm1_value = "charles";
+	message_length += strlen(parm1_value) + 1;	// count null
+	char *parm2_name = "user";
+	message_length += strlen(parm2_name) + 1;	// count null
+	char *parm2_value = "jon";
+	message_length += strlen(parm2_value) + 1;	// count null
+	char *c;
+	ErrorResponse *err = NULL;
+
+	// Length + extra stuff - already counted (length, protocol version)
+	StartupMessage *test_data = (StartupMessage*)malloc(message_length + sizeof(StartupMessage) - 2 * sizeof(unsigned int));
+	test_data->length = htonl(message_length);
+	test_data->protocol_version = htonl(protocol_version);
+
+	// Copy parms into message
+	c = test_data->data;
+	memcpy(c, parm1_name, strlen(parm1_name) + 1);		// copy null
+	c += strlen(parm1_name) + 1;
+	memcpy(c, parm1_value, strlen(parm1_value) + 1);	// copy null
+	c += strlen(parm1_value) + 1;
+	memcpy(c, parm2_name, strlen(parm2_name) + 1);		// copy null
+	c += strlen(parm2_name) + 1;
+	memcpy(c, parm2_value, strlen(parm2_value) + 1);	// copy null
+
+	// mock read_bytes from socket
+	will_return(__wrap_read_bytes, message_length - 2 * sizeof(unsigned int));
+	will_return(__wrap_read_bytes, test_data->data);
+
+	// The actual test
+	StartupMessage *startup = read_startup_message(NULL, (char*)(&test_data->length), message_length, &err);
+
+	// Standard checks
+	assert_non_null(err);
+	assert_null(startup);
+
+	free(test_data);
+	free_error_response(err);
+}
+
 
 static void test_wrong_version(void **state) {
 	// Test a single startup message
@@ -470,16 +616,20 @@ static void test_missing_parm_value(void **state) {
 
 int main(void) {
 	const struct CMUnitTest tests[] = {
-		   cmocka_unit_test(test_valid_input_one_parm),
-		   cmocka_unit_test(test_valid_input_multi_parm),
-		   cmocka_unit_test(test_wrong_version),
-		   cmocka_unit_test(test_missing_version),
-		   cmocka_unit_test(test_non_terminated_name),
-		   cmocka_unit_test(test_non_terminated_value),
-		   cmocka_unit_test(test_unexpectedly_terminated_name),
-		   cmocka_unit_test(test_unexpectedly_terminated_value),
-		   cmocka_unit_test(test_missing_parm_name),
-		   cmocka_unit_test(test_missing_parm_value),
+			cmocka_unit_test(test_valid_input_no_parms),
+			cmocka_unit_test(test_valid_input_one_parm),
+			cmocka_unit_test(test_valid_input_multi_parm),
+			cmocka_unit_test(test_no_parms_without_null),
+			cmocka_unit_test(test_one_parm_without_null),
+			cmocka_unit_test(test_multi_parm_without_null),
+			cmocka_unit_test(test_wrong_version),
+			cmocka_unit_test(test_missing_version),
+			cmocka_unit_test(test_non_terminated_name),
+			cmocka_unit_test(test_non_terminated_value),
+			cmocka_unit_test(test_unexpectedly_terminated_name),
+			cmocka_unit_test(test_unexpectedly_terminated_value),
+			cmocka_unit_test(test_missing_parm_name),
+			cmocka_unit_test(test_missing_parm_value),
 	};
 	return cmocka_run_group_tests(tests, NULL, NULL);
 }

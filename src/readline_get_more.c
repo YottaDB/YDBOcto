@@ -73,7 +73,7 @@ int readline_get_more() {
 		cur_input_index = 0;
 		data_read = read(fileno(inputFile), input_buffer_combined, cur_input_max);
 		if(data_read == -1) {
-			FATAL(ERR_SYSCALL, "read", errno);
+			FATAL(ERR_SYSCALL, "read", errno, strerror(errno));
 		}
 		input_buffer_combined[data_read] = '\0';
 		return data_read;

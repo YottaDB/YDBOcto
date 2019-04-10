@@ -67,27 +67,27 @@ int main(int argc, char **argv) {
 
 	if((sfd = socket(address->sin_family, SOCK_STREAM, 0)) == -1)
 	{
-		FATAL(ERR_SYSCALL, "socket", errno);
+		FATAL(ERR_SYSCALL, "socket", errno, strerror(errno));
 	}
 
 	opt = 0;
 	if(setsockopt(sfd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &opt, sizeof(opt)) == -1) {
-		FATAL(ERR_SYSCALL, "setsockopt", errno);
+		FATAL(ERR_SYSCALL, "setsockopt", errno, strerror(errno));
 	}
 
 
 
 	if(bind(sfd, (struct sockaddr *)&addressv6, sizeof(addressv6)) < 0) {
-		FATAL(ERR_SYSCALL, "bind", errno);
+		FATAL(ERR_SYSCALL, "bind", errno, strerror(errno));
 	}
 
 
 	while (TRUE) {
 		if(listen(sfd, 3) < 0) {
-			FATAL(ERR_SYSCALL, "listen", errno);
+			FATAL(ERR_SYSCALL, "listen", errno, strerror(errno));
 		}
 		if((cfd = accept(sfd, (struct sockaddr *)&address, &addrlen)) < 0) {
-			FATAL(ERR_SYSCALL, "accept", errno);
+			FATAL(ERR_SYSCALL, "accept", errno, strerror(errno));
 		}
 		child_id = fork();
 		if(child_id != 0)
@@ -129,7 +129,6 @@ int main(int argc, char **argv) {
 		INIT_YDB_BUFFER(&z_status_value, MAX_STR_CONST);
 		YDB_STRING_TO_BUFFER(config->global_names.session, global_buffer);
 		INIT_YDB_BUFFER(session_id_buffer, MAX_STR_CONST);
-		printf("session length: %d\n", global_buffer->len_used);
 		status = ydb_incr_s(global_buffer, 0, NULL, NULL, session_id_buffer);
 		YDB_ERROR_CHECK(status, &z_status, &z_status_value);
 		session.session_id = session_id_buffer;

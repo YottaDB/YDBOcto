@@ -46,7 +46,7 @@ int read_bytes(RoctoSession *session, char *buffer, int buffer_size, int bytes_t
 		if(read_now < 0) {
 			if(errno == EINTR)
 				continue;
-			WARNING(ERR_SYSCALL, "read", errno);
+			WARNING(ERR_SYSCALL, "read", errno, strerror(errno));
 			return 1;
 		} else if(read_now == 0) {
 			// This means the socket was cleanly closed

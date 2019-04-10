@@ -13,8 +13,3 @@ YDBDBMS Grammar Documentation
    grammar
    rocto
    config
-
-Indices and tables
-==================
-
-* :ref:`search`

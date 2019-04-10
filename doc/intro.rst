@@ -23,7 +23,7 @@ ydb_dist specifies the path to the directory containing the YottaDB system distr
 i.e.
 
 .. parsed-literal::
-   source /usr/local/lib/yottadb/r122/ydb_env_set
+   source /usr/local/lib/yottadb/r124/ydb_env_set
 
 Obtain Octo from our `repository on GitLab <https://gitlab.com/YottaDB/DBMS/YDBOcto>`_.
 
@@ -43,12 +43,16 @@ Compile Octo using the following steps:
    cd build
    cmake ..
    make
+
+To test your build, you can run:
+
+.. parsed-literal::
    make test
 
 Launch Octo (without options) with the following command:
 
 .. parsed-literal::
-   octo@test:~$ octo
+   octo@test:~$ ./src/octo
    OCTO>
 
 The terminal will return with the OCTO> command prompt.
@@ -102,11 +106,29 @@ Example:
 .. parsed-literal::
    octo --verbose=4
 
+Example:
+
+.. parsed-literal::
+   OCTO> YDBOcto-master/build $ ./src/octo -vvv
+   [TRACE] YDBOcto-master/src/octo.c:50 2019-04-10 10:17:57 : Octo started
+   [ INFO] YDBOcto-master/src/run_query.c:79 2019-04-10 10:17:57 : Generating SQL for cursor 45
+   [ INFO] YDBOcto-master/src/run_query.c:81 2019-04-10 10:17:57 : Parsing SQL command 
+   Starting parse
+   Entering state 0
+   Reading a token: OCTO> Next token is token ENDOFFILE (: )
+   Shifting token ENDOFFILE (: )
+   Entering state 15
+   Reducing stack by rule 8 (line 182):
+      $1 = token ENDOFFILE (: )
+   Stack now 0
+   [ INFO] YDBOcto-master/src/run_query.c:83 2019-04-10 10:18:00 : Done!
+   [ INFO] YDBOcto-master/src/run_query.c:89 2019-04-10 10:18:00 : Returning failure from run_query
+
 ~~~~~~~~
 Dry-run
 ~~~~~~~~
 
-The dry-run option runs the parser, and performs checks and verifications on data types and syntax, but does not execute the SQL statements i.e the database is not altered when Octo is run with the --dry-run option.
+The dry-run option runs the parser, and performs checks and verifications on data types and syntax, but does not execute the SQL statements. The database is not altered when Octo is run with the --dry-run option.
 
 .. parsed-literal::
    --dry-run

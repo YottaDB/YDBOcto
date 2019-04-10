@@ -6,11 +6,11 @@ DBMS Grammar
 .. contents::
    :depth: 4
 
-A statement in SQL is either a schema statement, a data statement or a SELECT statement.
+A SQL statement can be a Schema statement, a Data statement, or a SELECT statement.
 
-A schema statement creates and manipulates a unique schema within the database.
+A Schema statement creates and manipulates a unique schema within the database.
 
-A data statement is any statement that makes a change to the data in the database. Changes to data can be brought about by deleting data, inserting new data or updating existing data.
+A Data statement is any statement that makes a change to the data in the database. Changes to data can be brought about by deleting data, inserting new data or updating existing data.
 
 A SELECT statement is used to select and view data from the database.
 
@@ -215,10 +215,12 @@ Example:
 INSERT
 --------------
 
+*(Currently not supported.)*
+
 .. parsed-literal::
    INSERT INTO table_name ( column name [, column name ...]) [ VALUES ... | (SELECT ...)];
 
-The INSERT statement allows you to insert values into a particular column. These can either be default values or values specified by the query expression i.e. the result of a SELECT statement.
+The INSERT statement allows you to insert values into a table. These can either be provided values or values specified as a result of a SELECT statement.
 
 Example:
 
@@ -229,10 +231,12 @@ Example:
 UPDATE
 --------------
 
+*(Currently not supported.)*
+
 .. parsed-literal::
    UPDATE table_name SET object_column EQUALS update_source [WHERE search_condition];
 
-The UPDATE statement begins with the keyword UPDATE. The table_name to be updated and the keyword SET is followed by a list of comma-separated statements that are used to update the existing columns, where object_column is a particular column and update_source is set to either NULL or a specific value expression. The optional WHERE condition allows you to update columns based on a certain condition you specify.
+The UPDATE statement begins with the keyword UPDATE. The table_name to be updated and the keyword SET is followed by a list of comma-separated statements that are used to update existing columns, where object_column is a particular column and update_source is set to either NULL or a specific value expression. The optional WHERE condition allows you to update columns based on a certain condition you specify.
 
 Example:
 
@@ -408,7 +412,6 @@ Similarly, an extrinsic (user-defined) function $$AGE can be added to Octo using
 .. parsed-literal::
    YDB> set ^%ydboctoocto("functions","AGE")="$$AGE"
 
-
 -------------------------
 Considerations
 -------------------------
@@ -430,7 +433,6 @@ and
    SELECT * FROM names WHERE firstName = "";
 
 return the same results.
-
 
 ---------------------
 Technical Notes

@@ -1,0 +1,16 @@
+load test_helpers
+
+setup() {
+  init_test
+  createdb
+  load_fixture names.sql
+  load_fixture names.zwr
+}
+
+@test "invalid Octo GLD" {
+  echo "octo_global_directory = \"does_not_exist.gld\"" > .octo.conf
+  run octo <<OCTO
+SELECT * FROM names WHERE lastName = "Cool";
+OCTO
+  [[ "$output" =~ "ZGBLDIRACC" ]]
+}

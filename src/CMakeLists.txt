@@ -34,6 +34,7 @@ add_custom_command(OUTPUT ${PROJECT_BINARY_DIR}/parser.y
   COMMAND awk -v path=${PROJECT_SOURCE_DIR}/src/
     -f ${PROJECT_SOURCE_DIR}/tools/combine-grammar.awk
     ${PROJECT_SOURCE_DIR}/src/parser.y > ${PROJECT_BINARY_DIR}/parser.y
+  COMMENT "Combining grammar files"
 )
 
 BISON_TARGET(OctoParser ${PROJECT_BINARY_DIR}/parser.y
@@ -59,7 +60,17 @@ add_library(libhelpers OBJECT
   helpers/make_buffers.c
 )
 
+# Load the default config from src/aux/octo.conf
+ADD_CUSTOM_COMMAND(
+  OUTPUT aux_octo_conf.h
+  DEPENDS "${PROJECT_SOURCE_DIR}/src/aux/octo.conf"
+  COMMAND xxd -i "aux/octo.conf" "${PROJECT_BINARY_DIR}/aux_octo_conf.h"
+  WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}/src"
+  COMMENT "Converting octo_conf.c to binary form for defaults"
+)
+
 add_library(libocto OBJECT
+  aux_octo_conf.h
   yyerror.c
   yywrap.c
   errors.c
@@ -141,6 +152,7 @@ add_executable(octo
 )
 
 add_library(librocto OBJECT
+  aux_octo_conf.h
   rocto/read_bind.c
   rocto/read_startup_message.c
   rocto/read_query.c
@@ -164,6 +176,7 @@ add_library(librocto OBJECT
   rocto/make_authentication_ok.c
   rocto/make_parse_complete.c
   rocto/make_parameter_status.c
+  rocto/make_no_data.c
   rocto/send_message.c
   rocto/read_message.c
   rocto/read_bytes.c
@@ -181,6 +194,7 @@ add_executable(rocto
 )
 
 add_executable(pparser
+  aux_octo_conf.h
   physical/pparser.c
   errors.c
   #octo_init.c

@@ -51,10 +51,10 @@ Parse *read_parse(BaseMessage *message, ErrorResponse **err) {
 	last_byte = cur_pointer + remaining_length;
 
 	// Ensure destination null terminated
-	while(cur_pointer < last_byte && *cur_pointer != '\0') {
+	while(cur_pointer < last_byte && '\0' != *cur_pointer) {
 		cur_pointer++;
 	}
-	if(cur_pointer == last_byte || *cur_pointer != '\0') {
+	if(cur_pointer == last_byte || '\0' != *cur_pointer) {
 		*err = make_error_response(PSQL_Error_ERROR,
 					   PSQL_Code_Protocol_Violation,
 					   "Parse destination missing null termination",
@@ -74,10 +74,10 @@ Parse *read_parse(BaseMessage *message, ErrorResponse **err) {
 	cur_pointer++;
 	ret->query = cur_pointer;
 	// Ensure query null terminated
-	while(*cur_pointer != '\0' && cur_pointer < last_byte) {
+	while('\0' != *cur_pointer && cur_pointer < last_byte) {
 		cur_pointer++;
 	}
-	if(*cur_pointer != '\0' || cur_pointer == last_byte) {
+	if('\0' != *cur_pointer || cur_pointer == last_byte) {
 		*err = make_error_response(PSQL_Error_ERROR,
 					   PSQL_Code_Protocol_Violation,
 					   "Parse query missing null termination",

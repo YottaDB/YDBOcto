@@ -145,7 +145,7 @@ static void test_missing_rows_field(void **state) {
 	assert_null(execute);
 
 	free(test_data);
-	free(execute);
+	free_error_response(err);
 }
 
 static void test_invalid_type(void **state) {

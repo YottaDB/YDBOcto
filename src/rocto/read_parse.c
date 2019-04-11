@@ -27,36 +27,69 @@ Parse *read_parse(BaseMessage *message, ErrorResponse **err) {
 	Parse *ret;
 	char *cur_pointer, *last_byte;
 	unsigned int remaining_length, i;
-
+	// Begin Parse initialization from message
 	remaining_length = ntohl(message->length);
 	ret = (Parse*)malloc(remaining_length + sizeof(Parse));
 	memset(ret, 0, remaining_length + sizeof(Parse));
 	memcpy(&ret->type, message, remaining_length + 1);
+
+	// Ensure correct message type
+	if(ret->type != PSQL_Parse) {
+		*err = make_error_response(PSQL_Error_ERROR,
+					   PSQL_Code_Protocol_Violation,
+					   "Parse has incorrect message type",
+					   0);
+		free(ret);
+		return NULL;
+	}
+
+	// Continue initialization
 	remaining_length -= 4;
+	ret->dest = ret->data;
+	// Utility pointers
 	cur_pointer = ret->data;
 	last_byte = cur_pointer + remaining_length;
 
-	ret->dest = cur_pointer;
-	while(*cur_pointer != '\0' && cur_pointer < last_byte) {
+	// Ensure destination null terminated
+	while(cur_pointer < last_byte && '\0' != *cur_pointer) {
 		cur_pointer++;
 	}
-	if(*cur_pointer != '\0' || cur_pointer == last_byte) {
+	if(cur_pointer == last_byte || '\0' != *cur_pointer) {
 		*err = make_error_response(PSQL_Error_ERROR,
 					   PSQL_Code_Protocol_Violation,
-					   "parse destination missing null termination",
+					   "Parse destination missing null termination",
+					   0);
+		free(ret);
+		return NULL;
+	}
+	// Ensure both dest and query fields included
+	if(cur_pointer + 1 == last_byte) {
+		*err = make_error_response(PSQL_Error_ERROR,
+					   PSQL_Code_Protocol_Violation,
+					   "Parse missing destination or query field",
 					   0);
 		free(ret);
 		return NULL;
 	}
 	cur_pointer++;
 	ret->query = cur_pointer;
-	while(*cur_pointer != '\0' && cur_pointer < last_byte) {
+	// Ensure query null terminated
+	while('\0' != *cur_pointer && cur_pointer < last_byte) {
 		cur_pointer++;
 	}
-	if(*cur_pointer != '\0' || cur_pointer == last_byte) {
+	if('\0' != *cur_pointer || cur_pointer == last_byte) {
 		*err = make_error_response(PSQL_Error_ERROR,
 					   PSQL_Code_Protocol_Violation,
-					   "parse query missing null termination",
+					   "Parse query missing null termination",
+					   0);
+		free(ret);
+		return NULL;
+	}
+	// Ensure number of parameters included
+	if(cur_pointer + 1 == last_byte) {
+		*err = make_error_response(PSQL_Error_ERROR,
+					   PSQL_Code_Protocol_Violation,
+					   "Parse number of parameters missing",
 					   0);
 		free(ret);
 		return NULL;
@@ -64,15 +97,23 @@ Parse *read_parse(BaseMessage *message, ErrorResponse **err) {
 	cur_pointer++;
 	ret->num_parms = ntohs(*((short *)(cur_pointer)));
 	cur_pointer += sizeof(short);
+	// Ensure parameter data types in bounds
+	if(cur_pointer + sizeof(unsigned int) * ret->num_parms < last_byte) {
+		*err = make_error_response(PSQL_Error_ERROR,
+				PSQL_Code_Protocol_Violation,
+				"Parse parameter data type list too long",
+				0);
+		free(ret);
+		return NULL;
+	}
+	// Ensure all parameter data types included
 	if(cur_pointer + sizeof(unsigned int) * ret->num_parms > last_byte) {
-		if(*cur_pointer != '\0' || cur_pointer == last_byte) {
-			*err = make_error_response(PSQL_Error_ERROR,
-					PSQL_Code_Protocol_Violation,
-					"parse parms too long",
-					0);
-			free(ret);
-			return NULL;
-		}
+		*err = make_error_response(PSQL_Error_ERROR,
+				PSQL_Code_Protocol_Violation,
+				"Parse parameter data type list too short",
+				0);
+		free(ret);
+		return NULL;
 	}
 	// We could malloc a new array to store the values converted from network endian here,
 	//  but that makes cleanup a bit more messy. Given that there is no reason for a backend

@@ -74,6 +74,7 @@ add_library(libocto OBJECT
   yyerror.c
   yywrap.c
   errors.c
+  format_error_string.c
   parse_line.c
   emit_create_table.c
   emit_select_statement.c

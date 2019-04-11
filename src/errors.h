@@ -16,6 +16,10 @@
 #ifndef ERRORS_H
 #define ERRORS_H
 
+#ifndef CONSTANTS_H
+#include "constants.h"
+#endif
+
 #include <stdarg.h>
 
 #define TRUE 1
@@ -46,7 +50,14 @@ static const char *err_format_str[] = {
 #undef ERROR_DEF
 #undef ERROR_END
 
+typedef struct ErrorBuffer {
+	char buffer[MAX_STR_CONST];
+	int offset;
+} ErrorBuffer;
+
 void octo_log(int line, char *file, enum ERROR_LEVEL level, enum ERROR error, ...);
+
+const char *format_error_string(struct ErrorBuffer *err_buff, enum ERROR error, ...);
 
 #define YDB_ERROR_CHECK(status, z_status, msg) do {   \
 	if(YDB_OK != status) {                              \

@@ -24,7 +24,7 @@
 
 #include "message_formats.h"
 
-ErrorResponse *make_error_response(PSQL_ErrorSeverity severity, PSQL_SQLSTATECode code, char *message, size_t num_args, ...) {
+ErrorResponse *make_error_response(PSQL_ErrorSeverity severity, PSQL_SQLSTATECode code, const char *message, size_t num_args, ...) {
 	unsigned int new_length;
 	int i, cur_arg;
 	va_list args;

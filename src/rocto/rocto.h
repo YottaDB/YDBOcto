@@ -87,4 +87,17 @@ int no_more();
  */
 RowDescription *get_plan_row_description(PhysicalPlan *plan);
 
+// Read functions to simulate client reception of the various make_* response messages. Used for testing.
+// AuthenticationMD5Password *read_authentication_md5_password(BaseMessage *message, ErrorResponse **err);
+// AuthenticationOk *read_authentication_ok(BaseMessage *message, ErrorResponse **err);
+BindComplete *read_bind_complete(BaseMessage *message, ErrorResponse **err);
+// CommandComplete *read_command_complete(BaseMessage *message, ErrorResponse **err);
+// DataRow *read_data_row(BaseMessage *message, ErrorResponse **err);
+// EmptyQueryResponse *read_empty_query_response(BaseMessage *message, ErrorResponse **err);
+// ErrorResponse *read_error_response(BaseMessage *message, ErrorResponse **err);
+// ParameterStatus *read_parameter_status(BaseMessage *message, ErrorResponse **err);
+// ParseComplete *read_parse_complete(BaseMessage *message, ErrorResponse **err);
+// ReadyForQuery *read_ready_for_query(BaseMessage *message, ErrorResponse **err);
+// RowDescription *read_row_description(BaseMessage *message, ErrorResponse **err);
+
 #endif

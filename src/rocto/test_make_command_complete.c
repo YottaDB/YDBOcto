@@ -29,9 +29,24 @@
 #include "message_formats.h"
 
 static void test_valid_input(void **state) {
-  char *message = "SELECT 5";
-  CommandComplete *response = make_command_complete(message);
+	char *message = "SELECT 5";
+	CommandComplete *response = make_command_complete(message);
 	int expected_length = 4 + strlen(message) + 1;
+
+	// Standard checks
+	assert_non_null(response);
+	assert_int_equal(response->length, htonl(expected_length));
+
+	free(response);
+}
+
+static void test_non_terminated_input(void **state) {
+	char *message = "SELECT 5";
+	char *bad_message = (char*)malloc(strlen(message));
+	memcpy(bad_message, message, strlen(message));
+	CommandComplete *response = make_command_complete(message);
+	int expected_length = 4 + strlen(message) + 1;
+
 	// Standard checks
 	assert_non_null(response);
 	assert_int_equal(response->length, htonl(expected_length));

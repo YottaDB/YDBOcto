@@ -28,7 +28,7 @@ StartupMessage *read_startup_message(RoctoSession *session, char *data, int data
 	int num_parms = 0, read = 0, cur_parm = 0;
 	char *c, *message_end;
 	// Length plus protocol version
-	unsigned int hard_coded_ints = sizeof(unsigned int) + sizeof(unsigned int);
+	unsigned int hard_coded_ints = sizeof(unsigned int) + sizeof(int);
 
 	// First read length and protocol type, then we will reallocate things
 	ret = (StartupMessage*)malloc(sizeof(StartupMessage));
@@ -48,7 +48,12 @@ StartupMessage *read_startup_message(RoctoSession *session, char *data, int data
 
 	// No parameters send
 	if(ntohl(ret->length) == hard_coded_ints) {
-		return ret;
+		*err = make_error_response(PSQL_Error_FATAL,
+					   PSQL_Code_Protocol_Violation,
+					   "Empty parameter list missing null terminator",
+					   0);
+		free(ret);
+		return NULL;
 	}
 
 	// Prepare to reallocate
@@ -93,6 +98,15 @@ StartupMessage *read_startup_message(RoctoSession *session, char *data, int data
 		}
 		c++;
 		num_parms++;
+	}
+	// Ensure parameter list has null terminator
+	if (c == message_end || *c != '\0') {
+		*err = make_error_response(PSQL_Error_ERROR,
+					   PSQL_Code_Protocol_Violation,
+					   "Non-terminated parameter list",
+					   0);
+		free(ret);
+		return NULL;
 	}
 	// Skip over the ending \0
 	c++;

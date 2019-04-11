@@ -25,8 +25,11 @@
 
 Describe *read_describe(BaseMessage *message, ErrorResponse **err) {
 	Describe *ret;
+	ErrorBuffer err_buff;
 	char *cur_pointer, *last_byte;
+	const char *error_message;
 	unsigned int remaining_length;
+	err_buff.offset = 0;
 
 	// Create Describe struct and initialize ALL bytes to prevent leaks
 	remaining_length = ntohl(message->length);
@@ -36,23 +39,26 @@ Describe *read_describe(BaseMessage *message, ErrorResponse **err) {
 	// Copy entire message, including byte for the type field
 	memcpy(&ret->type, message, remaining_length + 1);
 	// The data section doesn't include the length or format code
-	remaining_length -= 4;	// Exclude length
-	remaining_length -= 1;  // Exclude format
+	remaining_length -= sizeof(unsigned int);	// Exclude length
+	remaining_length -= sizeof(char);		// Exclude format
 
 	// Ensure valid value for type field
 	if (ret->type != 'D') {
+		error_message = format_error_string(&err_buff, ERR_ROCTO_INVALID_TYPE, "Describe", ret->type, PSQL_Describe);
 		*err = make_error_response(PSQL_Error_WARNING,
 					   PSQL_Code_Protocol_Violation,
-					   "describe message has invalid type field: must be 'D'",
+					   error_message,
 					   0);
                 free(ret);
 		return NULL;
 	}
 	// Ensure valid value for item field
 	if (ret->item != 'S' && ret->item != 'P') {
+		error_message = format_error_string(&err_buff, ERR_ROCTO_INVALID_ITEM_VALUE, "Describe", "item",
+				ret->item, "'S' or 'P'");
 		*err = make_error_response(PSQL_Error_WARNING,
 					   PSQL_Code_Protocol_Violation,
-					   "describe message has invalid item field: must be 'S' or 'P'",
+					   error_message,
 					   0);
                 free(ret);
 		return NULL;
@@ -61,23 +67,25 @@ Describe *read_describe(BaseMessage *message, ErrorResponse **err) {
 	// Ensure we use the entire message
 	cur_pointer = ret->name;
 	last_byte = cur_pointer + remaining_length;
-	while(*cur_pointer != '\0')
+	while('\0' != *cur_pointer)
 		cur_pointer++;
 	cur_pointer++;
 	// Check for missing null terminator
 	if(cur_pointer > last_byte) {
+		error_message = format_error_string(&err_buff, ERR_ROCTO_MISSING_NULL, "Describe", "name");
 		*err = make_error_response(PSQL_Error_WARNING,
 					   PSQL_Code_Protocol_Violation,
-					   "describe message has trailing characters",
+					   error_message,
 					   0);
                 free(ret);
 		return NULL;
 	}
 	// Check for premature null terminator
 	if(cur_pointer < last_byte) {
+		error_message = format_error_string(&err_buff, ERR_ROCTO_TRAILING_CHARS, "Describe");
 		*err = make_error_response(PSQL_Error_WARNING,
 					   PSQL_Code_Protocol_Violation,
-					   "describe message terminated unexpectedly",
+					   error_message,
 					   0);
                 free(ret);
 		return NULL;

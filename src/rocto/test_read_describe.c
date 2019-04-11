@@ -69,6 +69,9 @@ static void test_non_terminated_input(void **state) {
 	message_length += strlen(message);		// exclude null
 	char *c = NULL;
 	ErrorResponse *err = NULL;
+	ErrorBuffer err_buff;
+	err_buff.offset = 0;
+	const char *error_message;
 
 	// Populate base message
         BaseMessage *test_data = (BaseMessage*)malloc(message_length + sizeof(BaseMessage) - sizeof(unsigned int));
@@ -87,6 +90,10 @@ static void test_non_terminated_input(void **state) {
 	assert_null(describe);
 	assert_non_null(err);
 
+	// Ensure correct error message
+	error_message = format_error_string(&err_buff, ERR_ROCTO_MISSING_NULL, "Describe", "name");
+	assert_string_equal(error_message, err->args[2].value + 1);
+
 	free(describe);
 	free(test_data);
 	free_error_response(err);
@@ -101,6 +108,9 @@ static void test_invalid_type(void **state) {
 	message_length += strlen(message) + 1;		// count null
 	char *c = NULL;
 	ErrorResponse *err = NULL;
+	ErrorBuffer err_buff;
+	err_buff.offset = 0;
+	const char *error_message;
 
 	// Populate base message
         BaseMessage *test_data = (BaseMessage*)malloc(message_length + sizeof(BaseMessage) - sizeof(unsigned int));
@@ -119,6 +129,10 @@ static void test_invalid_type(void **state) {
 	assert_null(describe);
 	assert_non_null(err);
 
+	// Ensure correct error message
+	error_message = format_error_string(&err_buff, ERR_ROCTO_INVALID_TYPE, "Describe", test_data->type, PSQL_Describe);
+	assert_string_equal(error_message, err->args[2].value + 1);
+
 	free(describe);
 	free(test_data);
 	free_error_response(err);
@@ -133,6 +147,9 @@ static void test_invalid_item(void **state) {
 	message_length += strlen(message) + 1;		// count null
 	char *c = NULL;
 	ErrorResponse *err = NULL;
+	ErrorBuffer err_buff;
+	err_buff.offset = 0;
+	const char *error_message;
 
 	// Populate base message
         BaseMessage *test_data = (BaseMessage*)malloc(message_length + sizeof(BaseMessage) - sizeof(unsigned int));
@@ -151,6 +168,11 @@ static void test_invalid_item(void **state) {
 	assert_null(describe);
 	assert_non_null(err);
 
+	// Ensure correct error message
+	error_message = format_error_string(&err_buff, ERR_ROCTO_INVALID_ITEM_VALUE, "Describe", "item",
+			*(char*)test_data->data, "'S' or 'P'");
+	assert_string_equal(error_message, err->args[2].value + 1);
+
 	free(describe);
 	free(test_data);
 	free_error_response(err);
@@ -165,6 +187,9 @@ static void test_unexpectedly_terminated_input(void **state) {
 	message_length += strlen(message) + 2;		// expecting extra character after null
 	char *c = NULL;
 	ErrorResponse *err = NULL;
+	ErrorBuffer err_buff;
+	err_buff.offset = 0;
+	const char *error_message;
 
 	// Populate base message
         BaseMessage *test_data = (BaseMessage*)malloc(message_length + sizeof(BaseMessage) - sizeof(unsigned int));
@@ -182,6 +207,10 @@ static void test_unexpectedly_terminated_input(void **state) {
 	// Standard checks
 	assert_null(describe);
 	assert_non_null(err);
+
+	// Ensure correct error message
+	error_message = format_error_string(&err_buff, ERR_ROCTO_TRAILING_CHARS, "Describe");
+	assert_string_equal(error_message, err->args[2].value + 1);
 
 	free(describe);
 	free(test_data);

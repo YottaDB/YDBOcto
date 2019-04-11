@@ -61,11 +61,10 @@ int rocto_main_loop(RoctoSession *session) {
 			FD_ZERO(&rfds);
 			FD_SET(session->connection_fd, &rfds);
 			result = select(session->connection_fd+1, &rfds, NULL, NULL, &select_timeout);
-			printf("Result: %d", result);
 		} while(result == -1 && errno == EINTR);
 
 		if(result == -1) {
-			FATAL(ERR_SYSCALL, "select", errno);
+			FATAL(ERR_SYSCALL, "select", errno, strerror(errno));
 		}
 		if(result == 0 && send_ready_for_query) {
 			ready_for_query = make_ready_for_query(PSQL_TransactionStatus_IDLE);

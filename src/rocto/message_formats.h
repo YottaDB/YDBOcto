@@ -43,7 +43,8 @@ enum PSQL_MessageTypes {
 	PSQL_Execute = 'E',
 	PSQL_Sync = 'S',
 	PSQL_Describe = 'D',
-	PSQL_ParameterStatus = 'S'
+	PSQL_ParameterStatus = 'S',
+	PSQL_NoData = 'n'
 };
 
 typedef struct __attribute__((packed)) {
@@ -110,6 +111,12 @@ typedef struct __attribute__((packed)) {
 	char type;
 	unsigned int length;
 } EmptyQueryResponse;
+
+// B
+typedef struct __attribute__((packed)) {
+	char type;
+	unsigned int length;
+} NoData;
 
 typedef struct {
 	char *name;

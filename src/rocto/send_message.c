@@ -36,7 +36,7 @@ int send_message(RoctoSession *session, BaseMessage *message) {
 	if(result < 0) {
 		if(errno == ECONNRESET)
 			return 1;
-		FATAL(ERR_SYSCALL, "send", errno);
+		FATAL(ERR_SYSCALL, "send", errno, strerror(errno));
 		return 1;
 	}
 	return 0;

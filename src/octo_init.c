@@ -30,20 +30,89 @@
 #include "octo.h"
 #include "octo_types.h"
 
+// Read binary file with default config settings
+#include "default_octo_conf.h"
+
+void merge_config_file_helper(config_setting_t *a, config_setting_t *b);
+
 void merge_config_file(const char *path, config_t *config_file) {
 	const char *error_message, *error_file;
 	int error_line;
+	config_t new_config_file;
+	config_setting_t *a_root, *b_root;
 	if(access(path, F_OK) == -1) {
 		// File not found or no access; skip it
 		return;
 	}
-	if(config_read_file(config_file, path) == CONFIG_FALSE) {
+	config_init(&new_config_file);
+	if(config_read_file(&new_config_file, path) == CONFIG_FALSE) {
 		error_message = config_error_text(config_file);
 		error_file = config_error_file(config_file);
 		error_line = config_error_line(config_file);
 		FATAL(ERR_PARSING_CONFIG, error_file,
 				error_line,
 				error_message);
+	}
+	INFO(ERR_LOADING_CONFIG, path);
+	a_root = config_root_setting(config_file);
+	b_root = config_root_setting(&new_config_file);
+	merge_config_file_helper(a_root, b_root);
+}
+
+/**
+ * Merges b into a, updating a with any values from b
+ */
+void merge_config_file_helper(config_setting_t *a, config_setting_t *b) {
+	config_setting_t *t_setting, *b_setting, *a_setting;
+	char *setting_name;
+	int setting_type;
+	int b_index;
+	b_index = 0;
+	while(TRUE) {
+		b_setting = config_setting_get_elem(b, b_index);
+		if(b_setting == NULL)
+			break;
+		setting_name = config_setting_name(b_setting);
+		setting_type = config_setting_type(b_setting);
+		if(config_setting_is_group(b_setting) || config_setting_is_array(b_setting)
+				|| config_setting_is_list(b_setting)) {
+			switch(config_setting_type(a))
+			{
+			case CONFIG_TYPE_GROUP:
+				t_setting = config_setting_get_member(a, setting_name);
+				break;
+			case CONFIG_TYPE_ARRAY:
+			case CONFIG_TYPE_LIST:
+			default:
+				t_setting = NULL;
+			}
+			if(t_setting == NULL) {
+				t_setting = config_setting_add(a, setting_name, setting_type);
+			}
+			merge_config_file_helper(t_setting, b_setting);
+		} else {
+			config_setting_remove(a, setting_name);
+			t_setting = config_setting_add(a, setting_name, setting_type);
+			switch(config_setting_type(b_setting))
+			{
+			case CONFIG_TYPE_STRING:
+				config_setting_set_string(t_setting, config_setting_get_string(b_setting));
+				break;
+			case CONFIG_TYPE_INT:
+				config_setting_set_int(t_setting, config_setting_get_int(b_setting));
+				break;
+			case CONFIG_TYPE_INT64:
+				config_setting_set_int64(t_setting, config_setting_get_int64(b_setting));
+				break;
+			case CONFIG_TYPE_FLOAT:
+				config_setting_set_float(t_setting, config_setting_get_float(b_setting));
+				break;
+			case CONFIG_TYPE_BOOL:
+				config_setting_set_bool(t_setting, config_setting_get_bool(b_setting));
+				break;
+			}
+		}
+		b_index++;
 	}
 }
 
@@ -105,7 +174,8 @@ int octo_init(int argc, char **argv, int scan_tables) {
 	config_t *config_file;
 	config_setting_t *ydb_settings, *cur_ydb_setting, *setting, *config_root, *cur_root;
 	const char *item_name, *item_value;
-	char *global_dir;
+	char *global_dir, *default_octo_conf, buff[MAX_STR_CONST];
+	char *home;
 	DIR *dir;
 
 	const char *verbosity;
@@ -126,51 +196,26 @@ int octo_init(int argc, char **argv, int scan_tables) {
 	// Search for the config file in /etc/octo.conf, ~/.octo.conf, and ./.octo.conf
 	config_init(config_file);
 
-	// Add default settings
-	cur_root = config_root = config_root_setting(config_file);
-	setting = config_setting_add(cur_root, "verbosity", CONFIG_TYPE_STRING);
-	if(config_setting_set_string(setting, "WARNING") == CONFIG_FALSE) {
-		assert(FALSE);
-	}
-	setting = config_setting_add(cur_root, "routine_cache", CONFIG_TYPE_STRING);
-	if(config_setting_set_string(setting, "./") == CONFIG_FALSE) {
-		assert(FALSE);
-	}
-	setting = config_setting_add(cur_root, "octo_global_directory", CONFIG_TYPE_STRING);
-	global_dir = getenv("ydb_gbldir");
-	if(global_dir == NULL) {
-		global_dir = "mumps.gld";
-	}
-	if(config_setting_set_string(setting, global_dir) == CONFIG_FALSE) {
-		assert(FALSE);
-	}
-	setting = config_setting_add(cur_root, "octo_global_prefix", CONFIG_TYPE_STRING);
-	if(config_setting_set_string(setting, "%ydbocto") == CONFIG_FALSE) {
-		assert(FALSE);
-	}
-	// Rocto setting
-	setting = config_setting_add(config_root, "rocto", CONFIG_TYPE_GROUP);
-	if(setting == NULL) {
-		assert(FALSE);
-	}
-	cur_root = setting;
-	setting = config_setting_add(cur_root, "address", CONFIG_TYPE_STRING);
-	if(config_setting_set_string(setting, "127.0.0.1") == CONFIG_FALSE) {
-		assert(FALSE);
-	}
-	setting = config_setting_add(cur_root, "port", CONFIG_TYPE_INT);
-	if(config_setting_set_int(setting, 1337) == CONFIG_FALSE) {
-		assert(FALSE);
-	}
+	default_octo_conf = malloc(octo_conf_default_len + 1);
+	memcpy(default_octo_conf, octo_conf_default, octo_conf_default_len);
+	default_octo_conf[octo_conf_default_len] = '\0';
+
+	config_read_string(config_file, default_octo_conf);
 
 	// Load config file
 	if(config->config_file_name == NULL) {
 		merge_config_file("/etc/octo.conf", config_file);
-		merge_config_file("~/.octo.conf", config_file);
+		home = getenv("HOME");
+		if(home != NULL) {
+		c = snprintf(buff, MAX_STR_CONST, "%s/.octo.conf", home);
+		buff[c] = '\0';
+		merge_config_file(buff, config_file);
+		}
 		merge_config_file(".octo.conf", config_file);
 	} else {
 		merge_config_file(config->config_file_name, config_file);
 	}
+	free(default_octo_conf);
 
 	if(config_lookup_string(config_file, "verbosity", &verbosity) == CONFIG_TRUE) {
 		if(strcmp(verbosity, "TRACE") == 0) {
@@ -189,6 +234,7 @@ int octo_init(int argc, char **argv, int scan_tables) {
 			FATAL(ERR_BAD_CONFIG, "verbosity");
 		}
 	} else if(config_lookup_int(config_file, "verbosity", &verbosity_int) == CONFIG_FALSE) {
+		printf("Verbosity set to %s\n", verbosity);
 		FATAL(ERR_BAD_CONFIG, "verbosity");
 	}
 
@@ -237,7 +283,7 @@ int octo_init(int argc, char **argv, int scan_tables) {
 	// Verify that the directory exists, or issue an error
 	dir = opendir(config->tmp_dir);
 	if(dir == NULL) {
-		FATAL(ERR_SYSCALL, "opendir (config.tmp_dir)", errno);
+		FATAL(ERR_SYSCALL, "opendir (config.tmp_dir)", errno, strerror(errno));
 	}
 	free(dir);
 

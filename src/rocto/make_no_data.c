@@ -24,14 +24,14 @@
 #include "message_formats.h"
 
 
-EmptyQueryResponse *make_empty_query_response() {
-	EmptyQueryResponse *ret;
+NoData *make_no_data() {
+	NoData *ret;
 
-	ret = (EmptyQueryResponse*)malloc(sizeof(EmptyQueryResponse));
-	memset(ret, 0, sizeof(EmptyQueryResponse));
+	ret = (NoData*)malloc(sizeof(NoData));
+	memset(ret, 0, sizeof(NoData));
 
-	ret->type = PSQL_EmptyQueryResponse;
-	ret->length = htonl(sizeof(unsigned int));
+	ret->type = PSQL_NoData;
+	ret->length = htonl(4);
 
 	return ret;
 }

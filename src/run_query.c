@@ -169,6 +169,9 @@ int run_query(char *query, void (*callback)(SqlStatement *, PhysicalPlan *, int,
 		(*callback)(result, NULL, cursorId, parms);
 		octo_cfree(memory_chunks);
 		break;
+	case no_data_STATEMENT:
+		octo_cfree(memory_chunks);
+		break;
 	default:
 		FATAL(ERR_FEATURE_NOT_IMPLEMENTED, query);
 	}

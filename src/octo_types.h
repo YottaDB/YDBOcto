@@ -75,7 +75,8 @@ enum SqlStatementType {
 	cas_STATEMENT,
 	cas_branch_STATEMENT,
 	set_STATEMENT,
-	show_STATEMENT
+	show_STATEMENT,
+	no_data_STATEMENT
 };
 
 enum UnaryOperations {
@@ -207,6 +208,7 @@ struct SqlCaseStatement typedef SqlCaseStatement;
 struct SqlCaseBranchStatement typedef SqlCaseBranchStatement;
 struct SqlSetStatement typedef SqlSetStatement;
 struct SqlShowStatement typedef SqlShowStatement;
+struct SqlNoDataStatement typedef SqlNoDataStatement;
 
 /**
  * Represents a SQL column; doubly linked list
@@ -410,6 +412,9 @@ struct SqlShowStatement {
 	SqlStatement *variable;
 };
 
+struct SqlNoDataStatement {
+};
+
 struct SqlStatement {
 	enum SqlStatementType type;
 	struct YYLTYPE loc;
@@ -437,6 +442,7 @@ struct SqlStatement {
 		SqlCaseBranchStatement *cas_branch;
 		SqlSetStatement *set;
 		SqlShowStatement *show;
+		SqlNoDataStatement *no_data;
 		enum SqlDataType data_type;
 		enum SqlJoinType join_type;
 	} v;

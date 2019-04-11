@@ -96,6 +96,10 @@ int emit_physical_plan(PhysicalPlan *pplan) {
 				*(unsigned int*)tableNameHash, *(unsigned int*)columnNameHash);
 		snprintf(filename, MAX_STR_CONST, "%s/%s.m", config->tmp_dir, key->cross_reference_filename);
 		output_file = fopen(filename, "w");
+		if(output_file == NULL) {
+			FATAL(ERR_SYSCALL, "fopen", errno, strerror(errno));
+			return FALSE;
+		}
 		cur_plan->filename = key->cross_reference_filename;
 		tmpl_physical_plan(buffer, MAX_ROUTINE_LENGTH, cur_plan);
 		assert(output_file != NULL);
@@ -127,6 +131,10 @@ int emit_physical_plan(PhysicalPlan *pplan) {
 	plan_id = 0;
 	snprintf(filename, MAX_STR_CONST, "%s/outputPlan1.m", config->tmp_dir);
 	output_file = fopen(filename, "w");
+	if(output_file == NULL) {
+		FATAL(ERR_SYSCALL, "fopen", errno, strerror(errno));
+		return FALSE;
+	}
 	cur_plan = first_plan;
 	do {
 		// Skip any plans that are cross references

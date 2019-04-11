@@ -50,6 +50,9 @@ FILE
 start_rocto() {
   rocto &> rocto.log &
   echo $! > rocto.pid
+  while grep -q "rocto started" rocto.log; do
+    sleep .1s
+  done
 }
 
 stop_rocto() {

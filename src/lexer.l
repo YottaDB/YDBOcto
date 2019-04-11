@@ -143,6 +143,7 @@ int copied_so_far;
 (?i:SUM) { return SUM; }
 (?i:TABLE) { return TABLE; }
 (?i:THEN) { return THEN; }
+(?i:TO) { return TO; }
 (?i:TRUE_TOKEN) { return TRUE_TOKEN; }
 (?i:UNION) { return UNION; }
 (?i:UNIQUE) { return UNIQUE; }

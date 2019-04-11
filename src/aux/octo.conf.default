@@ -11,15 +11,15 @@ octo_global_prefix = "%ydbocto"
 rocto = {
   // Address and port to listen on for connections
   address = "127.0.0.1"
-  port = 1338
+  port = 1337
   // Authentication methods; supported options are "md5"
   authentication_method = "md5"
 }
 
 // Settings controlling YottaDB; these get set as environment variables during startup
 // Defined environment variables will take precedence
-yottadb = {
+/*yottadb = {
   ydb_gbldir = "mumps.gld"
   ydb_ci = "calltab.ci"
   ydb_routines = "."
-}
+}*/

@@ -60,7 +60,11 @@ int handle_describe(Describe *describe, RoctoSession *session) {
 	INIT_YDB_BUFFER(source_session_id, session->session_id->len_used);
 	YDB_COPY_BUFFER_TO_BUFFER(session->session_id, source_session_id, done);
 	assert(done == TRUE);
-	YDB_LITERAL_TO_BUFFER("prepared", prepared);
+	if(describe->item == 'S') {
+		YDB_LITERAL_TO_BUFFER("prepared", prepared);
+	} else {
+		YDB_LITERAL_TO_BUFFER("bound", prepared);
+	}
 	source_name->buf_addr = describe->name;
 	source_name->len_used = source_name->len_alloc = strlen(describe->name);
 

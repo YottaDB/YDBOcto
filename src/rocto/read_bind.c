@@ -25,10 +25,13 @@
 
 Bind *read_bind(BaseMessage *message, ErrorResponse **err) {
 	Bind *ret;
+	ErrorBuffer err_buff;
 	char *cur_pointer, *last_byte, *length_ptr;
+	const char *error_message;
 	unsigned int remaining_length;
 	const int default_format_max = 1;
 	int i = 0;
+	err_buff.offset = 0;
 
 	// Initialize Bind struct
 	remaining_length = ntohl(message->length);
@@ -39,9 +42,10 @@ Bind *read_bind(BaseMessage *message, ErrorResponse **err) {
 
 	// Ensure message has correct type
 	if(ret->type != PSQL_Bind) {
+		error_message = format_error_string(&err_buff, ERR_ROCTO_INVALID_TYPE, "Bind", ret->type, PSQL_Bind);
 		*err = make_error_response(PSQL_Error_ERROR,
 					   PSQL_Code_Protocol_Violation,
-					   "Bind has incorrect type: must be 'B'",
+					   error_message,
 					   0);
 		free(ret);
 		return NULL;
@@ -53,12 +57,13 @@ Bind *read_bind(BaseMessage *message, ErrorResponse **err) {
 	// Set destination
 	ret->dest = cur_pointer;
 	// Ensure destination has null terminator
-	while(*cur_pointer != '\0' && cur_pointer < last_byte)
+	while(cur_pointer < last_byte && *cur_pointer != '\0')
 		cur_pointer++;
-	if(*cur_pointer != '\0' || cur_pointer == last_byte) {
+	if(cur_pointer == last_byte || '\0' != *cur_pointer ) {
+		error_message = format_error_string(&err_buff, ERR_ROCTO_MISSING_NULL, "Bind", "destination");
 		*err = make_error_response(PSQL_Error_ERROR,
 					   PSQL_Code_Protocol_Violation,
-					   "Bind destination missing null terminator",
+					   error_message,
 					   0);
 		free(ret);
 		return NULL;
@@ -67,12 +72,13 @@ Bind *read_bind(BaseMessage *message, ErrorResponse **err) {
 	// Set source SQL message
 	ret->source = cur_pointer;
 	// Ensure source SQL message has null terminator
-	while(*cur_pointer != '\0' && cur_pointer < last_byte)
+	while(cur_pointer < last_byte && '\0'!=  *cur_pointer)
 		cur_pointer++;
-	if(*cur_pointer != '\0' || cur_pointer == last_byte) {
+	if(cur_pointer == last_byte || '\0' != *cur_pointer) {
+		error_message = format_error_string(&err_buff, ERR_ROCTO_MISSING_NULL, "Bind", "source");
 		*err = make_error_response(PSQL_Error_ERROR,
 					   PSQL_Code_Protocol_Violation,
-					   "Bind SQL missing null terminator",
+					   error_message,
 					   0);
 		free(ret);
 		return NULL;
@@ -81,23 +87,34 @@ Bind *read_bind(BaseMessage *message, ErrorResponse **err) {
 	// Set number of parameter format codes and ensure valid value
 	ret->num_parm_format_codes = ntohs(*((short int *)cur_pointer));
 	if (ret->num_parm_format_codes < 0) {
+		error_message = format_error_string(&err_buff, ERR_ROCTO_INVALID_NUMBER, "Bind", "parameter format codes");
 		*err = make_error_response(PSQL_Error_ERROR,
 					   PSQL_Code_Protocol_Violation,
-					   "Bind has invalid number of parameter format codes",
+					   error_message,
 					   0);
 		free(ret);
 		return NULL;
 	}
 	cur_pointer += sizeof(short int);
-	// Create pointer to parameter format code location in data array
+	if(cur_pointer > last_byte) {
+		error_message = format_error_string(&err_buff, ERR_ROCTO_MISSING_DATA, "Bind", "number of parameter format codes");
+		*err = make_error_response(PSQL_Error_ERROR,
+					   PSQL_Code_Protocol_Violation,
+					   error_message,
+					   0);
+		free(ret);
+		return NULL;
+	}
+	// Set pointer to parameter format codes within data section
 	if(ret->num_parm_format_codes > 0)
 		ret->parm_format_codes = (short int*)cur_pointer;
 	cur_pointer += ret->num_parm_format_codes * sizeof(short int);
 	// Ensure all parameter format codes present
 	if(cur_pointer > last_byte) {
+		error_message = format_error_string(&err_buff, ERR_ROCTO_MISSING_DATA, "Bind", "parameter format codes");
 		*err = make_error_response(PSQL_Error_ERROR,
 					   PSQL_Code_Protocol_Violation,
-					   "bind incomplete/missing parameter format code list",
+					   error_message,
 					   0);
 		free(ret);
 		return NULL;
@@ -116,9 +133,10 @@ Bind *read_bind(BaseMessage *message, ErrorResponse **err) {
 	// Set number of parameters and ensure valid value
 	ret->num_parms = ntohs(*((short int*)cur_pointer));
 	if (ret->num_parms < 0) {
+		error_message = format_error_string(&err_buff, ERR_ROCTO_INVALID_NUMBER, "Bind", "parameters");
 		*err = make_error_response(PSQL_Error_ERROR,
 					   PSQL_Code_Protocol_Violation,
-					   "Bind has invalid number of parameters",
+					   error_message,
 					   0);
 		free(ret);
 		return NULL;
@@ -145,9 +163,10 @@ Bind *read_bind(BaseMessage *message, ErrorResponse **err) {
 	}
 	// Ensure parameters are present
 	if(cur_pointer > last_byte) {
+		error_message = format_error_string(&err_buff, ERR_ROCTO_MISSING_DATA, "Bind", "parameters");
 		*err = make_error_response(PSQL_Error_ERROR,
 					   PSQL_Code_Protocol_Violation,
-					   "bind incomplete/missing parameters",
+					   error_message,
 					   0);
 		free(ret->parms);
 		free(ret);
@@ -163,9 +182,10 @@ Bind *read_bind(BaseMessage *message, ErrorResponse **err) {
 			length_ptr = cur_pointer;
 			cur_pointer += sizeof(unsigned int);
 			if(cur_pointer > last_byte) {
+				error_message = format_error_string(&err_buff, ERR_ROCTO_MISSING_DATA, "Bind", "parameters");
 				*err = make_error_response(PSQL_Error_ERROR,
 							   PSQL_Code_Protocol_Violation,
-							   "bind incomplete/missing parameters",
+							   error_message,
 							   0);
 				free(ret->parms);
 				free(ret);
@@ -175,9 +195,10 @@ Bind *read_bind(BaseMessage *message, ErrorResponse **err) {
 			ret->parms[i].value = cur_pointer;
 			cur_pointer += ret->parms[i].length;
 			if(cur_pointer > last_byte) {
+				error_message = format_error_string(&err_buff, ERR_ROCTO_MISSING_DATA, "Bind", "parameters");
 				*err = make_error_response(PSQL_Error_ERROR,
 							   PSQL_Code_Protocol_Violation,
-							   "bind incomplete/missing parameters",
+							   error_message,
 							   0);
 				free(ret->parms);
 				free(ret);
@@ -188,9 +209,10 @@ Bind *read_bind(BaseMessage *message, ErrorResponse **err) {
 	// Set number of column format codes and ensure correct values
 	ret->num_result_col_format_codes = ntohs(*((short int*)cur_pointer));
 	if (ret->num_result_col_format_codes < 0) {
+		error_message = format_error_string(&err_buff, ERR_ROCTO_INVALID_NUMBER, "Bind", "column format codes");
 		*err = make_error_response(PSQL_Error_ERROR,
 					   PSQL_Code_Protocol_Violation,
-					   "Bind has invalid number of column format codes",
+					   error_message,
 					   0);
 		free(ret);
 		return NULL;
@@ -200,9 +222,10 @@ Bind *read_bind(BaseMessage *message, ErrorResponse **err) {
 		ret->result_col_format_codes = (void*)cur_pointer;
 		cur_pointer += ret->num_result_col_format_codes * sizeof(short int);
 		if(cur_pointer > last_byte) {
+			error_message = format_error_string(&err_buff, ERR_ROCTO_MISSING_DATA, "Bind", "result format codes");
 			*err = make_error_response(PSQL_Error_ERROR,
 						   PSQL_Code_Protocol_Violation,
-						   "bind missing/incomplete result format codes",
+						   error_message,
 						   0);
 			free(ret->parms);
 			free(ret);
@@ -224,9 +247,10 @@ Bind *read_bind(BaseMessage *message, ErrorResponse **err) {
 
 	// Verify entire message read
 	if(cur_pointer != last_byte) {
+		error_message = format_error_string(&err_buff, ERR_ROCTO_TRAILING_CHARS, "Bind");
 		*err = make_error_response(PSQL_Error_WARNING,
 					   PSQL_Code_Protocol_Violation,
-					   "bind message has trailing characters",
+					   error_message,
 					   0);
 	}
 	return ret;

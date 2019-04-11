@@ -25,8 +25,11 @@
 
 Execute *read_execute(BaseMessage *message, ErrorResponse **err) {
 	Execute *ret;
+	ErrorBuffer err_buff;
 	char *cur_pointer, *last_byte;
+	const char *error_message;
 	unsigned int remaining_length;
+	err_buff.offset = 0;
 
 	// Create Execute message and initialize ALL bytes
 	remaining_length = ntohl(message->length);
@@ -42,40 +45,44 @@ Execute *read_execute(BaseMessage *message, ErrorResponse **err) {
 
 	// Ensure message has correct type
 	if(ret->type != PSQL_Execute) {
+		error_message = format_error_string(&err_buff, ERR_ROCTO_INVALID_TYPE, "Execute", ret->type, PSQL_Execute);
 		*err = make_error_response(PSQL_Error_ERROR,
 					   PSQL_Code_Protocol_Violation,
-					   "execute message has incorrect type: must be 'E'",
+					   error_message,
 					   0);
 		free(ret);
 		return NULL;
 	}
 	// Ensure message has null terminator
-	while(cur_pointer < last_byte && *cur_pointer != '\0') {
+	while(cur_pointer < last_byte &&  '\0' != *cur_pointer) {
 		cur_pointer++;
 	}
-	if(cur_pointer == last_byte || *cur_pointer != '\0') {
+	if(cur_pointer == last_byte || '\0' != *cur_pointer) {
+		error_message = format_error_string(&err_buff, ERR_ROCTO_MISSING_NULL, "Execute", "source");
 		*err = make_error_response(PSQL_Error_ERROR,
 					   PSQL_Code_Protocol_Violation,
-					   "execute destination missing null terminator",
+					   error_message,
 					   0);
 		free(ret);
 		return NULL;
 	}
-	// Check for unexpected null terminator
-	if(cur_pointer != last_byte - sizeof(unsigned int) - 1) {
-		*err = make_error_response(PSQL_Error_ERROR,
-					   PSQL_Code_Protocol_Violation,
-					   "execute destination contains unexpected null terminator",
-					   0);
-		free(ret);
-		return NULL;
-	}
+	cur_pointer++;		// Skip over null pointer
 	// Ensure rows_to_return field included
-	cur_pointer++;
-	if(cur_pointer + 4 > last_byte) {
+	if(cur_pointer + sizeof(unsigned int) > last_byte) {
+		error_message = format_error_string(&err_buff, ERR_ROCTO_MISSING_DATA, "Execute", "number of rows to return");
 		*err = make_error_response(PSQL_Error_ERROR,
 					   PSQL_Code_Protocol_Violation,
-					   "execute missing rows_to_return",
+					   error_message,
+					   0);
+		free(ret);
+		return NULL;
+	}
+	// Check for trailing characters
+	if(cur_pointer != last_byte - sizeof(unsigned int)) {
+		error_message = format_error_string(&err_buff, ERR_ROCTO_TRAILING_CHARS, "Execute");
+		*err = make_error_response(PSQL_Error_ERROR,
+					   PSQL_Code_Protocol_Violation,
+					   error_message,
 					   0);
 		free(ret);
 		return NULL;

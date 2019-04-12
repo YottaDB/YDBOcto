@@ -25,8 +25,11 @@
 
 Query *read_query(BaseMessage *message, ErrorResponse **err) {
 	Query *ret;
+	ErrorBuffer err_buff;
 	unsigned int length;
 	char *c, *message_end;
+	const char *error_message;
+	err_buff.offset = 0;
 
 	length = ntohl(message->length);
 	ret = (Query*)malloc(sizeof(Query) + length - sizeof(unsigned int));
@@ -38,9 +41,10 @@ Query *read_query(BaseMessage *message, ErrorResponse **err) {
 
 	// Ensure that message has correct type
 	if(ret->type != PSQL_Query) {
+		error_message = format_error_string(&err_buff, ERR_ROCTO_INVALID_TYPE, "Query", ret->type, PSQL_Query);
 		*err = make_error_response(PSQL_Error_ERROR,
 					   PSQL_Code_Syntax_Error,
-					   "Query has incorrect type",
+					   error_message,
 					   0);
 		free(ret);
 		return NULL;
@@ -52,25 +56,28 @@ Query *read_query(BaseMessage *message, ErrorResponse **err) {
 	if(c == message_end) {
 		// Ensure a query string is included
 		if(length == sizeof(unsigned int)) {
+			error_message = format_error_string(&err_buff, ERR_ROCTO_MISSING_DATA, "Query", "query");
 			*err = make_error_response(PSQL_Error_ERROR,
 						   PSQL_Code_Syntax_Error,
-						   "Query missing query string",
+						   error_message,
 						   0);
 			free(ret);
 			return NULL;
 		}
-		// Ensure that there is a trailing null character
+		// Ensure query has null terminator
+		error_message = format_error_string(&err_buff, ERR_ROCTO_MISSING_NULL, "Query", "query");
 		*err = make_error_response(PSQL_Error_ERROR,
 					   PSQL_Code_Syntax_Error,
-					   "No null terminating character on input",
+					   error_message,
 					   0);
 		free(ret);
 		return NULL;
 	}
 	else if(c < message_end - 1) {
+		error_message = format_error_string(&err_buff, ERR_ROCTO_TRAILING_CHARS, "Query");
 		*err = make_error_response(PSQL_Error_ERROR,
 					   PSQL_Code_Syntax_Error,
-					   "Unexpected terminating character in input",
+					   error_message,
 					   0);
 		free(ret);
 		return NULL;

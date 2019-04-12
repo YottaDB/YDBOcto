@@ -60,6 +60,9 @@ static void test_non_terminated_input(void **state) {
 	message_length += sizeof(unsigned int);		// count length member
 	char *message = "SELECT * FROM names;";
 	message_length += strlen(message);		// exclude null for test case
+	ErrorBuffer err_buff;
+	err_buff.offset = 0;
+	const char *error_message;
 
 	// Populate base message
 	BaseMessage *test_data = (BaseMessage*)malloc(message_length + sizeof(BaseMessage) - sizeof(unsigned int));
@@ -74,6 +77,10 @@ static void test_non_terminated_input(void **state) {
 	// Standard checks
 	assert_null(query);
 	assert_non_null(err);
+
+	// Ensure correct error message
+	error_message = format_error_string(&err_buff, ERR_ROCTO_MISSING_NULL, "Query", "query");
+	assert_string_equal(error_message, err->args[2].value + 1);
 
 	free_error_response(err);
 	free(test_data);
@@ -85,6 +92,9 @@ static void test_unexpectedly_terminated_input(void **state) {
 	message_length += sizeof(unsigned int);		// count length member
 	char *message = "SELECT * FROM names\0;";
 	message_length += strlen(message) + 2;		// expecting extra char after null
+	ErrorBuffer err_buff;
+	err_buff.offset = 0;
+	const char *error_message;
 
 	// Populate base message
 	BaseMessage *test_data = (BaseMessage*)malloc(message_length + sizeof(BaseMessage) - sizeof(unsigned int));
@@ -100,6 +110,10 @@ static void test_unexpectedly_terminated_input(void **state) {
 	assert_null(query);
 	assert_non_null(err);
 
+	// Ensure correct error message
+	error_message = format_error_string(&err_buff, ERR_ROCTO_TRAILING_CHARS, "Query");
+	assert_string_equal(error_message, err->args[2].value + 1);
+
 	free_error_response(err);
 	free(test_data);
 }
@@ -108,6 +122,9 @@ static void test_missing_query(void **state) {
 	// Test a single startup message
 	unsigned int message_length = 0;
 	message_length += sizeof(unsigned int);		// count length member
+	ErrorBuffer err_buff;
+	err_buff.offset = 0;
+	const char *error_message;
 
 	// Populate base message
 	BaseMessage *test_data = (BaseMessage*)malloc(message_length + sizeof(BaseMessage) - sizeof(unsigned int));
@@ -122,6 +139,10 @@ static void test_missing_query(void **state) {
 	assert_null(query);
 	assert_non_null(err);
 
+	// Ensure correct error message
+	error_message = format_error_string(&err_buff, ERR_ROCTO_MISSING_DATA, "Query", "query");
+	assert_string_equal(error_message, err->args[2].value + 1);
+
 	free_error_response(err);
 	free(test_data);
 }
@@ -132,6 +153,9 @@ static void test_invalid_type(void **state) {
 	message_length += sizeof(unsigned int);		// count length member
 	char *message = "SELECT * FROM names;";
 	message_length += strlen(message) + 1;		// expecting extra char after null
+	ErrorBuffer err_buff;
+	err_buff.offset = 0;
+	const char *error_message;
 
 	// Populate base message
 	BaseMessage *test_data = (BaseMessage*)malloc(message_length + sizeof(BaseMessage) - sizeof(unsigned int));
@@ -146,6 +170,10 @@ static void test_invalid_type(void **state) {
 	// Standard checks
 	assert_null(query);
 	assert_non_null(err);
+
+	// Ensure correct error message
+	error_message = format_error_string(&err_buff, ERR_ROCTO_INVALID_TYPE, "Query", test_data->type, PSQL_Query);
+	assert_string_equal(error_message, err->args[2].value + 1);
 
 	free_error_response(err);
 	free(test_data);

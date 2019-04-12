@@ -26,11 +26,16 @@
 
 Sync *read_sync(BaseMessage *message, ErrorResponse **err) {
 	Sync *ret;
+	ErrorBuffer err_buff;
+	const char *error_message;
+	err_buff.offset = 0;
+
 
 	if(message->type != PSQL_Sync) {
+		error_message = format_error_string(&err_buff, ERR_ROCTO_INVALID_TYPE, "Sync", message->type, PSQL_Sync);
 		*err = make_error_response(PSQL_Error_WARNING,
 					   PSQL_Code_Protocol_Violation,
-					   "Sync message has invalid type field: must be 'S'",
+					   error_message,
 					   0);
 		return NULL;
 	}

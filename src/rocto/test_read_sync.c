@@ -50,6 +50,9 @@ static void test_valid_input(void **state) {
 
 static void test_invalid_type(void **state) {
 	ErrorResponse *err = NULL;
+	ErrorBuffer err_buff;
+	const char *error_message;
+	err_buff.offset = 0;
 
 	// Populate base message
         BaseMessage *test_data = (BaseMessage*)malloc(sizeof(BaseMessage));
@@ -62,6 +65,10 @@ static void test_invalid_type(void **state) {
 	// Standard checks
 	assert_null(sync);
 	assert_non_null(err);
+
+	// Ensure correct error message
+	error_message = format_error_string(&err_buff, ERR_ROCTO_INVALID_TYPE, "Sync", test_data->type, PSQL_Sync);
+	assert_string_equal(error_message, err->args[2].value + 1);
 
 	free(test_data);
 	free_error_response(err);

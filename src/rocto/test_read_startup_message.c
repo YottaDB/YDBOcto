@@ -178,6 +178,9 @@ static void test_no_parms_without_null(void **state) {
 	unsigned int protocol_version = 0x00030000;		// version 3.0
 	message_length += sizeof(unsigned int);
 	ErrorResponse *err = NULL;
+	ErrorBuffer err_buff;
+	err_buff.offset = 0;
+	const char *error_message;
 
 	// Length + extra stuff - already counted (length, protocol version)
 	StartupMessage *test_data = (StartupMessage*)malloc(
@@ -191,6 +194,10 @@ static void test_no_parms_without_null(void **state) {
 	// Standard checks
 	assert_non_null(err);
 	assert_null(startup);
+
+	// Ensure correct error message
+	error_message = format_error_string(&err_buff, ERR_ROCTO_MISSING_NULL, "StartupMessage", "parameter list");
+	assert_string_equal(error_message, err->args[2].value + 1);
 
 	free_error_response(err);
 	free(test_data);
@@ -208,6 +215,9 @@ static void test_one_parm_without_null(void **state) {
 	message_length += strlen(parm1_value) + 1;	// count null
 	char *c;
 	ErrorResponse *err = NULL;
+	ErrorBuffer err_buff;
+	err_buff.offset = 0;
+	const char *error_message;
 
 	// Length + extra stuff - already counted (length, protocol version)
 	StartupMessage *test_data = (StartupMessage*)malloc(
@@ -232,6 +242,10 @@ static void test_one_parm_without_null(void **state) {
 	assert_non_null(err);
 	assert_null(startup);
 
+	// Ensure correct error message
+	error_message = format_error_string(&err_buff, ERR_ROCTO_MISSING_NULL, "StartupMessage", "parameter list");
+	assert_string_equal(error_message, err->args[2].value + 1);
+
 	free(test_data);
 	free_error_response(err);
 }
@@ -252,6 +266,9 @@ static void test_multi_parm_without_null(void **state) {
 	message_length += strlen(parm2_value) + 1;	// count null
 	char *c;
 	ErrorResponse *err = NULL;
+	ErrorBuffer err_buff;
+	err_buff.offset = 0;
+	const char *error_message;
 
 	// Length + extra stuff - already counted (length, protocol version)
 	StartupMessage *test_data = (StartupMessage*)malloc(message_length + sizeof(StartupMessage) - 2 * sizeof(unsigned int));
@@ -279,6 +296,10 @@ static void test_multi_parm_without_null(void **state) {
 	assert_non_null(err);
 	assert_null(startup);
 
+	// Ensure correct error message
+	error_message = format_error_string(&err_buff, ERR_ROCTO_MISSING_NULL, "StartupMessage", "parameter list");
+	assert_string_equal(error_message, err->args[2].value + 1);
+
 	free(test_data);
 	free_error_response(err);
 }
@@ -289,8 +310,7 @@ static void test_wrong_version(void **state) {
 	unsigned int message_length = 0;
 	message_length += sizeof(unsigned int);
 	unsigned int protocol_version = 0xdeadbeef;	// bad version number
-	message_length += sizeof(unsigned int);
-	char *parm1_name = "user\0";
+	message_length += sizeof(unsigned int); char *parm1_name = "user\0";
 	message_length += strlen(parm1_name) + 1;	// count null
 	char *parm1_value = "charles\0";
 	message_length += strlen(parm1_value) + 1;	// count null
@@ -298,6 +318,9 @@ static void test_wrong_version(void **state) {
 	message_length += 1;
 	char *c;
 	ErrorResponse *err = NULL;
+	ErrorBuffer err_buff;
+	err_buff.offset = 0;
+	const char *error_message;
 
 	// Length + extra stuff - already counted (length, protocol version_
 	StartupMessage *test_data = (StartupMessage*)malloc(message_length + sizeof(StartupMessage) - 2 * sizeof(unsigned int));
@@ -319,6 +342,11 @@ static void test_wrong_version(void **state) {
 	assert_null(startup);
 	assert_non_null(err);
 
+	// Ensure correct error message
+	error_message = format_error_string(&err_buff, ERR_ROCTO_INVALID_VERSION,
+			"StartupMessage", ntohl(test_data->protocol_version), 0x00030000);
+	assert_string_equal(error_message, err->args[2].value + 1);
+
 	free_error_response(err);
 	free(test_data);
 }
@@ -335,6 +363,9 @@ static void test_missing_version(void **state) {
 	message_length += 1;
 	char *c;
 	ErrorResponse *err = NULL;
+	ErrorBuffer err_buff;
+	err_buff.offset = 0;
+	const char *error_message;
 
 	// Length + extra stuff - already counted (length)
 	StartupMessage *test_data = (StartupMessage*)malloc(message_length + sizeof(StartupMessage) - sizeof(unsigned int));
@@ -355,6 +386,11 @@ static void test_missing_version(void **state) {
 	assert_null(startup);
 	assert_non_null(err);
 
+	// Ensure correct error message
+	error_message = format_error_string(&err_buff, ERR_ROCTO_INVALID_VERSION,
+			"StartupMessage", ntohl(test_data->protocol_version), 0x00030000);
+	assert_string_equal(error_message, err->args[2].value + 1);
+
 	free_error_response(err);
 	free(test_data);
 }
@@ -372,8 +408,9 @@ static void test_non_terminated_name(void **state) {
 	message_length += strlen(parm1_value) + 1;	// count null
 	char *c;
 	ErrorResponse *err = NULL;
-	// Terminating null
-	// message_length += 1;
+	ErrorBuffer err_buff;
+	err_buff.offset = 0;
+	const char *error_message;
 
 	// Length + extra stuff - already counted (length, protocol version)
 	StartupMessage *test_data = (StartupMessage*)malloc(message_length + sizeof(StartupMessage) - 2 * sizeof(unsigned int));
@@ -399,6 +436,10 @@ static void test_non_terminated_name(void **state) {
 	assert_null(startup);
 	assert_non_null(err);
 
+	// Ensure correct error message
+	error_message = format_error_string(&err_buff, ERR_ROCTO_MISSING_NULL, "StartupMessage", "name or value");
+	assert_string_equal(error_message, err->args[2].value + 1);
+
 	free_error_response(err);
 	free(test_data);
 }
@@ -416,6 +457,9 @@ static void test_non_terminated_value(void **state) {
 	message_length += strlen(parm1_value) - 2;	// exclude nulls
 	char *c;
 	ErrorResponse *err = NULL;
+	ErrorBuffer err_buff;
+	err_buff.offset = 0;
+	const char *error_message;
 
 	// Length + extra stuff - already counted (length, protocol version_
 	StartupMessage *test_data = (StartupMessage*)malloc(message_length + sizeof(StartupMessage) - 2 * sizeof(unsigned int));
@@ -438,6 +482,10 @@ static void test_non_terminated_value(void **state) {
 	assert_null(startup);
 	assert_non_null(err);
 
+	// Ensure correct error message
+	error_message = format_error_string(&err_buff, ERR_ROCTO_MISSING_NULL, "StartupMessage", "name or value");
+	assert_string_equal(error_message, err->args[2].value + 1);
+
 	free_error_response(err);
 	free(test_data);
 }
@@ -455,6 +503,9 @@ static void test_unexpectedly_terminated_name(void **state) {
 	message_length += strlen(parm1_value) + 1;	// count null
 	char *c;
 	ErrorResponse *err = NULL;
+	ErrorBuffer err_buff;
+	err_buff.offset = 0;
+	const char *error_message;
 
 	StartupMessage *test_data = (StartupMessage*)malloc(
 			message_length + sizeof(StartupMessage) - sizeof(unsigned int) - sizeof(unsigned int));
@@ -478,6 +529,10 @@ static void test_unexpectedly_terminated_name(void **state) {
 	assert_null(startup);
 	assert_non_null(err);
 
+	// Ensure correct error message
+	error_message = format_error_string(&err_buff, ERR_ROCTO_MISSING_NULL, "StartupMessage", "parameter list");
+	assert_string_equal(error_message, err->args[2].value + 1);
+
 	free_error_response(err);
 	free(test_data);
 }
@@ -495,6 +550,9 @@ static void test_unexpectedly_terminated_value(void **state) {
 	message_length += strlen(parm1_value) + 3 + 2;	// count remaining chars + nulls
 	char *c;
 	ErrorResponse *err = NULL;
+	ErrorBuffer err_buff;
+	err_buff.offset = 0;
+	const char *error_message;
 
 	StartupMessage *test_data = (StartupMessage*)malloc(
 			message_length + sizeof(StartupMessage) - sizeof(unsigned int) - sizeof(unsigned int));
@@ -518,6 +576,10 @@ static void test_unexpectedly_terminated_value(void **state) {
 	assert_null(startup);
 	assert_non_null(err);
 
+	// Ensure correct error message
+	error_message = format_error_string(&err_buff, ERR_ROCTO_MISSING_NULL, "StartupMessage", "name or value");
+	assert_string_equal(error_message, err->args[2].value + 1);
+
 	free_error_response(err);
 	free(test_data);
 }
@@ -537,6 +599,9 @@ static void test_missing_parm_name(void **state) {
 	message_length += 1;		// count parameter list terminator
 	char *c;
 	ErrorResponse *err = NULL;
+	ErrorBuffer err_buff;
+	err_buff.offset = 0;
+	const char *error_message;
 
 	// Length + extra stuff - already counted (length, protocol version)
 	StartupMessage *test_data = (StartupMessage*)malloc(message_length + sizeof(StartupMessage) - 2 * sizeof(unsigned int));
@@ -564,6 +629,10 @@ static void test_missing_parm_name(void **state) {
 	assert_non_null(err);
 	assert_null(startup);
 
+	// Ensure correct error message
+	error_message = format_error_string(&err_buff, ERR_ROCTO_MISSING_NULL, "StartupMessage", "parameter list");
+	assert_string_equal(error_message, err->args[2].value + 1);
+
 	free(test_data);
 	free_error_response(err);
 }
@@ -583,6 +652,9 @@ static void test_missing_parm_value(void **state) {
 	message_length += 1;		// count parameter list terminator
 	char *c;
 	ErrorResponse *err = NULL;
+	ErrorBuffer err_buff;
+	err_buff.offset = 0;
+	const char *error_message;
 
 	// Length + extra stuff - already counted (length, protocol version)
 	StartupMessage *test_data = (StartupMessage*)malloc(message_length + sizeof(StartupMessage) - 2 * sizeof(unsigned int));
@@ -610,9 +682,71 @@ static void test_missing_parm_value(void **state) {
 	assert_non_null(err);
 	assert_null(startup);
 
+	// Ensure correct error message
+	error_message = format_error_string(&err_buff, ERR_ROCTO_MISSING_NULL, "StartupMessage", "parameter list");
+	assert_string_equal(error_message, err->args[2].value + 1);
+
 	free(test_data);
 	free_error_response(err);
 }
+
+static void test_message_has_trailing_chars(void **state) {
+	// Test a single startup message
+	unsigned int message_length = 0;
+	message_length += sizeof(unsigned int);
+	unsigned int protocol_version = 0x00030000;		// version 3.0
+	message_length += sizeof(unsigned int);
+	char *parm1_name = "user";
+	message_length += strlen(parm1_name) + 1;	// count null
+	char *parm1_value = "charles";
+	message_length += strlen(parm1_value) + 1;	// count null
+	char *parm2_name = "user";
+	message_length += strlen(parm2_name) + 1;	// count null
+	char *parm2_value = "jon";
+	message_length += strlen(parm2_value) + 1;	// count null
+	message_length += 1;		// count parameter list terminator
+	char *c;
+	ErrorResponse *err = NULL;
+	ErrorBuffer err_buff;
+	err_buff.offset = 0;
+	const char *error_message;
+
+	message_length *= 2;		// Create trailing chars
+	StartupMessage *test_data = (StartupMessage*)malloc(message_length + sizeof(StartupMessage) - 2 * sizeof(unsigned int));
+	test_data->length = htonl(message_length);
+	test_data->protocol_version = htonl(protocol_version);
+
+	// Copy parms into message
+	c = test_data->data;
+	memcpy(c, parm1_name, strlen(parm1_name) + 1);		// copy null
+	c += strlen(parm1_name) + 1;
+	memcpy(c, parm1_value, strlen(parm1_value) + 1);	// copy null
+	c += strlen(parm1_value) + 1;
+	memcpy(c, parm2_name, strlen(parm2_name) + 1);		// copy null
+	c += strlen(parm2_name) + 1;
+	memcpy(c, parm2_value, strlen(parm2_value) + 1);	// copy null
+	c += strlen(parm2_value) + 1;
+	*c = '\0';		// parameter list terminator
+
+	// mock read_bytes from socket
+	will_return(__wrap_read_bytes, message_length - 2 * sizeof(unsigned int));
+	will_return(__wrap_read_bytes, test_data->data);
+
+	// The actual test
+	StartupMessage *startup = read_startup_message(NULL, (char*)(&test_data->length), message_length, &err);
+
+	// Standard checks
+	assert_non_null(err);
+	assert_null(startup);
+
+	// Ensure correct error message
+	error_message = format_error_string(&err_buff, ERR_ROCTO_TRAILING_CHARS, "StartupMessage");
+	assert_string_equal(error_message, err->args[2].value + 1);
+
+	free(test_data);
+	free_error_response(err);
+}
+
 
 int main(void) {
 	const struct CMUnitTest tests[] = {
@@ -630,6 +764,7 @@ int main(void) {
 			cmocka_unit_test(test_unexpectedly_terminated_value),
 			cmocka_unit_test(test_missing_parm_name),
 			cmocka_unit_test(test_missing_parm_value),
+			cmocka_unit_test(test_message_has_trailing_chars),
 	};
 	return cmocka_run_group_tests(tests, NULL, NULL);
 }

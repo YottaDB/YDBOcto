@@ -25,10 +25,13 @@
 
 StartupMessage *read_startup_message(RoctoSession *session, char *data, int data_length, ErrorResponse **err) {
 	StartupMessage *ret = NULL;
+	ErrorBuffer err_buff;
 	int num_parms = 0, read = 0, cur_parm = 0;
 	char *c, *message_end;
+	const char *error_message;
 	// Length plus protocol version
 	unsigned int hard_coded_ints = sizeof(unsigned int) + sizeof(int);
+	err_buff.offset = 0;
 
 	// First read length and protocol type, then we will reallocate things
 	ret = (StartupMessage*)malloc(sizeof(StartupMessage));
@@ -38,9 +41,11 @@ StartupMessage *read_startup_message(RoctoSession *session, char *data, int data
 	// 	most significant 16 bits:  major version #, i.e. 3
 	// 	least significant 16 bits: minor version #, i.e. 0
 	if(ntohl(ret->protocol_version) != 0x00030000) {
+		error_message = format_error_string(&err_buff, ERR_ROCTO_INVALID_VERSION,
+				"StartupMessage", ntohl(ret->protocol_version), 0x00030000);
 		*err = make_error_response(PSQL_Error_FATAL,
 					   PSQL_Code_Protocol_Violation,
-					   "Protocol version did not match expected",
+					   error_message,
 					   0);
 		free(ret);
 		return NULL;
@@ -48,9 +53,10 @@ StartupMessage *read_startup_message(RoctoSession *session, char *data, int data
 
 	// No parameters send
 	if(ntohl(ret->length) == hard_coded_ints) {
+		error_message = format_error_string(&err_buff, ERR_ROCTO_MISSING_NULL, "StartupMessage", "parameter list");
 		*err = make_error_response(PSQL_Error_FATAL,
 					   PSQL_Code_Protocol_Violation,
-					   "Empty parameter list missing null terminator",
+					   error_message,
 					   0);
 		free(ret);
 		return NULL;
@@ -76,9 +82,10 @@ StartupMessage *read_startup_message(RoctoSession *session, char *data, int data
 			// Left blank
 		}
 		if(c == message_end || *c != '\0') {
+			error_message = format_error_string(&err_buff, ERR_ROCTO_MISSING_DATA, "StartupMessage", "parameter name");
 			*err = make_error_response(PSQL_Error_ERROR,
 						   PSQL_Code_Protocol_Violation,
-						   "Non-terminated parameter name",
+						   error_message,
 						   0);
 			free(ret);
 			return NULL;
@@ -89,9 +96,10 @@ StartupMessage *read_startup_message(RoctoSession *session, char *data, int data
 			// Left blank
 		}
 		if(c == message_end || *c != '\0') {
+		error_message = format_error_string(&err_buff, ERR_ROCTO_MISSING_NULL, "StartupMessage", "name or value");
 			*err = make_error_response(PSQL_Error_ERROR,
 						   PSQL_Code_Protocol_Violation,
-						   "Non-terminated parameter value",
+						   error_message,
 						   0);
 			free(ret);
 			return NULL;
@@ -101,9 +109,10 @@ StartupMessage *read_startup_message(RoctoSession *session, char *data, int data
 	}
 	// Ensure parameter list has null terminator
 	if (c == message_end || *c != '\0') {
+		error_message = format_error_string(&err_buff, ERR_ROCTO_MISSING_NULL, "StartupMessage", "parameter list");
 		*err = make_error_response(PSQL_Error_ERROR,
 					   PSQL_Code_Protocol_Violation,
-					   "Non-terminated parameter list",
+					   error_message,
 					   0);
 		free(ret);
 		return NULL;
@@ -114,9 +123,10 @@ StartupMessage *read_startup_message(RoctoSession *session, char *data, int data
 	// If there are trailing characters, note it
 	//  Right now, we will abort the startup, but it's possible to continue in this case
 	if(c != message_end) {
+		error_message = format_error_string(&err_buff, ERR_ROCTO_TRAILING_CHARS, "StartupMessage");
 		*err = make_error_response(PSQL_Error_ERROR,
 					   PSQL_Code_Protocol_Violation,
-					   "Trailing characters after startup message",
+					   error_message,
 					   0);
 		free(ret);
 		return NULL;

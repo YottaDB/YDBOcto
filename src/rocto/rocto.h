@@ -89,7 +89,7 @@ RowDescription *get_plan_row_description(PhysicalPlan *plan);
 
 // Read functions to simulate client reception of the various make_* response messages. Used for testing.
 // AuthenticationMD5Password *read_authentication_md5_password(BaseMessage *message, ErrorResponse **err);
-// AuthenticationOk *read_authentication_ok(BaseMessage *message, ErrorResponse **err);
+AuthenticationOk *read_authentication_ok(BaseMessage *message, ErrorResponse **err);
 BindComplete *read_bind_complete(BaseMessage *message, ErrorResponse **err);
 // CommandComplete *read_command_complete(BaseMessage *message, ErrorResponse **err);
 // DataRow *read_data_row(BaseMessage *message, ErrorResponse **err);

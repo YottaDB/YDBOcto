@@ -40,11 +40,11 @@ static void test_valid_input_with_parms(void **state) {
 	int parm_data_types[5] = {1, 2, 3, 4, 5};
 	message_len += sizeof(parm_data_types);
 
-	BaseMessage *message = (BaseMessage*)malloc(sizeof(BaseMessage) + message_len);
-	memset(message, 0, sizeof(BaseMessage) + message_len);
-	char *c = message->data;
-	message->type = PSQL_Parse;
-	message->length = htonl(message_len);
+	BaseMessage *test_data = (BaseMessage*)malloc(sizeof(BaseMessage) + message_len);
+	memset(test_data, 0, sizeof(BaseMessage) + message_len);
+	char *c = test_data->data;
+	test_data->type = PSQL_Parse;
+	test_data->length = htonl(message_len);
 	memcpy(c, dest, strlen(dest));
 	c += strlen(dest);
 	*c++ = '\0';
@@ -56,15 +56,15 @@ static void test_valid_input_with_parms(void **state) {
 	memcpy(c, parm_data_types, sizeof(parm_data_types));
 
 	ErrorResponse *err = NULL;
-	Parse *parse = read_parse(message, &err);
+	Parse *parse = read_parse(test_data, &err);
 
 	assert_non_null(parse);
 	assert_string_equal(parse->dest, dest);
 	assert_string_equal(parse->query, query);
-	assert_int_equal(parse->num_parms, type_params);
+	assert_int_equal(parse->num_parm_data_types, type_params);
 
 	assert_null(err);
-	free(message);
+	free(test_data);
 	free(parse);
 }
 
@@ -78,11 +78,11 @@ static void test_valid_input_without_parms(void **state) {
 	short type_params = 0;
 	message_len += sizeof(short);
 
-	BaseMessage *message = (BaseMessage*)malloc(sizeof(BaseMessage) + message_len);
-	memset(message, 0, sizeof(BaseMessage) + message_len);
-	char *c = message->data;
-	message->type = PSQL_Parse;
-	message->length = htonl(message_len);
+	BaseMessage *test_data = (BaseMessage*)malloc(sizeof(BaseMessage) + message_len);
+	memset(test_data, 0, sizeof(BaseMessage) + message_len);
+	char *c = test_data->data;
+	test_data->type = PSQL_Parse;
+	test_data->length = htonl(message_len);
 	memcpy(c, dest, strlen(dest));
 	c += strlen(dest);
 	*c++ = '\0';
@@ -92,15 +92,15 @@ static void test_valid_input_without_parms(void **state) {
 	*((short*)c) = htons(type_params);
 
 	ErrorResponse *err = NULL;
-	Parse *parse = read_parse(message, &err);
+	Parse *parse = read_parse(test_data, &err);
 
 	assert_non_null(parse);
 	assert_string_equal(parse->dest, dest);
 	assert_string_equal(parse->query, query);
-	assert_int_equal(parse->num_parms, type_params);
+	assert_int_equal(parse->num_parm_data_types, type_params);
 
 	assert_null(err);
-	free(message);
+	free(test_data);
 	free(parse);
 }
 
@@ -109,23 +109,30 @@ static void test_non_terminated_dest(void **state) {
 	message_len += sizeof(unsigned int);
 	char *dest = "a saosadfkasdfjkasd fwearf asdfkds f";
 	message_len += strlen(dest) - 1;
+	ErrorBuffer err_buff;
+	err_buff.offset = 0;
+	const char *error_message;
 
-	BaseMessage *message = (BaseMessage*)malloc(sizeof(BaseMessage) + message_len);
-	memset(message, 0, sizeof(BaseMessage) + message_len);
-	char *c = message->data;
-	message->type = PSQL_Parse;
-	message->length = htonl(message_len);
+	BaseMessage *test_data = (BaseMessage*)malloc(sizeof(BaseMessage) + message_len);
+	memset(test_data, 0, sizeof(BaseMessage) + message_len);
+	char *c = test_data->data;
+	test_data->type = PSQL_Parse;
+	test_data->length = htonl(message_len);
 	memcpy(c, dest, strlen(dest));
 	c += strlen(dest);
 
 	ErrorResponse *err = NULL;
-	Parse *parse = read_parse(message, &err);
+	Parse *parse = read_parse(test_data, &err);
 
 	assert_null(parse);
 	assert_non_null(err);
 
+	// Ensure correct error message
+	error_message = format_error_string(&err_buff, ERR_ROCTO_MISSING_NULL, "Parse", "destination");
+	assert_string_equal(error_message, err->args[2].value + 1);
+
 	free_error_response(err);
-	free(message);
+	free(test_data);
 }
 
 static void test_non_terminated_query(void **state) {
@@ -135,12 +142,15 @@ static void test_non_terminated_query(void **state) {
 	message_len += strlen(dest) + 1;
 	char *query = "SELECT * FROM names;";
 	message_len += strlen(query) - 1;
+	ErrorBuffer err_buff;
+	err_buff.offset = 0;
+	const char *error_message;
 
-	BaseMessage *message = (BaseMessage*)malloc(sizeof(BaseMessage) + message_len);
-	memset(message, 0, sizeof(BaseMessage) + message_len);
-	char *c = message->data;
-	message->type = PSQL_Parse;
-	message->length = htonl(message_len);
+	BaseMessage *test_data = (BaseMessage*)malloc(sizeof(BaseMessage) + message_len);
+	memset(test_data, 0, sizeof(BaseMessage) + message_len);
+	char *c = test_data->data;
+	test_data->type = PSQL_Parse;
+	test_data->length = htonl(message_len);
 	memcpy(c, dest, strlen(dest));
 	c += strlen(dest);
 	*c++ = '\0';
@@ -148,12 +158,16 @@ static void test_non_terminated_query(void **state) {
 	c += strlen(query);
 
 	ErrorResponse *err = NULL;
-	Parse *parse = read_parse(message, &err);
+	Parse *parse = read_parse(test_data, &err);
 
 	assert_null(parse);
 	assert_non_null(err);
 
-	free(message);
+	// Ensure correct error message
+	error_message = format_error_string(&err_buff, ERR_ROCTO_MISSING_NULL, "Parse", "query");
+	assert_string_equal(error_message, err->args[2].value + 1);
+
+	free(test_data);
 	free_error_response(err);
 }
 
@@ -164,24 +178,31 @@ static void test_unexpectedly_terminated_dest(void **state) {
 	message_len += strlen(dest) + 5 + 2;	// count remaining chars + nulls
 	char *query = "SELECT * FROM names;";
 	message_len += strlen(query) + 1;	// count null
+	ErrorBuffer err_buff;
+	err_buff.offset = 0;
+	const char *error_message;
 
-	BaseMessage *message = (BaseMessage*)malloc(message_len + sizeof(BaseMessage) - sizeof(unsigned int));
-	memset(message, 0, message_len + sizeof(BaseMessage) - sizeof(unsigned int));
-	char *c = message->data;
-	message->type = PSQL_Parse;
-	message->length = htonl(message_len);
+	BaseMessage *test_data = (BaseMessage*)malloc(message_len + sizeof(BaseMessage) - sizeof(unsigned int));
+	memset(test_data, 0, message_len + sizeof(BaseMessage) - sizeof(unsigned int));
+	char *c = test_data->data;
+	test_data->type = PSQL_Parse;
+	test_data->length = htonl(message_len);
 	memcpy(c, dest, message_len - sizeof(unsigned int) - strlen(query) - 1);
 	c += message_len - sizeof(unsigned int) - strlen(query) - 1;
 	memcpy(c, query, strlen(query) + 1);
 
 	ErrorResponse *err = NULL;
-	Parse *parse = read_parse(message, &err);
+	Parse *parse = read_parse(test_data, &err);
 
 	assert_null(parse);
 	assert_non_null(err);
 
+	// Ensure correct error message
+	error_message = format_error_string(&err_buff, ERR_ROCTO_MISSING_DATA, "Parse", "parameter data types");
+	assert_string_equal(error_message, err->args[2].value + 1);
+
 	free_error_response(err);
-	free(message);
+	free(test_data);
 }
 
 static void test_unexpectedly_terminated_query(void **state) {
@@ -191,24 +212,31 @@ static void test_unexpectedly_terminated_query(void **state) {
 	message_len += strlen(dest) + 1;
 	char *query = "SELECT * FROM\0 names;";
 	message_len += strlen(query) + 7 + 2;	// count remaining chars + nulls
+	ErrorBuffer err_buff;
+	err_buff.offset = 0;
+	const char *error_message;
 
-	BaseMessage *message = (BaseMessage*)malloc(message_len + sizeof(BaseMessage) - sizeof(unsigned int));
-	memset(message, 0, message_len + sizeof(BaseMessage) - sizeof(unsigned int));
-	char *c = message->data;
-	message->type = PSQL_Parse;
-	message->length = htonl(message_len);
+	BaseMessage *test_data = (BaseMessage*)malloc(message_len + sizeof(BaseMessage) - sizeof(unsigned int));
+	memset(test_data, 0, message_len + sizeof(BaseMessage) - sizeof(unsigned int));
+	char *c = test_data->data;
+	test_data->type = PSQL_Parse;
+	test_data->length = htonl(message_len);
 	memcpy(c, dest, strlen(dest));
 	c += strlen(dest);
 	*c++ = '\0';
 	memcpy(c, query, message_len - sizeof(unsigned int) - strlen(dest) - 1);
 
 	ErrorResponse *err = NULL;
-	Parse *parse = read_parse(message, &err);
+	Parse *parse = read_parse(test_data, &err);
 
 	assert_null(parse);
 	assert_non_null(err);
 
-	free(message);
+	// Ensure correct error message
+	error_message = format_error_string(&err_buff, ERR_ROCTO_MISSING_DATA, "Parse", "parameter data types");
+	assert_string_equal(error_message, err->args[2].value + 1);
+
+	free(test_data);
 	free_error_response(err);
 }
 
@@ -217,37 +245,47 @@ static void test_missing_dest_or_query(void **state) {
 	message_len += sizeof(unsigned int);
 	char *dest = "Laputa";
 	message_len += strlen(dest) + 1;	// count remaining chars + null
+	ErrorBuffer err_buff;
+	err_buff.offset = 0;
+	const char *error_message;
 
-	BaseMessage *message = (BaseMessage*)malloc(sizeof(BaseMessage) + message_len);
-	memset(message, 0, sizeof(BaseMessage) + message_len);
-	char *c = message->data;
-	message->type = PSQL_Parse;
-	message->length = htonl(message_len);
+	BaseMessage *test_data = (BaseMessage*)malloc(sizeof(BaseMessage) + message_len);
+	memset(test_data, 0, sizeof(BaseMessage) + message_len);
+	char *c = test_data->data;
+	test_data->type = PSQL_Parse;
+	test_data->length = htonl(message_len);
 	memcpy(c, dest, message_len - sizeof(unsigned int));
 
 	ErrorResponse *err = NULL;
-	Parse *parse = read_parse(message, &err);
+	Parse *parse = read_parse(test_data, &err);
 
 	assert_null(parse);
 	assert_non_null(err);
 
+	// Ensure correct error message
+	error_message = format_error_string(&err_buff, ERR_ROCTO_MISSING_DATA, "Parse", "destination or query");
+	assert_string_equal(error_message, err->args[2].value + 1);
+
 	free_error_response(err);
-	free(message);
+	free(test_data);
 }
 
-static void test_missing_num_parms(void **state) {
+static void test_missing_num_parm_data_types(void **state) {
 	unsigned int message_len = 0;
 	message_len += sizeof(unsigned int);
 	char *dest = "Laputa";
 	message_len += strlen(dest) + 1;	// count remaining chars + null
 	char *query = "FROM * SELECT names";
 	message_len += strlen(query) + 1;	// count remaining chars + null
+	ErrorBuffer err_buff;
+	err_buff.offset = 0;
+	const char *error_message;
 
-	BaseMessage *message = (BaseMessage*)malloc(sizeof(BaseMessage) + message_len);
-	memset(message, 0, sizeof(BaseMessage) + message_len);
-	char *c = message->data;
-	message->type = PSQL_Parse;
-	message->length = htonl(message_len);
+	BaseMessage *test_data = (BaseMessage*)malloc(sizeof(BaseMessage) + message_len);
+	memset(test_data, 0, sizeof(BaseMessage) + message_len);
+	char *c = test_data->data;
+	test_data->type = PSQL_Parse;
+	test_data->length = htonl(message_len);
 	memcpy(c, dest, strlen(dest));
 	c += strlen(dest);
 	*c++ = '\0';
@@ -256,13 +294,17 @@ static void test_missing_num_parms(void **state) {
 	*c++ = '\0';
 
 	ErrorResponse *err = NULL;
-	Parse *parse = read_parse(message, &err);
+	Parse *parse = read_parse(test_data, &err);
 
 	assert_null(parse);
 	assert_non_null(err);
 
+	// Ensure correct error message
+	error_message = format_error_string(&err_buff, ERR_ROCTO_MISSING_DATA, "Parse", "number of parameter data types");
+	assert_string_equal(error_message, err->args[2].value + 1);
+
 	free_error_response(err);
-	free(message);
+	free(test_data);
 }
 
 static void test_too_many_parms(void **state) {
@@ -276,12 +318,15 @@ static void test_too_many_parms(void **state) {
 	message_len += sizeof(short);
 	int parm_data_types[5] = {1, 2, 3, 4, 5};
 	message_len += sizeof(parm_data_types);
+	ErrorBuffer err_buff;
+	err_buff.offset = 0;
+	const char *error_message;
 
-	BaseMessage *message = (BaseMessage*)malloc(sizeof(BaseMessage) + message_len);
-	memset(message, 0, sizeof(BaseMessage) + message_len);
-	char *c = message->data;
-	message->type = PSQL_Parse;
-	message->length = htonl(message_len);
+	BaseMessage *test_data = (BaseMessage*)malloc(sizeof(BaseMessage) + message_len);
+	memset(test_data, 0, sizeof(BaseMessage) + message_len);
+	char *c = test_data->data;
+	test_data->type = PSQL_Parse;
+	test_data->length = htonl(message_len);
 	memcpy(c, dest, strlen(dest));
 	c += strlen(dest);
 	*c++ = '\0';
@@ -293,13 +338,17 @@ static void test_too_many_parms(void **state) {
 	memcpy(c, parm_data_types, sizeof(parm_data_types));
 
 	ErrorResponse *err = NULL;
-	Parse *parse = read_parse(message, &err);
+	Parse *parse = read_parse(test_data, &err);
 
 	assert_null(parse);
 	assert_non_null(err);
 
+	// Ensure correct error message
+	error_message = format_error_string(&err_buff, ERR_ROCTO_TOO_MANY_VALUES, "Parse", "parameter data types");
+	assert_string_equal(error_message, err->args[2].value + 1);
+
 	free_error_response(err);
-	free(message);
+	free(test_data);
 }
 
 static void test_too_few_parms(void **state) {
@@ -313,12 +362,15 @@ static void test_too_few_parms(void **state) {
 	message_len += sizeof(short);
 	int parm_data_types[5] = {1, 2, 3, 4, 5};
 	message_len += sizeof(parm_data_types);
+	ErrorBuffer err_buff;
+	err_buff.offset = 0;
+	const char *error_message;
 
-	BaseMessage *message = (BaseMessage*)malloc(sizeof(BaseMessage) + message_len);
-	memset(message, 0, sizeof(BaseMessage) + message_len);
-	char *c = message->data;
-	message->type = PSQL_Parse;
-	message->length = htonl(message_len);
+	BaseMessage *test_data = (BaseMessage*)malloc(sizeof(BaseMessage) + message_len);
+	memset(test_data, 0, sizeof(BaseMessage) + message_len);
+	char *c = test_data->data;
+	test_data->type = PSQL_Parse;
+	test_data->length = htonl(message_len);
 	memcpy(c, dest, strlen(dest));
 	c += strlen(dest);
 	*c++ = '\0';
@@ -330,13 +382,17 @@ static void test_too_few_parms(void **state) {
 	memcpy(c, parm_data_types, sizeof(parm_data_types));
 
 	ErrorResponse *err = NULL;
-	Parse *parse = read_parse(message, &err);
+	Parse *parse = read_parse(test_data, &err);
 
 	assert_null(parse);
 	assert_non_null(err);
 
+	// Ensure correct error message
+	error_message = format_error_string(&err_buff, ERR_ROCTO_MISSING_DATA, "Parse", "parameter data types");
+	assert_string_equal(error_message, err->args[2].value + 1);
+
 	free_error_response(err);
-	free(message);
+	free(test_data);
 }
 
 static void test_invalid_type(void **state) {
@@ -350,12 +406,15 @@ static void test_invalid_type(void **state) {
 	message_len += sizeof(short);
 	int parm_data_types[5] = {1, 2, 3, 4, 5};
 	message_len += sizeof(parm_data_types);
+	ErrorBuffer err_buff;
+	err_buff.offset = 0;
+	const char *error_message;
 
-	BaseMessage *message = (BaseMessage*)malloc(sizeof(BaseMessage) + message_len);
-	memset(message, 0, sizeof(BaseMessage) + message_len);
-	char *c = message->data;
-	message->type = 'X';
-	message->length = htonl(message_len);
+	BaseMessage *test_data = (BaseMessage*)malloc(sizeof(BaseMessage) + message_len);
+	memset(test_data, 0, sizeof(BaseMessage) + message_len);
+	char *c = test_data->data;
+	test_data->type = 'X';
+	test_data->length = htonl(message_len);
 	memcpy(c, dest, strlen(dest));
 	c += strlen(dest);
 	*c++ = '\0';
@@ -367,17 +426,21 @@ static void test_invalid_type(void **state) {
 	memcpy(c, parm_data_types, sizeof(parm_data_types));
 
 	ErrorResponse *err = NULL;
-	Parse *parse = read_parse(message, &err);
+	Parse *parse = read_parse(test_data, &err);
 
 	assert_non_null(err);
 	assert_null(parse);
 
-	free(message);
+	// Ensure correct error message
+	error_message = format_error_string(&err_buff, ERR_ROCTO_INVALID_TYPE, "Parse", test_data->type, PSQL_Parse);
+	assert_string_equal(error_message, err->args[2].value + 1);
+
+	free(test_data);
 	free_error_response(err);
 }
 
-static void test_invalid_num_parms(void **state) {
-		unsigned int message_len = 0;
+static void test_invalid_num_parm_data_types(void **state) {
+	unsigned int message_len = 0;
 	message_len += sizeof(unsigned int);
 	char *dest = "a";
 	message_len += strlen(dest) + 1;
@@ -385,12 +448,15 @@ static void test_invalid_num_parms(void **state) {
 	message_len += strlen(query) + 1;
 	short type_params = -1;
 	message_len += sizeof(short);
+	ErrorBuffer err_buff;
+	err_buff.offset = 0;
+	const char *error_message;
 
-	BaseMessage *message = (BaseMessage*)malloc(sizeof(BaseMessage) + message_len);
-	memset(message, 0, sizeof(BaseMessage) + message_len);
-	char *c = message->data;
-	message->type = PSQL_Parse;
-	message->length = htonl(message_len);
+	BaseMessage *test_data = (BaseMessage*)malloc(sizeof(BaseMessage) + message_len);
+	memset(test_data, 0, sizeof(BaseMessage) + message_len);
+	char *c = test_data->data;
+	test_data->type = PSQL_Parse;
+	test_data->length = htonl(message_len);
 	memcpy(c, dest, strlen(dest));
 	c += strlen(dest);
 	*c++ = '\0';
@@ -400,12 +466,16 @@ static void test_invalid_num_parms(void **state) {
 	*((short*)c) = htons(type_params);
 
 	ErrorResponse *err = NULL;
-	Parse *parse = read_parse(message, &err);
+	Parse *parse = read_parse(test_data, &err);
 
 	assert_non_null(err);
 	assert_null(parse);
 
-	free(message);
+	// Ensure correct error message
+	error_message = format_error_string(&err_buff, ERR_ROCTO_INVALID_NUMBER, "Parse", "parameter data types");
+	assert_string_equal(error_message, err->args[2].value + 1);
+
+	free(test_data);
 	free_error_response(err);
 }
 
@@ -418,11 +488,11 @@ int main(void) {
 		cmocka_unit_test(test_unexpectedly_terminated_dest),
 		cmocka_unit_test(test_unexpectedly_terminated_query),
 		cmocka_unit_test(test_missing_dest_or_query),
-		cmocka_unit_test(test_missing_num_parms),
+		cmocka_unit_test(test_missing_num_parm_data_types),
 		cmocka_unit_test(test_too_many_parms),
 		cmocka_unit_test(test_too_few_parms),
 		cmocka_unit_test(test_invalid_type),
-		cmocka_unit_test(test_invalid_num_parms),
+		cmocka_unit_test(test_invalid_num_parm_data_types),
 	};
 	return cmocka_run_group_tests(tests, NULL, NULL);
 }

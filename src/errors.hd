@@ -37,10 +37,13 @@ ERROR_DEF(ERR_TABLE_DEFINITION_TOO_LONG, "Table definition for %s too long; max 
 ERROR_DEF(ERR_BUFFER_TOO_SMALL, "Buffer used to store output plans is too small for the query")
 ERROR_DEF(ERR_INVALID_READ_SIZE, "Read size %d out of range")
 ERROR_DEF(ERR_INVALID_WRITE_SIZE, "Read size %d out of range")
+
+// ROcto error definitions
 ERROR_DEF(ERR_ROCTO_INVALID_TYPE, "%s: invalid type '%c': must be '%c'")
 ERROR_DEF(ERR_ROCTO_MISSING_NULL, "%s: %s missing null terminator")
 ERROR_DEF(ERR_ROCTO_INVALID_NUMBER, "%s: invalid number of %s")
 ERROR_DEF(ERR_ROCTO_MISSING_DATA, "%s: missing %s")
 ERROR_DEF(ERR_ROCTO_TRAILING_CHARS, "%s: message has trailing characters")
 ERROR_DEF(ERR_ROCTO_INVALID_ITEM_VALUE, "%s: invalid %s value %c: must be %s")
+ERROR_DEF(ERR_ROCTO_TOO_MANY_VALUES, "%s: too many %s")
 ERROR_END(CUSTOM_ERROR, "Error not found")

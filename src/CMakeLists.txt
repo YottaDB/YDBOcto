@@ -183,13 +183,14 @@ add_library(librocto OBJECT
   rocto/read_bytes.c
   rocto/rocto_main_loop.c
   rocto/free_error_response.c
+  rocto/free_data_row.c
   rocto/get_plan_row_description.c
   rocto/handle_query_response.c
   #  rocto/read_authentication_md5_password.c
   rocto/read_authentication_ok.c
   rocto/read_bind_complete.c
   rocto/read_command_complete.c
-  #  rocto/read_data_row.c
+  rocto/read_data_row.c
   #  rocto/read_empty_query_response.c
   #  rocto/read_error_response.c
   #  rocto/read_parameter_status.c

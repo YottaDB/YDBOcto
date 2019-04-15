@@ -205,7 +205,7 @@ typedef struct __attribute__((packed)) {
 typedef struct __attribute__((packed)) {
 	char *dest;
 	char *query;
-	short num_parms;
+	short num_parm_data_types;
 	unsigned int *parm_data_types;
 
 	char type;

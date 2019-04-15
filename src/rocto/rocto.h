@@ -42,7 +42,7 @@ void free_error_response(ErrorResponse *err);
 // make_* produces a structure for the correct type, taking in arguments specific to that type
 // These should be viewed as helpers for other functions
 // varargs should be of type ErrorResponseArg
-ErrorResponse *make_error_response(PSQL_ErrorSeverity severity, PSQL_SQLSTATECode code, char *message, size_t num_args, ...);
+ErrorResponse *make_error_response(PSQL_ErrorSeverity severity, PSQL_SQLSTATECode code, const char *message, size_t num_args, ...);
 BindComplete *make_bind_complete();
 ReadyForQuery *make_ready_for_query(PSQL_TransactionStatus status);
 EmptyQueryResponse *make_empty_query_response();

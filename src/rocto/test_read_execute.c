@@ -67,6 +67,9 @@ static void test_non_terminated_input(void **state) {
 	message_length += sizeof(unsigned int);		// count rows field
 	char *c = NULL;
 	ErrorResponse *err = NULL;
+	ErrorBuffer err_buff;
+	err_buff.offset = 0;
+	const char *error_message;
 
 	// Populate BaseMessage
 	BaseMessage *test_data = malloc(message_length + sizeof(BaseMessage) - sizeof(unsigned int));
@@ -76,13 +79,17 @@ static void test_non_terminated_input(void **state) {
 	// Copy message (exclude length and rows fields)
 	strncpy(c, message, message_length - sizeof(unsigned int) - sizeof(unsigned int));
 	c += message_length - sizeof(unsigned int) - sizeof(unsigned int);
-	*((int*)c) = htonl(10);	// set value of rows field
+	*((int*)c) = htonl(-1);		// set value of rows field to enforce non-null-terminated string
 
 	// The actual test
 	Execute *execute = read_execute(test_data, &err);
 
 	assert_non_null(err);
 	assert_null(execute);
+
+	// Ensure correct error message
+	error_message = format_error_string(&err_buff, ERR_ROCTO_MISSING_NULL, "Execute", "source");
+	assert_string_equal(error_message, err->args[2].value + 1);
 
 	free(test_data);
 	free(execute);
@@ -98,6 +105,9 @@ static void test_unexpectedly_terminated_input(void **state) {
 	message_length += sizeof(unsigned int);		// count rows field
 	char *c = NULL;
 	ErrorResponse *err = NULL;
+	ErrorBuffer err_buff;
+	err_buff.offset = 0;
+	const char *error_message;
 
 	// Populate BaseMessage
 	BaseMessage *test_data = malloc(message_length + sizeof(BaseMessage) - sizeof(unsigned int));
@@ -115,6 +125,10 @@ static void test_unexpectedly_terminated_input(void **state) {
 	assert_non_null(err);
 	assert_null(execute);
 
+	// Ensure correct error message
+	error_message = format_error_string(&err_buff, ERR_ROCTO_TRAILING_CHARS, "Execute");
+	assert_string_equal(error_message, err->args[2].value + 1);
+
 	free(test_data);
 	free(execute);
 	free_error_response(err);
@@ -129,6 +143,9 @@ static void test_missing_rows_field(void **state) {
 	message_length += strlen(message) + 1;		// count null
 	char *c = NULL;
 	ErrorResponse *err = NULL;
+	ErrorBuffer err_buff;
+	err_buff.offset = 0;
+	const char *error_message;
 
 	// Populate BaseMessage
 	BaseMessage *test_data = malloc(message_length + sizeof(BaseMessage) - sizeof(unsigned int));
@@ -144,6 +161,10 @@ static void test_missing_rows_field(void **state) {
 	assert_non_null(err);
 	assert_null(execute);
 
+	// Ensure correct error message
+	error_message = format_error_string(&err_buff, ERR_ROCTO_MISSING_DATA, "Execute", "number of rows to return");
+	assert_string_equal(error_message, err->args[2].value + 1);
+
 	free(test_data);
 	free_error_response(err);
 }
@@ -157,6 +178,9 @@ static void test_invalid_type(void **state) {
 	message_length += sizeof(unsigned int);		// count rows field
 	char *c = NULL;
 	ErrorResponse *err = NULL;
+	ErrorBuffer err_buff;
+	err_buff.offset = 0;
+	const char *error_message;
 
 	// Populate BaseMessage
 	BaseMessage *test_data = malloc(message_length + sizeof(BaseMessage) - sizeof(unsigned int));
@@ -173,6 +197,10 @@ static void test_invalid_type(void **state) {
 
 	assert_non_null(err);
 	assert_null(execute);
+
+	// Ensure correct error message
+	error_message = format_error_string(&err_buff, ERR_ROCTO_INVALID_TYPE, "Execute", test_data->type, PSQL_Execute);
+	assert_string_equal(error_message, err->args[2].value + 1);
 
 	free(test_data);
 	free(execute);

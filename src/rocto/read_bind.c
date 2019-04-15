@@ -122,9 +122,11 @@ Bind *read_bind(BaseMessage *message, ErrorResponse **err) {
 	// Ensure all parameter format codes are valid
 	for (i = 0; i < ret->num_parm_format_codes; i++) {
 		if (0 != ret->parm_format_codes[i] && 1 != ret->parm_format_codes[i]) {
+			error_message = format_error_string(&err_buff, ERR_ROCTO_INVALID_INT_VALUE,
+					"Bind", "parameter format code", ret->parm_format_codes[i], "0 (text) or 1 (binary)");
 			*err = make_error_response(PSQL_Error_ERROR,
 						   PSQL_Code_Protocol_Violation,
-						   "Invalid parameter format code",
+						   error_message,
 						   0);
 			free(ret);
 			return NULL;
@@ -144,18 +146,20 @@ Bind *read_bind(BaseMessage *message, ErrorResponse **err) {
 	cur_pointer += sizeof(short int);
 	// Ensure correct number of parameter format codes sent
 	if (ret->num_parm_format_codes > ret->num_parms) {
+		error_message = format_error_string(&err_buff, ERR_ROCTO_TOO_MANY_VALUES, "Bind", "parameter format codes");
 		*err = make_error_response(PSQL_Error_ERROR,
 					   PSQL_Code_Protocol_Violation,
-					   "Too many format codes sent",
+					   error_message,
 					   0);
 		free(ret->parms);
 		free(ret);
 		return NULL;
 	}
 	if (ret->num_parm_format_codes > default_format_max && ret->num_parm_format_codes != ret->num_parms) {
+		error_message = format_error_string(&err_buff, ERR_ROCTO_TOO_FEW_VALUES, "Bind", "parameter format codes");
 		*err = make_error_response(PSQL_Error_ERROR,
 					   PSQL_Code_Protocol_Violation,
-					   "Too few format codes sent",
+					   error_message,
 					   0);
 		free(ret->parms);
 		free(ret);
@@ -209,7 +213,7 @@ Bind *read_bind(BaseMessage *message, ErrorResponse **err) {
 	// Set number of column format codes and ensure correct values
 	ret->num_result_col_format_codes = ntohs(*((short int*)cur_pointer));
 	if (ret->num_result_col_format_codes < 0) {
-		error_message = format_error_string(&err_buff, ERR_ROCTO_INVALID_NUMBER, "Bind", "column format codes");
+		error_message = format_error_string(&err_buff, ERR_ROCTO_INVALID_NUMBER, "Bind", "result column format codes");
 		*err = make_error_response(PSQL_Error_ERROR,
 					   PSQL_Code_Protocol_Violation,
 					   error_message,
@@ -222,7 +226,8 @@ Bind *read_bind(BaseMessage *message, ErrorResponse **err) {
 		ret->result_col_format_codes = (void*)cur_pointer;
 		cur_pointer += ret->num_result_col_format_codes * sizeof(short int);
 		if(cur_pointer > last_byte) {
-			error_message = format_error_string(&err_buff, ERR_ROCTO_MISSING_DATA, "Bind", "result format codes");
+			error_message = format_error_string(&err_buff, ERR_ROCTO_MISSING_DATA,
+					"Bind", "result column format codes");
 			*err = make_error_response(PSQL_Error_ERROR,
 						   PSQL_Code_Protocol_Violation,
 						   error_message,
@@ -234,9 +239,12 @@ Bind *read_bind(BaseMessage *message, ErrorResponse **err) {
 		// Ensure all column format codes are valid
 		for (i = 0; i < ret->num_result_col_format_codes; i++) {
 			if (0 != ret->result_col_format_codes[i] && 1 != ret->result_col_format_codes[i]) {
+				error_message = format_error_string(&err_buff, ERR_ROCTO_INVALID_INT_VALUE,
+						"Bind", "result column format code", ret->result_col_format_codes[i],
+						"0 (text) or 1 (binary)");
 				*err = make_error_response(PSQL_Error_ERROR,
 							   PSQL_Code_Protocol_Violation,
-							   "Invalid column format code",
+							   error_message,
 							   0);
 				free(ret->parms);
 				free(ret);

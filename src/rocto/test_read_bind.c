@@ -606,6 +606,12 @@ static void test_too_many_parameters(void **state) {
 	// Standard checks
 	assert_non_null(err);
 	assert_non_null(bind);		// May contain junk, but this is acceptable
+	assert_string_equal(bind->dest, dest);
+	assert_string_equal(bind->source, source);
+	assert_int_equal(bind->num_parm_format_codes, ntohs(num_parm_format_codes));
+	assert_int_equal(bind->num_parms, ntohs(num_parms));
+	assert_non_null(bind->parms);
+	// Ignore bad result_col_format_codes data, since it may be junk
 
         free(test_data);
 	free(parm1);
@@ -616,9 +622,7 @@ static void test_too_many_parameters(void **state) {
 	free_error_response(err);
 }
 
-
 static void test_no_parms_with_too_many_num_parm_codes(void **state) {
-	// Test a valid, simple, Bind command
 	char *ptr = NULL;
 	char *dest = "Hello";
 	char *source = "SELECT * FROM names;";
@@ -627,6 +631,9 @@ static void test_no_parms_with_too_many_num_parm_codes(void **state) {
 	short int num_result_col_format_codes = htons(0);
 	int message_length = sizeof(unsigned int) + strlen(dest) + strlen(source) + 2 + sizeof(short int) * 3;
 	ErrorResponse *err = NULL;
+	ErrorBuffer err_buff;
+	err_buff.offset = 0;
+	const char *error_message;
 
 	BaseMessage *test_data = (BaseMessage*)malloc(message_length + sizeof(BaseMessage) - sizeof(unsigned int));
 	test_data->type = PSQL_Bind;
@@ -652,12 +659,19 @@ static void test_no_parms_with_too_many_num_parm_codes(void **state) {
 	assert_non_null(err);
 	assert_null(bind);
 
+	// Ensure correct error message
+	error_message = format_error_string(&err_buff, ERR_ROCTO_TOO_MANY_VALUES, "Bind", "parameter format codes");
+	assert_string_equal(error_message, err->args[2].value + 1);
+
         free(test_data);
         free_error_response(err);
 }
 
 static void test_one_parm_with_too_many_num_parm_codes(void **state) {
-	// Test a valid, simple, Bind command
+	ErrorBuffer err_buff;
+	err_buff.offset = 0;
+	const char *error_message;
+
 	int message_length = 0;
 	message_length += sizeof(unsigned int);		// length
 
@@ -725,6 +739,10 @@ static void test_one_parm_with_too_many_num_parm_codes(void **state) {
 	assert_null(bind);
 	assert_non_null(err);
 
+	// Ensure correct error message
+	error_message = format_error_string(&err_buff, ERR_ROCTO_TOO_MANY_VALUES, "Bind", "parameter format codes");
+	assert_string_equal(error_message, err->args[2].value + 1);
+
         free(test_data);
 	free(parm);
 	free_error_response(err);
@@ -732,7 +750,10 @@ static void test_one_parm_with_too_many_num_parm_codes(void **state) {
 
 
 static void test_multi_parms_with_too_many_num_parm_codes(void **state) {
-	// Test a valid, simple, Bind command
+	ErrorBuffer err_buff;
+	err_buff.offset = 0;
+	const char *error_message;
+
 	int message_length = 0;
 	message_length += sizeof(unsigned int);		// length
 
@@ -745,7 +766,7 @@ static void test_multi_parms_with_too_many_num_parm_codes(void **state) {
 	// Format codes
 	short int num_parm_format_codes = htons(3);
 	message_length += sizeof(short int);
-	short int formats[3] = {0, 2, 6};		// arbitrary format code
+	short int formats[3] = {0, 0, 0};		// arbitrary format code
 	message_length += sizeof(formats);
 
 	// Parameters
@@ -809,6 +830,10 @@ static void test_multi_parms_with_too_many_num_parm_codes(void **state) {
 	assert_non_null(err);
 	assert_null(bind);
 
+	// Ensure correct error message
+	error_message = format_error_string(&err_buff, ERR_ROCTO_TOO_MANY_VALUES, "Bind", "parameter format codes");
+	assert_string_equal(error_message, err->args[2].value + 1);
+
         free(test_data);
 	free(parm1);
 	free(parm2);
@@ -816,7 +841,10 @@ static void test_multi_parms_with_too_many_num_parm_codes(void **state) {
 }
 
 static void test_multi_parms_with_too_few_num_parm_codes(void **state) {
-	// Test a valid, simple, Bind command
+	ErrorBuffer err_buff;
+	err_buff.offset = 0;
+	const char *error_message;
+
 	int message_length = 0;
 	message_length += sizeof(unsigned int);		// length
 
@@ -900,6 +928,10 @@ static void test_multi_parms_with_too_few_num_parm_codes(void **state) {
 	// Standard checks
 	assert_non_null(err);
 	assert_null(bind);
+
+	// Ensure correct error message
+	error_message = format_error_string(&err_buff, ERR_ROCTO_TOO_FEW_VALUES, "Bind", "parameter format codes");
+	assert_string_equal(error_message, err->args[2].value + 1);
 
         free(test_data);
 	free(parm1);
@@ -1274,7 +1306,7 @@ static void test_missing_result_col_format_codes(void **state) {
 	assert_non_null(err);
 
 	// Ensure correct error message
-	error_message = format_error_string(&err_buff, ERR_ROCTO_MISSING_DATA, "Bind", "result format codes");
+	error_message = format_error_string(&err_buff, ERR_ROCTO_MISSING_DATA, "Bind", "result column format codes");
 	assert_string_equal(error_message, err->args[2].value + 1);
 
         free(test_data);
@@ -1459,7 +1491,7 @@ static void test_invalid_num_col_format_codes(void **state) {
 	assert_null(bind);
 
 	// Ensure correct error message
-	error_message = format_error_string(&err_buff, ERR_ROCTO_INVALID_NUMBER, "Bind", "column format codes");
+	error_message = format_error_string(&err_buff, ERR_ROCTO_INVALID_NUMBER, "Bind", "result column format codes");
 	assert_string_equal(error_message, err->args[2].value + 1);
 
         free(test_data);
@@ -1474,6 +1506,7 @@ int main(void) {
 		cmocka_unit_test(test_valid_input_multi_parms_default_parm_code),
 		cmocka_unit_test(test_valid_input_multi_parms_one_parm_code),
 		cmocka_unit_test(test_valid_input_multi_parms_actual_parm_codes),
+		cmocka_unit_test(test_too_many_parameters),
 		cmocka_unit_test(test_no_parms_with_too_many_num_parm_codes),
 		cmocka_unit_test(test_one_parm_with_too_many_num_parm_codes),
 		cmocka_unit_test(test_multi_parms_with_too_few_num_parm_codes),
@@ -1486,7 +1519,6 @@ int main(void) {
 		cmocka_unit_test(test_unexpected_null_terminator_on_source),
 		cmocka_unit_test(test_missing_parameter_types),
 		cmocka_unit_test(test_missing_parameters),
-		cmocka_unit_test(test_too_many_parameters),
 		cmocka_unit_test(test_missing_result_col_format_codes),
 		cmocka_unit_test(test_invalid_type),
 		cmocka_unit_test(test_invalid_num_parm_format_codes),

@@ -169,7 +169,7 @@ static void test_invalid_item(void **state) {
 	assert_non_null(err);
 
 	// Ensure correct error message
-	error_message = format_error_string(&err_buff, ERR_ROCTO_INVALID_ITEM_VALUE, "Describe", "item",
+	error_message = format_error_string(&err_buff, ERR_ROCTO_INVALID_CHAR_VALUE, "Describe", "item",
 			*(char*)test_data->data, "'S' or 'P'");
 	assert_string_equal(error_message, err->args[2].value + 1);
 

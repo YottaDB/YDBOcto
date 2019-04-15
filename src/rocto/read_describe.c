@@ -54,7 +54,7 @@ Describe *read_describe(BaseMessage *message, ErrorResponse **err) {
 	}
 	// Ensure valid value for item field
 	if (ret->item != 'S' && ret->item != 'P') {
-		error_message = format_error_string(&err_buff, ERR_ROCTO_INVALID_ITEM_VALUE, "Describe", "item",
+		error_message = format_error_string(&err_buff, ERR_ROCTO_INVALID_CHAR_VALUE, "Describe", "item",
 				ret->item, "'S' or 'P'");
 		*err = make_error_response(PSQL_Error_WARNING,
 					   PSQL_Code_Protocol_Violation,

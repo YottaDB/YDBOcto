@@ -27,6 +27,7 @@ Bind *read_bind(BaseMessage *message, ErrorResponse **err) {
 	Bind *ret;
 	char *cur_pointer, *last_byte, *length_ptr;
 	unsigned int remaining_length;
+	const int default_format_max = 1;
 	int i = 0;
 
 	// Initialize Bind struct
@@ -88,9 +89,9 @@ Bind *read_bind(BaseMessage *message, ErrorResponse **err) {
 		return NULL;
 	}
 	cur_pointer += sizeof(short int);
-	// Set pointer to parameter format codes within data section
+	// Create pointer to parameter format code location in data array
 	if(ret->num_parm_format_codes > 0)
-		ret->parm_format_codes = (void*)cur_pointer;
+		ret->parm_format_codes = (short int*)cur_pointer;
 	cur_pointer += ret->num_parm_format_codes * sizeof(short int);
 	// Ensure all parameter format codes present
 	if(cur_pointer > last_byte) {
@@ -100,6 +101,17 @@ Bind *read_bind(BaseMessage *message, ErrorResponse **err) {
 					   0);
 		free(ret);
 		return NULL;
+	}
+	// Ensure all parameter format codes are valid
+	for (i = 0; i < ret->num_parm_format_codes; i++) {
+		if (0 != ret->parm_format_codes[i] && 1 != ret->parm_format_codes[i]) {
+			*err = make_error_response(PSQL_Error_ERROR,
+						   PSQL_Code_Protocol_Violation,
+						   "Invalid parameter format code",
+						   0);
+			free(ret);
+			return NULL;
+		}
 	}
 	// Set number of parameters and ensure valid value
 	ret->num_parms = ntohs(*((short int*)cur_pointer));
@@ -112,6 +124,25 @@ Bind *read_bind(BaseMessage *message, ErrorResponse **err) {
 		return NULL;
 	}
 	cur_pointer += sizeof(short int);
+	// Ensure correct number of parameter format codes sent
+	if (ret->num_parm_format_codes > ret->num_parms) {
+		*err = make_error_response(PSQL_Error_ERROR,
+					   PSQL_Code_Protocol_Violation,
+					   "Too many format codes sent",
+					   0);
+		free(ret->parms);
+		free(ret);
+		return NULL;
+	}
+	if (ret->num_parm_format_codes > default_format_max && ret->num_parm_format_codes != ret->num_parms) {
+		*err = make_error_response(PSQL_Error_ERROR,
+					   PSQL_Code_Protocol_Violation,
+					   "Too few format codes sent",
+					   0);
+		free(ret->parms);
+		free(ret);
+		return NULL;
+	}
 	// Ensure parameters are present
 	if(cur_pointer > last_byte) {
 		*err = make_error_response(PSQL_Error_ERROR,
@@ -177,15 +208,26 @@ Bind *read_bind(BaseMessage *message, ErrorResponse **err) {
 			free(ret);
 			return NULL;
 		}
+		// Ensure all column format codes are valid
+		for (i = 0; i < ret->num_result_col_format_codes; i++) {
+			if (0 != ret->result_col_format_codes[i] && 1 != ret->result_col_format_codes[i]) {
+				*err = make_error_response(PSQL_Error_ERROR,
+							   PSQL_Code_Protocol_Violation,
+							   "Invalid column format code",
+							   0);
+				free(ret->parms);
+				free(ret);
+				return NULL;
+			}
+		}
 	}
 
-	// Should be good to go; verify we used everything
+	// Verify entire message read
 	if(cur_pointer != last_byte) {
 		*err = make_error_response(PSQL_Error_WARNING,
 					   PSQL_Code_Protocol_Violation,
 					   "bind message has trailing characters",
 					   0);
 	}
-
 	return ret;
 }

@@ -138,9 +138,6 @@ static void test_valid_input_one_parm_no_parm_code(void **state) {
 	// The actual test
 	Bind *bind = read_bind(test_data, &err);
 
-	if(err) {
-	  printf("\n%s\n", err->args[2].value + 1);
-	}
 	// Standard checks
 	assert_non_null(bind);
 	assert_string_equal(bind->dest, dest);

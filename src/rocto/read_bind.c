@@ -114,7 +114,8 @@ Bind *read_bind(BaseMessage *message, ErrorResponse **err) {
 		}
 	}
 	// Set number of parameters and ensure valid value
-	ret->num_parms = ntohs(*((short int*)cur_pointer)); if (ret->num_parms < 0) {
+	ret->num_parms = ntohs(*((short int*)cur_pointer));
+	if (ret->num_parms < 0) {
 		*err = make_error_response(PSQL_Error_ERROR,
 					   PSQL_Code_Protocol_Violation,
 					   "Bind has invalid number of parameters",
@@ -123,12 +124,6 @@ Bind *read_bind(BaseMessage *message, ErrorResponse **err) {
 		return NULL;
 	}
 	cur_pointer += sizeof(short int);
-	/*
-	// Warn if parameter format codes sent with no parameters
-	if (ret->num_parms == 0 && ret->num_parm_format_codes > 0) {
-		WARNING(ERR_MULTIPLE_VALUES_PROVIDED, "Bind parameter format codes");
-	}
-	*/
 	// Ensure correct number of parameter format codes sent
 	if (ret->num_parm_format_codes > ret->num_parms) {
 		*err = make_error_response(PSQL_Error_ERROR,

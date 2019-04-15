@@ -13,35 +13,29 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-#include <stdarg.h>
+#include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include <assert.h>
+#include <string.h>
 
 // Used to convert between network and host endian
 #include <arpa/inet.h>
 
+#include "rocto.h"
 #include "message_formats.h"
 
-
-CommandComplete *make_command_complete(char *command_tag) {
+CommandComplete *read_command_complete(BaseMessage *message, ErrorResponse **err) {
 	CommandComplete *ret;
-	char *c;
-	int length = 0, command_tag_length = 0;
+	char *cur_pointer, *last_byte;
+	unsigned int remaining_length = 0;
 
-	// Rather than have special logic for the NULL, just use an empty string
-	if(command_tag == NULL)
-		command_tag = "";
+	remaining_length = ntohl(message->length);
+	ret = (CommandComplete*)malloc(remaining_length + sizeof(CommandComplete) - sizeof(unsigned int));
 
-	length += sizeof(unsigned int);
-	command_tag_length = strlen(command_tag) + 1;	// count null
-	length += command_tag_length;
-	ret = (CommandComplete*)malloc(length + sizeof(CommandComplete) - sizeof(unsigned int));
-	memset(ret, 0, length + sizeof(CommandComplete) - sizeof(unsigned int));
-
-	ret->type = PSQL_CommandComplete;
-	ret->length = htonl(length);
-	memcpy(ret->data, command_tag, command_tag_length);
+	ret->type = message->type;
+	ret->length = remaining_length;
+	memcpy(ret->data, message->data, remaining_length - sizeof(unsigned int));
+	ret->command_tag = ret->data;
 
 	return ret;
 }

@@ -29,34 +29,49 @@
 #include "message_formats.h"
 
 static void test_valid_input(void **state) {
+	CommandComplete *response = NULL;
+	CommandComplete *received_response = NULL;
+	ErrorResponse *err = NULL;
+
 	char *message = "SELECT 5";
-	CommandComplete *response = make_command_complete(message);
-	int expected_length = 4 + strlen(message) + 1;
+	int expected_length = sizeof(unsigned int) + strlen(message) + 1;
+
+	response = make_command_complete(message);
+	received_response = read_command_complete((BaseMessage*)&response->type, &err);
 
 	// Standard checks
-	assert_non_null(response);
-	assert_int_equal(response->length, htonl(expected_length));
+	assert_non_null(received_response);
+	assert_int_equal(received_response->length, expected_length);
+	assert_string_equal(received_response->command_tag, message);
 
 	free(response);
+	free(received_response);
 }
 
-static void test_non_terminated_input(void **state) {
-	char *message = "SELECT 5";
-	char *bad_message = (char*)malloc(strlen(message));
-	memcpy(bad_message, message, strlen(message));
-	CommandComplete *response = make_command_complete(message);
-	int expected_length = 4 + strlen(message) + 1;
+static void test_null_input(void **state) {
+	CommandComplete *response = NULL;
+	CommandComplete *received_response = NULL;
+	ErrorResponse *err = NULL;
+
+	char *message = NULL;
+	int expected_length = sizeof(unsigned int) + 1;		// count empty string null terminator
+
+	response = make_command_complete(message);
+	received_response = read_command_complete((BaseMessage*)&response->type, &err);
 
 	// Standard checks
-	assert_non_null(response);
-	assert_int_equal(response->length, htonl(expected_length));
+	assert_non_null(received_response);
+	assert_int_equal(received_response->length, expected_length);
+	assert_string_equal(received_response->command_tag, "");
 
 	free(response);
+	free(received_response);
 }
 
 int main(void) {
 	const struct CMUnitTest tests[] = {
-		cmocka_unit_test(test_valid_input)
+		cmocka_unit_test(test_valid_input),
+		cmocka_unit_test(test_null_input),
 	};
 	return cmocka_run_group_tests(tests, NULL, NULL);
 }

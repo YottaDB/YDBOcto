@@ -50,7 +50,6 @@ int main(int argc, char **argv) {
 	ydb_buffer_t z_status, z_status_value;
 
 	octo_init(argc, argv, TRUE);
-	config->record_error_level = TRACE;
 	INFO(CUSTOM_ERROR, "rocto started");
 
 	// Setup the address first so we know which protocol to use

@@ -22,7 +22,7 @@ A config file contains settings related to YottaDB and the rocto process, and ca
 
 Sample config file:
 
-.. literalinclude:: ../src/aux/octo.conf
+.. literalinclude:: ../src/aux/octo.conf.default
 
 ~~~~~~~~~~~~~
 Logging
@@ -51,6 +51,33 @@ Example:
    octo_global_prefix = "%ydbocto"
 
 The global variable :code:`^schema` will be :code:`^%ydboctoschema` as a global variable in Octo.
+
+The global directory to be used for Octo can also be defined in the config file.
+
+For example:
+
+.. parsed-literal::
+   octo_global_directory = "mumps.gld"
+
+All globals should be preceded by :code:`^|<octo_global_directory>|<octo_global_prefix>`
+
+Example:
+
+.. parsed-literal::
+   ^|mumps.gld|%ydboctoocto
+
+Some of the globals used in Octo are:
+
+* **octo**: This global can refer to various functions, variables, octo "read only" table values (postgres mappings, oneRowTable, etc.), and some counts. It needs to be journaled and persist between sessions.
+
+* **session**: This global can contain session variables, portals and prepared queries. It need not be journaled/ persist between sessions since it only contains data related to the current session.
+
+* **cursor**: This global contains output data and temporary tables. It need not be journaled/ persist between sessions since it only contains temporary data.
+
+* **xref**: This global contains cross-references, row counts and other statistical information. It needs to be journaled and persist between sessions.
+
+* **schema**: This global contains information about the tables loaded into the database. It needs to be journaled and persist between sessions. 
+
 
 ~~~~~~~~~~~~~~~~~~~~~~~
 Environment Variables

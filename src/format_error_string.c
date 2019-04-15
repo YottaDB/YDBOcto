@@ -19,9 +19,8 @@ const char *format_error_string(struct ErrorBuffer *err_buff, enum ERROR error, 
 
 	// Prevent overflow
 	max_length = MAX_STR_CONST - err_buff->offset;
-	length = vsnprintf(&err_buff->buffer[err_buff->offset], max_length,
-			err_format_str[error], args);
 	ret = &err_buff->buffer[err_buff->offset];
+	length = vsnprintf(ret, max_length, err_format_str[error], args);
 
 	// Prevent subsequent overflow
 	if (length + err_buff->offset >= MAX_STR_CONST) {

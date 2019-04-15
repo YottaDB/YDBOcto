@@ -310,7 +310,8 @@ static void test_wrong_version(void **state) {
 	unsigned int message_length = 0;
 	message_length += sizeof(unsigned int);
 	unsigned int protocol_version = 0xdeadbeef;	// bad version number
-	message_length += sizeof(unsigned int); char *parm1_name = "user\0";
+	message_length += sizeof(unsigned int);
+	char *parm1_name = "user\0";
 	message_length += strlen(parm1_name) + 1;	// count null
 	char *parm1_value = "charles\0";
 	message_length += strlen(parm1_value) + 1;	// count null

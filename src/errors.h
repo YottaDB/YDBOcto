@@ -16,11 +16,8 @@
 #ifndef ERRORS_H
 #define ERRORS_H
 
-#ifndef CONSTANTS_H
-#include "constants.h"
-#endif
-
 #include <stdarg.h>
+#include "constants.h"
 
 #define TRUE 1
 #define FALSE 0

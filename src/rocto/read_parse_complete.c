@@ -13,25 +13,26 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-#include <stdarg.h>
+#include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include <assert.h>
+#include <string.h>
 
 // Used to convert between network and host endian
 #include <arpa/inet.h>
 
+#include "rocto.h"
 #include "message_formats.h"
 
-
-ParseComplete *make_parse_complete() {
+ParseComplete *read_parse_complete(BaseMessage *message, ErrorResponse **err) {
 	ParseComplete *ret;
+	unsigned int remaining_length = 0;
 
+	remaining_length = ntohl(message->length);
 	ret = (ParseComplete*)malloc(sizeof(ParseComplete));
-	memset(ret, 0, sizeof(ParseComplete));
 
-	ret->type = PSQL_ParseComplete;
-	ret->length = htonl(sizeof(unsigned int));
+	ret->type = message->type;
+	ret->length = remaining_length;
 
 	return ret;
 }

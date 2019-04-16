@@ -95,7 +95,7 @@ BindComplete *read_bind_complete(BaseMessage *message, ErrorResponse **err);
 CommandComplete *read_command_complete(BaseMessage *message, ErrorResponse **err);
 DataRow *read_data_row(BaseMessage *message, ErrorResponse **err);
 // EmptyQueryResponse *read_empty_query_response(BaseMessage *message, ErrorResponse **err);
-// ErrorResponse *read_error_response(BaseMessage *message, ErrorResponse **err);
+ErrorResponse *read_error_response(BaseMessage *message, ErrorResponse **err);
 // ParameterStatus *read_parameter_status(BaseMessage *message, ErrorResponse **err);
 // ParseComplete *read_parse_complete(BaseMessage *message, ErrorResponse **err);
 // ReadyForQuery *read_ready_for_query(BaseMessage *message, ErrorResponse **err);

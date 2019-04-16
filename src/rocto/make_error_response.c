@@ -64,12 +64,12 @@ ErrorResponse *make_error_response(PSQL_ErrorSeverity severity, PSQL_SQLSTATECod
 	ret->args = (ErrorResponseArg*)malloc(sizeof(ErrorResponseArg) * (num_args+3));
 	cur_arg = 0;
 
-	// Add 4 length field
+	// Add length field
 	ret->type = PSQL_ErrorResponse;
-	ret->length = htonl(new_length + 4);
+	ret->length = htonl(new_length + sizeof(unsigned int));
 	ptr = ret->data;
 
-	// Copy first three parameters
+	// Copy severity parameter
 	ret->args[cur_arg].type = PSQL_Error_SEVERITY;
 	ret->args[cur_arg].value = ptr;
 	cur_arg++;
@@ -79,6 +79,7 @@ ErrorResponse *make_error_response(PSQL_ErrorSeverity severity, PSQL_SQLSTATECod
 	ptr += i;
 	*ptr++ = '\0';
 
+	// Copy error code parameter
 	ret->args[cur_arg].type = PSQL_Error_Code;
 	ret->args[cur_arg].value = ptr;
 	cur_arg++;
@@ -88,6 +89,7 @@ ErrorResponse *make_error_response(PSQL_ErrorSeverity severity, PSQL_SQLSTATECod
 	ptr += i;
 	*ptr++ = '\0';
 
+	// Copy error message parameter
 	ret->args[cur_arg].type = PSQL_Error_Message;
 	ret->args[cur_arg].value = ptr;
 	cur_arg++;
@@ -97,7 +99,7 @@ ErrorResponse *make_error_response(PSQL_ErrorSeverity severity, PSQL_SQLSTATECod
 	ptr += i;
 	*ptr++ = '\0';
 
-	// Copy values to the array
+	// Copy optional arguments into argument array
 	va_start(args, num_args);
 	for(i = 0; i < num_args; i++) {
 		arg = va_arg(args, ErrorResponseArg*);

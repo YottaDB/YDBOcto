@@ -39,6 +39,7 @@ int read_bytes(RoctoSession *session, char *buffer, int buffer_size, int bytes_t
 int rocto_main_loop(RoctoSession *session);
 void free_error_response(ErrorResponse *err);
 void free_data_row(DataRow *drow);
+void free_row_description(RowDescription *rowd);
 
 // make_* produces a structure for the correct type, taking in arguments specific to that type
 // These should be viewed as helpers for other functions
@@ -99,6 +100,6 @@ ErrorResponse *read_error_response(BaseMessage *message, ErrorResponse **err);
 ParameterStatus *read_parameter_status(BaseMessage *message, ErrorResponse **err);
 ParseComplete *read_parse_complete(BaseMessage *message, ErrorResponse **err);
 ReadyForQuery *read_ready_for_query(BaseMessage *message, ErrorResponse **err);
-// RowDescription *read_row_description(BaseMessage *message, ErrorResponse **err);
+RowDescription *read_row_description(BaseMessage *message, ErrorResponse **err);
 
 #endif

@@ -48,7 +48,7 @@ RowDescription *make_row_description(RowDescriptionParm *parms, short num_parms)
 	ret->type = PSQL_RowDescription;
 	ret->length = htonl(length);
 	ret->num_parms = htons(num_parms);
-	ret->parms = (void*)(&ret->data);
+	ret->parms = NULL;
 
 	// Copy in each parm
 	c = ret->data;

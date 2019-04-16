@@ -13,25 +13,43 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
+#include <stdio.h>
 #include <stdarg.h>
+#include <stddef.h>
+#include <setjmp.h>
+#include <cmocka.h>
 #include <stdlib.h>
-#include <string.h>
 #include <assert.h>
+#include <string.h>
 
 // Used to convert between network and host endian
 #include <arpa/inet.h>
 
+#include "rocto.h"
 #include "message_formats.h"
 
+static void test_valid_input(void **state) {
+	ParseComplete *response;
+	ParseComplete *received_response;
+	ErrorResponse *err = NULL;
 
-ParseComplete *make_parse_complete() {
-	ParseComplete *ret;
+	int expected_length = sizeof(unsigned int);
+	response = make_parse_complete();
+	received_response = read_parse_complete((BaseMessage*)&response->type, &err);
 
-	ret = (ParseComplete*)malloc(sizeof(ParseComplete));
-	memset(ret, 0, sizeof(ParseComplete));
+	// Standard checks
+	assert_null(err);
+	assert_non_null(received_response);
+	assert_int_equal(received_response->type, PSQL_ParseComplete);
+	assert_int_equal(received_response->length, expected_length);
 
-	ret->type = PSQL_ParseComplete;
-	ret->length = htonl(sizeof(unsigned int));
+	free(response);
+	free(received_response);
+}
 
-	return ret;
+int main(void) {
+	const struct CMUnitTest tests[] = {
+		cmocka_unit_test(test_valid_input)
+	};
+	return cmocka_run_group_tests(tests, NULL, NULL);
 }

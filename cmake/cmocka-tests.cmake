@@ -51,3 +51,4 @@ ADD_UNIT_TEST_WITH_OPTIONS(test_read_bytes src/rocto/test_read_bytes "${function
 ADD_UNIT_TEST_WITH_OPTIONS(test_read_sync src/rocto/test_read_sync "")
 ADD_UNIT_TEST_WITH_OPTIONS(test_read_execute src/rocto/test_read_execute "")
 ADD_UNIT_TEST_WITH_OPTIONS(test_make_parse_complete src/rocto/test_make_parse_complete "")
+ADD_UNIT_TEST_WITH_OPTIONS(test_make_empty_query_response src/rocto/test_make_empty_query_response "")

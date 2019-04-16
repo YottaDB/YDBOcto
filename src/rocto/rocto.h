@@ -38,6 +38,7 @@ BaseMessage *read_message(RoctoSession *session, char *buffer, int buffer_size);
 int read_bytes(RoctoSession *session, char *buffer, int buffer_size, int bytes_to_read);
 int rocto_main_loop(RoctoSession *session);
 void free_error_response(ErrorResponse *err);
+void free_data_row(DataRow *drow);
 
 // make_* produces a structure for the correct type, taking in arguments specific to that type
 // These should be viewed as helpers for other functions
@@ -92,7 +93,7 @@ RowDescription *get_plan_row_description(PhysicalPlan *plan);
 AuthenticationOk *read_authentication_ok(BaseMessage *message, ErrorResponse **err);
 BindComplete *read_bind_complete(BaseMessage *message, ErrorResponse **err);
 CommandComplete *read_command_complete(BaseMessage *message, ErrorResponse **err);
-// DataRow *read_data_row(BaseMessage *message, ErrorResponse **err);
+DataRow *read_data_row(BaseMessage *message, ErrorResponse **err);
 // EmptyQueryResponse *read_empty_query_response(BaseMessage *message, ErrorResponse **err);
 // ErrorResponse *read_error_response(BaseMessage *message, ErrorResponse **err);
 // ParameterStatus *read_parameter_status(BaseMessage *message, ErrorResponse **err);

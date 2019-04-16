@@ -13,26 +13,28 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-#include <stdarg.h>
+#include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include <assert.h>
+#include <string.h>
 
 // Used to convert between network and host endian
 #include <arpa/inet.h>
 
+#include "rocto.h"
 #include "message_formats.h"
 
-
-ReadyForQuery *make_ready_for_query(PSQL_TransactionStatus status) {
+ReadyForQuery *read_ready_for_query(BaseMessage *message, ErrorResponse **err) {
 	ReadyForQuery *ret;
+	char *cur_pointer, *last_byte;
+	unsigned int remaining_length = 0;
 
+	remaining_length = ntohl(message->length);
 	ret = (ReadyForQuery*)malloc(sizeof(ReadyForQuery));
-	memset(ret, 0, sizeof(ReadyForQuery));
 
-	ret->type = PSQL_ReadyForQuery;
-	ret->length = htonl(sizeof(unsigned int) + sizeof(char));
-	ret->status = status;
+	ret->type = message->type;
+	ret->length = remaining_length;
+	ret->status = *message->data;
 
 	return ret;
 }

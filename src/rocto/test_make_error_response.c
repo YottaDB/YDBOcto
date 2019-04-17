@@ -146,7 +146,8 @@ static void test_verify_args_pointers_correct(void **state) {
 	assert_int_equal(received_response->type, PSQL_ErrorResponse);
 	assert_int_equal(received_response->length, expected_length);
 
-	for (int i = 0; i < num_args; i++) {
+	int i = 0;
+	for (i = 0; i < num_args; i++) {
 		assert_non_null(received_response->args[i].value);
 		switch (i) {
 			case 0:

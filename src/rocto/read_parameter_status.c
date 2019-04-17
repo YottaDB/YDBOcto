@@ -13,47 +13,32 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-#include <stdarg.h>
+#include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include <assert.h>
+#include <string.h>
 
 // Used to convert between network and host endian
 #include <arpa/inet.h>
 
+#include "rocto.h"
 #include "message_formats.h"
 
-
-ParameterStatus *make_parameter_status(StartupMessageParm *parm) {
-	unsigned int length;
+ParameterStatus *read_parameter_status(BaseMessage *message, ErrorResponse **err) {
 	ParameterStatus *ret;
-	char *c;
-	int name_len, value_len;
+	char *cur_pointer, *last_byte;
+	unsigned int remaining_length = 0;
 
-	if (NULL == parm) {
+	if (NULL == message) {
 		return NULL;
 	}
 
-	length = 0;
-	length += sizeof(unsigned int);
-	name_len = strlen(parm->name);
-	length += name_len + 1;
-	value_len = strlen(parm->value);
-	length += value_len + 1;
+	remaining_length = ntohl(message->length);
+	ret = (ParameterStatus*)malloc(remaining_length + sizeof(ParameterStatus) - sizeof(unsigned int));
 
-	// malloc space for everything, but don't count length field twice
-	ret = (ParameterStatus*)malloc(length + sizeof(ParameterStatus) - sizeof(unsigned int));
-	memset(ret, 0, sizeof(ParseComplete));
-
-	ret->type = PSQL_ParameterStatus;
-	ret->length = htonl(length);
-	c = ret->data;
-	memcpy(c, parm->name, name_len);
-	c += name_len;
-	*c++ = '\0';
-	memcpy(c, parm->value, value_len);
-	c += value_len;
-	*c++ = '\0';
+	ret->type = message->type;
+	ret->length = remaining_length;
+	memcpy(ret->data, message->data, remaining_length - sizeof(unsigned int));
 
 	return ret;
 }

@@ -98,7 +98,7 @@ EmptyQueryResponse *read_empty_query_response(BaseMessage *message, ErrorRespons
 ErrorResponse *read_error_response(BaseMessage *message, ErrorResponse **err);
 // ParameterStatus *read_parameter_status(BaseMessage *message, ErrorResponse **err);
 ParseComplete *read_parse_complete(BaseMessage *message, ErrorResponse **err);
-// ReadyForQuery *read_ready_for_query(BaseMessage *message, ErrorResponse **err);
+ReadyForQuery *read_ready_for_query(BaseMessage *message, ErrorResponse **err);
 // RowDescription *read_row_description(BaseMessage *message, ErrorResponse **err);
 
 #endif

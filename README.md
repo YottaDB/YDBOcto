@@ -15,7 +15,7 @@ The SQL engine looks for the environment variable ydb_dist.
 
 ## Compiling -- Quickstart
 
-Required dependencies are: build-essential cmake bison flex
+Required dependencies are: build-essential cmake bison flex xxd
 
 YottaDB is also required, but currently not in any distribution repositories.
 To download, please see the instructions at https://yottadb.com/product/get-started/

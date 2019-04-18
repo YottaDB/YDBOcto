@@ -258,6 +258,10 @@ foreach (auxFile ${aux_files})
 endforeach()
 
 set_property(TARGET libocto PROPERTY C_STANDARD 11)
+set_property(TARGET librocto PROPERTY C_STANDARD 11)
+set_property(TARGET pparser PROPERTY C_STANDARD 11)
+set_property(TARGET octo PROPERTY C_STANDARD 11)
+set_property(TARGET rocto PROPERTY C_STANDARD 11)
 
 target_link_libraries(octo ${YOTTADB_LIBRARIES} ${Readline_LIBRARY} ${CONFIG_LIBRARY} ${OPENSSL_LIBRARIES})
 target_link_libraries(rocto ${YOTTADB_LIBRARIES} ${Readline_LIBRARY} ${CONFIG_LIBRARY} ${OPENSSL_LIBRARIES})

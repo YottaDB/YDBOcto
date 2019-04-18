@@ -25,8 +25,10 @@
 #include "rocto.h"
 
 void free_data_row(DataRow *drow) {
-	if (drow->parms) {
-		free(drow->parms);
+	if (drow) {
+		if (drow->parms) {
+			free(drow->parms);
+		}
+		free(drow);
 	}
-	free(drow);
 }

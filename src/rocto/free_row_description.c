@@ -25,6 +25,10 @@
 #include "rocto.h"
 
 void free_row_description(RowDescription *rowd) {
-	free(rowd->parms);
-	free(rowd);
+	if (rowd) {
+		if (rowd->parms) {
+			free(rowd->parms);
+		}
+		free(rowd);
+	}
 }

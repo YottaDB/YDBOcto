@@ -121,6 +121,7 @@ Bind *read_bind(BaseMessage *message, ErrorResponse **err) {
 	}
 	// Ensure all parameter format codes are valid
 	for (i = 0; i < ret->num_parm_format_codes; i++) {
+		ret->parm_format_codes[i] = ntohs(ret->parm_format_codes[i]);
 		if (0 != ret->parm_format_codes[i] && 1 != ret->parm_format_codes[i]) {
 			error_message = format_error_string(&err_buff, ERR_ROCTO_INVALID_INT_VALUE,
 					"Bind", "parameter format code", ret->parm_format_codes[i], "0 (text) or 1 (binary)");
@@ -238,6 +239,7 @@ Bind *read_bind(BaseMessage *message, ErrorResponse **err) {
 		}
 		// Ensure all column format codes are valid
 		for (i = 0; i < ret->num_result_col_format_codes; i++) {
+			ret->result_col_format_codes[i] = ntohs(ret->result_col_format_codes[i]);
 			if (0 != ret->result_col_format_codes[i] && 1 != ret->result_col_format_codes[i]) {
 				error_message = format_error_string(&err_buff, ERR_ROCTO_INVALID_INT_VALUE,
 						"Bind", "result column format code", ret->result_col_format_codes[i],

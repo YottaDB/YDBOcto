@@ -252,7 +252,7 @@ int copied_so_far;
               return LITERAL;
             }
 
-` { BEGIN(IDENTIFIER); }
+` { copied_so_far = 0; str_buf_ptr = string_buffer; BEGIN(IDENTIFIER); }
 <IDENTIFIER>[^(``)]* { char *yptr = yytext; COPY_STRING(str_buf_ptr, yptr, copied_so_far, MAX_STR_CONST); }
 <IDENTIFIER>` {
                 BEGIN(INITIAL);

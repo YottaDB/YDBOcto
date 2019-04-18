@@ -104,6 +104,7 @@ Bind *read_bind(BaseMessage *message, ErrorResponse **err) {
 	}
 	// Ensure all parameter format codes are valid
 	for (i = 0; i < ret->num_parm_format_codes; i++) {
+		ret->parm_format_codes[i] = ntohs(ret->parm_format_codes[i]);
 		if (0 != ret->parm_format_codes[i] && 1 != ret->parm_format_codes[i]) {
 			*err = make_error_response(PSQL_Error_ERROR,
 						   PSQL_Code_Protocol_Violation,
@@ -210,6 +211,7 @@ Bind *read_bind(BaseMessage *message, ErrorResponse **err) {
 		}
 		// Ensure all column format codes are valid
 		for (i = 0; i < ret->num_result_col_format_codes; i++) {
+			ret->result_col_format_codes[i] = ntohs(ret->result_col_format_codes[i]);
 			if (0 != ret->result_col_format_codes[i] && 1 != ret->result_col_format_codes[i]) {
 				*err = make_error_response(PSQL_Error_ERROR,
 							   PSQL_Code_Protocol_Violation,

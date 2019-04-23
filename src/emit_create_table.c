@@ -36,7 +36,7 @@ void emit_create_table(FILE *output, struct SqlStatement *stmt)
 	assert(table->tableName);
 	assert(table->columns);
 	UNPACK_SQL_STATEMENT(value, table->tableName, value);
-	fprintf(output, "CREATE TABLE %s (", value->v.reference);
+	fprintf(output, "CREATE TABLE `%s` (", value->v.reference);
 	UNPACK_SQL_STATEMENT(start_column, table->columns, column);
 	cur_column = start_column;
 	do {

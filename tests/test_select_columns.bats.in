@@ -139,3 +139,11 @@ FROM names;
 OCTO
   [[ "$(grep -c "Zero" output.txt)" == "3" ]]
 }
+
+@test "select a negative number" {
+  octo <<OCTO &> output.txt
+SELECT -5
+FROM names;
+OCTO
+  [[ "$(grep -c -- "-5" output.txt)" != "0" ]]
+}

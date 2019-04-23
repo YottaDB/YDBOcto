@@ -184,6 +184,7 @@ add_library(librocto OBJECT
   rocto/rocto_main_loop.c
   rocto/free_error_response.c
   rocto/free_data_row.c
+  rocto/free_row_description.c
   rocto/get_plan_row_description.c
   rocto/handle_query_response.c
   #  rocto/read_authentication_md5_password.c
@@ -196,7 +197,7 @@ add_library(librocto OBJECT
   rocto/read_parameter_status.c
   rocto/read_parse_complete.c
   rocto/read_ready_for_query.c
-  #  rocto/read_row_description.c
+  rocto/read_row_description.c
 )
 
 add_executable(rocto

@@ -223,7 +223,9 @@ LogicalPlan *walk_where_statement(PhysicalPlan *out, LogicalPlan *stmt) {
 	if(stmt->type >= LP_ADDITION && stmt->type <= LP_BOOLEAN_NOT_IN) {
 		stmt->v.operand[0] = walk_where_statement(out, stmt->v.operand[0]);
 		stmt->v.operand[1] = walk_where_statement(out, stmt->v.operand[1]);
-	} else {
+	} else if (stmt->type >= LP_FORCE_NUM && stmt->type <= LP_BOOLEAN_NOT) {
+		stmt->v.operand[0] = walk_where_statement(out, stmt->v.operand[0]);
+	}else {
 		switch(stmt->type) {
 		case LP_DERIVED_COLUMN:
 			/* No action */

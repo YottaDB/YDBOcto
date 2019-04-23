@@ -126,6 +126,18 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan) {
         buff_ptr -= 1;
         %},{% TMPL(tmpl_print_expression, plan->v.operand[0], pplan); %}))=0){%
         break;
+    case LP_FORCE_NUM:
+        %}+{%
+        TMPL(tmpl_print_expression, plan->v.operand[0], pplan);
+        break;
+    case LP_NEGATIVE:
+        %}-{%
+        TMPL(tmpl_print_expression, plan->v.operand[0], pplan);
+        break;
+    case LP_BOOLEAN_NOT:
+        %}'{%
+        TMPL(tmpl_print_expression, plan->v.operand[0], pplan);
+        break;
     case LP_FUNCTION_CALL:
         cur_plan = plan;
         %}{% TMPL(tmpl_print_expression, plan->v.operand[0], pplan); %}({%

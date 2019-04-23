@@ -25,6 +25,7 @@ LogicalPlan *lp_generate_where(SqlStatement *stmt, int *plan_id) {
 	LogicalPlan *ret = NULL, *next, *cur_lp, *t;
 	LPActionType type;
 	SqlValue *value;
+	SqlUnaryOperation *unary;
 	SqlBinaryOperation *binary;
 	SqlFunctionCall *function_call;
 	SqlColumnList *cur_cl, *start_cl;
@@ -58,6 +59,13 @@ LogicalPlan *lp_generate_where(SqlStatement *stmt, int *plan_id) {
 		MALLOC_LP(ret, type);
 		ret->v.operand[0] = lp_generate_where(binary->operands[0], plan_id);
 		ret->v.operand[1] = lp_generate_where(binary->operands[1], plan_id);
+		break;
+	case unary_STATEMENT:
+		UNPACK_SQL_STATEMENT(unary, stmt, unary);
+		/// WARNING: we simply add the enum offset to find the type
+		type = unary->operation + LP_FORCE_NUM;
+		MALLOC_LP(ret, type);
+		ret->v.operand[0] = lp_generate_where(unary->operand, plan_id);
 		break;
 	case function_call_STATEMENT:
 		UNPACK_SQL_STATEMENT(function_call, stmt, function_call);

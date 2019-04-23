@@ -25,6 +25,10 @@
 #include "rocto.h"
 
 void free_error_response(ErrorResponse *err) {
-	free(err->args);
-	free(err);
+	if (err) {
+		if (err->args) {
+			free(err->args);
+		}
+		free(err);
+	}
 }

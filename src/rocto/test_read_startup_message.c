@@ -345,7 +345,7 @@ static void test_wrong_version(void **state) {
 
 	// Ensure correct error message
 	error_message = format_error_string(&err_buff, ERR_ROCTO_INVALID_VERSION,
-			"StartupMessage", ntohl(test_data->protocol_version), 0x00030000);
+			"StartupMessage", protocol_version, 0x00030000);
 	assert_string_equal(error_message, err->args[2].value + 1);
 
 	free_error_response(err);

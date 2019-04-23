@@ -36,13 +36,15 @@ StartupMessage *read_startup_message(RoctoSession *session, char *data, int data
 	// First read length and protocol type, then we will reallocate things
 	ret = (StartupMessage*)malloc(sizeof(StartupMessage));
 	memcpy(&ret->length, data, hard_coded_ints);
+	ret->length = ntohl(ret->length);
+	ret->protocol_version = ntohl(ret->protocol_version);
 
 	// Protocol version number format:
 	// 	most significant 16 bits:  major version #, i.e. 3
 	// 	least significant 16 bits: minor version #, i.e. 0
-	if(ntohl(ret->protocol_version) != 0x00030000) {
+	if(ret->protocol_version != 0x00030000) {
 		error_message = format_error_string(&err_buff, ERR_ROCTO_INVALID_VERSION,
-				"StartupMessage", ntohl(ret->protocol_version), 0x00030000);
+				"StartupMessage", ret->protocol_version, 0x00030000);
 		*err = make_error_response(PSQL_Error_FATAL,
 					   PSQL_Code_Protocol_Violation,
 					   error_message,
@@ -52,7 +54,7 @@ StartupMessage *read_startup_message(RoctoSession *session, char *data, int data
 	}
 
 	// No parameters send
-	if(ntohl(ret->length) == hard_coded_ints) {
+	if(ret->length == hard_coded_ints) {
 		error_message = format_error_string(&err_buff, ERR_ROCTO_MISSING_NULL, "StartupMessage", "parameter list");
 		*err = make_error_response(PSQL_Error_FATAL,
 					   PSQL_Code_Protocol_Violation,
@@ -63,7 +65,7 @@ StartupMessage *read_startup_message(RoctoSession *session, char *data, int data
 	}
 
 	// Prepare to reallocate
-	data_length = ntohl(ret->length);
+	data_length = ret->length;
 	free(ret);
 
 	// Size is length in packet + other stuff in the struct, minus the hard-coded

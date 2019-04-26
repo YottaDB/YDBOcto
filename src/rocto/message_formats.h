@@ -27,24 +27,24 @@
 
 enum PSQL_MessageTypes {
 	PSQL_Authenication = 'R',
-	PSQL_Bind = 'B',
-	PSQL_ErrorResponse = 'E',
-	PSQL_BindComplete = '2',
-	PSQL_ReadyForQuery = 'Z',
-	PSQL_Query = 'Q',
-	PSQL_EmptyQueryResponse = 'I',
-	PSQL_RowDescription = 'T',
-	PSQL_DataRow = 'D',
-	PSQL_CommandComplete = 'C',
 	PSQL_AuthenticationMD5Password = 'R',
 	PSQL_AuthenticationOk = 'R',
+	PSQL_Bind = 'B',
+	PSQL_BindComplete = '2',
+	PSQL_CommandComplete = 'C',
+	PSQL_DataRow = 'D',
+	PSQL_Describe = 'D',
+	PSQL_EmptyQueryResponse = 'I',
+	PSQL_ErrorResponse = 'E',
+	PSQL_Execute = 'E',
+	PSQL_NoData = 'n',
+	PSQL_Query = 'Q',
+	PSQL_ReadyForQuery = 'Z',
+	PSQL_RowDescription = 'T',
+	PSQL_ParameterStatus = 'S',
 	PSQL_Parse = 'P',
 	PSQL_ParseComplete = '1',
-	PSQL_Execute = 'E',
 	PSQL_Sync = 'S',
-	PSQL_Describe = 'D',
-	PSQL_ParameterStatus = 'S',
-	PSQL_NoData = 'n'
 };
 
 typedef struct __attribute__((packed)) {
@@ -60,8 +60,6 @@ typedef struct __attribute__((packed)) {
 	int result;
 } AuthenticationOk;
 
-//# AuthenticationKerberosV5;
-
 // B
 typedef struct __attribute__((packed)) {
 	char type;
@@ -69,15 +67,27 @@ typedef struct __attribute__((packed)) {
 	int _b;
 } AuthenticationCleartextPassword;
 
-//# AuthenticationMD5Password
-//# AuthenticationSCMCredential
+// B
+//# AuthenticationKerberosV5;
+
+// B
+typedef struct __attribute__((packed)) {
+	char type;
+	unsigned int length;
+	unsigned int md5_required;
+	char salt[4];
+} AuthenticationMD5Password;
+
+// B
 //# AuthenticationGSS
 //# AuthenticationSSPI
 //# AuthenticationGSSContinue
 //# AuthenticationSASL
 //# AuthenticationSASLContinue
 //# AuthenticationSASLFinal
+//# AuthenticationSCMCredential
 
+// B
 //# BackendKeyData
 
 typedef struct __attribute__((packed)) {
@@ -85,6 +95,7 @@ typedef struct __attribute__((packed)) {
 	void *value;
 } BindParm;
 
+// F
 typedef struct __attribute__((packed)) {
 	char *dest;
 	char *source;
@@ -108,6 +119,62 @@ typedef struct __attribute__((packed)) {
 
 // B
 typedef struct __attribute__((packed)) {
+  char *command_tag;
+
+  char type;
+  unsigned int length;
+  char data[];
+} CommandComplete;
+
+typedef struct {
+	unsigned int length;
+	char *value;
+} DataRowParm;
+
+// B
+typedef struct __attribute__((packed)) {
+	DataRowParm *parms;
+
+	char type;
+	unsigned int length;
+	short num_columns;
+	char data[];
+} DataRow;
+
+// F
+typedef struct __attribute__((packed)) {
+	char type;
+	unsigned int length;
+	char item;
+	char name[];
+} Describe;
+
+typedef struct {
+	char type;
+	char *value;
+} ErrorResponseArg;
+
+// B
+typedef struct __attribute__((packed)) {
+	ErrorResponseArg *args;
+
+	char type;
+	unsigned int length;
+	char data[];
+} ErrorResponse;
+
+// F
+typedef struct __attribute__((packed)) {
+	char *source;
+	unsigned int rows_to_return;
+
+	char type;
+	unsigned int length;
+	char data[];
+} Execute;
+
+// B
+typedef struct __attribute__((packed)) {
 	char type;
 	unsigned int length;
 } EmptyQueryResponse;
@@ -118,22 +185,38 @@ typedef struct __attribute__((packed)) {
 	unsigned int length;
 } NoData;
 
-typedef struct {
-	char *name;
-	char *value;
-} StartupMessageParm;
+// B
+typedef struct __attribute__((packed)) {
+	char type;
+	unsigned int length;
+	char data[];
+} ParameterStatus;
 
 // F
-// This message is a special case; it's two hard-coded integers, followed by a series of
-//  string => string mappings
 typedef struct __attribute__((packed)) {
-	StartupMessageParm *parameters;
-	int num_parameters;
+	char *dest;
+	char *query;
+	short num_parm_data_types;
+	unsigned int *parm_data_types;
 
+	char type;
 	unsigned int length;
-	int protocol_version;
 	char data[];
-} StartupMessage;
+} Parse;
+
+// B
+typedef struct __attribute__((packed)) {
+	char type;
+	unsigned int length;
+} ParseComplete;
+
+// F
+typedef struct __attribute__((packed)) {
+	char *query;
+	char type;
+	unsigned int length;
+	char data[];
+} Query;
 
 // B
 typedef struct __attribute__((packed)) {
@@ -141,14 +224,6 @@ typedef struct __attribute__((packed)) {
 	unsigned int length;
 	char status;
 } ReadyForQuery;
-
-// B
-typedef struct __attribute__((packed)) {
-	char *query;
-	char type;
-	unsigned int length;
-	char data[];
-} Query;
 
 // This must be packed because we use it to calculate size
 //  of the RowDescription
@@ -174,90 +249,27 @@ typedef struct __attribute__((packed)) {
 } RowDescription;
 
 typedef struct {
-	unsigned int length;
+	char *name;
 	char *value;
-} DataRowParm;
+} StartupMessageParm;
 
+// F
+// This message is a special case; it's two hard-coded integers, followed by a series of
+//  string => string mappings
 typedef struct __attribute__((packed)) {
-	DataRowParm *parms;
+	StartupMessageParm *parameters;
+	int num_parameters;
 
-	char type;
 	unsigned int length;
-	short num_columns;
+	int protocol_version;
 	char data[];
-} DataRow;
+} StartupMessage;
 
-typedef struct __attribute__((packed)) {
-  char *command_tag;
-
-  char type;
-  unsigned int length;
-  char data[];
-} CommandComplete;
-
-typedef struct __attribute__((packed)) {
-	char type;
-	unsigned int length;
-	unsigned int md5_required;
-	char salt[4];
-} AuthenticationMD5Password;
-
-typedef struct __attribute__((packed)) {
-	char *dest;
-	char *query;
-	short num_parm_data_types;
-	unsigned int *parm_data_types;
-
-	char type;
-	unsigned int length;
-	char data[];
-} Parse;
-
-typedef struct __attribute__((packed)) {
-	char type;
-	unsigned int length;
-} ParseComplete;
-
-typedef struct __attribute__((packed)) {
-	char *source;
-	unsigned int rows_to_return;
-
-	char type;
-	unsigned int length;
-	char data[];
-} Execute;
-
+// F
 typedef struct __attribute__((packed)) {
 	char type;
 	unsigned int length;
 } Sync;
-
-typedef struct __attribute__((packed)) {
-	char type;
-	unsigned int length;
-	char item;
-	char name[];
-} Describe;
-
-typedef struct __attribute__((packed)) {
-	char type;
-	unsigned int length;
-	char data[];
-} ParameterStatus;
-
-typedef struct {
-	char type;
-	char *value;
-} ErrorResponseArg;
-
-// B
-typedef struct __attribute__((packed)) {
-	ErrorResponseArg *args;
-
-	char type;
-	unsigned int length;
-	char data[];
-} ErrorResponse;
 
 typedef enum {
 	PSQL_Error_SEVERITY = 'S',

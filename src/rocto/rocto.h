@@ -60,6 +60,7 @@ NoData *make_no_data();
 // read_* messages parse the message and return a pointer to the filled out message type
 // If the message was invalid, the return is NULL and *err is populated with an error message
 Bind *read_bind(BaseMessage *message, ErrorResponse **err);
+Close *read_close(BaseMessage *message, ErrorResponse **err);
 Query *read_query(BaseMessage *message, ErrorResponse **err);
 Parse *read_parse(BaseMessage *message, ErrorResponse **err);
 Execute *read_execute(BaseMessage *message, ErrorResponse **err);

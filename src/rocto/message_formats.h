@@ -31,7 +31,8 @@ enum PSQL_MessageTypes {
 	PSQL_AuthenticationOk = 'R',
 	PSQL_Bind = 'B',
 	PSQL_BindComplete = '2',
-	PSQL_CommandComplete = 'C',
+	PSQL_Close = 'C',
+	PSQL_CommandComplete = '3',
 	PSQL_DataRow = 'D',
 	PSQL_Describe = 'D',
 	PSQL_EmptyQueryResponse = 'I',
@@ -116,6 +117,20 @@ typedef struct __attribute__((packed)) {
 	char type;
 	unsigned int length;
 } BindComplete;
+
+// F
+typedef struct __attribute__((packed)) {
+	char type;
+	unsigned int length;
+	char item;
+	char data[];
+} Close;
+
+// B
+typedef struct __attribute__((packed)) {
+	char type;
+	unsigned int length;
+} CloseComplete;
 
 // B
 typedef struct __attribute__((packed)) {

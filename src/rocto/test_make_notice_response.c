@@ -31,23 +31,23 @@
 static void test_with_one_parm(void **state) {
 	NoticeResponse *received_response = NULL;
 	NoticeResponse *response = NULL;
-	NoticeResponse *err = NULL;
+	ErrorResponse *err = NULL;
 	char *message = "Seems OK to me man";
 	char *detail = "This is a more complicated message";
 	NoticeResponseArg a = {PSQL_Error_Detail, detail};
 
-	response = make_error_response(PSQL_Error_ERROR,
-			PSQL_Code_Success,
+	response = make_notice_response(PSQL_Error_WARNING,
+			PSQL_Code_Protocol_Violation,
 			message,
 			1, &a);
 
 	// Expected length is each string + null terminating bytes + response arg type + length + final null byte
-	int expected_length = strlen(psql_error_severity_str[PSQL_Error_ERROR])
-		+ strlen(psql_sqlstate_codes_str[PSQL_Code_Success])
+	int expected_length = strlen(psql_error_severity_str[PSQL_Error_WARNING])
+		+ strlen(psql_sqlstate_codes_str[PSQL_Code_Protocol_Violation])
 		+ strlen(message) + strlen(detail) + (4 * sizeof(char))
 		+ sizeof(unsigned int) + sizeof(unsigned int) + sizeof(char);
 
-	received_response = read_error_response((BaseMessage*)&response->type, &err);
+	received_response = read_notice_response((BaseMessage*)&response->type, &err);
 
 	// Standard checks
 	assert_null(err);
@@ -55,28 +55,28 @@ static void test_with_one_parm(void **state) {
 	assert_int_equal(received_response->type, PSQL_NoticeResponse);
 	assert_int_equal(received_response->length, expected_length);
 
-	free_error_response(response);
-	free_error_response(received_response);
+	free_notice_response(response);
+	free_notice_response(received_response);
 }
 
 static void test_with_no_additional_parms(void **state) {
 	NoticeResponse *received_response = NULL;
 	NoticeResponse *response = NULL;
-	NoticeResponse *err = NULL;
+	ErrorResponse *err = NULL;
 	char *message = "Seems OK to me man";
 	char *detail = "This is a more complicated message";
 	NoticeResponseArg a = {PSQL_Error_Detail, detail};
 
-	response = make_error_response(PSQL_Error_ERROR,
-			PSQL_Code_Success,
+	response = make_notice_response(PSQL_Error_WARNING,
+			PSQL_Code_Protocol_Violation,
 			message, 0);
 
 	// Expected length is each string + null terminating bytes + response arg type + length + final null byte
-	int expected_length = strlen(psql_error_severity_str[PSQL_Error_ERROR])
-		+ strlen(psql_sqlstate_codes_str[PSQL_Code_Success]) + strlen(message)
+	int expected_length = strlen(psql_error_severity_str[PSQL_Error_WARNING])
+		+ strlen(psql_sqlstate_codes_str[PSQL_Code_Protocol_Violation]) + strlen(message)
 		+ (3 * sizeof(char)) + (3 * sizeof(char)) + sizeof(unsigned int) + sizeof(char);
 
-	received_response = read_error_response((BaseMessage*)&response->type, &err);
+	received_response = read_notice_response((BaseMessage*)&response->type, &err);
 
 	// Standard checks
 	assert_null(err);
@@ -84,29 +84,29 @@ static void test_with_no_additional_parms(void **state) {
 	assert_int_equal(received_response->type, PSQL_NoticeResponse);
 	assert_int_equal(received_response->length, expected_length);
 
-	free_error_response(response);
-	free_error_response(received_response);
+	free_notice_response(response);
+	free_notice_response(received_response);
 }
 
 static void test_with_additional_parms(void **state) {
 	NoticeResponse *received_response = NULL;
 	NoticeResponse *response = NULL;
-	NoticeResponse *err = NULL;
+	ErrorResponse *err = NULL;
 	char *message = "Seems OK to me man";
 	char *detail = "This is a more complicated message";
 	NoticeResponseArg a = {PSQL_Error_Detail, detail};
 
-	response = make_error_response(PSQL_Error_ERROR,
-			PSQL_Code_Success,
+	response = make_notice_response(PSQL_Error_WARNING,
+			PSQL_Code_Protocol_Violation,
 			message, 10, &a, &a, &a,
 			&a, &a, &a, &a, &a, &a, &a);
 
 	// Total of 13 items: 3 required, 10 optional. Each includes a null terminator and type code. Include length and type also.
-	int expected_length = strlen(psql_error_severity_str[PSQL_Error_ERROR])
-		+ strlen(psql_sqlstate_codes_str[PSQL_Code_Success]) + strlen(message)
+	int expected_length = strlen(psql_error_severity_str[PSQL_Error_WARNING])
+		+ strlen(psql_sqlstate_codes_str[PSQL_Code_Protocol_Violation]) + strlen(message)
 		+ (10 * strlen(detail)) + (13 * sizeof(char)) + (13 * sizeof(char)) + sizeof(unsigned int) + sizeof(char);
 
-	received_response = read_error_response((BaseMessage*)&response->type, &err);
+	received_response = read_notice_response((BaseMessage*)&response->type, &err);
 
 	// Standard checks
 	assert_null(err);
@@ -114,31 +114,31 @@ static void test_with_additional_parms(void **state) {
 	assert_int_equal(received_response->type, PSQL_NoticeResponse);
 	assert_int_equal(received_response->length, expected_length);
 
-	free_error_response(response);
-	free_error_response(received_response);
+	free_notice_response(response);
+	free_notice_response(received_response);
 }
 
 static void test_verify_args_pointers_correct(void **state) {
 	NoticeResponse *received_response = NULL;
 	NoticeResponse *response = NULL;
-	NoticeResponse *err = NULL;
+	ErrorResponse *err = NULL;
 	char *message = "Seems OK to me man";
 	char *detail = "This is a more complicated message";
 	NoticeResponseArg a = {PSQL_Error_Detail, detail};
 
-	response = make_error_response(PSQL_Error_ERROR,
-			PSQL_Code_Success,
+	response = make_notice_response(PSQL_Error_WARNING,
+			PSQL_Code_Protocol_Violation,
 			message, 10, &a, &a, &a,
 			&a, &a, &a, &a, &a, &a, &a);
 
 	// Total of 13 args: 3 required, 10 optional.
 	int num_args = 3 + 10;
 	// Each arg includes a null terminator and type code. Count length and type of NoticeResponse as usual.
-	int expected_length = strlen(psql_error_severity_str[PSQL_Error_ERROR])
-		+ strlen(psql_sqlstate_codes_str[PSQL_Code_Success]) + strlen(message)
+	int expected_length = strlen(psql_error_severity_str[PSQL_Error_WARNING])
+		+ strlen(psql_sqlstate_codes_str[PSQL_Code_Protocol_Violation]) + strlen(message)
 		+ (10 * strlen(detail)) + (num_args * sizeof(char)) + (num_args * sizeof(char)) + sizeof(unsigned int) + sizeof(char);
 
-	received_response = read_error_response((BaseMessage*)&response->type, &err);
+	received_response = read_notice_response((BaseMessage*)&response->type, &err);
 
 	// Standard checks
 	assert_null(err);
@@ -152,11 +152,11 @@ static void test_verify_args_pointers_correct(void **state) {
 		switch (i) {
 			case 0:
 				assert_int_equal(received_response->args[0].type, PSQL_Error_SEVERITY);
-				assert_string_equal(psql_error_severity_str[PSQL_Error_ERROR], received_response->args[0].value);
+				assert_string_equal(psql_error_severity_str[PSQL_Error_WARNING], received_response->args[0].value);
 				break;
 			case 1:
 				assert_int_equal(received_response->args[1].type, PSQL_Error_Code);
-				assert_string_equal(psql_sqlstate_codes_str[PSQL_Code_Success], received_response->args[1].value);
+				assert_string_equal(psql_sqlstate_codes_str[PSQL_Code_Protocol_Violation], received_response->args[1].value);
 				break;
 			case 2:
 				assert_int_equal(received_response->args[2].type, PSQL_Error_Message);
@@ -169,8 +169,8 @@ static void test_verify_args_pointers_correct(void **state) {
 		}
 	}
 
-	free_error_response(response);
-	free_error_response(received_response);
+	free_notice_response(response);
+	free_notice_response(received_response);
 }
 
 int main(void) {

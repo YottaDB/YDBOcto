@@ -24,13 +24,13 @@
 #include "rocto.h"
 #include "message_formats.h"
 
-ErrorResponse *read_error_response(BaseMessage *message, ErrorResponse **err) {
-	ErrorResponse *ret = NULL;
+NoticeResponse *read_notice_response(BaseMessage *message, ErrorResponse **err) {
+	NoticeResponse *ret = NULL;
 	char *cur_pointer = NULL, *last_byte = NULL;
 	unsigned int remaining_length = 0, num_args = 0, i = 0;
 
 	remaining_length = ntohl(message->length);
-	ret = (ErrorResponse*)malloc(remaining_length + sizeof(ErrorResponse) - sizeof(unsigned int));
+	ret = (NoticeResponse*)malloc(remaining_length + sizeof(NoticeResponse) - sizeof(unsigned int));
 
 	ret->type = message->type;
 	ret->length = remaining_length;
@@ -49,7 +49,7 @@ ErrorResponse *read_error_response(BaseMessage *message, ErrorResponse **err) {
 		num_args++;
 	}
 
-	ret->args = (ErrorResponseArg*)malloc(num_args * sizeof(ErrorResponseArg));
+	ret->args = (NoticeResponseArg*)malloc(num_args * sizeof(NoticeResponseArg));
 
 	// Populate args with type info and pointers into data section
 	cur_pointer = ret->data;

@@ -181,6 +181,7 @@ add_library(librocto OBJECT
   rocto/make_parameter_status.c
   rocto/make_portal_suspended.c
   rocto/make_no_data.c
+  rocto/make_notice_response.c
   rocto/send_message.c
   rocto/read_message.c
   rocto/read_bytes.c
@@ -188,6 +189,7 @@ add_library(librocto OBJECT
   rocto/free_error_response.c
   rocto/free_data_row.c
   rocto/free_row_description.c
+  rocto/free_notice_response.c
   rocto/get_plan_row_description.c
   rocto/handle_query_response.c
   #  rocto/read_authentication_md5_password.c
@@ -199,6 +201,7 @@ add_library(librocto OBJECT
   rocto/read_data_row.c
   rocto/read_empty_query_response.c
   rocto/read_error_response.c
+  rocto/read_notice_response.c
   rocto/read_parameter_status.c
   rocto/read_parse_complete.c
   rocto/read_password_message.c

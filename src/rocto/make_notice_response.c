@@ -24,7 +24,7 @@
 
 #include "message_formats.h"
 
-NoticeResponse *make_error_response(PSQL_ErrorSeverity severity, PSQL_SQLSTATECode code, const char *message, size_t num_args, ...) {
+NoticeResponse *make_notice_response(PSQL_ErrorSeverity severity, PSQL_SQLSTATECode code, const char *message, size_t num_args, ...) {
 	unsigned int new_length;
 	int i, cur_arg;
 	va_list args;
@@ -32,7 +32,7 @@ NoticeResponse *make_error_response(PSQL_ErrorSeverity severity, PSQL_SQLSTATECo
 	NoticeResponse *ret;
 	char *ptr;
 
-	printf("Making error: %s", message);
+	printf("Making notice: %s", message);
 
 	// Go through all the args and count their size
 	new_length = 0;

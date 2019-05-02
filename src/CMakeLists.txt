@@ -158,6 +158,7 @@ add_library(librocto OBJECT
   rocto/read_query.c
   rocto/read_parse.c
   rocto/read_execute.c
+  rocto/read_flush.c
   rocto/read_sync.c
   rocto/read_terminate.c
   rocto/read_describe.c

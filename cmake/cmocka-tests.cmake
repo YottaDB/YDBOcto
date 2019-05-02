@@ -58,3 +58,4 @@ ADD_UNIT_TEST_WITH_OPTIONS(test_make_close_complete src/rocto/test_make_close_co
 ADD_UNIT_TEST_WITH_OPTIONS(test_read_password_message src/rocto/test_read_password_message "")
 ADD_UNIT_TEST_WITH_OPTIONS(test_make_portal_suspended src/rocto/test_make_portal_suspended "")
 ADD_UNIT_TEST_WITH_OPTIONS(test_read_terminate src/rocto/test_read_terminate "")
+ADD_UNIT_TEST_WITH_OPTIONS(test_read_flush src/rocto/test_read_flush "")

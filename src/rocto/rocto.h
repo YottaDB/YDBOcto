@@ -67,6 +67,7 @@ NoData *make_no_data();
 // If the message was invalid, the return is NULL and *err is populated with an error message
 Bind *read_bind(BaseMessage *message, ErrorResponse **err);
 Close *read_close(BaseMessage *message, ErrorResponse **err);
+Flush *read_flush(BaseMessage *message, ErrorResponse **err);
 Query *read_query(BaseMessage *message, ErrorResponse **err);
 Parse *read_parse(BaseMessage *message, ErrorResponse **err);
 PasswordMessage *read_password_message(BaseMessage *message, ErrorResponse **err);

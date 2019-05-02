@@ -13,8 +13,7 @@ configure_file (
 )
 
 configure_file (
-  "${PROJECT_SOURCE_DIR}/tools/activate.in"
-  "${PROJECT_BINARY_DIR}/activate"
+  "${PROJECT_SOURCE_DIR}/tools/activate.in" "${PROJECT_BINARY_DIR}/activate"
 )
 
 # Generate the physical-parser
@@ -168,6 +167,7 @@ add_library(librocto OBJECT
   rocto/handle_describe.c
   rocto/make_error_response.c
   rocto/make_bind_complete.c
+  rocto/make_close_complete.c
   rocto/make_ready_for_query.c
   rocto/make_empty_query_response.c
   rocto/make_row_description.c
@@ -190,6 +190,8 @@ add_library(librocto OBJECT
   #  rocto/read_authentication_md5_password.c
   rocto/read_authentication_ok.c
   rocto/read_bind_complete.c
+  rocto/read_close.c
+  rocto/read_close_complete.c
   rocto/read_command_complete.c
   rocto/read_data_row.c
   rocto/read_empty_query_response.c

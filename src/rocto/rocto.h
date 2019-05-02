@@ -46,6 +46,7 @@ void free_row_description(RowDescription *rowd);
 // varargs should be of type ErrorResponseArg
 ErrorResponse *make_error_response(PSQL_ErrorSeverity severity, PSQL_SQLSTATECode code, const char *message, size_t num_args, ...);
 BindComplete *make_bind_complete();
+CloseComplete *make_close_complete();
 ReadyForQuery *make_ready_for_query(PSQL_TransactionStatus status);
 EmptyQueryResponse *make_empty_query_response();
 RowDescription *make_row_description(RowDescriptionParm *parms, short num_parms);
@@ -60,6 +61,7 @@ NoData *make_no_data();
 // read_* messages parse the message and return a pointer to the filled out message type
 // If the message was invalid, the return is NULL and *err is populated with an error message
 Bind *read_bind(BaseMessage *message, ErrorResponse **err);
+Close *read_close(BaseMessage *message, ErrorResponse **err);
 Query *read_query(BaseMessage *message, ErrorResponse **err);
 Parse *read_parse(BaseMessage *message, ErrorResponse **err);
 Execute *read_execute(BaseMessage *message, ErrorResponse **err);
@@ -93,6 +95,7 @@ RowDescription *get_plan_row_description(PhysicalPlan *plan);
 // AuthenticationMD5Password *read_authentication_md5_password(BaseMessage *message, ErrorResponse **err);
 AuthenticationOk *read_authentication_ok(BaseMessage *message, ErrorResponse **err);
 BindComplete *read_bind_complete(BaseMessage *message, ErrorResponse **err);
+CloseComplete *read_close_complete(BaseMessage *message, ErrorResponse **err);
 CommandComplete *read_command_complete(BaseMessage *message, ErrorResponse **err);
 DataRow *read_data_row(BaseMessage *message, ErrorResponse **err);
 EmptyQueryResponse *read_empty_query_response(BaseMessage *message, ErrorResponse **err);

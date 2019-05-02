@@ -42,14 +42,17 @@ enum PSQL_MessageTypes {
 	PSQL_Flush = 'H',
 	PSQL_NoData = 'n',
 	PSQL_NoticeResponse = 'N',
+	PSQL_Query = 'Q',
+	PSQL_ReadyForQuery = 'Z',
+	PSQL_RowDescription = 'T',
 	PSQL_ParameterStatus = 'S',
 	PSQL_Parse = 'P',
 	PSQL_ParseComplete = '1',
 	PSQL_PasswordMessage = 'p',
+	PSQL_PortalSuspended = 's',
 	PSQL_Query = 'Q',
 	PSQL_ReadyForQuery = 'Z',
 	PSQL_RowDescription = 'T',
-	PSQL_PortalSuspended = 's',
 	PSQL_Sync = 'S',
 	PSQL_Terminate = 'X'
 };
@@ -211,6 +214,20 @@ typedef struct __attribute__((packed)) {
 	char type;
 	unsigned int length;
 } NoData;
+
+typedef struct {
+	char type;
+	char *value;
+} NoticeResponseArg;
+
+// B
+typedef struct __attribute__((packed)) {
+	NoticeResponseArg *args;
+
+	char type;
+	unsigned int length;
+	char data[];
+} NoticeResponse;
 
 // B
 typedef struct __attribute__((packed)) {

@@ -198,6 +198,7 @@ add_library(librocto OBJECT
   rocto/read_error_response.c
   rocto/read_parameter_status.c
   rocto/read_parse_complete.c
+  rocto/read_password_message.c
   rocto/read_ready_for_query.c
   rocto/read_row_description.c
 )

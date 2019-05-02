@@ -40,12 +40,13 @@ enum PSQL_MessageTypes {
 	PSQL_ErrorResponse = 'E',
 	PSQL_Execute = 'E',
 	PSQL_NoData = 'n',
-	PSQL_Query = 'Q',
-	PSQL_ReadyForQuery = 'Z',
-	PSQL_RowDescription = 'T',
 	PSQL_ParameterStatus = 'S',
 	PSQL_Parse = 'P',
 	PSQL_ParseComplete = '1',
+	PSQL_PasswordMessage = 'p',
+	PSQL_Query = 'Q',
+	PSQL_ReadyForQuery = 'Z',
+	PSQL_RowDescription = 'T',
 	PSQL_Sync = 'S',
 };
 
@@ -233,6 +234,14 @@ typedef struct __attribute__((packed)) {
 	unsigned int length;
 	char data[];
 } Query;
+
+// F
+typedef struct __attribute__((packed)) {
+	char *password;
+	char type;
+	unsigned int length;
+	char data[];
+} PasswordMessage;
 
 // B
 typedef struct __attribute__((packed)) {

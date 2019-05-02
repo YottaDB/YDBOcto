@@ -305,6 +305,12 @@ typedef struct __attribute__((packed)) {
 	unsigned int length;
 } Sync;
 
+// F
+typedef struct __attribute__((packed)) {
+	char type;
+	unsigned int length;
+} Terminate;
+
 typedef enum {
 	PSQL_Error_SEVERITY = 'S',
 	PSQL_Error_Code = 'C',

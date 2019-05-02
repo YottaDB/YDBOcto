@@ -177,6 +177,7 @@ add_library(librocto OBJECT
   rocto/make_authentication_ok.c
   rocto/make_parse_complete.c
   rocto/make_parameter_status.c
+  rocto/make_portal_suspended.c
   rocto/make_no_data.c
   rocto/send_message.c
   rocto/read_message.c
@@ -199,6 +200,7 @@ add_library(librocto OBJECT
   rocto/read_parameter_status.c
   rocto/read_parse_complete.c
   rocto/read_password_message.c
+  rocto/read_portal_suspended.c
   rocto/read_ready_for_query.c
   rocto/read_row_description.c
 )

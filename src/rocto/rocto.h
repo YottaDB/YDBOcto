@@ -56,6 +56,7 @@ AuthenticationMD5Password *make_authentication_md5_password();
 AuthenticationOk *make_authentication_ok();
 ParseComplete *make_parse_complete();
 ParameterStatus *make_parameter_status(StartupMessageParm *parm);
+PortalSuspended *make_portal_suspended();
 NoData *make_no_data();
 
 // read_* messages parse the message and return a pointer to the filled out message type
@@ -103,6 +104,7 @@ EmptyQueryResponse *read_empty_query_response(BaseMessage *message, ErrorRespons
 ErrorResponse *read_error_response(BaseMessage *message, ErrorResponse **err);
 ParameterStatus *read_parameter_status(BaseMessage *message, ErrorResponse **err);
 ParseComplete *read_parse_complete(BaseMessage *message, ErrorResponse **err);
+PortalSuspended *read_portal_suspended(BaseMessage *message, ErrorResponse **err);
 ReadyForQuery *read_ready_for_query(BaseMessage *message, ErrorResponse **err);
 RowDescription *read_row_description(BaseMessage *message, ErrorResponse **err);
 

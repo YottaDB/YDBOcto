@@ -57,3 +57,4 @@ ADD_UNIT_TEST_WITH_OPTIONS(test_make_parameter_status src/rocto/test_make_parame
 ADD_UNIT_TEST_WITH_OPTIONS(test_read_close src/rocto/test_read_close "")
 ADD_UNIT_TEST_WITH_OPTIONS(test_make_close_complete src/rocto/test_make_close_complete "")
 ADD_UNIT_TEST_WITH_OPTIONS(test_read_password_message src/rocto/test_read_password_message "")
+ADD_UNIT_TEST_WITH_OPTIONS(test_make_portal_suspended src/rocto/test_make_portal_suspended "")

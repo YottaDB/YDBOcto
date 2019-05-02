@@ -47,6 +47,7 @@ enum PSQL_MessageTypes {
 	PSQL_Query = 'Q',
 	PSQL_ReadyForQuery = 'Z',
 	PSQL_RowDescription = 'T',
+	PSQL_PortalSuspended = 's',
 	PSQL_Sync = 'S',
 };
 
@@ -226,6 +227,12 @@ typedef struct __attribute__((packed)) {
 	char type;
 	unsigned int length;
 } ParseComplete;
+
+// B
+typedef struct __attribute__((packed)) {
+	char type;
+	unsigned int length;
+} PortalSuspended;
 
 // F
 typedef struct __attribute__((packed)) {

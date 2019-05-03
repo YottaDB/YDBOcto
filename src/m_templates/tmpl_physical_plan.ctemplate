@@ -99,7 +99,7 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
         keyword = get_keyword_from_keywords(plan->keywords, OPTIONAL_LIMIT);
         if(keyword != NULL) {
             UNPACK_SQL_STATEMENT(value, keyword->v, value);
-            %})!(({{ value->v.string_literal }})'>$G(%%ydboctoi{{ plan->total_iter_keys|%d }}){%
+            %})!(({{ value->v.string_literal }})'>$G({% TMPL(tmpl_key, plan->outputKey); %}){%
         }
     %})  DO
     {%
@@ -160,7 +160,7 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
     } else if(plan->outputKey) {
         // Note down where we are, do a dummy assignment to increment the row count, then paste our row again
         end_resume = buff_ptr;
-        %}&$I(%%ydboctoi{{ cur_key|%d }}) {%
+        %}&$I({% TMPL(tmpl_key, plan->outputKey); %}) {%
         if(plan->set_operation == PP_INTERSECT_SET) {
             %}%%ydboctoz{%
         } else {
@@ -196,7 +196,7 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
             TMPL(tmpl_column_list_combine, plan->order_by, plan, ",", NULL, 0);
             %}){%
         } else {
-            %},%%ydboctoi{{ cur_key|%d }}){%
+            %},{% TMPL(tmpl_key, plan->outputKey);%}){%
         }
         // Then assign value
         if(plan->action_type == PP_PROJECT) {
@@ -250,7 +250,7 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
         %} ^|"{{ config->global_directory }}"|{{ config->global_names.raw_cursor }}(cursorId,"index",{%
         TMPL(tmpl_column_list_combine, plan->projection, plan, ",", NULL, 0);
         if(plan->set_operation != PP_INTERSECT_SET) {
-            %},(%%ydboctoi{{ cur_key|%d }}))="",tmpVar=$I(^|"{{ config->global_directory }}"|{{ config->global_names.raw_cursor }}(cursorId,"index",{% TMPL(tmpl_column_list_combine, plan->projection, plan, ",", NULL, 0); %})){%
+            %},{% TMPL(tmpl_key, plan->outputKey); %})="",tmpVar=$I(^|"{{ config->global_directory }}"|{{ config->global_names.raw_cursor }}(cursorId,"index",{% TMPL(tmpl_column_list_combine, plan->projection, plan, ",", NULL, 0); %})){%
         } else {
             %}){%
         }

@@ -1,7 +1,6 @@
 macro(ADD_UNIT_TEST_WITH_OPTIONS TEST_NAME TEST_FILE WRAP_FUNCTION)
   set(test_link_flags "")
   foreach(func ${WRAP_FUNCTION})
-    message(WARNING "Wrapping ${func}")
     if ("${test_link_flags}" STREQUAL "")
       set(test_link_flags "-Wl")
     endif()

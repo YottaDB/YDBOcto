@@ -23,12 +23,14 @@
 
 int qualify_join_conditions(SqlJoin *join, SqlJoin *tables) {
 	SqlJoin *cur_join, *start_join;
+	SqlValueType type;
 	int ret = 0;
 
 	cur_join = start_join = join;
 	do {
 		if(cur_join->condition) {
 			ret |= qualify_statement(cur_join->condition, tables);
+			ret |= populate_data_type(cur_join->condition, &type);
 		}
 		cur_join = cur_join->next;
 	} while(cur_join != start_join);

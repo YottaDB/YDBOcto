@@ -8,15 +8,21 @@
 TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan) {
     TEMPLATE_INIT();
     char *mid = NULL, *column, *table, *c, *extract_expression;
+    int use_string_comparison;
     int qualified = FALSE, i, columnId;
     SqlValue *value;
     SqlTable *src_table;
     SqlColumn *start_column, *cur_column;
     SqlOptionalKeyword *keyword, *piece_keyword, *source_keyword;
+    SqlColumnAlias *column_alias;
     LogicalPlan *key, *piece_num, *cur_plan, *branch_value, *cas_value, *condition;
     LogicalPlan *cur_branch, *default_value;
+    LogicalPlan *first_operand, *second_operand, *t_operand;
 
     assert(plan != NULL);
+
+    first_operand = plan->v.operand[0];
+    second_operand = plan->v.operand[1];
 
     switch(plan->type) {
     case LP_WHERE:
@@ -95,10 +101,54 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan) {
         mid = "'=";
         break;
     case LP_BOOLEAN_LESS_THAN:
-        mid = "<";
-        break;
     case LP_BOOLEAN_GREATER_THAN:
-        mid = ">";
+        // If the arguments are strings, we need to use the M follows operator ']]'
+        // We assume all values in this expression have the same type, which should be true
+        // due to the matching of types further up the stack
+        // Delve down the left side until we get to a leaf node (right hand side is NULL) and
+        // determine the type of that node
+        cur_plan = plan;
+        use_string_comparison = FALSE;
+        while(cur_plan->v.operand[1] != NULL) {
+            cur_plan = cur_plan->v.operand[0];
+            assert(cur_plan != NULL);
+        }
+        switch(cur_plan->type) {
+        case LP_VALUE:
+            if(cur_plan->v.value->type == STRING_LITERAL) {
+              use_string_comparison = TRUE;
+            }
+            break;
+        case LP_COLUMN_ALIAS:
+            column_alias = cur_plan->v.column_alias;
+            if(column_alias->column->type == column_STATEMENT) {
+                if(column_alias->column->v.column->type == CHARACTER_STRING_TYPE) {
+                    use_string_comparison = TRUE;
+                }
+            } else {
+                assert(column_alias->column->type == column_list_alias_STATEMENT);
+                if(column_alias->column->v.column_list_alias->type == STRING_LITERAL) {
+                    use_string_comparison = TRUE;
+                }
+            }
+            break;
+        }
+        if(use_string_comparison == TRUE) {
+            if(plan->type == LP_BOOLEAN_LESS_THAN) {
+                // We need to assert the values aren't equal, and that they don't
+                //  A does not follow B
+                t_operand = first_operand;
+                first_operand = second_operand;
+                second_operand = t_operand;
+            }
+            mid = "]]";
+        } else {
+            if(plan->type == LP_BOOLEAN_LESS_THAN) {
+                mid = "<";
+            } else {
+                mid = ">";
+            }
+        }
         break;
     case LP_BOOLEAN_LESS_THAN_OR_EQUALS:
         mid = "'>";
@@ -187,9 +237,9 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan) {
 
     if(mid) {
         %}({%
-        TMPL(tmpl_print_expression, plan->v.operand[0], pplan);
+        TMPL(tmpl_print_expression, first_operand, pplan);
         %}{{ mid }}{%
-        TMPL(tmpl_print_expression, plan->v.operand[1], pplan);
+        TMPL(tmpl_print_expression, second_operand, pplan);
         %}){%
     }
     

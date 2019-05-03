@@ -84,3 +84,14 @@ WHERE firstName = "Zero";
 OCTO
   [[ "$(grep -c "|" output.txt)" == "2" ]]
 }
+
+@test "where with a string inequality" {
+  octo <<OCTO &> output.txt
+SELECT *
+FROM names
+WHERE firstName < "Zero";
+OCTO
+  # Allow one "Zero" for echoing the SELECT statement
+  [[ "$(grep -c "Zero" output.txt)" == "1" ]]
+  [[ "$(grep -c "|" output.txt)" != "0" ]]
+}

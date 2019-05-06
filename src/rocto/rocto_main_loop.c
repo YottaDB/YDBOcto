@@ -166,10 +166,14 @@ int rocto_main_loop(RoctoSession *session) {
 				return 0;
 			}
 			break;
+		case PSQL_Terminate:
+			break;
 		default:
 			TRACE(ERR_UNKNOWN_MESSAGE_TYPE, message->type);
 			break;
 		};
 	}
+	// Disable sending of messages while we shutdown
+	rocto_session.sending_message = TRUE;
 	return 0;
 }

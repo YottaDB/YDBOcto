@@ -22,6 +22,7 @@
 // Used to convert between network and host endian
 #include <arpa/inet.h>
 
+#include "errors.h"
 #include "message_formats.h"
 
 ErrorResponse *make_error_response(PSQL_ErrorSeverity severity, PSQL_SQLSTATECode code, const char *message, size_t num_args, ...) {
@@ -31,8 +32,6 @@ ErrorResponse *make_error_response(PSQL_ErrorSeverity severity, PSQL_SQLSTATECod
 	ErrorResponseArg *arg;
 	ErrorResponse *ret;
 	char *ptr;
-
-	printf("Making error: %s", message);
 
 	// Go through all the args and count their size
 	new_length = 0;
@@ -65,7 +64,15 @@ ErrorResponse *make_error_response(PSQL_ErrorSeverity severity, PSQL_SQLSTATECod
 	cur_arg = 0;
 
 	// Add length field
-	ret->type = PSQL_ErrorResponse;
+	// Depending on severity, select ErrorResponse or NoticeResponse
+	switch(severity) {
+	case PSQL_Error_INFO:
+	case PSQL_Error_DEBUG:
+		ret->type = PSQL_NoticeResponse;
+		break;
+	default:
+		ret->type = PSQL_ErrorResponse;
+	}
 	ret->length = htonl(new_length + sizeof(unsigned int));
 	ptr = ret->data;
 

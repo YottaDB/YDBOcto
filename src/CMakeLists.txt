@@ -72,7 +72,6 @@ add_library(libocto OBJECT
   default_octo_conf.h
   yyerror.c
   yywrap.c
-  errors.c
   format_error_string.c
   parse_line.c
   emit_create_table.c
@@ -147,6 +146,7 @@ add_library(libocto OBJECT
 
 add_executable(octo
   octo.c
+  errors.c
   $<TARGET_OBJECTS:libocto>
   $<TARGET_OBJECTS:libhelpers>
 )
@@ -207,6 +207,7 @@ add_library(librocto OBJECT
 
 add_executable(rocto
   rocto.c
+  rocto_errors.c
   $<TARGET_OBJECTS:librocto>
   $<TARGET_OBJECTS:libocto>
   $<TARGET_OBJECTS:libhelpers>

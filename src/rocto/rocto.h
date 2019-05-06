@@ -19,11 +19,15 @@
 
 #include <libyottadb.h>
 
+#define FEATURE_ROCTO
+
+#include "errors.h"
 #include "physical_plan.h"
 #include "message_formats.h"
 
 typedef struct {
 	int connection_fd;
+	int sending_message;
 	ydb_buffer_t *session_id;
 } RoctoSession;
 
@@ -107,5 +111,7 @@ ParseComplete *read_parse_complete(BaseMessage *message, ErrorResponse **err);
 PortalSuspended *read_portal_suspended(BaseMessage *message, ErrorResponse **err);
 ReadyForQuery *read_ready_for_query(BaseMessage *message, ErrorResponse **err);
 RowDescription *read_row_description(BaseMessage *message, ErrorResponse **err);
+
+RoctoSession rocto_session;
 
 #endif

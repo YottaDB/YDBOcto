@@ -40,6 +40,7 @@ enum PSQL_MessageTypes {
 	PSQL_ErrorResponse = 'E',
 	PSQL_Execute = 'E',
 	PSQL_NoData = 'n',
+	PSQL_NoticeResponse = 'N',
 	PSQL_ParameterStatus = 'S',
 	PSQL_Parse = 'P',
 	PSQL_ParseComplete = '1',
@@ -49,6 +50,7 @@ enum PSQL_MessageTypes {
 	PSQL_RowDescription = 'T',
 	PSQL_PortalSuspended = 's',
 	PSQL_Sync = 'S',
+	PSQL_Terminate = 'X'
 };
 
 typedef struct __attribute__((packed)) {

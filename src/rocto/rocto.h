@@ -42,7 +42,6 @@ BaseMessage *read_message(RoctoSession *session, char *buffer, int buffer_size);
 int read_bytes(RoctoSession *session, char *buffer, int buffer_size, int bytes_to_read);
 int rocto_main_loop(RoctoSession *session);
 void free_error_response(ErrorResponse *err);
-void free_notice_response(NoticeResponse *err);
 void free_data_row(DataRow *drow);
 void free_row_description(RowDescription *rowd);
 
@@ -63,7 +62,6 @@ ParseComplete *make_parse_complete();
 ParameterStatus *make_parameter_status(StartupMessageParm *parm);
 PortalSuspended *make_portal_suspended();
 NoData *make_no_data();
-NoticeResponse *make_notice_response(PSQL_ErrorSeverity severity, PSQL_SQLSTATECode code, const char *message, size_t num_args, ...);
 
 // read_* messages parse the message and return a pointer to the filled out message type
 // If the message was invalid, the return is NULL and *err is populated with an error message
@@ -110,7 +108,6 @@ CommandComplete *read_command_complete(BaseMessage *message, ErrorResponse **err
 DataRow *read_data_row(BaseMessage *message, ErrorResponse **err);
 EmptyQueryResponse *read_empty_query_response(BaseMessage *message, ErrorResponse **err);
 ErrorResponse *read_error_response(BaseMessage *message, ErrorResponse **err);
-NoticeResponse *read_notice_response(BaseMessage *message, ErrorResponse **err);
 ParameterStatus *read_parameter_status(BaseMessage *message, ErrorResponse **err);
 ParseComplete *read_parse_complete(BaseMessage *message, ErrorResponse **err);
 PortalSuspended *read_portal_suspended(BaseMessage *message, ErrorResponse **err);

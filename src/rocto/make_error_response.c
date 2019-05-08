@@ -66,8 +66,11 @@ ErrorResponse *make_error_response(PSQL_ErrorSeverity severity, PSQL_SQLSTATECod
 	// Add length field
 	// Depending on severity, select ErrorResponse or NoticeResponse
 	switch(severity) {
+	case PSQL_Error_LOG:
 	case PSQL_Error_INFO:
 	case PSQL_Error_DEBUG:
+	case PSQL_Error_NOTICE:
+	case PSQL_Error_WARNING:
 		ret->type = PSQL_NoticeResponse;
 		break;
 	default:

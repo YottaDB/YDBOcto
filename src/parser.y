@@ -228,7 +228,7 @@ search_condition
   : boolean_term {$$ = $boolean_term; }
   | search_condition OR boolean_term  {
       SQL_STATEMENT($$, binary_STATEMENT);
-      ($$)->v.binary = (SqlBinaryOperation*)malloc(sizeof(SqlBinaryOperation));
+      MALLOC_STATEMENT($$, binary, SqlBinaryOperation);
       ($$)->v.binary->operation = BOOLEAN_OR;
       ($$)->v.binary->operands[0] = ($1);
       ($$)->v.binary->operands[1] = ($3);
@@ -239,7 +239,7 @@ boolean_term
   : boolean_factor { $$ = $boolean_factor; }
   | boolean_term AND boolean_factor {
       SQL_STATEMENT($$, binary_STATEMENT);
-      ($$)->v.binary = (SqlBinaryOperation*)malloc(sizeof(SqlBinaryOperation));
+      MALLOC_STATEMENT($$, binary, SqlBinaryOperation);
       ($$)->v.binary->operation = BOOLEAN_AND;
       ($$)->v.binary->operands[0] = ($1);
       ($$)->v.binary->operands[1] = ($3);
@@ -249,9 +249,8 @@ boolean_term
 boolean_factor
   : boolean_test { $$ = $1; }
   | NOT boolean_test {
-      $$ = (SqlStatement*)malloc(sizeof(SqlStatement));
-      ($$)->type = unary_STATEMENT;
-      ($$)->v.unary = (SqlUnaryOperation*)malloc(sizeof(SqlUnaryOperation));
+      SQL_STATEMENT($$, binary_STATEMENT);
+      MALLOC_STATEMENT($$, binary, SqlBinaryOperation);
       ($$)->v.unary->operation = BOOLEAN_NOT;
       ($$)->v.unary->operand = ($2);
     }
@@ -671,7 +670,7 @@ generic_function_call
 non_query_value_expression
   : non_query_numeric_value_expression {
       SQL_STATEMENT($$, value_STATEMENT);
-      ($$)->v.value = (SqlValue*)malloc(sizeof(SqlValue));
+      MALLOC_STATEMENT($$, value, SqlValue);
       ($$)->v.value->type = CALCULATED_VALUE;
       ($$)->v.value->v.calculated = $1;
     }
@@ -681,14 +680,14 @@ non_query_numeric_value_expression
   : non_query_term { $$ = $1; }
   | non_query_numeric_value_expression PLUS non_query_term {
       SQL_STATEMENT($$, binary_STATEMENT);
-      ($$)->v.binary = (SqlBinaryOperation*)malloc(sizeof(SqlBinaryOperation));
+      MALLOC_STATEMENT($$, binary, SqlBinaryOperation);
       ($$)->v.binary->operation = ADDITION;
       ($$)->v.binary->operands[0] = ($1);
       ($$)->v.binary->operands[1] = ($3);
     }
   | non_query_numeric_value_expression MINUS non_query_term {
       SQL_STATEMENT($$, binary_STATEMENT);
-      ($$)->v.binary = (SqlBinaryOperation*)malloc(sizeof(SqlBinaryOperation));
+      MALLOC_STATEMENT($$, binary, SqlBinaryOperation);
       ($$)->v.binary->operation = SUBTRACTION;
       ($$)->v.binary->operands[0] = ($1);
       ($$)->v.binary->operands[1] = ($3);
@@ -699,21 +698,21 @@ non_query_term
   : non_query_factor { $$ = $1; }
   | non_query_term ASTERISK non_query_factor {
       SQL_STATEMENT($$, binary_STATEMENT);
-      ($$)->v.binary = (SqlBinaryOperation*)malloc(sizeof(SqlBinaryOperation));
+      MALLOC_STATEMENT($$, binary, SqlBinaryOperation);
       ($$)->v.binary->operation = MULTIPLICATION;
       ($$)->v.binary->operands[0] = ($1);
       ($$)->v.binary->operands[1] = ($3);
     }
   | non_query_term SOLIDUS non_query_factor {
       SQL_STATEMENT($$, binary_STATEMENT);
-      ($$)->v.binary = (SqlBinaryOperation*)malloc(sizeof(SqlBinaryOperation));
+      MALLOC_STATEMENT($$, binary, SqlBinaryOperation);
       ($$)->v.binary->operation = DVISION;
       ($$)->v.binary->operands[0] = ($1);
       ($$)->v.binary->operands[1] = ($3);
     }
   | non_query_term concatenation_operator non_query_factor {
       SQL_STATEMENT($$, binary_STATEMENT);
-      ($$)->v.binary = (SqlBinaryOperation*)malloc(sizeof(SqlBinaryOperation));
+      MALLOC_STATEMENT($$, binary, SqlBinaryOperation);
       ($$)->v.binary->operation = CONCAT;
       ($$)->v.binary->operands[0] = ($1);
       ($$)->v.binary->operands[1] = ($3);
@@ -723,13 +722,13 @@ non_query_term
 non_query_factor
   : PLUS non_query_numeric_primary factor_tail {
       SQL_STATEMENT($$, unary_STATEMENT);
-      ($$)->v.unary = (SqlUnaryOperation*)malloc(sizeof(SqlUnaryOperation));
+      MALLOC_STATEMENT($$, unary, SqlUnaryOperation);
       ($$)->v.unary->operation = FORCE_NUM;
       ($$)->v.unary->operand = ($2);
     }
   | MINUS non_query_numeric_primary factor_tail {
       SQL_STATEMENT($$, unary_STATEMENT);
-      ($$)->v.unary = (SqlUnaryOperation*)malloc(sizeof(SqlUnaryOperation));
+      MALLOC_STATEMENT($$, unary, SqlUnaryOperation);
       ($$)->v.unary->operation = NEGATIVE;
       ($$)->v.unary->operand = ($2);
     }
@@ -759,7 +758,7 @@ column_reference
       len_qual = strlen(qual->v.string_literal);
       len_col_name = strlen(qual->v.string_literal);
       // +1 for null, +1 for '.'
-      new_string = malloc(len_qual + len_col_name + 2);
+      new_string = octo_cmalloc(memory_chunks, len_qual + len_col_name + 2);
       c = new_string;
       memcpy(c, qual->v.string_literal, len_qual);
       c += len_qual;
@@ -969,7 +968,7 @@ sql_schema_definition_statement
 table_definition
   : CREATE TABLE column_name LEFT_PAREN table_element_list RIGHT_PAREN table_definition_tail {
         SQL_STATEMENT($$, table_STATEMENT);
-        ($$)->v.table = (SqlTable*)malloc(sizeof(SqlTable));
+        MALLOC_STATEMENT($$, table, SqlTable);
         memset(($$)->v.table, 0, sizeof(SqlTable));
         assert($column_name->type == value_STATEMENT
           && $column_name->v.value->type == COLUMN_REFERENCE);
@@ -986,7 +985,7 @@ table_definition
 table_definition_tail
   : /* Empty */ {
       SQL_STATEMENT($$, keyword_STATEMENT);
-      ($$)->v.keyword = (SqlOptionalKeyword*)malloc(sizeof(SqlOptionalKeyword));
+      MALLOC_STATEMENT($$, keyword, SqlOptionalKeyword);
       ($$)->v.keyword->keyword = NO_KEYWORD;
       ($$)->v.keyword->v = NULL;
       dqinit(($$)->v.keyword);
@@ -1006,14 +1005,14 @@ optional_keyword
 optional_keyword_element
   : GLOBAL literal_value {
       SQL_STATEMENT($$, keyword_STATEMENT);
-      ($$)->v.keyword = (SqlOptionalKeyword*)malloc(sizeof(SqlOptionalKeyword));
+      MALLOC_STATEMENT($$, keyword, SqlOptionalKeyword);
       ($$)->v.keyword->keyword = OPTIONAL_SOURCE;
       ($$)->v.keyword->v = $2;
       dqinit(($$)->v.keyword);
     }
   | DELIM literal_value {
        SQL_STATEMENT($$, keyword_STATEMENT);
-       ($$)->v.keyword = (SqlOptionalKeyword*)malloc(sizeof(SqlOptionalKeyword));
+        MALLOC_STATEMENT($$, keyword, SqlOptionalKeyword);
        ($$)->v.keyword->keyword = OPTIONAL_DELIM;
        ($$)->v.keyword->v = $2;
        dqinit(($$)->v.keyword);
@@ -1023,7 +1022,7 @@ optional_keyword_element
 optional_keyword_tail
   : /* Empty */ {
       SQL_STATEMENT($$, keyword_STATEMENT);
-      ($$)->v.keyword = (SqlOptionalKeyword*)malloc(sizeof(SqlOptionalKeyword));
+      MALLOC_STATEMENT($$, keyword, SqlOptionalKeyword);
       ($$)->v.keyword->keyword = NO_KEYWORD;
       ($$)->v.keyword->v = NULL;
       dqinit(($$)->v.keyword);

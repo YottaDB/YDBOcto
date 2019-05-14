@@ -30,6 +30,7 @@ ADD_BATS_TEST(test_optional_create_table_settings)
 ADD_BATS_TEST(test_cross_index_optimization)
 ADD_BATS_TEST(test_create_table)
 ADD_BATS_TEST(test_natural_join)
+ADD_BATS_TEST(test_outer_join)
 ADD_BATS_TEST(test_error_messages)
 
 find_program(psql NAMES psql)

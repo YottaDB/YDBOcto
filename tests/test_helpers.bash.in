@@ -48,9 +48,9 @@ FILE
 }
 
 start_rocto() {
-  rocto &> rocto.log &
+  rocto -vv &> rocto.log &
   echo $! > rocto.pid
-  while grep -q "rocto started" rocto.log; do
+  while [[ "$(grep -c "rocto started" rocto.log)" == "0" ]]; do
     sleep .1s
   done
 }

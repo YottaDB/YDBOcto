@@ -24,10 +24,9 @@
 LogicalPlan *lp_replace_helper(LogicalPlan *where, SqlTableAlias *table_alias, SqlKey *key);
 
 /**
- * Goes through plan replaces LP_COLUMN references to the given table alias
- *  with a LP_DERIVED_COLUMN and a LP_PIECE_NUMBER/LP_KEY combination
+ * Goes through plan and replaces all key unique id's (and references to those keys) with a new, unique key
  */
-LogicalPlan *lp_replace_derived_table_references(LogicalPlan *root, LogicalPlan *new_plan, SqlTableAlias *table_alias) {
+LogicalPlan *lp_generate_new_keys(LogicalPlan *root, LogicalPlan *new_plan) {
 	SqlKey *key;
 	LogicalPlan *key_lp, *t;
 
@@ -41,7 +40,7 @@ LogicalPlan *lp_replace_derived_table_references(LogicalPlan *root, LogicalPlan 
 	return root;
 }
 
-LogicalPlan *lp_replace_helper(LogicalPlan *where, SqlTableAlias *table_alias, SqlKey *key) {
+LogicalPlan *lp_replace_helper(LogicalPlan *where, SqlTableAlias *table_alias, int new_unique_id) {
 	SqlColumn *column;
 	SqlColumnAlias *alias;
 	SqlValue *value;
@@ -57,7 +56,7 @@ LogicalPlan *lp_replace_helper(LogicalPlan *where, SqlTableAlias *table_alias, S
 	switch(where->type) {
 	case LP_COLUMN_ALIAS:
 		alias = where->v.column_alias;
-		if(alias->table_alias->v.table_alias->unique_id == table_alias->unique_id) {
+		if(alias->table_alias->v.table_alias == table_alias) {
 			MALLOC_LP(ret, LP_DERIVED_COLUMN);
 			MALLOC_LP(ret->v.operand[0], LP_KEY);
 			ret->v.operand[0]->v.key = key;

@@ -101,3 +101,27 @@ FROM names t1;
 OCTO
   [[ "$(grep -c "|" ./output.txt)" == "12" ]]
 }
+
+@test "UNION of SELECT and another SET operation" {
+  octo <<OCTO &> output.txt
+SELECT *
+FROM names n1
+INNER JOIN names n2
+ON n1.id = n2.id
+
+UNION ALL
+
+(
+  SELECT id, firstName, lastName, '', '', ''
+  FROM names
+
+  EXCEPT ALL
+
+  SELECT n1.id, n1.firstName, n1.lastName, '', '', ''
+  FROM names n1
+  INNER JOIN names n2
+  ON n1.id = n2.id
+);
+OCTO
+  [[ "$(grep -c "|" output.txt)" == "6" ]]
+}

@@ -38,10 +38,11 @@ LogicalPlan *join_tables(LogicalPlan *root, LogicalPlan *plan) {
 		return plan;
 	sub = plan->v.operand[0];
 	if(sub->type == LP_SET_OPERATION) {
-		sub1 = optimize_logical_plan(sub->v.operand[0]);
-		sub2 = optimize_logical_plan(sub->v.operand[1]);
+		sub1 = optimize_logical_plan(sub->v.operand[1]->v.operand[0]);
+		sub2 = optimize_logical_plan(sub->v.operand[1]->v.operand[1]);
 		// Each of the sub plans should have the same output key, so we can
 		//  grab from either
+		sub1 = lp_drill_to_insert(sub1);
 		GET_LP(cur_lp_key, sub1, 1, LP_OUTPUT);
 		GET_LP(cur_lp_key, cur_lp_key, 0, LP_KEY);
 		lp_insert_key(root, cur_lp_key);

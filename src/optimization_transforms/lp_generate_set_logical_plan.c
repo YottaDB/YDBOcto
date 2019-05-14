@@ -21,14 +21,30 @@
 #include "octo_types.h"
 #include "logical_plan.h"
 
+void lp_update_plan_keys(LogicalPlan *plan, SqlKey *key) {
+	LogicalPlan *output_key;
+
+	if(plan->type == LP_SET_OPERATION) {
+		assert(plan->v.operand[1]->type == LP_PLANS);
+		lp_update_plan_keys(plan->v.operand[1]->v.operand[0], key);
+		lp_update_plan_keys(plan->v.operand[1]->v.operand[1], key);
+	} else if(plan->type == LP_INSERT) {
+		output_key = lp_get_output_key(plan);
+		output_key->v.key->key_num = key->key_num;
+		output_key->v.key->random_id = key->random_id;
+	} else {
+		assert(FALSE);
+	}
+}
 
 /**
  * Generates a meta-plan for doing a KEY_<set operation>
  */
 LogicalPlan *lp_generate_set_logical_plan(SqlStatement *stmt, int *plan_id) {
 	SqlStatement *set_operation_stmt;
-	SqlSelectStatement *select_stmt, *select_stmt2;
-	LogicalPlan *options, *set_operation, *plans, *key, *set_plans[2], *output_keys[2];
+	SqlSelectStatement *select_stmt;
+	LogicalPlan *options, *set_operation, *plans, *key, *set_plans[2], *output_key;
+	LogicalPlan *cur_plan;
 	SqlSetOperation *set_operation_sql;
 
 	UNPACK_SQL_STATEMENT(select_stmt, stmt, select);
@@ -39,7 +55,8 @@ LogicalPlan *lp_generate_set_logical_plan(SqlStatement *stmt, int *plan_id) {
 	set_operation_stmt =  select_stmt->set_operation;
 	UNPACK_SQL_STATEMENT(set_operation_sql, set_operation_stmt, set_operation);
 	assert(stmt == set_operation_sql->operand[0]);
-	UNPACK_SQL_STATEMENT(select_stmt2, set_operation_sql->operand[1], select);
+	// Verify that the right hand side is also a SELECT statement
+	assert(set_operation_sql->operand[1]->type == select_STATEMENT);
 	// otherwise this will recurse, restore it at the  end of this function for cleanup
 	select_stmt->set_operation = NULL;
 
@@ -47,10 +64,10 @@ LogicalPlan *lp_generate_set_logical_plan(SqlStatement *stmt, int *plan_id) {
 	set_plans[1] = generate_logical_plan(set_operation_sql->operand[1], plan_id);
 
 	// These should share the output key
-	output_keys[0] = lp_get_output_key(set_plans[0]);
-	output_keys[1] = lp_get_output_key(set_plans[1]);
-	output_keys[1]->v.key->key_num = output_keys[0]->v.key->key_num;
-	output_keys[1]->v.key->random_id = output_keys[0]->v.key->random_id;
+	cur_plan = lp_drill_to_insert(set_plans[0]);
+	output_key = lp_get_output_key(cur_plan);
+	lp_update_plan_keys(set_plans[0], output_key->v.key);
+	lp_update_plan_keys(set_plans[1], output_key->v.key);
 
 	MALLOC_LP(set_operation, LP_SET_OPERATION);
 	options = MALLOC_LP(set_operation->v.operand[0], LP_SET_OPTION);

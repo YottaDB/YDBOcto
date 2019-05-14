@@ -1,0 +1,63 @@
+load test_helpers
+
+setup() {
+  init_test
+  createdb
+  load_fixture names.sql
+  load_fixture names.zwr
+}
+
+@test "outer join with no condition specified" {
+  octo <<OCTO &> output.txt
+SELECT *
+FROM names n1
+LEFT JOIN (
+  SELECT *
+  FROM names
+  WHERE firstName < "Zero"
+) n2;
+OCTO
+  [[ "$(grep -c "Error parsing statement" output.txt)" == "1" ]]
+}
+
+@test "outer join with matching rows is the same as inner join" {
+  octo <<OCTO &> output1.txt
+SELECT *
+FROM names n1
+LEFT JOIN names n2
+ON n1.id = n2.id;
+OCTO
+  octo <<OCTO &> output2.txt
+SELECT *
+FROM names n1
+INNER JOIN names n2
+ON n1.id = n2.id;
+OCTO
+  grep "|" output1.txt > output1_filtered.txt
+  grep "|" output2.txt > output2_filtered.txt
+  [[ "$(diff output1_filtered.txt output2_filtered.txt)" == "" ]]
+}
+
+@test "outer join followed by a SET operation" {
+  octo <<OCTO &> output1.txt
+SELECT *
+FROM names n1
+LEFT JOIN names n2
+ON n1.id = n2.id
+UNION ALL
+SELECT *
+FROM names n1;
+OCTO
+  octo <<OCTO &> output2.txt
+SELECT *
+FROM names n1
+INNER JOIN names n2
+ON n1.id = n2.id
+UNION ALL
+SELECT *
+FROM names n1;
+OCTO
+  grep "|" output1.txt > output1_filtered.txt
+  grep "|" output2.txt > output2_filtered.txt
+  [[ "$(diff output1_filtered.txt output2_filtered.txt)" == "" ]]
+}

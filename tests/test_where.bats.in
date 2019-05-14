@@ -1,4 +1,3 @@
-
 load test_helpers
 
 setup() {

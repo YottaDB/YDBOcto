@@ -131,6 +131,10 @@ void ydb_hash_to_string(ydb_uint16 *hash, char *buffer, const unsigned int buf_l
 void assign_table_to_columns(SqlStatement *table_statement);
 SqlColumn *column_list_alias_to_columns(SqlTableAlias *table_alias);
 int get_column_piece_number(SqlColumnAlias *alias, SqlTableAlias *table_alias);
+SqlStatement *replace_table_references(SqlStatement *stmt, SqlStatement *to_remove);
+SqlStatement *update_table_references(SqlStatement *stmt, int old_unique_id, int new_unique_id);
+
+SqlStatement *copy_sql_statement(SqlStatement *stmt);
 
 /**
  * Returns TRUE if the columns are equal, FALSE otherwise

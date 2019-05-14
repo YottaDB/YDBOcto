@@ -9,6 +9,10 @@ gen_cscope.sh
 \#*\#
 **/*~
 TAGS
+*.swp
+*.orig
+tags
+.dir-locals.el
 
 roctolist.md
 src/gtmcrypt/

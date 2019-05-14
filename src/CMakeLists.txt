@@ -138,11 +138,15 @@ add_library(libocto OBJECT
   optimization_transforms/lp_get_table_join.c
   optimization_transforms/lp_make_key.c
   optimization_transforms/lp_optimize_where_multi_equals_ands.c
+  optimization_transforms/lp_drill_to_insert.c
   optimization_transforms/generate_logical_plan.c
   physical/generate_physical_plan.c
   physical/emit_physical_plan.c
   m_templates/print_dots.c
   m_escape_string2.c
+  replace_table_references.c
+  update_table_references.c
+  copy_sql_statement.c
   ${BISON_OctoParser_OUTPUTS}
   ${FLEX_OctoLexer_OUTPUTS}
 )

@@ -32,6 +32,7 @@ LogicalPlan *walk_where_statement(PhysicalPlan *out, LogicalPlan *stmt);
 PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlan *next) {
 	SqlOptionalKeyword *keywords, *keyword;
 	LogicalPlan *keys, *table_joins, *select, *insert, *output_key, *output;
+	LogicalPlan *set_operation;
 	PhysicalPlan *out, *prev = NULL, *real_out;
 	char buffer[MAX_STR_CONST], *temp;
 	SqlTable *table;
@@ -45,9 +46,6 @@ PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlan *next) {
 	// If this is a union plan, construct physical plans for the two children
 	if(plan->type == LP_SET_OPERATION) {
 		out = real_out = generate_physical_plan(plan->v.operand[1]->v.operand[1], next);
-		while(out->outputKey && out->outputKey->is_cross_reference_key) {
-			out = out->next;
-		}
 		prev = generate_physical_plan(plan->v.operand[1]->v.operand[0], real_out);
 
 		// Switch what operation the second plan does
@@ -153,6 +151,15 @@ PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlan *next) {
 				prev->prev = generate_physical_plan(insert, prev);
 				prev = prev->prev;
 			}
+		} else if(table_joins->v.operand[0]->type == LP_SET_OPERATION) {
+			GET_LP(set_operation, table_joins, 0, LP_SET_OPERATION);
+			if(prev == NULL) {
+				prev = generate_physical_plan(set_operation, out);
+				out->prev = prev;
+			} else {
+				prev->prev = generate_physical_plan(set_operation, prev);
+				prev = prev->prev;
+			}
 		}
 		table_joins = table_joins->v.operand[1];
 	} while(table_joins != NULL);
@@ -189,8 +196,6 @@ PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlan *next) {
 		out->maintain_columnwise_index = 1;
 	}
 
-	if(prev != NULL)
-		out = prev;
 	return out;
 }
 
@@ -215,7 +220,7 @@ LogicalPlan *walk_where_statement(PhysicalPlan *out, LogicalPlan *stmt) {
 	SqlBinaryOperation *binary;
 	SqlColumnList *cur_cl, *start_cl;
 	PhysicalPlan *t;
-	LogicalPlan *project, *column_list, *where, *column_alias;
+	LogicalPlan *project, *column_list, *where, *column_alias, *t_lp;
 
 	if(stmt == NULL)
 		return NULL;
@@ -242,6 +247,15 @@ LogicalPlan *walk_where_statement(PhysicalPlan *out, LogicalPlan *stmt) {
 		case LP_INSERT:
 			// Insert this to the physical plan, then create a
 			//  reference to the first item in the column list
+			t = out;
+			while(t->prev != NULL)
+				t = t->prev;
+			t->prev = generate_physical_plan(stmt, t);
+			t->prev->stash_columns_in_keys = 1;
+			MALLOC_LP(stmt, LP_KEY);
+			stmt->v.key = t->prev->outputKey;
+			break;
+		case LP_SET_OPERATION:
 			t = out;
 			while(t->prev != NULL)
 				t = t->prev;

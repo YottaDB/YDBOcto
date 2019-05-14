@@ -185,6 +185,7 @@ LogicalPlan *lp_column_list_to_lp(SqlColumnListAlias *list, int *plan_id);
 SqlColumnListAlias *lp_columns_to_column_list(SqlColumn *column, SqlTableAlias *table_alias);
 LogicalPlan *lp_table_join_to_column_list(LogicalPlan *table_join, int *plan_id);
 LogicalPlan *lp_replace_derived_table_references(LogicalPlan *root, LogicalPlan *new_plan, SqlTableAlias *table_alias);
+LogicalPlan *lp_drill_to_insert(LogicalPlan *plan);
 
 // Given a plan, attempts to calculate a "cost" estimate of that plan
 int lp_calculate_plan_cost(LogicalPlan *plan);
@@ -220,6 +221,7 @@ int lp_optimize_where_multi_equal_ands(LogicalPlan *plan, LogicalPlan *where);
 // Returns a unique number within the context of this plan;
 //  maybe not be unique in terms of global numbers
 int get_plan_unique_number(LogicalPlan *plan);
+
 
 // Optimization routines
 int lp_opt_fix_key_to_const(LogicalPlan *root, SqlKey *key, LogicalPlan *value);

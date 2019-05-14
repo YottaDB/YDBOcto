@@ -7,8 +7,8 @@
 
 TEMPLATE(tmpl_key, SqlKey *key) {
     TEMPLATE_INIT();
-    char *tableName = " ";
-    char *columnName = " ";
+    char *tableName = "";
+    char *columnName = "";
     SqlValue *value;
 
     if(key->table) {

@@ -43,8 +43,8 @@ void print_temporary_table(SqlStatement *stmt, PhysicalPlan *plan, int cursor_id
 
 	YDB_LITERAL_TO_BUFFER("keys", keys_b);
 
-	YDB_LITERAL_TO_BUFFER(" ", space_b);
-	YDB_LITERAL_TO_BUFFER(" ", space_b2);
+	YDB_LITERAL_TO_BUFFER("", space_b);
+	YDB_LITERAL_TO_BUFFER("", space_b2);
 	INIT_YDB_BUFFER(row_id_b, MAX_STR_CONST);
 
 	YDB_LITERAL_TO_BUFFER("", empty_buffer);

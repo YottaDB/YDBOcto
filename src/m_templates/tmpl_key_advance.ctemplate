@@ -10,7 +10,7 @@ TEMPLATE(tmpl_key_advance, PhysicalPlan *pplan, SqlKey *key) {
     SqlTable *table;
     SqlOptionalKeyword *keyword = NULL;
     int iter_key_index = 0, keys_to_match = 0, hit_key = 0;
-    char *columnName = " ";
+    char *columnName = "";
 
     // If there is no table, this is a temporary key;
     //  use cursor to store the value

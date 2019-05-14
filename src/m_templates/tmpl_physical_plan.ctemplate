@@ -16,8 +16,8 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
     SqlOptionalKeyword *keyword;
     LogicalPlan *lp_temp;
     char *source;
-    char *tableName = " ";
-    char *columnName = " ";
+    char *tableName = "";
+    char *columnName = "";
     char *start_table_reference, *end_table_reference;
     char *start_resume = NULL;
     char *end_resume = NULL;

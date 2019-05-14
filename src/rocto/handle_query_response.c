@@ -54,8 +54,8 @@ void handle_query_response(SqlStatement *stmt, PhysicalPlan *plan, int cursor_id
 	char buffer[MAX_STR_CONST], *c;
 	int status, number_of_columns = 0, row_count;
 
-	YDB_LITERAL_TO_BUFFER(" ", space_b);
-	YDB_LITERAL_TO_BUFFER(" ", space_b2);
+	YDB_LITERAL_TO_BUFFER("", space_b);
+	YDB_LITERAL_TO_BUFFER("", space_b2);
 	INIT_YDB_BUFFER(row_id_b, MAX_STR_CONST);
 
 	YDB_LITERAL_TO_BUFFER("", empty_buffer);

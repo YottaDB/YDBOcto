@@ -19,9 +19,9 @@ INSERT INTO customers VALUES (3,'Thomas','Jefferson','tjefferson@usa.gov','931 T
 INSERT INTO customers VALUES (4,'James','Madison','jmadison@usa.gov','11350 Constitution Hwy','Orange','VA','22960');
 INSERT INTO customers VALUES (5,'James','Monroe','jmonroe@usa.gov','2050 James Monroe Parkway','Charlottesville','VA','22902');
 
-INSERT INTO orders VALUES (1,'07/04/1776','$234.56','1');
-INSERT INTO orders VALUES (2,'03/14/1760','$78.50','3');
-INSERT INTO orders VALUES (3,'05/23/1784','$124.00','2');
-INSERT INTO orders VALUES (4,'09/03/1790','$65.50','3');
-INSERT INTO orders VALUES (5,'07/21/1795','$25.50','10');
-INSERT INTO orders VALUES (6,'11/27/1787','$14.40','9');
+INSERT INTO orders VALUES (1,'07/04/1776','$234.56',1);
+INSERT INTO orders VALUES (2,'03/14/1760','$78.50',3);
+INSERT INTO orders VALUES (3,'05/23/1784','$124.00',2);
+INSERT INTO orders VALUES (4,'09/03/1790','$65.50',3);
+INSERT INTO orders VALUES (5,'07/21/1795','$25.50',10);
+INSERT INTO orders VALUES (6,'11/27/1787','$14.40',9);

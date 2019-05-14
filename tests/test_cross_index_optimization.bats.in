@@ -18,7 +18,7 @@ OCTO
   [[ "$output" =~ "Zero|Cool" ]]
   ! [[ "$output" =~ "Joey" ]]
   [[ -e genOctoXref318c99a87b3889ed.m ]]
-  [[ "$(grep -c xref outputPlan1.m)" > 0 ]]
+  [[ "$(grep -c xref _ydboctoP*.m)" > 0 ]]
   run $ydb_dist/mumps -r %XCMD zwrite ^%ydboctoxref
   [[ "$output" =~ "^%ydboctoxref(\"names\",\"firstName\",\"Zero\")=" ]]
   [[ "$output" =~ "^%ydboctoxref(\"names\",\"firstName\")=" ]]
@@ -32,7 +32,7 @@ OCTO
   [[ "$output" =~ "Zero|Cool" ]]
   ! [[ "$output" =~ "Joey" ]]
   [[ -e genOctoXref5fc7b93c5f9221ef.m ]]
-  [[ "$(grep -c xref outputPlan1.m)" > 0 ]]
+  [[ "$(grep -c xref _ydboctoP*.m)" > 0 ]]
   run $ydb_dist/mumps -r %XCMD zwrite ^%ydboctoxref
   [[ "$output" =~ "^%ydboctoxref(\"names2\",\"lastName\",\"Cool\")=" ]]
   [[ "$output" =~ "^%ydboctoxref(\"names2\",\"lastName\")=" ]]
@@ -54,7 +54,7 @@ OCTO
   [[ "$output" =~ "Zero|Cool" ]]
   ! [[ "$output" =~ "Joey" ]]
   [[ -e genOctoXref5fc7b93c5f9221ef.m ]]
-  [[ "$(grep -c xref outputPlan1.m)" > 0 ]]
+  [[ "$(grep -c xref _ydboctoP*.m)" > 0 ]]
   run $ydb_dist/mumps -r %XCMD zwrite ^%ydboctoxref
   [[ "$output" =~ "^%ydboctoxref(\"names2\",\"lastName\",\"Cool\")=" ]]
   [[ "$output" =~ "^%ydboctoxref(\"names2\",\"lastName\")=" ]]

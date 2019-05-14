@@ -792,6 +792,8 @@ non_join_query_expression
   : non_join_query_term { $$ = $1; }
   | query_expression UNION query_term non_join_query_expression_tail_tail {
         $$ = $1;
+        assert(($1)->type == select_STATEMENT);
+        assert(($3)->type == select_STATEMENT);
         SqlSetOperation *set_operation;
         SqlSelectStatement *select;
         SqlStatement *stmt;
@@ -806,6 +808,8 @@ non_join_query_expression
     }
   | query_expression UNION ALL query_term non_join_query_expression_tail_tail {
         $$ = $1;
+        assert(($1)->type == select_STATEMENT);
+        assert(($4)->type == select_STATEMENT);
         SqlSetOperation *set_operation;
         SqlSelectStatement *select;
         SqlStatement *stmt;
@@ -872,8 +876,8 @@ column_name_list_tail
   ;
 
 query_term
-  : non_join_query_term
-  | joined_table
+  : non_join_query_term { $$ = $1; }
+  | joined_table { $$ = $1; }
   ;
 
 non_join_query_term
@@ -919,7 +923,7 @@ corresponding_spec_tail
 
 non_join_query_primary
   : simple_table {$$ = $1; }
-  | LEFT_PAREN non_join_query_expression RIGHT_PAREN
+  | LEFT_PAREN non_join_query_expression RIGHT_PAREN { $$ = $2; }
   ;
 
 simple_table
@@ -929,7 +933,7 @@ simple_table
   ;
 
 table_value_constructor
-  : VALUES table_value_constructor_list
+  : VALUES table_value_constructor_list { $$ = $2; }
   ;
 
 table_value_constructor_list

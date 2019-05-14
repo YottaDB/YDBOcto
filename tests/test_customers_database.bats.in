@@ -1,0 +1,110 @@
+#################################################################
+#								#
+# Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	#
+# All rights reserved.						#
+#								#
+#	This source code contains the intellectual property	#
+#	of its copyright holder(s), and is made available	#
+#	under a license.  If you do not know the terms of	#
+#	the license, please stop and do not read further.	#
+#								#
+#################################################################
+
+load test_helpers
+
+setup() {
+  init_test
+  createdb
+  load_fixture customers.sql
+  load_fixture customers.zwr
+}
+
+@test "TCD01 : customers database : INNER JOIN" {
+  octo <<OCTO 2>&1 | tee output.txt
+SELECT first_name, last_name, order_date, order_amount
+FROM customers c
+INNER JOIN orders o
+ON c.customer_id = o.customer_id;
+OCTO
+  verify_output TCD01 output.txt
+}
+
+@test "TCD02 : customers database : INNER JOIN order by ASC" {
+  octo <<OCTO 2>&1 | tee output.txt
+SELECT first_name, last_name, order_date, order_amount
+FROM customers c
+INNER JOIN orders o
+ON c.customer_id = o.customer_id
+ORDER BY last_name ASC;
+OCTO
+  verify_output TCD02 output.txt
+}
+
+@test "TCD03 : customers database : INNER JOIN order by DESC" {
+  skip	# skip can be removed once https://gitlab.com/YottaDB/DBMS/YDBOcto/issues/158 is fixed
+  	# #158 title : ORDER BY with DESC displays results in ASC (not DESC) order
+  octo <<OCTO 2>&1 | tee output.txt
+SELECT first_name, last_name, order_date, order_amount
+FROM customers c
+INNER JOIN orders o
+ON c.customer_id = o.customer_id
+ORDER BY last_name DESC;
+OCTO
+  verify_output TCD03 output.txt
+}
+
+@test "TCD04 : customers database : LEFT JOIN" {
+  octo <<OCTO 2>&1 | tee output.txt
+SELECT first_name, last_name, order_date, order_amount
+FROM customers c
+LEFT JOIN orders o
+ON c.customer_id = o.customer_id;
+OCTO
+  verify_output TCD04 output.txt
+}
+
+@test "TCD05 : customers database : LEFT JOIN with WHERE" {
+  skip	# skip can be removed once https://gitlab.com/YottaDB/DBMS/YDBOcto/issues/179 is fixed
+  	# #179 title : Incorrect answers from OUTER JOIN with condition
+  octo <<OCTO 2>&1 | tee output.txt
+SELECT first_name, last_name, order_date, order_amount
+FROM customers c
+LEFT JOIN orders o
+ON c.customer_id = o.customer_id
+WHERE order_date is NULL;
+OCTO
+  verify_output TCD05 output.txt
+}
+
+@test "TCD06 : customers database : RIGHT JOIN" {
+  octo <<OCTO 2>&1 | tee output.txt
+SELECT first_name, last_name, order_date, order_amount
+FROM customers c
+RIGHT JOIN orders o
+ON c.customer_id = o.customer_id;
+OCTO
+  verify_output TCD06 output.txt
+}
+
+@test "TCD07 : customers database : RIGHT JOIN with WHERE" {
+  octo <<OCTO 2>&1 | tee output.txt
+SELECT first_name, last_name, order_date, order_amount
+FROM customers c
+RIGHT JOIN orders o
+ON c.customer_id = o.customer_id
+WHERE order_date is NULL;
+OCTO
+  verify_output TCD07 output.txt
+}
+
+@test "TCD08 : customers database : FULL JOIN" {
+  skip	# skip can be removed once https://gitlab.com/YottaDB/DBMS/YDBOcto/issues/179 is fixed
+  	# #179 title : Incorrect answers from OUTER JOIN with condition
+  octo <<OCTO 2>&1 | tee output.txt
+SELECT first_name, last_name, order_date, order_amount
+FROM customers c
+FULL JOIN orders o
+ON c.customer_id = o.customer_id;
+OCTO
+  verify_output TCD08 output.txt
+}

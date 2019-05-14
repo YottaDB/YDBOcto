@@ -30,6 +30,7 @@ int lp_emit_plan(char *buffer, size_t buffer_len, LogicalPlan *plan) {
 int emit_plan_helper(char *buffer, size_t buffer_len, int depth, LogicalPlan *plan) {
 	char *buff_ptr = buffer, *table_name = " ", *column_name = " ", *data_type_ptr = " ";
 	int written;
+	int table_id;
 	SqlValue *value;
 	SqlJoin *cur_join, *start_join;
 	SqlKey *key;
@@ -63,6 +64,10 @@ int emit_plan_helper(char *buffer, size_t buffer_len, int depth, LogicalPlan *pl
 				"false");
 		SAFE_SNPRINTF(written, buff_ptr, buffer, buffer_len, "%*s- uses_xref_key: %s\n", depth, "", key->cross_reference_output_key ? "true" :
 				"false");
+		if(key->type == LP_KEY_FIX) {
+			SAFE_SNPRINTF(written, buff_ptr, buffer, buffer_len, "%*s- value:\n", depth, "");
+			buff_ptr += emit_plan_helper(buff_ptr, buffer_len - (buff_ptr - buffer), depth + 4, key->value);
+		}
 		break;
 	case LP_COLUMN_LIST:
 		SAFE_SNPRINTF(written, buff_ptr, buffer, buffer_len, "\n");
@@ -88,7 +93,8 @@ int emit_plan_helper(char *buffer, size_t buffer_len, int depth, LogicalPlan *pl
 		}
 		UNPACK_SQL_STATEMENT(value, plan->v.column_alias->table_alias->v.table_alias->alias, value);
 		table_name = value->v.string_literal;
-		SAFE_SNPRINTF(written, buff_ptr, buffer, buffer_len, "%s.%s\n", table_name, column_name);
+		table_id = plan->v.column_alias->table_alias->v.table_alias->unique_id;
+		SAFE_SNPRINTF(written, buff_ptr, buffer, buffer_len, "%s(%d).%s\n", table_name, table_id, column_name);
 		break;
 	case LP_COLUMN_LIST_ALIAS:
 		switch(plan->v.column_list_alias->type) {

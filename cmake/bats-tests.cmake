@@ -14,6 +14,7 @@ configure_file (
 )
 
 ADD_BATS_TEST(hello_bats)
+ADD_BATS_TEST(test_unique_filenames)
 ADD_BATS_TEST(test_where)
 ADD_BATS_TEST(test_where_in)
 ADD_BATS_TEST(test_select_columns)

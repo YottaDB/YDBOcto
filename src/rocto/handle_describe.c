@@ -125,7 +125,7 @@ int handle_describe(Describe *describe, RoctoSession *session) {
 
 		switch(statement->type) {
 			case select_STATEMENT:
-				pplan = emit_select_statement(&cursor_global, cursor_exe_global, statement, NULL);
+				pplan = emit_select_statement(&cursor_global, cursor_exe_global, statement, NULL, NULL);
 				assert(pplan != NULL);
 				description = get_plan_row_description(pplan);
 				send_message(session, (BaseMessage*)(&description->type));

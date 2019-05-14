@@ -14,7 +14,7 @@
 /**
  * Iterates over the last output of the plan and prints it to the screen
  */
-void print_temporary_table(SqlStatement *stmt, PhysicalPlan *plan, int cursor_id, void *parms) {
+void print_temporary_table(SqlStatement *stmt, PhysicalPlan *plan, int cursor_id, void *parms, ydb_buffer_t *outputKeyId) {
 	char buffer[MAX_STR_CONST];
 	/// WARNING: the ordering of these buffers is essential to the ydb calls;
 	//   if altered, make sure the order is correct
@@ -24,6 +24,7 @@ void print_temporary_table(SqlStatement *stmt, PhysicalPlan *plan, int cursor_id
 		*space_b = &ydb_buffers[4], *space_b2 = &ydb_buffers[5],
 		*row_id_b = &ydb_buffers[6], *row_value_b = &ydb_buffers[7],
 		*empty_buffer = &ydb_buffers[8], *val_buff;
+	ydb_buffer_t *unique_id;
 	ydb_buffer_t z_status, z_status_value;
 	PhysicalPlan *deep_plan = plan;
 	SqlSetStatement *set_stmt;
@@ -74,16 +75,8 @@ void print_temporary_table(SqlStatement *stmt, PhysicalPlan *plan, int cursor_id
 		return;
 	}
 
-	while(deep_plan->next != NULL) {
-		deep_plan = deep_plan->next;
-	}
 
-	snprintf(buffer, MAX_STR_CONST, "%d", deep_plan->outputKey->random_id);
-	key_id_b->len_used = strlen(buffer);
-	key_id_b->buf_addr = malloc(key_id_b->len_used + 1);
-	memcpy(key_id_b->buf_addr, buffer, key_id_b->len_used+1);
-	key_id_b->len_alloc = key_id_b->len_used;
-
+	*key_id_b = *outputKeyId;
 
 	status = ydb_subscript_next_s(cursor_b, 6, cursor_id_b, row_id_b);
 	if(status == YDB_ERR_NODEEND) {
@@ -104,7 +97,6 @@ void print_temporary_table(SqlStatement *stmt, PhysicalPlan *plan, int cursor_id
 	}
 	fflush(stdout);
 	free(cursor_id_b->buf_addr);
-	free(key_id_b->buf_addr);
 	free(row_id_b->buf_addr);
 	free(row_value_b->buf_addr);
 	return;

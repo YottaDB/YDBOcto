@@ -80,12 +80,12 @@ PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlan *next);
 // Outputs physical plans to temporary files located in config.tmp_dir
 //  Names are like ppplanXXXX, where XXXX is a unique number
 // Returns TRUE on success
-int emit_physical_plan(PhysicalPlan *pplan);
+int emit_physical_plan(PhysicalPlan *pplan, char *plan_filename);
 
 // Returns true if the key is a version of this column
 int key_equals_column(SqlKey *key, SqlColumn *column);
 
-void print_temporary_table(SqlStatement *, PhysicalPlan *plan, int cursor_id, void *parms);
+void print_temporary_table(SqlStatement *, PhysicalPlan *plan, int cursor_id, void *parms, ydb_buffer_t *outputKeyId);
 
 /**
  * Parses query, and calls the callback if it is a select statement. Otherwise, the query is a data altering
@@ -93,10 +93,10 @@ void print_temporary_table(SqlStatement *, PhysicalPlan *plan, int cursor_id, vo
  *
  * @returns TRUE on success, FALSE on failure
  */
-int run_query(char *query, void (*callback)(SqlStatement *, PhysicalPlan *, int, void *), void *parms);
+int run_query(char *query, void (*callback)(SqlStatement *, PhysicalPlan *, int, void *, ydb_buffer_t*), void *parms);
 
 PhysicalPlan *emit_select_statement(ydb_buffer_t *cursor_global,
-  ydb_buffer_t *cursor_exe_global, struct SqlStatement *stmt,
+  ydb_buffer_t *cursor_exe_global, struct SqlStatement *stmt, char *plan_filename,
   SqlTable *destination_table);
 
 #endif

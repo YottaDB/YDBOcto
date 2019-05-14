@@ -49,6 +49,11 @@ typedef void *yyscan_t;
 
 long long unsigned int typedef uint8;
 
+enum FileType {
+	CrossReference,
+	OutputPlan,
+} typedef FileType;
+
 enum SqlStatementType {
 	table_STATEMENT,
 	select_STATEMENT,
@@ -308,7 +313,10 @@ struct SqlInsertStatement
 
 struct SqlDropStatement
 {
-	SqlStatement *table_name, *optional_keyword;
+	// SqlValue
+	SqlStatement *table_name;
+	// SqlOptionalKeyword
+	SqlStatement *optional_keyword;
 };
 
 

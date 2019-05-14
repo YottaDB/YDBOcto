@@ -157,7 +157,6 @@ int populate_data_type(SqlStatement *v, SqlValueType *type) {
 			print_yyloc(&location);
 			return 1;
 		}
-
 		break;
 	case unary_STATEMENT:
 		UNPACK_SQL_STATEMENT(unary, v, unary);

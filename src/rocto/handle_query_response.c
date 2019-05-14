@@ -27,7 +27,7 @@
 #include "helpers.h"
 
 
-void handle_query_response(SqlStatement *stmt, PhysicalPlan *plan, int cursor_id, void *_parms) {
+void handle_query_response(SqlStatement *stmt, PhysicalPlan *plan, int cursor_id, void *_parms, ydb_buffer_t *outputKeyId) {
 	QueryResponseParms *parms = (QueryResponseParms*)_parms;
 	RowDescription *row_description;
 	CommandComplete *command_complete;

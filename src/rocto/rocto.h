@@ -16,7 +16,6 @@
 #ifndef OCTOD_H
 #define OCTOD_H
 
-
 #include <libyottadb.h>
 
 #define FEATURE_ROCTO
@@ -89,7 +88,7 @@ int handle_execute(Execute *execute, RoctoSession *session);
 int handle_describe(Describe *describe, RoctoSession *session);
 
 // This isn't a handle function in-of itself, but a helper to handle the results of a query
-void handle_query_response(SqlStatement *stmt, PhysicalPlan *plan, int cursor_id, void *_parms);
+void handle_query_response(SqlStatement *stmt, PhysicalPlan *plan, int cursor_id, void *_parms, ydb_buffer_t *outputKeyId);
 
 // Helper to indicate that there is no more input
 int no_more();

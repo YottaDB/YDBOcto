@@ -65,10 +65,5 @@ int main(int argc, char **argv)
 		if(eof_hit)
 			break;
 	} while(!feof(inputFile));
-	if(definedTables != NULL) {
-		SQL_STATEMENT(tmp_statement, table_STATEMENT);
-		tmp_statement->v.table = definedTables;
-		//cleanup_sql_statement(tmp_statement);
-	}
 	return error;
 }

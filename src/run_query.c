@@ -24,16 +24,20 @@
 #include <libyottadb.h>
 #include <gtmxc_types.h>
 
+#include "mmrhash.h"
+
 #include "octo.h"
 #include "octo_types.h"
 #include "physical_plan.h"
 #include "parser.h"
 #include "lexer.h"
+#include "helpers.h"
 
-int run_query(char *query, void (*callback)(SqlStatement *, PhysicalPlan *, int, void*), void *parms) {
+int run_query(char *query, void (*callback)(SqlStatement *, PhysicalPlan *, int, void*, ydb_buffer_t*), void *parms) {
 	int c, error = 0, i = 0, status;
-	int done;
+	int done, filename_len = 0;
 	char *buffer;
+	char filename[MAX_STR_CONST];
 	size_t buffer_size = 0;
 	FILE *inputFile;
 	FILE *out;
@@ -48,8 +52,12 @@ int run_query(char *query, void (*callback)(SqlStatement *, PhysicalPlan *, int,
 	ydb_buffer_t schema_global, table_name_buffer, table_create_buffer, null_buffer;
 	ydb_buffer_t cursor_global, cursor_exe_global[3];
 	ydb_buffer_t z_status, z_status_value;
+	ydb_buffer_t *filename_lock = NULL;
+	ydb_buffer_t *outputKeyId = NULL;
+	ydb_string_t ci_filename;
 	gtm_char_t      err_msgbuf[MAX_STR_CONST];
 	gtm_long_t cursorId;
+	hash128_state_t state;
 
 	memory_chunks = alloc_chunk(MEMORY_CHUNK_SIZE);
 
@@ -100,14 +108,34 @@ int run_query(char *query, void (*callback)(SqlStatement *, PhysicalPlan *, int,
 	}
 	switch(result->type) {
 	case select_STATEMENT:
-		pplan = emit_select_statement(&cursor_global, cursor_exe_global, result, NULL);
-		assert(pplan != NULL);
+		HASH128_STATE_INIT(state, 0);
+		hash_canonical_query(&state, result);
+		filename_len = generate_filename(&state, config->tmp_dir, filename, OutputPlan);
+		if (filename_len < 0) {
+			FATAL(ERR_PLAN_HASH_FAILED);
+		}
+		if (access(filename, F_OK) == -1) {	// file doesn't exist
+			filename_lock = make_buffers("^%ydboctoocto", 2, "files", filename);
+			ydb_lock_incr_s(5000000000, &filename_lock[0], 2, &filename_lock[1]);
+			if (access(filename, F_OK) == -1) {
+				pplan = emit_select_statement(&cursor_global, cursor_exe_global, result, filename, NULL);
+				assert(pplan != NULL);
+			}
+			ydb_lock_decr_s(&filename_lock[0], 2, &filename_lock[1]);
+			free(filename_lock);
+		}
+		outputKeyId = get("^%ydboctoocto", 3, "plan_metadata", filename, "output_key");
+		outputKeyId->buf_addr[outputKeyId->len_used] = '\0';
 		cursorId = atol(cursor_exe_global[0].buf_addr);
+		ci_filename.address = filename;
+		ci_filename.length = filename_len;
 		SWITCH_FROM_OCTO_GLOBAL_DIRECTORY();
-		status = ydb_ci("select", cursorId);
+		status = ydb_ci("select", cursorId, &ci_filename);		// TODO: Take plan name
 		YDB_ERROR_CHECK(status, &z_status, &z_status_value);
 		SWITCH_TO_OCTO_GLOBAL_DIRECTORY();
-		(*callback)(result, pplan, cursorId, parms);
+		(*callback)(result, pplan, cursorId, parms, outputKeyId);
+		free(outputKeyId->buf_addr);
+		free(outputKeyId);
 		// Deciding to free the select_STATEMENT must be done by the caller, as they may want to rerun it or send row
 		// descriptions
 		//octo_cfree(memory_chunks);
@@ -166,7 +194,7 @@ int run_query(char *query, void (*callback)(SqlStatement *, PhysicalPlan *, int,
 		break;
 	case set_STATEMENT:
 	case show_STATEMENT:
-		(*callback)(result, NULL, cursorId, parms);
+		(*callback)(result, NULL, cursorId, parms, NULL);
 		octo_cfree(memory_chunks);
 		break;
 	case no_data_STATEMENT:

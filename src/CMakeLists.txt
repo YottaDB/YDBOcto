@@ -13,9 +13,9 @@ configure_file (
 )
 
 configure_file (
-  "${PROJECT_SOURCE_DIR}/tools/activate.in" "${PROJECT_BINARY_DIR}/activate"
+  "${PROJECT_SOURCE_DIR}/tools/activate.in"
+  "${PROJECT_BINARY_DIR}/activate"
 )
-
 # Generate the physical-parser
 BISON_TARGET(PhysicalParser ${PROJECT_SOURCE_DIR}/src/physical/physical-parser.y
   ${PROJECT_BINARY_DIR}/physical-parser.c)
@@ -70,6 +70,7 @@ ADD_CUSTOM_COMMAND(
 
 add_library(libocto OBJECT
   default_octo_conf.h
+  ydb_hash_to_string.c
   yyerror.c
   yywrap.c
   format_error_string.c
@@ -93,8 +94,10 @@ add_library(libocto OBJECT
   octo_init.c
   get_keyword.c
   get_keyword_from_keywords.c
+  generate_filename.c
   generate_key_name.c
   get_key_columns.c
+  hash_canonical_query.c
   assign_table_to_columns.c
   columns_equal.c
   tables_equal.c

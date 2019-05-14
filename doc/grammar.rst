@@ -14,6 +14,9 @@ A Data statement is any statement that makes a change to the data in the databas
 
 A SELECT statement is used to select and view data from the database.
 
+.. note::
+   Some functions and keywords described in this documentation have yet to be implemented, and currently generate an error as we move toward a complete implementation.
+
 ---------------
 CREATE
 ---------------

@@ -58,6 +58,7 @@ int main(int argc, char **argv) {
 	memset(&addressv6, 0, sizeof(struct sockaddr_in6));
 	address = (struct sockaddr_in *)(&addressv6);
 	address->sin_family = AF_INET;
+	addrlen = sizeof(struct sockaddr_in6);
 	if(inet_pton(AF_INET, config->rocto_config.address, &address->sin_addr) != 1) {
 		addressv6.sin6_family = AF_INET6;
 		if(inet_pton(AF_INET6, config->rocto_config.address, &addressv6.sin6_addr) != 1) {

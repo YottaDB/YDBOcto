@@ -64,7 +64,7 @@ int populate_data_type(SqlStatement *v, SqlValueType *type) {
 
 	*type = UNKNOWN_SqlValueType;
 
-	if(v == NULL)
+	if(v == NULL || v->v.select == NULL)
 		return 0;
 
 	switch(v->type) {

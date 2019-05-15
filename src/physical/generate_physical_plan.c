@@ -260,7 +260,7 @@ LogicalPlan *walk_where_statement(PhysicalPlan *out, LogicalPlan *stmt) {
 			while(t->prev != NULL)
 				t = t->prev;
 			t->prev = generate_physical_plan(stmt, t);
-			t->prev->stash_columns_in_keys = 1;
+			t->prev->stash_columns_in_keys = TRUE;
 			MALLOC_LP(stmt, LP_KEY);
 			stmt->v.key = t->prev->outputKey;
 			break;

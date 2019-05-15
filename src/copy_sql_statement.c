@@ -200,12 +200,6 @@ SqlStatement *copy_sql_statement(SqlStatement *stmt) {
 		} else {
 			// Does this happen? It shouldn't, I don't think
 			assert(FALSE);
-			if(stmt->type == keyword_STATEMENT) {
-				MALLOC_STATEMENT(ret, keyword, SqlOptionalKeyword);
-			} else {
-				MALLOC_STATEMENT(ret, constraint, SqlOptionalKeyword);
-			}
-			dqinit(ret->v.keyword);
 		}
 		break;
 	case insert_STATEMENT:

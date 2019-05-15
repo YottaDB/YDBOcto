@@ -61,3 +61,91 @@ OCTO
   grep "|" output2.txt > output2_filtered.txt
   [[ "$(diff output1_filtered.txt output2_filtered.txt)" == "" ]]
 }
+
+@test "outer join with missing columns" {
+  octo <<OCTO &> output.txt
+SELECT *
+FROM names n1
+LEFT JOIN (
+  SELECT *
+  FROM names
+  WHERE firstName < 'Zero'
+) n2
+ON n1.id = n2.id;
+OCTO
+  [[ "$(grep -c "|" output.txt)" == "6" ]]
+}
+
+@test "right outer join with matching rows is the same as inner join" {
+  octo <<OCTO &> output1.txt
+SELECT *
+FROM names n1
+RIGHT JOIN names n2
+ON n1.id = n2.id;
+OCTO
+  octo <<OCTO &> output2.txt
+SELECT *
+FROM names n1
+INNER JOIN names n2
+ON n1.id = n2.id;
+OCTO
+  grep "|" output1.txt > output1_filtered.txt
+  grep "|" output2.txt > output2_filtered.txt
+  [[ "$(diff output1_filtered.txt output2_filtered.txt)" == "" ]]
+}
+
+@test "right outer join followed by a SET operation" {
+  octo <<OCTO &> output1.txt
+SELECT *
+FROM names n1
+RIGHT JOIN names n2
+ON n1.id = n2.id
+UNION ALL
+SELECT *
+FROM names n1;
+OCTO
+  octo <<OCTO &> output2.txt
+SELECT *
+FROM names n1
+INNER JOIN names n2
+ON n1.id = n2.id
+UNION ALL
+SELECT *
+FROM names n1;
+OCTO
+  grep "|" output1.txt > output1_filtered.txt
+  grep "|" output2.txt > output2_filtered.txt
+  [[ "$(diff output1_filtered.txt output2_filtered.txt)" == "" ]]
+}
+
+@test "right outer join with missing columns" {
+  octo <<OCTO &> output.txt
+SELECT *
+FROM  (
+  SELECT *
+  FROM names
+  WHERE firstName < 'Zero'
+) n1
+RIGHT JOIN names n2
+ON n1.id = n2.id;
+OCTO
+  [[ "$(grep -c "|" output.txt)" == "6" ]]
+}
+
+@test "full outer join with missing columns" {
+  octo <<OCTO &> output.txt
+SELECT *
+FROM  (
+  SELECT *
+  FROM names
+  WHERE firstName = 'Zero'
+) n1
+FULL OUTER JOIN (
+  SELECT *
+  FROM names
+  WHERE firstName = 'Acid'
+) n2
+ON n1.id = n2.id;
+OCTO
+  [[ "$(grep -c "|" output.txt)" == "3" ]]
+}

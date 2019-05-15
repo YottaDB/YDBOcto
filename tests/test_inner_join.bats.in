@@ -16,3 +16,23 @@ OCTO
   [[ "$output" =~ "0|Zero|Cool|0|Zero|Cool" ]]
   ! [[ "$output" =~ "0|Zero|Cool|1|Acid|Burn" ]]
 }
+
+@test "inner join with a table against itself with no ON condition" {
+  octo <<OCTO &> output.txt
+CREATE TABLE Orders (OrderID INTEGER PRIMARY KEY, CustomerID INTEGER, EmployeeID INTEGER, OrderDate VARCHAR(16), ShipperID INTEGER);
+select o.ShipperID from Orders
+inner join Orders o
+where Orders.EmployeeID = o.ShipperID and o.ShipperID = 3;
+OCTO
+  # no crash is a success for this test
+}
+
+@test "inner join with a table against itself with no alias on one of the names" {
+  octo <<OCTO &> output.txt
+CREATE TABLE Orders (OrderID INTEGER PRIMARY KEY, CustomerID INTEGER, EmployeeID INTEGER, OrderDate VARCHAR(16), ShipperID INTEGER);
+select o.ShipperID from Orders
+inner join Orders o
+on Orders.EmployeeID = o.ShipperID where o.ShipperID = 3;
+OCTO
+  # no crash is a success for this test
+}

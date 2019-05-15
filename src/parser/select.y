@@ -567,14 +567,18 @@ qualified_join
       right->condition = $join_specification;
       dqinsert(left, right, t_join);
     }
-  | table_reference NATURAL JOIN table_reference join_specification {
+  | table_reference NATURAL JOIN table_reference optional_join_specification {
       SqlJoin *left, *right, *t_join;
       $$ = $1;
       UNPACK_SQL_STATEMENT(left, $$, join);
       UNPACK_SQL_STATEMENT(right, $4, join);
       left->type = NATURAL_JOIN;
       assert(left->condition == NULL);
-      left->condition = natural_join_condition($1, $4);
+      if($optional_join_specification == NULL) {
+        left->condition = natural_join_condition($1, $4);
+      } else {
+        left->condition = $optional_join_specification;
+      }
       dqinsert(left, right, t_join);
     }
 
@@ -590,9 +594,13 @@ qualified_join
   | table_reference NATURAL join_type JOIN table_reference join_specification
   ;
 
+optional_join_specification
+  : /* Empty */ { $$ = NULL; }
+  | join_specification { $$ = $1; }
+  ;
+
 join_specification
-  : /* Empty */
-  | join_condition { $$ = $1; }
+  : join_condition { $$ = $1; }
   | named_column_joins
   ;
 

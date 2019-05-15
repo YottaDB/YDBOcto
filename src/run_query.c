@@ -102,7 +102,7 @@ int run_query(char *query, void (*callback)(SqlStatement *, int, void*, char*), 
 	case select_STATEMENT:
 		HASH128_STATE_INIT(state, 0);
 		hash_canonical_query(&state, result);
-		filename_len = generate_filename(&state, config->tmp_dir, filename, OutputPlan);
+		filename_len = generate_filename(&state, config->tmp_dir, filename, OutputPlan, FALSE);
 		if (filename_len < 0) {
 			FATAL(ERR_PLAN_HASH_FAILED, "");
 		}

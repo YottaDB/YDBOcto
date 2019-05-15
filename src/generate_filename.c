@@ -26,7 +26,7 @@
 
 #include "mmrhash.h"
 
-int generate_filename(hash128_state_t *state, const char *directory_path, char *full_path, FileType file_type) {
+int generate_filename(hash128_state_t *state, const char *directory_path, char *full_path, FileType file_type, int base_only) {
 	const unsigned short max_filename_len = 31;
 	char buffer[max_filename_len];
 	char filename[max_filename_len + sizeof(char)];		// count null terminator
@@ -39,7 +39,7 @@ int generate_filename(hash128_state_t *state, const char *directory_path, char *
 	ydb_uint16 hash;
 
 	assert(state);
-	assert(directory_path);
+	// assert(directory_path);
 	assert(full_path);
 
 	prefix_len = strlen(xref_prefix);	// All prefixes have the same size
@@ -66,8 +66,13 @@ int generate_filename(hash128_state_t *state, const char *directory_path, char *
 	c += buf_len;
 	*c = '\0';
 
-	// Prepend directory path and append ".m" file extension
-	full_path_len = snprintf(full_path, MAX_STR_CONST, "%s/%s.m", directory_path, filename);
+	if (base_only) {
+		// Only use base filename - no directory path or extension
+		full_path_len = snprintf(full_path, MAX_STR_CONST, "%s", filename);
+	} else {
+		// Prepend directory path and append ".m" file extension
+		full_path_len = snprintf(full_path, MAX_STR_CONST, "%s/%s.m", directory_path, filename);
+	}
 
 	return full_path_len;
 }

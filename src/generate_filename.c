@@ -38,15 +38,9 @@ int generate_filename(hash128_state_t *state, const char *directory_path, char *
 	int full_path_len = 0;
 	ydb_uint16 hash;
 
-	if (state == NULL) {
-		return -1;
-	}
-	if (directory_path == NULL) {
-		return -1;
-	}
-	if (full_path == NULL) {
-		return -1;
-	}
+	assert(state);
+	assert(directory_path);
+	assert(full_path);
 
 	prefix_len = strlen(xref_prefix);	// All prefixes have the same size
 	buf_len = max_filename_len - prefix_len;

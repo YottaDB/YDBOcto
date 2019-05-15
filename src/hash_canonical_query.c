@@ -30,7 +30,6 @@
 void add_sql_type_hash(hash128_state_t *state, int stmt_type) {
 	// Helper function: adds statement type values to hash digest
 	ydb_mmrhash_128_ingest(state, (void*)&stmt_type, sizeof(int));
-	// printf("%d ", stmt_type);
 }
 
 void hash_canonical_query(hash128_state_t *state, SqlStatement *stmt) {
@@ -120,14 +119,6 @@ void hash_canonical_query(hash128_state_t *state, SqlStatement *stmt) {
 		case insert_STATEMENT:
 			// NOT IMPLEMENTED
 			assert(FALSE);
-			/*
-			UNPACK_SQL_STATEMENT(insert, stmt, insert);
-			add_sql_type_hash(state, insert_STATEMENT);
-			// SqlTable
-			hash_canonical_query(state, insert->destination);
-			hash_canonical_query(state, insert->source);
-			hash_canonical_query(state, insert->columns);
-			*/
 			break;
 		case no_data_STATEMENT:
 			add_sql_type_hash(state, no_data_STATEMENT);
@@ -311,6 +302,7 @@ void hash_canonical_query(hash128_state_t *state, SqlStatement *stmt) {
 			} while (cur_keyword != keyword);
 			break;
 		default:
+			FATAL(ERR_UNKNOWN_KEYWORD_STATE);
 			break;
 	}
 

@@ -116,6 +116,7 @@ int run_query(char *query, void (*callback)(SqlStatement *, PhysicalPlan *, int,
 		}
 		if (access(filename, F_OK) == -1) {	// file doesn't exist
 			filename_lock = make_buffers("^%ydboctoocto", 2, "files", filename);
+			// Wait for 5 seconds in case another process is writing to same filename
 			ydb_lock_incr_s(5000000000, &filename_lock[0], 2, &filename_lock[1]);
 			if (access(filename, F_OK) == -1) {
 				pplan = emit_select_statement(&cursor_global, cursor_exe_global, result, filename, NULL);
@@ -130,7 +131,7 @@ int run_query(char *query, void (*callback)(SqlStatement *, PhysicalPlan *, int,
 		ci_filename.address = filename;
 		ci_filename.length = filename_len;
 		SWITCH_FROM_OCTO_GLOBAL_DIRECTORY();
-		status = ydb_ci("select", cursorId, &ci_filename);		// TODO: Take plan name
+		status = ydb_ci("select", cursorId, &ci_filename);
 		YDB_ERROR_CHECK(status, &z_status, &z_status_value);
 		SWITCH_TO_OCTO_GLOBAL_DIRECTORY();
 		(*callback)(result, pplan, cursorId, parms, outputKeyId);

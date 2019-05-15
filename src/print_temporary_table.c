@@ -24,7 +24,6 @@ void print_temporary_table(SqlStatement *stmt, PhysicalPlan *plan, int cursor_id
 		*space_b = &ydb_buffers[4], *space_b2 = &ydb_buffers[5],
 		*row_id_b = &ydb_buffers[6], *row_value_b = &ydb_buffers[7],
 		*empty_buffer = &ydb_buffers[8], *val_buff;
-	ydb_buffer_t *unique_id;
 	ydb_buffer_t z_status, z_status_value;
 	PhysicalPlan *deep_plan = plan;
 	SqlSetStatement *set_stmt;

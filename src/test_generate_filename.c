@@ -99,55 +99,12 @@ static void test_invalid_file_type(void **state) {
 	assert_null(strstr(filename, ".m"));
 }
 
-static void test_null_state(void **state) {
-	char filename[MAX_STR_CONST];
-	int buf_size = 0;
-	int max_filename_len = 31;	// Reflected in generate_filename (hard coded)
-
-	memset(filename, 0, MAX_STR_CONST);
-
-	buf_size = generate_filename(NULL, "tester", filename, CrossReference);
-
-	assert_int_equal(buf_size, -1);
-}
-
-static void test_null_directory_path(void **state) {
-	hash128_state_t hash_state;
-	HASH128_STATE_INIT(hash_state, 0);
-	char filename[MAX_STR_CONST];
-	int buf_size = 0;
-	int max_filename_len = 31;	// Reflected in generate_filename (hard coded)
-
-	memset(filename, 0, MAX_STR_CONST);
-
-	buf_size = generate_filename(&hash_state, NULL, filename, CrossReference);
-
-	assert_int_equal(buf_size, -1);
-}
-
-static void test_null_full_path(void **state) {
-	hash128_state_t hash_state;
-	HASH128_STATE_INIT(hash_state, 0);
-	char filename[MAX_STR_CONST];
-	int buf_size = 0;
-	int max_filename_len = 31;	// Reflected in generate_filename (hard coded)
-
-	memset(filename, 0, MAX_STR_CONST);
-
-	buf_size = generate_filename(&hash_state, "tester", NULL, CrossReference);
-
-	assert_int_equal(buf_size, -1);
-}
-
 int main(void) {
 	octo_init(0, NULL, FALSE);
 	const struct CMUnitTest tests[] = {
 		   cmocka_unit_test(test_valid_input_cross_reference),
 		   cmocka_unit_test(test_valid_input_output_plan),
 		   cmocka_unit_test(test_invalid_file_type),
-		   cmocka_unit_test(test_null_state),
-		   cmocka_unit_test(test_null_directory_path),
-		   cmocka_unit_test(test_null_full_path),
 	};
 	return cmocka_run_group_tests(tests, NULL, NULL);
 }

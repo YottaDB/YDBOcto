@@ -33,3 +33,11 @@ SELECT * FROM namesE;
 OCTO
   [ "$status" -eq 0 ]
 }
+
+@test "create multiple tables in sequence" {
+  octo <<OCTO &> output.txt
+CREATE TABLE Customers (CustomerID INTEGER PRIMARY KEY);
+CREATE TABLE Orders (OrderID INTEGER PRIMARY KEY);
+OCTO
+  [ "$?" -eq 0 ]
+}

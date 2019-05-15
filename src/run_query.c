@@ -173,7 +173,10 @@ int run_query(char *query, void (*callback)(SqlStatement *, PhysicalPlan *, int,
 		} else {
 			dqinsert(definedTables, result->v.table, temp_table);
 		}
-		octo_cfree(memory_chunks);
+		// Don't free tables which will be used during this process
+		// When https://gitlab.com/YottaDB/DBMS/YDBOcto/issues/107 is completed,
+		// this free should be done.
+		// octo_cfree(memory_chunks);
 		break;
 	case drop_STATEMENT:
 		YDB_COPY_STRING_TO_BUFFER(result->v.drop->table_name->v.value->v.reference, &table_name_buffer, done);

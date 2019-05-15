@@ -35,9 +35,9 @@
 
 int run_query(char *query, void (*callback)(SqlStatement *, int, void*, char*), void *parms) {
 	int status;
-	int done, filename_len = 0;
+	int done, filename_len = 0, routine_len = 0;
 	char *buffer;
-	char filename[MAX_STR_CONST];
+	char filename[MAX_STR_CONST], routine_name[MAX_STR_CONST];
 	size_t buffer_size = 0;
 	FILE *out;
 	SqlValue *value;
@@ -102,10 +102,11 @@ int run_query(char *query, void (*callback)(SqlStatement *, int, void*, char*), 
 	case select_STATEMENT:
 		HASH128_STATE_INIT(state, 0);
 		hash_canonical_query(&state, result);
-		filename_len = generate_filename(&state, config->tmp_dir, filename, OutputPlan, FALSE);
-		if (filename_len < 0) {
-			FATAL(ERR_PLAN_HASH_FAILED, "");
+		routine_len = generate_routine_name(&state, routine_name, MAX_STR_CONST, OutputPlan);
+		if (routine_len < 0) {
+			FATAL(ERR_PLAN_HASH_FAILED);
 		}
+		snprintf(filename, MAX_STR_CONST, "%s/_%s.m", config->tmp_dir, &routine_name[1]);
 		if (access(filename, F_OK) == -1) {	// file doesn't exist
 			filename_lock = make_buffers("^%ydboctoocto", 2, "files", filename);
 			// Wait for 5 seconds in case another process is writing to same filename

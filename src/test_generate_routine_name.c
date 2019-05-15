@@ -35,22 +35,19 @@ static void test_valid_input_cross_reference(void **state) {
 	HASH128_STATE_INIT(hash_state, 0);
 	char *key1 = "ifembu8r308j243h5g3h84t7yf23h0hewefwefwig08SDGogugWQ)*vw2ef234ASF(C93VC(&TFG2gg";
 	char *key2 = "ougoh2408rh2fhe08yh2ti8rhhrguo2r3huocdiWEN23ivuebvuo80AD)C*2o3rblh 08gv#yh8o3vhv7w7";
-	char filename[MAX_STR_CONST];
+	char routine_name[MAX_STR_CONST];
 	int buf_size = 0;
 	int expected_size = 0;
-	int max_filename_len = 31;	// Reflected in generate_filename (hard coded)
+	int max_routine_name_len = 31;	// Reflected in generate_routine_name (hard coded)
 
-	expected_size = strlen("tester") + strlen("/") + max_filename_len + strlen(".m");
 
 	ydb_mmrhash_128_ingest(&hash_state, (void*)key1, strlen(key1));
 	ydb_mmrhash_128_ingest(&hash_state, (void*)key2, strlen(key2));
 
-	buf_size = generate_filename(&hash_state, "tester", filename, CrossReference, FALSE);
+	buf_size = generate_routine_name(&hash_state, routine_name, MAX_STR_CONST, CrossReference);
 
-	printf("filename: %s\n", filename);
-	assert_int_equal(buf_size, expected_size);
-	assert_non_null(strstr(filename, "tester/_ydboctoX"));
-	assert_non_null(strstr(filename, ".m"));
+	printf("routine_name: %s\n", routine_name);
+	assert_int_equal(buf_size, max_routine_name_len);
 }
 
 static void test_valid_input_output_plan(void **state) {
@@ -58,22 +55,22 @@ static void test_valid_input_output_plan(void **state) {
 	HASH128_STATE_INIT(hash_state, 0);
 	char *key1 = "ifembu8r308j243h5g3h84t7yf23h0hewefwefwig08SDGogugWQ)*vw2ef234ASF(C93VC(&TFG2gg";
 	char *key2 = "ougoh2408rh2fhe08yh2ti8rhhrguo2r3huocdiWEN23ivuebvuo80AD)C*2o3rblh 08gv#yh8o3vhv7w7";
-	char filename[MAX_STR_CONST];
+	char routine_name[MAX_STR_CONST];
 	int buf_size = 0;
 	int expected_size = 0;
-	int max_filename_len = 31;	// Reflected in generate_filename (hard coded)
+	int max_routine_name_len = 31;	// Reflected in generate_routine_name (hard coded)
 
-	expected_size = strlen("tester") + strlen("/") + max_filename_len + strlen(".m");
+	expected_size = strlen("tester") + strlen("/") + max_routine_name_len + strlen(".m");
 
 	ydb_mmrhash_128_ingest(&hash_state, (void*)key1, strlen(key1));
 	ydb_mmrhash_128_ingest(&hash_state, (void*)key2, strlen(key2));
 
-	buf_size = generate_filename(&hash_state, "tester", filename, OutputPlan, FALSE);
+	buf_size = generate_routine_name(&hash_state, routine_name, MAX_STR_CONST, OutputPlan);
 
-	printf("filename: %s\n", filename);
+	printf("routine_name: %s\n", routine_name);
 	assert_int_equal(buf_size, expected_size);
-	assert_non_null(strstr(filename, "tester/_ydboctoP"));
-	assert_non_null(strstr(filename, ".m"));
+	assert_non_null(strstr(routine_name, "tester/_ydboctoP"));
+	assert_non_null(strstr(routine_name, ".m"));
 }
 
 static void test_invalid_file_type(void **state) {
@@ -81,44 +78,18 @@ static void test_invalid_file_type(void **state) {
 	HASH128_STATE_INIT(hash_state, 0);
 	char *key1 = "ifembu8r308j243h5g3h84t7yf23h0h";
 	char *key2 = "ougoh2408rh2fhe08yh2ti8rhhrguo2r3huocdiWEN23";
-	char filename[MAX_STR_CONST];
+	char routine_name[MAX_STR_CONST];
 	int buf_size = 0;
-	int max_filename_len = 31;	// Reflected in generate_filename (hard coded)
+	int max_routine_name_len = 31;	// Reflected in generate_routine_name (hard coded)
 
-	memset(filename, 0, MAX_STR_CONST);
+	memset(routine_name, 0, MAX_STR_CONST);
 
 	ydb_mmrhash_128_ingest(&hash_state, (void*)key1, strlen(key1));
 	ydb_mmrhash_128_ingest(&hash_state, (void*)key2, strlen(key2));
 
-	buf_size = generate_filename(&hash_state, "tester", filename, 1000, FALSE);
+	buf_size = generate_routine_name(&hash_state, routine_name, MAX_STR_CONST, OutputPlan);
 
 	assert_int_equal(buf_size, -1);
-	assert_null(strstr(filename, "tester/_ydboctoP"));
-	assert_null(strstr(filename, ".m"));
-}
-
-static void test_valid_input_cross_reference_base_only(void **state) {
-	hash128_state_t hash_state;
-	HASH128_STATE_INIT(hash_state, 0);
-	char *key1 = "ifembu8r308j243h5g3h84t7yf23h0hewefwefwig08SDGogugWQ)*vw2ef234ASF(C93VC(&TFG2gg";
-	char *key2 = "ougoh2408rh2fhe08yh2ti8rhhrguo2r3huocdiWEN23ivuebvuo80AD)C*2o3rblh 08gv#yh8o3vhv7w7";
-	char filename[MAX_STR_CONST];
-	int buf_size = 0;
-	int expected_size = 0;
-	int max_filename_len = 31;	// Reflected in generate_filename (hard coded)
-
-	expected_size = max_filename_len;
-
-	ydb_mmrhash_128_ingest(&hash_state, (void*)key1, strlen(key1));
-	ydb_mmrhash_128_ingest(&hash_state, (void*)key2, strlen(key2));
-
-	buf_size = generate_filename(&hash_state, "tester", filename, CrossReference, TRUE);
-
-	printf("filename: %s\n", filename);
-	assert_int_equal(buf_size, expected_size);
-	assert_non_null(strstr(filename, "_ydboctoX"));
-	assert_null(strstr(filename, "tester/"));
-	assert_null(strstr(filename, ".m"));
 }
 
 int main(void) {
@@ -127,7 +98,6 @@ int main(void) {
 		   cmocka_unit_test(test_valid_input_cross_reference),
 		   cmocka_unit_test(test_valid_input_output_plan),
 		   cmocka_unit_test(test_invalid_file_type),
-		   cmocka_unit_test(test_valid_input_cross_reference_base_only),
 	};
 	return cmocka_run_group_tests(tests, NULL, NULL);
 }

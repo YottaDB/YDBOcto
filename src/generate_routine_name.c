@@ -26,53 +26,42 @@
 
 #include "mmrhash.h"
 
-int generate_filename(hash128_state_t *state, const char *directory_path, char *full_path, FileType file_type, int base_only) {
+int generate_routine_name(hash128_state_t *state, char *routine_name, int routine_len, FileType file_type) {
 	const unsigned short max_filename_len = 31;
-	char buffer[max_filename_len];
-	char filename[max_filename_len + sizeof(char)];		// count null terminator
-	char *xref_prefix = "_ydboctoX";
-	char *output_plan_prefix = "_ydboctoP";
+	char hash_str[max_filename_len];
+	char *xref_prefix = "%ydboctoX";
+	char *output_plan_prefix = "%ydboctoP";
 	char *c = NULL;
 	unsigned int prefix_len = 0;
-	unsigned int buf_len = 0;
-	int full_path_len = 0;
+	unsigned int hash_len = 0;
 	ydb_uint16 hash;
 
 	assert(state);
-	// assert(directory_path);
-	assert(full_path);
+	assert(routine_len >= max_filename_len);
 
 	prefix_len = strlen(xref_prefix);	// All prefixes have the same size
-	buf_len = max_filename_len - prefix_len;
+	hash_len = max_filename_len - prefix_len;
 
 	ydb_mmrhash_128_result(state, 0, &hash);
-	ydb_hash_to_string(&hash, buffer, buf_len);
+	ydb_hash_to_string(&hash, hash_str, hash_len);
 
 	switch (file_type) {
 		case CrossReference:
-			strncpy(filename, xref_prefix, prefix_len);
+			strncpy(routine_name, xref_prefix, prefix_len);
 			break;
 		case OutputPlan:
-			strncpy(filename, output_plan_prefix, prefix_len);
+			strncpy(routine_name, output_plan_prefix, prefix_len);
 			break;
 		default:
 			return -1;
 	}
 
 	// Copy hash string into filename
-	c = filename;
+	c = routine_name;
 	c += prefix_len;
-	strncpy(c, buffer, buf_len);
-	c += buf_len;
+	strncpy(c, hash_str, hash_len);
+	c += hash_len;
 	*c = '\0';
 
-	if (base_only) {
-		// Only use base filename - no directory path or extension
-		full_path_len = snprintf(full_path, MAX_STR_CONST, "%s", filename);
-	} else {
-		// Prepend directory path and append ".m" file extension
-		full_path_len = snprintf(full_path, MAX_STR_CONST, "%s/%s.m", directory_path, filename);
-	}
-
-	return full_path_len;
+	return ;
 }

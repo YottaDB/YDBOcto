@@ -54,10 +54,10 @@ int emit_physical_plan(PhysicalPlan *pplan, char *plan_filename) {
 	int plan_id, len, fd;
 	PhysicalPlan *cur_plan = pplan, *first_plan;
 	char *buffer, plan_name_buffer[MAX_STR_CONST];
-	char filename[MAX_STR_CONST], xref_filename[MAX_STR_CONST], *tableName, *columnName;
+	char filename[MAX_STR_CONST], routine_name[MAX_STR_CONST], *tableName, *columnName;
 	unsigned char *tableNameHash, *columnNameHash;
 	char *tmp_plan_filename = NULL;
-	unsigned int tableNameHashLen, columnNameHashLen, filename_len, plan_filename_len;
+	unsigned int tableNameHashLen, columnNameHashLen, routine_name_len, plan_filename_len;
 	SqlValue *value;
 	SqlKey *key;
 	FILE *output_file;
@@ -103,12 +103,14 @@ int emit_physical_plan(PhysicalPlan *pplan, char *plan_filename) {
 		HASH128_STATE_INIT(state, 0);
 		ydb_mmrhash_128_ingest(&state, (void*)tableName, strlen(tableName));
 		ydb_mmrhash_128_ingest(&state, (void*)columnName, strlen(tableName));
-		filename_len = generate_filename(&state, config->tmp_dir, xref_filename, CrossReference, TRUE);
-		key->cross_reference_filename = xref_filename;
-		if (filename_len < 0) {
+		routine_name_len = generate_routine_name(&state, routine_name, MAX_STR_CONST, CrossReference);
+		// copy routine name (starts with %)
+		key->cross_reference_filename = routine_name;
+		if (routine_name_len < 0) {
 			FATAL(ERR_PLAN_HASH_FAILED);
 		}
-		snprintf(filename, MAX_STR_CONST, "%s/%s.m", config->tmp_dir, key->cross_reference_filename);
+		// Convert '%' to '_'
+		snprintf(filename, MAX_STR_CONST, "%s/_%s.m", config->tmp_dir, &routine_name[1]);
 		output_file = fopen(filename, "w");
 		if(output_file == NULL) {
 			FATAL(ERR_SYSCALL, "fopen", errno, strerror(errno));

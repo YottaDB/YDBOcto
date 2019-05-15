@@ -94,7 +94,7 @@ add_library(libocto OBJECT
   octo_init.c
   get_keyword.c
   get_keyword_from_keywords.c
-  generate_filename.c
+  generate_routine_name.c
   generate_key_name.c
   get_key_columns.c
   hash_canonical_query.c

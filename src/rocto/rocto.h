@@ -27,6 +27,8 @@
 typedef struct {
 	int connection_fd;
 	int sending_message;
+	char *ip;
+	char *port;
 	ydb_buffer_t *session_id;
 } RoctoSession;
 

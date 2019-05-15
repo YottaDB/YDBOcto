@@ -23,6 +23,7 @@
 #include <errno.h>
 #include <assert.h>
 #include <arpa/inet.h>
+#include <netdb.h>
 
 #include "octo.h"
 #include "rocto/rocto.h"
@@ -42,11 +43,16 @@ int main(int argc, char **argv) {
 	int cur_parm, i;
 	pid_t child_id;
 	char buffer[MAX_STR_CONST];
+	char host_buf[NI_MAXHOST], serv_buf[NI_MAXSERV];
 	StartupMessageParm message_parm;
 
 	ydb_buffer_t ydb_buffers[2], *var_defaults, *var_sets, var_value;
 	ydb_buffer_t *global_buffer = &(ydb_buffers[0]), *session_id_buffer = &(ydb_buffers[1]);
 	ydb_buffer_t z_status, z_status_value;
+
+	// Initialize connection details in case errors prior to connections
+	rocto_session.ip = "IP_UNSET";
+	rocto_session.port = "PORT_UNSET";
 
 	octo_init(argc, argv, TRUE);
 	INFO(CUSTOM_ERROR, "rocto started");
@@ -99,6 +105,12 @@ int main(int argc, char **argv) {
 		// First we read the startup message, which has a special format
 		// 2x32-bit ints
 		rocto_session.connection_fd = cfd;
+		result = getnameinfo((const struct sockaddr_in6 *)&address, addrlen, host_buf, NI_MAXHOST, serv_buf, NI_MAXSERV, 0);
+		if (0 != result) {
+			FATAL(ERR_SYSCALL, "getnameinfo", errno, strerror(errno));
+		}
+		rocto_session.ip = host_buf;
+		rocto_session.port = serv_buf;
 		// Establish the connection first
 		rocto_session.session_id = NULL;
 		read_bytes(&rocto_session, buffer, MAX_STR_CONST, sizeof(int) * 2);

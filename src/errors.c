@@ -19,6 +19,7 @@ enum MessageType {
 
 #endif
 
+const char *host_info = "[%s:%s] ";
 const char *log_prefix = "[%5s] %s:%d %04d-%02d-%02d %02d:%02d:%02d : ";
 
 /**
@@ -59,6 +60,9 @@ void octo_log(int line, char *file, enum ERROR_LEVEL level, enum ERROR error, ..
 		type = "FATAL";
 		break;
 	}
+#ifdef FEATURE_ROCTO
+	fprintf(stderr, host_info, rocto_session.ip, rocto_session.port);
+#endif
 	fprintf(stderr, log_prefix, type,
 		file,
 		line,

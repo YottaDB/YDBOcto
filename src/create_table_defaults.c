@@ -43,6 +43,11 @@ int create_table_defaults(SqlStatement *table_statement, SqlStatement *keywords_
 
 	memset(key_columns, 0, MAX_KEY_COUNT * sizeof(SqlColumn*));
 	max_key = get_key_columns(table, key_columns);
+	if(max_key < 0) {
+		UNPACK_SQL_STATEMENT(value, table->tableName, value);
+		WARNING(ERR_PRIMARY_KEY_NOT_FOUND, value->v.string_literal);
+		return 1;
+	}
 
 	cur_keyword = start_keyword;
 	do {

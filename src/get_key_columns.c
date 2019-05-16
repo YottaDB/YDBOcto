@@ -22,10 +22,12 @@
 #include "octo_types.h"
 
 /**
- * Returns the maximum KEY PART set, and if not NULL sets key_column[i] to the corresponding KEY PART
+ * Returns the maximum KEY NUM set (>= 0). If key_columns is not null, populates key_columns[i] with a pointer to the column for that key
+ *
+ * If there are no keys defined in table, returns -1
  */
 int get_key_columns(SqlTable *table, SqlColumn **key_columns) {
-	int key_num, max_key = 0;
+	int key_num, max_key = -1;
 	SqlColumn *start_column, *cur_column;
 	SqlOptionalKeyword *keyword;
 	SqlValue *value;
@@ -41,6 +43,7 @@ int get_key_columns(SqlTable *table, SqlColumn **key_columns) {
 				return 1;
 			}
 			key_columns[0] = cur_column;
+			max_key = 0;
 		}
 		keyword = get_keyword(cur_column, OPTIONAL_KEY_NUM);
 		if(keyword != NULL) {

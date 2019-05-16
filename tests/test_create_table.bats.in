@@ -41,3 +41,24 @@ CREATE TABLE Orders (OrderID INTEGER PRIMARY KEY);
 OCTO
   [ "$?" -eq 0 ]
 }
+
+@test "fail to create a table which has no keys" {
+  octo <<OCTO &> output.txt
+create table namesAbc (First char(20), Last char(30));
+select * from namesAbc;
+OCTO
+  [[ "$(grep -c "WARN" output.txt)" == "1" ]]
+  [[ "$(grep -c "ERROR" output.txt)" == "3" ]]
+}
+
+@test "fail to create a table which has no keys and select from it later" {
+  octo <<OCTO &> output.txt
+create table namesAbc (First char(20), Last char(30));
+OCTO
+  [[ "$(grep -c "WARN" output.txt)" == "1" ]]
+  [[ "$(grep -c "ERROR" output.txt)" == "1" ]]
+  octo <<OCTO &> output.txt
+select * from namesAbc;
+OCTO
+  [[ "$(grep -c "ERROR" output.txt)" == "2" ]]
+}

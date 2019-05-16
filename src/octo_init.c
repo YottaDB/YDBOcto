@@ -258,6 +258,10 @@ int octo_init(int argc, char **argv, int scan_tables) {
 			== CONFIG_FALSE) {
 		FATAL(ERR_BAD_CONFIG, "rocto.port");
 	}
+	if(config_lookup_bool(config_file, "rocto.use_dns", &config->rocto_config.use_dns)
+			== CONFIG_FALSE) {
+		FATAL(ERR_BAD_CONFIG, "rocto.use_dns");
+	}
 
 	// Read in YDB settings
 	ydb_settings = config_lookup(config_file, "yottadb");

@@ -101,16 +101,22 @@ int main(int argc, char **argv) {
 		child_id = fork();
 		if(child_id != 0)
 			continue;
-		INFO(ERR_CLIENT_CONNECTED);
 		// First we read the startup message, which has a special format
 		// 2x32-bit ints
 		rocto_session.connection_fd = cfd;
-		result = getnameinfo((const struct sockaddr_in6 *)&address, addrlen, host_buf, NI_MAXHOST, serv_buf, NI_MAXSERV, 0);
+		if (config->rocto_config.use_dns) {
+			result = getnameinfo((const struct sockaddr *)&address, addrlen,
+					host_buf, NI_MAXHOST, serv_buf, NI_MAXSERV, 0);
+		} else {
+			result = getnameinfo((const struct sockaddr *)&address, addrlen,
+					host_buf, NI_MAXHOST, serv_buf, NI_MAXSERV, NI_NUMERICHOST | NI_NUMERICSERV );
+		}
 		if (0 != result) {
 			FATAL(ERR_SYSCALL, "getnameinfo", errno, strerror(errno));
 		}
 		rocto_session.ip = host_buf;
 		rocto_session.port = serv_buf;
+		INFO(ERR_CLIENT_CONNECTED);
 		// Establish the connection first
 		rocto_session.session_id = NULL;
 		read_bytes(&rocto_session, buffer, MAX_STR_CONST, sizeof(int) * 2);

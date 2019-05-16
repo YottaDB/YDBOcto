@@ -28,6 +28,7 @@ int parse_startup_flags(int argc, char **argv);
 struct RoctoConfig {
 	int port;
 	const char *address;
+	int use_dns;
 } typedef RoctoConfig;
 
 typedef struct {

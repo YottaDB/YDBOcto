@@ -12,6 +12,8 @@ rocto = {
   // Address and port to listen on for connections
   address = "127.0.0.1"
   port = 1337
+  // Set to use DNS to resolve numeric IP addresses
+  use_dns = false
   // Authentication methods; supported options are "md5"
   authentication_method = "md5"
 }

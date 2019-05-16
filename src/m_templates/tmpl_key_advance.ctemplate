@@ -31,6 +31,9 @@ TEMPLATE(tmpl_key_advance, PhysicalPlan *pplan, SqlKey *key) {
         //TMPL(tmpl_column_reference, pplan, key->cross_reference_output_key->cross_reference_column_alias);
         // Output the column this cross reference is sourced from
         iter_key_index = 0;
+        while(iter_key_index < pplan->total_iter_keys && pplan->iterKeys[iter_key_index]->random_id != key->random_id) {
+            iter_key_index++;
+        }
         while(iter_key_index < pplan->total_iter_keys) {
             if(pplan->iterKeys[iter_key_index]->random_id == key->random_id) {
                 keys_to_match++;

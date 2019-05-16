@@ -87,3 +87,14 @@ OCTO
   run $ydb_dist/mumps -r %XCMD 'ZWRITE ^ydboctoxref'
   [[ ! ( "$output" =~ "%ydboctoxref(\"names\",\"firstName\",\"Charles\",6)" ) ]]
 }
+
+@test "verify that when we iterate on a fix'd key we don't iterate extra xref keys" {
+  octo <<OCTO &> output.txt
+SELECT *
+FROM names n1
+INNER JOIN names n2
+ON n1.id = n2.id
+WHERE n2.firstName = "Zero"
+OCTO
+  [[ "$(grep -c "|" output.txt)" == "2" ]]
+}

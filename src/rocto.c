@@ -84,12 +84,9 @@ int main(int argc, char **argv) {
 		FATAL(ERR_SYSCALL, "setsockopt", errno, strerror(errno));
 	}
 
-
-
 	if(bind(sfd, (struct sockaddr *)&addressv6, sizeof(addressv6)) < 0) {
 		FATAL(ERR_SYSCALL, "bind", errno, strerror(errno));
 	}
-
 
 	while (TRUE) {
 		if(listen(sfd, 3) < 0) {
@@ -104,6 +101,7 @@ int main(int argc, char **argv) {
 		// First we read the startup message, which has a special format
 		// 2x32-bit ints
 		rocto_session.connection_fd = cfd;
+		printf("use_dns: %d\n", config->rocto_config.use_dns);
 		if (config->rocto_config.use_dns) {
 			result = getnameinfo((const struct sockaddr *)&address, addrlen,
 					host_buf, NI_MAXHOST, serv_buf, NI_MAXSERV, 0);
@@ -175,10 +173,10 @@ int main(int argc, char **argv) {
 		} while(TRUE);
 
 		// Set parameters
-		for(cur_parm = 0; i < startup_message->num_parameters; i++) {
-			set(startup_message->parameters[i].value, config->global_names.session, 3,
+		for(cur_parm = 0; cur_parm < startup_message->num_parameters; cur_parm++) {
+			set(startup_message->parameters[cur_parm].value, config->global_names.session, 3,
 					rocto_session.session_id->buf_addr, "variables",
-					startup_message->parameters[i].name);
+					startup_message->parameters[cur_parm].name);
 		}
 
 		var_sets[3].len_used = 0;

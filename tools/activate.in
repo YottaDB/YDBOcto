@@ -1,3 +1,4 @@
 source @YOTTADB_INCLUDE_DIRS@/ydb_env_set
+export LD_LIBRARY_PATH=@YOTTADB_INCLUDE_DIRS@
 export ydb_routines=". @PROJECT_BINARY_DIR@ $ydb_routines"
 export ydb_ci="@PROJECT_BINARY_DIR@/calltab.ci"

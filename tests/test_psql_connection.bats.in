@@ -32,3 +32,23 @@ SELECT * FROM names WHERE firstName = "Zero";
 OCTO
   [[ "$(grep -c -E "0.+Zero.+Cool" output.txt)" == "1" ]]
 }
+
+@test "use_dns config option false" {
+  stop_rocto
+  echo "rocto = { use_dns = false }" > .octo.conf
+  start_rocto
+  run_psql <<OCTO &> output.txt
+SELECT * FROM names WHERE firstName = "Zero";
+OCTO
+  [[ $(grep -c "127.0.0.1" rocto.log) -ge 1 ]]
+}
+
+@test "use_dns config option true" {
+  stop_rocto
+  echo "rocto = { use_dns = true }" > .octo.conf
+  start_rocto
+  run_psql <<OCTO &> output.txt
+SELECT * FROM names WHERE firstName = "Zero";
+OCTO
+  [[ $(grep -c "localhost" rocto.log) -ge 1 ]]
+}

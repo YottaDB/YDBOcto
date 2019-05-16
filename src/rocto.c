@@ -31,20 +31,21 @@
 #include "helpers.h"
 
 int main(int argc, char **argv) {
-	BaseMessage *base_message;
-	StartupMessage *startup_message;
-	ErrorResponse *err;
-	AuthenticationMD5Password *md5auth;
-	AuthenticationOk *authok;
-	ParameterStatus *parameter_status;
+	BaseMessage *base_message = NULL;
+	StartupMessage *startup_message = NULL;
+	ErrorResponse *err = NULL;
+	AuthenticationMD5Password *md5auth = NULL;
+	AuthenticationOk *authok = NULL;
+	ParameterStatus *parameter_status = NULL;
 	struct sockaddr_in6 addressv6;
-	struct sockaddr_in *address;
+	struct sockaddr_in *address = NULL;
 	int sfd, cfd, opt, addrlen, result, status;
-	int cur_parm, i;
-	pid_t child_id;
+	int cur_parm = 0, i = 0;
+	pid_t child_id = 0;
 	char buffer[MAX_STR_CONST];
 	char host_buf[NI_MAXHOST], serv_buf[NI_MAXSERV];
 	StartupMessageParm message_parm;
+	sfd = cfd = opt = addrlen = result = status = 0;
 
 	ydb_buffer_t ydb_buffers[2], *var_defaults, *var_sets, var_value;
 	ydb_buffer_t *global_buffer = &(ydb_buffers[0]), *session_id_buffer = &(ydb_buffers[1]);

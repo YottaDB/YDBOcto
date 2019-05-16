@@ -84,8 +84,9 @@
 #define SWITCH_FROM_OCTO_GLOBAL_DIRECTORY()						\
 	do {										\
 		int result = 0;								\
+		ydb_buffer_t z_status, z_status_value;					\
 		result = ydb_set_s(&config->zgbldir, 0, NULL, &config->prev_gbldir);	\
-		assert(result == 0);							\
+		YDB_ERROR_CHECK(status, &z_status, &z_status_value);			\
 	} while(FALSE);
 
 int emit_column_specification(char *buffer, int buffer_size, SqlColumn *column);

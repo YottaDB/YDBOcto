@@ -36,7 +36,7 @@
 int run_query(char *query, void (*callback)(SqlStatement *, int, void*, char*), void *parms) {
 	int status;
 	int done, filename_len = 0, routine_len = 0;
-	char *buffer;
+	char *buffer = NULL;
 	char filename[MAX_STR_CONST], routine_name[MAX_STR_CONST];
 	size_t buffer_size = 0;
 	FILE *out;
@@ -48,7 +48,7 @@ int run_query(char *query, void (*callback)(SqlStatement *, int, void*, char*), 
 	ydb_buffer_t cursor_global, cursor_exe_global[3];
 	ydb_buffer_t z_status, z_status_value;
 	ydb_buffer_t *filename_lock = NULL;
-	ydb_string_t ci_filename;
+	ydb_string_t ci_filename, ci_routine;
 	gtm_long_t cursorId;
 	hash128_state_t state;
 
@@ -120,9 +120,11 @@ int run_query(char *query, void (*callback)(SqlStatement *, int, void*, char*), 
 		}
 		cursorId = atol(cursor_exe_global[0].buf_addr);
 		ci_filename.address = filename;
-		ci_filename.length = filename_len;
+		ci_filename.length = strlen(filename);
+		ci_routine.address = routine_name;
+		ci_routine.length = routine_len;
 		SWITCH_FROM_OCTO_GLOBAL_DIRECTORY();
-		status = ydb_ci("select", cursorId, &ci_filename);
+		status = ydb_ci("select", cursorId, &ci_filename, &ci_routine);
 		YDB_ERROR_CHECK(status, &z_status, &z_status_value);
 		SWITCH_TO_OCTO_GLOBAL_DIRECTORY();
 		(*callback)(result, cursorId, parms, filename);

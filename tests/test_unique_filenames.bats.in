@@ -7,42 +7,42 @@ setup() {
   load_fixture names.zwr
 }
 
-@test "generate one file" {
+@test "generate one plan" {
   octo <<OCTO &> output.txt
 select * from names;
 OCTO
-  ls _ydbocto*.m &> ls.txt
+  ls _ydboctoP*.m &> ls.txt
   wc -w ls.txt &> wc.txt
   cut -d " " -f 1 wc.txt &> output.txt
   run cat output.txt
   [[ $output -eq 1 ]]
 }
 
-@test "generate one file from two identical queries" {
+@test "generate one plan from two identical queries" {
   octo <<OCTO &> output.txt
 select * from names;
 select * from names;
 OCTO
-  ls _ydbocto*.m &> ls.txt
+  ls _ydboctoP*.m &> ls.txt
   wc -w ls.txt &> wc.txt
   cut -d " " -f 1 wc.txt &> output.txt
   run cat output.txt
   [[ $output -eq 1 ]]
 }
 
-@test "generate two files from two unique queries" {
-  octo <<OCTO &> output.txt
+@test "generate two plans from two unique queries" {
+  octo <<OCTO &> qoutput.txt
 select * from names;
 select * from names where firstName = "Zero";
 OCTO
-  ls _ydbocto*.m &> ls.txt
+  ls _ydboctoP*.m &> ls.txt
   wc -w ls.txt &> wc.txt
   cut -d " " -f 1 wc.txt &> output.txt
   run cat output.txt
   [[ $output -eq 2 ]]
 }
 
-@test "generate five unique files from five unique queries" {
+@test "generate five unique plans from five unique queries" {
   octo <<OCTO &> output.txt
 select * from names;
 select * from names where firstName = "Zero";
@@ -50,14 +50,14 @@ select lastName from names;
 select lastName from names where id = 1;
 select id from names;
 OCTO
-  ls _ydbocto*.m &> ls.txt
+  ls _ydboctoP*.m &> ls.txt
   wc -w ls.txt &> wc.txt
   cut -d " " -f 1 wc.txt &> output.txt
   run cat output.txt
   [[ $output -eq 5 ]]
 }
 
-@test "generate two unique files several queries" {
+@test "generate two unique plans several queries" {
   octo <<OCTO &> output.txt
 select * from names;
 select lastName from names;
@@ -66,14 +66,14 @@ select lastName from names;
 select * from names;
 select lastName from names;
 OCTO
-  ls _ydbocto*.m &> ls.txt
+  ls _ydboctoP*.m &> ls.txt
   wc -w ls.txt &> wc.txt
   cut -d " " -f 1 wc.txt &> output.txt
   run cat output.txt
   [[ $output -eq 2 ]]
 }
 
-@test "generate three unique files from five queries" {
+@test "generate three unique plans from five queries" {
   octo <<OCTO &> output.txt
 select * from names;
 select firstName from names;
@@ -81,14 +81,14 @@ select firstName from names;
 select lastName from names;
 select lastName from names;
 OCTO
-  ls _ydbocto*.m &> ls.txt
+  ls _ydboctoP*.m &> ls.txt
   wc -w ls.txt &> wc.txt
   cut -d " " -f 1 wc.txt &> output.txt
   run cat output.txt
   [[ $output -eq 3 ]]
 }
 
-@test "generate four unique files from five queries" {
+@test "generate four unique plans from five queries" {
   octo <<OCTO &> output.txt
 select * from names;
 select * from names where firstName = "Zero";
@@ -96,14 +96,14 @@ select lastName from names;
 select lastName from names;
 select lastName from names where id = 1;
 OCTO
-  ls _ydbocto*.m &> ls.txt
+  ls _ydboctoP*.m &> ls.txt
   wc -w ls.txt &> wc.txt
   cut -d " " -f 1 wc.txt &> output.txt
   run cat output.txt
   [[ $output -eq 4 ]]
 }
 
-@test "generate four unique files from six queries" {
+@test "generate four unique plans from six queries" {
   octo <<OCTO &> output.txt
 select * from names;
 select * from names where firstName = "Zero";
@@ -112,7 +112,7 @@ select lastName from names;
 select lastName from names;
 select lastName from names where id = 1;
 OCTO
-  ls _ydbocto*.m &> ls.txt
+  ls _ydboctoP*.m &> ls.txt
   wc -w ls.txt &> wc.txt
   cut -d " " -f 1 wc.txt &> output.txt
   run cat output.txt

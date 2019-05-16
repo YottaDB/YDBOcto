@@ -63,5 +63,5 @@ int generate_routine_name(hash128_state_t *state, char *routine_name, int routin
 	c += hash_len;
 	*c = '\0';
 
-	return ;
+	return max_filename_len;
 }

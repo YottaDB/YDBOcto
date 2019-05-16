@@ -17,7 +17,11 @@ OCTO
   run cat output.txt
   [[ "$output" =~ "Zero|Cool" ]]
   ! [[ "$output" =~ "Joey" ]]
-  [[ -e genOctoXref318c99a87b3889ed.m ]]
+  ls _ydboctoX*.m &> ls.txt
+  wc -w ls.txt &> wc.txt
+  cut -d " " -f 1 wc.txt &> output.txt
+  run cat output.txt
+  [[ $output -eq 1 ]]
   [[ "$(grep -c xref _ydboctoP*.m)" > 0 ]]
   run $ydb_dist/mumps -r %XCMD zwrite ^%ydboctoxref
   [[ "$output" =~ "^%ydboctoxref(\"names\",\"firstName\",\"Zero\")=" ]]
@@ -31,7 +35,11 @@ OCTO
   run cat output.txt
   [[ "$output" =~ "Zero|Cool" ]]
   ! [[ "$output" =~ "Joey" ]]
-  [[ -e genOctoXref5fc7b93c5f9221ef.m ]]
+  ls _ydboctoX*.m &> ls.txt
+  wc -w ls.txt &> wc.txt
+  cut -d " " -f 1 wc.txt &> output.txt
+  run cat output.txt
+  [[ $output -eq 1 ]]
   [[ "$(grep -c xref _ydboctoP*.m)" > 0 ]]
   run $ydb_dist/mumps -r %XCMD zwrite ^%ydboctoxref
   [[ "$output" =~ "^%ydboctoxref(\"names2\",\"lastName\",\"Cool\")=" ]]
@@ -46,6 +54,7 @@ OCTO
   [[ "$output" =~ "Zero|Cool" ]]
   ! [[ "$output" =~ "Joey" ]]
 }
+
 @test "where from table with two keys inverted where" {
   octo <<OCTO &> output.txt
 select * from names2 where "Cool" = lastName;
@@ -53,7 +62,11 @@ OCTO
   run cat output.txt
   [[ "$output" =~ "Zero|Cool" ]]
   ! [[ "$output" =~ "Joey" ]]
-  [[ -e genOctoXref5fc7b93c5f9221ef.m ]]
+  ls _ydboctoX*.m &> ls.txt
+  wc -w ls.txt &> wc.txt
+  cut -d " " -f 1 wc.txt &> output.txt
+  run cat output.txt
+  [[ $output -eq 1 ]]
   [[ "$(grep -c xref _ydboctoP*.m)" > 0 ]]
   run $ydb_dist/mumps -r %XCMD zwrite ^%ydboctoxref
   [[ "$output" =~ "^%ydboctoxref(\"names2\",\"lastName\",\"Cool\")=" ]]
@@ -79,7 +92,11 @@ OCTO
   octo <<OCTO &> output.txt
 SELECT * FROM names WHERE firstName = "Zero";
 OCTO
-  [[ -e genOctoXref318c99a87b3889ed.m ]]
+  ls _ydboctoX*.m &> ls.txt
+  wc -w ls.txt &> wc.txt
+  cut -d " " -f 1 wc.txt &> output.txt
+  run cat output.txt
+  [[ $output -eq 1 ]]
   $ydb_dist/mumps -r %XCMD 'SET ^names(6)="|Charles|Hathaway"'
   run $ydb_dist/mumps -r %XCMD zwrite ^%ydboctoxref
   [[ "$output" =~ "%ydboctoxref(\"names\",\"firstName\",\"Charles\",6)" ]]

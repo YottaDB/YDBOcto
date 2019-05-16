@@ -46,7 +46,6 @@ static void test_valid_input_cross_reference(void **state) {
 
 	buf_size = generate_routine_name(&hash_state, routine_name, MAX_STR_CONST, CrossReference);
 
-	printf("routine_name: %s\n", routine_name);
 	assert_int_equal(buf_size, max_routine_name_len);
 }
 
@@ -60,17 +59,12 @@ static void test_valid_input_output_plan(void **state) {
 	int expected_size = 0;
 	int max_routine_name_len = 31;	// Reflected in generate_routine_name (hard coded)
 
-	expected_size = strlen("tester") + strlen("/") + max_routine_name_len + strlen(".m");
-
 	ydb_mmrhash_128_ingest(&hash_state, (void*)key1, strlen(key1));
 	ydb_mmrhash_128_ingest(&hash_state, (void*)key2, strlen(key2));
 
 	buf_size = generate_routine_name(&hash_state, routine_name, MAX_STR_CONST, OutputPlan);
 
-	printf("routine_name: %s\n", routine_name);
-	assert_int_equal(buf_size, expected_size);
-	assert_non_null(strstr(routine_name, "tester/_ydboctoP"));
-	assert_non_null(strstr(routine_name, ".m"));
+	assert_int_equal(buf_size, max_routine_name_len);
 }
 
 static void test_invalid_file_type(void **state) {
@@ -87,7 +81,7 @@ static void test_invalid_file_type(void **state) {
 	ydb_mmrhash_128_ingest(&hash_state, (void*)key1, strlen(key1));
 	ydb_mmrhash_128_ingest(&hash_state, (void*)key2, strlen(key2));
 
-	buf_size = generate_routine_name(&hash_state, routine_name, MAX_STR_CONST, OutputPlan);
+	buf_size = generate_routine_name(&hash_state, routine_name, MAX_STR_CONST, 75);
 
 	assert_int_equal(buf_size, -1);
 }

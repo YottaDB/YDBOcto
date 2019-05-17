@@ -64,3 +64,15 @@ stop_rocto() {
 run_psql() {
   PGPASSWORD=ydbrocks psql "sslmode=disable host=localhost port=1337"
 }
+
+setup_go() {
+  mkdir -p "$test_temp/go/src/"
+  export GOPATH="$test_temp/go"
+}
+
+run_go() {
+  cp -r @PROJECT_SOURCE_DIR@/tests/go/src/$1 $GOPATH/src/$1
+  go get $1
+  go build $1
+  $GOPATH/bin/$1
+}

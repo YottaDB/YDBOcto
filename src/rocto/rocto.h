@@ -90,7 +90,7 @@ int handle_execute(Execute *execute, RoctoSession *session);
 int handle_describe(Describe *describe, RoctoSession *session);
 
 // This isn't a handle function in-of itself, but a helper to handle the results of a query
-void handle_query_response(SqlStatement *stmt, PhysicalPlan *plan, int cursor_id, void *_parms, ydb_buffer_t *outputKeyId);
+void handle_query_response(SqlStatement *stmt, PhysicalPlan *plan, int cursor_id, void *_parms, char *plan_name);
 
 // Helper to indicate that there is no more input
 int no_more();
@@ -98,7 +98,7 @@ int no_more();
 /**
  * Returns a RowDescription object for sending based on the provided physical plan
  */
-RowDescription *get_plan_row_description(PhysicalPlan *plan);
+RowDescription *get_plan_row_description(ydb_buffer_t *plan_filename);
 
 // Read functions to simulate client reception of the various make_* response messages. Used for testing.
 // AuthenticationMD5Password *read_authentication_md5_password(BaseMessage *message, ErrorResponse **err);

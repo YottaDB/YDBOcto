@@ -33,7 +33,7 @@
 #include "lexer.h"
 #include "helpers.h"
 
-int run_query(char *query, void (*callback)(SqlStatement *, PhysicalPlan *, int, void*, ydb_buffer_t*), void *parms) {
+int run_query(char *query, void (*callback)(SqlStatement *, PhysicalPlan *, int, void*, char*), void *parms) {
 	int c, error = 0, i = 0, status;
 	int done, filename_len = 0;
 	char *buffer;
@@ -125,8 +125,6 @@ int run_query(char *query, void (*callback)(SqlStatement *, PhysicalPlan *, int,
 			ydb_lock_decr_s(&filename_lock[0], 2, &filename_lock[1]);
 			free(filename_lock);
 		}
-		outputKeyId = get("^%ydboctoocto", 3, "plan_metadata", filename, "output_key");
-		outputKeyId->buf_addr[outputKeyId->len_used] = '\0';
 		cursorId = atol(cursor_exe_global[0].buf_addr);
 		ci_filename.address = filename;
 		ci_filename.length = filename_len;
@@ -134,9 +132,7 @@ int run_query(char *query, void (*callback)(SqlStatement *, PhysicalPlan *, int,
 		status = ydb_ci("select", cursorId, &ci_filename);
 		YDB_ERROR_CHECK(status, &z_status, &z_status_value);
 		SWITCH_TO_OCTO_GLOBAL_DIRECTORY();
-		(*callback)(result, pplan, cursorId, parms, outputKeyId);
-		free(outputKeyId->buf_addr);
-		free(outputKeyId);
+		(*callback)(result, pplan, cursorId, parms, filename);
 		// Deciding to free the select_STATEMENT must be done by the caller, as they may want to rerun it or send row
 		// descriptions
 		//octo_cfree(memory_chunks);

@@ -23,9 +23,10 @@
 
 #include "rocto.h"
 #include "message_formats.h"
+#include "helpers.h"
 
 
-RowDescription *get_plan_row_description(PhysicalPlan *plan) {
+RowDescription *get_plan_row_description(ydb_buffer_t *plan_filename) {
 	SqlTableAlias *source_table;
 	SqlColumnListAlias *cla_cur, *cla_end;
 	SqlValue *value;
@@ -33,61 +34,82 @@ RowDescription *get_plan_row_description(PhysicalPlan *plan) {
 	RowDescription *ret;
 	RowDescriptionParm *parms;
 	LogicalPlan *cur_plan, *column_alias;
-	int num_columns, i;
+	ydb_buffer_t *plan_meta, value_buffer;
+	ydb_buffer_t z_status, z_status_value;
+	int num_columns, i, status;
+	char *buff;
 
-	if(plan == NULL)
-		return NULL;
-	// Count the number of columns in the table
-	cur_plan = plan->projection;
-	num_columns = 0;
-	do {
-		assert(cur_plan->type == LP_COLUMN_LIST);
-		GET_LP(column_alias, cur_plan, 0, LP_WHERE);
-		if(column_alias->v.operand[1] != NULL) {
-			GET_LP(column_alias, column_alias, 1, LP_COLUMN_LIST_ALIAS);
-			// This assumes the SqlValue will outlive this RowDescription
-		} else {
-			GET_LP(column_alias, column_alias, 0, LP_COLUMN_ALIAS);
+	plan_meta = make_buffers(config->global_names.octo, 5, "plan_metadata", "", "output_columns", "", "");
+	plan_meta[2] = *plan_filename;
+	YDB_MALLOC_BUFFER(&plan_meta[4], MAX_STR_CONST);
+	YDB_MALLOC_BUFFER(&plan_meta[5], MAX_STR_CONST);
+	YDB_MALLOC_BUFFER(&value_buffer, MAX_STR_CONST);
+
+	while(TRUE) {
+		status = ydb_subscript_next_s(plan_meta, 4, &plan_meta[1], &plan_meta[4]);
+		if(status == YDB_ERR_NODEEND) {
+			break;
 		}
+		YDB_ERROR_CHECK(status, &z_status, &z_status_value);
 		num_columns++;
-		cur_plan = cur_plan->v.operand[1];
-	} while(cur_plan != NULL);
+	}
 
 	parms = malloc(sizeof(RowDescriptionParm) * num_columns);
-	memset(parms, 0, sizeof(RowDescriptionParm));
+	memset(parms, 0, sizeof(RowDescriptionParm) * num_columns);
 
-	// Setup each parm
 	i = 0;
-	cur_plan = plan->projection;
-	do {
-		assert(cur_plan->type == LP_COLUMN_LIST);
-		GET_LP(column_alias, cur_plan, 0, LP_WHERE);
-		if(column_alias->v.operand[1] != NULL) {
-			GET_LP(column_alias, column_alias, 1, LP_COLUMN_LIST_ALIAS);
-			UNPACK_SQL_STATEMENT(value, column_alias->v.column_list_alias->alias, value);
-			// This assumes the SqlValue will outlive this RowDescription
-		} else {
-			GET_LP(column_alias, column_alias, 0, LP_COLUMN_ALIAS);
-			UNPACK_SQL_STATEMENT(column, column_alias->v.column_alias->column, column);
-			UNPACK_SQL_STATEMENT(value, column->columnName, value);
+	plan_meta[4].len_used = 0;
+	while(TRUE) {
+		status = ydb_subscript_next_s(plan_meta, 4, &plan_meta[1], &plan_meta[4]);
+		if(status == YDB_ERR_NODEEND) {
+			break;
 		}
-		parms[i].name = value->v.string_literal;
-		// We don't currently deal with table_id's, so just set it to zero
-		parms[i].table_id = 0;
-		parms[i].column_id = 0;
-		// Postgres stores information about data types in table;
-		//  for now, hard-code them based on a few known ones
-		// SELECT oid, typlen FROM pg_type WHERE typname='text';
-		parms[i].data_type = 25;
-		parms[i].data_type_size = -1;
-		// select atttypmod from pg_attribute;
-		// All the values seem to be -1, not sure why
-		parms[i].type_modifier = -1;
-		// 0 = text, 1 = binary
-		parms[i].format_code = 0;
+		YDB_ERROR_CHECK(status, &z_status, &z_status_value);
+		YDB_LITERAL_TO_BUFFER("name", &plan_meta[5]);
+		status = ydb_get_s(plan_meta, 5, &plan_meta[1], &value_buffer);
+		YDB_ERROR_CHECK(status, &z_status, &z_status_value);
+		buff = malloc(value_buffer.len_used + 1);
+		memcpy(buff, value_buffer.buf_addr, value_buffer.len_used);
+		buff[value_buffer.len_used] = '\0';
+		parms[i].name = buff;
+
+		YDB_LITERAL_TO_BUFFER("table_id", &plan_meta[5]);
+		status = ydb_get_s(plan_meta, 5, &plan_meta[1], &value_buffer);
+		YDB_ERROR_CHECK(status, &z_status, &z_status_value);
+		value_buffer.buf_addr[value_buffer.len_used] = '\0';
+		parms[i].table_id = atoi(value_buffer.buf_addr);
+
+		YDB_LITERAL_TO_BUFFER("column_id", &plan_meta[5]);
+		status = ydb_get_s(plan_meta, 5, &plan_meta[1], &value_buffer);
+		YDB_ERROR_CHECK(status, &z_status, &z_status_value);
+		value_buffer.buf_addr[value_buffer.len_used] = '\0';
+		parms[i].column_id = atoi(value_buffer.buf_addr);
+
+		YDB_LITERAL_TO_BUFFER("data_type", &plan_meta[5]);
+		status = ydb_get_s(plan_meta, 5, &plan_meta[1], &value_buffer);
+		YDB_ERROR_CHECK(status, &z_status, &z_status_value);
+		value_buffer.buf_addr[value_buffer.len_used] = '\0';
+		parms[i].data_type = atoi(value_buffer.buf_addr);
+
+		YDB_LITERAL_TO_BUFFER("data_type_size", &plan_meta[5]);
+		status = ydb_get_s(plan_meta, 5, &plan_meta[1], &value_buffer);
+		YDB_ERROR_CHECK(status, &z_status, &z_status_value);
+		value_buffer.buf_addr[value_buffer.len_used] = '\0';
+		parms[i].data_type_size = atoi(value_buffer.buf_addr);
+
+		YDB_LITERAL_TO_BUFFER("type_modifier", &plan_meta[5]);
+		status = ydb_get_s(plan_meta, 5, &plan_meta[1], &value_buffer);
+		YDB_ERROR_CHECK(status, &z_status, &z_status_value);
+		value_buffer.buf_addr[value_buffer.len_used] = '\0';
+		parms[i].type_modifier = atoi(value_buffer.buf_addr);
+
+		YDB_LITERAL_TO_BUFFER("format_code", &plan_meta[5]);
+		status = ydb_get_s(plan_meta, 5, &plan_meta[1], &value_buffer);
+		YDB_ERROR_CHECK(status, &z_status, &z_status_value);
+		value_buffer.buf_addr[value_buffer.len_used] = '\0';
+		parms[i].format_code = atoi(value_buffer.buf_addr);
 		i++;
-		cur_plan = cur_plan->v.operand[1];
-	} while(cur_plan != NULL);
+	}
 
 	ret = make_row_description(parms, num_columns);
 	free(parms);

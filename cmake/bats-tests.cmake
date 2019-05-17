@@ -37,3 +37,8 @@ find_program(psql NAMES psql)
 if(psql)
   ADD_BATS_TEST(test_psql_connection)
 endif()
+
+find_program(go NAMES go)
+if(go)
+  ADD_BATS_TEST(test_psql_go_connection)
+endif()

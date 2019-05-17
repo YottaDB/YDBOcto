@@ -14,10 +14,11 @@
 /**
  * Iterates over the last output of the plan and prints it to the screen
  */
-void print_temporary_table(SqlStatement *stmt, PhysicalPlan *plan, int cursor_id, void *parms, ydb_buffer_t *outputKeyId) {
+void print_temporary_table(SqlStatement *stmt, PhysicalPlan *plan, int cursor_id, void *parms, char *plan_name) {
 	char buffer[MAX_STR_CONST];
 	/// WARNING: the ordering of these buffers is essential to the ydb calls;
 	//   if altered, make sure the order is correct
+	ydb_buffer_t *outputKeyId;
 	ydb_buffer_t ydb_buffers[9];
 	ydb_buffer_t *cursor_b = &ydb_buffers[0], *cursor_id_b = &ydb_buffers[1],
 		*keys_b = &ydb_buffers[2], *key_id_b = &ydb_buffers[3],
@@ -74,7 +75,11 @@ void print_temporary_table(SqlStatement *stmt, PhysicalPlan *plan, int cursor_id
 		return;
 	}
 
-
+	outputKeyId = get("^%ydboctoocto", 3, "plan_metadata", plan_name, "output_key");
+	if(outputKeyId == NULL) {
+		FATAL(ERR_DATABASE_FILES_OOS);
+		return;
+	}
 	*key_id_b = *outputKeyId;
 
 	status = ydb_subscript_next_s(cursor_b, 6, cursor_id_b, row_id_b);
@@ -98,5 +103,7 @@ void print_temporary_table(SqlStatement *stmt, PhysicalPlan *plan, int cursor_id
 	free(cursor_id_b->buf_addr);
 	free(row_id_b->buf_addr);
 	free(row_value_b->buf_addr);
+	free(outputKeyId->buf_addr);
+	free(outputKeyId);
 	return;
 }

@@ -30,6 +30,7 @@ int handle_describe(Describe *describe, RoctoSession *session) {
 	ydb_buffer_t session_global, sql_expression, *source_name = &subs_array[2], *prepared = &subs_array[1], *source_session_id = &subs_array[0];
 	ydb_buffer_t *dest_session_id = &dest_subs[0], *bound = &dest_subs[1], *parse_name = &dest_subs[2];
 	ydb_buffer_t *val_buff, empty_buffer;
+	ydb_buffer_t plan_name_b;
 	ydb_buffer_t z_status, z_status_value;
 	size_t query_length = 0, err_buff_size;
 	int done = FALSE, length, status, parse_parm, found = 0;
@@ -49,6 +50,10 @@ int handle_describe(Describe *describe, RoctoSession *session) {
 	SqlShowStatement *show_stmt;
 	SqlValue *val1, *val2;
 	NoData *no_data;
+	hash128_state_t state;
+	char filename[MAX_STR_CONST];
+	int filename_len = 0;
+	ydb_buffer_t *filename_lock = NULL;
 
 	// zstatus buffers
 	YDB_LITERAL_TO_BUFFER("$ZSTATUS", &z_status);
@@ -125,9 +130,26 @@ int handle_describe(Describe *describe, RoctoSession *session) {
 
 		switch(statement->type) {
 			case select_STATEMENT:
-				pplan = emit_select_statement(&cursor_global, cursor_exe_global, statement, NULL, NULL);
-				assert(pplan != NULL);
-				description = get_plan_row_description(pplan);
+				HASH128_STATE_INIT(state, 0);
+				hash_canonical_query(&state, statement);
+				filename_len = generate_filename(&state, config->tmp_dir, filename, OutputPlan);
+				if (filename_len < 0) {
+					FATAL(ERR_PLAN_HASH_FAILED);
+				}
+				if (access(filename, F_OK) == -1) {	// file doesn't exist
+					filename_lock = make_buffers("^%ydboctoocto", 2, "files", filename);
+					// Wait for 5 seconds in case another process is writing to same filename
+					ydb_lock_incr_s(5000000000, &filename_lock[0], 2, &filename_lock[1]);
+					if (access(filename, F_OK) == -1) {
+						pplan = emit_select_statement(&cursor_global, cursor_exe_global, statement, filename, NULL);
+						assert(pplan != NULL);
+					}
+					ydb_lock_decr_s(&filename_lock[0], 2, &filename_lock[1]);
+					free(filename_lock);
+				}
+				plan_name_b.buf_addr = filename;
+				plan_name_b.len_alloc = plan_name_b.len_used = strlen(filename);
+				description = get_plan_row_description(&plan_name_b);
 				send_message(session, (BaseMessage*)(&description->type));
 				free(description);
 				break;

@@ -1,0 +1,24 @@
+load test_helpers
+
+setup() {
+  init_test
+  createdb
+  load_fixture names.sql
+  load_fixture names.zwr
+  start_rocto
+  setup_go
+}
+
+teardown() {
+  stop_rocto
+}
+
+@test "select wildcard columns" {
+  run_go simple_go_select_all &> output.txt
+  [[ "$(grep -c "|" output.txt)" == "6" ]]
+}
+
+@test "fetch column data types" {
+  run_go get_column_information &> output.txt
+  # Not crashing is success for this test
+}

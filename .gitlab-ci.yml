@@ -2,9 +2,17 @@ stages:
   - build
   - docs
 
+variables:
+  GOLANG_VERSION: 1.11.2
+
 before_script:
-  - apt-get update -qq && apt-get install -y -qq build-essential cmake bison flex libcmocka-dev python-pip libreadline-dev git libconfig-dev libssl-dev postgresql-client xxd
+  - apt-get update -qq && apt-get install -y -qq build-essential cmake bison flex libcmocka-dev python-pip libreadline-dev git libconfig-dev libssl-dev postgresql-client xxd wget
   - pip install sphinxcontrib-fulltoc sphinx sphinx_rtd_theme
+  - export PATH=/usr/local/go/bin:$PATH
+  - wget -O go.tgz -q https://golang.org/dl/go${GOLANG_VERSION}.linux-amd64.tar.gz
+  - tar -C /usr/local -xzf go.tgz
+  - rm go.tgz
+  - go version
 
 make:
   image: yottadb/yottadb-base:latest-master

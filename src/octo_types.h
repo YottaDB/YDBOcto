@@ -46,6 +46,14 @@ typedef void *yyscan_t;
 } while (FALSE);
 
 
+/* Shamelessly stolen from mlkdef.h in YottaDB */
+/* convert relative pointer to absolute pointer */
+#define R2A(X) (void*)(((unsigned char*) &(X)) + ((size_t)X))
+
+/* store absolute pointer Y in X as a relative pointer */
+#define A2R(X, Y) ((X) = (void*)(((unsigned char*)(Y)) - ((unsigned char*) &(X))))
+
+
 typedef long long unsigned int uint8;
 
 typedef enum FileType {

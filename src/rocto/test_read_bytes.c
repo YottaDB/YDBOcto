@@ -477,7 +477,7 @@ static void test_SSL_ERROR_SSL(void **state) {
 }
 
 int main(void) {
-	octo_init(0, NULL, FALSE);
+	octo_init(0, NULL);
 	const struct CMUnitTest tests[] = {
 		cmocka_unit_test(test_valid_input_no_SSL),
 		cmocka_unit_test(test_read_too_large),

@@ -184,7 +184,7 @@ static void test_bin_to_uuid(void **state) {
 }
 
 int main(void) {
-	octo_init(0, NULL, FALSE);
+	octo_init(0, NULL);
 	const struct CMUnitTest tests[] = {
 		   cmocka_unit_test(test_byte_to_hex),
 		   cmocka_unit_test(test_bin_to_bool),

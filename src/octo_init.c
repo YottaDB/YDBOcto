@@ -161,12 +161,8 @@ void init_crypto() {
 	CONF_modules_load_file(NULL, NULL, 0);
 }
 
-int octo_init(int argc, char **argv, int scan_tables) {
+int octo_init(int argc, char **argv) {
 	int c, status, i;
-	ydb_buffer_t schema_global, table_name_buffer, table_create_buffer, null_buffer;
-	ydb_buffer_t z_status, z_status_value;
-	SqlStatement *result = 0;
-	SqlTable *table, *t_table;
 	config_t *config_file;
 	config_setting_t *ydb_settings, *cur_ydb_setting;
 	const char *item_name, *item_value;
@@ -340,49 +336,8 @@ int octo_init(int argc, char **argv, int scan_tables) {
 	cur_input_more = &no_more;
 	eof_hit = 0;
 
-	if(!scan_tables)
-		return 0;
-
-	// Load existing tables
-	YDB_MALLOC_BUFFER(&table_name_buffer, MAX_STR_CONST);
-	YDB_MALLOC_BUFFER(&table_create_buffer, MAX_STR_CONST);
+	// Make sure the Octo global directory is active
 	SWITCH_TO_OCTO_GLOBAL_DIRECTORY();
-
-	YDB_STRING_TO_BUFFER(config->global_names.schema, &schema_global);
-	YDB_LITERAL_TO_BUFFER("", &null_buffer);
-	memory_chunks = alloc_chunk(MEMORY_CHUNK_SIZE);
-	do {
-		status = ydb_subscript_next_s(&schema_global, 1, &table_name_buffer, &table_name_buffer);
-		if(status == YDB_ERR_NODEEND) {
-			break;
-		}
-
-		YDB_ERROR_CHECK(status, &z_status, &z_status_value);
-		if(table_name_buffer.len_used == 0)
-			break;
-		status = ydb_get_s(&schema_global, 1, &table_name_buffer, &table_create_buffer);
-		YDB_ERROR_CHECK(status, &z_status, &z_status_value);
-		table_create_buffer.buf_addr[table_create_buffer.len_used] = '\0';
-		INFO(CUSTOM_ERROR, "Running command %s\n", table_create_buffer.buf_addr);
-		eof_hit = 0;
-		result = parse_line(table_create_buffer.buf_addr);
-		if(result == NULL) {
-			table_name_buffer.buf_addr[table_name_buffer.len_used] = '\0';
-			WARNING(ERR_FAILED_TO_PARSE_SCHEMA, table_name_buffer.buf_addr);
-			continue;
-		}
-		UNPACK_SQL_STATEMENT(table, result, table);
-		if(definedTables == NULL) {
-			definedTables = table;
-			dqinit(definedTables);
-		} else {
-			dqinsert(definedTables, table, t_table);
-		}
-		result = NULL;
-	} while(1);
-
-	YDB_FREE_BUFFER(&table_create_buffer);
-	YDB_FREE_BUFFER(&table_name_buffer);
 
 	return 0;
 }

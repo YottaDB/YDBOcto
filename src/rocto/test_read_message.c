@@ -78,7 +78,7 @@ static void test_failed_second_read(void **state) {
 }
 
 int main(void) {
-	octo_init(0, NULL, FALSE);
+	octo_init(0, NULL);
 	const struct CMUnitTest tests[] = {
 		cmocka_unit_test(test_valid_input),
 		cmocka_unit_test(test_failed_first_read),

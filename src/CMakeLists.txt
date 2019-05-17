@@ -126,6 +126,8 @@ add_library(libocto OBJECT
   match_column_in_table.c
   natural_join_condition.c
   regex_to_like.c
+  compress_statement.c
+  decompress_statement.c
   optimization_transforms/optimize_logical_plan.c
   optimization_transforms/lp_get_select.c
   optimization_transforms/lp_get_select_where.c

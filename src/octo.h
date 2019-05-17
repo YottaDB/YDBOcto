@@ -142,6 +142,9 @@ SqlStatement *update_table_references(SqlStatement *stmt, int old_unique_id, int
 
 SqlStatement *copy_sql_statement(SqlStatement *stmt);
 
+void compress_statement(SqlStatement *stmt, char **out, int *out_length);
+SqlStatement *decompress_statement(char *buffer, int out_length);
+
 /**
  * Returns TRUE if the columns are equal, FALSE otherwise
  */

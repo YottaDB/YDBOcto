@@ -608,7 +608,7 @@ static void test_bind_greater_than_max_str_const(void **state) {
 /// TODO: more testing is needed of this function
 
 int main(void) {
-	octo_init(0, NULL, FALSE);
+	octo_init(0, NULL);
 	const struct CMUnitTest tests[] = {
 		   cmocka_unit_test(test_one_parm_text_format),
 		   cmocka_unit_test(test_two_parm_text_format),

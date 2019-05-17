@@ -18,7 +18,7 @@
 
 #include "errors.h"
 
-int octo_init(int argc, char **argv, int scan_tables);
+int octo_init(int argc, char **argv);
 int parse_startup_flags(int argc, char **argv);
 
 typedef struct RoctoConfig {

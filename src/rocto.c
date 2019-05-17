@@ -71,7 +71,7 @@ int main(int argc, char **argv) {
 	rocto_session.ip = "IP_UNSET";
 	rocto_session.port = "PORT_UNSET";
 
-	octo_init(argc, argv, TRUE);
+	octo_init(argc, argv);
 	INFO(CUSTOM_ERROR, "rocto started");
 
 	// Disable sending log messages until all startup messages have been sent

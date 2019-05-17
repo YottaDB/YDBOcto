@@ -35,7 +35,6 @@ int run_query(char *query, void (*callback)(SqlStatement *, int, void*, char*), 
 	FILE		*out;
 	PhysicalPlan	*pplan;
 	SqlStatement	*result;
-	SqlTable	*temp_table;
 	SqlValue	*value;
 	bool		free_memory_chunks;
 	char		*buffer, filename[MAX_STR_CONST], routine_name[MAX_ROUTINE_LEN];
@@ -65,17 +64,24 @@ int run_query(char *query, void (*callback)(SqlStatement *, int, void*, char*), 
 	}
 	/* Now that we know we are processing a non-empty query, increment the cursor global node */
 	ydb_buffer_t	cursor_exe_global;
-	ydb_buffer_t	schema_global, table_name_buffer, table_create_buffer;
+	ydb_buffer_t	schema_global;
 
 	YDB_MALLOC_BUFFER(&cursor_exe_global, MAX_STR_CONST);
-	YDB_MALLOC_BUFFER(&table_name_buffer, MAX_STR_CONST);
-	YDB_MALLOC_BUFFER(&table_create_buffer, MAX_STR_CONST);
 	YDB_STRING_TO_BUFFER(config->global_names.schema, &schema_global);
 	status = ydb_incr_s(&schema_global, 0, NULL, NULL, &cursor_exe_global);
 	YDB_ERROR_CHECK(status, &z_status, &z_status_value);
 	cursor_exe_global.buf_addr[cursor_exe_global.len_used] = '\0';
 	INFO(CUSTOM_ERROR, "Generating SQL for cursor %s", cursor_exe_global.buf_addr);
 	free_memory_chunks = true;	// By default run "octo_cfree(memory_chunks)" at the end
+
+	// These are used in the drop and create table cases, but we can't put them closer
+	// to their uses because of the way C handles scope
+	ydb_buffer_t table_name_buffers[3];
+	ydb_buffer_t *table_name_buffer = &table_name_buffers[0],
+	*table_type_buffer = &table_name_buffers[1],
+	*table_sub_buffer = &table_name_buffers[2];
+	ydb_buffer_t table_binary_buffer, table_create_buffer;
+
 	switch(result->type) {
 	// This effectively means select_STATEMENT, but we have to assign ID's inside this function
 	// and so need to propagate them out
@@ -120,11 +126,15 @@ int run_query(char *query, void (*callback)(SqlStatement *, int, void*, char*), 
 		emit_create_table(out, result);
 		fclose(out);
 		INFO(CUSTOM_ERROR, "%s", buffer);
+
+		YDB_MALLOC_BUFFER(table_name_buffer, MAX_STR_CONST);
+		YDB_MALLOC_BUFFER(table_sub_buffer, MAX_STR_CONST);
+		YDB_MALLOC_BUFFER(&table_create_buffer, MAX_STR_CONST);
 		UNPACK_SQL_STATEMENT(value, result->v.table->tableName, value);
-		YDB_COPY_STRING_TO_BUFFER(value->v.reference, &table_name_buffer, done);
+		YDB_COPY_STRING_TO_BUFFER(value->v.reference, table_name_buffer, done);
 		if(!done) {
 			FATAL(ERR_TABLE_DEFINITION_TOO_LONG, value->v.reference,
-					table_name_buffer.len_alloc,
+					table_name_buffer->len_alloc,
 					strlen(value->v.reference));
 		}
 		YDB_COPY_STRING_TO_BUFFER(buffer, &table_create_buffer, done);
@@ -133,27 +143,67 @@ int run_query(char *query, void (*callback)(SqlStatement *, int, void*, char*), 
 					table_create_buffer.len_alloc,
 					strlen(buffer));
 		}
-		status = ydb_set_s(&schema_global, 1,
-				   &table_name_buffer,
+		YDB_STRING_TO_BUFFER("t", table_type_buffer);
+		status = ydb_set_s(&schema_global, 2,
+				   table_name_buffers,
 				   &table_create_buffer);
 		YDB_ERROR_CHECK(status, &z_status, &z_status_value);
-		/// TODO: we should drop preexisting tables from here
-		if(definedTables == NULL) {
-			definedTables = result->v.table;
-			dqinit(definedTables);
-		} else {
-			dqinsert(definedTables, result->v.table, temp_table);
+		char *table_buffer = NULL;
+		int length;
+		compress_statement(result, &table_buffer, &length);
+		assert(table_buffer != NULL);
+		int cur_length = 0;
+		int i = 0;
+		table_binary_buffer.len_alloc = MAX_STR_CONST;
+		YDB_STRING_TO_BUFFER("b", table_type_buffer);
+		while(cur_length < length) {
+			table_sub_buffer->len_used = snprintf(table_sub_buffer->buf_addr, table_sub_buffer->len_alloc, "%d", i);
+			table_binary_buffer.buf_addr = &table_buffer[cur_length];
+			if(MAX_STR_CONST < length - cur_length) {
+				table_binary_buffer.len_used = MAX_STR_CONST;
+			} else {
+				table_binary_buffer.len_used = length - cur_length;
+			}
+			status = ydb_set_s(&schema_global, 3,
+				   table_name_buffers,
+				   &table_binary_buffer);
+			YDB_ERROR_CHECK(status, &z_status, &z_status_value);
+			cur_length += MAX_STR_CONST;
+			i++;
 		}
-		free_memory_chunks = false; // Don't free tables which will be used during this process
-		// When https://gitlab.com/YottaDB/DBMS/YDBOcto/issues/107 is completed, the above line can be removed
+		YDB_STRING_TO_BUFFER("l", table_type_buffer);
+		table_create_buffer.len_used = snprintf(table_create_buffer.buf_addr, MAX_STR_CONST, "%d", length);
+		status = ydb_set_s(&schema_global, 2,
+				   table_name_buffers,
+				   &table_create_buffer);
+		free(buffer);
+		free(table_buffer);
+		YDB_FREE_BUFFER(table_name_buffer);
+		YDB_FREE_BUFFER(table_sub_buffer);
+		YDB_FREE_BUFFER(&table_create_buffer);
 		break;
 	case drop_STATEMENT:
-		YDB_COPY_STRING_TO_BUFFER(result->v.drop->table_name->v.value->v.reference, &table_name_buffer, done);
+		YDB_MALLOC_BUFFER(table_name_buffer, MAX_STR_CONST);
+		YDB_COPY_STRING_TO_BUFFER(result->v.drop->table_name->v.value->v.reference, table_name_buffer, done);
 		status = ydb_delete_s(&schema_global, 1,
-				      &table_name_buffer,
-				      YDB_DEL_NODE);
+				      table_name_buffer,
+				      YDB_DEL_TREE);
 		YDB_ERROR_CHECK(status, &z_status, &z_status_value);
-		/// TODO: we should drop tables here
+		// If we had the table loaded, drop it from memory
+		ydb_buffer_t *table_stmt = get("%ydboctoloadedschemas", 1,
+				result->v.drop->table_name->v.value->v.reference);
+		if(table_stmt != NULL) {
+			buffer = *((char**)table_stmt->buf_addr);
+			free(buffer);
+			free(table_stmt->buf_addr);
+			free(table_stmt);
+			YDB_LITERAL_TO_BUFFER("%ydboctoloadedschemas", &schema_global);
+			status = ydb_delete_s(&schema_global, 1,
+					table_name_buffer,
+					YDB_DEL_TREE);
+			YDB_ERROR_CHECK(status, &z_status, &z_status_value);
+		}
+		YDB_FREE_BUFFER(table_name_buffer);
 		break;
 	case insert_STATEMENT:
 		WARNING(ERR_FEATURE_NOT_IMPLEMENTED, "table inserts");
@@ -170,8 +220,6 @@ int run_query(char *query, void (*callback)(SqlStatement *, int, void*, char*), 
 	default:
 		FATAL(ERR_FEATURE_NOT_IMPLEMENTED, query);
 	}
-	YDB_FREE_BUFFER(&table_name_buffer);
-	YDB_FREE_BUFFER(&table_create_buffer);
 	YDB_FREE_BUFFER(&cursor_exe_global);
 	if (free_memory_chunks)
 		octo_cfree(memory_chunks);

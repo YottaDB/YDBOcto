@@ -136,7 +136,7 @@ int handle_describe(Describe *describe, RoctoSession *session) {
 				if (filename_len < 0) {
 					FATAL(ERR_PLAN_HASH_FAILED);
 				}
-				snprintf(filename, MAX_STR_CONST, "%s/_%s.m", config->tmp_dir, &routine_name[1]);
+				int want_to_write = snprintf(filename, MAX_STR_CONST, "%s/_%s.m", config->tmp_dir, &routine_name[1]);
 				if (access(filename, F_OK) == -1) {	// file doesn't exist
 					filename_lock = make_buffers("^%ydboctoocto", 2, "files", filename);
 					// Wait for 5 seconds in case another process is writing to same filename

@@ -147,3 +147,17 @@ FROM names;
 OCTO
   [[ "$(grep -c -- "-5" output.txt)" != "0" ]]
 }
+
+@test "select some columns with C-style comments interwoven" {
+  octo <<OCTO &> output.txt
+SELECT firstName /* We need first names */
+  , lastName /* We also need last names */
+  /* It might also be helpful to get id
+   * but mostly because it lets me test multiline
+   * comments */
+  , id
+# We're going to try a different kind of comment here, just because
+FROM names;
+OCTO
+  [[ "$(grep -c "|" output.txt)" == "6" ]]
+}

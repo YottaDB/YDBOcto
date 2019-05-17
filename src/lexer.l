@@ -66,6 +66,7 @@ int copied_so_far;
 %x SINGLE_STRING
 %x IDENTIFIER
 %x COMMENT
+%x COMMENT_CSTYLE
 
 %%
 
@@ -220,6 +221,8 @@ int copied_so_far;
                 return IDENTIFIER_START;
               }
 -- { BEGIN(COMMENT); }
+# { BEGIN(COMMENT); }
+"/*" { BEGIN(COMMENT_CSTYLE); }
 
 [ \t\r\n]      ;  /* skip whitespace which is not part of a string */
 
@@ -268,6 +271,9 @@ int copied_so_far;
 
 <COMMENT>[\n\r] { BEGIN(INITIAL); }
 <COMMENT>.* { /* Ignore comments */ }
+
+<COMMENT_CSTYLE>"*/" { BEGIN(INITIAL); }
+<COMMENT_CSTYLE>. { /* Ignore comments */ }
 
 <<EOF>> { return ENDOFFILE; }
 

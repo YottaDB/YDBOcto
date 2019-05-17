@@ -173,12 +173,19 @@ void hash_canonical_query(hash128_state_t *state, SqlStatement *stmt) {
 			add_sql_type_hash(state, value->type);
 			// SqlDataType
 			add_sql_type_hash(state, value->data_type);
-			if (value->type == STRING_LITERAL) {
-				ydb_mmrhash_128_ingest(state, (void*)value->v.string_literal, strlen(value->v.string_literal));
-			} else if (value->type == COLUMN_REFERENCE) {
-				ydb_mmrhash_128_ingest(state, (void*)value->v.reference, strlen(value->v.reference));
-			} else if (value->type == CALCULATED_VALUE) {
-				hash_canonical_query(state, value->v.calculated);
+			switch(value->type) {
+				case (STRING_LITERAL):
+					ydb_mmrhash_128_ingest(state, (void*)value->v.string_literal, strlen(value->v.string_literal));
+					break;
+				case (COLUMN_REFERENCE):
+					ydb_mmrhash_128_ingest(state, (void*)value->v.reference, strlen(value->v.reference));
+					break;
+				case (CALCULATED_VALUE):
+					hash_canonical_query(state, value->v.calculated);
+					break;
+				default:
+					assert(FALSE);
+					break;
 			}
 			break;
 		case column_STATEMENT:

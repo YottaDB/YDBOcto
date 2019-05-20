@@ -26,6 +26,20 @@
 #include "message_formats.h"
 #include "rocto.h"
 
+// UUID record field sizes in nibbles
+#define UUID_TIME_LOW	8
+#define UUID_TIME_MID	4
+#define UUID_TIME_HI_AND_VERSION	4
+#define UUID_CLOCK_SEQ	4		// clock_seq_hi_and_res_clock_seq_low
+#define UUID_NODE	12
+
+/*
+#define UUID_TIME_LOW	4
+#define UUID_TIME_MID	2
+#define UUID_TIME_HI_AND_VERSION	2
+#define UUID_CLOCK_SEQ	2		// clock_seq_hi_and_res_clock_seq_low
+#define UUID_NODE	6
+*/
 int64_t ntoh64(int64_t little_endian) {
 	char big_endian[8];		// 64 bits
 	*(int64_t*)big_endian = little_endian;
@@ -52,6 +66,7 @@ int64_t hton64(int64_t big_endian) {
 	return *(int64_t*)little_endian;
 }
 
+// Expects hex length >= 3
 char *byte_to_hex(char c, char *hex) {
 	unsigned char high = 0, low = 0;
 	// Isolate nibbles
@@ -127,30 +142,56 @@ char *bin_to_bytea(char *bin) {
 
 void bin_to_uuid(char *bin, char *buffer, int buf_len) {
 	const int uuid_len = 36;	// 16 bytes * 2 nibbles/byte + 4 dashes
-	const int two_bytes = 2;
-	char *temp_16 = NULL;
 	assert(buf_len > uuid_len);
-	int dash_offset = 8;
-	int i = 0, j = 0;
 
-	temp_16 = (char*)malloc(two_bytes);
-	// Initialize dashes according to UUID format
-	buffer[8] = buffer[13] = buffer[18] = buffer[23] = '-';
-	for (i = 0; i < dash_offset; i++) {
-		strncpy(&buffer[i], byte_to_hex(bin[i], temp_16), two_bytes);
+	// Fill out UUID time_low field
+	char temp_16[3];	// count null
+	int i = 0, j = 0, offset = 0;
+	offset += UUID_TIME_LOW;
+	while (j < offset) {
+		// One byte yields two hex nibble chars
+		strncpy(&buffer[j], byte_to_hex(bin[i], temp_16), 2);
+		j += 2;
+		i++;
 	}
-
-	i = dash_offset + 1;
-	dash_offset += 5;
-	for (j = 0; j < 4; j++) {
-		while (i < dash_offset) {
-			strncpy(&buffer[i], byte_to_hex(bin[i], temp_16), two_bytes);
-			i++;
-		}
-		dash_offset += 5;
+	buffer[j] = '-';
+	j++;
+	offset += UUID_TIME_MID + 1;	// count dash
+	while (j < offset) {
+		// One byte yields two hex nibble chars
+		strncpy(&buffer[j], byte_to_hex(bin[i], temp_16), 2);
+		j += 2;
+		i++;
 	}
-	buffer[uuid_len] = '\0';
-	free(temp_16);
+	buffer[j] = '-';
+	j++;
+	offset += UUID_TIME_HI_AND_VERSION + 1;		// count dash
+	while (j < offset) {
+		// One byte yields two hex nibble chars
+		strncpy(&buffer[j], byte_to_hex(bin[i], temp_16), 2);
+		j += 2;
+		i++;
+	}
+	buffer[j] = '-';
+	j++;
+	offset += UUID_CLOCK_SEQ + 1;		// count dash
+	while (j < offset) {
+		// One byte yields two hex nibble chars
+		strncpy(&buffer[j], byte_to_hex(bin[i], temp_16), 2);
+		j += 2;
+		i++;
+	}
+	buffer[j] = '-';
+	j++;
+	offset += UUID_NODE + 1;		// count dash
+	while (j < offset) {
+		// One byte yields two hex nibble chars
+		strncpy(&buffer[j], byte_to_hex(bin[i], temp_16), 2);
+		j += 2;
+		i++;
+	}
+	assert(j == uuid_len);
+	buffer[j] = '\0';
 }
 
 // HSTORE?

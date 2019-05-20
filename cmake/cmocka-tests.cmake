@@ -60,3 +60,4 @@ ADD_UNIT_TEST_WITH_OPTIONS(test_make_portal_suspended src/rocto/test_make_portal
 ADD_UNIT_TEST_WITH_OPTIONS(test_read_terminate src/rocto/test_read_terminate "")
 ADD_UNIT_TEST_WITH_OPTIONS(test_read_flush src/rocto/test_read_flush "")
 ADD_UNIT_TEST_WITH_OPTIONS(test_generate_routine_name src/test_generate_routine_name "")
+ADD_UNIT_TEST_WITH_OPTIONS(test_deserialize src/rocto/test_deserialize "")

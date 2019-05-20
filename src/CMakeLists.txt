@@ -161,6 +161,7 @@ add_executable(octo
 
 add_library(librocto OBJECT
   default_octo_conf.h
+  rocto/deserialize.c
   rocto/read_bind.c
   rocto/read_startup_message.c
   rocto/read_query.c

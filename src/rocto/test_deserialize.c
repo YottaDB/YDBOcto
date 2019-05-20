@@ -262,7 +262,7 @@ static void test_bin_to_uuid(void **state) {
 		bin[i] = i;
 	}
 	bin_to_uuid(bin, buffer, buf_len);
-	assert_string_equal(buffer, "00010203-0405-0607-0809-0a0b-0c0d");
+	assert_string_equal(buffer, "00010203-0405-0607-0809-0a0b0c0d0e0f");
 }
 
 int main(void) {

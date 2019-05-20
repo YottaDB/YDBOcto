@@ -39,13 +39,7 @@ enum ERROR {
 #undef ERROR_DEF
 #undef ERROR_END
 
-#define ERROR_DEF(name, format_string) format_string,
-#define ERROR_END(name, format_string) format_string
-static const char *err_format_str[] = {
-  #include "errors.hd"
-};
-#undef ERROR_DEF
-#undef ERROR_END
+extern const char *err_format_str[];
 
 typedef struct ErrorBuffer {
 	char buffer[MAX_STR_CONST];
@@ -71,16 +65,16 @@ const char *format_error_string(struct ErrorBuffer *err_buff, enum ERROR error, 
 } while(0);
 
 #define TRACE(err, ...) TRACE >= config->record_error_level  \
-	? octo_log(__LINE__, __FILE__, TRACE, err, ## __VA_ARGS__) : FALSE;
+	? octo_log(__LINE__, __FILE__, TRACE, err, ## __VA_ARGS__) : (void)0;
 #define INFO(err, ...) INFO >= config->record_error_level  \
-	? octo_log(__LINE__, __FILE__, INFO, err, ## __VA_ARGS__) : FALSE;
+	? octo_log(__LINE__, __FILE__, INFO, err, ## __VA_ARGS__) : (void)0;
 #define DEBUG(err, ...) DEBUG >= config->record_error_level  \
-	? octo_log(__LINE__, __FILE__, DEBUG, err, ## __VA_ARGS__) : FALSE;
+	? octo_log(__LINE__, __FILE__, DEBUG, err, ## __VA_ARGS__) : (void)0;
 #define WARNING(err, ...) WARNING >= config->record_error_level  \
-	? octo_log(__LINE__, __FILE__, WARNING, err, ## __VA_ARGS__) : FALSE;
+	? octo_log(__LINE__, __FILE__, WARNING, err, ## __VA_ARGS__) : (void)0;
 #define ERROR(err, ...) ERROR >= config->record_error_level  \
-	? octo_log(__LINE__, __FILE__, ERROR, err, ## __VA_ARGS__) : FALSE;
+	? octo_log(__LINE__, __FILE__, ERROR, err, ## __VA_ARGS__) : (void)0;
 #define FATAL(err, ...) FATAL >= config->record_error_level  \
-	? octo_log(__LINE__, __FILE__, FATAL, err, ## __VA_ARGS__) : FALSE;
+	? octo_log(__LINE__, __FILE__, FATAL, err, ## __VA_ARGS__) : (void)0;
 
 #endif

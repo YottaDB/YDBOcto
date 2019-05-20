@@ -77,7 +77,6 @@ int lp_optimize_where_multi_equal_ands(LogicalPlan *plan, LogicalPlan *where) {
 	SqlColumnListAlias *column_list_alias;
 	SqlColumnAlias *column_alias;
 	SqlTable *table;
-	SqlColumn *column;
 	SqlTableAlias *table_alias;
 	SqlKey *key;
 	int i, left_id, right_id, result;
@@ -205,7 +204,6 @@ int lp_optimize_where_multi_equal_ands(LogicalPlan *plan, LogicalPlan *where) {
 				UNPACK_SQL_STATEMENT(column_list, column_list_alias->column_list, column_list);
 				UNPACK_SQL_STATEMENT(column_alias, column_list->value, column_alias);
 			}
-			UNPACK_SQL_STATEMENT(column, column_alias->column, column);
 			generated_xref_keys = lp_generate_xref_keys(plan, table, column_alias, table_alias);
 			if(generated_xref_keys == NULL)
 				continue;

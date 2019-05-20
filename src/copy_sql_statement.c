@@ -22,13 +22,12 @@
 #include "octo_types.h"
 
 SqlStatement *copy_sql_statement(SqlStatement *stmt) {
-	SqlTable *cur_table, *start_table, *table;
 	SqlTableAlias *table_alias, *new_table_alias;
 	SqlColumn *column;
 	SqlColumnList *cur_column_list, *start_column_list, *new_column_list, *t_column_list;
 	SqlJoin *cur_join, *start_join, *new_join, *t_join;
 	SqlInsertStatement *insert;
-	SqlStatement *ret, *temp_statement;
+	SqlStatement *ret;
 	SqlSelectStatement *select;
 	SqlDropStatement *drop;
 	SqlValue *value;
@@ -209,8 +208,8 @@ SqlStatement *copy_sql_statement(SqlStatement *stmt) {
 		ret->v.insert->columns = copy_sql_statement(insert->columns);
 		break;
 	default:
-		FATAL(ERR_UNKNOWN_KEYWORD_STATE);
+		FATAL(ERR_UNKNOWN_KEYWORD_STATE, "");
 		break;
 	}
 	return ret;
-};
+}

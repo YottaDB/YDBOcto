@@ -118,7 +118,7 @@ LogicalPlan *lp_generate_where(SqlStatement *stmt, int *plan_id) {
 		} while(cur_branch != cas_branch);
 		break;
 	default:
-		FATAL(ERR_UNKNOWN_KEYWORD_STATE);
+		FATAL(ERR_UNKNOWN_KEYWORD_STATE, "");
 	}
 
 	return ret;

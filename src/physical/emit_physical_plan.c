@@ -32,21 +32,21 @@
 
 #include "mmrhash.h"
 
-void generateHash(EVP_MD_CTX *mdctx, const unsigned char *message, size_t message_len, char **digest, unsigned int *digest_len) {
+void generateHash(EVP_MD_CTX *mdctx, const char *message, size_t message_len, unsigned char **digest, unsigned int *digest_len) {
 	if(1 != EVP_DigestInit_ex(mdctx, EVP_md5(), NULL)) {
-		FATAL(ERR_LIBSSL_ERROR);
+		FATAL(ERR_LIBSSL_ERROR, "");
 	}
 
-	if(1 != EVP_DigestUpdate(mdctx, message, message_len)) {
-		FATAL(ERR_LIBSSL_ERROR);
+	if(1 != EVP_DigestUpdate(mdctx, (const unsigned char*)message, message_len)) {
+		FATAL(ERR_LIBSSL_ERROR, "");
 	}
 
-	if((*digest = (unsigned char *)OPENSSL_malloc(EVP_MD_size(EVP_md5()))) == NULL) {
-		FATAL(ERR_LIBSSL_ERROR);
+	if((*digest = OPENSSL_malloc(EVP_MD_size(EVP_md5()))) == NULL) {
+		FATAL(ERR_LIBSSL_ERROR, "");
 	}
 
 	if(1 != EVP_DigestFinal_ex(mdctx, *digest, digest_len)) {
-		FATAL(ERR_LIBSSL_ERROR);
+		FATAL(ERR_LIBSSL_ERROR, "");
 	}
 }
 
@@ -55,9 +55,9 @@ int emit_physical_plan(PhysicalPlan *pplan, char *plan_filename) {
 	PhysicalPlan *cur_plan = pplan, *first_plan;
 	char *buffer, plan_name_buffer[MAX_STR_CONST];
 	char filename[MAX_STR_CONST], *tableName, *columnName;
-	char *tableNameHash, *columnNameHash;
+	unsigned char *tableNameHash, *columnNameHash;
 	char *tmp_plan_filename = NULL;
-	int tableNameHashLen, columnNameHashLen, filename_len, plan_filename_len;
+	unsigned int tableNameHashLen, columnNameHashLen, filename_len, plan_filename_len;
 	SqlValue *value;
 	SqlKey *key;
 	FILE *output_file;
@@ -80,7 +80,7 @@ int emit_physical_plan(PhysicalPlan *pplan, char *plan_filename) {
 			continue;
 		}
 		if(mdctx == NULL && ((mdctx = EVP_MD_CTX_create()) == NULL)) {
-			FATAL(ERR_LIBSSL_ERROR);
+			FATAL(ERR_LIBSSL_ERROR, "");
 		}
 		key = cur_plan->outputKey;
 		UNPACK_SQL_STATEMENT(value, key->table->tableName, value);

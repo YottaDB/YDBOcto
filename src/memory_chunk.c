@@ -52,7 +52,7 @@ MemoryChunk *alloc_chunk(size_t size) {
 void *octo_cmalloc(MemoryChunk *root, size_t size) {
 	MemoryChunk *cur, *new, *t;
 	void *ret;
-	int result, alloc_size;
+	int alloc_size;
 	assert(root != NULL);
 	cur = root->prev;
 
@@ -90,7 +90,7 @@ void *octo_cmalloc(MemoryChunk *root, size_t size) {
 }
 
 void octo_cfree(MemoryChunk *root) {
-	MemoryChunk *cur, *start;
+	MemoryChunk *cur;
 
 	assert(root != NULL);
 	cur = root;

@@ -25,7 +25,7 @@ typedef void *yyscan_t;
 #define INIT_YDB_BUFFER(buffer, len) (buffer)->buf_addr = malloc(len); (buffer)->len_used = 0; (buffer)->len_alloc = len;
 
 #define SQL_STATEMENT(VAR, TYPE)			      \
-	(VAR) = (SqlStatement*)octo_cmalloc(memory_chunks, sizeof(SqlStatement));  \
+	(VAR) = (struct SqlStatement *)octo_cmalloc(memory_chunks, sizeof(SqlStatement));  \
 	(VAR)->type = TYPE;
 
 #define MALLOC_STATEMENT(VAR, NAME, TYPE)	      \
@@ -54,14 +54,14 @@ typedef void *yyscan_t;
 } while (FALSE);
 
 
-long long unsigned int typedef uint8;
+typedef long long unsigned int uint8;
 
-enum FileType {
+typedef enum FileType {
 	CrossReference,
 	OutputPlan,
-} typedef FileType;
+} FileType;
 
-enum SqlStatementType {
+typedef enum SqlStatementType {
 	table_STATEMENT,
 	select_STATEMENT,
 	insert_STATEMENT,
@@ -89,16 +89,16 @@ enum SqlStatementType {
 	set_STATEMENT,
 	show_STATEMENT,
 	no_data_STATEMENT
-};
+} SqlStatementType;
 
-enum UnaryOperations {
+typedef enum UnaryOperations {
 	FORCE_NUM,
 	NEGATIVE,
 	BOOLEAN_NOT
-};
+} UnaryOperations;
 
 // The order of these must be mainted with LPActionType
-enum BinaryOperations {
+typedef enum BinaryOperations {
 	ADDITION,
 	SUBTRACTION,
 	DVISION,
@@ -117,9 +117,9 @@ enum BinaryOperations {
 	BOOLEAN_NOT_IN,
 	BOOLEAN_NULL,
 	BOOLEAN_NOT_NULL
-};
+} BinaryOperations;
 
-enum SqlValueType {
+typedef enum SqlValueType {
 	UNKNOWN_SqlValueType,
 	NUMBER_LITERAL,
 	STRING_LITERAL,
@@ -131,17 +131,17 @@ enum SqlValueType {
 	BOOLEAN_VALUE,
 	PARAMETER_VALUE,
 	NUL_VALUE
-} typedef SqlValueType;
+} SqlValueType;
 
-enum SqlDataType {
+typedef enum SqlDataType {
 	UNKNOWN_SqlDataType,
 	CHARACTER_STRING_TYPE,
 	INTEGER_TYPE,
 	DATE_TIME_TYPE,
 	INTERVAL_TYPE
-};
+} SqlDataType;
 
-enum OptionalKeyword {
+typedef enum OptionalKeyword {
 	NO_KEYWORD,
 	OPTIONAL_SOURCE,
 	OPTIONAL_CURSE,
@@ -164,18 +164,18 @@ enum OptionalKeyword {
 	REFERENCES,
 	CHECK_CONSTRAINT,
 	MAX_LENGTH,
-};
+} OptionalKeyword;
 
-enum SqlSetOperationType {
+typedef enum SqlSetOperationType {
 	SET_UNION,
 	SET_UNION_ALL,
 	SET_EXCEPT,
 	SET_EXCEPT_ALL,
 	SET_INTERSECT,
 	SET_INTERSECT_ALL
-} typedef SqlSetOperationType;
+} SqlSetOperationType;
 
-enum SqlJoinType {
+typedef enum SqlJoinType {
 	NO_JOIN,
 	TABLE_SPEC,
 	CROSS_JOIN,
@@ -184,7 +184,7 @@ enum SqlJoinType {
 	LEFT_JOIN,
 	FULL_JOIN,
 	NATURAL_JOIN
-};
+} SqlJoinType;
 
 #define YYLTYPE yyltype
 
@@ -197,30 +197,30 @@ struct YYLTYPE
 	int last_column;
 };
 
-struct SqlColumn typedef SqlColumn;
-struct SqlColumnAlias typedef SqlColumnAlias;
+struct SqlColumn;
+struct SqlColumnAlias;
 //struct SqlConstraint;
-struct SqlSelectStatement typedef SqlSelectStatement;
-struct SqlInsertStatement typedef SqlInsertStatement;
-struct SqlDropStatement  typedef SqlDropStatement;
-struct SqlUnaryOperation typedef SqlUnaryOperation;
-struct SqlBinaryOperation typedef SqlBinaryOperation;
-struct SqlFunctionCall typedef SqlFunctionCall;
-struct SqlValue typedef SqlValue;
-struct SqlColumnList typedef SqlColumnList;
-struct SqlTable typedef SqlTable;
-struct SqlTableAlias typedef SqlTableAlias;
-struct SqlJoin typedef SqlJoin;
-struct SqlColumnListAlias typedef SqlColumnListAlias;
-struct SqlStatement typedef SqlStatement;
-struct SqlSetOperation typedef SqlSetOperation;
-struct SqlBeginStatement typedef SqlBeginStatement;
-struct SqlCommitStatement typedef SqlCommitStatement;
-struct SqlCaseStatement typedef SqlCaseStatement;
-struct SqlCaseBranchStatement typedef SqlCaseBranchStatement;
-struct SqlSetStatement typedef SqlSetStatement;
-struct SqlShowStatement typedef SqlShowStatement;
-struct SqlNoDataStatement typedef SqlNoDataStatement;
+struct SqlSelectStatement;
+struct SqlInsertStatement;
+struct SqlDropStatement;
+struct SqlUnaryOperation;
+struct SqlBinaryOperation;
+struct SqlFunctionCall;
+struct SqlValue;
+struct SqlColumnList;
+struct SqlTable;
+struct SqlTableAlias;
+struct SqlJoin;
+struct SqlColumnListAlias;
+struct SqlStatement;
+struct SqlSetOperation;
+struct SqlBeginStatement;
+struct SqlCommitStatement;
+struct SqlCaseStatement;
+struct SqlCaseBranchStatement;
+struct SqlSetStatement;
+struct SqlShowStatement;
+struct SqlNoDataStatement;
 
 /**
  * Represents a SQL column; doubly linked list
@@ -228,160 +228,159 @@ struct SqlNoDataStatement typedef SqlNoDataStatement;
  * WARNING: in some cases, SqlColumnList is used instead of the linked list, namely when
  *  we are dealing with a SELECT column list because the column may be a calculated column
  */
-struct SqlColumn
+typedef struct SqlColumn
 {
-	SqlStatement *columnName;
+	struct SqlStatement *columnName;
 	enum SqlDataType type;
-	SqlStatement *table;
-	SqlStatement *keywords;
+	struct SqlStatement *table;
+	struct SqlStatement *keywords;
 	dqcreate(SqlColumn);
-};
+} SqlColumn;
 
-struct SqlColumnAlias
+typedef struct SqlColumnAlias
 {
 	// SqlColumn or SqlColumnListAlias
-	SqlStatement *column;
+	struct SqlStatement *column;
 	// SqlTableAlias
-	SqlStatement *table_alias;
-};
+	struct SqlStatement *table_alias;
+} SqlColumnAlias;
 
 /**
  * Represents a SQL table
  */
-struct SqlTable
+typedef struct SqlTable
 {
-	SqlStatement *tableName;
-	SqlStatement *source;
-	SqlStatement *columns;
-	SqlStatement *delim;
+	struct SqlStatement *tableName;
+	struct SqlStatement *source;
+	struct SqlStatement *columns;
+	struct SqlStatement *delim;
 	dqcreate(SqlTable);
-};
+} SqlTable;
 
-struct SqlTableAlias
+typedef struct SqlTableAlias
 {
 	// SqlTable or SqlSelectStatement
-	SqlStatement *table;
+	struct SqlStatement *table;
 	// SqlValue
-	SqlStatement *alias;
+	struct SqlStatement *alias;
 	int unique_id;
 	// SqlColumnListAlias list of available columns
-	SqlStatement *column_list;
-};
+	struct SqlStatement *column_list;
+} SqlTableAlias;
 
 /**
  * Represents an optional KEYWORD which has a value associated with it */
-struct SqlOptionalKeyword
+typedef struct SqlOptionalKeyword
 {
 	enum OptionalKeyword keyword;
 	// Keyword value (SqlValue) or UNION statement (SqlSelectStatement)
-	SqlStatement *v;
+	struct SqlStatement *v;
 	dqcreate(SqlOptionalKeyword);
-} typedef SqlOptionalKeyword;
+} SqlOptionalKeyword;
 
 /**
  * Effectively provides a list of tables that may or may not be joined
  */
-struct SqlJoin
+typedef struct SqlJoin
 {
 	// SqlTableAlias
 	//  -> was SqlTable, should be changed everywhere
-	SqlStatement *value;
+	struct SqlStatement *value;
 	// SqlValue
-	SqlStatement *condition;
+	struct SqlStatement *condition;
 	dqcreate(SqlJoin);
 	enum SqlJoinType type;
-};
+} SqlJoin;
 
 /**
  * Represents a SQL SELECT statement
  */
-struct SqlSelectStatement
+typedef struct SqlSelectStatement
 {
 	// SqlColumnListAlias
-	SqlStatement *select_list;
+	struct SqlStatement *select_list;
 	// SqlJoin
-	SqlStatement *table_list;
+	struct SqlStatement *table_list;
 	// SqlValue (?)
-	SqlStatement *where_expression;
+	struct SqlStatement *where_expression;
 	// SqlValue (?)
-	SqlStatement *order_expression;
+	struct SqlStatement *order_expression;
 	// SqlOptionalKeyword
-	SqlStatement *optional_words;
+	struct SqlStatement *optional_words;
 	// SqlSetOperation
-	SqlStatement *set_operation;
-};
+	struct SqlStatement *set_operation;
+} SqlSelectStatement;
 
-struct SqlInsertStatement
+typedef struct SqlInsertStatement
 {
 	SqlTable *destination;
-	SqlStatement *source;
-	SqlStatement *columns;
-};
+	struct SqlStatement *source;
+	struct SqlStatement *columns;
+} SqlInsertStatement;
 
-struct SqlDropStatement
+typedef struct SqlDropStatement
 {
 	// SqlValue
-	SqlStatement *table_name;
+	struct SqlStatement *table_name;
 	// SqlOptionalKeyword
-	SqlStatement *optional_keyword;
-};
-
+	struct SqlStatement *optional_keyword;
+} SqlDropStatement;
 
 /*
  * Represents an binary operation
  */
-struct SqlUnaryOperation
+typedef struct SqlUnaryOperation
 {
 	enum UnaryOperations operation; // '+', '-'
 	struct SqlStatement *operand;
-};
+} SqlUnaryOperation;
 
 /*
  * Represents an arithmetic operation
  */
-struct SqlBinaryOperation
+typedef struct SqlBinaryOperation
 {
 	enum BinaryOperations operation; // '+', '-', '*', '/'
 	struct SqlStatement *operands[2];
-};
+} SqlBinaryOperation;
 
-struct SqlFunctionCall {
+typedef struct SqlFunctionCall {
 	// SqlValue
-	SqlStatement *function_name;
+	struct SqlStatement *function_name;
 	// SqlColumnList
-	SqlStatement *parameters;
-};
+	struct SqlStatement *parameters;
+} SqlFunctionCall;
 
-struct SqlValue {
+typedef struct SqlValue {
 	enum SqlValueType type;
 	enum SqlDataType data_type;
 	union {
 		char *string_literal;
 		char *reference;
 		// SqlBinaryOperation, SqlUnaryOperation, SqlFunctionCall
-		SqlStatement *calculated;
+		struct SqlStatement *calculated;
 	} v;
-};
+} SqlValue;
 
 /**
  * Used to represent a SELECT column list, not a table column list
  */
-struct SqlColumnList {
+typedef struct SqlColumnList {
 	// SqlValue or SqlColumnAlias
-	SqlStatement *value;
+	struct SqlStatement *value;
 	dqcreate(SqlColumnList);
-};
+} SqlColumnList;
 
-struct SqlColumnListAlias {
+typedef struct SqlColumnListAlias {
 	// SqlColumnList
-	SqlStatement *column_list;
+	struct SqlStatement *column_list;
 	// SqlValue
-	SqlStatement *alias;
+	struct SqlStatement *alias;
 	// Keywords used for the SORT column
-	SqlStatement *keywords;
+	struct SqlStatement *keywords;
 	SqlValueType type;
 	dqcreate(SqlColumnListAlias);
-};
+} SqlColumnListAlias;
 
 /*
  * A SQL set operation, such as UNION, EXCEPT, or INTERSECT
@@ -390,78 +389,87 @@ struct SqlColumnListAlias {
  *  to be not useable as part of an expression; if this proves to be wrong,
  *  we should consider merging it
  */
-struct SqlSetOperation {
+typedef struct SqlSetOperation {
 	SqlSetOperationType type;
-	SqlStatement *operand[2];
-};
+	struct SqlStatement *operand[2];
+} SqlSetOperation;
 
-struct SqlBeginStatement {
-};
+typedef struct SqlBeginStatement {
+	// Filler so compiler doesn't complain about empty type;
+	// when we add something to this struct, simply replace this filler
+	char b;
+} SqlBeginStatement;
 
-struct SqlCommitStatement {
-};
+typedef struct SqlCommitStatement {
+	// Filler so compiler doesn't complain about empty type;
+	// when we add something to this struct, simply replace this filler
+	char b;
+} SqlCommitStatement;
 
-struct SqlCaseStatement {
+typedef struct SqlCaseStatement {
 	// SqlValue
-	SqlStatement *value;
+	struct SqlStatement *value;
 	// SqlCaseBranchStatement
-	SqlStatement *branches;
+	struct SqlStatement *branches;
 	// SqlValue
-	SqlStatement *optional_else;
-};
+	struct SqlStatement *optional_else;
+} SqlCaseStatement;
 
-struct SqlCaseBranchStatement {
+typedef struct SqlCaseBranchStatement {
 	// SqlValue
-	SqlStatement *condition;
+	struct SqlStatement *condition;
 	// SqlValue
-	SqlStatement *value;
+	struct SqlStatement *value;
 	dqcreate(SqlCaseBranchStatement);
-};
+} SqlCaseBranchStatement;
 
-struct SqlSetStatement {
-	SqlStatement *variable;
-	SqlStatement *value;
-};
+typedef struct SqlSetStatement {
+	struct SqlStatement *variable;
+	struct SqlStatement *value;
+} SqlSetStatement;
 
-struct SqlShowStatement {
-	SqlStatement *variable;
-};
+typedef struct SqlShowStatement {
+	struct SqlStatement *variable;
+} SqlShowStatement;
 
-struct SqlNoDataStatement {
-};
+typedef struct SqlNoDataStatement {
+	// Filler so compiler doesn't complain about empty type;
+	// when we add something to this struct, simply replace this filler
+	char b;
+} SqlNoDataStatement;
 
-struct SqlStatement {
+typedef struct SqlStatement{
 	enum SqlStatementType type;
 	struct YYLTYPE loc;
 	union {
-		SqlBeginStatement *begin;
-		SqlCommitStatement *commit;
-		SqlSelectStatement *select;
-		SqlInsertStatement *insert;
-		SqlDropStatement *drop;
-		SqlValue *value;
-		SqlFunctionCall *function_call;
-		SqlBinaryOperation *binary;
-		SqlUnaryOperation *unary;
-		SqlColumnList *column_list;
-		SqlColumn *column; // Note singular versus plural
-		SqlJoin *join;
-		SqlTable *table;
-		SqlOptionalKeyword *constraint;
-		SqlOptionalKeyword *keyword;
-		SqlColumnListAlias *column_list_alias;
-		SqlColumnAlias *column_alias;
-		SqlTableAlias *table_alias;
-		SqlSetOperation *set_operation;
-		SqlCaseStatement *cas;
-		SqlCaseBranchStatement *cas_branch;
-		SqlSetStatement *set;
-		SqlShowStatement *show;
-		SqlNoDataStatement *no_data;
+		struct SqlBeginStatement *begin;
+		struct SqlCommitStatement *commit;
+		struct SqlSelectStatement *select;
+		struct SqlInsertStatement *insert;
+		struct SqlDropStatement *drop;
+		struct SqlValue *value;
+		struct SqlFunctionCall *function_call;
+		struct SqlBinaryOperation *binary;
+		struct SqlUnaryOperation *unary;
+		struct SqlColumnList *column_list;
+		struct SqlColumn *column; // Note singular versus plural
+		struct SqlJoin *join;
+		struct SqlTable *table;
+		struct SqlOptionalKeyword *constraint;
+		struct SqlOptionalKeyword *keyword;
+		struct SqlColumnListAlias *column_list_alias;
+		struct SqlColumnAlias *column_alias;
+		struct SqlTableAlias *table_alias;
+		struct SqlSetOperation *set_operation;
+		struct SqlCaseStatement *cas;
+		struct SqlCaseBranchStatement *cas_branch;
+		struct SqlSetStatement *set;
+		struct SqlShowStatement *show;
+		struct SqlNoDataStatement *no_data;
 		enum SqlDataType data_type;
 		enum SqlJoinType join_type;
 	} v;
-};
+} SqlStatement;
 
 /// TODO: this should be located in octo.h, but for some reason it's not being detected there
 SqlStatement *natural_join_condition(SqlStatement *left, SqlStatement *right);

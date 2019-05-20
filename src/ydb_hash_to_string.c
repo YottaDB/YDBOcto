@@ -26,7 +26,7 @@ void ydb_hash_to_string(ydb_uint16 *hash, char *buffer, const unsigned int buf_l
 	// String is composed of 62 alphanumeric characters for M compatibility.
 	char *base62_chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
 	unsigned short next_char = 0;
-	int i = 0;
+	unsigned int i = 0;
 	#ifdef __SIZEOF_INT128__
 	unsigned __int128 *long_hash;
 	long_hash = (__int128*)hash;

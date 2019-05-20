@@ -63,7 +63,7 @@ void merge_config_file(const char *path, config_t *config_file) {
  * Merges b into a, updating a with any values from b
  */
 void merge_config_file_helper(config_setting_t *a, config_setting_t *b) {
-	config_setting_t *t_setting, *b_setting, *a_setting;
+	config_setting_t *t_setting, *b_setting;
 	char *setting_name;
 	int setting_type;
 	int b_index;
@@ -165,16 +165,15 @@ void init_crypto() {
 }
 
 int octo_init(int argc, char **argv, int scan_tables) {
-	int c, error = 0, status, i;
+	int c, status, i;
 	ydb_buffer_t schema_global, table_name_buffer, table_create_buffer, null_buffer;
-	ydb_buffer_t cursor_global, cursor_exe_global[3];
 	ydb_buffer_t z_status, z_status_value;
 	SqlStatement *result = 0;
 	SqlTable *table, *t_table;
 	config_t *config_file;
-	config_setting_t *ydb_settings, *cur_ydb_setting, *setting, *config_root, *cur_root;
+	config_setting_t *ydb_settings, *cur_ydb_setting;
 	const char *item_name, *item_value;
-	char *global_dir, *default_octo_conf, buff[MAX_STR_CONST];
+	char *default_octo_conf, buff[MAX_STR_CONST];
 	char *home;
 	DIR *dir;
 

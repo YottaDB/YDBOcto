@@ -23,7 +23,7 @@
 #include "octo.h"
 #include "octo_types.h"
 
-int qualify_function_name(SqlStatement *stmt, SqlJoin *tables) {
+int qualify_function_name(SqlStatement *stmt) {
 	SqlValue *value;
 	int name_length, result, status;
 	char *c;

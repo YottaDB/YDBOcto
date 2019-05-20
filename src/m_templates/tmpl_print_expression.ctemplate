@@ -7,13 +7,9 @@
 
 TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan) {
     TEMPLATE_INIT();
-    char *mid = NULL, *column, *table, *c, *extract_expression;
+    char *mid = NULL;
     int use_string_comparison;
-    int qualified = FALSE, i, columnId;
     SqlValue *value;
-    SqlTable *src_table;
-    SqlColumn *start_column, *cur_column;
-    SqlOptionalKeyword *keyword, *piece_keyword, *source_keyword;
     SqlColumnAlias *column_alias;
     LogicalPlan *key, *piece_num, *cur_plan, *branch_value, *cas_value, *condition;
     LogicalPlan *cur_branch, *default_value;
@@ -51,7 +47,7 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan) {
             %}""{%
             break;
         default:
-            FATAL(ERR_UNKNOWN_KEYWORD_STATE);
+            FATAL(ERR_UNKNOWN_KEYWORD_STATE, "");
         }
         break;
     case LP_DERIVED_COLUMN:
@@ -132,6 +128,8 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan) {
                 }
             }
             break;
+        default:
+            assert(FALSE);
         }
         if(use_string_comparison == TRUE) {
             if(plan->type == LP_BOOLEAN_LESS_THAN) {
@@ -232,7 +230,7 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan) {
         }
         break;
     default:
-        FATAL(ERR_UNKNOWN_KEYWORD_STATE);
+        FATAL(ERR_UNKNOWN_KEYWORD_STATE, "");
     }
 
     if(mid) {

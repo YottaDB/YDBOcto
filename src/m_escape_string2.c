@@ -35,7 +35,7 @@ int m_escape_string2(char *buffer, int buffer_len, char *string) {
 			*b++ = *c;
 			i++;
 		}
-		*c++;
+		c++;
 	}
 	*b = '\0';
 	return i;

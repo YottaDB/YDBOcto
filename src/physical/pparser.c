@@ -58,7 +58,7 @@ void safe_print_string(char *s) {
 #define SNPRINT_HEADER \
 	"do { written = snprintf(buff_ptr, buffer_len - (buff_ptr - buffer), \""
 #define SNPRINT_FOOTER \
-	"if(written > buffer_len - (buff_ptr - buffer)) { FATAL(ERR_BUFFER_TOO_SMALL); } buff_ptr += written; } while(0);"
+	"if(written > buffer_len - (buff_ptr - buffer)) { FATAL(ERR_BUFFER_TOO_SMALL, \"\"); } buff_ptr += written; } while(0);"
 
 Expr *print_template(Expr *expr, Expr *prev) {
 	Expr *next, *t;

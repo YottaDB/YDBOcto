@@ -37,13 +37,9 @@ void hash_canonical_query(hash128_state_t *state, SqlStatement *stmt) {
 	// Assumes state initialized by caller (using HASH128_STATE_INIT macro)
 
 	// Statements
-	SqlBeginStatement *begin;
 	SqlCaseStatement *cas;
 	SqlCaseBranchStatement *cas_branch;
-	SqlCommitStatement *commit;
 	SqlDropStatement *drop;
-	SqlInsertStatement *insert;
-	SqlNoDataStatement *no_data;
 	SqlSelectStatement *select;
 	SqlSetStatement *set;
 	SqlShowStatement *show;
@@ -64,7 +60,6 @@ void hash_canonical_query(hash128_state_t *state, SqlStatement *stmt) {
 	SqlBinaryOperation *binary;
 	SqlSetOperation *set_operation;
 	SqlUnaryOperation *unary;
-	SqlOptionalKeyword *constraint;
 	SqlOptionalKeyword *keyword;
 
 	// Iteration pointers for doubly-linked list traversal
@@ -74,7 +69,6 @@ void hash_canonical_query(hash128_state_t *state, SqlStatement *stmt) {
 	SqlColumnListAlias *cur_column_list_alias;
 	SqlJoin *cur_join;
 	SqlOptionalKeyword *cur_keyword;
-	SqlTable *cur_table;
 
 	if(stmt == NULL)
 		return;
@@ -302,7 +296,7 @@ void hash_canonical_query(hash128_state_t *state, SqlStatement *stmt) {
 			} while (cur_keyword != keyword);
 			break;
 		default:
-			FATAL(ERR_UNKNOWN_KEYWORD_STATE);
+			FATAL(ERR_UNKNOWN_KEYWORD_STATE, "");
 			break;
 	}
 

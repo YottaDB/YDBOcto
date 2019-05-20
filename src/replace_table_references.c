@@ -44,7 +44,6 @@ void replace_table_references_helper(SqlStatement *stmt, SqlTableAlias *old_valu
 	SqlTableAlias *table_alias;
 	SqlBinaryOperation *binary;
 	SqlFunctionCall *fc;
-	SqlValue *value;
 	SqlCaseStatement *cas;
 	SqlCaseBranchStatement *cas_branch, *cur_branch;
 	SqlColumnList *column_list;
@@ -127,7 +126,7 @@ void replace_table_references_helper(SqlStatement *stmt, SqlTableAlias *old_valu
 	case value_STATEMENT:
 		break;
 	default:
-		FATAL(ERR_UNKNOWN_KEYWORD_STATE);
+		FATAL(ERR_UNKNOWN_KEYWORD_STATE, "");
 		break;
 	}
 }

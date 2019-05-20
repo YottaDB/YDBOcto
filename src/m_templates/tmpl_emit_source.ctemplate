@@ -21,9 +21,9 @@ int match_expression(char *start, char *column, int column_size);
  */
 TEMPLATE(tmpl_emit_source, char *source, char *table_name, int unique_id, int num_vars_to_match, enum EmitSourceForm form) {
     TEMPLATE_INIT();
-    char *source_ptr, *c;
+    char *source_ptr;
     char column[MAX_STR_CONST];
-    int t, i, matched_vars = 0;
+    int t, matched_vars = 0;
     int sub_count;
     int paren_count = 0;
 
@@ -45,7 +45,7 @@ TEMPLATE(tmpl_emit_source, char *source, char *table_name, int unique_id, int nu
                 sub_count++;
                 break;
             default:
-                FATAL(ERR_UNKNOWN_KEYWORD_STATE);
+                FATAL(ERR_UNKNOWN_KEYWORD_STATE, "");
                 break;
             }
             source_ptr += t;

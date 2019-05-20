@@ -38,7 +38,6 @@ int lp_verify_structure(LogicalPlan *plan) {
 
 int lp_verify_structure_helper(LogicalPlan *plan, LPActionType expected) {
 	int ret = TRUE;
-	SqlValue *value;
         // Cases where NULL is not allowed is enforced in the switch below
 	if(plan == NULL)
 		return TRUE;
@@ -95,6 +94,7 @@ int lp_verify_structure_helper(LogicalPlan *plan, LPActionType expected) {
 			| lp_verify_structure_helper(plan->v.operand[0], LP_SET_UNION)
 			| lp_verify_structure_helper(plan->v.operand[0], LP_SET_INTERSECT)
 			| lp_verify_structure_helper(plan->v.operand[0], LP_SET_DIFFERENCE);
+		break;
 	case LP_KEY_FIX:
 		if(plan->v.operand[0] == NULL)
 			return FALSE;
@@ -104,13 +104,6 @@ int lp_verify_structure_helper(LogicalPlan *plan, LPActionType expected) {
 			return FALSE;
 		if(plan->v.operand[0]->v.key->value == NULL)
 			return FALSE;
-		/*value = plan->v.operand[0]->v.key->value;
-		if(value == NULL)
-			return FALSE;
-		if(value->type != STRING_LITERAL)
-			return FALSE;
-		if(value->v.string_literal == NULL)
-		return FALSE;*/
 		break;
 	case LP_KEY_ADVANCE:
 		if(plan->v.operand[0] == NULL)
@@ -211,6 +204,9 @@ int lp_verify_structure_helper(LogicalPlan *plan, LPActionType expected) {
 			| lp_verify_structure_helper(plan->v.operand[1], LP_BOOLEAN_IN)
 			| lp_verify_structure_helper(plan->v.operand[1], LP_BOOLEAN_NOT_IN)
 			| lp_verify_structure_helper(plan->v.operand[1], LP_VALUE);
+		break;
+	default:
+		// This is OK for now; we should fill things in as needed
 		break;
 
 	}

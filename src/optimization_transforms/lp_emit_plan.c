@@ -24,18 +24,15 @@
 int emit_plan_helper(char *buffer, size_t buffer_len, int depth, LogicalPlan *plan);
 
 int lp_emit_plan(char *buffer, size_t buffer_len, LogicalPlan *plan) {
-	emit_plan_helper(buffer, buffer_len, 0, plan);
+	return emit_plan_helper(buffer, buffer_len, 0, plan);
 }
 
 int emit_plan_helper(char *buffer, size_t buffer_len, int depth, LogicalPlan *plan) {
 	char *buff_ptr = buffer, *table_name = " ", *column_name = " ", *data_type_ptr = " ";
-	int written;
+	size_t written;
 	int table_id;
 	SqlValue *value;
-	SqlJoin *cur_join, *start_join;
 	SqlKey *key;
-	SqlColumn *column;
-	SqlColumnList *cur_column_list, *start_column_list;
 
 	if(buffer_len == 0)
 		return 0;
@@ -71,7 +68,6 @@ int emit_plan_helper(char *buffer, size_t buffer_len, int depth, LogicalPlan *pl
 		break;
 	case LP_COLUMN_LIST:
 		SAFE_SNPRINTF(written, buff_ptr, buffer, buffer_len, "\n");
-		assert(buffer_len >= buff_ptr - buffer);
 		buff_ptr += emit_plan_helper(buff_ptr, buffer_len - (buff_ptr - buffer), depth + 2, plan->v.operand[0]);
 		buff_ptr += emit_plan_helper(buff_ptr, buffer_len - (buff_ptr - buffer), depth + 2, plan->v.operand[1]);
 		break;
@@ -121,6 +117,15 @@ int emit_plan_helper(char *buffer, size_t buffer_len, int depth, LogicalPlan *pl
 				break;
 			case BOOLEAN_VALUE:
 				data_type_ptr = "BOOLEAN_VALUE";
+				break;
+			case FUNCTION_NAME:
+				data_type_ptr = "FUNCTION";
+				break;
+			case PARAMETER_VALUE:
+				data_type_ptr = "PARAMETER";
+				break;
+			case NUL_VALUE:
+				data_type_ptr = "NULL";
 				break;
 		}
 		SAFE_SNPRINTF(written, buff_ptr, buffer, buffer_len, "\n%*s- type: %s", depth, "", data_type_ptr);

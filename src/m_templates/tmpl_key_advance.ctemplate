@@ -5,11 +5,11 @@
 TEMPLATE(tmpl_key_advance, PhysicalPlan *pplan, SqlKey *key) {
     TEMPLATE_INIT();
     char *key_fixed, *tableName;
-    SqlKey *cur_key, *first_key;
     SqlValue *value;
     SqlTable *table;
     SqlOptionalKeyword *keyword = NULL;
-    int iter_key_index = 0, keys_to_match = 0, hit_key = 0;
+    unsigned int iter_key_index = 0;
+    int keys_to_match = 0, hit_key = 0;
     char *columnName = "";
 
     // If there is no table, this is a temporary key;

@@ -30,10 +30,9 @@
  * @returns TRUE (1) if the key was fixed, or FALSE if it couldn't be done
  */
 int lp_opt_fix_key_to_const(LogicalPlan *root, SqlKey *key, LogicalPlan *value) {
-	LogicalPlan *select_key;
-
 	// We can't fix keys that are already fixed, or keys that are part of an
 	//  cross reference iteration
+	UNUSED(root);
 	if(key->type == LP_KEY_ADVANCE && key->cross_reference_output_key == NULL) {
 		key->value = lp_copy_plan(value);
 		key->type = LP_KEY_FIX;

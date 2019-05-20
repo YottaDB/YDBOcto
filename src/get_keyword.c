@@ -22,7 +22,7 @@
 #include "octo_types.h"
 
 SqlOptionalKeyword *get_keyword(SqlColumn *column, enum OptionalKeyword keyword) {
-	SqlOptionalKeyword *cur_keyword, *start_keyword;
+	SqlOptionalKeyword *start_keyword;
 
 	UNPACK_SQL_STATEMENT(start_keyword, column->keywords, keyword);
 	return get_keyword_from_keywords(start_keyword, keyword);

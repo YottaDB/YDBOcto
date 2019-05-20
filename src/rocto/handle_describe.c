@@ -141,7 +141,7 @@ int handle_describe(Describe *describe, RoctoSession *session) {
 					// Wait for 5 seconds in case another process is writing to same filename
 					ydb_lock_incr_s(5000000000, &filename_lock[0], 2, &filename_lock[1]);
 					if (access(filename, F_OK) == -1) {
-						pplan = emit_select_statement(&cursor_global, cursor_exe_global, statement, filename, NULL);
+						pplan = emit_select_statement(statement, filename);
 						assert(pplan != NULL);
 					}
 					ydb_lock_decr_s(&filename_lock[0], 2, &filename_lock[1]);

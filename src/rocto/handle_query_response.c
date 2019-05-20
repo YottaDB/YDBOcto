@@ -27,7 +27,7 @@
 #include "helpers.h"
 
 
-void handle_query_response(SqlStatement *stmt, PhysicalPlan *plan, int cursor_id, void *_parms, char *plan_name) {
+void handle_query_response(SqlStatement *stmt, int cursor_id, void *_parms, char *plan_name) {
 	QueryResponseParms *parms = (QueryResponseParms*)_parms;
 	RowDescription *row_description;
 	CommandComplete *command_complete;
@@ -46,7 +46,6 @@ void handle_query_response(SqlStatement *stmt, PhysicalPlan *plan, int cursor_id
 	*row_id_b = &ydb_buffers[6], *row_value_b = &ydb_buffers[7],
 	*empty_buffer = &ydb_buffers[8], *val_buff;
 	ydb_buffer_t z_status, z_status_value;
-	PhysicalPlan *deep_plan = plan;
 	SqlSetStatement *set_stmt;
 	SqlShowStatement *show_stmt;
 	SqlValue *val1, *val2;
@@ -132,7 +131,7 @@ void handle_query_response(SqlStatement *stmt, PhysicalPlan *plan, int cursor_id
 
 	outputKeyId = get("^%ydboctoocto", 3, "plan_metadata", plan_name, "output_key");
 	if(outputKeyId == NULL) {
-		FATAL(ERR_DATABASE_FILES_OOS);
+		FATAL(ERR_DATABASE_FILES_OOS, "");
 		return;
 	}
 	*key_id_b = *outputKeyId;

@@ -14,7 +14,7 @@
 /**
  * Iterates over the last output of the plan and prints it to the screen
  */
-void print_temporary_table(SqlStatement *stmt, PhysicalPlan *plan, int cursor_id, void *parms, char *plan_name) {
+void print_temporary_table(SqlStatement *stmt, int cursor_id, void *parms, char *plan_name) {
 	char buffer[MAX_STR_CONST];
 	/// WARNING: the ordering of these buffers is essential to the ydb calls;
 	//   if altered, make sure the order is correct
@@ -26,11 +26,12 @@ void print_temporary_table(SqlStatement *stmt, PhysicalPlan *plan, int cursor_id
 		*row_id_b = &ydb_buffers[6], *row_value_b = &ydb_buffers[7],
 		*empty_buffer = &ydb_buffers[8], *val_buff;
 	ydb_buffer_t z_status, z_status_value;
-	PhysicalPlan *deep_plan = plan;
 	SqlSetStatement *set_stmt;
 	SqlShowStatement *show_stmt;
 	SqlValue *val1, *val2;
 	int status;
+
+	UNUSED(parms);
 
 	INFO(CUSTOM_ERROR, "%s", "print_temporary_table()");
 
@@ -77,7 +78,7 @@ void print_temporary_table(SqlStatement *stmt, PhysicalPlan *plan, int cursor_id
 
 	outputKeyId = get("^%ydboctoocto", 3, "plan_metadata", plan_name, "output_key");
 	if(outputKeyId == NULL) {
-		FATAL(ERR_DATABASE_FILES_OOS);
+		FATAL(ERR_DATABASE_FILES_OOS, "");
 		return;
 	}
 	*key_id_b = *outputKeyId;

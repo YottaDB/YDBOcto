@@ -5,24 +5,22 @@
 
 TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
     TEMPLATE_INIT();
-    int cur_key, dot_count, i;
+    unsigned int cur_key, limit;
+    int dot_count, i;
     SqlKey *key, *t_key;
-    SqlTable *table;
-    SqlColumn *column;
     SqlColumnAlias *column_alias;
     SqlValue *value;
     PhysicalPlan *next_plan;
     char *key_fixed;
     SqlOptionalKeyword *keyword;
     LogicalPlan *lp_temp;
-    char *source;
     char *tableName = "";
     char *columnName = "";
     char *start_table_reference, *end_table_reference;
     char *start_resume = NULL;
     char *end_resume = NULL;
-    char *old_buff_ptr, c;
-    int resume_length, limit;
+    char c;
+    int resume_length;
 
     %}
 ;; This is a generate file; do not modify.
@@ -87,7 +85,7 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
     {%
             break;
         default:
-            FATAL(ERR_UNKNOWN_KEYWORD_STATE);
+            FATAL(ERR_UNKNOWN_KEYWORD_STATE, "");
                 break;
             }
             continue;
@@ -120,6 +118,8 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
         case PP_DELETE:
             %}KILL:1{%
             break;
+        default:
+            assert(FALSE);
         }
     }
     
@@ -215,9 +215,8 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
             }
         }
     } else if (plan->outputTable) {
+        /// TODO: do we ever get to this branch?
         // We are putting the value directly into a table
-        UNPACK_SQL_STATEMENT(table, plan->outputTable->table, table);
-        //TMPL(tmpl_table_set, plan->outputTable);
     } else {
         assert(FALSE);
     }

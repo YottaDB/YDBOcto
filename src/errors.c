@@ -19,6 +19,16 @@ enum MessageType {
 
 #endif
 
+// Define the strings we expect for constants
+#define ERROR_DEF(name, format_string) format_string,
+#define ERROR_END(name, format_string) format_string
+const char *err_format_str[] = {
+  #include "errors.hd"
+};
+#undef ERROR_DEF
+#undef ERROR_END
+
+
 const char *host_info = "[%s:%s] ";
 const char *log_prefix = "[%5s] %s:%d %04d-%02d-%02d %02d:%02d:%02d : ";
 

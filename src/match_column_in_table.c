@@ -25,7 +25,6 @@
 
 
 SqlStatement *match_column_in_table(SqlTableAlias *table_alias, char *column_name, int column_name_len) {
-	SqlSelectStatement *select;
 	SqlColumnListAlias *cur_column_list, *start_column_list;
 	SqlValue *value;
 	SqlStatement *ret = NULL;

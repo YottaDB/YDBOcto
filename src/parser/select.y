@@ -116,7 +116,6 @@ query_specification
       //  the order in which they are mentioned
       SqlJoin *join, *cur_join, *start_join;
       SqlTableAlias *table_alias;
-      SqlStatement *t_stmt;
       SqlColumn *t_column;
       SqlColumnListAlias *cl_alias = NULL, *t_cl_alias, *tt_cl_alias;
       UNPACK_SQL_STATEMENT(join, select->table_list, join);
@@ -136,7 +135,6 @@ query_specification
           select->select_list->v.column_list_alias = cl_alias;
       }
       ($$)->v.select->optional_words = $set_quantifier;
-      SqlColumnList *column_list;
       SqlColumnListAlias *cur_column_list_alias, *start_column_list_alias;
       SqlValueType type;
       int result;
@@ -168,7 +166,6 @@ query_specification
       //  the order in which they are mentioned
       SqlJoin *join, *cur_join, *start_join;
       SqlTableAlias *table_alias;
-      SqlStatement *t_stmt;
       SqlColumn *t_column;
       SqlColumnListAlias *cl_alias = NULL, *t_cl_alias, *tt_cl_alias;
       UNPACK_SQL_STATEMENT(join, select->table_list, join);
@@ -188,7 +185,6 @@ query_specification
           PACK_SQL_STATEMENT(select->select_list, cl_alias, column_list_alias);
       }
       ($$)->v.select->optional_words = $set_quantifier;
-      SqlColumnList *column_list;
       SqlColumnListAlias *cur_column_list_alias, *start_column_list_alias;
       SqlValueType type;
       int result;
@@ -251,7 +247,6 @@ query_specification
       select->select_list = ($select_list);
       // If the select list is empty, we need all columns from the joins in
       //  the order in which they are mentioned
-      SqlStatement *t_stmt;
       SqlColumn *t_column;
       SqlColumnListAlias *cl_alias = NULL, *t_cl_alias, *tt_cl_alias;
       UNPACK_SQL_STATEMENT(join, select->table_list, join);
@@ -271,7 +266,6 @@ query_specification
           select->select_list->v.column_list_alias = cl_alias;
       }
       ($$)->v.select->optional_words = $set_quantifier;
-      SqlColumnList *column_list;
       SqlColumnListAlias *cur_column_list_alias, *start_column_list_alias;
       SqlValueType type;
       int result;
@@ -469,7 +463,7 @@ table_reference
   | derived_table {
       SQL_STATEMENT($$, join_STATEMENT);
       MALLOC_STATEMENT($$, join, SqlJoin);
-      SqlJoin *join = $$->v.join, *join_tail, *t_join;
+      SqlJoin *join = $$->v.join;
       SqlTableAlias *alias;
       SqlSelectStatement *select;
       SQL_STATEMENT(join->value, table_alias_STATEMENT);
@@ -499,7 +493,7 @@ table_reference
   | derived_table correlation_specification {
       SQL_STATEMENT($$, join_STATEMENT);
       MALLOC_STATEMENT($$, join, SqlJoin);
-      SqlJoin *join = $$->v.join, *join_tail, *t_join;
+      SqlJoin *join = $$->v.join;
       SqlTableAlias *alias;
       SqlSelectStatement *select;
       SQL_STATEMENT(join->value, table_alias_STATEMENT);
@@ -507,7 +501,6 @@ table_reference
       UNPACK_SQL_STATEMENT(alias, join->value, table_alias);
       SQL_STATEMENT(alias->table, select_STATEMENT);
       alias->table = $derived_table;
-      SqlValue *value;
       alias->alias = $correlation_specification;
       alias->unique_id = *plan_id;
       (*plan_id)++;

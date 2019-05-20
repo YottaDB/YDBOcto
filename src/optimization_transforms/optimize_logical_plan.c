@@ -28,8 +28,7 @@
 LogicalPlan *join_tables(LogicalPlan *root, LogicalPlan *plan) {
 	LogicalPlan *next = NULL, *table_plan;
 	LogicalPlan *keys = NULL, *where, *criteria, *cur_lp_key = NULL;
-	LogicalPlan *sub, *sub1, *sub2;
-	LogicalPlan *first_key;
+	LogicalPlan *sub, *sub1;
 	SqlTable *table;
 	SqlTableAlias *table_alias;
 	SqlColumn *key_columns[MAX_KEY_COUNT];
@@ -39,7 +38,7 @@ LogicalPlan *join_tables(LogicalPlan *root, LogicalPlan *plan) {
 	sub = plan->v.operand[0];
 	if(sub->type == LP_SET_OPERATION) {
 		sub1 = optimize_logical_plan(sub->v.operand[1]->v.operand[0]);
-		sub2 = optimize_logical_plan(sub->v.operand[1]->v.operand[1]);
+		optimize_logical_plan(sub->v.operand[1]->v.operand[1]);
 		// Each of the sub plans should have the same output key, so we can
 		//  grab from either
 		sub1 = lp_drill_to_insert(sub1);
@@ -69,7 +68,6 @@ LogicalPlan *join_tables(LogicalPlan *root, LogicalPlan *plan) {
 	where = lp_get_select(root);
 	GET_LP(criteria, where, 1, LP_CRITERIA);
 	GET_LP(keys, criteria, 0, LP_KEYS);
-	first_key = keys;
 	// Drill down to the bottom of the keys
 	while(keys->v.operand[1] != NULL) {
 		GET_LP(keys, keys, 1, LP_KEYS);
@@ -118,13 +116,11 @@ LogicalPlan *optimize_logical_plan(LogicalPlan *plan) {
 	LogicalPlan *first_key, *last_key, *before_first_key, *keys, *before_last_key;
 	LogicalPlan *xref_keys;
 	SqlKey *key;
-	SqlColumn *column;
 	SqlColumnAlias *column_alias;
 	SqlTable *table;
 	SqlTableAlias *table_alias, *table_alias2;
 	SqlColumnList *column_list;
 	SqlColumnListAlias *column_list_alias;
-	SqlValue *value;
 	int result, i1, i2;
 
 	first_key = NULL;
@@ -265,7 +261,6 @@ LogicalPlan *optimize_logical_plan(LogicalPlan *plan) {
 				UNPACK_SQL_STATEMENT(column_list, column_list_alias->column_list, column_list);
 				UNPACK_SQL_STATEMENT(column_alias, column_list->value, column_alias);
 			}
-			UNPACK_SQL_STATEMENT(column, column_alias->column, column);
 			// Remove all keys for the table alias
 			before_first_key = lp_get_criteria(plan);
 			first_key = keys = lp_get_keys(plan);
@@ -324,4 +319,4 @@ LogicalPlan *optimize_logical_plan(LogicalPlan *plan) {
 	}
 	lp_optimize_where_multi_equal_ands(plan, where);
 	return plan;
-};
+}

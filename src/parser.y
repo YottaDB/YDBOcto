@@ -379,7 +379,7 @@ in_value_list
   : /* Empty */ {
       SQL_STATEMENT($$, column_list_STATEMENT);
       MALLOC_STATEMENT($$, column_list, SqlColumnList);
-      SqlColumnList *column_list, *cl_tail, *cl_temp;
+      SqlColumnList *column_list;
       UNPACK_SQL_STATEMENT(column_list, $$, column_list);
       dqinit(column_list);
     }
@@ -1037,11 +1037,11 @@ optional_keyword_tail
 table_element_list
   :  table_element table_element_list_tail  {
       $$ = $table_element;
-      assert($$->type = column_STATEMENT);
+      assert($$->type == column_STATEMENT);
       if($table_element_list_tail)
       {
         SqlColumn *t_column;
-        assert($table_element_list_tail->type = column_STATEMENT);
+        assert($table_element_list_tail->type == column_STATEMENT);
         dqinsert($table_element_list_tail->v.column, ($$)->v.column, t_column);
       }
     }

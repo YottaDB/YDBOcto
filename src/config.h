@@ -25,18 +25,18 @@
 int octo_init(int argc, char **argv, int scan_tables);
 int parse_startup_flags(int argc, char **argv);
 
-struct RoctoConfig {
+typedef struct RoctoConfig {
 	int port;
 	const char *address;
 	int use_dns;
-} typedef RoctoConfig;
+} RoctoConfig;
 
 typedef struct {
 	char *schema, *session, *cursor, *octo, *xref;
 	char *raw_schema, *raw_session, *raw_cursor, *raw_octo, *raw_xref;
 } GlobalNames;
 
-struct OctoConfig {
+typedef struct OctoConfig {
 	config_t config_file;
 	RoctoConfig rocto_config;
 	GlobalNames global_names;
@@ -45,7 +45,7 @@ struct OctoConfig {
 	const char *tmp_dir, *global_directory, *config_file_name, *global_prefix;
 	ydb_buffer_t zgbldir, octo_gbldir, prev_gbldir;
 	int is_tty, page_size;
-} typedef OctoConfig;
+} OctoConfig;
 
 OctoConfig *config;
 

@@ -140,6 +140,7 @@ add_library(libocto OBJECT
   optimization_transforms/lp_optimize_where_multi_equals_ands.c
   optimization_transforms/lp_drill_to_insert.c
   optimization_transforms/generate_logical_plan.c
+  optimization_transforms/logical_plan.c
   physical/generate_physical_plan.c
   physical/emit_physical_plan.c
   m_templates/print_dots.c
@@ -278,6 +279,8 @@ set_property(TARGET librocto PROPERTY C_STANDARD 11)
 set_property(TARGET pparser PROPERTY C_STANDARD 11)
 set_property(TARGET octo PROPERTY C_STANDARD 11)
 set_property(TARGET rocto PROPERTY C_STANDARD 11)
+
+target_compile_options(libocto PRIVATE -Wall -Wextra -pedantic )
 
 target_link_libraries(octo ${YOTTADB_LIBRARIES} ${Readline_LIBRARY} ${CONFIG_LIBRARY} ${OPENSSL_LIBRARIES})
 target_link_libraries(rocto ${YOTTADB_LIBRARIES} ${Readline_LIBRARY} ${CONFIG_LIBRARY} ${OPENSSL_LIBRARIES})

@@ -37,7 +37,7 @@ int emit_column_specification(char *buffer, int buffer_size, SqlColumn *cur_colu
 		buff_ptr += snprintf(buff_ptr, buffer_size - (buff_ptr - buffer), " VARCHAR(%d)", 25);
 		break;
 	default:
-		FATAL(ERR_UNKNOWN_KEYWORD_STATE);
+		FATAL(ERR_UNKNOWN_KEYWORD_STATE, "");
 		break;
 	}
 	UNPACK_SQL_STATEMENT(start_keyword, cur_column->keywords, keyword);
@@ -97,7 +97,7 @@ int emit_column_specification(char *buffer, int buffer_size, SqlColumn *cur_colu
 			buff_ptr += snprintf(buff_ptr, buffer_size - (buff_ptr - buffer), " END \"%s\"", buffer2);
 			break;
 		default:
-			FATAL(ERR_UNKNOWN_KEYWORD_STATE);
+			FATAL(ERR_UNKNOWN_KEYWORD_STATE, "");
 			break;
 		}
 		cur_keyword = cur_keyword->next;

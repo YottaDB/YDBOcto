@@ -28,7 +28,6 @@
 SqlColumn *column_list_alias_to_columns(SqlTableAlias *table_alias) {
 	SqlColumnListAlias *cla_start, *cla_cur;
 	SqlColumn *start_column = NULL, *cur_column, *t_column;
-	SqlOptionalKeyword *keyword;
 
 	if(table_alias->column_list == NULL)
 		return NULL;
@@ -52,13 +51,9 @@ SqlColumn *column_list_alias_to_columns(SqlTableAlias *table_alias) {
 		case STRING_LITERAL:
 			cur_column->type = CHARACTER_STRING_TYPE;
 			break;
-		case DATE_TIME:
-		case COLUMN_REFERENCE:
-		case CALCULATED_VALUE:
-		case TEMPORARY_TABLE_TYPE:
-			assert(FALSE);
+		default:
+			FATAL(ERR_FEATURE_NOT_IMPLEMENTED, "");
 			break;
-
 		}
 		dqinit(cur_column);
 		if(start_column == NULL) {

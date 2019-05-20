@@ -42,13 +42,8 @@ LogicalPlan *lp_replace_derived_table_references(LogicalPlan *root, LogicalPlan 
 }
 
 LogicalPlan *lp_replace_helper(LogicalPlan *where, SqlTableAlias *table_alias, SqlKey *key) {
-	SqlColumn *column;
 	SqlColumnAlias *alias;
-	SqlValue *value;
-	SqlColumnListAlias *cur_cl_alias, *start_cl_alias, *t_cl_alias;
-	SqlTableAlias *t_table_alias;
 	LogicalPlan *ret = where;
-	char *column_name1, *column_name2;
 	int part = 1;
 
 	if(where == NULL)

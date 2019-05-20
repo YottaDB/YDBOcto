@@ -13,27 +13,13 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
+#include "logical_plan.h"
 
-#ifndef MEMORY_CHUNK_H
-#define MEMORY_CHUNK_H
 
-#include <sys/types.h>
-#include <unistd.h>
-
-#include "constants.h"
-#include "double_list.h"
-
-typedef struct MemoryChunk {
-	dqcreate(MemoryChunk);
-	size_t offset, max_size;
-	char *value;
-} MemoryChunk;
-
-MemoryChunk *alloc_chunk(size_t size);
-void *octo_cmalloc(MemoryChunk *root, size_t size);
-void octo_cfree(MemoryChunk *root);
-
-// GLOBAL
-MemoryChunk *memory_chunks;
-
-#endif
+#define LP_ACTION_TYPE(name) #name,
+#define LP_ACTION_END(name) #name
+const char *lp_action_type_str[] = {
+  #include "lp_action_type.hd"
+};
+#undef LP_ACTION_TYPE
+#undef LP_ACTION_END

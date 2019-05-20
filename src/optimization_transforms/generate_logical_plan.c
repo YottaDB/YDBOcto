@@ -29,13 +29,13 @@
 LogicalPlan *generate_logical_plan(SqlStatement *stmt, int *plan_id) {
 	SqlStatement *stmt2;
 	SqlSelectStatement *select_stmt;
-	LogicalPlan *insert, *project, *column_list, *select, *dst, *dst_key;
-	LogicalPlan *criteria, *table, *keys, *where, *order_by, *select_options;
-	LogicalPlan *join_left, *join_right, *temp, *select_right, *select_left;
-	LogicalPlan *start_join_condition = NULL, *cur_join_condition = NULL, *t_join_condition;
+	LogicalPlan *insert, *project, *select, *dst, *dst_key;
+	LogicalPlan *criteria, *where, *order_by, *select_options;
+	LogicalPlan *join_left, *join_right, *temp, *select_right;
+	LogicalPlan *start_join_condition = NULL, *t_join_condition;
 	LogicalPlan *keywords, *left, *t_left, *t_right;
-	SqlStatement *stmt_t1, *stmt_t2, *top_set_opr_stmt;
-	SqlSetOperation *top_set_opr, *left_set_opr, *right_set_opr;
+	SqlStatement *stmt_t1, *stmt_t2;
+	SqlSetOperation *top_set_opr, *right_set_opr;
 	SqlJoin *cur_join, *start_join;
 	SqlJoin *cur_join2, *start_join2;
 	SqlColumnListAlias *list;
@@ -224,7 +224,7 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt, int *plan_id) {
 	project = MALLOC_LP(insert->v.operand[0], LP_PROJECT);
 	select = MALLOC_LP(project->v.operand[1], LP_SELECT);
 	criteria = MALLOC_LP(select->v.operand[1], LP_CRITERIA);
-	keys = MALLOC_LP(criteria->v.operand[0], LP_KEYS);
+	MALLOC_LP(criteria->v.operand[0], LP_KEYS);
 	select_options = MALLOC_LP(criteria->v.operand[1], LP_SELECT_OPTIONS);
 	where = MALLOC_LP(select_options->v.operand[0], LP_WHERE);
 	where->v.operand[0] = lp_generate_where(select_stmt->where_expression, plan_id);

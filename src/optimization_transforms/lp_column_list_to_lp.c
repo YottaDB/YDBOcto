@@ -25,7 +25,7 @@ LogicalPlan *lp_column_list_to_lp(SqlColumnListAlias *list, int *plan_id) {
 	LogicalPlan *column_list, *ret_column_list = NULL;
 	LogicalPlan *where;
 	LogicalPlan *column_list_alias;
-	SqlColumnListAlias *cur_column_list, *start_column_list, *next_column_list_alias;
+	SqlColumnListAlias *cur_column_list, *start_column_list;
 	SqlColumnList *t_column_list;
 	assert(list != NULL);
 
@@ -40,7 +40,6 @@ LogicalPlan *lp_column_list_to_lp(SqlColumnListAlias *list, int *plan_id) {
 		column_list_alias = MALLOC_LP(where->v.operand[1], LP_COLUMN_LIST_ALIAS);
 		// When we do this copy, we only want a single CLA; this prevents the copy from
 		//   grabbing more
-		next_column_list_alias = cur_column_list->next;
 		column_list_alias->v.column_list_alias = (SqlColumnListAlias*)malloc(sizeof(SqlColumnListAlias));
 		memset(column_list_alias->v.column_list_alias, 0, sizeof(SqlColumnListAlias));
 		column_list_alias->v.column_list_alias->alias = cur_column_list->alias;

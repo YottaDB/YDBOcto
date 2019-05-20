@@ -31,8 +31,7 @@
 #include "lexer.h"
 
 int parse_startup_flags(int argc, char **argv) {
-	int c, error = 0, status;
-	int done;
+	int c;
 
 	optind = 1;
 

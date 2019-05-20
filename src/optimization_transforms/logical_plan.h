@@ -35,8 +35,8 @@
 	(dest) = (source)->v.operand[(side)];
 
 // Forward declarations
-struct LogicalPlan typedef LogicalPlan;
-struct SqlKey typedef SqlKey;
+struct LogicalPlan;
+struct SqlKey;
 
 #define LP_ACTION_TYPE(name) name,
 #define LP_ACTION_END(name) name
@@ -46,26 +46,18 @@ typedef enum {
 #undef LP_ACTION_TYPE
 #undef LP_ACTION_END
 
-
-#define LP_ACTION_TYPE(name) #name,
-#define LP_ACTION_END(name) #name
-static const char *lp_action_type_str[] = {
-  #include "lp_action_type.hd"
-};
-#undef LP_ACTION_TYPE
-#undef LP_ACTION_END
-
+extern const char *lp_action_type_str[];
 
 // We use yet another triple type here so we can easily traverse the tree
 //  to replace tables and wheres; specifically, the WHERE can have
 //  complete trees under it, and it would be awkward to overload
 //  void pointers
-struct LogicalPlan {
+typedef struct LogicalPlan {
 	LPActionType type;
 	int *counter;
 	union {
 		// Set for most types
-		LogicalPlan *operand[2];
+		struct LogicalPlan *operand[2];
 		// Set if type == LP_COLUMN_ALIAS
 		SqlColumnAlias *column_alias;
 		// Set if type == LP_COLUMN_LIST_ALIAS
@@ -75,15 +67,15 @@ struct LogicalPlan {
 		// Set if type == LP_TABLE
 		SqlTableAlias *table_alias;
 		// Set if type == LP_KEY
-		SqlKey *key;
+		struct SqlKey *key;
 		// Set if type == LP_KEYWORD
 		SqlOptionalKeyword *keywords;
 		// Set if type == LP_PIECE_NUMBER
 		int piece_number;
 	} v;
-};
+} LogicalPlan;
 
-struct SqlKey {
+typedef struct SqlKey {
 	SqlTable *table;
 	SqlColumn *column;
 	int key_num;
@@ -97,7 +89,7 @@ struct SqlKey {
 	LPActionType type;
 	// Previous subscript in this table
 	//  if not a real key, *value will be set
-	SqlKey *prevSubscript, *nextSubscript;
+	struct SqlKey *prevSubscript, *nextSubscript;
 	// Table that owns this key; used to extract key from plan
 	//  when generating an extract for a given column
 	// If this key is part of a UNION, this is the LP_INSERT
@@ -107,13 +99,13 @@ struct SqlKey {
 	int is_cross_reference_key;
 	// If this is a cross reference key which is not an output key, this will point to the
 	// output key, which we can snag the column name from
-	SqlKey *cross_reference_output_key;
+	struct SqlKey *cross_reference_output_key;
 	// The source of the cross reference
 	SqlColumnAlias *cross_reference_column_alias;
 	// If this is a cross refence key, this value will point to the filename used to store the
 	// code to provide the cross reference
 	char *cross_reference_filename;
-};
+} SqlKey;
 
 // Helper functions
 

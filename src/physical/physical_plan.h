@@ -25,27 +25,27 @@
 
 #include "logical_plan.h"
 
-enum PPActionType {
+typedef enum PPActionType {
 	PP_PROJECT,
 	PP_DELETE,
 	PP_ADVANCE
-} typedef PPActionType;
+} PPActionType;
 
 // Some SET operations require special post-condition stuff;
 //  this allows us to track what set operation we are doing in
 //  in the physical plan
-enum PPSetOperation {
+typedef enum PPSetOperation {
 	PP_NOT_SET,
 	PP_UNION_SET,
 	PP_EXCEPT_SET,
 	PP_INTERSECT_SET
-} typedef PPSetOperation;
+} PPSetOperation;
 
-struct PhysicalPlan typedef PhysicalPlan;
+struct PhysicalPlan;
 
-struct PhysicalPlan {
+typedef struct PhysicalPlan {
 	char *plan_name, *filename;
-	PhysicalPlan *prev, *next;
+	struct PhysicalPlan *prev, *next;
 	// These represent keys which we are iterating over; usually a single key
 	SqlKey *sourceKeys[MAX_KEY_COUNT];
 	// These represent the keys we used to do the iteration
@@ -74,7 +74,7 @@ struct PhysicalPlan {
 	// The type of action to perform; project inserts value, delete removes them
 	PPActionType action_type;
 	PPSetOperation set_operation;
-};
+} PhysicalPlan;
 
 PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlan *next);
 // Outputs physical plans to temporary files located in config.tmp_dir
@@ -85,7 +85,7 @@ int emit_physical_plan(PhysicalPlan *pplan, char *plan_filename);
 // Returns true if the key is a version of this column
 int key_equals_column(SqlKey *key, SqlColumn *column);
 
-void print_temporary_table(SqlStatement *, PhysicalPlan *plan, int cursor_id, void *parms, char *plan_name);
+void print_temporary_table(SqlStatement *, int cursor_id, void *parms, char *plan_name);
 
 /**
  * Parses query, and calls the callback if it is a select statement. Otherwise, the query is a data altering
@@ -93,10 +93,8 @@ void print_temporary_table(SqlStatement *, PhysicalPlan *plan, int cursor_id, vo
  *
  * @returns TRUE on success, FALSE on failure
  */
-int run_query(char *query, void (*callback)(SqlStatement *, PhysicalPlan *, int, void *, char*), void *parms);
+int run_query(char *query, void (*callback)(SqlStatement *, int, void *, char*), void *parms);
 
-PhysicalPlan *emit_select_statement(ydb_buffer_t *cursor_global,
-  ydb_buffer_t *cursor_exe_global, struct SqlStatement *stmt, char *plan_filename,
-  SqlTable *destination_table);
+PhysicalPlan *emit_select_statement(SqlStatement *stmt, char *plan_filename);
 
 #endif

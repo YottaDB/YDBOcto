@@ -27,6 +27,7 @@
 #define YY_NULL 0
 
 int get_input(char *buf, int size) {
+	UNUSED(size);
 	if(eof_hit)
 		return YY_NULL;
 	if(input_buffer_combined[cur_input_index] == '\0') {
@@ -41,7 +42,7 @@ int get_input(char *buf, int size) {
 
 int readline_get_more() {
 	int line_length, data_read;
-	char *line, c;
+	char *line;
 	if(config->is_tty) {
 		line = readline("OCTO> ");
 		if(line == NULL) {
@@ -57,7 +58,7 @@ int readline_get_more() {
 		}
 		add_history(line);
 		if(line_length >= cur_input_max - 2) {
-			ERROR(ERR_LINE_TOO_LONG);
+			ERROR(ERR_LINE_TOO_LONG, "");
 			return 0;
 		}
 		memcpy(&input_buffer_combined[cur_input_index], line, line_length);

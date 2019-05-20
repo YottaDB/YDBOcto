@@ -15,10 +15,11 @@ TEMPLATE(tmpl_column_reference, PhysicalPlan *pplan, SqlColumnAlias *column_alia
     SqlColumnList *column_list;
     SqlOptionalKeyword *keyword;
     SqlKey *key;
-    char *column_raw, *table_name, *table_delim = "|";
+    char *table_name, *table_delim = "|";
     char *piece = NULL, *source;
     char piece_buffer[MAX_STR_CONST];
-    int i, piece_i;
+    int piece_i;
+    unsigned int i;
 
 
     // First check for EXTRACT, then GLOBAL & PIECE, and lastly assembly it ourselves

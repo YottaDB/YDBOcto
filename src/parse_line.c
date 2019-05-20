@@ -37,7 +37,7 @@ SqlStatement *parse_line(const char *line) {
 		INFO(CUSTOM_ERROR, "Moving line to input_buffer_combined");
 		line_length = strlen(line);
 		if(line_length >= MAX_STR_CONST - 1) {
-			ERROR(ERR_LINE_TOO_LONG);
+			ERROR(ERR_LINE_TOO_LONG, "");
 			return NULL;
 		}
 		strncpy(input_buffer_combined, line, line_length);
@@ -46,7 +46,7 @@ SqlStatement *parse_line(const char *line) {
 	}
 
 	if (yylex_init(&scanner))
-		FATAL(ERR_INIT_SCANNER);
+		FATAL(ERR_INIT_SCANNER, "");
 
 	config->plan_id = 0;
 	if(yyparse(scanner, &result, &config->plan_id))

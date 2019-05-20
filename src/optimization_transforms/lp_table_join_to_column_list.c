@@ -31,13 +31,12 @@
 LogicalPlan *lp_table_join_to_column_list(LogicalPlan *table_join, int *plan_id) {
 	LogicalPlan *ret;
 	LogicalPlan *t;
-	LogicalPlan *next_insert, *next_project, *next_column_list;
+	LogicalPlan *next_project, *next_column_list;
 	LogicalPlan *cur, *next;
 	SqlTable *table;
 	SqlColumn *columns;
 	SqlColumnListAlias *sql_column_list;
 	SqlTableAlias *table_alias;
-	SqlSelectStatement *select;
 	SqlKey *key;
 	int part = 1;
 
@@ -83,7 +82,7 @@ LogicalPlan *lp_table_join_to_column_list(LogicalPlan *table_join, int *plan_id)
 		ret = lp_column_list_to_lp(sql_column_list, plan_id);
 		break;
 	default:
-		FATAL(ERR_UNKNOWN_KEYWORD_STATE);
+		FATAL(ERR_UNKNOWN_KEYWORD_STATE, "");
 		break;
 	}
 

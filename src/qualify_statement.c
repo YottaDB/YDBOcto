@@ -27,13 +27,14 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables) {
 	SqlFunctionCall *fc;
 	SqlColumnList *column_list;
 	SqlValue *value;
-	SqlColumnAlias *alias;
 	SqlCaseStatement *cas;
 	SqlCaseBranchStatement *cas_branch, *cur_branch;
-	int result = 0, column_found = 0;
+	int result;
 
 	if(stmt == NULL)
 		return 0;
+
+	result = 0;
 
 	switch(stmt->type) {
 	case select_STATEMENT:
@@ -61,7 +62,7 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables) {
 		case FUNCTION_NAME:
 			// If it starts with '$$', trim those off and leave it alone (MUMPS expression)
 			// Else, match it with a value from the dictionary in ^octo("functions")
-			result = qualify_function_name(stmt, tables);
+			result = qualify_function_name(stmt);
 			break;
 		default:
 			break;
@@ -99,7 +100,7 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables) {
 		} while (cur_branch != cas_branch);
 		break;
 	default:
-		FATAL(ERR_UNKNOWN_KEYWORD_STATE);
+		FATAL(ERR_UNKNOWN_KEYWORD_STATE, "");
 		break;
 	}
 	return result;

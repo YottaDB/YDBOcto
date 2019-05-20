@@ -51,7 +51,6 @@
 		COPY_DONE = FALSE;				\
 }
 
-
 /* Macro to create/fill-in a ydb_buffer_t structure from a C string (char * pointer).
  * Note that YDB_LITERAL_TO_BUFFER does a "sizeof(LITERAL) - 1" whereas YDB_STRING_TO_BUFFER does a "strlen()".
  * Both produce the same output almost always. There is one exception though and that is if LITERAL has embedded null bytes
@@ -70,11 +69,11 @@
  */
 #define SWITCH_TO_OCTO_GLOBAL_DIRECTORY()						\
 	do {										\
-		int result = 0;								\
+		int status = 0;								\
 		ydb_buffer_t z_status, z_status_value;					\
-		result = ydb_get_s(&config->zgbldir, 0, NULL, &config->prev_gbldir);	\
+		status = ydb_get_s(&config->zgbldir, 0, NULL, &config->prev_gbldir);	\
 		YDB_ERROR_CHECK(status, &z_status, &z_status_value);			\
-		result = ydb_set_s(&config->zgbldir, 0, NULL, &config->octo_gbldir);	\
+		status = ydb_set_s(&config->zgbldir, 0, NULL, &config->octo_gbldir);	\
 		YDB_ERROR_CHECK(status, &z_status, &z_status_value);			\
 	} while(FALSE);
 
@@ -83,11 +82,15 @@
  */
 #define SWITCH_FROM_OCTO_GLOBAL_DIRECTORY()						\
 	do {										\
-		int result = 0;								\
+		int status = 0;								\
 		ydb_buffer_t z_status, z_status_value;					\
-		result = ydb_set_s(&config->zgbldir, 0, NULL, &config->prev_gbldir);	\
+		status = ydb_set_s(&config->zgbldir, 0, NULL, &config->prev_gbldir);	\
 		YDB_ERROR_CHECK(status, &z_status, &z_status_value);			\
 	} while(FALSE);
+
+// Allows us to leave parameters in place even if they are unused and avoid warning from the
+// compiler.
+#define UNUSED(x) (void)(x)
 
 int emit_column_specification(char *buffer, int buffer_size, SqlColumn *column);
 void emit_create_table(FILE *output, struct SqlStatement *stmt);
@@ -117,7 +120,7 @@ SqlColumnAlias *qualify_column_name(SqlValue *column_value, SqlJoin *tables);
 SqlStatement *match_column_in_table(SqlTableAlias *table, char *column_name, int column_name_len);
 int qualify_statement(SqlStatement *stmt, SqlJoin *tables);
 int qualify_join_conditions(SqlJoin *join, SqlJoin *tables);
-int qualify_function_name(SqlStatement *stmt, SqlJoin *tables);
+int qualify_function_name(SqlStatement *stmt);
 void print_yyloc(YYLTYPE *llocp);
 SqlOptionalKeyword *get_keyword(SqlColumn *column, enum OptionalKeyword keyword);
 SqlOptionalKeyword *get_keyword_from_keywords(SqlOptionalKeyword *start_keyword, enum OptionalKeyword keyword);

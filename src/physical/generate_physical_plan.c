@@ -34,12 +34,7 @@ PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlan *next) {
 	LogicalPlan *keys, *table_joins, *select, *insert, *output_key, *output;
 	LogicalPlan *set_operation;
 	PhysicalPlan *out, *prev = NULL, *real_out;
-	char buffer[MAX_STR_CONST], *temp;
-	SqlTable *table;
-	SqlValue *value;
-	SqlStatement *stmt;
-	char *table_name;
-	int len, table_count, i;
+	int table_count;
 
 	table_count = 0;
 
@@ -65,6 +60,8 @@ PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlan *next) {
 			out->set_operation = PP_INTERSECT_SET;
 			out->action_type = PP_DELETE;
 			break;
+		default:
+			assert(FALSE);
 		}
 
 		// If the SET is not an "ALL" type, we need to keep resulting rows
@@ -84,6 +81,8 @@ PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlan *next) {
 			out->maintain_columnwise_index = TRUE;
 			prev->maintain_columnwise_index = TRUE;
 			break;
+		default:
+			assert(FALSE);
 		}
 		return prev;
 	}
@@ -214,13 +213,7 @@ void iterate_keys(PhysicalPlan *out, LogicalPlan *plan) {
 }
 
 LogicalPlan *walk_where_statement(PhysicalPlan *out, LogicalPlan *stmt) {
-	LogicalPlan *ret = NULL;
-	LPActionType type;
-	SqlValue *value;
-	SqlBinaryOperation *binary;
-	SqlColumnList *cur_cl, *start_cl;
 	PhysicalPlan *t;
-	LogicalPlan *project, *column_list, *where, *column_alias, *t_lp;
 
 	if(stmt == NULL)
 		return NULL;
@@ -276,7 +269,7 @@ LogicalPlan *walk_where_statement(PhysicalPlan *out, LogicalPlan *stmt) {
 		case LP_TABLE:
 			// This should never happen; fall through to error case
 		default:
-			FATAL(ERR_UNKNOWN_KEYWORD_STATE);
+			FATAL(ERR_UNKNOWN_KEYWORD_STATE, "");
 			break;
 		}
 	}

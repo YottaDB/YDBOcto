@@ -45,6 +45,7 @@ RowDescription *get_plan_row_description(ydb_buffer_t *plan_filename) {
 	YDB_MALLOC_BUFFER(&plan_meta[5], MAX_STR_CONST);
 	YDB_MALLOC_BUFFER(&value_buffer, MAX_STR_CONST);
 
+	num_columns = 0;
 	while(TRUE) {
 		status = ydb_subscript_next_s(plan_meta, 4, &plan_meta[1], &plan_meta[4]);
 		if(status == YDB_ERR_NODEEND) {

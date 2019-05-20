@@ -39,7 +39,7 @@ char *get_type_string(SqlValueType type) {
 	case CALCULATED_VALUE:
 	case UNKNOWN_SqlValueType:
 	default:
-		FATAL(ERR_UNKNOWN_KEYWORD_STATE);
+		FATAL(ERR_UNKNOWN_KEYWORD_STATE, "");
 		break;
 	}
 	return "";
@@ -52,10 +52,9 @@ int populate_data_type(SqlStatement *v, SqlValueType *type) {
 	SqlTable *table = NULL;
 	SqlColumn *column = NULL;
 	SqlValueType child_type1, child_type2;
-	SqlColumnList *cur_list, *start_list, *t_list;
+	SqlColumnList *cur_list, *start_list;
 	SqlColumnListAlias *start_column_list_alias, *cur_column_list_alias;
 	SqlFunctionCall *function_call;
-	SqlStatement *tmp;
 	SqlCaseStatement *cas;
 	SqlCaseBranchStatement *cas_branch, *cur_branch;
 	YYLTYPE location;
@@ -110,7 +109,7 @@ int populate_data_type(SqlStatement *v, SqlValueType *type) {
 			case INTERVAL_TYPE:
 			case UNKNOWN_SqlDataType:
 			default:
-				FATAL(ERR_UNKNOWN_KEYWORD_STATE);
+				FATAL(ERR_UNKNOWN_KEYWORD_STATE, "");
 				break;
 			}
 			break;
@@ -124,7 +123,7 @@ int populate_data_type(SqlStatement *v, SqlValueType *type) {
 			*type = UNKNOWN_SqlValueType;
 			break;
 		default:
-			FATAL(ERR_UNKNOWN_KEYWORD_STATE);
+			FATAL(ERR_UNKNOWN_KEYWORD_STATE, "");
 			break;
 		}
 		break;
@@ -204,7 +203,7 @@ int populate_data_type(SqlStatement *v, SqlValueType *type) {
 			case INTERVAL_TYPE:
 			case UNKNOWN_SqlDataType:
 			default:
-				FATAL(ERR_UNKNOWN_KEYWORD_STATE);
+				FATAL(ERR_UNKNOWN_KEYWORD_STATE, "");
 				break;
 			}
 		}
@@ -234,7 +233,7 @@ int populate_data_type(SqlStatement *v, SqlValueType *type) {
 		} while (cur_branch != cas_branch);
 		break;
 	default:
-		FATAL(ERR_UNKNOWN_KEYWORD_STATE);
+		FATAL(ERR_UNKNOWN_KEYWORD_STATE, "");
 		break;
 	}
 	return result;

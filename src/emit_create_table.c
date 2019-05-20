@@ -28,7 +28,7 @@ void emit_create_table(FILE *output, struct SqlStatement *stmt)
 	SqlColumn *start_column, *cur_column;
 	SqlTable *table;
 	SqlValue *value;
-	SqlOptionalKeyword *keyword, *cur_keyword, *start_keyword;
+	SqlOptionalKeyword *keyword;
 	char buffer[MAX_STR_CONST];
 	if(stmt == NULL)
 		return;

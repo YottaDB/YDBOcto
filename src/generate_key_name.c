@@ -27,10 +27,12 @@
  * @returns the number of characters written
  */
 int generate_key_name(char *buffer, int buffer_size, int target_key_num, SqlTable *table, SqlColumn **key_columns) {
-	char *buffer_ptr = buffer, *tableName, *columnName, *temp;
+	char *buffer_ptr = buffer, *columnName, *temp;
 	int written;
 	SqlValue *value;
 	SqlOptionalKeyword *keyword;
+
+	UNUSED(table); // we may eventually need this, and it's already in the code
 
 	if(key_columns[target_key_num] == NULL)
 		return 0;
@@ -42,8 +44,6 @@ int generate_key_name(char *buffer, int buffer_size, int target_key_num, SqlTabl
 		free(temp);
 		return buffer_ptr - buffer;
 	}
-	UNPACK_SQL_STATEMENT(value, table->tableName, value);
-	tableName = value->v.reference;
 	UNPACK_SQL_STATEMENT(value, key_columns[target_key_num]->columnName, value);
 	columnName = value->v.reference;
 

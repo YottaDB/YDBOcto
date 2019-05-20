@@ -33,29 +33,22 @@
 #include "lexer.h"
 #include "helpers.h"
 
-int run_query(char *query, void (*callback)(SqlStatement *, PhysicalPlan *, int, void*, char*), void *parms) {
-	int c, error = 0, i = 0, status;
+int run_query(char *query, void (*callback)(SqlStatement *, int, void*, char*), void *parms) {
+	int status;
 	int done, filename_len = 0;
 	char *buffer;
 	char filename[MAX_STR_CONST];
 	size_t buffer_size = 0;
-	FILE *inputFile;
 	FILE *out;
 	SqlValue *value;
-	SqlTable *table, *temp_table;
-	SqlStatement *result = 0;
-	SqlSelectStatement *select;
-	SqlStatement *tmp_statement;
-	SqlShowStatement *show;
-	SqlSetStatement *set;
+	SqlStatement *result;
+	SqlTable *temp_table;
 	PhysicalPlan *pplan;
 	ydb_buffer_t schema_global, table_name_buffer, table_create_buffer, null_buffer;
 	ydb_buffer_t cursor_global, cursor_exe_global[3];
 	ydb_buffer_t z_status, z_status_value;
 	ydb_buffer_t *filename_lock = NULL;
-	ydb_buffer_t *outputKeyId = NULL;
 	ydb_string_t ci_filename;
-	gtm_char_t      err_msgbuf[MAX_STR_CONST];
 	gtm_long_t cursorId;
 	hash128_state_t state;
 
@@ -63,7 +56,6 @@ int run_query(char *query, void (*callback)(SqlStatement *, PhysicalPlan *, int,
 
 	buffer = octo_cmalloc(memory_chunks, 5);
 
-	inputFile = NULL;
 	table_name_buffer.buf_addr = malloc(MAX_STR_CONST);
 	table_name_buffer.len_used = 0;
 	table_name_buffer.len_alloc = MAX_STR_CONST;
@@ -112,14 +104,14 @@ int run_query(char *query, void (*callback)(SqlStatement *, PhysicalPlan *, int,
 		hash_canonical_query(&state, result);
 		filename_len = generate_filename(&state, config->tmp_dir, filename, OutputPlan);
 		if (filename_len < 0) {
-			FATAL(ERR_PLAN_HASH_FAILED);
+			FATAL(ERR_PLAN_HASH_FAILED, "");
 		}
 		if (access(filename, F_OK) == -1) {	// file doesn't exist
 			filename_lock = make_buffers("^%ydboctoocto", 2, "files", filename);
 			// Wait for 5 seconds in case another process is writing to same filename
 			ydb_lock_incr_s(5000000000, &filename_lock[0], 2, &filename_lock[1]);
 			if (access(filename, F_OK) == -1) {
-				pplan = emit_select_statement(&cursor_global, cursor_exe_global, result, filename, NULL);
+				pplan = emit_select_statement(result, filename);
 				assert(pplan != NULL);
 			}
 			ydb_lock_decr_s(&filename_lock[0], 2, &filename_lock[1]);
@@ -132,7 +124,7 @@ int run_query(char *query, void (*callback)(SqlStatement *, PhysicalPlan *, int,
 		status = ydb_ci("select", cursorId, &ci_filename);
 		YDB_ERROR_CHECK(status, &z_status, &z_status_value);
 		SWITCH_TO_OCTO_GLOBAL_DIRECTORY();
-		(*callback)(result, pplan, cursorId, parms, filename);
+		(*callback)(result, cursorId, parms, filename);
 		// Deciding to free the select_STATEMENT must be done by the caller, as they may want to rerun it or send row
 		// descriptions
 		//octo_cfree(memory_chunks);
@@ -194,7 +186,8 @@ int run_query(char *query, void (*callback)(SqlStatement *, PhysicalPlan *, int,
 		break;
 	case set_STATEMENT:
 	case show_STATEMENT:
-		(*callback)(result, NULL, cursorId, parms, NULL);
+		cursorId = atol(cursor_exe_global[0].buf_addr);
+		(*callback)(result, cursorId, parms, NULL);
 		octo_cfree(memory_chunks);
 		break;
 	case no_data_STATEMENT:

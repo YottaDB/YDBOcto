@@ -69,7 +69,7 @@ int create_table_defaults(SqlStatement *table_statement, SqlStatement *keywords_
 		case NO_KEYWORD:
 			break;
 		default:
-			FATAL(ERR_UNKNOWN_KEYWORD_STATE);
+			FATAL(ERR_UNKNOWN_KEYWORD_STATE, "");
 			break;
 		}
 		cur_keyword = cur_keyword->next;
@@ -139,7 +139,7 @@ int create_table_defaults(SqlStatement *table_statement, SqlStatement *keywords_
 		case NO_KEYWORD:
 			break;
 		default:
-			FATAL(ERR_UNKNOWN_KEYWORD_STATE);
+			FATAL(ERR_UNKNOWN_KEYWORD_STATE, "");
 			break;
 		}
 		cur_keyword = cur_keyword->next;

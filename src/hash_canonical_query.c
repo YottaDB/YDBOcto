@@ -190,6 +190,8 @@ void hash_canonical_query(hash128_state_t *state, SqlStatement *stmt) {
 				case (NUL_VALUE):
 					break;
 				case (UNKNOWN_SqlValueType):
+					/// TODO: this shouldn't happen
+					// assert(FALSE);
 					break;
 				default:
 					assert(FALSE);

@@ -95,6 +95,21 @@ void handle_query_response(SqlStatement *stmt, int cursor_id, void *_parms, char
 // Helper to indicate that there is no more input
 int no_more();
 
+// Helpers to deserialize binary data
+int64_t ntoh64(int64_t little_endian);
+int64_t hton64(int64_t little_endian);
+char *byte_to_hex(char c, char *hex);
+char bin_to_bool(char *bin);
+char bin_to_char(char *bin);
+int64_t bin_to_int16(char *bin);
+int64_t bin_to_int32(char *bin);
+int64_t bin_to_int64(char *bin);
+int64_t bin_to_oid(char *bin);
+// float bin_to_float4(char *bin);
+// double bin_to_float8(char *bin);
+char *bin_to_bytea(char *bin);
+void bin_to_uuid(char *bin, char *buffer, int buf_len);
+
 /**
  * Returns a RowDescription object for sending based on the provided physical plan
  */

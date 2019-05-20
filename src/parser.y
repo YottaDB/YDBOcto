@@ -207,7 +207,7 @@ sql_data_statement
   ;
 
 sql_data_change_statement
-  
+
   : delete_statement_searched { $$ = $1; }
 //  | delete_statement_position
   | insert_statement { $$ = $1; }
@@ -216,12 +216,12 @@ sql_data_change_statement
   ;
 
 delete_statement_searched
-  : DELETE FROM column_name delete_statement_searched_tail { $$ = NULL; }
+  : DELETE FROM column_name delete_statement_searched_tail { WARNING(ERR_FEATURE_NOT_IMPLEMENTED, "DELETE FROM"); YYABORT; }
   ;
 
 delete_statement_searched_tail
-  : /* Empty */
-  | WHERE search_condition
+  : /* Empty */ { $$ = NULL; }
+  | WHERE search_condition { WARNING(ERR_FEATURE_NOT_IMPLEMENTED, "WHERE search_condition"); YYABORT; }
   ;
 
 search_condition
@@ -272,18 +272,18 @@ boolean_test
 
 boolean_test_tail
   : /* Empty */ { $$ = NULL; }
-  | IS boolean_test_tail_tail
+  | IS boolean_test_tail_tail { WARNING(ERR_FEATURE_NOT_IMPLEMENTED, "boolean_test_tail: IS boolean_test_tail_tail"); YYABORT; }
   ;
 
 boolean_test_tail_tail
-  : truth_value
-  | NOT truth_value
+  : truth_value { $$ = $1; }
+  | NOT truth_value { WARNING(ERR_FEATURE_NOT_IMPLEMENTED, "boolean_test_tail_tail: NOT truth_value"); YYABORT; }
   ;
 
 truth_value
-  : TRUE_TOKEN
-  | FALSE_TOKEN
-  | UNKNOWN
+  : TRUE_TOKEN { WARNING(ERR_FEATURE_NOT_IMPLEMENTED, "truth_value: TRUE_TOKEN"); YYABORT; }
+  | FALSE_TOKEN { WARNING(ERR_FEATURE_NOT_IMPLEMENTED, "truth_value: FALSE_TOKEN"); YYABORT; }
+  | UNKNOWN { WARNING(ERR_FEATURE_NOT_IMPLEMENTED, "truth_value: UNKNOWN"); YYABORT; }
   ;
 
 boolean_primary
@@ -428,8 +428,8 @@ null_predicate
   ;
 
 row_value_constructor
-  : LEFT_PAREN row_value_constructor_list RIGHT_PAREN
-  | row_value_constructor_element
+  : LEFT_PAREN row_value_constructor_list RIGHT_PAREN { $$ = $2; }
+  | row_value_constructor_element { $$ = $1; }
   ;
 
 row_value_constructor_subquery
@@ -437,19 +437,19 @@ row_value_constructor_subquery
   ;
 
 row_value_constructor_list
-  : row_value_constructor_element row_value_constructor_list_tail
-  | row_value_constructor_subquery
+  : row_value_constructor_element row_value_constructor_list_tail { WARNING(ERR_FEATURE_NOT_IMPLEMENTED, "row_value_constructor_list: element/list_tail"); YYABORT; }
+  | row_value_constructor_subquery { $$ = $1; }
   ;
 
 row_value_constructor_list_tail
-  : /* Empty */
-  | COMMA row_value_constructor_list
+  : /* Empty */ { $$ = NULL; }
+  | COMMA row_value_constructor_list { $$ = $2; }
   ;
 
 row_value_constructor_element
-  : value_expression
-  | null_specification
-  | default_specification
+  : value_expression { $$ = $1; }
+  | null_specification { $$ = $1; }
+  | default_specification { $$ = $1; }
   ;
 
 /* The runtime system is responsible for ensuring
@@ -462,11 +462,11 @@ value_expression
   ;
 
 null_specification
-  : NULL_TOKEN
+  : NULL_TOKEN { WARNING(ERR_FEATURE_NOT_IMPLEMENTED, "null_specification: NULL_TOKEN"); YYABORT; }
   ;
 
 default_specification
-  : DEFAULT
+  : DEFAULT { WARNING(ERR_FEATURE_NOT_IMPLEMENTED, "default_specification: DEFAULT"); YYABORT; }
   ;
 
 numeric_value_expression
@@ -513,7 +513,7 @@ term
   ;
 
 concatenation_operator
-  : PIPE PIPE
+  : PIPE PIPE { WARNING(ERR_FEATURE_NOT_IMPLEMENTED, "concatenation_operator: PIPE PIPE"); YYABORT; }
   ;
 
 /// TODO: collate_clause is thoroughly ignored below
@@ -534,16 +534,16 @@ factor
   ;
 
 factor_tail
-  : /* Empty */
-  | collate_clause
+  : /* Empty */ { $$ = NULL; }
+  | collate_clause { $$ = $1; }
   ;
 
 collate_clause
-  : COLLATE collation_name
+  : COLLATE collation_name { $$ = $2; }
   ;
 
 collation_name
-  : qualified_name
+  : qualified_name { $$ = $1; }
   ;
 
 numeric_primary
@@ -557,11 +557,11 @@ numeric_primary
  */
 value_expression_primary
   : literal_value { $$ = $1; }
-  | column_reference
+  | column_reference { $$ = $1; }
   | set_function_specification { $$ = $1; }
-  | scalar_subquery
+  | scalar_subquery { $$ = $1; }
 //  | case_expression
-  | LEFT_PAREN value_expression RIGHT_PAREN
+  | LEFT_PAREN value_expression RIGHT_PAREN { $$ = $2; }
 //  | cast_specification
   ;
 
@@ -622,26 +622,26 @@ result
       ($$)->v.value->v.string_literal = "";
     }
   ;
-  
+
 
 set_function_specification
-  : COUNT LEFT_PAREN ASTERISK RIGHT_PAREN
-  | COUNT LEFT_PAREN value_expression RIGHT_PAREN
-  | COUNT LEFT_PAREN set_quantifier value_expression RIGHT_PAREN
-  | general_set_function
+  : COUNT LEFT_PAREN ASTERISK RIGHT_PAREN { WARNING(ERR_FEATURE_NOT_IMPLEMENTED, "set_function_specification: COUNT LEFT_PAREN ASTERISK RIGHT_PAREN"); YYABORT; }
+  | COUNT LEFT_PAREN value_expression RIGHT_PAREN { WARNING(ERR_FEATURE_NOT_IMPLEMENTED, "set_function_specification: COUNT LEFT_PAREN value_expression RIGHT_PAREN"); YYABORT; }
+  | COUNT LEFT_PAREN set_quantifier value_expression RIGHT_PAREN { WARNING(ERR_FEATURE_NOT_IMPLEMENTED, "set_function_specification: COUNT LEFT_PAREN set_quantifier value_expression RIGHT_PAREN"); YYABORT; }
+  | general_set_function { $$ = $1; }
   | generic_function_call { $$ = $1; }
   ;
 
 general_set_function
-  : set_function_type LEFT_PAREN value_expression RIGHT_PAREN
-  | set_function_type LEFT_PAREN set_quantifier value_expression RIGHT_PAREN
+  : set_function_type LEFT_PAREN value_expression RIGHT_PAREN { WARNING(ERR_FEATURE_NOT_IMPLEMENTED, "general_set_function: set_function_type LEFT_PAREN value_expression RIGHT_PAREN"); YYABORT; }
+  | set_function_type LEFT_PAREN set_quantifier value_expression RIGHT_PAREN { WARNING(ERR_FEATURE_NOT_IMPLEMENTED, "general_set_function: set_function_type LEFT_PAREN set_quantifier value_expression RIGHT_PAREN"); YYABORT; }
   ;
 
 set_function_type
-  : AVG
-  | MAX
-  | MIN
-  | SUM
+  : AVG { WARNING(ERR_FEATURE_NOT_IMPLEMENTED, "set_function_type: AVG"); YYABORT; }
+  | MAX { WARNING(ERR_FEATURE_NOT_IMPLEMENTED, "set_function_type: MAX"); YYABORT; }
+  | MIN { WARNING(ERR_FEATURE_NOT_IMPLEMENTED, "set_function_type: MIN"); YYABORT; }
+  | SUM { WARNING(ERR_FEATURE_NOT_IMPLEMENTED, "set_function_type: SUM"); YYABORT; }
   ;
 
 generic_function_call
@@ -743,9 +743,9 @@ non_query_numeric_primary
 non_query_value_expression_primary
   : literal_value { $$ = $1; }
   | column_reference { $$ = $1; }
-  | set_function_specification
-  | case_expression
-  | LEFT_PAREN non_query_value_expression RIGHT_PAREN
+  | set_function_specification { $$ = $1; }
+  | case_expression { $$ = $1; }
+  | LEFT_PAREN non_query_value_expression RIGHT_PAREN { $$ = $2; }
   ;
 
 column_reference
@@ -853,26 +853,26 @@ non_join_query_expression
   ;
 
 non_join_query_expression_tail_tail
-  : /* Empty */
+  : /* Empty */ { $$ = NULL; }
   | CORRESPONDING non_join_query_expression_tail_tail_tail
   ;
 
 non_join_query_expression_tail_tail_tail
-  : /* Empty */
-  | BY LEFT_PAREN corresponding_column_list RIGHT_PAREN
+  : /* Empty */ { $$ = NULL; }
+  | BY LEFT_PAREN corresponding_column_list RIGHT_PAREN { WARNING(ERR_FEATURE_NOT_IMPLEMENTED, "non_join_query_expression_tail_tail_tail: BY LEFT_PAREN corresponding_column_list RIGHT_PAREN"); YYABORT; }
   ;
 
 corresponding_column_list
-  : column_name_list
+  : column_name_list { $$ = $1; }
   ;
 
 column_name_list
-  : column_name column_name_list_tail
+  : column_name column_name_list_tail { WARNING(ERR_FEATURE_NOT_IMPLEMENTED, "column_name_list: column_name column_name_list_tail"); YYABORT; }
   ;
 
 column_name_list_tail
-  : /* Empty */
-  | COMMA column_name_list
+  : /* Empty */ { $$ = NULL; }
+  | COMMA column_name_list { $$ = $2; }
   ;
 
 query_term
@@ -913,12 +913,12 @@ non_join_query_term
   ;
 
 corresponding_spec
-  : CORRESPONDING corresponding_spec_tail
+  : CORRESPONDING corresponding_spec_tail { WARNING(ERR_FEATURE_NOT_IMPLEMENTED, "corresponding_spec: CORRESPONDING corresponding_spec_tail"); YYABORT; }
   | /* Empty */
   ;
 
 corresponding_spec_tail
-  : BY LEFT_PAREN corresponding_column_list RIGHT_PAREN
+  : BY LEFT_PAREN corresponding_column_list RIGHT_PAREN { WARNING(ERR_FEATURE_NOT_IMPLEMENTED, "corresponding_spec_tail: BY LEFT_PAREN corresponding_column_list RIGHT_PAREN"); YYABORT; }
   ;
 
 non_join_query_primary
@@ -927,8 +927,8 @@ non_join_query_primary
   ;
 
 simple_table
-  : table_value_constructor
-  | explicit_table
+  : table_value_constructor { WARNING(ERR_FEATURE_NOT_IMPLEMENTED, "table_value_constructor"); YYABORT; }
+  | explicit_table { WARNING(ERR_FEATURE_NOT_IMPLEMENTED, "explicit_table"); YYABORT; }
   | sql_select_statement { $$ = $1; }
   ;
 
@@ -937,31 +937,31 @@ table_value_constructor
   ;
 
 table_value_constructor_list
-  : row_value_constructor table_value_constructor_list_tail
+  : row_value_constructor table_value_constructor_list_tail { WARNING(ERR_FEATURE_NOT_IMPLEMENTED, "column_name_list: column_name column_name_list_tail"); YYABORT; }
   ;
 
 table_value_constructor_list_tail
-  : /* Empty */
-  | COMMA table_value_constructor_list
+  : /* Empty */ { $$ = NULL; }
+  | COMMA table_value_constructor_list { $$ = $2; }
   ;
 
 explicit_table
-  : TABLE column_name
+  : TABLE column_name { WARNING(ERR_FEATURE_NOT_IMPLEMENTED, "corresponding_spec_tail: BY LEFT_PAREN corresponding_column_list RIGHT_PAREN"); YYABORT; }
   ;
 
 query_primary
-  : non_join_query_primary
-  | joined_table
+  : non_join_query_primary { $$ = $1;}
+  | joined_table { $$ = $1;}
   ;
 
 sql_schema_statement
   : sql_schema_definition_statement { $$ = $1; }
-  | sql_schema_manipulation_statement
+  | sql_schema_manipulation_statement { $$ = $1;}
   ;
 
 /// TODO: not complete
 sql_schema_manipulation_statement
-  : drop_table_statement
+  : drop_table_statement { WARNING(ERR_FEATURE_NOT_IMPLEMENTED, "sql_schema_manipulation_statement: drop_table_statement"); YYABORT; }
   ;
 
 sql_schema_definition_statement
@@ -1185,7 +1185,7 @@ column_constraint_definition
 
 /// TODO: not complete
 constraint_name_definition
-  : /* Empty */
+  : /* Empty */ { $$ = NULL; }
   ;
 
 /// TODO: not complete
@@ -1222,12 +1222,12 @@ constraint_attributes
   ;
 
 qualified_name
-  : qualified_identifier
+  : qualified_identifier { $$ = $1; }
 //  | schema_name period qualified_identifier
   ;
 
 qualified_identifier
-  : identifier
+  : identifier { $$ = $1; }
   ;
 
 identifier

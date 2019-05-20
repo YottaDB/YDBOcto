@@ -197,17 +197,18 @@ A cross join between two tables provides the number of rows in the first table m
 
 A qualified join is a join between two tables that specifies a join condition.
 
-join_specification allows the user to specify a condition for the table join.
-
 A NATURAL JOIN is a JOIN operation that creates an implicit join clause for you based on the common columns in the two tables being joined.
 
-Types of Joins:
+**Types of Joins**:
 
-- Inner Join : Only the common columns between the two tables are returned.
+For two tables, Table A and Table B,
+
+- Inner Join : Only the common rows between Table A and Table B are returned.
 - Outer Join
-  - Left Outer Join : All the columns of the left table are returned, along with matching columns of the right table.
-  - Right Outer Join: Matching columns of the left table are returned, along with all the columns of the right table.
-  - Full Outer Join: All columns from both tables are returned.
+
+  - Left Outer Join : All rows from Table A are returned, along with matching rows from Table B.
+  - Right Outer Join: Matching rows from Table A are returned, along with all rows from Table B.
+  - Full Outer Join: All matching rows from Table A and Table B are returned, followed by rows from Table A that have no match and rows from Table B that have no match. 
 
 Example:
 

@@ -118,3 +118,15 @@ OCTO
   run cat output.txt
   [[ $output -eq 4 ]]
 }
+
+@test "generate unique plans for successive queries on ids within single table" {
+  octo <<OCTO &> output.txt
+select firstName from names where id = 0;
+select firstName from names where id = 1;
+OCTO
+  ls _ydboctoP*.m &> ls.txt
+  wc -w ls.txt &> wc.txt
+  cut -d " " -f 1 wc.txt &> output.txt
+  run cat output.txt
+  [[ $output -eq 2 ]]
+}

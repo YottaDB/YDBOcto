@@ -258,6 +258,9 @@ int main(int argc, char **argv) {
 			}
 			break;
 		}
+		password_message = read_password_message(base_message, &err);
+		if(password_message == NULL)
+			break;
 
 		// Ok
 		authok = make_authentication_ok();

@@ -1,8 +1,8 @@
 GT.M MUPIP EXTRACT
 21-SEP-2018  14:55:45 ZWR
-^auth(0)="0|Bob|10|0"
-^auth(1)="1|Sally|11|1"
-^auth(2)="2|Carmichael|12|2"
-^auth(3)="3|Stevie|13|3"
-^auth(4)="4|Paula|14|4"
-^auth(5)="5|Aloysius|15|5"
+^auth(0)="0|Bob|johnson||0"
+^auth(1)="1|Sally|ride||1"
+^auth(2)="2|Carmichael|stokely||2"
+^auth(3)="3|Stevie|wonder||3"
+^auth(4)="4|Paula|abdul||4"
+^auth(5)="5|Aloysius|wizardry||5"

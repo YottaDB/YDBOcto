@@ -83,7 +83,7 @@ static void test_invalid_file_type(void **state) {
 
 	buf_size = generate_routine_name(&hash_state, routine_name, MAX_STR_CONST, 75);
 
-	assert_int_equal(buf_size, -1);
+	assert_int_equal(buf_size, 0);
 }
 
 int main(void) {

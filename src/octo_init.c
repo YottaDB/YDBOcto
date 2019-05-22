@@ -241,10 +241,6 @@ int octo_init(int argc, char **argv, int scan_tables) {
 		FATAL(ERR_BAD_CONFIG, "routine_cache");
 	}
 
-	if(config_lookup_string(config_file, "octo_global_directory", &config->global_directory)
-			== CONFIG_FALSE) {
-		FATAL(ERR_BAD_CONFIG, "octo_global_directory");
-	}
 	if(config_lookup_string(config_file, "octo_global_prefix", &config->global_prefix)
 			== CONFIG_FALSE) {
 		FATAL(ERR_BAD_CONFIG, "octo_global_directory");
@@ -269,8 +265,28 @@ int octo_init(int argc, char **argv, int scan_tables) {
 		while((cur_ydb_setting = config_setting_get_elem(ydb_settings, i)) != NULL) {
 			item_name = config_setting_name(cur_ydb_setting);
 			item_value = config_setting_get_string(cur_ydb_setting);
-			setenv(item_name, item_value, 0);
+			if(getenv(item_name) == NULL) {
+				setenv(item_name, item_value, 0);
+			}
 			i++;
+		}
+	}
+
+	// If users don't provide a global directory setting, use the YottaDB setting
+	if(config_lookup_string(config_file, "octo_global_directory", &config->global_directory)
+			== CONFIG_FALSE) {
+		if(getenv("ydb_gbldir") != NULL) {
+			config_setting_t *new_setting = config_setting_add(config_root_setting(config_file),
+					"octo_global_directory", CONFIG_TYPE_STRING);
+			config_setting_set_string(new_setting, getenv("ydb_gbldir"));
+		} else if(getenv("gtmgbldir") != NULL) {
+			config_setting_t *new_setting = config_setting_add(config_root_setting(config_file),
+					"octo_global_directory", CONFIG_TYPE_STRING);
+			config_setting_set_string(new_setting, getenv("gtmgbldir"));
+		}
+		if(config_lookup_string(config_file, "octo_global_directory", &config->global_directory)
+				== CONFIG_FALSE) {
+			FATAL(ERR_BAD_CONFIG, "octo_global_directory");
 		}
 	}
 

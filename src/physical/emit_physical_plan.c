@@ -91,14 +91,7 @@ int emit_physical_plan(PhysicalPlan *pplan, char *plan_filename) {
 		cur_plan->plan_name = malloc(len+1);
 		memcpy(cur_plan->plan_name, plan_name_buffer, len);
 		cur_plan->plan_name[len] = '\0';
-		/*
-		generateHash(mdctx, tableName, strlen(tableName), &tableNameHash, &tableNameHashLen);
-		generateHash(mdctx, columnName, strlen(columnName), &columnNameHash, &columnNameHashLen);
-		filename_len = strlen("genOctoXref")+17;
-		key->cross_reference_filename = malloc(filename_len);
-		snprintf(key->cross_reference_filename, filename_len, "genOctoXref%x%x",
-				*(unsigned int*)tableNameHash, *(unsigned int*)columnNameHash);
-		*/
+
 		HASH128_STATE_INIT(state, 0);
 		ydb_mmrhash_128_ingest(&state, (void*)tableName, strlen(tableName));
 		ydb_mmrhash_128_ingest(&state, (void*)columnName, strlen(tableName));

@@ -31,7 +31,7 @@ OCTO
 }
 
 @test "generate two plans from two unique queries" {
-  octo <<OCTO &> qoutput.txt
+  octo <<OCTO &> output.txt
 select * from names;
 select * from names where firstName = "Zero";
 OCTO

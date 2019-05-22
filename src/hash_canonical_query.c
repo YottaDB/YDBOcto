@@ -173,7 +173,7 @@ void hash_canonical_query(hash128_state_t *state, SqlStatement *stmt) {
 			add_sql_type_hash(state, value->type);
 			// SqlDataType
 			add_sql_type_hash(state, value->data_type);
-			printf("type: %d\n",value->type);
+			TRACE(CUSTOM_ERROR, "hash_canonical_query: value_STATEMENT: SqlDataType: %d\n", value->type);
 			switch(value->type) {
 				case (NUMBER_LITERAL):
 					ydb_mmrhash_128_ingest(state, (void*)value->v.string_literal, strlen(value->v.string_literal));

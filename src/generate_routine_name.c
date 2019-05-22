@@ -27,8 +27,7 @@
 #include "mmrhash.h"
 
 int generate_routine_name(hash128_state_t *state, char *routine_name, int routine_len, FileType file_type) {
-	const unsigned short max_filename_len = 31;
-	char hash_str[max_filename_len];
+	char hash_str[MAX_ROUTINE_LEN];
 	char *xref_prefix = "%ydboctoX";
 	char *output_plan_prefix = "%ydboctoP";
 	char *c = NULL;
@@ -37,10 +36,10 @@ int generate_routine_name(hash128_state_t *state, char *routine_name, int routin
 	ydb_uint16 hash;
 
 	assert(state);
-	assert(routine_len >= max_filename_len);
+	assert(routine_len >= MAX_ROUTINE_LEN);
 
 	prefix_len = strlen(xref_prefix);	// All prefixes have the same size
-	hash_len = max_filename_len - prefix_len;
+	hash_len = MAX_ROUTINE_LEN - prefix_len;
 
 	ydb_mmrhash_128_result(state, 0, &hash);
 	ydb_hash_to_string(&hash, hash_str, hash_len);
@@ -63,5 +62,5 @@ int generate_routine_name(hash128_state_t *state, char *routine_name, int routin
 	c += hash_len;
 	*c = '\0';
 
-	return max_filename_len;
+	return MAX_ROUTINE_LEN;
 }

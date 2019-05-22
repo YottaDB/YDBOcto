@@ -9,8 +9,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
+ * * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 #include <stdlib.h>
@@ -52,7 +51,8 @@ int handle_describe(Describe *describe, RoctoSession *session) {
 	NoData *no_data;
 	hash128_state_t state;
 	char filename[MAX_STR_CONST];
-	int filename_len = 0;
+	char routine_name[MAX_STR_CONST];
+	int filename_len = 0, routine_len = 0;
 	ydb_buffer_t *filename_lock = NULL;
 
 	// zstatus buffers
@@ -132,10 +132,11 @@ int handle_describe(Describe *describe, RoctoSession *session) {
 			case select_STATEMENT:
 				HASH128_STATE_INIT(state, 0);
 				hash_canonical_query(&state, statement);
-				filename_len = generate_filename(&state, config->tmp_dir, filename, OutputPlan);
+				routine_len = generate_routine_name(&state, routine_name, MAX_STR_CONST, OutputPlan);
 				if (filename_len < 0) {
 					FATAL(ERR_PLAN_HASH_FAILED);
 				}
+				snprintf(filename, MAX_STR_CONST, "%s/_%s.m", config->tmp_dir, &routine_name[1]);
 				if (access(filename, F_OK) == -1) {	// file doesn't exist
 					filename_lock = make_buffers("^%ydboctoocto", 2, "files", filename);
 					// Wait for 5 seconds in case another process is writing to same filename

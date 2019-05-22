@@ -35,9 +35,9 @@
 
 int run_query(char *query, void (*callback)(SqlStatement *, int, void*, char*), void *parms) {
 	int status;
-	int done, filename_len = 0, routine_len = 0;
+	int done, routine_len = 0;
 	char *buffer = NULL;
-	char filename[MAX_STR_CONST], routine_name[MAX_STR_CONST];
+	char filename[MAX_STR_CONST], routine_name[MAX_ROUTINE_LEN];
 	size_t buffer_size = 0;
 	FILE *out;
 	SqlValue *value;

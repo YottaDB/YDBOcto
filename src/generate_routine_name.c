@@ -53,7 +53,7 @@ int generate_routine_name(hash128_state_t *state, char *routine_name, int routin
 			strncpy(routine_name, output_plan_prefix, prefix_len);
 			break;
 		default:
-			return -1;
+			return 0;
 	}
 
 	// Copy hash string into filename

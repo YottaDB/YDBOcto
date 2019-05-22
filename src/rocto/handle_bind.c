@@ -112,7 +112,23 @@ int handle_bind(Bind *bind, RoctoSession *session) {
 					return -1;
 				}
 				assert(bind_parm < bind->num_parms);
+				// Init prepared statement
 				*new_query_ptr++ = '"';
+				// Copy value
+				if (0 == bind->num_parm_format_codes) {
+					// string copy
+				} else if (1 == bind->num_parm_format_codes) {
+					if (0 == bind->parm_format_codes[0]) {
+						// string copy
+					} else {
+						// binary copy
+					}
+				} else {
+					if (0 == bind->parm_format_codes[bind_parm]) {
+						// string copy
+					} else {
+						// binary copy
+				}
 				new_value_start = bind->parms[bind_parm].value;
 				new_value_end = new_value_start + bind->parms[bind_parm].length;
 				while(new_value_start < new_value_end) {
@@ -131,7 +147,9 @@ int handle_bind(Bind *bind, RoctoSession *session) {
 						return -1;
 					}
 				}
+				// End copy value
 				*new_query_ptr++ = '"';
+				// End prepared statement
 			}
 		} else {
 			*new_query_ptr++ = *ptr;

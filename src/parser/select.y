@@ -18,7 +18,7 @@ optional_query_words
     }
   | /* Empty */ {
       SQL_STATEMENT($$, keyword_STATEMENT);
-      ($$)->v.keyword = (SqlOptionalKeyword*)malloc(sizeof(SqlOptionalKeyword));
+      ($$)->v.keyword = (SqlOptionalKeyword*)octo_cmalloc(memory_chunks, sizeof(SqlOptionalKeyword));
       ($$)->v.keyword->keyword = NO_KEYWORD;
       ($$)->v.keyword->v = NULL;
       dqinit(($$)->v.keyword);
@@ -28,7 +28,7 @@ optional_query_words
  optional_query_word_tail
   : /* Empty */ {
       SQL_STATEMENT($$, keyword_STATEMENT);
-      ($$)->v.keyword = (SqlOptionalKeyword*)malloc(sizeof(SqlOptionalKeyword));
+      ($$)->v.keyword = (SqlOptionalKeyword*)octo_cmalloc(memory_chunks, sizeof(SqlOptionalKeyword));
       ($$)->v.keyword->keyword = NO_KEYWORD;
       ($$)->v.keyword->v = NULL;
       dqinit(($$)->v.keyword);
@@ -39,21 +39,21 @@ optional_query_words
 optional_query_word_element
   : LIMIT literal_value {
       SQL_STATEMENT($$, keyword_STATEMENT);
-      ($$)->v.keyword = (SqlOptionalKeyword*)malloc(sizeof(SqlOptionalKeyword));
+      ($$)->v.keyword = (SqlOptionalKeyword*)octo_cmalloc(memory_chunks, sizeof(SqlOptionalKeyword));
       ($$)->v.keyword->keyword = OPTIONAL_LIMIT;
       ($$)->v.keyword->v = $2;
       dqinit(($$)->v.keyword);
   }
 /*  | UNION ALL sql_select_statement {
       SQL_STATEMENT($$, keyword_STATEMENT);
-      ($$)->v.keyword = (SqlOptionalKeyword*)malloc(sizeof(SqlOptionalKeyword));
+      ($$)->v.keyword = (SqlOptionalKeyword*)octo_cmalloc(memory_chunks, sizeof(SqlOptionalKeyword));
       ($$)->v.keyword->keyword = OPTIONAL_UNION_ALL;
       ($$)->v.keyword->v = $3;
       dqinit(($$)->v.keyword);
   }
   | UNION sql_select_statement {
       SQL_STATEMENT($$, keyword_STATEMENT);
-      ($$)->v.keyword = (SqlOptionalKeyword*)malloc(sizeof(SqlOptionalKeyword));
+      ($$)->v.keyword = (SqlOptionalKeyword*)octo_cmalloc(memory_chunks, sizeof(SqlOptionalKeyword));
       ($$)->v.keyword->keyword = OPTIONAL_UNION;
       ($$)->v.keyword->v = $2;
       dqinit(($$)->v.keyword);
@@ -333,21 +333,21 @@ table_expression
 set_quantifier
   : /* Empty; default ALL */ {
       SQL_STATEMENT($$, keyword_STATEMENT);
-      ($$)->v.keyword = (SqlOptionalKeyword*)malloc(sizeof(SqlOptionalKeyword));
+      ($$)->v.keyword = (SqlOptionalKeyword*)octo_cmalloc(memory_chunks, sizeof(SqlOptionalKeyword));
       ($$)->v.keyword->keyword = NO_KEYWORD;
       ($$)->v.keyword->v = NULL;
       dqinit(($$)->v.keyword);
     }
   | ALL {
       SQL_STATEMENT($$, keyword_STATEMENT);
-      ($$)->v.keyword = (SqlOptionalKeyword*)malloc(sizeof(SqlOptionalKeyword));
+      ($$)->v.keyword = (SqlOptionalKeyword*)octo_cmalloc(memory_chunks, sizeof(SqlOptionalKeyword));
       ($$)->v.keyword->keyword = NO_KEYWORD;
       ($$)->v.keyword->v = NULL;
       dqinit(($$)->v.keyword);
     }
   | DISTINCT {
       SQL_STATEMENT($$, keyword_STATEMENT);
-      ($$)->v.keyword = (SqlOptionalKeyword*)malloc(sizeof(SqlOptionalKeyword));
+      ($$)->v.keyword = (SqlOptionalKeyword*)octo_cmalloc(memory_chunks, sizeof(SqlOptionalKeyword));
       ($$)->v.keyword->keyword = OPTIONAL_DISTINCT;
       ($$)->v.keyword->v = NULL;
       dqinit(($$)->v.keyword);
@@ -372,7 +372,7 @@ derived_column
       SQL_STATEMENT(alias->alias, value_STATEMENT);
       MALLOC_STATEMENT(alias->alias, value, SqlValue);
       alias->alias->v.value->type = STRING_LITERAL;
-      alias->alias->v.value->v.string_literal = malloc(strlen(" ") + 2);
+      alias->alias->v.value->v.string_literal = octo_cmalloc(memory_chunks, strlen(" ") + 2);
       strcpy(alias->alias->v.value->v.string_literal, " ");
     }
   | non_query_value_expression AS column_name {
@@ -474,8 +474,8 @@ table_reference
       SqlValue *value;
       char *string = "temp_table";
       int string_len = strlen(string);
-      value = (SqlValue*)malloc(sizeof(SqlValue));
-      value->v.string_literal = malloc(string_len + 1);
+      value = (SqlValue*)octo_cmalloc(memory_chunks, sizeof(SqlValue));
+      value->v.string_literal = octo_cmalloc(memory_chunks, string_len + 1);
       memcpy(value->v.string_literal, string, string_len + 1);
       PACK_SQL_STATEMENT(alias->alias, value, value);
       alias->unique_id = *plan_id;

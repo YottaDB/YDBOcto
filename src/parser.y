@@ -159,6 +159,7 @@ extern void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, int *plan
 %token GREATER_THAN_OR_EQUALS
 %token PIPE
 %token TILDE
+%token EXCLAMATION
 
 %token LITERAL
 %token FAKE_TOKEN
@@ -360,6 +361,26 @@ comparison_predicate
       ($$)->v.binary->operation = BOOLEAN_REGEX_INSENSITIVE;
       ($$)->v.binary->operands[0] = ($1);
       ($$)->v.binary->operands[1] = ($4);
+    }
+  | row_value_constructor EXCLAMATION TILDE row_value_constructor {
+      SQL_STATEMENT($$, unary_STATEMENT);
+      MALLOC_STATEMENT($$, unary, SqlUnaryOperation);
+      SQL_STATEMENT(($$)->v.unary->operand, binary_STATEMENT);
+      MALLOC_STATEMENT(($$)->v.unary->operand, binary, SqlBinaryOperation);
+      ($$)->v.unary->operation = BOOLEAN_NOT;
+      (($$)->v.unary->operand)->v.binary->operation = BOOLEAN_REGEX_SENSITIVE;
+      (($$)->v.unary->operand)->v.binary->operands[0] = ($1);
+      (($$)->v.unary->operand)->v.binary->operands[1] = ($4);
+    }
+  | row_value_constructor EXCLAMATION TILDE ASTERISK row_value_constructor {
+      SQL_STATEMENT($$, unary_STATEMENT);
+      MALLOC_STATEMENT($$, unary, SqlUnaryOperation);
+      SQL_STATEMENT(($$)->v.unary->operand, binary_STATEMENT);
+      MALLOC_STATEMENT(($$)->v.unary->operand, binary, SqlBinaryOperation);
+      ($$)->v.unary->operation = BOOLEAN_NOT;
+      (($$)->v.unary->operand)->v.binary->operation = BOOLEAN_REGEX_INSENSITIVE;
+      (($$)->v.unary->operand)->v.binary->operands[0] = ($1);
+      (($$)->v.unary->operand)->v.binary->operands[1] = ($5);
     }
   ;
 

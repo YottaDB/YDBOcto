@@ -167,3 +167,30 @@ OCTO
   [[ "$(grep -c "|" output.txt)" == "3" ]]
   [[ "$(grep -c "Zero|" output.txt)" == "0" ]]
 }
+
+@test "NOT regex case sensitive" {
+  octo <<OCTO &> output.txt
+SELECT *
+FROM names
+WHERE firstName !~ "^Z";
+OCTO
+  [[ "$(grep -c "|Z" output.txt)" == "0" ]]
+}
+
+@test "NOT regex case sensitive with no matches" {
+  octo <<OCTO &> output.txt
+SELECT *
+FROM names
+WHERE firstName !~ "^z";
+OCTO
+  [[ "$(grep -c "|Z" output.txt)" == "2" ]]
+}
+
+@test "NOT regex case insensitive" {
+  octo <<OCTO &> output.txt
+SELECT *
+FROM names
+WHERE firstName !~* "^z";
+OCTO
+  [[ "$(grep -c "|Z" output.txt)" == "0" ]]
+}

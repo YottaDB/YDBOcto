@@ -177,6 +177,7 @@ int copied_so_far;
 \> { return GREATER_THAN; }
 \| { return PIPE; }
 \~ { return TILDE; }
+\! { return EXCLAMATION; }
 
 
 [0-9](\.)?[0-9]* {

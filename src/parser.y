@@ -158,6 +158,7 @@ extern void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, int *plan
 %token LESS_THAN_OR_EQUALS
 %token GREATER_THAN_OR_EQUALS
 %token PIPE
+%token TILDE
 
 %token LITERAL
 %token FAKE_TOKEN
@@ -345,6 +346,20 @@ comparison_predicate
       ($$)->v.binary->operation = BOOLEAN_GREATER_THAN_OR_EQUALS;
       ($$)->v.binary->operands[0] = ($1);
       ($$)->v.binary->operands[1] = ($3);
+    }
+  | row_value_constructor TILDE row_value_constructor {
+      SQL_STATEMENT($$, binary_STATEMENT);
+      MALLOC_STATEMENT($$, binary, SqlBinaryOperation);
+      ($$)->v.binary->operation = BOOLEAN_REGEX_SENSITIVE;
+      ($$)->v.binary->operands[0] = ($1);
+      ($$)->v.binary->operands[1] = ($3);
+    }
+  | row_value_constructor TILDE ASTERISK row_value_constructor {
+      SQL_STATEMENT($$, binary_STATEMENT);
+      MALLOC_STATEMENT($$, binary, SqlBinaryOperation);
+      ($$)->v.binary->operation = BOOLEAN_REGEX_INSENSITIVE;
+      ($$)->v.binary->operands[0] = ($1);
+      ($$)->v.binary->operands[1] = ($4);
     }
   ;
 

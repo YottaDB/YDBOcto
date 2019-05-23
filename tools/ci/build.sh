@@ -2,6 +2,25 @@
 
 source /opt/yottadb/current/ydb_env_set
 
+start_dir=$(pwd)
+
+# Install the POSIX plugin
+cd /root
+git clone https://gitlab.com/YottaDB/Util/YDBposix.git
+cd YDBposix
+mkdir build
+cd build
+cmake ..
+make
+make install
+# Source the ENV script again to refresh mroutines
+source /opt/yottadb/current/ydb_env_unset
+source /opt/yottadb/current/ydb_env_set
+echo "Done setting up POSIX plugin"
+echo "ydb_routines: $ydb_routines"
+
+
+cd $start_dir
 mkdir build
 cd build
 git clone https://github.com/bats-core/bats-core.git

@@ -121,3 +121,30 @@ WHERE MPIECE(firstName, "e", 1) = "Z"
 OCTO
   [[ "$(grep -c "|" output.txt)" == "2" ]]
 }
+
+@test "where with a regex comparison" {
+  octo <<OCTO &> output.txt
+SELECT *
+FROM names
+WHERE firstName ~ "^Z";
+OCTO
+  [[ "$(grep -c "|" output.txt)" == "2" ]]
+}
+
+@test "where with a regex comparison that fails due to case" {
+  octo <<OCTO &> output.txt
+SELECT *
+FROM names
+WHERE firstName ~ "^z";
+OCTO
+  [[ "$(grep -c "|" output.txt)" == "0" ]]
+}
+
+@test "where with a regex comparison that is case insensitive" {
+  octo <<OCTO &> output.txt
+SELECT *
+FROM names
+WHERE firstName ~* "^z";
+OCTO
+  [[ "$(grep -c "|" output.txt)" == "2" ]]
+}

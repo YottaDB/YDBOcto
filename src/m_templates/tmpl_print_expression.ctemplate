@@ -154,6 +154,21 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan) {
     case LP_BOOLEAN_GREATER_THAN_OR_EQUALS:
         mid = "'<";
         break;
+    case LP_BOOLEAN_REGEX_SENSITIVE:
+        %}$$regmatch^%%ydbposix({%
+        TMPL(tmpl_print_expression, first_operand, pplan);
+        %},{%
+        TMPL(tmpl_print_expression, second_operand, pplan);
+        %}){%
+        break;
+    case LP_BOOLEAN_REGEX_INSENSITIVE:
+        // The extra ',3' below marks this as case insensitive
+        %}$$regmatch^%%ydbposix({%
+        TMPL(tmpl_print_expression, first_operand, pplan);
+        %},{%
+        TMPL(tmpl_print_expression, second_operand, pplan);
+        %},3){%
+        break;
     case LP_BOOLEAN_IN:
         // IN expressions require a key; we should resolve the keys in generate_physical_plan
         //  so enforce that the search list is a key to search in

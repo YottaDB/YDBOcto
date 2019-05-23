@@ -25,7 +25,7 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables) {
 	SqlUnaryOperation *unary;
 	SqlBinaryOperation *binary;
 	SqlFunctionCall *fc;
-	SqlColumnList *column_list;
+	SqlColumnList *start_cl, *cur_cl, *column_list;
 	SqlValue *value;
 	SqlCaseStatement *cas;
 	SqlCaseBranchStatement *cas_branch, *cur_branch;
@@ -98,6 +98,15 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables) {
 			result |= qualify_statement(cur_branch->value, tables);
 			cur_branch = cur_branch->next;
 		} while (cur_branch != cas_branch);
+		break;
+	case column_list_STATEMENT:
+		// This is a result of a value-list
+		UNPACK_SQL_STATEMENT(start_cl, stmt, column_list);
+		cur_cl = start_cl;
+		do {
+			result |= qualify_statement(cur_cl->value, tables);
+			cur_cl = cur_cl->next;
+		} while(cur_cl != start_cl);
 		break;
 	default:
 		FATAL(ERR_UNKNOWN_KEYWORD_STATE, "");

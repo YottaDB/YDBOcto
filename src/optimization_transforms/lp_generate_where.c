@@ -22,7 +22,7 @@
 #include "logical_plan.h"
 
 LogicalPlan *lp_generate_where(SqlStatement *stmt, int *plan_id) {
-	LogicalPlan *ret = NULL, *next, *cur_lp, *t;
+	LogicalPlan *ret = NULL, *next, *cur_lp, *t, *prev;
 	LPActionType type;
 	SqlValue *value;
 	SqlUnaryOperation *unary;
@@ -56,9 +56,41 @@ LogicalPlan *lp_generate_where(SqlStatement *stmt, int *plan_id) {
 		UNPACK_SQL_STATEMENT(binary, stmt, binary);
 		/// WARNING: we simply add the enum offset to find the type
 		type = binary->operation + LP_ADDITION;
-		MALLOC_LP(ret, type);
-		ret->v.operand[0] = lp_generate_where(binary->operands[0], plan_id);
-		ret->v.operand[1] = lp_generate_where(binary->operands[1], plan_id);
+		// Special case; check for the IN value where the left is a column_list
+		if((type == LP_BOOLEAN_IN || type == LP_BOOLEAN_NOT_IN)
+				&& binary->operands[1]->type == column_list_STATEMENT) {
+			// Walk through the column list, converting each statement to an OR/AND
+			UNPACK_SQL_STATEMENT(start_cl, binary->operands[1], column_list);
+			t = lp_generate_where(binary->operands[0], plan_id);
+			ret = NULL;
+			cur_cl = start_cl;
+			do {
+				if(type == LP_BOOLEAN_IN) {
+					MALLOC_LP(next, LP_BOOLEAN_EQUALS);
+				} else {
+					MALLOC_LP(next, LP_BOOLEAN_NOT_EQUALS);
+				}
+				next->v.operand[0] = t;
+				next->v.operand[1] = lp_generate_where(cur_cl->value, plan_id);
+				cur_cl = cur_cl->next;
+				if(ret == NULL) {
+					ret = next;
+				} else {
+					prev = ret;
+					if(type == LP_BOOLEAN_IN) {
+						MALLOC_LP(ret, LP_BOOLEAN_OR);
+					} else {
+						MALLOC_LP(ret, LP_BOOLEAN_AND);
+					}
+					ret->v.operand[0] = next;
+					ret->v.operand[1] = prev;
+				}
+			} while(start_cl != cur_cl);
+		} else {
+			MALLOC_LP(ret, type);
+			ret->v.operand[0] = lp_generate_where(binary->operands[0], plan_id);
+			ret->v.operand[1] = lp_generate_where(binary->operands[1], plan_id);
+		}
 		break;
 	case unary_STATEMENT:
 		UNPACK_SQL_STATEMENT(unary, stmt, unary);

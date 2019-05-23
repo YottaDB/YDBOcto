@@ -148,3 +148,22 @@ WHERE firstName ~* "^z";
 OCTO
   [[ "$(grep -c "|" output.txt)" == "2" ]]
 }
+
+@test "where IN with a value-list" {
+  octo <<OCTO &> output.txt
+SELECT *
+FROM names
+WHERE firstName IN ("Zero", "Acid");
+OCTO
+  [[ "$(grep -c "|" output.txt)" == "3" ]]
+}
+
+@test "where NOT IN with a value-list" {
+  octo <<OCTO &> output.txt
+SELECT *
+FROM names
+WHERE firstName NOT IN ("Zero", "Acid");
+OCTO
+  [[ "$(grep -c "|" output.txt)" == "3" ]]
+  [[ "$(grep -c "Zero|" output.txt)" == "0" ]]
+}

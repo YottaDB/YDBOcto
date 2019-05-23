@@ -16,9 +16,9 @@
 #include <string.h>
 
 #include "octo.h"
-
 #include "helpers.h"
 
+// Makes an array of ydb_buffers (subscripts), beginning with global name and successively adding each name from args
 ydb_buffer_t *make_buffers(char *global, size_t num_args, ...) {
 	va_list args;
 	ydb_buffer_t *ret;

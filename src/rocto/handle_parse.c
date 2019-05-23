@@ -22,6 +22,7 @@
 #include "octo.h"
 #include "octo_types.h"
 #include "message_formats.h"
+#include "helpers.h"
 #include "rocto.h"
 
 int handle_parse(Parse *parse, RoctoSession *session) {
@@ -29,19 +30,12 @@ int handle_parse(Parse *parse, RoctoSession *session) {
 	// This feature should be implemented before 1.0
 	// For now, just a search-and-replace of anything starting with a '$'
 	// This is not super great because it means one could have a SQLI attack
-	ydb_buffer_t subs_array[3], dest_subs[3];
-	ydb_buffer_t session_global, sql_expression, *source_name = &subs_array[2], *prepared = &subs_array[1], *source_session_id = &subs_array[0];
-	ydb_buffer_t *dest_session_id = &dest_subs[0], *bound = &dest_subs[1], *parse_name = &dest_subs[2];
-	ydb_buffer_t z_status, z_status_value;
-	size_t query_length = 0, err_buff_size;
-	int done = FALSE, length, status, parse_parm;
-	char *ptr, *end_ptr, new_query[MAX_STR_CONST];
-	char *int_start, *new_query_ptr, *end_new_query_ptr;
-	char *new_value_start, *new_value_end, c;
-	char *err_buff;
-	SqlStatement *statement;
+	int status;
+	char parm_data_type[12];
+	ydb_buffer_t *src_subs, **parm_type_subs, value_buffer;
+	ydb_buffer_t sql_expression, z_status, z_status_value;
 	ParseComplete *response;
-	ErrorResponse *err;
+	char buff[MAX_STR_CONST], buff2[MAX_STR_CONST];
 
 	TRACE(ERR_ENTERING_FUNCTION, "handle_parse");
 
@@ -49,29 +43,19 @@ int handle_parse(Parse *parse, RoctoSession *session) {
 	YDB_LITERAL_TO_BUFFER("$ZSTATUS", &z_status);
 	INIT_YDB_BUFFER(&z_status_value, MAX_STR_CONST);
 
-	// Fetch the named SQL query from the session ^session(id, "prepared", <name>)
-	YDB_STRING_TO_BUFFER(config->global_names.session, &session_global);
-	INIT_YDB_BUFFER(source_session_id, session->session_id->len_used);
-	YDB_COPY_BUFFER_TO_BUFFER(session->session_id, source_session_id, done);
-	assert(done == TRUE);
-	YDB_LITERAL_TO_BUFFER("prepared", prepared);
-	source_name->buf_addr = parse->dest;
-	source_name->len_used = source_name->len_alloc = strlen(parse->dest);
+	// Fetch the named SQL query from the session session(id, "prepared", <name>)
+	src_subs = make_buffers(config->global_names.session, 3, session->session_id->buf_addr, "prepared", parse->dest);
+	YDB_STRING_TO_BUFFER(parse->query, &sql_expression);
 
-	sql_expression.buf_addr = parse->query;
-	sql_expression.len_used = sql_expression.len_alloc = strlen(sql_expression.buf_addr);
-
-	status = ydb_set_s(&session_global, 3, subs_array, &sql_expression);
+	// Add the new SQL query to the database
+	status = ydb_set_s(&src_subs[0], 3, &src_subs[1], &sql_expression);
 	YDB_ERROR_CHECK(status, &z_status, &z_status_value);
+	free(z_status_value.buf_addr);
 
+	// Some clients depend on getting the rows back here; parse the expression, but don't execute it
 	response = make_parse_complete();
 	send_message(session, (BaseMessage*)(&response->type));
 	free(response);
 
-	// Some clients depend on getting the rows back here; parse the expression, but don't execute it
-
-	free(z_status_value.buf_addr);
-
-	// All done!
 	return 0;
 }

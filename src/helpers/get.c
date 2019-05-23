@@ -16,7 +16,6 @@
 #include <string.h>
 
 #include "octo.h"
-
 #include "helpers.h"
 
 ydb_buffer_t *get(char *global, size_t num_args, ...) {

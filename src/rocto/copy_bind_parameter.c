@@ -28,43 +28,62 @@
 #define INT32_MAX_DIGITS 10
 #define INT64_MAX_DIGITS 20
 
-int copy_text_parameter(RoctoSession *session, Bind *bind, const int cur_parm, char *query_ptr, const char *end_query_ptr) {
+char *copy_text_parameter(RoctoSession *session, Bind *bind, const int cur_parm, char *query, const char *end_query) {
 	char *text_parm_start, *text_parm_end;
 	ErrorResponse *err;
 
 	// Copy text value
-	text_parm_start = bind->parms[cur_parm].value;
+	text_parm_start = (char*)bind->parms[cur_parm].value;
 	text_parm_end = text_parm_start + bind->parms[cur_parm].length;
 	while(text_parm_start < text_parm_end) {
-		*query_ptr++ = *text_parm_start++;
+		*query = *text_parm_start;
+		query++;
+		text_parm_start++;
 		// We need to leave an extra place for the closing quote, hence
 		//  the +1
-		if(query_ptr + 1 >= end_query_ptr) {
+		if(query + 1 >= end_query) {
 			err = make_error_response(PSQL_Error_ERROR,
 						  PSQL_Code_Syntax_Error,
 						  "expression exceeds maximum buffer length",
 						  0);
 			send_message(session, (BaseMessage*)(&err->type));
 			free_error_response(err);
-			return -1;
+			return NULL;
 		}
 	}
-	return 0;
+	return query;
 }
 
-int copy_binary_parameter(RoctoSession *session, Bind *bind, const int cur_parm, char *query_ptr, const char *end_query_ptr) {
+char *copy_binary_parameter(RoctoSession *session, Bind *bind, const int cur_parm, char *query, const char *end_query) {
 	char *binary_parm_start, *binary_parm_end;
+	char str_value[MAX_STR_CONST];
+	int64_t value = 0;
+	int copied = 0;
+	char uuid[MAX_STR_CONST];
 	ErrorResponse *err;
 
 	switch (bind->parms[cur_parm].length) {
 		case 1:
-			// This could be a char or bool...
+			value = bin_to_char(bind->parms[cur_parm].value);
+			copied = snprintf(str_value, MAX_STR_CONST, "%ld", value);
+			break;
 		case 2:
-			int64_t value = 0;
-			char str_value[INT16_MAX_DIGITS+1];	// count null
 			value = bin_to_int16(bind->parms[cur_parm].value);
-			snprintf(str_value, INT16_MAX_DIGITS, "%d", value);
-			// memcpy(query_ptr, str_value, INT_16
+			copied = snprintf(str_value, MAX_STR_CONST, "%ld", value);
+			break;
+		case 4:
+			value = bin_to_int32(bind->parms[cur_parm].value);
+			copied = snprintf(str_value, MAX_STR_CONST, "%ld", value);
+			break;
+		case 8:
+			// This covers the OID case, as it is just an integer
+			value = bin_to_int64(bind->parms[cur_parm].value);
+			copied = snprintf(str_value, MAX_STR_CONST, "%ld", value);
+			break;
+		case 36:
+			bin_to_uuid(bind->parms[cur_parm].value, uuid, MAX_STR_CONST);
+			copied = snprintf(str_value, MAX_STR_CONST, "%s", uuid);
+			break;
 		default:
 			err = make_error_response(PSQL_Error_ERROR,
 						  PSQL_Code_Syntax_Error,
@@ -72,25 +91,18 @@ int copy_binary_parameter(RoctoSession *session, Bind *bind, const int cur_parm,
 						  0);
 			send_message(session, (BaseMessage*)(&err->type));
 			free_error_response(err);
-			return -1;
-
+			return NULL;
 	}
-	// Copy text value
-	binary_parm_start = bind->parms[cur_parm].value;
-	binary_parm_end = binary_parm_start + bind->parms[cur_parm].length;
-	while(binary_parm_start < binary_parm_end) {
-		*query_ptr++ = *binary_parm_start++;
-		// We need to leave an extra place for the closing quote, hence
-		//  the +1
-		if(query_ptr + 1 >= end_query_ptr) {
+	if (0 > copied || query + copied > end_query) {
 			err = make_error_response(PSQL_Error_ERROR,
 						  PSQL_Code_Syntax_Error,
-						  "expression exceeds maximum buffer length",
+						  "failed to decode binary bind parameter",
 						  0);
 			send_message(session, (BaseMessage*)(&err->type));
 			free_error_response(err);
-			return -1;
-		}
+			return NULL;
 	}
-	return 0;
+	strncpy(query, str_value, copied);
+	query += copied;
+	return query;
 }

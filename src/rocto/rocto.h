@@ -99,8 +99,8 @@ int no_more();
 int64_t ntoh64(int64_t little_endian);
 int64_t hton64(int64_t little_endian);
 char *byte_to_hex(char c, char *hex);
-char bin_to_bool(char *bin);
-char bin_to_char(char *bin);
+int64_t bin_to_bool(char *bin);
+int64_t bin_to_char(char *bin);
 int64_t bin_to_int16(char *bin);
 int64_t bin_to_int32(char *bin);
 int64_t bin_to_int64(char *bin);
@@ -109,6 +109,10 @@ int64_t bin_to_oid(char *bin);
 // double bin_to_float8(char *bin);
 char *bin_to_bytea(char *bin);
 void bin_to_uuid(char *bin, char *buffer, int buf_len);
+
+// Utility functions for copying Bind parameters into query string
+char *copy_text_parameter(RoctoSession *session, Bind *bind, const int cur_parm, char *query_ptr, const char *end_query_ptr);
+char *copy_binary_parameter(RoctoSession *session, Bind *bind, const int cur_parm, char *query_ptr, const char *end_query_ptr);
 
 /**
  * Returns a RowDescription object for sending based on the provided physical plan

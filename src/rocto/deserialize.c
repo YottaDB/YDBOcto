@@ -92,11 +92,11 @@ char *byte_to_hex(char c, char *hex) {
 	return hex;
 }
 
-char bin_to_bool(char *bin) {
+int64_t bin_to_bool(char *bin) {
 	return bin[0];
 }
 
-char bin_to_char(char *bin) {
+int64_t bin_to_char(char *bin) {
 	return bin[0];
 }
 

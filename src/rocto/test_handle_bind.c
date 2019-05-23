@@ -36,7 +36,7 @@ int __wrap_send_message(RoctoSession *session, BaseMessage *message) {
 	return 0;
 }
 
-static void test_valid_input(void **state) {
+static void test_one_parm_text_format(void **state) {
 	int result;
 	Bind bind;
 	ydb_buffer_t session_id, *result_buffer;
@@ -68,6 +68,87 @@ static void test_valid_input(void **state) {
 	result_buffer = get(config->global_names.session, 3, "0", "bound", "");
 	result_buffer->buf_addr[result_buffer->len_used] = '\0';
 	assert_string_equal("select * from names where firstName = \"hello\"", result_buffer->buf_addr);
+	free(result_buffer->buf_addr);
+	free(result_buffer);
+	free(bind.parms);
+}
+
+static void test_two_parm_text_format(void **state) {
+	int result;
+	Bind bind;
+	ydb_buffer_t session_id, *result_buffer;
+	RoctoSession session;
+
+	YDB_LITERAL_TO_BUFFER("0", &session_id);
+	session.session_id = &session_id;
+
+	bind.dest = "";
+	bind.source = "sample1";
+	bind.num_parm_format_codes = 0;
+	bind.parm_format_codes = NULL;
+	bind.num_parms = 2;
+	bind.parms = (BindParm*)malloc(bind.num_parms * sizeof(BindParm));
+	bind.parms[0].value = "hello";
+	bind.parms[0].length = strlen(bind.parms[0].value);
+	bind.parms[1].value = "world";
+	bind.parms[1].length = strlen(bind.parms[1].value);
+	bind.num_result_col_format_codes = 0;
+	bind.result_col_format_codes = NULL;
+
+	// Store a value in ^session(id, "prepared", "sample1")
+	set("select firstName, case firstName when $0 then $1 else firstName end from names", config->global_names.session, 3, "0", "prepared", "sample1");
+
+	will_return(__wrap_send_message, PSQL_BindComplete);
+
+	result = handle_bind(&bind, &session);
+	assert_int_equal(result, 0);
+
+	result_buffer = get(config->global_names.session, 3, "0", "bound", "");
+	result_buffer->buf_addr[result_buffer->len_used] = '\0';
+	assert_string_equal("select firstName, case firstName when \"hello\" then \"world\" else firstName end from names",
+			result_buffer->buf_addr);
+	// assert_string_equal("select * from names where firstName = \"hello\"", result_buffer->buf_addr);
+
+	free(result_buffer->buf_addr);
+	free(result_buffer);
+	free(bind.parms);
+}
+
+static void test_one_parm_binary_format(void **state) {
+	int result;
+	Bind bind;
+	ydb_buffer_t session_id, *result_buffer;
+	RoctoSession session;
+
+	YDB_LITERAL_TO_BUFFER("0", &session_id);
+	session.session_id = &session_id;
+
+	int16_t value;
+	value = htons(67);
+	short int codes[1] = {1};
+	bind.dest = "";
+	bind.source = "sample1";
+	bind.num_parm_format_codes = 1;
+	bind.parm_format_codes = codes;
+	bind.num_parms = 1;
+	bind.parms = (BindParm*)malloc(1 * sizeof(BindParm));
+	bind.parms[0].value = &value;
+	bind.parms[0].length = sizeof(int16_t);
+	bind.num_result_col_format_codes = 0;
+	bind.result_col_format_codes = NULL;
+
+	// Store a value in ^session(id, "prepared", "sample1")
+	set("select * from names where firstName = $0", config->global_names.session, 3, "0", "prepared", "sample1");
+
+	will_return(__wrap_send_message, PSQL_BindComplete);
+
+	result = handle_bind(&bind, &session);
+
+	assert_int_equal(result, 0);
+
+	result_buffer = get(config->global_names.session, 3, "0", "bound", "");
+	result_buffer->buf_addr[result_buffer->len_used] = '\0';
+	assert_string_equal("select * from names where firstName = \"67\"", result_buffer->buf_addr);
 	free(result_buffer->buf_addr);
 	free(result_buffer);
 	free(bind.parms);
@@ -173,7 +254,9 @@ static void test_bind_greater_than_max_str_const(void **state) {
 int main(void) {
 	octo_init(0, NULL, FALSE);
 	const struct CMUnitTest tests[] = {
-		   cmocka_unit_test(test_valid_input),
+		   cmocka_unit_test(test_one_parm_text_format),
+		   cmocka_unit_test(test_two_parm_text_format),
+		   cmocka_unit_test(test_one_parm_binary_format),
 		   cmocka_unit_test(test_bind_to_non_existent_source),
 		   cmocka_unit_test(test_bind_with_too_many_parms),
 		   cmocka_unit_test(test_bind_greater_than_max_str_const)

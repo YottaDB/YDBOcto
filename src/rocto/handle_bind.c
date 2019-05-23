@@ -21,20 +21,19 @@
 
 #include "octo.h"
 #include "octo_types.h"
-#include "message_formats.h"
 #include "rocto.h"
+#include "message_formats.h"
+#include "helpers.h"
 
 int handle_bind(Bind *bind, RoctoSession *session) {
 	// At the moment, we don't have "bound function"
 	// This feature should be implemented before 1.0
 	// For now, just a search-and-replace of anything starting with a '$'
 	// This is not super great because it means one could have a SQLI attack
-	ydb_buffer_t subs_array[3], dest_subs[3];
-	ydb_buffer_t session_global, sql_expression, *source_name = &subs_array[2], *prepared = &subs_array[1], *source_session_id = &subs_array[0];
-	ydb_buffer_t *dest_session_id = &dest_subs[0], *bound = &dest_subs[1], *bind_name = &dest_subs[2];
+	ydb_buffer_t *src_subs, *dest_subs, sql_expression;
 	ydb_buffer_t z_status, z_status_value;
 	size_t new_length = 0;
-	int done = FALSE, length, status, bind_parm;
+	int status, bind_parm;
 	char *ptr, *end_ptr, new_query[MAX_STR_CONST];
 	char *int_start, *new_query_ptr, *end_new_query_ptr;
 	char *new_value_start, *new_value_end, c;
@@ -48,19 +47,9 @@ int handle_bind(Bind *bind, RoctoSession *session) {
 	INIT_YDB_BUFFER(&z_status_value, MAX_STR_CONST);
 
 	// Fetch the named SQL query from the session ^session(id, "prepared", <name>)
-	YDB_STRING_TO_BUFFER(config->global_names.session, &session_global);
-	INIT_YDB_BUFFER(source_session_id, session->session_id->len_used);
-	YDB_COPY_BUFFER_TO_BUFFER(session->session_id, source_session_id, done);
-	assert(done == TRUE);
-	YDB_LITERAL_TO_BUFFER("prepared", prepared);
-	//YDB_LITERAL_TO_BUFFER(bind->source, source_name);
-	source_name->buf_addr = bind->source;
-	source_name->len_alloc = source_name->len_used = strlen(bind->source);
-
+	src_subs = make_buffers(config->global_names.session, 3, session->session_id->buf_addr, "prepared", bind->source);
 	INIT_YDB_BUFFER(&sql_expression, MAX_STR_CONST);
-
-	status = ydb_get_s(&session_global, 3, subs_array, &sql_expression);
-	free(source_session_id->buf_addr);
+	status = ydb_get_s(&src_subs[0], 3, &src_subs[1], &sql_expression);
 	if(status == YDB_ERR_GVUNDEF) {
 		err = make_error_response(PSQL_Error_ERROR,
 				    PSQL_Code_Invalid_Sql_Statement_Name,
@@ -116,63 +105,45 @@ int handle_bind(Bind *bind, RoctoSession *session) {
 				*new_query_ptr++ = '"';
 				// Copy value
 				if (0 == bind->num_parm_format_codes) {
-					// string copy
+					new_query_ptr = copy_text_parameter(session, bind, bind_parm, new_query_ptr, end_new_query_ptr);
 				} else if (1 == bind->num_parm_format_codes) {
 					if (0 == bind->parm_format_codes[0]) {
-						// string copy
+						new_query_ptr = copy_text_parameter(session, bind, bind_parm, new_query_ptr, end_new_query_ptr);
 					} else {
-						// binary copy
+						new_query_ptr = copy_binary_parameter(session, bind, bind_parm, new_query_ptr, end_new_query_ptr);
 					}
 				} else {
 					if (0 == bind->parm_format_codes[bind_parm]) {
-						// string copy
+						new_query_ptr = copy_text_parameter(session, bind, bind_parm, new_query_ptr, end_new_query_ptr);
 					} else {
-						// binary copy
-				}
-				new_value_start = bind->parms[bind_parm].value;
-				new_value_end = new_value_start + bind->parms[bind_parm].length;
-				while(new_value_start < new_value_end) {
-					*new_query_ptr++ = *new_value_start++;
-					// We need to leave an extra place for the closing quote, hence
-					//  the +1
-					if(new_query_ptr + 1 >= end_new_query_ptr) {
-						err = make_error_response(PSQL_Error_ERROR,
-									  PSQL_Code_Syntax_Error,
-									  "expression exceed maximum buffer length",
-									  0);
-						send_message(session, (BaseMessage*)(&err->type));
-						free_error_response(err);
-						free(sql_expression.buf_addr);
-						free(z_status_value.buf_addr);
-						return -1;
+						new_query_ptr = copy_binary_parameter(session, bind, bind_parm, new_query_ptr, end_new_query_ptr);
 					}
+				}
+				if (NULL == new_query_ptr) {
+					free(sql_expression.buf_addr);
+					free(z_status_value.buf_addr);
+					return -1;
 				}
 				// End copy value
 				*new_query_ptr++ = '"';
 				// End prepared statement
 			}
-		} else {
-			*new_query_ptr++ = *ptr;
 		}
+		*new_query_ptr++ = *ptr;
 		assert(new_query_ptr < end_new_query_ptr);
 		ptr++;
 	}
 
 	// Now we store the bound statement in a global to execute ^session(session_id, "bound", <bound name>)
-	INIT_YDB_BUFFER(dest_session_id, session->session_id->len_used);
-	YDB_COPY_BUFFER_TO_BUFFER(session->session_id, dest_session_id, done);
-	YDB_LITERAL_TO_BUFFER("bound", bound);
-	//YDB_LITERAL_TO_BUFFER(bind->dest, bind_name);
-	bind_name->buf_addr = bind->dest;
-	bind_name->len_alloc = bind_name->len_used = strlen(bind->dest);
+	dest_subs = make_buffers(config->global_names.session, 3, session->session_id->buf_addr, "bound", bind->dest);
 
 	free(sql_expression.buf_addr);
 	sql_expression.buf_addr = new_query;
 	sql_expression.len_alloc = MAX_STR_CONST;
 	sql_expression.len_used = new_query_ptr - new_query;
 
-	status = ydb_set_s(&session_global, 3, dest_subs, &sql_expression);
-	free(dest_session_id->buf_addr);
+	// status = ydb_set_s(&session_global, 3, dest_subs, &sql_expression);
+	status = ydb_set_s(&dest_subs[0], 3, &dest_subs[1], &sql_expression);
 	YDB_ERROR_CHECK(status, &z_status, &z_status_value);
 
 	// Construct the response message

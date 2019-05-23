@@ -136,7 +136,8 @@ static void test_byte_to_hex(void **state) {
 }
 
 static void test_bin_to_bool(void **state) {
-	char result = FALSE, bin = TRUE;
+	int64_t result = FALSE;
+	char bin = TRUE;
 	result = bin_to_bool((char*)&bin);
 	assert_int_equal(result, bin);
 
@@ -146,7 +147,8 @@ static void test_bin_to_bool(void **state) {
 }
 
 static void test_bin_to_char(void **state) {
-	char result = '\0', bin = 'A';
+	int64_t result = '\0';
+	char bin = 'A';
 	result = bin_to_char((char*)&bin);
 	assert_int_equal(result, bin);
 

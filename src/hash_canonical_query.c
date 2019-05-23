@@ -175,27 +175,26 @@ void hash_canonical_query(hash128_state_t *state, SqlStatement *stmt) {
 			add_sql_type_hash(state, value->data_type);
 			TRACE(CUSTOM_ERROR, "hash_canonical_query: value_STATEMENT: SqlDataType: %d\n", value->type);
 			switch(value->type) {
-				case (NUMBER_LITERAL):
-					ydb_mmrhash_128_ingest(state, (void*)value->v.string_literal, strlen(value->v.string_literal));
-					break;
-				case (STRING_LITERAL):
-					ydb_mmrhash_128_ingest(state, (void*)value->v.string_literal, strlen(value->v.string_literal));
-					break;
-				case (COLUMN_REFERENCE):
-					ydb_mmrhash_128_ingest(state, (void*)value->v.reference, strlen(value->v.reference));
-					break;
-				case (CALCULATED_VALUE):
-					hash_canonical_query(state, value->v.calculated);
-					break;
-				case (NUL_VALUE):
-					break;
-				case (UNKNOWN_SqlValueType):
-					/// TODO: this shouldn't happen
-					// assert(FALSE);
-					break;
-				default:
-					assert(FALSE);
-					break;
+			case NUMBER_LITERAL:
+			case STRING_LITERAL:
+			case FUNCTION_NAME:
+			case DATE_TIME:
+			case BOOLEAN_VALUE:
+			case COLUMN_REFERENCE:
+				ydb_mmrhash_128_ingest(state, (void*)value->v.reference, strlen(value->v.reference));
+				break;
+			case CALCULATED_VALUE:
+				hash_canonical_query(state, value->v.calculated);
+				break;
+			case NUL_VALUE:
+				break;
+			case UNKNOWN_SqlValueType:
+				/// TODO: this shouldn't happen
+				// assert(FALSE);
+				break;
+			default:
+				assert(FALSE);
+				break;
 			}
 			break;
 		case column_STATEMENT:

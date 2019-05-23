@@ -111,3 +111,13 @@ OCTO
   # Expected response is Zero Cool (twice), Lord Nikon, and Joey
   [[ "$(grep -c "|" output2.txt)" == "4" ]]
 }
+
+@test "verify having a function in the WHERE doesn't break anything" {
+  $ydb_dist/mumps -r ^%XCMD 'SET ^%ydboctoocto("functions","MPIECE")="$PIECE"'
+  octo <<OCTO &> output.txt
+SELECT *
+FROM names
+WHERE MPIECE(firstName, "e", 1) = "Z"
+OCTO
+  [[ "$(grep -c "|" output.txt)" == "2" ]]
+}

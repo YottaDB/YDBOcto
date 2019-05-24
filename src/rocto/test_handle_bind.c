@@ -167,8 +167,8 @@ static void test_one_parm_binary_format(void **state) {
 	YDB_LITERAL_TO_BUFFER("0", &session_id);
 	session.session_id = &session_id;
 
-	int16_t value;
-	value = htons(12345);
+	char value;
+	value = 7;
 	short int codes[1] = {1};
 	bind.dest = "";
 	bind.source = "sample1";
@@ -177,7 +177,7 @@ static void test_one_parm_binary_format(void **state) {
 	bind.num_parms = 1;
 	bind.parms = (BindParm*)malloc(1 * sizeof(BindParm));
 	bind.parms[0].value = &value;
-	bind.parms[0].length = sizeof(int16_t);
+	bind.parms[0].length = sizeof(char);
 	bind.num_result_col_format_codes = 0;
 	bind.result_col_format_codes = NULL;
 
@@ -192,7 +192,7 @@ static void test_one_parm_binary_format(void **state) {
 
 	result_buffer = get(config->global_names.session, 3, "0", "bound", "");
 	result_buffer->buf_addr[result_buffer->len_used] = '\0';
-	assert_string_equal("select * from names where firstName = \"12345\"", result_buffer->buf_addr);
+	assert_string_equal("select * from names where firstName = \"7\"", result_buffer->buf_addr);
 	free(result_buffer->buf_addr);
 	free(result_buffer);
 	free(bind.parms);
@@ -203,13 +203,16 @@ static void test_two_parm_binary_format(void **state) {
 	Bind bind;
 	ydb_buffer_t session_id, *result_buffer;
 	RoctoSession session;
-
 	YDB_LITERAL_TO_BUFFER("0", &session_id);
 	session.session_id = &session_id;
 
-	int16_t value1, value2;
-	value1 = htons(12345);
-	value2 = htons(54321);
+	char uuid[16];
+	int i = 0;
+	for (i = 0; i < 16; i++) {
+		uuid[i] = i;
+	}
+	int16_t value;
+	value = htons(12345);
 	short int codes[1] = {1};
 	bind.dest = "";
 	bind.source = "sample1";
@@ -217,10 +220,10 @@ static void test_two_parm_binary_format(void **state) {
 	bind.parm_format_codes = codes;
 	bind.num_parms = 2;
 	bind.parms = (BindParm*)malloc(bind.num_parms * sizeof(BindParm));
-	bind.parms[0].value = &value1;
+	bind.parms[0].value = &value;
 	bind.parms[0].length = sizeof(int16_t);
-	bind.parms[1].value = &value2;
-	bind.parms[1].length = sizeof(int16_t);
+	bind.parms[1].value = uuid;
+	bind.parms[1].length = sizeof(uuid);
 	bind.num_result_col_format_codes = 0;
 	bind.result_col_format_codes = NULL;
 
@@ -235,7 +238,7 @@ static void test_two_parm_binary_format(void **state) {
 
 	result_buffer = get(config->global_names.session, 3, "0", "bound", "");
 	result_buffer->buf_addr[result_buffer->len_used] = '\0';
-	assert_string_equal("select firstName, case firstName when \"12345\" then \"54321\" else firstName end from names",
+	assert_string_equal("select firstName, case firstName when \"12345\" then \"00010203-0405-0607-0809-0a0b0c0d0e0f\" else firstName end from names",
 			result_buffer->buf_addr);
 	free(result_buffer->buf_addr);
 	free(result_buffer);
@@ -293,6 +296,221 @@ static void test_four_parm_binary_format(void **state) {
 	free(bind.parms);
 }
 
+static void test_one_parm_one_code_text(void **state) {
+	int result;
+	Bind bind;
+	ydb_buffer_t session_id, *result_buffer;
+	RoctoSession session;
+
+	YDB_LITERAL_TO_BUFFER("0", &session_id);
+	session.session_id = &session_id;
+
+	short int codes[1] = {0};
+	bind.dest = "";
+	bind.source = "sample1";
+	bind.num_parm_format_codes = 1;
+	bind.parm_format_codes = codes;
+	bind.num_parms = 1;
+	bind.parms = (BindParm*)malloc(1 * sizeof(BindParm));
+	bind.parms[0].value = "hello";
+	bind.parms[0].length = strlen(bind.parms[0].value);
+	bind.num_result_col_format_codes = 0;
+	bind.result_col_format_codes = NULL;
+
+	// Store a value in ^session(id, "prepared", "sample1")
+	set("select * from names where firstName = $0", config->global_names.session, 3, "0", "prepared", "sample1");
+
+	will_return(__wrap_send_message, PSQL_BindComplete);
+
+	result = handle_bind(&bind, &session);
+
+	assert_int_equal(result, 0);
+
+	result_buffer = get(config->global_names.session, 3, "0", "bound", "");
+	result_buffer->buf_addr[result_buffer->len_used] = '\0';
+	assert_string_equal("select * from names where firstName = \"hello\"", result_buffer->buf_addr);
+	free(result_buffer->buf_addr);
+	free(result_buffer);
+	free(bind.parms);
+}
+
+static void test_two_parm_one_code_text(void **state) {
+	int result;
+	Bind bind;
+	ydb_buffer_t session_id, *result_buffer;
+	RoctoSession session;
+
+	YDB_LITERAL_TO_BUFFER("0", &session_id);
+	session.session_id = &session_id;
+
+	short int codes[1] = {0};
+	bind.dest = "";
+	bind.source = "sample1";
+	bind.num_parm_format_codes = 1;
+	bind.parm_format_codes = codes;
+	bind.num_parms = 2;
+	bind.parms = (BindParm*)malloc(bind.num_parms * sizeof(BindParm));
+	bind.parms[0].value = "hello";
+	bind.parms[0].length = strlen(bind.parms[0].value);
+	bind.parms[1].value = "world";
+	bind.parms[1].length = strlen(bind.parms[1].value);
+	bind.num_result_col_format_codes = 0;
+	bind.result_col_format_codes = NULL;
+
+	// Store a value in ^session(id, "prepared", "sample1")
+	set("select firstName, case firstName when $0 then $1 else firstName end from names",
+			config->global_names.session, 3, "0", "prepared", "sample1");
+
+	will_return(__wrap_send_message, PSQL_BindComplete);
+
+	result = handle_bind(&bind, &session);
+	assert_int_equal(result, 0);
+
+	result_buffer = get(config->global_names.session, 3, "0", "bound", "");
+	result_buffer->buf_addr[result_buffer->len_used] = '\0';
+	assert_string_equal("select firstName, case firstName when \"hello\" then \"world\" else firstName end from names",
+			result_buffer->buf_addr);
+	free(result_buffer->buf_addr);
+	free(result_buffer);
+	free(bind.parms);
+}
+
+static void test_four_parm_one_code_text(void **state) {
+	int result;
+	Bind bind;
+	ydb_buffer_t session_id, *result_buffer;
+	RoctoSession session;
+
+	YDB_LITERAL_TO_BUFFER("0", &session_id);
+	session.session_id = &session_id;
+
+	short int codes[1] = {0};
+	bind.dest = "";
+	bind.source = "sample1";
+	bind.num_parm_format_codes = 1;
+	bind.parm_format_codes = codes;
+	bind.num_parms = 4;
+	bind.parms = (BindParm*)malloc(bind.num_parms * sizeof(BindParm));
+	bind.parms[0].value = "hello";
+	bind.parms[0].length = strlen(bind.parms[0].value);
+	bind.parms[1].value = "world";
+	bind.parms[1].length = strlen(bind.parms[1].value);
+	bind.parms[2].value = "crunchy";
+	bind.parms[2].length = strlen(bind.parms[2].value);
+	bind.parms[3].value = "pickles";
+	bind.parms[3].length = strlen(bind.parms[3].value);
+	bind.num_result_col_format_codes = 0;
+	bind.result_col_format_codes = NULL;
+
+	// Store a value in ^session(id, "prepared", "sample1")
+	set("select firstName, case firstName when $0 then $1 when $2 then $3 else firstName end from names",
+			config->global_names.session, 3, "0", "prepared", "sample1");
+
+	will_return(__wrap_send_message, PSQL_BindComplete);
+
+	result = handle_bind(&bind, &session);
+	assert_int_equal(result, 0);
+
+	result_buffer = get(config->global_names.session, 3, "0", "bound", "");
+	result_buffer->buf_addr[result_buffer->len_used] = '\0';
+	assert_string_equal("select firstName, case firstName when \"hello\" then \"world\" when \"crunchy\" then \"pickles\" else firstName end from names",
+			result_buffer->buf_addr);
+	free(result_buffer->buf_addr);
+	free(result_buffer);
+	free(bind.parms);
+}
+
+static void test_two_parm_two_code(void **state) {
+	int result;
+	Bind bind;
+	ydb_buffer_t session_id, *result_buffer;
+	RoctoSession session;
+
+	YDB_LITERAL_TO_BUFFER("0", &session_id);
+	session.session_id = &session_id;
+
+	short int codes[2] = {0, 1};
+	int64_t value;
+	value = hton64(12345);
+	bind.dest = "";
+	bind.source = "sample1";
+	bind.num_parm_format_codes = 2;
+	bind.parm_format_codes = codes;
+	bind.num_parms = 2;
+	bind.parms = (BindParm*)malloc(bind.num_parms * sizeof(BindParm));
+	bind.parms[0].value = "hello";
+	bind.parms[0].length = strlen(bind.parms[0].value);
+	bind.parms[1].value = &value;
+	bind.parms[1].length = sizeof(int64_t);
+	bind.num_result_col_format_codes = 0;
+	bind.result_col_format_codes = NULL;
+
+	// Store a value in ^session(id, "prepared", "sample1")
+	set("select firstName, case firstName when $0 then $1 else firstName end from names",
+			config->global_names.session, 3, "0", "prepared", "sample1");
+
+	will_return(__wrap_send_message, PSQL_BindComplete);
+
+	result = handle_bind(&bind, &session);
+	assert_int_equal(result, 0);
+
+	result_buffer = get(config->global_names.session, 3, "0", "bound", "");
+	result_buffer->buf_addr[result_buffer->len_used] = '\0';
+	assert_string_equal("select firstName, case firstName when \"hello\" then \"12345\" else firstName end from names",
+			result_buffer->buf_addr);
+	free(result_buffer->buf_addr);
+	free(result_buffer);
+	free(bind.parms);
+}
+
+static void test_four_parm_four_code(void **state) {
+	int result;
+	Bind bind;
+	ydb_buffer_t session_id, *result_buffer;
+	RoctoSession session;
+
+	YDB_LITERAL_TO_BUFFER("0", &session_id);
+	session.session_id = &session_id;
+
+	short int codes[4] = {0, 1, 0, 1};
+	int16_t value1;
+	int32_t value2;
+	value1 = htons(12345);
+	value2 = htonl(54321);
+	bind.dest = "";
+	bind.source = "sample1";
+	bind.num_parm_format_codes = 4;
+	bind.parm_format_codes = codes;
+	bind.num_parms = 4;
+	bind.parms = (BindParm*)malloc(bind.num_parms * sizeof(BindParm));
+	bind.parms[0].value = "hello";
+	bind.parms[0].length = strlen(bind.parms[0].value);
+	bind.parms[1].value = &value1;
+	bind.parms[1].length = sizeof(int16_t);
+	bind.parms[2].value = "world";
+	bind.parms[2].length = strlen(bind.parms[2].value);
+	bind.parms[3].value = &value2;
+	bind.parms[3].length = sizeof(int32_t);
+	bind.num_result_col_format_codes = 0;
+	bind.result_col_format_codes = NULL;
+
+	// Store a value in ^session(id, "prepared", "sample1")
+	set("select firstName, case firstName when $0 then $1 when $2 then $3 else firstName end from names",
+			config->global_names.session, 3, "0", "prepared", "sample1");
+
+	will_return(__wrap_send_message, PSQL_BindComplete);
+
+	result = handle_bind(&bind, &session);
+	assert_int_equal(result, 0);
+
+	result_buffer = get(config->global_names.session, 3, "0", "bound", "");
+	result_buffer->buf_addr[result_buffer->len_used] = '\0';
+	assert_string_equal("select firstName, case firstName when \"hello\" then \"12345\" when \"world\" then \"54321\" else firstName end from names",
+			result_buffer->buf_addr);
+	free(result_buffer->buf_addr);
+	free(result_buffer);
+	free(bind.parms);
+}
 
 static void test_bind_to_non_existent_source(void **state) {
 	int result;
@@ -400,6 +618,11 @@ int main(void) {
 		   cmocka_unit_test(test_one_parm_binary_format),
 		   cmocka_unit_test(test_two_parm_binary_format),
 		   cmocka_unit_test(test_four_parm_binary_format),
+		   cmocka_unit_test(test_one_parm_one_code_text),
+		   cmocka_unit_test(test_two_parm_one_code_text),
+		   cmocka_unit_test(test_four_parm_one_code_text),
+		   cmocka_unit_test(test_two_parm_two_code),
+		   cmocka_unit_test(test_four_parm_four_code),
 		   cmocka_unit_test(test_bind_to_non_existent_source),
 		   cmocka_unit_test(test_bind_with_too_many_parms),
 		   cmocka_unit_test(test_bind_greater_than_max_str_const)

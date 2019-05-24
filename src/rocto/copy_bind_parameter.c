@@ -80,7 +80,7 @@ char *copy_binary_parameter(RoctoSession *session, Bind *bind, const int cur_par
 			value = bin_to_int64(bind->parms[cur_parm].value);
 			copied = snprintf(str_value, MAX_STR_CONST, "%ld", value);
 			break;
-		case 36:
+		case 16:
 			bin_to_uuid(bind->parms[cur_parm].value, uuid, MAX_STR_CONST);
 			copied = snprintf(str_value, MAX_STR_CONST, "%s", uuid);
 			break;

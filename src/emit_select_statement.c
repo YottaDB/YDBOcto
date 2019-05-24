@@ -47,7 +47,7 @@ PhysicalPlan *emit_select_statement(SqlStatement *stmt, char *plan_filename)
 	TRACE(ERR_ENTERING_FUNCTION, "emit_select_statement");
 	memset(output_key, 0, MAX_STR_CONST);
 
-	assert(stmt && stmt->type == select_STATEMENT);
+	assert(stmt && stmt->type == table_alias_STATEMENT);
 	plan = generate_logical_plan(stmt, &config->plan_id);
 	if(lp_verify_structure(plan) == FALSE)
 		FATAL(ERR_PLAN_NOT_WELL_FORMED, "");

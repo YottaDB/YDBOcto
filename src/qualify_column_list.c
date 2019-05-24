@@ -21,7 +21,7 @@
 #include "octo.h"
 #include "octo_types.h"
 
-int qualify_column_list(SqlColumnList *select_columns, SqlJoin *tables) {
+int qualify_column_list(SqlColumnList *select_columns, SqlJoin *tables, SqlStatement *column_list_alias) {
 	SqlColumnList *cur_column_list, *start_column_list;
 	int result = 0;
 
@@ -30,7 +30,7 @@ int qualify_column_list(SqlColumnList *select_columns, SqlJoin *tables) {
 
 	cur_column_list = start_column_list = select_columns;
 	do {
-		result |= qualify_statement(cur_column_list->value, tables);
+		result |= qualify_statement(cur_column_list->value, tables, column_list_alias);
 		cur_column_list = cur_column_list->next;
 	} while(cur_column_list != start_column_list);
 	return result;

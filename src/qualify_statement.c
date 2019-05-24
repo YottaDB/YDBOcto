@@ -21,7 +21,7 @@
 #include "octo.h"
 #include "octo_types.h"
 
-int qualify_statement(SqlStatement *stmt, SqlJoin *tables) {
+int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *column_list_alias) {
 	SqlUnaryOperation *unary;
 	SqlBinaryOperation *binary;
 	SqlFunctionCall *fc;
@@ -50,14 +50,14 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables) {
 			// Convert this statement to a qualified one
 			stmt->type = column_alias_STATEMENT;
 			/// TODO: the value is being leaked here
-			stmt->v.column_alias = qualify_column_name(value, tables);
+			stmt->v.column_alias = qualify_column_name(value, tables, column_list_alias);
 			result |= stmt->v.column_alias == NULL;
 			if(result) {
 				print_yyloc(&stmt->loc);
 			}
 			break;
 		case CALCULATED_VALUE:
-			result |= qualify_statement(value->v.calculated, tables);
+			result |= qualify_statement(value->v.calculated, tables, column_list_alias);
 			break;
 		case FUNCTION_NAME:
 			// If it starts with '$$', trim those off and leave it alone (MUMPS expression)
@@ -70,32 +70,32 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables) {
 		break;
 	case binary_STATEMENT:
 		UNPACK_SQL_STATEMENT(binary, stmt, binary);
-		result |= qualify_statement(binary->operands[0], tables);
-		result |= qualify_statement(binary->operands[1], tables);
+		result |= qualify_statement(binary->operands[0], tables, column_list_alias);
+		result |= qualify_statement(binary->operands[1], tables, column_list_alias);
 		break;
 	case unary_STATEMENT:
 		UNPACK_SQL_STATEMENT(unary, stmt, unary);
-		result |= qualify_statement(unary->operand, tables);
+		result |= qualify_statement(unary->operand, tables, column_list_alias);
 		break;
 	case function_call_STATEMENT:
 		UNPACK_SQL_STATEMENT(fc, stmt, function_call);
 		UNPACK_SQL_STATEMENT(column_list, fc->parameters, column_list);
 		// TODO: qualify function name?
-		result |= qualify_statement(fc->function_name, tables);
+		result |= qualify_statement(fc->function_name, tables, column_list_alias);
 		//result |= qualify_statement(fc->function_name, tables);
-		result |= qualify_column_list(column_list, tables);
+		result |= qualify_column_list(column_list, tables, column_list_alias);
 		break;
 	case cas_STATEMENT:
 		UNPACK_SQL_STATEMENT(cas, stmt, cas);
-		result |= qualify_statement(cas->value, tables);
-		result |= qualify_statement(cas->branches, tables);
+		result |= qualify_statement(cas->value, tables, column_list_alias);
+		result |= qualify_statement(cas->branches, tables, column_list_alias);
 		break;
 	case cas_branch_STATEMENT:
 		UNPACK_SQL_STATEMENT(cas_branch, stmt, cas_branch);
 		cur_branch = cas_branch;
 		do {
-			result |= qualify_statement(cur_branch->condition, tables);
-			result |= qualify_statement(cur_branch->value, tables);
+			result |= qualify_statement(cur_branch->condition, tables, column_list_alias);
+			result |= qualify_statement(cur_branch->value, tables, column_list_alias);
 			cur_branch = cur_branch->next;
 		} while (cur_branch != cas_branch);
 		break;
@@ -104,7 +104,7 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables) {
 		UNPACK_SQL_STATEMENT(start_cl, stmt, column_list);
 		cur_cl = start_cl;
 		do {
-			result |= qualify_statement(cur_cl->value, tables);
+			result |= qualify_statement(cur_cl->value, tables, column_list_alias);
 			cur_cl = cur_cl->next;
 		} while(cur_cl != start_cl);
 		break;

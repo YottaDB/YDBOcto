@@ -84,7 +84,6 @@ extern void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, int *plan
 %token ELSE
 %token EXCEPT
 %token EXTRACT
-%token FALSE_TOKEN
 %token FROM
 %token FULL
 %token GLOBAL
@@ -127,7 +126,6 @@ extern void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, int *plan
 %token TABLE
 %token THEN
 %token TO
-%token TRUE_TOKEN
 %token UNION
 %token UNIQUE
 %token UNKNOWN
@@ -140,6 +138,8 @@ extern void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, int *plan
 %token WHEN
 %token WHERE
 
+%token TRUE_TOKEN
+%token FALSE_TOKEN
 %token NULL_TOKEN
 %token ENDOFFILE
 %token COMMA
@@ -160,6 +160,8 @@ extern void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, int *plan
 %token PIPE
 %token TILDE
 %token EXCLAMATION
+%token LEFT_BRACKET
+%token RIGHT_BRACKET
 
 %token LITERAL
 %token FAKE_TOKEN
@@ -283,13 +285,24 @@ boolean_test_tail_tail
   ;
 
 truth_value
-  : TRUE_TOKEN { WARNING(ERR_FEATURE_NOT_IMPLEMENTED, "truth_value: TRUE_TOKEN"); YYABORT; }
-  | FALSE_TOKEN { WARNING(ERR_FEATURE_NOT_IMPLEMENTED, "truth_value: FALSE_TOKEN"); YYABORT; }
+  : TRUE_TOKEN {
+      SQL_STATEMENT($$, value_STATEMENT);
+      MALLOC_STATEMENT($$, value, SqlValue);
+      ($$)->v.value->type = BOOLEAN_VALUE;
+      ($$)->v.value->v.string_literal = "1";
+    }
+  | FALSE_TOKEN {
+      SQL_STATEMENT($$, value_STATEMENT);
+      MALLOC_STATEMENT($$, value, SqlValue);
+      ($$)->v.value->type = BOOLEAN_VALUE;
+      ($$)->v.value->v.string_literal = "0";
+    }
   | UNKNOWN { WARNING(ERR_FEATURE_NOT_IMPLEMENTED, "truth_value: UNKNOWN"); YYABORT; }
   ;
 
 boolean_primary
   : predicate { $$ = $predicate; }
+  | truth_value { $$ = $truth_value; }
   | LEFT_PAREN search_condition RIGHT_PAREN { $$ = $search_condition; }
   ;
 
@@ -419,7 +432,18 @@ in_value_list
       UNPACK_SQL_STATEMENT(column_list, $$, column_list);
       dqinit(column_list);
     }
-
+  | truth_value in_value_list_tail {
+      SQL_STATEMENT($$, column_list_STATEMENT);
+      MALLOC_STATEMENT($$, column_list, SqlColumnList);
+      SqlColumnList *column_list, *cl_tail, *cl_temp;
+      UNPACK_SQL_STATEMENT(column_list, $$, column_list);
+      column_list->value = $truth_value;
+      dqinit(column_list);
+      if($in_value_list_tail != NULL) {
+        UNPACK_SQL_STATEMENT(cl_tail, $in_value_list_tail, column_list);
+        dqinsert(column_list, cl_tail, cl_temp);
+      }
+    }
   | value_expression in_value_list_tail {
       SQL_STATEMENT($$, column_list_STATEMENT);
       MALLOC_STATEMENT($$, column_list, SqlColumnList);
@@ -484,7 +508,6 @@ row_value_constructor_list_tail
 
 row_value_constructor_element
   : value_expression { $$ = $1; }
-  | null_specification { $$ = $1; }
   | default_specification { $$ = $1; }
   ;
 
@@ -493,12 +516,19 @@ row_value_constructor_element
 */
 value_expression
   : numeric_value_expression { $$ = $1; }
+//  | truth_value { $$ = $1; }
+  | null_specification { $$ = $1; }
 //  | datetime_value_expression
 //  | interval_expression
   ;
 
 null_specification
-  : NULL_TOKEN { WARNING(ERR_FEATURE_NOT_IMPLEMENTED, "null_specification: NULL_TOKEN"); YYABORT; }
+  : NULL_TOKEN {
+      SQL_STATEMENT(($$), value_STATEMENT);
+      MALLOC_STATEMENT(($$), value, SqlValue);
+      ($$)->v.value->type = NUL_VALUE;
+      ($$)->v.value->v.string_literal = "";
+    }
   ;
 
 default_specification
@@ -583,7 +613,7 @@ collation_name
   ;
 
 numeric_primary
-  : value_expression_primary { $$ = $1; }
+  : value_expression_primary optional_subscript { $$ = $1; }
 //  | numeric_value_function
   ;
 
@@ -596,7 +626,7 @@ value_expression_primary
   | column_reference { $$ = $1; }
   | set_function_specification { $$ = $1; }
   | scalar_subquery { $$ = $1; }
-//  | case_expression
+  | case_expression { $$ = $1; }
   | LEFT_PAREN value_expression RIGHT_PAREN { $$ = $2; }
 //  | cast_specification
   ;
@@ -621,6 +651,24 @@ simple_case
       cas->branches = $simple_when_clause;
       cas->optional_else = $optional_else_clause;
     }
+  | CASE simple_when_clause optional_else_clause END {
+      SQL_STATEMENT($$, cas_STATEMENT);
+      MALLOC_STATEMENT($$, cas, SqlCaseStatement);
+      SqlCaseStatement *cas;
+      UNPACK_SQL_STATEMENT(cas, $$, cas);
+      cas->value = NULL;
+      cas->branches = $simple_when_clause;
+      cas->optional_else = $optional_else_clause;
+    }
+  | CASE search_condition simple_when_clause optional_else_clause END {
+      SQL_STATEMENT($$, cas_STATEMENT);
+      MALLOC_STATEMENT($$, cas, SqlCaseStatement);
+      SqlCaseStatement *cas;
+      UNPACK_SQL_STATEMENT(cas, $$, cas);
+      cas->value = $search_condition;
+      cas->branches = $simple_when_clause;
+      cas->optional_else = $optional_else_clause;
+    }
   ;
 
 simple_when_clause
@@ -630,6 +678,19 @@ simple_when_clause
       SqlCaseBranchStatement *cas_branch, *tail_cas_branch, *t_cas_branch;
       UNPACK_SQL_STATEMENT(cas_branch, $$, cas_branch);
       cas_branch->condition = $value_expression;
+      cas_branch->value = $result;
+      dqinit(cas_branch);
+      if($simple_when_clause_tail != NULL) {
+        UNPACK_SQL_STATEMENT(tail_cas_branch, $simple_when_clause_tail, cas_branch);
+        dqinsert(cas_branch, tail_cas_branch, t_cas_branch);
+      }
+    }
+  | WHEN search_condition THEN result simple_when_clause_tail {
+      SQL_STATEMENT($$, cas_branch_STATEMENT);
+      MALLOC_STATEMENT($$, cas_branch, SqlCaseBranchStatement);
+      SqlCaseBranchStatement *cas_branch, *tail_cas_branch, *t_cas_branch;
+      UNPACK_SQL_STATEMENT(cas_branch, $$, cas_branch);
+      cas_branch->condition = $search_condition;
       cas_branch->value = $result;
       dqinit(cas_branch);
       if($simple_when_clause_tail != NULL) {
@@ -651,12 +712,6 @@ optional_else_clause
 
 result
   : value_expression { $$ = $1; }
-  | NULL_TOKEN {
-      SQL_STATEMENT(($$), value_STATEMENT);
-      MALLOC_STATEMENT(($$), value, SqlValue);
-      ($$)->v.value->type = NUL_VALUE;
-      ($$)->v.value->v.string_literal = "";
-    }
   ;
 
 
@@ -703,85 +758,10 @@ generic_function_call
     }
   ;
 
-non_query_value_expression
-  : non_query_numeric_value_expression {
-      SQL_STATEMENT($$, value_STATEMENT);
-      MALLOC_STATEMENT($$, value, SqlValue);
-      ($$)->v.value->type = CALCULATED_VALUE;
-      ($$)->v.value->v.calculated = $1;
-    }
-  ;
-
-non_query_numeric_value_expression
-  : non_query_term { $$ = $1; }
-  | non_query_numeric_value_expression PLUS non_query_term {
-      SQL_STATEMENT($$, binary_STATEMENT);
-      MALLOC_STATEMENT($$, binary, SqlBinaryOperation);
-      ($$)->v.binary->operation = ADDITION;
-      ($$)->v.binary->operands[0] = ($1);
-      ($$)->v.binary->operands[1] = ($3);
-    }
-  | non_query_numeric_value_expression MINUS non_query_term {
-      SQL_STATEMENT($$, binary_STATEMENT);
-      MALLOC_STATEMENT($$, binary, SqlBinaryOperation);
-      ($$)->v.binary->operation = SUBTRACTION;
-      ($$)->v.binary->operands[0] = ($1);
-      ($$)->v.binary->operands[1] = ($3);
-    }
-  ;
-
-non_query_term
-  : non_query_factor { $$ = $1; }
-  | non_query_term ASTERISK non_query_factor {
-      SQL_STATEMENT($$, binary_STATEMENT);
-      MALLOC_STATEMENT($$, binary, SqlBinaryOperation);
-      ($$)->v.binary->operation = MULTIPLICATION;
-      ($$)->v.binary->operands[0] = ($1);
-      ($$)->v.binary->operands[1] = ($3);
-    }
-  | non_query_term SOLIDUS non_query_factor {
-      SQL_STATEMENT($$, binary_STATEMENT);
-      MALLOC_STATEMENT($$, binary, SqlBinaryOperation);
-      ($$)->v.binary->operation = DVISION;
-      ($$)->v.binary->operands[0] = ($1);
-      ($$)->v.binary->operands[1] = ($3);
-    }
-  | non_query_term concatenation_operator non_query_factor {
-      SQL_STATEMENT($$, binary_STATEMENT);
-      MALLOC_STATEMENT($$, binary, SqlBinaryOperation);
-      ($$)->v.binary->operation = CONCAT;
-      ($$)->v.binary->operands[0] = ($1);
-      ($$)->v.binary->operands[1] = ($3);
-    }
-  ;
-
-non_query_factor
-  : PLUS non_query_numeric_primary factor_tail {
-      SQL_STATEMENT($$, unary_STATEMENT);
-      MALLOC_STATEMENT($$, unary, SqlUnaryOperation);
-      ($$)->v.unary->operation = FORCE_NUM;
-      ($$)->v.unary->operand = ($2);
-    }
-  | MINUS non_query_numeric_primary factor_tail {
-      SQL_STATEMENT($$, unary_STATEMENT);
-      MALLOC_STATEMENT($$, unary, SqlUnaryOperation);
-      ($$)->v.unary->operation = NEGATIVE;
-      ($$)->v.unary->operand = ($2);
-    }
-  | non_query_numeric_primary factor_tail { $$ = $1; }
-  ;
-
-non_query_numeric_primary
-  : non_query_value_expression_primary { $$ = $1; }
-//  | numeric_value_function
-  ;
-
-non_query_value_expression_primary
-  : literal_value { $$ = $1; }
-  | column_reference { $$ = $1; }
-  | set_function_specification { $$ = $1; }
-  | case_expression { $$ = $1; }
-  | LEFT_PAREN non_query_value_expression RIGHT_PAREN { $$ = $2; }
+// We don't abort below because we want this to pass for fetching schema information
+optional_subscript
+  : /* Empty */ { $$ = NULL; }
+  | LEFT_BRACKET literal_value RIGHT_BRACKET { WARNING(ERR_FEATURE_NOT_IMPLEMENTED, "arrays"); }
   ;
 
 column_reference
@@ -1108,7 +1088,7 @@ column_definition
   ;
 
 column_name
-  : identifier  { $$ = $1; }
+  : identifier { $$ = $1; }
   ;
 
 column_definition_tail

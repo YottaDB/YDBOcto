@@ -32,6 +32,7 @@ ADD_BATS_TEST(test_create_table)
 ADD_BATS_TEST(test_natural_join)
 ADD_BATS_TEST(test_outer_join)
 ADD_BATS_TEST(test_error_messages)
+ADD_BATS_TEST(test_seed_queries)
 
 find_program(psql NAMES psql)
 if(psql)

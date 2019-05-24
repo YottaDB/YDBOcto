@@ -36,6 +36,8 @@ SqlStatement *copy_sql_statement(SqlStatement *stmt) {
 	SqlOptionalKeyword *cur_keyword, *start_keyword, *new_keyword, *t_keyword;
 	SqlColumnListAlias *new_cl_alias, *cur_cl_alias, *start_cl_alias, *t_cl_alias;
 	SqlColumnAlias *column_alias;
+	SqlCaseStatement *cas;
+	SqlCaseBranchStatement *cur_cas_branch, *start_cas_branch, *new_cas_branch, *t_cas_branch;
 	int len;
 
 	if(stmt == NULL)
@@ -206,6 +208,35 @@ SqlStatement *copy_sql_statement(SqlStatement *stmt) {
 		MALLOC_STATEMENT(ret, insert, SqlInsertStatement);
 		ret->v.insert->source = copy_sql_statement(insert->source);
 		ret->v.insert->columns = copy_sql_statement(insert->columns);
+		break;
+	case cas_STATEMENT:
+		UNPACK_SQL_STATEMENT(cas, stmt, cas);
+		MALLOC_STATEMENT(ret, cas, SqlCaseStatement);
+		// SqlValue
+		ret->v.cas->value = copy_sql_statement(cas->value);
+		// SqlCaseBranchStatement
+		ret->v.cas->branches = copy_sql_statement(cas->branches);
+		// SqlValue
+		ret->v.cas->optional_else = copy_sql_statement(cas->optional_else);
+		break;
+	case cas_branch_STATEMENT:
+		UNPACK_SQL_STATEMENT(start_cas_branch, stmt, cas_branch);
+		cur_cas_branch = start_cas_branch;
+		do {
+			new_cas_branch = (SqlCaseBranchStatement*)octo_cmalloc(memory_chunks, sizeof(SqlCaseBranchStatement));
+			*new_cas_branch = *cur_cas_branch;
+			// SqlValue
+			new_cas_branch->condition = copy_sql_statement(cur_cas_branch->condition);
+			// SqlValue
+			new_cas_branch->value = copy_sql_statement(cur_cas_branch->value);
+			dqinit(new_cas_branch);
+			if(ret->v.cas_branch) {
+				dqinsert(ret->v.cas_branch, new_cas_branch, t_cas_branch);
+			} else {
+				ret->v.cas_branch = new_cas_branch;
+			}
+			cur_cas_branch = cur_cas_branch->next;
+		} while (cur_cas_branch != start_cas_branch);
 		break;
 	default:
 		FATAL(ERR_UNKNOWN_KEYWORD_STATE, "");

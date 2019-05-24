@@ -32,12 +32,13 @@ SqlStatement *match_column_in_table(SqlTableAlias *table, char *column_name, int
  * For the case of join tables, searches using the <tableName>.<columnName>
  *  followed by searching without seperating the two parts
  */
-SqlColumnAlias *qualify_column_name(SqlValue *column_value, SqlJoin *tables) {
+SqlColumnAlias *qualify_column_name(SqlValue *column_value, SqlJoin *tables, SqlStatement *table_alias_stmt) {
 	int table_name_len = 0, column_name_len = 0;
 	char *table_name = NULL, *column_name = NULL, *c;
 	SqlColumnAlias *ret;
 	SqlStatement *column = NULL, *t_column;
-	SqlTableAlias *cur_alias, *matching_alias;
+	SqlTableAlias *cur_alias, *matching_alias, *table_alias;
+	SqlColumnListAlias *start_cla, *cur_cla;
 	SqlJoin *cur_join, *start_join;
 	SqlValue *value;
 
@@ -60,17 +61,20 @@ SqlColumnAlias *qualify_column_name(SqlValue *column_value, SqlJoin *tables) {
 		column_name_len = c - column_name;
 	}
 
+
 	cur_join = start_join = tables;
 	do {
 		// If we need to match a table, ensure this table
 		//  is the correct one before calling the helper
 		UNPACK_SQL_STATEMENT(cur_alias, cur_join->value, table_alias);
 		if(table_name) {
-			UNPACK_SQL_STATEMENT(value, cur_alias->alias, value);
-			if(memcmp(value->v.reference, table_name, table_name_len) == 0) {
-				matching_alias = cur_alias;
-				column = match_column_in_table(cur_alias, column_name, column_name_len);
-				break;
+			if(cur_alias->alias != NULL) {
+				UNPACK_SQL_STATEMENT(value, cur_alias->alias, value);
+				if(memcmp(value->v.reference, table_name, table_name_len) == 0) {
+					matching_alias = cur_alias;
+					column = match_column_in_table(cur_alias, column_name, column_name_len);
+					break;
+				}
 			}
 		} else {
 			t_column = match_column_in_table(cur_alias, column_name, column_name_len);
@@ -87,12 +91,34 @@ SqlColumnAlias *qualify_column_name(SqlValue *column_value, SqlJoin *tables) {
 		cur_join = cur_join->next;
 	} while(cur_join != start_join);
 
+	if(table_alias_stmt != NULL && table_name == NULL && column == NULL) {
+		UNPACK_SQL_STATEMENT(table_alias, table_alias_stmt, table_alias);
+		UNPACK_SQL_STATEMENT(start_cla, table_alias->column_list, column_list_alias);
+		cur_cla = start_cla;
+		do {
+			if(cur_cla->alias != NULL) {
+				UNPACK_SQL_STATEMENT(value, cur_cla->alias, value);
+				if(memcmp(value->v.reference, column_name, column_name_len) == 0) {
+					if(column != NULL) {
+						WARNING(CUSTOM_ERROR, "Ambgious column name");
+						return NULL;
+					}
+					matching_alias = NULL;
+					SQL_STATEMENT(t_column, column_list_alias_STATEMENT);
+					t_column->v.column_list_alias = cur_cla;
+					column = t_column;
+				}
+			}
+			cur_cla = cur_cla->next;
+		} while(cur_cla != start_cla);
+	}
+
 	if(column == NULL) {
-		WARNING(CUSTOM_ERROR, "Unknown column");
+		WARNING(ERR_UNKNOWN_COLUMN_NAME, column_name);
 		return NULL;
 	}
 
-	ret = (SqlColumnAlias*)malloc(sizeof(SqlColumnAlias));
+	ret = (SqlColumnAlias*)octo_cmalloc(memory_chunks, sizeof(SqlColumnAlias));
 	ret->column = column;
 	PACK_SQL_STATEMENT(ret->table_alias, matching_alias, table_alias);
 

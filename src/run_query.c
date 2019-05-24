@@ -99,7 +99,9 @@ int run_query(char *query, void (*callback)(SqlStatement *, int, void*, char*), 
 		return 1;
 	}
 	switch(result->type) {
-	case select_STATEMENT:
+	// This effectively means select_STATEMENT, but we have to assign ID's inside this function
+	// and so need to propegate them out
+	case table_alias_STATEMENT:
 		HASH128_STATE_INIT(state, 0);
 		hash_canonical_query(&state, result);
 		routine_len = generate_routine_name(&state, routine_name, MAX_STR_CONST, OutputPlan);

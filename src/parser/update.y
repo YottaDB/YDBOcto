@@ -22,6 +22,5 @@ object_column
 
 update_source
   : value_expression
-  | null_specification
   | DEFAULT
   ;

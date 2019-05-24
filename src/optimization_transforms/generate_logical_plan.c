@@ -43,7 +43,8 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt, int *plan_id) {
 	int removed_joins, new_id;
 	enum SqlJoinType cur_join_type;
 
-	UNPACK_SQL_STATEMENT(select_stmt, stmt, select);
+	UNPACK_SQL_STATEMENT(table_alias, stmt, table_alias);
+	UNPACK_SQL_STATEMENT(select_stmt, table_alias->table, select);
 	UNPACK_SQL_STATEMENT(start_join, select_stmt->table_list, join);
 
 	// If this is a SELECT involved with a SET operation, we want to perform

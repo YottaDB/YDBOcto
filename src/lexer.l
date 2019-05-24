@@ -102,7 +102,6 @@ int copied_so_far;
 (?i:ELSE) { return ELSE; }
 (?i:EXCEPT) { return EXCEPT; }
 (?i:EXTRACT) { return EXTRACT; }
-(?i:FALSE_TOKEN) { return FALSE_TOKEN; }
 (?i:FROM) { return FROM; }
 (?i:FULL) { return FULL; }
 (?i:GLOBAL) { return GLOBAL; }
@@ -145,7 +144,6 @@ int copied_so_far;
 (?i:TABLE) { return TABLE; }
 (?i:THEN) { return THEN; }
 (?i:TO) { return TO; }
-(?i:TRUE_TOKEN) { return TRUE_TOKEN; }
 (?i:UNION) { return UNION; }
 (?i:UNIQUE) { return UNIQUE; }
 (?i:UNKNOWN) { return UNKNOWN; }
@@ -159,6 +157,8 @@ int copied_so_far;
 (?i:WHERE) { return WHERE; }
 
 (?i:NULL) { return NULL_TOKEN; }
+(?i:FALSE) { return FALSE_TOKEN; }
+(?i:TRUE) { return TRUE_TOKEN; }
 , { return COMMA; }
 \( { return LEFT_PAREN; }
 \) { return RIGHT_PAREN; }
@@ -178,6 +178,8 @@ int copied_so_far;
 \| { return PIPE; }
 \~ { return TILDE; }
 \! { return EXCLAMATION; }
+\[ { return LEFT_BRACKET; }
+\] { return RIGHT_BRACKET; }
 
 
 [0-9](\.)?[0-9]* {

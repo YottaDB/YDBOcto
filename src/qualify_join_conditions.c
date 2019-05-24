@@ -21,7 +21,7 @@
 #include "octo.h"
 #include "octo_types.h"
 
-int qualify_join_conditions(SqlJoin *join, SqlJoin *tables) {
+int qualify_join_conditions(SqlJoin *join, SqlJoin *tables, SqlStatement *column_list_alias) {
 	SqlJoin *cur_join, *start_join;
 	SqlValueType type;
 	int ret = 0;
@@ -29,7 +29,7 @@ int qualify_join_conditions(SqlJoin *join, SqlJoin *tables) {
 	cur_join = start_join = join;
 	do {
 		if(cur_join->condition) {
-			ret |= qualify_statement(cur_join->condition, tables);
+			ret |= qualify_statement(cur_join->condition, tables, column_list_alias);
 			ret |= populate_data_type(cur_join->condition, &type);
 		}
 		cur_join = cur_join->next;

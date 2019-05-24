@@ -122,6 +122,9 @@ int populate_data_type(SqlStatement *v, SqlValueType *type) {
 		case NUL_VALUE:
 			*type = UNKNOWN_SqlValueType;
 			break;
+		case BOOLEAN_VALUE:
+			*type = BOOLEAN_VALUE;
+			break;
 		default:
 			FATAL(ERR_UNKNOWN_KEYWORD_STATE, "");
 			break;

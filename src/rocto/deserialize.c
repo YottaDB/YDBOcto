@@ -34,13 +34,6 @@
 #define UUID_CLOCK_SEQ	4		// clock_seq_hi_and_res_clock_seq_low
 #define UUID_NODE	12
 
-/*
-#define UUID_TIME_LOW	4
-#define UUID_TIME_MID	2
-#define UUID_TIME_HI_AND_VERSION	2
-#define UUID_CLOCK_SEQ	2		// clock_seq_hi_and_res_clock_seq_low
-#define UUID_NODE	6
-*/
 int64_t ntoh64(int64_t little_endian) {
 	char big_endian[8];		// 64 bits
 	*(int64_t*)big_endian = little_endian;

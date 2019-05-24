@@ -64,6 +64,7 @@ int handle_bind(Bind *bind, RoctoSession *session) {
 	//  which should be OK
 	YDB_ERROR_CHECK(status, &z_status, &z_status_value);
 
+	// printf("\n");
 	// Scan through and calculate a new length for the query
 	ptr = sql_expression.buf_addr;
 	end_ptr = ptr + sql_expression.len_used;
@@ -132,14 +133,21 @@ int handle_bind(Bind *bind, RoctoSession *session) {
 		assert(new_query_ptr < end_new_query_ptr);
 		ptr++;
 	}
+	// printf("query len: %ld\n", strlen(new_query));
+	// printf("len_used: %ld\n", new_query_ptr - new_query);
 
 	// Now we store the bound statement in a global to execute ^session(session_id, "bound", <bound name>)
 	dest_subs = make_buffers(config->global_names.session, 3, session->session_id->buf_addr, "bound", bind->dest);
 
 	free(sql_expression.buf_addr);
+	// new_query[new_query_ptr - new_query] = '\0';
 	sql_expression.buf_addr = new_query;
 	sql_expression.len_alloc = MAX_STR_CONST;
-	sql_expression.len_used = new_query_ptr - new_query;
+	if (bind->num_parms > 1) {
+		sql_expression.len_used = new_query_ptr - new_query;
+	} else {
+		sql_expression.len_used = new_query_ptr - new_query - sizeof(char);
+	}
 
 	// status = ydb_set_s(&session_global, 3, dest_subs, &sql_expression);
 	status = ydb_set_s(&dest_subs[0], 3, &dest_subs[1], &sql_expression);

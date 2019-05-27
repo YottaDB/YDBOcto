@@ -109,6 +109,7 @@ add_library(libocto OBJECT
   memory_chunk.c
   match_column_in_table.c
   natural_join_condition.c
+  regex_to_like.c
   optimization_transforms/optimize_logical_plan.c
   optimization_transforms/lp_get_select.c
   optimization_transforms/lp_get_select_where.c
@@ -191,6 +192,7 @@ add_library(librocto OBJECT
   rocto/make_parameter_status.c
   rocto/make_portal_suspended.c
   rocto/make_no_data.c
+  rocto/make_parameter_description.c
   rocto/send_message.c
   rocto/read_message.c
   rocto/read_bytes.c

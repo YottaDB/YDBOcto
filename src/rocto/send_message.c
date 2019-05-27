@@ -31,7 +31,7 @@ int send_message(RoctoSession *session, BaseMessage *message) {
 	TRACE(ERR_ENTERING_FUNCTION, "send_message");
 
 	// +1 for the message format flag
-	TRACE(ERR_SEND_MESSAGE, message->type, ntohl(message->length));
+	INFO(ERR_SEND_MESSAGE, message->type, ntohl(message->length));
 	result = send(session->connection_fd, (char*)message, ntohl(message->length) + 1, 0);
 	if(result < 0) {
 		if(errno == ECONNRESET)

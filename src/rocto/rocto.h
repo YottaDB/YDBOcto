@@ -63,6 +63,7 @@ ParseComplete *make_parse_complete();
 ParameterStatus *make_parameter_status(StartupMessageParm *parm);
 PortalSuspended *make_portal_suspended();
 NoData *make_no_data();
+ParameterDescription *make_parameter_description();
 
 // read_* messages parse the message and return a pointer to the filled out message type
 // If the message was invalid, the return is NULL and *err is populated with an error message

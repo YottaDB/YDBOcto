@@ -80,8 +80,8 @@ extern void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, int *plan
 %token DESC
 %token DISTINCT
 %token DROP
-%token END
 %token ELSE
+%token END
 %token EXCEPT
 %token EXTRACT
 %token FROM
@@ -101,6 +101,7 @@ extern void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, int *plan
 %token JOIN
 %token KEY
 %token LEFT
+%token LIKE
 %token LIMIT
 %token MAX
 %token MIN
@@ -394,6 +395,29 @@ comparison_predicate
       (($$)->v.unary->operand)->v.binary->operation = BOOLEAN_REGEX_INSENSITIVE;
       (($$)->v.unary->operand)->v.binary->operands[0] = ($1);
       (($$)->v.unary->operand)->v.binary->operands[1] = ($5);
+    }
+  | row_value_constructor LIKE row_value_constructor {
+      SQL_STATEMENT($$, binary_STATEMENT);
+      MALLOC_STATEMENT($$, binary, SqlBinaryOperation);
+      ($$)->v.binary->operation = BOOLEAN_REGEX_SENSITIVE;
+      ($$)->v.binary->operands[0] = ($1);
+      SqlValue *value;
+      UNPACK_SQL_STATEMENT(value, $3, value);
+      value->v.string_literal = regex_to_like(value->v.string_literal);
+      ($$)->v.binary->operands[1] = ($3);
+    }
+  | row_value_constructor NOT LIKE row_value_constructor {
+      SQL_STATEMENT($$, unary_STATEMENT);
+      MALLOC_STATEMENT($$, unary, SqlUnaryOperation);
+      SQL_STATEMENT(($$)->v.unary->operand, binary_STATEMENT);
+      MALLOC_STATEMENT(($$)->v.unary->operand, binary, SqlBinaryOperation);
+      ($$)->v.unary->operation = BOOLEAN_NOT;
+      (($$)->v.unary->operand)->v.binary->operation = BOOLEAN_REGEX_SENSITIVE;
+      (($$)->v.unary->operand)->v.binary->operands[0] = ($1);
+      SqlValue *value;
+      UNPACK_SQL_STATEMENT(value, $4, value);
+      value->v.string_literal = regex_to_like(value->v.string_literal);
+      (($$)->v.unary->operand)->v.binary->operands[1] = ($4);
     }
   ;
 

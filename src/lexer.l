@@ -98,8 +98,8 @@ int copied_so_far;
 (?i:DESC) { return DESC; }
 (?i:DISTINCT) { return DISTINCT; }
 (?i:DROP) { return DROP; }
-(?i:END) { return END; }
 (?i:ELSE) { return ELSE; }
+(?i:END) { return END; }
 (?i:EXCEPT) { return EXCEPT; }
 (?i:EXTRACT) { return EXTRACT; }
 (?i:FROM) { return FROM; }
@@ -119,6 +119,7 @@ int copied_so_far;
 (?i:JOIN) { return JOIN; }
 (?i:KEY) { return KEY; }
 (?i:LEFT) { return LEFT; }
+(?i:LIKE) { return LIKE; }
 (?i:LIMIT) { return LIMIT; }
 (?i:MAX) { return MAX; }
 (?i:MIN) { return MIN; }
@@ -208,7 +209,11 @@ int copied_so_far;
                   (*yylval_param)->v.value->type = PARAMETER_VALUE;
                   }
                 (*yylval_param)->v.value->v.string_literal = (char*)octo_cmalloc(memory_chunks, copied_so_far+1);
-                strncpy((*yylval_param)->v.value->v.string_literal, string_buffer, copied_so_far+1);
+                char *d = (*yylval_param)->v.value->v.string_literal;
+                char *c = string_buffer;
+                while(*c != '\0') {
+                  *d++ = toupper(*c++);
+                }
                 return IDENTIFIER_START;
               }
 [a-zA-Z][a-zA-Z0-9_]*\.[a-zA-Z][a-zA-Z0-9_]* {
@@ -221,7 +226,12 @@ int copied_so_far;
                 (*yylval_param)->v.value = (SqlValue*)octo_cmalloc(memory_chunks, sizeof(SqlValue));
                 (*yylval_param)->v.value->type = COLUMN_REFERENCE;
                 (*yylval_param)->v.value->v.string_literal = (char*)octo_cmalloc(memory_chunks, copied_so_far+1);
-                strncpy((*yylval_param)->v.value->v.string_literal, string_buffer, copied_so_far+1);
+                char *d = (*yylval_param)->v.value->v.string_literal;
+                char *c = string_buffer;
+                while(*c != '\0') {
+                  *d++ = toupper(*c++);
+                }
+                //strncpy((*yylval_param)->v.value->v.string_literal, string_buffer, copied_so_far+1);
                 return IDENTIFIER_START;
               }
 -- { BEGIN(COMMENT); }
@@ -268,7 +278,11 @@ int copied_so_far;
                 (*yylval_param)->v.value = (SqlValue*)octo_cmalloc(memory_chunks, sizeof(SqlValue));
                 (*yylval_param)->v.value->type = COLUMN_REFERENCE;
                 (*yylval_param)->v.value->v.string_literal = (char*)octo_cmalloc(memory_chunks, copied_so_far+1);
-                strncpy((*yylval_param)->v.value->v.string_literal, string_buffer, copied_so_far+1);
+                char *d = (*yylval_param)->v.value->v.string_literal;
+                char *c = string_buffer;
+                while(*c != '\0') {
+                  *d++ = toupper(*c++);
+                }
                 BEGIN(INITIAL);
                 return IDENTIFIER_START;
               }

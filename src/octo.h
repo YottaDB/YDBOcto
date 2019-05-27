@@ -130,6 +130,8 @@ SqlOptionalKeyword *get_keyword_from_keywords(SqlOptionalKeyword *start_keyword,
 int get_key_columns(SqlTable *table, SqlColumn **key_columns);
 int generate_key_name(char *buffer, int buffer_size, int target_key_num, SqlTable *table, SqlColumn **key_columns);
 
+char *regex_to_like(const char *src);
+
 /* Hashing support functions */
 int generate_routine_name(hash128_state_t *state, char *routine_name, int routine_len, FileType file_type);
 void hash_canonical_query(hash128_state_t *state, SqlStatement *stmt);

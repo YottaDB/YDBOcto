@@ -81,6 +81,7 @@ int handle_describe(Describe *describe, RoctoSession *session) {
 	if(found == 0) {
 		/// TODO: return error here
 	}
+	// Send a ParameterDescription
 
 	status = ydb_get_s(&session_global, 3, subs_array, &sql_expression);
 	YDB_ERROR_CHECK(status, &z_status, &z_status_value);
@@ -129,7 +130,8 @@ int handle_describe(Describe *describe, RoctoSession *session) {
 		*cursor_exe_global[2].buf_addr = '0';
 
 		switch(statement->type) {
-			case select_STATEMENT:
+			case table_alias_STATEMENT:
+			case set_operation_STATEMENT:
 				HASH128_STATE_INIT(state, 0);
 				hash_canonical_query(&state, statement);
 				routine_len = generate_routine_name(&state, routine_name, MAX_STR_CONST, OutputPlan);
@@ -150,6 +152,9 @@ int handle_describe(Describe *describe, RoctoSession *session) {
 				}
 				plan_name_b.buf_addr = filename;
 				plan_name_b.len_alloc = plan_name_b.len_used = strlen(filename);
+				/*ParameterDescription *parameter_description = make_parameter_description();
+				send_message(session, (BaseMessage*)(&parameter_description->type));
+				free(parameter_description);*/
 				description = get_plan_row_description(&plan_name_b);
 				send_message(session, (BaseMessage*)(&description->type));
 				free(description);

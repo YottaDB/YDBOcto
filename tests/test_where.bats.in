@@ -194,3 +194,31 @@ WHERE firstName !~* "^z";
 OCTO
   [[ "$(grep -c "|Z" output.txt)" == "0" ]]
 }
+
+@test "LIKE with wildcard" {
+  octo <<OCTO &> output.txt
+SELECT *
+FROM names
+WHERE firstName LIKE 'Z%';
+OCTO
+  [[ "$(grep -c "|Z" output.txt)" == "2" ]]
+}
+
+@test "LIKE with single char match" {
+  octo <<OCTO &> output.txt
+SELECT *
+FROM names
+WHERE firstName LIKE '_ero';
+OCTO
+  [[ "$(grep -c "|Zero" output.txt)" == "2" ]]
+}
+
+@test "NOT LIKE with wildcard" {
+  octo <<OCTO &> output.txt
+SELECT *
+FROM names
+WHERE firstName NOT LIKE 'Z%';
+OCTO
+  [[ "$(grep -c "|Z" output.txt)" == "0" ]]
+  [[ "$(grep -c "|Acid" output.txt)" == "1" ]]
+}

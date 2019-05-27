@@ -51,6 +51,7 @@ enum PSQL_MessageTypes {
 	PSQL_PasswordMessage = 'p',
 	PSQL_PortalSuspended = 's',
 	PSQL_Sync = 'S',
+	PSQL_ParameterDescription = 't',
 	PSQL_Terminate = 'X'
 };
 
@@ -288,6 +289,13 @@ typedef struct __attribute__((packed)) {
 	short num_parms;
 	char data[];
 } RowDescription;
+
+typedef struct __attribute__((packed)) {
+	char type;
+	unsigned int length;
+	short num_parms;
+	char data[];
+} ParameterDescription;
 
 typedef struct {
 	char *name;

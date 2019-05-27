@@ -1,4 +1,6 @@
 {%
+#include <ctype.h>
+
 #include <assert.h>
 
 #include "physical_plan.h"
@@ -109,7 +111,12 @@ int match_expression(char *start, char *column, int column_size) {
         c -= 1;
         if(column_size < c - column_start || c < column_start)
             return -1;
-        memcpy(column, column_start, c - column_start);
+        char *d = column;
+        char *c2 = column_start;
+        while(c2 != c) {
+          *d++ = toupper(*c2);
+          c2++;
+        }
         column[c - column_start] = '\0';
         assert(!(column[0] == '"' && column[1] == '"'));
         return c - start + 1;

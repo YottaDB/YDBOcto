@@ -31,16 +31,12 @@ LogicalPlan *lp_generate_where(SqlStatement *stmt, int *plan_id) {
 	SqlColumnList *cur_cl, *start_cl;
 	SqlCaseStatement *cas;
 	SqlCaseBranchStatement *cas_branch, *cur_branch;
+	SqlTableAlias *table_alias;
 
 	if(stmt == NULL)
 		return NULL;
 
 	switch(stmt->type) {
-	case select_STATEMENT:
-		ret = generate_logical_plan(stmt, plan_id);
-		/// TODO: should this be moved to the optimize phase for this plan?
-		ret = optimize_logical_plan(ret);
-		break;
 	case value_STATEMENT:
 		UNPACK_SQL_STATEMENT(value, stmt, value);
 		switch(value->type) {
@@ -149,6 +145,16 @@ LogicalPlan *lp_generate_where(SqlStatement *stmt, int *plan_id) {
 			}
 		} while(cur_branch != cas_branch);
 		break;
+	case table_alias_STATEMENT:
+		ret = generate_logical_plan(stmt, plan_id);
+		/// TODO: should this be moved to the optimize phase for this plan?
+		ret = optimize_logical_plan(ret);
+		break;
+	case select_STATEMENT:
+		// This should never happen, as all select statements are now wrapped in a table_alias
+	case table_STATEMENT:
+		// In most other cases, we expect that this can be, but not here because a table can't exist
+		// in a WHERE statement
 	default:
 		FATAL(ERR_UNKNOWN_KEYWORD_STATE, "");
 	}

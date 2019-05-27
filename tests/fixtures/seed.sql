@@ -86,3 +86,20 @@ CREATE TABLE pg_catalog.pg_description (
   objsubid INTEGER,
   description VARCHAR
 ) GLOBAL "^%ydboctoocto(""tables"",""pg_catalog"",""pg_description"",keys(""oid"")";
+
+
+create table information_schema.tables (
+ oid integer primary key,
+ table_catalog varchar,
+ table_schema varchar,
+ table_name varchar,
+ table_type varchar,
+ self_referencing_column_name varchar,
+ reference_generation varchar,
+ user_defined_type_catalog varchar,
+ user_defined_type_schema varchar,
+ user_defined_type_name varchar,
+ is_insertable_into varchar,
+ is_typed varchar,
+ commit_action varchar
+) GLOBAL "^%ydboctoocto(""tables"",""information_schema"",""tables"",keys(""oid"")";

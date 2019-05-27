@@ -125,6 +125,14 @@ void replace_table_references_helper(SqlStatement *stmt, SqlTableAlias *old_valu
 		break;
 	case value_STATEMENT:
 		break;
+	case table_alias_STATEMENT:
+		UNPACK_SQL_STATEMENT(table_alias, stmt, table_alias);
+		replace_table_references_helper(table_alias->table, old_value, new_value);
+		replace_table_references_helper(table_alias->column_list, old_value, new_value);
+		break;
+	case table_STATEMENT:
+		// Nothing to do, but we can get here through a table_alias statement
+		break;
 	default:
 		FATAL(ERR_UNKNOWN_KEYWORD_STATE, "");
 		break;

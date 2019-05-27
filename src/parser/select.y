@@ -116,7 +116,7 @@ query_specification
       MALLOC_STATEMENT($$, table_alias, SqlTableAlias);
       UNPACK_SQL_STATEMENT(this_table_alias, $$, table_alias);
       this_table_alias->table = $table_expression;
-      this_table_alias->unique_id = *plan_id++;
+      this_table_alias->unique_id = (*plan_id)++;
       assert(($table_expression)->type == select_STATEMENT);
       SqlSelectStatement *select;
       UNPACK_SQL_STATEMENT(select, $table_expression, select);
@@ -176,7 +176,7 @@ query_specification
       MALLOC_STATEMENT($$, table_alias, SqlTableAlias);
       UNPACK_SQL_STATEMENT(this_table_alias, $$, table_alias);
       this_table_alias->table = $table_expression;
-      this_table_alias->unique_id = *plan_id++;
+      this_table_alias->unique_id = (*plan_id)++;
       SqlSelectStatement *select;
       UNPACK_SQL_STATEMENT(select, this_table_alias->table, select);
       select->select_list = ($select_list);
@@ -247,7 +247,7 @@ query_specification
       MALLOC_STATEMENT($$, table_alias, SqlTableAlias);
       UNPACK_SQL_STATEMENT(this_table_alias, $$, table_alias);
       this_table_alias->column_list = $select_list;
-      this_table_alias->unique_id = *plan_id++;
+      this_table_alias->unique_id = (*plan_id)++;
 
       SQL_STATEMENT(t_stmt, select_STATEMENT);
       MALLOC_STATEMENT(t_stmt, select, SqlSelectStatement);

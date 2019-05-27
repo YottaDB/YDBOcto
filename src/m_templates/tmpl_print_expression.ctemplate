@@ -31,6 +31,7 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan) {
         case NUMBER_LITERAL:
         case STRING_LITERAL:
         case DATE_TIME:
+        case BOOLEAN_VALUE:
             %}"{{ value->v.string_literal }}"{%
             break;
         case COLUMN_REFERENCE:
@@ -232,7 +233,11 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan) {
             %}({%
             TMPL(tmpl_print_expression, condition, pplan);
             %})=({%
-            TMPL(tmpl_print_expression, cas_value, pplan);
+            if(cas_value != NULL) {
+                TMPL(tmpl_print_expression, cas_value, pplan);
+            } else {
+                %}1{%
+            }
             %}):({%
             TMPL(tmpl_print_expression, branch_value, pplan);
             %}),{%

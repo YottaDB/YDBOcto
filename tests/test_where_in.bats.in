@@ -8,9 +8,9 @@ setup() {
 }
 
 @test "where with basic in statement" {
-  run octo <<OCTO
+  octo <<OCTO &> output.txt
 select * from names where firstName in (select firstName from names where firstName="zero" or firstName="Zero");
 OCTO
-  [[ "$output" =~ "Zero|Cool" ]]
-  ! [[ "$output" =~ "Joey" ]]
+  [[ "$(grep -c "Zero|Cool" output.txt)" != "0" ]]
+  [[ "$(grep -c "Joey|" output.txt)" == "0" ]]
 }

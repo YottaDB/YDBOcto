@@ -40,24 +40,24 @@ PhysicalPlan *emit_select_statement(SqlStatement *stmt, char *plan_filename)
 	LogicalPlan *plan, *cur_plan, *column_alias;
 	PhysicalPlan *pplan;
 	char output_key[MAX_STR_CONST], column_id_buffer[MAX_STR_CONST];
-	char buffer[MAX_STR_CONST];
+	char buffer[MAX_STR_CONST * 5];
 	ydb_buffer_t *plan_meta, value_buffer;
 	ydb_buffer_t z_status, z_status_value;
 
 	TRACE(ERR_ENTERING_FUNCTION, "emit_select_statement");
 	memset(output_key, 0, MAX_STR_CONST);
 
-	assert(stmt && stmt->type == table_alias_STATEMENT);
+	assert(stmt && (stmt->type == table_alias_STATEMENT || stmt->type == set_operation_STATEMENT));
 	plan = generate_logical_plan(stmt, &config->plan_id);
 	if(lp_verify_structure(plan) == FALSE)
 		FATAL(ERR_PLAN_NOT_WELL_FORMED, "");
 	if(config->record_error_level <= DEBUG) {
-		lp_emit_plan(buffer, MAX_STR_CONST, plan);
+		lp_emit_plan(buffer, MAX_STR_CONST * 5, plan);
 		DEBUG(ERR_CURPLAN, buffer);
 	}
 	optimize_logical_plan(plan);
 	if(config->record_error_level <= DEBUG) {
-		lp_emit_plan(buffer, MAX_STR_CONST, plan);
+		lp_emit_plan(buffer, MAX_STR_CONST * 5, plan);
 		DEBUG(ERR_CURPLAN, buffer);
 	}
 	pplan = generate_physical_plan(plan, NULL);

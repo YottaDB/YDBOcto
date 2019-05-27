@@ -29,6 +29,7 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *column_
 	SqlValue *value;
 	SqlCaseStatement *cas;
 	SqlCaseBranchStatement *cas_branch, *cur_branch;
+	SqlTableAlias *table_alias;
 	int result;
 
 	if(stmt == NULL)
@@ -107,6 +108,14 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *column_
 			result |= qualify_statement(cur_cl->value, tables, column_list_alias);
 			cur_cl = cur_cl->next;
 		} while(cur_cl != start_cl);
+		break;
+	case table_alias_STATEMENT:
+		UNPACK_SQL_STATEMENT(table_alias, stmt, table_alias);
+		result |= qualify_statement(table_alias->table, tables, column_list_alias);
+		/// TODO: this should be qualified through a different recursion path
+		// result |= qualify_statement(table_alias->column_list, tables, column_list_alias);
+		break;
+	case table_STATEMENT:
 		break;
 	default:
 		FATAL(ERR_UNKNOWN_KEYWORD_STATE, "");

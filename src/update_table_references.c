@@ -127,6 +127,10 @@ void update_table_references_helper(SqlStatement *stmt, int old_unique_id, int n
 		if(table_alias->unique_id == old_unique_id) {
 			table_alias->unique_id = new_unique_id;
 		}
+		update_table_references_helper(table_alias->table, old_unique_id, new_unique_id);
+		break;
+	case table_STATEMENT:
+		// Nothing to do here, but we can get here by recursing a table_alias
 		break;
 	default:
 		FATAL(ERR_UNKNOWN_KEYWORD_STATE, "");

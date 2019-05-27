@@ -42,23 +42,13 @@ void lp_update_plan_keys(LogicalPlan *plan, SqlKey *key) {
  */
 LogicalPlan *lp_generate_set_logical_plan(SqlStatement *stmt, int *plan_id) {
 	SqlStatement *set_operation_stmt;
-	SqlSelectStatement *select_stmt;
 	LogicalPlan *options, *set_operation, *plans, *key, *set_plans[2], *output_key;
 	LogicalPlan *cur_plan;
 	SqlSetOperation *set_operation_sql;
 
-	UNPACK_SQL_STATEMENT(select_stmt, stmt, select);
-
-	assert(select_stmt->set_operation != NULL);
-
 	// Get plans for each of the sub plans
-	set_operation_stmt =  select_stmt->set_operation;
+	set_operation_stmt = stmt;
 	UNPACK_SQL_STATEMENT(set_operation_sql, set_operation_stmt, set_operation);
-	assert(stmt == set_operation_sql->operand[0]);
-	// Verify that the right hand side is also a SELECT statement
-	assert(set_operation_sql->operand[1]->type == select_STATEMENT);
-	// otherwise this will recurse, restore it at the  end of this function for cleanup
-	select_stmt->set_operation = NULL;
 
 	set_plans[0] = generate_logical_plan(set_operation_sql->operand[0], plan_id);
 	set_plans[1] = generate_logical_plan(set_operation_sql->operand[1], plan_id);
@@ -103,6 +93,5 @@ LogicalPlan *lp_generate_set_logical_plan(SqlStatement *stmt, int *plan_id) {
 	///  of columns during the parsing phase
 
 	// Restore set_operation for cleanup
-	select_stmt->set_operation = set_operation_stmt;
 	return set_operation;
 }

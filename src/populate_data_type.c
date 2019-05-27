@@ -50,6 +50,7 @@ int populate_data_type(SqlStatement *v, SqlValueType *type) {
 	SqlBinaryOperation *binary = NULL;
 	SqlUnaryOperation *unary = NULL;
 	SqlTable *table = NULL;
+	SqlTableAlias *table_alias;
 	SqlColumn *column = NULL;
 	SqlValueType child_type1, child_type2;
 	SqlColumnList *cur_list, *start_list;
@@ -234,6 +235,13 @@ int populate_data_type(SqlStatement *v, SqlValueType *type) {
 			result |= populate_data_type(cur_branch->value, type);
 			cur_branch = cur_branch->next;
 		} while (cur_branch != cas_branch);
+		break;
+	case table_alias_STATEMENT:
+		UNPACK_SQL_STATEMENT(table_alias, v, table_alias);
+		result |= populate_data_type(table_alias->table, type);
+		break;
+	case table_STATEMENT:
+		// Do nothing; we got here through a table_alias
 		break;
 	default:
 		FATAL(ERR_UNKNOWN_KEYWORD_STATE, "");

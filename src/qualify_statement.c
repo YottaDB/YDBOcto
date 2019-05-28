@@ -65,6 +65,9 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *column_
 			// Else, match it with a value from the dictionary in ^octo("functions")
 			result = qualify_function_name(stmt);
 			break;
+		case COERCE_TYPE:
+			result |= qualify_statement(value->v.coerce_target, tables, column_list_alias);
+			break;
 		default:
 			break;
 		}

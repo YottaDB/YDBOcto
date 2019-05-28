@@ -132,7 +132,8 @@ typedef enum SqlValueType {
 	FUNCTION_NAME,
 	BOOLEAN_VALUE,
 	PARAMETER_VALUE,
-	NUL_VALUE
+	NUL_VALUE,
+	COERCE_TYPE
 } SqlValueType;
 
 typedef enum SqlDataType {
@@ -355,12 +356,15 @@ typedef struct SqlFunctionCall {
 
 typedef struct SqlValue {
 	enum SqlValueType type;
+	enum SqlValueType coerced_type;
 	enum SqlDataType data_type;
 	union {
 		char *string_literal;
 		char *reference;
 		// SqlBinaryOperation, SqlUnaryOperation, SqlFunctionCall
 		struct SqlStatement *calculated;
+		// Target to coerce; SqlValue, SqlColumnAlias
+		struct SqlStatement *coerce_target;
 	} v;
 } SqlValue;
 

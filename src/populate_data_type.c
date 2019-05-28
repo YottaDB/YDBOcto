@@ -96,7 +96,12 @@ int populate_data_type(SqlStatement *v, SqlValueType *type) {
 				print_yyloc(&v->loc);
 				return 1;
 			}
-			column = find_column(c, table);
+			if(value->coerced_type != UNKNOWN_SqlValueType) {
+				value->type = value->coerced_type;
+			} else {
+				column = find_column(c, table);
+				value->type = column->type;
+			}
 			switch(column->type) {
 			case CHARACTER_STRING_TYPE:
 				*type = STRING_LITERAL;
@@ -125,6 +130,11 @@ int populate_data_type(SqlStatement *v, SqlValueType *type) {
 			break;
 		case BOOLEAN_VALUE:
 			*type = BOOLEAN_VALUE;
+			break;
+		case COERCE_TYPE:
+			*type = value->coerced_type;
+			result |= populate_data_type(value->v.coerce_target, &child_type1);
+			*v = *value->v.coerce_target;
 			break;
 		default:
 			FATAL(ERR_UNKNOWN_KEYWORD_STATE, "");

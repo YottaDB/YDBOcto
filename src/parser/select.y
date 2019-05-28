@@ -257,7 +257,7 @@ query_specification
       MALLOC_STATEMENT(join_statement, join, SqlJoin);
       UNPACK_SQL_STATEMENT(join, join_statement, join);
       dqinit(join);
-      table = find_table("octoOneRowTable");
+      table = find_table("OCTOONEROWTABLE");
       if(table == NULL) {
         ERROR(ERR_UNKNOWN_TABLE, "octoOneRowTable");
         print_yyloc(&($select_list)->loc);

@@ -638,7 +638,28 @@ collation_name
   ;
 
 numeric_primary
-  : value_expression_primary optional_subscript optional_cast_specification { $$ = $1; }
+  : value_expression_primary optional_subscript optional_cast_specification {
+      $$ = $1;
+      if($optional_cast_specification != NULL) {
+          // For now, we support a subset of types. More shall be added as needed
+          SqlValue *value;
+          UNPACK_SQL_STATEMENT(value, $optional_cast_specification, value);
+          char *c = value->v.string_literal;
+          while(*c != '\0') {
+              *c = toupper(*c);
+              c++;
+          }
+          c = value->v.string_literal;
+          if(strcmp(c, "TEXT") == 0) {
+              SQL_STATEMENT($$, value_STATEMENT);
+              MALLOC_STATEMENT($$, value, SqlValue);
+              UNPACK_SQL_STATEMENT(value, $$, value);
+              value->type = COERCE_TYPE;
+              value->coerced_type = STRING_LITERAL;
+              value->v.coerce_target = $value_expression_primary;
+          }
+      }
+    }
 //  | numeric_value_function
   ;
 
@@ -658,7 +679,9 @@ value_expression_primary
 
 optional_cast_specification
   : /* Empty */ { $$ = NULL; }
-  | COLON COLON literal_value
+  | COLON COLON identifier {
+      $$ = $identifier;
+    }
   ;
 
 case_expression

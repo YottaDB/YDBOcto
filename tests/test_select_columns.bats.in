@@ -175,3 +175,12 @@ ORDER BY TABLE_SCHEM;
 OCTO
   [[ "$(grep -c "|" output.txt)" == "3" ]]
 }
+
+@test "cast int column to text" {
+  octo <<OCTO &> output.txt
+SELECT *
+FROM names
+WHERE (id :: text) = "0";
+OCTO
+  [[ "$(grep -c "|" output.txt)" == "1" ]]
+}

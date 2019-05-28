@@ -181,6 +181,7 @@ int copied_so_far;
 \! { return EXCLAMATION; }
 \[ { return LEFT_BRACKET; }
 \] { return RIGHT_BRACKET; }
+\: { return COLON; }
 
 
 [0-9](\.)?[0-9]* {

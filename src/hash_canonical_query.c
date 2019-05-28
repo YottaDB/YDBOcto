@@ -192,6 +192,10 @@ void hash_canonical_query(hash128_state_t *state, SqlStatement *stmt) {
 				/// TODO: this shouldn't happen
 				// assert(FALSE);
 				break;
+			case COERCE_TYPE:
+				add_sql_type_hash(state, value->coerced_type);
+				hash_canonical_query(state, value->v.coerce_target);
+				break;
 			default:
 				assert(FALSE);
 				break;

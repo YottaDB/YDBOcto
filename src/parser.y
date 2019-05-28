@@ -163,6 +163,7 @@ extern void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, int *plan
 %token EXCLAMATION
 %token LEFT_BRACKET
 %token RIGHT_BRACKET
+%token COLON
 
 %token LITERAL
 %token FAKE_TOKEN
@@ -603,7 +604,7 @@ term
   ;
 
 concatenation_operator
-  : PIPE PIPE { WARNING(ERR_FEATURE_NOT_IMPLEMENTED, "concatenation_operator: PIPE PIPE"); YYABORT; }
+  : PIPE PIPE { /* Left blank on purpose */ } 
   ;
 
 /// TODO: collate_clause is thoroughly ignored below
@@ -637,7 +638,7 @@ collation_name
   ;
 
 numeric_primary
-  : value_expression_primary optional_subscript { $$ = $1; }
+  : value_expression_primary optional_subscript optional_cast_specification { $$ = $1; }
 //  | numeric_value_function
   ;
 
@@ -653,6 +654,11 @@ value_expression_primary
   | case_expression { $$ = $1; }
   | LEFT_PAREN value_expression RIGHT_PAREN { $$ = $2; }
 //  | cast_specification
+  ;
+
+optional_cast_specification
+  : /* Empty */ { $$ = NULL; }
+  | COLON COLON literal_value
   ;
 
 case_expression

@@ -103,3 +103,37 @@ create table information_schema.tables (
  is_typed varchar,
  commit_action varchar
 ) GLOBAL "^%ydboctoocto(""tables"",""information_schema"",""tables"",keys(""oid"")";
+
+
+create table pg_catalog.pg_proc(
+ oid integer primary key,
+ proname varchar,
+ pronamespace integer,
+ proowner integer,
+ prolang integer,
+ procost integer,
+ prorows integer,
+ provariadic integer,
+ protransform varchar,
+ proisagg integer,
+ proiswindow integer,
+ prosecdef integer,
+ proleakproof integer,
+ proisstrict integer,
+ proretset integer,
+ provolatile varchar,
+ proparallel varchar,
+ pronargs integer,
+ pronargdefaults integer,
+ prorettype integer,
+ proargtypes integer,
+ proallargtypes integer,
+ proargmodes varchar,
+ proargnames varchar,
+ proargdefaults varchar,
+ protrftypes integer,
+ prosrc varchar,
+ probin varchar,
+ proconfig varchar,
+ proacl varchar
+) GLOBAL "^%ydboctoocto(""tables"",""information_schema"",""tables"",keys(""oid"")";

@@ -145,8 +145,11 @@ int populate_data_type(SqlStatement *v, SqlValueType *type) {
 		case SUBTRACTION:
 		case DVISION:
 		case MULTIPLICATION:
-		case CONCAT:
 			*type = child_type1;
+			break;
+		case CONCAT:
+			// Postgres suggests we should force things into a string when we encounter this
+			child_type1 = child_type2 = *type = CHARACTER_STRING_TYPE;
 			break;
 		default:
 			*type = BOOLEAN_VALUE;

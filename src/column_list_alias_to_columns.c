@@ -17,6 +17,7 @@
 #include <stdlib.h>
 #include <assert.h>
 #include <string.h>
+#include <ctype.h>
 
 #include "octo.h"
 #include "octo_types.h"
@@ -28,13 +29,14 @@
 SqlColumn *column_list_alias_to_columns(SqlTableAlias *table_alias) {
 	SqlColumnListAlias *cla_start, *cla_cur;
 	SqlColumn *start_column = NULL, *cur_column, *t_column;
+	SqlValue *value;
 
 	if(table_alias->column_list == NULL)
 		return NULL;
 	UNPACK_SQL_STATEMENT(cla_start, table_alias->column_list, column_list_alias);
 	cla_cur = cla_start;
 	do {
-		cur_column = (SqlColumn*)malloc(sizeof(SqlColumn));
+		cur_column = (SqlColumn*)octo_cmalloc(memory_chunks, sizeof(SqlColumn));
 		memset(cur_column, 0, sizeof(SqlColumn));
 		cur_column->table = table_alias->table;
 		if(cla_cur != NULL) {

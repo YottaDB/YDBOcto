@@ -89,7 +89,7 @@ void hash_canonical_query(hash128_state_t *state, SqlStatement *stmt) {
 			break;
 		case cas_branch_STATEMENT:
 			UNPACK_SQL_STATEMENT(cas_branch, stmt, cas_branch);
-			cur_cas_branch = cas_branch->next;
+			cur_cas_branch = cas_branch;
 			do {
 				add_sql_type_hash(state, cas_branch_STATEMENT);
 				// SqlValue
@@ -97,7 +97,7 @@ void hash_canonical_query(hash128_state_t *state, SqlStatement *stmt) {
 				// SqlValue
 				hash_canonical_query(state, cas_branch->value);
 				cur_cas_branch = cur_cas_branch->next;
-			} while (cur_cas_branch != cas_branch->next);
+			} while (cur_cas_branch != cas_branch);
 			break;
 		case commit_STATEMENT:
 			add_sql_type_hash(state, commit_STATEMENT);
@@ -154,17 +154,17 @@ void hash_canonical_query(hash128_state_t *state, SqlStatement *stmt) {
 			break;
 		case join_STATEMENT:
 			UNPACK_SQL_STATEMENT(join, stmt, join);
-			cur_join = join->next;
+			cur_join = join;
 			do {
 				add_sql_type_hash(state, join_STATEMENT);
+				// SqlJoinType
+				add_sql_type_hash(state, cur_join->type);
 				// SqlTableAlias
-				hash_canonical_query(state, join->value);
+				hash_canonical_query(state, cur_join->value);
 				// SqlValue
-				hash_canonical_query(state, join->condition);
+				hash_canonical_query(state, cur_join->condition);
 				cur_join = cur_join->next;
-			} while (cur_join != join->next);
-			// SqlJoinType
-			add_sql_type_hash(state, join->type);
+			} while (cur_join != join);
 			break;
 		case value_STATEMENT:
 			UNPACK_SQL_STATEMENT(value, stmt, value);

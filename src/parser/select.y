@@ -100,7 +100,8 @@ sort_specification
   ;
 
 sort_key
-  : column_reference { $$ = $1; }
+  /// TODO: we somehow need to influence YottaDB's collation order
+  : column_reference optional_cast_specification { $$ = $1; }
   | LITERAL { $$ = $1; }
   ;
 

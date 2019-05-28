@@ -7,6 +7,40 @@ CREATE TABLE pg_catalog.pg_namespace (
     nspacl varchar
 ) GLOBAL "^%ydboctoocto(""pg_catalog"",""pg_namespace"",keys(""oid""))";
 
+CREATE TABLE pg_type (
+    typname VARCHAR(25) PRIMARY KEY PIECE "1",
+    typnamespace INTEGER PIECE "2",
+    typowner INTEGER PIECE "3",
+    typlen INTEGER PIECE "4",
+    typbyval INTEGER PIECE "5",
+    typtype VARCHAR(25) PIECE "6",
+    typcategory VARCHAR(25) PIECE "7",
+    typispreferred INTEGER PIECE "8",
+    typisdefined INTEGER PIECE "9",
+    typdelim VARCHAR(25) PIECE "10",
+    typrelid INTEGER PIECE "11",
+    typelem INTEGER PIECE "12",
+    typarray INTEGER PIECE "13",
+    typinput VARCHAR(25) PIECE "14",
+    typoutput VARCHAR(25) PIECE "15",
+    typreceive VARCHAR(25) PIECE "16",
+    typsend VARCHAR(25) PIECE "17",
+    typmodin VARCHAR(25) PIECE "18",
+    typmodout VARCHAR(25) PIECE "19",
+    typanalyze VARCHAR(25) PIECE "20",
+    typalign VARCHAR(25) PIECE "21",
+    typstorage VARCHAR(25) PIECE "22",
+    typnotnull INTEGER PIECE "23",
+    typbasetype INTEGER PIECE "24",
+    typtypmod INTEGER PIECE "25",
+    typndims INTEGER PIECE "26",
+    typcollation INTEGER PIECE "27",
+    typdefaultbin VARCHAR(25) PIECE "28",
+    typdefault VARCHAR(25) PIECE "29",
+    typacl VARCHAR(25) PIECE "30",
+    oid INTEGER PIECE "31"
+) GLOBAL "^%ydboctoocto(""pg_catalog"",""pg_type"",keys(""typname""))";
+
 CREATE TABLE pg_catalog.pg_type (
     typname VARCHAR(25) PRIMARY KEY PIECE "1",
     typnamespace INTEGER PIECE "2",

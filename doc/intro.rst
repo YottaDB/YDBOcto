@@ -161,6 +161,4 @@ Example:
 
 .. parsed-literal::
    octo --input-file=files/commands.txt
-
-
-
+ 

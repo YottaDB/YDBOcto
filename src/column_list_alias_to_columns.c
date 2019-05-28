@@ -17,7 +17,6 @@
 #include <stdlib.h>
 #include <assert.h>
 #include <string.h>
-#include <ctype.h>
 
 #include "octo.h"
 #include "octo_types.h"

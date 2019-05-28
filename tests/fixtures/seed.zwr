@@ -37,7 +37,7 @@ GT.M MUPIP EXTRACT
 ^%ydboctoocto("variables","integer_datetimes")="on"
 ^%ydboctoocto("variables","is_superuser")="on"
 ^%ydboctoocto("variables","server_encoding")="UTF8"
-^%ydboctoocto("variables","server_version")="0.1"
+^%ydboctoocto("variables","server_version")="9.6.5"
 ^%ydboctoocto("variables","session_authorization")="postgres"
 ^%ydboctoocto("variables","standard_conforming_strings")="on"
 ^%ydboctoocto("xref_status","pg_catalog.pg_namespace","nspname")="done"

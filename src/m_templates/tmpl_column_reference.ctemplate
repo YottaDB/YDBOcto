@@ -25,9 +25,6 @@ TEMPLATE(tmpl_column_reference, PhysicalPlan *pplan, SqlColumnAlias *column_alia
     // First check for EXTRACT, then GLOBAL & PIECE, and lastly assembly it ourselves
     //  based on table_alias->source
     if(column_alias->column->type == column_list_alias_STATEMENT) {
-        /// TODO: to handle this case, we need to know which subquery this
-        //   statement belonged too, which requires changes in generate_logical_plan
-        //   to replace these references with a LP_GENERATED_COLUMN
         // We should just change ColumnAlias to be an LP_* with LP_COLUMN_SOURCE
         //  and LP_COLUMN_
         UNPACK_SQL_STATEMENT(cl_alias, column_alias->column, column_list_alias);

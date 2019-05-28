@@ -1,1 +1,1 @@
-CREATE TABLE abc (id INTEGER PRIMARY KEY);
+CREATE TABLE abc (id INTEGER PRIMARY KEY) GLOBAL "^abc(keys(""id""))";

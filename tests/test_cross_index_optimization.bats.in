@@ -24,8 +24,8 @@ OCTO
   [[ $output -eq 1 ]]
   [[ "$(grep -c xref _ydboctoP*.m)" > 0 ]]
   run $ydb_dist/mumps -r %XCMD zwrite ^%ydboctoxref
-  [[ "$output" =~ "^%ydboctoxref(\"names\",\"firstName\",\"Zero\")=" ]]
-  [[ "$output" =~ "^%ydboctoxref(\"names\",\"firstName\")=" ]]
+  [[ "$output" =~ "^%ydboctoxref(\"NAMES\",\"FIRSTNAME\",\"Zero\")=" ]]
+  [[ "$output" =~ "^%ydboctoxref(\"NAMES\",\"FIRSTNAME\")=" ]]
 }
 
 @test "where from table with two keys" {
@@ -42,8 +42,8 @@ OCTO
   [[ $output -eq 1 ]]
   [[ "$(grep -c xref _ydboctoP*.m)" > 0 ]]
   run $ydb_dist/mumps -r %XCMD zwrite ^%ydboctoxref
-  [[ "$output" =~ "^%ydboctoxref(\"names2\",\"lastName\",\"Cool\")=" ]]
-  [[ "$output" =~ "^%ydboctoxref(\"names2\",\"lastName\")=" ]]
+  [[ "$output" =~ "^%ydboctoxref(\"NAMES2\",\"LASTNAME\",\"Cool\")=" ]]
+  [[ "$output" =~ "^%ydboctoxref(\"NAMES2\",\"LASTNAME\")=" ]]
 }
 
 @test "where from table with two keys and where is key" {
@@ -69,8 +69,8 @@ OCTO
   [[ $output -eq 1 ]]
   [[ "$(grep -c xref _ydboctoP*.m)" > 0 ]]
   run $ydb_dist/mumps -r %XCMD zwrite ^%ydboctoxref
-  [[ "$output" =~ "^%ydboctoxref(\"names2\",\"lastName\",\"Cool\")=" ]]
-  [[ "$output" =~ "^%ydboctoxref(\"names2\",\"lastName\")=" ]]
+  [[ "$output" =~ "^%ydboctoxref(\"NAMES2\",\"LASTNAME\",\"Cool\")=" ]]
+  [[ "$output" =~ "^%ydboctoxref(\"NAMES2\",\"LASTNAME\")=" ]]
 }
 
 @test "where from table with two keys and one key is equal to non-key" {
@@ -99,10 +99,10 @@ OCTO
   [[ $output -eq 1 ]]
   $ydb_dist/mumps -r %XCMD 'SET ^names(6)="|Charles|Hathaway"'
   run $ydb_dist/mumps -r %XCMD zwrite ^%ydboctoxref
-  [[ "$output" =~ "%ydboctoxref(\"names\",\"firstName\",\"Charles\",6)" ]]
+  [[ "$output" =~ "%ydboctoxref(\"NAMES\",\"FIRSTNAME\",\"Charles\",6)" ]]
   $ydb_dist/mumps -r %XCMD 'kill ^names(6)'
   run $ydb_dist/mumps -r %XCMD 'ZWRITE ^ydboctoxref'
-  [[ ! ( "$output" =~ "%ydboctoxref(\"names\",\"firstName\",\"Charles\",6)" ) ]]
+  [[ ! ( "$output" =~ "%ydboctoxref(\"NAMES\",\"FIRSTNAME\",\"Charles\",6)" ) ]]
 }
 
 @test "verify that when we iterate on a fix'd key we don't iterate extra xref keys" {

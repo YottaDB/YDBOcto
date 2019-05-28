@@ -36,3 +36,14 @@ on Orders.EmployeeID = o.ShipperID where o.ShipperID = 3;
 OCTO
   # no crash is a success for this test
 }
+
+@test "inner join where ordered joined is inverse of the fix" {
+  octo <<OCTO &> output.txt
+CREATE TABLE customers (customer_id INTEGER PRIMARY KEY, first_name VARCHAR(30), last_name VARCHAR(30), email VARCHAR(64), address VARCHAR(128), city VARCHAR(32), state VARCHAR(2), zipcode VARCHAR(10));
+CREATE TABLE orders (order_id INTEGER PRIMARY KEY, order_date VARCHAR(30), order_amount VARCHAR(30), customer_id INTEGER);
+SELECT * FROM orders as o
+INNER JOIN customers AS c
+ON c.customer_id = o.customer_id;
+OCTO
+  # no crash is a success for this test
+}

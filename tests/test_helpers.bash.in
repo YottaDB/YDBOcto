@@ -15,9 +15,46 @@ init_test() {
   echo "Temporary files in: $test_temp"
   exec >  >(tee -ia $test_temp/stdout.txt)
   exec 2> >(tee -ia $test_temp/stderr.txt >&2)
-  date
   cd $test_temp
   export PATH="@PROJECT_BINARY_DIR@/src:$PATH"
+}
+
+init_tls() {
+	# Generate CA key and certificate
+	openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:2048 -pass pass:tester -out $test_temp/CA.key
+	openssl req -new -nodes -key $test_temp/CA.key -passin pass:tester -days 365 -x509 \
+			-subj "/C=US/ST=PA/L=Malvern/O=Octo/CN=www.yottadb.com" -out $test_temp/CA.crt
+	# Create server key and certificate request
+	openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:2048 -pass pass:tester -out $test_temp/server.key
+	openssl req -new -key $test_temp/server.key -passin pass:tester \
+		-subj "/C=US/ST=PA/L=Malvern/O=Octo/CN=www.yottadb.com" -out $test_temp/server.csr
+	# Sign certificate based on request and local CA
+	openssl x509 -req -in $test_temp/server.csr -CA $test_temp/CA.crt -CAkey $test_temp/CA.key -CAcreateserial \
+		-out server.crt -days 365
+	# Pass private key password to environment variable
+	ydb_tls_passwd_DEVELOPMENT=$(echo tester | $ydb_dist/plugin/gtmcrypt/maskpass | cut -f 3 -d " ")
+	export ydb_tls_passwd_DEVELOPMENT
+  if [[ $# == "0" ]]; then
+    rocto_port=1337
+  else
+    rocto_port=$1
+  fi
+  cat <<OCTO &>> $test_temp/.octo.conf
+rocto: {
+  port: $rocto_port;
+	ssl_on: true;
+}
+
+tls: {
+	CAfile: "$test_temp/CA.crt";
+	CApath: "$test_temp/";
+	DEVELOPMENT: {
+		format: "PEM";
+		cert: "$test_temp/server.crt";
+		key: "$test_temp/server.key";
+	}
+}
+OCTO
 }
 
 copy_test_files() {
@@ -76,6 +113,10 @@ stop_rocto() {
 
 run_psql() {
   PGPASSWORD=ydbrocks psql "sslmode=disable host=localhost port=1337"
+}
+
+run_psql_ssl() {
+  PGPASSWORD=ydbrocks psql "host=localhost port=1337"
 }
 
 setup_go() {

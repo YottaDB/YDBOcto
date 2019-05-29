@@ -25,4 +25,6 @@
 // 0 no protection, 1 protect with data at the "front", 2 protect with data at the end
 #define MEMORY_CHUNK_PROTECT @MEMORY_CHUNK_PROTECT@
 
+#define YDB_TLS_AVAILABLE @YDB_TLS_AVAILABLE@
+
 #endif

@@ -19,10 +19,15 @@ find_package(OpenSSL REQUIRED)
 find_package(CMOCKA)
 find_package(BATS)
 
+if(EXISTS "${YOTTADB_INCLUDE_DIRS}/plugin/libgtmtls.so" AND DEFINED YOTTADB_INCLUDE_DIRS)
+    set(YDB_TLS_AVAILABLE 1)
+else()
+    set(YDB_TLS_AVAILABLE 0)
+endif()
+
 configure_file (
   "${PROJECT_SOURCE_DIR}/src/constants.h.in"
-  "${PROJECT_BINARY_DIR}/constants.h"
-)
+  "${PROJECT_BINARY_DIR}/constants.h")
 
 configure_file (
   "${PROJECT_SOURCE_DIR}/tools/activate.in"
@@ -37,9 +42,7 @@ FLEX_TARGET(PhysicalLexer ${PROJECT_SOURCE_DIR}/src/physical/physical-lexer.l
 # Combine the parser grammars into a single file
 add_custom_command(OUTPUT ${PROJECT_BINARY_DIR}/parser.y
   DEPENDS parser.y
-          parser/select.y
-          parser/insert.y
-          parser/update.y
+          parser/select.y parser/insert.y parser/update.y
           parser/drop.y
           parser/set.y
   COMMAND awk -v path=${PROJECT_SOURCE_DIR}/src/
@@ -50,8 +53,7 @@ add_custom_command(OUTPUT ${PROJECT_BINARY_DIR}/parser.y
 
 BISON_TARGET(OctoParser ${PROJECT_BINARY_DIR}/parser.y
   ${PROJECT_BINARY_DIR}/parser.c)
-FLEX_TARGET(OctoLexer lexer.l ${CMAKE_CURRENT_BINARY_DIR}/lexer.c
-  COMPILE_FLAGS --header-file=${PROJECT_BINARY_DIR}/lexer.h)
+FLEX_TARGET(OctoLexer lexer.l ${CMAKE_CURRENT_BINARY_DIR}/lexer.c COMPILE_FLAGS --header-file=${PROJECT_BINARY_DIR}/lexer.h)
 
 include_directories("${PROJECT_SOURCE_DIR}/src")
 include_directories("${PROJECT_SOURCE_DIR}/src/optimization_transforms")
@@ -172,12 +174,21 @@ add_executable(octo
   $<TARGET_OBJECTS:libhelpers>
 )
 
+if(${YDB_TLS_AVAILABLE})
+  add_library(ydbtls SHARED IMPORTED GLOBAL)
+  set_target_properties(ydbtls PROPERTIES
+    IMPORTED_LOCATION "${YOTTADB_INCLUDE_DIRS}/plugin/libgtmtls.so"
+  )
+endif()
+
+
 add_library(librocto OBJECT
   default_octo_conf.h
   rocto/copy_bind_parameter.c
   rocto/deserialize.c
   rocto/read_bind.c
   rocto/read_startup_message.c
+  rocto/read_ssl_request.c
   rocto/read_query.c
   rocto/read_parse.c
   rocto/read_execute.c
@@ -208,6 +219,7 @@ add_library(librocto OBJECT
   rocto/send_message.c
   rocto/read_message.c
   rocto/read_bytes.c
+  rocto/send_bytes.c
   rocto/rocto_main_loop.c
   rocto/free_error_response.c
   rocto/free_data_row.c
@@ -311,6 +323,11 @@ target_link_libraries(rocto
   ${CONFIG_LIBRARY}
   ${OPENSSL_LIBRARIES}
   pthread)
+if(${YDB_TLS_AVAILABLE})
+    target_link_libraries(rocto ${YOTTADB_LIBRARIES} ${Readline_LIBRARY} ${CONFIG_LIBRARY} ${OPENSSL_LIBRARIES} ydbtls)
+else()
+    target_link_libraries(rocto ${YOTTADB_LIBRARIES} ${Readline_LIBRARY} ${CONFIG_LIBRARY} ${OPENSSL_LIBRARIES})
+endif()
 target_link_libraries(pparser ${YOTTADB_LIBRARIES} ${Readline_LIBRARY} ${CONFIG_LIBRARY} ${OPENSSL_LIBRARIES})
 
 enable_testing()

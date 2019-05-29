@@ -294,6 +294,12 @@ typedef struct __attribute__((packed)) {
 	char data[];
 } ParameterDescription;
 
+// F
+typedef struct __attribute__((packed)) {
+	unsigned int length;
+	int request_code;
+} SSLRequest;
+
 typedef struct {
 	char *name;
 	char *value;

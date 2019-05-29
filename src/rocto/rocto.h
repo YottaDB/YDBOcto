@@ -20,6 +20,11 @@
 #include "errors.h"
 #include "physical_plan.h"
 #include "message_formats.h"
+#include "constants.h"
+
+#if YDB_TLS_AVAILABLE
+#include "ydb_tls_interface.h"
+#endif
 
 typedef struct {
 	int connection_fd;
@@ -28,6 +33,10 @@ typedef struct {
 	char *port;
 	ydb_buffer_t *session_id;
 	int session_ending;
+	int ssl_active;
+#if YDB_TLS_AVAILABLE
+	gtm_tls_socket_t *tls_socket;
+#endif
 } RoctoSession;
 
 typedef struct {
@@ -39,6 +48,7 @@ typedef struct {
 
 void *rocto_helper_waitpid(void *args);
 int send_message(RoctoSession *session, BaseMessage *message);
+int send_bytes(RoctoSession *session, char *message, size_t length);
 BaseMessage *read_message(RoctoSession *session, char *buffer, int buffer_size);
 int read_bytes(RoctoSession *session, char *buffer, int buffer_size, int bytes_to_read);
 int rocto_main_loop(RoctoSession *session);
@@ -80,6 +90,7 @@ Describe *read_describe(BaseMessage *message, ErrorResponse **err);
 
 // This is a special case because it must read more from the buffer
 StartupMessage *read_startup_message(RoctoSession *session, char *data, int data_length, ErrorResponse **err);
+SSLRequest *read_ssl_request(RoctoSession *session, char *data, int data_length, ErrorResponse **err);
 
 // handle_* messages respond to a message of a given type, using send_message if needed
 //  and returns 0 if the exchange is a "success", or non-zero if there was a problem

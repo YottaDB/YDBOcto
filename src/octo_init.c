@@ -254,11 +254,28 @@ int octo_init(int argc, char **argv, int scan_tables) {
 			== CONFIG_FALSE) {
 		FATAL(ERR_BAD_CONFIG, "rocto.port");
 	}
-	if(config_lookup_bool(config_file, "rocto.use_dns", &config->rocto_config.use_dns)
+#if YDB_TLS_AVAILABLE
+	if(config_lookup_string(config_file, "tls.DEVELOPMENT.cert", &config->rocto_config.ssl_cert_file)
 			== CONFIG_FALSE) {
-		FATAL(ERR_BAD_CONFIG, "rocto.use_dns");
+		FATAL(ERR_BAD_CONFIG, "tls.DEVELOPMENT.cert");
 	}
-
+	if(config_lookup_string(config_file, "tls.DEVELOPMENT.key", &config->rocto_config.ssl_key_file)
+			== CONFIG_FALSE) {
+		FATAL(ERR_BAD_CONFIG, "tls.DEVELOPMENT.key");
+	}
+	if(config_lookup_bool(config_file, "rocto.ssl_on", &config->rocto_config.ssl_on)
+			== CONFIG_FALSE) {
+		FATAL(ERR_BAD_CONFIG, "rocto.ssl_on");
+	}
+#else
+	if(config_lookup_bool(config_file, "rocto.ssl_on", &config->rocto_config.ssl_on)
+			== CONFIG_FALSE) {
+		FATAL(ERR_BAD_CONFIG, "rocto.ssl_on");
+	}
+	if (config->rocto_config.ssl_on) {
+		FATAL(ERR_BAD_CONFIG, "rocto.ssl_on set, but YottaDB TLS plugin not installed");
+	}
+#endif
 	// Read in YDB settings
 	ydb_settings = config_lookup(config_file, "yottadb");
 	if(ydb_settings != NULL && config_setting_is_group(ydb_settings) == CONFIG_TRUE) {

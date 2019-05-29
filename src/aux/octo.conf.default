@@ -31,6 +31,7 @@ rocto = {
   use_dns = false
   // Authentication methods; supported options are "md5"
   authentication_method = "md5"
+  ssl_on = false
 }
 
 // Settings controlling YottaDB; these get set as environment variables during startup
@@ -40,3 +41,26 @@ rocto = {
   ydb_ci = "calltab.ci"
   ydb_routines = "."
 }*/
+
+tls: {
+  verify-depth: 7;
+  CAfile: "server.crt";
+  CApath: "/home/jon/YDBOcto/build/";
+  /* dh512: "/home/jdoe/current/tls/dh512.pem"; */
+  /* dh1024: "/home/jdoe/current/tls/dh1024.pem"; */
+  session-timeout: 600;
+
+  /* List of certificate/key pairs specified by identifiers. */
+  PRODUCTION: {
+    format: "PEM";
+    /* Path to the certificate. */
+    cert: "server.crt";
+    key: "server.key";
+  };
+
+  DEVELOPMENT: {
+    // format: "PEM";
+    cert: "server.crt";
+    key: "server.key";
+  };
+};

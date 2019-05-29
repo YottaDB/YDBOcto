@@ -27,13 +27,13 @@ AuthenticationMD5Password *make_authentication_md5_password() {
 	memset(ret, 0, sizeof(AuthenticationMD5Password));
 
 	ret->type = PSQL_AuthenticationMD5Password;
-	ret->length = htonl(12);
+	ret->length = htonl(sizeof(int) + sizeof(int) + sizeof(char) * 4);
 	ret->md5_required = htonl(5);
 	/// TODO: this should be a random number
-	ret->salt[0] = 42;
-	ret->salt[1] = 42;
-	ret->salt[2] = 42;
-	ret->salt[3] = 42;
+	ret->salt[0] = 12;
+	ret->salt[1] = 12;
+	ret->salt[2] = 12;
+	ret->salt[3] = 12;
 
 	return ret;
 }

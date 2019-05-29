@@ -31,6 +31,11 @@ macro(ADD_UNIT_TEST_WITH_OPTIONS TEST_NAME TEST_FILE WRAP_FUNCTION)
     ${OPENSSL_LIBRARIES}
     pthread
   )
+  if(${YDB_TLS_AVAILABLE})
+    target_link_libraries(${TEST_NAME}
+      ydbtls
+    )
+  endif()
   add_test(${TEST_NAME} ${TEST_NAME})
 endmacro(ADD_UNIT_TEST_WITH_OPTIONS)
 
@@ -59,8 +64,6 @@ ADD_UNIT_TEST_WITH_OPTIONS(test_handle_query src/rocto/test_handle_query "${func
 ADD_UNIT_TEST_WITH_OPTIONS(test_make_authentication_md5_password src/rocto/test_make_authentication_md5_password "")
 ADD_UNIT_TEST_WITH_OPTIONS(test_make_authentication_ok src/rocto/test_make_authentication_ok "")
 ADD_UNIT_TEST_WITH_OPTIONS(test_read_parse src/rocto/test_read_parse "")
-set(functions_to_wrap recv)
-ADD_UNIT_TEST_WITH_OPTIONS(test_read_bytes src/rocto/test_read_bytes "${functions_to_wrap}")
 ADD_UNIT_TEST_WITH_OPTIONS(test_read_sync src/rocto/test_read_sync "")
 ADD_UNIT_TEST_WITH_OPTIONS(test_read_execute src/rocto/test_read_execute "")
 ADD_UNIT_TEST_WITH_OPTIONS(test_make_parse_complete src/rocto/test_make_parse_complete "")
@@ -74,3 +77,4 @@ ADD_UNIT_TEST_WITH_OPTIONS(test_read_terminate src/rocto/test_read_terminate "")
 ADD_UNIT_TEST_WITH_OPTIONS(test_read_flush src/rocto/test_read_flush "")
 ADD_UNIT_TEST_WITH_OPTIONS(test_generate_routine_name src/test_generate_routine_name "")
 ADD_UNIT_TEST_WITH_OPTIONS(test_deserialize src/rocto/test_deserialize "")
+ADD_UNIT_TEST_WITH_OPTIONS(test_read_ssl_request src/rocto/test_read_ssl_request "")

@@ -52,7 +52,6 @@ int rocto_main_loop(RoctoSession *session) {
 	select_timeout.tv_usec = 1;
 
 	while (TRUE) {
-
 		// Send ready if there is not a pending message
 		do {
 			FD_ZERO(&rfds);

@@ -1,0 +1,22 @@
+tls: {
+        verify-depth: 7;
+        CAfile: "/home/jon/YDBOcto/build/roctoCA.crt";
+        CApath: "/home/jon/YDBOcto/build/";
+        /* dh512: "/home/jdoe/current/tls/dh512.pem"; */
+        /* dh1024: "/home/jdoe/current/tls/dh1024.pem"; */
+        session-timeout: 600;
+
+        /* List of certificate/key pairs specified by identifiers. */
+        PRODUCTION: {
+                      format: "PEM";
+                      /* Path to the certificate. */
+                      cert: "/home/jon/YDBOcto/build/server.crt";
+                      key: "/home/jon/YDBOcto/build/server.key";
+        };
+
+        DEVELOPMENT: {
+                      format: "PEM";
+                      cert: "/home/jon/YDBOcto/build/server.crt";
+                      key: "/home/jon/YDBOcto/build/server.key";
+        };
+  };

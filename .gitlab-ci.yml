@@ -35,6 +35,15 @@ make:
     when: always
   script: ./tools/ci/build.sh
 
+make-tls:
+  image: yottadb/yottadb-base:latest-master
+  stage: build
+  artifacts:
+    paths:
+      - build/
+    when: always
+  script: ./tools/ci/build-tls.sh
+
 pages:
   image: yottadb/yottadb-base
   stage: docs

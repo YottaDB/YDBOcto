@@ -15,6 +15,9 @@ load test_helpers
 setup() {
   init_test
   createdb
+  if [[ @YDB_TLS_AVAILABLE@ -eq 1 ]]; then
+    init_tls
+  fi
   load_fixture names.sql
   load_fixture names.zwr
   start_rocto
@@ -25,23 +28,41 @@ teardown() {
 }
 
 @test "select wildcard columns" {
+  if [[ @YDB_TLS_AVAILABLE@ -eq 1 ]]; then
+  run_psql_ssl <<OCTO &> output.txt
+SELECT * FROM names;
+OCTO
+else
   run_psql <<OCTO &> output.txt
 SELECT * FROM names;
 OCTO
+  fi
   [[ "$(grep -c -E "Zero.\+|Cool" output.txt)" == "2" ]]
 }
 
 @test "invalid syntax should get an error message" {
+  if [[ @YDB_TLS_AVAILABLE@ -eq 1 ]]; then
+  run_psql_ssl <<OCTO &> output.txt
+SELECT * AFRO names;
+OCTO
+else
   run_psql <<OCTO &> output.txt
 SELECT * AFRO names;
 OCTO
+  fi
   [[ "$(grep -c -E "syntax error" output.txt)" == "1" ]]
 }
 
 @test "ensure correct columns are sent using xref" {
+  if [[ @YDB_TLS_AVAILABLE@ -eq 1 ]]; then
+  run_psql_ssl <<OCTO &> output.txt
+SELECT * FROM names WHERE firstName = "Zero";
+OCTO
+else
   run_psql <<OCTO &> output.txt
 SELECT * FROM names WHERE firstName = "Zero";
 OCTO
+  fi
   [[ "$(grep -c -E "0.+Zero.+Cool" output.txt)" == "1" ]]
 }
 
@@ -72,4 +93,30 @@ OCTO
   # Sleep for a moment so rocto has time to clean the PID
   sleep 1s
   [[ $(ps -ef | awk '$3 == '`cat rocto.pid`' { print $0;}' | wc -l) -eq 0 ]]
+}
+
+@test "ensure error message when YDB_TLS_AVAILABLE not set and ssl_on is set " {
+  stop_rocto
+  if [[ @YDB_TLS_AVAILABLE@ -ne 0 ]]; then
+    skip "YDB_TLS_AVAILABLE is set"
+  fi
+  cat <<OCTO &>> .octo.conf
+rocto: {
+	ssl_on: true;
+}
+
+tls: {
+	CAfile: "$test_temp/CA.crt";
+	CApath: "$test_temp/";
+	DEVELOPMENT: {
+		format: "PEM";
+		cert: "$test_temp/server.crt";
+		key: "$test_temp/server.key";
+	}
+}
+OCTO
+  start_rocto
+  log=$(cat rocto.log)
+  [[ "$log" =~ "FATAL" ]]
+  [[ "$log" =~ "YottaDB TLS plugin not installed" ]]
 }

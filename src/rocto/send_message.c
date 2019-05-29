@@ -16,6 +16,9 @@
 #include <errno.h>
 #include <assert.h>
 
+#include <openssl/ssl.h>
+#include <openssl/err.h>
+
 // Used to convert between network and host endian
 #include <arpa/inet.h>
 
@@ -23,7 +26,9 @@
 #include "message_formats.h"
 
 int send_message(RoctoSession *session, BaseMessage *message) {
-	int result;
+	int result = 0, ossl_error = 0;
+	unsigned long ossl_error_code = 0;
+	char *err = NULL;
 
 	TRACE(ERR_ENTERING_FUNCTION, "send_message");
 

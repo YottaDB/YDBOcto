@@ -22,6 +22,7 @@
 #include <stdlib.h>
 #include <assert.h>
 #include <string.h>
+#include <endian.h>
 
 // Used to convert between network and host endian
 #include <arpa/inet.h>
@@ -30,88 +31,6 @@
 #include "rocto.h"
 #include "message_formats.h"
 #include "helpers.h"
-
-static void test_ntoh64(void **state) {
-	int64_t number = -1;
-	number <<= 8;
-	number = ntoh64(number);
-	assert_int_equal(number, (uint64_t)-1 >> 8);	// Logical shift
-
-	number = -1;
-	number <<= 16;
-	number = ntoh64(number);
-	assert_int_equal(number, (uint64_t)-1 >> 16);	// Logical shift
-
-	number = -1;
-	number <<= 24;
-	number = ntoh64(number);
-	assert_int_equal(number, (uint64_t)-1 >> 24);	// Logical shift
-
-	number = -1;
-	number <<= 32;
-	number = ntoh64(number);
-	assert_int_equal(number, (uint64_t)-1 >> 32);	// Logical shift
-
-	number = -1;
-	number <<= 40;
-	number = ntoh64(number);
-	assert_int_equal(number, (uint64_t)-1 >> 40);	// Logical shift
-
-	number = -1;
-	number <<= 48;
-	number = ntoh64(number);
-	assert_int_equal(number, (uint64_t)-1 >> 48);	// Logical shift
-
-	number = -1;
-	number <<= 56;
-	number = ntoh64(number);
-	assert_int_equal(number, (uint64_t)-1 >> 56);	// Logical shift
-
-	number = -1;
-	number = ntoh64(number);
-	assert_int_equal(number, -1);	// Arithmetic shift
-}
-
-static void test_hton64(void **state) {
-	int64_t number = -1;
-	number <<= 8;
-	number = hton64(number);
-	assert_int_equal(number, (uint64_t)-1 >> 8);	// Logical shift
-
-	number = -1;
-	number <<= 16;
-	number = hton64(number);
-	assert_int_equal(number, (uint64_t)-1 >> 16);	// Logical shift
-
-	number = -1;
-	number <<= 24;
-	number = hton64(number);
-	assert_int_equal(number, (uint64_t)-1 >> 24);	// Logical shift
-
-	number = -1;
-	number <<= 32;
-	number = hton64(number);
-	assert_int_equal(number, (uint64_t)-1 >> 32);	// Logical shift
-
-	number = -1;
-	number <<= 40;
-	number = hton64(number);
-	assert_int_equal(number, (uint64_t)-1 >> 40);	// Logical shift
-
-	number = -1;
-	number <<= 48;
-	number = hton64(number);
-	assert_int_equal(number, (uint64_t)-1 >> 48);	// Logical shift
-
-	number = -1;
-	number <<= 56;
-	number = hton64(number);
-	assert_int_equal(number, (uint64_t)-1 >> 56);	// Logical shift
-
-	number = -1;
-	hton64(number);
-	assert_int_equal(number, -1);	// Arithmetic shift
-}
 
 static void test_byte_to_hex(void **state) {
 	char c = UINT8_MAX, hex[3];
@@ -206,23 +125,23 @@ static void test_bin_to_int32(void **state) {
 static void test_bin_to_int64(void **state) {
 	int64_t result = 0;
 	char bin[8];
-	*(int64_t*)bin = hton64(12);
+	*(int64_t*)bin = (int64_t)htobe64(12);
 	result = bin_to_int64(bin);
-	assert_int_equal(result, ntoh64(*(int64_t*)bin));
+	assert_int_equal(result, (int64_t)be64toh(*(uint64_t*)bin));
 
 	result = 0;
-	*(int64_t*)bin = hton64(256);
+	*(int64_t*)bin = (int64_t)htobe64(256);
 	result = bin_to_int64(bin);
-	assert_int_equal(result, ntoh64(*(int64_t*)bin));
+	assert_int_equal(result, (int64_t)be64toh(*(uint64_t*)bin));
 	result = 0;
-	*(int64_t*)bin = hton64(INT64_MAX);
+	*(int64_t*)bin = (int64_t)htobe64(INT64_MAX);
 	result = bin_to_int64(bin);
-	assert_int_equal(result, ntoh64(*(int64_t*)bin));
+	assert_int_equal(result, (int64_t)be64toh(*(uint64_t*)bin));
 
 	result = -1;
-	*(int64_t*)bin = hton64(0);
+	*(int64_t*)bin = (int64_t)htobe64(0);
 	result = bin_to_int64(bin);
-	assert_int_equal(result, ntoh64(*(int64_t*)bin));
+	assert_int_equal(result, (int64_t)be64toh(*(uint64_t*)bin));
 }
 
 static void test_bin_to_oid(void **state) {
@@ -270,8 +189,6 @@ static void test_bin_to_uuid(void **state) {
 int main(void) {
 	octo_init(0, NULL, FALSE);
 	const struct CMUnitTest tests[] = {
-		   cmocka_unit_test(test_ntoh64),
-		   cmocka_unit_test(test_hton64),
 		   cmocka_unit_test(test_byte_to_hex),
 		   cmocka_unit_test(test_bin_to_bool),
 		   cmocka_unit_test(test_bin_to_char),

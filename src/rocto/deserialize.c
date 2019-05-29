@@ -19,6 +19,7 @@
 #include <string.h>
 #include <assert.h>
 #include <arpa/inet.h>
+#include <endian.h>
 
 #include <libyottadb.h>
 
@@ -34,6 +35,7 @@
 #define UUID_CLOCK_SEQ	4		// clock_seq_hi_and_res_clock_seq_low
 #define UUID_NODE	12
 
+/*
 int64_t ntoh64(int64_t little_endian) {
 	char big_endian[8];		// 64 bits
 	*(int64_t*)big_endian = little_endian;
@@ -59,6 +61,7 @@ int64_t hton64(int64_t big_endian) {
 	}
 	return *(int64_t*)little_endian;
 }
+*/
 
 // Expects hex length >= 3
 char *byte_to_hex(char c, char *hex) {
@@ -108,7 +111,7 @@ int64_t bin_to_int32(char *bin) {
 
 int64_t bin_to_int64(char *bin) {
 	int64_t new_int = 0;
-	new_int = ntoh64(*(int64_t*)bin);
+	new_int = (int64_t)be64toh(*(uint64_t*)bin);
 	return new_int;
 }
 

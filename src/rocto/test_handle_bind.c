@@ -21,6 +21,7 @@
 #include <stdlib.h>
 #include <assert.h>
 #include <string.h>
+#include <endian.h>
 
 // Used to convert between network and host endian
 #include <arpa/inet.h>
@@ -431,7 +432,7 @@ static void test_two_parm_two_code(void **state) {
 
 	short int codes[2] = {0, 1};
 	int64_t value;
-	value = hton64(12345);
+	value = htobe64(12345);
 	bind.dest = "";
 	bind.source = "sample1";
 	bind.num_parm_format_codes = 2;

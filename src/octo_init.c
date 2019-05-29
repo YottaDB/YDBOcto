@@ -254,6 +254,10 @@ int octo_init(int argc, char **argv, int scan_tables) {
 			== CONFIG_FALSE) {
 		FATAL(ERR_BAD_CONFIG, "rocto.port");
 	}
+	if(config_lookup_bool(config_file, "rocto.use_dns", &config->rocto_config.use_dns)
+			== CONFIG_FALSE) {
+		FATAL(ERR_BAD_CONFIG, "rocto.use_dns");
+	}
 #if YDB_TLS_AVAILABLE
 	if(config_lookup_string(config_file, "tls.DEVELOPMENT.cert", &config->rocto_config.ssl_cert_file)
 			== CONFIG_FALSE) {

@@ -130,12 +130,12 @@ int main(int argc, char **argv) {
 		// First we read the startup message, which has a special format
 		// 2x32-bit ints
 		rocto_session.connection_fd = cfd;
-		session.ssl_active = FALSE;
+		rocto_session.ssl_active = FALSE;
 		if (config->rocto_config.use_dns) {
-			result = getnameinfo((const struct sockaddr *)&address, addrlen,
+			result = getnameinfo((const struct sockaddr *)address, addrlen,
 					host_buf, NI_MAXHOST, serv_buf, NI_MAXSERV, 0);
 		} else {
-			result = getnameinfo((const struct sockaddr *)&address, addrlen,
+			result = getnameinfo((const struct sockaddr *)address, addrlen,
 					host_buf, NI_MAXHOST, serv_buf, NI_MAXSERV, NI_NUMERICHOST | NI_NUMERICSERV );
 		}
 		if (0 != result) {
@@ -148,11 +148,11 @@ int main(int argc, char **argv) {
 		rocto_session.session_id = NULL;
 		read_bytes(&rocto_session, buffer, MAX_STR_CONST, sizeof(int) * 2);
 		// Attempt SSL connection, if configured
-		ssl_request = read_ssl_request(&session, buffer, sizeof(int) * 2, &err);
-		if (NULL != ssl_request && TRUE == config->rocto_config.ssl_on) {
+		ssl_request = read_ssl_request(&rocto_session, buffer, sizeof(int) * 2, &err);
+		if (NULL != ssl_request & TRUE == config->rocto_config.ssl_on) {
 #if YDB_TLS_AVAILABLE
 			// gtm_tls_conn_info tls_connection;
-			result = send_bytes(&session, "S", sizeof(char));
+			result = send_bytes(&rocto_session, "S", sizeof(char));
 			if (0 != result) {
 				WARNING(ERR_ROCTO_SEND_FAILED, "failed to send SSL confirmation byte");
 				break;
@@ -205,17 +205,17 @@ int main(int argc, char **argv) {
 				}
 				break;
 			}
-			session.tls_socket = tls_socket;
-			session.ssl_active = TRUE;
-			read_bytes(&session, buffer, MAX_STR_CONST, sizeof(int) * 2);
+			rocto_session.tls_socket = tls_socket;
+			rocto_session.ssl_active = TRUE;
+			read_bytes(&rocto_session, buffer, MAX_STR_CONST, sizeof(int) * 2);
 #endif
-		} else if (NULL != ssl_request && FALSE == config->rocto_config.ssl_on) {
-			result = send_bytes(&session, "N", sizeof(char));
-			read_bytes(&session, buffer, MAX_STR_CONST, sizeof(int) * 2);
+		} else if (NULL != ssl_request & FALSE == config->rocto_config.ssl_on) {
+			result = send_bytes(&rocto_session, "N", sizeof(char));
+			read_bytes(&rocto_session, buffer, MAX_STR_CONST, sizeof(int) * 2);
 		}
 
 		// Attempt unencrypted connection if SSL not requested
-		startup_message = read_startup_message(&session, buffer, sizeof(int) * 2, &err);
+		startup_message = read_startup_message(&rocto_session, buffer, sizeof(int) * 2, &err);
 		if(startup_message == NULL) {
 			send_message(&rocto_session, (BaseMessage*)(&err->type));
 			free(err);
@@ -233,7 +233,7 @@ int main(int argc, char **argv) {
 						   PSQL_Code_Protocol_Violation,
 						   error_message,
 						   0);
-			send_message(&session, (BaseMessage*)(&err->type));
+			send_message(&rocto_session, (BaseMessage*)(&err->type));
 			free(err);
 			free(md5auth);
 			break;
@@ -253,7 +253,7 @@ int main(int argc, char **argv) {
 							   PSQL_Code_Protocol_Violation,
 							   error_message,
 							   0);
-				send_message(&session, (BaseMessage*)(&err->type));
+				send_message(&rocto_session, (BaseMessage*)(&err->type));
 				free(err);
 			}
 			break;

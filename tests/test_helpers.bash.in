@@ -34,6 +34,8 @@ init_tls() {
 	# Pass private key password to environment variable
 	ydb_tls_passwd_DEVELOPMENT=$(echo tester | $ydb_dist/plugin/gtmcrypt/maskpass | cut -f 3 -d " ")
 	export ydb_tls_passwd_DEVELOPMENT
+  ydb_crypt_config=$test_temp/.octo.conf
+  export ydb_crypt_config
   if [[ $# == "0" ]]; then
     rocto_port=1337
   else

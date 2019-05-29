@@ -44,11 +44,12 @@ int handle_bind(Bind *bind, RoctoSession *session) {
 
 	// zstatus buffers
 	YDB_LITERAL_TO_BUFFER("$ZSTATUS", &z_status);
-	INIT_YDB_BUFFER(&z_status_value, MAX_STR_CONST);
 
 	// Fetch the named SQL query from the session ^session(id, "prepared", <name>)
 	src_subs = make_buffers(config->global_names.session, 3, session->session_id->buf_addr, "prepared", bind->source);
 	INIT_YDB_BUFFER(&sql_expression, MAX_STR_CONST);
+	sql_expression.len_alloc -= 1;		// Leave space for null terminator
+
 	status = ydb_get_s(&src_subs[0], 3, &src_subs[1], &sql_expression);
 	if(status == YDB_ERR_GVUNDEF) {
 		err = make_error_response(PSQL_Error_ERROR,
@@ -57,14 +58,11 @@ int handle_bind(Bind *bind, RoctoSession *session) {
 		send_message(session, (BaseMessage*)(&err->type));
 		free_error_response(err);
 		free(sql_expression.buf_addr);
-		free(z_status_value.buf_addr);
 		return -1;
 	}
-	// Handle other errors; this will crash the process with an error,
-	//  which should be OK
+	// Handle other errors; this will crash the process with an error, which should be OK
 	YDB_ERROR_CHECK(status, &z_status, &z_status_value);
 
-	// printf("\n");
 	// Scan through and calculate a new length for the query
 	ptr = sql_expression.buf_addr;
 	end_ptr = ptr + sql_expression.len_used;
@@ -82,9 +80,8 @@ int handle_bind(Bind *bind, RoctoSession *session) {
 			bind_parm = atoi(int_start);
 			*ptr = c;
 			if(bind_parm == -1) {
-				// Special case of a "NULL" value, which we represent as an
-				//  empty string. This is technically incorrect, but life
-				//  goes on
+				// Special case of a "NULL" value, which we represent as an empty string.
+				// This is technically incorrect, but life goes on
 				*new_query_ptr++ = '"';
 				*new_query_ptr++ = '"';
 			} else {
@@ -121,33 +118,25 @@ int handle_bind(Bind *bind, RoctoSession *session) {
 				}
 				if (NULL == new_query_ptr) {
 					free(sql_expression.buf_addr);
-					free(z_status_value.buf_addr);
 					return -1;
 				}
 				// End copy value
 				*new_query_ptr++ = '"';
 				// End prepared statement
 			}
+		} else {
+			*new_query_ptr++ = *ptr++;
 		}
-		*new_query_ptr++ = *ptr;
 		assert(new_query_ptr < end_new_query_ptr);
-		ptr++;
 	}
-	// printf("query len: %ld\n", strlen(new_query));
-	// printf("len_used: %ld\n", new_query_ptr - new_query);
 
 	// Now we store the bound statement in a global to execute ^session(session_id, "bound", <bound name>)
 	dest_subs = make_buffers(config->global_names.session, 3, session->session_id->buf_addr, "bound", bind->dest);
-
 	free(sql_expression.buf_addr);
-	// new_query[new_query_ptr - new_query] = '\0';
+
 	sql_expression.buf_addr = new_query;
 	sql_expression.len_alloc = MAX_STR_CONST;
-	if (bind->num_parms > 1) {
-		sql_expression.len_used = new_query_ptr - new_query;
-	} else {
-		sql_expression.len_used = new_query_ptr - new_query - sizeof(char);
-	}
+	sql_expression.len_used = new_query_ptr - new_query;
 
 	// status = ydb_set_s(&session_global, 3, dest_subs, &sql_expression);
 	status = ydb_set_s(&dest_subs[0], 3, &dest_subs[1], &sql_expression);
@@ -158,9 +147,5 @@ int handle_bind(Bind *bind, RoctoSession *session) {
 	send_message(session, (BaseMessage*)response);
 	free(response);
 
-	//free(sql_expression.buf_addr);
-	free(z_status_value.buf_addr);
-
-	// All done!
 	return 0;
 }

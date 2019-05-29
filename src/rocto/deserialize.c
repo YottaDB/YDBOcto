@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 /* Copyright (C) 2018-2019 YottaDB, LLC
  *
  * This program is free software: you can redistribute it and/or modify

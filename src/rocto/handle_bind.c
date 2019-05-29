@@ -115,6 +115,7 @@ int handle_bind(Bind *bind, RoctoSession *session) {
 						new_query_ptr = copy_text_parameter(session, bind, bind_parm, new_query_ptr, end_new_query_ptr);
 					} else {
 						new_query_ptr = copy_binary_parameter(session, bind, bind_parm, new_query_ptr, end_new_query_ptr);
+					}
 				}
 				if (NULL == new_query_ptr) {
 					free(sql_expression.buf_addr);

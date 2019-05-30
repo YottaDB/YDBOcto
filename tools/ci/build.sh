@@ -31,11 +31,10 @@ cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON ..
 make 2> make_warnings.txt
 ../tools/ci/sort_warnings.sh
 echo -n "Checking for unexpected warning(s)... "
-new_warnings="$(diff sorted_warnings.txt ../tools/ci/expected_warnings.txt)"
-if new_warnings
-then
-  echo "FAIL: "
-  echo $(new_warnings)
+diff sorted_warnings.txt ../tools/ci/expected_warnings.txt &> differences.txt
+if [ $(wc -l differences.txt) -gt 0 ]; then
+  echo "New build warnings detected!"
+  cat differences.txt
   exit 1
 fi
 echo "OK."

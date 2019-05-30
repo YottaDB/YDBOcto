@@ -124,8 +124,14 @@ int emit_plan_helper(char *buffer, size_t buffer_len, int depth, LogicalPlan *pl
 			case PARAMETER_VALUE:
 				data_type_ptr = "PARAMETER";
 				break;
+			case COERCE_TYPE:
+				data_type_ptr = "COERCE_TYPE";
+				break;
 			case NUL_VALUE:
 				data_type_ptr = "NULL";
+				break;
+			case INVALID_SqlValueType:
+				assert(FALSE);
 				break;
 		}
 		SAFE_SNPRINTF(written, buff_ptr, buffer, buffer_len, "\n%*s- type: %s", depth, "", data_type_ptr);

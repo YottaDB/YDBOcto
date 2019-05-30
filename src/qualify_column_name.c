@@ -103,7 +103,7 @@ SqlColumnAlias *qualify_column_name(SqlValue *column_value, SqlJoin *tables, Sql
 						WARNING(CUSTOM_ERROR, "Ambgious column name");
 						return NULL;
 					}
-					matching_alias = table_alias_stmt;
+					UNPACK_SQL_STATEMENT(matching_alias, table_alias_stmt, table_alias);
 					SQL_STATEMENT(t_column, column_list_alias_STATEMENT);
 					t_column->v.column_list_alias = cur_cla;
 					column = t_column;

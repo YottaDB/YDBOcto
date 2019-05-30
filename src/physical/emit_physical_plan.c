@@ -98,7 +98,7 @@ int emit_physical_plan(PhysicalPlan *pplan, char *plan_filename) {
 		routine_name_len = generate_routine_name(&state, routine_name, MAX_STR_CONST, CrossReference);
 		// copy routine name (starts with %)
 		if (0 == routine_name_len) {
-			FATAL(ERR_PLAN_HASH_FAILED);
+			FATAL(ERR_PLAN_HASH_FAILED, "");
 		}
 		// Convert '%' to '_'
 		key->cross_reference_filename = routine_name;

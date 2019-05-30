@@ -113,7 +113,7 @@ int match_expression(char *start, char *column, int column_size) {
             return -1;
         char *d = column;
         char *c2 = column_start;
-        while(c2 != c) {
+        while(c2 < c) {
           *d++ = toupper(*c2);
           c2++;
         }

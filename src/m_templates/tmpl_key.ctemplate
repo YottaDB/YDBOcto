@@ -20,13 +20,6 @@ TEMPLATE(tmpl_key, SqlKey *key) {
     if(key->column) {
         UNPACK_SQL_STATEMENT (value, key->column->columnName, value);
         columnName = value->v.reference;
-        /// TODO: there is a performance hit here; this should be moved to
-        ///  the place where we populate the key name
-        char *c = columnName;
-        while(*c != '\0') {
-          *c = toupper(*c);
-          c++;
-        }
     }
     %}^|"{{ config->global_directory }}"|{{ config->global_names.raw_cursor }}(cursorId,"keys",{{ key->random_id|%d }},"{{ tableName }}","{{ columnName }}"){%
     TEMPLATE_END();

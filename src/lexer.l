@@ -215,6 +215,7 @@ int copied_so_far;
                 while(*c != '\0') {
                   *d++ = toupper(*c++);
                 }
+                *d = '\0';
                 return IDENTIFIER_START;
               }
 [a-zA-Z][a-zA-Z0-9_]*\.[a-zA-Z][a-zA-Z0-9_]* {
@@ -232,7 +233,7 @@ int copied_so_far;
                 while(*c != '\0') {
                   *d++ = toupper(*c++);
                 }
-                //strncpy((*yylval_param)->v.value->v.string_literal, string_buffer, copied_so_far+1);
+                *d = '\0';
                 return IDENTIFIER_START;
               }
 -- { BEGIN(COMMENT); }
@@ -284,6 +285,7 @@ int copied_so_far;
                 while(*c != '\0') {
                   *d++ = toupper(*c++);
                 }
+                *d = '\0';
                 BEGIN(INITIAL);
                 return IDENTIFIER_START;
               }

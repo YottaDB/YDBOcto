@@ -107,7 +107,7 @@ int run_query(char *query, void (*callback)(SqlStatement *, int, void*, char*), 
 		hash_canonical_query(&state, result);
 		routine_len = generate_routine_name(&state, routine_name, MAX_STR_CONST, OutputPlan);
 		if (routine_len < 0) {
-			FATAL(ERR_PLAN_HASH_FAILED);
+			FATAL(ERR_PLAN_HASH_FAILED, "");
 		}
 		snprintf(filename, MAX_STR_CONST, "%s/_%s.m", config->tmp_dir, &routine_name[1]);
 		if (access(filename, F_OK) == -1) {	// file doesn't exist

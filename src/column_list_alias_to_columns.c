@@ -28,7 +28,6 @@
 SqlColumn *column_list_alias_to_columns(SqlTableAlias *table_alias) {
 	SqlColumnListAlias *cla_start, *cla_cur;
 	SqlColumn *start_column = NULL, *cur_column, *t_column;
-	SqlValue *value;
 
 	if(table_alias->column_list == NULL)
 		return NULL;

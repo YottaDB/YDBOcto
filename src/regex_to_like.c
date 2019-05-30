@@ -22,7 +22,8 @@
 #include "octo_types.h"
 
 char *regex_to_like(const char *src) {
-	char *ret, *c, *d, *end;
+	char *ret, *d, *end;
+	const char *c;
 
 	ret = octo_cmalloc(memory_chunks, MAX_STR_CONST);
 	end = ret + MAX_STR_CONST;

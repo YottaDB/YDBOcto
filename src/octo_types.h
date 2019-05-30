@@ -133,7 +133,8 @@ typedef enum SqlValueType {
 	BOOLEAN_VALUE,
 	PARAMETER_VALUE,
 	NUL_VALUE,
-	COERCE_TYPE
+	COERCE_TYPE,
+	INVALID_SqlValueType
 } SqlValueType;
 
 typedef enum SqlDataType {

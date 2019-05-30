@@ -128,7 +128,7 @@ void octo_log(int line, char *file, enum ERROR_LEVEL level, enum ERROR error, ..
 				PSQL_Code_Unknown,
 				buffer,
 				0);
-		//send_message(&rocto_session, (BaseMessage*)(&err->type));
+		send_message(&rocto_session, (BaseMessage*)(&err->type));
 		free_error_response(err);
 		rocto_session.sending_message = FALSE;
 	}

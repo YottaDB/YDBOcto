@@ -96,6 +96,7 @@ int populate_data_type(SqlStatement *v, SqlValueType *type) {
 				print_yyloc(&v->loc);
 				return 1;
 			}
+			assert(value->coerced_type < INVALID_SqlValueType);
 			if(value->coerced_type != UNKNOWN_SqlValueType) {
 				value->type = value->coerced_type;
 			} else {

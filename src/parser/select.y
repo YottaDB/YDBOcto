@@ -352,9 +352,6 @@ table_expression
       MALLOC_STATEMENT($$, select, SqlSelectStatement);
       ($$)->v.select->table_list = ($1);
       ($$)->v.select->where_expression = $where_clause;
-      SqlJoin *join;
-      UNPACK_SQL_STATEMENT(join, $from_clause, join);
-      SqlValueType type;
     }
   ;
 
@@ -491,7 +488,6 @@ table_reference
       MALLOC_STATEMENT($$, join, SqlJoin);
       SqlJoin *join = $$->v.join;
       join->value = $1;
-      SqlValue *value;
       dqinit(join);
     }
   | derived_table correlation_specification {

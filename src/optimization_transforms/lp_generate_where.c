@@ -31,7 +31,6 @@ LogicalPlan *lp_generate_where(SqlStatement *stmt, int *plan_id) {
 	SqlColumnList *cur_cl, *start_cl;
 	SqlCaseStatement *cas;
 	SqlCaseBranchStatement *cas_branch, *cur_branch;
-	SqlTableAlias *table_alias;
 
 	if(stmt == NULL)
 		return NULL;

@@ -27,7 +27,6 @@
  *  LP_COLUMN_LIST and child elements of LP_WHERE and LP_COLUMN_LIST
  */
 LogicalPlan *generate_logical_plan(SqlStatement *stmt, int *plan_id) {
-	SqlStatement *stmt2;
 	SqlSelectStatement *select_stmt;
 	LogicalPlan *insert, *project, *select, *dst, *dst_key;
 	LogicalPlan *criteria, *where, *order_by, *select_options;

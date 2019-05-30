@@ -118,6 +118,7 @@ OCTO
   rocto_pid=$(cat rocto.pid)
   while [[ "$(ps -x | grep -c $rocto_pid)" != "0" ]]; do
     sleep .1s
+  done
   rocto -vv &> rocto.log &
   echo $! > rocto.pid
   log=$(cat rocto.log)

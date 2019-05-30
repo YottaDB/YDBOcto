@@ -115,7 +115,8 @@ tls: {
 	}
 }
 OCTO
-  start_rocto
+  rocto -vv &> rocto.log &
+  echo $! > rocto.pid
   log=$(cat rocto.log)
   [[ "$log" =~ "FATAL" ]]
   [[ "$log" =~ "YottaDB TLS plugin not installed" ]]

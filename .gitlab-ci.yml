@@ -42,7 +42,9 @@ make-tls:
     paths:
       - build/
     when: always
-  script: ./tools/ci/build-tls.sh
+  script:
+      - ./tools/ci/install-tls.sh
+      - ./tools/ci/build.sh
 
 pages:
   image: yottadb/yottadb-base

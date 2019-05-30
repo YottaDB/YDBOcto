@@ -18,7 +18,7 @@ variables:
   GOLANG_VERSION: 1.11.2
 
 before_script:
-  - apt-get update -qq && apt-get install -y -qq build-essential cmake bison flex libcmocka-dev python-pip libreadline-dev git libconfig-dev libssl-dev postgresql-client xxd wget
+  - apt-get update -qq && apt-get install -y -qq build-essential cmake bison flex libcmocka-dev python-pip libreadline-dev git libconfig-dev libssl-dev postgresql-client xxd wget libgcrypt20-dev
   - pip install sphinxcontrib-fulltoc sphinx sphinx_rtd_theme
   - export PATH=/usr/local/go/bin:$PATH
   - wget -O go.tgz -q https://golang.org/dl/go${GOLANG_VERSION}.linux-amd64.tar.gz

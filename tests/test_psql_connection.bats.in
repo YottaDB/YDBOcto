@@ -96,10 +96,10 @@ OCTO
 }
 
 @test "ensure error message when YDB_TLS_AVAILABLE not set and ssl_on is set " {
-  stop_rocto
   if [[ @YDB_TLS_AVAILABLE@ -ne 0 ]]; then
     skip "YDB_TLS_AVAILABLE is set"
   fi
+  stop_rocto
   cat <<OCTO &>> .octo.conf
 rocto: {
 	ssl_on: true;

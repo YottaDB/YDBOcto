@@ -6,4 +6,5 @@ source /opt/yottadb/current/ydb_env_set
 pushd $ydb_dist/plugin/gtmcrypt
 tar -xf source.tar
 make
+make install
 popd

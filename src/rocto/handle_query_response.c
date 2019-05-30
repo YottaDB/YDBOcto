@@ -143,7 +143,10 @@ void handle_query_response(SqlStatement *stmt, int cursor_id, void *_parms, char
 	YDB_ERROR_CHECK(status, &z_status, &z_status_value);
 	row_count = 0;
 
-	while(!YDB_BUFFER_IS_SAME(empty_buffer, row_id_b)) {
+	if (parms->max_data_to_send <= 0) {
+		parms->max_data_to_send = INT32_MAX;
+	}
+	while(row_count < parms->max_data_to_send) {
 		row_count++;
 		status = ydb_get_s(cursor_b, 6, cursor_id_b, row_value_b);
 		YDB_ERROR_CHECK(status, &z_status, &z_status_value);

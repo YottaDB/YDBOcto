@@ -153,6 +153,7 @@ int main(int argc, char **argv) {
 		status = ydb_incr_s(global_buffer, 0, NULL, NULL, session_id_buffer);
 		YDB_ERROR_CHECK(status, &z_status, &z_status_value);
 		rocto_session.session_id = session_id_buffer;
+		rocto_session.session_id->buf_addr[rocto_session.session_id->len_used] = '\0';
 
 		// Populate default parameters
 		var_defaults = make_buffers(config->global_names.octo, 2, "variables", "");

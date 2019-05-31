@@ -171,6 +171,9 @@ int main(int argc, char **argv) {
 				}
 				break;
 			}
+			char *password = NULL;
+			password = getenv("ydb_tls_passwd_DEVELOPMENT");
+			WARNING(CUSTOM_ERROR, "\npassword: %s\n", password);
 			// Set up TLS socket
 			gtm_tls_socket_t *tls_socket;
  			tls_socket = gtm_tls_socket(tls_context, NULL, cfd, "DEVELOPMENT", GTMTLS_OP_SOCKET_DEV);

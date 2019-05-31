@@ -32,12 +32,20 @@ int send_message(RoctoSession *session, BaseMessage *message) {
 
 	// +1 for the message format flag
 	INFO(ERR_SEND_MESSAGE, message->type, ntohl(message->length));
-	result = send(session->connection_fd, (char*)message, ntohl(message->length) + 1, 0);
-	if(result < 0) {
-		if(errno == ECONNRESET)
+	int written_so_far = 0, written_now = 0, to_write = ntohl(message->length) + 1;
+
+	while(written_so_far < to_write) {
+		written_now = send(session->connection_fd, &((char*)message)[written_so_far],
+				to_write - written_so_far, 0);
+		if(written_now < 0) {
+			if(errno == EINTR)
+				continue;
+			if(errno == ECONNRESET)
+				return 1;
+			FATAL(ERR_SYSCALL, "send", errno, strerror(errno));
 			return 1;
-		FATAL(ERR_SYSCALL, "send", errno, strerror(errno));
-		return 1;
+		}
+		written_so_far += written_now;
 	}
 	return 0;
 }

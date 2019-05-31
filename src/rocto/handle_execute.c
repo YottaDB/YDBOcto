@@ -54,22 +54,12 @@ int handle_execute(Execute *execute, RoctoSession *session) {
 
 	// Fetch the named SQL query from the session ^session(id, "prepared", <name>)
 	src_subs = make_buffers(config->global_names.session, 3, session->session_id->buf_addr, "bound", execute->source);
-/* YDB_STRING_TO_BUFFER(config->global_names.session, &session_global);
-	INIT_YDB_BUFFER(source_session_id, session->session_id->len_used);
-	YDB_COPY_BUFFER_TO_BUFFER(session->session_id, source_session_id, done);
-	assert(done == TRUE);
-	YDB_LITERAL_TO_BUFFER("bound", prepared);
-	//YDB_LITERAL_TO_BUFFER(execute->source, source_name);
-	source_name->buf_addr = execute->source;
-	source_name->len_alloc = source_name->len_used = strlen(execute->source);
-*/
 	INIT_YDB_BUFFER(&sql_expression, MAX_STR_CONST);
 	sql_expression.len_alloc -= 1;
 
 	status = ydb_get_s(&src_subs[0], 3, &src_subs[1], &sql_expression);
 	YDB_ERROR_CHECK(status, &z_status, &z_status_value);
 
-	// status = ydb_get_s(&session_global, 3, subs_array, &sql_expression);
 	sql_expression.buf_addr[sql_expression.len_used] = '\0';
 	query_length = strlen(sql_expression.buf_addr);
 

@@ -93,9 +93,9 @@ void hash_canonical_query(hash128_state_t *state, SqlStatement *stmt) {
 			do {
 				add_sql_type_hash(state, cas_branch_STATEMENT);
 				// SqlValue
-				hash_canonical_query(state, cas_branch->condition);
+				hash_canonical_query(state, cur_cas_branch->condition);
 				// SqlValue
-				hash_canonical_query(state, cas_branch->value);
+				hash_canonical_query(state, cur_cas_branch->value);
 				cur_cas_branch = cur_cas_branch->next;
 			} while (cur_cas_branch != cas_branch);
 			break;
@@ -173,7 +173,6 @@ void hash_canonical_query(hash128_state_t *state, SqlStatement *stmt) {
 			add_sql_type_hash(state, value->type);
 			// SqlDataType
 			add_sql_type_hash(state, value->data_type);
-			TRACE(CUSTOM_ERROR, "hash_canonical_query: value_STATEMENT: SqlDataType: %d\n", value->type);
 			switch(value->type) {
 			case NUMBER_LITERAL:
 			case STRING_LITERAL:
@@ -206,11 +205,11 @@ void hash_canonical_query(hash128_state_t *state, SqlStatement *stmt) {
 			cur_column = column;
 			do {
 				add_sql_type_hash(state, column_STATEMENT);
-				hash_canonical_query(state, column->columnName);
+				hash_canonical_query(state, cur_column->columnName);
 				// SqlDataType
-				add_sql_type_hash(state, column->type);
-				hash_canonical_query(state, column->table);
-				hash_canonical_query(state, column->keywords);
+				add_sql_type_hash(state, cur_column->type);
+				hash_canonical_query(state, cur_column->table);
+				hash_canonical_query(state, cur_column->keywords);
 				cur_column = cur_column->next;
 			} while (cur_column != column);
 			break;
@@ -228,7 +227,7 @@ void hash_canonical_query(hash128_state_t *state, SqlStatement *stmt) {
 			do {
 				add_sql_type_hash(state, column_list_STATEMENT);
 				// SqlValue or SqlColumnAlias
-				hash_canonical_query(state, column_list->value);
+				hash_canonical_query(state, cur_column_list->value);
 				cur_column_list = cur_column_list->next;
 			} while (cur_column_list != column_list);
 			break;
@@ -238,13 +237,13 @@ void hash_canonical_query(hash128_state_t *state, SqlStatement *stmt) {
 			do {
 				add_sql_type_hash(state, column_list_alias_STATEMENT);
 				// SqlColumnList
-				hash_canonical_query(state, column_list_alias->column_list);
+				hash_canonical_query(state, cur_column_list_alias->column_list);
 				// SqlValue
-				hash_canonical_query(state, column_list_alias->alias);
+				hash_canonical_query(state, cur_column_list_alias->alias);
 				// SqlOptionalKeyword
-				hash_canonical_query(state, column_list_alias->keywords);
+				hash_canonical_query(state, cur_column_list_alias->keywords);
 				// SqlValueType
-				add_sql_type_hash(state, column_list_alias->type);
+				add_sql_type_hash(state, cur_column_list_alias->type);
 				cur_column_list_alias = cur_column_list_alias->next;
 			} while (cur_column_list_alias != column_list_alias);
 			break;
@@ -309,9 +308,9 @@ void hash_canonical_query(hash128_state_t *state, SqlStatement *stmt) {
 			do {
 				// add_sql_type_hash(state, keyword_STATEMENT);
 				// OptionalKeyword
-				add_sql_type_hash(state, keyword->keyword);
+				add_sql_type_hash(state, cur_keyword->keyword);
 				// SqlValue or SqlSelectStatement
-				hash_canonical_query(state, keyword->v);
+				hash_canonical_query(state, cur_keyword->v);
 				cur_keyword = cur_keyword->next;
 			} while (cur_keyword != keyword);
 			break;

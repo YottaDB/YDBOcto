@@ -14,7 +14,7 @@ OCTO
   run cat output.txt
   [[ "$output" =~ "2|Cereal|Killer" ]]
   ! [[ "$output" =~ "0|Zero|Cool" ]]
-  run grep -c "FOR" ./*.m
+  run grep -c "FOR " ./*.m
   [[ "$output" =~ "0" ]]
 }
 
@@ -26,7 +26,7 @@ OCTO
   [[ "$output" =~ "2|Cereal|Killer" ]]
   [[ "$output" =~ "0|Zero|Cool" ]]
   ! [[ "$output" =~ "Acid|Burn" ]]
-  run grep "FOR" ./*.m
+  run grep "FOR " ./*.m
   ! [[ "$output" =~ $S\(.cursor\(.*\)=\"\":\"2\" ]]
 
 }
@@ -40,7 +40,7 @@ OCTO
   run cat output.txt
   [[ "$output" =~ "1|Acid|Burn|1|Acid|Burn" ]]
   ! [[ "$output" =~ "0|Zero|Cool|1|Acid|Burn" ]]
-  run grep -c "FOR" ./*.m
+  run grep -c "FOR " ./*.m
   [[ "$output" =~ "1" ]]
 }
 
@@ -67,7 +67,7 @@ SELECT * FROM namesWithAges AS t1
 CROSS JOIN namesWithAges AS t2
 WHERE t1.id = t2.age;
 OCTO
-  [[ "$(grep -c FOR ./*.m)" == "1" ]]
+  [[ "$(grep -c "FOR " ./*.m)" == "1" ]]
 }
 
 @test "fixed column optimiations where first column isn't a key" {
@@ -76,7 +76,7 @@ SELECT * FROM namesWithAges AS t1
 CROSS JOIN namesWithAges AS t2
 WHERE t1.age = t2.id;
 OCTO
-  run grep -c "FOR" ./*.m
+  run grep -c "FOR " ./*.m
   [[ "$output" =~ "1" ]]
 }
 
@@ -90,5 +90,5 @@ ON t1.id = t2.id
 INNER JOIN names t3
 ON t2.id = t3.id;
 OCTO
-  [[ "$(grep -c FOR ./*.m)" == "1" ]]
+  [[ "$(grep -c "FOR " ./*.m)" == "1" ]]
 }

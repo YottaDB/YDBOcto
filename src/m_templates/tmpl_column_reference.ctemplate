@@ -109,7 +109,7 @@ TEMPLATE(tmpl_column_reference, PhysicalPlan *pplan, SqlColumnAlias *column_alia
         assert(FALSE);
     }
 
-    %}$P($G({% TMPL(tmpl_emit_source, source, table_name, table_alias->unique_id, MAX_KEY_COUNT, EmitSourceForm_Value); %}),"{{ table_delim }}",{{ piece }}){%
+    %}$PIECE($GET({% TMPL(tmpl_emit_source, source, table_name, table_alias->unique_id, MAX_KEY_COUNT, EmitSourceForm_Value); %}),"{{ table_delim }}",{{ piece }}){%
     
     TEMPLATE_END();
 }

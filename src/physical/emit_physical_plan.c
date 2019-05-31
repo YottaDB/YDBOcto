@@ -87,7 +87,7 @@ int emit_physical_plan(PhysicalPlan *pplan, char *plan_filename) {
 		tableName = value->v.reference;
 		UNPACK_SQL_STATEMENT (value, key->column->columnName, value);
 		columnName = value->v.reference;
-		len = snprintf(plan_name_buffer, MAX_STR_CONST, "myEvilPlan%d", plan_id);
+		len = snprintf(plan_name_buffer, MAX_STR_CONST, "plan%d", plan_id);
 		cur_plan->plan_name = malloc(len+1);
 		memcpy(cur_plan->plan_name, plan_name_buffer, len);
 		cur_plan->plan_name[len] = '\0';

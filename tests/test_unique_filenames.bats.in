@@ -130,3 +130,13 @@ OCTO
   run cat output.txt
   [[ $output -eq 2 ]]
 }
+
+@test "T0001 generate unique plans for row-value (list of values after IN keyword) constructions" {
+  octo <<OCTO &> output.txt
+SELECT * FROM names WHERE firstName IN ('Zero', 'Acid');
+SELECT * FROM names WHERE firstName IN ('Zero', 'Cool');
+OCTO
+  [[ $(ls -l *.m | wc -l) -eq 2 ]]
+  [[ $(grep -c 'Acid|' output.txt) -eq 1 ]]
+  verify_output T0001 output.txt
+}

@@ -85,4 +85,8 @@ Environment Variables
 
 The config file allows setting environment variables to be used at Octo startup.
 
+----------------------------
+Authentication
+----------------------------
 
+Octo supports the :code:`MD5` password authentication method `documented by PostgreSQL <https://www.postgresql.org/docs/current/auth-password.html>`_.

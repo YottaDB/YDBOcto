@@ -23,6 +23,7 @@
 #include "octo_types.h"
 #include "message_formats.h"
 #include "rocto.h"
+#include "helpers.h"
 
 int handle_execute(Execute *execute, RoctoSession *session) {
 	// At the moment, we don't have "bound function"
@@ -33,11 +34,11 @@ int handle_execute(Execute *execute, RoctoSession *session) {
 	QueryResponseParms parms;
 	NoData *no_data;
 	EmptyQueryResponse *empty;
-	ydb_buffer_t subs_array[3];
-	ydb_buffer_t session_global, sql_expression, *source_name = &subs_array[2], *prepared = &subs_array[1], *source_session_id = &subs_array[0];
+	ydb_buffer_t *src_subs;
+	ydb_buffer_t session_global, sql_expression;
 	ydb_buffer_t z_status, z_status_value;
 	size_t new_length = 0, query_length, err_buff_size;
-	int done = FALSE, length, status, execute_parm;
+	int length, status, execute_parm;
 	int run_query_result = 0;
 	char *err_buff;
 	ErrorResponse *err;
@@ -52,19 +53,13 @@ int handle_execute(Execute *execute, RoctoSession *session) {
 	INIT_YDB_BUFFER(&z_status_value, MAX_STR_CONST);
 
 	// Fetch the named SQL query from the session ^session(id, "prepared", <name>)
-	YDB_STRING_TO_BUFFER(config->global_names.session, &session_global);
-	INIT_YDB_BUFFER(source_session_id, session->session_id->len_used);
-	YDB_COPY_BUFFER_TO_BUFFER(session->session_id, source_session_id, done);
-	assert(done == TRUE);
-	YDB_LITERAL_TO_BUFFER("bound", prepared);
-	//YDB_LITERAL_TO_BUFFER(execute->source, source_name);
-	source_name->buf_addr = execute->source;
-	source_name->len_alloc = source_name->len_used = strlen(execute->source);
-
+	src_subs = make_buffers(config->global_names.session, 3, session->session_id->buf_addr, "bound", execute->source);
 	INIT_YDB_BUFFER(&sql_expression, MAX_STR_CONST);
+	sql_expression.len_alloc -= 1;
 
-	status = ydb_get_s(&session_global, 3, subs_array, &sql_expression);
+	status = ydb_get_s(&src_subs[0], 3, &src_subs[1], &sql_expression);
 	YDB_ERROR_CHECK(status, &z_status, &z_status_value);
+
 	sql_expression.buf_addr[sql_expression.len_used] = '\0';
 	query_length = strlen(sql_expression.buf_addr);
 
@@ -88,6 +83,7 @@ int handle_execute(Execute *execute, RoctoSession *session) {
 	//err_buffer = stderr;
 	err_buffer = open_memstream(&err_buff, &err_buff_size);
 
+	parms.max_data_to_send = execute->rows_to_return;
 	do {
 		parms.data_sent = FALSE;
 		run_query_result = run_query(input_buffer_combined, &handle_query_response, (void*)&parms);
@@ -120,6 +116,5 @@ int handle_execute(Execute *execute, RoctoSession *session) {
 	send_message(session, (BaseMessage*)(&response->type));
 	free(response);*/
 
-	// All done!
 	return 0;
 }

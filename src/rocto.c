@@ -64,7 +64,6 @@ int main(int argc, char **argv) {
 	// Setup the address first so we know which protocol to use
 	memset(&addressv6, 0, sizeof(struct sockaddr_in6));
 	address = (struct sockaddr_in *)(&addressv6);
-	addrlen = sizeof(struct sockaddr_in6);
 	address->sin_family = AF_INET;
 	addrlen = sizeof(struct sockaddr_in6);
 	if(inet_pton(AF_INET, config->rocto_config.address, &address->sin_addr) != 1) {
@@ -154,6 +153,7 @@ int main(int argc, char **argv) {
 		status = ydb_incr_s(global_buffer, 0, NULL, NULL, session_id_buffer);
 		YDB_ERROR_CHECK(status, &z_status, &z_status_value);
 		rocto_session.session_id = session_id_buffer;
+		rocto_session.session_id->buf_addr[rocto_session.session_id->len_used] = '\0';
 
 		// Populate default parameters
 		var_defaults = make_buffers(config->global_names.octo, 2, "variables", "");

@@ -24,11 +24,17 @@
 #include <assert.h>
 #include <arpa/inet.h>
 #include <netdb.h>
+#include <pthread.h>
+#include <signal.h>
 
 #include "octo.h"
 #include "rocto/rocto.h"
 #include "rocto/message_formats.h"
 #include "helpers.h"
+
+void handle_sigint(int sig) {
+	rocto_session.session_ending = TRUE;
+}
 
 int main(int argc, char **argv) {
 	BaseMessage *base_message = NULL;
@@ -50,6 +56,9 @@ int main(int argc, char **argv) {
 	ydb_buffer_t ydb_buffers[2], *var_defaults, *var_sets, var_value;
 	ydb_buffer_t *global_buffer = &(ydb_buffers[0]), *session_id_buffer = &(ydb_buffers[1]);
 	ydb_buffer_t z_status, z_status_value;
+
+	// Initialize a handler to respond to ctrl + c
+	signal(SIGINT, handle_sigint);
 
 	// Initialize connection details in case errors prior to connections
 	rocto_session.ip = "IP_UNSET";
@@ -88,20 +97,33 @@ int main(int argc, char **argv) {
 		FATAL(ERR_SYSCALL, "bind", errno, strerror(errno));
 	}
 
-	while (TRUE) {
+	// Spin off another thread to keep an eye on dead processes
+	pthread_t thread_id;
+	pthread_create(&thread_id, NULL, rocto_helper_waitpid, (void*)(&rocto_session));
+
+	while (!rocto_session.session_ending) {
 		if(listen(sfd, 3) < 0) {
+			if(rocto_session.session_ending) {
+				break;
+			}
 			FATAL(ERR_SYSCALL, "listen", errno, strerror(errno));
 		}
 		if((cfd = accept(sfd, (struct sockaddr *)&address, &addrlen)) < 0) {
+			if(rocto_session.session_ending) {
+				break;
+			}
+			if(errno == EINTR) {
+				continue;
+			}
 			FATAL(ERR_SYSCALL, "accept", errno, strerror(errno));
 		}
 		child_id = fork();
 		if(child_id != 0)
 			continue;
+		thread_id = 0;
 		// First we read the startup message, which has a special format
 		// 2x32-bit ints
 		rocto_session.connection_fd = cfd;
-		printf("use_dns: %d\n", config->rocto_config.use_dns);
 		if (config->rocto_config.use_dns) {
 			result = getnameinfo((const struct sockaddr *)&address, addrlen,
 					host_buf, NI_MAXHOST, serv_buf, NI_MAXSERV, 0);
@@ -209,6 +231,11 @@ int main(int argc, char **argv) {
 		break;
 	}
 
+	if(thread_id != 0) {
+		// We only want to close the sfd if we are the parent process which actually listens to
+		// the socket; thread_id will be 0 if we are a child process
+		close(sfd);
+	}
 
 	return 0;
 }

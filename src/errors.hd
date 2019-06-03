@@ -51,4 +51,6 @@ ERROR_DEF(ERR_ROCTO_INVALID_INT_VALUE, "%s: invalid %s value %d: must be %s")
 ERROR_DEF(ERR_ROCTO_INVALID_VERSION, "%s: invalid version %x: must be %x")
 ERROR_DEF(ERR_ROCTO_TOO_MANY_VALUES, "%s: too many %s")
 ERROR_DEF(ERR_ROCTO_TOO_FEW_VALUES, "%s: too few %s")
+ERROR_DEF(ERR_ROCTO_CHILD_STATE_UPDATED, "Process %d switched to state %d")
+
 ERROR_END(CUSTOM_ERROR, "Error not found")

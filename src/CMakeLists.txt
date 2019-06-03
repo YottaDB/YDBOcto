@@ -217,6 +217,7 @@ add_library(librocto OBJECT
   rocto/read_portal_suspended.c
   rocto/read_ready_for_query.c
   rocto/read_row_description.c
+  rocto_helper_waitpid.c
 )
 
 add_executable(rocto
@@ -290,7 +291,12 @@ set_property(TARGET rocto PROPERTY C_STANDARD 11)
 target_compile_options(libocto PRIVATE -Wall -Wextra -pedantic )
 
 target_link_libraries(octo ${YOTTADB_LIBRARIES} ${Readline_LIBRARY} ${CONFIG_LIBRARY} ${OPENSSL_LIBRARIES})
-target_link_libraries(rocto ${YOTTADB_LIBRARIES} ${Readline_LIBRARY} ${CONFIG_LIBRARY} ${OPENSSL_LIBRARIES})
+target_link_libraries(rocto
+  ${YOTTADB_LIBRARIES}
+  ${Readline_LIBRARY}
+  ${CONFIG_LIBRARY}
+  ${OPENSSL_LIBRARIES}
+  pthread)
 target_link_libraries(pparser ${YOTTADB_LIBRARIES} ${Readline_LIBRARY} ${CONFIG_LIBRARY} ${OPENSSL_LIBRARIES})
 
 enable_testing()

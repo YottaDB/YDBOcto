@@ -30,6 +30,7 @@ typedef struct {
 	char *ip;
 	char *port;
 	ydb_buffer_t *session_id;
+	int session_ending;
 } RoctoSession;
 
 typedef struct {
@@ -38,6 +39,8 @@ typedef struct {
 	int max_data_to_send;
 } QueryResponseParms;
 
+
+void *rocto_helper_waitpid(void *args);
 int send_message(RoctoSession *session, BaseMessage *message);
 BaseMessage *read_message(RoctoSession *session, char *buffer, int buffer_size);
 int read_bytes(RoctoSession *session, char *buffer, int buffer_size, int bytes_to_read);

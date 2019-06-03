@@ -52,3 +52,12 @@ SELECT * FROM names WHERE firstName = "Zero";
 OCTO
   [[ $(grep -c "localhost" rocto.log) -ge 1 ]]
 }
+
+@test "verify that dead procs don't become zombies" {
+  run_psql <<OCTO &> output.txt
+SELECT * FROM names;
+OCTO
+  # Sleep for a moment so rocto has time to clean the PID
+  sleep 1s
+  [[ $(ps -ef | awk '$3 == '`cat rocto.pid`' { print $0;}' | wc -l) -eq 0 ]]
+}

@@ -152,9 +152,6 @@ int handle_describe(Describe *describe, RoctoSession *session) {
 				}
 				plan_name_b.buf_addr = filename;
 				plan_name_b.len_alloc = plan_name_b.len_used = strlen(filename);
-				ParameterDescription *parameter_description = make_parameter_description();
-				send_message(session, (BaseMessage*)(&parameter_description->type));
-				free(parameter_description);
 				description = get_plan_row_description(&plan_name_b);
 				send_message(session, (BaseMessage*)(&description->type));
 				free(description);

@@ -42,6 +42,8 @@ int send_message(RoctoSession *session, BaseMessage *message) {
 				continue;
 			if(errno == ECONNRESET)
 				return 1;
+			if(errno == EPIPE)
+				return 1;
 			FATAL(ERR_SYSCALL, "send", errno, strerror(errno));
 			return 1;
 		}

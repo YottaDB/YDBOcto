@@ -111,7 +111,8 @@ int lp_optimize_where_multi_equal_ands(LogicalPlan *plan, LogicalPlan *where) {
 				equals = cur->v.operand[1];
 				cur = cur->v.operand[0];
 			} else {
-				return 0;
+				cur = cur->v.operand[0];
+				continue;
 			}
 		}
 		if(lp_verify_valid_for_key_fix(plan, equals) == FALSE)
@@ -158,7 +159,8 @@ int lp_optimize_where_multi_equal_ands(LogicalPlan *plan, LogicalPlan *where) {
 				equals = cur->v.operand[1];
 				cur = cur->v.operand[0];
 			} else {
-				return 0;
+				cur = cur->v.operand[0];
+				continue;
 			}
 		}
 		if(lp_verify_valid_for_key_fix(plan, equals) == FALSE) {

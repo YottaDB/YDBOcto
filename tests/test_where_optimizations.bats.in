@@ -7,6 +7,11 @@ setup() {
   load_fixture names.zwr
 }
 
+count_loops() {
+  [[ $(grep -c "FOR " $1) -eq $2 ]]
+  return
+}
+
 @test "simple fixed key optimization" {
   octo >& output.txt <<OCTO
 select * from names where id = 2;
@@ -14,8 +19,7 @@ OCTO
   run cat output.txt
   [[ "$output" =~ "2|Cereal|Killer" ]]
   ! [[ "$output" =~ "0|Zero|Cool" ]]
-  run grep -c "FOR " ./*.m
-  [[ "$output" =~ "0" ]]
+  count_loops ./_ydboctoP*.m 0
 }
 
 @test "cases that contain OR or AND do not allow optimization to occur" {
@@ -40,8 +44,7 @@ OCTO
   run cat output.txt
   [[ "$output" =~ "1|Acid|Burn|1|Acid|Burn" ]]
   ! [[ "$output" =~ "0|Zero|Cool|1|Acid|Burn" ]]
-  run grep -c "FOR " ./*.m
-  [[ "$output" =~ "1" ]]
+  count_loops ./_ydboctoP*.m 1
 }
 
 @test "fixed value with chained SQL" {
@@ -67,7 +70,7 @@ SELECT * FROM namesWithAges AS t1
 CROSS JOIN namesWithAges AS t2
 WHERE t1.id = t2.age;
 OCTO
-  [[ "$(grep -c "FOR " ./*.m)" == "1" ]]
+  count_loops ./_ydboctoP*.m 1
 }
 
 @test "fixed column optimiations where first column isn't a key" {
@@ -76,8 +79,7 @@ SELECT * FROM namesWithAges AS t1
 CROSS JOIN namesWithAges AS t2
 WHERE t1.age = t2.id;
 OCTO
-  run grep -c "FOR " ./*.m
-  [[ "$output" =~ "1" ]]
+  count_loops ./_ydboctoP*.m 1
 }
 
 
@@ -90,5 +92,41 @@ ON t1.id = t2.id
 INNER JOIN names t3
 ON t2.id = t3.id;
 OCTO
-  [[ "$(grep -c "FOR " ./*.m)" == "1" ]]
+  count_loops ./_ydboctoP*.m 1
+}
+
+@test "WHERE with AND of EQUALS and NOT EQUAL - postfix" {
+  octo >& output.txt <<OCTO
+SELECT * FROM names AS t1
+CROSS JOIN names AS t2
+WHERE t1.id = t2.id
+  AND t1.firstName <> 'Charles'
+  AND t2.firstName <> 'Charles'
+OCTO
+  count_loops ./_ydboctoP*.m 1
+}
+
+@test "WHERE with AND of EQUALS and NOT EQUAL - prefix" {
+  octo >& output.txt <<OCTO
+SELECT * FROM names AS t1
+CROSS JOIN names AS t2
+WHERE t1.firstName <> 'Charles'
+  AND t2.firstName <> 'Charles'
+  AND t1.id = t2.id
+OCTO
+  count_loops ./_ydboctoP*.m 1
+}
+
+@test "WHERE with multiple tables and NOT EQUAL" {
+  octo >& output.txt <<OCTO
+SELECT * FROM namesWithAges AS t1
+CROSS JOIN namesWithAges AS t2
+CROSS JOIN namesWithAges AS t3
+CROSS JOIN namesWithAges AS t4
+WHERE t1.age <> -1
+  AND t1.age <> 5
+  AND t1.age = t2.id
+  AND t2.id = t3.id;
+OCTO
+  count_loops ./_ydboctoP*.m 2
 }

@@ -1,0 +1,83 @@
+{%
+#include "logical_plan.h"
+#include "template_helpers.h"
+
+/**
+ * Outputs the "source" of the given key, such as a value in ^xref global if the key is
+ *  a cross reference, or the value of user-specified global mapping
+ */
+TEMPLATE(tmpl_key_source, PhysicalPlan *pplan, SqlKey *key) {
+    TEMPLATE_INIT();
+    char *key_fixed, *tableName;
+    SqlValue *value;
+    SqlTable *table;
+    SqlOptionalKeyword *keyword = NULL;
+    unsigned int iter_key_index = 0;
+    int keys_to_match = 0;
+    char *columnName = "";
+
+    // If there is no table, this is a temporary key;
+    //  use cursor to store the value
+    if(key->value == NULL && key->table == NULL) {
+        TMPL(tmpl_temp_key_advance, key);
+        TEMPLATE_END();
+    }
+
+    table = key->table;
+    UNPACK_SQL_STATEMENT(value, table->tableName, value);
+    tableName = value->v.reference;
+
+    // We ignore the key value here, so we can check if there is data in this key in some cases
+    if(key->is_cross_reference_key) {
+        UNPACK_SQL_STATEMENT(value, key->column->columnName, value);
+        columnName = value->v.reference;
+        %}^|"{{ config->global_directory }}"|{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}"{%
+        //TMPL(tmpl_column_reference, pplan, key->cross_reference_output_key->cross_reference_column_alias);
+        // Output the column this cross reference is sourced from
+        iter_key_index = 0;
+        while(iter_key_index < pplan->total_iter_keys && pplan->iterKeys[iter_key_index]->unique_id != key->unique_id) {
+            iter_key_index++;
+        }
+        %},{%
+        // We only look at the first subscript, since we don't want to look at actual values of the keys
+        TMPL(tmpl_key, pplan->iterKeys[iter_key_index]);
+        %}){%
+    } else if(table->source) {
+        iter_key_index = 0;
+        while(pplan->iterKeys[iter_key_index] != key
+            && iter_key_index < pplan->total_iter_keys) {
+            if(pplan->iterKeys[iter_key_index]->unique_id == key->unique_id) {
+                keys_to_match++;
+            }
+            iter_key_index++;
+        }
+        keys_to_match++;
+        UNPACK_SQL_STATEMENT(keyword, table->source, keyword);
+        UNPACK_SQL_STATEMENT(value, keyword->v, value);
+        TMPL(tmpl_emit_source, value->v.string_literal, tableName, key->unique_id, keys_to_match, EmitSourceForm_Value);
+    } else {
+        // Check to see if the column has an advance keyword; if so, return it
+        if(key->column)
+            keyword = get_keyword(key->column, OPTIONAL_ADVANCE);
+        if(keyword) {
+            UNPACK_SQL_STATEMENT(value, keyword->v, value);
+            key_fixed = value->v.string_literal;
+            %}{{ key_fixed }}{%
+            TEMPLATE_END();
+        }
+        %}^{{ tableName }}{%
+        while(pplan->iterKeys[iter_key_index] != key
+            && iter_key_index < pplan->total_iter_keys) {
+            if(pplan->iterKeys[iter_key_index]->unique_id == key->unique_id) {
+                TMPL(tmpl_key, pplan->iterKeys[iter_key_index]);
+                %},{%
+            }
+            iter_key_index++;
+        }
+        TMPL(tmpl_key, key);
+        %})){%
+    }
+    
+    TEMPLATE_END();
+}
+%}

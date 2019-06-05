@@ -63,7 +63,7 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
             tableName = value->v.reference;
             UNPACK_SQL_STATEMENT (value, t_key->column->columnName, value);
             columnName = value->v.reference;
-            %}D:'$DATA(^|"{{ config->global_directory }}"|{{ config->global_names.raw_octo }}("xref_status","{{ tableName }}","{{ columnName }}")) ^{{ t_key->cross_reference_filename }}(cursorId)
+            %}DO:'$DATA(^|"{{ config->global_directory }}"|{{ config->global_names.raw_octo }}("xref_status","{{ tableName }}","{{ columnName }}")) ^{{ t_key->cross_reference_filename }}(cursorId)
     {%
         }
     }
@@ -82,23 +82,25 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
         // For each key, output the key start, a loop, quit, and increment
         key = plan->iterKeys[cur_key];
         if(key->value) {
+            /// TODO: can we simplify this case statement to one expression? tmpl_print_expression should handle LP_VALUE too
             TMPL(print_dots, dot_count);
             switch(key->value->type) {
             case LP_VALUE:
                 key_fixed = key->value->v.value->v.string_literal;
-                %}SET {% TMPL(tmpl_key, key); %}="{{ key_fixed }}"
+                %}SET {% TMPL(tmpl_key, key); %}="{{ key_fixed }}" IF $DATA({% TMPL(tmpl_key_source, plan, key); %})'=0 DO
     {%
                 break;
             case LP_COLUMN_ALIAS:
                 %}SET {% TMPL(tmpl_key, key); %}={%
                 TMPL(tmpl_print_expression, key->value, plan);
-                %}
+                %} IF $DATA({% TMPL(tmpl_key_source, plan, key); %})'=0 DO
     {%
-            break;
-        default:
-            FATAL(ERR_UNKNOWN_KEYWORD_STATE, "");
+                break;
+            default:
+                FATAL(ERR_UNKNOWN_KEYWORD_STATE, "");
                 break;
             }
+            dot_count++;
             continue;
         }
     %}{% TMPL(print_dots, dot_count); %}{% TMPL(tmpl_key_start, key); %}

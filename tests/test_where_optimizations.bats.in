@@ -129,8 +129,8 @@ OCTO
   count_loops ./_ydboctoP*.m 1
 }
 
-@test "WHERE with multiple tables and NOT EQUAL" {
-  octo >& output.txt <<OCTO
+@test "T0002 WHERE with multiple tables and NOT EQUAL" {
+  octo<<OCTO &> output.txt
 SELECT * FROM namesWithAges AS t1
 CROSS JOIN namesWithAges AS t2
 CROSS JOIN namesWithAges AS t3
@@ -141,4 +141,6 @@ WHERE t1.age <> -1
   AND t2.id = t3.id;
 OCTO
   count_loops ./_ydboctoP*.m 2
+  # verify the output of this
+  verify_output T0002 output.txt
 }

@@ -45,6 +45,7 @@ TEMPLATE(tmpl_key_start, SqlKey *key);
 TEMPLATE(tmpl_key_end, SqlKey *key);
 TEMPLATE(tmpl_key, SqlKey *key);
 TEMPLATE(tmpl_key_advance, PhysicalPlan *pplan, SqlKey *key);
+TEMPLATE(tmpl_key_source, PhysicalPlan *pplan, SqlKey *key);
 TEMPLATE(tmpl_temp_key_advance, SqlKey *key);
 TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan);
 TEMPLATE(tmpl_column_reference, PhysicalPlan *pplan, SqlColumnAlias *column_alias);

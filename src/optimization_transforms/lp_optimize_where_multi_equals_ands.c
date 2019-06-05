@@ -238,6 +238,7 @@ int lp_optimize_where_multi_equal_ands(LogicalPlan *plan, LogicalPlan *where) {
 			// First, insert a new key corresponding to the column in question
 			xref_keys = lp_make_key(column_alias);
 			key = xref_keys->v.key;
+			key->is_cross_reference_key = TRUE;
 			if(before_first_key->type == LP_CRITERIA) {
 				MALLOC_LP(before_first_key->v.operand[0], LP_KEYS);
 				before_first_key = before_first_key->v.operand[0];

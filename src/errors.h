@@ -50,18 +50,16 @@ void octo_log(int line, char *file, enum ERROR_LEVEL level, enum ERROR error, ..
 
 const char *format_error_string(struct ErrorBuffer *err_buff, enum ERROR error, ...);
 
-#define YDB_ERROR_CHECK(status, z_status, msg) do {   \
-	if(YDB_OK != status) {                              \
-		YDB_LITERAL_TO_BUFFER("$ZSTATUS", (z_status));    \
-		INIT_YDB_BUFFER((msg), MAX_STR_CONST);            \
-		ydb_get_s(z_status, 0, NULL, (msg));              \
-		(msg)->buf_addr[(msg)->len_used] = '\0';          \
-		/** TODO: not all ydb errs FATAL */               \
-		octo_log(__LINE__, __FILE__, FATAL, ERR_YOTTADB, (msg)->buf_addr);    \
-		free((msg)->buf_addr);                            \
-		(msg)->len_used = 0;                              \
-		(msg)->len_alloc = 0;                             \
-	}                                                   \
+#define YDB_ERROR_CHECK(status, z_status, msg) do {					\
+	if(YDB_OK != status) {								\
+		YDB_LITERAL_TO_BUFFER("$ZSTATUS", (z_status));				\
+		YDB_MALLOC_BUFFER((msg), MAX_STR_CONST);				\
+		ydb_get_s(z_status, 0, NULL, (msg));					\
+		(msg)->buf_addr[(msg)->len_used] = '\0';				\
+		/** TODO: not all ydb errs FATAL */					\
+		octo_log(__LINE__, __FILE__, FATAL, ERR_YOTTADB, (msg)->buf_addr);	\
+		YDB_FREE_BUFFER((msg));							\
+	}										\
 } while(0);
 
 #define TRACE(err, ...) TRACE >= config->record_error_level  \

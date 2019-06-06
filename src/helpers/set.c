@@ -37,7 +37,7 @@ void set(char *new_value, char *global, size_t num_args, ...) {
 	status = ydb_set_s(&buffers[0], num_args, &buffers[1], ret);
 	YDB_ERROR_CHECK(status, &z_status, &z_status_value);
 
+	YDB_FREE_BUFFER(ret);
 	free(buffers);
-	free(ret->buf_addr);
 	free(ret);
 }

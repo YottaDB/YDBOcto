@@ -47,7 +47,7 @@ int handle_bind(Bind *bind, RoctoSession *session) {
 
 	// Fetch the named SQL query from the session ^session(id, "prepared", <name>)
 	src_subs = make_buffers(config->global_names.session, 3, session->session_id->buf_addr, "prepared", bind->source);
-	INIT_YDB_BUFFER(&sql_expression, MAX_STR_CONST);
+	YDB_MALLOC_BUFFER(&sql_expression, MAX_STR_CONST);
 	sql_expression.len_alloc -= 1;		// Leave space for null terminator
 
 	status = ydb_get_s(&src_subs[0], 3, &src_subs[1], &sql_expression);

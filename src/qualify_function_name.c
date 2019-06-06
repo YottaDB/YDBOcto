@@ -52,13 +52,13 @@ int qualify_function_name(SqlStatement *stmt) {
 	function_name_sub->buf_addr = value->v.string_literal;
 	function_name_sub->len_alloc = function_name_sub->len_used = name_length;
 
-	INIT_YDB_BUFFER(new_name_value, MAX_STR_CONST);
+	YDB_MALLOC_BUFFER(new_name_value, MAX_STR_CONST);
 
 	status = ydb_get_s(octo_global, 2, functions_sub, new_name_value);
 	if(status == YDB_ERR_GVUNDEF) {
 		// Not found; issue a warning and move on
 		WARNING(CUSTOM_ERROR, "Unknown function: %s", value->v.string_literal);
-		free(new_name_value->buf_addr);
+		YDB_FREE_BUFFER(new_name_value);
 		return 1;
 	}
 	YDB_ERROR_CHECK(status, &z_status, &z_status_value);

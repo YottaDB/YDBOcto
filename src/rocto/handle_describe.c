@@ -57,12 +57,12 @@ int handle_describe(Describe *describe, RoctoSession *session) {
 
 	// zstatus buffers
 	YDB_LITERAL_TO_BUFFER("$ZSTATUS", &z_status);
-	INIT_YDB_BUFFER(&z_status_value, MAX_STR_CONST);
+	YDB_MALLOC_BUFFER(&z_status_value, MAX_STR_CONST);
 	YDB_LITERAL_TO_BUFFER("", &empty_buffer);
 
 	// Fetch the named SQL query from the session ^session(id, "prepared", <name>)
 	YDB_STRING_TO_BUFFER(config->global_names.session, &session_global);
-	INIT_YDB_BUFFER(source_session_id, session->session_id->len_used);
+	YDB_MALLOC_BUFFER(source_session_id, session->session_id->len_used);
 	YDB_COPY_BUFFER_TO_BUFFER(session->session_id, source_session_id, done);
 	assert(done == TRUE);
 	if(describe->item == 'S') {
@@ -73,7 +73,7 @@ int handle_describe(Describe *describe, RoctoSession *session) {
 	source_name->buf_addr = describe->name;
 	source_name->len_used = source_name->len_alloc = strlen(describe->name);
 
-	INIT_YDB_BUFFER(&sql_expression, MAX_STR_CONST);
+	YDB_MALLOC_BUFFER(&sql_expression, MAX_STR_CONST);
 
 	// Check if portal exists
 	status = ydb_data_s(&session_global, 3, subs_array, &found);
@@ -119,9 +119,9 @@ int handle_describe(Describe *describe, RoctoSession *session) {
 		YDB_STRING_TO_BUFFER(config->global_names.schema, &schema_global);
 		YDB_LITERAL_TO_BUFFER("", &null_buffer);
 		YDB_STRING_TO_BUFFER(config->global_names.cursor, &cursor_global);
-		INIT_YDB_BUFFER(&cursor_exe_global[0], MAX_STR_CONST);
+		YDB_MALLOC_BUFFER(&cursor_exe_global[0], MAX_STR_CONST);
 		YDB_LITERAL_TO_BUFFER("exe", &cursor_exe_global[1]);
-		INIT_YDB_BUFFER(&cursor_exe_global[2], MAX_STR_CONST);
+		YDB_MALLOC_BUFFER(&cursor_exe_global[2], MAX_STR_CONST);
 
 		status = ydb_incr_s(&schema_global, 0, NULL, NULL, &cursor_exe_global[0]);
 		YDB_ERROR_CHECK(status, &z_status, &z_status_value);

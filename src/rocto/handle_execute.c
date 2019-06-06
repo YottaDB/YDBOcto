@@ -50,11 +50,11 @@ int handle_execute(Execute *execute, RoctoSession *session) {
 
 	// zstatus buffers
 	YDB_LITERAL_TO_BUFFER("$ZSTATUS", &z_status);
-	INIT_YDB_BUFFER(&z_status_value, MAX_STR_CONST);
+	YDB_MALLOC_BUFFER(&z_status_value, MAX_STR_CONST);
 
 	// Fetch the named SQL query from the session ^session(id, "prepared", <name>)
 	src_subs = make_buffers(config->global_names.session, 3, session->session_id->buf_addr, "bound", execute->source);
-	INIT_YDB_BUFFER(&sql_expression, MAX_STR_CONST);
+	YDB_MALLOC_BUFFER(&sql_expression, MAX_STR_CONST);
 	sql_expression.len_alloc -= 1;
 
 	status = ydb_get_s(&src_subs[0], 3, &src_subs[1], &sql_expression);

@@ -37,7 +37,7 @@ void print_temporary_table(SqlStatement *stmt, int cursor_id, void *parms, char 
 
 	YDB_STRING_TO_BUFFER(config->global_names.cursor, cursor_b);
 
-	snprintf(buffer, MAX_STR_CONST, "%d", cursor_id);
+	snprintf(buffer, sizeof(buffer), "%d", cursor_id);
 	cursor_id_b->len_used = strlen(buffer);
 	cursor_id_b->buf_addr = malloc(cursor_id_b->len_used + 1);
 	memcpy(cursor_id_b->buf_addr, buffer, cursor_id_b->len_used+1);
@@ -47,10 +47,10 @@ void print_temporary_table(SqlStatement *stmt, int cursor_id, void *parms, char 
 
 	YDB_LITERAL_TO_BUFFER("", space_b);
 	YDB_LITERAL_TO_BUFFER("", space_b2);
-	INIT_YDB_BUFFER(row_id_b, MAX_STR_CONST);
+	YDB_MALLOC_BUFFER(row_id_b, MAX_STR_CONST);
 
 	YDB_LITERAL_TO_BUFFER("", empty_buffer);
-	INIT_YDB_BUFFER(row_value_b, MAX_STR_CONST);
+	YDB_MALLOC_BUFFER(row_value_b, MAX_STR_CONST);
 
 	if(stmt->type == set_STATEMENT) {
 		UNPACK_SQL_STATEMENT(set_stmt, stmt, set);
@@ -102,9 +102,9 @@ void print_temporary_table(SqlStatement *stmt, int cursor_id, void *parms, char 
 	}
 	fflush(stdout);
 	free(cursor_id_b->buf_addr);
-	free(row_id_b->buf_addr);
-	free(row_value_b->buf_addr);
-	free(outputKeyId->buf_addr);
+	YDB_FREE_BUFFER(row_id_b);
+	YDB_FREE_BUFFER(row_value_b);
+	YDB_FREE_BUFFER(outputKeyId);
 	free(outputKeyId);
 	return;
 }

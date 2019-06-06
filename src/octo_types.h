@@ -22,8 +22,6 @@ typedef void *yyscan_t;
 #include "memory_chunk.h"
 #include "double_list.h"
 
-#define INIT_YDB_BUFFER(buffer, len) (buffer)->buf_addr = malloc(len); (buffer)->len_used = 0; (buffer)->len_alloc = len;
-
 #define SQL_STATEMENT(VAR, TYPE)			      \
 	(VAR) = (struct SqlStatement *)octo_cmalloc(memory_chunks, sizeof(SqlStatement));  \
 	(VAR)->type = TYPE;
@@ -37,8 +35,6 @@ typedef void *yyscan_t;
 #define PACK_SQL_STATEMENT(out, item, StatementType) \
 	SQL_STATEMENT(out, StatementType ## _STATEMENT); \
 	(out)->v.StatementType = item;
-
-#define INIT_YDB_BUFFER(buffer, len) (buffer)->buf_addr = malloc(len); (buffer)->len_used = 0; (buffer)->len_alloc = len;
 
 #define SHALLOW_COPY_SQL_STATEMENT(dst, src, NAME, TYPE) do { \
 	SQL_STATEMENT((dst), src->type);	\

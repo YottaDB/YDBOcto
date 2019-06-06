@@ -56,10 +56,10 @@ void handle_query_response(SqlStatement *stmt, int cursor_id, void *_parms, char
 
 	YDB_LITERAL_TO_BUFFER("", space_b);
 	YDB_LITERAL_TO_BUFFER("", space_b2);
-	INIT_YDB_BUFFER(row_id_b, MAX_STR_CONST);
+	YDB_MALLOC_BUFFER(row_id_b, MAX_STR_CONST);
 
 	YDB_LITERAL_TO_BUFFER("", empty_buffer);
-	INIT_YDB_BUFFER(row_value_b, MAX_STR_CONST);
+	YDB_MALLOC_BUFFER(row_value_b, MAX_STR_CONST);
 
 	session->session_id->buf_addr[session->session_id->len_used] = '\0';
 

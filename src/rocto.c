@@ -169,9 +169,9 @@ int main(int argc, char **argv) {
 		global_buffer = &(ydb_buffers[0]);
 		session_id_buffer = &(ydb_buffers[1]);
 		YDB_LITERAL_TO_BUFFER("$ZSTATUS", &z_status);
-		INIT_YDB_BUFFER(&z_status_value, MAX_STR_CONST);
+		YDB_MALLOC_BUFFER(&z_status_value, MAX_STR_CONST);
 		YDB_STRING_TO_BUFFER(config->global_names.session, global_buffer);
-		INIT_YDB_BUFFER(session_id_buffer, MAX_STR_CONST);
+		YDB_MALLOC_BUFFER(session_id_buffer, MAX_STR_CONST);
 		status = ydb_incr_s(global_buffer, 0, NULL, NULL, session_id_buffer);
 		YDB_ERROR_CHECK(status, &z_status, &z_status_value);
 		rocto_session.session_id = session_id_buffer;
@@ -179,8 +179,8 @@ int main(int argc, char **argv) {
 
 		// Populate default parameters
 		var_defaults = make_buffers(config->global_names.octo, 2, "variables", "");
-		INIT_YDB_BUFFER(&var_defaults[2], MAX_STR_CONST);
-		INIT_YDB_BUFFER(&var_value, MAX_STR_CONST);
+		YDB_MALLOC_BUFFER(&var_defaults[2], MAX_STR_CONST);
+		YDB_MALLOC_BUFFER(&var_value, MAX_STR_CONST);
 		var_sets = make_buffers(config->global_names.session, 3, rocto_session.session_id->buf_addr,
 				"variables", "");
 		var_sets[3] = var_defaults[2];

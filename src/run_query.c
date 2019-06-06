@@ -20,6 +20,7 @@
 #include <getopt.h>
 #include <assert.h>
 #include <string.h>
+#include <stdbool.h>
 
 #include <libyottadb.h>
 #include <gtmxc_types.h>
@@ -34,73 +35,53 @@
 #include "helpers.h"
 
 int run_query(char *query, void (*callback)(SqlStatement *, int, void*, char*), void *parms) {
-	int status;
-	int done, routine_len = 0;
-	char *buffer = NULL;
-	char filename[MAX_STR_CONST], routine_name[MAX_ROUTINE_LEN];
-	size_t buffer_size = 0;
-	FILE *out;
-	SqlValue *value;
-	SqlStatement *result;
-	SqlTable *temp_table;
-	PhysicalPlan *pplan;
-	ydb_buffer_t schema_global, table_name_buffer, table_create_buffer, null_buffer;
-	ydb_buffer_t cursor_global, cursor_exe_global[3];
-	ydb_buffer_t z_status, z_status_value;
-	ydb_buffer_t *filename_lock = NULL;
-	ydb_string_t ci_filename, ci_routine;
-	gtm_long_t cursorId;
-	hash128_state_t state;
+	FILE		*out;
+	PhysicalPlan	*pplan;
+	SqlStatement	*result;
+	SqlTable	*temp_table;
+	SqlValue	*value;
+	bool		free_memory_chunks;
+	char		*buffer, filename[MAX_STR_CONST], routine_name[MAX_ROUTINE_LEN];
+	gtm_long_t	cursorId;
+	hash128_state_t	state;
+	int		done, routine_len = 0;
+	int		status;
+	size_t		buffer_size = 0;
+	ydb_buffer_t	*filename_lock = NULL;
+	ydb_buffer_t	z_status, z_status_value;
+	ydb_string_t	ci_filename, ci_routine;
 
 	memory_chunks = alloc_chunk(MEMORY_CHUNK_SIZE);
-
-	buffer = octo_cmalloc(memory_chunks, 5);
-
-	table_name_buffer.buf_addr = malloc(MAX_STR_CONST);
-	table_name_buffer.len_used = 0;
-	table_name_buffer.len_alloc = MAX_STR_CONST;
-	table_create_buffer.buf_addr = malloc(MAX_STR_CONST);
-	table_create_buffer.len_used = 0;
-	table_create_buffer.len_alloc = MAX_STR_CONST;
-
-	YDB_STRING_TO_BUFFER(config->global_names.schema, &schema_global);
-	YDB_LITERAL_TO_BUFFER("", &null_buffer);
-	YDB_STRING_TO_BUFFER(config->global_names.cursor, &cursor_global);
-	INIT_YDB_BUFFER(&cursor_exe_global[0], MAX_STR_CONST);
-	YDB_LITERAL_TO_BUFFER("exe", &cursor_exe_global[1]);
-	INIT_YDB_BUFFER(&cursor_exe_global[2], MAX_STR_CONST);
-
-	status = ydb_incr_s(&schema_global, 0, NULL, NULL, &cursor_exe_global[0]);
-	YDB_ERROR_CHECK(status, &z_status, &z_status_value);
-	cursor_exe_global[0].buf_addr[cursor_exe_global[0].len_used] = '\0';
-	cursor_exe_global[2].len_used = 1;
-	*cursor_exe_global[2].buf_addr = '0';
-
-	INFO(CUSTOM_ERROR, "Generating SQL for cursor %s", cursor_exe_global[0].buf_addr);
 
 	INFO(CUSTOM_ERROR, "Parsing SQL command %s", query);
 	result = parse_line(query);
 	INFO(CUSTOM_ERROR, "Done!");
 	if(result == NULL) {
-		free(table_name_buffer.buf_addr);
-		free(table_create_buffer.buf_addr);
-		free(cursor_exe_global[0].buf_addr);
-		free(cursor_exe_global[2].buf_addr);
 		INFO(CUSTOM_ERROR, "Returning failure from run_query");
+		octo_cfree(memory_chunks);
 		return 0;
 	}
-	if(config->dry_run) {
+	if(config->dry_run || (no_data_STATEMENT == result->type)){
 		octo_cfree(memory_chunks);
 		result = NULL;
-		free(table_name_buffer.buf_addr);
-		free(table_create_buffer.buf_addr);
-		free(cursor_exe_global[0].buf_addr);
-		free(cursor_exe_global[2].buf_addr);
 		return 1;
 	}
+	/* Now that we know we are processing a non-empty query, increment the cursor global node */
+	ydb_buffer_t	cursor_exe_global;
+	ydb_buffer_t	schema_global, table_name_buffer, table_create_buffer;
+
+	YDB_MALLOC_BUFFER(&cursor_exe_global, MAX_STR_CONST);
+	YDB_MALLOC_BUFFER(&table_name_buffer, MAX_STR_CONST);
+	YDB_MALLOC_BUFFER(&table_create_buffer, MAX_STR_CONST);
+	YDB_STRING_TO_BUFFER(config->global_names.schema, &schema_global);
+	status = ydb_incr_s(&schema_global, 0, NULL, NULL, &cursor_exe_global);
+	YDB_ERROR_CHECK(status, &z_status, &z_status_value);
+	cursor_exe_global.buf_addr[cursor_exe_global.len_used] = '\0';
+	INFO(CUSTOM_ERROR, "Generating SQL for cursor %s", cursor_exe_global.buf_addr);
+	free_memory_chunks = true;	// By default run "octo_cfree(memory_chunks)" at the end
 	switch(result->type) {
 	// This effectively means select_STATEMENT, but we have to assign ID's inside this function
-	// and so need to propegate them out
+	// and so need to propagate them out
 	case table_alias_STATEMENT:
 	case set_operation_STATEMENT:
 		HASH128_STATE_INIT(state, 0);
@@ -121,7 +102,7 @@ int run_query(char *query, void (*callback)(SqlStatement *, int, void*, char*), 
 			ydb_lock_decr_s(&filename_lock[0], 2, &filename_lock[1]);
 			free(filename_lock);
 		}
-		cursorId = atol(cursor_exe_global[0].buf_addr);
+		cursorId = atol(cursor_exe_global.buf_addr);
 		ci_filename.address = filename;
 		ci_filename.length = strlen(filename);
 		ci_routine.address = routine_name;
@@ -132,11 +113,11 @@ int run_query(char *query, void (*callback)(SqlStatement *, int, void*, char*), 
 		SWITCH_TO_OCTO_GLOBAL_DIRECTORY();
 		(*callback)(result, cursorId, parms, filename);
 		// Deciding to free the select_STATEMENT must be done by the caller, as they may want to rerun it or send row
-		// descriptions
-		//octo_cfree(memory_chunks);
-		//memory_chunks = NULL;
+		// descriptions hence the decision to not free the memory_chunk below.
+		free_memory_chunks = false;
 		break;
 	case table_STATEMENT:
+		buffer = octo_cmalloc(memory_chunks, 5);
 		out = open_memstream(&buffer, &buffer_size);
 		assert(out);
 		emit_create_table(out, result);
@@ -159,7 +140,6 @@ int run_query(char *query, void (*callback)(SqlStatement *, int, void*, char*), 
 				   &table_name_buffer,
 				   &table_create_buffer);
 		YDB_ERROR_CHECK(status, &z_status, &z_status_value);
-		free(buffer);
 		/// TODO: we should drop preexisting tables from here
 		if(definedTables == NULL) {
 			definedTables = result->v.table;
@@ -167,10 +147,8 @@ int run_query(char *query, void (*callback)(SqlStatement *, int, void*, char*), 
 		} else {
 			dqinsert(definedTables, result->v.table, temp_table);
 		}
-		// Don't free tables which will be used during this process
-		// When https://gitlab.com/YottaDB/DBMS/YDBOcto/issues/107 is completed,
-		// this free should be done.
-		// octo_cfree(memory_chunks);
+		free_memory_chunks = false; // Don't free tables which will be used during this process
+		// When https://gitlab.com/YottaDB/DBMS/YDBOcto/issues/107 is completed, the above line can be removed
 		break;
 	case drop_STATEMENT:
 		YDB_COPY_STRING_TO_BUFFER(result->v.drop->table_name->v.value->v.reference, &table_name_buffer, done);
@@ -179,33 +157,27 @@ int run_query(char *query, void (*callback)(SqlStatement *, int, void*, char*), 
 				      YDB_DEL_NODE);
 		YDB_ERROR_CHECK(status, &z_status, &z_status_value);
 		/// TODO: we should drop tables here
-		octo_cfree(memory_chunks);
 		break;
 	case insert_STATEMENT:
 		WARNING(ERR_FEATURE_NOT_IMPLEMENTED, "table inserts");
-		octo_cfree(memory_chunks);
 		break;
 	case begin_STATEMENT:
 	case commit_STATEMENT:
 		WARNING(ERR_FEATURE_NOT_IMPLEMENTED, "transactions");
-		octo_cfree(memory_chunks);
 		break;
 	case set_STATEMENT:
 	case show_STATEMENT:
-		cursorId = atol(cursor_exe_global[0].buf_addr);
+		cursorId = atol(cursor_exe_global.buf_addr);
 		(*callback)(result, cursorId, parms, NULL);
-		octo_cfree(memory_chunks);
-		break;
-	case no_data_STATEMENT:
-		octo_cfree(memory_chunks);
 		break;
 	default:
 		FATAL(ERR_FEATURE_NOT_IMPLEMENTED, query);
 	}
+	YDB_FREE_BUFFER(&table_name_buffer);
+	YDB_FREE_BUFFER(&table_create_buffer);
+	YDB_FREE_BUFFER(&cursor_exe_global);
+	if (free_memory_chunks)
+		octo_cfree(memory_chunks);
 	result = NULL;
-	free(table_name_buffer.buf_addr);
-	free(table_create_buffer.buf_addr);
-	free(cursor_exe_global[0].buf_addr);
-	free(cursor_exe_global[2].buf_addr);
 	return 1;
 }

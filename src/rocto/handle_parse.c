@@ -41,7 +41,7 @@ int handle_parse(Parse *parse, RoctoSession *session) {
 
 	// zstatus buffers
 	YDB_LITERAL_TO_BUFFER("$ZSTATUS", &z_status);
-	INIT_YDB_BUFFER(&z_status_value, MAX_STR_CONST);
+	YDB_MALLOC_BUFFER(&z_status_value, MAX_STR_CONST);
 
 	// Fetch the named SQL query from the session session(id, "prepared", <name>)
 	src_subs = make_buffers(config->global_names.session, 3, session->session_id->buf_addr, "prepared", parse->dest);

@@ -322,12 +322,8 @@ int octo_init(int argc, char **argv, int scan_tables) {
 		return 0;
 
 	// Load existing tables
-	table_name_buffer.buf_addr = malloc(MAX_STR_CONST);
-	table_name_buffer.len_used = 0;
-	table_name_buffer.len_alloc = MAX_STR_CONST;
-	table_create_buffer.buf_addr = malloc(MAX_STR_CONST);
-	table_create_buffer.len_used = 0;
-	table_create_buffer.len_alloc = MAX_STR_CONST;
+	YDB_MALLOC_BUFFER(&table_name_buffer, MAX_STR_CONST);
+	YDB_MALLOC_BUFFER(&table_create_buffer, MAX_STR_CONST);
 	SWITCH_TO_OCTO_GLOBAL_DIRECTORY();
 
 	YDB_STRING_TO_BUFFER(config->global_names.schema, &schema_global);
@@ -363,8 +359,8 @@ int octo_init(int argc, char **argv, int scan_tables) {
 		result = NULL;
 	} while(1);
 
-	free(table_create_buffer.buf_addr);
-	free(table_name_buffer.buf_addr);
+	YDB_FREE_BUFFER(&table_create_buffer);
+	YDB_FREE_BUFFER(&table_name_buffer);
 
 	return 0;
 }

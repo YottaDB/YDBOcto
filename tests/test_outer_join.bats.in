@@ -149,3 +149,15 @@ ON n1.id = n2.id;
 OCTO
   [[ "$(grep -c "|" output.txt)" == "3" ]]
 }
+
+@test "nested select with outer join" {
+  octo <<OCTO &> output.txt
+SELECT * FROM (
+  SELECT *
+  FROM names n1
+  LEFT JOIN names n2
+  ON n1.id = n2.id
+) WHERE firstName :: text = 'Zero';
+OCTO
+  # Not crashing is valid for this test
+}

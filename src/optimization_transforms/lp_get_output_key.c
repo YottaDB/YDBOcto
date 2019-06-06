@@ -24,6 +24,7 @@
 LogicalPlan *lp_get_output_key(LogicalPlan *plan) {
 	LogicalPlan *t;
 
+	plan = lp_drill_to_insert(plan);
 	assert(plan->type == LP_INSERT);
 	GET_LP(t, plan, 1, LP_OUTPUT);
 	GET_LP(t, t, 0, LP_KEY);

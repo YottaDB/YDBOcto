@@ -177,6 +177,7 @@ LogicalPlan *lp_column_list_to_lp(SqlColumnListAlias *list, int *plan_id);
 SqlColumnListAlias *lp_columns_to_column_list(SqlColumn *column, SqlTableAlias *table_alias);
 LogicalPlan *lp_table_join_to_column_list(LogicalPlan *table_join, int *plan_id);
 LogicalPlan *lp_replace_derived_table_references(LogicalPlan *root, LogicalPlan *new_plan, SqlTableAlias *table_alias);
+// Given a SET operation, drills down until it encounters the first LP_INSERT statement
 LogicalPlan *lp_drill_to_insert(LogicalPlan *plan);
 
 // Given a plan, attempts to calculate a "cost" estimate of that plan

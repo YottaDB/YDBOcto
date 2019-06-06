@@ -68,7 +68,7 @@ PhysicalPlan *emit_select_statement(SqlStatement *stmt, char *plan_filename)
 		pplan = pplan->next;
 
 	// convert output key to string
-	snprintf(output_key, MAX_STR_CONST, "%d", pplan->outputKey->random_id);
+	snprintf(output_key, MAX_STR_CONST, "%d", pplan->outputKey->unique_id);
 	if(plan_filename) {
 		set(output_key, config->global_names.octo, 3, "plan_metadata", plan_filename, "output_key");
 		plan_meta = make_buffers(config->global_names.octo, 5, "plan_metadata", plan_filename,

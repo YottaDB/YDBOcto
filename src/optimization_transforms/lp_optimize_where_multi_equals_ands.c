@@ -128,7 +128,7 @@ int lp_optimize_where_multi_equal_ands(LogicalPlan *plan, LogicalPlan *where) {
 		key = lp_key->v.key;
 		// This will end up filling the table with "lowest" id, but since it'll be seqential,
 		// that will still be just about right
-		key_unique_id_ordering[key->random_id] = i;
+		key_unique_id_ordering[key->unique_id] = i;
 		cur = cur->v.operand[1];
 		i++;
 	}
@@ -214,7 +214,7 @@ int lp_optimize_where_multi_equal_ands(LogicalPlan *plan, LogicalPlan *where) {
 			first_key = keys = lp_get_keys(plan);
 			do {
 				GET_LP(t, first_key, 0, LP_KEY);
-				if(t->v.key->random_id == table_alias->unique_id) {
+				if(t->v.key->unique_id == table_alias->unique_id) {
 					break;
 				}
 				if(first_key->v.operand[1] == NULL) {
@@ -228,7 +228,7 @@ int lp_optimize_where_multi_equal_ands(LogicalPlan *plan, LogicalPlan *where) {
 			before_last_key = first_key;
 			do {
 				GET_LP(t, last_key, 0, LP_KEY);
-				if(t->v.key->random_id != table_alias->unique_id) {
+				if(t->v.key->unique_id != table_alias->unique_id) {
 					break;
 				}
 				before_last_key = last_key;

@@ -237,7 +237,7 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt, int *plan_id) {
 	dst_key = MALLOC_LP(dst->v.operand[0], LP_KEY);
 	dst_key->v.key = (SqlKey*)octo_cmalloc(memory_chunks, sizeof(SqlKey));
 	memset(dst_key->v.key, 0, sizeof(SqlKey));
-	dst_key->v.key->random_id = get_plan_unique_number(insert);
+	dst_key->v.key->unique_id = get_plan_unique_number(insert);
 	if(select_stmt->order_expression != NULL) {
 		order_by = MALLOC_LP(dst->v.operand[1], LP_COLUMN_LIST);
 		UNPACK_SQL_STATEMENT(list, select_stmt->order_expression, column_list_alias);

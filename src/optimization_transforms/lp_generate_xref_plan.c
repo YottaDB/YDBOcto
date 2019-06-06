@@ -37,7 +37,7 @@ LogicalPlan *lp_generate_xref_plan(LogicalPlan *plan, SqlTable *table, SqlColumn
 	memset(output_key, 0, sizeof(SqlKey));
 	output_key->table = table;
 	output_key->column = column;
-	output_key->random_id = unique_id;
+	output_key->unique_id = unique_id;
 	output_key->is_cross_reference_key = TRUE;
 
 	MALLOC_LP(root, LP_INSERT);

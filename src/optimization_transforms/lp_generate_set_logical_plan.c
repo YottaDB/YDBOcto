@@ -31,7 +31,7 @@ void lp_update_plan_keys(LogicalPlan *plan, SqlKey *key) {
 	} else if(plan->type == LP_INSERT) {
 		output_key = lp_get_output_key(plan);
 		output_key->v.key->key_num = key->key_num;
-		output_key->v.key->random_id = key->random_id;
+		output_key->v.key->unique_id = key->unique_id;
 	} else {
 		assert(FALSE);
 	}

@@ -51,7 +51,7 @@ SqlKey *lp_get_key(LogicalPlan *plan, LogicalPlan *lp_column_alias) {
 	do {
 		GET_LP(lp_key, cur_key, 0, LP_KEY);
 		key = lp_key->v.key;
-		key_id = key->random_id;
+		key_id = key->unique_id;
 		do {
 			if(key_id != search_id)
 				break;

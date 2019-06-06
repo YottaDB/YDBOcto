@@ -21,7 +21,7 @@ TEMPLATE(tmpl_key, SqlKey *key) {
         UNPACK_SQL_STATEMENT (value, key->column->columnName, value);
         columnName = value->v.reference;
     }
-    %}^|"{{ config->global_directory }}"|{{ config->global_names.raw_cursor }}(cursorId,"keys",{{ key->random_id|%d }},"{{ tableName }}","{{ columnName }}"){%
+    %}^|"{{ config->global_directory }}"|{{ config->global_names.raw_cursor }}(cursorId,"keys",{{ key->unique_id|%d }},"{{ tableName }}","{{ columnName }}"){%
     TEMPLATE_END();
 }
 

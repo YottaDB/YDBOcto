@@ -31,11 +31,11 @@ TEMPLATE(tmpl_key_advance, PhysicalPlan *pplan, SqlKey *key) {
         //TMPL(tmpl_column_reference, pplan, key->cross_reference_output_key->cross_reference_column_alias);
         // Output the column this cross reference is sourced from
         iter_key_index = 0;
-        while(iter_key_index < pplan->total_iter_keys && pplan->iterKeys[iter_key_index]->random_id != key->random_id) {
+        while(iter_key_index < pplan->total_iter_keys && pplan->iterKeys[iter_key_index]->unique_id != key->unique_id) {
             iter_key_index++;
         }
         while(iter_key_index < pplan->total_iter_keys) {
-            if(pplan->iterKeys[iter_key_index]->random_id == key->random_id) {
+            if(pplan->iterKeys[iter_key_index]->unique_id == key->unique_id) {
                 keys_to_match++;
             }
             %},{%
@@ -51,7 +51,7 @@ TEMPLATE(tmpl_key_advance, PhysicalPlan *pplan, SqlKey *key) {
         iter_key_index = 0;
         while(pplan->iterKeys[iter_key_index] != key
             && iter_key_index < pplan->total_iter_keys) {
-            if(pplan->iterKeys[iter_key_index]->random_id == key->random_id) {
+            if(pplan->iterKeys[iter_key_index]->unique_id == key->unique_id) {
                 keys_to_match++;
             }
             iter_key_index++;
@@ -59,7 +59,7 @@ TEMPLATE(tmpl_key_advance, PhysicalPlan *pplan, SqlKey *key) {
         keys_to_match++;
         UNPACK_SQL_STATEMENT(keyword, table->source, keyword);
         UNPACK_SQL_STATEMENT(value, keyword->v, value);
-        TMPL(tmpl_emit_source, value->v.string_literal, tableName, key->random_id, keys_to_match, EmitSourceForm_Value);
+        TMPL(tmpl_emit_source, value->v.string_literal, tableName, key->unique_id, keys_to_match, EmitSourceForm_Value);
     } else {
         // Check to see if the column has an advance keyword; if so, return it
         if(key->column)
@@ -73,7 +73,7 @@ TEMPLATE(tmpl_key_advance, PhysicalPlan *pplan, SqlKey *key) {
         %}^{{ tableName }}{%
         while(pplan->iterKeys[iter_key_index] != key
             && iter_key_index < pplan->total_iter_keys) {
-            if(pplan->iterKeys[iter_key_index]->random_id == key->random_id) {
+            if(pplan->iterKeys[iter_key_index]->unique_id == key->unique_id) {
                 TMPL(tmpl_key, pplan->iterKeys[iter_key_index]);
                 %},{%
             }

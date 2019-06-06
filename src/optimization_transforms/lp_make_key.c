@@ -36,7 +36,7 @@ LogicalPlan *lp_make_key(SqlColumnAlias *column_alias) {
 	memset(ret->v.key, 0, sizeof(SqlKey));
 	ret->v.key->column = column;
 	ret->v.key->key_num = -1;
-	ret->v.key->random_id = table_alias->unique_id;
+	ret->v.key->unique_id = table_alias->unique_id;
 	ret->v.key->table = table;
 	ret->v.key->type = LP_KEY_ADVANCE;
 	return ret;

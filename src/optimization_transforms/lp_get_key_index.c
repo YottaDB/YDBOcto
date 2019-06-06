@@ -57,7 +57,7 @@ int lp_get_key_index(LogicalPlan *plan, LogicalPlan *lp_column_alias) {
 	do {
 		GET_LP(lp_key, cur_key, 0, LP_KEY);
 		key = lp_key->v.key;
-		key_id = key->random_id;
+		key_id = key->unique_id;
 		/// TODO: the only way something has a name of NULL is if it's an output key
 		// Which means we're looking for the key in a derived table; we don't currently
 		// support this

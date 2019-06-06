@@ -66,7 +66,7 @@ TEMPLATE(tmpl_column_reference, PhysicalPlan *pplan, SqlColumnAlias *column_alia
         // If we already have this column in a key, use that
         for(i = 0; i < pplan->total_iter_keys; i++) {
             key = pplan->iterKeys[i];
-            if(key->random_id == table_alias->unique_id) {
+            if(key->unique_id == table_alias->unique_id) {
               key_column = key->column;
               // If key_column == column, we have the correct item and can carry on
               if(columns_equal(key_column, column)) {

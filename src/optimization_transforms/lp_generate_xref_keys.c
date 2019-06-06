@@ -66,7 +66,7 @@ LogicalPlan *lp_generate_xref_keys(LogicalPlan *plan, SqlTable *table, SqlColumn
 		memset(cur_lp_key->v.key, 0, sizeof(SqlKey));
 		cur_lp_key->v.key->column = key_columns[cur_key];
 		cur_lp_key->v.key->key_num = cur_key;
-		cur_lp_key->v.key->random_id = unique_id;
+		cur_lp_key->v.key->unique_id = unique_id;
 		cur_lp_key->v.key->table = table;
 		cur_lp_key->v.key->type = LP_KEY_ADVANCE;
 		cur_lp_key->v.key->cross_reference_output_key = output_key;

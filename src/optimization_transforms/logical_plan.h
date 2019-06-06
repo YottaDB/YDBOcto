@@ -79,7 +79,7 @@ typedef struct SqlKey {
 	SqlTable *table;
 	SqlColumn *column;
 	int key_num;
-	int random_id;
+	int unique_id;
 	// If this key is fixed, this is the value
 	LogicalPlan *value;
 	// Used to customize how insert works; default is to
@@ -87,9 +87,6 @@ typedef struct SqlKey {
 	SqlValue *insert;
 	// The only relevant types are KEY_FIXED, KEY_ADVANCE
 	LPActionType type;
-	// Previous subscript in this table
-	//  if not a real key, *value will be set
-	struct SqlKey *prevSubscript, *nextSubscript;
 	// Table that owns this key; used to extract key from plan
 	//  when generating an extract for a given column
 	// If this key is part of a UNION, this is the LP_INSERT

@@ -1,3 +1,15 @@
+#################################################################
+#								#
+# Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	#
+# All rights reserved.						#
+#								#
+#	This source code contains the intellectual property	#
+#	of its copyright holder(s), and is made available	#
+#	under a license.  If you do not know the terms of	#
+#	the license, please stop and do not read further.	#
+#								#
+#################################################################
+
 init_test() {
   export test_temp=$(mktemp -d @TEST_OUTPUT_DIR@/bats-test.XXXXXX)
   echo "Temporary files in: $test_temp"
@@ -78,7 +90,7 @@ run_go() {
 
 verify_output() {
   echo "Comparing outref/$1 $2"
-  copy_test_files outref/$1.txt
-  diff outref/$1.txt $2 
+  copy_test_files outref/$1.ref
+  diff outref/$1.ref $2
   return
 }

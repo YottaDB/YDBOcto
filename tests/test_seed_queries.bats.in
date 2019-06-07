@@ -1,3 +1,15 @@
+#################################################################
+#								#
+# Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	#
+# All rights reserved.						#
+#								#
+#	This source code contains the intellectual property	#
+#	of its copyright holder(s), and is made available	#
+#	under a license.  If you do not know the terms of	#
+#	the license, please stop and do not read further.	#
+#								#
+#################################################################
+
 load test_helpers
 
 setup() {
@@ -26,7 +38,7 @@ FROM pg_catalog.pg_type t
   JOIN pg_catalog.pg_namespace n
   ON (t.typnamespace = n.oid)
 WHERE n.nspname  != 'pg_toast'
-  AND (t.typrelid = 0 OR 
+  AND (t.typrelid = 0 OR
     (SELECT c.relkind = 'c' FROM pg_catalog.pg_class c WHERE c.oid = t.typrelid))
 OCTO
   [[ "$(grep -c "ERROR" output.txt)" == "0" ]]
@@ -34,59 +46,59 @@ OCTO
 
 @test "get tables" {
   octo <<OCTO &> output.txt
-SELECT 
-  NULL AS TABLE_CAT, 
-  n.nspname AS TABLE_SCHEM, 
-  c.relname AS TABLE_NAME, 
-  CASE n.nspname ~ '^pg_' 
-  OR n.nspname = 'information_schema' WHEN true THEN CASE WHEN n.nspname = 'pg_catalog' 
-  OR n.nspname = 'information_schema' THEN CASE c.relkind WHEN 'r' THEN 'SYSTEM TABLE' WHEN 'v' THEN 'SYSTEM VIEW' WHEN 'i' THEN 'SYSTEM INDEX' ELSE NULL END WHEN n.nspname = 'pg_toast' THEN CASE c.relkind WHEN 'r' THEN 'SYSTEM TOAST TABLE' WHEN 'i' THEN 'SYSTEM TOAST INDEX' ELSE NULL END ELSE CASE c.relkind WHEN 'r' THEN 'TEMPORARY TABLE' WHEN 'p' THEN 'TEMPORARY TABLE' WHEN 'i' THEN 'TEMPORARY INDEX' WHEN 'S' THEN 'TEMPORARY SEQUENCE' WHEN 'v' THEN 'TEMPORARY VIEW' ELSE NULL END END WHEN false THEN CASE c.relkind WHEN 'r' THEN 'TABLE' WHEN 'p' THEN 'TABLE' WHEN 'i' THEN 'INDEX' WHEN 'S' THEN 'SEQUENCE' WHEN 'v' THEN 'VIEW' WHEN 'c' THEN 'TYPE' WHEN 'f' THEN 'FOREIGN TABLE' WHEN 'm' THEN 'MATERIALIZED VIEW' ELSE NULL END ELSE NULL END AS TABLE_TYPE, 
-  d.description AS REMARKS, 
-  '' as TYPE_CAT, 
-  '' as TYPE_SCHEM, 
-  '' as TYPE_NAME, 
-  '' AS SELF_REFERENCING_COL_NAME, 
-  '' AS REF_GENERATION 
-FROM 
-  pg_catalog.pg_namespace n, 
-  pg_catalog.pg_class c 
+SELECT
+  NULL AS TABLE_CAT,
+  n.nspname AS TABLE_SCHEM,
+  c.relname AS TABLE_NAME,
+  CASE n.nspname ~ '^pg_'
+  OR n.nspname = 'information_schema' WHEN true THEN CASE WHEN n.nspname = 'pg_catalog'
+  OR n.nspname = 'information_schema' THEN CASE c.relkind WHEN 'r' THEN 'SYSTEM TABLE' WHEN 'v' THEN 'SYSTEM VIEW' WHEN 'i' THEN 'SYSTEM INDEX' ELSE NULL END WHEN n.nspname = 'pg_toast' THEN CASE c.relkind WHEN 'r' THEN 'SYSTEM TOAST TABLE' WHEN 'i' THEN 'SYSTEM TOAST INDEX' ELSE NULL END ELSE CASE c.relkind WHEN 'r' THEN 'TEMPORARY TABLE' WHEN 'p' THEN 'TEMPORARY TABLE' WHEN 'i' THEN 'TEMPORARY INDEX' WHEN 'S' THEN 'TEMPORARY SEQUENCE' WHEN 'v' THEN 'TEMPORARY VIEW' ELSE NULL END END WHEN false THEN CASE c.relkind WHEN 'r' THEN 'TABLE' WHEN 'p' THEN 'TABLE' WHEN 'i' THEN 'INDEX' WHEN 'S' THEN 'SEQUENCE' WHEN 'v' THEN 'VIEW' WHEN 'c' THEN 'TYPE' WHEN 'f' THEN 'FOREIGN TABLE' WHEN 'm' THEN 'MATERIALIZED VIEW' ELSE NULL END ELSE NULL END AS TABLE_TYPE,
+  d.description AS REMARKS,
+  '' as TYPE_CAT,
+  '' as TYPE_SCHEM,
+  '' as TYPE_NAME,
+  '' AS SELF_REFERENCING_COL_NAME,
+  '' AS REF_GENERATION
+FROM
+  pg_catalog.pg_namespace n,
+  pg_catalog.pg_class c
   LEFT JOIN pg_catalog.pg_description d ON (
-    c.oid = d.objoid 
+    c.oid = d.objoid
     AND d.objsubid = 0
-  ) 
+  )
   LEFT JOIN pg_catalog.pg_class dc ON (
-    d.classoid = dc.oid 
+    d.classoid = dc.oid
     AND dc.relname = 'pg_class'
-  ) 
+  )
   LEFT JOIN pg_catalog.pg_namespace dn ON (
-    dn.oid = dc.relnamespace 
+    dn.oid = dc.relnamespace
     AND dn.nspname = 'pg_catalog'
-  ) 
-WHERE 
-  c.relnamespace = n.oid 
+  )
+WHERE
+  c.relnamespace = n.oid
   AND (
-    false 
+    false
     OR (
-      c.relkind IN ('r', 'p') 
-      AND n.nspname ! ~ '^pg_' 
-      AND n.nspname <> 'information_schema'
-    ) 
-    OR (
-      c.relkind = 'r' 
-      AND (
-        n.nspname = 'pg_catalog' 
-        OR n.nspname = 'information_schema'
-      )
-    ) 
-    OR (
-      c.relkind = 'v' 
-      AND n.nspname <> 'pg_catalog' 
+      c.relkind IN ('r', 'p')
+      AND n.nspname ! ~ '^pg_'
       AND n.nspname <> 'information_schema'
     )
-  ) 
-ORDER BY 
-  TABLE_TYPE, 
-  TABLE_SCHEM, 
+    OR (
+      c.relkind = 'r'
+      AND (
+        n.nspname = 'pg_catalog'
+        OR n.nspname = 'information_schema'
+      )
+    )
+    OR (
+      c.relkind = 'v'
+      AND n.nspname <> 'pg_catalog'
+      AND n.nspname <> 'information_schema'
+    )
+  )
+ORDER BY
+  TABLE_TYPE,
+  TABLE_SCHEM,
   TABLE_NAME
 OCTO
   [[ "$(grep -c "ERROR" output.txt)" == "0" ]]
@@ -170,7 +182,7 @@ WHERE  c.relnamespace = n.oid
                    AND n.nspname <> 'information_schema' ) )
 ORDER  BY table_type,
           table_schem,
-          table_name  
+          table_name
 OCTO
   [[ "$(grep -c "ERROR" output.txt)" == "0" ]]
 }
@@ -201,7 +213,7 @@ FROM   pg_catalog.pg_namespace n,
 WHERE  p.pronamespace = n.oid
 ORDER  BY procedure_schem,
           procedure_name,
-          p.oid :: text  
+          p.oid :: text
 OCTO
   [[ "$(grep -c "ERROR" output.txt)" == "0" ]]
 }
@@ -322,7 +334,7 @@ WHERE  t.typnamespace = n.oid
        AND t.typtype IN ( 'c', 'd' )
 ORDER  BY data_type,
           type_schem,
-          type_name  
+          type_name
 OCTO
   [[ "$(grep -c "ERROR" output.txt)" == "0" ]]
 }

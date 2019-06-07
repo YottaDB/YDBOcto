@@ -1,4 +1,15 @@
 #!/bin/bash
+#################################################################
+#								#
+# Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	#
+# All rights reserved.						#
+#								#
+#	This source code contains the intellectual property	#
+#	of its copyright holder(s), and is made available	#
+#	under a license.  If you do not know the terms of	#
+#	the license, please stop and do not read further.	#
+#								#
+#################################################################
 
 source /opt/yottadb/current/ydb_env_set
 
@@ -31,7 +42,7 @@ cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON ..
 make 2> make_warnings.txt
 ../tools/ci/sort_warnings.sh
 echo -n "Checking for unexpected warning(s)... "
-diff sorted_warnings.txt ../tools/ci/expected_warnings.txt &> differences.txt
+diff sorted_warnings.txt ../tools/ci/expected_warnings.ref &> differences.txt
 if [ $(wc -l differences.txt) -gt 0 ]; then
   echo "New build warnings detected!"
   cat differences.txt

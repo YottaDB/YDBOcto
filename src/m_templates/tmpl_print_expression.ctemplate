@@ -1,4 +1,16 @@
 {%
+/****************************************************************
+ *								*
+ * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * All rights reserved.						*
+ *								*
+ *	This source code contains the intellectual property	*
+ *	of its copyright holder(s), and is made available	*
+ *	under a license.  If you do not know the terms of	*
+ *	the license, please stop and do not read further.	*
+ *								*
+ ****************************************************************/
+
 #include <assert.h>
 
 #include "logical_plan.h"
@@ -58,7 +70,7 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan) {
         TMPL(tmpl_key, key->v.key);
         // We're getting a bit abusive again; go back one, removing paren, comma and print
         buff_ptr--;
-        %},{% TMPL(tmpl_key, key->v.key); 
+        %},{% TMPL(tmpl_key, key->v.key);
         %}),"|",{{ piece_num->v.piece_number|%d }})){%
         break;
     case LP_COLUMN_ALIAS:
@@ -260,7 +272,7 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan) {
         TMPL(tmpl_print_expression, second_operand, pplan);
         %}){%
     }
-    
+
     TEMPLATE_END();
 }
 %}

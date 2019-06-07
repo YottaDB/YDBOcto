@@ -1,3 +1,15 @@
+#################################################################
+#								#
+# Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	#
+# All rights reserved.						#
+#								#
+#	This source code contains the intellectual property	#
+#	of its copyright holder(s), and is made available	#
+#	under a license.  If you do not know the terms of	#
+#	the license, please stop and do not read further.	#
+#								#
+#################################################################
+
 source @YOTTADB_INCLUDE_DIRS@/ydb_env_set
 export LD_LIBRARY_PATH=@YOTTADB_INCLUDE_DIRS@
 export ydb_routines=". @PROJECT_BINARY_DIR@ $ydb_routines"

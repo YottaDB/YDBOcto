@@ -338,3 +338,11 @@ ORDER  BY data_type,
 OCTO
   [[ "$(grep -c "ERROR" output.txt)" == "0" ]]
 }
+
+@test "select database version" {
+  octo <<OCTO &> output.txt
+SELECT version();
+OCTO
+  # For now, not crashing is considered acceptable; it seems likely that the version
+  # will change often and I don't feel like updating this test all the time
+}

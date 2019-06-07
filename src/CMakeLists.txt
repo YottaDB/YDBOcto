@@ -285,6 +285,7 @@ set(aux_files
   ${PROJECT_BINARY_DIR}/_ydboctocurrentSchema.m
   ${PROJECT_BINARY_DIR}/_ydboctoreplace.m
   ${PROJECT_BINARY_DIR}/_ydboctopgCurrentSchemas.m
+  ${PROJECT_BINARY_DIR}/_ydboctoversion.m
 )
 
 add_custom_target(place_aux_files ALL DEPENDS ${aux_files})

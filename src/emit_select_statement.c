@@ -46,12 +46,12 @@ PhysicalPlan *emit_select_statement(SqlStatement *stmt, char *plan_filename)
 
 	assert(stmt && (stmt->type == table_alias_STATEMENT || stmt->type == set_operation_STATEMENT));
 	plan = generate_logical_plan(stmt, &config->plan_id);
-	if(lp_verify_structure(plan) == FALSE)
-		FATAL(ERR_PLAN_NOT_WELL_FORMED, "");
 	if(config->record_error_level <= DEBUG) {
 		lp_emit_plan(buffer, MAX_STR_CONST * 5, plan);
 		DEBUG(ERR_CURPLAN, buffer);
 	}
+	if(lp_verify_structure(plan) == FALSE)
+		FATAL(ERR_PLAN_NOT_WELL_FORMED, "");
 	optimize_logical_plan(plan);
 	if(config->record_error_level <= DEBUG) {
 		lp_emit_plan(buffer, MAX_STR_CONST * 5, plan);

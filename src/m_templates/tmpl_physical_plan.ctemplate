@@ -279,14 +279,14 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
     DO {{ next_plan->plan_name }}(cursorId){%
     }
     %}
-    QUIT  {%
+    QUIT{%
 
     // If this is a cross reference key, put the trigger definitions here
     if(plan->outputKey && plan->outputKey->is_cross_reference_key) {
     %}
 handleSet
     NEW t
-    IF $ZTRIGGEROP="K" DO  
+    IF $ZTRIGGEROP="K" DO
     . SET val=""
     . FOR  SET val=$ORDER(^|"{{ config->global_directory }}"|{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}",val)) QUIT:val=""  DO:$DATA(^|"{{ config->global_directory }}"|{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}",val{%
         lp_temp = plan->projection->v.operand[1];
@@ -297,7 +297,7 @@ handleSet
             i++;
         }
         %}))'=0
-    .. KILL ^|"{{ config->global_directory }}"|{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}",val{%
+    . . KILL ^|"{{ config->global_directory }}"|{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}",val{%
         lp_temp = plan->projection->v.operand[1];
         i = 0;
         while(lp_temp != NULL) {
@@ -306,8 +306,8 @@ handleSet
             i++;
         }
         %})
-    .. KILL:$INCREMENT(^|"{{ config->global_directory }}"|{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}",val),-1)=0 ^|"{{ config->global_directory }}"|{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}",val)
-    .. KILL:$INCREMENT(^|"{{ config->global_directory }}"|{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}"),-1)=0 ^|"{{ config->global_directory }}"|{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}")
+    . . KILL:$INCREMENT(^|"{{ config->global_directory }}"|{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}",val),-1)=0 ^|"{{ config->global_directory }}"|{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}",val)
+    . . KILL:$INCREMENT(^|"{{ config->global_directory }}"|{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}"),-1)=0 ^|"{{ config->global_directory }}"|{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}")
     ELSE  DO
     . SET newValue=$PIECE($ZTVALUE,$ZTDELIM,$ZTUPDATE)
     . SET oldValue=$PIECE($ZTOLDVAL,$ZTDELIM,$ZTUPDATE)
@@ -322,7 +322,7 @@ handleSet
         %}){%
         // Now decrement the counts for the globals
     %}
-    . IF oldValue'="" IF $INCREMENT(^|"{{ config->global_directory }}"|{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}",oldValue),-1),$INCREMENT(^|"{{ config->global_directory }}"|{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}"),-1)
+    . IF oldValue'="" IF $SELECT($INCREMENT(^|"{{ config->global_directory }}"|{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}",oldValue),-1):$INCREMENT(^|"{{ config->global_directory }}"|{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}"),-1),1:$INCREMENT(^|"{{ config->global_directory }}"|{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}"),-1))
     . KILL:(oldValue'="")&(^|"{{ config->global_directory }}"|{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}",oldValue)=0) ^|"{{ config->global_directory }}"|{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}",oldValue)
     . SET:newValue'="" ^|"{{ config->global_directory }}"|{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}",newValue{%
         lp_temp = plan->projection->v.operand[1];
@@ -335,7 +335,7 @@ handleSet
         %})=""{%
         // Now decrement the counts for the globals
     %}
-    . IF newValue'="" IF $INCREMENT(^|"{{ config->global_directory }}"|{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}",newValue)),$INCREMENT(^|"{{ config->global_directory }}"|{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}"))
+    . IF newValue'="" IF $SELECT($INCREMENT(^|"{{ config->global_directory }}"|{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}",newValue)):$INCREMENT(^|"{{ config->global_directory }}"|{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}")),1:$INCREMENT(^|"{{ config->global_directory }}"|{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}")))
     QUIT{%
     }
     TEMPLATE_END();

@@ -1,3 +1,15 @@
+#################################################################
+#								#
+# Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	#
+# All rights reserved.						#
+#								#
+#	This source code contains the intellectual property	#
+#	of its copyright holder(s), and is made available	#
+#	under a license.  If you do not know the terms of	#
+#	the license, please stop and do not read further.	#
+#								#
+#################################################################
+
 # This is free and unencumbered software released into the public domain.
 #
 # Anyone is free to copy, modify, publish, use, compile, sell, or
@@ -31,7 +43,7 @@ find_package(PkgConfig QUIET)
 if(PKG_CONFIG_FOUND)
     # See comment in ydbcmake/CMakeDetermineMUMPSCompiler.cmake for why the below two set commands are needed.
     set(CMAKE_FIND_LIBRARY_PREFIXES "lib")
-    set(CMAKE_FIND_LIBRARY_SUFFIXES ".so;.a")
+    set(CMAKE_FIND_LIBRARY_SUFFIXES ".so;.a;.dylib")
     pkg_check_modules(PC_YOTTADB QUIET yottadb)
 endif()
 
@@ -42,10 +54,10 @@ endif()
 find_path(YOTTADB_INCLUDE_DIRS NAMES mumps
 	HINTS $ENV{ydb_dist} $ENV{gtm_dist} ${PC_YOTTADB_INCLUDEDIR} )
 find_library(YOTTADB_LIBRARY NAMES yottadb gtmshr
-  HINTS $ENV{ydb_dist} $ENV{gtm_dist} ${PC_YOTTADB_LIBS} )
+  HINTS $ENV{ydb_dist} $ENV{gtm_dist} ${PC_YOTTADB_LIBRARY_DIRS} )
 
-# For YottaDB, the directory where we install header files is same as directory where we install libraries
 set(YOTTADB_LIBRARIES ${YOTTADB_LIBRARY})
+set(YOTTADB_PLUGIN_DIR "${YOTTADB_INCLUDE_DIRS}/plugin/")
 
 include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(YOTTADB  DEFAULT_MSG

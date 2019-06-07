@@ -1,3 +1,15 @@
+#################################################################
+#								#
+# Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	#
+# All rights reserved.						#
+#								#
+#	This source code contains the intellectual property	#
+#	of its copyright holder(s), and is made available	#
+#	under a license.  If you do not know the terms of	#
+#	the license, please stop and do not read further.	#
+#								#
+#################################################################
+
 # This is free and unencumbered software released into the public domain.
 #
 # Anyone is free to copy, modify, publish, use, compile, sell, or
@@ -39,7 +51,7 @@ if(PKG_CONFIG_FOUND)
     # It is suspected to be a cmake bug so for now we define the variables that show up as Missing to work around this.
     # Hence the "set" commands below before the pkg_check_modules() call.
     set(CMAKE_FIND_LIBRARY_PREFIXES "lib")
-    set(CMAKE_FIND_LIBRARY_SUFFIXES ".so;.a")
+    set(CMAKE_FIND_LIBRARY_SUFFIXES ".so;.a;.dylib")
     pkg_check_modules(PC_YOTTADB QUIET yottadb)
 endif()
 
@@ -51,25 +63,25 @@ find_path(mumps_dir NAMES mumps
 	HINTS $ENV{ydb_dist} $ENV{gtm_dist} ${PC_YOTTADB_INCLUDEDIR} )
 
 if(MUMPS_UTF8_MODE)
-  find_program(ICUCONFIG NAMES icu-config)
-  if(ICUCONFIG)
+  find_program(PKGCONFIG NAMES pkg-config)
+  if(PKGCONFIG)
     execute_process(
-      COMMAND ${ICUCONFIG} --version
+      COMMAND ${PKGCONFIG} --modversion icu-io
       OUTPUT_VARIABLE icu_version
       RESULT_VARIABLE icu_failed
       OUTPUT_STRIP_TRAILING_WHITESPACE
       )
     if(icu_failed)
-      message(FATAL_ERROR "Command\n ${ICUCONFIG} --version\nfailed (${icu_failed}).")
+      message(FATAL_ERROR "Command\n ${PKGCONFIG} --modversion icu-io\nfailed (${icu_failed}).")
     elseif("x${icu_version}" MATCHES "^x([0-9]+\\.[0-9]+)")
       set(ydb_icu_version "${CMAKE_MATCH_1}")
     else()
-      message(FATAL_ERROR "Command\n ${ICUCONFIG} --version\nproduced unrecognized output:\n ${icu_version}")
+      message(FATAL_ERROR "Command\n ${PKGCONFIG} --modversion icu-io\nproduced unrecognized output:\n ${icu_version}")
     endif()
   else()
-    message(FATAL_ERROR "Unable to find 'icu-config'.  Set ICUCONFIG in CMake cache.")
+    message(FATAL_ERROR "Unable to find 'pkg-config'.  Set PKGCONFIG in CMake cache.")
   endif()
-  
+
   find_program(LOCALECFG NAMES locale)
   if(LOCALECFG)
     execute_process(

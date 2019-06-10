@@ -37,7 +37,7 @@ typedef struct OctoConfig {
 	RoctoConfig rocto_config;
 	GlobalNames global_names;
 	enum ERROR_LEVEL record_error_level;
-	int dry_run, plan_id;
+	int dry_run, plan_id, auto_clean_tables;
 	const char *tmp_dir, *global_directory, *config_file_name, *global_prefix;
 	ydb_buffer_t zgbldir, octo_gbldir, prev_gbldir;
 	int is_tty, page_size;

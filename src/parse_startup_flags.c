@@ -41,11 +41,12 @@ int parse_startup_flags(int argc, char **argv) {
 			{"dry-run", no_argument, NULL, 'd'},
 			{"input-file", required_argument, NULL, 'f'},
 			{"config-file", required_argument, NULL, 'c'},
+			{"keep-temporary", required_argument, NULL, 'k'},
 			{0, 0, 0, 0}
 		};
 		int option_index = 0;
 
-		c = getopt_long(argc, argv, "vdf:t:c:", long_options, &option_index);
+		c = getopt_long(argc, argv, "kvdf:t:c:", long_options, &option_index);
 		if(c == -1)
 			break;
 
@@ -80,6 +81,9 @@ int parse_startup_flags(int argc, char **argv) {
 			break;
 		case 'c':
 			config->config_file_name = optarg;
+			break;
+		case 'k':
+			config->auto_clean_tables = FALSE;
 			break;
 		default:
 			ERROR(CUSTOM_ERROR, "Uknown argument");

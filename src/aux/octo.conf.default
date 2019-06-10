@@ -19,6 +19,9 @@ routine_cache = "./"
 // Prefixed to all Octo globals
 octo_global_prefix = "%ydbocto"
 
+// If true, automatically delete temporary tables after data is sent to the client
+auto_clean_tables = true
+
 // Settings related to the octod process
 rocto = {
   // Address and port to listen on for connections

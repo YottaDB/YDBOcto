@@ -113,6 +113,10 @@ void print_temporary_table(SqlStatement *stmt, int cursor_id, void *parms, char 
 		YDB_ERROR_CHECK(status, &z_status, &z_status_value);
 	}
 	fflush(stdout);
+	// Cleanup tables, if needed
+	if(config->auto_clean_tables) {
+		ydb_delete_s(cursor_b, 1, cursor_id_b, YDB_DEL_TREE);
+	}
 	free(cursor_id_b->buf_addr);
 	YDB_FREE_BUFFER(row_id_b);
 	YDB_FREE_BUFFER(row_value_b);

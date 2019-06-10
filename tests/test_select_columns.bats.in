@@ -196,3 +196,34 @@ WHERE (id :: text) = "0";
 OCTO
   [[ "$(grep -c "|" output.txt)" == "1" ]]
 }
+
+@test "verify that columns are cleaned after data is sent" {
+  octo <<OCTO &> output.txt
+SELECT * FROM names;
+OCTO
+  $ydb_dist/mumps -di <<OCTO &> output2.txt
+ZWRITE ^%ydboctocursor
+OCTO
+  [[ $(grep -c "%ydboctocursor(1" output2.txt) -eq 0 ]]
+}
+
+@test "verify that columns are kept after data is sent if -k provided" {
+  octo -k <<OCTO &> output.txt
+SELECT * FROM names;
+OCTO
+  $ydb_dist/mumps -di <<OCTO &> output2.txt
+ZWRITE ^%ydboctocursor
+OCTO
+  [[ $(grep -c "%ydboctocursor(1" output2.txt) -gt 1 ]]
+}
+
+@test "verify that columns are kept after data is sent if config is set" {
+  echo "auto_clean_tables = false" >> .octo.conf
+  octo <<OCTO &> output.txt
+SELECT * FROM names;
+OCTO
+  $ydb_dist/mumps -di <<OCTO &> output2.txt
+ZWRITE ^%ydboctocursor
+OCTO
+  [[ $(grep -c "%ydboctocursor(1" output2.txt) -gt 1 ]]
+}

@@ -240,7 +240,11 @@ int octo_init(int argc, char **argv, int scan_tables) {
 
 	if(config_lookup_string(config_file, "octo_global_prefix", &config->global_prefix)
 			== CONFIG_FALSE) {
-		FATAL(ERR_BAD_CONFIG, "octo_global_directory");
+		FATAL(ERR_BAD_CONFIG, "octo_global_prefix");
+	}
+	if(config_lookup_bool(config_file, "auto_clean_tables", &config->auto_clean_tables)
+			== CONFIG_FALSE) {
+		FATAL(ERR_BAD_CONFIG, "auto_clean_tables");
 	}
 	if(config_lookup_string(config_file, "rocto.address", &config->rocto_config.address)
 			== CONFIG_FALSE) {

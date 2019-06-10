@@ -6,7 +6,7 @@ Introduction
 .. contents::
    :depth: 3
 
-This manual documents the YottaDB Database Management System i.e Octo. 
+This manual documents the YottaDB Database Management System i.e Octo.
 
 The YottaDB Database Management System (Octo) is a layered application with a relational access model, built on top of the not-only-SQL database YottaDB. It aims to provide SQL 92 compliance and exceptional performance.
 
@@ -16,7 +16,7 @@ Launching Octo
 
 Firstly, make sure YottaDB is correctly `downloaded and installed <https://yottadb.com/product/get-started/>`_.
 
-The SQL engine looks for the environment variable ydb_dist. 
+The SQL engine looks for the environment variable ydb_dist.
 
 ydb_dist specifies the path to the directory containing the YottaDB system distribution. Either use the ydb script or source ydb_env_set to define ydb_dist. Correct operation of YottaDB executable programs requires ydb_dist to be set correctly.
 
@@ -112,7 +112,7 @@ Example:
    OCTO> YDBOcto-master/build $ ./src/octo -vvv
    [TRACE] YDBOcto-master/src/octo.c:50 2019-04-10 10:17:57 : Octo started
    [ INFO] YDBOcto-master/src/run_query.c:79 2019-04-10 10:17:57 : Generating SQL for cursor 45
-   [ INFO] YDBOcto-master/src/run_query.c:81 2019-04-10 10:17:57 : Parsing SQL command 
+   [ INFO] YDBOcto-master/src/run_query.c:81 2019-04-10 10:17:57 : Parsing SQL command
    Starting parse
    Entering state 0
    Reading a token: OCTO> Next token is token ENDOFFILE (: )
@@ -161,4 +161,14 @@ Example:
 
 .. parsed-literal::
    octo --input-file=files/commands.txt
- 
+
+~~~~~~~~~~
+-k
+~~~~~~~~~~
+
+This command line argument overrides the :code:`auto_clean_tables` configuration setting and instructs Octo to not cleanup temporary tables (stored in the :code:`ydbcursor` global) after data is emitted to the client. This is useful for developers to debug problems.
+
+Example:
+
+.. parsed-literal::
+   octo -k

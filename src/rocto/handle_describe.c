@@ -125,7 +125,7 @@ int handle_describe(Describe *describe, RoctoSession *session) {
 				hash_canonical_query(&state, statement);
 				int routine_len = generate_routine_name(&state, routine_name, MAX_STR_CONST, OutputPlan);
 				if (routine_len < 0) {
-					FATAL(ERR_PLAN_HASH_FAILED);
+					FATAL(ERR_PLAN_HASH_FAILED, "");
 				}
 				int want_to_write = snprintf(filename, MAX_STR_CONST, "%s/_%s.m", config->tmp_dir, &routine_name[1]);
 				if(want_to_write > MAX_STR_CONST) {

@@ -190,7 +190,7 @@ void *compress_statement_helper(SqlStatement *stmt, char *out, int *out_length) 
 	case show_STATEMENT:
 	case table_alias_STATEMENT:
 	case unary_STATEMENT:
-		FATAL(ERR_UNKNOWN_KEYWORD_STATE);
+		FATAL(ERR_UNKNOWN_KEYWORD_STATE, "");
 		break;
 	case invalid_STATEMENT:
 		assert(stmt->type != invalid_STATEMENT);

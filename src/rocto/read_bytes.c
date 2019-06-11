@@ -27,8 +27,12 @@
 #include "message_formats.h"
 
 int read_bytes(RoctoSession *session, char *buffer, int buffer_size, int bytes_to_read) {
-	int read_so_far = 0, read_now = 0, tls_errno = 0;
+#if YDB_TLS_AVAILABLE
+	int tls_errno = 0;
 	const char *err_str = NULL;
+#endif
+	int read_so_far = 0, read_now = 0;
+	
 
 	if(bytes_to_read > buffer_size) {
 		WARNING(ERR_READ_TOO_LARGE, bytes_to_read, buffer_size);
@@ -54,7 +58,7 @@ int read_bytes(RoctoSession *session, char *buffer, int buffer_size, int bytes_t
 					continue;
 				} else if (tls_errno == ECONNRESET) {
 					errno = ECONNRESET;
-					INFO(ERR_ROCTO_CLEAN_DISCONNECT);
+					INFO(ERR_ROCTO_CLEAN_DISCONNECT, "");
 					return 1;
 				} else {
 					FATAL(ERR_ROCTO_TLS_READ_FAILED, err_str);
@@ -74,7 +78,7 @@ int read_bytes(RoctoSession *session, char *buffer, int buffer_size, int bytes_t
 				return 1;
 			} else if(read_now == 0) {
 				// This means the socket was cleanly closed
-				WARNING(ERR_ROCTO_CLEAN_DISCONNECT);
+				WARNING(ERR_ROCTO_CLEAN_DISCONNECT, "");
 				return 1;
 			}
 			read_so_far += read_now;

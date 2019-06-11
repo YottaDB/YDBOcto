@@ -12,6 +12,7 @@
 
 stages:
   - build
+  - docker
   - docs
 
 variables:
@@ -45,6 +46,21 @@ make-tls:
   script:
       - ./tools/ci/install-tls.sh
       - ./tools/ci/build.sh
+vista:
+  image: docker:latest
+  stage: docker
+  before_script:
+    - ""
+  services:
+    - docker:dind
+  script:
+    - mkdir docker-images
+    - apk add git
+    - ./tools/ci/vistabuild.sh
+    - docker login -u $HUB_USERNAME -p $HUB_PASSWORD
+    - docker push yottadb/octo-vehu:latest-master
+  only:
+    - master@YottaDB/DBMS/YDBOcto
 
 pages:
   image: yottadb/yottadb-base
@@ -56,3 +72,4 @@ pages:
     paths:
       - public
     when: always
+

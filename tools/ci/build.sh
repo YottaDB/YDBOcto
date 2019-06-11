@@ -43,7 +43,7 @@ make 2> make_warnings.txt
 ../tools/ci/sort_warnings.sh
 echo -n "Checking for unexpected warning(s)... "
 diff sorted_warnings.txt ../tools/ci/expected_warnings.ref &> differences.txt
-if [ $(wc -l differences.txt) -gt 0 ]; then
+if [ $(wc -l differences.txt | awk '{print $1}') -gt 0 ]; then
   echo "New build warnings detected!"
   cat differences.txt
   exit 1

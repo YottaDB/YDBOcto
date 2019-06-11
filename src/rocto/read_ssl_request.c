@@ -25,10 +25,14 @@
 
 SSLRequest *read_ssl_request(RoctoSession *session, char *data, int data_length, ErrorResponse **err) {
 	SSLRequest *ret = NULL;
-	char *c, *message_end;
 	ErrorBuffer err_buff;
 	const char *error_message;
 	err_buff.offset = 0;
+
+	// Currently unused parameters
+	UNUSED(session);
+	UNUSED(data_length);
+
 	// Length plus request code
 	unsigned int expected_length = sizeof(unsigned int) + sizeof(int);
 	// Request code format:

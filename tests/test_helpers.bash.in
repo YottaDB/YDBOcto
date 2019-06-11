@@ -32,11 +32,13 @@ init_tls() {
 	openssl x509 -req -in $test_temp/server.csr -CA $test_temp/CA.crt -CAkey $test_temp/CA.key -CAcreateserial \
 		-out server.crt -days 365
 	# Pass private key password to environment variable
-  echo "PRE ydb_tls_passwd SET" >> env.log
+  echo -n "\nRAW PASSWORD: "
+  echo tester | $ydb_dist/plugin/gtmcrypt/maskpass | cut -f 3 -d " "
+  echo "\nPRE ydb_tls_passwd SET" >> env.log
   env >> env.log
 	ydb_tls_passwd_DEVELOPMENT=$(echo tester | $ydb_dist/plugin/gtmcrypt/maskpass | cut -f 3 -d " ")
 	export ydb_tls_passwd_DEVELOPMENT
-  echo "POST ydb_tls_passwd SET" >> env.log
+  echo "\nPOST ydb_tls_passwd SET" >> env.log
   env >> env.log
   ydb_crypt_config=$test_temp/.octo.conf
   export ydb_crypt_config

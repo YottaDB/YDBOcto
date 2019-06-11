@@ -26,30 +26,12 @@
 #include "message_formats.h"
 
 int send_message(RoctoSession *session, BaseMessage *message) {
-	int result = 0, ossl_error = 0;
-	unsigned long ossl_error_code = 0;
-	char *err = NULL;
+	int result = 0;
 
 	TRACE(ERR_ENTERING_FUNCTION, "send_message");
+	TRACE(ERR_SEND_MESSAGE, message->type, ntohl(message->length));
 
-	// +1 for the message format flag
-	INFO(ERR_SEND_MESSAGE, message->type, ntohl(message->length));
-	int written_so_far = 0, written_now = 0, to_write = ntohl(message->length) + 1;
-
-	while(written_so_far < to_write) {
-		written_now = send(session->connection_fd, &((char*)message)[written_so_far],
-				to_write - written_so_far, 0);
-		if(written_now < 0) {
-			if(errno == EINTR)
-				continue;
-			if(errno == ECONNRESET)
-				return 1;
-			if(errno == EPIPE)
-				return 1;
-			FATAL(ERR_SYSCALL, "send", errno, strerror(errno));
-			return 1;
-		}
-		written_so_far += written_now;
-	}
-	return 0;
+	// +1 for message type indicator
+	result = send_bytes(session, (char*)message, ntohl(message->length) + 1);
+	return result;
 }

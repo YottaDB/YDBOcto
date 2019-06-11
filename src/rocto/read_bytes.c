@@ -58,8 +58,8 @@ int read_bytes(RoctoSession *session, char *buffer, int buffer_size, int bytes_t
 					INFO(ERR_ROCTO_CLEAN_DISCONNECT);
 					return 1;
 				} else {
-					WARNING(ERR_ROCTO_TLS_READ_FAILED, err_str);
-					FATAL(ERR_SYSCALL, "gtm_tls_recv", tls_errno, strerror(tls_errno));
+					FATAL(ERR_ROCTO_TLS_READ_FAILED, err_str);
+					//FATAL(ERR_SYSCALL, "gtm_tls_recv", tls_errno, strerror(tls_errno));
 				}
 			}
 			read_so_far += read_now;

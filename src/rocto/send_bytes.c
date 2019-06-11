@@ -1,18 +1,15 @@
-/* Copyright (C) 2018-2019 YottaDB, LLC
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- */
+/****************************************************************
+ *								*
+ * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * All rights reserved.						*
+ *								*
+ *	This source code contains the intellectual property	*
+ *	of its copyright holder(s), and is made available	*
+ *	under a license.  If you do not know the terms of	*
+ *	the license, please stop and do not read further.	*
+ *								*
+ ****************************************************************/
+
 #include <stdarg.h>
 #include <stdlib.h>
 #include <string.h>
@@ -26,7 +23,7 @@
 #include "message_formats.h"
 
 int send_bytes(RoctoSession *session, char *message, size_t length) {
-	int result = 0, tls_errno = 0;
+	int result = 0, tls_errno = 0, written_so_far = 0, written_now = 0, to_write = length;
 	const char *err_str = NULL;
 
 	if (session->ssl_active) {
@@ -37,8 +34,9 @@ int send_bytes(RoctoSession *session, char *message, size_t length) {
 				tls_errno = gtm_tls_errno();
 				if(tls_errno == ECONNRESET) {
 					return 1;
-				}
-				else if (-1 == tls_errno) {
+				} else if (tls_errno == EPIPE) {
+					return 1;
+				} else if (-1 == tls_errno) {
 					err_str = gtm_tls_get_error();
 					FATAL(ERR_ROCTO_TLS_WRITE_FAILED, err_str);
 				}
@@ -50,12 +48,20 @@ int send_bytes(RoctoSession *session, char *message, size_t length) {
 		}
 #endif
 	} else {
-		result = send(session->connection_fd, message, length, 0);
-		if(result < 0) {
-			if(errno == ECONNRESET)
+		while(written_so_far < to_write) {
+			written_now = send(session->connection_fd, &((char*)message)[written_so_far],
+					to_write - written_so_far, 0);
+			if(written_now < 0) {
+				if(errno == EINTR)
+					continue;
+				if(errno == ECONNRESET)
+					return 1;
+				if(errno == EPIPE)
+					return 1;
+				FATAL(ERR_SYSCALL, "send", errno, strerror(errno));
 				return 1;
-			FATAL(ERR_SYSCALL, "send", errno, strerror(errno));
-			return 1;
+			}
+			written_so_far += written_now;
 		}
 	}
 	return 0;

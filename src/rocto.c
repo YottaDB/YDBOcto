@@ -107,13 +107,20 @@ int main(int argc, char **argv) {
 	pthread_t thread_id;
 	pthread_create(&thread_id, NULL, rocto_helper_waitpid, (void*)(&rocto_session));
 
+	if(listen(sfd, 3) < 0) {
+		FATAL(ERR_SYSCALL, "listen", errno, strerror(errno));
+	}
+	// int need_to_listen = TRUE;
 	while (!rocto_session.session_ending) {
-		if(listen(sfd, 3) < 0) {
+		/*
+		if(need_to_listen && listen(sfd, 3) < 0) {
 			if(rocto_session.session_ending) {
 				break;
 			}
 			FATAL(ERR_SYSCALL, "listen", errno, strerror(errno));
 		}
+		*/
+		// need_to_listen = FALSE;
 		if((cfd = accept(sfd, (struct sockaddr *)&address, &addrlen)) < 0) {
 			if(rocto_session.session_ending) {
 				break;
@@ -123,6 +130,7 @@ int main(int argc, char **argv) {
 			}
 			FATAL(ERR_SYSCALL, "accept", errno, strerror(errno));
 		}
+		// need_to_listen = TRUE;
 		child_id = fork();
 		if(child_id != 0)
 			continue;
@@ -132,10 +140,10 @@ int main(int argc, char **argv) {
 		rocto_session.connection_fd = cfd;
 		rocto_session.ssl_active = FALSE;
 		if (config->rocto_config.use_dns) {
-			result = getnameinfo((const struct sockaddr *)address, addrlen,
+			result = getnameinfo((const struct sockaddr *)&address, addrlen,
 					host_buf, NI_MAXHOST, serv_buf, NI_MAXSERV, 0);
 		} else {
-			result = getnameinfo((const struct sockaddr *)address, addrlen,
+			result = getnameinfo((const struct sockaddr *)&address, addrlen,
 					host_buf, NI_MAXHOST, serv_buf, NI_MAXSERV, NI_NUMERICHOST | NI_NUMERICSERV );
 		}
 		if (0 != result) {

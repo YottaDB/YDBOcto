@@ -655,6 +655,15 @@ numeric_primary
               value->type = COERCE_TYPE;
               value->coerced_type = STRING_LITERAL;
               value->v.coerce_target = $value_expression_primary;
+          } else if(strcmp(c, "INTEGER") == 0) {
+              SQL_STATEMENT($$, value_STATEMENT);
+              MALLOC_STATEMENT($$, value, SqlValue);
+              UNPACK_SQL_STATEMENT(value, $$, value);
+              value->type = COERCE_TYPE;
+              value->coerced_type = NUMBER_LITERAL;
+              value->v.coerce_target = $value_expression_primary;
+          } else {
+              WARNING(ERR_FEATURE_NOT_IMPLEMENTED, "coerce_type %s", c); YYABORT;
           }
       }
     }
@@ -679,6 +688,15 @@ optional_cast_specification
   : /* Empty */ { $$ = NULL; }
   | COLON COLON identifier {
       $$ = $identifier;
+    }
+  | COLON COLON INTEGER {
+      SqlValue *value;
+      SQL_STATEMENT($$, value_STATEMENT);
+      MALLOC_STATEMENT($$, value, SqlValue);
+      UNPACK_SQL_STATEMENT(value, $$, value);
+      value->type = STRING_LITERAL;
+      value->v.string_literal = octo_cmalloc(memory_chunks, strlen("INTEGER"));
+      strcpy(value->v.string_literal, "INTEGER");
     }
   ;
 

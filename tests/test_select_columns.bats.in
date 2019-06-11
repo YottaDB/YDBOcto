@@ -227,3 +227,10 @@ ZWRITE ^%ydboctocursor
 OCTO
   [[ $(grep -c "%ydboctocursor(1" output2.txt) -gt 1 ]]
 }
+
+@test "T0003 cast a string to an integer" {
+  octo <<OCTO &> output.txt
+SELECT firstName :: integer + 5 FROM names;
+OCTO
+  verify_output T0003 output.txt
+}

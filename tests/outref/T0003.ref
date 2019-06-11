@@ -1,0 +1,8 @@
+OCTO> SELECT firstName :: integer + 5 FROM names;
+5
+5
+5
+5
+5
+5
+OCTO> 

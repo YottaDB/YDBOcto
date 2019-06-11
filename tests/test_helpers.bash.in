@@ -100,7 +100,7 @@ FILE
 }
 
 start_rocto() {
-  env
+  env > env.log
   rocto -vv &> rocto.log &
   echo $! > rocto.pid
   while [[ "$(grep -c "rocto started" rocto.log)" == "0" ]]; do

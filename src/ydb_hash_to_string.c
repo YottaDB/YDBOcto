@@ -26,7 +26,7 @@ void ydb_hash_to_string(ydb_uint16 *hash, char *buffer, const unsigned int buf_l
 	unsigned int i = 0;
 	#ifdef __SIZEOF_INT128__
 	unsigned __int128 *long_hash;
-	long_hash = (__int128*)hash;
+	long_hash = (unsigned __int128*)hash;
 	#else
 	int64_t *long_hash;
 	long_hash = (int64_t*)&hash.one;

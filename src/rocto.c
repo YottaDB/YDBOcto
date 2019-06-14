@@ -259,6 +259,10 @@ int main(int argc, char **argv) {
 		}
 		password_message = read_password_message(base_message, &err);
 		if(password_message == NULL)
+			result = send_message(&rocto_session, (BaseMessage*)(&err->type));
+			if (0 < result) {
+				WARNING(ERR_SEND_MESSAGE, err->type, err->length);
+			}
 			break;
 
 		// Ok

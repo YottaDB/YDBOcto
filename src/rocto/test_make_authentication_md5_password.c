@@ -32,7 +32,13 @@ static void test_valid_input(void **state) {
 	assert_non_null(response);
 	assert_int_equal(response->length, htonl(expected_length));
 
+	AuthenticationMD5Password *response2 = make_authentication_md5_password();
+	assert_non_null(response2);
+	assert_int_equal(response2->length, htonl(expected_length));
+	assert_int_not_equal(*(int32_t *)response->salt, *(int32_t *)response2->salt);
+
 	free(response);
+	free(response2);
 }
 
 int main(void) {

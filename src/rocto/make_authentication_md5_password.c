@@ -18,6 +18,9 @@
 // Used to convert between network and host endian
 #include <arpa/inet.h>
 
+// Used for random number generation
+#include <sys/random.h>
+
 #include "message_formats.h"
 
 AuthenticationMD5Password *make_authentication_md5_password() {
@@ -29,11 +32,10 @@ AuthenticationMD5Password *make_authentication_md5_password() {
 	ret->type = PSQL_AuthenticationMD5Password;
 	ret->length = htonl(sizeof(int) + sizeof(int) + sizeof(char) * 4);
 	ret->md5_required = htonl(5);
-	/// TODO: this should be a random number
-	ret->salt[0] = 12;
-	ret->salt[1] = 12;
-	ret->salt[2] = 12;
-	ret->salt[3] = 12;
+	// Generate 4-byte random salt
+	char salt[4];
+	getrandom(salt, 4, 0);
+	memcpy(ret->salt, salt, 4);
 
 	return ret;
 }

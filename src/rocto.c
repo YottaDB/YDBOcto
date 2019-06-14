@@ -221,8 +221,7 @@ int main(int argc, char **argv) {
 			free(err);
 			break;
 		}
-
-		// Pretend to require md5 authentication
+		// Require md5 authentication
 		md5auth = make_authentication_md5_password();
 		result = send_message(&rocto_session, (BaseMessage*)(&md5auth->type));
 		if(result) {
@@ -240,7 +239,7 @@ int main(int argc, char **argv) {
 		}
 		free(md5auth);
 
-		// This next message is the user sending the password; ignore it
+		// This next message is the user sending the password
 		base_message = read_message(&rocto_session, buffer, MAX_STR_CONST);
 		if(base_message == NULL) {
 			if (ECONNRESET == errno) {

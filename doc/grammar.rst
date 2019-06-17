@@ -520,11 +520,11 @@ The following is a sample of a DDL for an existing large M application (a health
    GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""))"
    DELIM "^";
 
-* Words enclosed in backticks (\`) are enclosed so that any possible reserved words that may be used are correctly escaped.
+* The backtick character (\`) is used to enclose words so that any possible reserved words that may be used in column or table names are correctly escaped.
 
 * START indicates where to start a $ORDER loop in the underlying data storage - this is the number BEFORE which actual data needs to be returned.
 
-* END is an M condition that indicates when the $ORDER loop should stop looking for data. In this case, it is looking for two different conditions: if keys("ORDER1_ID") is false OR if keys(ORDER1_ID) is the empty string.
+* END is an M condition that indicates when the $ORDER loop should stop looking for data. When END is used in the third line of the above example, for instance, it is looking for two different conditions: if keys("ORDER1_ID") is false OR if keys(ORDER1_ID) is the empty string.
 
 * The NUM keyword identifies the order in which multiple KEYS are ordered. This also indicates that this column is derived from subscripts of the M global reference (key) vs data contained within the subscript (value).
 

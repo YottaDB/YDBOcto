@@ -257,6 +257,7 @@ int main(int argc, char **argv) {
 			}
 			break;
 		}
+		/*
 		password_message = read_password_message(base_message, &err);
 		if(password_message == NULL)
 			result = send_message(&rocto_session, (BaseMessage*)(&err->type));
@@ -264,6 +265,7 @@ int main(int argc, char **argv) {
 				WARNING(ERR_SEND_MESSAGE, err->type, err->length);
 			}
 			break;
+		*/
 
 		// Ok
 		authok = make_authentication_ok();

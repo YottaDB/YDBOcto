@@ -45,8 +45,23 @@ typedef struct {
 	int max_data_to_send;
 } QueryResponseParms;
 
-
 void *rocto_helper_waitpid(void *args);
+
+enum UserColumns {
+	OID,
+	ROLNAME,
+	ROLSUPER,
+	ROLINHERIT,
+	ROLCREATEROLE,
+	ROLCREATEDB,
+	ROLCANLOGIN,
+	ROLREPLICATION,
+	ROLBYPASSRLS,
+	ROLCONNLIMIT,
+	ROLPASSWORD,
+	ROLVALIDUNTIL
+} typedef UserColumns;
+
 int send_message(RoctoSession *session, BaseMessage *message);
 int send_bytes(RoctoSession *session, char *message, size_t length);
 BaseMessage *read_message(RoctoSession *session, char *buffer, int buffer_size);
@@ -125,6 +140,9 @@ void bin_to_uuid(char *bin, char *buffer, int buf_len);
 // Utility functions for copying Bind parameters into query string
 char *copy_text_parameter(RoctoSession *session, Bind *bind, const int cur_parm, char *query_ptr, const char *end_query_ptr);
 char *copy_binary_parameter(RoctoSession *session, Bind *bind, const int cur_parm, char *query_ptr, const char *end_query_ptr);
+
+// Helper to extract column values from delimited row string
+unsigned int get_user_column_value(char *buffer, unsigned int buf_len, char *row, unsigned int row_len, enum UserColumns column);
 
 /**
  * Returns a RowDescription object for sending based on the provided physical plan

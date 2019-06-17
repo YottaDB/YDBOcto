@@ -92,6 +92,9 @@
 // Set maximum M routine length - must be in sync with MAX_MIDENT_LEN in YDB/sr_port/mdef.h
 #define MAX_ROUTINE_LEN 31
 
+// Specify character for delimiting column values in Octo
+#define COLUMN_DELIMITER "|"
+
 int emit_column_specification(char *buffer, int buffer_size, SqlColumn *column);
 void emit_create_table(FILE *output, struct SqlStatement *stmt);
 // Recursively copies all of stmt, including making copies of strings

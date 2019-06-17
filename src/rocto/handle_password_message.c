@@ -1,18 +1,15 @@
-/* Copyright (C) 2018-2019 YottaDB, LLC
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- */
+/****************************************************************
+ *								*
+ * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * All rights reserved.						*
+ *								*
+ *	This source code contains the intellectual property	*
+ *	of its copyright holder(s), and is made available	*
+ *	under a license.  If you do not know the terms of	*
+ *	the license, please stop and do not read further.	*
+ *								*
+ ****************************************************************/
+
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
@@ -27,9 +24,8 @@
 int handle_password_message(PasswordMessage *password_message, RoctoSession *session, ErrorResponse **err) {
 	int result = 0;
 	size_t password_length = 0;
-	ydb_buffer_t *user_subs = NULL, *user_id_subs = NULL, *rolname_subs = NULL, *password_subs = NULL;
-	ydb_buffer_t *username_subs = NULL;
-	char *username = NULL;
+	char *username = NULL, *password = NULL, *salt = NULL;
+	ydb_buffer_t *username_subs = NULL, *password_subs = NULL, *salt_subs = NULL, *session_salt_subs = NULL;
 	password_length  = password_message->length - sizeof(int);	// exclude length
 
 	// Check the type of password message, for now just md5 is accepted
@@ -51,18 +47,22 @@ int handle_password_message(PasswordMessage *password_message, RoctoSession *ses
 		return 1
 	}
 	username = username_subs->buf_addr;
-	user_subs = make_buffers(config->global_names.octo, 1, "user");
-	YDB_STRING_TO_BUFFER("rolname", rolname_subs);
-	unsigned int i = 1;
-	// char user_id[MAX_STR_CONST];
-	while (YDB_ERR_NODEEND != result) {
-		// snprintf(user_id, MAX_STR_CONST, "%u", i);
-		// YDB_STRING_TO_BUFFER(user_id, user_id_sub);
-		result = ydb_subscript_next_s(&user_subs[0], 1, &user_subs[1], user_id_subs);
-		username_subs = make_buffers(&user_subs[0], 3, "user", user_id_subs->buf_addr, "rolname");
-		result = ydb_get_s(&username_subs[0], 3, &username_subs[1], password_subs);
-		if (0 == strcmp
-	}
-	result = ydb_get_s(
+	username[username_subs->buf_len]  = '\0';
+
+	// Retrieve user info from database
+	user_subs = makebuffers(config->global_names.octo, 2, "users", username);
+	result = ydb_get_s(&user_subs[0], 2, &user_subs[1], user_info_subs);
+	user_info = user_info_subs.buf_addr;
+	user_info[user_info_subs->buf_len]  = '\0';
+
+	// Extract password hash
+
+	// Retrieve temporary salt from session info
+	// session_salt_subs = makebuffers(
+	result = ydb_get_s(config->global_names.session, 3, rocto_session.session_id->buf_addr, "auth", "salt", salt_subs);
+	salt = salt_subs->buf_addr;
+	salt[salt_subs->buf_len]  = '\0';
+
+
 	return 0;
 }

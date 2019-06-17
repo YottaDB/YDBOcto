@@ -21,9 +21,11 @@
 // Used for random number generation
 #include <sys/random.h>
 
+#include "rocto.h"
+#include "helpers.h"
 #include "message_formats.h"
 
-AuthenticationMD5Password *make_authentication_md5_password() {
+AuthenticationMD5Password *make_authentication_md5_password(RoctoSession *session) {
 	AuthenticationMD5Password *ret;
 
 	ret = (AuthenticationMD5Password*)malloc(sizeof(AuthenticationMD5Password));
@@ -36,6 +38,10 @@ AuthenticationMD5Password *make_authentication_md5_password() {
 	char salt[4];
 	getrandom(salt, 4, 0);
 	memcpy(ret->salt, salt, 4);
+	int result = 0;
+	ydb_buffer_t *session_salt_subs = NULL;
+	session_salt_subs = make_buffers(config->global_names.session, 3, session->session_id->buf_addr, "auth", "salt");
+	result = ydb_set_s(&session_salt_subs[0], 3, &session_salt_subs[1], salt);
 
 	return ret;
 }

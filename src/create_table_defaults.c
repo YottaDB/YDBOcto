@@ -100,7 +100,7 @@ int create_table_defaults(SqlStatement *table_statement, SqlStatement *keywords_
 		dqinsert(start_keyword, keyword, t_keyword);
 	}
 	if(!(options & DELIM)) {
-		snprintf(buffer, MAX_STR_CONST, TEMPLATE_TABLE_DEFAULT_DELIM);
+		snprintf(buffer, MAX_STR_CONST, COLUMN_DELIMITER);
 		str_len = strnlen(buffer, MAX_STR_CONST);
 		out_buffer = octo_cmalloc(memory_chunks, str_len + 1);
 		strncpy(out_buffer, buffer, str_len);

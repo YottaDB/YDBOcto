@@ -46,7 +46,7 @@ Character Data Types
 
 * CHARACTER
 * CHAR
-* CHARACTER VARYING 
+* CHARACTER VARYING
 * CHAR VARYING
 * VARCHAR
 
@@ -99,7 +99,7 @@ The keywords denoted above are M expressions and literals. They are explained in
 | KEY NUM                        | Literal                       | Column                 | Specifies that the column maps to keys(<number>)                               | \-                           | \-                           |
 +--------------------------------+-------------------------------+------------------------+--------------------------------------------------------------------------------+------------------------------+------------------------------+
 | PIECE                          | Literal                       | Column                 | Represents the                                                                 | default (column number,      | \-                           |
-|                                |                               |                        | `$PIECE <https://docs.yottadb.com/ProgrammersGuide/functions.html#piece>`_     | starting at 1)               |                              | 
+|                                |                               |                        | `$PIECE <https://docs.yottadb.com/ProgrammersGuide/functions.html#piece>`_     | starting at 1)               |                              |
 |                                |                               |                        | number of the row this column refers to                                        |                              |                              |
 +--------------------------------+-------------------------------+------------------------+--------------------------------------------------------------------------------+------------------------------+------------------------------+
 
@@ -211,12 +211,12 @@ For two tables, Table A and Table B,
 
   - Left Outer Join : All rows from Table A are returned, along with matching rows from Table B.
   - Right Outer Join: Matching rows from Table A are returned, along with all rows from Table B.
-  - Full Outer Join: All matching rows from Table A and Table B are returned, followed by rows from Table A that have no match and rows from Table B that have no match. 
+  - Full Outer Join: All matching rows from Table A and Table B are returned, followed by rows from Table A that have no match and rows from Table B that have no match.
 
 Example:
 
 .. parsed-literal::
-   SELECT FirstName, LastName, Address FROM Employee INNER JOIN Addresses ON Employee.ID = Addresses.EID; 
+   SELECT FirstName, LastName, Address FROM Employee INNER JOIN Addresses ON Employee.ID = Addresses.EID;
 
 --------------
 INSERT
@@ -248,7 +248,7 @@ The UPDATE statement begins with the keyword UPDATE. The table_name to be update
 Example:
 
 .. parsed-literal::
-   UPDATE Employee SET FirstName = "John" WHERE ID = 220; 
+   UPDATE Employee SET FirstName = "John" WHERE ID = 220;
 
 ------------
 DELETE
@@ -275,7 +275,7 @@ These are operations that work on the results of two or more queries.
 The conditions are:
 
 - The data types in the results of each query need to be compatible.
-- The order and number of the columns in each result set need to be the same. 
+- The order and number of the columns in each result set need to be the same.
 
 +++++++++++++++++
 UNION
@@ -327,10 +327,10 @@ CASE
 
 .. parsed-literal::
    CASE WHEN condition_expression THEN result
-   [WHEN .... ] 
-   [ELSE result] 
+   [WHEN .... ]
+   [ELSE result]
    END
-  
+
 CASE tests a condition_expression. If the condition_expression following any of the WHEN keywords is TRUE, then the value is the "result" following THEN. If none of the conditions are matched, the value is the "result" following ELSE. The result is NULL if ELSE is omitted and none of the conditions are matched.
 
 ------------------
@@ -466,3 +466,68 @@ A query expression can be a joined table or a non joined query expression.
 
 The non_join_query_expression includes simple tables and column lists.
 
+---------------------
+DDL Example
+---------------------
+
+The following is a sample of a DDL for an existing large M application (a healthcare information system) which was generated automatically from the application schema.
+
+.. parsed-literal::
+   CREATE TABLE \`ORDER_ORDER_ACTIONS\`(
+    \`ORDER1_ID\` INTEGER PRIMARY KEY START 0 END "'(keys(""ORDER1_ID""))!(keys(""ORDER1_ID"")="""")",
+    \`ORDER_ORDER_ACTIONS_ID\` INTEGER KEY NUM 1 START 0 END "'(keys(""ORDER_ORDER_ACTIONS_ID""))!(keys(""ORDER_ORDER_ACTIONS_ID"")="""")",
+    \`DATE_TIME_ORDERED\` INTEGER NOT NULL GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),0)" PIECE 1,
+    \`REASON_FOR_ACTION_REJECT\` CHARACTER(240) GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),1)" PIECE 1,
+    \`ACTION\` CHARACTER(12) GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),0)" PIECE 2,
+    \`PROVIDER\` INTEGER GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),0)" PIECE 3,
+    \`SIGNATURE_STATUS\` CHARACTER(34) GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),0)" PIECE 4,
+    \`SIGNED_BY\` INTEGER GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),0)" PIECE 5,
+    \`DATE_TIME_SIGNED\` INTEGER GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),0)" PIECE 6,
+    \`SIGNED_ON_CHART\` INTEGER GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),0)" PIECE 7,
+    \`VERIFYING_NURSE\` INTEGER GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),0)" PIECE 8,
+    \`DATE_TIME_NURSE_VERIFIED\` INTEGER GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),0)" PIECE 9,
+    \`VERIFYING_CLERK\` INTEGER GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),0)" PIECE 10,
+    \`DATE_TIME_CLERK_VERIFIED\` INTEGER GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),0)" PIECE 11,
+    \`NATURE_OF_ORDER\` INTEGER GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),0)" PIECE 12,
+    \`ENTERED_BY\` INTEGER GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),0)" PIECE 13,
+    \`TEXT_REFERENCE\` INTEGER GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),0)" PIECE 14,
+    \`RELEASE_STATUS\` CHARACTER(11) GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),0)" PIECE 15,
+    \`RELEASE_DATE_TIME\` INTEGER GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),0)" PIECE 16,
+    \`RELEASING_PERSON\` INTEGER GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),0)" PIECE 17,
+    \`CHART_REVIEWED_BY\` INTEGER GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),0)" PIECE 18,
+    \`DATE_TIME_CHART_REVIEWED\` INTEGER GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),0)" PIECE 19,
+    \`DC_HOLD_UNTIL\` INTEGER GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),2)" PIECE 1,
+    \`DC_HOLD_RELEASED_BY\` INTEGER GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),2)" PIECE 2,
+    \`DIGITAL_SIGNATURE\` CHARACTER(100) GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),2)" PIECE 3,
+    \`DRUG_SCHEDULE\` CHARACTER(3) GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),2)" PIECE 4,
+    \`DIGITAL_SIGNATURE_REQUIRED\` CHARACTER(3) GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),2)" PIECE 5,
+    \`FLAGGED\` CHARACTER(3) GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),3)" PIECE 1,
+    \`BULLETIN\` INTEGER GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),3)" PIECE 2,
+    \`DATE_TIME_FLAGGED\` INTEGER GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),3)" PIECE 3,
+    \`FLAGGED_BY\` INTEGER GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),3)" PIECE 4,
+    \`REASON_FOR_FLAG\` CHARACTER(80) GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),3)" PIECE 5,
+    \`DATE_TIME_UNFLAGGED\` INTEGER GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),3)" PIECE 6,
+    \`UNFLAGGED_BY\` INTEGER GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),3)" PIECE 7,
+    \`REASON_FOR_UNFLAG\` CHARACTER(80) GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),3)" PIECE 8,
+    \`ALERTED_PROVIDER\` INTEGER GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),3)" PIECE 9,
+    \`DISPOSITION_BY\` INTEGER GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),4)" PIECE 1,
+    \`DISPOSITION_DATE_TIME\` INTEGER GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),4)" PIECE 2,
+    \`CHART_COPY_PRINTED\` CHARACTER(3) GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),7)" PIECE 1,
+    \`CHART_COPY_PRINTED_WHEN\` INTEGER GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),7)" PIECE 2,
+    \`CHART_COPY_PRINTED_BY\` INTEGER GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),7)" PIECE 3,
+    \`CHART_COPY_PRINTER\` CHARACTER(50) GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),7)" PIECE 4
+   )
+   GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""))"
+   DELIM "^";
+
+* Words enclosed in backticks (\`) are enclosed so that any possible reserved words that may be used are correctly escaped.
+
+* START indicates where to start a $ORDER loop in the underlying data storage - this is the number BEFORE which actual data needs to be returned.
+
+* END is an M condition that indicates when the $ORDER loop should stop looking for data. In this case, it is looking for two different conditions: if keys("ORDER1_ID") is false OR if keys(ORDER1_ID) is the empty string.
+
+* The NUM keyword identifies the order in which multiple KEYS are ordered. This also indicates that this column is derived from subscripts of the M global reference (key) vs data contained within the subscript (value).
+
+* The PIECE keyword indicates which M piece the data resides in.
+
+* The DELIM keyword defines the delimiter for data stored within a global node (value) and used in conjunction with the PIECE keyword to access data specified in the column definitions.

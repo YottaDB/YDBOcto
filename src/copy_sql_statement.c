@@ -86,7 +86,7 @@ SqlStatement *copy_sql_statement(SqlStatement *stmt) {
 			// Don't copy a null value
 		} else {
 			len = strlen(value->v.reference) + 1;
-			ret->v.value->v.reference = malloc(len);
+			ret->v.value->v.reference = octo_cmalloc(memory_chunks, len);
 			memcpy(ret->v.value->v.reference, value->v.reference, len);
 		}
 		break;

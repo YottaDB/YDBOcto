@@ -88,7 +88,8 @@ typedef enum SqlStatementType {
 	cas_branch_STATEMENT,
 	set_STATEMENT,
 	show_STATEMENT,
-	no_data_STATEMENT
+	no_data_STATEMENT,
+	invalid_STATEMENT
 } SqlStatementType;
 
 typedef enum UnaryOperations {

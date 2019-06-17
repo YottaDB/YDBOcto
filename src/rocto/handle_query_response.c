@@ -120,7 +120,7 @@ void handle_query_response(SqlStatement *stmt, int cursor_id, void *_parms, char
 
 	snprintf(buffer, MAX_STR_CONST, "%d", cursor_id);
 	cursor_id_b->len_used = strlen(buffer);
-	cursor_id_b->buf_addr = malloc(cursor_id_b->len_used);
+	cursor_id_b->buf_addr = malloc(cursor_id_b->len_used + 1);
 	memcpy(cursor_id_b->buf_addr, buffer, cursor_id_b->len_used+1);
 	cursor_id_b->len_alloc = cursor_id_b->len_used;
 

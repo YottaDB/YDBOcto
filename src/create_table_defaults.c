@@ -88,12 +88,12 @@ int create_table_defaults(SqlStatement *table_statement, SqlStatement *keywords_
 		buff_ptr += snprintf(buff_ptr, MAX_STR_CONST - (buff_ptr - buffer), ")");
 		*buff_ptr++ = '\0';
 		len = buff_ptr - buffer;
-		out_buffer = malloc(len);
+		out_buffer = octo_cmalloc(memory_chunks, len);
 		memcpy(out_buffer, buffer, len);
-		(keyword) = (SqlOptionalKeyword*)malloc(sizeof(SqlOptionalKeyword));
+		(keyword) = (SqlOptionalKeyword*)octo_cmalloc(memory_chunks, sizeof(SqlOptionalKeyword));
 		(keyword)->keyword = OPTIONAL_SOURCE;
 		SQL_STATEMENT(keyword->v, value_STATEMENT);
-		keyword->v->v.value = (SqlValue*)malloc(sizeof(SqlValue));
+		keyword->v->v.value = (SqlValue*)octo_cmalloc(memory_chunks, sizeof(SqlValue));
 		keyword->v->v.value->type = COLUMN_REFERENCE;
 		keyword->v->v.value->v.reference = out_buffer;
 		dqinit(keyword);
@@ -102,13 +102,13 @@ int create_table_defaults(SqlStatement *table_statement, SqlStatement *keywords_
 	if(!(options & DELIM)) {
 		snprintf(buffer, MAX_STR_CONST, TEMPLATE_TABLE_DEFAULT_DELIM);
 		str_len = strnlen(buffer, MAX_STR_CONST);
-		out_buffer = malloc(str_len + 1);
+		out_buffer = octo_cmalloc(memory_chunks, str_len + 1);
 		strncpy(out_buffer, buffer, str_len);
 		out_buffer[str_len] = '\0';
-		(keyword) = (SqlOptionalKeyword*)malloc(sizeof(SqlOptionalKeyword));
+		(keyword) = (SqlOptionalKeyword*)octo_cmalloc(memory_chunks, sizeof(SqlOptionalKeyword));
 		(keyword)->keyword = OPTIONAL_DELIM;
 		SQL_STATEMENT(keyword->v, value_STATEMENT);
-		keyword->v->v.value = (SqlValue*)malloc(sizeof(SqlValue));
+		keyword->v->v.value = (SqlValue*)octo_cmalloc(memory_chunks, sizeof(SqlValue));
 		keyword->v->v.value->type = STRING_LITERAL;
 		keyword->v->v.value->v.reference = out_buffer;
 		dqinit(keyword);

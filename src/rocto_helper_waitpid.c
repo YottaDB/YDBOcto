@@ -39,7 +39,13 @@ void *rocto_helper_waitpid(void *args) {
 	while(!session->session_ending) {
 		// Wait for PID's
 		int wstatus = 0;
-		wait(&wstatus);
+		pid_t result = wait(&wstatus);
+		if(result < 0) {
+			// If there are no children active, just continue
+			if(errno == ECHILD)
+				continue;
+			FATAL(ERR_SYSCALL, "wait", errno, strerror(errno));
+		}
 	}
 	return NULL;
 }

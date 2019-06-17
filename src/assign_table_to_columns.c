@@ -46,7 +46,7 @@ void assign_table_to_columns(SqlStatement *table_statement) {
 			keyword->keyword = OPTIONAL_PIECE;
 			snprintf(buffer, MAX_STR_CONST, "%d", i);
 			len = strlen(buffer);
-			malloc_space = malloc(len+1);
+			malloc_space = octo_cmalloc(memory_chunks, len+1);
 			strncpy(malloc_space, buffer, len+1);
 			SQL_STATEMENT(keyword->v, value_STATEMENT);
 			MALLOC_STATEMENT(keyword->v, value, SqlValue);

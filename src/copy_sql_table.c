@@ -23,7 +23,7 @@ SqlTable *copy_sql_table(SqlTable *table) {
 	SqlColumn *cur_column, *start_column, *new_column, *t_column;
 	SqlOptionalKeyword *keyword;
 
-	ret = (SqlTable*)malloc(sizeof(SqlTable));
+	ret = (SqlTable*)octo_cmalloc(memory_chunks, sizeof(SqlTable));
 	memset(ret, 0, sizeof(SqlTable));
 
 	if(table->tableName) {
@@ -37,7 +37,7 @@ SqlTable *copy_sql_table(SqlTable *table) {
 	UNPACK_SQL_STATEMENT(start_column, table->columns, column);
 	cur_column = start_column;
 	do {
-		new_column = (SqlColumn*)malloc(sizeof(SqlColumn));
+		new_column = (SqlColumn*)octo_cmalloc(memory_chunks, sizeof(SqlColumn));
 		*new_column = *cur_column;
 		dqinit(new_column);
 		new_column->columnName = copy_sql_statement(cur_column->columnName);

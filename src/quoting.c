@@ -14,11 +14,13 @@
 #include <string.h>
 #include <assert.h>
 
+#include "memory_chunk.h"
+
 char *m_escape_string(const char *string) {
 	char *buf, *e;
 	const char *c;
 	int len = strlen(string);
-	buf = malloc(2*len);
+	buf = octo_cmalloc(memory_chunks, 2*len);
 	for(c = string, e = buf; *c != '\0'; c++) {
 		if(*c == '"') {
 			*e++ = '"';
@@ -34,7 +36,7 @@ char *m_unescape_string(const char *string) {
 	char *buf, *e;
 	const char *c;
 	int len = strlen(string), quote_count = 0;
-	buf = malloc(2*len);
+	buf = octo_cmalloc(memory_chunks, 2*len);
 	for(c = string, e = buf; *c != '\0'; c++) {
 		if(*c == '"') {
 			if(quote_count == 1) {

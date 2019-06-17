@@ -70,6 +70,7 @@ void hash_canonical_query(hash128_state_t *state, SqlStatement *stmt) {
 	if(stmt == NULL)
 		return;
 
+	assert(stmt->type < invalid_STATEMENT);
 	switch (stmt->type) {
 		case begin_STATEMENT:
 			add_sql_type_hash(state, begin_STATEMENT);

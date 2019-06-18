@@ -115,6 +115,7 @@ int handle_query(Query *query, RoctoSession *session);
 int handle_parse(Parse *parse, RoctoSession *session);
 int handle_execute(Execute *execute, RoctoSession *session);
 int handle_describe(Describe *describe, RoctoSession *session);
+int handle_password_message(PasswordMessage *password_message, RoctoSession *session, ErrorResponse **err);
 
 // This isn't a handle function in-of itself, but a helper to handle the results of a query
 void handle_query_response(SqlStatement *stmt, int cursor_id, void *_parms, char *plan_name);

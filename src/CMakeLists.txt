@@ -207,6 +207,7 @@ add_library(librocto OBJECT
   rocto/handle_parse.c
   rocto/handle_execute.c
   rocto/handle_describe.c
+  rocto/handle_password_message.c
   rocto/make_error_response.c
   rocto/make_bind_complete.c
   rocto/make_close_complete.c

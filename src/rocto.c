@@ -110,17 +110,7 @@ int main(int argc, char **argv) {
 	if(listen(sfd, 3) < 0) {
 		FATAL(ERR_SYSCALL, "listen", errno, strerror(errno));
 	}
-	// int need_to_listen = TRUE;
 	while (!rocto_session.session_ending) {
-		/*
-		if(need_to_listen && listen(sfd, 3) < 0) {
-			if(rocto_session.session_ending) {
-				break;
-			}
-			FATAL(ERR_SYSCALL, "listen", errno, strerror(errno));
-		}
-		*/
-		// need_to_listen = FALSE;
 		if((cfd = accept(sfd, (struct sockaddr *)&address, &addrlen)) < 0) {
 			if(rocto_session.session_ending) {
 				break;
@@ -130,7 +120,6 @@ int main(int argc, char **argv) {
 			}
 			FATAL(ERR_SYSCALL, "accept", errno, strerror(errno));
 		}
-		// need_to_listen = TRUE;
 		child_id = fork();
 		if(child_id != 0)
 			continue;
@@ -179,9 +168,6 @@ int main(int argc, char **argv) {
 				}
 				break;
 			}
-			char *password = NULL;
-			password = getenv("ydb_tls_passwd_DEVELOPMENT");
-			WARNING(CUSTOM_ERROR, "\npassword: %s\n", password);
 			// Set up TLS socket
 			gtm_tls_socket_t *tls_socket;
  			tls_socket = gtm_tls_socket(tls_context, NULL, cfd, "DEVELOPMENT", GTMTLS_OP_SOCKET_DEV);
@@ -197,35 +183,38 @@ int main(int argc, char **argv) {
 				break;
 			}
 			// Accept incoming TLS connections
-			result = gtm_tls_accept(tls_socket);
-			if (0 != result) {
-				if (-1 == result) {
-					tls_errno = gtm_tls_errno();
-					if (-1 == tls_errno) {
-						err_str = gtm_tls_get_error();
-						WARNING(ERR_ROCTO_TLS_ACCEPT, err_str);
+			do {
+				result = gtm_tls_accept(tls_socket);
+				if (0 != result) {
+					if (-1 == result) {
+						tls_errno = gtm_tls_errno();
+						if (-1 == tls_errno) {
+							err_str = gtm_tls_get_error();
+							WARNING(ERR_ROCTO_TLS_ACCEPT, err_str);
+						} else {
+							WARNING(CUSTOM_ERROR, "unknown", tls_errno, strerror(tls_errno));
+						}
+						break;
+					} else if (GTMTLS_WANT_READ == result) {
+						WARNING(ERR_ROCTO_TLS_WANT_READ);
+					} else if (GTMTLS_WANT_WRITE == result) {
+						WARNING(ERR_ROCTO_TLS_WANT_WRITE);
 					} else {
-						WARNING(ERR_SYSCALL, "unknown", tls_errno, strerror(tls_errno));
+						WARNING(ERR_ROCTO_TLS_UNKNOWN, "failed to accept incoming connection(s)");
+						break;
 					}
-				} else if (GTMTLS_WANT_READ) {
-					WARNING(ERR_ROCTO_TLS_WANT_READ);
-				} else if (GTMTLS_WANT_WRITE) {
-					WARNING(ERR_ROCTO_TLS_WANT_WRITE);
-				} else {
-					WARNING(ERR_ROCTO_TLS_UNKNOWN, "failed to accept incoming connection(s)");
 				}
-				break;
-			}
+			} while ((GTMTLS_WANT_READ == result) || (GTMTLS_WANT_WRITE == result));
 			rocto_session.tls_socket = tls_socket;
 			rocto_session.ssl_active = TRUE;
 			read_bytes(&rocto_session, buffer, MAX_STR_CONST, sizeof(int) * 2);
 #endif
+		// Attempt unencrypted connection if SSL not requested
 		} else if (NULL != ssl_request & FALSE == config->rocto_config.ssl_on) {
 			result = send_bytes(&rocto_session, "N", sizeof(char));
 			read_bytes(&rocto_session, buffer, MAX_STR_CONST, sizeof(int) * 2);
 		}
 
-		// Attempt unencrypted connection if SSL not requested
 		startup_message = read_startup_message(&rocto_session, buffer, sizeof(int) * 2, &err);
 		if(startup_message == NULL) {
 			send_message(&rocto_session, (BaseMessage*)(&err->type));

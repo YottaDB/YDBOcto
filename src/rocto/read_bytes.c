@@ -43,14 +43,12 @@ int read_bytes(RoctoSession *session, char *buffer, int buffer_size, int bytes_t
 		while(read_so_far < bytes_to_read) {
 			read_now = gtm_tls_recv(session->tls_socket, &buffer[read_so_far],
 					bytes_to_read - read_so_far);
-			// printf("read_now: %d\n", read_now);
 			if (GTMTLS_WANT_READ == read_now) {
 					continue;
 			}
 			if (read_now < 0) {
 				tls_errno = gtm_tls_errno();
 				err_str = gtm_tls_get_error();
-				// printf("tls_errno: %d\n", tls_errno);
 				if (tls_errno == EINTR) {
 					continue;
 				} else if (tls_errno == ECONNRESET) {
@@ -59,7 +57,6 @@ int read_bytes(RoctoSession *session, char *buffer, int buffer_size, int bytes_t
 					return 1;
 				} else {
 					FATAL(ERR_ROCTO_TLS_READ_FAILED, err_str);
-					//FATAL(ERR_SYSCALL, "gtm_tls_recv", tls_errno, strerror(tls_errno));
 				}
 			}
 			read_so_far += read_now;

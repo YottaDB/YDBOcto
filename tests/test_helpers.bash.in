@@ -117,11 +117,11 @@ stop_rocto() {
 }
 
 run_psql() {
-  PGPASSWORD=ydbrocks psql "sslmode=disable host=localhost port=1337"
-}
-
-run_psql_ssl() {
-  PGPASSWORD=ydbrocks psql "host=localhost port=1337"
+  if [[ @YDB_TLS_AVAILABLE@ -eq 1 ]]; then
+    PGPASSWORD=ydbrocks psql "host=localhost port=1337"
+  else
+    PGPASSWORD=ydbrocks psql "sslmode=disable host=localhost port=1337"
+  fi
 }
 
 setup_go() {

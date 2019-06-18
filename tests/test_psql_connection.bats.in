@@ -28,41 +28,23 @@ teardown() {
 }
 
 @test "select wildcard columns" {
-  if [[ @YDB_TLS_AVAILABLE@ -eq 1 ]]; then
-  run_psql_ssl <<OCTO &> output.txt
-SELECT * FROM names;
-OCTO
-else
   run_psql <<OCTO &> output.txt
 SELECT * FROM names;
 OCTO
-  fi
   [[ "$(grep -c -E "Zero.\+|Cool" output.txt)" == "2" ]]
 }
 
 @test "invalid syntax should get an error message" {
-  if [[ @YDB_TLS_AVAILABLE@ -eq 1 ]]; then
-  run_psql_ssl <<OCTO &> output.txt
-SELECT * AFRO names;
-OCTO
-else
   run_psql <<OCTO &> output.txt
 SELECT * AFRO names;
 OCTO
-  fi
   [[ "$(grep -c -E "syntax error" output.txt)" == "1" ]]
 }
 
 @test "ensure correct columns are sent using xref" {
-  if [[ @YDB_TLS_AVAILABLE@ -eq 1 ]]; then
-  run_psql_ssl <<OCTO &> output.txt
-SELECT * FROM names WHERE firstName = "Zero";
-OCTO
-else
   run_psql <<OCTO &> output.txt
 SELECT * FROM names WHERE firstName = "Zero";
 OCTO
-  fi
   [[ "$(grep -c -E "0.+Zero.+Cool" output.txt)" == "1" ]]
 }
 

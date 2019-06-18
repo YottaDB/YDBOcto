@@ -20,10 +20,10 @@ find_package(CMOCKA)
 find_package(BATS)
 
 if(DEFINED YOTTADB_INCLUDE_DIRS AND EXISTS "${YOTTADB_INCLUDE_DIRS}/plugin/libgtmtls.so")
-    message(STATUS "YottaDB TLS plugin found in ${YOTTADB_INCLUDE_DIRS}")
+  message(STATUS "Found YottaDB TLS plugin: ${YOTTADB_INCLUDE_DIRS}")
     set(YDB_TLS_AVAILABLE 1)
 else()
-    message(WARNING "YottaDB TLS plugin not found in ${YOTTADB_INCLUDE_DIRS}")
+  message(WARNING "Could NOT find YottaDB TLS plugin in ${YOTTADB_INCLUDE_DIRS}")
     set(YDB_TLS_AVAILABLE 0)
 endif()
 

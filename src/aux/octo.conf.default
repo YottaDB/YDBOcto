@@ -43,18 +43,22 @@ rocto = {
 }*/
 
 tls: {
+  // Max number of certificate authorities to check when verifying certificate
   verify-depth: 7;
+  // Name of certificate authority file
   CAfile: "server.crt";
+  // Path to certificate authority file
   CApath: "/home/jon/YDBOcto/build/";
-  /* dh512: "/home/jdoe/current/tls/dh512.pem"; */
-  /* dh1024: "/home/jdoe/current/tls/dh1024.pem"; */
+  // Session timeout limit, in seconds
   session-timeout: 600;
 
   /* List of certificate/key pairs specified by identifiers. */
   PRODUCTION: {
+    // Certificate format
     format: "PEM";
-    /* Path to the certificate. */
+    // Path to certificate
     cert: "server.crt";
+    // Path to private key
     key: "server.key";
   };
 

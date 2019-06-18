@@ -222,7 +222,7 @@ int main(int argc, char **argv) {
 			break;
 		}
 		// Require md5 authentication
-		md5auth = make_authentication_md5_password();
+		md5auth = make_authentication_md5_password(&rocto_session);
 		result = send_message(&rocto_session, (BaseMessage*)(&md5auth->type));
 		if(result) {
 			WARNING(ERR_ROCTO_SEND_FAILED, "failed to send MD5 authentication required");

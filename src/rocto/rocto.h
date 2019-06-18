@@ -82,7 +82,7 @@ EmptyQueryResponse *make_empty_query_response();
 RowDescription *make_row_description(RowDescriptionParm *parms, short num_parms);
 DataRow *make_data_row(DataRowParm *parms, short num_parms);
 CommandComplete *make_command_complete(char *command_tag);
-AuthenticationMD5Password *make_authentication_md5_password();
+AuthenticationMD5Password *make_authentication_md5_password(RoctoSession *session);
 AuthenticationOk *make_authentication_ok();
 ParseComplete *make_parse_complete();
 ParameterStatus *make_parameter_status(StartupMessageParm *parm);

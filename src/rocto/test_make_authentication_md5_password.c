@@ -26,13 +26,18 @@
 #include "message_formats.h"
 
 static void test_valid_input(void **state) {
-	AuthenticationMD5Password *response = make_authentication_md5_password();
+	RoctoSession session;
+	ydb_buffer_t session_id;
+	YDB_STRING_TO_BUFFER("0", &session_id);
+	session.session_id = &session_id;
 	int expected_length = 12;
+
+	AuthenticationMD5Password *response = make_authentication_md5_password(&session);
 	// Standard checks
 	assert_non_null(response);
 	assert_int_equal(response->length, htonl(expected_length));
 
-	AuthenticationMD5Password *response2 = make_authentication_md5_password();
+	AuthenticationMD5Password *response2 = make_authentication_md5_password(&session);
 	assert_non_null(response2);
 	assert_int_equal(response2->length, htonl(expected_length));
 	assert_int_not_equal(*(int32_t *)response->salt, *(int32_t *)response2->salt);
@@ -42,6 +47,7 @@ static void test_valid_input(void **state) {
 }
 
 int main(void) {
+	octo_init(0, NULL, FALSE);
 	const struct CMUnitTest tests[] = {
 		cmocka_unit_test(test_valid_input)
 	};

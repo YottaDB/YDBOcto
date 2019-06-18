@@ -39,9 +39,11 @@ AuthenticationMD5Password *make_authentication_md5_password(RoctoSession *sessio
 	getrandom(salt, 4, 0);
 	memcpy(ret->salt, salt, 4);
 	int result = 0;
-	ydb_buffer_t *session_salt_subs = NULL;
+	ydb_buffer_t *session_salt_subs = NULL, salt_buf;
 	session_salt_subs = make_buffers(config->global_names.session, 3, session->session_id->buf_addr, "auth", "salt");
-	result = ydb_set_s(&session_salt_subs[0], 3, &session_salt_subs[1], salt);
+	YDB_STRING_TO_BUFFER(salt, &salt_buf);
+	int result = 0;
+	result = ydb_set_s(&session_salt_subs[0], 3, &session_salt_subs[1], &salt_buf);
 
 	return ret;
 }

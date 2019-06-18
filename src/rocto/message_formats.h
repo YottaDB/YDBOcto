@@ -349,19 +349,14 @@ typedef enum {
 	PSQL_Error_Routine = 'R'
 } PSQL_ErrorResponseArgType;
 
+extern const char *psql_error_severity_str[];
+extern const char *psql_sqlstate_codes_str[];
+
 #define ERROR_DEF(name, format_string) name,
 #define ERROR_END(name, format_string) name
 typedef enum {
   #include "error_severity.hd"
 } PSQL_ErrorSeverity;
-#undef ERROR_DEF
-#undef ERROR_END
-
-#define ERROR_DEF(name, format_string) format_string,
-#define ERROR_END(name, format_string) format_string
-static const char *psql_error_severity_str[] = {
-  #include "error_severity.hd"
-};
 #undef ERROR_DEF
 #undef ERROR_END
 
@@ -373,13 +368,6 @@ typedef enum {
 #undef ERROR_DEF
 #undef ERROR_END
 
-#define ERROR_DEF(name, format_string) format_string,
-#define ERROR_END(name, format_string) format_string
-static const char *psql_sqlstate_codes_str[] = {
-  #include "error_codes.hd"
-};
-#undef ERROR_DEF
-#undef ERROR_END
 
 typedef enum {
 	      PSQL_TransactionStatus_IDLE = 'I',

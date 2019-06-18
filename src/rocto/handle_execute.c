@@ -27,15 +27,13 @@ int handle_execute(Execute *execute, RoctoSession *session) {
 	// This feature should be implemented before 1.0
 	// For now, just a search-and-replace of anything starting with a '$'
 	// This is not super great because it means one could have a SQLI attack
-	CommandComplete *response;
 	QueryResponseParms parms;
-	NoData *no_data;
 	EmptyQueryResponse *empty;
 	ydb_buffer_t *src_subs;
-	ydb_buffer_t session_global, sql_expression;
+	ydb_buffer_t sql_expression;
 	ydb_buffer_t z_status, z_status_value;
-	size_t new_length = 0, query_length, err_buff_size;
-	int length, status, execute_parm;
+	size_t query_length, err_buff_size;
+	int status;
 	int run_query_result = 0;
 	char *err_buff;
 	ErrorResponse *err;
@@ -60,7 +58,7 @@ int handle_execute(Execute *execute, RoctoSession *session) {
 	sql_expression.buf_addr[sql_expression.len_used] = '\0';
 	query_length = strlen(sql_expression.buf_addr);
 
-	if(query_length + 2 > cur_input_max) {
+	if(query_length + 2 > (size_t)cur_input_max) {
 		err = make_error_response(PSQL_Error_ERROR,
 				PSQL_Code_Protocol_Violation,
 				"execute query length exceeeded maximum size",

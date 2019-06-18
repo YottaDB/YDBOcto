@@ -23,8 +23,10 @@
 
 DataRow *read_data_row(BaseMessage *message, ErrorResponse **err) {
 	DataRow *ret;
-	char *cur_pointer, *last_byte, *c;
-	unsigned int remaining_length = 0, i = 0;
+	char *cur_pointer, *c;
+	unsigned int remaining_length = 0;
+
+	UNUSED(err);
 
 	remaining_length = ntohl(message->length);
 	ret = (DataRow*)malloc(remaining_length + sizeof(DataRow) - sizeof(unsigned int) - sizeof(short int));
@@ -47,7 +49,7 @@ DataRow *read_data_row(BaseMessage *message, ErrorResponse **err) {
 	ret->parms = (DataRowParm*)malloc(ret->num_columns * sizeof(DataRowParm));
 
 	cur_pointer = ret->data;
-	for (i = 0; i < ret->num_columns; i++) {
+	for (short int i = 0; i < ret->num_columns; i++) {
 		ret->parms[i].length = ntohl(*(unsigned int*)cur_pointer);
 		cur_pointer += sizeof(unsigned int);
 		ret->parms[i].value = (char*)cur_pointer;

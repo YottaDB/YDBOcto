@@ -38,7 +38,6 @@ int rocto_main_loop(RoctoSession *session) {
 	struct timeval select_timeout;
 	int result;
 	char buffer[MAX_STR_CONST];
-	size_t bytes_available = 0;
 	int send_ready_for_query = TRUE;
 
 	TRACE(ERR_ENTERING_FUNCTION, "rocto_main_loop");

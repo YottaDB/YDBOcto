@@ -29,6 +29,23 @@ enum MessageType {
 	ERROR_MESSAGE
 };
 
+
+#define ERROR_DEF(name, format_string) format_string,
+#define ERROR_END(name, format_string) format_string
+const char *psql_error_severity_str[] = {
+  #include "rocto/error_severity.hd"
+};
+#undef ERROR_DEF
+#undef ERROR_END
+
+#define ERROR_DEF(name, format_string) format_string,
+#define ERROR_END(name, format_string) format_string
+const char *psql_sqlstate_codes_str[] = {
+  #include "rocto/error_codes.hd"
+};
+#undef ERROR_DEF
+#undef ERROR_END
+
 #endif
 
 // Define the strings we expect for constants
@@ -39,7 +56,6 @@ const char *err_format_str[] = {
 };
 #undef ERROR_DEF
 #undef ERROR_END
-
 
 const char *host_info = "[%s:%s] ";
 const char *log_prefix = "[%5s] %s:%d %04d-%02d-%02d %02d:%02d:%02d : ";

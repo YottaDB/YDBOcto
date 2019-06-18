@@ -24,6 +24,8 @@
 CloseComplete *read_close_complete(BaseMessage *message, ErrorResponse **err) {
 	CloseComplete *ret;
 
+	UNUSED(err);
+
 	ret = (CloseComplete*)malloc(sizeof(CloseComplete));
 
 	ret->type = message->type;

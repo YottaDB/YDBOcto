@@ -23,7 +23,6 @@
 
 CommandComplete *make_command_complete(char *command_tag) {
 	CommandComplete *ret;
-	char *c;
 	int length = 0, command_tag_length = 0;
 
 	// Rather than have special logic for the NULL, just use an empty string

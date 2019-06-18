@@ -28,11 +28,9 @@ int handle_parse(Parse *parse, RoctoSession *session) {
 	// For now, just a search-and-replace of anything starting with a '$'
 	// This is not super great because it means one could have a SQLI attack
 	int status;
-	char parm_data_type[12];
-	ydb_buffer_t *src_subs, **parm_type_subs, value_buffer;
+	ydb_buffer_t *src_subs;
 	ydb_buffer_t sql_expression, z_status, z_status_value;
 	ParseComplete *response;
-	char buff[MAX_STR_CONST], buff2[MAX_STR_CONST];
 
 	TRACE(ERR_ENTERING_FUNCTION, "handle_parse");
 

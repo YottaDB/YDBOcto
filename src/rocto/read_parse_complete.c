@@ -25,6 +25,8 @@ ParseComplete *read_parse_complete(BaseMessage *message, ErrorResponse **err) {
 	ParseComplete *ret;
 	unsigned int remaining_length = 0;
 
+	UNUSED(err);
+
 	remaining_length = ntohl(message->length);
 	ret = (ParseComplete*)malloc(sizeof(ParseComplete));
 

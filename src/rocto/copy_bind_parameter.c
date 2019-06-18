@@ -52,7 +52,6 @@ char *copy_text_parameter(RoctoSession *session, Bind *bind, const int cur_parm,
 }
 
 char *copy_binary_parameter(RoctoSession *session, Bind *bind, const int cur_parm, char *query, const char *end_query) {
-	char *binary_parm_start, *binary_parm_end;
 	char str_value[MAX_STR_CONST];
 	int64_t value = 0;
 	int copied = 0;

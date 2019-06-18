@@ -23,8 +23,9 @@
 
 CommandComplete *read_command_complete(BaseMessage *message, ErrorResponse **err) {
 	CommandComplete *ret;
-	char *cur_pointer, *last_byte;
 	unsigned int remaining_length = 0;
+
+	UNUSED(err);
 
 	remaining_length = ntohl(message->length);
 	ret = (CommandComplete*)malloc(remaining_length + sizeof(CommandComplete) - sizeof(unsigned int));

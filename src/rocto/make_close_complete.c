@@ -18,11 +18,14 @@
 // Used to convert between network and host endian
 #include <arpa/inet.h>
 
+#include "octo.h"
 #include "message_formats.h"
 
 
 CloseComplete *make_close_complete(char *command_tag) {
 	CloseComplete *ret;
+
+	UNUSED(command_tag);
 
 	ret = (CloseComplete*)malloc(sizeof(CloseComplete));
 	memset(ret, 0, sizeof(CloseComplete));

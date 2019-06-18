@@ -38,7 +38,6 @@ int generate_key_name(char *buffer, int buffer_size, int target_key_num, SqlTabl
 		UNPACK_SQL_STATEMENT(value, keyword->v, value);
 		temp = m_unescape_string(value->v.string_literal);
 		SAFE_SNPRINTF(written, buffer_ptr, buffer, buffer_size, "%s", temp);
-		free(temp);
 		return buffer_ptr - buffer;
 	}
 	UNPACK_SQL_STATEMENT(value, key_columns[target_key_num]->columnName, value);

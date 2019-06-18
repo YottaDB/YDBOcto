@@ -32,7 +32,6 @@ int handle_query(Query *query, RoctoSession *session) {
 	QueryResponseParms parms;
 	EmptyQueryResponse *empty_query_response;
 	ErrorResponse *err;
-	char input_buffer[MAX_STR_CONST], *c, *end_query;
 	int query_length = 0;
 	int run_query_result = 0;
 	char *err_buff;
@@ -47,8 +46,6 @@ int handle_query(Query *query, RoctoSession *session) {
 		free(empty_query_response);
 		return 0;
 	}
-	c = query->query;
-	end_query = c + query_length;
 	eof_hit = 0;
 	// If the query is bigger than the buffer, we would need to copy data from
 	//  the query to the buffer after each block is consumed, but right now

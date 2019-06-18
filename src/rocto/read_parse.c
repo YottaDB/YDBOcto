@@ -25,7 +25,7 @@ Parse *read_parse(BaseMessage *message, ErrorResponse **err) {
 	ErrorBuffer err_buff;
 	char *cur_pointer, *last_byte;
 	const char *error_message;
-	unsigned int remaining_length, i;
+	unsigned int remaining_length;
 	err_buff.offset = 0;
 
 	// Begin Parse initialization from message
@@ -138,7 +138,7 @@ Parse *read_parse(BaseMessage *message, ErrorResponse **err) {
 	//  send a read_parse message, just alter it in place. If we ever sent it, we would need
 	//  to go back through and convert back to network endian
 	ret->parm_data_types = (unsigned int *)cur_pointer;
-	for(i = 0; i < ret->num_parm_data_types; i++) {
+	for(short int i = 0; i < ret->num_parm_data_types; i++) {
 		ret->parm_data_types[i] = ntohl(*((int*)(&ret->parm_data_types[i])));
 		cur_pointer += sizeof(unsigned int);
 	}

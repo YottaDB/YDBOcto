@@ -23,7 +23,7 @@
 StartupMessage *read_startup_message(RoctoSession *session, char *data, int data_length, ErrorResponse **err) {
 	StartupMessage *ret = NULL;
 	ErrorBuffer err_buff;
-	int num_parms = 0, read = 0, cur_parm = 0;
+	int num_parms = 0, cur_parm = 0;
 	char *c, *message_end;
 	const char *error_message;
 	// Length plus protocol version

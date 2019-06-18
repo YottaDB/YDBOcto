@@ -23,8 +23,10 @@
 
 RowDescription *read_row_description(BaseMessage *message, ErrorResponse **err) {
 	RowDescription *ret;
-	char *cur_pointer, *last_byte;
-	unsigned int remaining_length = 0, i = 0, cur_length = 0;
+	char *cur_pointer;
+	unsigned int remaining_length = 0;
+
+	UNUSED(err);
 
 	remaining_length = ntohl(message->length);
 	ret = (RowDescription*)malloc(remaining_length + sizeof(RowDescription) - sizeof(unsigned int) - sizeof(short int));
@@ -42,7 +44,7 @@ RowDescription *read_row_description(BaseMessage *message, ErrorResponse **err) 
 	cur_pointer = ret->data;
 
 	ret->parms = (RowDescriptionParm*)malloc(ret->num_parms * sizeof(RowDescriptionParm));
-	for(i = 0; i < ret->num_parms; i++) {
+	for(short int i = 0; i < ret->num_parms; i++) {
 		ret->parms[i].name = cur_pointer;
 		cur_pointer += strlen(ret->parms[i].name);
 		cur_pointer += sizeof(char);	// skip null

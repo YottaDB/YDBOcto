@@ -24,13 +24,8 @@
 
 
 RowDescription *get_plan_row_description(ydb_buffer_t *plan_filename) {
-	SqlTableAlias *source_table;
-	SqlColumnListAlias *cla_cur, *cla_end;
-	SqlValue *value;
-	SqlColumn *column;
 	RowDescription *ret;
 	RowDescriptionParm *parms;
-	LogicalPlan *cur_plan, *column_alias;
 	ydb_buffer_t *plan_meta, value_buffer;
 	ydb_buffer_t z_status, z_status_value;
 	int num_columns, i, status;

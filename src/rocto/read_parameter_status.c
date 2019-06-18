@@ -23,8 +23,9 @@
 
 ParameterStatus *read_parameter_status(BaseMessage *message, ErrorResponse **err) {
 	ParameterStatus *ret;
-	char *cur_pointer, *last_byte;
 	unsigned int remaining_length = 0;
+
+	UNUSED(err);
 
 	if (NULL == message) {
 		return NULL;

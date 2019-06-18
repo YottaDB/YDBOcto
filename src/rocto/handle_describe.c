@@ -23,34 +23,25 @@
 #include "helpers.h"
 
 int handle_describe(Describe *describe, RoctoSession *session) {
-	ydb_buffer_t subs_array[3], dest_subs[3];
+	ydb_buffer_t subs_array[3];
 	ydb_buffer_t session_global, sql_expression, *source_name = &subs_array[2], *prepared = &subs_array[1], *source_session_id = &subs_array[0];
-	ydb_buffer_t *dest_session_id = &dest_subs[0], *bound = &dest_subs[1], *parse_name = &dest_subs[2];
-	ydb_buffer_t *val_buff, empty_buffer;
+	ydb_buffer_t empty_buffer;
 	ydb_buffer_t plan_name_b;
 	ydb_buffer_t z_status, z_status_value;
 	size_t query_length = 0, err_buff_size;
-	int done = FALSE, length, status, parse_parm, found = 0;
-	char *ptr, *end_ptr, new_query[MAX_STR_CONST];
-	char *int_start, *new_query_ptr, *end_new_query_ptr;
-	char *new_value_start, *new_value_end, c;
+	int done = FALSE, status;
+	unsigned int found = 0;
 	char *err_buff;
-	ydb_buffer_t schema_global, table_name_buffer, table_create_buffer, null_buffer;
+	ydb_buffer_t schema_global, null_buffer;
 	ydb_buffer_t cursor_global, cursor_exe_global[3];
 	PhysicalPlan *pplan;
 	SqlStatement *statement;
-	ParseComplete *response;
 	ErrorResponse *err;
 	RowDescription *description;
-	RowDescriptionParm row_desc_parm;
-	SqlSetStatement *set_stmt;
-	SqlShowStatement *show_stmt;
-	SqlValue *val1, *val2;
 	NoData *no_data;
 	hash128_state_t state;
 	char filename[MAX_STR_CONST];
 	char routine_name[MAX_STR_CONST];
-	int filename_len = 0, routine_len = 0;
 	ydb_buffer_t *filename_lock = NULL;
 
 	// zstatus buffers
@@ -132,11 +123,14 @@ int handle_describe(Describe *describe, RoctoSession *session) {
 			case set_operation_STATEMENT:
 				HASH128_STATE_INIT(state, 0);
 				hash_canonical_query(&state, statement);
-				routine_len = generate_routine_name(&state, routine_name, MAX_STR_CONST, OutputPlan);
-				if (filename_len < 0) {
+				int routine_len = generate_routine_name(&state, routine_name, MAX_STR_CONST, OutputPlan);
+				if (routine_len < 0) {
 					FATAL(ERR_PLAN_HASH_FAILED);
 				}
 				int want_to_write = snprintf(filename, MAX_STR_CONST, "%s/_%s.m", config->tmp_dir, &routine_name[1]);
+				if(want_to_write > MAX_STR_CONST) {
+					FATAL(ERR_BUFFER_TOO_SMALL, "");
+				}
 				if (access(filename, F_OK) == -1) {	// file doesn't exist
 					filename_lock = make_buffers("^%ydboctoocto", 2, "files", filename);
 					// Wait for 5 seconds in case another process is writing to same filename

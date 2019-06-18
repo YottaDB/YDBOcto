@@ -24,7 +24,7 @@
 
 ErrorResponse *make_error_response(PSQL_ErrorSeverity severity, PSQL_SQLSTATECode code, const char *message, size_t num_args, ...) {
 	unsigned int new_length;
-	int i, cur_arg;
+	int cur_arg;
 	va_list args;
 	ErrorResponseArg *arg;
 	ErrorResponse *ret;
@@ -33,7 +33,7 @@ ErrorResponse *make_error_response(PSQL_ErrorSeverity severity, PSQL_SQLSTATECod
 	// Go through all the args and count their size
 	new_length = 0;
 	va_start(args, num_args);
-	for(i = 0; i < num_args; i++) {
+	for(size_t i = 0; i < num_args; i++) {
 		arg = va_arg(args, ErrorResponseArg*);
 		// type argument
 		new_length += 1;
@@ -81,7 +81,7 @@ ErrorResponse *make_error_response(PSQL_ErrorSeverity severity, PSQL_SQLSTATECod
 	ret->args[cur_arg].value = ptr;
 	cur_arg++;
 	*ptr++ = PSQL_Error_SEVERITY;
-	i = strlen(psql_error_severity_str[severity]);
+	int i = strlen(psql_error_severity_str[severity]);
 	memcpy(ptr, psql_error_severity_str[severity], i);
 	ptr += i;
 	*ptr++ = '\0';
@@ -108,7 +108,7 @@ ErrorResponse *make_error_response(PSQL_ErrorSeverity severity, PSQL_SQLSTATECod
 
 	// Copy optional arguments into argument array
 	va_start(args, num_args);
-	for(i = 0; i < num_args; i++) {
+	for(size_t i = 0; i < num_args; i++) {
 		arg = va_arg(args, ErrorResponseArg*);
 		*ptr++ = arg->type;
 		ret->args[cur_arg].type = arg->type;

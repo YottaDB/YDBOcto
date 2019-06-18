@@ -23,8 +23,9 @@
 
 ReadyForQuery *read_ready_for_query(BaseMessage *message, ErrorResponse **err) {
 	ReadyForQuery *ret;
-	char *cur_pointer, *last_byte;
 	unsigned int remaining_length = 0;
+
+	UNUSED(err);
 
 	remaining_length = ntohl(message->length);
 	ret = (ReadyForQuery*)malloc(sizeof(ReadyForQuery));

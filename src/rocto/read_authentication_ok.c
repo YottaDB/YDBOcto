@@ -22,9 +22,9 @@
 
 AuthenticationOk *read_authentication_ok(BaseMessage *message, ErrorResponse **err) {
 	AuthenticationOk *ret = NULL;
-	unsigned int remaining_length = 0;
 
-	remaining_length = ntohl(message->length);
+	UNUSED(err);
+
 	ret = (AuthenticationOk*)malloc(sizeof(AuthenticationOk));
 
 	ret->type = message->type;

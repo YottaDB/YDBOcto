@@ -29,11 +29,10 @@ int handle_bind(Bind *bind, RoctoSession *session) {
 	// This is not super great because it means one could have a SQLI attack
 	ydb_buffer_t *src_subs, *dest_subs, sql_expression;
 	ydb_buffer_t z_status, z_status_value;
-	size_t new_length = 0;
 	int status, bind_parm;
 	char *ptr, *end_ptr, new_query[MAX_STR_CONST];
 	char *int_start, *new_query_ptr, *end_new_query_ptr;
-	char *new_value_start, *new_value_end, c;
+	char c;
 	BindComplete *response;
 	ErrorResponse *err;
 
@@ -70,7 +69,7 @@ int handle_bind(Bind *bind, RoctoSession *session) {
 			// Extract the parameter number, then paste in the new value
 			int_start = ++ptr;
 			while(ptr < end_ptr && *ptr >= 48 && *ptr <= 57) {
-				*ptr++;
+				ptr++;
 			}
 			c = *ptr;
 			*ptr = '\0';

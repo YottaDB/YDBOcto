@@ -23,8 +23,9 @@
 
 EmptyQueryResponse *read_empty_query_response(BaseMessage *message, ErrorResponse **err) {
 	EmptyQueryResponse *ret;
-	char *cur_pointer, *last_byte;
 	unsigned int remaining_length = 0;
+
+	UNUSED(err);
 
 	remaining_length = ntohl(message->length);
 	ret = (EmptyQueryResponse*)malloc(sizeof(EmptyQueryResponse));

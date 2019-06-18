@@ -25,6 +25,8 @@ PortalSuspended *read_portal_suspended(BaseMessage *message, ErrorResponse **err
 	PortalSuspended *ret;
 	unsigned int remaining_length = 0;
 
+	UNUSED(err);
+
 	remaining_length = ntohl(message->length);
 	ret = (PortalSuspended*)malloc(sizeof(PortalSuspended));
 

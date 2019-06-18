@@ -38,6 +38,7 @@ int read_bytes(RoctoSession *session, char *buffer, int buffer_size, int bytes_t
 		return 1;
 	}
 
+	// YDB_TLS_AVAILABLE and ssl_active must both have the same boolean value. If not, an error will be issued at build time.
 	if (session->ssl_active) {
 #if YDB_TLS_AVAILABLE
 		while(read_so_far < bytes_to_read) {

@@ -26,6 +26,9 @@
 #include "message_formats.h"
 
 AuthenticationMD5Password *make_authentication_md5_password(RoctoSession *session) {
+	if (NULL == session) {
+		return NULL;
+	}
 	AuthenticationMD5Password *ret;
 
 	ret = (AuthenticationMD5Password*)malloc(sizeof(AuthenticationMD5Password));

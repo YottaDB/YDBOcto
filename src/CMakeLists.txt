@@ -222,6 +222,7 @@ add_library(librocto OBJECT
   rocto/make_portal_suspended.c
   rocto/make_no_data.c
   rocto/make_parameter_description.c
+  rocto/make_password_message.c
   rocto/send_message.c
   rocto/read_message.c
   rocto/read_bytes.c

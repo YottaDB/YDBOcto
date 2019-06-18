@@ -24,6 +24,8 @@
 // Used to convert between network and host endian
 #include <arpa/inet.h>
 
+#include <openssl/md5.h>
+
 #include "octo.h"
 #include "rocto.h"
 #include "message_formats.h"
@@ -183,6 +185,25 @@ static void test_bin_to_uuid(void **state) {
 	assert_string_equal(buffer, "00010203-0405-0607-0809-0a0b0c0d0e0f");
 }
 
+static void test_md5_to_hex(void **state) {
+	const unsigned int md5_len = 33;
+	char hex_buf[md5_len];
+	char *message = "bluemonday";		// md5 hash: 1865f47f47b0ccc5c69178ecbbcbf645
+	char *digest[MD5_DIGEST_LENGTH + 1];	// count null
+
+	MD5(message, strlen(message), digest);
+	digest[MD5_DIGEST_LENGTH] = '\0';
+
+	// Check with valid input
+	int result = md5_to_hex(digest, hex_buf, md5_len);
+	assert_int_equal(result, 0);
+	assert_string_equal(hex_buf, "1865f47f47b0ccc5c69178ecbbcbf645");
+
+	// Check with bad length
+	result = md5_to_hex(digest, hex_buf, 0);
+	assert_int_equal(result, 1);
+}
+
 int main(void) {
 	octo_init(0, NULL);
 	const struct CMUnitTest tests[] = {
@@ -194,6 +215,7 @@ int main(void) {
 		   cmocka_unit_test(test_bin_to_int64),
 		   cmocka_unit_test(test_bin_to_oid),
 		   cmocka_unit_test(test_bin_to_uuid),
+		   cmocka_unit_test(test_md5_to_hex),
 	};
 	return cmocka_run_group_tests(tests, NULL, NULL);
 }

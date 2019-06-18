@@ -24,13 +24,8 @@
 #include "rocto.h"
 
 int handle_password_message(PasswordMessage *password_message, RoctoSession *session, ErrorResponse **err) {
-	int result = 0;
-	size_t password_length = 0;
-	char *username = NULL, *password = NULL, *salt = NULL;
-	password_length  = password_message->length - sizeof(int);	// exclude length
-
 	// Check the type of password message, for now just md5 is accepted
-	result = strncmp(password_message->password, "md5", 3);
+	int result = strncmp(password_message->password, "md5", 3);
 	if (result != 0) {
 		WARNING(ERR_ROCTO_PASSWORD_TYPE, "handle_password_message", "md5");
 		error_message = format_error_string(&err_buff, ERR_ROCTO_TRAILING_CHARS, "PasswordMessage");
@@ -54,7 +49,7 @@ int handle_password_message(PasswordMessage *password_message, RoctoSession *ses
 					   0);
 		return 1;
 	}
-	username = username_subs->buf_addr;
+	char *username = username_subs->buf_addr;
 	username[username_subs->buf_len]  = '\0';
 
 	// Retrieve user info from database
@@ -106,7 +101,7 @@ int handle_password_message(PasswordMessage *password_message, RoctoSession *ses
 		free(session_salt_subs);
 		return 1;
 	}
-	salt = salt_subs.buf_addr;
+	char *salt = salt_subs.buf_addr;
 	salt[salt_subs.buf_len]  = '\0';
 
 	// Concatenate stored hash with temporary 4-byte salt

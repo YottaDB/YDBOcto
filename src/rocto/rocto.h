@@ -126,6 +126,7 @@ int no_more();
 int64_t ntoh64(int64_t little_endian);
 int64_t hton64(int64_t little_endian);
 char *byte_to_hex(char c, char *hex);
+int md5_to_hex(char *md5_hash, char *hex, unsigned int hex_len);
 int64_t bin_to_bool(char *bin);
 int64_t bin_to_char(char *bin);
 int64_t bin_to_int16(char *bin);
@@ -164,6 +165,9 @@ ParseComplete *read_parse_complete(BaseMessage *message, ErrorResponse **err);
 PortalSuspended *read_portal_suspended(BaseMessage *message, ErrorResponse **err);
 ReadyForQuery *read_ready_for_query(BaseMessage *message, ErrorResponse **err);
 RowDescription *read_row_description(BaseMessage *message, ErrorResponse **err);
+
+// Make functions to simulate client transmission of certain make_* messages. Used for testing.
+PasswordMessage *make_password_message(char *user, char *password, char *salt);
 
 RoctoSession rocto_session;
 

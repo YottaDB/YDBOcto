@@ -79,3 +79,4 @@ ADD_UNIT_TEST_WITH_OPTIONS(test_generate_routine_name src/test_generate_routine_
 ADD_UNIT_TEST_WITH_OPTIONS(test_deserialize src/rocto/test_deserialize "")
 ADD_UNIT_TEST_WITH_OPTIONS(test_read_ssl_request src/rocto/test_read_ssl_request "")
 ADD_UNIT_TEST_WITH_OPTIONS(test_get_user_column_value src/rocto/test_get_user_column_value "")
+ADD_UNIT_TEST_WITH_OPTIONS(test_make_password_message src/rocto/test_make_password_message "")

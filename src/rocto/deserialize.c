@@ -85,6 +85,19 @@ char *byte_to_hex(char c, char *hex) {
 	return hex;
 }
 
+// Convert raw MD5 hash to hex string
+int md5_to_hex(char *md5_hash, char *hex, unsigned int hex_len) {
+	if (hex_len < 33) {	// Length of 16-byte md5 in hex, plus null terminator
+		return 1;
+	}
+	int i, j;
+	for (i = 0, j = 0; i < 16; i++, j += 2) {	// MD5 hash length == 16
+		byte_to_hex(md5_hash[i], &hex[j]);
+	}
+	hex[j] = '\0';
+	return 0;
+}
+
 int64_t bin_to_bool(char *bin) {
 	return bin[0];
 }

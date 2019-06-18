@@ -142,7 +142,8 @@ char *copy_text_parameter(RoctoSession *session, Bind *bind, const int cur_parm,
 char *copy_binary_parameter(RoctoSession *session, Bind *bind, const int cur_parm, char *query_ptr, const char *end_query_ptr);
 
 // Helper to extract column values from delimited row string
-unsigned int get_user_column_value(char *buffer, unsigned int buf_len, char *row, unsigned int row_len, enum UserColumns column);
+unsigned int get_user_column_value(char *buffer, const unsigned int buf_len, const char *row, const unsigned int row_len,
+		enum UserColumns column);
 
 /**
  * Returns a RowDescription object for sending based on the provided physical plan

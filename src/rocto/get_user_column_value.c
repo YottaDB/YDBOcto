@@ -21,22 +21,26 @@
 #include "message_formats.h"
 #include "rocto.h"
 
-unsigned int get_user_column_value(char *buffer, unsigned int buf_len, char *row, unsigned int row_len, enum UserColumns column) {
-	char *c = NULL, *col_start = NULL, *row_end = NULL;
+unsigned int get_user_column_value(char *buffer, const unsigned int buf_len, const char *row, const unsigned int row_len, enum UserColumns column) {
+	if (NULL == buffer || NULL == row || column > ROLVALIDUNTIL) {
+		return 0;
+	}
+	const char *c = NULL, *col_start = NULL;
+	const char *row_end = row + row_len;
 	unsigned int i = 0, col_num = 0, value_len = 0;
+	char *delimiter = COLUMN_DELIMITER;	// Allow access to delimiter as character
 
 	c = row;
-	row_end = row + row_len;
 	// Find start of desired column value
 	while (c < row_end && col_num < column) {
-		if (COLUMN_DELIMITER == *c) {
+		if (delimiter[0] == *c) {
 			col_num++;
 		}
 		c++;
 	}
 	col_start = c;
 	// Find length of column value string
-	while (COLUMN_DELIMITER != *c) {
+	while (delimiter[0] != *c) {
 		value_len++;
 		c++;
 	}
@@ -44,7 +48,7 @@ unsigned int get_user_column_value(char *buffer, unsigned int buf_len, char *row
 		return 0;
 	}
 	strncpy(buffer, col_start, value_len);
-	buffer[value_len] = '\0'
+	buffer[value_len] = '\0';
 
 	return value_len;
 }

@@ -27,7 +27,7 @@ TEMPLATE(tmpl_column_reference, PhysicalPlan *pplan, SqlColumnAlias *column_alia
     SqlColumnList *column_list;
     SqlOptionalKeyword *keyword;
     SqlKey *key;
-    char *column_raw, *table_name, *table_delim = COLUMN_DELIMITER;
+    char *table_name, *table_delim = COLUMN_DELIMITER;
     char *piece = NULL, *source;
     char piece_buffer[MAX_STR_CONST];
     int piece_i;

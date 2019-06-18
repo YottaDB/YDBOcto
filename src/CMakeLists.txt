@@ -231,6 +231,7 @@ add_library(librocto OBJECT
   rocto/free_data_row.c
   rocto/free_row_description.c
   rocto/get_plan_row_description.c
+  rocto/get_user_column_value.c
   rocto/handle_query_response.c
   #  rocto/read_authentication_md5_password.c
   rocto/read_authentication_ok.c

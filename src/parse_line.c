@@ -46,12 +46,13 @@ SqlStatement *parse_line(const char *line) {
 		FATAL(ERR_INIT_SCANNER, "");
 
 	config->plan_id = 0;
-	if(yyparse(scanner, &result, &config->plan_id))
+	int status = yyparse(scanner, &result, &config->plan_id);
+	yylex_destroy(scanner);
+	if(status)
 	{
 		ERROR(ERR_PARSING_COMMAND, input_buffer_combined);
 		return NULL;
 	}
-	yylex_destroy(scanner);
 
 	// For some reason, the lexer reads one past the end; decrement that
 	if(cur_input_index > 0) {

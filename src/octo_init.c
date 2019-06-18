@@ -54,6 +54,7 @@ void merge_config_file(const char *path, config_t *config_file) {
 	a_root = config_root_setting(config_file);
 	b_root = config_root_setting(&new_config_file);
 	merge_config_file_helper(a_root, b_root);
+	config_destroy(&new_config_file);
 }
 
 /**

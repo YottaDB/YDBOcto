@@ -89,11 +89,12 @@ createdb() {
   export ydb_gbldir="mumps.gld"
   echo "ydb_gbldir: $ydb_gbldir"
   $ydb_dist/mumps -r ^GDE <<FILE
-change -r DEFAULT -key_size=1019 -record_size=32768
+change -r DEFAULT -key_size=1019 -record_size=1048576
 change -segment DEFAULT -file_name=$test_temp/mumps.dat
 change -r DEFAULT -NULL_SUBSCRIPTS=true
 exit
 FILE
+  rm *.dat || true
   $ydb_dist/mupip create
   echo "Populating seed data"
   load_fixture seed.sql

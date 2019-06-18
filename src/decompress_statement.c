@@ -23,13 +23,6 @@
 		decompress_statement_helper(value, out, out_length); \
 	}
 
-#define CALL_COMPRESS_HELPER(temp, value, new_value, out, out_length) \
-	(temp) = compress_statement_helper((value), (out), (out_length)); \
-	if((out) != NULL) { \
-		(new_value) = (temp); \
-		A2R((new_value), temp); \
-	}
-
 void *decompress_statement_helper(SqlStatement *stmt, char *out, int out_length);
 
 SqlStatement *decompress_statement(char *buffer, int out_length) {
@@ -156,6 +149,9 @@ void *decompress_statement_helper(SqlStatement *stmt, char *out, int out_length)
 	case table_alias_STATEMENT:
 	case unary_STATEMENT:
 		FATAL(ERR_UNKNOWN_KEYWORD_STATE);
+		break;
+	case invalid_STATEMENT:
+		assert(stmt->type != invalid_STATEMENT);
 		break;
 	}
 	return stmt;

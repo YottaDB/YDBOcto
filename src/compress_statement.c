@@ -54,12 +54,6 @@ void *compress_statement_helper(SqlStatement *stmt, char *out, int *out_length) 
 	int len;
 	if(stmt == NULL)
 		return NULL;
-	// In each case below, after storing the pointer of the statement in
-	//  a temporary variable we mark the statement as NULL, then check here
-	//  to see if the statement has been marked NULL, and if so, skip it
-	// This lets us play a bit fast-and-loose with the structures to
-	//  avoid extra copies during runtime, and not have issues with double
-	//  frees
 	if(stmt->v.value == NULL)
 		return NULL;
 	if(out != NULL) {
@@ -132,7 +126,9 @@ void *compress_statement_helper(SqlStatement *stmt, char *out, int *out_length) 
 			}
 			*out_length += sizeof(SqlColumn);
 			CALL_COMPRESS_HELPER(r, cur_column->columnName, new_column->columnName, out, out_length);
-			// Don't copy table
+			// Don't copy table since we want to point to the parent table, which we can't
+			// find here. Those relying on a compressed table should call
+			// assign_table_to_columns on the decompressed result
 			CALL_COMPRESS_HELPER(r, cur_column->keywords, new_column->keywords, out, out_length);
 			cur_column = cur_column->next;
 			if(out != NULL && cur_column != start_column) {
@@ -195,6 +191,9 @@ void *compress_statement_helper(SqlStatement *stmt, char *out, int *out_length) 
 	case table_alias_STATEMENT:
 	case unary_STATEMENT:
 		FATAL(ERR_UNKNOWN_KEYWORD_STATE);
+		break;
+	case invalid_STATEMENT:
+		assert(stmt->type != invalid_STATEMENT);
 		break;
 	}
 	return ret;

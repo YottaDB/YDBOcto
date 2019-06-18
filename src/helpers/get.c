@@ -32,6 +32,7 @@ ydb_buffer_t *get(char *global, size_t num_args, ...) {
 	if(status == YDB_ERR_GVUNDEF || status == YDB_ERR_LVUNDEF) {
 		YDB_FREE_BUFFER(ret);
 		free(ret);
+		free(buffers);
 		return NULL;
 	}
 	YDB_ERROR_CHECK(status, &z_status, &z_status_value);

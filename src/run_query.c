@@ -221,8 +221,10 @@ int run_query(char *query, void (*callback)(SqlStatement *, int, void*, char*), 
 		FATAL(ERR_FEATURE_NOT_IMPLEMENTED, query);
 	}
 	YDB_FREE_BUFFER(&cursor_exe_global);
-	if (free_memory_chunks)
+	if (free_memory_chunks) {
 		octo_cfree(memory_chunks);
+		memory_chunks = NULL;
+	}
 	result = NULL;
 	return 1;
 }

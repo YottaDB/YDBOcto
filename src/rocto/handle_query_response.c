@@ -185,5 +185,9 @@ void handle_query_response(SqlStatement *stmt, int cursor_id, void *_parms, char
 	command_complete = make_command_complete(buffer);
 	send_message(parms->session, (BaseMessage*)(&command_complete->type));
 	free(command_complete);
+	if(memory_chunks != NULL) {
+		octo_cfree(memory_chunks);
+		memory_chunks = NULL;
+	}
 	return;
 }

@@ -122,5 +122,9 @@ void print_temporary_table(SqlStatement *stmt, int cursor_id, void *parms, char 
 	YDB_FREE_BUFFER(row_value_b);
 	YDB_FREE_BUFFER(outputKeyId);
 	free(outputKeyId);
+	if(memory_chunks != NULL) {
+		octo_cfree(memory_chunks);
+		memory_chunks = NULL;
+	}
 	return;
 }

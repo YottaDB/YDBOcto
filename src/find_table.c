@@ -22,7 +22,7 @@
 SqlTable *find_table(const char *table_name) {
 	SqlTable *table;
 	SqlStatement *stmt;
-	ydb_buffer_t  *table_stmt, *save_buffers, save_value, value_b;
+	ydb_buffer_t  *table_stmt, save_value, value_b;
 	ydb_buffer_t *table_binary_b;
 	ydb_buffer_t z_status, z_status_value;
 	char *buff;
@@ -44,6 +44,8 @@ SqlTable *find_table(const char *table_name) {
 	if(table_stmt != NULL) {
 		stmt = *((SqlStatement**)table_stmt->buf_addr);
 		UNPACK_SQL_STATEMENT(table, stmt, table);
+		YDB_FREE_BUFFER(table_stmt);
+		free(table_stmt);
 		return table;
 	}
 
@@ -65,12 +67,17 @@ SqlTable *find_table(const char *table_name) {
 	}
 
 	// Allocate a buffer to hold the full table
-	// NOTE: we don't use cmalloc here since we want the table to live for a long time
-	buff = malloc(MAX_STR_CONST * num_parts);
+	// NOTE: we create a new memory chunk here so that calls to other octo functions won't
+	// get cleaned by accident
+	MemoryChunk *old_chunk = memory_chunks;
+	memory_chunks = alloc_chunk(MAX_STR_CONST * num_parts);
+	buff = octo_cmalloc(memory_chunks, MAX_STR_CONST * num_parts);
 	memset(buff, 0, MAX_STR_CONST * num_parts);
 	num_parts = 0;
 	table_binary_b[3].len_used = 0;
-	YDB_MALLOC_BUFFER(&value_b, MAX_STR_CONST);
+	char value_b_buffer[MAX_STR_CONST];
+	value_b.buf_addr = value_b_buffer;
+	value_b.len_alloc = value_b.len_used = MAX_STR_CONST;
 	while(TRUE) {
 		status = ydb_subscript_next_s(table_binary_b, 3, &table_binary_b[1], &table_binary_b[3]);
 		if(status == YDB_ERR_NODEEND) {
@@ -87,13 +94,27 @@ SqlTable *find_table(const char *table_name) {
 	decompress_statement((char*)stmt, MAX_STR_CONST);
 	assign_table_to_columns(stmt);
 
-	save_buffers = make_buffers("%ydboctoloadedschemas", 1, table_name);
+	ydb_buffer_t *save_buffers = make_buffers("%ydboctoloadedschemas", 1, table_name);
+	ydb_buffer_t *save_chunk = make_buffers("%ydboctoloadedschemas", 2, table_name, "chunk");
 	save_value.buf_addr = (char*)&stmt;
 	save_value.len_used = save_value.len_alloc = sizeof(void*);
 	status = ydb_set_s(&save_buffers[0], 1, &save_buffers[1], &save_value);
 	YDB_ERROR_CHECK(status, &z_status, &z_status_value);
+	// Note down the memory chunk so we can free it later
+	save_value.buf_addr = (char*)&memory_chunks;
+	save_value.len_used = save_value.len_alloc = sizeof(void*);
+	status = ydb_set_s(&save_chunk[0], 2, &save_chunk[1], &save_value);
+	YDB_ERROR_CHECK(status, &z_status, &z_status_value);
 	free(save_buffers);
+	free(save_chunk);
 	UNPACK_SQL_STATEMENT(table, stmt, table);
+
+	// Restore memory chunks
+	memory_chunks = old_chunk;
+
+	// Free buffers
+	free(table_binary_b[3].buf_addr);
+	free(table_binary_b);
 
 	return table;
 }

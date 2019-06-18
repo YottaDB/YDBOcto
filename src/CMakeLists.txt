@@ -167,6 +167,7 @@ add_library(libocto OBJECT
   replace_table_references.c
   update_table_references.c
   copy_sql_statement.c
+  cleanup_tables.c
   ${BISON_OctoParser_OUTPUTS}
   ${FLEX_OctoLexer_OUTPUTS}
 )

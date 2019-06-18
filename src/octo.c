@@ -62,5 +62,7 @@ int main(int argc, char **argv)
 		if(eof_hit)
 			break;
 	} while(!feof(inputFile));
+
+	cleanup_tables();
 	return error;
 }

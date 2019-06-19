@@ -87,11 +87,6 @@ int rocto_main_loop(RoctoSession *session) {
 				return 0;
 			}
 			break;
-		case PSQL_BindComplete:
-			break;
-		case PSQL_ReadyForQuery:
-			// We don't expect this, issue an error
-			break;
 		case PSQL_Query:
 			query = read_query(message, &err);
 			if(query == NULL) {
@@ -103,21 +98,6 @@ int rocto_main_loop(RoctoSession *session) {
 			if(result == 1) {
 				return 0;
 			}
-			break;
-		case PSQL_EmptyQueryResponse:
-			// We don't expect this, issue an error
-			break;
-		case PSQL_RowDescription:
-			// We don't expect this, issue an error
-			break;
-		case PSQL_CommandComplete:
-			// We don't expect this, issue an error
-			break;
-		// All 3 of these have the same message code
-		case PSQL_AuthenticationMD5Password:
-		//case PSQL_Authenication:
-		//case PSQL_AuthenticationOk:
-			// We don't expect this, issue an error
 			break;
 		case PSQL_Execute:
 		//case PSQL_ErrorResponse: // Same letter code, different meaning

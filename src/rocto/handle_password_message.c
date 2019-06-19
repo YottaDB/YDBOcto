@@ -24,7 +24,7 @@
 #include "rocto.h"
 #include "helpers.h"
 
-int handle_password_message(PasswordMessage *password_message, RoctoSession *session, ErrorResponse **err) {
+int handle_password_message(PasswordMessage *password_message, RoctoSession *session, ErrorResponse **err, char *salt) {
 	ErrorBuffer err_buff;
 	err_buff.offset = 0;
 	const char *error_message;
@@ -98,29 +98,6 @@ int handle_password_message(PasswordMessage *password_message, RoctoSession *ses
 		return 1;
 	}
 
-	// Retrieve temporary salt from session info
-	ydb_buffer_t salt_subs;
-	ydb_buffer_t *session_salt_subs = make_buffers(config->global_names.session, 3, session->session_id->buf_addr, "auth", "salt");
-	result = ydb_get_s(&session_salt_subs[0], 3, &session_salt_subs[1], &salt_subs);
-	if (YDB_OK != result) {
-		WARNING(ERR_ROCTO_SESSION_LOOKUP, "handle_password_message", "temporary salt");
-		error_message = format_error_string(&err_buff, ERR_ROCTO_SESSION_LOOKUP,
-				"handle_password_message", "temporary salt");
-		*err = make_error_response(PSQL_Error_ERROR,
-					   PSQL_Code_Syntax_Error,
-					   error_message,
-					   0);
-		free(session_subs);
-		free(user_subs);
-		free(session_salt_subs);
-		free(username);
-		free(user_info);
-		return 1;
-	}
-	char *salt = (char*)malloc(salt_subs.len_used);
-	strncpy(salt, salt_subs.buf_addr, salt_subs.len_used);
-	salt[salt_subs.len_used] = '\0';
-
 	// Concatenate stored hash with temporary 4-byte salt
 	char hash_buf[MAX_STR_CONST];
 	snprintf(hash_buf, buf_len + 4, "%s%s", &buffer[3], salt);	// Exclude "md5" prefix
@@ -141,10 +118,8 @@ int handle_password_message(PasswordMessage *password_message, RoctoSession *ses
 					   0);
 		free(session_subs);
 		free(user_subs);
-		free(session_salt_subs);
 		free(username);
 		free(user_info);
-		free(salt);
 		return 1;
 	}
 
@@ -159,20 +134,16 @@ int handle_password_message(PasswordMessage *password_message, RoctoSession *ses
 					   0);
 		free(session_subs);
 		free(user_subs);
-		free(session_salt_subs);
 		free(username);
 		free(user_info);
-		free(salt);
 		return 1;
 	}
 	INFO(INFO_AUTH_SUCCESS, "handle_password_message");
 
 	free(session_subs);
 	free(user_subs);
-	free(session_salt_subs);
 	free(username);
 	free(user_info);
-	free(salt);
 
 	return 0;
 }

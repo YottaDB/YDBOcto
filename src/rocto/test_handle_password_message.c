@@ -73,12 +73,6 @@ static void test_valid_input(void **state) {
 	will_return(__wrap_get_user_column_value, column_value);
 	will_return(__wrap_get_user_column_value, strlen(column_value));
 
-	ydb_buffer_t salt_subs;
-	char *salt = "salt";
-	YDB_STRING_TO_BUFFER(salt, &salt_subs);
-	will_return(__wrap_ydb_get_s, &salt_subs);
-	will_return(__wrap_ydb_get_s, YDB_OK);
-
 	// Wrap calls in make_password_message
 	will_return(__wrap_md5_to_hex, "4d45974e13472b5a0be3533de4666414");
 	will_return(__wrap_md5_to_hex, 0);
@@ -90,9 +84,10 @@ static void test_valid_input(void **state) {
 	will_return(__wrap_md5_to_hex, 0);
 
 	char *password = "password";
+	char *salt = "salt";
 	password_message = make_password_message(username, password, salt);
 
-	int result = handle_password_message(password_message, &session, &err);
+	int result = handle_password_message(password_message, &session, &err, salt);
 	assert_int_equal(result, 0);
 	assert_null(err);
 
@@ -124,7 +119,7 @@ static void test_error_not_md5(void **state) {
 	password_message = make_password_message(username, password, salt);
 
 	password_message->password = "password";
-	int result = handle_password_message(password_message, &session, &err);
+	int result = handle_password_message(password_message, &session, &err, salt);
 	assert_int_equal(result, 1);
 	assert_non_null(err);
 
@@ -164,7 +159,7 @@ static void test_error_session_username_lookup(void **state) {
 
 	password_message = make_password_message(username, password, salt);
 
-	int result = handle_password_message(password_message, &session, &err);
+	int result = handle_password_message(password_message, &session, &err, salt);
 	assert_int_equal(result, 1);
 	assert_non_null(err);
 
@@ -211,7 +206,7 @@ static void test_error_user_info_lookup(void **state) {
 
 	password_message = make_password_message(username, password, salt);
 
-	int result = handle_password_message(password_message, &session, &err);
+	int result = handle_password_message(password_message, &session, &err, salt);
 	assert_int_equal(result, 1);
 	assert_non_null(err);
 
@@ -251,79 +246,22 @@ static void test_error_hash_lookup(void **state) {
 	will_return(__wrap_get_user_column_value, column_value);
 	will_return(__wrap_get_user_column_value, 0);
 
-	char *salt = "salt";
-	char *password = "password";
-
 	// Wrap calls in make_password_message
 	will_return(__wrap_md5_to_hex, "4d45974e13472b5a0be3533de4666414");
 	will_return(__wrap_md5_to_hex, 0);
 	will_return(__wrap_md5_to_hex, "8e998aaa66bd302e5592df3642c16f78");
 	will_return(__wrap_md5_to_hex, 0);
 
+	char *salt = "salt";
+	char *password = "password";
 	password_message = make_password_message(username, password, salt);
 
-	int result = handle_password_message(password_message, &session, &err);
+	int result = handle_password_message(password_message, &session, &err, salt);
 	assert_int_equal(result, 1);
 	assert_non_null(err);
 
 	error_message = format_error_string(&err_buff, ERR_ROCTO_COLUMN_VALUE,
 			"handle_password_message", "rolpassword (hashed password)");
-	assert_string_equal(error_message, err->args[2].value + 1);
-
-	free(password_message);
-	free_error_response(err);
-}
-
-static void test_error_salt_lookup(void **state) {
-	PasswordMessage *password_message;
-	RoctoSession session;
-	ydb_buffer_t session_id;
-	ErrorResponse *err = NULL;
-	ErrorBuffer err_buff;
-	err_buff.offset = 0;
-	const char *error_message;
-
-	YDB_LITERAL_TO_BUFFER("0", &session_id);
-	session.session_id = &session_id;
-
-	ydb_buffer_t username_subs;
-	char *username = "user";
-	YDB_STRING_TO_BUFFER(username, &username_subs);
-	will_return(__wrap_ydb_get_s, &username_subs);
-	will_return(__wrap_ydb_get_s, YDB_OK);
-
-	ydb_buffer_t user_info_subs;
-	// md5 hash of passworduser: 4d45974e13472b5a0be3533de4666414
-	char *user_info = "1|user|super|inh|crer|cred|canl|repl|bypassrl|conn|md54d45974e13472b5a0be3533de4666414|valid";
-	YDB_STRING_TO_BUFFER(user_info, &user_info_subs);
-	will_return(__wrap_ydb_get_s, &user_info_subs);
-	will_return(__wrap_ydb_get_s, YDB_OK);
-
-	char *column_value = "md54d45974e13472b5a0be3533de4666414";
-	will_return(__wrap_get_user_column_value, column_value);
-	will_return(__wrap_get_user_column_value, strlen(column_value));
-
-	ydb_buffer_t salt_subs;
-	char *salt = "salt";
-	YDB_STRING_TO_BUFFER(salt, &salt_subs);
-	will_return(__wrap_ydb_get_s, &salt_subs);
-	will_return(__wrap_ydb_get_s, YDB_ERR_LVUNDEF);
-
-	// Wrap calls in make_password_message
-	will_return(__wrap_md5_to_hex, "4d45974e13472b5a0be3533de4666414");
-	will_return(__wrap_md5_to_hex, 0);
-	will_return(__wrap_md5_to_hex, "8e998aaa66bd302e5592df3642c16f78");
-	will_return(__wrap_md5_to_hex, 0);
-
-	char *password = "balugawhales";
-	password_message = make_password_message(username, password, salt);
-
-	int result = handle_password_message(password_message, &session, &err);
-	assert_int_equal(result, 1);
-	assert_non_null(err);
-
-	error_message = format_error_string(&err_buff, ERR_ROCTO_SESSION_LOOKUP,
-			"handle_password_message", "temporary salt");
 	assert_string_equal(error_message, err->args[2].value + 1);
 
 	free(password_message);
@@ -359,18 +297,13 @@ static void test_error_hash_conversion(void **state) {
 	will_return(__wrap_get_user_column_value, column_value);
 	will_return(__wrap_get_user_column_value, strlen(column_value));
 
-	ydb_buffer_t salt_subs;
-	char *salt = "salt";
-	YDB_STRING_TO_BUFFER(salt, &salt_subs);
-	will_return(__wrap_ydb_get_s, &salt_subs);
-	will_return(__wrap_ydb_get_s, YDB_OK);
-
 	// Wrap calls in make_password_message
 	will_return(__wrap_md5_to_hex, "4d45974e13472b5a0be3533de4666414");
 	will_return(__wrap_md5_to_hex, 0);
 	will_return(__wrap_md5_to_hex, "8e998aaa66bd302e5592df3642c16f78");
 	will_return(__wrap_md5_to_hex, 0);
 
+	char *salt = "salt";
 	char *password = "password";
 	password_message = make_password_message(username, password, salt);
 
@@ -378,7 +311,7 @@ static void test_error_hash_conversion(void **state) {
 	will_return(__wrap_md5_to_hex, "arbitrary");
 	will_return(__wrap_md5_to_hex, 1);
 
-	int result = handle_password_message(password_message, &session, &err);
+	int result = handle_password_message(password_message, &session, &err, salt);
 	assert_int_equal(result, 1);
 	assert_non_null(err);
 
@@ -419,12 +352,6 @@ static void test_error_bad_password(void **state) {
 	will_return(__wrap_get_user_column_value, column_value);
 	will_return(__wrap_get_user_column_value, strlen(column_value));
 
-	ydb_buffer_t salt_subs;
-	char *salt = "salt";
-	YDB_STRING_TO_BUFFER(salt, &salt_subs);
-	will_return(__wrap_ydb_get_s, &salt_subs);
-	will_return(__wrap_ydb_get_s, YDB_OK);
-
 	// Wrap calls in make_password_message
 	will_return(__wrap_md5_to_hex, "4d45974e13472b5a0be3533de4666414");
 	will_return(__wrap_md5_to_hex, 0);
@@ -435,10 +362,11 @@ static void test_error_bad_password(void **state) {
 	will_return(__wrap_md5_to_hex, "arbitrary");
 	will_return(__wrap_md5_to_hex, 0);
 
+	char *salt = "salt";
 	char *password = "balugawhales";
 	password_message = make_password_message(username, password, salt);
 
-	int result = handle_password_message(password_message, &session, &err);
+	int result = handle_password_message(password_message, &session, &err, salt);
 	assert_int_equal(result, 1);
 	assert_non_null(err);
 
@@ -457,7 +385,6 @@ int main(void) {
 		   cmocka_unit_test(test_error_session_username_lookup),
 		   cmocka_unit_test(test_error_user_info_lookup),
 		   cmocka_unit_test(test_error_hash_lookup),
-		   cmocka_unit_test(test_error_salt_lookup),
 		   cmocka_unit_test(test_error_hash_conversion),
 		   cmocka_unit_test(test_error_bad_password),
 	};

@@ -222,7 +222,8 @@ int main(int argc, char **argv) {
 			break;
 		}
 		// Require md5 authentication
-		md5auth = make_authentication_md5_password(&rocto_session);
+		char salt[4];
+		md5auth = make_authentication_md5_password(&rocto_session, salt);
 		result = send_message(&rocto_session, (BaseMessage*)(&md5auth->type));
 		if(result) {
 			WARNING(ERR_ROCTO_SEND_FAILED, "failed to send MD5 authentication required");
@@ -257,15 +258,19 @@ int main(int argc, char **argv) {
 			}
 			break;
 		}
-		/*
 		password_message = read_password_message(base_message, &err);
-		if(password_message == NULL)
-			result = send_message(&rocto_session, (BaseMessage*)(&err->type));
-			if (0 < result) {
-				WARNING(ERR_SEND_MESSAGE, err->type, err->length);
-			}
+		if(password_message == NULL) {
+			send_message(&rocto_session, (BaseMessage*)(&err->type));
+			free_error_response(err);
 			break;
-		*/
+		}
+		// Validate user credentials
+		result = handle_password_message(&password_message, &rocto_session, &err, salt);
+		if (0 != result) {
+			send_message(&rocto_session, (BaseMessage*)(&err->type));
+			free_error_response(err);
+			break;
+		}
 
 		// Ok
 		authok = make_authentication_ok();

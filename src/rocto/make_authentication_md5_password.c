@@ -25,7 +25,7 @@
 #include "helpers.h"
 #include "message_formats.h"
 
-AuthenticationMD5Password *make_authentication_md5_password(RoctoSession *session) {
+AuthenticationMD5Password *make_authentication_md5_password(RoctoSession *session, char *salt) {
 	if (NULL == session) {
 		return NULL;
 	}
@@ -38,10 +38,8 @@ AuthenticationMD5Password *make_authentication_md5_password(RoctoSession *sessio
 	ret->length = htonl(sizeof(int) + sizeof(int) + sizeof(char) * 4);
 	ret->md5_required = htonl(5);
 	// Generate 4-byte random salt
-	char salt[4];
 	getrandom(salt, 4, 0);
 	memcpy(ret->salt, salt, 4);
-	int result = 0;
 	ydb_buffer_t *session_salt_subs = NULL, salt_buf;
 	session_salt_subs = make_buffers(config->global_names.session, 3, session->session_id->buf_addr, "auth", "salt");
 	YDB_STRING_TO_BUFFER(salt, &salt_buf);

@@ -31,18 +31,20 @@ static void test_valid_input(void **state) {
 	YDB_STRING_TO_BUFFER("0", &session_id);
 	session.session_id = &session_id;
 	int expected_length = 12;
+	char salt1[4];
+	char salt2[4];
 
-	AuthenticationMD5Password *response = make_authentication_md5_password(&session);
+	AuthenticationMD5Password *response = make_authentication_md5_password(&session, salt1);
 	// Standard checks
 	assert_non_null(response);
 	assert_int_equal(response->length, htonl(expected_length));
 
-	AuthenticationMD5Password *response2 = make_authentication_md5_password(&session);
+	AuthenticationMD5Password *response2 = make_authentication_md5_password(&session, salt2);
 	// Standard checks
 	assert_non_null(response2);
 	assert_int_equal(response2->length, htonl(expected_length));
 	// Confirm different salt produced on each call
-	assert_int_not_equal(*(int32_t *)response->salt, *(int32_t *)response2->salt);
+	assert_int_not_equal(salt1, salt2);
 
 	free(response);
 	free(response2);
@@ -50,8 +52,9 @@ static void test_valid_input(void **state) {
 
 static void test_invalid_input_null_pointer(void **state) {
 	int expected_length = 12;
+	char salt[4];
 
-	AuthenticationMD5Password *response = make_authentication_md5_password(NULL);
+	AuthenticationMD5Password *response = make_authentication_md5_password(NULL, salt);
 	assert_null(response);
 }
 

@@ -82,7 +82,7 @@ EmptyQueryResponse *make_empty_query_response();
 RowDescription *make_row_description(RowDescriptionParm *parms, short num_parms);
 DataRow *make_data_row(DataRowParm *parms, short num_parms);
 CommandComplete *make_command_complete(char *command_tag);
-AuthenticationMD5Password *make_authentication_md5_password(RoctoSession *session);
+AuthenticationMD5Password *make_authentication_md5_password(RoctoSession *session, char *salt);
 AuthenticationOk *make_authentication_ok();
 ParseComplete *make_parse_complete();
 ParameterStatus *make_parameter_status(StartupMessageParm *parm);
@@ -115,7 +115,7 @@ int handle_query(Query *query, RoctoSession *session);
 int handle_parse(Parse *parse, RoctoSession *session);
 int handle_execute(Execute *execute, RoctoSession *session);
 int handle_describe(Describe *describe, RoctoSession *session);
-int handle_password_message(PasswordMessage *password_message, RoctoSession *session, ErrorResponse **err);
+int handle_password_message(PasswordMessage *password_message, RoctoSession *session, ErrorResponse **err, char *salt);
 
 // This isn't a handle function in-of itself, but a helper to handle the results of a query
 void handle_query_response(SqlStatement *stmt, int cursor_id, void *_parms, char *plan_name);

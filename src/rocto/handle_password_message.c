@@ -26,6 +26,7 @@
 
 int handle_password_message(PasswordMessage *password_message, RoctoSession *session, ErrorResponse **err) {
 	ErrorBuffer err_buff;
+	err_buff.offset = 0;
 	const char *error_message;
 	const unsigned int md5_hex_len = MD5_DIGEST_LENGTH * 2 + 1;
 
@@ -33,7 +34,7 @@ int handle_password_message(PasswordMessage *password_message, RoctoSession *ses
 	int result = strncmp(password_message->password, "md5", 3);
 	if (result != 0) {
 		WARNING(ERR_ROCTO_PASSWORD_TYPE, "handle_password_message", "md5");
-		error_message = format_error_string(&err_buff, ERR_ROCTO_TRAILING_CHARS, "PasswordMessage");
+		error_message = format_error_string(&err_buff, ERR_ROCTO_PASSWORD_TYPE, "handle_password_message", "md5");
 		*err = make_error_response(PSQL_Error_ERROR,
 					   PSQL_Code_Syntax_Error,
 					   error_message,

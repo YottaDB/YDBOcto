@@ -533,3 +533,6 @@ The following is a sample of a DDL for an existing large M application (a health
 * The PIECE keyword indicates which M piece the data resides in.
 
 * The DELIM keyword defines the delimiter for data stored within a global node (value) and used in conjunction with the PIECE keyword to access data specified in the column definitions.
+
+.. note::
+   When parsed, if a table and a column have the same name, a query will give preference to the table name over the derived column name.

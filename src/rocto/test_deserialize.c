@@ -189,7 +189,7 @@ static void test_md5_to_hex(void **state) {
 	const unsigned int md5_len = 33;
 	char hex_buf[md5_len];
 	char *message = "bluemonday";		// md5 hash: 1865f47f47b0ccc5c69178ecbbcbf645
-	char *digest[MD5_DIGEST_LENGTH + 1];	// count null
+	char digest[MD5_DIGEST_LENGTH + 1];	// count null
 
 	MD5(message, strlen(message), digest);
 	digest[MD5_DIGEST_LENGTH] = '\0';

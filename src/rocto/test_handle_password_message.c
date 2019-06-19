@@ -31,30 +31,38 @@
 #include "helpers.h"
 
 int __wrap_ydb_get_s(ydb_buffer_t *varname, int subs_used, ydb_buffer_t *subsarray, ydb_buffer_t *ret_value) {
-	ret_value = mock_type(ydb_buffer_t*);
-	// assert_true(message_type == message->type);
-	return 0;
+	ydb_buffer_t *t = mock_ptr_type(ydb_buffer_t*);
+	*ret_value = *t;
+	return mock_type(int);
 }
 
 static void test_valid_input(void **state) {
 	PasswordMessage *password_message;
 	RoctoSession session;
-	ErrorResponse *err;
+	ydb_buffer_t session_id;
+	ErrorResponse *err = NULL;
+
+	YDB_LITERAL_TO_BUFFER("0", &session_id);
+	session.session_id = &session_id;
 
 	ydb_buffer_t username_subs;
 	char *username = "user";
 	YDB_STRING_TO_BUFFER(username, &username_subs);
 	will_return(__wrap_ydb_get_s, &username_subs);
+	will_return(__wrap_ydb_get_s, YDB_OK);
 
 	ydb_buffer_t user_info_subs;
-	char *user_info = "1|user|super|inh|crer|cred|canl|repl|bypassrl|conn|md58e998aaa66bd302e5592df3642c16f78|valid";
+	// md5 hash of passworduser: 4d45974e13472b5a0be3533de4666414
+	char *user_info = "1|user|super|inh|crer|cred|canl|repl|bypassrl|conn|md54d45974e13472b5a0be3533de4666414|valid";
 	YDB_STRING_TO_BUFFER(user_info, &user_info_subs);
 	will_return(__wrap_ydb_get_s, &user_info_subs);
+	will_return(__wrap_ydb_get_s, YDB_OK);
 
 	ydb_buffer_t salt_subs;
 	char *salt = "salt";
 	YDB_STRING_TO_BUFFER(salt, &salt_subs);
 	will_return(__wrap_ydb_get_s, &salt_subs);
+	will_return(__wrap_ydb_get_s, YDB_OK);
 
 	char *password = "password";
 	password_message = make_password_message(username, password, salt);

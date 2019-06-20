@@ -125,6 +125,14 @@ run_psql() {
   fi
 }
 
+run_psql_password() {
+  PGPASSWORD=$1 psql "sslmode=disable host=localhost port=1337"
+}
+
+create_user() {
+  echo -n $2 | go run $GOPATH/src/gitlab.com/euterpe/ydbocto-admin/cmd/ydbocto-admin/main.go add user $1
+}
+
 setup_go() {
   mkdir -p "$test_temp/go/src/"
   export GOPATH="$test_temp/go"

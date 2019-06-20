@@ -265,7 +265,7 @@ int main(int argc, char **argv) {
 			break;
 		}
 		// Validate user credentials
-		result = handle_password_message(password_message, &rocto_session, &err, salt);
+		result = handle_password_message(password_message, &rocto_session, &err, startup_message, salt);
 		if (0 != result) {
 			send_message(&rocto_session, (BaseMessage*)(&err->type));
 			free_error_response(err);

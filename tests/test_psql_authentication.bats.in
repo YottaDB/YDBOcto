@@ -1,0 +1,60 @@
+#################################################################
+#								#
+# Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	#
+# All rights reserved.						#
+#								#
+#	This source code contains the intellectual property	#
+#	of its copyright holder(s), and is made available	#
+#	under a license.  If you do not know the terms of	#
+#	the license, please stop and do not read further.	#
+#								#
+#################################################################
+
+load test_helpers
+
+setup() {
+  init_test
+  createdb
+  load_fixture names.sql
+  load_fixture names.zwr
+  start_rocto
+}
+
+teardown() {
+  stop_rocto
+}
+
+@test "test psql authentication with bad password" {
+  run_psql <<OCTO &> output.txt
+SELECT * FROM names;
+OCTO
+  [[ "$(grep -c -E "Zero.\+|Cool" output.txt)" == "2" ]]
+}
+
+@test "test psql authentication with non-existent user" {
+  run_psql <<OCTO &> output.txt
+SELECT * FROM names;
+OCTO
+  [[ "$(grep -c -E "Zero.\+|Cool" output.txt)" == "2" ]]
+}
+
+@test "test psql authentication with one user" {
+  run_psql <<OCTO &> output.txt
+SELECT * FROM names;
+OCTO
+  [[ "$(grep -c -E "Zero.\+|Cool" output.txt)" == "2" ]]
+}
+
+@test "test psql authentication with two users" {
+  run_psql <<OCTO &> output.txt
+SELECT * FROM names;
+OCTO
+  [[ "$(grep -c -E "Zero.\+|Cool" output.txt)" == "2" ]]
+}
+
+@test "test psql authentication with three users" {
+  run_psql <<OCTO &> output.txt
+SELECT * FROM names;
+OCTO
+  [[ "$(grep -c -E "Zero.\+|Cool" output.txt)" == "2" ]]
+}

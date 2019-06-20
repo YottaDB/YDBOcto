@@ -24,7 +24,8 @@
 #include "rocto.h"
 #include "helpers.h"
 
-int handle_password_message(PasswordMessage *password_message, RoctoSession *session, ErrorResponse **err, char *salt) {
+int handle_password_message(PasswordMessage *password_message, RoctoSession *session, ErrorResponse **err, StartupMessage
+		*startup_message, char *salt) {
 	ErrorBuffer err_buff;
 	err_buff.offset = 0;
 	const char *error_message;
@@ -43,6 +44,16 @@ int handle_password_message(PasswordMessage *password_message, RoctoSession *ses
 	}
 
 	// Retrieve username from session info
+
+	char username[MAX_STR_CONST];
+	for(int cur_parm = 0; cur_parm < startup_message->num_parameters; cur_parm++) {
+		result = strcmp(startup_message->parameters[cur_parm].name, "user");
+		if (0 == result) {
+			strncpy(username, startup_message->parameters[cur_parm].value, MAX_STR_CONST);
+		}
+	}
+
+	/*
 	ydb_buffer_t username_subs;
 	ydb_buffer_t *session_subs = make_buffers(config->global_names.session, 2, session->session_id->buf_addr, "variables");
 	result = ydb_get_s(&session_subs[0], 2, &session_subs[1], &username_subs);
@@ -59,6 +70,7 @@ int handle_password_message(PasswordMessage *password_message, RoctoSession *ses
 	char *username = (char*)malloc(username_subs.len_used);
 	strncpy(username, username_subs.buf_addr, username_subs.len_used);
 	username[username_subs.len_used] = '\0';
+	*/
 
 	// Retrieve user info from database
 	ydb_buffer_t user_info_subs;
@@ -71,9 +83,7 @@ int handle_password_message(PasswordMessage *password_message, RoctoSession *ses
 					   PSQL_Code_Syntax_Error,
 					   error_message,
 					   0);
-		free(session_subs);
 		free(user_subs);
-		free(username);
 		return 1;
 	}
 	char *user_info = (char*)malloc(user_info_subs.len_used);
@@ -91,9 +101,7 @@ int handle_password_message(PasswordMessage *password_message, RoctoSession *ses
 					   PSQL_Code_Syntax_Error,
 					   error_message,
 					   0);
-		free(session_subs);
 		free(user_subs);
-		free(username);
 		free(user_info);
 		return 1;
 	}
@@ -116,9 +124,7 @@ int handle_password_message(PasswordMessage *password_message, RoctoSession *ses
 					   PSQL_Code_Syntax_Error,
 					   error_message,
 					   0);
-		free(session_subs);
 		free(user_subs);
-		free(username);
 		free(user_info);
 		return 1;
 	}
@@ -132,17 +138,13 @@ int handle_password_message(PasswordMessage *password_message, RoctoSession *ses
 					   PSQL_Code_Syntax_Error,
 					   error_message,
 					   0);
-		free(session_subs);
 		free(user_subs);
-		free(username);
 		free(user_info);
 		return 1;
 	}
 	INFO(INFO_AUTH_SUCCESS, "handle_password_message");
 
-	free(session_subs);
 	free(user_subs);
-	free(username);
 	free(user_info);
 
 	return 0;

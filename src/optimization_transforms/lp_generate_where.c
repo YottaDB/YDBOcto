@@ -141,6 +141,7 @@ LogicalPlan *lp_generate_where(SqlStatement *stmt, int *plan_id) {
 			}
 		} while(cur_branch != cas_branch);
 		break;
+	case set_operation_STATEMENT:
 	case table_alias_STATEMENT:
 		ret = generate_logical_plan(stmt, plan_id);
 		/// TODO: should this be moved to the optimize phase for this plan?

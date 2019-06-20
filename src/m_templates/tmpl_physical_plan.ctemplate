@@ -75,8 +75,13 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
     for(cur_key = 0; cur_key <= limit; cur_key++) {
         %},%%ydboctoi{{ cur_key|%d }}{%
     }
-    %}
-    {% // Whitespace for MUMPS
+    if(plan->set_operation == PP_NOT_SET) {
+        %} KILL {% TMPL(tmpl_key, plan->outputKey); %}
+   {%
+    } else {
+        %}
+   {% // Whitespace for MUMPS
+    }
 
     for(cur_key = 0, dot_count = 0; cur_key < plan->total_iter_keys; cur_key++) {
         // For each key, output the key start, a loop, quit, and increment
@@ -103,7 +108,8 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
             dot_count++;
             continue;
         }
-    %}{% TMPL(print_dots, dot_count); %}{% TMPL(tmpl_key_start, key); %}
+    TMPL(print_dots, dot_count);
+    %} {% TMPL(tmpl_key_start, key); %}
     {% TMPL(print_dots, dot_count); %}FOR %%ydboctoi{{ cur_key|%d }}=1:1 SET {% TMPL(tmpl_key, key) %}=$ORDER({% TMPL(tmpl_key_advance, plan, key)
     %}) QUIT:({%
         TMPL(tmpl_key_end, key);
@@ -115,6 +121,20 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
     %})  DO
     {%
         dot_count++;
+    }
+
+    // Run any plans which reference parent queries
+    PhysicalPlan *temp_plan = plan;
+    while(temp_plan->prev != NULL) {
+        temp_plan = temp_plan->prev;
+    }
+    while(temp_plan != NULL) {
+        if(temp_plan->parent_plan == plan && temp_plan->deferred_plan == TRUE) {
+          TMPL(print_dots, dot_count);
+            %}DO {{ temp_plan->plan_name }}(cursorId)
+    {%
+        }
+        temp_plan = temp_plan->next;
     }
 
     // Output the value
@@ -283,7 +303,7 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
     %}
     SET ^|"{{ config->global_directory }}"|{{ config->global_names.raw_octo }}("xref_status","{{ tableName }}","{{ columnName }}")="done"
     LOCK -^|"{{ config->global_directory }}"|{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}"){%
-    } else if(plan->next) {
+    } else if(plan->next && !plan->deferred_plan) {
         next_plan = plan->next;
         while(next_plan->outputKey && next_plan->outputKey->is_cross_reference_key) {
             next_plan = next_plan->next;

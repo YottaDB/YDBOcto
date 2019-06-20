@@ -69,11 +69,14 @@ LogicalPlan *lp_replace_helper(LogicalPlan *where, SqlTableAlias *table_alias, S
 		// I don't expect this to happen, but seems like a possible path
 		assert(FALSE);
 		break;
+	case LP_VALUE:
+	case LP_DERIVED_COLUMN:
+		// Nothing to do
+		break;
 	default:
-		if(where->type > LP_ADDITION) {
-			ret->v.operand[0] = lp_replace_helper(where->v.operand[0], table_alias, key);
-			ret->v.operand[1] = lp_replace_helper(where->v.operand[1], table_alias, key);
-		}
+		assert(where->type > LP_ADDITION);
+		ret->v.operand[0] = lp_replace_helper(where->v.operand[0], table_alias, key);
+		ret->v.operand[1] = lp_replace_helper(where->v.operand[1], table_alias, key);
 		break;
 	}
 	return ret;

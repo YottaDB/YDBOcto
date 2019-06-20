@@ -172,7 +172,16 @@ extern void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, int *plan
 sql_statement
   : sql_schema_statement semicolon_or_eof { *out = $1; YYACCEPT; }
   | sql_data_statement semicolon_or_eof { *out = $1; YYACCEPT; }
-  | query_expression semicolon_or_eof { *out = $1; YYACCEPT; }
+  | query_expression semicolon_or_eof {
+      if(qualify_query($1, NULL)) {
+          YYERROR;
+      }
+      SqlValueType type;
+      if(populate_data_type($1, &type)) {
+          YYERROR;
+      }
+      *out = $1; YYACCEPT;
+    }
   | BEG semicolon_or_eof {
       // For now, we don't do transaction, so just say OK to this word
       SQL_STATEMENT(*out, begin_STATEMENT);

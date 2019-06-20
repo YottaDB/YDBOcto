@@ -143,7 +143,7 @@ void octo_log(int line, char *file, enum ERROR_LEVEL level, enum ERROR error, ..
 				err_level = PSQL_Error_DEBUG;
 				break;
 			case WARNING:
-				err_level = PSQL_Error_INFO;
+				err_level = PSQL_Error_WARNING;
 				break;
 			case ERROR:
 				err_level = PSQL_Error_ERROR;

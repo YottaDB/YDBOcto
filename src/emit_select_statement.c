@@ -57,7 +57,11 @@ PhysicalPlan *emit_select_statement(SqlStatement *stmt, char *plan_filename)
 		lp_emit_plan(buffer, MAX_STR_CONST * 5, plan);
 		DEBUG(ERR_CURPLAN, buffer);
 	}
-	pplan = generate_physical_plan(plan, NULL);
+	PhysicalPlanOptions options;
+	memset(&options, 0, sizeof(PhysicalPlanOptions));
+	pplan = NULL;
+	options.last_plan = &pplan;
+	pplan = generate_physical_plan(plan, &options);
 	if (plan_filename) {
 		emit_physical_plan(pplan, plan_filename);
 	}

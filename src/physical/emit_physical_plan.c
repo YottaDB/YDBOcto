@@ -143,10 +143,16 @@ int emit_physical_plan(PhysicalPlan *pplan, char *plan_filename) {
 		FATAL(ERR_SYSCALL, "fopen", errno, strerror(errno));
 		return FALSE;
 	}
+
+	// Emit most of the plans, except for deferred and xref plans
 	cur_plan = first_plan;
 	do {
 		// Skip any plans that are cross references
 		while(cur_plan && cur_plan->outputKey && cur_plan->outputKey->is_cross_reference_key) {
+			cur_plan = cur_plan->next;
+		}
+		// Skip any plans that are deferred
+		while(cur_plan && cur_plan->deferred_plan) {
 			cur_plan = cur_plan->next;
 		}
 		if(cur_plan == NULL)
@@ -157,6 +163,28 @@ int emit_physical_plan(PhysicalPlan *pplan, char *plan_filename) {
 		fprintf(output_file, "%s\n", buffer);
 		cur_plan = cur_plan->next;
 	} while(cur_plan != NULL);
+
+	// Emit deferred plans
+	cur_plan = first_plan;
+	do {
+		// Skip any plans that are cross references
+		while(cur_plan && cur_plan->outputKey && cur_plan->outputKey->is_cross_reference_key) {
+			cur_plan = cur_plan->next;
+		}
+		// Skip any plans that are not deferred and have already been emitted
+		while(cur_plan && !cur_plan->deferred_plan) {
+			cur_plan = cur_plan->next;
+		}
+		if(cur_plan == NULL)
+			break;
+		cur_plan->filename = filename;
+		tmpl_physical_plan(buffer, MAX_ROUTINE_LENGTH, cur_plan);
+		assert(output_file != NULL);
+		fprintf(output_file, "%s\n", buffer);
+		cur_plan = cur_plan->next;
+	} while(cur_plan != NULL);
+
+	// Close out the file
 	fd = fileno(output_file);
 	fsync(fd);
 	fclose(output_file);

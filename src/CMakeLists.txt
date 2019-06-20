@@ -107,6 +107,7 @@ add_library(libocto OBJECT
   qualify_statement.c
   qualify_join_conditions.c
   qualify_function_name.c
+  qualify_query.c
   octo_init.c
   get_keyword.c
   get_keyword_from_keywords.c

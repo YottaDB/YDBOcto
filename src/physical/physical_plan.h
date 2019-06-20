@@ -43,8 +43,6 @@ struct PhysicalPlan;
 typedef struct PhysicalPlan {
 	char *plan_name, *filename;
 	struct PhysicalPlan *prev, *next;
-	// These represent keys which we are iterating over; usually a single key
-	SqlKey *sourceKeys[MAX_KEY_COUNT];
 	// These represent the keys we used to do the iteration
 	SqlKey *iterKeys[MAX_KEY_COUNT];
 	SqlKey *outputKey;
@@ -52,11 +50,8 @@ typedef struct PhysicalPlan {
 	LogicalPlan *where;
 	LogicalPlan *projection;
 	LogicalPlan *order_by;
-	SqlTableAlias **symbols;
 	SqlOptionalKeyword *keywords;
-	unsigned int total_symbols;
 	unsigned int total_iter_keys;
-	unsigned int total_source_keys;
 	// If set to 1, this plan should emit the columns as subscripts of the key,
 	//  rather than using a row id
 	int stash_columns_in_keys;
@@ -71,9 +66,24 @@ typedef struct PhysicalPlan {
 	// The type of action to perform; project inserts value, delete removes them
 	PPActionType action_type;
 	PPSetOperation set_operation;
+	// If true, this plan should not be emitted in order but waited until after all required
+	//   plans have been emitted first. This is important when the plan will not run in-order,
+	//   but will be called as a subquery which can't be extracted due to a parent reference
+	int deferred_plan;
+	// Points to the parent plan of this plan; we need this so we can resolve
+	//   references to parent queries and mark intermediate plans as deferred
+	struct PhysicalPlan *parent_plan;
 } PhysicalPlan;
 
-PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlan *next);
+// This provides a convenient way to pass options to subplans
+// which need to be aware of a request from a higher level
+typedef struct {
+	struct PhysicalPlan *parent;
+	struct PhysicalPlan **last_plan;
+	int stash_columns_in_keys;
+} PhysicalPlanOptions;
+
+PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlanOptions *options);
 // Outputs physical plans to temporary files located in config.tmp_dir
 //  Names are like ppplanXXXX, where XXXX is a unique number
 // Returns TRUE on success

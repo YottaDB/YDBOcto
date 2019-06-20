@@ -158,30 +158,7 @@ query_specification
       }
       this_table_alias->column_list = select->select_list;
       select->optional_words = $set_quantifier;
-      SqlColumnListAlias *cur_column_list_alias, *start_column_list_alias;
-      SqlValueType type;
-      int result;
-      UNPACK_SQL_STATEMENT(start_column_list_alias, $select_list, column_list_alias);
-      cur_column_list_alias = start_column_list_alias;
-      if(cur_column_list_alias != NULL) {
-          result = qualify_column_list_alias(cur_column_list_alias, join, $$);
-          if(result != 0) {
-              YYERROR;
-          }
-          result = populate_data_type($select_list, &type);
-          if(result != 0) {
-              YYERROR;
-          }
-      }
       select->order_expression = NULL;
-      result = qualify_join_conditions(join, join, $$);
-      if(result != 0) {
-          YYERROR;
-      }
-      if(qualify_statement(select->where_expression, join, $$)
-        || populate_data_type(select->where_expression, &type)) {
-        YYERROR;
-      }
     }
   | SELECT set_quantifier select_list table_expression ORDER BY sort_specification_list {
       SqlTableAlias *this_table_alias;
@@ -217,35 +194,7 @@ query_specification
       }
       this_table_alias->column_list = select->select_list;
       select->optional_words = $set_quantifier;
-      SqlColumnListAlias *cur_column_list_alias, *start_column_list_alias;
-      SqlValueType type;
-      int result;
-      UNPACK_SQL_STATEMENT(start_column_list_alias, $select_list, column_list_alias);
-      cur_column_list_alias = start_column_list_alias;
-      if(cur_column_list_alias != NULL) {
-          result = qualify_column_list_alias(cur_column_list_alias, join, $$);
-          if(result != 0) {
-              YYERROR;
-          }
-          result = populate_data_type($select_list, &type);
-          if(result != 0) {
-              YYERROR;
-          }
-      }
-      UNPACK_SQL_STATEMENT(start_column_list_alias, $sort_specification_list, column_list_alias);
-      result = qualify_column_list_alias(start_column_list_alias, join, $$);
-      if(result != 0) {
-          YYERROR;
-      }
       ($$)->v.select->order_expression = $sort_specification_list;
-      result = qualify_join_conditions(join, join, $$);
-      if(result != 0) {
-          YYERROR;
-      }
-      if(qualify_statement(select->where_expression, join, $$)
-        || populate_data_type(select->where_expression, &type)) {
-        YYERROR;
-      }
     }
   | SELECT set_quantifier select_list {
       // We're going to run against a secret table with one row so the list gets found
@@ -309,26 +258,7 @@ query_specification
           select->select_list->v.column_list_alias = cl_alias;
       }
       select->optional_words = $set_quantifier;
-      SqlColumnListAlias *cur_column_list_alias, *start_column_list_alias;
-      SqlValueType type;
-      int result;
-      UNPACK_SQL_STATEMENT(start_column_list_alias, $select_list, column_list_alias);
-      cur_column_list_alias = start_column_list_alias;
-      if(cur_column_list_alias != NULL) {
-          result = qualify_column_list_alias(cur_column_list_alias, join, $$);
-          if(result != 0) {
-              YYERROR;
-          }
-          result = populate_data_type($select_list, &type);
-          if(result != 0) {
-              YYERROR;
-          }
-      }
       select->order_expression = NULL;
-      result = qualify_join_conditions(join, join, $$);
-      if(result != 0) {
-          YYERROR;
-      }
     }
   ;
 

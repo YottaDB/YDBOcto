@@ -26,7 +26,7 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *column_
 	SqlValue *value;
 	SqlCaseStatement *cas;
 	SqlCaseBranchStatement *cas_branch, *cur_branch;
-	SqlTableAlias *table_alias;
+	SqlColumnListAlias *start_cla, *cur_cla;
 	int result;
 
 	if(stmt == NULL)
@@ -36,6 +36,7 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *column_
 
 	switch(stmt->type) {
 	case select_STATEMENT:
+		assert(FALSE);
 		break;
 	case column_alias_STATEMENT:
 		// We can get here if the select list was empty and we took
@@ -110,10 +111,16 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *column_
 		} while(cur_cl != start_cl);
 		break;
 	case table_alias_STATEMENT:
-		UNPACK_SQL_STATEMENT(table_alias, stmt, table_alias);
-		result |= qualify_statement(table_alias->table, tables, column_list_alias);
-		/// TODO: this should be qualified through a different recursion path
-		// result |= qualify_statement(table_alias->column_list, tables, column_list_alias);
+	case set_operation_STATEMENT:
+		result |= qualify_query(stmt, tables);
+		break;
+	case column_list_alias_STATEMENT:
+		UNPACK_SQL_STATEMENT(start_cla, stmt, column_list_alias);
+		cur_cla = start_cla;
+		do {
+			result |= qualify_statement(cur_cla->column_list, tables, column_list_alias);
+			cur_cla = cur_cla->next;
+		} while(cur_cla != start_cla);
 		break;
 	case table_STATEMENT:
 		break;

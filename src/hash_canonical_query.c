@@ -279,7 +279,6 @@ void hash_canonical_query(hash128_state_t *state, SqlStatement *stmt) {
 			UNPACK_SQL_STATEMENT(set_operation, stmt, set_operation);
 			add_sql_type_hash(state, set_operation_STATEMENT);
 			// SqlSetOperationType
-			printf(" set op type: %d ", set_operation->type);
 			add_sql_type_hash(state, set_operation->type);
 			// SqlStatement (?)
 			// Infinite recursion - points to its parent select_STATEMENT

@@ -121,6 +121,7 @@ SqlStatement *match_column_in_table(SqlTableAlias *table, char *column_name, int
 int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *column_list_alias);
 int qualify_join_conditions(SqlJoin *join, SqlJoin *tables, SqlStatement *column_list_alias);
 int qualify_function_name(SqlStatement *stmt);
+int qualify_query(SqlStatement *stmt, SqlJoin *parent_join);
 void print_yyloc(YYLTYPE *llocp);
 SqlOptionalKeyword *get_keyword(SqlColumn *column, enum OptionalKeyword keyword);
 SqlOptionalKeyword *get_keyword_from_keywords(SqlOptionalKeyword *start_keyword, enum OptionalKeyword keyword);

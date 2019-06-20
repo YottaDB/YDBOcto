@@ -46,7 +46,6 @@ int populate_data_type(SqlStatement *v, SqlValueType *type) {
 	SqlValue *value = NULL;
 	SqlBinaryOperation *binary = NULL;
 	SqlUnaryOperation *unary = NULL;
-	SqlTable *table = NULL;
 	SqlTableAlias *table_alias;
 	SqlColumn *column = NULL;
 	SqlValueType child_type1, child_type2;
@@ -55,9 +54,9 @@ int populate_data_type(SqlStatement *v, SqlValueType *type) {
 	SqlFunctionCall *function_call;
 	SqlCaseStatement *cas;
 	SqlCaseBranchStatement *cas_branch, *cur_branch;
+	SqlJoin *start_join, *cur_join;
 	YYLTYPE location;
 	int result = 0;
-	char *c = NULL;
 
 	*type = UNKNOWN_SqlValueType;
 
@@ -65,8 +64,30 @@ int populate_data_type(SqlStatement *v, SqlValueType *type) {
 		return 0;
 
 	switch(v->type) {
+	case set_operation_STATEMENT:
+		*type = TEMPORARY_TABLE_TYPE;
+		SqlSetOperation *set_operation;
+		UNPACK_SQL_STATEMENT(set_operation, v, set_operation);
+		result |= populate_data_type(set_operation->operand[0], &child_type1);
+		result |= populate_data_type(set_operation->operand[1], &child_type1);
+		break;
 	case select_STATEMENT:
 		*type = TEMPORARY_TABLE_TYPE;
+		SqlSelectStatement *select;
+		UNPACK_SQL_STATEMENT(select, v, select);
+		result |= populate_data_type(select->select_list, &child_type1);
+		result |= populate_data_type(select->table_list, &child_type1);
+		result |= populate_data_type(select->where_expression, &child_type1);
+		result |= populate_data_type(select->order_expression, &child_type1);
+		break;
+	case join_STATEMENT:
+		UNPACK_SQL_STATEMENT(start_join, v, join);
+		cur_join = start_join;
+		do {
+			result |= populate_data_type(cur_join->value, type);
+			result |= populate_data_type(cur_join->condition, type);
+			cur_join = cur_join->next;
+		} while(cur_join != start_join);
 		break;
 	case value_STATEMENT:
 		UNPACK_SQL_STATEMENT(value, v, value);
@@ -76,46 +97,12 @@ int populate_data_type(SqlStatement *v, SqlValueType *type) {
 			*type = child_type1;
 			break;
 		case COLUMN_REFERENCE:
-			c = value->v.reference;
-			for(; *c != '.' && *c != '\0'; c++) {
-				// Empty
-			}
-			assert(*c != '\0');
-			*c = '\0';
-			table = find_table(value->v.reference);
-			*c++ = '.';
 			/* if this happens it probably means it wasn't an extended reference
 			 * which is not something we want to happen, the parser should expand
 			 * all column references to be fully qualified
 			 */
-			if(table == NULL) {
-				ERROR(ERR_UNKNOWN_TABLE, c);
-				print_yyloc(&v->loc);
-				return 1;
-			}
-			assert(value->coerced_type < INVALID_SqlValueType);
-			if(value->coerced_type != UNKNOWN_SqlValueType) {
-				value->type = value->coerced_type;
-			} else {
-				column = find_column(c, table);
-				value->type = column->type;
-			}
-			switch(column->type) {
-			case CHARACTER_STRING_TYPE:
-				*type = STRING_LITERAL;
-				break;
-			case INTEGER_TYPE:
-				*type = NUMBER_LITERAL;
-				break;
-			case DATE_TIME_TYPE:
-				*type = DATE_TIME;
-				break;
-			case INTERVAL_TYPE:
-			case UNKNOWN_SqlDataType:
-			default:
-				FATAL(ERR_UNKNOWN_KEYWORD_STATE, "");
-				break;
-			}
+			assert(FALSE);
+			result = 1;
 			break;
 		case NUMBER_LITERAL:
 		case STRING_LITERAL:

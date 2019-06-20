@@ -22,6 +22,7 @@ ERROR_DEF(ERR_MULTIPLE_VALUES_PROVIDED, "Multiple values provided for %s; undefi
 ERROR_DEF(ERR_GENERATING_TEMPORARY_TABLE, "Generating temporary table: %s")
 ERROR_DEF(ERR_UNKNOWN_TABLE, "Unknown table: %s")
 ERROR_DEF(ERR_UNKNOWN_COLUMN_NAME, "Unknown column: %s")
+ERROR_DEF(ERR_AMBIGUOUS_COLUMN_NAME, "Column %s could refer to more than one column; qualify it for safer code")
 ERROR_DEF(ERR_ENTERING_FUNCTION, "Entering %s")
 ERROR_DEF(ERR_LEAVING_FUNCTION, "LEAVING %s")
 ERROR_DEF(ERR_TYPE_MISMATCH, "Type mismatch, left %s, right %s")

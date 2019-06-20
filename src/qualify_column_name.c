@@ -77,8 +77,9 @@ SqlColumnAlias *qualify_column_name(SqlValue *column_value, SqlJoin *tables, Sql
 			t_column = match_column_in_table(cur_alias, column_name, column_name_len);
 			if(t_column != NULL) {
 				if(column != NULL) {
-					WARNING(CUSTOM_ERROR, "Ambgious column name");
-					return NULL;
+					WARNING(ERR_AMBIGUOUS_COLUMN_NAME, column_name);
+					cur_join = cur_join->next;
+					continue;
 				}
 				matching_alias = cur_alias;
 				column = t_column;
@@ -97,8 +98,9 @@ SqlColumnAlias *qualify_column_name(SqlValue *column_value, SqlJoin *tables, Sql
 				UNPACK_SQL_STATEMENT(value, cur_cla->alias, value);
 				if(memcmp(value->v.reference, column_name, column_name_len) == 0) {
 					if(column != NULL) {
-						WARNING(CUSTOM_ERROR, "Ambgious column name");
-						return NULL;
+						WARNING(ERR_AMBIGUOUS_COLUMN_NAME, column_name);
+						cur_cla = cur_cla->next;
+						continue;
 					}
 					UNPACK_SQL_STATEMENT(matching_alias, table_alias_stmt, table_alias);
 					SQL_STATEMENT(t_column, column_list_alias_STATEMENT);

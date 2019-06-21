@@ -52,25 +52,6 @@ int handle_password_message(PasswordMessage *password_message, RoctoSession *ses
 		}
 	}
 
-	/*
-	ydb_buffer_t username_subs;
-	ydb_buffer_t *session_subs = make_buffers(config->global_names.session, 2, session->session_id->buf_addr, "variables");
-	result = ydb_get_s(&session_subs[0], 2, &session_subs[1], &username_subs);
-	if (YDB_OK != result) {
-		WARNING(ERR_ROCTO_SESSION_LOOKUP, "handle_password_message", "username");
-		error_message = format_error_string(&err_buff, ERR_ROCTO_SESSION_LOOKUP, "handle_password_message", "username");
-		*err = make_error_response(PSQL_Error_ERROR,
-					   PSQL_Code_Syntax_Error,
-					   error_message,
-					   0);
-		free(session_subs);
-		return 1;
-	}
-	char *username = (char*)malloc(username_subs.len_used);
-	strncpy(username, username_subs.buf_addr, username_subs.len_used);
-	username[username_subs.len_used] = '\0';
-	*/
-
 	// Retrieve user info from database
 	ydb_buffer_t user_info_subs;
 	YDB_MALLOC_BUFFER(&user_info_subs, MAX_STR_CONST);

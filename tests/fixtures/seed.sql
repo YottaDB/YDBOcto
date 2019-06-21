@@ -183,3 +183,18 @@ create table pg_catalog.pg_proc(
  proconfig varchar,
  proacl varchar
 ) GLOBAL "^%ydboctoocto(""tables"",""information_schema"",""tables"",keys(""oid"")";
+
+CREATE TABLE users (
+    oid INTEGER,
+    rolname VARCHAR KEY NUM "0",
+	rolsuper INTEGER,
+    rolinherit INTEGER,
+    rolcreaterole INTEGER,
+    rolcreatedb INTEGER,
+    rolcanlogin INTEGER,
+    rolreplication INTEGER,
+    rolbypassrls INTEGER,
+    rolconnlimit INTEGER,
+    rolpassword VARCHAR,
+    rolvaliduntil VARCHAR
+)

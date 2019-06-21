@@ -20,6 +20,7 @@ setup() {
   fi
   load_fixture names.sql
   load_fixture names.zwr
+  load_fixture default_user.zwr
   start_rocto
 }
 

@@ -58,3 +58,7 @@ find_program(go NAMES go)
 if(go)
   ADD_BATS_TEST(test_psql_go_connection)
 endif()
+
+if(go AND psql)
+  ADD_BATS_TEST(test_psql_authentication)
+endif()

@@ -119,18 +119,24 @@ stop_rocto() {
 
 run_psql() {
   if [[ @YDB_TLS_AVAILABLE@ -eq 1 ]]; then
-    PGPASSWORD=ydbrocks psql "host=localhost port=1337"
+    PGPASSWORD=ydbrocks psql -U ydb "host=localhost port=1337"
   else
-    PGPASSWORD=ydbrocks psql "sslmode=disable host=localhost port=1337"
+    PGPASSWORD=ydbrocks psql -U ydb "sslmode=disable host=localhost port=1337"
   fi
 }
 
-run_psql_password() {
-  PGPASSWORD=$1 psql "sslmode=disable host=localhost port=1337"
+run_psql_auth() {
+  PGPASSWORD=$2 psql -U $1 "sslmode=disable host=localhost port=1337"
 }
 
 create_user() {
   echo -n $2 | go run $GOPATH/src/gitlab.com/euterpe/ydbocto-admin/cmd/ydbocto-admin/main.go add user $1
+}
+
+delete_users() {
+  for user in $@; do
+    go run $GOPATH/src/gitlab.com/euterpe/ydbocto-admin/cmd/ydbocto-admin/main.go delete user $user
+  done
 }
 
 setup_go() {

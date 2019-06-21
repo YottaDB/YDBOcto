@@ -25,36 +25,67 @@ teardown() {
 }
 
 @test "test psql authentication with bad password" {
-  run_psql <<OCTO &> output.txt
+  create_user jon tester
+  run run_psql_auth jon tested <<OCTO
 SELECT * FROM names;
 OCTO
-  [[ "$(grep -c -E "Zero.\+|Cool" output.txt)" == "2" ]]
+  delete_users jon
+  [[ "$output" =~ "psql: could not connect to server: Connection refused" ]]
+  [[ "$output" =~ "password doesn't match stored value" ]]
 }
 
 @test "test psql authentication with non-existent user" {
-  run_psql <<OCTO &> output.txt
+  create_user jon tester
+  run run_psql_auth bobby cereal <<OCTO
 SELECT * FROM names;
 OCTO
-  [[ "$(grep -c -E "Zero.\+|Cool" output.txt)" == "2" ]]
+  echo $output &> output.txt
+  delete_users jon
+  [[ "$output" =~ "psql: could not connect to server: Connection refused" ]]
+  [[ "$output" =~ "failed to retrieve user info from database" ]]
 }
 
 @test "test psql authentication with one user" {
-  run_psql <<OCTO &> output.txt
+  create_user jon tester
+  run_psql_auth jon tester <<OCTO &> output.txt
 SELECT * FROM names;
 OCTO
+  delete_users jon
   [[ "$(grep -c -E "Zero.\+|Cool" output.txt)" == "2" ]]
 }
 
 @test "test psql authentication with two users" {
-  run_psql <<OCTO &> output.txt
+  create_user jon tester
+  run_psql_auth jon tester <<OCTO &> output.txt
 SELECT * FROM names;
 OCTO
+  [[ "$(grep -c -E "Zero.\+|Cool" output.txt)" == "2" ]]
+
+  create_user bobby bilco
+  run_psql_auth bobby bilco <<OCTO &> output.txt
+SELECT * FROM names;
+OCTO
+  delete_users jon bobby
   [[ "$(grep -c -E "Zero.\+|Cool" output.txt)" == "2" ]]
 }
 
 @test "test psql authentication with three users" {
-  run_psql <<OCTO &> output.txt
+  create_user jon tester
+  run_psql_auth jon tester <<OCTO &> output.txt
 SELECT * FROM names;
 OCTO
+  [[ "$(grep -c -E "Zero.\+|Cool" output.txt)" == "2" ]]
+
+  create_user bobby bilco
+  run_psql_auth bobby bilco <<OCTO &> output.txt
+SELECT * FROM names;
+OCTO
+  [[ "$(grep -c -E "Zero.\+|Cool" output.txt)" == "2" ]]
+
+  create_user suzy quartz
+  run_psql_auth bobby bilco <<OCTO &> output.txt
+SELECT * FROM names;
+OCTO
+  delete_users jon bobby suzy
   [[ "$(grep -c -E "Zero.\+|Cool" output.txt)" == "2" ]]
 }

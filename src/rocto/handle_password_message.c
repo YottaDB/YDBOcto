@@ -43,8 +43,7 @@ int handle_password_message(PasswordMessage *password_message, RoctoSession *ses
 		return 1;
 	}
 
-	// Retrieve username from session info
-
+	// Retrieve username from StartupMessage
 	char username[MAX_STR_CONST];
 	for(int cur_parm = 0; cur_parm < startup_message->num_parameters; cur_parm++) {
 		result = strcmp(startup_message->parameters[cur_parm].name, "user");
@@ -74,6 +73,7 @@ int handle_password_message(PasswordMessage *password_message, RoctoSession *ses
 
 	// Retrieve user info from database
 	ydb_buffer_t user_info_subs;
+	YDB_MALLOC_BUFFER(&user_info_subs, MAX_STR_CONST);
 	ydb_buffer_t *user_subs = make_buffers(config->global_names.octo, 2, "users", username);
 	result = ydb_get_s(&user_subs[0], 2, &user_subs[1], &user_info_subs);
 	if (YDB_OK != result) {
@@ -108,7 +108,9 @@ int handle_password_message(PasswordMessage *password_message, RoctoSession *ses
 
 	// Concatenate stored hash with temporary 4-byte salt
 	char hash_buf[MAX_STR_CONST];
-	snprintf(hash_buf, buf_len + 4, "%s%s", &buffer[3], salt);	// Exclude "md5" prefix
+	// Exclude "md5" from stored password (-3),
+	// Must copy: buf_len - "md5" (3) + salt length (4) + null terminator (1)
+	snprintf(hash_buf, buf_len - 3 + 4 + 1, "%s%s", &buffer[3], salt);	// Exclude "md5" prefix
 
 	// Hash password hash with temporary 4-byte salt
 	MD5(hash_buf, strlen(hash_buf), hash_buf);

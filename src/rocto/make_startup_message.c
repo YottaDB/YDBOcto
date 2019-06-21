@@ -12,6 +12,7 @@
 
 #include <stdarg.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
 #include <assert.h>
 
@@ -20,13 +21,36 @@
 
 #include "message_formats.h"
 
-StartupMessage *make_startup_message(char *command_tag) {
+// Creates a basic StartupMessage with only the "user" parameter set for testing purposes.
+StartupMessage *make_startup_message(char *username) {
 	StartupMessage *ret;
+	char *user = "user";
+	unsigned int data_len = 0;
+	unsigned int user_len = 0;
+	unsigned int username_len = 0;
 
-	ret = (StartupMessage*)malloc(sizeof(StartupMessage));
-	memset(ret, 0, sizeof(StartupMessage));
+	// Get length of parameter name and value
+	user_len = strlen(user) + 1;
+	username_len += strlen(username) + 1;
+	data_len = user_len + username_len;
 
-	ret->length = htonl(sizeof(unsigned int));
+	ret = (StartupMessage*)malloc(sizeof(StartupMessage) + data_len);
+
+	// Set length and protocol version
+	ret->length = sizeof(unsigned int) + sizeof(int) + data_len;
+	ret->protocol_version = 0x00030000;
+	ret->num_parameters = 1;
+	// Populate data section
+	char *c;
+	c = ret->data;
+	memcpy(c, user, user_len);
+	c += user_len;
+	memcpy(c, username, username_len);
+
+	// Populate parameter(s)
+	ret->parameters = (StartupMessageParm*)malloc(sizeof(StartupMessageParm) * ret->num_parameters);
+	ret->parameters[0].name = user;
+	ret->parameters[0].value = username;
 
 	return ret;
 }

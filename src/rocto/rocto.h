@@ -170,6 +170,7 @@ RowDescription *read_row_description(BaseMessage *message, ErrorResponse **err);
 
 // Make functions to simulate client transmission of certain make_* messages. Used for testing.
 PasswordMessage *make_password_message(char *user, char *password, char *salt);
+StartupMessage *make_startup_message(char *username);
 
 RoctoSession rocto_session;
 

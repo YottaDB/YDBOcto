@@ -56,11 +56,9 @@ static void test_valid_input(void **state) {
 	YDB_LITERAL_TO_BUFFER("0", &session_id);
 	session.session_id = &session_id;
 
-	ydb_buffer_t username_subs;
+	// Prepare startup message with username
 	char *username = "user";
-	YDB_STRING_TO_BUFFER(username, &username_subs);
-	will_return(__wrap_ydb_get_s, &username_subs);
-	will_return(__wrap_ydb_get_s, YDB_OK);
+	StartupMessage *startup_message = make_startup_message(username);
 
 	ydb_buffer_t user_info_subs;
 	// md5 hash of passworduser: 4d45974e13472b5a0be3533de4666414
@@ -87,11 +85,13 @@ static void test_valid_input(void **state) {
 	char *salt = "salt";
 	password_message = make_password_message(username, password, salt);
 
-	int result = handle_password_message(password_message, &session, &err, salt);
+	int result = handle_password_message(password_message, &session, &err, startup_message, salt);
 	assert_int_equal(result, 0);
 	assert_null(err);
 
 	free(password_message);
+	free(startup_message->parameters);
+	free(startup_message);
 }
 
 static void test_error_not_md5(void **state) {
@@ -107,6 +107,7 @@ static void test_error_not_md5(void **state) {
 	session.session_id = &session_id;
 
 	char *username = "user";
+	StartupMessage *startup_message = make_startup_message(username);
 	char *password = "password";
 	char *salt = "salt";
 
@@ -117,9 +118,9 @@ static void test_error_not_md5(void **state) {
 	will_return(__wrap_md5_to_hex, 0);
 
 	password_message = make_password_message(username, password, salt);
-
 	password_message->password = "password";
-	int result = handle_password_message(password_message, &session, &err, salt);
+
+	int result = handle_password_message(password_message, &session, &err, startup_message, salt);
 	assert_int_equal(result, 1);
 	assert_non_null(err);
 
@@ -128,46 +129,8 @@ static void test_error_not_md5(void **state) {
 
 	free(password_message);
 	free_error_response(err);
-}
-
-static void test_error_session_username_lookup(void **state) {
-	PasswordMessage *password_message;
-	RoctoSession session;
-	ydb_buffer_t session_id;
-	ErrorResponse *err = NULL;
-	ErrorBuffer err_buff;
-	err_buff.offset = 0;
-	const char *error_message;
-
-	YDB_LITERAL_TO_BUFFER("0", &session_id);
-	session.session_id = &session_id;
-
-	ydb_buffer_t username_subs;
-	char *username = "user";
-	YDB_STRING_TO_BUFFER(username, &username_subs);
-	will_return(__wrap_ydb_get_s, &username_subs);
-	will_return(__wrap_ydb_get_s, YDB_ERR_LVUNDEF);
-
-	char *salt = "salt";
-	char *password = "password";
-
-	// Wrap calls in make_password_message
-	will_return(__wrap_md5_to_hex, "4d45974e13472b5a0be3533de4666414");
-	will_return(__wrap_md5_to_hex, 0);
-	will_return(__wrap_md5_to_hex, "8e998aaa66bd302e5592df3642c16f78");
-	will_return(__wrap_md5_to_hex, 0);
-
-	password_message = make_password_message(username, password, salt);
-
-	int result = handle_password_message(password_message, &session, &err, salt);
-	assert_int_equal(result, 1);
-	assert_non_null(err);
-
-	error_message = format_error_string(&err_buff, ERR_ROCTO_SESSION_LOOKUP, "handle_password_message", "username");
-	assert_string_equal(error_message, err->args[2].value + 1);
-
-	free(password_message);
-	free_error_response(err);
+	free(startup_message->parameters);
+	free(startup_message);
 }
 
 static void test_error_user_info_lookup(void **state) {
@@ -182,11 +145,8 @@ static void test_error_user_info_lookup(void **state) {
 	YDB_LITERAL_TO_BUFFER("0", &session_id);
 	session.session_id = &session_id;
 
-	ydb_buffer_t username_subs;
 	char *username = "user";
-	YDB_STRING_TO_BUFFER(username, &username_subs);
-	will_return(__wrap_ydb_get_s, &username_subs);
-	will_return(__wrap_ydb_get_s, YDB_OK);
+	StartupMessage *startup_message = make_startup_message(username);
 
 	ydb_buffer_t user_info_subs;
 	// md5 hash of passworduser: 4d45974e13472b5a0be3533de4666414
@@ -206,7 +166,7 @@ static void test_error_user_info_lookup(void **state) {
 
 	password_message = make_password_message(username, password, salt);
 
-	int result = handle_password_message(password_message, &session, &err, salt);
+	int result = handle_password_message(password_message, &session, &err, startup_message, salt);
 	assert_int_equal(result, 1);
 	assert_non_null(err);
 
@@ -215,6 +175,8 @@ static void test_error_user_info_lookup(void **state) {
 
 	free(password_message);
 	free_error_response(err);
+	free(startup_message->parameters);
+	free(startup_message);
 }
 
 static void test_error_hash_lookup(void **state) {
@@ -229,11 +191,8 @@ static void test_error_hash_lookup(void **state) {
 	YDB_LITERAL_TO_BUFFER("0", &session_id);
 	session.session_id = &session_id;
 
-	ydb_buffer_t username_subs;
 	char *username = "user";
-	YDB_STRING_TO_BUFFER(username, &username_subs);
-	will_return(__wrap_ydb_get_s, &username_subs);
-	will_return(__wrap_ydb_get_s, YDB_OK);
+	StartupMessage *startup_message = make_startup_message(username);
 
 	ydb_buffer_t user_info_subs;
 	// md5 hash of passworduser: 4d45974e13472b5a0be3533de4666414
@@ -256,7 +215,7 @@ static void test_error_hash_lookup(void **state) {
 	char *password = "password";
 	password_message = make_password_message(username, password, salt);
 
-	int result = handle_password_message(password_message, &session, &err, salt);
+	int result = handle_password_message(password_message, &session, &err, startup_message, salt);
 	assert_int_equal(result, 1);
 	assert_non_null(err);
 
@@ -266,6 +225,8 @@ static void test_error_hash_lookup(void **state) {
 
 	free(password_message);
 	free_error_response(err);
+	free(startup_message->parameters);
+	free(startup_message);
 }
 
 static void test_error_hash_conversion(void **state) {
@@ -280,11 +241,8 @@ static void test_error_hash_conversion(void **state) {
 	YDB_LITERAL_TO_BUFFER("0", &session_id);
 	session.session_id = &session_id;
 
-	ydb_buffer_t username_subs;
 	char *username = "user";
-	YDB_STRING_TO_BUFFER(username, &username_subs);
-	will_return(__wrap_ydb_get_s, &username_subs);
-	will_return(__wrap_ydb_get_s, YDB_OK);
+	StartupMessage *startup_message = make_startup_message(username);
 
 	ydb_buffer_t user_info_subs;
 	// md5 hash of passworduser: 4d45974e13472b5a0be3533de4666414
@@ -311,7 +269,7 @@ static void test_error_hash_conversion(void **state) {
 	will_return(__wrap_md5_to_hex, "arbitrary");
 	will_return(__wrap_md5_to_hex, 1);
 
-	int result = handle_password_message(password_message, &session, &err, salt);
+	int result = handle_password_message(password_message, &session, &err, startup_message, salt);
 	assert_int_equal(result, 1);
 	assert_non_null(err);
 
@@ -321,6 +279,8 @@ static void test_error_hash_conversion(void **state) {
 
 	free(password_message);
 	free_error_response(err);
+	free(startup_message->parameters);
+	free(startup_message);
 }
 
 static void test_error_bad_password(void **state) {
@@ -335,11 +295,8 @@ static void test_error_bad_password(void **state) {
 	YDB_LITERAL_TO_BUFFER("0", &session_id);
 	session.session_id = &session_id;
 
-	ydb_buffer_t username_subs;
 	char *username = "user";
-	YDB_STRING_TO_BUFFER(username, &username_subs);
-	will_return(__wrap_ydb_get_s, &username_subs);
-	will_return(__wrap_ydb_get_s, YDB_OK);
+	StartupMessage *startup_message = make_startup_message(username);
 
 	ydb_buffer_t user_info_subs;
 	// md5 hash of passworduser: 4d45974e13472b5a0be3533de4666414
@@ -366,7 +323,7 @@ static void test_error_bad_password(void **state) {
 	char *password = "balugawhales";
 	password_message = make_password_message(username, password, salt);
 
-	int result = handle_password_message(password_message, &session, &err, salt);
+	int result = handle_password_message(password_message, &session, &err, startup_message, salt);
 	assert_int_equal(result, 1);
 	assert_non_null(err);
 
@@ -375,6 +332,8 @@ static void test_error_bad_password(void **state) {
 
 	free(password_message);
 	free_error_response(err);
+	free(startup_message->parameters);
+	free(startup_message);
 }
 
 int main(void) {
@@ -382,7 +341,6 @@ int main(void) {
 	const struct CMUnitTest tests[] = {
 		   cmocka_unit_test(test_valid_input),
 		   cmocka_unit_test(test_error_not_md5),
-		   cmocka_unit_test(test_error_session_username_lookup),
 		   cmocka_unit_test(test_error_user_info_lookup),
 		   cmocka_unit_test(test_error_hash_lookup),
 		   cmocka_unit_test(test_error_hash_conversion),

@@ -38,20 +38,40 @@ const char *psql_error_severity_str[] = {
 #undef ERROR_DEF
 #undef ERROR_END
 
+// Define PSQL error code strings
 #define ERROR_DEF(name, format_string) format_string,
 #define ERROR_END(name, format_string) format_string
 const char *psql_sqlstate_codes_str[] = {
-  #include "rocto/error_codes.hd"
+  #include "error_codes.hd"
 };
 #undef ERROR_DEF
 #undef ERROR_END
 
 #endif
 
+// Define PSQL Error code names
+#define ERROR_DEF(name, format_string) name,
+#define ERROR_END(name, format_string) name
+typedef enum {
+  #include "error_codes.hd"
+} PSQL_SQLSTATECode;
+#undef ERROR_DEF
+#undef ERROR_END
+
+
 // Define the strings we expect for constants
-#define ERROR_DEF(name, format_string) format_string,
-#define ERROR_END(name, format_string) format_string
+#define ERROR_DEF(name, format_string, psql_error_code) format_string,
+#define ERROR_END(name, format_string, psql_error_code) format_string
 const char *err_format_str[] = {
+  #include "errors.hd"
+};
+#undef ERROR_DEF
+#undef ERROR_END
+
+// Map error definition to PSQL error code enum value
+#define ERROR_DEF(name, format_string, psql_error_code) psql_error_code,
+#define ERROR_END(name, format_string, psql_error_code) psql_error_code
+const int *err_code_map[] = {
   #include "errors.hd"
 };
 #undef ERROR_DEF
@@ -153,7 +173,7 @@ void octo_log(int line, char *file, enum ERROR_LEVEL level, enum ERROR error, ..
 				break;
 		}
 		err = make_error_response(err_level,
-				PSQL_Code_Unknown,
+				error_code_map[error],
 				buffer,
 				0);
 		send_message(&rocto_session, (BaseMessage*)(&err->type));

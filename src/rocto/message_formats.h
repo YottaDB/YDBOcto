@@ -360,14 +360,6 @@ typedef enum {
 #undef ERROR_DEF
 #undef ERROR_END
 
-#define ERROR_DEF(name, format_string) name,
-#define ERROR_END(name, format_string) name
-typedef enum {
-  #include "error_codes.hd"
-} PSQL_SQLSTATECode;
-#undef ERROR_DEF
-#undef ERROR_END
-
 
 typedef enum {
 	      PSQL_TransactionStatus_IDLE = 'I',

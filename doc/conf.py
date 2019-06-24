@@ -115,7 +115,7 @@ html_show_sourcelink = False
 #html_theme_options = {'stickysidebar':'true','sidebarwidth':'330','sidebarbgcolor':'#f3f3f3','sidebartextcolor':'#3b1a68','relbarbgcolor':'#3b1a68','footerbgcolor':'#3b1a68','sidebarlinkcolor':'#3b1a68','bodyfont':'Raleway','headfont':'Lora'}
 
 html_theme_options = {'sticky_navigation' : 'true', 'prev_next_buttons_location':'both','logo_only':True}
-html_logo = "logo.png"
+html_logo = "octologo.png"
 html_theme_path=[sphinx_rtd_theme.get_html_theme_path()]
 
 # Add any paths that contain custom static files (such as style sheets) here,

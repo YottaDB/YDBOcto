@@ -3,12 +3,12 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-YDBDBMS Grammar Documentation
+Octo Documentation (BETA)
 ===================================
 
 .. toctree::
    :maxdepth: 5
- 
+
    intro
    grammar
    rocto

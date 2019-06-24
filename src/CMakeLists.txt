@@ -35,6 +35,7 @@ configure_file (
   "${PROJECT_SOURCE_DIR}/tools/activate.in"
   "${PROJECT_BINARY_DIR}/activate"
 )
+
 # Generate the physical-parser
 BISON_TARGET(PhysicalParser ${PROJECT_SOURCE_DIR}/src/physical/physical-parser.y
   ${PROJECT_BINARY_DIR}/physical-parser.c)
@@ -296,28 +297,22 @@ foreach(template ${template_files})
   target_sources(libocto PUBLIC ${PROJECT_BINARY_DIR}/src/${fileName}.c)
 endforeach()
 
-
-# Place aux files
-
+# Create a shared library of M routines
 set(aux_files
-  ${PROJECT_BINARY_DIR}/calltab.ci
-  ${PROJECT_BINARY_DIR}/select.m
-  ${PROJECT_BINARY_DIR}/insert.m
-  ${PROJECT_BINARY_DIR}/pack.m
-  ${PROJECT_BINARY_DIR}/ydboctoAdmin.m
-  ${PROJECT_BINARY_DIR}/_ydboctocurrentSchema.m
-  ${PROJECT_BINARY_DIR}/_ydboctoreplace.m
-  ${PROJECT_BINARY_DIR}/_ydboctopgCurrentSchemas.m
-  ${PROJECT_BINARY_DIR}/_ydboctoversion.m
+  aux/select.m
+  aux/insert.m
+  aux/pack.m
+  aux/ydboctoAdmin.m
+  aux/_ydboctocurrentSchema.m
+  aux/_ydboctoreplace.m
+  aux/_ydboctopgCurrentSchemas.m
+  aux/_ydboctoversion.m
 )
+add_library(_ydbocto SHARED ${aux_files})
+set_target_properties(_ydbocto PROPERTIES PREFIX "")
 
-add_custom_target(place_aux_files ALL DEPENDS ${aux_files})
-foreach (auxFile ${aux_files})
-  get_filename_component(fileName ${auxFile} NAME)
-  add_custom_command(OUTPUT ${auxFile}
-    DEPENDS "${PROJECT_SOURCE_DIR}/src/aux/${fileName}"
-    COMMAND ${CMAKE_COMMAND} -E copy "${PROJECT_SOURCE_DIR}/src/aux/${fileName}" "${auxFile}")
-endforeach()
+# manually place Call-In file
+configure_file("${PROJECT_SOURCE_DIR}/src/aux/ydbocto.ci" ${PROJECT_BINARY_DIR}/ydbocto.ci COPYONLY)
 
 set_property(TARGET libocto PROPERTY C_STANDARD 11)
 set_property(TARGET librocto PROPERTY C_STANDARD 11)
@@ -351,3 +346,55 @@ endif()
 if(BATS_FOUND)
   include(${PROJECT_SOURCE_DIR}/cmake/bats-tests.cmake)
 endif()
+
+# Files to be installed
+
+# Binaries
+install(TARGETS octo
+        DESTINATION bin)
+install(TARGETS rocto
+        DESTINATION bin)
+install(PROGRAMS aux/install.sh
+        DESTINATION .)
+
+# M Routines
+# Source Code
+install(FILES ${aux_files}
+        DESTINATION r)
+
+# Shared Library
+if(MUMPS_UTF8_MODE)
+  install(TARGETS _ydbocto
+          DESTINATION o/utf8)
+else()
+  install(TARGETS _ydbocto
+          DESTINATION o)
+endif()
+
+# Configuration file
+install(FILES aux/octo.conf.default
+        DESTINATION etc
+        RENAME octo.conf)
+install(FILES ${PROJECT_SOURCE_DIR}/src/aux/ydbocto.ci
+        DESTINATION .)
+
+# Seed Data
+install(FILES ${PROJECT_SOURCE_DIR}/tests/fixtures/postgres-seed.zwr
+        DESTINATION etc)
+install(FILES ${PROJECT_SOURCE_DIR}/tests/fixtures/postgres-seed.sql
+        DESTINATION etc)
+
+# CPack required variables
+include (InstallRequiredSystemLibraries)
+set(CPACK_GENERATOR "TGZ")
+set(CPACK_PACKAGE_NAME "Octo")
+set(CPACK_PACKAGE_VENDOR "YottaDB LLC")
+set(CPACK_PACKAGE_VERSION_MAJOR "${OCTO_SQL_MAJOR_VERSION}")
+set(CPACK_PACKAGE_VERSION_MINOR "${OCTO_SQL_MINOR_VERSION}")
+set(CPACK_PACKAGE_VERSION_PATCH "${OCTO_SQL_PATCH_VERSION}")
+
+set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_SOURCE_DIR}/COPYING")
+set(CPACK_RESOURCE_FILE_README "${CMAKE_SOURCE_DIR}/README.md")
+
+# Enable cpack
+include(CPack)

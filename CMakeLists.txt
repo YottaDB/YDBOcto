@@ -11,12 +11,15 @@
 #################################################################
 
 cmake_minimum_required (VERSION 3.0)
-project(OctoSQL)
-set(OCTO_SQL_MAJOR_VERSION 0)
-set(OCTO_SQL_MINOR_VERSION 2)
-set(CMAKE_BUILD_TYPE Debug)
 
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/;${CMAKE_SOURCE_DIR}/ydbcmake/")
+
+project(OctoSQL C MUMPS)
+set(OCTO_SQL_MAJOR_VERSION 0)
+set(OCTO_SQL_MINOR_VERSION 2)
+set(OCTO_SQL_PATCH_VERSION 0)
+set(CMAKE_BUILD_TYPE Debug)
+
 set(OCTO_TOOLS_DIR "${CMAKE_SOURCE_DIR}/tools/")
 set(TEST_OUTPUT_DIR "${CMAKE_CURRENT_BINARY_DIR}")
 

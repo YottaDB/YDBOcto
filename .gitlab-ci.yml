@@ -33,6 +33,7 @@ make:
   artifacts:
     paths:
       - build/
+      - build/Octo-*-Linux.tar.gz
     when: always
   script: ./tools/ci/build.sh
 

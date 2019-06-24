@@ -11,8 +11,6 @@
 #################################################################
 
 FROM yottadb/yottadb-base:latest-master
-ADD . /builds/YDBDBMS/
-WORKDIR /builds/YDBDBMS
 
 RUN apt-get update -qq && \
     apt-get install -y -qq \
@@ -40,5 +38,7 @@ RUN tar -C /usr/local -xzf go.tgz
 RUN rm go.tgz
 RUN go version
 
+ADD . /builds/YDBDBMS/
+WORKDIR /builds/YDBDBMS
 
 RUN tools/ci/build.sh

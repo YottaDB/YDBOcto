@@ -83,8 +83,8 @@ createdb() {
   unset ydb_gbldir gtmgbldir	# needed or else ydb_env_set can issue ZGBLDIRACC error (due to it calling MUPIP DUMPFHEAD)
 				# if ydb_gbldir is defined and points to a non-existent gld file.
   source @YOTTADB_INCLUDE_DIRS@/ydb_env_set
-  export ydb_routines=". @PROJECT_BINARY_DIR@ $ydb_routines"
-  export ydb_ci="@PROJECT_BINARY_DIR@/calltab.ci"
+  export ydb_routines=". @PROJECT_BINARY_DIR@/src/_ydbocto.so @PROJECT_BINARY_DIR@ $ydb_routines"
+  export ydb_ci="@PROJECT_BINARY_DIR@/ydbocto.ci"
 
   export ydb_gbldir="mumps.gld"
   echo "ydb_gbldir: $ydb_gbldir"
@@ -97,8 +97,8 @@ FILE
   rm *.dat || true
   $ydb_dist/mupip create
   echo "Populating seed data"
-  load_fixture seed.sql
-  load_fixture seed.zwr
+  load_fixture postgres-seed.sql
+  load_fixture postgres-seed.zwr
 }
 
 start_rocto() {

@@ -22,15 +22,14 @@ import (
 )
 
 func main() {
-	usage := `ydbocto-admin.
+	usage := `ydbocto-admin: Perform administrative tasks on YottaDB Octo database.
 
 Usage:
 	ydbocto-admin add user <name>
 	ydbocto-admin delete user <name>
 	ydbocto-admin show users
-
 Options:
-	-h --help	Perform administrative tasks on YottaDB Octo database.
+	-h --help  Show this page.
 `
 
 	opts, err := docopt.ParseDoc(usage)

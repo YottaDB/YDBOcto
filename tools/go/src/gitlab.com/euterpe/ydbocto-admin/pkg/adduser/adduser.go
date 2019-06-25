@@ -68,22 +68,5 @@ func AddUser(username string, rawPassword []byte) (newId string, err error) {
 		return "", err
 	}
 
-	/*
-	err = yottadb.SetValE(tptoken, &errstr, newId, varname, []string{"users", username, "id"})
-	if nil != err {
-		return "", err
-	}
-
-	err = yottadb.SetValE(tptoken, &errstr, username, varname, []string{"users", username, "rolname"})
-	if nil != err {
-		return "", err
-	}
-
-	md5Password := HashMd5Password(username, rawPassword)
-	err = yottadb.SetValE(tptoken, &errstr, md5Password, varname, []string{"users", username, "rolpassword"})
-	if nil != err {
-		return "", err
-	}
-	*/
 	return newId, nil
 }

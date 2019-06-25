@@ -82,11 +82,6 @@ func Setup() () {
 	if err != nil {
 		log.Fatal(err)
 	}
-	/*
-	if gbldir != ydb_gbldir {
-		log.Fatal("GBLDIR NO MATCH: %v, %v", gbldir, ydb_gbldir)
-	}
-	*/
 
 	return
 }
@@ -98,5 +93,4 @@ func Teardown() {
 	if ydb_gbldir != "" {
 		os.Setenv("ydb_gbldir", ydb_gbldir)
 	}
-	// os.Exit(0)
 }

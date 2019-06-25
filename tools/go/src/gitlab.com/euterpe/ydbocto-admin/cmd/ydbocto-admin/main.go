@@ -43,7 +43,6 @@ Options:
 		if opts["user"] == true {
 		    user := opts["<name>"].(string)
 		    prompt := fmt.Sprintf("Enter password for user %v: ", user)
-		    // rawPassword, err := terminal.ReadPassword(int(syscall.Stdin))
 		    rawPassword, err := readpassword.ReadPassword(prompt)
 		    if err != nil {
 			fmt.Println(err)

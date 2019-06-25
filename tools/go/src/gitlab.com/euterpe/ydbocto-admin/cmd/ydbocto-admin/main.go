@@ -28,6 +28,9 @@ Usage:
 	ydbocto-admin add user <name>
 	ydbocto-admin delete user <name>
 	ydbocto-admin show users
+
+Options:
+	-h --help	Perform administrative tasks on YottaDB Octo database.
 `
 
 	opts, err := docopt.ParseDoc(usage)

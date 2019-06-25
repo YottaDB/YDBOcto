@@ -10,69 +10,100 @@
  *								*
  ****************************************************************/
 
-ERROR_DEF(ERR_PARSING_COMMAND, "Error parsing statement: %s", PSQL_Code_Internal_Error)
-ERROR_DEF(ERR_FILE_NOT_FOUND, "Error opening input file: %s", PSQL_Code_Io_Error)
-ERROR_DEF(ERR_YOTTADB, "YottaDB error: %s", PSQL_Code_Internal_Error)
+/*** Internal Errors ***/
+// OCTO //
+ERROR_DEF(ERR_DATABASE_FILES_OOS, "Generated routines and database seem to be out of sync", PSQL_Code_Internal_Error)
+ERROR_DEF(ERR_FAILED_TO_PARSE_SCHEMA, "Failed to parse schema from table %s", PSQL_Code_Internal_Error)
+ERROR_DEF(ERR_GENERATING_TEMPORARY_TABLE, "Generating temporary table: %s", PSQL_Code_Internal_Error)
 ERROR_DEF(ERR_INIT_SCANNER, "Error initializing the scanner", PSQL_Code_Internal_Error)
+ERROR_DEF(ERR_LIBSSL_ERROR, "Error in libssl/libcrypt", PSQL_Code_Internal_Error)
+ERROR_DEF(ERR_PARSING_COMMAND, "Error parsing statement: %s", PSQL_Code_Internal_Error)
+ERROR_DEF(ERR_PLAN_HASH_FAILED, "Failed to generate plan filename hash", PSQL_Code_Internal_Error)
+ERROR_DEF(ERR_PLAN_NOT_WELL_FORMED, "Plan produced by optimizer appears incorrect", PSQL_Code_Internal_Error)
 ERROR_DEF(ERR_UNKNOWN_KEYWORD_STATE, "Unknown state reached; please contact your Octo support channel", PSQL_Code_Internal_Error)
+ERROR_DEF(ERR_YOTTADB, "YottaDB error: %s", PSQL_Code_Internal_Error)
+// ROCTO //
+ERROR_DEF(ERR_ROCTO_TLS_ACCEPT, "ydb_tls_accept: %s", PSQL_Code_Internal_Error)
+ERROR_DEF(ERR_ROCTO_TLS_CONNECTION, "ydb_tls_get_conn_info: %s", PSQL_Code_Internal_Error)
+ERROR_DEF(ERR_ROCTO_TLS_INIT, "ydb_tls_init: %s", PSQL_Code_Internal_Error)
+ERROR_DEF(ERR_ROCTO_TLS_READ_FAILED, "ydbcrypt: read failed: %s", PSQL_Code_Internal_Error)
+ERROR_DEF(ERR_ROCTO_TLS_SOCKET, "ydb_tls_socket: %s", PSQL_Code_Internal_Error)
+ERROR_DEF(ERR_ROCTO_TLS_UNKNOWN, "ydbcrypt: unknown error: %s", PSQL_Code_Internal_Error)
+ERROR_DEF(ERR_ROCTO_TLS_WANT_READ, "ydbcrypt: unprocessed read data", PSQL_Code_Internal_Error)
+ERROR_DEF(ERR_ROCTO_TLS_WANT_WRITE, "ydbcrypt: unprocessed write data", PSQL_Code_Internal_Error)
+ERROR_DEF(ERR_ROCTO_TLS_WRITE_FAILED, "ydbcrypt: write failed: %s", PSQL_Code_Internal_Error)
+
+/*** Other ***/
+// OCTO //
+ERROR_DEF(ERR_FILE_NOT_FOUND, "Error opening input file: %s", PSQL_Code_Io_Error)
 ERROR_DEF(ERR_FEATURE_NOT_IMPLEMENTED, "Feature not implemented: %s", PSQL_Code_Feature_Not_Supported)
+// ROCTO //
+
+/*** Syntax Errors ***/
+// OCTO //
 ERROR_DEF(ERR_PRIMARY_KEY_NOT_FOUND, "No primary key specified when creating table \"%s\". Please consult the documentation for more information.", PSQL_Code_Syntax_Error)
 ERROR_DEF(ERR_MULTIPLE_VALUES_PROVIDED, "Multiple values provided for %s; undefined behavior", PSQL_Code_Ambiguous_Parameter)
-ERROR_DEF(ERR_GENERATING_TEMPORARY_TABLE, "Generating temporary table: %s", PSQL_Code_Internal_Error)
 ERROR_DEF(ERR_UNKNOWN_TABLE, "Unknown table: %s", PSQL_Code_Undefined_Table)
 ERROR_DEF(ERR_UNKNOWN_COLUMN_NAME, "Unknown column: %s", PSQL_Code_Undefined_Column)
 ERROR_DEF(ERR_AMBIGUOUS_COLUMN_NAME, "Ambiguous column name \"%s\": qualify name for safe execution", PSQL_Code_Ambiguous_Column)
-ERROR_DEF(ERR_ENTERING_FUNCTION, "Entering %s", PSQL_Code_Success)
-ERROR_DEF(ERR_LEAVING_FUNCTION, "LEAVING %s", PSQL_Code_Success)
-ERROR_DEF(ERR_TYPE_MISMATCH, "Type mismatch: left %s, right %s", PSQL_Code_Datatype_Mismatch)
-ERROR_DEF(ERR_ADDING_EXE, "Adding EXE(%s) to cursor: %s", PSQL_Code_Success)
 ERROR_DEF(ERR_MULTIPLE_ZERO_KEYS, "Multiple %d keys found for table %s", PSQL_Code_Ambiguous_Parameter)
 ERROR_DEF(ERR_MISSING_KEY, "Missing key %d in table %s; max key was %d", PSQL_Code_Undefined_Object)
-ERROR_DEF(ERR_PLAN_NOT_WELL_FORMED, "Plan produced by optimizer appears incorrect", PSQL_Code_Internal_Error)
-ERROR_DEF(ERR_SYSCALL, "System call failed: %s, return %d (%s)", PSQL_Code_System_Error)
+ERROR_DEF(ERR_TABLE_DEFINITION_TOO_LONG, "Table definition for %s too long; max size is %d, table length is %d", PSQL_Code_Invalid_Table_Definition)
+ERROR_DEF(ERR_TYPE_MISMATCH, "Type mismatch: left %s, right %s", PSQL_Code_Datatype_Mismatch)
+// ROCTO //
+
+/*** Trace messages ***/
+// OCTO //
+ERROR_DEF(ERR_ENTERING_FUNCTION, "Entering %s", PSQL_Code_Success)
+ERROR_DEF(ERR_LEAVING_FUNCTION, "LEAVING %s", PSQL_Code_Success)
+ERROR_DEF(ERR_ADDING_EXE, "Adding EXE(%s) to cursor: %s", PSQL_Code_Success)
 ERROR_DEF(ERR_CURPLAN, "Current plan: %s", PSQL_Code_Success)
-ERROR_DEF(ERR_LINE_TOO_LONG, "Input line too long", PSQL_Code_String_Data_Length_Mismatch)
 ERROR_DEF(ERR_CLIENT_CONNECTED, "Client connected", PSQL_Code_Success)
 ERROR_DEF(ERR_READ_MESSAGE, "Read message of type %c and length %d", PSQL_Code_Success)
 ERROR_DEF(ERR_SEND_MESSAGE, "Sending message of type %c and length %d", PSQL_Code_Success)
-ERROR_DEF(ERR_READ_TOO_LARGE, "Read size %d greater than buffer size %d", PSQL_Code_Data_Exception)
 ERROR_DEF(ERR_PROCESSING_MESSAGE_TYPE, "Processing message type %c", PSQL_Code_Success)
 ERROR_DEF(ERR_LOADING_CONFIG, "Loading config from %s", PSQL_Code_Success)
+// ROCTO //
+ERROR_DEF(ERR_ROCTO_CHILD_STATE_UPDATED, "Process %d switched to state %d", PSQL_Code_Success)
+ERROR_DEF(ERR_ROCTO_CLEAN_DISCONNECT, "connection closed cleanly", PSQL_Code_Success)
+
+/*** System errors ***/
+// OCTO //
+ERROR_DEF(ERR_SYSCALL, "System call failed: %s, return %d (%s)", PSQL_Code_System_Error)
+// ROCTO //
+
+/*** Configuration errors ***/
+// OCTO //
 ERROR_DEF(ERR_BAD_CONFIG, "Bad config setting: %s", PSQL_Code_Config_File_Error)
 ERROR_DEF(ERR_PARSING_CONFIG, "Error parsing config: %s:%d %s", PSQL_Code_Config_File_Error)
-ERROR_DEF(ERR_UNKNOWN_MESSAGE_TYPE, "Unknown message type from frontend: %c", PSQL_Code_Protocol_Violation)
+// ROCTO //
+
+/*** Connection errors ***/
+// OCTO //
 ERROR_DEF(ERR_BAD_ADDRESS, "Bad listen address: %s", PSQL_Code_Connection_Exception)
-ERROR_DEF(ERR_LIBSSL_ERROR, "Error in libssl/libcrypt", PSQL_Code_Internal_Error)
-ERROR_DEF(ERR_FAILED_TO_PARSE_SCHEMA, "Failed to parse schema from table %s", PSQL_Code_Internal_Error)
-ERROR_DEF(ERR_TABLE_DEFINITION_TOO_LONG, "Table definition for %s too long; max size is %d, table length is %d", PSQL_Code_Invalid_Table_Definition)
+ERROR_DEF(ERR_UNKNOWN_MESSAGE_TYPE, "Unknown message type from frontend: %c", PSQL_Code_Protocol_Violation)
+// ROCTO //
+ERROR_DEF(ERR_ROCTO_INVALID_TYPE, "%s: invalid type '%c': must be '%c'", PSQL_Code_Protocol_Violation)
+ERROR_DEF(ERR_ROCTO_INVALID_VERSION, "%s: invalid version %x: must be %x", PSQL_Code_Protocol_Violation)
+ERROR_DEF(ERR_ROCTO_READ_FAILED, "read failure: %s", PSQL_Code_Connection_Exception)
+ERROR_DEF(ERR_ROCTO_SEND_FAILED, "send failure: %s", PSQL_Code_Connection_Exception)
+ERROR_DEF(ERR_ROCTO_TRAILING_CHARS, "%s: message has trailing characters", PSQL_Code_Protocol_Violation)
+
+/*** Data exceptions ***/
+// OCTO //
+ERROR_DEF(ERR_LINE_TOO_LONG, "Input line too long", PSQL_Code_String_Data_Length_Mismatch)
+ERROR_DEF(ERR_READ_TOO_LARGE, "Read size %d greater than buffer size %d", PSQL_Code_Data_Exception)
 ERROR_DEF(ERR_BUFFER_TOO_SMALL, "Buffer used to store output plans is too small for the query", PSQL_Code_Data_Exception)
 ERROR_DEF(ERR_INVALID_READ_SIZE, "Read size %d out of range", PSQL_Code_Numeric_Value_Out_Of_Range)
 ERROR_DEF(ERR_INVALID_WRITE_SIZE, "Read size %d out of range", PSQL_Code_Numeric_Value_Out_Of_Range)
-ERROR_DEF(ERR_PLAN_HASH_FAILED, "Failed to generate plan filename hash", PSQL_Code_Internal_Error)
-ERROR_DEF(ERR_DATABASE_FILES_OOS, "Generated routines and database seem to be out of sync", PSQL_Code_Internal_Error)
-
-// ROcto error definitions
-ERROR_DEF(ERR_ROCTO_CLEAN_DISCONNECT, "connection closed cleanly", PSQL_Code_Success)
-ERROR_DEF(ERR_ROCTO_INVALID_TYPE, "%s: invalid type '%c': must be '%c'", PSQL_Code_Protocol_Violation)
-ERROR_DEF(ERR_ROCTO_MISSING_NULL, "%s: %s missing null terminator", PSQL_Code_Unterminated_C_String)
-ERROR_DEF(ERR_ROCTO_INVALID_NUMBER, "%s: invalid number of %s", PSQL_Code_Numeric_Value_Out_Of_Range)
-ERROR_DEF(ERR_ROCTO_MISSING_DATA, "%s: missing %s", PSQL_Code_Data_Exception)
-ERROR_DEF(ERR_ROCTO_TRAILING_CHARS, "%s: message has trailing characters", PSQL_Code_Protocol_Violation)
+// ROCTO //
 ERROR_DEF(ERR_ROCTO_INVALID_CHAR_VALUE, "%s: invalid %s value %c: must be %s", PSQL_Code_Data_Exception)
 ERROR_DEF(ERR_ROCTO_INVALID_INT_VALUE, "%s: invalid %s value %d: must be %s", PSQL_Code_Numeric_Value_Out_Of_Range)
-ERROR_DEF(ERR_ROCTO_INVALID_VERSION, "%s: invalid version %x: must be %x", PSQL_Code_Protocol_Violation)
-ERROR_DEF(ERR_ROCTO_TOO_MANY_VALUES, "%s: too many %s", PSQL_Code_Numeric_Value_Out_Of_Range)
+ERROR_DEF(ERR_ROCTO_INVALID_NUMBER, "%s: invalid number of %s", PSQL_Code_Numeric_Value_Out_Of_Range)
+ERROR_DEF(ERR_ROCTO_MISSING_DATA, "%s: missing %s", PSQL_Code_Data_Exception)
+ERROR_DEF(ERR_ROCTO_MISSING_NULL, "%s: %s missing null terminator", PSQL_Code_Unterminated_C_String)
 ERROR_DEF(ERR_ROCTO_TOO_FEW_VALUES, "%s: too few %s", PSQL_Code_Numeric_Value_Out_Of_Range)
-ERROR_DEF(ERR_ROCTO_CHILD_STATE_UPDATED, "Process %d switched to state %d", PSQL_Code_Success)
-ERROR_DEF(ERR_ROCTO_SEND_FAILED, "send failure: %s", PSQL_Code_Connection_Exception)
-ERROR_DEF(ERR_ROCTO_READ_FAILED, "read failure: %s", PSQL_Code_Connection_Exception)
-ERROR_DEF(ERR_ROCTO_TLS_INIT, "ydb_tls_init: %s", PSQL_Code_Internal_Error)
-ERROR_DEF(ERR_ROCTO_TLS_SOCKET, "ydb_tls_socket: %s", PSQL_Code_Internal_Error)
-ERROR_DEF(ERR_ROCTO_TLS_CONNECTION, "ydb_tls_get_conn_info: %s", PSQL_Code_Internal_Error)
-ERROR_DEF(ERR_ROCTO_TLS_ACCEPT, "ydb_tls_accept: %s", PSQL_Code_Internal_Error)
-ERROR_DEF(ERR_ROCTO_TLS_WANT_READ, "ydbcrypt: unprocessed read data", PSQL_Code_Internal_Error)
-ERROR_DEF(ERR_ROCTO_TLS_WANT_WRITE, "ydbcrypt: unprocessed write data", PSQL_Code_Internal_Error)
-ERROR_DEF(ERR_ROCTO_TLS_UNKNOWN, "ydbcrypt: unknown error: %s", PSQL_Code_Internal_Error)
-ERROR_DEF(ERR_ROCTO_TLS_WRITE_FAILED, "ydbcrypt: write failed: %s", PSQL_Code_Internal_Error)
-ERROR_DEF(ERR_ROCTO_TLS_READ_FAILED, "ydbcrypt: read failed: %s", PSQL_Code_Internal_Error)
+ERROR_DEF(ERR_ROCTO_TOO_MANY_VALUES, "%s: too many %s", PSQL_Code_Numeric_Value_Out_Of_Range)
+
+// End of errors
 ERROR_END(CUSTOM_ERROR, "Error not found", PSQL_Code_Internal_Error)

@@ -24,7 +24,7 @@ setup() {
 }
 
 @test "call ydbocto-admin delete user with one user" {
-  echo -n tester | ydbocto-admin add user jon >> results.log
+  echo tester | ydbocto-admin add user jon >> results.log
   log=$(cat results.log)
   [[ "$log" =~ "Successfully added user: \"jon\"" ]]
   ydbocto-admin delete user jon >> results.log
@@ -33,13 +33,13 @@ setup() {
 }
 
 @test "call ydbocto-admin delete user with three users" {
-  echo -n tester | ydbocto-admin add user jon >> results.log
+  echo tester | ydbocto-admin add user jon >> results.log
   log=$(cat results.log)
   [[ "$log" =~ "Successfully added user: \"jon\"" ]]
-  echo -n tester | ydbocto-admin add user acteon >> results.log
+  echo tester | ydbocto-admin add user acteon >> results.log
   log=$(cat results.log)
   [[ "$log" =~ "Successfully added user: \"acteon\"" ]]
-  echo -n tester | ydbocto-admin add user joe >> results.log
+  echo tester | ydbocto-admin add user joe >> results.log
   log=$(cat results.log)
   [[ "$log" =~ "Successfully added user: \"joe\"" ]]
 

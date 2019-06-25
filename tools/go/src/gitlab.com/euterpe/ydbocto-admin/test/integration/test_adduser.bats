@@ -24,21 +24,21 @@ setup() {
 }
 
 @test "call ydbocto-admin add user with one user" {
-  echo -n tester | ydbocto-admin add user jon > results.log
+  echo tester | ydbocto-admin add user jon > results.log
   log=$(cat results.log)
   [[ "$log" =~ "Successfully added user: \"jon\"" ]]
 }
 
 @test "call ydbocto-admin add user with three users" {
-  echo -n tester | ydbocto-admin add user jon > results.log
+  echo tester | ydbocto-admin add user jon > results.log
   log=$(cat results.log)
   [[ "$log" =~ "Successfully added user: \"jon\"" ]]
 
-  echo -n tester | ydbocto-admin add user bobby > results.log
+  echo tester | ydbocto-admin add user bobby > results.log
   log=$(cat results.log)
   [[ "$log" =~ "Successfully added user: \"bobby\"" ]]
 
-  echo -n tester | ydbocto-admin add user suzy > results.log
+  echo tester | ydbocto-admin add user suzy > results.log
   log=$(cat results.log)
   [[ "$log" =~ "Successfully added user: \"suzy\"" ]]
 }

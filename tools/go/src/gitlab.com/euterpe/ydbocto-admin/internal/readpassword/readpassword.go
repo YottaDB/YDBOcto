@@ -28,10 +28,10 @@ func ReadPassword(prompt string) (pw []byte, err error) {
 		pw, err = terminal.ReadPassword(fd)
 		fmt.Fprintln(os.Stderr)
 	} else {
-		var line []byte
+		// var line string
 		reader := bufio.NewReader(os.Stdin)
-		line, err = reader.ReadBytes('\n')
-		pw = []byte(line)
+		pw, err = reader.ReadBytes('\n')
+		// pw = []byte(line)
 	}
 	return pw, err
 }

@@ -42,8 +42,6 @@ change -r DEFAULT -NULL_SUBSCRIPTS=true
 exit
 FILE
  $(pkg-config --variable=prefix yottadb)/mupip create
-  echo "Populating seed data"
-  load_fixture seed.zwr
 }
 
 load_fixture() {

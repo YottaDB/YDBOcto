@@ -28,13 +28,24 @@ enum ERROR_LEVEL {
 	FATAL
 };
 
-#define ERROR_DEF(name, format_string) name,
-#define ERROR_END(name, format_string) name
+#define ERROR_DEF(name, format_string, psql_error_code) name,
+#define ERROR_END(name, format_string, psql_error_code) name
 enum ERROR {
   #include "errors.hd"
 };
 #undef ERROR_DEF
 #undef ERROR_END
+
+// Define PSQL Error code names
+#define ERROR_DEF(name, format_string) name,
+#define ERROR_END(name, format_string) name
+typedef enum {
+  #include "error_codes.hd"
+} PSQL_SQLSTATECode;
+#undef ERROR_DEF
+#undef ERROR_END
+
+
 
 extern const char *err_format_str[];
 

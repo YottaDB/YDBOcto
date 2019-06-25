@@ -28,3 +28,9 @@ tags
 
 roctolist.md
 src/gtmcrypt/
+tools/go/pkg
+tools/go/src/lang.yottadb.com/
+tools/go/src/golang.org
+tools/go/src/github.com
+tools/go/src/gitlab.com/euterpe/ydbocto-admin/bin/
+tools/go/src/gitlab.com/euterpe/ydbocto-admin/bin/ydbocto-admin

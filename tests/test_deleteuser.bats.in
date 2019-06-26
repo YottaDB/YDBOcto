@@ -1,0 +1,55 @@
+#################################################################
+#								                                                #
+# Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	      #
+# All rights reserved.						                              #
+#								                                                #
+#	This source code contains the intellectual property	          #
+#	of its copyright holder(s), and is made available	            #
+#	under a license.  If you do not know the terms of	            #
+#	the license, please stop and do not read further.	            #
+#								                                                #
+#################################################################
+
+load test_helpers
+
+setup() {
+  init_test
+  createdb
+}
+
+@test "call ydboctoAdmin delete user with no user" {
+  yottadb -r ydboctoAdmin delete user > results.log
+  log=$(cat results.log)
+  [[ "$log" =~ "Usage" ]]
+}
+
+@test "call ydboctoAdmin delete user with one user" {
+  echo -n tester | yottadb -r ydboctoAdmin add user jon >> results.log
+  log=$(cat results.log)
+  [[ "$log" =~ "Successfully added user: \"jon\"" ]]
+  yottadb -r ydboctoAdmin delete user jon >> results.log
+  log=$(cat results.log)
+  [[ "$log" =~ "Successfully deleted user: \"jon\"" ]]
+}
+
+@test "call ydboctoAdmin delete user with three users" {
+  echo -n tester | yottadb -r ydboctoAdmin add user jon >> results.log
+  log=$(cat results.log)
+  [[ "$log" =~ "Successfully added user: \"jon\"" ]]
+  echo -n tester | yottadb -r ydboctoAdmin add user acteon >> results.log
+  log=$(cat results.log)
+  [[ "$log" =~ "Successfully added user: \"acteon\"" ]]
+  echo -n tester | yottadb -r ydboctoAdmin add user joe >> results.log
+  log=$(cat results.log)
+  [[ "$log" =~ "Successfully added user: \"joe\"" ]]
+
+  yottadb -r ydboctoAdmin delete user jon >> results.log
+  log=$(cat results.log)
+  [[ "$log" =~ "Successfully deleted user: \"jon\"" ]]
+  yottadb -r ydboctoAdmin delete user acteon >> results.log
+  log=$(cat results.log)
+  [[ "$log" =~ "Successfully deleted user: \"acteon\"" ]]
+  yottadb -r ydboctoAdmin delete user joe >> results.log
+  log=$(cat results.log)
+  [[ "$log" =~ "Successfully deleted user: \"joe\"" ]]
+}

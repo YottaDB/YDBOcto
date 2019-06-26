@@ -300,6 +300,7 @@ set(aux_files
   ${PROJECT_BINARY_DIR}/select.m
   ${PROJECT_BINARY_DIR}/insert.m
   ${PROJECT_BINARY_DIR}/pack.m
+  ${PROJECT_BINARY_DIR}/ydboctoAdmin.m
   ${PROJECT_BINARY_DIR}/_ydboctocurrentSchema.m
   ${PROJECT_BINARY_DIR}/_ydboctoreplace.m
   ${PROJECT_BINARY_DIR}/_ydboctopgCurrentSchemas.m

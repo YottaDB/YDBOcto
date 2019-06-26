@@ -28,7 +28,7 @@ ydboctoAdmin ;
 	; Options:
 	;        -h --help	Print this message
 
-	new action,subAction,user
+	new action,subAction,user,rawPass
 	set action=$piece($zcmdline," ",1)
 	set subAction=$piece($zcmdline," ",2)
 	if "add"=action do
@@ -117,17 +117,6 @@ showUsers()
 	for  quit:""=id  write id,$char(9),users(id),! set id=$order(users(id))
 	quit
 
-%ydboctohash
-;
-; Compute various hashes used by Octo. This initial implementation
-; uses external programs in PIPE devices. For future optimization
-; for performance, modify to call library functions in-process
-;
-; Top level entry not supported
-	do Etrap
-	set $ecode=",U255,"	; top level entry not supported
-	quit			; should never get here because previous line should terminate process
-
 Etrap	; Set error handler to print error message and return error code to shell
 	open "/proc/self/fd/2" ; open stderr for output if needed
 	set $etrap="set $etrap=""use """"/proc/self/fd/2"""" write $zstatus,! zhalt 1"" set tmp1=$zpiece($ecode,"","",2),tmp2=$text(@tmp1) if $zlength(tmp2) use ""/proc/self/fd/2"" write $text(+0),@$zpiece(tmp2,"";"",2),! zhalt +$extract(tmp1,2,$zlength(tmp1))"
@@ -145,6 +134,4 @@ MD5(blob)
 	read hash
 	use io close "md5sum"
 	quit "md5"_$zpiece(hash," ",1)
-
-;	Error message texts
 U255	;"-F-BADINVOCATION Must invoke as yottadb -run set^"_$text(+0)_" or yottadb -run unset^"_$text(+0)

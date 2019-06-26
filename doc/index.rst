@@ -11,6 +11,7 @@ Octo Documentation (BETA)
 
    intro
    grammar
+   admin
    rocto
    errors
    config

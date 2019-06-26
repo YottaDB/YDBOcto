@@ -134,4 +134,3 @@ MD5(blob)
 	read hash
 	use io close "md5sum"
 	quit "md5"_$zpiece(hash," ",1)
-U255	;"-F-BADINVOCATION Must invoke as yottadb -run set^"_$text(+0)_" or yottadb -run unset^"_$text(+0)

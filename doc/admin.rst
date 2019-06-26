@@ -9,7 +9,7 @@ Octo uses a tool to manage the users of the database and other administrative ta
 ydboctoAdmin
 ----------------
 
-ydboctoAdmin allows the user to add, delete and view users.
+ydboctoAdmin allows the user to add, delete and view a list of users with show.
 
 Usage pattern:
 
@@ -43,12 +43,12 @@ The following is an example of deleting users from the database:
 This deletes OctoUser from the list of users in the database.
 
 ++++++++++++++
-View
+Show
 ++++++++++++++
 
-The following is an example of viewing users in the database:
+The following is an example of the database showing a list of users:
 
 .. parsed-literal::
-   ydboctoAdmin view users
+   ydboctoAdmin show users
 
 This shows a list of the users of the database.

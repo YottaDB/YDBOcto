@@ -30,6 +30,9 @@ setup() {
   yottadb -r ydboctoAdmin delete user jon >> results.log
   log=$(cat results.log)
   [[ "$log" =~ "Successfully deleted user: \"jon\"" ]]
+  yottadb -r ydboctoAdmin show users > results.log
+  log=$(cat results.log)
+  [[ ! "$log" =~ "jon" ]]
 }
 
 @test "call ydboctoAdmin delete user with three users" {
@@ -52,4 +55,14 @@ setup() {
   yottadb -r ydboctoAdmin delete user joe >> results.log
   log=$(cat results.log)
   [[ "$log" =~ "Successfully deleted user: \"joe\"" ]]
+
+  yottadb -r ydboctoAdmin show users > results.log
+  log=$(cat results.log)
+  [[ ! "$log" =~ "jon" ]]
+  yottadb -r ydboctoAdmin show users > results.log
+  log=$(cat results.log)
+  [[ ! "$log" =~ "acteon" ]]
+  yottadb -r ydboctoAdmin show users > results.log
+  log=$(cat results.log)
+  [[ ! "$log" =~ "joe" ]]
 }

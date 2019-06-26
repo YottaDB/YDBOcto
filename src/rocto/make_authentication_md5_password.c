@@ -45,6 +45,10 @@ AuthenticationMD5Password *make_authentication_md5_password(RoctoSession *sessio
 	YDB_STRING_TO_BUFFER(salt, &salt_buf);
 	int result = 0;
 	result = ydb_set_s(&session_salt_subs[0], 3, &session_salt_subs[1], &salt_buf);
+	if (0 != result) {
+		free(ret);
+		ret = NULL;
+	}
 
 	return ret;
 }

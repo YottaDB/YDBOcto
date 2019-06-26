@@ -27,7 +27,7 @@ unsigned int get_user_column_value(char *buffer, const unsigned int buf_len, con
 	}
 	const char *c = NULL, *col_start = NULL;
 	const char *row_end = row + row_len;
-	unsigned int i = 0, col_num = 0, value_len = 0;
+	unsigned int col_num = 0, value_len = 0;
 	char *delimiter = COLUMN_DELIMITER;	// Allow access to delimiter as character
 
 	c = row;

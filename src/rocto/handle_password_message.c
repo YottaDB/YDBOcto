@@ -24,7 +24,7 @@
 #include "rocto.h"
 #include "helpers.h"
 
-int handle_password_message(PasswordMessage *password_message, RoctoSession *session, ErrorResponse **err, StartupMessage
+int handle_password_message(PasswordMessage *password_message, ErrorResponse **err, StartupMessage
 		*startup_message, char *salt) {
 	ErrorBuffer err_buff;
 	err_buff.offset = 0;
@@ -88,13 +88,13 @@ int handle_password_message(PasswordMessage *password_message, RoctoSession *ses
 	}
 
 	// Concatenate stored hash with temporary 4-byte salt
-	char hash_buf[MAX_STR_CONST];
+	unsigned char hash_buf[MAX_STR_CONST];
 	// Exclude "md5" from stored password (-3),
 	// Must copy: buf_len - "md5" (3) + salt length (4) + null terminator (1)
-	snprintf(hash_buf, buf_len - 3 + 4 + 1, "%s%s", &buffer[3], salt);	// Exclude "md5" prefix
+	snprintf((char*)hash_buf, buf_len - 3 + 4 + 1, "%s%s", &buffer[3], salt);	// Exclude "md5" prefix
 
 	// Hash password hash with temporary 4-byte salt
-	MD5(hash_buf, strlen(hash_buf), hash_buf);
+	MD5(hash_buf, strlen((const char *)hash_buf), hash_buf);
 
 	// Convert raw md5 hash to hex string
 	char md5_hex[md5_hex_len];

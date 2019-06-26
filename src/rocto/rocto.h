@@ -47,7 +47,7 @@ typedef struct {
 
 void *rocto_helper_waitpid(void *args);
 
-enum UserColumns {
+typedef enum UserColumns {
 	OID,
 	ROLNAME,
 	ROLSUPER,
@@ -60,7 +60,7 @@ enum UserColumns {
 	ROLCONNLIMIT,
 	ROLPASSWORD,
 	ROLVALIDUNTIL
-} typedef UserColumns;
+} UserColumns;
 
 int send_message(RoctoSession *session, BaseMessage *message);
 int send_bytes(RoctoSession *session, char *message, size_t length);
@@ -115,8 +115,7 @@ int handle_query(Query *query, RoctoSession *session);
 int handle_parse(Parse *parse, RoctoSession *session);
 int handle_execute(Execute *execute, RoctoSession *session);
 int handle_describe(Describe *describe, RoctoSession *session);
-int handle_password_message(PasswordMessage *password_message, RoctoSession *session, ErrorResponse **err, StartupMessage
-		*startup_message, char *salt);
+int handle_password_message(PasswordMessage *password_message, ErrorResponse **err, StartupMessage *startup_message, char *salt);
 
 // This isn't a handle function in-of itself, but a helper to handle the results of a query
 void handle_query_response(SqlStatement *stmt, int cursor_id, void *_parms, char *plan_name);
@@ -128,7 +127,7 @@ int no_more();
 int64_t ntoh64(int64_t little_endian);
 int64_t hton64(int64_t little_endian);
 char *byte_to_hex(char c, char *hex);
-int md5_to_hex(char *md5_hash, char *hex, unsigned int hex_len);
+int md5_to_hex(const unsigned char *md5_hash, char *hex, unsigned int hex_len);
 int64_t bin_to_bool(char *bin);
 int64_t bin_to_char(char *bin);
 int64_t bin_to_int16(char *bin);

@@ -27,7 +27,6 @@
 
 PasswordMessage *make_password_message(char *user, char *password, char *salt) {
 	PasswordMessage *ret;
-	char *c;
 	int length = 0;
 
 	// Rather than have special logic for the NULL, just use an empty string
@@ -36,13 +35,13 @@ PasswordMessage *make_password_message(char *user, char *password, char *salt) {
 	}
 
 	// Concatenate password and user
-	char hash_buf[MAX_STR_CONST];
-	int result = sprintf(hash_buf, "%s%s", password, user);
+	unsigned char hash_buf[MAX_STR_CONST];
+	int result = sprintf((char*)hash_buf, "%s%s", password, user);
 	if (0 > result) {
 		return NULL;
 	}
 	// Hash password and user
-	MD5(hash_buf, strlen(hash_buf), hash_buf);
+	MD5(hash_buf, strlen((char*)hash_buf), hash_buf);
 	// Convert hash to hex string
 	unsigned int hex_hash_len = MD5_DIGEST_LENGTH * 2 + 1;		// count null
 	char hex_hash[hex_hash_len];
@@ -52,12 +51,12 @@ PasswordMessage *make_password_message(char *user, char *password, char *salt) {
 	}
 
 	// Concatenate password/user hash with salt
-	result = snprintf(hash_buf, hex_hash_len + 4, "%s%s", hex_hash, salt);	// Exclude "md5" prefix
+	result = snprintf((char*)hash_buf, hex_hash_len + 4, "%s%s", hex_hash, salt);	// Exclude "md5" prefix
 	if (0 > result) {
 		return NULL;
 	}
 	// Hash password/user hash with salt
-	MD5(hash_buf, strlen(hash_buf), hash_buf);
+	MD5(hash_buf, strlen((char*)hash_buf), hash_buf);
 	// Convert hash to hex string
 	result = md5_to_hex(hash_buf, hex_hash, hex_hash_len);
 	if (0 != result) {

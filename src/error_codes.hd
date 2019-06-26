@@ -26,6 +26,9 @@ ERROR_DEF(PSQL_Code_Numeric_Value_Out_Of_Range, "22003")
 ERROR_DEF(PSQL_Code_Unterminated_C_String, "22024")
 // Class 26 - Invalid SQL Statement Name
 ERROR_DEF(PSQL_Code_Invalid_Sql_Statement_Name, "26000")
+// Class 28 - Invalid Authorization Specification
+ERROR_DEF(PSQL_Code_Invalid_Authorization_Specification, "28000")
+ERROR_DEF(PSQL_Code_Invalid_Password, "28P01")
 // Class 42 - Syntax Error or Access Rule Violation
 ERROR_DEF(PSQL_Code_Syntax_Error, "42601")
 ERROR_DEF(PSQL_Code_Datatype_Mismatch, "42804")

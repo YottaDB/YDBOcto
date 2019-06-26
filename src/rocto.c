@@ -40,6 +40,7 @@ void handle_sigint(int sig) {
 int main(int argc, char **argv) {
 	BaseMessage *base_message;
 	StartupMessage *startup_message;
+	PasswordMessage *password_message;
 	SSLRequest *ssl_request;
 	int tls_errno;
 	ErrorResponse *err;
@@ -265,7 +266,7 @@ int main(int argc, char **argv) {
 			break;
 		}
 		// Validate user credentials
-		result = handle_password_message(password_message, &rocto_session, &err, startup_message, salt);
+		result = handle_password_message(password_message, &err, startup_message, salt);
 		if (0 != result) {
 			send_message(&rocto_session, (BaseMessage*)(&err->type));
 			free_error_response(err);

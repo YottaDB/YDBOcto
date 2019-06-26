@@ -36,6 +36,11 @@ int __wrap_ydb_get_s(ydb_buffer_t *varname, int subs_used, ydb_buffer_t *subsarr
 	return mock_type(int);
 }
 
+int __wrap_make_buffers(char *varname, size_t num_args, ...) {
+	ydb_buffer_t *t = mock_ptr_type(ydb_buffer_t*);
+	return t;
+}
+
 unsigned int __wrap_get_user_column_value(char *buffer, const unsigned int buf_len, const char *row, const unsigned int row_len,
 		enum UserColumns column) {
 	strncpy(buffer, mock_type(char*), buf_len);
@@ -85,7 +90,7 @@ static void test_valid_input(void **state) {
 	char *salt = "salt";
 	password_message = make_password_message(username, password, salt);
 
-	int result = handle_password_message(password_message, &session, &err, startup_message, salt);
+	int result = handle_password_message(password_message, &err, startup_message, salt);
 	assert_int_equal(result, 0);
 	assert_null(err);
 
@@ -120,7 +125,7 @@ static void test_error_not_md5(void **state) {
 	password_message = make_password_message(username, password, salt);
 	password_message->password = "password";
 
-	int result = handle_password_message(password_message, &session, &err, startup_message, salt);
+	int result = handle_password_message(password_message, &err, startup_message, salt);
 	assert_int_equal(result, 1);
 	assert_non_null(err);
 
@@ -166,7 +171,7 @@ static void test_error_user_info_lookup(void **state) {
 
 	password_message = make_password_message(username, password, salt);
 
-	int result = handle_password_message(password_message, &session, &err, startup_message, salt);
+	int result = handle_password_message(password_message, &err, startup_message, salt);
 	assert_int_equal(result, 1);
 	assert_non_null(err);
 
@@ -215,7 +220,7 @@ static void test_error_hash_lookup(void **state) {
 	char *password = "password";
 	password_message = make_password_message(username, password, salt);
 
-	int result = handle_password_message(password_message, &session, &err, startup_message, salt);
+	int result = handle_password_message(password_message, &err, startup_message, salt);
 	assert_int_equal(result, 1);
 	assert_non_null(err);
 
@@ -269,7 +274,7 @@ static void test_error_hash_conversion(void **state) {
 	will_return(__wrap_md5_to_hex, "arbitrary");
 	will_return(__wrap_md5_to_hex, 1);
 
-	int result = handle_password_message(password_message, &session, &err, startup_message, salt);
+	int result = handle_password_message(password_message, &err, startup_message, salt);
 	assert_int_equal(result, 1);
 	assert_non_null(err);
 
@@ -323,7 +328,7 @@ static void test_error_bad_password(void **state) {
 	char *password = "balugawhales";
 	password_message = make_password_message(username, password, salt);
 
-	int result = handle_password_message(password_message, &session, &err, startup_message, salt);
+	int result = handle_password_message(password_message, &err, startup_message, salt);
 	assert_int_equal(result, 1);
 	assert_non_null(err);
 
@@ -337,7 +342,6 @@ static void test_error_bad_password(void **state) {
 }
 
 int main(void) {
-	octo_init(0, NULL, FALSE);
 	const struct CMUnitTest tests[] = {
 		   cmocka_unit_test(test_valid_input),
 		   cmocka_unit_test(test_error_not_md5),

@@ -32,6 +32,10 @@ ERROR_DEF(ERR_ROCTO_TLS_UNKNOWN, "ydbcrypt: unknown error: %s", PSQL_Code_Intern
 ERROR_DEF(ERR_ROCTO_TLS_WANT_READ, "ydbcrypt: unprocessed read data", PSQL_Code_Internal_Error)
 ERROR_DEF(ERR_ROCTO_TLS_WANT_WRITE, "ydbcrypt: unprocessed write data", PSQL_Code_Internal_Error)
 ERROR_DEF(ERR_ROCTO_TLS_WRITE_FAILED, "ydbcrypt: write failed: %s", PSQL_Code_Internal_Error)
+ERROR_DEF(ERR_ROCTO_SESSION_LOOKUP, "%s: failed to retrieve %s from session info", PSQL_Code_Internal_Error)
+ERROR_DEF(ERR_ROCTO_DB_LOOKUP, "%s: failed to retrieve %s from database", PSQL_Code_Internal_Error)
+ERROR_DEF(ERR_ROCTO_COLUMN_VALUE, "%s: failed to extract column value %s from row", PSQL_Code_Internal_Error)
+ERROR_DEF(ERR_ROCTO_HASH_CONVERSION, "%s: failed convert %s hash to %s", PSQL_Code_Internal_Error)
 
 /*** Other ***/
 // OCTO //
@@ -66,6 +70,7 @@ ERROR_DEF(ERR_LOADING_CONFIG, "Loading config from %s", PSQL_Code_Success)
 // ROCTO //
 ERROR_DEF(ERR_ROCTO_CHILD_STATE_UPDATED, "Process %d switched to state %d", PSQL_Code_Success)
 ERROR_DEF(ERR_ROCTO_CLEAN_DISCONNECT, "connection closed cleanly", PSQL_Code_Success)
+ERROR_DEF(INFO_AUTH_SUCCESS, "%s: user successfully authenticated", PSQL_Code_Success)
 
 /*** System errors ***/
 // OCTO //
@@ -88,6 +93,12 @@ ERROR_DEF(ERR_ROCTO_INVALID_VERSION, "%s: invalid version %x: must be %x", PSQL_
 ERROR_DEF(ERR_ROCTO_READ_FAILED, "read failure: %s", PSQL_Code_Connection_Exception)
 ERROR_DEF(ERR_ROCTO_SEND_FAILED, "send failure: %s", PSQL_Code_Connection_Exception)
 ERROR_DEF(ERR_ROCTO_TRAILING_CHARS, "%s: message has trailing characters", PSQL_Code_Protocol_Violation)
+
+/*** Authentication errors ***/
+// OCTO //
+// ROCTO //
+ERROR_DEF(ERR_ROCTO_PASSWORD_TYPE, "%s: expected %s encrypted password", PSQL_Code_Invalid_Authorization_Specification)
+ERROR_DEF(ERR_ROCTO_BAD_PASSWORD, "%s: password doesn't match stored value", PSQL_Code_Invalid_Password)
 
 /*** Data exceptions ***/
 // OCTO //

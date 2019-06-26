@@ -31,34 +31,6 @@
 #define UUID_CLOCK_SEQ	4		// clock_seq_hi_and_res_clock_seq_low
 #define UUID_NODE	12
 
-/*
-int64_t ntoh64(int64_t little_endian) {
-	char big_endian[8];		// 64 bits
-	*(int64_t*)big_endian = little_endian;
-	int i = 0, j = 7;
-	for (i = 0; i < 4; i++, j--) {
-		// XOR swap algorithm
-		big_endian[i] ^= big_endian[j];
-		big_endian[j] ^= big_endian[i];
-		big_endian[i] ^= big_endian[j];
-	}
-	return *(int64_t*)big_endian;
-}
-
-int64_t hton64(int64_t big_endian) {
-	char little_endian[8];		// 64 bits
-	*(int64_t*)little_endian = big_endian;
-	int i = 0, j = 7;
-	for (i = 0; i < 4; i++, j--) {
-		// XOR swap algorithm
-		little_endian[i] ^= little_endian[j];
-		little_endian[j] ^= little_endian[i];
-		little_endian[i] ^= little_endian[j];
-	}
-	return *(int64_t*)little_endian;
-}
-*/
-
 // Expects hex length >= 3
 char *byte_to_hex(char c, char *hex) {
 	unsigned char high = 0, low = 0;
@@ -86,7 +58,7 @@ char *byte_to_hex(char c, char *hex) {
 }
 
 // Convert raw MD5 hash to hex string
-int md5_to_hex(char *md5_hash, char *hex, unsigned int hex_len) {
+int md5_to_hex(const unsigned char *md5_hash, char *hex, unsigned int hex_len) {
 	if (hex_len < 33) {	// Length of 16-byte md5 in hex, plus null terminator
 		return 1;
 	}

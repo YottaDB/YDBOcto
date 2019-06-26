@@ -16,7 +16,7 @@ Usage pattern:
 .. parsed-literal::
    ydboctoAdmin <action> <subAction> <arguments>
 
-* <action> is either add, delete or view.
+* <action> is either add, delete or show.
 * <subAction> refers to :code:`user` or :code:`users`.
 * <arguments> would be the specific arguments passed to the command.
 

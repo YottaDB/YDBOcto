@@ -33,7 +33,7 @@ static void test_valid_input_all_fields_populated(void **state) {
 	unsigned int buf_len = MAX_STR_CONST, row_len = 0, pw_len = 0;
 
 	row_len = strnlen(row, MAX_STR_CONST);
-	unsigned int value_len = get_user_column_value(buffer, buf_len, row, row_len, ROLPASSWORD);
+	unsigned int value_len = get_user_column_value(buffer, buf_len, row, row_len, UserColumn_ROLPASSWORD);
 	pw_len = strlen("password");
 	assert_int_equal(value_len, pw_len);
 	assert_string_equal(buffer, "password");
@@ -45,7 +45,7 @@ static void test_valid_input_one_field_populated(void **state) {
 	unsigned int buf_len = MAX_STR_CONST, row_len = 0, pw_len = 0;
 
 	row_len = strnlen(row, MAX_STR_CONST);
-	unsigned int value_len = get_user_column_value(buffer, buf_len, row, row_len, ROLPASSWORD);
+	unsigned int value_len = get_user_column_value(buffer, buf_len, row, row_len, UserColumn_ROLPASSWORD);
 	pw_len = strlen("password");
 	assert_int_equal(value_len, pw_len);
 	assert_string_equal(buffer, "password");
@@ -57,7 +57,7 @@ static void test_valid_input_buffer_too_small(void **state) {
 	unsigned int buf_len = 5, row_len = 0, pw_len = 0;
 
 	row_len = strnlen(row, MAX_STR_CONST);
-	unsigned int value_len = get_user_column_value(buffer, buf_len, row, row_len, ROLPASSWORD);
+	unsigned int value_len = get_user_column_value(buffer, buf_len, row, row_len, UserColumn_ROLPASSWORD);
 	assert_int_equal(value_len, 0);
 }
 
@@ -68,11 +68,11 @@ static void test_invalid_input_null_pointers(void **state) {
 	row_len = strnlen(row, MAX_STR_CONST);
 
 	// Test for NULL buffer
-	unsigned int value_len = get_user_column_value(NULL, buf_len, row, row_len, ROLPASSWORD);
+	unsigned int value_len = get_user_column_value(NULL, buf_len, row, row_len, UserColumn_ROLPASSWORD);
 	assert_int_equal(value_len, 0);
 
 	// Test for NULL row
-	value_len = get_user_column_value(buffer, buf_len, NULL, row_len, ROLPASSWORD);
+	value_len = get_user_column_value(buffer, buf_len, NULL, row_len, UserColumn_ROLPASSWORD);
 	assert_int_equal(value_len, 0);
 }
 
@@ -92,10 +92,10 @@ static void test_invalid_input_zero_lengths(void **state) {
 	unsigned int buf_len = MAX_STR_CONST, row_len = 0, pw_len = 0;
 	row_len = strnlen(row, MAX_STR_CONST);
 
-	unsigned int value_len = get_user_column_value(buffer, 0, row, row_len, ROLPASSWORD);
+	unsigned int value_len = get_user_column_value(buffer, 0, row, row_len, UserColumn_ROLPASSWORD);
 	assert_int_equal(value_len, 0);
 
-	value_len = get_user_column_value(buffer, buf_len, row, 0, ROLPASSWORD);
+	value_len = get_user_column_value(buffer, buf_len, row, 0, UserColumn_ROLPASSWORD);
 	assert_int_equal(value_len, 0);
 }
 

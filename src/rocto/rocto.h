@@ -48,18 +48,18 @@ typedef struct {
 void *rocto_helper_waitpid(void *args);
 
 typedef enum UserColumns {
-	OID,
-	ROLNAME,
-	ROLSUPER,
-	ROLINHERIT,
-	ROLCREATEROLE,
-	ROLCREATEDB,
-	ROLCANLOGIN,
-	ROLREPLICATION,
-	ROLBYPASSRLS,
-	ROLCONNLIMIT,
-	ROLPASSWORD,
-	ROLVALIDUNTIL
+	UserColumn_OID,
+	UserColumn_ROLNAME,
+	UserColumn_ROLSUPER,
+	UserColumn_ROLINHERIT,
+	UserColumn_ROLCREATEROLE,
+	UserColumn_ROLCREATEDB,
+	UserColumn_ROLCANLOGIN,
+	UserColumn_ROLREPLICATION,
+	UserColumn_ROLBYPASSRLS,
+	UserColumn_ROLCONNLIMIT,
+	UserColumn_ROLPASSWORD,
+	UserColumn_ROLVALIDUNTIL
 } UserColumns;
 
 int send_message(RoctoSession *session, BaseMessage *message);

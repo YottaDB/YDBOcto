@@ -25,6 +25,7 @@
 #include "rocto.h"
 #include "message_formats.h"
 
+// Make function to simulate client transmission of password_message. Used for testing.
 PasswordMessage *make_password_message(char *user, char *password, char *salt) {
 	PasswordMessage *ret;
 	int length = 0;

@@ -22,7 +22,7 @@
 #include "rocto.h"
 
 unsigned int get_user_column_value(char *buffer, const unsigned int buf_len, const char *row, const unsigned int row_len, enum UserColumns column) {
-	if (NULL == buffer || NULL == row || column > ROLVALIDUNTIL) {
+	if (NULL == buffer || NULL == row || column > UserColumn_ROLVALIDUNTIL) {
 		return 0;
 	}
 	const char *c = NULL, *col_start = NULL;

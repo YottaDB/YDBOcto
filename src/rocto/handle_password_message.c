@@ -30,6 +30,7 @@ int handle_password_message(PasswordMessage *password_message, ErrorResponse **e
 	err_buff.offset = 0;
 	const char *error_message;
 	const unsigned int md5_hex_len = MD5_DIGEST_LENGTH * 2 + 1;
+	ydb_buffer_t z_status, z_status_value;
 
 	// Check the type of password message, for now just md5 is accepted
 	int result = strncmp(password_message->password, "md5", 3);
@@ -49,6 +50,7 @@ int handle_password_message(PasswordMessage *password_message, ErrorResponse **e
 		result = strcmp(startup_message->parameters[cur_parm].name, "user");
 		if (0 == result) {
 			strncpy(username, startup_message->parameters[cur_parm].value, MAX_STR_CONST);
+			break;
 		}
 	}
 
@@ -57,7 +59,7 @@ int handle_password_message(PasswordMessage *password_message, ErrorResponse **e
 	YDB_MALLOC_BUFFER(&user_info_subs, MAX_STR_CONST);
 	ydb_buffer_t *user_subs = make_buffers(config->global_names.octo, 2, "users", username);
 	result = ydb_get_s(&user_subs[0], 2, &user_subs[1], &user_info_subs);
-	if (YDB_OK != result) {
+	if (YDB_ERR_GVUNDEF == result || YDB_ERR_LVUNDEF == result) {
 		WARNING(ERR_ROCTO_DB_LOOKUP, "handle_password_message", "user info");
 		error_message = format_error_string(&err_buff, ERR_ROCTO_DB_LOOKUP, "handle_password_message", "user info");
 		*err = make_error_response(PSQL_Error_ERROR,
@@ -66,14 +68,15 @@ int handle_password_message(PasswordMessage *password_message, ErrorResponse **e
 					   0);
 		free(user_subs);
 		return 1;
+	} else if (YDB_OK != result) {
+		YDB_ERROR_CHECK(result, &z_status, &z_status_value);
+		return 1;
 	}
-	char *user_info = (char*)malloc(user_info_subs.len_used);
-	strncpy(user_info, user_info_subs.buf_addr, user_info_subs.len_used);
-	user_info[user_info_subs.len_used] = '\0';
 
 	// Extract password hash
 	char buffer[MAX_STR_CONST];
-	unsigned int buf_len = get_user_column_value(buffer, MAX_STR_CONST, user_info, user_info_subs.len_used, ROLPASSWORD);
+	unsigned int buf_len = get_user_column_value(buffer, MAX_STR_CONST, user_info_subs.buf_addr, user_info_subs.len_used,
+			UserColumn_ROLPASSWORD);
 	if (0 == buf_len) {
 		WARNING(ERR_ROCTO_COLUMN_VALUE, "handle_password_message", "rolpassword (hashed password)");
 		error_message = format_error_string(&err_buff, ERR_ROCTO_COLUMN_VALUE,
@@ -83,7 +86,6 @@ int handle_password_message(PasswordMessage *password_message, ErrorResponse **e
 					   error_message,
 					   0);
 		free(user_subs);
-		free(user_info);
 		return 1;
 	}
 
@@ -108,7 +110,6 @@ int handle_password_message(PasswordMessage *password_message, ErrorResponse **e
 					   error_message,
 					   0);
 		free(user_subs);
-		free(user_info);
 		return 1;
 	}
 
@@ -122,13 +123,11 @@ int handle_password_message(PasswordMessage *password_message, ErrorResponse **e
 					   error_message,
 					   0);
 		free(user_subs);
-		free(user_info);
 		return 1;
 	}
 	INFO(INFO_AUTH_SUCCESS, "handle_password_message");
 
 	free(user_subs);
-	free(user_info);
 
 	return 0;
 }

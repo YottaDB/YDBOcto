@@ -31,14 +31,12 @@
 #include "helpers.h"
 
 int __wrap_ydb_get_s(ydb_buffer_t *varname, int subs_used, ydb_buffer_t *subsarray, ydb_buffer_t *ret_value) {
+	if (0 == strncmp(varname->buf_addr, "$ZGBLDIR", varname->len_used)) {
+		return 0;
+	}
 	ydb_buffer_t *t = mock_ptr_type(ydb_buffer_t*);
 	*ret_value = *t;
 	return mock_type(int);
-}
-
-int __wrap_make_buffers(char *varname, size_t num_args, ...) {
-	ydb_buffer_t *t = mock_ptr_type(ydb_buffer_t*);
-	return t;
 }
 
 unsigned int __wrap_get_user_column_value(char *buffer, const unsigned int buf_len, const char *row, const unsigned int row_len,
@@ -342,6 +340,7 @@ static void test_error_bad_password(void **state) {
 }
 
 int main(void) {
+	octo_init(0, NULL);
 	const struct CMUnitTest tests[] = {
 		   cmocka_unit_test(test_valid_input),
 		   cmocka_unit_test(test_error_not_md5),

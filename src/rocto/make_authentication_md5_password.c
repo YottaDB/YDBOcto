@@ -38,7 +38,7 @@ AuthenticationMD5Password *make_authentication_md5_password(RoctoSession *sessio
 	ret->type = PSQL_AuthenticationMD5Password;
 	ret->length = htonl(sizeof(int) + sizeof(int) + sizeof(char) * 4);
 	ret->md5_required = htonl(5);
-	// Generate 4-byte random salt
+	// Generate 4-byte random salt with call to getrandom syscall (#318)
 	syscall(318, salt, 4, 0);
 	// getrandom(salt, 4, 0);
 	memcpy(ret->salt, salt, 4);

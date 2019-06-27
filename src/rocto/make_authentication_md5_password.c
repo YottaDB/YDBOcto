@@ -19,7 +19,8 @@
 #include <arpa/inet.h>
 
 // Used for random number generation
-#include <sys/random.h>
+// #include <sys/random.h>
+#include <sys/syscall.h>
 
 #include "rocto.h"
 #include "helpers.h"
@@ -38,7 +39,8 @@ AuthenticationMD5Password *make_authentication_md5_password(RoctoSession *sessio
 	ret->length = htonl(sizeof(int) + sizeof(int) + sizeof(char) * 4);
 	ret->md5_required = htonl(5);
 	// Generate 4-byte random salt
-	getrandom(salt, 4, 0);
+	syscall(318, salt, 4, 0);
+	// getrandom(salt, 4, 0);
 	memcpy(ret->salt, salt, 4);
 
 	return ret;

@@ -112,7 +112,7 @@ int handle_password_message(PasswordMessage *password_message, ErrorResponse **e
 		free(user_subs);
 		return 1;
 	}
-
+	printf("expected: %s\tactual: %s\n", md5_hex, &password_message->password[3]);
 	// Compare final hash of stored password against hash sent by client
 	result = strncmp(md5_hex, &password_message->password[3], md5_hex_len);	// Exclude "md5" prefix
 	if (0 != result) {

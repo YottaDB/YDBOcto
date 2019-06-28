@@ -1,0 +1,6 @@
+OCTO> SELECT *
+OCTO> FROM names
+OCTO> WHERE firstName = 'Zero' OR lastName = 'Cool'
+OCTO> Added SET and/or Non-SET trigger on ^names named names#1
+0|Zero|Cool
+5|Zero|Cool

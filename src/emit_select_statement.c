@@ -52,7 +52,7 @@ PhysicalPlan *emit_select_statement(SqlStatement *stmt, char *plan_filename)
 	}
 	if(lp_verify_structure(plan) == FALSE)
 		FATAL(ERR_PLAN_NOT_WELL_FORMED, "");
-	optimize_logical_plan(plan);
+	plan = optimize_logical_plan(plan);
 	if(config->record_error_level <= DEBUG) {
 		lp_emit_plan(buffer, MAX_STR_CONST * 5, plan);
 		DEBUG(ERR_CURPLAN, buffer);

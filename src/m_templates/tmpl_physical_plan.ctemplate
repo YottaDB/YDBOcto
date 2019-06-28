@@ -22,7 +22,6 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
     SqlColumnAlias *column_alias;
     SqlValue *value;
     PhysicalPlan *next_plan;
-    char *key_fixed;
     SqlOptionalKeyword *keyword;
     LogicalPlan *lp_temp;
     char *tableName = "";
@@ -77,39 +76,26 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
     }
     if(plan->set_operation == PP_NOT_SET) {
         %} KILL {% TMPL(tmpl_key, plan->outputKey); %}
-   {%
+    {%
     } else {
         %}
-   {% // Whitespace for MUMPS
-    }
+    {% // Whitespace for MUMPS
+   }
 
     for(cur_key = 0, dot_count = 0; cur_key < plan->total_iter_keys; cur_key++) {
         // For each key, output the key start, a loop, quit, and increment
         key = plan->iterKeys[cur_key];
         if(key->value) {
-            /// TODO: can we simplify this case statement to one expression? tmpl_print_expression should handle LP_VALUE too
             TMPL(print_dots, dot_count);
-            switch(key->value->type) {
-            case LP_VALUE:
-                key_fixed = key->value->v.value->v.string_literal;
-                %}SET {% TMPL(tmpl_key, key); %}="{{ key_fixed }}" IF $DATA({% TMPL(tmpl_key_source, plan, key); %})'=0 DO
+            %}SET {% TMPL(tmpl_key, key); %}={%
+            TMPL(tmpl_print_expression, key->value, plan);
+            %} IF $DATA({% TMPL(tmpl_key_source, plan, key); %})'=0 DO
     {%
-                break;
-            case LP_COLUMN_ALIAS:
-                %}SET {% TMPL(tmpl_key, key); %}={%
-                TMPL(tmpl_print_expression, key->value, plan);
-                %} IF $DATA({% TMPL(tmpl_key_source, plan, key); %})'=0 DO
-    {%
-                break;
-            default:
-                FATAL(ERR_UNKNOWN_KEYWORD_STATE, "");
-                break;
-            }
             dot_count++;
             continue;
         }
-    TMPL(print_dots, dot_count);
-    %} {% TMPL(tmpl_key_start, key); %}
+        TMPL(print_dots, dot_count);
+    %}{% TMPL(tmpl_key_start, key); %}
     {% TMPL(print_dots, dot_count); %}FOR %%ydboctoi{{ cur_key|%d }}=1:1 SET {% TMPL(tmpl_key, key) %}=$ORDER({% TMPL(tmpl_key_advance, plan, key)
     %}) QUIT:({%
         TMPL(tmpl_key_end, key);
@@ -120,6 +106,7 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
         }
     %})  DO
     {%
+
         dot_count++;
     }
 
@@ -136,6 +123,29 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
         }
         temp_plan = temp_plan->next;
     }
+    // Apply the conditions for this statement
+    TMPL(print_dots, dot_count);
+    %}IF 1{%
+    if(plan->where && plan->where->v.operand[0]) {
+        %}&({%
+        TMPL(tmpl_print_expression, plan->where->v.operand[0], plan);
+        %}){%
+    }
+    // Distinct values if needed
+    //  NOTE: the EXCEPT set doesn't need to check if a value exists before clearing it
+    if(plan->distinct_values && plan->set_operation != PP_EXCEPT_SET && plan->set_operation != PP_INTERSECT_SET) {
+        %}&($DATA(^|"{{ config->global_directory }}"|{{ config->global_names.raw_cursor }}(cursorId,"index",{%
+        TMPL(tmpl_column_list_combine, plan->projection, plan, ",", NULL, 0);
+        %}))=0){%
+    }
+
+    // Ensure we don't emit duplicates
+    if(plan->emit_duplication_check == TRUE) {
+        %}&($DATA({% TMPL(tmpl_duplication_check, plan); %})=0){%
+    }
+    dot_count++;
+    %} DO
+    {%
 
     // Output the value
     // Note down where the "resume" pointer starts, incuding the preceeding whitespace
@@ -156,18 +166,6 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
         }
     }
 
-    if(plan->where && plan->where->v.operand[0]) {
-        %}&({%
-        TMPL(tmpl_print_expression, plan->where->v.operand[0], plan);
-        %}){%
-    }
-    // Distinct values if needed
-    //  NOTE: the EXCEPT set doesn't need to check if a value exists before clearing it
-    if(plan->distinct_values && plan->set_operation != PP_EXCEPT_SET) {
-        %}&($DATA(^|"{{ config->global_directory }}"|{{ config->global_names.raw_cursor }}(cursorId,"index",{%
-        TMPL(tmpl_column_list_combine, plan->projection, plan, ",", NULL, 0);
-        %}))=0){%
-    }
 
     /// TODO: key has overloaded meaning here to mean table; we need to
     // increment something somewhere
@@ -254,6 +252,11 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
         assert(FALSE);
     }
 
+    if(plan->emit_duplication_check == TRUE) {
+        %}
+    {% TMPL(print_dots, dot_count); %}SET {% TMPL(tmpl_duplication_check, plan); %}=1{%
+    }
+
     // If we are maintaing the columnwise index
     if(plan->maintain_columnwise_index && plan->set_operation != PP_EXCEPT_SET) {
         // Newline for the M code
@@ -266,19 +269,6 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
             %}SET:1{%
         }
 
-
-        if(plan->where && plan->where->v.operand[0]) {
-            %}&({%
-            TMPL(tmpl_print_expression, plan->where->v.operand[0], plan);
-            %}){%
-        }
-        // Distinct values if needed
-        //  NOTE: the EXCEPT set doesn't need to check if a value exists before clearing it
-        if(plan->distinct_values && plan->set_operation != PP_EXCEPT_SET && plan->set_operation != PP_INTERSECT_SET) {
-            %}&($DATA(^|"{{ config->global_directory }}"|{{ config->global_names.raw_cursor }}(cursorId,"index",{%
-            TMPL(tmpl_column_list_combine, plan->projection, plan, ",", NULL, 0);
-            %}))=0){%
-        }
         %} ^|"{{ config->global_directory }}"|{{ config->global_names.raw_cursor }}(cursorId,"index",{%
         TMPL(tmpl_column_list_combine, plan->projection, plan, ",", NULL, 0);
         if(plan->set_operation != PP_INTERSECT_SET) {
@@ -292,7 +282,7 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
     if(plan->set_operation == PP_INTERSECT_SET) {
         %}
     SET var="^|""{{ config->global_directory }}""|{{ config->global_names.raw_cursor }}("_cursorId_",""index"")" FOR  SET var=$Q(@var),var=$Q(@var) QUIT:$PIECE(var,",",2)'="""index"""  DO
-    . SET index=$PIECE($PIECE(var,",",$L(var,",")),")",1),^index($i(dsfasf))=index
+    . SET index=$PIECE($PIECE(var,",",$LENGTH(var,",")),")",1),^index($i(dsfasf))=index
     . KILL:index'="" {%
     TMPL(tmpl_key, plan->outputKey);
     // Go back on in the buffer

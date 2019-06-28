@@ -32,7 +32,6 @@ SqlColumn *column_list_alias_to_columns(SqlTableAlias *table_alias) {
 	cla_cur = cla_start;
 	do {
 		cur_column = (SqlColumn*)octo_cmalloc(memory_chunks, sizeof(SqlColumn));
-		memset(cur_column, 0, sizeof(SqlColumn));
 		cur_column->table = table_alias->table;
 		if(cla_cur != NULL) {
 			cur_column->columnName = cla_cur->alias;

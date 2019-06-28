@@ -126,11 +126,11 @@ CREATE TABLE pg_catalog.pg_class (
 ) GLOBAL "^%ydboctoocto(""tables"",""pg_catalog"",""pg_class"",keys(""oid"")";
 
 CREATE TABLE pg_catalog.pg_description (
-  oid INTEGER PRIMARY KEY,
   objoid INTEGER,
   classoid INTEGER,
   objsubid INTEGER,
-  description VARCHAR
+  description VARCHAR,
+  oid INTEGER PRIMARY KEY
 ) GLOBAL "^%ydboctoocto(""tables"",""pg_catalog"",""pg_description"",keys(""oid"")";
 
 
@@ -152,7 +152,6 @@ create table information_schema.tables (
 
 
 create table pg_catalog.pg_proc(
-  oid integer primary key,
   proname varchar,
   pronamespace integer,
   proowner integer,
@@ -181,7 +180,8 @@ create table pg_catalog.pg_proc(
   prosrc varchar,
   probin varchar,
   proconfig varchar,
-  proacl varchar
+  proacl varchar,
+  oid integer primary key
 ) GLOBAL "^%ydboctoocto(""tables"",""information_schema"",""tables"",keys(""oid"")";
 
 CREATE TABLE users (

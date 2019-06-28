@@ -32,14 +32,7 @@ MemoryChunk *alloc_chunk(size_t size) {
 	if(size > MEMORY_CHUNK_SIZE) {
 		alloc_size = size;
 	}
-	// Align to a page boundary
-#if MEMORY_CHUNK_PROTECT != 0
-	alloc_size = ((alloc_size + config->page_size) / config->page_size) * config->page_size;
-	v = valloc(alloc_size);
-#else
-	v = malloc(alloc_size);
-#endif
-	memset(v, 0, alloc_size);
+	v = calloc(alloc_size, 1);
 	ret->value = v;
 	ret->max_size = alloc_size;
 	return ret;
@@ -48,40 +41,17 @@ MemoryChunk *alloc_chunk(size_t size) {
 void *octo_cmalloc(MemoryChunk *root, size_t size) {
 	MemoryChunk *cur, *new, *t;
 	void *ret;
-	int alloc_size;
 	assert(root != NULL);
 	cur = root->prev;
 
-	// Make sure size is at least one page, so that we can memprotect
-	// the area after
-#if MEMORY_CHUNK_PROTECT != 0
-	alloc_size = ((size + config->page_size) / config->page_size) * config->page_size + config->page_size;
-#else
-	alloc_size = size;
-#endif
-
-	if(cur->offset + alloc_size > cur->max_size) {
-		new = alloc_chunk(alloc_size);
+	if(cur->offset + size > cur->max_size) {
+		new = alloc_chunk(size);
 		dqinsert(root, new, t);
-		assert(root->prev == new);
+		assert(root->prev == new && new->next == root);
 		cur = root->prev;
 	}
-#if MEMORY_CHUNK_PROTECT == 2
-	// Put the allocation so that it's snug with the tail to the mprotect'd area, as buffer overflows
-	// are more common than underflows
-	ret = &cur->value[cur->offset] - (size + config->page_size);
-#else
 	ret = &cur->value[cur->offset];
-#endif
-	cur->offset += alloc_size;
-#if MEMORY_CHUNK_PROTECT != 0
-	// mprotect the area right after to detect buffer overwrites
-	assert(cur->offset % config->page_size == 0);
-	result = mprotect(&cur->value[cur->offset] - config->page_size, config->page_size, PROT_NONE);
-	if(result == -1) {
-		printf("Error! %d\n", errno);
-	}
-#endif
+	cur->offset += size;
 	return ret;
 }
 
@@ -91,8 +61,15 @@ void octo_cfree(MemoryChunk *root) {
 	assert(root != NULL);
 	cur = root;
 	do {
-		cur = cur->next;
-		free(cur->prev->value);
-		free(cur->prev);
-	} while(cur != root);
+		MemoryChunk *next = cur->next;
+		if(next == root) {
+			break;
+		}
+		free(cur->value);
+		free(cur);
+		cur = next;
+	} while(TRUE);
+	// Free the root
+	free(cur->value);
+	free(cur);
 }

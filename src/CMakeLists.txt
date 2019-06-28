@@ -141,6 +141,7 @@ add_library(libocto OBJECT
   optimization_transforms/get_plan_unique_number.c
   optimization_transforms/lp_insert_key.c
   optimization_transforms/lp_copy_plan.c
+  optimization_transforms/lp_copy_key.c
   optimization_transforms/lp_join_where.c
   optimization_transforms/lp_generate_where.c
   optimization_transforms/lp_column_list_to_lp.c
@@ -160,6 +161,8 @@ add_library(libocto OBJECT
   optimization_transforms/lp_make_key.c
   optimization_transforms/lp_optimize_where_multi_equals_ands.c
   optimization_transforms/lp_drill_to_insert.c
+  optimization_transforms/lp_make_normal_disjunctive_form.c
+  optimization_transforms/lp_join_plans.c
   optimization_transforms/generate_logical_plan.c
   optimization_transforms/logical_plan.c
   physical/generate_physical_plan.c
@@ -287,6 +290,7 @@ set(template_files
   ${template_dir}/tmpl_column_list_combine.ctemplate
   ${template_dir}/tmpl_emit_source.ctemplate
   ${template_dir}/tmpl_column_reference_trigger.ctemplate
+  ${template_dir}/tmpl_duplication_check.ctemplate
   )
 foreach(template ${template_files})
   get_filename_component(fileName ${template} NAME)
@@ -306,6 +310,7 @@ set(aux_files
   aux/_ydboctocurrentSchema.m
   aux/_ydboctoreplace.m
   aux/_ydboctopgCurrentSchemas.m
+  aux/_ydboctopgObjDescription.m
   aux/_ydboctoversion.m
 )
 add_library(_ydbocto SHARED ${aux_files})

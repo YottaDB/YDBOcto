@@ -273,7 +273,7 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt, int *plan_id) {
 		if(cur_join->condition) {
 			MALLOC_LP(t_join_condition, LP_WHERE);
 			t_join_condition->v.operand[0] = lp_generate_where(cur_join->condition, plan_id);
-			start_join_condition = lp_join_where(start_join_condition, t_join_condition);
+			start_join_condition = lp_join_where(t_join_condition, start_join_condition);
 		}
 		cur_join = cur_join->next;
 	} while(cur_join != start_join);

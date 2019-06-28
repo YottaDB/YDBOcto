@@ -4,6 +4,7 @@ GT.M MUPIP EXTRACT
 ^%ydboctoocto("functions","MPIECE")="$PIECE"
 ^%ydboctoocto("functions","CURRENT_SCHEMA")="$$^%ydboctocurrentSchema"
 ^%ydboctoocto("functions","PG_CATALOG.CURRENT_SCHEMAS")="$$^%ydboctopgCurrentSchemas"
+^%ydboctoocto("functions","PG_CATALOG.OBJ_DESCRIPTION")="$$^%ydboctopgObjDescription"
 ^%ydboctoocto("functions","REPLACE")="$$^%ydboctoreplace"
 ^%ydboctoocto("functions","VERSION")="$$^%ydboctoversion"
 ^%ydboctoocto("pg_catalog","pg_namespace",1)="|99|pg_toast|10|"

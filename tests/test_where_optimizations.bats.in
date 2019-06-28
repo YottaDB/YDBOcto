@@ -76,7 +76,7 @@ OCTO
 @test "fixed column optimiations where second column isn't a key" {
   # This test may be invalid; we can't optimize this without reordering the JOIN's, which
   # we can't do without proper use of the xref
-  skip
+  skip "needs to reorder the JOIN statements, skip until we can do that"
   octo >& output.txt <<OCTO
 SELECT * FROM namesWithAges AS t1
 CROSS JOIN namesWithAges AS t2
@@ -143,4 +143,38 @@ OCTO
   count_loops ./_ydboctoP*.m 2
   # verify the output of this
   verify_output T0002 output.txt
+}
+
+@test "T0007 WHERE with disjunction" {
+  octo -vv <<OCTO > output.txt 2> plan.txt
+SELECT *
+FROM names
+WHERE firstName = 'Zero' OR lastName = 'Cool'
+OCTO
+  [[ $(grep -c "LP_KEY_FIX" plan.txt) -eq 2 ]]
+
+  verify_output T0007 output.txt
+}
+
+@test "T0008 complicated WHERE with disjunction and multiple nested levels" {
+  octo -vv <<OCTO > output.txt 2> plan.txt
+SELECT *
+FROM names
+WHERE (id = 0 OR id = 5) AND (firstName = 'Zero' OR lastName = 'Cool')
+OCTO
+  [[ $(grep -c "LP_KEY_FIX" plan.txt) -eq 4 ]]
+
+  verify_output T0008 output.txt
+}
+
+@test "T0009 complicated WHERE with disjunction and multiple nested levels of ANDs" {
+  octo -vv <<OCTO > output.txt 2> plan.txt
+SELECT *
+FROM names
+WHERE ((id = 0 AND firstName = 'Zero') OR id = 5)
+  AND ((lastName = 'Cool' AND firstName = 'Zero') OR lastName = 'Cool')
+OCTO
+  [[ $(grep -c "LP_KEY_FIX" plan.txt) -eq 4 ]]
+
+  verify_output T0009 output.txt
 }

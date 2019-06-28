@@ -38,6 +38,7 @@ LogicalPlan *lp_column_list_to_lp(SqlColumnListAlias *list, int *plan_id) {
 		// When we do this copy, we only want a single CLA; this prevents the copy from
 		//   grabbing more
 		column_list_alias->v.column_list_alias = (SqlColumnListAlias*)octo_cmalloc(memory_chunks, sizeof(SqlColumnListAlias));
+		dqinit(column_list_alias->v.column_list_alias);
 		column_list_alias->v.column_list_alias->alias = cur_column_list->alias;
 		column_list_alias->v.column_list_alias->type = cur_column_list->type;
 		cur_column_list = cur_column_list->next;

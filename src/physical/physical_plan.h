@@ -73,6 +73,9 @@ typedef struct PhysicalPlan {
 	// Points to the parent plan of this plan; we need this so we can resolve
 	//   references to parent queries and mark intermediate plans as deferred
 	struct PhysicalPlan *parent_plan;
+	// If true, we should emit code to ensure only one value gets inserted to the output key
+	// for a given set of keys
+	int emit_duplication_check;
 } PhysicalPlan;
 
 // This provides a convenient way to pass options to subplans

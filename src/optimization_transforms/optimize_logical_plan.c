@@ -121,10 +121,46 @@ LogicalPlan *optimize_logical_plan(LogicalPlan *plan) {
 	//  optimal join order
 	select = lp_get_select(plan);
 	GET_LP(table_join, select, 0, LP_TABLE_JOIN);
-	join_tables(plan, table_join);
+	// We can end coming here with a already populated set of keys if the plan was split for optimization
+	// If so, don't add the keys again
+	LogicalPlan *keys;
+	keys = lp_get_keys(plan);
+	if(keys->v.operand[0] == NULL) {
+		join_tables(plan, table_join);
+	}
 
 	// If there are no "OR" or "AND" statements, fix key values
 	where = lp_get_select_where(plan);
+	where->v.operand[0] = lp_make_normal_disjunctive_form(where->v.operand[0]);
+
+	// Blow up the plan, if needed
+	LogicalPlan *new_plan = plan;
+	LogicalPlan *cur = where->v.operand[0];
+	while(cur != NULL && cur->type == LP_BOOLEAN_OR) {
+		SqlOptionalKeyword *keywords, *new_keyword, *t;
+		keywords = lp_get_select_keywords(plan)->v.keywords;
+		new_keyword = get_keyword_from_keywords(keywords, OPTIONAL_PART_OF_EXPLOSION);
+		if(new_keyword == NULL) {
+			new_keyword = octo_cmalloc(memory_chunks, sizeof(SqlOptionalKeyword));
+			dqinit(new_keyword);
+			new_keyword->keyword = OPTIONAL_PART_OF_EXPLOSION;
+			dqinsert(keywords, new_keyword, t);
+		}
+		LogicalPlan *p = lp_copy_plan(plan);
+		LogicalPlan *child_where = lp_get_select_where(p);
+		child_where->v.operand[0] = cur->v.operand[0];
+		new_plan = lp_join_plans(new_plan, p, LP_SET_UNION_ALL);
+		//lp_optimize_where_multi_equal_ands(p, child_where);
+		cur = cur->v.operand[1];
+	}
+
+	where->v.operand[0] = cur;
+
+	if(new_plan != plan) {
+		return optimize_logical_plan(new_plan);
+	}
+
+	// Perform optimizations where we are able
 	lp_optimize_where_multi_equal_ands(plan, where);
-	return plan;
+	return new_plan;
 }

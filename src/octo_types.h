@@ -162,6 +162,8 @@ typedef enum OptionalKeyword {
 	OPTIONAL_LIMIT,
 	OPTIONAL_DISTINCT,
 	OPTIONAL_POPULATE_INDEX, // not sure if this should be here; gets populated through LP
+	OPTIONAL_PART_OF_EXPLOSION, // indicates that this statement is part of a OR explosion and we
+	// should maintain the structure to ensure we only insert a single element for each key part
 	UNKNOWN_SqlConstraintType,
 	NOT_NULL,
 	UNIQUE_CONSTRAINT,

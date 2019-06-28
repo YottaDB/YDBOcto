@@ -112,8 +112,8 @@ LogicalPlan *lp_generate_set_logical_plan(SqlStatement *stmt, int *plan_id);
 
 // Provides a copy of the plan
 LogicalPlan *lp_copy_plan(LogicalPlan *plan);
-// Deletes a plan
-void lp_free_plan(LogicalPlan *plan);
+// Copies the SqlKey into a new key
+SqlKey *lp_copy_key(SqlKey *key);
 
 // Verifies that we have a good structure
 //  Rules: root is INSERT, has TABLE and PROJECT as parameters
@@ -189,6 +189,11 @@ int lp_remove_keys(LogicalPlan *plan);
 int lp_optimize_keys(LogicalPlan *plan);
 // Replaces JOINs with WHERE criteria and a new table
 int lp_replace_joins(LogicalPlan *plan);
+// Converts the provided boolean expression to normal disjunctive form
+LogicalPlan *lp_make_normal_disjunctive_form(LogicalPlan *root);
+// Generates a new plan which is a LP_SET_OPERATION of the two plans
+// If a or b is NULL, returns the other
+LogicalPlan *lp_join_plans(LogicalPlan *a, LogicalPlan *b, LPActionType type);
 
 // Inserts a new key into the plan for the given column alias (column, table, unique_id
 // This key *must* be fixed to a value later, is it may not be resolvable before then

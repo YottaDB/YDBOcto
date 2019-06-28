@@ -77,6 +77,10 @@ PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlanOptions *opt
 		case LP_SET_UNION_ALL:
 		case LP_SET_EXCEPT_ALL:
 		case LP_SET_INTERSECT_ALL:
+			// Even though we don't use the index for the UNION_ALL case, we need to maintain
+			// it so any parent SET operations have knowledge to act
+			// In theory, we could check to see if there is nothing but UNION_ALL's, and that
+			// should be a future enhacement, but it's not the case now
 			out->maintain_columnwise_index = TRUE;
 			prev->maintain_columnwise_index = TRUE;
 			break;
@@ -169,6 +173,11 @@ PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlanOptions *opt
 		out->maintain_columnwise_index = 1;
 	}
 
+	keyword = get_keyword_from_keywords(keywords, OPTIONAL_PART_OF_EXPLOSION);
+	if(keyword != NULL) {
+		out->emit_duplication_check = TRUE;
+	}
+
 	out->stash_columns_in_keys = options->stash_columns_in_keys;
 
 	return out;
@@ -203,6 +212,9 @@ LogicalPlan *walk_where_statement(PhysicalPlanOptions *options, LogicalPlan *stm
 		stmt->v.operand[0] = walk_where_statement(options, stmt->v.operand[0]);
 	} else {
 		switch(stmt->type) {
+		case LP_KEY:
+			/* No action */
+			break;
 		case LP_DERIVED_COLUMN:
 			/* No action */
 			break;

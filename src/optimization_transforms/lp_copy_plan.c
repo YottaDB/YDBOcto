@@ -20,12 +20,36 @@ LogicalPlan *lp_copy_plan(LogicalPlan *plan) {
 		return NULL;
 	new_plan = (LogicalPlan *)octo_cmalloc(memory_chunks, sizeof(LogicalPlan));
 	*new_plan = *plan;
-	/// TODO: should this also clone tables and what not?
+	// We copy SqlStatements where, which is definitely needed for keys
+	// and maybe needed for the others, but better safe than sorry
+	SqlStatement *stmt;
 	switch(plan->type) {
-	case LP_VALUE:
-	case LP_TABLE:
 	case LP_KEY:
+		new_plan->v.key = lp_copy_key(plan->v.key);
+		break;
+	case LP_VALUE:
+		SQL_STATEMENT(stmt, value_STATEMENT);
+		stmt->v.value = plan->v.value;
+		new_plan->v.value = copy_sql_statement(stmt)->v.value;
+		break;
+	case LP_TABLE:
+		break;
 	case LP_COLUMN_ALIAS:
+		SQL_STATEMENT(stmt, column_alias_STATEMENT);
+		stmt->v.value = plan->v.value;
+		new_plan->v.value = copy_sql_statement(stmt)->v.value;
+		break;
+	case LP_COLUMN_LIST_ALIAS:
+		SQL_STATEMENT(stmt, column_list_alias_STATEMENT);
+		stmt->v.value = plan->v.value;
+		new_plan->v.value = copy_sql_statement(stmt)->v.value;
+		break;
+	case LP_KEYWORDS:
+		SQL_STATEMENT(stmt, keyword_STATEMENT);
+		stmt->v.value = plan->v.value;
+		new_plan->v.value = copy_sql_statement(stmt)->v.value;
+		break;
+	case LP_PIECE_NUMBER:
 		break;
 	default:
 		new_plan->v.operand[0] = lp_copy_plan(plan->v.operand[0]);

@@ -85,7 +85,7 @@ int emit_physical_plan(PhysicalPlan *pplan, char *plan_filename) {
 		UNPACK_SQL_STATEMENT (value, key->column->columnName, value);
 		columnName = value->v.reference;
 		len = snprintf(plan_name_buffer, MAX_STR_CONST, "plan%d", plan_id);
-		cur_plan->plan_name = malloc(len+1);
+		cur_plan->plan_name = octo_cmalloc(memory_chunks, len+1);
 		memcpy(cur_plan->plan_name, plan_name_buffer, len);
 		cur_plan->plan_name[len] = '\0';
 
@@ -125,7 +125,7 @@ int emit_physical_plan(PhysicalPlan *pplan, char *plan_filename) {
 			break;
 		plan_id++;
 		len = snprintf(plan_name_buffer, MAX_STR_CONST, "octoPlan%d", plan_id);
-		cur_plan->plan_name = malloc(len+1);
+		cur_plan->plan_name = octo_cmalloc(memory_chunks, len+1);
 		memcpy(cur_plan->plan_name, plan_name_buffer, len);
 		cur_plan->plan_name[len] = '\0';
 		cur_plan = cur_plan->next;
@@ -135,7 +135,7 @@ int emit_physical_plan(PhysicalPlan *pplan, char *plan_filename) {
 	//  that as the plan_id
 	plan_id = 0;
 	plan_filename_len = strlen(plan_filename);
-	tmp_plan_filename = (char*)malloc(plan_filename_len + sizeof(char));
+	tmp_plan_filename = (char*)octo_cmalloc(memory_chunks, plan_filename_len + sizeof(char));
 	strncpy(tmp_plan_filename, plan_filename, plan_filename_len + sizeof(char));
 	tmp_plan_filename[plan_filename_len-1] = 't';
 	output_file = fopen(tmp_plan_filename, "w");

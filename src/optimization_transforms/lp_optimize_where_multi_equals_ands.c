@@ -49,7 +49,8 @@ int lp_verify_valid_for_key_fix(LogicalPlan *plan, LogicalPlan *equals) {
 		i1 = lp_get_key_index(plan, left);
 		i2 = lp_get_key_index(plan, right);
 		if(i1 == -1 && i2 == -1) {
-			return FALSE;
+			// Both of them are columns that are not keys; we should still be able to optimize one
+			// using the cross reference
 		}
 		// If the key is in the same table as the temporary value, we can't do anything
 		if(i1 == -1 || i2 == -1) {
@@ -80,17 +81,26 @@ int lp_optimize_where_multi_equal_ands(LogicalPlan *plan, LogicalPlan *where) {
 	int total_optimizations_done;
 	// keys_unique_id_ordering[unique_id] = index in the ordered list
 	int key_unique_id_ordering[MAX_STR_CONST];
+
 	total_optimizations_done  = 0;
-	cur = where->v.operand[0];
+	if(where->type == LP_WHERE) {
+		cur = where->v.operand[0];
+	} else {
+		cur = where;
+	}
 	prev = NULL;
 	result = FALSE;
 	while(cur != NULL) {
 		if(cur->type == LP_BOOLEAN_EQUALS || cur->type == LP_BOOLEAN_NOT_EQUALS) {
 			equals = cur;
 			cur = NULL;
-		} else if(cur->type != LP_BOOLEAN_AND)
+		} else if(cur->type == LP_BOOLEAN_OR) {
+			// We can't optimize this expression
 			return 0;
-		else {
+		} else if(cur->type != LP_BOOLEAN_AND) {
+			// We have a leaf value, like LP_COLUMN_ALIAS
+			break;
+		} else {
 			// Get the one with equals
 			if(cur->v.operand[0]->type == LP_BOOLEAN_EQUALS &&
 					cur->v.operand[1]->type == LP_BOOLEAN_EQUALS) {
@@ -108,6 +118,10 @@ int lp_optimize_where_multi_equal_ands(LogicalPlan *plan, LogicalPlan *where) {
 				equals = cur->v.operand[1];
 				cur = cur->v.operand[0];
 			} else {
+				if(cur->v.operand[1]->type == LP_BOOLEAN_AND) {
+					// Recurse
+					total_optimizations_done += lp_optimize_where_multi_equal_ands(plan, cur->v.operand[1]);
+				}
 				cur = cur->v.operand[0];
 				continue;
 			}
@@ -136,8 +150,11 @@ int lp_optimize_where_multi_equal_ands(LogicalPlan *plan, LogicalPlan *where) {
 		if(cur->type == LP_BOOLEAN_EQUALS || cur->type == LP_BOOLEAN_NOT_EQUALS) {
 			equals = cur;
 			cur = NULL;
+		} else if(cur->type == LP_BOOLEAN_OR) {
+			// We shouldn't get this far if the expression has n OR
+			assert(FALSE);
 		} else if(cur->type != LP_BOOLEAN_AND) {
-			return 0;
+			break;
 		} else {
 			// Get the one with equals
 			if(cur->v.operand[0]->type == LP_BOOLEAN_EQUALS &&

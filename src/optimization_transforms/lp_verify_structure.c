@@ -221,6 +221,7 @@ int lp_verify_structure_helper(LogicalPlan *plan, LPActionType expected) {
 			| lp_verify_structure_helper(plan->v.operand[1], LP_INSERT)
 			| lp_verify_structure_helper(plan->v.operand[1], LP_SET_OPERATION)
 			| lp_verify_structure_helper(plan->v.operand[1], LP_DERIVED_COLUMN)
+			| lp_verify_structure_helper(plan->v.operand[1], LP_KEY)
 			| lp_verify_structure_helper(plan->v.operand[1], LP_CASE)
 			| lp_verify_structure_helper(plan->v.operand[1], LP_WHERE)
 			| lp_verify_structure_helper(plan->v.operand[1], LP_VALUE);

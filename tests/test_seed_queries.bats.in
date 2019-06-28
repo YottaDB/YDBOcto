@@ -219,7 +219,6 @@ OCTO
 }
 
 @test "test3" {
-  skip # This test isn't working just yet
   octo <<OCTO &> output.txt
  SELECT NULL                                         AS type_cat,
        n.nspname                                    AS type_schem,

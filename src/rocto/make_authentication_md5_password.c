@@ -18,8 +18,7 @@
 // Used to convert between network and host endian
 #include <arpa/inet.h>
 
-// Used for random number generation
-// #include <sys/random.h>
+// Used for random number generation via syscall
 #include <sys/syscall.h>
 
 #include "rocto.h"
@@ -40,7 +39,6 @@ AuthenticationMD5Password *make_authentication_md5_password(RoctoSession *sessio
 	ret->md5_required = htonl(5);
 	// Generate 4-byte random salt with call to getrandom syscall (#318)
 	syscall(318, salt, 4, 0);
-	// getrandom(salt, 4, 0);
 	memcpy(ret->salt, salt, 4);
 
 	return ret;

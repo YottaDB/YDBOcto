@@ -69,7 +69,7 @@ $ydb_dist/mupip load ../../tests/fixtures/names.zwr
 popd
 
 # Run the tests
-make test
+make test || exit 1
 
 # Build binary package
 make package

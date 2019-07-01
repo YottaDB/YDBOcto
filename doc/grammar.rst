@@ -108,7 +108,7 @@ The keywords denoted above are M expressions and literals. They are explained in
 In the table above:
 
 * table_name and cursor_name are variables representing the names of the table and the cursor being used.
-* keys is a special local variable that contains all the keys used by the table.
+* keys is a special variable in Octo that contains all of the columns that are identified as keys in the DDL (either via the "PRIMARY KEY" or "KEY NUM X" set of keywords).
 
 -----------------
 DROP

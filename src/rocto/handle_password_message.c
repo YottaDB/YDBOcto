@@ -95,7 +95,7 @@ int handle_password_message(PasswordMessage *password_message, ErrorResponse **e
 	memcpy(&hash_buf[buf_len-3], salt, 4);
 
 	// Hash password hash with temporary 4-byte salt
-	MD5(hash_buf, strlen((const char *)hash_buf), hash_buf);
+	MD5(hash_buf, buf_len-3+4, hash_buf);
 
 	// Convert raw md5 hash to hex string
 	char md5_hex[md5_hex_len];

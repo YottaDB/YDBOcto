@@ -91,9 +91,8 @@ int handle_password_message(PasswordMessage *password_message, ErrorResponse **e
 
 	// Concatenate stored hash with temporary 4-byte salt
 	unsigned char hash_buf[MAX_STR_CONST];
-	// Exclude "md5" from stored password (-3),
-	// Must copy: buf_len - "md5" (3) + salt length (4) + null terminator (1)
-	snprintf((char*)hash_buf, buf_len - 3 + 4 + 1, "%s%s", &buffer[3], salt);	// Exclude "md5" prefix
+	memcpy(hash_buf, &buffer[3], buf_len-3);	// Exclude "md5" from stored password (-3),
+	memcpy(&hash_buf[buf_len-3], salt, 4);
 
 	// Hash password hash with temporary 4-byte salt
 	MD5(hash_buf, strlen((const char *)hash_buf), hash_buf);
@@ -112,7 +111,6 @@ int handle_password_message(PasswordMessage *password_message, ErrorResponse **e
 		free(user_subs);
 		return 1;
 	}
-	printf("expected: %s\tactual: %s\n", md5_hex, &password_message->password[3]);
 	// Compare final hash of stored password against hash sent by client
 	result = strncmp(md5_hex, &password_message->password[3], md5_hex_len);	// Exclude "md5" prefix
 	if (0 != result) {

@@ -134,7 +134,7 @@ run_psql_auth() {
 }
 
 create_user() {
-  echo $2 | yottadb -r ydboctoAdmin add user $1
+  echo -n $2 | yottadb -r ydboctoAdmin add user $1
 }
 
 delete_users() {

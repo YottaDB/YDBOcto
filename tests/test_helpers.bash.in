@@ -126,16 +126,20 @@ run_psql() {
 }
 
 run_psql_auth() {
-  PGPASSWORD=$2 psql -U $1 "sslmode=disable host=localhost port=1337"
+  if [[ @YDB_TLS_AVAILABLE@ -eq 1 ]]; then
+    PGPASSWORD=$2 psql -U $1 "host=localhost port=1337"
+  else
+    PGPASSWORD=$2 psql -U $1 "sslmode=disable host=localhost port=1337"
+  fi
 }
 
 create_user() {
-  echo -n $2 | go run $GOPATH/src/gitlab.com/euterpe/ydbocto-admin/cmd/ydbocto-admin/main.go add user $1
+  echo $2 | yottadb -r ydboctoAdmin add user $1
 }
 
 delete_users() {
   for user in $@; do
-    go run $GOPATH/src/gitlab.com/euterpe/ydbocto-admin/cmd/ydbocto-admin/main.go delete user $user
+    yottadb -r ydboctoAdmin delete user $user
   done
 }
 

@@ -113,7 +113,6 @@ int handle_password_message(PasswordMessage *password_message, ErrorResponse **e
 	}
 	// Compare final hash of stored password against hash sent by client
 	result = strncmp(md5_hex, &password_message->password[3], md5_hex_len);	// Exclude "md5" prefix
-	printf("Expected: %s\tActual: %s\n", md5_hex, &password_message->password[3]);
 	if (0 != result) {
 		WARNING(ERR_ROCTO_BAD_PASSWORD, "handle_password_message");
 		error_message = format_error_string(&err_buff, ERR_ROCTO_BAD_PASSWORD, "handle_password_message");

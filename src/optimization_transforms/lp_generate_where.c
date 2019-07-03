@@ -82,6 +82,54 @@ LogicalPlan *lp_generate_where(SqlStatement *stmt, int *plan_id) {
 			MALLOC_LP(ret, type);
 			ret->v.operand[0] = lp_generate_where(binary->operands[0], plan_id);
 			ret->v.operand[1] = lp_generate_where(binary->operands[1], plan_id);
+			/// OPTIMIZATION: if this is a regex, see if the pattern is entirely characters,
+			// and if so, change it to a LP_BOOLEAN_EQUALS so we can optimize it later
+			if(ret->type == LP_BOOLEAN_REGEX_SENSITIVE && ret->v.operand[1]->type == LP_VALUE) {
+				SqlValue *value = ret->v.operand[1]->v.value;
+				if(value->type != STRING_LITERAL && value->type != NUMBER_LITERAL) {
+					break;
+				}
+				char *c = value->v.string_literal;
+				if(*c != '^') {
+					break;
+				}
+				c++;
+				int done = FALSE;
+				while(*c != '\0' && *c != '$' && !done) {
+					switch(*c) {
+					case '\\':
+					case '*':
+					case '+':
+					case '{':
+					case '(':
+					case ')':
+					case '}':
+					case '[':
+					case ']':
+					case '?':
+					case '.':
+					case '|':
+						done = TRUE;
+						break;
+					default:
+						c++;
+						break;
+					}
+				}
+				if(*c != '$') {
+					break;
+				}
+				c++;
+				if(*c == '\0') {
+					if(value->v.string_literal[0] == '^') {
+						value->v.string_literal = value->v.string_literal + 1;
+					}
+					if(*(c - 1) == '$') {
+						*(c - 1) = '\0';
+					}
+					ret->type = LP_BOOLEAN_EQUALS;
+				}
+			}
 		}
 		break;
 	case unary_STATEMENT:
@@ -113,10 +161,7 @@ LogicalPlan *lp_generate_where(SqlStatement *stmt, int *plan_id) {
 		break;
 	case column_alias_STATEMENT:
 		MALLOC_LP(ret, LP_COLUMN_ALIAS);
-		// If this column_alias referes to a select statement, replace it with
-		//  LP_DERIVED_COLUMN
 		UNPACK_SQL_STATEMENT(ret->v.column_alias, stmt, column_alias);
-		//ret->v.column_alias = stmt->v.column_alias;
 		break;
 	case cas_STATEMENT:
 		MALLOC_LP(ret, LP_CASE);

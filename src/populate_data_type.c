@@ -108,6 +108,7 @@ int populate_data_type(SqlStatement *v, SqlValueType *type) {
 		case STRING_LITERAL:
 		case DATE_TIME:
 		case PARAMETER_VALUE:
+		case UNKNOWN_SqlValueType:
 			*type = value->type;
 			break;
 		case NUL_VALUE:
@@ -155,7 +156,7 @@ int populate_data_type(SqlStatement *v, SqlValueType *type) {
 			location = binary->operands[0]->loc;
 			location.last_line = binary->operands[1]->loc.last_line;
 			location.last_column = binary->operands[1]->loc.last_column;
-			print_yyloc(&location);
+			yyerror(&location, NULL, NULL, NULL, "Type mismatch");
 			return 1;
 		}
 		break;

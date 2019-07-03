@@ -27,6 +27,8 @@ char *regex_to_like(const char *src) {
 	d = ret;
 	c = src;
 
+	*d++ = '^';
+
 	while(*c != '\0' && d < end) {
 		if(*c == '%') {
 			*d++ = '.';
@@ -38,6 +40,9 @@ char *regex_to_like(const char *src) {
 		}
 		c++;
 	}
+
+	*d++ = '$';
+	*d = '\0';
 
 	return ret;
 }

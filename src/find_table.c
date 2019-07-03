@@ -63,6 +63,17 @@ SqlTable *find_table(const char *table_name) {
 	}
 
 	if(num_parts == 0) {
+		const char *c = table_name;
+		while(*c != '\0') {
+			if(*c == '.')
+				break;
+			c++;
+		}
+		if(*c != '\0') {
+			// Temporary workaround untilwe support schemas; try stripping off
+			// schema name and see if we find it
+			return find_table(c+1);
+		}
 		return NULL;
 	}
 

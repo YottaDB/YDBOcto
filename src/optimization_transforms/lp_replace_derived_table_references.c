@@ -34,6 +34,11 @@ LogicalPlan *lp_replace_derived_table_references(LogicalPlan *root, LogicalPlan 
 	t->v.operand[0] = lp_replace_helper(t->v.operand[0], table_alias, key);
 	t = lp_get_project(root);
 	t->v.operand[0] = lp_replace_helper(t->v.operand[0], table_alias, key);
+	// Make sure to update table references in order by clauses
+	t = root->v.operand[1]->v.operand[1];
+	if(t != NULL) {
+		t->v.operand[0] = lp_replace_helper(t->v.operand[0], table_alias, key);
+	}
 
 	return root;
 }
@@ -59,6 +64,7 @@ LogicalPlan *lp_replace_helper(LogicalPlan *where, SqlTableAlias *table_alias, S
 		}
 		break;
 	case LP_COLUMN_LIST:
+	case LP_FUNCTION_CALL:
 		ret->v.operand[0] = lp_replace_helper(where->v.operand[0], table_alias, key);
 		ret->v.operand[1] = lp_replace_helper(where->v.operand[1], table_alias, key);
 		break;

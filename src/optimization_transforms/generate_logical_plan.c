@@ -238,7 +238,30 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt, int *plan_id) {
 	if(select_stmt->order_expression != NULL) {
 		order_by = MALLOC_LP(dst->v.operand[1], LP_COLUMN_LIST);
 		UNPACK_SQL_STATEMENT(list, select_stmt->order_expression, column_list_alias);
-		order_by->v.operand[0] = lp_column_list_to_lp(list, plan_id);
+		// Manually drill down to the expression so we can convert it
+		SqlColumnListAlias *cur_cla, *start_cla;
+		cur_cla = start_cla = list;
+		do {
+			// We have to do some drilling to get the correct item,
+			// since the output from the parser is not super uniform
+			SqlColumnList *column_list;
+			UNPACK_SQL_STATEMENT(column_list, list->column_list, column_list);
+			// Ensure that we only have one element in this list
+			assert(column_list->next == column_list);
+			SqlColumnAlias *column_alias;
+			// If this breaks, it means we allowed the user to pass in a value directly
+			// in the parser. This is a silly thing to do, and the parser should
+			// reject it
+			UNPACK_SQL_STATEMENT(column_alias, column_list->value, column_alias);
+			SqlColumnListAlias *cla;
+			UNPACK_SQL_STATEMENT(cla, column_alias->column, column_list_alias);
+			order_by->v.operand[0] = lp_column_list_to_lp(cla, plan_id);
+			cur_cla = cur_cla->next;
+			if(cur_cla != start_cla) {
+				MALLOC_LP(order_by->v.operand[1], LP_COLUMN_LIST);
+				order_by = order_by->v.operand[1];
+			}
+		} while(cur_cla != start_cla);
 	}
 	/// TODO: we should look at the columns to decide which values
 	//   are keys, and if none, create a rowId as part of the advance

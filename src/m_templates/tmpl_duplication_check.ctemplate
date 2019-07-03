@@ -16,7 +16,7 @@
 
 TEMPLATE(tmpl_duplication_check, PhysicalPlan *plan) {
     TEMPLATE_INIT();
-    // Emit this as a series of key,value parts
+    // Emit this as a series of key, value pairs
     // Composite keys will be fine because they will be consistently represented
     // Skip cross reference keys, since those will vary; they still have all the
     // requires keys, in order, under them anyway

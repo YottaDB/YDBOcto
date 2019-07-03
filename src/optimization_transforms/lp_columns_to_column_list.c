@@ -42,7 +42,6 @@ SqlColumnListAlias *lp_columns_to_column_list(SqlColumn *column, SqlTableAlias *
 		PACK_SQL_STATEMENT(alias->table_alias, table_alias, table_alias);
 
 		cur_column_list_alias = (SqlColumnListAlias*)octo_cmalloc(memory_chunks, sizeof(SqlColumnListAlias));
-		memset(cur_column_list_alias, 0, sizeof(SqlColumnListAlias));
 		cur_column_list_alias->alias = cur_column->columnName;
 		PACK_SQL_STATEMENT(cur_column_list_alias->column_list, cur, column_list);
 		dqinit(cur_column_list_alias);

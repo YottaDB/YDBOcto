@@ -173,7 +173,7 @@ PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlanOptions *opt
 		out->maintain_columnwise_index = 1;
 	}
 
-	keyword = get_keyword_from_keywords(keywords, OPTIONAL_PART_OF_EXPLOSION);
+	keyword = get_keyword_from_keywords(keywords, OPTIONAL_PART_OF_EXPANSION);
 	if(keyword != NULL) {
 		out->emit_duplication_check = TRUE;
 	}
@@ -226,7 +226,7 @@ LogicalPlan *walk_where_statement(PhysicalPlanOptions *options, LogicalPlan *stm
 			cur = out;
 			SqlTableAlias *table_alias;
 			UNPACK_SQL_STATEMENT(table_alias, stmt->v.column_alias->table_alias, table_alias);
-			while(TRUE) {
+			while(cur) {
 				unsigned int i = 0;
 				for(; i < out->total_iter_keys; i++) {
 					if(cur->iterKeys[i]->unique_id == table_alias->unique_id) {
@@ -239,7 +239,9 @@ LogicalPlan *walk_where_statement(PhysicalPlanOptions *options, LogicalPlan *stm
 				cur->deferred_plan = TRUE;
 				cur = cur->parent_plan;
 			}
-			assert(cur != NULL);
+			if(cur == NULL) {
+				WARNING(CUSTOM_ERROR, "Problem resolving owner for deferred plan; undefined behavior");
+			}
 			/* No action */
 			break;
 		case LP_VALUE:

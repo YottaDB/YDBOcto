@@ -124,6 +124,8 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
         temp_plan = temp_plan->next;
     }
     // Apply the conditions for this statement
+    //  We put the 'IF 1' here so it's easy to add extra clauses from any of the
+    //  below conditions which may or may not emit boolean logic
     TMPL(print_dots, dot_count);
     %}IF 1{%
     if(plan->where && plan->where->v.operand[0]) {
@@ -223,9 +225,9 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
             TMPL(tmpl_column_list_combine, plan->projection, plan, ",", NULL, 0);
             %}){%
         } else if (plan->order_by) {
-            %},{%
+            %},"order",{%
             TMPL(tmpl_column_list_combine, plan->order_by, plan, ",", NULL, 0);
-            %}){%
+            %},{% TMPL(tmpl_key, plan->outputKey);%}){%
         } else {
             %},{% TMPL(tmpl_key, plan->outputKey);%}){%
         }
@@ -276,6 +278,15 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
         } else {
             %}){%
         }
+    }
+    // If this expression had an order by, we now need to go back and make the ordering uniform
+    if(plan->order_by) {
+        %}
+    SET %%ydboctoi0=1,%%ydboctoi1="",%%ydboctoi3=""
+    FOR  SET %%ydboctoi1=$ORDER({% TMPL(tmpl_key, plan->outputKey); buff_ptr--; %},"order",%%ydboctoi1)) QUIT:$DATA({% TMPL(tmpl_key, plan->outputKey); buff_ptr--; %},"order",%%ydboctoi1))=0  DO  QUIT:%%ydboctoi1=""
+    . FOR  SET %%ydboctoi3=$ORDER({% TMPL(tmpl_key, plan->outputKey); buff_ptr--; %},"order",%%ydboctoi1,%%ydboctoi3)) QUIT:%%ydboctoi3=""  SET {% TMPL(tmpl_key, plan->outputKey); buff_ptr--; %},%%ydboctoi0)={%
+              TMPL(tmpl_key, plan->outputKey); buff_ptr--; %},"order",%%ydboctoi1,%%ydboctoi3) IF $INCREMENT(%%ydboctoi0)
+    KILL {% TMPL(tmpl_key, plan->outputKey); buff_ptr--; %},"order"){%
     }
     // If this is a INTERSECT set, we need to delete any keys remaining in the
     //  the index; these were in the first set, but not the second

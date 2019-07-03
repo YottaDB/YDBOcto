@@ -35,6 +35,7 @@ SqlStatement *copy_sql_statement(SqlStatement *stmt) {
 	SqlColumnAlias *column_alias;
 	SqlCaseStatement *cas;
 	SqlCaseBranchStatement *cur_cas_branch, *start_cas_branch, *new_cas_branch, *t_cas_branch;
+	SqlFunctionCall *function_call;
 	int len;
 
 	if(stmt == NULL)
@@ -66,7 +67,12 @@ SqlStatement *copy_sql_statement(SqlStatement *stmt) {
 		ret->v.select->table_list = copy_sql_statement(select->table_list);
 		ret->v.select->where_expression = copy_sql_statement(select->where_expression);
 		ret->v.select->optional_words = copy_sql_statement(select->optional_words);
-		ret->v.select->order_expression = copy_sql_statement(select->order_expression);
+		// Don't copy the order by, which has a pointer to an element in the select list which has
+		// a pointer to this statement, which results in a loop that causes a stack overflow
+		/// TODO: update the pointers to match the new items in the select_list which has already
+		// been copied by looking at the aliases for each column below
+		//ret->v.select->order_expression = copy_sql_statement(select->order_expression);
+		// Don't copy the set operation because it has a pointer to this select statement
 		//ret->v.select->set_operation = copy_sql_statement(select->set_operation);
 		break;
 	case drop_STATEMENT:
@@ -234,6 +240,12 @@ SqlStatement *copy_sql_statement(SqlStatement *stmt) {
 			}
 			cur_cas_branch = cur_cas_branch->next;
 		} while (cur_cas_branch != start_cas_branch);
+		break;
+	case function_call_STATEMENT:
+		UNPACK_SQL_STATEMENT(function_call, stmt, function_call);
+		MALLOC_STATEMENT(ret, function_call, SqlFunctionCall);
+		ret->v.function_call->function_name = copy_sql_statement(function_call->function_name);
+		ret->v.function_call->parameters = copy_sql_statement(function_call->parameters);
 		break;
 	default:
 		FATAL(ERR_UNKNOWN_KEYWORD_STATE, "");

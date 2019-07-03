@@ -102,6 +102,7 @@ add_library(libocto OBJECT
   populate_data_type.c
   find_table.c
   find_column.c
+  find_column_alias_name.c
   qualify_column_list.c
   qualify_column_list_alias.c
   qualify_column_name.c
@@ -130,6 +131,7 @@ add_library(libocto OBJECT
   regex_to_like.c
   compress_statement.c
   decompress_statement.c
+  store_table_in_pg_class.c
   optimization_transforms/optimize_logical_plan.c
   optimization_transforms/lp_get_select.c
   optimization_transforms/lp_get_select_where.c
@@ -303,14 +305,14 @@ endforeach()
 
 # Create a shared library of M routines
 set(aux_files
-  aux/select.m
-  aux/insert.m
-  aux/pack.m
+  aux/_ydboctoselect.m
   aux/ydboctoAdmin.m
   aux/_ydboctocurrentSchema.m
   aux/_ydboctoreplace.m
   aux/_ydboctopgCurrentSchemas.m
   aux/_ydboctopgObjDescription.m
+  aux/_ydboctopgRowNumber.m
+  aux/_ydboctopgGetExpr.m
   aux/_ydboctoversion.m
 )
 add_library(_ydbocto SHARED ${aux_files})

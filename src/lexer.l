@@ -140,7 +140,9 @@ int copied_so_far;
 (?i:OR) { return OR; }
 (?i:ORDER) { return ORDER; }
 (?i:OUTER) { return OUTER; }
+(?i:OVER) { return OVER; }
 (?i:PACK) { return PACK; }
+(?i:PARTITION) { return PARTITION; }
 (?i:PIECE) { return PIECE; }
 (?i:PRIMARY) { return PRIMARY; }
 (?i:RESTRICT) { return RESTRICT; }

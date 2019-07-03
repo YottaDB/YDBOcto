@@ -33,9 +33,16 @@ LogicalPlan *join_tables(LogicalPlan *root, LogicalPlan *plan) {
 	if(plan->type != LP_TABLE_JOIN || plan->v.operand[0] == NULL)
 		return plan;
 	sub = plan->v.operand[0];
+	if(plan->v.operand[0]->type == LP_INSERT) {
+		// This plan needs to be inserted as a physical plan
+		//  Leave it alone here, and let the physical planner grab it
+		plan->counter = root->counter;
+		plan->v.operand[0] = sub = optimize_logical_plan(plan->v.operand[0]);
+		root->counter = plan->counter;
+	}
 	if(sub->type == LP_SET_OPERATION) {
-		sub1 = optimize_logical_plan(sub->v.operand[1]->v.operand[0]);
-		optimize_logical_plan(sub->v.operand[1]->v.operand[1]);
+		sub->v.operand[1]->v.operand[0] = sub1 = optimize_logical_plan(sub->v.operand[1]->v.operand[0]);
+		sub->v.operand[1]->v.operand[1] = optimize_logical_plan(sub->v.operand[1]->v.operand[1]);
 		// Each of the sub plans should have the same output key, so we can
 		//  grab from either
 		sub1 = lp_drill_to_insert(sub1);
@@ -48,11 +55,6 @@ LogicalPlan *join_tables(LogicalPlan *root, LogicalPlan *plan) {
 		GET_LP(next, plan, 1, LP_TABLE_JOIN);
 	}
 	if(plan->v.operand[0]->type == LP_INSERT) {
-		// This plan needs to be inserted as a physical plan
-		//  Leave it alone here, and let the physical planner grab it
-		plan->counter = root->counter;
-		sub = optimize_logical_plan(plan->v.operand[0]);
-		root->counter = plan->counter;
 		// Append that plans output keys to my list of keys
 		GET_LP(cur_lp_key, sub, 1, LP_OUTPUT);
 		GET_LP(cur_lp_key, cur_lp_key, 0, LP_KEY);
@@ -112,8 +114,8 @@ LogicalPlan *optimize_logical_plan(LogicalPlan *plan) {
 	LogicalPlan *select, *table_join, *where;
 
 	if(plan->type == LP_SET_OPERATION) {
-		optimize_logical_plan(plan->v.operand[1]->v.operand[0]);
-		optimize_logical_plan(plan->v.operand[1]->v.operand[1]);
+		plan->v.operand[1]->v.operand[0] = optimize_logical_plan(plan->v.operand[1]->v.operand[0]);
+		plan->v.operand[1]->v.operand[1] = optimize_logical_plan(plan->v.operand[1]->v.operand[1]);
 		return plan;
 	}
 
@@ -133,17 +135,17 @@ LogicalPlan *optimize_logical_plan(LogicalPlan *plan) {
 	where = lp_get_select_where(plan);
 	where->v.operand[0] = lp_make_normal_disjunctive_form(where->v.operand[0]);
 
-	// Blow up the plan, if needed
+	// Expand the plan, if needed
 	LogicalPlan *new_plan = plan;
 	LogicalPlan *cur = where->v.operand[0];
 	while(cur != NULL && cur->type == LP_BOOLEAN_OR) {
 		SqlOptionalKeyword *keywords, *new_keyword, *t;
 		keywords = lp_get_select_keywords(plan)->v.keywords;
-		new_keyword = get_keyword_from_keywords(keywords, OPTIONAL_PART_OF_EXPLOSION);
+		new_keyword = get_keyword_from_keywords(keywords, OPTIONAL_PART_OF_EXPANSION);
 		if(new_keyword == NULL) {
 			new_keyword = octo_cmalloc(memory_chunks, sizeof(SqlOptionalKeyword));
 			dqinit(new_keyword);
-			new_keyword->keyword = OPTIONAL_PART_OF_EXPLOSION;
+			new_keyword->keyword = OPTIONAL_PART_OF_EXPANSION;
 			dqinsert(keywords, new_keyword, t);
 		}
 		LogicalPlan *p = lp_copy_plan(plan);

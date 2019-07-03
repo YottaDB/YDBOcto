@@ -43,6 +43,7 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan) {
         case NUMBER_LITERAL:
         case STRING_LITERAL:
         case DATE_TIME:
+        case UNKNOWN_SqlValueType:
         case BOOLEAN_VALUE:
             %}"{{ value->v.string_literal }}"{%
             break;

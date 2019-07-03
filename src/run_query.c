@@ -100,6 +100,12 @@ int run_query(char *query, void (*callback)(SqlStatement *, int, void*, char*), 
 			ydb_lock_incr_s(5000000000, &filename_lock[0], 2, &filename_lock[1]);
 			if (access(filename, F_OK) == -1) {
 				pplan = emit_select_statement(result, filename);
+				if(pplan == NULL) {
+					octo_cfree(memory_chunks);
+					ydb_lock_decr_s(&filename_lock[0], 2, &filename_lock[1]);
+					result = NULL;
+					return 1;
+				}
 				assert(pplan != NULL);
 			}
 			ydb_lock_decr_s(&filename_lock[0], 2, &filename_lock[1]);
@@ -111,7 +117,7 @@ int run_query(char *query, void (*callback)(SqlStatement *, int, void*, char*), 
 		ci_routine.address = routine_name;
 		ci_routine.length = routine_len;
 		SWITCH_FROM_OCTO_GLOBAL_DIRECTORY();
-		status = ydb_ci("select", cursorId, &ci_filename, &ci_routine);
+		status = ydb_ci("_ydboctoselect", cursorId, &ci_filename, &ci_routine);
 		YDB_ERROR_CHECK(status, &z_status, &z_status_value);
 		SWITCH_TO_OCTO_GLOBAL_DIRECTORY();
 		(*callback)(result, cursorId, parms, filename);
@@ -130,7 +136,9 @@ int run_query(char *query, void (*callback)(SqlStatement *, int, void*, char*), 
 		YDB_MALLOC_BUFFER(table_name_buffer, MAX_STR_CONST);
 		YDB_MALLOC_BUFFER(table_sub_buffer, MAX_STR_CONST);
 		YDB_MALLOC_BUFFER(&table_create_buffer, MAX_STR_CONST);
-		UNPACK_SQL_STATEMENT(value, result->v.table->tableName, value);
+		SqlTable *table;
+		UNPACK_SQL_STATEMENT(table, result, table);
+		UNPACK_SQL_STATEMENT(value, table->tableName, value);
 		YDB_COPY_STRING_TO_BUFFER(value->v.reference, table_name_buffer, done);
 		if(!done) {
 			FATAL(ERR_TABLE_DEFINITION_TOO_LONG, value->v.reference,
@@ -176,6 +184,7 @@ int run_query(char *query, void (*callback)(SqlStatement *, int, void*, char*), 
 		status = ydb_set_s(&schema_global, 2,
 				   table_name_buffers,
 				   &table_create_buffer);
+		store_table_in_pg_class(table);
 		free(buffer);
 		free(table_buffer);
 		YDB_FREE_BUFFER(table_name_buffer);

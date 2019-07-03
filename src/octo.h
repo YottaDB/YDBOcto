@@ -117,6 +117,7 @@ SqlStatement *parse_line(const char *line);
 int populate_data_type(SqlStatement *v, SqlValueType *type);
 SqlTable *find_table(const char *table_name);
 SqlColumn *find_column(char *column_name, SqlTable *table);
+SqlStatement *find_column_alias_name(SqlStatement *stmt);
 int qualify_column_list_alias(SqlColumnListAlias *alias, SqlJoin *tables, SqlStatement *column_list_alias);
 int qualify_column_list(SqlColumnList *select_columns, SqlJoin *tables, SqlStatement *column_list_alias);
 SqlColumnAlias *qualify_column_name(SqlValue *column_value, SqlJoin *tables, SqlStatement *column_list_alias);
@@ -148,6 +149,7 @@ SqlStatement *copy_sql_statement(SqlStatement *stmt);
 
 void compress_statement(SqlStatement *stmt, char **out, int *out_length);
 SqlStatement *decompress_statement(char *buffer, int out_length);
+int store_table_in_pg_class(SqlTable *table);
 void cleanup_tables();
 
 /**
@@ -170,4 +172,5 @@ char *input_buffer_combined;
 int (*cur_input_more)();
 
 int get_input(char *buf, int size);
+void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, int *plan_id, char const *s);
 #endif

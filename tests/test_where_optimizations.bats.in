@@ -60,7 +60,7 @@ OCTO
 }
 
 @test "fixed value with chained SQL" {
-  octo >& output.txt <<OCTO
+  octo <<OCTO &> output.txt
 select firstName
 FROM (
   select * from names as t1

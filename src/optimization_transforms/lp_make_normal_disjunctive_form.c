@@ -20,6 +20,75 @@
 #include "logical_plan.h"
 
 /**
+ * Applies a NOT operation to all sub-plans if count % 2 == 1
+ * Effectively, this means switching OR to AND, and inverting
+ * < to be >=, > to be <=, = to be <>, and <> to be =
+ */
+LogicalPlan *lp_apply_not(LogicalPlan *root, int count) {
+	if(root->type == LP_BOOLEAN_NOT) {
+		// Don't recurse for regex calls, or anything like a function call or columns ref
+		if(root->v.operand[0]->type == LP_BOOLEAN_REGEX_SENSITIVE ||
+				root->v.operand[0]->type == LP_BOOLEAN_REGEX_INSENSITIVE ||
+				root->v.operand[0]->type == LP_BOOLEAN_IS ||
+				root->v.operand[0]->type < LP_ADDITION) {
+			return root;
+		}
+		count++;
+		// This will trim the NOT from the expression
+		return lp_apply_not(root->v.operand[0], count);
+	}
+	if(count % 2 == 1) {
+		switch(root->type) {
+			case LP_BOOLEAN_OR:
+				root->type = LP_BOOLEAN_AND;
+				root->v.operand[0] = lp_apply_not(root->v.operand[0], count);
+				root->v.operand[1] = lp_apply_not(root->v.operand[1], count);
+				break;
+			case LP_BOOLEAN_AND:
+				root->type = LP_BOOLEAN_OR;
+				root->v.operand[0] = lp_apply_not(root->v.operand[0], count);
+				root->v.operand[1] = lp_apply_not(root->v.operand[1], count);
+				break;
+			case LP_BOOLEAN_EQUALS:
+				root->type = LP_BOOLEAN_NOT_EQUALS;
+				break;
+			case LP_BOOLEAN_NOT_EQUALS:
+				root->type = LP_BOOLEAN_EQUALS;
+				break;
+			case LP_BOOLEAN_LESS_THAN:
+				root->type = LP_BOOLEAN_GREATER_THAN_OR_EQUALS;
+				break;
+			case LP_BOOLEAN_GREATER_THAN:
+				root->type = LP_BOOLEAN_LESS_THAN_OR_EQUALS;
+				break;
+			case LP_BOOLEAN_LESS_THAN_OR_EQUALS:
+				root->type = LP_BOOLEAN_GREATER_THAN;
+				break;
+			case LP_BOOLEAN_GREATER_THAN_OR_EQUALS:
+				root->type = LP_BOOLEAN_LESS_THAN;
+				break;
+			case LP_BOOLEAN_REGEX_SENSITIVE:
+			case LP_BOOLEAN_REGEX_INSENSITIVE:
+				// We can't do anything to invert this, so we should catch it earlier
+				// and just not recurse down this far
+				assert(FALSE);
+				break;
+			case LP_BOOLEAN_IN:
+				root->type = LP_BOOLEAN_NOT_IN;
+				break;
+			case LP_BOOLEAN_NOT_IN:
+				root->type = LP_BOOLEAN_IN;
+				break;
+			default:
+				// We should never recurse into anything except boolean values
+				assert(FALSE);
+				break;
+		}
+	}
+	return root;
+}
+
+/**
  * After a call to this function, all logical disjunections will be on the right, with each left
  * representing a term with only conjunctions and boolean operations
  */
@@ -27,6 +96,7 @@ LogicalPlan *lp_make_normal_disjunctive_form(LogicalPlan *root) {
 	// TODO: we need to handle NOT
 	if(root == NULL)
 		return root;
+	root = lp_apply_not(root, 0);
 	if(root->type != LP_BOOLEAN_AND && root->type != LP_BOOLEAN_OR) {
 		return root;
 	}

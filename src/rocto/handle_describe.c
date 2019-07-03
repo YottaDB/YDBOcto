@@ -137,6 +137,19 @@ int handle_describe(Describe *describe, RoctoSession *session) {
 					ydb_lock_incr_s(5000000000, &filename_lock[0], 2, &filename_lock[1]);
 					if (access(filename, F_OK) == -1) {
 						pplan = emit_select_statement(statement, filename);
+						if(pplan == NULL) {
+							ydb_lock_decr_s(&filename_lock[0], 2, &filename_lock[1]);
+							free(filename_lock);
+							err = make_error_response(PSQL_Error_ERROR,
+									PSQL_Code_Syntax_Error,
+									err_buff,
+									0);
+							send_message(session, (BaseMessage*)(&err->type));
+							free_error_response(err);
+							free(err_buff);
+							err_buffer = open_memstream(&err_buff, &err_buff_size);
+							continue;
+						}
 						assert(pplan != NULL);
 					}
 					ydb_lock_decr_s(&filename_lock[0], 2, &filename_lock[1]);

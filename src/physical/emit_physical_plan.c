@@ -51,7 +51,7 @@ int emit_physical_plan(PhysicalPlan *pplan, char *plan_filename) {
 	int plan_id, len, fd;
 	PhysicalPlan *cur_plan = pplan, *first_plan;
 	char *buffer, plan_name_buffer[MAX_STR_CONST];
-	char filename[MAX_STR_CONST], routine_name[MAX_ROUTINE_LEN], *tableName, *columnName;
+	char filename[MAX_STR_CONST], *routine_name, *tableName, *columnName;
 	char *tmp_plan_filename = NULL;
 	unsigned int routine_name_len, plan_filename_len;
 	SqlValue *value;
@@ -92,7 +92,8 @@ int emit_physical_plan(PhysicalPlan *pplan, char *plan_filename) {
 		HASH128_STATE_INIT(state, 0);
 		ydb_mmrhash_128_ingest(&state, (void*)tableName, strlen(tableName));
 		ydb_mmrhash_128_ingest(&state, (void*)columnName, strlen(tableName));
-		routine_name_len = generate_routine_name(&state, routine_name, MAX_STR_CONST, CrossReference);
+		routine_name = octo_cmalloc(memory_chunks, MAX_ROUTINE_LEN);
+		routine_name_len = generate_routine_name(&state, routine_name, MAX_ROUTINE_LEN, CrossReference);
 		// copy routine name (starts with %)
 		if (0 == routine_name_len) {
 			FATAL(ERR_PLAN_HASH_FAILED, "");

@@ -42,8 +42,15 @@ void *rocto_helper_waitpid(void *args) {
 		pid_t result = wait(&wstatus);
 		if(result < 0) {
 			// If there are no children active, just continue
-			if(errno == ECHILD)
+			if(errno == ECHILD) {
+				// Sleep for a brief time if there were no children
+				struct timespec sleep = {
+					1,
+					0
+				};
+				nanosleep(&sleep, NULL);
 				continue;
+			}
 			FATAL(ERR_SYSCALL, "wait", errno, strerror(errno));
 		}
 	}

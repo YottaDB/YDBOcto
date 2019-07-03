@@ -10,14 +10,19 @@
 #								#
 #################################################################
 
-create table octoOneRowTable (id integer primary key) global "^%ydboctoocto(""tables"",""octoOneRow"",keys(""id""))";
+/* Has exactly one row, and is used to allow SELECT without a FROM clause
+ */
+CREATE TABLE octoOneRowTable (id INTEGER primary key) global "^%ydboctoocto(""tables"",""octoOneRow"",keys(""id""))";
 
+/* Used to store a list of 'namespaces'; basically everything we do should
+ * fit in one of: public, pg_catalog, or information_schema
+ */
 CREATE TABLE pg_catalog.pg_namespace (
-  oid integer primary key,
-  nspowner integer,
-  nspname varchar,
-  nspacl varchar
-) GLOBAL "^%ydboctoocto(""pg_catalog"",""pg_namespace"",keys(""oid""))";
+  nspname VARCHAR,
+  nspowner INTEGER,
+  nspacl VARCHAR,
+  oid INTEGER primary key
+) GLOBAL "^%ydboctoocto(""tables"",""pg_catalog"",""pg_namespace"",keys(""oid""))";
 
 CREATE TABLE pg_type (
   typname VARCHAR(25) PRIMARY KEY PIECE "1",
@@ -51,7 +56,7 @@ CREATE TABLE pg_type (
   typdefault VARCHAR(25) PIECE "29",
   typacl VARCHAR(25) PIECE "30",
   oid INTEGER PIECE "31"
-) GLOBAL "^%ydboctoocto(""pg_catalog"",""pg_type"",keys(""typname""))";
+) GLOBAL "^%ydboctoocto(""tables"",""pg_catalog"",""pg_type"",keys(""typname""))";
 
 CREATE TABLE pg_catalog.pg_type (
   typname VARCHAR(25) PRIMARY KEY PIECE "1",
@@ -85,11 +90,11 @@ CREATE TABLE pg_catalog.pg_type (
   typdefault VARCHAR(25) PIECE "29",
   typacl VARCHAR(25) PIECE "30",
   oid INTEGER PIECE "31"
-) GLOBAL "^%ydboctoocto(""pg_catalog"",""pg_type"",keys(""typname""))";
+) GLOBAL "^%ydboctoocto(""tables"",""pg_catalog"",""pg_type"",keys(""typname""))";
 
-
+/* Stores any table-like relations in the database
+ */
 CREATE TABLE pg_catalog.pg_class (
-  oid INTEGER PRIMARY KEY,
   relname VARCHAR,
   relnamespace INTEGER,
   reltype INTEGER,
@@ -122,9 +127,11 @@ CREATE TABLE pg_catalog.pg_class (
   relminmxid INTEGER,
   relacl VARCHAR,
   reloptions VARCHAR,
-  relpartbound VARCHAR
+  relpartbound VARCHAR,
+  oid INTEGER PRIMARY KEY
 ) GLOBAL "^%ydboctoocto(""tables"",""pg_catalog"",""pg_class"",keys(""oid"")";
 
+/* Populated via special DDL arguments */
 CREATE TABLE pg_catalog.pg_description (
   objoid INTEGER,
   classoid INTEGER,
@@ -134,55 +141,93 @@ CREATE TABLE pg_catalog.pg_description (
 ) GLOBAL "^%ydboctoocto(""tables"",""pg_catalog"",""pg_description"",keys(""oid"")";
 
 
-create table information_schema.tables (
-  oid integer primary key,
-  table_catalog varchar,
-  table_schema varchar,
-  table_name varchar,
-  table_type varchar,
-  self_referencing_column_name varchar,
-  reference_generation varchar,
-  user_defined_type_catalog varchar,
-  user_defined_type_schema varchar,
-  user_defined_type_name varchar,
-  is_insertable_into varchar,
-  is_typed varchar,
-  commit_action varchar
+CREATE TABLE information_schema.tables (
+  oid INTEGER primary key,
+  table_catalog VARCHAR,
+  table_schema VARCHAR,
+  table_name VARCHAR,
+  table_type VARCHAR,
+  self_referencing_column_name VARCHAR,
+  reference_generation VARCHAR,
+  user_defined_type_catalog VARCHAR,
+  user_defined_type_schema VARCHAR,
+  user_defined_type_name VARCHAR,
+  is_insertable_into VARCHAR,
+  is_typed VARCHAR,
+  commit_action VARCHAR
 ) GLOBAL "^%ydboctoocto(""tables"",""information_schema"",""tables"",keys(""oid"")";
 
 
-create table pg_catalog.pg_proc(
-  proname varchar,
-  pronamespace integer,
-  proowner integer,
-  prolang integer,
-  procost integer,
-  prorows integer,
-  provariadic integer,
-  protransform varchar,
-  proisagg integer,
-  proiswindow integer,
-  prosecdef integer,
-  proleakproof integer,
-  proisstrict integer,
-  proretset integer,
-  provolatile varchar,
-  proparallel varchar,
-  pronargs integer,
-  pronargdefaults integer,
-  prorettype integer,
-  proargtypes integer,
-  proallargtypes integer,
-  proargmodes varchar,
-  proargnames varchar,
-  proargdefaults varchar,
-  protrftypes integer,
-  prosrc varchar,
-  probin varchar,
-  proconfig varchar,
-  proacl varchar,
-  oid integer primary key
-) GLOBAL "^%ydboctoocto(""tables"",""information_schema"",""tables"",keys(""oid"")";
+CREATE TABLE pg_catalog.pg_proc(
+  proname VARCHAR,
+  pronamespace INTEGER,
+  proowner INTEGER,
+  prolang INTEGER,
+  procost INTEGER,
+  prorows INTEGER,
+  provariadic INTEGER,
+  protransform VARCHAR,
+  proisagg INTEGER,
+  proiswindow INTEGER,
+  prosecdef INTEGER,
+  proleakproof INTEGER,
+  proisstrict INTEGER,
+  proretset INTEGER,
+  provolatile VARCHAR,
+  proparallel VARCHAR,
+  pronargs INTEGER,
+  pronargdefaults INTEGER,
+  prorettype INTEGER,
+  proargtypes INTEGER,
+  proallargtypes INTEGER,
+  proargmodes VARCHAR,
+  proargnames VARCHAR,
+  proargdefaults VARCHAR,
+  protrftypes INTEGER,
+  prosrc VARCHAR,
+  probin VARCHAR,
+  proconfig VARCHAR,
+  proacl VARCHAR,
+  oid INTEGER primary key
+) GLOBAL "^%ydboctoocto(""tables"",""pg_catalog"",""pg_proc"",keys(""oid"")";
+
+/* Stores column descriptions for tables */
+CREATE TABLE pg_catalog.pg_attribute (
+  attrelid INTEGER,
+  attname VARCHAR,
+  atttypid INTEGER,
+  attstattarget INTEGER,
+  attlen INTEGER,
+  attnum INTEGER,
+  attndims INTEGER,
+  attcacheoff INTEGER,
+  atttypmod INTEGER,
+  attbyval INTEGER,
+  attstorage VARCHAR,
+  attalign VARCHAR,
+  attnotnull INTEGER,
+  atthasdef INTEGER,
+  atthasmissing INTEGER,
+  attidentity VARCHAR,
+  attisdropped INTEGER,
+  attislocal INTEGER,
+  attinhcount INTEGER,
+  attcollation INTEGER,
+  attacl VARCHAR,
+  attoptions VARCHAR,
+  attfdwoptions VARCHAR,
+  attmissingval VARCHAR,
+  oid INTEGER primary key
+) GLOBAL "^%ydboctoocto(""tables"",""pg_catalog"",""pg_attribute"",keys(""oid"")";
+
+/* Stores default values for columns */
+CREATE TABLE pg_catalog.pg_attrdef (
+ adrelid INTEGER,
+ adnum INTEGER,
+ adbin VARCHAR,
+ adsrc VARCHAR,
+ oid INTEGER primary key
+) GLOBAL "^%ydboctoocto(""tables"",""pg_catalog"",""pg_attrdef"",keys(""oid"")";
 
 CREATE TABLE users (
   oid INTEGER,

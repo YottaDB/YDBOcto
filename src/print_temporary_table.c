@@ -50,10 +50,8 @@ void print_temporary_table(SqlStatement *stmt, int cursor_id, void *parms, char 
 	YDB_STRING_TO_BUFFER(config->global_names.cursor, cursor_b);
 
 	snprintf(buffer, sizeof(buffer), "%d", cursor_id);
-	cursor_id_b->len_used = strlen(buffer);
-	cursor_id_b->buf_addr = malloc(cursor_id_b->len_used + 1);
-	memcpy(cursor_id_b->buf_addr, buffer, cursor_id_b->len_used+1);
-	cursor_id_b->len_alloc = cursor_id_b->len_used;
+	cursor_id_b->len_alloc = cursor_id_b->len_used = strlen(buffer);
+	cursor_id_b->buf_addr = buffer;
 
 	YDB_LITERAL_TO_BUFFER("keys", keys_b);
 
@@ -91,6 +89,8 @@ void print_temporary_table(SqlStatement *stmt, int cursor_id, void *parms, char 
 	outputKeyId = get("^%ydboctoocto", 3, "plan_metadata", plan_name, "output_key");
 	if(outputKeyId == NULL) {
 		FATAL(ERR_DATABASE_FILES_OOS, "");
+		YDB_FREE_BUFFER(outputKeyId);
+		free(outputKeyId);
 		return;
 	}
 	*key_id_b = *outputKeyId;
@@ -117,7 +117,6 @@ void print_temporary_table(SqlStatement *stmt, int cursor_id, void *parms, char 
 	if(config->auto_clean_tables) {
 		ydb_delete_s(cursor_b, 1, cursor_id_b, YDB_DEL_TREE);
 	}
-	free(cursor_id_b->buf_addr);
 	YDB_FREE_BUFFER(row_id_b);
 	YDB_FREE_BUFFER(row_value_b);
 	YDB_FREE_BUFFER(outputKeyId);

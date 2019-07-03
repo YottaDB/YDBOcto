@@ -37,7 +37,7 @@ PhysicalPlan *emit_select_statement(SqlStatement *stmt, char *plan_filename)
 	LogicalPlan *plan, *cur_plan, *column_alias;
 	PhysicalPlan *pplan;
 	char output_key[MAX_STR_CONST], column_id_buffer[MAX_STR_CONST];
-	char buffer[MAX_STR_CONST * 5];
+	char *buffer;
 	ydb_buffer_t *plan_meta, value_buffer;
 	ydb_buffer_t z_status, z_status_value;
 
@@ -47,15 +47,25 @@ PhysicalPlan *emit_select_statement(SqlStatement *stmt, char *plan_filename)
 	assert(stmt && (stmt->type == table_alias_STATEMENT || stmt->type == set_operation_STATEMENT));
 	plan = generate_logical_plan(stmt, &config->plan_id);
 	if(config->record_error_level <= DEBUG) {
+		// We use malloc here since it is a large temporary buffer
+		// No need to force it to stay around until compilation ends
+		buffer = malloc(MAX_STR_CONST * 5);
 		lp_emit_plan(buffer, MAX_STR_CONST * 5, plan);
 		DEBUG(ERR_CURPLAN, buffer);
+		free(buffer);
 	}
-	if(lp_verify_structure(plan) == FALSE)
-		FATAL(ERR_PLAN_NOT_WELL_FORMED, "");
+	if(lp_verify_structure(plan) == FALSE) {
+		WARNING(ERR_PLAN_NOT_WELL_FORMED, "");
+		return NULL;
+	}
 	plan = optimize_logical_plan(plan);
 	if(config->record_error_level <= DEBUG) {
+		// We use malloc here since it is a large temporary buffer
+		// No need to force it to stay around until compilation ends
+		buffer = malloc(MAX_STR_CONST * 5);
 		lp_emit_plan(buffer, MAX_STR_CONST * 5, plan);
 		DEBUG(ERR_CURPLAN, buffer);
+		free(buffer);
 	}
 	PhysicalPlanOptions options;
 	memset(&options, 0, sizeof(PhysicalPlanOptions));

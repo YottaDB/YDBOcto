@@ -84,6 +84,12 @@ sort_specification_list
       UNPACK_SQL_STATEMENT(alias, $$, column_list_alias);
       dqinit(alias);
       assert(alias->next == alias);
+      SqlValue *value;
+      SQL_STATEMENT(alias->alias, value_STATEMENT);
+      MALLOC_STATEMENT(alias->alias, value, SqlValue);
+      UNPACK_SQL_STATEMENT(value, alias->alias, value);
+      value->type = NUL_VALUE;
+      value->v.string_literal = "";
       // Allocate the column list
       SQL_STATEMENT(alias->column_list, column_list_STATEMENT);
       MALLOC_STATEMENT(alias->column_list, column_list, SqlColumnList);
@@ -92,7 +98,6 @@ sort_specification_list
       UNPACK_SQL_STATEMENT(column_list, alias->column_list, column_list);
       dqinit(column_list);
       // The sort spec should be a value column_REFERENCE
-      SqlValue *value;
       UNPACK_SQL_STATEMENT(value, $sort_specification, value);
       assert(value->type == COLUMN_REFERENCE);
       column_list->value = $sort_specification;
@@ -100,8 +105,8 @@ sort_specification_list
   ;
 
 sort_specification_list_tail
-  : /* Empty */
-  | COMMA sort_specification_list
+  : /* Empty */ { $$ = NULL; }
+  | COMMA sort_specification_list { WARNING(ERR_FEATURE_NOT_IMPLEMENTED, "sub sort-by"); $$ = $2; }
   ;
 
 sort_specification
@@ -128,6 +133,12 @@ query_specification
       SQL_STATEMENT($$, table_alias_STATEMENT);
       MALLOC_STATEMENT($$, table_alias, SqlTableAlias);
       UNPACK_SQL_STATEMENT(this_table_alias, $$, table_alias);
+      SQL_STATEMENT(this_table_alias->alias, value_STATEMENT);
+      MALLOC_STATEMENT(this_table_alias->alias, value, SqlValue);
+      SqlValue *value;
+      UNPACK_SQL_STATEMENT(value, this_table_alias->alias, value);
+      value->type = NUL_VALUE;
+      value->v.string_literal = "";
       this_table_alias->table = $table_expression;
       this_table_alias->unique_id = (*plan_id)++;
       assert(($table_expression)->type == select_STATEMENT);
@@ -167,6 +178,12 @@ query_specification
       UNPACK_SQL_STATEMENT(this_table_alias, $$, table_alias);
       this_table_alias->table = $table_expression;
       this_table_alias->unique_id = (*plan_id)++;
+      SQL_STATEMENT(this_table_alias->alias, value_STATEMENT);
+      MALLOC_STATEMENT(this_table_alias->alias, value, SqlValue);
+      SqlValue *value;
+      UNPACK_SQL_STATEMENT(value, this_table_alias->alias, value);
+      value->type = NUL_VALUE;
+      value->v.string_literal = "";
       SqlSelectStatement *select;
       UNPACK_SQL_STATEMENT(select, this_table_alias->table, select);
       select->select_list = ($select_list);
@@ -194,7 +211,7 @@ query_specification
       }
       this_table_alias->column_list = select->select_list;
       select->optional_words = $set_quantifier;
-      ($$)->v.select->order_expression = $sort_specification_list;
+      select->order_expression = $sort_specification_list;
     }
   | SELECT set_quantifier select_list {
       // We're going to run against a secret table with one row so the list gets found
@@ -210,6 +227,12 @@ query_specification
       UNPACK_SQL_STATEMENT(this_table_alias, $$, table_alias);
       this_table_alias->column_list = $select_list;
       this_table_alias->unique_id = (*plan_id)++;
+      SQL_STATEMENT(this_table_alias->alias, value_STATEMENT);
+      MALLOC_STATEMENT(this_table_alias->alias, value, SqlValue);
+      SqlValue *value;
+      UNPACK_SQL_STATEMENT(value, this_table_alias->alias, value);
+      value->type = NUL_VALUE;
+      value->v.string_literal = "";
 
       SQL_STATEMENT(t_stmt, select_STATEMENT);
       MALLOC_STATEMENT(t_stmt, select, SqlSelectStatement);
@@ -322,7 +345,7 @@ set_quantifier
   ;
 
 derived_column
-  : value_expression {
+  : derived_column_expression {
       SQL_STATEMENT($$, column_list_alias_STATEMENT);
       MALLOC_STATEMENT($$, column_list_alias, SqlColumnListAlias);
       SqlColumnListAlias *alias;
@@ -335,13 +358,16 @@ derived_column
       dqinit(column_list);
       column_list->value = $1;
       /// TODO: we should search here for a reasonable "name" for the column
-      SQL_STATEMENT(alias->alias, value_STATEMENT);
-      MALLOC_STATEMENT(alias->alias, value, SqlValue);
-      alias->alias->v.value->type = STRING_LITERAL;
-      alias->alias->v.value->v.string_literal = octo_cmalloc(memory_chunks, strlen(" ") + 2);
-      strcpy(alias->alias->v.value->v.string_literal, " ");
+      alias->alias = find_column_alias_name($derived_column_expression);
+      if(alias->alias == NULL) {
+        SQL_STATEMENT(alias->alias, value_STATEMENT);
+        MALLOC_STATEMENT(alias->alias, value, SqlValue);
+        alias->alias->v.value->type = STRING_LITERAL;
+        alias->alias->v.value->v.string_literal = octo_cmalloc(memory_chunks, strlen("???") + 2);
+        strcpy(alias->alias->v.value->v.string_literal, "???");
+      }
     }
-  | value_expression AS column_name {
+  | derived_column_expression AS column_name {
       SQL_STATEMENT($$, column_list_alias_STATEMENT);
       MALLOC_STATEMENT($$, column_list_alias, SqlColumnListAlias);
       SqlColumnListAlias *alias;
@@ -355,6 +381,11 @@ derived_column
       column_list->value = $1;
       alias->alias = $column_name;
     }
+  ;
+
+derived_column_expression
+  : value_expression { $$ = $1; }
+  | search_condition { $$ = $1; }
   ;
 
 from_clause

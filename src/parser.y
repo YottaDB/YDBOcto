@@ -111,7 +111,9 @@ extern void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, int *plan
 %token OR
 %token ORDER
 %token OUTER
+%token OVER
 %token PACK
+%token PARTITION
 %token PIECE
 %token PRIMARY
 %token RESTRICT
@@ -246,6 +248,51 @@ search_condition
       ($$)->v.binary->operands[0] = ($1);
       ($$)->v.binary->operands[1] = ($3);
     }
+  | row_value_constructor OR boolean_term {
+      // This is a special form where the column is assumed to be a boolean
+      SQL_STATEMENT($$, binary_STATEMENT);
+      MALLOC_STATEMENT($$, binary, SqlBinaryOperation);
+      ($$)->v.binary->operation = BOOLEAN_OR;
+
+      SqlStatement *left;
+      SQL_STATEMENT(left, binary_STATEMENT);
+      MALLOC_STATEMENT(left, binary, SqlBinaryOperation);
+      SqlBinaryOperation *binary;
+      UNPACK_SQL_STATEMENT(binary, left, binary);
+      binary->operation = BOOLEAN_NOT_EQUALS;
+      SqlStatement *nul;
+      SQL_STATEMENT(nul, value_STATEMENT);
+      MALLOC_STATEMENT(nul, value, SqlValue);
+      nul->v.value->type = NUL_VALUE;
+      binary->operands[0] = $row_value_constructor;
+      binary->operands[1] = nul;
+
+      ($$)->v.binary->operands[0] = left;
+      ($$)->v.binary->operands[1] = ($boolean_term);
+    }
+  | search_condition OR row_value_constructor {
+      // This is a special form where the column is assumed to be a boolean
+      SQL_STATEMENT($$, binary_STATEMENT);
+      MALLOC_STATEMENT($$, binary, SqlBinaryOperation);
+      ($$)->v.binary->operation = BOOLEAN_OR;
+
+      SqlStatement *right;
+      SQL_STATEMENT(right, binary_STATEMENT);
+      MALLOC_STATEMENT(right, binary, SqlBinaryOperation);
+      SqlBinaryOperation *binary;
+      UNPACK_SQL_STATEMENT(binary, right, binary);
+      binary->operation = BOOLEAN_NOT_EQUALS;
+      SqlStatement *nul;
+      SQL_STATEMENT(nul, value_STATEMENT);
+      MALLOC_STATEMENT(nul, value, SqlValue);
+      nul->v.value->type = UNKNOWN_SqlValueType;
+      nul->v.value->v.string_literal = "0";
+      binary->operands[0] = $row_value_constructor;
+      binary->operands[1] = nul;
+
+      ($$)->v.binary->operands[0] = $1;
+      ($$)->v.binary->operands[1] = right;
+    }
   ;
 
 boolean_term
@@ -257,15 +304,83 @@ boolean_term
       ($$)->v.binary->operands[0] = ($1);
       ($$)->v.binary->operands[1] = ($3);
     }
+  | row_value_constructor AND boolean_factor {
+      // This is a special form where the column is assumed to be a boolean
+      SQL_STATEMENT($$, binary_STATEMENT);
+      MALLOC_STATEMENT($$, binary, SqlBinaryOperation);
+      ($$)->v.binary->operation = BOOLEAN_AND;
+
+      SqlStatement *left;
+      SQL_STATEMENT(left, binary_STATEMENT);
+      MALLOC_STATEMENT(left, binary, SqlBinaryOperation);
+      SqlBinaryOperation *binary;
+      UNPACK_SQL_STATEMENT(binary, left, binary);
+      binary->operation = BOOLEAN_NOT_EQUALS;
+      SqlStatement *nul;
+      SQL_STATEMENT(nul, value_STATEMENT);
+      MALLOC_STATEMENT(nul, value, SqlValue);
+      nul->v.value->type = UNKNOWN_SqlValueType;
+      nul->v.value->v.string_literal = "0";
+      binary->operands[0] = $row_value_constructor;
+      binary->operands[1] = nul;
+
+      ($$)->v.binary->operands[0] = left;
+      ($$)->v.binary->operands[1] = ($boolean_factor);
+    }
+  | boolean_term AND row_value_constructor {
+      // This is a special form where the column is assumed to be a boolean
+      SQL_STATEMENT($$, binary_STATEMENT);
+      MALLOC_STATEMENT($$, binary, SqlBinaryOperation);
+      ($$)->v.binary->operation = BOOLEAN_AND;
+
+      SqlStatement *right;
+      SQL_STATEMENT(right, binary_STATEMENT);
+      MALLOC_STATEMENT(right, binary, SqlBinaryOperation);
+      SqlBinaryOperation *binary;
+      UNPACK_SQL_STATEMENT(binary, right, binary);
+      binary->operation = BOOLEAN_NOT_EQUALS;
+      SqlStatement *nul;
+      SQL_STATEMENT(nul, value_STATEMENT);
+      MALLOC_STATEMENT(nul, value, SqlValue);
+      nul->v.value->type = UNKNOWN_SqlValueType;
+      nul->v.value->v.string_literal = "0";
+      binary->operands[0] = $row_value_constructor;
+      binary->operands[1] = nul;
+
+      ($$)->v.binary->operands[0] = $1;
+      ($$)->v.binary->operands[1] = right;
+    }
   ;
 
 boolean_factor
   : boolean_test { $$ = $1; }
   | NOT boolean_test {
-      SQL_STATEMENT($$, binary_STATEMENT);
-      MALLOC_STATEMENT($$, binary, SqlBinaryOperation);
+      SQL_STATEMENT($$, unary_STATEMENT);
+      MALLOC_STATEMENT($$, unary, SqlUnaryOperation);
       ($$)->v.unary->operation = BOOLEAN_NOT;
       ($$)->v.unary->operand = ($2);
+    }
+  | NOT row_value_constructor {
+      // This is a special form where the column is assumed to be a boolean
+      SQL_STATEMENT($$, unary_STATEMENT);
+      MALLOC_STATEMENT($$, unary, SqlUnaryOperation);
+      ($$)->v.unary->operation = BOOLEAN_NOT;
+
+      SqlStatement *right;
+      SQL_STATEMENT(right, binary_STATEMENT);
+      MALLOC_STATEMENT(right, binary, SqlBinaryOperation);
+      SqlBinaryOperation *binary;
+      UNPACK_SQL_STATEMENT(binary, right, binary);
+      binary->operation = BOOLEAN_NOT_EQUALS;
+      SqlStatement *nul;
+      SQL_STATEMENT(nul, value_STATEMENT);
+      MALLOC_STATEMENT(nul, value, SqlValue);
+      nul->v.value->type = UNKNOWN_SqlValueType;
+      nul->v.value->v.string_literal = "0";
+      binary->operands[0] = $row_value_constructor;
+      binary->operands[1] = nul;
+
+      ($$)->v.unary->operand = right;
     }
   ;
 
@@ -548,7 +663,9 @@ row_value_constructor_element
 */
 value_expression
   : numeric_value_expression { $$ = $1; }
-//  | truth_value { $$ = $1; }
+  // WARNING: if this is enabled, we have to revisit the boolean logic to seperate
+  // terms into UNION ALL terms
+//  | boolean_term { $$ = $1; }
   | null_specification { $$ = $1; }
 //  | datetime_value_expression
 //  | interval_expression
@@ -582,6 +699,10 @@ numeric_value_expression
       ($$)->v.binary->operation = SUBTRACTION;
       ($$)->v.binary->operands[0] = ($1);
       ($$)->v.binary->operands[1] = ($3);
+    }
+  | numeric_value_expression OVER partition_by_clause {
+      WARNING(ERR_FEATURE_NOT_IMPLEMENTED, "OVER not implemented, just returning columns");
+      $$ = $1;
     }
   ;
 
@@ -794,8 +915,20 @@ result
 
 
 set_function_specification
-  : COUNT LEFT_PAREN ASTERISK RIGHT_PAREN { WARNING(ERR_FEATURE_NOT_IMPLEMENTED, "set_function_specification: COUNT LEFT_PAREN ASTERISK RIGHT_PAREN"); YYABORT; }
-  | COUNT LEFT_PAREN value_expression RIGHT_PAREN { WARNING(ERR_FEATURE_NOT_IMPLEMENTED, "set_function_specification: COUNT LEFT_PAREN value_expression RIGHT_PAREN"); YYABORT; }
+  : COUNT LEFT_PAREN ASTERISK RIGHT_PAREN {
+      WARNING(ERR_FEATURE_NOT_IMPLEMENTED, "set_function_specification: COUNT LEFT_PAREN ASTERISK RIGHT_PAREN");
+      SQL_STATEMENT($$, value_STATEMENT);
+      MALLOC_STATEMENT($$, value, SqlValue);
+      $$->v.value->type = UNKNOWN_SqlValueType;
+      $$->v.value->v.string_literal = "0";
+    }
+  | COUNT LEFT_PAREN value_expression RIGHT_PAREN {
+      WARNING(ERR_FEATURE_NOT_IMPLEMENTED, "set_function_specification: COUNT LEFT_PAREN value_expression RIGHT_PAREN");
+      SQL_STATEMENT($$, value_STATEMENT);
+      MALLOC_STATEMENT($$, value, SqlValue);
+      $$->v.value->type = UNKNOWN_SqlValueType;
+      $$->v.value->v.string_literal = "0";
+    }
   | COUNT LEFT_PAREN set_quantifier value_expression RIGHT_PAREN { WARNING(ERR_FEATURE_NOT_IMPLEMENTED, "set_function_specification: COUNT LEFT_PAREN set_quantifier value_expression RIGHT_PAREN"); YYABORT; }
   | general_set_function { $$ = $1; }
   | generic_function_call { $$ = $1; }
@@ -1133,6 +1266,34 @@ column_definition
 
 column_name
   : identifier { $$ = $1; }
+  | LITERAL PERIOD LITERAL {
+      SQL_STATEMENT($$, value_STATEMENT);
+      MALLOC_STATEMENT($$, value, SqlValue);
+      SqlValue *value;
+      UNPACK_SQL_STATEMENT(value, $$, value);
+      SqlValue *table_name, *column_name;
+      UNPACK_SQL_STATEMENT(table_name, $1, value);
+      UNPACK_SQL_STATEMENT(column_name, $3, value);
+      int table_name_len = strlen(table_name->v.string_literal);
+      int column_name_len = strlen(column_name->v.string_literal);
+      // table + column + period + null
+      int len = table_name_len + column_name_len + 2;
+      value->type = COLUMN_REFERENCE;
+      value->v.string_literal = octo_cmalloc(memory_chunks, len);
+      char *c = value->v.string_literal;
+      char *d = table_name->v.string_literal;
+      // Convert to caps as we copy
+      while(*d != '\0') {
+        *c++ = toupper(*d++);
+      }
+      *c = '.';
+      c++;
+      d = column_name->v.string_literal;
+      while(*d != '\0') {
+        *c++ = toupper(*d++);
+      }
+      *c = '\0';
+    }
   ;
 
 column_definition_tail
@@ -1382,5 +1543,16 @@ scale
 
 literal_value
   : LITERAL { $$ = $1; ($$)->loc = yyloc; }
+
+partition_by_clause
+  : LEFT_PAREN PARTITION BY column_reference optional_order_by RIGHT_PAREN {
+      $$ = NULL;
+    }
+  ;
+
+optional_order_by
+  : /* Empty */
+  | ORDER BY sort_specification_list
+  ;
 
 %%

@@ -1,1 +1,1 @@
-select  :void            run^select(I:ydb_long_t,I:ydb_string_t*,I:ydb_string_t*)
+_ydboctoselect  :void            run^%ydboctoselect(I:ydb_long_t,I:ydb_string_t*,I:ydb_string_t*)

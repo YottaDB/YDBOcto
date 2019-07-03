@@ -256,13 +256,13 @@ int octo_init(int argc, char **argv) {
 		FATAL(ERR_BAD_CONFIG, "rocto.use_dns");
 	}
 #if YDB_TLS_AVAILABLE
-	if(config_lookup_string(config_file, "tls.DEVELOPMENT.cert", &config->rocto_config.ssl_cert_file)
+	if(config_lookup_string(config_file, "tls.OCTOSERVER.cert", &config->rocto_config.ssl_cert_file)
 			== CONFIG_FALSE) {
-		FATAL(ERR_BAD_CONFIG, "tls.DEVELOPMENT.cert");
+		FATAL(ERR_BAD_CONFIG, "tls.OCTOSERVER.cert");
 	}
-	if(config_lookup_string(config_file, "tls.DEVELOPMENT.key", &config->rocto_config.ssl_key_file)
+	if(config_lookup_string(config_file, "tls.OCTOSERVER.key", &config->rocto_config.ssl_key_file)
 			== CONFIG_FALSE) {
-		FATAL(ERR_BAD_CONFIG, "tls.DEVELOPMENT.key");
+		FATAL(ERR_BAD_CONFIG, "tls.OCTOSERVER.key");
 	}
 	if(config_lookup_bool(config_file, "rocto.ssl_on", &config->rocto_config.ssl_on)
 			== CONFIG_FALSE) {

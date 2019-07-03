@@ -171,7 +171,7 @@ int main(int argc, char **argv) {
 			}
 			// Set up TLS socket
 			gtm_tls_socket_t *tls_socket;
- 			tls_socket = gtm_tls_socket(tls_context, NULL, cfd, "DEVELOPMENT", GTMTLS_OP_SOCKET_DEV);
+ 			tls_socket = gtm_tls_socket(tls_context, NULL, cfd, "OCTOSERVER", GTMTLS_OP_SOCKET_DEV);
 			if (INVALID_TLS_SOCKET == tls_socket) {
 				tls_errno = gtm_tls_errno();
 				if (0 < tls_errno) {

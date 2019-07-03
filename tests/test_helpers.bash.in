@@ -35,7 +35,7 @@ init_tls() {
   export USER=root
 	# Pass private key password to environment variable
   echo tester | $ydb_dist/plugin/gtmcrypt/maskpass | cut -f 3 -d " " >> env.log
-	export ydb_tls_passwd_DEVELOPMENT=$(echo tester | $ydb_dist/plugin/gtmcrypt/maskpass | cut -f 3 -d " ")
+	export ydb_tls_passwd_OCTOSERVER=$(echo tester | $ydb_dist/plugin/gtmcrypt/maskpass | cut -f 3 -d " ")
   export ydb_crypt_config=$test_temp/.octo.conf
   if [[ $# == "0" ]]; then
     rocto_port=1337
@@ -51,7 +51,7 @@ rocto: {
 tls: {
 	CAfile: "$test_temp/CA.crt";
 	CApath: "$test_temp/";
-	DEVELOPMENT: {
+	OCTOSERVER: {
 		format: "PEM";
 		cert: "$test_temp/server.crt";
 		key: "$test_temp/server.key";

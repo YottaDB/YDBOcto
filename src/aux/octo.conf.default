@@ -52,18 +52,10 @@ tls: {
   // Session timeout limit, in seconds
   session-timeout: 600;
 
-  /* List of certificate/key pairs specified by identifiers. */
-  PRODUCTION: {
-    // Certificate format
+  // List of certificate/key pairs specified by identifiers.
+  // Currently only the OCTOSERVER identifier is supported.
+  OCTOSERVER: {
     format: "PEM";
-    // Path to certificate
-    cert: "server.crt";
-    // Path to private key
-    key: "server.key";
-  };
-
-  DEVELOPMENT: {
-    // format: "PEM";
     cert: "server.crt";
     key: "server.key";
   };

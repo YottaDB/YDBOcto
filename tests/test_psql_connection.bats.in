@@ -91,7 +91,7 @@ rocto: {
 tls: {
 	CAfile: "$test_temp/CA.crt";
 	CApath: "$test_temp/";
-	DEVELOPMENT: {
+	OCTOSERVER: {
 		format: "PEM";
 		cert: "$test_temp/server.crt";
 		key: "$test_temp/server.key";

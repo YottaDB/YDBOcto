@@ -1,0 +1,85 @@
+#################################################################
+#								#
+# Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	#
+# All rights reserved.						#
+#								#
+#	This source code contains the intellectual property	#
+#	of its copyright holder(s), and is made available	#
+#	under a license.  If you do not know the terms of	#
+#	the license, please stop and do not read further.	#
+#								#
+#################################################################
+
+load test_helpers
+
+setup() {
+  init_test
+  createdb
+  load_fixture pastas.sql
+  load_fixture pastas.zwr
+}
+
+@test "inner join pastas where lastName = Buttons" {
+  octo <<OCTO &> output.txt
+select pastas.id, firstName, lastName, pastaName from names4
+inner join pastas on pastas.pastaName = names4.favoritePasta
+where lastName = "Buttons";
+OCTO
+  verify_output T3000 output.txt
+}
+
+@test "inner join pastas where firstName = Zero" {
+  octo <<OCTO &> output.txt
+select pastas.id, firstName, lastName, pastaName from names4
+inner join pastas on pastas.pastaName = names4.favoritePasta
+where firstName = "Zero";
+OCTO
+  verify_output T3001 output.txt
+}
+
+@test "inner join pastas firstName = Zero and favoritePasta = Lasagna" {
+  octo <<OCTO &> output.txt
+select pastas.id, firstName, lastName, pastaName from names4
+inner join pastas on pastas.pastaName = names4.favoritePasta
+where firstName = "Zero" and names4.favoritePasta = "Lasagna";
+OCTO
+  verify_output T3002 output.txt
+}
+
+@test "inner join pastas where favoritePasta = Penne" {
+  octo <<OCTO &> output.txt
+select pastas.id, firstName, lastName, pastaName from names4
+inner join pastas on pastas.pastaName = names4.favoritePasta
+where names4.favoritePasta = "Penne";
+OCTO
+  verify_output T3003 output.txt
+}
+
+@test "inner join pastas where favoritePasta = Spaghetti" {
+  octo <<OCTO &> output.txt
+select pastas.id, firstName, lastName, pastaName from names4
+inner join pastas on pastas.pastaName = names4.favoritePasta
+where names4.favoritePasta = "Spaghetti";
+OCTO
+  verify_output T3004 output.txt
+}
+
+@test "inner join pastas favoritePasta = Cavatelli and lastName = Buttons and firstName = Bobby" {
+  octo <<OCTO &> output.txt
+select pastas.id, firstName, lastName, pastaName from names4
+inner join pastas on pastas.pastaName = names4.favoritePasta
+where names4.favoritePasta = "Cavatelli"
+and lastName = "Buttons"
+and firstName = "Bobby";
+OCTO
+  verify_output T3005 output.txt
+}
+
+@test "inner join pastas distinct where favoritePasta = Cavatelli" {
+  octo <<OCTO &> output.txt
+select distinct pastas.id, favoritePasta from names4
+inner join pastas on pastas.pastaName = names4.favoritePasta
+where names4.favoritePasta = "Cavatelli";
+OCTO
+  verify_output T3006 output.txt
+}

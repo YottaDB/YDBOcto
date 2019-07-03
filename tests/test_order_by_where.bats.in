@@ -1,0 +1,108 @@
+#################################################################
+#								#
+# Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	#
+# All rights reserved.						#
+#								#
+#	This source code contains the intellectual property	#
+#	of its copyright holder(s), and is made available	#
+#	under a license.  If you do not know the terms of	#
+#	the license, please stop and do not read further.	#
+#								#
+#################################################################
+
+load test_helpers
+
+setup() {
+  init_test
+  createdb
+  load_fixture names3.sql
+  load_fixture names3.zwr
+}
+
+@test "order by firstName ascending where lastName = Buttons" {
+  octo <<OCTO &> output.txt
+select * from names3 where lastName = "Buttons" order by firstName;
+OCTO
+  verify_output T1000 output.txt
+}
+
+@test "order by firstName ascending explicit where lastName = Buttons" {
+  octo <<OCTO &> output.txt
+select * from names3 where lastName = "Buttons" order by firstName asc;
+OCTO
+  verify_output T1001 output.txt
+}
+
+@test "order by firstName descending where lastName = Buttons" {
+  octo <<OCTO &> output.txt
+select * from names3 where lastName = "Buttons" order by firstName desc;
+OCTO
+  # Not implemented, need to circumvent error message timestamp
+  [[ "$(grep -c "WARN" output.txt)" == "1" ]]
+}
+
+@test "order by id ascending where lastName = Buttons" {
+  octo <<OCTO &> output.txt
+select * from names3 where lastName = "Buttons" order by id;
+OCTO
+  verify_output T1003 output.txt
+}
+
+@test "order by id ascending explicit where lastName = Buttons" {
+  octo <<OCTO &> output.txt
+select * from names3 where lastName = "Buttons" order by id asc;
+OCTO
+  verify_output T1004 output.txt
+}
+
+@test "order by id descending where lastName = Buttons" {
+  octo <<OCTO &> output.txt
+select * from names3 where lastName = "Buttons" order by id desc;
+OCTO
+  # Not implemented, need to circumvent error message timestamp
+  [[ "$(grep -c "WARN" output.txt)" == "1" ]]
+}
+
+@test "order by lastName ascending where firstName = Zero" {
+  octo <<OCTO &> output.txt
+select * from names3 where firstName = "Zero" order by lastName;
+OCTO
+  verify_output T1006 output.txt
+}
+
+@test "order by lastName ascending explicit where firstName = Zero" {
+  octo <<OCTO &> output.txt
+select * from names3 where firstName = "Zero" order by lastName asc;
+OCTO
+  verify_output T1007 output.txt
+}
+
+@test "order by lastName descending where firstName = Zero" {
+  octo <<OCTO &> output.txt
+select * from names3 where firstName = "Zero" order by lastName desc;
+OCTO
+  # Not implemented, need to circumvent error message timestamp
+  [[ "$(grep -c "WARN" output.txt)" == "1" ]]
+}
+
+@test "order by id ascending where firstName = Zero" {
+  octo <<OCTO &> output.txt
+select * from names3 where firstName = "Zero" order by id;
+OCTO
+  verify_output T1009 output.txt
+}
+
+@test "order by id ascending explicit where firstName = Zero" {
+  octo <<OCTO &> output.txt
+select * from names3 where firstName = "Zero" order by id asc;
+OCTO
+  verify_output T1010 output.txt
+}
+
+@test "order by id descending where firstName = Zero" {
+  octo <<OCTO &> output.txt
+select * from names3 where firstName = "Zero" order by id desc;
+OCTO
+  # Not implemented, need to circumvent error message timestamp
+  [[ "$(grep -c "WARN" output.txt)" == "1" ]]
+}

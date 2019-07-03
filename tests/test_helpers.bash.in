@@ -95,7 +95,7 @@ change -segment DEFAULT -file_name=$test_temp/mumps.dat
 change -r DEFAULT -NULL_SUBSCRIPTS=true
 exit
 FILE
-  rm -f *.dat || true
+  rm *.dat || true
   $ydb_dist/mupip create
   echo "Populating seed data"
   load_fixture postgres-seed.sql

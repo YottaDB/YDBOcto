@@ -1,0 +1,70 @@
+#################################################################
+#								#
+# Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	#
+# All rights reserved.						#
+#								#
+#	This source code contains the intellectual property	#
+#	of its copyright holder(s), and is made available	#
+#	under a license.  If you do not know the terms of	#
+#	the license, please stop and do not read further.	#
+#								#
+#################################################################
+
+load test_helpers
+
+setup() {
+  init_test
+  createdb
+  load_fixture pastas.sql
+  load_fixture pastas.zwr
+}
+
+@test "inner join pastas where lastName = Buttons order by firstName" {
+  octo <<OCTO &> output.txt
+select pastas.id, firstName, lastName, pastaName from names4
+inner join pastas on pastas.pastaName = names4.favoritePasta
+where lastName = "Buttons"
+order by firstName;
+OCTO
+  verify_output T4000 output.txt
+}
+
+@test "inner join pastas where firstName = Zero order by id" {
+  octo <<OCTO &> output.txt
+select names4.id, firstName, lastName, pastaName from names4
+inner join pastas on pastas.pastaName = names4.favoritePasta
+where firstName = "Zero"
+order by names4.id;
+OCTO
+  verify_output T4001 output.txt
+}
+
+@test "inner join pastas where firstName = Zero order by lastName" {
+  octo <<OCTO &> output.txt
+select names4.id, firstName, lastName, pastaName from names4
+inner join pastas on pastas.pastaName = names4.favoritePasta
+where firstName = "Zero"
+order by lastName;
+OCTO
+  verify_output T4002 output.txt
+}
+
+@test "inner join pastas where favoritePasta = Cavatelli order by firstName" {
+  octo <<OCTO &> output.txt
+select names4.id, firstName, lastName, pastaName from names4
+inner join pastas on pastas.pastaName = names4.favoritePasta
+where favoritePasta = "Cavatelli"
+order by firstName;
+OCTO
+  verify_output T4003 output.txt
+}
+
+@test "inner join distinct pastas where favoritePasta = Cavatelli order by pastas.id" {
+  octo <<OCTO &> output.txt
+select distinct pastas.id, favoritePasta from names4
+inner join pastas on pastas.pastaName = names4.favoritePasta
+where favoritePasta = "Cavatelli"
+order by pastas.id;
+OCTO
+  verify_output T4004 output.txt
+}

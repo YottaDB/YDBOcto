@@ -124,7 +124,7 @@ sort_key
 
 ordering_specification
   : ASC
-  | DESC
+  | DESC { WARNING(ERR_FEATURE_NOT_IMPLEMENTED, "order by desc"); }
   ;
 
 query_specification

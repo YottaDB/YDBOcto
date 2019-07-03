@@ -1,0 +1,6 @@
+OCTO> select * from names3 where lastName = "Buttons" order by firstName desc;
+[ WARN] /home/jon/YDBOcto/build2/parser.y:336 2019-07-03 15:30:56 : Feature not implemented: order by desc
+Added SET and/or Non-SET trigger on ^names3 named names3#1
+9|Betty|Buttons
+6|Bobby|Buttons
+OCTO> 

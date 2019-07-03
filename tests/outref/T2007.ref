@@ -1,0 +1,14 @@
+OCTO> select pastas.id, firstName, lastName, pastaName from names4
+OCTO> inner join pastas on pastas.pastaName = names4.favoritePasta
+OCTO> order by firstName asc;
+1|Acid|Burn|Cavatelli
+7|Acid|House|Orechiette
+1|Betty|Buttons|Cavatelli
+1|Bobby|Buttons|Cavatelli
+6|Cereal|Killer|Penne
+9|Joey||Pappardelle
+5|Lord|Nikon|Rotini
+9|Zero|Cool|Pappardelle
+8|Zero|Lame|Lasagna
+5|Zero|Day|Rotini
+OCTO> 

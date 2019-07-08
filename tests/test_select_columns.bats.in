@@ -234,3 +234,15 @@ SELECT firstName :: integer + 5 FROM names;
 OCTO
   verify_output T0003 output.txt
 }
+
+@test "T0010 select an alias with a shorter name" {
+  octo <<OCTO &> output.txt
+SELECT t.lastName
+FROM (
+  SELECT n1.id FROM names n1
+) tt
+INNER JOIN names t
+ON (t.id = tt.id);
+OCTO
+  verify_output T0010 output.txt
+}

@@ -67,7 +67,8 @@ SqlColumnAlias *qualify_column_name(SqlValue *column_value, SqlJoin *tables, Sql
 		if(table_name) {
 			if(cur_alias->alias != NULL) {
 				UNPACK_SQL_STATEMENT(value, cur_alias->alias, value);
-				if(memcmp(value->v.reference, table_name, table_name_len) == 0) {
+				int table_name_len2 = strlen(value->v.reference);
+				if(table_name_len == table_name_len2 && memcmp(value->v.reference, table_name, table_name_len) == 0) {
 					matching_alias = cur_alias;
 					column = match_column_in_table(cur_alias, column_name, column_name_len);
 					break;

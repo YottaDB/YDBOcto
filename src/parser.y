@@ -1154,7 +1154,7 @@ sql_schema_statement
 
 /// TODO: not complete
 sql_schema_manipulation_statement
-  : drop_table_statement { WARNING(ERR_FEATURE_NOT_IMPLEMENTED, "sql_schema_manipulation_statement: drop_table_statement"); YYABORT; }
+  : drop_table_statement { $$ = $1; }
   ;
 
 sql_schema_definition_statement

@@ -102,7 +102,7 @@ SqlTable *find_table(const char *table_name) {
 	}
 
 	stmt = (void*)buff;
-	decompress_statement((char*)stmt, MAX_STR_CONST);
+	decompress_statement((char*)stmt, MAX_STR_CONST * num_parts);
 	assign_table_to_columns(stmt);
 
 	ydb_buffer_t *save_buffers = make_buffers("%ydboctoloadedschemas", 1, table_name);

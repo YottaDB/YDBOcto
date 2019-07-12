@@ -30,6 +30,13 @@ teardown() {
   stop_rocto
 }
 
+@test "test no MD5 authentication failure" {
+  run_psql <<OCTO &> output.txt
+SELECT * FROM names;
+OCTO
+    [[ ! "$(cat results.log)" =~ "read failure: failed to read MD5 password" ]]
+}
+
 @test "select wildcard columns" {
   run_psql <<OCTO &> output.txt
 SELECT * FROM names;

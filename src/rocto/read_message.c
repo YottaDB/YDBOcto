@@ -21,19 +21,18 @@
 #include "rocto.h"
 #include "message_formats.h"
 
-BaseMessage *read_message(RoctoSession *session, char *buffer, int buffer_size) {
+BaseMessage *read_message(RoctoSession *session, char *buffer, int buffer_size, int *rocto_err) {
 	BaseMessage *message;
-	int result;
 
 	// Read BaseMessage fields (type, length)
 	message = (void*)buffer;
-	result = read_bytes(session, (char*)message, buffer_size, sizeof(char) + sizeof(unsigned int));
-	if(result == 1)
+	*rocto_err = read_bytes(session, (char*)message, buffer_size, sizeof(char) + sizeof(unsigned int));
+	if(0 != *rocto_err)
 		return NULL;
 
 	// Read the rest of the message
-	result = read_bytes(session, (char*)(&message->data), buffer_size, ntohl(message->length) - sizeof(unsigned int));
-	if(result == 1)
+	*rocto_err = read_bytes(session, (char*)(&message->data), buffer_size, ntohl(message->length) - sizeof(unsigned int));
+	if(0 != *rocto_err)
 		return NULL;
 
 	return message;

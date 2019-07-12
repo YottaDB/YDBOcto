@@ -108,7 +108,7 @@ static void test_read_too_large(void **state) {
 
 	rt = read_bytes(&session, NULL, buffer_size, bytes_to_read);
 
-	assert_int_equal(rt, 1);
+	assert_int_equal(rt, -1);
 }
 
 static void test_invalid_read_size(void **state) {
@@ -127,7 +127,7 @@ static void test_invalid_read_size(void **state) {
 
 	rt = read_bytes(&session, NULL, buffer_size, bytes_to_read);
 
-	assert_int_equal(rt, 1);
+	assert_int_equal(rt, -1);
 }
 
 static void test_recv_interrupted(void **state) {
@@ -184,7 +184,7 @@ static void test_recv_connection_reset(void **state) {
 
 	rt = read_bytes(&session, buffer, buffer_size, bytes_to_read);
 
-	assert_int_equal(rt, 1);
+	assert_int_equal(rt, -2);
 
 	free(buffer);
 }
@@ -214,7 +214,7 @@ static void test_recv_broken_pipe(void **state) {
 
 	rt = read_bytes(&session, buffer, buffer_size, bytes_to_read);
 
-	assert_int_equal(rt, 1);
+	assert_int_equal(rt, -1);
 
 	free(buffer);
 }
@@ -244,7 +244,7 @@ static void test_recv_timed_out(void **state) {
 
 	rt = read_bytes(&session, buffer, buffer_size, bytes_to_read);
 
-	assert_int_equal(rt, 1);
+	assert_int_equal(rt, -1);
 
 	free(buffer);
 }
@@ -269,7 +269,7 @@ static void test_socket_closed(void **state) {
 
 	rt = read_bytes(&session, buffer, buffer_size, bytes_to_read);
 
-	assert_int_equal(rt, 1);
+	assert_int_equal(rt, -2);
 	assert_int_equal(errno, 0);
 
 	free(buffer);
@@ -363,7 +363,7 @@ static void test_SSL_ERROR_ZERO_RETURN(void **state) {
 
 	rt = read_bytes(&session, buffer, buffer_size, bytes_to_read);
 
-	assert_int_equal(rt, 1);
+	assert_int_equal(rt, -1);
 
 	free(buffer);
 }
@@ -399,7 +399,7 @@ static void test_SSL_ERROR_WANT_READ(void **state) {
 
 	rt = read_bytes(&session, buffer, buffer_size, bytes_to_read);
 
-	assert_int_equal(rt, 1);
+	assert_int_equal(rt, -1);
 
 	free(buffer);
 }
@@ -435,7 +435,7 @@ static void test_SSL_ERROR_SYSCALL(void **state) {
 
 	rt = read_bytes(&session, buffer, buffer_size, bytes_to_read);
 
-	assert_int_equal(rt, 1);
+	assert_int_equal(rt, -1);
 
 	free(buffer);
 }
@@ -471,7 +471,7 @@ static void test_SSL_ERROR_SSL(void **state) {
 
 	rt = read_bytes(&session, buffer, buffer_size, bytes_to_read);
 
-	assert_int_equal(rt, 1);
+	assert_int_equal(rt, -1);
 
 	free(buffer);
 }

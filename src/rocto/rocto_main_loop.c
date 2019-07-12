@@ -69,7 +69,8 @@ int rocto_main_loop(RoctoSession *session) {
 			free(ready_for_query);
 		}
 		send_ready_for_query = TRUE;
-		message = read_message(session, buffer, MAX_STR_CONST);
+		int rocto_err = 0;
+		message = read_message(session, buffer, MAX_STR_CONST, &rocto_err);
 		if(message == NULL) {
 			break;
 		}

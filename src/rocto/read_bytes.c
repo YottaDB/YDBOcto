@@ -32,14 +32,14 @@ int read_bytes(RoctoSession *session, char *buffer, int buffer_size, int bytes_t
 	const char *err_str = NULL;
 #endif
 	int read_so_far = 0, read_now = 0;
-	
+
 
 	if(bytes_to_read > buffer_size) {
 		WARNING(ERR_READ_TOO_LARGE, bytes_to_read, buffer_size);
-		return 1;
+		return -1;
 	} else if(bytes_to_read < 0) {
 		WARNING(ERR_INVALID_READ_SIZE, bytes_to_read);
-		return 1;
+		return -1;
 	}
 
 	// YDB_TLS_AVAILABLE and ssl_active must both have the same boolean value. If not, an error will be issued at build time.
@@ -59,7 +59,7 @@ int read_bytes(RoctoSession *session, char *buffer, int buffer_size, int bytes_t
 				} else if (tls_errno == ECONNRESET) {
 					errno = ECONNRESET;
 					INFO(ERR_ROCTO_CLEAN_DISCONNECT, "");
-					return 1;
+					return -2;
 				} else {
 					FATAL(ERR_ROCTO_TLS_READ_FAILED, err_str);
 				}
@@ -75,11 +75,11 @@ int read_bytes(RoctoSession *session, char *buffer, int buffer_size, int bytes_t
 				if(errno == EINTR)
 					continue;
 				WARNING(ERR_SYSCALL, "read", errno, strerror(errno));
-				return 1;
+				return -1;
 			} else if(read_now == 0) {
 				// This means the socket was cleanly closed
-				WARNING(ERR_ROCTO_CLEAN_DISCONNECT, "");
-				return 1;
+				INFO(ERR_ROCTO_CLEAN_DISCONNECT, "");
+				return -2;
 			}
 			read_so_far += read_now;
 		}

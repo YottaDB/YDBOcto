@@ -242,12 +242,10 @@ int main(int argc, char **argv) {
 		free(md5auth);
 
 		// This next message is the user sending the password
-		base_message = read_message(&rocto_session, buffer, MAX_STR_CONST);
+		int rocto_err = 0;
+		base_message = read_message(&rocto_session, buffer, MAX_STR_CONST, &rocto_err);
 		if(base_message == NULL) {
-			if (ECONNRESET == errno) {
-				INFO(ERR_SYSCALL, "read_message", errno, strerror(errno));
-				errno = 0;
-			} else {
+			if (-2 != rocto_err) {
 				WARNING(ERR_ROCTO_READ_FAILED, "failed to read MD5 password");
 				error_message = format_error_string(&err_buff, ERR_ROCTO_READ_FAILED, "failed to read MD5 password");
 				err = make_error_response(PSQL_Error_ERROR,

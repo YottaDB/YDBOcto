@@ -39,9 +39,11 @@ static void test_valid_input(void **state) {
 	will_return(__wrap_read_bytes, 0);
 	will_return(__wrap_read_bytes, 0);
 
-	result = read_message(NULL, (char*)buffer, 0);
+	int rocto_err = 0;
+	result = read_message(NULL, (char*)buffer, 0, &rocto_err);
 
 	assert_non_null(result);
+	assert_int_equal(rocto_err, 0);
 
 	free(buffer);
 }
@@ -52,11 +54,13 @@ static void test_failed_first_read(void **state) {
 	memset(buffer, 'X', sizeof(BaseMessage));
 
 	// Test first read fails
-	will_return(__wrap_read_bytes, 1);
+	will_return(__wrap_read_bytes, -1);
 
-	result = read_message(NULL, (char*)buffer, 0);
+	int rocto_err = 0;
+	result = read_message(NULL, (char*)buffer, 0, &rocto_err);
 
 	assert_null(result);
+	assert_int_equal(rocto_err, -1);
 
 	free(buffer);
 }
@@ -68,11 +72,48 @@ static void test_failed_second_read(void **state) {
 
 	// Test second read fails
 	will_return(__wrap_read_bytes, 0);
-	will_return(__wrap_read_bytes, 1);
+	will_return(__wrap_read_bytes, -1);
 
-	result = read_message(NULL, (char*)buffer, 0);
+	int rocto_err = 0;
+	result = read_message(NULL, (char*)buffer, 0, &rocto_err);
 
 	assert_null(result);
+	assert_int_equal(rocto_err, -1);
+
+	free(buffer);
+}
+
+static void test_connection_reset_first_read(void **state) {
+	BaseMessage *result;
+	BaseMessage *buffer = malloc(sizeof(BaseMessage));
+	memset(buffer, 'X', sizeof(BaseMessage));
+
+	// Test second read fails
+	will_return(__wrap_read_bytes, -2);
+
+	int rocto_err = 0;
+	result = read_message(NULL, (char*)buffer, 0, &rocto_err);
+
+	assert_null(result);
+	assert_int_equal(rocto_err, -2);
+
+	free(buffer);
+}
+
+static void test_connection_reset_second_read(void **state) {
+	BaseMessage *result;
+	BaseMessage *buffer = malloc(sizeof(BaseMessage));
+	memset(buffer, 'X', sizeof(BaseMessage));
+
+	// Test second read fails
+	will_return(__wrap_read_bytes, 0);
+	will_return(__wrap_read_bytes, -2);
+
+	int rocto_err = 0;
+	result = read_message(NULL, (char*)buffer, 0, &rocto_err);
+
+	assert_null(result);
+	assert_int_equal(rocto_err, -2);
 
 	free(buffer);
 }
@@ -83,6 +124,8 @@ int main(void) {
 		cmocka_unit_test(test_valid_input),
 		cmocka_unit_test(test_failed_first_read),
 		cmocka_unit_test(test_failed_second_read),
+		cmocka_unit_test(test_connection_reset_second_read),
+		cmocka_unit_test(test_connection_reset_first_read),
 	};
 	return cmocka_run_group_tests(tests, NULL, NULL);
 }

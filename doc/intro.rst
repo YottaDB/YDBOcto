@@ -11,51 +11,108 @@ This manual documents the YottaDB Database Management System i.e Octo.
 The YottaDB Database Management System (Octo) is a layered application with a relational access model, built on top of the not-only-SQL database YottaDB. It aims to provide SQL 92 compliance and exceptional performance.
 
 --------------------
-Launching Octo
+Setup
 --------------------
 
-Firstly, make sure YottaDB is correctly `downloaded and installed <https://yottadb.com/product/get-started/>`_.
+YottaDB r1.26 or greater is required for successful installation of Octo.
 
-The SQL engine looks for the environment variable ydb_dist.
+Installing and configuring YottaDB is described in the `Administration and Operations Guide <https://docs.yottadb.com/AdminOpsGuide/installydb.html>`_.
 
-ydb_dist specifies the path to the directory containing the YottaDB system distribution. Either use the ydb script or source ydb_env_set to define ydb_dist. Correct operation of YottaDB executable programs requires ydb_dist to be set correctly.
+.. note::
+   It is required that the environment variable :code:`$ydb_dist` is defined - :code:`$gtm_dist` is not a valid subsitute.
 
-i.e.
+++++++++++++++++++++++++++++++++++
+Quickstart - Install from Source
+++++++++++++++++++++++++++++++++++
+
+* Install YottaDB POSIX plugin
+
+  More detailed instructions are on the YottaDB `POSIX plugin README <https://gitlab.com/YottaDB/Util/YDBposix/blob/master/README.md>`_.
+
+  .. parsed-literal::
+
+     curl -fSsL0 https://gitlab.com/YottaDB/Util/YDBposix/-/archive/master/YDBposix-master.tar.gz
+     tar xzf YDBposix-master.tar.gz
+     cd YDBposix-master
+     mkdir build && cd build
+     \# Make sure that you have YottaDB environment variables in your shell before continuing
+     cmake ..
+     make && sudo make install
+
+* (Optional) Install YottaDB encryption plugin
+
+  Installing the YottaDB encryption plugin enables TLS support (Recommended for production installations). You will need to make sure TLS/SSL is enabled for the driver in the client software chosen.
+
+  .. parsed-literal::
+
+     \# In a temporary directory perform the following commands
+     sudo tar -xf $ydb_dist/plugin/gtmcrypt/source.tar
+     \# Make sure that you have YottaDB environment variables in your shell before continuing
+     sudo ydb_dist=$ydb_dist make
+     sudo ydb_dist=$ydb_dist make install
+
+* Install prerequisite packages
+
+  .. parsed-literal::
+
+     \# Ubuntu Linux OR Raspbian Linux OR Beagleboard Debian
+     sudo apt-get install build-essential cmake bison flex xxd libreadline-dev libssl-dev
+
+     \# CentOS Linux OR RedHat Linux
+     \# Note: epel-release has to be installed before cmake3 is installed
+     sudo yum install epel-release
+     sudo yum install cmake3 bison yacc flex readline-devel vim-common libconfig-devel openssl-devel
+
+* Download Octo Source Code
+
+  .. parsed-literal::
+
+     curl -fSsL0 https://gitlab.com/YottaDB/DBMS/YDBOcto/-/archive/master/YDBOcto-master.tar.gz
+     tar xzf YDBOcto-master.tar.gz
+     cd YDBOcto-master
+
+* Compile Octo
+
+  .. parsed-literal::
+
+     mkdir build
+     cd build
+     \# For VistA the String Buffer Length needs to be larger (described below) add "-DSTRING_BUFFER_LENGTH=300000" to the cmake command below
+     cmake -DCMAKE_INSTALL_PREFIX=$ydb_dist/plugin .. # for CentOS/RedHat use cmake3 instead
+     make
+
+* Install Octo
+
+  .. parsed-literal::
+
+     make install
+
+++++++++++++++++++++++++++
+Optional CMAKE Parameters
+++++++++++++++++++++++++++
+
+Octo uses some cmake parameters to control generation of fixed-size buffer allocations. These are:
+
+* STRING_BUFFER_LENGTH - the maximum length of a string within the system; this supercedes any VARCHAR definitions.
+* MAX_ROUTINE_LENGTH - the maximum length of a generated routine. The default is 10MB.
+* MEMORY_CHUNK_SIZE - size of memory chunks to allocate; default is 32MB.
+* MEMORY_CHUNK_PROTECT - if non-zero, memory following chunks is protected to detect buffer overflows. If 2, data is placed closer to the protected region to increase the chances of detecting an error.
+
+Example usage of the above parameters:
 
 .. parsed-literal::
-   source /usr/local/lib/yottadb/r124/ydb_env_set
 
-Obtain Octo from our `repository on GitLab <https://gitlab.com/YottaDB/DBMS/YDBOcto>`_.
+   cmake -DSTRING_BUFFER_LENGTH=600000 -DCMAKE_INSTALL_PREFIX=$ydb_dist/plugin ..
 
-.. parsed-literal::
-   wget https://gitlab.com/YottaDB/DBMS/YDBOcto/-/archive/master/YDBOcto-master.tar.gz
++++++++++++++++++
+Usage
++++++++++++++++++
 
-Uncompress the file and move to the directory.
+Before running Octo/Rocto make sure that the required YottaDB variables are set either by creating your own script or run :code:`source $ydb_dist/ydb_env_set`.
 
-.. parsed-literal::
-   tar -xzf YDBOcto*.tar.gz
-   cd YDBOcto-master/
+To use the command-line SQL interpreter run: :code:`$ydb_dist/plugin/bin/octo`.
 
-Compile Octo using the following steps:
-
-.. parsed-literal::
-   mkdir build
-   cd build
-   cmake ..
-   make
-
-To test your build, you can run:
-
-.. parsed-literal::
-   make test
-
-Launch Octo (without options) with the following command:
-
-.. parsed-literal::
-   octo@test:~$ ./src/octo
-   OCTO>
-
-The terminal will return with the OCTO> command prompt.
+To use the PostgreSQL protocol compatible server run :code:`$ydb_dist/plugin/bin/rocto`.
 
 +++++++++++++++++++
 Launching Options

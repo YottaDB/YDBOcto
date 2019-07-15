@@ -53,7 +53,7 @@ A config file can include instructions specifying verbosity for logging:
 Locations and Global Variables
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Octo support two different ways of mapping its globals to a YottaDB database: Using normal global mapping procedures for an existing global directory OR using a separate global directory. All octo globals are prefixed with :code:`^%ydbocto`.
+Octo supports two different ways of mapping its globals to a YottaDB database: Using normal global mapping procedures for an existing global directory OR using a separate global directory. All octo globals are prefixed with :code:`^%ydbocto`.
 
 Other important configuration information required for the database that holds Octo globals:
 

@@ -31,7 +31,7 @@ Quickstart - Install from Source
 
   .. parsed-literal::
 
-     curl -fSsL0 https://gitlab.com/YottaDB/Util/YDBposix/-/archive/master/YDBposix-master.tar.gz
+     curl -fSsLO https://gitlab.com/YottaDB/Util/YDBposix/-/archive/master/YDBposix-master.tar.gz
      tar xzf YDBposix-master.tar.gz
      cd YDBposix-master
      mkdir build && cd build
@@ -61,13 +61,13 @@ Quickstart - Install from Source
      \# CentOS Linux OR RedHat Linux
      \# Note: epel-release has to be installed before cmake3 is installed
      sudo yum install epel-release
-     sudo yum install cmake3 bison yacc flex readline-devel vim-common libconfig-devel openssl-devel
+     sudo yum install cmake3 bison flex readline-devel vim-common libconfig-devel openssl-devel
 
 * Download Octo Source Code
 
   .. parsed-literal::
 
-     curl -fSsL0 https://gitlab.com/YottaDB/DBMS/YDBOcto/-/archive/master/YDBOcto-master.tar.gz
+     curl -fSsLO https://gitlab.com/YottaDB/DBMS/YDBOcto/-/archive/master/YDBOcto-master.tar.gz
      tar xzf YDBOcto-master.tar.gz
      cd YDBOcto-master
 

@@ -70,6 +70,7 @@ copy_test_files() {
 # load_fixture <fixture name, relative to tests/fixtures
 load_fixture() {
   fixture_name=$1
+  echo "Loading fixture $fixture_name"
   if [[ $fixture_name == *.zwr ]]; then
     $ydb_dist/mupip load  @PROJECT_SOURCE_DIR@/tests/fixtures/$fixture_name
   elif [[ $fixture_name == *.sql ]]; then
@@ -158,6 +159,10 @@ run_go() {
 verify_output() {
   echo "Comparing outref/$1 $2"
   copy_test_files outref/$1.ref
-  diff outref/$1.ref $2
+
+  sed '/^INFO:/d' $2 > noinfo.txt
+  sed '/^DEBUG:/,/^$/d' noinfo.txt > nodebug.txt
+
+  diff outref/$1.ref nodebug.txt
   return
 }

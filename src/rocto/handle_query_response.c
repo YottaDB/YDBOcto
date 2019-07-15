@@ -158,8 +158,7 @@ void handle_query_response(SqlStatement *stmt, int cursor_id, void *_parms, char
 			}
 		}
 		data_row_parms[number_of_columns].length = c - data_row_parms[number_of_columns].value;
-		if(c != row_value_b->buf_addr)
-			number_of_columns++;
+		number_of_columns++;
 		data_row = make_data_row(data_row_parms, number_of_columns);
 		send_message(parms->session, (BaseMessage*)(&data_row->type));
 		free(data_row);

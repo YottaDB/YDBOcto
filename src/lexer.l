@@ -1,15 +1,3 @@
-/****************************************************************
- *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
- * All rights reserved.						*
- *								*
- *	This source code contains the intellectual property	*
- *	of its copyright holder(s), and is made available	*
- *	under a license.  If you do not know the terms of	*
- *	the license, please stop and do not read further.	*
- *								*
- ****************************************************************/
-
 %{
 /****************************************************************
  *								*
@@ -70,6 +58,11 @@ int copied_so_far;
 %option reentrant noyywrap never-interactive nounistd
 %option bison-bridge
 %option bison-locations
+%option noyy_top_state
+%option noyy_pop_state
+%option noyy_push_state
+%option noinput
+%option nounput
 
 %x STRING
 %x SINGLE_STRING

@@ -21,20 +21,19 @@
 void ydb_hash_to_string(ydb_uint16 *hash, char *buffer, const unsigned int buf_len) {
 	// Converts internal YottaDB hash format (ydb_uint16) to characters to fill buffer.
 	// String is composed of 62 alphanumeric characters for M compatibility.
-	char *base62_chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
-	unsigned short next_char = 0;
-	unsigned int i = 0;
-	#ifdef __SIZEOF_INT128__
-	unsigned __int128 *long_hash;
-	long_hash = (unsigned __int128*)hash;
-	#else
-	int64_t *long_hash;
-	long_hash = (int64_t*)&hash.one;
-	#endif
+	char		*base62_chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+	unsigned short	next_char = 0;
+	unsigned int	i = 0;
+	ydb_uint8	hashone, hashtwo;
 
-	for (i = 0; i < buf_len; i++) {
-		next_char = *long_hash % 62;
-		buffer[i] = base62_chars[next_char];
-		*long_hash = *long_hash / 62;
+	hashone = hash->one;
+	hashtwo = hash->two;
+	for (i = 0; i < buf_len; ) {
+		next_char = hashone % 62;
+		buffer[i++] = base62_chars[next_char];
+		hashone = hashone / 62;
+		next_char = hashtwo % 62;
+		buffer[i++] = base62_chars[next_char];
+		hashtwo = hashtwo / 62;
 	}
 }

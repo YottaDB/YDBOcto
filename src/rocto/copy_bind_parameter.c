@@ -61,20 +61,20 @@ char *copy_binary_parameter(RoctoSession *session, Bind *bind, const int cur_par
 	switch (bind->parms[cur_parm].length) {
 		case 1:
 			value = bin_to_char(bind->parms[cur_parm].value);
-			copied = snprintf(str_value, MAX_STR_CONST, "%ld", value);
+			copied = snprintf(str_value, MAX_STR_CONST, "%lld", (long long int)value);
 			break;
 		case 2:
 			value = bin_to_int16(bind->parms[cur_parm].value);
-			copied = snprintf(str_value, MAX_STR_CONST, "%ld", value);
+			copied = snprintf(str_value, MAX_STR_CONST, "%lld", (long long int)value);
 			break;
 		case 4:
 			value = bin_to_int32(bind->parms[cur_parm].value);
-			copied = snprintf(str_value, MAX_STR_CONST, "%ld", value);
+			copied = snprintf(str_value, MAX_STR_CONST, "%lld", (long long int)value);
 			break;
 		case 8:
 			// This covers the OID case, as it is just an integer
 			value = bin_to_int64(bind->parms[cur_parm].value);
-			copied = snprintf(str_value, MAX_STR_CONST, "%ld", value);
+			copied = snprintf(str_value, MAX_STR_CONST, "%lld", (long long int)value);
 			break;
 		case 16:
 			bin_to_uuid(bind->parms[cur_parm].value, uuid, MAX_STR_CONST);

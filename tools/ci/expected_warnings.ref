@@ -1,9 +1,1 @@
-lexer.c:warning: ‘input’ defined but not used [-Wunused-function]
-lexer.c:warning: ‘yy_pop_state’ defined but not used [-Wunused-function]
-lexer.c:warning: ‘yy_push_state’ defined but not used [-Wunused-function]
-lexer.c:warning: ‘yy_top_state’ defined but not used [-Wunused-function]
-lexer.c:warning: ‘yyunput’ defined but not used [-Wunused-function]
 parser.y:warning: 52 shift/reduce conflicts [-Wconflicts-sr]
-ydb_hash_to_string.c:In function ‘ydb_hash_to_string’:
-ydb_hash_to_string.c:warning: ISO C does not support ‘__int128’ types [-Wpedantic]
-ydb_hash_to_string.c:warning: ISO C does not support ‘__int128’ types [-Wpedantic]

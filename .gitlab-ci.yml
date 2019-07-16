@@ -19,34 +19,62 @@ variables:
   GOLANG_VERSION: 1.11.2
 
 before_script:
-  - apt-get update -qq && apt-get install -y -qq build-essential cmake bison flex libcmocka-dev python-pip libreadline-dev git libconfig-dev libssl-dev postgresql-client xxd wget libgcrypt20-dev libgpgme-dev
-  - pip install sphinxcontrib-fulltoc sphinx sphinx_rtd_theme
   - export PATH=/usr/local/go/bin:$PATH
   - wget -O go.tgz -q https://golang.org/dl/go${GOLANG_VERSION}.linux-amd64.tar.gz
   - tar -C /usr/local -xzf go.tgz
   - rm go.tgz
   - go version
 
-make:
-  image: yottadb/yottadb-base:latest-master
+.make:
   stage: build
   artifacts:
     paths:
       - build/
-      - build/Octo-*-Linux.tar.gz
     when: always
+
+.ubuntu:
+  before_script:
+    - apt-get update -qq && apt-get install -y -qq build-essential cmake bison flex libcmocka-dev python-pip libreadline-dev git libconfig-dev libssl-dev postgresql-client xxd wget libgcrypt20-dev libgpgme-dev
+    - pip install sphinxcontrib-fulltoc sphinx sphinx_rtd_theme
+
+.centos:
+  before_script:
+    - yum install -y epel-release
+    - yum install -y gcc make cmake3 bison flex libcmocka-devel python-pip readline-devel git libconfig-devel openssl-devel postgresql libgcrypt-devel gpgme-devel openssl
+
+make-ubuntu:
+  image: yottadb/yottadb-base:latest-master
+  extends:
+    - .make
+    - .ubuntu
+  script: 
+    - ./tools/ci/build.sh
+
+make-centos:
+  image: yottadb/yottadb-centos-base:latest-master
+  extends:
+    - .make
+    - .centos
   script: ./tools/ci/build.sh
 
-make-tls:
+make-tls-ubuntu:
   image: yottadb/yottadb-base:latest-master
-  stage: build
-  artifacts:
-    paths:
-      - build/
-    when: always
+  extends: 
+    - .make
+    - .ubuntu
   script:
-      - ./tools/ci/install-tls.sh
-      - ./tools/ci/build.sh
+    - ./tools/ci/install-tls.sh
+    - ./tools/ci/build.sh
+
+make-tls-centos:
+  image: yottadb/yottadb-centos-base:latest-master
+  extends:
+    - .make
+    - .centos
+  script:
+    - ./tools/ci/install-tls.sh
+    - ./tools/ci/build.sh
+
 vista:
   image: docker:latest
   stage: docker
@@ -66,9 +94,11 @@ vista:
 pages:
   image: yottadb/yottadb-base
   stage: docs
+  extends: .ubuntu
   dependencies:
-    - make
-  script: ./tools/ci/docs.sh
+    - make-ubuntu
+  script:
+    - ./tools/ci/docs.sh
   artifacts:
     paths:
       - public

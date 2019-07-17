@@ -27,11 +27,11 @@ teardown() {
 }
 
 @test "select wildcard columns" {
-  run_go simple_go_select_all &> output.txt
+  run_go simple_go_select_all 2>&1 | tee output.txt
   [[ "$(grep -c "|" output.txt)" == "6" ]]
 }
 
 @test "fetch column data types" {
-  run_go get_column_information &> output.txt
+  run_go get_column_information 2>&1 | tee output.txt
   # Not crashing is success for this test
 }

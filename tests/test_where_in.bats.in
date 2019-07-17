@@ -20,7 +20,7 @@ setup() {
 }
 
 @test "where with basic in statement" {
-  octo <<OCTO &> output.txt
+  octo <<OCTO 2>&1 | tee output.txt
 select * from names where firstName in (select firstName from names where firstName="zero" or firstName="Zero");
 OCTO
   [[ "$(grep -c "Zero|Cool" output.txt)" != "0" ]]
@@ -28,7 +28,7 @@ OCTO
 }
 
 @test "T0004 where IN references parent query" {
-  octo <<OCTO &> output.txt
+  octo <<OCTO 2>&1 | tee output.txt
 SELECT *
 FROM names n1
 WHERE n1.firstName IN (SELECT n2.firstName
@@ -40,7 +40,7 @@ OCTO
 }
 
 @test "T0005 where IN references grandparent query" {
-  octo <<OCTO &> output.txt
+  octo <<OCTO 2>&1 | tee output.txt
 SELECT *
 FROM names a
 WHERE a.firstName IN (
@@ -55,7 +55,7 @@ OCTO
 }
 
 @test "T0006 where IN references parent from SET expression" {
-  octo <<OCTO &> output.txt
+  octo <<OCTO 2>&1 | tee output.txt
 SELECT *
 FROM names a
 WHERE a.firstName IN (
@@ -71,4 +71,42 @@ WHERE a.firstName IN (
 );
 OCTO
   verify_output T0006 output.txt
+}
+
+@test "T0013 WHERE in sub-query only references TWO parent query columns that do not match (variant of T0006)" {
+  octo <<OCTO 2>&1 | tee output.txt
+SELECT *
+FROM names n1
+WHERE n1.firstName IN (SELECT n2.firstName
+  FROM names n2
+  WHERE n1.firstName = n1.lastName
+);
+OCTO
+  verify_output T0013 output.txt
+}
+
+@test "T0013A WHERE in sub-query only references TWO parent query columns that match (variant of T0006)" {
+  octo <<OCTO 2>&1 | tee output.txt
+SELECT *
+FROM names n1
+INNER JOIN names n2
+ON (n1.id = n2.id)
+WHERE n1.firstName IN (
+  SELECT n3.firstName FROM names n3
+  WHERE n1.id = n2.id
+)
+OCTO
+  verify_output T0013A output.txt
+}
+
+@test "T0014 WHERE in sub-query only references ONE parent query column AND a CONSTANT (variant of T0013)" {
+  octo <<OCTO 2>&1 | tee output.txt
+SELECT *
+FROM names n1
+WHERE n1.firstName IN (SELECT n2.firstName
+  FROM names n2
+  WHERE n1.firstName = "Acid"
+);
+OCTO
+  verify_output T0014 output.txt
 }

@@ -166,3 +166,13 @@ verify_output() {
   diff outref/$1.ref nodebug.txt
   return
 }
+
+count_for_loops() {
+  numloops=$(grep -c "FOR " $1 | cat)
+  if [[ $numloops -ne $2 ]]; then
+    echo "Expected $2 FOR loops but found $numloops loops instead in $1"
+    return -1
+  fi
+  return
+}
+

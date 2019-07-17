@@ -22,7 +22,7 @@ setup() {
 }
 
 @test "cross join" {
-  octo <<OCTO &> output.txt
+  octo <<OCTO 2>&1 | tee output.txt
 select * from names cross join names2;
 OCTO
   run cat output.txt
@@ -30,7 +30,7 @@ OCTO
 }
 
 @test "cross join with where statement in table 1" {
-  octo -vvv <<OCTO &> output.txt
+  octo -vvv <<OCTO 2>&1 | tee output.txt
 select * from names cross join names2 where names.firstName = "Zero";
 OCTO
   run cat output.txt
@@ -39,7 +39,7 @@ OCTO
 }
 
 @test "cross join with where statement in table 2" {
-  octo -vvv <<OCTO &> output.txt
+  octo -vvv <<OCTO 2>&1 | tee output.txt
 select * from names cross join names2 where names2.firstName = "Zero";
 OCTO
   run cat output.txt
@@ -48,7 +48,7 @@ OCTO
 }
 
 @test "cross join with where statement in table 1 and table 2" {
-  octo -vvv <<OCTO &> output.txt
+  octo -vvv <<OCTO 2>&1 | tee output.txt
 select * from names cross join names2 where names.firstName = "Zero" AND names2.firstName = "Acid";
 OCTO
   run cat output.txt
@@ -57,7 +57,7 @@ OCTO
 }
 
 @test "join of temporary table with real table" {
-  octo <<OCTO &> output.txt
+  octo <<OCTO 2>&1 | tee output.txt
 select *
 FROM (
     select t1.firstName as firstName
@@ -74,7 +74,7 @@ OCTO
 }
 
 @test "cross join many matches with comma" {
-  octo <<OCTO &> output.txt
+  octo <<OCTO 2>&1 | tee output.txt
 SELECT *
 FROM names n1, names n2;
 OCTO
@@ -82,7 +82,7 @@ OCTO
 }
 
 @test "cross join many matches with comma with many tables" {
-  octo <<OCTO &> output.txt
+  octo <<OCTO 2>&1 | tee output.txt
 SELECT *
 FROM names n1, names n2, names n3, names n4;
 OCTO
@@ -90,7 +90,7 @@ OCTO
 }
 
 @test "cross join many matches with comma with additional criteria" {
-  octo <<OCTO &> output.txt
+  octo <<OCTO 2>&1 | tee output.txt
 SELECT *
 FROM names n1, names n2
 WHERE n1.firstName = "Zero";

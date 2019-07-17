@@ -20,11 +20,11 @@ setup() {
 }
 
 @test "insert with firstName=Zero" {
-  octo <<OCTO &>> output.txt
+  octo <<OCTO 2>&1 | tee -a output.txt
 create table names2 (id integer primary key, firstName varchar(30), lastName varchar(30));
 insert into names2 (SELECT * FROM names WHERE firstName="Zero");
 OCTO
-  octo <<OCTO &>> output.txt
+  octo <<OCTO 2>&1 | tee -a output.txt
 select * from names2;
 OCTO
   run cat output.txt
@@ -33,7 +33,7 @@ OCTO
 }
 
 @test "insert to a xfer table" {
-  octo -vvv <<OCTO &> output.txt
+  octo -vvv <<OCTO 2>&1 | tee output.txt
 create table namesLastNameXref (
   lastName VARCHAR(30) PRIMARY KEY,
   id INTEGER KEY NUM 1
@@ -46,7 +46,7 @@ OCTO
 }
 
 @test "insert to 3-key table" {
-  octo -vvv <<OCTO &> output.txt
+  octo -vvv <<OCTO 2>&1 | tee output.txt
 create table namesXfer (
   id INTEGER PRIMARY KEY
 , firstName VARCHAR(30) KEY NUM 1

@@ -19,6 +19,10 @@
 #include "octo_types.h"
 #include "logical_plan.h"
 
+// Below is a helper function that should be invoked only from this file hence the prototype is defined in the .c file
+// and not in the .h file like is the usual case.
+int lp_optimize_where_multi_equal_ands_helper(LogicalPlan *plan, LogicalPlan *where, int *key_unique_id_array);
+
 /**
  * Verifies that the equals statement in equals can be "fixed", which involves checking
  * that:
@@ -34,10 +38,8 @@ int lp_verify_valid_for_key_fix(LogicalPlan *plan, LogicalPlan *equals) {
 	int i1, i2;
 	SqlTableAlias *table_alias, *table_alias2;
 
-	if(equals == NULL)
-		return FALSE;
-	if(equals->type != LP_BOOLEAN_EQUALS)
-		return FALSE;
+	assert(NULL != equals);
+	assert(LP_BOOLEAN_EQUALS == equals->type);
 	left = equals->v.operand[0];
 	if(!(left->type == LP_VALUE || left->type == LP_COLUMN_ALIAS))
 		return FALSE;
@@ -69,7 +71,35 @@ int lp_verify_valid_for_key_fix(LogicalPlan *plan, LogicalPlan *equals) {
 }
 
 int lp_optimize_where_multi_equal_ands(LogicalPlan *plan, LogicalPlan *where) {
-	LogicalPlan *cur, *equals, *lp_key, *left, *right, *t, *keys, *prev;
+	int		*key_unique_id_array;	// keys_unique_id_ordering[unique_id] = index in the ordered list
+	int		max_unique_id;		// 1 more than maximum possible table_id/unique_id
+	int		i;
+	LogicalPlan	*cur, *lp_key;
+	SqlKey		*key;
+
+	max_unique_id = *plan->counter - 1;
+	key_unique_id_array = octo_cmalloc(memory_chunks, sizeof(int) * max_unique_id);	// guarantees 0-initialized memory */
+	// Look at the sorting of the keys in the plan ordering.
+	// When selecting which to fix, always pick the key with the higher unique_id.
+	// This should ensure that we will always have the right sequence.
+	cur = lp_get_keys(plan);
+	i = 1;	// start at non-zero value since 0 is a special value indicating key is not known to the current query/sub-query
+		// (e.g. comes in from parent query). Treat 0 as the highest possible unique_id in the function
+		// "lp_optimize_where_multi_equal_ands_helper".
+	while(cur != NULL) {
+		GET_LP(lp_key, cur, 0, LP_KEY);
+		key = lp_key->v.key;
+		// This will end up filling the table with "lowest" id, but since it'll be seqential,
+		// that will still be just about right
+		key_unique_id_array[key->unique_id] = i;
+		cur = cur->v.operand[1];
+		i++;
+	}
+	return lp_optimize_where_multi_equal_ands_helper(plan, where, key_unique_id_array);
+}
+
+int lp_optimize_where_multi_equal_ands_helper(LogicalPlan *plan, LogicalPlan *where, int *key_unique_id_array) {
+	LogicalPlan *cur, *left, *right, *t, *keys;
 	LogicalPlan *first_key, *before_first_key, *last_key, *before_last_key, *xref_keys;
 	LogicalPlan *generated_xref_keys;
 	SqlColumnList *column_list;
@@ -78,202 +108,152 @@ int lp_optimize_where_multi_equal_ands(LogicalPlan *plan, LogicalPlan *where) {
 	SqlTable *table;
 	SqlTableAlias *table_alias;
 	SqlKey *key;
-	int i, left_id, right_id, result;
-	int total_optimizations_done;
-	// keys_unique_id_ordering[unique_id] = index in the ordered list
-	int key_unique_id_ordering[MAX_STR_CONST];
+	int	left_id, right_id;
+	int	total_optimizations_done;
 
-	total_optimizations_done  = 0;
 	if(where->type == LP_WHERE) {
 		cur = where->v.operand[0];
 	} else {
 		cur = where;
 	}
-	prev = NULL;
-	result = FALSE;
-	while(cur != NULL) {
-		if(cur->type == LP_BOOLEAN_EQUALS || cur->type == LP_BOOLEAN_NOT_EQUALS) {
-			equals = cur;
-			cur = NULL;
-		} else if(cur->type == LP_BOOLEAN_OR) {
-			// We can't optimize this expression
-			return 0;
-		} else if(cur->type != LP_BOOLEAN_AND) {
-			// We have a leaf value, like LP_COLUMN_ALIAS
-			break;
-		} else {
-			// Get the one with equals
-			if(cur->v.operand[0]->type == LP_BOOLEAN_EQUALS &&
-					cur->v.operand[1]->type == LP_BOOLEAN_EQUALS) {
-				if(prev == NULL) {
-					equals = cur->v.operand[0];
-					prev = cur;
-				} else {
-					equals = cur->v.operand[1];
-					cur = NULL;
-				}
-			} else if(cur->v.operand[0]->type == LP_BOOLEAN_EQUALS) {
-				equals = cur->v.operand[0];
-				cur = cur->v.operand[1];
-			} else if(cur->v.operand[1]->type == LP_BOOLEAN_EQUALS) {
-				equals = cur->v.operand[1];
-				cur = cur->v.operand[0];
-			} else {
-				if(cur->v.operand[1]->type == LP_BOOLEAN_AND) {
-					// Recurse
-					total_optimizations_done += lp_optimize_where_multi_equal_ands(plan, cur->v.operand[1]);
-				}
-				cur = cur->v.operand[0];
-				continue;
-			}
-		}
-		if(lp_verify_valid_for_key_fix(plan, equals) == FALSE)
-			continue;
+	if (NULL == cur)
+		return 0;
+	assert(LP_BOOLEAN_OR != cur->type);	/* all ORs should already be eliminated before coming here */
+	if (LP_BOOLEAN_AND == cur->type)
+	{
+		total_optimizations_done = lp_optimize_where_multi_equal_ands_helper(plan, cur->v.operand[0], key_unique_id_array);
+		total_optimizations_done += lp_optimize_where_multi_equal_ands_helper(plan, cur->v.operand[1], key_unique_id_array);
+		return total_optimizations_done;
 	}
-	// Look at the sorting of the keys in the plan ordering; when selecting which to fix,
-	// always pick the "lower" one; this should ensure that we will always have the right
-	// sequence
-	cur = lp_get_keys(plan);
-	i = 0;
-	while(cur != NULL) {
-		GET_LP(lp_key, cur, 0, LP_KEY);
-		key = lp_key->v.key;
-		// This will end up filling the table with "lowest" id, but since it'll be seqential,
-		// that will still be just about right
-		key_unique_id_ordering[key->unique_id] = i;
-		cur = cur->v.operand[1];
-		i++;
-	}
+	if (LP_BOOLEAN_EQUALS != cur->type)
+		return 0; // The only things we currently optimize are AND and EQUALS
 	// Go through and fix keys as best as we can
-	cur = where->v.operand[0];
-	prev = NULL;
-	while(cur != NULL) {
-		if(cur->type == LP_BOOLEAN_EQUALS || cur->type == LP_BOOLEAN_NOT_EQUALS) {
-			equals = cur;
-			cur = NULL;
-		} else if(cur->type == LP_BOOLEAN_OR) {
-			// We shouldn't get this far if the expression has n OR
-			assert(FALSE);
-		} else if(cur->type != LP_BOOLEAN_AND) {
-			break;
-		} else {
-			// Get the one with equals
-			if(cur->v.operand[0]->type == LP_BOOLEAN_EQUALS &&
-					cur->v.operand[1]->type == LP_BOOLEAN_EQUALS) {
-				if(prev == NULL) {
-					equals = cur->v.operand[0];
-					prev = cur;
-				} else {
-					equals = cur->v.operand[1];
-					cur = NULL;
-				}
-			} else if(cur->v.operand[0]->type == LP_BOOLEAN_EQUALS) {
-				equals = cur->v.operand[0];
-				cur = cur->v.operand[1];
-			} else if(cur->v.operand[1]->type == LP_BOOLEAN_EQUALS) {
-				equals = cur->v.operand[1];
-				cur = cur->v.operand[0];
-			} else {
-				cur = cur->v.operand[0];
-				continue;
-			}
+	if (FALSE == lp_verify_valid_for_key_fix(plan, cur))
+		return 0;
+	left = cur->v.operand[0];
+	right = cur->v.operand[1];
+
+	if(right->type == LP_COLUMN_ALIAS && left->type == LP_COLUMN_ALIAS) {
+		UNPACK_SQL_STATEMENT(table_alias, right->v.column_alias->table_alias, table_alias);
+		right_id = table_alias->unique_id;
+		UNPACK_SQL_STATEMENT(table_alias, left->v.column_alias->table_alias, table_alias);
+		left_id = table_alias->unique_id;
+		assert(0 <= left_id);
+		assert(0 <= right_id);
+		assert(left_id < *plan->counter);
+		assert(right_id < *plan->counter);
+		// If both column references correspond to tables from parent query then we cannot fix either.
+		if ((0 == key_unique_id_array[left_id]) && (0 == key_unique_id_array[right_id])) {
+			return 0;
 		}
-		if(lp_verify_valid_for_key_fix(plan, equals) == FALSE) {
-			continue;
+		// The "0 == " check below treats 0 as the highest possible unique_id. See comment in the function
+		// "lp_optimize_where_multi_equal_ands" for more details on this.
+		if ((0 == key_unique_id_array[right_id])
+				|| (key_unique_id_array[left_id] < key_unique_id_array[right_id])) {
+			t = left;
+			left = right;
+			right = t;
 		}
-		left = equals->v.operand[0];
-		right = equals->v.operand[1];
-		if(right->type == LP_COLUMN_ALIAS && left->type == LP_COLUMN_ALIAS) {
+	} else {
+		// At least one of these is a constant; just fix it
+		if(LP_COLUMN_ALIAS == right->type) {
+			// The left is a value, right a column, swap'em
 			UNPACK_SQL_STATEMENT(table_alias, right->v.column_alias->table_alias, table_alias);
 			right_id = table_alias->unique_id;
+			if(0 == key_unique_id_array[right_id]) {
+				// The right column corresponds to a unique_id coming in from the parent query.
+				// In that case we cannot fix it in the sub-query. Return.
+				return 0;
+			}
+			t = left;
+			left = right;
+			right = t;
+		} else if(LP_COLUMN_ALIAS == left->type) {
+			// The right is a value, left a column. Check if left comes in from parent query.
+			// In that case, we cannot fix it. Else it is already in the right order so no swap needed
+			// like was the case in the previous "if" block.
 			UNPACK_SQL_STATEMENT(table_alias, left->v.column_alias->table_alias, table_alias);
 			left_id = table_alias->unique_id;
-			if(key_unique_id_ordering[left_id] < key_unique_id_ordering[right_id]) {
-				t = left;
-				left = right;
-				right = t;
+			if(0 == key_unique_id_array[left_id]) {
+				// The left column corresponds to a unique_id coming in from the parent query.
+				// In that case we cannot fix it in the sub-query. Return.
+				return 0;
 			}
 		} else {
-			// At least one of these is a constant; just fix it
-			if(right->type == LP_COLUMN_ALIAS) {
-				// The left is a value, right a column, swap'em
-				t = left;
-				left = right;
-				right = t;
-			} else if(left->type == LP_VALUE) {
-				// This something like 5=5; dumb and senseless, but the M
-				//  compiler will optimize it away. Nothing we can do here
-				continue;
-			}
+			// Both left and right are values.
+			assert(LP_VALUE == left->type);
+			assert(LP_VALUE == right->type);
+			// This something like 5=5; dumb and senseless, but the M
+			//  compiler will optimize it away. Nothing we can do here.
+			return 0;
 		}
-		key = lp_get_key(plan, left);
-		// If the left isn't a key, generate a cross reference
-		if(key == NULL) {
-			// Get the table alias and column for left
-			column_alias = left->v.column_alias;
-			UNPACK_SQL_STATEMENT(table_alias, column_alias->table_alias, table_alias);
-			/// TODO: how do we handle triggers on generated tables?
-			if(table_alias->table->type != table_STATEMENT)
-				break;
-			UNPACK_SQL_STATEMENT(table, table_alias->table, table);
-			if(column_alias->column->type != column_STATEMENT) {
-				UNPACK_SQL_STATEMENT(column_list_alias, column_alias->column, column_list_alias);
-				UNPACK_SQL_STATEMENT(column_list, column_list_alias->column_list, column_list);
-				UNPACK_SQL_STATEMENT(column_alias, column_list->value, column_alias);
-			}
-			generated_xref_keys = lp_generate_xref_keys(plan, table, column_alias, table_alias);
-			if(generated_xref_keys == NULL)
-				continue;
-			// Remove all keys for the table alias
-			before_first_key = lp_get_criteria(plan);
-			first_key = keys = lp_get_keys(plan);
-			do {
-				GET_LP(t, first_key, 0, LP_KEY);
-				if(t->v.key->unique_id == table_alias->unique_id) {
-					break;
-				}
-				if(first_key->v.operand[1] == NULL) {
-					break;
-				}
-				before_first_key = first_key;
-				GET_LP(first_key, first_key, 1, LP_KEYS);
-			} while(TRUE);
-			// Find the last key
-			last_key = first_key;
-			before_last_key = first_key;
-			do {
-				GET_LP(t, last_key, 0, LP_KEY);
-				if(t->v.key->unique_id != table_alias->unique_id) {
-					break;
-				}
-				before_last_key = last_key;
-				if(last_key->v.operand[1] == NULL) {
-					break;
-				}
-				GET_LP(last_key, last_key, 1, LP_KEYS);
-			} while(TRUE);
-			// Generate the new key structure
-			// First, insert a new key corresponding to the column in question
-			xref_keys = lp_make_key(column_alias);
-			key = xref_keys->v.key;
-			key->is_cross_reference_key = TRUE;
-			if(before_first_key->type == LP_CRITERIA) {
-				MALLOC_LP(before_first_key->v.operand[0], LP_KEYS);
-				before_first_key = before_first_key->v.operand[0];
-			} else {
-				MALLOC_LP(before_first_key->v.operand[1], LP_KEYS);
-				before_first_key = before_first_key->v.operand[1];
-			}
-			before_first_key->v.operand[0] = xref_keys;
-			xref_keys = generated_xref_keys;
-			assert(xref_keys != NULL);
-			before_first_key->v.operand[1] = xref_keys;
-			if(before_last_key->v.operand[1] != NULL) {
-				xref_keys->v.operand[1] = before_last_key->v.operand[1];
-			}
-		}
-		result = lp_opt_fix_key_to_const(plan, key, right);
-		total_optimizations_done += result;
 	}
+	key = lp_get_key(plan, left);
+	// If the left isn't a key, generate a cross reference
+	if(key == NULL) {
+		// Get the table alias and column for left
+		column_alias = left->v.column_alias;
+		UNPACK_SQL_STATEMENT(table_alias, column_alias->table_alias, table_alias);
+		/// TODO: how do we handle triggers on generated tables?
+		if(table_alias->table->type != table_STATEMENT)
+			return 0;
+		UNPACK_SQL_STATEMENT(table, table_alias->table, table);
+		if(column_alias->column->type != column_STATEMENT) {
+			UNPACK_SQL_STATEMENT(column_list_alias, column_alias->column, column_list_alias);
+			UNPACK_SQL_STATEMENT(column_list, column_list_alias->column_list, column_list);
+			UNPACK_SQL_STATEMENT(column_alias, column_list->value, column_alias);
+		}
+		generated_xref_keys = lp_generate_xref_keys(plan, table, column_alias, table_alias);
+		if(generated_xref_keys == NULL)
+			return 0;
+		// Remove all keys for the table alias
+		before_first_key = lp_get_criteria(plan);
+		first_key = keys = lp_get_keys(plan);
+		do {
+			GET_LP(t, first_key, 0, LP_KEY);
+			if(t->v.key->unique_id == table_alias->unique_id) {
+				break;
+			}
+			if(first_key->v.operand[1] == NULL) {
+				break;
+			}
+			before_first_key = first_key;
+			GET_LP(first_key, first_key, 1, LP_KEYS);
+		} while(TRUE);
+		// Find the last key
+		last_key = first_key;
+		before_last_key = first_key;
+		do {
+			GET_LP(t, last_key, 0, LP_KEY);
+			if(t->v.key->unique_id != table_alias->unique_id) {
+				break;
+			}
+			before_last_key = last_key;
+			if(last_key->v.operand[1] == NULL) {
+				break;
+			}
+			GET_LP(last_key, last_key, 1, LP_KEYS);
+		} while(TRUE);
+		// Generate the new key structure
+		// First, insert a new key corresponding to the column in question
+		xref_keys = lp_make_key(column_alias);
+		key = xref_keys->v.key;
+		key->is_cross_reference_key = TRUE;
+		if(before_first_key->type == LP_CRITERIA) {
+			MALLOC_LP(before_first_key->v.operand[0], LP_KEYS);
+			before_first_key = before_first_key->v.operand[0];
+		} else {
+			MALLOC_LP(before_first_key->v.operand[1], LP_KEYS);
+			before_first_key = before_first_key->v.operand[1];
+		}
+		before_first_key->v.operand[0] = xref_keys;
+		xref_keys = generated_xref_keys;
+		assert(xref_keys != NULL);
+		before_first_key->v.operand[1] = xref_keys;
+		if(before_last_key->v.operand[1] != NULL) {
+			xref_keys->v.operand[1] = before_last_key->v.operand[1];
+		}
+	}
+	total_optimizations_done = lp_opt_fix_key_to_const(plan, key, right);
 	return total_optimizations_done;
 }

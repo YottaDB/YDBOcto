@@ -1,0 +1,7 @@
+OCTO> SELECT *
+OCTO> FROM names n1
+OCTO> WHERE n1.firstName IN (SELECT n2.firstName
+OCTO>   FROM names n2
+OCTO>   WHERE n1.firstName = n1.lastName
+OCTO> );
+OCTO> 

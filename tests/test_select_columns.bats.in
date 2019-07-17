@@ -43,7 +43,7 @@ OCTO
 }
 
 @test "select column which doesn't exist" {
-  octo <<OCTO &> output.txt
+  octo <<OCTO 2>&1 | tee output.txt
 select names.hackName from names;
 OCTO
   run cat output.txt
@@ -52,7 +52,7 @@ OCTO
 }
 
 @test "select column with invalid typing" {
-  octo <<OCTO &> output.txt
+  octo <<OCTO 2>&1 | tee output.txt
 select names.firstName + 5 from names;
 OCTO
   run cat output.txt
@@ -61,7 +61,7 @@ OCTO
 }
 
 @test "select with a semicolon in string" {
-  octo <<OCTO &> output.txt
+  octo <<OCTO 2>&1 | tee output.txt
 select * from names where firstName = "; hello world";
 OCTO
   run cat output.txt
@@ -70,7 +70,7 @@ OCTO
 }
 
 # @test "select from table with multiple keys" {
-#   octo <<OCTO &> output.txt
+#   octo <<OCTO 2>&1 | tee output.txt
 # create table names2 (
 #   id INTEGER PRIMARY KEY,
 #   firstName VARCHAR(30) KEY NUM 1,
@@ -85,21 +85,21 @@ OCTO
 #
 
 @test "select without a from statement" {
-  octo <<OCTO &> output.txt
+  octo <<OCTO 2>&1 | tee output.txt
 select 17+5*5;
 OCTO
   [[ $( grep -c "42" output.txt) == "1" ]]
 }
 
 @test "select without a from with a syntax error" {
-  octo <<OCTO &> output.txt
+  octo <<OCTO 2>&1 | tee output.txt
 select * asdfasdfsdf;
 OCTO
   [[ $( grep -c "ERROR" output.txt) == "1" ]]
 }
 
 @test "select so many columns it would exceed the M line length" {
-  octo -vv <<OCTO &> output.txt
+  octo -vv <<OCTO 2>&1 | tee output.txt
 SELECT firstName, firstName, firstName, firstName, firstName, firstName, firstName, firstName,
  firstName, firstName, firstName, firstName, firstName, firstName, firstName, firstName, firstName,
  firstName, firstName, firstName, firstName, firstName, firstName, firstName, firstName, firstName,
@@ -138,7 +138,7 @@ OCTO
 }
 
 @test "select using a CASE statement" {
-  octo <<OCTO &> output.txt
+  octo <<OCTO 2>&1 | tee output.txt
 SELECT
   firstName
   , CASE firstName
@@ -153,7 +153,7 @@ OCTO
 }
 
 @test "select a negative number" {
-  octo <<OCTO &> output.txt
+  octo <<OCTO 2>&1 | tee output.txt
 SELECT -5
 FROM names;
 OCTO
@@ -161,7 +161,7 @@ OCTO
 }
 
 @test "select some columns with C-style comments interwoven" {
-  octo <<OCTO &> output.txt
+  octo <<OCTO 2>&1 | tee output.txt
 SELECT firstName /* We need first names */
   , lastName /* We also need last names */
   /* It might also be helpful to get id
@@ -175,7 +175,7 @@ OCTO
 }
 
 @test "order by a calculated column" {
-  octo <<OCTO &> output.txt
+  octo <<OCTO 2>&1 | tee output.txt
 SELECT nspname AS TABLE_SCHEM,
   NULL AS TABLE_CATALOG
 FROM pg_catalog.pg_namespace
@@ -189,7 +189,7 @@ OCTO
 }
 
 @test "cast int column to text" {
-  octo <<OCTO &> output.txt
+  octo <<OCTO 2>&1 | tee output.txt
 SELECT *
 FROM names
 WHERE (id :: text) = "0";
@@ -198,7 +198,7 @@ OCTO
 }
 
 @test "verify that columns are cleaned after data is sent" {
-  octo <<OCTO &> output.txt
+  octo <<OCTO 2>&1 | tee output.txt
 SELECT * FROM names;
 OCTO
   $ydb_dist/mumps -di <<OCTO &> output2.txt
@@ -208,7 +208,7 @@ OCTO
 }
 
 @test "verify that columns are kept after data is sent if -k provided" {
-  octo -k <<OCTO &> output.txt
+  octo -k <<OCTO 2>&1 | tee output.txt
 SELECT * FROM names;
 OCTO
   $ydb_dist/mumps -di <<OCTO &> output2.txt
@@ -219,7 +219,7 @@ OCTO
 
 @test "verify that columns are kept after data is sent if config is set" {
   echo "auto_clean_tables = false" >> .octo.conf
-  octo <<OCTO &> output.txt
+  octo <<OCTO 2>&1 | tee output.txt
 SELECT * FROM names;
 OCTO
   $ydb_dist/mumps -di <<OCTO &> output2.txt
@@ -229,14 +229,14 @@ OCTO
 }
 
 @test "T0003 cast a string to an integer" {
-  octo <<OCTO &> output.txt
+  octo <<OCTO 2>&1 | tee output.txt
 SELECT firstName :: integer + 5 FROM names;
 OCTO
   verify_output T0003 output.txt
 }
 
 @test "T0010 select an alias with a shorter name" {
-  octo <<OCTO &> output.txt
+  octo <<OCTO 2>&1 | tee output.txt
 SELECT t.lastName
 FROM (
   SELECT n1.id FROM names n1

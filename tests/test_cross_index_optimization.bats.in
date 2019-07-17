@@ -22,7 +22,7 @@ setup() {
 }
 
 @test "where with string limits return values" {
-  octo <<OCTO &> output.txt
+  octo <<OCTO 2>&1 | tee output.txt
 select * from names where firstName = "Zero";
 OCTO
   run cat output.txt
@@ -30,7 +30,7 @@ OCTO
   ! [[ "$output" =~ "Joey" ]]
   ls _ydboctoX*.m &> ls.txt
   wc -w ls.txt &> wc.txt
-  cut -d " " -f 1 wc.txt &> output.txt
+  cut -d " " -f 1 wc.txt 2>&1 | tee output.txt
   run cat output.txt
   [[ $output -eq 1 ]]
   [[ "$(grep -c xref _ydboctoP*.m)" > 0 ]]
@@ -40,7 +40,7 @@ OCTO
 }
 
 @test "where from table with two keys" {
-  octo <<OCTO &> output.txt
+  octo <<OCTO 2>&1 | tee output.txt
 select * from names2 where lastName = "Cool";
 OCTO
   run cat output.txt
@@ -48,7 +48,7 @@ OCTO
   ! [[ "$output" =~ "Joey" ]]
   ls _ydboctoX*.m &> ls.txt
   wc -w ls.txt &> wc.txt
-  cut -d " " -f 1 wc.txt &> output.txt
+  cut -d " " -f 1 wc.txt 2>&1 | tee output.txt
   run cat output.txt
   [[ $output -eq 1 ]]
   [[ "$(grep -c xref _ydboctoP*.m)" > 0 ]]
@@ -58,7 +58,7 @@ OCTO
 }
 
 @test "where from table with two keys and where is key" {
-  octo <<OCTO &> output.txt
+  octo <<OCTO 2>&1 | tee output.txt
 select * from names2 where firstName = "Zero";
 OCTO
   run cat output.txt
@@ -67,7 +67,7 @@ OCTO
 }
 
 @test "where from table with two keys inverted where" {
-  octo <<OCTO &> output.txt
+  octo <<OCTO 2>&1 | tee output.txt
 select * from names2 where "Cool" = lastName;
 OCTO
   run cat output.txt
@@ -75,7 +75,7 @@ OCTO
   ! [[ "$output" =~ "Joey" ]]
   ls _ydboctoX*.m &> ls.txt
   wc -w ls.txt &> wc.txt
-  cut -d " " -f 1 wc.txt &> output.txt
+  cut -d " " -f 1 wc.txt 2>&1 | tee output.txt
   run cat output.txt
   [[ $output -eq 1 ]]
   [[ "$(grep -c xref _ydboctoP*.m)" > 0 ]]
@@ -86,26 +86,26 @@ OCTO
 
 @test "where from table with two keys and one key is equal to non-key" {
   ## TODO: this test is skipped until we get the optimization engine to "order" expressions
-  octo <<OCTO &> output.txt
+  octo <<OCTO 2>&1 | tee output.txt
 select * from names2 where firstName = lastName;
 OCTO
   # We can't know the lastName before getting the firstName, so there are no optimizations in this case
 }
 
 @test "where from table with two keys and one key is equal to non-key inverted" {
-  octo <<OCTO &> output.txt
+  octo <<OCTO 2>&1 | tee output.txt
 select * from names2 where lastName = firstName;
 OCTO
 }
 
 
 @test "verify that triggers create new indexes and delete them" {
-  octo <<OCTO &> output.txt
+  octo <<OCTO 2>&1 | tee output.txt
 SELECT * FROM names WHERE firstName = "Zero";
 OCTO
   ls _ydboctoX*.m &> ls.txt
   wc -w ls.txt &> wc.txt
-  cut -d " " -f 1 wc.txt &> output.txt
+  cut -d " " -f 1 wc.txt 2>&1 | tee output.txt
   run cat output.txt
   [[ $output -eq 1 ]]
   $ydb_dist/mumps -r %XCMD 'SET ^names(6)="|Charles|Hathaway"'
@@ -117,7 +117,7 @@ OCTO
 }
 
 @test "verify that when we iterate on a fix'd key we don't iterate extra xref keys" {
-  octo <<OCTO &> output.txt
+  octo <<OCTO 2>&1 | tee output.txt
 SELECT *
 FROM names n1
 INNER JOIN names n2

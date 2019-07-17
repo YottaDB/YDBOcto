@@ -20,7 +20,7 @@ setup() {
 }
 
 @test "union returns combined rows with no duplicates" {
-  octo <<OCTO &> output.txt
+  octo <<OCTO 2>&1 | tee output.txt
 select firstName, lastName from names union select firstName, lastName from names;
 OCTO
   run cat output.txt
@@ -29,7 +29,7 @@ OCTO
 }
 
 @test "union all returns combined rows with duplicates" {
-  octo <<OCTO &> output.txt
+  octo <<OCTO 2>&1 | tee output.txt
 select firstName, lastName from names union all select firstName, lastName from names;
 OCTO
   run cat output.txt
@@ -38,7 +38,7 @@ OCTO
 }
 
 @test "intersect provides items in both sets, with duplicates removed" {
-  octo <<OCTO &> output.txt
+  octo <<OCTO 2>&1 | tee output.txt
 select firstName, lastName from names
 intersect
 select firstName, lastName from names where firstName = "Zero";
@@ -50,7 +50,7 @@ OCTO
 }
 
 @test "intersect provides items in both sets, with duplicates min. from both sets" {
-  octo <<OCTO &> output.txt
+  octo <<OCTO 2>&1 | tee output.txt
 select firstName, lastName from names
 intersect all
 select firstName, lastName from names where firstName = "Zero";
@@ -62,7 +62,7 @@ OCTO
 }
 
 @test "except removed items from second set in the first set" {
-  octo <<OCTO &> output.txt
+  octo <<OCTO 2>&1 | tee output.txt
 select firstName, lastName from names
 except
 select firstName, lastName from names where firstName = "Zero";
@@ -74,7 +74,7 @@ OCTO
 }
 
 @test "except all removed the same count of items from the first set as exist in the second set" {
-  octo <<OCTO &> output.txt
+  octo <<OCTO 2>&1 | tee output.txt
 select firstName, lastName from names
 except all
 select firstName, lastName from names where firstName = "Zero" and id = 0;
@@ -86,7 +86,7 @@ OCTO
 }
 
 @test "simulate outer join using UNION" {
-  octo <<OCTO &> output.txt
+  octo <<OCTO 2>&1 | tee output.txt
 SELECT a.id as A_id, b.id as B_id
 FROM names a INNER JOIN names b ON a.firstName = b.firstName
 
@@ -100,7 +100,7 @@ OCTO
 }
 
 @test "UNION of tables with different numbers of keys" {
-  octo <<OCTO &> output.txt
+  octo <<OCTO 2>&1 | tee output.txt
 SELECT t1.id, t1.firstName, t1.lastName
 FROM names t1
 INNER JOIN (SELECT * FROM names) t2
@@ -115,7 +115,7 @@ OCTO
 }
 
 @test "UNION of SELECT and another SET operation" {
-  octo <<OCTO &> output.txt
+  octo <<OCTO 2>&1 | tee output.txt
 SELECT *
 FROM names n1
 INNER JOIN names n2

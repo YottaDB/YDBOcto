@@ -20,42 +20,42 @@ setup() {
 }
 
 @test "generate one plan" {
-  octo <<OCTO &> output.txt
+  octo <<OCTO 2>&1 | tee output.txt
 select * from names;
 OCTO
   ls _ydboctoP*.m &> ls.txt
   wc -w ls.txt &> wc.txt
-  cut -d " " -f 1 wc.txt &> output.txt
+  cut -d " " -f 1 wc.txt 2>&1 | tee output.txt
   run cat output.txt
   [[ $output -eq 1 ]]
 }
 
 @test "generate one plan from two identical queries" {
-  octo <<OCTO &> output.txt
+  octo <<OCTO 2>&1 | tee output.txt
 select * from names;
 select * from names;
 OCTO
   ls _ydboctoP*.m &> ls.txt
   wc -w ls.txt &> wc.txt
-  cut -d " " -f 1 wc.txt &> output.txt
+  cut -d " " -f 1 wc.txt 2>&1 | tee output.txt
   run cat output.txt
   [[ $output -eq 1 ]]
 }
 
 @test "generate two plans from two unique queries" {
-  octo <<OCTO &> output.txt
+  octo <<OCTO 2>&1 | tee output.txt
 select * from names;
 select * from names where firstName = "Zero";
 OCTO
   ls _ydboctoP*.m &> ls.txt
   wc -w ls.txt &> wc.txt
-  cut -d " " -f 1 wc.txt &> output.txt
+  cut -d " " -f 1 wc.txt 2>&1 | tee output.txt
   run cat output.txt
   [[ $output -eq 2 ]]
 }
 
 @test "generate five unique plans from five unique queries" {
-  octo <<OCTO &> output.txt
+  octo <<OCTO 2>&1 | tee output.txt
 select * from names;
 select * from names where firstName = "Zero";
 select lastName from names;
@@ -64,13 +64,13 @@ select id from names;
 OCTO
   ls _ydboctoP*.m &> ls.txt
   wc -w ls.txt &> wc.txt
-  cut -d " " -f 1 wc.txt &> output.txt
+  cut -d " " -f 1 wc.txt 2>&1 | tee output.txt
   run cat output.txt
   [[ $output -eq 5 ]]
 }
 
 @test "generate two unique plans several queries" {
-  octo <<OCTO &> output.txt
+  octo <<OCTO 2>&1 | tee output.txt
 select * from names;
 select lastName from names;
 select * from names;
@@ -80,13 +80,13 @@ select lastName from names;
 OCTO
   ls _ydboctoP*.m &> ls.txt
   wc -w ls.txt &> wc.txt
-  cut -d " " -f 1 wc.txt &> output.txt
+  cut -d " " -f 1 wc.txt 2>&1 | tee output.txt
   run cat output.txt
   [[ $output -eq 2 ]]
 }
 
 @test "generate three unique plans from five queries" {
-  octo <<OCTO &> output.txt
+  octo <<OCTO 2>&1 | tee output.txt
 select * from names;
 select firstName from names;
 select firstName from names;
@@ -95,13 +95,13 @@ select lastName from names;
 OCTO
   ls _ydboctoP*.m &> ls.txt
   wc -w ls.txt &> wc.txt
-  cut -d " " -f 1 wc.txt &> output.txt
+  cut -d " " -f 1 wc.txt 2>&1 | tee output.txt
   run cat output.txt
   [[ $output -eq 3 ]]
 }
 
 @test "generate four unique plans from five queries" {
-  octo <<OCTO &> output.txt
+  octo <<OCTO 2>&1 | tee output.txt
 select * from names;
 select * from names where firstName = "Zero";
 select lastName from names;
@@ -110,13 +110,13 @@ select lastName from names where id = 1;
 OCTO
   ls _ydboctoP*.m &> ls.txt
   wc -w ls.txt &> wc.txt
-  cut -d " " -f 1 wc.txt &> output.txt
+  cut -d " " -f 1 wc.txt 2>&1 | tee output.txt
   run cat output.txt
   [[ $output -eq 4 ]]
 }
 
 @test "generate four unique plans from six queries" {
-  octo <<OCTO &> output.txt
+  octo <<OCTO 2>&1 | tee output.txt
 select * from names;
 select * from names where firstName = "Zero";
 select lastName from names;
@@ -126,25 +126,25 @@ select lastName from names where id = 1;
 OCTO
   ls _ydboctoP*.m &> ls.txt
   wc -w ls.txt &> wc.txt
-  cut -d " " -f 1 wc.txt &> output.txt
+  cut -d " " -f 1 wc.txt 2>&1 | tee output.txt
   run cat output.txt
   [[ $output -eq 4 ]]
 }
 
 @test "generate unique plans for successive queries on ids within single table" {
-  octo <<OCTO &> output.txt
+  octo <<OCTO 2>&1 | tee output.txt
 select firstName from names where id = 0;
 select firstName from names where id = 1;
 OCTO
   ls _ydboctoP*.m &> ls.txt
   wc -w ls.txt &> wc.txt
-  cut -d " " -f 1 wc.txt &> output.txt
+  cut -d " " -f 1 wc.txt 2>&1 | tee output.txt
   run cat output.txt
   [[ $output -eq 2 ]]
 }
 
 @test "T0001 generate unique plans for row-value (list of values after IN keyword) constructions" {
-  octo <<OCTO &> output.txt
+  octo <<OCTO 2>&1 | tee output.txt
 SELECT * FROM names WHERE firstName IN ('Zero', 'Acid');
 SELECT * FROM names WHERE firstName IN ('Zero', 'Cool');
 OCTO

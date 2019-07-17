@@ -20,7 +20,7 @@ setup() {
 }
 
 @test "get oids" {
-  octo <<OCTO &> output.txt
+  octo <<OCTO 2>&1 | tee output.txt
 SELECT t.typlen
 FROM pg_catalog.pg_type t, pg_catalog.pg_namespace n
 WHERE t.typnamespace=n.oid AND t.typname='name' AND n.nspname='pg_catalog'
@@ -32,7 +32,7 @@ OCTO
   ## TODO: this is actually really hard because we make a reference to a table
   ##  out of scope in the subquery; for now, skip it
   skip
-  octo <<OCTO &> output.txt
+  octo <<OCTO 2>&1 | tee output.txt
 SELECT t.typname,t.oid
 FROM pg_catalog.pg_type t
   JOIN pg_catalog.pg_namespace n
@@ -45,7 +45,7 @@ OCTO
 }
 
 @test "get tables" {
-  octo <<OCTO &> output.txt
+  octo <<OCTO 2>&1 | tee output.txt
 SELECT
   NULL AS TABLE_CAT,
   n.nspname AS TABLE_SCHEM,
@@ -105,7 +105,7 @@ OCTO
 }
 
 @test "test1" {
-  octo <<OCTO &> output.txt
+  octo <<OCTO 2>&1 | tee output.txt
  SELECT NULL          AS TABLE_CAT,
        n.nspname     AS TABLE_SCHEM,
        c.relname     AS TABLE_NAME,
@@ -188,7 +188,7 @@ OCTO
 }
 
 @test "test2" {
-  octo <<OCTO &> output.txt
+  octo <<OCTO 2>&1 | tee output.txt
  SELECT NULL          AS PROCEDURE_CAT,
        n.nspname     AS PROCEDURE_SCHEM,
        p.proname     AS PROCEDURE_NAME,
@@ -219,7 +219,7 @@ OCTO
 }
 
 @test "test3" {
-  octo <<OCTO &> output.txt
+  octo <<OCTO 2>&1 | tee output.txt
  SELECT NULL                                         AS type_cat,
        n.nspname                                    AS type_schem,
        t.typname                                    AS type_name,
@@ -339,7 +339,7 @@ OCTO
 }
 
 @test "select database version" {
-  octo <<OCTO &> output.txt
+  octo <<OCTO 2>&1 | tee output.txt
 SELECT version();
 OCTO
   # For now, not crashing is considered acceptable; it seems likely that the version
@@ -347,7 +347,7 @@ OCTO
 }
 
 @test "psql \\dt" {
-  octo <<OCTO &> output.txt
+  octo <<OCTO 2>&1 | tee output.txt
  SELECT n.nspname                              AS "Schema",
        c.relname                              AS "Name",
        CASE c.relkind

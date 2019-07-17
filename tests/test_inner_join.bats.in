@@ -30,7 +30,7 @@ OCTO
 }
 
 @test "inner join with a table against itself with no ON condition" {
-  octo <<OCTO &> output.txt
+  octo <<OCTO 2>&1 | tee output.txt
 CREATE TABLE Orders (OrderID INTEGER PRIMARY KEY, CustomerID INTEGER, EmployeeID INTEGER, OrderDate VARCHAR(16), ShipperID INTEGER);
 select o.ShipperID from Orders
 inner join Orders o
@@ -40,7 +40,7 @@ OCTO
 }
 
 @test "inner join with a table against itself with no alias on one of the names" {
-  octo <<OCTO &> output.txt
+  octo <<OCTO 2>&1 | tee output.txt
 CREATE TABLE Orders (OrderID INTEGER PRIMARY KEY, CustomerID INTEGER, EmployeeID INTEGER, OrderDate VARCHAR(16), ShipperID INTEGER);
 select o.ShipperID from Orders
 inner join Orders o
@@ -50,7 +50,7 @@ OCTO
 }
 
 @test "inner join where ordered joined is inverse of the fix" {
-  octo <<OCTO &> output.txt
+  octo <<OCTO 2>&1 | tee output.txt
 CREATE TABLE customers (customer_id INTEGER PRIMARY KEY, first_name VARCHAR(30), last_name VARCHAR(30), email VARCHAR(64), address VARCHAR(128), city VARCHAR(32), state VARCHAR(2), zipcode VARCHAR(10));
 CREATE TABLE orders (order_id INTEGER PRIMARY KEY, order_date VARCHAR(30), order_amount VARCHAR(30), customer_id INTEGER);
 SELECT * FROM orders as o
@@ -58,4 +58,42 @@ INNER JOIN customers AS c
 ON c.customer_id = o.customer_id;
 OCTO
   # no crash is a success for this test
+}
+
+@test "multiple inner joins across multiple tables that should optimize to ONE FOR loop across ONE table" {
+  octo <<OCTO 2>&1 | tee output.txt
+CREATE TABLE ORDER1(
+ order1_id INTEGER PRIMARY KEY,
+ status INTEGER,
+ current_action INTEGER
+);
+
+CREATE TABLE ORDERSTATUS(
+ order_status_id INTEGER PRIMARY KEY,
+ name CHARACTER(20)
+);
+
+CREATE TABLE ORDERORDERACTIONS(
+ order1_id INTEGER PRIMARY KEY,
+ order_order_actions_id INTEGER KEY NUM 1,
+ signed_by INTEGER
+);
+
+CREATE TABLE NEWPERSON(
+ NEW_PERSON_ID INTEGER PRIMARY KEY
+);
+
+SELECT A.order1_id,
+       C.name                           AS STATUS_NAME,
+       A.current_action
+FROM   ORDER1 A
+       INNER JOIN ORDERSTATUS C
+               ON ( A.status = C.order_status_id )
+       INNER JOIN ORDERORDERACTIONS B
+               ON ( A.order1_id = B.order1_id
+                    AND A.current_action = B.order_order_actions_id )
+INNER JOIN NEWPERSON D ON (B.signed_by = D.new_person_id)
+WHERE  C.name <> "pending";
+OCTO
+  count_for_loops ./_ydboctoP*.m 1
 }

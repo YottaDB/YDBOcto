@@ -31,42 +31,42 @@ teardown() {
 }
 
 @test "test no MD5 authentication failure" {
-  run_psql <<OCTO &> output.txt
+  run_psql <<OCTO 2>&1 | tee output.txt
 SELECT * FROM names;
 OCTO
     [[ ! "$(cat results.log)" =~ "read failure: failed to read MD5 password" ]]
 }
 
 @test "select wildcard columns" {
-  run_psql <<OCTO &> output.txt
+  run_psql <<OCTO 2>&1 | tee output.txt
 SELECT * FROM names;
 OCTO
   [[ "$(grep -c -E "Zero.\+|Cool" output.txt)" == "2" ]]
 }
 
 @test "select lastName only (empty row+column check)" {
-  run_psql <<OCTO &> output.txt
+  run_psql <<OCTO 2>&1 | tee output.txt
 SELECT lastName FROM names;
 OCTO
   verify_output T0011 output.txt
 }
 
 @test "select two empty columns only (empty row+column check)" {
-  run_psql <<OCTO &> output.txt
+  run_psql <<OCTO 2>&1 | tee output.txt
 SELECT lastName, favoritePasta FROM names4;
 OCTO
   verify_output T0012 output.txt
 }
 
 @test "invalid syntax should get an error message" {
-  run_psql <<OCTO &> output.txt
+  run_psql <<OCTO 2>&1 | tee output.txt
 SELECT * AFRO names;
 OCTO
   [[ "$(grep -c -E "syntax error" output.txt)" == "1" ]]
 }
 
 @test "ensure correct columns are sent using xref" {
-  run_psql <<OCTO &> output.txt
+  run_psql <<OCTO 2>&1 | tee output.txt
 SELECT * FROM names WHERE firstName = "Zero";
 OCTO
   [[ "$(grep -c -E "0.+Zero.+Cool" output.txt)" == "1" ]]
@@ -76,7 +76,7 @@ OCTO
   stop_rocto
   echo "rocto = { use_dns = false }" > .octo.conf
   start_rocto
-  run_psql <<OCTO &> output.txt
+  run_psql <<OCTO 2>&1 | tee output.txt
 SELECT * FROM names WHERE firstName = "Zero";
 OCTO
   [[ $(grep -c "127.0.0.1" rocto.log) -ge 1 ]]
@@ -86,14 +86,14 @@ OCTO
   stop_rocto
   echo "rocto = { use_dns = true }" > .octo.conf
   start_rocto
-  run_psql <<OCTO &> output.txt
+  run_psql <<OCTO 2>&1 | tee output.txt
 SELECT * FROM names WHERE firstName = "Zero";
 OCTO
   [[ $(grep -c "localhost" rocto.log) -ge 1 ]]
 }
 
 @test "verify that dead procs don't become zombies" {
-  run_psql <<OCTO &> output.txt
+  run_psql <<OCTO 2>&1 | tee output.txt
 SELECT * FROM names;
 OCTO
   # Sleep for a moment so rocto has time to clean the PID

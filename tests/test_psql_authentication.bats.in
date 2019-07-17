@@ -39,7 +39,7 @@ OCTO
   run run_psql_auth bobby cereal <<OCTO
 SELECT * FROM names;
 OCTO
-  echo $output &> output.txt
+  echo $output 2>&1 | tee output.txt
   delete_users jon
   [[ "$output" =~ "psql: could not connect to server: Connection refused" ]]
   [[ "$output" =~ "failed to retrieve user info from database" ]]
@@ -47,7 +47,7 @@ OCTO
 
 @test "test psql authentication with one user" {
   create_user jon tester
-  run_psql_auth jon tester <<OCTO &> output.txt
+  run_psql_auth jon tester <<OCTO 2>&1 | tee output.txt
 SELECT * FROM names;
 OCTO
   delete_users jon
@@ -56,13 +56,13 @@ OCTO
 
 @test "test psql authentication with two users" {
   create_user jon tester
-  run_psql_auth jon tester <<OCTO &> output.txt
+  run_psql_auth jon tester <<OCTO 2>&1 | tee output.txt
 SELECT * FROM names;
 OCTO
   [[ "$(grep -c -E "Zero.\+|Cool" output.txt)" == "2" ]]
 
   create_user bobby bilco
-  run_psql_auth bobby bilco <<OCTO &> output.txt
+  run_psql_auth bobby bilco <<OCTO 2>&1 | tee output.txt
 SELECT * FROM names;
 OCTO
   delete_users jon bobby
@@ -71,19 +71,19 @@ OCTO
 
 @test "test psql authentication with three users" {
   create_user jon tester
-  run_psql_auth jon tester <<OCTO &> output.txt
+  run_psql_auth jon tester <<OCTO 2>&1 | tee output.txt
 SELECT * FROM names;
 OCTO
   [[ "$(grep -c -E "Zero.\+|Cool" output.txt)" == "2" ]]
 
   create_user bobby bilco
-  run_psql_auth bobby bilco <<OCTO &> output.txt
+  run_psql_auth bobby bilco <<OCTO 2>&1 | tee output.txt
 SELECT * FROM names;
 OCTO
   [[ "$(grep -c -E "Zero.\+|Cool" output.txt)" == "2" ]]
 
   create_user suzy quartz
-  run_psql_auth bobby bilco <<OCTO &> output.txt
+  run_psql_auth bobby bilco <<OCTO 2>&1 | tee output.txt
 SELECT * FROM names;
 OCTO
   delete_users jon bobby suzy

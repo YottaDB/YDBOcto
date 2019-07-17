@@ -20,7 +20,7 @@ setup() {
 }
 
 @test "outer join with no condition specified" {
-  octo <<OCTO &> output.txt
+  octo <<OCTO 2>&1 | tee output.txt
 SELECT *
 FROM names n1
 LEFT JOIN (
@@ -75,7 +75,7 @@ OCTO
 }
 
 @test "outer join with missing columns" {
-  octo <<OCTO &> output.txt
+  octo <<OCTO 2>&1 | tee output.txt
 SELECT *
 FROM names n1
 LEFT JOIN (
@@ -131,7 +131,7 @@ OCTO
 }
 
 @test "right outer join with missing columns" {
-  octo <<OCTO &> output.txt
+  octo <<OCTO 2>&1 | tee output.txt
 SELECT *
 FROM  (
   SELECT *
@@ -145,7 +145,7 @@ OCTO
 }
 
 @test "full outer join with missing columns" {
-  octo <<OCTO &> output.txt
+  octo <<OCTO 2>&1 | tee output.txt
 SELECT *
 FROM  (
   SELECT *
@@ -163,7 +163,7 @@ OCTO
 }
 
 @test "nested select with outer join" {
-  octo <<OCTO &> output.txt
+  octo <<OCTO 2>&1 | tee output.txt
 SELECT * FROM (
   SELECT *
   FROM names n1

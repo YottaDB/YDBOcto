@@ -33,7 +33,7 @@ OCTO
 }
 
 @test "create table with key in extract" {
-  octo <<OCTO &> output.txt
+  octo <<OCTO 2>&1 | tee output.txt
 CREATE TABLE namesE(
   id INTEGER PRIMARY KEY,
   firstName VARCHAR EXTRACT "^names(keys(""id""))",
@@ -47,7 +47,7 @@ OCTO
 }
 
 @test "create multiple tables in sequence" {
-  octo <<OCTO &> output.txt
+  octo <<OCTO 2>&1 | tee output.txt
 CREATE TABLE Customers (CustomerID INTEGER PRIMARY KEY);
 CREATE TABLE Orders (OrderID INTEGER PRIMARY KEY);
 OCTO
@@ -55,7 +55,7 @@ OCTO
 }
 
 @test "fail to create a table which has no keys" {
-  octo <<OCTO &> output.txt
+  octo <<OCTO 2>&1 | tee output.txt
 create table namesAbc (First char(20), Last char(30));
 select * from namesAbc;
 OCTO
@@ -64,12 +64,12 @@ OCTO
 }
 
 @test "fail to create a table which has no keys and select from it later" {
-  octo <<OCTO &> output.txt
+  octo <<OCTO 2>&1 | tee output.txt
 create table namesAbc (First char(20), Last char(30));
 OCTO
   [[ "$(grep -c "WARN" output.txt)" == "1" ]]
   [[ "$(grep -c "ERROR" output.txt)" == "1" ]]
-  octo <<OCTO &> output.txt
+  octo <<OCTO 2>&1 | tee output.txt
 select * from namesAbc;
 OCTO
   [[ "$(grep -c "ERROR" output.txt)" == "2" ]]

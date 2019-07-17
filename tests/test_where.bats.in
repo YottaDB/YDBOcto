@@ -28,7 +28,7 @@ OCTO
 }
 
 @test "where with invalid comparisons should return an error" {
-  octo <<OCTO &> output.txt
+  octo <<OCTO 2>&1 | tee output.txt
 select * from names where firstName = 5;
 OCTO
   run cat output.txt
@@ -37,7 +37,7 @@ OCTO
 }
 
 @test "expressions should evaluate with correct precedence" {
-  octo <<OCTO &> output.txt
+  octo <<OCTO 2>&1 | tee output.txt
 select * from names where id = 3+3/3;
 OCTO
   run cat output.txt
@@ -54,7 +54,7 @@ OCTO
 }
 
 @test "where with * from list" {
-  run octo<<OCTO &> output.txt
+  run octo<<OCTO 2>&1 | tee output.txt
 select * from (select id from names);
 OCTO
   run cat output.txt
@@ -76,7 +76,7 @@ OCTO
 }
 
 @test "where IS NULL" {
-  octo <<OCTO &> output.txt
+  octo <<OCTO 2>&1 | tee output.txt
 select * from names where lastName IS NULL;
 OCTO
   # We should find Joey
@@ -84,7 +84,7 @@ OCTO
 }
 
 @test "where with subquery and SELECT" {
-  octo <<OCTO &> output.txt
+  octo <<OCTO 2>&1 | tee output.txt
 SELECT CASE firstName
   WHEN 'Zero' THEN 'Zero'
   WHEN 'Acid' THEN 'Acid'
@@ -97,7 +97,7 @@ OCTO
 }
 
 @test "where with a string inequality" {
-  octo <<OCTO &> output.txt
+  octo <<OCTO 2>&1 | tee output.txt
 SELECT *
 FROM names
 WHERE firstName < "Zero";
@@ -108,7 +108,7 @@ OCTO
 }
 
 @test "where with a string inequality which is not Z" {
-  octo <<OCTO &> output.txt
+  octo <<OCTO 2>&1 | tee output.txt
 SELECT *
 FROM names
 WHERE firstName < "G";
@@ -126,7 +126,7 @@ OCTO
 
 @test "verify having a function in the WHERE doesn't break anything" {
   $ydb_dist/mumps -r ^%XCMD 'SET ^%ydboctoocto("functions","MPIECE")="$PIECE"'
-  octo <<OCTO &> output.txt
+  octo <<OCTO 2>&1 | tee output.txt
 SELECT *
 FROM names
 WHERE MPIECE(firstName, "e", 1) = "Z"
@@ -135,7 +135,7 @@ OCTO
 }
 
 @test "where with a regex comparison" {
-  octo <<OCTO &> output.txt
+  octo <<OCTO 2>&1 | tee output.txt
 SELECT *
 FROM names
 WHERE firstName ~ "^Z";
@@ -144,7 +144,7 @@ OCTO
 }
 
 @test "where with a regex comparison that fails due to case" {
-  octo <<OCTO &> output.txt
+  octo <<OCTO 2>&1 | tee output.txt
 SELECT *
 FROM names
 WHERE firstName ~ "^z";
@@ -153,7 +153,7 @@ OCTO
 }
 
 @test "where with a regex comparison that is case insensitive" {
-  octo <<OCTO &> output.txt
+  octo <<OCTO 2>&1 | tee output.txt
 SELECT *
 FROM names
 WHERE firstName ~* "^z";
@@ -162,7 +162,7 @@ OCTO
 }
 
 @test "where IN with a value-list" {
-  octo <<OCTO &> output.txt
+  octo <<OCTO 2>&1 | tee output.txt
 SELECT *
 FROM names
 WHERE firstName IN ("Zero", "Acid");
@@ -171,7 +171,7 @@ OCTO
 }
 
 @test "where NOT IN with a value-list" {
-  octo <<OCTO &> output.txt
+  octo <<OCTO 2>&1 | tee output.txt
 SELECT *
 FROM names
 WHERE firstName NOT IN ("Zero", "Acid");
@@ -181,7 +181,7 @@ OCTO
 }
 
 @test "NOT regex case sensitive" {
-  octo <<OCTO &> output.txt
+  octo <<OCTO 2>&1 | tee output.txt
 SELECT *
 FROM names
 WHERE firstName !~ "^Z";
@@ -190,7 +190,7 @@ OCTO
 }
 
 @test "NOT regex case sensitive with no matches" {
-  octo <<OCTO &> output.txt
+  octo <<OCTO 2>&1 | tee output.txt
 SELECT *
 FROM names
 WHERE firstName !~ "^z";
@@ -199,7 +199,7 @@ OCTO
 }
 
 @test "NOT regex case insensitive" {
-  octo <<OCTO &> output.txt
+  octo <<OCTO 2>&1 | tee output.txt
 SELECT *
 FROM names
 WHERE firstName !~* "^z";
@@ -208,7 +208,7 @@ OCTO
 }
 
 @test "LIKE with wildcard" {
-  octo <<OCTO &> output.txt
+  octo <<OCTO 2>&1 | tee output.txt
 SELECT *
 FROM names
 WHERE firstName LIKE 'Z%';
@@ -217,7 +217,7 @@ OCTO
 }
 
 @test "LIKE with single char match" {
-  octo <<OCTO &> output.txt
+  octo <<OCTO 2>&1 | tee output.txt
 SELECT *
 FROM names
 WHERE firstName LIKE '_ero';
@@ -226,7 +226,7 @@ OCTO
 }
 
 @test "NOT LIKE with wildcard" {
-  octo <<OCTO &> output.txt
+  octo <<OCTO 2>&1 | tee output.txt
 SELECT *
 FROM names
 WHERE firstName NOT LIKE 'Z%';

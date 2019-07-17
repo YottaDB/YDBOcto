@@ -35,10 +35,10 @@ LogicalPlan *join_tables(LogicalPlan *root, LogicalPlan *plan) {
 	sub = plan->v.operand[0];
 	if(plan->v.operand[0]->type == LP_INSERT) {
 		// This plan needs to be inserted as a physical plan
-		//  Leave it alone here, and let the physical planner grab it
+		// Leave it alone here, and let the physical planner grab it
 		plan->counter = root->counter;
 		plan->v.operand[0] = sub = optimize_logical_plan(plan->v.operand[0]);
-		root->counter = plan->counter;
+		assert(plan->counter == root->counter);
 	}
 	if(sub->type == LP_SET_OPERATION) {
 		sub->v.operand[1]->v.operand[0] = sub1 = optimize_logical_plan(sub->v.operand[1]->v.operand[0]);

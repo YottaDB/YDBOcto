@@ -38,6 +38,7 @@ LogicalPlan *lp_generate_xref_plan(LogicalPlan *plan, SqlTable *table, SqlColumn
 	output_key->is_cross_reference_key = TRUE;
 
 	MALLOC_LP(root, LP_INSERT);
+	root->counter = plan->counter;
 	project = MALLOC_LP(root->v.operand[0], LP_PROJECT);
 	output = MALLOC_LP(root->v.operand[1], LP_OUTPUT);
 	column_list = MALLOC_LP(project->v.operand[0], LP_COLUMN_LIST);

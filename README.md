@@ -98,15 +98,15 @@ cmake -DSTRING_BUFFER_LENGTH=600000 -DCMAKE_INSTALL_PREFIX=$ydb_dist/plugin ..
 
 Octo currently looks for a configuration file in the following directories:
 
-* /etc/octo.conf
-* ~/.octo.conf
-* ./.octo.conf
+* $ydb_dist/plugin/etc/octo.conf
+* ~/octo.conf
+* ./octo.conf
 
 If the same setting exists in more than one configuration file the setting in the later file (according to the list above) will prevail. An example config file can be found in `$ydb_dist/plugin/etc/octo.conf`.
 
 ### Routines
 
-Octo requires that `$ydb_dist/plugin/o/_ydbocto.so` and the path configured for `routine_cache` setting in `.octo.conf` be part of `$ydb_routines` - both for running the `octo` and `rocto` excutables and added to your normal environment setup scripts as YottaDB triggers are used to maintain cross references for Octo.
+Octo requires that `$ydb_dist/plugin/o/_ydbocto.so` and the path configured for `routine_cache` setting in `octo.conf` be part of `$ydb_routines` - both for running the `octo` and `rocto` excutables and added to your normal environment setup scripts as YottaDB triggers are used to maintain cross references for Octo.
 
 ### Globals
 
@@ -129,11 +129,11 @@ Octo prefixes all of its globals with `^%ydbocto`. You can map `^%ydbocto*` to a
 
 #### Using a separate global directory
 
-To use a separate global directory with octo you must change the `octo_global_directory` setting in `.octo.conf` to point to the path that contains the global directory. Using a full path to the global directory is recommended.
+To use a separate global directory with octo you must change the `octo_global_directory` setting in `octo.conf` to point to the path that contains the global directory. Using a full path to the global directory is recommended.
 
 ### TLS/SSL Configuration
 
-Enabling TLS/SSL requires several additional steps beyond installing the YottaDB encryption plugin - it requires creating a Certificate Authority (CA), generating a TLS/SSL certificate, and making additional changes to `.octo.conf`
+Enabling TLS/SSL requires several additional steps beyond installing the YottaDB encryption plugin - it requires creating a Certificate Authority (CA), generating a TLS/SSL certificate, and making additional changes to `octo.conf`
 
 #### Generate CA key and certificate
 
@@ -164,7 +164,7 @@ openssl x509 -req -in server.csr -CA CA.crt -CAkey CA.key -CAcreateserial \
 $ydb_dist/plugin/gtmcrypt/maskpass
 # This will need to be added to any startup scripts for octo/rocto
 export ydb_tls_passwd_OCTOSERVER=[Masked Password from maskpass]
-export ydb_crypt_config=/path/to/.octo.conf
+export ydb_crypt_config=/path/to/octo.conf
 ```
 
 #### Update Octo configuration file

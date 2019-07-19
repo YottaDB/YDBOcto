@@ -19,6 +19,7 @@
 #include <sys/types.h>
 #include <dirent.h>
 #include <errno.h>
+#include <limits.h>
 
 #include <openssl/conf.h>
 #include <openssl/evp.h>
@@ -29,6 +30,8 @@
 
 // Read binary file with default config settings
 #include "default_octo_conf.h"
+
+#define	OCTO_CONF_FILE_NAME	"octo.conf"
 
 void merge_config_file_helper(config_setting_t *a, config_setting_t *b);
 
@@ -163,13 +166,14 @@ void init_crypto() {
 }
 
 int octo_init(int argc, char **argv) {
-	int c, status, i;
-	config_t *config_file;
-	config_setting_t *ydb_settings, *cur_ydb_setting;
-	const char *item_name, *item_value;
-	char *default_octo_conf, buff[MAX_STR_CONST];
-	char *home;
-	DIR *dir;
+	int			status, i;
+	unsigned int		c;
+	config_t		*config_file;
+	config_setting_t	*ydb_settings, *cur_ydb_setting;
+	const char		*item_name, *item_value;
+	char			*default_octo_conf, buff[OCTO_PATH_MAX];
+	char			*homedir, *ydb_dist;
+	DIR			*dir;
 
 	const char *verbosity;
 	int verbosity_int;
@@ -186,7 +190,7 @@ int octo_init(int argc, char **argv) {
 	if(status)
 		return status;
 
-	// Search for the config file in /etc/octo.conf, ~/.octo.conf, and ./.octo.conf
+	// Search for config file octo.conf (OCTO_CONF_FILE_NAME) in directories "$ydb_dist/plugin/etc", "~" and "." in that order
 	config_init(config_file);
 
 	default_octo_conf = malloc(octo_conf_default_len + 1);
@@ -197,14 +201,33 @@ int octo_init(int argc, char **argv) {
 
 	// Load config file
 	if(config->config_file_name == NULL) {
-		merge_config_file("/etc/octo.conf", config_file);
-		home = getenv("HOME");
-		if(home != NULL) {
-		c = snprintf(buff, MAX_STR_CONST, "%s/.octo.conf", home);
-		buff[c] = '\0';
-		merge_config_file(buff, config_file);
+		ydb_dist = getenv("ydb_dist");
+		if(ydb_dist != NULL) {
+			c = snprintf(buff, sizeof(buff), "%s/plugin/etc/%s", ydb_dist, OCTO_CONF_FILE_NAME);
+			if (c < sizeof(buff))
+			{
+				assert('\0' == buff[c]);
+				merge_config_file(buff, config_file);
+			}
+			/* else : snprintf output was truncated. Ignore this conf file and try other conf files. */
 		}
-		merge_config_file(".octo.conf", config_file);
+		homedir = getenv("HOME");
+		if(homedir != NULL) {
+			c = snprintf(buff, sizeof(buff), "%s/%s", homedir, OCTO_CONF_FILE_NAME);
+			if (c < sizeof(buff))
+			{
+				assert('\0' == buff[c]);
+				merge_config_file(buff, config_file);
+			}
+			/* else : snprintf output was truncated. Ignore this conf file and try other conf files. */
+		}
+		c = snprintf(buff, sizeof(buff), "./%s", OCTO_CONF_FILE_NAME);
+		if (c < sizeof(buff))
+		{
+			assert('\0' == buff[c]);
+			merge_config_file(buff, config_file);
+		}
+		/* else : snprintf output was truncated. Ignore this conf file and try other conf files. */
 	} else {
 		merge_config_file(config->config_file_name, config_file);
 	}

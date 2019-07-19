@@ -74,7 +74,7 @@ OCTO
 
 @test "use_dns config option false" {
   stop_rocto
-  echo "rocto = { use_dns = false }" > .octo.conf
+  echo "rocto = { use_dns = false }" > octo.conf
   start_rocto
   run_psql <<OCTO 2>&1 | tee output.txt
 SELECT * FROM names WHERE firstName = "Zero";
@@ -84,7 +84,7 @@ OCTO
 
 @test "use_dns config option true" {
   stop_rocto
-  echo "rocto = { use_dns = true }" > .octo.conf
+  echo "rocto = { use_dns = true }" > octo.conf
   start_rocto
   run_psql <<OCTO 2>&1 | tee output.txt
 SELECT * FROM names WHERE firstName = "Zero";
@@ -106,7 +106,7 @@ OCTO
     skip "YDB_TLS_AVAILABLE is set"
   fi
   stop_rocto
-  cat <<OCTO &>> .octo.conf
+  cat <<OCTO &>> octo.conf
 rocto: {
 	ssl_on: true;
 }

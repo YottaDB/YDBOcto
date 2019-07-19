@@ -20,7 +20,7 @@ setup() {
 }
 
 @test "invalid Octo GLD" {
-  echo "octo_global_directory = \"does_not_exist.gld\"" >> .octo.conf
+  echo "octo_global_directory = \"does_not_exist.gld\"" >> octo.conf
   run octo <<OCTO
 SELECT * FROM names WHERE lastName = "Cool";
 OCTO

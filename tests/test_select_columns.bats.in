@@ -218,7 +218,7 @@ OCTO
 }
 
 @test "verify that columns are kept after data is sent if config is set" {
-  echo "auto_clean_tables = false" >> .octo.conf
+  echo "auto_clean_tables = false" >> octo.conf
   octo <<OCTO 2>&1 | tee output.txt
 SELECT * FROM names;
 OCTO

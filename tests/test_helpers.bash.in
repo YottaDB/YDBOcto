@@ -36,13 +36,13 @@ init_tls() {
 	# Pass private key password to environment variable
   echo tester | $ydb_dist/plugin/gtmcrypt/maskpass | cut -f 3 -d " " >> env.log
 	export ydb_tls_passwd_OCTOSERVER=$(echo tester | $ydb_dist/plugin/gtmcrypt/maskpass | cut -f 3 -d " ")
-  export ydb_crypt_config=$test_temp/.octo.conf
+  export ydb_crypt_config=$test_temp/octo.conf
   if [[ $# == "0" ]]; then
     rocto_port=1337
   else
     rocto_port=$1
   fi
-  cat <<OCTO &>> $test_temp/.octo.conf
+  cat <<OCTO &>> $test_temp/octo.conf
 rocto: {
   port: $rocto_port;
 	ssl_on: true;

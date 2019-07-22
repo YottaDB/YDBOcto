@@ -28,6 +28,7 @@ setup() {
   $ydb_dist/mumps -r %XCMD "set ^abc(0)=0"
   run octo -f helloBats/hello1.sql
   run octo -f helloBats/hello2.sql
+  echo $output &> output.txt
   [[ "$output" =~ "Hello world" ]]
 }
 

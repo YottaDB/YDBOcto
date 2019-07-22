@@ -88,6 +88,9 @@ int handle_execute(Execute *execute, RoctoSession *session) {
 			free_error_response(err);
 			free(err_buff);
 			err_buffer = open_memstream(&err_buff, &err_buff_size);
+		} else if (run_query_result == -1) {
+			// Exit loop if query was interrupted
+			break;
 		}
 		if(!parms.data_sent) {
 			empty = make_empty_query_response();
@@ -96,7 +99,7 @@ int handle_execute(Execute *execute, RoctoSession *session) {
 		}
 	} while(!eof_hit);
 
-	//free(sql_expression.buf_addr);
+	YDB_FREE_BUFFER(&sql_expression);
 
 	// TODO: we need to limit the returns and provide a PortalSuspend if a limit on rows was requested
 	// For now, we always return all rows

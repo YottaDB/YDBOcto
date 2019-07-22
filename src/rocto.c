@@ -14,6 +14,7 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <sys/socket.h>
+#include <sys/syscall.h>
 #include <stdlib.h>
 #include <netinet/in.h>
 #include <string.h>
@@ -33,6 +34,12 @@ void handle_sigint(int sig) {
 	rocto_session.session_ending = TRUE;
 }
 
+// Currently unused. May need to be used for CancelRequest handling in the future.
+void handle_sigusr1(int sig) {
+	INFO(CUSTOM_ERROR, "SIGUSR1 RECEIVED");
+	cancel_received = TRUE;
+}
+
 #if YDB_TLS_AVAILABLE
 #include "ydb_tls_interface.h"
 #endif
@@ -40,7 +47,9 @@ void handle_sigint(int sig) {
 int main(int argc, char **argv) {
 	AuthenticationMD5Password	*md5auth;
 	AuthenticationOk		*authok;
+	BackendKeyData			*backend_key_data;
 	BaseMessage			*base_message;
+	CancelRequest			*cancel_request;
 	ErrorBuffer			err_buff;
 	ErrorResponse			*err;
 	ParameterStatus			*parameter_status;
@@ -56,7 +65,7 @@ int main(int argc, char **argv) {
 	int				sfd, cfd, opt, addrlen, result, status;
 	int				tls_errno;
 	pid_t				child_id = 0;
-	struct sigaction		ctrlc_action;
+	struct sigaction		ctrlc_action, sigusr1_action;
 	struct sockaddr_in		*address = NULL;
 	struct sockaddr_in6		addressv6;
 
@@ -65,12 +74,40 @@ int main(int argc, char **argv) {
 
 	ydb_buffer_t ydb_buffers[2], *var_defaults, *var_sets, var_value;
 	ydb_buffer_t *session_buffer = &(ydb_buffers[0]), *session_id_buffer = &(ydb_buffers[1]);
+	ydb_buffer_t z_interrupt, z_interrupt_handler;
+
+	ydb_buffer_t pid_subs[2], timestamp_buffer;
+	ydb_buffer_t *pid_buffer = &pid_subs[0];
+
+	// Create buffers for managing secret keys for CancelRequests
+	ydb_buffer_t secret_key_list_buffer, secret_key_buffer;
+	char pid_str[UINT_TO_STRING_MAX], secret_key_str[UINT_TO_STRING_MAX], timestamp_str[ULONG_TO_STRING_MAX];
+	int secret_key = 0;
+	YDB_LITERAL_TO_BUFFER("%ydboctoSecretKeyList", &secret_key_list_buffer);
 
 	// Initialize a handler to respond to ctrl + c
 	memset(&ctrlc_action, 0, sizeof(ctrlc_action));
 	ctrlc_action.sa_flags = SA_SIGINFO;
 	ctrlc_action.sa_sigaction = (void *)handle_sigint;
 	sigaction(SIGINT, &ctrlc_action, NULL);
+	rocto_session.session_ending = FALSE;
+
+	// Initialize handler for SIGUSR1 in rocto C code
+	// Currently unused. May need to be used for CancelRequest handling in the future.
+	memset(&sigusr1_action, 0, sizeof(sigusr1_action));
+	sigusr1_action.sa_flags = SA_SIGINFO;
+	sigusr1_action.sa_sigaction = (void *)handle_sigusr1;
+	sigaction(SIGUSR1, &sigusr1_action, NULL);
+
+	// Initialize SIGUSR1 handler in YDB
+	status = ydb_init();		// YDB init needed for signal handler setup and gtm_tls_init call below */
+	YDB_ERROR_CHECK(status);
+	YDB_LITERAL_TO_BUFFER("$ZINTERRUPT", &z_interrupt);
+	YDB_LITERAL_TO_BUFFER("ZGOTO 1:run^%ydboctoCleanup", &z_interrupt_handler);
+	status = ydb_set_s(&z_interrupt, 0, NULL, &z_interrupt_handler);
+	YDB_ERROR_CHECK(status);
+
+	rocto_session.session_ending = FALSE;
 
 	// Initialize connection details in case errors prior to connections
 	rocto_session.ip = "IP_UNSET";
@@ -101,7 +138,6 @@ int main(int argc, char **argv) {
 	if((sfd = socket(address->sin_family, SOCK_STREAM, 0)) == -1) {
 		FATAL(ERR_SYSCALL, "socket", errno, strerror(errno));
 	}
-
 	opt = 1;
 	if(setsockopt(sfd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &opt, sizeof(opt)) == -1) {
 		FATAL(ERR_SYSCALL, "setsockopt", errno, strerror(errno));
@@ -128,9 +164,43 @@ int main(int argc, char **argv) {
 			}
 			FATAL(ERR_SYSCALL, "accept", errno, strerror(errno));
 		}
+
+		// Create secret key and matching buffer
+		syscall(SYS_getrandom, &secret_key, 4, 0);
+		snprintf(secret_key_str, UINT_TO_STRING_MAX, "%u", secret_key);
+		YDB_STRING_TO_BUFFER(secret_key_str, &secret_key_buffer);
+
 		child_id = fork();
-		if(child_id != 0)
+		if(child_id != 0) {
+			// Create pid buffer
+			snprintf(pid_str, UINT_TO_STRING_MAX, "%u", child_id);
+			YDB_STRING_TO_BUFFER(pid_str, pid_buffer);
+			// Add pid/secret key pair to list in listener/parent
+			status = ydb_set_s(&secret_key_list_buffer, 1, pid_buffer, &secret_key_buffer);
+			YDB_ERROR_CHECK(status);
+
+			// Get timestamp of the new process
+			unsigned long long timestamp;
+			timestamp = get_pid_start_time(child_id);
+			if (0 == timestamp) {
+				// Error emitted by callee get_pid_start_time()
+				// No ErrorResponse is issued as this block is executed by the listener process,
+				// i.e. we haven't yet established a client-server connection.
+				// This means that the server won't be able to process cancel requests for this pid
+				// due to the missing timestamp.
+				break;
+			}
+			// Populate pid/timestamp buffers
+			YDB_LITERAL_TO_BUFFER("timestamp", &pid_subs[1]);
+			snprintf(timestamp_str, ULONG_TO_STRING_MAX, "%llu", timestamp);
+			YDB_STRING_TO_BUFFER(timestamp_str, &timestamp_buffer);
+			// Add timestamp under PID key
+			status = ydb_set_s(&secret_key_list_buffer, 2, &pid_subs[0], &timestamp_buffer);
+			YDB_ERROR_CHECK(status);
 			continue;
+		}
+
+		// Reset thread id to identify it as child process
 		thread_id = 0;
 
 		// First we read the startup message, which has a special format
@@ -151,13 +221,11 @@ int main(int argc, char **argv) {
 		rocto_session.port = serv_buf;
 		INFO(ERR_CLIENT_CONNECTED);
 
-		status = ydb_init();		// YDB init needed by gtm_tls_init call below */
-		YDB_ERROR_CHECK(status);
-
 		// Establish the connection first
 		rocto_session.session_id = NULL;
 		read_bytes(&rocto_session, buffer, MAX_STR_CONST, sizeof(int) * 2);
-		// Attempt SSL connection, if configured
+
+		// Attempt TLS connection, if configured
 		ssl_request = read_ssl_request(&rocto_session, buffer, sizeof(int) * 2, &err);
 		if (NULL != ssl_request & TRUE == config->rocto_config.ssl_on) {
 #			if YDB_TLS_AVAILABLE
@@ -227,6 +295,27 @@ int main(int argc, char **argv) {
 			result = send_bytes(&rocto_session, "N", sizeof(char));
 			read_bytes(&rocto_session, buffer, MAX_STR_CONST, sizeof(int) * 2);
 		}
+		// Check for CancelRequest and handle if so
+		cancel_request = read_cancel_request(&rocto_session, buffer, sizeof(unsigned int) + sizeof(int), &err);
+		if (NULL != cancel_request) {
+			INFO(ERR_ROCTO_QUERY_CANCELED, "");
+			handle_cancel_request(cancel_request);
+			// Shutdown connection immediately to free client prompt
+			shutdown(rocto_session.connection_fd, SHUT_RDWR);
+			break;
+		}
+
+		// Get actual (non-zero) pid of child/server
+		child_id = getpid();
+		snprintf(pid_str, UINT_TO_STRING_MAX, "%u", child_id);
+		YDB_STRING_TO_BUFFER(pid_str, pid_buffer);
+		// Clear all other secret key/pid pairs from other servers
+		status = ydb_delete_s(&secret_key_list_buffer, 0, NULL, YDB_DEL_TREE);
+		YDB_ERROR_CHECK(status);
+		// Add pid/secret key pair to list in server/child
+		status = ydb_set_s(&secret_key_list_buffer, 1, pid_buffer, &secret_key_buffer);
+		YDB_ERROR_CHECK(status);
+
 
 		startup_message = read_startup_message(&rocto_session, buffer, sizeof(int) * 2, &err);
 		if(startup_message == NULL) {
@@ -345,6 +434,13 @@ int main(int argc, char **argv) {
 			}
 		} while(TRUE);
 
+		// Send secret key info to client
+		backend_key_data = make_backend_key_data(secret_key, child_id);
+		result = send_message(&rocto_session, (BaseMessage*)(&backend_key_data->type));
+		if(result) {
+			return 0;
+		}
+
 		// Free temporary buffers
 		free(var_defaults[2].buf_addr);
 		free(var_value.buf_addr);
@@ -359,6 +455,5 @@ int main(int argc, char **argv) {
 		// the socket; thread_id will be 0 if we are a child process
 		close(sfd);
 	}
-
 	return 0;
 }

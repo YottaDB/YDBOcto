@@ -17,6 +17,7 @@
 #include <libconfig.h>
 
 #include "errors.h"
+#include "octo_types.h"
 
 int octo_init(int argc, char **argv);
 int parse_startup_flags(int argc, char **argv);
@@ -40,9 +41,9 @@ typedef struct OctoConfig {
 	RoctoConfig rocto_config;
 	GlobalNames global_names;
 	enum ERROR_LEVEL record_error_level;
-	int dry_run, plan_id;
+	int dry_run, plan_id, page_size, allow_schema_changes;
 	const char *tmp_dir, *config_file_name;
-	int is_tty, page_size, is_rocto, allow_schema_changes;
+	boolean_t is_tty, is_rocto;
 } OctoConfig;
 
 OctoConfig *config;

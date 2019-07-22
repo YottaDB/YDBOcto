@@ -49,6 +49,8 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
     %}LOCK +^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}"):10
     IF $GET(^{{ config->global_names.raw_octo }}("xref_status","{{ tableName }}","{{ columnName }}"))="done" LOCK -^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}") QUIT
     IF '$ZTRIGGER("item","+{% TMPL(tmpl_column_reference_trigger, plan, column_alias); %} -commands=SET,KILL -xecute=""DO handleSet^{{ plan->filename }}""") H
+    SET %%ydboctoCancel("{{ tableName }}","{{ columnName }}","Trigger")="-{% TMPL(tmpl_column_reference_trigger, plan, column_alias); %} -commands=SET,KILL -xecute=""DO handleSet^{{ plan->filename }}"""
+    SET %%ydboctoCancel("{{ tableName }}","{{ columnName }}","Node")="^{{ config->global_names.raw_xref }}(""{{ tableName }}"",""{{ columnName }}"")"
     {% // Whitespace needed
     } else {
         for(cur_key = 0; cur_key < plan->total_iter_keys; cur_key++) {
@@ -302,6 +304,7 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
     if(plan->outputKey && plan->outputKey->is_cross_reference_key) {
     %}
     SET ^{{ config->global_names.raw_octo }}("xref_status","{{ tableName }}","{{ columnName }}")="done"
+    KILL %%ydboctoCancel
     LOCK -^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}"){%
     }
     %}

@@ -19,8 +19,12 @@
 #include <string.h>
 #include <stdbool.h>
 
+
 #include <libyottadb.h>
 #include <gtmxc_types.h>
+
+// Remove when done debugging
+#include <time.h>
 
 #include "mmrhash.h"
 
@@ -89,6 +93,7 @@ int run_query(char *sql_query, void (*callback)(SqlStatement *, int, void*, char
 	// and so need to propagate them out
 	case table_alias_STATEMENT:
 	case set_operation_STATEMENT:
+		TRACE(ERR_ENTERING_FUNCTION, "hash_canonical_query");
 		INVOKE_HASH_CANONICAL_QUERY(state, result);	/* "state" holds final hash */
 		routine_len = generate_routine_name(&state, routine_name, MAX_STR_CONST, OutputPlan);
 		if (routine_len < 0) {
@@ -120,8 +125,23 @@ int run_query(char *sql_query, void (*callback)(SqlStatement *, int, void*, char
 		ci_filename.length = strlen(filename);
 		ci_routine.address = routine_name;
 		ci_routine.length = routine_len;
+		// Call the select routine
 		status = ydb_ci("_ydboctoselect", cursorId, &ci_filename, &ci_routine);
 		YDB_ERROR_CHECK(status);
+		// Check for cancel requests only if running rocto
+		if (config->is_rocto) {
+			// Check if execution was interrupted by a CancelRequest by checking local variable
+			ydb_buffer_t ydboctoCancel;
+			unsigned int cancel_result = 0;
+			YDB_LITERAL_TO_BUFFER("%ydboctoCancel", &ydboctoCancel);
+			status = ydb_data_s(&ydboctoCancel, 0, NULL, &cancel_result);
+			YDB_ERROR_CHECK(status);
+			if (0 != cancel_result) {
+				// Omit results after handling CancelRequest
+				(*callback)(NULL, cursorId, parms, filename);
+				return -1;
+			}
+		}
 		(*callback)(result, cursorId, parms, filename);
 		// Deciding to free the select_STATEMENT must be done by the caller, as they may want to rerun it or send row
 		// descriptions hence the decision to not free the memory_chunk below.

@@ -26,6 +26,11 @@
 #include "ydb_tls_interface.h"
 #endif
 
+// Maximum number of chars needed to convert unsigned int to char*, including null terminator
+#define UINT_TO_STRING_MAX 11
+// Maximum number of chars needed to convert unsigned long long to char*, including null terminator
+#define ULONG_TO_STRING_MAX 21
+
 typedef struct {
 	int32_t connection_fd;
 	int32_t sending_message;
@@ -34,6 +39,8 @@ typedef struct {
 	ydb_buffer_t *session_id;
 	int32_t session_ending;
 	int32_t ssl_active;
+	int32_t pid;
+	int32_t secret_key;
 #if YDB_TLS_AVAILABLE
 	gtm_tls_socket_t *tls_socket;
 #endif
@@ -76,6 +83,7 @@ void free_row_description(RowDescription *rowd);
 // varargs should be of type ErrorResponseArg
 ErrorResponse *make_error_response(PSQL_ErrorSeverity severity, PSQL_SQLSTATECode code, const char *message, size_t num_args, ...);
 BindComplete *make_bind_complete();
+BackendKeyData *make_backend_key_data(int secret_key, pid_t pid);
 CloseComplete *make_close_complete();
 ReadyForQuery *make_ready_for_query(PSQL_TransactionStatus status);
 EmptyQueryResponse *make_empty_query_response();
@@ -106,11 +114,13 @@ Describe *read_describe(BaseMessage *message, ErrorResponse **err);
 // This is a special case because it must read more from the buffer
 StartupMessage *read_startup_message(RoctoSession *session, char *data, int32_t data_length, ErrorResponse **err);
 SSLRequest *read_ssl_request(RoctoSession *session, char *data, int32_t data_length, ErrorResponse **err);
+CancelRequest *read_cancel_request(RoctoSession *session, char *data, int32_t data_length, ErrorResponse **err);
 
 // handle_* messages respond to a message of a given type, using send_message if needed
 //  and returns 0 if the exchange is a "success", or non-zero if there was a problem
 // A return of 1 means "done" and that we should close the session
 int handle_bind(Bind *bind, RoctoSession *session);
+int handle_cancel_request(CancelRequest *cancel_request);
 int handle_query(Query *query, RoctoSession *session);
 int handle_parse(Parse *parse, RoctoSession *session);
 int handle_execute(Execute *execute, RoctoSession *session);
@@ -146,6 +156,8 @@ char *copy_binary_parameter(RoctoSession *session, Bind *bind, const int32_t cur
 // Helper to extract column values from delimited row string
 uint32_t get_user_column_value(char *buffer, const uint32_t buf_len, const char *row, const uint32_t row_len,
 		enum UserColumns column);
+// Helper to retrieve the time a process with specified pid was started, relative to system boot time
+unsigned long long get_pid_start_time(pid_t pid);
 
 /**
  * Returns a RowDescription object for sending based on the provided physical plan

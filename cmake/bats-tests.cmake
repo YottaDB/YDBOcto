@@ -81,6 +81,7 @@ find_program(psql NAMES psql)
 if(psql)
   ADD_BATS_TEST(test_psql_connection)
   ADD_BATS_TEST(test_psql_authentication)
+  ADD_BATS_TEST(test_cancel_request)
 endif()
 
 find_program(go NAMES go)

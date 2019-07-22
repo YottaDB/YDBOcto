@@ -79,6 +79,9 @@ int handle_query(Query *query, RoctoSession *session) {
 			free_error_response(err);
 			free(err_buff);
 			err_buffer = open_memstream(&err_buff, &err_buff_size);
+		} else if (run_query_result == -1) {
+			// Exit loop if query was interrupted
+			eof_hit = TRUE;
 		}
 	} while(!eof_hit);
 

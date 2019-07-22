@@ -164,6 +164,7 @@ uint64_t	hash_canonical_query_cycle;	// incremented before every outermost call 
 int		cur_input_index;
 int		old_input_index;
 int		cur_input_max;
+int		cancel_received;
 int		eof_hit;
 FILE		*inputFile;
 FILE		*err_buffer;

@@ -32,7 +32,8 @@ teardown() {
 }
 
 @test "test no MD5 authentication failure" {
-  run_psql 1339 <<OCTO 2>&1 | tee output.txt
+  # Use non-existent user
+  run_psql_auth buttons bobby 1339 <<OCTO 2>&1 | tee output.txt
 SELECT * FROM names;
 OCTO
     [[ ! "$(cat results.log)" =~ "read failure: failed to read MD5 password" ]]

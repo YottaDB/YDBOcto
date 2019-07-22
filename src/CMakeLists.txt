@@ -211,7 +211,9 @@ add_library(librocto OBJECT
   default_octo_conf.h
   rocto/copy_bind_parameter.c
   rocto/deserialize.c
+  rocto/get_pid_start_time.c
   rocto/read_bind.c
+  rocto/read_cancel_request.c
   rocto/read_startup_message.c
   rocto/read_ssl_request.c
   rocto/read_query.c
@@ -222,6 +224,7 @@ add_library(librocto OBJECT
   rocto/read_terminate.c
   rocto/read_describe.c
   rocto/handle_bind.c
+  rocto/handle_cancel_request.c
   rocto/handle_query.c
   rocto/handle_parse.c
   rocto/handle_execute.c
@@ -229,6 +232,7 @@ add_library(librocto OBJECT
   rocto/handle_password_message.c
   rocto/make_error_response.c
   rocto/make_bind_complete.c
+  rocto/make_backend_key_data.c
   rocto/make_close_complete.c
   rocto/make_ready_for_query.c
   rocto/make_empty_query_response.c
@@ -327,6 +331,7 @@ set(aux_files
   aux/_ydboctoselect.m
   aux/_ydboctoAdmin.m
   aux/_ydboctoNullSubsCheck.m
+  aux/_ydboctoCleanup.m
   aux/_ydboctocurrentSchema.m
   aux/_ydboctoreplace.m
   aux/_ydboctopgCurrentSchemas.m

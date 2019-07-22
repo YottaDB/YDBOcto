@@ -1,0 +1,92 @@
+#################################################################
+#								#
+# Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	#
+# All rights reserved.						#
+#								#
+#	This source code contains the intellectual property	#
+#	of its copyright holder(s), and is made available	#
+#	under a license.  If you do not know the terms of	#
+#	the license, please stop and do not read further.	#
+#								#
+#################################################################
+
+load test_helpers
+
+setup() {
+  init_test
+  createdb
+  load_fixture names.sql
+  load_fixture names.zwr
+  load_fixture pastas.sql
+  load_fixture pastas.zwr
+  load_fixture default_user.zwr
+  start_rocto 1441
+  sleep 1
+}
+
+teardown() {
+  stop_rocto
+}
+
+@test "ensure cancel requests abort simple queries" {
+  # Load lots of data to create slow query
+  load_big_data
+
+  # tcpdump -i ``lo'' -w tcp.dump &
+  # echo $! > tcpdump.pid
+  run_psql_expect cancel_psql 1441 &> output.txt
+  # kill $(cat tcpdump.pid)
+  verify_output TCR00 expect.out
+}
+
+@test "run simple query abort case with strace for debugging" {
+  skip
+  stop_rocto
+  # Load lots of data to create slow query
+  load_big_data
+
+  # Restart rocto with strace
+  strace -ttT -s 1024 -v -ff -k -o strace rocto -vv -p 1441 &
+  echo $! > strace.pid
+  # Track time slept in case quiet is set
+  slept=0
+  while [[ "$(grep -c "rocto started" strace.log)" == "0" && $slept -lt 200 ]]; do
+    sleep .1s
+    slept=$slept+1
+  done
+  ps -A | grep rocto | cut -d ' ' -f 1 > rocto.pid
+
+  run_psql_expect cancel_psql 1441 &> output.txt
+  sleep 5
+  kill -s 23 $(cat strace.pid)
+  kill -9 $(cat strace.pid)
+  sleep 5
+  verify_output TCR00 expect.out
+}
+
+@test "ensure cancel requests abort extended queries" {
+  # Skip until extended queries are supported
+  skip
+  start_rocto 1441 quiet
+  run_psql_expect cancel_psql_extended 1441 &> output.txt
+  verify_output TCR01 output.txt
+}
+
+@test "ensure cancel requests cleanup xrefs and trigger" {
+  load_big_data
+  # Remove verbosity as the logical plan is too long to print correctly and not needed here
+  run_psql_expect cancel_psql 1441 &> output.txt
+  # Ensure all cross references cleaned up for the given query, i.e. test_seed_queries.bats "test1"
+  run $ydb_dist/yottadb -direct > xref.txt <<YDB
+zwrite ^%ydboctoxref
+YDB
+  echo $output > xref.txt
+  run $ydb_dist/yottadb -direct >> xref.txt <<YDB
+zwrite ^%ydboctoxref("NAMES","FIRSTNAME")
+YDB
+  echo $output >> xref.txt
+  verify_output TCR02 xref.txt
+  # Ensure all triggers are cleaned up, i.e. no triggers
+  $ydb_dist/mupip TRIGGER -SELECT triggers.txt
+  verify_output TCR03 triggers.txt
+}

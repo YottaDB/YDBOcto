@@ -105,11 +105,6 @@ load_big_data() {
   $ydb_dist/mumps -run ^%XCMD 'for i=2:4:100000 s ^names(i+5)=(i+5)_"|C|B"'
   $ydb_dist/mumps -run ^%XCMD 'for i=3:4:100000 s ^names(i+5)=(i+5)_"|A|C"'
   $ydb_dist/mumps -run ^%XCMD 'for i=4:4:100000 s ^names(i+5)=(i+5)_"|B|A"'
-
-  $ydb_dist/mumps -run ^%XCMD 'for i=5:4:200000 s ^names(i+5)=(i+5)_"|D|E"'
-  $ydb_dist/mumps -run ^%XCMD 'for i=6:4:200000 s ^names(i+5)=(i+5)_"|F|E"'
-  $ydb_dist/mumps -run ^%XCMD 'for i=7:4:200000 s ^names(i+5)=(i+5)_"|D|F"'
-  $ydb_dist/mumps -run ^%XCMD 'for i=8:4:200000 s ^names(i+5)=(i+5)_"|E|D"'
 }
 
 createdb() {
@@ -163,14 +158,22 @@ set_null_subs() {
 start_rocto() {
   echo "ROCTO START" >> env.log
   env >> env.log
-  if [[ "" != $1 ]]; then
-    rocto -vv -p $@ &> rocto.log &
+  if [[ $2 == "quiet" ]]; then
+    quiet=""
   else
-    rocto -vv $@ &> rocto.log &
+    quiet="-vv"
+  fi
+  if [[ "" != $1 ]]; then
+    rocto $quiet -p $1 &> rocto.log &
+  else
+    rocto $quiet &> rocto.log &
   fi
   echo $! > rocto.pid
-  while [[ "$(grep -c "rocto started" rocto.log)" == "0" ]]; do
+  # Track time slept in case quiet is set
+  slept=0
+  while [[ "$(grep -c "rocto started" rocto.log)" == "0" && $slept -lt 200 ]]; do
     sleep .1s
+    slept=$slept+1
   done
 }
 
@@ -199,6 +202,10 @@ run_psql_auth() {
   fi
 }
 
+run_psql_expect() {
+  (expect -d -f @PROJECT_SOURCE_DIR@/tests/fixtures/$1.sh $2 > expect.out) &> expect.dbg
+}
+
 create_user() {
   echo -n $2 | yottadb -r %ydboctoAdmin add user $1
 }
@@ -219,6 +226,17 @@ run_go() {
   go get $1
   go build $1
   $GOPATH/bin/$1
+}
+
+strip_psql_header() {
+  sed '/Password for user /,/^[[:space:]]*$/d' $1 > $2
+}
+
+strip_expect_artifacts() {
+	sed '/^.*spawn \/bin\/bash.*$/d' $1 > $2
+	sed -i '/^.*stty cols 4096.*$/d' $2
+	sed -i '/^.*psql -U ydb -h localhost -p .*$/d' $2
+	sed -i '/^.*bats-test\..*$/d' $2
 }
 
 verify_output() {
@@ -275,7 +293,6 @@ verify_output() {
     fi
   done
 
-  diff outref/$1.ref clean_output.txt
   return
 }
 

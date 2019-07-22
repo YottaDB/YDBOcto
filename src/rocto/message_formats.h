@@ -26,6 +26,7 @@ enum PSQL_MessageTypes {
 	PSQL_Authenication = 'R',
 	PSQL_AuthenticationMD5Password = 'R',
 	PSQL_AuthenticationOk = 'R',
+	PSQL_BackendKeyData = 'K',
 	PSQL_Bind = 'B',
 	PSQL_BindComplete = '2',
 	PSQL_Close = 'C',
@@ -93,7 +94,12 @@ typedef struct __attribute__((packed)) {
 //# AuthenticationSCMCredential
 
 // B
-//# BackendKeyData
+typedef struct __attribute__((packed)) {
+	char type;
+	unsigned int length;
+	pid_t pid;
+	unsigned int secret_key;
+} BackendKeyData;
 
 typedef struct __attribute__((packed)) {
 	int32_t length;
@@ -121,6 +127,14 @@ typedef struct __attribute__((packed)) {
 	char type;
 	uint32_t length;
 } BindComplete;
+
+// F
+typedef struct __attribute__((packed)) {
+	unsigned int length;
+	int request_code;
+	pid_t pid;
+	unsigned int secret_key;
+} CancelRequest;
 
 // F
 typedef struct __attribute__((packed)) {

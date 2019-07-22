@@ -38,6 +38,8 @@ ERROR_DEF(PSQL_Code_Undefined_Object, "42704")
 ERROR_DEF(PSQL_Code_Ambiguous_Column, "42702")
 ERROR_DEF(PSQL_Code_Ambiguous_Parameter, "42P08")
 ERROR_DEF(PSQL_Code_Invalid_Table_Definition, "42P16")
+// Class 57 - Operator Intervention
+ERROR_DEF(PSQL_Code_Query_Canceled, "57014")
 // Class 58 - System Error
 ERROR_DEF(PSQL_Code_System_Error, "58000")
 ERROR_DEF(PSQL_Code_Io_Error, "58030")

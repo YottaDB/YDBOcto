@@ -37,7 +37,6 @@ teardown() {
 
 @test "call rocto with default port" {
   start_rocto
-  sleep 1
   [[ "$(grep -c "rocto started on port 1337" rocto.log)" == "1" ]]
 }
 
@@ -48,13 +47,12 @@ rocto: {
 }
 OCTO
   start_rocto
-  sleep 1
+  sleep 5
   [[ "$(grep -c "rocto started on port 1400" rocto.log)" == "1" ]]
 }
 
 @test "ensure rocto -p supercedes default" {
   start_rocto 1401
-  sleep 1
   [[ "$(grep -c "rocto started on port 1401" rocto.log)" == "1" ]]
 }
 

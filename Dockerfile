@@ -12,9 +12,14 @@
 
 FROM yottadb/yottadb-base:latest-master
 
-RUN export DEBIAN_FRONTEND=noninteractive && \
-    apt-get update -qq && \
-    apt-get install -y -qq \
+# Separate, non-interactive installation of tzdata required due to expect's dependency on libtcl8.6, which depends on tzdata.
+# If these steps aren't done, the build will open an interactive prompt to setup tzdata during apt-get install.
+RUN export DEBIAN_FRONTEND=noninteractive
+RUN ln -fs /usr/share/zoneinfo/US/Eastern /etc/localtime
+RUN apt-get update -qq && \
+    apt-get install -y tzdata
+RUN dpkg-reconfigure --frontend noninteractive tzdata
+RUN apt-get install -y -qq \
         build-essential \
         cmake \
         bison \

@@ -44,11 +44,15 @@ DataRow *make_data_row(DataRowParm *parms, int16_t num_parms) {
 	ret->num_columns = htons(num_parms);
 
 	c = ret->data;
-	for(i = 0; i < num_parms; i++) {
-		*((uint32_t*)c) = htonl(parms[i].length);
-		c += sizeof(uint32_t);
-		memcpy(c, parms[i].value, parms[i].length);
-		c += parms[i].length;
+	if (num_parms == 0 || parms == NULL) {
+		*((uint32_t*)c) = htonl(0);
+	} else {
+		for(i = 0; i < num_parms; i++) {
+			*((uint32_t*)c) = htonl(parms[i].length);
+			c += sizeof(uint32_t);
+			memcpy(c, parms[i].value, parms[i].length);
+			c += parms[i].length;
+		}
 	}
 
 	return ret;

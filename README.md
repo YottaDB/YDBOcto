@@ -46,12 +46,12 @@ sudo ydb_dist=$ydb_dist make install
 
 ```sh
 # Ubuntu Linux OR Raspbian Linux OR Beagleboard Debian
-sudo apt-get install build-essential cmake bison flex xxd libreadline-dev libssl-dev
+sudo apt-get install build-essential cmake bison flex xxd libreadline-dev libconfig-dev libssl-dev
 
 # CentOS Linux OR RedHat Linux
 # Note: epel-release has to be installed before cmake3 is installed
 sudo yum install epel-release
-sudo yum install cmake3 bison flex readline-devel vim-common libconfig-devel openssl-devel
+sudo yum install vim-common cmake3 bison flex readline-devel libconfig-devel openssl-devel
 ```
 
 * Download Octo Source Code

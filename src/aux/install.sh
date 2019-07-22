@@ -43,11 +43,18 @@ echo "This will install the Octo by YottaDB plugin to $ydb_dist/plugin"
 read -p "Is this OK? (Y/N)" -n 1 install
 echo
 if [[ $install =~ ^[Yy]$ ]]; then
-        cp -r bin $ydb_dist/plugin/bin
-        cp -r r $ydb_dist/plugin/r
-        cp -r o $ydb_dist/plugin/o
-        cp -r etc $ydb_dist/plugin/etc
-        cp ydbocto.ci $ydbdist/plugin
+        install -d $ydb_dist/plugin
+        install -D -m 644 ydbocto.ci $ydb_dist/plugin
+        install -d $ydb_dist/plugin/bin
+        install -D bin/* $ydb_dist/plugin/bin
+        install -d $ydb_dist/plugin/r
+        install -D -m 644 r/* $ydb_dist/plugin/r
+        install -d $ydb_dist/plugin/o
+        install -D -m 644 o/* $ydb_dist/plugin/o
+        install -d $ydb_dist/plugin/o/utf8
+        install -D -m 644 o/* $ydb_dist/plugin/o/utf8
+        install -d $ydb_dist/plugin/etc
+        install -D -m 644 etc/* $ydb_dist/plugin/etc
 fi
 
 # Import Postgres metatadata to current global directory

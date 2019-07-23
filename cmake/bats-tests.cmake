@@ -52,6 +52,7 @@ ADD_BATS_TEST(test_seed_queries)
 ADD_BATS_TEST(test_adduser)
 ADD_BATS_TEST(test_deleteuser)
 ADD_BATS_TEST(test_showusers)
+ADD_BATS_TEST(test_exit)
 
 find_program(psql NAMES psql)
 if(psql)

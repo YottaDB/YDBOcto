@@ -1,0 +1,79 @@
+#################################################################
+#								#
+# Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	#
+# All rights reserved.						#
+#								#
+#	This source code contains the intellectual property	#
+#	of its copyright holder(s), and is made available	#
+#	under a license.  If you do not know the terms of	#
+#	the license, please stop and do not read further.	#
+#								#
+#################################################################
+
+load test_helpers
+
+setup() {
+  init_test
+  createdb
+  load_fixture names.sql
+  load_fixture names.zwr
+}
+
+@test "close octo with 'quit'" {
+  octo >& output.txt <<OCTO
+quit
+OCTO
+  verify_output TE000 output.txt
+}
+
+@test "close octo with 'QUIT'" {
+  octo >& output.txt <<OCTO
+QUIT
+OCTO
+  verify_output TE001 output.txt
+}
+
+@test "close octo with 'exit'" {
+  octo >& output.txt <<OCTO
+exit
+OCTO
+  verify_output TE002 output.txt
+}
+
+@test "close octo with 'EXIT'" {
+  octo >& output.txt <<OCTO
+EXIT
+OCTO
+  verify_output TE003 output.txt
+}
+
+@test "close octo with '\q'" {
+  octo >& output.txt <<OCTO
+\q
+OCTO
+  verify_output TE004 output.txt
+}
+
+@test "close octo with '\q' after SELECT command" {
+  octo >& output.txt <<OCTO
+select * from names;
+\q
+OCTO
+  verify_output TE005 output.txt
+}
+
+@test "attempt quit command using octo -f" {
+  echo "select * from names;" > quit.sql
+  echo "quit" >> quit.sql
+  octo -f quit.sql >& output.txt
+  verify_output TE007 output.txt
+}
+
+@test "attempt query after quit command using octo -f" {
+  echo "select * from names;" > quit.sql
+  echo "quit" >> quit.sql
+  echo "select * from names;" >> quit.sql
+  octo -f quit.sql >& output.txt
+  # The output should be the same as the previous test
+  verify_output TE007 output.txt
+}

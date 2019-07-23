@@ -169,6 +169,9 @@ extern void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, int *plan
 %token FAKE_TOKEN
 %token INVALID_TOKEN
 
+%token EXIT
+%token QUIT
+
 %%
 
 sql_statement
@@ -200,11 +203,21 @@ sql_statement
       eof_hit = TRUE;
       YYACCEPT;
     }
+  | exit_command {
+      SQL_STATEMENT(*out, no_data_STATEMENT);
+      eof_hit = TRUE;
+      YYACCEPT;
+  }
   ;
 
 semicolon_or_eof
   : SEMICOLON
   | ENDOFFILE { eof_hit = TRUE; }
+  ;
+
+exit_command
+  : QUIT
+  | EXIT
   ;
 
 %include "parser/select.y"

@@ -160,6 +160,8 @@ int copied_so_far;
 (?i:VARYING) { return VARYING; }
 (?i:WHEN) { return WHEN; }
 (?i:WHERE) { return WHERE; }
+(?i:EXIT) { return EXIT; }
+(?i:QUIT) { return QUIT; }
 
 (?i:NULL) { return NULL_TOKEN; }
 (?i:FALSE) { return FALSE_TOKEN; }
@@ -186,6 +188,7 @@ int copied_so_far;
 \[ { return LEFT_BRACKET; }
 \] { return RIGHT_BRACKET; }
 \: { return COLON; }
+\\q { return QUIT; }
 
 
 [0-9](\.)?[0-9]* {

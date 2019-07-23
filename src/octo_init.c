@@ -119,35 +119,36 @@ void merge_config_file_helper(config_setting_t *a, config_setting_t *b) {
 
 void populate_global_names() {
 	char buff[MAX_STR_CONST];
+	char *global_prefix = "%ydbocto";
 
 	YDB_LITERAL_TO_BUFFER("$ZGBLDIR", &config->zgbldir);
 	YDB_MALLOC_BUFFER(&config->prev_gbldir, MAX_STR_CONST);
 	YDB_STRING_TO_BUFFER((char*)config->global_directory, &config->octo_gbldir);
-	snprintf(buff, MAX_STR_CONST, "^%sschema", config->global_prefix);
+	snprintf(buff, MAX_STR_CONST, "^%sschema", global_prefix);
 	buff[MAX_STR_CONST - 1] = '\0';
 	config->global_names.schema = malloc(strlen(buff) + 1);
 	strcpy(config->global_names.schema, buff);
 	config->global_names.raw_schema = &config->global_names.schema[1];
 
-	snprintf(buff, MAX_STR_CONST, "^%ssession", config->global_prefix);
+	snprintf(buff, MAX_STR_CONST, "^%ssession", global_prefix);
 	buff[MAX_STR_CONST - 1] = '\0';
 	config->global_names.session = malloc(strlen(buff) + 1);
 	strcpy(config->global_names.session, buff);
 	config->global_names.raw_session = &config->global_names.session[1];
 
-	snprintf(buff, MAX_STR_CONST, "^%scursor", config->global_prefix);
+	snprintf(buff, MAX_STR_CONST, "^%scursor", global_prefix);
 	buff[MAX_STR_CONST - 1] = '\0';
 	config->global_names.cursor = malloc(strlen(buff) + 1);
 	strcpy(config->global_names.cursor, buff);
 	config->global_names.raw_cursor = &config->global_names.cursor[1];
 
-	snprintf(buff, MAX_STR_CONST, "^%socto", config->global_prefix);
+	snprintf(buff, MAX_STR_CONST, "^%socto", global_prefix);
 	buff[MAX_STR_CONST - 1] = '\0';
 	config->global_names.octo = malloc(strlen(buff) + 1);
 	strcpy(config->global_names.octo, buff);
 	config->global_names.raw_octo = &config->global_names.octo[1];
 
-	snprintf(buff, MAX_STR_CONST, "^%sxref", config->global_prefix);
+	snprintf(buff, MAX_STR_CONST, "^%sxref", global_prefix);
 	buff[MAX_STR_CONST - 1] = '\0';
 	config->global_names.xref = malloc(strlen(buff) + 1);
 	strcpy(config->global_names.xref, buff);
@@ -258,10 +259,6 @@ int octo_init(int argc, char **argv) {
 		FATAL(ERR_BAD_CONFIG, "routine_cache");
 	}
 
-	if(config_lookup_string(config_file, "octo_global_prefix", &config->global_prefix)
-			== CONFIG_FALSE) {
-		FATAL(ERR_BAD_CONFIG, "octo_global_prefix");
-	}
 	if(config_lookup_bool(config_file, "auto_clean_tables", &config->auto_clean_tables)
 			== CONFIG_FALSE) {
 		FATAL(ERR_BAD_CONFIG, "auto_clean_tables");

@@ -73,14 +73,7 @@ Other important configuration information required for the database that holds O
 Using an existing Global Directory
 +++++++++++++++++++++++++++++++++++
 
-The :code:`octo_global_prefix` can be set to a value that will then be prefixed to the M global variables used in Octo.
-
 Octo prefixes all of its globals with :code:`%ydbocto`. You can map :code:`%ydbocto*` to a separate database (highly recommended) that meets the above requirements.
-
-Example:
-
-.. parsed-literal::
-   octo_global_prefix = "%ydbocto"
 
 The global variable :code:`^schema` will be :code:`^%ydboctoschema` as a global variable in Octo.
 
@@ -95,7 +88,7 @@ For example:
 .. parsed-literal::
    octo_global_directory = "mumps.gld"
 
-All globals should be preceded by :code:`^|<octo_global_directory>|<octo_global_prefix>`
+All globals should be preceded by :code:`^|<octo_global_directory>|%ydbocto`
 
 Example:
 

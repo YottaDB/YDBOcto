@@ -57,6 +57,16 @@ int main(int argc, char **argv)
 	cur_input_index = 0;
 	memset(input_buffer_combined, 0, MAX_STR_CONST);
 	do {
+		if (config->is_tty)
+		{	/* Clear previously read query from input buffer before starting to read new query.
+			 * This lets octo -vv dump the current query that is being parsed instead of dumping
+			 * all queries that have been keyed in till now.
+			 */
+			cur_input_index = 0;
+			input_buffer_combined[cur_input_index] = '\0';
+		}
+		/* else: It is a file input and we cannot easily clear input buffer */
+		/* Read new query and run it at the same time */
 		if(run_query(input_buffer_combined, &print_temporary_table, NULL) == 0) {
 		}
 		if(eof_hit)

@@ -49,9 +49,8 @@ int run_query(char *query, void (*callback)(SqlStatement *, int, void*, char*), 
 
 	memory_chunks = alloc_chunk(MEMORY_CHUNK_SIZE);
 
-	INFO(CUSTOM_ERROR, "Parsing SQL command %s", query);
 	result = parse_line(query);
-	INFO(CUSTOM_ERROR, "Done!");
+	INFO(CUSTOM_ERROR, "Parsing done for SQL command [%s]", query);
 	if(result == NULL) {
 		INFO(CUSTOM_ERROR, "Returning failure from run_query");
 		octo_cfree(memory_chunks);

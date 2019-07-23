@@ -101,6 +101,21 @@ OCTO
   [[ $(ps -ef | awk '$3 == '`cat rocto.pid`' { print $0;}' | wc -l) -eq 0 ]]
 }
 
+@test "verify session information deleted successfully" {
+  run_psql <<OCTO 2>&1 | tee output.txt
+SELECT * FROM names;
+OCTO
+  ydb <<ZWRITE >> output.txt
+zwrite ^%ydboctosession
+ZWRITE
+  expected='.*^YDB>
+^\^%ydboctosession=1
+^\s*$
+^YDB>'
+  [[ "$(cat output.txt)" =~ $expected ]]
+  [[ "$(cat rocto.log)" =~ "session cleanup successful" ]]
+}
+
 @test "ensure error message when YDB_TLS_AVAILABLE not set and ssl_on is set " {
   if [[ @YDB_TLS_AVAILABLE@ -ne 0 ]]; then
     skip "YDB_TLS_AVAILABLE is set"

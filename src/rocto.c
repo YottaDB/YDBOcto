@@ -343,6 +343,13 @@ int main(int argc, char **argv) {
 		free(var_defaults);
 		free(var_sets);
 		rocto_main_loop(&rocto_session);
+		// Delete session information from session global
+		status = ydb_delete_s(global_buffer, 1, session_id_buffer, YDB_DEL_TREE);
+		if(YDB_OK == status) {
+			INFO(INFO_SESSION_CLEANUP);
+		} else {
+			WARNING(ERR_SESSION_CLEANUP, global_buffer->buf_addr, session_id_buffer->buf_addr);
+		}
 		break;
 	}
 

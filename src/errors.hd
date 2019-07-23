@@ -22,6 +22,7 @@ ERROR_DEF(ERR_PLAN_HASH_FAILED, "Failed to generate plan filename hash", PSQL_Co
 ERROR_DEF(ERR_PLAN_NOT_WELL_FORMED, "Plan produced by optimizer appears incorrect", PSQL_Code_Internal_Error)
 ERROR_DEF(ERR_UNKNOWN_KEYWORD_STATE, "Unknown state reached; please contact your Octo support channel", PSQL_Code_Internal_Error)
 ERROR_DEF(ERR_YOTTADB, "YottaDB error: %s", PSQL_Code_Internal_Error)
+ERROR_DEF(ERR_SESSION_CLEANUP, "YottaDB error: failed to cleanup session at global %s(\"%s\")", PSQL_Code_Internal_Error)
 // ROCTO //
 ERROR_DEF(ERR_ROCTO_TLS_ACCEPT, "ydb_tls_accept: %s", PSQL_Code_Internal_Error)
 ERROR_DEF(ERR_ROCTO_TLS_CONNECTION, "ydb_tls_get_conn_info: %s", PSQL_Code_Internal_Error)
@@ -71,6 +72,7 @@ ERROR_DEF(ERR_LOADING_CONFIG, "Loading config from %s", PSQL_Code_Success)
 ERROR_DEF(ERR_ROCTO_CHILD_STATE_UPDATED, "Process %d switched to state %d", PSQL_Code_Success)
 ERROR_DEF(ERR_ROCTO_CLEAN_DISCONNECT, "connection closed cleanly", PSQL_Code_Success)
 ERROR_DEF(INFO_AUTH_SUCCESS, "%s: user successfully authenticated", PSQL_Code_Success)
+ERROR_DEF(INFO_SESSION_CLEANUP, "session cleanup successful", PSQL_Code_Success)
 
 /*** System errors ***/
 // OCTO //

@@ -306,7 +306,7 @@ endforeach()
 # Create a shared library of M routines
 set(aux_files
   aux/_ydboctoselect.m
-  aux/ydboctoAdmin.m
+  aux/_ydboctoAdmin.m
   aux/_ydboctocurrentSchema.m
   aux/_ydboctoreplace.m
   aux/_ydboctopgCurrentSchemas.m

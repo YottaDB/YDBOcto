@@ -17,34 +17,34 @@ setup() {
   createdb
 }
 
-@test "call ydboctoAdmin show users with no users" {
-  yottadb -r ydboctoAdmin show users >> results.log
+@test "call %ydboctoAdmin show users with no users" {
+  yottadb -r %ydboctoAdmin show users >> results.log
   log=$(cat results.log)
   [[ "$log" =~ "No YDBOcto users found." ]]
 }
 
-@test "call ydboctoAdmin show users with one user" {
-  echo -n tester | yottadb -r ydboctoAdmin add user jon >> results.log
+@test "call %ydboctoAdmin show users with one user" {
+  echo -n tester | yottadb -r %ydboctoAdmin add user jon >> results.log
   log=$(cat results.log)
   [[ "$log" =~ "Successfully added user: \"jon\"" ]]
-  yottadb -r ydboctoAdmin show users >> results.log
+  yottadb -r %ydboctoAdmin show users >> results.log
   log=$(cat results.log)
   [[ "$log" =~ "Current YDBOcto users, by ID:" ]]
   [[ "$log" =~ "jon" ]]
 }
 
-@test "call ydboctoAdmin show users with three users" {
-  echo -n tester | yottadb -r ydboctoAdmin add user jon >> results.log
+@test "call %ydboctoAdmin show users with three users" {
+  echo -n tester | yottadb -r %ydboctoAdmin add user jon >> results.log
   log=$(cat results.log)
   [[ "$log" =~ "Successfully added user: \"jon\"" ]]
-  echo -n tester | yottadb -r ydboctoAdmin add user acteon >> results.log
+  echo -n tester | yottadb -r %ydboctoAdmin add user acteon >> results.log
   log=$(cat results.log)
   [[ "$log" =~ "Successfully added user: \"acteon\"" ]]
-  echo -n tester | yottadb -r ydboctoAdmin add user joe >> results.log
+  echo -n tester | yottadb -r %ydboctoAdmin add user joe >> results.log
   log=$(cat results.log)
   [[ "$log" =~ "Successfully added user: \"joe\"" ]]
 
-  yottadb -r ydboctoAdmin show users >> results.log
+  yottadb -r %ydboctoAdmin show users >> results.log
   log=$(cat results.log)
   [[ "$log" =~ "Current YDBOcto users, by ID:" ]]
   [[ "$log" =~ "jon" ]]

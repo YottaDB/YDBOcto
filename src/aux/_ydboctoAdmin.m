@@ -11,20 +11,20 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
-; Handles the prompt for ydboctoAdmin cli usage
-; prompt is in form "ydboctoAdmin action subAction args"
+; Handles the prompt for _ydboctoAdmin cli usage
+; prompt is in form "_ydboctoAdmin action subAction args"
 ; @example
-; ydboctoAdmin add user Arthur
+; _ydboctoAdmin add user Arthur
 ; 	action: add; subAction: user; args: Arthur
 ;
 ; do all the printing in the prompt so the functions works as a silent api
 ;
-ydboctoAdmin ;
-	; ydboctoAdmin: Perform administrative tasks on YottaDB Octo database
+%ydboctoAdmin ;
+	; _ydboctoAdmin: Perform administrative tasks on YottaDB Octo database
 	; Usage:
-	;        ydboctoAdmin add user <name>
-	;        ydboctoAdmin delete user <name>
-	;        ydboctoAdmin show users
+	;        _ydboctoAdmin add user <name>
+	;        _ydboctoAdmin delete user <name>
+	;        _ydboctoAdmin show users
 	; Options:
 	;        -h --help	Print this message
 
@@ -58,7 +58,7 @@ ydboctoAdmin ;
 	else  do usage()
 	quit
 
-; Prints usage for ydboctoAdmin
+; Prints usage for _ydboctoAdmin
 usage()
 	new j,k,label,tmp
 	set label=$text(+0)
@@ -73,7 +73,7 @@ usage()
 ; @param {string} rawPass - the plaintext password for the user
 ;
 ; @example
-; d addUser^ydboctoAdmin("Arthur","qwerty")
+; d addUser^%ydboctoAdmin("Arthur","qwerty")
 ;
 addUser(user,rawPass)
 	new id,pass,ddlString
@@ -91,7 +91,7 @@ addUser(user,rawPass)
 ; @param {string} user - username for the user
 ;
 ; @example
-; d deleteUser^ydboctoAdmin("Arthur")
+; d deleteUser^%ydboctoAdmin("Arthur")
 ;
 deleteUser(user)
 	kill ^%ydboctoocto("users",user)
@@ -101,7 +101,7 @@ deleteUser(user)
 ; Sorted by id number
 ;
 ; @example
-; d showUsers^ydboctoAdmin("Arthur")
+; d showUsers^%ydboctoAdmin("Arthur")
 ;
 showUsers()
 	new user,users,i,row,id

@@ -1,0 +1,8 @@
+Usage: rocto [OPTION]...
+Start the Rocto remote SQL server.
+
+Mandatory arguments for long options are also mandatory for short options.
+  -c, --config-file=<filepath>		Use specified configuration file instead of the default.
+  -h, --help				Display this help message and exit.
+  -k, --keep-temporary			Override the auto_clean_tables configuration setting and prevents cleanup of temporary tables.
+  -v, --verbose=<number>		Specify amount of information to output when running commands by specifying a numeric level from 0-5 or adding additional 'v' characters.

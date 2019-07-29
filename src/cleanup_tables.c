@@ -26,7 +26,6 @@ void cleanup_tables() {
 	ydb_buffer_t result_b;
 	result_b.buf_addr = buffer;
 	result_b.len_alloc = result_b.len_used = sizeof(buffer);
-	ydb_buffer_t z_status, z_status_value;
 	YDB_MALLOC_BUFFER(&loaded_schemas_b[1], MAX_STR_CONST);
 
 	while(TRUE) {
@@ -34,9 +33,9 @@ void cleanup_tables() {
 		if(status == YDB_ERR_NODEEND) {
 			break;
 		}
-		YDB_ERROR_CHECK(status, &z_status, &z_status_value);
+		YDB_ERROR_CHECK(status);
 		status = ydb_get_s(loaded_schemas_b, 2, &loaded_schemas_b[1], &result_b);
-		YDB_ERROR_CHECK(status, &z_status, &z_status_value);
+		YDB_ERROR_CHECK(status);
 		octo_cfree(*((MemoryChunk**)result_b.buf_addr));
 	}
 

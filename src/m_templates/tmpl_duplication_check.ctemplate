@@ -21,7 +21,7 @@ TEMPLATE(tmpl_duplication_check, PhysicalPlan *plan) {
     // Skip cross reference keys, since those will vary; they still have all the
     // requires keys, in order, under them anyway
     SqlKey *key;
-    %}^|"{{ config->global_directory }}"|{{ config->global_names.raw_cursor }}(cursorId,"dupl"{%
+    %}^{{ config->global_names.raw_cursor }}(cursorId,"dupl"{%
     for(unsigned int i = 0; i < plan->total_iter_keys; i++) {
         key = plan->iterKeys[i];
         if(key->is_cross_reference_key) {

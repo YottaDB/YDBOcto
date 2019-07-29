@@ -39,7 +39,6 @@ PhysicalPlan *emit_select_statement(SqlStatement *stmt, char *plan_filename)
 	char output_key[MAX_STR_CONST], column_id_buffer[MAX_STR_CONST];
 	char *buffer;
 	ydb_buffer_t *plan_meta, value_buffer;
-	ydb_buffer_t z_status, z_status_value;
 
 	TRACE(ERR_ENTERING_FUNCTION, "emit_select_statement");
 	memset(output_key, 0, MAX_STR_CONST);
@@ -109,43 +108,43 @@ PhysicalPlan *emit_select_statement(SqlStatement *stmt, char *plan_filename)
 			value_buffer.buf_addr = value->v.string_literal;
 			value_buffer.len_used = value_buffer.len_alloc = strlen(value_buffer.buf_addr);
 			status = ydb_set_s(plan_meta, 5, &plan_meta[1], &value_buffer);
-			YDB_ERROR_CHECK(status, &z_status, &z_status_value);
+			YDB_ERROR_CHECK(status);
 
 			YDB_LITERAL_TO_BUFFER("table_id", &plan_meta[5]);
 			value_buffer.buf_addr = "0";
 			value_buffer.len_used = value_buffer.len_alloc = strlen(value_buffer.buf_addr);
 			status = ydb_set_s(plan_meta, 5, &plan_meta[1], &value_buffer);
-			YDB_ERROR_CHECK(status, &z_status, &z_status_value);
+			YDB_ERROR_CHECK(status);
 
 			YDB_LITERAL_TO_BUFFER("column_id", &plan_meta[5]);
 			value_buffer.buf_addr = "0";
 			value_buffer.len_used = value_buffer.len_alloc = strlen(value_buffer.buf_addr);
 			status = ydb_set_s(plan_meta, 5, &plan_meta[1], &value_buffer);
-			YDB_ERROR_CHECK(status, &z_status, &z_status_value);
+			YDB_ERROR_CHECK(status);
 
 			YDB_LITERAL_TO_BUFFER("data_type", &plan_meta[5]);
 			value_buffer.buf_addr = "25";
 			value_buffer.len_used = value_buffer.len_alloc = strlen(value_buffer.buf_addr);
 			status = ydb_set_s(plan_meta, 5, &plan_meta[1], &value_buffer);
-			YDB_ERROR_CHECK(status, &z_status, &z_status_value);
+			YDB_ERROR_CHECK(status);
 
 			YDB_LITERAL_TO_BUFFER("data_type_size", &plan_meta[5]);
 			value_buffer.buf_addr = "-1";
 			value_buffer.len_used = value_buffer.len_alloc = strlen(value_buffer.buf_addr);
 			status = ydb_set_s(plan_meta, 5, &plan_meta[1], &value_buffer);
-			YDB_ERROR_CHECK(status, &z_status, &z_status_value);
+			YDB_ERROR_CHECK(status);
 
 			YDB_LITERAL_TO_BUFFER("type_modifier", &plan_meta[5]);
 			value_buffer.buf_addr = "-1";
 			value_buffer.len_used = value_buffer.len_alloc = strlen(value_buffer.buf_addr);
 			status = ydb_set_s(plan_meta, 5, &plan_meta[1], &value_buffer);
-			YDB_ERROR_CHECK(status, &z_status, &z_status_value);
+			YDB_ERROR_CHECK(status);
 
 			YDB_LITERAL_TO_BUFFER("format_code", &plan_meta[5]);
 			value_buffer.buf_addr = "0";
 			value_buffer.len_used = value_buffer.len_alloc = strlen(value_buffer.buf_addr);
 			status = ydb_set_s(plan_meta, 5, &plan_meta[1], &value_buffer);
-			YDB_ERROR_CHECK(status, &z_status, &z_status_value);
+			YDB_ERROR_CHECK(status);
 			cur_plan = cur_plan->v.operand[1];
 		} while(cur_plan != NULL);
 

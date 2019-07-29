@@ -18,7 +18,6 @@
 ydb_buffer_t *get(char *global, size_t num_args, ...) {
 	va_list args;
 	ydb_buffer_t *ret, *buffers;
-	ydb_buffer_t z_status, z_status_value;
 	int status;
 
 	va_start(args, num_args);
@@ -35,7 +34,7 @@ ydb_buffer_t *get(char *global, size_t num_args, ...) {
 		free(buffers);
 		return NULL;
 	}
-	YDB_ERROR_CHECK(status, &z_status, &z_status_value);
+	YDB_ERROR_CHECK(status);
 
 	free(buffers);
 

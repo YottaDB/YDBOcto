@@ -17,7 +17,7 @@
 TEMPLATE(tmpl_temp_key_advance, SqlKey *key) {
     TEMPLATE_INIT();
 
-    %}^|"{{ config->global_directory }}"|{{ config->global_names.raw_cursor }}(cursorId,"keys",{{ key->unique_id|%d }},"","",{%
+    %}^{{ config->global_names.raw_cursor }}(cursorId,"keys",{{ key->unique_id|%d }},"","",{%
     TMPL(tmpl_key, key);
     %}){%
 

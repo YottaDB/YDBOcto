@@ -42,7 +42,6 @@ void handle_query_response(SqlStatement *stmt, int cursor_id, void *_parms, char
 	*space_b = &ydb_buffers[4], *space_b2 = &ydb_buffers[5],
 	*row_id_b = &ydb_buffers[6], *row_value_b = &ydb_buffers[7],
 	*empty_buffer = &ydb_buffers[8], *val_buff;
-	ydb_buffer_t z_status, z_status_value;
 	SqlSetStatement *set_stmt;
 	SqlShowStatement *show_stmt;
 	SqlValue *val1, *val2;
@@ -137,7 +136,7 @@ void handle_query_response(SqlStatement *stmt, int cursor_id, void *_parms, char
 	if(status == YDB_ERR_NODEEND) {
 		return;
 	}
-	YDB_ERROR_CHECK(status, &z_status, &z_status_value);
+	YDB_ERROR_CHECK(status);
 	row_count = 0;
 
 	if (parms->max_data_to_send <= 0) {
@@ -146,7 +145,7 @@ void handle_query_response(SqlStatement *stmt, int cursor_id, void *_parms, char
 	while(row_count < parms->max_data_to_send) {
 		row_count++;
 		status = ydb_get_s(cursor_b, 6, cursor_id_b, row_value_b);
-		YDB_ERROR_CHECK(status, &z_status, &z_status_value);
+		YDB_ERROR_CHECK(status);
 		row_value_b->buf_addr[row_value_b->len_used] = '\0';
 		number_of_columns = 0;
 		data_row_parms[number_of_columns].value = row_value_b->buf_addr;
@@ -167,7 +166,7 @@ void handle_query_response(SqlStatement *stmt, int cursor_id, void *_parms, char
 		if(status == YDB_ERR_NODEEND) {
 			break;
 		}
-		YDB_ERROR_CHECK(status, &z_status, &z_status_value);
+		YDB_ERROR_CHECK(status);
 	}
 
 	// Cleanup tables, if needed

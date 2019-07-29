@@ -24,7 +24,6 @@ SqlTable *find_table(const char *table_name) {
 	SqlStatement *stmt;
 	ydb_buffer_t  *table_stmt, save_value, value_b;
 	ydb_buffer_t *table_binary_b;
-	ydb_buffer_t z_status, z_status_value;
 	char *buff;
 	int status;
 	int num_parts;
@@ -58,7 +57,7 @@ SqlTable *find_table(const char *table_name) {
 		if(status == YDB_ERR_NODEEND) {
 			break;
 		}
-		YDB_ERROR_CHECK(status, &z_status, &z_status_value);
+		YDB_ERROR_CHECK(status);
 		num_parts++;
 	}
 
@@ -94,9 +93,9 @@ SqlTable *find_table(const char *table_name) {
 		if(status == YDB_ERR_NODEEND) {
 			break;
 		}
-		YDB_ERROR_CHECK(status, &z_status, &z_status_value);
+		YDB_ERROR_CHECK(status);
 		status = ydb_get_s(table_binary_b, 3, &table_binary_b[1], &value_b);
-		YDB_ERROR_CHECK(status, &z_status, &z_status_value);
+		YDB_ERROR_CHECK(status);
 		memcpy(&buff[MAX_STR_CONST * num_parts], value_b.buf_addr, value_b.len_used);
 		num_parts++;
 	}
@@ -110,12 +109,12 @@ SqlTable *find_table(const char *table_name) {
 	save_value.buf_addr = (char*)&stmt;
 	save_value.len_used = save_value.len_alloc = sizeof(void*);
 	status = ydb_set_s(&save_buffers[0], 1, &save_buffers[1], &save_value);
-	YDB_ERROR_CHECK(status, &z_status, &z_status_value);
+	YDB_ERROR_CHECK(status);
 	// Note down the memory chunk so we can free it later
 	save_value.buf_addr = (char*)&memory_chunks;
 	save_value.len_used = save_value.len_alloc = sizeof(void*);
 	status = ydb_set_s(&save_chunk[0], 2, &save_chunk[1], &save_value);
-	YDB_ERROR_CHECK(status, &z_status, &z_status_value);
+	YDB_ERROR_CHECK(status);
 	free(save_buffers);
 	free(save_chunk);
 	UNPACK_SQL_STATEMENT(table, stmt, table);

@@ -25,9 +25,7 @@
 int handle_describe(Describe *describe, RoctoSession *session) {
 	ydb_buffer_t subs_array[3];
 	ydb_buffer_t session_global, sql_expression, *source_name = &subs_array[2], *prepared = &subs_array[1], *source_session_id = &subs_array[0];
-	ydb_buffer_t empty_buffer;
 	ydb_buffer_t plan_name_b;
-	ydb_buffer_t z_status, z_status_value;
 	size_t query_length = 0, err_buff_size;
 	int done = FALSE, status;
 	unsigned int found = 0;
@@ -43,11 +41,6 @@ int handle_describe(Describe *describe, RoctoSession *session) {
 	char filename[MAX_STR_CONST];
 	char routine_name[MAX_STR_CONST];
 	ydb_buffer_t *filename_lock = NULL;
-
-	// zstatus buffers
-	YDB_LITERAL_TO_BUFFER("$ZSTATUS", &z_status);
-	YDB_MALLOC_BUFFER(&z_status_value, MAX_STR_CONST);
-	YDB_LITERAL_TO_BUFFER("", &empty_buffer);
 
 	// Fetch the named SQL query from the session ^session(id, "prepared", <name>)
 	YDB_STRING_TO_BUFFER(config->global_names.session, &session_global);
@@ -66,14 +59,14 @@ int handle_describe(Describe *describe, RoctoSession *session) {
 
 	// Check if portal exists
 	status = ydb_data_s(&session_global, 3, subs_array, &found);
-	YDB_ERROR_CHECK(status, &z_status, &z_status_value);
+	YDB_ERROR_CHECK(status);
 	if(found == 0) {
 		/// TODO: return error here
 	}
 	// Send a ParameterDescription
 
 	status = ydb_get_s(&session_global, 3, subs_array, &sql_expression);
-	YDB_ERROR_CHECK(status, &z_status, &z_status_value);
+	YDB_ERROR_CHECK(status);
 
 	query_length = sql_expression.len_used;
 	memcpy(input_buffer_combined, sql_expression.buf_addr, query_length);
@@ -113,7 +106,7 @@ int handle_describe(Describe *describe, RoctoSession *session) {
 		YDB_MALLOC_BUFFER(&cursor_exe_global[2], MAX_STR_CONST);
 
 		status = ydb_incr_s(&schema_global, 0, NULL, NULL, &cursor_exe_global[0]);
-		YDB_ERROR_CHECK(status, &z_status, &z_status_value);
+		YDB_ERROR_CHECK(status);
 		cursor_exe_global[0].buf_addr[cursor_exe_global[0].len_used] = '\0';
 		cursor_exe_global[2].len_used = 1;
 		*cursor_exe_global[2].buf_addr = '0';

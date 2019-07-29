@@ -75,9 +75,7 @@ A config file can include instructions specifying verbosity for logging:
 Locations and Global Variables
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Octo supports two different ways of mapping its globals to a YottaDB database: Using normal global mapping procedures for an existing global directory OR using a separate global directory. All octo globals are prefixed with :code:`^%ydbocto`.
-
-Other important configuration information required for the database that holds Octo globals:
+All octo related globals are prefixed with :code:`^%ydbocto`. Using normal global mapping procedures for an existing application global directory (where you want to run Octo), map the global variable namespace :code:`^%ydbocto*` to a separate region (and its associated database file) that meets the below requirements (the below example commands assume the separate region is named :code:`OCTO`).
 
 * :code:`NULL_SUBSCRIPTS` must be set to :code:`ALWAYS`.
 
@@ -91,43 +89,19 @@ Other important configuration information required for the database that holds O
 
   Example: :code:`$ydb_dist/mupip set -record_size=300000 -region 'OCTO'`
 
-+++++++++++++++++++++++++++++++++++
-Using an existing Global Directory
-+++++++++++++++++++++++++++++++++++
-
-Octo prefixes all of its globals with :code:`%ydbocto`. You can map :code:`%ydbocto*` to a separate database (highly recommended) that meets the above requirements.
-
-The global variable :code:`^schema` will be :code:`^%ydboctoschema` as a global variable in Octo.
-
-+++++++++++++++++++++++++++++++++++
-Using a separate global directory
-+++++++++++++++++++++++++++++++++++
-
-To use a separate global directory with Octo, you must change the :code:`octo_global_directory` configuration in :code:`octo.conf` to point to the path that contains the global directory. Using a full path to the global directory is recommended.
-
-For example:
-
-.. parsed-literal::
-   octo_global_directory = "mumps.gld"
-
-All globals should be preceded by :code:`^|<octo_global_directory>|%ydbocto`
-
-Example:
-
-.. parsed-literal::
-   ^|mumps.gld|%ydboctoocto
-
 Some of the globals used in Octo are:
 
-* **octo**: This global can refer to various functions, variables, octo "read only" table values (postgres mappings, oneRowTable, etc.), and some counts. It needs to be journaled and persist between sessions.
+* :code:`^%ydboctoocto`: This global can refer to various functions, variables, octo "read only" table values (postgres mappings, oneRowTable, etc.), and some counts. It needs to persist between sessions.
 
-* **session**: This global can contain session variables, portals and prepared queries. It need not be journaled/ persist between sessions since it only contains data related to the current session.
+* :code:`^%ydboctosession`: This global can contain session variables, portals and prepared queries. It only contains data related to the current session.
 
-* **cursor**: This global contains output data and temporary tables. It need not be journaled/ persist between sessions since it only contains temporary data.
+* :code:`^%ydboctocursor`: This global contains output data and temporary tables. It need not persist between sessions since it only contains temporary data.
 
-* **xref**: This global contains cross-references, row counts and other statistical information. It needs to be journaled and persist between sessions.
+* :code:`^%ydboctoxref`: This global contains cross-references, row counts and other statistical information. It needs to persist between sessions.
 
-* **schema**: This global contains information about the tables loaded into the database. It needs to be journaled and persist between sessions.
+* :code:`^%ydboctoschema`: This global contains information about the tables loaded into the database. It needs to persist between sessions.
+
+Since most of the Octo variables need to persist between sessions, it is necessary that the region(s) mapping the :code:`^%ydbocto*` namespace have replication turned on in a replicated environment (or journaling turned on in a non-replicated environment).
 
 +++++++++++++++++++++++
 TLS/SSL Configuration

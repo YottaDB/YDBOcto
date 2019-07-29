@@ -19,7 +19,6 @@
 void set(char *new_value, char *global, size_t num_args, ...) {
 	va_list args;
 	ydb_buffer_t *ret, *buffers;
-	ydb_buffer_t z_status, z_status_value;
 	int status;
 
 	va_start(args, num_args);
@@ -31,7 +30,7 @@ void set(char *new_value, char *global, size_t num_args, ...) {
 	YDB_COPY_STRING_TO_BUFFER(new_value, ret, status);
 
 	status = ydb_set_s(&buffers[0], num_args, &buffers[1], ret);
-	YDB_ERROR_CHECK(status, &z_status, &z_status_value);
+	YDB_ERROR_CHECK(status);
 
 	YDB_FREE_BUFFER(ret);
 	free(buffers);

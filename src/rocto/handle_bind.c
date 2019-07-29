@@ -28,7 +28,6 @@ int handle_bind(Bind *bind, RoctoSession *session) {
 	// For now, just a search-and-replace of anything starting with a '$'
 	// This is not super great because it means one could have a SQLI attack
 	ydb_buffer_t *src_subs, *dest_subs, sql_expression;
-	ydb_buffer_t z_status, z_status_value;
 	int status, bind_parm;
 	char *ptr, *end_ptr, new_query[MAX_STR_CONST];
 	char *int_start, *new_query_ptr, *end_new_query_ptr;
@@ -37,9 +36,6 @@ int handle_bind(Bind *bind, RoctoSession *session) {
 	ErrorResponse *err;
 
 	TRACE(ERR_ENTERING_FUNCTION, "handle_bind");
-
-	// zstatus buffers
-	YDB_LITERAL_TO_BUFFER("$ZSTATUS", &z_status);
 
 	// Fetch the named SQL query from the session ^session(id, "prepared", <name>)
 	src_subs = make_buffers(config->global_names.session, 3, session->session_id->buf_addr, "prepared", bind->source);
@@ -57,7 +53,7 @@ int handle_bind(Bind *bind, RoctoSession *session) {
 		return -1;
 	}
 	// Handle other errors; this will crash the process with an error, which should be OK
-	YDB_ERROR_CHECK(status, &z_status, &z_status_value);
+	YDB_ERROR_CHECK(status);
 
 	// Scan through and calculate a new length for the query
 	ptr = sql_expression.buf_addr;
@@ -91,7 +87,6 @@ int handle_bind(Bind *bind, RoctoSession *session) {
 					send_message(session, (BaseMessage*)(&err->type));
 					free_error_response(err);
 					free(sql_expression.buf_addr);
-					free(z_status_value.buf_addr);
 					return -1;
 				}
 				assert(bind_parm < bind->num_parms);
@@ -137,7 +132,7 @@ int handle_bind(Bind *bind, RoctoSession *session) {
 
 	// status = ydb_set_s(&session_global, 3, dest_subs, &sql_expression);
 	status = ydb_set_s(&dest_subs[0], 3, &dest_subs[1], &sql_expression);
-	YDB_ERROR_CHECK(status, &z_status, &z_status_value);
+	YDB_ERROR_CHECK(status);
 
 	// Construct the response message
 	response = make_bind_complete();

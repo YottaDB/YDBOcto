@@ -24,13 +24,12 @@
  */
 int store_table_in_pg_class(SqlTable *table) {
 	int status;
-	ydb_buffer_t zstatus, zstatus_buffer;
 	ydb_buffer_t *oid_buffer = make_buffers(config->global_names.octo, 1, "oid");
 	ydb_buffer_t *pg_class = make_buffers(config->global_names.octo, 4,
 			"tables", "pg_catalog", "pg_class", "");
 	YDB_MALLOC_BUFFER(&pg_class[4], MAX_STR_CONST);
 	status = ydb_incr_s(&oid_buffer[0], 1, &oid_buffer[1], NULL, &pg_class[4]);
-	YDB_ERROR_CHECK(status, &zstatus, &zstatus_buffer);
+	YDB_ERROR_CHECK(status);
 	pg_class[4].buf_addr[pg_class[4].len_used] = '\0';
 	// Extract the table name
 	SqlValue *value;
@@ -51,7 +50,7 @@ int store_table_in_pg_class(SqlTable *table) {
 	buffer_b.len_alloc = buffer_b.len_used = strlen(buffer);
 	buffer_b.buf_addr = buffer;
 	status = ydb_set_s(&pg_class[0], 4, &pg_class[1], &buffer_b);
-	YDB_ERROR_CHECK(status, &zstatus, &zstatus_buffer);
+	YDB_ERROR_CHECK(status);
 
 	// We should also store the column definitions in the pg_attribute table
 	ydb_buffer_t *pg_attribute = make_buffers(config->global_names.octo, 4,
@@ -87,12 +86,12 @@ int store_table_in_pg_class(SqlTable *table) {
 		snprintf(buffer, sizeof(buffer), "%s|%s|%d|-1|-1|2|0|-1|-1|0|x|i|0|0|0|\"\"|0|t|0|100||||",
 				pg_class[4].buf_addr, column_name, atttypid);
 		status = ydb_incr_s(&oid_buffer[0], 1, &oid_buffer[1], NULL, &pg_attribute[4]);
-		YDB_ERROR_CHECK(status, &zstatus, &zstatus_buffer);
+		YDB_ERROR_CHECK(status);
 		status = ydb_set_s(&pg_attribute[0], 4, &pg_attribute[1], &buffer_b);
-		YDB_ERROR_CHECK(status, &zstatus, &zstatus_buffer);
+		YDB_ERROR_CHECK(status);
 		cur_column = cur_column->next;
 	} while(cur_column != start_column);
-	YDB_ERROR_CHECK(status, &zstatus, &zstatus_buffer);
+	YDB_ERROR_CHECK(status);
 	YDB_FREE_BUFFER(&pg_class[4]);
 	free(oid_buffer);
 	free(pg_class);

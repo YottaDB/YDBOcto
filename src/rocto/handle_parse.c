@@ -29,14 +29,10 @@ int handle_parse(Parse *parse, RoctoSession *session) {
 	// This is not super great because it means one could have a SQLI attack
 	int status;
 	ydb_buffer_t *src_subs;
-	ydb_buffer_t sql_expression, z_status, z_status_value;
+	ydb_buffer_t sql_expression;
 	ParseComplete *response;
 
 	TRACE(ERR_ENTERING_FUNCTION, "handle_parse");
-
-	// zstatus buffers
-	YDB_LITERAL_TO_BUFFER("$ZSTATUS", &z_status);
-	YDB_MALLOC_BUFFER(&z_status_value, MAX_STR_CONST);
 
 	// Fetch the named SQL query from the session session(id, "prepared", <name>)
 	src_subs = make_buffers(config->global_names.session, 3, session->session_id->buf_addr, "prepared", parse->dest);
@@ -44,8 +40,7 @@ int handle_parse(Parse *parse, RoctoSession *session) {
 
 	// Add the new SQL query to the database
 	status = ydb_set_s(&src_subs[0], 3, &src_subs[1], &sql_expression);
-	YDB_ERROR_CHECK(status, &z_status, &z_status_value);
-	free(z_status_value.buf_addr);
+	YDB_ERROR_CHECK(status);
 
 	// Some clients depend on getting the rows back here; parse the expression, but don't execute it
 	response = make_parse_complete();

@@ -14,8 +14,6 @@
 verbosity = "WARNING"
 // Location to cache generated M routines which represent queries
 routine_cache = "./"
-// Global directory to use for Octo globals; if not present, we use the ydb_gbldir
-//octo_global_directory = "mumps.gld"
 
 // If true, automatically delete temporary tables after data is sent to the client
 auto_clean_tables = true

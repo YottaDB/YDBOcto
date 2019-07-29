@@ -37,7 +37,6 @@ void print_temporary_table(SqlStatement *stmt, int cursor_id, void *parms, char 
 		*space_b = &ydb_buffers[4], *space_b2 = &ydb_buffers[5],
 		*row_id_b = &ydb_buffers[6], *row_value_b = &ydb_buffers[7],
 		*empty_buffer = &ydb_buffers[8], *val_buff;
-	ydb_buffer_t z_status, z_status_value;
 	SqlSetStatement *set_stmt;
 	SqlShowStatement *show_stmt;
 	SqlValue *val1, *val2;
@@ -99,18 +98,18 @@ void print_temporary_table(SqlStatement *stmt, int cursor_id, void *parms, char 
 	if(status == YDB_ERR_NODEEND) {
 		return;
 	}
-	YDB_ERROR_CHECK(status, &z_status, &z_status_value);
+	YDB_ERROR_CHECK(status);
 
 	while(!YDB_BUFFER_IS_SAME(empty_buffer, row_id_b)) {
 		status = ydb_get_s(cursor_b, 6, cursor_id_b, row_value_b);
-		YDB_ERROR_CHECK(status, &z_status, &z_status_value);
+		YDB_ERROR_CHECK(status);
 		row_value_b->buf_addr[row_value_b->len_used] = '\0';
 		fprintf(stdout, "%s\n", row_value_b->buf_addr);
 		status = ydb_subscript_next_s(cursor_b, 6, cursor_id_b, row_id_b);
 		if(status == YDB_ERR_NODEEND) {
 			break;
 		}
-		YDB_ERROR_CHECK(status, &z_status, &z_status_value);
+		YDB_ERROR_CHECK(status);
 	}
 	fflush(stdout);
 	// Cleanup tables, if needed

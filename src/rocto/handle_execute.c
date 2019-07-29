@@ -31,7 +31,6 @@ int handle_execute(Execute *execute, RoctoSession *session) {
 	EmptyQueryResponse *empty;
 	ydb_buffer_t *src_subs;
 	ydb_buffer_t sql_expression;
-	ydb_buffer_t z_status, z_status_value;
 	size_t query_length, err_buff_size;
 	int status;
 	int run_query_result = 0;
@@ -43,17 +42,13 @@ int handle_execute(Execute *execute, RoctoSession *session) {
 	memset(&parms, 0, sizeof(QueryResponseParms));
 	parms.session = session;
 
-	// zstatus buffers
-	YDB_LITERAL_TO_BUFFER("$ZSTATUS", &z_status);
-	YDB_MALLOC_BUFFER(&z_status_value, MAX_STR_CONST);
-
 	// Fetch the named SQL query from the session ^session(id, "prepared", <name>)
 	src_subs = make_buffers(config->global_names.session, 3, session->session_id->buf_addr, "bound", execute->source);
 	YDB_MALLOC_BUFFER(&sql_expression, MAX_STR_CONST);
 	sql_expression.len_alloc -= 1;
 
 	status = ydb_get_s(&src_subs[0], 3, &src_subs[1], &sql_expression);
-	YDB_ERROR_CHECK(status, &z_status, &z_status_value);
+	YDB_ERROR_CHECK(status);
 
 	sql_expression.buf_addr[sql_expression.len_used] = '\0';
 	query_length = strlen(sql_expression.buf_addr);
@@ -102,7 +97,6 @@ int handle_execute(Execute *execute, RoctoSession *session) {
 	} while(!eof_hit);
 
 	//free(sql_expression.buf_addr);
-	free(z_status_value.buf_addr);
 
 	// TODO: we need to limit the returns and provide a PortalSuspend if a limit on rows was requested
 	// For now, we always return all rows

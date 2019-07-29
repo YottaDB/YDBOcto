@@ -26,7 +26,6 @@ int qualify_function_name(SqlStatement *stmt) {
 	char *c;
 	ydb_buffer_t subs_array[4];
 	ydb_buffer_t *octo_global, *functions_sub, *function_name_sub, *new_name_value;
-	ydb_buffer_t z_status, z_status_value;
 
 	result = 0;
 	UNPACK_SQL_STATEMENT(value, stmt, value);
@@ -58,7 +57,7 @@ int qualify_function_name(SqlStatement *stmt) {
 		YDB_FREE_BUFFER(new_name_value);
 		return 1;
 	}
-	YDB_ERROR_CHECK(status, &z_status, &z_status_value);
+	YDB_ERROR_CHECK(status);
 
 	// Replace the pointer in the value with the new value
 	new_name_value->buf_addr[new_name_value->len_used] = '\0';

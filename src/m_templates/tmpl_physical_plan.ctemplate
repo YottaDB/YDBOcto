@@ -48,8 +48,8 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
         GET_LP(lp_temp, plan->projection, 0, LP_WHERE);
         GET_LP(lp_temp, lp_temp, 0, LP_COLUMN_ALIAS);
         column_alias = lp_temp->v.column_alias;
-    %}LOCK +^|"{{ config->global_directory }}"|{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}"):10
-    IF $GET(^|"{{ config->global_directory }}"|{{ config->global_names.raw_octo }}("xref_status","{{ tableName }}","{{ columnName }}"))="done" LOCK -^|"{{ config->global_directory }}"|{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}") QUIT
+    %}LOCK +^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}"):10
+    IF $GET(^{{ config->global_names.raw_octo }}("xref_status","{{ tableName }}","{{ columnName }}"))="done" LOCK -^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}") QUIT
     IF '$ZTRI("item","+{% TMPL(tmpl_column_reference_trigger, plan, column_alias); %} -commands=SET,KILL -xecute=""DO handleSet^{{ plan->filename }}""") H
     {% // Whitespace needed
     } else {
@@ -62,7 +62,7 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
             tableName = value->v.reference;
             UNPACK_SQL_STATEMENT (value, t_key->column->columnName, value);
             columnName = value->v.reference;
-            %}DO:'$DATA(^|"{{ config->global_directory }}"|{{ config->global_names.raw_octo }}("xref_status","{{ tableName }}","{{ columnName }}")) ^{{ t_key->cross_reference_filename }}(cursorId)
+            %}DO:'$DATA(^{{ config->global_names.raw_octo }}("xref_status","{{ tableName }}","{{ columnName }}")) ^{{ t_key->cross_reference_filename }}(cursorId)
     {%
         }
     }
@@ -136,7 +136,7 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
     // Distinct values if needed
     //  NOTE: the EXCEPT set doesn't need to check if a value exists before clearing it
     if(plan->distinct_values && plan->set_operation != PP_EXCEPT_SET && plan->set_operation != PP_INTERSECT_SET) {
-        %}&($DATA(^|"{{ config->global_directory }}"|{{ config->global_names.raw_cursor }}(cursorId,"index",{%
+        %}&($DATA(^{{ config->global_names.raw_cursor }}(cursorId,"index",{%
         TMPL(tmpl_column_list_combine, plan->projection, plan, ",", NULL, 0);
         %}))=0){%
     }
@@ -174,14 +174,14 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
     if(plan->outputKey && plan->outputKey->insert) {
         %}{{ plan->outputKey->insert->v.string_literal }}{%
     } else if(plan->outputKey && plan->outputKey->is_cross_reference_key) {
-        %} ^|"{{ config->global_directory }}"|{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}"{%
+        %} ^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}"{%
         %},{%
         TMPL(tmpl_column_list_combine, plan->projection, plan, ",", NULL, 0);
         %})=""
     {% // White space needed
         TMPL(print_dots, dot_count);
-        %}IF $INCREMENT(^|"{{ config->global_directory }}"|{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}"{%
-        %})),$INCREMENT(^|"{{ config->global_directory }}"|{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}",{%
+        %}IF $INCREMENT(^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}"{%
+        %})),$INCREMENT(^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}",{%
         // Temporarily sever the key from the projection
         lp_temp = plan->projection->v.operand[1];
         plan->projection->v.operand[1] = NULL;
@@ -189,7 +189,7 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
         plan->projection->v.operand[1] = lp_temp;
         %})) {%
     } else if(plan->set_operation == PP_EXCEPT_SET) {
-        %} SET v=$ORDER(^|"{{ config->global_directory }}"|{{ config->global_names.raw_cursor }}(cursorId,"index",{% TMPL(tmpl_column_list_combine, plan->projection, plan, ",", NULL, 0); %},"")) KILL:v'="" {% TMPL(tmpl_key, plan->outputKey); buff_ptr--; %},v),^|"{{ config->global_directory }}"|{{ config->global_names.raw_cursor }}(cursorId,"index",{% TMPL(tmpl_column_list_combine, plan->projection, plan, ",", NULL, 0); %},v){%
+        %} SET v=$ORDER(^{{ config->global_names.raw_cursor }}(cursorId,"index",{% TMPL(tmpl_column_list_combine, plan->projection, plan, ",", NULL, 0); %},"")) KILL:v'="" {% TMPL(tmpl_key, plan->outputKey); buff_ptr--; %},v),^{{ config->global_names.raw_cursor }}(cursorId,"index",{% TMPL(tmpl_column_list_combine, plan->projection, plan, ",", NULL, 0); %},v){%
     } else if(plan->outputKey) {
         // Note down where we are, do a dummy assignment to increment the row count, then paste our row again
         end_resume = buff_ptr;
@@ -217,7 +217,7 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
             /// TODO: rework this so this fake kill doesn't have to happen
             %},"this variable should never exist"){%
         } else if(plan->action_type == PP_DELETE) {
-            %},^|"{{ config->global_directory }}"|{{ config->global_names.raw_cursor }}(cursorId,"index",{%
+            %},^{{ config->global_names.raw_cursor }}(cursorId,"index",{%
             TMPL(tmpl_column_list_combine, plan->projection, plan, ",", NULL, 0);
             %})){%
         } else if(plan->stash_columns_in_keys) {
@@ -271,10 +271,10 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
             %}SET:1{%
         }
 
-        %} ^|"{{ config->global_directory }}"|{{ config->global_names.raw_cursor }}(cursorId,"index",{%
+        %} ^{{ config->global_names.raw_cursor }}(cursorId,"index",{%
         TMPL(tmpl_column_list_combine, plan->projection, plan, ",", NULL, 0);
         if(plan->set_operation != PP_INTERSECT_SET) {
-            %},{% TMPL(tmpl_key, plan->outputKey); %})="",tmpVar=$INCREMENT(^|"{{ config->global_directory }}"|{{ config->global_names.raw_cursor }}(cursorId,"index",{% TMPL(tmpl_column_list_combine, plan->projection, plan, ",", NULL, 0); %})){%
+            %},{% TMPL(tmpl_key, plan->outputKey); %})="",tmpVar=$INCREMENT(^{{ config->global_names.raw_cursor }}(cursorId,"index",{% TMPL(tmpl_column_list_combine, plan->projection, plan, ",", NULL, 0); %})){%
         } else {
             %}){%
         }
@@ -292,7 +292,7 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
     //  the index; these were in the first set, but not the second
     if(plan->set_operation == PP_INTERSECT_SET) {
         %}
-    SET var="^|""{{ config->global_directory }}""|{{ config->global_names.raw_cursor }}("_cursorId_",""index"")" FOR  SET var=$Q(@var),var=$Q(@var) QUIT:$PIECE(var,",",2)'="""index"""  DO
+    SET var="^{{ config->global_names.raw_cursor }}("_cursorId_",""index"")" FOR  SET var=$Q(@var),var=$Q(@var) QUIT:$PIECE(var,",",2)'="""index"""  DO
     . SET index=$PIECE($PIECE(var,",",$LENGTH(var,",")),")",1)
     . KILL:index'="" {%
     TMPL(tmpl_key, plan->outputKey);
@@ -302,8 +302,8 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
     }
     if(plan->outputKey && plan->outputKey->is_cross_reference_key) {
     %}
-    SET ^|"{{ config->global_directory }}"|{{ config->global_names.raw_octo }}("xref_status","{{ tableName }}","{{ columnName }}")="done"
-    LOCK -^|"{{ config->global_directory }}"|{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}"){%
+    SET ^{{ config->global_names.raw_octo }}("xref_status","{{ tableName }}","{{ columnName }}")="done"
+    LOCK -^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}"){%
     } else if(plan->next && !plan->deferred_plan) {
         next_plan = plan->next;
         while(next_plan->outputKey && next_plan->outputKey->is_cross_reference_key) {
@@ -322,7 +322,7 @@ handleSet
     NEW t
     IF $ZTRIGGEROP="K" DO
     . SET val=""
-    . FOR  SET val=$ORDER(^|"{{ config->global_directory }}"|{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}",val)) QUIT:val=""  DO:$DATA(^|"{{ config->global_directory }}"|{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}",val{%
+    . FOR  SET val=$ORDER(^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}",val)) QUIT:val=""  DO:$DATA(^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}",val{%
         lp_temp = plan->projection->v.operand[1];
         i = 0;
         while(lp_temp != NULL) {
@@ -331,7 +331,7 @@ handleSet
             i++;
         }
         %}))'=0
-    . . KILL ^|"{{ config->global_directory }}"|{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}",val{%
+    . . KILL ^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}",val{%
         lp_temp = plan->projection->v.operand[1];
         i = 0;
         while(lp_temp != NULL) {
@@ -340,12 +340,12 @@ handleSet
             i++;
         }
         %})
-    . . KILL:$INCREMENT(^|"{{ config->global_directory }}"|{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}",val),-1)=0 ^|"{{ config->global_directory }}"|{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}",val)
-    . . KILL:$INCREMENT(^|"{{ config->global_directory }}"|{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}"),-1)=0 ^|"{{ config->global_directory }}"|{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}")
+    . . KILL:$INCREMENT(^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}",val),-1)=0 ^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}",val)
+    . . KILL:$INCREMENT(^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}"),-1)=0 ^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}")
     ELSE  DO
     . SET newValue=$PIECE($ZTVALUE,$ZTDELIM,$ZTUPDATE)
     . SET oldValue=$PIECE($ZTOLDVAL,$ZTDELIM,$ZTUPDATE)
-    . KILL:oldValue'="" ^|"{{ config->global_directory }}"|{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}",oldValue{%
+    . KILL:oldValue'="" ^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}",oldValue{%
         lp_temp = plan->projection->v.operand[1];
         i = 0;
         while(lp_temp != NULL) {
@@ -356,9 +356,9 @@ handleSet
         %}){%
         // Now decrement the counts for the globals
     %}
-    . IF oldValue'="" IF $SELECT($INCREMENT(^|"{{ config->global_directory }}"|{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}",oldValue),-1):$INCREMENT(^|"{{ config->global_directory }}"|{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}"),-1),1:$INCREMENT(^|"{{ config->global_directory }}"|{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}"),-1))
-    . KILL:(oldValue'="")&(^|"{{ config->global_directory }}"|{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}",oldValue)=0) ^|"{{ config->global_directory }}"|{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}",oldValue)
-    . SET:newValue'="" ^|"{{ config->global_directory }}"|{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}",newValue{%
+    . IF oldValue'="" IF $SELECT($INCREMENT(^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}",oldValue),-1):$INCREMENT(^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}"),-1),1:$INCREMENT(^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}"),-1))
+    . KILL:(oldValue'="")&(^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}",oldValue)=0) ^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}",oldValue)
+    . SET:newValue'="" ^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}",newValue{%
         lp_temp = plan->projection->v.operand[1];
         i = 0;
         while(lp_temp != NULL) {
@@ -369,7 +369,7 @@ handleSet
         %})=""{%
         // Now decrement the counts for the globals
     %}
-    . IF newValue'="" IF $SELECT($INCREMENT(^|"{{ config->global_directory }}"|{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}",newValue)):$INCREMENT(^|"{{ config->global_directory }}"|{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}")),1:$INCREMENT(^|"{{ config->global_directory }}"|{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}")))
+    . IF newValue'="" IF $SELECT($INCREMENT(^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}",newValue)):$INCREMENT(^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}")),1:$INCREMENT(^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}")))
     QUIT{%
     }
     TEMPLATE_END();

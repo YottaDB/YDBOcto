@@ -121,9 +121,6 @@ void populate_global_names() {
 	char buff[MAX_STR_CONST];
 	char *global_prefix = "%ydbocto";
 
-	YDB_LITERAL_TO_BUFFER("$ZGBLDIR", &config->zgbldir);
-	YDB_MALLOC_BUFFER(&config->prev_gbldir, MAX_STR_CONST);
-	YDB_STRING_TO_BUFFER((char*)config->global_directory, &config->octo_gbldir);
 	snprintf(buff, MAX_STR_CONST, "^%sschema", global_prefix);
 	buff[MAX_STR_CONST - 1] = '\0';
 	config->global_names.schema = malloc(strlen(buff) + 1);
@@ -275,7 +272,7 @@ int octo_init(int argc, char **argv) {
 			== CONFIG_FALSE) {
 		FATAL(ERR_BAD_CONFIG, "rocto.use_dns");
 	}
-#if YDB_TLS_AVAILABLE
+#	if YDB_TLS_AVAILABLE
 	if(config_lookup_string(config_file, "tls.OCTOSERVER.cert", &config->rocto_config.ssl_cert_file)
 			== CONFIG_FALSE) {
 		FATAL(ERR_BAD_CONFIG, "tls.OCTOSERVER.cert");
@@ -288,7 +285,7 @@ int octo_init(int argc, char **argv) {
 			== CONFIG_FALSE) {
 		FATAL(ERR_BAD_CONFIG, "rocto.ssl_on");
 	}
-#else
+#	else
 	if(config_lookup_bool(config_file, "rocto.ssl_on", &config->rocto_config.ssl_on)
 			== CONFIG_FALSE) {
 		FATAL(ERR_BAD_CONFIG, "rocto.ssl_on");
@@ -296,7 +293,7 @@ int octo_init(int argc, char **argv) {
 	if (config->rocto_config.ssl_on) {
 		FATAL(ERR_BAD_CONFIG, "rocto.ssl_on set, but YottaDB TLS plugin not installed");
 	}
-#endif
+#	endif
 	// Read in YDB settings
 	ydb_settings = config_lookup(config_file, "yottadb");
 	if(ydb_settings != NULL && config_setting_is_group(ydb_settings) == CONFIG_TRUE) {
@@ -308,24 +305,6 @@ int octo_init(int argc, char **argv) {
 				setenv(item_name, item_value, 0);
 			}
 			i++;
-		}
-	}
-
-	// If users don't provide a global directory setting, use the YottaDB setting
-	if(config_lookup_string(config_file, "octo_global_directory", &config->global_directory)
-			== CONFIG_FALSE) {
-		if(getenv("ydb_gbldir") != NULL) {
-			config_setting_t *new_setting = config_setting_add(config_root_setting(config_file),
-					"octo_global_directory", CONFIG_TYPE_STRING);
-			config_setting_set_string(new_setting, getenv("ydb_gbldir"));
-		} else if(getenv("gtmgbldir") != NULL) {
-			config_setting_t *new_setting = config_setting_add(config_root_setting(config_file),
-					"octo_global_directory", CONFIG_TYPE_STRING);
-			config_setting_set_string(new_setting, getenv("gtmgbldir"));
-		}
-		if(config_lookup_string(config_file, "octo_global_directory", &config->global_directory)
-				== CONFIG_FALSE) {
-			FATAL(ERR_BAD_CONFIG, "octo_global_directory");
 		}
 	}
 
@@ -357,8 +336,20 @@ int octo_init(int argc, char **argv) {
 	cur_input_more = &no_more;
 	eof_hit = 0;
 
-	// Make sure the Octo global directory is active
-	SWITCH_TO_OCTO_GLOBAL_DIRECTORY();
+	if (INFO >= config->record_error_level)
+	{	// Record pertinent ydb_* env vars if -vv or higher verbosity is specified
+		char		*ptr;
+		char		*envvar_array[] = { "ydb_dist", "ydb_gbldir", "ydb_routines", "ydb_ci", "ydb_xc_ydbposix" };
+		unsigned int	i;
 
+		INFO(CUSTOM_ERROR, "# Recording pertinent ydb_* env var values at process startup");
+		for (i = 0; i < (sizeof(envvar_array) / sizeof(envvar_array[0])); i++)
+		{
+			ptr = getenv(envvar_array[i]);
+			if (NULL == ptr)
+				ptr = "";
+			INFO(CUSTOM_ERROR, "# %s=\"%s\"", envvar_array[i], ptr);
+		}
+	}
 	return 0;
 }

@@ -1,4 +1,15 @@
 {%
+/****************************************************************
+ *								*
+ * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * All rights reserved.						*
+ *								*
+ *	This source code contains the intellectual property	*
+ *	of its copyright holder(s), and is made available	*
+ *	under a license.  If you do not know the terms of	*
+ *	the license, please stop and do not read further.	*
+ *								*
+ ****************************************************************/
 #include "logical_plan.h"
 #include "template_helpers.h"
 
@@ -31,7 +42,7 @@ TEMPLATE(tmpl_key_source, PhysicalPlan *pplan, SqlKey *key) {
     if(key->is_cross_reference_key) {
         UNPACK_SQL_STATEMENT(value, key->column->columnName, value);
         columnName = value->v.reference;
-        %}^|"{{ config->global_directory }}"|{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}"{%
+        %}^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}"{%
         //TMPL(tmpl_column_reference, pplan, key->cross_reference_output_key->cross_reference_column_alias);
         // Output the column this cross reference is sourced from
         iter_key_index = 0;
@@ -77,7 +88,7 @@ TEMPLATE(tmpl_key_source, PhysicalPlan *pplan, SqlKey *key) {
         TMPL(tmpl_key, key);
         %})){%
     }
-    
+
     TEMPLATE_END();
 }
 %}

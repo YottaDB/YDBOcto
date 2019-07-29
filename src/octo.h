@@ -72,30 +72,6 @@
 }
 #endif
 
-/**
- * Switches to the octo global directory
- */
-#define SWITCH_TO_OCTO_GLOBAL_DIRECTORY()						\
-	do {										\
-		int status = 0;								\
-		ydb_buffer_t z_status, z_status_value;					\
-		status = ydb_get_s(&config->zgbldir, 0, NULL, &config->prev_gbldir);	\
-		YDB_ERROR_CHECK(status, &z_status, &z_status_value);			\
-		status = ydb_set_s(&config->zgbldir, 0, NULL, &config->octo_gbldir);	\
-		YDB_ERROR_CHECK(status, &z_status, &z_status_value);			\
-	} while(FALSE);
-
-/**
- * Switches from the octo global directory
- */
-#define SWITCH_FROM_OCTO_GLOBAL_DIRECTORY()						\
-	do {										\
-		int status = 0;								\
-		ydb_buffer_t z_status, z_status_value;					\
-		status = ydb_set_s(&config->zgbldir, 0, NULL, &config->prev_gbldir);	\
-		YDB_ERROR_CHECK(status, &z_status, &z_status_value);			\
-	} while(FALSE);
-
 // Allows us to leave parameters in place even if they are unused and avoid warning from the
 // compiler.
 #define UNUSED(x) (void)(x)

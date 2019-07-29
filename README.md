@@ -131,11 +131,7 @@ Octo requires that `$ydb_dist/plugin/o/_ydbocto.so` and the path configured for 
 
 ### Globals
 
-Octo support two different ways of mapping its globals to a YottaDB database: Using normal global mapping procedures for an existing global directory OR using a separate global directory. All octo globals are prefixed with `^%ydbocto`.
-
-YottaDB recommends using an existing global directory and mapping the Octo globals to a separate database.
-
-Other important configuration information required for the database that holds Octo globals:
+All octo related globals are prefixed with `^%ydbocto`. Using normal global mapping procedures for an existing application global directory (where you want to run Octo), map the global variable namespace `^%ydbocto*` to a separate region (and its associated database file) that meets the below requirements (the below example commands assume the separate region is named `OCTO`).
 
 * `NULL_SUBSCRIPTS` must be set to `ALWAYS`.
    * Example: `$ydb_dist/mupip set -null_subscripts=true -region 'OCTO'`
@@ -143,14 +139,6 @@ Other important configuration information required for the database that holds O
    * Example: `$ydb_dist/mupip set -key_size=1019 -region 'OCTO'`
 * `RECORD_SIZE` must be tuned to your data/queries - a reasonable starting value is `300000`.
    * Example: `$ydb_dist/mupip set -record_size=300000 -region 'OCTO'`
-
-#### Using an existing global directory
-
-Octo prefixes all of its globals with `^%ydbocto`. You can map `^%ydbocto*` to a separate database (highly recommended) that meets the above requirements.
-
-#### Using a separate global directory
-
-To use a separate global directory with octo you must change the `octo_global_directory` setting in `octo.conf` to point to the path that contains the global directory. Using a full path to the global directory is recommended.
 
 ### TLS/SSL Configuration
 

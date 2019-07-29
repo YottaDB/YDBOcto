@@ -30,7 +30,6 @@ int handle_password_message(PasswordMessage *password_message, ErrorResponse **e
 	err_buff.offset = 0;
 	const char *error_message;
 	const unsigned int md5_hex_len = MD5_DIGEST_LENGTH * 2 + 1;
-	ydb_buffer_t z_status, z_status_value;
 
 	// Check the type of password message, for now just md5 is accepted
 	int result = strncmp(password_message->password, "md5", 3);
@@ -69,7 +68,7 @@ int handle_password_message(PasswordMessage *password_message, ErrorResponse **e
 		free(user_subs);
 		return 1;
 	} else if (YDB_OK != result) {
-		YDB_ERROR_CHECK(result, &z_status, &z_status_value);
+		YDB_ERROR_CHECK(result);
 		return 1;
 	}
 

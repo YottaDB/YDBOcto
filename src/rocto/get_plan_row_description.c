@@ -27,7 +27,6 @@ RowDescription *get_plan_row_description(ydb_buffer_t *plan_filename) {
 	RowDescription *ret;
 	RowDescriptionParm *parms;
 	ydb_buffer_t *plan_meta, value_buffer;
-	ydb_buffer_t z_status, z_status_value;
 	int status;
 	char *buff;
 
@@ -43,7 +42,7 @@ RowDescription *get_plan_row_description(ydb_buffer_t *plan_filename) {
 		if(status == YDB_ERR_NODEEND) {
 			break;
 		}
-		YDB_ERROR_CHECK(status, &z_status, &z_status_value);
+		YDB_ERROR_CHECK(status);
 		num_columns++;
 	}
 
@@ -57,10 +56,10 @@ RowDescription *get_plan_row_description(ydb_buffer_t *plan_filename) {
 		if(status == YDB_ERR_NODEEND) {
 			break;
 		}
-		YDB_ERROR_CHECK(status, &z_status, &z_status_value);
+		YDB_ERROR_CHECK(status);
 		YDB_LITERAL_TO_BUFFER("name", &plan_meta[5]);
 		status = ydb_get_s(plan_meta, 5, &plan_meta[1], &value_buffer);
-		YDB_ERROR_CHECK(status, &z_status, &z_status_value);
+		YDB_ERROR_CHECK(status);
 		buff = malloc(value_buffer.len_used + 1);
 		memcpy(buff, value_buffer.buf_addr, value_buffer.len_used);
 		buff[value_buffer.len_used] = '\0';
@@ -68,37 +67,37 @@ RowDescription *get_plan_row_description(ydb_buffer_t *plan_filename) {
 
 		YDB_LITERAL_TO_BUFFER("table_id", &plan_meta[5]);
 		status = ydb_get_s(plan_meta, 5, &plan_meta[1], &value_buffer);
-		YDB_ERROR_CHECK(status, &z_status, &z_status_value);
+		YDB_ERROR_CHECK(status);
 		value_buffer.buf_addr[value_buffer.len_used] = '\0';
 		parms[i].table_id = atoi(value_buffer.buf_addr);
 
 		YDB_LITERAL_TO_BUFFER("column_id", &plan_meta[5]);
 		status = ydb_get_s(plan_meta, 5, &plan_meta[1], &value_buffer);
-		YDB_ERROR_CHECK(status, &z_status, &z_status_value);
+		YDB_ERROR_CHECK(status);
 		value_buffer.buf_addr[value_buffer.len_used] = '\0';
 		parms[i].column_id = atoi(value_buffer.buf_addr);
 
 		YDB_LITERAL_TO_BUFFER("data_type", &plan_meta[5]);
 		status = ydb_get_s(plan_meta, 5, &plan_meta[1], &value_buffer);
-		YDB_ERROR_CHECK(status, &z_status, &z_status_value);
+		YDB_ERROR_CHECK(status);
 		value_buffer.buf_addr[value_buffer.len_used] = '\0';
 		parms[i].data_type = atoi(value_buffer.buf_addr);
 
 		YDB_LITERAL_TO_BUFFER("data_type_size", &plan_meta[5]);
 		status = ydb_get_s(plan_meta, 5, &plan_meta[1], &value_buffer);
-		YDB_ERROR_CHECK(status, &z_status, &z_status_value);
+		YDB_ERROR_CHECK(status);
 		value_buffer.buf_addr[value_buffer.len_used] = '\0';
 		parms[i].data_type_size = atoi(value_buffer.buf_addr);
 
 		YDB_LITERAL_TO_BUFFER("type_modifier", &plan_meta[5]);
 		status = ydb_get_s(plan_meta, 5, &plan_meta[1], &value_buffer);
-		YDB_ERROR_CHECK(status, &z_status, &z_status_value);
+		YDB_ERROR_CHECK(status);
 		value_buffer.buf_addr[value_buffer.len_used] = '\0';
 		parms[i].type_modifier = atoi(value_buffer.buf_addr);
 
 		YDB_LITERAL_TO_BUFFER("format_code", &plan_meta[5]);
 		status = ydb_get_s(plan_meta, 5, &plan_meta[1], &value_buffer);
-		YDB_ERROR_CHECK(status, &z_status, &z_status_value);
+		YDB_ERROR_CHECK(status);
 		value_buffer.buf_addr[value_buffer.len_used] = '\0';
 		parms[i].format_code = atoi(value_buffer.buf_addr);
 		i++;

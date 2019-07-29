@@ -44,7 +44,6 @@ int run_query(char *query, void (*callback)(SqlStatement *, int, void*, char*), 
 	int		status;
 	size_t		buffer_size = 0;
 	ydb_buffer_t	*filename_lock = NULL;
-	ydb_buffer_t	z_status, z_status_value;
 	ydb_string_t	ci_filename, ci_routine;
 
 	memory_chunks = alloc_chunk(MEMORY_CHUNK_SIZE);
@@ -68,7 +67,7 @@ int run_query(char *query, void (*callback)(SqlStatement *, int, void*, char*), 
 	YDB_MALLOC_BUFFER(&cursor_exe_global, MAX_STR_CONST);
 	YDB_STRING_TO_BUFFER(config->global_names.schema, &schema_global);
 	status = ydb_incr_s(&schema_global, 0, NULL, NULL, &cursor_exe_global);
-	YDB_ERROR_CHECK(status, &z_status, &z_status_value);
+	YDB_ERROR_CHECK(status);
 	cursor_exe_global.buf_addr[cursor_exe_global.len_used] = '\0';
 	INFO(CUSTOM_ERROR, "Generating SQL for cursor %s", cursor_exe_global.buf_addr);
 	free_memory_chunks = true;	// By default run "octo_cfree(memory_chunks)" at the end
@@ -115,10 +114,8 @@ int run_query(char *query, void (*callback)(SqlStatement *, int, void*, char*), 
 		ci_filename.length = strlen(filename);
 		ci_routine.address = routine_name;
 		ci_routine.length = routine_len;
-		SWITCH_FROM_OCTO_GLOBAL_DIRECTORY();
 		status = ydb_ci("_ydboctoselect", cursorId, &ci_filename, &ci_routine);
-		YDB_ERROR_CHECK(status, &z_status, &z_status_value);
-		SWITCH_TO_OCTO_GLOBAL_DIRECTORY();
+		YDB_ERROR_CHECK(status);
 		(*callback)(result, cursorId, parms, filename);
 		// Deciding to free the select_STATEMENT must be done by the caller, as they may want to rerun it or send row
 		// descriptions hence the decision to not free the memory_chunk below.
@@ -154,7 +151,7 @@ int run_query(char *query, void (*callback)(SqlStatement *, int, void*, char*), 
 		status = ydb_set_s(&schema_global, 2,
 				   table_name_buffers,
 				   &table_create_buffer);
-		YDB_ERROR_CHECK(status, &z_status, &z_status_value);
+		YDB_ERROR_CHECK(status);
 		char *table_buffer = NULL;
 		int length;
 		compress_statement(result, &table_buffer, &length);
@@ -174,7 +171,7 @@ int run_query(char *query, void (*callback)(SqlStatement *, int, void*, char*), 
 			status = ydb_set_s(&schema_global, 3,
 				   table_name_buffers,
 				   &table_binary_buffer);
-			YDB_ERROR_CHECK(status, &z_status, &z_status_value);
+			YDB_ERROR_CHECK(status);
 			cur_length += MAX_STR_CONST;
 			i++;
 		}
@@ -196,7 +193,7 @@ int run_query(char *query, void (*callback)(SqlStatement *, int, void*, char*), 
 		status = ydb_delete_s(&schema_global, 1,
 				      table_name_buffer,
 				      YDB_DEL_TREE);
-		YDB_ERROR_CHECK(status, &z_status, &z_status_value);
+		YDB_ERROR_CHECK(status);
 		// If we had the table loaded, drop it from memory
 		ydb_buffer_t *table_stmt = get("%ydboctoloadedschemas", 1,
 				result->v.drop->table_name->v.value->v.reference);
@@ -209,7 +206,7 @@ int run_query(char *query, void (*callback)(SqlStatement *, int, void*, char*), 
 			status = ydb_delete_s(&schema_global, 1,
 					table_name_buffer,
 					YDB_DEL_TREE);
-			YDB_ERROR_CHECK(status, &z_status, &z_status_value);
+			YDB_ERROR_CHECK(status);
 		}
 		YDB_FREE_BUFFER(table_name_buffer);
 		break;

@@ -30,6 +30,28 @@ Sample config file:
 
 .. literalinclude:: ../src/aux/octo.conf.default
 
+~~~~~~~~~~~~~~~~~~~~~
+Environment variables
+~~~~~~~~~~~~~~~~~~~~~
+
+The following environment variables must be set:
+
+* ydb_dist
+* ydb_gbldir
+* ydb_routines
+* ydb_ci
+* ydb_xc_ydbposix
+
+The environment variables `ydb_dist`, `ydb_gbldir`, and `ydb_routines` can initially be set by souring `ydb_env_set` in your YottaDB installation directory. Additional modifications to ydb_routines may be needed due to configuration in `octo.conf` described later in this manual.
+
+Example setting of the environment variables (assuming default paths):
+
+.. parsed-literal::
+   source /usr/local/lib/yottadb/r1.26/ydb_env_set
+   export ydb_routines=". $ydb_routines"
+   export ydb_ci=$ydb_dist/plugin/ydbocto.ci
+   export ydb_xc_ydbposix=$ydb_dist/plugin/ydbposix.xc
+
 ~~~~~~~~~~~~~~
 Routines
 ~~~~~~~~~~~~~~

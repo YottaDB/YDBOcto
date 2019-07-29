@@ -104,6 +104,27 @@ Octo currently looks for a configuration file in the following directories:
 
 If the same setting exists in more than one configuration file the setting in the later file (according to the list above) will prevail. An example config file can be found in `$ydb_dist/plugin/etc/octo.conf`.
 
+### Environment variables
+
+The following environment variables must be set:
+
+* ydb_dist
+* ydb_gbldir
+* ydb_routines
+* ydb_ci
+* ydb_xc_ydbposix
+
+The environment variables `ydb_dist`, `ydb_gbldir`, and `ydb_routines` can initially be set by souring `ydb_env_set` in your YottaDB installation directory. Additional modifications to ydb_routines may be needed due to configuration in `octo.conf` described later in this manual.
+
+Example setting of the environment variables (assuming default paths):
+
+```sh
+source /usr/local/lib/yottadb/r1.26/ydb_env_set
+export ydb_routines=". $ydb_routines"
+export ydb_ci=$ydb_dist/plugin/ydbocto.ci
+export ydb_xc_ydbposix=$ydb_dist/plugin/ydbposix.xc
+```
+
 ### Routines
 
 Octo requires that `$ydb_dist/plugin/o/_ydbocto.so` and the path configured for `routine_cache` setting in `octo.conf` be part of `$ydb_routines` - both for running the `octo` and `rocto` excutables and added to your normal environment setup scripts as YottaDB triggers are used to maintain cross references for Octo.

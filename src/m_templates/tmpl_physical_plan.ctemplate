@@ -293,7 +293,7 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
     if(plan->set_operation == PP_INTERSECT_SET) {
         %}
     SET var="^|""{{ config->global_directory }}""|{{ config->global_names.raw_cursor }}("_cursorId_",""index"")" FOR  SET var=$Q(@var),var=$Q(@var) QUIT:$PIECE(var,",",2)'="""index"""  DO
-    . SET index=$PIECE($PIECE(var,",",$LENGTH(var,",")),")",1),^index($i(dsfasf))=index
+    . SET index=$PIECE($PIECE(var,",",$LENGTH(var,",")),")",1)
     . KILL:index'="" {%
     TMPL(tmpl_key, plan->outputKey);
     // Go back on in the buffer

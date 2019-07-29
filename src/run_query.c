@@ -37,7 +37,7 @@ int run_query(char *query, void (*callback)(SqlStatement *, int, void*, char*), 
 	SqlStatement	*result;
 	SqlValue	*value;
 	bool		free_memory_chunks;
-	char		*buffer, filename[MAX_STR_CONST], routine_name[MAX_ROUTINE_LEN];
+	char		*buffer, filename[OCTO_PATH_MAX], routine_name[MAX_ROUTINE_LEN];
 	gtm_long_t	cursorId;
 	hash128_state_t	state;
 	int		done, routine_len = 0;
@@ -91,8 +91,9 @@ int run_query(char *query, void (*callback)(SqlStatement *, int, void*, char*), 
 		if (routine_len < 0) {
 			FATAL(ERR_PLAN_HASH_FAILED, "");
 		}
-		snprintf(filename, MAX_STR_CONST, "%s/_%s.m", config->tmp_dir, &routine_name[1]);
+		GET_FULL_PATH_OF_GENERATED_M_FILE(filename, &routine_name[1]);	/* updates "filename" to be full path */
 		if (access(filename, F_OK) == -1) {	// file doesn't exist
+			INFO(CUSTOM_ERROR, "Generating M file [%s] (to execute SQL query)", filename);
 			filename_lock = make_buffers("^%ydboctoocto", 2, "files", filename);
 			// Wait for 5 seconds in case another process is writing to same filename
 			ydb_lock_incr_s(5000000000, &filename_lock[0], 2, &filename_lock[1]);
@@ -108,6 +109,8 @@ int run_query(char *query, void (*callback)(SqlStatement *, int, void*, char*), 
 			}
 			ydb_lock_decr_s(&filename_lock[0], 2, &filename_lock[1]);
 			free(filename_lock);
+		} else {
+			INFO(CUSTOM_ERROR, "Using already generated M file [%s] (to execute SQL query)", filename);
 		}
 		cursorId = atol(cursor_exe_global.buf_addr);
 		ci_filename.address = filename;

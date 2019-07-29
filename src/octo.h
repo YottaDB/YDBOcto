@@ -82,6 +82,28 @@
 // Specify character for delimiting column values in Octo
 #define COLUMN_DELIMITER "|"
 
+#define GET_FULL_PATH_OF_GENERATED_M_FILE(FILENAME, ROUTINE_NAME)						\
+{														\
+	unsigned int	want_to_write;										\
+	int		len;											\
+	const char		*tmp_dir;									\
+														\
+	tmp_dir = config->tmp_dir;										\
+	assert(NULL != tmp_dir);										\
+	len = strlen(tmp_dir);											\
+	assert(len);												\
+	if ('/' == tmp_dir[len - 1]) {										\
+		/* tmp_dir already has a trailing '/' so no need to add a '/' before the file name */		\
+		want_to_write = snprintf(FILENAME, sizeof(FILENAME), "%s_%s.m", tmp_dir, ROUTINE_NAME);		\
+	} else {												\
+		/* tmp_dir does not have a trailing '/' so need to add a '/' before the file name */		\
+		want_to_write = snprintf(FILENAME, sizeof(FILENAME), "%s/_%s.m", tmp_dir, ROUTINE_NAME);	\
+	}													\
+	if (want_to_write >= (int)sizeof(FILENAME)) {								\
+		FATAL(ERR_BUFFER_TOO_SMALL, "");								\
+	}													\
+}
+
 int emit_column_specification(char *buffer, int buffer_size, SqlColumn *column);
 void emit_create_table(FILE *output, struct SqlStatement *stmt);
 // Recursively copies all of stmt, including making copies of strings

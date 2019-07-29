@@ -38,7 +38,7 @@ int handle_describe(Describe *describe, RoctoSession *session) {
 	RowDescription *description;
 	NoData *no_data;
 	hash128_state_t state;
-	char filename[MAX_STR_CONST];
+	char filename[OCTO_PATH_MAX];
 	char routine_name[MAX_STR_CONST];
 	ydb_buffer_t *filename_lock = NULL;
 
@@ -120,11 +120,10 @@ int handle_describe(Describe *describe, RoctoSession *session) {
 				if (routine_len < 0) {
 					FATAL(ERR_PLAN_HASH_FAILED, "");
 				}
-				int want_to_write = snprintf(filename, MAX_STR_CONST, "%s/_%s.m", config->tmp_dir, &routine_name[1]);
-				if(want_to_write > MAX_STR_CONST) {
-					FATAL(ERR_BUFFER_TOO_SMALL, "");
-				}
+				GET_FULL_PATH_OF_GENERATED_M_FILE(filename, &routine_name[1]);	// updates "filename" to be
+												// full path
 				if (access(filename, F_OK) == -1) {	// file doesn't exist
+					INFO(CUSTOM_ERROR, "Generating M file [%s] (to execute SQL query)", filename);
 					filename_lock = make_buffers("^%ydboctoocto", 2, "files", filename);
 					// Wait for 5 seconds in case another process is writing to same filename
 					ydb_lock_incr_s(5000000000, &filename_lock[0], 2, &filename_lock[1]);
@@ -147,6 +146,8 @@ int handle_describe(Describe *describe, RoctoSession *session) {
 					}
 					ydb_lock_decr_s(&filename_lock[0], 2, &filename_lock[1]);
 					free(filename_lock);
+				} else {
+					INFO(CUSTOM_ERROR, "Using already generated M file [%s] (to execute SQL query)", filename);
 				}
 				plan_name_b.buf_addr = filename;
 				plan_name_b.len_alloc = plan_name_b.len_used = strlen(filename);

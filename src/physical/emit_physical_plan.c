@@ -51,7 +51,7 @@ int emit_physical_plan(PhysicalPlan *pplan, char *plan_filename) {
 	int plan_id, len, fd;
 	PhysicalPlan *cur_plan = pplan, *first_plan;
 	char *buffer, plan_name_buffer[MAX_STR_CONST];
-	char filename[MAX_STR_CONST], *routine_name, *tableName, *columnName;
+	char filename[OCTO_PATH_MAX], *routine_name, *tableName, *columnName;
 	char *tmp_plan_filename = NULL;
 	unsigned int routine_name_len, plan_filename_len;
 	SqlValue *value;
@@ -100,7 +100,8 @@ int emit_physical_plan(PhysicalPlan *pplan, char *plan_filename) {
 		}
 		// Convert '%' to '_'
 		key->cross_reference_filename = routine_name;
-		snprintf(filename, MAX_STR_CONST, "%s/_%s.m", config->tmp_dir, &routine_name[1]);
+		GET_FULL_PATH_OF_GENERATED_M_FILE(filename, &routine_name[1]);	/* updates "filename" to be full path */
+		INFO(CUSTOM_ERROR, "Generating helper cross reference M file [%s]", filename);
 		output_file = fopen(filename, "w");
 		if(output_file == NULL) {
 			FATAL(ERR_SYSCALL, "fopen", errno, strerror(errno));

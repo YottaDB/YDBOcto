@@ -143,3 +143,10 @@ OCTO
   [[ "$log" =~ "FATAL" ]]
   [[ "$log" =~ "YottaDB TLS plugin not installed" ]]
 }
+
+@test "ensure socket cleanup when rocto process is killed" {
+  kill -9 $(cat rocto.pid)
+  start_rocto
+  log=$(cat rocto.log)
+  [[ ! "$log" =~ "System error 98: Address already in use" ]]
+}

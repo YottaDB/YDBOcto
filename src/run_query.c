@@ -31,7 +31,7 @@
 #include "lexer.h"
 #include "helpers.h"
 
-int run_query(char *query, void (*callback)(SqlStatement *, int, void*, char*), void *parms) {
+int run_query(char *sql_query, void (*callback)(SqlStatement *, int, void*, char*), void *parms) {
 	FILE		*out;
 	PhysicalPlan	*pplan;
 	SqlStatement	*result;
@@ -48,8 +48,8 @@ int run_query(char *query, void (*callback)(SqlStatement *, int, void*, char*), 
 
 	memory_chunks = alloc_chunk(MEMORY_CHUNK_SIZE);
 
-	result = parse_line(query);
-	INFO(CUSTOM_ERROR, "Parsing done for SQL command [%s]", query);
+	result = parse_line(sql_query);
+	INFO(CUSTOM_ERROR, "Parsing done for SQL command [%s]", sql_query);
 	if(result == NULL) {
 		INFO(CUSTOM_ERROR, "Returning failure from run_query");
 		octo_cfree(memory_chunks);
@@ -98,7 +98,7 @@ int run_query(char *query, void (*callback)(SqlStatement *, int, void*, char*), 
 			// Wait for 5 seconds in case another process is writing to same filename
 			ydb_lock_incr_s(5000000000, &filename_lock[0], 2, &filename_lock[1]);
 			if (access(filename, F_OK) == -1) {
-				pplan = emit_select_statement(result, filename);
+				pplan = emit_select_statement(sql_query, result, filename);
 				if(pplan == NULL) {
 					octo_cfree(memory_chunks);
 					ydb_lock_decr_s(&filename_lock[0], 2, &filename_lock[1]);
@@ -226,7 +226,7 @@ int run_query(char *query, void (*callback)(SqlStatement *, int, void*, char*), 
 		(*callback)(result, cursorId, parms, NULL);
 		break;
 	default:
-		FATAL(ERR_FEATURE_NOT_IMPLEMENTED, query);
+		FATAL(ERR_FEATURE_NOT_IMPLEMENTED, sql_query);
 	}
 	YDB_FREE_BUFFER(&cursor_exe_global);
 	if (free_memory_chunks) {

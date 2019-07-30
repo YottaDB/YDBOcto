@@ -47,7 +47,7 @@ void generateHash(EVP_MD_CTX *mdctx, const char *message, size_t message_len, un
 	}
 }
 
-int emit_physical_plan(PhysicalPlan *pplan, char *plan_filename) {
+int emit_physical_plan(char *sql_query, PhysicalPlan *pplan, char *plan_filename) {
 	int plan_id, len, fd;
 	PhysicalPlan *cur_plan = pplan, *first_plan;
 	char *buffer, plan_name_buffer[MAX_STR_CONST];
@@ -146,6 +146,26 @@ int emit_physical_plan(PhysicalPlan *pplan, char *plan_filename) {
 		return FALSE;
 	}
 
+	char *hyphenline = "---------------------------------------------------------", *linestart, *lineend;
+	fprintf(output_file,
+		";; This is a generated file; do not modify. Generated M code corresponds to below SQL query\n;; %s\n",
+		hyphenline);
+	// sql_query would contain '\n'; Ensure after every newline, an M comment is printed for the next line of the SQL query
+	for (linestart = sql_query; ; )
+	{
+		lineend = strchr(linestart, '\n');
+		if (NULL != lineend)
+		{
+			fprintf(output_file, ";  %.*s\n", (int)(lineend - linestart), linestart);
+			linestart = lineend + 1;	/* + 1 to skip past matching '\n' to go to next line to print */
+		} else
+		{
+			if ('\0' != *linestart)
+				fprintf(output_file, ";; %s\n", linestart);
+			break;
+		}
+	}
+	fprintf(output_file, ";; %s\n", hyphenline);
 	// Emit most of the plans, except for deferred and xref plans
 	cur_plan = first_plan;
 	do {
@@ -161,7 +181,6 @@ int emit_physical_plan(PhysicalPlan *pplan, char *plan_filename) {
 			break;
 		cur_plan->filename = filename;
 		tmpl_physical_plan(buffer, MAX_ROUTINE_LENGTH, cur_plan);
-		assert(output_file != NULL);
 		fprintf(output_file, "%s\n", buffer);
 		cur_plan = cur_plan->next;
 	} while(cur_plan != NULL);
@@ -181,7 +200,6 @@ int emit_physical_plan(PhysicalPlan *pplan, char *plan_filename) {
 			break;
 		cur_plan->filename = filename;
 		tmpl_physical_plan(buffer, MAX_ROUTINE_LENGTH, cur_plan);
-		assert(output_file != NULL);
 		fprintf(output_file, "%s\n", buffer);
 		cur_plan = cur_plan->next;
 	} while(cur_plan != NULL);

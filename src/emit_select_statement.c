@@ -30,7 +30,7 @@
  * Returns a table describing the temporary table containing the resulting
  *  values
  */
-PhysicalPlan *emit_select_statement(SqlStatement *stmt, char *plan_filename)
+PhysicalPlan *emit_select_statement(char *sql_query, SqlStatement *stmt, char *plan_filename)
 {
 	SqlColumn *column;
 	SqlValue *value;
@@ -71,85 +71,82 @@ PhysicalPlan *emit_select_statement(SqlStatement *stmt, char *plan_filename)
 	pplan = NULL;
 	options.last_plan = &pplan;
 	pplan = generate_physical_plan(plan, &options);
-	if (plan_filename) {
-		emit_physical_plan(pplan, plan_filename);
-	}
+	assert(NULL != plan_filename);
+	emit_physical_plan(sql_query, pplan, plan_filename);
 	while(pplan->next != NULL)
 		pplan = pplan->next;
 
 	// convert output key to string
 	snprintf(output_key, MAX_STR_CONST, "%d", pplan->outputKey->unique_id);
-	if(plan_filename) {
-		set(output_key, config->global_names.octo, 3, "plan_metadata", plan_filename, "output_key");
-		plan_meta = make_buffers(config->global_names.octo, 5, "plan_metadata", plan_filename,
-				"output_columns", "", "");
-		plan_meta[4].len_alloc = MAX_STR_CONST;
-		plan_meta[4].buf_addr = column_id_buffer;
+	set(output_key, config->global_names.octo, 3, "plan_metadata", plan_filename, "output_key");
+	plan_meta = make_buffers(config->global_names.octo, 5, "plan_metadata", plan_filename,
+			"output_columns", "", "");
+	plan_meta[4].len_alloc = MAX_STR_CONST;
+	plan_meta[4].buf_addr = column_id_buffer;
 
-		// Note down column data types
-		int num_columns = 0, status = 0;
-		cur_plan = pplan->projection;
-		do {
-			assert(cur_plan->type == LP_COLUMN_LIST);
-			GET_LP(column_alias, cur_plan, 0, LP_WHERE);
-			if(column_alias->v.operand[1] != NULL) {
-				GET_LP(column_alias, column_alias, 1, LP_COLUMN_LIST_ALIAS);
-				UNPACK_SQL_STATEMENT(value, column_alias->v.column_list_alias->alias, value);
-				// This assumes the SqlValue will outlive this RowDescription
-			} else {
-				GET_LP(column_alias, column_alias, 0, LP_COLUMN_ALIAS);
-				UNPACK_SQL_STATEMENT(column, column_alias->v.column_alias->column, column);
-				UNPACK_SQL_STATEMENT(value, column->columnName, value);
-			}
-			num_columns++;
-			plan_meta[4].len_used = snprintf(column_id_buffer, MAX_STR_CONST, "%d", num_columns);
+	// Note down column data types
+	int num_columns = 0, status = 0;
+	cur_plan = pplan->projection;
+	do {
+		assert(cur_plan->type == LP_COLUMN_LIST);
+		GET_LP(column_alias, cur_plan, 0, LP_WHERE);
+		if(column_alias->v.operand[1] != NULL) {
+			GET_LP(column_alias, column_alias, 1, LP_COLUMN_LIST_ALIAS);
+			UNPACK_SQL_STATEMENT(value, column_alias->v.column_list_alias->alias, value);
+			// This assumes the SqlValue will outlive this RowDescription
+		} else {
+			GET_LP(column_alias, column_alias, 0, LP_COLUMN_ALIAS);
+			UNPACK_SQL_STATEMENT(column, column_alias->v.column_alias->column, column);
+			UNPACK_SQL_STATEMENT(value, column->columnName, value);
+		}
+		num_columns++;
+		plan_meta[4].len_used = snprintf(column_id_buffer, MAX_STR_CONST, "%d", num_columns);
 
-			YDB_LITERAL_TO_BUFFER("name", &plan_meta[5]);
-			value_buffer.buf_addr = value->v.string_literal;
-			value_buffer.len_used = value_buffer.len_alloc = strlen(value_buffer.buf_addr);
-			status = ydb_set_s(plan_meta, 5, &plan_meta[1], &value_buffer);
-			YDB_ERROR_CHECK(status);
+		YDB_LITERAL_TO_BUFFER("name", &plan_meta[5]);
+		value_buffer.buf_addr = value->v.string_literal;
+		value_buffer.len_used = value_buffer.len_alloc = strlen(value_buffer.buf_addr);
+		status = ydb_set_s(plan_meta, 5, &plan_meta[1], &value_buffer);
+		YDB_ERROR_CHECK(status);
 
-			YDB_LITERAL_TO_BUFFER("table_id", &plan_meta[5]);
-			value_buffer.buf_addr = "0";
-			value_buffer.len_used = value_buffer.len_alloc = strlen(value_buffer.buf_addr);
-			status = ydb_set_s(plan_meta, 5, &plan_meta[1], &value_buffer);
-			YDB_ERROR_CHECK(status);
+		YDB_LITERAL_TO_BUFFER("table_id", &plan_meta[5]);
+		value_buffer.buf_addr = "0";
+		value_buffer.len_used = value_buffer.len_alloc = strlen(value_buffer.buf_addr);
+		status = ydb_set_s(plan_meta, 5, &plan_meta[1], &value_buffer);
+		YDB_ERROR_CHECK(status);
 
-			YDB_LITERAL_TO_BUFFER("column_id", &plan_meta[5]);
-			value_buffer.buf_addr = "0";
-			value_buffer.len_used = value_buffer.len_alloc = strlen(value_buffer.buf_addr);
-			status = ydb_set_s(plan_meta, 5, &plan_meta[1], &value_buffer);
-			YDB_ERROR_CHECK(status);
+		YDB_LITERAL_TO_BUFFER("column_id", &plan_meta[5]);
+		value_buffer.buf_addr = "0";
+		value_buffer.len_used = value_buffer.len_alloc = strlen(value_buffer.buf_addr);
+		status = ydb_set_s(plan_meta, 5, &plan_meta[1], &value_buffer);
+		YDB_ERROR_CHECK(status);
 
-			YDB_LITERAL_TO_BUFFER("data_type", &plan_meta[5]);
-			value_buffer.buf_addr = "25";
-			value_buffer.len_used = value_buffer.len_alloc = strlen(value_buffer.buf_addr);
-			status = ydb_set_s(plan_meta, 5, &plan_meta[1], &value_buffer);
-			YDB_ERROR_CHECK(status);
+		YDB_LITERAL_TO_BUFFER("data_type", &plan_meta[5]);
+		value_buffer.buf_addr = "25";
+		value_buffer.len_used = value_buffer.len_alloc = strlen(value_buffer.buf_addr);
+		status = ydb_set_s(plan_meta, 5, &plan_meta[1], &value_buffer);
+		YDB_ERROR_CHECK(status);
 
-			YDB_LITERAL_TO_BUFFER("data_type_size", &plan_meta[5]);
-			value_buffer.buf_addr = "-1";
-			value_buffer.len_used = value_buffer.len_alloc = strlen(value_buffer.buf_addr);
-			status = ydb_set_s(plan_meta, 5, &plan_meta[1], &value_buffer);
-			YDB_ERROR_CHECK(status);
+		YDB_LITERAL_TO_BUFFER("data_type_size", &plan_meta[5]);
+		value_buffer.buf_addr = "-1";
+		value_buffer.len_used = value_buffer.len_alloc = strlen(value_buffer.buf_addr);
+		status = ydb_set_s(plan_meta, 5, &plan_meta[1], &value_buffer);
+		YDB_ERROR_CHECK(status);
 
-			YDB_LITERAL_TO_BUFFER("type_modifier", &plan_meta[5]);
-			value_buffer.buf_addr = "-1";
-			value_buffer.len_used = value_buffer.len_alloc = strlen(value_buffer.buf_addr);
-			status = ydb_set_s(plan_meta, 5, &plan_meta[1], &value_buffer);
-			YDB_ERROR_CHECK(status);
+		YDB_LITERAL_TO_BUFFER("type_modifier", &plan_meta[5]);
+		value_buffer.buf_addr = "-1";
+		value_buffer.len_used = value_buffer.len_alloc = strlen(value_buffer.buf_addr);
+		status = ydb_set_s(plan_meta, 5, &plan_meta[1], &value_buffer);
+		YDB_ERROR_CHECK(status);
 
-			YDB_LITERAL_TO_BUFFER("format_code", &plan_meta[5]);
-			value_buffer.buf_addr = "0";
-			value_buffer.len_used = value_buffer.len_alloc = strlen(value_buffer.buf_addr);
-			status = ydb_set_s(plan_meta, 5, &plan_meta[1], &value_buffer);
-			YDB_ERROR_CHECK(status);
-			cur_plan = cur_plan->v.operand[1];
-		} while(cur_plan != NULL);
+		YDB_LITERAL_TO_BUFFER("format_code", &plan_meta[5]);
+		value_buffer.buf_addr = "0";
+		value_buffer.len_used = value_buffer.len_alloc = strlen(value_buffer.buf_addr);
+		status = ydb_set_s(plan_meta, 5, &plan_meta[1], &value_buffer);
+		YDB_ERROR_CHECK(status);
+		cur_plan = cur_plan->v.operand[1];
+	} while(cur_plan != NULL);
 
-		free(plan_meta);
-	}
+	free(plan_meta);
 
 	// Create a table from the last physical table which reads from the output
 	//  values

@@ -110,3 +110,11 @@ WHERE n1.firstName IN (SELECT n2.firstName
 OCTO
   verify_output T0014 output.txt
 }
+
+@test "T0015 Multiple plans resulting from WHERE IN usage do not nest but instead thread" {
+  octo <<OCTO 2>&1 | tee output.txt
+  SELECT firstName FROM names WHERE firstName IN ('Zero', 'Acid', 'Cool');
+OCTO
+  grep -E 'QUIT$|octoPlan' _ydboctoP*.m > physicalplan.txt
+  verify_output T0015 physicalplan.txt
+}

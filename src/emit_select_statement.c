@@ -73,8 +73,6 @@ PhysicalPlan *emit_select_statement(char *sql_query, SqlStatement *stmt, char *p
 	pplan = generate_physical_plan(plan, &options);
 	assert(NULL != plan_filename);
 	emit_physical_plan(sql_query, pplan, plan_filename);
-	while(pplan->next != NULL)
-		pplan = pplan->next;
 
 	// convert output key to string
 	snprintf(output_key, MAX_STR_CONST, "%d", pplan->outputKey->unique_id);

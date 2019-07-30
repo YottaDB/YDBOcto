@@ -1,0 +1,11 @@
+octoPlan0(cursorId)
+    DO octoPlan1(cursorId)
+    DO octoPlan2(cursorId)
+    DO octoPlan3(cursorId)
+    QUIT
+octoPlan1(cursorId)
+    QUIT
+octoPlan2(cursorId)
+    QUIT
+octoPlan3(cursorId)
+    QUIT

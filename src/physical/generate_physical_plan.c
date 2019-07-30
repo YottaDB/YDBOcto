@@ -30,13 +30,11 @@ PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlanOptions *opt
 	LogicalPlan *keys, *table_joins, *select, *insert, *output_key, *output;
 	LogicalPlan *set_operation;
 	PhysicalPlan *out, *prev = NULL;
-	int table_count;
 
 	PhysicalPlanOptions curr_plan;
 	curr_plan = *options;
 
-	table_count = 0;
-
+	assert((LP_INSERT == plan->type) || (LP_SET_OPERATION == plan->type));
 	// If this is a union plan, construct physical plans for the two children
 	if(plan->type == LP_SET_OPERATION) {
 		out = generate_physical_plan(plan->v.operand[1]->v.operand[1], &curr_plan);
@@ -132,7 +130,6 @@ PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlanOptions *opt
 		//  this will be null and we need to skip this step
 		if(table_joins->v.operand[0] == NULL)
 			break;
-		table_count++;
 		if(table_joins->v.operand[0]->type == LP_INSERT) {
 			// This is a sub plan, and should be inserted as prev
 			GET_LP(insert, table_joins, 0, LP_INSERT);

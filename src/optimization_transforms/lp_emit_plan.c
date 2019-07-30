@@ -21,7 +21,11 @@
 int emit_plan_helper(char *buffer, size_t buffer_len, int depth, LogicalPlan *plan);
 
 int lp_emit_plan(char *buffer, size_t buffer_len, LogicalPlan *plan) {
-	return emit_plan_helper(buffer, buffer_len, 0, plan);
+	char *buff_ptr = buffer;
+	size_t written;
+
+	SAFE_SNPRINTF(written, buff_ptr, buffer, buffer_len, "\n");
+	return emit_plan_helper(buff_ptr, buffer_len - (buff_ptr - buffer), 0, plan);
 }
 
 int emit_plan_helper(char *buffer, size_t buffer_len, int depth, LogicalPlan *plan) {

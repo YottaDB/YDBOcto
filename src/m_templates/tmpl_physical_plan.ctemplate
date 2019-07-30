@@ -21,7 +21,6 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
     SqlKey *key, *t_key;
     SqlColumnAlias *column_alias;
     SqlValue *value;
-    PhysicalPlan *next_plan;
     SqlOptionalKeyword *keyword;
     LogicalPlan *lp_temp;
     char *tableName = "";
@@ -33,13 +32,12 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
     int resume_length;
 
     %}
-;; This is a generated file; do not modify.
 {{ plan->plan_name }}(cursorId)
     {% // The whitespace here is needed for proper M formatting
 
 
     // Check if there are any cross references that need to be built
-    // If this a plan for a cross reference, but safeguards in place to prevent building twice
+    // If this a plan for a cross reference, put safeguards in place to prevent building twice
     if(plan->outputKey && plan->outputKey->is_cross_reference_key) {
         UNPACK_SQL_STATEMENT(value, plan->outputKey->table->tableName, value);
         tableName = value->v.reference;
@@ -304,13 +302,6 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
     %}
     SET ^{{ config->global_names.raw_octo }}("xref_status","{{ tableName }}","{{ columnName }}")="done"
     LOCK -^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}"){%
-    } else if(plan->next && !plan->deferred_plan) {
-        next_plan = plan->next;
-        while(next_plan->outputKey && next_plan->outputKey->is_cross_reference_key) {
-            next_plan = next_plan->next;
-        }
-        %}
-    DO {{ next_plan->plan_name }}(cursorId){%
     }
     %}
     QUIT{%

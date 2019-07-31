@@ -127,7 +127,7 @@ export ydb_xc_ydbposix=$ydb_dist/plugin/ydbposix.xc
 
 ### Routines
 
-Octo requires that `$ydb_dist/plugin/o/_ydbocto.so` and the path configured for `routine_cache` setting in `octo.conf` be part of `$ydb_routines` - both for running the `octo` and `rocto` excutables and added to your normal environment setup scripts as YottaDB triggers are used to maintain cross references for Octo.
+Octo requires that `$ydb_dist/plugin/o/_ydbocto.so`, `$ydb_dist/plugin/o/_ydbposix.so`, and the path configured for `routine_cache` setting in `octo.conf` be part of `$ydb_routines` - both for running the `octo` and `rocto` excutables and added to your normal environment setup scripts as YottaDB triggers are used to maintain cross references for Octo.
 
 ### Globals
 

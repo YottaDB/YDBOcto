@@ -35,10 +35,10 @@ OCTO
 
 @test "order by firstName descending where lastName = Buttons" {
   octo <<OCTO &> output.txt
-select * from names3 where lastName = "Buttons" order by firstName desc;
+select * from names3
+where lastName = "Buttons" order by firstName desc;
 OCTO
-  # Not implemented, need to circumvent error message timestamp
-  [[ "$(grep -c "WARN" output.txt)" == "1" ]]
+  verify_output T1002 output.txt
 }
 
 @test "order by id ascending where lastName = Buttons" {
@@ -59,8 +59,7 @@ OCTO
   octo <<OCTO &> output.txt
 select * from names3 where lastName = "Buttons" order by id desc;
 OCTO
-  # Not implemented, need to circumvent error message timestamp
-  [[ "$(grep -c "WARN" output.txt)" == "1" ]]
+  verify_output T1005 output.txt
 }
 
 @test "order by lastName ascending where firstName = Zero" {
@@ -81,8 +80,7 @@ OCTO
   octo <<OCTO &> output.txt
 select * from names3 where firstName = "Zero" order by lastName desc;
 OCTO
-  # Not implemented, need to circumvent error message timestamp
-  [[ "$(grep -c "WARN" output.txt)" == "1" ]]
+  verify_output T1008 output.txt
 }
 
 @test "order by id ascending where firstName = Zero" {
@@ -103,6 +101,5 @@ OCTO
   octo <<OCTO &> output.txt
 select * from names3 where firstName = "Zero" order by id desc;
 OCTO
-  # Not implemented, need to circumvent error message timestamp
-  [[ "$(grep -c "WARN" output.txt)" == "1" ]]
+  verify_output T1011 output.txt
 }

@@ -1,0 +1,15 @@
+OCTO> select pastas.id, firstName, lastName, pastaName from names4
+OCTO> inner join pastas on pastas.pastaName = names4.favoritePasta
+OCTO> order by pastas.id desc;
+[ WARN] PATH:LINENUM DATE TIME : Feature not implemented: order by desc
+1|Acid|Burn|Cavatelli
+1|Bobby|Buttons|Cavatelli
+1|Betty|Buttons|Cavatelli
+5|Lord|Nikon|Rotini
+5|Zero|Day|Rotini
+6|Cereal|Killer|Penne
+7|Acid|House|Orechiette
+8|Zero|Lame|Lasagna
+9|Zero|Cool|Pappardelle
+9|Joey||Pappardelle
+OCTO> 

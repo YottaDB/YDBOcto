@@ -66,7 +66,7 @@ OCTO
   echo "select * from names;" > quit.sql
   echo "quit" >> quit.sql
   octo -f quit.sql >& output.txt
-  verify_output TE007 output.txt
+  verify_output TE006 output.txt
 }
 
 @test "attempt query after quit command using octo -f" {
@@ -75,5 +75,5 @@ OCTO
   echo "select * from names;" >> quit.sql
   octo -f quit.sql >& output.txt
   # The output should be the same as the previous test
-  verify_output TE007 output.txt
+  verify_output TE006 output.txt
 }

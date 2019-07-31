@@ -48,6 +48,16 @@ cd bats-core
 ./install.sh /usr/local
 cd ..
 
+# Check repo for unused outref files
+pushd ../tests
+unused_outrefs=$(../tools/ci/find_unused_outrefs.sh)
+if [ 0 -gt $(echo -n $unused_outrefs | wc -l) ]; then
+  echo "Unused outrefs found!"
+  echo "$unused_outrefs"
+  exit 1
+fi
+popd
+
 # Configure the build system for Octo
 ${cmakeCommand} -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_INSTALL_PREFIX=${ydb_dist}/plugin ..
 

@@ -43,8 +43,7 @@ select pastas.id, firstName, lastName, pastaName from names4
 inner join pastas on pastas.pastaName = names4.favoritePasta
 order by pastas.id desc;
 OCTO
-  # Not implemented, need to circumvent error message timestamp
-  [[ "$(grep -c "WARN" output.txt)" == "1" ]]
+  verify_output T2002 output.txt
 }
 
 @test "inner join pastas order by lastName ascending" {
@@ -71,8 +70,7 @@ select pastas.id, firstName, lastName, pastaName from names4
 inner join pastas on pastas.pastaName = names4.favoritePasta
 order by lastName desc;
 OCTO
-  # Not implemented, need to circumvent error message timestamp
-  [[ "$(grep -c "WARN" output.txt)" == "1" ]]
+  verify_output T2005 output.txt
 }
 
 @test "inner join pastas order by firstName ascending" {
@@ -99,8 +97,7 @@ select pastas.id, firstName, lastName, pastaName from names4
 inner join pastas on pastas.pastaName = names4.favoritePasta
 order by firstName desc;
 OCTO
-  # Not implemented, need to circumvent error message timestamp
-  [[ "$(grep -c "WARN" output.txt)" == "1" ]]
+  verify_output T2008 output.txt
 }
 
 @test "inner join pastas order by pastaName ascending" {
@@ -109,7 +106,7 @@ select pastas.id, firstName, lastName, pastaName from names4
 inner join pastas on pastas.pastaName = names4.favoritePasta
 order by pastaName;
 OCTO
-  verify_output T2008 output.txt
+  verify_output T2009 output.txt
 }
 
 @test "inner join pastas order by pastaName ascending explicit" {
@@ -118,7 +115,7 @@ select pastas.id, firstName, lastName, pastaName from names4
 inner join pastas on pastas.pastaName = names4.favoritePasta
 order by pastaName asc;
 OCTO
-  verify_output T2009 output.txt
+  verify_output T2010 output.txt
 }
 
 @test "inner join pastas order by pastaName descending" {
@@ -127,6 +124,5 @@ select pastas.id, firstName, lastName, pastaName from names4
 inner join pastas on pastas.pastaName = names4.favoritePasta
 order by pastaName desc;
 OCTO
-  # Not implemented, need to circumvent error message timestamp
-  [[ "$(grep -c "WARN" output.txt)" == "1" ]]
+  verify_output T2011 output.txt
 }

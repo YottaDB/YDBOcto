@@ -160,8 +160,16 @@ verify_output() {
   echo "Comparing outref/$1 $2"
   copy_test_files outref/$1.ref
 
+  # filter verbosity statements
   sed '/^INFO:/d' $2 > noinfo.txt
   sed '/^DEBUG:/,/^$/d' noinfo.txt > nodebug.txt
+
+  # filter time and dates
+  sed -i 's/[0-9]\{4\}-[0-9]\{2\}-[0-9]\{2\}/DATE/' nodebug.txt
+  sed -i 's/[0-9]\{2\}:[0-9]\{2\}:[0-9]\{2\}/TIME/' nodebug.txt
+
+  # filter file path
+  sed -i 's/\/.*\/parser\.y:[0-9]*/PATH:LINENUM/' nodebug.txt
 
   diff outref/$1.ref nodebug.txt
   return

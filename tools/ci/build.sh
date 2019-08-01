@@ -51,9 +51,19 @@ cd ..
 # Check repo for unused outref files
 pushd ../tests
 unused_outrefs=$(../tools/ci/find_unused_outrefs.sh)
-if [ 0 -gt $(echo -n $unused_outrefs | wc -l) ]; then
+if [ "$unused_outrefs" != "" ]; then
   echo "Unused outrefs found!"
   echo "$unused_outrefs"
+  exit 1
+fi
+popd
+
+# Check repo for unused test files
+pushd ../cmake
+unused_tests=$(../tools/ci/find_unused_tests.sh)
+if [ "$unused_tests" != "" ]; then
+  echo "Unused test files found!"
+  echo "$unused_tests"
   exit 1
 fi
 popd

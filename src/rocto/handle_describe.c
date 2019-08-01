@@ -84,13 +84,13 @@ int handle_describe(Describe *describe, RoctoSession *session) {
 		statement = parse_line(input_buffer_combined);
 		if(statement == NULL) {
 			fflush(err_buffer);
-			fclose(err_buffer);
 			err = make_error_response(PSQL_Error_ERROR,
 					PSQL_Code_Syntax_Error,
 					err_buff,
 					0);
 			send_message(session, (BaseMessage*)(&err->type));
 			free_error_response(err);
+			fclose(err_buffer);
 			free(err_buff);
 			err_buffer = open_memstream(&err_buff, &err_buff_size);
 			octo_cfree(memory_chunks);
@@ -132,12 +132,18 @@ int handle_describe(Describe *describe, RoctoSession *session) {
 						if(pplan == NULL) {
 							ydb_lock_decr_s(&filename_lock[0], 2, &filename_lock[1]);
 							free(filename_lock);
+							// Need to "fflush" the stream returned by "open_memstream" before
+							// trying to access "err_buff" (per man pages of "open_memstream").
+							fflush(err_buffer);
 							err = make_error_response(PSQL_Error_ERROR,
 									PSQL_Code_Syntax_Error,
 									err_buff,
 									0);
 							send_message(session, (BaseMessage*)(&err->type));
 							free_error_response(err);
+							// Need to free "err_buff" right after closing the stream returned by
+							// "open_memstream" (per man pages).
+							fclose(err_buffer);
 							free(err_buff);
 							err_buffer = open_memstream(&err_buff, &err_buff_size);
 							continue;

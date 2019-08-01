@@ -303,7 +303,7 @@ int copied_so_far;
 <COMMENT_CSTYLE>"*/" { BEGIN(INITIAL); }
 <COMMENT_CSTYLE>. { /* Ignore comments */ }
 
-<<EOF>> { return ENDOFFILE; }
+<<EOF>> { eof_hit = TRUE; return ENDOFFILE; }
 
 
 . { return INVALID_TOKEN; }

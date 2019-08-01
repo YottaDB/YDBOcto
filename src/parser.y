@@ -142,7 +142,6 @@ extern void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, int *plan
 %token TRUE_TOKEN
 %token FALSE_TOKEN
 %token NULL_TOKEN
-%token ENDOFFILE
 %token COMMA
 %token LEFT_PAREN
 %token RIGHT_PAREN
@@ -169,6 +168,7 @@ extern void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, int *plan
 %token FAKE_TOKEN
 %token INVALID_TOKEN
 
+%token ENDOFFILE
 %token EXIT
 %token QUIT
 
@@ -200,7 +200,6 @@ sql_statement
   | sql_set_statement semicolon_or_eof { *out = $1; YYACCEPT; }
   | semicolon_or_eof {
       SQL_STATEMENT(*out, no_data_STATEMENT);
-      eof_hit = TRUE;
       YYACCEPT;
     }
   | exit_command {
@@ -212,7 +211,7 @@ sql_statement
 
 semicolon_or_eof
   : SEMICOLON
-  | ENDOFFILE { eof_hit = TRUE; }
+  | ENDOFFILE { assert(TRUE == eof_hit); } // The lexer should have set eof_hit at this point and this should always be true
   ;
 
 exit_command

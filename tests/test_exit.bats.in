@@ -77,3 +77,32 @@ OCTO
   # The output should be the same as the previous test
   verify_output TE006 output.txt
 }
+
+@test "close octo with EOF" {
+  octo >& output.txt <<OCTO
+OCTO
+  verify_output TE007 output.txt
+}
+
+@test "attempt to terminate a query with EOF" {
+  octo >& output.txt <<OCTO
+select * from names
+OCTO
+  verify_output TE008 output.txt
+}
+
+@test "check prompt remains active after sending leading ';'" {
+  octo >& output.txt <<OCTO
+;
+select * from names;
+OCTO
+  verify_output TE009 output.txt
+}
+
+@test "attempt to terminate a query with EOF after parsing query terminated with ';'" {
+  octo >& output.txt <<OCTO
+select * from names;
+select * from names
+OCTO
+  verify_output TE010 output.txt
+}

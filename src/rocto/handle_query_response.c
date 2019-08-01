@@ -23,32 +23,33 @@
 #include "physical_plan.h"
 #include "helpers.h"
 
+#define	DATA_ROW_PARMS_ARRAY_INIT_ALLOC	16
 
 void handle_query_response(SqlStatement *stmt, int cursor_id, void *_parms, char *plan_name) {
-	QueryResponseParms *parms = (QueryResponseParms*)_parms;
-	RowDescription *row_description;
-	CommandComplete *command_complete;
-	DataRow *data_row;
-	/// TODO: we should add a new constant to define the maxium number of rows
-	DataRowParm data_row_parms[MAX_STR_CONST];
-	RoctoSession *session = parms->session;
+	QueryResponseParms	*parms = (QueryResponseParms*)_parms;
+	RowDescription		*row_description;
+	CommandComplete		*command_complete;
+	RoctoSession		*session = parms->session;
 	// Large chunks copied from print_temporary table, mostly ydb_buffer stuff
 	/// WARNING: the ordering of these buffers is essential to the ydb calls;
 	//   if altered, make sure the order is correct
-	ydb_buffer_t ydb_buffers[9];
-	ydb_buffer_t plan_name_b, *outputKeyId;
-	ydb_buffer_t *cursor_b = &ydb_buffers[0], *cursor_id_b = &ydb_buffers[1],
-	*keys_b = &ydb_buffers[2], *key_id_b = &ydb_buffers[3],
-	*space_b = &ydb_buffers[4], *space_b2 = &ydb_buffers[5],
-	*row_id_b = &ydb_buffers[6], *row_value_b = &ydb_buffers[7],
-	*empty_buffer = &ydb_buffers[8], *val_buff;
-	SqlSetStatement *set_stmt;
-	SqlShowStatement *show_stmt;
-	SqlValue *val1, *val2;
-	RowDescription *description;
-	RowDescriptionParm row_desc_parm;
-	char buffer[MAX_STR_CONST], *c;
-	int status, number_of_columns = 0, row_count;
+	ydb_buffer_t		ydb_buffers[9];
+	ydb_buffer_t		plan_name_b, *outputKeyId;
+	ydb_buffer_t		*cursor_b = &ydb_buffers[0], *cursor_id_b = &ydb_buffers[1],
+				*keys_b = &ydb_buffers[2], *key_id_b = &ydb_buffers[3],
+				*space_b = &ydb_buffers[4], *space_b2 = &ydb_buffers[5],
+				*row_id_b = &ydb_buffers[6], *row_value_b = &ydb_buffers[7],
+				*empty_buffer = &ydb_buffers[8], *val_buff;
+	SqlSetStatement		*set_stmt;
+	SqlShowStatement	*show_stmt;
+	SqlValue		*val1, *val2;
+	RowDescription		*description;
+	RowDescriptionParm	row_desc_parm;
+	char			buffer[MAX_STR_CONST], *c;
+	int			status, number_of_columns = 0, row_count;
+	DataRow			*data_row;
+	static DataRowParm	*data_row_parms = NULL;
+	static int		data_row_parms_alloc_len = 0;
 
 	YDB_LITERAL_TO_BUFFER("", space_b);
 	YDB_LITERAL_TO_BUFFER("", space_b2);
@@ -71,6 +72,11 @@ void handle_query_response(SqlStatement *stmt, int cursor_id, void *_parms, char
 		free(command_complete);
 		return;
 	}
+	if (NULL == data_row_parms)
+	{
+		data_row_parms = malloc(DATA_ROW_PARMS_ARRAY_INIT_ALLOC * sizeof(DataRowParm));
+		data_row_parms_alloc_len = DATA_ROW_PARMS_ARRAY_INIT_ALLOC;
+	}
 	if(stmt->type == show_STATEMENT) {
 		UNPACK_SQL_STATEMENT(show_stmt, stmt, show);
 		UNPACK_SQL_STATEMENT(val1, show_stmt->variable, value);
@@ -91,6 +97,7 @@ void handle_query_response(SqlStatement *stmt, int cursor_id, void *_parms, char
 		free(description);
 
 		// Send DataRow
+		assert(0 < data_row_parms_alloc_len);
 		data_row_parms[0].value = val_buff->buf_addr;
 		data_row_parms[0].length = strlen(val_buff->buf_addr);
 		data_row = make_data_row(data_row_parms, 1);
@@ -148,15 +155,29 @@ void handle_query_response(SqlStatement *stmt, int cursor_id, void *_parms, char
 		YDB_ERROR_CHECK(status);
 		row_value_b->buf_addr[row_value_b->len_used] = '\0';
 		number_of_columns = 0;
+		assert(number_of_columns < data_row_parms_alloc_len);
 		data_row_parms[number_of_columns].value = row_value_b->buf_addr;
 		for(c = row_value_b->buf_addr; *c != '\0'; c++) {
 			if(*c == '|') {
+				assert(number_of_columns < data_row_parms_alloc_len);
 				data_row_parms[number_of_columns].length = c - data_row_parms[number_of_columns].value;
 				number_of_columns++;
+				if (number_of_columns >= data_row_parms_alloc_len)
+				{	/* Current allocation is not enough. Expand to twice current size. */
+					DataRowParm	*tmp;
+
+					tmp = malloc(data_row_parms_alloc_len * 2 * sizeof(DataRowParm));
+					memcpy(tmp, data_row_parms, (data_row_parms_alloc_len * sizeof(DataRowParm)));
+					free(data_row_parms);
+					data_row_parms = tmp;
+					data_row_parms_alloc_len = data_row_parms_alloc_len * 2;
+				}
+				assert(number_of_columns < data_row_parms_alloc_len);
 				data_row_parms[number_of_columns].value = c + 1;
 			}
 		}
 		data_row_parms[number_of_columns].length = c - data_row_parms[number_of_columns].value;
+		assert(number_of_columns < data_row_parms_alloc_len);
 		number_of_columns++;
 		data_row = make_data_row(data_row_parms, number_of_columns);
 		send_message(parms->session, (BaseMessage*)(&data_row->type));

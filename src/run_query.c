@@ -74,11 +74,11 @@ int run_query(char *sql_query, void (*callback)(SqlStatement *, int, void*, char
 
 	// These are used in the drop and create table cases, but we can't put them closer
 	// to their uses because of the way C handles scope
-	ydb_buffer_t table_name_buffers[3];
-	ydb_buffer_t *table_name_buffer = &table_name_buffers[0],
-	*table_type_buffer = &table_name_buffers[1],
-	*table_sub_buffer = &table_name_buffers[2];
-	ydb_buffer_t table_binary_buffer, table_create_buffer;
+	ydb_buffer_t	table_name_buffers[3];
+	ydb_buffer_t	*table_name_buffer = &table_name_buffers[0],
+			*table_type_buffer = &table_name_buffers[1],
+			*table_sub_buffer = &table_name_buffers[2];
+	ydb_buffer_t	table_binary_buffer, table_create_buffer;
 
 	switch(result->type) {
 	// This effectively means select_STATEMENT, but we have to assign ID's inside this function
@@ -125,16 +125,14 @@ int run_query(char *sql_query, void (*callback)(SqlStatement *, int, void*, char
 		free_memory_chunks = false;
 		break;
 	case table_STATEMENT:
-		buffer = octo_cmalloc(memory_chunks, 5);
 		out = open_memstream(&buffer, &buffer_size);
 		assert(out);
 		emit_create_table(out, result);
-		fclose(out);
+		fclose(out);	// at this point "buffer" and "buffer_size" are usable
 		INFO(CUSTOM_ERROR, "%s", buffer);
 
 		YDB_MALLOC_BUFFER(table_name_buffer, MAX_STR_CONST);
 		YDB_MALLOC_BUFFER(table_sub_buffer, MAX_STR_CONST);
-		YDB_MALLOC_BUFFER(&table_create_buffer, MAX_STR_CONST);
 		SqlTable *table;
 		UNPACK_SQL_STATEMENT(table, result, table);
 		UNPACK_SQL_STATEMENT(value, table->tableName, value);
@@ -144,17 +142,13 @@ int run_query(char *sql_query, void (*callback)(SqlStatement *, int, void*, char
 					table_name_buffer->len_alloc,
 					strlen(value->v.reference));
 		}
-		YDB_COPY_STRING_TO_BUFFER(buffer, &table_create_buffer, done);
-		if(!done) {
-			FATAL(ERR_TABLE_DEFINITION_TOO_LONG, value->v.reference,
-					table_create_buffer.len_alloc,
-					strlen(buffer));
-		}
+		YDB_STRING_TO_BUFFER(buffer, &table_create_buffer);
 		YDB_STRING_TO_BUFFER("t", table_type_buffer);
 		status = ydb_set_s(&schema_global, 2,
 				   table_name_buffers,
 				   &table_create_buffer);
 		YDB_ERROR_CHECK(status);
+		free(buffer);	// Note that "table_create_buffer" (whose "buf_addr" points to "buffer") is also no longer usable
 		char *table_buffer = NULL;
 		int length;
 		compress_statement(result, &table_buffer, &length);
@@ -179,16 +173,13 @@ int run_query(char *sql_query, void (*callback)(SqlStatement *, int, void*, char
 			i++;
 		}
 		YDB_STRING_TO_BUFFER("l", table_type_buffer);
-		table_create_buffer.len_used = snprintf(table_create_buffer.buf_addr, MAX_STR_CONST, "%d", length);
-		status = ydb_set_s(&schema_global, 2,
-				   table_name_buffers,
-				   &table_create_buffer);
+		// Use table_sub_buffer as a temporary buffer below
+		table_sub_buffer->len_used = snprintf(table_sub_buffer->buf_addr, table_sub_buffer->len_alloc, "%d", length);
+		status = ydb_set_s(&schema_global, 2, table_name_buffers, table_sub_buffer);
 		store_table_in_pg_class(table);
-		free(buffer);
 		free(table_buffer);
 		YDB_FREE_BUFFER(table_name_buffer);
 		YDB_FREE_BUFFER(table_sub_buffer);
-		YDB_FREE_BUFFER(&table_create_buffer);
 		break;
 	case drop_STATEMENT:
 		YDB_MALLOC_BUFFER(table_name_buffer, MAX_STR_CONST);

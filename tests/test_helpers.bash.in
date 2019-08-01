@@ -100,6 +100,10 @@ FILE
   echo "Populating seed data"
   load_fixture postgres-seed.sql
   load_fixture postgres-seed.zwr
+  # Set the below env var to ensure no DBFILEXT messages show up in syslog and in turn in individual test output files
+  # e.g. if a test redirects stderr to a file output.txt, then syslog messages would show up in that file if run through
+  # the pipeline causing a test failure if that is compared against a reference file (e.g. TC001 in test_create_table.bats.in)
+  export ydb_dbfilext_syslog_disable=1
 }
 
 start_rocto() {

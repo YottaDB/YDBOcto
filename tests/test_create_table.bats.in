@@ -27,9 +27,13 @@ CREATE TABLE table1 (
   $(for i in $(seq 1 1000); do echo ", column$i VARCHAR"; done)
 );
 OCTO
-  run octo -f table1.sql
-  [ "$status" -ne 0 ]
-  [[ "$output" =~ "FATAL" ]]
+  # Load the table schema into octo
+  octo -f table1.sql >& output.txt
+  # Verify that the table created above exists by doing a SELECT (will return no rows since it does not have data).
+  octo <<OCTO 2>&1 | tee -a output.txt
+SELECT * from table1;
+OCTO
+  verify_output TC001 output.txt
 }
 
 @test "create table with key in extract" {

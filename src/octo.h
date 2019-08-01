@@ -36,42 +36,6 @@
 # define OCTO_PATH_MAX PATH_MAX
 #endif
 
-#if YDB_RELEASE < 125
-/* Macro to copy a string (i.e. "char *" pointer in C) to an already allocated ydb_buffer_t structure.
- * If BUFFERP does not have space allocated to hold STRING, then no copy is done
- *	and COPY_DONE will be set to FALSE.
- * Else the copy is done and COPY_DONE will be set to TRUE.
- * User of this macro needs to include <string.h> (needed for "strlen" prototype).
- * See comment before YDB_STRING_TO_BUFFER macro for why YDB_COPY_LITERAL_TO_BUFFER and YDB_COPY_STRING_TO_BUFFER
- * cannot be merged into one macro (i.e. sizeof is not same as strlen in rare case).
- */
-#define YDB_COPY_STRING_TO_BUFFER(STRING, BUFFERP, COPY_DONE)	\
-{								\
-	int	len;						\
-								\
-	len = strlen(STRING);					\
-	if (len <= (BUFFERP)->len_alloc)			\
-	{							\
-		memcpy((BUFFERP)->buf_addr, STRING, len);	\
-		(BUFFERP)->len_used = len;			\
-		COPY_DONE = TRUE;				\
-	} else							\
-		COPY_DONE = FALSE;				\
-}
-
-/* Macro to create/fill-in a ydb_buffer_t structure from a C string (char * pointer).
- * Note that YDB_LITERAL_TO_BUFFER does a "sizeof(LITERAL) - 1" whereas YDB_STRING_TO_BUFFER does a "strlen()".
- * Both produce the same output almost always. There is one exception though and that is if LITERAL has embedded null bytes
- * in it. In that case, sizeof() would include the null bytes too whereas strlen() would not. Hence the need for both versions
- * of the macros.
- */
-#define YDB_STRING_TO_BUFFER(STRING, BUFFERP)				\
-{									\
-	(BUFFERP)->buf_addr = STRING;					\
-	(BUFFERP)->len_used = (BUFFERP)->len_alloc = strlen(STRING);	\
-}
-#endif
-
 // Allows us to leave parameters in place even if they are unused and avoid warning from the
 // compiler.
 #define UNUSED(x) (void)(x)

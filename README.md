@@ -54,6 +54,20 @@ sudo yum install epel-release
 sudo yum install vim-common cmake3 bison flex readline-devel libconfig-devel openssl-devel
 ```
 
+* (Optional) Install Bats Automated Test System (BATS)
+
+Octo uses BATS for automated integration and regression testing. To use BATS to run tests on Octo, BATS version 1.1+ must be installed:
+
+```
+git clone https://github.com/bats-core/bats-core.git
+cd bats-core
+sudo ./install.sh /usr
+```
+
+This will install BATS to /usr/bin. Note that installing to /usr may require root access or use of `sudo`. To specify an alternative path change the argument to your preferred location, e.g. "/usr/local" to install to /usr/local/bin.
+
+Details available in the [BATS source repo](https://github.com/bats-core/bats-core).
+
 * Download Octo Source Code
 
 ```sh

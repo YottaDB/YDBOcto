@@ -29,9 +29,10 @@ teardown() {
   run run_psql_auth jon tested <<OCTO
 SELECT * FROM names;
 OCTO
-  delete_users jon
-  [[ "$output" =~ "psql: could not connect to server: Connection refused" ]]
+  [[ "$status" -eq 2 ]]
+  echo $output 2>&1 | tee output.txt
   [[ "$output" =~ "password doesn't match stored value" ]]
+  delete_users jon
 }
 
 @test "test psql authentication with non-existent user" {
@@ -40,9 +41,9 @@ OCTO
 SELECT * FROM names;
 OCTO
   echo $output 2>&1 | tee output.txt
-  delete_users jon
-  [[ "$output" =~ "psql: could not connect to server: Connection refused" ]]
+  [[ "$status" -eq 2 ]]
   [[ "$output" =~ "failed to retrieve user info from database" ]]
+  delete_users jon
 }
 
 @test "test psql authentication with one user" {

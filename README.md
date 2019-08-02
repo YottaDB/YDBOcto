@@ -27,7 +27,7 @@ cd YDBposix-master
 mkdir build && cd build
 # Make sure that you have YottaDB environment variables in your shell before continuing
 cmake ..
-make && sudo make install
+make -j `grep -c ^processor /proc/cpuinfo` && sudo make install
 ```
 
 * (Optional) Install YottaDB encryption plugin
@@ -38,7 +38,7 @@ Installing the YottaDB encryption plugin enables TLS support (Recommended for pr
 # In a temporary directory perform the following commands
 sudo tar -xf $ydb_dist/plugin/gtmcrypt/source.tar
 # Make sure that you have YottaDB environment variables in your shell before continuing
-sudo ydb_dist=$ydb_dist make
+sudo ydb_dist=$ydb_dist make -j `grep -c ^processor /proc/cpuinfo`
 sudo ydb_dist=$ydb_dist make install
 ```
 
@@ -70,7 +70,7 @@ mkdir build
 cd build
 # For VistA the String Buffer Length needs to be larger (described below) add `-DSTRING_BUFFER_LENGTH=300000` to the cmake command below
 cmake -DCMAKE_INSTALL_PREFIX=$ydb_dist/plugin .. # for CentOS/RedHat use cmake3 instead
-make
+make -j `grep -c ^processor /proc/cpuinfo`
 ```
 
 * Install Octo

@@ -21,7 +21,7 @@
 // Construct a WHERE statement by finding all columns in left and all columns in right
 // which have the same name, and saying left.COLUMN = right.COLUMN AND ...
 SqlStatement *natural_join_condition(SqlStatement *left, SqlStatement *right) {
-	SqlStatement *matched_column, *r_matched_column, *ret, *cur_condition, *t_condition;
+	SqlStatement *r_matched_column, *ret, *cur_condition, *t_condition;
 	SqlStatement *l_qual_col_name, *r_qual_col_name;
 	SqlJoin *j_left, *j_right, *cur_join;
 	SqlJoin *r_cur_join;
@@ -49,13 +49,12 @@ SqlStatement *natural_join_condition(SqlStatement *left, SqlStatement *right) {
 			assert(value->type != CALCULATED_VALUE);
 			column_name = value->v.string_literal;
 			column_name_len = strlen(column_name);
-			matched_column = match_column_in_table(cur_alias, column_name, column_name_len);
-			assert(matched_column != NULL);
 			// Check each of rights tables for the item in question
 			r_cur_join = j_right;
 			do {
 				UNPACK_SQL_STATEMENT(r_cur_alias, r_cur_join->value, table_alias);
-				r_matched_column = match_column_in_table(r_cur_alias, column_name, column_name_len);
+				r_matched_column = match_column_in_table(r_cur_alias, column_name, column_name_len,
+										MATCH_QUALIFIED_COLUMNS_FALSE);
 				if(r_matched_column != NULL) {
 					UNPACK_SQL_STATEMENT(value, r_cur_alias->alias, value);
 					r_table_name = value->v.string_literal;

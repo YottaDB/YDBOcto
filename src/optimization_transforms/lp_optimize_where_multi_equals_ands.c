@@ -240,10 +240,10 @@ int lp_optimize_where_multi_equal_ands_helper(LogicalPlan *plan, LogicalPlan *wh
 		key = xref_keys->v.key;
 		key->is_cross_reference_key = TRUE;
 		if(before_first_key->type == LP_CRITERIA) {
-			MALLOC_LP(before_first_key->v.operand[0], LP_KEYS);
+			MALLOC_LP_2ARGS(before_first_key->v.operand[0], LP_KEYS);
 			before_first_key = before_first_key->v.operand[0];
 		} else {
-			MALLOC_LP(before_first_key->v.operand[1], LP_KEYS);
+			MALLOC_LP_2ARGS(before_first_key->v.operand[1], LP_KEYS);
 			before_first_key = before_first_key->v.operand[1];
 		}
 		before_first_key->v.operand[0] = xref_keys;

@@ -53,12 +53,12 @@ LogicalPlan *lp_generate_xref_keys(LogicalPlan *plan, SqlTable *table, SqlColumn
 	output_key->cross_reference_column_alias = column_alias;
 
 
-	keys = MALLOC_LP(root, LP_KEYS);
+	MALLOC_LP(keys, root, LP_KEYS);
 	memset(key_columns, 0, MAX_KEY_COUNT * sizeof(SqlColumn*));
 	max_key = get_key_columns(table, key_columns);
 	for(cur_key = 0; cur_key <= max_key; cur_key++) {
-		cur_lp_key = MALLOC_LP(keys->v.operand[0], LP_KEY);
-		cur_lp_key->v.key = (SqlKey*)octo_cmalloc(memory_chunks, sizeof(SqlKey));
+		MALLOC_LP(cur_lp_key, keys->v.operand[0], LP_KEY);
+		OCTO_CMALLOC_STRUCT(cur_lp_key->v.key, SqlKey);
 		cur_lp_key->v.key->column = key_columns[cur_key];
 		cur_lp_key->v.key->key_num = cur_key;
 		cur_lp_key->v.key->unique_id = unique_id;
@@ -66,7 +66,7 @@ LogicalPlan *lp_generate_xref_keys(LogicalPlan *plan, SqlTable *table, SqlColumn
 		cur_lp_key->v.key->type = LP_KEY_ADVANCE;
 		cur_lp_key->v.key->cross_reference_output_key = output_key;
 		if(cur_key != max_key) {
-			MALLOC_LP(keys->v.operand[1], LP_KEYS);
+			MALLOC_LP_2ARGS(keys->v.operand[1], LP_KEYS);
 			keys = keys->v.operand[1];
 		}
 	}

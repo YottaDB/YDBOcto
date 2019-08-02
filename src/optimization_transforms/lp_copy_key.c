@@ -15,7 +15,8 @@
 #include "logical_plan.h"
 
 SqlKey *lp_copy_key(SqlKey *key) {
-	SqlKey *new_key = octo_cmalloc(memory_chunks, sizeof(SqlKey));
+	SqlKey *new_key;
+	OCTO_CMALLOC_STRUCT(new_key, SqlKey);
 	*new_key = *key;
 	return new_key;
 }

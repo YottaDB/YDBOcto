@@ -51,12 +51,12 @@ LogicalPlan *lp_table_join_to_column_list(LogicalPlan *table_join, int *plan_id)
 		//ret = lp_copy_plan(next_column_list);
 		// Copy these in as derived columns
 		cur = next_column_list;
-		next = MALLOC_LP(ret, LP_COLUMN_LIST);
+		MALLOC_LP(next, ret, LP_COLUMN_LIST);
 		while(cur != NULL) {
-			t = MALLOC_LP(next->v.operand[0], LP_DERIVED_COLUMN);
-			MALLOC_LP(t->v.operand[0], LP_KEY);
+			MALLOC_LP(t, next->v.operand[0], LP_DERIVED_COLUMN);
+			MALLOC_LP_2ARGS(t->v.operand[0], LP_KEY);
 			t->v.operand[0]->v.key = key;
-			MALLOC_LP(t->v.operand[1], LP_PIECE_NUMBER);
+			MALLOC_LP_2ARGS(t->v.operand[1], LP_PIECE_NUMBER);
 			t->v.operand[1]->v.piece_number = part;
 			part++;
 			cur = cur->v.operand[1];

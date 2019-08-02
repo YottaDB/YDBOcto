@@ -115,7 +115,7 @@ SqlStatement *copy_sql_statement(SqlStatement *stmt) {
 		if(start_column_list) {
 			cur_column_list = start_column_list;
 			do {
-				new_column_list = (SqlColumnList*)octo_cmalloc(memory_chunks, sizeof(SqlColumnList));
+				OCTO_CMALLOC_STRUCT(new_column_list, SqlColumnList);
 				dqinit(new_column_list);
 				new_column_list->value = copy_sql_statement(cur_column_list->value);
 				if(ret->v.column_list == NULL) {
@@ -132,7 +132,7 @@ SqlStatement *copy_sql_statement(SqlStatement *stmt) {
 		if(start_cl_alias) {
 			cur_cl_alias = start_cl_alias;
 			do {
-				new_cl_alias = (SqlColumnListAlias*)octo_cmalloc(memory_chunks, sizeof(SqlColumnListAlias));
+				OCTO_CMALLOC_STRUCT(new_cl_alias, SqlColumnListAlias);
 				dqinit(new_cl_alias);
 				new_cl_alias->column_list = copy_sql_statement(cur_cl_alias->column_list);
 				new_cl_alias->alias = copy_sql_statement(cur_cl_alias->alias);
@@ -159,7 +159,7 @@ SqlStatement *copy_sql_statement(SqlStatement *stmt) {
 		//MALLOC_STATEMENT(ret, join, SqlJoin);
 		cur_join = start_join;
 		do {
-			new_join = (SqlJoin*)octo_cmalloc(memory_chunks, sizeof(SqlJoin));
+			OCTO_CMALLOC_STRUCT(new_join, SqlJoin);
 			dqinit(new_join);
 			new_join->type = cur_join->type;
 			new_join->value = copy_sql_statement(cur_join->value);
@@ -190,7 +190,7 @@ SqlStatement *copy_sql_statement(SqlStatement *stmt) {
 			UNPACK_SQL_STATEMENT(start_keyword, stmt, keyword);
 			cur_keyword = start_keyword;
 			do {
-				new_keyword = (SqlOptionalKeyword*)octo_cmalloc(memory_chunks, sizeof(SqlOptionalKeyword));
+				OCTO_CMALLOC_STRUCT(new_keyword, SqlOptionalKeyword);
 				*new_keyword = *cur_keyword;
 				dqinit(new_keyword);
 				new_keyword->v = copy_sql_statement(cur_keyword->v);
@@ -226,7 +226,7 @@ SqlStatement *copy_sql_statement(SqlStatement *stmt) {
 		UNPACK_SQL_STATEMENT(start_cas_branch, stmt, cas_branch);
 		cur_cas_branch = start_cas_branch;
 		do {
-			new_cas_branch = (SqlCaseBranchStatement*)octo_cmalloc(memory_chunks, sizeof(SqlCaseBranchStatement));
+			OCTO_CMALLOC_STRUCT(new_cas_branch, SqlCaseBranchStatement);
 			*new_cas_branch = *cur_cas_branch;
 			// SqlValue
 			new_cas_branch->condition = copy_sql_statement(cur_cas_branch->condition);

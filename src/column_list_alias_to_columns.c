@@ -31,7 +31,7 @@ SqlColumn *column_list_alias_to_columns(SqlTableAlias *table_alias) {
 	UNPACK_SQL_STATEMENT(cla_start, table_alias->column_list, column_list_alias);
 	cla_cur = cla_start;
 	do {
-		cur_column = (SqlColumn*)octo_cmalloc(memory_chunks, sizeof(SqlColumn));
+		OCTO_CMALLOC_STRUCT(cur_column, SqlColumn);
 		cur_column->table = table_alias->table;
 		cur_column->columnName = cla_cur->alias;
 

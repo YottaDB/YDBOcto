@@ -24,7 +24,7 @@ LogicalPlan *lp_join_where(LogicalPlan *where1, LogicalPlan *where2) {
 		return where2;
 	if(where2->v.operand[0] == NULL)
 		return where1;
-	new_plan = (LogicalPlan *)octo_cmalloc(memory_chunks, sizeof(LogicalPlan));
+	OCTO_CMALLOC_STRUCT(new_plan, LogicalPlan);
 	new_plan->type = LP_BOOLEAN_AND;
 	assert(where1->type == LP_WHERE);
 	w = where1->v.operand[0];

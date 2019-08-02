@@ -34,7 +34,7 @@ optional_query_words
     }
   | /* Empty */ {
       SQL_STATEMENT($$, keyword_STATEMENT);
-      ($$)->v.keyword = (SqlOptionalKeyword*)octo_cmalloc(memory_chunks, sizeof(SqlOptionalKeyword));
+      OCTO_CMALLOC_STRUCT(($$)->v.keyword, SqlOptionalKeyword);
       ($$)->v.keyword->keyword = NO_KEYWORD;
       ($$)->v.keyword->v = NULL;
       dqinit(($$)->v.keyword);
@@ -44,7 +44,7 @@ optional_query_words
  optional_query_word_tail
   : /* Empty */ {
       SQL_STATEMENT($$, keyword_STATEMENT);
-      ($$)->v.keyword = (SqlOptionalKeyword*)octo_cmalloc(memory_chunks, sizeof(SqlOptionalKeyword));
+      OCTO_CMALLOC_STRUCT(($$)->v.keyword, SqlOptionalKeyword);
       ($$)->v.keyword->keyword = NO_KEYWORD;
       ($$)->v.keyword->v = NULL;
       dqinit(($$)->v.keyword);
@@ -55,21 +55,21 @@ optional_query_words
 optional_query_word_element
   : LIMIT literal_value {
       SQL_STATEMENT($$, keyword_STATEMENT);
-      ($$)->v.keyword = (SqlOptionalKeyword*)octo_cmalloc(memory_chunks, sizeof(SqlOptionalKeyword));
+      OCTO_CMALLOC_STRUCT(($$)->v.keyword, SqlOptionalKeyword);
       ($$)->v.keyword->keyword = OPTIONAL_LIMIT;
       ($$)->v.keyword->v = $2;
       dqinit(($$)->v.keyword);
   }
 /*  | UNION ALL sql_select_statement {
       SQL_STATEMENT($$, keyword_STATEMENT);
-      ($$)->v.keyword = (SqlOptionalKeyword*)octo_cmalloc(memory_chunks, sizeof(SqlOptionalKeyword));
+      OCTO_CMALLOC_STRUCT(($$)->v.keyword, SqlOptionalKeyword);
       ($$)->v.keyword->keyword = OPTIONAL_UNION_ALL;
       ($$)->v.keyword->v = $3;
       dqinit(($$)->v.keyword);
   }
   | UNION sql_select_statement {
       SQL_STATEMENT($$, keyword_STATEMENT);
-      ($$)->v.keyword = (SqlOptionalKeyword*)octo_cmalloc(memory_chunks, sizeof(SqlOptionalKeyword));
+      OCTO_CMALLOC_STRUCT(($$)->v.keyword, SqlOptionalKeyword);
       ($$)->v.keyword->keyword = OPTIONAL_UNION;
       ($$)->v.keyword->v = $2;
       dqinit(($$)->v.keyword);
@@ -323,21 +323,21 @@ table_expression
 set_quantifier
   : /* Empty; default ALL */ {
       SQL_STATEMENT($$, keyword_STATEMENT);
-      ($$)->v.keyword = (SqlOptionalKeyword*)octo_cmalloc(memory_chunks, sizeof(SqlOptionalKeyword));
+      OCTO_CMALLOC_STRUCT(($$)->v.keyword, SqlOptionalKeyword);
       ($$)->v.keyword->keyword = NO_KEYWORD;
       ($$)->v.keyword->v = NULL;
       dqinit(($$)->v.keyword);
     }
   | ALL {
       SQL_STATEMENT($$, keyword_STATEMENT);
-      ($$)->v.keyword = (SqlOptionalKeyword*)octo_cmalloc(memory_chunks, sizeof(SqlOptionalKeyword));
+      OCTO_CMALLOC_STRUCT(($$)->v.keyword, SqlOptionalKeyword);
       ($$)->v.keyword->keyword = NO_KEYWORD;
       ($$)->v.keyword->v = NULL;
       dqinit(($$)->v.keyword);
     }
   | DISTINCT {
       SQL_STATEMENT($$, keyword_STATEMENT);
-      ($$)->v.keyword = (SqlOptionalKeyword*)octo_cmalloc(memory_chunks, sizeof(SqlOptionalKeyword));
+      OCTO_CMALLOC_STRUCT(($$)->v.keyword, SqlOptionalKeyword);
       ($$)->v.keyword->keyword = OPTIONAL_DISTINCT;
       ($$)->v.keyword->v = NULL;
       dqinit(($$)->v.keyword);

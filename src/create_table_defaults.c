@@ -90,10 +90,10 @@ int create_table_defaults(SqlStatement *table_statement, SqlStatement *keywords_
 		len = buff_ptr - buffer;
 		out_buffer = octo_cmalloc(memory_chunks, len);
 		memcpy(out_buffer, buffer, len);
-		(keyword) = (SqlOptionalKeyword*)octo_cmalloc(memory_chunks, sizeof(SqlOptionalKeyword));
+		OCTO_CMALLOC_STRUCT((keyword), SqlOptionalKeyword);
 		(keyword)->keyword = OPTIONAL_SOURCE;
 		SQL_STATEMENT(keyword->v, value_STATEMENT);
-		keyword->v->v.value = (SqlValue*)octo_cmalloc(memory_chunks, sizeof(SqlValue));
+		OCTO_CMALLOC_STRUCT(keyword->v->v.value, SqlValue);
 		keyword->v->v.value->type = COLUMN_REFERENCE;
 		keyword->v->v.value->v.reference = out_buffer;
 		dqinit(keyword);
@@ -105,10 +105,10 @@ int create_table_defaults(SqlStatement *table_statement, SqlStatement *keywords_
 		out_buffer = octo_cmalloc(memory_chunks, str_len + 1);
 		strncpy(out_buffer, buffer, str_len);
 		out_buffer[str_len] = '\0';
-		(keyword) = (SqlOptionalKeyword*)octo_cmalloc(memory_chunks, sizeof(SqlOptionalKeyword));
+		OCTO_CMALLOC_STRUCT((keyword), SqlOptionalKeyword);
 		(keyword)->keyword = OPTIONAL_DELIM;
 		SQL_STATEMENT(keyword->v, value_STATEMENT);
-		keyword->v->v.value = (SqlValue*)octo_cmalloc(memory_chunks, sizeof(SqlValue));
+		OCTO_CMALLOC_STRUCT(keyword->v->v.value, SqlValue);
 		keyword->v->v.value->type = STRING_LITERAL;
 		keyword->v->v.value->v.reference = out_buffer;
 		dqinit(keyword);

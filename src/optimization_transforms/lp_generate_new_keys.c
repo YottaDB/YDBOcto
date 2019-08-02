@@ -54,11 +54,11 @@ LogicalPlan *lp_replace_helper(LogicalPlan *where, SqlTableAlias *table_alias, i
 	case LP_COLUMN_ALIAS:
 		alias = where->v.column_alias;
 		if(alias->table_alias->v.table_alias == table_alias) {
-			MALLOC_LP(ret, LP_DERIVED_COLUMN);
-			MALLOC_LP(ret->v.operand[0], LP_KEY);
+			MALLOC_LP_2ARGS(ret, LP_DERIVED_COLUMN);
+			MALLOC_LP_2ARGS(ret->v.operand[0], LP_KEY);
 			ret->v.operand[0]->v.key = key;
 			part = get_column_piece_number(alias, table_alias);
-			MALLOC_LP(ret->v.operand[1], LP_PIECE_NUMBER);
+			MALLOC_LP_2ARGS(ret->v.operand[1], LP_PIECE_NUMBER);
 			ret->v.operand[1]->v.piece_number = part;
 		}
 		break;

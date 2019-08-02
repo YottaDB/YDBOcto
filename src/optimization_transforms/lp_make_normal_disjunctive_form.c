@@ -125,7 +125,7 @@ LogicalPlan *lp_make_normal_disjunctive_form(LogicalPlan *root) {
 		do {
 			LogicalPlan *lp;
 			LPActionType boolean_type = LP_BOOLEAN_OR;
-			MALLOC_LP(lp, LP_BOOLEAN_AND);
+			MALLOC_LP_2ARGS(lp, LP_BOOLEAN_AND);
 
 			LogicalPlan *next_l = l;
 			if(next_l->type == LP_BOOLEAN_OR) {
@@ -141,11 +141,11 @@ LogicalPlan *lp_make_normal_disjunctive_form(LogicalPlan *root) {
 			lp->v.operand[0] = next_l;
 			lp->v.operand[1] = next_r;
 			if(cur == NULL) {
-				MALLOC_LP(ret, boolean_type);
+				MALLOC_LP_2ARGS(ret, boolean_type);
 				cur = ret;
 			}
 			cur->v.operand[0] = lp;
-			MALLOC_LP(cur->v.operand[1], boolean_type);
+			MALLOC_LP_2ARGS(cur->v.operand[1], boolean_type);
 			cur = cur->v.operand[1];
 			if(r->type != LP_BOOLEAN_OR) {
 				break;

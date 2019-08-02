@@ -221,22 +221,22 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt, int *plan_id) {
 		cur_join = cur_join->next;
 	} while(cur_join != start_join);
 
-	MALLOC_LP(insert, LP_INSERT);
-	project = MALLOC_LP(insert->v.operand[0], LP_PROJECT);
-	select = MALLOC_LP(project->v.operand[1], LP_SELECT);
-	criteria = MALLOC_LP(select->v.operand[1], LP_CRITERIA);
-	MALLOC_LP(criteria->v.operand[0], LP_KEYS);
-	select_options = MALLOC_LP(criteria->v.operand[1], LP_SELECT_OPTIONS);
-	where = MALLOC_LP(select_options->v.operand[0], LP_WHERE);
+	MALLOC_LP_2ARGS(insert, LP_INSERT);
+	MALLOC_LP(project, insert->v.operand[0], LP_PROJECT);
+	MALLOC_LP(select, project->v.operand[1], LP_SELECT);
+	MALLOC_LP(criteria, select->v.operand[1], LP_CRITERIA);
+	MALLOC_LP_2ARGS(criteria->v.operand[0], LP_KEYS);
+	MALLOC_LP(select_options, criteria->v.operand[1], LP_SELECT_OPTIONS);
+	MALLOC_LP(where, select_options->v.operand[0], LP_WHERE);
 	where->v.operand[0] = lp_generate_where(select_stmt->where_expression, plan_id);
 	insert->counter = plan_id;
-	dst = MALLOC_LP(insert->v.operand[1], LP_OUTPUT);
-	dst_key = MALLOC_LP(dst->v.operand[0], LP_KEY);
-	dst_key->v.key = (SqlKey*)octo_cmalloc(memory_chunks, sizeof(SqlKey));
+	MALLOC_LP(dst, insert->v.operand[1], LP_OUTPUT);
+	MALLOC_LP(dst_key, dst->v.operand[0], LP_KEY);
+	OCTO_CMALLOC_STRUCT(dst_key->v.key, SqlKey);
 	memset(dst_key->v.key, 0, sizeof(SqlKey));
 	dst_key->v.key->unique_id = get_plan_unique_number(insert);
 	if(select_stmt->order_expression != NULL) {
-		order_by = MALLOC_LP(dst->v.operand[1], LP_COLUMN_LIST);
+		MALLOC_LP(order_by, dst->v.operand[1], LP_COLUMN_LIST);
 		UNPACK_SQL_STATEMENT(list, select_stmt->order_expression, column_list_alias);
 		// Manually drill down to the expression so we can convert it
 		SqlColumnListAlias *cur_cla, *start_cla;
@@ -258,7 +258,7 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt, int *plan_id) {
 			order_by->v.operand[0] = lp_column_list_to_lp(cla, plan_id);
 			cur_cla = cur_cla->next;
 			if(cur_cla != start_cla) {
-				MALLOC_LP(order_by->v.operand[1], LP_COLUMN_LIST);
+				MALLOC_LP_2ARGS(order_by->v.operand[1], LP_COLUMN_LIST);
 				order_by = order_by->v.operand[1];
 			}
 		} while(cur_cla != start_cla);
@@ -266,7 +266,7 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt, int *plan_id) {
 	/// TODO: we should look at the columns to decide which values
 	//   are keys, and if none, create a rowId as part of the advance
 	dst_key->v.key->type = LP_KEY_ADVANCE;
-	//join_right = table = MALLOC_LP(select->v.operand[0], LP_TABLE_JOIN);
+	//join_right = MALLOC_LP(table, select->v.operand[0], LP_TABLE_JOIN);
 	join_right = NULL;
 	UNPACK_SQL_STATEMENT(start_join, select_stmt->table_list, join);
 	cur_join = start_join;
@@ -279,22 +279,22 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt, int *plan_id) {
 			FATAL(ERR_FEATURE_NOT_IMPLEMENTED, "OUTER JOIN");
 		}
 		if(join_right == NULL) {
-			join_right = MALLOC_LP(select->v.operand[0], LP_TABLE_JOIN);
+			MALLOC_LP(join_right, select->v.operand[0], LP_TABLE_JOIN);
 		}
 		else {
-			MALLOC_LP(join_right->v.operand[1], LP_TABLE_JOIN);
+			MALLOC_LP_2ARGS(join_right->v.operand[1], LP_TABLE_JOIN);
 			join_right = join_right->v.operand[1];
 		}
 		UNPACK_SQL_STATEMENT(table_alias, cur_join->value, table_alias);
 		if(table_alias->table->type == table_STATEMENT) {
-			join_left = MALLOC_LP(join_right->v.operand[0], LP_TABLE);
+			MALLOC_LP(join_left, join_right->v.operand[0], LP_TABLE);
 			UNPACK_SQL_STATEMENT(join_left->v.table_alias, cur_join->value, table_alias);
 		} else {
 			join_left = generate_logical_plan(cur_join->value, plan_id);
 			join_right->v.operand[0] = join_left;
 		}
 		if(cur_join->condition) {
-			MALLOC_LP(t_join_condition, LP_WHERE);
+			MALLOC_LP_2ARGS(t_join_condition, LP_WHERE);
 			t_join_condition->v.operand[0] = lp_generate_where(cur_join->condition, plan_id);
 			start_join_condition = lp_join_where(t_join_condition, start_join_condition);
 		}
@@ -355,7 +355,7 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt, int *plan_id) {
 		cur_join = cur_join->next;
 	}
 
-	keywords = MALLOC_LP(select_options->v.operand[1], LP_KEYWORDS);
+	MALLOC_LP(keywords, select_options->v.operand[1], LP_KEYWORDS);
 	UNPACK_SQL_STATEMENT(keywords->v.keywords, select_stmt->optional_words, keyword);
 
 	// At this point, we need to populate keys

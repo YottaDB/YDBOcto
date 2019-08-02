@@ -73,7 +73,7 @@ LogicalPlan *join_tables(LogicalPlan *root, LogicalPlan *plan) {
 	}
 	// If we drilled down somewhat, make sure we start on a fresh "key"
 	if(keys->v.operand[0] != NULL) {
-		MALLOC_LP(keys->v.operand[1], LP_KEYS);
+		MALLOC_LP_2ARGS(keys->v.operand[1], LP_KEYS);
 		keys = keys->v.operand[1];
 	}
 	if(table_plan->type == LP_TABLE) {
@@ -83,8 +83,8 @@ LogicalPlan *join_tables(LogicalPlan *root, LogicalPlan *plan) {
 		memset(key_columns, 0, MAX_KEY_COUNT * sizeof(SqlColumn*));
 		max_key = get_key_columns(table, key_columns);
 		for(cur_key = 0; cur_key <= max_key; cur_key++) {
-			cur_lp_key = MALLOC_LP(keys->v.operand[0], LP_KEY);
-			cur_lp_key->v.key = (SqlKey*)octo_cmalloc(memory_chunks, sizeof(SqlKey));
+			MALLOC_LP(cur_lp_key, keys->v.operand[0], LP_KEY);
+			OCTO_CMALLOC_STRUCT(cur_lp_key->v.key, SqlKey);
 			memset(cur_lp_key->v.key, 0, sizeof(SqlKey));
 			cur_lp_key->v.key->column = key_columns[cur_key];
 			cur_lp_key->v.key->key_num = cur_key;
@@ -93,7 +93,7 @@ LogicalPlan *join_tables(LogicalPlan *root, LogicalPlan *plan) {
 			cur_lp_key->v.key->type = LP_KEY_ADVANCE;
 			cur_lp_key->v.key->owner = table_plan;
 			if(cur_key != max_key) {
-				MALLOC_LP(keys->v.operand[1], LP_KEYS);
+				MALLOC_LP_2ARGS(keys->v.operand[1], LP_KEYS);
 				keys = keys->v.operand[1];
 			}
 		}
@@ -143,7 +143,7 @@ LogicalPlan *optimize_logical_plan(LogicalPlan *plan) {
 		keywords = lp_get_select_keywords(plan)->v.keywords;
 		new_keyword = get_keyword_from_keywords(keywords, OPTIONAL_PART_OF_EXPANSION);
 		if(new_keyword == NULL) {
-			new_keyword = octo_cmalloc(memory_chunks, sizeof(SqlOptionalKeyword));
+			OCTO_CMALLOC_STRUCT(new_keyword, SqlOptionalKeyword);
 			dqinit(new_keyword);
 			new_keyword->keyword = OPTIONAL_PART_OF_EXPANSION;
 			dqinsert(keywords, new_keyword, t);

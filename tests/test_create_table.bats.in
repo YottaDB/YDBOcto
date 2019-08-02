@@ -19,7 +19,7 @@ setup() {
   load_fixture names.zwr
 }
 
-@test "create a table so large it can't fit in the buffer" {
+@test "TC001 create a table so large it can't fit in the buffer" {
   # Generate a file with the mapping
   cat <<OCTO > table1.sql
 CREATE TABLE table1 (

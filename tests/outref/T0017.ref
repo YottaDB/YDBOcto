@@ -1,0 +1,7 @@
+OCTO> SELECT invalid FROM names;
+[ WARN] PATH:LINENUM DATE TIME : Unknown column: INVALID
+
+SELECT invalid FROM names;
+       ^^^^^^^^
+OCTO> [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT invalid FROM names;
+

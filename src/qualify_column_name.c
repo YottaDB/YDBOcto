@@ -20,16 +20,16 @@
 
 #include "logical_plan.h"
 
-SqlStatement *match_column_in_table(SqlTableAlias *table, char *column_name, int column_name_len);
-
 /**
  * Tries to find the column in the list of tables
- * If the name is already qualifies, verifies the table exists.
+ * If the name is already qualified, verifies the table exists.
  *
  * For the case of join tables, searches using the <tableName>.<columnName>
  *  followed by searching without seperating the two parts
  */
-SqlColumnAlias *qualify_column_name(SqlValue *column_value, SqlJoin *tables, SqlStatement *table_alias_stmt) {
+SqlColumnAlias *qualify_column_name(SqlValue *column_value, SqlJoin *tables, SqlStatement *table_alias_stmt,
+					boolean_t match_qualified_columns)
+{
 	int table_name_len = 0, column_name_len = 0;
 	char *table_name = NULL, *column_name = NULL, *c;
 	SqlColumnAlias *ret;
@@ -70,12 +70,13 @@ SqlColumnAlias *qualify_column_name(SqlValue *column_value, SqlJoin *tables, Sql
 				int table_name_len2 = strlen(value->v.reference);
 				if(table_name_len == table_name_len2 && memcmp(value->v.reference, table_name, table_name_len) == 0) {
 					matching_alias = cur_alias;
-					column = match_column_in_table(cur_alias, column_name, column_name_len);
+					column = match_column_in_table(cur_alias, column_name, column_name_len,
+									match_qualified_columns);
 					break;
 				}
 			}
 		} else {
-			t_column = match_column_in_table(cur_alias, column_name, column_name_len);
+			t_column = match_column_in_table(cur_alias, column_name, column_name_len, match_qualified_columns);
 			if(t_column != NULL) {
 				if(column != NULL) {
 					WARNING(ERR_AMBIGUOUS_COLUMN_NAME, column_name);
@@ -95,18 +96,30 @@ SqlColumnAlias *qualify_column_name(SqlValue *column_value, SqlJoin *tables, Sql
 		UNPACK_SQL_STATEMENT(start_cla, table_alias->column_list, column_list_alias);
 		cur_cla = start_cla;
 		do {
-			if(cur_cla->alias != NULL) {
-				UNPACK_SQL_STATEMENT(value, cur_cla->alias, value);
-				if(memcmp(value->v.reference, column_name, column_name_len) == 0) {
-					if(column != NULL) {
-						WARNING(ERR_AMBIGUOUS_COLUMN_NAME, column_name);
-						cur_cla = cur_cla->next;
-						continue;
+			if (NULL != cur_cla->alias) {
+				/* Check if corresponding owning column has already been qualified/verified.
+				 * If so, we can use this alias for qualification/verification purposes.
+				 */
+				SqlColumnList	*column_list;
+				UNPACK_SQL_STATEMENT(column_list, cur_cla->column_list, column_list);
+				assert(column_list == column_list->next);
+				assert(column_list == column_list->prev);
+				/* For a description of the below "if" check, see similar code in "match_column_in_table.c" */
+				if (!match_qualified_columns || (column_alias_STATEMENT == column_list->value->type))
+				{
+					UNPACK_SQL_STATEMENT(value, cur_cla->alias, value);
+					if ((column_name_len == (int)strlen(value->v.reference))
+							&& (0 == memcmp(value->v.reference, column_name, column_name_len))) {
+						if (NULL != column) {
+							WARNING(ERR_AMBIGUOUS_COLUMN_NAME, column_name);
+							cur_cla = cur_cla->next;
+							continue;
+						}
+						UNPACK_SQL_STATEMENT(matching_alias, table_alias_stmt, table_alias);
+						SQL_STATEMENT(t_column, column_list_alias_STATEMENT);
+						t_column->v.column_list_alias = cur_cla;
+						column = t_column;
 					}
-					UNPACK_SQL_STATEMENT(matching_alias, table_alias_stmt, table_alias);
-					SQL_STATEMENT(t_column, column_list_alias_STATEMENT);
-					t_column->v.column_list_alias = cur_cla;
-					column = t_column;
 				}
 			}
 			cur_cla = cur_cla->next;
@@ -118,9 +131,8 @@ SqlColumnAlias *qualify_column_name(SqlValue *column_value, SqlJoin *tables, Sql
 		return NULL;
 	}
 
-	ret = (SqlColumnAlias*)octo_cmalloc(memory_chunks, sizeof(SqlColumnAlias));
+	OCTO_CMALLOC_STRUCT(ret, SqlColumnAlias);
 	ret->column = column;
 	PACK_SQL_STATEMENT(ret->table_alias, matching_alias, table_alias);
-
 	return ret;
 }

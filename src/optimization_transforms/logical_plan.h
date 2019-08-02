@@ -22,14 +22,25 @@
 #include "octo_types.h"
 #include "memory_chunk.h"
 
-#define MALLOC_LP(dest, dest_type)					\
-	(dest) = (LogicalPlan*)octo_cmalloc(memory_chunks, sizeof(LogicalPlan));		\
-	(dest)->type = dest_type;
+#define MALLOC_LP(RET, DEST, DEST_TYPE)				\
+{								\
+	OCTO_CMALLOC_STRUCT(RET, LogicalPlan);			\
+	(RET)->type = DEST_TYPE;				\
+	DEST = RET;						\
+}
 
-#define GET_LP(dest, source, side, dest_type)			\
-	assert((side) < 2);					\
-	assert((source)->v.operand[(side)]->type == dest_type);	\
-	(dest) = (source)->v.operand[(side)];
+#define	MALLOC_LP_2ARGS(DEST, DEST_TYPE)			\
+{								\
+	LogicalPlan	*dummyPlan;				\
+	MALLOC_LP(dummyPlan, DEST, DEST_TYPE);			\
+}
+
+#define GET_LP(DEST, SOURCE, SIDE, DEST_TYPE)			\
+{								\
+	assert((SIDE) < 2);					\
+	assert((SOURCE)->v.operand[(SIDE)]->type == DEST_TYPE);	\
+	(DEST) = (SOURCE)->v.operand[(SIDE)];			\
+}
 
 // Forward declarations
 struct LogicalPlan;

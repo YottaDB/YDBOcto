@@ -28,8 +28,8 @@ LogicalPlan *lp_make_key(SqlColumnAlias *column_alias) {
 	UNPACK_SQL_STATEMENT(table_alias, column_alias->table_alias, table_alias);
 	UNPACK_SQL_STATEMENT(table, table_alias->table, table);
 
-	MALLOC_LP(ret, LP_KEY);
-	ret->v.key = (SqlKey*)octo_cmalloc(memory_chunks, sizeof(SqlKey));
+	MALLOC_LP_2ARGS(ret, LP_KEY);
+	OCTO_CMALLOC_STRUCT(ret->v.key, SqlKey);
 	memset(ret->v.key, 0, sizeof(SqlKey));
 	ret->v.key->column = column;
 	ret->v.key->key_num = -1;

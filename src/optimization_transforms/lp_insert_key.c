@@ -29,7 +29,7 @@ void lp_insert_key(LogicalPlan *plan, LogicalPlan *key) {
 		while(cur_keys->v.operand[1] != NULL) {
 			cur_keys = cur_keys->v.operand[1];
 		}
-		t = MALLOC_LP(cur_keys->v.operand[1], LP_KEYS);
+		MALLOC_LP(t, cur_keys->v.operand[1], LP_KEYS);
 		t->v.operand[0] = key;
 	} else {
 		cur_keys->v.operand[0] = key;

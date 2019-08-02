@@ -30,19 +30,19 @@ LogicalPlan *lp_generate_xref_plan(LogicalPlan *plan, SqlTable *table, SqlColumn
 	int cur_key, max_key;
 
 	// Setup the output key
-	output_key = (SqlKey*)octo_cmalloc(memory_chunks, sizeof(SqlKey));
+	OCTO_CMALLOC_STRUCT(output_key, SqlKey);
 	memset(output_key, 0, sizeof(SqlKey));
 	output_key->table = table;
 	output_key->column = column;
 	output_key->unique_id = unique_id;
 	output_key->is_cross_reference_key = TRUE;
 
-	MALLOC_LP(root, LP_INSERT);
+	MALLOC_LP_2ARGS(root, LP_INSERT);
 	root->counter = plan->counter;
-	project = MALLOC_LP(root->v.operand[0], LP_PROJECT);
-	output = MALLOC_LP(root->v.operand[1], LP_OUTPUT);
-	column_list = MALLOC_LP(project->v.operand[0], LP_COLUMN_LIST);
-	select = MALLOC_LP(project->v.operand[1], LP_SELECT);
+	MALLOC_LP(project, root->v.operand[0], LP_PROJECT);
+	MALLOC_LP(output, root->v.operand[1], LP_OUTPUT);
+	MALLOC_LP(column_list, project->v.operand[0], LP_COLUMN_LIST);
+	MALLOC_LP(select, project->v.operand[1], LP_SELECT);
 
 	// Setup the table alias that will be shared for all columns
 	SQL_STATEMENT(table_alias_statement, table_alias_STATEMENT);
@@ -54,12 +54,12 @@ LogicalPlan *lp_generate_xref_plan(LogicalPlan *plan, SqlTable *table, SqlColumn
 	table_alias->alias = table->tableName;
 
 	// Populate column list with a the column, followed by all the keys for this table
-	cur = MALLOC_LP(column_list->v.operand[0], LP_WHERE);
-	lp_cla = MALLOC_LP(cur->v.operand[0], LP_COLUMN_ALIAS);
+	MALLOC_LP(cur, column_list->v.operand[0], LP_WHERE);
+	MALLOC_LP(lp_cla, cur->v.operand[0], LP_COLUMN_ALIAS);
 	// This is used to pass information about types to the functions which output the final result
 	// to the user; this table should never get there, so leave it out
-	//MALLOC_LP(cur->v.operand[1], LP_COLUMN_LIST_ALIAS);
-	lp_cla->v.column_alias = (SqlColumnAlias*)octo_cmalloc(memory_chunks, sizeof(SqlColumnAlias));
+	//MALLOC_LP_2ARGS(cur->v.operand[1], LP_COLUMN_LIST_ALIAS);
+	OCTO_CMALLOC_STRUCT(lp_cla->v.column_alias, SqlColumnAlias);
 	memset(lp_cla->v.column_alias, 0, sizeof(SqlColumnAlias));
 	cla = lp_cla->v.column_alias;
 	/// TODO: copy column so we can more easily clean things up?
@@ -69,14 +69,14 @@ LogicalPlan *lp_generate_xref_plan(LogicalPlan *plan, SqlTable *table, SqlColumn
 	memset(key_columns, 0, MAX_KEY_COUNT * sizeof(SqlColumn*));
 	max_key = get_key_columns(table, key_columns);
 	for(cur_key = 0; cur_key <= max_key; cur_key++) {
-		MALLOC_LP(column_list->v.operand[1], LP_COLUMN_LIST);
+		MALLOC_LP_2ARGS(column_list->v.operand[1], LP_COLUMN_LIST);
 		column_list = column_list->v.operand[1];
-		cur = MALLOC_LP(column_list->v.operand[0], LP_WHERE);
-		lp_cla = MALLOC_LP(cur->v.operand[0], LP_COLUMN_ALIAS);
+		MALLOC_LP(cur, column_list->v.operand[0], LP_WHERE);
+		MALLOC_LP(lp_cla, cur->v.operand[0], LP_COLUMN_ALIAS);
 		// This is used to pass information about types to the functions which output the final result
 		// to the user; this table should never get there, so leave it out
-		//MALLOC_LP(cur->v.operand[1], LP_COLUMN_LIST_ALIAS);
-		lp_cla->v.column_alias = (SqlColumnAlias*)octo_cmalloc(memory_chunks, sizeof(SqlColumnAlias));
+		//MALLOC_LP_2ARGS(cur->v.operand[1], LP_COLUMN_LIST_ALIAS);
+		OCTO_CMALLOC_STRUCT(lp_cla->v.column_alias, SqlColumnAlias);
 		memset(lp_cla->v.column_alias, 0, sizeof(SqlColumnAlias));
 		cla = lp_cla->v.column_alias;
 		/// TODO: copy column so we can more easily clean things up?
@@ -85,23 +85,23 @@ LogicalPlan *lp_generate_xref_plan(LogicalPlan *plan, SqlTable *table, SqlColumn
 	}
 
 	// Generate a normal table join for SELECT, then populate CRITERIA and KEYS
-	table_join = MALLOC_LP(select->v.operand[0], LP_TABLE_JOIN);
-	criteria = MALLOC_LP(select->v.operand[1], LP_CRITERIA);
-	lp_table = MALLOC_LP(table_join->v.operand[0], LP_TABLE);
+	MALLOC_LP(table_join, select->v.operand[0], LP_TABLE_JOIN);
+	MALLOC_LP(criteria, select->v.operand[1], LP_CRITERIA);
+	MALLOC_LP(lp_table, table_join->v.operand[0], LP_TABLE);
 	lp_table->v.table_alias = table_alias;
-	MALLOC_LP(criteria->v.operand[0], LP_KEYS);
-	select_options = MALLOC_LP(criteria->v.operand[1], LP_SELECT_OPTIONS);
-	MALLOC_LP(select_options->v.operand[0], LP_WHERE);
-	lp_keywords = MALLOC_LP(select_options->v.operand[1], LP_KEYWORDS);
+	MALLOC_LP_2ARGS(criteria->v.operand[0], LP_KEYS);
+	MALLOC_LP(select_options, criteria->v.operand[1], LP_SELECT_OPTIONS);
+	MALLOC_LP_2ARGS(select_options->v.operand[0], LP_WHERE);
+	MALLOC_LP(lp_keywords, select_options->v.operand[1], LP_KEYWORDS);
 	// Insert a keyword indicating that we are building an index
-	lp_keywords->v.keywords = (SqlOptionalKeyword*)octo_cmalloc(memory_chunks, sizeof(SqlOptionalKeyword));
+	OCTO_CMALLOC_STRUCT(lp_keywords->v.keywords, SqlOptionalKeyword);
 	memset(lp_keywords->v.keywords, 0, sizeof(SqlOptionalKeyword));
 	keywords = lp_keywords->v.keywords;
 	dqinit(keywords);
 	keywords->keyword = OPTIONAL_POPULATE_INDEX;
 
 	// Select an LP_KEY to output things to that is correct
-	lp_output_key = MALLOC_LP(output->v.operand[0], LP_KEY);
+	MALLOC_LP(lp_output_key, output->v.operand[0], LP_KEY);
 	lp_output_key->v.key = output_key;
 
 	// Optimize this new plan

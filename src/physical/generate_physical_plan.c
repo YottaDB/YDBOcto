@@ -93,7 +93,7 @@ PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlanOptions *opt
 		/// TODO: replace this with a real error message
 		FATAL(CUSTOM_ERROR, "Bad plan!");
 	}
-	out = octo_cmalloc(memory_chunks, sizeof(PhysicalPlan));
+	OCTO_CMALLOC_STRUCT(out, PhysicalPlan);
 	out->parent_plan = options->parent;
 	curr_plan.parent = out;
 
@@ -251,7 +251,7 @@ LogicalPlan *walk_where_statement(PhysicalPlanOptions *options, LogicalPlan *stm
 			curr_plan = *options;
 			curr_plan.stash_columns_in_keys = TRUE;
 			PhysicalPlan *new_plan = generate_physical_plan(stmt, &curr_plan);
-			MALLOC_LP(stmt, LP_KEY);
+			MALLOC_LP_2ARGS(stmt, LP_KEY);
 			stmt->v.key = new_plan->outputKey;
 			break;
 		case LP_FUNCTION_CALL:

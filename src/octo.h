@@ -68,6 +68,9 @@
 	}													\
 }
 
+#define	MATCH_QUALIFIED_COLUMNS_FALSE	FALSE
+#define	MATCH_QUALIFIED_COLUMNS_TRUE	TRUE
+
 int emit_column_specification(char *buffer, int buffer_size, SqlColumn *column);
 void emit_create_table(FILE *output, struct SqlStatement *stmt);
 // Recursively copies all of stmt, including making copies of strings
@@ -91,12 +94,15 @@ int populate_data_type(SqlStatement *v, SqlValueType *type);
 SqlTable *find_table(const char *table_name);
 SqlColumn *find_column(char *column_name, SqlTable *table);
 SqlStatement *find_column_alias_name(SqlStatement *stmt);
-int qualify_column_list_alias(SqlColumnListAlias *alias, SqlJoin *tables, SqlStatement *column_list_alias);
-int qualify_column_list(SqlColumnList *select_columns, SqlJoin *tables, SqlStatement *column_list_alias);
-SqlColumnAlias *qualify_column_name(SqlValue *column_value, SqlJoin *tables, SqlStatement *column_list_alias);
-SqlStatement *match_column_in_table(SqlTableAlias *table, char *column_name, int column_name_len);
-int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *column_list_alias);
-int qualify_join_conditions(SqlJoin *join, SqlJoin *tables, SqlStatement *column_list_alias);
+int qualify_column_list_alias(SqlColumnListAlias *alias, SqlJoin *tables, SqlStatement *column_list_alias,
+					boolean_t match_qualified_columns);
+int qualify_column_list(SqlColumnList *select_columns, SqlJoin *tables, SqlStatement *column_list_alias,
+					boolean_t match_qualified_columns);
+SqlColumnAlias *qualify_column_name(SqlValue *column_value, SqlJoin *tables, SqlStatement *column_list_alias,
+					boolean_t match_qualified_columns);
+SqlStatement *match_column_in_table(SqlTableAlias *table, char *column_name, int column_name_len,
+					boolean_t match_qualified_columns);
+int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *column_list_alias, boolean_t match_qualified_columns);
 int qualify_function_name(SqlStatement *stmt);
 int qualify_query(SqlStatement *stmt, SqlJoin *parent_join);
 void print_yyloc(YYLTYPE *llocp);

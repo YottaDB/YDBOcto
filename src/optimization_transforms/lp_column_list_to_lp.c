@@ -26,18 +26,18 @@ LogicalPlan *lp_column_list_to_lp(SqlColumnListAlias *list, int *plan_id) {
 	SqlColumnList *t_column_list;
 	assert(list != NULL);
 
-	MALLOC_LP(column_list, LP_COLUMN_LIST);
+	MALLOC_LP_2ARGS(column_list, LP_COLUMN_LIST);
 
 	cur_column_list = start_column_list = list;
 	do {
-		where = MALLOC_LP(column_list->v.operand[0], LP_WHERE);
+		MALLOC_LP(where, column_list->v.operand[0], LP_WHERE);
 		/// TODO: handle the absence of prev
 		UNPACK_SQL_STATEMENT(t_column_list, cur_column_list->column_list, column_list);
 		where->v.operand[0] = lp_generate_where(t_column_list->value, plan_id);
-		column_list_alias = MALLOC_LP(where->v.operand[1], LP_COLUMN_LIST_ALIAS);
+		MALLOC_LP(column_list_alias, where->v.operand[1], LP_COLUMN_LIST_ALIAS);
 		// When we do this copy, we only want a single CLA; this prevents the copy from
 		//   grabbing more
-		column_list_alias->v.column_list_alias = (SqlColumnListAlias*)octo_cmalloc(memory_chunks, sizeof(SqlColumnListAlias));
+		OCTO_CMALLOC_STRUCT(column_list_alias->v.column_list_alias, SqlColumnListAlias);
 		dqinit(column_list_alias->v.column_list_alias);
 		column_list_alias->v.column_list_alias->alias = cur_column_list->alias;
 		column_list_alias->v.column_list_alias->type = cur_column_list->type;
@@ -45,7 +45,7 @@ LogicalPlan *lp_column_list_to_lp(SqlColumnListAlias *list, int *plan_id) {
 		if(ret_column_list == NULL)
 			ret_column_list = column_list;
 		if(cur_column_list != start_column_list) {
-			MALLOC_LP(column_list->v.operand[1], LP_COLUMN_LIST);
+			MALLOC_LP_2ARGS(column_list->v.operand[1], LP_COLUMN_LIST);
 			column_list = column_list->v.operand[1];
 		}
 	} while(cur_column_list != start_column_list);

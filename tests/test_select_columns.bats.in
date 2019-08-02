@@ -246,3 +246,121 @@ ON (t.id = tt.id);
 OCTO
   verify_output T0010 output.txt
 }
+
+@test "T0016 SELECT of column name with alias with ORDER BY using alias name" {
+  octo <<OCTO &> output.txt
+SELECT firstname as alias from names order by alias
+OCTO
+  verify_output T0016 output.txt
+}
+
+@test "T0017 SELECT of invalid column name in user-defined table" {
+  octo <<OCTO &> output.txt
+SELECT invalid FROM names;
+OCTO
+  verify_output T0017 output.txt
+}
+
+@test "T0018 SELECT of invalid column name in derived table from a level-1 sub-query" {
+  octo <<OCTO &> output.txt
+SELECT invalid from (SELECT invalid from names);
+OCTO
+  verify_output T0018 output.txt
+}
+
+@test "T0019 SELECT of invalid column name in derived table from a level-2 sub-query" {
+  octo <<OCTO &> output.txt
+SELECT invalid from (SELECT invalid from (SELECT invalid from names));
+OCTO
+  verify_output T0019 output.txt
+}
+
+@test "T0020 Miscellaneous SELECT using valid and/or invalid column names and a level-1 sub-query" {
+  cat > queries_input.txt << CAT
+select * from (select * from names as n2) as n1;
+select * from (select * from names as n2);
+select * from (select * from names) as n1;
+select * from (select * from names);
+select * from (select firstname from names) as n1;
+select * from (select firstname from names);
+select * from (select invalid from names) as n1;
+select * from (select invalid from names);
+select * from (select n1.firstname from names) as n1;
+select * from (select n1.invalid from names) as n1;
+select * from (select n2.firstname from names as n2) as n1;
+select * from (select n2.firstname from names as n2);
+select * from (select n2.invalid from names as n2) as n1;
+select * from (select n2.invalid from names as n2);
+select firstname from (select * from names as n2) as n1;
+select firstname from (select * from names as n2);
+select firstname from (select * from names) as n1;
+select firstname from (select * from names);
+select firstname from (select firstname from names) as n1;
+select firstname from (select firstname from names);
+select firstname from (select invalid from names) as n1;
+select firstname from (select invalid from names);
+select firstname from (select lastname from names as n2) as n1;
+select firstname from (select lastname from names);
+select firstname from (select n1.firstname from names) as n1;
+select firstname from (select n1.invalid from names) as n1;
+select firstname from (select n2.firstname from names as n2);
+select firstname from (select n2.invalid from names as n2);
+select invalid from (select * from names as n2) as n1;
+select invalid from (select * from names as n2);
+select invalid from (select * from names) as n1;
+select invalid from (select * from names);
+select invalid from (select firstname from names) as n1;
+select invalid from (select firstname from names);
+select invalid from (select invalid from names as n2) as n1;
+select invalid from (select invalid from names) as n1;
+select invalid from (select invalid from names);
+select invalid from (select n1.firstname from names) as n1;
+select invalid from (select n1.invalid from names) as n1;
+select invalid from (select n2.firstname from names as n2);
+select invalid from (select n2.invalid from names as n2);
+select invalid as invalid1 from (select invalid from names);
+select invalid as invalid from names;
+select invalid1 as invalid from names;
+select invalid as invalid1 from names;
+select invalid1 from (select invalid2 from names) as n1;
+select invalid1 from (select invalid2 from names);
+select invalid1 from (select n1.invalid2 from names) as n1;
+select invalid1 from (select n2.invalid2 from names as n2);
+select invalid1 from (select invalid as invalid1 from names);
+select n1.firstname from (select * from names as n2) as n1;
+select n1.firstname from (select * from names) as n1;
+select n1.firstname from (select n1.firstname from names) as n1;
+select n1.firstname from (select n1.invalid from names) as n1;
+select n1.firstname from (select n2.firstname from names as n2) as n1;
+select n1.firstname from (select n2.invalid from names as n2) as n1;
+select n1.invalid from (select * from names as n2) as n1;
+select n1.invalid from (select * from names) as n1;
+select n1.invalid from (select n1.firstname from names) as n1;
+select n1.invalid from (select n1.invalid from names) as n1;
+select n1.invalid from (select n2.firstname from names as n2) as n1;
+select n1.invalid from (select n2.invalid from names as n2) as n1;
+select n1.invalid1 from (select n1.invalid2 from names) as n1;
+select n1.invalid1 from (select n2.invalid2 from names as n2) as n1;
+select n2.firstname from (select * from names as n2);
+select n2.firstname from (select n2.firstname from names as n2);
+select n2.firstname from (select n2.invalid from names as n2);
+select n2.invalid from (select * from names as n2);
+select n2.invalid from (select n2.firstname from names as n2);
+select n2.invalid from (select n2.invalid from names as n2);
+select n2.invalid1 from (select n2.invalid2 from names as n2);
+select NULL as a from names order by a;
+CAT
+  inputfile="queries_input.txt"
+  linenum=1
+  set -f	# we use * in the query file so avoid expanding it in the loop below
+  while read -r line
+  do
+  echo $line > query${linenum}.sql
+  echo "Running query file query${linenum}.sql : [$line]" >> output.txt
+  echo "-------------------------------------------------" >> output.txt
+  octo -f query${linenum}.sql >> output.txt 2>&1
+  ((linenum++))
+  echo "" >> output.txt
+  done < $inputfile
+  verify_output T0020 output.txt
+}

@@ -18,31 +18,46 @@ typedef void *yyscan_t;
 #include "memory_chunk.h"
 #include "double_list.h"
 
-#define SQL_STATEMENT(VAR, TYPE)			      \
-	(VAR) = (struct SqlStatement *)octo_cmalloc(memory_chunks, sizeof(SqlStatement));  \
-	(VAR)->type = TYPE;
+// Allocates ONE structure of type TYPE
+#define	OCTO_CMALLOC_STRUCT(RET, TYPE)								\
+{												\
+	RET = (TYPE *)octo_cmalloc(memory_chunks, sizeof(TYPE));				\
+}
 
-#define MALLOC_STATEMENT(VAR, NAME, TYPE)	      \
-	(VAR)->v.NAME = octo_cmalloc(memory_chunks, sizeof(TYPE));
+#define SQL_STATEMENT(VAR, TYPE)			      					\
+{												\
+	OCTO_CMALLOC_STRUCT(VAR, SqlStatement);							\
+	(VAR)->type = TYPE;									\
+}
 
-#define UNPACK_SQL_STATEMENT(result, item, StatementType) assert((item)->type == StatementType ## _STATEMENT); \
-	(result) = (item)->v.StatementType
+#define MALLOC_STATEMENT(VAR, NAME, TYPE)							\
+{												\
+	OCTO_CMALLOC_STRUCT((VAR)->v.NAME, TYPE);						\
+}
 
-#define PACK_SQL_STATEMENT(out, item, StatementType) \
-	SQL_STATEMENT(out, StatementType ## _STATEMENT); \
-	(out)->v.StatementType = item;
+#define UNPACK_SQL_STATEMENT(result, item, StatementType)					\
+{												\
+	assert((item)->type == StatementType ## _STATEMENT);					\
+	(result) = (item)->v.StatementType;							\
+}
 
-#define SHALLOW_COPY_SQL_STATEMENT(dst, src, NAME, TYPE) do { \
-	SQL_STATEMENT((dst), src->type);	\
-	MALLOC_STATEMENT((dst), NAME, TYPE);	\
-	*(dst)->v.NAME = *(src)->v.NAME;	\
+#define PACK_SQL_STATEMENT(out, item, StatementType)						\
+{												\
+	SQL_STATEMENT(out, StatementType ## _STATEMENT);					\
+	(out)->v.StatementType = item;								\
+}
+
+#define SHALLOW_COPY_SQL_STATEMENT(dst, src, NAME, TYPE) do {					\
+	SQL_STATEMENT((dst), src->type);							\
+	MALLOC_STATEMENT((dst), NAME, TYPE);							\
+	*(dst)->v.NAME = *(src)->v.NAME;							\
 } while(0);
 
-#define SAFE_SNPRINTF(written, buff_ptr, buffer, buffer_size, ...) do {\
-	(written) = snprintf((buff_ptr), (buffer_size) - ((buff_ptr) - (buffer)), ## __VA_ARGS__); \
-	if((written) < ((buffer_size) - ((buff_ptr) - (buffer)))) { \
-		buff_ptr += written; \
-	} \
+#define SAFE_SNPRINTF(written, buff_ptr, buffer, buffer_size, ...) do {					\
+	(written) = snprintf((buff_ptr), (buffer_size) - ((buff_ptr) - (buffer)), ## __VA_ARGS__);	\
+	if((written) < ((buffer_size) - ((buff_ptr) - (buffer)))) {					\
+		buff_ptr += written;									\
+	}												\
 } while (FALSE);
 
 
@@ -55,6 +70,8 @@ typedef void *yyscan_t;
 
 
 typedef long long unsigned int uint8;
+
+typedef int boolean_t;
 
 typedef enum FileType {
 	CrossReference,
@@ -359,9 +376,9 @@ typedef struct SqlFunctionCall {
 } SqlFunctionCall;
 
 typedef struct SqlValue {
-	enum SqlValueType type;
-	enum SqlValueType coerced_type;
-	enum SqlDataType data_type;
+	enum SqlValueType	type;
+	enum SqlValueType	coerced_type;
+	enum SqlDataType	data_type;
 	union {
 		char *string_literal;
 		char *reference;
@@ -383,19 +400,19 @@ typedef struct SqlColumnList {
 
 typedef struct SqlColumnListAlias {
 	// SqlColumnList
-	struct SqlStatement *column_list;
+	struct SqlStatement	*column_list;
 	// SqlValue
-	struct SqlStatement *alias;
+	struct SqlStatement	*alias;
 	// Keywords used for the SORT column
-	struct SqlStatement *keywords;
-	SqlValueType type;
+	struct SqlStatement	*keywords;
+	SqlValueType		type;
 	dqcreate(SqlColumnListAlias);
 } SqlColumnListAlias;
 
 /*
  * A SQL set operation, such as UNION, EXCEPT, or INTERSECT
  *
- * This is seperated from a binary operation because, at this time, I believe it
+ * This is separated from a binary operation because, at this time, I believe it
  *  to be not useable as part of an expression; if this proves to be wrong,
  *  we should consider merging it
  */

@@ -56,13 +56,13 @@ LogicalPlan *lp_generate_set_logical_plan(SqlStatement *stmt, int *plan_id) {
 	lp_update_plan_keys(set_plans[0], output_key->v.key);
 	lp_update_plan_keys(set_plans[1], output_key->v.key);
 
-	MALLOC_LP(set_operation, LP_SET_OPERATION);
-	options = MALLOC_LP(set_operation->v.operand[0], LP_SET_OPTION);
-	plans = MALLOC_LP(set_operation->v.operand[1], LP_PLANS);
+	MALLOC_LP_2ARGS(set_operation, LP_SET_OPERATION);
+	MALLOC_LP(options, set_operation->v.operand[0], LP_SET_OPTION);
+	MALLOC_LP(plans, set_operation->v.operand[1], LP_PLANS);
 	plans->v.operand[0] = set_plans[0];
 	plans->v.operand[1] = set_plans[1];
 
-	key = MALLOC_LP(options->v.operand[0], LP_SET_UNION);
+	MALLOC_LP(key, options->v.operand[0], LP_SET_UNION);
 
 	// Setup the keys to be a set operation
 	switch(set_operation_sql->type) {

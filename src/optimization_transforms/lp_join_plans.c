@@ -28,10 +28,10 @@ LogicalPlan *lp_join_plans(LogicalPlan *a, LogicalPlan *b, LPActionType type) {
 		return a;
 
 	LogicalPlan *set_operation, *set_option, *set_plans;
-	MALLOC_LP(set_operation, LP_SET_OPERATION);
-	set_option = MALLOC_LP(set_operation->v.operand[0], LP_SET_OPTION);
-	MALLOC_LP(set_option->v.operand[0], type);
-	set_plans = MALLOC_LP(set_operation->v.operand[1], LP_PLANS);
+	MALLOC_LP_2ARGS(set_operation, LP_SET_OPERATION);
+	MALLOC_LP(set_option, set_operation->v.operand[0], LP_SET_OPTION);
+	MALLOC_LP_2ARGS(set_option->v.operand[0], type);
+	MALLOC_LP(set_plans, set_operation->v.operand[1], LP_PLANS);
 	set_plans->v.operand[0] = a;
 	set_plans->v.operand[1] = b;
 

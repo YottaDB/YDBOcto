@@ -18,7 +18,7 @@ LogicalPlan *lp_copy_plan(LogicalPlan *plan) {
 	LogicalPlan *new_plan;
 	if(plan == NULL)
 		return NULL;
-	new_plan = (LogicalPlan *)octo_cmalloc(memory_chunks, sizeof(LogicalPlan));
+	OCTO_CMALLOC_STRUCT(new_plan, LogicalPlan);
 	*new_plan = *plan;
 	// We copy SqlStatements where, which is definitely needed for keys
 	// and maybe needed for the others, but better safe than sorry

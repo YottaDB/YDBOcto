@@ -107,7 +107,6 @@ add_library(libocto OBJECT
   qualify_column_list_alias.c
   qualify_column_name.c
   qualify_statement.c
-  qualify_join_conditions.c
   qualify_function_name.c
   qualify_query.c
   octo_init.c

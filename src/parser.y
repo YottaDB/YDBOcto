@@ -751,13 +751,13 @@ concatenation_operator
 factor
   : PLUS numeric_primary factor_tail {
       SQL_STATEMENT($$, unary_STATEMENT);
-      MALLOC_STATEMENT($$, unary, SqlBinaryOperation);
+      MALLOC_STATEMENT($$, unary, SqlUnaryOperation);
       ($$)->v.unary->operation = FORCE_NUM;
       ($$)->v.unary->operand = ($2);
     }
   | MINUS numeric_primary factor_tail {
       SQL_STATEMENT($$, unary_STATEMENT);
-      MALLOC_STATEMENT($$, unary, SqlBinaryOperation);
+      MALLOC_STATEMENT($$, unary, SqlUnaryOperation);
       ($$)->v.unary->operation = NEGATIVE;
       ($$)->v.unary->operand = ($2);
     }

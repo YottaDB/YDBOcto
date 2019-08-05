@@ -1,0 +1,41 @@
+#################################################################
+#								#
+# Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	#
+# All rights reserved.						#
+#								#
+#	This source code contains the intellectual property	#
+#	of its copyright holder(s), and is made available	#
+#	under a license.  If you do not know the terms of	#
+#	the license, please stop and do not read further.	#
+#								#
+#################################################################
+
+load test_helpers
+
+setup() {
+  init_test
+  createdb
+  load_fixture pastas.sql
+  load_fixture pastas.zwr
+}
+
+@test "long query line: inner join pastas order by pasta id ascending" {
+  octo <<OCTO &> output.txt
+select pastas.id, firstName, lastName, pastaName from names4 inner join pastas on pastas.pastaName = names4.favoritePasta order by pastas.id;
+OCTO
+  verify_output TL000 output.txt
+}
+
+@test "long query line: inner join pastas order by pasta id ascending explicit" {
+  octo <<OCTO &> output.txt
+select pastas.id, firstName, lastName, pastaName from names4 inner join pastas on pastas.pastaName = names4.favoritePasta order by pastas.id asc;
+OCTO
+  verify_output TL001 output.txt
+}
+
+@test "long query line: inner join pastas order by pasta id descending" {
+  octo <<OCTO &> output.txt
+select pastas.id, firstName, lastName, pastaName from names4 inner join pastas on pastas.pastaName = names4.favoritePasta order by pastas.id desc;
+OCTO
+  verify_output TL002 output.txt
+}

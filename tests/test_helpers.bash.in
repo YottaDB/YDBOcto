@@ -17,6 +17,8 @@ init_test() {
   exec 2> >(tee -ia $test_temp/stderr.txt >&2)
   cd $test_temp
   export PATH="@PROJECT_BINARY_DIR@/src:$PATH"
+  # Needed to circumvent Ctrl-M ('^M') characters in long query strings
+  export COLUMNS=1024
 }
 
 init_tls() {

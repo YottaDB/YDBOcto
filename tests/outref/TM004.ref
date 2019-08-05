@@ -1,0 +1,16 @@
+OCTO> qwertyuiop;
+[ERROR] PATH:LINENUM DATE TIME : Unknown table: QWERTYUIOP
+
+qwertyuiop;
+^^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: qwertyuiop;
+
+[ INFO] PATH:LINENUM DATE TIME : Parsing done for SQL command [qwertyuiop;]
+[ INFO] PATH:LINENUM DATE TIME : Returning failure from run_query
+OCTO> select * from names limit 1;
+[ INFO] PATH:LINENUM DATE TIME : Parsing done for SQL command [select * from names limit 1;]
+[ INFO] PATH:LINENUM DATE TIME : Generating SQL for CURSOR_NUM
+[ INFO] PATH:LINENUM DATE TIME : Generating M file [M_ROUTINE] (to execute SQL query)
+[ INFO] PATH:LINENUM DATE TIME : print_temporary_table()
+0|Zero|Cool
+OCTO> [ INFO] PATH:LINENUM DATE TIME : Parsing done for SQL command []

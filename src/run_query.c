@@ -41,15 +41,19 @@ int run_query(char *sql_query, void (*callback)(SqlStatement *, int, void*, char
 	gtm_long_t	cursorId;
 	hash128_state_t	state;
 	int		done, routine_len = 0;
-	int		status;
+	int		status, old_input_index;
 	size_t		buffer_size = 0;
 	ydb_buffer_t	*filename_lock = NULL;
 	ydb_string_t	ci_filename, ci_routine;
 
 	memory_chunks = alloc_chunk(MEMORY_CHUNK_SIZE);
 
+	/* To print only the current query store the index for the last one
+	 * then print the difference between the cur_input_index - old_input_index
+	 */
+	old_input_index = cur_input_index;
 	result = parse_line(sql_query);
-	INFO(CUSTOM_ERROR, "Parsing done for SQL command [%s]", sql_query);
+	INFO(CUSTOM_ERROR, "Parsing done for SQL command [%.*s]", cur_input_index - old_input_index, sql_query + old_input_index);
 	if(result == NULL) {
 		INFO(CUSTOM_ERROR, "Returning failure from run_query");
 		octo_cfree(memory_chunks);

@@ -31,7 +31,7 @@ void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, int *plan_id, ch
 void print_yyloc(YYLTYPE *llocp) {
 	// llocp is 0 based
 	int cur_line = 0, cur_column = 1;
-	char *c = input_buffer_combined, *line_begin, *line_end;
+	char *c = input_buffer_combined, *line_begin, *line_end, old_terminator;
 	for(;*c != '\0' && cur_line < llocp->first_line; c++) {
 		if(*c == '\n')
 			cur_line++;
@@ -40,6 +40,10 @@ void print_yyloc(YYLTYPE *llocp) {
 	for(; *c != '\0' && *c != '\n'; c++) {
 		// Left blank
 	}
+	/* store the old line terminator as we will need to restore it at the end
+	 * otherwise other commands on the same line will not run properly
+	 */
+	old_terminator = *c;
 	line_end = c;
 
 	// Print this line
@@ -60,4 +64,6 @@ void print_yyloc(YYLTYPE *llocp) {
 		fprintf(err_buffer, "^");
 	}
 	fprintf(err_buffer, "\n");
+	/* restore terminator */
+	*line_end = old_terminator;
 }

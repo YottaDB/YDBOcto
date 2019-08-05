@@ -48,10 +48,27 @@ int readline_get_more() {
 			return 0;
 		}
 		line_length = strlen(line);
+		// Trim the trailing white space here so that cur_input_index is always at the end of a query
+		// Otherwise the buffer will not be reset and multiple querys will end up in the debug info
+		int is_white_space = TRUE;
+		while(is_white_space){
+			switch (line[line_length - 1]) {
+				case ' ':
+					line_length--;
+					break;
+				case '\t':
+					line_length--;
+					break;
+				default:
+					line[line_length] = '\0';
+					is_white_space = FALSE;
+					break;
+			}
+		}
 		if(line_length == 0) {
-			// This means a user hit enter
-			input_buffer_combined[0] = '\n';
-			input_buffer_combined[1] = '\0';
+			/* This means a user hit enter
+			 * there is nothing to do
+			 */
 			return 1;
 		}
 		add_history(line);

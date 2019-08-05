@@ -1,0 +1,89 @@
+#################################################################
+#								#
+# Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	#
+# All rights reserved.						#
+#								#
+#	This source code contains the intellectual property	#
+#	of its copyright holder(s), and is made available	#
+#	under a license.  If you do not know the terms of	#
+#	the license, please stop and do not read further.	#
+#								#
+#################################################################
+
+load test_helpers
+
+setup() {
+  init_test
+  createdb
+  load_fixture names.sql
+  load_fixture names.zwr
+}
+
+@test "run two queries on the same line" {
+  octo >& output.txt <<OCTO
+select firstname from names limit 1; select lastname from names limit 1;
+OCTO
+  verify_output TM000 output.txt
+}
+
+@test "complete a dangling query on the same line" {
+  octo >& output.txt <<OCTO
+select firstname from names limit 1; select lastname from
+names limit 1;
+OCTO
+  verify_output TM001 output.txt
+}
+
+@test "test that -vv only reports the current parsed query" {
+  octo -vv >& output.txt <<OCTO
+select firstname from names limit 1; select lastname from names limit 1;
+select * from names limit 1;
+;
+OCTO
+  verify_output_info TM002 output.txt
+}
+
+@test "test that trailing white space is trimmed from commands so that -vv reports only the current parsed query" {
+# the first line has 5 spaces after it
+# to prevent white space stripping this must be echoed in to a temp file
+echo "select firstname from names limit 1;     " > input.in
+echo "select lastname from names limit 1;" >> input.in
+  octo -vv >& output.txt < input.in
+  verify_output_info TM003 output.txt
+}
+
+@test "test that input buffer is cleared on an invalid parse" {
+  octo -vv >& output.txt <<OCTO
+qwertyuiop;
+select * from names limit 1;
+OCTO
+  verify_output_info TM004 output.txt
+}
+
+@test "test that -vv reports dangling queries with blank lines" {
+  octo -vv >& output.txt <<OCTO
+select firstname from names
+
+
+
+
+limit 1;
+OCTO
+  verify_output_info TM005 output.txt
+}
+
+@test "test that a correct query after an error still runs" {
+  octo -vv >& output.txt <<OCTO
+qwerty; select * from names limit 1;
+OCTO
+  verify_output_info TM006 output.txt
+}
+
+@test "test that a correct query after a multiline error still runs" {
+  octo -vv >& output.txt <<OCTO
+qwerty
+uiop; select *
+from names limit 1;
+OCTO
+  verify_output_info TM007 output.txt
+}

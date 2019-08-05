@@ -177,7 +177,31 @@ verify_output() {
   sed -i 's/[0-9]\{2\}:[0-9]\{2\}:[0-9]\{2\}/TIME/' nodebug.txt
 
   # filter file path
-  sed -i 's/\/.*\/parser\.y:[0-9]*/PATH:LINENUM/' nodebug.txt
+  sed -i 's/\/.*\/.*\.[yc]:[0-9]*/PATH:LINENUM/' nodebug.txt
+
+  diff outref/$1.ref nodebug.txt
+  return
+}
+
+# some tests (that use -vv switch) need to see info so don't filter that
+verify_output_info() {
+  echo "Comparing outref/$1 $2"
+  copy_test_files outref/$1.ref
+
+  # filer verbosity statements from octo and psql
+  sed '/\[DEBUG\]\|^DEBUG:/,/^$/d' output.txt > nodebug.txt
+
+  # filter time and dates
+  sed -i 's/[0-9]\{4\}-[0-9]\{2\}-[0-9]\{2\}/DATE/' nodebug.txt
+  sed -i 's/[0-9]\{2\}:[0-9]\{2\}:[0-9]\{2\}/TIME/' nodebug.txt
+
+  # filter info header
+  sed -i '/OCTO>/,$!d' nodebug.txt
+
+  # filter file path
+  sed -i 's/\/*\/.*\.[yc]:[0-9]*/PATH:LINENUM/' nodebug.txt
+  sed -i 's/\.\/_ydbocto.*\.m/M_ROUTINE/' nodebug.txt
+  sed -i 's/cursor [0-9]*/CURSOR_NUM/' nodebug.txt
 
   diff outref/$1.ref nodebug.txt
   return

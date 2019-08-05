@@ -62,13 +62,18 @@ int main(int argc, char **argv)
 			 * This lets octo -vv dump the current query that is being parsed instead of dumping
 			 * all queries that have been keyed in till now.
 			 */
-			cur_input_index = 0;
-			input_buffer_combined[cur_input_index] = '\0';
+			/* All current queries in the buffer will have been read when
+			 * cur_input_index+1 is the location of \0 in the buffer.
+			 * After this reset the buffer.
+			 */
+			if(input_buffer_combined[cur_input_index+1] == '\0'){
+				cur_input_index = 0;
+				input_buffer_combined[cur_input_index] = '\0';
+			}
 		}
 		/* else: It is a file input and we cannot easily clear input buffer */
 		/* Read new query and run it at the same time */
-		if(run_query(input_buffer_combined, &print_temporary_table, NULL) == 0) {
-		}
+		run_query(input_buffer_combined, &print_temporary_table, NULL);
 		if(eof_hit)
 			break;
 	} while(!feof(inputFile));

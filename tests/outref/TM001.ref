@@ -1,0 +1,5 @@
+OCTO> select firstname from names limit 1; select lastname from
+Zero
+OCTO> names limit 1;
+Cool
+OCTO> 

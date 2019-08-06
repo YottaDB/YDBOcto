@@ -7,6 +7,7 @@ Running query file query1.sql : [select * from (select * from names as n2) as n1
 4|Joey|
 5|Zero|Cool
 
+
 Running query file query2.sql : [select * from (select * from names as n2);]
 -------------------------------------------------
 0|Zero|Cool
@@ -15,6 +16,7 @@ Running query file query2.sql : [select * from (select * from names as n2);]
 3|Lord|Nikon
 4|Joey|
 5|Zero|Cool
+
 
 Running query file query3.sql : [select * from (select * from names) as n1;]
 -------------------------------------------------
@@ -25,6 +27,7 @@ Running query file query3.sql : [select * from (select * from names) as n1;]
 4|Joey|
 5|Zero|Cool
 
+
 Running query file query4.sql : [select * from (select * from names);]
 -------------------------------------------------
 0|Zero|Cool
@@ -33,6 +36,7 @@ Running query file query4.sql : [select * from (select * from names);]
 3|Lord|Nikon
 4|Joey|
 5|Zero|Cool
+
 
 Running query file query5.sql : [select * from (select firstname from names) as n1;]
 -------------------------------------------------
@@ -43,6 +47,7 @@ Lord
 Joey
 Zero
 
+
 Running query file query6.sql : [select * from (select firstname from names);]
 -------------------------------------------------
 Zero
@@ -52,37 +57,46 @@ Lord
 Joey
 Zero
 
+
 Running query file query7.sql : [select * from (select invalid from names) as n1;]
 -------------------------------------------------
 [ WARN] PATH:LINENUM DATE TIME : Unknown column: INVALID
 
 select * from (select invalid from names) as n1;
-                      ^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: 
+                      ^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select * from (select invalid from names) as n1;
+
+
 
 Running query file query8.sql : [select * from (select invalid from names);]
 -------------------------------------------------
 [ WARN] PATH:LINENUM DATE TIME : Unknown column: INVALID
 
 select * from (select invalid from names);
-                      ^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: 
+                      ^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select * from (select invalid from names);
+
+
 
 Running query file query9.sql : [select * from (select n1.firstname from names) as n1;]
 -------------------------------------------------
 [ WARN] PATH:LINENUM DATE TIME : Unknown column: FIRSTNAME
 
 select * from (select n1.firstname from names) as n1;
-                      ^^^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: 
+                      ^^^^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select * from (select n1.firstname from names) as n1;
+
+
 
 Running query file query10.sql : [select * from (select n1.invalid from names) as n1;]
 -------------------------------------------------
 [ WARN] PATH:LINENUM DATE TIME : Unknown column: INVALID
 
 select * from (select n1.invalid from names) as n1;
-                      ^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: 
+                      ^^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select * from (select n1.invalid from names) as n1;
+
+
 
 Running query file query11.sql : [select * from (select n2.firstname from names as n2) as n1;]
 -------------------------------------------------
@@ -93,6 +107,7 @@ Lord
 Joey
 Zero
 
+
 Running query file query12.sql : [select * from (select n2.firstname from names as n2);]
 -------------------------------------------------
 Zero
@@ -102,21 +117,26 @@ Lord
 Joey
 Zero
 
+
 Running query file query13.sql : [select * from (select n2.invalid from names as n2) as n1;]
 -------------------------------------------------
 [ WARN] PATH:LINENUM DATE TIME : Unknown column: INVALID
 
 select * from (select n2.invalid from names as n2) as n1;
-                      ^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: 
+                      ^^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select * from (select n2.invalid from names as n2) as n1;
+
+
 
 Running query file query14.sql : [select * from (select n2.invalid from names as n2);]
 -------------------------------------------------
 [ WARN] PATH:LINENUM DATE TIME : Unknown column: INVALID
 
 select * from (select n2.invalid from names as n2);
-                      ^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: 
+                      ^^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select * from (select n2.invalid from names as n2);
+
+
 
 Running query file query15.sql : [select firstname from (select * from names as n2) as n1;]
 -------------------------------------------------
@@ -127,6 +147,7 @@ Lord
 Joey
 Zero
 
+
 Running query file query16.sql : [select firstname from (select * from names as n2);]
 -------------------------------------------------
 Zero
@@ -135,6 +156,7 @@ Cereal
 Lord
 Joey
 Zero
+
 
 Running query file query17.sql : [select firstname from (select * from names) as n1;]
 -------------------------------------------------
@@ -145,6 +167,7 @@ Lord
 Joey
 Zero
 
+
 Running query file query18.sql : [select firstname from (select * from names);]
 -------------------------------------------------
 Zero
@@ -153,6 +176,7 @@ Cereal
 Lord
 Joey
 Zero
+
 
 Running query file query19.sql : [select firstname from (select firstname from names) as n1;]
 -------------------------------------------------
@@ -163,6 +187,7 @@ Lord
 Joey
 Zero
 
+
 Running query file query20.sql : [select firstname from (select firstname from names);]
 -------------------------------------------------
 Zero
@@ -172,65 +197,78 @@ Lord
 Joey
 Zero
 
+
 Running query file query21.sql : [select firstname from (select invalid from names) as n1;]
 -------------------------------------------------
 [ WARN] PATH:LINENUM DATE TIME : Unknown column: INVALID
 
 select firstname from (select invalid from names) as n1;
-                              ^^^^^^^^
+                              ^^^^^^^
 [ WARN] PATH:LINENUM DATE TIME : Unknown column: FIRSTNAME
 
 select firstname from (select invalid from names) as n1;
-       ^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: 
+       ^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select firstname from (select invalid from names) as n1;
+
+
 
 Running query file query22.sql : [select firstname from (select invalid from names);]
 -------------------------------------------------
 [ WARN] PATH:LINENUM DATE TIME : Unknown column: INVALID
 
 select firstname from (select invalid from names);
-                              ^^^^^^^^
+                              ^^^^^^^
 [ WARN] PATH:LINENUM DATE TIME : Unknown column: FIRSTNAME
 
 select firstname from (select invalid from names);
-       ^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: 
+       ^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select firstname from (select invalid from names);
+
+
 
 Running query file query23.sql : [select firstname from (select lastname from names as n2) as n1;]
 -------------------------------------------------
 [ WARN] PATH:LINENUM DATE TIME : Unknown column: FIRSTNAME
 
 select firstname from (select lastname from names as n2) as n1;
-       ^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: 
+       ^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select firstname from (select lastname from names as n2) as n1;
+
+
 
 Running query file query24.sql : [select firstname from (select lastname from names);]
 -------------------------------------------------
 [ WARN] PATH:LINENUM DATE TIME : Unknown column: FIRSTNAME
 
 select firstname from (select lastname from names);
-       ^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: 
+       ^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select firstname from (select lastname from names);
+
+
 
 Running query file query25.sql : [select firstname from (select n1.firstname from names) as n1;]
 -------------------------------------------------
 [ WARN] PATH:LINENUM DATE TIME : Unknown column: FIRSTNAME
 
 select firstname from (select n1.firstname from names) as n1;
-                              ^^^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: 
+                              ^^^^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select firstname from (select n1.firstname from names) as n1;
+
+
 
 Running query file query26.sql : [select firstname from (select n1.invalid from names) as n1;]
 -------------------------------------------------
 [ WARN] PATH:LINENUM DATE TIME : Unknown column: INVALID
 
 select firstname from (select n1.invalid from names) as n1;
-                              ^^^^^^^^^^^
+                              ^^^^^^^^^^
 [ WARN] PATH:LINENUM DATE TIME : Unknown column: FIRSTNAME
 
 select firstname from (select n1.invalid from names) as n1;
-       ^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: 
+       ^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select firstname from (select n1.invalid from names) as n1;
+
+
 
 Running query file query27.sql : [select firstname from (select n2.firstname from names as n2);]
 -------------------------------------------------
@@ -241,213 +279,260 @@ Lord
 Joey
 Zero
 
+
 Running query file query28.sql : [select firstname from (select n2.invalid from names as n2);]
 -------------------------------------------------
 [ WARN] PATH:LINENUM DATE TIME : Unknown column: INVALID
 
 select firstname from (select n2.invalid from names as n2);
-                              ^^^^^^^^^^^
+                              ^^^^^^^^^^
 [ WARN] PATH:LINENUM DATE TIME : Unknown column: FIRSTNAME
 
 select firstname from (select n2.invalid from names as n2);
-       ^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: 
+       ^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select firstname from (select n2.invalid from names as n2);
+
+
 
 Running query file query29.sql : [select invalid from (select * from names as n2) as n1;]
 -------------------------------------------------
 [ WARN] PATH:LINENUM DATE TIME : Unknown column: INVALID
 
 select invalid from (select * from names as n2) as n1;
-       ^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: 
+       ^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select invalid from (select * from names as n2) as n1;
+
+
 
 Running query file query30.sql : [select invalid from (select * from names as n2);]
 -------------------------------------------------
 [ WARN] PATH:LINENUM DATE TIME : Unknown column: INVALID
 
 select invalid from (select * from names as n2);
-       ^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: 
+       ^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select invalid from (select * from names as n2);
+
+
 
 Running query file query31.sql : [select invalid from (select * from names) as n1;]
 -------------------------------------------------
 [ WARN] PATH:LINENUM DATE TIME : Unknown column: INVALID
 
 select invalid from (select * from names) as n1;
-       ^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: 
+       ^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select invalid from (select * from names) as n1;
+
+
 
 Running query file query32.sql : [select invalid from (select * from names);]
 -------------------------------------------------
 [ WARN] PATH:LINENUM DATE TIME : Unknown column: INVALID
 
 select invalid from (select * from names);
-       ^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: 
+       ^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select invalid from (select * from names);
+
+
 
 Running query file query33.sql : [select invalid from (select firstname from names) as n1;]
 -------------------------------------------------
 [ WARN] PATH:LINENUM DATE TIME : Unknown column: INVALID
 
 select invalid from (select firstname from names) as n1;
-       ^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: 
+       ^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select invalid from (select firstname from names) as n1;
+
+
 
 Running query file query34.sql : [select invalid from (select firstname from names);]
 -------------------------------------------------
 [ WARN] PATH:LINENUM DATE TIME : Unknown column: INVALID
 
 select invalid from (select firstname from names);
-       ^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: 
+       ^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select invalid from (select firstname from names);
+
+
 
 Running query file query35.sql : [select invalid from (select invalid from names as n2) as n1;]
 -------------------------------------------------
 [ WARN] PATH:LINENUM DATE TIME : Unknown column: INVALID
 
 select invalid from (select invalid from names as n2) as n1;
-                            ^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: 
+                            ^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select invalid from (select invalid from names as n2) as n1;
+
+
 
 Running query file query36.sql : [select invalid from (select invalid from names) as n1;]
 -------------------------------------------------
 [ WARN] PATH:LINENUM DATE TIME : Unknown column: INVALID
 
 select invalid from (select invalid from names) as n1;
-                            ^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: 
+                            ^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select invalid from (select invalid from names) as n1;
+
+
 
 Running query file query37.sql : [select invalid from (select invalid from names);]
 -------------------------------------------------
 [ WARN] PATH:LINENUM DATE TIME : Unknown column: INVALID
 
 select invalid from (select invalid from names);
-                            ^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: 
+                            ^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select invalid from (select invalid from names);
+
+
 
 Running query file query38.sql : [select invalid from (select n1.firstname from names) as n1;]
 -------------------------------------------------
 [ WARN] PATH:LINENUM DATE TIME : Unknown column: FIRSTNAME
 
 select invalid from (select n1.firstname from names) as n1;
-                            ^^^^^^^^^^^^^
+                            ^^^^^^^^^^^^
 [ WARN] PATH:LINENUM DATE TIME : Unknown column: INVALID
 
 select invalid from (select n1.firstname from names) as n1;
-       ^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: 
+       ^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select invalid from (select n1.firstname from names) as n1;
+
+
 
 Running query file query39.sql : [select invalid from (select n1.invalid from names) as n1;]
 -------------------------------------------------
 [ WARN] PATH:LINENUM DATE TIME : Unknown column: INVALID
 
 select invalid from (select n1.invalid from names) as n1;
-                            ^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: 
+                            ^^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select invalid from (select n1.invalid from names) as n1;
+
+
 
 Running query file query40.sql : [select invalid from (select n2.firstname from names as n2);]
 -------------------------------------------------
 [ WARN] PATH:LINENUM DATE TIME : Unknown column: INVALID
 
 select invalid from (select n2.firstname from names as n2);
-       ^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: 
+       ^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select invalid from (select n2.firstname from names as n2);
+
+
 
 Running query file query41.sql : [select invalid from (select n2.invalid from names as n2);]
 -------------------------------------------------
 [ WARN] PATH:LINENUM DATE TIME : Unknown column: INVALID
 
 select invalid from (select n2.invalid from names as n2);
-                            ^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: 
+                            ^^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select invalid from (select n2.invalid from names as n2);
+
+
 
 Running query file query42.sql : [select invalid as invalid1 from (select invalid from names);]
 -------------------------------------------------
 [ WARN] PATH:LINENUM DATE TIME : Unknown column: INVALID
 
 select invalid as invalid1 from (select invalid from names);
-                                        ^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: 
+                                        ^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select invalid as invalid1 from (select invalid from names);
+
+
 
 Running query file query43.sql : [select invalid as invalid from names;]
 -------------------------------------------------
 [ WARN] PATH:LINENUM DATE TIME : Unknown column: INVALID
 
 select invalid as invalid from names;
-       ^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: 
+       ^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select invalid as invalid from names;
+
+
 
 Running query file query44.sql : [select invalid1 as invalid from names;]
 -------------------------------------------------
 [ WARN] PATH:LINENUM DATE TIME : Unknown column: INVALID1
 
 select invalid1 as invalid from names;
-       ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: 
+       ^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select invalid1 as invalid from names;
+
+
 
 Running query file query45.sql : [select invalid as invalid1 from names;]
 -------------------------------------------------
 [ WARN] PATH:LINENUM DATE TIME : Unknown column: INVALID
 
 select invalid as invalid1 from names;
-       ^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: 
+       ^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select invalid as invalid1 from names;
+
+
 
 Running query file query46.sql : [select invalid1 from (select invalid2 from names) as n1;]
 -------------------------------------------------
 [ WARN] PATH:LINENUM DATE TIME : Unknown column: INVALID2
 
 select invalid1 from (select invalid2 from names) as n1;
-                             ^^^^^^^^^
+                             ^^^^^^^^
 [ WARN] PATH:LINENUM DATE TIME : Unknown column: INVALID1
 
 select invalid1 from (select invalid2 from names) as n1;
-       ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: 
+       ^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select invalid1 from (select invalid2 from names) as n1;
+
+
 
 Running query file query47.sql : [select invalid1 from (select invalid2 from names);]
 -------------------------------------------------
 [ WARN] PATH:LINENUM DATE TIME : Unknown column: INVALID2
 
 select invalid1 from (select invalid2 from names);
-                             ^^^^^^^^^
+                             ^^^^^^^^
 [ WARN] PATH:LINENUM DATE TIME : Unknown column: INVALID1
 
 select invalid1 from (select invalid2 from names);
-       ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: 
+       ^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select invalid1 from (select invalid2 from names);
+
+
 
 Running query file query48.sql : [select invalid1 from (select n1.invalid2 from names) as n1;]
 -------------------------------------------------
 [ WARN] PATH:LINENUM DATE TIME : Unknown column: INVALID2
 
 select invalid1 from (select n1.invalid2 from names) as n1;
-                             ^^^^^^^^^^^^
+                             ^^^^^^^^^^^
 [ WARN] PATH:LINENUM DATE TIME : Unknown column: INVALID1
 
 select invalid1 from (select n1.invalid2 from names) as n1;
-       ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: 
+       ^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select invalid1 from (select n1.invalid2 from names) as n1;
+
+
 
 Running query file query49.sql : [select invalid1 from (select n2.invalid2 from names as n2);]
 -------------------------------------------------
 [ WARN] PATH:LINENUM DATE TIME : Unknown column: INVALID2
 
 select invalid1 from (select n2.invalid2 from names as n2);
-                             ^^^^^^^^^^^^
+                             ^^^^^^^^^^^
 [ WARN] PATH:LINENUM DATE TIME : Unknown column: INVALID1
 
 select invalid1 from (select n2.invalid2 from names as n2);
-       ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: 
+       ^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select invalid1 from (select n2.invalid2 from names as n2);
+
+
 
 Running query file query50.sql : [select invalid1 from (select invalid as invalid1 from names);]
 -------------------------------------------------
 [ WARN] PATH:LINENUM DATE TIME : Unknown column: INVALID
 
 select invalid1 from (select invalid as invalid1 from names);
-                             ^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: 
+                             ^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select invalid1 from (select invalid as invalid1 from names);
+
+
 
 Running query file query51.sql : [select n1.firstname from (select * from names as n2) as n1;]
 -------------------------------------------------
@@ -458,6 +543,7 @@ Lord
 Joey
 Zero
 
+
 Running query file query52.sql : [select n1.firstname from (select * from names) as n1;]
 -------------------------------------------------
 Zero
@@ -467,25 +553,30 @@ Lord
 Joey
 Zero
 
+
 Running query file query53.sql : [select n1.firstname from (select n1.firstname from names) as n1;]
 -------------------------------------------------
 [ WARN] PATH:LINENUM DATE TIME : Unknown column: FIRSTNAME
 
 select n1.firstname from (select n1.firstname from names) as n1;
-                                 ^^^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: 
+                                 ^^^^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select n1.firstname from (select n1.firstname from names) as n1;
+
+
 
 Running query file query54.sql : [select n1.firstname from (select n1.invalid from names) as n1;]
 -------------------------------------------------
 [ WARN] PATH:LINENUM DATE TIME : Unknown column: INVALID
 
 select n1.firstname from (select n1.invalid from names) as n1;
-                                 ^^^^^^^^^^^
+                                 ^^^^^^^^^^
 [ WARN] PATH:LINENUM DATE TIME : Unknown column: FIRSTNAME
 
 select n1.firstname from (select n1.invalid from names) as n1;
-       ^^^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: 
+       ^^^^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select n1.firstname from (select n1.invalid from names) as n1;
+
+
 
 Running query file query55.sql : [select n1.firstname from (select n2.firstname from names as n2) as n1;]
 -------------------------------------------------
@@ -496,164 +587,198 @@ Lord
 Joey
 Zero
 
+
 Running query file query56.sql : [select n1.firstname from (select n2.invalid from names as n2) as n1;]
 -------------------------------------------------
 [ WARN] PATH:LINENUM DATE TIME : Unknown column: INVALID
 
 select n1.firstname from (select n2.invalid from names as n2) as n1;
-                                 ^^^^^^^^^^^
+                                 ^^^^^^^^^^
 [ WARN] PATH:LINENUM DATE TIME : Unknown column: FIRSTNAME
 
 select n1.firstname from (select n2.invalid from names as n2) as n1;
-       ^^^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: 
+       ^^^^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select n1.firstname from (select n2.invalid from names as n2) as n1;
+
+
 
 Running query file query57.sql : [select n1.invalid from (select * from names as n2) as n1;]
 -------------------------------------------------
 [ WARN] PATH:LINENUM DATE TIME : Unknown column: INVALID
 
 select n1.invalid from (select * from names as n2) as n1;
-       ^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: 
+       ^^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select n1.invalid from (select * from names as n2) as n1;
+
+
 
 Running query file query58.sql : [select n1.invalid from (select * from names) as n1;]
 -------------------------------------------------
 [ WARN] PATH:LINENUM DATE TIME : Unknown column: INVALID
 
 select n1.invalid from (select * from names) as n1;
-       ^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: 
+       ^^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select n1.invalid from (select * from names) as n1;
+
+
 
 Running query file query59.sql : [select n1.invalid from (select n1.firstname from names) as n1;]
 -------------------------------------------------
 [ WARN] PATH:LINENUM DATE TIME : Unknown column: FIRSTNAME
 
 select n1.invalid from (select n1.firstname from names) as n1;
-                               ^^^^^^^^^^^^^
+                               ^^^^^^^^^^^^
 [ WARN] PATH:LINENUM DATE TIME : Unknown column: INVALID
 
 select n1.invalid from (select n1.firstname from names) as n1;
-       ^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: 
+       ^^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select n1.invalid from (select n1.firstname from names) as n1;
+
+
 
 Running query file query60.sql : [select n1.invalid from (select n1.invalid from names) as n1;]
 -------------------------------------------------
 [ WARN] PATH:LINENUM DATE TIME : Unknown column: INVALID
 
 select n1.invalid from (select n1.invalid from names) as n1;
-                               ^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: 
+                               ^^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select n1.invalid from (select n1.invalid from names) as n1;
+
+
 
 Running query file query61.sql : [select n1.invalid from (select n2.firstname from names as n2) as n1;]
 -------------------------------------------------
 [ WARN] PATH:LINENUM DATE TIME : Unknown column: INVALID
 
 select n1.invalid from (select n2.firstname from names as n2) as n1;
-       ^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: 
+       ^^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select n1.invalid from (select n2.firstname from names as n2) as n1;
+
+
 
 Running query file query62.sql : [select n1.invalid from (select n2.invalid from names as n2) as n1;]
 -------------------------------------------------
 [ WARN] PATH:LINENUM DATE TIME : Unknown column: INVALID
 
 select n1.invalid from (select n2.invalid from names as n2) as n1;
-                               ^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: 
+                               ^^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select n1.invalid from (select n2.invalid from names as n2) as n1;
+
+
 
 Running query file query63.sql : [select n1.invalid1 from (select n1.invalid2 from names) as n1;]
 -------------------------------------------------
 [ WARN] PATH:LINENUM DATE TIME : Unknown column: INVALID2
 
 select n1.invalid1 from (select n1.invalid2 from names) as n1;
-                                ^^^^^^^^^^^^
+                                ^^^^^^^^^^^
 [ WARN] PATH:LINENUM DATE TIME : Unknown column: INVALID1
 
 select n1.invalid1 from (select n1.invalid2 from names) as n1;
-       ^^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: 
+       ^^^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select n1.invalid1 from (select n1.invalid2 from names) as n1;
+
+
 
 Running query file query64.sql : [select n1.invalid1 from (select n2.invalid2 from names as n2) as n1;]
 -------------------------------------------------
 [ WARN] PATH:LINENUM DATE TIME : Unknown column: INVALID2
 
 select n1.invalid1 from (select n2.invalid2 from names as n2) as n1;
-                                ^^^^^^^^^^^^
+                                ^^^^^^^^^^^
 [ WARN] PATH:LINENUM DATE TIME : Unknown column: INVALID1
 
 select n1.invalid1 from (select n2.invalid2 from names as n2) as n1;
-       ^^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: 
+       ^^^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select n1.invalid1 from (select n2.invalid2 from names as n2) as n1;
+
+
 
 Running query file query65.sql : [select n2.firstname from (select * from names as n2);]
 -------------------------------------------------
 [ WARN] PATH:LINENUM DATE TIME : Unknown column: FIRSTNAME
 
 select n2.firstname from (select * from names as n2);
-       ^^^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: 
+       ^^^^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select n2.firstname from (select * from names as n2);
+
+
 
 Running query file query66.sql : [select n2.firstname from (select n2.firstname from names as n2);]
 -------------------------------------------------
 [ WARN] PATH:LINENUM DATE TIME : Unknown column: FIRSTNAME
 
 select n2.firstname from (select n2.firstname from names as n2);
-       ^^^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: 
+       ^^^^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select n2.firstname from (select n2.firstname from names as n2);
+
+
 
 Running query file query67.sql : [select n2.firstname from (select n2.invalid from names as n2);]
 -------------------------------------------------
 [ WARN] PATH:LINENUM DATE TIME : Unknown column: INVALID
 
 select n2.firstname from (select n2.invalid from names as n2);
-                                 ^^^^^^^^^^^
+                                 ^^^^^^^^^^
 [ WARN] PATH:LINENUM DATE TIME : Unknown column: FIRSTNAME
 
 select n2.firstname from (select n2.invalid from names as n2);
-       ^^^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: 
+       ^^^^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select n2.firstname from (select n2.invalid from names as n2);
+
+
 
 Running query file query68.sql : [select n2.invalid from (select * from names as n2);]
 -------------------------------------------------
 [ WARN] PATH:LINENUM DATE TIME : Unknown column: INVALID
 
 select n2.invalid from (select * from names as n2);
-       ^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: 
+       ^^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select n2.invalid from (select * from names as n2);
+
+
 
 Running query file query69.sql : [select n2.invalid from (select n2.firstname from names as n2);]
 -------------------------------------------------
 [ WARN] PATH:LINENUM DATE TIME : Unknown column: INVALID
 
 select n2.invalid from (select n2.firstname from names as n2);
-       ^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: 
+       ^^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select n2.invalid from (select n2.firstname from names as n2);
+
+
 
 Running query file query70.sql : [select n2.invalid from (select n2.invalid from names as n2);]
 -------------------------------------------------
 [ WARN] PATH:LINENUM DATE TIME : Unknown column: INVALID
 
 select n2.invalid from (select n2.invalid from names as n2);
-                               ^^^^^^^^^^^
+                               ^^^^^^^^^^
 [ WARN] PATH:LINENUM DATE TIME : Unknown column: INVALID
 
 select n2.invalid from (select n2.invalid from names as n2);
-       ^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: 
+       ^^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select n2.invalid from (select n2.invalid from names as n2);
+
+
 
 Running query file query71.sql : [select n2.invalid1 from (select n2.invalid2 from names as n2);]
 -------------------------------------------------
 [ WARN] PATH:LINENUM DATE TIME : Unknown column: INVALID2
 
 select n2.invalid1 from (select n2.invalid2 from names as n2);
-                                ^^^^^^^^^^^^
+                                ^^^^^^^^^^^
 [ WARN] PATH:LINENUM DATE TIME : Unknown column: INVALID1
 
 select n2.invalid1 from (select n2.invalid2 from names as n2);
-       ^^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: 
+       ^^^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select n2.invalid1 from (select n2.invalid2 from names as n2);
+
+
 
 Running query file query72.sql : [select NULL as a from names order by a;]
 -------------------------------------------------
+
 
 
 

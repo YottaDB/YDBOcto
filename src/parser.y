@@ -179,11 +179,11 @@ sql_statement
   | sql_data_statement semicolon_or_eof { *out = $1; YYACCEPT; }
   | query_expression semicolon_or_eof {
       if(qualify_query($1, NULL)) {
-          YYERROR;
+          YYABORT;
       }
       SqlValueType type;
       if(populate_data_type($1, &type)) {
-          YYERROR;
+          YYABORT;
       }
       *out = $1; YYACCEPT;
     }

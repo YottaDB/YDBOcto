@@ -11,3 +11,4 @@ limit 1;]
 [ INFO] PATH:LINENUM DATE TIME : print_temporary_table()
 Zero
 OCTO> [ INFO] PATH:LINENUM DATE TIME : Parsing done for SQL command []
+

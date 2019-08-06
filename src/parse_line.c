@@ -28,7 +28,7 @@
 SqlStatement *parse_line(const char *line) {
 	SqlStatement *result = 0;
 	yyscan_t scanner;
-	int line_length, old_input_index;
+	int line_length;
 
 	if(line != input_buffer_combined) {
 		INFO(CUSTOM_ERROR, "Moving line to input_buffer_combined");
@@ -49,7 +49,6 @@ SqlStatement *parse_line(const char *line) {
 	/* To print only the current query store the index for the last one
 	 * then print the difference between the cur_input_index - old_input_index
 	 */
-	old_input_index = cur_input_index;
 	int status = yyparse(scanner, &result, &config->plan_id);
 	yylex_destroy(scanner);
 	if(status)

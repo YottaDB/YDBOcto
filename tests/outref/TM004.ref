@@ -14,3 +14,4 @@ OCTO> select * from names limit 1;
 [ INFO] PATH:LINENUM DATE TIME : print_temporary_table()
 0|Zero|Cool
 OCTO> [ INFO] PATH:LINENUM DATE TIME : Parsing done for SQL command []
+

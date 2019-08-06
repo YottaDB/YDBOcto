@@ -143,6 +143,7 @@ int no_more();
 /* Globals */
 SqlTable *definedTables;
 int cur_input_index;
+int old_input_index;
 int cur_input_max;
 int eof_hit;
 FILE *inputFile;

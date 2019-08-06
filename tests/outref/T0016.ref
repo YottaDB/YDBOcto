@@ -1,5 +1,6 @@
 OCTO> SELECT firstname as alias from names order by alias
-OCTO> Acid
+OCTO> 
+Acid
 Cereal
 Joey
 Lord

@@ -41,7 +41,7 @@ int run_query(char *sql_query, void (*callback)(SqlStatement *, int, void*, char
 	gtm_long_t	cursorId;
 	hash128_state_t	state;
 	int		done, routine_len = 0;
-	int		status, old_input_index;
+	int		status;
 	size_t		buffer_size = 0;
 	ydb_buffer_t	*filename_lock = NULL;
 	ydb_string_t	ci_filename, ci_routine;

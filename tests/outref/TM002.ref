@@ -18,3 +18,4 @@ OCTO> select * from names limit 1;
 OCTO> ;
 [ INFO] PATH:LINENUM DATE TIME : Parsing done for SQL command [;]
 OCTO> [ INFO] PATH:LINENUM DATE TIME : Parsing done for SQL command []
+

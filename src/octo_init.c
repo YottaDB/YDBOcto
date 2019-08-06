@@ -332,6 +332,7 @@ int octo_init(int argc, char **argv) {
 	cur_input_max = MAX_STR_CONST;
 	input_buffer_combined = malloc(MAX_STR_CONST);
 	memset(input_buffer_combined, 0, MAX_STR_CONST);
+	old_input_index = 0;
 	cur_input_index = 0;
 	cur_input_more = &no_more;
 	eof_hit = 0;

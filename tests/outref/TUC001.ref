@@ -1,0 +1,8 @@
+OCTO> select notathing as a from names; select * from names limit 1;
+[ WARN] PATH:LINENUM DATE TIME : Unknown column: NOTATHING
+
+select notathing as a from names; select * from names limit 1;
+       ^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select notathing as a from names; 
+0|Zero|Cool
+OCTO> 

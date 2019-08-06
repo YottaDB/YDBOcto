@@ -59,6 +59,7 @@ ADD_BATS_TEST(test_exit)
 ADD_BATS_TEST(test_help_option)
 ADD_BATS_TEST(test_long_lines)
 ADD_BATS_TEST(test_multicmd_line)
+ADD_BATS_TEST(test_unknown_column)
 
 find_program(psql NAMES psql)
 if(psql)

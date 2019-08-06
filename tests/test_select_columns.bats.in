@@ -88,7 +88,7 @@ OCTO
   octo <<OCTO 2>&1 | tee output.txt
 select 17+5*5;
 OCTO
-  [[ $( grep -c "42" output.txt) == "1" ]]
+  [[ $( grep -c "^42$" output.txt) == "1" ]]
 }
 
 @test "select without a from with a syntax error" {

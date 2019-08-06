@@ -1,0 +1,73 @@
+#################################################################
+#								#
+# Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	#
+# All rights reserved.						#
+#								#
+#	This source code contains the intellectual property	#
+#	of its copyright holder(s), and is made available	#
+#	under a license.  If you do not know the terms of	#
+#	the license, please stop and do not read further.	#
+#								#
+#################################################################
+
+load test_helpers
+
+setup() {
+  init_test
+  createdb
+  load_fixture names.sql
+  load_fixture names.zwr
+}
+
+@test "test unknown column with alias doesn't stop the next query from running" {
+  octo >& output.txt <<OCTO
+select notathing as a from names;
+select * from names limit 1;
+OCTO
+  verify_output TUC000 output.txt
+}
+
+@test "test unknown column with alias doesn't stop the next query from running on one line" {
+  octo >& output.txt <<OCTO
+select notathing as a from names; select * from names limit 1;
+OCTO
+  verify_output TUC001 output.txt
+}
+
+@test "test unknown column in where clause doesn't stop the next query from running" {
+  octo >& output.txt <<OCTO
+select * from names where notathing = 0;
+select * from names limit 1;
+OCTO
+  verify_output TUC002 output.txt
+}
+
+@test "test unknown column in where clause doesn't stop the next query from running on one line" {
+  octo >& output.txt <<OCTO
+select * from names where notathing = 0; select * from names limit 1;
+OCTO
+  verify_output TUC003 output.txt
+}
+
+@test "test 2 unknown column queries in a row" {
+  octo >& output.txt <<OCTO
+select * from names where notathing = 0; select * from names where alsonotathing = 1; select * from names limit 1;
+OCTO
+  verify_output TUC004 output.txt
+}
+
+@test "test 2 unknown columns in the same query" {
+  octo >& output.txt <<OCTO
+select * from names where notathing = 0 and alsonotathing = 1; select * from names limit 1;
+OCTO
+  verify_output TUC005 output.txt
+}
+
+@test "test 2 unknown column muliline queries in a row" {
+  octo >& output.txt <<OCTO
+select notathing as a
+from names; select * from names where
+alsonotathing = 0; select * from names limit 1;
+OCTO
+  verify_output TUC006 output.txt
+}

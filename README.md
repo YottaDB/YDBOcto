@@ -13,7 +13,7 @@ YottaDB r1.26 or greater is required for successful installation of Octo. Instal
 
 *NOTE: the environment variable `$ydb_dist` is required to be defined - `$gtm_dist` is not a valid subsitute*
 
-## Quickstart - Install from source
+## Quickstart - Install prerequisites
 
 * Install YottaDB POSIX plugin
 
@@ -42,6 +42,29 @@ sudo ydb_dist=$ydb_dist make -j `grep -c ^processor /proc/cpuinfo`
 sudo ydb_dist=$ydb_dist make install
 ```
 
+### Quickstart - Install from binary
+
+Note: there are no binary releases during the beta period
+
+* Decompress the Octo binary package
+
+```sh
+tar xzf Octo-*-Linux.tar.gz
+```
+
+* Install Octo
+
+This will install Octo to your `$ydb_dist/plugin` directory.
+
+```sh
+cd Octo-*-Linux
+./install.sh
+```
+
+### Quickstart - Install from source
+
+Note: This is the recommended instructions during the beta period as it provides the easiest upgrade path from each commit.
+
 * Install prerequisite packages
 
 ```sh
@@ -58,7 +81,7 @@ sudo yum install vim-common cmake3 bison flex readline-devel libconfig-devel ope
 
 Octo uses BATS for automated integration and regression testing. To use BATS to run tests on Octo, BATS version 1.1+ must be installed:
 
-```
+```sh
 git clone https://github.com/bats-core/bats-core.git
 cd bats-core
 sudo ./install.sh /usr
@@ -89,11 +112,32 @@ make -j `grep -c ^processor /proc/cpuinfo`
 
 * Install Octo
 
+You may want to back up your global `octo.conf` located in `$ydb_dist/plugin/etc/octo.conf` before installing Octo as it may be overwritten. To backup your global `octo.conf`:
+
+```sh
+cp $ydb_dist/plugin/etc/octo.conf $ydb_dist/plugin/etc/octo.conf.bak
+```
+
+Install Octo
+
 ```sh
 make install
 ```
 
-### Optional CMake parameters
+You will want to review if there are any change needed to your backed up global `octo.conf` before restoring it. To restore the backed up global `octo.conf`:
+
+```sh
+cp $ydb_dist/plugin/etc/octo.conf.bak $ydb_dist/plugin/etc/octo.conf
+```
+
+* Install PostgreSQL seed data
+
+```sh
+$ydb_dist/mupip load $ydb_dist/plugin/etc/postgres-seed.zwr
+$ydb_dist/plugin/bin/octo -f $ydb_dist/plugin/etc/postgres-seed.sql
+```
+
+#### Optional CMake parameters
 
 Octo uses some cmake parameters to control generation of fixed-size buffer allocations. These are:
 
@@ -148,11 +192,11 @@ Octo requires that `$ydb_dist/plugin/o/_ydbocto.so`, `$ydb_dist/plugin/o/_ydbpos
 All octo related globals are prefixed with `^%ydbocto`. Using normal global mapping procedures for an existing application global directory (where you want to run Octo), map the global variable namespace `^%ydbocto*` to a separate region (and its associated database file) that meets the below requirements (the below example commands assume the separate region is named `OCTO`).
 
 * `NULL_SUBSCRIPTS` must be set to `ALWAYS`.
-   * Example: `$ydb_dist/mupip set -null_subscripts=true -region 'OCTO'`
+  * Example: `$ydb_dist/mupip set -null_subscripts=true -region 'OCTO'`
 * `KEY_SIZE` must be tuned to your data - this can be set to the maximum allowed by YottaDB - `1019`.
-   * Example: `$ydb_dist/mupip set -key_size=1019 -region 'OCTO'`
+  * Example: `$ydb_dist/mupip set -key_size=1019 -region 'OCTO'`
 * `RECORD_SIZE` must be tuned to your data/queries - a reasonable starting value is `300000`.
-   * Example: `$ydb_dist/mupip set -record_size=300000 -region 'OCTO'`
+  * Example: `$ydb_dist/mupip set -record_size=300000 -region 'OCTO'`
 
 ### TLS/SSL Configuration
 

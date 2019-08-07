@@ -54,7 +54,11 @@ if [[ $install =~ ^[Yy]$ ]]; then
         install -d $ydb_dist/plugin/o/utf8
         install -D -m 644 o/* $ydb_dist/plugin/o/utf8
         install -d $ydb_dist/plugin/etc
-        install -D -m 644 etc/* $ydb_dist/plugin/etc
+        if [ -f "$ydb_dist/plugin/etc/octo.conf" ]; then
+                install -D -m 644 $(ls -d etc/* | grep -v octo.conf) $ydb_dist/plugin/etc
+        else
+                install -D -m 644 etc/* $ydb_dist/plugin/etc
+        fi
 fi
 
 # Import Postgres metatadata to current global directory

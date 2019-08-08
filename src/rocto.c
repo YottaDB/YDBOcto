@@ -38,26 +38,28 @@ void handle_sigint(int sig) {
 #endif
 
 int main(int argc, char **argv) {
-	BaseMessage *base_message;
-	StartupMessage *startup_message;
-	PasswordMessage *password_message;
-	SSLRequest *ssl_request;
-	int tls_errno;
-	ErrorResponse *err;
-	const char *err_str;
-	ErrorBuffer err_buff;
-	const char *error_message;
-	AuthenticationMD5Password *md5auth;
-	AuthenticationOk *authok;
-	ParameterStatus *parameter_status;
-	struct sockaddr_in6 addressv6;
-	struct sockaddr_in *address = NULL;
-	int sfd, cfd, opt, addrlen, result, status;
-	int cur_parm = 0, i = 0;
-	pid_t child_id = 0;
-	char buffer[MAX_STR_CONST];
-	char host_buf[NI_MAXHOST], serv_buf[NI_MAXSERV];
-	StartupMessageParm message_parm;
+	AuthenticationMD5Password	*md5auth;
+	AuthenticationOk		*authok;
+	BaseMessage			*base_message;
+	ErrorBuffer			err_buff;
+	ErrorResponse			*err;
+	ParameterStatus			*parameter_status;
+	PasswordMessage			*password_message;
+	SSLRequest			*ssl_request;
+	StartupMessage			*startup_message;
+	StartupMessageParm		message_parm;
+	char				buffer[MAX_STR_CONST];
+	char				host_buf[NI_MAXHOST], serv_buf[NI_MAXSERV];
+	const char			*err_str;
+	const char			*error_message;
+	int				cur_parm = 0, i = 0;
+	int				sfd, cfd, opt, addrlen, result, status;
+	int				tls_errno;
+	pid_t				child_id = 0;
+	struct sigaction		ctrlc_action;
+	struct sockaddr_in		*address = NULL;
+	struct sockaddr_in6		addressv6;
+
 	sfd = cfd = opt = addrlen = result = status = 0;
 	err_buff.offset = 0;
 
@@ -65,7 +67,10 @@ int main(int argc, char **argv) {
 	ydb_buffer_t *global_buffer = &(ydb_buffers[0]), *session_id_buffer = &(ydb_buffers[1]);
 
 	// Initialize a handler to respond to ctrl + c
-	signal(SIGINT, handle_sigint);
+	memset(&ctrlc_action, 0, sizeof(ctrlc_action));
+	ctrlc_action.sa_flags = SA_SIGINFO;
+	ctrlc_action.sa_sigaction = (void *)handle_sigint;
+	sigaction(SIGINT, &ctrlc_action, NULL);
 
 	// Initialize connection details in case errors prior to connections
 	rocto_session.ip = "IP_UNSET";

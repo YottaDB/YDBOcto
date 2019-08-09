@@ -91,6 +91,30 @@ This will install BATS to /usr/bin. Note that installing to /usr may require roo
 
 Details available in the [BATS source repo](https://github.com/bats-core/bats-core).
 
+* (Optional) Install cmocka unit testing framework
+
+Octo uses cmocka for automated unit testing. To build and run Octo's unit tests, cmocka must be installed:
+
+```sh
+# Ubuntu Linux OR Raspbian Linux OR Beagleboard Debian
+sudo apt-get install libcmocka-dev
+
+# CentOS Linux OR RedHat Linux
+sudo yum install libcmocka-devel
+```
+
+* (Optional) Install PostgreSQL client (psql)
+
+Octo uses the psql PostgreSQL for some integration/regression tests. To build and run these tests, psql must be installed:
+
+```sh
+# Ubuntu Linux OR Raspbian Linux OR Beagleboard Debian
+sudo apt-get install postgresql-client
+
+# CentOS Linux OR RedHat Linux
+sudo yum install postgresql
+```
+
 * Download Octo Source Code
 
 ```sh

@@ -364,3 +364,32 @@ CAT
   done < $inputfile
   verify_output T0020 output.txt
 }
+
+@test "T0021 Select unknown column with 2 inner joins" {
+  octo <<OCTO 2>&1 | tee output.txt
+CREATE TABLE ORDER1(
+ order1_id INTEGER PRIMARY KEY,
+ status INTEGER,
+ current_action INTEGER
+);
+
+CREATE TABLE ORDERORDERACTIONS(
+ order1_id INTEGER PRIMARY KEY,
+ order_order_actions_id INTEGER KEY NUM 1,
+ action CHARACTER(12)
+);
+
+CREATE TABLE ORDERSTATUS(
+ order_status_id INTEGER PRIMARY KEY
+);
+
+SELECT order1
+FROM   order1 A
+       inner join orderorderactions B
+               ON A.current_action = B.order_order_actions_id
+       inner join orderstatus C
+               ON A.status = C.order_status_id
+WHERE  B.action = "NW";
+OCTO
+  verify_output T0021 output.txt
+}

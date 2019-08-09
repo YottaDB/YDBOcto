@@ -71,3 +71,14 @@ alsonotathing = 0; select * from names limit 1;
 OCTO
   verify_output TUC006 output.txt
 }
+
+@test "test octo -f with EOF terminated query with unknown columns" {
+  cat >> input.sql <<OCTO
+select invalidA, invalidB, invalidC, invalidD
+from names c
+inner join names o
+on c.invalidE = o.invalidF
+OCTO
+  octo -f input.sql >& output.txt
+  verify_output TUC007 output.txt
+}

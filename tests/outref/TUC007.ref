@@ -1,0 +1,36 @@
+[ WARN] PATH:LINENUM DATE TIME : Unknown column: INVALIDE
+
+select invalidA, invalidB, invalidC, invalidD
+from names c
+inner join names o
+on c.invalidE = o.invalidF
+   ^^^^^^^^^^
+[ WARN] PATH:LINENUM DATE TIME : Unknown column: INVALIDF
+
+select invalidA, invalidB, invalidC, invalidD
+from names c
+inner join names o
+on c.invalidE = o.invalidF
+                ^^^^^^^^^^
+[ WARN] PATH:LINENUM DATE TIME : Unknown column: INVALIDA
+
+select invalidA, invalidB, invalidC, invalidD
+       ^^^^^^^^
+[ WARN] PATH:LINENUM DATE TIME : Unknown column: INVALIDB
+
+select invalidA, invalidB, invalidC, invalidD
+                 ^^^^^^^^
+[ WARN] PATH:LINENUM DATE TIME : Unknown column: INVALIDC
+
+select invalidA, invalidB, invalidC, invalidD
+                           ^^^^^^^^
+[ WARN] PATH:LINENUM DATE TIME : Unknown column: INVALIDD
+
+select invalidA, invalidB, invalidC, invalidD
+                                     ^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select invalidA, invalidB, invalidC, invalidD
+from names c
+inner join names o
+on c.invalidE = o.invalidF
+
+

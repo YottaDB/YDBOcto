@@ -82,14 +82,19 @@ int readline_get_more() {
 		free(line);
 		return line_length;
 	} else {
-		cur_input_index = 0;
 		data_read = read(fileno(inputFile), input_buffer_combined, cur_input_max);
+		/* only reset cur_input_index in the case of there being more data to read
+		 * EOF (data_read == 0) should preserve the buffer for error reporting
+		 */
+		if (data_read > 0){
+			cur_input_index = 0;
+		}
 		// Detecting the EOF is handled by the lexer and this should never be true at this stage
 		assert(FALSE == eof_hit);
 		if(data_read == -1) {
 			FATAL(ERR_SYSCALL, "read", errno, strerror(errno));
 		}
-		input_buffer_combined[data_read] = '\0';
+		input_buffer_combined[cur_input_index + data_read] = '\0';
 		return data_read;
 	}
 }

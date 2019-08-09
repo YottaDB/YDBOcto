@@ -68,7 +68,7 @@ LogicalPlan *lp_table_join_to_column_list(LogicalPlan *table_join, int *plan_id)
 		if(table_alias->table->type == table_STATEMENT) {
 			UNPACK_SQL_STATEMENT(table, table_alias->table, table);
 			UNPACK_SQL_STATEMENT(columns, table->columns, column);
-			sql_column_list = lp_columns_to_column_list(columns, table_alias);
+			sql_column_list = columns_to_column_list_alias(columns, table_alias);
 		} else if(table_alias->table->type == select_STATEMENT) {
 			// This case is handled by a recursive call to generate_logical_plan
 			//  and will need to be insert a bit further up

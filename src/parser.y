@@ -31,10 +31,6 @@ typedef void* yyscan_t;
 #include "octo_types.h"
 #include "parser.h"
 
-// Included for function lp_columns_to_column_list
-//  this function should be moved
-#include "logical_plan.h"
-
 #define YYERROR_VERBOSE
 #define YYDEBUG 1
 #define YYSTYPE SqlStatement *
@@ -1187,7 +1183,6 @@ table_definition
         if(create_table_defaults($$, $table_definition_tail)) {
           YYABORT;
         }
-        dqinit(($$)->v.table);
       }
   ;
 

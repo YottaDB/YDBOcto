@@ -10,15 +10,12 @@
  *								*
  ****************************************************************/
 
-#include <stdio.h>
-#include <stdlib.h>
 #include <assert.h>
 
 #include "octo.h"
 #include "octo_types.h"
-#include "logical_plan.h"
 
-SqlColumnListAlias *lp_columns_to_column_list(SqlColumn *column, SqlTableAlias *table_alias) {
+SqlColumnListAlias *columns_to_column_list_alias(SqlColumn *column, SqlTableAlias *table_alias) {
 	SqlColumnList *cur;
 	SqlColumnListAlias *ret = NULL, *t_column_list_alias, *cur_column_list_alias;
 	SqlStatement *stmt;

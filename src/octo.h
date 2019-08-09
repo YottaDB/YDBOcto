@@ -119,7 +119,12 @@ void hash_canonical_query(hash128_state_t *state, SqlStatement *stmt);
 void ydb_hash_to_string(ydb_uint16 *hash, char *buffer, const unsigned int buf_len);
 
 void assign_table_to_columns(SqlStatement *table_statement);
+
+// Converts a list of columns to a column list associated with the given table alias
+SqlColumnListAlias *columns_to_column_list_alias(SqlColumn *column, SqlTableAlias *table_alias);
 SqlColumn *column_list_alias_to_columns(SqlTableAlias *table_alias);
+
+SqlStatement *drill_to_table_alias(SqlStatement *sqlStmt);
 int get_column_piece_number(SqlColumnAlias *alias, SqlTableAlias *table_alias);
 SqlStatement *replace_table_references(SqlStatement *stmt, SqlStatement *to_remove);
 SqlStatement *update_table_references(SqlStatement *stmt, int old_unique_id, int new_unique_id);
@@ -130,6 +135,10 @@ void compress_statement(SqlStatement *stmt, char **out, int *out_length);
 SqlStatement *decompress_statement(char *buffer, int out_length);
 int store_table_in_pg_class(SqlTable *table);
 void cleanup_tables();
+
+/* Parse related functions */
+SqlStatement *query_specification(SqlStatement *set_quantifier, SqlStatement *select_list,
+					SqlStatement *table_expression, SqlStatement *sort_specification_list, int *plan_id);
 
 /**
  * Returns TRUE if the columns are equal, FALSE otherwise

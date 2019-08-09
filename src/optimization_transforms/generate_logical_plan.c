@@ -271,6 +271,8 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt, int *plan_id) {
 	UNPACK_SQL_STATEMENT(start_join, select_stmt->table_list, join);
 	cur_join = start_join;
 	do {
+		SqlStatement	*sql_stmt;
+
 		if(cur_join->type != INNER_JOIN
 		   && cur_join->type != CROSS_JOIN && cur_join->type != NO_JOIN
 		   && cur_join->type != NATURAL_JOIN) {
@@ -285,12 +287,17 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt, int *plan_id) {
 			MALLOC_LP_2ARGS(join_right->v.operand[1], LP_TABLE_JOIN);
 			join_right = join_right->v.operand[1];
 		}
-		UNPACK_SQL_STATEMENT(table_alias, cur_join->value, table_alias);
-		if(table_alias->table->type == table_STATEMENT) {
+		if (set_operation_STATEMENT == stmt->type) {
+			return lp_generate_set_logical_plan(stmt, plan_id);
+		}
+		sql_stmt = cur_join->value;
+		if ((table_alias_STATEMENT == sql_stmt->type) && (table_STATEMENT == sql_stmt->v.table_alias->table->type))
+		{
 			MALLOC_LP(join_left, join_right->v.operand[0], LP_TABLE);
-			UNPACK_SQL_STATEMENT(join_left->v.table_alias, cur_join->value, table_alias);
-		} else {
-			join_left = generate_logical_plan(cur_join->value, plan_id);
+			join_left->v.table_alias = sql_stmt->v.table_alias;
+		} else
+		{
+			join_left = generate_logical_plan(sql_stmt, plan_id);
 			join_right->v.operand[0] = join_left;
 		}
 		if(cur_join->condition) {
@@ -340,12 +347,16 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt, int *plan_id) {
 	// Handle factoring in derived columns
 	left = select->v.operand[0];
 	cur_join = start_join;
-	while(left != NULL) {
-		if(left->v.operand[0]->type == LP_INSERT) {
-			UNPACK_SQL_STATEMENT(table_alias, cur_join->value, table_alias);
+	while (NULL != left) {
+		SqlStatement *sql_stmt;
+
+		sql_stmt = cur_join->value;
+		sql_stmt = drill_to_table_alias(sql_stmt);
+		if (LP_INSERT == left->v.operand[0]->type) {
+			UNPACK_SQL_STATEMENT(table_alias, sql_stmt, table_alias);
 			lp_replace_derived_table_references(insert, left->v.operand[0], table_alias);
-		} else if(left->v.operand[0]->type == LP_SET_OPERATION) {
-			UNPACK_SQL_STATEMENT(table_alias, cur_join->value, table_alias);
+		} else if (LP_SET_OPERATION == left->v.operand[0]->type) {
+			UNPACK_SQL_STATEMENT(table_alias, sql_stmt, table_alias);
 			t_left = left->v.operand[0]->v.operand[1]->v.operand[0];
 			lp_replace_derived_table_references(insert, t_left, table_alias);
 			t_right = left->v.operand[0]->v.operand[1]->v.operand[1];
@@ -360,7 +371,7 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt, int *plan_id) {
 
 	// At this point, we need to populate keys
 	//  Before we can do that, we need to resolve the JOINs, which are
-	//  an area where we definetely want to look at optimization
+	//  an area where we definitely want to look at optimization
 	//  therefore, we leave the plan in a semi-valid state
 	return insert;
 }

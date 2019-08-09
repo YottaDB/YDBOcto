@@ -121,7 +121,9 @@ add_library(libocto OBJECT
   tables_equal.c
   values_equal.c
   column_list_alias_to_columns.c
+  columns_to_column_list_alias.c
   get_column_piece_number.c
+  drill_to_table_alias.c
   run_query.c
   parse_startup_flags.c
   memory_chunk.c
@@ -146,7 +148,6 @@ add_library(libocto OBJECT
   optimization_transforms/lp_join_where.c
   optimization_transforms/lp_generate_where.c
   optimization_transforms/lp_column_list_to_lp.c
-  optimization_transforms/lp_columns_to_column_list.c
   optimization_transforms/lp_table_join_to_column_list.c
   optimization_transforms/lp_replace_derived_table_references.c
   optimization_transforms/lp_get_output_key.c
@@ -174,6 +175,7 @@ add_library(libocto OBJECT
   update_table_references.c
   copy_sql_statement.c
   cleanup_tables.c
+  parser/query_specification.c
   ${BISON_OctoParser_OUTPUTS}
   ${FLEX_OctoLexer_OUTPUTS}
 )

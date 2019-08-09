@@ -38,7 +38,10 @@ SqlStatement *natural_join_condition(SqlStatement *left, SqlStatement *right) {
 
 	cur_join = j_left;
 	do {
-		UNPACK_SQL_STATEMENT(cur_alias, cur_join->value, table_alias);
+		SqlStatement *left_sql_stmt;
+
+		left_sql_stmt = drill_to_table_alias(cur_join->value);
+		UNPACK_SQL_STATEMENT(cur_alias, left_sql_stmt, table_alias);
 		UNPACK_SQL_STATEMENT(cl_start, cur_alias->column_list, column_list_alias);
 		UNPACK_SQL_STATEMENT(value, cur_alias->alias, value);
 		table_name = value->v.string_literal;
@@ -52,7 +55,10 @@ SqlStatement *natural_join_condition(SqlStatement *left, SqlStatement *right) {
 			// Check each of rights tables for the item in question
 			r_cur_join = j_right;
 			do {
-				UNPACK_SQL_STATEMENT(r_cur_alias, r_cur_join->value, table_alias);
+				SqlStatement *right_sql_stmt;
+
+				right_sql_stmt = drill_to_table_alias(r_cur_join->value);
+				UNPACK_SQL_STATEMENT(r_cur_alias, right_sql_stmt, table_alias);
 				r_matched_column = match_column_in_table(r_cur_alias, column_name, column_name_len,
 										MATCH_QUALIFIED_COLUMNS_FALSE);
 				if(r_matched_column != NULL) {

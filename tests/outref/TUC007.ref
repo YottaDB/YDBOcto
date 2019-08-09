@@ -1,11 +1,11 @@
-[ WARN] PATH:LINENUM DATE TIME : Unknown column: INVALIDE
+[ WARN] PATH:LINENUM DATE TIME : Unknown column: C.INVALIDE
 
 select invalidA, invalidB, invalidC, invalidD
 from names c
 inner join names o
 on c.invalidE = o.invalidF
    ^^^^^^^^^^
-[ WARN] PATH:LINENUM DATE TIME : Unknown column: INVALIDF
+[ WARN] PATH:LINENUM DATE TIME : Unknown column: O.INVALIDF
 
 select invalidA, invalidB, invalidC, invalidD
 from names c

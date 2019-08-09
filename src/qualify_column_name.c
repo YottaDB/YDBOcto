@@ -61,9 +61,11 @@ SqlColumnAlias *qualify_column_name(SqlValue *column_value, SqlJoin *tables, Sql
 
 	cur_join = start_join = tables;
 	do {
-		// If we need to match a table, ensure this table
-		//  is the correct one before calling the helper
-		UNPACK_SQL_STATEMENT(cur_alias, cur_join->value, table_alias);
+		SqlStatement *sql_stmt;
+
+		sql_stmt = drill_to_table_alias(cur_join->value);
+		// If we need to match a table, ensure this table is the correct one before calling the helper
+		UNPACK_SQL_STATEMENT(cur_alias, sql_stmt, table_alias);
 		if(table_name) {
 			if(cur_alias->alias != NULL) {
 				UNPACK_SQL_STATEMENT(value, cur_alias->alias, value);
@@ -127,7 +129,9 @@ SqlColumnAlias *qualify_column_name(SqlValue *column_value, SqlJoin *tables, Sql
 	}
 
 	if(column == NULL) {
-		WARNING(ERR_UNKNOWN_COLUMN_NAME, column_name);
+		// Note: If table_name is non-NULL, it points to a string of the form "tablename.columnname"
+		//       so both table name and column name will be printed below if "table_name" is non-NULL.
+		WARNING(ERR_UNKNOWN_COLUMN_NAME, (NULL != table_name) ? table_name : column_name);
 		return NULL;
 	}
 

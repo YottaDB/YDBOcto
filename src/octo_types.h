@@ -278,7 +278,6 @@ typedef struct SqlTable
 	struct SqlStatement *source;
 	struct SqlStatement *columns;
 	struct SqlStatement *delim;
-	dqcreate(SqlTable);
 } SqlTable;
 
 typedef struct SqlTableAlias

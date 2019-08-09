@@ -1,0 +1,67 @@
+#################################################################
+#								#
+# Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	#
+# All rights reserved.						#
+#								#
+#	This source code contains the intellectual property	#
+#	of its copyright holder(s), and is made available	#
+#	under a license.  If you do not know the terms of	#
+#	the license, please stop and do not read further.	#
+#								#
+#################################################################
+
+load test_helpers
+
+setup() {
+  init_test
+  createdb
+  load_fixture names.sql
+  load_fixture names.zwr
+}
+
+@test "TSU01 : UNION with select * in subquery" {
+  octo <<OCTO >& output.txt
+SELECT *
+FROM   (SELECT *
+        FROM   names
+        UNION
+        SELECT *
+        FROM   names);
+OCTO
+  verify_output TSU01 output.txt
+}
+
+@test "TSU02 : UNION with select id subquery" {
+  octo <<OCTO >& output.txt
+SELECT id
+FROM   (SELECT id
+        FROM   names
+        UNION
+        SELECT id
+        FROM   names);
+OCTO
+  verify_output TSU02 output.txt
+}
+
+@test "TSU03 : UNION with select 1 in subquery" {
+  octo <<OCTO >& output.txt
+SELECT 1
+FROM   (SELECT 1
+        UNION
+        SELECT 1);
+OCTO
+  verify_output TSU03 output.txt
+}
+
+@test "TSU04 : UNION with select id subquery and AS usage to avoid Ambigious column name warning in TSU02" {
+  octo <<OCTO >& output.txt
+SELECT n3.id
+FROM   (SELECT n1.id
+        FROM   names as n1
+        UNION
+        SELECT n2.id
+        FROM   names as n2) as n3;
+OCTO
+  verify_output TSU04 output.txt
+}
+

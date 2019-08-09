@@ -80,7 +80,7 @@ select * from (select invalid from names);
 
 Running query file query9.sql : [select * from (select n1.firstname from names) as n1;]
 -------------------------------------------------
-[ WARN] PATH:LINENUM DATE TIME : Unknown column: FIRSTNAME
+[ WARN] PATH:LINENUM DATE TIME : Unknown column: N1.FIRSTNAME
 
 select * from (select n1.firstname from names) as n1;
                       ^^^^^^^^^^^^
@@ -90,7 +90,7 @@ select * from (select n1.firstname from names) as n1;
 
 Running query file query10.sql : [select * from (select n1.invalid from names) as n1;]
 -------------------------------------------------
-[ WARN] PATH:LINENUM DATE TIME : Unknown column: INVALID
+[ WARN] PATH:LINENUM DATE TIME : Unknown column: N1.INVALID
 
 select * from (select n1.invalid from names) as n1;
                       ^^^^^^^^^^
@@ -120,7 +120,7 @@ Zero
 
 Running query file query13.sql : [select * from (select n2.invalid from names as n2) as n1;]
 -------------------------------------------------
-[ WARN] PATH:LINENUM DATE TIME : Unknown column: INVALID
+[ WARN] PATH:LINENUM DATE TIME : Unknown column: N2.INVALID
 
 select * from (select n2.invalid from names as n2) as n1;
                       ^^^^^^^^^^
@@ -130,7 +130,7 @@ select * from (select n2.invalid from names as n2) as n1;
 
 Running query file query14.sql : [select * from (select n2.invalid from names as n2);]
 -------------------------------------------------
-[ WARN] PATH:LINENUM DATE TIME : Unknown column: INVALID
+[ WARN] PATH:LINENUM DATE TIME : Unknown column: N2.INVALID
 
 select * from (select n2.invalid from names as n2);
                       ^^^^^^^^^^
@@ -248,7 +248,7 @@ select firstname from (select lastname from names);
 
 Running query file query25.sql : [select firstname from (select n1.firstname from names) as n1;]
 -------------------------------------------------
-[ WARN] PATH:LINENUM DATE TIME : Unknown column: FIRSTNAME
+[ WARN] PATH:LINENUM DATE TIME : Unknown column: N1.FIRSTNAME
 
 select firstname from (select n1.firstname from names) as n1;
                               ^^^^^^^^^^^^
@@ -258,7 +258,7 @@ select firstname from (select n1.firstname from names) as n1;
 
 Running query file query26.sql : [select firstname from (select n1.invalid from names) as n1;]
 -------------------------------------------------
-[ WARN] PATH:LINENUM DATE TIME : Unknown column: INVALID
+[ WARN] PATH:LINENUM DATE TIME : Unknown column: N1.INVALID
 
 select firstname from (select n1.invalid from names) as n1;
                               ^^^^^^^^^^
@@ -282,7 +282,7 @@ Zero
 
 Running query file query28.sql : [select firstname from (select n2.invalid from names as n2);]
 -------------------------------------------------
-[ WARN] PATH:LINENUM DATE TIME : Unknown column: INVALID
+[ WARN] PATH:LINENUM DATE TIME : Unknown column: N2.INVALID
 
 select firstname from (select n2.invalid from names as n2);
                               ^^^^^^^^^^
@@ -386,7 +386,7 @@ select invalid from (select invalid from names);
 
 Running query file query38.sql : [select invalid from (select n1.firstname from names) as n1;]
 -------------------------------------------------
-[ WARN] PATH:LINENUM DATE TIME : Unknown column: FIRSTNAME
+[ WARN] PATH:LINENUM DATE TIME : Unknown column: N1.FIRSTNAME
 
 select invalid from (select n1.firstname from names) as n1;
                             ^^^^^^^^^^^^
@@ -400,7 +400,7 @@ select invalid from (select n1.firstname from names) as n1;
 
 Running query file query39.sql : [select invalid from (select n1.invalid from names) as n1;]
 -------------------------------------------------
-[ WARN] PATH:LINENUM DATE TIME : Unknown column: INVALID
+[ WARN] PATH:LINENUM DATE TIME : Unknown column: N1.INVALID
 
 select invalid from (select n1.invalid from names) as n1;
                             ^^^^^^^^^^
@@ -420,7 +420,7 @@ select invalid from (select n2.firstname from names as n2);
 
 Running query file query41.sql : [select invalid from (select n2.invalid from names as n2);]
 -------------------------------------------------
-[ WARN] PATH:LINENUM DATE TIME : Unknown column: INVALID
+[ WARN] PATH:LINENUM DATE TIME : Unknown column: N2.INVALID
 
 select invalid from (select n2.invalid from names as n2);
                             ^^^^^^^^^^
@@ -498,7 +498,7 @@ select invalid1 from (select invalid2 from names);
 
 Running query file query48.sql : [select invalid1 from (select n1.invalid2 from names) as n1;]
 -------------------------------------------------
-[ WARN] PATH:LINENUM DATE TIME : Unknown column: INVALID2
+[ WARN] PATH:LINENUM DATE TIME : Unknown column: N1.INVALID2
 
 select invalid1 from (select n1.invalid2 from names) as n1;
                              ^^^^^^^^^^^
@@ -512,7 +512,7 @@ select invalid1 from (select n1.invalid2 from names) as n1;
 
 Running query file query49.sql : [select invalid1 from (select n2.invalid2 from names as n2);]
 -------------------------------------------------
-[ WARN] PATH:LINENUM DATE TIME : Unknown column: INVALID2
+[ WARN] PATH:LINENUM DATE TIME : Unknown column: N2.INVALID2
 
 select invalid1 from (select n2.invalid2 from names as n2);
                              ^^^^^^^^^^^
@@ -556,7 +556,7 @@ Zero
 
 Running query file query53.sql : [select n1.firstname from (select n1.firstname from names) as n1;]
 -------------------------------------------------
-[ WARN] PATH:LINENUM DATE TIME : Unknown column: FIRSTNAME
+[ WARN] PATH:LINENUM DATE TIME : Unknown column: N1.FIRSTNAME
 
 select n1.firstname from (select n1.firstname from names) as n1;
                                  ^^^^^^^^^^^^
@@ -566,11 +566,11 @@ select n1.firstname from (select n1.firstname from names) as n1;
 
 Running query file query54.sql : [select n1.firstname from (select n1.invalid from names) as n1;]
 -------------------------------------------------
-[ WARN] PATH:LINENUM DATE TIME : Unknown column: INVALID
+[ WARN] PATH:LINENUM DATE TIME : Unknown column: N1.INVALID
 
 select n1.firstname from (select n1.invalid from names) as n1;
                                  ^^^^^^^^^^
-[ WARN] PATH:LINENUM DATE TIME : Unknown column: FIRSTNAME
+[ WARN] PATH:LINENUM DATE TIME : Unknown column: N1.FIRSTNAME
 
 select n1.firstname from (select n1.invalid from names) as n1;
        ^^^^^^^^^^^^
@@ -590,11 +590,11 @@ Zero
 
 Running query file query56.sql : [select n1.firstname from (select n2.invalid from names as n2) as n1;]
 -------------------------------------------------
-[ WARN] PATH:LINENUM DATE TIME : Unknown column: INVALID
+[ WARN] PATH:LINENUM DATE TIME : Unknown column: N2.INVALID
 
 select n1.firstname from (select n2.invalid from names as n2) as n1;
                                  ^^^^^^^^^^
-[ WARN] PATH:LINENUM DATE TIME : Unknown column: FIRSTNAME
+[ WARN] PATH:LINENUM DATE TIME : Unknown column: N1.FIRSTNAME
 
 select n1.firstname from (select n2.invalid from names as n2) as n1;
        ^^^^^^^^^^^^
@@ -604,7 +604,7 @@ select n1.firstname from (select n2.invalid from names as n2) as n1;
 
 Running query file query57.sql : [select n1.invalid from (select * from names as n2) as n1;]
 -------------------------------------------------
-[ WARN] PATH:LINENUM DATE TIME : Unknown column: INVALID
+[ WARN] PATH:LINENUM DATE TIME : Unknown column: N1.INVALID
 
 select n1.invalid from (select * from names as n2) as n1;
        ^^^^^^^^^^
@@ -614,7 +614,7 @@ select n1.invalid from (select * from names as n2) as n1;
 
 Running query file query58.sql : [select n1.invalid from (select * from names) as n1;]
 -------------------------------------------------
-[ WARN] PATH:LINENUM DATE TIME : Unknown column: INVALID
+[ WARN] PATH:LINENUM DATE TIME : Unknown column: N1.INVALID
 
 select n1.invalid from (select * from names) as n1;
        ^^^^^^^^^^
@@ -624,11 +624,11 @@ select n1.invalid from (select * from names) as n1;
 
 Running query file query59.sql : [select n1.invalid from (select n1.firstname from names) as n1;]
 -------------------------------------------------
-[ WARN] PATH:LINENUM DATE TIME : Unknown column: FIRSTNAME
+[ WARN] PATH:LINENUM DATE TIME : Unknown column: N1.FIRSTNAME
 
 select n1.invalid from (select n1.firstname from names) as n1;
                                ^^^^^^^^^^^^
-[ WARN] PATH:LINENUM DATE TIME : Unknown column: INVALID
+[ WARN] PATH:LINENUM DATE TIME : Unknown column: N1.INVALID
 
 select n1.invalid from (select n1.firstname from names) as n1;
        ^^^^^^^^^^
@@ -638,7 +638,7 @@ select n1.invalid from (select n1.firstname from names) as n1;
 
 Running query file query60.sql : [select n1.invalid from (select n1.invalid from names) as n1;]
 -------------------------------------------------
-[ WARN] PATH:LINENUM DATE TIME : Unknown column: INVALID
+[ WARN] PATH:LINENUM DATE TIME : Unknown column: N1.INVALID
 
 select n1.invalid from (select n1.invalid from names) as n1;
                                ^^^^^^^^^^
@@ -648,7 +648,7 @@ select n1.invalid from (select n1.invalid from names) as n1;
 
 Running query file query61.sql : [select n1.invalid from (select n2.firstname from names as n2) as n1;]
 -------------------------------------------------
-[ WARN] PATH:LINENUM DATE TIME : Unknown column: INVALID
+[ WARN] PATH:LINENUM DATE TIME : Unknown column: N1.INVALID
 
 select n1.invalid from (select n2.firstname from names as n2) as n1;
        ^^^^^^^^^^
@@ -658,7 +658,7 @@ select n1.invalid from (select n2.firstname from names as n2) as n1;
 
 Running query file query62.sql : [select n1.invalid from (select n2.invalid from names as n2) as n1;]
 -------------------------------------------------
-[ WARN] PATH:LINENUM DATE TIME : Unknown column: INVALID
+[ WARN] PATH:LINENUM DATE TIME : Unknown column: N2.INVALID
 
 select n1.invalid from (select n2.invalid from names as n2) as n1;
                                ^^^^^^^^^^
@@ -668,11 +668,11 @@ select n1.invalid from (select n2.invalid from names as n2) as n1;
 
 Running query file query63.sql : [select n1.invalid1 from (select n1.invalid2 from names) as n1;]
 -------------------------------------------------
-[ WARN] PATH:LINENUM DATE TIME : Unknown column: INVALID2
+[ WARN] PATH:LINENUM DATE TIME : Unknown column: N1.INVALID2
 
 select n1.invalid1 from (select n1.invalid2 from names) as n1;
                                 ^^^^^^^^^^^
-[ WARN] PATH:LINENUM DATE TIME : Unknown column: INVALID1
+[ WARN] PATH:LINENUM DATE TIME : Unknown column: N1.INVALID1
 
 select n1.invalid1 from (select n1.invalid2 from names) as n1;
        ^^^^^^^^^^^
@@ -682,11 +682,11 @@ select n1.invalid1 from (select n1.invalid2 from names) as n1;
 
 Running query file query64.sql : [select n1.invalid1 from (select n2.invalid2 from names as n2) as n1;]
 -------------------------------------------------
-[ WARN] PATH:LINENUM DATE TIME : Unknown column: INVALID2
+[ WARN] PATH:LINENUM DATE TIME : Unknown column: N2.INVALID2
 
 select n1.invalid1 from (select n2.invalid2 from names as n2) as n1;
                                 ^^^^^^^^^^^
-[ WARN] PATH:LINENUM DATE TIME : Unknown column: INVALID1
+[ WARN] PATH:LINENUM DATE TIME : Unknown column: N1.INVALID1
 
 select n1.invalid1 from (select n2.invalid2 from names as n2) as n1;
        ^^^^^^^^^^^
@@ -696,7 +696,7 @@ select n1.invalid1 from (select n2.invalid2 from names as n2) as n1;
 
 Running query file query65.sql : [select n2.firstname from (select * from names as n2);]
 -------------------------------------------------
-[ WARN] PATH:LINENUM DATE TIME : Unknown column: FIRSTNAME
+[ WARN] PATH:LINENUM DATE TIME : Unknown column: N2.FIRSTNAME
 
 select n2.firstname from (select * from names as n2);
        ^^^^^^^^^^^^
@@ -706,7 +706,7 @@ select n2.firstname from (select * from names as n2);
 
 Running query file query66.sql : [select n2.firstname from (select n2.firstname from names as n2);]
 -------------------------------------------------
-[ WARN] PATH:LINENUM DATE TIME : Unknown column: FIRSTNAME
+[ WARN] PATH:LINENUM DATE TIME : Unknown column: N2.FIRSTNAME
 
 select n2.firstname from (select n2.firstname from names as n2);
        ^^^^^^^^^^^^
@@ -716,11 +716,11 @@ select n2.firstname from (select n2.firstname from names as n2);
 
 Running query file query67.sql : [select n2.firstname from (select n2.invalid from names as n2);]
 -------------------------------------------------
-[ WARN] PATH:LINENUM DATE TIME : Unknown column: INVALID
+[ WARN] PATH:LINENUM DATE TIME : Unknown column: N2.INVALID
 
 select n2.firstname from (select n2.invalid from names as n2);
                                  ^^^^^^^^^^
-[ WARN] PATH:LINENUM DATE TIME : Unknown column: FIRSTNAME
+[ WARN] PATH:LINENUM DATE TIME : Unknown column: N2.FIRSTNAME
 
 select n2.firstname from (select n2.invalid from names as n2);
        ^^^^^^^^^^^^
@@ -730,7 +730,7 @@ select n2.firstname from (select n2.invalid from names as n2);
 
 Running query file query68.sql : [select n2.invalid from (select * from names as n2);]
 -------------------------------------------------
-[ WARN] PATH:LINENUM DATE TIME : Unknown column: INVALID
+[ WARN] PATH:LINENUM DATE TIME : Unknown column: N2.INVALID
 
 select n2.invalid from (select * from names as n2);
        ^^^^^^^^^^
@@ -740,7 +740,7 @@ select n2.invalid from (select * from names as n2);
 
 Running query file query69.sql : [select n2.invalid from (select n2.firstname from names as n2);]
 -------------------------------------------------
-[ WARN] PATH:LINENUM DATE TIME : Unknown column: INVALID
+[ WARN] PATH:LINENUM DATE TIME : Unknown column: N2.INVALID
 
 select n2.invalid from (select n2.firstname from names as n2);
        ^^^^^^^^^^
@@ -750,11 +750,11 @@ select n2.invalid from (select n2.firstname from names as n2);
 
 Running query file query70.sql : [select n2.invalid from (select n2.invalid from names as n2);]
 -------------------------------------------------
-[ WARN] PATH:LINENUM DATE TIME : Unknown column: INVALID
+[ WARN] PATH:LINENUM DATE TIME : Unknown column: N2.INVALID
 
 select n2.invalid from (select n2.invalid from names as n2);
                                ^^^^^^^^^^
-[ WARN] PATH:LINENUM DATE TIME : Unknown column: INVALID
+[ WARN] PATH:LINENUM DATE TIME : Unknown column: N2.INVALID
 
 select n2.invalid from (select n2.invalid from names as n2);
        ^^^^^^^^^^
@@ -764,11 +764,11 @@ select n2.invalid from (select n2.invalid from names as n2);
 
 Running query file query71.sql : [select n2.invalid1 from (select n2.invalid2 from names as n2);]
 -------------------------------------------------
-[ WARN] PATH:LINENUM DATE TIME : Unknown column: INVALID2
+[ WARN] PATH:LINENUM DATE TIME : Unknown column: N2.INVALID2
 
 select n2.invalid1 from (select n2.invalid2 from names as n2);
                                 ^^^^^^^^^^^
-[ WARN] PATH:LINENUM DATE TIME : Unknown column: INVALID1
+[ WARN] PATH:LINENUM DATE TIME : Unknown column: N2.INVALID1
 
 select n2.invalid1 from (select n2.invalid2 from names as n2);
        ^^^^^^^^^^^

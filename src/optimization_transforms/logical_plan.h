@@ -178,8 +178,6 @@ LogicalPlan *lp_generate_xref_plan(LogicalPlan *plan, SqlTable *table, SqlColumn
 LogicalPlan *lp_generate_xref_keys(LogicalPlan *plan, SqlTable *table, SqlColumnAlias *column_alias, SqlTableAlias *table_alias);
 // Returns a logical plan representing the provided ColumnListAlias
 LogicalPlan *lp_column_list_to_lp(SqlColumnListAlias *list, int *plan_id);
-// Converts a list of columns to a column list associated with the given table alias
-SqlColumnListAlias *lp_columns_to_column_list(SqlColumn *column, SqlTableAlias *table_alias);
 LogicalPlan *lp_table_join_to_column_list(LogicalPlan *table_join, int *plan_id);
 LogicalPlan *lp_replace_derived_table_references(LogicalPlan *root, LogicalPlan *new_plan, SqlTableAlias *table_alias);
 // Given a SET operation, drills down until it encounters the first LP_INSERT statement

@@ -129,121 +129,28 @@ ordering_specification
 
 query_specification
   : SELECT set_quantifier select_list table_expression {
-      SqlTableAlias *this_table_alias;
-      SQL_STATEMENT($$, table_alias_STATEMENT);
-      MALLOC_STATEMENT($$, table_alias, SqlTableAlias);
-      UNPACK_SQL_STATEMENT(this_table_alias, $$, table_alias);
-      SQL_STATEMENT(this_table_alias->alias, value_STATEMENT);
-      MALLOC_STATEMENT(this_table_alias->alias, value, SqlValue);
-      SqlValue *value;
-      UNPACK_SQL_STATEMENT(value, this_table_alias->alias, value);
-      value->type = NUL_VALUE;
-      value->v.string_literal = "";
-      this_table_alias->table = $table_expression;
-      this_table_alias->unique_id = (*plan_id)++;
-      assert(($table_expression)->type == select_STATEMENT);
-      SqlSelectStatement *select;
-      UNPACK_SQL_STATEMENT(select, $table_expression, select);
-      select->select_list = ($select_list);
-      // If the select list is empty, we need all columns from the joins in
-      //  the order in which they are mentioned
-      SqlJoin *join, *cur_join, *start_join;
-      SqlTableAlias *table_alias;
-      SqlColumn *t_column;
-      SqlColumnListAlias *cl_alias = NULL, *t_cl_alias, *tt_cl_alias;
-      UNPACK_SQL_STATEMENT(join, select->table_list, join);
-      if(select->select_list->v.column_list_alias == NULL) {
-          start_join = cur_join = join;
-          do {
-              UNPACK_SQL_STATEMENT(table_alias, cur_join->value, table_alias);
-              t_column = column_list_alias_to_columns(table_alias);
-              t_cl_alias = lp_columns_to_column_list(t_column, table_alias);
-              if(cl_alias == NULL) {
-                  cl_alias = t_cl_alias;
-              } else {
-                  dqinsert(cl_alias, t_cl_alias, tt_cl_alias);
-              }
-              cur_join = cur_join->next;
-          } while(cur_join != start_join);
-          select->select_list->v.column_list_alias = cl_alias;
-      }
-      this_table_alias->column_list = select->select_list;
-      select->optional_words = $set_quantifier;
-      select->order_expression = NULL;
+      $$ = query_specification($set_quantifier, $select_list, $table_expression, NULL, plan_id);
     }
   | SELECT set_quantifier select_list table_expression ORDER BY sort_specification_list {
-      SqlTableAlias *this_table_alias;
-      SQL_STATEMENT($$, table_alias_STATEMENT);
-      MALLOC_STATEMENT($$, table_alias, SqlTableAlias);
-      UNPACK_SQL_STATEMENT(this_table_alias, $$, table_alias);
-      this_table_alias->table = $table_expression;
-      this_table_alias->unique_id = (*plan_id)++;
-      SQL_STATEMENT(this_table_alias->alias, value_STATEMENT);
-      MALLOC_STATEMENT(this_table_alias->alias, value, SqlValue);
-      SqlValue *value;
-      UNPACK_SQL_STATEMENT(value, this_table_alias->alias, value);
-      value->type = NUL_VALUE;
-      value->v.string_literal = "";
-      SqlSelectStatement *select;
-      UNPACK_SQL_STATEMENT(select, this_table_alias->table, select);
-      select->select_list = ($select_list);
-      // If the select list is empty, we need all columns from the joins in
-      //  the order in which they are mentioned
-      SqlJoin *join, *cur_join, *start_join;
-      SqlTableAlias *table_alias;
-      SqlColumn *t_column;
-      SqlColumnListAlias *cl_alias = NULL, *t_cl_alias, *tt_cl_alias;
-      UNPACK_SQL_STATEMENT(join, select->table_list, join);
-      if(select->select_list->v.column_list_alias == NULL) {
-          start_join = cur_join = join;
-          do {
-              UNPACK_SQL_STATEMENT(table_alias, cur_join->value, table_alias);
-              t_column = column_list_alias_to_columns(table_alias);
-              t_cl_alias = lp_columns_to_column_list(t_column, table_alias);
-              if(cl_alias == NULL) {
-                  cl_alias = t_cl_alias;
-              } else {
-                  dqinsert(cl_alias, t_cl_alias, tt_cl_alias);
-              }
-              cur_join = cur_join->next;
-          } while(cur_join != start_join);
-          PACK_SQL_STATEMENT(select->select_list, cl_alias, column_list_alias);
-      }
-      this_table_alias->column_list = select->select_list;
-      select->optional_words = $set_quantifier;
-      select->order_expression = $sort_specification_list;
+      $$ = query_specification($set_quantifier, $select_list, $table_expression, $sort_specification_list, plan_id);
     }
   | SELECT set_quantifier select_list {
       // We're going to run against a secret table with one row so the list gets found
-      SqlJoin *join, *cur_join, *start_join;
-      SqlTable *table;
-      SqlStatement *join_statement, *t_stmt;
-      SqlTableAlias *table_alias, *alias;
-      SqlSelectStatement *select;
-
-      SqlTableAlias *this_table_alias;
-      SQL_STATEMENT($$, table_alias_STATEMENT);
-      MALLOC_STATEMENT($$, table_alias, SqlTableAlias);
-      UNPACK_SQL_STATEMENT(this_table_alias, $$, table_alias);
-      this_table_alias->column_list = $select_list;
-      this_table_alias->unique_id = (*plan_id)++;
-      SQL_STATEMENT(this_table_alias->alias, value_STATEMENT);
-      MALLOC_STATEMENT(this_table_alias->alias, value, SqlValue);
-      SqlValue *value;
-      UNPACK_SQL_STATEMENT(value, this_table_alias->alias, value);
-      value->type = NUL_VALUE;
-      value->v.string_literal = "";
+      SqlJoin			*join;
+      SqlTable			*table;
+      SqlStatement		*join_statement, *t_stmt;
+      SqlTableAlias		*alias;
+      SqlSelectStatement	*select;
 
       SQL_STATEMENT(t_stmt, select_STATEMENT);
       MALLOC_STATEMENT(t_stmt, select, SqlSelectStatement);
-      this_table_alias->table = t_stmt;
       UNPACK_SQL_STATEMENT(select, t_stmt, select);
       SQL_STATEMENT(join_statement, join_STATEMENT);
       MALLOC_STATEMENT(join_statement, join, SqlJoin);
       UNPACK_SQL_STATEMENT(join, join_statement, join);
       dqinit(join);
       table = find_table("OCTOONEROWTABLE");
-      if(table == NULL) {
+      if (NULL == table) {
         ERROR(ERR_UNKNOWN_TABLE, "octoOneRowTable");
         print_yyloc(&($select_list)->loc);
         YYERROR;
@@ -258,37 +165,14 @@ query_specification
       alias->unique_id = *plan_id;
       (*plan_id)++;
       select->table_list = join_statement;
-
-      select->select_list = ($select_list);
-      // If the select list is empty, we need all columns from the joins in
-      //  the order in which they are mentioned
-      SqlColumn *t_column;
-      SqlColumnListAlias *cl_alias = NULL, *t_cl_alias, *tt_cl_alias;
-      UNPACK_SQL_STATEMENT(join, select->table_list, join);
-      if(select->select_list->v.column_list_alias == NULL) {
-          start_join = cur_join = join;
-          do {
-              UNPACK_SQL_STATEMENT(table_alias, cur_join->value, table_alias);
-              t_column = column_list_alias_to_columns(table_alias);
-              t_cl_alias = lp_columns_to_column_list(t_column, table_alias);
-              if(cl_alias == NULL) {
-                  cl_alias = t_cl_alias;
-              } else {
-                  dqinsert(cl_alias, t_cl_alias, tt_cl_alias);
-              }
-              cur_join = cur_join->next;
-          } while(cur_join != start_join);
-          select->select_list->v.column_list_alias = cl_alias;
-      }
-      select->optional_words = $set_quantifier;
-      select->order_expression = NULL;
+      $$ = query_specification($set_quantifier, $select_list, t_stmt, NULL, plan_id);
     }
   ;
 
 select_list
   : ASTERISK {
       SQL_STATEMENT($$, column_list_alias_STATEMENT);
-      ($$)->v.column_list = 0;
+      ($$)->v.column_list = NULL;
     }
   | select_sublist { $$ = $1;  }
   ;
@@ -417,7 +301,7 @@ table_reference
       (*plan_id)++;
       UNPACK_SQL_STATEMENT(column, table->columns, column);
       PACK_SQL_STATEMENT(alias->column_list,
-                         lp_columns_to_column_list(column, alias), column_list_alias);
+                         columns_to_column_list_alias(column, alias), column_list_alias);
       dqinit(join);
       if($table_reference_tail) {
         UNPACK_SQL_STATEMENT(join_tail, $table_reference_tail, join);
@@ -448,7 +332,7 @@ table_reference
       (*plan_id)++;
       UNPACK_SQL_STATEMENT(column, table->columns, column);
       PACK_SQL_STATEMENT(alias->column_list,
-                         lp_columns_to_column_list(column, alias), column_list_alias);
+                         columns_to_column_list_alias(column, alias), column_list_alias);
       dqinit(join);
       if($table_reference_tail) {
         UNPACK_SQL_STATEMENT(join_tail, $table_reference_tail, join);
@@ -464,14 +348,18 @@ table_reference
       dqinit(join);
     }
   | derived_table correlation_specification {
+      SqlTableAlias	*table_alias;
+      SqlStatement	*sql_stmt;
+
       SQL_STATEMENT($$, join_STATEMENT);
       MALLOC_STATEMENT($$, join, SqlJoin);
       SqlJoin *join = $$->v.join;
-      join->value = $derived_table;
+      sql_stmt = $derived_table;
+      join->value = sql_stmt;
 
       // Setup the alias
-      SqlTableAlias *table_alias;
-      UNPACK_SQL_STATEMENT(table_alias, $derived_table, table_alias);
+      sql_stmt = drill_to_table_alias(sql_stmt);
+      UNPACK_SQL_STATEMENT(table_alias, sql_stmt, table_alias);
       table_alias->alias = $correlation_specification;
       dqinit(join);
     }

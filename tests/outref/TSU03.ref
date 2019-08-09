@@ -1,0 +1,6 @@
+OCTO> SELECT 1
+OCTO> FROM   (SELECT 1
+OCTO>         UNION
+OCTO>         SELECT 1);
+1
+OCTO> 

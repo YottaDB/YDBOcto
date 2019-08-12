@@ -1,0 +1,28 @@
+OCTO> select
+OCTO> COLUMN_A
+OCTO> ,COLUMN_B
+OCTO> from names; select notathing from names; select firstname from names limit 1;
+[ WARN] PATH:LINENUM DATE TIME : Unknown column: COLUMN_A
+
+select
+COLUMN_A
+COLUMN_A_ERROR
+[ WARN] PATH:LINENUM DATE TIME : Unknown column: COLUMN_B
+
+select
+COLUMN_A
+,COLUMN_B
+COLUMN_B_ERROR
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select
+COLUMN_A
+,COLUMN_B
+from names; 
+[ WARN] PATH:LINENUM DATE TIME : Unknown column: NOTATHING
+
+from names; select notathing from names; select firstname from names limit 1;
+                   ^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement:  select notathing from names; 
+Zero
+OCTO> select lastname from names limit 1;
+Cool
+OCTO> 

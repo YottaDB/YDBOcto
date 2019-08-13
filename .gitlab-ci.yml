@@ -40,7 +40,7 @@ before_script:
 .centos:
   before_script:
     - yum install -y epel-release
-    - yum install -y gcc make cmake3 bison flex libcmocka-devel python-pip readline-devel git libconfig-devel openssl-devel postgresql libgcrypt-devel gpgme-devel openssl
+    - yum install -y gcc make cmake3 ctest3 bison flex libcmocka-devel python-pip readline-devel git libconfig-devel openssl-devel postgresql libgcrypt-devel gpgme-devel openssl
 
 make-ubuntu:
   image: yottadb/yottadb-base:latest-master

@@ -1,0 +1,52 @@
+#################################################################
+#								#
+# Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	#
+# All rights reserved.						#
+#								#
+#	This source code contains the intellectual property	#
+#	of its copyright holder(s), and is made available	#
+#	under a license.  If you do not know the terms of	#
+#	the license, please stop and do not read further.	#
+#								#
+#################################################################
+
+FROM yottadb/yottadb-centos-base:latest-master
+
+RUN yum update && \
+    yum install -y epel-release && \
+    yum clean all && \
+    rm -rf /var/cache/yum/* && \
+    yum install -y \
+        gcc \
+        make \
+        cmake3 \
+        ctest3 \
+        bison \
+        flex \
+        libcmocka-devel \
+        python36 \
+        python36-pip \
+        readline-devel \
+        git \
+        libconfig-devel \
+        openssl-devel \
+        postgresql \
+        libgcrypt-devel \
+        gpgme-devel \
+        openssl
+RUN pip3 install --upgrade pip && \
+    pip3 install \
+        sphinxcontrib-fulltoc \
+        sphinx \
+        sphinx_rtd_theme
+ENV PATH=/usr/local/go/bin:$PATH
+ENV GOLANG_VERSION=1.11.2
+RUN wget -O go.tgz -q https://golang.org/dl/go${GOLANG_VERSION}.linux-amd64.tar.gz
+RUN tar -C /usr/local -xzf go.tgz
+RUN rm go.tgz
+RUN go version
+
+ADD . /builds/YDBDBMS/
+WORKDIR /builds/YDBDBMS
+
+RUN tools/ci/build.sh

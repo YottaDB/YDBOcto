@@ -23,6 +23,12 @@ else
   cmakeCommand="cmake"
 fi
 
+if [ -x "$(command -v ctest3)" ]; then
+  ctestCommand="ctest3"
+else
+  ctestCommand="ctest"
+fi
+
 # Download, Compile, and Install the YottaDB POSIX plugin
 cd /root
 git clone https://gitlab.com/YottaDB/Util/YDBposix.git
@@ -72,7 +78,7 @@ popd
 ${cmakeCommand} -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_INSTALL_PREFIX=${ydb_dist}/plugin ..
 
 # Compile Octo
-make 2> make_warnings.txt
+make -j `grep -c ^processor /proc/cpuinfo` 2> make_warnings.txt
 
 # Check for unexpected warnings and error/exit if unexpected errors are found
 ../tools/ci/sort_warnings.sh
@@ -102,7 +108,7 @@ $ydb_dist/mupip load ../../tests/fixtures/names.zwr
 popd
 
 # Run the tests
-make test || exit 1
+${ctestCommand} -j `grep -c ^processor /proc/cpuinfo` || exit 1
 
 # Build binary package
 make package

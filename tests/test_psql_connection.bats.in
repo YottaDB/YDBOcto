@@ -23,50 +23,50 @@ setup() {
   load_fixture pastas.sql
   load_fixture pastas.zwr
   load_fixture default_user.zwr
-  start_rocto
+  start_rocto 1339
 }
 
 teardown() {
-  stop_rocto
+  stop_rocto 1339
 }
 
 @test "test no MD5 authentication failure" {
-  run_psql <<OCTO 2>&1 | tee output.txt
+  run_psql 1339 <<OCTO 2>&1 | tee output.txt
 SELECT * FROM names;
 OCTO
     [[ ! "$(cat results.log)" =~ "read failure: failed to read MD5 password" ]]
 }
 
 @test "select wildcard columns" {
-  run_psql <<OCTO 2>&1 | tee output.txt
+  run_psql 1339 <<OCTO 2>&1 | tee output.txt
 SELECT * FROM names;
 OCTO
   [[ "$(grep -c -E "Zero.\+|Cool" output.txt)" == "2" ]]
 }
 
 @test "select lastName only (empty row+column check)" {
-  run_psql <<OCTO 2>&1 | tee output.txt
+  run_psql 1339 <<OCTO 2>&1 | tee output.txt
 SELECT lastName FROM names;
 OCTO
   verify_output T0011 output.txt
 }
 
 @test "select two empty columns only (empty row+column check)" {
-  run_psql <<OCTO 2>&1 | tee output.txt
+  run_psql 1339 <<OCTO 2>&1 | tee output.txt
 SELECT lastName, favoritePasta FROM names4;
 OCTO
   verify_output T0012 output.txt
 }
 
 @test "invalid syntax should get an error message" {
-  run_psql <<OCTO 2>&1 | tee output.txt
+  run_psql 1339 <<OCTO 2>&1 | tee output.txt
 SELECT * AFRO names;
 OCTO
   [[ "$(grep -c -E "syntax error" output.txt)" == "1" ]]
 }
 
 @test "ensure correct columns are sent using xref" {
-  run_psql <<OCTO 2>&1 | tee output.txt
+  run_psql 1339 <<OCTO 2>&1 | tee output.txt
 SELECT * FROM names WHERE firstName = "Zero";
 OCTO
   [[ "$(grep -c -E "0.+Zero.+Cool" output.txt)" == "1" ]]
@@ -74,9 +74,14 @@ OCTO
 
 @test "use_dns config option false" {
   stop_rocto
-  echo "rocto = { use_dns = false }" > octo.conf
+  cat <<OCTO &> octo.conf
+rocto = {
+  use_dns: false;
+  port: 1339;
+}
+OCTO
   start_rocto
-  run_psql <<OCTO 2>&1 | tee output.txt
+  run_psql 1339 <<OCTO 2>&1 | tee output.txt
 SELECT * FROM names WHERE firstName = "Zero";
 OCTO
   [[ $(grep -c "127.0.0.1" rocto.log) -ge 1 ]]
@@ -84,16 +89,21 @@ OCTO
 
 @test "use_dns config option true" {
   stop_rocto
-  echo "rocto = { use_dns = true }" > octo.conf
+  cat <<OCTO &> octo.conf
+rocto = {
+  use_dns: true;
+  port: 1339;
+}
+OCTO
   start_rocto
-  run_psql <<OCTO 2>&1 | tee output.txt
+  run_psql 1339 <<OCTO 2>&1 | tee output.txt
 SELECT * FROM names WHERE firstName = "Zero";
 OCTO
   [[ $(grep -c "localhost" rocto.log) -ge 1 ]]
 }
 
 @test "verify that dead procs don't become zombies" {
-  run_psql <<OCTO 2>&1 | tee output.txt
+  run_psql 1339 <<OCTO 2>&1 | tee output.txt
 SELECT * FROM names;
 OCTO
   # Sleep for a moment so rocto has time to clean the PID
@@ -106,9 +116,10 @@ OCTO
     skip "YDB_TLS_AVAILABLE is set"
   fi
   stop_rocto
-  cat <<OCTO &>> octo.conf
+  cat <<OCTO &> octo.conf
 rocto: {
 	ssl_on: true;
+	port: 1339;
 }
 
 tls: {
@@ -131,7 +142,7 @@ OCTO
 
 @test "ensure socket cleanup when rocto process is killed" {
   kill -9 $(cat rocto.pid)
-  start_rocto
+  start_rocto 1339
   log=$(cat rocto.log)
   [[ ! "$log" =~ "System error 98: Address already in use" ]]
 }

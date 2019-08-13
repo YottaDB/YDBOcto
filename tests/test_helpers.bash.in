@@ -111,6 +111,13 @@ FILE
 start_rocto() {
   echo "ROCTO START" >> env.log
   env >> env.log
+  if [[ "" != $1 ]]; then
+    cat <<OCTO &> $test_temp/octo.conf
+rocto: {
+  port: $1;
+}
+OCTO
+  fi
   rocto -vv &> rocto.log &
   echo $! > rocto.pid
   while [[ "$(grep -c "rocto started" rocto.log)" == "0" ]]; do
@@ -126,17 +133,17 @@ stop_rocto() {
 
 run_psql() {
   if [[ @YDB_TLS_AVAILABLE@ -eq 1 ]]; then
-    PGPASSWORD=ydbrocks psql -U ydb "host=localhost port=1337"
+    PGPASSWORD=ydbrocks psql -U ydb "host=localhost port=$1"
   else
-    PGPASSWORD=ydbrocks psql -U ydb "sslmode=disable host=localhost port=1337"
+    PGPASSWORD=ydbrocks psql -U ydb "sslmode=disable host=localhost port=$1"
   fi
 }
 
 run_psql_auth() {
   if [[ @YDB_TLS_AVAILABLE@ -eq 1 ]]; then
-    PGPASSWORD=$2 psql -U $1 "host=localhost port=1337"
+    PGPASSWORD=$2 psql -U $1 "host=localhost port=$3"
   else
-    PGPASSWORD=$2 psql -U $1 "sslmode=disable host=localhost port=1337"
+    PGPASSWORD=$2 psql -U $1 "sslmode=disable host=localhost port=$3"
   fi
 }
 

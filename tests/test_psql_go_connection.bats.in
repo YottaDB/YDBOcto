@@ -18,7 +18,7 @@ setup() {
   load_fixture names.sql
   load_fixture names.zwr
   load_fixture default_user.zwr
-  start_rocto
+  start_rocto 1337
   setup_go
 }
 

@@ -24,7 +24,7 @@
 int create_table_defaults(SqlStatement *table_statement, SqlStatement *keywords_statement) {
 	SqlTable *table;
 	SqlOptionalKeyword *keyword, *cur_keyword, *start_keyword, *t_keyword;
-	SqlColumn *key_columns[MAX_KEY_COUNT];
+	SqlColumn *key_columns[MAX_KEY_COUNT], *cur_column, *start_column;
 	SqlStatement *statement;
 	SqlValue *value;
 	char buffer[MAX_STR_CONST], buffer2[MAX_STR_CONST], *out_buffer;
@@ -41,9 +41,35 @@ int create_table_defaults(SqlStatement *table_statement, SqlStatement *keywords_
 	memset(key_columns, 0, MAX_KEY_COUNT * sizeof(SqlColumn*));
 	max_key = get_key_columns(table, key_columns);
 	if(max_key < 0) {
-		UNPACK_SQL_STATEMENT(value, table->tableName, value);
-		WARNING(ERR_PRIMARY_KEY_NOT_FOUND, value->v.string_literal);
-		return 1;
+		UNPACK_SQL_STATEMENT(start_column, table->columns, column);
+		cur_column = start_column;
+		i = 0;
+		do {
+			// Construct the key num keyword
+			SQL_STATEMENT(statement, keyword_STATEMENT);
+			MALLOC_STATEMENT(statement, keyword, SqlOptionalKeyword);
+			keyword = statement->v.keyword;
+			keyword->keyword = OPTIONAL_KEY_NUM;
+			// key num value is index of key in table
+			snprintf(buffer, sizeof(buffer), "%d", i);
+			len = strlen(buffer);
+			out_buffer = octo_cmalloc(memory_chunks, len+1);
+			strncpy(out_buffer, buffer, len+1);
+			SQL_STATEMENT(keyword->v, value_STATEMENT);
+			MALLOC_STATEMENT(keyword->v, value, SqlValue);
+			keyword->v->v.value->type = NUMBER_LITERAL;
+			keyword->v->v.value->v.string_literal = out_buffer;
+			// Insert statement into column keyword list
+			dqinit(keyword);
+			UNPACK_SQL_STATEMENT(t_keyword, cur_column->keywords, keyword);
+			dqinsert(t_keyword, keyword, t_keyword);
+			// Walk to next key and increment index
+			cur_column = cur_column->next;
+			i++;
+		} while (cur_column != start_column);
+		// Get the new key columns
+		max_key = get_key_columns(table, key_columns);
+		assert(max_key == i - 1);
 	}
 
 	cur_keyword = start_keyword;

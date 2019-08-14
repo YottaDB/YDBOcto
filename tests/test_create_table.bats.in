@@ -17,6 +17,7 @@ setup() {
   createdb
   load_fixture names.sql
   load_fixture names.zwr
+  load_fixture names4.zwr
 }
 
 @test "TC001 create a table so large it can't fit in the buffer" {
@@ -58,23 +59,17 @@ OCTO
   [ "$?" -eq 0 ]
 }
 
-@test "fail to create a table which has no keys" {
+@test "create a table which has no keys" {
   octo <<OCTO 2>&1 | tee output.txt
-create table namesAbc (First char(20), Last char(30));
-select * from namesAbc;
+create table names4 (id int, First char(20), Last char(30));
 OCTO
-  [[ "$(grep -c "WARN" output.txt)" == "1" ]]
-  [[ "$(grep -c "ERROR" output.txt)" == "3" ]]
+  verify_output TC002 output.txt
 }
 
-@test "fail to create a table which has no keys and select from it later" {
+@test "create a table which has no keys and select from it later" {
   octo <<OCTO 2>&1 | tee output.txt
-create table namesAbc (First char(20), Last char(30));
+create table names4 (id int, First char(20), Last char(30));
+select * from names4
 OCTO
-  [[ "$(grep -c "WARN" output.txt)" == "1" ]]
-  [[ "$(grep -c "ERROR" output.txt)" == "1" ]]
-  octo <<OCTO 2>&1 | tee output.txt
-select * from namesAbc;
-OCTO
-  [[ "$(grep -c "ERROR" output.txt)" == "2" ]]
+  verify_output TC003 output.txt
 }

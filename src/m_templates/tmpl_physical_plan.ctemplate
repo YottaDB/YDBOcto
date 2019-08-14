@@ -290,8 +290,8 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
     //  the index; these were in the first set, but not the second
     if(plan->set_operation == PP_INTERSECT_SET) {
         %}
-    SET var="{{ config->global_names.cursor }}("_cursorId_",""index"")" FOR  SET var=$Q(@var),var=$Q(@var) QUIT:$PIECE(var,",",2)'="""index"""  DO
-    . SET index=$PIECE($PIECE(var,",",$LENGTH(var,",")),")",1)
+    SET var="{{ config->global_names.cursor }}("_cursorId_",""index"")" FOR  SET var=$Q(@var),var=$Q(@var) QUIT:$QSUBSCRIPT(var,2)'="index"  DO
+    . SET index=$QSUBSCRIPT(var,$QLENGTH(var))
     . KILL:index'="" {%
     TMPL(tmpl_key, plan->outputKey);
     // Go back on in the buffer

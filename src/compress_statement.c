@@ -1,30 +1,29 @@
-/* Copyright (C) 2019 YottaDB, LLC
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- */
+/****************************************************************
+ *								*
+ * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * All rights reserved.						*
+ *								*
+ *	This source code contains the intellectual property	*
+ *	of its copyright holder(s), and is made available	*
+ *	under a license.  If you do not know the terms of	*
+ *	the license, please stop and do not read further.	*
+ *								*
+ ****************************************************************/
+
 #include <assert.h>
 #include "octo.h"
 #include "octo_types.h"
 
-#define CALL_COMPRESS_HELPER(temp, value, new_value, out, out_length) \
-	(temp) = compress_statement_helper((value), (out), (out_length)); \
-	if((out) != NULL) { \
-		(new_value) = (temp); \
-		if(new_value != NULL) { \
-			A2R((new_value), temp); \
-		} \
-	}
+#define CALL_COMPRESS_HELPER(temp, value, new_value, out, out_length)		\
+{										\
+	(temp) = compress_statement_helper((value), (out), (out_length));	\
+	if((out) != NULL) {							\
+		(new_value) = (temp);						\
+		if(new_value != NULL) {						\
+			A2R((new_value), temp);					\
+		}								\
+	}									\
+}
 
 void *compress_statement_helper(SqlStatement *stmt, char *out, int *out_length);
 
@@ -188,6 +187,7 @@ void *compress_statement_helper(SqlStatement *stmt, char *out, int *out_length) 
 	case set_STATEMENT:
 	case set_operation_STATEMENT:
 	case show_STATEMENT:
+	case sort_spec_list_STATEMENT:
 	case table_alias_STATEMENT:
 	case unary_STATEMENT:
 		FATAL(ERR_UNKNOWN_KEYWORD_STATE, "");

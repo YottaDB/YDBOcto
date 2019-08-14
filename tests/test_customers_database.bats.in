@@ -41,8 +41,6 @@ OCTO
 }
 
 @test "TCD03 : customers database : INNER JOIN order by DESC" {
-  skip	# skip can be removed once https://gitlab.com/YottaDB/DBMS/YDBOcto/issues/158 is fixed
-  	# #158 title : ORDER BY with DESC displays results in ASC (not DESC) order
   octo <<OCTO 2>&1 | tee output.txt
 SELECT first_name, last_name, order_date, order_amount
 FROM customers c

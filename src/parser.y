@@ -766,7 +766,7 @@ factor_tail
   ;
 
 collate_clause
-  : COLLATE collation_name { $$ = $2; }
+  : COLLATE collation_name { WARNING(ERR_FEATURE_NOT_IMPLEMENTED, "COLLATE clause"); $$ = $2; }
   ;
 
 collation_name

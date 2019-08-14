@@ -69,7 +69,7 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
     if(plan->set_operation != PP_NOT_SET) {
         limit--;
     }
-    for(cur_key = 0; cur_key <= limit; cur_key++) {
+    for(cur_key = 0; cur_key < limit; cur_key++) {
         %},%%ydboctoi{{ cur_key|%d }}{%
     }
     if(plan->set_operation == PP_NOT_SET) {
@@ -257,7 +257,7 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
     {% TMPL(print_dots, dot_count); %}SET {% TMPL(tmpl_duplication_check, plan); %}=1{%
     }
 
-    // If we are maintaing the columnwise index
+    // If we are maintaining the columnwise index
     if(plan->maintain_columnwise_index && plan->set_operation != PP_EXCEPT_SET) {
         // Newline for the M code
         %}
@@ -279,11 +279,13 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
     }
     // If this expression had an order by, we now need to go back and make the ordering uniform
     if(plan->order_by) {
+    	char	*direction = ((OPTIONAL_DESC == plan->order_by->extra_detail) ? "-1" : "1");
         %}
-    SET %%ydboctoi0=1,%%ydboctoi1="",%%ydboctoi3=""
-    FOR  SET %%ydboctoi1=$ORDER({% TMPL(tmpl_key, plan->outputKey); buff_ptr--; %},"order",%%ydboctoi1)) QUIT:$DATA({% TMPL(tmpl_key, plan->outputKey); buff_ptr--; %},"order",%%ydboctoi1))=0  DO  QUIT:%%ydboctoi1=""
-    . FOR  SET %%ydboctoi3=$ORDER({% TMPL(tmpl_key, plan->outputKey); buff_ptr--; %},"order",%%ydboctoi1,%%ydboctoi3)) QUIT:%%ydboctoi3=""  SET {% TMPL(tmpl_key, plan->outputKey); buff_ptr--; %},%%ydboctoi0)={%
-              TMPL(tmpl_key, plan->outputKey); buff_ptr--; %},"order",%%ydboctoi1,%%ydboctoi3) IF $INCREMENT(%%ydboctoi0)
+    NEW %%ydboctoi0,%%ydboctoi1,%%ydboctoi2
+    SET %%ydboctoi0=1,%%ydboctoi1="",%%ydboctoi2=""
+    FOR  SET %%ydboctoi1=$ORDER({% TMPL(tmpl_key, plan->outputKey); buff_ptr--; %},"order",%%ydboctoi1),{{ direction }}) QUIT:$DATA({% TMPL(tmpl_key, plan->outputKey); buff_ptr--; %},"order",%%ydboctoi1))=0  DO  QUIT:%%ydboctoi1=""
+    . FOR  SET %%ydboctoi2=$ORDER({% TMPL(tmpl_key, plan->outputKey); buff_ptr--; %},"order",%%ydboctoi1,%%ydboctoi2)) QUIT:%%ydboctoi2=""  SET {% TMPL(tmpl_key, plan->outputKey); buff_ptr--; %},%%ydboctoi0)={%
+              TMPL(tmpl_key, plan->outputKey); buff_ptr--; %},"order",%%ydboctoi1,%%ydboctoi2) IF $INCREMENT(%%ydboctoi0)
     KILL {% TMPL(tmpl_key, plan->outputKey); buff_ptr--; %},"order"){%
     }
     // If this is a INTERSECT set, we need to delete any keys remaining in the

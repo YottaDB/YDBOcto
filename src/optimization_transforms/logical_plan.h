@@ -61,8 +61,9 @@ extern const char *lp_action_type_str[];
 //  complete trees under it, and it would be awkward to overload
 //  void pointers
 typedef struct LogicalPlan {
-	LPActionType type;
-	int *counter;
+	LPActionType	type;
+	int		extra_detail;	/* currently used only for ORDER BY (if "type" member is LP_COLUMN_LIST) */
+	int		*counter;
 	union {
 		// Set for most types
 		struct LogicalPlan *operand[2];

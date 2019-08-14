@@ -176,6 +176,7 @@ add_library(libocto OBJECT
   copy_sql_statement.c
   cleanup_tables.c
   parser/query_specification.c
+  parser/sort_specification.c
   ${BISON_OctoParser_OUTPUTS}
   ${FLEX_OctoLexer_OUTPUTS}
 )

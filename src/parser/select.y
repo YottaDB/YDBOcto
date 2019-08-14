@@ -78,13 +78,17 @@ optional_query_word_element
 
 sort_specification_list
   : sort_specification sort_specification_list_tail {
+      SqlColumnListAlias	*alias;
+      SqlValue			*value;
+      SqlColumnList		*column_list;
+      SqlStatement		*sort_specification;
+      SqlSortSpecList		*sort_spec_list;
+
       SQL_STATEMENT($$, column_list_alias_STATEMENT);
       MALLOC_STATEMENT($$, column_list_alias, SqlColumnListAlias);
-      SqlColumnListAlias *alias;
       UNPACK_SQL_STATEMENT(alias, $$, column_list_alias);
       dqinit(alias);
       assert(alias->next == alias);
-      SqlValue *value;
       SQL_STATEMENT(alias->alias, value_STATEMENT);
       MALLOC_STATEMENT(alias->alias, value, SqlValue);
       UNPACK_SQL_STATEMENT(value, alias->alias, value);
@@ -93,14 +97,16 @@ sort_specification_list
       // Allocate the column list
       SQL_STATEMENT(alias->column_list, column_list_STATEMENT);
       MALLOC_STATEMENT(alias->column_list, column_list, SqlColumnList);
-      SqlColumnList *column_list;
       // Get the allocated column list
       UNPACK_SQL_STATEMENT(column_list, alias->column_list, column_list);
       dqinit(column_list);
+      sort_specification = $sort_specification;
       // The sort spec should be a value column_REFERENCE
-      UNPACK_SQL_STATEMENT(value, $sort_specification, value);
-      assert(value->type == COLUMN_REFERENCE);
-      column_list->value = $sort_specification;
+      UNPACK_SQL_STATEMENT(sort_spec_list, sort_specification, sort_spec_list);
+      UNPACK_SQL_STATEMENT(value, sort_spec_list->column_value, value);
+      assert(COLUMN_REFERENCE == value->type);
+      column_list->value = sort_spec_list->column_value;
+      alias->keywords = sort_spec_list->sort_type;
     }
   ;
 
@@ -110,10 +116,10 @@ sort_specification_list_tail
   ;
 
 sort_specification
-  : sort_key { $$ = $1; }
-  | sort_key collate_clause
-  | sort_key ordering_specification
-  | sort_key collate_clause ordering_specification
+  : sort_key { $$ = sort_specification($sort_key, NULL, NULL); }
+  | sort_key collate_clause { $$ = sort_specification($sort_key, $collate_clause, NULL); }
+  | sort_key ordering_specification { $$ = sort_specification($sort_key, NULL, $ordering_specification); }
+  | sort_key collate_clause ordering_specification { $$ = sort_specification($sort_key, $collate_clause, $ordering_specification); }
   ;
 
 sort_key
@@ -123,8 +129,20 @@ sort_key
   ;
 
 ordering_specification
-  : ASC
-  | DESC { WARNING(ERR_FEATURE_NOT_IMPLEMENTED, "order by desc"); }
+  : ASC  {
+      SQL_STATEMENT($$, keyword_STATEMENT);
+      OCTO_CMALLOC_STRUCT(($$)->v.keyword, SqlOptionalKeyword);
+      ($$)->v.keyword->keyword = OPTIONAL_ASC;
+      ($$)->v.keyword->v = NULL;
+      dqinit(($$)->v.keyword);
+   }
+  | DESC {
+      SQL_STATEMENT($$, keyword_STATEMENT);
+      OCTO_CMALLOC_STRUCT(($$)->v.keyword, SqlOptionalKeyword);
+      ($$)->v.keyword->keyword = OPTIONAL_DESC;
+      ($$)->v.keyword->v = NULL;
+      dqinit(($$)->v.keyword);
+   }
   ;
 
 query_specification

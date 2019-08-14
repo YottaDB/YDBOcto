@@ -1,7 +1,6 @@
 OCTO> select * from names3
 OCTO> where lastName = "Buttons" order by firstName desc;
-[ WARN] PATH:LINENUM DATE TIME : Feature not implemented: order by desc
 Added SET and/or Non-SET trigger on ^names3 named names3#1
-9|Betty|Buttons
 6|Bobby|Buttons
+9|Betty|Buttons
 OCTO> 

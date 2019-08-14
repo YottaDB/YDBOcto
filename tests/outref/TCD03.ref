@@ -2,7 +2,7 @@ OCTO> SELECT first_name, last_name, order_date, order_amount
 OCTO> FROM customers c
 OCTO> INNER JOIN orders o
 OCTO> ON c.customer_id = o.customer_id
-OCTO> ORDER BY last_name ASC;
+OCTO> ORDER BY last_name DESC;
 Added SET and/or Non-SET trigger on ^orders named orders#1
 George|Washington|07/04/1776|$234.56
 Thomas|Jefferson|03/14/1760|$78.50

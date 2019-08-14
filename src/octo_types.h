@@ -106,6 +106,7 @@ typedef enum SqlStatementType {
 	set_STATEMENT,
 	show_STATEMENT,
 	no_data_STATEMENT,
+	sort_spec_list_STATEMENT,
 	invalid_STATEMENT
 } SqlStatementType;
 
@@ -163,6 +164,11 @@ typedef enum SqlDataType {
 	INTERVAL_TYPE
 } SqlDataType;
 
+/* Note: Additions of keywords in the middle of the table can cause SIG-11s because the actual binary value
+ *       of these enums (e.g. PRIMARY_KEY) is stored in the ^%ydboctoschema(<tablename>,"b",*) global nodes
+ *       and using a newer build of Octo without killing ^%ydboctoschema could load a table definition that
+ *       is out of date with respect to the newer build.
+ */
 typedef enum OptionalKeyword {
 	NO_KEYWORD,
 	OPTIONAL_SOURCE,
@@ -188,6 +194,8 @@ typedef enum OptionalKeyword {
 	REFERENCES,
 	CHECK_CONSTRAINT,
 	MAX_LENGTH,
+	OPTIONAL_ASC,
+	OPTIONAL_DESC,
 } OptionalKeyword;
 
 typedef enum SqlSetOperationType {
@@ -209,6 +217,11 @@ typedef enum SqlJoinType {
 	FULL_JOIN,
 	NATURAL_JOIN
 } SqlJoinType;
+
+typedef enum SqlSortType {
+	ASC_TYPE,
+	DESC_TYPE
+} SqlSortType;
 
 #define YYLTYPE yyltype
 
@@ -464,6 +477,13 @@ typedef struct SqlNoDataStatement {
 	char b;
 } SqlNoDataStatement;
 
+typedef struct SqlSortSpecList {
+	// SqlValue
+	struct SqlStatement	*column_value;
+	struct SqlStatement	*sort_type;
+	dqcreate(SqlSortSpecList);
+} SqlSortSpecList;
+
 typedef struct SqlStatement{
 	enum SqlStatementType type;
 	struct YYLTYPE loc;
@@ -492,6 +512,7 @@ typedef struct SqlStatement{
 		struct SqlSetStatement *set;
 		struct SqlShowStatement *show;
 		struct SqlNoDataStatement *no_data;
+		struct SqlSortSpecList *sort_spec_list;
 		enum SqlDataType data_type;
 		enum SqlJoinType join_type;
 	} v;

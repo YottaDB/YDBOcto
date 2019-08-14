@@ -136,9 +136,10 @@ SqlStatement *decompress_statement(char *buffer, int out_length);
 int store_table_in_pg_class(SqlTable *table);
 void cleanup_tables();
 
-/* Parse related functions */
+/* Parse related functions invoked from the .y files (parser.y, select.y etc.) */
 SqlStatement *query_specification(SqlStatement *set_quantifier, SqlStatement *select_list,
 					SqlStatement *table_expression, SqlStatement *sort_specification_list, int *plan_id);
+SqlStatement *sort_specification(SqlStatement *sort_key, SqlStatement *collate_clause, SqlStatement *ordering_specification);
 
 /**
  * Returns TRUE if the columns are equal, FALSE otherwise

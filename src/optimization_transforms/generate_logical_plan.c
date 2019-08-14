@@ -242,20 +242,29 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt, int *plan_id) {
 		SqlColumnListAlias *cur_cla, *start_cla;
 		cur_cla = start_cla = list;
 		do {
+			SqlColumnList		*column_list;
+			SqlColumnAlias		*column_alias;
+			SqlColumnListAlias	*cla;
+			SqlOptionalKeyword	*keyword;
+
 			// We have to do some drilling to get the correct item,
 			// since the output from the parser is not super uniform
-			SqlColumnList *column_list;
 			UNPACK_SQL_STATEMENT(column_list, list->column_list, column_list);
 			// Ensure that we only have one element in this list
 			assert(column_list->next == column_list);
-			SqlColumnAlias *column_alias;
 			// If this breaks, it means we allowed the user to pass in a value directly
 			// in the parser. This is a silly thing to do, and the parser should
 			// reject it
 			UNPACK_SQL_STATEMENT(column_alias, column_list->value, column_alias);
-			SqlColumnListAlias *cla;
 			UNPACK_SQL_STATEMENT(cla, column_alias->column, column_list_alias);
 			order_by->v.operand[0] = lp_column_list_to_lp(cla, plan_id);
+			if (NULL != list->keywords)
+			{
+				UNPACK_SQL_STATEMENT(keyword, list->keywords, keyword);
+				assert(keyword->next == keyword);
+				assert(keyword->prev == keyword);
+			}
+			order_by->extra_detail = (NULL != keyword) ? keyword->keyword : OPTIONAL_ASC;	/* ASC is default */
 			cur_cla = cur_cla->next;
 			if(cur_cla != start_cla) {
 				MALLOC_LP_2ARGS(order_by->v.operand[1], LP_COLUMN_LIST);

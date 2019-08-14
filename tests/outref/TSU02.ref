@@ -4,7 +4,6 @@ OCTO>         FROM   names
 OCTO>         UNION
 OCTO>         SELECT id
 OCTO>         FROM   names);
-[ WARN] PATH:LINENUM DATE TIME : Ambiguous column name "ID": qualify name for safe execution
 0
 1
 2

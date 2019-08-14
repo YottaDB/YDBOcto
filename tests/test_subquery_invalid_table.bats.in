@@ -1,0 +1,179 @@
+#################################################################
+#								#
+# Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	#
+# All rights reserved.						#
+#								#
+#	This source code contains the intellectual property	#
+#	of its copyright holder(s), and is made available	#
+#	under a license.  If you do not know the terms of	#
+#	the license, please stop and do not read further.	#
+#								#
+#################################################################
+
+load test_helpers
+
+setup() {
+  init_test
+  createdb
+  load_fixture names.sql
+  load_fixture names.zwr
+}
+
+@test "TSIT01 : CROSS JOIN where subquery has table reference from parent query" {
+  octo <<OCTO 2>&1 | tee output.txt
+SELECT *
+FROM names n1
+CROSS JOIN (SELECT *
+            FROM names n2
+            WHERE n1.id = n2.id
+           );
+OCTO
+  verify_output TSIT01 output.txt
+}
+
+@test "TSIT02 : INNER JOIN where subquery has table reference from parent query" {
+  octo <<OCTO 2>&1 | tee output.txt
+SELECT *
+FROM names n1
+INNER JOIN (SELECT *
+            FROM names n2
+            WHERE n1.id = n2.id
+           ) as n3
+ON n3.id = n1.id;
+OCTO
+  verify_output TSIT02 output.txt
+}
+
+@test "TSIT03 : LEFT JOIN where subquery has table reference from parent query" {
+  octo <<OCTO 2>&1 | tee output.txt
+SELECT *
+FROM names n1
+LEFT JOIN (SELECT *
+           FROM names n2
+           WHERE n1.id = n2.id
+          ) as n3
+ON n3.id = n1.id;
+OCTO
+  verify_output TSIT03 output.txt
+}
+
+@test "TSIT04 : RIGHT JOIN where subquery has table reference from parent query" {
+  octo <<OCTO 2>&1 | tee output.txt
+SELECT *
+FROM names n1
+RIGHT JOIN (SELECT *
+            FROM names n2
+            WHERE n1.id = n2.id
+           ) as n3
+ON n3.id = n1.id;
+OCTO
+  verify_output TSIT04 output.txt
+}
+
+@test "TSIT05 : FULL JOIN where subquery has table reference from parent query" {
+  octo <<OCTO 2>&1 | tee output.txt
+SELECT *
+FROM names n1
+FULL JOIN (SELECT *
+            FROM names n2
+            WHERE n1.id = n2.id
+           ) as n3
+ON n3.id = n1.id;
+OCTO
+  verify_output TSIT05 output.txt
+}
+
+@test "TSIT06 : CROSS JOIN where subquery with UNION has table reference from parent query" {
+  octo <<OCTO 2>&1 | tee output.txt
+SELECT *
+FROM names n1
+CROSS JOIN (SELECT *
+            FROM names n2
+            WHERE n1.id = n2.id
+
+            UNION
+
+            SELECT *
+            FROM names n3
+            WHERE n1.id = n3.id
+           );
+OCTO
+  verify_output TSIT06 output.txt
+}
+
+@test "TSIT07 : INNER JOIN where subquery with UNION has table reference from parent query" {
+  octo <<OCTO 2>&1 | tee output.txt
+SELECT *
+FROM names n1
+INNER JOIN (SELECT *
+            FROM names n2
+            WHERE n1.id = n2.id
+
+            UNION
+
+            SELECT *
+            FROM names n3
+            WHERE n1.id = n3.id
+           ) as n4
+ON n4.id = n1.id;
+OCTO
+  verify_output TSIT07 output.txt
+}
+
+@test "TSIT08 : LEFT JOIN where subquery with UNION has table reference from parent query" {
+  octo <<OCTO 2>&1 | tee output.txt
+SELECT *
+FROM names n1
+LEFT JOIN (SELECT *
+           FROM names n2
+           WHERE n1.id = n2.id
+
+           UNION
+
+           SELECT *
+           FROM names n3
+           WHERE n1.id = n3.id
+          ) as n4
+ON n4.id = n1.id;
+OCTO
+  verify_output TSIT08 output.txt
+}
+
+@test "TSIT09 : RIGHT JOIN where subquery with UNION has table reference from parent query" {
+  octo <<OCTO 2>&1 | tee output.txt
+SELECT *
+FROM names n1
+RIGHT JOIN (SELECT *
+            FROM names n2
+            WHERE n1.id = n2.id
+
+            UNION
+
+            SELECT *
+            FROM names n3
+            WHERE n1.id = n3.id
+           ) as n4
+ON n4.id = n1.id;
+OCTO
+  verify_output TSIT09 output.txt
+}
+
+@test "TSIT10 : FULL JOIN where subquery with UNION has table reference from parent query" {
+  octo <<OCTO 2>&1 | tee output.txt
+SELECT *
+FROM names n1
+FULL JOIN (SELECT *
+           FROM names n2
+           WHERE n1.id = n2.id
+
+           UNION
+
+           SELECT *
+           FROM names n3
+           WHERE n1.id = n3.id
+           ) as n4
+ON n4.id = n1.id;
+OCTO
+  verify_output TSIT10 output.txt
+}
+

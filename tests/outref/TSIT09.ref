@@ -1,0 +1,46 @@
+OCTO> SELECT *
+OCTO> FROM names n1
+OCTO> RIGHT JOIN (SELECT *
+OCTO>             FROM names n2
+OCTO>             WHERE n1.id = n2.id
+OCTO> 
+OCTO>             UNION
+OCTO> 
+OCTO>             SELECT *
+OCTO>             FROM names n3
+OCTO>             WHERE n1.id = n3.id
+OCTO>            ) as n4
+OCTO> ON n4.id = n1.id;
+[ WARN] PATH:LINENUM DATE TIME : Unknown column: N1.ID
+
+SELECT *
+FROM names n1
+RIGHT JOIN (SELECT *
+            FROM names n2
+            WHERE n1.id = n2.id
+                  ^^^^^
+[ WARN] PATH:LINENUM DATE TIME : Unknown column: N1.ID
+
+SELECT *
+FROM names n1
+RIGHT JOIN (SELECT *
+            FROM names n2
+            WHERE n1.id = n2.id
+            UNION
+            SELECT *
+            FROM names n3
+            WHERE n1.id = n3.id
+                  ^^^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT *
+FROM names n1
+RIGHT JOIN (SELECT *
+            FROM names n2
+            WHERE n1.id = n2.id
+            UNION
+            SELECT *
+            FROM names n3
+            WHERE n1.id = n3.id
+           ) as n4
+ON n4.id = n1.id;
+
+OCTO> 

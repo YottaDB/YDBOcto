@@ -46,7 +46,7 @@ int qualify_query(SqlStatement *stmt, SqlJoin *parent_join) {
 		 * name in a valid existing table) by using MATCH_QUALIFIED_COLUMNS_TRUE below.
 		 */
 		do {
-			result |= qualify_query(cur_join->value, join);
+			result |= qualify_query(cur_join->value, NULL);
 			result |= qualify_statement(cur_join->condition, join, stmt, MATCH_QUALIFIED_COLUMNS_TRUE);
 			cur_join = cur_join->next;
 		} while(cur_join != start_join && cur_join != parent_join);

@@ -1,0 +1,24 @@
+OCTO> SELECT *
+OCTO> FROM names n1
+OCTO> RIGHT JOIN (SELECT *
+OCTO>             FROM names n2
+OCTO>             WHERE n1.id = n2.id
+OCTO>            ) as n3
+OCTO> ON n3.id = n1.id;
+[ WARN] PATH:LINENUM DATE TIME : Unknown column: N1.ID
+
+SELECT *
+FROM names n1
+RIGHT JOIN (SELECT *
+            FROM names n2
+            WHERE n1.id = n2.id
+                  ^^^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT *
+FROM names n1
+RIGHT JOIN (SELECT *
+            FROM names n2
+            WHERE n1.id = n2.id
+           ) as n3
+ON n3.id = n1.id;
+
+OCTO> 

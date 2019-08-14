@@ -1,0 +1,45 @@
+#################################################################
+#								#
+# Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	#
+# All rights reserved.						#
+#								#
+#	This source code contains the intellectual property	#
+#	of its copyright holder(s), and is made available	#
+#	under a license.  If you do not know the terms of	#
+#	the license, please stop and do not read further.	#
+#								#
+#################################################################
+
+load test_helpers
+
+setup() {
+  init_test
+  createdb
+}
+
+@test "drop a table check that octo reports it does not exist" {
+  # create a table that can be selected from
+  yottadb -run %XCMD 'set ^T1(1)="1|2|3|4"'
+  octo <<OCTO 2>&1 | tee output.txt
+create table t1 (a int primary key, b int, c int, d int);
+OCTO
+  octo <<OCTO 2>&1 | tee output.txt
+drop table t1;
+select * from t1;
+OCTO
+  verify_output TD000 output.txt
+}
+
+@test "drop a cached table check that octo reports it does not exist" {
+  # create a table that can be selected from
+  yottadb -run %XCMD 'set ^T1(1)="1|2|3|4"'
+  octo <<OCTO 2>&1 | tee output.txt
+create table t1 (a int primary key, b int, c int, d int);
+OCTO
+  octo <<OCTO 2>&1 | tee output.txt
+select * from t1;
+drop table t1;
+select * from t1;
+OCTO
+  verify_output TD001 output.txt
+}

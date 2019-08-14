@@ -63,6 +63,7 @@ ADD_BATS_TEST(test_multicmd_line)
 ADD_BATS_TEST(test_unknown_column)
 ADD_BATS_TEST(test_customers_database)
 ADD_BATS_TEST(test_subquery_invalid_table)
+ADD_BATS_TEST(test_drop_table)
 
 find_program(psql NAMES psql)
 if(psql)

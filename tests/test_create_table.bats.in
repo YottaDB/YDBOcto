@@ -73,3 +73,19 @@ select * from names4
 OCTO
   verify_output TC003 output.txt
 }
+
+@test "recreate a cached table and check that the cached version is deleted" {
+  # create a row that will change when more columns are added
+  yottadb -run %XCMD 'set ^T1(1)="1|2|3|4"'
+  octo <<OCTO 2>&1 | tee output.txt
+create table t1 (a int primary key);
+select * from t1;
+create table t1 (a int primary key, b int);
+select * from t1;
+create table t1 (a int primary key, b int, c int);
+select * from t1;
+create table t1 (a int primary key, b int, c int, d int);
+select * from t1;
+OCTO
+  verify_output TC004 output.txt
+}

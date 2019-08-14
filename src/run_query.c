@@ -182,6 +182,12 @@ int run_query(char *sql_query, void (*callback)(SqlStatement *, int, void*, char
 		status = ydb_set_s(&schema_global, 2, table_name_buffers, table_sub_buffer);
 		store_table_in_pg_class(table);
 		free(table_buffer);
+		// Drop the table from the local cache
+		YDB_LITERAL_TO_BUFFER("%ydboctoloadedschemas", &schema_global);
+		status = ydb_delete_s(&schema_global, 1,
+				table_name_buffer,
+				YDB_DEL_TREE);
+		YDB_ERROR_CHECK(status);
 		YDB_FREE_BUFFER(table_name_buffer);
 		YDB_FREE_BUFFER(table_sub_buffer);
 		break;
@@ -192,20 +198,12 @@ int run_query(char *sql_query, void (*callback)(SqlStatement *, int, void*, char
 				      table_name_buffer,
 				      YDB_DEL_TREE);
 		YDB_ERROR_CHECK(status);
-		// If we had the table loaded, drop it from memory
-		ydb_buffer_t *table_stmt = get("%ydboctoloadedschemas", 1,
-				result->v.drop->table_name->v.value->v.reference);
-		if(table_stmt != NULL) {
-			buffer = *((char**)table_stmt->buf_addr);
-			free(buffer);
-			free(table_stmt->buf_addr);
-			free(table_stmt);
-			YDB_LITERAL_TO_BUFFER("%ydboctoloadedschemas", &schema_global);
-			status = ydb_delete_s(&schema_global, 1,
-					table_name_buffer,
-					YDB_DEL_TREE);
-			YDB_ERROR_CHECK(status);
-		}
+		// Drop the table from the local cache
+		YDB_LITERAL_TO_BUFFER("%ydboctoloadedschemas", &schema_global);
+		status = ydb_delete_s(&schema_global, 1,
+				table_name_buffer,
+				YDB_DEL_TREE);
+		YDB_ERROR_CHECK(status);
 		YDB_FREE_BUFFER(table_name_buffer);
 		break;
 	case insert_STATEMENT:

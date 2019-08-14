@@ -1,0 +1,13 @@
+OCTO> create table t1 (a int primary key);
+OCTO> select * from t1;
+1
+OCTO> create table t1 (a int primary key, b int);
+OCTO> select * from t1;
+1|2
+OCTO> create table t1 (a int primary key, b int, c int);
+OCTO> select * from t1;
+1|2|3
+OCTO> create table t1 (a int primary key, b int, c int, d int);
+OCTO> select * from t1;
+1|2|3|4
+OCTO> 

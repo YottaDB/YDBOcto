@@ -64,7 +64,7 @@ int main(int argc, char **argv) {
 	err_buff.offset = 0;
 
 	ydb_buffer_t ydb_buffers[2], *var_defaults, *var_sets, var_value;
-	ydb_buffer_t *global_buffer = &(ydb_buffers[0]), *session_id_buffer = &(ydb_buffers[1]);
+	ydb_buffer_t *session_buffer = &(ydb_buffers[0]), *session_id_buffer = &(ydb_buffers[1]);
 
 	// Initialize a handler to respond to ctrl + c
 	memset(&ctrlc_action, 0, sizeof(ctrlc_action));
@@ -288,11 +288,11 @@ int main(int argc, char **argv) {
 		rocto_session.sending_message = FALSE;
 
 		// Enter the main loop
-		global_buffer = &(ydb_buffers[0]);
+		session_buffer = &(ydb_buffers[0]);
 		session_id_buffer = &(ydb_buffers[1]);
-		YDB_STRING_TO_BUFFER(config->global_names.session, global_buffer);
+		YDB_STRING_TO_BUFFER(config->global_names.session, session_buffer);
 		YDB_MALLOC_BUFFER(session_id_buffer, MAX_STR_CONST);
-		status = ydb_incr_s(global_buffer, 0, NULL, NULL, session_id_buffer);
+		status = ydb_incr_s(session_buffer, 0, NULL, NULL, session_id_buffer);
 		YDB_ERROR_CHECK(status);
 		rocto_session.session_id = session_id_buffer;
 		rocto_session.session_id->buf_addr[rocto_session.session_id->len_used] = '\0';
@@ -348,13 +348,6 @@ int main(int argc, char **argv) {
 		free(var_defaults);
 		free(var_sets);
 		rocto_main_loop(&rocto_session);
-		// Delete session information from session global
-		status = ydb_delete_s(global_buffer, 1, session_id_buffer, YDB_DEL_TREE);
-		if(YDB_OK == status) {
-			INFO(INFO_SESSION_CLEANUP);
-		} else {
-			WARNING(ERR_SESSION_CLEANUP, global_buffer->buf_addr, session_id_buffer->buf_addr);
-		}
 		break;
 	}
 

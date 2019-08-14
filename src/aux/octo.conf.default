@@ -15,9 +15,6 @@ verbosity = "WARNING"
 // Location to cache generated M routines which represent queries
 routine_cache = "./"
 
-// If true, automatically delete temporary tables after data is sent to the client
-auto_clean_tables = true
-
 // Settings related to the octod process
 rocto = {
   // Address and port to listen on for connections

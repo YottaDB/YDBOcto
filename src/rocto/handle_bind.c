@@ -43,7 +43,7 @@ int handle_bind(Bind *bind, RoctoSession *session) {
 	sql_expression.len_alloc -= 1;		// Leave space for null terminator
 
 	status = ydb_get_s(&src_subs[0], 3, &src_subs[1], &sql_expression);
-	if(status == YDB_ERR_GVUNDEF) {
+	if(status == YDB_ERR_LVUNDEF) {
 		err = make_error_response(PSQL_Error_ERROR,
 				    PSQL_Code_Invalid_Sql_Statement_Name,
 				    "Bind to unknown query attempted", 0);

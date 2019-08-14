@@ -125,19 +125,16 @@ void populate_global_names() {
 	buff[MAX_STR_CONST - 1] = '\0';
 	config->global_names.schema = malloc(strlen(buff) + 1);
 	strcpy(config->global_names.schema, buff);
-	config->global_names.raw_schema = &config->global_names.schema[1];
 
-	snprintf(buff, MAX_STR_CONST, "^%ssession", global_prefix);
+	snprintf(buff, MAX_STR_CONST, "%ssession", global_prefix);
 	buff[MAX_STR_CONST - 1] = '\0';
 	config->global_names.session = malloc(strlen(buff) + 1);
 	strcpy(config->global_names.session, buff);
-	config->global_names.raw_session = &config->global_names.session[1];
 
-	snprintf(buff, MAX_STR_CONST, "^%scursor", global_prefix);
+	snprintf(buff, MAX_STR_CONST, "%scursor", global_prefix);
 	buff[MAX_STR_CONST - 1] = '\0';
 	config->global_names.cursor = malloc(strlen(buff) + 1);
 	strcpy(config->global_names.cursor, buff);
-	config->global_names.raw_cursor = &config->global_names.cursor[1];
 
 	snprintf(buff, MAX_STR_CONST, "^%socto", global_prefix);
 	buff[MAX_STR_CONST - 1] = '\0';
@@ -256,10 +253,6 @@ int octo_init(int argc, char **argv) {
 		FATAL(ERR_BAD_CONFIG, "routine_cache");
 	}
 
-	if(config_lookup_bool(config_file, "auto_clean_tables", &config->auto_clean_tables)
-			== CONFIG_FALSE) {
-		FATAL(ERR_BAD_CONFIG, "auto_clean_tables");
-	}
 	if(config_lookup_string(config_file, "rocto.address", &config->rocto_config.address)
 			== CONFIG_FALSE) {
 		FATAL(ERR_BAD_CONFIG, "rocto.address");

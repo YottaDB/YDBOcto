@@ -219,13 +219,3 @@ Example:
 .. parsed-literal::
    octo --input-file=files/commands.txt
 
-~~~~~~~~~~
--k
-~~~~~~~~~~
-
-This command line argument overrides the :code:`auto_clean_tables` configuration setting and instructs Octo to not cleanup temporary tables (stored in the :code:`ydbcursor` global) after data is emitted to the client. This is useful for developers to debug problems.
-
-Example:
-
-.. parsed-literal::
-   octo -k

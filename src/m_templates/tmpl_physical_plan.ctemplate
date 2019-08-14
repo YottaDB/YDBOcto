@@ -134,7 +134,7 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
     // Distinct values if needed
     //  NOTE: the EXCEPT set doesn't need to check if a value exists before clearing it
     if(plan->distinct_values && plan->set_operation != PP_EXCEPT_SET && plan->set_operation != PP_INTERSECT_SET) {
-        %}&($DATA(^{{ config->global_names.raw_cursor }}(cursorId,"index",{%
+        %}&($DATA({{ config->global_names.cursor }}(cursorId,"index",{%
         TMPL(tmpl_column_list_combine, plan->projection, plan, ",", NULL, 0);
         %}))=0){%
     }
@@ -187,7 +187,7 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
         plan->projection->v.operand[1] = lp_temp;
         %})) {%
     } else if(plan->set_operation == PP_EXCEPT_SET) {
-        %} SET v=$ORDER(^{{ config->global_names.raw_cursor }}(cursorId,"index",{% TMPL(tmpl_column_list_combine, plan->projection, plan, ",", NULL, 0); %},"")) KILL:v'="" {% TMPL(tmpl_key, plan->outputKey); buff_ptr--; %},v),^{{ config->global_names.raw_cursor }}(cursorId,"index",{% TMPL(tmpl_column_list_combine, plan->projection, plan, ",", NULL, 0); %},v){%
+        %} SET v=$ORDER({{ config->global_names.cursor }}(cursorId,"index",{% TMPL(tmpl_column_list_combine, plan->projection, plan, ",", NULL, 0); %},"")) KILL:v'="" {% TMPL(tmpl_key, plan->outputKey); buff_ptr--; %},v),{{ config->global_names.cursor }}(cursorId,"index",{% TMPL(tmpl_column_list_combine, plan->projection, plan, ",", NULL, 0); %},v){%
     } else if(plan->outputKey) {
         // Note down where we are, do a dummy assignment to increment the row count, then paste our row again
         end_resume = buff_ptr;
@@ -215,7 +215,7 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
             /// TODO: rework this so this fake kill doesn't have to happen
             %},"this variable should never exist"){%
         } else if(plan->action_type == PP_DELETE) {
-            %},^{{ config->global_names.raw_cursor }}(cursorId,"index",{%
+            %},{{ config->global_names.cursor }}(cursorId,"index",{%
             TMPL(tmpl_column_list_combine, plan->projection, plan, ",", NULL, 0);
             %})){%
         } else if(plan->stash_columns_in_keys) {
@@ -269,10 +269,10 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
             %}SET:1{%
         }
 
-        %} ^{{ config->global_names.raw_cursor }}(cursorId,"index",{%
+        %} {{ config->global_names.cursor }}(cursorId,"index",{%
         TMPL(tmpl_column_list_combine, plan->projection, plan, ",", NULL, 0);
         if(plan->set_operation != PP_INTERSECT_SET) {
-            %},{% TMPL(tmpl_key, plan->outputKey); %})="",tmpVar=$INCREMENT(^{{ config->global_names.raw_cursor }}(cursorId,"index",{% TMPL(tmpl_column_list_combine, plan->projection, plan, ",", NULL, 0); %})){%
+            %},{% TMPL(tmpl_key, plan->outputKey); %})="",tmpVar=$INCREMENT({{ config->global_names.cursor }}(cursorId,"index",{% TMPL(tmpl_column_list_combine, plan->projection, plan, ",", NULL, 0); %})){%
         } else {
             %}){%
         }
@@ -290,7 +290,7 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
     //  the index; these were in the first set, but not the second
     if(plan->set_operation == PP_INTERSECT_SET) {
         %}
-    SET var="^{{ config->global_names.raw_cursor }}("_cursorId_",""index"")" FOR  SET var=$Q(@var),var=$Q(@var) QUIT:$PIECE(var,",",2)'="""index"""  DO
+    SET var="{{ config->global_names.cursor }}("_cursorId_",""index"")" FOR  SET var=$Q(@var),var=$Q(@var) QUIT:$PIECE(var,",",2)'="""index"""  DO
     . SET index=$PIECE($PIECE(var,",",$LENGTH(var,",")),")",1)
     . KILL:index'="" {%
     TMPL(tmpl_key, plan->outputKey);

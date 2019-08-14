@@ -190,10 +190,9 @@ void handle_query_response(SqlStatement *stmt, int cursor_id, void *_parms, char
 		YDB_ERROR_CHECK(status);
 	}
 
-	// Cleanup tables, if needed
-	if(config->auto_clean_tables) {
-		ydb_delete_s(cursor_b, 1, cursor_id_b, YDB_DEL_TREE);
-	}
+	// Cleanup tables
+	ydb_delete_s(cursor_b, 1, cursor_id_b, YDB_DEL_TREE);
+
 	free(cursor_id_b->buf_addr);
 	free(row_id_b->buf_addr);
 	free(row_value_b->buf_addr);

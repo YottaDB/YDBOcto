@@ -32,7 +32,7 @@ typedef struct RoctoConfig {
 
 typedef struct {
 	char *schema, *session, *cursor, *octo, *xref;
-	char *raw_schema, *raw_session, *raw_cursor, *raw_octo, *raw_xref;
+	char *raw_octo, *raw_xref;
 } GlobalNames;
 
 typedef struct OctoConfig {
@@ -40,7 +40,7 @@ typedef struct OctoConfig {
 	RoctoConfig rocto_config;
 	GlobalNames global_names;
 	enum ERROR_LEVEL record_error_level;
-	int dry_run, plan_id, auto_clean_tables;
+	int dry_run, plan_id;
 	const char *tmp_dir, *config_file_name;
 	int is_tty, page_size;
 } OctoConfig;

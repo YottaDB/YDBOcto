@@ -93,10 +93,6 @@ Some of the globals used in Octo are:
 
 * :code:`^%ydboctoocto`: This global can refer to various functions, variables, octo "read only" table values (postgres mappings, oneRowTable, etc.), and some counts. It needs to persist between sessions.
 
-* :code:`^%ydboctosession`: This global can contain session variables, portals and prepared queries. It only contains data related to the current session.
-
-* :code:`^%ydboctocursor`: This global contains output data and temporary tables. It need not persist between sessions since it only contains temporary data.
-
 * :code:`^%ydboctoxref`: This global contains cross-references, row counts and other statistical information. It needs to persist between sessions.
 
 * :code:`^%ydboctoschema`: This global contains information about the tables loaded into the database. It needs to persist between sessions.

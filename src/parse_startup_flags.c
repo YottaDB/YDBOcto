@@ -36,8 +36,8 @@ void handle_invalid_option(char *executable_name, char short_option) {
 int parse_startup_flags(int argc, char **argv) {
 	int c;
 	int is_rocto = FALSE;
-	char *octo_usage = "Usage: octo [OPTION]...\nStart the Octo SQL server.\n\nMandatory arguments for long options are also mandatory for short options.\n  -c, --config-file=<filepath>\t\tUse specified configuration file instead of the default.\n  -d, --dry-run\t\t\t\tRun the parser in read-only mode and performs basic checks without executing any passed SQL statements.\n  -f, --input-file=<filepath>\t\tRead commands from specified file instead of opening interactive prompt.\n  -h, --help\t\t\t\tDisplay this help message and exit.\n  -k, --keep-temporary\t\t\tOverride the auto_clean_tables configuration setting and prevents cleanup of temporary tables.\n  -v, --verbose=<number>\t\tSpecify amount of information to output when running commands by specifying a numeric level from 0-5 or adding additional 'v' characters.\n";
-	char *rocto_usage = "Usage: rocto [OPTION]...\nStart the Rocto remote SQL server.\n\nMandatory arguments for long options are also mandatory for short options.\n  -c, --config-file=<filepath>\t\tUse specified configuration file instead of the default.\n  -h, --help\t\t\t\tDisplay this help message and exit.\n  -k, --keep-temporary\t\t\tOverride the auto_clean_tables configuration setting and prevents cleanup of temporary tables.\n  -v, --verbose=<number>\t\tSpecify amount of information to output when running commands by specifying a numeric level from 0-5 or adding additional 'v' characters.\n";
+	char *octo_usage = "Usage: octo [OPTION]...\nStart the Octo SQL server.\n\nMandatory arguments for long options are also mandatory for short options.\n  -c, --config-file=<filepath>\t\tUse specified configuration file instead of the default.\n  -d, --dry-run\t\t\t\tRun the parser in read-only mode and performs basic checks without executing any passed SQL statements.\n  -f, --input-file=<filepath>\t\tRead commands from specified file instead of opening interactive prompt.\n  -h, --help\t\t\t\tDisplay this help message and exit.\n  -v, --verbose=<number>\t\tSpecify amount of information to output when running commands by specifying a numeric level from 0-5 or adding additional 'v' characters.\n";
+	char *rocto_usage = "Usage: rocto [OPTION]...\nStart the Rocto remote SQL server.\n\nMandatory arguments for long options are also mandatory for short options.\n  -c, --config-file=<filepath>\t\tUse specified configuration file instead of the default.\n  -h, --help\t\t\t\tDisplay this help message and exit.\n  -v, --verbose=<number>\t\tSpecify amount of information to output when running commands by specifying a numeric level from 0-5 or adding additional 'v' characters.\n";
 
 	if (0 < argc && 0 == strcmp(argv[0], "rocto")) {
 		is_rocto = TRUE;
@@ -54,7 +54,6 @@ int parse_startup_flags(int argc, char **argv) {
 			{"dry-run", no_argument, NULL, 'd'},
 			{"input-file", required_argument, NULL, 'f'},
 			{"config-file", required_argument, NULL, 'c'},
-			{"keep-temporary", required_argument, NULL, 'k'},
 			{"help", no_argument, NULL, 'h'},
 			{0, 0, 0, 0}
 		};
@@ -64,16 +63,15 @@ int parse_startup_flags(int argc, char **argv) {
 		{
 			{"verbose", optional_argument, NULL, 'v'},
 			{"config-file", required_argument, NULL, 'c'},
-			{"keep-temporary", required_argument, NULL, 'k'},
 			{"help", no_argument, NULL, 'h'},
 			{0, 0, 0, 0}
 		};
 		int option_index = 0;
 
 		if (is_rocto) {
-			c = getopt_long(argc, argv, "kvht:c:", rocto_long_options, &option_index);
+			c = getopt_long(argc, argv, "vhc:", rocto_long_options, &option_index);
 		} else {
-			c = getopt_long(argc, argv, "kvdhf:t:c:", octo_long_options, &option_index);
+			c = getopt_long(argc, argv, "vdhf:c:", octo_long_options, &option_index);
 		}
 		if(c == -1)
 			break;
@@ -97,9 +95,6 @@ int parse_startup_flags(int argc, char **argv) {
 			break;
 		case 'c':
 			config->config_file_name = optarg;
-			break;
-		case 'k':
-			config->auto_clean_tables = FALSE;
 			break;
 		case 'h':
 			if (is_rocto) {

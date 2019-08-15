@@ -21,6 +21,9 @@
 #define SOURCE (1 << 0)
 #define DELIM (1 << 4)
 
+/* 0 return value implies table create was successful
+ * non-zero return value implies error while creating table
+ */
 int create_table_defaults(SqlStatement *table_statement, SqlStatement *keywords_statement) {
 	SqlTable *table;
 	SqlOptionalKeyword *keyword, *cur_keyword, *start_keyword, *t_keyword;
@@ -40,7 +43,11 @@ int create_table_defaults(SqlStatement *table_statement, SqlStatement *keywords_
 
 	memset(key_columns, 0, MAX_KEY_COUNT * sizeof(SqlColumn*));
 	max_key = get_key_columns(table, key_columns);
-	if(max_key < 0) {
+	/* max_key >= 0 is the number of key columns found
+	 * -1 indicates no keys found to make all columns keys
+	 * -2 inidicates there was some error in the key columns
+	 */
+	if(max_key == -1) {
 		UNPACK_SQL_STATEMENT(start_column, table->columns, column);
 		cur_column = start_column;
 		i = 0;
@@ -70,6 +77,8 @@ int create_table_defaults(SqlStatement *table_statement, SqlStatement *keywords_
 		// Get the new key columns
 		max_key = get_key_columns(table, key_columns);
 		assert(max_key == i - 1);
+	} else if (max_key == -2) {
+		return 1; // non-zero return value is an error (i.e causes YYABORT in caller)
 	}
 
 	cur_keyword = start_keyword;

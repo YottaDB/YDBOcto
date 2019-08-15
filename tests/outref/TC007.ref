@@ -1,0 +1,20 @@
+OCTO> drop table t1;
+OCTO> create table t1 (a int key num 10, b int key num 5, c int key num 7);
+[ERROR] PATH:LINENUM DATE TIME : Missing key 0 in table T1; max key was 10
+[ERROR] PATH:LINENUM DATE TIME : Missing key 1 in table T1; max key was 10
+[ERROR] PATH:LINENUM DATE TIME : Missing key 2 in table T1; max key was 10
+[ERROR] PATH:LINENUM DATE TIME : Missing key 3 in table T1; max key was 10
+[ERROR] PATH:LINENUM DATE TIME : Missing key 4 in table T1; max key was 10
+[ERROR] PATH:LINENUM DATE TIME : Missing key 6 in table T1; max key was 10
+[ERROR] PATH:LINENUM DATE TIME : Missing key 8 in table T1; max key was 10
+[ERROR] PATH:LINENUM DATE TIME : Missing key 9 in table T1; max key was 10
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: create table t1 (a int key num 10, b int key num 5, c int key num 7);
+
+OCTO> select * from t1;
+[ERROR] PATH:LINENUM DATE TIME : Unknown table: T1
+
+select * from t1;
+              ^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select * from t1;
+
+OCTO> 

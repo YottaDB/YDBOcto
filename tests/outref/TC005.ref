@@ -1,0 +1,13 @@
+OCTO> drop table t1;
+OCTO> create table t1 (a int primary key, b int primary key);
+[ERROR] PATH:LINENUM DATE TIME : Multiple 0 keys found for table T1
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: create table t1 (a int primary key, b int primary key);
+
+OCTO> select * from t1;
+[ERROR] PATH:LINENUM DATE TIME : Unknown table: T1
+
+select * from t1;
+              ^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select * from t1;
+
+OCTO> 

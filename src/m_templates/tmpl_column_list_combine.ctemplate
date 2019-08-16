@@ -33,7 +33,7 @@ TEMPLATE(tmpl_column_list_combine, LogicalPlan *plan, PhysicalPlan *pplan, char 
 
     TMPL(tmpl_print_expression, plan->v.operand[0]->v.operand[0], pplan);
     if(plan->v.operand[1]) {
-        if(buff_ptr - resume > MAX_M_LINE_LENGTH && resume != NULL) {
+        if ((NULL != resume) && (MAX_M_LINE_LENGTH < (buff_ptr - resume))) {
             c = *(resume + resume_length);
             *(resume + resume_length) = '\0';
             snprintf(buff_ptr, buffer_len - (buff_ptr - buffer), "\n%s", resume);
@@ -45,9 +45,7 @@ TEMPLATE(tmpl_column_list_combine, LogicalPlan *plan, PhysicalPlan *pplan, char 
             %}{{ delim }}{%
         }
         TMPL(tmpl_column_list_combine, plan->v.operand[1], pplan, delim, resume, resume_length);
-
     }
-
     TEMPLATE_END();
 }
 %}

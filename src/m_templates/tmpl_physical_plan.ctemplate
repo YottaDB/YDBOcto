@@ -16,7 +16,7 @@
 
 TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
     TEMPLATE_INIT();
-    unsigned int cur_key, limit;
+    unsigned int cur_key;
     int dot_count, i;
     SqlKey *key, *t_key;
     SqlColumnAlias *column_alias;
@@ -65,13 +65,6 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
         }
     }
     %}NEW %%ydboctoz{%
-    limit = plan->total_iter_keys;
-    if(plan->set_operation != PP_NOT_SET) {
-        limit--;
-    }
-    for(cur_key = 0; cur_key < limit; cur_key++) {
-        %},%%ydboctoi{{ cur_key|%d }}{%
-    }
     if(plan->set_operation == PP_NOT_SET) {
         %} KILL {% TMPL(tmpl_key, plan->outputKey); %}
     {%
@@ -94,7 +87,7 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
         }
         TMPL(print_dots, dot_count);
     %}{% TMPL(tmpl_key_start, key); %}
-    {% TMPL(print_dots, dot_count); %}FOR %%ydboctoi{{ cur_key|%d }}=1:1 SET {% TMPL(tmpl_key, key) %}=$ORDER({% TMPL(tmpl_key_advance, plan, key)
+    {% TMPL(print_dots, dot_count); %}FOR  SET {% TMPL(tmpl_key, key) %}=$ORDER({% TMPL(tmpl_key_advance, plan, key)
     %}) QUIT:({%
         TMPL(tmpl_key_end, key);
         keyword = get_keyword_from_keywords(plan->keywords, OPTIONAL_LIMIT);
@@ -202,7 +195,7 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
         resume_length = end_resume - start_resume;
         buff_ptr += snprintf(buff_ptr, buffer_len - (buff_ptr - buffer), "\n%s ", start_resume);
         *end_resume = c;
-        start_resume = buff_ptr - resume_length;
+        start_resume = buff_ptr - resume_length - 1;	/* -1 for space at end of string in above "snprintf" */
         // Track the output of the table so we can copy-paste it instead of repeating the below logic
         start_table_reference = buff_ptr;
         TMPL(tmpl_key, plan->outputKey);

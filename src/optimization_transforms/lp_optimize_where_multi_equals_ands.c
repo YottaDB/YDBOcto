@@ -50,11 +50,6 @@ int lp_verify_valid_for_key_fix(LogicalPlan *plan, LogicalPlan *equals) {
 		// Both are column references; find which occurs first
 		i1 = lp_get_key_index(plan, left);
 		i2 = lp_get_key_index(plan, right);
-		if(i1 == -1 && i2 == -1) {
-			// Both of them are columns that are not keys; we should still be able to optimize one
-			// using the cross reference
-			return FALSE;
-		}
 		// If the key is in the same table as the temporary value, we can't do anything
 		if(i1 == -1 || i2 == -1) {
 			UNPACK_SQL_STATEMENT(table_alias, left->v.column_alias->table_alias, table_alias);

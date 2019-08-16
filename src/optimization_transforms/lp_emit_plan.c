@@ -18,6 +18,46 @@
 #include "octo_types.h"
 #include "logical_plan.h"
 
+#define	SAFE_SNPRINTF_JOIN_TYPE_IF_NEEDED(WRITTEN, BUFF_PTR, BUFFER, BUFFER_LEN, PLAN)	\
+{											\
+	if (PLAN->extra_detail)								\
+	{										\
+		char	*str;								\
+											\
+		switch(PLAN->extra_detail)						\
+		{									\
+		case NO_JOIN:								\
+			str = "NO_JOIN";						\
+			break;								\
+		case CROSS_JOIN:							\
+			str = "CROSS_JOIN";						\
+			break;								\
+		case INNER_JOIN:							\
+			str = "INNER_JOIN";						\
+			break;								\
+		case RIGHT_JOIN:							\
+			str = "RIGHT_JOIN";						\
+			break;								\
+		case LEFT_JOIN:								\
+			str = "LEFT_JOIN";						\
+			break;								\
+		case FULL_JOIN:								\
+			str = "FULL_JOIN";						\
+			break;								\
+		case NATURAL_JOIN:							\
+			str = "NATURAL_JOIN";						\
+			break;								\
+		case TABLE_SPEC:							\
+			str = "TABLE_SPEC";						\
+			break;								\
+		default:								\
+			assert(FALSE);							\
+			break;								\
+		}									\
+		SAFE_SNPRINTF(WRITTEN, BUFF_PTR, BUFFER, BUFFER_LEN, "%s: ", str);	\
+	}										\
+}
+
 int emit_plan_helper(char *buffer, size_t buffer_len, int depth, LogicalPlan *plan);
 
 int lp_emit_plan(char *buffer, size_t buffer_len, LogicalPlan *plan) {
@@ -45,6 +85,7 @@ int emit_plan_helper(char *buffer, size_t buffer_len, int depth, LogicalPlan *pl
 		SAFE_SNPRINTF(written, buff_ptr, buffer, buffer_len, "%d\n", plan->v.piece_number);
 		break;
 	case LP_KEY:
+		SAFE_SNPRINTF_JOIN_TYPE_IF_NEEDED(written, buff_ptr, buffer, buffer_len, plan);
 		key = plan->v.key;
 		if(key->column) {
 			UNPACK_SQL_STATEMENT(value, key->column->columnName, value);
@@ -68,6 +109,14 @@ int emit_plan_helper(char *buffer, size_t buffer_len, int depth, LogicalPlan *pl
 		}
 		break;
 	case LP_COLUMN_LIST:
+		if (plan->extra_detail)
+		{
+			char	*str;
+
+			assert((OPTIONAL_ASC == plan->extra_detail) || (OPTIONAL_DESC == plan->extra_detail));
+			str = (OPTIONAL_ASC == plan->extra_detail) ? "ASC" : "DESC";
+			SAFE_SNPRINTF(written, buff_ptr, buffer, buffer_len, "ORDER BY %s: ", str);
+		}
 		SAFE_SNPRINTF(written, buff_ptr, buffer, buffer_len, "\n");
 		buff_ptr += emit_plan_helper(buff_ptr, buffer_len - (buff_ptr - buffer), depth + 2, plan->v.operand[0]);
 		buff_ptr += emit_plan_helper(buff_ptr, buffer_len - (buff_ptr - buffer), depth + 2, plan->v.operand[1]);
@@ -77,6 +126,7 @@ int emit_plan_helper(char *buffer, size_t buffer_len, int depth, LogicalPlan *pl
 		SAFE_SNPRINTF(written, buff_ptr, buffer, buffer_len, "%s\n", value->v.string_literal);
 		break;
 	case LP_TABLE:
+		assert(!plan->extra_detail);
 		UNPACK_SQL_STATEMENT(value, plan->v.table_alias->alias, value);
 		SAFE_SNPRINTF(written, buff_ptr, buffer, buffer_len, "%s\n", value->v.string_literal);
 		break;
@@ -144,6 +194,8 @@ int emit_plan_helper(char *buffer, size_t buffer_len, int depth, LogicalPlan *pl
 		SAFE_SNPRINTF(written, buff_ptr, buffer, buffer_len, "keywords\n");
 		break;
 	default:
+		if (LP_TABLE_JOIN == plan->type)
+			SAFE_SNPRINTF_JOIN_TYPE_IF_NEEDED(written, buff_ptr, buffer, buffer_len, plan);
 		SAFE_SNPRINTF(written, buff_ptr, buffer, buffer_len, "\n");
 		buff_ptr += emit_plan_helper(buff_ptr, buffer_len - (buff_ptr - buffer), depth + 2, plan->v.operand[0]);
 		buff_ptr += emit_plan_helper(buff_ptr, buffer_len - (buff_ptr - buffer), depth + 2, plan->v.operand[1]);

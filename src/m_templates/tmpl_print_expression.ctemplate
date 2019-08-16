@@ -67,7 +67,7 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan) {
     case LP_DERIVED_COLUMN:
         GET_LP(key, plan, 0, LP_KEY);
         GET_LP(piece_num, plan, 1, LP_PIECE_NUMBER);
-        %}($P({%
+        %}($PIECE({%
         TMPL(tmpl_key, key->v.key);
         // We're getting a bit abusive again; go back one, removing paren, comma and print
         buff_ptr--;

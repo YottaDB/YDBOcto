@@ -244,7 +244,7 @@ verify_output_info() {
 }
 
 count_for_loops() {
-  numloops=$(grep -c "FOR " $1 | cat)
+  numloops=$(grep -c "FOR " $1) || true	# grep -c can return non-zero status in case of no match hence the need for "|| true"
   if [[ $numloops -ne $2 ]]; then
     echo "Expected $2 FOR loops but found $numloops loops instead in $1"
     return -1
@@ -252,3 +252,11 @@ count_for_loops() {
   return
 }
 
+count_num_occurrences() {
+  numoccurrences=$(grep -c "$1" $2) || true # grep -c can return non-zero status in case of no match hence the need for "|| true"
+  if [[ $numoccurrences -ne $3 ]]; then
+    echo "Expected $3 occurrences of [$1] but found $numoccurrences occurrences instead in $2"
+    return -1
+  fi
+  return
+}

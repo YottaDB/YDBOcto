@@ -97,3 +97,12 @@ WHERE  C.name <> "pending";
 OCTO
   count_for_loops ./_ydboctoP*.m 1
 }
+
+@test "inner join where both tables are joined based on non-key column should still fix second column" {
+  load_fixture customers.sql
+  load_fixture customers.zwr
+  octo -vv <<OCTO 2>&1 | tee output.txt
+select o1.order_id from orders o1 inner join orders o2 on o1.customer_id = o2.customer_id;
+OCTO
+  count_num_occurrences "LP_KEY_FIX" output.txt 1	# check that there is 1 occurrence of LP_KEY_FIX in _ydboctoP*.m
+}

@@ -305,6 +305,7 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt, int *plan_id) {
 		if (set_operation_STATEMENT == stmt->type) {
 			return lp_generate_set_logical_plan(stmt, plan_id);
 		}
+		join_right->extra_detail = ((start_join != cur_join->next) ? cur_join->next->type : NO_JOIN);
 		sql_stmt = cur_join->value;
 		if ((table_alias_STATEMENT == sql_stmt->type) && (table_STATEMENT == sql_stmt->v.table_alias->table->type))
 		{

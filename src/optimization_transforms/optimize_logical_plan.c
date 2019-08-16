@@ -92,6 +92,8 @@ LogicalPlan *join_tables(LogicalPlan *root, LogicalPlan *plan) {
 			cur_lp_key->v.key->table = table;
 			cur_lp_key->v.key->type = LP_KEY_ADVANCE;
 			cur_lp_key->v.key->owner = table_plan;
+			cur_lp_key->v.key->join_type = plan->extra_detail;
+			cur_lp_key->extra_detail = plan->extra_detail;
 			if(cur_key != max_key) {
 				MALLOC_LP_2ARGS(keys->v.operand[1], LP_KEYS);
 				keys = keys->v.operand[1];

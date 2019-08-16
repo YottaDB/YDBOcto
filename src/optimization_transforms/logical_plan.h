@@ -62,7 +62,10 @@ extern const char *lp_action_type_str[];
 //  void pointers
 typedef struct LogicalPlan {
 	LPActionType	type;
-	int		extra_detail;	/* currently used only for ORDER BY (if "type" member is LP_COLUMN_LIST) */
+	int		extra_detail;	/* currently used for
+					 *  a) ORDER BY (if "type" member is LP_COLUMN_LIST)
+					 *  b) JOIN (if "type" member is LP_TABLE_JOIN or LP_KEY)
+					 */
 	int		*counter;
 	union {
 		// Set for most types
@@ -85,32 +88,33 @@ typedef struct LogicalPlan {
 } LogicalPlan;
 
 typedef struct SqlKey {
-	SqlTable *table;
-	SqlColumn *column;
-	int key_num;
-	int unique_id;
+	SqlTable	*table;
+	SqlColumn	*column;
+	int		key_num;
+	int		unique_id;
 	// If this key is fixed, this is the value
-	LogicalPlan *value;
+	LogicalPlan	*value;
 	// Used to customize how insert works; default is to
 	//  get the key and add an integer column
-	SqlValue *insert;
+	SqlValue	*insert;
 	// The only relevant types are KEY_FIXED, KEY_ADVANCE
-	LPActionType type;
+	LPActionType	type;
 	// Table that owns this key; used to extract key from plan
 	//  when generating an extract for a given column
 	// If this key is part of a UNION, this is the LP_INSERT
 	//  plan which outputs this key
-	LogicalPlan *owner;
+	LogicalPlan	*owner;
 	// If true, this is an output key for a cross reference
-	int is_cross_reference_key;
+	int		is_cross_reference_key;
+	int		join_type;	/* this is a copy of the "extra_detail" member from the owning LP_KEY */
 	// If this is a cross reference key which is not an output key, this will point to the
 	// output key, which we can snag the column name from
-	struct SqlKey *cross_reference_output_key;
+	struct SqlKey	*cross_reference_output_key;
 	// The source of the cross reference
-	SqlColumnAlias *cross_reference_column_alias;
+	SqlColumnAlias	*cross_reference_column_alias;
 	// If this is a cross refence key, this value will point to the filename used to store the
 	// code to provide the cross reference
-	char *cross_reference_filename;
+	char		*cross_reference_filename;
 } SqlKey;
 
 // Helper functions

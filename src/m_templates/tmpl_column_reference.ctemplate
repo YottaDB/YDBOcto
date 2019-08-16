@@ -49,13 +49,13 @@ TEMPLATE(tmpl_column_reference, PhysicalPlan *pplan, SqlColumnAlias *column_alia
             UNPACK_SQL_STATEMENT(column_alias, value->v.calculated, column_alias);
             TMPL(tmpl_column_reference, pplan, column_alias);
             TEMPLATE_END();
+            assert(FALSE);
         }
         if(column_list->value->type == column_alias_STATEMENT) {
           TMPL(tmpl_column_reference, pplan, column_list->value->v.column_alias);
-	        TEMPLATE_END();
-	      }
-	      // UNPACK_SQL_STATEMENT(column, cl_alias->column
-	      assert(FALSE);
+          TEMPLATE_END();
+          assert(FALSE);
+        }
     }
     UNPACK_SQL_STATEMENT(column, column_alias->column, column);
     UNPACK_SQL_STATEMENT(table_alias, column_alias->table_alias, table_alias);
@@ -84,6 +84,7 @@ TEMPLATE(tmpl_column_reference, PhysicalPlan *pplan, SqlColumnAlias *column_alia
               if(columns_equal(key_column, column)) {
                 TMPL(tmpl_key, key);
                 TEMPLATE_END();
+                assert(FALSE);
               }
             }
         }
@@ -93,6 +94,7 @@ TEMPLATE(tmpl_column_reference, PhysicalPlan *pplan, SqlColumnAlias *column_alia
             UNPACK_SQL_STATEMENT(value, keyword->v, value);
             TMPL(tmpl_emit_source, value->v.string_literal, table_name, table_alias->unique_id, MAX_KEY_COUNT, EmitSourceForm_Value);
             TEMPLATE_END();
+            assert(FALSE);
         }
         keyword = get_keyword(column, OPTIONAL_PIECE);
         if(keyword != NULL) {

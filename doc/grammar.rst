@@ -29,12 +29,16 @@ CREATE
 
 The CREATE statement is used to create tables in the database. The keywords CREATE TABLE are used followed by the name of the table to be created.
 
-The names of columns to be created in the database and their datatypes are then specified in a list, along with any constraints that might need to apply (such as denoting a PRIMARY KEY, UNIQUE KEY or FOREIGN KEY).
+The names of columns to be created in the database and their datatypes are then specified in a list, along with any constraints that might need to apply (such as denoting a PRIMARY KEY, UNIQUE KEY or FOREIGN KEY). If none of the columns are specified as keys (PRIMARY KEY or KEY NUM not specified in any column) then the primary key for the table is assumed to be the set of all columns in the order given.
 
 Example:
 
 .. parsed-literal::
    CREATE TABLE Employee (ID int PRIMARY KEY, FirstName char(20), LastName char(30));
+
+   CREATE TABLE Employee (ID int, FirstName char(20), LastName char(30));
+   /* is equivalent to \*/
+   CREATE TABLE (ID int KEY NUM 0, FirstName char(20) KEY NUM 1, LastName char(30) KEY NUM 2);
 
 ++++++++++++++++++++
 Accepted Data Types

@@ -1,0 +1,46 @@
+OCTO> SELECT * FROM names WHERE firstName = "Zero";
+Added SET and/or Non-SET trigger on ^names named names#1
+0|Zero|Cool
+5|Zero|Cool
+OCTO> 
+ --> ZWRITE ^names,^%ydboctoxref
+^names(0)="0|Zero|Cool"
+^names(1)="1|Acid|Burn"
+^names(2)="2|Cereal|Killer"
+^names(3)="3|Lord|Nikon"
+^names(4)="4|Joey|"
+^names(5)="5|Zero|Cool"
+^%ydboctoxref("NAMES","FIRSTNAME")=6
+^%ydboctoxref("NAMES","FIRSTNAME","Acid")=1
+^%ydboctoxref("NAMES","FIRSTNAME","Acid",1)=""
+^%ydboctoxref("NAMES","FIRSTNAME","Cereal")=1
+^%ydboctoxref("NAMES","FIRSTNAME","Cereal",2)=""
+^%ydboctoxref("NAMES","FIRSTNAME","Joey")=1
+^%ydboctoxref("NAMES","FIRSTNAME","Joey",4)=""
+^%ydboctoxref("NAMES","FIRSTNAME","Lord")=1
+^%ydboctoxref("NAMES","FIRSTNAME","Lord",3)=""
+^%ydboctoxref("NAMES","FIRSTNAME","Zero")=2
+^%ydboctoxref("NAMES","FIRSTNAME","Zero",0)=""
+^%ydboctoxref("NAMES","FIRSTNAME","Zero",5)=""
+ --> KILL ^names(0)  ZWRITE ^%ydboctoxref
+^%ydboctoxref("NAMES","FIRSTNAME")=5
+^%ydboctoxref("NAMES","FIRSTNAME","Acid")=1
+^%ydboctoxref("NAMES","FIRSTNAME","Acid",1)=""
+^%ydboctoxref("NAMES","FIRSTNAME","Cereal")=1
+^%ydboctoxref("NAMES","FIRSTNAME","Cereal",2)=""
+^%ydboctoxref("NAMES","FIRSTNAME","Joey")=1
+^%ydboctoxref("NAMES","FIRSTNAME","Joey",4)=""
+^%ydboctoxref("NAMES","FIRSTNAME","Lord")=1
+^%ydboctoxref("NAMES","FIRSTNAME","Lord",3)=""
+^%ydboctoxref("NAMES","FIRSTNAME","Zero")=1
+^%ydboctoxref("NAMES","FIRSTNAME","Zero",5)=""
+ --> KILL ^names(5)  ZWRITE ^%ydboctoxref
+^%ydboctoxref("NAMES","FIRSTNAME")=4
+^%ydboctoxref("NAMES","FIRSTNAME","Acid")=1
+^%ydboctoxref("NAMES","FIRSTNAME","Acid",1)=""
+^%ydboctoxref("NAMES","FIRSTNAME","Cereal")=1
+^%ydboctoxref("NAMES","FIRSTNAME","Cereal",2)=""
+^%ydboctoxref("NAMES","FIRSTNAME","Joey")=1
+^%ydboctoxref("NAMES","FIRSTNAME","Joey",4)=""
+^%ydboctoxref("NAMES","FIRSTNAME","Lord")=1
+^%ydboctoxref("NAMES","FIRSTNAME","Lord",3)=""

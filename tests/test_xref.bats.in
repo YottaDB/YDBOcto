@@ -1,0 +1,36 @@
+#################################################################
+#								#
+# Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	#
+# All rights reserved.						#
+#								#
+#	This source code contains the intellectual property	#
+#	of its copyright holder(s), and is made available	#
+#	under a license.  If you do not know the terms of	#
+#	the license, please stop and do not read further.	#
+#								#
+#################################################################
+
+load test_helpers
+
+setup() {
+  init_test
+  createdb
+  load_fixture names.sql
+  load_fixture names.zwr
+}
+
+@test "xref top level count is maintained correctly if mapped global nodes are deleted" {
+  # Run SQL query that generates xref
+  octo <<OCTO 2>&1 | tee output.txt
+SELECT * FROM names WHERE firstName = "Zero";
+OCTO
+  # Verify xref is generated
+  echo " --> ZWRITE ^names,^%ydboctoxref" >> output.txt
+  yottadb -run %XCMD 'zwrite ^names,^%ydboctoxref' 2>&1 | tee -a output.txt
+  # Delete mapped node and Verify xref is automatically updated by the installed trigger
+  echo " --> KILL ^names(0)  ZWRITE ^%ydboctoxref" >> output.txt
+  yottadb -run %XCMD 'kill ^names(0) zwrite ^%ydboctoxref' 2>&1 | tee -a output.txt
+  echo " --> KILL ^names(5)  ZWRITE ^%ydboctoxref" >> output.txt
+  yottadb -run %XCMD 'kill ^names(5) zwrite ^%ydboctoxref' 2>&1 | tee -a output.txt
+  verify_output TXREF01 output.txt
+}

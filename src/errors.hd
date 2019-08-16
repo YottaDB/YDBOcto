@@ -83,6 +83,7 @@ ERROR_DEF(ERR_SYSCALL, "System call failed: %s, return %d (%s)", PSQL_Code_Syste
 // OCTO //
 ERROR_DEF(ERR_BAD_CONFIG, "Bad config setting: %s", PSQL_Code_Config_File_Error)
 ERROR_DEF(ERR_PARSING_CONFIG, "Error parsing config: %s:%d %s", PSQL_Code_Config_File_Error)
+ERROR_DEF(ERR_NULL_SUBS_DISABLED, "Null subscripts must be enabled for proper operation. Please set '-null_subscripts=always' for all regions containing Octo global variables.", PSQL_Code_Config_File_Error)
 // ROCTO //
 
 /*** Connection errors ***/

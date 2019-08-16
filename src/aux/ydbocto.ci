@@ -1,1 +1,2 @@
 _ydboctoselect  :void            run^%ydboctoselect(I:ydb_long_t,I:ydb_string_t*,I:ydb_string_t*)
+_ydboctoNullSubsCheck  :ydb_long_t*            run^%ydboctoNullSubsCheck()

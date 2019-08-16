@@ -53,9 +53,9 @@ OCTO
 }
 
 @test "ensure rocto -p supercedes default" {
-  start_rocto 1339
+  start_rocto 1401
   sleep 1
-  [[ "$(grep -c "rocto started on port 1339" rocto.log)" == "1" ]]
+  [[ "$(grep -c "rocto started on port 1401" rocto.log)" == "1" ]]
 }
 
 @test "ensure rocto -p supercedes config file" {
@@ -64,7 +64,7 @@ rocto: {
   port: 1400;
 }
 OCTO
-  start_rocto 1339
+  start_rocto 1401
   sleep 1
-  [[ "$(grep -c "rocto started on port 1339" rocto.log)" == "1" ]]
+  [[ "$(grep -c "rocto started on port 1401" rocto.log)" == "1" ]]
 }

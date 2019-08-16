@@ -285,7 +285,8 @@ int octo_init(int argc, char **argv) {
 		FATAL(ERR_BAD_CONFIG, "rocto.ssl_on");
 	}
 	if (config->rocto_config.ssl_on) {
-		FATAL(ERR_BAD_CONFIG, "rocto.ssl_on set, but YottaDB TLS plugin not installed");
+		ERROR(ERR_BAD_CONFIG, "rocto.ssl_on set, but YottaDB TLS plugin not installed");
+		return 1;
 	}
 #	endif
 	// Read in YDB settings
@@ -347,6 +348,14 @@ int octo_init(int argc, char **argv) {
 				ptr = "";
 			INFO(CUSTOM_ERROR, "# %s=\"%s\"", envvar_array[i], ptr);
 		}
+	}
+
+	ydb_long_t ci_return = 1;
+	status = ydb_ci("_ydboctoNullSubsCheck", &ci_return);
+	YDB_ERROR_CHECK(status);
+	if (0 != ci_return) {
+		ERROR(ERR_NULL_SUBS_DISABLED, "");
+		return 1;
 	}
 	return 0;
 }

@@ -24,6 +24,7 @@ setup() {
   load_fixture pastas.zwr
   load_fixture default_user.zwr
   start_rocto 1339
+  sleep 1
 }
 
 teardown() {
@@ -74,13 +75,12 @@ OCTO
 
 @test "use_dns config option false" {
   stop_rocto
-  cat <<OCTO &> octo.conf
-rocto = {
-  use_dns: false;
-  port: 1339;
-}
-OCTO
-  start_rocto
+  run sed -i '/rocto: {/a use_dns: false;' octo.conf
+  if [[ $status -ne 0 ]]; then
+    echo "rocto: { use_dns: false; }" > octo.conf
+  fi
+  start_rocto 1339
+  sleep 5
   run_psql 1339 <<OCTO 2>&1 | tee output.txt
 SELECT * FROM names WHERE firstName = "Zero";
 OCTO
@@ -89,13 +89,12 @@ OCTO
 
 @test "use_dns config option true" {
   stop_rocto
-  cat <<OCTO &> octo.conf
-rocto = {
-  use_dns: true;
-  port: 1339;
-}
-OCTO
-  start_rocto
+  run sed -i '/rocto: {/a use_dns: true;' octo.conf
+  if [[ $status -ne 0 ]]; then
+    echo "rocto: { use_dns: true; }" > octo.conf
+  fi
+  start_rocto 1339
+  sleep 5
   run_psql 1339 <<OCTO 2>&1 | tee output.txt
 SELECT * FROM names WHERE firstName = "Zero";
 OCTO
@@ -132,12 +131,9 @@ tls: {
 	}
 }
 OCTO
-  rocto -vv &> rocto.log &
-  echo $! > rocto.pid
-  sleep 3
-  log=$(cat rocto.log)
-  [[ "$log" =~ "FATAL" ]]
-  [[ "$log" =~ "YottaDB TLS plugin not installed" ]]
+  run rocto -vv
+  [[ "$output" =~ "ERROR" ]]
+  [[ "$output" =~ "YottaDB TLS plugin not installed" ]]
 }
 
 @test "ensure socket cleanup when rocto process is killed" {

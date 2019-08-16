@@ -42,7 +42,10 @@ int main(int argc, char **argv)
 	SqlStatement *tmp_statement;
 
 	inputFile = NULL;
-	octo_init(argc, argv);
+	status = octo_init(argc, argv);
+	if (0 != status) {
+		return status;
+	}
 
 	TRACE(CUSTOM_ERROR, "Octo started");
 

@@ -1,0 +1,2 @@
+ERROR: Null subscripts must be enabled for global ^%ydboctoxref in region OCTO
+[ERROR] PATH:LINENUM DATE TIME : Null subscripts must be enabled for proper operation. Please set '-null_subscripts=always' for all regions containing Octo global variables.

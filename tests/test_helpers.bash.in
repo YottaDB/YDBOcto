@@ -50,7 +50,7 @@ init_tls() {
   export USER=root
 	# Pass private key password to environment variable
   echo tester | $ydb_dist/plugin/gtmcrypt/maskpass | cut -f 3 -d " " >> env.log
-	export ydb_tls_passwd_OCTOSERVER=$(echo tester | $ydb_dist/plugin/gtmcrypt/maskpass | cut -f 3 -d " ")
+  export ydb_tls_passwd_OCTOSERVER=$(echo tester | $ydb_dist/plugin/gtmcrypt/maskpass | cut -f 3 -d " ")
   export ydb_crypt_config=$test_temp/octo.conf
   cat <<OCTO &>> $test_temp/octo.conf
 rocto: {
@@ -115,6 +115,28 @@ FILE
   export ydb_dbfilext_syslog_disable=1
 }
 
+gde_add_region() {
+  $ydb_dist/mumps -r ^GDE <<FILE
+add -name $2 -region=$1
+add -region $1 -dynamic=$1 -key_size=1019 -record_size=1048576
+add -segment $1 -file_name=$test_temp/$1.dat
+exit
+FILE
+  $ydb_dist/mupip create -region=$1
+}
+
+gde_add_name() {
+  echo "NAME: $1"
+  $ydb_dist/mumps -r ^GDE <<FILE
+add -name $1 -region=$2
+exit
+FILE
+}
+
+set_null_subs() {
+  $ydb_dist/mupip set -region $1 -NULL_SUBSCRIPTS=$2
+}
+
 start_rocto() {
   echo "ROCTO START" >> env.log
   env >> env.log
@@ -131,7 +153,10 @@ start_rocto() {
 
 stop_rocto() {
   if [[ -e rocto.pid ]]; then
-    $ydb_dist/mupip stop $(cat rocto.pid)
+    rocto_pid=$(cat rocto.pid)
+    if [[ $(ps -A | grep -c $rocto_pid) -gt 0 ]]; then
+      $ydb_dist/mupip stop $rocto_pid
+    fi
   fi
 }
 

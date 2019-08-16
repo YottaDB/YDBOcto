@@ -67,6 +67,7 @@ ADD_BATS_TEST(test_subquery_invalid_table)
 ADD_BATS_TEST(test_drop_table)
 ADD_BATS_TEST(test_xref)
 ADD_BATS_TEST(test_sqllogic_select1)
+ADD_BATS_TEST(test_null_subs_check)
 
 find_program(psql NAMES psql)
 if(psql)

@@ -309,6 +309,7 @@ endforeach()
 set(aux_files
   aux/_ydboctoselect.m
   aux/_ydboctoAdmin.m
+  aux/_ydboctoNullSubsCheck.m
   aux/_ydboctocurrentSchema.m
   aux/_ydboctoreplace.m
   aux/_ydboctopgCurrentSchemas.m

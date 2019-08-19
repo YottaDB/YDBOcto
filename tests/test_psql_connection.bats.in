@@ -27,7 +27,7 @@ setup() {
 }
 
 teardown() {
-  stop_rocto 1339
+  stop_rocto
 }
 
 @test "test no MD5 authentication failure" {

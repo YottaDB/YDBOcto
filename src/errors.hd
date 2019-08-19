@@ -71,6 +71,7 @@ ERROR_DEF(ERR_LOADING_CONFIG, "Loading config from %s", PSQL_Code_Success)
 ERROR_DEF(ERR_ROCTO_CHILD_STATE_UPDATED, "Process %d switched to state %d", PSQL_Code_Success)
 ERROR_DEF(ERR_ROCTO_CLEAN_DISCONNECT, "connection closed cleanly", PSQL_Code_Success)
 ERROR_DEF(INFO_AUTH_SUCCESS, "%s: user successfully authenticated", PSQL_Code_Success)
+ERROR_DEF(INFO_ROCTO_STARTED, "rocto started on port %d", PSQL_Code_Success)
 
 /*** System errors ***/
 // OCTO //

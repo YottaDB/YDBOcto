@@ -37,9 +37,9 @@ int parse_startup_flags(int argc, char **argv) {
 	int c;
 	int is_rocto = FALSE;
 	char *octo_usage = "Usage: octo [OPTION]...\nStart the Octo SQL server.\n\nMandatory arguments for long options are also mandatory for short options.\n  -c, --config-file=<filepath>\t\tUse specified configuration file instead of the default.\n  -d, --dry-run\t\t\t\tRun the parser in read-only mode and performs basic checks without executing any passed SQL statements.\n  -f, --input-file=<filepath>\t\tRead commands from specified file instead of opening interactive prompt.\n  -h, --help\t\t\t\tDisplay this help message and exit.\n  -v, --verbose=<number>\t\tSpecify amount of information to output when running commands by specifying a numeric level from 0-5 or adding additional 'v' characters.\n";
-	char *rocto_usage = "Usage: rocto [OPTION]...\nStart the Rocto remote SQL server.\n\nMandatory arguments for long options are also mandatory for short options.\n  -c, --config-file=<filepath>\t\tUse specified configuration file instead of the default.\n  -h, --help\t\t\t\tDisplay this help message and exit.\n  -v, --verbose=<number>\t\tSpecify amount of information to output when running commands by specifying a numeric level from 0-5 or adding additional 'v' characters.\n";
+	char *rocto_usage = "Usage: rocto [OPTION]...\nStart the Rocto remote SQL server.\n\nMandatory arguments for long options are also mandatory for short options.\n  -c, --config-file=<filepath>\t\tUse specified configuration file instead of the default.\n  -h, --help\t\t\t\tDisplay this help message and exit.\n  -p, --port=<number>\t\t\tListen on the specified port.\n  -v, --verbose=<number>\t\tSpecify amount of information to output when running commands by specifying a numeric level from 0-5 or adding additional 'v' characters.\n";
 
-	if (0 < argc && 0 == strcmp(argv[0], "rocto")) {
+	if (0 < argc && NULL != strstr(argv[0], "rocto")) {
 		is_rocto = TRUE;
 	}
 	optind = 1;
@@ -63,13 +63,14 @@ int parse_startup_flags(int argc, char **argv) {
 		{
 			{"verbose", optional_argument, NULL, 'v'},
 			{"config-file", required_argument, NULL, 'c'},
+			{"port", required_argument, NULL, 'p'},
 			{"help", no_argument, NULL, 'h'},
 			{0, 0, 0, 0}
 		};
 		int option_index = 0;
 
 		if (is_rocto) {
-			c = getopt_long(argc, argv, "vhc:", rocto_long_options, &option_index);
+			c = getopt_long(argc, argv, "vhc:p:", rocto_long_options, &option_index);
 		} else {
 			c = getopt_long(argc, argv, "vdhf:c:", octo_long_options, &option_index);
 		}
@@ -120,6 +121,17 @@ int parse_startup_flags(int argc, char **argv) {
 				handle_invalid_option(argv[0], c);
 			} else {
 				config->dry_run = TRUE;
+			}
+			break;
+		case 'p':
+			if (is_rocto) {
+				config->rocto_config.port = atoi(optarg);
+				if (0 > config->rocto_config.port || 65535 < config->rocto_config.port) {
+					printf("Please use a port number between 0 and 65535\n");
+					exit(1);
+				}
+			} else {
+				handle_invalid_option(argv[0], c);
 			}
 			break;
 		default:

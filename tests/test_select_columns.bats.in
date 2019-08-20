@@ -372,3 +372,11 @@ WHERE  B.action = "NW";
 OCTO
   verify_output T0021 output.txt
 }
+
+@test "Set envvar ydb_lvnullsubs=2 and try to select from table" {
+  export ydb_lvnullsubs=2
+  octo <<OCTO 2>&1 | tee output.txt
+select * from names limit 1;
+OCTO
+  verify_output T0022 output.txt
+}

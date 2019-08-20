@@ -278,6 +278,7 @@ int octo_init(int argc, char **argv) {
 			== CONFIG_FALSE) {
 		FATAL(ERR_BAD_CONFIG, "rocto.ssl_on");
 	}
+
 #	else
 	if(config_lookup_bool(config_file, "rocto.ssl_on", &config->rocto_config.ssl_on)
 			== CONFIG_FALSE) {
@@ -300,6 +301,8 @@ int octo_init(int argc, char **argv) {
 			i++;
 		}
 	}
+	// This should always be 1
+	setenv("ydb_lvnullsubs", "1", 1);
 
 	config->record_error_level = verbosity_int;
 	//config->dry_run = FALSE;

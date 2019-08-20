@@ -1,0 +1,3 @@
+OCTO> select * from names limit 1;
+0|Zero|Cool
+OCTO> 

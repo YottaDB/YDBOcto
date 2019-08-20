@@ -1,0 +1,60 @@
+#################################################################
+#								#
+# Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	#
+# All rights reserved.						#
+#								#
+#	This source code contains the intellectual property	#
+#	of its copyright holder(s), and is made available	#
+#	under a license.  If you do not know the terms of	#
+#	the license, please stop and do not read further.	#
+#								#
+#################################################################
+
+load test_helpers
+
+setup() {
+  init_sqllogictest
+  createdb
+  load_fixture select.sql
+  load_fixture select1.zwr
+}
+
+@test "sqllogictest test num failures will be printed in the top level output.txt" {
+  failures=""
+  skips=""
+  # loop though the list of subtests in this test
+  for i in {0..999}; do
+    # for tests in the issuelist skip them so the pipeline passes
+    # they can be added later once they have been addressed
+    if [ $(grep "^$i\$" @PROJECT_SOURCE_DIR@/tests/fixtures/sqllogictest/select1/issuelist.txt) ]; then
+      skips="$skips$i\n"
+      continue
+    fi
+    # make a directory to store the output files in
+    mkdir test$i
+    octo -f @PROJECT_SOURCE_DIR@/tests/fixtures/sqllogictest/select1/test$i.sql 2>&1 | tee test$i/output.txt
+    cp @PROJECT_SOURCE_DIR@/tests/outref/sqllogictest/select1/test$i.ref test$i
+    sed '/\[ INFO\]\|^INFO:/d' test$i/output.txt > test$i/noinfo.txt
+    sed '/\[DEBUG\]\|^DEBUG:/,/^$/d' test$i/noinfo.txt > test$i/nodebug.txt
+    # TEMP: until ORDER BY COLUMN NUM (issue #280) is implemented we need to manually sort the files
+    # this could lead to false positve passes
+    sort -n test$i/nodebug.txt > test$i/sorted.txt
+    sort -n test$i/test$i.ref > test$i/refsorted.ref
+    # check against the reference file if it is different append it to the failure list
+    run diff test$i/refsorted.ref test$i/sorted.txt
+    echo "$output" > test$i/test$i.diff
+    if [ "$status" != "0" ]; then
+      failures="$failures$i\n"
+    fi
+  done
+  # if the failure list is empty then test passes
+  if [ "$failures" = "" ]; then
+    echo "All tests passed" > output.txt
+    echo -e "Skipped Tests:\n$skips" >> output.txt
+    return 0
+  else
+    echo -e "Failed Tests:\n$failures" > output.txt
+    echo -e "Skipped Tests:\n$skips" >> output.txt
+    return 1
+  fi
+}

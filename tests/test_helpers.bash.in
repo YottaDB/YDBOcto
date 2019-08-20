@@ -21,6 +21,19 @@ init_test() {
   export COLUMNS=1024
 }
 
+init_sqllogictest() {
+  export test_temp=$(mktemp -d @TEST_OUTPUT_DIR@/bats-test.XXXXXX)
+  echo "Temporary files in: $test_temp"
+  # force output to files as the full output is unhelpful to print on error
+  exec > $test_temp/stdout.txt
+  exec 2> $test_temp/stderr.txt
+  cd $test_temp
+  # copy over the compressed test files and uncompress
+  export PATH="@PROJECT_BINARY_DIR@/src:$PATH"
+  # Needed to circumvent Ctrl-M ('^M') characters in long query strings
+  export COLUMNS=1024
+}
+
 init_tls() {
 	# Generate CA key and certificate
 	openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:2048 -pass pass:tester -out $test_temp/CA.key

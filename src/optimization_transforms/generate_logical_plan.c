@@ -263,7 +263,8 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt, int *plan_id) {
 				UNPACK_SQL_STATEMENT(keyword, list->keywords, keyword);
 				assert(keyword->next == keyword);
 				assert(keyword->prev == keyword);
-			}
+			} else
+				keyword = NULL;
 			order_by->extra_detail = (NULL != keyword) ? keyword->keyword : OPTIONAL_ASC;	/* ASC is default */
 			cur_cla = cur_cla->next;
 			if(cur_cla != start_cla) {

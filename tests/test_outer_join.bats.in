@@ -74,7 +74,7 @@ OCTO
   [[ "$(diff output1_filtered.txt output2_filtered.txt)" == "" ]]
 }
 
-@test "outer join with missing columns" {
+@test "left outer join with missing columns" {
   octo <<OCTO 2>&1 | tee output.txt
 SELECT *
 FROM names n1
@@ -172,4 +172,21 @@ SELECT * FROM (
 ) WHERE firstName :: text = 'Zero';
 OCTO
   # Not crashing is valid for this test
+}
+
+@test "random outer join queries" {
+  load_fixture customers.sql
+  load_fixture customers.zwr
+  cp @PROJECT_SOURCE_DIR@/tests/fixtures/genouterjoinqueries.m .
+  yottadb -run ^genouterjoinqueries	# this generates a max of 20 queries jointest01.sql, jointest02.sql ... jointest20.sql
+  # Run using psql and Octo against each of the generated queries
+  for file in jointest*.sql
+  do
+    fname="${file%.*}"
+    psql customers -f $file >& $fname.psql.out
+    tail -n +3 $fname.psql.out | head -n -2 | sed 's/ //g' | sort >& $fname.ref
+    octo -f $file >& $fname.octo.out
+    head -n -1 $fname.octo.out | grep -v "^Added .*trigger" | sort >& $fname.log
+    diff $fname.ref $fname.log >& $fname.diff
+  done
 }

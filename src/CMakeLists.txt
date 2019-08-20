@@ -304,6 +304,9 @@ add_dependencies(pparser check_git_repository)
 set(template_dir ${PROJECT_SOURCE_DIR}/src/m_templates)
 set(template_files
   ${template_dir}/tmpl_physical_plan.ctemplate
+  ${template_dir}/tmpl_tablejoin.ctemplate
+  ${template_dir}/tmpl_tablejoin_leftjoin.ctemplate
+  ${template_dir}/tmpl_tablejoin_body.ctemplate
   ${template_dir}/tmpl_key_start.ctemplate
   ${template_dir}/tmpl_key_end.ctemplate
   ${template_dir}/tmpl_key.ctemplate

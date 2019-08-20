@@ -16,20 +16,16 @@
 
 TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
     TEMPLATE_INIT();
-    unsigned int cur_key;
-    int dot_count, i;
-    SqlKey *key, *t_key;
-    SqlColumnAlias *column_alias;
-    SqlValue *value;
-    SqlOptionalKeyword *keyword;
-    LogicalPlan *lp_temp;
-    char *tableName = "";
-    char *columnName = "";
-    char *start_table_reference, *end_table_reference;
-    char *start_resume = NULL;
-    char *end_resume = NULL;
-    char c;
-    int resume_length;
+
+    int			i;
+    SqlKey		*key, *t_key;
+    SqlColumnAlias	*column_alias;
+    SqlValue		*value;
+    LogicalPlan		*lp_temp;
+    char		*tableName = "";
+    char		*columnName = "";
+    unsigned int	cur_key;
+    int			dot_count;
 
     %}
 {{ plan->plan_name }}(cursorId)
@@ -73,205 +69,12 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
     } else {
         %}
     {% // Whitespace for MUMPS
-   }
-
-    for(cur_key = 0, dot_count = 0; cur_key < plan->total_iter_keys; cur_key++) {
-        // For each key, output the key start, a loop, quit, and increment
-        key = plan->iterKeys[cur_key];
-        if(key->value) {
-            TMPL(print_dots, dot_count);
-            %}SET {% TMPL(tmpl_key, key); %}={%
-            TMPL(tmpl_print_expression, key->value, plan);
-            %} IF $DATA({% TMPL(tmpl_key_source, plan, key); %})'=0 DO
-    {%
-            dot_count++;
-            continue;
-        }
-        TMPL(print_dots, dot_count);
-    %}{% TMPL(tmpl_key_start, key); %}
-    {% TMPL(print_dots, dot_count); %}FOR  SET {% TMPL(tmpl_key, key) %}=$ORDER({% TMPL(tmpl_key_advance, plan, key)
-    %}) QUIT:({%
-        TMPL(tmpl_key_end, key);
-        keyword = get_keyword_from_keywords(plan->keywords, OPTIONAL_LIMIT);
-        if(keyword != NULL) {
-            UNPACK_SQL_STATEMENT(value, keyword->v, value);
-            %})!(({{ value->v.string_literal }})'>$GET({% TMPL(tmpl_key, plan->outputKey); %}){%
-        }
-    %})  DO
-    {%
-
-        dot_count++;
     }
 
-    // Run any plans which reference parent queries
-    PhysicalPlan *temp_plan = plan;
-    while(temp_plan->prev != NULL) {
-        temp_plan = temp_plan->prev;
-    }
-    while(temp_plan != NULL) {
-        if(temp_plan->parent_plan == plan && temp_plan->deferred_plan == TRUE) {
-          TMPL(print_dots, dot_count);
-            %}DO {{ temp_plan->plan_name }}(cursorId)
-    {%
-        }
-        temp_plan = temp_plan->next;
-    }
-    // Apply the conditions for this statement
-    //  We put the 'IF 1' here so it's easy to add extra clauses from any of the
-    //  below conditions which may or may not emit boolean logic
-    TMPL(print_dots, dot_count);
-    %}IF 1{%
-    if(plan->where && plan->where->v.operand[0]) {
-        %}&({%
-        TMPL(tmpl_print_expression, plan->where->v.operand[0], plan);
-        %}){%
-    }
-    // Distinct values if needed
-    //  NOTE: the EXCEPT set doesn't need to check if a value exists before clearing it
-    if(plan->distinct_values && plan->set_operation != PP_EXCEPT_SET && plan->set_operation != PP_INTERSECT_SET) {
-        %}&($DATA({{ config->global_names.cursor }}(cursorId,"index",{%
-        TMPL(tmpl_column_list_combine, plan->projection, plan, ",", NULL, 0);
-        %}))=0){%
-    }
+    cur_key = 0;
+    dot_count = 0;
+    TMPL(tmpl_tablejoin, plan, plan->tablejoin, cur_key, dot_count, tableName, columnName);
 
-    // Ensure we don't emit duplicates
-    if(plan->emit_duplication_check == TRUE) {
-        %}&($DATA({% TMPL(tmpl_duplication_check, plan); %})=0){%
-    }
-    dot_count++;
-    %} DO
-    {%
-
-    // Output the value
-    // Note down where the "resume" pointer starts, incuding the preceeding whitespace
-    start_resume = buff_ptr - 4;
-    TMPL(print_dots, dot_count);
-    if(plan->set_operation == PP_EXCEPT_SET) {
-        %}IF 1{%
-    } else {
-        switch(plan->action_type) {
-        case PP_PROJECT:
-            %}SET:1{%
-            break;
-        case PP_DELETE:
-            %}KILL:1{%
-            break;
-        default:
-            assert(FALSE);
-        }
-    }
-
-
-    /// TODO: key has overloaded meaning here to mean table; we need to
-    // increment something somewhere
-    if(plan->outputKey && plan->outputKey->insert) {
-        %}{{ plan->outputKey->insert->v.string_literal }}{%
-    } else if(plan->outputKey && plan->outputKey->is_cross_reference_key) {
-        %} ^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}"{%
-        %},{%
-        TMPL(tmpl_column_list_combine, plan->projection, plan, ",", NULL, 0);
-        %})=""
-    {% // White space needed
-        TMPL(print_dots, dot_count);
-        %}IF $INCREMENT(^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}"{%
-        %})),$INCREMENT(^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}",{%
-        // Temporarily sever the key from the projection
-        lp_temp = plan->projection->v.operand[1];
-        plan->projection->v.operand[1] = NULL;
-        TMPL(tmpl_column_list_combine, plan->projection, plan, ",", NULL, 0);
-        plan->projection->v.operand[1] = lp_temp;
-        %})) {%
-    } else if(plan->set_operation == PP_EXCEPT_SET) {
-        %} SET v=$ORDER({{ config->global_names.cursor }}(cursorId,"index",{% TMPL(tmpl_column_list_combine, plan->projection, plan, ",", NULL, 0); %},"")) KILL:v'="" {% TMPL(tmpl_key, plan->outputKey); buff_ptr--; %},v),{{ config->global_names.cursor }}(cursorId,"index",{% TMPL(tmpl_column_list_combine, plan->projection, plan, ",", NULL, 0); %},v){%
-    } else if(plan->outputKey) {
-        // Note down where we are, do a dummy assignment to increment the row count, then paste our row again
-        end_resume = buff_ptr;
-        %}&$INCREMENT({% TMPL(tmpl_key, plan->outputKey); %}) {%
-        if(plan->set_operation == PP_INTERSECT_SET) {
-            %}%%ydboctoz{%
-        } else {
-            %}%%ydboctoz=42{%
-        }
-        c = *end_resume;
-        *end_resume = '\0';
-        resume_length = end_resume - start_resume;
-        buff_ptr += snprintf(buff_ptr, buffer_len - (buff_ptr - buffer), "\n%s ", start_resume);
-        *end_resume = c;
-        start_resume = buff_ptr - resume_length - 1;	/* -1 for space at end of string in above "snprintf" */
-        // Track the output of the table so we can copy-paste it instead of repeating the below logic
-        start_table_reference = buff_ptr;
-        TMPL(tmpl_key, plan->outputKey);
-        // Go back on in the buffer
-        buff_ptr -= 1;
-        if(plan->set_operation == PP_INTERSECT_SET) {
-            // Do nothing; we're interested in the index, not the values themselves
-            // Kill a non existent variable so we can logic consice
-            assert(plan->action_type == PP_DELETE);
-            /// TODO: rework this so this fake kill doesn't have to happen
-            %},"this variable should never exist"){%
-        } else if(plan->action_type == PP_DELETE) {
-            %},{{ config->global_names.cursor }}(cursorId,"index",{%
-            TMPL(tmpl_column_list_combine, plan->projection, plan, ",", NULL, 0);
-            %})){%
-        } else if(plan->stash_columns_in_keys) {
-            %},{%
-            TMPL(tmpl_column_list_combine, plan->projection, plan, ",", NULL, 0);
-            %}){%
-        } else if (plan->order_by) {
-            %},"order",{%
-            TMPL(tmpl_column_list_combine, plan->order_by, plan, ",", NULL, 0);
-            %},{% TMPL(tmpl_key, plan->outputKey);%}){%
-        } else {
-            %},{% TMPL(tmpl_key, plan->outputKey);%}){%
-        }
-        // Then assign value
-        if(plan->action_type == PP_PROJECT) {
-            end_table_reference = buff_ptr;
-            %}=$GET({%
-            c = *end_table_reference,
-            *end_table_reference = '\0';
-            buff_ptr += snprintf(buff_ptr, buffer_len - (buff_ptr - buffer), "%s", start_table_reference);
-            *end_table_reference = c;
-            %})_{%
-            end_resume = buff_ptr;
-            if(plan->stash_columns_in_keys) {
-                %}""{%
-            } else {
-                TMPL(tmpl_column_list_combine, plan->projection, plan, "_\"|\"_", start_resume, end_resume - start_resume);
-            }
-        }
-    } else if (plan->outputTable) {
-        /// TODO: do we ever get to this branch?
-        // We are putting the value directly into a table
-    } else {
-        assert(FALSE);
-    }
-
-    if(plan->emit_duplication_check == TRUE) {
-        %}
-    {% TMPL(print_dots, dot_count); %}SET {% TMPL(tmpl_duplication_check, plan); %}=1{%
-    }
-
-    // If we are maintaining the columnwise index
-    if(plan->maintain_columnwise_index && plan->set_operation != PP_EXCEPT_SET) {
-        // Newline for the M code
-        %}
-    {%
-        TMPL(print_dots, dot_count);
-        if(plan->set_operation == PP_INTERSECT_SET) {
-            %}KILL:1{%
-        } else {
-            %}SET:1{%
-        }
-
-        %} {{ config->global_names.cursor }}(cursorId,"index",{%
-        TMPL(tmpl_column_list_combine, plan->projection, plan, ",", NULL, 0);
-        if(plan->set_operation != PP_INTERSECT_SET) {
-            %},{% TMPL(tmpl_key, plan->outputKey); %})="",tmpVar=$INCREMENT({{ config->global_names.cursor }}(cursorId,"index",{% TMPL(tmpl_column_list_combine, plan->projection, plan, ",", NULL, 0); %})){%
-        } else {
-            %}){%
-        }
-    }
     // If this expression had an order by, we now need to go back and make the ordering uniform
     // If we have a lot of plans each of which have the same output key and order by, then do this step
     // only for the last plan in that set.
@@ -280,7 +83,7 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
         && ((NULL == plan->next) || (NULL == plan->next->order_by)
                 || (plan->outputKey->unique_id != plan->next->outputKey->unique_id)))
     {
-    	char	*direction = ((OPTIONAL_DESC == plan->order_by->extra_detail) ? "-1" : "1");
+        char    *direction = ((OPTIONAL_DESC == plan->order_by->extra_detail) ? "-1" : "1");
         %}
     NEW %%ydboctoi0,%%ydboctoi1,%%ydboctoi2
     SET %%ydboctoi0=1,%%ydboctoi1="",%%ydboctoi2=""

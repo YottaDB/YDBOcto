@@ -50,6 +50,7 @@ typedef struct PhysicalPlan {
 	LogicalPlan		*where;
 	LogicalPlan		*projection;
 	LogicalPlan		*order_by;
+	LogicalPlan		*tablejoin;
 	SqlOptionalKeyword	*keywords;
 	unsigned int		total_iter_keys;
 	// If set to 1, this plan should emit the columns as subscripts of the key,
@@ -76,6 +77,12 @@ typedef struct PhysicalPlan {
 	// If true, we should emit code to ensure only one value gets inserted to the output key
 	// for a given set of keys
 	int			emit_duplication_check;
+	boolean_t		*treat_key_as_null;	/* Set to TRUE for a short period when generating M code for
+							 * the case where a left table row did not match any right
+							 * table row in an OUTER JOIN (LEFT/RIGHT/FULL). If TRUE, any
+							 * references to columns from this table are automatically
+							 * treated as NULL (replaced with "") in the generated M code.
+							 */
 } PhysicalPlan;
 
 // This provides a convenient way to pass options to subplans

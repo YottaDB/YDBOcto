@@ -1,0 +1,107 @@
+{%
+/****************************************************************
+ *								*
+ * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * All rights reserved.						*
+ *								*
+ *	This source code contains the intellectual property	*
+ *	of its copyright holder(s), and is made available	*
+ *	under a license.  If you do not know the terms of	*
+ *	the license, please stop and do not read further.	*
+ *								*
+ ****************************************************************/
+
+#include "physical_plan.h"
+#include "template_helpers.h"
+
+TEMPLATE(tmpl_tablejoin, PhysicalPlan *plan, LogicalPlan *tablejoin, unsigned int cur_key, int dot_count,		\
+										char *tableName, char *columnName) {
+    TEMPLATE_INIT();
+
+    SqlKey		*key;
+    unsigned int	total_keys, input_cur_key;
+    int			left_table_id, right_table_id;
+    enum SqlJoinType	this_join_type, next_join_type;
+    SqlOptionalKeyword	*keyword;
+    LogicalPlan		*right_tablejoin;
+
+    total_keys = plan->total_iter_keys;
+    assert(((NULL != tablejoin) && (LP_TABLE_JOIN == tablejoin->type)) || ((NULL == tablejoin) && (cur_key == total_keys)));
+    if (cur_key < total_keys)
+    {
+        key = plan->iterKeys[cur_key];
+        left_table_id = key->unique_id;
+    }
+    this_join_type = ((NULL == tablejoin) ? NO_JOIN : (enum SqlJoinType)(tablejoin->extra_detail));
+    input_cur_key = cur_key;
+    for( ; cur_key < total_keys; cur_key++) {
+        // For each key, output the key start, a loop, quit, and increment
+        key = plan->iterKeys[cur_key];
+        if (key->unique_id != left_table_id)
+        {   // we are done with all key columns in this table; recurse to move on to next table/key
+            right_tablejoin = tablejoin->v.operand[1];
+            next_join_type = (enum SqlJoinType)(right_tablejoin->extra_detail);
+            if ((LEFT_JOIN == this_join_type) && ((NULL == plan->treat_key_as_null) || !plan->treat_key_as_null[left_table_id]))
+                TMPL(tmpl_tablejoin_leftjoin, plan, tablejoin, input_cur_key, &dot_count);
+            if (LEFT_JOIN == next_join_type)
+            {
+                TMPL(print_dots, dot_count);
+                %}KILL %%ydboctoz({% TMPL(snprintf, "%d", cur_key); %})
+    {%
+            }
+            TMPL(tmpl_tablejoin, plan, right_tablejoin, cur_key, dot_count, tableName, columnName);
+            if (LEFT_JOIN == next_join_type)
+            {   /* Generate M code to include rows from the left table where there is no matching right table */
+                assert(NULL != right_tablejoin->outer_join_condition);
+                %}
+    {%
+                 TMPL(print_dots, dot_count);
+                 %}IF '$DATA(%%ydboctoz({% TMPL(snprintf, "%d", cur_key); %})) DO
+    {%
+                dot_count++;
+                /* Treat all keys in the right table as NULL and invoke nested joins (if needed) */
+                right_table_id = key->unique_id;
+                if (NULL == plan->treat_key_as_null)
+                        plan->treat_key_as_null = octo_cmalloc(memory_chunks, sizeof(boolean_t) * config->plan_id);
+                plan->treat_key_as_null[right_table_id] = TRUE;
+                TMPL(tmpl_tablejoin, plan, right_tablejoin, cur_key, dot_count, tableName, columnName);
+                /* Undo NULL-treating of keys in right table */
+                assert(plan->treat_key_as_null[right_table_id]);
+                plan->treat_key_as_null[right_table_id] = FALSE;
+            }
+            TEMPLATE_END();
+        }
+        if ((NULL != plan->treat_key_as_null) && plan->treat_key_as_null[key->unique_id])
+                continue;
+        if(key->value) {
+            TMPL(print_dots, dot_count);
+            %}SET {% TMPL(tmpl_key, key); %}={%
+            TMPL(tmpl_print_expression, key->value, plan);
+            %} IF $DATA({% TMPL(tmpl_key_source, plan, key); %})'=0 DO
+    {%
+            dot_count++;
+            continue;
+        }
+        TMPL(print_dots, dot_count);
+    %}{% TMPL(tmpl_key_start, key); %}
+    {% TMPL(print_dots, dot_count); %}FOR  SET {% TMPL(tmpl_key, key) %}=$ORDER({% TMPL(tmpl_key_advance, plan, key)
+    %}) QUIT:({%
+        TMPL(tmpl_key_end, key);
+        keyword = get_keyword_from_keywords(plan->keywords, OPTIONAL_LIMIT);
+        if(keyword != NULL) {
+            SqlValue	*value;
+
+            UNPACK_SQL_STATEMENT(value, keyword->v, value);
+            %})!(({{ value->v.string_literal }})'>$GET({% TMPL(tmpl_key, plan->outputKey); %}){%
+        }
+    %})  DO
+    {%
+
+        dot_count++;
+    }
+    if ((LEFT_JOIN == this_join_type) && ((NULL == plan->treat_key_as_null) || !plan->treat_key_as_null[left_table_id]))
+        TMPL(tmpl_tablejoin_leftjoin, plan, tablejoin, input_cur_key, &dot_count);
+    TMPL(tmpl_tablejoin_body, plan, dot_count, tableName, columnName);
+    TEMPLATE_END();
+}
+%}

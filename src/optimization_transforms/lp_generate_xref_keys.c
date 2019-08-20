@@ -68,8 +68,6 @@ LogicalPlan *lp_generate_xref_keys(LogicalPlan *plan, SqlTable *table, SqlColumn
 		cur_lp_key->v.key->table = table;
 		cur_lp_key->v.key->type = LP_KEY_ADVANCE;
 		cur_lp_key->v.key->cross_reference_output_key = output_key;
-		cur_lp_key->v.key->join_type = table_join->extra_detail;
-		cur_lp_key->extra_detail = table_join->extra_detail;
 		if(cur_key != max_key) {
 			MALLOC_LP_2ARGS(keys->v.operand[1], LP_KEYS);
 			keys = keys->v.operand[1];

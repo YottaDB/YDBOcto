@@ -24,7 +24,7 @@
  */
 LogicalPlan *join_tables(LogicalPlan *root, LogicalPlan *plan) {
 	LogicalPlan *next = NULL, *table_plan;
-	LogicalPlan *keys = NULL, *where, *criteria, *cur_lp_key = NULL;
+	LogicalPlan *keys = NULL, *select, *criteria, *cur_lp_key = NULL;
 	LogicalPlan *sub, *sub1;
 	SqlTable *table;
 	SqlTableAlias *table_alias;
@@ -64,8 +64,8 @@ LogicalPlan *join_tables(LogicalPlan *root, LogicalPlan *plan) {
 		return plan;
 	}
 	GET_LP(table_plan, plan, 0, LP_TABLE);
-	where = lp_get_select(root);
-	GET_LP(criteria, where, 1, LP_CRITERIA);
+	select = lp_get_select(root);
+	GET_LP(criteria, select, 1, LP_CRITERIA);
 	GET_LP(keys, criteria, 0, LP_KEYS);
 	// Drill down to the bottom of the keys
 	while(keys->v.operand[1] != NULL) {
@@ -92,8 +92,6 @@ LogicalPlan *join_tables(LogicalPlan *root, LogicalPlan *plan) {
 			cur_lp_key->v.key->table = table;
 			cur_lp_key->v.key->type = LP_KEY_ADVANCE;
 			cur_lp_key->v.key->owner = table_plan;
-			cur_lp_key->v.key->join_type = plan->extra_detail;
-			cur_lp_key->extra_detail = plan->extra_detail;
 			if(cur_key != max_key) {
 				MALLOC_LP_2ARGS(keys->v.operand[1], LP_KEYS);
 				keys = keys->v.operand[1];
@@ -114,7 +112,7 @@ LogicalPlan *join_tables(LogicalPlan *root, LogicalPlan *plan) {
 
 LogicalPlan *optimize_logical_plan(LogicalPlan *plan) {
 	LogicalPlan	*select, *table_join, *where;
-	boolean_t	disable_dnf_expansion;
+	boolean_t	disable_dnf_expansion, plan_has_outer_joins;
 	LogicalPlan	*new_plan;
 
 	if(plan->type == LP_SET_OPERATION) {
@@ -160,7 +158,6 @@ LogicalPlan *optimize_logical_plan(LogicalPlan *plan) {
 
 			child_where->v.operand[0] = cur->v.operand[0];
 			new_plan = lp_join_plans(new_plan, p, LP_SET_UNION_ALL);
-			//lp_optimize_where_multi_equal_ands(p, child_where);
 			cur = cur->v.operand[1];
 		}
 		where->v.operand[0] = cur;
@@ -168,6 +165,21 @@ LogicalPlan *optimize_logical_plan(LogicalPlan *plan) {
 			return optimize_logical_plan(new_plan);
 	}
 	// Perform optimizations where we are able
-	lp_optimize_where_multi_equal_ands(plan, where);
+	plan_has_outer_joins = FALSE;
+	do {
+		assert(LP_TABLE_JOIN == table_join->type);
+		if (NULL != table_join->outer_join_condition)
+		{
+			lp_optimize_where_multi_equal_ands(plan, table_join->outer_join_condition);
+			plan_has_outer_joins = TRUE;
+		}
+		table_join = table_join->v.operand[1];
+	} while (NULL != table_join);
+	/* In case an OUTER JOIN exists, we cannot easily optimize the WHERE condition.
+	 * Care has to be taken while invoking key fixing optimizations. Will be done at a later time.
+	 * Skip it for now.
+	 */
+	if (!plan_has_outer_joins)
+		lp_optimize_where_multi_equal_ands(plan, where);
 	return new_plan;
 }

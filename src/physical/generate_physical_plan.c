@@ -125,7 +125,9 @@ PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlanOptions *opt
 	//  if so, add them as prev records
 	select = lp_get_select(plan);
 	GET_LP(table_joins, select, 0, LP_TABLE_JOIN);
+	out->tablejoin = table_joins;
 	do {
+		assert(LP_TABLE_JOIN == table_joins->type);
 		// If this is a plan that doesn't have a source table,
 		//  this will be null and we need to skip this step
 		if(table_joins->v.operand[0] == NULL)
@@ -164,9 +166,8 @@ PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlanOptions *opt
 		walk_where_statement(&curr_plan, where->v.operand[1]);
 		where->v.operand[1] = NULL;	/* Discard alternate list now that its purpose is served */
 	}
-	out->projection = walk_where_statement(&curr_plan, lp_get_project(plan)->v.operand[0]->v.operand[0]);
+	walk_where_statement(&curr_plan, lp_get_project(plan)->v.operand[0]->v.operand[0]);
 	out->keywords = lp_get_select_keywords(plan)->v.keywords;
-
 	out->projection = lp_get_projection_columns(plan);
 
 	// Check the optional words for distinct

@@ -84,6 +84,11 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan) {
         break;
     case LP_DERIVED_COLUMN:
         GET_LP(key, plan, 0, LP_KEY);
+        if ((NULL != pplan->treat_key_as_null) && pplan->treat_key_as_null[key->v.key->unique_id])
+        {   /* Treat all columns in the table as NULL (used for OUTER JOINs) */
+            TMPL(snprintf, "\"\"");
+	    break;
+        }
         GET_LP(piece_num, plan, 1, LP_PIECE_NUMBER);
         %}($PIECE({%
         TMPL(tmpl_key, key->v.key);

@@ -55,6 +55,7 @@ ERROR_DEF(ERR_MISSING_KEY, "Missing key %d in table %s; max key was %d", PSQL_Co
 ERROR_DEF(ERR_TABLE_DEFINITION_TOO_LONG, "Table definition for %s too long; max size is %d, table length is %d", PSQL_Code_Invalid_Table_Definition)
 ERROR_DEF(ERR_TYPE_MISMATCH, "Type mismatch: left %s, right %s", PSQL_Code_Datatype_Mismatch)
 // ROCTO //
+ERROR_DEF(ERR_ROCTO_M_CALL, "M extrinsic function calls are disallowed in rocto", PSQL_Code_Internal_Error)
 
 /*** Trace messages ***/
 // OCTO //

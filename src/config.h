@@ -42,7 +42,7 @@ typedef struct OctoConfig {
 	enum ERROR_LEVEL record_error_level;
 	int dry_run, plan_id;
 	const char *tmp_dir, *config_file_name;
-	int is_tty, page_size;
+	int is_tty, page_size, is_rocto;
 } OctoConfig;
 
 OctoConfig *config;

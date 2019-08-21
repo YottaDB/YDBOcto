@@ -204,6 +204,28 @@ int copied_so_far;
                 strncpy((*yylval_param)->v.value->v.string_literal, string_buffer, copied_so_far+1);
                 return LITERAL;
               }
+\$\$[a-zA-Z0-9]*\^[a-zA-Z][a-zA-Z0-9]* {
+                copied_so_far = 0;
+                str_buf_ptr = string_buffer;
+                char *yptr = yytext;
+                COPY_STRING(str_buf_ptr, yptr, copied_so_far, MAX_STR_CONST);
+                *str_buf_ptr = '\0';
+                SQL_STATEMENT(*yylval_param, value_STATEMENT);
+                OCTO_CMALLOC_STRUCT((*yylval_param)->v.value, SqlValue);
+                (*yylval_param)->v.value->type = COLUMN_REFERENCE;
+                if(*string_buffer == '$') {
+                  (*yylval_param)->v.value->type = PARAMETER_VALUE;
+                  }
+                (*yylval_param)->v.value->v.string_literal = (char*)octo_cmalloc(memory_chunks, copied_so_far+1);
+                char *d = (*yylval_param)->v.value->v.string_literal;
+                char *c = string_buffer;
+                while(*c != '\0') {
+                  *d++ = toupper(*c++);
+                }
+                *d = '\0';
+                return EXTRINSIC_FUNCTION;
+	       }
+
 [a-zA-Z$][a-zA-Z0-9_$^]* {
                 copied_so_far = 0;
                 str_buf_ptr = string_buffer;

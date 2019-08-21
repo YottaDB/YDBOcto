@@ -78,6 +78,7 @@ extern void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, int *plan
 %token END
 %token EXCEPT
 %token EXTRACT
+%token EXTRINSIC_FUNCTION
 %token FROM
 %token FULL
 %token GLOBAL
@@ -1472,6 +1473,18 @@ regular_identifier
 
 identifier_body
   : IDENTIFIER_START { $$ = $1; ($$)->loc =  yyloc; }
+  | EXTRINSIC_FUNCTION {
+       if (config->is_rocto) {
+          ERROR(ERR_ROCTO_M_CALL, NULL);
+          /* we issue a parser error here so that parsing for this token finish
+           * rather than using YYABORT to exit prematurely
+           */
+          YYERROR;
+       } else {
+          $$ = $1;
+          ($$)->loc = yyloc;
+       }
+    }
 //  | identifier_start underscore
 //  | identifier_start identifier_part
   ;

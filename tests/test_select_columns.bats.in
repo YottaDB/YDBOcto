@@ -380,3 +380,12 @@ select * from names limit 1;
 OCTO
   verify_output T0022 output.txt
 }
+
+@test "Run M function inside of select statement" {
+  DDOLAR='$$'
+  cp @PROJECT_SOURCE_DIR@/tests/fixtures/USERFUNC1.m .
+  octo <<OCTO 2>&1 | tee output.txt
+select $DDOLAR^userfunc1(42) from names;
+OCTO
+  verify_output T0024 output.txt
+}

@@ -36,6 +36,7 @@ ERROR_DEF(ERR_ROCTO_SESSION_LOOKUP, "%s: failed to retrieve %s from session info
 ERROR_DEF(ERR_ROCTO_DB_LOOKUP, "%s: failed to retrieve %s from database", PSQL_Code_Internal_Error)
 ERROR_DEF(ERR_ROCTO_COLUMN_VALUE, "%s: failed to extract column value %s from row", PSQL_Code_Internal_Error)
 ERROR_DEF(ERR_ROCTO_HASH_CONVERSION, "%s: failed convert %s hash to %s", PSQL_Code_Internal_Error)
+ERROR_DEF(ERR_ROCTO_NO_SCHEMA, "Rocto is not allowed to make schema changes without startup flag --allowschemachanges", PSQL_Code_Internal_Error)
 
 /*** Other ***/
 // OCTO //

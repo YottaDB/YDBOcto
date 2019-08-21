@@ -37,10 +37,14 @@ int parse_startup_flags(int argc, char **argv) {
 	int c;
 	config->is_rocto = FALSE;
 	char *octo_usage = "Usage: octo [OPTION]...\nStart the Octo SQL server.\n\nMandatory arguments for long options are also mandatory for short options.\n  -c, --config-file=<filepath>\t\tUse specified configuration file instead of the default.\n  -d, --dry-run\t\t\t\tRun the parser in read-only mode and performs basic checks without executing any passed SQL statements.\n  -f, --input-file=<filepath>\t\tRead commands from specified file instead of opening interactive prompt.\n  -h, --help\t\t\t\tDisplay this help message and exit.\n  -v, --verbose=<number>\t\tSpecify amount of information to output when running commands by specifying a numeric level from 0-5 or adding additional 'v' characters.\n";
-	char *rocto_usage = "Usage: rocto [OPTION]...\nStart the Rocto remote SQL server.\n\nMandatory arguments for long options are also mandatory for short options.\n  -c, --config-file=<filepath>\t\tUse specified configuration file instead of the default.\n  -h, --help\t\t\t\tDisplay this help message and exit.\n  -p, --port=<number>\t\t\tListen on the specified port.\n  -v, --verbose=<number>\t\tSpecify amount of information to output when running commands by specifying a numeric level from 0-5 or adding additional 'v' characters.\n";
+	char *rocto_usage = "Usage: rocto [OPTION]...\nStart the Rocto remote SQL server.\n\nMandatory arguments for long options are also mandatory for short options.\n  -a, --allowschemachanges\t\tAllows rocto to make changes to the schema (CREATE TABLE and DROP TABLE)\n  -c, --config-file=<filepath>\t\tUse specified configuration file instead of the default.\n  -h, --help\t\t\t\tDisplay this help message and exit.\n  -p, --port=<number>\t\t\tListen on the specified port.\n  -v, --verbose=<number>\t\tSpecify amount of information to output when running commands by specifying a numeric level from 0-5 or adding additional 'v' characters.\n";
 
 	if (0 < argc && NULL != strstr(argv[0], "rocto")) {
 		config->is_rocto = TRUE;
+		// Rocto is by default not allowed to make schema changes
+		config->allow_schema_changes = FALSE;
+	} else {
+		config->allow_schema_changes = TRUE;
 	}
 	optind = 1;
 
@@ -65,12 +69,13 @@ int parse_startup_flags(int argc, char **argv) {
 			{"config-file", required_argument, NULL, 'c'},
 			{"port", required_argument, NULL, 'p'},
 			{"help", no_argument, NULL, 'h'},
+			{"allowschemachanges", no_argument, NULL, 'a'},
 			{0, 0, 0, 0}
 		};
 		int option_index = 0;
 
 		if (config->is_rocto) {
-			c = getopt_long(argc, argv, "vhc:p:", rocto_long_options, &option_index);
+			c = getopt_long(argc, argv, "vhc:p:a", rocto_long_options, &option_index);
 		} else {
 			c = getopt_long(argc, argv, "vdhf:c:", octo_long_options, &option_index);
 		}
@@ -106,33 +111,24 @@ int parse_startup_flags(int argc, char **argv) {
 			exit(0);
 			break;
 		case 'f':
-			if (config->is_rocto) {
-				handle_invalid_option(argv[0], c);
-			} else {
-				inputFile = fopen(optarg, "r");
-				if (inputFile == NULL)
-				{
-					FATAL(ERR_FILE_NOT_FOUND, optarg);
-				}
+			inputFile = fopen(optarg, "r");
+			if (inputFile == NULL)
+			{
+				FATAL(ERR_FILE_NOT_FOUND, optarg);
 			}
 			break;
 		case 'd':
-			if (config->is_rocto) {
-				handle_invalid_option(argv[0], c);
-			} else {
-				config->dry_run = TRUE;
-			}
+			config->dry_run = TRUE;
 			break;
 		case 'p':
-			if (config->is_rocto) {
-				config->rocto_config.port = atoi(optarg);
-				if (0 > config->rocto_config.port || 65535 < config->rocto_config.port) {
-					printf("Please use a port number between 0 and 65535\n");
-					exit(1);
-				}
-			} else {
-				handle_invalid_option(argv[0], c);
+			config->rocto_config.port = atoi(optarg);
+			if (0 > config->rocto_config.port || 65535 < config->rocto_config.port) {
+				printf("Please use a port number between 0 and 65535\n");
+				exit(1);
 			}
+			break;
+		case 'a':
+			config->allow_schema_changes = TRUE;
 			break;
 		default:
 			printf("Please use '%s --help' for more information.\n", argv[0]);

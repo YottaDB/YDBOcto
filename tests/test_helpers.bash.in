@@ -151,9 +151,9 @@ start_rocto() {
   echo "ROCTO START" >> env.log
   env >> env.log
   if [[ "" != $1 ]]; then
-    rocto -vv -p $1 &> rocto.log &
+    rocto -vv -p $@ &> rocto.log &
   else
-    rocto -vv &> rocto.log &
+    rocto -vv $@ &> rocto.log &
   fi
   echo $! > rocto.pid
   while [[ "$(grep -c "rocto started" rocto.log)" == "0" ]]; do

@@ -1,0 +1,28 @@
+select * from t1;
+create table t1(a int, b int);
+select * from t1;
+drop table t1;
+select * from names limit 1;
+ERROR:  Unknown table: T1
+ERROR:  Error parsing statement: select * from t1;
+ERROR:  
+select * from t1;
+              ^^
+
+ERROR:  Rocto is not allowed to make schema changes without startup flag --allowschemachanges
+ERROR:  Error parsing statement: create table t1(a int, b int);
+ERROR:  
+ERROR:  Unknown table: T1
+ERROR:  Error parsing statement: select * from t1;
+ERROR:  
+select * from t1;
+              ^^
+
+ERROR:  Rocto is not allowed to make schema changes without startup flag --allowschemachanges
+ERROR:  Error parsing statement: drop table t1;
+ERROR:  
+ ID | FIRSTNAME | LASTNAME 
+----+-----------+----------
+ 0  | Zero      | Cool
+(1 row)
+

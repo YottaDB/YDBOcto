@@ -174,7 +174,14 @@ extern void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, int *plan
 %%
 
 sql_statement
-  : sql_schema_statement semicolon_or_eof { *out = $1; YYACCEPT; }
+  : sql_schema_statement semicolon_or_eof {
+      if (!config->allow_schema_changes){
+           ERROR(ERR_ROCTO_NO_SCHEMA, NULL);
+           YYABORT;
+      }
+      *out = $1;
+      YYACCEPT;
+    }
   | sql_data_statement semicolon_or_eof { *out = $1; YYACCEPT; }
   | query_expression semicolon_or_eof {
       if(qualify_query($1, NULL)) {

@@ -2,6 +2,7 @@ Usage: rocto [OPTION]...
 Start the Rocto remote SQL server.
 
 Mandatory arguments for long options are also mandatory for short options.
+  -a, --allowschemachanges		Allows rocto to make changes to the schema (CREATE TABLE and DROP TABLE)
   -c, --config-file=<filepath>		Use specified configuration file instead of the default.
   -h, --help				Display this help message and exit.
   -p, --port=<number>			Listen on the specified port.

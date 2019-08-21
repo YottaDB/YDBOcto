@@ -1,0 +1,13 @@
+OCTO> select * from names where id between 1 and 10;
+[ WARN] PATH:LINENUM DATE TIME : Feature not implemented: BETWEEN operator (grammar rule : between_predicate)
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select * from names where id between 1 and 10;
+
+OCTO> select * from names where id between 1+1 and 10;
+[ WARN] PATH:LINENUM DATE TIME : Feature not implemented: BETWEEN operator (grammar rule : between_predicate)
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select * from names where id between 1+1 and 10;
+
+OCTO> select * from names where id between id+10 and 10;
+[ WARN] PATH:LINENUM DATE TIME : Feature not implemented: BETWEEN operator (grammar rule : between_predicate)
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select * from names where id between id+10 and 10;
+
+OCTO> 

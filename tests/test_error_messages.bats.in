@@ -26,3 +26,19 @@ SELECT * FROM names WHERE lastName = "Cool";
 OCTO
   [[ "$output" =~ "ZGBLDIRACC" ]]
 }
+
+@test "Feature not implemented: between_predicate" {
+  octo <<OCTO 2>&1 | tee output.txt
+select * from names where id between 1 and 10;
+select * from names where id between 1+1 and 10;
+select * from names where id between id+10 and 10;
+OCTO
+  verify_output TERR000 output.txt
+}
+
+@test "Feature not implemented: exists_predicate" {
+  octo <<OCTO 2>&1 | tee output.txt
+select * from names where exists (select * from names);
+OCTO
+  verify_output TERR001 output.txt
+}

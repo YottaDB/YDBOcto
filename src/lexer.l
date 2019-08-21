@@ -79,6 +79,7 @@ int copied_so_far;
 (?i:ASC) { return ASC; }
 (?i:AVG) { return AVG; }
 (?i:BEG) { return BEG; }
+(?i:BETWEEN) { return BETWEEN; }
 (?i:BY) { return BY; }
 (?i:CASCADE) { return CASCADE; }
 (?i:CASE) { return CASE; }
@@ -103,6 +104,7 @@ int copied_so_far;
 (?i:ELSE) { return ELSE; }
 (?i:END) { return END; }
 (?i:EXCEPT) { return EXCEPT; }
+(?i:EXISTS) { return EXISTS; }
 (?i:EXTRACT) { return EXTRACT; }
 (?i:FROM) { return FROM; }
 (?i:FULL) { return FULL; }

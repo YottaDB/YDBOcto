@@ -1,0 +1,4 @@
+OCTO> select * from names where exists (select * from names);
+[ WARN] PATH:LINENUM DATE TIME : Feature not implemented: EXISTS operator (grammar rule : exists_predicate)
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select * from names where exists (select * from names);
+OCTO> 

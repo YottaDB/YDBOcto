@@ -53,6 +53,7 @@ extern void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, int *plan
 %token ASC
 %token AVG
 %token BEG
+%token BETWEEN
 %token BY
 %token CASCADE
 %token CASE
@@ -77,6 +78,7 @@ extern void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, int *plan
 %token ELSE
 %token END
 %token EXCEPT
+%token EXISTS
 %token EXTRACT
 %token EXTRINSIC_FUNCTION
 %token FROM
@@ -441,12 +443,12 @@ boolean_primary
 
 predicate
   : comparison_predicate { $$ = $1; }
-//  | between_predicate
+  | between_predicate
   | in_predicate { $$ = $1; }
 //  | like_predicate
   | null_predicate { $$ = $1; }
 //  | quantified_comparison_predicate
-//  | exists_predicate
+  | exists_predicate
 //  | match_predicate
 //  | overlaps_predicate
   ;
@@ -553,6 +555,13 @@ comparison_predicate
     }
   ;
 
+between_predicate
+  : row_value_constructor BETWEEN value_expression AND value_expression {
+      WARNING(ERR_FEATURE_NOT_IMPLEMENTED, "BETWEEN operator (grammar rule : between_predicate)"); YYABORT;
+    }
+  ;
+
+
 in_predicate
   : row_value_constructor IN in_predicate_value {
       SQL_STATEMENT($$, binary_STATEMENT);
@@ -641,6 +650,10 @@ null_predicate
       ($$)->v.binary->operands[1]->v.value->v.string_literal = "";
     }
 
+  ;
+
+exists_predicate
+  : EXISTS subquery { WARNING(ERR_FEATURE_NOT_IMPLEMENTED, "EXISTS operator (grammar rule : exists_predicate)"); YYABORT; }
   ;
 
 row_value_constructor

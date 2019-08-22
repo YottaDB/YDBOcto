@@ -1,1 +1,1 @@
-parser.y:warning: 52 shift/reduce conflicts [-Wconflicts-sr]
+parser.y:warning: 28 shift/reduce conflicts [-Wconflicts-sr]

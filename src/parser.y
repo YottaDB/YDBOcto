@@ -930,21 +930,19 @@ set_function_specification
       $$->v.value->type = UNKNOWN_SqlValueType;
       $$->v.value->v.string_literal = "0";
     }
-  | COUNT LEFT_PAREN value_expression RIGHT_PAREN {
-      WARNING(ERR_FEATURE_NOT_IMPLEMENTED, "set_function_specification: COUNT LEFT_PAREN value_expression RIGHT_PAREN");
+  | COUNT LEFT_PAREN set_quantifier value_expression RIGHT_PAREN {
+      WARNING(ERR_FEATURE_NOT_IMPLEMENTED, "set_function_specification: COUNT LEFT_PAREN set_quantifier value_expression RIGHT_PAREN");
       SQL_STATEMENT($$, value_STATEMENT);
       MALLOC_STATEMENT($$, value, SqlValue);
       $$->v.value->type = UNKNOWN_SqlValueType;
       $$->v.value->v.string_literal = "0";
     }
-  | COUNT LEFT_PAREN set_quantifier value_expression RIGHT_PAREN { WARNING(ERR_FEATURE_NOT_IMPLEMENTED, "set_function_specification: COUNT LEFT_PAREN set_quantifier value_expression RIGHT_PAREN"); YYABORT; }
   | general_set_function { $$ = $1; }
   | generic_function_call { $$ = $1; }
   ;
 
 general_set_function
-  : set_function_type LEFT_PAREN value_expression RIGHT_PAREN { WARNING(ERR_FEATURE_NOT_IMPLEMENTED, "general_set_function: set_function_type LEFT_PAREN value_expression RIGHT_PAREN"); YYABORT; }
-  | set_function_type LEFT_PAREN set_quantifier value_expression RIGHT_PAREN { WARNING(ERR_FEATURE_NOT_IMPLEMENTED, "general_set_function: set_function_type LEFT_PAREN set_quantifier value_expression RIGHT_PAREN"); YYABORT; }
+  : set_function_type LEFT_PAREN set_quantifier value_expression RIGHT_PAREN { WARNING(ERR_FEATURE_NOT_IMPLEMENTED, "general_set_function: set_function_type LEFT_PAREN set_quantifier value_expression RIGHT_PAREN"); YYABORT; }
   ;
 
 set_function_type

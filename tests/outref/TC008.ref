@@ -1,0 +1,5 @@
+OCTO> drop table t1;
+OCTO> create table t1 (a int primary key, b int, c numeric, d numeric key num 1, e int, f int key num 2);
+OCTO> select * from t1;
+1|1|2|2.2|3|3
+OCTO> 

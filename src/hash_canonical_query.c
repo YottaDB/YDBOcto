@@ -177,6 +177,7 @@ void hash_canonical_query(hash128_state_t *state, SqlStatement *stmt) {
 			add_sql_type_hash(state, value->data_type);
 			switch(value->type) {
 			case NUMBER_LITERAL:
+			case INTEGER_LITERAL:
 			case STRING_LITERAL:
 			case FUNCTION_NAME:
 			case DATE_TIME:

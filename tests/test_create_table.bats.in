@@ -117,3 +117,23 @@ select * from t1;
 OCTO
   verify_output TC007 output.txt noinfo nodebug
 }
+
+@test "create a table with an INTEGER and NUMERIC columns with decimals and integers stored in both" {
+  yottadb -run %XCMD 'kill ^T1 set ^T1(1,2.2,3.3)="1|1.1|2|2.2|3|3.3"'
+  octo <<OCTO 2>&1 | tee output.txt
+drop table t1;
+create table t1 (a int primary key, b int, c numeric, d numeric key num 1, e int, f int key num 2);
+select * from t1;
+OCTO
+  verify_output TC008 output.txt
+}
+
+@test "create a table with INTEGER and NUMERIC column types with strings stored in both" {
+  yottadb -run %XCMD 'kill ^T1 set ^T1("hello")="hello|world"'
+  octo <<OCTO 2>&1 | tee output.txt
+drop table t1;
+create table t1(a int primary key, b numeric);
+select * from t1;
+OCTO
+  verify_output TC009 output.txt
+}

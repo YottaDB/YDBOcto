@@ -151,6 +151,9 @@ int emit_plan_helper(char *buffer, size_t buffer_len, int depth, LogicalPlan *pl
 			case NUMBER_LITERAL:
 				data_type_ptr = "NUMBER_LITERAL";
 				break;
+			case INTEGER_LITERAL:
+				data_type_ptr = "INTEGER_LITERAL";
+				break;
 			case STRING_LITERAL:
 				data_type_ptr = "STRING_LITERAL";
 				break;

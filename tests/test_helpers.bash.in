@@ -228,10 +228,12 @@ verify_output() {
 
   # Universal filters
   # Filter time and dates
-  sed -i 's/[0-9]\{4\}-[0-9]\{2\}-[0-9]\{2\}/DATE/' clean_output.txt
-  sed -i 's/[0-9]\{2\}:[0-9]\{2\}:[0-9]\{2\}/TIME/' clean_output.txt
+  sed -i 's/[0-9]\{4\}-[0-9]\{2\}-[0-9]\{2\}/DATE/g' clean_output.txt
+  sed -i 's/[0-9]\{2\}:[0-9]\{2\}:[0-9]\{2\}/TIME/g' clean_output.txt
   # Filter file path
   sed -i 's/\/.*\/.*\.[yc]:[0-9]*/PATH:LINENUM/' clean_output.txt
+  # Filter global octo.conf (any not in the local directory)
+  sed -i '/^.*\[ INFO\].* \/.*\/octo.conf/d' clean_output.txt
   # Filter M routine name
   sed -i 's/\.\/_ydbocto.*\.m/M_ROUTINE/' clean_output.txt
   # Filter cursor number

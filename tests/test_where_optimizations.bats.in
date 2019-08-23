@@ -179,3 +179,17 @@ OCTO
 
   verify_output T0009 output.txt
 }
+
+@test "LIKE with integer cast" {
+  octo <<OCTO 2>&1 | tee output.txt
+select * from names where id like 4::integer;
+OCTO
+  # if optimized correctly this should not appear in the generated M code file
+  run grep '\$\$regmatch\^%ydbposix' _ydboctoP*.m
+  if [[ $status = "1" ]]; then
+    echo "PASS: optimization occurred correctly" | tee -a output.txt
+  else
+    echo 'FAIL: optimization did not occur correctly $$regmatch^%ydbposix found' | tee -a output.txt
+  fi
+  verify_output TWO000 output.txt
+}

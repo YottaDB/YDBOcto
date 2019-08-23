@@ -26,6 +26,9 @@ int emit_column_specification(char *buffer, int buffer_size, SqlColumn *cur_colu
 	buff_ptr += snprintf(buff_ptr, buffer_size - (buff_ptr - buffer), "`%s`", value->v.reference);
 	switch(cur_column->type)
        	{
+	case NUMERIC_TYPE:
+		buff_ptr += snprintf(buff_ptr, buffer_size - (buff_ptr - buffer), " NUMERIC");
+		break;
 	case INTEGER_TYPE:
 		buff_ptr += snprintf(buff_ptr, buffer_size - (buff_ptr - buffer), " INTEGER");
 		break;

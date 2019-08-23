@@ -1,0 +1,5 @@
+OCTO> select 1::numeric from names limit 1;
+1
+OCTO> select * from names where 1::numeric = names.id
+OCTO> 
+1|Acid|Burn

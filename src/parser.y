@@ -544,7 +544,11 @@ comparison_predicate
       ($$)->v.binary->operands[0] = ($1);
       SqlValue *value;
       UNPACK_SQL_STATEMENT(value, $3, value);
-      value->v.string_literal = regex_to_like(value->v.string_literal);
+      if(value->type == COERCE_TYPE) {
+        value->v.coerce_target->v.value->v.string_literal = regex_to_like(value->v.coerce_target->v.value->v.string_literal);
+      } else {
+        value->v.string_literal = regex_to_like(value->v.string_literal);
+      }
       ($$)->v.binary->operands[1] = ($3);
     }
   | row_value_constructor NOT LIKE row_value_constructor {
@@ -814,12 +818,19 @@ numeric_primary
               value->type = COERCE_TYPE;
               value->coerced_type = STRING_LITERAL;
               value->v.coerce_target = $value_expression_primary;
-          } else if(strcmp(c, "INTEGER") == 0) {
+          } else if(strcmp(c, "NUMERIC") == 0) {
               SQL_STATEMENT($$, value_STATEMENT);
               MALLOC_STATEMENT($$, value, SqlValue);
               UNPACK_SQL_STATEMENT(value, $$, value);
               value->type = COERCE_TYPE;
               value->coerced_type = NUMBER_LITERAL;
+              value->v.coerce_target = $value_expression_primary;
+          } else if(strcmp(c, "INTEGER") == 0) {
+              SQL_STATEMENT($$, value_STATEMENT);
+              MALLOC_STATEMENT($$, value, SqlValue);
+              UNPACK_SQL_STATEMENT(value, $$, value);
+              value->type = COERCE_TYPE;
+              value->coerced_type = INTEGER_LITERAL;
               value->v.coerce_target = $value_expression_primary;
           } else {
               WARNING(ERR_FEATURE_NOT_IMPLEMENTED, "coerce_type %s", c); YYABORT;
@@ -847,6 +858,15 @@ optional_cast_specification
   : /* Empty */ { $$ = NULL; }
   | COLON COLON identifier {
       $$ = $identifier;
+    }
+  | COLON COLON NUMERIC {
+      SqlValue *value;
+      SQL_STATEMENT($$, value_STATEMENT);
+      MALLOC_STATEMENT($$, value, SqlValue);
+      UNPACK_SQL_STATEMENT(value, $$, value);
+      value->type = STRING_LITERAL;
+      value->v.string_literal = octo_cmalloc(memory_chunks, strlen("NUMERIC"));
+      strcpy(value->v.string_literal, "NUMERIC");
     }
   | COLON COLON INTEGER {
       SqlValue *value;
@@ -1519,6 +1539,10 @@ data_type
 //  | bit_string_type
   | numeric_type {
       SQL_STATEMENT($$, data_type_STATEMENT);
+      ($$)->v.data_type = NUMERIC_TYPE;
+    }
+  | integer_type {
+      SQL_STATEMENT($$, data_type_STATEMENT);
       ($$)->v.data_type = INTEGER_TYPE;
     }
 //  | datetime_type
@@ -1552,7 +1576,9 @@ exact_numeric_type
   : NUMERIC exact_numeric_type_tail { $$ = $2; }
   | DECIMAL exact_numeric_type_tail { $$ = $2; }
   | DEC exact_numeric_type_tail { $$ = $2; }
-  | INTEGER { $$ = NULL; }
+
+integer_type
+  : INTEGER { $$ = NULL; }
   | INT { $$ = NULL; }
   | SMALLINT { $$ = NULL; }
   ;

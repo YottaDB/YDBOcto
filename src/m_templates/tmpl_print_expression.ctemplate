@@ -41,7 +41,6 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan) {
     case LP_VALUE:
         value = plan->v.value;
         switch(value->type) {
-        case NUMBER_LITERAL:
         case DATE_TIME:
         case UNKNOWN_SqlValueType:
         case BOOLEAN_VALUE:
@@ -60,6 +59,9 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan) {
             zwr.buf_addr[zwr.len_used] = '\0';
             %}{{ zwr.buf_addr }}{%
             break;
+	case NUMBER_LITERAL:
+            %}+"{{ value->v.string_literal }}"{%
+            break;
         case COLUMN_REFERENCE:
             // We should only pass LP_COLUMN_ALIASes to this funciton
             assert(FALSE);
@@ -72,6 +74,9 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan) {
             break;
         case NUL_VALUE:
             %}""{%
+            break;
+	case INTEGER_LITERAL:
+            %}"{{ value->v.string_literal }}"\1{%
             break;
         default:
             FATAL(ERR_UNKNOWN_KEYWORD_STATE, "");

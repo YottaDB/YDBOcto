@@ -73,6 +73,7 @@ ADD_BATS_TEST(test_computed_columns)
 ADD_BATS_TEST(test_join_on_columns)
 ADD_BATS_TEST(test_boolean_expression_expansion)
 ADD_BATS_TEST(test_log_split)
+ADD_BATS_TEST(test_coerce_type)
 
 find_program(psql NAMES psql)
 if(psql)

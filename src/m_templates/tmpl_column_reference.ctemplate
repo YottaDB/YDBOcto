@@ -82,7 +82,15 @@ TEMPLATE(tmpl_column_reference, PhysicalPlan *pplan, SqlColumnAlias *column_alia
               key_column = key->column;
               // If key_column == column, we have the correct item and can carry on
               if(columns_equal(key_column, column)) {
+                %}({%
+		if (column->type == NUMERIC_TYPE){
+			%}+{%
+		}
                 TMPL(tmpl_key, key);
+		if (column->type == INTEGER_TYPE){
+			%}\1{%
+		}
+		%}){%
                 TEMPLATE_END();
                 assert(FALSE);
               }
@@ -123,7 +131,15 @@ TEMPLATE(tmpl_column_reference, PhysicalPlan *pplan, SqlColumnAlias *column_alia
         assert(FALSE);
     }
 
+    %}({%
+    if (column->type == NUMERIC_TYPE){
+        %}+{%
+    }
     %}$PIECE($GET({% TMPL(tmpl_emit_source, source, table_name, table_alias->unique_id, MAX_KEY_COUNT, EmitSourceForm_Value); %}),"{{ table_delim }}",{{ piece }}){%
+    if(column->type == INTEGER_TYPE){
+	%}\1{%
+    }
+    %}){%
     TEMPLATE_END();
 }
 %}

@@ -62,6 +62,9 @@ int store_table_in_pg_class(SqlTable *table) {
 	do {
 		int atttypid;
 		switch(cur_column->type) {
+		case NUMERIC_TYPE:
+			atttypid = 1700;
+			break;
 		case INTEGER_TYPE:
 			atttypid = 23;
 			break;

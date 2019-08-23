@@ -1,0 +1,4 @@
+OCTO> select * from names where id like 4::integer;
+4|Joey|
+OCTO> 
+PASS: optimization occurred correctly

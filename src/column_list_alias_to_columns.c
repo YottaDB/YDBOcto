@@ -41,6 +41,9 @@ SqlColumn *column_list_alias_to_columns(SqlTableAlias *table_alias) {
 		switch(cla_cur->type) {
 		case UNKNOWN_SqlValueType:
 		case NUMBER_LITERAL:
+			cur_column->type = NUMERIC_TYPE;
+			break;
+		case INTEGER_LITERAL:
 			cur_column->type = INTEGER_TYPE;
 			break;
 		case STRING_LITERAL:

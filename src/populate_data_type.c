@@ -22,6 +22,8 @@ char *get_type_string(SqlValueType type) {
 	switch(type) {
 	case NUMBER_LITERAL:
 		return "NUMBER";
+	case INTEGER_LITERAL:
+		return "INTEGER";
 	case STRING_LITERAL:
 		return "STRING";
 	case DATE_TIME:
@@ -105,6 +107,7 @@ int populate_data_type(SqlStatement *v, SqlValueType *type) {
 			result = 1;
 			break;
 		case NUMBER_LITERAL:
+		case INTEGER_LITERAL:
 		case STRING_LITERAL:
 		case DATE_TIME:
 		case PARAMETER_VALUE:
@@ -121,6 +124,9 @@ int populate_data_type(SqlStatement *v, SqlValueType *type) {
 			*type = value->coerced_type;
 			result |= populate_data_type(value->v.coerce_target, &child_type1);
 			*v = *value->v.coerce_target;
+			if(v->type == value_STATEMENT){
+				v->v.value->type = *type;
+			}
 			break;
 		default:
 			FATAL(ERR_UNKNOWN_KEYWORD_STATE, "");
@@ -134,6 +140,10 @@ int populate_data_type(SqlStatement *v, SqlValueType *type) {
 		if(child_type1 == PARAMETER_VALUE || child_type1 == UNKNOWN_SqlValueType) {
 			child_type1 = child_type2;
 		} else if(child_type2 == PARAMETER_VALUE || child_type2 == UNKNOWN_SqlValueType) {
+			child_type2 = child_type1;
+		} else if (child_type1 == INTEGER_LITERAL && child_type2 == NUMBER_LITERAL){
+			child_type1 = child_type2;
+		} else if (child_type2 == INTEGER_LITERAL && child_type1 == NUMBER_LITERAL){
 			child_type2 = child_type1;
 		}
 		switch(binary->operation) {
@@ -197,8 +207,11 @@ int populate_data_type(SqlStatement *v, SqlValueType *type) {
 			case CHARACTER_STRING_TYPE:
 				*type = STRING_LITERAL;
 				break;
-			case INTEGER_TYPE:
+			case NUMERIC_TYPE:
 				*type = NUMBER_LITERAL;
+				break;
+			case INTEGER_TYPE:
+				*type = INTEGER_LITERAL;
 				break;
 			case DATE_TIME_TYPE:
 				*type = DATE_TIME;

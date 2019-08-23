@@ -86,7 +86,7 @@ LogicalPlan *lp_generate_where(SqlStatement *stmt, int *plan_id) {
 			// and if so, change it to a LP_BOOLEAN_EQUALS so we can optimize it later
 			if(ret->type == LP_BOOLEAN_REGEX_SENSITIVE && ret->v.operand[1]->type == LP_VALUE) {
 				SqlValue *value = ret->v.operand[1]->v.value;
-				if(value->type != STRING_LITERAL && value->type != NUMBER_LITERAL) {
+				if(value->type != STRING_LITERAL && value->type != NUMBER_LITERAL && value->type != INTEGER_LITERAL) {
 					break;
 				}
 				char *c = value->v.string_literal;

@@ -1,0 +1,5 @@
+OCTO> select "hello"::integer from names limit 1;
+0
+OCTO> select * from names where "hello"::integer = names.id
+OCTO> 
+0|Zero|Cool

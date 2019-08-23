@@ -145,6 +145,7 @@ typedef enum BinaryOperations {
 typedef enum SqlValueType {
 	UNKNOWN_SqlValueType,
 	NUMBER_LITERAL,
+	INTEGER_LITERAL,
 	STRING_LITERAL,
 	DATE_TIME,
 	COLUMN_REFERENCE,
@@ -161,6 +162,7 @@ typedef enum SqlValueType {
 typedef enum SqlDataType {
 	UNKNOWN_SqlDataType,
 	CHARACTER_STRING_TYPE,
+	NUMERIC_TYPE,
 	INTEGER_TYPE,
 	DATE_TIME_TYPE,
 	INTERVAL_TYPE

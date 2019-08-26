@@ -244,7 +244,7 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt, int *plan_id) {
 		do {
 			SqlColumnList		*column_list;
 			SqlColumnAlias		*column_alias;
-			SqlColumnListAlias	*cla;
+			SqlColumnListAlias	*cla, *cla_next;
 			SqlOptionalKeyword	*keyword;
 
 			// We have to do some drilling to get the correct item,
@@ -257,7 +257,12 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt, int *plan_id) {
 			// reject it
 			UNPACK_SQL_STATEMENT(column_alias, column_list->value, column_alias);
 			UNPACK_SQL_STATEMENT(cla, column_alias->column, column_list_alias);
+			cla_next = cla->next;
+			cla->next = cla;	/* so below call processes only one column instead of multiple columns in table
+						 * corresponding to the desired column.
+						 */
 			order_by->v.operand[0] = lp_column_list_to_lp(cla, plan_id);
+			cla->next = cla_next;
 			if (NULL != list->keywords)
 			{
 				UNPACK_SQL_STATEMENT(keyword, list->keywords, keyword);

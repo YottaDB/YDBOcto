@@ -278,7 +278,13 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
         }
     }
     // If this expression had an order by, we now need to go back and make the ordering uniform
-    if(plan->order_by) {
+    // If we have a lot of plans each of which have the same output key and order by, then do this step
+    // only for the last plan in that set.
+    assert((NULL == plan->order_by) || ((NULL != plan->outputKey) && !plan->outputKey->is_cross_reference_key));
+    if (plan->order_by
+        && ((NULL == plan->next) || (NULL == plan->next->order_by)
+                || (plan->outputKey->unique_id != plan->next->outputKey->unique_id)))
+    {
     	char	*direction = ((OPTIONAL_DESC == plan->order_by->extra_detail) ? "-1" : "1");
         %}
     NEW %%ydboctoi0,%%ydboctoi1,%%ydboctoi2

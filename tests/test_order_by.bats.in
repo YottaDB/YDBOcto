@@ -90,3 +90,17 @@ OCTO
   run cat output.txt
   [[ "$output" =~ /5|Zero|Cool.*0|Zero|Cool/ ]]
 }
+
+@test "order by with OR in boolean expression" {
+  octo <<OCTO 2>&1 | tee output.txt
+SELECT id,firstname FROM names WHERE (id = 0 or id = 1) ORDER BY firstname;
+OCTO
+  verify_output TOB01 output.txt
+}
+
+@test "order by with OR and AND in boolean expression" {
+  octo <<OCTO 2>&1 | tee output.txt
+SELECT id,firstname FROM names WHERE (firstname = "Zero" AND lastname = "Cool") OR (id = 2) ORDER BY firstname;
+OCTO
+  verify_output TOB02 output.txt
+}

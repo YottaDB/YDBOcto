@@ -114,8 +114,7 @@ int handle_describe(Describe *describe, RoctoSession *session) {
 		switch(statement->type) {
 			case table_alias_STATEMENT:
 			case set_operation_STATEMENT:
-				HASH128_STATE_INIT(state, 0);
-				hash_canonical_query(&state, statement);
+				INVOKE_HASH_CANONICAL_QUERY(state, statement);	/* "state" holds final hash */
 				int routine_len = generate_routine_name(&state, routine_name, MAX_STR_CONST, OutputPlan);
 				if (routine_len < 0) {
 					FATAL(ERR_PLAN_HASH_FAILED, "");

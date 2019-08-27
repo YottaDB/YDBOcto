@@ -89,8 +89,7 @@ int run_query(char *sql_query, void (*callback)(SqlStatement *, int, void*, char
 	// and so need to propagate them out
 	case table_alias_STATEMENT:
 	case set_operation_STATEMENT:
-		HASH128_STATE_INIT(state, 0);
-		hash_canonical_query(&state, result);
+		INVOKE_HASH_CANONICAL_QUERY(state, result);	/* "state" holds final hash */
 		routine_len = generate_routine_name(&state, routine_name, MAX_STR_CONST, OutputPlan);
 		if (routine_len < 0) {
 			FATAL(ERR_PLAN_HASH_FAILED, "");

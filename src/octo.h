@@ -16,6 +16,7 @@
 #include <stdio.h>
 #include <limits.h>	/* needed for PATH_MAX */
 #include <sys/param.h>	/* needed for PATH_MAX */
+#include <stdint.h>	/* needed for uint64_t */
 
 #include <libyottadb.h>
 
@@ -70,6 +71,13 @@
 
 #define	MATCH_QUALIFIED_COLUMNS_FALSE	FALSE
 #define	MATCH_QUALIFIED_COLUMNS_TRUE	TRUE
+
+#define	INVOKE_HASH_CANONICAL_QUERY(STATE, RESULT)	\
+{							\
+	HASH128_STATE_INIT(STATE, 0);			\
+	hash_canonical_query_cycle++;			\
+	hash_canonical_query(&STATE, RESULT);		\
+}
 
 int emit_column_specification(char *buffer, int buffer_size, SqlColumn *column);
 void emit_create_table(FILE *output, struct SqlStatement *stmt);
@@ -151,15 +159,16 @@ int values_equal(SqlValue *a, SqlValue *b);
 int no_more();
 
 /* Globals */
-SqlTable *definedTables;
-int cur_input_index;
-int old_input_index;
-int cur_input_max;
-int eof_hit;
-FILE *inputFile;
-FILE *err_buffer;
-char *input_buffer_combined;
-int (*cur_input_more)();
+SqlTable	*definedTables;
+uint64_t	hash_canonical_query_cycle;	// incremented before every outermost call to "hash_canonical_query"
+int		cur_input_index;
+int		old_input_index;
+int		cur_input_max;
+int		eof_hit;
+FILE		*inputFile;
+FILE		*err_buffer;
+char		*input_buffer_combined;
+int		(*cur_input_more)();
 
 int get_input(char *buf, int size);
 void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, int *plan_id, char const *s);

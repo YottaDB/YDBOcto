@@ -69,7 +69,12 @@ void hash_canonical_query(hash128_state_t *state, SqlStatement *stmt) {
 
 	if(stmt == NULL)
 		return;
-
+	if (stmt->hash_canonical_query_cycle == hash_canonical_query_cycle)
+		return;
+	stmt->hash_canonical_query_cycle = hash_canonical_query_cycle;	/* Note down this node as being visited. This avoids
+									 * multiple visits down this same node in the same
+									 * outermost call of "hash_canonical_query".
+									 */
 	assert(stmt->type < invalid_STATEMENT);
 	switch (stmt->type) {
 		case begin_STATEMENT:
@@ -217,7 +222,7 @@ void hash_canonical_query(hash128_state_t *state, SqlStatement *stmt) {
 			// SqlColumn or SqlColumnListAlias
 			hash_canonical_query(state, column_alias->column);
 			// SqlTableAlias
-			// hash_canonical_query(state, column_alias->table_alias);
+			hash_canonical_query(state, column_alias->table_alias);
 			break;
 		case column_list_STATEMENT:
 			UNPACK_SQL_STATEMENT(column_list, stmt, column_list);
@@ -302,7 +307,7 @@ void hash_canonical_query(hash128_state_t *state, SqlStatement *stmt) {
 			UNPACK_SQL_STATEMENT(keyword, stmt, keyword);
 			cur_keyword = keyword;
 			do {
-				// add_sql_type_hash(state, keyword_STATEMENT);
+				add_sql_type_hash(state, keyword_STATEMENT);
 				// OptionalKeyword
 				add_sql_type_hash(state, cur_keyword->keyword);
 				// SqlValue or SqlSelectStatement
@@ -314,5 +319,4 @@ void hash_canonical_query(hash128_state_t *state, SqlStatement *stmt) {
 			FATAL(ERR_UNKNOWN_KEYWORD_STATE, "");
 			break;
 	}
-
 }

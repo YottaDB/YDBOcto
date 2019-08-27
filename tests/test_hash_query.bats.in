@@ -1,0 +1,41 @@
+#################################################################
+#								#
+# Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	#
+# All rights reserved.						#
+#								#
+#	This source code contains the intellectual property	#
+#	of its copyright holder(s), and is made available	#
+#	under a license.  If you do not know the terms of	#
+#	the license, please stop and do not read further.	#
+#								#
+#################################################################
+
+load test_helpers
+
+setup() {
+  init_test
+  createdb
+  load_fixture names.sql
+  load_fixture names.zwr
+  load_fixture customers.sql
+  load_fixture customers.zwr
+}
+
+@test "THQ01 : OCTO290 : Test queries with different SELECT COLUMN LIST do not hash to same plan name" {
+  octo <<OCTO 2>&1 | tee output.txt
+select o1.order_id from orders o1 inner join orders o2 on o1.customer_id < o2.customer_id;
+select o2.order_id from orders o1 inner join orders o2 on o1.customer_id < o2.customer_id;
+OCTO
+  verify_output THQ01 output.txt
+  [[ $(ls -l _ydboctoP*.m | wc -l) -eq 2 ]]
+}
+
+@test "THQ02 : OCTO290 : Test queries with different ORDER BY clause do not hash to same plan name" {
+  octo <<OCTO 2>&1 | tee output.txt
+SELECT id,firstname FROM names WHERE id = 0 or id = 1;
+SELECT id,firstname FROM names WHERE id = 0 or id = 1 ORDER BY firstname;
+OCTO
+  verify_output THQ02 output.txt
+  [[ $(ls -l _ydboctoP*.m | wc -l) -eq 2 ]]
+}
+

@@ -1,0 +1,31 @@
+OCTO> select o1.order_id from orders o1 inner join orders o2 on o1.customer_id < o2.customer_id;
+1
+1
+1
+1
+1
+2
+2
+3
+3
+3
+3
+4
+4
+6
+OCTO> select o2.order_id from orders o1 inner join orders o2 on o1.customer_id < o2.customer_id;
+2
+3
+4
+5
+6
+5
+6
+2
+4
+5
+6
+5
+6
+5
+OCTO> 

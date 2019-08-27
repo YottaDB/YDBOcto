@@ -13,6 +13,8 @@
 #ifndef OCTO_TYPES_H
 #define OCTO_TYPES_H
 
+#include <stdint.h>	/* needed for uint64_t */
+
 typedef void *yyscan_t;
 
 #include "memory_chunk.h"
@@ -485,7 +487,7 @@ typedef struct SqlSortSpecList {
 } SqlSortSpecList;
 
 typedef struct SqlStatement{
-	enum SqlStatementType type;
+	enum SqlStatementType	type;
 	struct YYLTYPE loc;
 	union {
 		struct SqlBeginStatement *begin;
@@ -516,6 +518,8 @@ typedef struct SqlStatement{
 		enum SqlDataType data_type;
 		enum SqlJoinType join_type;
 	} v;
+	uint64_t		hash_canonical_query_cycle;	// used during "hash_canonical_query" to avoid
+								// multiple traversals of same node.
 } SqlStatement;
 
 /// TODO: this should be located in octo.h, but for some reason it's not being detected there

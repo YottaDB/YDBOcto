@@ -12,7 +12,8 @@
 
 FROM yottadb/yottadb-base:latest-master
 
-RUN apt-get update -qq && \
+RUN export DEBIAN_FRONTEND=noninteractive && \
+    apt-get update -qq && \
     apt-get install -y -qq \
         build-essential \
         cmake \
@@ -25,6 +26,7 @@ RUN apt-get update -qq && \
         libconfig-dev \
         libssl-dev \
         postgresql-client \
+        postgresql \
         xxd \
         wget
 RUN pip install \

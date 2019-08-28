@@ -35,6 +35,7 @@ RUN pip install \
         sphinx_rtd_theme
 ENV PATH=/usr/local/go/bin:$PATH
 ENV GOLANG_VERSION=1.11.2
+ENV USER=root
 RUN wget -O go.tgz -q https://golang.org/dl/go${GOLANG_VERSION}.linux-amd64.tar.gz
 RUN tar -C /usr/local -xzf go.tgz
 RUN rm go.tgz

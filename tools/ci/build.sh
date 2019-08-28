@@ -96,10 +96,33 @@ if [ $(wc -l differences.txt | awk '{print $1}') -gt 0 ]; then
 fi
 echo "OK."
 
-source activate
-pushd src
+if [ -z $USER ]; then
+  export USER=root
+fi
+
+# start PostgreSQL Server
+if [ -f /etc/init.d/postgresql ]; then
+  /etc/init.d/postgresql start
+else
+  # Blindly assuming we are CentOS
+  cp ../tools/ci/postgres-centos/postgresql-setup /usr/bin/postgresql-setup
+  chmod +x /usr/bin/postgresql-setup
+  postgresql-setup initdb
+  mv ../tools/ci/postgres-centos/postgresql.conf /var/lib/pgsql/data/postgresql.conf
+  chown -v postgres.postgres /var/lib/pgsql/data/postgresql.conf
+  su postgres -c "/usr/bin/postgres -D /var/lib/pgsql/data -p 5432" &
+  sleep 2
+fi
+
+# Make the current user a superuser
+su - postgres -c psql <<PSQL
+create user $USER;
+alter user $USER SUPERUSER;
+PSQL
 
 # Setup for tests
+source activate
+pushd src
 $ydb_dist/mupip set -n=true -reg '*'
 
 # Load the data required for tests

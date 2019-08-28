@@ -89,6 +89,16 @@ load_fixture() {
   fi
 }
 
+create_postgres_database() {
+  psql postgres <<PSQL
+    create database $1;
+PSQL
+}
+
+load_postgres_fixture() {
+  psql $1 -f @PROJECT_SOURCE_DIR@/tests/fixtures/$2
+}
+
 createdb() {
   unset ydb_gbldir gtmgbldir	# needed or else ydb_env_set can issue ZGBLDIRACC error (due to it calling MUPIP DUMPFHEAD)
 				# if ydb_gbldir is defined and points to a non-existent gld file.

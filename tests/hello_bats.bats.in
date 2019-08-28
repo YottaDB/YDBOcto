@@ -41,3 +41,24 @@ OCTO
   run cat output.txt
   [[ "$output" =~ "Lord|Nikon" ]]
 }
+
+@test "can communicate with PostgreSQL server" {
+  create_postgres_database names
+  load_postgres_fixture names postgres-names.sql
+  create_postgres_database customers
+  load_postgres_fixture customers postgres-customers.sql
+
+  # Check names database
+  psql names >& output.txt <<PSQL
+select * from names;
+PSQL
+  run cat output.txt
+  [[ "$output" =~ "  5 | Zero                           | Cool " ]]
+
+  # Check customers database
+  psql customers >& output.txt <<PSQL
+select * from customers;
+PSQL
+  run cat output.txt
+  [[ "$output" =~ "           5 | James      | Monroe" ]]
+}

@@ -21,32 +21,32 @@
 #include "message_formats.h"
 
 
-DataRow *make_data_row(DataRowParm *parms, short num_parms) {
+DataRow *make_data_row(DataRowParm *parms, int16_t num_parms) {
 	DataRow *ret;
-	unsigned int length;
+	uint32_t length;
 	char *c;
-	int i;
+	int32_t i;
 
 	// Get the length we need to malloc
 	length = 0;
 	for(i = 0; i < num_parms; i++) {
 		length += parms[i].length;
-		length += sizeof(unsigned int);
+		length += sizeof(uint32_t);
 	}
 
 	ret = (DataRow*)malloc(sizeof(DataRow) + length);
 	// Include the length of the length field
-	length += sizeof(unsigned int);
+	length += sizeof(uint32_t);
 	// Include the length of the num_parms field
-	length += sizeof(short);
+	length += sizeof(int16_t);
 	ret->type = PSQL_DataRow;
 	ret->length = htonl(length);
 	ret->num_columns = htons(num_parms);
 
 	c = ret->data;
 	for(i = 0; i < num_parms; i++) {
-		*((unsigned int*)c) = htonl(parms[i].length);
-		c += sizeof(unsigned int);
+		*((uint32_t*)c) = htonl(parms[i].length);
+		c += sizeof(uint32_t);
 		memcpy(c, parms[i].value, parms[i].length);
 		c += parms[i].length;
 	}

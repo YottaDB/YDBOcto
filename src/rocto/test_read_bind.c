@@ -30,13 +30,13 @@ static void test_valid_input_no_parms(void **state) {
 	char *ptr = NULL;
 	char *dest = "Hello";
 	char *source = "SELECT * FROM names;";
-	short int num_parm_format_codes = htons(0);
-	short int num_parms = htons(0);
-	short int num_result_col_format_codes = htons(0);
-	int message_length = sizeof(unsigned int) + strlen(dest) + strlen(source) + 2 + sizeof(short int) * 3;
+	int16_t num_parm_format_codes = htons(0);
+	int16_t num_parms = htons(0);
+	int16_t num_result_col_format_codes = htons(0);
+	int32_t message_length = sizeof(uint32_t) + strlen(dest) + strlen(source) + 2 + sizeof(int16_t) * 3;
 	ErrorResponse *err = NULL;
 
-	BaseMessage *test_data = (BaseMessage*)malloc(message_length + sizeof(BaseMessage) - sizeof(unsigned int));
+	BaseMessage *test_data = (BaseMessage*)malloc(message_length + sizeof(BaseMessage) - sizeof(uint32_t));
 	test_data->type = PSQL_Bind;
 	test_data->length = htonl(message_length);
 	ptr = test_data->data;
@@ -46,12 +46,12 @@ static void test_valid_input_no_parms(void **state) {
 	memcpy(ptr, source, strlen(source));
 	ptr += strlen(source);
 	*ptr++ = '\0';
-	*((short int*)ptr) = num_parm_format_codes;
-	ptr += sizeof(short int);
-	*((short int*)ptr) = num_parms;
-	ptr += sizeof(short int);
-	*((short int*)ptr) = num_result_col_format_codes;
-	ptr += sizeof(short int);
+	*((int16_t*)ptr) = num_parm_format_codes;
+	ptr += sizeof(int16_t);
+	*((int16_t*)ptr) = num_parms;
+	ptr += sizeof(int16_t);
+	*((int16_t*)ptr) = num_result_col_format_codes;
+	ptr += sizeof(int16_t);
 
 	// The actual test
 	Bind *bind = read_bind(test_data, &err);
@@ -76,8 +76,8 @@ static void test_valid_input_no_parms(void **state) {
 
 static void test_valid_input_one_parm_no_parm_code(void **state) {
 	// Test a valid, simple, Bind command
-	int message_length = 0;
-	message_length += sizeof(unsigned int);		// length
+	int32_t message_length = 0;
+	message_length += sizeof(uint32_t);		// length
 
 	// Strings
 	char *dest = "Hello";
@@ -86,12 +86,12 @@ static void test_valid_input_one_parm_no_parm_code(void **state) {
 	message_length += strlen(source) + 1;		// count null
 
 	// Format codes
-	short int num_parm_format_codes = htons(0);
-	message_length += sizeof(short int);
+	int16_t num_parm_format_codes = htons(0);
+	message_length += sizeof(int16_t);
 
 	// Parameters
-	short int num_parms = htons(1);
-	message_length += sizeof(short int);
+	int16_t num_parms = htons(1);
+	message_length += sizeof(int16_t);
 	char *parm_value = "parameter";
 	BindParm *parm = (BindParm*)malloc(sizeof(BindParm) + strlen(parm_value) + 1);	// count null
 	parm->length = htonl(strlen(parm_value) + 1);
@@ -99,16 +99,16 @@ static void test_valid_input_one_parm_no_parm_code(void **state) {
 	message_length += sizeof(int) + strlen(parm_value) + 1;
 
 	// Column format codes
-	short int num_result_col_format_codes = htons(1);
-	message_length += sizeof(short int);
-	short int col_formats[1] = {0};			// arbitrary col format code
+	int16_t num_result_col_format_codes = htons(1);
+	message_length += sizeof(int16_t);
+	int16_t col_formats[1] = {0};			// arbitrary col format code
 	message_length += sizeof(col_formats);
 
 	ErrorResponse *err = NULL;
 	char *c = NULL;
 
 	// Create and initialize base message
-	BaseMessage *test_data = (BaseMessage*)malloc(message_length + sizeof(BaseMessage) - sizeof(unsigned int));
+	BaseMessage *test_data = (BaseMessage*)malloc(message_length + sizeof(BaseMessage) - sizeof(uint32_t));
 	test_data->type = PSQL_Bind;
 	test_data->length = htonl(message_length);
 	// Copy strings into message
@@ -119,16 +119,16 @@ static void test_valid_input_one_parm_no_parm_code(void **state) {
 	c += strlen(source) + 1;
 
 	// Copy parameter codes into message
-	*((short int*)c) = num_parm_format_codes;
-	c += sizeof(short int);
+	*((int16_t*)c) = num_parm_format_codes;
+	c += sizeof(int16_t);
 	// Copy parameters into message
-	*((short int*)c) = num_parms;
-	c += sizeof(short int);
+	*((int16_t*)c) = num_parms;
+	c += sizeof(int16_t);
 	memcpy(c, parm, sizeof(int) + strlen(parm_value) + 1);
 	c += sizeof(int) + strlen(parm_value) + 1;
 	// Copy column format codes into message
-	*((short int*)c) = num_result_col_format_codes;
-	c += sizeof(short int);
+	*((int16_t*)c) = num_result_col_format_codes;
+	c += sizeof(int16_t);
 	memcpy(c, col_formats, sizeof(col_formats));
 	c += sizeof(col_formats);
 
@@ -157,8 +157,8 @@ static void test_valid_input_one_parm_no_parm_code(void **state) {
 
 static void test_valid_input_one_parm_one_parm_code(void **state) {
 	// Test a valid, simple, Bind command
-	int message_length = 0;
-	message_length += sizeof(unsigned int);		// length
+	int32_t message_length = 0;
+	message_length += sizeof(uint32_t);		// length
 
 	// Strings
 	char *dest = "Hello";
@@ -167,14 +167,14 @@ static void test_valid_input_one_parm_one_parm_code(void **state) {
 	message_length += strlen(source) + 1;		// count null
 
 	// Format codes
-	short int num_parm_format_codes = htons(1);
-	message_length += sizeof(short int);
-	short int formats[1] = {0};			// arbitrary format code
+	int16_t num_parm_format_codes = htons(1);
+	message_length += sizeof(int16_t);
+	int16_t formats[1] = {0};			// arbitrary format code
 	message_length += sizeof(formats);
 
 	// Parameters
-	short int num_parms = htons(1);
-	message_length += sizeof(short int);
+	int16_t num_parms = htons(1);
+	message_length += sizeof(int16_t);
 	char *parm_value = "parameter";
 	BindParm *parm = (BindParm*)malloc(sizeof(BindParm) + strlen(parm_value) + 1);	// count null
 	parm->length = htonl(strlen(parm_value) + 1);
@@ -182,16 +182,16 @@ static void test_valid_input_one_parm_one_parm_code(void **state) {
 	message_length += sizeof(int) + strlen(parm_value) + 1;
 
 	// Column format codes
-	short int num_result_col_format_codes = htons(1);
-	message_length += sizeof(short int);
-	short int col_formats[1] = {0};			// arbitrary col format code
+	int16_t num_result_col_format_codes = htons(1);
+	message_length += sizeof(int16_t);
+	int16_t col_formats[1] = {0};			// arbitrary col format code
 	message_length += sizeof(col_formats);
 
 	ErrorResponse *err = NULL;
 	char *c = NULL;
 
 	// Create and initialize base message
-	BaseMessage *test_data = (BaseMessage*)malloc(message_length + sizeof(BaseMessage) - sizeof(unsigned int));
+	BaseMessage *test_data = (BaseMessage*)malloc(message_length + sizeof(BaseMessage) - sizeof(uint32_t));
 	test_data->type = PSQL_Bind;
 	test_data->length = htonl(message_length);
 	// Copy strings into message
@@ -202,18 +202,18 @@ static void test_valid_input_one_parm_one_parm_code(void **state) {
 	c += strlen(source) + 1;
 
 	// Copy parameter codes into message
-	*((short int*)c) = num_parm_format_codes;
-	c += sizeof(short int);
+	*((int16_t*)c) = num_parm_format_codes;
+	c += sizeof(int16_t);
 	memcpy(c, formats, sizeof(formats));
 	c += sizeof(formats);
 	// Copy parameters into message
-	*((short int*)c) = num_parms;
-	c += sizeof(short int);
+	*((int16_t*)c) = num_parms;
+	c += sizeof(int16_t);
 	memcpy(c, parm, sizeof(int) + strlen(parm_value) + 1);
 	c += sizeof(int) + strlen(parm_value) + 1;
 	// Copy column format codes into message
-	*((short int*)c) = num_result_col_format_codes;
-	c += sizeof(short int);
+	*((int16_t*)c) = num_result_col_format_codes;
+	c += sizeof(int16_t);
 	memcpy(c, col_formats, sizeof(col_formats));
 	c += sizeof(col_formats);
 
@@ -243,8 +243,8 @@ static void test_valid_input_one_parm_one_parm_code(void **state) {
 
 static void test_valid_input_multi_parms_default_parm_code(void **state) {
 	// Test a valid, simple, Bind command
-	int message_length = 0;
-	message_length += sizeof(unsigned int);		// length
+	int32_t message_length = 0;
+	message_length += sizeof(uint32_t);		// length
 
 	// Strings
 	char *dest = "Hello";
@@ -253,12 +253,12 @@ static void test_valid_input_multi_parms_default_parm_code(void **state) {
 	message_length += strlen(source) + 1;		// count null
 
 	// Format codes
-	short int num_parm_format_codes = htons(0);
-	message_length += sizeof(short int);
+	int16_t num_parm_format_codes = htons(0);
+	message_length += sizeof(int16_t);
 
 	// Parameters
-	short int num_parms = htons(2);
-	message_length += sizeof(short int);
+	int16_t num_parms = htons(2);
+	message_length += sizeof(int16_t);
 	// First parameter
 	char *parm1_value = "parameter1";
 	BindParm *parm1 = (BindParm*)malloc(sizeof(BindParm) + strlen(parm1_value) + 1);	// count null
@@ -273,16 +273,16 @@ static void test_valid_input_multi_parms_default_parm_code(void **state) {
 	message_length += sizeof(int) + strlen(parm2_value) + 1;
 
 	// Column format codes
-	short int num_result_col_format_codes = htons(2);
-	message_length += sizeof(short int);
-	short int col_formats[2] = {0, 0};			// arbitrary col format code
+	int16_t num_result_col_format_codes = htons(2);
+	message_length += sizeof(int16_t);
+	int16_t col_formats[2] = {0, 0};			// arbitrary col format code
 	message_length += sizeof(col_formats);
 
 	ErrorResponse *err = NULL;
 	char *c = NULL;
 
 	// Create and initialize base message
-	BaseMessage *test_data = (BaseMessage*)malloc(message_length + sizeof(BaseMessage) - sizeof(unsigned int));
+	BaseMessage *test_data = (BaseMessage*)malloc(message_length + sizeof(BaseMessage) - sizeof(uint32_t));
 	test_data->type = PSQL_Bind;
 	test_data->length = htonl(message_length);
 	// Copy strings into message
@@ -293,18 +293,18 @@ static void test_valid_input_multi_parms_default_parm_code(void **state) {
 	c += strlen(source) + 1;
 
 	// Copy parameter codes into message
-	*((short int*)c) = num_parm_format_codes;
-	c += sizeof(short int);
+	*((int16_t*)c) = num_parm_format_codes;
+	c += sizeof(int16_t);
 	// Copy parameters into message
-	*((short int*)c) = num_parms;
-	c += sizeof(short int);
+	*((int16_t*)c) = num_parms;
+	c += sizeof(int16_t);
 	memcpy(c, parm1, sizeof(int) + strlen(parm1_value) + 1);
 	c += sizeof(int) + strlen(parm1_value) + 1;
 	memcpy(c, parm2, sizeof(int) + strlen(parm2_value) + 1);
 	c += sizeof(int) + strlen(parm2_value) + 1;
 	// Copy column format codes into message
-	*((short int*)c) = num_result_col_format_codes;
-	c += sizeof(short int);
+	*((int16_t*)c) = num_result_col_format_codes;
+	c += sizeof(int16_t);
 	memcpy(c, col_formats, sizeof(col_formats));
 	c += sizeof(col_formats);
 
@@ -335,8 +335,8 @@ static void test_valid_input_multi_parms_default_parm_code(void **state) {
 
 static void test_valid_input_multi_parms_one_parm_code(void **state) {
 	// Test a valid, simple, Bind command
-	int message_length = 0;
-	message_length += sizeof(unsigned int);		// length
+	int32_t message_length = 0;
+	message_length += sizeof(uint32_t);		// length
 
 	// Strings
 	char *dest = "Hello";
@@ -345,14 +345,14 @@ static void test_valid_input_multi_parms_one_parm_code(void **state) {
 	message_length += strlen(source) + 1;		// count null
 
 	// Format codes
-	short int num_parm_format_codes = htons(1);
-	message_length += sizeof(short int);
-	short int formats[1] = {0};			// arbitrary format code
+	int16_t num_parm_format_codes = htons(1);
+	message_length += sizeof(int16_t);
+	int16_t formats[1] = {0};			// arbitrary format code
 	message_length += sizeof(formats);
 
 	// Parameters
-	short int num_parms = htons(2);
-	message_length += sizeof(short int);
+	int16_t num_parms = htons(2);
+	message_length += sizeof(int16_t);
 	// First parameter
 	char *parm1_value = "parameter1";
 	BindParm *parm1 = (BindParm*)malloc(sizeof(BindParm) + strlen(parm1_value) + 1);	// count null
@@ -367,16 +367,16 @@ static void test_valid_input_multi_parms_one_parm_code(void **state) {
 	message_length += sizeof(int) + strlen(parm2_value) + 1;
 
 	// Column format codes
-	short int num_result_col_format_codes = htons(2);
-	message_length += sizeof(short int);
-	short int col_formats[2] = {0, 0};			// arbitrary col format code
+	int16_t num_result_col_format_codes = htons(2);
+	message_length += sizeof(int16_t);
+	int16_t col_formats[2] = {0, 0};			// arbitrary col format code
 	message_length += sizeof(col_formats);
 
 	ErrorResponse *err = NULL;
 	char *c = NULL;
 
 	// Create and initialize base message
-	BaseMessage *test_data = (BaseMessage*)malloc(message_length + sizeof(BaseMessage) - sizeof(unsigned int));
+	BaseMessage *test_data = (BaseMessage*)malloc(message_length + sizeof(BaseMessage) - sizeof(uint32_t));
 	test_data->type = PSQL_Bind;
 	test_data->length = htonl(message_length);
 	// Copy strings into message
@@ -387,20 +387,20 @@ static void test_valid_input_multi_parms_one_parm_code(void **state) {
 	c += strlen(source) + 1;
 
 	// Copy parameter codes into message
-	*((short int*)c) = num_parm_format_codes;
-	c += sizeof(short int);
+	*((int16_t*)c) = num_parm_format_codes;
+	c += sizeof(int16_t);
 	memcpy(c, formats, sizeof(formats));
 	c += sizeof(formats);
 	// Copy parameters into message
-	*((short int*)c) = num_parms;
-	c += sizeof(short int);
+	*((int16_t*)c) = num_parms;
+	c += sizeof(int16_t);
 	memcpy(c, parm1, sizeof(int) + strlen(parm1_value) + 1);
 	c += sizeof(int) + strlen(parm1_value) + 1;
 	memcpy(c, parm2, sizeof(int) + strlen(parm2_value) + 1);
 	c += sizeof(int) + strlen(parm2_value) + 1;
 	// Copy column format codes into message
-	*((short int*)c) = num_result_col_format_codes;
-	c += sizeof(short int);
+	*((int16_t*)c) = num_result_col_format_codes;
+	c += sizeof(int16_t);
 	memcpy(c, col_formats, sizeof(col_formats));
 	c += sizeof(col_formats);
 
@@ -430,8 +430,8 @@ static void test_valid_input_multi_parms_one_parm_code(void **state) {
 
 static void test_valid_input_multi_parms_actual_parm_codes(void **state) {
 	// Test a valid, simple, Bind command
-	int message_length = 0;
-	message_length += sizeof(unsigned int);		// length
+	int32_t message_length = 0;
+	message_length += sizeof(uint32_t);		// length
 
 	// Strings
 	char *dest = "Hello";
@@ -440,14 +440,14 @@ static void test_valid_input_multi_parms_actual_parm_codes(void **state) {
 	message_length += strlen(source) + 1;		// count null
 
 	// Format codes
-	short int num_parm_format_codes = htons(2);
-	message_length += sizeof(short int);
-	short int formats[2] = {0, 0};			// arbitrary format code
+	int16_t num_parm_format_codes = htons(2);
+	message_length += sizeof(int16_t);
+	int16_t formats[2] = {0, 0};			// arbitrary format code
 	message_length += sizeof(formats);
 
 	// Parameters
-	short int num_parms = htons(2);
-	message_length += sizeof(short int);
+	int16_t num_parms = htons(2);
+	message_length += sizeof(int16_t);
 	// First parameter
 	char *parm1_value = "parameter1";
 	BindParm *parm1 = (BindParm*)malloc(sizeof(BindParm) + strlen(parm1_value) + 1);	// count null
@@ -462,16 +462,16 @@ static void test_valid_input_multi_parms_actual_parm_codes(void **state) {
 	message_length += sizeof(int) + strlen(parm2_value) + 1;
 
 	// Column format codes
-	short int num_result_col_format_codes = htons(2);
-	message_length += sizeof(short int);
-	short int col_formats[2] = {0, 0};			// arbitrary col format code
+	int16_t num_result_col_format_codes = htons(2);
+	message_length += sizeof(int16_t);
+	int16_t col_formats[2] = {0, 0};			// arbitrary col format code
 	message_length += sizeof(col_formats);
 
 	ErrorResponse *err = NULL;
 	char *c = NULL;
 
 	// Create and initialize base message
-	BaseMessage *test_data = (BaseMessage*)malloc(message_length + sizeof(BaseMessage) - sizeof(unsigned int));
+	BaseMessage *test_data = (BaseMessage*)malloc(message_length + sizeof(BaseMessage) - sizeof(uint32_t));
 	test_data->type = PSQL_Bind;
 	test_data->length = htonl(message_length);
 	// Copy strings into message
@@ -482,20 +482,20 @@ static void test_valid_input_multi_parms_actual_parm_codes(void **state) {
 	c += strlen(source) + 1;
 
 	// Copy parameter codes into message
-	*((short int*)c) = num_parm_format_codes;
-	c += sizeof(short int);
+	*((int16_t*)c) = num_parm_format_codes;
+	c += sizeof(int16_t);
 	memcpy(c, formats, sizeof(formats));
 	c += sizeof(formats);
 	// Copy parameters into message
-	*((short int*)c) = num_parms;
-	c += sizeof(short int);
+	*((int16_t*)c) = num_parms;
+	c += sizeof(int16_t);
 	memcpy(c, parm1, sizeof(int) + strlen(parm1_value) + 1);
 	c += sizeof(int) + strlen(parm1_value) + 1;
 	memcpy(c, parm2, sizeof(int) + strlen(parm2_value) + 1);
 	c += sizeof(int) + strlen(parm2_value) + 1;
 	// Copy column format codes into message
-	*((short int*)c) = num_result_col_format_codes;
-	c += sizeof(short int);
+	*((int16_t*)c) = num_result_col_format_codes;
+	c += sizeof(int16_t);
 	memcpy(c, col_formats, sizeof(col_formats));
 	c += sizeof(col_formats);
 
@@ -524,8 +524,8 @@ static void test_valid_input_multi_parms_actual_parm_codes(void **state) {
 }
 
 static void test_too_many_parameters(void **state) {
-	int message_length = 0;
-	message_length += sizeof(unsigned int);		// length
+	int32_t message_length = 0;
+	message_length += sizeof(uint32_t);		// length
 
 	// Strings
 	char *dest = "Hello";
@@ -534,12 +534,12 @@ static void test_too_many_parameters(void **state) {
 	message_length += strlen(source) + 1;		// count null
 
 	// Format codes
-	short int num_parm_format_codes = htons(0);
-	message_length += sizeof(short int);
+	int16_t num_parm_format_codes = htons(0);
+	message_length += sizeof(int16_t);
 
 	// Parameters
-	short int num_parms = htons(2);
-	message_length += sizeof(short int);
+	int16_t num_parms = htons(2);
+	message_length += sizeof(int16_t);
 	// First parameter
 	char *parm1_value = "parameter1";
 	BindParm *parm1 = (BindParm*)malloc(sizeof(BindParm) + strlen(parm1_value) + 1);	// count null
@@ -560,16 +560,16 @@ static void test_too_many_parameters(void **state) {
 	message_length += sizeof(int) + strlen(parm3_value) + 1;
 
 	// Column format codes
-	short int num_result_col_format_codes = htons(2);
-	message_length += sizeof(short int);
-	short int col_formats[2] = {0, 0};			// arbitrary col format code
+	int16_t num_result_col_format_codes = htons(2);
+	message_length += sizeof(int16_t);
+	int16_t col_formats[2] = {0, 0};			// arbitrary col format code
 	message_length += sizeof(col_formats);
 
 	ErrorResponse *err = NULL;
 	char *c = NULL;
 
 	// Create and initialize base message
-	BaseMessage *test_data = (BaseMessage*)malloc(message_length + sizeof(BaseMessage) - sizeof(unsigned int));
+	BaseMessage *test_data = (BaseMessage*)malloc(message_length + sizeof(BaseMessage) - sizeof(uint32_t));
 	test_data->type = PSQL_Bind;
 	test_data->length = htonl(message_length);
 	// Copy strings into message
@@ -580,11 +580,11 @@ static void test_too_many_parameters(void **state) {
 	c += strlen(source) + 1;
 
 	// Copy parameter codes into message
-	*((short int*)c) = num_parm_format_codes;
-	c += sizeof(short int);
+	*((int16_t*)c) = num_parm_format_codes;
+	c += sizeof(int16_t);
 	// Copy parameters into message
-	*((short int*)c) = num_parms;
-	c += sizeof(short int);
+	*((int16_t*)c) = num_parms;
+	c += sizeof(int16_t);
 	memcpy(c, parm1, sizeof(int) + strlen(parm1_value) + 1);
 	c += sizeof(int) + strlen(parm1_value) + 1;
 	memcpy(c, parm2, sizeof(int) + strlen(parm2_value) + 1);
@@ -592,8 +592,8 @@ static void test_too_many_parameters(void **state) {
 	memcpy(c, parm3, sizeof(int) + strlen(parm3_value) + 1);
 	c += sizeof(int) + strlen(parm3_value) + 1;
 	// Copy column format codes into message
-	*((short int*)c) = num_result_col_format_codes;
-	c += sizeof(short int);
+	*((int16_t*)c) = num_result_col_format_codes;
+	c += sizeof(int16_t);
 	memcpy(c, col_formats, sizeof(col_formats));
 	c += sizeof(col_formats);
 
@@ -623,16 +623,16 @@ static void test_no_parms_with_too_many_num_parm_codes(void **state) {
 	char *ptr = NULL;
 	char *dest = "Hello";
 	char *source = "SELECT * FROM names;";
-	short int num_parm_format_codes = htons(1);
-	short int num_parms = htons(0);
-	short int num_result_col_format_codes = htons(0);
-	int message_length = sizeof(unsigned int) + strlen(dest) + strlen(source) + 2 + sizeof(short int) * 3;
+	int16_t num_parm_format_codes = htons(1);
+	int16_t num_parms = htons(0);
+	int16_t num_result_col_format_codes = htons(0);
+	int32_t message_length = sizeof(uint32_t) + strlen(dest) + strlen(source) + 2 + sizeof(int16_t) * 3;
 	ErrorResponse *err = NULL;
 	ErrorBuffer err_buff;
 	err_buff.offset = 0;
 	const char *error_message;
 
-	BaseMessage *test_data = (BaseMessage*)malloc(message_length + sizeof(BaseMessage) - sizeof(unsigned int));
+	BaseMessage *test_data = (BaseMessage*)malloc(message_length + sizeof(BaseMessage) - sizeof(uint32_t));
 	test_data->type = PSQL_Bind;
 	test_data->length = htonl(message_length);
 	ptr = test_data->data;
@@ -642,12 +642,12 @@ static void test_no_parms_with_too_many_num_parm_codes(void **state) {
 	memcpy(ptr, source, strlen(source));
 	ptr += strlen(source);
 	*ptr++ = '\0';
-	*((short int*)ptr) = num_parm_format_codes;
-	ptr += sizeof(short int);
-	*((short int*)ptr) = num_parms;
-	ptr += sizeof(short int);
-	*((short int*)ptr) = num_result_col_format_codes;
-	ptr += sizeof(short int);
+	*((int16_t*)ptr) = num_parm_format_codes;
+	ptr += sizeof(int16_t);
+	*((int16_t*)ptr) = num_parms;
+	ptr += sizeof(int16_t);
+	*((int16_t*)ptr) = num_result_col_format_codes;
+	ptr += sizeof(int16_t);
 
 	// The actual test
 	Bind *bind = read_bind(test_data, &err);
@@ -669,8 +669,8 @@ static void test_one_parm_with_too_many_num_parm_codes(void **state) {
 	err_buff.offset = 0;
 	const char *error_message;
 
-	int message_length = 0;
-	message_length += sizeof(unsigned int);		// length
+	int32_t message_length = 0;
+	message_length += sizeof(uint32_t);		// length
 
 	// Strings
 	char *dest = "Hello";
@@ -679,14 +679,14 @@ static void test_one_parm_with_too_many_num_parm_codes(void **state) {
 	message_length += strlen(source) + 1;		// count null
 
 	// Format codes
-	short int num_parm_format_codes = htons(2);
-	message_length += sizeof(short int);
-	short int formats[2] = {0, 0};			// arbitrary format code
+	int16_t num_parm_format_codes = htons(2);
+	message_length += sizeof(int16_t);
+	int16_t formats[2] = {0, 0};			// arbitrary format code
 	message_length += sizeof(formats);
 
 	// Parameters
-	short int num_parms = htons(1);
-	message_length += sizeof(short int);
+	int16_t num_parms = htons(1);
+	message_length += sizeof(int16_t);
 	char *parm_value = "parameter";
 	BindParm *parm = (BindParm*)malloc(sizeof(BindParm) + strlen(parm_value) + 1);	// count null
 	parm->length = htonl(strlen(parm_value) + 1);
@@ -694,16 +694,16 @@ static void test_one_parm_with_too_many_num_parm_codes(void **state) {
 	message_length += sizeof(int) + strlen(parm_value) + 1;
 
 	// Column format codes
-	short int num_result_col_format_codes = htons(1);
-	message_length += sizeof(short int);
-	short int col_formats[1] = {0};			// arbitrary col format code
+	int16_t num_result_col_format_codes = htons(1);
+	message_length += sizeof(int16_t);
+	int16_t col_formats[1] = {0};			// arbitrary col format code
 	message_length += sizeof(col_formats);
 
 	ErrorResponse *err = NULL;
 	char *c = NULL;
 
 	// Create and initialize base message
-	BaseMessage *test_data = (BaseMessage*)malloc(message_length + sizeof(BaseMessage) - sizeof(unsigned int));
+	BaseMessage *test_data = (BaseMessage*)malloc(message_length + sizeof(BaseMessage) - sizeof(uint32_t));
 	test_data->type = PSQL_Bind;
 	test_data->length = htonl(message_length);
 	// Copy strings into message
@@ -714,18 +714,18 @@ static void test_one_parm_with_too_many_num_parm_codes(void **state) {
 	c += strlen(source) + 1;
 
 	// Copy parameter codes into message
-	*((short int*)c) = num_parm_format_codes;
-	c += sizeof(short int);
+	*((int16_t*)c) = num_parm_format_codes;
+	c += sizeof(int16_t);
 	memcpy(c, formats, sizeof(formats));
 	c += sizeof(formats);
 	// Copy parameters into message
-	*((short int*)c) = num_parms;
-	c += sizeof(short int);
+	*((int16_t*)c) = num_parms;
+	c += sizeof(int16_t);
 	memcpy(c, parm, sizeof(int) + strlen(parm_value) + 1);
 	c += sizeof(int) + strlen(parm_value) + 1;
 	// Copy column format codes into message
-	*((short int*)c) = num_result_col_format_codes;
-	c += sizeof(short int);
+	*((int16_t*)c) = num_result_col_format_codes;
+	c += sizeof(int16_t);
 	memcpy(c, col_formats, sizeof(col_formats));
 	c += sizeof(col_formats);
 
@@ -751,8 +751,8 @@ static void test_multi_parms_with_too_many_num_parm_codes(void **state) {
 	err_buff.offset = 0;
 	const char *error_message;
 
-	int message_length = 0;
-	message_length += sizeof(unsigned int);		// length
+	int32_t message_length = 0;
+	message_length += sizeof(uint32_t);		// length
 
 	// Strings
 	char *dest = "Hello";
@@ -761,14 +761,14 @@ static void test_multi_parms_with_too_many_num_parm_codes(void **state) {
 	message_length += strlen(source) + 1;		// count null
 
 	// Format codes
-	short int num_parm_format_codes = htons(3);
-	message_length += sizeof(short int);
-	short int formats[3] = {0, 0, 0};		// arbitrary format code
+	int16_t num_parm_format_codes = htons(3);
+	message_length += sizeof(int16_t);
+	int16_t formats[3] = {0, 0, 0};		// arbitrary format code
 	message_length += sizeof(formats);
 
 	// Parameters
-	short int num_parms = htons(2);
-	message_length += sizeof(short int);
+	int16_t num_parms = htons(2);
+	message_length += sizeof(int16_t);
 	// First parameter
 	char *parm1_value = "parameter1";
 	BindParm *parm1 = (BindParm*)malloc(sizeof(BindParm) + strlen(parm1_value) + 1);	// count null
@@ -783,16 +783,16 @@ static void test_multi_parms_with_too_many_num_parm_codes(void **state) {
 	message_length += sizeof(int) + strlen(parm2_value) + 1;
 
 	// Column format codes
-	short int num_result_col_format_codes = htons(2);
-	message_length += sizeof(short int);
-	short int col_formats[2] = {0, 0};			// arbitrary col format code
+	int16_t num_result_col_format_codes = htons(2);
+	message_length += sizeof(int16_t);
+	int16_t col_formats[2] = {0, 0};			// arbitrary col format code
 	message_length += sizeof(col_formats);
 
 	ErrorResponse *err = NULL;
 	char *c = NULL;
 
 	// Create and initialize base message
-	BaseMessage *test_data = (BaseMessage*)malloc(message_length + sizeof(BaseMessage) - sizeof(unsigned int));
+	BaseMessage *test_data = (BaseMessage*)malloc(message_length + sizeof(BaseMessage) - sizeof(uint32_t));
 	test_data->type = PSQL_Bind;
 	test_data->length = htonl(message_length);
 	// Copy strings into message
@@ -803,20 +803,20 @@ static void test_multi_parms_with_too_many_num_parm_codes(void **state) {
 	c += strlen(source) + 1;
 
 	// Copy parameter codes into message
-	*((short int*)c) = num_parm_format_codes;
-	c += sizeof(short int);
+	*((int16_t*)c) = num_parm_format_codes;
+	c += sizeof(int16_t);
 	memcpy(c, formats, sizeof(formats));
 	c += sizeof(formats);
 	// Copy parameters into message
-	*((short int*)c) = num_parms;
-	c += sizeof(short int);
+	*((int16_t*)c) = num_parms;
+	c += sizeof(int16_t);
 	memcpy(c, parm1, sizeof(int) + strlen(parm1_value) + 1);
 	c += sizeof(int) + strlen(parm1_value) + 1;
 	memcpy(c, parm2, sizeof(int) + strlen(parm2_value) + 1);
 	c += sizeof(int) + strlen(parm2_value) + 1;
 	// Copy column format codes into message
-	*((short int*)c) = num_result_col_format_codes;
-	c += sizeof(short int);
+	*((int16_t*)c) = num_result_col_format_codes;
+	c += sizeof(int16_t);
 	memcpy(c, col_formats, sizeof(col_formats));
 	c += sizeof(col_formats);
 
@@ -842,8 +842,8 @@ static void test_multi_parms_with_too_few_num_parm_codes(void **state) {
 	err_buff.offset = 0;
 	const char *error_message;
 
-	int message_length = 0;
-	message_length += sizeof(unsigned int);		// length
+	int32_t message_length = 0;
+	message_length += sizeof(uint32_t);		// length
 
 	// Strings
 	char *dest = "Hello";
@@ -852,14 +852,14 @@ static void test_multi_parms_with_too_few_num_parm_codes(void **state) {
 	message_length += strlen(source) + 1;		// count null
 
 	// Format codes
-	short int num_parm_format_codes = htons(2);
-	message_length += sizeof(short int);
-	short int formats[2] = {0, 0};			// arbitrary col format code
+	int16_t num_parm_format_codes = htons(2);
+	message_length += sizeof(int16_t);
+	int16_t formats[2] = {0, 0};			// arbitrary col format code
 	message_length += sizeof(formats);
 
 	// Parameters
-	short int num_parms = htons(3);
-	message_length += sizeof(short int);
+	int16_t num_parms = htons(3);
+	message_length += sizeof(int16_t);
 	// First parameter
 	char *parm1_value = "parameter1";
 	BindParm *parm1 = (BindParm*)malloc(sizeof(BindParm) + strlen(parm1_value) + 1);	// count null
@@ -880,16 +880,16 @@ static void test_multi_parms_with_too_few_num_parm_codes(void **state) {
 	message_length += sizeof(int) + strlen(parm3_value) + 1;
 
 	// Column format codes
-	short int num_result_col_format_codes = htons(2);
-	message_length += sizeof(short int);
-	short int col_formats[2] = {0, 0};			// arbitrary col format code
+	int16_t num_result_col_format_codes = htons(2);
+	message_length += sizeof(int16_t);
+	int16_t col_formats[2] = {0, 0};			// arbitrary col format code
 	message_length += sizeof(col_formats);
 
 	ErrorResponse *err = NULL;
 	char *c = NULL;
 
 	// Create and initialize base message
-	BaseMessage *test_data = (BaseMessage*)malloc(message_length + sizeof(BaseMessage) - sizeof(unsigned int));
+	BaseMessage *test_data = (BaseMessage*)malloc(message_length + sizeof(BaseMessage) - sizeof(uint32_t));
 	test_data->type = PSQL_Bind;
 	test_data->length = htonl(message_length);
 	// Copy strings into message
@@ -900,13 +900,13 @@ static void test_multi_parms_with_too_few_num_parm_codes(void **state) {
 	c += strlen(source) + 1;
 
 	// Copy parameter codes into message
-	*((short int*)c) = num_parm_format_codes;
-	c += sizeof(short int);
+	*((int16_t*)c) = num_parm_format_codes;
+	c += sizeof(int16_t);
 	memcpy(c, formats, sizeof(formats));
 	c += sizeof(formats);
 	// Copy parameters into message
-	*((short int*)c) = num_parms;
-	c += sizeof(short int);
+	*((int16_t*)c) = num_parms;
+	c += sizeof(int16_t);
 	memcpy(c, parm1, sizeof(int) + strlen(parm1_value) + 1);
 	c += sizeof(int) + strlen(parm1_value) + 1;
 	memcpy(c, parm2, sizeof(int) + strlen(parm2_value) + 1);
@@ -914,8 +914,8 @@ static void test_multi_parms_with_too_few_num_parm_codes(void **state) {
 	memcpy(c, parm3, sizeof(int) + strlen(parm3_value) + 1);
 	c += sizeof(int) + strlen(parm3_value) + 1;
 	// Copy column format codes into message
-	*((short int*)c) = num_result_col_format_codes;
-	c += sizeof(short int);
+	*((int16_t*)c) = num_result_col_format_codes;
+	c += sizeof(int16_t);
 	memcpy(c, col_formats, sizeof(col_formats));
 	c += sizeof(col_formats);
 
@@ -942,16 +942,16 @@ static void test_input_too_short(void **state) {
 	char *ptr = NULL;
 	char *dest = "Hello";
 	char *source = "SELECT * FROM names;";
-	short int num_parm_format_codes = htons(0);
-	short int num_parms = htons(0);
-	short int num_result_col_format_codes = htons(0);
-	int message_length = sizeof(unsigned int) + strlen(dest) + strlen(source) + 2 + sizeof(short int) * 3;
+	int16_t num_parm_format_codes = htons(0);
+	int16_t num_parms = htons(0);
+	int16_t num_result_col_format_codes = htons(0);
+	int32_t message_length = sizeof(uint32_t) + strlen(dest) + strlen(source) + 2 + sizeof(int16_t) * 3;
 	ErrorResponse *err = NULL;
 	ErrorBuffer err_buff;
 	err_buff.offset = 0;
 	const char *error_message;
 
-	BaseMessage *test_data = (BaseMessage*)malloc(message_length + sizeof(BaseMessage) - sizeof(unsigned int));
+	BaseMessage *test_data = (BaseMessage*)malloc(message_length + sizeof(BaseMessage) - sizeof(uint32_t));
 	test_data->type = PSQL_Bind;
 	test_data->length = htonl(message_length/2);
 	ptr = test_data->data;
@@ -961,12 +961,12 @@ static void test_input_too_short(void **state) {
 	memcpy(ptr, source, strlen(source));
 	ptr += strlen(source);
 	*ptr++ = '\0';
-	*((short int*)ptr) = num_parm_format_codes;
-	ptr += sizeof(short int);
-	*((short int*)ptr) = num_parms;
-	ptr += sizeof(short int);
-	*((short int*)ptr) = num_result_col_format_codes;
-	ptr += sizeof(short int);
+	*((int16_t*)ptr) = num_parm_format_codes;
+	ptr += sizeof(int16_t);
+	*((int16_t*)ptr) = num_parms;
+	ptr += sizeof(int16_t);
+	*((int16_t*)ptr) = num_result_col_format_codes;
+	ptr += sizeof(int16_t);
 
 	// The actual test
 	Bind *bind = read_bind(test_data, &err);
@@ -988,17 +988,17 @@ static void test_input_too_long(void **state) {
 	char *ptr = NULL;
 	char *dest = "Hello";
 	char *source = "SELECT * FROM names;";
-	short int num_parm_format_codes = htons(0);
-	short int num_parms = htons(0);
-	short int num_result_col_format_codes = htons(0);
+	int16_t num_parm_format_codes = htons(0);
+	int16_t num_parms = htons(0);
+	int16_t num_result_col_format_codes = htons(0);
 	// Add 50 to make the input too long
-	int message_length = sizeof(unsigned int) + strlen(dest) + strlen(source) + 2  + sizeof(short int) * 3 + 50;
+	int32_t message_length = sizeof(uint32_t) + strlen(dest) + strlen(source) + 2  + sizeof(int16_t) * 3 + 50;
 	ErrorResponse *err = NULL;
 	ErrorBuffer err_buff;
 	err_buff.offset = 0;
 	const char *error_message;
 
-	BaseMessage *test_data = (BaseMessage*)malloc(message_length + sizeof(BaseMessage) - sizeof(unsigned int));
+	BaseMessage *test_data = (BaseMessage*)malloc(message_length + sizeof(BaseMessage) - sizeof(uint32_t));
 	test_data->type = PSQL_Bind;
 	test_data->length = htonl(message_length);
 	ptr = test_data->data;
@@ -1008,12 +1008,12 @@ static void test_input_too_long(void **state) {
 	memcpy(ptr, source, strlen(source));
 	ptr += strlen(source);
 	*ptr++ = '\0';
-	*((short int*)ptr) = num_parm_format_codes;
-	ptr += sizeof(short int);
-	*((short int*)ptr) = num_parms;
-	ptr += sizeof(short int);
-	*((short int*)ptr) = num_result_col_format_codes;
-	ptr += sizeof(short int);
+	*((int16_t*)ptr) = num_parm_format_codes;
+	ptr += sizeof(int16_t);
+	*((int16_t*)ptr) = num_parms;
+	ptr += sizeof(int16_t);
+	*((int16_t*)ptr) = num_result_col_format_codes;
+	ptr += sizeof(int16_t);
 
 	// The actual test
 	Bind *bind = read_bind(test_data, &err);
@@ -1045,13 +1045,13 @@ static void test_no_null_terminators_on_dest(void **state) {
 	// Test a valid, simple, Bind command
 	char *ptr = NULL;
 	char *dest = "Hello";
-	int message_length = sizeof(unsigned int) + strlen(dest);
+	int32_t message_length = sizeof(uint32_t) + strlen(dest);
 	ErrorResponse *err = NULL;
 	ErrorBuffer err_buff;
 	err_buff.offset = 0;
 	const char *error_message;
 
-	BaseMessage *test_data = (BaseMessage*)malloc(message_length + sizeof(BaseMessage) - sizeof(unsigned int));
+	BaseMessage *test_data = (BaseMessage*)malloc(message_length + sizeof(BaseMessage) - sizeof(uint32_t));
 	memset(test_data, 0xdeadbeef, message_length + 0);
 	test_data->type = PSQL_Bind;
 	test_data->length = htonl(message_length);
@@ -1079,14 +1079,14 @@ static void test_no_null_terminators_on_source(void **state) {
 	char *ptr = NULL;
 	char *dest = "Hello";
 	char *source = "SELECT * FROM names;";
-	int message_length = sizeof(unsigned int) + strlen(dest) + 1 + strlen(source);
+	int32_t message_length = sizeof(uint32_t) + strlen(dest) + 1 + strlen(source);
 	ErrorResponse *err = NULL;
 	ErrorBuffer err_buff;
 	err_buff.offset = 0;
 	const char *error_message;
 
-	BaseMessage *test_data = (BaseMessage*)malloc(message_length + sizeof(BaseMessage) - sizeof(unsigned int));
-	memset(test_data, 0xdeadbeef, message_length + sizeof(BaseMessage) - sizeof(unsigned int));
+	BaseMessage *test_data = (BaseMessage*)malloc(message_length + sizeof(BaseMessage) - sizeof(uint32_t));
+	memset(test_data, 0xdeadbeef, message_length + sizeof(BaseMessage) - sizeof(uint32_t));
 	test_data->type = PSQL_Bind;
 	test_data->length = htonl(message_length);
 	ptr = test_data->data;
@@ -1117,14 +1117,14 @@ static void test_unexpected_null_terminator_on_source(void **state) {
 	char *dest = "Hello";
 	char *source = "SELECT * FROM nam\0es;";
 	// Count extra chars and nulls in source
-	int message_length = sizeof(unsigned int) + strlen(dest) + 1 + strlen(source) + 5;
+	int32_t message_length = sizeof(uint32_t) + strlen(dest) + 1 + strlen(source) + 5;
 	ErrorResponse *err = NULL;
 	ErrorBuffer err_buff;
 	err_buff.offset = 0;
 	const char *error_message;
 
-	BaseMessage *test_data = (BaseMessage*)malloc(message_length + sizeof(BaseMessage) - sizeof(unsigned int));
-	memset(test_data, 0xdeadbeef, message_length + sizeof(BaseMessage) - sizeof(unsigned int));
+	BaseMessage *test_data = (BaseMessage*)malloc(message_length + sizeof(BaseMessage) - sizeof(uint32_t));
+	memset(test_data, 0xdeadbeef, message_length + sizeof(BaseMessage) - sizeof(uint32_t));
 	test_data->type = PSQL_Bind;
 	test_data->length = htonl(message_length);
 	ptr = test_data->data;
@@ -1153,14 +1153,14 @@ static void test_unexpected_null_terminator_on_dest(void **state) {
 	// Test a valid, simple, Bind command
 	char *ptr = NULL;
 	char *dest = "Hel\0lo";
-	int message_length = sizeof(unsigned int) + strlen(dest) + 4;		// count extra chars and nulls
+	int32_t message_length = sizeof(uint32_t) + strlen(dest) + 4;		// count extra chars and nulls
 	ErrorResponse *err = NULL;
 	ErrorBuffer err_buff;
 	err_buff.offset = 0;
 	const char *error_message;
 
-	BaseMessage *test_data = (BaseMessage*)malloc(message_length + sizeof(BaseMessage) - sizeof(unsigned int));
-	memset(test_data, 0xdeadbeef, message_length + sizeof(BaseMessage) - sizeof(unsigned int));
+	BaseMessage *test_data = (BaseMessage*)malloc(message_length + sizeof(BaseMessage) - sizeof(uint32_t));
+	memset(test_data, 0xdeadbeef, message_length + sizeof(BaseMessage) - sizeof(uint32_t));
 	test_data->type = PSQL_Bind;
 	test_data->length = htonl(message_length);
 	ptr = test_data->data;
@@ -1187,14 +1187,14 @@ static void test_missing_parameter_types(void **state) {
 	char *ptr = NULL;
 	char *dest = "Hello";
 	char *source = "SELECT * FROM names;";
-	short int num_parm_format_codes = htons(10);
-	int message_length = sizeof(unsigned int) + strlen(dest) + strlen(source) + 2 + sizeof(short int) * 1;
+	int16_t num_parm_format_codes = htons(10);
+	int32_t message_length = sizeof(uint32_t) + strlen(dest) + strlen(source) + 2 + sizeof(int16_t) * 1;
 	ErrorResponse *err = NULL;
 	ErrorBuffer err_buff;
 	err_buff.offset = 0;
 	const char *error_message;
 
-	BaseMessage *test_data = (BaseMessage*)malloc(message_length + sizeof(BaseMessage) - sizeof(unsigned int));
+	BaseMessage *test_data = (BaseMessage*)malloc(message_length + sizeof(BaseMessage) - sizeof(uint32_t));
 	test_data->type = PSQL_Bind;
 	test_data->length = htonl(message_length);
 	ptr = test_data->data;
@@ -1204,8 +1204,8 @@ static void test_missing_parameter_types(void **state) {
 	memcpy(ptr, source, strlen(source));
 	ptr += strlen(source);
 	*ptr++ = '\0';
-	*((short int*)ptr) = num_parm_format_codes;
-	ptr += sizeof(short int);
+	*((int16_t*)ptr) = num_parm_format_codes;
+	ptr += sizeof(int16_t);
 
 	// The actual test
 	Bind *bind = read_bind(test_data, &err);
@@ -1227,15 +1227,15 @@ static void test_missing_parameters(void **state) {
 	char *ptr = NULL;
 	char *dest = "Hello";
 	char *source = "SELECT * FROM names;";
-	short int num_parm_format_codes = htons(0);
-	short int num_parms = htons(10);
-	int message_length = sizeof(unsigned int) + strlen(dest) + strlen(source) + 2 + sizeof(short int) * 2;
+	int16_t num_parm_format_codes = htons(0);
+	int16_t num_parms = htons(10);
+	int32_t message_length = sizeof(uint32_t) + strlen(dest) + strlen(source) + 2 + sizeof(int16_t) * 2;
 	ErrorResponse *err = NULL;
 	ErrorBuffer err_buff;
 	err_buff.offset = 0;
 	const char *error_message;
 
-	BaseMessage *test_data = (BaseMessage*)malloc(message_length + sizeof(BaseMessage) - sizeof(unsigned int));
+	BaseMessage *test_data = (BaseMessage*)malloc(message_length + sizeof(BaseMessage) - sizeof(uint32_t));
 	test_data->type = PSQL_Bind;
 	test_data->length = htonl(message_length);
 	ptr = test_data->data;
@@ -1245,10 +1245,10 @@ static void test_missing_parameters(void **state) {
 	memcpy(ptr, source, strlen(source));
 	ptr += strlen(source);
 	*ptr++ = '\0';
-	*((short int*)ptr) = num_parm_format_codes;
-	ptr += sizeof(short int);
-	*((short int*)ptr) = num_parms;
-	ptr += sizeof(short int);
+	*((int16_t*)ptr) = num_parm_format_codes;
+	ptr += sizeof(int16_t);
+	*((int16_t*)ptr) = num_parms;
+	ptr += sizeof(int16_t);
 
 	// The actual test
 	Bind *bind = read_bind(test_data, &err);
@@ -1270,16 +1270,16 @@ static void test_missing_result_col_format_codes(void **state) {
 	char *ptr = NULL;
 	char *dest = "Hello";
 	char *source = "SELECT * FROM names;";
-	short int num_parm_format_codes = htons(0);
-	short int num_parms = htons(0);
-	short int num_result_col_format_codes = htons(10);
-	int message_length = sizeof(unsigned int) + strlen(dest) + strlen(source) + 2 + sizeof(short int) * 3;
+	int16_t num_parm_format_codes = htons(0);
+	int16_t num_parms = htons(0);
+	int16_t num_result_col_format_codes = htons(10);
+	int32_t message_length = sizeof(uint32_t) + strlen(dest) + strlen(source) + 2 + sizeof(int16_t) * 3;
 	ErrorResponse *err = NULL;
 	ErrorBuffer err_buff;
 	err_buff.offset = 0;
 	const char *error_message;
 
-	BaseMessage *test_data = (BaseMessage*)malloc(message_length + sizeof(BaseMessage) - sizeof(unsigned int));
+	BaseMessage *test_data = (BaseMessage*)malloc(message_length + sizeof(BaseMessage) - sizeof(uint32_t));
 	test_data->type = PSQL_Bind;
 	test_data->length = htonl(message_length);
 	ptr = test_data->data;
@@ -1289,12 +1289,12 @@ static void test_missing_result_col_format_codes(void **state) {
 	memcpy(ptr, source, strlen(source));
 	ptr += strlen(source);
 	*ptr++ = '\0';
-	*((short int*)ptr) = num_parm_format_codes;
-	ptr += sizeof(short int);
-	*((short int*)ptr) = num_parms;
-	ptr += sizeof(short int);
-	*((short int*)ptr) = num_result_col_format_codes;
-	ptr += sizeof(short int);
+	*((int16_t*)ptr) = num_parm_format_codes;
+	ptr += sizeof(int16_t);
+	*((int16_t*)ptr) = num_parms;
+	ptr += sizeof(int16_t);
+	*((int16_t*)ptr) = num_result_col_format_codes;
+	ptr += sizeof(int16_t);
 
 	// The actual test
 	Bind *bind = read_bind(test_data, &err);
@@ -1316,16 +1316,16 @@ static void test_invalid_type(void **state) {
 	char *ptr = NULL;
 	char *dest = "Hello";
 	char *source = "SELECT * FROM names;";
-	short int num_parm_format_codes = htons(0);
-	short int num_parms = htons(0);
-	short int num_result_col_format_codes = htons(0);
-	int message_length = sizeof(unsigned int) + strlen(dest) + strlen(source) + 2 + sizeof(short int) * 3;
+	int16_t num_parm_format_codes = htons(0);
+	int16_t num_parms = htons(0);
+	int16_t num_result_col_format_codes = htons(0);
+	int32_t message_length = sizeof(uint32_t) + strlen(dest) + strlen(source) + 2 + sizeof(int16_t) * 3;
 	ErrorResponse *err = NULL;
 	ErrorBuffer err_buff;
 	err_buff.offset = 0;
 	const char *error_message;
 
-	BaseMessage *test_data = (BaseMessage*)malloc(message_length + sizeof(BaseMessage) - sizeof(unsigned int));
+	BaseMessage *test_data = (BaseMessage*)malloc(message_length + sizeof(BaseMessage) - sizeof(uint32_t));
 	test_data->type = 'X';
 	test_data->length = htonl(message_length);
 	ptr = test_data->data;
@@ -1335,12 +1335,12 @@ static void test_invalid_type(void **state) {
 	memcpy(ptr, source, strlen(source));
 	ptr += strlen(source);
 	*ptr++ = '\0';
-	*((short int*)ptr) = num_parm_format_codes;
-	ptr += sizeof(short int);
-	*((short int*)ptr) = num_parms;
-	ptr += sizeof(short int);
-	*((short int*)ptr) = num_result_col_format_codes;
-	ptr += sizeof(short int);
+	*((int16_t*)ptr) = num_parm_format_codes;
+	ptr += sizeof(int16_t);
+	*((int16_t*)ptr) = num_parms;
+	ptr += sizeof(int16_t);
+	*((int16_t*)ptr) = num_result_col_format_codes;
+	ptr += sizeof(int16_t);
 
 	// The actual test
 	Bind *bind = read_bind(test_data, &err);
@@ -1361,17 +1361,17 @@ static void test_invalid_num_parm_format_codes(void **state) {
 	// Test a valid, simple, Bind command char *ptr = NULL;
 	char *dest = "Hello";
 	char *source = "SELECT * FROM names;";
-	short int num_parm_format_codes = htons(-1);
-	short int num_parms = htons(0);
-	short int num_result_col_format_codes = htons(0);
-	int message_length = sizeof(unsigned int) + strlen(dest) + strlen(source) + 2 + sizeof(short int) * 3;
+	int16_t num_parm_format_codes = htons(-1);
+	int16_t num_parms = htons(0);
+	int16_t num_result_col_format_codes = htons(0);
+	int32_t message_length = sizeof(uint32_t) + strlen(dest) + strlen(source) + 2 + sizeof(int16_t) * 3;
 	char *ptr = NULL;
 	ErrorResponse *err = NULL;
 	ErrorBuffer err_buff;
 	err_buff.offset = 0;
 	const char *error_message;
 
-	BaseMessage *test_data = (BaseMessage*)malloc(message_length + sizeof(BaseMessage) - sizeof(unsigned int));
+	BaseMessage *test_data = (BaseMessage*)malloc(message_length + sizeof(BaseMessage) - sizeof(uint32_t));
 	test_data->type = PSQL_Bind;
 	test_data->length = htonl(message_length);
 	ptr = test_data->data;
@@ -1381,12 +1381,12 @@ static void test_invalid_num_parm_format_codes(void **state) {
 	memcpy(ptr, source, strlen(source));
 	ptr += strlen(source);
 	*ptr++ = '\0';
-	*((short int*)ptr) = num_parm_format_codes;
-	ptr += sizeof(short int);
-	*((short int*)ptr) = num_parms;
-	ptr += sizeof(short int);
-	*((short int*)ptr) = num_result_col_format_codes;
-	ptr += sizeof(short int);
+	*((int16_t*)ptr) = num_parm_format_codes;
+	ptr += sizeof(int16_t);
+	*((int16_t*)ptr) = num_parms;
+	ptr += sizeof(int16_t);
+	*((int16_t*)ptr) = num_result_col_format_codes;
+	ptr += sizeof(int16_t);
 
 	// The actual test
 	Bind *bind = read_bind(test_data, &err);
@@ -1407,17 +1407,17 @@ static void test_invalid_num_parms(void **state) {
 	// Test a valid, simple, Bind command char *ptr = NULL;
 	char *dest = "Hello";
 	char *source = "SELECT * FROM names;";
-	short int num_parm_format_codes = htons(0);
-	short int num_parms = htons(-1);
-	short int num_result_col_format_codes = htons(0);
-	int message_length = sizeof(unsigned int) + strlen(dest) + strlen(source) + 2 + sizeof(short int) * 3;
+	int16_t num_parm_format_codes = htons(0);
+	int16_t num_parms = htons(-1);
+	int16_t num_result_col_format_codes = htons(0);
+	int32_t message_length = sizeof(uint32_t) + strlen(dest) + strlen(source) + 2 + sizeof(int16_t) * 3;
 	char *ptr = NULL;
 	ErrorResponse *err = NULL;
 	ErrorBuffer err_buff;
 	err_buff.offset = 0;
 	const char *error_message;
 
-	BaseMessage *test_data = (BaseMessage*)malloc(message_length + sizeof(BaseMessage) - sizeof(unsigned int));
+	BaseMessage *test_data = (BaseMessage*)malloc(message_length + sizeof(BaseMessage) - sizeof(uint32_t));
 	test_data->type = PSQL_Bind;
 	test_data->length = htonl(message_length);
 	ptr = test_data->data;
@@ -1427,12 +1427,12 @@ static void test_invalid_num_parms(void **state) {
 	memcpy(ptr, source, strlen(source));
 	ptr += strlen(source);
 	*ptr++ = '\0';
-	*((short int*)ptr) = num_parm_format_codes;
-	ptr += sizeof(short int);
-	*((short int*)ptr) = num_parms;
-	ptr += sizeof(short int);
-	*((short int*)ptr) = num_result_col_format_codes;
-	ptr += sizeof(short int);
+	*((int16_t*)ptr) = num_parm_format_codes;
+	ptr += sizeof(int16_t);
+	*((int16_t*)ptr) = num_parms;
+	ptr += sizeof(int16_t);
+	*((int16_t*)ptr) = num_result_col_format_codes;
+	ptr += sizeof(int16_t);
 
 	// The actual test
 	Bind *bind = read_bind(test_data, &err);
@@ -1453,17 +1453,17 @@ static void test_invalid_num_col_format_codes(void **state) {
 	// Test a valid, simple, Bind command char *ptr = NULL;
 	char *dest = "Hello";
 	char *source = "SELECT * FROM names;";
-	short int num_parm_format_codes = htons(0);
-	short int num_parms = htons(0);
-	short int num_result_col_format_codes = htons(-1);
-	int message_length = sizeof(unsigned int) + strlen(dest) + strlen(source) + 2 + sizeof(short int) * 3;
+	int16_t num_parm_format_codes = htons(0);
+	int16_t num_parms = htons(0);
+	int16_t num_result_col_format_codes = htons(-1);
+	int32_t message_length = sizeof(uint32_t) + strlen(dest) + strlen(source) + 2 + sizeof(int16_t) * 3;
 	char *ptr = NULL;
 	ErrorResponse *err = NULL;
 	ErrorBuffer err_buff;
 	err_buff.offset = 0;
 	const char *error_message;
 
-	BaseMessage *test_data = (BaseMessage*)malloc(message_length + sizeof(BaseMessage) - sizeof(unsigned int));
+	BaseMessage *test_data = (BaseMessage*)malloc(message_length + sizeof(BaseMessage) - sizeof(uint32_t));
 	test_data->type = PSQL_Bind;
 	test_data->length = htonl(message_length);
 	ptr = test_data->data;
@@ -1473,12 +1473,12 @@ static void test_invalid_num_col_format_codes(void **state) {
 	memcpy(ptr, source, strlen(source));
 	ptr += strlen(source);
 	*ptr++ = '\0';
-	*((short int*)ptr) = num_parm_format_codes;
-	ptr += sizeof(short int);
-	*((short int*)ptr) = num_parms;
-	ptr += sizeof(short int);
-	*((short int*)ptr) = num_result_col_format_codes;
-	ptr += sizeof(short int);
+	*((int16_t*)ptr) = num_parm_format_codes;
+	ptr += sizeof(int16_t);
+	*((int16_t*)ptr) = num_parms;
+	ptr += sizeof(int16_t);
+	*((int16_t*)ptr) = num_result_col_format_codes;
+	ptr += sizeof(int16_t);
 
 	// The actual test
 	Bind *bind = read_bind(test_data, &err);

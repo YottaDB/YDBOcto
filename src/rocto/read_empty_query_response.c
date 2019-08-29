@@ -23,7 +23,7 @@
 
 EmptyQueryResponse *read_empty_query_response(BaseMessage *message, ErrorResponse **err) {
 	EmptyQueryResponse *ret;
-	unsigned int remaining_length = 0;
+	uint32_t remaining_length = 0;
 
 	UNUSED(err);
 

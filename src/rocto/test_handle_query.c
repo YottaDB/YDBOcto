@@ -28,13 +28,13 @@
 #include "helpers.h"
 
 int __wrap_send_message(RoctoSession *session, BaseMessage *message) {
-	int message_type = mock_type(char);
+	int32_t message_type = mock_type(char);
 	assert_true(message_type == message->type);
 	return 0;
 }
 
 int __wrap_run_query(char *query, void (*callback)(PhysicalPlan *, int, void *), void *parms) {
-	int expected_return = mock_type(int);
+	int32_t expected_return = mock_type(int);
 	eof_hit = TRUE;
 	return expected_return;
 }
@@ -43,7 +43,7 @@ static void test_valid_input(void **state) {
 	Query *query;
 	RoctoSession session;
 	char *query_text = "SELECT * FROM names WHERE firstName = \"Acid\";", *c;
-	int result;
+	int32_t result;
 
 	query = (Query*)malloc(sizeof(Query) + strlen(query_text) + 1);
 	c = query->data;
@@ -63,7 +63,7 @@ static void test_bad_sql(void **state) {
 	Query *query;
 	RoctoSession session;
 	char *query_text = "SELECT * FOREVERMORE names WHERE firstName = \"Acid\";", *c;
-	int result;
+	int32_t result;
 
 	query = (Query*)malloc(sizeof(Query) + strlen(query_text) + 1);
 	c = query->data;

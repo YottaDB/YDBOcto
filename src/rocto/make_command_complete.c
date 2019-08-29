@@ -23,17 +23,17 @@
 
 CommandComplete *make_command_complete(char *command_tag) {
 	CommandComplete *ret;
-	int length = 0, command_tag_length = 0;
+	int32_t length = 0, command_tag_length = 0;
 
 	// Rather than have special logic for the NULL, just use an empty string
 	if(command_tag == NULL)
 		command_tag = "";
 
-	length += sizeof(unsigned int);
+	length += sizeof(uint32_t);
 	command_tag_length = strlen(command_tag) + 1;	// count null
 	length += command_tag_length;
-	ret = (CommandComplete*)malloc(length + sizeof(CommandComplete) - sizeof(unsigned int));
-	memset(ret, 0, length + sizeof(CommandComplete) - sizeof(unsigned int));
+	ret = (CommandComplete*)malloc(length + sizeof(CommandComplete) - sizeof(uint32_t));
+	memset(ret, 0, length + sizeof(CommandComplete) - sizeof(uint32_t));
 
 	ret->type = PSQL_CommandComplete;
 	ret->length = htonl(length);

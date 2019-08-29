@@ -28,7 +28,7 @@ ParseComplete *make_parse_complete() {
 	memset(ret, 0, sizeof(ParseComplete));
 
 	ret->type = PSQL_ParseComplete;
-	ret->length = htonl(sizeof(unsigned int));
+	ret->length = htonl(sizeof(uint32_t));
 
 	return ret;
 }

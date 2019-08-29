@@ -26,15 +26,15 @@
 #include "message_formats.h"
 
 static void test_valid_input_with_parms(void **state) {
-	unsigned int message_len = 0;
-	message_len += sizeof(unsigned int);
+	uint32_t message_len = 0;
+	message_len += sizeof(uint32_t);
 	char *dest = "a";
 	message_len += strlen(dest) + 1;
 	char *query = "SELECT * FROM names;";
 	message_len += strlen(query) + 1;
-	short type_params = 5;
-	message_len += sizeof(short);
-	int parm_data_types[5] = {1, 2, 3, 4, 5};
+	int16_t type_params = 5;
+	message_len += sizeof(int16_t);
+	int32_t parm_data_types[5] = {1, 2, 3, 4, 5};
 	message_len += sizeof(parm_data_types);
 
 	BaseMessage *test_data = (BaseMessage*)malloc(sizeof(BaseMessage) + message_len);
@@ -48,8 +48,8 @@ static void test_valid_input_with_parms(void **state) {
 	memcpy(c, query, strlen(query));
 	c += strlen(query);
 	*c++ = '\0';
-	*((short*)c) = htons(type_params);
-	c += sizeof(short);
+	*((int16_t*)c) = htons(type_params);
+	c += sizeof(int16_t);
 	memcpy(c, parm_data_types, sizeof(parm_data_types));
 
 	ErrorResponse *err = NULL;
@@ -66,14 +66,14 @@ static void test_valid_input_with_parms(void **state) {
 }
 
 static void test_valid_input_without_parms(void **state) {
-	unsigned int message_len = 0;
-	message_len += sizeof(unsigned int);
+	uint32_t message_len = 0;
+	message_len += sizeof(uint32_t);
 	char *dest = "a";
 	message_len += strlen(dest) + 1;
 	char *query = "SELECT * FROM names;";
 	message_len += strlen(query) + 1;
-	short type_params = 0;
-	message_len += sizeof(short);
+	int16_t type_params = 0;
+	message_len += sizeof(int16_t);
 
 	BaseMessage *test_data = (BaseMessage*)malloc(sizeof(BaseMessage) + message_len);
 	memset(test_data, 0, sizeof(BaseMessage) + message_len);
@@ -86,7 +86,7 @@ static void test_valid_input_without_parms(void **state) {
 	memcpy(c, query, strlen(query));
 	c += strlen(query);
 	*c++ = '\0';
-	*((short*)c) = htons(type_params);
+	*((int16_t*)c) = htons(type_params);
 
 	ErrorResponse *err = NULL;
 	Parse *parse = read_parse(test_data, &err);
@@ -102,8 +102,8 @@ static void test_valid_input_without_parms(void **state) {
 }
 
 static void test_non_terminated_dest(void **state) {
-	unsigned int message_len = 0;
-	message_len += sizeof(unsigned int);
+	uint32_t message_len = 0;
+	message_len += sizeof(uint32_t);
 	char *dest = "a saosadfkasdfjkasd fwearf asdfkds f";
 	message_len += strlen(dest) - 1;
 	ErrorBuffer err_buff;
@@ -133,8 +133,8 @@ static void test_non_terminated_dest(void **state) {
 }
 
 static void test_non_terminated_query(void **state) {
-	unsigned int message_len = 0;
-	message_len += sizeof(unsigned int);
+	uint32_t message_len = 0;
+	message_len += sizeof(uint32_t);
 	char *dest = "a";
 	message_len += strlen(dest) + 1;
 	char *query = "SELECT * FROM names;";
@@ -169,8 +169,8 @@ static void test_non_terminated_query(void **state) {
 }
 
 static void test_unexpectedly_terminated_dest(void **state) {
-	unsigned int message_len = 0;
-	message_len += sizeof(unsigned int);
+	uint32_t message_len = 0;
+	message_len += sizeof(uint32_t);
 	char *dest = "1234\0 1234";
 	message_len += strlen(dest) + 5 + 2;	// count remaining chars + nulls
 	char *query = "SELECT * FROM names;";
@@ -179,13 +179,13 @@ static void test_unexpectedly_terminated_dest(void **state) {
 	err_buff.offset = 0;
 	const char *error_message;
 
-	BaseMessage *test_data = (BaseMessage*)malloc(message_len + sizeof(BaseMessage) - sizeof(unsigned int));
-	memset(test_data, 0, message_len + sizeof(BaseMessage) - sizeof(unsigned int));
+	BaseMessage *test_data = (BaseMessage*)malloc(message_len + sizeof(BaseMessage) - sizeof(uint32_t));
+	memset(test_data, 0, message_len + sizeof(BaseMessage) - sizeof(uint32_t));
 	char *c = test_data->data;
 	test_data->type = PSQL_Parse;
 	test_data->length = htonl(message_len);
-	memcpy(c, dest, message_len - sizeof(unsigned int) - strlen(query) - 1);
-	c += message_len - sizeof(unsigned int) - strlen(query) - 1;
+	memcpy(c, dest, message_len - sizeof(uint32_t) - strlen(query) - 1);
+	c += message_len - sizeof(uint32_t) - strlen(query) - 1;
 	memcpy(c, query, strlen(query) + 1);
 
 	ErrorResponse *err = NULL;
@@ -203,8 +203,8 @@ static void test_unexpectedly_terminated_dest(void **state) {
 }
 
 static void test_unexpectedly_terminated_query(void **state) {
-	unsigned int message_len = 0;
-	message_len += sizeof(unsigned int);
+	uint32_t message_len = 0;
+	message_len += sizeof(uint32_t);
 	char *dest = "a";
 	message_len += strlen(dest) + 1;
 	char *query = "SELECT * FROM\0 names;";
@@ -213,15 +213,15 @@ static void test_unexpectedly_terminated_query(void **state) {
 	err_buff.offset = 0;
 	const char *error_message;
 
-	BaseMessage *test_data = (BaseMessage*)malloc(message_len + sizeof(BaseMessage) - sizeof(unsigned int));
-	memset(test_data, 0, message_len + sizeof(BaseMessage) - sizeof(unsigned int));
+	BaseMessage *test_data = (BaseMessage*)malloc(message_len + sizeof(BaseMessage) - sizeof(uint32_t));
+	memset(test_data, 0, message_len + sizeof(BaseMessage) - sizeof(uint32_t));
 	char *c = test_data->data;
 	test_data->type = PSQL_Parse;
 	test_data->length = htonl(message_len);
 	memcpy(c, dest, strlen(dest));
 	c += strlen(dest);
 	*c++ = '\0';
-	memcpy(c, query, message_len - sizeof(unsigned int) - strlen(dest) - 1);
+	memcpy(c, query, message_len - sizeof(uint32_t) - strlen(dest) - 1);
 
 	ErrorResponse *err = NULL;
 	Parse *parse = read_parse(test_data, &err);
@@ -238,8 +238,8 @@ static void test_unexpectedly_terminated_query(void **state) {
 }
 
 static void test_missing_dest_or_query(void **state) {
-	unsigned int message_len = 0;
-	message_len += sizeof(unsigned int);
+	uint32_t message_len = 0;
+	message_len += sizeof(uint32_t);
 	char *dest = "Laputa";
 	message_len += strlen(dest) + 1;	// count remaining chars + null
 	ErrorBuffer err_buff;
@@ -251,7 +251,7 @@ static void test_missing_dest_or_query(void **state) {
 	char *c = test_data->data;
 	test_data->type = PSQL_Parse;
 	test_data->length = htonl(message_len);
-	memcpy(c, dest, message_len - sizeof(unsigned int));
+	memcpy(c, dest, message_len - sizeof(uint32_t));
 
 	ErrorResponse *err = NULL;
 	Parse *parse = read_parse(test_data, &err);
@@ -268,8 +268,8 @@ static void test_missing_dest_or_query(void **state) {
 }
 
 static void test_missing_num_parm_data_types(void **state) {
-	unsigned int message_len = 0;
-	message_len += sizeof(unsigned int);
+	uint32_t message_len = 0;
+	message_len += sizeof(uint32_t);
 	char *dest = "Laputa";
 	message_len += strlen(dest) + 1;	// count remaining chars + null
 	char *query = "FROM * SELECT names";
@@ -305,15 +305,15 @@ static void test_missing_num_parm_data_types(void **state) {
 }
 
 static void test_too_many_parms(void **state) {
-	unsigned int message_len = 0;
-	message_len += sizeof(unsigned int);
+	uint32_t message_len = 0;
+	message_len += sizeof(uint32_t);
 	char *dest = "a";
 	message_len += strlen(dest) + 1;
 	char *query = "SELECT * FROM names;";
 	message_len += strlen(query) + 1;
-	short type_params = 4;
-	message_len += sizeof(short);
-	int parm_data_types[5] = {1, 2, 3, 4, 5};
+	int16_t type_params = 4;
+	message_len += sizeof(int16_t);
+	int32_t parm_data_types[5] = {1, 2, 3, 4, 5};
 	message_len += sizeof(parm_data_types);
 	ErrorBuffer err_buff;
 	err_buff.offset = 0;
@@ -330,8 +330,8 @@ static void test_too_many_parms(void **state) {
 	memcpy(c, query, strlen(query));
 	c += strlen(query);
 	*c++ = '\0';
-	*((short*)c) = htons(type_params);
-	c += sizeof(short);
+	*((int16_t*)c) = htons(type_params);
+	c += sizeof(int16_t);
 	memcpy(c, parm_data_types, sizeof(parm_data_types));
 
 	ErrorResponse *err = NULL;
@@ -349,15 +349,15 @@ static void test_too_many_parms(void **state) {
 }
 
 static void test_too_few_parms(void **state) {
-	unsigned int message_len = 0;
-	message_len += sizeof(unsigned int);
+	uint32_t message_len = 0;
+	message_len += sizeof(uint32_t);
 	char *dest = "a";
 	message_len += strlen(dest) + 1;
 	char *query = "SELECT * FROM names;";
 	message_len += strlen(query) + 1;
-	short type_params = 6;
-	message_len += sizeof(short);
-	int parm_data_types[5] = {1, 2, 3, 4, 5};
+	int16_t type_params = 6;
+	message_len += sizeof(int16_t);
+	int32_t parm_data_types[5] = {1, 2, 3, 4, 5};
 	message_len += sizeof(parm_data_types);
 	ErrorBuffer err_buff;
 	err_buff.offset = 0;
@@ -374,8 +374,8 @@ static void test_too_few_parms(void **state) {
 	memcpy(c, query, strlen(query));
 	c += strlen(query);
 	*c++ = '\0';
-	*((short*)c) = htons(type_params);
-	c += sizeof(short);
+	*((int16_t*)c) = htons(type_params);
+	c += sizeof(int16_t);
 	memcpy(c, parm_data_types, sizeof(parm_data_types));
 
 	ErrorResponse *err = NULL;
@@ -393,15 +393,15 @@ static void test_too_few_parms(void **state) {
 }
 
 static void test_invalid_type(void **state) {
-	unsigned int message_len = 0;
-	message_len += sizeof(unsigned int);
+	uint32_t message_len = 0;
+	message_len += sizeof(uint32_t);
 	char *dest = "a";
 	message_len += strlen(dest) + 1;
 	char *query = "SELECT * FROM names;";
 	message_len += strlen(query) + 1;
-	short type_params = 5;
-	message_len += sizeof(short);
-	int parm_data_types[5] = {1, 2, 3, 4, 5};
+	int16_t type_params = 5;
+	message_len += sizeof(int16_t);
+	int32_t parm_data_types[5] = {1, 2, 3, 4, 5};
 	message_len += sizeof(parm_data_types);
 	ErrorBuffer err_buff;
 	err_buff.offset = 0;
@@ -418,8 +418,8 @@ static void test_invalid_type(void **state) {
 	memcpy(c, query, strlen(query));
 	c += strlen(query);
 	*c++ = '\0';
-	*((short*)c) = htons(type_params);
-	c += sizeof(short);
+	*((int16_t*)c) = htons(type_params);
+	c += sizeof(int16_t);
 	memcpy(c, parm_data_types, sizeof(parm_data_types));
 
 	ErrorResponse *err = NULL;
@@ -437,14 +437,14 @@ static void test_invalid_type(void **state) {
 }
 
 static void test_invalid_num_parm_data_types(void **state) {
-	unsigned int message_len = 0;
-	message_len += sizeof(unsigned int);
+	uint32_t message_len = 0;
+	message_len += sizeof(uint32_t);
 	char *dest = "a";
 	message_len += strlen(dest) + 1;
 	char *query = "SELECT * FROM names;";
 	message_len += strlen(query) + 1;
-	short type_params = -1;
-	message_len += sizeof(short);
+	int16_t type_params = -1;
+	message_len += sizeof(int16_t);
 	ErrorBuffer err_buff;
 	err_buff.offset = 0;
 	const char *error_message;
@@ -460,7 +460,7 @@ static void test_invalid_num_parm_data_types(void **state) {
 	memcpy(c, query, strlen(query));
 	c += strlen(query);
 	*c++ = '\0';
-	*((short*)c) = htons(type_params);
+	*((int16_t*)c) = htons(type_params);
 
 	ErrorResponse *err = NULL;
 	Parse *parse = read_parse(test_data, &err);

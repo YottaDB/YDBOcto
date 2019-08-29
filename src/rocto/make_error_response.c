@@ -23,8 +23,8 @@
 #include "message_formats.h"
 
 ErrorResponse *make_error_response(PSQL_ErrorSeverity severity, PSQL_SQLSTATECode code, const char *message, size_t num_args, ...) {
-	unsigned int new_length;
-	int cur_arg;
+	uint32_t new_length;
+	int32_t cur_arg;
 	va_list args;
 	ErrorResponseArg *arg;
 	ErrorResponse *ret;
@@ -73,7 +73,7 @@ ErrorResponse *make_error_response(PSQL_ErrorSeverity severity, PSQL_SQLSTATECod
 	default:
 		ret->type = PSQL_ErrorResponse;
 	}
-	ret->length = htonl(new_length + sizeof(unsigned int));
+	ret->length = htonl(new_length + sizeof(uint32_t));
 	ptr = ret->data;
 
 	// Copy severity parameter
@@ -81,7 +81,7 @@ ErrorResponse *make_error_response(PSQL_ErrorSeverity severity, PSQL_SQLSTATECod
 	ret->args[cur_arg].value = ptr;
 	cur_arg++;
 	*ptr++ = PSQL_Error_SEVERITY;
-	int i = strlen(psql_error_severity_str[severity]);
+	int32_t i = strlen(psql_error_severity_str[severity]);
 	memcpy(ptr, psql_error_severity_str[severity], i);
 	ptr += i;
 	*ptr++ = '\0';

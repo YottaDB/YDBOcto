@@ -24,34 +24,34 @@
 DataRow *read_data_row(BaseMessage *message, ErrorResponse **err) {
 	DataRow *ret;
 	char *cur_pointer, *c;
-	unsigned int remaining_length = 0;
+	uint32_t remaining_length = 0;
 
 	UNUSED(err);
 
 	remaining_length = ntohl(message->length);
-	ret = (DataRow*)malloc(remaining_length + sizeof(DataRow) - sizeof(unsigned int) - sizeof(short int));
+	ret = (DataRow*)malloc(remaining_length + sizeof(DataRow) - sizeof(uint32_t) - sizeof(int16_t));
 	// Exclude DataRowParm array pointer
-	memset(&ret->type, 0, remaining_length + sizeof(DataRow) - sizeof(unsigned int) - sizeof(short int) - sizeof(DataRowParm*));
+	memset(&ret->type, 0, remaining_length + sizeof(DataRow) - sizeof(uint32_t) - sizeof(int16_t) - sizeof(DataRowParm*));
 
 	ret->type = message->type;
 	ret->length = remaining_length;
-	remaining_length -= sizeof(unsigned int);
+	remaining_length -= sizeof(uint32_t);
 	c = message->data;
-	ret->num_columns = ntohs(*(short*)c);
+	ret->num_columns = ntohs(*(int16_t*)c);
 	if (ret->num_columns == 0) {
 		ret->parms = NULL;
 		return ret;
 	}
 
-	remaining_length -= sizeof(short int);
-	c += sizeof(short int);
+	remaining_length -= sizeof(int16_t);
+	c += sizeof(int16_t);
 	memcpy(ret->data, c, remaining_length);
 	ret->parms = (DataRowParm*)malloc(ret->num_columns * sizeof(DataRowParm));
 
 	cur_pointer = ret->data;
-	for (short int i = 0; i < ret->num_columns; i++) {
-		ret->parms[i].length = ntohl(*(unsigned int*)cur_pointer);
-		cur_pointer += sizeof(unsigned int);
+	for (int16_t i = 0; i < ret->num_columns; i++) {
+		ret->parms[i].length = ntohl(*(uint32_t*)cur_pointer);
+		cur_pointer += sizeof(uint32_t);
 		ret->parms[i].value = (char*)cur_pointer;
 		cur_pointer += ret->parms[i].length;
 	}

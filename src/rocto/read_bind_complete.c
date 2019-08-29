@@ -23,7 +23,7 @@
 
 BindComplete *read_bind_complete(BaseMessage *message, ErrorResponse **err) {
 	BindComplete *ret;
-	unsigned int remaining_length = 0;
+	uint32_t remaining_length = 0;
 
 	UNUSED(err);
 

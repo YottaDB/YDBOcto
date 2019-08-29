@@ -29,18 +29,18 @@
 #include "message_formats.h"
 
 int __wrap_send_bytes(RoctoSession *session, char *message, size_t length) {
-	int expected_return = mock_type(int);
+	int32_t expected_return = mock_type(int);
 	return expected_return;
 }
 
 static void test_valid_input(void **state) {
-	int rt = 1;
+	int32_t rt = 1;
 	BaseMessage message;
 	RoctoSession session;
 
 	// Initialize relevant variables
 	message.type = 'S';
-	message.length = sizeof(unsigned int);
+	message.length = sizeof(uint32_t);
 
 	will_return(__wrap_send_bytes, 0);	// Success
 
@@ -50,8 +50,8 @@ static void test_valid_input(void **state) {
 }
 
 static void test_send_bytes_failed(void **state) {
-	int rt = 1;
-	unsigned int length = sizeof(BaseMessage);
+	int32_t rt = 1;
+	uint32_t length = sizeof(BaseMessage);
 	BaseMessage message;
 	RoctoSession session;
 

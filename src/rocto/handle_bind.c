@@ -28,7 +28,7 @@ int handle_bind(Bind *bind, RoctoSession *session) {
 	// For now, just a search-and-replace of anything starting with a '$'
 	// This is not super great because it means one could have a SQLI attack
 	ydb_buffer_t *src_subs, *dest_subs, sql_expression;
-	int status, bind_parm;
+	int32_t status, bind_parm;
 	char *ptr, *end_ptr, new_query[MAX_STR_CONST];
 	char *int_start, *new_query_ptr, *end_new_query_ptr;
 	char c;

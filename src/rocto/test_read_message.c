@@ -26,8 +26,8 @@
 #include "rocto.h"
 #include "message_formats.h"
 
-int __wrap_read_bytes(RoctoSession *session, char *message, int buffer_size, int bytes_to_read) {
-	int expected_return = mock_type(int);
+int __wrap_read_bytes(RoctoSession *session, char *message, int32_t buffer_size, int32_t bytes_to_read) {
+	int32_t expected_return = mock_type(int);
 	return expected_return;
 }
 
@@ -39,7 +39,7 @@ static void test_valid_input(void **state) {
 	will_return(__wrap_read_bytes, 0);
 	will_return(__wrap_read_bytes, 0);
 
-	int rocto_err = 0;
+	int32_t rocto_err = 0;
 	result = read_message(NULL, (char*)buffer, 0, &rocto_err);
 
 	assert_non_null(result);
@@ -56,7 +56,7 @@ static void test_failed_first_read(void **state) {
 	// Test first read fails
 	will_return(__wrap_read_bytes, -1);
 
-	int rocto_err = 0;
+	int32_t rocto_err = 0;
 	result = read_message(NULL, (char*)buffer, 0, &rocto_err);
 
 	assert_null(result);
@@ -74,7 +74,7 @@ static void test_failed_second_read(void **state) {
 	will_return(__wrap_read_bytes, 0);
 	will_return(__wrap_read_bytes, -1);
 
-	int rocto_err = 0;
+	int32_t rocto_err = 0;
 	result = read_message(NULL, (char*)buffer, 0, &rocto_err);
 
 	assert_null(result);
@@ -91,7 +91,7 @@ static void test_connection_reset_first_read(void **state) {
 	// Test second read fails
 	will_return(__wrap_read_bytes, -2);
 
-	int rocto_err = 0;
+	int32_t rocto_err = 0;
 	result = read_message(NULL, (char*)buffer, 0, &rocto_err);
 
 	assert_null(result);
@@ -109,7 +109,7 @@ static void test_connection_reset_second_read(void **state) {
 	will_return(__wrap_read_bytes, 0);
 	will_return(__wrap_read_bytes, -2);
 
-	int rocto_err = 0;
+	int32_t rocto_err = 0;
 	result = read_message(NULL, (char*)buffer, 0, &rocto_err);
 
 	assert_null(result);

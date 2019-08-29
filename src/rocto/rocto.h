@@ -27,13 +27,13 @@
 #endif
 
 typedef struct {
-	int connection_fd;
-	int sending_message;
+	int32_t connection_fd;
+	int32_t sending_message;
 	char *ip;
 	char *port;
 	ydb_buffer_t *session_id;
-	int session_ending;
-	int ssl_active;
+	int32_t session_ending;
+	int32_t ssl_active;
 #if YDB_TLS_AVAILABLE
 	gtm_tls_socket_t *tls_socket;
 #endif
@@ -41,8 +41,8 @@ typedef struct {
 
 typedef struct {
 	RoctoSession *session;
-	int data_sent;
-	int max_data_to_send;
+	int32_t data_sent;
+	int32_t max_data_to_send;
 } QueryResponseParms;
 
 void *rocto_helper_waitpid(void *args);
@@ -64,8 +64,8 @@ typedef enum UserColumns {
 
 int send_message(RoctoSession *session, BaseMessage *message);
 int send_bytes(RoctoSession *session, char *message, size_t length);
-BaseMessage *read_message(RoctoSession *session, char *buffer, int buffer_size, int *rocto_err);
-int read_bytes(RoctoSession *session, char *buffer, int buffer_size, int bytes_to_read);
+BaseMessage *read_message(RoctoSession *session, char *buffer, int32_t buffer_size, int32_t *rocto_err);
+int read_bytes(RoctoSession *session, char *buffer, int32_t buffer_size, int32_t bytes_to_read);
 int rocto_main_loop(RoctoSession *session);
 void free_error_response(ErrorResponse *err);
 void free_data_row(DataRow *drow);
@@ -79,8 +79,8 @@ BindComplete *make_bind_complete();
 CloseComplete *make_close_complete();
 ReadyForQuery *make_ready_for_query(PSQL_TransactionStatus status);
 EmptyQueryResponse *make_empty_query_response();
-RowDescription *make_row_description(RowDescriptionParm *parms, short num_parms);
-DataRow *make_data_row(DataRowParm *parms, short num_parms);
+RowDescription *make_row_description(RowDescriptionParm *parms, int16_t num_parms);
+DataRow *make_data_row(DataRowParm *parms, int16_t num_parms);
 CommandComplete *make_command_complete(char *command_tag);
 AuthenticationMD5Password *make_authentication_md5_password(RoctoSession *session, char *salt);
 AuthenticationOk *make_authentication_ok();
@@ -104,8 +104,8 @@ Terminate *read_terminate(BaseMessage *message, ErrorResponse **err);
 Describe *read_describe(BaseMessage *message, ErrorResponse **err);
 
 // This is a special case because it must read more from the buffer
-StartupMessage *read_startup_message(RoctoSession *session, char *data, int data_length, ErrorResponse **err);
-SSLRequest *read_ssl_request(RoctoSession *session, char *data, int data_length, ErrorResponse **err);
+StartupMessage *read_startup_message(RoctoSession *session, char *data, int32_t data_length, ErrorResponse **err);
+SSLRequest *read_ssl_request(RoctoSession *session, char *data, int32_t data_length, ErrorResponse **err);
 
 // handle_* messages respond to a message of a given type, using send_message if needed
 //  and returns 0 if the exchange is a "success", or non-zero if there was a problem
@@ -118,7 +118,7 @@ int handle_describe(Describe *describe, RoctoSession *session);
 int handle_password_message(PasswordMessage *password_message, ErrorResponse **err, StartupMessage *startup_message, char *salt);
 
 // This isn't a handle function in-of itself, but a helper to handle the results of a query
-void handle_query_response(SqlStatement *stmt, int cursor_id, void *_parms, char *plan_name);
+void handle_query_response(SqlStatement *stmt, int32_t cursor_id, void *_parms, char *plan_name);
 
 // Helper to indicate that there is no more input
 int no_more();
@@ -127,7 +127,7 @@ int no_more();
 int64_t ntoh64(int64_t little_endian);
 int64_t hton64(int64_t little_endian);
 char *byte_to_hex(char c, char *hex);
-int md5_to_hex(const unsigned char *md5_hash, char *hex, unsigned int hex_len);
+int md5_to_hex(const unsigned char *md5_hash, char *hex, uint32_t hex_len);
 int64_t bin_to_bool(char *bin);
 int64_t bin_to_char(char *bin);
 int64_t bin_to_int16(char *bin);
@@ -137,14 +137,14 @@ int64_t bin_to_oid(char *bin);
 // float bin_to_float4(char *bin);
 // double bin_to_float8(char *bin);
 char *bin_to_bytea(char *bin);
-void bin_to_uuid(char *bin, char *buffer, int buf_len);
+void bin_to_uuid(char *bin, char *buffer, int32_t buf_len);
 
 // Utility functions for copying Bind parameters into query string
-char *copy_text_parameter(RoctoSession *session, Bind *bind, const int cur_parm, char *query_ptr, const char *end_query_ptr);
-char *copy_binary_parameter(RoctoSession *session, Bind *bind, const int cur_parm, char *query_ptr, const char *end_query_ptr);
+char *copy_text_parameter(RoctoSession *session, Bind *bind, const int32_t cur_parm, char *query_ptr, const char *end_query_ptr);
+char *copy_binary_parameter(RoctoSession *session, Bind *bind, const int32_t cur_parm, char *query_ptr, const char *end_query_ptr);
 
 // Helper to extract column values from delimited row string
-unsigned int get_user_column_value(char *buffer, const unsigned int buf_len, const char *row, const unsigned int row_len,
+uint32_t get_user_column_value(char *buffer, const uint32_t buf_len, const char *row, const uint32_t row_len,
 		enum UserColumns column);
 
 /**

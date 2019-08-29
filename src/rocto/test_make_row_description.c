@@ -31,7 +31,7 @@ static void test_null_input(void **state) {
 	ErrorResponse *err = NULL;
 
 	// Expect length field and number of parameters field
-	int expected_length = sizeof(unsigned int) + sizeof(short int);
+	int32_t expected_length = sizeof(uint32_t) + sizeof(int16_t);
 
 	response = make_row_description(NULL, 0);
 	received_response = read_row_description((BaseMessage*)&response->type, &err);
@@ -50,7 +50,7 @@ static void test_one_parms(void **state) {
 	RowDescription *response = NULL;
 	RowDescription *received_response = NULL;
 	ErrorResponse *err = NULL;
-	int num_parms = 1;
+	int32_t num_parms = 1;
 	RowDescriptionParm parms[num_parms];
 
 	memset(parms, 0, sizeof(RowDescriptionParm) * num_parms);
@@ -63,7 +63,7 @@ static void test_one_parms(void **state) {
 	parms[0].format_code = 6;
 
 	// RowDescription + RowDescriptionParms + string in each parm + null char
-	int expected_length = sizeof(unsigned int) + sizeof(short int) + (sizeof(RowDescriptionParm) - sizeof(char*)) * num_parms
+	int32_t expected_length = sizeof(uint32_t) + sizeof(int16_t) + (sizeof(RowDescriptionParm) - sizeof(char*)) * num_parms
 		+ strlen(parms[0].name) + sizeof(char);
 
 	response = make_row_description(parms, num_parms);
@@ -91,7 +91,7 @@ static void test_multi_parms(void **state) {
 	RowDescription *response = NULL;
 	RowDescription *received_response = NULL;
 	ErrorResponse *err = NULL;
-	int num_parms = 2;
+	int32_t num_parms = 2;
 	RowDescriptionParm parms[num_parms];
 
 	memset(parms, 0, sizeof(RowDescriptionParm) * num_parms);
@@ -111,7 +111,7 @@ static void test_multi_parms(void **state) {
 	parms[1].format_code = 16;
 
 	// RowDescription + RowDescriptionParms + string in each parm + null chars
-	int expected_length = sizeof(unsigned int) + sizeof(short int) + (sizeof(RowDescriptionParm) - sizeof(char*)) * num_parms
+	int32_t expected_length = sizeof(uint32_t) + sizeof(int16_t) + (sizeof(RowDescriptionParm) - sizeof(char*)) * num_parms
 		+ strlen(parms[0].name) + sizeof(char) + strlen(parms[1].name) + sizeof(char);
 
 	response = make_row_description(parms, num_parms);

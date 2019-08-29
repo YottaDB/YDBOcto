@@ -32,8 +32,8 @@ int handle_query(Query *query, RoctoSession *session) {
 	QueryResponseParms parms;
 	EmptyQueryResponse *empty_query_response;
 	ErrorResponse *err;
-	int query_length = 0;
-	int run_query_result = 0;
+	int32_t query_length = 0;
+	int32_t run_query_result = 0;
 	char *err_buff;
 	size_t err_buff_size;
 	memset(&parms, 0, sizeof(QueryResponseParms));

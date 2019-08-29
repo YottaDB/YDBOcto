@@ -27,16 +27,16 @@
 
 static void test_valid_input(void **state) {
 	// Test a single startup message
-	unsigned int message_length = 0;
-	message_length += sizeof(unsigned int);		// count length member
+	uint32_t message_length = 0;
+	message_length += sizeof(uint32_t);		// count length member
 	char *message = "bad_password";
 	message_length += strlen(message) + 1;		// count null
 
 	// Populate base message
-	BaseMessage *test_data = (BaseMessage*)malloc(message_length + sizeof(BaseMessage) - sizeof(unsigned int));
+	BaseMessage *test_data = (BaseMessage*)malloc(message_length + sizeof(BaseMessage) - sizeof(uint32_t));
 	test_data->type = PSQL_PasswordMessage;
 	test_data->length = htonl(message_length);
-	strncpy(test_data->data, message, message_length - sizeof(unsigned int));
+	strncpy(test_data->data, message, message_length - sizeof(uint32_t));
 
 	// The actual test
 	ErrorResponse *err = NULL;
@@ -53,8 +53,8 @@ static void test_valid_input(void **state) {
 
 static void test_non_terminated_input(void **state) {
 	// Test a single startup message
-	unsigned int message_length = 0;
-	message_length += sizeof(unsigned int);		// count length member
+	uint32_t message_length = 0;
+	message_length += sizeof(uint32_t);		// count length member
 	char *message = "bad_password";
 	message_length += strlen(message);		// exclude null for test case
 	ErrorBuffer err_buff;
@@ -62,10 +62,10 @@ static void test_non_terminated_input(void **state) {
 	const char *error_message;
 
 	// Populate base message
-	BaseMessage *test_data = (BaseMessage*)malloc(message_length + sizeof(BaseMessage) - sizeof(unsigned int));
+	BaseMessage *test_data = (BaseMessage*)malloc(message_length + sizeof(BaseMessage) - sizeof(uint32_t));
 	test_data->type = PSQL_PasswordMessage;
 	test_data->length = htonl(message_length);
-	strncpy(test_data->data, message, message_length - sizeof(unsigned int));
+	strncpy(test_data->data, message, message_length - sizeof(uint32_t));
 
 	// The actual test
 	ErrorResponse *err = NULL;
@@ -85,8 +85,8 @@ static void test_non_terminated_input(void **state) {
 
 static void test_unexpectedly_terminated_input(void **state) {
 	// Test a single startup message
-	unsigned int message_length = 0;
-	message_length += sizeof(unsigned int);		// count length member
+	uint32_t message_length = 0;
+	message_length += sizeof(uint32_t);		// count length member
 	char *message = "bad_passwor\0d";
 	message_length += strlen(message) + 2;		// expecting extra char after null
 	ErrorBuffer err_buff;
@@ -94,10 +94,10 @@ static void test_unexpectedly_terminated_input(void **state) {
 	const char *error_message;
 
 	// Populate base message
-	BaseMessage *test_data = (BaseMessage*)malloc(message_length + sizeof(BaseMessage) - sizeof(unsigned int));
+	BaseMessage *test_data = (BaseMessage*)malloc(message_length + sizeof(BaseMessage) - sizeof(uint32_t));
 	test_data->type = PSQL_PasswordMessage;
 	test_data->length = htonl(message_length);
-	strncpy(test_data->data, message, message_length - sizeof(unsigned int));
+	strncpy(test_data->data, message, message_length - sizeof(uint32_t));
 
 	// The actual test
 	ErrorResponse *err = NULL;
@@ -117,14 +117,14 @@ static void test_unexpectedly_terminated_input(void **state) {
 
 static void test_missing_password(void **state) {
 	// Test a single startup message
-	unsigned int message_length = 0;
-	message_length += sizeof(unsigned int);		// count length member
+	uint32_t message_length = 0;
+	message_length += sizeof(uint32_t);		// count length member
 	ErrorBuffer err_buff;
 	err_buff.offset = 0;
 	const char *error_message;
 
 	// Populate base message
-	BaseMessage *test_data = (BaseMessage*)malloc(message_length + sizeof(BaseMessage) - sizeof(unsigned int));
+	BaseMessage *test_data = (BaseMessage*)malloc(message_length + sizeof(BaseMessage) - sizeof(uint32_t));
 	test_data->type = PSQL_PasswordMessage;
 	test_data->length = htonl(message_length);
 
@@ -146,8 +146,8 @@ static void test_missing_password(void **state) {
 
 static void test_invalid_type(void **state) {
 	// Test a single startup message
-	unsigned int message_length = 0;
-	message_length += sizeof(unsigned int);		// count length member
+	uint32_t message_length = 0;
+	message_length += sizeof(uint32_t);		// count length member
 	char *message = "bad_password";
 	message_length += strlen(message) + 1;		// expecting extra char after null
 	ErrorBuffer err_buff;
@@ -155,10 +155,10 @@ static void test_invalid_type(void **state) {
 	const char *error_message;
 
 	// Populate base message
-	BaseMessage *test_data = (BaseMessage*)malloc(message_length + sizeof(BaseMessage) - sizeof(unsigned int));
+	BaseMessage *test_data = (BaseMessage*)malloc(message_length + sizeof(BaseMessage) - sizeof(uint32_t));
 	test_data->type = 'X';
 	test_data->length = htonl(message_length);
-	strncpy(test_data->data, message, message_length - sizeof(unsigned int));
+	strncpy(test_data->data, message, message_length - sizeof(uint32_t));
 
 	// The actual test
 	ErrorResponse *err = NULL;

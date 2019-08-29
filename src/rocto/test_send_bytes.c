@@ -28,25 +28,25 @@
 #include "rocto.h"
 #include "message_formats.h"
 
-int __wrap_send(int *socfd, void *buf, size_t len, int flags) {
-	int expected_return = mock_type(int);
+int __wrap_send(int *socfd, void *buf, size_t len, int32_t flags) {
+	int32_t expected_return = mock_type(int);
 	errno = mock_type(int);
 	return expected_return;
 }
 
 int __wrap_SSL_write(SSL *ossl_connection, void *buf, size_t len) {
-	int expected_return = mock_type(int);
+	int32_t expected_return = mock_type(int);
 	errno = mock_type(int);
 	return expected_return;
 }
 
-unsigned long __wrap_SSL_get_error(const SSL *ossl_connection, int ret) {
-	int expected_return = mock_type(int);
+unsigned long __wrap_SSL_get_error(const SSL *ossl_connection, int32_t ret) {
+	int32_t expected_return = mock_type(int);
 	return expected_return;
 }
 
 unsigned long __wrap_ERR_peek_last_error() {
-	int expected_return = mock_type(int);
+	int32_t expected_return = mock_type(int);
 	return expected_return;
 }
 
@@ -61,8 +61,8 @@ void __wrap_octo_log(int line, char *file, enum ERROR_LEVEL level, enum ERROR er
 	char *error_string = NULL;
 	va_list args;
 	va_start(args, error);
-	int expected_level = mock_type(int);
-	int expected_error = mock_type(int);
+	int32_t expected_level = mock_type(int);
+	int32_t expected_error = mock_type(int);
 	char *expected_error_string = mock_type(char *);
 
 	assert_int_equal(level, expected_level);
@@ -76,14 +76,14 @@ void __wrap_octo_log(int line, char *file, enum ERROR_LEVEL level, enum ERROR er
 
 static void test_valid_input_no_SSL(void **state) {
 	char *buffer;
-	int rt = 1;
+	int32_t rt = 1;
 	BaseMessage message;
 	RoctoSession session;
 	session.ssl_active = FALSE;
 
 	// Initialize relevant variables
 	message.type = 'S';
-	message.length = sizeof(unsigned int);
+	message.length = sizeof(uint32_t);
 
 	will_return(__wrap_send, 10);	// All bytes read
 	will_return(__wrap_send, 0);	// No error
@@ -94,8 +94,8 @@ static void test_valid_input_no_SSL(void **state) {
 }
 
 static void test_send_connection_reset(void **state) {
-	int rt = 1;
-	unsigned int length = sizeof(BaseMessage);
+	int32_t rt = 1;
+	uint32_t length = sizeof(BaseMessage);
 	BaseMessage message;
 	RoctoSession session;
 	session.ssl_active = FALSE;
@@ -111,8 +111,8 @@ static void test_send_connection_reset(void **state) {
 }
 
 static void test_send_broken_pipe(void **state) {
-	int rt = 1;
-	unsigned int length = sizeof(BaseMessage);
+	int32_t rt = 1;
+	uint32_t length = sizeof(BaseMessage);
 	BaseMessage message;
 	RoctoSession session;
 	session.ssl_active = FALSE;
@@ -133,8 +133,8 @@ static void test_send_broken_pipe(void **state) {
 }
 
 static void test_send_timed_out(void **state) {
-	int rt = 1;
-	unsigned int length = sizeof(BaseMessage);
+	int32_t rt = 1;
+	uint32_t length = sizeof(BaseMessage);
 	BaseMessage message;
 	RoctoSession session;
 	session.ssl_active = FALSE;
@@ -155,8 +155,8 @@ static void test_send_timed_out(void **state) {
 }
 
 static void test_socket_closed(void **state) {
-	int rt = 1;
-	unsigned int length = sizeof(BaseMessage);
+	int32_t rt = 1;
+	uint32_t length = sizeof(BaseMessage);
 	BaseMessage message;
 	RoctoSession session;
 	session.ssl_active = FALSE;
@@ -174,9 +174,9 @@ static void test_socket_closed(void **state) {
 }
 
 static void test_valid_input_with_SSL(void **state) {
-	int rt = 1;
+	int32_t rt = 1;
 	BaseMessage message;
-	unsigned int length = sizeof(BaseMessage);
+	uint32_t length = sizeof(BaseMessage);
 	RoctoSession session;
 	session.ssl_active = TRUE;
 
@@ -192,8 +192,8 @@ static void test_valid_input_with_SSL(void **state) {
 }
 
 static void test_connection_reset_with_SSL(void **state) {
-	int rt = 1;
-	unsigned int length = sizeof(BaseMessage);
+	int32_t rt = 1;
+	uint32_t length = sizeof(BaseMessage);
 	BaseMessage message;
 	RoctoSession session;
 	session.ssl_active = TRUE;
@@ -216,8 +216,8 @@ static void test_connection_reset_with_SSL(void **state) {
 
 
 static void test_SSL_write_interrupted(void **state) {
-	int rt = 1;
-	unsigned int length = sizeof(BaseMessage);
+	int32_t rt = 1;
+	uint32_t length = sizeof(BaseMessage);
 	BaseMessage message;
 	RoctoSession session;
 	session.ssl_active = TRUE;
@@ -244,8 +244,8 @@ static void test_SSL_write_interrupted(void **state) {
 }
 
 static void test_SSL_ERROR_ZERO_RETURN(void **state) {
-	int rt = 1;
-	unsigned int length = sizeof(BaseMessage);
+	int32_t rt = 1;
+	uint32_t length = sizeof(BaseMessage);
 	BaseMessage message;
 	RoctoSession session;
 	session.ssl_active = TRUE;
@@ -272,8 +272,8 @@ static void test_SSL_ERROR_ZERO_RETURN(void **state) {
 }
 
 static void test_SSL_ERROR_WANT_WRITE(void **state) {
-	int rt = 1;
-	unsigned int length = sizeof(BaseMessage);
+	int32_t rt = 1;
+	uint32_t length = sizeof(BaseMessage);
 	BaseMessage message;
 	RoctoSession session;
 	session.ssl_active = TRUE;
@@ -300,9 +300,9 @@ static void test_SSL_ERROR_WANT_WRITE(void **state) {
 }
 
 static void test_SSL_ERROR_SYSCALL(void **state) {
-	int rt = 1;
+	int32_t rt = 1;
 	BaseMessage message;
-	unsigned int length = sizeof(BaseMessage);
+	uint32_t length = sizeof(BaseMessage);
 	RoctoSession session;
 	session.ssl_active = TRUE;
 
@@ -328,8 +328,8 @@ static void test_SSL_ERROR_SYSCALL(void **state) {
 }
 
 static void test_SSL_ERROR_SSL(void **state) {
-	int rt = 1;
-	unsigned int length = sizeof(BaseMessage);
+	int32_t rt = 1;
+	uint32_t length = sizeof(BaseMessage);
 	BaseMessage message;
 	RoctoSession session;
 	session.ssl_active = TRUE;

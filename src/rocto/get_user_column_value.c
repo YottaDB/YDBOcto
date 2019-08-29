@@ -21,13 +21,13 @@
 #include "message_formats.h"
 #include "rocto.h"
 
-unsigned int get_user_column_value(char *buffer, const unsigned int buf_len, const char *row, const unsigned int row_len, enum UserColumns column) {
+uint32_t get_user_column_value(char *buffer, const uint32_t buf_len, const char *row, const uint32_t row_len, enum UserColumns column) {
 	if (NULL == buffer || NULL == row || column > UserColumn_ROLVALIDUNTIL) {
 		return 0;
 	}
 	const char *c = NULL, *col_start = NULL;
 	const char *row_end = row + row_len;
-	unsigned int col_num = 0, value_len = 0;
+	uint32_t col_num = 0, value_len = 0;
 	char *delimiter = COLUMN_DELIMITER;	// Allow access to delimiter as character
 
 	c = row;

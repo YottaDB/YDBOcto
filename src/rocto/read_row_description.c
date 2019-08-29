@@ -24,27 +24,27 @@
 RowDescription *read_row_description(BaseMessage *message, ErrorResponse **err) {
 	RowDescription *ret;
 	char *cur_pointer;
-	unsigned int remaining_length = 0;
+	uint32_t remaining_length = 0;
 
 	UNUSED(err);
 
 	remaining_length = ntohl(message->length);
-	ret = (RowDescription*)malloc(remaining_length + sizeof(RowDescription) - sizeof(unsigned int) - sizeof(short int));
+	ret = (RowDescription*)malloc(remaining_length + sizeof(RowDescription) - sizeof(uint32_t) - sizeof(int16_t));
 
 	ret->type = message->type;
 	ret->length = remaining_length;
-	remaining_length -= sizeof(unsigned int);
+	remaining_length -= sizeof(uint32_t);
 	cur_pointer = message->data;
 
-	ret->num_parms = ntohs(*(short int*)cur_pointer);
-	remaining_length -= sizeof(short int);
-	cur_pointer += sizeof(short int);
+	ret->num_parms = ntohs(*(int16_t*)cur_pointer);
+	remaining_length -= sizeof(int16_t);
+	cur_pointer += sizeof(int16_t);
 
 	memcpy(ret->data, cur_pointer, remaining_length);
 	cur_pointer = ret->data;
 
 	ret->parms = (RowDescriptionParm*)malloc(ret->num_parms * sizeof(RowDescriptionParm));
-	for(short int i = 0; i < ret->num_parms; i++) {
+	for(int16_t i = 0; i < ret->num_parms; i++) {
 		ret->parms[i].name = cur_pointer;
 		cur_pointer += strlen(ret->parms[i].name);
 		cur_pointer += sizeof(char);	// skip null
@@ -52,16 +52,16 @@ RowDescription *read_row_description(BaseMessage *message, ErrorResponse **err) 
 		// Copy values, converting them to host endianess
 		ret->parms[i].table_id = ntohl(*((int*)cur_pointer));
 		cur_pointer += sizeof(int);
-		ret->parms[i].column_id = ntohs(*((short*)cur_pointer));
-		cur_pointer += sizeof(short);
+		ret->parms[i].column_id = ntohs(*((int16_t*)cur_pointer));
+		cur_pointer += sizeof(int16_t);
 		ret->parms[i].data_type	= ntohl(*((int*)cur_pointer));
 		cur_pointer += sizeof(int);
-		ret->parms[i].data_type_size = ntohs(*((short*)cur_pointer));
-		cur_pointer += sizeof(short);
+		ret->parms[i].data_type_size = ntohs(*((int16_t*)cur_pointer));
+		cur_pointer += sizeof(int16_t);
 		ret->parms[i].type_modifier = ntohl(*((int*)cur_pointer));
 		cur_pointer += sizeof(int);
-		ret->parms[i].format_code = ntohs(*((short*)cur_pointer));
-		cur_pointer += sizeof(short);
+		ret->parms[i].format_code = ntohs(*((int16_t*)cur_pointer));
+		cur_pointer += sizeof(int16_t);
 	}
 
 	return ret;

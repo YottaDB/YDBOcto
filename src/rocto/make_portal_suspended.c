@@ -28,7 +28,7 @@ PortalSuspended *make_portal_suspended() {
 	memset(ret, 0, sizeof(PortalSuspended));
 
 	ret->type = PSQL_PortalSuspended;
-	ret->length = htonl(sizeof(unsigned int));
+	ret->length = htonl(sizeof(uint32_t));
 
 	return ret;
 }

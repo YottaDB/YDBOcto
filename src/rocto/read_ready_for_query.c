@@ -23,7 +23,7 @@
 
 ReadyForQuery *read_ready_for_query(BaseMessage *message, ErrorResponse **err) {
 	ReadyForQuery *ret;
-	unsigned int remaining_length = 0;
+	uint32_t remaining_length = 0;
 
 	UNUSED(err);
 

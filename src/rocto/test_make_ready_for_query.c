@@ -32,7 +32,7 @@ static void test_valid_input(void **state) {
 	char status = PSQL_TransactionStatus_TRANSACTION;
 
 	// Expect the length field and status field
-	int expected_length = sizeof(unsigned int) + sizeof(char);
+	int32_t expected_length = sizeof(uint32_t) + sizeof(char);
 	response = make_ready_for_query(status);
 	received_response = read_ready_for_query((BaseMessage*)&response->type, &err);
 

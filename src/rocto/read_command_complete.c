@@ -23,16 +23,16 @@
 
 CommandComplete *read_command_complete(BaseMessage *message, ErrorResponse **err) {
 	CommandComplete *ret;
-	unsigned int remaining_length = 0;
+	uint32_t remaining_length = 0;
 
 	UNUSED(err);
 
 	remaining_length = ntohl(message->length);
-	ret = (CommandComplete*)malloc(remaining_length + sizeof(CommandComplete) - sizeof(unsigned int));
+	ret = (CommandComplete*)malloc(remaining_length + sizeof(CommandComplete) - sizeof(uint32_t));
 
 	ret->type = message->type;
 	ret->length = remaining_length;
-	memcpy(ret->data, message->data, remaining_length - sizeof(unsigned int));
+	memcpy(ret->data, message->data, remaining_length - sizeof(uint32_t));
 	ret->command_tag = ret->data;
 
 	return ret;

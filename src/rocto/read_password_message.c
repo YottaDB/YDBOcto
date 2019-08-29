@@ -23,18 +23,18 @@
 PasswordMessage *read_password_message(BaseMessage *message, ErrorResponse **err) {
 	PasswordMessage *ret;
 	ErrorBuffer err_buff;
-	unsigned int length;
+	uint32_t length;
 	char *c, *message_end;
 	const char *error_message;
 	err_buff.offset = 0;
 
 	length = ntohl(message->length);
-	ret = (PasswordMessage*)malloc(sizeof(PasswordMessage) + length - sizeof(unsigned int));
+	ret = (PasswordMessage*)malloc(sizeof(PasswordMessage) + length - sizeof(uint32_t));
 	ret->type = message->type;
 	ret->length = length;
-	memcpy(ret->data, message->data, length - sizeof(unsigned int));
+	memcpy(ret->data, message->data, length - sizeof(uint32_t));
 	c = ret->data;
-	message_end = c + length - sizeof(unsigned int);
+	message_end = c + length - sizeof(uint32_t);
 
 	// Ensure that message has correct type
 	if(ret->type != PSQL_PasswordMessage) {
@@ -52,7 +52,7 @@ PasswordMessage *read_password_message(BaseMessage *message, ErrorResponse **err
 	}
 	if(c == message_end) {
 		// Ensure a password string is included
-		if(length == sizeof(unsigned int)) {
+		if(length == sizeof(uint32_t)) {
 			error_message = format_error_string(&err_buff, ERR_ROCTO_MISSING_DATA, "PasswordMessage", "password");
 			*err = make_error_response(PSQL_Error_ERROR,
 						   PSQL_Code_Syntax_Error,

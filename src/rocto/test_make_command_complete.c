@@ -31,7 +31,7 @@ static void test_valid_input(void **state) {
 	ErrorResponse *err = NULL;
 
 	char *message = "SELECT 5";
-	int expected_length = sizeof(unsigned int) + strlen(message) + 1;
+	int32_t expected_length = sizeof(uint32_t) + strlen(message) + 1;
 
 	response = make_command_complete(message);
 	received_response = read_command_complete((BaseMessage*)&response->type, &err);
@@ -51,7 +51,7 @@ static void test_null_input(void **state) {
 	ErrorResponse *err = NULL;
 
 	char *message = NULL;
-	int expected_length = sizeof(unsigned int) + 1;		// count empty string null terminator
+	int32_t expected_length = sizeof(uint32_t) + 1;		// count empty string null terminator
 
 	response = make_command_complete(message);
 	received_response = read_command_complete((BaseMessage*)&response->type, &err);

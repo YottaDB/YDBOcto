@@ -25,9 +25,9 @@ Bind *read_bind(BaseMessage *message, ErrorResponse **err) {
 	ErrorBuffer err_buff;
 	char *cur_pointer, *last_byte, *length_ptr;
 	const char *error_message;
-	unsigned int remaining_length;
-	const int default_format_max = 1;
-	int i = 0;
+	uint32_t remaining_length;
+	const int32_t default_format_max = 1;
+	int32_t i = 0;
 	err_buff.offset = 0;
 
 	// Initialize Bind struct
@@ -35,7 +35,7 @@ Bind *read_bind(BaseMessage *message, ErrorResponse **err) {
 	ret = (Bind*)malloc(remaining_length + sizeof(Bind));
 	memset(ret, 0, remaining_length + sizeof(Bind));	// prevent leaks
 	memcpy(&ret->type, message, remaining_length + 1);	// include type indicator (char)
-	remaining_length -= sizeof(unsigned int);		// exclude length from data section
+	remaining_length -= sizeof(uint32_t);		// exclude length from data section
 
 	// Ensure message has correct type
 	if(ret->type != PSQL_Bind) {
@@ -82,7 +82,7 @@ Bind *read_bind(BaseMessage *message, ErrorResponse **err) {
 	}
 	cur_pointer++;
 	// Set number of parameter format codes and ensure valid value
-	ret->num_parm_format_codes = ntohs(*((short int *)cur_pointer));
+	ret->num_parm_format_codes = ntohs(*((int16_t *)cur_pointer));
 	if (ret->num_parm_format_codes < 0) {
 		error_message = format_error_string(&err_buff, ERR_ROCTO_INVALID_NUMBER, "Bind", "parameter format codes");
 		*err = make_error_response(PSQL_Error_ERROR,
@@ -92,7 +92,7 @@ Bind *read_bind(BaseMessage *message, ErrorResponse **err) {
 		free(ret);
 		return NULL;
 	}
-	cur_pointer += sizeof(short int);
+	cur_pointer += sizeof(int16_t);
 	if(cur_pointer > last_byte) {
 		error_message = format_error_string(&err_buff, ERR_ROCTO_MISSING_DATA, "Bind", "number of parameter format codes");
 		*err = make_error_response(PSQL_Error_ERROR,
@@ -104,8 +104,8 @@ Bind *read_bind(BaseMessage *message, ErrorResponse **err) {
 	}
 	// Set pointer to parameter format codes within data section
 	if(ret->num_parm_format_codes > 0)
-		ret->parm_format_codes = (short int*)cur_pointer;
-	cur_pointer += ret->num_parm_format_codes * sizeof(short int);
+		ret->parm_format_codes = (int16_t*)cur_pointer;
+	cur_pointer += ret->num_parm_format_codes * sizeof(int16_t);
 	// Ensure all parameter format codes present
 	if(cur_pointer > last_byte) {
 		error_message = format_error_string(&err_buff, ERR_ROCTO_MISSING_DATA, "Bind", "parameter format codes");
@@ -120,7 +120,7 @@ Bind *read_bind(BaseMessage *message, ErrorResponse **err) {
 	for (i = 0; i < ret->num_parm_format_codes; i++) {
 		ret->parm_format_codes[i] = ntohs(ret->parm_format_codes[i]);
 		if (0 != ret->parm_format_codes[i] && 1 != ret->parm_format_codes[i]) {
-			error_message = format_error_string(&err_buff, ERR_ROCTO_INVALID_INT_VALUE,
+			error_message = format_error_string(&err_buff, ERR_ROCTO_INVALID_INT_VALUE_MULTI,
 					"Bind", "parameter format code", ret->parm_format_codes[i], "0 (text) or 1 (binary)");
 			*err = make_error_response(PSQL_Error_ERROR,
 						   PSQL_Code_Protocol_Violation,
@@ -131,7 +131,7 @@ Bind *read_bind(BaseMessage *message, ErrorResponse **err) {
 		}
 	}
 	// Set number of parameters and ensure valid value
-	ret->num_parms = ntohs(*((short int*)cur_pointer));
+	ret->num_parms = ntohs(*((int16_t*)cur_pointer));
 	if (ret->num_parms < 0) {
 		error_message = format_error_string(&err_buff, ERR_ROCTO_INVALID_NUMBER, "Bind", "parameters");
 		*err = make_error_response(PSQL_Error_ERROR,
@@ -141,7 +141,7 @@ Bind *read_bind(BaseMessage *message, ErrorResponse **err) {
 		free(ret);
 		return NULL;
 	}
-	cur_pointer += sizeof(short int);
+	cur_pointer += sizeof(int16_t);
 	// Ensure correct number of parameter format codes sent
 	if (ret->num_parm_format_codes > ret->num_parms) {
 		error_message = format_error_string(&err_buff, ERR_ROCTO_TOO_MANY_VALUES, "Bind", "parameter format codes");
@@ -182,7 +182,7 @@ Bind *read_bind(BaseMessage *message, ErrorResponse **err) {
 		for(i = 0; i < ret->num_parms; i++) {
 			// This length does not include the length value; go past that too
 			length_ptr = cur_pointer;
-			cur_pointer += sizeof(unsigned int);
+			cur_pointer += sizeof(uint32_t);
 			if(cur_pointer > last_byte) {
 				error_message = format_error_string(&err_buff, ERR_ROCTO_MISSING_DATA, "Bind", "parameters");
 				*err = make_error_response(PSQL_Error_ERROR,
@@ -209,7 +209,7 @@ Bind *read_bind(BaseMessage *message, ErrorResponse **err) {
 		}
 	}
 	// Set number of column format codes and ensure correct values
-	ret->num_result_col_format_codes = ntohs(*((short int*)cur_pointer));
+	ret->num_result_col_format_codes = ntohs(*((int16_t*)cur_pointer));
 	if (ret->num_result_col_format_codes < 0) {
 		error_message = format_error_string(&err_buff, ERR_ROCTO_INVALID_NUMBER, "Bind", "result column format codes");
 		*err = make_error_response(PSQL_Error_ERROR,
@@ -219,10 +219,10 @@ Bind *read_bind(BaseMessage *message, ErrorResponse **err) {
 		free(ret);
 		return NULL;
 	}
-	cur_pointer += sizeof(short int);
+	cur_pointer += sizeof(int16_t);
 	if(ret->num_result_col_format_codes > 0) {
 		ret->result_col_format_codes = (void*)cur_pointer;
-		cur_pointer += ret->num_result_col_format_codes * sizeof(short int);
+		cur_pointer += ret->num_result_col_format_codes * sizeof(int16_t);
 		if(cur_pointer > last_byte) {
 			error_message = format_error_string(&err_buff, ERR_ROCTO_MISSING_DATA,
 					"Bind", "result column format codes");
@@ -238,7 +238,7 @@ Bind *read_bind(BaseMessage *message, ErrorResponse **err) {
 		for (i = 0; i < ret->num_result_col_format_codes; i++) {
 			ret->result_col_format_codes[i] = ntohs(ret->result_col_format_codes[i]);
 			if (0 != ret->result_col_format_codes[i] && 1 != ret->result_col_format_codes[i]) {
-				error_message = format_error_string(&err_buff, ERR_ROCTO_INVALID_INT_VALUE,
+				error_message = format_error_string(&err_buff, ERR_ROCTO_INVALID_INT_VALUE_MULTI,
 						"Bind", "result column format code", ret->result_col_format_codes[i],
 						"0 (text) or 1 (binary)");
 				*err = make_error_response(PSQL_Error_ERROR,

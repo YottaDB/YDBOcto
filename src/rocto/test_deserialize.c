@@ -174,10 +174,10 @@ static void test_bin_to_bytea(void **state) {
 }
 
 static void test_bin_to_uuid(void **state) {
-	int buf_len = 37;
+	int32_t buf_len = 37;
 	char bin[16];
 	char buffer[buf_len];
-	int i = 0;
+	int32_t i = 0;
 	for (i = 0; i < 16; i++) {
 		bin[i] = i;
 	}
@@ -186,7 +186,7 @@ static void test_bin_to_uuid(void **state) {
 }
 
 static void test_md5_to_hex(void **state) {
-	const unsigned int md5_len = 33;
+	const uint32_t md5_len = 33;
 	char hex_buf[md5_len];
 	char *message = "bluemonday";		// md5 hash: 1865f47f47b0ccc5c69178ecbbcbf645
 	char digest[MD5_DIGEST_LENGTH + 1];	// count null
@@ -195,7 +195,7 @@ static void test_md5_to_hex(void **state) {
 	digest[MD5_DIGEST_LENGTH] = '\0';
 
 	// Check with valid input
-	int result = md5_to_hex(digest, hex_buf, md5_len);
+	int32_t result = md5_to_hex(digest, hex_buf, md5_len);
 	assert_int_equal(result, 0);
 	assert_string_equal(hex_buf, "1865f47f47b0ccc5c69178ecbbcbf645");
 

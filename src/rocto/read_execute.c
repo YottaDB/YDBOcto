@@ -25,7 +25,7 @@ Execute *read_execute(BaseMessage *message, ErrorResponse **err) {
 	ErrorBuffer err_buff;
 	char *cur_pointer, *last_byte;
 	const char *error_message;
-	unsigned int remaining_length;
+	uint32_t remaining_length;
 	err_buff.offset = 0;
 
 	// Create Execute message and initialize ALL bytes
@@ -35,7 +35,7 @@ Execute *read_execute(BaseMessage *message, ErrorResponse **err) {
 
 	// Populate Execute message values
 	memcpy(&ret->type, message, remaining_length + 1);	// Include type field
-	remaining_length -= sizeof(unsigned int);	// Length field precedes data field
+	remaining_length -= sizeof(uint32_t);	// Length field precedes data field
 	cur_pointer = ret->data;
 	ret->source = cur_pointer;
 	last_byte = cur_pointer + remaining_length;
@@ -65,7 +65,7 @@ Execute *read_execute(BaseMessage *message, ErrorResponse **err) {
 	}
 	cur_pointer++;		// Skip over null pointer
 	// Ensure rows_to_return field included
-	if(cur_pointer + sizeof(unsigned int) > last_byte) {
+	if(cur_pointer + sizeof(uint32_t) > last_byte) {
 		error_message = format_error_string(&err_buff, ERR_ROCTO_MISSING_DATA, "Execute", "number of rows to return");
 		*err = make_error_response(PSQL_Error_ERROR,
 					   PSQL_Code_Protocol_Violation,
@@ -75,7 +75,7 @@ Execute *read_execute(BaseMessage *message, ErrorResponse **err) {
 		return NULL;
 	}
 	// Check for trailing characters
-	if(cur_pointer != last_byte - sizeof(unsigned int)) {
+	if(cur_pointer != last_byte - sizeof(uint32_t)) {
 		error_message = format_error_string(&err_buff, ERR_ROCTO_TRAILING_CHARS, "Execute");
 		*err = make_error_response(PSQL_Error_ERROR,
 					   PSQL_Code_Protocol_Violation,
@@ -84,7 +84,7 @@ Execute *read_execute(BaseMessage *message, ErrorResponse **err) {
 		free(ret);
 		return NULL;
 	}
-	ret->rows_to_return = ntohl(*((unsigned int*)cur_pointer));
+	ret->rows_to_return = ntohl(*((uint32_t*)cur_pointer));
 
 	return ret;
 }

@@ -31,7 +31,7 @@ CloseComplete *make_close_complete(char *command_tag) {
 	memset(ret, 0, sizeof(CloseComplete));
 
 	ret->type = PSQL_CloseComplete;
-	ret->length = htonl(sizeof(unsigned int));
+	ret->length = htonl(sizeof(uint32_t));
 
 	return ret;
 }

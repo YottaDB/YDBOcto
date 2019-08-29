@@ -25,9 +25,9 @@
 StartupMessage *make_startup_message(char *username) {
 	StartupMessage *ret;
 	char *user = "user";
-	unsigned int data_len = 0;
-	unsigned int user_len = 0;
-	unsigned int username_len = 0;
+	uint32_t data_len = 0;
+	uint32_t user_len = 0;
+	uint32_t username_len = 0;
 
 	// Get length of parameter name and value
 	user_len = strlen(user) + 1;
@@ -37,7 +37,7 @@ StartupMessage *make_startup_message(char *username) {
 	ret = (StartupMessage*)malloc(sizeof(StartupMessage) + data_len);
 
 	// Set length and protocol version
-	ret->length = sizeof(unsigned int) + sizeof(int) + data_len;
+	ret->length = sizeof(uint32_t) + sizeof(int) + data_len;
 	ret->protocol_version = 0x00030000;
 	ret->num_parameters = 1;
 	// Populate data section

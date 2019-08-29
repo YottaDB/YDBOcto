@@ -27,22 +27,22 @@
 
 static void test_valid_input(void **state) {
 	// Test a single message
-	unsigned int message_length = 0;
-	message_length += sizeof(unsigned int);		// count length field
+	uint32_t message_length = 0;
+	message_length += sizeof(uint32_t);		// count length field
 	char *message = "EXECUTE test(1, n)";
 	message_length += strlen(message) + 1;		// count null
-	message_length += sizeof(unsigned int);		// count rows field
+	message_length += sizeof(uint32_t);		// count rows field
 	char *c = NULL;
 	ErrorResponse *err = NULL;
 
 	// Populate BaseMessage
-	BaseMessage *test_data = malloc(message_length + sizeof(BaseMessage) - sizeof(unsigned int));
+	BaseMessage *test_data = malloc(message_length + sizeof(BaseMessage) - sizeof(uint32_t));
 	test_data->type = PSQL_Execute;
 	test_data->length = htonl(message_length);
 	c = test_data->data;
 	// Copy message (exclude length and rows fields)
-	strncpy(c, message, message_length - sizeof(unsigned int) - sizeof(unsigned int));
-	c += message_length - sizeof(unsigned int) - sizeof(unsigned int);
+	strncpy(c, message, message_length - sizeof(uint32_t) - sizeof(uint32_t));
+	c += message_length - sizeof(uint32_t) - sizeof(uint32_t);
 	*((int*)c) = htonl(10);	// set value of rows field
 
 	// The actual test
@@ -57,11 +57,11 @@ static void test_valid_input(void **state) {
 
 static void test_non_terminated_input(void **state) {
 	// Test a single message
-	unsigned int message_length = 0;
-	message_length += sizeof(unsigned int);		// count length field
+	uint32_t message_length = 0;
+	message_length += sizeof(uint32_t);		// count length field
 	char *message = "EXECUTE test(1, n)";
 	message_length += strlen(message);		// exclude null
-	message_length += sizeof(unsigned int);		// count rows field
+	message_length += sizeof(uint32_t);		// count rows field
 	char *c = NULL;
 	ErrorResponse *err = NULL;
 	ErrorBuffer err_buff;
@@ -69,13 +69,13 @@ static void test_non_terminated_input(void **state) {
 	const char *error_message;
 
 	// Populate BaseMessage
-	BaseMessage *test_data = malloc(message_length + sizeof(BaseMessage) - sizeof(unsigned int));
+	BaseMessage *test_data = malloc(message_length + sizeof(BaseMessage) - sizeof(uint32_t));
 	test_data->type = PSQL_Execute;
 	test_data->length = htonl(message_length);
 	c = test_data->data;
 	// Copy message (exclude length and rows fields)
-	strncpy(c, message, message_length - sizeof(unsigned int) - sizeof(unsigned int));
-	c += message_length - sizeof(unsigned int) - sizeof(unsigned int);
+	strncpy(c, message, message_length - sizeof(uint32_t) - sizeof(uint32_t));
+	c += message_length - sizeof(uint32_t) - sizeof(uint32_t);
 	*((int*)c) = htonl(-1);		// set value of rows field to enforce non-null-terminated string
 
 	// The actual test
@@ -95,11 +95,11 @@ static void test_non_terminated_input(void **state) {
 
 static void test_unexpectedly_terminated_input(void **state) {
 	// Test a single message
-	unsigned int message_length = 0;
-	message_length += sizeof(unsigned int);		// count length field
+	uint32_t message_length = 0;
+	message_length += sizeof(uint32_t);		// count length field
 	char *message = "EXECUTE test(1, n\0)";
 	message_length += strlen(message) + 2;		// include early null
-	message_length += sizeof(unsigned int);		// count rows field
+	message_length += sizeof(uint32_t);		// count rows field
 	char *c = NULL;
 	ErrorResponse *err = NULL;
 	ErrorBuffer err_buff;
@@ -107,13 +107,13 @@ static void test_unexpectedly_terminated_input(void **state) {
 	const char *error_message;
 
 	// Populate BaseMessage
-	BaseMessage *test_data = malloc(message_length + sizeof(BaseMessage) - sizeof(unsigned int));
+	BaseMessage *test_data = malloc(message_length + sizeof(BaseMessage) - sizeof(uint32_t));
 	test_data->type = PSQL_Execute;
 	test_data->length = htonl(message_length);
 	c = test_data->data;
 	// Copy message (exclude length and rows fields)
-	strncpy(c, message, message_length - sizeof(unsigned int) - sizeof(unsigned int));
-	c += message_length - sizeof(unsigned int) - sizeof(unsigned int);
+	strncpy(c, message, message_length - sizeof(uint32_t) - sizeof(uint32_t));
+	c += message_length - sizeof(uint32_t) - sizeof(uint32_t);
 	*c = 10;	// set value of rows field
 
 	// The actual test
@@ -134,8 +134,8 @@ static void test_unexpectedly_terminated_input(void **state) {
 
 static void test_missing_rows_field(void **state) {
 	// Test a single message
-	unsigned int message_length = 0;
-	message_length += sizeof(unsigned int);		// count length field
+	uint32_t message_length = 0;
+	message_length += sizeof(uint32_t);		// count length field
 	char *message = "EXECUTE test(10, n)";
 	message_length += strlen(message) + 1;		// count null
 	char *c = NULL;
@@ -145,12 +145,12 @@ static void test_missing_rows_field(void **state) {
 	const char *error_message;
 
 	// Populate BaseMessage
-	BaseMessage *test_data = malloc(message_length + sizeof(BaseMessage) - sizeof(unsigned int));
+	BaseMessage *test_data = malloc(message_length + sizeof(BaseMessage) - sizeof(uint32_t));
 	test_data->type = PSQL_Execute;
 	test_data->length = htonl(message_length);
 	c = test_data->data;
 	// Copy message (exclude length field)
-	strncpy(c, message, message_length - sizeof(unsigned int));
+	strncpy(c, message, message_length - sizeof(uint32_t));
 
 	// The actual test
 	Execute *execute = read_execute(test_data, &err);
@@ -168,11 +168,11 @@ static void test_missing_rows_field(void **state) {
 
 static void test_invalid_type(void **state) {
 	// Test a single message
-	unsigned int message_length = 0;
-	message_length += sizeof(unsigned int);		// count length field
+	uint32_t message_length = 0;
+	message_length += sizeof(uint32_t);		// count length field
 	char *message = "EXECUTE test(1, n)";
 	message_length += strlen(message) + 1;		// count null
-	message_length += sizeof(unsigned int);		// count rows field
+	message_length += sizeof(uint32_t);		// count rows field
 	char *c = NULL;
 	ErrorResponse *err = NULL;
 	ErrorBuffer err_buff;
@@ -180,13 +180,13 @@ static void test_invalid_type(void **state) {
 	const char *error_message;
 
 	// Populate BaseMessage
-	BaseMessage *test_data = malloc(message_length + sizeof(BaseMessage) - sizeof(unsigned int));
+	BaseMessage *test_data = malloc(message_length + sizeof(BaseMessage) - sizeof(uint32_t));
 	test_data->type = 'X';
 	test_data->length = htonl(message_length);
 	c = test_data->data;
 	// Copy message (exclude length and rows fields)
-	strncpy(c, message, message_length - sizeof(unsigned int) - sizeof(unsigned int));
-	c += message_length - sizeof(unsigned int) - sizeof(unsigned int);
+	strncpy(c, message, message_length - sizeof(uint32_t) - sizeof(uint32_t));
+	c += message_length - sizeof(uint32_t) - sizeof(uint32_t);
 	*((int*)c) = htonl(10);	// set value of rows field
 
 	// The actual test

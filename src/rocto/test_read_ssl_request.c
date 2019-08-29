@@ -28,8 +28,8 @@
 static void test_valid_input(void **state) {
 	// Test a single SSLRequest message
 	// most significant 16 bits: 1234, least significant 16 bits: 5679
-	unsigned int request_code = 80877103;
-	unsigned int message_length = sizeof(SSLRequest);
+	uint32_t request_code = 80877103;
+	uint32_t message_length = sizeof(SSLRequest);
 	ErrorResponse *err = NULL;
 
 	// Length + extra stuff - already counted (length, protocol version)
@@ -53,8 +53,8 @@ static void test_valid_input(void **state) {
 static void test_invalid_length(void **state) {
 	// Test a single SSLRequest message
 	// most significant 16 bits: 1234, least significant 16 bits: 5679
-	unsigned int request_code = 80877103;
-	unsigned int message_length = 9;
+	uint32_t request_code = 80877103;
+	uint32_t message_length = 9;
 	ErrorResponse *err = NULL;
 	ErrorBuffer err_buff;
 	err_buff.offset = 0;
@@ -74,7 +74,7 @@ static void test_invalid_length(void **state) {
 
 	// Ensure correct error message
 	error_message = format_error_string(&err_buff, ERR_ROCTO_INVALID_INT_VALUE,
-			"SSLRequest", "length", message_length, "8");
+			"SSLRequest", "length", message_length, 8);
 	assert_string_equal(error_message, err->args[2].value + 1);
 
 	free(test_data);
@@ -84,8 +84,8 @@ static void test_invalid_length(void **state) {
 static void test_invalid_request_code(void **state) {
 	// Test a single SSLRequest message
 	// most significant 16 bits: 1234, least significant 16 bits: 5679
-	unsigned int request_code = 0x43219765;
-	unsigned int message_length = sizeof(SSLRequest);
+	uint32_t request_code = 0x43219765;
+	uint32_t message_length = sizeof(SSLRequest);
 	ErrorResponse *err = NULL;
 	ErrorBuffer err_buff;
 	err_buff.offset = 0;
@@ -105,13 +105,14 @@ static void test_invalid_request_code(void **state) {
 
 	// Ensure correct error message
 	error_message = format_error_string(&err_buff, ERR_ROCTO_INVALID_INT_VALUE,
-			"SSLRequest", "request code", request_code, "80877103");
+			"SSLRequest", "request code", request_code, 80877103);
 	assert_string_equal(error_message, err->args[2].value + 1);
 
 	free(test_data);
 	free_error_response(err);
 }
 int main(void) {
+	octo_init(0, NULL);
 	const struct CMUnitTest tests[] = {
 			cmocka_unit_test(test_valid_input),
 			cmocka_unit_test(test_invalid_length),

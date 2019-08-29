@@ -22,24 +22,24 @@
 
 
 ParameterStatus *make_parameter_status(StartupMessageParm *parm) {
-	unsigned int length;
+	uint32_t length;
 	ParameterStatus *ret;
 	char *c;
-	int name_len, value_len;
+	int32_t name_len, value_len;
 
 	if (NULL == parm) {
 		return NULL;
 	}
 
 	length = 0;
-	length += sizeof(unsigned int);
+	length += sizeof(uint32_t);
 	name_len = strlen(parm->name);
 	length += name_len + 1;
 	value_len = strlen(parm->value);
 	length += value_len + 1;
 
 	// malloc space for everything, but don't count length field twice
-	ret = (ParameterStatus*)malloc(length + sizeof(ParameterStatus) - sizeof(unsigned int));
+	ret = (ParameterStatus*)malloc(length + sizeof(ParameterStatus) - sizeof(uint32_t));
 	memset(ret, 0, sizeof(ParseComplete));
 
 	ret->type = PSQL_ParameterStatus;

@@ -28,7 +28,7 @@ ReadyForQuery *make_ready_for_query(PSQL_TransactionStatus status) {
 	memset(ret, 0, sizeof(ReadyForQuery));
 
 	ret->type = PSQL_ReadyForQuery;
-	ret->length = htonl(sizeof(unsigned int) + sizeof(char));
+	ret->length = htonl(sizeof(uint32_t) + sizeof(char));
 	ret->status = status;
 
 	return ret;

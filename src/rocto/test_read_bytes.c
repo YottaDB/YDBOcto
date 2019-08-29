@@ -27,25 +27,25 @@
 #include "message_formats.h"
 #include "ydb_tls_interface.h"
 
-int __wrap_recv(int *socfd, void *buf, size_t len, int flags) {
-	int expected_return = mock_type(int);
+int __wrap_recv(int *socfd, void *buf, size_t len, int32_t flags) {
+	int32_t expected_return = mock_type(int);
 	errno = mock_type(int);
 	return expected_return;
 }
 
 int __wrap_gtm_tls_recv(gtm_tls_socket_t  *tls_socket, void *buf, size_t len) {
-	int expected_return = mock_type(int);
+	int32_t expected_return = mock_type(int);
 	errno = mock_type(int);
 	return expected_return;
 }
 
 unsigned long __wrap_gtm_tls_get_error() {
-	int expected_return = mock_type(int);
+	int32_t expected_return = mock_type(int);
 	return expected_return;
 }
 
 unsigned long __wrap_gtm_tls_errno() {
-	int expected_return = mock_type(int);
+	int32_t expected_return = mock_type(int);
 	return expected_return;
 }
 
@@ -53,8 +53,8 @@ void __wrap_octo_log(int line, char *file, enum ERROR_LEVEL level, enum ERROR er
 	char *error_string = NULL;
 	va_list args;
 	va_start(args, error);
-	int expected_level = mock_type(int);
-	int expected_error = mock_type(int);
+	int32_t expected_level = mock_type(int);
+	int32_t expected_error = mock_type(int);
 	char *expected_error_string = mock_type(char *);
 
 	assert_int_equal(level, expected_level);
@@ -68,8 +68,8 @@ void __wrap_octo_log(int line, char *file, enum ERROR_LEVEL level, enum ERROR er
 
 static void test_valid_input_no_SSL(void **state) {
 	char *buffer;
-	int buffer_size = 0, bytes_to_read = 0;
-	int rt = 1;
+	int32_t buffer_size = 0, bytes_to_read = 0;
+	int32_t rt = 1;
 	RoctoSession session;
 	session.ssl_active = FALSE;
 
@@ -93,8 +93,8 @@ static void test_valid_input_no_SSL(void **state) {
 }
 
 static void test_read_too_large(void **state) {
-	int buffer_size = 0, bytes_to_read = 0;
-	int rt = 1;
+	int32_t buffer_size = 0, bytes_to_read = 0;
+	int32_t rt = 1;
 	RoctoSession session;
 	session.ssl_active = FALSE;
 
@@ -112,8 +112,8 @@ static void test_read_too_large(void **state) {
 }
 
 static void test_invalid_read_size(void **state) {
-	int buffer_size = 0, bytes_to_read = 0;
-	int rt = 1;
+	int32_t buffer_size = 0, bytes_to_read = 0;
+	int32_t rt = 1;
 	RoctoSession session;
 	session.ssl_active = FALSE;
 
@@ -132,8 +132,8 @@ static void test_invalid_read_size(void **state) {
 
 static void test_recv_interrupted(void **state) {
 	char *buffer;
-	int buffer_size = 0, bytes_to_read = 0;
-	int rt = 1;
+	int32_t buffer_size = 0, bytes_to_read = 0;
+	int32_t rt = 1;
 	RoctoSession session;
 	session.ssl_active = FALSE;
 
@@ -161,8 +161,8 @@ static void test_recv_interrupted(void **state) {
 
 static void test_recv_connection_reset(void **state) {
 	char *buffer;
-	int buffer_size = 0, bytes_to_read = 0;
-	int rt = 1;
+	int32_t buffer_size = 0, bytes_to_read = 0;
+	int32_t rt = 1;
 	RoctoSession session;
 	session.ssl_active = FALSE;
 
@@ -191,8 +191,8 @@ static void test_recv_connection_reset(void **state) {
 
 static void test_recv_broken_pipe(void **state) {
 	char *buffer;
-	int buffer_size = 0, bytes_to_read = 0;
-	int rt = 1;
+	int32_t buffer_size = 0, bytes_to_read = 0;
+	int32_t rt = 1;
 	RoctoSession session;
 	session.ssl_active = FALSE;
 
@@ -221,8 +221,8 @@ static void test_recv_broken_pipe(void **state) {
 
 static void test_recv_timed_out(void **state) {
 	char *buffer;
-	int buffer_size = 0, bytes_to_read = 0;
-	int rt = 1;
+	int32_t buffer_size = 0, bytes_to_read = 0;
+	int32_t rt = 1;
 	RoctoSession session;
 	session.ssl_active = FALSE;
 
@@ -250,8 +250,8 @@ static void test_recv_timed_out(void **state) {
 }
 static void test_socket_closed(void **state) {
 	char *buffer;
-	int buffer_size = 0, bytes_to_read = 0;
-	int rt = 1;
+	int32_t buffer_size = 0, bytes_to_read = 0;
+	int32_t rt = 1;
 	RoctoSession session;
 	session.ssl_active = FALSE;
 
@@ -277,8 +277,8 @@ static void test_socket_closed(void **state) {
 
 static void test_valid_input_with_SSL(void **state) {
 	char *buffer;
-	int buffer_size = 0, bytes_to_read = 0;
-	int rt = 1;
+	int32_t buffer_size = 0, bytes_to_read = 0;
+	int32_t rt = 1;
 	RoctoSession session;
 	session.ssl_active = TRUE;
 
@@ -303,8 +303,8 @@ static void test_valid_input_with_SSL(void **state) {
 
 static void test_SSL_read_interrupted(void **state) {
 	char *buffer;
-	int buffer_size = 0, bytes_to_read = 0;
-	int rt = 1;
+	int32_t buffer_size = 0, bytes_to_read = 0;
+	int32_t rt = 1;
 	RoctoSession session;
 	session.ssl_active = TRUE;
 
@@ -334,8 +334,8 @@ static void test_SSL_read_interrupted(void **state) {
 
 static void test_SSL_ERROR_ZERO_RETURN(void **state) {
 	char *buffer;
-	int buffer_size = 0, bytes_to_read = 0;
-	int rt = 1;
+	int32_t buffer_size = 0, bytes_to_read = 0;
+	int32_t rt = 1;
 	RoctoSession session;
 	session.ssl_active = TRUE;
 
@@ -370,8 +370,8 @@ static void test_SSL_ERROR_ZERO_RETURN(void **state) {
 
 static void test_SSL_ERROR_WANT_READ(void **state) {
 	char *buffer;
-	int buffer_size = 0, bytes_to_read = 0;
-	int rt = 1;
+	int32_t buffer_size = 0, bytes_to_read = 0;
+	int32_t rt = 1;
 	RoctoSession session;
 	session.ssl_active = TRUE;
 
@@ -406,8 +406,8 @@ static void test_SSL_ERROR_WANT_READ(void **state) {
 
 static void test_SSL_ERROR_SYSCALL(void **state) {
 	char *buffer;
-	int buffer_size = 0, bytes_to_read = 0;
-	int rt = 1;
+	int32_t buffer_size = 0, bytes_to_read = 0;
+	int32_t rt = 1;
 	RoctoSession session;
 	session.ssl_active = TRUE;
 
@@ -442,8 +442,8 @@ static void test_SSL_ERROR_SYSCALL(void **state) {
 
 static void test_SSL_ERROR_SSL(void **state) {
 	char *buffer;
-	int buffer_size = 0, bytes_to_read = 0;
-	int rt = 1;
+	int32_t buffer_size = 0, bytes_to_read = 0;
+	int32_t rt = 1;
 	RoctoSession session;
 	session.ssl_active = TRUE;
 

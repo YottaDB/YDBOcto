@@ -23,7 +23,7 @@
 
 ParameterStatus *read_parameter_status(BaseMessage *message, ErrorResponse **err) {
 	ParameterStatus *ret;
-	unsigned int remaining_length = 0;
+	uint32_t remaining_length = 0;
 
 	UNUSED(err);
 
@@ -32,11 +32,11 @@ ParameterStatus *read_parameter_status(BaseMessage *message, ErrorResponse **err
 	}
 
 	remaining_length = ntohl(message->length);
-	ret = (ParameterStatus*)malloc(remaining_length + sizeof(ParameterStatus) - sizeof(unsigned int));
+	ret = (ParameterStatus*)malloc(remaining_length + sizeof(ParameterStatus) - sizeof(uint32_t));
 
 	ret->type = message->type;
 	ret->length = remaining_length;
-	memcpy(ret->data, message->data, remaining_length - sizeof(unsigned int));
+	memcpy(ret->data, message->data, remaining_length - sizeof(uint32_t));
 
 	return ret;
 }

@@ -113,7 +113,8 @@ ERROR_DEF(ERR_INVALID_READ_SIZE, "Read size %d out of range", PSQL_Code_Numeric_
 ERROR_DEF(ERR_INVALID_WRITE_SIZE, "Read size %d out of range", PSQL_Code_Numeric_Value_Out_Of_Range)
 // ROCTO //
 ERROR_DEF(ERR_ROCTO_INVALID_CHAR_VALUE, "%s: invalid %s value %c: must be %s", PSQL_Code_Data_Exception)
-ERROR_DEF(ERR_ROCTO_INVALID_INT_VALUE, "%s: invalid %s value %d: must be %s", PSQL_Code_Numeric_Value_Out_Of_Range)
+ERROR_DEF(ERR_ROCTO_INVALID_INT_VALUE, "%s: invalid %s value %d: must be %d", PSQL_Code_Numeric_Value_Out_Of_Range)
+ERROR_DEF(ERR_ROCTO_INVALID_INT_VALUE_MULTI, "%s: invalid %s value %d: must be %s", PSQL_Code_Numeric_Value_Out_Of_Range)
 ERROR_DEF(ERR_ROCTO_INVALID_NUMBER, "%s: invalid number of %s", PSQL_Code_Numeric_Value_Out_Of_Range)
 ERROR_DEF(ERR_ROCTO_MISSING_DATA, "%s: missing %s", PSQL_Code_Data_Exception)
 ERROR_DEF(ERR_ROCTO_MISSING_NULL, "%s: %s missing null terminator", PSQL_Code_Unterminated_C_String)

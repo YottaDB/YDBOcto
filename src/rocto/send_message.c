@@ -26,7 +26,7 @@
 #include "message_formats.h"
 
 int send_message(RoctoSession *session, BaseMessage *message) {
-	int result = 0;
+	int32_t result = 0;
 
 	TRACE(ERR_ENTERING_FUNCTION, "send_message");
 	TRACE(ERR_SEND_MESSAGE, message->type, ntohl(message->length));

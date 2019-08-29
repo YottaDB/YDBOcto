@@ -21,11 +21,11 @@
 #include "message_formats.h"
 
 
-RowDescription *make_row_description(RowDescriptionParm *parms, short num_parms) {
+RowDescription *make_row_description(RowDescriptionParm *parms, int16_t num_parms) {
 	RowDescription *ret;
-	unsigned int length = 0, cur_str_length;
+	uint32_t length = 0, cur_str_length;
 	char *c;
-	int i;
+	int32_t i;
 
 	// Get a count of the needed length
 	for(i = 0; i < num_parms; i++) {
@@ -38,9 +38,9 @@ RowDescription *make_row_description(RowDescriptionParm *parms, short num_parms)
 	ret = (RowDescription*)malloc(sizeof(RowDescription) + length);
 	memset(ret, 0, sizeof(RowDescription) + length);
 	// Count the length field as part of the length
-	length += sizeof(unsigned int);
+	length += sizeof(uint32_t);
 	// Count the num_parms field
-	length += sizeof(short);
+	length += sizeof(int16_t);
 
 	ret->type = PSQL_RowDescription;
 	ret->length = htonl(length);
@@ -59,16 +59,16 @@ RowDescription *make_row_description(RowDescriptionParm *parms, short num_parms)
 		// Copy values, converting them to network endianess
 		*((int*)c) = htonl(parms[i].table_id);
 		c += sizeof(int);
-		*((short*)c) = htons(parms[i].column_id);
-		c += sizeof(short);
+		*((int16_t*)c) = htons(parms[i].column_id);
+		c += sizeof(int16_t);
 		*((int*)c) = htonl(parms[i].data_type);
 		c += sizeof(int);
-		*((short*)c) = htons(parms[i].data_type_size);
-		c += sizeof(short);
+		*((int16_t*)c) = htons(parms[i].data_type_size);
+		c += sizeof(int16_t);
 		*((int*)c) = htonl(parms[i].type_modifier);
 		c += sizeof(int);
-		*((short*)c) = htons(parms[i].format_code);
-		c += sizeof(short);
+		*((int16_t*)c) = htons(parms[i].format_code);
+		c += sizeof(int16_t);
 	}
 
 	return ret;

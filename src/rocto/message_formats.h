@@ -54,22 +54,22 @@ enum PSQL_MessageTypes {
 
 typedef struct __attribute__((packed)) {
 		char type;
-		int length;
+		int32_t length;
 		char data[];
 } BaseMessage;
 
 // B
 typedef struct __attribute__((packed)) {
 	char type;
-	unsigned int length;
-	int result;
+	uint32_t length;
+	int32_t result;
 } AuthenticationOk;
 
 // B
 typedef struct __attribute__((packed)) {
 	char type;
-	unsigned int length;
-	int _b;
+	uint32_t length;
+	int32_t _b;
 } AuthenticationCleartextPassword;
 
 // B
@@ -78,8 +78,8 @@ typedef struct __attribute__((packed)) {
 // B
 typedef struct __attribute__((packed)) {
 	char type;
-	unsigned int length;
-	unsigned int md5_required;
+	uint32_t length;
+	uint32_t md5_required;
 	char salt[4];
 } AuthenticationMD5Password;
 
@@ -96,7 +96,7 @@ typedef struct __attribute__((packed)) {
 //# BackendKeyData
 
 typedef struct __attribute__((packed)) {
-	int length;
+	int32_t length;
 	void *value;
 } BindParm;
 
@@ -104,28 +104,28 @@ typedef struct __attribute__((packed)) {
 typedef struct __attribute__((packed)) {
 	char *dest;
 	char *source;
-	short int num_parm_format_codes;
-	short int *parm_format_codes;
-	short int num_parms;
+	int16_t num_parm_format_codes;
+	int16_t *parm_format_codes;
+	int16_t num_parms;
 	BindParm *parms;
-	short int num_result_col_format_codes;
-	short int *result_col_format_codes;
+	int16_t num_result_col_format_codes;
+	int16_t *result_col_format_codes;
 
 	char type;
-	unsigned int length;
+	uint32_t length;
 	char data[];
 } Bind;
 
 // B
 typedef struct __attribute__((packed)) {
 	char type;
-	unsigned int length;
+	uint32_t length;
 } BindComplete;
 
 // F
 typedef struct __attribute__((packed)) {
 	char type;
-	unsigned int length;
+	uint32_t length;
 	char item;
 	char data[];
 } Close;
@@ -133,7 +133,7 @@ typedef struct __attribute__((packed)) {
 // B
 typedef struct __attribute__((packed)) {
 	char type;
-	unsigned int length;
+	uint32_t length;
 } CloseComplete;
 
 // B
@@ -141,12 +141,12 @@ typedef struct __attribute__((packed)) {
   char *command_tag;
 
   char type;
-  unsigned int length;
+  uint32_t length;
   char data[];
 } CommandComplete;
 
 typedef struct {
-	unsigned int length;
+	uint32_t length;
 	char *value;
 } DataRowParm;
 
@@ -155,15 +155,15 @@ typedef struct __attribute__((packed)) {
 	DataRowParm *parms;
 
 	char type;
-	unsigned int length;
-	short num_columns;
+	uint32_t length;
+	int16_t num_columns;
 	char data[];
 } DataRow;
 
 // F
 typedef struct __attribute__((packed)) {
 	char type;
-	unsigned int length;
+	uint32_t length;
 	char item;
 	char name[];
 } Describe;
@@ -171,7 +171,7 @@ typedef struct __attribute__((packed)) {
 // B
 typedef struct __attribute__((packed)) {
 	char type;
-	unsigned int length;
+	uint32_t length;
 } EmptyQueryResponse;
 
 typedef struct {
@@ -184,36 +184,36 @@ typedef struct __attribute__((packed)) {
 	ErrorResponseArg *args;
 
 	char type;
-	unsigned int length;
+	uint32_t length;
 	char data[];
 } ErrorResponse;
 
 // F
 typedef struct __attribute__((packed)) {
 	char *source;
-	unsigned int rows_to_return;
+	uint32_t rows_to_return;
 
 	char type;
-	unsigned int length;
+	uint32_t length;
 	char data[];
 } Execute;
 
 // F
 typedef struct __attribute__((packed)) {
 	char type;
-	unsigned int length;
+	uint32_t length;
 } Flush;
 
 // B
 typedef struct __attribute__((packed)) {
 	char type;
-	unsigned int length;
+	uint32_t length;
 } NoData;
 
 // B
 typedef struct __attribute__((packed)) {
 	char type;
-	unsigned int length;
+	uint32_t length;
 	char data[];
 } ParameterStatus;
 
@@ -221,31 +221,31 @@ typedef struct __attribute__((packed)) {
 typedef struct __attribute__((packed)) {
 	char *dest;
 	char *query;
-	short num_parm_data_types;
-	unsigned int *parm_data_types;
+	int16_t num_parm_data_types;
+	uint32_t *parm_data_types;
 
 	char type;
-	unsigned int length;
+	uint32_t length;
 	char data[];
 } Parse;
 
 // B
 typedef struct __attribute__((packed)) {
 	char type;
-	unsigned int length;
+	uint32_t length;
 } ParseComplete;
 
 // B
 typedef struct __attribute__((packed)) {
 	char type;
-	unsigned int length;
+	uint32_t length;
 } PortalSuspended;
 
 // F
 typedef struct __attribute__((packed)) {
 	char *query;
 	char type;
-	unsigned int length;
+	uint32_t length;
 	char data[];
 } Query;
 
@@ -253,14 +253,14 @@ typedef struct __attribute__((packed)) {
 typedef struct __attribute__((packed)) {
 	char *password;
 	char type;
-	unsigned int length;
+	uint32_t length;
 	char data[];
 } PasswordMessage;
 
 // B
 typedef struct __attribute__((packed)) {
 	char type;
-	unsigned int length;
+	uint32_t length;
 	char status;
 } ReadyForQuery;
 
@@ -268,36 +268,36 @@ typedef struct __attribute__((packed)) {
 //  of the RowDescription
 typedef struct __attribute__((packed)) {
 	char *name;
-	int table_id;
-	short column_id;
-	int data_type;
-	short data_type_size;
-	int type_modifier;
-	short format_code;
+	int32_t table_id;
+	int16_t column_id;
+	int32_t data_type;
+	int16_t data_type_size;
+	int32_t type_modifier;
+	int16_t format_code;
 } RowDescriptionParm;
 
 // B
 typedef struct __attribute__((packed)) {
-	short num_fields;
+	int16_t num_fields;
 	RowDescriptionParm *parms;
 
 	char type;
-	unsigned int length;
-	short num_parms;
+	uint32_t length;
+	int16_t num_parms;
 	char data[];
 } RowDescription;
 
 typedef struct __attribute__((packed)) {
 	char type;
-	unsigned int length;
-	short num_parms;
+	uint32_t length;
+	int16_t num_parms;
 	char data[];
 } ParameterDescription;
 
 // F
 typedef struct __attribute__((packed)) {
-	unsigned int length;
-	int request_code;
+	uint32_t length;
+	int32_t request_code;
 } SSLRequest;
 
 typedef struct {
@@ -310,23 +310,23 @@ typedef struct {
 //  string => string mappings
 typedef struct __attribute__((packed)) {
 	StartupMessageParm *parameters;
-	int num_parameters;
+	int32_t num_parameters;
 
-	unsigned int length;
-	int protocol_version;
+	uint32_t length;
+	int32_t protocol_version;
 	char data[];
 } StartupMessage;
 
 // F
 typedef struct __attribute__((packed)) {
 	char type;
-	unsigned int length;
+	uint32_t length;
 } Sync;
 
 // F
 typedef struct __attribute__((packed)) {
 	char type;
-	unsigned int length;
+	uint32_t length;
 } Terminate;
 
 typedef enum {

@@ -29,13 +29,13 @@
 #include "helpers.h"
 
 int __wrap_send_message(RoctoSession *session, BaseMessage *message) {
-	int message_type = mock_type(char);
+	int32_t message_type = mock_type(char);
 	assert_true(message_type == message->type);
 	return 0;
 }
 
 static void test_one_parm_text_format(void **state) {
-	int result;
+	int32_t result;
 	Bind bind;
 	ydb_buffer_t session_id, *result_buffer;
 	RoctoSession session;
@@ -72,7 +72,7 @@ static void test_one_parm_text_format(void **state) {
 }
 
 static void test_two_parm_text_format(void **state) {
-	int result;
+	int32_t result;
 	Bind bind;
 	ydb_buffer_t session_id, *result_buffer;
 	RoctoSession session;
@@ -112,7 +112,7 @@ static void test_two_parm_text_format(void **state) {
 }
 
 static void test_four_parm_text_format(void **state) {
-	int result;
+	int32_t result;
 	Bind bind;
 	ydb_buffer_t session_id, *result_buffer;
 	RoctoSession session;
@@ -157,7 +157,7 @@ static void test_four_parm_text_format(void **state) {
 
 
 static void test_one_parm_binary_format(void **state) {
-	int result;
+	int32_t result;
 	Bind bind;
 	ydb_buffer_t session_id, *result_buffer;
 	RoctoSession session;
@@ -167,7 +167,7 @@ static void test_one_parm_binary_format(void **state) {
 
 	char value;
 	value = 7;
-	short int codes[1] = {1};
+	int16_t codes[1] = {1};
 	bind.dest = "";
 	bind.source = "sample1";
 	bind.num_parm_format_codes = 1;
@@ -197,7 +197,7 @@ static void test_one_parm_binary_format(void **state) {
 }
 
 static void test_two_parm_binary_format(void **state) {
-	int result;
+	int32_t result;
 	Bind bind;
 	ydb_buffer_t session_id, *result_buffer;
 	RoctoSession session;
@@ -205,13 +205,13 @@ static void test_two_parm_binary_format(void **state) {
 	session.session_id = &session_id;
 
 	char uuid[16];
-	int i = 0;
+	int32_t i = 0;
 	for (i = 0; i < 16; i++) {
 		uuid[i] = i;
 	}
 	int16_t value;
 	value = htons(12345);
-	short int codes[1] = {1};
+	int16_t codes[1] = {1};
 	bind.dest = "";
 	bind.source = "sample1";
 	bind.num_parm_format_codes = 1;
@@ -244,7 +244,7 @@ static void test_two_parm_binary_format(void **state) {
 }
 
 static void test_four_parm_binary_format(void **state) {
-	int result;
+	int32_t result;
 	Bind bind;
 	ydb_buffer_t session_id, *result_buffer;
 	RoctoSession session;
@@ -257,7 +257,7 @@ static void test_four_parm_binary_format(void **state) {
 	value2 = htons(54321);
 	value3 = htons(678);
 	value4 = htons(876);
-	short int codes[1] = {1};
+	int16_t codes[1] = {1};
 	bind.dest = "";
 	bind.source = "sample1";
 	bind.num_parm_format_codes = 1;
@@ -295,7 +295,7 @@ static void test_four_parm_binary_format(void **state) {
 }
 
 static void test_one_parm_one_code_text(void **state) {
-	int result;
+	int32_t result;
 	Bind bind;
 	ydb_buffer_t session_id, *result_buffer;
 	RoctoSession session;
@@ -303,7 +303,7 @@ static void test_one_parm_one_code_text(void **state) {
 	YDB_LITERAL_TO_BUFFER("0", &session_id);
 	session.session_id = &session_id;
 
-	short int codes[1] = {0};
+	int16_t codes[1] = {0};
 	bind.dest = "";
 	bind.source = "sample1";
 	bind.num_parm_format_codes = 1;
@@ -333,7 +333,7 @@ static void test_one_parm_one_code_text(void **state) {
 }
 
 static void test_two_parm_one_code_text(void **state) {
-	int result;
+	int32_t result;
 	Bind bind;
 	ydb_buffer_t session_id, *result_buffer;
 	RoctoSession session;
@@ -341,7 +341,7 @@ static void test_two_parm_one_code_text(void **state) {
 	YDB_LITERAL_TO_BUFFER("0", &session_id);
 	session.session_id = &session_id;
 
-	short int codes[1] = {0};
+	int16_t codes[1] = {0};
 	bind.dest = "";
 	bind.source = "sample1";
 	bind.num_parm_format_codes = 1;
@@ -374,7 +374,7 @@ static void test_two_parm_one_code_text(void **state) {
 }
 
 static void test_four_parm_one_code_text(void **state) {
-	int result;
+	int32_t result;
 	Bind bind;
 	ydb_buffer_t session_id, *result_buffer;
 	RoctoSession session;
@@ -382,7 +382,7 @@ static void test_four_parm_one_code_text(void **state) {
 	YDB_LITERAL_TO_BUFFER("0", &session_id);
 	session.session_id = &session_id;
 
-	short int codes[1] = {0};
+	int16_t codes[1] = {0};
 	bind.dest = "";
 	bind.source = "sample1";
 	bind.num_parm_format_codes = 1;
@@ -419,7 +419,7 @@ static void test_four_parm_one_code_text(void **state) {
 }
 
 static void test_two_parm_two_code(void **state) {
-	int result;
+	int32_t result;
 	Bind bind;
 	ydb_buffer_t session_id, *result_buffer;
 	RoctoSession session;
@@ -427,7 +427,7 @@ static void test_two_parm_two_code(void **state) {
 	YDB_LITERAL_TO_BUFFER("0", &session_id);
 	session.session_id = &session_id;
 
-	short int codes[2] = {0, 1};
+	int16_t codes[2] = {0, 1};
 	int64_t value;
 	value = htobe64(12345);
 	bind.dest = "";
@@ -462,7 +462,7 @@ static void test_two_parm_two_code(void **state) {
 }
 
 static void test_four_parm_four_code(void **state) {
-	int result;
+	int32_t result;
 	Bind bind;
 	ydb_buffer_t session_id, *result_buffer;
 	RoctoSession session;
@@ -470,7 +470,7 @@ static void test_four_parm_four_code(void **state) {
 	YDB_LITERAL_TO_BUFFER("0", &session_id);
 	session.session_id = &session_id;
 
-	short int codes[4] = {0, 1, 0, 1};
+	int16_t codes[4] = {0, 1, 0, 1};
 	int16_t value1;
 	int32_t value2;
 	value1 = htons(12345);
@@ -511,7 +511,7 @@ static void test_four_parm_four_code(void **state) {
 }
 
 static void test_bind_to_non_existent_source(void **state) {
-	int result;
+	int32_t result;
 	Bind bind;
 	ydb_buffer_t session_id, *result_buffer;
 	RoctoSession session;
@@ -539,7 +539,7 @@ static void test_bind_to_non_existent_source(void **state) {
 }
 
 static void test_bind_with_too_many_parms(void **state) {
-	int result;
+	int32_t result;
 	Bind bind;
 	ydb_buffer_t session_id, *result_buffer;
 	RoctoSession session;
@@ -569,7 +569,7 @@ static void test_bind_with_too_many_parms(void **state) {
 }
 
 static void test_bind_greater_than_max_str_const(void **state) {
-	int result, i;
+	int32_t result, i;
 	char str[MAX_STR_CONST];
 	Bind bind;
 	ydb_buffer_t session_id, *result_buffer;

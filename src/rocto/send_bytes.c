@@ -24,10 +24,10 @@
 
 int send_bytes(RoctoSession *session, char *message, size_t length) {
 #if YDB_TLS_AVAILABLE
-	int result = 0, tls_errno = 0;
+	int32_t result = 0, tls_errno = 0;
 	const char *err_str = NULL;
-#endif	
-	int written_so_far = 0, written_now = 0, to_write = length;
+#endif
+	int32_t written_so_far = 0, written_now = 0, to_write = length;
 
 	if (session->ssl_active) {
 #if YDB_TLS_AVAILABLE

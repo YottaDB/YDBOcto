@@ -28,7 +28,7 @@ EmptyQueryResponse *make_empty_query_response() {
 	memset(ret, 0, sizeof(EmptyQueryResponse));
 
 	ret->type = PSQL_EmptyQueryResponse;
-	ret->length = htonl(sizeof(unsigned int));
+	ret->length = htonl(sizeof(uint32_t));
 
 	return ret;
 }

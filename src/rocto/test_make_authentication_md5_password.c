@@ -30,7 +30,7 @@ static void test_valid_input(void **state) {
 	ydb_buffer_t session_id;
 	YDB_STRING_TO_BUFFER("0", &session_id);
 	session.session_id = &session_id;
-	int expected_length = 12;
+	int32_t expected_length = 12;
 	char salt1[4];
 	char salt2[4];
 
@@ -51,7 +51,7 @@ static void test_valid_input(void **state) {
 }
 
 static void test_invalid_input_null_pointer(void **state) {
-	int expected_length = 12;
+	int32_t expected_length = 12;
 	char salt[4];
 
 	AuthenticationMD5Password *response = make_authentication_md5_password(NULL, salt);

@@ -25,7 +25,7 @@
 
 #define	DATA_ROW_PARMS_ARRAY_INIT_ALLOC	16
 
-void handle_query_response(SqlStatement *stmt, int cursor_id, void *_parms, char *plan_name) {
+void handle_query_response(SqlStatement *stmt, int32_t cursor_id, void *_parms, char *plan_name) {
 	QueryResponseParms	*parms = (QueryResponseParms*)_parms;
 	RowDescription		*row_description;
 	CommandComplete		*command_complete;

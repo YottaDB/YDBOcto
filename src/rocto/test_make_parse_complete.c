@@ -30,7 +30,7 @@ static void test_valid_input(void **state) {
 	ParseComplete *received_response;
 	ErrorResponse *err = NULL;
 
-	int expected_length = sizeof(unsigned int);
+	int32_t expected_length = sizeof(uint32_t);
 	response = make_parse_complete();
 	received_response = read_parse_complete((BaseMessage*)&response->type, &err);
 

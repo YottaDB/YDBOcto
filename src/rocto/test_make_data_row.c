@@ -30,7 +30,7 @@ static void test_null_input(void **state) {
 	DataRow *received_response = NULL;
 	ErrorResponse *err = NULL;
 
-	int expected_length = sizeof(unsigned int) + sizeof(short int);
+	int32_t expected_length = sizeof(uint32_t) + sizeof(int16_t);
 	response = make_data_row(NULL, 0);
 	received_response = read_data_row((BaseMessage*)&response->type, &err);
 
@@ -48,17 +48,17 @@ static void test_one_parms(void **state) {
 	DataRow *response = NULL;
 	DataRow *received_response = NULL;
 	ErrorResponse *err = NULL;
-	int num_parms = 1, i = 0;
+	int32_t num_parms = 1, i = 0;
 	DataRowParm parms[num_parms];
 
 	memset(parms, 0, sizeof(DataRowParm) * num_parms);
 	char *parm_value = "helloWorld";
-	int parm_length = strlen(parm_value);
+	int32_t parm_length = strlen(parm_value);
 	parms[0].length = parm_length;
 	parms[0].value = (char*)malloc(parm_length * sizeof(char));
 	strncpy(parms[0].value, parm_value, parm_length);
 	// DataRow.length + DataRow.num_columns + DataRowParms (each parm: length + string value)
-	int expected_length = sizeof(unsigned int) + sizeof(short int) + (sizeof(unsigned int)) * num_parms + parm_length;
+	int32_t expected_length = sizeof(uint32_t) + sizeof(int16_t) + (sizeof(uint32_t)) * num_parms + parm_length;
 
 	response = make_data_row(parms, num_parms);
 	received_response = read_data_row((BaseMessage*)&response->type, &err);
@@ -80,25 +80,25 @@ static void test_multi_parms(void **state) {
 	DataRow *response = NULL;
 	DataRow *received_response = NULL;
 	ErrorResponse *err = NULL;
-	int num_parms = 2, i = 0;
+	int32_t num_parms = 2, i = 0;
 	DataRowParm parms[num_parms];
 	memset(parms, 0, sizeof(DataRowParm) * num_parms);
 
 	char *parm1_value = "helloWorld";
-	int parm1_length = strlen(parm1_value);
+	int32_t parm1_length = strlen(parm1_value);
 	parms[0].length = parm1_length;
 	parms[0].value = (char*)malloc(parm1_length * sizeof(char));
 	strncpy(parms[0].value, parm1_value, parm1_length);
 
 	char *parm2_value = "helloUniverse";
-	int parm2_length = strlen(parm2_value);
+	int32_t parm2_length = strlen(parm2_value);
 	parms[1].length = parm2_length;
 	parms[1].value = (char*)malloc(parm2_length * sizeof(char));
 	strncpy(parms[1].value, parm2_value, parm2_length);
 
 	// DataRow.length + DataRow.num_columns + DataRowParms (each parm: length + string value)
-	int expected_length = sizeof(unsigned int) + sizeof(short int)
-		+ (sizeof(unsigned int)) * num_parms + parm1_length + parm2_length;
+	int32_t expected_length = sizeof(uint32_t) + sizeof(int16_t)
+		+ (sizeof(uint32_t)) * num_parms + parm1_length + parm2_length;
 
 	response = make_data_row(parms, num_parms);
 	received_response = read_data_row((BaseMessage*)&response->type, &err);

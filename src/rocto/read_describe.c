@@ -25,7 +25,7 @@ Describe *read_describe(BaseMessage *message, ErrorResponse **err) {
 	ErrorBuffer err_buff;
 	char *cur_pointer, *last_byte;
 	const char *error_message;
-	unsigned int remaining_length;
+	uint32_t remaining_length;
 	err_buff.offset = 0;
 
 	// Create Describe struct and initialize ALL bytes to prevent leaks
@@ -36,7 +36,7 @@ Describe *read_describe(BaseMessage *message, ErrorResponse **err) {
 	// Copy entire message, including byte for the type field
 	memcpy(&ret->type, message, remaining_length + 1);
 	// The data section doesn't include the length or format code
-	remaining_length -= sizeof(unsigned int);	// Exclude length
+	remaining_length -= sizeof(uint32_t);	// Exclude length
 	remaining_length -= sizeof(char);		// Exclude format
 
 	// Ensure valid value for type field

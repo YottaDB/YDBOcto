@@ -29,9 +29,9 @@ static void test_valid_input(void **state) {
 	AuthenticationOk *response = NULL;
 	AuthenticationOk *received_response = NULL;
 	ErrorResponse *err = NULL;
-	int expected_type = 'R';
-	unsigned int expected_length = sizeof(unsigned int) + sizeof(int);
-	int expected_result = 0;
+	int32_t expected_type = 'R';
+	uint32_t expected_length = sizeof(uint32_t) + sizeof(int);
+	int32_t expected_result = 0;
 
 	response = make_authentication_ok();
 	received_response = read_authentication_ok((BaseMessage*)response, &err);

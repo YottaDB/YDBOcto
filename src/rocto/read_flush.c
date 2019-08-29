@@ -26,9 +26,10 @@ Flush *read_flush(BaseMessage *message, ErrorResponse **err) {
 	ErrorBuffer err_buff;
 	const char *error_message;
 	err_buff.offset = 0;
-
+	uint32_t expected_length = sizeof(uint32_t);
 
 	if(message->type != PSQL_Flush) {
+		WARNING(ERR_ROCTO_INVALID_TYPE, "Flush", message->type, PSQL_Flush);
 		error_message = format_error_string(&err_buff, ERR_ROCTO_INVALID_TYPE, "Flush", message->type, PSQL_Flush);
 		*err = make_error_response(PSQL_Error_WARNING,
 					   PSQL_Code_Protocol_Violation,
@@ -39,7 +40,19 @@ Flush *read_flush(BaseMessage *message, ErrorResponse **err) {
 
 	ret = (Flush*)malloc(sizeof(Flush));
 	ret->type = PSQL_Flush;
-	ret->length = sizeof(unsigned int);
+	ret->length = ntohl(message->length);
+	// Length must be 4 (one int)
+	if(ret->length != expected_length) {
+		WARNING(ERR_ROCTO_INVALID_INT_VALUE, "Flush", "length", ret->length, expected_length);
+		error_message = format_error_string(&err_buff, ERR_ROCTO_INVALID_INT_VALUE,
+				"Flush", "length", ret->length, expected_length);
+		*err = make_error_response(PSQL_Error_FATAL,
+					   PSQL_Code_Protocol_Violation,
+					   error_message,
+					   0);
+		free(ret);
+		return NULL;
+	}
 
 	return ret;
 }

@@ -27,8 +27,8 @@ int handle_describe(Describe *describe, RoctoSession *session) {
 	ydb_buffer_t session_global, sql_expression, *source_name = &subs_array[2], *prepared = &subs_array[1], *source_session_id = &subs_array[0];
 	ydb_buffer_t plan_name_b;
 	size_t query_length = 0, err_buff_size;
-	int done = FALSE, status;
-	unsigned int found = 0;
+	int32_t done = FALSE, status;
+	uint32_t found = 0;
 	char *err_buff;
 	ydb_buffer_t schema_global, null_buffer;
 	ydb_buffer_t cursor_global, cursor_exe_global[3];
@@ -115,7 +115,7 @@ int handle_describe(Describe *describe, RoctoSession *session) {
 			case table_alias_STATEMENT:
 			case set_operation_STATEMENT:
 				INVOKE_HASH_CANONICAL_QUERY(state, statement);	/* "state" holds final hash */
-				int routine_len = generate_routine_name(&state, routine_name, MAX_STR_CONST, OutputPlan);
+				int32_t routine_len = generate_routine_name(&state, routine_name, MAX_STR_CONST, OutputPlan);
 				if (routine_len < 0) {
 					FATAL(ERR_PLAN_HASH_FAILED, "");
 				}

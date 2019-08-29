@@ -29,10 +29,10 @@ int handle_password_message(PasswordMessage *password_message, ErrorResponse **e
 	ErrorBuffer err_buff;
 	err_buff.offset = 0;
 	const char *error_message;
-	const unsigned int md5_hex_len = MD5_DIGEST_LENGTH * 2 + 1;
+	const uint32_t md5_hex_len = MD5_DIGEST_LENGTH * 2 + 1;
 
 	// Check the type of password message, for now just md5 is accepted
-	int result = strncmp(password_message->password, "md5", 3);
+	int32_t result = strncmp(password_message->password, "md5", 3);
 	if (result != 0) {
 		WARNING(ERR_ROCTO_PASSWORD_TYPE, "handle_password_message", "md5");
 		error_message = format_error_string(&err_buff, ERR_ROCTO_PASSWORD_TYPE, "handle_password_message", "md5");
@@ -74,7 +74,7 @@ int handle_password_message(PasswordMessage *password_message, ErrorResponse **e
 
 	// Extract password hash
 	char buffer[MAX_STR_CONST];
-	unsigned int buf_len = get_user_column_value(buffer, MAX_STR_CONST, user_info_subs.buf_addr, user_info_subs.len_used,
+	uint32_t buf_len = get_user_column_value(buffer, MAX_STR_CONST, user_info_subs.buf_addr, user_info_subs.len_used,
 			UserColumn_ROLPASSWORD);
 	if (0 == buf_len) {
 		WARNING(ERR_ROCTO_COLUMN_VALUE, "handle_password_message", "rolpassword (hashed password)");

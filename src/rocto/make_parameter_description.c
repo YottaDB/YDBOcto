@@ -28,7 +28,7 @@ ParameterDescription *make_parameter_description() {
 	memset(ret, 0, sizeof(ParameterDescription));
 
 	ret->type = PSQL_ParameterDescription;
-	ret->length = htonl(sizeof(unsigned int) + sizeof(short));
+	ret->length = htonl(sizeof(uint32_t) + sizeof(int16_t));
 	/// TODO: we should return a value other than 0 here
 	ret->num_parms = 0;
 

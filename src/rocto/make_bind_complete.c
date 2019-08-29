@@ -28,7 +28,7 @@ BindComplete *make_bind_complete() {
 	memset(ret, 0, sizeof(BindComplete));
 
 	ret->type = PSQL_BindComplete;
-	ret->length = htonl(sizeof(unsigned int));
+	ret->length = htonl(sizeof(uint32_t));
 
 	return ret;
 }

@@ -20,14 +20,14 @@
 #include "rocto.h"
 #include "message_formats.h"
 
-StartupMessage *read_startup_message(RoctoSession *session, char *data, int data_length, ErrorResponse **err) {
+StartupMessage *read_startup_message(RoctoSession *session, char *data, int32_t data_length, ErrorResponse **err) {
 	StartupMessage *ret = NULL;
 	ErrorBuffer err_buff;
-	int num_parms = 0, cur_parm = 0;
+	int32_t num_parms = 0, cur_parm = 0;
 	char *c, *message_end;
 	const char *error_message;
 	// Length plus protocol version
-	unsigned int hard_coded_ints = sizeof(unsigned int) + sizeof(int);
+	uint32_t hard_coded_ints = sizeof(uint32_t) + sizeof(int);
 	err_buff.offset = 0;
 
 	// First read length and protocol type, then we will reallocate things

@@ -26,12 +26,12 @@
 #include "rocto.h"
 #include "message_formats.h"
 
-int read_bytes(RoctoSession *session, char *buffer, int buffer_size, int bytes_to_read) {
+int read_bytes(RoctoSession *session, char *buffer, int32_t buffer_size, int32_t bytes_to_read) {
 #if YDB_TLS_AVAILABLE
-	int tls_errno = 0;
+	int32_t tls_errno = 0;
 	const char *err_str = NULL;
 #endif
-	int read_so_far = 0, read_now = 0;
+	int32_t read_so_far = 0, read_now = 0;
 
 
 	if(bytes_to_read > buffer_size) {

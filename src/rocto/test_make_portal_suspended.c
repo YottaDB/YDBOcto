@@ -30,7 +30,7 @@ static void test_valid_input(void **state) {
 	PortalSuspended *received_response;
 	ErrorResponse *err = NULL;
 
-	int expected_length = sizeof(unsigned int);
+	int32_t expected_length = sizeof(uint32_t);
 	response = make_portal_suspended();
 	received_response = read_portal_suspended((BaseMessage*)&response->type, &err);
 

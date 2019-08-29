@@ -30,7 +30,7 @@ static void test_valid_input(void **state) {
 	EmptyQueryResponse *received_response;
 	ErrorResponse *err = NULL;
 
-	int expected_length = sizeof(unsigned int);
+	int32_t expected_length = sizeof(uint32_t);
 	response = make_empty_query_response();
 	received_response = read_empty_query_response((BaseMessage*)&response->type, &err);
 

@@ -28,7 +28,7 @@
 // Make function to simulate client transmission of password_message. Used for testing.
 PasswordMessage *make_password_message(char *user, char *password, char *salt) {
 	PasswordMessage *ret;
-	int length = 0;
+	int32_t length = 0;
 
 	// Rather than have special logic for the NULL, just use an empty string
 	if(password == NULL) {
@@ -37,14 +37,14 @@ PasswordMessage *make_password_message(char *user, char *password, char *salt) {
 
 	// Concatenate password and user
 	unsigned char hash_buf[MAX_STR_CONST];
-	int result = sprintf((char*)hash_buf, "%s%s", password, user);
+	int32_t result = sprintf((char*)hash_buf, "%s%s", password, user);
 	if (0 > result) {
 		return NULL;
 	}
 	// Hash password and user
 	MD5(hash_buf, strlen((char*)hash_buf), hash_buf);
 	// Convert hash to hex string
-	unsigned int hex_hash_len = MD5_DIGEST_LENGTH * 2 + 1;		// count null
+	uint32_t hex_hash_len = MD5_DIGEST_LENGTH * 2 + 1;		// count null
 	char hex_hash[hex_hash_len];
 	result = md5_to_hex(hash_buf, hex_hash, hex_hash_len);
 	if (0 != result) {
@@ -65,17 +65,17 @@ PasswordMessage *make_password_message(char *user, char *password, char *salt) {
 	}
 
 	// Add "md5" prefix to hex hash for transmission
-	unsigned int md5_password_len = hex_hash_len + 3;
+	uint32_t md5_password_len = hex_hash_len + 3;
 	char md5_password[md5_password_len];
 	result = snprintf(md5_password, md5_password_len, "%s%s", "md5", hex_hash);
 	if (0 > result) {
 		return NULL;
 	}
 
-	length += sizeof(unsigned int);
+	length += sizeof(uint32_t);
 	length += md5_password_len;
-	ret = (PasswordMessage*)malloc(length + sizeof(PasswordMessage) - sizeof(unsigned int));
-	memset(ret, 0, length + sizeof(PasswordMessage) - sizeof(unsigned int));
+	ret = (PasswordMessage*)malloc(length + sizeof(PasswordMessage) - sizeof(uint32_t));
+	memset(ret, 0, length + sizeof(PasswordMessage) - sizeof(uint32_t));
 
 	ret->type = PSQL_PasswordMessage;
 	ret->length = htonl(length);

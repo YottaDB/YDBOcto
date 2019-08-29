@@ -58,11 +58,11 @@ char *byte_to_hex(char c, char *hex) {
 }
 
 // Convert raw MD5 hash to hex string
-int md5_to_hex(const unsigned char *md5_hash, char *hex, unsigned int hex_len) {
+int md5_to_hex(const unsigned char *md5_hash, char *hex, uint32_t hex_len) {
 	if (hex_len < 33) {	// Length of 16-byte md5 in hex, plus null terminator
 		return 1;
 	}
-	int i, j;
+	int32_t i, j;
 	for (i = 0, j = 0; i < 16; i++, j += 2) {	// MD5 hash length == 16
 		byte_to_hex(md5_hash[i], &hex[j]);
 	}
@@ -118,13 +118,13 @@ char *bin_to_bytea(char *bin) {
 	return bin;
 }
 
-void bin_to_uuid(char *bin, char *buffer, int buf_len) {
-	const int uuid_len = 36;	// 16 bytes * 2 nibbles/byte + 4 dashes
+void bin_to_uuid(char *bin, char *buffer, int32_t buf_len) {
+	const int32_t uuid_len = 36;	// 16 bytes * 2 nibbles/byte + 4 dashes
 	assert(buf_len > uuid_len);
 
 	// Fill out UUID time_low field
 	char temp_16[3];	// count null
-	int i = 0, j = 0, offset = 0;
+	int32_t i = 0, j = 0, offset = 0;
 	offset += UUID_TIME_LOW;
 	while (j < offset) {
 		// One byte yields two hex nibble chars

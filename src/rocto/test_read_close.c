@@ -27,8 +27,8 @@
 
 static void test_valid_input(void **state) {
 	// Test a single startup message
-	unsigned int message_length = 0;
-	message_length += sizeof(unsigned int);		// count length
+	uint32_t message_length = 0;
+	message_length += sizeof(uint32_t);		// count length
 	message_length += 1;				// count item
 	char *message = "SELECT * FROM names;";
 	message_length += strlen(message) + 1;		// count null
@@ -36,14 +36,14 @@ static void test_valid_input(void **state) {
 	ErrorResponse *err = NULL;
 
 	// Populate base message
-        BaseMessage *test_data = (BaseMessage*)malloc(message_length + sizeof(BaseMessage) - sizeof(unsigned int));
+        BaseMessage *test_data = (BaseMessage*)malloc(message_length + sizeof(BaseMessage) - sizeof(uint32_t));
 	test_data->type = PSQL_Close;
 	test_data->length = htonl(message_length);
 	// Set item field
 	c = test_data->data;
 	*c++ = 'S';
 	// Set data field (exclude length and item)
-	strncpy(c, message, message_length - sizeof(unsigned int) - 1);
+	strncpy(c, message, message_length - sizeof(uint32_t) - 1);
 
 	// The actual test
 	Close *close = read_close(test_data, &err);
@@ -59,8 +59,8 @@ static void test_valid_input(void **state) {
 
 static void test_non_terminated_input(void **state) {
 	// Test a single startup message
-	unsigned int message_length = 0;
-	message_length += sizeof(unsigned int);		// count length
+	uint32_t message_length = 0;
+	message_length += sizeof(uint32_t);		// count length
 	message_length += 1;				// count item
 	char *message = "SELECT * FROM names;";
 	message_length += strlen(message);		// exclude null
@@ -71,14 +71,14 @@ static void test_non_terminated_input(void **state) {
 	const char *error_message;
 
 	// Populate base message
-        BaseMessage *test_data = (BaseMessage*)malloc(message_length + sizeof(BaseMessage) - sizeof(unsigned int));
+        BaseMessage *test_data = (BaseMessage*)malloc(message_length + sizeof(BaseMessage) - sizeof(uint32_t));
 	test_data->type = PSQL_Close;
 	test_data->length = htonl(message_length - 2);
 	// Set item field
 	c = test_data->data;
 	*c++ = 'S';
 	// Set data field (exclude length, item, and null)
-	strncpy(c, message, message_length - sizeof(unsigned int) - 1 - 1);
+	strncpy(c, message, message_length - sizeof(uint32_t) - 1 - 1);
 
 	// The actual test
 	Close *close = read_close(test_data, &err);
@@ -98,8 +98,8 @@ static void test_non_terminated_input(void **state) {
 
 static void test_invalid_type(void **state) {
 	// Test a single startup message
-	unsigned int message_length = 0;
-	message_length += sizeof(unsigned int);		// count length
+	uint32_t message_length = 0;
+	message_length += sizeof(uint32_t);		// count length
 	message_length += 1;				// count item
 	char *message = "SELECT * FROM names;";
 	message_length += strlen(message) + 1;		// count null
@@ -110,14 +110,14 @@ static void test_invalid_type(void **state) {
 	const char *error_message;
 
 	// Populate base message
-        BaseMessage *test_data = (BaseMessage*)malloc(message_length + sizeof(BaseMessage) - sizeof(unsigned int));
+        BaseMessage *test_data = (BaseMessage*)malloc(message_length + sizeof(BaseMessage) - sizeof(uint32_t));
 	test_data->type = 'X';
 	test_data->length = htonl(message_length);
 	// Set bad item field
 	c = test_data->data;
 	*c++ = 'S';
 	// Set data field (exclude length and item)
-	strncpy(c, message, message_length - sizeof(unsigned int) - 1);
+	strncpy(c, message, message_length - sizeof(uint32_t) - 1);
 
 	// The actual test
 	Close *close = read_close(test_data, &err);
@@ -137,8 +137,8 @@ static void test_invalid_type(void **state) {
 
 static void test_invalid_item(void **state) {
 	// Test a single startup message
-	unsigned int message_length = 0;
-	message_length += sizeof(unsigned int);		// count length
+	uint32_t message_length = 0;
+	message_length += sizeof(uint32_t);		// count length
 	message_length += 1;				// count item
 	char *message = "SELECT * FROM datas;";
 	message_length += strlen(message) + 1;		// count null
@@ -149,14 +149,14 @@ static void test_invalid_item(void **state) {
 	const char *error_message;
 
 	// Populate base message
-        BaseMessage *test_data = (BaseMessage*)malloc(message_length + sizeof(BaseMessage) - sizeof(unsigned int));
+        BaseMessage *test_data = (BaseMessage*)malloc(message_length + sizeof(BaseMessage) - sizeof(uint32_t));
 	test_data->type = PSQL_Close;
 	test_data->length = htonl(message_length);
 	// Set bad item field
 	c = test_data->data;
 	*c++ = 'X';
 	// Set data field (exclude length and item)
-	strncpy(c, message, message_length - sizeof(unsigned int) - 1);
+	strncpy(c, message, message_length - sizeof(uint32_t) - 1);
 
 	// The actual test
 	Close *close = read_close(test_data, &err);
@@ -177,8 +177,8 @@ static void test_invalid_item(void **state) {
 
 static void test_unexpectedly_terminated_input(void **state) {
 	// Test a single startup message
-	unsigned int message_length = 0;
-	message_length += sizeof(unsigned int);		// count length
+	uint32_t message_length = 0;
+	message_length += sizeof(uint32_t);		// count length
 	message_length += 1;				// count item
 	char *message = "SELECT * FROM names\0;";
 	message_length += strlen(message) + 2;		// expecting extra character after null
@@ -189,14 +189,14 @@ static void test_unexpectedly_terminated_input(void **state) {
 	const char *error_message;
 
 	// Populate base message
-        BaseMessage *test_data = (BaseMessage*)malloc(message_length + sizeof(BaseMessage) - sizeof(unsigned int));
+        BaseMessage *test_data = (BaseMessage*)malloc(message_length + sizeof(BaseMessage) - sizeof(uint32_t));
 	test_data->type = PSQL_Close;
 	test_data->length = htonl(message_length);
 	// Set item field
 	c = test_data->data;
 	*c++ = 'S';
 	// Set data field (exclude length and item)
-	strncpy(c, message, message_length - sizeof(unsigned int) - 1);
+	strncpy(c, message, message_length - sizeof(uint32_t) - 1);
 
 	// The actual test
 	Close *close = read_close(test_data, &err);

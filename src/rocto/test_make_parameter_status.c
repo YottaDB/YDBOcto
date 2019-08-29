@@ -32,7 +32,7 @@ static void test_valid_input(void **state) {
 	StartupMessageParm parm = {"user","Alice"};
 
 	// Expected length is length field + parameter strings, including null terminators
-	int expected_length = sizeof(unsigned int) + strlen(parm.name) + sizeof(char) + strlen(parm.value) + sizeof(char);
+	int32_t expected_length = sizeof(uint32_t) + strlen(parm.name) + sizeof(char) + strlen(parm.value) + sizeof(char);
 
 	response = make_parameter_status(&parm);
 	received_response = read_parameter_status((BaseMessage*)&response->type, &err);
@@ -58,7 +58,7 @@ static void test_null_input(void **state) {
 	ErrorResponse *err = NULL;
 
 	// Expected length is length field, since no parameter is passed
-	int expected_length = sizeof(unsigned int);
+	int32_t expected_length = sizeof(uint32_t);
 
 	response = make_parameter_status(parm);
 	received_response = read_parameter_status((BaseMessage*)&response->type, &err);

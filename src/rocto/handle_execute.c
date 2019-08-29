@@ -32,8 +32,8 @@ int handle_execute(Execute *execute, RoctoSession *session) {
 	ydb_buffer_t *src_subs;
 	ydb_buffer_t sql_expression;
 	size_t query_length, err_buff_size;
-	int status;
-	int run_query_result = 0;
+	int32_t status;
+	int32_t run_query_result = 0;
 	char *err_buff;
 	ErrorResponse *err;
 

@@ -27,7 +27,7 @@ int handle_parse(Parse *parse, RoctoSession *session) {
 	// This feature should be implemented before 1.0
 	// For now, just a search-and-replace of anything starting with a '$'
 	// This is not super great because it means one could have a SQLI attack
-	int status;
+	int32_t status;
 	ydb_buffer_t *src_subs;
 	ydb_buffer_t sql_expression;
 	ParseComplete *response;

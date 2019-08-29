@@ -30,7 +30,7 @@
 #include "message_formats.h"
 #include "helpers.h"
 
-int __wrap_ydb_get_s(ydb_buffer_t *varname, int subs_used, ydb_buffer_t *subsarray, ydb_buffer_t *ret_value) {
+int __wrap_ydb_get_s(ydb_buffer_t *varname, int32_t subs_used, ydb_buffer_t *subsarray, ydb_buffer_t *ret_value) {
 	if (0 == strncmp(varname->buf_addr, "$ZGBLDIR", varname->len_used)) {
 		return 0;
 	}
@@ -39,13 +39,13 @@ int __wrap_ydb_get_s(ydb_buffer_t *varname, int subs_used, ydb_buffer_t *subsarr
 	return mock_type(int);
 }
 
-unsigned int __wrap_get_user_column_value(char *buffer, const unsigned int buf_len, const char *row, const unsigned int row_len,
+uint32_t __wrap_get_user_column_value(char *buffer, const uint32_t buf_len, const char *row, const uint32_t row_len,
 		enum UserColumns column) {
 	strncpy(buffer, mock_type(char*), buf_len);
-	return mock_type(unsigned int);
+	return mock_type(uint32_t);
 }
 
-int __wrap_md5_to_hex(char *md5_hash, char *hex, unsigned int hex_len) {
+int __wrap_md5_to_hex(char *md5_hash, char *hex, uint32_t hex_len) {
 	strncpy(hex, mock_type(char*), hex_len);
 	return mock_type(int);
 }
@@ -88,7 +88,7 @@ static void test_valid_input(void **state) {
 	char *salt = "salt";
 	password_message = make_password_message(username, password, salt);
 
-	int result = handle_password_message(password_message, &err, startup_message, salt);
+	int32_t result = handle_password_message(password_message, &err, startup_message, salt);
 	assert_int_equal(result, 0);
 	assert_null(err);
 
@@ -123,7 +123,7 @@ static void test_error_not_md5(void **state) {
 	password_message = make_password_message(username, password, salt);
 	password_message->password = "password";
 
-	int result = handle_password_message(password_message, &err, startup_message, salt);
+	int32_t result = handle_password_message(password_message, &err, startup_message, salt);
 	assert_int_equal(result, 1);
 	assert_non_null(err);
 
@@ -169,7 +169,7 @@ static void test_error_user_info_lookup(void **state) {
 
 	password_message = make_password_message(username, password, salt);
 
-	int result = handle_password_message(password_message, &err, startup_message, salt);
+	int32_t result = handle_password_message(password_message, &err, startup_message, salt);
 	assert_int_equal(result, 1);
 	assert_non_null(err);
 
@@ -218,7 +218,7 @@ static void test_error_hash_lookup(void **state) {
 	char *password = "password";
 	password_message = make_password_message(username, password, salt);
 
-	int result = handle_password_message(password_message, &err, startup_message, salt);
+	int32_t result = handle_password_message(password_message, &err, startup_message, salt);
 	assert_int_equal(result, 1);
 	assert_non_null(err);
 
@@ -272,7 +272,7 @@ static void test_error_hash_conversion(void **state) {
 	will_return(__wrap_md5_to_hex, "arbitrary");
 	will_return(__wrap_md5_to_hex, 1);
 
-	int result = handle_password_message(password_message, &err, startup_message, salt);
+	int32_t result = handle_password_message(password_message, &err, startup_message, salt);
 	assert_int_equal(result, 1);
 	assert_non_null(err);
 
@@ -326,7 +326,7 @@ static void test_error_bad_password(void **state) {
 	char *password = "balugawhales";
 	password_message = make_password_message(username, password, salt);
 
-	int result = handle_password_message(password_message, &err, startup_message, salt);
+	int32_t result = handle_password_message(password_message, &err, startup_message, salt);
 	assert_int_equal(result, 1);
 	assert_non_null(err);
 

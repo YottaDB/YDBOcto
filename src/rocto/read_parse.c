@@ -25,7 +25,7 @@ Parse *read_parse(BaseMessage *message, ErrorResponse **err) {
 	ErrorBuffer err_buff;
 	char *cur_pointer, *last_byte;
 	const char *error_message;
-	unsigned int remaining_length;
+	uint32_t remaining_length;
 	err_buff.offset = 0;
 
 	// Begin Parse initialization from message
@@ -101,7 +101,7 @@ Parse *read_parse(BaseMessage *message, ErrorResponse **err) {
 		free(ret);
 		return NULL;
 	}
-	ret->num_parm_data_types = ntohs(*((short *)(cur_pointer)));
+	ret->num_parm_data_types = ntohs(*((int16_t*)(cur_pointer)));
 	// Ensure number of parameter data types valid
 	if (0 > ret->num_parm_data_types) {
 		error_message = format_error_string(&err_buff, ERR_ROCTO_INVALID_NUMBER, "Parse", "parameter data types");
@@ -112,9 +112,9 @@ Parse *read_parse(BaseMessage *message, ErrorResponse **err) {
 		free(ret);
 		return NULL;
 	}
-	cur_pointer += sizeof(short);
+	cur_pointer += sizeof(int16_t);
 	// Ensure parameter data types in bounds
-	if(cur_pointer + sizeof(unsigned int) * ret->num_parm_data_types < last_byte) {
+	if(cur_pointer + sizeof(uint32_t) * ret->num_parm_data_types < last_byte) {
 		error_message = format_error_string(&err_buff, ERR_ROCTO_TOO_MANY_VALUES, "Parse", "parameter data types");
 		*err = make_error_response(PSQL_Error_ERROR,
 				PSQL_Code_Protocol_Violation,
@@ -124,7 +124,7 @@ Parse *read_parse(BaseMessage *message, ErrorResponse **err) {
 		return NULL;
 	}
 	// Ensure all parameter data types included
-	if(cur_pointer + sizeof(unsigned int) * ret->num_parm_data_types > last_byte) {
+	if(cur_pointer + sizeof(uint32_t) * ret->num_parm_data_types > last_byte) {
 		error_message = format_error_string(&err_buff, ERR_ROCTO_MISSING_DATA, "Parse", "parameter data types");
 		*err = make_error_response(PSQL_Error_ERROR,
 				PSQL_Code_Protocol_Violation,
@@ -137,10 +137,10 @@ Parse *read_parse(BaseMessage *message, ErrorResponse **err) {
 	//  but that makes cleanup a bit more messy. Given that there is no reason for a backend
 	//  send a read_parse message, just alter it in place. If we ever sent it, we would need
 	//  to go back through and convert back to network endian
-	ret->parm_data_types = (unsigned int *)cur_pointer;
-	for(short int i = 0; i < ret->num_parm_data_types; i++) {
+	ret->parm_data_types = (uint32_t *)cur_pointer;
+	for(int16_t i = 0; i < ret->num_parm_data_types; i++) {
 		ret->parm_data_types[i] = ntohl(*((int*)(&ret->parm_data_types[i])));
-		cur_pointer += sizeof(unsigned int);
+		cur_pointer += sizeof(uint32_t);
 	}
 	return ret;
 }

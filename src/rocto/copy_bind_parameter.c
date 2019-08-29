@@ -25,7 +25,7 @@
 #define INT32_MAX_DIGITS 10
 #define INT64_MAX_DIGITS 20
 
-char *copy_text_parameter(RoctoSession *session, Bind *bind, const int cur_parm, char *query, const char *end_query) {
+char *copy_text_parameter(RoctoSession *session, Bind *bind, const int32_t cur_parm, char *query, const char *end_query) {
 	char *text_parm_start, *text_parm_end;
 	ErrorResponse *err;
 
@@ -51,10 +51,10 @@ char *copy_text_parameter(RoctoSession *session, Bind *bind, const int cur_parm,
 	return query;
 }
 
-char *copy_binary_parameter(RoctoSession *session, Bind *bind, const int cur_parm, char *query, const char *end_query) {
+char *copy_binary_parameter(RoctoSession *session, Bind *bind, const int32_t cur_parm, char *query, const char *end_query) {
 	char str_value[MAX_STR_CONST];
 	int64_t value = 0;
-	int copied = 0;
+	int32_t copied = 0;
 	char uuid[MAX_STR_CONST];
 	ErrorResponse *err;
 

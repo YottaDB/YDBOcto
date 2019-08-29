@@ -151,3 +151,13 @@ select $DDOLAR^userfunc1(42) from names;
 OCTO
   verify_output T0023 output.txt
 }
+
+@test "ensure full SQL query is logged (no missing bytes) in rocto and octo log when started with -vv" {
+  query="select id from names"
+  expectstring="Parsing done for SQL command \[$query\]"
+  echo $query > query.sql
+  run_psql 1339 < query.sql 2>&1 | tee output.txt
+  octo -vv -f query.sql 2>&1 | tee octo.log
+  [[ $(grep -c "$expectstring" rocto.log) -eq 1 ]]
+  [[ $(grep -c "$expectstring" octo.log) -eq 1 ]]
+}

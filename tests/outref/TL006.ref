@@ -21,7 +21,7 @@ from names;
 
 from names; select notathing from names; select firstname from names limit 1;
                    ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement:  select notathing from names; 
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select notathing from names; 
 Zero
 OCTO> select lastname from names limit 1;
 Cool

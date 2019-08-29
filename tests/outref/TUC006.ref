@@ -12,7 +12,7 @@ OCTO> alsonotathing = 0; select * from names limit 1;
 from names; select * from names where
 alsonotathing = 0; select * from names limit 1;
 ^^^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement:  select * from names where
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select * from names where
 alsonotathing = 0; 
 0|Zero|Cool
 OCTO> 

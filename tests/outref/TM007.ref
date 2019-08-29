@@ -7,10 +7,10 @@ qwerty
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: qwerty
 uiop; 
 [ INFO] PATH:LINENUM DATE TIME : Parsing done for SQL command [qwerty
-uiop;]
+uiop; ]
 [ INFO] PATH:LINENUM DATE TIME : Returning failure from run_query
 OCTO> from names limit 1;
-[ INFO] PATH:LINENUM DATE TIME : Parsing done for SQL command [ select *
+[ INFO] PATH:LINENUM DATE TIME : Parsing done for SQL command [select *
 from names limit 1;]
 [ INFO] PATH:LINENUM DATE TIME : Generating SQL for CURSOR_NUM
 [ INFO] PATH:LINENUM DATE TIME : Generating M file [M_ROUTINE] (to execute SQL query)

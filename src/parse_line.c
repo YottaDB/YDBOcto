@@ -12,7 +12,6 @@
 
 #include <assert.h>
 
-
 #include "octo.h"
 #include "octo_types.h"
 #include "parser.h"
@@ -55,10 +54,10 @@ SqlStatement *parse_line(const char *line) {
 	{
 		ERROR(ERR_PARSING_COMMAND, cur_input_index - old_input_index, input_buffer_combined + old_input_index);
 	}
-
-	// For some reason, the lexer reads one past the end; decrement that
-	if(cur_input_index > 0) {
+	/* Remove newline at end of query line if present.
+	 * It will be present for octo but not necessarily for rocto in case query comes in from a client.
+	 */
+	if ((0 < cur_input_index) && ('\n' == input_buffer_combined[cur_input_index - 1]))
 		cur_input_index--;
-	}
 	return result;
 }

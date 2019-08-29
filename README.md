@@ -115,6 +115,27 @@ sudo apt-get install postgresql-client
 sudo yum install postgresql
 ```
 
+* (Optional) Install PostgreSQL server
+
+Octo uses the PostgreSQL server for some integration/regression tests. To build and run these tests, PostgreSQL must be installed:
+
+```sh
+# Ubuntu Linux OR Raspbian Linux OR Beagleboard Debian
+sudo apt-get install postgresql
+
+# CentOS Linux OR RedHat Linux
+sudo yum install postgresql
+```
+
+Additionally, PostgreSQL must be set up for the user who will be running the tests:
+
+```sh
+sudo -u postgres createuser [username]
+sudo -u postgres psql <<PSQL
+alter user [username] createdb;
+PSQL
+```
+
 * Download Octo Source Code
 
 ```sh

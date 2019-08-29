@@ -31,6 +31,9 @@ LogicalPlan *lp_generate_xref_keys(LogicalPlan *plan, SqlTable *table, SqlColumn
 
 	unique_id = table_alias->unique_id;
 	UNPACK_SQL_STATEMENT(column, column_alias->column, column);
+	// Check if column is a computed column. If so, we cannot create a cross-reference on this.
+	if (NULL != get_keyword_from_keywords(column->keywords->v.keyword, OPTIONAL_EXTRACT))
+		return NULL;
 	// Scan through and replace the table
 	table_join = lp_get_table_join(plan);
 	do {

@@ -69,6 +69,7 @@ ADD_BATS_TEST(test_xref)
 ADD_BATS_TEST(test_sqllogic_select1)
 ADD_BATS_TEST(test_null_subs_check)
 ADD_BATS_TEST(test_hash_query)
+ADD_BATS_TEST(test_computed_columns)
 
 find_program(psql NAMES psql)
 if(psql)

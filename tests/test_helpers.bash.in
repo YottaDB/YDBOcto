@@ -225,6 +225,16 @@ verify_output() {
   # filter file path
   sed -i 's/\/.*\/.*\.[yc]:[0-9]*/PATH:LINENUM/' nodebug.txt
 
+  # Filter version number
+  sed -i 's/Octo version [0-9]\.[0-9]\.[0-9]/Octo version x\.x\.x/' nodebug.txt
+  sed -i 's/Rocto version [0-9]\.[0-9]\.[0-9]/Rocto version x\.x\.x/' nodebug.txt
+
+  # Filter git commit hash
+  sed -i 's/Git commit: [0-9,a-f]*/Git commit: xxxx/' nodebug.txt
+
+   # Filter git uncommitted changes
+  sed -i 's/Uncommitted changes: .*/Uncommitted changes: false/' nodebug.txt
+
   diff outref/$1.ref nodebug.txt
   return
 }

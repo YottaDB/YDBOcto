@@ -19,6 +19,10 @@ find_package(OpenSSL REQUIRED)
 find_package(CMOCKA)
 find_package(BATS)
 
+set(PRE_CONFIGURE_FILE "${PROJECT_SOURCE_DIR}/src/git_hashes.h.in")
+set(POST_CONFIGURE_FILE "${PROJECT_BINARY_DIR}/git_hashes.h")
+include(${PROJECT_SOURCE_DIR}/cmake/git-watcher.cmake)
+
 if(DEFINED YOTTADB_INCLUDE_DIRS AND EXISTS "${YOTTADB_INCLUDE_DIRS}/plugin/libgtmtls.so")
   message(STATUS "Found YottaDB TLS plugin: ${YOTTADB_INCLUDE_DIRS}")
     set(YDB_TLS_AVAILABLE 1)
@@ -74,7 +78,9 @@ add_library(libhelpers OBJECT
   helpers/set.c
   helpers/get.c
   helpers/make_buffers.c
+  ${POST_CONFIGURE_FILE}
 )
+add_dependencies(libhelpers check_git_repository)
 
 # Load the default config from src/aux/octo.conf
 ADD_CUSTOM_COMMAND(
@@ -179,14 +185,18 @@ add_library(libocto OBJECT
   parser/sort_specification.c
   ${BISON_OctoParser_OUTPUTS}
   ${FLEX_OctoLexer_OUTPUTS}
+  ${POST_CONFIGURE_FILE}
 )
+add_dependencies(libocto check_git_repository)
 
 add_executable(octo
   octo.c
   errors.c
   $<TARGET_OBJECTS:libocto>
   $<TARGET_OBJECTS:libhelpers>
+  ${POST_CONFIGURE_FILE}
 )
+add_dependencies(octo check_git_repository)
 
 if(${YDB_TLS_AVAILABLE})
   add_library(ydbtls SHARED IMPORTED GLOBAL)
@@ -260,7 +270,9 @@ add_library(librocto OBJECT
   rocto/read_ready_for_query.c
   rocto/read_row_description.c
   rocto_helper_waitpid.c
+  ${POST_CONFIGURE_FILE}
 )
+add_dependencies(librocto check_git_repository)
 
 add_executable(rocto
   rocto.c
@@ -268,7 +280,9 @@ add_executable(rocto
   $<TARGET_OBJECTS:librocto>
   $<TARGET_OBJECTS:libocto>
   $<TARGET_OBJECTS:libhelpers>
+  ${POST_CONFIGURE_FILE}
 )
+add_dependencies(rocto check_git_repository)
 
 add_executable(pparser
   default_octo_conf.h
@@ -277,7 +291,9 @@ add_executable(pparser
   #octo_init.c
   ${BISON_PhysicalParser_OUTPUTS}
   ${FLEX_PhysicalLexer_OUTPUTS}
+  ${POST_CONFIGURE_FILE}
 )
+add_dependencies(pparser check_git_repository)
 
 # Generate C files from templates
 set(template_dir ${PROJECT_SOURCE_DIR}/src/m_templates)

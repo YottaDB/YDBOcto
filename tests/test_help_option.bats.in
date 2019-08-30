@@ -58,3 +58,33 @@ setup() {
   rocto -d >& output.txt || true
   verify_output TH007 output.txt
 }
+
+@test "call octo with -r option" {
+  octo -r >& output.txt
+  verify_output TH008 output.txt
+}
+
+@test "call octo with --version option" {
+  octo --version >& output.txt
+  verify_output TH008 output.txt
+}
+
+@test "call octo with --release option" {
+  octo --release >& output.txt
+  verify_output TH008 output.txt
+}
+
+@test "call rocto with -r option" {
+  rocto -r >& output.txt
+  verify_output TH009 output.txt
+}
+
+@test "call rocto with --version option" {
+  rocto --version >& output.txt
+  verify_output TH009 output.txt
+}
+
+@test "call rocto with --release option" {
+  rocto --release >& output.txt
+  verify_output TH009 output.txt
+}

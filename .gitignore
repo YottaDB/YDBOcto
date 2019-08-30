@@ -25,6 +25,7 @@ TAGS
 *.orig
 tags
 .dir-locals.el
+.vscode/
 
 roctolist.md
 src/gtmcrypt/

@@ -61,7 +61,6 @@ void hash_canonical_query(hash128_state_t *state, SqlStatement *stmt) {
 
 	// Iteration pointers for doubly-linked list traversal
 	SqlCaseBranchStatement *cur_cas_branch;
-	SqlColumn *cur_column;
 	SqlColumnList *cur_column_list;
 	SqlColumnListAlias *cur_column_list_alias;
 	SqlJoin *cur_join;
@@ -205,16 +204,12 @@ void hash_canonical_query(hash128_state_t *state, SqlStatement *stmt) {
 			break;
 		case column_STATEMENT:
 			UNPACK_SQL_STATEMENT(column, stmt, column);
-			cur_column = column;
-			do {
-				add_sql_type_hash(state, column_STATEMENT);
-				hash_canonical_query(state, cur_column->columnName);
-				// SqlDataType
-				add_sql_type_hash(state, cur_column->type);
-				hash_canonical_query(state, cur_column->table);
-				hash_canonical_query(state, cur_column->keywords);
-				cur_column = cur_column->next;
-			} while (cur_column != column);
+			add_sql_type_hash(state, column_STATEMENT);
+			hash_canonical_query(state, column->columnName);
+			// SqlDataType
+			add_sql_type_hash(state, column->type);
+			hash_canonical_query(state, column->table);
+			hash_canonical_query(state, column->keywords);
 			break;
 		case column_alias_STATEMENT:
 			UNPACK_SQL_STATEMENT(column_alias, stmt, column_alias);

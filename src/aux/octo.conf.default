@@ -12,8 +12,8 @@
 
 // Specifies the verbosity for logging; options are TRACE, INFO, DEBUG, WARNING, ERROR, and FATAL
 verbosity = "WARNING"
-// Location to cache generated M routines which represent queries
-routine_cache = "./"
+// Full path of source directory to store generated M routines (which represent SQL queries); If not specified, first source in $ydb_routines is chosen
+// routine_cache = "./"
 
 // Settings related to the octod process
 rocto = {

@@ -33,7 +33,12 @@
 int __wrap_ydb_get_s(ydb_buffer_t *varname, int32_t subs_used, ydb_buffer_t *subsarray, ydb_buffer_t *ret_value) {
 	if (0 == strncmp(varname->buf_addr, "$ZGBLDIR", varname->len_used)) {
 		return 0;
+	} else if (0 == strncmp(varname->buf_addr, "$zroutines", varname->len_used)){
+		strcpy(ret_value->buf_addr, ".");
+		ret_value->len_used = 1;
+		return 0;
 	}
+
 	ydb_buffer_t *t = mock_ptr_type(ydb_buffer_t*);
 	*ret_value = *t;
 	return mock_type(int);

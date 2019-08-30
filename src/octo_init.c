@@ -17,6 +17,7 @@
 #include <unistd.h>
 
 #include <sys/types.h>
+#include <sys/stat.h>
 #include <dirent.h>
 #include <errno.h>
 #include <limits.h>
@@ -167,7 +168,8 @@ int octo_init(int argc, char **argv) {
 	config_setting_t	*ydb_settings, *cur_ydb_setting;
 	const char		*item_name, *item_value;
 	char			*default_octo_conf, buff[OCTO_PATH_MAX];
-	char			*homedir, *ydb_dist;
+	char			*homedir, *ydb_dist, zro_buf[ZRO_INIT_ALLOC], ydb_errbuf[2048];
+	ydb_buffer_t		zroutines, dollar_zro;
 	DIR			*dir;
 
 	const char *verbosity;
@@ -187,6 +189,10 @@ int octo_init(int argc, char **argv) {
 
 	// Search for config file octo.conf (OCTO_CONF_FILE_NAME) in directories "$ydb_dist/plugin/etc", "~" and "." in that order
 	config_init(config_file);
+
+	// This should always be 1
+	setenv("ydb_lvnullsubs", "1", 1);
+	ydb_init();
 
 	default_octo_conf = malloc(octo_conf_default_len + 1);
 	memcpy(default_octo_conf, octo_conf_default, octo_conf_default_len);
@@ -250,9 +256,143 @@ int octo_init(int argc, char **argv) {
 	}
 
 	if(config_lookup_string(config_file, "routine_cache", &config->tmp_dir) == CONFIG_FALSE) {
-		FATAL(ERR_BAD_CONFIG, "routine_cache");
+		/* if this is not set then parse $ydb_routines for the first source directory
+		 * and place generated M code in there */
+		char *zro_buf_start;
+		YDB_LITERAL_TO_BUFFER("$zroutines", &dollar_zro);
+		zroutines.buf_addr = zro_buf;
+		/* -2 to account for the padding (space and null-terminator) at the end */
+		zroutines.len_alloc = sizeof(zro_buf) - 2;
+		zroutines.len_used = 0;
+		status = ydb_get_s(&dollar_zro, 0, NULL, &zroutines);
+		/* if the stack buffer isn't large enough allocate more and call ydb_get_s() again */
+		if(YDB_ERR_INVSTRLEN == status){
+			/* +2 to account for the padding at the end */
+			zroutines.buf_addr = malloc(zroutines.len_used + 2);
+			zroutines.len_alloc = zroutines.len_used + 2;
+			zroutines.len_used = 0;
+			status = ydb_get_s(&dollar_zro, 0, NULL, &zroutines);
+		}
+		zro_buf_start = zroutines.buf_addr;
+		if(YDB_OK != status){
+			ydb_zstatus(ydb_errbuf, sizeof(ydb_errbuf));
+			FATAL(ERR_YOTTADB, ydb_errbuf);
+		}
+		/* trim leading white space */
+		c = 0;
+		status = TRUE;
+		while(c < zroutines.len_used && status){
+			switch(zroutines.buf_addr[c]){
+				case ' ' :
+					c++;
+					break;
+				default:
+					status = FALSE;
+					break;
+			}
+		}
+		zroutines.buf_addr += c;
+		zroutines.len_used -= c;
+		c = 0;
+		// pad end of zroutines with a space to trigger the switch case
+		zroutines.buf_addr[zroutines.len_used] = ' ';
+		zroutines.buf_addr[zroutines.len_used + 1] = '\0';
+		struct stat statbuf;
+		while('\0' != zroutines.buf_addr[c]){
+			switch(zroutines.buf_addr[c]){
+				/* white space characters, and right paren are delimiters */
+				case ' ' :
+				case ')' :
+					/* terminate everything read up to this point
+					 * if last character is a '*' remove it
+					 */
+					if (1 < c){
+						if ('*' == zroutines.buf_addr[c-1]){
+							c--;
+						}
+					}
+					/* check if this path is a directory
+					 * if it is not move the start of the string to the next token
+					 */
+					zroutines.buf_addr[c] = '\0';
+					status = stat(zroutines.buf_addr, &statbuf);
+					/* if 0 == c don't emit an error since that is just the empty string */
+					if (0 != status && 0 != c){
+						FATAL(ERR_SYSCALL, "stat", errno, strerror(errno));
+					}
+					if(!S_ISDIR(statbuf.st_mode)){
+						zroutines.buf_addr += (c+1);
+						c = 0;
+						break;
+					}
+					config->tmp_dir = malloc(c);
+					/* cast to char* to avoid strcpy warning this is safe to do here */
+					strcpy((char*) config->tmp_dir, zroutines.buf_addr);
+					break;
+				case '(':
+					/* if a '(' is found shift start of string */
+					zroutines.buf_addr += (c+1);
+					c = 0;
+					break;
+				default:
+					c++;
+					break;
+			}
+		}
+		if(!config->tmp_dir){
+			FATAL(ERR_BAD_ROUTINE_CACHE, NULL);
+		}
+		/* if zro_buf_start is different from zro_buf we malloc'ed a new buffer
+		 * so free the new buffer
+		 */
+		if(zro_buf_start != zro_buf){
+			free(zroutines.buf_addr);
+		}
+	} else {
+		/* routine cache is set so add it zroutines */
+		YDB_LITERAL_TO_BUFFER("$zroutines", &dollar_zro);
+		/* if routine_cache is not a valid directory then issue an error */
+		struct stat statbuf;
+		status = stat(config->tmp_dir, &statbuf);
+		if (0 != status){
+			/* if errno 2 (file not found) give a more specific error */
+			if(2 == errno){
+				status = snprintf(ydb_errbuf, sizeof(ydb_errbuf), "routine_cache: Directory not found: %s", config->tmp_dir);
+				FATAL(ERR_BAD_CONFIG, ydb_errbuf);
+			} else {
+				FATAL(ERR_SYSCALL, "stat", errno, strerror(errno));
+			}
+		}
+		if(!S_ISDIR(statbuf.st_mode)){
+			status = snprintf(ydb_errbuf, sizeof(ydb_errbuf), "routine_cache: Not a directory: %s", config->tmp_dir);
+			FATAL(ERR_BAD_CONFIG, ydb_errbuf);
+		}
+		c = strlen(config->tmp_dir);
+		strcpy(zro_buf, config->tmp_dir);
+		zro_buf[c] = ' ';
+		c++;
+		zroutines.buf_addr = zro_buf + c;
+		zroutines.len_alloc = sizeof(zro_buf) - c;
+		zroutines.len_used = 0;
+		status = ydb_get_s(&dollar_zro, 0, NULL, &zroutines);
+		/* if the stack buffer isn't large enough allocate more and call ydb_get_s() again */
+		if(YDB_ERR_INVSTRLEN == status){
+			/* +2 to account for the padding at the end */
+			zroutines.buf_addr = malloc(zroutines.len_used + 2);
+			zroutines.len_alloc = zroutines.len_used + 2;
+			zroutines.len_used = 0;
+			status = ydb_get_s(&dollar_zro, 0, NULL, &zroutines);
+		}
+		if(YDB_OK != status){
+			ydb_zstatus(ydb_errbuf, sizeof(ydb_errbuf));
+			FATAL(ERR_YOTTADB, ydb_errbuf);
+		}
+		zroutines.buf_addr = zro_buf;
+		zroutines.len_alloc = sizeof(zro_buf);
+		zroutines.len_used += c;
+		status = ydb_set_s(&dollar_zro, 0, NULL, &zroutines);
+		assert(YDB_OK == status);
 	}
-
 	if(config_lookup_string(config_file, "rocto.address", &config->rocto_config.address)
 			== CONFIG_FALSE) {
 		FATAL(ERR_BAD_CONFIG, "rocto.address");
@@ -302,8 +442,6 @@ int octo_init(int argc, char **argv) {
 			i++;
 		}
 	}
-	// This should always be 1
-	setenv("ydb_lvnullsubs", "1", 1);
 
 	config->record_error_level = verbosity_int;
 	//config->dry_run = FALSE;

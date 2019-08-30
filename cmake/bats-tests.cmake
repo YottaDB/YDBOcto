@@ -76,6 +76,7 @@ ADD_BATS_TEST(test_log_split)
 ADD_BATS_TEST(test_coerce_type)
 ADD_BATS_TEST(test_composite_key)
 ADD_BATS_TEST(test_case_statement)
+ADD_BATS_TEST(test_routine_cache)
 
 find_program(psql NAMES psql)
 if(psql)

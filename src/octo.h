@@ -47,6 +47,9 @@
 // Specify character for delimiting column values in Octo
 #define COLUMN_DELIMITER "|"
 
+// Default buffer allocated for $zroutines
+#define ZRO_INIT_ALLOC 512
+
 #define GET_FULL_PATH_OF_GENERATED_M_FILE(FILENAME, ROUTINE_NAME)						\
 {														\
 	unsigned int	want_to_write;										\

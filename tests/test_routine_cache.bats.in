@@ -1,0 +1,132 @@
+#################################################################
+#								#
+# Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	#
+# All rights reserved.						#
+#								#
+#	This source code contains the intellectual property	#
+#	of its copyright holder(s), and is made available	#
+#	under a license.  If you do not know the terms of	#
+#	the license, please stop and do not read further.	#
+#								#
+#################################################################
+
+load test_helpers
+
+setup() {
+  init_test
+  createdb
+  load_fixture names.sql
+  load_fixture names.zwr
+}
+
+@test "try no routine_cache with directory as first element in \$zroutines" {
+  mkdir dirA
+  export ydb_routines="$(pwd)/dirA $ydb_routines"
+  octo <<OCTO 2>&1 | tee output.txt
+select * from names limit 1;
+OCTO
+  echo "Listing of dirA should see generated files" | tee -a output.txt
+  ls dirA | tee -a output.txt
+  verify_output TRC000 output.txt
+}
+
+@test "try no routine_cache with directory as second element in \$zroutines" {
+  mkdir dirA
+  export ydb_routines="@PROJECT_BINARY_DIR@/src/_ydbocto.so $(pwd)/dirA $ydb_routines"
+  octo <<OCTO 2>&1 | tee output.txt
+select * from names limit 1;
+OCTO
+  echo "Listing of dirA should see generated files" | tee -a output.txt
+  ls dirA | tee -a output.txt
+  verify_output TRC001 output.txt
+}
+
+@test "try no routine_cache with object(source) syntax in \$zroutines" {
+  mkdir dirA dirB
+  export ydb_routines="$(pwd)/dirA($(pwd)/dirB) $ydb_routines"
+  octo <<OCTO 2>&1 | tee output.txt
+select * from names limit 1;
+OCTO
+  echo "Listing of dirA should see generated object file" | tee -a output.txt
+  ls dirA | tee -a output.txt
+  echo "Listing of dirB should see generated M file" | tee -a output.txt
+  ls dirB | tee -a output.txt
+  verify_output TRC002 output.txt
+}
+
+@test "try no routine_cache with no valid directories in \$zroutines" {
+  export ydb_routines="@PROJECT_BINARY_DIR@/src/_ydbocto.so"
+  octo <<OCTO 2>&1 | tee output.txt
+select * from names limit 1;
+OCTO
+  verify_output TRC003 output.txt
+}
+
+@test "try with routine_cache set and in \$zroutines" {
+  mkdir dirA
+  cat >>octo.conf <<OCTO
+routine_cache = "$(pwd)/dirA"
+OCTO
+  export ydb_routines="$(pwd)/dirA $ydb_routines"
+  octo <<OCTO 2>&1 | tee output.txt
+select * from names limit 1;
+OCTO
+  echo "Listing of dirA should see generated files" | tee -a output.txt
+  ls dirA | tee -a output.txt
+  verify_output TRC004 output.txt
+}
+
+@test "try with routine_cache set but not in \$zroutines" {
+  mkdir dirA
+  cat >>octo.conf <<OCTO
+routine_cache = "$(pwd)/dirA"
+OCTO
+  octo <<OCTO 2>&1 | tee output.txt
+select * from names limit 1;
+OCTO
+  echo "Listing of dirA should see generated files" | tee -a output.txt
+  ls dirA | tee -a output.txt
+  verify_output TRC005 output.txt
+}
+
+@test "use .*() as first element in \$zroutines" {
+  mkdir dirA
+  export ydb_routines=".*() $(pwd)/dirA $ydb_routines"
+  octo <<OCTO 2>&1 | tee output.txt
+select * from names limit 1;
+OCTO
+  echo "Listing of dirA should see generated files" | tee -a output.txt
+  ls dirA | tee -a output.txt
+  verify_output TRC006 output.txt
+}
+
+@test "use a non-existent directory as first element in \$zroutines" {
+  export ydb_routines="$(pwd)/dirA $ydb_routines"
+  octo <<OCTO 2>&1 | tee output.txt
+select * from names limit 1;
+OCTO
+  grep "YottaDB error: 150374634,(SimpleAPI),%YDB-E-ZROSYNTAX" output.txt
+}
+
+@test "use a non-existent directory as first element in routine_cache" {
+  cat >>octo.conf <<OCTO
+routine_cache = "$(pwd)/dirA"
+OCTO
+  octo <<OCTO 2>&1 | tee output.txt
+select * from names limit 1;
+OCTO
+  sed -i 's/found: \/.*\/dirA/found: PATHTO_dirA/' output.txt
+  verify_output TRC007 output.txt
+}
+
+@test "use a regular file as value of routine_cache" {
+  cat >>octo.conf <<OCTO
+routine_cache = "$(pwd)/fileA"
+OCTO
+  touch fileA
+  octo <<OCTO 2>&1 | tee output.txt
+select * from names limit 1;
+OCTO
+  sed -i 's/directory: \/.*\/fileA/PATHTO_fileA/' output.txt
+  verify_output TRC008 output.txt
+}

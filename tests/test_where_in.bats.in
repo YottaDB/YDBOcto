@@ -36,7 +36,7 @@ WHERE n1.firstName IN (SELECT n2.firstName
   WHERE n1.id = n2.id
 );
 OCTO
-  verify_output T0004 output.txt
+  verify_output T0004 output.txt noinfo nodebug
 }
 
 @test "T0005 where IN references grandparent query" {
@@ -51,7 +51,7 @@ WHERE a.firstName IN (
         WHERE c.id = a.id)
 );
 OCTO
-  verify_output T0005 output.txt
+  verify_output T0005 output.txt noinfo nodebug
 }
 
 @test "T0006 where IN references parent from SET expression" {
@@ -70,7 +70,7 @@ WHERE a.firstName IN (
     WHERE c.id = a.id
 );
 OCTO
-  verify_output T0006 output.txt
+  verify_output T0006 output.txt noinfo nodebug
 }
 
 @test "T0013 WHERE in sub-query only references TWO parent query columns that do not match (variant of T0006)" {
@@ -82,7 +82,7 @@ WHERE n1.firstName IN (SELECT n2.firstName
   WHERE n1.firstName = n1.lastName
 );
 OCTO
-  verify_output T0013 output.txt
+  verify_output T0013 output.txt noinfo nodebug
 }
 
 @test "T0013A WHERE in sub-query only references TWO parent query columns that match (variant of T0006)" {
@@ -96,7 +96,7 @@ WHERE n1.firstName IN (
   WHERE n1.id = n2.id
 )
 OCTO
-  verify_output T0013A output.txt
+  verify_output T0013A output.txt noinfo nodebug
 }
 
 @test "T0014 WHERE in sub-query only references ONE parent query column AND a CONSTANT (variant of T0013)" {
@@ -108,7 +108,7 @@ WHERE n1.firstName IN (SELECT n2.firstName
   WHERE n1.firstName = "Acid"
 );
 OCTO
-  verify_output T0014 output.txt
+  verify_output T0014 output.txt noinfo nodebug
 }
 
 @test "T0015 Multiple plans resulting from WHERE IN usage do not nest but instead thread" {
@@ -116,5 +116,5 @@ OCTO
   SELECT firstName FROM names WHERE firstName IN ('Zero', 'Acid', 'Cool');
 OCTO
   grep -E 'QUIT$|octoPlan' _ydboctoP*.m > physicalplan.txt
-  verify_output T0015 physicalplan.txt
+  verify_output T0015 physicalplan.txt noinfo nodebug
 }

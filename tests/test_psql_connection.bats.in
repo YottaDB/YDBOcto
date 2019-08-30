@@ -49,14 +49,14 @@ OCTO
   run_psql 1339 <<OCTO 2>&1 | tee output.txt
 SELECT lastName FROM names;
 OCTO
-  verify_output T0011 output.txt
+  verify_output T0011 output.txt noinfo nodebug
 }
 
 @test "select two empty columns only (empty row+column check)" {
   run_psql 1339 <<OCTO 2>&1 | tee output.txt
 SELECT lastName, favoritePasta FROM names4;
 OCTO
-  verify_output T0012 output.txt
+  verify_output T0012 output.txt noinfo nodebug
 }
 
 @test "invalid syntax should get an error message" {
@@ -149,7 +149,7 @@ OCTO
   run_psql 1339 <<OCTO 2>&1 | tee output.txt
 select $DDOLAR^userfunc1(42) from names;
 OCTO
-  verify_output T0023 output.txt
+  verify_output T0023 output.txt noinfo nodebug
 }
 
 @test "ensure full SQL query is logged (no missing bytes) in rocto and octo log when started with -vv" {
@@ -175,7 +175,7 @@ select * from names limit 1;
 OCTO
   cat in.sql 2>&1 | tee output.txt
   run_psql 1339 < in.sql 2>&1 | tee -a output.txt
-  verify_output TPC000 output.txt
+  verify_output TPC000 output.txt noinfo nodebug
 }
 
 @test "start rocto with --allowschemachanges and try to change the schema" {
@@ -191,7 +191,7 @@ select * from t1;
 OCTO
   cat in.sql 2>&1 | tee output.txt
   run_psql 1339 < in.sql 2>&1 | tee -a output.txt
-  verify_output TPC001 output.txt
+  verify_output TPC001 output.txt noinfo nodebug
 }
 
 @test "start rocto with -a and try to change the schema" {
@@ -207,5 +207,5 @@ select * from t1;
 OCTO
   cat in.sql 2>&1 | tee output.txt
   run_psql 1339 < in.sql 2>&1 | tee -a output.txt
-  verify_output TPC001 output.txt
+  verify_output TPC001 output.txt noinfo nodebug
 }

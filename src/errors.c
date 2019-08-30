@@ -21,7 +21,7 @@
 #include "octo.h"
 #include "errors.h"
 
-#ifdef FEATURE_ROCTO
+#ifdef IS_ROCTO
 #include "rocto/rocto.h"
 
 enum MessageType {
@@ -68,8 +68,8 @@ const int err_code_map[] = {
 #undef ERROR_DEF
 #undef ERROR_END
 
-const char *host_info = "[%s:%s] ";
 const char *log_prefix = "[%5s] %s:%d %04d-%02d-%02d %02d:%02d:%02d : ";
+const char *rocto_log_prefix = "[%s:%s] [%5s] %s:%d %04d-%02d-%02d %02d:%02d:%02d : ";
 
 /**
  * Logs error at level, formatting output and sending to the correct location.
@@ -81,6 +81,8 @@ void octo_log(int line, char *file, enum ERROR_LEVEL level, enum ERROR error, ..
 	const char *type;
 	time_t log_time;
 	struct tm local_time;
+	char err_prefix[MAX_STR_CONST];
+	char full_err_format_str[MAX_STR_CONST];
 
 	if(level < config->record_error_level)
 		return;
@@ -109,10 +111,11 @@ void octo_log(int line, char *file, enum ERROR_LEVEL level, enum ERROR error, ..
 		type = "FATAL";
 		break;
 	}
-#ifdef FEATURE_ROCTO
-	fprintf(stderr, host_info, rocto_session.ip, rocto_session.port);
-#endif
-	fprintf(stderr, log_prefix, type,
+#	ifdef IS_ROCTO
+	snprintf(err_prefix, MAX_STR_CONST, rocto_log_prefix,
+		rocto_session.ip,
+		rocto_session.port,
+		type,
 		file,
 		line,
 	        local_time.tm_year + 1900,
@@ -121,14 +124,28 @@ void octo_log(int line, char *file, enum ERROR_LEVEL level, enum ERROR error, ..
 	        local_time.tm_hour,
 	        local_time.tm_min,
 	        local_time.tm_sec);
+#	else
+	snprintf(err_prefix, MAX_STR_CONST, log_prefix, type,
+		file,
+		line,
+	        local_time.tm_year + 1900,
+	        local_time.tm_mon + 1,
+	        local_time.tm_mday,
+	        local_time.tm_hour,
+	        local_time.tm_min,
+	        local_time.tm_sec);
+#	endif
 	if(error == CUSTOM_ERROR) {
-		vfprintf(stderr, va_arg(args, const char *), args);
+		// Combine populated prefix with given error format string into new format string
+		snprintf(full_err_format_str, MAX_STR_CONST, "%s%s\n", err_prefix, va_arg(args, const char *));
+		vfprintf(stderr, full_err_format_str, args);
 	} else {
-		vfprintf(stderr, err_format_str[error], args);
+		// Combine populated prefix with given error format string into new format string
+		snprintf(full_err_format_str, MAX_STR_CONST, "%s%s\n", err_prefix, err_format_str[error]);
+		vfprintf(stderr, full_err_format_str, args);
 	}
 	va_end(args);
-	fprintf(stderr, "\n");
-#ifdef FEATURE_ROCTO
+#	ifdef IS_ROCTO
 	const char *error_message;
 	char buffer[MAX_STR_CONST];
 	int err_level;
@@ -171,7 +188,7 @@ void octo_log(int line, char *file, enum ERROR_LEVEL level, enum ERROR error, ..
 		free_error_response(err);
 		rocto_session.sending_message = FALSE;
 	}
-#endif
+#	endif
 	if(level == FATAL) {
 		ydb_fork_n_core();
 		exit(error);

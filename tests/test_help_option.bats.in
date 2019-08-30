@@ -21,70 +21,70 @@ setup() {
 
 @test "call octo with -h" {
   octo -h >& output.txt
-  verify_output TH000 output.txt
+  verify_output TH000 output.txt noinfo nodebug
 }
 
 @test "call octo with --help" {
   octo --help >& output.txt
-  verify_output TH001 output.txt
+  verify_output TH001 output.txt noinfo nodebug
 }
 
 @test "call octo with invalid option" {
   octo -g >& output.txt || true
-  verify_output TH002 output.txt
+  verify_output TH002 output.txt noinfo nodebug
 }
 
 @test "call rocto with -h" {
   rocto -h >& output.txt
-  verify_output TH003 output.txt
+  verify_output TH003 output.txt noinfo nodebug
 }
 
 @test "call rocto with --help" {
   rocto --help >& output.txt
-  verify_output TH004 output.txt
+  verify_output TH004 output.txt noinfo nodebug
 }
 
 @test "call rocto with invalid option" {
   rocto -g >& output.txt || true
-  verify_output TH005 output.txt
+  verify_output TH005 output.txt noinfo nodebug
 }
 
 @test "call rocto with -f option (invalid)" {
   rocto -f >& output.txt || true
-  verify_output TH006 output.txt
+  verify_output TH006 output.txt noinfo nodebug
 }
 
 @test "call rocto with -d option (invalid)" {
   rocto -d >& output.txt || true
-  verify_output TH007 output.txt
+  verify_output TH007 output.txt noinfo nodebug
 }
 
 @test "call octo with -r option" {
   octo -r >& output.txt
-  verify_output TH008 output.txt
+  verify_output TH008 output.txt noinfo nodebug
 }
 
 @test "call octo with --version option" {
   octo --version >& output.txt
-  verify_output TH008 output.txt
+  verify_output TH008 output.txt noinfo nodebug
 }
 
 @test "call octo with --release option" {
   octo --release >& output.txt
-  verify_output TH008 output.txt
+  verify_output TH008 output.txt noinfo nodebug
 }
 
 @test "call rocto with -r option" {
   rocto -r >& output.txt
-  verify_output TH009 output.txt
+  verify_output TH009 output.txt noinfo nodebug
 }
 
 @test "call rocto with --version option" {
   rocto --version >& output.txt
-  verify_output TH009 output.txt
+  verify_output TH009 output.txt noinfo nodebug
 }
 
 @test "call rocto with --release option" {
   rocto --release >& output.txt
-  verify_output TH009 output.txt
+  verify_output TH009 output.txt noinfo nodebug
 }

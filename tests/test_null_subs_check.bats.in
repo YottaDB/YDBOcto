@@ -25,14 +25,14 @@ setup() {
   octo <<OCTO 2>&1 | tee output.txt
 SELECT * FROM names;
 OCTO
-    verify_output TNSC00 output.txt
+    verify_output TNSC00 output.txt noinfo nodebug
 }
 
 @test "Octo - one region - null subs set to ALWAYS on DEFAULT" {
   octo <<OCTO 2>&1 | tee output.txt
 SELECT * FROM names;
 OCTO
-    verify_output TNSC01 output.txt
+    verify_output TNSC01 output.txt noinfo nodebug
 }
 
 @test "Octo - two regions - null subs set to NEVER on DEFAULT, ALWAYS on OCTO" {
@@ -49,7 +49,7 @@ OCTO
   octo <<OCTO 2>&1 | tee output.txt
 SELECT * FROM names;
 OCTO
-    verify_output TNSC02 output.txt
+    verify_output TNSC02 output.txt noinfo nodebug
 }
 
 @test "Octo - two regions - null subs set to NEVER on DEFAULT, ALLOW_EXISTING on OCTO" {
@@ -62,7 +62,7 @@ OCTO
   octo <<OCTO 2>&1 | tee output.txt
 SELECT * FROM names;
 OCTO
-  verify_output TNSC03 output.txt
+  verify_output TNSC03 output.txt noinfo nodebug
 }
 
 @test "Octo - two regions - null subs set to NEVER on DEFAULT, NEVER on OCTO" {
@@ -75,7 +75,7 @@ OCTO
   octo <<OCTO 2>&1 | tee output.txt
 SELECT * FROM names;
 OCTO
-  verify_output TNSC04 output.txt
+  verify_output TNSC04 output.txt noinfo nodebug
 }
 
 @test "Octo - three regions - null subs set to NEVER on DEFAULT, ALWAYS on OCTO1, NEVER on OCTO2" {
@@ -90,13 +90,13 @@ OCTO
   octo <<OCTO 2>&1 | tee output.txt
 SELECT * FROM names;
 OCTO
-  verify_output TNSC05 output.txt
+  verify_output TNSC05 output.txt noinfo nodebug
 }
 
 @test "Rocto - one region - null subs disabled on DEFAULT" {
   set_null_subs DEFAULT never
   rocto -vv &> rocto.log || true
-  verify_output TNSC06 rocto.log
+  verify_output TNSC06 rocto.log noinfo nodebug
 }
 
 @test "Rocto - one region - null subs enabled on DEFAULT" {
@@ -106,7 +106,7 @@ OCTO
 SELECT * FROM names;
 OCTO
   stop_rocto
-  verify_output TNSC07 output.txt
+  verify_output TNSC07 output.txt noinfo nodebug
 }
 
 @test "Rocto - two regions - null subs set to NEVER on DEFAULT, ALWAYS on OCTO" {
@@ -126,7 +126,7 @@ OCTO
 SELECT * FROM names;
 OCTO
   stop_rocto
-  verify_output TNSC08 output.txt
+  verify_output TNSC08 output.txt noinfo nodebug
 }
 
 @test "Rocto - two regions - null subs set to NEVER on DEFAULT, ALLOW_EXISTING on OCTO" {
@@ -137,7 +137,7 @@ OCTO
   set_null_subs DEFAULT never
   set_null_subs OCTO existing
   rocto -vv &> rocto.log || true
-  verify_output TNSC09 rocto.log
+  verify_output TNSC09 rocto.log noinfo nodebug
 }
 
 @test "Rocto - two regions - null subs set to NEVER on DEFAULT, NEVER on OCTO" {
@@ -148,7 +148,7 @@ OCTO
   set_null_subs DEFAULT never
   set_null_subs OCTO never
   rocto -vv &> rocto.log || true
-  verify_output TNSC10 rocto.log
+  verify_output TNSC10 rocto.log noinfo nodebug
 }
 
 @test "Rocto - three regions - null subs set to NEVER on DEFAULT, ALWAYS on OCTO1, NEVER on OCTO2" {
@@ -161,5 +161,5 @@ OCTO
   set_null_subs OCTO1 always
   set_null_subs OCTO2 never
   rocto -vv &> rocto.log || true
-  verify_output TNSC11 rocto.log
+  verify_output TNSC11 rocto.log noinfo nodebug
 }

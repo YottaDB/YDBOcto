@@ -23,7 +23,7 @@ setup() {
   octo >& output.txt <<OCTO
 select firstname from names limit 1; select lastname from names limit 1;
 OCTO
-  verify_output TM000 output.txt
+  verify_output TM000 output.txt noinfo nodebug
 }
 
 @test "complete a dangling query on the same line" {
@@ -31,7 +31,7 @@ OCTO
 select firstname from names limit 1; select lastname from
 names limit 1;
 OCTO
-  verify_output TM001 output.txt
+  verify_output TM001 output.txt noinfo nodebug
 }
 
 @test "test that -vv only reports the current parsed query" {
@@ -40,7 +40,7 @@ select firstname from names limit 1; select lastname from names limit 1;
 select * from names limit 1;
 ;
 OCTO
-  verify_output_info TM002 output.txt
+  verify_output TM002 output.txt nodebug
 }
 
 @test "test that trailing white space is trimmed from commands so that -vv reports only the current parsed query" {
@@ -49,7 +49,7 @@ OCTO
 echo "select firstname from names limit 1;     " > input.in
 echo "select lastname from names limit 1;" >> input.in
   octo -vv >& output.txt < input.in
-  verify_output_info TM003 output.txt
+  verify_output TM003 output.txt nodebug
 }
 
 @test "test that input buffer is cleared on an invalid parse" {
@@ -57,7 +57,7 @@ echo "select lastname from names limit 1;" >> input.in
 qwertyuiop;
 select * from names limit 1;
 OCTO
-  verify_output_info TM004 output.txt
+  verify_output TM004 output.txt nodebug
 }
 
 @test "test that -vv reports dangling queries with blank lines" {
@@ -69,14 +69,14 @@ select firstname from names
 
 limit 1;
 OCTO
-  verify_output_info TM005 output.txt
+  verify_output TM005 output.txt nodebug
 }
 
 @test "test that a correct query after an error still runs" {
   octo -vv >& output.txt <<OCTO
 qwerty; select * from names limit 1;
 OCTO
-  verify_output_info TM006 output.txt
+  verify_output TM006 output.txt nodebug
 }
 
 @test "test that a correct query after a multiline error still runs" {
@@ -85,5 +85,5 @@ qwerty
 uiop; select *
 from names limit 1;
 OCTO
-  verify_output_info TM007 output.txt
+  verify_output TM007 output.txt nodebug
 }

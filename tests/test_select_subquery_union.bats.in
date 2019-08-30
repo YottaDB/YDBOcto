@@ -28,7 +28,7 @@ FROM   (SELECT *
         SELECT *
         FROM   names);
 OCTO
-  verify_output TSU01 output.txt
+  verify_output TSU01 output.txt noinfo nodebug
 }
 
 @test "TSU02 : UNION with select id subquery" {
@@ -40,7 +40,7 @@ FROM   (SELECT id
         SELECT id
         FROM   names);
 OCTO
-  verify_output TSU02 output.txt
+  verify_output TSU02 output.txt noinfo nodebug
 }
 
 @test "TSU03 : UNION with select 1 in subquery" {
@@ -50,7 +50,7 @@ FROM   (SELECT 1
         UNION
         SELECT 1);
 OCTO
-  verify_output TSU03 output.txt
+  verify_output TSU03 output.txt noinfo nodebug
 }
 
 @test "TSU04 : UNION with select id subquery and AS usage to avoid Ambigious column name warning in TSU02" {
@@ -62,6 +62,6 @@ FROM   (SELECT n1.id
         SELECT n2.id
         FROM   names as n2) as n3;
 OCTO
-  verify_output TSU04 output.txt
+  verify_output TSU04 output.txt noinfo nodebug
 }
 

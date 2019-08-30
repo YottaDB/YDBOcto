@@ -25,7 +25,7 @@ select pastas.id, firstName, lastName, pastaName from names4
 inner join pastas on pastas.pastaName = names4.favoritePasta
 where lastName = "Buttons";
 OCTO
-  verify_output T3000 output.txt
+  verify_output T3000 output.txt noinfo nodebug
 }
 
 @test "inner join pastas where firstName = Zero" {
@@ -34,7 +34,7 @@ select pastas.id, firstName, lastName, pastaName from names4
 inner join pastas on pastas.pastaName = names4.favoritePasta
 where firstName = "Zero";
 OCTO
-  verify_output T3001 output.txt
+  verify_output T3001 output.txt noinfo nodebug
 }
 
 @test "inner join pastas firstName = Zero and favoritePasta = Lasagna" {
@@ -43,7 +43,7 @@ select pastas.id, firstName, lastName, pastaName from names4
 inner join pastas on pastas.pastaName = names4.favoritePasta
 where firstName = "Zero" and names4.favoritePasta = "Lasagna";
 OCTO
-  verify_output T3002 output.txt
+  verify_output T3002 output.txt noinfo nodebug
 }
 
 @test "inner join pastas where favoritePasta = Penne" {
@@ -52,7 +52,7 @@ select pastas.id, firstName, lastName, pastaName from names4
 inner join pastas on pastas.pastaName = names4.favoritePasta
 where names4.favoritePasta = "Penne";
 OCTO
-  verify_output T3003 output.txt
+  verify_output T3003 output.txt noinfo nodebug
 }
 
 @test "inner join pastas where favoritePasta = Spaghetti" {
@@ -61,7 +61,7 @@ select pastas.id, firstName, lastName, pastaName from names4
 inner join pastas on pastas.pastaName = names4.favoritePasta
 where names4.favoritePasta = "Spaghetti";
 OCTO
-  verify_output T3004 output.txt
+  verify_output T3004 output.txt noinfo nodebug
 }
 
 @test "inner join pastas favoritePasta = Cavatelli and lastName = Buttons and firstName = Bobby" {
@@ -72,7 +72,7 @@ where names4.favoritePasta = "Cavatelli"
 and lastName = "Buttons"
 and firstName = "Bobby";
 OCTO
-  verify_output T3005 output.txt
+  verify_output T3005 output.txt noinfo nodebug
 }
 
 @test "inner join pastas distinct where favoritePasta = Cavatelli" {
@@ -81,5 +81,5 @@ select distinct pastas.id, favoritePasta from names4
 inner join pastas on pastas.pastaName = names4.favoritePasta
 where names4.favoritePasta = "Cavatelli";
 OCTO
-  verify_output T3006 output.txt
+  verify_output T3006 output.txt noinfo nodebug
 }

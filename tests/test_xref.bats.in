@@ -32,5 +32,5 @@ OCTO
   yottadb -run %XCMD 'kill ^names(0) zwrite ^%ydboctoxref' 2>&1 | tee -a output.txt
   echo " --> KILL ^names(5)  ZWRITE ^%ydboctoxref" >> output.txt
   yottadb -run %XCMD 'kill ^names(5) zwrite ^%ydboctoxref' 2>&1 | tee -a output.txt
-  verify_output TXREF01 output.txt
+  verify_output TXREF01 output.txt noinfo nodebug
 }

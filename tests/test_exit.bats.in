@@ -23,35 +23,35 @@ setup() {
   octo >& output.txt <<OCTO
 quit
 OCTO
-  verify_output TE000 output.txt
+  verify_output TE000 output.txt noinfo nodebug
 }
 
 @test "close octo with 'QUIT'" {
   octo >& output.txt <<OCTO
 QUIT
 OCTO
-  verify_output TE001 output.txt
+  verify_output TE001 output.txt noinfo nodebug
 }
 
 @test "close octo with 'exit'" {
   octo >& output.txt <<OCTO
 exit
 OCTO
-  verify_output TE002 output.txt
+  verify_output TE002 output.txt noinfo nodebug
 }
 
 @test "close octo with 'EXIT'" {
   octo >& output.txt <<OCTO
 EXIT
 OCTO
-  verify_output TE003 output.txt
+  verify_output TE003 output.txt noinfo nodebug
 }
 
 @test "close octo with '\q'" {
   octo >& output.txt <<OCTO
 \q
 OCTO
-  verify_output TE004 output.txt
+  verify_output TE004 output.txt noinfo nodebug
 }
 
 @test "close octo with '\q' after SELECT command" {
@@ -59,14 +59,14 @@ OCTO
 select * from names;
 \q
 OCTO
-  verify_output TE005 output.txt
+  verify_output TE005 output.txt noinfo nodebug
 }
 
 @test "attempt quit command using octo -f" {
   echo "select * from names;" > quit.sql
   echo "quit" >> quit.sql
   octo -f quit.sql >& output.txt
-  verify_output TE006 output.txt
+  verify_output TE006 output.txt noinfo nodebug
 }
 
 @test "attempt query after quit command using octo -f" {
@@ -75,20 +75,20 @@ OCTO
   echo "select * from names;" >> quit.sql
   octo -f quit.sql >& output.txt
   # The output should be the same as the previous test
-  verify_output TE006 output.txt
+  verify_output TE006 output.txt noinfo nodebug
 }
 
 @test "close octo with EOF" {
   octo >& output.txt <<OCTO
 OCTO
-  verify_output TE007 output.txt
+  verify_output TE007 output.txt noinfo nodebug
 }
 
 @test "attempt to terminate a query with EOF" {
   octo >& output.txt <<OCTO
 select * from names
 OCTO
-  verify_output TE008 output.txt
+  verify_output TE008 output.txt noinfo nodebug
 }
 
 @test "check prompt remains active after sending leading ';'" {
@@ -96,7 +96,7 @@ OCTO
 ;
 select * from names;
 OCTO
-  verify_output TE009 output.txt
+  verify_output TE009 output.txt noinfo nodebug
 }
 
 @test "attempt to terminate a query with EOF after parsing query terminated with ';'" {
@@ -104,5 +104,5 @@ OCTO
 select * from names;
 select * from names
 OCTO
-  verify_output TE010 output.txt
+  verify_output TE010 output.txt noinfo nodebug
 }

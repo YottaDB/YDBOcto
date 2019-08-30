@@ -211,7 +211,7 @@ OCTO
   octo <<OCTO 2>&1 | tee output.txt
 SELECT firstName :: integer + 5 FROM names;
 OCTO
-  verify_output T0003 output.txt
+  verify_output T0003 output.txt noinfo nodebug
 }
 
 @test "T0010 select an alias with a shorter name" {
@@ -223,35 +223,35 @@ FROM (
 INNER JOIN names t
 ON (t.id = tt.id);
 OCTO
-  verify_output T0010 output.txt
+  verify_output T0010 output.txt noinfo nodebug
 }
 
 @test "T0016 SELECT of column name with alias with ORDER BY using alias name" {
   octo <<OCTO &> output.txt
 SELECT firstname as alias from names order by alias
 OCTO
-  verify_output T0016 output.txt
+  verify_output T0016 output.txt noinfo nodebug
 }
 
 @test "T0017 SELECT of invalid column name in user-defined table" {
   octo <<OCTO &> output.txt
 SELECT invalid FROM names;
 OCTO
-  verify_output T0017 output.txt
+  verify_output T0017 output.txt noinfo nodebug
 }
 
 @test "T0018 SELECT of invalid column name in derived table from a level-1 sub-query" {
   octo <<OCTO &> output.txt
 SELECT invalid from (SELECT invalid from names);
 OCTO
-  verify_output T0018 output.txt
+  verify_output T0018 output.txt noinfo nodebug
 }
 
 @test "T0019 SELECT of invalid column name in derived table from a level-2 sub-query" {
   octo <<OCTO &> output.txt
 SELECT invalid from (SELECT invalid from (SELECT invalid from names));
 OCTO
-  verify_output T0019 output.txt
+  verify_output T0019 output.txt noinfo nodebug
 }
 
 @test "T0020 Miscellaneous SELECT using valid and/or invalid column names and a level-1 sub-query" {

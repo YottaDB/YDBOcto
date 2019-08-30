@@ -27,7 +27,7 @@ OCTO
 drop table t1;
 select * from t1;
 OCTO
-  verify_output TD000 output.txt
+  verify_output TD000 output.txt noinfo nodebug
 }
 
 @test "drop a cached table check that octo reports it does not exist" {
@@ -41,5 +41,5 @@ select * from t1;
 drop table t1;
 select * from t1;
 OCTO
-  verify_output TD001 output.txt
+  verify_output TD001 output.txt noinfo nodebug
 }

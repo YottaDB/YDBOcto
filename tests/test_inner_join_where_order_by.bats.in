@@ -26,7 +26,7 @@ inner join pastas on pastas.pastaName = names4.favoritePasta
 where lastName = "Buttons"
 order by firstName;
 OCTO
-  verify_output T4000 output.txt
+  verify_output T4000 output.txt noinfo nodebug
 }
 
 @test "inner join pastas where firstName = Zero order by id" {
@@ -36,7 +36,7 @@ inner join pastas on pastas.pastaName = names4.favoritePasta
 where firstName = "Zero"
 order by names4.id;
 OCTO
-  verify_output T4001 output.txt
+  verify_output T4001 output.txt noinfo nodebug
 }
 
 @test "inner join pastas where firstName = Zero order by lastName" {
@@ -46,7 +46,7 @@ inner join pastas on pastas.pastaName = names4.favoritePasta
 where firstName = "Zero"
 order by lastName;
 OCTO
-  verify_output T4002 output.txt
+  verify_output T4002 output.txt noinfo nodebug
 }
 
 @test "inner join pastas where favoritePasta = Cavatelli order by firstName" {
@@ -56,7 +56,7 @@ inner join pastas on pastas.pastaName = names4.favoritePasta
 where favoritePasta = "Cavatelli"
 order by firstName;
 OCTO
-  verify_output T4003 output.txt
+  verify_output T4003 output.txt noinfo nodebug
 }
 
 @test "inner join distinct pastas where favoritePasta = Cavatelli order by pastas.id" {
@@ -66,5 +66,5 @@ inner join pastas on pastas.pastaName = names4.favoritePasta
 where favoritePasta = "Cavatelli"
 order by pastas.id;
 OCTO
-  verify_output T4004 output.txt
+  verify_output T4004 output.txt noinfo nodebug
 }

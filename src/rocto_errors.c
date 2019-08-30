@@ -10,6 +10,6 @@
  *								*
  ****************************************************************/
 
-#define FEATURE_ROCTO
+#define IS_ROCTO
 
 #include "errors.c"

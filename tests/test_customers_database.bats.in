@@ -26,7 +26,7 @@ FROM customers c
 INNER JOIN orders o
 ON c.customer_id = o.customer_id;
 OCTO
-  verify_output TCD01 output.txt
+  verify_output TCD01 output.txt noinfo nodebug
 }
 
 @test "TCD02 : customers database : INNER JOIN order by ASC" {
@@ -37,7 +37,7 @@ INNER JOIN orders o
 ON c.customer_id = o.customer_id
 ORDER BY last_name ASC;
 OCTO
-  verify_output TCD02 output.txt
+  verify_output TCD02 output.txt noinfo nodebug
 }
 
 @test "TCD03 : customers database : INNER JOIN order by DESC" {
@@ -48,7 +48,7 @@ INNER JOIN orders o
 ON c.customer_id = o.customer_id
 ORDER BY last_name DESC;
 OCTO
-  verify_output TCD03 output.txt
+  verify_output TCD03 output.txt noinfo nodebug
 }
 
 @test "TCD04 : customers database : LEFT JOIN" {
@@ -58,7 +58,7 @@ FROM customers c
 LEFT JOIN orders o
 ON c.customer_id = o.customer_id;
 OCTO
-  verify_output TCD04 output.txt
+  verify_output TCD04 output.txt noinfo nodebug
 }
 
 @test "TCD05 : customers database : LEFT JOIN with WHERE" {
@@ -71,7 +71,7 @@ LEFT JOIN orders o
 ON c.customer_id = o.customer_id
 WHERE order_date is NULL;
 OCTO
-  verify_output TCD05 output.txt
+  verify_output TCD05 output.txt noinfo nodebug
 }
 
 @test "TCD06 : customers database : RIGHT JOIN" {
@@ -81,7 +81,7 @@ FROM customers c
 RIGHT JOIN orders o
 ON c.customer_id = o.customer_id;
 OCTO
-  verify_output TCD06 output.txt
+  verify_output TCD06 output.txt noinfo nodebug
 }
 
 @test "TCD07 : customers database : RIGHT JOIN with WHERE" {
@@ -92,7 +92,7 @@ RIGHT JOIN orders o
 ON c.customer_id = o.customer_id
 WHERE order_date is NULL;
 OCTO
-  verify_output TCD07 output.txt
+  verify_output TCD07 output.txt noinfo nodebug
 }
 
 @test "TCD08 : customers database : FULL JOIN" {
@@ -104,5 +104,5 @@ FROM customers c
 FULL JOIN orders o
 ON c.customer_id = o.customer_id;
 OCTO
-  verify_output TCD08 output.txt
+  verify_output TCD08 output.txt noinfo nodebug
 }

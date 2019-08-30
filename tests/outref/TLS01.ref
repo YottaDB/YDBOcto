@@ -1,0 +1,32 @@
+[IP_UNSET:PORT_UNSET] [ INFO] PATH:LINENUM DATE TIME : Loading config from ./octo.conf
+[IP_UNSET:PORT_UNSET] [ INFO] PATH:LINENUM DATE TIME : rocto started on port 1442
+[SOCKET] [ INFO] PATH:LINENUM DATE TIME : Client connected
+[SOCKET] [ INFO] PATH:LINENUM DATE TIME : Client connected
+[SOCKET] [ INFO] PATH:LINENUM DATE TIME : Client connected
+[SOCKET] [ INFO] PATH:LINENUM DATE TIME : Client connected
+[SOCKET] [ INFO] PATH:LINENUM DATE TIME : Client connected
+[SOCKET] [ INFO] PATH:LINENUM DATE TIME : Client connected
+[SOCKET] [ INFO] PATH:LINENUM DATE TIME : Client connected
+[SOCKET] [ INFO] PATH:LINENUM DATE TIME : Client connected
+[SOCKET] [ INFO] PATH:LINENUM DATE TIME : Client connected
+[SOCKET] [ INFO] PATH:LINENUM DATE TIME : Client connected
+[SOCKET] [ INFO] PATH:LINENUM DATE TIME : connection closed cleanly
+[SOCKET] [ INFO] PATH:LINENUM DATE TIME : connection closed cleanly
+[SOCKET] [ INFO] PATH:LINENUM DATE TIME : connection closed cleanly
+[SOCKET] [ INFO] PATH:LINENUM DATE TIME : connection closed cleanly
+[SOCKET] [ INFO] PATH:LINENUM DATE TIME : connection closed cleanly
+[SOCKET] [ INFO] PATH:LINENUM DATE TIME : connection closed cleanly
+[SOCKET] [ INFO] PATH:LINENUM DATE TIME : connection closed cleanly
+[SOCKET] [ INFO] PATH:LINENUM DATE TIME : connection closed cleanly
+[SOCKET] [ INFO] PATH:LINENUM DATE TIME : connection closed cleanly
+[SOCKET] [ INFO] PATH:LINENUM DATE TIME : connection closed cleanly
+[SOCKET] [ INFO] PATH:LINENUM DATE TIME : handle_password_message: user successfully authenticated
+[SOCKET] [ INFO] PATH:LINENUM DATE TIME : handle_password_message: user successfully authenticated
+[SOCKET] [ INFO] PATH:LINENUM DATE TIME : handle_password_message: user successfully authenticated
+[SOCKET] [ INFO] PATH:LINENUM DATE TIME : handle_password_message: user successfully authenticated
+[SOCKET] [ INFO] PATH:LINENUM DATE TIME : handle_password_message: user successfully authenticated
+[SOCKET] [ INFO] PATH:LINENUM DATE TIME : handle_password_message: user successfully authenticated
+[SOCKET] [ INFO] PATH:LINENUM DATE TIME : handle_password_message: user successfully authenticated
+[SOCKET] [ INFO] PATH:LINENUM DATE TIME : handle_password_message: user successfully authenticated
+[SOCKET] [ INFO] PATH:LINENUM DATE TIME : handle_password_message: user successfully authenticated
+[SOCKET] [ INFO] PATH:LINENUM DATE TIME : handle_password_message: user successfully authenticated

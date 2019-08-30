@@ -26,7 +26,7 @@ setup() {
 select o1.order_id from orders o1 inner join orders o2 on o1.customer_id < o2.customer_id;
 select o2.order_id from orders o1 inner join orders o2 on o1.customer_id < o2.customer_id;
 OCTO
-  verify_output THQ01 output.txt
+  verify_output THQ01 output.txt noinfo nodebug
   [[ $(ls -l _ydboctoP*.m | wc -l) -eq 2 ]]
 }
 
@@ -35,7 +35,7 @@ OCTO
 SELECT id,firstname FROM names WHERE id = 0 or id = 1;
 SELECT id,firstname FROM names WHERE id = 0 or id = 1 ORDER BY firstname;
 OCTO
-  verify_output THQ02 output.txt
+  verify_output THQ02 output.txt noinfo nodebug
   [[ $(ls -l _ydboctoP*.m | wc -l) -eq 2 ]]
 }
 

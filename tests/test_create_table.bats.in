@@ -34,7 +34,7 @@ OCTO
   octo <<OCTO 2>&1 | tee -a output.txt
 SELECT * from table1;
 OCTO
-  verify_output TC001 output.txt
+  verify_output TC001 output.txt noinfo nodebug
 }
 
 @test "create table with key in extract" {
@@ -63,7 +63,7 @@ OCTO
   octo <<OCTO 2>&1 | tee output.txt
 create table names4 (id int, First char(20), Last char(30));
 OCTO
-  verify_output TC002 output.txt
+  verify_output TC002 output.txt noinfo nodebug
 }
 
 @test "create a table which has no keys and select from it later" {
@@ -71,7 +71,7 @@ OCTO
 create table names4 (id int, First char(20), Last char(30));
 select * from names4
 OCTO
-  verify_output TC003 output.txt
+  verify_output TC003 output.txt noinfo nodebug
 }
 
 @test "recreate a cached table and check that the cached version is deleted" {
@@ -88,7 +88,7 @@ select * from t1;
 create table t1 (a int primary key, b int, c int, d int);
 select * from t1;
 OCTO
-  verify_output TC004 output.txt
+  verify_output TC004 output.txt noinfo nodebug
 }
 
 @test "create a table with duplicate primary keys then select from it" {
@@ -97,7 +97,7 @@ drop table t1;
 create table t1 (a int primary key, b int primary key);
 select * from t1;
 OCTO
-  verify_output TC005 output.txt
+  verify_output TC005 output.txt noinfo nodebug
 }
 
 @test "create a table with duplicate key nums then select from it" {
@@ -106,7 +106,7 @@ drop table t1;
 create table t1 (a int primary key, b int key num 1, c int key num 1);
 select * from t1;
 OCTO
-  verify_output TC006 output.txt
+  verify_output TC006 output.txt noinfo nodebug
 }
 
 @test "create a table with gaps in key nums then select from it" {
@@ -115,5 +115,5 @@ drop table t1;
 create table t1 (a int key num 10, b int key num 5, c int key num 7);
 select * from t1;
 OCTO
-  verify_output TC007 output.txt
+  verify_output TC007 output.txt noinfo nodebug
 }

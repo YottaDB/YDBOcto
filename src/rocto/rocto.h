@@ -15,7 +15,7 @@
 
 #include <libyottadb.h>
 
-#define FEATURE_ROCTO
+#define IS_ROCTO
 
 #include "errors.h"
 #include "physical_plan.h"

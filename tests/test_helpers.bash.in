@@ -99,6 +99,19 @@ load_postgres_fixture() {
   psql $1 -f @PROJECT_SOURCE_DIR@/tests/fixtures/$2
 }
 
+# Load a large amount of dummy data for tests requiring slow queries
+load_big_data() {
+  $ydb_dist/mumps -run ^%XCMD 'for i=1:4:100000 s ^names(i+5)=(i+5)_"|A|B"'
+  $ydb_dist/mumps -run ^%XCMD 'for i=2:4:100000 s ^names(i+5)=(i+5)_"|C|B"'
+  $ydb_dist/mumps -run ^%XCMD 'for i=3:4:100000 s ^names(i+5)=(i+5)_"|A|C"'
+  $ydb_dist/mumps -run ^%XCMD 'for i=4:4:100000 s ^names(i+5)=(i+5)_"|B|A"'
+
+  $ydb_dist/mumps -run ^%XCMD 'for i=5:4:200000 s ^names(i+5)=(i+5)_"|D|E"'
+  $ydb_dist/mumps -run ^%XCMD 'for i=6:4:200000 s ^names(i+5)=(i+5)_"|F|E"'
+  $ydb_dist/mumps -run ^%XCMD 'for i=7:4:200000 s ^names(i+5)=(i+5)_"|D|F"'
+  $ydb_dist/mumps -run ^%XCMD 'for i=8:4:200000 s ^names(i+5)=(i+5)_"|E|D"'
+}
+
 createdb() {
   unset ydb_gbldir gtmgbldir	# needed or else ydb_env_set can issue ZGBLDIRACC error (due to it calling MUPIP DUMPFHEAD)
 				# if ydb_gbldir is defined and points to a non-existent gld file.
@@ -211,55 +224,56 @@ run_go() {
 verify_output() {
   echo "Comparing outref/$1 $2"
   copy_test_files outref/$1.ref
+  cp $2 clean_output.txt
 
-  # filter verbosity statements from octo and psql
-  # a default octo install will have WARNING verbosity so INFO and DEBUG will need to be filtered
-  # psql will print INFO and DEBUG so those need to be filtered
-  sed '/\[ INFO\]\|^INFO:/d' $2 > noinfo.txt
-  sed '/\[DEBUG\]\|^DEBUG:/,/^$/d' noinfo.txt > nodebug.txt
-
-  # filter time and dates
-  sed -i 's/[0-9]\{4\}-[0-9]\{2\}-[0-9]\{2\}/DATE/' nodebug.txt
-  sed -i 's/[0-9]\{2\}:[0-9]\{2\}:[0-9]\{2\}/TIME/' nodebug.txt
-
-  # filter file path
-  sed -i 's/\/.*\/.*\.[yc]:[0-9]*/PATH:LINENUM/' nodebug.txt
-
+  # Universal filters
+  # Filter time and dates
+  sed -i 's/[0-9]\{4\}-[0-9]\{2\}-[0-9]\{2\}/DATE/' clean_output.txt
+  sed -i 's/[0-9]\{2\}:[0-9]\{2\}:[0-9]\{2\}/TIME/' clean_output.txt
+  # Filter file path
+  sed -i 's/\/.*\/.*\.[yc]:[0-9]*/PATH:LINENUM/' clean_output.txt
+  # Filter M routine name
+  sed -i 's/\.\/_ydbocto.*\.m/M_ROUTINE/' clean_output.txt
+  # Filter cursor number
+  sed -i 's/cursor [0-9]*/CURSOR_NUM/' clean_output.txt
+  # Filter ydb_* environment variables
+  sed -i '/^.*\[ INFO\] PATH:LINENUM DATE TIME : # .*$/d' clean_output.txt
   # Filter version number
-  sed -i 's/Octo version [0-9]\.[0-9]\.[0-9]/Octo version x\.x\.x/' nodebug.txt
-  sed -i 's/Rocto version [0-9]\.[0-9]\.[0-9]/Rocto version x\.x\.x/' nodebug.txt
-
+  sed -i 's/Octo version [0-9]\.[0-9]\.[0-9]/Octo version x\.x\.x/' clean_output.txt
+  sed -i 's/Rocto version [0-9]\.[0-9]\.[0-9]/Rocto version x\.x\.x/' clean_output.txt
   # Filter git commit hash
-  sed -i 's/Git commit: [0-9,a-f]*/Git commit: xxxx/' nodebug.txt
+  sed -i 's/Git commit: [0-9,a-f]*/Git commit: xxxx/' clean_output.txt
+  # Filter git uncommitted changes
+  sed -i 's/Uncommitted changes: .*/Uncommitted changes: false/' clean_output.txt
 
-   # Filter git uncommitted changes
-  sed -i 's/Uncommitted changes: .*/Uncommitted changes: false/' nodebug.txt
+  # Selectively process output
+  for i in "$@"; do
+    # Filter verbosity statements from octo and psql
+    # a default octo install will have WARNING verbosity so INFO and DEBUG will need to be filtered for most tests
+    if [[ $i == "noinfo" ]]; then
+      sed -i '/\[ INFO\]\|^INFO:/d' clean_output.txt
+    fi
+    if [[ $i == "nodebug" ]]; then
+      sed -i '/\[DEBUG\]\|^DEBUG:/,/^$/d' clean_output.txt
+    fi
+    if [[ $i == "nowarn" ]]; then
+      sed -i '/\[ WARN\]\|^WARN:/d' clean_output.txt
+    fi
+    if [[ $i == "noprompt" ]]; then
+      # Remove octo prompt lines
+      sed -i '/OCTO>/,$!d' clean_output.txt
+    fi
+    if [[ $i == "psql" ]]; then
+      # filter socket info
+      sed -i 's/\[[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*:[0-9]*\]/\[SOCKET\]/' clean_output.txt
+    fi
+    # The sort argument should be passed last to allow sorting of final output file
+    if [[ $i == "sort" ]]; then
+      cat clean_output.txt | sort -o clean_output.txt
+    fi
+  done
 
-  diff outref/$1.ref nodebug.txt
-  return
-}
-
-# some tests (that use -vv switch) need to see info so don't filter that
-verify_output_info() {
-  echo "Comparing outref/$1 $2"
-  copy_test_files outref/$1.ref
-
-  # filer verbosity statements from octo and psql
-  sed '/\[DEBUG\]\|^DEBUG:/,/^$/d' $2 > nodebug.txt
-
-  # filter time and dates
-  sed -i 's/[0-9]\{4\}-[0-9]\{2\}-[0-9]\{2\}/DATE/' nodebug.txt
-  sed -i 's/[0-9]\{2\}:[0-9]\{2\}:[0-9]\{2\}/TIME/' nodebug.txt
-
-  # filter info header
-  sed -i '/OCTO>/,$!d' nodebug.txt
-
-  # filter file path
-  sed -i 's/\/*\/.*\.[yc]:[0-9]*/PATH:LINENUM/' nodebug.txt
-  sed -i 's/\.\/_ydbocto.*\.m/M_ROUTINE/' nodebug.txt
-  sed -i 's/cursor [0-9]*/CURSOR_NUM/' nodebug.txt
-
-  diff outref/$1.ref nodebug.txt
+  diff outref/$1.ref clean_output.txt
   return
 }
 

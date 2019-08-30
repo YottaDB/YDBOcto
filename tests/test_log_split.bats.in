@@ -15,15 +15,32 @@ load test_helpers
 setup() {
   init_test
   createdb
+  #  Create config file for outref consistency
+  echo "verbosity = \"WARNING\"" > octo.conf
+  if [[ @YDB_TLS_AVAILABLE@ -eq 1 ]]; then
+    init_tls
+  fi
   load_fixture names.sql
   load_fixture names.zwr
+  load_big_data
+  load_fixture default_user.zwr
+  start_rocto 1442
+  sleep 1
 }
 
-@test "Ensure cross-references are not computed for computed columns" {
-  curtime=`$ydb_dist/mumps -run %XCMD 'write $HOROLOG'`
-  sleep 1	# sleep so we are guaranteed the "time = $curtime" check below will not match any records
-  		# (since "time" below will reflect the current time then and hence will be at least one second after $curtime
-  echo "select time from namesWithAges where time = \"$curtime\"" > query.sql
-  octo -f query.sql 2>&1 | tee output.txt
-  verify_output TCC01 output.txt noinfo nodebug
+teardown() {
+  stop_rocto
 }
+
+@test "ensure log output split across multiple lines" {
+  for i in {1..10}; do
+    (
+    run_psql 1442 & <<OCTO
+SELECT * FROM names;
+OCTO
+    )
+  done
+  sleep 5
+  verify_output TLS01 rocto.log nodebug nowarn psql sort
+}
+

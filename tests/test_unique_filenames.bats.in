@@ -150,5 +150,5 @@ SELECT * FROM names WHERE firstName IN ('Zero', 'Cool');
 OCTO
   [[ $(ls -l _ydboctoP*.m | wc -l) -eq 2 ]]
   [[ $(grep -c 'Acid|' output.txt) -eq 1 ]]
-  verify_output T0001 output.txt
+  verify_output T0001 output.txt noinfo nodebug
 }

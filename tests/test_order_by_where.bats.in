@@ -23,14 +23,14 @@ setup() {
   octo <<OCTO &> output.txt
 select * from names3 where lastName = "Buttons" order by firstName;
 OCTO
-  verify_output T1000 output.txt
+  verify_output T1000 output.txt noinfo nodebug
 }
 
 @test "order by firstName ascending explicit where lastName = Buttons" {
   octo <<OCTO &> output.txt
 select * from names3 where lastName = "Buttons" order by firstName asc;
 OCTO
-  verify_output T1001 output.txt
+  verify_output T1001 output.txt noinfo nodebug
 }
 
 @test "order by firstName descending where lastName = Buttons" {
@@ -38,68 +38,68 @@ OCTO
 select * from names3
 where lastName = "Buttons" order by firstName desc;
 OCTO
-  verify_output T1002 output.txt
+  verify_output T1002 output.txt noinfo nodebug
 }
 
 @test "order by id ascending where lastName = Buttons" {
   octo <<OCTO &> output.txt
 select * from names3 where lastName = "Buttons" order by id;
 OCTO
-  verify_output T1003 output.txt
+  verify_output T1003 output.txt noinfo nodebug
 }
 
 @test "order by id ascending explicit where lastName = Buttons" {
   octo <<OCTO &> output.txt
 select * from names3 where lastName = "Buttons" order by id asc;
 OCTO
-  verify_output T1004 output.txt
+  verify_output T1004 output.txt noinfo nodebug
 }
 
 @test "order by id descending where lastName = Buttons" {
   octo <<OCTO &> output.txt
 select * from names3 where lastName = "Buttons" order by id desc;
 OCTO
-  verify_output T1005 output.txt
+  verify_output T1005 output.txt noinfo nodebug
 }
 
 @test "order by lastName ascending where firstName = Zero" {
   octo <<OCTO &> output.txt
 select * from names3 where firstName = "Zero" order by lastName;
 OCTO
-  verify_output T1006 output.txt
+  verify_output T1006 output.txt noinfo nodebug
 }
 
 @test "order by lastName ascending explicit where firstName = Zero" {
   octo <<OCTO &> output.txt
 select * from names3 where firstName = "Zero" order by lastName asc;
 OCTO
-  verify_output T1007 output.txt
+  verify_output T1007 output.txt noinfo nodebug
 }
 
 @test "order by lastName descending where firstName = Zero" {
   octo <<OCTO &> output.txt
 select * from names3 where firstName = "Zero" order by lastName desc;
 OCTO
-  verify_output T1008 output.txt
+  verify_output T1008 output.txt noinfo nodebug
 }
 
 @test "order by id ascending where firstName = Zero" {
   octo <<OCTO &> output.txt
 select * from names3 where firstName = "Zero" order by id;
 OCTO
-  verify_output T1009 output.txt
+  verify_output T1009 output.txt noinfo nodebug
 }
 
 @test "order by id ascending explicit where firstName = Zero" {
   octo <<OCTO &> output.txt
 select * from names3 where firstName = "Zero" order by id asc;
 OCTO
-  verify_output T1010 output.txt
+  verify_output T1010 output.txt noinfo nodebug
 }
 
 @test "order by id descending where firstName = Zero" {
   octo <<OCTO &> output.txt
 select * from names3 where firstName = "Zero" order by id desc;
 OCTO
-  verify_output T1011 output.txt
+  verify_output T1011 output.txt noinfo nodebug
 }

@@ -19,8 +19,9 @@
 
 TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan) {
     TEMPLATE_INIT();
-    char *mid = NULL;
-    int use_string_comparison;
+    char *mid = NULL, zwr_buf[MAX_STR_CONST];
+    ydb_buffer_t str, zwr;
+    int use_string_comparison, status;
     SqlValue *value;
     SqlColumnAlias *column_alias;
     LogicalPlan *key, *piece_num, *cur_plan, *branch_value, *cas_value, *condition;
@@ -41,11 +42,23 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan) {
         value = plan->v.value;
         switch(value->type) {
         case NUMBER_LITERAL:
-        case STRING_LITERAL:
         case DATE_TIME:
         case UNKNOWN_SqlValueType:
         case BOOLEAN_VALUE:
             %}"{{ value->v.string_literal }}"{%
+            break;
+        case STRING_LITERAL:
+            // STRING_LITERALS need to be converted to zwrite format first as they can contain non-printable characters
+            str.len_used = strlen(value->v.string_literal);
+            str.len_alloc = str.len_used;
+            str.buf_addr = value->v.string_literal;
+            // -1 is needed for the null terminator
+            zwr.len_alloc = sizeof(zwr_buf) - 1;
+            zwr.buf_addr = zwr_buf;
+            status = ydb_str2zwr_s(&str, &zwr);
+            assert(YDB_OK == status);
+            zwr.buf_addr[zwr.len_used] = '\0';
+            %}{{ zwr.buf_addr }}{%
             break;
         case COLUMN_REFERENCE:
             // We should only pass LP_COLUMN_ALIASes to this funciton

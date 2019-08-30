@@ -1,0 +1,25 @@
+OCTO> select """
+OCTO>  set ^T0025(1)=1
+OCTO> ;"
+OCTO> from names;
+"
+ set ^T0025(1)=1
+;
+"
+ set ^T0025(1)=1
+;
+"
+ set ^T0025(1)=1
+;
+"
+ set ^T0025(1)=1
+;
+"
+ set ^T0025(1)=1
+;
+"
+ set ^T0025(1)=1
+;
+OCTO> 
+PASS: ^T0025(1) is unset
+PASS: generated M code has the correct number of _$c(10)_

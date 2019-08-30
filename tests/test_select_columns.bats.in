@@ -389,3 +389,20 @@ select $DDOLAR^userfunc1(42) from names;
 OCTO
   verify_output T0024 output.txt
 }
+
+@test "test that multiline strings are inserted in to generated code correctly" {
+  octo <<OCTO 2>&1 | tee output.txt
+select """
+ set ^T0025(1)=1
+;"
+from names;
+OCTO
+  yottadb -run %XCMD 'write:$get(^T0025(1))="" "PASS: ^T0025(1) is unset",! write:$get(^T0025(1))=1 "FAIL: set ^T0025(1)=1 was run when it should not have been",!' | tee -a output.txt
+  grepCount=$(grep -o '_\$C(10)_' _ydboctoP* | wc -l)
+  if [ $grepCount == "2" ]; then
+    echo 'PASS: generated M code has the correct number of _$c(10)_' | tee -a output.txt
+  else
+    echo "FAIL: generated M code has the incorrect number of _\$c(10)_: Expected: 2; Actual: $grepCount" | tee -a output.txt
+  fi
+  verify_output T0025 output.txt
+}

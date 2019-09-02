@@ -113,7 +113,8 @@ int lp_optimize_where_multi_equal_ands_helper(LogicalPlan *plan, LogicalPlan *wh
 	}
 	if (NULL == cur)
 		return 0;
-	assert(LP_BOOLEAN_OR != cur->type);	/* all ORs should already be eliminated before coming here */
+	if (LP_BOOLEAN_OR == cur->type)	/* OR is currently not optimized (only AND and EQUALS are) */
+		return 0;
 	if (LP_BOOLEAN_AND == cur->type)
 	{
 		total_optimizations_done = lp_optimize_where_multi_equal_ands_helper(plan, cur->v.operand[0], key_unique_id_array);

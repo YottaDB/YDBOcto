@@ -141,6 +141,8 @@ OCTO
 }
 
 @test "T0007 WHERE with disjunction" {
+  skip	# skip can be removed once https://gitlab.com/YottaDB/DBMS/YDBOcto/issues/301 is fixed
+  	# #301 title : Expand boolean expressions to Disjunctive Normal Form ONLY if it will speed up query
   octo -vv <<OCTO > output.txt 2> plan.txt
 SELECT *
 FROM names
@@ -152,6 +154,8 @@ OCTO
 }
 
 @test "T0008 complicated WHERE with disjunction and multiple nested levels" {
+  skip	# skip can be removed once https://gitlab.com/YottaDB/DBMS/YDBOcto/issues/301 is fixed
+  	# #301 title : Expand boolean expressions to Disjunctive Normal Form ONLY if it will speed up query
   octo -vv <<OCTO > output.txt 2> plan.txt
 SELECT *
 FROM names
@@ -163,6 +167,8 @@ OCTO
 }
 
 @test "T0009 complicated WHERE with disjunction and multiple nested levels of ANDs" {
+  skip	# skip can be removed once https://gitlab.com/YottaDB/DBMS/YDBOcto/issues/301 is fixed
+  	# #301 title : Expand boolean expressions to Disjunctive Normal Form ONLY if it will speed up query
   octo -vv <<OCTO > output.txt 2> plan.txt
 SELECT *
 FROM names

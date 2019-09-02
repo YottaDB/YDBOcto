@@ -1,0 +1,30 @@
+OCTO> SELECT *
+OCTO> FROM names n1
+OCTO> LEFT JOIN names n2 ON n1.id = n2.id
+OCTO> LEFT JOIN names n3 ON n2.id = n3.id
+OCTO> LEFT JOIN names n4 ON n3.id = n4.id
+OCTO> WHERE    (n1.id = 1) OR (n1.id = 2) OR (n1.id = 3) OR (n1.id = 4) OR (n1.id = 5)
+OCTO>       OR (n2.id = 1) OR (n2.id = 2) OR (n2.id = 3) OR (n2.id = 4) OR (n2.id = 5)
+OCTO>       OR (n3.id = 1) OR (n3.id = 2) OR (n3.id = 3) OR (n3.id = 4) OR (n3.id = 5)
+OCTO>       OR (n4.id = 1) OR (n4.id = 2) OR (n4.id = 3) OR (n4.id = 4) OR (n4.id = 5);
+1|Acid|Burn|1|Acid|Burn|1|Acid|Burn|1|Acid|Burn
+2|Cereal|Killer|2|Cereal|Killer|2|Cereal|Killer|2|Cereal|Killer
+3|Lord|Nikon|3|Lord|Nikon|3|Lord|Nikon|3|Lord|Nikon
+4|Joey||4|Joey||4|Joey||4|Joey|
+5|Zero|Cool|5|Zero|Cool|5|Zero|Cool|5|Zero|Cool
+1|Acid|Burn|1|Acid|Burn||||||
+2|Cereal|Killer|2|Cereal|Killer||||||
+3|Lord|Nikon|3|Lord|Nikon||||||
+4|Joey||4|Joey|||||||
+5|Zero|Cool|5|Zero|Cool||||||
+1|Acid|Burn|||||||||
+2|Cereal|Killer|||||||||
+3|Lord|Nikon|||||||||
+4|Joey||||||||||
+5|Zero|Cool|||||||||
+1|Acid|Burn|||||||||
+2|Cereal|Killer|||||||||
+3|Lord|Nikon|||||||||
+4|Joey||||||||||
+5|Zero|Cool|||||||||
+OCTO> 

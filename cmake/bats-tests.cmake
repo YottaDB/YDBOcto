@@ -71,6 +71,7 @@ ADD_BATS_TEST(test_null_subs_check)
 ADD_BATS_TEST(test_hash_query)
 ADD_BATS_TEST(test_computed_columns)
 ADD_BATS_TEST(test_join_on_columns)
+ADD_BATS_TEST(test_boolean_expression_expansion)
 
 find_program(psql NAMES psql)
 if(psql)

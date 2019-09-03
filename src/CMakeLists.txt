@@ -22,6 +22,7 @@ find_package(BATS)
 set(PRE_CONFIGURE_FILE "${PROJECT_SOURCE_DIR}/src/git_hashes.h.in")
 set(POST_CONFIGURE_FILE "${PROJECT_BINARY_DIR}/git_hashes.h")
 include(${PROJECT_SOURCE_DIR}/cmake/git-watcher.cmake)
+set_property(DIRECTORY PROPERTY ADDITIONAL_MAKE_CLEAN_FILES "${PROJECT_BINARY_DIR}/git-state")
 
 if(DEFINED YOTTADB_INCLUDE_DIRS AND EXISTS "${YOTTADB_INCLUDE_DIRS}/plugin/libgtmtls.so")
   message(STATUS "Found YottaDB TLS plugin: ${YOTTADB_INCLUDE_DIRS}")

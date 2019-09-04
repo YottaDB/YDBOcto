@@ -24,7 +24,7 @@ setup() {
   load_fixture names.zwr
   load_big_data
   load_fixture default_user.zwr
-  start_rocto 1442
+  test_port=$(start_rocto 1442)
   sleep 1
 }
 
@@ -35,7 +35,7 @@ teardown() {
 @test "ensure log output split across multiple lines" {
   for i in {1..10}; do
     (
-    run_psql 1442 & <<OCTO
+    run_psql $test_port & <<OCTO
 SELECT * FROM names;
 OCTO
     )

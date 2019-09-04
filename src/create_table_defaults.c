@@ -101,8 +101,8 @@ int create_table_defaults(SqlStatement *table_statement, SqlStatement *keywords_
 		case NO_KEYWORD:
 			break;
 		default:
-			FATAL(ERR_UNKNOWN_KEYWORD_STATE, "");
-			break;
+			ERROR(ERR_UNKNOWN_KEYWORD_STATE, "");
+			return 1;
 		}
 		cur_keyword = cur_keyword->next;
 	} while(cur_keyword != start_keyword);
@@ -171,8 +171,8 @@ int create_table_defaults(SqlStatement *table_statement, SqlStatement *keywords_
 		case NO_KEYWORD:
 			break;
 		default:
-			FATAL(ERR_UNKNOWN_KEYWORD_STATE, "");
-			break;
+			ERROR(ERR_UNKNOWN_KEYWORD_STATE, "");
+			return 1;
 		}
 		cur_keyword = cur_keyword->next;
 	} while(cur_keyword != start_keyword);

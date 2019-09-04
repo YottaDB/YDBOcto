@@ -105,6 +105,5 @@ LogicalPlan *lp_generate_xref_plan(LogicalPlan *plan, SqlTable *table, SqlColumn
 	lp_output_key->v.key = output_key;
 
 	// Optimize this new plan
-	optimize_logical_plan(root);
-	return root;
+	return optimize_logical_plan(root);
 }

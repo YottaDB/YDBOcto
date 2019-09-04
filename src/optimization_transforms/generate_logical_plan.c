@@ -66,7 +66,6 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt, int *plan_id) {
 		select_stmt->num_outer_joins_computed= TRUE;
 	}
 	num_outer_joins = select_stmt->num_outer_joins;
-
 	MALLOC_LP_2ARGS(insert, LP_INSERT);
 	MALLOC_LP(project, insert->v.operand[0], LP_PROJECT);
 	MALLOC_LP(select, project->v.operand[1], LP_SELECT);

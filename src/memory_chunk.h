@@ -19,6 +19,12 @@
 #include "constants.h"
 #include "double_list.h"
 
+#define OCTO_CFREE(MEMORY_CHUNKS)	\
+{					\
+	octo_cfree(MEMORY_CHUNKS);	\
+	MEMORY_CHUNKS = NULL;		\
+}
+
 typedef struct MemoryChunk {
 	dqcreate(MemoryChunk);
 	size_t offset, max_size;

@@ -248,6 +248,7 @@ SqlStatement *copy_sql_statement(SqlStatement *stmt) {
 		ret->v.function_call->parameters = copy_sql_statement(function_call->parameters);
 		break;
 	default:
+		assert(FALSE);
 		FATAL(ERR_UNKNOWN_KEYWORD_STATE, "");
 		break;
 	}

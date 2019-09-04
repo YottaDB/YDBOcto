@@ -105,7 +105,6 @@ int handle_cancel_request(CancelRequest *cancel_request) {
 		WARNING(ERR_SYSCALL, "kill", errno, strerror(errno));
 		return -1;
 	}
-	INFO(CUSTOM_ERROR, "HANDLE_CANCEL SUCCEEDED");
 
 	return 0;
 }

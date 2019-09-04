@@ -38,8 +38,7 @@ char *get_type_string(SqlValueType type) {
 	case CALCULATED_VALUE:
 	case UNKNOWN_SqlValueType:
 	default:
-		FATAL(ERR_UNKNOWN_KEYWORD_STATE, "");
-		break;
+		ERROR(ERR_UNKNOWN_KEYWORD_STATE, "");
 	}
 	return "";
 }
@@ -135,7 +134,7 @@ int populate_data_type(SqlStatement *v, SqlValueType *type) {
 			}
 			break;
 		default:
-			FATAL(ERR_UNKNOWN_KEYWORD_STATE, "");
+			ERROR(ERR_UNKNOWN_KEYWORD_STATE, "");
 			break;
 		}
 		break;
@@ -173,7 +172,7 @@ int populate_data_type(SqlStatement *v, SqlValueType *type) {
 			location.last_line = binary->operands[1]->loc.last_line;
 			location.last_column = binary->operands[1]->loc.last_column;
 			yyerror(&location, NULL, NULL, NULL, "Type mismatch");
-			return 1;
+			result = 1;
 		}
 		break;
 	case unary_STATEMENT:
@@ -225,8 +224,8 @@ int populate_data_type(SqlStatement *v, SqlValueType *type) {
 			case INTERVAL_TYPE:
 			case UNKNOWN_SqlDataType:
 			default:
-				FATAL(ERR_UNKNOWN_KEYWORD_STATE, "");
-				break;
+				ERROR(ERR_UNKNOWN_KEYWORD_STATE, "");
+				result = 1;
 			}
 		}
 		break;
@@ -262,8 +261,8 @@ int populate_data_type(SqlStatement *v, SqlValueType *type) {
 		// Do nothing; we got here through a table_alias
 		break;
 	default:
-		FATAL(ERR_UNKNOWN_KEYWORD_STATE, "");
-		break;
+		ERROR(ERR_UNKNOWN_KEYWORD_STATE, "");
+		result = 1;
 	}
 	return result;
 }

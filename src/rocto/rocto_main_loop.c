@@ -59,12 +59,13 @@ int rocto_main_loop(RoctoSession *session) {
 			FD_ZERO(&rfds);
 			FD_SET(session->connection_fd, &rfds);
 			result = select(session->connection_fd+1, &rfds, NULL, NULL, &select_timeout);
-		} while(result == -1 && errno == EINTR);
+		} while(-1 == result && EINTR == errno);
 
-		if(result == -1) {
-			FATAL(ERR_SYSCALL, "select", errno, strerror(errno));
+		if(-1 == result) {
+			ERROR(ERR_SYSCALL, "select", errno, strerror(errno));
+			break;
 		}
-		if(result == 0 && send_ready_for_query) {
+		if(0 == result && send_ready_for_query) {
 			ready_for_query = make_ready_for_query(PSQL_TransactionStatus_IDLE);
 			result = send_message(session, (BaseMessage*)(&ready_for_query->type));
 			if(result)
@@ -74,45 +75,45 @@ int rocto_main_loop(RoctoSession *session) {
 		send_ready_for_query = TRUE;
 		int32_t rocto_err = 0;
 		message = read_message(session, buffer, MAX_STR_CONST, &rocto_err);
-		if(message == NULL) {
+		if(NULL == message) {
 			break;
 		}
 		TRACE(ERR_READ_MESSAGE, message->type, ntohl(message->length));
 		switch(message->type) {
 		case PSQL_Bind:
 			bind = read_bind(message, &err);
-			if(bind == NULL) {
+			if(NULL == bind) {
 				send_message(session, (BaseMessage*)(&err->type));
 				free_error_response(err);
 				break;
 			}
 			result = handle_bind(bind, session);
-			if(result == 1) {
+			if(1 == result) {
 				return 0;
 			}
 			break;
 		case PSQL_Query:
 			query = read_query(message, &err);
-			if(query == NULL) {
+			if(NULL == query) {
 				send_message(session, (BaseMessage*)(&err->type));
 				free_error_response(err);
 				break;
 			}
 			result = handle_query(query, session);
-			if(result == 1) {
+			if(1 == result) {
 				return 0;
 			}
 			break;
 		case PSQL_Execute:
 		//case PSQL_ErrorResponse: // Same letter code, different meaning
 			execute = read_execute(message, &err);
-			if(execute == NULL) {
+			if(NULL == execute) {
 				send_message(session, (BaseMessage*)(&err->type));
 				free_error_response(err);
 				break;
 			}
 			result = handle_execute(execute, session);
-			if(result == 1) {
+			if(1 == result) {
 				return 0;
 			}
 			send_ready_for_query = FALSE;
@@ -128,13 +129,13 @@ int rocto_main_loop(RoctoSession *session) {
 			break;
 		case PSQL_Parse:
 			parse = read_parse(message, &err);
-			if(parse == NULL) {
+			if(NULL == parse) {
 				send_message(session, (BaseMessage*)(&err->type));
 				free_error_response(err);
 				break;
 			}
 			result = handle_parse(parse, session);
-			if(result == 1) {
+			if(1 == result) {
 				return 0;
 			}
 			break;
@@ -150,13 +151,13 @@ int rocto_main_loop(RoctoSession *session) {
 		case PSQL_Describe:
 		// case PSQL_DataRow: // Same letter, different meaning
 			describe = read_describe(message, &err);
-			if(describe == NULL) {
+			if(NULL == describe) {
 				send_message(session, (BaseMessage*)(&err->type));
 				free_error_response(err);
 				break;
 			}
 			result = handle_describe(describe, session);
-			if(result == 1) {
+			if(1 == result ) {
 				return 0;
 			}
 			break;

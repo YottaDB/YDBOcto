@@ -17,18 +17,22 @@
 #include "octo.h"
 #include "octo_types.h"
 
-/**
- * Emits DDL specification for the given table
- */
-void emit_create_table(FILE *output, struct SqlStatement *stmt)
+// Emits DDL specification for the given table
+// Args:
+//	FILE *output: output file to write DDL to
+//	SqlStatement *stmt: a SqlTable type SqlStatement
+// Returns:
+//	0 for success, 1 for error
+int emit_create_table(FILE *output, struct SqlStatement *stmt)
 {
+	int status = 0;
 	SqlColumn *start_column, *cur_column;
 	SqlTable *table;
 	SqlValue *value;
 	SqlOptionalKeyword *keyword;
 	char buffer[MAX_STR_CONST];
 	if(stmt == NULL)
-		return;
+		return 0;
 	table = stmt->v.table;
 	assert(table->tableName);
 	assert(table->columns);
@@ -37,7 +41,10 @@ void emit_create_table(FILE *output, struct SqlStatement *stmt)
 	UNPACK_SQL_STATEMENT(start_column, table->columns, column);
 	cur_column = start_column;
 	do {
-		emit_column_specification(buffer, MAX_STR_CONST, cur_column);
+		status = emit_column_specification(buffer, MAX_STR_CONST, cur_column);
+		if (0 > status) {
+			return 1;
+		}
 		fprintf(output, "%s", buffer);
 		cur_column = cur_column->next;
 		if(start_column != cur_column)
@@ -57,4 +64,5 @@ void emit_create_table(FILE *output, struct SqlStatement *stmt)
 		fprintf(output, " DELIM \"%s\"", buffer);
 	}
 	fprintf(output, ";");
+	return 0;
 }

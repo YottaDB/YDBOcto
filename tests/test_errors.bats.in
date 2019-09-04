@@ -42,3 +42,35 @@ select * from names where exists (select * from names);
 OCTO
   verify_output TERR001 output.txt
 }
+
+@test "Octo can recover from error (e.g. DIVBYZERO)" {
+  octo <<OCTO 2>&1 | tee output.txt
+select 1/0 from names;
+select * from names;
+OCTO
+  verify_output TERR002 output.txt noinfo nodebug
+}
+
+@test "Octo issues FATAL error for missing input file" {
+  octo -f missing.sql 2>&1 | tee output.txt
+  verify_output TERR003 output.txt noinfo nodebug
+}
+
+@test "Octo doesn't generate core file for fatal errors" {
+  octo -f missing.sql 2>&1 | tee output.txt
+  verify_output TERR003 output.txt noinfo nodebug
+  run find "core*"
+  [[ $status -eq 1 ]]
+}
+
+@test "Rocto can recover from error (e.g. DIVBYZERO)" {
+  load_fixture default_user.zwr
+  test_port=$(start_rocto 1443)
+  run_psql $test_port <<OCTO 2>&1 | tee output.txt
+select 1/0 from names;
+select * from names;
+OCTO
+  verify_output TERR004 output.txt noinfo nodebug
+  stop_rocto
+}
+

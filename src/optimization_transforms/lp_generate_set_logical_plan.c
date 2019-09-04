@@ -48,7 +48,11 @@ LogicalPlan *lp_generate_set_logical_plan(SqlStatement *stmt, int *plan_id) {
 	UNPACK_SQL_STATEMENT(set_operation_sql, set_operation_stmt, set_operation);
 
 	set_plans[0] = generate_logical_plan(set_operation_sql->operand[0], plan_id);
+	if (NULL == set_plans[0])
+		return NULL;
 	set_plans[1] = generate_logical_plan(set_operation_sql->operand[1], plan_id);
+	if (NULL == set_plans[1])
+		return NULL;
 
 	// These should share the output key
 	cur_plan = lp_drill_to_insert(set_plans[0]);

@@ -33,5 +33,7 @@ int send_message(RoctoSession *session, BaseMessage *message) {
 
 	// +1 for message type indicator
 	result = send_bytes(session, (char*)message, ntohl(message->length) + 1);
+	if (0 != result)
+		ERROR(ERR_ROCTO_SEND_MESSAGE, message->type);
 	return result;
 }

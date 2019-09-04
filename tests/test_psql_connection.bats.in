@@ -218,17 +218,3 @@ OCTO
   run_psql $test_port < in.sql 2>&1 | tee -a output.txt
   verify_output TPC001 output.txt noinfo nodebug
 }
-
-@test "shutdown connection on FATAL error" {
-  run_psql $test_port <<OCTO 2>&1 | tee output.txt
-SELECT 1/0 from names;
-OCTO
-    sed -i 's/octoPlan.*\^/NUM/' output.txt
-    sed -i 's/%ydboctoP[0-9a-zA-Z]*,/PLAN/' output.txt
-    sed -i 's/%ydboctocursor(.*)/CURSOR/' output.txt
-  if [[ @YDB_TLS_AVAILABLE@ -eq 1 ]]; then
-    verify_output TPC002 output.txt noinfo nodebug
-  else
-    verify_output TPC003 output.txt noinfo nodebug
-  fi
-}

@@ -48,16 +48,19 @@ int qualify_function_name(SqlStatement *stmt) {
 	function_name_sub->buf_addr = value->v.string_literal;
 	function_name_sub->len_alloc = function_name_sub->len_used = name_length;
 
-	YDB_MALLOC_BUFFER(new_name_value, MAX_STR_CONST);
+	new_name_value->buf_addr = octo_cmalloc(memory_chunks, MAX_STR_CONST);
+	new_name_value->len_alloc = MAX_STR_CONST;
 
 	status = ydb_get_s(octo_global, 2, functions_sub, new_name_value);
 	if(status == YDB_ERR_GVUNDEF) {
 		// Not found; issue a warning and move on
 		WARNING(CUSTOM_ERROR, "Unknown function: %s", value->v.string_literal);
-		YDB_FREE_BUFFER(new_name_value);
 		return 1;
 	}
 	YDB_ERROR_CHECK(status);
+	if (YDB_OK != status) {
+		return 1;
+	}
 
 	// Replace the pointer in the value with the new value
 	new_name_value->buf_addr[new_name_value->len_used] = '\0';

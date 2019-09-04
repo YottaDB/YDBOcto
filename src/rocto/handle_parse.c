@@ -41,11 +41,16 @@ int handle_parse(Parse *parse, RoctoSession *session) {
 	// Add the new SQL query to the database
 	status = ydb_set_s(&src_subs[0], 3, &src_subs[1], &sql_expression);
 	YDB_ERROR_CHECK(status);
+	if (YDB_OK != status) {
+		free(src_subs);
+		return 1;
+	}
 
 	// Some clients depend on getting the rows back here; parse the expression, but don't execute it
 	response = make_parse_complete();
 	send_message(session, (BaseMessage*)(&response->type));
 	free(response);
+	free(src_subs);
 
 	return 0;
 }

@@ -48,9 +48,11 @@ LogicalPlan *lp_generate_xref_keys(LogicalPlan *plan, SqlTable *table, SqlColumn
 			table_join = NULL;
 		}
 	} while(table_join != NULL);
-	if(table_join == NULL)
+	if (NULL == table_join)
 		return NULL;
 	table_join->v.operand[0] = lp_generate_xref_plan(plan, table, column, unique_id);
+	if (NULL == table_join->v.operand[0])
+		return NULL;
 	lp_output_key = lp_get_output_key(table_join->v.operand[0]);
 	output_key = lp_output_key->v.key;
 	output_key->cross_reference_column_alias = column_alias;

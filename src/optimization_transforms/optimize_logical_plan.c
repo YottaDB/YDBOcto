@@ -38,11 +38,17 @@ LogicalPlan *join_tables(LogicalPlan *root, LogicalPlan *plan) {
 		// Leave it alone here, and let the physical planner grab it
 		plan->counter = root->counter;
 		plan->v.operand[0] = sub = optimize_logical_plan(plan->v.operand[0]);
+		if (NULL == sub)
+			return NULL;
 		assert(plan->counter == root->counter);
 	}
 	if(sub->type == LP_SET_OPERATION) {
 		sub->v.operand[1]->v.operand[0] = sub1 = optimize_logical_plan(sub->v.operand[1]->v.operand[0]);
+		if (NULL == sub1)
+			return NULL;
 		sub->v.operand[1]->v.operand[1] = optimize_logical_plan(sub->v.operand[1]->v.operand[1]);
+		if (NULL == sub->v.operand[1]->v.operand[1])
+			return NULL;
 		// Each of the sub plans should have the same output key, so we can
 		//  grab from either
 		sub1 = lp_drill_to_insert(sub1);
@@ -60,7 +66,8 @@ LogicalPlan *join_tables(LogicalPlan *root, LogicalPlan *plan) {
 		GET_LP(cur_lp_key, cur_lp_key, 0, LP_KEY);
 		lp_insert_key(root, cur_lp_key);
 		if(next)
-			join_tables(root, next);
+			if (NULL == join_tables(root, next))
+				return NULL;
 		return plan;
 	}
 	GET_LP(table_plan, plan, 0, LP_TABLE);
@@ -105,7 +112,8 @@ LogicalPlan *join_tables(LogicalPlan *root, LogicalPlan *plan) {
 		assert(FALSE);
 	}
 	if(next)
-		join_tables(root, next);
+		if (NULL == join_tables(root, next))
+			return NULL;
 	return plan;
 }
 
@@ -115,10 +123,16 @@ LogicalPlan *optimize_logical_plan(LogicalPlan *plan) {
 	boolean_t	disable_dnf_expansion;
 	LogicalPlan	*new_plan;
 	int		num_outer_joins;
+	if (NULL == plan)
+		return NULL;
 
 	if(plan->type == LP_SET_OPERATION) {
 		plan->v.operand[1]->v.operand[0] = optimize_logical_plan(plan->v.operand[1]->v.operand[0]);
+		if (NULL == plan->v.operand[1]->v.operand[0])
+			return NULL;
 		plan->v.operand[1]->v.operand[1] = optimize_logical_plan(plan->v.operand[1]->v.operand[1]);
+		if (NULL == plan->v.operand[1]->v.operand[1])
+			return NULL;
 		return plan;
 	}
 
@@ -131,7 +145,8 @@ LogicalPlan *optimize_logical_plan(LogicalPlan *plan) {
 	LogicalPlan *keys;
 	keys = lp_get_keys(plan);
 	if(keys->v.operand[0] == NULL) {
-		join_tables(plan, table_join);
+		if (NULL == join_tables(plan, table_join))
+			return NULL;
 	}
 
 	// If there are no "OR" or "AND" statements, fix key values

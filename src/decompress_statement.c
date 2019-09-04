@@ -149,8 +149,8 @@ void *decompress_statement_helper(SqlStatement *stmt, char *out, int out_length)
 	case sort_spec_list_STATEMENT:
 	case table_alias_STATEMENT:
 	case unary_STATEMENT:
-		FATAL(ERR_UNKNOWN_KEYWORD_STATE, "");
-		break;
+		ERROR(ERR_UNKNOWN_KEYWORD_STATE, "");
+		return NULL;
 	case invalid_STATEMENT:
 		assert(stmt->type != invalid_STATEMENT);
 		break;

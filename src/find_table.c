@@ -28,8 +28,7 @@ SqlTable *find_table(const char *table_name) {
 	int status;
 	int num_parts;
 
-	TRACE(CUSTOM_ERROR, "Searching for table %s",
-	      table_name);
+	TRACE(CUSTOM_ERROR, "Searching for table %s", table_name);
 
 	/* We look to see if the table has already been loaded, and if so
 	 * we get the pointer to process-local memory from the YDB local variable,
@@ -58,6 +57,11 @@ SqlTable *find_table(const char *table_name) {
 			break;
 		}
 		YDB_ERROR_CHECK(status);
+		if (YDB_OK != status) {
+			YDB_FREE_BUFFER(&table_binary_b[3]);
+			free(table_binary_b);
+			return NULL;
+		}
 		num_parts++;
 	}
 
@@ -91,30 +95,64 @@ SqlTable *find_table(const char *table_name) {
 	while(TRUE) {
 		status = ydb_subscript_next_s(table_binary_b, 3, &table_binary_b[1], &table_binary_b[3]);
 		if(status == YDB_ERR_NODEEND) {
+			status = YDB_OK;
 			break;
 		}
 		YDB_ERROR_CHECK(status);
+		if (YDB_OK != status)
+			break;
 		status = ydb_get_s(table_binary_b, 3, &table_binary_b[1], &value_b);
 		YDB_ERROR_CHECK(status);
+		if (YDB_OK != status)
+			break;
 		memcpy(&buff[MAX_STR_CONST * num_parts], value_b.buf_addr, value_b.len_used);
 		num_parts++;
+	}
+	if (YDB_OK != status) {
+		memory_chunks = old_chunk;
+		YDB_FREE_BUFFER(&table_binary_b[3]);
+		free(table_binary_b);
+		return NULL;
 	}
 
 	stmt = (void*)buff;
 	decompress_statement((char*)stmt, MAX_STR_CONST * num_parts);
+	if (NULL == stmt) {
+		memory_chunks = old_chunk;
+		YDB_FREE_BUFFER(&table_binary_b[3]);
+		free(table_binary_b);
+		return NULL;
+	}
 	assign_table_to_columns(stmt);
 
 	ydb_buffer_t *save_buffers = make_buffers("%ydboctoloadedschemas", 1, table_name);
 	ydb_buffer_t *save_chunk = make_buffers("%ydboctoloadedschemas", 2, table_name, "chunk");
+
 	save_value.buf_addr = (char*)&stmt;
 	save_value.len_used = save_value.len_alloc = sizeof(void*);
 	status = ydb_set_s(&save_buffers[0], 1, &save_buffers[1], &save_value);
 	YDB_ERROR_CHECK(status);
+	if (YDB_OK != status) {
+		memory_chunks = old_chunk;
+		YDB_FREE_BUFFER(&table_binary_b[3]);
+		free(table_binary_b);
+		free(save_buffers);
+		free(save_chunk);
+		return NULL;
+	}
 	// Note down the memory chunk so we can free it later
 	save_value.buf_addr = (char*)&memory_chunks;
 	save_value.len_used = save_value.len_alloc = sizeof(void*);
 	status = ydb_set_s(&save_chunk[0], 2, &save_chunk[1], &save_value);
 	YDB_ERROR_CHECK(status);
+	if (YDB_OK != status) {
+		memory_chunks = old_chunk;
+		YDB_FREE_BUFFER(&table_binary_b[3]);
+		free(table_binary_b);
+		free(save_buffers);
+		free(save_chunk);
+		return NULL;
+	}
 	free(save_buffers);
 	free(save_chunk);
 	UNPACK_SQL_STATEMENT(table, stmt, table);
@@ -123,7 +161,7 @@ SqlTable *find_table(const char *table_name) {
 	memory_chunks = old_chunk;
 
 	// Free buffers
-	free(table_binary_b[3].buf_addr);
+	YDB_FREE_BUFFER(&table_binary_b[3]);
 	free(table_binary_b);
 
 	return table;

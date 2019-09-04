@@ -54,12 +54,17 @@ int handle_describe(Describe *describe, RoctoSession *session) {
 	}
 	source_name->buf_addr = describe->name;
 	source_name->len_used = source_name->len_alloc = strlen(describe->name);
+	YDB_FREE_BUFFER(source_session_id);
 
 	YDB_MALLOC_BUFFER(&sql_expression, MAX_STR_CONST);
 
 	// Check if portal exists
 	status = ydb_data_s(&session_global, 3, subs_array, &found);
 	YDB_ERROR_CHECK(status);
+	if (YDB_OK != status) {
+		YDB_FREE_BUFFER(&sql_expression);
+		return 1;
+	}
 	if(found == 0) {
 		/// TODO: return error here
 	}
@@ -67,9 +72,14 @@ int handle_describe(Describe *describe, RoctoSession *session) {
 
 	status = ydb_get_s(&session_global, 3, subs_array, &sql_expression);
 	YDB_ERROR_CHECK(status);
+	if (YDB_OK != status) {
+		YDB_FREE_BUFFER(&sql_expression);
+		return 1;
+	}
 
 	query_length = sql_expression.len_used;
 	memcpy(input_buffer_combined, sql_expression.buf_addr, query_length);
+	YDB_FREE_BUFFER(&sql_expression);
 	/*if(input_buffer_combined[query_length-1] != ';' ) {
 		input_buffer_combined[query_length++] = ';';
 	}*/
@@ -93,7 +103,7 @@ int handle_describe(Describe *describe, RoctoSession *session) {
 			fclose(err_buffer);
 			free(err_buff);
 			err_buffer = open_memstream(&err_buff, &err_buff_size);
-			octo_cfree(memory_chunks);
+			OCTO_CFREE(memory_chunks);
 			continue;
 		}
 		// Else, send back the row description
@@ -107,17 +117,35 @@ int handle_describe(Describe *describe, RoctoSession *session) {
 
 		status = ydb_incr_s(&schema_global, 0, NULL, NULL, &cursor_exe_global[0]);
 		YDB_ERROR_CHECK(status);
+		if (YDB_OK != status) {
+			YDB_FREE_BUFFER(&cursor_exe_global[0]);
+			YDB_FREE_BUFFER(&cursor_exe_global[2]);
+			OCTO_CFREE(memory_chunks);
+			return 1;
+		}
 		cursor_exe_global[0].buf_addr[cursor_exe_global[0].len_used] = '\0';
 		cursor_exe_global[2].len_used = 1;
 		*cursor_exe_global[2].buf_addr = '0';
 
+		YDB_FREE_BUFFER(&cursor_exe_global[0]);
+		YDB_FREE_BUFFER(&cursor_exe_global[2]);
+
 		switch(statement->type) {
 			case table_alias_STATEMENT:
 			case set_operation_STATEMENT:
-				INVOKE_HASH_CANONICAL_QUERY(state, statement);	/* "state" holds final hash */
+				INVOKE_HASH_CANONICAL_QUERY(state, statement, status);	/* "state" holds final hash */
+				if (0 != status) {
+					ERROR(ERR_PLAN_HASH_FAILED, "");
+					free(filename_lock);
+					OCTO_CFREE(memory_chunks);
+					return 1;
+				}
 				int32_t routine_len = generate_routine_name(&state, routine_name, MAX_STR_CONST, OutputPlan);
 				if (routine_len < 0) {
-					FATAL(ERR_PLAN_HASH_FAILED, "");
+					ERROR(ERR_PLAN_HASH_FAILED, "");
+					free(filename_lock);
+					OCTO_CFREE(memory_chunks);
+					return 1;
 				}
 				GET_FULL_PATH_OF_GENERATED_M_FILE(filename, &routine_name[1]);	// updates "filename" to be
 												// full path
@@ -125,11 +153,23 @@ int handle_describe(Describe *describe, RoctoSession *session) {
 					INFO(CUSTOM_ERROR, "Generating M file [%s] (to execute SQL query)", filename);
 					filename_lock = make_buffers("^%ydboctoocto", 2, "files", filename);
 					// Wait for 5 seconds in case another process is writing to same filename
-					ydb_lock_incr_s(5000000000, &filename_lock[0], 2, &filename_lock[1]);
+					status = ydb_lock_incr_s(5000000000, &filename_lock[0], 2, &filename_lock[1]);
+					YDB_ERROR_CHECK(status);
+					if (YDB_OK != status) {
+						free(filename_lock);
+						OCTO_CFREE(memory_chunks);
+						return 1;
+					}
 					if (access(filename, F_OK) == -1) {
 						pplan = emit_select_statement(input_buffer_combined, statement, filename);
 						if(pplan == NULL) {
-							ydb_lock_decr_s(&filename_lock[0], 2, &filename_lock[1]);
+							status = ydb_lock_decr_s(&filename_lock[0], 2, &filename_lock[1]);
+							YDB_ERROR_CHECK(status);
+							if (YDB_OK != status) {
+								free(filename_lock);
+								OCTO_CFREE(memory_chunks);
+								return 1;
+							}
 							free(filename_lock);
 							// Need to "fflush" the stream returned by "open_memstream" before
 							// trying to access "err_buff" (per man pages of "open_memstream").
@@ -149,8 +189,13 @@ int handle_describe(Describe *describe, RoctoSession *session) {
 						}
 						assert(pplan != NULL);
 					}
-					ydb_lock_decr_s(&filename_lock[0], 2, &filename_lock[1]);
+					status = ydb_lock_decr_s(&filename_lock[0], 2, &filename_lock[1]);
 					free(filename_lock);
+					YDB_ERROR_CHECK(status);
+					if (YDB_OK != status) {
+						OCTO_CFREE(memory_chunks);
+						return 1;
+					}
 				} else {
 					INFO(CUSTOM_ERROR, "Using already generated M file [%s] (to execute SQL query)", filename);
 				}
@@ -170,7 +215,7 @@ int handle_describe(Describe *describe, RoctoSession *session) {
 				send_message(session, (BaseMessage*)(&description->type));
 				free(description);
 		}
-		octo_cfree(memory_chunks);
+		OCTO_CFREE(memory_chunks);
 	} while(!eof_hit);
 
 	return 0;

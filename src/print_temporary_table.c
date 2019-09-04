@@ -26,7 +26,7 @@
 /**
  * Iterates over the last output of the plan and prints it to the screen
  */
-void print_temporary_table(SqlStatement *stmt, int cursor_id, void *parms, char *plan_name) {
+int print_temporary_table(SqlStatement *stmt, int cursor_id, void *parms, char *plan_name) {
 	char buffer[MAX_STR_CONST];
 	/// WARNING: the ordering of these buffers is essential to the ydb calls;
 	//   if altered, make sure the order is correct
@@ -67,7 +67,7 @@ void print_temporary_table(SqlStatement *stmt, int cursor_id, void *parms, char 
 		UNPACK_SQL_STATEMENT(val2, set_stmt->variable, value);
 		set(val1->v.string_literal, config->global_names.session, 3,
 				"0", "variables", val2->v.string_literal);
-		return;
+		return 0;
 	}
 	if(stmt->type == show_STATEMENT) {
 		UNPACK_SQL_STATEMENT(show_stmt, stmt, show);
@@ -82,36 +82,51 @@ void print_temporary_table(SqlStatement *stmt, int cursor_id, void *parms, char 
 			val_buff = empty_buffer;
 		}
 		fprintf(stdout, "%s\n", val_buff->buf_addr);
-		return;
+		// Empty buffer is on the stack and its buf_addr is not allocated
+		if (val_buff != empty_buffer) {
+			YDB_FREE_BUFFER(val_buff);
+			free(val_buff);
+		}
+		return 0;
 	}
 
 	outputKeyId = get("^%ydboctoocto", 3, "plan_metadata", plan_name, "output_key");
 	if(outputKeyId == NULL) {
-		FATAL(ERR_DATABASE_FILES_OOS, "");
-		YDB_FREE_BUFFER(outputKeyId);
-		free(outputKeyId);
-		return;
+		YDB_FREE_BUFFER(row_id_b);
+		YDB_FREE_BUFFER(row_value_b);
+		if(memory_chunks != NULL) {
+			OCTO_CFREE(memory_chunks);
+		}
+		ERROR(ERR_DATABASE_FILES_OOS, "");
+		return 1;
 	}
 	*key_id_b = *outputKeyId;
 
 	status = ydb_subscript_next_s(cursor_b, 6, cursor_id_b, row_id_b);
-	if(status == YDB_ERR_NODEEND) {
-		return;
-	}
+	if (YDB_ERR_NODEEND == status)
+		return 0;
 	YDB_ERROR_CHECK(status);
-
-	while(!YDB_BUFFER_IS_SAME(empty_buffer, row_id_b)) {
-		status = ydb_get_s(cursor_b, 6, cursor_id_b, row_value_b);
-		YDB_ERROR_CHECK(status);
-		row_value_b->buf_addr[row_value_b->len_used] = '\0';
-		fprintf(stdout, "%s\n", row_value_b->buf_addr);
-		status = ydb_subscript_next_s(cursor_b, 6, cursor_id_b, row_id_b);
-		if(status == YDB_ERR_NODEEND) {
-			break;
+	if (YDB_OK == status) {
+		while(!YDB_BUFFER_IS_SAME(empty_buffer, row_id_b)) {
+			status = ydb_get_s(cursor_b, 6, cursor_id_b, row_value_b);
+			YDB_ERROR_CHECK(status);
+			if (YDB_OK != status) {
+				break;
+			}
+			row_value_b->buf_addr[row_value_b->len_used] = '\0';
+			fprintf(stdout, "%s\n", row_value_b->buf_addr);
+			status = ydb_subscript_next_s(cursor_b, 6, cursor_id_b, row_id_b);
+			if(YDB_ERR_NODEEND == status) {
+				status = YDB_OK;
+				break;
+			}
+			YDB_ERROR_CHECK(status);
+			if (YDB_OK != status) {
+				break;
+			}
 		}
-		YDB_ERROR_CHECK(status);
+		fflush(stdout);
 	}
-	fflush(stdout);
 	// Cleanup tables
 	ydb_delete_s(cursor_b, 1, cursor_id_b, YDB_DEL_TREE);
 
@@ -120,8 +135,7 @@ void print_temporary_table(SqlStatement *stmt, int cursor_id, void *parms, char 
 	YDB_FREE_BUFFER(outputKeyId);
 	free(outputKeyId);
 	if(memory_chunks != NULL) {
-		octo_cfree(memory_chunks);
-		memory_chunks = NULL;
+		OCTO_CFREE(memory_chunks);
 	}
-	return;
+	return (YDB_OK != status);
 }

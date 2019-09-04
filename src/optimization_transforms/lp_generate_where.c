@@ -189,8 +189,9 @@ LogicalPlan *lp_generate_where(SqlStatement *stmt, int *plan_id) {
 	case set_operation_STATEMENT:
 	case table_alias_STATEMENT:
 		ret = generate_logical_plan(stmt, plan_id);
-		/// TODO: should this be moved to the optimize phase for this plan?
-		ret = optimize_logical_plan(ret);
+		if (NULL != ret)
+			/// TODO: should this be moved to the optimize phase for this plan?
+			ret = optimize_logical_plan(ret);
 		break;
 	case select_STATEMENT:
 		// This should never happen, as all select statements are now wrapped in a table_alias
@@ -198,7 +199,8 @@ LogicalPlan *lp_generate_where(SqlStatement *stmt, int *plan_id) {
 		// In most other cases, we expect that this can be, but not here because a table can't exist
 		// in a WHERE statement
 	default:
-		FATAL(ERR_UNKNOWN_KEYWORD_STATE, "");
+		ERROR(ERR_UNKNOWN_KEYWORD_STATE, "");
+		ret = NULL;
 	}
 
 	return ret;

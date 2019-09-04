@@ -121,7 +121,8 @@ int emit_physical_plan(char *sql_query, PhysicalPlan *pplan, char *plan_filename
 		routine_name_len = generate_routine_name(&state, routine_name, MAX_ROUTINE_LEN, CrossReference);
 		// copy routine name (starts with %)
 		if (0 == routine_name_len) {
-			FATAL(ERR_PLAN_HASH_FAILED, "");
+			ERROR(ERR_PLAN_HASH_FAILED, "");
+			return 1;
 		}
 		// Convert '%' to '_'
 		key->cross_reference_filename = routine_name;
@@ -131,8 +132,8 @@ int emit_physical_plan(char *sql_query, PhysicalPlan *pplan, char *plan_filename
 				filename, tableName, columnName);
 			output_file = fopen(filename, "w");
 			if(output_file == NULL) {
-				FATAL(ERR_SYSCALL, "fopen", errno, strerror(errno));
-				return FALSE;
+				ERROR(ERR_SYSCALL, "fopen", errno, strerror(errno));
+				return 1;
 			}
 			cur_plan->filename = key->cross_reference_filename;
 			tmpl_physical_plan(buffer, MAX_ROUTINE_LENGTH, cur_plan);
@@ -162,8 +163,8 @@ int emit_physical_plan(char *sql_query, PhysicalPlan *pplan, char *plan_filename
 	tmp_plan_filename[plan_filename_len-1] = 't';
 	output_file = fopen(tmp_plan_filename, "w");
 	if(output_file == NULL) {
-		FATAL(ERR_SYSCALL, "fopen", errno, strerror(errno));
-		return FALSE;
+		ERROR(ERR_SYSCALL, "fopen", errno, strerror(errno));
+		return 1;
 	}
 
 	fprintf(output_file,
@@ -207,5 +208,5 @@ int emit_physical_plan(char *sql_query, PhysicalPlan *pplan, char *plan_filename
 	fsync(fd);
 	fclose(output_file);
 	rename(tmp_plan_filename, plan_filename);
-	return TRUE;
+	return YDB_OK;
 }

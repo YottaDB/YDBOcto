@@ -48,7 +48,12 @@ int handle_execute(Execute *execute, RoctoSession *session) {
 	sql_expression.len_alloc -= 1;
 
 	status = ydb_get_s(&src_subs[0], 3, &src_subs[1], &sql_expression);
+	free(src_subs);
 	YDB_ERROR_CHECK(status);
+	if (YDB_OK != status) {
+		YDB_FREE_BUFFER(&sql_expression);
+		return 1;
+	}
 
 	sql_expression.buf_addr[sql_expression.len_used] = '\0';
 	query_length = strlen(sql_expression.buf_addr);
@@ -56,10 +61,11 @@ int handle_execute(Execute *execute, RoctoSession *session) {
 	if(query_length + 2 > (size_t)cur_input_max) {
 		err = make_error_response(PSQL_Error_ERROR,
 				PSQL_Code_Protocol_Violation,
-				"execute query length exceeeded maximum size",
+				"execute query length exceeded maximum size",
 				0);
 		send_message(session, (BaseMessage*)(&err->type));
 		free_error_response(err);
+		YDB_FREE_BUFFER(&sql_expression);
 		return 0;
 	}
 	memcpy(input_buffer_combined, sql_expression.buf_addr, query_length);

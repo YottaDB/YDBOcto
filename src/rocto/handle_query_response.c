@@ -25,7 +25,7 @@
 
 #define	DATA_ROW_PARMS_ARRAY_INIT_ALLOC	16
 
-void handle_query_response(SqlStatement *stmt, int32_t cursor_id, void *_parms, char *plan_name) {
+int handle_query_response(SqlStatement *stmt, int32_t cursor_id, void *_parms, char *plan_name) {
 	QueryResponseParms	*parms = (QueryResponseParms*)_parms;
 	RowDescription		*row_description;
 	CommandComplete		*command_complete;
@@ -46,15 +46,10 @@ void handle_query_response(SqlStatement *stmt, int32_t cursor_id, void *_parms, 
 	RowDescription		*description;
 	RowDescriptionParm	row_desc_parm;
 	char			buffer[MAX_STR_CONST], *c;
-	int			status, number_of_columns = 0, row_count = 0;
+	int			status, number_of_columns = 0, row_count;
 	DataRow			*data_row;
 	static DataRowParm	*data_row_parms = NULL;
 	static int		data_row_parms_alloc_len = 0;
-
-	ErrorResponse *err = NULL;
-	ErrorBuffer error_message_buffer;
-	const char *error_message;
-	error_message_buffer.offset = 0;
 
 	YDB_LITERAL_TO_BUFFER("", space_b);
 	YDB_LITERAL_TO_BUFFER("", space_b2);
@@ -77,7 +72,9 @@ void handle_query_response(SqlStatement *stmt, int32_t cursor_id, void *_parms, 
 			command_complete = make_command_complete(buffer);
 			send_message(parms->session, (BaseMessage*)(&command_complete->type));
 			free(command_complete);
-			return;
+			YDB_FREE_BUFFER(row_id_b);
+			YDB_FREE_BUFFER(row_value_b);
+			return 0;
 		}
 		if (NULL == data_row_parms)
 		{
@@ -117,7 +114,14 @@ void handle_query_response(SqlStatement *stmt, int32_t cursor_id, void *_parms, 
 			command_complete = make_command_complete(buffer);
 			send_message(parms->session, (BaseMessage*)(&command_complete->type));
 			free(command_complete);
-			return;
+			// Empty buffer is on the stack and its buf_addr is not allocated
+			if (val_buff != empty_buffer) {
+				YDB_FREE_BUFFER(val_buff);
+				free(val_buff);
+			}
+			YDB_FREE_BUFFER(row_id_b);
+			YDB_FREE_BUFFER(row_value_b);
+			return 0;
 		}
 
 		// Go through and make rows for each row in the output plan
@@ -141,16 +145,41 @@ void handle_query_response(SqlStatement *stmt, int32_t cursor_id, void *_parms, 
 
 		outputKeyId = get("^%ydboctoocto", 3, "plan_metadata", plan_name, "output_key");
 		if(outputKeyId == NULL) {
-			FATAL(ERR_DATABASE_FILES_OOS, "");
-			return;
+			YDB_FREE_BUFFER(row_id_b);
+			YDB_FREE_BUFFER(row_value_b);
+			free(cursor_id_b->buf_addr);
+			if (NULL != data_row_parms) {
+				free(data_row_parms);
+			}
+			ERROR(ERR_DATABASE_FILES_OOS, "");
+			return 1;
 		}
 		*key_id_b = *outputKeyId;
 
 		status = ydb_subscript_next_s(cursor_b, 6, cursor_id_b, row_id_b);
 		if(status == YDB_ERR_NODEEND) {
-			return;
+			YDB_FREE_BUFFER(row_id_b);
+			YDB_FREE_BUFFER(row_value_b);
+			free(cursor_id_b->buf_addr);
+			if (NULL != data_row_parms) {
+				free(data_row_parms);
+			}
+			YDB_FREE_BUFFER(outputKeyId);
+			free(outputKeyId);
+			return 0;
 		}
 		YDB_ERROR_CHECK(status);
+		if (YDB_OK != status) {
+			YDB_FREE_BUFFER(row_id_b);
+			YDB_FREE_BUFFER(row_value_b);
+			free(cursor_id_b->buf_addr);
+			if (NULL != data_row_parms) {
+				free(data_row_parms);
+			}
+			YDB_FREE_BUFFER(outputKeyId);
+			free(outputKeyId);
+			return 1;
+		}
 		row_count = 0;
 
 		if (parms->max_data_to_send <= 0) {
@@ -160,6 +189,17 @@ void handle_query_response(SqlStatement *stmt, int32_t cursor_id, void *_parms, 
 			row_count++;
 			status = ydb_get_s(cursor_b, 6, cursor_id_b, row_value_b);
 			YDB_ERROR_CHECK(status);
+			if (YDB_OK != status) {
+				YDB_FREE_BUFFER(row_id_b);
+				YDB_FREE_BUFFER(row_value_b);
+				free(cursor_id_b->buf_addr);
+				if (NULL != data_row_parms) {
+					free(data_row_parms);
+				}
+				YDB_FREE_BUFFER(outputKeyId);
+				free(outputKeyId);
+				return 1;
+			}
 			row_value_b->buf_addr[row_value_b->len_used] = '\0';
 			number_of_columns = 0;
 			assert(number_of_columns < data_row_parms_alloc_len);
@@ -195,34 +235,43 @@ void handle_query_response(SqlStatement *stmt, int32_t cursor_id, void *_parms, 
 				break;
 			}
 			YDB_ERROR_CHECK(status);
+			if (YDB_OK != status) {
+				YDB_FREE_BUFFER(row_id_b);
+				YDB_FREE_BUFFER(row_value_b);
+				free(cursor_id_b->buf_addr);
+				if (NULL != data_row_parms) {
+					free(data_row_parms);
+				}
+				YDB_FREE_BUFFER(outputKeyId);
+				free(outputKeyId);
+				return 1;
+			}
 		}
 
-		// Cleanup tables, if needed
+		// Cleanup tables
 		ydb_delete_s(cursor_b, 1, cursor_id_b, YDB_DEL_TREE);
-		free(cursor_id_b->buf_addr);
-		free(row_id_b->buf_addr);
-		free(row_value_b->buf_addr);
-		free(outputKeyId->buf_addr);
-		free(outputKeyId);
 
+		free(cursor_id_b->buf_addr);
+		YDB_FREE_BUFFER(row_id_b);
+		YDB_FREE_BUFFER(row_value_b);
+		YDB_FREE_BUFFER(outputKeyId);
+		free(outputKeyId);
+		if (NULL != data_row_parms) {
+			free(data_row_parms);
+		}
 
 		snprintf(buffer, MAX_STR_CONST, "SELECT %d", row_count);
 		command_complete = make_command_complete(buffer);
 		send_message(parms->session, (BaseMessage*)(&command_complete->type));
 		free(command_complete);
 	} else {
-		// Issue expected ErrorResponse indicating a CancelRequest was processed
-		error_message = format_error_string(&error_message_buffer, ERR_ROCTO_QUERY_CANCELED, "");
-		err = make_error_response(PSQL_Error_ERROR,
-				PSQL_Code_Query_Canceled,
-				error_message,
-				0);
-		send_message(session, (BaseMessage*)(&err->type));
-		free_error_response(err);
+		// Issue ErrorResponse expected by clients indicating a CancelRequest was processed
+		ERROR(ERR_ROCTO_QUERY_CANCELED, "");
+		YDB_FREE_BUFFER(row_id_b);
+		YDB_FREE_BUFFER(row_value_b);
 	}
 	if(memory_chunks != NULL) {
-		octo_cfree(memory_chunks);
-		memory_chunks = NULL;
+		OCTO_CFREE(memory_chunks);
 	}
-	return;
+	return 0;
 }

@@ -58,6 +58,7 @@ int handle_password_message(PasswordMessage *password_message, ErrorResponse **e
 	YDB_MALLOC_BUFFER(&user_info_subs, MAX_STR_CONST);
 	ydb_buffer_t *user_subs = make_buffers(config->global_names.octo, 2, "users", username);
 	result = ydb_get_s(&user_subs[0], 2, &user_subs[1], &user_info_subs);
+	free(user_subs);
 	if (YDB_ERR_GVUNDEF == result || YDB_ERR_LVUNDEF == result) {
 		WARNING(ERR_ROCTO_DB_LOOKUP, "handle_password_message", "user info");
 		error_message = format_error_string(&err_buff, ERR_ROCTO_DB_LOOKUP, "handle_password_message", "user info");
@@ -65,10 +66,12 @@ int handle_password_message(PasswordMessage *password_message, ErrorResponse **e
 					   PSQL_Code_Syntax_Error,
 					   error_message,
 					   0);
-		free(user_subs);
+		YDB_FREE_BUFFER(&user_info_subs);
 		return 1;
-	} else if (YDB_OK != result) {
-		YDB_ERROR_CHECK(result);
+	}
+	YDB_ERROR_CHECK(result);
+	if (YDB_OK != result) {
+		YDB_FREE_BUFFER(&user_info_subs);
 		return 1;
 	}
 
@@ -76,6 +79,7 @@ int handle_password_message(PasswordMessage *password_message, ErrorResponse **e
 	char buffer[MAX_STR_CONST];
 	uint32_t buf_len = get_user_column_value(buffer, MAX_STR_CONST, user_info_subs.buf_addr, user_info_subs.len_used,
 			UserColumn_ROLPASSWORD);
+	YDB_FREE_BUFFER(&user_info_subs);
 	if (0 == buf_len) {
 		WARNING(ERR_ROCTO_COLUMN_VALUE, "handle_password_message", "rolpassword (hashed password)");
 		error_message = format_error_string(&err_buff, ERR_ROCTO_COLUMN_VALUE,
@@ -84,7 +88,6 @@ int handle_password_message(PasswordMessage *password_message, ErrorResponse **e
 					   PSQL_Code_Syntax_Error,
 					   error_message,
 					   0);
-		free(user_subs);
 		return 1;
 	}
 
@@ -107,7 +110,6 @@ int handle_password_message(PasswordMessage *password_message, ErrorResponse **e
 					   PSQL_Code_Syntax_Error,
 					   error_message,
 					   0);
-		free(user_subs);
 		return 1;
 	}
 	// Compare final hash of stored password against hash sent by client
@@ -119,12 +121,9 @@ int handle_password_message(PasswordMessage *password_message, ErrorResponse **e
 					   PSQL_Code_Syntax_Error,
 					   error_message,
 					   0);
-		free(user_subs);
 		return 1;
 	}
 	INFO(INFO_AUTH_SUCCESS, "handle_password_message");
-
-	free(user_subs);
 
 	return 0;
 }

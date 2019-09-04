@@ -38,7 +38,11 @@ PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlanOptions *opt
 	// If this is a union plan, construct physical plans for the two children
 	if(plan->type == LP_SET_OPERATION) {
 		out = generate_physical_plan(plan->v.operand[1]->v.operand[1], &curr_plan);
+		if (NULL == out)
+			return NULL;
 		prev = generate_physical_plan(plan->v.operand[1]->v.operand[0], &curr_plan);
+		if (NULL == prev)
+			return NULL;
 
 		// Switch what operation the second plan does
 		switch(plan->v.operand[0]->v.operand[0]->type) {
@@ -91,7 +95,8 @@ PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlanOptions *opt
 	// Make sure the plan is in good shape
 	if(lp_verify_structure(plan) == FALSE) {
 		/// TODO: replace this with a real error message
-		FATAL(CUSTOM_ERROR, "Bad plan!");
+		ERROR(ERR_PLAN_NOT_WELL_FORMED, "");
+		return NULL;
 	}
 	OCTO_CMALLOC_STRUCT(out, PhysicalPlan);
 	out->parent_plan = options->parent;
@@ -135,10 +140,14 @@ PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlanOptions *opt
 		if(table_joins->v.operand[0]->type == LP_INSERT) {
 			// This is a sub plan, and should be inserted as prev
 			GET_LP(insert, table_joins, 0, LP_INSERT);
-			generate_physical_plan(insert, &curr_plan);
+			PhysicalPlan *ret = generate_physical_plan(insert, &curr_plan);
+			if (NULL == ret)
+				return NULL;
 		} else if(table_joins->v.operand[0]->type == LP_SET_OPERATION) {
 			GET_LP(set_operation, table_joins, 0, LP_SET_OPERATION);
-			generate_physical_plan(set_operation, &curr_plan);
+			PhysicalPlan *ret = generate_physical_plan(set_operation, &curr_plan);
+			if (NULL == ret)
+				return NULL;
 		}
 		table_joins = table_joins->v.operand[1];
 	} while(table_joins != NULL);
@@ -257,6 +266,8 @@ LogicalPlan *walk_where_statement(PhysicalPlanOptions *options, LogicalPlan *stm
 			curr_plan = *options;
 			curr_plan.stash_columns_in_keys = TRUE;
 			PhysicalPlan *new_plan = generate_physical_plan(stmt, &curr_plan);
+			if (NULL == new_plan)
+				return NULL;
 			MALLOC_LP_2ARGS(stmt, LP_KEY);
 			stmt->v.key = new_plan->outputKey;
 			break;
@@ -272,8 +283,8 @@ LogicalPlan *walk_where_statement(PhysicalPlanOptions *options, LogicalPlan *stm
 		case LP_TABLE:
 			// This should never happen; fall through to error case
 		default:
-			FATAL(ERR_UNKNOWN_KEYWORD_STATE, "");
-			break;
+			ERROR(ERR_UNKNOWN_KEYWORD_STATE, "");
+			return NULL;
 		}
 	}
 	return stmt;

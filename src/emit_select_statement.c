@@ -32,6 +32,7 @@
  */
 PhysicalPlan *emit_select_statement(char *sql_query, SqlStatement *stmt, char *plan_filename)
 {
+	int status = 0;
 	SqlColumn *column;
 	SqlValue *value;
 	LogicalPlan *plan, *cur_plan, *column_alias;
@@ -45,6 +46,10 @@ PhysicalPlan *emit_select_statement(char *sql_query, SqlStatement *stmt, char *p
 
 	assert(stmt && (stmt->type == table_alias_STATEMENT || stmt->type == set_operation_STATEMENT));
 	plan = generate_logical_plan(stmt, &config->plan_id);
+	if (NULL == plan) {
+		ERROR(ERR_PLAN_NOT_GENERATED, "logical");
+		return NULL;
+	}
 	if(config->record_error_level <= DEBUG) {
 		// We use malloc here since it is a large temporary buffer
 		// No need to force it to stay around until compilation ends
@@ -54,10 +59,14 @@ PhysicalPlan *emit_select_statement(char *sql_query, SqlStatement *stmt, char *p
 		free(buffer);
 	}
 	if(lp_verify_structure(plan) == FALSE) {
-		WARNING(ERR_PLAN_NOT_WELL_FORMED, "");
+		ERROR(ERR_PLAN_NOT_WELL_FORMED, "");
 		return NULL;
 	}
 	plan = optimize_logical_plan(plan);
+	if (NULL == plan) {
+		ERROR(ERR_FAILED_TO_OPTIMIZE_PLAN, "");
+		return NULL;
+	}
 	if(config->record_error_level <= DEBUG) {
 		// We use malloc here since it is a large temporary buffer
 		// No need to force it to stay around until compilation ends
@@ -71,8 +80,14 @@ PhysicalPlan *emit_select_statement(char *sql_query, SqlStatement *stmt, char *p
 	pplan = NULL;
 	options.last_plan = &pplan;
 	pplan = generate_physical_plan(plan, &options);
+	if (NULL == pplan) {
+		ERROR(ERR_PLAN_NOT_GENERATED, "physical");
+		return NULL;
+	}
 	assert(NULL != plan_filename);
-	emit_physical_plan(sql_query, pplan, plan_filename);
+	status = emit_physical_plan(sql_query, pplan, plan_filename);
+	if (YDB_OK != status)
+		return NULL;
 
 	// convert output key to string
 	snprintf(output_key, MAX_STR_CONST, "%d", pplan->outputKey->unique_id);
@@ -83,7 +98,7 @@ PhysicalPlan *emit_select_statement(char *sql_query, SqlStatement *stmt, char *p
 	plan_meta[4].buf_addr = column_id_buffer;
 
 	// Note down column data types
-	int num_columns = 0, status = 0;
+	int num_columns = 0;
 	cur_plan = pplan->projection;
 	do {
 		assert(cur_plan->type == LP_COLUMN_LIST);
@@ -105,46 +120,62 @@ PhysicalPlan *emit_select_statement(char *sql_query, SqlStatement *stmt, char *p
 		value_buffer.len_used = value_buffer.len_alloc = strlen(value_buffer.buf_addr);
 		status = ydb_set_s(plan_meta, 5, &plan_meta[1], &value_buffer);
 		YDB_ERROR_CHECK(status);
+		if (YDB_OK != status)
+			break;
 
 		YDB_LITERAL_TO_BUFFER("table_id", &plan_meta[5]);
 		value_buffer.buf_addr = "0";
 		value_buffer.len_used = value_buffer.len_alloc = strlen(value_buffer.buf_addr);
 		status = ydb_set_s(plan_meta, 5, &plan_meta[1], &value_buffer);
 		YDB_ERROR_CHECK(status);
+		if (YDB_OK != status)
+			break;
 
 		YDB_LITERAL_TO_BUFFER("column_id", &plan_meta[5]);
 		value_buffer.buf_addr = "0";
 		value_buffer.len_used = value_buffer.len_alloc = strlen(value_buffer.buf_addr);
 		status = ydb_set_s(plan_meta, 5, &plan_meta[1], &value_buffer);
 		YDB_ERROR_CHECK(status);
+		if (YDB_OK != status)
+			break;
 
 		YDB_LITERAL_TO_BUFFER("data_type", &plan_meta[5]);
 		value_buffer.buf_addr = "25";
 		value_buffer.len_used = value_buffer.len_alloc = strlen(value_buffer.buf_addr);
 		status = ydb_set_s(plan_meta, 5, &plan_meta[1], &value_buffer);
 		YDB_ERROR_CHECK(status);
+		if (YDB_OK != status)
+			break;
 
 		YDB_LITERAL_TO_BUFFER("data_type_size", &plan_meta[5]);
 		value_buffer.buf_addr = "-1";
 		value_buffer.len_used = value_buffer.len_alloc = strlen(value_buffer.buf_addr);
 		status = ydb_set_s(plan_meta, 5, &plan_meta[1], &value_buffer);
 		YDB_ERROR_CHECK(status);
+		if (YDB_OK != status)
+			break;
 
 		YDB_LITERAL_TO_BUFFER("type_modifier", &plan_meta[5]);
 		value_buffer.buf_addr = "-1";
 		value_buffer.len_used = value_buffer.len_alloc = strlen(value_buffer.buf_addr);
 		status = ydb_set_s(plan_meta, 5, &plan_meta[1], &value_buffer);
 		YDB_ERROR_CHECK(status);
+		if (YDB_OK != status)
+			break;
 
 		YDB_LITERAL_TO_BUFFER("format_code", &plan_meta[5]);
 		value_buffer.buf_addr = "0";
 		value_buffer.len_used = value_buffer.len_alloc = strlen(value_buffer.buf_addr);
 		status = ydb_set_s(plan_meta, 5, &plan_meta[1], &value_buffer);
 		YDB_ERROR_CHECK(status);
+		if (YDB_OK != status)
+			break;
 		cur_plan = cur_plan->v.operand[1];
 	} while(cur_plan != NULL);
 
 	free(plan_meta);
+	if (YDB_OK != status)
+		return NULL;
 
 	// Create a table from the last physical table which reads from the output
 	//  values

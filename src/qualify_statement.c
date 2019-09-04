@@ -128,8 +128,8 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *column_
 	case table_STATEMENT:
 		break;
 	default:
-		FATAL(ERR_UNKNOWN_KEYWORD_STATE, "");
-		break;
+		ERROR(ERR_UNKNOWN_KEYWORD_STATE, "");
+		return 1;
 	}
 	return result;
 }

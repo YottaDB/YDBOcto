@@ -63,7 +63,7 @@ int main(int argc, char **argv) {
 	const char			*err_str;
 	const char			*error_message;
 	int				cur_parm = 0, i = 0;
-	int				sfd, cfd, opt, addrlen, result, status;
+	int				sfd, cfd, opt, addrlen, result, status = 0;
 	int				tls_errno;
 	pid_t				child_id = 0;
 	struct sigaction		ctrlc_action, sigusr1_action;
@@ -82,9 +82,8 @@ int main(int argc, char **argv) {
 	// Do "octo_init" first as it initializes an environment variable ("ydb_lv_nullsubs") and that needs to be done
 	// before any "ydb_init" call happens (as the latter reads this env var to know whether to allow nullsubs in lv or not)
 	status = octo_init(argc, argv);
-	if (0 != status) {
+	if (0 != status)
 		return status;
-	}
 
 	sfd = cfd = opt = addrlen = result = status = 0;
 	err_buff.offset = 0;
@@ -99,8 +98,9 @@ int main(int argc, char **argv) {
 	memset(&ctrlc_action, 0, sizeof(ctrlc_action));
 	ctrlc_action.sa_flags = SA_SIGINFO;
 	ctrlc_action.sa_sigaction = (void *)handle_sigint;
-	sigaction(SIGINT, &ctrlc_action, NULL);
-	rocto_session.session_ending = FALSE;
+	status = sigaction(SIGINT, &ctrlc_action, NULL);
+	if (0 != status)
+		FATAL(ERR_SYSCALL, "sigaction", errno, strerror(errno));
 
 	// NOTE: This code has been disabled due to the lack of signal forwarding support for SIGUSR1 to YDB
 	// Initialize handler for SIGUSR1 in rocto C code
@@ -108,15 +108,23 @@ int main(int argc, char **argv) {
 	// memset(&sigusr1_action, 0, sizeof(sigusr1_action));
 	// sigusr1_action.sa_flags = SA_SIGINFO;
 	// sigusr1_action.sa_sigaction = (void *)handle_sigusr1;
-	// sigaction(SIGUSR1, &sigusr1_action, NULL);
+	// status = sigaction(SIGUSR1, &sigusr1_action, NULL);
+	// if (0 != status)
+		// FATAL(ERR_SYSCALL, "sigaction", errno, strerror(errno));
 
 	// Initialize SIGUSR1 handler in YDB
 	status = ydb_init();		// YDB init needed for signal handler setup and gtm_tls_init call below */
 	YDB_ERROR_CHECK(status);
+	if (YDB_OK != status)
+		return 1;
 	YDB_LITERAL_TO_BUFFER("$ZINTERRUPT", &z_interrupt);
 	YDB_LITERAL_TO_BUFFER("ZGOTO 1:run^%ydboctoCleanup", &z_interrupt_handler);
 	status = ydb_set_s(&z_interrupt, 0, NULL, &z_interrupt_handler);
 	YDB_ERROR_CHECK(status);
+	if (YDB_OK != status)
+		return 1;
+
+	rocto_session.session_ending = FALSE;
 
 	INFO(INFO_ROCTO_STARTED, config->rocto_config.port);
 
@@ -128,11 +136,27 @@ int main(int argc, char **argv) {
 	address = (struct sockaddr_in *)(&addressv6);
 	address->sin_family = AF_INET;
 	addrlen = sizeof(struct sockaddr_in6);
-	if(inet_pton(AF_INET, config->rocto_config.address, &address->sin_addr) != 1) {
-		addressv6.sin6_family = AF_INET6;
-		if(inet_pton(AF_INET6, config->rocto_config.address, &addressv6.sin6_addr) != 1) {
-			FATAL(ERR_BAD_ADDRESS, config->rocto_config.address);
-		}
+	status = inet_pton(AF_INET, config->rocto_config.address, &address->sin_addr);
+	switch (status) {
+		case 0:
+			addressv6.sin6_family = AF_INET6;
+			status = inet_pton(AF_INET6, config->rocto_config.address, &addressv6.sin6_addr);
+			switch (status) {
+				case 0:
+					FATAL(ERR_BAD_ADDRESS, config->rocto_config.address);
+					break;
+				case 1:
+					break;
+				default:
+					FATAL(ERR_SYSCALL, "inet_pton", errno, strerror(errno));
+					break;
+			}
+			break;
+		case 1:
+			break;
+		default:
+			FATAL(ERR_SYSCALL, "inet_pton", errno, strerror(errno));
+			break;
 	}
 	address->sin_port = htons(config->rocto_config.port);
 
@@ -150,7 +174,9 @@ int main(int argc, char **argv) {
 
 	// Spin off another thread to keep an eye on dead processes
 	pthread_t thread_id;
-	pthread_create(&thread_id, NULL, rocto_helper_waitpid, (void*)(&rocto_session));
+	status = pthread_create(&thread_id, NULL, rocto_helper_waitpid, (void*)(&rocto_session));
+	if (0 != status)
+		FATAL(ERR_SYSCALL, "pthread_create", status, strerror(status));
 
 	if(listen(sfd, 3) < 0) {
 		FATAL(ERR_SYSCALL, "listen", errno, strerror(errno));
@@ -163,7 +189,8 @@ int main(int argc, char **argv) {
 			if(errno == EINTR) {
 				continue;
 			}
-			FATAL(ERR_SYSCALL, "accept", errno, strerror(errno));
+			ERROR(ERR_SYSCALL, "accept", errno, strerror(errno));
+			continue;
 		}
 
 		// Create secret key and matching buffer
@@ -173,6 +200,11 @@ int main(int argc, char **argv) {
 
 		child_id = fork();
 		if(child_id != 0) {
+			if (0 > child_id) {
+				ERROR(ERR_SYSCALL, "fork", errno, strerror(errno));
+				continue;
+			}
+			INFO(INFO_ROCTO_SERVER_FORKED, child_id);
 			// Create pid buffer
 			snprintf(pid_str, UINT_TO_STRING_MAX, "%u", child_id);
 			YDB_STRING_TO_BUFFER(pid_str, pid_buffer);
@@ -216,12 +248,18 @@ int main(int argc, char **argv) {
 					host_buf, NI_MAXHOST, serv_buf, NI_MAXSERV, NI_NUMERICHOST | NI_NUMERICSERV );
 		}
 		if (0 != result) {
-			FATAL(ERR_SYSCALL, "getnameinfo", errno, strerror(errno));
+			ERROR(ERR_SYSCALL, "getnameinfo", errno, strerror(errno));
+			return 1;
 		}
 		rocto_session.ip = host_buf;
 		rocto_session.port = serv_buf;
 		INFO(ERR_CLIENT_CONNECTED);
 
+		status = ydb_init();		// YDB init needed by gtm_tls_init call below */
+		YDB_ERROR_CHECK(status);
+		if (YDB_OK != status) {
+			return 1;
+		}
 		// Establish the connection first
 		rocto_session.session_id = NULL;
 		read_bytes(&rocto_session, buffer, MAX_STR_CONST, sizeof(int) * 2);
@@ -295,6 +333,8 @@ int main(int argc, char **argv) {
 		} else if (NULL != ssl_request & FALSE == config->rocto_config.ssl_on) {
 			result = send_bytes(&rocto_session, "N", sizeof(char));
 			read_bytes(&rocto_session, buffer, MAX_STR_CONST, sizeof(int) * 2);
+		} else if (NULL == ssl_request) {
+			free(err);
 		}
 		// Check for CancelRequest and handle if so
 		cancel_request = read_cancel_request(&rocto_session, buffer, sizeof(unsigned int) + sizeof(int), &err);
@@ -387,6 +427,10 @@ int main(int argc, char **argv) {
 		YDB_MALLOC_BUFFER(session_id_buffer, MAX_STR_CONST);
 		status = ydb_incr_s(session_buffer, 0, NULL, NULL, session_id_buffer);
 		YDB_ERROR_CHECK(status);
+		if (YDB_OK != status) {
+			YDB_FREE_BUFFER(session_id_buffer);
+			return 1;
+		}
 		rocto_session.session_id = session_id_buffer;
 		rocto_session.session_id->buf_addr[rocto_session.session_id->len_used] = '\0';
 
@@ -399,14 +443,27 @@ int main(int argc, char **argv) {
 		var_sets[3] = var_defaults[2];
 		do {
 			status = ydb_subscript_next_s(&var_defaults[0], 2, &var_defaults[1], &var_defaults[2]);
-			if(status == YDB_ERR_NODEEND)
+			if(YDB_ERR_NODEEND == status) {
+				status = YDB_OK;
 				break;
+			}
 			YDB_ERROR_CHECK(status);
+			if (0 != status)
+				break;
 			status = ydb_get_s(&var_defaults[0], 2, &var_defaults[1], &var_value);
 			YDB_ERROR_CHECK(status);
+			if (0 != status)
+				break;
 			var_sets[3] = var_defaults[2];
 			status = ydb_set_s(&var_sets[0], 3, &var_sets[1], &var_value);
+			YDB_ERROR_CHECK(status);
+			if (0 != status)
+				break;
 		} while(TRUE);
+		if (YDB_OK != status) {
+			// No cleanup necessary, as process will exit
+			return 1;
+		}
 
 		// Set parameters
 		for(cur_parm = 0; cur_parm < startup_message->num_parameters; cur_parm++) {
@@ -419,11 +476,16 @@ int main(int argc, char **argv) {
 		do {
 			status = ydb_subscript_next_s(&var_sets[0], 3, &var_sets[1], &var_sets[3]);
 			if(status == YDB_ERR_NODEEND)
+				status = YDB_OK;
 				break;
 			YDB_ERROR_CHECK(status);
+			if (0 != status)
+				break;
 			var_sets[3].buf_addr[var_sets[3].len_used] = '\0';
 			status = ydb_get_s(&var_sets[0], 3, &var_sets[1], &var_value);
 			YDB_ERROR_CHECK(status);
+			if (0 != status)
+				break;
 			var_value.buf_addr[var_value.len_used] = '\0';
 			message_parm.name = var_sets[3].buf_addr;
 			message_parm.value = var_value.buf_addr;
@@ -434,6 +496,14 @@ int main(int argc, char **argv) {
 				return 0;
 			}
 		} while(TRUE);
+		// Clean up after any errors from the above loop
+		if (YDB_OK != status) {
+			YDB_FREE_BUFFER(session_id_buffer);
+			YDB_FREE_BUFFER(&var_defaults[2]);
+			YDB_FREE_BUFFER(&var_value);
+			return 1;
+		}
+
 
 		// Send secret key info to client
 		backend_key_data = make_backend_key_data(secret_key, child_id);
@@ -443,11 +513,12 @@ int main(int argc, char **argv) {
 		}
 
 		// Free temporary buffers
-		free(var_defaults[2].buf_addr);
-		free(var_value.buf_addr);
+		YDB_FREE_BUFFER(&var_defaults[2]);
+		YDB_FREE_BUFFER(&var_value);
 		free(var_defaults);
 		free(var_sets);
 		rocto_main_loop(&rocto_session);
+		YDB_FREE_BUFFER(session_id_buffer);
 		break;
 	}
 

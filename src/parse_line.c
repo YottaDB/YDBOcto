@@ -41,8 +41,10 @@ SqlStatement *parse_line(const char *line) {
 		cur_input_index = 0;
 	}
 
-	if (yylex_init(&scanner))
-		FATAL(ERR_INIT_SCANNER, "");
+	if (yylex_init(&scanner)) {
+		ERROR(ERR_INIT_SCANNER, "");
+		return NULL;
+	}
 
 	config->plan_id = 0;
 	/* To print only the current query store the index for the last one

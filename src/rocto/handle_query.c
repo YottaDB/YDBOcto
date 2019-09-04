@@ -44,7 +44,7 @@ int handle_query(Query *query, RoctoSession *session) {
 		empty_query_response = make_empty_query_response();
 		send_message(session, (BaseMessage*)(&empty_query_response->type));
 		free(empty_query_response);
-		return 0;
+		return 1;
 	}
 	eof_hit = 0;
 	// If the query is bigger than the buffer, we would need to copy data from
@@ -54,11 +54,11 @@ int handle_query(Query *query, RoctoSession *session) {
 	if(query_length > cur_input_max) {
 		err = make_error_response(PSQL_Error_ERROR,
 				PSQL_Code_Protocol_Violation,
-				"query length exceeeded maximum size",
+				"query length exceeded maximum size",
 				0);
 		send_message(session, (BaseMessage*)(&err->type));
 		free_error_response(err);
-		return 0;
+		return 1;
 	}
 	memcpy(input_buffer_combined, query->query, query_length);
 	input_buffer_combined[query_length] = '\0';
@@ -69,7 +69,10 @@ int handle_query(Query *query, RoctoSession *session) {
 
 	do {
 		run_query_result = run_query(input_buffer_combined, &handle_query_response, (void*)&parms);
-		if(run_query_result == FALSE) {
+		if (-1 == run_query_result) {
+			// Exit loop if query was interrupted
+			eof_hit = TRUE;
+		} else if(0 != run_query_result) {
 			fclose(err_buffer);
 			err = make_error_response(PSQL_Error_ERROR,
 					PSQL_Code_Syntax_Error,
@@ -79,9 +82,6 @@ int handle_query(Query *query, RoctoSession *session) {
 			free_error_response(err);
 			free(err_buff);
 			err_buffer = open_memstream(&err_buff, &err_buff_size);
-		} else if (run_query_result == -1) {
-			// Exit loop if query was interrupted
-			eof_hit = TRUE;
 		}
 	} while(!eof_hit);
 

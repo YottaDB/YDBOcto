@@ -534,7 +534,7 @@ static void test_bind_to_non_existent_source(void **state) {
 
 	result = handle_bind(&bind, &session);
 
-	assert_int_equal(result, -1);
+	assert_int_equal(result, 1);
 	free(bind.parms);
 }
 
@@ -564,7 +564,7 @@ static void test_bind_with_too_many_parms(void **state) {
 
 	result = handle_bind(&bind, &session);
 
-	assert_int_equal(result, -1);
+	assert_int_equal(result, 1);
 	free(bind.parms);
 }
 
@@ -600,7 +600,7 @@ static void test_bind_greater_than_max_str_const(void **state) {
 
 	result = handle_bind(&bind, &session);
 
-	assert_int_equal(result, -1);
+	assert_int_equal(result, 1);
 
 	free(bind.parms);
 }

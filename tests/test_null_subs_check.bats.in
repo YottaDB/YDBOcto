@@ -100,9 +100,9 @@ OCTO
 }
 
 @test "Rocto - one region - null subs enabled on DEFAULT" {
-  start_rocto 1340
+  test_port=$(start_rocto 1340)
   sleep 1
-  run_psql 1340 <<OCTO 2>&1 | tee output.txt
+  run_psql $test_port <<OCTO 2>&1 | tee output.txt
 SELECT * FROM names;
 OCTO
   stop_rocto
@@ -120,9 +120,9 @@ OCTO
   load_fixture names.sql
   load_fixture names.zwr
   load_fixture default_user.zwr
-  start_rocto 1340
+  test_port=$(start_rocto 1340)
   sleep 1
-  run_psql 1340 <<OCTO 2>&1 | tee output.txt
+  run_psql $test_port <<OCTO 2>&1 | tee output.txt
 SELECT * FROM names;
 OCTO
   stop_rocto

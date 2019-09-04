@@ -1,0 +1,56 @@
+#!/usr/bin/expect
+#################################################################
+#								#
+# Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	#
+# All rights reserved.						#
+#								#
+#	This source code contains the intellectual property	#
+#	of its copyright holder(s), and is made available	#
+#	under a license.  If you do not know the terms of	#
+#	the license, please stop and do not read further.	#
+#								#
+#################################################################
+
+set timeout 2
+set port [lindex $argv 0];
+spawn /bin/bash
+# Enable long lines to prevent wrapping
+send -- "stty cols 4096\r"
+expect "stty cols 4096\r"
+# Start psql
+send -- "psql -U ydb -h localhost -p $port\r"
+expect ".*Password for user ydb: "
+send "ydbrocks\r"
+expect ".*ydb=. "
+# Get memory usage after running the same three queries again
+set output [exec ./report_memory_usage.sh]
+# Run first query
+send "select * from names;\r"
+expect "select * from names;\r\n"
+expect ".*ydb=. "
+# Run second query
+send "select firstname from names where firstname = \"Zero\";\r"
+expect "select firstname from names where firstname = \"Zero\";\r\n"
+expect ".*ydb=. "
+# Run third query
+send "select a.lastname from names a left join names b on id = 3;\r"
+expect "select a.lastname from names a left join names b on id = 3;\r\n"
+expect ".*ydb=. "
+# Get memory usage after running three queries
+set output [exec ./report_memory_usage.sh]
+# Run first query again
+send "select * from names;\r"
+expect "select * from names;\r\n"
+expect ".*ydb=. "
+# Run second query again
+send "select firstname from names where firstname = \"Zero\";\r"
+expect "select firstname from names where firstname = \"Zero\";\r\n"
+expect ".*ydb=. "
+# Run third query again
+send "select a.lastname from names a left join names b on id = 3;\r"
+expect "select a.lastname from names a left join names b on id = 3;\r\n"
+expect ".*ydb=. "
+# Get memory usage after running the same three queries again
+set output [exec ./report_memory_usage.sh]
+send "\\q\r"
+exit

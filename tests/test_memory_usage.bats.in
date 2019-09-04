@@ -1,0 +1,40 @@
+#################################################################
+#								#
+# Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	#
+# All rights reserved.						#
+#								#
+#	This source code contains the intellectual property	#
+#	of its copyright holder(s), and is made available	#
+#	under a license.  If you do not know the terms of	#
+#	the license, please stop and do not read further.	#
+#								#
+#################################################################
+
+load test_helpers
+
+setup() {
+  init_test
+  createdb
+  load_fixture names.sql
+  load_fixture names.zwr
+  load_fixture default_user.zwr
+}
+
+@test "memory usage remains constant across subsequent query executions" {
+  test_port=$(start_rocto 1444)
+  cp @PROJECT_SOURCE_DIR@/tests/fixtures/report_memory_usage.sh .
+
+  run_psql_expect get_memory_usage $test_port
+  # Retrieve pid of rocto server process, i.e. the second one forked (psql drops the first as part of normal operation)
+  # server_pid=grep "with pid" rocto.log | sed 's/^.*rocto server process forked with pid \([0-9]*\)/\1/' | cut -d$'\n' -f 2
+  # ps -p $server_pid -o vsize | cut -d ' ' -f 2 | tr -d '\n'
+  stop_rocto
+
+  start_mem=$(sed -n '1p' < mem_usage.log)
+  first_query_mem=$(sed -n '2p' < mem_usage.log)
+  second_query_mem=$(sed -n '3p' < mem_usage.log)
+  # Ensure memory usage increases for new queries
+  [[ $start_mem != $first_query_mem ]]
+  # Ensure memory usage doesn't increase for subsequent execution of same queries
+  [[ $first_query_mem == $second_query_mem ]]
+}

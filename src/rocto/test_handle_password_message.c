@@ -69,9 +69,11 @@ static void test_valid_input(void **state) {
 	StartupMessage *startup_message = make_startup_message(username);
 
 	ydb_buffer_t user_info_subs;
+	YDB_MALLOC_BUFFER(&user_info_subs, MAX_STR_CONST);
 	// md5 hash of passworduser: 4d45974e13472b5a0be3533de4666414
 	char *user_info = "1|user|super|inh|crer|cred|canl|repl|bypassrl|conn|md54d45974e13472b5a0be3533de4666414|valid";
-	YDB_STRING_TO_BUFFER(user_info, &user_info_subs);
+	int done = 0;
+	YDB_COPY_STRING_TO_BUFFER(user_info, &user_info_subs, done);
 	will_return(__wrap_ydb_get_s, &user_info_subs);
 	will_return(__wrap_ydb_get_s, YDB_OK);
 
@@ -157,9 +159,11 @@ static void test_error_user_info_lookup(void **state) {
 	StartupMessage *startup_message = make_startup_message(username);
 
 	ydb_buffer_t user_info_subs;
+	YDB_MALLOC_BUFFER(&user_info_subs, MAX_STR_CONST);
 	// md5 hash of passworduser: 4d45974e13472b5a0be3533de4666414
 	char *user_info = "1|user|super|inh|crer|cred|canl|repl|bypassrl|conn|md54d45974e13472b5a0be3533de4666414|valid";
-	YDB_STRING_TO_BUFFER(user_info, &user_info_subs);
+	int done = 0;
+	YDB_COPY_STRING_TO_BUFFER(user_info, &user_info_subs, done);
 	will_return(__wrap_ydb_get_s, &user_info_subs);
 	will_return(__wrap_ydb_get_s, YDB_ERR_LVUNDEF);
 
@@ -203,9 +207,11 @@ static void test_error_hash_lookup(void **state) {
 	StartupMessage *startup_message = make_startup_message(username);
 
 	ydb_buffer_t user_info_subs;
+	YDB_MALLOC_BUFFER(&user_info_subs, MAX_STR_CONST);
 	// md5 hash of passworduser: 4d45974e13472b5a0be3533de4666414
 	char *user_info = "1|user|super|inh|crer|cred|canl|repl|bypassrl|conn|md54d45974e13472b5a0be3533de4666414|valid";
-	YDB_STRING_TO_BUFFER(user_info, &user_info_subs);
+	int done = 0;
+	YDB_COPY_STRING_TO_BUFFER(user_info, &user_info_subs, done);
 	will_return(__wrap_ydb_get_s, &user_info_subs);
 	will_return(__wrap_ydb_get_s, YDB_OK);
 
@@ -253,9 +259,11 @@ static void test_error_hash_conversion(void **state) {
 	StartupMessage *startup_message = make_startup_message(username);
 
 	ydb_buffer_t user_info_subs;
+	YDB_MALLOC_BUFFER(&user_info_subs, MAX_STR_CONST);
 	// md5 hash of passworduser: 4d45974e13472b5a0be3533de4666414
 	char *user_info = "1|user|super|inh|crer|cred|canl|repl|bypassrl|conn|md54d45974e13472b5a0be3533de4666414|valid";
-	YDB_STRING_TO_BUFFER(user_info, &user_info_subs);
+	int done = 0;
+	YDB_COPY_STRING_TO_BUFFER(user_info, &user_info_subs, done);
 	will_return(__wrap_ydb_get_s, &user_info_subs);
 	will_return(__wrap_ydb_get_s, YDB_OK);
 
@@ -307,9 +315,11 @@ static void test_error_bad_password(void **state) {
 	StartupMessage *startup_message = make_startup_message(username);
 
 	ydb_buffer_t user_info_subs;
+	YDB_MALLOC_BUFFER(&user_info_subs, MAX_STR_CONST);
 	// md5 hash of passworduser: 4d45974e13472b5a0be3533de4666414
 	char *user_info = "1|user|super|inh|crer|cred|canl|repl|bypassrl|conn|md54d45974e13472b5a0be3533de4666414|valid";
-	YDB_STRING_TO_BUFFER(user_info, &user_info_subs);
+	int done = 0;
+	YDB_COPY_STRING_TO_BUFFER(user_info, &user_info_subs, done);
 	will_return(__wrap_ydb_get_s, &user_info_subs);
 	will_return(__wrap_ydb_get_s, YDB_OK);
 

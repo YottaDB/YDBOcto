@@ -53,7 +53,7 @@ static void test_valid_input(void **state) {
 	query->type = PSQL_Query;
 	query->query = query->data;
 
-	will_return(__wrap_run_query, TRUE);
+	will_return(__wrap_run_query, 0);
 	result = handle_query(query, &session);
 
 	assert_int_equal(result, 0);
@@ -74,7 +74,7 @@ static void test_bad_sql(void **state) {
 	query->query = query->data;
 
 	will_return(__wrap_send_message, PSQL_ErrorResponse);
-	will_return(__wrap_run_query, FALSE);
+	will_return(__wrap_run_query, 1);
 	result = handle_query(query, &session);
 
 	assert_int_equal(result, 0);

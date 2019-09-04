@@ -34,11 +34,15 @@ void cleanup_tables() {
 			break;
 		}
 		YDB_ERROR_CHECK(status);
+		if (YDB_OK != status)
+			break;
 		status = ydb_get_s(loaded_schemas_b, 2, &loaded_schemas_b[1], &result_b);
 		YDB_ERROR_CHECK(status);
-		octo_cfree(*((MemoryChunk**)result_b.buf_addr));
+		if (YDB_OK != status)
+			break;
+		OCTO_CFREE(*((MemoryChunk**)result_b.buf_addr));
 	}
 
-	free(loaded_schemas_b[1].buf_addr);
+	YDB_FREE_BUFFER(&loaded_schemas_b[1]);
 	free(loaded_schemas_b);
 }

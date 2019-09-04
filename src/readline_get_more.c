@@ -115,7 +115,8 @@ int readline_get_more() {
 		// Detecting the EOF is handled by the lexer and this should never be true at this stage
 		assert(FALSE == eof_hit);
 		if(data_read == -1) {
-			FATAL(ERR_SYSCALL, "read", errno, strerror(errno));
+			ERROR(ERR_SYSCALL, "read", errno, strerror(errno));
+			return 0;
 		}
 		input_buffer_combined[cur_input_index + data_read] = '\0';
 		return data_read;

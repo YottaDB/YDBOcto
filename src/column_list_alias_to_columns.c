@@ -50,8 +50,8 @@ SqlColumn *column_list_alias_to_columns(SqlTableAlias *table_alias) {
 			cur_column->type = CHARACTER_STRING_TYPE;
 			break;
 		default:
-			FATAL(ERR_FEATURE_NOT_IMPLEMENTED, "");
-			break;
+			ERROR(ERR_FEATURE_NOT_IMPLEMENTED, "");
+			return NULL;
 		}
 		dqinit(cur_column);
 		if(start_column == NULL) {

@@ -102,7 +102,7 @@ int emit_physical_plan(char *sql_query, PhysicalPlan *pplan, char *plan_filename
 // Returns true if the key is a version of this column
 int key_equals_column(SqlKey *key, SqlColumn *column);
 
-void print_temporary_table(SqlStatement *, int cursor_id, void *parms, char *plan_name);
+int print_temporary_table(SqlStatement *, int cursor_id, void *parms, char *plan_name);
 
 /**
  * Parses query, and calls the callback if it is a select statement. Otherwise, the query is a data altering
@@ -110,7 +110,7 @@ void print_temporary_table(SqlStatement *, int cursor_id, void *parms, char *pla
  *
  * @returns TRUE on success, FALSE on failure
  */
-int run_query(char *query, void (*callback)(SqlStatement *, int, void *, char*), void *parms);
+int run_query(char *query, int (*callback)(SqlStatement *, int, void *, char*), void *parms);
 
 PhysicalPlan *emit_select_statement(char *sql_query, SqlStatement *stmt, char *plan_filename);
 

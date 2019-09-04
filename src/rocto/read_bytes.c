@@ -26,6 +26,8 @@
 #include "rocto.h"
 #include "message_formats.h"
 
+// Returns:
+//	0 for success, -1 for errors other than ECONNRESET, -2 for ECONNRESET
 int read_bytes(RoctoSession *session, char *buffer, int32_t buffer_size, int32_t bytes_to_read) {
 #if YDB_TLS_AVAILABLE
 	int32_t tls_errno = 0;
@@ -61,7 +63,8 @@ int read_bytes(RoctoSession *session, char *buffer, int32_t buffer_size, int32_t
 					INFO(ERR_ROCTO_CLEAN_DISCONNECT, "");
 					return -2;
 				} else {
-					FATAL(ERR_ROCTO_TLS_READ_FAILED, err_str);
+					ERROR(ERR_ROCTO_TLS_READ_FAILED, err_str);
+					return -1;
 				}
 			}
 			read_so_far += read_now;

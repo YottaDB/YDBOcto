@@ -20,7 +20,7 @@ setup() {
   load_fixture pastas.sql
   load_fixture pastas.zwr
   load_fixture default_user.zwr
-  start_rocto 1441
+  test_port=$(start_rocto 1441)
 }
 
 teardown() {
@@ -30,21 +30,21 @@ teardown() {
 @test "ensure cancel requests abort simple queries" {
   # Load lots of data to create slow query
   load_big_data
-  run_psql_expect cancel_psql_big_data 1441 &> output.txt
-  verify_output TCR00 expect.out noinfo nodebug noexpect
+  run_psql_expect cancel_psql_big_data $test_port &> output.txt
+  verify_output TCR00 expect.out noinfo nodebug noexpect stripreturns
 }
 
 @test "ensure cancel requests abort complicated queries (many joins)" {
   copy_test_file fixtures/HANGTIME.m HANGTIME.m
   yottadb -run ^%XCMD 'set ^%ydboctoocto("functions","HANGTIME")="$$^HANGTIME"'
-  run_psql_expect cancel_psql_many_joins 1441 &> output.txt
-  verify_output TCR01 expect.out noinfo nodebug noexpect
+  run_psql_expect cancel_psql_many_joins $test_port &> output.txt
+  verify_output TCR01 expect.out noinfo nodebug noexpect stripreturns
 }
 
 @test "ensure cancel requests cleanup xrefs and trigger" {
   load_big_data
   # Remove verbosity as the logical plan is too long to print correctly and not needed here
-  run_psql_expect cancel_psql_big_data 1441 &> output.txt
+  run_psql_expect cancel_psql_big_data $test_port &> output.txt
   # Ensure all cross references cleaned up for the given query, i.e. test_seed_queries.bats "test1"
   run $ydb_dist/yottadb -direct > xref.txt <<YDB
 zwrite ^%ydboctoxref
@@ -63,8 +63,8 @@ YDB
 @test "ensure cancel requests abort extended queries" {
   # Skip until extended queries are supported
   skip
-  start_rocto 1441 quiet
-  run_psql_expect cancel_psql_extended 1441 &> output.txt
+  test_port2=$(start_rocto 1441 quiet)
+  run_psql_expect cancel_psql_extended $test_port2 &> output.txt
   verify_output TCR04 output.txt
 }
 

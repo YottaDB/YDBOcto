@@ -79,8 +79,8 @@ LogicalPlan *lp_table_join_to_column_list(LogicalPlan *table_join, int *plan_id)
 		ret = lp_column_list_to_lp(sql_column_list, plan_id);
 		break;
 	default:
-		FATAL(ERR_UNKNOWN_KEYWORD_STATE, "");
-		break;
+		ERROR(ERR_UNKNOWN_KEYWORD_STATE, "");
+		return NULL;
 	}
 
 	if(table_join->v.operand[1]) {

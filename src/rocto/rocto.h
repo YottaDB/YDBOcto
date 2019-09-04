@@ -128,7 +128,7 @@ int32_t handle_describe(Describe *describe, RoctoSession *session);
 int32_t handle_password_message(PasswordMessage *password_message, ErrorResponse **err, StartupMessage *startup_message, char *salt);
 
 // This isn't a handle function in-of itself, but a helper to handle the results of a query
-void handle_query_response(SqlStatement *stmt, int32_t cursor_id, void *_parms, char *plan_name);
+int handle_query_response(SqlStatement *stmt, int32_t cursor_id, void *_parms, char *plan_name);
 
 // Helper to indicate that there is no more input
 int no_more();

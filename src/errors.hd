@@ -18,8 +18,10 @@ ERROR_DEF(ERR_GENERATING_TEMPORARY_TABLE, "Generating temporary table: %s", PSQL
 ERROR_DEF(ERR_INIT_SCANNER, "Error initializing the scanner", PSQL_Code_Internal_Error)
 ERROR_DEF(ERR_LIBSSL_ERROR, "Error in libssl/libcrypt", PSQL_Code_Internal_Error)
 ERROR_DEF(ERR_PARSING_COMMAND, "Error parsing statement: %.*s", PSQL_Code_Internal_Error)
+ERROR_DEF(ERR_PLAN_NOT_GENERATED, "Failed to generate %s plan", PSQL_Code_Internal_Error)
 ERROR_DEF(ERR_PLAN_HASH_FAILED, "Failed to generate plan filename hash", PSQL_Code_Internal_Error)
 ERROR_DEF(ERR_PLAN_NOT_WELL_FORMED, "Plan produced by optimizer appears incorrect", PSQL_Code_Internal_Error)
+ERROR_DEF(ERR_FAILED_TO_OPTIMIZE_PLAN, "Failed to optimize logical plan", PSQL_Code_Internal_Error)
 ERROR_DEF(ERR_UNKNOWN_KEYWORD_STATE, "Unknown state reached; please contact your Octo support channel", PSQL_Code_Internal_Error)
 ERROR_DEF(ERR_YOTTADB, "YottaDB error: %s", PSQL_Code_Internal_Error)
 // ROCTO //
@@ -75,6 +77,7 @@ ERROR_DEF(ERR_ROCTO_CHILD_STATE_UPDATED, "Process %d switched to state %d", PSQL
 ERROR_DEF(ERR_ROCTO_CLEAN_DISCONNECT, "connection closed cleanly", PSQL_Code_Success)
 ERROR_DEF(INFO_AUTH_SUCCESS, "%s: user successfully authenticated", PSQL_Code_Success)
 ERROR_DEF(INFO_ROCTO_STARTED, "rocto started on port %d", PSQL_Code_Success)
+ERROR_DEF(INFO_ROCTO_SERVER_FORKED, "rocto server process forked with pid %d", PSQL_Code_Success)
 
 /*** Operator Intervention ***/
 ERROR_DEF(ERR_ROCTO_QUERY_CANCELED, "canceling statement due to user request", PSQL_Code_Query_Canceled)
@@ -101,6 +104,7 @@ ERROR_DEF(ERR_ROCTO_INVALID_TYPE, "%s: invalid type '%c': must be '%c'", PSQL_Co
 ERROR_DEF(ERR_ROCTO_INVALID_VERSION, "%s: invalid version %x: must be %x", PSQL_Code_Protocol_Violation)
 ERROR_DEF(ERR_ROCTO_READ_FAILED, "read failure: %s", PSQL_Code_Connection_Exception)
 ERROR_DEF(ERR_ROCTO_SEND_FAILED, "send failure: %s", PSQL_Code_Connection_Exception)
+ERROR_DEF(ERR_ROCTO_SEND_MESSAGE, "failed to send message of type '%c'", PSQL_Code_Connection_Exception)
 ERROR_DEF(ERR_ROCTO_TRAILING_CHARS, "%s: message has trailing characters", PSQL_Code_Protocol_Violation)
 
 /*** Authentication errors ***/

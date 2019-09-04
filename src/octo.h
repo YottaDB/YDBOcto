@@ -75,15 +75,16 @@
 #define	MATCH_QUALIFIED_COLUMNS_FALSE	FALSE
 #define	MATCH_QUALIFIED_COLUMNS_TRUE	TRUE
 
-#define	INVOKE_HASH_CANONICAL_QUERY(STATE, RESULT)	\
-{							\
-	HASH128_STATE_INIT(STATE, 0);			\
-	hash_canonical_query_cycle++;			\
-	hash_canonical_query(&STATE, RESULT);		\
+#define	INVOKE_HASH_CANONICAL_QUERY(STATE, RESULT, STATUS)	\
+{								\
+	STATUS = 0;						\
+	HASH128_STATE_INIT(STATE, 0);				\
+	hash_canonical_query_cycle++;				\
+	hash_canonical_query(&STATE, RESULT, &STATUS);		\
 }
 
 int emit_column_specification(char *buffer, int buffer_size, SqlColumn *column);
-void emit_create_table(FILE *output, struct SqlStatement *stmt);
+int emit_create_table(FILE *output, struct SqlStatement *stmt);
 // Recursively copies all of stmt, including making copies of strings
 
 /**
@@ -126,7 +127,7 @@ char *regex_to_like(const char *src);
 
 /* Hashing support functions */
 int generate_routine_name(hash128_state_t *state, char *routine_name, int routine_len, FileType file_type);
-void hash_canonical_query(hash128_state_t *state, SqlStatement *stmt);
+void hash_canonical_query(hash128_state_t *state, SqlStatement *stmt, int *status);
 void ydb_hash_to_string(ydb_uint16 *hash, char *buffer, const unsigned int buf_len);
 
 void assign_table_to_columns(SqlStatement *table_statement);
@@ -137,8 +138,8 @@ SqlColumn *column_list_alias_to_columns(SqlTableAlias *table_alias);
 
 SqlStatement *drill_to_table_alias(SqlStatement *sqlStmt);
 int get_column_piece_number(SqlColumnAlias *alias, SqlTableAlias *table_alias);
-SqlStatement *replace_table_references(SqlStatement *stmt, SqlStatement *to_remove);
-SqlStatement *update_table_references(SqlStatement *stmt, int old_unique_id, int new_unique_id);
+int replace_table_references(SqlStatement *stmt, SqlStatement *to_remove);
+int update_table_references(SqlStatement *stmt, int old_unique_id, int new_unique_id);
 
 SqlStatement *copy_sql_statement(SqlStatement *stmt);
 

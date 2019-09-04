@@ -21,7 +21,7 @@ expect "stty cols 4096\r"
 send -- "psql -U ydb -h localhost -p $port\r"
 expect ".*Password for user ydb: "
 send "ydbrocks\r"
-expect ".*ydb=# "
+expect ".*ydb=. "
 # Run a long time AND generate cross references
 send "select firstname from names where firstname = \"abcd\";\r"
 expect "select firstname from names where firstname = \"abcd\";\r\n"
@@ -29,7 +29,7 @@ expect timeout
 # Send interrupt to trigger cancel request
 send \x03
 expect ".*Cancel request sent\r\n"
-expect "ERROR:  canceling statement due to user request\r\nydb=# "
+expect "ERROR:  canceling statement due to user request\r\nydb=. "
 send "\\q\r"
 expect timeout
 exit

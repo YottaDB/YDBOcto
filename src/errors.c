@@ -75,7 +75,7 @@ const char *rocto_log_prefix = "[%s:%s] [%5s] %s:%d %04d-%02d-%02d %02d:%02d:%02
 /**
  * Logs error at level, formatting output and sending to the correct location.
  *
- * If level is FATAL, terminates the process and calls ydb_fork_n_core
+ * If level is FATAL, terminates the process
  */
 void octo_log(int line, char *file, enum ERROR_LEVEL level, enum ERROR error, ...) {
 	va_list args;
@@ -198,7 +198,6 @@ void octo_log(int line, char *file, enum ERROR_LEVEL level, enum ERROR error, ..
 #ifdef IS_ROCTO
 		shutdown(rocto_session.connection_fd, SHUT_RDWR);
 #endif
-		ydb_fork_n_core();
 		exit(error);
 	}
 	return;

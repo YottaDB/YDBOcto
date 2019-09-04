@@ -28,12 +28,11 @@ RowDescription *get_plan_row_description(ydb_buffer_t *plan_filename) {
 	RowDescriptionParm *parms;
 	ydb_buffer_t *plan_meta, value_buffer;
 	int32_t status;
-	char *buff;
+	char *buff = NULL;
 
 	plan_meta = make_buffers(config->global_names.octo, 5, "plan_metadata", "", "output_columns", "", "");
 	plan_meta[2] = *plan_filename;
 	YDB_MALLOC_BUFFER(&plan_meta[4], MAX_STR_CONST);
-	YDB_MALLOC_BUFFER(&plan_meta[5], MAX_STR_CONST);
 	YDB_MALLOC_BUFFER(&value_buffer, MAX_STR_CONST);
 
 	int32_t num_columns = 0;
@@ -43,6 +42,12 @@ RowDescription *get_plan_row_description(ydb_buffer_t *plan_filename) {
 			break;
 		}
 		YDB_ERROR_CHECK(status);
+		if (YDB_OK != status) {
+			YDB_FREE_BUFFER(&value_buffer);
+			YDB_FREE_BUFFER(&plan_meta[4]);
+			free(plan_meta);
+			return NULL;
+		}
 		num_columns++;
 	}
 
@@ -54,12 +59,17 @@ RowDescription *get_plan_row_description(ydb_buffer_t *plan_filename) {
 	while(TRUE) {
 		status = ydb_subscript_next_s(plan_meta, 4, &plan_meta[1], &plan_meta[4]);
 		if(status == YDB_ERR_NODEEND) {
+			status = YDB_OK;
 			break;
 		}
 		YDB_ERROR_CHECK(status);
+		if (YDB_OK != status)
+			break;
 		YDB_LITERAL_TO_BUFFER("name", &plan_meta[5]);
 		status = ydb_get_s(plan_meta, 5, &plan_meta[1], &value_buffer);
 		YDB_ERROR_CHECK(status);
+		if (YDB_OK != status)
+			break;
 		buff = malloc(value_buffer.len_used + 1);
 		memcpy(buff, value_buffer.buf_addr, value_buffer.len_used);
 		buff[value_buffer.len_used] = '\0';
@@ -68,42 +78,66 @@ RowDescription *get_plan_row_description(ydb_buffer_t *plan_filename) {
 		YDB_LITERAL_TO_BUFFER("table_id", &plan_meta[5]);
 		status = ydb_get_s(plan_meta, 5, &plan_meta[1], &value_buffer);
 		YDB_ERROR_CHECK(status);
+		if (YDB_OK != status)
+			break;
 		value_buffer.buf_addr[value_buffer.len_used] = '\0';
 		parms[i].table_id = atoi(value_buffer.buf_addr);
 
 		YDB_LITERAL_TO_BUFFER("column_id", &plan_meta[5]);
 		status = ydb_get_s(plan_meta, 5, &plan_meta[1], &value_buffer);
 		YDB_ERROR_CHECK(status);
+		if (YDB_OK != status)
+			break;
 		value_buffer.buf_addr[value_buffer.len_used] = '\0';
 		parms[i].column_id = atoi(value_buffer.buf_addr);
 
 		YDB_LITERAL_TO_BUFFER("data_type", &plan_meta[5]);
 		status = ydb_get_s(plan_meta, 5, &plan_meta[1], &value_buffer);
 		YDB_ERROR_CHECK(status);
+		if (YDB_OK != status)
+			break;
 		value_buffer.buf_addr[value_buffer.len_used] = '\0';
 		parms[i].data_type = atoi(value_buffer.buf_addr);
 
 		YDB_LITERAL_TO_BUFFER("data_type_size", &plan_meta[5]);
 		status = ydb_get_s(plan_meta, 5, &plan_meta[1], &value_buffer);
 		YDB_ERROR_CHECK(status);
+		if (YDB_OK != status)
+			break;
 		value_buffer.buf_addr[value_buffer.len_used] = '\0';
 		parms[i].data_type_size = atoi(value_buffer.buf_addr);
 
 		YDB_LITERAL_TO_BUFFER("type_modifier", &plan_meta[5]);
 		status = ydb_get_s(plan_meta, 5, &plan_meta[1], &value_buffer);
 		YDB_ERROR_CHECK(status);
+		if (YDB_OK != status)
+			break;
 		value_buffer.buf_addr[value_buffer.len_used] = '\0';
 		parms[i].type_modifier = atoi(value_buffer.buf_addr);
 
 		YDB_LITERAL_TO_BUFFER("format_code", &plan_meta[5]);
 		status = ydb_get_s(plan_meta, 5, &plan_meta[1], &value_buffer);
 		YDB_ERROR_CHECK(status);
+		if (YDB_OK != status)
+			break;
 		value_buffer.buf_addr[value_buffer.len_used] = '\0';
 		parms[i].format_code = atoi(value_buffer.buf_addr);
 		i++;
 	}
-
-	ret = make_row_description(parms, num_columns);
+	YDB_FREE_BUFFER(&value_buffer);
+	YDB_FREE_BUFFER(&plan_meta[4]);
+	free(plan_meta);
+	if (YDB_OK == status) {
+		ret = make_row_description(parms, num_columns);
+	} else {
+		ret = NULL;
+	}
+	// Cleanup multiple buffs stored in parameter name fields
+	int j = 0;
+	for (j = 0; j < i; j++) {
+		if (NULL != parms[j].name)
+			free(parms[j].name);
+	}
 	free(parms);
 	return ret;
 }

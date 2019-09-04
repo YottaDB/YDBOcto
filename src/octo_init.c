@@ -502,7 +502,9 @@ int octo_init(int argc, char **argv) {
 	ydb_long_t ci_return = 1;
 	status = ydb_ci("_ydboctoNullSubsCheck", &ci_return);
 	YDB_ERROR_CHECK(status);
-	if (0 != ci_return) {
+	if (YDB_OK != status) {
+		return 1;
+	} else if (0 != ci_return) {
 		ERROR(ERR_NULL_SUBS_DISABLED, "");
 		return 1;
 	}

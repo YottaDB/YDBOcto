@@ -1,3 +1,0 @@
-FATAL:  YottaDB error: 150373210,NUMPLAN%YDB-E-DIVZERO, Attempt to divide by zero
-SSL SYSCALL error: EOF detected
-connection to server was lost

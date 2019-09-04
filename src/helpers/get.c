@@ -35,8 +35,13 @@ ydb_buffer_t *get(char *global, size_t num_args, ...) {
 		return NULL;
 	}
 	YDB_ERROR_CHECK(status);
+	if (YDB_OK != status) {
+		YDB_FREE_BUFFER(ret);
+		free(ret);
+		free(buffers);
+		return NULL;
+	}
 
 	free(buffers);
-
 	return ret;
 }

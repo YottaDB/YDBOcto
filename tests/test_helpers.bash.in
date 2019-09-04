@@ -285,6 +285,8 @@ verify_output() {
   sed -i 's/Git commit: [0-9,a-f]*/Git commit: xxxx/' clean_output.txt
   # Filter git uncommitted changes
   sed -i 's/Uncommitted changes: .*/Uncommitted changes: false/' clean_output.txt
+  # Filter forked process pid
+  sed -i 's/rocto server process forked with pid [0-9]*/rocto server process forked with pid PID/' clean_output.txt
 
   # Selectively process output
   for i in "$@"; do
@@ -300,6 +302,10 @@ verify_output() {
       sed -i '/\[ WARN\]\|^WARN:/d' clean_output.txt
     fi
     if [[ $i == "noprompt" ]]; then
+      # Remove octo prompt, but keep remainder of line
+      sed -i 's/^.*OCTO>//' clean_output.txt
+    fi
+    if [[ $i == "nopromptline" ]]; then
       # Remove octo prompt lines
       sed -i '/OCTO>/,$!d' clean_output.txt
     fi
@@ -311,6 +317,9 @@ verify_output() {
       # Remove expect script artifacts
       strip_expect_artifacts clean_output.txt
       strip_psql_header clean_output.txt
+    fi
+    if [[ $i == "stripreturns" ]]; then
+      sed -i 's///g' clean_output.txt
     fi
     # The sort argument should be passed last to allow sorting of final output file
     if [[ $i == "sort" ]]; then

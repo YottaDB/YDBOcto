@@ -35,16 +35,14 @@ int send_bytes(RoctoSession *session, char *message, size_t length) {
 		if (result <= 0 ) {
 			if (-1 == result) {
 				tls_errno = gtm_tls_errno();
-				if(tls_errno == ECONNRESET) {
-					return 1;
-				} else if (tls_errno == EPIPE) {
+				if(ECONNRESET == tls_errno || EPIPE == tls_errno) {
 					return 1;
 				} else if (-1 == tls_errno) {
 					err_str = gtm_tls_get_error();
-					FATAL(ERR_ROCTO_TLS_WRITE_FAILED, err_str);
+					ERROR(ERR_ROCTO_TLS_WRITE_FAILED, err_str);
 				}
 				else {
-					FATAL(ERR_SYSCALL, "unknown", tls_errno, strerror(tls_errno));
+					ERROR(ERR_SYSCALL, "unknown", tls_errno, strerror(tls_errno));
 				}
 			}
 			return 1;
@@ -61,7 +59,7 @@ int send_bytes(RoctoSession *session, char *message, size_t length) {
 					return 1;
 				if(errno == EPIPE)
 					return 1;
-				FATAL(ERR_SYSCALL, "send", errno, strerror(errno));
+				ERROR(ERR_SYSCALL, "send", errno, strerror(errno));
 				return 1;
 			}
 			written_so_far += written_now;

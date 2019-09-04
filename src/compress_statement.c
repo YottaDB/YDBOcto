@@ -190,6 +190,7 @@ void *compress_statement_helper(SqlStatement *stmt, char *out, int *out_length) 
 	case sort_spec_list_STATEMENT:
 	case table_alias_STATEMENT:
 	case unary_STATEMENT:
+		assert(stmt->type != unary_STATEMENT);
 		FATAL(ERR_UNKNOWN_KEYWORD_STATE, "");
 		break;
 	case invalid_STATEMENT:

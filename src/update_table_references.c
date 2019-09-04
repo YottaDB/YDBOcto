@@ -26,18 +26,20 @@ SqlStatement *update_table_references(SqlStatement *stmt, int old_unique_id, int
 }
 
 void update_table_references_helper(SqlStatement *stmt, int old_unique_id, int new_unique_id) {
-	SqlUnaryOperation *unary;
-	SqlColumnAlias *column_alias;
-	SqlTableAlias *table_alias;
-	SqlBinaryOperation *binary;
-	SqlFunctionCall *fc;
-	SqlCaseStatement *cas;
-	SqlCaseBranchStatement *cas_branch, *cur_branch;
-	SqlColumnList *column_list;
-	SqlColumnList *cur_cl, *start_cl;
-	SqlColumnListAlias *cur_cla, *start_cla, *column_list_alias;
-	SqlSelectStatement *select;
-	SqlJoin *cur_join, *start_join;
+	SqlUnaryOperation	*unary;
+	SqlColumnAlias		*column_alias;
+	SqlTableAlias		*table_alias;
+	SqlBinaryOperation	*binary;
+	SqlSetOperation		*set_operation;
+	SqlFunctionCall		*fc;
+	SqlCaseStatement	*cas;
+	SqlCaseBranchStatement	*cas_branch, *cur_branch;
+	SqlColumnList		*column_list;
+	SqlColumnList		*cur_cl, *start_cl;
+	SqlColumnListAlias	*cur_cla, *start_cla, *column_list_alias;
+	SqlSelectStatement	*select;
+	SqlValue		*value;
+	SqlJoin			*cur_join, *start_join;
 
 	if(stmt == NULL)
 		return;
@@ -55,6 +57,11 @@ void update_table_references_helper(SqlStatement *stmt, int old_unique_id, int n
 		UNPACK_SQL_STATEMENT(binary, stmt, binary);
 		update_table_references_helper(binary->operands[0], old_unique_id, new_unique_id);
 		update_table_references_helper(binary->operands[1], old_unique_id, new_unique_id);
+		break;
+	case set_operation_STATEMENT:
+		UNPACK_SQL_STATEMENT(set_operation, stmt, set_operation);
+		update_table_references_helper(set_operation->operand[0], old_unique_id, new_unique_id);
+		update_table_references_helper(set_operation->operand[1], old_unique_id, new_unique_id);
 		break;
 	case unary_STATEMENT:
 		UNPACK_SQL_STATEMENT(unary, stmt, unary);
@@ -74,6 +81,7 @@ void update_table_references_helper(SqlStatement *stmt, int old_unique_id, int n
 		UNPACK_SQL_STATEMENT(cas, stmt, cas);
 		update_table_references_helper(cas->value, old_unique_id, new_unique_id);
 		update_table_references_helper(cas->branches, old_unique_id, new_unique_id);
+		update_table_references_helper(cas->optional_else, old_unique_id, new_unique_id);
 		break;
 	case cas_branch_STATEMENT:
 		UNPACK_SQL_STATEMENT(cas_branch, stmt, cas_branch);
@@ -104,19 +112,43 @@ void update_table_references_helper(SqlStatement *stmt, int old_unique_id, int n
 		UNPACK_SQL_STATEMENT(start_join, stmt, join);
 		cur_join = start_join;
 		do {
-			update_table_references_helper(cur_join->condition, old_unique_id, new_unique_id);
 			update_table_references_helper(cur_join->value, old_unique_id, new_unique_id);
+			update_table_references_helper(cur_join->condition, old_unique_id, new_unique_id);
 			cur_join = cur_join->next;
 		} while(cur_join != start_join);
 		break;
 	case select_STATEMENT:
 		UNPACK_SQL_STATEMENT(select, stmt, select);
 		update_table_references_helper(select->select_list, old_unique_id, new_unique_id);
-		update_table_references_helper(select->where_expression, old_unique_id, new_unique_id);
-		update_table_references_helper(select->order_expression, old_unique_id, new_unique_id);
 		update_table_references_helper(select->table_list, old_unique_id, new_unique_id);
+		update_table_references_helper(select->where_expression, old_unique_id, new_unique_id);
+		/* Do not replace select->order_expression and select->set_operation as they are currently
+		 * left untouched by "copy_sql_statement.c".
+		 */
 		break;
 	case value_STATEMENT:
+		UNPACK_SQL_STATEMENT(value, stmt, value);
+		switch(value->type) {
+			case NUMBER_LITERAL:
+			case STRING_LITERAL:
+			case FUNCTION_NAME:
+			case DATE_TIME:
+			case BOOLEAN_VALUE:
+			case COLUMN_REFERENCE:
+			case NUL_VALUE:
+				break;
+			case CALCULATED_VALUE:
+				update_table_references_helper(value->v.calculated, old_unique_id, new_unique_id);
+				break;
+			case COERCE_TYPE:
+				update_table_references_helper(value->v.coerce_target, old_unique_id, new_unique_id);
+				break;
+			case UNKNOWN_SqlValueType:
+			default:
+				// assert(FALSE); (Uncomment once https://gitlab.com/YottaDB/DBMS/YDBOcto/issues/171 is fixed)
+				break;
+		}
+		break;
 	case column_STATEMENT:
 		break;
 	case table_alias_STATEMENT:

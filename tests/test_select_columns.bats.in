@@ -406,3 +406,15 @@ OCTO
   fi
   verify_output T0025 output.txt
 }
+
+@test "T0026 : #302 : Run M function inside of SELECT statement with a LEFT JOIN" {
+  $ydb_dist/mumps -run %XCMD 'set ^%ydboctoocto("functions","DOLLAR_ZWRITE")="$ZWRITE"'
+  octo <<OCTO 2>&1 | tee output.txt
+SELECT    n1.firstname, DOLLAR_ZWRITE(n2.firstname)
+FROM      names n1
+LEFT JOIN names n2
+ON        n1.lastname = n2.firstname;
+OCTO
+  verify_output T0026 output.txt
+}
+

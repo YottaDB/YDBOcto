@@ -36,18 +36,20 @@ SqlStatement *replace_table_references(SqlStatement *stmt, SqlStatement *to_remo
 }
 
 void replace_table_references_helper(SqlStatement *stmt, SqlTableAlias *old_value, SqlStatement *new_value) {
-	SqlUnaryOperation *unary;
-	SqlColumnAlias *column_alias;
-	SqlTableAlias *table_alias;
-	SqlBinaryOperation *binary;
-	SqlFunctionCall *fc;
-	SqlCaseStatement *cas;
-	SqlCaseBranchStatement *cas_branch, *cur_branch;
-	SqlColumnList *column_list;
-	SqlColumnList *cur_cl, *start_cl;
-	SqlColumnListAlias *cur_cla, *start_cla, *column_list_alias;
-	SqlSelectStatement *select;
-	SqlJoin *cur_join, *start_join;
+	SqlUnaryOperation	*unary;
+	SqlColumnAlias		*column_alias;
+	SqlTableAlias		*table_alias;
+	SqlBinaryOperation	*binary;
+	SqlSetOperation		*set_operation;
+	SqlFunctionCall		*fc;
+	SqlCaseStatement	*cas;
+	SqlCaseBranchStatement	*cas_branch, *cur_branch;
+	SqlColumnList		*column_list;
+	SqlColumnList		*cur_cl, *start_cl;
+	SqlColumnListAlias	*cur_cla, *start_cla, *column_list_alias;
+	SqlSelectStatement	*select;
+	SqlValue		*value;
+	SqlJoin			*cur_join, *start_join;
 
 	if(stmt == NULL)
 		return;
@@ -64,6 +66,11 @@ void replace_table_references_helper(SqlStatement *stmt, SqlTableAlias *old_valu
 		UNPACK_SQL_STATEMENT(binary, stmt, binary);
 		replace_table_references_helper(binary->operands[0], old_value, new_value);
 		replace_table_references_helper(binary->operands[1], old_value, new_value);
+		break;
+	case set_operation_STATEMENT:
+		UNPACK_SQL_STATEMENT(set_operation, stmt, set_operation);
+		replace_table_references_helper(set_operation->operand[0], old_value, new_value);
+		replace_table_references_helper(set_operation->operand[1], old_value, new_value);
 		break;
 	case unary_STATEMENT:
 		UNPACK_SQL_STATEMENT(unary, stmt, unary);
@@ -83,6 +90,7 @@ void replace_table_references_helper(SqlStatement *stmt, SqlTableAlias *old_valu
 		UNPACK_SQL_STATEMENT(cas, stmt, cas);
 		replace_table_references_helper(cas->value, old_value, new_value);
 		replace_table_references_helper(cas->branches, old_value, new_value);
+		replace_table_references_helper(cas->optional_else, old_value, new_value);
 		break;
 	case cas_branch_STATEMENT:
 		UNPACK_SQL_STATEMENT(cas_branch, stmt, cas_branch);
@@ -109,6 +117,7 @@ void replace_table_references_helper(SqlStatement *stmt, SqlTableAlias *old_valu
 		UNPACK_SQL_STATEMENT(start_join, stmt, join);
 		cur_join = start_join;
 		do {
+			replace_table_references_helper(cur_join->value, old_value, new_value);
 			replace_table_references_helper(cur_join->condition, old_value, new_value);
 			cur_join = cur_join->next;
 		} while(cur_join != start_join);
@@ -116,11 +125,34 @@ void replace_table_references_helper(SqlStatement *stmt, SqlTableAlias *old_valu
 	case select_STATEMENT:
 		UNPACK_SQL_STATEMENT(select, stmt, select);
 		replace_table_references_helper(select->select_list, old_value, new_value);
-		replace_table_references_helper(select->where_expression, old_value, new_value);
-		replace_table_references_helper(select->order_expression, old_value, new_value);
 		replace_table_references_helper(select->table_list, old_value, new_value);
+		replace_table_references_helper(select->where_expression, old_value, new_value);
+		/* Do not replace select->order_expression and select->set_operation as they are currently
+		 * left untouched by "copy_sql_statement.c".
+		 */
 		break;
 	case value_STATEMENT:
+		UNPACK_SQL_STATEMENT(value, stmt, value);
+		switch(value->type) {
+			case NUMBER_LITERAL:
+			case STRING_LITERAL:
+			case FUNCTION_NAME:
+			case DATE_TIME:
+			case BOOLEAN_VALUE:
+			case COLUMN_REFERENCE:
+			case NUL_VALUE:
+				break;
+			case CALCULATED_VALUE:
+				replace_table_references_helper(value->v.calculated, old_value, new_value);
+				break;
+			case COERCE_TYPE:
+				replace_table_references_helper(value->v.coerce_target, old_value, new_value);
+				break;
+			case UNKNOWN_SqlValueType:
+			default:
+				// assert(FALSE); (Uncomment once https://gitlab.com/YottaDB/DBMS/YDBOcto/issues/171 is fixed)
+				break;
+		}
 		break;
 	case table_alias_STATEMENT:
 		UNPACK_SQL_STATEMENT(table_alias, stmt, table_alias);

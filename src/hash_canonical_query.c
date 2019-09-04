@@ -190,8 +190,7 @@ void hash_canonical_query(hash128_state_t *state, SqlStatement *stmt) {
 			case NUL_VALUE:
 				break;
 			case UNKNOWN_SqlValueType:
-				/// TODO: this shouldn't happen
-				// assert(FALSE);
+				// assert(FALSE); (Uncomment once https://gitlab.com/YottaDB/DBMS/YDBOcto/issues/171 is fixed)
 				break;
 			case COERCE_TYPE:
 				add_sql_type_hash(state, value->coerced_type);

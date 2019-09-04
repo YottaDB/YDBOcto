@@ -15,6 +15,7 @@
 #include <stdarg.h>
 #include <time.h>
 #include <stdlib.h>
+#include <sys/socket.h>
 
 #include <libyottadb.h>
 
@@ -184,12 +185,15 @@ void octo_log(int line, char *file, enum ERROR_LEVEL level, enum ERROR error, ..
 				err_code_map[error],
 				buffer,
 				0);
-		send_message(&rocto_session, (BaseMessage*)(&err->type));
+		int sent_ret = send_message(&rocto_session, (BaseMessage*)(&err->type));
 		free_error_response(err);
 		rocto_session.sending_message = FALSE;
 	}
 #	endif
 	if(level == FATAL) {
+#ifdef IS_ROCTO
+		shutdown(rocto_session.connection_fd, SHUT_RDWR);
+#endif
 		ydb_fork_n_core();
 		exit(error);
 	}

@@ -1,0 +1,5 @@
+FATAL:  YottaDB error: 150373210,NUMPLAN%YDB-E-DIVZERO, Attempt to divide by zero
+server closed the connection unexpectedly
+	This probably means the server terminated abnormally
+	before or while processing the request.
+connection to server was lost

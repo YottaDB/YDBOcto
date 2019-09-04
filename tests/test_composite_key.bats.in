@@ -16,6 +16,20 @@ setup() {
   init_test
   createdb
   load_fixture vista-mini.sql
+  # load M functions needed by a Vista schema
+  $ydb_dist/mumps -run ^%XCMD 'set ^%ydboctoocto("functions","CURR_TIMESTAMP")="$$^TIMESTAMP"'
+  $ydb_dist/mumps -run ^%XCMD 'set ^%ydboctoocto("functions","CURRENT_TIMESTAMP")="$$^TIMESTAMP"'
+  $ydb_dist/mumps -run ^%XCMD 'set ^%ydboctoocto("functions","DATEFORMAT")="$$^DATETIME"'
+  $ydb_dist/mumps -run ^%XCMD 'set ^%ydboctoocto("functions","IFNULL")="$$^IFNULL"'
+  $ydb_dist/mumps -run ^%XCMD 'set ^%ydboctoocto("functions","TOKEN")="$PIECE"'
+  $ydb_dist/mumps -run ^%XCMD 'set ^%ydboctoocto("functions","REPLACE")="$$^REPLACE"'
+  $ydb_dist/mumps -run ^%XCMD 'set ^%ydboctoocto("functions","SUBSTRING")="$$^SUBSTRING"'
+  $ydb_dist/mumps -run ^%XCMD 'set ^%ydboctoocto("functions","FMGET")="$$^fmget"'
+  $ydb_dist/mumps -run ^%XCMD 'set ^%ydboctoocto("functions","LEXTRACT")="$$^LEFT"'
+  $ydb_dist/mumps -run ^%XCMD 'set ^%ydboctoocto("functions","LEFTY")="$$^LEFT"'
+  $ydb_dist/mumps -run ^%XCMD 'set ^%ydboctoocto("functions","REXTRACT")="$$^RIGHT"'
+  $ydb_dist/mumps -run ^%XCMD 'set ^%ydboctoocto("functions","PATINDEX")="$$^PATINDEX"'
+  $ydb_dist/mumps -run ^%XCMD 'set ^%ydboctoocto("functions","NUMBER")="$$^NUMBER"'
 }
 
 @test "TCK01 : #270 : LVUNDEF when running query involving composite key and a non-primary-key-column that is fixed" {
@@ -31,5 +45,52 @@ OCTO
   # Verify the FOR loops and the corresponding key in the generated M code
   grep FOR _ydboctoP*.m | sed 's/=.*//g' >> output.txt
   verify_output TCK01 output.txt
+}
+
+@test "TCK02 : #237 : Test that Boolean expression expansion does happen in case of INNER JOINs" {
+  octo <<OCTO 2>&1 | tee output.txt
+SELECT A.order1_id,
+       A.patient_id,
+       C.name                                 AS STATUS_NAME,
+       D.name                                 AS SIGNEDBY,
+       E.name                                 AS PATIENT_NAME,
+       Dateformat(B.date_time_signed, "5ZSP") AS SIGNED_DATE,
+       Dateformat(A.start_date, "5ZSP")       AS STARTDATE,
+       Dateformat (A.stop_date, "5ZSP")       AS STOPDATE,
+       A.current_action,
+       B.action,
+       F.name                                 AS ORDER_TYPE,
+       A.replaced_order,
+       A.lapsed_date_time,
+       A.nature_of_dc,
+       A.dc_date_time,
+       A.patient_location
+FROM   order1 A
+       inner join order_status C
+               ON ( A.status = C.order_status_id )
+       inner join order_order_actions B
+               ON ( A.order1_id = B.order1_id
+                    AND A.current_action = B.order_order_actions_id )
+       inner join new_person D
+               ON ( B.signed_by = D.new_person_id )
+       inner join patient E
+               ON ( A.patient_id = E.patient_id )
+       inner join display_group F
+               ON ( A.to = F.display_group_id )
+WHERE  ( ( A.patient_id IS NOT NULL
+           AND A.patient_id > 0
+           AND A.current_action IS NOT NULL
+           AND A.current_action > 0 )
+         AND a.status IN ( 5, 6 )
+         AND A.start_date IS NOT NULL
+         AND ( A.stop_date > 1 OR A.stop_date IS NULL )
+         AND E.name NOT LIKE "ZZ%"
+         AND E.current_movement IS NOT NULL )
+ORDER  BY A.order1_id :: INTEGER;
+OCTO
+  # Verify that 4 plans are created for the boolean expression and each one has just one FOR loop (that too inside a DO)
+  # and the corresponding key in the generated M code
+  sed 's/=.*//g' _ydboctoP*.m | grep -E "octoPlan|FOR.*ydboctocursor" >> output.txt
+  verify_output TCK02 output.txt
 }
 

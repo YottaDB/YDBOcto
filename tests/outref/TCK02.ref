@@ -1,0 +1,53 @@
+OCTO> SELECT A.order1_id,
+OCTO>        A.patient_id,
+OCTO>        C.name                                 AS STATUS_NAME,
+OCTO>        D.name                                 AS SIGNEDBY,
+OCTO>        E.name                                 AS PATIENT_NAME,
+OCTO>        Dateformat(B.date_time_signed, "5ZSP") AS SIGNED_DATE,
+OCTO>        Dateformat(A.start_date, "5ZSP")       AS STARTDATE,
+OCTO>        Dateformat (A.stop_date, "5ZSP")       AS STOPDATE,
+OCTO>        A.current_action,
+OCTO>        B.action,
+OCTO>        F.name                                 AS ORDER_TYPE,
+OCTO>        A.replaced_order,
+OCTO>        A.lapsed_date_time,
+OCTO>        A.nature_of_dc,
+OCTO>        A.dc_date_time,
+OCTO>        A.patient_location
+OCTO> FROM   order1 A
+OCTO>        inner join order_status C
+OCTO>                ON ( A.status = C.order_status_id )
+OCTO>        inner join order_order_actions B
+OCTO>                ON ( A.order1_id = B.order1_id
+OCTO>                     AND A.current_action = B.order_order_actions_id )
+OCTO>        inner join new_person D
+OCTO>                ON ( B.signed_by = D.new_person_id )
+OCTO>        inner join patient E
+OCTO>                ON ( A.patient_id = E.patient_id )
+OCTO>        inner join display_group F
+OCTO>                ON ( A.to = F.display_group_id )
+OCTO> WHERE  ( ( A.patient_id IS NOT NULL
+OCTO>            AND A.patient_id > 0
+OCTO>            AND A.current_action IS NOT NULL
+OCTO>            AND A.current_action > 0 )
+OCTO>          AND a.status IN ( 5, 6 )
+OCTO>          AND A.start_date IS NOT NULL
+OCTO>          AND ( A.stop_date > 1 OR A.stop_date IS NULL )
+OCTO>          AND E.name NOT LIKE "ZZ%"
+OCTO>          AND E.current_movement IS NOT NULL )
+OCTO> ORDER  BY A.order1_id :: INTEGER;
+Added SET and/or Non-SET trigger on ^OR named OR#1
+OCTO> 
+octoPlan0(cursorId)
+    DO octoPlan1(cursorId)
+    DO octoPlan2(cursorId)
+    DO octoPlan3(cursorId)
+    DO octoPlan4(cursorId)
+octoPlan1(cursorId)
+    . FOR  SET %ydboctocursor(cursorId,"keys",0,"ORDER1","ORDER1_ID")
+octoPlan2(cursorId)
+    . FOR  SET %ydboctocursor(cursorId,"keys",0,"ORDER1","ORDER1_ID")
+octoPlan3(cursorId)
+    . FOR  SET %ydboctocursor(cursorId,"keys",0,"ORDER1","ORDER1_ID")
+octoPlan4(cursorId)
+    . FOR  SET %ydboctocursor(cursorId,"keys",0,"ORDER1","ORDER1_ID")

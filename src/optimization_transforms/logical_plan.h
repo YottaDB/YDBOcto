@@ -65,6 +65,7 @@ typedef struct LogicalPlan {
 	int		extra_detail;	/* currently used for
 					 *  a) ORDER BY (if "type" member is LP_COLUMN_LIST)
 					 *  b) JOIN (if "type" member is LP_TABLE_JOIN or LP_KEY)
+					 *  c) WHERE clause (if "type" member is LP_WHERE)
 					 */
 	int		*counter;
 	union {

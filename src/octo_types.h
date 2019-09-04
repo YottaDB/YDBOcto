@@ -338,17 +338,19 @@ typedef struct SqlJoin
 typedef struct SqlSelectStatement
 {
 	// SqlColumnListAlias
-	struct SqlStatement *select_list;
+	struct SqlStatement	*select_list;
 	// SqlJoin
-	struct SqlStatement *table_list;
+	struct SqlStatement	*table_list;
 	// SqlValue (?)
-	struct SqlStatement *where_expression;
+	struct SqlStatement	*where_expression;
 	// SqlValue (?)
-	struct SqlStatement *order_expression;
+	struct SqlStatement	*order_expression;
 	// SqlOptionalKeyword
-	struct SqlStatement *optional_words;
+	struct SqlStatement	*optional_words;
 	// SqlSetOperation
-	struct SqlStatement *set_operation;
+	struct SqlStatement	*set_operation;
+	boolean_t		disable_dnf_where_expression;	/* TRUE if it is not okay to do Disjunctive Normal Form expansion */
+	boolean_t		disable_dnf_usable;	/* TRUE if "disable_dnf_where_expression" field has been computed */
 } SqlSelectStatement;
 
 typedef struct SqlInsertStatement

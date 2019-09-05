@@ -19,15 +19,16 @@ setup() {
   load_fixture names.zwr
 }
 
-@test "where with basic in statement" {
+@test "TWI01 : where with basic in statement" {
   octo <<OCTO 2>&1 | tee output.txt
 select * from names where firstName in (select firstName from names where firstName="zero" or firstName="Zero");
 OCTO
-  [[ "$(grep -c "Zero|Cool" output.txt)" != "0" ]]
-  [[ "$(grep -c "Joey|" output.txt)" == "0" ]]
+  # Include generated M code in reference file to verify all optimizations there
+  cat _ydboctoP*.m >> output.txt
+  verify_output TWI01 output.txt
 }
 
-@test "T0004 where IN references parent query" {
+@test "TWI02 : where IN references parent query" {
   octo <<OCTO 2>&1 | tee output.txt
 SELECT *
 FROM names n1
@@ -36,10 +37,12 @@ WHERE n1.firstName IN (SELECT n2.firstName
   WHERE n1.id = n2.id
 );
 OCTO
-  verify_output T0004 output.txt noinfo nodebug
+  # Include generated M code in reference file to verify all optimizations there
+  cat _ydboctoP*.m >> output.txt
+  verify_output TWI02 output.txt
 }
 
-@test "T0005 where IN references grandparent query" {
+@test "TWI03 : where IN references grandparent query" {
   octo <<OCTO 2>&1 | tee output.txt
 SELECT *
 FROM names a
@@ -51,10 +54,12 @@ WHERE a.firstName IN (
         WHERE c.id = a.id)
 );
 OCTO
-  verify_output T0005 output.txt noinfo nodebug
+  # Include generated M code in reference file to verify all optimizations there
+  cat _ydboctoP*.m >> output.txt
+  verify_output TWI03 output.txt
 }
 
-@test "T0006 where IN references parent from SET expression" {
+@test "TWI04 : where IN references parent from SET expression" {
   octo <<OCTO 2>&1 | tee output.txt
 SELECT *
 FROM names a
@@ -70,10 +75,12 @@ WHERE a.firstName IN (
     WHERE c.id = a.id
 );
 OCTO
-  verify_output T0006 output.txt noinfo nodebug
+  # Include generated M code in reference file to verify all optimizations there
+  cat _ydboctoP*.m >> output.txt
+  verify_output TWI04 output.txt
 }
 
-@test "T0013 WHERE in sub-query only references TWO parent query columns that do not match (variant of T0006)" {
+@test "TWI05 : WHERE in sub-query only references TWO parent query columns that do not match (variant of T0006)" {
   octo <<OCTO 2>&1 | tee output.txt
 SELECT *
 FROM names n1
@@ -82,10 +89,12 @@ WHERE n1.firstName IN (SELECT n2.firstName
   WHERE n1.firstName = n1.lastName
 );
 OCTO
-  verify_output T0013 output.txt noinfo nodebug
+  # Include generated M code in reference file to verify all optimizations there
+  cat _ydboctoP*.m >> output.txt
+  verify_output TWI05 output.txt
 }
 
-@test "T0013A WHERE in sub-query only references TWO parent query columns that match (variant of T0006)" {
+@test "TWI06 : WHERE in sub-query only references TWO parent query columns that match (variant of T0006)" {
   octo <<OCTO 2>&1 | tee output.txt
 SELECT *
 FROM names n1
@@ -96,10 +105,12 @@ WHERE n1.firstName IN (
   WHERE n1.id = n2.id
 )
 OCTO
-  verify_output T0013A output.txt noinfo nodebug
+  # Include generated M code in reference file to verify all optimizations there
+  cat _ydboctoP*.m >> output.txt
+  verify_output TWI06 output.txt
 }
 
-@test "T0014 WHERE in sub-query only references ONE parent query column AND a CONSTANT (variant of T0013)" {
+@test "TWI07 : WHERE in sub-query only references ONE parent query column AND a CONSTANT (variant of T0013)" {
   octo <<OCTO 2>&1 | tee output.txt
 SELECT *
 FROM names n1
@@ -108,13 +119,16 @@ WHERE n1.firstName IN (SELECT n2.firstName
   WHERE n1.firstName = "Acid"
 );
 OCTO
-  verify_output T0014 output.txt noinfo nodebug
+  # Include generated M code in reference file to verify all optimizations there
+  cat _ydboctoP*.m >> output.txt
+  verify_output TWI07 output.txt
 }
 
-@test "T0015 Multiple plans resulting from WHERE IN usage do not nest but instead thread" {
+@test "TWI08 : Multiple plans resulting from WHERE IN usage do not nest but instead thread" {
   octo <<OCTO 2>&1 | tee output.txt
   SELECT firstName FROM names WHERE firstName IN ('Zero', 'Acid', 'Cool');
 OCTO
-  grep -E 'QUIT$|octoPlan' _ydboctoP*.m > physicalplan.txt
-  verify_output T0015 physicalplan.txt noinfo nodebug
+  # Include generated M code in reference file to verify all optimizations there
+  cat _ydboctoP*.m >> output.txt
+  verify_output TWI08 output.txt
 }

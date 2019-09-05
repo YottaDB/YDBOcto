@@ -1,9 +1,0 @@
-OCTO> SELECT *
-OCTO> FROM names
-OCTO> WHERE ((id = 0 AND firstName = 'Zero') OR id = 5)
-OCTO>   AND ((lastName = 'Cool' AND firstName = 'Zero') OR lastName = 'Cool')
-OCTO> Added SET and/or Non-SET trigger on ^names named names#1
-Added SET and/or Non-SET trigger on ^names named names#2
-
-5|Zero|Cool
-0|Zero|Cool

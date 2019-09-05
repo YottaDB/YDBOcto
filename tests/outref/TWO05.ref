@@ -1,0 +1,34 @@
+OCTO> SELECT * FROM namesWithAges AS t1
+OCTO> CROSS JOIN namesWithAges AS t2
+OCTO> WHERE t1.id = t2.age;
+Added SET and/or Non-SET trigger on ^names named names#1
+0|Zero|Cool|0|DATE TIME|0|Zero|Cool|0|DATE TIME
+0|Zero|Cool|0|DATE TIME|1|Acid|Burn|0|DATE TIME
+0|Zero|Cool|0|DATE TIME|2|Cereal|Killer|0|DATE TIME
+0|Zero|Cool|0|DATE TIME|3|Lord|Nikon|0|DATE TIME
+0|Zero|Cool|0|DATE TIME|4|Joey||0|DATE TIME
+0|Zero|Cool|0|DATE TIME|5|Zero|Cool|0|DATE TIME
+OCTO> 
+;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
+;; ---------------------------------------------------------
+;  SELECT * FROM namesWithAges AS t1
+;  CROSS JOIN namesWithAges AS t2
+;  WHERE t1.id = t2.age;
+;; ---------------------------------------------------------
+
+octoPlan0(cursorId)
+    DO octoPlan1(cursorId)
+    QUIT
+
+octoPlan1(cursorId)
+    DO:'$DATA(^%ydboctoocto("xref_status","NAMESWITHAGES","AGE")) ^%ydboctoXeYwbPYLFz7LXUaBahEgdG0(cursorId)
+    NEW %ydboctoz KILL %ydboctocursor(cursorId,"keys",3,"","")
+    SET %ydboctocursor(cursorId,"keys",0,"NAMESWITHAGES","ID")=""
+    FOR  SET %ydboctocursor(cursorId,"keys",0,"NAMESWITHAGES","ID")=$ORDER(^names(%ydboctocursor(cursorId,"keys",0,"NAMESWITHAGES","ID"))) QUIT:(%ydboctocursor(cursorId,"keys",0,"NAMESWITHAGES","ID")="")  DO
+    . SET %ydboctocursor(cursorId,"keys",1,"NAMESWITHAGES","AGE")=(%ydboctocursor(cursorId,"keys",0,"NAMESWITHAGES","ID")\1) IF $DATA(^%ydboctoxref("NAMESWITHAGES","AGE",%ydboctocursor(cursorId,"keys",1,"NAMESWITHAGES","AGE")))'=0 DO
+    . . SET %ydboctocursor(cursorId,"keys",1,"NAMESWITHAGES","ID")=""
+    . . FOR  SET %ydboctocursor(cursorId,"keys",1,"NAMESWITHAGES","ID")=$ORDER(^%ydboctoxref("NAMESWITHAGES","AGE",%ydboctocursor(cursorId,"keys",1,"NAMESWITHAGES","AGE"),%ydboctocursor(cursorId,"keys",1,"NAMESWITHAGES","ID"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"NAMESWITHAGES","ID")="")  DO
+    . . . IF 1 DO
+    . . . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42
+    . . . . SET:1 %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=$GET(%ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"","")))_(%ydboctocursor(cursorId,"keys",0,"NAMESWITHAGES","ID")\1)_"|"_($PIECE($GET(^names(%ydboctocursor(cursorId,"keys",0,"NAMESWITHAGES","ID"))),"|",2))_"|"_($PIECE($GET(^names(%ydboctocursor(cursorId,"keys",0,"NAMESWITHAGES","ID"))),"|",3))_"|"_($PIECE($GET(^names(%ydboctocursor(cursorId,"keys",0,"NAMESWITHAGES","ID"))),"|",4)\1)_"|"_$ZDATE($HOROLOG,"YEAR-MM-DD 24:60:SS")_"|"_(%ydboctocursor(cursorId,"keys",1,"NAMESWITHAGES","ID")\1)_"|"_($PIECE($GET(^names(%ydboctocursor(cursorId,"keys",1,"NAMESWITHAGES","ID"))),"|",2))_"|"_($PIECE($GET(^names(%ydboctocursor(cursorId,"keys",1,"NAMESWITHAGES","ID"))),"|",3))_"|"_(%ydboctocursor(cursorId,"keys",1,"NAMESWITHAGES","AGE")\1)_"|"_$ZDATE($HOROLOG,"YEAR-MM-DD 24:60:SS")
+    QUIT

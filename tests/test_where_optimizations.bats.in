@@ -19,42 +19,36 @@ setup() {
   load_fixture names.zwr
 }
 
-@test "simple fixed key optimization" {
+@test "TWO01 : simple fixed key optimization" {
   octo >& output.txt <<OCTO
 select * from names where id = 2;
 OCTO
-  run cat output.txt
-  [[ "$output" =~ "2|Cereal|Killer" ]]
-  ! [[ "$output" =~ "0|Zero|Cool" ]]
-  count_for_loops ./_ydboctoP*.m 0
+  # Include generated M code in reference file to verify all optimizations there
+  cat _ydboctoP*.m >> output.txt
+  verify_output TWO01 output.txt
 }
 
-@test "cases that contain OR or AND do not allow optimization to occur" {
+@test "TWO02 : cases that contain OR or AND do not allow optimization to occur" {
   octo >& output.txt <<OCTO
 select * from names where id = 2 or firstName = "Zero";
 OCTO
-  run cat output.txt
-  [[ "$output" =~ "2|Cereal|Killer" ]]
-  [[ "$output" =~ "0|Zero|Cool" ]]
-  ! [[ "$output" =~ "Acid|Burn" ]]
-  run grep "FOR " ./*.m
-  ! [[ "$output" =~ $S\(.cursor\(.*\)=\"\":\"2\" ]]
-
+  # Include generated M code in reference file to verify all optimizations there
+  cat _ydboctoP*.m >> output.txt
+  verify_output TWO02 output.txt
 }
 
-@test "simple fixed column optimizations" {
+@test "TWO03 : simple fixed column optimizations" {
   octo >& output.txt <<OCTO
 SELECT * FROM names AS t1
 CROSS JOIN names AS t2
 WHERE t1.id = t2.id;
 OCTO
-  run cat output.txt
-  [[ "$output" =~ "1|Acid|Burn|1|Acid|Burn" ]]
-  ! [[ "$output" =~ "0|Zero|Cool|1|Acid|Burn" ]]
-  count_for_loops ./_ydboctoP*.m 1
+  # Include generated M code in reference file to verify all optimizations there
+  cat _ydboctoP*.m >> output.txt
+  verify_output TWO03 output.txt
 }
 
-@test "fixed value with chained SQL" {
+@test "TWO04 : fixed value with chained SQL" {
   octo <<OCTO 2>&1 | tee output.txt
 select firstName
 FROM (
@@ -64,33 +58,35 @@ FROM (
   order by t1.firstName
 );
 OCTO
-  run cat output.txt
-  # Success in this test is not crashing
+  # Include generated M code in reference file to verify all optimizations there
+  cat _ydboctoP*.m >> output.txt
+  verify_output TWO04 output.txt
 }
 
-@test "fixed column optimiations where second column isn't a key" {
-  # This test may be invalid; we can't optimize this without reordering the JOIN's, which
-  # we can't do without proper use of the xref
-  skip "needs to reorder the JOIN statements, skip until we can do that"
+@test "TWO05 : fixed column optimizations where second column isn't a key" {
   octo >& output.txt <<OCTO
 SELECT * FROM namesWithAges AS t1
 CROSS JOIN namesWithAges AS t2
 WHERE t1.id = t2.age;
 OCTO
-  count_for_loops ./_ydboctoP*.m 1
+  # Include generated M code in reference file to verify all optimizations there
+  cat _ydboctoP*.m >> output.txt
+  verify_output TWO05 output.txt
 }
 
-@test "fixed column optimiations where first column isn't a key" {
+@test "TW006 : fixed column optimizations where first column isn't a key" {
   octo >& output.txt <<OCTO
 SELECT * FROM namesWithAges AS t1
 CROSS JOIN namesWithAges AS t2
 WHERE t1.age = t2.id;
 OCTO
-  count_for_loops ./_ydboctoP*.m 1
+  # Include generated M code in reference file to verify all optimizations there
+  cat _ydboctoP*.m >> output.txt
+  verify_output TWO06 output.txt
 }
 
 
-@test "three way inner join" {
+@test "TWO07 : three way inner join" {
   octo <<OCTO 2>&1 | tee output.txt
 SELECT t1.firstName, t2.firstName, t3.firstName
 FROM names t1
@@ -99,10 +95,12 @@ ON t1.id = t2.id
 INNER JOIN names t3
 ON t2.id = t3.id;
 OCTO
-  count_for_loops ./_ydboctoP*.m 1
+  # Include generated M code in reference file to verify all optimizations there
+  cat _ydboctoP*.m >> output.txt
+  verify_output TWO07 output.txt
 }
 
-@test "WHERE with AND of EQUALS and NOT EQUAL - postfix" {
+@test "TWO08 : WHERE with AND of EQUALS and NOT EQUAL - postfix" {
   octo >& output.txt <<OCTO
 SELECT * FROM names AS t1
 CROSS JOIN names AS t2
@@ -110,10 +108,12 @@ WHERE t1.id = t2.id
   AND t1.firstName <> 'Charles'
   AND t2.firstName <> 'Charles'
 OCTO
-  count_for_loops ./_ydboctoP*.m 1
+  # Include generated M code in reference file to verify all optimizations there
+  cat _ydboctoP*.m >> output.txt
+  verify_output TWO08 output.txt
 }
 
-@test "WHERE with AND of EQUALS and NOT EQUAL - prefix" {
+@test "TW009 : WHERE with AND of EQUALS and NOT EQUAL - prefix" {
   octo >& output.txt <<OCTO
 SELECT * FROM names AS t1
 CROSS JOIN names AS t2
@@ -121,10 +121,12 @@ WHERE t1.firstName <> 'Charles'
   AND t2.firstName <> 'Charles'
   AND t1.id = t2.id
 OCTO
-  count_for_loops ./_ydboctoP*.m 1
+  # Include generated M code in reference file to verify all optimizations there
+  cat _ydboctoP*.m >> output.txt
+  verify_output TWO09 output.txt
 }
 
-@test "T0002 WHERE with multiple tables and NOT EQUAL" {
+@test "TWO10 : WHERE with multiple tables and NOT EQUAL" {
   octo<<OCTO 2>&1 | tee output.txt
 SELECT * FROM namesWithAges AS t1
 CROSS JOIN namesWithAges AS t2
@@ -135,40 +137,36 @@ WHERE t1.age <> -1
   AND t1.age = t2.id
   AND t2.id = t3.id;
 OCTO
-  count_for_loops ./_ydboctoP*.m 2
-  # verify the output of this
-  verify_output T0002 output.txt
+  # Include generated M code in reference file to verify all optimizations there
+  cat _ydboctoP*.m >> output.txt
+  verify_output TWO10 output.txt
 }
 
-@test "T0007 WHERE with disjunction" {
-  skip	# skip can be removed once https://gitlab.com/YottaDB/DBMS/YDBOcto/issues/301 is fixed
-  	# #301 title : Expand boolean expressions to Disjunctive Normal Form ONLY if it will speed up query
+@test "TW011 : WHERE with disjunction" {
   octo -vv <<OCTO > output.txt 2> plan.txt
 SELECT *
 FROM names
 WHERE firstName = 'Zero' OR lastName = 'Cool'
 OCTO
   [[ $(grep -c "LP_KEY_FIX" plan.txt) -eq 2 ]]
-
-  verify_output T0007 output.txt
+  # Include generated M code in reference file to verify all optimizations there
+  cat _ydboctoP*.m >> output.txt
+  verify_output TWO11 output.txt
 }
 
-@test "T0008 complicated WHERE with disjunction and multiple nested levels" {
-  skip	# skip can be removed once https://gitlab.com/YottaDB/DBMS/YDBOcto/issues/301 is fixed
-  	# #301 title : Expand boolean expressions to Disjunctive Normal Form ONLY if it will speed up query
+@test "TWO12 : complicated WHERE with disjunction and multiple nested levels" {
   octo -vv <<OCTO > output.txt 2> plan.txt
 SELECT *
 FROM names
 WHERE (id = 0 OR id = 5) AND (firstName = 'Zero' OR lastName = 'Cool')
 OCTO
   [[ $(grep -c "LP_KEY_FIX" plan.txt) -eq 4 ]]
-
-  verify_output T0008 output.txt
+  # Include generated M code in reference file to verify all optimizations there
+  cat _ydboctoP*.m >> output.txt
+  verify_output TWO12 output.txt
 }
 
-@test "T0009 complicated WHERE with disjunction and multiple nested levels of ANDs" {
-  skip	# skip can be removed once https://gitlab.com/YottaDB/DBMS/YDBOcto/issues/301 is fixed
-  	# #301 title : Expand boolean expressions to Disjunctive Normal Form ONLY if it will speed up query
+@test "TWO13 : complicated WHERE with disjunction and multiple nested levels of ANDs" {
   octo -vv <<OCTO > output.txt 2> plan.txt
 SELECT *
 FROM names
@@ -176,20 +174,16 @@ WHERE ((id = 0 AND firstName = 'Zero') OR id = 5)
   AND ((lastName = 'Cool' AND firstName = 'Zero') OR lastName = 'Cool')
 OCTO
   [[ $(grep -c "LP_KEY_FIX" plan.txt) -eq 4 ]]
-
-  verify_output T0009 output.txt
+  # Include generated M code in reference file to verify all optimizations there
+  cat _ydboctoP*.m >> output.txt
+  verify_output TWO13 output.txt
 }
 
-@test "LIKE with integer cast" {
+@test "TWO14 : LIKE with integer cast" {
   octo <<OCTO 2>&1 | tee output.txt
 select * from names where id like 4::integer;
 OCTO
-  # if optimized correctly this should not appear in the generated M code file
-  run grep '\$\$regmatch\^%ydbposix' _ydboctoP*.m
-  if [[ $status = "1" ]]; then
-    echo "PASS: optimization occurred correctly" | tee -a output.txt
-  else
-    echo 'FAIL: optimization did not occur correctly $$regmatch^%ydbposix found' | tee -a output.txt
-  fi
-  verify_output TWO000 output.txt
+  # Include generated M code in reference file to verify all optimizations there
+  cat _ydboctoP*.m >> output.txt
+  verify_output TWO14 output.txt
 }

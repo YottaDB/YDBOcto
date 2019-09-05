@@ -26,10 +26,10 @@ void iterate_keys(PhysicalPlan *out, LogicalPlan *plan);
 LogicalPlan *walk_where_statement(PhysicalPlanOptions *options, LogicalPlan *stmt);
 
 PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlanOptions *options) {
-	SqlOptionalKeyword *keywords, *keyword;
-	LogicalPlan *keys, *table_joins, *select, *insert, *output_key, *output;
-	LogicalPlan *set_operation;
-	PhysicalPlan *out, *prev = NULL;
+	SqlOptionalKeyword	*keywords, *keyword;
+	LogicalPlan		*keys, *table_joins, *select, *insert, *output_key, *output;
+	LogicalPlan		*set_operation, *where;
+	PhysicalPlan		*out, *prev = NULL;
 
 	PhysicalPlanOptions curr_plan;
 	curr_plan = *options;
@@ -153,14 +153,21 @@ PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlanOptions *opt
 	// The output key should be a cursor key
 
 	// Is this most convenient representation of the WHERE?
-	out->where = walk_where_statement(&curr_plan, lp_get_select_where(plan));
+	where = lp_get_select_where(plan);
+	out->where = walk_where_statement(&curr_plan, where);
+	if (NULL != where->v.operand[1])
+	{	/* If where->v.operand[1] is non-NULL, this is the alternate list that "lp_optimize_where_multi_equal_ands_helper()"
+		 * built that needs to be checked too for deferred plans which would have
+		 * been missed out in case the keys for those had been fixed to keys from parent queries (see comment above
+		 * "lp_get_select_where()" function call in "lp_optimize_where_multi_equal_ands_helper()").
+		 */
+		walk_where_statement(&curr_plan, where->v.operand[1]);
+		where->v.operand[1] = NULL;	/* Discard alternate list now that its purpose is served */
+	}
 	out->projection = walk_where_statement(&curr_plan, lp_get_project(plan)->v.operand[0]->v.operand[0]);
 	out->keywords = lp_get_select_keywords(plan)->v.keywords;
 
 	out->projection = lp_get_projection_columns(plan);
-	// As a temporary measure, wrap all tables in a SqlTableAlias
-	//  so that we can search through them later;
-	GET_LP(table_joins, select, 0, LP_TABLE_JOIN);
 
 	// Check the optional words for distinct
 	keywords = lp_get_select_keywords(plan)->v.keywords;
@@ -195,19 +202,20 @@ void iterate_keys(PhysicalPlan *out, LogicalPlan *plan) {
 }
 
 LogicalPlan *walk_where_statement(PhysicalPlanOptions *options, LogicalPlan *stmt) {
-	PhysicalPlan *cur, *out;
 
 	if(stmt == NULL)
 		return NULL;
 
-	PhysicalPlanOptions curr_plan;
-	out = options->parent;
 	if(stmt->type >= LP_ADDITION && stmt->type <= LP_BOOLEAN_NOT_IN) {
 		stmt->v.operand[0] = walk_where_statement(options, stmt->v.operand[0]);
 		stmt->v.operand[1] = walk_where_statement(options, stmt->v.operand[1]);
 	} else if (stmt->type >= LP_FORCE_NUM && stmt->type <= LP_BOOLEAN_NOT) {
 		stmt->v.operand[0] = walk_where_statement(options, stmt->v.operand[0]);
 	} else {
+		PhysicalPlanOptions	curr_plan;
+		PhysicalPlan		*cur, *out;
+		SqlTableAlias		*table_alias;
+
 		switch(stmt->type) {
 		case LP_KEY:
 			/* No action */
@@ -220,25 +228,22 @@ LogicalPlan *walk_where_statement(PhysicalPlanOptions *options, LogicalPlan *stm
 			break;
 		case LP_COLUMN_ALIAS:
 			// Check if this value is a parent reference; if so, mark this as deferred
+			out = options->parent;
 			cur = out;
-			SqlTableAlias *table_alias;
 			UNPACK_SQL_STATEMENT(table_alias, stmt->v.column_alias->table_alias, table_alias);
 			while(cur) {
-				unsigned int i = 0;
-				for(; i < out->total_iter_keys; i++) {
-					if(cur->iterKeys[i]->unique_id == table_alias->unique_id) {
+				unsigned int	i;
+
+				for (i = 0; i < out->total_iter_keys; i++)
+					if (cur->iterKeys[i]->unique_id == table_alias->unique_id)
 						break;
-					}
-				}
-				if(i != cur->total_iter_keys) {
+				if (i != cur->total_iter_keys)
 					break;
-				}
 				cur->deferred_plan = TRUE;
 				cur = cur->parent_plan;
 			}
-			if(cur == NULL) {
+			if (NULL == cur)
 				WARNING(CUSTOM_ERROR, "Problem resolving owner for deferred plan; undefined behavior");
-			}
 			/* No action */
 			break;
 		case LP_VALUE:

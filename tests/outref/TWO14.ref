@@ -1,0 +1,19 @@
+OCTO> select * from names where id like 4::integer;
+4|Joey|
+OCTO> 
+;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
+;; ---------------------------------------------------------
+;  select * from names where id like 4::integer;
+;; ---------------------------------------------------------
+
+octoPlan0(cursorId)
+    DO octoPlan1(cursorId)
+    QUIT
+
+octoPlan1(cursorId)
+    NEW %ydboctoz KILL %ydboctocursor(cursorId,"keys",2,"","")
+    SET %ydboctocursor(cursorId,"keys",0,"NAMES","ID")="4"\1 IF $DATA(^names(%ydboctocursor(cursorId,"keys",0,"NAMES","ID")))'=0 DO
+    . IF 1 DO
+    . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",2,"","")) %ydboctoz=42
+    . . SET:1 %ydboctocursor(cursorId,"keys",2,"","",%ydboctocursor(cursorId,"keys",2,"",""))=$GET(%ydboctocursor(cursorId,"keys",2,"","",%ydboctocursor(cursorId,"keys",2,"","")))_(%ydboctocursor(cursorId,"keys",0,"NAMES","ID")\1)_"|"_($PIECE($GET(^names(%ydboctocursor(cursorId,"keys",0,"NAMES","ID"))),"|",2))_"|"_($PIECE($GET(^names(%ydboctocursor(cursorId,"keys",0,"NAMES","ID"))),"|",3))
+    QUIT

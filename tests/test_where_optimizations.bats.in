@@ -187,3 +187,13 @@ OCTO
   cat _ydboctoP*.m >> output.txt
   verify_output TWO14 output.txt
 }
+
+@test "TWO15 : #307 : WHERE with primary-key-column = primary-key-column" {
+  octo <<OCTO 2>&1 | tee output.txt
+select * from names where id = id;
+OCTO
+  # Include generated M code in reference file to verify all optimizations there
+  cat _ydboctoP*.m >> output.txt
+  verify_output TWO15 output.txt
+}
+

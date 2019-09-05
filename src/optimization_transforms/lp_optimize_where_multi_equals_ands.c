@@ -151,6 +151,9 @@ LogicalPlan *lp_optimize_where_multi_equal_ands_helper(LogicalPlan *plan, Logica
 		right_id = table_alias->unique_id;
 		UNPACK_SQL_STATEMENT(table_alias, left->v.column_alias->table_alias, table_alias);
 		left_id = table_alias->unique_id;
+		// If both column references correspond to the same table, then we cannot fix either columns/keys.
+		if (left_id == right_id)
+			return where;
 		assert(0 <= left_id);
 		assert(0 <= right_id);
 		assert(left_id < *plan->counter);

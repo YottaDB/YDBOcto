@@ -246,6 +246,12 @@ int lp_optimize_where_multi_equal_ands_helper(LogicalPlan *plan, LogicalPlan *wh
 		xref_keys = generated_xref_keys;
 		assert(xref_keys != NULL);
 		before_first_key->v.operand[1] = xref_keys;
+		/* Note: It is possible the primary key for the table comprises of multiple columns in which case
+		 * we need to scan down the xref_keys list (through v.operand[1]) until we hit the end i.e. we cannot
+		 * assume there is only one column comprising the primary key. Hence the for loop below.
+		 */
+		for ( ; NULL != xref_keys->v.operand[1]; xref_keys = xref_keys->v.operand[1])
+			;
 		if(before_last_key->v.operand[1] != NULL) {
 			xref_keys->v.operand[1] = before_last_key->v.operand[1];
 		}

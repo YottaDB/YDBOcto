@@ -319,7 +319,7 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt, int *plan_id) {
 		if(cur_join->condition) {
 			MALLOC_LP_2ARGS(t_join_condition, LP_WHERE);
 			t_join_condition->v.operand[0] = lp_generate_where(cur_join->condition, plan_id);
-			start_join_condition = lp_join_where(t_join_condition, start_join_condition);
+			start_join_condition = lp_join_where(start_join_condition, t_join_condition);
 		}
 		cur_join = cur_join->next;
 	} while(cur_join != start_join);
@@ -355,7 +355,7 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt, int *plan_id) {
 	// before we go through and replace derived table references
 	project->v.operand[0] = temp;
 	if(start_join_condition) {
-		where = lp_join_where(where, start_join_condition);
+		where = lp_join_where(start_join_condition, where);
 		select_options->v.operand[0] = where;
 	}
 	where->v.operand[1] = NULL;

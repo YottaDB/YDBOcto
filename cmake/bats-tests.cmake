@@ -74,6 +74,7 @@ ADD_BATS_TEST(test_join_on_columns)
 ADD_BATS_TEST(test_boolean_expression_expansion)
 ADD_BATS_TEST(test_log_split)
 ADD_BATS_TEST(test_coerce_type)
+ADD_BATS_TEST(test_composite_key)
 
 find_program(psql NAMES psql)
 if(psql)

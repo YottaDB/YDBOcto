@@ -1,0 +1,10 @@
+OCTO> SELECT A.order1_id
+OCTO> FROM   order1 A
+OCTO>        inner join order_order_actions B
+OCTO>                ON (A.order1_id = B.order1_id)
+OCTO>        inner join new_person D
+OCTO>                ON (B.signed_by = D.new_person_id )
+OCTO> WHERE  (B.action = "NW");
+OCTO> 
+    FOR  SET %ydboctocursor(cursorId,"keys",0,"ORDER1","ORDER1_ID")
+    . . FOR  SET %ydboctocursor(cursorId,"keys",1,"ORDER_ORDER_ACTIONS","ORDER_ORDER_ACTIONS_ID")

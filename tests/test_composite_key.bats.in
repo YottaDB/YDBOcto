@@ -1,0 +1,35 @@
+#################################################################
+#								#
+# Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	#
+# All rights reserved.						#
+#								#
+#	This source code contains the intellectual property	#
+#	of its copyright holder(s), and is made available	#
+#	under a license.  If you do not know the terms of	#
+#	the license, please stop and do not read further.	#
+#								#
+#################################################################
+
+load test_helpers
+
+setup() {
+  init_test
+  createdb
+  load_fixture vista-mini.sql
+}
+
+@test "TCK01 : #270 : LVUNDEF when running query involving composite key and a non-primary-key-column that is fixed" {
+  octo <<OCTO 2>&1 | tee output.txt
+SELECT A.order1_id
+FROM   order1 A
+       inner join order_order_actions B
+               ON (A.order1_id = B.order1_id)
+       inner join new_person D
+               ON (B.signed_by = D.new_person_id )
+WHERE  (B.action = "NW");
+OCTO
+  # Verify the FOR loops and the corresponding key in the generated M code
+  grep FOR _ydboctoP*.m | sed 's/=.*//g' >> output.txt
+  verify_output TCK01 output.txt
+}
+

@@ -138,12 +138,16 @@ void octo_log(int line, char *file, enum ERROR_LEVEL level, enum ERROR error, ..
 #	endif
 	if(error == CUSTOM_ERROR) {
 		// Combine populated prefix with given error format string into new format string
-		snprintf(full_err_format_str, MAX_STR_CONST, "%s%s\n", err_prefix, va_arg(args, const char *));
-		vfprintf(stderr, full_err_format_str, args);
+		int copied = snprintf(full_err_format_str, MAX_STR_CONST, "%s%s\n", err_prefix, va_arg(args, const char *));
+		if (0 < copied) {
+			vfprintf(stderr, full_err_format_str, args);
+		}
 	} else {
 		// Combine populated prefix with given error format string into new format string
-		snprintf(full_err_format_str, MAX_STR_CONST, "%s%s\n", err_prefix, err_format_str[error]);
-		vfprintf(stderr, full_err_format_str, args);
+		int copied = snprintf(full_err_format_str, MAX_STR_CONST, "%s%s\n", err_prefix, err_format_str[error]);
+		if (0 < copied) {
+			vfprintf(stderr, full_err_format_str, args);
+		}
 	}
 	va_end(args);
 #	ifdef IS_ROCTO

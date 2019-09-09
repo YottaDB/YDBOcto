@@ -22,30 +22,29 @@
  */
 #define MAX_M_LINE_LENGTH 4096
 
-TEMPLATE(tmpl_column_list_combine, LogicalPlan *plan, PhysicalPlan *pplan, char *delim, char *resume, int resume_length) {
+TEMPLATE(tmpl_column_list_combine, LogicalPlan *plan, PhysicalPlan *pplan, char *delim, int resume, int resume_length) {
 	TEMPLATE_INIT();
 
 	char	c;
 
-	if(plan == NULL) {
-		TEMPLATE_END();
-	}
-	assert(plan->type == LP_COLUMN_LIST);
+	while(plan != NULL) {
+		assert(plan->type == LP_COLUMN_LIST);
 
-	TMPL(tmpl_print_expression, plan->v.operand[0]->v.operand[0], pplan);
-	if(plan->v.operand[1]) {
-		if ((NULL != resume) && (MAX_M_LINE_LENGTH < (buff_ptr - resume))) {
-			c = *(resume + resume_length);
-			*(resume + resume_length) = '\0';
-			snprintf(buff_ptr, buffer_len - (buff_ptr - buffer), "\n%s", resume);
-			*(resume + resume_length) = c;
-			resume = buff_ptr + 1;
-			buff_ptr += resume_length;
-			%}{{ delim }}{%
-		} else {
-			%}{{ delim }}{%
+		TMPL(tmpl_print_expression, plan->v.operand[0]->v.operand[0], pplan);
+		if(plan->v.operand[1]) {
+			if ((0 != resume) && (MAX_M_LINE_LENGTH < (*buffer_index - resume))) {
+				c = (*global_buffer)[resume + resume_length];
+				(*global_buffer)[resume + resume_length] = '\0';
+				%}`n{{*global_buffer + resume}}{%
+				(*buffer_index)--;
+				(*global_buffer)[resume + resume_length] = c;
+				resume = *buffer_index - resume_length + 1;
+				%}{{ delim }}{%
+			} else {
+				%}{{ delim }}{%
+			}
 		}
-		TMPL(tmpl_column_list_combine, plan->v.operand[1], pplan, delim, resume, resume_length);
+		plan = plan->v.operand[1];
 	}
 	TEMPLATE_END();
 }

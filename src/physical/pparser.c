@@ -48,17 +48,15 @@ void safe_print_string(char *s) {
 		case '"':
 			printf("\\\"");
 			break;
+		case '`':
+			printf("\\");
+			break;
 		default:
 			printf("%c", *s);
 		}
 		s++;
 	}
 }
-
-#define SNPRINT_HEADER \
-	"do { written = snprintf(buff_ptr, buffer_len - (buff_ptr - buffer), \""
-#define SNPRINT_FOOTER \
-	"if(written > buffer_len - (buff_ptr - buffer)) { FATAL(ERR_BUFFER_TOO_SMALL, \"\"); } buff_ptr += written; } while(0);"
 
 void	store_linestart_prefix(char *str)
 {
@@ -106,7 +104,7 @@ Expr *print_template(Expr *expr, Expr *prev) {
 		if(next == NULL)
 			break;
 		print_active = 1;
-		printf("%s%s",get_linestart_prefix(), SNPRINT_HEADER);
+		printf("%sTEMPLATE_SNPRINTF(\"",get_linestart_prefix());
 		safe_print_string(expr->value);
 		if(next && next->type == VALUE_TYPE) {
 			next = print_template(next, expr);
@@ -122,7 +120,7 @@ Expr *print_template(Expr *expr, Expr *prev) {
 				safe_print_string(t->value);
 			}
 		}
-		printf(");\n%s%s\n", get_linestart_prefix(), SNPRINT_FOOTER);
+		printf(");\n");
 		print_active = 0;
 		break;
 	case EXPR_TYPE:
@@ -151,10 +149,10 @@ Expr *print_template(Expr *expr, Expr *prev) {
 		// If the preceding one was a EXPR_TYPE, there is no
 		//  middle literal, so print it
 		if(prev && prev->type == EXPR_TYPE && !print_active)
-			printf("%s%s",get_linestart_prefix(), SNPRINT_HEADER);
+			printf("%sTEMPLATE_SNPRINTF(\"",get_linestart_prefix());
 		printf("%s", rformat);
 		if(prev && prev->type == EXPR_TYPE && !print_active)
-			printf("\", %s);\n%s%s\n", expr->value, get_linestart_prefix(), SNPRINT_FOOTER);
+			printf("\", %s);\n", expr->value);
 		break;
 	};
 	if(next)

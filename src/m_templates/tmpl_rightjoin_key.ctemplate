@@ -16,7 +16,7 @@
 
 TEMPLATE(tmpl_rightjoin_key, PhysicalPlan *plan, unsigned int key_start, unsigned int key_end) {
 	TEMPLATE_INIT();
-	TMPL(snprintf, "%d,", key_start);
+	%}{{ key_start|%d }},{%
 	assert(key_start < key_end);
 	do {
 		SqlKey	*key;

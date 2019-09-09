@@ -10,23 +10,14 @@
  *								*
  ****************************************************************/
 
-#include <assert.h>
-
 #include "octo_types.h"
 #include "template_helpers.h"
 
-void print_dots(char **global_buffer, int *buffer_len, int *buffer_index, int dots) {
-	int i;
-	char *buffer;
-
-	/* dots * 2 as a dot followed by a space is printed */
-	while(dots * 2 >= *buffer_len - *buffer_index){
-		resize_tmpl_buffer(global_buffer, buffer_len, buffer_index);
-	}
-	buffer = *global_buffer;
-	for(i=0; i < dots; i++) {
-		buffer[(*buffer_index)++] = '.';
-		buffer[(*buffer_index)++] = ' ';
-	}
+void resize_tmpl_buffer(char **global_buffer, int *buffer_len, int *buffer_index){
+	*buffer_len *= 2;
+	char *tmp = calloc(*buffer_len, sizeof(char));
+	memcpy(tmp, *global_buffer, *buffer_index);
+	free(*global_buffer);
+	*global_buffer = tmp;
 	return;
 }

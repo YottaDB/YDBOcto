@@ -26,15 +26,11 @@ TEMPLATE(tmpl_tablejoin_leftjoin, PhysicalPlan *plan, LogicalPlan *tablejoin, un
 		TMPL(print_dots, *dot_count);
 		%}IF ({%
 		TMPL(tmpl_print_expression, join_condition, plan);
-		%}) DO
-    {%		// Ugly indentation of this line needed to ensure proper alignment in generated M code
+		%}) DO`n    {%
 		(*dot_count)++;
 	}
 	TMPL(print_dots, *dot_count);
-	%}SET %%ydboctoz({%
-	TMPL(snprintf, "%d", cur_key);
-	%})=1
-    {%	// Ugly indentation of this line needed to ensure proper alignment in generated M code
+	%}SET %%ydboctoz({{ cur_key|%d }})=1`n    {%
 	TEMPLATE_END();
 }
 %}

@@ -26,8 +26,7 @@ TEMPLATE(tmpl_tablejoin_innerjoin, PhysicalPlan *plan, LogicalPlan *tablejoin, i
 		TMPL(print_dots, *dot_count);
 		%}IF ({%
 		TMPL(tmpl_print_expression, join_condition, plan);
-		%}) DO
-    {%		// Ugly indentation of this line needed to ensure proper alignment in generated M code
+		%}) DO`n    {%
 		(*dot_count)++;
 	}
 	TEMPLATE_END();

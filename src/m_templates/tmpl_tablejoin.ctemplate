@@ -78,8 +78,7 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *plan, LogicalPlan *tablejoin, unsigned in
 				TMPL(tmpl_key, plan->outputKey);
 				%})){%
 			}
-			%} DO
-    {%			// Ugly indentation of this line needed to ensure proper alignment in generated M code
+			%} DO`n    {%
 			dot_count++;
 			continue;
 		}
@@ -95,8 +94,7 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *plan, LogicalPlan *tablejoin, unsigned in
 			save_key = NULL;
 		TMPL(print_dots, dot_count);
 		TMPL(tmpl_key_start, key);
-		%}
-    {%		// Ugly indentation of this line needed to ensure proper alignment in generated M code
+		%}`n    {%
 		TMPL(print_dots, dot_count);
 		%}FOR  SET {%
 		TMPL(tmpl_key, key);
@@ -110,8 +108,7 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *plan, LogicalPlan *tablejoin, unsigned in
 			TMPL(tmpl_key, plan->outputKey);
 			%}){%
 		}
-		%})  DO
-    {%		// Ugly indentation of this line needed to ensure proper alignment in generated M code
+		%})  DO`n    {%
 		if (NULL != save_key)
 			key->cross_reference_output_key = save_key;	/* Restore cross-reference output key */
 		dot_count++;
@@ -149,15 +146,13 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *plan, LogicalPlan *tablejoin, unsigned in
 					key->skip_column_reference_optimization = TRUE;
 					TMPL(tmpl_column_reference, plan, key->cross_reference_column_alias);
 					key->skip_column_reference_optimization = FALSE;
-					%}
-    {%					// Ugly indentation of this line needed to ensure proper alignment in generated M code
+					%}`n    {%
 				}
 			}
 			TMPL(print_dots, dot_count);
 			%}IF '$DATA(%%ydboctoz({%
 			TMPL(tmpl_rightjoin_key, plan, key_start, cur_key);
-			%})) DO
-    {%			// Ugly indentation of this line needed to ensure proper alignment in generated M code
+			%})) DO`n    {%
 			dot_count++;
 		}
 	}
@@ -174,22 +169,15 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *plan, LogicalPlan *tablejoin, unsigned in
 		if (LEFT_JOIN == next_join_type)
 		{
 			TMPL(print_dots, dot_count);
-			%}SET %%ydboctoz({%
-			TMPL(snprintf, "%d", cur_key);
-			%})=0
-    {%			// Ugly indentation of this line needed to ensure proper alignment in generated M code
+			%}SET %%ydboctoz({{ cur_key|%d }})=0`n    {%
 		}
 		TMPL(tmpl_tablejoin, plan, right_tablejoin, cur_key, FALSE, dot_count, tableName, columnName);
 		if (LEFT_JOIN == next_join_type)
 		{   /* Generate M code to include rows from the left table where there is no matching right table rows */
 			assert(NULL != right_tablejoin->join_on_condition);
-			%}
-    {%			// Ugly indentation of this line needed to ensure proper alignment in generated M code
+			%}`n    {%
 			TMPL(print_dots, dot_count);
-			%}IF %%ydboctoz({%
-			TMPL(snprintf, "%d", cur_key);
-			%})=0 DO
-    {%			// Ugly indentation of this line needed to ensure proper alignment in generated M code
+			%}IF %%ydboctoz({{ cur_key|%d }})=0 DO`n    {%
 			dot_count++;
 			/* Treat all keys in the right table as NULL and invoke nested joins (if needed) */
 			key = plan->iterKeys[cur_key];
@@ -236,8 +224,7 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *plan, LogicalPlan *tablejoin, unsigned in
 					}
 				}
 				assert(cur_key);
-				%}
-    {%				// Ugly indentation of this line needed to ensure proper alignment in generated M code
+				%}`n    {%
 				TMPL(tmpl_tablejoin, plan, this_table_join, cur_key, TRUE, dot_count, tableName, columnName);
 				num_tables = 1;	// include this table as first one for next round of RIGHT JOIN key nullification
 			} else

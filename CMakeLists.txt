@@ -31,9 +31,9 @@ if(NOT MAX_EXPRESSION_LENGTH)
 	set(MAX_EXPRESSION_LENGTH 8192)
 endif()
 
-if(NOT MAX_ROUTINE_LENGTH)
-  # By default, max routine length of 10MB
-  set(MAX_ROUTINE_LENGTH 10485760)
+if(NOT INIT_ROUTINE_LENGTH)
+  # By default, inital routine length of 10MB
+  set(INIT_ROUTINE_LENGTH 10485760)
 endif()
 
 if(NOT MAX_KEY_COUNT)

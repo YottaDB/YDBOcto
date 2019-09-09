@@ -27,7 +27,7 @@
 #include "mmrhash.h"
 
 int emit_physical_plan(char *sql_query, PhysicalPlan *pplan, char *plan_filename) {
-	int		plan_id, len, fd;
+	int		plan_id, len, fd, buffer_len, buffer_index;
 	PhysicalPlan	*cur_plan = pplan, *first_plan, xrefplan, nondeferredplan, deferredplan, *tmp_plan;
 	PhysicalPlan	*prev_plan, *next_plan;
 	char		*buffer, plan_name_buffer[MAX_STR_CONST];
@@ -41,8 +41,9 @@ int emit_physical_plan(char *sql_query, PhysicalPlan *pplan, char *plan_filename
 	hash128_state_t	state;
 
 	assert(cur_plan != NULL);
-	buffer = malloc(MAX_ROUTINE_LENGTH);
-	memset(buffer, 0, MAX_ROUTINE_LENGTH);
+	buffer_len = INIT_ROUTINE_LENGTH;
+	buffer_index = 0;
+	buffer = calloc(buffer_len, sizeof(char));
 
 	// Walk the plans back to the first
 	while(cur_plan->prev != NULL)
@@ -136,7 +137,8 @@ int emit_physical_plan(char *sql_query, PhysicalPlan *pplan, char *plan_filename
 				return 1;
 			}
 			cur_plan->filename = key->cross_reference_filename;
-			tmpl_physical_plan(buffer, MAX_ROUTINE_LENGTH, cur_plan);
+			buffer_index = 0;
+			tmpl_physical_plan(&buffer, &buffer_len, &buffer_index, cur_plan);
 			assert(output_file != NULL);
 			fprintf(output_file, "%s\n", buffer);
 			fd = fileno(output_file);
@@ -199,11 +201,13 @@ int emit_physical_plan(char *sql_query, PhysicalPlan *pplan, char *plan_filename
 	for (cur_plan = first_plan; NULL != cur_plan; cur_plan = cur_plan->next)
 	{
 		cur_plan->filename = NULL;	// filename needed only for cross reference plans
-		tmpl_physical_plan(buffer, MAX_ROUTINE_LENGTH, cur_plan);
+		buffer_index = 0;
+		tmpl_physical_plan(&buffer, &buffer_len, &buffer_index, cur_plan);
 		fprintf(output_file, "%s\n", buffer);
 	}
 
 	// Close out the file
+	free(buffer);
 	fd = fileno(output_file);
 	fsync(fd);
 	fclose(output_file);

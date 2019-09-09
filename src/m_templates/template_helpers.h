@@ -17,27 +17,39 @@
 #include "physical_plan.h"
 
 // Macros to make life easier
-/// WARNING: this macro assumes the presence of buffer, buff_ptr, and buffer_len
+/// WARNING: this macro assumes the presence of gloabl_buffer, buffer_len, buffer_index
 #define TMPL(fn, ...)						\
-	buff_ptr += fn(buff_ptr,				\
-		       buffer_len - (buff_ptr - buffer),	\
+	fn(global_buffer, buffer_len, buffer_index,		\
 		       ## __VA_ARGS__);
 
 // This does not put a trailing semicolon
-#define TEMPLATE(name, ...)									\
-	int name(char *buffer, int buffer_len, ## __VA_ARGS__)
+#define TEMPLATE(name, ...)					\
+	void name(char **global_buffer, int *buffer_len, int *buffer_index, ## __VA_ARGS__)
 
 #define TEMPLATE_INIT()				\
-	char *buff_ptr = buffer;		\
-	int written;
+	int written, retry = FALSE;
 
 #define TEMPLATE_END()				\
-	return buff_ptr - buffer;
+	return;
+
+/// WARNING: this macro assumes the presence of gloabl_buffer, buffer_len, buffer_index, written, retry
+#define TEMPLATE_SNPRINTF(...) 														\
+		do { retry = FALSE; written = snprintf(*global_buffer + *buffer_index, *buffer_len - *buffer_index, ## __VA_ARGS__);	\
+			if(written >= *buffer_len - *buffer_index) { 									\
+				retry = TRUE; 												\
+				resize_tmpl_buffer(global_buffer, buffer_len, buffer_index); 						\
+				continue; 												\
+			}														\
+			*buffer_index += written;											\
+		} while(retry);
+
 
 enum EmitSourceForm {
 	EmitSourceForm_Value,
 	EmitSourceForm_Trigger
 };
+
+void resize_tmpl_buffer(char **global_buffer, int *buffer_len, int *buffer_index);
 
 TEMPLATE(print_dots, int dots);
 TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan);
@@ -57,9 +69,10 @@ TEMPLATE(tmpl_key_source, PhysicalPlan *pplan, SqlKey *key);
 TEMPLATE(tmpl_temp_key_advance, SqlKey *key);
 TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan);
 TEMPLATE(tmpl_column_reference, PhysicalPlan *pplan, SqlColumnAlias *column_alias);
-TEMPLATE(tmpl_column_list_combine, LogicalPlan *plan, PhysicalPlan *pplan, char *delim, char *resume, int resume_length);
+TEMPLATE(tmpl_column_list_combine, LogicalPlan *plan, PhysicalPlan *pplan, char *delim, int resume, int resume_length);
 TEMPLATE(tmpl_emit_source, char *source, char *table_name, int unique_id, int keys_to_match, enum EmitSourceForm form);
 TEMPLATE(tmpl_column_reference_trigger, PhysicalPlan *pplan, SqlColumnAlias *column_alias);
 TEMPLATE(tmpl_duplication_check, PhysicalPlan *plan);
+
 
 #endif

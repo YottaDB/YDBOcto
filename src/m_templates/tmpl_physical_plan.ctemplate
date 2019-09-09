@@ -16,7 +16,6 @@
 
 TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
     TEMPLATE_INIT();
-
     int			i;
     SqlKey		*key, *t_key, *prev_t_key;
     SqlColumnAlias	*column_alias;
@@ -27,9 +26,7 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
     unsigned int	cur_key;
     int			dot_count;
 
-    %}
-{{ plan->plan_name }}(cursorId)
-    {% // The whitespace here is needed for proper M formatting
+    %}`n{{ plan->plan_name }}(cursorId)`n    {% // The whitespace here is needed for proper M formatting
 
 	assert(NULL == plan->treat_key_as_null);
 	plan->treat_key_as_null = octo_cmalloc(memory_chunks, sizeof(boolean_t) * config->plan_id);
@@ -65,19 +62,15 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
             tableName = value->v.reference;
             UNPACK_SQL_STATEMENT (value, t_key->column->columnName, value);
             columnName = value->v.reference;
-            %}DO:'$DATA(^{{ config->global_names.raw_octo }}("xref_status","{{ tableName }}","{{ columnName }}")) ^{{ t_key->cross_reference_filename }}(cursorId)
-    {%
+            %}DO:'$DATA(^{{ config->global_names.raw_octo }}("xref_status","{{ tableName }}","{{ columnName }}")) ^{{ t_key->cross_reference_filename }}(cursorId)`n    {%
         }
     }
     %}NEW %%ydboctoz{%
     if(plan->set_operation == PP_NOT_SET) {
-        %} KILL {% TMPL(tmpl_key, plan->outputKey); %}
-    {%
+        %} KILL {% TMPL(tmpl_key, plan->outputKey); %}`n    {%
     } else {
-        %}
-    {% // Whitespace for MUMPS
-    }
-
+        %}`n    {% // Whitespace for MUMPS
+   }
     cur_key = 0;
     dot_count = 0;
     TMPL(tmpl_tablejoin, plan, plan->tablejoin, cur_key, FALSE, dot_count, tableName, columnName);
@@ -103,19 +96,19 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
         %}
     NEW %%ydboctoi0,%%ydboctoi1,%%ydboctoi2
     SET %%ydboctoi0=1,%%ydboctoi1="",%%ydboctoi2=""
-    FOR  SET %%ydboctoi1=$ORDER({% TMPL(tmpl_key, plan->outputKey); buff_ptr--; %},"order",%%ydboctoi1),{{ direction }})  QUIT:$DATA({%
-	TMPL(tmpl_key, plan->outputKey); buff_ptr--;
+    FOR  SET %%ydboctoi1=$ORDER({% TMPL(tmpl_key, plan->outputKey); (*buffer_index)--; %},"order",%%ydboctoi1),{{ direction }})  QUIT:$DATA({%
+	TMPL(tmpl_key, plan->outputKey); (*buffer_index)--;
 	%},"order",%%ydboctoi1))=0  DO  QUIT:(%%ydboctoi1=""){%
 	if (NULL != keyword)
 		%}!({{ value->v.string_literal }}<%%ydboctoi0){%
 	%}
     {%
-    %}. FOR  SET %%ydboctoi2=$ORDER({% TMPL(tmpl_key, plan->outputKey); buff_ptr--; %},"order",%%ydboctoi1,%%ydboctoi2)) QUIT:(%%ydboctoi2=""){%
+    %}. FOR  SET %%ydboctoi2=$ORDER({% TMPL(tmpl_key, plan->outputKey); (*buffer_index)--; %},"order",%%ydboctoi1,%%ydboctoi2)) QUIT:(%%ydboctoi2=""){%
 	if (NULL != keyword)
 		%}!({{ value->v.string_literal }}<%%ydboctoi0){%
-    %}  SET {% TMPL(tmpl_key, plan->outputKey); buff_ptr--; %},%%ydboctoi0)={%
-              TMPL(tmpl_key, plan->outputKey); buff_ptr--; %},"order",%%ydboctoi1,%%ydboctoi2) IF $INCREMENT(%%ydboctoi0)
-    KILL {% TMPL(tmpl_key, plan->outputKey); buff_ptr--; %},"order"){%
+    %}  SET {% TMPL(tmpl_key, plan->outputKey); (*buffer_index)--; %},%%ydboctoi0)={%
+              TMPL(tmpl_key, plan->outputKey); (*buffer_index)--; %},"order",%%ydboctoi1,%%ydboctoi2) IF $INCREMENT(%%ydboctoi0)
+    KILL {% TMPL(tmpl_key, plan->outputKey); (*buffer_index)--; %},"order"){%
     }
     // If this is a INTERSECT set, we need to delete any keys remaining in the
     //  the index; these were in the first set, but not the second
@@ -126,7 +119,7 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
     . KILL:index'="" {%
     TMPL(tmpl_key, plan->outputKey);
     // Go back on in the buffer
-    buff_ptr -= 1;
+    (*buffer_index)--;
     %},index){%
     }
     if(plan->outputKey && plan->outputKey->is_cross_reference_key) {

@@ -177,6 +177,7 @@ add_library(libocto OBJECT
   physical/generate_physical_plan.c
   physical/emit_physical_plan.c
   m_templates/print_dots.c
+  m_templates/resize_tmpl_buffer.c
   m_escape_string2.c
   replace_table_references.c
   update_table_references.c

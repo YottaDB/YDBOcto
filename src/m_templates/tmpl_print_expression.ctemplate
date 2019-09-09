@@ -87,14 +87,14 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan) {
         GET_LP(key, plan, 0, LP_KEY);
         if (pplan->treat_key_as_null[key->v.key->unique_id])
         {   /* Treat all columns in the table as NULL (used for OUTER JOINs) */
-	    TMPL(snprintf, "\"\"");	/* needs to be replaced with $ZYSQLNULL when #311 is fixed */
+            %}""{%	/* needs to be replaced with $ZYSQLNULL when #311 is fixed */
 	    break;
         }
         GET_LP(piece_num, plan, 1, LP_PIECE_NUMBER);
         %}($PIECE({%
         TMPL(tmpl_key, key->v.key);
         // We're getting a bit abusive again; go back one, removing paren, comma and print
-        buff_ptr--;
+        (*buffer_index)--;
         %},{%
 	TMPL(tmpl_key, key->v.key);
         %}),"|",{{ piece_num->v.piece_number|%d }})){%
@@ -223,7 +223,7 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan) {
         %}($DATA({%
         TMPL(tmpl_key, plan->v.operand[1]->v.key);
         /// WARNING: this happens in tmpl_physical_plan, but it is probably dangerous
-        buff_ptr -= 1;
+        (*buffer_index)--;
         %},{%
 	TMPL(tmpl_print_expression, plan->v.operand[0], pplan);
 	%}))'=0){%
@@ -235,7 +235,7 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan) {
         %}($DATA({%
         TMPL(tmpl_key, plan->v.operand[1]->v.key);
         /// WARNING: this happens in tmpl_physical_plan, but it is probably dangerous
-        buff_ptr -= 1;
+        (*buffer_index)--;
         %},{%
 	TMPL(tmpl_print_expression, plan->v.operand[0], pplan);
 	%}))=0){%
@@ -270,7 +270,7 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan) {
         // Fetch the first value from the output key of this table
         key = lp_get_output_key(plan);
         %}$ORDER({%
-	TMPL(tmpl_key, key->v.key); buff_ptr -= 1;
+	TMPL(tmpl_key, key->v.key); (*buffer_index)--;
 	%},"")){%
         break;
     case LP_CASE:

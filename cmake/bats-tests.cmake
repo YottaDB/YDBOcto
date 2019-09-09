@@ -78,6 +78,7 @@ ADD_BATS_TEST(test_composite_key)
 ADD_BATS_TEST(test_case_statement)
 ADD_BATS_TEST(test_octo_zroutines)
 ADD_BATS_TEST(test_memory_usage)
+ADD_BATS_TEST(test_large_queries)
 
 find_program(psql NAMES psql)
 if(psql)

@@ -1,0 +1,56 @@
+#################################################################
+#								#
+# Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	#
+# All rights reserved.						#
+#								#
+#	This source code contains the intellectual property	#
+#	of its copyright holder(s), and is made available	#
+#	under a license.  If you do not know the terms of	#
+#	the license, please stop and do not read further.	#
+#								#
+#################################################################
+
+load test_helpers
+
+setup() {
+  init_test
+  createdb
+  load_fixture largecolnames.sql
+  load_fixture largecolnames.zwr
+}
+
+@test "octo on query larger than 10MiB" {
+  # This test fails on CentOS due to line limit
+  if [[ $( grep -i "centos" /etc/*-release ) ]]; then
+    skip "Skipping test as it does not work on CentOS"
+  fi
+  ulimit -Ss unlimited  # Needed to avoid a stack overflow can be removed later
+  cp @PROJECT_SOURCE_DIR@/tests/fixtures/genlargequery.m .
+  yottadb -run gt10mb^genlargequery
+  octo < in.sql 2>&1 | tee output.txt
+  if (( 10485760 >= $(stat --printf="%s\n" _ydboctoP*.m) )); then
+    echo "FAIL: generated m routine is too small"
+    ls -l _ydbocto*.m
+  else
+     echo "PASS: generated M routine is correctly over 10MiB"
+  fi
+  yottadb -r gt10mbOutA^genlargequery
+  sed '/\[ INFO\]\|^INFO:/d' output.txt > clean_output.txt
+  diff output.ref clean_output.txt
+}
+
+@test "octo -f on query larger than 10MiB" {
+  ulimit -Ss unlimited  # Needed to avoid a stack overflow can be removed later
+  cp @PROJECT_SOURCE_DIR@/tests/fixtures/genlargequery.m .
+  yottadb -run gt10mb^genlargequery
+  octo -f in.sql 2>&1 | tee output.txt
+  if (( 10485760 >= $(stat --printf="%s\n" _ydboctoP*.m) )); then
+    echo "FAIL: generated m routine is too small"
+    ls -l _ydbocto*.m
+  else
+     echo "PASS: generated M routine is correctly over 10MiB"
+  fi
+  yottadb -r gt10mbOutB^genlargequery
+  sed '/\[ INFO\]\|^INFO:/d' output.txt > clean_output.txt
+  diff output.ref clean_output.txt
+}

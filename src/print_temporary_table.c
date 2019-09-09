@@ -109,6 +109,12 @@ int print_temporary_table(SqlStatement *stmt, int cursor_id, void *parms, char *
 	if (YDB_OK == status) {
 		while(!YDB_BUFFER_IS_SAME(empty_buffer, row_id_b)) {
 			status = ydb_get_s(cursor_b, 6, cursor_id_b, row_value_b);
+			if (YDB_ERR_INVSTRLEN == status){
+				int newsize = row_value_b->len_used;
+				YDB_FREE_BUFFER(row_value_b);
+				YDB_MALLOC_BUFFER(row_value_b, newsize + 1);
+				status = ydb_get_s(cursor_b, 6, cursor_id_b, row_value_b);
+			}
 			YDB_ERROR_CHECK(status);
 			if (YDB_OK != status) {
 				break;

@@ -77,3 +77,23 @@ select * from names where 1::integer = 1::numeric limit 1;
 OCTO
   verify_output TCT006 output.txt
 }
+
+@test "test coerce of functions" {
+  yottadb -run ^%XCMD 'set ^%ydboctoocto("functions","DOLLARZWRITE")="$ZWRITE"'
+  octo <<OCTO 2>&1 | tee output.txt
+select dollarzwrite(id)::integer from names limit 1;
+OCTO
+  verify_output TCT007 output.txt
+}
+
+@test "test 2 coerced functions generate different M files" {
+  yottadb -run ^%XCMD 'set ^%ydboctoocto("functions","DOLLARZWRITE")="$ZWRITE"'
+  yottadb -run ^%XCMD 'set ^%ydboctoocto("functions","DOLLARREV")="$REVERSE"'
+  octo <<OCTO 2>&1 | tee output.txt
+select dollarzwrite(id)::integer from names limit 1;
+select dollarrev(id)::integer from names limit 1;
+OCTO
+  echo "Listing of M files, should see 2" | tee -a output.txt
+  ls -1 _ydboctoP*.m 2>&1 | tee -a output.txt
+  verify_output TCT008 output.txt
+}

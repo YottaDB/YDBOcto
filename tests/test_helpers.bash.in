@@ -255,7 +255,9 @@ verify_output() {
   # Filter global octo.conf (any not in the local directory)
   sed -i '/^.*\[ INFO\].* \/.*\/octo.conf/d' clean_output.txt
   # Filter M routine name
-  sed -i 's/\.\/_ydbocto.*\.m/M_ROUTINE/' clean_output.txt
+  sed -i 's/_ydboctoP.*\.m/_ydboctoP*.m/' clean_output.txt
+  # Filter OBJ file name
+  sed -i 's/_ydboctoP.*\.o/_ydboctoP*.o/' clean_output.txt
   # Filter cursor number
   sed -i 's/cursor [0-9]*/CURSOR_NUM/' clean_output.txt
   # Filter ydb_* environment variables

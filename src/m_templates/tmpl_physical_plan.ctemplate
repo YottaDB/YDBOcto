@@ -48,7 +48,7 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
         column_alias = lp_temp->v.column_alias;
     %}LOCK +^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}"):10
     IF $GET(^{{ config->global_names.raw_octo }}("xref_status","{{ tableName }}","{{ columnName }}"))="done" LOCK -^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}") QUIT
-    IF '$ZTRI("item","+{% TMPL(tmpl_column_reference_trigger, plan, column_alias); %} -commands=SET,KILL -xecute=""DO handleSet^{{ plan->filename }}""") H
+    IF '$ZTRIGGER("item","+{% TMPL(tmpl_column_reference_trigger, plan, column_alias); %} -commands=SET,KILL -xecute=""DO handleSet^{{ plan->filename }}""") H
     {% // Whitespace needed
     } else {
         for(cur_key = 0; cur_key < plan->total_iter_keys; cur_key++) {
@@ -291,7 +291,7 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
     //  the index; these were in the first set, but not the second
     if(plan->set_operation == PP_INTERSECT_SET) {
         %}
-    SET var="{{ config->global_names.cursor }}("_cursorId_",""index"")" FOR  SET var=$Q(@var),var=$Q(@var) QUIT:$QSUBSCRIPT(var,2)'="index"  DO
+    SET var="{{ config->global_names.cursor }}("_cursorId_",""index"")" FOR  SET var=$QUERY(@var),var=$QUERY(@var) QUIT:$QSUBSCRIPT(var,2)'="index"  DO
     . SET index=$QSUBSCRIPT(var,$QLENGTH(var))
     . KILL:index'="" {%
     TMPL(tmpl_key, plan->outputKey);

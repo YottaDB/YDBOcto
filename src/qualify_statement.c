@@ -93,6 +93,7 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *column_
 		UNPACK_SQL_STATEMENT(cas, stmt, cas);
 		result |= qualify_statement(cas->value, tables, column_list_alias, match_qualified_columns);
 		result |= qualify_statement(cas->branches, tables, column_list_alias, match_qualified_columns);
+		result |= qualify_statement(cas->optional_else, tables, column_list_alias, match_qualified_columns);
 		break;
 	case cas_branch_STATEMENT:
 		UNPACK_SQL_STATEMENT(cas_branch, stmt, cas_branch);

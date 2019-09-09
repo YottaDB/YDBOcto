@@ -1,0 +1,35 @@
+#################################################################
+#								#
+# Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	#
+# All rights reserved.						#
+#								#
+#	This source code contains the intellectual property	#
+#	of its copyright holder(s), and is made available	#
+#	under a license.  If you do not know the terms of	#
+#	the license, please stop and do not read further.	#
+#								#
+#################################################################
+
+load test_helpers
+
+setup() {
+  init_test
+  createdb
+  load_fixture names.sql
+  load_fixture names.zwr
+}
+
+@test "TCS01 : #285 : Test that ELSE keyword in CASE statements works (used to return empty line for else case)" {
+  octo <<OCTO 2>&1 | tee output.txt
+  select case when id < 3 then "true" else "false" end from names;
+OCTO
+  verify_output TCS01 output.txt
+}
+
+@test "TCS02 : #285 : Test that ELSE keyword in CASE statements works (used to return id column for else case)" {
+  octo <<OCTO 2>&1 | tee output.txt
+  select case id when 3 then "true" else "false" end from names;
+OCTO
+  verify_output TCS02 output.txt
+}
+

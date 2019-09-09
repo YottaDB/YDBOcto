@@ -124,8 +124,14 @@ int populate_data_type(SqlStatement *v, SqlValueType *type) {
 			*type = value->coerced_type;
 			result |= populate_data_type(value->v.coerce_target, &child_type1);
 			*v = *value->v.coerce_target;
-			if(v->type == value_STATEMENT){
-				v->v.value->type = *type;
+			if(value_STATEMENT == v->type){
+				/* This is a work around the current way COERCE works
+				 * It can only currently change the types of literals
+				 * It does not work on columns or functions see issue 304
+				 */
+				if(STRING_LITERAL == v->v.value->type || NUMBER_LITERAL == v->v.value->type || INTEGER_LITERAL == v->v.value->type){
+					v->v.value->type = *type;
+				}
 			}
 			break;
 		default:

@@ -21,7 +21,6 @@ setup() {
   load_fixture pastas.zwr
   load_fixture default_user.zwr
   start_rocto 1441
-  sleep 1
 }
 
 teardown() {
@@ -36,31 +35,6 @@ teardown() {
   # echo $! > tcpdump.pid
   run_psql_expect cancel_psql 1441 &> output.txt
   # kill $(cat tcpdump.pid)
-  verify_output TCR00 expect.out
-}
-
-@test "run simple query abort case with strace for debugging" {
-  skip
-  stop_rocto
-  # Load lots of data to create slow query
-  load_big_data
-
-  # Restart rocto with strace
-  strace -ttT -s 1024 -v -ff -k -o strace rocto -vv -p 1441 &
-  echo $! > strace.pid
-  # Track time slept in case quiet is set
-  slept=0
-  while [[ "$(grep -c "rocto started" strace.log)" == "0" && $slept -lt 200 ]]; do
-    sleep .1s
-    slept=$slept+1
-  done
-  ps -A | grep rocto | cut -d ' ' -f 1 > rocto.pid
-
-  run_psql_expect cancel_psql 1441 &> output.txt
-  sleep 5
-  kill -s 23 $(cat strace.pid)
-  kill -9 $(cat strace.pid)
-  sleep 5
   verify_output TCR00 expect.out
 }
 

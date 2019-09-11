@@ -46,6 +46,14 @@ OCTO
   [[ "$(grep -c -E "Zero.\+|Cool" output.txt)" == "2" ]]
 }
 
+@test "select wildcard columns with envvar ydb_lvnullsubs=2 (used to previously error out with LVNULLSUBS)" {
+  export ydb_lvnullsubs=2
+  run_psql 1339 <<OCTO 2>&1 | tee output.txt
+SELECT * FROM names;
+OCTO
+  [[ "$(grep -c -E "Zero.\+|Cool" output.txt)" == "2" ]]
+}
+
 @test "select lastName only (empty row+column check)" {
   run_psql 1339 <<OCTO 2>&1 | tee output.txt
 SELECT lastName FROM names;

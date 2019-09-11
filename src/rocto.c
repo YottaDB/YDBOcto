@@ -68,16 +68,21 @@ int main(int argc, char **argv) {
 	struct sigaction		ctrlc_action, sigusr1_action;
 	struct sockaddr_in		*address = NULL;
 	struct sockaddr_in6		addressv6;
+	ydb_buffer_t			ydb_buffers[2], *var_defaults, *var_sets, var_value;
+	ydb_buffer_t			*session_buffer = &(ydb_buffers[0]), *session_id_buffer = &(ydb_buffers[1]);
+	ydb_buffer_t			z_interrupt, z_interrupt_handler;
+	ydb_buffer_t			pid_subs[2], timestamp_buffer;
+	ydb_buffer_t			*pid_buffer = &pid_subs[0];
+
+	// Do "octo_init" first as it initializes an environment variable ("ydb_lv_nullsubs") and that needs to be done
+	// before any "ydb_init" call happens (as the latter reads this env var to know whether to allow nullsubs in lv or not)
+	status = octo_init(argc, argv);
+	if (0 != status) {
+		return status;
+	}
 
 	sfd = cfd = opt = addrlen = result = status = 0;
 	err_buff.offset = 0;
-
-	ydb_buffer_t ydb_buffers[2], *var_defaults, *var_sets, var_value;
-	ydb_buffer_t *session_buffer = &(ydb_buffers[0]), *session_id_buffer = &(ydb_buffers[1]);
-	ydb_buffer_t z_interrupt, z_interrupt_handler;
-
-	ydb_buffer_t pid_subs[2], timestamp_buffer;
-	ydb_buffer_t *pid_buffer = &pid_subs[0];
 
 	// Create buffers for managing secret keys for CancelRequests
 	ydb_buffer_t secret_key_list_buffer, secret_key_buffer;
@@ -107,16 +112,10 @@ int main(int argc, char **argv) {
 	status = ydb_set_s(&z_interrupt, 0, NULL, &z_interrupt_handler);
 	YDB_ERROR_CHECK(status);
 
-	rocto_session.session_ending = FALSE;
-
 	// Initialize connection details in case errors prior to connections
 	rocto_session.ip = "IP_UNSET";
 	rocto_session.port = "PORT_UNSET";
 
-	status = octo_init(argc, argv);
-	if (0 != status) {
-		return status;
-	}
 	INFO(INFO_ROCTO_STARTED, config->rocto_config.port);
 
 	// Disable sending log messages until all startup messages have been sent

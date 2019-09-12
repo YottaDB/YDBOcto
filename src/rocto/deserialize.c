@@ -58,7 +58,7 @@ char *byte_to_hex(char c, char *hex) {
 }
 
 // Convert raw MD5 hash to hex string
-int md5_to_hex(const unsigned char *md5_hash, char *hex, uint32_t hex_len) {
+int32_t md5_to_hex(const unsigned char *md5_hash, char *hex, uint32_t hex_len) {
 	if (hex_len < 33) {	// Length of 16-byte md5 in hex, plus null terminator
 		return 1;
 	}

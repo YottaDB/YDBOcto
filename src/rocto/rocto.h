@@ -69,11 +69,11 @@ typedef enum UserColumns {
 	UserColumn_ROLVALIDUNTIL
 } UserColumns;
 
-int send_message(RoctoSession *session, BaseMessage *message);
-int send_bytes(RoctoSession *session, char *message, size_t length);
+int32_t send_message(RoctoSession *session, BaseMessage *message);
+int32_t send_bytes(RoctoSession *session, char *message, size_t length);
 BaseMessage *read_message(RoctoSession *session, char *buffer, int32_t buffer_size, int32_t *rocto_err);
-int read_bytes(RoctoSession *session, char *buffer, int32_t buffer_size, int32_t bytes_to_read);
-int rocto_main_loop(RoctoSession *session);
+int32_t read_bytes(RoctoSession *session, char *buffer, int32_t buffer_size, int32_t bytes_to_read);
+int32_t rocto_main_loop(RoctoSession *session);
 void free_error_response(ErrorResponse *err);
 void free_data_row(DataRow *drow);
 void free_row_description(RowDescription *rowd);
@@ -83,7 +83,7 @@ void free_row_description(RowDescription *rowd);
 // varargs should be of type ErrorResponseArg
 ErrorResponse *make_error_response(PSQL_ErrorSeverity severity, PSQL_SQLSTATECode code, const char *message, size_t num_args, ...);
 BindComplete *make_bind_complete();
-BackendKeyData *make_backend_key_data(int secret_key, pid_t pid);
+BackendKeyData *make_backend_key_data(int32_t secret_key, pid_t pid);
 CloseComplete *make_close_complete();
 ReadyForQuery *make_ready_for_query(PSQL_TransactionStatus status);
 EmptyQueryResponse *make_empty_query_response();
@@ -119,13 +119,13 @@ CancelRequest *read_cancel_request(RoctoSession *session, char *data, int32_t da
 // handle_* messages respond to a message of a given type, using send_message if needed
 //  and returns 0 if the exchange is a "success", or non-zero if there was a problem
 // A return of 1 means "done" and that we should close the session
-int handle_bind(Bind *bind, RoctoSession *session);
-int handle_cancel_request(CancelRequest *cancel_request);
-int handle_query(Query *query, RoctoSession *session);
-int handle_parse(Parse *parse, RoctoSession *session);
-int handle_execute(Execute *execute, RoctoSession *session);
-int handle_describe(Describe *describe, RoctoSession *session);
-int handle_password_message(PasswordMessage *password_message, ErrorResponse **err, StartupMessage *startup_message, char *salt);
+int32_t handle_bind(Bind *bind, RoctoSession *session);
+int32_t handle_cancel_request(CancelRequest *cancel_request);
+int32_t handle_query(Query *query, RoctoSession *session);
+int32_t handle_parse(Parse *parse, RoctoSession *session);
+int32_t handle_execute(Execute *execute, RoctoSession *session);
+int32_t handle_describe(Describe *describe, RoctoSession *session);
+int32_t handle_password_message(PasswordMessage *password_message, ErrorResponse **err, StartupMessage *startup_message, char *salt);
 
 // This isn't a handle function in-of itself, but a helper to handle the results of a query
 void handle_query_response(SqlStatement *stmt, int32_t cursor_id, void *_parms, char *plan_name);
@@ -137,7 +137,7 @@ int no_more();
 int64_t ntoh64(int64_t little_endian);
 int64_t hton64(int64_t little_endian);
 char *byte_to_hex(char c, char *hex);
-int md5_to_hex(const unsigned char *md5_hash, char *hex, uint32_t hex_len);
+int32_t md5_to_hex(const unsigned char *md5_hash, char *hex, uint32_t hex_len);
 int64_t bin_to_bool(char *bin);
 int64_t bin_to_char(char *bin);
 int64_t bin_to_int16(char *bin);

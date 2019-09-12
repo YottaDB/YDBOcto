@@ -28,6 +28,7 @@ teardown() {
 }
 
 @test "ensure cancel requests abort simple queries" {
+  skip
   # Load lots of data to create slow query
   load_big_data
 
@@ -47,6 +48,7 @@ teardown() {
 }
 
 @test "ensure cancel requests cleanup xrefs and trigger" {
+  skip
   load_big_data
   # Remove verbosity as the logical plan is too long to print correctly and not needed here
   run_psql_expect cancel_psql 1441 &> output.txt

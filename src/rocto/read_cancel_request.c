@@ -20,18 +20,18 @@
 #include "rocto.h"
 #include "message_formats.h"
 
-CancelRequest *read_cancel_request(RoctoSession *session, char *data, int data_length, ErrorResponse **err) {
+CancelRequest *read_cancel_request(RoctoSession *session, char *data, int32_t data_length, ErrorResponse **err) {
 	CancelRequest *ret = NULL;
 
 	// Currently unused parameters - maintained for consistency across similar read_* functions
 	UNUSED(err);
 
 	// Length = length + request_code + pid + secret_key
-	unsigned int expected_length = sizeof(unsigned int) + sizeof(int) + sizeof(int) + sizeof(int);
+	uint32_t expected_length = sizeof(uint32_t) + sizeof(int32_t) + sizeof(int32_t) + sizeof(int32_t);
 	// Request code format:
 	// 	decimal value of most significant 16 bits:  1234
 	// 	decimal value of least significant 16 bits: 5678
-	int expected_request_code = 80877102;
+	int32_t expected_request_code = 80877102;
 
 	// Read all message parameters into return struct
 	ret = (CancelRequest*)malloc(sizeof(CancelRequest));
@@ -44,14 +44,14 @@ CancelRequest *read_cancel_request(RoctoSession *session, char *data, int data_l
 
 	// Length must be 16 (sum of four ints)
 	if(ret->length != expected_length) {
-		INFO(ERR_ROCTO_INVALID_INT_VALUE, "CancelRequest", "length", ret->length, "16");
+		INFO(ERR_ROCTO_INVALID_INT_VALUE, "CancelRequest", "length", ret->length, sizeof(uint32_t) * 4);
 		free(ret);
 		return NULL;
 	}
 
 	// Request code must match format specified above
 	if (expected_request_code != ret->request_code) {
-		INFO(ERR_ROCTO_INVALID_INT_VALUE, "CancelRequest", "request code", ret->request_code, "80877102");
+		INFO(ERR_ROCTO_INVALID_INT_VALUE, "CancelRequest", "request code", ret->request_code, 80877102);
 		free(ret);
 		return NULL;
 	}

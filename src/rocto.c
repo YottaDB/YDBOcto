@@ -74,6 +74,10 @@ int main(int argc, char **argv) {
 	ydb_buffer_t			pid_subs[2], timestamp_buffer;
 	ydb_buffer_t			*pid_buffer = &pid_subs[0];
 
+	// Initialize connection details in case errors prior to connections - needed before octo_init for Rocto error reporting
+	rocto_session.ip = "IP_UNSET";
+	rocto_session.port = "PORT_UNSET";
+
 	// Do "octo_init" first as it initializes an environment variable ("ydb_lv_nullsubs") and that needs to be done
 	// before any "ydb_init" call happens (as the latter reads this env var to know whether to allow nullsubs in lv or not)
 	status = octo_init(argc, argv);
@@ -111,10 +115,6 @@ int main(int argc, char **argv) {
 	YDB_LITERAL_TO_BUFFER("ZGOTO 1:run^%ydboctoCleanup", &z_interrupt_handler);
 	status = ydb_set_s(&z_interrupt, 0, NULL, &z_interrupt_handler);
 	YDB_ERROR_CHECK(status);
-
-	// Initialize connection details in case errors prior to connections
-	rocto_session.ip = "IP_UNSET";
-	rocto_session.port = "PORT_UNSET";
 
 	INFO(INFO_ROCTO_STARTED, config->rocto_config.port);
 

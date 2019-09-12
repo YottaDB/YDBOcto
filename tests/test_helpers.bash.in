@@ -162,11 +162,13 @@ start_rocto() {
     quiet=""
   else
     quiet="-vv"
+    # Allow optional second argument
+    opt2=$2
   fi
   if [[ "" != $1 ]]; then
-    rocto $quiet -p $1 &> rocto.log &
+    rocto $quiet -p $1 $2 &> rocto.log &
   else
-    rocto $quiet &> rocto.log &
+    rocto $quiet $2 &> rocto.log &
   fi
   echo $! > rocto.pid
   # Track time slept in case quiet is set
@@ -293,6 +295,7 @@ verify_output() {
     fi
   done
 
+  diff outref/$1.ref clean_output.txt
   return
 }
 

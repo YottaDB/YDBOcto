@@ -35,10 +35,11 @@ void handle_sigint(int sig) {
 }
 
 // Currently unused. May need to be used for CancelRequest handling in the future.
-void handle_sigusr1(int sig) {
-	INFO(CUSTOM_ERROR, "SIGUSR1 RECEIVED");
-	cancel_received = TRUE;
-}
+// NOTE: This code has been disabled due to the lack of signal forwarding support for SIGUSR1 to YDB
+// void handle_sigusr1(int sig) {
+	// INFO(CUSTOM_ERROR, "SIGUSR1 RECEIVED");
+	// cancel_received = TRUE;
+// }
 
 #if YDB_TLS_AVAILABLE
 #include "ydb_tls_interface.h"
@@ -101,12 +102,13 @@ int main(int argc, char **argv) {
 	sigaction(SIGINT, &ctrlc_action, NULL);
 	rocto_session.session_ending = FALSE;
 
+	// NOTE: This code has been disabled due to the lack of signal forwarding support for SIGUSR1 to YDB
 	// Initialize handler for SIGUSR1 in rocto C code
 	// Currently unused. May need to be used for CancelRequest handling in the future.
-	memset(&sigusr1_action, 0, sizeof(sigusr1_action));
-	sigusr1_action.sa_flags = SA_SIGINFO;
-	sigusr1_action.sa_sigaction = (void *)handle_sigusr1;
-	sigaction(SIGUSR1, &sigusr1_action, NULL);
+	// memset(&sigusr1_action, 0, sizeof(sigusr1_action));
+	// sigusr1_action.sa_flags = SA_SIGINFO;
+	// sigusr1_action.sa_sigaction = (void *)handle_sigusr1;
+	// sigaction(SIGUSR1, &sigusr1_action, NULL);
 
 	// Initialize SIGUSR1 handler in YDB
 	status = ydb_init();		// YDB init needed for signal handler setup and gtm_tls_init call below */

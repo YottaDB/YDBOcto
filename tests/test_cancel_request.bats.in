@@ -28,30 +28,21 @@ teardown() {
 }
 
 @test "ensure cancel requests abort simple queries" {
-  skip
   # Load lots of data to create slow query
   load_big_data
-
-  # tcpdump -i ``lo'' -w tcp.dump &
-  # echo $! > tcpdump.pid
-  run_psql_expect cancel_psql 1441 &> output.txt
-  # kill $(cat tcpdump.pid)
-  verify_output TCR00 expect.out
+  run_psql_expect cancel_psql_big_data 1441 &> output.txt
+  verify_output TCR00 expect.out noinfo nodebug noexpect
 }
 
-@test "ensure cancel requests abort extended queries" {
-  # Skip until extended queries are supported
-  skip
-  start_rocto 1441 quiet
-  run_psql_expect cancel_psql_extended 1441 &> output.txt
-  verify_output TCR01 output.txt
+@test "ensure cancel requests abort complicated queries (many joins)" {
+  run_psql_expect cancel_psql_many_joins 1441 &> output.txt
+  verify_output TCR01 expect.out noinfo nodebug noexpect
 }
 
 @test "ensure cancel requests cleanup xrefs and trigger" {
-  skip
   load_big_data
   # Remove verbosity as the logical plan is too long to print correctly and not needed here
-  run_psql_expect cancel_psql 1441 &> output.txt
+  run_psql_expect cancel_psql_big_data 1441 &> output.txt
   # Ensure all cross references cleaned up for the given query, i.e. test_seed_queries.bats "test1"
   run $ydb_dist/yottadb -direct > xref.txt <<YDB
 zwrite ^%ydboctoxref
@@ -66,3 +57,12 @@ YDB
   $ydb_dist/mupip TRIGGER -SELECT triggers.txt
   verify_output TCR03 triggers.txt
 }
+
+@test "ensure cancel requests abort extended queries" {
+  # Skip until extended queries are supported
+  skip
+  start_rocto 1441 quiet
+  run_psql_expect cancel_psql_extended 1441 &> output.txt
+  verify_output TCR04 output.txt
+}
+

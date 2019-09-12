@@ -1,0 +1,4 @@
+ydb=# select n1.id from names as n1 left join names as n2 on n1.id != n2.id left join names as n3 on n1.id != n3.id left join names as n4 on n1.id != n4.id left join names as n5 on n1.id != n5.id left join names as n6 on n1.id != n6.id left join names as n7 on n1.id != n7.id;
+^CCancel request sent
+ERROR:  canceling statement due to user request
+ydb=# \q

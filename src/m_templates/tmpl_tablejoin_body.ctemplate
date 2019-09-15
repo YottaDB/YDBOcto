@@ -15,186 +15,205 @@
 #include "template_helpers.h"
 
 TEMPLATE(tmpl_tablejoin_body, PhysicalPlan *plan, int dot_count, char *tableName, char *columnName) {
-    TEMPLATE_INIT();
-    char	*start_table_reference, *end_table_reference;
-    char	*start_resume = NULL;
-    char	*end_resume = NULL;
+	TEMPLATE_INIT();
 
-    // Run any plans which reference parent queries
-    PhysicalPlan *temp_plan = plan;
-    while(temp_plan->prev != NULL) {
-        temp_plan = temp_plan->prev;
-    }
-    while(temp_plan != NULL) {
-        if(temp_plan->parent_plan == plan && temp_plan->deferred_plan == TRUE) {
-          TMPL(print_dots, dot_count);
-            %}DO {{ temp_plan->plan_name }}(cursorId)
-    {%
-        }
-        temp_plan = temp_plan->next;
-    }
-    // Apply the conditions for this statement
-    //  We put the 'IF 1' here so it's easy to add extra clauses from any of the
-    //  below conditions which may or may not emit boolean logic
-    TMPL(print_dots, dot_count);
-    %}IF 1{%
-    if(plan->where && plan->where->v.operand[0]) {
-        %}&({%
-        TMPL(tmpl_print_expression, plan->where->v.operand[0], plan);
-        %}){%
-    }
-    // Distinct values if needed
-    //  NOTE: the EXCEPT set doesn't need to check if a value exists before clearing it
-    if(plan->distinct_values && plan->set_operation != PP_EXCEPT_SET && plan->set_operation != PP_INTERSECT_SET) {
-        %}&($DATA({{ config->global_names.cursor }}(cursorId,"index",{%
-        TMPL(tmpl_column_list_combine, plan->projection, plan, ",", NULL, 0);
-        %}))=0){%
-    }
+	char		*start_table_reference, *end_table_reference;
+	char		*start_resume = NULL;
+	char		*end_resume = NULL;
+	PhysicalPlan	*temp_plan = plan;
 
-    // Ensure we don't emit duplicates
-    if(plan->emit_duplication_check == TRUE) {
-        %}&($DATA({% TMPL(tmpl_duplication_check, plan); %})=0){%
-    }
-    dot_count++;
-    %} DO
-    {%
+	// Run any plans which reference parent queries
+	while (NULL != temp_plan->prev)
+		temp_plan = temp_plan->prev;
+	while (NULL != temp_plan) {
+		if ((temp_plan->parent_plan == plan) && temp_plan->deferred_plan) {
+			TMPL(print_dots, dot_count);
+			%}DO {{ temp_plan->plan_name }}(cursorId)
+    {%			// Ugly indentation of this line needed to ensure proper alignment in generated M code
+		}
+		temp_plan = temp_plan->next;
+	}
+	// Apply the conditions for this statement
+	//  We put the 'IF 1' here so it's easy to add extra clauses from any of the
+	//  below conditions which may or may not emit boolean logic
+	TMPL(print_dots, dot_count);
+	%}IF 1{%
+	if(plan->where && plan->where->v.operand[0]) {
+		%}&({%
+		TMPL(tmpl_print_expression, plan->where->v.operand[0], plan);
+		%}){%
+	}
+	// Distinct values if needed
+	//  NOTE: the EXCEPT set doesn't need to check if a value exists before clearing it
+	if (plan->distinct_values && (PP_EXCEPT_SET != plan->set_operation) && (PP_INTERSECT_SET != plan->set_operation)) {
+		%}&($DATA({{ config->global_names.cursor }}(cursorId,"index",{%
+		TMPL(tmpl_column_list_combine, plan->projection, plan, ",", NULL, 0);
+		%}))=0){%
+	}
 
-    // Output the value
-    // Note down where the "resume" pointer starts, incuding the preceeding whitespace
-    start_resume = buff_ptr - 4;
-    TMPL(print_dots, dot_count);
-    if(plan->set_operation == PP_EXCEPT_SET) {
-        %}IF 1{%
-    } else {
-        switch(plan->action_type) {
-        case PP_PROJECT:
-            %}SET:1{%
-            break;
-        case PP_DELETE:
-            %}KILL:1{%
-            break;
-        default:
-            assert(FALSE);
-            break;
-        }
-    }
+	// Ensure we don't emit duplicates
+	if (plan->emit_duplication_check) {
+		%}&($DATA({%
+		TMPL(tmpl_duplication_check, plan);
+		%})=0){%
+	}
+	%} DO
+    {%	// Ugly indentation of this line needed to ensure proper alignment in generated M code
+	dot_count++;
+	// Output the value
+	// Note down where the "resume" pointer starts, incuding the preceeding whitespace
+	start_resume = buff_ptr - 4;
+	TMPL(print_dots, dot_count);
+	if (PP_EXCEPT_SET == plan->set_operation) {
+		%}IF 1{%
+	} else {
+		switch(plan->action_type) {
+		case PP_PROJECT:
+			%}SET:1{%
+			break;
+		case PP_DELETE:
+			%}KILL:1{%
+			break;
+		default:
+			assert(FALSE);
+			break;
+		}
+	}
 
-    /// TODO: key has overloaded meaning here to mean table; we need to
-    // increment something somewhere
-    if(plan->outputKey && plan->outputKey->insert) {
-        %}{{ plan->outputKey->insert->v.string_literal }}{%
-    } else if(plan->outputKey && plan->outputKey->is_cross_reference_key) {
-        %} ^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}"{%
-        %},{%
-        TMPL(tmpl_column_list_combine, plan->projection, plan, ",", NULL, 0);
-        %})=""
-    {% // White space needed
-        TMPL(print_dots, dot_count);
-        %}IF $INCREMENT(^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}"{%
-        %})),$INCREMENT(^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}",{%
-        // Temporarily sever the key from the projection
-        LogicalPlan	*lp_temp;
+	/// TODO: key has overloaded meaning here to mean table; we need to
+	// increment something somewhere
+	if(plan->outputKey && plan->outputKey->insert) {
+		%}{{ plan->outputKey->insert->v.string_literal }}{%
+	} else if(plan->outputKey && plan->outputKey->is_cross_reference_key) {
+		%} ^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}"{%
+		%},{%
+		TMPL(tmpl_column_list_combine, plan->projection, plan, ",", NULL, 0);
+		%})=""
+    {%		// Ugly indentation of this line needed to ensure proper alignment in generated M code
+		TMPL(print_dots, dot_count);
+		%}IF $INCREMENT(^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}"{%
+		%})),$INCREMENT(^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}",{%
+		// Temporarily sever the key from the projection
+		LogicalPlan	*lp_temp;
 
-        lp_temp = plan->projection->v.operand[1];
-        plan->projection->v.operand[1] = NULL;
-        TMPL(tmpl_column_list_combine, plan->projection, plan, ",", NULL, 0);
-        plan->projection->v.operand[1] = lp_temp;
-        %})) {%
-    } else if(plan->set_operation == PP_EXCEPT_SET) {
-        %} SET v=$ORDER({{ config->global_names.cursor }}(cursorId,"index",{% TMPL(tmpl_column_list_combine, plan->projection, plan, ",", NULL, 0); %},"")) KILL:v'="" {% TMPL(tmpl_key, plan->outputKey); buff_ptr--; %},v),{{ config->global_names.cursor }}(cursorId,"index",{% TMPL(tmpl_column_list_combine, plan->projection, plan, ",", NULL, 0); %},v){%
-    } else if(plan->outputKey) {
-        // Note down where we are, do a dummy assignment to increment the row count, then paste our row again
-        int    resume_length;
-        char    c;
+		lp_temp = plan->projection->v.operand[1];
+		plan->projection->v.operand[1] = NULL;
+		TMPL(tmpl_column_list_combine, plan->projection, plan, ",", NULL, 0);
+		plan->projection->v.operand[1] = lp_temp;
+		%})) {%
+	} else if(plan->set_operation == PP_EXCEPT_SET) {
+		%} SET v=$ORDER({{ config->global_names.cursor }}(cursorId,"index",{%
+		TMPL(tmpl_column_list_combine, plan->projection, plan, ",", NULL, 0);
+		%},"")) KILL:v'="" {%
+		TMPL(tmpl_key, plan->outputKey); buff_ptr--;
+		%},v),{{ config->global_names.cursor }}(cursorId,"index",{%
+		TMPL(tmpl_column_list_combine, plan->projection, plan, ",", NULL, 0);
+		%},v){%
+	} else if(plan->outputKey) {
+		// Note down where we are, do a dummy assignment to increment the row count, then paste our row again
+		int	resume_length;
+		char	c;
 
-        end_resume = buff_ptr;
-        %}&$INCREMENT({% TMPL(tmpl_key, plan->outputKey); %}) {%
-        if(plan->set_operation == PP_INTERSECT_SET) {
-            %}%%ydboctoz{%
-        } else {
-            %}%%ydboctoz=42{%
-        }
-        c = *end_resume;
-        *end_resume = '\0';
-        resume_length = end_resume - start_resume;
-        buff_ptr += snprintf(buff_ptr, buffer_len - (buff_ptr - buffer), "\n%s ", start_resume);
-        *end_resume = c;
-        start_resume = buff_ptr - resume_length - 1;	/* -1 for space at end of string in above "snprintf" */
-        // Track the output of the table so we can copy-paste it instead of repeating the below logic
-        start_table_reference = buff_ptr;
-        TMPL(tmpl_key, plan->outputKey);
-        // Go back on in the buffer
-        buff_ptr -= 1;
-        if(plan->set_operation == PP_INTERSECT_SET) {
-            // Do nothing; we're interested in the index, not the values themselves
-            assert(plan->action_type == PP_DELETE);
-            /// TODO: rework this so this fake kill doesn't have to happen
-            %},"this variable should never exist"){%
-        } else if(plan->action_type == PP_DELETE) {
-            %},{{ config->global_names.cursor }}(cursorId,"index",{%
-            TMPL(tmpl_column_list_combine, plan->projection, plan, ",", NULL, 0);
-            %})){%
-        } else if(plan->stash_columns_in_keys) {
-            %},{%
-            TMPL(tmpl_column_list_combine, plan->projection, plan, ",", NULL, 0);
-            %}){%
-        } else if (plan->order_by) {
-            %},"order",{%
-            TMPL(tmpl_column_list_combine, plan->order_by, plan, ",", NULL, 0);
-            %},{% TMPL(tmpl_key, plan->outputKey);%}){%
-        } else {
-            %},{% TMPL(tmpl_key, plan->outputKey);%}){%
-        }
-        // Then assign value
-        if(plan->action_type == PP_PROJECT) {
-            char    c;
+		end_resume = buff_ptr;
+		%}&$INCREMENT({% TMPL(tmpl_key, plan->outputKey); %}) {%
+		if (PP_INTERSECT_SET == plan->set_operation) {
+			%}%%ydboctoz{%
+		} else {
+			%}%%ydboctoz=42{%
+		}
+		c = *end_resume;
+		*end_resume = '\0';
+		resume_length = end_resume - start_resume;
+		buff_ptr += snprintf(buff_ptr, buffer_len - (buff_ptr - buffer), "\n%s ", start_resume);
+		*end_resume = c;
+		start_resume = buff_ptr - resume_length - 1;	/* -1 for space at end of string in above "snprintf" */
+		// Track the output of the table so we can copy-paste it instead of repeating the below logic
+		start_table_reference = buff_ptr;
+		TMPL(tmpl_key, plan->outputKey);
+		// Go back on in the buffer
+		buff_ptr -= 1;
+		if (PP_INTERSECT_SET == plan->set_operation) {
+			// Do nothing; we're interested in the index, not the values themselves
+			assert(plan->action_type == PP_DELETE);
+			%},"this variable should never exist"){%
+		} else if(PP_DELETE == plan->action_type) {
+			%},{{ config->global_names.cursor }}(cursorId,"index",{%
+			TMPL(tmpl_column_list_combine, plan->projection, plan, ",", NULL, 0);
+			%})){%
+		} else if(plan->stash_columns_in_keys) {
+			%},{%
+			TMPL(tmpl_column_list_combine, plan->projection, plan, ",", NULL, 0);
+			%}){%
+		} else if (plan->order_by) {
+			%},"order",{%
+			TMPL(tmpl_column_list_combine, plan->order_by, plan, ",", NULL, 0);
+			%},{%
+			TMPL(tmpl_key, plan->outputKey);
+			%}){%
+		} else {
+			%},{%
+			TMPL(tmpl_key, plan->outputKey);
+			%}){%
+		}
+		// Then assign value
+		if(plan->action_type == PP_PROJECT) {
+			char    c;
 
-            end_table_reference = buff_ptr;
-            %}=$GET({%
-            c = *end_table_reference,
-            *end_table_reference = '\0';
-            buff_ptr += snprintf(buff_ptr, buffer_len - (buff_ptr - buffer), "%s", start_table_reference);
-            *end_table_reference = c;
-            %})_{%
-            end_resume = buff_ptr;
-            if(plan->stash_columns_in_keys) {
-                %}""{%
-            } else {
-                TMPL(tmpl_column_list_combine, plan->projection, plan, "_\"|\"_", start_resume, end_resume - start_resume);
-            }
-        }
-    } else if (plan->outputTable) {
-        /// TODO: do we ever get to this branch? Possible scenario is "We are putting the value directly into a table"
-	/// Not sure how to handle this yet. Keeping this comment block intact until it is understood and fixed (if needed).
-    } else {
-        assert(FALSE);
-    }
+			end_table_reference = buff_ptr;
+			%}=$GET({%
+			c = *end_table_reference,
+			*end_table_reference = '\0';
+			buff_ptr += snprintf(buff_ptr, buffer_len - (buff_ptr - buffer), "%s", start_table_reference);
+			*end_table_reference = c;
+			%})_{%
+			end_resume = buff_ptr;
+			if(plan->stash_columns_in_keys) {
+				%}""{%
+			} else {
+				TMPL(tmpl_column_list_combine, plan->projection, plan, "_\"|\"_",		\
+								start_resume, end_resume - start_resume);
+			}
+		}
+	} else if (plan->outputTable) {
+		/// TODO: do we ever get to this branch? Possible scenario is "We are putting the value directly into a table"
+		/// Not sure how to handle this yet. Keeping this comment block intact until it is understood and fixed (if needed).
+	} else {
+		assert(FALSE);
+	}
 
-    if(plan->emit_duplication_check == TRUE) {
-        %}
-    {% TMPL(print_dots, dot_count); %}SET {% TMPL(tmpl_duplication_check, plan); %}=1{%
-    }
+	if (plan->emit_duplication_check) {
+		%}
+    {%		// Ugly indentation of this line needed to ensure proper alignment in generated M code
+		TMPL(print_dots, dot_count);
+		%}SET {%
+		TMPL(tmpl_duplication_check, plan);
+		%}=1{%
+	}
 
-    // If we are maintaining the columnwise index
-    if(plan->maintain_columnwise_index && plan->set_operation != PP_EXCEPT_SET) {
-        // Newline for the M code
-        %}
-    {%
-        TMPL(print_dots, dot_count);
-        if(plan->set_operation == PP_INTERSECT_SET) {
-            %}KILL:1{%
-        } else {
-            %}SET:1{%
-        }
+	// If we are maintaining the columnwise index
+	if(plan->maintain_columnwise_index && plan->set_operation != PP_EXCEPT_SET) {
+		// Newline for the M code
+		%}
+    {%		// Ugly indentation of this line needed to ensure proper alignment in generated M code
+		TMPL(print_dots, dot_count);
+		if (PP_INTERSECT_SET == plan->set_operation) {
+			%}KILL:1{%
+		} else {
+			%}SET:1{%
+		}
 
-        %} {{ config->global_names.cursor }}(cursorId,"index",{%
-        TMPL(tmpl_column_list_combine, plan->projection, plan, ",", NULL, 0);
-        if(plan->set_operation != PP_INTERSECT_SET) {
-            %},{% TMPL(tmpl_key, plan->outputKey); %})="",tmpVar=$INCREMENT({{ config->global_names.cursor }}(cursorId,"index",{% TMPL(tmpl_column_list_combine, plan->projection, plan, ",", NULL, 0); %})){%
-        } else {
-            %}){%
-        }
-    }
-    TEMPLATE_END();
+		%} {{ config->global_names.cursor }}(cursorId,"index",{%
+		TMPL(tmpl_column_list_combine, plan->projection, plan, ",", NULL, 0);
+		if (PP_INTERSECT_SET != plan->set_operation) {
+			%},{%
+			TMPL(tmpl_key, plan->outputKey);
+			%})="",tmpVar=$INCREMENT({{ config->global_names.cursor }}(cursorId,"index",{%
+			TMPL(tmpl_column_list_combine, plan->projection, plan, ",", NULL, 0);
+			%})){%
+		} else {
+			%}){%
+		}
+	}
+	TEMPLATE_END();
 }
 %}

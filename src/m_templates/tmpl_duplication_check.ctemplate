@@ -15,22 +15,24 @@
 #include "template_helpers.h"
 
 TEMPLATE(tmpl_duplication_check, PhysicalPlan *plan) {
-    TEMPLATE_INIT();
-    // Emit this as a series of key, value pairs
-    // Composite keys will be fine because they will be consistently represented
-    // Skip cross reference keys, since those will vary; they still have all the
-    // requires keys, in order, under them anyway
-    SqlKey *key;
-    %}{{ config->global_names.cursor }}(cursorId,"dupl"{%
-    for(unsigned int i = 0; i < plan->total_iter_keys; i++) {
-        key = plan->iterKeys[i];
-        if(key->is_cross_reference_key) {
-            continue;
-        }
-        %},{{ key->unique_id|%d }},{% TMPL(tmpl_key, key); %}{%
+	TEMPLATE_INIT();
 
-    }
-    %}){%
-    TEMPLATE_END();
+	SqlKey	*key;
+
+	// Emit this as a series of key, value pairs
+	// Composite keys will be fine because they will be consistently represented
+	// Skip cross reference keys, since those will vary; they still have all the
+	// required keys, in order, under them anyway
+
+	%}{{ config->global_names.cursor }}(cursorId,"dupl"{%
+	for(unsigned int i = 0; i < plan->total_iter_keys; i++) {
+		key = plan->iterKeys[i];
+		if(key->is_cross_reference_key)
+			continue;
+		%},{{ key->unique_id|%d }},{%
+		TMPL(tmpl_key, key);
+	}
+	%}){%
+	TEMPLATE_END();
 }
 %}

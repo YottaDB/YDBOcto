@@ -17,10 +17,14 @@
 #include "errors.h"
 #include "physical-parser.h"
 
-extern struct Expr *parser_value;
+extern struct Expr	*parser_value;
 
-Expr *print_template(Expr *expr, Expr *prev);
-int print_active;
+int	print_active;
+int	linestart_prefix_firsttime_use;
+char	linestart_prefix[64];
+
+Expr	*print_template(Expr *expr, Expr *prev);
+void	store_linestart_prefix(char *str);
 
 int main(int argc, char **argv) {
 	if(yyparse()) {
@@ -56,6 +60,39 @@ void safe_print_string(char *s) {
 #define SNPRINT_FOOTER \
 	"if(written > buffer_len - (buff_ptr - buffer)) { FATAL(ERR_BUFFER_TOO_SMALL, \"\"); } buff_ptr += written; } while(0);"
 
+void	store_linestart_prefix(char *str)
+{
+	int	len;
+	char 	*ptr, *dst;
+
+	len = strlen(str);
+	ptr = str + len - 1;
+	while ('\n' != *ptr)
+	{
+		ptr--;
+		if (ptr < str)
+			return;
+	}
+	ptr++;	/* go past newline */
+	dst = &linestart_prefix[0];
+	while ((' ' == *ptr) || ('\t' == *ptr))
+		*dst++ = *ptr++;
+	*dst = '\0';
+	assert(dst < linestart_prefix + sizeof(linestart_prefix));
+	linestart_prefix_firsttime_use = TRUE;
+	return;
+}
+
+char	*get_linestart_prefix()
+{
+	if (linestart_prefix_firsttime_use)
+	{
+		linestart_prefix_firsttime_use = FALSE;
+		return linestart_prefix + strlen(linestart_prefix);	/* effectively return an empty string */
+	}
+	return linestart_prefix;
+}
+
 Expr *print_template(Expr *expr, Expr *prev) {
 	Expr *next, *t;
 	char *format = "%s", *c, *rformat = format;
@@ -69,7 +106,7 @@ Expr *print_template(Expr *expr, Expr *prev) {
 		if(next == NULL)
 			break;
 		print_active = 1;
-		printf(SNPRINT_HEADER);
+		printf("%s%s",get_linestart_prefix(), SNPRINT_HEADER);
 		safe_print_string(expr->value);
 		if(next && next->type == VALUE_TYPE) {
 			next = print_template(next, expr);
@@ -85,14 +122,15 @@ Expr *print_template(Expr *expr, Expr *prev) {
 				safe_print_string(t->value);
 			}
 		}
-		printf(");\n%s\n", SNPRINT_FOOTER);
+		printf(");\n%s%s\n", get_linestart_prefix(), SNPRINT_FOOTER);
 		print_active = 0;
 		break;
 	case EXPR_TYPE:
 		// Return self so we can finish string literal
 		if(print_active)
 			return expr;
-		printf("%s\n", expr->value);
+		printf("%s", expr->value);
+		store_linestart_prefix(expr->value);
 		break;
 	case VALUE_TYPE:
 		// If this literal has a "|", the ending is a different format
@@ -113,10 +151,10 @@ Expr *print_template(Expr *expr, Expr *prev) {
 		// If the preceding one was a EXPR_TYPE, there is no
 		//  middle literal, so print it
 		if(prev && prev->type == EXPR_TYPE && !print_active)
-			printf(SNPRINT_HEADER);
+			printf("%s%s",get_linestart_prefix(), SNPRINT_HEADER);
 		printf("%s", rformat);
 		if(prev && prev->type == EXPR_TYPE && !print_active)
-			printf("\", %s);\n%s\n", expr->value, SNPRINT_FOOTER);
+			printf("\", %s);\n%s%s\n", expr->value, get_linestart_prefix(), SNPRINT_FOOTER);
 		break;
 	};
 	if(next)

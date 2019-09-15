@@ -34,7 +34,7 @@ int get_key_columns(SqlTable *table, SqlColumn **key_columns) {
 
 	do {
 		keyword = get_keyword(cur_column, PRIMARY_KEY);
-		if(keyword != NULL && key_columns != NULL) {
+		if ((NULL != keyword) && (NULL != key_columns)) {
 			if(key_columns[0] != NULL) {
 				UNPACK_SQL_STATEMENT(value, table->tableName, value);
 				ERROR(ERR_MULTIPLE_ZERO_KEYS, 0, value->v.reference);
@@ -44,7 +44,7 @@ int get_key_columns(SqlTable *table, SqlColumn **key_columns) {
 			max_key = 0;
 		}
 		keyword = get_keyword(cur_column, OPTIONAL_KEY_NUM);
-		if(keyword != NULL) {
+		if (NULL != keyword) {
 			UNPACK_SQL_STATEMENT(value, keyword->v, value);
 			key_num = atoi(value->v.string_literal);
 			if(key_columns != NULL && key_columns[key_num] != NULL) {

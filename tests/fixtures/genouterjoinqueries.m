@@ -27,7 +27,7 @@ genouterjoinqueries	;
 	set numqueries=20	; generate 20 queries so as not to take a long time for this test to run in pipeline
 	set q=0
 	for  do  quit:q=numqueries
-	. set numjoins=2+(q#4)	; can be 2-way or 3-way or 4-way or 5-way join
+	. set numjoins=2+(q#6)	; can be 2-way, 3-way, ... up to 7-way join
 	. for i=1:1:numjoins  do
 	. . set modulo=$random(2),table(i)=$select(modulo:"customers",1:"orders"),tablealias(i)=$extract(table(i),1)
 	. ; choose table names for the join(s) next
@@ -58,7 +58,7 @@ genouterjoinqueries	;
 	. ;	--> ERROR:  FULL JOIN is only supported with merge-joinable or hash-joinable join conditions
 	. quit:fulljoinchosen&notequalchosen
 	. quit:notequalchosen			; ###TMPDISABLE until #311 is fixed
-	. quit:fulljoinchosen!rightjoinchosen 	; ###TMPDISABLE (until FULL JOIN and RIGHT JOIN work correctly in all cases)
+	. quit:fulljoinchosen			; ###TMPDISABLE (until FULL JOIN work correctly in all cases)
 	. set file="jointest"_$translate($justify($incr(q),2)," ","0")_".sql"
 	. open file:(newversion)  use file
 	. write sqlquery,!

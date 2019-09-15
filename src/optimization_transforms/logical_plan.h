@@ -116,6 +116,10 @@ typedef struct SqlKey {
 	// If this is a cross refence key, this value will point to the filename used to store the
 	// code to provide the cross reference
 	char			*cross_reference_filename;
+	boolean_t		skip_column_reference_optimization;	/* TRUE => an optimization in "tmpl_column_reference"
+									 * and "tmpl_column_reference_trigger" will be skipped.
+									 * Used by the second half of RIGHT JOIN.
+									 */
 } SqlKey;
 
 // Helper functions

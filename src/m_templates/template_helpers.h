@@ -24,7 +24,7 @@
 		       ## __VA_ARGS__);
 
 // This does not put a trailing semicolon
-#define TEMPLATE(name, ...)					\
+#define TEMPLATE(name, ...)									\
 	int name(char *buffer, int buffer_len, ## __VA_ARGS__)
 
 #define TEMPLATE_INIT()				\
@@ -41,10 +41,13 @@ enum EmitSourceForm {
 
 TEMPLATE(print_dots, int dots);
 TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan);
-TEMPLATE(tmpl_tablejoin, PhysicalPlan *plan, LogicalPlan *tablejoin, unsigned int cur_key, int dot_count,		\
-										char *tableName, char *columnName);
+TEMPLATE(tmpl_tablejoin, PhysicalPlan *plan, LogicalPlan *tablejoin, unsigned int cur_key, boolean_t right_join_second_half,	\
+								int dot_count, char *tableName, char *columnName);
 TEMPLATE(tmpl_tablejoin_innerjoin, PhysicalPlan *plan, LogicalPlan *tablejoin, int *dot_count);
 TEMPLATE(tmpl_tablejoin_leftjoin, PhysicalPlan *plan, LogicalPlan *tablejoin, unsigned int cur_key, int *dot_count);
+TEMPLATE(tmpl_tablejoin_rightjoin, PhysicalPlan *plan, LogicalPlan *tablejoin,			\
+			unsigned int key_start, unsigned int key_end, int *dot_count);
+TEMPLATE(tmpl_rightjoin_key, PhysicalPlan *plan, unsigned int key_start, unsigned int key_end);
 TEMPLATE(tmpl_tablejoin_body, PhysicalPlan *plan, int dot_count, char *tableName, char *columnName);
 TEMPLATE(tmpl_key_start, SqlKey *key);
 TEMPLATE(tmpl_key_end, SqlKey *key);

@@ -11,28 +11,23 @@
  *								*
  ****************************************************************/
 
-#include "octo_types.h"
-#include "logical_plan.h"
-
+#include "physical_plan.h"
 #include "template_helpers.h"
 
-TEMPLATE(tmpl_key_start, SqlKey *key) {
+TEMPLATE(tmpl_rightjoin_key, PhysicalPlan *plan, unsigned int key_start, unsigned int key_end) {
 	TEMPLATE_INIT();
+	TMPL(snprintf, "%d,", key_start);
+	assert(key_start < key_end);
+	do {
+		SqlKey	*key;
 
-	char			*start = "\"\"";
-	SqlOptionalKeyword	*keyword;
-	SqlValue		*value;
-
-	if(key->column) {
-		keyword = get_keyword(key->column, OPTIONAL_START);
-		if (NULL != keyword) {
-			UNPACK_SQL_STATEMENT(value, keyword->v, value);
-			start = value->v.string_literal;
-		}
-	}
-	%}SET {%
-	TMPL(tmpl_key, key);
-	%}={{ start }}{%
+		key = plan->iterKeys[key_start];
+		if (!key->is_cross_reference_key)
+			TMPL(tmpl_key, key);
+		key_start++;
+		if ((key_start < key_end) && !key->is_cross_reference_key)
+			%},{%
+	} while (key_start < key_end);
 	TEMPLATE_END();
 }
 %}

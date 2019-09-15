@@ -173,13 +173,13 @@ PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlanOptions *opt
 	// Check the optional words for distinct
 	keywords = lp_get_select_keywords(plan)->v.keywords;
 	keyword = get_keyword_from_keywords(keywords, OPTIONAL_DISTINCT);
-	if(keyword != NULL) {
+	if (NULL != keyword) {
 		out->distinct_values = 1;
 		out->maintain_columnwise_index = 1;
 	}
 
 	keyword = get_keyword_from_keywords(keywords, OPTIONAL_PART_OF_EXPANSION);
-	if(keyword != NULL) {
+	if (NULL != keyword) {
 		out->emit_duplication_check = TRUE;
 	}
 

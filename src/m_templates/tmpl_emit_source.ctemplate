@@ -34,105 +34,106 @@ int match_expression(char *start, char *column, int column_size);
  *  references to this PhysicalPlan's keys
  */
 TEMPLATE(tmpl_emit_source, char *source, char *table_name, int unique_id, int num_vars_to_match, enum EmitSourceForm form) {
-    TEMPLATE_INIT();
-    char *source_ptr;
-    char column[MAX_STR_CONST];
-    int t, matched_vars = 0;
-    int sub_count;
-    int paren_count = 0;
+	TEMPLATE_INIT();
 
-    source_ptr = source;
-    sub_count = 0;
-    /// TODO: how does this handle globals that have things like "abc"_keys("id")?
-    while(*source_ptr != '\0' && matched_vars < num_vars_to_match) {
-        t = match_expression(source_ptr, column, MAX_STR_CONST);
-        assert(t != -1);
-        if(t > 0) {
-            // Note that we don't add quotes to column in case the user users a
-            //  extrinsic or something
-            switch(form) {
-            case EmitSourceForm_Value:
-                %}{{ config->global_names.cursor }}(cursorId,"keys",{{ unique_id|%d }},"{{ table_name }}",{{ column }}){%
-                break;
-            case EmitSourceForm_Trigger:
-                %}sub{{ sub_count|%d }}=:{%
-                sub_count++;
-                break;
-            default:
-                FATAL(ERR_UNKNOWN_KEYWORD_STATE, "");
-                break;
-            }
-            source_ptr += t;
-            matched_vars += 1;
-        } else {
-            if(form == EmitSourceForm_Trigger && *source_ptr == '"') {
-                %}""{%
-            } else {
-                %}{{ *source_ptr|%c }}{%
-            }
-            if(*source_ptr == '(') {
-                paren_count++;
-            }
-            if(*source_ptr == ')') {
-                paren_count--;
-            }
-            source_ptr++;
-        }
-    }
+	char	*source_ptr;
+	char	column[MAX_STR_CONST];
+	int	t, matched_vars = 0;
+	int	sub_count;
+	int	paren_count = 0;
 
-    while(paren_count > 0) {
-        paren_count--;
-        %}){%
-    }
+	source_ptr = source;
+	sub_count = 0;
+	/// TODO: how does this handle globals that have things like "abc"_keys("id")?
+	while (('\0' != *source_ptr) && (matched_vars < num_vars_to_match)) {
+		t = match_expression(source_ptr, column, MAX_STR_CONST);
+		assert(-1 != t);
+		if (0 < t) {
+			// Note that we don't add quotes to column in case the user users a
+			//  extrinsic or something
+			switch(form) {
+			case EmitSourceForm_Value:
+				%}{{ config->global_names.cursor }}(cursorId,"keys",{{ unique_id|%d }},"{{ table_name }}",{{ column }}){%
+				break;
+			case EmitSourceForm_Trigger:
+				%}sub{{ sub_count|%d }}=:{%
+				sub_count++;
+				break;
+			default:
+				FATAL(ERR_UNKNOWN_KEYWORD_STATE, "");
+				break;
+			}
+			source_ptr += t;
+			matched_vars += 1;
+		} else {
+			if ((form == EmitSourceForm_Trigger) && ('"' == *source_ptr)) {
+				%}""{%
+			} else {
+				%}{{ *source_ptr|%c }}{%
+			}
+			if ('(' == *source_ptr) {
+				paren_count++;
+			}
+			if (')' == *source_ptr) {
+				paren_count--;
+			}
+			source_ptr++;
+		}
+	}
 
-    TEMPLATE_END();
+	while(paren_count > 0) {
+		paren_count--;
+		%}){%
+	}
+
+	TEMPLATE_END();
 }
 
 int match_expression(char *start, char *column, int column_size) {
-    char *c, *c2, *column_start;
-    char *keys = "keys(";
-    int paren_count = 0;
+	char	*c, *c2, *column_start;
+	char	*keys = "keys(";
+	int	paren_count = 0;
 
-    // First match on keys( and we can start parsing table name
-    c = start;
-    for(c2 = keys; *c != '\0' && *c2 != '\0'; c2++, c++) {
-        if(*c != *c2) {
-            return 0;
-        }
-    }
+	// First match on keys( and we can start parsing table name
+	c = start;
+	for (c2 = keys; '\0' != *c && '\0' != *c2; c2++, c++) {
+		if (*c != *c2) {
+			return 0;
+		}
+	}
 
-    paren_count = 1;
-    column_start = c;
+	paren_count = 1;
+	column_start = c;
 
-    while(paren_count != 0 && *c != '\0') {
-        switch(*c) {
-        case '(':
-            paren_count++;
-            break;
-        case ')':
-            paren_count--;
-            break;
-        default:
-            break;
-        }
-        c++;
-    }
+	while (paren_count && ('\0' != *c)) {
+		switch(*c) {
+		case '(':
+			paren_count++;
+			break;
+		case ')':
+			paren_count--;
+			break;
+		default:
+			break;
+		}
+		c++;
+	}
 
-    if(paren_count == 0) {
-        // Go back a few places as c will include the paren
-        c -= 1;
-        if(column_size < c - column_start || c < column_start)
-            return -1;
-        char *d = column;
-        char *c2 = column_start;
-        while(c2 < c) {
-          *d++ = toupper(*c2);
-          c2++;
-        }
-        column[c - column_start] = '\0';
-        assert(!(column[0] == '"' && column[1] == '"'));
-        return c - start + 1;
-    }
-    return 0;
+	if(paren_count == 0) {
+		// Go back a few places as c will include the paren
+		c -= 1;
+		if(column_size < c - column_start || c < column_start)
+			return -1;
+		char *d = column;
+		char *c2 = column_start;
+		while(c2 < c) {
+		  *d++ = toupper(*c2);
+		  c2++;
+		}
+		column[c - column_start] = '\0';
+		assert(!(column[0] == '"' && column[1] == '"'));
+		return c - start + 1;
+	}
+	return 0;
 }
 %}

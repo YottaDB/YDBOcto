@@ -256,6 +256,7 @@ LogicalPlan *lp_optimize_where_multi_equal_ands_helper(LogicalPlan *plan, Logica
 		xref_keys = lp_make_key(column_alias);
 		key = xref_keys->v.key;
 		key->is_cross_reference_key = TRUE;
+		key->cross_reference_column_alias = column_alias;
 		if(before_first_key->type == LP_CRITERIA) {
 			MALLOC_LP_2ARGS(before_first_key->v.operand[0], LP_KEYS);
 			before_first_key = before_first_key->v.operand[0];

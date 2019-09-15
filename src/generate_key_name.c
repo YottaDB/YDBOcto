@@ -34,7 +34,7 @@ int generate_key_name(char *buffer, int buffer_size, int target_key_num, SqlTabl
 	if(key_columns[target_key_num] == NULL)
 		return 0;
 	keyword = get_keyword(key_columns[target_key_num], OPTIONAL_EXTRACT);
-	if(keyword != NULL) {
+	if (NULL != keyword) {
 		UNPACK_SQL_STATEMENT(value, keyword->v, value);
 		temp = m_unescape_string(value->v.string_literal);
 		SAFE_SNPRINTF(written, buffer_ptr, buffer, buffer_size, "%s", temp);

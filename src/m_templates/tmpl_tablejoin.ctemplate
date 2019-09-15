@@ -14,102 +14,226 @@
 #include "physical_plan.h"
 #include "template_helpers.h"
 
-TEMPLATE(tmpl_tablejoin, PhysicalPlan *plan, LogicalPlan *tablejoin, unsigned int cur_key, int dot_count,		\
-										char *tableName, char *columnName) {
-    TEMPLATE_INIT();
+TEMPLATE(tmpl_tablejoin, PhysicalPlan *plan, LogicalPlan *tablejoin, unsigned int cur_key, boolean_t right_join_second_half,
+								int dot_count, char *tableName, char *columnName) {
+	TEMPLATE_INIT();
 
-    SqlKey		*key;
-    unsigned int	total_keys, input_cur_key;
-    int			left_table_id, right_table_id;
-    enum SqlJoinType	this_join_type, next_join_type;
-    SqlOptionalKeyword	*keyword;
-    LogicalPlan		*right_tablejoin;
-    boolean_t		nested_call;
+	SqlKey			*key, *save_key;
+	unsigned int		total_keys, key_start;
+	int			left_table_id, right_table_id, this_table_id;
+	enum SqlJoinType	this_join_type, next_join_type;
+	SqlOptionalKeyword	*keyword;
+	LogicalPlan		*right_tablejoin;
+	boolean_t		nested_call;
 
-    total_keys = plan->total_iter_keys;
-    assert(((NULL != tablejoin) && (LP_TABLE_JOIN == tablejoin->type)) || ((NULL == tablejoin) && (cur_key == total_keys)));
-    if (cur_key < total_keys)
-    {
-        key = plan->iterKeys[cur_key];
-        left_table_id = key->unique_id;
-    }
-    nested_call = FALSE;
-    this_join_type = ((NULL == tablejoin) ? NO_JOIN : (enum SqlJoinType)(tablejoin->extra_detail));
-    input_cur_key = cur_key;
-    for( ; cur_key < total_keys; cur_key++) {
-        // For each key, output the key start, a loop, quit, and increment
-        key = plan->iterKeys[cur_key];
-        if (key->unique_id != left_table_id)
-        {   // we are done with all key columns in this table; recurse to move on to next table/key
-	    nested_call = TRUE;
-            break;
-        }
-        if ((NULL != plan->treat_key_as_null) && plan->treat_key_as_null[key->unique_id])
-                continue;
-        if(key->value) {
-            TMPL(print_dots, dot_count);
-            %}SET {% TMPL(tmpl_key, key); %}={%
-            TMPL(tmpl_print_expression, key->value, plan);
-            %} IF $DATA({% TMPL(tmpl_key_source, plan, key); %})'=0 DO
-    {%
-            dot_count++;
-            continue;
-        }
-        TMPL(print_dots, dot_count);
-    %}{% TMPL(tmpl_key_start, key); %}
-    {% TMPL(print_dots, dot_count); %}FOR  SET {% TMPL(tmpl_key, key) %}=$ORDER({% TMPL(tmpl_key_advance, plan, key)
-    %}) QUIT:({%
-        TMPL(tmpl_key_end, key);
-        keyword = get_keyword_from_keywords(plan->keywords, OPTIONAL_LIMIT);
-        if(keyword != NULL) {
-            SqlValue	*value;
+	total_keys = plan->total_iter_keys;
+	assert(((NULL != tablejoin) && (LP_TABLE_JOIN == tablejoin->type)) || ((NULL == tablejoin) && (cur_key == total_keys)));
+	if (cur_key < total_keys)
+	{
+		key = plan->iterKeys[cur_key];
+		left_table_id = key->unique_id;
+	}
+	nested_call = FALSE;
+	this_join_type = ((NULL == tablejoin) ? NO_JOIN : (enum SqlJoinType)(tablejoin->extra_detail));
+	key_start = cur_key;
+	assert((RIGHT_JOIN != this_join_type) || cur_key);
+	for ( ; cur_key < total_keys; cur_key++) {
+		// For each key, output the key start, a FOR loop, QUIT, and increment
+		key = plan->iterKeys[cur_key];
+		if (key->unique_id != left_table_id)
+		{	// we are done with all key columns in this table; recurse to move on to next table/key
+			nested_call = TRUE;
+			break;
+		}
+		if ((LEFT_JOIN == this_join_type) && plan->treat_key_as_null[key->unique_id])
+			continue;
+		/* If this is the second half of the right join, then treat all keys as non-fixed.
+		 * And do not include cross-reference keys. Only primary-keys. This is because we want
+		 * to include ALL rows from the right table for the RIGHT JOIN.
+		 */
+		if (key->value && !right_join_second_half) {
+			TMPL(print_dots, dot_count);
+			%}SET {%
+			TMPL(tmpl_key, key);
+			%}={%
+			TMPL(tmpl_print_expression, key->value, plan);
+			%} IF $DATA({%
+			TMPL(tmpl_key_source, plan, key);
+			%})'=0 DO
+    {%			// Ugly indentation of this line needed to ensure proper alignment in generated M code
+			dot_count++;
+			continue;
+		}
+		if (key->is_cross_reference_key && right_join_second_half)
+			continue;
+		if (right_join_second_half && (NULL != key->cross_reference_output_key))
+		{	/* Temporarily save cross-reference output key and clear it to generate correct key loop
+			 * for second half of the right join.
+			 */
+			save_key = key->cross_reference_output_key;
+			key->cross_reference_output_key = NULL;
+		} else
+			save_key = NULL;
+		TMPL(print_dots, dot_count);
+		TMPL(tmpl_key_start, key);
+		%}
+    {%		// Ugly indentation of this line needed to ensure proper alignment in generated M code
+		TMPL(print_dots, dot_count);
+		%}FOR  SET {%
+		TMPL(tmpl_key, key);
+		%}=$ORDER({%
+		TMPL(tmpl_key_advance, plan, key);
+		%}) QUIT:({%
+		TMPL(tmpl_key_end, key);
+		keyword = get_keyword_from_keywords(plan->keywords, OPTIONAL_LIMIT);
+		if (NULL != keyword) {
+			SqlValue	*value;
 
-            UNPACK_SQL_STATEMENT(value, keyword->v, value);
-            %})!(({{ value->v.string_literal }})'>$GET({% TMPL(tmpl_key, plan->outputKey); %}){%
-        }
-    %})  DO
-    {%
+			UNPACK_SQL_STATEMENT(value, keyword->v, value);
+			%})!(({{ value->v.string_literal }})'>$GET({%
+			TMPL(tmpl_key, plan->outputKey);
+			%}){%
+		}
+		%})  DO
+    {%		// Ugly indentation of this line needed to ensure proper alignment in generated M code
+		if (NULL != save_key)
+			key->cross_reference_output_key = save_key;	/* Restore cross-reference output key */
+		dot_count++;
+	}
+	// If there is an OUTER JOIN with an ON condition, generate an IF statement in M for doing the check
+	if (INNER_JOIN == this_join_type)
+		TMPL(tmpl_tablejoin_innerjoin, plan, tablejoin, &dot_count);
+	if ((LEFT_JOIN == this_join_type) && !plan->treat_key_as_null[left_table_id])
+		TMPL(tmpl_tablejoin_leftjoin, plan, tablejoin, key_start, &dot_count);
+	if (RIGHT_JOIN == this_join_type)
+	{
+		if (!right_join_second_half)
+		{
+			TMPL(tmpl_tablejoin_rightjoin, plan, tablejoin, key_start, cur_key, &dot_count);
+		} else
+		{	/* Generate code for second half of RIGHT JOIN */
+			/* First, if there are any cross-reference keys, generate code to set them based off the primary key.
+			 * This is needed since we based the for loop for the second half of the RIGHT JOIN on the primary key
+			 * only and so later references to the column corresponding to any cross-reference key for the same
+			 * table need the cross-reference key value set properly (an optimization in "tmpl_column_reference"
+			 * to generate the key instead of the column value relies on this).
+			 */
+			unsigned int	tmp_key;
 
-        dot_count++;
-    }
-    if (INNER_JOIN == this_join_type)
-        TMPL(tmpl_tablejoin_innerjoin, plan, tablejoin, &dot_count);
-    if ((LEFT_JOIN == this_join_type) && ((NULL == plan->treat_key_as_null) || !plan->treat_key_as_null[left_table_id]))
-        TMPL(tmpl_tablejoin_leftjoin, plan, tablejoin, input_cur_key, &dot_count);
-    if (!nested_call)
-    {
-        TMPL(tmpl_tablejoin_body, plan, dot_count, tableName, columnName);
-    } else
-    {
-            right_tablejoin = tablejoin->v.operand[1];
-            next_join_type = (enum SqlJoinType)(right_tablejoin->extra_detail);
-            if (LEFT_JOIN == next_join_type)
-            {
-                TMPL(print_dots, dot_count);
-                %}KILL %%ydboctoz({% TMPL(snprintf, "%d", cur_key); %})
-    {%
-            }
-            TMPL(tmpl_tablejoin, plan, right_tablejoin, cur_key, dot_count, tableName, columnName);
-            if (LEFT_JOIN == next_join_type)
-            {   /* Generate M code to include rows from the left table where there is no matching right table */
-                assert(NULL != right_tablejoin->join_on_condition);
-                %}
-    {%
-                 TMPL(print_dots, dot_count);
-                 %}IF '$DATA(%%ydboctoz({% TMPL(snprintf, "%d", cur_key); %})) DO
-    {%
-                dot_count++;
-                /* Treat all keys in the right table as NULL and invoke nested joins (if needed) */
-                right_table_id = key->unique_id;
-                if (NULL == plan->treat_key_as_null)
-                        plan->treat_key_as_null = octo_cmalloc(memory_chunks, sizeof(boolean_t) * config->plan_id);
-                plan->treat_key_as_null[right_table_id] = TRUE;
-                TMPL(tmpl_tablejoin, plan, right_tablejoin, cur_key, dot_count, tableName, columnName);
-                /* Undo NULL-treating of keys in right table */
-                assert(plan->treat_key_as_null[right_table_id]);
-                plan->treat_key_as_null[right_table_id] = FALSE;
-            }
-    }
-    TEMPLATE_END();
+			for (tmp_key = key_start; tmp_key < cur_key; tmp_key++)
+			{
+				key = plan->iterKeys[tmp_key];
+				if (key->is_cross_reference_key)
+				{
+					assert(!key->skip_column_reference_optimization);
+					TMPL(print_dots, dot_count);
+					%}SET {%
+					TMPL(tmpl_key, key);
+					%}={%
+					key->skip_column_reference_optimization = TRUE;
+					TMPL(tmpl_column_reference, plan, key->cross_reference_column_alias);
+					key->skip_column_reference_optimization = FALSE;
+					%}
+    {%					// Ugly indentation of this line needed to ensure proper alignment in generated M code
+				}
+			}
+			TMPL(print_dots, dot_count);
+			%}IF '$DATA(%%ydboctoz({%
+			TMPL(tmpl_rightjoin_key, plan, key_start, cur_key);
+			%})) DO
+    {%			// Ugly indentation of this line needed to ensure proper alignment in generated M code
+			dot_count++;
+		}
+	}
+	if (!nested_call)
+	{
+		TMPL(tmpl_tablejoin_body, plan, dot_count, tableName, columnName);
+	} else
+	{
+		right_tablejoin = tablejoin->v.operand[1];
+		next_join_type = (enum SqlJoinType)(right_tablejoin->extra_detail);
+		if (LEFT_JOIN == next_join_type)
+		{
+			TMPL(print_dots, dot_count);
+			%}KILL %%ydboctoz({%
+			TMPL(snprintf, "%d", cur_key);
+			%})
+    {%			// Ugly indentation of this line needed to ensure proper alignment in generated M code
+		}
+		TMPL(tmpl_tablejoin, plan, right_tablejoin, cur_key, FALSE, dot_count, tableName, columnName);
+		if (LEFT_JOIN == next_join_type)
+		{   /* Generate M code to include rows from the left table where there is no matching right table rows */
+			assert(NULL != right_tablejoin->join_on_condition);
+			%}
+    {%			// Ugly indentation of this line needed to ensure proper alignment in generated M code
+			TMPL(print_dots, dot_count);
+			%}IF '$DATA(%%ydboctoz({%
+			TMPL(snprintf, "%d", cur_key);
+			%})) DO
+    {%			// Ugly indentation of this line needed to ensure proper alignment in generated M code
+			dot_count++;
+			/* Treat all keys in the right table as NULL and invoke nested joins (if needed) */
+			key = plan->iterKeys[cur_key];
+			right_table_id = key->unique_id;
+			plan->treat_key_as_null[right_table_id] = TRUE;
+			TMPL(tmpl_tablejoin, plan, right_tablejoin, cur_key, FALSE, dot_count, tableName, columnName);
+			/* Undo NULL-treating of keys in right table */
+			assert(plan->treat_key_as_null[right_table_id]);
+			plan->treat_key_as_null[right_table_id] = FALSE;
+		}
+	}
+	if (plan->tablejoin == tablejoin)
+	{	/* This is the outermost "tmpl_tablejoin" invocation. Do additional invocation for RIGHT JOINs (if any)
+		 * to include rows from the right table where there is no matching left table rows.
+		 * We do that by scanning the linked list of tablejoins and finding the first tablejoin that is a RIGHT JOIN,
+		 * setting all keys for prior tablejoins to be NULL and invoking "tmpl_tablejoin". And redoing this for
+		 * every other RIGHT JOIN until the end of the tablejoin linked list is reached.
+		 */
+		LogicalPlan	*this_table_join;
+		int		num_tables = 0, cur_tables;
+		boolean_t	key_nullified;
+
+		this_table_join = tablejoin;
+		cur_key = 0;
+		key_nullified = FALSE;
+		dot_count = 0;
+		do {
+			assert(LP_TABLE_JOIN == this_table_join->type);
+			this_join_type = (enum SqlJoinType)(this_table_join->extra_detail);
+			if (RIGHT_JOIN == this_join_type)
+			{	/* Set keys of all tables till now to NULL */
+				assert(cur_key < total_keys);
+				cur_tables = 0;
+				for ( ; cur_key < total_keys; cur_key++)
+				{
+					this_table_id = plan->iterKeys[cur_key]->unique_id;
+					if (!plan->treat_key_as_null[this_table_id])
+					{
+						if (cur_tables == num_tables)
+							break;
+						plan->treat_key_as_null[this_table_id] = TRUE;
+						key_nullified = TRUE;
+						cur_tables++;
+					}
+				}
+				assert(cur_key);
+				%}
+    {%				// Ugly indentation of this line needed to ensure proper alignment in generated M code
+				TMPL(tmpl_tablejoin, plan, this_table_join, cur_key, TRUE, dot_count, tableName, columnName);
+				num_tables = 1;	// include this table as first one for next round of RIGHT JOIN key nullification
+			} else
+				num_tables++;
+			this_table_join = this_table_join->v.operand[1];
+		} while (NULL != this_table_join);
+		if (key_nullified)
+		{	/* We nullified at least one key above for a RIGHT JOIN. Undo all of those. */
+			for (cur_key = 0; cur_key < total_keys; cur_key++)
+			{
+				this_table_id = plan->iterKeys[cur_key]->unique_id;
+				plan->treat_key_as_null[this_table_id] = FALSE;
+			}
+		}
+	}
+	TEMPLATE_END();
 }
 %}

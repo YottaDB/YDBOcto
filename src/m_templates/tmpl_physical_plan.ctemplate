@@ -31,6 +31,8 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
 {{ plan->plan_name }}(cursorId)
     {% // The whitespace here is needed for proper M formatting
 
+	assert(NULL == plan->treat_key_as_null);
+	plan->treat_key_as_null = octo_cmalloc(memory_chunks, sizeof(boolean_t) * config->plan_id);
 
     // Check if there are any cross references that need to be built
     // If this a plan for a cross reference, put safeguards in place to prevent building twice
@@ -73,7 +75,8 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
 
     cur_key = 0;
     dot_count = 0;
-    TMPL(tmpl_tablejoin, plan, plan->tablejoin, cur_key, dot_count, tableName, columnName);
+    TMPL(tmpl_tablejoin, plan, plan->tablejoin, cur_key, FALSE, dot_count, tableName, columnName);
+    // Check if there are right joins involved. If so, need to do some post-processing.
 
     // If this expression had an order by, we now need to go back and make the ordering uniform
     // If we have a lot of plans each of which have the same output key and order by, then do this step

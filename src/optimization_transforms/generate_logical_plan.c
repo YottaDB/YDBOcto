@@ -73,7 +73,7 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt, int *plan_id) {
 	// Otherwise we'll malloc things that never get used and waste time
 	cur_join = start_join;
 	do {
-		if(cur_join->type == RIGHT_JOIN || cur_join->type == FULL_JOIN) {
+		if(cur_join->type == FULL_JOIN) {
 			// We want to generate a new SQL statement which has this outer join replaced
 			// by a INNER JOIN, but we later need to make sure we remove the outer join when
 			// creating statements without the second table; when we copy to stmt_t1, which is
@@ -109,55 +109,53 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt, int *plan_id) {
 			// We gotta construct a SELECT where we select all the keys from each table
 			// involved in the JOIN!
 			right_set_opr = NULL;
-			if(cur_join->type == FULL_JOIN) {
-				table_alias_stmt2 = copy_sql_statement(stmt);
-				UNPACK_SQL_STATEMENT(table_alias_t2, table_alias_stmt2, table_alias);
-				UNPACK_SQL_STATEMENT(select_stmt, table_alias_t2->table, select);
-				// Make sure all tables have new keys
-				UNPACK_SQL_STATEMENT(start_join2, select_stmt->table_list, join);
-				cur_join2 = start_join2;
-				removed_joins = 0;
-				do {
-					if(cur_join2->type == cur_join->type && removed_joins == 0) {
-						removed_joins++;
-						cur_join2->prev->next = cur_join2->next;
-						cur_join2->next->prev = cur_join2->prev;
-					} else {
-						UNPACK_SQL_STATEMENT(table_alias, cur_join2->value, table_alias);
-						new_id = (*plan_id)++;
-						update_table_references(table_alias_stmt2, table_alias->unique_id, new_id);
-						table_alias->unique_id = new_id;
-					}
-					cur_join2 = cur_join2->next;
-				} while(cur_join2 != start_join2);
-				replace_table_references(table_alias_stmt2, cur_join->value);
-
-				// Setup the SET operations
-				SQL_STATEMENT(select_stmt->set_operation, set_operation_STATEMENT);
-				MALLOC_STATEMENT(select_stmt->set_operation, set_operation, SqlSetOperation);
-				UNPACK_SQL_STATEMENT(right_set_opr, select_stmt->set_operation, set_operation);
-				right_set_opr->type = SET_EXCEPT_ALL;
-				right_set_opr->operand[0] = table_alias_stmt2;
-				top_set_opr->operand[1] = select_stmt->set_operation;
-
-				table_alias_stmt2 = copy_sql_statement(table_alias_stmt1);
-				UNPACK_SQL_STATEMENT(table_alias_t2, table_alias_stmt2, table_alias);
-				UNPACK_SQL_STATEMENT(select_stmt, table_alias_t2->table, select);
-
-				// Make sure all tables have new keys
-				UNPACK_SQL_STATEMENT(start_join2, select_stmt->table_list, join);
-				// Before assigning new keys, make the right table return null values
-				replace_table_references(select_stmt->select_list, cur_join->value);
-				cur_join2 = start_join2;
-				do {
+			table_alias_stmt2 = copy_sql_statement(stmt);
+			UNPACK_SQL_STATEMENT(table_alias_t2, table_alias_stmt2, table_alias);
+			UNPACK_SQL_STATEMENT(select_stmt, table_alias_t2->table, select);
+			// Make sure all tables have new keys
+			UNPACK_SQL_STATEMENT(start_join2, select_stmt->table_list, join);
+			cur_join2 = start_join2;
+			removed_joins = 0;
+			do {
+				if ((cur_join2->type == cur_join->type) && (0 == removed_joins)) {
+					removed_joins++;
+					cur_join2->prev->next = cur_join2->next;
+					cur_join2->next->prev = cur_join2->prev;
+				} else {
 					UNPACK_SQL_STATEMENT(table_alias, cur_join2->value, table_alias);
 					new_id = (*plan_id)++;
 					update_table_references(table_alias_stmt2, table_alias->unique_id, new_id);
-					cur_join2 = cur_join2->next;
-				} while(cur_join2 != start_join2);
-				right_set_opr->operand[1] = table_alias_stmt2;
-				select_stmt->set_operation = NULL;
-			}
+					table_alias->unique_id = new_id;
+				}
+				cur_join2 = cur_join2->next;
+			} while(cur_join2 != start_join2);
+			replace_table_references(table_alias_stmt2, cur_join->value);
+
+			// Setup the SET operations
+			SQL_STATEMENT(select_stmt->set_operation, set_operation_STATEMENT);
+			MALLOC_STATEMENT(select_stmt->set_operation, set_operation, SqlSetOperation);
+			UNPACK_SQL_STATEMENT(right_set_opr, select_stmt->set_operation, set_operation);
+			right_set_opr->type = SET_EXCEPT_ALL;
+			right_set_opr->operand[0] = table_alias_stmt2;
+			top_set_opr->operand[1] = select_stmt->set_operation;
+
+			table_alias_stmt2 = copy_sql_statement(table_alias_stmt1);
+			UNPACK_SQL_STATEMENT(table_alias_t2, table_alias_stmt2, table_alias);
+			UNPACK_SQL_STATEMENT(select_stmt, table_alias_t2->table, select);
+
+			// Make sure all tables have new keys
+			UNPACK_SQL_STATEMENT(start_join2, select_stmt->table_list, join);
+			// Before assigning new keys, make the right table return null values
+			replace_table_references(select_stmt->select_list, cur_join->value);
+			cur_join2 = start_join2;
+			do {
+				UNPACK_SQL_STATEMENT(table_alias, cur_join2->value, table_alias);
+				new_id = (*plan_id)++;
+				update_table_references(table_alias_stmt2, table_alias->unique_id, new_id);
+				cur_join2 = cur_join2->next;
+			} while(cur_join2 != start_join2);
+			right_set_opr->operand[1] = table_alias_stmt2;
+			select_stmt->set_operation = NULL;
 
 			table_alias_stmt2 = copy_sql_statement(stmt);
 			// If we have a right_set_opr, we need to make a set operation for the second statement
@@ -170,8 +168,6 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt, int *plan_id) {
 				UNPACK_SQL_STATEMENT(top_set_opr, t, set_operation);
 				top_set_opr->type = SET_UNION_ALL;
 				top_set_opr->operand[0] = old_set_opr_stmt;
-			} else {
-				// This is a RIGHT_JOIN, so no further action is needed
 			}
 			UNPACK_SQL_STATEMENT(table_alias_t2, table_alias_stmt2, table_alias);
 			UNPACK_SQL_STATEMENT(select_stmt, table_alias_t2->table, select);
@@ -307,8 +303,8 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt, int *plan_id) {
 	do {
 		SqlStatement	*sql_stmt;
 
-		if ((INNER_JOIN != cur_join->type) && (LEFT_JOIN != cur_join->type) && (CROSS_JOIN != cur_join->type)
-			&& (NO_JOIN != cur_join->type) && (NATURAL_JOIN != cur_join->type))
+		if ((INNER_JOIN != cur_join->type) && (LEFT_JOIN != cur_join->type) && (RIGHT_JOIN != cur_join->type)
+			&& (CROSS_JOIN != cur_join->type) && (NO_JOIN != cur_join->type) && (NATURAL_JOIN != cur_join->type))
 		{
 			// Supported OUTER JOINs should have been handled by now; some unsupported
 			// types may get here

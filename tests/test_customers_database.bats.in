@@ -95,7 +95,7 @@ OCTO
 
 @test "TCD08 : customers database : FULL JOIN" {
   skip	# skip can be removed once https://gitlab.com/YottaDB/DBMS/YDBOcto/issues/179 is fixed
-  	# #179 title : Incorrect answers from OUTER JOIN with condition
+	# #179 title : Incorrect answers from OUTER JOIN with condition
   octo <<OCTO 2>&1 | tee output.txt
 SELECT first_name, last_name, order_date, order_amount
 FROM customers c

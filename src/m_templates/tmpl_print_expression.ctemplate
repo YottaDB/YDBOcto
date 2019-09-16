@@ -60,7 +60,7 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan) {
             %}{{ zwr.buf_addr }}{%
             break;
 	case NUMBER_LITERAL:
-            %}+"{{ value->v.string_literal }}"{%
+            %}"{{ value->v.string_literal }}"{%
             break;
         case COLUMN_REFERENCE:
             // We should only pass LP_COLUMN_ALIASes to this funciton
@@ -76,7 +76,7 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan) {
             %}""{%
             break;
 	case INTEGER_LITERAL:
-            %}"{{ value->v.string_literal }}"\1{%
+            %}"{{ value->v.string_literal }}"{%
             break;
         default:
             FATAL(ERR_UNKNOWN_KEYWORD_STATE, "");

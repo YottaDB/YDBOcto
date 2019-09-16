@@ -6,42 +6,6 @@ OCTO> WHERE t1.age <> -1
 OCTO>   AND t1.age <> 5
 OCTO>   AND t1.age = t2.id
 OCTO>   AND t2.id = t3.id;
-0|Zero|Cool|0|DATE TIME|0|Zero|Cool|0|DATE TIME|0|Zero|Cool|0|DATE TIME|0|Zero|Cool|0|DATE TIME
-0|Zero|Cool|0|DATE TIME|0|Zero|Cool|0|DATE TIME|0|Zero|Cool|0|DATE TIME|1|Acid|Burn|0|DATE TIME
-0|Zero|Cool|0|DATE TIME|0|Zero|Cool|0|DATE TIME|0|Zero|Cool|0|DATE TIME|2|Cereal|Killer|0|DATE TIME
-0|Zero|Cool|0|DATE TIME|0|Zero|Cool|0|DATE TIME|0|Zero|Cool|0|DATE TIME|3|Lord|Nikon|0|DATE TIME
-0|Zero|Cool|0|DATE TIME|0|Zero|Cool|0|DATE TIME|0|Zero|Cool|0|DATE TIME|4|Joey||0|DATE TIME
-0|Zero|Cool|0|DATE TIME|0|Zero|Cool|0|DATE TIME|0|Zero|Cool|0|DATE TIME|5|Zero|Cool|0|DATE TIME
-1|Acid|Burn|0|DATE TIME|0|Zero|Cool|0|DATE TIME|0|Zero|Cool|0|DATE TIME|0|Zero|Cool|0|DATE TIME
-1|Acid|Burn|0|DATE TIME|0|Zero|Cool|0|DATE TIME|0|Zero|Cool|0|DATE TIME|1|Acid|Burn|0|DATE TIME
-1|Acid|Burn|0|DATE TIME|0|Zero|Cool|0|DATE TIME|0|Zero|Cool|0|DATE TIME|2|Cereal|Killer|0|DATE TIME
-1|Acid|Burn|0|DATE TIME|0|Zero|Cool|0|DATE TIME|0|Zero|Cool|0|DATE TIME|3|Lord|Nikon|0|DATE TIME
-1|Acid|Burn|0|DATE TIME|0|Zero|Cool|0|DATE TIME|0|Zero|Cool|0|DATE TIME|4|Joey||0|DATE TIME
-1|Acid|Burn|0|DATE TIME|0|Zero|Cool|0|DATE TIME|0|Zero|Cool|0|DATE TIME|5|Zero|Cool|0|DATE TIME
-2|Cereal|Killer|0|DATE TIME|0|Zero|Cool|0|DATE TIME|0|Zero|Cool|0|DATE TIME|0|Zero|Cool|0|DATE TIME
-2|Cereal|Killer|0|DATE TIME|0|Zero|Cool|0|DATE TIME|0|Zero|Cool|0|DATE TIME|1|Acid|Burn|0|DATE TIME
-2|Cereal|Killer|0|DATE TIME|0|Zero|Cool|0|DATE TIME|0|Zero|Cool|0|DATE TIME|2|Cereal|Killer|0|DATE TIME
-2|Cereal|Killer|0|DATE TIME|0|Zero|Cool|0|DATE TIME|0|Zero|Cool|0|DATE TIME|3|Lord|Nikon|0|DATE TIME
-2|Cereal|Killer|0|DATE TIME|0|Zero|Cool|0|DATE TIME|0|Zero|Cool|0|DATE TIME|4|Joey||0|DATE TIME
-2|Cereal|Killer|0|DATE TIME|0|Zero|Cool|0|DATE TIME|0|Zero|Cool|0|DATE TIME|5|Zero|Cool|0|DATE TIME
-3|Lord|Nikon|0|DATE TIME|0|Zero|Cool|0|DATE TIME|0|Zero|Cool|0|DATE TIME|0|Zero|Cool|0|DATE TIME
-3|Lord|Nikon|0|DATE TIME|0|Zero|Cool|0|DATE TIME|0|Zero|Cool|0|DATE TIME|1|Acid|Burn|0|DATE TIME
-3|Lord|Nikon|0|DATE TIME|0|Zero|Cool|0|DATE TIME|0|Zero|Cool|0|DATE TIME|2|Cereal|Killer|0|DATE TIME
-3|Lord|Nikon|0|DATE TIME|0|Zero|Cool|0|DATE TIME|0|Zero|Cool|0|DATE TIME|3|Lord|Nikon|0|DATE TIME
-3|Lord|Nikon|0|DATE TIME|0|Zero|Cool|0|DATE TIME|0|Zero|Cool|0|DATE TIME|4|Joey||0|DATE TIME
-3|Lord|Nikon|0|DATE TIME|0|Zero|Cool|0|DATE TIME|0|Zero|Cool|0|DATE TIME|5|Zero|Cool|0|DATE TIME
-4|Joey||0|DATE TIME|0|Zero|Cool|0|DATE TIME|0|Zero|Cool|0|DATE TIME|0|Zero|Cool|0|DATE TIME
-4|Joey||0|DATE TIME|0|Zero|Cool|0|DATE TIME|0|Zero|Cool|0|DATE TIME|1|Acid|Burn|0|DATE TIME
-4|Joey||0|DATE TIME|0|Zero|Cool|0|DATE TIME|0|Zero|Cool|0|DATE TIME|2|Cereal|Killer|0|DATE TIME
-4|Joey||0|DATE TIME|0|Zero|Cool|0|DATE TIME|0|Zero|Cool|0|DATE TIME|3|Lord|Nikon|0|DATE TIME
-4|Joey||0|DATE TIME|0|Zero|Cool|0|DATE TIME|0|Zero|Cool|0|DATE TIME|4|Joey||0|DATE TIME
-4|Joey||0|DATE TIME|0|Zero|Cool|0|DATE TIME|0|Zero|Cool|0|DATE TIME|5|Zero|Cool|0|DATE TIME
-5|Zero|Cool|0|DATE TIME|0|Zero|Cool|0|DATE TIME|0|Zero|Cool|0|DATE TIME|0|Zero|Cool|0|DATE TIME
-5|Zero|Cool|0|DATE TIME|0|Zero|Cool|0|DATE TIME|0|Zero|Cool|0|DATE TIME|1|Acid|Burn|0|DATE TIME
-5|Zero|Cool|0|DATE TIME|0|Zero|Cool|0|DATE TIME|0|Zero|Cool|0|DATE TIME|2|Cereal|Killer|0|DATE TIME
-5|Zero|Cool|0|DATE TIME|0|Zero|Cool|0|DATE TIME|0|Zero|Cool|0|DATE TIME|3|Lord|Nikon|0|DATE TIME
-5|Zero|Cool|0|DATE TIME|0|Zero|Cool|0|DATE TIME|0|Zero|Cool|0|DATE TIME|4|Joey||0|DATE TIME
-5|Zero|Cool|0|DATE TIME|0|Zero|Cool|0|DATE TIME|0|Zero|Cool|0|DATE TIME|5|Zero|Cool|0|DATE TIME
 OCTO> 
 ;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
 ;; ---------------------------------------------------------
@@ -63,11 +27,11 @@ octoPlan1(cursorId)
     NEW %ydboctoz KILL %ydboctocursor(cursorId,"keys",5,"","")
     SET %ydboctocursor(cursorId,"keys",0,"NAMESWITHAGES","ID")=""
     FOR  SET %ydboctocursor(cursorId,"keys",0,"NAMESWITHAGES","ID")=$ORDER(^names(%ydboctocursor(cursorId,"keys",0,"NAMESWITHAGES","ID"))) QUIT:(%ydboctocursor(cursorId,"keys",0,"NAMESWITHAGES","ID")="")  DO
-    . SET %ydboctocursor(cursorId,"keys",1,"NAMESWITHAGES","ID")=($PIECE($GET(^names(%ydboctocursor(cursorId,"keys",0,"NAMESWITHAGES","ID"))),"|",4)\1) IF $DATA(^names(%ydboctocursor(cursorId,"keys",1,"NAMESWITHAGES","ID")))'=0 DO
-    . . SET %ydboctocursor(cursorId,"keys",2,"NAMESWITHAGES","ID")=(%ydboctocursor(cursorId,"keys",1,"NAMESWITHAGES","ID")\1) IF $DATA(^names(%ydboctocursor(cursorId,"keys",2,"NAMESWITHAGES","ID")))'=0 DO
+    . SET %ydboctocursor(cursorId,"keys",1,"NAMESWITHAGES","ID")=$PIECE($GET(^names(%ydboctocursor(cursorId,"keys",0,"NAMESWITHAGES","ID"))),"|",4) IF $DATA(^names(%ydboctocursor(cursorId,"keys",1,"NAMESWITHAGES","ID")))'=0 DO
+    . . SET %ydboctocursor(cursorId,"keys",2,"NAMESWITHAGES","ID")=%ydboctocursor(cursorId,"keys",1,"NAMESWITHAGES","ID") IF $DATA(^names(%ydboctocursor(cursorId,"keys",2,"NAMESWITHAGES","ID")))'=0 DO
     . . . SET %ydboctocursor(cursorId,"keys",3,"NAMESWITHAGES","ID")=""
     . . . FOR  SET %ydboctocursor(cursorId,"keys",3,"NAMESWITHAGES","ID")=$ORDER(^names(%ydboctocursor(cursorId,"keys",3,"NAMESWITHAGES","ID"))) QUIT:(%ydboctocursor(cursorId,"keys",3,"NAMESWITHAGES","ID")="")  DO
-    . . . . IF 1&(((($PIECE($GET(^names(%ydboctocursor(cursorId,"keys",0,"NAMESWITHAGES","ID"))),"|",4)\1)'=-+"1")&(($PIECE($GET(^names(%ydboctocursor(cursorId,"keys",0,"NAMESWITHAGES","ID"))),"|",4)\1)'=+"5"))) DO
+    . . . . IF 1&((($PIECE($GET(^names(%ydboctocursor(cursorId,"keys",0,"NAMESWITHAGES","ID"))),"|",4)'=-"1")&($PIECE($GET(^names(%ydboctocursor(cursorId,"keys",0,"NAMESWITHAGES","ID"))),"|",4)'="5"))) DO
     . . . . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",5,"","")) %ydboctoz=42
-    . . . . . SET:1 %ydboctocursor(cursorId,"keys",5,"","",%ydboctocursor(cursorId,"keys",5,"",""))=$GET(%ydboctocursor(cursorId,"keys",5,"","",%ydboctocursor(cursorId,"keys",5,"","")))_(%ydboctocursor(cursorId,"keys",0,"NAMESWITHAGES","ID")\1)_"|"_($PIECE($GET(^names(%ydboctocursor(cursorId,"keys",0,"NAMESWITHAGES","ID"))),"|",2))_"|"_($PIECE($GET(^names(%ydboctocursor(cursorId,"keys",0,"NAMESWITHAGES","ID"))),"|",3))_"|"_($PIECE($GET(^names(%ydboctocursor(cursorId,"keys",0,"NAMESWITHAGES","ID"))),"|",4)\1)_"|"_$ZDATE($HOROLOG,"YEAR-MM-DD 24:60:SS")_"|"_(%ydboctocursor(cursorId,"keys",1,"NAMESWITHAGES","ID")\1)_"|"_($PIECE($GET(^names(%ydboctocursor(cursorId,"keys",1,"NAMESWITHAGES","ID"))),"|",2))_"|"_($PIECE($GET(^names(%ydboctocursor(cursorId,"keys",1,"NAMESWITHAGES","ID"))),"|",3))_"|"_($PIECE($GET(^names(%ydboctocursor(cursorId,"keys",1,"NAMESWITHAGES","ID"))),"|",4)\1)_"|"_$ZDATE($HOROLOG,"YEAR-MM-DD 24:60:SS")_"|"_(%ydboctocursor(cursorId,"keys",2,"NAMESWITHAGES","ID")\1)_"|"_($PIECE($GET(^names(%ydboctocursor(cursorId,"keys",2,"NAMESWITHAGES","ID"))),"|",2))_"|"_($PIECE($GET(^names(%ydboctocursor(cursorId,"keys",2,"NAMESWITHAGES","ID"))),"|",3))_"|"_($PIECE($GET(^names(%ydboctocursor(cursorId,"keys",2,"NAMESWITHAGES","ID"))),"|",4)\1)_"|"_$ZDATE($HOROLOG,"YEAR-MM-DD 24:60:SS")_"|"_(%ydboctocursor(cursorId,"keys",3,"NAMESWITHAGES","ID")\1)_"|"_($PIECE($GET(^names(%ydboctocursor(cursorId,"keys",3,"NAMESWITHAGES","ID"))),"|",2))_"|"_($PIECE($GET(^names(%ydboctocursor(cursorId,"keys",3,"NAMESWITHAGES","ID"))),"|",3))_"|"_($PIECE($GET(^names(%ydboctocursor(cursorId,"keys",3,"NAMESWITHAGES","ID"))),"|",4)\1)_"|"_$ZDATE($HOROLOG,"YEAR-MM-DD 24:60:SS")
+    . . . . . SET:1 %ydboctocursor(cursorId,"keys",5,"","",%ydboctocursor(cursorId,"keys",5,"",""))=$GET(%ydboctocursor(cursorId,"keys",5,"","",%ydboctocursor(cursorId,"keys",5,"","")))_%ydboctocursor(cursorId,"keys",0,"NAMESWITHAGES","ID")_"|"_$PIECE($GET(^names(%ydboctocursor(cursorId,"keys",0,"NAMESWITHAGES","ID"))),"|",2)_"|"_$PIECE($GET(^names(%ydboctocursor(cursorId,"keys",0,"NAMESWITHAGES","ID"))),"|",3)_"|"_$PIECE($GET(^names(%ydboctocursor(cursorId,"keys",0,"NAMESWITHAGES","ID"))),"|",4)_"|"_$ZDATE($HOROLOG,"YEAR-MM-DD 24:60:SS")_"|"_%ydboctocursor(cursorId,"keys",1,"NAMESWITHAGES","ID")_"|"_$PIECE($GET(^names(%ydboctocursor(cursorId,"keys",1,"NAMESWITHAGES","ID"))),"|",2)_"|"_$PIECE($GET(^names(%ydboctocursor(cursorId,"keys",1,"NAMESWITHAGES","ID"))),"|",3)_"|"_$PIECE($GET(^names(%ydboctocursor(cursorId,"keys",1,"NAMESWITHAGES","ID"))),"|",4)_"|"_$ZDATE($HOROLOG,"YEAR-MM-DD 24:60:SS")_"|"_%ydboctocursor(cursorId,"keys",2,"NAMESWITHAGES","ID")_"|"_$PIECE($GET(^names(%ydboctocursor(cursorId,"keys",2,"NAMESWITHAGES","ID"))),"|",2)_"|"_$PIECE($GET(^names(%ydboctocursor(cursorId,"keys",2,"NAMESWITHAGES","ID"))),"|",3)_"|"_$PIECE($GET(^names(%ydboctocursor(cursorId,"keys",2,"NAMESWITHAGES","ID"))),"|",4)_"|"_$ZDATE($HOROLOG,"YEAR-MM-DD 24:60:SS")_"|"_%ydboctocursor(cursorId,"keys",3,"NAMESWITHAGES","ID")_"|"_$PIECE($GET(^names(%ydboctocursor(cursorId,"keys",3,"NAMESWITHAGES","ID"))),"|",2)_"|"_$PIECE($GET(^names(%ydboctocursor(cursorId,"keys",3,"NAMESWITHAGES","ID"))),"|",3)_"|"_$PIECE($GET(^names(%ydboctocursor(cursorId,"keys",3,"NAMESWITHAGES","ID"))),"|",4)_"|"_$ZDATE($HOROLOG,"YEAR-MM-DD 24:60:SS")
     QUIT

@@ -42,7 +42,7 @@ The following environment variables must be set:
 * ydb_ci
 * ydb_xc_ydbposix
 
-The environment variables `ydb_dist`, `ydb_gbldir`, and `ydb_routines` can initially be set by souring `ydb_env_set` in your YottaDB installation directory. Additional modifications to ydb_routines may be needed due to configuration in `octo.conf` described later in this manual.
+The environment variables `ydb_dist`, `ydb_gbldir`, and `ydb_routines` can initially be set by sourcing `ydb_env_set` in your YottaDB installation directory.
 
 Example setting of the environment variables (assuming default paths):
 
@@ -56,7 +56,9 @@ Example setting of the environment variables (assuming default paths):
 Routines
 ~~~~~~~~~~~~~~
 
-Octo requires that :code:`$ydb_dist/plugin/o/_ydbocto.so` and the path configured for :code:`routine_cache` in :code:`octo.conf` be part of :code:`$ydb_routines` - both for running the :code:`octo` and :code:`rocto` excutables and added to your normal environment setup scripts as YottaDB triggers are used to maintain cross references for Octo.
+The optional configuration :code:`octo_zroutines` in :code:`octo.conf` can be used to set :code:`$zroutines` (in addition to :code:`$ydb_routines`). :code:`octo_zroutines` will be prepended to :code:`$ydb_routines`.
+
+Octo requires that :code:`$ydb_dist/plugin/o/_ydbocto.so` be in $zroutines, and for at least one valid source directory to exist. The first source directory found in :code:`$zroutines` (after prepending :code:`octo_zroutines` if it is defined in :code:`octo.conf`) will be where generated code is placed.
 
 ~~~~~~~~~~~~~
 Logging

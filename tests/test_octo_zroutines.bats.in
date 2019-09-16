@@ -19,7 +19,7 @@ setup() {
   load_fixture names.zwr
 }
 
-@test "try no routine_cache with directory as first element in \$zroutines" {
+@test "try no octo_zroutines with directory as first element in \$zroutines" {
   mkdir dirA
   export ydb_routines="$(pwd)/dirA $ydb_routines"
   octo <<OCTO 2>&1 | tee output.txt
@@ -27,10 +27,10 @@ select * from names limit 1;
 OCTO
   echo "Listing of dirA should see generated files" | tee -a output.txt
   ls dirA | tee -a output.txt
-  verify_output TRC000 output.txt
+  verify_output TOZ000 output.txt
 }
 
-@test "try no routine_cache with directory as second element in \$zroutines" {
+@test "try no octo_zroutines with directory as second element in \$zroutines" {
   mkdir dirA
   export ydb_routines="@PROJECT_BINARY_DIR@/src/_ydbocto.so $(pwd)/dirA $ydb_routines"
   octo <<OCTO 2>&1 | tee output.txt
@@ -38,10 +38,10 @@ select * from names limit 1;
 OCTO
   echo "Listing of dirA should see generated files" | tee -a output.txt
   ls dirA | tee -a output.txt
-  verify_output TRC001 output.txt
+  verify_output TOZ001 output.txt
 }
 
-@test "try no routine_cache with object(source) syntax in \$zroutines" {
+@test "try no octo_zroutines with object(source) syntax in \$zroutines" {
   mkdir dirA dirB
   export ydb_routines="$(pwd)/dirA($(pwd)/dirB) $ydb_routines"
   octo <<OCTO 2>&1 | tee output.txt
@@ -51,21 +51,21 @@ OCTO
   ls dirA | tee -a output.txt
   echo "Listing of dirB should see generated M file" | tee -a output.txt
   ls dirB | tee -a output.txt
-  verify_output TRC002 output.txt
+  verify_output TOZ002 output.txt
 }
 
-@test "try no routine_cache with no valid directories in \$zroutines" {
+@test "try no octo_zroutines with no valid directories in \$zroutines" {
   export ydb_routines="@PROJECT_BINARY_DIR@/src/_ydbocto.so"
   octo <<OCTO 2>&1 | tee output.txt
 select * from names limit 1;
 OCTO
-  verify_output TRC003 output.txt
+  verify_output TOZ003 output.txt
 }
 
-@test "try with routine_cache set and in \$zroutines" {
+@test "try with octo_zroutines set and in \$zroutines" {
   mkdir dirA
   cat >>octo.conf <<OCTO
-routine_cache = "$(pwd)/dirA"
+octo_zroutines = "$(pwd)/dirA"
 OCTO
   export ydb_routines="$(pwd)/dirA $ydb_routines"
   octo <<OCTO 2>&1 | tee output.txt
@@ -73,20 +73,20 @@ select * from names limit 1;
 OCTO
   echo "Listing of dirA should see generated files" | tee -a output.txt
   ls dirA | tee -a output.txt
-  verify_output TRC004 output.txt
+  verify_output TOZ004 output.txt
 }
 
-@test "try with routine_cache set but not in \$zroutines" {
+@test "try with octo_zroutines set but not in \$zroutines" {
   mkdir dirA
   cat >>octo.conf <<OCTO
-routine_cache = "$(pwd)/dirA"
+octo_zroutines = "$(pwd)/dirA"
 OCTO
   octo <<OCTO 2>&1 | tee output.txt
 select * from names limit 1;
 OCTO
   echo "Listing of dirA should see generated files" | tee -a output.txt
   ls dirA | tee -a output.txt
-  verify_output TRC005 output.txt
+  verify_output TOZ005 output.txt
 }
 
 @test "use .*() as first element in \$zroutines" {
@@ -97,7 +97,7 @@ select * from names limit 1;
 OCTO
   echo "Listing of dirA should see generated files" | tee -a output.txt
   ls dirA | tee -a output.txt
-  verify_output TRC006 output.txt
+  verify_output TOZ006 output.txt
 }
 
 @test "use a non-existent directory as first element in \$zroutines" {
@@ -108,25 +108,53 @@ OCTO
   grep "YottaDB error: 150374634,(SimpleAPI),%YDB-E-ZROSYNTAX" output.txt
 }
 
-@test "use a non-existent directory as first element in routine_cache" {
+@test "use a non-existent directory as first element in octo_zroutines" {
   cat >>octo.conf <<OCTO
-routine_cache = "$(pwd)/dirA"
+octo_zroutines = "$(pwd)/dirA"
 OCTO
   octo <<OCTO 2>&1 | tee output.txt
 select * from names limit 1;
 OCTO
   sed -i 's/found: \/.*\/dirA/found: PATHTO_dirA/' output.txt
-  verify_output TRC007 output.txt
+  verify_output TOZ007 output.txt
 }
 
-@test "use a regular file as value of routine_cache" {
+@test "use a regular file as value of octo_zroutines" {
   cat >>octo.conf <<OCTO
-routine_cache = "$(pwd)/fileA"
+octo_zroutines = "$(pwd)/fileA"
 OCTO
   touch fileA
   octo <<OCTO 2>&1 | tee output.txt
 select * from names limit 1;
 OCTO
   sed -i 's/directory: \/.*\/fileA/PATHTO_fileA/' output.txt
-  verify_output TRC008 output.txt
+  verify_output TOZ008 output.txt
+}
+
+@test "use object(source) syntax as value of octo_zroutines" {
+  mkdir dirA dirB
+  cat >> octo.conf <<OCTO
+octo_zroutines = "$(pwd)/dirA($(pwd)/dirB)"
+OCTO
+  octo <<OCTO 2>&1 | tee output.txt
+select * from names limit 1;
+OCTO
+  echo "Listing of dirA should see generated object file" | tee -a output.txt
+  ls dirA | tee -a output.txt
+  echo "Listing of dirB should see generated M file" | tee -a output.txt
+  ls dirB | tee -a output.txt
+  verify_output TOZ009 output.txt
+}
+
+
+@test "set \$zroutines entirely though octo_zroutines" {
+  cat >>octo.conf <<OCTO
+octo_zroutines = "$ydb_routines"
+OCTO
+  unset ydb_routines
+  unset gtmroutines
+  octo <<OCTO 2>&1 | tee output.txt
+select * from names limit 1;
+OCTO
+  verify_output TOZ010 output.txt
 }

@@ -163,12 +163,12 @@ void init_crypto() {
 
 int octo_init(int argc, char **argv) {
 	int			status, i;
-	unsigned int		c;
+	unsigned int		c, zro_buf_size = ZRO_INIT_ALLOC;
 	config_t		*config_file;
 	config_setting_t	*ydb_settings, *cur_ydb_setting;
 	const char		*item_name, *item_value;
 	char			*default_octo_conf, buff[OCTO_PATH_MAX];
-	char			*homedir, *ydb_dist, zro_buf[ZRO_INIT_ALLOC], ydb_errbuf[2048];
+	char			*homedir, *ydb_dist, *zro_buf, ydb_errbuf[2048], *tmp_buf;
 	ydb_buffer_t		zroutines, dollar_zro;
 	DIR			*dir;
 
@@ -255,131 +255,35 @@ int octo_init(int argc, char **argv) {
 		FATAL(ERR_BAD_CONFIG, "verbosity");
 	}
 
-	if(config_lookup_string(config_file, "routine_cache", &config->tmp_dir) == CONFIG_FALSE) {
-		/* if this is not set then parse $ydb_routines for the first source directory
-		 * and place generated M code in there */
-		char *zro_buf_start;
+	if(config_lookup_string(config_file, "octo_zroutines", (const char**) &tmp_buf) == CONFIG_TRUE) {
+		/* prepend to the start of $zroutines */
 		YDB_LITERAL_TO_BUFFER("$zroutines", &dollar_zro);
-		zroutines.buf_addr = zro_buf;
-		/* -2 to account for the padding (space and null-terminator) at the end */
-		zroutines.len_alloc = sizeof(zro_buf) - 2;
-		zroutines.len_used = 0;
-		status = ydb_get_s(&dollar_zro, 0, NULL, &zroutines);
-		/* if the stack buffer isn't large enough allocate more and call ydb_get_s() again */
-		if(YDB_ERR_INVSTRLEN == status){
-			/* +2 to account for the padding at the end */
-			zroutines.buf_addr = malloc(zroutines.len_used + 2);
-			zroutines.len_alloc = zroutines.len_used + 2;
-			zroutines.len_used = 0;
-			status = ydb_get_s(&dollar_zro, 0, NULL, &zroutines);
+		zro_buf = malloc(zro_buf_size);
+		c = strlen(tmp_buf);
+		/* resize if ZRO_INIT_ALLOC is too small
+		 * *2 to avoid a potential resize later */
+		if (zro_buf_size < c + 1){
+			zro_buf_size = (c + 1) * 2;
+			free(zro_buf);
+			zro_buf = malloc(zro_buf_size);
 		}
-		zro_buf_start = zroutines.buf_addr;
-		if(YDB_OK != status){
-			ydb_zstatus(ydb_errbuf, sizeof(ydb_errbuf));
-			FATAL(ERR_YOTTADB, ydb_errbuf);
-		}
-		/* trim leading white space */
-		c = 0;
-		status = TRUE;
-		while(c < zroutines.len_used && status){
-			switch(zroutines.buf_addr[c]){
-				case ' ' :
-					c++;
-					break;
-				default:
-					status = FALSE;
-					break;
-			}
-		}
-		zroutines.buf_addr += c;
-		zroutines.len_used -= c;
-		c = 0;
-		// pad end of zroutines with a space to trigger the switch case
-		zroutines.buf_addr[zroutines.len_used] = ' ';
-		zroutines.buf_addr[zroutines.len_used + 1] = '\0';
-		struct stat statbuf;
-		while('\0' != zroutines.buf_addr[c]){
-			switch(zroutines.buf_addr[c]){
-				/* white space characters, and right paren are delimiters */
-				case ' ' :
-				case ')' :
-					/* terminate everything read up to this point
-					 * if last character is a '*' remove it
-					 */
-					if (1 < c){
-						if ('*' == zroutines.buf_addr[c-1]){
-							c--;
-						}
-					}
-					/* check if this path is a directory
-					 * if it is not move the start of the string to the next token
-					 */
-					zroutines.buf_addr[c] = '\0';
-					status = stat(zroutines.buf_addr, &statbuf);
-					/* if 0 == c don't emit an error since that is just the empty string */
-					if (0 != status && 0 != c){
-						FATAL(ERR_SYSCALL, "stat", errno, strerror(errno));
-					}
-					if(!S_ISDIR(statbuf.st_mode)){
-						zroutines.buf_addr += (c+1);
-						c = 0;
-						break;
-					}
-					config->tmp_dir = malloc(c);
-					/* cast to char* to avoid strcpy warning this is safe to do here */
-					strcpy((char*) config->tmp_dir, zroutines.buf_addr);
-					break;
-				case '(':
-					/* if a '(' is found shift start of string */
-					zroutines.buf_addr += (c+1);
-					c = 0;
-					break;
-				default:
-					c++;
-					break;
-			}
-		}
-		if(!config->tmp_dir){
-			FATAL(ERR_BAD_ROUTINE_CACHE, NULL);
-		}
-		/* if zro_buf_start is different from zro_buf we malloc'ed a new buffer
-		 * so free the new buffer
-		 */
-		if(zro_buf_start != zro_buf){
-			free(zroutines.buf_addr);
-		}
-	} else {
-		/* routine cache is set so add it zroutines */
-		YDB_LITERAL_TO_BUFFER("$zroutines", &dollar_zro);
-		/* if routine_cache is not a valid directory then issue an error */
-		struct stat statbuf;
-		status = stat(config->tmp_dir, &statbuf);
-		if (0 != status){
-			/* if errno 2 (file not found) give a more specific error */
-			if(2 == errno){
-				status = snprintf(ydb_errbuf, sizeof(ydb_errbuf), "routine_cache: Directory not found: %s", config->tmp_dir);
-				FATAL(ERR_BAD_CONFIG, ydb_errbuf);
-			} else {
-				FATAL(ERR_SYSCALL, "stat", errno, strerror(errno));
-			}
-		}
-		if(!S_ISDIR(statbuf.st_mode)){
-			status = snprintf(ydb_errbuf, sizeof(ydb_errbuf), "routine_cache: Not a directory: %s", config->tmp_dir);
-			FATAL(ERR_BAD_CONFIG, ydb_errbuf);
-		}
-		c = strlen(config->tmp_dir);
-		strcpy(zro_buf, config->tmp_dir);
+		strncpy(zro_buf, tmp_buf, c);
 		zro_buf[c] = ' ';
 		c++;
 		zroutines.buf_addr = zro_buf + c;
-		zroutines.len_alloc = sizeof(zro_buf) - c;
+		zroutines.len_alloc = zro_buf_size - c;
 		zroutines.len_used = 0;
 		status = ydb_get_s(&dollar_zro, 0, NULL, &zroutines);
 		/* if the stack buffer isn't large enough allocate more and call ydb_get_s() again */
 		if(YDB_ERR_INVSTRLEN == status){
-			/* +2 to account for the padding at the end */
-			zroutines.buf_addr = malloc(zroutines.len_used + 2);
-			zroutines.len_alloc = zroutines.len_used + 2;
+			zro_buf_size = zroutines.len_used + c + 1;
+			char *tmp;
+			tmp = malloc(zro_buf_size);
+			strncpy(tmp, zro_buf, c);
+			free(zro_buf);
+			zro_buf = tmp;
+			zroutines.buf_addr = zro_buf + c;
+			zroutines.len_alloc = zroutines.len_used;
 			zroutines.len_used = 0;
 			status = ydb_get_s(&dollar_zro, 0, NULL, &zroutines);
 		}
@@ -387,12 +291,119 @@ int octo_init(int argc, char **argv) {
 			ydb_zstatus(ydb_errbuf, sizeof(ydb_errbuf));
 			FATAL(ERR_YOTTADB, ydb_errbuf);
 		}
+		/* back the pointer up to the start of the buffer */
 		zroutines.buf_addr = zro_buf;
-		zroutines.len_alloc = sizeof(zro_buf);
 		zroutines.len_used += c;
+		zroutines.len_alloc = zro_buf_size;
 		status = ydb_set_s(&dollar_zro, 0, NULL, &zroutines);
-		assert(YDB_OK == status);
+		if(YDB_ERR_ZROSYNTAX == status || YDB_ERR_DLLNOOPEN == status){
+			FATAL(ERR_BAD_CONFIG, "octo_zroutines");
+		} else if (YDB_OK != status){
+			ydb_zstatus(ydb_errbuf, sizeof(ydb_errbuf));
+			FATAL(ERR_YOTTADB, ydb_errbuf);
+		}
+		setenv("ydb_routines", zro_buf, TRUE);
+	} else {
+		/* otherwise just get $zroutines */
+		YDB_LITERAL_TO_BUFFER("$zroutines", &dollar_zro);
+		zro_buf = malloc(zro_buf_size);
+		zroutines.buf_addr = zro_buf;
+		zroutines.len_alloc = zro_buf_size;
+		zroutines.len_used = 0;
+		status = ydb_get_s(&dollar_zro, 0, NULL, &zroutines);
+		/* if ZRO_INIT_ALLOC isn't large enough allocate more and call ydb_get_s() again */
+		if(YDB_ERR_INVSTRLEN == status){
+			zro_buf_size = zroutines.len_used + 1;
+			free(zro_buf);
+			zro_buf = malloc(zro_buf_size);
+			zroutines.buf_addr = zro_buf;
+			zroutines.len_alloc = zro_buf_size;
+			zroutines.len_used = 0;
+			status = ydb_get_s(&dollar_zro, 0, NULL, &zroutines);
+		}
+		if(YDB_OK != status){
+			ydb_zstatus(ydb_errbuf, sizeof(ydb_errbuf));
+			FATAL(ERR_YOTTADB, ydb_errbuf);
+		}
 	}
+	/* check if buffer will need a resize with the padding */
+	if(zroutines.len_alloc - 2 < zroutines.len_used) {
+		char *tmp = malloc(zroutines.len_alloc + 2);
+		strncpy(tmp, zro_buf, zroutines.len_used);
+		free(zro_buf);
+		zro_buf = tmp;
+		zroutines.buf_addr = zro_buf;
+	}
+	/* trim leading white space */
+	c = 0;
+	status = TRUE;
+	while(c < zroutines.len_used && status){
+		switch(zroutines.buf_addr[c]){
+			case ' ' :
+				c++;
+				break;
+			default:
+				status = FALSE;
+				break;
+		}
+	}
+	zroutines.buf_addr += c;
+	zroutines.len_used -= c;
+	c = 0;
+	/* pad end of zroutines with a space to trigger the switch case */
+	zroutines.buf_addr[zroutines.len_used] = ' ';
+	zroutines.buf_addr[zroutines.len_used + 1] = '\0';
+	zroutines.len_used += 2;
+	struct stat statbuf;
+	while('\0' != zroutines.buf_addr[c]){
+		switch(zroutines.buf_addr[c]){
+			/* white space characters, and right paren are delimiters */
+			case ' ' :
+			case ')' :
+				/* terminate everything read up to this point
+				 * if last character is a '*' remove it
+				 */
+				if (1 < c){
+					if ('*' == zroutines.buf_addr[c-1]){
+						c--;
+					}
+				}
+				/* check if this path is a directory
+				 * if it is not move the start of the string to the next token
+				 */
+				zroutines.buf_addr[c] = '\0';
+				status = stat(zroutines.buf_addr, &statbuf);
+				/* if 0 == c don't emit an error since that is just the empty string
+				 * if 2 == errno (file does not exist) don't emit an error just skip it
+				 */
+				if (0 != status && 2 != errno && 0 != c){
+					FATAL(ERR_SYSCALL, "stat", errno, strerror(errno));
+				}
+				if(!S_ISDIR(statbuf.st_mode)){
+					zroutines.buf_addr += (c+1);
+					c = 0;
+					break;
+				}
+				/* +1 for null terminator */
+				config->tmp_dir = malloc(c + 1);
+				/* cast to char* to avoid strcpy warning this is safe to do here */
+				strncpy((char*) config->tmp_dir, zroutines.buf_addr, c + 1);
+				break;
+			case '(':
+				/* if a '(' is found shift start of string */
+				zroutines.buf_addr += (c+1);
+				c = 0;
+				break;
+			default:
+				c++;
+				break;
+		}
+	}
+	if(!config->tmp_dir){
+		FATAL(ERR_BAD_ZROUTINES, NULL);
+	}
+	free(zro_buf);
+
 	if(config_lookup_string(config_file, "rocto.address", &config->rocto_config.address)
 			== CONFIG_FALSE) {
 		FATAL(ERR_BAD_CONFIG, "rocto.address");

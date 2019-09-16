@@ -1,2 +1,0 @@
-[ INFO] PATH:LINENUM DATE TIME : Loading config from ./octo.conf
-[FATAL] PATH:LINENUM DATE TIME : Bad config setting: routine_cache: Directory not found: PATHTO_dirA

@@ -349,8 +349,8 @@ typedef struct SqlSelectStatement
 	struct SqlStatement	*optional_words;
 	// SqlSetOperation
 	struct SqlStatement	*set_operation;
-	boolean_t		disable_dnf_where_expression;	/* TRUE if it is not okay to do Disjunctive Normal Form expansion */
-	boolean_t		disable_dnf_usable;	/* TRUE if "disable_dnf_where_expression" field has been computed */
+	int			num_outer_joins;		/* total # of outer joins used in this query */
+	boolean_t		num_outer_joins_computed;	/* TRUE if "num_outer_joins" field has been computed */
 } SqlSelectStatement;
 
 typedef struct SqlInsertStatement

@@ -43,6 +43,7 @@ TEMPLATE(print_dots, int dots);
 TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan);
 TEMPLATE(tmpl_tablejoin, PhysicalPlan *plan, LogicalPlan *tablejoin, unsigned int cur_key, int dot_count,		\
 										char *tableName, char *columnName);
+TEMPLATE(tmpl_tablejoin_innerjoin, PhysicalPlan *plan, LogicalPlan *tablejoin, int *dot_count);
 TEMPLATE(tmpl_tablejoin_leftjoin, PhysicalPlan *plan, LogicalPlan *tablejoin, unsigned int cur_key, int *dot_count);
 TEMPLATE(tmpl_tablejoin_body, PhysicalPlan *plan, int dot_count, char *tableName, char *columnName);
 TEMPLATE(tmpl_key_start, SqlKey *key);

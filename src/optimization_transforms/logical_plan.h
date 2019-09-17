@@ -86,7 +86,7 @@ typedef struct LogicalPlan {
 		// Set if type == LP_PIECE_NUMBER
 		int piece_number;
 	} v;
-	struct LogicalPlan	*outer_join_condition;	/* currently used only if "type" is LP_TABLE_JOIN */
+	struct LogicalPlan	*join_on_condition;	/* currently used only if "type" is LP_TABLE_JOIN */
 } LogicalPlan;
 
 typedef struct SqlKey {

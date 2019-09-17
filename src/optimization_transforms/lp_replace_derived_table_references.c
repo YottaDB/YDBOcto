@@ -42,7 +42,7 @@ LogicalPlan *lp_replace_derived_table_references(LogicalPlan *root, LogicalPlan 
 	// Update table references in join conditions (if they exist)
 	table_join = lp_get_table_join(root);
 	do {
-		t = table_join->outer_join_condition;
+		t = table_join->join_on_condition;
 		if (NULL != t)
 			t->v.operand[0] = lp_replace_helper(t->v.operand[0], table_alias, key);
 		table_join = table_join->v.operand[1];

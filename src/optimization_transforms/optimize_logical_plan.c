@@ -112,8 +112,9 @@ LogicalPlan *join_tables(LogicalPlan *root, LogicalPlan *plan) {
 
 LogicalPlan *optimize_logical_plan(LogicalPlan *plan) {
 	LogicalPlan	*select, *table_join, *where;
-	boolean_t	disable_dnf_expansion, plan_has_outer_joins;
+	boolean_t	disable_dnf_expansion;
 	LogicalPlan	*new_plan;
+	int		num_outer_joins;
 
 	if(plan->type == LP_SET_OPERATION) {
 		plan->v.operand[1]->v.operand[0] = optimize_logical_plan(plan->v.operand[1]->v.operand[0]);
@@ -136,7 +137,8 @@ LogicalPlan *optimize_logical_plan(LogicalPlan *plan) {
 	// If there are no "OR" or "AND" statements, fix key values
 	where = lp_get_select_where(plan);
 	new_plan = plan;
-	disable_dnf_expansion = where->extra_detail;
+	num_outer_joins = where->extra_detail;
+	disable_dnf_expansion = (1 < num_outer_joins);
 	if (!disable_dnf_expansion)
 	{
 		where->v.operand[0] = lp_make_normal_disjunctive_form(where->v.operand[0]);
@@ -165,21 +167,17 @@ LogicalPlan *optimize_logical_plan(LogicalPlan *plan) {
 			return optimize_logical_plan(new_plan);
 	}
 	// Perform optimizations where we are able
-	plan_has_outer_joins = FALSE;
 	do {
 		assert(LP_TABLE_JOIN == table_join->type);
-		if (NULL != table_join->outer_join_condition)
-		{
-			lp_optimize_where_multi_equal_ands(plan, table_join->outer_join_condition);
-			plan_has_outer_joins = TRUE;
-		}
+		if (NULL != table_join->join_on_condition)
+			lp_optimize_where_multi_equal_ands(plan, table_join->join_on_condition);
 		table_join = table_join->v.operand[1];
 	} while (NULL != table_join);
 	/* In case an OUTER JOIN exists, we cannot easily optimize the WHERE condition.
 	 * Care has to be taken while invoking key fixing optimizations. Will be done at a later time.
 	 * Skip it for now.
 	 */
-	if (!plan_has_outer_joins)
+	if (!num_outer_joins)
 		lp_optimize_where_multi_equal_ands(plan, where);
 	return new_plan;
 }

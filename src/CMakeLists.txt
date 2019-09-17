@@ -305,6 +305,7 @@ set(template_dir ${PROJECT_SOURCE_DIR}/src/m_templates)
 set(template_files
   ${template_dir}/tmpl_physical_plan.ctemplate
   ${template_dir}/tmpl_tablejoin.ctemplate
+  ${template_dir}/tmpl_tablejoin_innerjoin.ctemplate
   ${template_dir}/tmpl_tablejoin_leftjoin.ctemplate
   ${template_dir}/tmpl_tablejoin_body.ctemplate
   ${template_dir}/tmpl_key_start.ctemplate

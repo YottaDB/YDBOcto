@@ -36,7 +36,7 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt, int *plan_id) {
 	SqlJoin			*cur_join2, *start_join2;
 	SqlColumnListAlias	*list;
 	SqlTableAlias		*table_alias, *table_alias_t1, *table_alias_t2;
-	int			removed_joins, new_id;
+	int			removed_joins, new_id, num_outer_joins;
 	enum SqlJoinType 	cur_join_type;
 
 	// Set operations should be handled in a different function
@@ -48,10 +48,8 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt, int *plan_id) {
 	UNPACK_SQL_STATEMENT(select_stmt, table_alias->table, select);
 	UNPACK_SQL_STATEMENT(start_join, select_stmt->table_list, join);
 
-	if (!select_stmt->disable_dnf_usable)
+	if (!select_stmt->num_outer_joins_computed)
 	{
-		int		num_outer_joins;
-
 		/* If we have not already done so, determine whether it is okay to expand boolean expression to
 		 * Disjunctive Normal Form. If LEFT/RIGHT/FULL JOIN (all of them are OUTER JOINs) nesting is involved,
 		 * avoid the expansion as it causes a LOT of plans to be generated. Each LEFT JOIN and RIGHT JOIN causes
@@ -67,9 +65,10 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt, int *plan_id) {
 				num_outer_joins++;
 			cur_join = cur_join->next;
 		} while (cur_join != start_join);
-		select_stmt->disable_dnf_where_expression = (1 < num_outer_joins);
-		select_stmt->disable_dnf_usable = TRUE;
+		select_stmt->num_outer_joins = num_outer_joins;
+		select_stmt->num_outer_joins_computed= TRUE;
 	}
+	num_outer_joins = select_stmt->num_outer_joins;
 	// Before we get too far, scan the joins for OUTER JOINs and handle them
 	// Otherwise we'll malloc things that never get used and waste time
 	cur_join = start_join;
@@ -303,8 +302,8 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt, int *plan_id) {
 	join_right = NULL;
 	UNPACK_SQL_STATEMENT(start_join, select_stmt->table_list, join);
 	cur_join = start_join;
-	start_join_condition = NULL;
 	cur_join_type = NO_JOIN;
+	start_join_condition = NULL;
 	do {
 		SqlStatement	*sql_stmt;
 
@@ -333,17 +332,21 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt, int *plan_id) {
 			join_left = generate_logical_plan(sql_stmt, plan_id);
 			join_right->v.operand[0] = join_left;
 		}
-		join_right->outer_join_condition = NULL;
+		join_right->join_on_condition = NULL;
 		cur_join_type = cur_join->type;
 		join_right->extra_detail = cur_join_type;
 		if (cur_join->condition)
 		{
 			MALLOC_LP_2ARGS(t_join_condition, LP_WHERE);
 			t_join_condition->v.operand[0] = lp_generate_where(cur_join->condition, plan_id);
-			if ((LEFT_JOIN == cur_join_type) || (RIGHT_JOIN == cur_join_type) || (FULL_JOIN == cur_join_type))
-				join_right->outer_join_condition = t_join_condition;
+			if (num_outer_joins)
+				join_right->join_on_condition = t_join_condition;
 			else
+			{	/* No OUTER JOINs. We can safely add the ON clause in the join condition to the
+				 * WHERE clause without risk of correctness issues.
+				 */
 				start_join_condition = lp_join_where(start_join_condition, t_join_condition);
+			}
 		}
 		cur_join = cur_join->next;
 	} while(cur_join != start_join);
@@ -384,7 +387,7 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt, int *plan_id) {
 		select_options->v.operand[0] = where;
 	}
 	where->v.operand[1] = NULL;
-	where->extra_detail = select_stmt->disable_dnf_where_expression;	/* used later in "optimize_logical_plan" */
+	where->extra_detail = num_outer_joins;	/* used later in "optimize_logical_plan" */
 
 	// Handle factoring in derived columns
 	left = select->v.operand[0];

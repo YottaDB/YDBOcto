@@ -69,6 +69,10 @@ tls: {
 OCTO
 }
 
+copy_test_file() {
+  cp @PROJECT_SOURCE_DIR@/tests/$1 $test_temp/$2
+}
+
 copy_test_files() {
   for f in $@; do
     mkdir -p $test_temp/$(dirname $f)
@@ -155,6 +159,22 @@ set_null_subs() {
   $ydb_dist/mupip set -region $1 -NULL_SUBSCRIPTS=$2
 }
 
+find_open_port() {
+  if [[ $1 =~ ^[-+]?[0-9]+$ ]]; then
+    open_port=$1
+  else
+    open_port=1337
+  fi
+  lsof -i:$open_port &> /dev/null
+  result=$?
+  while [[ ! $result ]]; do
+    open_port=$(($open_port+1))
+    lsof -i:$open_port &> /dev/null
+    result=$?
+  done
+  echo $open_port
+}
+
 start_rocto() {
   echo "ROCTO START" >> env.log
   env >> env.log
@@ -165,18 +185,13 @@ start_rocto() {
     # Allow optional second argument
     opt2=$2
   fi
-  if [[ "" != $1 ]]; then
-    rocto $quiet -p $1 $2 &> rocto.log &
-  else
-    rocto $quiet $2 &> rocto.log &
-  fi
+  rocto_port=$(find_open_port $1)
+  rocto $quiet -p $rocto_port $2 &> rocto.log &
   echo $! > rocto.pid
-  # Track time slept in case quiet is set
-  slept=0
-  while [[ "$(grep -c "rocto started" rocto.log)" == "0" && $slept -lt 200 ]]; do
+  while [[ "$(grep -c "rocto started" rocto.log)" == "0" ]]; do
     sleep .1s
-    slept=$slept+1
   done
+  echo $rocto_port
 }
 
 stop_rocto() {
@@ -205,6 +220,7 @@ run_psql_auth() {
 }
 
 run_psql_expect() {
+  unset PGPASSWORD
   (expect -d -f @PROJECT_SOURCE_DIR@/tests/fixtures/$1.exp $2 > expect.out) &> expect.dbg
 }
 

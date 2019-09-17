@@ -23,7 +23,7 @@ setup() {
   load_fixture pastas.sql
   load_fixture pastas.zwr
   load_fixture default_user.zwr
-  start_rocto 1339
+  test_port=$(start_rocto 1339)
   sleep 1
 }
 
@@ -33,14 +33,14 @@ teardown() {
 
 @test "test no MD5 authentication failure" {
   # Use non-existent user
-  run_psql_auth buttons bobby 1339 <<OCTO 2>&1 | tee output.txt
+  run_psql_auth buttons bobby $test_port <<OCTO 2>&1 | tee output.txt
 SELECT * FROM names;
 OCTO
     [[ ! "$(cat results.log)" =~ "read failure: failed to read MD5 password" ]]
 }
 
 @test "select wildcard columns" {
-  run_psql 1339 <<OCTO 2>&1 | tee output.txt
+  run_psql $test_port <<OCTO 2>&1 | tee output.txt
 SELECT * FROM names;
 OCTO
   [[ "$(grep -c -E "Zero.\+|Cool" output.txt)" == "2" ]]
@@ -48,35 +48,35 @@ OCTO
 
 @test "select wildcard columns with envvar ydb_lvnullsubs=2 (used to previously error out with LVNULLSUBS)" {
   export ydb_lvnullsubs=2
-  run_psql 1339 <<OCTO 2>&1 | tee output.txt
+  run_psql $test_port <<OCTO 2>&1 | tee output.txt
 SELECT * FROM names;
 OCTO
   [[ "$(grep -c -E "Zero.\+|Cool" output.txt)" == "2" ]]
 }
 
 @test "select lastName only (empty row+column check)" {
-  run_psql 1339 <<OCTO 2>&1 | tee output.txt
+  run_psql $test_port <<OCTO 2>&1 | tee output.txt
 SELECT lastName FROM names;
 OCTO
   verify_output T0011 output.txt noinfo nodebug
 }
 
 @test "select two empty columns only (empty row+column check)" {
-  run_psql 1339 <<OCTO 2>&1 | tee output.txt
+  run_psql $test_port <<OCTO 2>&1 | tee output.txt
 SELECT lastName, favoritePasta FROM names4;
 OCTO
   verify_output T0012 output.txt noinfo nodebug
 }
 
 @test "invalid syntax should get an error message" {
-  run_psql 1339 <<OCTO 2>&1 | tee output.txt
+  run_psql $test_port <<OCTO 2>&1 | tee output.txt
 SELECT * AFRO names;
 OCTO
   [[ "$(grep -c -E "syntax error" output.txt)" == "1" ]]
 }
 
 @test "ensure correct columns are sent using xref" {
-  run_psql 1339 <<OCTO 2>&1 | tee output.txt
+  run_psql $test_port <<OCTO 2>&1 | tee output.txt
 SELECT * FROM names WHERE firstName = "Zero";
 OCTO
   [[ "$(grep -c -E "0.+Zero.+Cool" output.txt)" == "1" ]]
@@ -88,9 +88,9 @@ OCTO
   if [[ $status -ne 0 ]]; then
     echo "rocto: { use_dns: false; }" > octo.conf
   fi
-  start_rocto 1339
+  start_rocto $test_port
   sleep 5
-  run_psql 1339 <<OCTO 2>&1 | tee output.txt
+  run_psql $test_port <<OCTO 2>&1 | tee output.txt
 SELECT * FROM names WHERE firstName = "Zero";
 OCTO
   [[ $(grep -c "127.0.0.1" rocto.log) -ge 1 ]]
@@ -102,16 +102,16 @@ OCTO
   if [[ $status -ne 0 ]]; then
     echo "rocto: { use_dns: true; }" > octo.conf
   fi
-  start_rocto 1339
+  start_rocto $test_port
   sleep 5
-  run_psql 1339 <<OCTO 2>&1 | tee output.txt
+  run_psql $test_port <<OCTO 2>&1 | tee output.txt
 SELECT * FROM names WHERE firstName = "Zero";
 OCTO
   [[ $(grep -c "localhost" rocto.log) -ge 1 ]]
 }
 
 @test "verify that dead procs don't become zombies" {
-  run_psql 1339 <<OCTO 2>&1 | tee output.txt
+  run_psql $test_port <<OCTO 2>&1 | tee output.txt
 SELECT * FROM names;
 OCTO
   # Sleep for a moment so rocto has time to clean the PID
@@ -127,7 +127,7 @@ OCTO
   cat <<OCTO &> octo.conf
 rocto: {
 	ssl_on: true;
-	port: 1339;
+	port: $test_port;
 }
 
 tls: {
@@ -147,7 +147,7 @@ OCTO
 
 @test "ensure socket cleanup when rocto process is killed" {
   kill -9 $(cat rocto.pid)
-  start_rocto 1339
+  start_rocto $test_port
   log=$(cat rocto.log)
   [[ ! "$log" =~ "System error 98: Address already in use" ]]
 }
@@ -155,7 +155,7 @@ OCTO
 @test "ensure error message when trying to call an M function in rocto" {
   DDOLAR='$$'
   cp @PROJECT_SOURCE_DIR@/tests/fixtures/USERFUNC1.m .
-  run_psql 1339 <<OCTO 2>&1 | tee output.txt
+  run_psql $test_port <<OCTO 2>&1 | tee output.txt
 select $DDOLAR^userfunc1(42) from names;
 OCTO
   verify_output T0023 output.txt noinfo nodebug
@@ -165,7 +165,7 @@ OCTO
   query="select id from names"
   expectstring="Parsing done for SQL command \[$query\]"
   echo $query > query.sql
-  run_psql 1339 < query.sql 2>&1 | tee output.txt
+  run_psql $test_port < query.sql 2>&1 | tee output.txt
   octo -vv -f query.sql 2>&1 | tee octo.log
   [[ $(grep -c "$expectstring" rocto.log) -eq 1 ]]
   [[ $(grep -c "$expectstring" octo.log) -eq 1 ]]
@@ -174,7 +174,7 @@ OCTO
 @test "start rocto without --allowschemachanges and try to change the schema" {
   yottadb -run %XCMD 'set ^T1(1,2)="1|2",^T1(42,9001)="42|9001",^T1(1337,42)="1337|42"'
   stop_rocto
-  start_rocto 1339
+  start_rocto $test_port
   cat >> in.sql <<OCTO
 select * from t1;
 create table t1(a int, b int);
@@ -183,14 +183,14 @@ drop table t1;
 select * from names limit 1;
 OCTO
   cat in.sql 2>&1 | tee output.txt
-  run_psql 1339 < in.sql 2>&1 | tee -a output.txt
+  run_psql $test_port < in.sql 2>&1 | tee -a output.txt
   verify_output TPC000 output.txt noinfo nodebug
 }
 
 @test "start rocto with --allowschemachanges and try to change the schema" {
   yottadb -run %XCMD 'set ^T1(1,2)="1|2",^T1(42,9001)="42|9001",^T1(1337,42)="1337|42"'
   stop_rocto
-  start_rocto 1339 --allowschemachanges
+  start_rocto $test_port --allowschemachanges
   cat >> in.sql <<OCTO
 select * from t1;
 create table t1(a int, b int);
@@ -199,14 +199,14 @@ drop table t1;
 select * from t1;
 OCTO
   cat in.sql 2>&1 | tee output.txt
-  run_psql 1339 < in.sql 2>&1 | tee -a output.txt
+  run_psql $test_port < in.sql 2>&1 | tee -a output.txt
   verify_output TPC001 output.txt noinfo nodebug
 }
 
 @test "start rocto with -a and try to change the schema" {
   yottadb -run %XCMD 'set ^T1(1,2)="1|2",^T1(42,9001)="42|9001",^T1(1337,42)="1337|42"'
   stop_rocto
-  start_rocto 1339 --allowschemachanges
+  start_rocto $test_port --allowschemachanges
   cat >> in.sql <<OCTO
 select * from t1;
 create table t1(a int, b int);
@@ -215,12 +215,12 @@ drop table t1;
 select * from t1;
 OCTO
   cat in.sql 2>&1 | tee output.txt
-  run_psql 1339 < in.sql 2>&1 | tee -a output.txt
+  run_psql $test_port < in.sql 2>&1 | tee -a output.txt
   verify_output TPC001 output.txt noinfo nodebug
 }
 
 @test "shutdown connection on FATAL error" {
-  run_psql 1339 <<OCTO 2>&1 | tee output.txt
+  run_psql $test_port <<OCTO 2>&1 | tee output.txt
 SELECT 1/0 from names;
 OCTO
     sed -i 's/octoPlan.*\^/NUM/' output.txt

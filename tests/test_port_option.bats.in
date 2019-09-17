@@ -46,8 +46,12 @@ rocto: {
   port: 1400;
 }
 OCTO
-  start_rocto
-  sleep 5
+  # Avoid the find_open_port function for this test case
+  rocto -vv &> rocto.log &
+  echo $! > rocto.pid
+  while [[ "$(grep -c "rocto started" rocto.log)" == "0" ]]; do
+    sleep .1s
+  done
   [[ "$(grep -c "rocto started on port 1400" rocto.log)" == "1" ]]
 }
 

@@ -33,14 +33,42 @@ teardown() {
 }
 
 @test "ensure log output split across multiple lines" {
+  # Spawn several client-server process pairs to create potential for log interleaving
   for i in {1..10}; do
-    (
-    run_psql $test_port & <<OCTO
+    # Account for TLS and non-TLS pipelines
+    if [[ @YDB_TLS_AVAILABLE@ -eq 1 ]]; then
+      ssl_disable=""
+    else
+      ssl_disable=" sslmode=disable"
+    fi
+    PGPASSWORD=ydbrocks psql -U ydb "host=localhost port=$test_port$ssl_disable" & <<OCTO
 SELECT * FROM names;
+SELECT firstname FROM names where lastname = "Cool";
+SELECT * FROM names where id = 5;
+SELECT a.firstname FROM names a inner join names b one firstname = "Acid";
+SELECT * FROM names;
+SELECT firstname FROM names where lastname = "Cool";
+SELECT * FROM names where id = 5;
+SELECT a.firstname FROM names a inner join names b one firstname = "Acid";
 OCTO
-    )
+    echo -n "$! " >> psql_pids.log
   done
-  sleep 5
+  # Wait for psql processes to die
+  for pid in $(cat psql_pids.log); do
+    $ydb_dist/mumps -run ^%XCMD "do ^waitforproctodie($pid)"
+    echo $pid >> deadpids.log
+  done
+
+  # Wait for rocto.log to be populated with 10 rocto server pids (for each of the 10 psql process started above)
+  while [[ $(grep -c "with pid" rocto.log) -lt 10 ]]; do
+    sleep .1
+  done
+
+  # Wait for server processes to die
+  grep "with pid" rocto.log | sed 's/^.*rocto server process forked with pid \([0-9]*\)/\1/' | while read pid; do
+    echo "$pid" >> server_pids.log
+    $ydb_dist/mumps -run ^%XCMD "do ^waitforproctodie($pid)"
+    echo $pid >> deadpids.log
+  done
   verify_output TLS01 rocto.log nodebug nowarn psql sort
 }
-

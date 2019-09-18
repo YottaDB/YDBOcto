@@ -35,7 +35,6 @@ teardown() {
 }
 
 @test "ensure cancel requests abort complicated queries (many joins)" {
-  copy_test_file fixtures/HANGTIME.m HANGTIME.m
   yottadb -run ^%XCMD 'set ^%ydboctoocto("functions","HANGTIME")="$$^HANGTIME"'
   run_psql_expect cancel_psql_many_joins $test_port &> output.txt
   verify_output TCR01 expect.out noinfo nodebug noexpect stripreturns

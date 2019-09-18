@@ -29,3 +29,4 @@ tags
 
 roctolist.md
 src/gtmcrypt/
+tests/fixtures/*.o

@@ -517,6 +517,7 @@ comparison_predicate
       MALLOC_STATEMENT($$, binary, SqlBinaryOperation);
       ($$)->v.binary->operation = BOOLEAN_REGEX_SENSITIVE;
       ($$)->v.binary->operands[0] = ($1);
+      trim_dot_star(($3)->v.value);
       ($$)->v.binary->operands[1] = ($3);
     }
   | row_value_constructor TILDE ASTERISK row_value_constructor {
@@ -524,6 +525,7 @@ comparison_predicate
       MALLOC_STATEMENT($$, binary, SqlBinaryOperation);
       ($$)->v.binary->operation = BOOLEAN_REGEX_INSENSITIVE;
       ($$)->v.binary->operands[0] = ($1);
+      trim_dot_star(($4)->v.value);
       ($$)->v.binary->operands[1] = ($4);
     }
   | row_value_constructor EXCLAMATION TILDE row_value_constructor {
@@ -534,6 +536,7 @@ comparison_predicate
       ($$)->v.unary->operation = BOOLEAN_NOT;
       (($$)->v.unary->operand)->v.binary->operation = BOOLEAN_REGEX_SENSITIVE;
       (($$)->v.unary->operand)->v.binary->operands[0] = ($1);
+      trim_dot_star(($4)->v.value);
       (($$)->v.unary->operand)->v.binary->operands[1] = ($4);
     }
   | row_value_constructor EXCLAMATION TILDE ASTERISK row_value_constructor {
@@ -544,6 +547,7 @@ comparison_predicate
       ($$)->v.unary->operation = BOOLEAN_NOT;
       (($$)->v.unary->operand)->v.binary->operation = BOOLEAN_REGEX_INSENSITIVE;
       (($$)->v.unary->operand)->v.binary->operands[0] = ($1);
+      trim_dot_star(($5)->v.value);
       (($$)->v.unary->operand)->v.binary->operands[1] = ($5);
     }
   | row_value_constructor LIKE row_value_constructor {
@@ -554,9 +558,11 @@ comparison_predicate
       SqlValue *value;
       UNPACK_SQL_STATEMENT(value, $3, value);
       if(value->type == COERCE_TYPE) {
-        value->v.coerce_target->v.value->v.string_literal = regex_to_like(value->v.coerce_target->v.value->v.string_literal);
+          value->v.coerce_target->v.value->v.string_literal = regex_to_like(value->v.coerce_target->v.value->v.string_literal);
+          trim_dot_star(value->v.coerce_target->v.value);
       } else {
-        value->v.string_literal = regex_to_like(value->v.string_literal);
+          value->v.string_literal = regex_to_like(value->v.string_literal);
+          trim_dot_star(value);
       }
       ($$)->v.binary->operands[1] = ($3);
     }
@@ -570,7 +576,13 @@ comparison_predicate
       (($$)->v.unary->operand)->v.binary->operands[0] = ($1);
       SqlValue *value;
       UNPACK_SQL_STATEMENT(value, $4, value);
-      value->v.string_literal = regex_to_like(value->v.string_literal);
+      if(value->type == COERCE_TYPE) {
+          value->v.coerce_target->v.value->v.string_literal = regex_to_like(value->v.coerce_target->v.value->v.string_literal);
+          trim_dot_star(value->v.coerce_target->v.value);
+      } else {
+          value->v.string_literal = regex_to_like(value->v.string_literal);
+          trim_dot_star(value);
+      }
       (($$)->v.unary->operand)->v.binary->operands[1] = ($4);
     }
   ;

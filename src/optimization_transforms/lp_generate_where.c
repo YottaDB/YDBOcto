@@ -82,19 +82,26 @@ LogicalPlan *lp_generate_where(SqlStatement *stmt, int *plan_id) {
 			MALLOC_LP_2ARGS(ret, type);
 			ret->v.operand[0] = lp_generate_where(binary->operands[0], plan_id);
 			ret->v.operand[1] = lp_generate_where(binary->operands[1], plan_id);
-			/// OPTIMIZATION: if this is a regex, see if the pattern is entirely characters,
-			// and if so, change it to a LP_BOOLEAN_EQUALS so we can optimize it later
-			if(ret->type == LP_BOOLEAN_REGEX_SENSITIVE && ret->v.operand[1]->type == LP_VALUE) {
+			/* OPTIMIZATION: if this is a regex
+			 * see if the pattern is entirely characters,
+			 * and if so, change it to a LP_BOOLEAN_EQUALS so we can optimize it later
+			 *
+			 * see if the pattern is entirely .*'s
+			 * if so change it to a LP_VALUE->true as that matches everything and doesn't need to go though the engine
+			 */
+			if((ret->type == LP_BOOLEAN_REGEX_SENSITIVE || ret->type == LP_BOOLEAN_REGEX_INSENSITIVE) && ret->v.operand[1]->type == LP_VALUE) {
 				SqlValue *value = ret->v.operand[1]->v.value;
 				if(value->type != STRING_LITERAL && value->type != NUMBER_LITERAL && value->type != INTEGER_LITERAL) {
 					break;
 				}
 				char *c = value->v.string_literal;
-				if(*c != '^') {
-					break;
+				if ('^' == *c){
+					c++;
 				}
-				c++;
-				int done = FALSE;
+				/* flags for optimization
+				 * loop through the regex once and disable the flags as they are ruled out
+				 */
+				int done = FALSE, is_literal = TRUE, is_dot_star = TRUE;
 				while(*c != '\0' && *c != '$' && !done) {
 					switch(*c) {
 					case '\\':
@@ -107,26 +114,47 @@ LogicalPlan *lp_generate_where(SqlStatement *stmt, int *plan_id) {
 					case '[':
 					case ']':
 					case '?':
-					case '.':
-					case '|':
+
+						is_literal = FALSE;
 						done = TRUE;
 						break;
+					case '.':
+						/* peek at the next character if it is a * skip it and keep parsing
+						 * otherwise break out of the loop as we found a '.'
+						 */
+						if('*' == *(c+1)){
+							c += 2;
+							is_literal = FALSE;
+						} else {
+							is_dot_star = FALSE;
+							done = TRUE;
+						}
+						break;
 					default:
+						is_dot_star = FALSE;
 						c++;
 						break;
 					}
+
 				}
-				if(*c != '$') {
+				if('$' == *c){
+					c++;
+				}
+				if('\0' == *c && is_dot_star){
+					ret->type = LP_VALUE;
+					ret->v.value->type = BOOLEAN_VALUE;
+					ret->v.value->v.string_literal = "1";
 					break;
 				}
-				c++;
-				if(*c == '\0') {
-					if(value->v.string_literal[0] == '^') {
-						value->v.string_literal = value->v.string_literal + 1;
-					}
-					if(*(c - 1) == '$') {
-						*(c - 1) = '\0';
-					}
+
+				/* check that the start and end of the regex is ^$
+				 * and is a sensitive regex*/
+				if('$' != *(c - 1) || '^' != value->v.string_literal[0] || ret->type == LP_BOOLEAN_REGEX_INSENSITIVE) {
+					break;
+				}
+				if('\0' == *c && is_literal) {
+					value->v.string_literal = value->v.string_literal + 1;
+					*(c - 1) = '\0';
 					ret->type = LP_BOOLEAN_EQUALS;
 				}
 			}

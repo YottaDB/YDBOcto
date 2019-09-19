@@ -185,6 +185,7 @@ add_library(libocto OBJECT
   cleanup_tables.c
   parser/query_specification.c
   parser/sort_specification.c
+  parser/trim_dot_star.c
   ${BISON_OctoParser_OUTPUTS}
   ${FLEX_OctoLexer_OUTPUTS}
   ${POST_CONFIGURE_FILE}

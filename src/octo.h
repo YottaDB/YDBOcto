@@ -153,6 +153,9 @@ SqlStatement *query_specification(SqlStatement *set_quantifier, SqlStatement *se
 					SqlStatement *table_expression, SqlStatement *sort_specification_list, int *plan_id);
 SqlStatement *sort_specification(SqlStatement *sort_key, SqlStatement *collate_clause, SqlStatement *ordering_specification);
 
+/* trims duplicate '.*'s from regex */
+void trim_dot_star(SqlValue *regex);
+
 /**
  * Returns TRUE if the columns are equal, FALSE otherwise
  */

@@ -179,9 +179,10 @@ OCTO
   verify_output TWO13 output.txt
 }
 
-@test "TWO14 : LIKE with integer cast" {
+@test "TWO14 : [NOT] LIKE with integer cast" {
   octo <<OCTO 2>&1 | tee output.txt
 select * from names where id like 4::integer;
+select * from names where id not like 4::integer;
 OCTO
   # Include generated M code in reference file to verify all optimizations there
   cat _ydboctoP*.m >> output.txt
@@ -210,4 +211,45 @@ CAT
   cat input.sql > output.txt
   octo -f input.sql >> output.txt 2>&1
   verify_output TWO16 output.txt
+}
+
+@test "TWO17 : WHERE [NOT] LIKE '%'" {
+  octo <<OCTO 2>&1 | tee output.txt
+select * from names where firstname like "%";
+select * from names where firstname like "%%%%%%";
+select * from names where firstname not like "%";
+select * from names where firstname not like "%%%%%%";
+OCTO
+  run grep "regmatch" _ydboctoP*.m
+  [[ $status -eq 1 ]]
+  cat _ydboctoP*.m >> output.txt
+  verify_output TWO17 output.txt
+}
+
+@test "TWO18 : WHERE [!]~[*] '.*'" {
+  octo <<OCTO 2>&1 | tee output.txt
+select * from names where firstname ~ ".*";
+select * from names where firstname ~ ".*.*.*.*";
+select * from names where firstname !~ ".*";
+select * from names where firstname !~ ".*.*.*.*";
+select * from names where firstname ~* ".*";
+select * from names where firstname ~* ".*.*.*.*";
+select * from names where firstname !~* ".*";
+select * from names where firstname !~* ".*.*.*.*";
+OCTO
+  run grep "regmatch" _ydboctoP*.m
+  [[ $status -eq 1 ]]
+  cat _ydboctoP*.m >> output.txt
+  verify_output TWO18 output.txt
+}
+
+@test "TWO19 : WHERE [NOT] LIKE '%%abc%%" {
+  octo <<OCTO 2>&1 | tee output.txt
+select * from names where firstname like "%%abc%%";
+select * from names where firstname not like "%%abc%%";
+OCTO
+  run grep "regmatch" _ydboctoP*.m
+  [[ $status -eq 0 ]]
+  cat _ydboctoP*.m >> output.txt
+  verify_output TWO19 output.txt
 }

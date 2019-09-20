@@ -14,22 +14,25 @@
 #include "physical_plan.h"
 #include "template_helpers.h"
 
-TEMPLATE(tmpl_tablejoin_rightjoin, PhysicalPlan *plan, LogicalPlan *tablejoin,			\
+TEMPLATE(tmpl_tablejoin_rightjoin, PhysicalPlan *plan, LogicalPlan *tablejoin, boolean_t skip_on_condition,	\
 			unsigned int key_start, unsigned int key_end, int *dot_count) {
 	TEMPLATE_INIT();
 
 	LogicalPlan		*join_condition;
 
-	join_condition = tablejoin->join_on_condition;
-	if (NULL != join_condition)
-		join_condition = join_condition->v.operand[0];
-	if (NULL != join_condition) {
-		TMPL(print_dots, *dot_count);
-		%}IF ({%
-		TMPL(tmpl_print_expression, join_condition, plan);
-		%}) DO
-    {%		// Ugly indentation of this line needed to ensure proper alignment in generated M code
-		(*dot_count)++;
+	if (!skip_on_condition)
+	{
+		join_condition = tablejoin->join_on_condition;
+		if (NULL != join_condition)
+			join_condition = join_condition->v.operand[0];
+		if (NULL != join_condition) {
+			TMPL(print_dots, *dot_count);
+			%}IF ({%
+			TMPL(tmpl_print_expression, join_condition, plan);
+			%}) DO
+    {%			// Ugly indentation of this line needed to ensure proper alignment in generated M code
+			(*dot_count)++;
+		}
 	}
 	TMPL(print_dots, *dot_count);
 	%}SET %%ydboctoz({%

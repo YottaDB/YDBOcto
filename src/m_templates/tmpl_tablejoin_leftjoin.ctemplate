@@ -33,7 +33,7 @@ TEMPLATE(tmpl_tablejoin_leftjoin, PhysicalPlan *plan, LogicalPlan *tablejoin, un
 	TMPL(print_dots, *dot_count);
 	%}SET %%ydboctoz({%
 	TMPL(snprintf, "%d", cur_key);
-	%})=""
+	%})=1
     {%	// Ugly indentation of this line needed to ensure proper alignment in generated M code
 	TEMPLATE_END();
 }

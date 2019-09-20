@@ -43,11 +43,9 @@ genouterjoinqueries	;
 	. ; choose column names that are join candidates for each table
 	. set i=1,sqlquery=sqlquery_" from "_table(i)_" "_tablealias(i)_i
 	. set fulljoinchosen=0,notequalchosen=0	;  ###TMPDISABLE (until FULL JOINs work AND != check in LEFT JOINs work)
-	. set rightjoinchosen=0			;  ###TMPDISABLE (until RIGHT JOINs work)
 	. for i=2:1:numjoins  do
 	. . set modulo=$random(4)
 	. . set sqlquery=sqlquery_" "_joinstr(modulo)_" "_table(i)_" "_tablealias(i)_i
-	. . set:modulo=2 rightjoinchosen=1
 	. . set:modulo=3 fulljoinchosen=1
 	. . set modulo=$random(2)
 	. . set sqlquery=sqlquery_" on "_tablealias(i-1)_(i-1)_".customer_id "_$select(modulo:"!",1:"")
@@ -58,7 +56,6 @@ genouterjoinqueries	;
 	. ;	--> ERROR:  FULL JOIN is only supported with merge-joinable or hash-joinable join conditions
 	. quit:fulljoinchosen&notequalchosen
 	. quit:notequalchosen			; ###TMPDISABLE until #311 is fixed
-	. quit:fulljoinchosen			; ###TMPDISABLE (until FULL JOIN work correctly in all cases)
 	. set file="jointest"_$translate($justify($incr(q),2)," ","0")_".sql"
 	. open file:(newversion)  use file
 	. write sqlquery,!

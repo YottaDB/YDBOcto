@@ -24,7 +24,7 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *plan, LogicalPlan *tablejoin, unsigned in
 	enum SqlJoinType	this_join_type, next_join_type;
 	SqlOptionalKeyword	*keyword;
 	LogicalPlan		*right_tablejoin;
-	boolean_t		nested_call;
+	boolean_t		nested_call, this_join_is_left_join;
 
 	total_keys = plan->total_iter_keys;
 	assert(((NULL != tablejoin) && (LP_TABLE_JOIN == tablejoin->type)) || ((NULL == tablejoin) && (cur_key == total_keys)));
@@ -35,8 +35,9 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *plan, LogicalPlan *tablejoin, unsigned in
 	}
 	nested_call = FALSE;
 	this_join_type = ((NULL == tablejoin) ? NO_JOIN : (enum SqlJoinType)(tablejoin->extra_detail));
+	this_join_is_left_join = ((LEFT_JOIN == this_join_type) || ((FULL_JOIN == this_join_type) && !right_join_second_half));
 	key_start = cur_key;
-	assert((RIGHT_JOIN != this_join_type) || cur_key);
+	assert(((RIGHT_JOIN != this_join_type) && (FULL_JOIN != this_join_type)) || cur_key);
 	for ( ; cur_key < total_keys; cur_key++) {
 		// For each key, output the key start, a FOR loop, QUIT, and increment
 		key = plan->iterKeys[cur_key];
@@ -45,7 +46,7 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *plan, LogicalPlan *tablejoin, unsigned in
 			nested_call = TRUE;
 			break;
 		}
-		if ((LEFT_JOIN == this_join_type) && plan->treat_key_as_null[key->unique_id])
+		if (this_join_is_left_join && plan->treat_key_as_null[key->unique_id])
 			continue;
 		/* If this is the second half of the right join, then treat all keys as non-fixed.
 		 * And do not include cross-reference keys. Only primary-keys. This is because we want
@@ -103,13 +104,13 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *plan, LogicalPlan *tablejoin, unsigned in
 	// If there is an OUTER JOIN with an ON condition, generate an IF statement in M for doing the check
 	if (INNER_JOIN == this_join_type)
 		TMPL(tmpl_tablejoin_innerjoin, plan, tablejoin, &dot_count);
-	if ((LEFT_JOIN == this_join_type) && !plan->treat_key_as_null[left_table_id])
+	if (this_join_is_left_join && !plan->treat_key_as_null[left_table_id])
 		TMPL(tmpl_tablejoin_leftjoin, plan, tablejoin, key_start, &dot_count);
-	if (RIGHT_JOIN == this_join_type)
+	if ((RIGHT_JOIN == this_join_type) || (FULL_JOIN == this_join_type))
 	{
 		if (!right_join_second_half)
 		{
-			TMPL(tmpl_tablejoin_rightjoin, plan, tablejoin, key_start, cur_key, &dot_count);
+			TMPL(tmpl_tablejoin_rightjoin, plan, tablejoin, this_join_is_left_join, key_start, cur_key, &dot_count);
 		} else
 		{	/* Generate code for second half of RIGHT JOIN */
 			/* First, if there are any cross-reference keys, generate code to set them based off the primary key.
@@ -152,12 +153,15 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *plan, LogicalPlan *tablejoin, unsigned in
 	{
 		right_tablejoin = tablejoin->v.operand[1];
 		next_join_type = (enum SqlJoinType)(right_tablejoin->extra_detail);
+		// Treat a FULL_JOIN as a LEFT_JOIN at this stage. It will be treated as a RIGHT JOIN at a later stage.
+		if (FULL_JOIN == next_join_type)
+			next_join_type = LEFT_JOIN;
 		if (LEFT_JOIN == next_join_type)
 		{
 			TMPL(print_dots, dot_count);
-			%}KILL %%ydboctoz({%
+			%}SET %%ydboctoz({%
 			TMPL(snprintf, "%d", cur_key);
-			%})
+			%})=0
     {%			// Ugly indentation of this line needed to ensure proper alignment in generated M code
 		}
 		TMPL(tmpl_tablejoin, plan, right_tablejoin, cur_key, FALSE, dot_count, tableName, columnName);
@@ -167,9 +171,9 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *plan, LogicalPlan *tablejoin, unsigned in
 			%}
     {%			// Ugly indentation of this line needed to ensure proper alignment in generated M code
 			TMPL(print_dots, dot_count);
-			%}IF '$DATA(%%ydboctoz({%
+			%}IF %%ydboctoz({%
 			TMPL(snprintf, "%d", cur_key);
-			%})) DO
+			%})=0 DO
     {%			// Ugly indentation of this line needed to ensure proper alignment in generated M code
 			dot_count++;
 			/* Treat all keys in the right table as NULL and invoke nested joins (if needed) */
@@ -200,7 +204,7 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *plan, LogicalPlan *tablejoin, unsigned in
 		do {
 			assert(LP_TABLE_JOIN == this_table_join->type);
 			this_join_type = (enum SqlJoinType)(this_table_join->extra_detail);
-			if (RIGHT_JOIN == this_join_type)
+			if ((RIGHT_JOIN == this_join_type) || (FULL_JOIN == this_join_type))
 			{	/* Set keys of all tables till now to NULL */
 				assert(cur_key < total_keys);
 				cur_tables = 0;

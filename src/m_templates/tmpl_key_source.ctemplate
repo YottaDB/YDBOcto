@@ -30,7 +30,7 @@ TEMPLATE(tmpl_key_source, PhysicalPlan *pplan, SqlKey *key) {
 
 	// If there is no table, this is a temporary key;
 	//  use cursor to store the value
-	if(key->value == NULL && key->table == NULL) {
+	if ((NULL == key->value) && (NULL == key->table)) {
 		TMPL(tmpl_temp_key_advance, key);
 		TEMPLATE_END();
 	}

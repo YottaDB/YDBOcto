@@ -45,7 +45,7 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *plan, LogicalPlan *tablejoin, unsigned in
 								int dot_count, char *tableName, char *columnName);
 TEMPLATE(tmpl_tablejoin_innerjoin, PhysicalPlan *plan, LogicalPlan *tablejoin, int *dot_count);
 TEMPLATE(tmpl_tablejoin_leftjoin, PhysicalPlan *plan, LogicalPlan *tablejoin, unsigned int cur_key, int *dot_count);
-TEMPLATE(tmpl_tablejoin_rightjoin, PhysicalPlan *plan, LogicalPlan *tablejoin,			\
+TEMPLATE(tmpl_tablejoin_rightjoin, PhysicalPlan *plan, LogicalPlan *tablejoin, boolean_t skip_on_condition,	\
 			unsigned int key_start, unsigned int key_end, int *dot_count);
 TEMPLATE(tmpl_rightjoin_key, PhysicalPlan *plan, unsigned int key_start, unsigned int key_end);
 TEMPLATE(tmpl_tablejoin_body, PhysicalPlan *plan, int dot_count, char *tableName, char *columnName);

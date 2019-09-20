@@ -48,6 +48,8 @@ OCTO
   load_postgres_fixture names postgres-names.sql
   create_postgres_database customers
   load_postgres_fixture customers postgres-customers.sql
+  create_postgres_database pastas
+  load_postgres_fixture pastas postgres-pastas.sql
 
   # Check names database
   psql names >& output.txt <<PSQL

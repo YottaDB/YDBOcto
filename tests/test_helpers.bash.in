@@ -344,3 +344,14 @@ count_num_occurrences() {
   fi
   return
 }
+
+run_query_in_octo_and_postgres_and_crosscheck() {
+    file="$2"
+    fname=`echo $file | sed 's/\..*//g'`
+    psql $1 -f $file >& $fname.psql.out
+    tail -n +3 $fname.psql.out | head -n -2 | sed 's/ //g' | sort >& $fname.ref
+    octo -f $file >& $fname.octo.out
+    head -n -1 $fname.octo.out | grep -v "^Added .*trigger" | sort >& $fname.log
+    diff $fname.ref $fname.log >& $fname.diff
+}
+

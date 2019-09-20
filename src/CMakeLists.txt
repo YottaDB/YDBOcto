@@ -28,7 +28,7 @@ if(DEFINED YOTTADB_INCLUDE_DIRS AND EXISTS "${YOTTADB_INCLUDE_DIRS}/plugin/libgt
   message(STATUS "Found YottaDB TLS plugin: ${YOTTADB_INCLUDE_DIRS}")
     set(YDB_TLS_AVAILABLE 1)
 else()
-  message(WARNING "Could NOT find YottaDB TLS plugin in ${YOTTADB_INCLUDE_DIRS}")
+  message(STATUS "Could NOT find YottaDB TLS plugin in ${YOTTADB_INCLUDE_DIRS}")
     set(YDB_TLS_AVAILABLE 0)
 endif()
 

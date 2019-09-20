@@ -54,7 +54,6 @@ int handle_describe(Describe *describe, RoctoSession *session) {
 	}
 	source_name->buf_addr = describe->name;
 	source_name->len_used = source_name->len_alloc = strlen(describe->name);
-	YDB_FREE_BUFFER(source_session_id);
 
 	YDB_MALLOC_BUFFER(&sql_expression, MAX_STR_CONST);
 
@@ -62,6 +61,7 @@ int handle_describe(Describe *describe, RoctoSession *session) {
 	status = ydb_data_s(&session_global, 3, subs_array, &found);
 	YDB_ERROR_CHECK(status);
 	if (YDB_OK != status) {
+		YDB_FREE_BUFFER(source_session_id);
 		YDB_FREE_BUFFER(&sql_expression);
 		return 1;
 	}
@@ -71,6 +71,7 @@ int handle_describe(Describe *describe, RoctoSession *session) {
 	// Send a ParameterDescription
 
 	status = ydb_get_s(&session_global, 3, subs_array, &sql_expression);
+	YDB_FREE_BUFFER(source_session_id);
 	YDB_ERROR_CHECK(status);
 	if (YDB_OK != status) {
 		YDB_FREE_BUFFER(&sql_expression);

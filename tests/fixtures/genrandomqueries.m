@@ -11,13 +11,13 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ; -----------------------------------------------------------------------------------------------------
-; This program generates a random SQL query that uses OUTER JOINs with a join nesting depth up to 4
-; using the customers database. And runs this query against postgres and Octo and verifies the outputs
-; are identical. Certain features of this test are currently disabled due to pending issues.
+; This program generates a random SQL query that optionally uses INNER or OUTER JOINs with a join nesting
+; depth up to 7 using the customers database. And runs this query against Postgres and Octo and verifies
+; the outputs are identical. Certain features of this test are currently disabled due to pending issues.
 ; Those lines are marked with a ###TMPDISABLE.
 ; -----------------------------------------------------------------------------------------------------
 
-genouterjoinqueries	;
+genrandomqueries	;
 	set primarykey("customers")="customer_id"
 	set primarykey("orders")="order_id"
 	set joinstr(0)="inner join"
@@ -27,7 +27,7 @@ genouterjoinqueries	;
 	set numqueries=20	; generate 20 queries so as not to take a long time for this test to run in pipeline
 	set q=0
 	for  do  quit:q=numqueries
-	. set numjoins=2+(q#6)	; can be 2-way, 3-way, ... up to 7-way join
+	. set numjoins=1+(q#8)	; can be 1-way, 2-way, 3-way, ... up to 7-way join
 	. for i=1:1:numjoins  do
 	. . set modulo=$random(2),table(i)=$select(modulo:"customers",1:"orders"),tablealias(i)=$extract(table(i),1)
 	. ; choose table names for the join(s) next
@@ -35,11 +35,12 @@ genouterjoinqueries	;
 	. ; choose select output column list
 	. set numcols=0
 	. for i=1:1:numjoins  do
-	. . set modulo=$random(2)	; currently only two choices are used INNER JOIN and LEFT JOIN
+	. . set modulo=$random(2)
 	. . set:(i=numjoins)&('modulo) modulo=1
 	. . quit:'modulo
 	. . set:numcols sqlquery=sqlquery_","
-	. . set sqlquery=sqlquery_tablealias(i)_i_"."_primarykey(table(i))  if $incr(numcols)
+	. . set column(numcols)=tablealias(i)_i_"."_primarykey(table(i))
+	. . set sqlquery=sqlquery_column(numcols)  if $incr(numcols)
 	. ; choose column names that are join candidates for each table
 	. set i=1,sqlquery=sqlquery_" from "_table(i)_" "_tablealias(i)_i
 	. set fulljoinchosen=0,notequalchosen=0	;  ###TMPDISABLE (until FULL JOINs work AND != check in LEFT JOINs work)
@@ -51,6 +52,19 @@ genouterjoinqueries	;
 	. . set sqlquery=sqlquery_" on "_tablealias(i-1)_(i-1)_".customer_id "_$select(modulo:"!",1:"")
 	. . set:modulo=1 notequalchosen=1
 	. . set sqlquery=sqlquery_"= "_tablealias(i)_(i)_".customer_id"
+	. ; Add optional WHERE
+	. if $random(2) do
+	. ; ###TMPDISABLE Add WHERE clause here (needs some thought)
+	. ; Add optional ORDER BY
+	. if $random(2) do
+	. . ; Currently choose only ONE column for ORDER BY. When #228 is fixed, enable multiple columns here ###TMPDISABLE
+	. . set sqlquery=sqlquery_" order by "_column($random(numcols))
+	. . ; Add optional LIMIT (do this only if ORDER BY is also chosen as otherwise output order could be different
+	. . ; between Postgres and Octo and hence we cannot reliably get the test to pass.
+	. . ; Also can only do this if the # of columns selected for ORDER BY is the same as the # of SELECT columns
+	. . ; Or else the order of row output could differ in the columns that are not selected.
+	. . if (1=numcols)&$random(2) do 	; ###TMPDISABLE : change 1=numcols to numorderbycols=numcols when #228 is fixed
+	. . . set sqlquery=sqlquery_" limit "_$random(10)
 	. set sqlquery=sqlquery_";"
 	. ; The below if check is because postgres issues the following error in this case
 	. ;	--> ERROR:  FULL JOIN is only supported with merge-joinable or hash-joinable join conditions

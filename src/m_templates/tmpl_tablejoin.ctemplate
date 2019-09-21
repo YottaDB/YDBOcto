@@ -86,14 +86,19 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *plan, LogicalPlan *tablejoin, unsigned in
 		TMPL(tmpl_key_advance, plan, key);
 		%}) QUIT:({%
 		TMPL(tmpl_key_end, key);
-		keyword = get_keyword_from_keywords(plan->keywords, OPTIONAL_LIMIT);
-		if (NULL != keyword) {
-			SqlValue	*value;
+		// If this plan has no ORDER BY, then any LIMIT usage can be safely applied right away.
+		// Otherwise, we need to apply the LIMIT after the ORDER BY processing finally happens in "tmpl_physical_plan".
+		if (NULL == plan->order_by)
+		{
+			keyword = get_keyword_from_keywords(plan->keywords, OPTIONAL_LIMIT);
+			if (NULL != keyword) {
+				SqlValue	*value;
 
-			UNPACK_SQL_STATEMENT(value, keyword->v, value);
-			%})!(({{ value->v.string_literal }})'>$GET({%
-			TMPL(tmpl_key, plan->outputKey);
-			%}){%
+				UNPACK_SQL_STATEMENT(value, keyword->v, value);
+				%})!(({{ value->v.string_literal }})'>$GET({%
+				TMPL(tmpl_key, plan->outputKey);
+				%}){%
+			}
 		}
 		%})  DO
     {%		// Ugly indentation of this line needed to ensure proper alignment in generated M code

@@ -48,8 +48,8 @@ int handle_query_response(SqlStatement *stmt, int32_t cursor_id, void *_parms, c
 	char			buffer[MAX_STR_CONST], *c;
 	int			status, number_of_columns = 0, row_count;
 	DataRow			*data_row;
-	static DataRowParm	*data_row_parms = NULL;
-	static int		data_row_parms_alloc_len = 0;
+	DataRowParm		*data_row_parms;
+	int			data_row_parms_alloc_len = 0;
 
 	YDB_LITERAL_TO_BUFFER("", space_b);
 	YDB_LITERAL_TO_BUFFER("", space_b2);
@@ -76,11 +76,8 @@ int handle_query_response(SqlStatement *stmt, int32_t cursor_id, void *_parms, c
 			YDB_FREE_BUFFER(row_value_b);
 			return 0;
 		}
-		if (NULL == data_row_parms)
-		{
-			data_row_parms = malloc(DATA_ROW_PARMS_ARRAY_INIT_ALLOC * sizeof(DataRowParm));
-			data_row_parms_alloc_len = DATA_ROW_PARMS_ARRAY_INIT_ALLOC;
-		}
+		data_row_parms = malloc(DATA_ROW_PARMS_ARRAY_INIT_ALLOC * sizeof(DataRowParm));
+		data_row_parms_alloc_len = DATA_ROW_PARMS_ARRAY_INIT_ALLOC;
 		if(stmt->type == show_STATEMENT) {
 			UNPACK_SQL_STATEMENT(show_stmt, stmt, show);
 			UNPACK_SQL_STATEMENT(val1, show_stmt->variable, value);
@@ -107,6 +104,7 @@ int handle_query_response(SqlStatement *stmt, int32_t cursor_id, void *_parms, c
 			data_row = make_data_row(data_row_parms, 1);
 			send_message(parms->session, (BaseMessage*)(&data_row->type));
 			free(data_row);
+			free(data_row_parms);
 			parms->data_sent = TRUE;
 
 			// Done
@@ -148,9 +146,7 @@ int handle_query_response(SqlStatement *stmt, int32_t cursor_id, void *_parms, c
 			YDB_FREE_BUFFER(row_id_b);
 			YDB_FREE_BUFFER(row_value_b);
 			free(cursor_id_b->buf_addr);
-			if (NULL != data_row_parms) {
-				free(data_row_parms);
-			}
+			free(data_row_parms);
 			ERROR(ERR_DATABASE_FILES_OOS, "");
 			return 1;
 		}
@@ -161,9 +157,7 @@ int handle_query_response(SqlStatement *stmt, int32_t cursor_id, void *_parms, c
 			YDB_FREE_BUFFER(row_id_b);
 			YDB_FREE_BUFFER(row_value_b);
 			free(cursor_id_b->buf_addr);
-			if (NULL != data_row_parms) {
-				free(data_row_parms);
-			}
+			free(data_row_parms);
 			YDB_FREE_BUFFER(outputKeyId);
 			free(outputKeyId);
 			return 0;
@@ -173,9 +167,7 @@ int handle_query_response(SqlStatement *stmt, int32_t cursor_id, void *_parms, c
 			YDB_FREE_BUFFER(row_id_b);
 			YDB_FREE_BUFFER(row_value_b);
 			free(cursor_id_b->buf_addr);
-			if (NULL != data_row_parms) {
-				free(data_row_parms);
-			}
+			free(data_row_parms);
 			YDB_FREE_BUFFER(outputKeyId);
 			free(outputKeyId);
 			return 1;
@@ -193,9 +185,7 @@ int handle_query_response(SqlStatement *stmt, int32_t cursor_id, void *_parms, c
 				YDB_FREE_BUFFER(row_id_b);
 				YDB_FREE_BUFFER(row_value_b);
 				free(cursor_id_b->buf_addr);
-				if (NULL != data_row_parms) {
-					free(data_row_parms);
-				}
+				free(data_row_parms);
 				YDB_FREE_BUFFER(outputKeyId);
 				free(outputKeyId);
 				return 1;
@@ -239,9 +229,7 @@ int handle_query_response(SqlStatement *stmt, int32_t cursor_id, void *_parms, c
 				YDB_FREE_BUFFER(row_id_b);
 				YDB_FREE_BUFFER(row_value_b);
 				free(cursor_id_b->buf_addr);
-				if (NULL != data_row_parms) {
-					free(data_row_parms);
-				}
+				free(data_row_parms);
 				YDB_FREE_BUFFER(outputKeyId);
 				free(outputKeyId);
 				return 1;
@@ -256,10 +244,7 @@ int handle_query_response(SqlStatement *stmt, int32_t cursor_id, void *_parms, c
 		YDB_FREE_BUFFER(row_value_b);
 		YDB_FREE_BUFFER(outputKeyId);
 		free(outputKeyId);
-		if (NULL != data_row_parms) {
-			free(data_row_parms);
-		}
-
+		free(data_row_parms);
 		snprintf(buffer, MAX_STR_CONST, "SELECT %d", row_count);
 		command_complete = make_command_complete(buffer);
 		send_message(parms->session, (BaseMessage*)(&command_complete->type));

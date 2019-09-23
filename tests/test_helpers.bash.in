@@ -163,7 +163,7 @@ find_open_port() {
   fi
   lsof -i:$open_port &> /dev/null
   result=$?
-  while [[ ! $result ]]; do
+  while [[ $result -eq 0 ]]; do
     open_port=$(($open_port+1))
     lsof -i:$open_port &> /dev/null
     result=$?

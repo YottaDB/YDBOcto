@@ -19,7 +19,7 @@ octoPlan1(cursorId)
     NEW %ydboctoz KILL %ydboctocursor(cursorId,"keys",3,"","")
     SET %ydboctocursor(cursorId,"keys",0,"NAMESWITHAGES","ID")=""
     FOR  SET %ydboctocursor(cursorId,"keys",0,"NAMESWITHAGES","ID")=$ORDER(^names(%ydboctocursor(cursorId,"keys",0,"NAMESWITHAGES","ID"))) QUIT:(%ydboctocursor(cursorId,"keys",0,"NAMESWITHAGES","ID")="")  DO
-    . SET %ydboctocursor(cursorId,"keys",1,"NAMESWITHAGES","AGE")=%ydboctocursor(cursorId,"keys",0,"NAMESWITHAGES","ID") IF $DATA(^%ydboctoxref("NAMESWITHAGES","AGE",%ydboctocursor(cursorId,"keys",1,"NAMESWITHAGES","AGE")))'=0 DO
+    . SET %ydboctocursor(cursorId,"keys",1,"NAMESWITHAGES","AGE")=%ydboctocursor(cursorId,"keys",0,"NAMESWITHAGES","ID") IF ($DATA(^%ydboctoxref("NAMESWITHAGES","AGE",%ydboctocursor(cursorId,"keys",1,"NAMESWITHAGES","AGE")))'=0) DO
     . . SET %ydboctocursor(cursorId,"keys",1,"NAMESWITHAGES","ID")=""
     . . FOR  SET %ydboctocursor(cursorId,"keys",1,"NAMESWITHAGES","ID")=$ORDER(^%ydboctoxref("NAMESWITHAGES","AGE",%ydboctocursor(cursorId,"keys",1,"NAMESWITHAGES","AGE"),%ydboctocursor(cursorId,"keys",1,"NAMESWITHAGES","ID"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"NAMESWITHAGES","ID")="")  DO
     . . . IF 1 DO

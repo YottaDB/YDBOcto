@@ -39,6 +39,8 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *plan, LogicalPlan *tablejoin, unsigned in
 	key_start = cur_key;
 	assert(((RIGHT_JOIN != this_join_type) && (FULL_JOIN != this_join_type)) || cur_key);
 	for ( ; cur_key < total_keys; cur_key++) {
+		SqlValue	*value;
+
 		// For each key, output the key start, a FOR loop, QUIT, and increment
 		key = plan->iterKeys[cur_key];
 		if (key->unique_id != left_table_id)
@@ -48,6 +50,15 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *plan, LogicalPlan *tablejoin, unsigned in
 		}
 		if (this_join_is_left_join && plan->treat_key_as_null[key->unique_id])
 			continue;
+		// If this plan has no ORDER BY, then any LIMIT usage can be safely applied right away.
+		// Otherwise, we need to apply the LIMIT after the ORDER BY processing finally happens in "tmpl_physical_plan".
+		value = NULL;
+		if (NULL == plan->order_by)
+		{
+			keyword = get_keyword_from_keywords(plan->keywords, OPTIONAL_LIMIT);
+			if (NULL != keyword)
+				UNPACK_SQL_STATEMENT(value, keyword->v, value);	/* value gets set to a non-NULL value here */
+		}
 		/* If this is the second half of the right join, then treat all keys as non-fixed.
 		 * And do not include cross-reference keys. Only primary-keys. This is because we want
 		 * to include ALL rows from the right table for the RIGHT JOIN.
@@ -58,9 +69,16 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *plan, LogicalPlan *tablejoin, unsigned in
 			TMPL(tmpl_key, key);
 			%}={%
 			TMPL(tmpl_print_expression, key->value, plan);
-			%} IF $DATA({%
+			%} IF ($DATA({%
 			TMPL(tmpl_key_source, plan, key);
-			%})'=0 DO
+			%})'=0){%
+			if (NULL != value)
+			{
+				%}&(({{ value->v.string_literal }})>$GET({%
+				TMPL(tmpl_key, plan->outputKey);
+				%})){%
+			}
+			%} DO
     {%			// Ugly indentation of this line needed to ensure proper alignment in generated M code
 			dot_count++;
 			continue;
@@ -86,19 +104,11 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *plan, LogicalPlan *tablejoin, unsigned in
 		TMPL(tmpl_key_advance, plan, key);
 		%}) QUIT:({%
 		TMPL(tmpl_key_end, key);
-		// If this plan has no ORDER BY, then any LIMIT usage can be safely applied right away.
-		// Otherwise, we need to apply the LIMIT after the ORDER BY processing finally happens in "tmpl_physical_plan".
-		if (NULL == plan->order_by)
+		if (NULL != value)
 		{
-			keyword = get_keyword_from_keywords(plan->keywords, OPTIONAL_LIMIT);
-			if (NULL != keyword) {
-				SqlValue	*value;
-
-				UNPACK_SQL_STATEMENT(value, keyword->v, value);
-				%})!(({{ value->v.string_literal }})'>$GET({%
-				TMPL(tmpl_key, plan->outputKey);
-				%}){%
-			}
+			%})!(({{ value->v.string_literal }})'>$GET({%
+			TMPL(tmpl_key, plan->outputKey);
+			%}){%
 		}
 		%})  DO
     {%		// Ugly indentation of this line needed to ensure proper alignment in generated M code

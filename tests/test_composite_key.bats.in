@@ -94,3 +94,17 @@ OCTO
   verify_output TCK02 output.txt
 }
 
+@test "TCK03 : Check unnecessary subscripts are not generated in M code (avoids MAXNRSUBSCRIPTS error)" {
+  load_fixture compositekey.sql
+  load_fixture compositekey.zwr
+  octo <<OCTO 2>&1 | tee output.txt
+SELECT c1.name FROM composite c1
+INNER JOIN composite c2 ON c2.name = c1.name
+INNER JOIN composite c3 ON c3.name = c1.name
+WHERE (c1.name LIKE "Name%") OR (c1.id1 < 10)
+OCTO
+  # Include generated M code in reference file to verify all optimizations there
+  cat _ydboctoP*.m >> output.txt
+  verify_output TCK03 output.txt
+}
+

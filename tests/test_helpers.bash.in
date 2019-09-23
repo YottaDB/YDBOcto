@@ -352,6 +352,19 @@ run_query_in_octo_and_postgres_and_crosscheck() {
     tail -n +3 $fname.psql.out | head -n -2 | sed 's/ //g' | sort >& $fname.ref
     octo -f $file >& $fname.octo.out
     head -n -1 $fname.octo.out | grep -v "^Added .*trigger" | sort >& $fname.log
-    diff $fname.ref $fname.log >& $fname.diff
+    rowcountonlycheck=$(grep -c "rowcount-only-check" $file) || true	# grep -c can return non-zero status in case of no match hence the need for "|| true"
+    if [[ $rowcountonlycheck -eq 0 ]]; then
+      diff $fname.ref $fname.log >& $fname.diff
+    else
+      # .sql file requests only rowcount check. No exact content check.
+      # Check only # of lines in output match. Not contents of lines.
+      psqllines=$(wc -l $fname.ref | awk '{print $1}')
+      octolines=$(wc -l $fname.log | awk '{print $1}')
+      if [[ $psqllines -ne $octolines ]]; then
+        echo "Expected $psqllines lines but found $octolines lines in $fname.log"
+	exit -1
+      fi
+    fi
+    return
 }
 

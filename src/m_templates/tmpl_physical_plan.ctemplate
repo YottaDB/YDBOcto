@@ -18,7 +18,7 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
     TEMPLATE_INIT();
 
     int			i;
-    SqlKey		*key, *t_key;
+    SqlKey		*key, *t_key, *prev_t_key;
     SqlColumnAlias	*column_alias;
     SqlValue		*value;
     LogicalPlan		*lp_temp;
@@ -51,11 +51,13 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
     SET %%ydboctoCancel("{{ tableName }}","{{ columnName }}","Node")="^{{ config->global_names.raw_xref }}(""{{ tableName }}"",""{{ columnName }}"")"
     {% // Whitespace needed
     } else {
+	prev_t_key = NULL;
         for(cur_key = 0; cur_key < plan->total_iter_keys; cur_key++) {
             key = plan->iterKeys[cur_key];
             t_key = key->cross_reference_output_key;
-            if(t_key == NULL)
+            if ((NULL == t_key) || (prev_t_key == t_key))
                 continue;
+	    prev_t_key = t_key;
             UNPACK_SQL_STATEMENT(value, t_key->table->tableName, value);
             tableName = value->v.reference;
             UNPACK_SQL_STATEMENT (value, t_key->column->columnName, value);

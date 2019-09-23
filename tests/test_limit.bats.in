@@ -42,3 +42,18 @@ OCTO
   ! [[ "$output" =~ "1|Acid|Burn" ]]
   [[ "$output" =~ "Joey" ]]
 }
+
+@test "TL01 : OCTO321 : LIMIT returns more rows than requested if there is a WHERE clause with OR usages" {
+  octo <<OCTO 2>&1 | tee output.txt
+select * from names where id = 1 or id = 2 limit 1;
+OCTO
+  verify_output TL01 output.txt
+}
+
+@test "TL02 : OCTO299 : Incorrect results from ORDER BY when used with LIMIT" {
+  octo <<OCTO 2>&1 | tee output.txt
+select * from names order by firstname limit 2;
+OCTO
+  verify_output TL02 output.txt
+}
+

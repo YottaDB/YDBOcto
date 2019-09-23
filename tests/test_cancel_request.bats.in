@@ -27,23 +27,17 @@ teardown() {
   stop_rocto
 }
 
-@test "ensure cancel requests abort simple queries" {
-  # Load lots of data to create slow query
-  load_big_data
-  run_psql_expect cancel_psql_big_data $test_port &> output.txt
-  verify_output TCR00 expect.out noinfo nodebug noexpect stripreturns
-}
-
 @test "ensure cancel requests abort complicated queries (many joins)" {
   yottadb -run ^%XCMD 'set ^%ydboctoocto("functions","HANGTIME")="$$^HANGTIME"'
   run_psql_expect cancel_psql_many_joins $test_port &> output.txt
   verify_output TCR01 expect.out noinfo nodebug noexpect stripreturns
 }
 
-@test "ensure cancel requests cleanup xrefs and trigger" {
+@test "ensure cancel requests abort simple queries and cleanup xrefs and trigger" {
   load_big_data
   # Remove verbosity as the logical plan is too long to print correctly and not needed here
   run_psql_expect cancel_psql_big_data $test_port &> output.txt
+  verify_output TCR00 expect.out noinfo nodebug noexpect stripreturns
   # Ensure all cross references cleaned up for the given query, i.e. test_seed_queries.bats "test1"
   run $ydb_dist/yottadb -direct > xref.txt <<YDB
 zwrite ^%ydboctoxref

@@ -161,11 +161,11 @@ find_open_port() {
   else
     open_port=1337
   fi
-  lsof -i:$open_port &> /dev/null
+  netstat -tulpn | grep ":$open_port" &> /dev/null
   result=$?
   while [[ $result -eq 0 ]]; do
     open_port=$(($open_port+1))
-    lsof -i:$open_port &> /dev/null
+    netstat -tulpn | grep ":$open_port" &> /dev/null
     result=$?
   done
   echo $open_port

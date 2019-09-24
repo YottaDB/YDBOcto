@@ -88,9 +88,9 @@ OCTO
   if [[ $status -ne 0 ]]; then
     echo "rocto: { use_dns: false; }" > octo.conf
   fi
-  start_rocto $test_port
+  test_portA=$(start_rocto $test_port)
   sleep 5
-  run_psql $test_port <<OCTO 2>&1 | tee output.txt
+  run_psql $test_portA <<OCTO 2>&1 | tee output.txt
 SELECT * FROM names WHERE firstName = "Zero";
 OCTO
   [[ $(grep -c "127.0.0.1" rocto.log) -ge 1 ]]
@@ -102,9 +102,9 @@ OCTO
   if [[ $status -ne 0 ]]; then
     echo "rocto: { use_dns: true; }" > octo.conf
   fi
-  start_rocto $test_port
+  test_portB=$(start_rocto $test_port)
   sleep 5
-  run_psql $test_port <<OCTO 2>&1 | tee output.txt
+  run_psql $test_portB <<OCTO 2>&1 | tee output.txt
 SELECT * FROM names WHERE firstName = "Zero";
 OCTO
   [[ $(grep -c "localhost" rocto.log) -ge 1 ]]
@@ -174,7 +174,7 @@ OCTO
 @test "start rocto without --allowschemachanges and try to change the schema" {
   yottadb -run %XCMD 'set ^T1(1,2)="1|2",^T1(42,9001)="42|9001",^T1(1337,42)="1337|42"'
   stop_rocto
-  start_rocto $test_port
+  test_portC=$(start_rocto $test_port)
   cat >> in.sql <<OCTO
 select * from t1;
 create table t1(a int, b int);
@@ -183,14 +183,14 @@ drop table t1;
 select * from names limit 1;
 OCTO
   cat in.sql 2>&1 | tee output.txt
-  run_psql $test_port < in.sql 2>&1 | tee -a output.txt
+  run_psql $test_portC < in.sql 2>&1 | tee -a output.txt
   verify_output TPC000 output.txt noinfo nodebug
 }
 
 @test "start rocto with --allowschemachanges and try to change the schema" {
   yottadb -run %XCMD 'set ^T1(1,2)="1|2",^T1(42,9001)="42|9001",^T1(1337,42)="1337|42"'
   stop_rocto
-  start_rocto $test_port --allowschemachanges
+  test_portD=$(start_rocto $test_port --allowschemachanges)
   cat >> in.sql <<OCTO
 select * from t1;
 create table t1(a int, b int);
@@ -199,14 +199,14 @@ drop table t1;
 select * from t1;
 OCTO
   cat in.sql 2>&1 | tee output.txt
-  run_psql $test_port < in.sql 2>&1 | tee -a output.txt
+  run_psql $test_portD < in.sql 2>&1 | tee -a output.txt
   verify_output TPC001 output.txt noinfo nodebug
 }
 
 @test "start rocto with -a and try to change the schema" {
   yottadb -run %XCMD 'set ^T1(1,2)="1|2",^T1(42,9001)="42|9001",^T1(1337,42)="1337|42"'
   stop_rocto
-  start_rocto $test_port --allowschemachanges
+  test_portE=$(start_rocto $test_port --allowschemachanges)
   cat >> in.sql <<OCTO
 select * from t1;
 create table t1(a int, b int);
@@ -215,6 +215,6 @@ drop table t1;
 select * from t1;
 OCTO
   cat in.sql 2>&1 | tee output.txt
-  run_psql $test_port < in.sql 2>&1 | tee -a output.txt
+  run_psql $test_portE < in.sql 2>&1 | tee -a output.txt
   verify_output TPC001 output.txt noinfo nodebug
 }

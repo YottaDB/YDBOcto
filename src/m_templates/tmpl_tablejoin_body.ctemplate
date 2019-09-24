@@ -97,7 +97,7 @@ TEMPLATE(tmpl_tablejoin_body, PhysicalPlan *plan, int dot_count, char *tableName
 		plan->projection->v.operand[1] = NULL;
 		TMPL(tmpl_column_list_combine, plan->projection, plan, ",", 0, 0);
 		plan->projection->v.operand[1] = lp_temp;
-		%})) {%
+		%})){%
 	} else if(plan->set_operation == PP_EXCEPT_SET) {
 		%} SET v=$ORDER({{ config->global_names.cursor }}(cursorId,"index",{%
 		TMPL(tmpl_column_list_combine, plan->projection, plan, ",", 0, 0);
@@ -108,11 +108,30 @@ TEMPLATE(tmpl_tablejoin_body, PhysicalPlan *plan, int dot_count, char *tableName
 		%},v){%
 	} else if(plan->outputKey) {
 		// Note down where we are, do a dummy assignment to increment the row count, then paste our row again
-		int	resume_length;
-		char	c;
+		int			resume_length;
+		char			c;
+		SqlOptionalKeyword	*keyword;
 
 		end_resume = *buffer_index;
-		%}&$INCREMENT({% TMPL(tmpl_key, plan->outputKey); %}) {%
+		%}&$INCREMENT({%
+		TMPL(tmpl_key, plan->outputKey);
+		%}){%
+		keyword = get_keyword_from_keywords(plan->keywords, OPTIONAL_LIMIT);
+		if (NULL != keyword)
+		{	/* Need to maintain a local variable parallely with the output key to be used to break from
+			 * the FOR loop in case the LIMIT is reached. Cannot use the output key for example if a UNION
+			 * is in effect across this plan and another plan in which case both will share the same output
+			 * key but could have differing limits (#269).
+			 */
+			boolean_t	prev_plan_is_in_same_dnf;
+
+			prev_plan_is_in_same_dnf = is_prev_plan_in_same_dnf(plan);
+			if (!prev_plan_is_in_same_dnf)
+			{
+				%}&$INCREMENT(%%ydboctoz("limit")){%
+			}
+		}
+		%} {%
 		if (PP_INTERSECT_SET == plan->set_operation) {
 			%}%%ydboctoz{%
 		} else {

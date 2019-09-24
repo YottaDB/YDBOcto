@@ -57,3 +57,15 @@ OCTO
   verify_output TL02 output.txt
 }
 
+@test "TL03 : OCTO269 : UNION does not work correctly if operand SELECT statements use LIMIT to limit the number of rows" {
+  octo <<OCTO 2>&1 | tee output.txt
+(select firstname from names limit 2) union (select lastname from names limit 3);
+(select firstname from names limit 2) union (select lastname from names limit 4);
+(select firstname from names limit 2) union (select lastname from names limit 1);
+(select lastname from names limit 2) union (select lastname from names limit 3);
+(select lastname from names limit 2) union (select lastname from names limit 4);
+(select lastname from names limit 2) union (select lastname from names limit 1);
+OCTO
+  verify_output TL03 output.txt
+}
+

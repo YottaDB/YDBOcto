@@ -176,6 +176,7 @@ add_library(libocto OBJECT
   optimization_transforms/logical_plan.c
   physical/generate_physical_plan.c
   physical/emit_physical_plan.c
+  physical/is_prev_plan_in_same_dnf.c
   m_templates/print_dots.c
   m_templates/resize_tmpl_buffer.c
   m_escape_string2.c

@@ -112,6 +112,7 @@ int print_temporary_table(SqlStatement *, int cursor_id, void *parms, char *plan
  */
 int run_query(char *query, int (*callback)(SqlStatement *, int, void *, char*), void *parms);
 
-PhysicalPlan *emit_select_statement(char *sql_query, SqlStatement *stmt, char *plan_filename);
+PhysicalPlan	*emit_select_statement(char *sql_query, SqlStatement *stmt, char *plan_filename);
+boolean_t	is_prev_plan_in_same_dnf(PhysicalPlan *plan);
 
 #endif

@@ -1,0 +1,34 @@
+OCTO> (select firstname from names limit 2) union (select lastname from names limit 3);
+Zero
+Acid
+Cool
+Burn
+Killer
+OCTO> (select firstname from names limit 2) union (select lastname from names limit 4);
+Zero
+Acid
+Cool
+Burn
+Killer
+Nikon
+OCTO> (select firstname from names limit 2) union (select lastname from names limit 1);
+Zero
+Acid
+Cool
+OCTO> (select lastname from names limit 2) union (select lastname from names limit 3);
+Cool
+Burn
+Killer
+Nikon
+
+OCTO> (select lastname from names limit 2) union (select lastname from names limit 4);
+Cool
+Burn
+Killer
+Nikon
+
+OCTO> (select lastname from names limit 2) union (select lastname from names limit 1);
+Cool
+Burn
+Killer
+OCTO> 

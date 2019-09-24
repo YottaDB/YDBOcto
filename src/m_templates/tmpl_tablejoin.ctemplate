@@ -24,7 +24,7 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *plan, LogicalPlan *tablejoin, unsigned in
 	enum SqlJoinType	this_join_type, next_join_type;
 	SqlOptionalKeyword	*keyword;
 	LogicalPlan		*right_tablejoin;
-	boolean_t		nested_call, this_join_is_left_join;
+	boolean_t		nested_call, this_join_is_left_join, prev_plan_is_in_same_dnf;
 
 	total_keys = plan->total_iter_keys;
 	assert(((NULL != tablejoin) && (LP_TABLE_JOIN == tablejoin->type)) || ((NULL == tablejoin) && (cur_key == total_keys)));
@@ -59,6 +59,7 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *plan, LogicalPlan *tablejoin, unsigned in
 			if (NULL != keyword)
 				UNPACK_SQL_STATEMENT(value, keyword->v, value);	/* value gets set to a non-NULL value here */
 		}
+		prev_plan_is_in_same_dnf = is_prev_plan_in_same_dnf(plan);
 		/* If this is the second half of the right join, then treat all keys as non-fixed.
 		 * And do not include cross-reference keys. Only primary-keys. This is because we want
 		 * to include ALL rows from the right table for the RIGHT JOIN.
@@ -75,7 +76,13 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *plan, LogicalPlan *tablejoin, unsigned in
 			if (NULL != value)
 			{
 				%}&(({{ value->v.string_literal }})>$GET({%
-				TMPL(tmpl_key, plan->outputKey);
+				if (prev_plan_is_in_same_dnf)
+				{
+					TMPL(tmpl_key, plan->outputKey);
+				} else
+				{
+					%}%%ydboctoz("limit"){%
+				}
 				%})){%
 			}
 			%} DO`n    {%
@@ -105,7 +112,13 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *plan, LogicalPlan *tablejoin, unsigned in
 		if (NULL != value)
 		{
 			%})!(({{ value->v.string_literal }})'>$GET({%
-			TMPL(tmpl_key, plan->outputKey);
+			if (prev_plan_is_in_same_dnf)
+			{
+				TMPL(tmpl_key, plan->outputKey);
+			} else
+			{
+				%}%%ydboctoz("limit"){%
+			}
 			%}){%
 		}
 		%})  DO`n    {%

@@ -1,4 +1,4 @@
-{%
+{}%
 /****************************************************************
  *								*
  * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
@@ -40,7 +40,7 @@ TEMPLATE(tmpl_key_advance, PhysicalPlan *pplan, SqlKey *key) {
 	if(key->cross_reference_output_key) {
 		UNPACK_SQL_STATEMENT(value, key->cross_reference_output_key->column->columnName, value);
 		columnName = value->v.reference;
-		%}^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}"{%
+		%{}^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}"{}%
 		//TMPL(tmpl_column_reference, pplan, key->cross_reference_output_key->cross_reference_column_alias);
 		// Output the column this cross reference is sourced from
 		iter_key_index = 0;
@@ -51,7 +51,7 @@ TEMPLATE(tmpl_key_advance, PhysicalPlan *pplan, SqlKey *key) {
 		while (iter_key_index < pplan->total_iter_keys) {
 			if (pplan->iterKeys[iter_key_index]->unique_id == key->unique_id)
 				keys_to_match++;
-			%},{%
+			%{},{}%
 			TMPL(tmpl_key, pplan->iterKeys[iter_key_index]);
 			iter_key_index++;
 			if (hit_key && (pplan->iterKeys[iter_key_index] != key))
@@ -59,7 +59,7 @@ TEMPLATE(tmpl_key_advance, PhysicalPlan *pplan, SqlKey *key) {
 			if (pplan->iterKeys[iter_key_index] == key)
 				hit_key = TRUE;
 		}
-		%}){%
+		%{}){}%
 	} else if(table->source) {
 		iter_key_index = 0;
 		while ((pplan->iterKeys[iter_key_index] != key) && (iter_key_index < pplan->total_iter_keys)) {
@@ -78,20 +78,20 @@ TEMPLATE(tmpl_key_advance, PhysicalPlan *pplan, SqlKey *key) {
 		if(keyword) {
 			UNPACK_SQL_STATEMENT(value, keyword->v, value);
 			key_fixed = value->v.string_literal;
-			%}{{ key_fixed }}{%
+			%{}{{ key_fixed }}{}%
 			TEMPLATE_END();
 		}
-		%}^{{ tableName }}{%
+		%{}^{{ tableName }}{}%
 		while ((pplan->iterKeys[iter_key_index] != key) && (iter_key_index < pplan->total_iter_keys)) {
 			if (pplan->iterKeys[iter_key_index]->unique_id == key->unique_id) {
 				TMPL(tmpl_key, pplan->iterKeys[iter_key_index]);
-				%},{%
+				%{},{}%
 			}
 			iter_key_index++;
 		}
 		TMPL(tmpl_key, key);
-		%})){%
+		%{})){}%
 	}
 	TEMPLATE_END();
 }
-%}
+%{}

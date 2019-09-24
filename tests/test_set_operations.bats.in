@@ -137,3 +137,27 @@ UNION ALL
 OCTO
   [[ "$(grep -c "|" output.txt)" == "6" ]]
 }
+
+@test "OCTO269 : Verify randomly generated queries with UNION/EXCEPT/INTERSECT/UNION ALL/EXCEPT ALL/INTERSECT ALL usages against Postgres" {
+  load_fixture easynames.sql
+  load_fixture easynames.zwr
+  load_postgres_fixture easynames postgres-easynames.sql
+  # Next test with complicated randomly generated queries; Crosscheck Octo output against Postgres
+  yottadb -run ^gensetqueries	# this generates a max of 20 queries settest01.sql, settest02.sql ...
+  # Run using Octo against each of the generated queries
+  for file in settest*.sql
+  do
+    run_query_in_octo_and_postgres_and_crosscheck easynames $file "remove_empty_line_at_head"
+  done
+}
+
+@test "OCTO273/OCTO326/OCTO327/OCTO328" {
+  octo <<OCTO 2>&1 | tee output.txt
+(select * from names UNION select * from names) UNION ALL (select * from names UNION select * from names);
+(select * from names where id > 1 or id = 0) EXCEPT (select * from names where id < 4 or id = 5);
+(select * from names union all select * from names) INTERSECT (select * from names where id < 4);
+(select * from (select * from names union select * from names)) union (select * from names);
+OCTO
+  verify_output TS01 output.txt
+}
+

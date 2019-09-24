@@ -1,4 +1,4 @@
-{%
+{}%
 /****************************************************************
  *								*
  * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
@@ -53,10 +53,10 @@ TEMPLATE(tmpl_emit_source, char *source, char *table_name, int unique_id, int nu
 			//  extrinsic or something
 			switch(form) {
 			case EmitSourceForm_Value:
-				%}{{ config->global_names.cursor }}(cursorId,"keys",{{ unique_id|%d }},"{{ table_name }}",{{ column }}){%
+				%{}{{ config->global_names.cursor }}(cursorId,"keys",{{ unique_id|%d }},"{{ table_name }}",{{ column }}){}%
 				break;
 			case EmitSourceForm_Trigger:
-				%}sub{{ sub_count|%d }}=:{%
+				%{}sub{{ sub_count|%d }}=:{}%
 				sub_count++;
 				break;
 			default:
@@ -67,9 +67,9 @@ TEMPLATE(tmpl_emit_source, char *source, char *table_name, int unique_id, int nu
 			matched_vars += 1;
 		} else {
 			if ((form == EmitSourceForm_Trigger) && ('"' == *source_ptr)) {
-				%}""{%
+				%{}""{}%
 			} else {
-				%}{{ *source_ptr|%c }}{%
+				%{}{{ *source_ptr|%c }}{}%
 			}
 			if ('(' == *source_ptr) {
 				paren_count++;
@@ -83,7 +83,7 @@ TEMPLATE(tmpl_emit_source, char *source, char *table_name, int unique_id, int nu
 
 	while(paren_count > 0) {
 		paren_count--;
-		%}){%
+		%{}){}%
 	}
 
 	TEMPLATE_END();
@@ -136,4 +136,4 @@ int match_expression(char *start, char *column, int column_size) {
 	}
 	return 0;
 }
-%}
+%{}

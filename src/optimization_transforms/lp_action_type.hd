@@ -10,6 +10,7 @@
  *								*
  ****************************************************************/
 
+LP_ACTION_TYPE(LP_INVALID_ACTION)	// Start with this as it will take the 0 value of enum (default value after octo_cmalloc)
 // Used to insert data into a table; including temporary tables
 LP_ACTION_TYPE(LP_INSERT)
 // Used to perform SET operations on logical plans
@@ -43,6 +44,7 @@ LP_ACTION_TYPE(LP_KEY_ADVANCE)
 // These are different way of combining keys
 LP_ACTION_TYPE(LP_SET_UNION)
 LP_ACTION_TYPE(LP_SET_UNION_ALL)
+LP_ACTION_TYPE(LP_SET_DNF)		// LP_SET_UNION_ALL constructed by a Disjunctive Normal Form Expansion
 LP_ACTION_TYPE(LP_SET_EXCEPT)
 LP_ACTION_TYPE(LP_SET_EXCEPT_ALL)
 LP_ACTION_TYPE(LP_SET_INTERSECT)
@@ -78,4 +80,3 @@ LP_ACTION_TYPE(LP_BOOLEAN_NOT_IN)
 LP_ACTION_TYPE(LP_FORCE_NUM)
 LP_ACTION_TYPE(LP_NEGATIVE)
 LP_ACTION_TYPE(LP_BOOLEAN_NOT)
-LP_ACTION_END(LP_INVALID_ACTION)

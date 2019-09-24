@@ -1,4 +1,4 @@
-{%
+{}%
 /****************************************************************
  *								*
  * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
@@ -24,15 +24,15 @@ TEMPLATE(tmpl_duplication_check, PhysicalPlan *plan) {
 	// Skip cross reference keys, since those will vary; they still have all the
 	// required keys, in order, under them anyway
 
-	%}{{ config->global_names.cursor }}(cursorId,"dupl"{%
+	%{}{{ config->global_names.cursor }}(cursorId,"dupl"{}%
 	for(unsigned int i = 0; i < plan->total_iter_keys; i++) {
 		key = plan->iterKeys[i];
 		if(key->is_cross_reference_key)
 			continue;
-		%},{%
+		%{},{}%
 		TMPL(tmpl_key, key);
 	}
-	%}){%
+	%{}){}%
 	TEMPLATE_END();
 }
-%}
+%{}

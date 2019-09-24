@@ -25,11 +25,29 @@ void gen_source_keys(PhysicalPlan *out, LogicalPlan *plan);
 void iterate_keys(PhysicalPlan *out, LogicalPlan *plan);
 LogicalPlan *walk_where_statement(PhysicalPlanOptions *options, LogicalPlan *stmt);
 
+#define	SET_PLAN_PROPERTY_IN_ALL_DNF_SIBLINGS(STARTPLAN, FIELDNAME, VALUE)	\
+{										\
+	PhysicalPlan	*cur;							\
+										\
+	cur = STARTPLAN;							\
+	for ( ; ; )								\
+	{									\
+		cur->FIELDNAME = VALUE;						\
+		cur = cur->next;						\
+		if (NULL == cur)						\
+			break;							\
+		if (!is_prev_plan_in_same_dnf(cur))				\
+			break;							\
+	}									\
+}
+
 PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlanOptions *options) {
 	SqlOptionalKeyword	*keywords, *keyword;
 	LogicalPlan		*keys, *table_joins, *select, *insert, *output_key, *output;
 	LogicalPlan		*set_operation, *where;
+	LogicalPlan		*set_option, *set_plans, *set_output, *set_key;
 	PhysicalPlan		*out, *prev = NULL;
+	LPActionType		set_oper_type;
 
 	PhysicalPlanOptions curr_plan;
 	curr_plan = *options;
@@ -37,59 +55,48 @@ PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlanOptions *opt
 	assert((LP_INSERT == plan->type) || (LP_SET_OPERATION == plan->type));
 	// If this is a union plan, construct physical plans for the two children
 	if(plan->type == LP_SET_OPERATION) {
-		out = generate_physical_plan(plan->v.operand[1]->v.operand[1], &curr_plan);
+		GET_LP(set_option, plan, 0, LP_SET_OPTION);
+		GET_LP(set_plans, plan, 1, LP_PLANS);
+		out = generate_physical_plan(set_plans->v.operand[1], &curr_plan);
 		if (NULL == out)
 			return NULL;
-		prev = generate_physical_plan(plan->v.operand[1]->v.operand[0], &curr_plan);
+		prev = generate_physical_plan(set_plans->v.operand[0], &curr_plan);
 		if (NULL == prev)
 			return NULL;
 
-		// Switch what operation the second plan does
-		switch(plan->v.operand[0]->v.operand[0]->type) {
-		case LP_SET_UNION:
-		case LP_SET_UNION_ALL:
-			out->set_operation = PP_UNION_SET;
-			out->action_type = PP_PROJECT;
-			break;
-		case LP_SET_EXCEPT:
-		case LP_SET_EXCEPT_ALL:
-			out->set_operation = PP_EXCEPT_SET;
-			out->action_type = PP_DELETE;
-			break;
-		case LP_SET_INTERSECT:
-		case LP_SET_INTERSECT_ALL:
-			out->set_operation = PP_INTERSECT_SET;
-			out->action_type = PP_DELETE;
-			break;
-		default:
-			assert(FALSE);
-		}
+		set_oper_type = set_option->v.operand[0]->type;
+		assert((LP_SET_UNION == set_oper_type) || (LP_SET_UNION_ALL == set_oper_type) || (LP_SET_DNF == set_oper_type)
+			|| (LP_SET_EXCEPT == set_oper_type) || (LP_SET_EXCEPT_ALL == set_oper_type)
+			|| (LP_SET_INTERSECT == set_oper_type) || (LP_SET_INTERSECT_ALL == set_oper_type));
+		if (LP_SET_DNF == set_oper_type)
+		{
+			SET_PLAN_PROPERTY_IN_ALL_DNF_SIBLINGS(out, maintain_columnwise_index, TRUE);
+			SET_PLAN_PROPERTY_IN_ALL_DNF_SIBLINGS(prev, maintain_columnwise_index, TRUE);
+		} else
+		{
+			int		input_id1, input_id2;
+			SetOperType	*set_oper, *prev_oper, *out_oper, *next_oper;
 
-		// If the SET is not an "ALL" type, we need to keep resulting rows
-		//  unique
-		switch(plan->v.operand[0]->v.operand[0]->type) {
-		case LP_SET_UNION:
-		case LP_SET_EXCEPT:
-		case LP_SET_INTERSECT:
-			out->distinct_values = TRUE;
-			prev->distinct_values = TRUE;
-			out->maintain_columnwise_index = TRUE;
-			prev->maintain_columnwise_index = TRUE;
-			break;
-		case LP_SET_UNION_ALL:
-		case LP_SET_EXCEPT_ALL:
-		case LP_SET_INTERSECT_ALL:
-			// Even though we don't use the index for the UNION_ALL case, we need to maintain
-			// it so any parent SET operations have knowledge to act
-			// In theory, we could check to see if there is nothing but UNION_ALL's, and that
-			// should be a future enhacement, but it's not the case now
-			out->maintain_columnwise_index = TRUE;
-			prev->maintain_columnwise_index = TRUE;
-			break;
-		default:
-			assert(FALSE);
+			OCTO_CMALLOC_STRUCT(set_oper, SetOperType);
+			prev_oper = prev->set_oper_list;
+			input_id1 = (NULL == prev_oper) ? prev->outputKey->unique_id : prev_oper->output_id;
+			assert(input_id1 != out->outputKey->unique_id);
+			out_oper = out->set_oper_list;
+			input_id2 = (NULL == out_oper) ? out->outputKey->unique_id : out_oper->output_id;
+			set_oper->set_oper_type = set_oper_type;
+			set_oper->input_id1 = input_id1;
+			set_oper->input_id2 = input_id2;
+			GET_LP(set_output, set_option, 1, LP_OUTPUT);
+			GET_LP(set_key, set_output, 0, LP_KEY);
+			set_oper->output_id = set_key->v.key->unique_id;
+			set_oper->prev = NULL;
+			next_oper = out->set_oper_list;
+			set_oper->next = next_oper;
+			if (NULL != next_oper)
+				next_oper->prev = set_oper;
+			out->set_oper_list = set_oper;
 		}
-		return prev;
+		return out;
 	}
 
 	// Make sure the plan is in good shape
@@ -183,8 +190,8 @@ PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlanOptions *opt
 	keywords = lp_get_select_keywords(plan)->v.keywords;
 	keyword = get_keyword_from_keywords(keywords, OPTIONAL_DISTINCT);
 	if (NULL != keyword) {
-		out->distinct_values = 1;
-		out->maintain_columnwise_index = 1;
+		out->distinct_values = TRUE;
+		out->maintain_columnwise_index = TRUE;
 	}
 
 	keyword = get_keyword_from_keywords(keywords, OPTIONAL_PART_OF_EXPANSION);
@@ -225,6 +232,8 @@ LogicalPlan *walk_where_statement(PhysicalPlanOptions *options, LogicalPlan *stm
 		PhysicalPlanOptions	curr_plan;
 		PhysicalPlan		*cur, *out;
 		SqlTableAlias		*table_alias;
+		PhysicalPlan		*new_plan;
+		LogicalPlan		*cur_lp_key, *lp_key;
 
 		switch(stmt->type) {
 		case LP_KEY:
@@ -265,11 +274,13 @@ LogicalPlan *walk_where_statement(PhysicalPlanOptions *options, LogicalPlan *stm
 			//  reference to the first item in the column list
 			curr_plan = *options;
 			curr_plan.stash_columns_in_keys = TRUE;
-			PhysicalPlan *new_plan = generate_physical_plan(stmt, &curr_plan);
+			new_plan = generate_physical_plan(stmt, &curr_plan);
 			if (NULL == new_plan)
 				return NULL;
-			MALLOC_LP_2ARGS(stmt, LP_KEY);
-			stmt->v.key = new_plan->outputKey;
+			MALLOC_LP_2ARGS(lp_key, LP_KEY);
+			cur_lp_key = lp_get_output_key(stmt);
+			lp_key->v.key = cur_lp_key->v.key;
+			stmt = lp_key;
 			break;
 		case LP_FUNCTION_CALL:
 		case LP_COLUMN_LIST:

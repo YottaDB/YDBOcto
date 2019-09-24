@@ -50,6 +50,8 @@ OCTO
   load_postgres_fixture customers postgres-customers.sql
   create_postgres_database pastas
   load_postgres_fixture pastas postgres-pastas.sql
+  create_postgres_database easynames
+  load_postgres_fixture easynames postgres-easynames.sql
 
   # Check names database
   psql names >& output.txt <<PSQL

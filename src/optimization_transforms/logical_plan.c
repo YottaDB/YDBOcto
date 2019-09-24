@@ -14,9 +14,7 @@
 
 
 #define LP_ACTION_TYPE(name) #name,
-#define LP_ACTION_END(name) #name
 const char *lp_action_type_str[] = {
   #include "lp_action_type.hd"
 };
 #undef LP_ACTION_TYPE
-#undef LP_ACTION_END

@@ -22,18 +22,17 @@
  * Generates a meta-plan for doing a KEY_<set operation>
  */
 LogicalPlan *lp_join_plans(LogicalPlan *a, LogicalPlan *b, LPActionType type) {
-	if(a == NULL)
-		return b;
-	if(b == NULL)
-		return a;
+	LogicalPlan	*set_operation, *set_option, *set_plans;
 
-	LogicalPlan *set_operation, *set_option, *set_plans;
+	if (NULL == a)
+		return b;
+	if (NULL == b)
+		return a;
 	MALLOC_LP_2ARGS(set_operation, LP_SET_OPERATION);
 	MALLOC_LP(set_option, set_operation->v.operand[0], LP_SET_OPTION);
 	MALLOC_LP_2ARGS(set_option->v.operand[0], type);
 	MALLOC_LP(set_plans, set_operation->v.operand[1], LP_PLANS);
 	set_plans->v.operand[0] = a;
 	set_plans->v.operand[1] = b;
-
 	return set_operation;
 }

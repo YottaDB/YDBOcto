@@ -1,34 +1,33 @@
-OCTO> (select firstname from names limit 2) union (select lastname from names limit 3);
-Zero
-Acid
-Cool
-Burn
-Killer
-OCTO> (select firstname from names limit 2) union (select lastname from names limit 4);
-Zero
-Acid
-Cool
-Burn
-Killer
-Nikon
-OCTO> (select firstname from names limit 2) union (select lastname from names limit 1);
-Zero
-Acid
-Cool
-OCTO> (select lastname from names limit 2) union (select lastname from names limit 3);
-Cool
-Burn
-Killer
-Nikon
-
-OCTO> (select lastname from names limit 2) union (select lastname from names limit 4);
-Cool
-Burn
-Killer
-Nikon
-
-OCTO> (select lastname from names limit 2) union (select lastname from names limit 1);
-Cool
-Burn
-Killer
+OCTO> select * from easynames where id = 1 or id = 2 or id = 10 limit 0;
+OCTO> select * from easynames where id = 1 or id = 2 or id = 10 limit 1;
+10|Name0
+OCTO> select * from easynames where id = 1 or id = 2 or id = 10 limit 2;
+10|Name0
+2|Name2
+OCTO> select * from easynames where id = 1 or id = 2 or id = 10 limit 3;
+10|Name0
+2|Name2
+1|Name1
+OCTO> select * from easynames where id = 1 or id = 2 or id = 10 limit 4;
+10|Name0
+2|Name2
+1|Name1
+OCTO> select * from easynames where id = 1 or id = 2 or id = 10 order by name;
+10|Name0
+1|Name1
+2|Name2
+OCTO> select * from easynames where id = 1 or id = 2 or id = 10 order by name limit 0;
+OCTO> select * from easynames where id = 1 or id = 2 or id = 10 order by name limit 1;
+10|Name0
+OCTO> select * from easynames where id = 1 or id = 2 or id = 10 order by name limit 2;
+10|Name0
+1|Name1
+OCTO> select * from easynames where id = 1 or id = 2 or id = 10 order by name limit 3;
+10|Name0
+1|Name1
+2|Name2
+OCTO> select * from easynames where id = 1 or id = 2 or id = 10 order by name limit 4;
+10|Name0
+1|Name1
+2|Name2
 OCTO> 

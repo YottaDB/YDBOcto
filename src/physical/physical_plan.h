@@ -38,7 +38,14 @@ typedef enum PPSetOperation {
 	PP_INTERSECT_SET
 } PPSetOperation;
 
-struct PhysicalPlan;
+typedef struct SetOperType	{
+	LPActionType		set_oper_type;
+	int			input_id1;
+	int			input_id2;
+	int			output_id;
+	struct SetOperType	*prev;
+	struct SetOperType	*next;
+} SetOperType;
 
 typedef struct PhysicalPlan {
 	char			*plan_name, *filename;
@@ -60,29 +67,28 @@ typedef struct PhysicalPlan {
 	boolean_t		is_cross_reference_key;
 
 	// If true, maintain a column-wise index of known types
-	int			maintain_columnwise_index;
+	boolean_t		maintain_columnwise_index;
 	// If true, only add the value to the output key if it doesn't already exist in
 	//  the columnwise index; requires the columnwise index
-	int			distinct_values;
-	// The type of action to perform; project inserts value, delete removes them
-	PPActionType		action_type;
-	PPSetOperation		set_operation;
+	boolean_t		distinct_values;
+
 	// If true, this plan should not be emitted in order but waited until after all required
 	//   plans have been emitted first. This is important when the plan will not run in-order,
 	//   but will be called as a subquery which can't be extracted due to a parent reference
-	int			deferred_plan;
+	boolean_t		deferred_plan;
 	// Points to the parent plan of this plan; we need this so we can resolve
 	//   references to parent queries and mark intermediate plans as deferred
 	struct PhysicalPlan	*parent_plan;
 	// If true, we should emit code to ensure only one value gets inserted to the output key
 	// for a given set of keys
-	int			emit_duplication_check;
+	boolean_t		emit_duplication_check;
 	boolean_t		*treat_key_as_null;	/* Set to TRUE for a short period when generating M code for
 							 * the case where a left table row did not match any right
 							 * table row in an OUTER JOIN (LEFT/RIGHT/FULL). If TRUE, any
 							 * references to columns from this table are automatically
 							 * treated as NULL (replaced with "") in the generated M code.
 							 */
+	SetOperType		*set_oper_list;		/* Linked list of SET OPERATIONS to do on this plan at the end */
 } PhysicalPlan;
 
 // This provides a convenient way to pass options to subplans

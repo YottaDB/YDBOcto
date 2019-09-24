@@ -1,4 +1,4 @@
-{%
+{}%
 /****************************************************************
  *								*
  * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
@@ -35,17 +35,17 @@ TEMPLATE(tmpl_column_list_combine, LogicalPlan *plan, PhysicalPlan *pplan, char 
 			if ((0 != resume) && (MAX_M_LINE_LENGTH < (*buffer_index - resume))) {
 				c = (*global_buffer)[resume + resume_length];
 				(*global_buffer)[resume + resume_length] = '\0';
-				%}`n{{*global_buffer + resume}}{%
+				%{}`n{{*global_buffer + resume}}{}%
 				(*buffer_index)--;
 				(*global_buffer)[resume + resume_length] = c;
 				resume = *buffer_index - resume_length + 1;
-				%}{{ delim }}{%
+				%{}{{ delim }}{}%
 			} else {
-				%}{{ delim }}{%
+				%{}{{ delim }}{}%
 			}
 		}
 		plan = plan->v.operand[1];
 	}
 	TEMPLATE_END();
 }
-%}
+%{}

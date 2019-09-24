@@ -1,4 +1,4 @@
-{%
+{}%
 /****************************************************************
  *								*
  * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
@@ -37,7 +37,7 @@ TEMPLATE(tmpl_key_end, SqlKey *key) {
 		}
 	}
 	TMPL(tmpl_key, key);
-	%}=""{%
+	%{}=""{}%
 	TEMPLATE_END();
 }
-%}
+%{}

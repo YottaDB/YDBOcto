@@ -187,17 +187,17 @@ OCTO
   # Run using psql and Octo against each of the generated queries
   for file in jointest*.sql
   do
-    run_query_in_octo_and_postgres_and_crosscheck pastas $file
+    run_query_in_octo_and_postgres_and_crosscheck pastas $file "remove_empty_line_at_tail"
   done
 }
 
 @test "random outer join queries" {
   load_fixture customers.sql
   load_fixture customers.zwr
-  yottadb -run ^genrandomqueries	# this generates a max of 20 queries jointest01.sql, jointest02.sql ... jointest20.sql
+  yottadb -run ^genrandomqueries	# this generates a set of queries jointest01.sql, jointest02.sql ...
   # Run using psql and Octo against each of the generated queries
   for file in jointest*.sql
   do
-    run_query_in_octo_and_postgres_and_crosscheck customers $file
+    run_query_in_octo_and_postgres_and_crosscheck customers $file "remove_empty_line_at_tail"
   done
 }

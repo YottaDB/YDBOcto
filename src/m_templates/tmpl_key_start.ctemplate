@@ -1,4 +1,4 @@
-{%
+{}%
 /****************************************************************
  *								*
  * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
@@ -30,9 +30,9 @@ TEMPLATE(tmpl_key_start, SqlKey *key) {
 			start = value->v.string_literal;
 		}
 	}
-	%}SET {%
+	%{}SET {}%
 	TMPL(tmpl_key, key);
-	%}={{ start }}{%
+	%{}={{ start }}{}%
 	TEMPLATE_END();
 }
-%}
+%{}

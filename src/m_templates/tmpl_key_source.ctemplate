@@ -1,4 +1,4 @@
-{%
+{}%
 /****************************************************************
  *								*
  * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
@@ -43,16 +43,16 @@ TEMPLATE(tmpl_key_source, PhysicalPlan *pplan, SqlKey *key) {
 	if(key->is_cross_reference_key) {
 		UNPACK_SQL_STATEMENT(value, key->column->columnName, value);
 		columnName = value->v.reference;
-		%}^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}"{%
+		%{}^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}"{}%
 		//TMPL(tmpl_column_reference, pplan, key->cross_reference_output_key->cross_reference_column_alias);
 		// Output the column this cross reference is sourced from
 		iter_key_index = 0;
 		while ((iter_key_index < pplan->total_iter_keys) && (pplan->iterKeys[iter_key_index]->unique_id != key->unique_id))
 			iter_key_index++;
-		%},{%
+		%{},{}%
 		// We only look at the first subscript, since we don't want to look at actual values of the keys
 		TMPL(tmpl_key, pplan->iterKeys[iter_key_index]);
-		%}){%
+		%{}){}%
 	} else if(table->source) {
 		iter_key_index = 0;
 		while ((pplan->iterKeys[iter_key_index] != key) && (iter_key_index < pplan->total_iter_keys)) {
@@ -71,22 +71,22 @@ TEMPLATE(tmpl_key_source, PhysicalPlan *pplan, SqlKey *key) {
 		if(keyword) {
 			UNPACK_SQL_STATEMENT(value, keyword->v, value);
 			key_fixed = value->v.string_literal;
-			%}{{ key_fixed }}{%
+			%{}{{ key_fixed }}{}%
 			TEMPLATE_END();
 		}
-		%}^{{ tableName }}{%
+		%{}^{{ tableName }}{}%
 		while(pplan->iterKeys[iter_key_index] != key
 			&& iter_key_index < pplan->total_iter_keys) {
 			if(pplan->iterKeys[iter_key_index]->unique_id == key->unique_id) {
 				TMPL(tmpl_key, pplan->iterKeys[iter_key_index]);
-				%},{%
+				%{},{}%
 			}
 			iter_key_index++;
 		}
 		TMPL(tmpl_key, key);
-		%})){%
+		%{})){}%
 	}
 
 	TEMPLATE_END();
 }
-%}
+%{}

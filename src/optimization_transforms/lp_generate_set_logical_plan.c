@@ -18,30 +18,14 @@
 #include "octo_types.h"
 #include "logical_plan.h"
 
-void lp_update_plan_keys(LogicalPlan *plan, SqlKey *key) {
-	LogicalPlan *output_key;
-
-	if(plan->type == LP_SET_OPERATION) {
-		assert(plan->v.operand[1]->type == LP_PLANS);
-		lp_update_plan_keys(plan->v.operand[1]->v.operand[0], key);
-		lp_update_plan_keys(plan->v.operand[1]->v.operand[1], key);
-	} else if(plan->type == LP_INSERT) {
-		output_key = lp_get_output_key(plan);
-		output_key->v.key->key_num = key->key_num;
-		output_key->v.key->unique_id = key->unique_id;
-	} else {
-		assert(FALSE);
-	}
-}
-
 /**
  * Generates a meta-plan for doing a KEY_<set operation>
  */
 LogicalPlan *lp_generate_set_logical_plan(SqlStatement *stmt, int *plan_id) {
-	SqlStatement *set_operation_stmt;
-	LogicalPlan *options, *set_operation, *plans, *key, *set_plans[2], *output_key;
-	LogicalPlan *cur_plan;
-	SqlSetOperation *set_operation_sql;
+	SqlStatement	*set_operation_stmt;
+	LogicalPlan	*options, *set_operation, *plans, *key, *set_plans[2];
+	LogicalPlan	*dst, *dst_key;
+	SqlSetOperation	*set_operation_sql;
 
 	// Get plans for each of the sub plans
 	set_operation_stmt = stmt;
@@ -53,12 +37,6 @@ LogicalPlan *lp_generate_set_logical_plan(SqlStatement *stmt, int *plan_id) {
 	set_plans[1] = generate_logical_plan(set_operation_sql->operand[1], plan_id);
 	if (NULL == set_plans[1])
 		return NULL;
-
-	// These should share the output key
-	cur_plan = lp_drill_to_insert(set_plans[0]);
-	output_key = lp_get_output_key(cur_plan);
-	lp_update_plan_keys(set_plans[0], output_key->v.key);
-	lp_update_plan_keys(set_plans[1], output_key->v.key);
 
 	MALLOC_LP_2ARGS(set_operation, LP_SET_OPERATION);
 	MALLOC_LP(options, set_operation->v.operand[0], LP_SET_OPTION);
@@ -89,7 +67,13 @@ LogicalPlan *lp_generate_set_logical_plan(SqlStatement *stmt, int *plan_id) {
 		key->type = LP_SET_INTERSECT_ALL;
 		break;
 	}
-
+	MALLOC_LP(dst, options->v.operand[1], LP_OUTPUT);
+	MALLOC_LP(dst_key, dst->v.operand[0], LP_KEY);
+	OCTO_CMALLOC_STRUCT(dst_key->v.key, SqlKey);
+	memset(dst_key->v.key, 0, sizeof(SqlKey));
+	dst_key->counter = plan_id;
+	dst_key->v.key->unique_id = get_plan_unique_number(dst_key);
+	dst_key->v.key->type = LP_KEY_ADVANCE;
 	/// TODO: we should verify the selects being join have the same number
 	///  of columns during the parsing phase
 

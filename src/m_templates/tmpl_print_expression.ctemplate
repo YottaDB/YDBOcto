@@ -1,4 +1,4 @@
-{%
+{}%
 /****************************************************************
  *								*
  * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
@@ -18,305 +18,306 @@
 #include "template_helpers.h"
 
 TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan) {
-    TEMPLATE_INIT();
-    char *mid = NULL, zwr_buf[MAX_STR_CONST];
-    ydb_buffer_t str, zwr;
-    int status;
-    boolean_t use_string_comparison;
-    SqlValue *value;
-    SqlColumnAlias *column_alias;
-    LogicalPlan *key, *piece_num, *cur_plan, *branch_value, *cas_value, *condition;
-    LogicalPlan *cur_branch, *default_value;
-    LogicalPlan *first_operand, *second_operand, *t_operand;
+	TEMPLATE_INIT();
 
-    assert(plan != NULL);
+	char		*mid = NULL, zwr_buf[MAX_STR_CONST];
+	ydb_buffer_t	str, zwr;
+	int		status;
+	boolean_t	use_string_comparison;
+	SqlValue	*value;
+	SqlColumnAlias	*column_alias;
+	LogicalPlan	*key, *piece_num, *cur_plan, *branch_value, *cas_value, *condition;
+	LogicalPlan	*cur_branch, *default_value;
+	LogicalPlan	*first_operand, *second_operand, *t_operand;
 
-    first_operand = plan->v.operand[0];
-    second_operand = plan->v.operand[1];
+	assert(plan != NULL);
 
-    switch(plan->type) {
-    case LP_WHERE:
-        TMPL(tmpl_print_expression, plan->v.operand[0], pplan);
-        TEMPLATE_END();
-        break;
-    case LP_VALUE:
-        value = plan->v.value;
-        switch(value->type) {
-        case DATE_TIME:
-        case UNKNOWN_SqlValueType:
-        case BOOLEAN_VALUE:
-            %}"{{ value->v.string_literal }}"{%
-            break;
-        case STRING_LITERAL:
-            // STRING_LITERALS need to be converted to zwrite format first as they can contain non-printable characters
-            str.len_used = strlen(value->v.string_literal);
-            str.len_alloc = str.len_used;
-            str.buf_addr = value->v.string_literal;
-            // -1 is needed for the null terminator
-            zwr.len_alloc = sizeof(zwr_buf) - 1;
-            zwr.buf_addr = zwr_buf;
-            status = ydb_str2zwr_s(&str, &zwr);
-            assert(YDB_OK == status);
-            zwr.buf_addr[zwr.len_used] = '\0';
-            %}{{ zwr.buf_addr }}{%
-            break;
-	case NUMBER_LITERAL:
-            %}"{{ value->v.string_literal }}"{%
-            break;
-        case COLUMN_REFERENCE:
-            // We should only pass LP_COLUMN_ALIASes to this funciton
-            assert(FALSE);
-            break;
-        case FUNCTION_NAME:
-            %}{{ value->v.string_literal }}{%
-            break;
-        case PARAMETER_VALUE:
-            %}parm{{ value->v.string_literal + 1 }}{%
-            break;
-        case NUL_VALUE:
-            %}""{%
-            break;
-	case INTEGER_LITERAL:
-            %}"{{ value->v.string_literal }}"{%
-            break;
-        default:
-            FATAL(ERR_UNKNOWN_KEYWORD_STATE, "");
-        }
-        break;
-    case LP_DERIVED_COLUMN:
-        GET_LP(key, plan, 0, LP_KEY);
-        if (pplan->treat_key_as_null[key->v.key->unique_id])
-        {   /* Treat all columns in the table as NULL (used for OUTER JOINs) */
-            %}""{%	/* needs to be replaced with $ZYSQLNULL when #311 is fixed */
-	    break;
-        }
-        GET_LP(piece_num, plan, 1, LP_PIECE_NUMBER);
-        %}($PIECE({%
-        TMPL(tmpl_key, key->v.key);
-        // We're getting a bit abusive again; go back one, removing paren, comma and print
-        (*buffer_index)--;
-        %},{%
-	TMPL(tmpl_key, key->v.key);
-        %}),"|",{{ piece_num->v.piece_number|%d }})){%
-        break;
-    case LP_COLUMN_ALIAS:
-        TMPL(tmpl_column_reference, pplan, plan->v.column_alias);
-        break;
-    case LP_KEY:
-        TMPL(tmpl_key, plan->v.key);
-        break;
-    case LP_ADDITION:
-        mid = "+";
-        break;
-    case LP_SUBTRACTION:
-        mid = "-";
-        break;
-    case LP_DIVISION:
-        mid = "/";
-        break;
-    case LP_MULTIPLICATION:
-        mid = "*";
-        break;
-    case LP_CONCAT:
-        mid = "_";
-        break;
-    case LP_BOOLEAN_OR:
-        mid = "!";
-        break;
-    case LP_BOOLEAN_AND:
-        mid = "&";
-        break;
-    case LP_BOOLEAN_IS:
-        mid = "=";
-        break;
-    case LP_BOOLEAN_EQUALS:
-        mid = "=";
-        break;
-    case LP_BOOLEAN_NOT_EQUALS:
-        mid = "'=";
-        break;
-    case LP_BOOLEAN_LESS_THAN:
-    case LP_BOOLEAN_GREATER_THAN:
-    case LP_BOOLEAN_LESS_THAN_OR_EQUALS:
-    case LP_BOOLEAN_GREATER_THAN_OR_EQUALS:
-        // If the arguments are strings, we need to use the M follows operator ']' as appropriate.
-        // We assume all values in this expression have the same type, which should be true
-        // due to the matching of types further up the stack
-        // Delve down the left side until we get to a leaf node (right hand side is NULL) and
-        // determine the type of that node
-        cur_plan = plan;
-        use_string_comparison = FALSE;
-        while (NULL != cur_plan->v.operand[1]) {
-            cur_plan = cur_plan->v.operand[0];
-            assert(NULL != cur_plan);
-        }
-        switch(cur_plan->type) {
-        case LP_VALUE:
-            if (STRING_LITERAL == cur_plan->v.value->type) {
+	first_operand = plan->v.operand[0];
+	second_operand = plan->v.operand[1];
+
+	switch(plan->type) {
+	case LP_WHERE:
+		TMPL(tmpl_print_expression, plan->v.operand[0], pplan);
+		TEMPLATE_END();
+		break;
+	case LP_VALUE:
+		value = plan->v.value;
+		switch(value->type) {
+		case DATE_TIME:
+		case UNKNOWN_SqlValueType:
+		case BOOLEAN_VALUE:
+			%{}"{{ value->v.string_literal }}"{}%
+			break;
+		case STRING_LITERAL:
+			// STRING_LITERALS need to be converted to zwrite format first as they can contain non-printable characters
+			str.len_used = strlen(value->v.string_literal);
+			str.len_alloc = str.len_used;
+			str.buf_addr = value->v.string_literal;
+			// -1 is needed for the null terminator
+			zwr.len_alloc = sizeof(zwr_buf) - 1;
+			zwr.buf_addr = zwr_buf;
+			status = ydb_str2zwr_s(&str, &zwr);
+			assert(YDB_OK == status);
+			zwr.buf_addr[zwr.len_used] = '\0';
+			%{}{{ zwr.buf_addr }}{}%
+			break;
+		case NUMBER_LITERAL:
+			%{}"{{ value->v.string_literal }}"{}%
+			break;
+		case COLUMN_REFERENCE:
+			// We should only pass LP_COLUMN_ALIASes to this funciton
+			assert(FALSE);
+			break;
+		case FUNCTION_NAME:
+			%{}{{ value->v.string_literal }}{}%
+			break;
+		case PARAMETER_VALUE:
+			%{}parm{{ value->v.string_literal + 1 }}{}%
+			break;
+		case NUL_VALUE:
+			%{}""{}%
+			break;
+		case INTEGER_LITERAL:
+			%{}"{{ value->v.string_literal }}"{}%
+			break;
+		default:
+			FATAL(ERR_UNKNOWN_KEYWORD_STATE, "");
+		}
+		break;
+	case LP_DERIVED_COLUMN:
+		GET_LP(key, plan, 0, LP_KEY);
+		if (pplan->treat_key_as_null[key->v.key->unique_id])
+		{   /* Treat all columns in the table as NULL (used for OUTER JOINs) */
+			%{}""{}%	/* needs to be replaced with $ZYSQLNULL when #311 is fixed */
+		break;
+		}
+		GET_LP(piece_num, plan, 1, LP_PIECE_NUMBER);
+		%{}($PIECE({}%
+		TMPL(tmpl_key, key->v.key);
+		// We're getting a bit abusive again; go back one, removing paren, comma and print
+		(*buffer_index)--;
+		%{},{}%
+		TMPL(tmpl_key, key->v.key);
+		%{}),"|",{{ piece_num->v.piece_number|%d }})){}%
+		break;
+	case LP_COLUMN_ALIAS:
+		TMPL(tmpl_column_reference, pplan, plan->v.column_alias);
+		break;
+	case LP_KEY:
+		TMPL(tmpl_key, plan->v.key);
+		break;
+	case LP_ADDITION:
+		mid = "+";
+		break;
+	case LP_SUBTRACTION:
+		mid = "-";
+		break;
+	case LP_DIVISION:
+		mid = "/";
+		break;
+	case LP_MULTIPLICATION:
+		mid = "*";
+		break;
+	case LP_CONCAT:
+		mid = "_";
+		break;
+	case LP_BOOLEAN_OR:
+		mid = "!";
+		break;
+	case LP_BOOLEAN_AND:
+		mid = "&";
+		break;
+	case LP_BOOLEAN_IS:
+		mid = "=";
+		break;
+	case LP_BOOLEAN_EQUALS:
+		mid = "=";
+		break;
+	case LP_BOOLEAN_NOT_EQUALS:
+		mid = "'=";
+		break;
+	case LP_BOOLEAN_LESS_THAN:
+	case LP_BOOLEAN_GREATER_THAN:
+	case LP_BOOLEAN_LESS_THAN_OR_EQUALS:
+	case LP_BOOLEAN_GREATER_THAN_OR_EQUALS:
+		// If the arguments are strings, we need to use the M follows operator ']' as appropriate.
+		// We assume all values in this expression have the same type, which should be true
+		// due to the matching of types further up the stack
+		// Delve down the left side until we get to a leaf node (right hand side is NULL) and
+		// determine the type of that node
+		cur_plan = plan;
+		use_string_comparison = FALSE;
+		while (NULL != cur_plan->v.operand[1]) {
+			cur_plan = cur_plan->v.operand[0];
+			assert(NULL != cur_plan);
+		}
+		switch(cur_plan->type) {
+		case LP_VALUE:
+			if (STRING_LITERAL == cur_plan->v.value->type) {
 		use_string_comparison = TRUE;
-            }
-            break;
-        case LP_COLUMN_ALIAS:
-            column_alias = cur_plan->v.column_alias;
-            if(column_alias->column->type == column_STATEMENT) {
-                if(column_alias->column->v.column->type == CHARACTER_STRING_TYPE) {
-                    use_string_comparison = TRUE;
-                }
-            } else {
-                assert(column_alias->column->type == column_list_alias_STATEMENT);
-                if (STRING_LITERAL == column_alias->column->v.column_list_alias->type) {
-                    use_string_comparison = TRUE;
-                }
-            }
-            break;
-        default:
-            assert(FALSE);
-        }
-        if (use_string_comparison) {
-	    // String type. Need to use "]" or "']" operator and swap operands as needed.
-            if (LP_BOOLEAN_GREATER_THAN == plan->type) {
-		mid = "]";
-            } else if (LP_BOOLEAN_LESS_THAN_OR_EQUALS == plan->type) {
-		mid = "']";
-            } else {
-		// Swap operands first
-                t_operand = first_operand;
-                first_operand = second_operand;
-                second_operand = t_operand;
-		if (LP_BOOLEAN_GREATER_THAN_OR_EQUALS == plan->type) {
-			mid = "']";
-		} else
-			mid = "]";
-            }
-        } else {
-	    // Numeric/Integer type. Easy to do <, >, <= and >= comparison.
-            if (LP_BOOLEAN_LESS_THAN == plan->type) {
-                mid = "<";
-            } else if (LP_BOOLEAN_GREATER_THAN_OR_EQUALS == plan->type) {
-                mid = "'<";
-            } else if (LP_BOOLEAN_LESS_THAN_OR_EQUALS == plan->type) {
-                mid = "'>";
-            } else {
-                mid = ">";
-            }
-        }
-        break;
-    case LP_BOOLEAN_REGEX_SENSITIVE:
-        %}$$regmatch^%%ydbposix({%
-        TMPL(tmpl_print_expression, first_operand, pplan);
-        %},{%
-        TMPL(tmpl_print_expression, second_operand, pplan);
-        %}){%
-        break;
-    case LP_BOOLEAN_REGEX_INSENSITIVE:
-        // The extra ',3' below marks this as case insensitive
-        %}$$regmatch^%%ydbposix({%
-        TMPL(tmpl_print_expression, first_operand, pplan);
-        %},{%
-        TMPL(tmpl_print_expression, second_operand, pplan);
-        %},3){%
-        break;
-    case LP_BOOLEAN_IN:
-        // IN expressions require a key; we should resolve the keys in generate_physical_plan
-        //  so enforce that the search list is a key to search in
-        assert(LP_KEY == plan->v.operand[1]->type);
-        %}($DATA({%
-        TMPL(tmpl_key, plan->v.operand[1]->v.key);
-        /// WARNING: this happens in tmpl_physical_plan, but it is probably dangerous
-        (*buffer_index)--;
-        %},{%
-	TMPL(tmpl_print_expression, plan->v.operand[0], pplan);
-	%}))'=0){%
-        break;
-    case LP_BOOLEAN_NOT_IN:
-        // IN expressions require a key; we should resolve the keys in generate_physical_plan
-        //  so enforce that the search list is a key to search in
-        assert(LP_KEY == plan->v.operand[1]->type);
-        %}($DATA({%
-        TMPL(tmpl_key, plan->v.operand[1]->v.key);
-        /// WARNING: this happens in tmpl_physical_plan, but it is probably dangerous
-        (*buffer_index)--;
-        %},{%
-	TMPL(tmpl_print_expression, plan->v.operand[0], pplan);
-	%}))=0){%
-        break;
-    case LP_FORCE_NUM:
-        %}+{%
-        TMPL(tmpl_print_expression, plan->v.operand[0], pplan);
-        break;
-    case LP_NEGATIVE:
-        %}-{%
-        TMPL(tmpl_print_expression, plan->v.operand[0], pplan);
-        break;
-    case LP_BOOLEAN_NOT:
-        %}'{%
-        TMPL(tmpl_print_expression, plan->v.operand[0], pplan);
-        break;
-    case LP_FUNCTION_CALL:
-        cur_plan = plan;
-        %}{%
-	TMPL(tmpl_print_expression, plan->v.operand[0], pplan);
-	%}({%
-        while(cur_plan->v.operand[1] != NULL) {
-            if(cur_plan != plan) {
-                %},{%
-            }
-            cur_plan = cur_plan->v.operand[1];
-            TMPL(tmpl_print_expression, cur_plan->v.operand[0], pplan);
-        }
-        %}){%
-        break;
-    case LP_INSERT:
-        // Fetch the first value from the output key of this table
-        key = lp_get_output_key(plan);
-        %}$ORDER({%
-	TMPL(tmpl_key, key->v.key); (*buffer_index)--;
-	%},"")){%
-        break;
-    case LP_CASE:
-        %}$SELECT({%
-        // We don't use GET_LP_ because we don't know the type
-        GET_LP(cur_plan, plan, 0, LP_CASE_STATEMENT);
-        cas_value = cur_plan->v.operand[0];
-        default_value = cur_plan->v.operand[1];
-        GET_LP(cur_plan, plan, 1, LP_CASE_BRANCH);
-        while(cur_plan != NULL) {
-            GET_LP(cur_branch, cur_plan, 0, LP_CASE_BRANCH_STATEMENT);
-            condition = cur_branch->v.operand[0];
-            branch_value = cur_branch->v.operand[1];
-            %}({%
-            TMPL(tmpl_print_expression, condition, pplan);
-            %})=({%
-            if(cas_value != NULL) {
-                TMPL(tmpl_print_expression, cas_value, pplan);
-            } else {
-                %}1{%
-            }
-            %}):({%
-            TMPL(tmpl_print_expression, branch_value, pplan);
-            %}),{%
-            cur_plan = cur_plan->v.operand[1];
-        }
-        if(default_value != NULL) {
-            %}1:{%
-	    TMPL(tmpl_print_expression, default_value, pplan);
-	    %}){%
-        } else {
-            %}1:""){%
-        }
-        break;
-    default:
-        FATAL(ERR_UNKNOWN_KEYWORD_STATE, "");
-    }
+			}
+			break;
+		case LP_COLUMN_ALIAS:
+			column_alias = cur_plan->v.column_alias;
+			if(column_alias->column->type == column_STATEMENT) {
+				if(column_alias->column->v.column->type == CHARACTER_STRING_TYPE) {
+				    use_string_comparison = TRUE;
+				}
+			} else {
+				assert(column_alias->column->type == column_list_alias_STATEMENT);
+				if (STRING_LITERAL == column_alias->column->v.column_list_alias->type) {
+				    use_string_comparison = TRUE;
+				}
+			}
+			break;
+		default:
+			assert(FALSE);
+		}
+		if (use_string_comparison) {
+			// String type. Need to use "]" or "']" operator and swap operands as needed.
+			if (LP_BOOLEAN_GREATER_THAN == plan->type) {
+				mid = "]";
+			} else if (LP_BOOLEAN_LESS_THAN_OR_EQUALS == plan->type) {
+				mid = "']";
+			} else {
+				// Swap operands first
+				t_operand = first_operand;
+				first_operand = second_operand;
+				second_operand = t_operand;
+				if (LP_BOOLEAN_GREATER_THAN_OR_EQUALS == plan->type) {
+					mid = "']";
+				} else
+					mid = "]";
+				}
+		} else {
+			// Numeric/Integer type. Easy to do <, >, <= and >= comparison.
+			if (LP_BOOLEAN_LESS_THAN == plan->type) {
+				mid = "<";
+			} else if (LP_BOOLEAN_GREATER_THAN_OR_EQUALS == plan->type) {
+				mid = "'<";
+			} else if (LP_BOOLEAN_LESS_THAN_OR_EQUALS == plan->type) {
+				mid = "'>";
+			} else {
+				mid = ">";
+			}
+		}
+		break;
+	case LP_BOOLEAN_REGEX_SENSITIVE:
+		%{}$$regmatch^%%ydbposix({}%
+		TMPL(tmpl_print_expression, first_operand, pplan);
+		%{},{}%
+		TMPL(tmpl_print_expression, second_operand, pplan);
+		%{}){}%
+		break;
+	case LP_BOOLEAN_REGEX_INSENSITIVE:
+		// The extra ',3' below marks this as case insensitive
+		%{}$$regmatch^%%ydbposix({}%
+		TMPL(tmpl_print_expression, first_operand, pplan);
+		%{},{}%
+		TMPL(tmpl_print_expression, second_operand, pplan);
+		%{},3){}%
+		break;
+	case LP_BOOLEAN_IN:
+		// IN expressions require a key; we should resolve the keys in generate_physical_plan
+		//  so enforce that the search list is a key to search in
+		assert(LP_KEY == plan->v.operand[1]->type);
+		%{}($DATA({}%
+		TMPL(tmpl_key, plan->v.operand[1]->v.key);
+		/// WARNING: this happens in tmpl_physical_plan, but it is probably dangerous
+		(*buffer_index)--;
+		%{},{}%
+		TMPL(tmpl_print_expression, plan->v.operand[0], pplan);
+		%{}))'=0){}%
+		break;
+	case LP_BOOLEAN_NOT_IN:
+		// IN expressions require a key; we should resolve the keys in generate_physical_plan
+		//  so enforce that the search list is a key to search in
+		assert(LP_KEY == plan->v.operand[1]->type);
+		%{}($DATA({}%
+		TMPL(tmpl_key, plan->v.operand[1]->v.key);
+		/// WARNING: this happens in tmpl_physical_plan, but it is probably dangerous
+		(*buffer_index)--;
+		%{},{}%
+		TMPL(tmpl_print_expression, plan->v.operand[0], pplan);
+		%{}))=0){}%
+		break;
+	case LP_FORCE_NUM:
+		%{}+{}%
+		TMPL(tmpl_print_expression, plan->v.operand[0], pplan);
+		break;
+	case LP_NEGATIVE:
+		%{}-{}%
+		TMPL(tmpl_print_expression, plan->v.operand[0], pplan);
+		break;
+	case LP_BOOLEAN_NOT:
+		%{}'{}%
+		TMPL(tmpl_print_expression, plan->v.operand[0], pplan);
+		break;
+	case LP_FUNCTION_CALL:
+		cur_plan = plan;
+		%{}{}%
+		TMPL(tmpl_print_expression, plan->v.operand[0], pplan);
+		%{}({}%
+		while(cur_plan->v.operand[1] != NULL) {
+			if(cur_plan != plan) {
+				%{},{}%
+			}
+			cur_plan = cur_plan->v.operand[1];
+			TMPL(tmpl_print_expression, cur_plan->v.operand[0], pplan);
+		}
+		%{}){}%
+		break;
+	case LP_INSERT:
+		// Fetch the first value from the output key of this table
+		key = lp_get_output_key(plan);
+		%{}$ORDER({}%
+		TMPL(tmpl_key, key->v.key); (*buffer_index)--;
+		%{},"")){}%
+		break;
+	case LP_CASE:
+		%{}$SELECT({}%
+		// We don't use GET_LP_ because we don't know the type
+		GET_LP(cur_plan, plan, 0, LP_CASE_STATEMENT);
+		cas_value = cur_plan->v.operand[0];
+		default_value = cur_plan->v.operand[1];
+		GET_LP(cur_plan, plan, 1, LP_CASE_BRANCH);
+		while(cur_plan != NULL) {
+			GET_LP(cur_branch, cur_plan, 0, LP_CASE_BRANCH_STATEMENT);
+			condition = cur_branch->v.operand[0];
+			branch_value = cur_branch->v.operand[1];
+			%{}({}%
+			TMPL(tmpl_print_expression, condition, pplan);
+			%{})=({}%
+			if(cas_value != NULL) {
+				TMPL(tmpl_print_expression, cas_value, pplan);
+			} else {
+				%{}1{}%
+			}
+			%{}):({}%
+			TMPL(tmpl_print_expression, branch_value, pplan);
+			%{}),{}%
+			cur_plan = cur_plan->v.operand[1];
+		}
+		if(default_value != NULL) {
+			%{}1:{}%
+			TMPL(tmpl_print_expression, default_value, pplan);
+			%{}){}%
+		} else {
+			%{}1:""){}%
+		}
+		break;
+	default:
+		FATAL(ERR_UNKNOWN_KEYWORD_STATE, "");
+	}
 
-    if(mid) {
-        %}({%
-        TMPL(tmpl_print_expression, first_operand, pplan);
-        %}{{ mid }}{%
-        TMPL(tmpl_print_expression, second_operand, pplan);
-        %}){%
-    }
+	if(mid) {
+		%{}({}%
+		TMPL(tmpl_print_expression, first_operand, pplan);
+		%{}{{ mid }}{}%
+		TMPL(tmpl_print_expression, second_operand, pplan);
+		%{}){}%
+	}
 
-    TEMPLATE_END();
+	TEMPLATE_END();
 }
-%}
+%{}

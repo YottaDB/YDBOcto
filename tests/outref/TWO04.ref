@@ -39,8 +39,11 @@ octoPlan1(cursorId)
     NEW %ydboctoi0,%ydboctoi1,%ydboctoi2
     SET %ydboctoi0=1,%ydboctoi1="",%ydboctoi2=""
     FOR  SET %ydboctoi1=$ORDER(%ydboctocursor(cursorId,"keys",5,"","","order",%ydboctoi1),1)  QUIT:$DATA(%ydboctocursor(cursorId,"keys",5,"","","order",%ydboctoi1))=0  DO  QUIT:(%ydboctoi1="")
-    . FOR  SET %ydboctoi2=$ORDER(%ydboctocursor(cursorId,"keys",5,"","","order",%ydboctoi1,%ydboctoi2)) QUIT:(%ydboctoi2="")  SET %ydboctocursor(cursorId,"keys",5,"","",%ydboctoi0)=%ydboctocursor(cursorId,"keys",5,"","","order",%ydboctoi1,%ydboctoi2) IF $INCREMENT(%ydboctoi0)
+    . FOR  SET %ydboctoi2=$ORDER(%ydboctocursor(cursorId,"keys",5,"","","order",%ydboctoi1,%ydboctoi2)) QUIT:(%ydboctoi2="")  DO
+    . . SET %ydboctocursor(cursorId,"keys",5,"","",%ydboctoi0)=%ydboctocursor(cursorId,"keys",5,"","","order",%ydboctoi1,%ydboctoi2)
+    . . IF $INCREMENT(%ydboctoi0)
     KILL %ydboctocursor(cursorId,"keys",5,"","","order")
+    SET %ydboctocursor(cursorId,"keys",5,"","")=%ydboctoi0-1
     QUIT
 
 octoPlan2(cursorId)

@@ -47,12 +47,10 @@ struct LogicalPlan;
 struct SqlKey;
 
 #define LP_ACTION_TYPE(name) name,
-#define LP_ACTION_END(name) name
 typedef enum {
   #include "lp_action_type.hd"
 } LPActionType;
 #undef LP_ACTION_TYPE
-#undef LP_ACTION_END
 
 extern const char *lp_action_type_str[];
 
@@ -189,7 +187,7 @@ LogicalPlan *lp_generate_xref_keys(LogicalPlan *plan, SqlTable *table, SqlColumn
 // Returns a logical plan representing the provided ColumnListAlias
 LogicalPlan *lp_column_list_to_lp(SqlColumnListAlias *list, int *plan_id);
 LogicalPlan *lp_table_join_to_column_list(LogicalPlan *table_join, int *plan_id);
-LogicalPlan *lp_replace_derived_table_references(LogicalPlan *root, LogicalPlan *new_plan, SqlTableAlias *table_alias);
+LogicalPlan *lp_replace_derived_table_references(LogicalPlan *root, SqlTableAlias *table_alias, SqlKey *key);
 // Given a SET operation, drills down until it encounters the first LP_INSERT statement
 LogicalPlan *lp_drill_to_insert(LogicalPlan *plan);
 

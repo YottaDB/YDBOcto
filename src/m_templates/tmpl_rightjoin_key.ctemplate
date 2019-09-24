@@ -1,4 +1,4 @@
-{%
+{}%
 /****************************************************************
  *								*
  * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
@@ -16,7 +16,7 @@
 
 TEMPLATE(tmpl_rightjoin_key, PhysicalPlan *plan, unsigned int key_start, unsigned int key_end) {
 	TEMPLATE_INIT();
-	%}{{ key_start|%d }},{%
+	%{}{{ key_start|%d }},{}%
 	assert(key_start < key_end);
 	do {
 		SqlKey	*key;
@@ -26,8 +26,8 @@ TEMPLATE(tmpl_rightjoin_key, PhysicalPlan *plan, unsigned int key_start, unsigne
 			TMPL(tmpl_key, key);
 		key_start++;
 		if ((key_start < key_end) && !key->is_cross_reference_key)
-			%},{%
+			%{},{}%
 	} while (key_start < key_end);
 	TEMPLATE_END();
 }
-%}
+%{}

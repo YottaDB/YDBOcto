@@ -30,7 +30,7 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt, int *plan_id) {
 	LogicalPlan		*criteria, *where, *order_by, *select_options;
 	LogicalPlan		*join_left, *join_right, *temp, *select_right;
 	LogicalPlan		*start_join_condition, *t_join_condition;
-	LogicalPlan		*keywords, *left, *t_left, *t_right;
+	LogicalPlan		*keywords, *left;
 	SqlJoin			*cur_join, *start_join;
 	SqlColumnListAlias	*list;
 	int			num_outer_joins;
@@ -216,19 +216,19 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt, int *plan_id) {
 	left = select->v.operand[0];
 	cur_join = start_join;
 	while (NULL != left) {
-		SqlStatement *sql_stmt;
+		LogicalPlan	*new_plan;
 
-		sql_stmt = cur_join->value;
-		sql_stmt = drill_to_table_alias(sql_stmt);
-		if (LP_INSERT == left->v.operand[0]->type) {
+		new_plan = left->v.operand[0];
+		if ((LP_INSERT == new_plan->type) || (LP_SET_OPERATION == new_plan->type))
+		{
+			SqlStatement	*sql_stmt;
+			LogicalPlan	*cur_lp_key;
+
+			sql_stmt = cur_join->value;
+			sql_stmt = drill_to_table_alias(sql_stmt);
 			UNPACK_SQL_STATEMENT(table_alias, sql_stmt, table_alias);
-			lp_replace_derived_table_references(insert, left->v.operand[0], table_alias);
-		} else if (LP_SET_OPERATION == left->v.operand[0]->type) {
-			UNPACK_SQL_STATEMENT(table_alias, sql_stmt, table_alias);
-			t_left = left->v.operand[0]->v.operand[1]->v.operand[0];
-			lp_replace_derived_table_references(insert, t_left, table_alias);
-			t_right = left->v.operand[0]->v.operand[1]->v.operand[1];
-			lp_replace_derived_table_references(insert, t_right, table_alias);
+			cur_lp_key = lp_get_output_key(new_plan);
+			lp_replace_derived_table_references(insert, table_alias, cur_lp_key->v.key);
 		}
 		left = left->v.operand[1];
 		cur_join = cur_join->next;

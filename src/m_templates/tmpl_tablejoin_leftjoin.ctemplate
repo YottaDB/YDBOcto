@@ -1,4 +1,4 @@
-{%
+{}%
 /****************************************************************
  *								*
  * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
@@ -24,13 +24,13 @@ TEMPLATE(tmpl_tablejoin_leftjoin, PhysicalPlan *plan, LogicalPlan *tablejoin, un
 		join_condition = join_condition->v.operand[0];
 	if (NULL != join_condition) {
 		TMPL(print_dots, *dot_count);
-		%}IF ({%
+		%{}IF ({}%
 		TMPL(tmpl_print_expression, join_condition, plan);
-		%}) DO`n    {%
+		%{}) DO`n    {}%
 		(*dot_count)++;
 	}
 	TMPL(print_dots, *dot_count);
-	%}SET %%ydboctoz({{ cur_key|%d }})=1`n    {%
+	%{}SET %%ydboctoz({{ cur_key|%d }})=1`n    {}%
 	TEMPLATE_END();
 }
-%}
+%{}

@@ -353,12 +353,22 @@ count_num_occurrences() {
 }
 
 run_query_in_octo_and_postgres_and_crosscheck() {
+    queryfile="$1"
     file="$2"
+    remove="$3"
     fname=`echo $file | sed 's/\..*//g'`
-    psql $1 -f $file >& $fname.psql.out
+    psql $queryfile -f $file >& $fname.psql.out
     tail -n +3 $fname.psql.out | head -n -2 | sed 's/ //g' | sort >& $fname.ref
     octo -f $file >& $fname.octo.out
-    head -n -1 $fname.octo.out | grep -v "^Added .*trigger" | sort >& $fname.log
+    # Remove trailing and leading blank lines. Not yet sure why octo produces an empty line at the start for some queries
+    # and an empty line at the end of the output for some other queries.
+    if [[ $remove == "remove_empty_line_at_head" ]]; then
+        tail -n +2 $fname.octo.out | grep -v "^Added .*trigger" | sort >& $fname.log
+        shift
+    elif [[ $remove == "remove_empty_line_at_tail" ]]; then
+        head -n -1 $fname.octo.out | grep -v "^Added .*trigger" | sort >& $fname.log
+        shift
+    fi
     rowcountonlycheck=$(grep -c "rowcount-only-check" $file) || true	# grep -c can return non-zero status in case of no match hence the need for "|| true"
     if [[ $rowcountonlycheck -eq 0 ]]; then
       diff $fname.ref $fname.log >& $fname.diff

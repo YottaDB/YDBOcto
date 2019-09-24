@@ -1,4 +1,4 @@
-{%
+{}%
 /****************************************************************
  *								*
  * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
@@ -24,11 +24,11 @@ TEMPLATE(tmpl_tablejoin_innerjoin, PhysicalPlan *plan, LogicalPlan *tablejoin, i
 		join_condition = join_condition->v.operand[0];
 	if (NULL != join_condition) {
 		TMPL(print_dots, *dot_count);
-		%}IF ({%
+		%{}IF ({}%
 		TMPL(tmpl_print_expression, join_condition, plan);
-		%}) DO`n    {%
+		%{}) DO`n    {}%
 		(*dot_count)++;
 	}
 	TEMPLATE_END();
 }
-%}
+%{}

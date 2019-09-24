@@ -32,14 +32,16 @@
  */
 PhysicalPlan *emit_select_statement(char *sql_query, SqlStatement *stmt, char *plan_filename)
 {
-	int status = 0;
-	SqlColumn *column;
-	SqlValue *value;
-	LogicalPlan *plan, *cur_plan, *column_alias;
-	PhysicalPlan *pplan;
-	char output_key[MAX_STR_CONST], column_id_buffer[MAX_STR_CONST];
-	char *buffer;
-	ydb_buffer_t *plan_meta, value_buffer;
+	LPActionType	set_oper_type;
+	LogicalPlan	*plan, *cur_plan, *column_alias;
+	PhysicalPlan	*pplan;
+	SqlColumn	*column;
+	SqlValue	*value;
+	char		*buffer;
+	char		output_key[MAX_STR_CONST], column_id_buffer[MAX_STR_CONST];
+	int		output_key_id, status = 0;
+	ydb_buffer_t	*plan_meta, value_buffer;
+	SetOperType	*set_oper;
 
 	TRACE(ERR_ENTERING_FUNCTION, "emit_select_statement");
 	memset(output_key, 0, MAX_STR_CONST);
@@ -89,8 +91,15 @@ PhysicalPlan *emit_select_statement(char *sql_query, SqlStatement *stmt, char *p
 	if (YDB_OK != status)
 		return NULL;
 
+	set_oper = pplan->set_oper_list;
+	set_oper_type = ((NULL == set_oper) ? LP_INVALID_ACTION : set_oper->set_oper_type);
+	assert(((LP_INVALID_ACTION == set_oper_type) && !set_oper_type)
+		|| (LP_SET_UNION == set_oper_type) || (LP_SET_UNION_ALL == set_oper_type) || (LP_SET_DNF == set_oper_type)
+		|| (LP_SET_EXCEPT == set_oper_type) || (LP_SET_EXCEPT_ALL == set_oper_type)
+		|| (LP_SET_INTERSECT == set_oper_type) || (LP_SET_INTERSECT_ALL == set_oper_type));
+	output_key_id = (set_oper_type ? set_oper->output_id : pplan->outputKey->unique_id);
 	// convert output key to string
-	snprintf(output_key, MAX_STR_CONST, "%d", pplan->outputKey->unique_id);
+	snprintf(output_key, MAX_STR_CONST, "%d", output_key_id);
 	set(output_key, config->global_names.octo, 3, "plan_metadata", plan_filename, "output_key");
 	plan_meta = make_buffers(config->global_names.octo, 5, "plan_metadata", plan_filename,
 			"output_columns", "", "");

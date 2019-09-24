@@ -1,4 +1,4 @@
-{%
+{}%
 /****************************************************************
  *								*
  * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
@@ -90,7 +90,7 @@ TEMPLATE(tmpl_column_reference_trigger, PhysicalPlan *pplan, SqlColumnAlias *col
 		UNPACK_SQL_STATEMENT(value, keyword->v, value);
 		TMPL(tmpl_emit_source, value->v.string_literal, table_name, table_alias->unique_id, MAX_KEY_COUNT, EmitSourceForm_Trigger);
 		if(table_delim != NULL) {
-			%} -delim=""{{ table_delim }}"" -pieces=""{{ piece }}""{%
+			%{} -delim=""{{ table_delim }}"" -pieces=""{{ piece }}""{}%
 		}
 		TEMPLATE_END();
 	}
@@ -117,9 +117,9 @@ TEMPLATE(tmpl_column_reference_trigger, PhysicalPlan *pplan, SqlColumnAlias *col
 
 	TMPL(tmpl_emit_source, source, table_name, table_alias->unique_id, MAX_KEY_COUNT, EmitSourceForm_Trigger);
 	if(table_delim != NULL) {
-		%}-delim=""{{ table_delim }}"" -pieces=""{{ piece }}""{%
+		%{}-delim=""{{ table_delim }}"" -pieces=""{{ piece }}""{}%
 	}
 
 	TEMPLATE_END();
 }
-%}
+%{}

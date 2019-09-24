@@ -24,13 +24,11 @@ LogicalPlan *lp_replace_helper(LogicalPlan *where, SqlTableAlias *table_alias, S
  * Goes through plan replaces LP_COLUMN references to the given table alias
  *  with a LP_DERIVED_COLUMN and a LP_PIECE_NUMBER/LP_KEY combination
  */
-LogicalPlan *lp_replace_derived_table_references(LogicalPlan *root, LogicalPlan *new_plan, SqlTableAlias *table_alias) {
-	SqlKey		*key;
-	LogicalPlan	*key_lp, *t;
+LogicalPlan *lp_replace_derived_table_references(LogicalPlan *root, SqlTableAlias *table_alias, SqlKey *key)
+{
+	LogicalPlan	*t;
 	LogicalPlan	*table_join;
 
-	key_lp = lp_get_output_key(new_plan);
-	key = key_lp->v.key;
 	t = lp_get_select_where(root);
 	t->v.operand[0] = lp_replace_helper(t->v.operand[0], table_alias, key);
 	t = lp_get_project(root);

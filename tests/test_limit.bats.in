@@ -57,15 +57,31 @@ OCTO
   verify_output TL02 output.txt
 }
 
-@test "TL03 : OCTO269 : UNION does not work correctly if operand SELECT statements use LIMIT to limit the number of rows" {
+@test "TL03 : OCTO269a : Verify simple queries without UNION usages but with WHERE/OR usages work fine with LIMIT and/or ORDER BY" {
+  load_fixture easynames.sql
+  load_fixture easynames.zwr
   octo <<OCTO 2>&1 | tee output.txt
-(select firstname from names limit 2) union (select lastname from names limit 3);
-(select firstname from names limit 2) union (select lastname from names limit 4);
-(select firstname from names limit 2) union (select lastname from names limit 1);
-(select lastname from names limit 2) union (select lastname from names limit 3);
-(select lastname from names limit 2) union (select lastname from names limit 4);
-(select lastname from names limit 2) union (select lastname from names limit 1);
+select * from easynames where id = 1 or id = 2 or id = 10 limit 0;
+select * from easynames where id = 1 or id = 2 or id = 10 limit 1;
+select * from easynames where id = 1 or id = 2 or id = 10 limit 2;
+select * from easynames where id = 1 or id = 2 or id = 10 limit 3;
+select * from easynames where id = 1 or id = 2 or id = 10 limit 4;
+select * from easynames where id = 1 or id = 2 or id = 10 order by name;
+select * from easynames where id = 1 or id = 2 or id = 10 order by name limit 0;
+select * from easynames where id = 1 or id = 2 or id = 10 order by name limit 1;
+select * from easynames where id = 1 or id = 2 or id = 10 order by name limit 2;
+select * from easynames where id = 1 or id = 2 or id = 10 order by name limit 3;
+select * from easynames where id = 1 or id = 2 or id = 10 order by name limit 4;
 OCTO
   verify_output TL03 output.txt
+}
+
+@test "OCTO269b : Verify simple queries with UNION usages and optional ORDER BY and optional LIMIT usages" {
+  # First test against simple fixed queries; Crosscheck Octo output with Postgres
+  yottadb -run genfixedsetqueries^gensetqueries # this generates queries of the form setquery01.sql, setquery02.sql ...
+  for file in setquery*.sql
+  do
+    run_query_in_octo_and_postgres_and_crosscheck names $file "remove_empty_line_at_tail"
+  done
 }
 

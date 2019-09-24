@@ -27,7 +27,9 @@ boolean_t	is_prev_plan_in_same_dnf(PhysicalPlan *plan)
 	assert((NULL == prev_plan) || (NULL != prev_plan->outputKey));
 	assert(NULL != plan->outputKey);
 	assert((NULL == prev_plan) || prev_plan->total_iter_keys);
-	assert(plan->total_iter_keys);
-	prev_plan_is_in_same_dnf = (NULL != prev_plan) && (plan->iterKeys[0]->unique_id == prev_plan->iterKeys[0]->unique_id);
+	if ((NULL == prev_plan) || !prev_plan->total_iter_keys || !plan->total_iter_keys)
+		return FALSE;
+	prev_plan_is_in_same_dnf = (plan->iterKeys[0]->unique_id == prev_plan->iterKeys[0]->unique_id);
+	assert(!prev_plan_is_in_same_dnf || plan->emit_duplication_check);
 	return prev_plan_is_in_same_dnf;
 }

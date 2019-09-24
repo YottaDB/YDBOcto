@@ -55,7 +55,12 @@ int lp_verify_structure_helper(LogicalPlan *plan, LPActionType expected) {
 			| lp_verify_structure_helper(plan->v.operand[0], LP_SET_EXCEPT)
 			| lp_verify_structure_helper(plan->v.operand[0], LP_SET_EXCEPT_ALL)
 			| lp_verify_structure_helper(plan->v.operand[0], LP_SET_INTERSECT)
-			| lp_verify_structure_helper(plan->v.operand[0], LP_SET_INTERSECT_ALL);
+			| lp_verify_structure_helper(plan->v.operand[0], LP_SET_INTERSECT_ALL)
+			| lp_verify_structure_helper(plan->v.operand[0], LP_SET_DNF);
+		assert((LP_SET_DNF != plan->v.operand[0]->type) || (NULL == plan->v.operand[1]));
+		assert((LP_SET_DNF == plan->v.operand[0]->type) || (NULL != plan->v.operand[1]));
+		if (NULL != plan->v.operand[1])
+			ret &= lp_verify_structure_helper(plan->v.operand[1], LP_OUTPUT);
 		break;
 	case LP_PLANS:
 		ret &= lp_verify_structure_helper(plan->v.operand[0], LP_INSERT)
@@ -137,6 +142,7 @@ int lp_verify_structure_helper(LogicalPlan *plan, LPActionType expected) {
 	case LP_SET_INTERSECT:
 	case LP_SET_EXCEPT:
 	case LP_SET_UNION_ALL:
+	case LP_SET_DNF:
 	case LP_SET_INTERSECT_ALL:
 	case LP_SET_EXCEPT_ALL:
 		break;
@@ -273,7 +279,7 @@ int lp_verify_structure_helper(LogicalPlan *plan, LPActionType expected) {
 	        ret &= lp_verify_structure_helper(plan->v.operand[0], LP_CASE_BRANCH_STATEMENT);
 	        ret &= lp_verify_structure_helper(plan->v.operand[1], LP_CASE_BRANCH);
 		break;
-	case LP_INVALID_ACTION:
+	default:
 		// This should never happen
 		assert(FALSE);
 	}

@@ -47,12 +47,12 @@ int copied_so_far;
 
 %%
 
-"{%" { BEGIN(EXPR_STATE);
+"{}%" { BEGIN(EXPR_STATE);
        str_buf_ptr = string_buffer;
        copied_so_far = 0;
        return START_EXPR;
      }
-<EXPR_STATE>"%}" {
+<EXPR_STATE>"%{}" {
           BEGIN(EXPR_STATE_END);
           (*yylval_param) = (Expr*)malloc(sizeof(Expr));
           (*yylval_param)->type = EXPR_TYPE;
@@ -65,7 +65,7 @@ int copied_so_far;
 <EXPR_STATE>. { *str_buf_ptr++ = *yytext; copied_so_far++; }
 <EXPR_STATE>\n { *str_buf_ptr++ = *yytext; copied_so_far++; }
 
-<EXPR_STATE_END>"%}" { BEGIN(INITIAL); return END_EXPR; }
+<EXPR_STATE_END>"%{}" { BEGIN(INITIAL); return END_EXPR; }
 
 \{\{ { BEGIN(VALUE_STATE); return START_VALUE; }
 <VALUE_STATE>\}\} { BEGIN(INITIAL); return END_VALUE; }

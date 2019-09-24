@@ -23,13 +23,14 @@
  * plan should be a LP_TABLE_JOIN
  */
 LogicalPlan *join_tables(LogicalPlan *root, LogicalPlan *plan) {
-	LogicalPlan *next = NULL, *table_plan;
-	LogicalPlan *keys = NULL, *select, *criteria, *cur_lp_key = NULL;
-	LogicalPlan *sub, *sub1;
-	SqlTable *table;
-	SqlTableAlias *table_alias;
-	SqlColumn *key_columns[MAX_KEY_COUNT];
-	int max_key, cur_key, unique_id;
+	LogicalPlan	*next = NULL, *table_plan;
+	LogicalPlan	*keys = NULL, *select, *criteria, *cur_lp_key;
+	LogicalPlan	*sub;
+	SqlTable	*table;
+	SqlTableAlias	*table_alias;
+	SqlColumn	*key_columns[MAX_KEY_COUNT];
+	int		max_key, cur_key, unique_id;
+
 	if(plan->type != LP_TABLE_JOIN || plan->v.operand[0] == NULL)
 		return plan;
 	sub = plan->v.operand[0];
@@ -42,18 +43,17 @@ LogicalPlan *join_tables(LogicalPlan *root, LogicalPlan *plan) {
 			return NULL;
 		assert(plan->counter == root->counter);
 	}
-	if(sub->type == LP_SET_OPERATION) {
-		sub->v.operand[1]->v.operand[0] = sub1 = optimize_logical_plan(sub->v.operand[1]->v.operand[0]);
-		if (NULL == sub1)
+	if (LP_SET_OPERATION == sub->type) {
+		LogicalPlan	*set_plans;
+
+		GET_LP(set_plans, sub, 1, LP_PLANS);
+		set_plans->v.operand[0] = optimize_logical_plan(set_plans->v.operand[0]);
+		if (NULL == set_plans->v.operand[0])
 			return NULL;
-		sub->v.operand[1]->v.operand[1] = optimize_logical_plan(sub->v.operand[1]->v.operand[1]);
-		if (NULL == sub->v.operand[1]->v.operand[1])
+		set_plans->v.operand[1] = optimize_logical_plan(set_plans->v.operand[1]);
+		if (NULL == set_plans->v.operand[1])
 			return NULL;
-		// Each of the sub plans should have the same output key, so we can
-		//  grab from either
-		sub1 = lp_drill_to_insert(sub1);
-		GET_LP(cur_lp_key, sub1, 1, LP_OUTPUT);
-		GET_LP(cur_lp_key, cur_lp_key, 0, LP_KEY);
+		cur_lp_key = lp_get_output_key(sub);
 		lp_insert_key(root, cur_lp_key);
 		return plan;
 	}
@@ -174,7 +174,7 @@ LogicalPlan *optimize_logical_plan(LogicalPlan *plan) {
 			LogicalPlan	*child_where = lp_get_select_where(p);
 
 			child_where->v.operand[0] = cur->v.operand[0];
-			new_plan = lp_join_plans(new_plan, p, LP_SET_UNION_ALL);
+			new_plan = lp_join_plans(new_plan, p, LP_SET_DNF);
 			cur = cur->v.operand[1];
 		}
 		where->v.operand[0] = cur;

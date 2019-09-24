@@ -1,4 +1,4 @@
-{%
+{}%
 /****************************************************************
  *								*
  * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
@@ -24,7 +24,7 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *plan, LogicalPlan *tablejoin, unsigned in
 	enum SqlJoinType	this_join_type, next_join_type;
 	SqlOptionalKeyword	*keyword;
 	LogicalPlan		*right_tablejoin;
-	boolean_t		nested_call, this_join_is_left_join, prev_plan_is_in_same_dnf;
+	boolean_t		nested_call, this_join_is_left_join;
 
 	total_keys = plan->total_iter_keys;
 	assert(((NULL != tablejoin) && (LP_TABLE_JOIN == tablejoin->type)) || ((NULL == tablejoin) && (cur_key == total_keys)));
@@ -59,33 +59,26 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *plan, LogicalPlan *tablejoin, unsigned in
 			if (NULL != keyword)
 				UNPACK_SQL_STATEMENT(value, keyword->v, value);	/* value gets set to a non-NULL value here */
 		}
-		prev_plan_is_in_same_dnf = is_prev_plan_in_same_dnf(plan);
 		/* If this is the second half of the right join, then treat all keys as non-fixed.
 		 * And do not include cross-reference keys. Only primary-keys. This is because we want
 		 * to include ALL rows from the right table for the RIGHT JOIN.
 		 */
 		if (key->value && !right_join_second_half) {
 			TMPL(print_dots, dot_count);
-			%}SET {%
+			%{}SET {}%
 			TMPL(tmpl_key, key);
-			%}={%
+			%{}={}%
 			TMPL(tmpl_print_expression, key->value, plan);
-			%} IF ($DATA({%
+			%{} IF ($DATA({}%
 			TMPL(tmpl_key_source, plan, key);
-			%})'=0){%
+			%{})'=0){}%
 			if (NULL != value)
 			{
-				%}&(({{ value->v.string_literal }})>$GET({%
-				if (prev_plan_is_in_same_dnf)
-				{
-					TMPL(tmpl_key, plan->outputKey);
-				} else
-				{
-					%}%%ydboctoz("limit"){%
-				}
-				%})){%
+				%{}&(({{ value->v.string_literal }})>$GET({}%
+				%{}%%ydboctozlimit{}%
+				%{})){}%
 			}
-			%} DO`n    {%
+			%{} DO`n    {}%
 			dot_count++;
 			continue;
 		}
@@ -101,27 +94,21 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *plan, LogicalPlan *tablejoin, unsigned in
 			save_key = NULL;
 		TMPL(print_dots, dot_count);
 		TMPL(tmpl_key_start, key);
-		%}`n    {%
+		%{}`n    {}%
 		TMPL(print_dots, dot_count);
-		%}FOR  SET {%
+		%{}FOR  SET {}%
 		TMPL(tmpl_key, key);
-		%}=$ORDER({%
+		%{}=$ORDER({}%
 		TMPL(tmpl_key_advance, plan, key);
-		%}) QUIT:({%
+		%{}) QUIT:({}%
 		TMPL(tmpl_key_end, key);
 		if (NULL != value)
 		{
-			%})!(({{ value->v.string_literal }})'>$GET({%
-			if (prev_plan_is_in_same_dnf)
-			{
-				TMPL(tmpl_key, plan->outputKey);
-			} else
-			{
-				%}%%ydboctoz("limit"){%
-			}
-			%}){%
+			%{})!(({{ value->v.string_literal }})'>$GET({}%
+			%{}%%ydboctozlimit{}%
+			%{}){}%
 		}
-		%})  DO`n    {%
+		%{})  DO`n    {}%
 		if (NULL != save_key)
 			key->cross_reference_output_key = save_key;	/* Restore cross-reference output key */
 		dot_count++;
@@ -153,19 +140,19 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *plan, LogicalPlan *tablejoin, unsigned in
 				{
 					assert(!key->skip_column_reference_optimization);
 					TMPL(print_dots, dot_count);
-					%}SET {%
+					%{}SET {}%
 					TMPL(tmpl_key, key);
-					%}={%
+					%{}={}%
 					key->skip_column_reference_optimization = TRUE;
 					TMPL(tmpl_column_reference, plan, key->cross_reference_column_alias);
 					key->skip_column_reference_optimization = FALSE;
-					%}`n    {%
+					%{}`n    {}%
 				}
 			}
 			TMPL(print_dots, dot_count);
-			%}IF '$DATA(%%ydboctoz({%
+			%{}IF '$DATA(%%ydboctoz({}%
 			TMPL(tmpl_rightjoin_key, plan, key_start, cur_key);
-			%})) DO`n    {%
+			%{})) DO`n    {}%
 			dot_count++;
 		}
 	}
@@ -182,15 +169,15 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *plan, LogicalPlan *tablejoin, unsigned in
 		if (LEFT_JOIN == next_join_type)
 		{
 			TMPL(print_dots, dot_count);
-			%}SET %%ydboctoz({{ cur_key|%d }})=0`n    {%
+			%{}SET %%ydboctoz({{ cur_key|%d }})=0`n    {}%
 		}
 		TMPL(tmpl_tablejoin, plan, right_tablejoin, cur_key, FALSE, dot_count, tableName, columnName);
 		if (LEFT_JOIN == next_join_type)
 		{   /* Generate M code to include rows from the left table where there is no matching right table rows */
 			assert(NULL != right_tablejoin->join_on_condition);
-			%}`n    {%
+			%{}`n    {}%
 			TMPL(print_dots, dot_count);
-			%}IF %%ydboctoz({{ cur_key|%d }})=0 DO`n    {%
+			%{}IF %%ydboctoz({{ cur_key|%d }})=0 DO`n    {}%
 			dot_count++;
 			/* Treat all keys in the right table as NULL and invoke nested joins (if needed) */
 			key = plan->iterKeys[cur_key];
@@ -237,7 +224,7 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *plan, LogicalPlan *tablejoin, unsigned in
 					}
 				}
 				assert(cur_key);
-				%}`n    {%
+				%{}`n    {}%
 				TMPL(tmpl_tablejoin, plan, this_table_join, cur_key, TRUE, dot_count, tableName, columnName);
 				num_tables = 1;	// include this table as first one for next round of RIGHT JOIN key nullification
 			} else
@@ -255,4 +242,4 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *plan, LogicalPlan *tablejoin, unsigned in
 	}
 	TEMPLATE_END();
 }
-%}
+%{}

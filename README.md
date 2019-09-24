@@ -298,3 +298,46 @@ Before running Octo/Rocto make sure that the required YottaDB variables are set 
 
 To use the command-line SQL interpreter run: `$ydb_dist/plugin/bin/octo`.
 To use the PostgreSQL protocol compatible server run: `$ydb_dist/plugin/bin/rocto`.
+
+### Docker container
+
+A docker container is available in this repository and on [docker hub](https://hub.docker.com/u/yottadb/octo). This docker container automatically starts `rocto`. The container is built with the following assumptions:
+
+* The `ydb_env_set` script is used to setup the YottaDB environment and creates/expects a specific layout for globals and routines, specifically:
+  * a `r1.28_x86_64` directory with the following sub directories:
+    * `g` directory which contains at a minimum:
+    * `yottadb.gld` global directory
+    * `o` directory which contains the compiled M code
+    * `r` directory which contains the source M code
+  * a `r` directory which contains the source M code
+* The octo default configuration is used in `/opt/yottadb/current/plugin/etc/octo.conf`
+
+### Starting the docker container
+
+The `docker run` command should be run in the directory where the above directory structure is defined as it is mounted as a volume within the docker container.
+
+```sh
+docker run -it -v `pwd`:/data -p 1337:1337 yottadb/octo:latest-master
+```
+
+This will then display the rocto log file on stdout. If you'd prefer to run the container as a daemon use the `-d` command line parameter to run the container as a daemon. For example:
+
+```sh
+docker run -itd -v `pwd`:/data -p 1337:1337 yottadb/octo:latest-master
+```
+
+The logs can then be retrieved using the `docker logs` command with the container name or ID as an argument.
+
+### Getting access to the container
+
+#### PostgreSQL wire protocol
+
+The rocto server is listening on port 1337 and all of the directions in the above documentation apply.
+
+#### Command-line access
+
+You can use the `docker exec` command to get access to the container for more troubleshooting. Example:
+
+```sh
+docker exec -it {nameOfContainer/IDOfContainer} /bin/bash
+```

@@ -10,43 +10,17 @@
 #								#
 #################################################################
 
-FROM yottadb/yottadb-base:latest-master
+FROM yottadb/yottadb-base:latest
 
-# Separate, non-interactive installation of tzdata required due to expect's dependency on libtcl8.6, which depends on tzdata.
-# If these steps aren't done, the build will open an interactive prompt to setup tzdata during apt-get install.
 RUN export DEBIAN_FRONTEND=noninteractive
-RUN ln -fs /usr/share/zoneinfo/US/Eastern /etc/localtime
-RUN apt-get update -qq && \
-    apt-get install -y tzdata
-RUN dpkg-reconfigure --frontend noninteractive tzdata
 RUN apt-get install -y -qq \
-        build-essential \
-        cmake \
-        bison \
-        flex \
-        libcmocka-dev \
-        python-pip \
-        libreadline-dev \
         git \
-        libconfig-dev \
-        libssl-dev \
-        postgresql-client \
-        postgresql \
-        xxd \
-        wget
-RUN pip install \
-        sphinxcontrib-fulltoc \
-        sphinx \
-        sphinx_rtd_theme
-ENV PATH=/usr/local/go/bin:$PATH
-ENV GOLANG_VERSION=1.11.2
-ENV USER=root
-RUN wget -O go.tgz -q https://golang.org/dl/go${GOLANG_VERSION}.linux-amd64.tar.gz
-RUN tar -C /usr/local -xzf go.tgz
-RUN rm go.tgz
-RUN go version
+        libreadline-dev \
+        libconfig-dev
 
-ADD . /builds/YDBDBMS/
-WORKDIR /builds/YDBDBMS
+ADD ./build/Octo-*.tar.gz /tmp
+ADD ./tools/entrypoint.sh /
+RUN cd /tmp/Octo-*-Linux && . /opt/yottadb/current/ydb_env_set && yes | ./install.sh
 
-RUN tools/ci/build.sh
+ENV ydb_ci /opt/yottadb/current/plugin/ydbocto.ci
+ENTRYPOINT "/entrypoint.sh"

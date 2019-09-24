@@ -81,6 +81,22 @@ make-tls-centos:
     - ./tools/ci/install-tls.sh
     - ./tools/ci/build.sh
 
+octo:
+  image: docker:latest
+  stage: docker
+  before_script:
+    - ""
+  services:
+    - docker:dind
+  dependencies:
+    - make-ubuntu
+  script:
+    - docker build --pull -t yottadb/octo:latest-master .
+    - docker login -u $HUB_USERNAME -p $HUB_PASSWORD
+    - docker push yottadb/octo:latest-master
+  only:
+    - master@YottaDB/DBMS/YDBOcto
+
 vista:
   image: docker:latest
   stage: docker
@@ -89,7 +105,6 @@ vista:
   services:
     - docker:dind
   script:
-    - mkdir docker-images
     - apk add git
     - ./tools/ci/vistabuild.sh
     - docker login -u $HUB_USERNAME -p $HUB_PASSWORD

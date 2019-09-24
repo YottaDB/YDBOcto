@@ -198,7 +198,7 @@ OCTO
 }
 
 @test "TWO16 : WHERE GREATER_THAN_OR_EQUAL passed lp_verify_structure" {
-  octo <<OCTO 2>&1 | tee output.txt
+  cat <<CAT > input.sql
 select * from names where id >= 1;
 select * from names where id >= 1 and id < 3;
 select * from names where id < 3 and id >= 1;
@@ -206,6 +206,7 @@ select * from names where id >= 1 and id <= 4;
 select * from names where id <= 4 and id >= 1;
 select * from names where id >= 1 or id < 5;
 select * from names where id >= 1 or id <= 5;
-OCTO
+CAT
+  octo < input.sql > output.txt 2>&1
   verify_output TWO16 output.txt
 }

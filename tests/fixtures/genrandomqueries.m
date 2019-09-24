@@ -97,7 +97,7 @@ genrandomqueries	;
 	. . set sqlquery=sqlquery_"= "_tablealias(i)_(i)_".customer_id"
 	. ; Add optional WHERE
 	. if (1=numjoins)&$random(2) do	 ; ###TMPDISABLE Remove (1=numjoins) once #311 is fixed
-	. . set sqlquery=sqlquery_" where "_$$boolexpr(4)
+	. . set sqlquery=sqlquery_" where "_$$boolexpr(1+$random(4))
 	. ; Add optional ORDER BY
 	. set orderby=$random(2)
 	. if orderby do
@@ -132,10 +132,10 @@ boolexpr(maxdepth)
 	. set col=tablealias(t)_t
 	. set ncol=$random(numcolumns(table(t))),colname=numcolumns(table(t),ncol)
 	. set col=col_"."_colname
-	. set o=$random(6)
-	. set oper=$select(o=0:"=",o=1:"<",o=2:">",o=3:"!=",o=4:"IS NULL",o=5:"IS NOT NULL")
+	. set o=$random(8)
+	. set oper=$select(o=0:"=",o=1:"<",o=2:">",o=3:$select($random(2):"!=",1:"<>"),o=4:"<=",o=5:">=",o=6:"IS NULL",o=7:"IS NOT NULL")
 	. set value=""
-	. if o<4 do
+	. if o<6 do
 	. . set value=" "
 	. . set nchoice=$random(5)
 	. . set subs="" for k=1:1 set subs=$order(columns(table(t),colname,subs)) quit:(subs="")!(k>nchoice)

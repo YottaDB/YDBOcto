@@ -55,8 +55,11 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
         for(cur_key = 0; cur_key < plan->total_iter_keys; cur_key++) {
             key = plan->iterKeys[cur_key];
             t_key = key->cross_reference_output_key;
-            if ((NULL == t_key) || (prev_t_key == t_key))
-                continue;
+	    // If cross-reference-output-key is same or the corresponding table/column is same, an xref has already been
+	    // generated in this physical plan so skip doing the check again for whether it has been generated or not.
+	    if ((NULL == t_key) || (prev_t_key == t_key)
+			|| ((NULL != prev_t_key) && (prev_t_key->table == t_key->table) && (prev_t_key->column == t_key->column)))
+		continue;
 	    prev_t_key = t_key;
             UNPACK_SQL_STATEMENT(value, t_key->table->tableName, value);
             tableName = value->v.reference;

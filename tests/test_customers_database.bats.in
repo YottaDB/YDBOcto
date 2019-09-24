@@ -102,3 +102,14 @@ ON c.customer_id = o.customer_id;
 OCTO
   verify_output TCD08 output.txt noinfo nodebug
 }
+
+@test "TCD09 : #324 : WHERE clause with LESS THAN or GREATER THAN usage does not work correctly for CHAR/VARCHAR types which contain numbers" {
+  octo <<OCTO 2>&1 | tee output.txt
+select * from customers c1 where (c1.zipcode > '22960');
+select * from customers c1 where (c1.zipcode >= '22960');
+select * from customers c1 where (c1.zipcode <= '02169');
+select * from customers c1 where (c1.zipcode < '02169');
+select '10' < '2', 10 < 2;
+OCTO
+  verify_output TCD09 output.txt
+}

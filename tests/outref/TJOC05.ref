@@ -1,0 +1,14 @@
+OCTO> select * from names n1
+OCTO> full join (
+OCTO>         select * from names where id = 1
+OCTO>         UNION
+OCTO>         select * from names where id = 2
+OCTO> ) n2
+OCTO> on n1.id = n2.id;
+0|Zero|Cool|||
+1|Acid|Burn|1|Acid|Burn
+2|Cereal|Killer|2|Cereal|Killer
+3|Lord|Nikon|||
+4|Joey||||
+5|Zero|Cool|||
+OCTO> 

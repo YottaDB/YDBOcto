@@ -17,6 +17,8 @@ setup() {
   createdb
   load_fixture customers.sql
   load_fixture customers.zwr
+  load_fixture names.sql
+  load_fixture names.zwr
 }
 
 @test "TJOC01 : YDBOcto#291 JOIN queries with invalid ON conditions " {
@@ -33,3 +35,41 @@ OCTO
   verify_output TJOC02 output.txt noinfo nodebug
 }
 
+@test "TJOC03 : YDBOcto#305 LEFT JOIN of subquery containing UNION operator" {
+  octo <<OCTO 2>&1 | tee output.txt
+select * from names n1
+left join (
+        select * from names where id = 1
+        UNION
+        select * from names where id = 2
+) n2
+on n1.id = n2.id;
+OCTO
+  verify_output TJOC03 output.txt
+}
+
+@test "TJOC04 : YDBOcto#305 RIGHT JOIN of subquery containing UNION operator" {
+  octo <<OCTO 2>&1 | tee output.txt
+select * from names n1
+right join (
+        select * from names where id = 1
+        UNION
+        select * from names where id = 2
+) n2
+on n1.id = n2.id;
+OCTO
+  verify_output TJOC04 output.txt
+}
+
+@test "TJOC05 : YDBOcto#305 FULL JOIN of subquery containing UNION operator" {
+  octo <<OCTO 2>&1 | tee output.txt
+select * from names n1
+full join (
+        select * from names where id = 1
+        UNION
+        select * from names where id = 2
+) n2
+on n1.id = n2.id;
+OCTO
+  verify_output TJOC05 output.txt
+}

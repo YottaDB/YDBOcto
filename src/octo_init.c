@@ -262,7 +262,8 @@ int octo_init(int argc, char **argv) {
 		c = strlen(tmp_buf);
 		/* resize if ZRO_INIT_ALLOC is too small
 		 * *2 to avoid a potential resize later */
-		if (zro_buf_size < c + 1){
+		if (zro_buf_size < c + 2)	/* + 2 is for ' ' and '\0' */
+		{
 			zro_buf_size = (c + 1) * 2;
 			free(zro_buf);
 			zro_buf = malloc(zro_buf_size);
@@ -271,7 +272,7 @@ int octo_init(int argc, char **argv) {
 		zro_buf[c] = ' ';
 		c++;
 		zroutines.buf_addr = zro_buf + c;
-		zroutines.len_alloc = zro_buf_size - c;
+		zroutines.len_alloc = zro_buf_size - c - 1;
 		zroutines.len_used = 0;
 		status = ydb_get_s(&dollar_zro, 0, NULL, &zroutines);
 		/* if the stack buffer isn't large enough allocate more and call ydb_get_s() again */
@@ -302,6 +303,8 @@ int octo_init(int argc, char **argv) {
 			ydb_zstatus(ydb_errbuf, sizeof(ydb_errbuf));
 			FATAL(ERR_YOTTADB, ydb_errbuf);
 		}
+		assert(zroutines.len_alloc >= zroutines.len_used + 1);
+		zro_buf[zroutines.len_used] = '\0';	/* null terminate env var */
 		setenv("ydb_routines", zro_buf, TRUE);
 	} else {
 		/* otherwise just get $zroutines */

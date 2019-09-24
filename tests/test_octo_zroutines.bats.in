@@ -68,12 +68,19 @@ OCTO
 octo_zroutines = "$(pwd)/dirA"
 OCTO
   export ydb_routines="$(pwd)/dirA $ydb_routines"
-  octo <<OCTO 2>&1 | tee output.txt
+  octo -vv <<OCTO 2>&1 | tee output.txt
 select * from names limit 1;
 OCTO
   echo "Listing of dirA should see generated files" | tee -a output.txt
   ls dirA | tee -a output.txt
-  verify_output TOZ004 output.txt
+  # Verify actual output
+  verify_output TOZ004 output.txt noinfo nodebug
+  # Verify ydb_routines is properly set
+  expect_ydb_routines="$(pwd)/dirA $ydb_routines"
+  actual_ydb_routines=`grep ydb_routines output.txt | sed 's/.*ydb_routines="//g;s/"$//g'`
+  echo "$expect_ydb_routines" > expect_ydb_routines.txt	# store it for debugging in case == test below fails
+  echo "$actual_ydb_routines" > actual_ydb_routines.txt	# store it for debugging in case == test below fails
+  [[ "$expect_ydb_routines" == "$actual_ydb_routines" ]]
 }
 
 @test "try with octo_zroutines set but not in \$zroutines" {

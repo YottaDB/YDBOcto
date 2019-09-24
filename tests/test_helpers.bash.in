@@ -297,6 +297,13 @@ verify_output() {
     if [[ $i == "nowarn" ]]; then
       sed -i '/\[ WARN\]\|^WARN:/d' clean_output.txt
     fi
+    if [[ $i == "nosenderror" ]]; then
+      sed -i '/failed to send message/d' clean_output.txt
+    fi
+    if [[ $i == "noconnclose" ]]; then
+      # Remove "connection closed cleanly" messages
+      sed -i '/connection closed cleanly/d' clean_output.txt
+    fi
     if [[ $i == "noprompt" ]]; then
       # Remove octo prompt, but keep remainder of line
       sed -i 's/^.*OCTO>//' clean_output.txt

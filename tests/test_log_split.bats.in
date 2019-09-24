@@ -70,5 +70,5 @@ OCTO
     $ydb_dist/mumps -run ^%XCMD "do ^waitforproctodie($pid)"
     echo $pid >> deadpids.log
   done
-  verify_output TLS01 rocto.log nodebug nowarn psql sort
+  verify_output TLS01 rocto.log nodebug nowarn nosenderror noconnclose psql sort
 }

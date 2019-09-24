@@ -17,7 +17,7 @@
 # * Install Octo from source or from a mounted directory
 
 cd ..
-git clone https://github.com/ChristopherEdwards/docker-vista.git --branch octo-support
+git clone https://github.com/OSEHRA/docker-vista.git
 cd docker-vista
 docker ps -a
 

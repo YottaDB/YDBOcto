@@ -1,37 +1,37 @@
-OCTO> select * from names where id >= 1;
+select * from names where id >= 1;
+select * from names where id >= 1 and id < 3;
+select * from names where id < 3 and id >= 1;
+select * from names where id >= 1 and id <= 4;
+select * from names where id <= 4 and id >= 1;
+select * from names where id >= 1 or id < 5;
+select * from names where id >= 1 or id <= 5;
 1|Acid|Burn
 2|Cereal|Killer
 3|Lord|Nikon
 4|Joey|
 5|Zero|Cool
-OCTO> select * from names where id >= 1 and id < 3;
 1|Acid|Burn
 2|Cereal|Killer
-OCTO> select * from names where id < 3 and id >= 1;
 1|Acid|Burn
 2|Cereal|Killer
-OCTO> select * from names where id >= 1 and id <= 4;
 1|Acid|Burn
 2|Cereal|Killer
 3|Lord|Nikon
 4|Joey|
-OCTO> select * from names where id <= 4 and id >= 1;
 1|Acid|Burn
 2|Cereal|Killer
 3|Lord|Nikon
 4|Joey|
-OCTO> select * from names where id >= 1 or id < 5;
 0|Zero|Cool
 1|Acid|Burn
 2|Cereal|Killer
 3|Lord|Nikon
 4|Joey|
 5|Zero|Cool
-OCTO> select * from names where id >= 1 or id <= 5;
 0|Zero|Cool
 1|Acid|Burn
 2|Cereal|Killer
 3|Lord|Nikon
 4|Joey|
 5|Zero|Cool
-OCTO> 
+

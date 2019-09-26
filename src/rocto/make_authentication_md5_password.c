@@ -14,6 +14,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
+#include <errno.h>
 
 // Used to convert between network and host endian
 #include <arpa/inet.h>
@@ -26,7 +27,7 @@
 #include "message_formats.h"
 
 AuthenticationMD5Password *make_authentication_md5_password(RoctoSession *session, char *salt) {
-	if (NULL == session) {
+	if ((NULL == session) || (NULL == salt)) {
 		return NULL;
 	}
 	AuthenticationMD5Password *ret;
@@ -38,7 +39,11 @@ AuthenticationMD5Password *make_authentication_md5_password(RoctoSession *sessio
 	ret->length = htonl(sizeof(int) + sizeof(int) + sizeof(char) * 4);
 	ret->md5_required = htonl(5);
 	// Generate 4-byte random salt with call to getrandom syscall (#318)
-	syscall(SYS_getrandom, salt, 4, 0);
+	if(-1 == syscall(SYS_getrandom, salt, 4, 0)) {
+		ERROR(ERR_SYSCALL, "getrandom", errno, strerror(errno));
+		free(ret);
+		return NULL;
+	}
 	memcpy(ret->salt, salt, 4);
 
 	return ret;

@@ -9,7 +9,7 @@ Homepage https://gitlab.com/YottaDB/DBMS/YDBOcto
 
 ## Setup
 
-YottaDB r1.26 or greater is required for successful installation of Octo. Installing and configuring YottaDB is described on its own [documentation page](https://docs.yottadb.com/AdminOpsGuide/installydb.html).
+YottaDB r1.28 or greater is required for successful installation of Octo. Installing and configuring YottaDB is described on its own [documentation page](https://docs.yottadb.com/AdminOpsGuide/installydb.html).
 
 *NOTE: the environment variable `$ydb_dist` is required to be defined - `$gtm_dist` is not a valid subsitute*
 
@@ -166,6 +166,7 @@ cp $ydb_dist/plugin/etc/octo.conf $ydb_dist/plugin/etc/octo.conf.bak
 Install Octo
 
 ```sh
+source activate
 make install
 ```
 
@@ -222,7 +223,7 @@ The environment variables `ydb_dist`, `ydb_gbldir`, and `ydb_routines` can initi
 Example setting of the environment variables (assuming default paths):
 
 ```sh
-source /usr/local/lib/yottadb/r1.26/ydb_env_set
+source /usr/local/lib/yottadb/r1.28/ydb_env_set
 export ydb_routines=". $ydb_routines"
 export ydb_ci=$ydb_dist/plugin/ydbocto.ci
 export ydb_xc_ydbposix=$ydb_dist/plugin/ydbposix.xc

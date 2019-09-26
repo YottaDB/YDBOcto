@@ -31,4 +31,3 @@ docker ps -a
 # -d Create development directories
 # -a Alternate VistA version (VEHU)
 docker build --pull -t yottadb/octo-vehu:latest-master --build-arg flags="-y -f -b -s -q -d -a https://github.com/OSEHRA-Sandbox/VistA-VEHU-M/archive/master.zip" --build-arg instance="vehu" -t yottadb/octo-vehu:latest-master .
-docker save yottadb/octo-vehu:latest-master > $CI_PROJECT_DIR/docker-images/octo-vehu.tar

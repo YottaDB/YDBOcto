@@ -33,14 +33,16 @@
 	return;
 
 /// WARNING: this macro assumes the presence of gloabl_buffer, buffer_len, buffer_index, written, retry
-#define TEMPLATE_SNPRINTF(...) 														\
-		do { retry = FALSE; written = snprintf(*global_buffer + *buffer_index, *buffer_len - *buffer_index, ## __VA_ARGS__);	\
-			if(written >= *buffer_len - *buffer_index) { 									\
-				retry = TRUE; 												\
-				resize_tmpl_buffer(global_buffer, buffer_len, buffer_index); 						\
-				continue; 												\
-			}														\
-			*buffer_index += written;											\
+#define TEMPLATE_SNPRINTF(...) 													\
+		do { 														\
+			retry = FALSE; 												\
+			written = snprintf(*global_buffer + *buffer_index, *buffer_len - *buffer_index, ## __VA_ARGS__);	\
+			if (written >= *buffer_len - *buffer_index) { 								\
+				retry = TRUE; 											\
+				resize_tmpl_buffer(global_buffer, buffer_len, buffer_index); 					\
+				continue; 											\
+			}													\
+			*buffer_index += written;										\
 		} while(retry);
 
 

@@ -94,7 +94,7 @@ Optional CMAKE Parameters
 Octo uses some cmake parameters to control generation of fixed-size buffer allocations. These are:
 
 * STRING_BUFFER_LENGTH - the maximum length of a string within the system; this supercedes any VARCHAR definitions.
-* MAX_ROUTINE_LENGTH - the maximum length of a generated routine. The default is 10MB.
+* INIT_M_ROUTINE_LENGTH - the initial length for the buffer of generated M routines. The default is 10MB.
 * MEMORY_CHUNK_SIZE - size of memory chunks to allocate; default is 32MB.
 * MEMORY_CHUNK_PROTECT - if non-zero, memory following chunks is protected to detect buffer overflows. If 2, data is placed closer to the protected region to increase the chances of detecting an error.
 

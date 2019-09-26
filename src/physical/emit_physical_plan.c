@@ -41,7 +41,7 @@ int emit_physical_plan(char *sql_query, PhysicalPlan *pplan, char *plan_filename
 	hash128_state_t	state;
 
 	assert(cur_plan != NULL);
-	buffer_len = INIT_ROUTINE_LENGTH;
+	buffer_len = INIT_M_ROUTINE_LENGTH;
 	buffer_index = 0;
 	buffer = calloc(buffer_len, sizeof(char));
 
@@ -123,6 +123,8 @@ int emit_physical_plan(char *sql_query, PhysicalPlan *pplan, char *plan_filename
 		// copy routine name (starts with %)
 		if (0 == routine_name_len) {
 			ERROR(ERR_PLAN_HASH_FAILED, "");
+			/* cleanup the buffer */
+			free(buffer);
 			return 1;
 		}
 		// Convert '%' to '_'
@@ -134,6 +136,8 @@ int emit_physical_plan(char *sql_query, PhysicalPlan *pplan, char *plan_filename
 			output_file = fopen(filename, "w");
 			if(output_file == NULL) {
 				ERROR(ERR_SYSCALL, "fopen", errno, strerror(errno));
+				/* cleanup the buffer */
+				free(buffer);
 				return 1;
 			}
 			cur_plan->filename = key->cross_reference_filename;
@@ -166,6 +170,8 @@ int emit_physical_plan(char *sql_query, PhysicalPlan *pplan, char *plan_filename
 	output_file = fopen(tmp_plan_filename, "w");
 	if(output_file == NULL) {
 		ERROR(ERR_SYSCALL, "fopen", errno, strerror(errno));
+		/* cleanup the buffer */
+		free(buffer);
 		return 1;
 	}
 

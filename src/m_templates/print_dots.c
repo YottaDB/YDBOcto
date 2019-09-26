@@ -20,7 +20,7 @@ void print_dots(char **global_buffer, int *buffer_len, int *buffer_index, int do
 	char *buffer;
 
 	/* dots * 2 as a dot followed by a space is printed */
-	while(dots * 2 >= *buffer_len - *buffer_index){
+	while((dots * 2) >= (*buffer_len - *buffer_index)){
 		resize_tmpl_buffer(global_buffer, buffer_len, buffer_index);
 	}
 	buffer = *global_buffer;

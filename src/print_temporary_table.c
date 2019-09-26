@@ -60,6 +60,8 @@ int print_temporary_table(SqlStatement *stmt, int cursor_id, void *parms, char *
 
 	YDB_LITERAL_TO_BUFFER("", empty_buffer);
 	YDB_MALLOC_BUFFER(row_value_b, MAX_STR_CONST);
+	/* reduce by 1 for the null terminator */
+	row_value_b->len_alloc--;
 
 	if(stmt->type == set_STATEMENT) {
 		UNPACK_SQL_STATEMENT(set_stmt, stmt, set);
@@ -107,12 +109,13 @@ int print_temporary_table(SqlStatement *stmt, int cursor_id, void *parms, char *
 		return 0;
 	YDB_ERROR_CHECK(status);
 	if (YDB_OK == status) {
-		while(!YDB_BUFFER_IS_SAME(empty_buffer, row_id_b)) {
+		while (!YDB_BUFFER_IS_SAME(empty_buffer, row_id_b)) {
 			status = ydb_get_s(cursor_b, 6, cursor_id_b, row_value_b);
-			if (YDB_ERR_INVSTRLEN == status){
+			while (YDB_ERR_INVSTRLEN == status){
 				int newsize = row_value_b->len_used;
 				YDB_FREE_BUFFER(row_value_b);
 				YDB_MALLOC_BUFFER(row_value_b, newsize + 1);
+				row_value_b->len_alloc--;
 				status = ydb_get_s(cursor_b, 6, cursor_id_b, row_value_b);
 			}
 			YDB_ERROR_CHECK(status);

@@ -27,7 +27,7 @@ TEMPLATE(tmpl_column_list_combine, LogicalPlan *plan, PhysicalPlan *pplan, char 
 
 	char	c;
 
-	while(plan != NULL) {
+	while (NULL != plan) {
 		assert(plan->type == LP_COLUMN_LIST);
 
 		TMPL(tmpl_print_expression, plan->v.operand[0]->v.operand[0], pplan);

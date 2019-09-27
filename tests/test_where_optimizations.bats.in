@@ -180,6 +180,7 @@ OCTO
 }
 
 @test "TWO14 : [NOT] LIKE with integer cast" {
+  export LC_ALL=en_US.UTF8 # needed to avoid wildcard expansion changing based on LC_TYPE
   octo <<OCTO 2>&1 | tee output.txt
 select * from names where id like 4::integer;
 select * from names where id not like 4::integer;
@@ -199,6 +200,7 @@ OCTO
 }
 
 @test "TWO16 : WHERE GREATER_THAN_OR_EQUAL passed lp_verify_structure" {
+  export LC_ALL=en_US.UTF8 # needed to avoid wildcard expansion changing based on LC_TYPE
   cat <<CAT > input.sql
 select * from names where id >= 1;
 select * from names where id >= 1 and id < 3;
@@ -214,6 +216,7 @@ CAT
 }
 
 @test "TWO17 : WHERE [NOT] LIKE '%'" {
+  export LC_ALL=en_US.UTF8 # needed to avoid wildcard expansion changing based on LC_TYPE
   octo <<OCTO 2>&1 | tee output.txt
 select * from names where firstname like "%";
 select * from names where firstname like "%%%%%%";
@@ -227,6 +230,7 @@ OCTO
 }
 
 @test "TWO18 : WHERE [!]~[*] '.*'" {
+  export LC_ALL=en_US.UTF8 # needed to avoid wildcard expansion changing based on LC_TYPE
   cat <<CAT > input.sql
 select * from names where firstname ~ ".*";
 select * from names where firstname ~ ".*.*.*.*";
@@ -245,6 +249,7 @@ CAT
 }
 
 @test "TWO19 : WHERE [NOT] LIKE '%%abc%%" {
+  export LC_ALL=en_US.UTF8 # needed to avoid wildcard expansion changing based on LC_TYPE
   octo <<OCTO 2>&1 | tee output.txt
 select * from names where firstname like "%%abc%%";
 select * from names where firstname not like "%%abc%%";

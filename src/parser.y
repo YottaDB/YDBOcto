@@ -225,7 +225,7 @@ sql_statement
   ;
 
 semicolon_or_eof
-  : SEMICOLON
+  : SEMICOLON { if('\0' != input_buffer_combined[cur_input_index]) cur_input_index--; } // The lexer will read one past the SEMICOLON if there is a character there so back up one character
   | ENDOFFILE { assert(TRUE == eof_hit); } // The lexer should have set eof_hit at this point and this should always be true
   ;
 

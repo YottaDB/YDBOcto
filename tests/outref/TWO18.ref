@@ -1,39 +1,38 @@
-OCTO> select * from names where firstname ~ ".*";
 0|Zero|Cool
 1|Acid|Burn
 2|Cereal|Killer
 3|Lord|Nikon
 4|Joey|
 5|Zero|Cool
-OCTO> select * from names where firstname ~ ".*.*.*.*";
 0|Zero|Cool
 1|Acid|Burn
 2|Cereal|Killer
 3|Lord|Nikon
 4|Joey|
 5|Zero|Cool
-OCTO> select * from names where firstname !~ ".*";
-OCTO> select * from names where firstname !~ ".*.*.*.*";
-OCTO> select * from names where firstname ~* ".*";
 0|Zero|Cool
 1|Acid|Burn
 2|Cereal|Killer
 3|Lord|Nikon
 4|Joey|
 5|Zero|Cool
-OCTO> select * from names where firstname ~* ".*.*.*.*";
 0|Zero|Cool
 1|Acid|Burn
 2|Cereal|Killer
 3|Lord|Nikon
 4|Joey|
 5|Zero|Cool
-OCTO> select * from names where firstname !~* ".*";
-OCTO> select * from names where firstname !~* ".*.*.*.*";
-OCTO> 
+
 ;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
 ;; ---------------------------------------------------------
+;  select * from names where firstname ~ ".*";
+;  select * from names where firstname ~ ".*.*.*.*";
+;  select * from names where firstname !~ ".*";
+;  select * from names where firstname !~ ".*.*.*.*";
 ;  select * from names where firstname ~* ".*";
+;  select * from names where firstname ~* ".*.*.*.*";
+;  select * from names where firstname !~* ".*";
+;  select * from names where firstname !~* ".*.*.*.*";
 ;; ---------------------------------------------------------
 
 octoPlan0(cursorId)
@@ -50,7 +49,14 @@ octoPlan1(cursorId)
     QUIT
 ;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
 ;; ---------------------------------------------------------
+;  select * from names where firstname ~ ".*";
+;  select * from names where firstname ~ ".*.*.*.*";
 ;  select * from names where firstname !~ ".*";
+;  select * from names where firstname !~ ".*.*.*.*";
+;  select * from names where firstname ~* ".*";
+;  select * from names where firstname ~* ".*.*.*.*";
+;  select * from names where firstname !~* ".*";
+;  select * from names where firstname !~* ".*.*.*.*";
 ;; ---------------------------------------------------------
 
 octoPlan0(cursorId)
@@ -68,6 +74,13 @@ octoPlan1(cursorId)
 ;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
 ;; ---------------------------------------------------------
 ;  select * from names where firstname ~ ".*";
+;  select * from names where firstname ~ ".*.*.*.*";
+;  select * from names where firstname !~ ".*";
+;  select * from names where firstname !~ ".*.*.*.*";
+;  select * from names where firstname ~* ".*";
+;  select * from names where firstname ~* ".*.*.*.*";
+;  select * from names where firstname !~* ".*";
+;  select * from names where firstname !~* ".*.*.*.*";
 ;; ---------------------------------------------------------
 
 octoPlan0(cursorId)
@@ -84,7 +97,14 @@ octoPlan1(cursorId)
     QUIT
 ;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
 ;; ---------------------------------------------------------
+;  select * from names where firstname ~ ".*";
+;  select * from names where firstname ~ ".*.*.*.*";
+;  select * from names where firstname !~ ".*";
+;  select * from names where firstname !~ ".*.*.*.*";
+;  select * from names where firstname ~* ".*";
+;  select * from names where firstname ~* ".*.*.*.*";
 ;  select * from names where firstname !~* ".*";
+;  select * from names where firstname !~* ".*.*.*.*";
 ;; ---------------------------------------------------------
 
 octoPlan0(cursorId)

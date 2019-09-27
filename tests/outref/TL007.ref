@@ -13,25 +13,20 @@ COLUMN_B1_ERROR
 COLUMN_A1
 ,COLUMN_B1
 from names;
-
 [ WARN] PATH:LINENUM DATE TIME : Unknown column: COLUMN_A2
-
 
 select
 COLUMN_A2
 COLUMN_A2_ERROR
 [ WARN] PATH:LINENUM DATE TIME : Unknown column: COLUMN_B2
 
-
 select
 COLUMN_A2
 ,COLUMN_B2
 COLUMN_B2_ERROR
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: 
-select
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select
 COLUMN_A2
 ,COLUMN_B2
 from names;
-
 0|Zero|Cool
 

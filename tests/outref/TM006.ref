@@ -3,8 +3,8 @@ OCTO> qwerty; select * from names limit 1;
 
 qwerty; select * from names limit 1;
 ^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: qwerty; 
-[ INFO] PATH:LINENUM DATE TIME : Parsing done for SQL command [qwerty; ]
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: qwerty;
+[ INFO] PATH:LINENUM DATE TIME : Parsing done for SQL command [qwerty;]
 [ INFO] PATH:LINENUM DATE TIME : Returning failure from run_query
 [ INFO] PATH:LINENUM DATE TIME : Parsing done for SQL command [select * from names limit 1;]
 [ INFO] PATH:LINENUM DATE TIME : Generating SQL for CURSOR_NUM

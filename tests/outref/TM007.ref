@@ -5,9 +5,9 @@ OCTO> uiop; select *
 qwerty
 ^^^^^^
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: qwerty
-uiop; 
+uiop;
 [ INFO] PATH:LINENUM DATE TIME : Parsing done for SQL command [qwerty
-uiop; ]
+uiop;]
 [ INFO] PATH:LINENUM DATE TIME : Returning failure from run_query
 OCTO> from names limit 1;
 [ INFO] PATH:LINENUM DATE TIME : Parsing done for SQL command [select *

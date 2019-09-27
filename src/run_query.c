@@ -56,6 +56,11 @@ int run_query(char *sql_query, int (*callback)(SqlStatement *, int, void*, char*
 	 * then print the difference between the cur_input_index - old_input_index
 	 */
 	old_input_index = cur_input_index;
+	while ('\0' != input_buffer_combined[cur_input_index]
+			&& ((' ' == input_buffer_combined[cur_input_index]) || ('\n' == input_buffer_combined[cur_input_index]))) {
+		cur_input_index++;
+		old_input_index++;
+	}
 	result = parse_line(sql_query);
 	INFO(CUSTOM_ERROR, "Parsing done for SQL command [%.*s]", cur_input_index - old_input_index, sql_query + old_input_index);
 	if(result == NULL) {

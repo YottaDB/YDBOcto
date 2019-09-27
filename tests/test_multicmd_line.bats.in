@@ -87,3 +87,17 @@ from names limit 1;
 OCTO
   verify_output TM007 output.txt nodebug
 }
+
+@test "run two queries on the same line with no space between" {
+  octo >& output.txt <<OCTO
+select firstname from names limit 1;select lastname from names limit 1;
+OCTO
+  verify_output TM008 output.txt noinfo nodebug
+}
+
+@test "test that -vv only reports the current parsed query with no space between" {
+  octo -vv >& output.txt <<OCTO
+select firstname from names limit 1;select lastname from names limit 1;
+OCTO
+  verify_output TM009 output.txt nodebug
+}

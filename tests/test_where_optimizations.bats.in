@@ -227,7 +227,7 @@ OCTO
 }
 
 @test "TWO18 : WHERE [!]~[*] '.*'" {
-  octo <<OCTO 2>&1 | tee output.txt
+  cat <<CAT > input.sql
 select * from names where firstname ~ ".*";
 select * from names where firstname ~ ".*.*.*.*";
 select * from names where firstname !~ ".*";
@@ -236,7 +236,8 @@ select * from names where firstname ~* ".*";
 select * from names where firstname ~* ".*.*.*.*";
 select * from names where firstname !~* ".*";
 select * from names where firstname !~* ".*.*.*.*";
-OCTO
+CAT
+  octo -f input.sql 2>&1 | tee output.txt
   run grep "regmatch" _ydboctoP*.m
   [[ $status -eq 1 ]]
   cat _ydboctoP*.m >> output.txt

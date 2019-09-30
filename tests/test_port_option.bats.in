@@ -36,28 +36,32 @@ teardown() {
 }
 
 @test "call rocto with default port" {
-  start_rocto
+  test_port=$(start_rocto)
+  if [[ 1337 -ne $test_port ]]; then
+    skip
+  fi
   [[ "$(grep -c "rocto started on port 1337" rocto.log)" == "1" ]]
 }
 
 @test "call rocto with port from config file" {
+    test_port=$(find_open_port 1400)
     cat <<OCTO &> octo.conf
 rocto: {
-  port: 1400;
+  port: $test_port;
 }
 OCTO
-  # Avoid the find_open_port function for this test case
+  # Avoid calling the find_open_port function for this test case
   rocto -vv &> rocto.log &
   echo $! > rocto.pid
   while [[ "$(grep -c "rocto started" rocto.log)" == "0" ]]; do
     sleep .1s
   done
-  [[ "$(grep -c "rocto started on port 1400" rocto.log)" == "1" ]]
+  [[ "$(grep -c "rocto started on port $test_port" rocto.log)" == "1" ]]
 }
 
 @test "ensure rocto -p supercedes default" {
-  start_rocto 1401
-  [[ "$(grep -c "rocto started on port 1401" rocto.log)" == "1" ]]
+  test_port=$(start_rocto 1401)
+  [[ "$(grep -c "rocto started on port $test_port" rocto.log)" == "1" ]]
 }
 
 @test "ensure rocto -p supercedes config file" {
@@ -66,7 +70,7 @@ rocto: {
   port: 1400;
 }
 OCTO
-  start_rocto 1401
+  test_port=$(start_rocto 1401)
   sleep 1
-  [[ "$(grep -c "rocto started on port 1401" rocto.log)" == "1" ]]
+  [[ "$(grep -c "rocto started on port $test_port" rocto.log)" == "1" ]]
 }

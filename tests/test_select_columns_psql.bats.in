@@ -1,0 +1,29 @@
+#################################################################
+#								#
+# Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	#
+# All rights reserved.						#
+#								#
+#	This source code contains the intellectual property	#
+#	of its copyright holder(s), and is made available	#
+#	under a license.  If you do not know the terms of	#
+#	the license, please stop and do not read further.	#
+#								#
+#################################################################
+
+# Note: This test is similar to `test_select_columns.bats.in` except that the subtest here use
+# `run_query_in_octo_and_postgres_and_crosscheck_multiple_queries` and hence need to be somewhere outside
+# of the `test_select_columns.bats.in` test (see end of `test_select_columns.bats.in` for comment explaining why).
+
+load test_helpers
+
+setup() {
+  init_test
+  createdb
+  load_fixture names.sql
+  load_fixture names.zwr
+}
+
+@test "TSCP01 : OCTO466 : Incorrect results when '|' is part of the column value in the SELECT column list" {
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TSCP01.sql "remove_empty_line_at_tail"
+}
+

@@ -119,14 +119,9 @@ genrandomqueries	;
 	. . . do chooseOnClauseOperands(.left,.right,i)
 	. . set modulo=$random(2)
 	. . set:modulo=1 notequalchosen=1
-	. . set sqlquery=sqlquery_" on "_left_$select(modulo:"!",1:"")_" = "_right
+	. . set sqlquery=sqlquery_" on "_left_" "_$select(modulo:"!=",1:"=")_" "_right
 	. ; Add optional WHERE
-	. if ('outerjoinchosen)&$random(2) do 	; ###TMPDISABLE Remove ('outerjoinchosen) once #311 is fixed
-	. .					; The reason is that WHERE clause can generate comparisons e.g. x < y
-	. .					; and that will return incorrect results if x or y is $ZYSQLNULL
-	. .					; (which can happen if there is at least one OUTER JOIN).
-	. .					; The generated M code should be replaced to use $ZYSQLNULL instead of ""
-	. .					; once #311 is fixed to make $ZYSQLNULL honor the SQL NULL rules.
+	. if $random(2) do
 	. . set sqlquery=sqlquery_" where "_$$boolexpr(1+$random(4))
 	. ; Add optional ORDER BY.
 	. ; Note: Do not choose ORDER BY if an OUTER JOIN got chosen until #336 is fixed. This is because they can generate
@@ -160,7 +155,6 @@ genrandomqueries	;
 	. ; The below if check is because postgres issues the following error in this case
 	. ;	--> ERROR:  FULL JOIN is only supported with merge-joinable or hash-joinable join conditions
 	. quit:fulljoinchosen&notequalchosen
-	. quit:notequalchosen			; ###TMPDISABLE until #311 is fixed
 	. set file="jointest"_$translate($justify($increment(q),2)," ","0")_".sql"
 	. open file:(newversion)  use file
 	. write:'exactcheck "-- rowcount-only-check",!
@@ -236,14 +230,6 @@ chooseOnClauseOperands(left,right,i)
 	. ; If `customer_id` is chosen column in first table, then second table can be arbitrarily chosen as it is guaranteed
 	. ; to have a `customer_id` column.
 	. set t2=1+$random(i)
-	. ; If the ON clause contains two column references neither of which belongs to the current table, then a query like
-	. ; `... FULL JOIN orders o2 ON c1.customer_id = o2.customer_id RIGHT JOIN orders o3 ON o2.order_id = o2.order_id`
-	. ; will return incorrect results since `o2.order_id = o2.order_id` check of the last ON clause can be comparing
-	. ; NULL values (possible because o2 is part of a FULL JOIN) which currently returns incorrect results and needs to
-	. ; wait for #311 to be fixed. Until that is fixed, have the following line. Remove it once that is fixed.
-	. ; If at least one of the column references belongs to the current table, then we do not have that issue so
-	. ; ensure that is the case below until #311 is fixed.
-	. set:(t2'=i) t2=i	; ###TMPDISABLE. Remove this line when #311 is fixed.
 	. set col=tablealias(t2)_t2
 	. set colref2=tablealias(t2)_t2_"."_"customer_id"
 	else  do
@@ -251,14 +237,6 @@ chooseOnClauseOperands(left,right,i)
 	. ; second table too. And that second table has to match the tablename of the first table even though its index
 	. ; could be different (same table name could be chosen for multiple tables in the N-way join list).
 	. new j,matchnum
-	. ; ----------------------------------------------------------------------------------------------------
-	. ; Choose last table column temporarily to work around #311 issue described in `if` code block above.
-	. ; Remove below block of code once #311 is fixed. ###TMPDISABLE
-	. set:(t1'=i) t1=i
-	. set col=tablealias(t1)_t1
-	. set ncol=$random(numcolumns(table(t1))),colname=numcolumns(table(t1),ncol)
-	. set colref1=tablealias(t1)_t1_"."_colname
-	. ; ----------------------------------------------------------------------------------------------------
 	. for j=1:1:i if tablealias(j)=tablealias(t1) set matchnum($increment(matchnum))=j
 	. set t2=1+$random(matchnum)
 	. set colref2=tablealias(matchnum(t2))_matchnum(t2)_"."_colname

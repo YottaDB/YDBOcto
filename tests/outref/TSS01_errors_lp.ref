@@ -1,0 +1,28 @@
+Parsing done for SQL command [select * from names where id != firstname;]
+Parsing done for SQL command [select * from (select * from names) n1 where id != firstname;]
+Parsing done for SQL command [select (firstname = 'd' AND id) from names;]
+Parsing done for SQL command [select (1 AND id) from names;]
+Parsing done for SQL command [select (firstname AND id) from names;]
+Parsing done for SQL command [select id and 0 = 1 from names;]
+Parsing done for SQL command [select id and (0 = 1) from names;]
+Parsing done for SQL command [select (0 = 1) and id from names;]
+Parsing done for SQL command [select id and id from names;]
+Parsing done for SQL command [select (firstname::boolean AND id::boolean) from names;]
+            LP_COLUMN_ALIAS: NAMES(1).FIRSTNAME
+            LP_COLUMN_ALIAS: NAMES(1).ID
+        - type: BOOLEAN_VALUE
+        - alias: ???
+            LP_COLUMN_ALIAS: NAMES(1).FIRSTNAME
+            LP_COLUMN_ALIAS: NAMES(1).ID
+        - type: BOOLEAN_VALUE
+        - alias: ???
+Parsing done for SQL command [select (n1.col1::integer = 0) from (select NULL as col1 from names) n1;]
+        - type: BOOLEAN_VALUE
+        - alias: ???
+                - type: NULL
+                - alias: COL1
+        - type: BOOLEAN_VALUE
+        - alias: ???
+                - type: NULL
+                - alias: COL1
+Parsing done for SQL command []

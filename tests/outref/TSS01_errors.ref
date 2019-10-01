@@ -1,45 +1,25 @@
 
+-- All queries in this query file are invalid queries and generate an error.
+
+-- TSS01 : OCTO181 : Data types are not correctly propagated from nested SELECTs; Misc other queries
+
 -- The below queries test that data types are correctly propagated from nested SELECTs
 select * from names where id != firstname;
-select * from (select * from names) where id != firstname;
-select * from names where lastname != firstname;
-select * from (select * from names) where lastname != firstname;
--- The below query was found at https://gitlab.com/YottaDB/DBMS/YDBOcto/issues/181#note_210480253
--- Although it was fixed by some prior commit, it is included here because it was recorded in #181
-select col1 from (select id as col1 from names) n2;
-select col1 from (select id::numeric as col1 from names) n2;
+select * from (select * from names) n1 where id != firstname;
+
 -- The below queries test that boolean expressions involving just "column" operands work (equivalent to "column != 0")
 -- And issue errors if needed.
 select (firstname = 'd' AND id) from names;
 select (1 AND id) from names;
-select (firstname = 'd' AND id = 0) from names;
 select (firstname AND id) from names;
 select id and 0 = 1 from names;
 select id and (0 = 1) from names;
-select (0 = 1) and (id = 1) from names;
 select (0 = 1) and id from names;
 select id and id from names;
-select (firstname = 'd' AND id::boolean) from names;
-select (1::boolean AND id::boolean) from names;
 select (firstname::boolean AND id::boolean) from names;
-select id::boolean and 0 = 1 from names;
-select id::boolean and (0 = 1) from names;
-select (0 = 1) and id::boolean from names;
-select id::boolean and id::boolean from names;
--- The below query tests NULL usage in sub-queries. Is not directly related to #181 but was found to fail
--- while analyzing various issues related to #181.
-select * from (select NULL from names);
-select (col1 = '') from (select NULL as col1 from names);
-select (col1 = NULL) from (select NULL as col1 from names);
-select (col1 is NULL) from (select NULL as col1 from names);
-select (col1 = 0) from (select NULL as col1 from names);
-select (col1 = 'abcd') from (select NULL as col1 from names);
-select (col1 is NULL) from (select NULL as col1 from names);
-select (col1 is NOT NULL) from (select NULL as col1 from names);
-select * from names where id IS NULL;
-select * from names where id IS NOT NULL;
-select * from names where firstname IS NULL;
-select * from names where firstname IS NOT NULL;
+
+-- The below query issues an error in Postgres but works fine in Octo hence is not included in TSS01_noerrors.sql
+select (n1.col1::integer = 0) from (select NULL as col1 from names) n1;
 [ERROR] PATH:LINENUM DATE TIME : Type mismatch: left INTEGER, right VARCHAR
 Error with syntax near (line 1, column 27):
 
@@ -51,39 +31,15 @@ select * from names where id != firstname;
                                 ^^^^^^^^^
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select * from names where id != firstname;
 [ERROR] PATH:LINENUM DATE TIME : Type mismatch: left INTEGER, right VARCHAR
-Error with syntax near (line 1, column 43):
+Error with syntax near (line 1, column 46):
 
-select * from (select * from names) where id != firstname;
-                                          ^^
-Error with syntax near (line 1, column 49):
+select * from (select * from names) n1 where id != firstname;
+                                             ^^
+Error with syntax near (line 1, column 52):
 
-select * from (select * from names) where id != firstname;
-                                                ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select * from (select * from names) where id != firstname;
-0|Zero|Cool
-1|Acid|Burn
-2|Cereal|Killer
-3|Lord|Nikon
-4|Joey|
-5|Zero|Cool
-0|Zero|Cool
-1|Acid|Burn
-2|Cereal|Killer
-3|Lord|Nikon
-4|Joey|
-5|Zero|Cool
-0
-1
-2
-3
-4
-5
-0
-1
-2
-3
-4
-5
+select * from (select * from names) n1 where id != firstname;
+                                                   ^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select * from (select * from names) n1 where id != firstname;
 [ERROR] PATH:LINENUM DATE TIME : Type INTEGER not compatible for boolean operations
 Error with syntax near (line 1, column 29):
 
@@ -101,12 +57,6 @@ Error with syntax near (line 1, column 15):
 select (1 AND id) from names;
               ^^
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select (1 AND id) from names;
-0
-0
-0
-0
-0
-0
 [ERROR] PATH:LINENUM DATE TIME : Type VARCHAR not compatible for boolean operations
 Error with syntax near (line 1, column 9):
 
@@ -130,12 +80,6 @@ Error with syntax near (line 1, column 8):
 select id and (0 = 1) from names;
        ^^
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select id and (0 = 1) from names;
-0
-0
-0
-0
-0
-0
 [ERROR] PATH:LINENUM DATE TIME : Type INTEGER not compatible for boolean operations
 Error with syntax near (line 1, column 20):
 
@@ -153,101 +97,11 @@ Error with syntax near (line 1, column 15):
 select id and id from names;
               ^^
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select id and id from names;
-0
-0
-0
-0
-0
-0
-0
-1
-1
-1
-1
-1
 [ERROR] PATH:LINENUM DATE TIME : Invalid input syntax for type boolean: Zero
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-1
-1
-1
-1
-1
 
 
 
 
 
 
-1
-1
-1
-1
-1
-1
-1
-1
-1
-1
-1
-1
-1
-1
-1
-1
-1
-1
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-1
-1
-1
-1
-1
-1
-0
-0
-0
-0
-0
-0
-0|Zero|Cool
-1|Acid|Burn
-2|Cereal|Killer
-3|Lord|Nikon
-4|Joey|
-5|Zero|Cool
-0|Zero|Cool
-1|Acid|Burn
-2|Cereal|Killer
-3|Lord|Nikon
-4|Joey|
-5|Zero|Cool
 

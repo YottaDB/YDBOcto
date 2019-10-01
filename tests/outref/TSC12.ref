@@ -2,10 +2,10 @@ OCTO> SELECT    n1.firstname, DOLLAR_ZWRITE(n2.firstname)
 OCTO> FROM      names n1
 OCTO> LEFT JOIN names n2
 OCTO> ON        n1.lastname = n2.firstname;
-Zero|""
-Acid|""
-Cereal|""
-Lord|""
-Joey|""
-Zero|""
+Zero|$ZYSQLNULL
+Acid|$ZYSQLNULL
+Cereal|$ZYSQLNULL
+Lord|$ZYSQLNULL
+Joey|$ZYSQLNULL
+Zero|$ZYSQLNULL
 OCTO> 

@@ -35,7 +35,7 @@ TEMPLATE(tmpl_duplication_check, PhysicalPlan *plan) {
 		if (!plan->treat_key_as_null[key->unique_id]) {
 			TMPL(tmpl_key, key);
 		} else {
-			%{}""{}%	/* needs to be replaced with $ZYSQLNULL when #311 is fixed */
+			%{}$ZYSQLNULL{}%
 		}
 	}
 	%{}){}%

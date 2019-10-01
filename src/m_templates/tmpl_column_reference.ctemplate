@@ -1,7 +1,7 @@
 {}%
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -62,12 +62,14 @@ TEMPLATE(tmpl_column_reference, PhysicalPlan *pplan, SqlColumnAlias *column_alia
 		 * happened and wrote the records (based on the FROM/WHERE clauses) into the lvn subtree under
 		 * GROUP_BY_SUBSCRIPT. Retrieve the column reference from there.
 		 */
-		%{}$PIECE(%%ydboctog,"|",{{ column_alias->group_by_column_number|%d }}){}%
+		%{}$$mval2str^%%ydboctoplanhelpers({}%
+		%{}$$mvalPiece^%%ydboctoplanhelpers(%%ydboctog,{{ column_alias->group_by_column_number|%d }}){}%
+		%{}){}%
 		TEMPLATE_END();
 	}
 	if (pplan->treat_key_as_null[table_alias->unique_id])
 	{	/* Treat all columns in the table as NULL (used for OUTER JOINs) */
-		%{}""{}%	/* needs to be replaced with $ZYSQLNULL when #311 is fixed */
+		%{}$ZYSQLNULL{}%
 		TEMPLATE_END();
 		assert(FALSE);
 	}

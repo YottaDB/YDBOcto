@@ -123,6 +123,7 @@ add_library(libocto OBJECT
   emit_column_specification.c
   quoting.c
   create_table_defaults.c
+  print_result_row.c
   print_temporary_table.c
   readline_get_more.c
   populate_data_type.c
@@ -135,6 +136,7 @@ add_library(libocto OBJECT
   qualify_query.c
   octo_init.c
   get_aggregate_func_name.c
+  get_mval_len.c
   get_set_operation_string.c
   get_user_visible_type_string.c
   get_keyword.c

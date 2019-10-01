@@ -100,7 +100,7 @@ TEMPLATE(tmpl_group_by, PhysicalPlan *plan, int dot_count) {
 		TMPL(tmpl_print_dots, dot_count);
 		%{}SET %%ydboctobool=%%ydboctobool&{}%
 		%{}('$DATA(%%ydboctozdistinct({{ plan->outputKey->unique_id|%d }},{}%
-		TMPL(tmpl_column_list_combine, plan->projection, plan, ",", 0, 0, 0);
+		TMPL(tmpl_column_list_combine, plan->projection, plan, ",", FALSE, 0, 0, 0);
 		%{}))){}%
 	}
 	%{}`n{{ PLAN_LINE_START }}{}%

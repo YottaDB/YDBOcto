@@ -685,10 +685,20 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_
 			result = 1;
 			break;
 		}
-		/* If the unary operation is EXISTS, then set the type of the result to BOOLEAN,
+		/* If the unary operation is EXISTS or IS NULL, then set the type of the result to BOOLEAN,
 		 * not to the type inherited from the sub-query passed to EXISTS.
 		 */
-		*type = ((BOOLEAN_EXISTS == unary->operation) ? BOOLEAN_VALUE : child_type1);
+		assert(BOOLEAN_NOT_EXISTS != unary->operation);
+		switch(unary->operation) {
+		case BOOLEAN_EXISTS:
+		case BOOLEAN_IS_NULL:
+		case BOOLEAN_IS_NOT_NULL:
+			*type = BOOLEAN_VALUE;
+			break;
+		default:
+			*type = child_type1;
+			break;
+		}
 		assert((BOOLEAN_NOT != unary->operation) || (BOOLEAN_VALUE == *type));
 		break;
 	default:

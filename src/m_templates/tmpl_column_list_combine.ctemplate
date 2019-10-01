@@ -23,17 +23,21 @@
 #define MAX_M_LINE_LENGTH 4096
 
 TEMPLATE(tmpl_column_list_combine, LogicalPlan *plan, PhysicalPlan *pplan, char *delim,
-				int start_output_key, int output_key_length, int dot_count) {
+			boolean_t str2mval, int start_output_key, int output_key_length, int dot_count) {
 	TEMPLATE_INIT();
 
-	char	c;
+	char		c;
+	boolean_t	is_order_by;
 
+	assert((',' == *delim) || ('_' == *delim));
 	assert(NULL != plan);
+	is_order_by = (plan == pplan->order_by);
 	while (NULL != plan) {
 		assert(((LP_COLUMN_LIST == plan->type) && (LP_WHERE == plan->v.lp_default.operand[0]->type))
 			|| (((LP_ORDER_BY == plan->type) || (LP_GROUP_BY == plan->type) || IS_TYPE_LP_AGGREGATE(plan->type))
 						&& (LP_COLUMN_LIST == plan->v.lp_default.operand[0]->type)));
-		if (LP_ORDER_BY == plan->type) {
+		assert(is_order_by == (LP_ORDER_BY == plan->type));
+		if (is_order_by) {
 			/* This is a call for an ORDER BY. If the ORDER BY was done on an expression which
 			 * has a STRING_LITERAL type, then we need to ensure that it gets treated as a STRING
 			 * in M even if the string holds a numeric value or else ORDER BY would work incorrectly
@@ -58,8 +62,18 @@ TEMPLATE(tmpl_column_list_combine, LogicalPlan *plan, PhysicalPlan *pplan, char 
 			if (STRING_LITERAL == order_by_expr_type) {
 				%{}"Z"_{}%
 			}
+			/* Note: In case of ORDER BY, we do NOT want to convert str to mval as the ordering will then not happen.
+			 *       Caller should have set `str2mval` appropriately. Assert that.
+			 */
+			assert(!str2mval);
+		}
+		if (str2mval) {
+			%{}$$str2mval^%%ydboctoplanhelpers({}%
 		}
 		TMPL(tmpl_print_expression, plan->v.lp_default.operand[0]->v.lp_default.operand[0], pplan, 0, 0);
+		if (str2mval) {
+			%{}){}%
+		}
 		if (plan->v.lp_default.operand[1]) {
 			if ((0 != start_output_key) && (MAX_M_LINE_LENGTH < (*buffer_index - start_output_key))) {
 				/* The generated M line became close to exceeding the max M line length so split it.

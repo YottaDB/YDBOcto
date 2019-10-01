@@ -6,8 +6,8 @@ except all
 select firstName, lastName from names where firstName = "Zero" and id = 0;
 
 Acid|Burn
-Cereal|Killer
 Joey|
 Lord|Nikon
 Zero|Cool
+Cereal|Killer
 

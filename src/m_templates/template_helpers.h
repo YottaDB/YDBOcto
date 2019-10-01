@@ -81,7 +81,7 @@ TEMPLATE(tmpl_temp_key_advance, SqlKey *key);
 TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_count, int depth);
 TEMPLATE(tmpl_column_reference, PhysicalPlan *pplan, SqlColumnAlias *column_alias);
 TEMPLATE(tmpl_column_list_combine, LogicalPlan *plan, PhysicalPlan *pplan, char *delim,
-				int start_output_key, int output_key_length, int dot_count);
+			boolean_t str2mval, int start_output_key, int output_key_length, int dot_count);
 TEMPLATE(tmpl_emit_source, char *source, char *table_name, int unique_id, int keys_to_match, enum EmitSourceForm form);
 // Sets up trigger for a column reference, i.e. alias
 TEMPLATE(tmpl_column_reference_trigger, PhysicalPlan *pplan, SqlColumnAlias *column_alias);

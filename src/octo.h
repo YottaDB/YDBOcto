@@ -243,6 +243,17 @@ SqlOptionalKeyword *get_keyword(SqlColumn *column, enum OptionalKeyword keyword)
 SqlOptionalKeyword *get_keyword_from_keywords(SqlOptionalKeyword *start_keyword, enum OptionalKeyword keyword);
 int get_key_columns(SqlTable *table, SqlColumn **key_columns);
 int generate_key_name(char *buffer, int buffer_size, int target_key_num, SqlTable *table, SqlColumn **key_columns);
+int print_temporary_table(SqlStatement *, int cursor_id, void *parms, char *plan_name, boolean_t send_row_description);
+void print_result_row(ydb_buffer_t *row);
+int get_mval_len(unsigned char *buff, int *data_len);
+
+/**
+ * Parses query, and calls the callback if it is a select statement. Otherwise, the query is a data altering
+ *  query and gets executed
+ *
+ * @returns TRUE on success, FALSE on failure
+ */
+int run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_description, ParseContext *parse_context);
 
 char *like_to_regex(const char *src);
 char *similar_to_regex(const char *src);
@@ -309,6 +320,9 @@ int64_t get_mem_usage();
 
 int no_more();
 
+int get_input(char *buf, int size);
+void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, int *plan_id, ParseContext *parse_context, char const *s);
+
 /* Globals */
 SqlTable	*definedTables;
 uint64_t	hash_canonical_query_cycle;	// incremented before every outermost call to "hash_canonical_query"
@@ -322,7 +336,4 @@ FILE		*inputFile;
 FILE		*err_buffer;
 char		*input_buffer_combined;		// The input buffer for octo. Contains the query strings.
 int		(*cur_input_more)();
-
-int get_input(char *buf, int size);
-void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, int *plan_id, ParseContext *parse_context, char const *s);
 #endif

@@ -287,9 +287,9 @@ run_psql() {
 
 run_psql_auth() {
 	if [[ @YDB_TLS_AVAILABLE@ -eq 1 ]]; then
-		PGPASSWORD=$2 psql -U $1 "host=localhost port=$3"
+		PGPASSWORD=$2 psql --no-align -U $1 "host=localhost port=$3"
 	else
-		PGPASSWORD=$2 psql -U $1 "sslmode=disable host=localhost port=$3"
+		PGPASSWORD=$2 psql --no-align -U $1 "sslmode=disable host=localhost port=$3"
 	fi
 }
 

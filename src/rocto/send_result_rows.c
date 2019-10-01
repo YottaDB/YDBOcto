@@ -33,17 +33,16 @@ int send_result_rows(int32_t cursor_id, void *_parms, char *plan_name) {
 	ydb_buffer_t		*cursor_subs, *outkey_buffers, *portal_subs = NULL;
 	ydb_buffer_t		value_buffer, total_rows_buffer;
 
-	char			*c;
 	char			cursor_id_str[INT64_TO_STRING_MAX];
-	int			status, number_of_columns = 0;
+	int			status;
 	DataRow			*data_row;
-	DataRowParm		*data_row_parms;
+	DataRowParm		*data_row_parms, *cur_row_parms;
 	int32_t			data_row_parms_alloc_len = 0;
 	int32_t			total_rows, cur_row, last_row, rows_remaining;
 	int64_t			tmp_long;
 
 	YDB_MALLOC_BUFFER(&value_buffer, MAX_STR_CONST);
-	data_row_parms = (DataRowParm*)malloc(DATA_ROW_PARMS_ARRAY_INIT_ALLOC * sizeof(DataRowParm));
+	data_row_parms = (DataRowParm *)malloc(DATA_ROW_PARMS_ARRAY_INIT_ALLOC * sizeof(DataRowParm));
 	data_row_parms_alloc_len = DATA_ROW_PARMS_ARRAY_INIT_ALLOC;
 
 	// Go through and make rows for each row in the output plan
@@ -169,8 +168,20 @@ int send_result_rows(int32_t cursor_id, void *_parms, char *plan_name) {
 	// Retrieve the value of each row
 	assert(0 == parms->rows_sent);
 	while (cur_row <= last_row) {
+		int		number_of_columns;
+		unsigned char	*buff, *buff_top;
+
 		OCTO_INT32_TO_BUFFER(cur_row, &cursor_subs[6]);
 		status = ydb_get_s(&cursor_subs[0], 6, &cursor_subs[1], &value_buffer);
+		// Expand value_buffer allocation until it's large enough to store the retrieved row value
+		if (YDB_ERR_INVSTRLEN == status) {
+			int	newsize = value_buffer.len_used;
+
+			YDB_FREE_BUFFER(&value_buffer);
+			YDB_MALLOC_BUFFER(&value_buffer, newsize);
+			status = ydb_get_s(&cursor_subs[0], 6, &cursor_subs[1], &value_buffer);
+			assert(YDB_ERR_INVSTRLEN != status);
+		}
 		YDB_ERROR_CHECK(status);
 		if (YDB_OK != status) {
 			YDB_FREE_BUFFER(&cursor_subs[6]);
@@ -180,32 +191,36 @@ int send_result_rows(int32_t cursor_id, void *_parms, char *plan_name) {
 			free(data_row_parms);
 			return 1;
 		}
-		value_buffer.buf_addr[value_buffer.len_used] = '\0';
-		number_of_columns = 0;
-		assert(number_of_columns < data_row_parms_alloc_len);
-		data_row_parms[number_of_columns].value = value_buffer.buf_addr;
+		assert(0 < data_row_parms_alloc_len);
+		buff = (unsigned char *)value_buffer.buf_addr;
+		buff_top = buff + value_buffer.len_used;
 		// Loop over row columns to build up DataRowParms for transmission to client
-		for (c = value_buffer.buf_addr; *c != '\0'; c++) {
-			if(*c == '|') {
-				assert(number_of_columns < data_row_parms_alloc_len);
-				data_row_parms[number_of_columns].length = c - data_row_parms[number_of_columns].value;
-				number_of_columns++;
-				// Current allocation is not enough. Expand to twice current size.
-				if (number_of_columns >= data_row_parms_alloc_len) {
-					DataRowParm	*tmp;
-					tmp = (DataRowParm*)malloc(data_row_parms_alloc_len * 2 * sizeof(DataRowParm));
-					memcpy(tmp, data_row_parms, (data_row_parms_alloc_len * sizeof(DataRowParm)));
-					free(data_row_parms);
-					data_row_parms = tmp;
-					data_row_parms_alloc_len = data_row_parms_alloc_len * 2;
-				}
-				assert(number_of_columns < data_row_parms_alloc_len);
-				data_row_parms[number_of_columns].value = c + 1;
+		for (number_of_columns = 0, cur_row_parms = data_row_parms; ; cur_row_parms++) {
+			int	hdr_len, data_len;
+
+			hdr_len = get_mval_len(buff, &data_len);
+			cur_row_parms->length = data_len;
+			buff += hdr_len;
+			cur_row_parms->value = (char *)buff;
+			buff += data_len;
+			assert(number_of_columns < data_row_parms_alloc_len);
+			number_of_columns++;
+			if (buff_top <= buff) {
+				assert(buff_top == buff);
+				break;
 			}
+			// Current allocation is not enough. Expand to twice current size.
+			if (number_of_columns >= data_row_parms_alloc_len) {
+				DataRowParm	*tmp;
+
+				tmp = (DataRowParm*)malloc(data_row_parms_alloc_len * 2 * sizeof(DataRowParm));
+				memcpy(tmp, data_row_parms, (data_row_parms_alloc_len * sizeof(DataRowParm)));
+				free(data_row_parms);
+				data_row_parms = tmp;
+				data_row_parms_alloc_len = data_row_parms_alloc_len * 2;
+			}
+			assert(number_of_columns < data_row_parms_alloc_len);
 		}
-		data_row_parms[number_of_columns].length = c - data_row_parms[number_of_columns].value;
-		assert(number_of_columns < data_row_parms_alloc_len);
-		number_of_columns++;
 		// Send row data to client
 		data_row = make_data_row(data_row_parms, number_of_columns);
 		send_message(parms->session, (BaseMessage*)(&data_row->type));

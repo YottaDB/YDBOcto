@@ -21,8 +21,6 @@
 #include "octo_types.h"
 #include "helpers.h"
 
-#include "physical_plan.h"
-
 /**
  * Iterates over the last output of the plan and prints it to the screen
  */
@@ -116,22 +114,25 @@ int print_temporary_table(SqlStatement *stmt, int cursor_id, void *parms, char *
 	}
 	YDB_ERROR_CHECK(status);
 	if (YDB_OK == status) {
+		value_buffer.len_alloc--;	/* Allocate space for '\0' terminator by reducing allocated length */
 		while (0 != strncmp("", cursor_buffers[6].buf_addr, MAX_STR_CONST)) {
 			status = ydb_get_s(&cursor_buffers[0], 6, &cursor_buffers[1], &value_buffer);
-			// Expand value_buffer allocation until it's large enough to store the row value retrieved from the database
-			while (YDB_ERR_INVSTRLEN == status) {
-				int newsize = value_buffer.len_used;
+			// Expand value_buffer allocation until it's large enough to store the retrieved row value
+			if (YDB_ERR_INVSTRLEN == status) {
+				int	newsize = value_buffer.len_used;
+
 				YDB_FREE_BUFFER(&value_buffer);
 				YDB_MALLOC_BUFFER(&value_buffer, newsize + 1);
 				value_buffer.len_alloc--;
 				status = ydb_get_s(&cursor_buffers[0], 6, &cursor_buffers[1], &value_buffer);
+				assert(YDB_ERR_INVSTRLEN != status);
 			}
 			YDB_ERROR_CHECK(status);
 			if (YDB_OK != status) {
 				break;
 			}
 			value_buffer.buf_addr[value_buffer.len_used] = '\0';
-			fprintf(stdout, "%s\n", value_buffer.buf_addr);
+			print_result_row(&value_buffer);
 			status = ydb_subscript_next_s(&cursor_buffers[0], 6, &cursor_buffers[1], &cursor_buffers[6]);
 			if(YDB_ERR_NODEEND == status) {
 				status = YDB_OK;

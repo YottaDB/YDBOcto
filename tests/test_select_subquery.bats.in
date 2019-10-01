@@ -20,30 +20,36 @@ setup() {
 }
 
 @test "TSS01 : OCTO181 : Data types are not correctly propagated from nested SELECTs; Misc other queries" {
-  load_fixture TSS01.sql subtest
-  verify_output TSS01 output.txt noinfo nodebug
+  # TSS01_errors.sql cannot be used with `run_query_in_octo_and_postgres_and_crosscheck_multiple_queries` because of error
+  # returns from queries (Postgres and Octo issue different error outputs). Need a reference file.
+  load_fixture TSS01_errors.sql subtest
+  verify_output TSS01_errors output.txt noinfo nodebug
+  mv clean_output.txt errors_clean_output.txt
   # Verify the types of columns and alias names etc. for all above queries from octo -vv output
   grep -E "Parsing done|LP_COLUMN_ALIAS| - type: | - alias: " output.txt | sed 's/.*Parsing done/Parsing done/g' > lp_output.txt
-  verify_output TSS01_lp lp_output.txt
+  verify_output TSS01_errors_lp lp_output.txt
+  # TSS01_noerrors.sql can be used with `run_query_in_octo_and_postgres_and_crosscheck_multiple_queries` because all queries
+  # generate valid output (i.e. no errors at all). No reference file needed for this.
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TSS01_noerrors.sql "remove_empty_line_at_tail"
 }
 
 @test "TSS02 : OCTO348 : Sub-query that uses column value from parent query and generates cross-reference plan" {
-  load_fixture TSS02.sql subtest
-  verify_output TSS02 output.txt nodebug noinfo
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TSS02.sql "remove_empty_line_at_tail"
 }
 
 @test "TSS03 : OCTO192 : Using sub-query in a WHERE clause produces <Plan produced by optimizer appears incorrect> warning" {
-  load_fixture TSS03.sql subtest
-  verify_output TSS03 output.txt noinfo nodebug
+  # TSS03_errors.sql cannot be used with `run_query_in_octo_and_postgres_and_crosscheck_multiple_queries` because of error
+  # returns from queries (Postgres and Octo issue different error outputs). Need a reference file.
+  load_fixture TSS03_errors.sql subtest
+  verify_output TSS03_errors output.txt noinfo nodebug
+  mv clean_output.txt errors_clean_output.txt
+  # TSS03_noerrors.sql can be used with `run_query_in_octo_and_postgres_and_crosscheck_multiple_queries` because all queries
+  # generate valid output (i.e. no errors at all). No reference file needed for this.
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TSS03_noerrors.sql "remove_empty_line_at_tail"
 }
 
 @test "TSS04 : OCTO361 : OUTER JOIN with sub-query in the ON condition expression does not work correctly" {
-  cp @PROJECT_SOURCE_DIR@/tests/fixtures/TSS04.sql .
-  yottadb -run genqueryfiles TSS04.sql	# this generates query files of the form TSS04_01.sql, TSS04_02.sql ...
-  for file in TSS04_*.sql
-  do
-    run_query_in_octo_and_postgres_and_crosscheck names $file "remove_empty_line_at_tail"
-  done
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TSS04.sql "remove_empty_line_at_tail"
 }
 
 @test "TSS05 : OCTO404 : Assert failure when referencing inherited sub-query columns in parent query WHERE clause" {

@@ -1,9 +1,0 @@
-
-SELECT * FROM names n1 WHERE n1.firstName in (SELECT n2.firstname from names n2 where n2.firstname = n1.firstname);
-0|Zero|Cool
-1|Acid|Burn
-2|Cereal|Killer
-3|Lord|Nikon
-4|Joey|
-5|Zero|Cool
-

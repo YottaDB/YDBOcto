@@ -17,7 +17,7 @@
 TEMPLATE(tmpl_tablejoin_body_group_by, PhysicalPlan *plan, int dot_count) {
 	TEMPLATE_INIT();
 
-	LogicalPlan	*af, *first_aggregate;
+	LogicalPlan	*af, *lp_column_list, *first_aggregate;
 
 	assert(NULL != plan->outputKey);
 	assert(IS_GROUP_BY_PLAN(plan));
@@ -39,7 +39,7 @@ TEMPLATE(tmpl_tablejoin_body_group_by, PhysicalPlan *plan, int dot_count) {
 
 		/* GROUP BY was specified. Emit the specified columns as the GROUP BY subscript */
 		GET_LP(group_by, plan->aggregate_options, 0, LP_GROUP_BY);
-		TMPL(tmpl_column_list_combine, group_by->v.lp_default.operand[0], plan, "_\"|\"_", 0, 0, 0);
+		TMPL(tmpl_column_list_combine, group_by->v.lp_default.operand[0], plan, "_", TRUE, 0, 0, 0);
 	} else {
 		/* GROUP BY was NOT specified. Emit "" as the GROUP BY subscript */
 		%{}""{}%
@@ -65,7 +65,9 @@ TEMPLATE(tmpl_tablejoin_body_group_by, PhysicalPlan *plan, int dot_count) {
 		if (LP_AGGREGATE_FUNCTION_COUNT_ASTERISK == af->type) {
 			%{}""{}%
 		} else {
-			TMPL(tmpl_column_list_combine, af, plan, "", 0, 0, 0);
+			lp_column_list = af->v.lp_default.operand[0];
+			assert(LP_COLUMN_LIST == lp_column_list->type);
+			TMPL(tmpl_print_expression, lp_column_list->v.lp_default.operand[0], plan, 0, 0);
 		}
 		%{}`n{{ PLAN_LINE_START }}{}%
 		TMPL(tmpl_print_dots, dot_count);

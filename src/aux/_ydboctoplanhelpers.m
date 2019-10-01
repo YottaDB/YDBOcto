@@ -394,10 +394,9 @@ Count(keyId,groupBySubs,aggrIndex,curValue)
 	;	aggrIndex   : N if we are processing the Nth aggregate function specified in the query
 	;	curValue    : the value that should be aggregated into `aggrIndex`
 	; Assumes "%ydboctocursor" and "cursorId" are appropriately set by caller.
-	; NOTE: Examine the below program for potential $ZYSQLNULL handling once #311 is fixed
 	; Ideally we should be using GROUP_BY_SUBSCRIPT instead of "GroupBy" below but we need some preprocessor in M for that
 	; So we use the hardcoded string instead here.
-	QUIT:(""=curValue)  ; "" needs to be replaced with $ZYSQLNULL when #311 is fixed
+	QUIT:$ZYISSQLNULL(curValue)
 	IF $INCREMENT(%ydboctocursor(cursorId,"keys",keyId,"","","GroupBy",groupBySubs,aggrIndex))
 	QUIT
 
@@ -410,11 +409,10 @@ Min(keyId,groupBySubs,aggrIndex,curValue,isString)
 	;	curValue    : the value that should be aggregated into `aggrIndex`
 	;	isString    : 1 if curValue is of string type, 0 if curValue is of numeric type
 	; Assumes "%ydboctocursor" and "cursorId" are appropriately set by caller.
-	; NOTE: Examine the below program for potential $ZYSQLNULL handling once #311 is fixed
 	; Ideally we should be using GROUP_BY_SUBSCRIPT instead of "GroupBy" below but we need some preprocessor in M for that
 	; So we use the hardcoded string instead here.
 	NEW curMin
-	QUIT:(""=curValue)  ; "" needs to be replaced with $ZYSQLNULL when #311 is fixed
+	QUIT:$ZYISSQLNULL(curValue)
 	IF $DATA(%ydboctocursor(cursorId,"keys",keyId,"","","GroupBy",groupBySubs,aggrIndex)) DO
 	. ; Values have already been aggregated. Compare current value against stored min value and update if needed.
 	. SET curMin=%ydboctocursor(cursorId,"keys",keyId,"","","GroupBy",groupBySubs,aggrIndex)
@@ -434,11 +432,10 @@ Max(keyId,groupBySubs,aggrIndex,curValue,isString)
 	;	curValue    : the value that should be aggregated into `aggrIndex`
 	;	isString    : 1 if curValue is of string type, 0 if curValue is of numeric type
 	; Assumes "%ydboctocursor" and "cursorId" are appropriately set by caller.
-	; NOTE: Examine the below program for potential $ZYSQLNULL handling once #311 is fixed
 	; Ideally we should be using GROUP_BY_SUBSCRIPT instead of "GroupBy" below but we need some preprocessor in M for that
 	; So we use the hardcoded string instead here.
 	NEW curMax
-	QUIT:(""=curValue)  ; "" needs to be replaced with $ZYSQLNULL when #311 is fixed
+	QUIT:$ZYISSQLNULL(curValue)
 	IF $DATA(%ydboctocursor(cursorId,"keys",keyId,"","","GroupBy",groupBySubs,aggrIndex)) DO
 	. ; Values have already been aggregated. Compare current value against stored max value and update if needed.
 	. SET curMax=%ydboctocursor(cursorId,"keys",keyId,"","","GroupBy",groupBySubs,aggrIndex)
@@ -457,10 +454,9 @@ Sum(keyId,groupBySubs,aggrIndex,curValue)
 	;	aggrIndex   : N if we are processing the Nth aggregate function specified in the query
 	;	curValue    : the value that should be aggregated into `aggrIndex`
 	; Assumes "%ydboctocursor" and "cursorId" are appropriately set by caller.
-	; NOTE: Examine the below program for potential $ZYSQLNULL handling once #311 is fixed
 	; Ideally we should be using GROUP_BY_SUBSCRIPT instead of "GroupBy" below but we need some preprocessor in M for that
 	; So we use the hardcoded string instead here.
-	QUIT:(""=curValue)  ; "" needs to be replaced with $ZYSQLNULL when #311 is fixed
+	QUIT:$ZYISSQLNULL(curValue)
 	IF $INCREMENT(%ydboctocursor(cursorId,"keys",keyId,"","","GroupBy",groupBySubs,aggrIndex),curValue)
 	QUIT
 
@@ -472,7 +468,6 @@ Avg(keyId,groupBySubs,aggrIndex,curValue)
 	;	aggrIndex   : N if we are processing the Nth aggregate function specified in the query
 	;	curValue    : the value that should be aggregated into `aggrIndex`
 	; Assumes "%ydboctocursor" and "cursorId" are appropriately set by caller.
-	; NOTE: Examine the below program for potential $ZYSQLNULL handling once #311 is fixed
 	; Ideally we should be using GROUP_BY_SUBSCRIPT instead of "GroupBy" below but we need some preprocessor in M for that
 	; So we use the hardcoded string instead here.
 	; Note: We store the cumulative sum and the cumulative count here. Actual average will be taken in generated M code
@@ -482,7 +477,7 @@ Avg(keyId,groupBySubs,aggrIndex,curValue)
 	;	This is because in the case of AVG(DISTINCT), the label `AvgDistinct` could encounter curValue as "SUM" or "COUNT"
 	;	in which case it is going to set that as a subscript underneath the `aggrIndex` subscript in which case, it
 	;	would confuse the "SUM"/"COUNT" maintenance for AVG. Hence the choice of a negative subscript.
-	QUIT:(""=curValue)  ; "" needs to be replaced with $ZYSQLNULL when #311 is fixed
+	QUIT:$ZYISSQLNULL(curValue)
 	IF $INCREMENT(%ydboctocursor(cursorId,"keys",keyId,"","","GroupBy",groupBySubs,-aggrIndex,"SUM"),curValue)
 	IF $INCREMENT(%ydboctocursor(cursorId,"keys",keyId,"","","GroupBy",groupBySubs,-aggrIndex,"COUNT"))
 	QUIT
@@ -495,10 +490,9 @@ CountDistinct(keyId,groupBySubs,aggrIndex,curValue)
 	;	aggrIndex   : N if we are processing the Nth aggregate function specified in the query
 	;	curValue    : the value that should be aggregated into `aggrIndex`
 	; Assumes "%ydboctocursor" and "cursorId" are appropriately set by caller.
-	; NOTE: Examine the below program for potential $ZYSQLNULL handling once #311 is fixed
 	; Ideally we should be using GROUP_BY_SUBSCRIPT instead of "GroupBy" below but we need some preprocessor in M for that
 	; So we use the hardcoded string instead here.
-	QUIT:(""=curValue)  ; "" needs to be replaced with $ZYSQLNULL when #311 is fixed
+	QUIT:$ZYISSQLNULL(curValue)
 	QUIT:$DATA(%ydboctocursor(cursorId,"keys",keyId,"","","GroupBy",groupBySubs,aggrIndex,curValue))
 	SET %ydboctocursor(cursorId,"keys",keyId,"","","GroupBy",groupBySubs,aggrIndex,curValue)=""
 	DO Count(keyId,groupBySubs,aggrIndex,curValue)
@@ -512,10 +506,9 @@ SumDistinct(keyId,groupBySubs,aggrIndex,curValue)
 	;	aggrIndex   : N if we are processing the Nth aggregate function specified in the query
 	;	curValue    : the value that should be aggregated into `aggrIndex`
 	; Assumes "%ydboctocursor" and "cursorId" are appropriately set by caller.
-	; NOTE: Examine the below program for potential $ZYSQLNULL handling once #311 is fixed
 	; Ideally we should be using GROUP_BY_SUBSCRIPT instead of "GroupBy" below but we need some preprocessor in M for that
 	; So we use the hardcoded string instead here.
-	QUIT:(""=curValue)  ; "" needs to be replaced with $ZYSQLNULL when #311 is fixed
+	QUIT:$ZYISSQLNULL(curValue)
 	QUIT:$DATA(%ydboctocursor(cursorId,"keys",keyId,"","","GroupBy",groupBySubs,aggrIndex,curValue))
 	SET %ydboctocursor(cursorId,"keys",keyId,"","","GroupBy",groupBySubs,aggrIndex,curValue)=""
 	DO Sum(keyId,groupBySubs,aggrIndex,curValue)
@@ -529,10 +522,9 @@ AvgDistinct(keyId,groupBySubs,aggrIndex,curValue)
 	;	aggrIndex   : N if we are processing the Nth aggregate function specified in the query
 	;	curValue    : the value that should be aggregated into `aggrIndex`
 	; Assumes "%ydboctocursor" and "cursorId" are appropriately set by caller.
-	; NOTE: Examine the below program for potential $ZYSQLNULL handling once #311 is fixed
 	; Ideally we should be using GROUP_BY_SUBSCRIPT instead of "GroupBy" below but we need some preprocessor in M for that
 	; So we use the hardcoded string instead here.
-	QUIT:(""=curValue)  ; "" needs to be replaced with $ZYSQLNULL when #311 is fixed
+	QUIT:$ZYISSQLNULL(curValue)
 	QUIT:$DATA(%ydboctocursor(cursorId,"keys",keyId,"","","GroupBy",groupBySubs,aggrIndex,curValue))
 	SET %ydboctocursor(cursorId,"keys",keyId,"","","GroupBy",groupBySubs,aggrIndex,curValue)=""
 	DO Avg(keyId,groupBySubs,aggrIndex,curValue)
@@ -567,4 +559,90 @@ String2Boolean(boolstr)	;
 	.	SET %ydboctoerror("INVALIDINPUTSYNTAXBOOL",1)=boolstr	; pass parameter to `src/ydb_error_check.c`
 	.	ZMESSAGE %ydboctoerror("INVALIDINPUTSYNTAXBOOL")
 	QUIT %ydboctoStr2Bool(boolstr)
+
+str2mval(str)
+	; Converts an input string `str` into a `len,str` 2-tuple. Cannot use `str` as is in case input string is `$ZYSQLNULL`
+	; (as that cannot then be later used as part of a concatenation operation since the result of the concatenation
+	; would be $ZYSQLNULL losing all other operands of the concatenation operator).
+	;
+	; The length can be 1 or 2 or 3 bytes long.
+	;
+	;	String	Output
+	;	------	-------------
+	;	NULL    00000000
+	;	1-byte  00000001                    to 01111110                   [ String Byte Lengths of 0 to 126 + 1-byte header length = length of 1 to 127]
+	;	2-byte  10000000 10000001           to 10111111 11111111          [ String Byte Lengths of 127 to 16381 + 2-byte header length = length of 129 to 16383]
+	;	3-byte  11000000 01000000 00000001  to 11010000 00000000 00000000 [ String Byte Lengths of 16382 to 1048573 + 3-byte header length = length of 16385 + 1048576]
+	;
+	QUIT:$ZYISSQLNULL(str) $ZCHAR(0)
+	NEW len,hdr
+	SET len=$ZLENGTH(str)
+	IF 127>len DO
+	.	; 1-byte header
+	. 	SET hdr=$ZCHAR(1+len)
+	ELSE  IF 16382>len DO
+	.	; 2-byte header
+	.	SET len=len+2	; Add 2-byte header length too
+	.	SET hdr=$ZCHAR(128+(len\256))_$ZCHAR(len#256)
+	ELSE  DO
+	.	; 3-byte header
+	.	SET len=len+3	; Add 3-byte header length too
+	.	SET hdr=$ZCHAR(192+(len\65536))_$ZCHAR((len\256)#256)_$ZCHAR(len#256)
+	QUIT hdr_str
+
+mval2str(mval)
+	; Converts the input `mval` (`len,str` tuple) back into a string (just `str`) and returns that.
+	; This is the inverse of $$str2mval^%ydboctoplanhelpers.
+	;
+	NEW byte1,len,skip
+	SET byte1=$ZASCII($ZEXTRACT(mval,1))
+	QUIT:0=byte1 $ZYSQLNULL
+	IF 128>byte1 DO
+	.	; 1-byte header
+	.	SET skip=1
+	.	SET len=byte1
+	ELSE  IF 192>byte1 DO
+	.	; 2-byte header
+	.	SET skip=2
+	.	SET len=$$get2bytelen(byte1,mval)
+	ELSE  DO
+	.	; 3-byte header
+	.	SET skip=3
+	.	SET len=$$get3bytelen(byte1,mval)
+	QUIT $ZEXTRACT(mval,1+skip,len)
+
+mvalPiece(mval,piecenum)
+	; Locates the `piecenum`th piece in `mval` (a concatenated sequence of `mval`s) and returns that `mval (`len,str`)
+	;
+	; Note: `src/get_mval_len.c` has very similar logic as below. So any changes here need to be reflected there as well.
+	;
+	NEW byte1,i,len,skip,cumullen
+	SET cumullen=1
+	FOR i=1:1:piecenum DO  QUIT:i=piecenum  IF $INCREMENT(cumullen,len)
+	.	SET byte1=$ZASCII($ZEXTRACT(mval,cumullen))
+	.	IF 0=byte1 DO
+	.	.	; $ZYSQLNULL
+	.	.	SET skip=1
+	.	.	SET len=1
+	.	ELSE  IF 128>byte1 DO
+	.	.	; 1-byte header
+	.	.	SET skip=1
+	.	.	SET len=byte1
+	.	ELSE  IF 192>byte1 DO
+	.	.	; 2-byte header
+	.	.	SET skip=2
+	.	.	SET len=$$get2bytelen(byte1,mval)
+	.	ELSE  DO
+	.	.	; 3-byte header
+	.	.	SET skip=3
+	.	.	SET len=$$get3bytelen(byte1,mval)
+	QUIT $ZEXTRACT(mval,cumullen+skip-1,cumullen+len-1)
+
+get2bytelen(byte1,mval)
+	; Computes the length given a 2-byte header (1st byte is already in byte1 and 2nd byte is obtained from mval)
+	QUIT (byte1-128)*256+$ZASCII($ZEXTRACT(mval,2))
+
+get3bytelen(byte1,mval)
+	; Computes the length given a 3-byte header (1st byte is already in byte1 and 2nd/3rd bytes are obtained from mval)
+	QUIT (byte1-192)*65536+($ZASCII($ZEXTRACT(mval,2))*256)+$ZASCII($ZEXTRACT(mval,3))
 

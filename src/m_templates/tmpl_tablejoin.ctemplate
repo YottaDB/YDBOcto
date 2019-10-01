@@ -60,21 +60,38 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *plan, LogicalPlan *tablejoin, unsigned in
 		 * to include ALL rows from the right table for the RIGHT JOIN.
 		 */
 		if ((NULL != key->fixed_to_value) && !right_join_second_half) {
-			TMPL(tmpl_print_dots, dot_count);
-			%{}SET {}%
-			TMPL(tmpl_key, key);
-			%{}={}%
-			TMPL(tmpl_print_expression, key->fixed_to_value, plan, 0, 0);
-			%{} IF ($DATA({}%
-			TMPL(tmpl_key_source, plan, key);
-			%{})'=0){}%
-			if (NULL != limit_keyword) {
-				TMPL(tmpl_limit_check, limit_keyword, "&", ">%ydboctozlimit");
-				(*buffer_index)--;	/* Remove the trailing ")" from `tmpl_limit_check` call */
-				%{}({{ plan->outputKey->unique_id|%d }}){}%	/* Add subscript based on output key */
-				%{}){}%	/* Add back the trailing ")" from `tmpl_limit_check` call above */
+			LogicalPlan	*fixed_to_value;
+
+			fixed_to_value = key->fixed_to_value;
+			if ((LP_VALUE != fixed_to_value->type) || (NUL_VALUE != fixed_to_value->v.lp_value.value->type)) {
+				TMPL(tmpl_print_dots, dot_count);
+				%{}SET {}%
+				TMPL(tmpl_key, key);
+				%{}={}%
+				TMPL(tmpl_print_expression, fixed_to_value, plan, 0, 0);
+				/* The "tmpl_key_source" function call below would result in an M gvn. If the `fixed_to_value`
+				 * is `$ZYSQLNULL`, we have to skip doing the gvn reference with `$ZYSQLNULL` as a subscript
+				 * (as it causes a ZYSQLNULLNOTVALID error currently). Hence the need for a `$ZYISSQLNULL` check.
+				 */
+				%{} IF '$ZYISSQLNULL({}%
+				TMPL(tmpl_key, key);
+				%{}) IF $DATA({}%
+				TMPL(tmpl_key_source, plan, key);
+				%{}){}%
+				if (NULL != limit_keyword) {
+					TMPL(tmpl_limit_check, limit_keyword, "&", ">%ydboctozlimit");
+					(*buffer_index)--;	/* Remove the trailing ")" from `tmpl_limit_check` call */
+					%{}({{ plan->outputKey->unique_id|%d }}){}%	/* Add subscript based on output key */
+					%{}){}%	/* Add back the trailing ")" from `tmpl_limit_check` call above */
+				}
+			} else {
+				/* If fixed_to_value is NULL, then there is no output from this key fix.
+				 * So skip entire DO block (that will get generated later). Generate M code accordingly.
+				 */
+				%{}IF 0{}%
 			}
-			%{} DO`n{{ PLAN_LINE_START }}{}%
+			%{} DO{}%
+			%{}`n{{ PLAN_LINE_START }}{}%
 			dot_count++;
 			continue;
 		}

@@ -106,6 +106,8 @@ LP_ACTION_TYPE(LP_NEGATIVE)
 LP_ACTION_TYPE(LP_BOOLEAN_NOT)
 LP_ACTION_TYPE(LP_BOOLEAN_EXISTS)
 LP_ACTION_TYPE(LP_BOOLEAN_NOT_EXISTS)
+LP_ACTION_TYPE(LP_BOOLEAN_IS_NULL)
+LP_ACTION_TYPE(LP_BOOLEAN_IS_NOT_NULL)
 LP_ACTION_TYPE(LP_COERCE_TYPE)
 LP_ACTION_TYPE(LP_UNARY_LAST)	/* Marks the end of unary operations. Any new unary operation opcode should be added BEFORE this.
 				 * This is because there is code that does boolean checks on this (e.g. `LP_UNARY_LAST > type`)

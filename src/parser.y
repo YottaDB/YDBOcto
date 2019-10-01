@@ -596,24 +596,16 @@ in_value_list_tail
 
 null_predicate
   : row_value_constructor IS NULL_TOKEN {
-      SQL_STATEMENT($$, binary_STATEMENT);
-      MALLOC_STATEMENT($$, binary, SqlBinaryOperation);
-      ($$)->v.binary->operation = BOOLEAN_EQUALS;
-      ($$)->v.binary->operands[0] = ($row_value_constructor);
-      SQL_STATEMENT(($$)->v.binary->operands[1], value_STATEMENT);
-      MALLOC_STATEMENT(($$)->v.binary->operands[1], value, SqlValue);
-      ($$)->v.binary->operands[1]->v.value->type = NUL_VALUE;
-      ($$)->v.binary->operands[1]->v.value->v.string_literal = "";
+      SQL_STATEMENT($$, unary_STATEMENT);
+      MALLOC_STATEMENT($$, unary, SqlUnaryOperation);
+      ($$)->v.unary->operation = BOOLEAN_IS_NULL;
+      ($$)->v.unary->operand = ($row_value_constructor);
     }
   | row_value_constructor IS NOT NULL_TOKEN {
-      SQL_STATEMENT($$, binary_STATEMENT);
-      MALLOC_STATEMENT($$, binary, SqlBinaryOperation);
-      ($$)->v.binary->operation = BOOLEAN_NOT_EQUALS;
-      ($$)->v.binary->operands[0] = ($row_value_constructor);
-      SQL_STATEMENT(($$)->v.binary->operands[1], value_STATEMENT);
-      MALLOC_STATEMENT(($$)->v.binary->operands[1], value, SqlValue);
-      ($$)->v.binary->operands[1]->v.value->type = NUL_VALUE;
-      ($$)->v.binary->operands[1]->v.value->v.string_literal = "";
+      SQL_STATEMENT($$, unary_STATEMENT);
+      MALLOC_STATEMENT($$, unary, SqlUnaryOperation);
+      ($$)->v.unary->operation = BOOLEAN_IS_NOT_NULL;
+      ($$)->v.unary->operand = ($row_value_constructor);
     }
 
   ;

@@ -79,7 +79,7 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 			%{}{{ value->v.string_literal }}{}%
 			break;
 		case NUL_VALUE:
-			%{}""{}%
+			%{}$ZYSQLNULL{}%
 			break;
 		case COLUMN_REFERENCE:
 			// We should only pass LP_COLUMN_ALIASes to this function
@@ -165,7 +165,7 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 		GET_LP(key, plan, 0, LP_KEY);
 		if (pplan->treat_key_as_null[key->v.lp_key.key->unique_id])
 		{	/* Treat all columns in the table as NULL (used for OUTER JOINs) */
-			%{}""{}%	/* needs to be replaced with $ZYSQLNULL when #311 is fixed */
+			%{}$ZYSQLNULL{}%
 			break;
 		}
 		subquery_column_alias = plan->extra_detail.lp_derived_column.subquery_column_alias;
@@ -174,17 +174,21 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 			 * happened and wrote the records (based on the FROM/WHERE clauses) into the lvn subtree under
 			 * GROUP_BY_SUBSCRIPT. Retrieve the column reference from there.
 			 */
-			%{}$PIECE(%%ydboctog,"|",{{ subquery_column_alias->group_by_column_number|%d }}){}%
+			%{}$$mval2str^%%ydboctoplanhelpers{}%
+			%{}($$mvalPiece^%%ydboctoplanhelpers{}%
+			%{}(%%ydboctog,{{ subquery_column_alias->group_by_column_number|%d }}){}%
+			%{}){}%
 			break;
 		}
 		GET_LP(piece_num, plan, 1, LP_PIECE_NUMBER);
-		%{}($PIECE({}%
+		%{}$$mval2str^%%ydboctoplanhelpers{}%
+		%{}($$mvalPiece^%%ydboctoplanhelpers({}%
 		TMPL(tmpl_key, key->v.lp_key.key);
-		// We're getting a bit abusive again; go back one, removing paren, comma and print
-		(*buffer_index)--;
+		(*buffer_index)--;	// Go back one, removing paren
 		%{},{}%
 		TMPL(tmpl_key, key->v.lp_key.key);
-		%{}),"|",{{ piece_num->v.lp_piece_number.piece_number|%d }})){}%
+		%{}),{{ piece_num->v.lp_piece_number.piece_number|%d }}){}%
+		%{}){}%
 		break;
 	case LP_COLUMN_ALIAS:
 		/* Check if this LP_COLUMN_ALIAS was later replaced by a LP_DERIVED_COLUMN.
@@ -391,6 +395,15 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 			%{}'{}%
 		}
 		%{}$$EXISTS^%%ydboctoplanhelpers({{ key->v.lp_key.key->unique_id|%d }}){}%
+		break;
+	case LP_BOOLEAN_IS_NULL:
+	case LP_BOOLEAN_IS_NOT_NULL:
+		if (LP_BOOLEAN_IS_NOT_NULL == plan->type) {
+			%{}'{}%
+		}
+		%{}$ZYISSQLNULL({}%
+		TMPL(tmpl_print_expression, first_operand, pplan, 0, 0);
+		%{}){}%
 		break;
 	case LP_FUNCTION_CALL:
 		cur_plan = plan;

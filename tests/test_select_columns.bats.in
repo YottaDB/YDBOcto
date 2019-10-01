@@ -402,3 +402,32 @@ CAT_EOF
   octo -f $inputfile >> output.txt 2>&1
   verify_output TSC19 output.txt
 }
+
+@test "TSC20 : OCTO469 : Test SELECT COLUMN list values of length upto ~ 1Mb (MAX_STRLEN) in Octo and Rocto" {
+  $ydb_dist/mupip set -key_size=1019 -record_size=1048576 -reg DEFAULT	# huge records are going to be created in next line
+  yottadb -run TSC20	# populate ^longvalues global and create TSC20.ref
+  inputfile="TSC20.sql"
+  cp @PROJECT_SOURCE_DIR@/tests/fixtures/$inputfile .
+  grep -v '^#' $inputfile > output.txt	# Filter out copyright from output
+  # Test Octo
+  octo -f $inputfile > octo_output.txt 2>&1
+  # Filter global octo.conf (any not in the local directory)
+  sed -i '/^.*\[ INFO\].* \/.*\/octo.conf/d' octo_output.txt
+  cmp TSC20.ref octo_output.txt
+  # Test Rocto with same set of queries
+  create_user ydb tester
+  test_port=$(start_rocto 1339)
+  run_psql_auth ydb tester $test_port < $inputfile > rocto_orig_output.txt
+  stop_rocto
+  delete_users ydb
+  grep -vwE "ID|VALUE|rows" rocto_orig_output.txt > rocto_output.txt
+  echo "" >> rocto_output.txt	# Add empty line at end to match with reference file created for octo purposes
+  # Filter global octo.conf (any not in the local directory)
+  sed -i '/^.*\[ INFO\].* \/.*\/octo.conf/d' rocto_output.txt
+  cmp TSC20.ref rocto_output.txt
+}
+
+# Note: Any subtest that wishes to use `run_query_in_octo_and_postgres_and_crosscheck_multiple_queries` needs to be
+# added in the `test_select_columns_psql` test and not this (i.e. `test_select_columns`) test as the latter is a core
+# test and is run even before `hello_psql` test runs in some configurations in which case we cannot assume Postgres
+# tables are loaded. Keep this comment at the end of this file so add new subtests BEFORE this comment.

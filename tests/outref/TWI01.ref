@@ -23,7 +23,7 @@ octoPlan0(cursorId)
 octoPlan1(cursorId)
     DO:'$DATA(^%ydboctoocto("xref_status","NAMES","FIRSTNAME")) ^%ydboctoXS6loYoNNto55iv2lHkNkCK(cursorId)
     NEW %ydboctoz KILL %ydboctocursor(cursorId,"keys",5,"","")
-    SET %ydboctocursor(cursorId,"keys",2,"NAMES","FIRSTNAME")=$GET(%ydboctocursor(cursorId,"parameters",1)) IF ($DATA(^%ydboctoxref("NAMES","FIRSTNAME",%ydboctocursor(cursorId,"keys",2,"NAMES","FIRSTNAME")))'=0) DO
+    SET %ydboctocursor(cursorId,"keys",2,"NAMES","FIRSTNAME")=$GET(%ydboctocursor(cursorId,"parameters",1)) IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",2,"NAMES","FIRSTNAME")) IF $DATA(^%ydboctoxref("NAMES","FIRSTNAME",%ydboctocursor(cursorId,"keys",2,"NAMES","FIRSTNAME"))) DO
     . SET %ydboctocursor(cursorId,"keys",2,"NAMES","ID")=""
     . FOR  SET %ydboctocursor(cursorId,"keys",2,"NAMES","ID")=$ORDER(^%ydboctoxref("NAMES","FIRSTNAME",%ydboctocursor(cursorId,"keys",2,"NAMES","FIRSTNAME"),%ydboctocursor(cursorId,"keys",2,"NAMES","ID"))) QUIT:(%ydboctocursor(cursorId,"keys",2,"NAMES","ID")="")  DO
     . . NEW %ydboctobool SET %ydboctobool=1
@@ -36,7 +36,7 @@ octoPlan1(cursorId)
 octoPlan2(cursorId)
     DO:'$DATA(^%ydboctoocto("xref_status","NAMES","FIRSTNAME")) ^%ydboctoXS6loYoNNto55iv2lHkNkCK(cursorId)
     NEW %ydboctoz
-    SET %ydboctocursor(cursorId,"keys",2,"NAMES","FIRSTNAME")=$GET(%ydboctocursor(cursorId,"parameters",2)) IF ($DATA(^%ydboctoxref("NAMES","FIRSTNAME",%ydboctocursor(cursorId,"keys",2,"NAMES","FIRSTNAME")))'=0) DO
+    SET %ydboctocursor(cursorId,"keys",2,"NAMES","FIRSTNAME")=$GET(%ydboctocursor(cursorId,"parameters",2)) IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",2,"NAMES","FIRSTNAME")) IF $DATA(^%ydboctoxref("NAMES","FIRSTNAME",%ydboctocursor(cursorId,"keys",2,"NAMES","FIRSTNAME"))) DO
     . SET %ydboctocursor(cursorId,"keys",2,"NAMES","ID")=""
     . FOR  SET %ydboctocursor(cursorId,"keys",2,"NAMES","ID")=$ORDER(^%ydboctoxref("NAMES","FIRSTNAME",%ydboctocursor(cursorId,"keys",2,"NAMES","FIRSTNAME"),%ydboctocursor(cursorId,"keys",2,"NAMES","ID"))) QUIT:(%ydboctocursor(cursorId,"keys",2,"NAMES","ID")="")  DO
     . . NEW %ydboctobool SET %ydboctobool=1
@@ -55,5 +55,5 @@ octoPlan3(cursorId)
     . SET %ydboctobool=($DATA(%ydboctocursor(cursorId,"keys",5,"","",$PIECE($GET(^names(%ydboctocursor(cursorId,"keys",1,"NAMES","ID"))),"|",2)))'=0)
     . IF %ydboctobool DO
     . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",8,"","")) %ydboctoz=42
-    . . SET %ydboctocursor(cursorId,"keys",8,"","",%ydboctocursor(cursorId,"keys",8,"",""))=%ydboctocursor(cursorId,"keys",1,"NAMES","ID")_"|"_$PIECE($GET(^names(%ydboctocursor(cursorId,"keys",1,"NAMES","ID"))),"|",2)_"|"_$PIECE($GET(^names(%ydboctocursor(cursorId,"keys",1,"NAMES","ID"))),"|",3)
+    . . SET %ydboctocursor(cursorId,"keys",8,"","",%ydboctocursor(cursorId,"keys",8,"",""))=$$str2mval^%ydboctoplanhelpers(%ydboctocursor(cursorId,"keys",1,"NAMES","ID"))_$$str2mval^%ydboctoplanhelpers($PIECE($GET(^names(%ydboctocursor(cursorId,"keys",1,"NAMES","ID"))),"|",2))_$$str2mval^%ydboctoplanhelpers($PIECE($GET(^names(%ydboctocursor(cursorId,"keys",1,"NAMES","ID"))),"|",3))
     QUIT

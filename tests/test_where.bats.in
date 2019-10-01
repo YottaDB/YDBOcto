@@ -79,8 +79,8 @@ OCTO
   octo <<OCTO 2>&1 | tee output.txt
 select * from names where lastName IS NULL;
 OCTO
-  # We should find Joey
-  [[ "$(grep -c "|" output.txt)" == "1" ]]
+  # We should NOT find Joey as it has a lastName of "" which is different from NULL
+  [[ "$(grep -c "|" output.txt)" == "0" ]]
 }
 
 @test "TW07 :where with subquery and SELECT" {

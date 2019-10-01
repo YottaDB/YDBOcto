@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -115,6 +115,23 @@ LogicalPlan *lp_apply_not(LogicalPlan *root, int count) {
 				break;
 			case LP_BOOLEAN_EXISTS:
 				root->type = LP_BOOLEAN_NOT_EXISTS;
+				break;
+			case LP_BOOLEAN_NOT_EXISTS:
+				/* This case is not possible because the parser only generates BOOLEAN_EXISTS.
+				 * Never a BOOLEAN_NOT_EXISTS. And we come here in the logical plan before any optimizations occur.
+				 * So the logical plan too can only have LP_BOOLEAN_EXISTS at this point. Never a
+				 * LP_BOOLEAN_NOT_EXISTS. But in case this assumption is no longer true in a future point of time,
+				 * we want to handle this case (as it is easy to do so) and so do it here. But also add an
+				 * assert so we are alerted if/when this happens.
+				 */
+				assert(FALSE);
+				root->type = LP_BOOLEAN_EXISTS;
+				break;
+			case LP_BOOLEAN_IS_NULL:
+				root->type = LP_BOOLEAN_IS_NOT_NULL;
+				break;
+			case LP_BOOLEAN_IS_NOT_NULL:
+				root->type = LP_BOOLEAN_IS_NULL;
 				break;
 			default:
 				// We should never recurse into anything except boolean values

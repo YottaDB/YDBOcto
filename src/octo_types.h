@@ -137,7 +137,9 @@ typedef enum UnaryOperations {
 	NEGATIVE,
 	BOOLEAN_NOT,
 	BOOLEAN_EXISTS,
-	BOOLEAN_NOT_EXISTS	// Not used but needed to be in sync with LP_BOOLEAN_NOT_EXISTS in `lp_action_type.hd`
+	BOOLEAN_NOT_EXISTS,	// Not used but needed to be in sync with LP_BOOLEAN_NOT_EXISTS in `lp_action_type.hd`
+	BOOLEAN_IS_NULL,
+	BOOLEAN_IS_NOT_NULL,
 } UnaryOperations;
 
 // The order of these must be kept in sync with `LPActionType` in `src/optimization_transforms/lp_action_type.hd`
@@ -173,8 +175,6 @@ typedef enum BinaryOperations {
 	BOOLEAN_ALL_GREATER_THAN,
 	BOOLEAN_ALL_LESS_THAN_OR_EQUALS,
 	BOOLEAN_ALL_GREATER_THAN_OR_EQUALS,
-	BOOLEAN_NULL,
-	BOOLEAN_NOT_NULL,
 } BinaryOperations;
 
 typedef enum SqlValueType {

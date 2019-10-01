@@ -76,8 +76,8 @@ if("${FULL_TEST_SUITE}" MATCHES "ON")
 	ADD_BATS_TEST(test_readlines)
 	ADD_BATS_TEST(test_unique_filenames)
 	ADD_BATS_TEST(test_where_in)
-# This test can be added when Octo supports INSERT statements
-#ADD_BATS_TEST(test_insert_from_table)
+	# This test can be added when Octo supports INSERT statements
+	#ADD_BATS_TEST(test_insert_from_table)
 	ADD_BATS_TEST(test_cross_join)
 	ADD_BATS_TEST(test_limit)
 	ADD_BATS_TEST(test_set_operations)
@@ -101,10 +101,12 @@ if("${FULL_TEST_SUITE}" MATCHES "ON")
 	ADD_BATS_TEST(test_query_generator)
 	ADD_BATS_TEST(test_group_by)
 	ADD_BATS_TEST(test_boolean_type)
+	ADD_BATS_TEST(test_null_keyword)
 
 	if(psql)
 		ADD_BATS_TEST(test_psql_connection)
 		ADD_BATS_TEST(test_cancel_request)
+		ADD_BATS_TEST(test_select_columns_psql)
 	endif()
 
 	find_program(go NAMES go)

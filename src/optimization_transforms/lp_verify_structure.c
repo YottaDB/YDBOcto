@@ -271,12 +271,15 @@ int lp_verify_structure_helper(LogicalPlan *plan, LogicalPlan **aggregate, LPAct
 	case LP_BOOLEAN_ALL_GREATER_THAN_OR_EQUALS:
 	case LP_BOOLEAN_EXISTS:
 	case LP_BOOLEAN_NOT_EXISTS:
+	case LP_BOOLEAN_IS_NULL:
+	case LP_BOOLEAN_IS_NOT_NULL:
 	case LP_WHERE:
 		for (i = 0; i < 2; i++) {
 			boolean_t	is_where;
 
 			if ((1 == i) && ((LP_BOOLEAN_NOT == expected) || (LP_BOOLEAN_EXISTS == expected)
-					|| (LP_BOOLEAN_NOT_EXISTS == expected))) {
+					|| (LP_BOOLEAN_NOT_EXISTS == expected)
+					|| (LP_BOOLEAN_IS_NULL == expected) || (LP_BOOLEAN_IS_NOT_NULL == expected))) {
 				ret &= (NULL == plan->v.lp_default.operand[1]);
 				break;
 			}
@@ -342,6 +345,8 @@ int lp_verify_structure_helper(LogicalPlan *plan, LogicalPlan **aggregate, LPAct
 									LP_BOOLEAN_ALL_GREATER_THAN_OR_EQUALS)
 				| lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_BOOLEAN_EXISTS)
 				| lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_BOOLEAN_NOT_EXISTS)
+				| lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_BOOLEAN_IS_NULL)
+				| lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_BOOLEAN_IS_NOT_NULL)
 				// LP_INSERT/LP_SET_OPERATIONs usually show up as operand[1] only for the IN boolean expression.
 				// But they can show up wherever a scalar is expected (e.g. arithmetic operations etc.)
 				// and hence have to be allowed in a lot more cases.

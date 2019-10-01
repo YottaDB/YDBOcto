@@ -26,7 +26,7 @@ TEMPLATE(tmpl_populate_output_key, PhysicalPlan *plan, int dot_count) {
 	dot_count++;
 	TMPL(tmpl_print_dots, dot_count);
 	/* If the plan has an ORDER BY, then we need to fill in the ORDER_BY_SUBSCRIPT node even if the plan is part of
-	 * a sub-query (i.e. plan->stash_columns_in_keys is TRUE) hence the || below. In this case, the actual stashing
+	 * a sub-query (i.e. plan->stash_columns_in_keys is TRUE) hence the "&&" check below. In this case, the actual stashing
 	 * of the columns in keys will happen as part of the final ORDER BY processing in "tmpl_physical_plan".
 	 */
 	stash_columns_in_keys = (plan->stash_columns_in_keys && (NULL == plan->order_by));
@@ -40,7 +40,7 @@ TEMPLATE(tmpl_populate_output_key, PhysicalPlan *plan, int dot_count) {
 		TMPL(tmpl_key, plan->outputKey);
 		(*buffer_index)--;
 		%{},{}%
-		TMPL(tmpl_column_list_combine, plan->projection, plan, ",", 0, 0, 0);
+		TMPL(tmpl_column_list_combine, plan->projection, plan, ",", FALSE, 0, 0, 0);
 		%{})){}%
 	}
 	// If this plan has no ORDER BY, then any LIMIT related processing can happen. Otherwise we need to
@@ -73,7 +73,7 @@ TEMPLATE(tmpl_populate_output_key, PhysicalPlan *plan, int dot_count) {
 		(*buffer_index)--;
 		if (NULL != plan->order_by) {
 			%{},{{ ORDER_BY_SUBSCRIPT }},{}%
-			TMPL(tmpl_column_list_combine, plan->order_by, plan, ",", 0, 0, 0);
+			TMPL(tmpl_column_list_combine, plan->order_by, plan, ",", FALSE, 0, 0, 0);
 			%{},{}%
 			TMPL(tmpl_key, plan->outputKey);
 			%{}){}%
@@ -84,7 +84,14 @@ TEMPLATE(tmpl_populate_output_key, PhysicalPlan *plan, int dot_count) {
 		}
 		end_output_key = *buffer_index;
 		%{}={}%
-		TMPL(tmpl_column_list_combine, plan->projection, plan, "_\"|\"_",
+		/* If ORDER BY and stashing columns into keys (i.e. `plan->stash_columns_in_keys` is TRUE even though
+		 *	`stash_columns_in_keys` is FALSE), do not do `str2mval` transformation as we will keep the column as is
+		 *	for later retrieval from parent query.
+		 * Else (i.e. `plan->stash_columns_in_keys` is FALSE and `stash_columns_in_keys` is FALSE), we do want to do
+		 *	`str2mval` transformation.
+		 * Hence `!plan->stash_columns_in_keys` passed below as the 4th parameter (`str2mval`).
+		 */
+		TMPL(tmpl_column_list_combine, plan->projection, plan, "_", !plan->stash_columns_in_keys,
 					start_output_key, end_output_key - start_output_key, dot_count);
 	}
 	if (!plan->distinct_values) {
@@ -106,7 +113,7 @@ TEMPLATE(tmpl_populate_output_key, PhysicalPlan *plan, int dot_count) {
 		TMPL(tmpl_print_dots, dot_count);
 		%{}SET:1{}%
 		%{} %%ydboctozdistinct({{ plan->outputKey->unique_id|%d }},{}%
-		TMPL(tmpl_column_list_combine, plan->projection, plan, ",", 0, 0, 0);
+		TMPL(tmpl_column_list_combine, plan->projection, plan, ",", FALSE, 0, 0, 0);
 		%{})=""{}%
 	}
 	TEMPLATE_END();

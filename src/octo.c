@@ -23,7 +23,6 @@
 
 #include "octo.h"
 #include "octo_types.h"
-#include "physical_plan.h"
 #include "parser.h"
 #include "lexer.h"
 

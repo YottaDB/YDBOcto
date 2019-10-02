@@ -271,10 +271,11 @@ struct SqlNoDataStatement;
  */
 typedef struct SqlColumn
 {
-	struct SqlStatement *columnName;
-	enum SqlDataType type;
-	struct SqlStatement *table;
-	struct SqlStatement *keywords;
+	struct SqlStatement	*columnName;
+	enum SqlDataType	type;
+	int			column_number;
+	struct SqlStatement	*table;
+	struct SqlStatement	*keywords;
 	dqcreate(SqlColumn);
 } SqlColumn;
 

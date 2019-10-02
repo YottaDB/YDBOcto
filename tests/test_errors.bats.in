@@ -70,7 +70,7 @@ OCTO
 select 1/0 from names;
 select * from names;
 OCTO
-  verify_output TERR004 output.txt noinfo nodebug
   stop_rocto
+  verify_output TERR004 output.txt noinfo nodebug
 }
 

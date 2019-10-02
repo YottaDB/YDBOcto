@@ -23,14 +23,19 @@
  *  ownership up a level
  */
 SqlColumn *column_list_alias_to_columns(SqlTableAlias *table_alias) {
-	SqlColumnListAlias *cla_start, *cla_cur;
-	SqlColumn *start_column = NULL, *cur_column, *t_column;
+	SqlColumnListAlias	*cla_start, *cla_cur;
+	SqlColumn		*start_column = NULL, *cur_column, *t_column;
+	SqlOptionalKeyword	*keyword;
+	SqlStatement		*stmt;
+	int			column_number;
 
 	if(table_alias->column_list == NULL)
 		return NULL;
 	UNPACK_SQL_STATEMENT(cla_start, table_alias->column_list, column_list_alias);
 	cla_cur = cla_start;
+	column_number = 0;
 	do {
+		column_number++;
 		OCTO_CMALLOC_STRUCT(cur_column, SqlColumn);
 		cur_column->table = table_alias->table;
 		cur_column->columnName = cla_cur->alias;
@@ -53,6 +58,12 @@ SqlColumn *column_list_alias_to_columns(SqlTableAlias *table_alias) {
 			ERROR(ERR_FEATURE_NOT_IMPLEMENTED, "");
 			return NULL;
 		}
+		// Initialize COLUMN # field
+		keyword	= add_optional_piece_keyword_to_sql_column(column_number);
+		PACK_SQL_STATEMENT(stmt, keyword, keyword);
+		cur_column->keywords = stmt;
+		cur_column->column_number = column_number;
+		// Initialize remaining fields
 		dqinit(cur_column);
 		if(start_column == NULL) {
 			start_column = cur_column;

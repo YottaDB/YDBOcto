@@ -41,16 +41,14 @@ void compress_statement(SqlStatement *stmt, char **out, int *out_length) {
  * If the out buffer is NULL, doesn't copy the statement, but just counts size
  */
 void *compress_statement_helper(SqlStatement *stmt, char *out, int *out_length) {
-	SqlStatement *new_stmt;
-	SqlTable *table, *new_table;
-	SqlColumn *cur_column, *start_column, *new_column;
-	SqlColumnList *cur_column_list, *start_column_list;
-	SqlColumnListAlias *start_cla, *cur_cla;
-	SqlJoin *cur_join, *start_join;
-	SqlValue *value, *new_value;
-	SqlOptionalKeyword *start_keyword, *cur_keyword, *new_keyword;
-	void *r, *ret;
-	int len;
+	SqlColumn		*cur_column, *start_column, *new_column;
+	SqlOptionalKeyword	*start_keyword, *cur_keyword, *new_keyword;
+	SqlStatement		*new_stmt;
+	SqlTable		*table, *new_table;
+	SqlValue		*value, *new_value;
+	int			len;
+	void			*r, *ret;
+
 	if(stmt == NULL)
 		return NULL;
 	if(stmt->v.value == NULL)
@@ -105,15 +103,6 @@ void *compress_statement_helper(SqlStatement *stmt, char *out, int *out_length) 
 			break;
 		}
 		break;
-	case column_list_STATEMENT:
-		UNPACK_SQL_STATEMENT(start_column_list, stmt, column_list);
-		if(start_column_list) {
-			cur_column_list = start_column_list;
-			do {
-				cur_column_list = cur_column_list->next;
-			} while(cur_column_list != start_column_list);
-		}
-		break;
 	case column_STATEMENT:
 		UNPACK_SQL_STATEMENT(cur_column, stmt, column);
 		start_column = cur_column;
@@ -136,12 +125,6 @@ void *compress_statement_helper(SqlStatement *stmt, char *out, int *out_length) 
 			}
 		} while(cur_column != start_column);
 		break;
-	case join_STATEMENT:
-		UNPACK_SQL_STATEMENT(start_join, stmt, join);
-		do {
-			cur_join = cur_join->next;
-		} while(cur_join != start_join);
-		break;
 	case keyword_STATEMENT:
 		UNPACK_SQL_STATEMENT(start_keyword, stmt, keyword);
 		cur_keyword = start_keyword;
@@ -160,43 +143,11 @@ void *compress_statement_helper(SqlStatement *stmt, char *out, int *out_length) 
 			}
 		} while(cur_keyword != start_keyword);
 		break;
-	case column_list_alias_STATEMENT:
-		UNPACK_SQL_STATEMENT(start_cla, stmt, column_list_alias);
-		cur_cla = start_cla;
-		if(cur_cla == NULL)
-			break;
-		do {
-			cur_cla = cur_cla->next;
-		} while(cur_cla != start_cla);
-		break;
-	case begin_STATEMENT:
-	case binary_STATEMENT:
-	case cas_STATEMENT:
-	case cas_branch_STATEMENT:
-	case column_alias_STATEMENT:
-	case commit_STATEMENT:
-	case constraint_STATEMENT:
-	case constraint_type_STATEMENT:
-	case data_type_STATEMENT:
-	case drop_STATEMENT:
-	case function_call_STATEMENT:
-	case insert_STATEMENT:
-	case join_type_STATEMENT:
-	case no_data_STATEMENT:
-	case select_STATEMENT:
-	case set_STATEMENT:
-	case set_operation_STATEMENT:
-	case show_STATEMENT:
-	case sort_spec_list_STATEMENT:
-	case table_alias_STATEMENT:
-	case unary_STATEMENT:
-		assert(stmt->type != unary_STATEMENT);
+	default:
+		assert(FALSE);
 		FATAL(ERR_UNKNOWN_KEYWORD_STATE, "");
-		break;
-	case invalid_STATEMENT:
-		assert(stmt->type != invalid_STATEMENT);
+		return NULL;
 		break;
 	}
 	return ret;
 }
-

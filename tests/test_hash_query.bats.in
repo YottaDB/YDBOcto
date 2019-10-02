@@ -39,3 +39,38 @@ OCTO
   [[ $(ls -l _ydboctoP*.m | wc -l) -eq 2 ]]
 }
 
+@test "THQ03 : OCTO329 : Test queries with different SELECT COLUMN LISTs do not hash to same plan name" {
+  $ydb_dist/mumps -run ^%XCMD 'set ^T1(0,1,2)="0|1|2"'
+  cat <<CAT_EOF > input.sql
+CREATE TABLE t1(a INTEGER, b INTEGER, c INTEGER);
+SELECT a+b+c+a from t1;
+SELECT a+b+c+b from t1;
+SELECT a+b+c+c from t1;
+SELECT a+b+c-a from t1;
+SELECT a+b+c-b from t1;
+SELECT a+b+c-c from t1;
+SELECT a+b-c+a from t1;
+SELECT a+b-c+b from t1;
+SELECT a+b-c+c from t1;
+SELECT a-b+c+a from t1;
+SELECT a-b+c+b from t1;
+SELECT a-b+c+c from t1;
+SELECT a-b-c+a from t1;
+SELECT a-b-c+b from t1;
+SELECT a-b-c+c from t1;
+SELECT a-b+c-a from t1;
+SELECT a-b+c-b from t1;
+SELECT a-b+c-c from t1;
+SELECT a+b-c-a from t1;
+SELECT a+b-c-b from t1;
+SELECT a+b-c-c from t1;
+SELECT a-b-c-a from t1;
+SELECT a-b-c-b from t1;
+SELECT a-b-c-c from t1;
+CAT_EOF
+  octo -f input.sql > output.txt 2>&1
+  verify_output THQ03 output.txt noinfo nodebug
+  # Verify that each of the above queries generates a unique plan by checking for 24 plans below
+  [[ $(ls -l _ydboctoP*.m | wc -l) -eq 24 ]]
+}
+

@@ -188,19 +188,19 @@ sql_statement
            ERROR(ERR_ROCTO_NO_SCHEMA, NULL);
            YYABORT;
       }
-      *out = $1;
+      *out = $sql_schema_statement;
       YYACCEPT;
     }
-  | sql_data_statement semicolon_or_eof { *out = $1; YYACCEPT; }
+  | sql_data_statement semicolon_or_eof { *out = $sql_data_statement; YYACCEPT; }
   | query_expression semicolon_or_eof {
-      if(qualify_query($1, NULL)) {
+      if(qualify_query($query_expression, NULL)) {
           YYABORT;
       }
       SqlValueType type;
-      if(populate_data_type($1, &type)) {
+      if(populate_data_type($query_expression, &type)) {
           YYABORT;
       }
-      *out = $1; YYACCEPT;
+      *out = $query_expression; YYACCEPT;
     }
   | BEG semicolon_or_eof {
       // For now, we don't do transaction, so just say OK to this word
@@ -212,7 +212,7 @@ sql_statement
       YYACCEPT;
     }
   | error semicolon_or_eof { *out = NULL; YYABORT; }
-  | sql_set_statement semicolon_or_eof { *out = $1; YYACCEPT; }
+  | sql_set_statement semicolon_or_eof { *out = $sql_set_statement; YYACCEPT; }
   | semicolon_or_eof {
       SQL_STATEMENT(*out, no_data_STATEMENT);
       YYACCEPT;
@@ -241,7 +241,7 @@ exit_command
 %include "parser/set.y"
 
 sql_data_statement
-  : sql_data_change_statement { $$ = $1; }
+  : sql_data_change_statement { $$ = $sql_data_change_statement; }
 //  | open_statement
 //  | fetch_statement
 //  | close_statement
@@ -250,11 +250,11 @@ sql_data_statement
 
 sql_data_change_statement
 
-  : delete_statement_searched { $$ = $1; }
+  : delete_statement_searched { $$ = $delete_statement_searched; }
 //  | delete_statement_position
-  | insert_statement { $$ = $1; }
+  | insert_statement { $$ = $insert_statement; }
 //  | update_statement_positioned
-  | update_statement_searched { $$ = $1; }
+  | update_statement_searched { $$ = $update_statement_searched; }
   ;
 
 delete_statement_searched
@@ -273,7 +273,7 @@ search_condition
       MALLOC_STATEMENT($$, binary, SqlBinaryOperation);
       ($$)->v.binary->operation = BOOLEAN_OR;
       ($$)->v.binary->operands[0] = ($1);
-      ($$)->v.binary->operands[1] = ($3);
+      ($$)->v.binary->operands[1] = ($boolean_term);
     }
   | row_value_constructor OR boolean_term {
       // This is a special form where the column is assumed to be a boolean
@@ -329,7 +329,7 @@ boolean_term
       MALLOC_STATEMENT($$, binary, SqlBinaryOperation);
       ($$)->v.binary->operation = BOOLEAN_AND;
       ($$)->v.binary->operands[0] = ($1);
-      ($$)->v.binary->operands[1] = ($3);
+      ($$)->v.binary->operands[1] = ($boolean_factor);
     }
   | row_value_constructor AND boolean_factor {
       // This is a special form where the column is assumed to be a boolean
@@ -380,12 +380,12 @@ boolean_term
   ;
 
 boolean_factor
-  : boolean_test { $$ = $1; }
+  : boolean_test { $$ = $boolean_test; }
   | NOT boolean_test {
       SQL_STATEMENT($$, unary_STATEMENT);
       MALLOC_STATEMENT($$, unary, SqlUnaryOperation);
       ($$)->v.unary->operation = BOOLEAN_NOT;
-      ($$)->v.unary->operand = ($2);
+      ($$)->v.unary->operand = ($boolean_test);
     }
   | NOT row_value_constructor {
       // This is a special form where the column is assumed to be a boolean
@@ -417,8 +417,8 @@ boolean_test
         SQL_STATEMENT($$, binary_STATEMENT);
         MALLOC_STATEMENT($$, binary, SqlBinaryOperation);
         ($$)->v.binary->operation = BOOLEAN_IS;
-        ($$)->v.binary->operands[0] = ($1);
-        ($$)->v.binary->operands[1] = ($2);
+        ($$)->v.binary->operands[0] = ($boolean_primary);
+        ($$)->v.binary->operands[1] = ($boolean_test_tail);
       } else {
         $$ = $boolean_primary;
       }
@@ -431,7 +431,7 @@ boolean_test_tail
   ;
 
 boolean_test_tail_tail
-  : truth_value { $$ = $1; }
+  : truth_value { $$ = $boolean_test_tail_tail; }
   | NOT truth_value { WARNING(ERR_FEATURE_NOT_IMPLEMENTED, "boolean_test_tail_tail: NOT truth_value"); YYABORT; }
   ;
 
@@ -458,11 +458,11 @@ boolean_primary
   ;
 
 predicate
-  : comparison_predicate { $$ = $1; }
+  : comparison_predicate { $$ = $comparison_predicate; }
   | between_predicate
-  | in_predicate { $$ = $1; }
+  | in_predicate { $$ = $in_predicate; }
 //  | like_predicate
-  | null_predicate { $$ = $1; }
+  | null_predicate { $$ = $null_predicate; }
 //  | quantified_comparison_predicate
   | exists_predicate
 //  | match_predicate
@@ -599,26 +599,26 @@ in_predicate
       SQL_STATEMENT($$, binary_STATEMENT);
       MALLOC_STATEMENT($$, binary, SqlBinaryOperation);
       ($$)->v.binary->operation = BOOLEAN_IN;
-      ($$)->v.binary->operands[0] = ($1);
-      ($$)->v.binary->operands[1] = ($3);
+      ($$)->v.binary->operands[0] = ($row_value_constructor);
+      ($$)->v.binary->operands[1] = ($in_predicate_value);
     }
   | row_value_constructor NOT IN in_predicate_value {
       SQL_STATEMENT($$, binary_STATEMENT);
       MALLOC_STATEMENT($$, binary, SqlBinaryOperation);
       ($$)->v.binary->operation = BOOLEAN_NOT_IN;
-      ($$)->v.binary->operands[0] = ($1);
-      ($$)->v.binary->operands[1] = ($4);
+      ($$)->v.binary->operands[0] = ($row_value_constructor);
+      ($$)->v.binary->operands[1] = ($in_predicate_value);
     }
   ;
 
 /// TODO: these require additional structures in octo_types.h
 in_predicate_value
-  : table_subquery { $$ = $1; }
+  : table_subquery { $$ = $table_subquery; }
   | LEFT_PAREN in_value_list RIGHT_PAREN { $$ = $in_value_list; }
   ;
 
 table_subquery
-  : subquery { $$ = $1; }
+  : subquery { $$ = $subquery; }
   ;
 
 in_value_list
@@ -665,7 +665,7 @@ null_predicate
       SQL_STATEMENT($$, binary_STATEMENT);
       MALLOC_STATEMENT($$, binary, SqlBinaryOperation);
       ($$)->v.binary->operation = BOOLEAN_EQUALS;
-      ($$)->v.binary->operands[0] = ($1);
+      ($$)->v.binary->operands[0] = ($row_value_constructor);
       SQL_STATEMENT(($$)->v.binary->operands[1], value_STATEMENT);
       MALLOC_STATEMENT(($$)->v.binary->operands[1], value, SqlValue);
       ($$)->v.binary->operands[1]->v.value->type = NUL_VALUE;
@@ -675,7 +675,7 @@ null_predicate
       SQL_STATEMENT($$, binary_STATEMENT);
       MALLOC_STATEMENT($$, binary, SqlBinaryOperation);
       ($$)->v.binary->operation = BOOLEAN_NOT_EQUALS;
-      ($$)->v.binary->operands[0] = ($1);
+      ($$)->v.binary->operands[0] = ($row_value_constructor);
       SQL_STATEMENT(($$)->v.binary->operands[1], value_STATEMENT);
       MALLOC_STATEMENT(($$)->v.binary->operands[1], value, SqlValue);
       ($$)->v.binary->operands[1]->v.value->type = NUL_VALUE;
@@ -689,38 +689,38 @@ exists_predicate
   ;
 
 row_value_constructor
-  : LEFT_PAREN row_value_constructor_list RIGHT_PAREN { $$ = $2; }
-  | row_value_constructor_element { $$ = $1; }
+  : LEFT_PAREN row_value_constructor_list RIGHT_PAREN { $$ = $row_value_constructor_list; }
+  | row_value_constructor_element { $$ = $row_value_constructor_element; }
   ;
 
 row_value_constructor_subquery
-  : query_expression { $$ = $1; }
+  : query_expression { $$ = $query_expression; }
   ;
 
 row_value_constructor_list
   : row_value_constructor_element row_value_constructor_list_tail { WARNING(ERR_FEATURE_NOT_IMPLEMENTED, "row_value_constructor_list: element/list_tail"); YYABORT; }
-  | row_value_constructor_subquery { $$ = $1; }
+  | row_value_constructor_subquery { $$ = $row_value_constructor_subquery; }
   ;
 
 row_value_constructor_list_tail
   : /* Empty */ { $$ = NULL; }
-  | COMMA row_value_constructor_list { $$ = $2; }
+  | COMMA row_value_constructor_list { $$ = $row_value_constructor_list; }
   ;
 
 row_value_constructor_element
-  : value_expression { $$ = $1; }
-  | default_specification { $$ = $1; }
+  : value_expression { $$ = $value_expression; }
+  | default_specification { $$ = $default_specification; }
   ;
 
 /* The runtime system is responsible for ensuring
     types, as we need knowledge of column types
 */
 value_expression
-  : numeric_value_expression { $$ = $1; }
+  : numeric_value_expression { $$ = $numeric_value_expression; }
   // WARNING: if this is enabled, we have to revisit the boolean logic to seperate
   // terms into UNION ALL terms
-//  | boolean_term { $$ = $1; }
-  | null_specification { $$ = $1; }
+//  | boolean_term { $$ = $boolean_term; }
+  | null_specification { $$ = $null_specification; }
 //  | datetime_value_expression
 //  | interval_expression
   ;
@@ -739,20 +739,20 @@ default_specification
   ;
 
 numeric_value_expression
-  : term { $$ = $1; }
+  : term { $$ = $term; }
   | numeric_value_expression PLUS term {
       SQL_STATEMENT($$, binary_STATEMENT);
       MALLOC_STATEMENT($$, binary, SqlBinaryOperation);
       ($$)->v.binary->operation = ADDITION;
       ($$)->v.binary->operands[0] = ($1);
-      ($$)->v.binary->operands[1] = ($3);
+      ($$)->v.binary->operands[1] = ($term);
     }
   | numeric_value_expression MINUS term {
       SQL_STATEMENT($$, binary_STATEMENT);
       MALLOC_STATEMENT($$, binary, SqlBinaryOperation);
       ($$)->v.binary->operation = SUBTRACTION;
       ($$)->v.binary->operands[0] = ($1);
-      ($$)->v.binary->operands[1] = ($3);
+      ($$)->v.binary->operands[1] = ($term);
     }
   | numeric_value_expression OVER partition_by_clause {
       WARNING(ERR_FEATURE_NOT_IMPLEMENTED, "OVER not implemented, just returning columns");
@@ -761,27 +761,27 @@ numeric_value_expression
   ;
 
 term
-  : factor { $$ = $1; }
+  : factor { $$ = $factor; }
   | term ASTERISK factor {
       SQL_STATEMENT($$, binary_STATEMENT);
       MALLOC_STATEMENT($$, binary, SqlBinaryOperation);
       ($$)->v.binary->operation = MULTIPLICATION;
       ($$)->v.binary->operands[0] = ($1);
-      ($$)->v.binary->operands[1] = ($3);
+      ($$)->v.binary->operands[1] = ($factor);
     }
   | term SOLIDUS factor {
       SQL_STATEMENT($$, binary_STATEMENT);
       MALLOC_STATEMENT($$, binary, SqlBinaryOperation);
       ($$)->v.binary->operation = DVISION;
       ($$)->v.binary->operands[0] = ($1);
-      ($$)->v.binary->operands[1] = ($3);
+      ($$)->v.binary->operands[1] = ($factor);
     }
   | term concatenation_operator factor {
       SQL_STATEMENT($$, binary_STATEMENT);
       MALLOC_STATEMENT($$, binary, SqlBinaryOperation);
       ($$)->v.binary->operation = CONCAT;
       ($$)->v.binary->operands[0] = ($1);
-      ($$)->v.binary->operands[1] = ($3);
+      ($$)->v.binary->operands[1] = ($factor);
     }
   ;
 
@@ -795,33 +795,33 @@ factor
       SQL_STATEMENT($$, unary_STATEMENT);
       MALLOC_STATEMENT($$, unary, SqlUnaryOperation);
       ($$)->v.unary->operation = FORCE_NUM;
-      ($$)->v.unary->operand = ($2);
+      ($$)->v.unary->operand = ($numeric_primary);
     }
   | MINUS numeric_primary factor_tail {
       SQL_STATEMENT($$, unary_STATEMENT);
       MALLOC_STATEMENT($$, unary, SqlUnaryOperation);
       ($$)->v.unary->operation = NEGATIVE;
-      ($$)->v.unary->operand = ($2);
+      ($$)->v.unary->operand = ($numeric_primary);
     }
-  | numeric_primary factor_tail { $$ = $1; }
+  | numeric_primary factor_tail { $$ = $numeric_primary; }
   ;
 
 factor_tail
   : /* Empty */ { $$ = NULL; }
-  | collate_clause { $$ = $1; }
+  | collate_clause { $$ = $collate_clause; }
   ;
 
 collate_clause
-  : COLLATE collation_name { WARNING(ERR_FEATURE_NOT_IMPLEMENTED, "COLLATE clause"); $$ = $2; }
+  : COLLATE collation_name { WARNING(ERR_FEATURE_NOT_IMPLEMENTED, "COLLATE clause"); $$ = $collation_name; }
   ;
 
 collation_name
-  : qualified_name { $$ = $1; }
+  : qualified_name { $$ = $qualified_name; }
   ;
 
 numeric_primary
   : value_expression_primary optional_subscript optional_cast_specification {
-      $$ = $1;
+      $$ = $value_expression_primary;
       if($optional_cast_specification != NULL) {
           // For now, we support a subset of types. More shall be added as needed
           SqlValue *value;
@@ -866,12 +866,12 @@ numeric_primary
  *  or strings; the expansion ends up being pretty similar
  */
 value_expression_primary
-  : literal_value { $$ = $1; }
-  | column_reference { $$ = $1; }
-  | set_function_specification { $$ = $1; }
-  | scalar_subquery { $$ = $1; }
-  | case_expression { $$ = $1; }
-  | LEFT_PAREN value_expression RIGHT_PAREN { $$ = $2; }
+  : literal_value { $$ = $literal_value; }
+  | column_reference { $$ = $column_reference; }
+  | set_function_specification { $$ = $set_function_specification; }
+  | scalar_subquery { $$ = $scalar_subquery; }
+  | case_expression { $$ = $case_expression; }
+  | LEFT_PAREN value_expression RIGHT_PAREN { $$ = $value_expression; }
 //  | cast_specification
   ;
 
@@ -901,12 +901,12 @@ optional_cast_specification
   ;
 
 case_expression
-  : case_specification { $$ = $1; }
+  : case_specification { $$ = $case_specification; }
 //  | case_abbreviation
   ;
 
 case_specification
-  : simple_case { $$ = $1; }
+  : simple_case { $$ = $simple_case; }
 //  | searched_case
   ;
 
@@ -971,7 +971,7 @@ simple_when_clause
 
 simple_when_clause_tail
   : /* None */ { $$ = NULL; }
-  | simple_when_clause { $$ = $1; }
+  | simple_when_clause { $$ = $simple_when_clause; }
   ;
 
 optional_else_clause
@@ -980,7 +980,7 @@ optional_else_clause
   ;
 
 result
-  : value_expression { $$ = $1; }
+  : value_expression { $$ = $value_expression; }
   ;
 
 
@@ -999,8 +999,8 @@ set_function_specification
       $$->v.value->type = UNKNOWN_SqlValueType;
       $$->v.value->v.string_literal = "0";
     }
-  | general_set_function { $$ = $1; }
-  | generic_function_call { $$ = $1; }
+  | general_set_function { $$ = $general_set_function; }
+  | generic_function_call { $$ = $generic_function_call; }
   ;
 
 general_set_function
@@ -1063,28 +1063,28 @@ column_reference
       *c++ = '\0';
       qual->v.string_literal = new_string;
     }
-  | column_name { $$ = $1; }
+  | column_name { $$ = $column_name; }
   ;
 
 qualifier
-  : column_name { $$ = $1; }
+  : column_name { $$ = $column_name; }
   ;
 
 scalar_subquery
-  : subquery { $$ = $1; }
+  : subquery { $$ = $subquery; }
   ;
 
 subquery
-  : LEFT_PAREN query_expression RIGHT_PAREN { $$ = $2; }
+  : LEFT_PAREN query_expression RIGHT_PAREN { $$ = $query_expression; }
   ;
 
 query_expression
-  : non_join_query_expression { $$ = $1; }
-  | joined_table { $$ = $1; }
+  : non_join_query_expression { $$ = $non_join_query_expression; }
+  | joined_table { $$ = $joined_table; }
   ;
 
 non_join_query_expression
-  : non_join_query_term { $$ = $1; }
+  : non_join_query_term { $$ = $non_join_query_term; }
   | query_expression UNION query_term non_join_query_expression_tail_tail {
         SqlSetOperation *set_operation;
         SQL_STATEMENT($$, set_operation_STATEMENT);
@@ -1134,7 +1134,7 @@ non_join_query_expression_tail_tail_tail
   ;
 
 corresponding_column_list
-  : column_name_list { $$ = $1; }
+  : column_name_list { $$ = $column_name_list; }
   ;
 
 column_name_list
@@ -1143,16 +1143,16 @@ column_name_list
 
 column_name_list_tail
   : /* Empty */ { $$ = NULL; }
-  | COMMA column_name_list { $$ = $2; }
+  | COMMA column_name_list { $$ = $column_name_list; }
   ;
 
 query_term
-  : non_join_query_term { $$ = $1; }
-  | joined_table { $$ = $1; }
+  : non_join_query_term { $$ = $non_join_query_term; }
+  | joined_table { $$ = $joined_table; }
   ;
 
 non_join_query_term
-  : non_join_query_primary {$$ = $1; }
+  : non_join_query_primary {$$ = $non_join_query_primary; }
   | query_term INTERSECT corresponding_spec query_primary {
         SqlSetOperation *set_operation;
         SQL_STATEMENT($$, set_operation_STATEMENT);
@@ -1183,18 +1183,18 @@ corresponding_spec_tail
   ;
 
 non_join_query_primary
-  : simple_table {$$ = $1; }
-  | LEFT_PAREN non_join_query_expression RIGHT_PAREN { $$ = $2; }
+  : simple_table {$$ = $simple_table; }
+  | LEFT_PAREN non_join_query_expression RIGHT_PAREN { $$ = $non_join_query_expression; }
   ;
 
 simple_table
   : table_value_constructor { WARNING(ERR_FEATURE_NOT_IMPLEMENTED, "table_value_constructor"); YYABORT; }
   | explicit_table { WARNING(ERR_FEATURE_NOT_IMPLEMENTED, "explicit_table"); YYABORT; }
-  | sql_select_statement { $$ = $1; }
+  | sql_select_statement { $$ = $sql_select_statement; }
   ;
 
 table_value_constructor
-  : VALUES table_value_constructor_list { $$ = $2; }
+  : VALUES table_value_constructor_list { $$ = $table_value_constructor_list; }
   ;
 
 table_value_constructor_list
@@ -1203,7 +1203,7 @@ table_value_constructor_list
 
 table_value_constructor_list_tail
   : /* Empty */ { $$ = NULL; }
-  | COMMA table_value_constructor_list { $$ = $2; }
+  | COMMA table_value_constructor_list { $$ = $table_value_constructor_list; }
   ;
 
 explicit_table
@@ -1211,22 +1211,22 @@ explicit_table
   ;
 
 query_primary
-  : non_join_query_primary { $$ = $1;}
-  | joined_table { $$ = $1;}
+  : non_join_query_primary { $$ = $non_join_query_primary;}
+  | joined_table { $$ = $joined_table;}
   ;
 
 sql_schema_statement
-  : sql_schema_definition_statement { $$ = $1; }
-  | sql_schema_manipulation_statement { $$ = $1;}
+  : sql_schema_definition_statement { $$ = $sql_schema_definition_statement; }
+  | sql_schema_manipulation_statement { $$ = $sql_schema_manipulation_statement;}
   ;
 
 /// TODO: not complete
 sql_schema_manipulation_statement
-  : drop_table_statement { $$ = $1; }
+  : drop_table_statement { $$ = $drop_table_statement; }
   ;
 
 sql_schema_definition_statement
-  : table_definition { $$ = $1; }
+  : table_definition { $$ = $table_definition; }
   ;
 
 /// TODO: not complete
@@ -1254,7 +1254,7 @@ table_definition_tail
       ($$)->v.keyword->v = NULL;
       dqinit(($$)->v.keyword);
     }
-  | optional_keyword { $$ = $1; }
+  | optional_keyword { $$ = $optional_keyword; }
   ;
 
 optional_keyword
@@ -1271,14 +1271,14 @@ optional_keyword_element
       SQL_STATEMENT($$, keyword_STATEMENT);
       MALLOC_STATEMENT($$, keyword, SqlOptionalKeyword);
       ($$)->v.keyword->keyword = OPTIONAL_SOURCE;
-      ($$)->v.keyword->v = $2;
+      ($$)->v.keyword->v = $literal_value;
       dqinit(($$)->v.keyword);
     }
   | DELIM literal_value {
        SQL_STATEMENT($$, keyword_STATEMENT);
         MALLOC_STATEMENT($$, keyword, SqlOptionalKeyword);
        ($$)->v.keyword->keyword = OPTIONAL_DELIM;
-       ($$)->v.keyword->v = $2;
+       ($$)->v.keyword->v = $literal_value;
        dqinit(($$)->v.keyword);
      }
   ;
@@ -1313,7 +1313,7 @@ table_element_list_tail
   ;
 
 table_element
-  : column_definition { $$ = $1; }
+  : column_definition { $$ = $column_definition; }
 //  | table_constraint_definition
   ;
 
@@ -1332,7 +1332,7 @@ column_definition
   ;
 
 column_name
-  : identifier { $$ = $1; }
+  : identifier { $$ = $identifier; }
   | LITERAL PERIOD LITERAL {
       SQL_STATEMENT($$, value_STATEMENT);
       MALLOC_STATEMENT($$, value, SqlValue);
@@ -1373,7 +1373,7 @@ column_definition_tail
        SQL_STATEMENT($$, keyword_STATEMENT);
        MALLOC_STATEMENT($$, keyword, SqlOptionalKeyword);
        ($$)->v.keyword->keyword = OPTIONAL_EXTRACT;
-       ($$)->v.keyword->v = $2;
+       ($$)->v.keyword->v = $literal_value;
        dqinit(($$)->v.keyword);
 
        SqlOptionalKeyword *keyword, *t_keyword;
@@ -1381,13 +1381,15 @@ column_definition_tail
        dqinsert(keyword, ($$)->v.keyword, t_keyword);
     }
   | PIECE literal_value column_definition_tail {
+       SqlOptionalKeyword *keyword, *t_keyword;
+
        SQL_STATEMENT($$, keyword_STATEMENT);
        MALLOC_STATEMENT($$, keyword, SqlOptionalKeyword);
-       ($$)->v.keyword->keyword = OPTIONAL_PIECE;
-       ($$)->v.keyword->v = $2;
+       keyword = $$->v.keyword;
+       keyword->keyword = OPTIONAL_PIECE;
+       keyword->v = $literal_value;
        dqinit(($$)->v.keyword);
 
-       SqlOptionalKeyword *keyword, *t_keyword;
        UNPACK_SQL_STATEMENT(keyword, $3, keyword);
        dqinsert(keyword, ($$)->v.keyword, t_keyword);
     }
@@ -1395,7 +1397,7 @@ column_definition_tail
        SQL_STATEMENT($$, keyword_STATEMENT);
        MALLOC_STATEMENT($$, keyword, SqlOptionalKeyword);
        ($$)->v.keyword->keyword = OPTIONAL_DELIM;
-       ($$)->v.keyword->v = $2;
+       ($$)->v.keyword->v = $literal_value;
        dqinit(($$)->v.keyword);
 
        SqlOptionalKeyword *keyword, *t_keyword;
@@ -1406,7 +1408,7 @@ column_definition_tail
        SQL_STATEMENT($$, keyword_STATEMENT);
        MALLOC_STATEMENT($$, keyword, SqlOptionalKeyword);
        ($$)->v.keyword->keyword = OPTIONAL_SOURCE;
-       ($$)->v.keyword->v = $2;
+       ($$)->v.keyword->v = $literal_value;
        dqinit(($$)->v.keyword);
 
        SqlOptionalKeyword *keyword, *t_keyword;
@@ -1417,7 +1419,7 @@ column_definition_tail
        SQL_STATEMENT($$, keyword_STATEMENT);
        MALLOC_STATEMENT($$, keyword, SqlOptionalKeyword);
        ($$)->v.keyword->keyword = OPTIONAL_KEY_NUM;
-       ($$)->v.keyword->v = $3;
+       ($$)->v.keyword->v = $literal_value;
        dqinit(($$)->v.keyword);
 
        SqlOptionalKeyword *keyword, *t_keyword;
@@ -1428,7 +1430,7 @@ column_definition_tail
        SQL_STATEMENT($$, keyword_STATEMENT);
        MALLOC_STATEMENT($$, keyword, SqlOptionalKeyword);
        ($$)->v.keyword->keyword = OPTIONAL_ADVANCE;
-       ($$)->v.keyword->v = $2;
+       ($$)->v.keyword->v = $literal_value;
        dqinit(($$)->v.keyword);
 
        SqlOptionalKeyword *keyword, *t_keyword;
@@ -1439,7 +1441,7 @@ column_definition_tail
        SQL_STATEMENT($$, keyword_STATEMENT);
        MALLOC_STATEMENT($$, keyword, SqlOptionalKeyword);
        ($$)->v.keyword->keyword = OPTIONAL_START;
-       ($$)->v.keyword->v = $2;
+       ($$)->v.keyword->v = $literal_value;
        dqinit(($$)->v.keyword);
 
        SqlOptionalKeyword *keyword, *t_keyword;
@@ -1450,7 +1452,7 @@ column_definition_tail
        SQL_STATEMENT($$, keyword_STATEMENT);
        MALLOC_STATEMENT($$, keyword, SqlOptionalKeyword);
        ($$)->v.keyword->keyword = OPTIONAL_END;
-       ($$)->v.keyword->v = $2;
+       ($$)->v.keyword->v = $literal_value;
        dqinit(($$)->v.keyword);
 
        SqlOptionalKeyword *keyword, *t_keyword;
@@ -1484,7 +1486,7 @@ column_constraint
       ($$)->v.keyword->keyword = NOT_NULL;
       dqinit(($$)->v.keyword);
     }
-  | unique_specifications { $$ = $1; }
+  | unique_specifications { $$ = $unique_specifications; }
 //  | reference_specifications
 //  | check_constraint_definition
   ;
@@ -1510,30 +1512,30 @@ constraint_attributes
   ;
 
 qualified_name
-  : qualified_identifier { $$ = $1; }
+  : qualified_identifier { $$ = $qualified_identifier; }
 //  | schema_name period qualified_identifier
   ;
 
 qualified_identifier
-  : identifier { $$ = $1; }
+  : identifier { $$ = $identifier; }
   ;
 
 identifier
-  : actual_identifier { $$ = $1; }
+  : actual_identifier { $$ = $actual_identifier; }
 //  | introducer character_set_specification actual_identifier
   ;
 
 actual_identifier
-  : regular_identifier { $$ = $1; }
+  : regular_identifier { $$ = $regular_identifier; }
 //  | delimited_identifier
   ;
 
 regular_identifier
-  : identifier_body { $$ = $1; }
+  : identifier_body { $$ = $identifier_body; }
   ;
 
 identifier_body
-  : IDENTIFIER_START { $$ = $1; ($$)->loc =  yyloc; }
+  : IDENTIFIER_START { $$ = $IDENTIFIER_START; ($$)->loc =  yyloc; }
   | EXTRINSIC_FUNCTION {
        if (config->is_rocto) {
           ERROR(ERR_ROCTO_M_CALL, NULL);
@@ -1542,7 +1544,7 @@ identifier_body
            */
           YYERROR;
        } else {
-          $$ = $1;
+          $$ = $EXTRINSIC_FUNCTION;
           ($$)->loc = yyloc;
        }
     }
@@ -1572,31 +1574,31 @@ data_type
 
 // These should be implemented as constraints
 character_string_type
-  : CHARACTER character_string_type_char_tail { $$ = $2; }
-  | CHAR character_string_type_char_tail { $$ = $2; }
-  | CHARACTER VARYING character_string_type_char_tail { $$ = $2; }
-  | CHAR VARYING character_string_type_char_tail { $$ = $2; }
-  | VARCHAR character_string_type_char_tail { $$ = $2; }
+  : CHARACTER character_string_type_char_tail { $$ = $character_string_type_char_tail; }
+  | CHAR character_string_type_char_tail { $$ = $character_string_type_char_tail; }
+  | CHARACTER VARYING character_string_type_char_tail { $$ = $character_string_type_char_tail; }
+  | CHAR VARYING character_string_type_char_tail { $$ = $character_string_type_char_tail; }
+  | VARCHAR character_string_type_char_tail { $$ = $character_string_type_char_tail; }
   ;
 
 character_string_type_char_tail
   : /* Empty */ { $$ = NULL; }
-  | LEFT_PAREN length RIGHT_PAREN { $$ = $2; }
+  | LEFT_PAREN length RIGHT_PAREN { $$ = $length; }
   ;
 
 length
-  : literal_value { $$ = $1; }
+  : literal_value { $$ = $literal_value; }
   ;
 
 numeric_type
-  : exact_numeric_type { $$ = $1; }
+  : exact_numeric_type { $$ = $exact_numeric_type; }
 //  | approximate_numeric_type
   ;
 
 exact_numeric_type
-  : NUMERIC exact_numeric_type_tail { $$ = $2; }
-  | DECIMAL exact_numeric_type_tail { $$ = $2; }
-  | DEC exact_numeric_type_tail { $$ = $2; }
+  : NUMERIC exact_numeric_type_tail { $$ = $exact_numeric_type_tail; }
+  | DECIMAL exact_numeric_type_tail { $$ = $exact_numeric_type_tail; }
+  | DEC exact_numeric_type_tail { $$ = $exact_numeric_type_tail; }
 
 integer_type
   : INTEGER { $$ = NULL; }
@@ -1615,19 +1617,19 @@ exact_numeric_type_tail
 
 exact_numeric_type_tail_tail
   : /* Empty */ { $$ = NULL; }
-  | COMMA scale { $$ = $2; }
+  | COMMA scale { $$ = $scale; }
   ;
 
 precision
-  : literal_value { $$ = $1; }
+  : literal_value { $$ = $literal_value; }
   ;
 
 scale
-  : literal_value { $$ = $1; }
+  : literal_value { $$ = $literal_value; }
   ;
 
 literal_value
-  : LITERAL { $$ = $1; ($$)->loc = yyloc; }
+  : LITERAL { $$ = $LITERAL; ($$)->loc = yyloc; }
 
 partition_by_clause
   : LEFT_PAREN PARTITION BY column_reference optional_order_by RIGHT_PAREN {

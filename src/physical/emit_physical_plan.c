@@ -117,7 +117,7 @@ int emit_physical_plan(char *sql_query, PhysicalPlan *pplan, char *plan_filename
 
 		HASH128_STATE_INIT(state, 0);
 		ydb_mmrhash_128_ingest(&state, (void*)tableName, strlen(tableName));
-		ydb_mmrhash_128_ingest(&state, (void*)columnName, strlen(tableName));
+		ydb_mmrhash_128_ingest(&state, (void*)columnName, strlen(columnName));
 		routine_name = octo_cmalloc(memory_chunks, MAX_ROUTINE_LEN + 1);	// + 1 needed for null terminator
 		routine_name_len = generate_routine_name(&state, routine_name, MAX_ROUTINE_LEN, CrossReference);
 		// copy routine name (starts with %)

@@ -49,8 +49,9 @@ LogicalPlan *lp_generate_where(SqlStatement *stmt, int *plan_id) {
 		/// WARNING: we simply add the enum offset to find the type
 		type = binary->operation + LP_ADDITION;
 		// Special case; check for the IN value where the left is a column_list
-		if((type == LP_BOOLEAN_IN || type == LP_BOOLEAN_NOT_IN)
-				&& binary->operands[1]->type == column_list_STATEMENT) {
+		if (((LP_BOOLEAN_IN == type) || (LP_BOOLEAN_NOT_IN == type))
+				&& (column_list_STATEMENT == binary->operands[1]->type))
+		{
 			// Walk through the column list, converting each statement to an OR/AND
 			UNPACK_SQL_STATEMENT(start_cl, binary->operands[1], column_list);
 			t = lp_generate_where(binary->operands[0], plan_id);

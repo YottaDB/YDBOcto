@@ -67,22 +67,22 @@
 %%
 
 template_statement
-  : START_EXPR LITERAL END_EXPR expression { $$ = $2; ($$)->next = $4; parser_value = ($$); YYACCEPT; }
+  : START_EXPR LITERAL END_EXPR expression { $$ = $LITERAL; ($$)->next = $expression; parser_value = ($$); YYACCEPT; }
 
 expression
   : expression_value expression_tail {
-      $$ = $1;
-      ($$)->next = $2;
+      $$ = $expression_value;
+      ($$)->next = $expression_tail;
     }
   | ENDOFFILE { $$ = NULL; }
   ;
 
 expression_value
-  : LITERAL { $$ = $1; }
-  | START_EXPR LITERAL END_EXPR { $$ = $2; }
-  | START_VALUE LITERAL END_VALUE { $$ = $2; }
+  : LITERAL { $$ = $LITERAL; }
+  | START_EXPR LITERAL END_EXPR { $$ = $LITERAL; }
+  | START_VALUE LITERAL END_VALUE { $$ = $LITERAL; }
   ;
 
 expression_tail
-  : expression { $$ = $1; }
+  : expression { $$ = $expression; }
   ;

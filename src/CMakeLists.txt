@@ -124,6 +124,7 @@ add_library(libocto OBJECT
   get_key_columns.c
   hash_canonical_query.c
   assign_table_to_columns.c
+  add_optional_piece_keyword_to_sql_column.c
   columns_equal.c
   tables_equal.c
   values_equal.c

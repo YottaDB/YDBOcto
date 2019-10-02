@@ -35,13 +35,10 @@ SqlStatement *decompress_statement(char *buffer, int out_length) {
  * If the out buffer is NULL, doesn't copy the statement, but just counts size
  */
 void *decompress_statement_helper(SqlStatement *stmt, char *out, int out_length) {
-	SqlTable *table;
-	SqlColumn *cur_column, *start_column;
-	SqlColumnList *cur_column_list, *start_column_list;
-	SqlColumnListAlias *start_cla, *cur_cla;
-	SqlJoin *cur_join, *start_join;
-	SqlValue *value;
-	SqlOptionalKeyword *start_keyword, *cur_keyword;
+	SqlTable		*table;
+	SqlColumn		*cur_column, *start_column;
+	SqlValue		*value;
+	SqlOptionalKeyword	*start_keyword, *cur_keyword;
 
 	assert(((char*)stmt) < out + out_length);
 	if(stmt == NULL)
@@ -74,15 +71,6 @@ void *decompress_statement_helper(SqlStatement *stmt, char *out, int out_length)
 			break;
 		}
 		break;
-	case column_list_STATEMENT:
-		UNPACK_SQL_STATEMENT(start_column_list, stmt, column_list);
-		if(start_column_list) {
-			cur_column_list = start_column_list;
-			do {
-				cur_column_list = cur_column_list->next;
-			} while(cur_column_list != start_column_list);
-		}
-		break;
 	case column_STATEMENT:
 		UNPACK_SQL_STATEMENT(cur_column, stmt, column);
 		start_column = cur_column;
@@ -99,12 +87,6 @@ void *decompress_statement_helper(SqlStatement *stmt, char *out, int out_length)
 			cur_column = cur_column->next;
 		} while(cur_column != start_column);
 		break;
-	case join_STATEMENT:
-		UNPACK_SQL_STATEMENT(start_join, stmt, join);
-		do {
-			cur_join = cur_join->next;
-		} while(cur_join != start_join);
-		break;
 	case keyword_STATEMENT:
 		UNPACK_SQL_STATEMENT(start_keyword, stmt, keyword);
 		cur_keyword = start_keyword;
@@ -119,42 +101,11 @@ void *decompress_statement_helper(SqlStatement *stmt, char *out, int out_length)
 			cur_keyword = cur_keyword->next;
 		} while(cur_keyword != start_keyword);
 		break;
-	case column_list_alias_STATEMENT:
-		UNPACK_SQL_STATEMENT(start_cla, stmt, column_list_alias);
-		cur_cla = start_cla;
-		if(cur_cla == NULL)
-			break;
-		do {
-			cur_cla = cur_cla->next;
-		} while(cur_cla != start_cla);
-		break;
-	case begin_STATEMENT:
-	case binary_STATEMENT:
-	case cas_STATEMENT:
-	case cas_branch_STATEMENT:
-	case column_alias_STATEMENT:
-	case commit_STATEMENT:
-	case constraint_STATEMENT:
-	case constraint_type_STATEMENT:
-	case data_type_STATEMENT:
-	case drop_STATEMENT:
-	case function_call_STATEMENT:
-	case insert_STATEMENT:
-	case join_type_STATEMENT:
-	case no_data_STATEMENT:
-	case select_STATEMENT:
-	case set_STATEMENT:
-	case set_operation_STATEMENT:
-	case show_STATEMENT:
-	case sort_spec_list_STATEMENT:
-	case table_alias_STATEMENT:
-	case unary_STATEMENT:
-		ERROR(ERR_UNKNOWN_KEYWORD_STATE, "");
+	default:
+		assert(FALSE);
+		FATAL(ERR_UNKNOWN_KEYWORD_STATE, "");
 		return NULL;
-	case invalid_STATEMENT:
-		assert(stmt->type != invalid_STATEMENT);
 		break;
 	}
 	return stmt;
 }
-

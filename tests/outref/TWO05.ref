@@ -15,7 +15,7 @@ octoPlan0(cursorId)
     QUIT
 
 octoPlan1(cursorId)
-    DO:'$DATA(^%ydboctoocto("xref_status","NAMESWITHAGES","AGE")) ^%ydboctoXeYwbPYLFz7LXUaBahEgdG0(cursorId)
+    DO:'$DATA(^%ydboctoocto("xref_status","NAMESWITHAGES","AGE")) ^%ydboctoXfmDvuo7xJZ0ji6igiLkrH6(cursorId)
     NEW %ydboctoz KILL %ydboctocursor(cursorId,"keys",3,"","")
     SET %ydboctocursor(cursorId,"keys",0,"NAMESWITHAGES","ID")=""
     FOR  SET %ydboctocursor(cursorId,"keys",0,"NAMESWITHAGES","ID")=$ORDER(^names(%ydboctocursor(cursorId,"keys",0,"NAMESWITHAGES","ID"))) QUIT:(%ydboctocursor(cursorId,"keys",0,"NAMESWITHAGES","ID")="")  DO

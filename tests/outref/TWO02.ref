@@ -15,7 +15,7 @@ octoPlan0(cursorId)
     QUIT
 
 octoPlan1(cursorId)
-    DO:'$DATA(^%ydboctoocto("xref_status","NAMES","FIRSTNAME")) ^%ydboctoXLr97yZplWXXGLtV9iCTG22(cursorId)
+    DO:'$DATA(^%ydboctoocto("xref_status","NAMES","FIRSTNAME")) ^%ydboctoXS6loYoNNto55iv2lHkNkCK(cursorId)
     NEW %ydboctoz KILL %ydboctocursor(cursorId,"keys",2,"","")
     SET %ydboctocursor(cursorId,"keys",0,"NAMES","FIRSTNAME")="Zero" IF ($DATA(^%ydboctoxref("NAMES","FIRSTNAME",%ydboctocursor(cursorId,"keys",0,"NAMES","FIRSTNAME")))'=0) DO
     . SET %ydboctocursor(cursorId,"keys",0,"NAMES","ID")=""

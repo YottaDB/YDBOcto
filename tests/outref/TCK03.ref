@@ -28,7 +28,7 @@ octoPlan0(cursorId)
     QUIT
 
 octoPlan1(cursorId)
-    DO:'$DATA(^%ydboctoocto("xref_status","COMPOSITE","NAME")) ^%ydboctoXlSJJbnoMRK3LcyJSWjAiKA(cursorId)
+    DO:'$DATA(^%ydboctoocto("xref_status","COMPOSITE","NAME")) ^%ydboctoXME0THqzTDPU94fIPMVYR4D(cursorId)
     NEW %ydboctoz KILL %ydboctocursor(cursorId,"keys",4,"","")
     SET %ydboctocursor(cursorId,"keys",0,"COMPOSITE","ID0")=""
     FOR  SET %ydboctocursor(cursorId,"keys",0,"COMPOSITE","ID0")=$ORDER(^composite(%ydboctocursor(cursorId,"keys",0,"COMPOSITE","ID0"))) QUIT:(%ydboctocursor(cursorId,"keys",0,"COMPOSITE","ID0")="")  DO
@@ -87,7 +87,7 @@ octoPlan1(cursorId)
     QUIT
 
 octoPlan2(cursorId)
-    DO:'$DATA(^%ydboctoocto("xref_status","COMPOSITE","NAME")) ^%ydboctoXlSJJbnoMRK3LcyJSWjAiKA(cursorId)
+    DO:'$DATA(^%ydboctoocto("xref_status","COMPOSITE","NAME")) ^%ydboctoXME0THqzTDPU94fIPMVYR4D(cursorId)
     NEW %ydboctoz
     SET %ydboctocursor(cursorId,"keys",0,"COMPOSITE","ID0")=""
     FOR  SET %ydboctocursor(cursorId,"keys",0,"COMPOSITE","ID0")=$ORDER(^composite(%ydboctocursor(cursorId,"keys",0,"COMPOSITE","ID0"))) QUIT:(%ydboctocursor(cursorId,"keys",0,"COMPOSITE","ID0")="")  DO

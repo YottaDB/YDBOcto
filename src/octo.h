@@ -131,6 +131,7 @@ void hash_canonical_query(hash128_state_t *state, SqlStatement *stmt, int *statu
 void ydb_hash_to_string(ydb_uint16 *hash, char *buffer, const unsigned int buf_len);
 
 void assign_table_to_columns(SqlStatement *table_statement);
+SqlOptionalKeyword *add_optional_piece_keyword_to_sql_column(int column_number);
 
 // Converts a list of columns to a column list associated with the given table alias
 SqlColumnListAlias *columns_to_column_list_alias(SqlColumn *column, SqlTableAlias *table_alias);

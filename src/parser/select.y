@@ -12,7 +12,7 @@
 
 sql_select_statement
   : query_specification optional_query_words {
-      $$ = $1;
+      $$ = $query_specification;
       SqlTableAlias *table_alias;
       SqlSelectStatement *select;
       SqlOptionalKeyword *select_words, *new_words, *t;
@@ -49,7 +49,7 @@ optional_query_words
       ($$)->v.keyword->v = NULL;
       dqinit(($$)->v.keyword);
     }
-  | COMMA optional_query_words { $$ = $1; }
+  | COMMA optional_query_words { $$ = $COMMA; }
   ;
 
 optional_query_word_element
@@ -57,21 +57,21 @@ optional_query_word_element
       SQL_STATEMENT($$, keyword_STATEMENT);
       OCTO_CMALLOC_STRUCT(($$)->v.keyword, SqlOptionalKeyword);
       ($$)->v.keyword->keyword = OPTIONAL_LIMIT;
-      ($$)->v.keyword->v = $2;
+      ($$)->v.keyword->v = $literal_value;
       dqinit(($$)->v.keyword);
   }
 /*  | UNION ALL sql_select_statement {
       SQL_STATEMENT($$, keyword_STATEMENT);
       OCTO_CMALLOC_STRUCT(($$)->v.keyword, SqlOptionalKeyword);
       ($$)->v.keyword->keyword = OPTIONAL_UNION_ALL;
-      ($$)->v.keyword->v = $3;
+      ($$)->v.keyword->v = $sql_select_statement;
       dqinit(($$)->v.keyword);
   }
   | UNION sql_select_statement {
       SQL_STATEMENT($$, keyword_STATEMENT);
       OCTO_CMALLOC_STRUCT(($$)->v.keyword, SqlOptionalKeyword);
       ($$)->v.keyword->keyword = OPTIONAL_UNION;
-      ($$)->v.keyword->v = $2;
+      ($$)->v.keyword->v = $sql_select_statement;
       dqinit(($$)->v.keyword);
       }*/
   ;
@@ -112,7 +112,7 @@ sort_specification_list
 
 sort_specification_list_tail
   : /* Empty */ { $$ = NULL; }
-  | COMMA sort_specification_list { WARNING(ERR_FEATURE_NOT_IMPLEMENTED, "sub sort-by"); $$ = $2; }
+  | COMMA sort_specification_list { WARNING(ERR_FEATURE_NOT_IMPLEMENTED, "sub sort-by"); $$ = $sort_specification_list; }
   ;
 
 sort_specification
@@ -124,8 +124,8 @@ sort_specification
 
 sort_key
   /// TODO: we somehow need to influence YottaDB's collation order
-  : column_reference optional_cast_specification { $$ = $1; }
-  | LITERAL { $$ = $1; }
+  : column_reference optional_cast_specification { $$ = $column_reference; }
+  | LITERAL { $$ = $LITERAL; }
   ;
 
 ordering_specification
@@ -192,17 +192,17 @@ select_list
       SQL_STATEMENT($$, column_list_alias_STATEMENT);
       ($$)->v.column_list = NULL;
     }
-  | select_sublist { $$ = $1;  }
+  | select_sublist { $$ = $select_sublist;  }
   ;
 
 select_sublist
   : derived_column select_sublist_tail {
-      $$ = $1;
+      $$ = $derived_column;
       // deviation from pattern here so we don't have to deal with "NOT_A_COLUMN" elsewhere
-      if(($2) != NULL) {
+      if($select_sublist_tail != NULL) {
         SqlColumnListAlias *list1, *list2, *t_column_list;
         UNPACK_SQL_STATEMENT(list1, $$, column_list_alias);
-        UNPACK_SQL_STATEMENT(list2, $2, column_list_alias);
+        UNPACK_SQL_STATEMENT(list2, $select_sublist_tail, column_list_alias);
         dqinsert(list2, list1, t_column_list);
       }
     }
@@ -210,14 +210,14 @@ select_sublist
 
 select_sublist_tail
   : /* Empty */ { $$ = NULL; }
-  | COMMA select_sublist { $$ = $2; }
+  | COMMA select_sublist { $$ = $select_sublist; }
   ;
 
 table_expression
   : from_clause where_clause group_by_clause having_clause {
       SQL_STATEMENT($$, select_STATEMENT);
       MALLOC_STATEMENT($$, select, SqlSelectStatement);
-      ($$)->v.select->table_list = ($1);
+      ($$)->v.select->table_list = ($from_clause);
       ($$)->v.select->where_expression = $where_clause;
     }
   ;
@@ -258,7 +258,7 @@ derived_column
       SqlColumnList *column_list;
       UNPACK_SQL_STATEMENT(column_list, alias->column_list, column_list);
       dqinit(column_list);
-      column_list->value = $1;
+      column_list->value = $derived_column_expression;
       /// TODO: we should search here for a reasonable "name" for the column
       alias->alias = find_column_alias_name($derived_column_expression);
       if(alias->alias == NULL) {
@@ -280,18 +280,18 @@ derived_column
       SqlColumnList *column_list;
       UNPACK_SQL_STATEMENT(column_list, alias->column_list, column_list);
       dqinit(column_list);
-      column_list->value = $1;
+      column_list->value = $derived_column_expression;
       alias->alias = $column_name;
     }
   ;
 
 derived_column_expression
-  : value_expression { $$ = $1; }
-  | search_condition { $$ = $1; }
+  : value_expression { $$ = $derived_column_expression; }
+  | search_condition { $$ = $derived_column_expression; }
   ;
 
 from_clause
-  : FROM table_reference {$$ = $2; }
+  : FROM table_reference {$$ = $table_reference; }
   ;
 
 // Just consider these a list of values for all intensive purposes
@@ -362,7 +362,7 @@ table_reference
       SQL_STATEMENT($$, join_STATEMENT);
       MALLOC_STATEMENT($$, join, SqlJoin);
       SqlJoin *join = $$->v.join;
-      join->value = $1;
+      join->value = $derived_table;
       dqinit(join);
     }
   | derived_table correlation_specification {
@@ -381,7 +381,7 @@ table_reference
       table_alias->alias = $correlation_specification;
       dqinit(join);
     }
-  | joined_table { $$ = $1; }
+  | joined_table { $$ = $joined_table; }
   ;
 
 table_reference_tail
@@ -403,12 +403,12 @@ optional_as
   ;
 
 derived_table
-  : table_subquery {$$ = $1; }
+  : table_subquery {$$ = $table_subquery; }
   ;
 
 joined_table
-  : cross_join { $$ = $1; }
-  | qualified_join { $$ = $1; }
+  : cross_join { $$ = $cross_join; }
+  | qualified_join { $$ = $qualified_join; }
   | LEFT_PAREN joined_table RIGHT_PAREN { $$ = $2; }
   ;
 
@@ -462,11 +462,11 @@ qualified_join
 
 optional_join_specification
   : /* Empty */ { $$ = NULL; }
-  | join_specification { $$ = $1; }
+  | join_specification { $$ = $join_specification; }
   ;
 
 join_specification
-  : join_condition { $$ = $1; }
+  : join_condition { $$ = $join_condition; }
   | named_column_joins
   ;
 
@@ -479,14 +479,14 @@ join_column_list
   ;
 
 join_condition
-  : ON search_condition { $$ = $2; }
+  : ON search_condition { $$ = $search_condition; }
   ;
 
 join_type
   : INNER { SQL_STATEMENT($$, join_type_STATEMENT); ($$)->v.join_type = INNER_JOIN; }
-  | outer_join_type { $$ = $1; }
+  | outer_join_type { $$ = $outer_join_type; }
 // AFAIK, LEFT JOIN is shorthand for LEFT OUTER JOIN, so just pass through
-  | outer_join_type OUTER { $$ = $1; }
+  | outer_join_type OUTER { $$ = $outer_join_type; }
 // After some time looking at this, I can't seee any cases where this would be used
 //  So it's in the BNF, but no implementations I could find allow for something
 //  like SELECT * FROM table UNION JOIN table2; this is also the cause

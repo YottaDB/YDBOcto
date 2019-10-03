@@ -174,7 +174,7 @@ LogicalPlan *optimize_logical_plan(LogicalPlan *plan) {
 			LogicalPlan	*child_where = lp_get_select_where(p);
 
 			child_where->v.operand[0] = cur->v.operand[0];
-			new_plan = lp_join_plans(new_plan, p, LP_SET_DNF);
+			new_plan = lp_join_plans(p, new_plan, LP_SET_DNF);
 			cur = cur->v.operand[1];
 		}
 		where->v.operand[0] = cur;

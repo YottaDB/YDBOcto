@@ -22,7 +22,6 @@ select * from names where id >= 1 or id <= 5;
 2|Cereal|Killer
 3|Lord|Nikon
 4|Joey|
-0|Zero|Cool
 1|Acid|Burn
 2|Cereal|Killer
 3|Lord|Nikon
@@ -34,4 +33,5 @@ select * from names where id >= 1 or id <= 5;
 3|Lord|Nikon
 4|Joey|
 5|Zero|Cool
+0|Zero|Cool
 

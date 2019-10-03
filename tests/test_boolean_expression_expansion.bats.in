@@ -36,3 +36,22 @@ OCTO
   verify_output TBEE01 output.txt
 }
 
+@test "TBEE02 : OCTO330 : OR usage processes left operand ahead of right operand" {
+  load_fixture easynames.sql
+  load_fixture easynames.zwr
+  cat << CAT_EOF > input.sql 2>&1
+SELECT name FROM easynames WHERE id < 3 OR id > 12 LIMIT 3;
+
+(SELECT name FROM easynames WHERE id < 3 ORDER BY name)
+	INTERSECT ALL (select name FROM easynames WHERE id < 3 OR id > 12)
+EXCEPT (select name FROM easynames WHERE id < 2 ORDER BY name)
+	INTERSECT ALL (select name FROM easynames WHERE id = 4);
+
+(SELECT name FROM easynames WHERE id < 3 ORDER BY name)
+	INTERSECT ALL (select name FROM easynames WHERE id < 3 OR id > 12 LIMIT 3)
+EXCEPT (select name FROM easynames WHERE id < 2 ORDER BY name)
+	INTERSECT ALL (select name FROM easynames WHERE id = 4 LIMIT 5);
+CAT_EOF
+  octo -f input.sql > output.txt 2>&1
+  verify_output TBEE02 output.txt
+}

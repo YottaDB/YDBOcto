@@ -1,8 +1,8 @@
 OCTO>   SELECT firstName FROM names WHERE firstName IN ('Zero', 'Acid', 'Cool');
 Added SET and/or Non-SET trigger on ^names named names#1
-Zero
-Zero
 Acid
+Zero
+Zero
 OCTO> 
 ;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
 ;; ---------------------------------------------------------
@@ -18,7 +18,7 @@ octoPlan0(cursorId)
 octoPlan1(cursorId)
     DO:'$DATA(^%ydboctoocto("xref_status","NAMES","FIRSTNAME")) ^%ydboctoXS6loYoNNto55iv2lHkNkCK(cursorId)
     NEW %ydboctoz KILL %ydboctocursor(cursorId,"keys",2,"","")
-    SET %ydboctocursor(cursorId,"keys",0,"NAMES","FIRSTNAME")="Zero" IF ($DATA(^%ydboctoxref("NAMES","FIRSTNAME",%ydboctocursor(cursorId,"keys",0,"NAMES","FIRSTNAME")))'=0) DO
+    SET %ydboctocursor(cursorId,"keys",0,"NAMES","FIRSTNAME")="Acid" IF ($DATA(^%ydboctoxref("NAMES","FIRSTNAME",%ydboctocursor(cursorId,"keys",0,"NAMES","FIRSTNAME")))'=0) DO
     . SET %ydboctocursor(cursorId,"keys",0,"NAMES","ID")=""
     . FOR  SET %ydboctocursor(cursorId,"keys",0,"NAMES","ID")=$ORDER(^%ydboctoxref("NAMES","FIRSTNAME",%ydboctocursor(cursorId,"keys",0,"NAMES","FIRSTNAME"),%ydboctocursor(cursorId,"keys",0,"NAMES","ID"))) QUIT:(%ydboctocursor(cursorId,"keys",0,"NAMES","ID")="")  DO
     . . IF 1&($DATA(%ydboctocursor(cursorId,"dupl",%ydboctocursor(cursorId,"keys",0,"NAMES","ID")))=0) DO
@@ -42,7 +42,7 @@ octoPlan2(cursorId)
 octoPlan3(cursorId)
     DO:'$DATA(^%ydboctoocto("xref_status","NAMES","FIRSTNAME")) ^%ydboctoXS6loYoNNto55iv2lHkNkCK(cursorId)
     NEW %ydboctoz
-    SET %ydboctocursor(cursorId,"keys",0,"NAMES","FIRSTNAME")="Acid" IF ($DATA(^%ydboctoxref("NAMES","FIRSTNAME",%ydboctocursor(cursorId,"keys",0,"NAMES","FIRSTNAME")))'=0) DO
+    SET %ydboctocursor(cursorId,"keys",0,"NAMES","FIRSTNAME")="Zero" IF ($DATA(^%ydboctoxref("NAMES","FIRSTNAME",%ydboctocursor(cursorId,"keys",0,"NAMES","FIRSTNAME")))'=0) DO
     . SET %ydboctocursor(cursorId,"keys",0,"NAMES","ID")=""
     . FOR  SET %ydboctocursor(cursorId,"keys",0,"NAMES","ID")=$ORDER(^%ydboctoxref("NAMES","FIRSTNAME",%ydboctocursor(cursorId,"keys",0,"NAMES","FIRSTNAME"),%ydboctocursor(cursorId,"keys",0,"NAMES","ID"))) QUIT:(%ydboctocursor(cursorId,"keys",0,"NAMES","ID")="")  DO
     . . IF 1&($DATA(%ydboctocursor(cursorId,"dupl",%ydboctocursor(cursorId,"keys",0,"NAMES","ID")))=0) DO

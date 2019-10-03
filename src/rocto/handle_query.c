@@ -38,7 +38,7 @@ int handle_query(Query *query, RoctoSession *session) {
 	size_t err_buff_size;
 	memset(&parms, 0, sizeof(QueryResponseParms));
 	parms.session = session;
-	query_length = strlen(query->query);
+	query_length = query->length - sizeof(unsigned int);
 
 	if(query_length == 0) {
 		empty_query_response = make_empty_query_response();

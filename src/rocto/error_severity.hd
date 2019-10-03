@@ -18,4 +18,6 @@ ERROR_DEF(PSQL_Error_NOTICE, "NOTICE")
 ERROR_DEF(PSQL_Error_DEBUG, "DEBUG")
 ERROR_DEF(PSQL_Error_INFO, "INFO")
 ERROR_DEF(PSQL_Error_LOG, "LOG")
+
+//This must be last, as to avoid breaking asserts across other files
 ERROR_END(PSQL_Error_UnknownSeverity, "UNKNOWN")

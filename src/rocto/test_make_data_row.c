@@ -44,11 +44,34 @@ static void test_null_input(void **state) {
 	free_data_row(received_response);
 }
 
+static void test_zero_parms(void **state) {
+	DataRow *response = NULL;
+	DataRow *received_response = NULL;
+	ErrorResponse *err = NULL;
+	int32_t num_parms = 0;
+	DataRowParm parms[num_parms];
+
+	// DataRow.length + DataRow.num_columns + DataRowParms (each parm: length + string value)
+	int32_t expected_length = sizeof(uint32_t) + sizeof(int16_t) + (sizeof(uint32_t)) * num_parms;
+
+	response = make_data_row(parms, num_parms);
+	received_response = read_data_row((BaseMessage*)&response->type, &err);
+
+	// Standard checks
+	assert_non_null(received_response);
+	assert_null(received_response->parms);
+	assert_int_equal(received_response->length, expected_length);
+	assert_int_equal(received_response->num_columns, 0);
+
+	free(response);
+	free_data_row(received_response);
+}
+
 static void test_one_parms(void **state) {
 	DataRow *response = NULL;
 	DataRow *received_response = NULL;
 	ErrorResponse *err = NULL;
-	int32_t num_parms = 1, i = 0;
+	int32_t num_parms = 1;
 	DataRowParm parms[num_parms];
 
 	memset(parms, 0, sizeof(DataRowParm) * num_parms);
@@ -76,11 +99,11 @@ static void test_one_parms(void **state) {
 	free(parms[0].value);
 }
 
-static void test_multi_parms(void **state) {
+static void test_two_parms(void **state) {
 	DataRow *response = NULL;
 	DataRow *received_response = NULL;
 	ErrorResponse *err = NULL;
-	int32_t num_parms = 2, i = 0;
+	int32_t num_parms = 2;
 	DataRowParm parms[num_parms];
 	memset(parms, 0, sizeof(DataRowParm) * num_parms);
 
@@ -119,11 +142,65 @@ static void test_multi_parms(void **state) {
 	free(parms[1].value);
 }
 
+static void test_three_parms(void **state) {
+	DataRow *response = NULL;
+	DataRow *received_response = NULL;
+	ErrorResponse *err = NULL;
+	int32_t num_parms = 3;
+	DataRowParm parms[num_parms];
+	memset(parms, 0, sizeof(DataRowParm) * num_parms);
+
+	char *parm1_value = "helloWorld";
+	int32_t parm1_length = strlen(parm1_value);
+	parms[0].length = parm1_length;
+	parms[0].value = (char*)malloc(parm1_length * sizeof(char));
+	strncpy(parms[0].value, parm1_value, parm1_length);
+
+	char *parm2_value = "helloUniverse";
+	int32_t parm2_length = strlen(parm2_value);
+	parms[1].length = parm2_length;
+	parms[1].value = (char*)malloc(parm2_length * sizeof(char));
+	strncpy(parms[1].value, parm2_value, parm2_length);
+
+	char *parm3_value = "helloThingBiggerThanUniverse";
+	int32_t parm3_length = strlen(parm3_value);
+	parms[2].length = parm3_length;
+	parms[2].value = (char*)malloc(parm3_length * sizeof(char));
+	strncpy(parms[2].value, parm3_value, parm3_length);
+
+	// DataRow.length + DataRow.num_columns + DataRowParms (each parm: length + string value)
+	int32_t expected_length = sizeof(uint32_t) + sizeof(int16_t)
+		+ (sizeof(uint32_t)) * num_parms + parm1_length + parm2_length + parm3_length;
+
+	response = make_data_row(parms, num_parms);
+	received_response = read_data_row((BaseMessage*)&response->type, &err);
+
+	// Standard checks
+	assert_non_null(received_response);
+	assert_non_null(received_response->parms);
+	assert_int_equal(received_response->length, expected_length);
+	assert_int_equal(received_response->num_columns, num_parms);
+	assert_int_equal(received_response->parms[0].length, parm1_length);
+	assert_memory_equal(received_response->parms[0].value, parm1_value, parm1_length);
+	assert_int_equal(received_response->parms[1].length, parm2_length);
+	assert_memory_equal(received_response->parms[1].value, parm2_value, parm2_length);
+	assert_int_equal(received_response->parms[2].length, parm3_length);
+	assert_memory_equal(received_response->parms[2].value, parm3_value, parm3_length);
+
+	free(response);
+	free_data_row(received_response);
+	free(parms[0].value);
+	free(parms[1].value);
+	free(parms[2].value);
+}
+
 int main(void) {
 	const struct CMUnitTest tests[] = {
 		cmocka_unit_test(test_null_input),
+		cmocka_unit_test(test_zero_parms),
 		cmocka_unit_test(test_one_parms),
-		cmocka_unit_test(test_multi_parms),
+		cmocka_unit_test(test_two_parms),
+		cmocka_unit_test(test_three_parms),
 	};
 	return cmocka_run_group_tests(tests, NULL, NULL);
 }

@@ -23,6 +23,9 @@
 #include "message_formats.h"
 
 ErrorResponse *make_error_response(PSQL_ErrorSeverity severity, PSQL_SQLSTATECode code, const char *message, size_t num_args, ...) {
+	assert(NULL != message);
+	assert(PSQL_Error_UnknownSeverity >= severity);
+
 	uint32_t new_length;
 	int32_t cur_arg;
 	va_list args;

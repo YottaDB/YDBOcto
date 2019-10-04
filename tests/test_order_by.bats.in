@@ -91,16 +91,23 @@ OCTO
   [[ "$output" =~ /5|Zero|Cool.*0|Zero|Cool/ ]]
 }
 
-@test "order by with OR in boolean expression" {
+@test "TOB01 : order by with OR in boolean expression" {
   octo <<OCTO 2>&1 | tee output.txt
 SELECT id,firstname FROM names WHERE (id = 0 or id = 1) ORDER BY firstname;
 OCTO
   verify_output TOB01 output.txt noinfo nodebug
 }
 
-@test "order by with OR and AND in boolean expression" {
+@test "TOB02 : order by with OR and AND in boolean expression" {
   octo <<OCTO 2>&1 | tee output.txt
 SELECT id,firstname FROM names WHERE (firstname = "Zero" AND lastname = "Cool") OR (id = 2) ORDER BY firstname;
 OCTO
   verify_output TOB02 output.txt noinfo nodebug
+}
+
+@test "TOB03 : OCTO332 : order by on column that is an expression using ADDITION on columns from a sub-query" {
+  octo <<OCTO 2>&1 | tee output.txt
+select 1+id*2 as a from (select id from names) order by a;
+OCTO
+  verify_output TOB03 output.txt noinfo nodebug
 }

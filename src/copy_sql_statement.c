@@ -21,8 +21,8 @@
 SqlStatement *copy_sql_statement(SqlStatement *stmt) {
 	SqlTableAlias *table_alias, *new_table_alias;
 	SqlColumn *column;
-	SqlColumnList *cur_column_list, *start_column_list, *new_column_list, *t_column_list;
-	SqlJoin *cur_join, *start_join, *new_join, *t_join;
+	SqlColumnList *cur_column_list, *start_column_list, *new_column_list;
+	SqlJoin *cur_join, *start_join, *new_join;
 	SqlInsertStatement *insert;
 	SqlStatement *ret;
 	SqlSelectStatement *select;
@@ -30,11 +30,11 @@ SqlStatement *copy_sql_statement(SqlStatement *stmt) {
 	SqlValue *value;
 	SqlBinaryOperation *binary;
 	SqlUnaryOperation *unary;
-	SqlOptionalKeyword *cur_keyword, *start_keyword, *new_keyword, *t_keyword;
-	SqlColumnListAlias *new_cl_alias, *cur_cl_alias, *start_cl_alias, *t_cl_alias;
+	SqlOptionalKeyword *cur_keyword, *start_keyword, *new_keyword;
+	SqlColumnListAlias *new_cl_alias, *cur_cl_alias, *start_cl_alias;
 	SqlColumnAlias *column_alias;
 	SqlCaseStatement *cas;
-	SqlCaseBranchStatement *cur_cas_branch, *start_cas_branch, *new_cas_branch, *t_cas_branch;
+	SqlCaseBranchStatement *cur_cas_branch, *start_cas_branch, *new_cas_branch;
 	SqlFunctionCall *function_call;
 	int len;
 
@@ -121,7 +121,7 @@ SqlStatement *copy_sql_statement(SqlStatement *stmt) {
 				if(ret->v.column_list == NULL) {
 					ret->v.column_list = new_column_list;
 				} else {
-					dqinsert(new_column_list, ret->v.column_list, t_column_list);
+					dqappend(new_column_list, ret->v.column_list);
 				}
 				cur_column_list = cur_column_list->next;
 			} while(cur_column_list != start_column_list);
@@ -141,7 +141,7 @@ SqlStatement *copy_sql_statement(SqlStatement *stmt) {
 				if(ret->v.column_list_alias == NULL) {
 					ret->v.column_list_alias = new_cl_alias;
 				} else {
-					dqinsert(new_cl_alias, ret->v.column_list_alias, t_cl_alias);
+					dqappend(new_cl_alias, ret->v.column_list_alias);
 				}
 				cur_cl_alias = cur_cl_alias->next;
 			} while(cur_cl_alias != start_cl_alias);
@@ -167,7 +167,7 @@ SqlStatement *copy_sql_statement(SqlStatement *stmt) {
 			if(ret->v.join == NULL) {
 				ret->v.join = new_join;
 			} else {
-				dqinsert(new_join, ret->v.join, t_join);
+				dqappend(new_join, ret->v.join);
 			}
 			cur_join = cur_join->next;
 		} while(cur_join != start_join);
@@ -195,7 +195,7 @@ SqlStatement *copy_sql_statement(SqlStatement *stmt) {
 				dqinit(new_keyword);
 				new_keyword->v = copy_sql_statement(cur_keyword->v);
 				if(ret->v.keyword) {
-					dqinsert(ret->v.keyword, new_keyword, t_keyword);
+					dqappend(ret->v.keyword, new_keyword);
 				} else {
 					ret->v.keyword = new_keyword;
 				}
@@ -234,7 +234,7 @@ SqlStatement *copy_sql_statement(SqlStatement *stmt) {
 			new_cas_branch->value = copy_sql_statement(cur_cas_branch->value);
 			dqinit(new_cas_branch);
 			if(ret->v.cas_branch) {
-				dqinsert(ret->v.cas_branch, new_cas_branch, t_cas_branch);
+				dqappend(ret->v.cas_branch, new_cas_branch);
 			} else {
 				ret->v.cas_branch = new_cas_branch;
 			}

@@ -24,7 +24,7 @@
  */
 SqlColumn *column_list_alias_to_columns(SqlTableAlias *table_alias) {
 	SqlColumnListAlias	*cla_start, *cla_cur;
-	SqlColumn		*start_column = NULL, *cur_column, *t_column;
+	SqlColumn		*start_column = NULL, *cur_column;
 	SqlOptionalKeyword	*keyword;
 	SqlStatement		*stmt;
 	int			column_number;
@@ -68,7 +68,7 @@ SqlColumn *column_list_alias_to_columns(SqlTableAlias *table_alias) {
 		if(start_column == NULL) {
 			start_column = cur_column;
 		} else {
-			dqinsert(cur_column, start_column, t_column);
+			dqappend(cur_column, start_column);
 		}
 		cla_cur = cla_cur->next;
 	} while(cla_start != cla_cur);

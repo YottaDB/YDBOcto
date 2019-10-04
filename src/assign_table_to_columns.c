@@ -20,7 +20,7 @@
 
 void assign_table_to_columns(SqlStatement *table_statement) {
 	SqlColumn		*cur_column, *start_column;
-	SqlOptionalKeyword	*keyword, *t_keyword, *column_keywords;
+	SqlOptionalKeyword	*keyword, *column_keywords;
 	SqlTable		*table;
 	int			column_number;
 
@@ -30,15 +30,13 @@ void assign_table_to_columns(SqlStatement *table_statement) {
 	column_number = 0;
 	do {
 		column_number++;
-		// We need to create a new SqlStatement here because only the table is propegated
-		//  long term; the SqlStatement gets reused by the compiler
-		PACK_SQL_STATEMENT(cur_column->table, table, table);
+		cur_column->table = table_statement;
 		// Also a good time to assign each column a PIECE number if it doesn't have one
 		keyword = get_keyword(cur_column, OPTIONAL_PIECE);
 		if (NULL == keyword) {
 			keyword	= add_optional_piece_keyword_to_sql_column(column_number);
 			UNPACK_SQL_STATEMENT(column_keywords, cur_column->keywords, keyword);
-			dqinsert(column_keywords, keyword, t_keyword);
+			dqappend(column_keywords, keyword);
 		}
 		cur_column->column_number = column_number;
 		cur_column = cur_column->next;

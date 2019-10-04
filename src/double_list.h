@@ -19,14 +19,16 @@ typedef void *yyscan_t;
 #define dqinit(object) (object)->next = object, (object)->prev = object
 // Defines the elements for a DQ struct
 #define dqcreate(struct_type) struct struct_type *next, *prev
-// Inserts an element behind this one in the doubly linked list
-#define dqinsert(self, new_elem, temp)		\
+// Appends the doubly linked circular list starting at "new_elem" to the tail of the doubly linked circular list starting at "self"
+#define dqappend(self, new_elem)		\
 {						\
-	(temp) = (self)->prev;			\
+	void *tmpPtr;				\
+						\
+	tmpPtr = (self)->prev;			\
 	(self)->prev->next = (new_elem);	\
 	(self)->prev = (new_elem)->prev;	\
 	(new_elem)->prev->next = (self);	\
-	(new_elem)->prev = (temp);		\
+	(new_elem)->prev = tmpPtr;		\
 }
 
 #endif

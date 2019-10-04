@@ -62,6 +62,13 @@ typedef void *yyscan_t;
 	}												\
 } while (FALSE);
 
+/* Determines the corresponding (SqlStatement *) structures that points to a (SqlTable *) structure */
+#define	SQL_STATEMENT_FROM_TABLE_STATEMENT(RET, TABLE)			\
+{									\
+	RET = (SqlStatement *)((char *)TABLE - sizeof(SqlStatement));	\
+	assert(table_STATEMENT == RET->type);				\
+	assert(RET->v.table == TABLE);					\
+}
 
 /* Shamelessly stolen from mlkdef.h in YottaDB */
 /* convert relative pointer to absolute pointer */

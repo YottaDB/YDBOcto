@@ -52,7 +52,7 @@ SqlTable *copy_sql_table(SqlTable *table) {
 			MALLOC_STATEMENT(stmt, column, SqlColumn);
 			stmt->v.column = new_column;
 		} else {
-			dqinsert(new_column, stmt->v.column, t_column);
+			dqappend(new_column, stmt->v.column);
 		}
 		cur_column = cur_column->next;
 	} while(cur_column != start_column);

@@ -39,14 +39,14 @@ MemoryChunk *alloc_chunk(size_t size) {
 }
 
 void *octo_cmalloc(MemoryChunk *root, size_t size) {
-	MemoryChunk *cur, *new, *t;
+	MemoryChunk *cur, *new;
 	void *ret;
 	assert(root != NULL);
 	cur = root->prev;
 
 	if(cur->offset + size > cur->max_size) {
 		new = alloc_chunk(size);
-		dqinsert(root, new, t);
+		dqappend(root, new);
 		assert(root->prev == new && new->next == root);
 		cur = root->prev;
 	}

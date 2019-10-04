@@ -632,25 +632,25 @@ in_value_list
   | truth_value in_value_list_tail {
       SQL_STATEMENT($$, column_list_STATEMENT);
       MALLOC_STATEMENT($$, column_list, SqlColumnList);
-      SqlColumnList *column_list, *cl_tail, *cl_temp;
+      SqlColumnList *column_list, *cl_tail;
       UNPACK_SQL_STATEMENT(column_list, $$, column_list);
       column_list->value = $truth_value;
       dqinit(column_list);
       if($in_value_list_tail != NULL) {
         UNPACK_SQL_STATEMENT(cl_tail, $in_value_list_tail, column_list);
-        dqinsert(column_list, cl_tail, cl_temp);
+        dqappend(column_list, cl_tail);
       }
     }
   | value_expression in_value_list_tail {
       SQL_STATEMENT($$, column_list_STATEMENT);
       MALLOC_STATEMENT($$, column_list, SqlColumnList);
-      SqlColumnList *column_list, *cl_tail, *cl_temp;
+      SqlColumnList *column_list, *cl_tail;
       UNPACK_SQL_STATEMENT(column_list, $$, column_list);
       column_list->value = $value_expression;
       dqinit(column_list);
       if($in_value_list_tail != NULL) {
         UNPACK_SQL_STATEMENT(cl_tail, $in_value_list_tail, column_list);
-        dqinsert(column_list, cl_tail, cl_temp);
+        dqappend(column_list, cl_tail);
       }
     }
   ;
@@ -944,27 +944,27 @@ simple_when_clause
   : WHEN value_expression THEN result simple_when_clause_tail {
       SQL_STATEMENT($$, cas_branch_STATEMENT);
       MALLOC_STATEMENT($$, cas_branch, SqlCaseBranchStatement);
-      SqlCaseBranchStatement *cas_branch, *tail_cas_branch, *t_cas_branch;
+      SqlCaseBranchStatement *cas_branch, *tail_cas_branch;
       UNPACK_SQL_STATEMENT(cas_branch, $$, cas_branch);
       cas_branch->condition = $value_expression;
       cas_branch->value = $result;
       dqinit(cas_branch);
       if($simple_when_clause_tail != NULL) {
         UNPACK_SQL_STATEMENT(tail_cas_branch, $simple_when_clause_tail, cas_branch);
-        dqinsert(cas_branch, tail_cas_branch, t_cas_branch);
+        dqappend(cas_branch, tail_cas_branch);
       }
     }
   | WHEN search_condition THEN result simple_when_clause_tail {
       SQL_STATEMENT($$, cas_branch_STATEMENT);
       MALLOC_STATEMENT($$, cas_branch, SqlCaseBranchStatement);
-      SqlCaseBranchStatement *cas_branch, *tail_cas_branch, *t_cas_branch;
+      SqlCaseBranchStatement *cas_branch, *tail_cas_branch;
       UNPACK_SQL_STATEMENT(cas_branch, $$, cas_branch);
       cas_branch->condition = $search_condition;
       cas_branch->value = $result;
       dqinit(cas_branch);
       if($simple_when_clause_tail != NULL) {
         UNPACK_SQL_STATEMENT(tail_cas_branch, $simple_when_clause_tail, cas_branch);
-        dqinsert(cas_branch, tail_cas_branch, t_cas_branch);
+        dqappend(cas_branch, tail_cas_branch);
       }
     }
   ;
@@ -1260,9 +1260,9 @@ table_definition_tail
 optional_keyword
   : optional_keyword_element optional_keyword_tail {
       $$ = $optional_keyword_element;
-      SqlOptionalKeyword *keyword, *t_keyword;
+      SqlOptionalKeyword *keyword;
       UNPACK_SQL_STATEMENT(keyword, $optional_keyword_tail, keyword);
-      dqinsert(keyword, ($$)->v.keyword, t_keyword);
+      dqappend(keyword, ($$)->v.keyword);
     }
   ;
 
@@ -1300,9 +1300,8 @@ table_element_list
       assert($$->type == column_STATEMENT);
       if($table_element_list_tail)
       {
-        SqlColumn *t_column;
         assert($table_element_list_tail->type == column_STATEMENT);
-        dqinsert($table_element_list_tail->v.column, ($$)->v.column, t_column);
+        dqappend($table_element_list_tail->v.column, ($$)->v.column);
       }
     }
   ;
@@ -1376,12 +1375,12 @@ column_definition_tail
        ($$)->v.keyword->v = $literal_value;
        dqinit(($$)->v.keyword);
 
-       SqlOptionalKeyword *keyword, *t_keyword;
+       SqlOptionalKeyword *keyword;
        UNPACK_SQL_STATEMENT(keyword, $3, keyword);
-       dqinsert(keyword, ($$)->v.keyword, t_keyword);
+       dqappend(keyword, ($$)->v.keyword);
     }
   | PIECE literal_value column_definition_tail {
-       SqlOptionalKeyword *keyword, *t_keyword;
+       SqlOptionalKeyword *keyword;
 
        SQL_STATEMENT($$, keyword_STATEMENT);
        MALLOC_STATEMENT($$, keyword, SqlOptionalKeyword);
@@ -1391,7 +1390,7 @@ column_definition_tail
        dqinit(($$)->v.keyword);
 
        UNPACK_SQL_STATEMENT(keyword, $3, keyword);
-       dqinsert(keyword, ($$)->v.keyword, t_keyword);
+       dqappend(keyword, ($$)->v.keyword);
     }
   | DELIM literal_value column_definition_tail {
        SQL_STATEMENT($$, keyword_STATEMENT);
@@ -1400,9 +1399,9 @@ column_definition_tail
        ($$)->v.keyword->v = $literal_value;
        dqinit(($$)->v.keyword);
 
-       SqlOptionalKeyword *keyword, *t_keyword;
+       SqlOptionalKeyword *keyword;
        UNPACK_SQL_STATEMENT(keyword, $3, keyword);
-       dqinsert(keyword, ($$)->v.keyword, t_keyword);
+       dqappend(keyword, ($$)->v.keyword);
      }
   | GLOBAL literal_value column_definition_tail {
        SQL_STATEMENT($$, keyword_STATEMENT);
@@ -1411,9 +1410,9 @@ column_definition_tail
        ($$)->v.keyword->v = $literal_value;
        dqinit(($$)->v.keyword);
 
-       SqlOptionalKeyword *keyword, *t_keyword;
+       SqlOptionalKeyword *keyword;
        UNPACK_SQL_STATEMENT(keyword, $3, keyword);
-       dqinsert(keyword, ($$)->v.keyword, t_keyword);
+       dqappend(keyword, ($$)->v.keyword);
     }
   | KEY NUM literal_value column_definition_tail {
        SQL_STATEMENT($$, keyword_STATEMENT);
@@ -1422,9 +1421,9 @@ column_definition_tail
        ($$)->v.keyword->v = $literal_value;
        dqinit(($$)->v.keyword);
 
-       SqlOptionalKeyword *keyword, *t_keyword;
+       SqlOptionalKeyword *keyword;
        UNPACK_SQL_STATEMENT(keyword, $4, keyword);
-       dqinsert(keyword, ($$)->v.keyword, t_keyword);
+       dqappend(keyword, ($$)->v.keyword);
     }
   | ADVANCE literal_value column_definition_tail {
        SQL_STATEMENT($$, keyword_STATEMENT);
@@ -1433,9 +1432,9 @@ column_definition_tail
        ($$)->v.keyword->v = $literal_value;
        dqinit(($$)->v.keyword);
 
-       SqlOptionalKeyword *keyword, *t_keyword;
+       SqlOptionalKeyword *keyword;
        UNPACK_SQL_STATEMENT(keyword, $3, keyword);
-       dqinsert(keyword, ($$)->v.keyword, t_keyword);
+       dqappend(keyword, ($$)->v.keyword);
     }
   | START literal_value column_definition_tail {
        SQL_STATEMENT($$, keyword_STATEMENT);
@@ -1444,9 +1443,9 @@ column_definition_tail
        ($$)->v.keyword->v = $literal_value;
        dqinit(($$)->v.keyword);
 
-       SqlOptionalKeyword *keyword, *t_keyword;
+       SqlOptionalKeyword *keyword;
        UNPACK_SQL_STATEMENT(keyword, $3, keyword);
-       dqinsert(keyword, ($$)->v.keyword, t_keyword);
+       dqappend(keyword, ($$)->v.keyword);
     }
   | END literal_value column_definition_tail {
        SQL_STATEMENT($$, keyword_STATEMENT);
@@ -1455,15 +1454,15 @@ column_definition_tail
        ($$)->v.keyword->v = $literal_value;
        dqinit(($$)->v.keyword);
 
-       SqlOptionalKeyword *keyword, *t_keyword;
+       SqlOptionalKeyword *keyword;
        UNPACK_SQL_STATEMENT(keyword, $3, keyword);
-       dqinsert(keyword, ($$)->v.keyword, t_keyword);
+       dqappend(keyword, ($$)->v.keyword);
     }
   | column_constraint_definition column_definition_tail {
        $$ = $column_constraint_definition;
-       SqlOptionalKeyword *keyword, *t_keyword;
+       SqlOptionalKeyword *keyword;
        UNPACK_SQL_STATEMENT(keyword, $2, keyword);
-       dqinsert(keyword, ($$)->v.keyword, t_keyword);
+       dqappend(keyword, ($$)->v.keyword);
     }
   ;
 

@@ -219,7 +219,8 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt, int *plan_id) {
 		LogicalPlan	*new_plan;
 
 		new_plan = left->v.operand[0];
-		if ((LP_INSERT == new_plan->type) || (LP_SET_OPERATION == new_plan->type))
+		assert((LP_INSERT == new_plan->type) || (LP_SET_OPERATION == new_plan->type) || (LP_TABLE == new_plan->type));
+		if (LP_TABLE != new_plan->type)
 		{
 			SqlStatement	*sql_stmt;
 			LogicalPlan	*cur_lp_key;

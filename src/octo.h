@@ -139,7 +139,6 @@ SqlColumn *column_list_alias_to_columns(SqlTableAlias *table_alias);
 
 SqlStatement *drill_to_table_alias(SqlStatement *sqlStmt);
 int get_column_piece_number(SqlColumnAlias *alias, SqlTableAlias *table_alias);
-int replace_table_references(SqlStatement *stmt, SqlStatement *to_remove);
 
 SqlStatement *copy_sql_statement(SqlStatement *stmt);
 

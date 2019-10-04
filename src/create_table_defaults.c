@@ -69,7 +69,7 @@ int create_table_defaults(SqlStatement *table_statement, SqlStatement *keywords_
 			// Insert statement into column keyword list
 			dqinit(keyword);
 			UNPACK_SQL_STATEMENT(t_keyword, cur_column->keywords, keyword);
-			dqinsert(t_keyword, keyword, t_keyword);
+			dqappend(t_keyword, keyword);
 			// Walk to next key and increment index
 			cur_column = cur_column->next;
 			i++;
@@ -132,7 +132,7 @@ int create_table_defaults(SqlStatement *table_statement, SqlStatement *keywords_
 		keyword->v->v.value->type = COLUMN_REFERENCE;
 		keyword->v->v.value->v.reference = out_buffer;
 		dqinit(keyword);
-		dqinsert(start_keyword, keyword, t_keyword);
+		dqappend(start_keyword, keyword);
 	}
 	if(!(options & DELIM)) {
 		snprintf(buffer, MAX_STR_CONST, COLUMN_DELIMITER);
@@ -147,7 +147,7 @@ int create_table_defaults(SqlStatement *table_statement, SqlStatement *keywords_
 		keyword->v->v.value->type = STRING_LITERAL;
 		keyword->v->v.value->v.reference = out_buffer;
 		dqinit(keyword);
-		dqinsert(start_keyword, keyword, t_keyword);
+		dqappend(start_keyword, keyword);
 	}
 	cur_keyword = start_keyword;
 	do {

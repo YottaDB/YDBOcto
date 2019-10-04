@@ -85,7 +85,7 @@ LogicalPlan *lp_replace_helper(LogicalPlan *where, SqlTableAlias *table_alias, S
 		// Nothing to do
 		break;
 	default:
-		assert(where->type > LP_ADDITION);
+		assert(LP_ADDITION <= where->type);
 		ret->v.operand[0] = lp_replace_helper(where->v.operand[0], table_alias, key);
 		ret->v.operand[1] = lp_replace_helper(where->v.operand[1], table_alias, key);
 		break;

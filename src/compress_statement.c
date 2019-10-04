@@ -53,20 +53,20 @@ void *compress_statement_helper(SqlStatement *stmt, char *out, int *out_length) 
 		return NULL;
 	if(stmt->v.value == NULL)
 		return NULL;
-	if(out != NULL) {
+	if (NULL != out) {
 		new_stmt = ((void*)&out[*out_length]);
 		memcpy(new_stmt, stmt, sizeof(SqlStatement));
 		ret = new_stmt;
 	}
 	*out_length += sizeof(SqlStatement);
-	if(out != NULL) {
+	if (NULL != out) {
 		new_stmt->v.value = ((void*)&out[*out_length]);
 		A2R(new_stmt->v.value, new_stmt->v.value);
 	}
 	switch(stmt->type) {
 	case table_STATEMENT:
 		UNPACK_SQL_STATEMENT(table, stmt, table);
-		if(out != NULL) {
+		if (NULL != out) {
 			new_table = ((void*)&out[*out_length]);
 			memcpy(new_table, table, sizeof(SqlTable));
 		}
@@ -79,7 +79,7 @@ void *compress_statement_helper(SqlStatement *stmt, char *out, int *out_length) 
 		break;
 	case value_STATEMENT:
 		UNPACK_SQL_STATEMENT(value, stmt, value);
-		if(out != NULL) {
+		if (NULL != out) {
 			new_value = ((void*)&out[*out_length]);
 			memcpy(new_value, value, sizeof(SqlValue));
 		}
@@ -90,13 +90,13 @@ void *compress_statement_helper(SqlStatement *stmt, char *out, int *out_length) 
 			break;
 		default:
 			len = strlen(value->v.string_literal);
-			if(out != NULL) {
+			if (NULL != out) {
 				memcpy(&out[*out_length], value->v.string_literal, len);
 				new_value->v.string_literal = &out[*out_length];
 				A2R(new_value->v.string_literal, new_value->v.string_literal);
 			}
 			*out_length += len;
-			if(out != NULL) {
+			if (NULL != out) {
 				out[*out_length] = '\0';
 			}
 			*out_length += 1;
@@ -107,19 +107,19 @@ void *compress_statement_helper(SqlStatement *stmt, char *out, int *out_length) 
 		UNPACK_SQL_STATEMENT(cur_column, stmt, column);
 		start_column = cur_column;
 		do {
-			if(out != NULL) {
+			if (NULL != out) {
 				new_column = ((void*)&out[*out_length]);
 				memcpy(new_column, cur_column, sizeof(SqlColumn));
 				new_column->next = new_column->prev = NULL;
+				new_column->table = (void *)0;	/* offset 0 : table is first element in compressed structure
+								 *            which means a relative offset of 0.
+								 */
 			}
 			*out_length += sizeof(SqlColumn);
 			CALL_COMPRESS_HELPER(r, cur_column->columnName, new_column->columnName, out, out_length);
-			// Don't copy table since we want to point to the parent table, which we can't
-			// find here. Those relying on a compressed table should call
-			// assign_table_to_columns on the decompressed result
 			CALL_COMPRESS_HELPER(r, cur_column->keywords, new_column->keywords, out, out_length);
 			cur_column = cur_column->next;
-			if(out != NULL && cur_column != start_column) {
+			if ((NULL != out) && (cur_column != start_column)) {
 				new_column->next = ((void*)&out[*out_length]);
 				A2R(new_column->next, new_column->next);
 			}
@@ -129,7 +129,7 @@ void *compress_statement_helper(SqlStatement *stmt, char *out, int *out_length) 
 		UNPACK_SQL_STATEMENT(start_keyword, stmt, keyword);
 		cur_keyword = start_keyword;
 		do {
-			if(out != NULL) {
+			if (NULL != out) {
 				new_keyword = ((void*)&out[*out_length]);
 				memcpy(new_keyword, cur_keyword, sizeof(SqlOptionalKeyword));
 				new_keyword->next = new_keyword->prev = NULL;
@@ -137,7 +137,7 @@ void *compress_statement_helper(SqlStatement *stmt, char *out, int *out_length) 
 			*out_length += sizeof(SqlOptionalKeyword);
 			CALL_COMPRESS_HELPER(r, cur_keyword->v, new_keyword->v, out, out_length);
 			cur_keyword = cur_keyword->next;
-			if(out != NULL && cur_keyword != start_keyword) {
+			if ((NULL != out) && (cur_keyword != start_keyword)) {
 				new_keyword->next = ((void*)&out[*out_length]);
 				A2R(new_keyword->next, new_keyword->next);
 			}

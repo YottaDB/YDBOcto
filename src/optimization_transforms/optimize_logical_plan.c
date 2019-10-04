@@ -160,7 +160,7 @@ LogicalPlan *optimize_logical_plan(LogicalPlan *plan) {
 		// Expand the plan, if needed
 		LogicalPlan	*cur = where->v.operand[0];
 		while(cur != NULL && cur->type == LP_BOOLEAN_OR) {
-			SqlOptionalKeyword	*keywords, *new_keyword, *t;
+			SqlOptionalKeyword	*keywords, *new_keyword;
 
 			keywords = lp_get_select_keywords(plan)->v.keywords;
 			new_keyword = get_keyword_from_keywords(keywords, OPTIONAL_PART_OF_EXPANSION);
@@ -168,7 +168,7 @@ LogicalPlan *optimize_logical_plan(LogicalPlan *plan) {
 				OCTO_CMALLOC_STRUCT(new_keyword, SqlOptionalKeyword);
 				dqinit(new_keyword);
 				new_keyword->keyword = OPTIONAL_PART_OF_EXPANSION;
-				dqinsert(keywords, new_keyword, t);
+				dqappend(keywords, new_keyword);
 			}
 			LogicalPlan	*p = lp_copy_plan(plan);
 			LogicalPlan	*child_where = lp_get_select_where(p);

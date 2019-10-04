@@ -45,7 +45,7 @@ SqlStatement *query_specification(SqlStatement *set_quantifier, SqlStatement *se
 	{
 		SqlStatement		*sql_stmt;
 		SqlColumn		*t_column;
-		SqlColumnListAlias	*cl_alias = NULL, *t_cl_alias, *tt_cl_alias;
+		SqlColumnListAlias	*cl_alias = NULL, *t_cl_alias;
 		SqlJoin			*join, *cur_join, *start_join;
 		SqlTableAlias		*table_alias;
 
@@ -61,7 +61,7 @@ SqlStatement *query_specification(SqlStatement *set_quantifier, SqlStatement *se
 			if (NULL == cl_alias)
 				cl_alias = t_cl_alias;
 			else
-				dqinsert(cl_alias, t_cl_alias, tt_cl_alias);
+				dqappend(cl_alias, t_cl_alias);
 			cur_join = cur_join->next;
 		} while(cur_join != start_join);
 		select_list->v.column_list_alias = cl_alias;

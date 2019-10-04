@@ -83,6 +83,7 @@ void *decompress_statement_helper(SqlStatement *stmt, char *out, int out_length)
 			} else {
 				cur_column->next = R2A(cur_column->next);
 			}
+			cur_column->table = (SqlStatement *)out; /* table is first element in compressed structure i.e. "out" */
 			cur_column->next->prev = cur_column;
 			cur_column = cur_column->next;
 		} while(cur_column != start_column);

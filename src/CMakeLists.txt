@@ -181,7 +181,6 @@ add_library(libocto OBJECT
   m_templates/print_dots.c
   m_templates/resize_tmpl_buffer.c
   m_escape_string2.c
-  replace_table_references.c
   copy_sql_statement.c
   cleanup_tables.c
   parser/query_specification.c

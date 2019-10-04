@@ -19,21 +19,19 @@
 #include "octo_types.h"
 
 int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *column_list_alias, boolean_t match_qualified_columns) {
-	SqlUnaryOperation *unary;
-	SqlBinaryOperation *binary;
-	SqlFunctionCall *fc;
-	SqlColumnList *start_cl, *cur_cl, *column_list;
-	SqlValue *value;
-	SqlCaseStatement *cas;
-	SqlCaseBranchStatement *cas_branch, *cur_branch;
-	SqlColumnListAlias *start_cla, *cur_cla;
-	int result;
-
-	if(stmt == NULL)
-		return 0;
+	SqlUnaryOperation	*unary;
+	SqlBinaryOperation	*binary;
+	SqlFunctionCall		*fc;
+	SqlColumnList		*start_cl, *cur_cl, *column_list;
+	SqlValue		*value;
+	SqlCaseStatement	*cas;
+	SqlCaseBranchStatement	*cas_branch, *cur_branch;
+	SqlColumnListAlias	*start_cla, *cur_cla;
+	int			result;
 
 	result = 0;
-
+	if (NULL == stmt)
+		return result;
 	switch(stmt->type) {
 	case select_STATEMENT:
 		assert(FALSE);
@@ -48,10 +46,9 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *column_
 		case COLUMN_REFERENCE:
 			/// TODO: the value is being leaked here
 			stmt->v.column_alias = qualify_column_name(value, tables, column_list_alias, match_qualified_columns);
-			result |= stmt->v.column_alias == NULL;
-			if(result) {
+			result = (NULL == stmt->v.column_alias);
+			if (result)
 				print_yyloc(&stmt->loc);
-			}
 			// Convert this statement to a qualified one.
 			// Note: "match_column_in_table.c" and "qualify_column_name.c" rely on the below for qualifying
 			//       column names (in case MATCH_QUALIFIED_COLUMNS_TRUE is passed in to those functions.
@@ -129,7 +126,8 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *column_
 		break;
 	default:
 		ERROR(ERR_UNKNOWN_KEYWORD_STATE, "");
-		return 1;
+		result = 1;
+		break;
 	}
 	return result;
 }

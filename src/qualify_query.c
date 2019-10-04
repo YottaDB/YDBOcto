@@ -26,7 +26,7 @@ int qualify_query(SqlStatement *stmt, SqlJoin *parent_join) {
 		SqlTableAlias		*table_alias;
 		SqlSelectStatement	*select;
 		SqlJoin			*join;
-		SqlJoin			*prev_start, *prev_end, *temp_join;
+		SqlJoin			*prev_start, *prev_end;
 		SqlJoin			*start_join, *cur_join;
 
 		UNPACK_SQL_STATEMENT(table_alias, stmt, table_alias);
@@ -40,7 +40,7 @@ int qualify_query(SqlStatement *stmt, SqlJoin *parent_join) {
 		prev_start = join;
 		prev_end = join->prev;
 		if(parent_join != NULL) {
-			dqinsert(join, parent_join, temp_join);
+			dqappend(join, parent_join);
 		}
 		// First qualify subqueries
 		start_join = cur_join = join;

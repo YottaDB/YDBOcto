@@ -15,12 +15,12 @@ sql_select_statement
       $$ = $query_specification;
       SqlTableAlias *table_alias;
       SqlSelectStatement *select;
-      SqlOptionalKeyword *select_words, *new_words, *t;
+      SqlOptionalKeyword *select_words, *new_words;
       UNPACK_SQL_STATEMENT(table_alias, $$, table_alias);
       UNPACK_SQL_STATEMENT(select, table_alias->table, select);
       UNPACK_SQL_STATEMENT(select_words, select->optional_words, keyword);
       UNPACK_SQL_STATEMENT(new_words, $optional_query_words, keyword);
-      dqinsert(select_words, new_words, t);
+      dqappend(select_words, new_words);
     }
   ;
 
@@ -28,9 +28,9 @@ sql_select_statement
 optional_query_words
   : optional_query_word_element optional_query_word_tail {
       $$ = $optional_query_word_element;
-      SqlOptionalKeyword *keyword, *t_keyword;
+      SqlOptionalKeyword *keyword;
       UNPACK_SQL_STATEMENT(keyword, $optional_query_word_tail, keyword);
-      dqinsert(keyword, ($$)->v.keyword, t_keyword);
+      dqappend(keyword, ($$)->v.keyword);
     }
   | /* Empty */ {
       SQL_STATEMENT($$, keyword_STATEMENT);
@@ -176,7 +176,7 @@ query_specification
       SQL_STATEMENT(join->value, table_alias_STATEMENT);
       MALLOC_STATEMENT(join->value, table_alias, SqlTableAlias);
       UNPACK_SQL_STATEMENT(alias, join->value, table_alias);
-      SQL_STATEMENT(alias->table, table_STATEMENT);
+      SQL_STATEMENT_FROM_TABLE_STATEMENT(alias->table, table);
       alias->table->v.table = table;
       alias->alias = table->tableName;
       // We can probably put a variable in the bison local for this
@@ -200,10 +200,10 @@ select_sublist
       $$ = $derived_column;
       // deviation from pattern here so we don't have to deal with "NOT_A_COLUMN" elsewhere
       if($select_sublist_tail != NULL) {
-        SqlColumnListAlias *list1, *list2, *t_column_list;
+        SqlColumnListAlias *list1, *list2;
         UNPACK_SQL_STATEMENT(list1, $$, column_list_alias);
         UNPACK_SQL_STATEMENT(list2, $select_sublist_tail, column_list_alias);
-        dqinsert(list2, list1, t_column_list);
+        dqappend(list2, list1);
       }
     }
   ;
@@ -300,7 +300,7 @@ table_reference
       SQL_STATEMENT($$, join_STATEMENT);
       MALLOC_STATEMENT($$, join, SqlJoin);
       SqlTable *table = find_table($column_name->v.value->v.reference);
-      SqlJoin *join = $$->v.join, *join_tail, *t_join;
+      SqlJoin *join = $$->v.join, *join_tail;
       SqlColumn *column;
       SqlTableAlias *alias;
       if(table == NULL) {
@@ -311,7 +311,7 @@ table_reference
       SQL_STATEMENT(join->value, table_alias_STATEMENT);
       MALLOC_STATEMENT(join->value, table_alias, SqlTableAlias);
       UNPACK_SQL_STATEMENT(alias, join->value, table_alias);
-      SQL_STATEMENT(alias->table, table_STATEMENT);
+      SQL_STATEMENT_FROM_TABLE_STATEMENT(alias->table, table);
       alias->table->v.table = table;
       alias->alias = table->tableName;
       // We can probably put a variable in the bison local for this
@@ -324,14 +324,14 @@ table_reference
       if($table_reference_tail) {
         UNPACK_SQL_STATEMENT(join_tail, $table_reference_tail, join);
         join->type = CROSS_JOIN;
-        dqinsert(join, join_tail, t_join);
+        dqappend(join, join_tail);
       }
     }
   | column_name correlation_specification table_reference_tail {
       SQL_STATEMENT($$, join_STATEMENT);
       MALLOC_STATEMENT($$, join, SqlJoin);
       SqlTable *table = find_table($column_name->v.value->v.reference);
-      SqlJoin *join = $$->v.join, *join_tail, *t_join;
+      SqlJoin *join = $$->v.join, *join_tail;
       SqlColumn *column;
       SqlTableAlias *alias;
       if(table == NULL) {
@@ -342,7 +342,7 @@ table_reference
       SQL_STATEMENT(join->value, table_alias_STATEMENT);
       MALLOC_STATEMENT(join->value, table_alias, SqlTableAlias);
       UNPACK_SQL_STATEMENT(alias, join->value, table_alias);
-      SQL_STATEMENT(alias->table, table_STATEMENT);
+      SQL_STATEMENT_FROM_TABLE_STATEMENT(alias->table, table);
       alias->table->v.table = table;
       alias->alias = $correlation_specification;
       // We can probably put a variable in the bison local for this
@@ -355,7 +355,7 @@ table_reference
       if($table_reference_tail) {
         UNPACK_SQL_STATEMENT(join_tail, $table_reference_tail, join);
         join->type = CROSS_JOIN;
-        dqinsert(join, join_tail, t_join);
+        dqappend(join, join_tail);
       }
     }
   | derived_table {
@@ -414,27 +414,27 @@ joined_table
 
 cross_join
   : table_reference CROSS JOIN table_reference {
-      SqlJoin *left, *right, *t_join;
+      SqlJoin *left, *right;
       $$ = $1;
       UNPACK_SQL_STATEMENT(left, $$, join);
       UNPACK_SQL_STATEMENT(right, $4, join);
       left->type = CROSS_JOIN;
-      dqinsert(left, right, t_join);
+      dqappend(left, right);
     }
   ;
 
 qualified_join
   : table_reference JOIN table_reference join_specification {
-      SqlJoin *left, *right, *t_join;
+      SqlJoin *left, *right;
       $$ = $1;
       UNPACK_SQL_STATEMENT(left, $$, join);
       UNPACK_SQL_STATEMENT(right, $3, join);
       right->type = INNER_JOIN;
       right->condition = $join_specification;
-      dqinsert(left, right, t_join);
+      dqappend(left, right);
     }
   | table_reference NATURAL JOIN table_reference optional_join_specification {
-      SqlJoin *left, *right, *t_join;
+      SqlJoin *left, *right;
       $$ = $1;
       UNPACK_SQL_STATEMENT(left, $$, join);
       UNPACK_SQL_STATEMENT(right, $4, join);
@@ -445,17 +445,17 @@ qualified_join
       } else {
         left->condition = $optional_join_specification;
       }
-      dqinsert(left, right, t_join);
+      dqappend(left, right);
     }
 
   | table_reference join_type JOIN table_reference join_specification {
-      SqlJoin *left, *right, *t_join;
+      SqlJoin *left, *right;
       $$ = $1;
       UNPACK_SQL_STATEMENT(left, $$, join);
       UNPACK_SQL_STATEMENT(right, $4, join);
       UNPACK_SQL_STATEMENT(right->type, $join_type, join_type);
       right->condition = $join_specification;
-      dqinsert(left, right, t_join);
+      dqappend(left, right);
     }
   | table_reference NATURAL join_type JOIN table_reference join_specification
   ;

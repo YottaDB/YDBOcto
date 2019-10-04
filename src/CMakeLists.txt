@@ -137,7 +137,8 @@ add_library(libocto OBJECT
   memory_chunk.c
   match_column_in_table.c
   natural_join_condition.c
-  regex_to_like.c
+  like_to_regex.c
+  similar_to_regex.c
   compress_statement.c
   decompress_statement.c
   store_table_in_pg_class.c
@@ -186,6 +187,7 @@ add_library(libocto OBJECT
   parser/query_specification.c
   parser/sort_specification.c
   parser/trim_dot_star.c
+  parser/regex_specification.c
   ${BISON_OctoParser_OUTPUTS}
   ${FLEX_OctoLexer_OUTPUTS}
   ${POST_CONFIGURE_FILE}

@@ -112,6 +112,7 @@ int copied_so_far;
 (?i:GROUP) { return GROUP; }
 (?i:HAVING) { return HAVING; }
 (?i:IDENTIFIER_START) { return IDENTIFIER_START; }
+(?i:ILIKE) { return ILIKE; }
 (?i:IN) { return IN; }
 (?i:INNER) { return INNER; }
 (?i:INSERT) { return INSERT; }
@@ -144,6 +145,7 @@ int copied_so_far;
 (?i:RIGHT) { return RIGHT; }
 (?i:SELECT) { return SELECT; }
 (?i:SET) { return SET; }
+(?i:SIMILAR) { return SIMILAR; }
 (?i:SHOW) { return SHOW; }
 (?i:SMALLINT) { return SMALLINT; }
 (?i:START) { return START; }

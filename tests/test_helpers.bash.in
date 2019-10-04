@@ -387,3 +387,9 @@ run_query_in_octo_and_postgres_and_crosscheck() {
     return
 }
 
+run_lines_in_octo() {
+	while read line; do
+		echo $line | octo  2>&1 | tee -a output.txt
+	done < $1
+}
+

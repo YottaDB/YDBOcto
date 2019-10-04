@@ -1,0 +1,18 @@
+OCTO> select id from names where 'xyz' !~~* 'abc';
+0
+1
+2
+3
+4
+5
+OCTO> 
+OCTO> select id from names where 'xyz' !~~* 'XYZ';
+OCTO> 
+OCTO> select id from names where 'xyz' !~~* 'ayz';
+0
+1
+2
+3
+4
+5
+OCTO> 

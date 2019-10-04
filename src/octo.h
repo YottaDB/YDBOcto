@@ -123,7 +123,8 @@ SqlOptionalKeyword *get_keyword_from_keywords(SqlOptionalKeyword *start_keyword,
 int get_key_columns(SqlTable *table, SqlColumn **key_columns);
 int generate_key_name(char *buffer, int buffer_size, int target_key_num, SqlTable *table, SqlColumn **key_columns);
 
-char *regex_to_like(const char *src);
+char *like_to_regex(const char *src);
+char *similar_to_regex(const char *src);
 
 /* Hashing support functions */
 int generate_routine_name(hash128_state_t *state, char *routine_name, int routine_len, FileType file_type);
@@ -151,6 +152,7 @@ void cleanup_tables();
 SqlStatement *query_specification(SqlStatement *set_quantifier, SqlStatement *select_list,
 					SqlStatement *table_expression, SqlStatement *sort_specification_list, int *plan_id);
 SqlStatement *sort_specification(SqlStatement *sort_key, SqlStatement *collate_clause, SqlStatement *ordering_specification);
+void regex_specification(SqlStatement **stmt, SqlStatement *op0, SqlStatement *op1, int is_regex_like_or_similar, int is_sensitive, int is_not);
 
 /* trims duplicate '.*'s from regex */
 void trim_dot_star(SqlValue *regex);

@@ -96,6 +96,7 @@ extern void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, int *plan
 %token GROUP
 %token HAVING
 %token IDENTIFIER_START
+%token ILIKE
 %token IN
 %token INNER
 %token INSERT
@@ -129,6 +130,7 @@ extern void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, int *plan
 %token SELECT
 %token SET
 %token SHOW
+%token SIMILAR
 %token SMALLINT
 %token START
 %token SUM
@@ -513,79 +515,64 @@ comparison_predicate
       ($$)->v.binary->operands[1] = ($3);
     }
   | row_value_constructor TILDE row_value_constructor {
-      SQL_STATEMENT($$, binary_STATEMENT);
-      MALLOC_STATEMENT($$, binary, SqlBinaryOperation);
-      ($$)->v.binary->operation = BOOLEAN_REGEX_SENSITIVE;
-      ($$)->v.binary->operands[0] = ($1);
-      trim_dot_star(($3)->v.value);
-      ($$)->v.binary->operands[1] = ($3);
+      /* generates a regex type statement
+       * operand 1 - always &($$): is the actual SqlStatement that gets passed up
+       * operand 2, and 3 - the left and right operands respectively
+       * operand 4 - which operator to convert: 0 = regex; 1 = LIKE; 2 = SIMILAR
+       * operand 5 - case sensitivity: FALSE = insensitive; TRUE = sensitive
+       * operand 6 - not operator: FALSE = no NOT; TRUE = NOT
+       */
+      regex_specification(&($$), ($1), ($3), 0, TRUE, FALSE);
     }
   | row_value_constructor TILDE ASTERISK row_value_constructor {
-      SQL_STATEMENT($$, binary_STATEMENT);
-      MALLOC_STATEMENT($$, binary, SqlBinaryOperation);
-      ($$)->v.binary->operation = BOOLEAN_REGEX_INSENSITIVE;
-      ($$)->v.binary->operands[0] = ($1);
-      trim_dot_star(($4)->v.value);
-      ($$)->v.binary->operands[1] = ($4);
+      regex_specification(&($$), ($1), ($4), 0, FALSE, FALSE);
     }
   | row_value_constructor EXCLAMATION TILDE row_value_constructor {
-      SQL_STATEMENT($$, unary_STATEMENT);
-      MALLOC_STATEMENT($$, unary, SqlUnaryOperation);
-      SQL_STATEMENT(($$)->v.unary->operand, binary_STATEMENT);
-      MALLOC_STATEMENT(($$)->v.unary->operand, binary, SqlBinaryOperation);
-      ($$)->v.unary->operation = BOOLEAN_NOT;
-      (($$)->v.unary->operand)->v.binary->operation = BOOLEAN_REGEX_SENSITIVE;
-      (($$)->v.unary->operand)->v.binary->operands[0] = ($1);
-      trim_dot_star(($4)->v.value);
-      (($$)->v.unary->operand)->v.binary->operands[1] = ($4);
+      regex_specification(&($$), ($1), ($4), 0, TRUE, TRUE);
     }
   | row_value_constructor EXCLAMATION TILDE ASTERISK row_value_constructor {
-      SQL_STATEMENT($$, unary_STATEMENT);
-      MALLOC_STATEMENT($$, unary, SqlUnaryOperation);
-      SQL_STATEMENT(($$)->v.unary->operand, binary_STATEMENT);
-      MALLOC_STATEMENT(($$)->v.unary->operand, binary, SqlBinaryOperation);
-      ($$)->v.unary->operation = BOOLEAN_NOT;
-      (($$)->v.unary->operand)->v.binary->operation = BOOLEAN_REGEX_INSENSITIVE;
-      (($$)->v.unary->operand)->v.binary->operands[0] = ($1);
-      trim_dot_star(($5)->v.value);
-      (($$)->v.unary->operand)->v.binary->operands[1] = ($5);
+      regex_specification(&($$), ($1), ($5), 0, FALSE, TRUE);
     }
-  | row_value_constructor LIKE row_value_constructor {
-      SQL_STATEMENT($$, binary_STATEMENT);
-      MALLOC_STATEMENT($$, binary, SqlBinaryOperation);
-      ($$)->v.binary->operation = BOOLEAN_REGEX_SENSITIVE;
-      ($$)->v.binary->operands[0] = ($1);
-      SqlValue *value;
-      UNPACK_SQL_STATEMENT(value, $3, value);
-      if(value->type == COERCE_TYPE) {
-          value->v.coerce_target->v.value->v.string_literal = regex_to_like(value->v.coerce_target->v.value->v.string_literal);
-          trim_dot_star(value->v.coerce_target->v.value);
-      } else {
-          value->v.string_literal = regex_to_like(value->v.string_literal);
-          trim_dot_star(value);
-      }
-      ($$)->v.binary->operands[1] = ($3);
+  | row_value_constructor like_predicate row_value_constructor {
+      regex_specification(&($$), ($1), ($3), 1, TRUE, FALSE);
     }
-  | row_value_constructor NOT LIKE row_value_constructor {
-      SQL_STATEMENT($$, unary_STATEMENT);
-      MALLOC_STATEMENT($$, unary, SqlUnaryOperation);
-      SQL_STATEMENT(($$)->v.unary->operand, binary_STATEMENT);
-      MALLOC_STATEMENT(($$)->v.unary->operand, binary, SqlBinaryOperation);
-      ($$)->v.unary->operation = BOOLEAN_NOT;
-      (($$)->v.unary->operand)->v.binary->operation = BOOLEAN_REGEX_SENSITIVE;
-      (($$)->v.unary->operand)->v.binary->operands[0] = ($1);
-      SqlValue *value;
-      UNPACK_SQL_STATEMENT(value, $4, value);
-      if(value->type == COERCE_TYPE) {
-          value->v.coerce_target->v.value->v.string_literal = regex_to_like(value->v.coerce_target->v.value->v.string_literal);
-          trim_dot_star(value->v.coerce_target->v.value);
-      } else {
-          value->v.string_literal = regex_to_like(value->v.string_literal);
-          trim_dot_star(value);
-      }
-      (($$)->v.unary->operand)->v.binary->operands[1] = ($4);
+  | row_value_constructor not_like_predicate row_value_constructor {
+      regex_specification(&($$), ($1), ($3), 1, TRUE, TRUE);
+    }
+  | row_value_constructor insensitive_like_predicate row_value_constructor {
+      regex_specification(&($$), ($1), ($3), 1, FALSE, FALSE);
+    }
+  | row_value_constructor not_insensitive_like_predicate row_value_constructor {
+      regex_specification(&($$), ($1), ($3), 1, FALSE, TRUE);
+    }
+  | row_value_constructor SIMILAR TO row_value_constructor {
+      regex_specification(&($$), ($1), ($4), 2, TRUE, FALSE);
+    }
+  | row_value_constructor NOT SIMILAR TO row_value_constructor {
+      regex_specification(&($$), ($1), ($5), 2, TRUE, TRUE);
     }
   ;
+
+like_predicate
+  : TILDE TILDE
+  | LIKE
+  ;
+
+not_like_predicate
+  : EXCLAMATION TILDE TILDE
+  | NOT LIKE
+  ;
+
+insensitive_like_predicate
+  : TILDE TILDE ASTERISK
+  | ILIKE
+  ;
+
+not_insensitive_like_predicate
+  : EXCLAMATION TILDE TILDE ASTERISK
+  | NOT ILIKE
+  ;
+
 
 between_predicate
   : row_value_constructor BETWEEN value_expression AND value_expression {

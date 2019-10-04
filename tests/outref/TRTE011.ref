@@ -1,0 +1,56 @@
+OCTO> select id from names where 'abc' !~ 'abc';
+OCTO> 
+OCTO> select id from names where 'abc' !~ 'a';
+OCTO> 
+OCTO> select id from names where 'abc' !~ 'a.*';
+OCTO> 
+OCTO> select id from names where 'abc' !~ '...';
+OCTO> 
+OCTO> select id from names where 'abc' !~ '___';
+0
+1
+2
+3
+4
+5
+OCTO> 
+OCTO> select id from names where '___' !~ '___';
+OCTO> 
+OCTO> select id from names where 'abc' !~ '%';
+0
+1
+2
+3
+4
+5
+OCTO> 
+OCTO> select id from names where '%' !~ '%';
+OCTO> 
+OCTO> select id from names where 'aaaa' !~ 'a*';
+OCTO> 
+OCTO> select id from names where '.*' !~ '\.\*';
+OCTO> 
+OCTO> select id from names where 'aaaa' !~ 'a\{4\}';
+OCTO> 
+OCTO> select id from names where 'aaaa' !~ 'a\{1,\}';
+OCTO> 
+OCTO> select id from names where 'aaaa' !~ 'a\{1,10\}';
+OCTO> 
+OCTO> select id from names where 'a' !~ '[abc]';
+OCTO> 
+OCTO> select id from names where 'abc' !~ 'abc\|d';
+OCTO> 
+OCTO> select id from names where 'abd' !~ 'abc\|d';
+OCTO> 
+OCTO> select id from names where 'abc|d' !~ 'abc|d';
+OCTO> 
+OCTO> select id from names where 'abc' !~ '\(xyz\)\|\(abc\)';
+OCTO> 
+OCTO> select id from names where 'aaaa' !~ 'a\+';
+OCTO> 
+OCTO> select id from names where 'a+' !~ 'a+';
+OCTO> 
+OCTO> select id from names where 'a' !~ 'ab\?';
+OCTO> 
+OCTO> select id from names where 'a?' !~ 'a?';
+OCTO> 

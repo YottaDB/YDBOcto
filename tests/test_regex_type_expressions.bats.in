@@ -1,0 +1,306 @@
+#################################################################
+#								#
+# Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	#
+# All rights reserved.						#
+#								#
+#	This source code contains the intellectual property	#
+#	of its copyright holder(s), and is made available	#
+#	under a license.  If you do not know the terms of	#
+#	the license, please stop and do not read further.	#
+#								#
+#################################################################
+
+load test_helpers
+
+setup() {
+  init_test
+  createdb
+  load_fixture names.sql
+  load_fixture names.zwr
+  # this helps avoid having a large number of \ due to various escapes
+  export bs="\\"
+  export dbs=${bs}${bs}
+  export qbs=${dbs}${dbs}
+}
+
+@test "TRTE000 : LIKE variants" {
+  cat <<CAT >> input.sql
+select id from names where 'abc' like 'abc';
+select id from names where 'abc' like 'ABC';
+select id from names where 'abc' like 'xyz';
+select id from names where 'abc' like 'a';
+select id from names where 'abc' like '%';
+select id from names where '%' like '${dbs}%';
+select id from names where 'abc' like '___';
+select id from names where 'abc' like 'a_c';
+select id from names where 'abc' like '.*';
+select id from names where '.*' like '.*';
+select id from names where '.*' like '${dbs}.${dbs}*';
+select id from names where '${dbs}.${dbs}*' like '${qbs}.${qbs}*';
+select id from names where 'aaaa' like 'a*';
+select id from names where 'aaaa' like 'a${dbs}*';
+select id from names where 'a' like '[abc]';
+select id from names where '[abc]' like '[abc]';
+select id from names where '${dbs}' like '${qbs}';
+CAT
+  run_lines_in_octo input.sql
+  verify_output TRTE000 output.txt
+}
+
+@test "TRTE001 : NOT LIKE variants" {
+  cat <<CAT >> input.sql
+select id from names where 'abc' not like 'abc';
+select id from names where 'abc' not like 'ABC';
+select id from names where 'abc' not like 'xyz';
+select id from names where 'abc' not like 'a';
+select id from names where 'abc' not like '%';
+select id from names where 'abc' not like '___';
+select id from names where 'abc' not like 'a_c';
+select id from names where 'abc' not like '.*';
+select id from names where '.*' not like '.*';
+select id from names where '.*' not like '${dbs}.${dbs}*';
+select id from names where '${dbs}.${dbs}*' not like '${qbs}.${qbs}*';
+select id from names where 'aaaa' not like 'a*';
+select id from names where 'aaaa' not like 'a${dbs}*';
+select id from names where 'a' not like '[abc]';
+select id from names where '[abc]' not like '[abc]';
+select id from names where '${dbs}' not like '${qbs}';
+CAT
+  run_lines_in_octo input.sql
+  verify_output TRTE001 output.txt
+}
+
+@test "TRTE002 : ILIKE variants" {
+  cat <<CAT >> input.sql
+select id from names where 'abc' ilike 'abc';
+select id from names where 'abc' ilike 'ABC';
+select id from names where 'abc' ilike 'AbC';
+select id from names where 'ABC' ilike 'abc';
+CAT
+  run_lines_in_octo input.sql
+  verify_output TRTE002 output.txt
+}
+
+@test "TRTE003 : NOT ILIKE variants" {
+  cat <<CAT >> input.sql
+select id from names where 'xyz' not ilike 'abc';
+select id from names where 'xyz' not ilike 'XYZ';
+select id from names where 'xyz' not ilike 'ayz';
+CAT
+  run_lines_in_octo input.sql
+  verify_output TRTE003 output.txt
+}
+
+@test "TRTE004 : ~~ variants" {
+  cat <<CAT >> input.sql
+select id from names where 'abc' ~~ 'abc';
+select id from names where 'abc' ~~ 'ABC';
+select id from names where 'abc' ~~ 'xyz';
+select id from names where 'abc' ~~ 'a';
+select id from names where 'abc' ~~ '%';
+select id from names where 'abc' ~~ '___';
+select id from names where 'abc' ~~ 'a_c';
+select id from names where 'abc' ~~ '.*';
+select id from names where '.*' ~~ '.*';
+select id from names where '.*' ~~ '${dbs}.${dbs}*';
+select id from names where '${dbs}.${dbs}*' ~~ '${qbs}.${qbs}*';
+select id from names where 'aaaa' ~~ 'a*';
+select id from names where 'aaaa' ~~ 'a${dbs}*';
+select id from names where 'a' ~~ '[abc]';
+select id from names where '[abc]' ~~ '[abc]';
+select id from names where '${dbs}' ~~ '${qbs}';
+CAT
+  run_lines_in_octo input.sql
+  verify_output TRTE004 output.txt
+}
+
+@test "TRTE005 : !~~ variants" {
+  cat <<CAT >> input.sql
+select id from names where 'abc' !~~ 'abc';
+select id from names where 'abc' !~~ 'ABC';
+select id from names where 'abc' !~~ 'xyz';
+select id from names where 'abc' !~~ 'a';
+select id from names where 'abc' !~~ '%';
+select id from names where 'abc' !~~ '___';
+select id from names where 'abc' !~~ 'a_c';
+select id from names where 'abc' !~~ '.*';
+select id from names where '.*' !~~ '.*';
+select id from names where '.*' !~~ '${dbs}.${dbs}*';
+select id from names where '${dbs}.${dbs}*' !~~ '${qbs}.${qbs}*';
+select id from names where 'aaaa' !~~ 'a*';
+select id from names where 'aaaa' !~~ 'a${dbs}*';
+select id from names where 'a' !~~ '[abc]';
+select id from names where '[abc]' !~~ '[abc]';
+select id from names where '${dbs}' !~~ '${qbs}';
+CAT
+  run_lines_in_octo input.sql
+  verify_output TRTE005 output.txt
+}
+
+@test "TRTE006 : ~~* variants" {
+  cat <<CAT >> input.sql
+select id from names where 'abc' ~~* 'abc';
+select id from names where 'abc' ~~* 'ABC';
+select id from names where 'abc' ~~* 'AbC';
+select id from names where 'ABC' ~~* 'abc';
+CAT
+  run_lines_in_octo input.sql
+  verify_output TRTE006 output.txt
+}
+
+@test "TRTE007 : !~~* variants" {
+  cat <<CAT >> input.sql
+select id from names where 'xyz' !~~* 'abc';
+select id from names where 'xyz' !~~* 'XYZ';
+select id from names where 'xyz' !~~* 'ayz';
+CAT
+  run_lines_in_octo input.sql
+  verify_output TRTE007 output.txt
+}
+
+@test "TRTE008 : SIMILAR TO variants" {
+  cat <<CAT >> input.sql
+select id from names where 'abc' similar to 'abc';
+select id from names where 'abc' similar to 'ABC';
+select id from names where 'abc' similar to 'xyz';
+select id from names where 'abc' similar to 'a';
+select id from names where 'abc' similar to '%';
+select id from names where '%' similar to '${dbs}%';
+select id from names where 'abc' similar to '___';
+select id from names where 'abc' similar to '_*';
+select id from names where 'abc' similar to '_${dbs}*';
+select id from names where 'a*' similar to '_${dbs}*';
+select id from names where '_' similar to '${dbs}_';
+select id from names where '...' similar to '...';
+select id from names where 'aaaa' similar to 'a{4}';
+select id from names where 'aaaa' similar to 'a{1,}';
+select id from names where 'aaaa' similar to 'a{1,10}';
+select id from names where 'a' similar to '[abc]';
+select id from names where 'abc' similar to 'abc|d';
+select id from names where 'abd' similar to 'abc|d';
+select id from names where 'abc|d' similar to 'abc${dbs}|d';
+select id from names where 'abc' similar to '(xyz)|(abc)';
+select id from names where 'aaaa' similar to 'a+';
+select id from names where 'a+' similar to 'a${dbs}+';
+select id from names where 'a' similar to 'ab?';
+select id from names where 'a?' similar to 'a${dbs}?';
+CAT
+  run_lines_in_octo input.sql
+  verify_output TRTE008 output.txt
+}
+
+@test "TRTE009 : NOT SIMILAR TO variants" {
+  cat <<CAT >> input.sql
+select id from names where 'abc' not similar to 'abc';
+select id from names where 'abc' not similar to 'ABC';
+select id from names where 'abc' not similar to 'xyz';
+select id from names where 'abc' not similar to 'a';
+select id from names where 'abc' not similar to '%';
+select id from names where '%' not similar to '${dbs}%';
+select id from names where 'abc' not similar to '___';
+select id from names where 'abc' not similar to '_*';
+select id from names where 'abc' not similar to '_${dbs}*';
+select id from names where 'a*' not similar to '_${dbs}*';
+select id from names where '_' not similar to '${dbs}_';
+select id from names where '...' not similar to '...';
+select id from names where 'aaaa' not similar to 'a{4}';
+select id from names where 'aaaa' not similar to 'a{1,}';
+select id from names where 'aaaa' not similar to 'a{1,10}';
+select id from names where 'a' not similar to '[abc]';
+select id from names where 'abc' not similar to 'abc|d';
+select id from names where 'abd' not similar to 'abc|d';
+select id from names where 'abc|d' not similar to 'abc${dbs}|d';
+select id from names where 'abc' not similar to '(xyz)|(abc)';
+select id from names where 'aaaa' not similar to 'a+';
+select id from names where 'a+' not similar to 'a${dbs}+';
+select id from names where 'a' not similar to 'ab?';
+select id from names where 'a?' not similar to 'a${dbs}?';
+CAT
+  run_lines_in_octo input.sql
+  verify_output TRTE009 output.txt
+}
+
+@test "TRTE010 : ~ variants" {
+  cat <<CAT >> input.sql
+select id from names where 'abc' ~ 'abc';
+select id from names where 'abc' ~ 'ABC';
+select id from names where 'abc' ~ 'xyz';
+select id from names where 'abc' ~ 'a';
+select id from names where 'abc' ~ 'a.*';
+select id from names where 'abc' ~ '...';
+select id from names where 'abc' ~ '___';
+select id from names where '___' ~ '___';
+select id from names where 'abc' ~ '%';
+select id from names where '%' ~ '%';
+select id from names where 'aaaa' ~ 'a*';
+select id from names where '.*' ~ '${dbs}.${dbs}*';
+select id from names where 'aaaa' ~ 'a${dbs}{4${dbs}}';
+select id from names where 'aaaa' ~ 'a${dbs}{1,${dbs}}';
+select id from names where 'aaaa' ~ 'a${dbs}{1,10${dbs}}';
+select id from names where 'a' ~ '[abc]';
+select id from names where 'abc' ~ 'abc${dbs}|d';
+select id from names where 'abd' ~ 'abc${dbs}|d';
+select id from names where 'abc|d' ~ 'abc|d';
+select id from names where 'abc' ~ '${dbs}(xyz${dbs})${dbs}|${dbs}(abc${dbs})';
+select id from names where 'aaaa' ~ 'a${dbs}+';
+select id from names where 'a+' ~ 'a+';
+select id from names where 'a' ~ 'ab${dbs}?';
+select id from names where 'a?' ~ 'a?';
+CAT
+  run_lines_in_octo input.sql
+  verify_output TRTE010 output.txt
+}
+
+@test "TRTE011 : !~ variants" {
+  cat <<CAT >> input.sql
+select id from names where 'abc' !~ 'abc';
+select id from names where 'abc' !~ 'a';
+select id from names where 'abc' !~ 'a.*';
+select id from names where 'abc' !~ '...';
+select id from names where 'abc' !~ '___';
+select id from names where '___' !~ '___';
+select id from names where 'abc' !~ '%';
+select id from names where '%' !~ '%';
+select id from names where 'aaaa' !~ 'a*';
+select id from names where '.*' !~ '${dbs}.${dbs}*';
+select id from names where 'aaaa' !~ 'a${dbs}{4${dbs}}';
+select id from names where 'aaaa' !~ 'a${dbs}{1,${dbs}}';
+select id from names where 'aaaa' !~ 'a${dbs}{1,10${dbs}}';
+select id from names where 'a' !~ '[abc]';
+select id from names where 'abc' !~ 'abc${dbs}|d';
+select id from names where 'abd' !~ 'abc${dbs}|d';
+select id from names where 'abc|d' !~ 'abc|d';
+select id from names where 'abc' !~ '${dbs}(xyz${dbs})${dbs}|${dbs}(abc${dbs})';
+select id from names where 'aaaa' !~ 'a${dbs}+';
+select id from names where 'a+' !~ 'a+';
+select id from names where 'a' !~ 'ab${dbs}?';
+select id from names where 'a?' !~ 'a?';
+CAT
+  run_lines_in_octo input.sql
+  verify_output TRTE011 output.txt
+}
+
+@test "TRTE012 : ~* variants" {
+  cat <<CAT >> input.sql
+select id from names where 'abc' ~* 'abc';
+select id from names where 'abc' ~* 'ABC';
+select id from names where 'abc' ~* 'AbC';
+select id from names where 'abc' ~* 'A';
+select id from names where 'aAaAaAa' ~* 'a*';
+CAT
+  run_lines_in_octo input.sql
+  verify_output TRTE012 output.txt
+}
+
+@test "TRTE013 : !~* variants" {
+  cat <<CAT >> input.sql
+select id from names where 'xyz' !~* 'abc';
+select id from names where 'xyz' !~* 'XYZ';
+select id from names where 'xyz' !~* 'ayz';
+select id from names where 'xyz' !~* 'a';
+select id from names where 'xyz' !~* 'x';
+select id from names where 'xyz' !~* 'X';
+CAT
+  run_lines_in_octo input.sql
+  verify_output TRTE013 output.txt
+}

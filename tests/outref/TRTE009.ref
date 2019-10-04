@@ -1,0 +1,72 @@
+OCTO> select id from names where 'abc' not similar to 'abc';
+OCTO> 
+OCTO> select id from names where 'abc' not similar to 'ABC';
+0
+1
+2
+3
+4
+5
+OCTO> 
+OCTO> select id from names where 'abc' not similar to 'xyz';
+0
+1
+2
+3
+4
+5
+OCTO> 
+OCTO> select id from names where 'abc' not similar to 'a';
+0
+1
+2
+3
+4
+5
+OCTO> 
+OCTO> select id from names where 'abc' not similar to '%';
+OCTO> 
+OCTO> select id from names where '%' not similar to '\%';
+OCTO> 
+OCTO> select id from names where 'abc' not similar to '___';
+OCTO> 
+OCTO> select id from names where 'abc' not similar to '_*';
+OCTO> 
+OCTO> select id from names where 'abc' not similar to '_\*';
+0
+1
+2
+3
+4
+5
+OCTO> 
+OCTO> select id from names where 'a*' not similar to '_\*';
+OCTO> 
+OCTO> select id from names where '_' not similar to '\_';
+OCTO> 
+OCTO> select id from names where '...' not similar to '...';
+OCTO> 
+OCTO> select id from names where 'aaaa' not similar to 'a{4}';
+OCTO> 
+OCTO> select id from names where 'aaaa' not similar to 'a{1,}';
+OCTO> 
+OCTO> select id from names where 'aaaa' not similar to 'a{1,10}';
+OCTO> 
+OCTO> select id from names where 'a' not similar to '[abc]';
+OCTO> 
+OCTO> select id from names where 'abc' not similar to 'abc|d';
+OCTO> 
+OCTO> select id from names where 'abd' not similar to 'abc|d';
+OCTO> 
+OCTO> select id from names where 'abc|d' not similar to 'abc\|d';
+OCTO> 
+OCTO> select id from names where 'abc' not similar to '(xyz)|(abc)';
+OCTO> 
+OCTO> select id from names where 'aaaa' not similar to 'a+';
+OCTO> 
+OCTO> select id from names where 'a+' not similar to 'a\+';
+OCTO> 
+OCTO> select id from names where 'a' not similar to 'ab?';
+OCTO> 
+OCTO> select id from names where 'a?' not similar to 'a\?';
+OCTO> 

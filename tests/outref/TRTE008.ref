@@ -1,0 +1,168 @@
+OCTO> select id from names where 'abc' similar to 'abc';
+0
+1
+2
+3
+4
+5
+OCTO> 
+OCTO> select id from names where 'abc' similar to 'ABC';
+OCTO> 
+OCTO> select id from names where 'abc' similar to 'xyz';
+OCTO> 
+OCTO> select id from names where 'abc' similar to 'a';
+OCTO> 
+OCTO> select id from names where 'abc' similar to '%';
+0
+1
+2
+3
+4
+5
+OCTO> 
+OCTO> select id from names where '%' similar to '\%';
+0
+1
+2
+3
+4
+5
+OCTO> 
+OCTO> select id from names where 'abc' similar to '___';
+0
+1
+2
+3
+4
+5
+OCTO> 
+OCTO> select id from names where 'abc' similar to '_*';
+0
+1
+2
+3
+4
+5
+OCTO> 
+OCTO> select id from names where 'abc' similar to '_\*';
+OCTO> 
+OCTO> select id from names where 'a*' similar to '_\*';
+0
+1
+2
+3
+4
+5
+OCTO> 
+OCTO> select id from names where '_' similar to '\_';
+0
+1
+2
+3
+4
+5
+OCTO> 
+OCTO> select id from names where '...' similar to '...';
+0
+1
+2
+3
+4
+5
+OCTO> 
+OCTO> select id from names where 'aaaa' similar to 'a{4}';
+0
+1
+2
+3
+4
+5
+OCTO> 
+OCTO> select id from names where 'aaaa' similar to 'a{1,}';
+0
+1
+2
+3
+4
+5
+OCTO> 
+OCTO> select id from names where 'aaaa' similar to 'a{1,10}';
+0
+1
+2
+3
+4
+5
+OCTO> 
+OCTO> select id from names where 'a' similar to '[abc]';
+0
+1
+2
+3
+4
+5
+OCTO> 
+OCTO> select id from names where 'abc' similar to 'abc|d';
+0
+1
+2
+3
+4
+5
+OCTO> 
+OCTO> select id from names where 'abd' similar to 'abc|d';
+0
+1
+2
+3
+4
+5
+OCTO> 
+OCTO> select id from names where 'abc|d' similar to 'abc\|d';
+0
+1
+2
+3
+4
+5
+OCTO> 
+OCTO> select id from names where 'abc' similar to '(xyz)|(abc)';
+0
+1
+2
+3
+4
+5
+OCTO> 
+OCTO> select id from names where 'aaaa' similar to 'a+';
+0
+1
+2
+3
+4
+5
+OCTO> 
+OCTO> select id from names where 'a+' similar to 'a\+';
+0
+1
+2
+3
+4
+5
+OCTO> 
+OCTO> select id from names where 'a' similar to 'ab?';
+0
+1
+2
+3
+4
+5
+OCTO> 
+OCTO> select id from names where 'a?' similar to 'a\?';
+0
+1
+2
+3
+4
+5
+OCTO> 

@@ -111,3 +111,22 @@ select 1+id*2 as a from (select id from names) order by a;
 OCTO
   verify_output TOB03 output.txt noinfo nodebug
 }
+
+@test "TOB04 : OCTO322 : ORDER BY derived column where sub-query does UNION ALL" {
+  cat <<CAT > input.sql
+  SELECT * from (select * from names) ORDER BY id;
+  SELECT * from (select * from names UNION ALL select * from names) ORDER BY id;
+  SELECT * from (select firstname from names UNION ALL select lastname from names) ORDER BY firstname;
+  SELECT firstname from (select firstname from names UNION ALL select lastname from names) ORDER BY firstname;
+  SELECT * from ((select * from names) UNION ALL (select * from names)) namesunion ORDER BY firstname;
+  SELECT * from ((select * from names) UNION ALL (select * from names)) namesunion ORDER BY namesunion.firstname;
+  SELECT namesunion.firstname from ((select * from names) UNION ALL (select * from names)) namesunion ORDER BY firstname;
+  SELECT NULL as computed_id from (select * from names UNION ALL select * from names) ORDER BY computed_id;
+  SELECT 1 as computed_id from (select * from names UNION ALL select * from names) ORDER BY computed_id;
+  SELECT 1+id*2 as computed_id from (select * from names UNION ALL select * from names) ORDER BY computed_id;
+CAT
+  cat input.sql > output.txt
+  octo -f input.sql >> output.txt 2>&1
+  verify_output TOB04 output.txt
+}
+

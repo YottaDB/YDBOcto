@@ -286,8 +286,8 @@ derived_column
   ;
 
 derived_column_expression
-  : value_expression { $$ = $derived_column_expression; }
-  | search_condition { $$ = $derived_column_expression; }
+  : value_expression { $$ = $value_expression; }
+  | search_condition { $$ = $search_condition; }
   ;
 
 from_clause

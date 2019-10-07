@@ -171,14 +171,6 @@ Parsing done for SQL command [select (col1 = 0) from (select NULL as col1 from n
                 - type: NULL
                 - alias: COL1
 Parsing done for SQL command [select (col1 = 'abcd') from (select NULL as col1 from names);]
-        - type: BOOLEAN_VALUE
-        - alias: COL1
-                - type: NULL
-                - alias: COL1
-        - type: BOOLEAN_VALUE
-        - alias: COL1
-                - type: NULL
-                - alias: COL1
 Parsing done for SQL command [select (col1 is NULL) from (select NULL as col1 from names);]
 Parsing done for SQL command [select (col1 is NOT NULL) from (select NULL as col1 from names);]
         - type: BOOLEAN_VALUE

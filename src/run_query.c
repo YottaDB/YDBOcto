@@ -55,11 +55,27 @@ int run_query(int (*callback)(SqlStatement *, int, void*, char*), void *parms) {
 
 	memory_chunks = alloc_chunk(MEMORY_CHUNK_SIZE);
 
+	// Assign cursor prior to parsing to allow tracking and storage of literal parameters under the cursor local variable
+	ydb_buffer_t	cursor_exe_global;
+	ydb_buffer_t	schema_global;
+
+	// Increment the cursor global node to make the cursorId available to the parser for use in optimizations
+	YDB_MALLOC_BUFFER(&cursor_exe_global, MAX_STR_CONST);
+	YDB_STRING_TO_BUFFER(config->global_names.schema, &schema_global);
+	status = ydb_incr_s(&schema_global, 0, NULL, NULL, &cursor_exe_global);
+	YDB_ERROR_CHECK(status);
+	if (YDB_OK != status) {
+		YDB_FREE_BUFFER(&cursor_exe_global);
+		OCTO_CFREE(memory_chunks);
+		return 1;
+	}
+	cursor_exe_global.buf_addr[cursor_exe_global.len_used] = '\0';
+
 	/* To print only the current query store the index for the last one
 	 * then print the difference between the cur_input_index - old_input_index
 	 */
 	old_input_index = cur_input_index;
-	result = parse_line();
+	result = parse_line(cursor_exe_global.buf_addr);
 
 	/* add the current query to the readlines history */
 	if (config->is_tty) {
@@ -89,20 +105,6 @@ int run_query(int (*callback)(SqlStatement *, int, void*, char*), void *parms) {
 		result = NULL;
 		return 0;
 	}
-	/* Now that we know we are processing a non-empty query, increment the cursor global node */
-	ydb_buffer_t	cursor_exe_global;
-	ydb_buffer_t	schema_global;
-
-	YDB_MALLOC_BUFFER(&cursor_exe_global, MAX_STR_CONST);
-	YDB_STRING_TO_BUFFER(config->global_names.schema, &schema_global);
-	status = ydb_incr_s(&schema_global, 0, NULL, NULL, &cursor_exe_global);
-	YDB_ERROR_CHECK(status);
-	if (YDB_OK != status) {
-		YDB_FREE_BUFFER(&cursor_exe_global);
-		OCTO_CFREE(memory_chunks);
-		return 1;
-	}
-	cursor_exe_global.buf_addr[cursor_exe_global.len_used] = '\0';
 	INFO(CUSTOM_ERROR, "Generating SQL for cursor %s", cursor_exe_global.buf_addr);
 	free_memory_chunks = true;	// By default run "octo_cfree(memory_chunks)" at the end
 

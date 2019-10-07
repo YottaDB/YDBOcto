@@ -398,6 +398,7 @@ typedef struct SqlValue {
 	enum SqlValueType	type;
 	enum SqlValueType	coerced_type;
 	enum SqlDataType	data_type;
+	char			*parameter_index;
 	union {
 		char *string_literal;
 		char *reference;

@@ -397,12 +397,6 @@ select """
 from names;
 OCTO
   yottadb -run %XCMD 'write:$get(^TSC11(1))="" "PASS: ^TSC11(1) is unset",! write:$get(^TSC11(1))=1 "FAIL: set ^TSC11(1)=1 was run when it should not have been",!' | tee -a output.txt
-  grepCount=$(grep -o '_\$C(10)_' _ydboctoP* | wc -l)
-  if [ $grepCount == "2" ]; then
-    echo 'PASS: generated M code has the correct number of _$c(10)_' | tee -a output.txt
-  else
-    echo "FAIL: generated M code has the incorrect number of _\$c(10)_: Expected: 2; Actual: $grepCount" | tee -a output.txt
-  fi
   verify_output TSC11 output.txt
 }
 

@@ -22,4 +22,3 @@ OCTO> from names;
 ;
 OCTO> 
 PASS: ^TSC11(1) is unset
-PASS: generated M code has the correct number of _$c(10)_

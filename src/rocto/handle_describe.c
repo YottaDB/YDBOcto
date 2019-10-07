@@ -91,17 +91,6 @@ int handle_describe(Describe *describe, RoctoSession *session) {
 	err_buffer = open_memstream(&err_buff, &err_buff_size);
 	do {
 		memory_chunks = alloc_chunk(MEMORY_CHUNK_SIZE);
-		statement = parse_line(input_buffer_combined);
-		if(statement == NULL) {
-			fflush(err_buffer);
-			ERROR(CUSTOM_ERROR, err_buff);
-			fclose(err_buffer);
-			free(err_buff);
-			err_buffer = open_memstream(&err_buff, &err_buff_size);
-			OCTO_CFREE(memory_chunks);
-			continue;
-		}
-		// Else, send back the row description
 		// Allocate items to create the cursor_exe_global
 		YDB_STRING_TO_BUFFER(config->global_names.schema, &schema_global);
 		YDB_LITERAL_TO_BUFFER("", &null_buffer);
@@ -125,6 +114,18 @@ int handle_describe(Describe *describe, RoctoSession *session) {
 		YDB_FREE_BUFFER(&cursor_exe_global[0]);
 		YDB_FREE_BUFFER(&cursor_exe_global[2]);
 
+		statement = parse_line(cursor_exe_global[0].buf_addr);
+		if(NULL == statement) {
+			fflush(err_buffer);
+			ERROR(CUSTOM_ERROR, err_buff);
+			fclose(err_buffer);
+			free(err_buff);
+			err_buffer = open_memstream(&err_buff, &err_buff_size);
+			OCTO_CFREE(memory_chunks);
+			continue;
+		}
+
+		// Else, send back the row description
 		switch(statement->type) {
 			case table_alias_STATEMENT:
 			case set_operation_STATEMENT:
@@ -157,7 +158,7 @@ int handle_describe(Describe *describe, RoctoSession *session) {
 					}
 					if (access(filename, F_OK) == -1) {
 						pplan = emit_select_statement(statement, filename);
-						if(pplan == NULL) {
+						if(NULL == pplan) {
 							status = ydb_lock_decr_s(&filename_lock[0], 2, &filename_lock[1]);
 							YDB_ERROR_CHECK(status);
 							if (YDB_OK != status) {
@@ -177,7 +178,7 @@ int handle_describe(Describe *describe, RoctoSession *session) {
 							err_buffer = open_memstream(&err_buff, &err_buff_size);
 							continue;
 						}
-						assert(pplan != NULL);
+						assert(NULL != pplan);
 					}
 					status = ydb_lock_decr_s(&filename_lock[0], 2, &filename_lock[1]);
 					free(filename_lock);

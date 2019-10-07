@@ -20,9 +20,7 @@
 TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan) {
 	TEMPLATE_INIT();
 
-	char		*mid = NULL, zwr_buf[MAX_STR_CONST];
-	ydb_buffer_t	str, zwr;
-	int		status;
+	char		*mid = NULL;
 	boolean_t	use_string_comparison;
 	SqlValue	*value;
 	SqlColumnAlias	*column_alias;
@@ -44,26 +42,21 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan) {
 		value = plan->v.value;
 		switch(value->type) {
 		case BOOLEAN_VALUE:
-			%{}"{{ value->v.string_literal }}"{}%
+			// Handle case where LP_BOOLEAN_REGEX* gets optimized
+			if (NULL == value->parameter_index) {
+				%{}"1"{}%
+			} else {
+				%{}$GET({{ config->global_names.cursor }}(cursorId,"parameters",{{ value->parameter_index }})){}%
+			}
 			break;
 		case STRING_LITERAL:
-			// STRING_LITERALS need to be converted to zwrite format first as they can contain non-printable characters
-			str.len_used = strlen(value->v.string_literal);
-			str.len_alloc = str.len_used;
-			str.buf_addr = value->v.string_literal;
-			// -1 is needed for the null terminator
-			zwr.len_alloc = sizeof(zwr_buf) - 1;
-			zwr.buf_addr = zwr_buf;
-			status = ydb_str2zwr_s(&str, &zwr);
-			assert(YDB_OK == status);
-			zwr.buf_addr[zwr.len_used] = '\0';
-			%{}{{ zwr.buf_addr }}{}%
+			%{}$GET({{ config->global_names.cursor }}(cursorId,"parameters",{{ value->parameter_index }})){}%
 			break;
 		case NUMERIC_LITERAL:
-			%{}"{{ value->v.string_literal }}"{}%
+			%{}+$GET({{ config->global_names.cursor }}(cursorId,"parameters",{{ value->parameter_index }})){}%
 			break;
 		case COLUMN_REFERENCE:
-			// We should only pass LP_COLUMN_ALIASes to this funciton
+			// We should only pass LP_COLUMN_ALIASes to this function
 			assert(FALSE);
 			break;
 		case FUNCTION_NAME:
@@ -76,7 +69,7 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan) {
 			%{}""{}%
 			break;
 		case INTEGER_LITERAL:
-			%{}"{{ value->v.string_literal }}"{}%
+			%{}$GET({{ config->global_names.cursor }}(cursorId,"parameters",{{ value->parameter_index }}))\1{}%
 			break;
 		default:
 			FATAL(ERR_UNKNOWN_KEYWORD_STATE, "");

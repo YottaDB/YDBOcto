@@ -185,6 +185,7 @@ add_library(libocto OBJECT
   m_escape_string2.c
   copy_sql_statement.c
   cleanup_tables.c
+  parser/parse_literal_to_parameter.c
   parser/query_specification.c
   parser/set_operation.c
   parser/sort_specification.c

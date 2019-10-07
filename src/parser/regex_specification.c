@@ -16,7 +16,7 @@
 #include "octo.h"
 #include "octo_types.h"
 
-void regex_specification(SqlStatement **stmt, SqlStatement *op0, SqlStatement *op1, int is_regex_like_or_similar, int is_sensitive, int is_not){
+int regex_specification(SqlStatement **stmt, SqlStatement *op0, SqlStatement *op1, int is_regex_like_or_similar, int is_sensitive, int is_not, char *cursorId){
 	SqlStatement *regex;
 	char *c;
 	int is_dot_star = TRUE;
@@ -53,6 +53,11 @@ void regex_specification(SqlStatement **stmt, SqlStatement *op0, SqlStatement *o
 		} else {
 			value->v.string_literal = (1 == is_regex_like_or_similar  ? like_to_regex(value->v.string_literal) : similar_to_regex(value->v.string_literal));
 			trim_dot_star(value);
+			int status = parse_literal_to_parameter(cursorId, value, TRUE);
+			if (0 != status) {
+				OCTO_CFREE(memory_chunks);
+				return 1;
+			}
 		}
 		regex->v.binary->operands[1] = op1;
 	}
@@ -72,16 +77,28 @@ void regex_specification(SqlStatement **stmt, SqlStatement *op0, SqlStatement *o
 		c++;
 	}
 	if('\0' == *c && is_dot_star){
+		int status;
 		SQL_STATEMENT(regex, value_STATEMENT);
 		MALLOC_STATEMENT(regex, value, SqlValue);
 		regex->type = value_STATEMENT;
 		regex->v.value->type = BOOLEAN_VALUE;
-		if (is_not){
-			regex->v.value->v.string_literal = "0";
-		} else {
-			regex->v.value->v.string_literal = "1";
+		// Convert regex to simple boolean value as ".*" is all or nothing
+		// No need to differentiate based on is_not here, since the NOT case is handled below
+		regex->v.value->v.string_literal = "1";
+		status = parse_literal_to_parameter(cursorId, regex->v.value, FALSE);
+		if (0 != status) {
+			OCTO_CFREE(memory_chunks);
+			return 1;
 		}
+		// Retain unary_STATEMENT generated above to correctly hash is vs is_not cases to separate plans
+		// Since the unary_STATEMENT is set to BOOLEAN_NOT in the is_not case above, the negation is tracked by the logical
+		// plan rather than the regex literal value
+		if (is_not) {
+			(*stmt)->v.unary->operand = regex;
+		} else {
 			(*stmt) = regex;
+		}
 	}
+	return 0;
 }
 

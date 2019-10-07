@@ -131,7 +131,7 @@ OCTO
   [[ $output -eq 4 ]]
 }
 
-@test "generate unique plans for successive queries on ids within single table" {
+@test "generate single plan for successive queries on same column name within single table" {
   octo <<OCTO 2>&1 | tee output.txt
 select firstName from names where id = 0;
 select firstName from names where id = 1;
@@ -140,15 +140,37 @@ OCTO
   wc -w ls.txt &> wc.txt
   cut -d " " -f 1 wc.txt 2>&1 | tee output.txt
   run cat output.txt
+  [[ $output -eq 1 ]]
+}
+
+@test "generate unique plans for successive queries on different column names within single table" {
+  octo <<OCTO 2>&1 | tee output.txt
+select firstName from names where id = 0;
+select firstName from names where firstname = "Zero";
+OCTO
+  ls _ydboctoP*.m &> ls.txt
+  wc -w ls.txt &> wc.txt
+  cut -d " " -f 1 wc.txt 2>&1 | tee output.txt
+  run cat output.txt
   [[ $output -eq 2 ]]
 }
 
-@test "T0001 generate unique plans for row-value (list of values after IN keyword) constructions" {
+@test "T0001 generate unique plan for row-value (list of values after IN keyword) constructions on different columns" {
   octo <<OCTO 2>&1 | tee output.txt
 SELECT * FROM names WHERE firstName IN ('Zero', 'Acid');
 SELECT * FROM names WHERE firstName IN ('Zero', 'Cool');
 OCTO
-  [[ $(ls -l _ydboctoP*.m | wc -l) -eq 2 ]]
+  [[ $(ls -l _ydboctoP*.m | wc -l) -eq 1 ]]
   [[ $(grep -c 'Acid|' output.txt) -eq 1 ]]
   verify_output T0001 output.txt noinfo nodebug
+}
+
+@test "TUF001 generate one plan for row-value (list of values after IN keyword) constructions on same column" {
+  octo <<OCTO 2>&1 | tee output.txt
+SELECT * FROM names WHERE firstName IN ('Zero', 'Acid');
+SELECT * FROM names WHERE id IN (0, 1);
+OCTO
+  [[ $(ls -l _ydboctoP*.m | wc -l) -eq 2 ]]
+  [[ $(grep -c 'Acid|' output.txt) -eq 2 ]]
+  verify_output TUF001 output.txt
 }

@@ -26,11 +26,6 @@
 #include "ydb_tls_interface.h"
 #endif
 
-// Maximum number of chars needed to convert unsigned int to char*, including null terminator
-#define UINT_TO_STRING_MAX 11
-// Maximum number of chars needed to convert unsigned long long to char*, including null terminator
-#define ULONG_TO_STRING_MAX 21
-
 typedef struct {
 	int32_t connection_fd;
 	int32_t sending_message;

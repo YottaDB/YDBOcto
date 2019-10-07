@@ -163,6 +163,8 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt, int *plan_id) {
 		} else
 		{
 			join_left = generate_logical_plan(sql_stmt, plan_id);
+			if (NULL == join_left)
+				return NULL;
 			join_right->v.operand[0] = join_left;
 		}
 		join_right->join_on_condition = NULL;

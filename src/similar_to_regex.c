@@ -27,8 +27,6 @@ char *similar_to_regex(const char *src) {
 	d = ret;
 	c = src;
 
-	*d++ = '^';
-
 	while (*c != '\0' && d < end) {
 		switch (*c) {
 			/* convert like meta characters to regex */

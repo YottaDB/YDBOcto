@@ -75,7 +75,9 @@ int main(int argc, char **argv)
 			}
 		}
 		/* else: It is a file input and we cannot easily clear input buffer */
-		/* Read new query and run it at the same time */
+		// Read new query and run it at the same time and discard return value
+		// Any meaningful errors will have already been reported lower in the stack and failed queries are recoverable,
+		// so it can safely be discarded.
 		run_query(&print_temporary_table, NULL);
 		if(eof_hit)
 			break;

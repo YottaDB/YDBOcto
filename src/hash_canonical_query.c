@@ -214,11 +214,13 @@ void hash_canonical_query(hash128_state_t *state, SqlStatement *stmt, int *statu
 		case CALCULATED_VALUE:
 			hash_canonical_query(state, value->v.calculated, status);
 			break;
+		case BOOLEAN_VALUE:
 		case NUMERIC_LITERAL:
 		case INTEGER_LITERAL:
 		case STRING_LITERAL:
+			// Ignore literals to prevent redundant plans
+			break;
 		case FUNCTION_NAME:
-		case BOOLEAN_VALUE:
 		case COLUMN_REFERENCE:
 			ydb_mmrhash_128_ingest(state, (void*)value->v.reference, strlen(value->v.reference));
 			break;

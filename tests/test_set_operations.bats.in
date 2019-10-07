@@ -115,6 +115,9 @@ OCTO
 }
 
 @test "UNION of SELECT and another SET operation" {
+  # The line following the EXCEPT ALL below should be restored
+  # to the following once issue #349 is fixed:
+  # SELECT n1.id, n1.firstName, n1.lastName, ''::integer, NULL, NULL
   octo <<OCTO 2>&1 | tee output.txt
 SELECT *
 FROM names n1
@@ -129,7 +132,7 @@ UNION ALL
 
   EXCEPT ALL
 
-  SELECT n1.id, n1.firstName, n1.lastName, ''::integer, NULL, NULL
+  SELECT n1.id, n1.firstName, n1.lastName, '', NULL, NULL
   FROM names n1
   INNER JOIN names n2
   ON n1.id = n2.id

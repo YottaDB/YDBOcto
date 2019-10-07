@@ -24,6 +24,7 @@ setup() {
 
 @test "TRTE000 : LIKE variants" {
   cat <<CAT >> input.sql
+select id from names where firstname like 'Z%';
 select id from names where 'abc' like 'abc';
 select id from names where 'abc' like 'ABC';
 select id from names where 'abc' like 'xyz';
@@ -48,6 +49,7 @@ CAT
 
 @test "TRTE001 : NOT LIKE variants" {
   cat <<CAT >> input.sql
+select id from names where firstname not like 'Z%';
 select id from names where 'abc' not like 'abc';
 select id from names where 'abc' not like 'ABC';
 select id from names where 'abc' not like 'xyz';

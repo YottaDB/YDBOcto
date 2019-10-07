@@ -30,6 +30,7 @@ typedef void* yyscan_t;
 #include "octo.h"
 #include "octo_types.h"
 #include "parser.h"
+#include "helpers.h"
 
 #define YYERROR_VERBOSE
 #define YYDEBUG 1
@@ -45,15 +46,15 @@ typedef void* yyscan_t;
 #define YYMAXDEPTH 10000000
 
 extern int yylex(YYSTYPE * yylval_param, YYLTYPE *llocp, yyscan_t yyscanner);
-extern int yyparse(yyscan_t scan, SqlStatement **out, int *plan_id);
-extern void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, int *plan_id, char const *s);
+extern int yyparse(yyscan_t scan, SqlStatement **out, int *plan_id, char *cursorId);
+extern void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, int *plan_id, char *cursorId, char const *s);
 
 %}
 
 %define api.pure full
 %locations
 %lex-param   { yyscan_t scanner }
-%parse-param { yyscan_t scanner } { SqlStatement **out } { int *plan_id }
+%parse-param { yyscan_t scanner } { SqlStatement **out } { int *plan_id } { char *cursorId }
 
 %token ADVANCE
 %token ALL
@@ -200,7 +201,7 @@ sql_statement
           YYABORT;
       }
       SqlValueType type;
-      if (populate_data_type($query_expression, &type)) {
+      if (populate_data_type($query_expression, &type, cursorId)) {
           YYABORT;
       }
       *out = $query_expression; YYACCEPT;
@@ -285,7 +286,7 @@ search_condition
       SQL_STATEMENT($$, binary_STATEMENT);
       MALLOC_STATEMENT($$, binary, SqlBinaryOperation);
       ($$)->v.binary->operation = BOOLEAN_OR;
-      left = row_value_constructor_binary_statement($row_value_constructor);
+      INVOKE_ROW_VALUE_CONSTRUCTOR_BINARY_STATEMENT(left, $row_value_constructor, cursorId);
       ($$)->v.binary->operands[0] = left;
       ($$)->v.binary->operands[1] = ($boolean_term);
     }
@@ -296,7 +297,7 @@ search_condition
       SQL_STATEMENT($$, binary_STATEMENT);
       MALLOC_STATEMENT($$, binary, SqlBinaryOperation);
       ($$)->v.binary->operation = BOOLEAN_OR;
-      right = row_value_constructor_binary_statement($row_value_constructor);
+      INVOKE_ROW_VALUE_CONSTRUCTOR_BINARY_STATEMENT(right, $row_value_constructor, cursorId);
       ($$)->v.binary->operands[0] = $1;
       ($$)->v.binary->operands[1] = right;
     }
@@ -307,8 +308,8 @@ search_condition
       SQL_STATEMENT($$, binary_STATEMENT);
       MALLOC_STATEMENT($$, binary, SqlBinaryOperation);
       ($$)->v.binary->operation = BOOLEAN_OR;
-      left = row_value_constructor_binary_statement($1);
-      right = row_value_constructor_binary_statement($3);
+      INVOKE_ROW_VALUE_CONSTRUCTOR_BINARY_STATEMENT(left, $1, cursorId);
+      INVOKE_ROW_VALUE_CONSTRUCTOR_BINARY_STATEMENT(right, $3, cursorId);
       ($$)->v.binary->operands[0] = left;
       ($$)->v.binary->operands[1] = right;
     }
@@ -330,7 +331,7 @@ boolean_term
       SQL_STATEMENT($$, binary_STATEMENT);
       MALLOC_STATEMENT($$, binary, SqlBinaryOperation);
       ($$)->v.binary->operation = BOOLEAN_AND;
-      left = row_value_constructor_binary_statement($row_value_constructor);
+      INVOKE_ROW_VALUE_CONSTRUCTOR_BINARY_STATEMENT(left, $row_value_constructor, cursorId);
       ($$)->v.binary->operands[0] = left;
       ($$)->v.binary->operands[1] = ($boolean_factor);
     }
@@ -341,7 +342,7 @@ boolean_term
       SQL_STATEMENT($$, binary_STATEMENT);
       MALLOC_STATEMENT($$, binary, SqlBinaryOperation);
       ($$)->v.binary->operation = BOOLEAN_AND;
-      right = row_value_constructor_binary_statement($row_value_constructor);
+      INVOKE_ROW_VALUE_CONSTRUCTOR_BINARY_STATEMENT(right, $row_value_constructor, cursorId);
       ($$)->v.binary->operands[0] = $1;
       ($$)->v.binary->operands[1] = right;
     }
@@ -352,8 +353,8 @@ boolean_term
       SQL_STATEMENT($$, binary_STATEMENT);
       MALLOC_STATEMENT($$, binary, SqlBinaryOperation);
       ($$)->v.binary->operation = BOOLEAN_AND;
-      left = row_value_constructor_binary_statement($1);
-      right = row_value_constructor_binary_statement($3);
+      INVOKE_ROW_VALUE_CONSTRUCTOR_BINARY_STATEMENT(left, $1, cursorId);
+      INVOKE_ROW_VALUE_CONSTRUCTOR_BINARY_STATEMENT(right, $3, cursorId);
       ($$)->v.binary->operands[0] = left;
       ($$)->v.binary->operands[1] = right;
     }
@@ -374,7 +375,7 @@ boolean_factor
       SQL_STATEMENT($$, unary_STATEMENT);
       MALLOC_STATEMENT($$, unary, SqlUnaryOperation);
       ($$)->v.unary->operation = BOOLEAN_NOT;
-      right = row_value_constructor_binary_statement($row_value_constructor);
+      INVOKE_ROW_VALUE_CONSTRUCTOR_BINARY_STATEMENT(right, $row_value_constructor, cursorId);
       ($$)->v.unary->operand = right;
     }
   ;
@@ -409,12 +410,14 @@ truth_value
       MALLOC_STATEMENT($$, value, SqlValue);
       ($$)->v.value->type = BOOLEAN_VALUE;
       ($$)->v.value->v.string_literal = "1";
+      INVOKE_PARSE_LITERAL_TO_PARAMETER(cursorId, ($$)->v.value, FALSE);
     }
   | FALSE_TOKEN {
       SQL_STATEMENT($$, value_STATEMENT);
       MALLOC_STATEMENT($$, value, SqlValue);
       ($$)->v.value->type = BOOLEAN_VALUE;
       ($$)->v.value->v.string_literal = "0";
+      INVOKE_PARSE_LITERAL_TO_PARAMETER(cursorId, ($$)->v.value, FALSE);
     }
   | UNKNOWN { WARNING(ERR_FEATURE_NOT_IMPLEMENTED, "truth_value: UNKNOWN"); YYABORT; }
   ;
@@ -488,34 +491,34 @@ comparison_predicate
        * operand 5 - case sensitivity: FALSE = insensitive; TRUE = sensitive
        * operand 6 - not operator: FALSE = no NOT; TRUE = NOT
        */
-      regex_specification(&($$), ($1), ($3), 0, TRUE, FALSE);
+      INVOKE_REGEX_SPECIFICATION(&($$), ($1), ($3), 0, TRUE, FALSE, cursorId);
     }
   | row_value_constructor TILDE ASTERISK row_value_constructor {
-      regex_specification(&($$), ($1), ($4), 0, FALSE, FALSE);
+      INVOKE_REGEX_SPECIFICATION(&($$), ($1), ($4), 0, FALSE, FALSE, cursorId);
     }
   | row_value_constructor EXCLAMATION TILDE row_value_constructor {
-      regex_specification(&($$), ($1), ($4), 0, TRUE, TRUE);
+      INVOKE_REGEX_SPECIFICATION(&($$), ($1), ($4), 0, TRUE, TRUE, cursorId);
     }
   | row_value_constructor EXCLAMATION TILDE ASTERISK row_value_constructor {
-      regex_specification(&($$), ($1), ($5), 0, FALSE, TRUE);
+      INVOKE_REGEX_SPECIFICATION(&($$), ($1), ($5), 0, FALSE, TRUE, cursorId);
     }
   | row_value_constructor like_predicate row_value_constructor {
-      regex_specification(&($$), ($1), ($3), 1, TRUE, FALSE);
+      INVOKE_REGEX_SPECIFICATION(&($$), ($1), ($3), 1, TRUE, FALSE, cursorId);
     }
   | row_value_constructor not_like_predicate row_value_constructor {
-      regex_specification(&($$), ($1), ($3), 1, TRUE, TRUE);
+      INVOKE_REGEX_SPECIFICATION(&($$), ($1), ($3), 1, TRUE, TRUE, cursorId);
     }
   | row_value_constructor insensitive_like_predicate row_value_constructor {
-      regex_specification(&($$), ($1), ($3), 1, FALSE, FALSE);
+      INVOKE_REGEX_SPECIFICATION(&($$), ($1), ($3), 1, FALSE, FALSE, cursorId);
     }
   | row_value_constructor not_insensitive_like_predicate row_value_constructor {
-      regex_specification(&($$), ($1), ($3), 1, FALSE, TRUE);
+      INVOKE_REGEX_SPECIFICATION(&($$), ($1), ($3), 1, FALSE, TRUE, cursorId);
     }
   | row_value_constructor SIMILAR TO row_value_constructor {
-      regex_specification(&($$), ($1), ($4), 2, TRUE, FALSE);
+      INVOKE_REGEX_SPECIFICATION(&($$), ($1), ($4), 2, TRUE, FALSE, cursorId);
     }
   | row_value_constructor NOT SIMILAR TO row_value_constructor {
-      regex_specification(&($$), ($1), ($5), 2, TRUE, TRUE);
+      INVOKE_REGEX_SPECIFICATION(&($$), ($1), ($5), 2, TRUE, TRUE, cursorId);
     }
   ;
 
@@ -788,6 +791,7 @@ numeric_primary
   : value_expression_primary optional_subscript optional_cast_specification {
 	$$ = $value_expression_primary;
 	if (NULL != $optional_cast_specification) {
+		INVOKE_PARSE_LITERAL_TO_PARAMETER(cursorId, ($$)->v.value, FALSE);
 		// For now, we support a subset of types. More shall be added as needed
 		SqlValue	*value;
 		SqlValueType	type;
@@ -840,22 +844,26 @@ optional_cast_specification
       $$ = $identifier;
     }
   | COLON COLON NUMERIC {
-      SqlValue *value;
-      SQL_STATEMENT($$, value_STATEMENT);
-      MALLOC_STATEMENT($$, value, SqlValue);
-      UNPACK_SQL_STATEMENT(value, $$, value);
-      value->type = STRING_LITERAL;
-      value->v.string_literal = octo_cmalloc(memory_chunks, strlen("NUMERIC"));
-      strcpy(value->v.string_literal, "NUMERIC");
+	SqlValue *value;
+	size_t str_len;
+	SQL_STATEMENT($$, value_STATEMENT);
+	MALLOC_STATEMENT($$, value, SqlValue);
+	UNPACK_SQL_STATEMENT(value, $$, value);
+	value->type = STRING_LITERAL;
+	str_len = LIT_LEN("NUMERIC") + 1;       // null terminator
+	value->v.string_literal = octo_cmalloc(memory_chunks, str_len);
+	strncpy(value->v.string_literal, "NUMERIC", str_len);
     }
   | COLON COLON INTEGER {
-      SqlValue *value;
-      SQL_STATEMENT($$, value_STATEMENT);
-      MALLOC_STATEMENT($$, value, SqlValue);
-      UNPACK_SQL_STATEMENT(value, $$, value);
-      value->type = STRING_LITERAL;
-      value->v.string_literal = octo_cmalloc(memory_chunks, strlen("INTEGER"));
-      strcpy(value->v.string_literal, "INTEGER");
+	SqlValue *value;
+	size_t str_len;
+	SQL_STATEMENT($$, value_STATEMENT);
+	MALLOC_STATEMENT($$, value, SqlValue);
+	UNPACK_SQL_STATEMENT(value, $$, value);
+	value->type = STRING_LITERAL;
+	str_len = LIT_LEN("INTEGER") + 1;       // null terminator
+	value->v.string_literal = octo_cmalloc(memory_chunks, str_len);
+	strncpy(value->v.string_literal, "INTEGER", str_len);
     }
   ;
 
@@ -1551,7 +1559,16 @@ scale
   ;
 
 literal_value
-  : LITERAL { $$ = $LITERAL; ($$)->loc = yyloc; }
+  : LITERAL {
+      $$ = $LITERAL; ($$)->loc = yyloc;
+      assert(NULL != cursorId);
+      if ((value_STATEMENT == ($$)->type) &&
+          ((NUMERIC_LITERAL == ($$)->v.value->type) ||
+          (STRING_LITERAL == ($$)->v.value->type) ||
+          (INTEGER_LITERAL == ($$)->v.value->type))) {
+              INVOKE_PARSE_LITERAL_TO_PARAMETER(cursorId, ($$)->v.value, FALSE);
+          }
+      }
 
 partition_by_clause
   : LEFT_PAREN PARTITION BY column_reference optional_order_by RIGHT_PAREN {

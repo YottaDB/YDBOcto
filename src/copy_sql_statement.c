@@ -86,6 +86,7 @@ SqlStatement *copy_sql_statement(SqlStatement *stmt) {
 		MALLOC_STATEMENT(ret, value, SqlValue);
 		ret->v.value->type = value->type;
 		ret->v.value->data_type = value->data_type;
+		ret->v.value->parameter_index = value->parameter_index;
 		if(value->type == CALCULATED_VALUE) {
 			ret->v.value->v.calculated = copy_sql_statement(value->v.calculated);
 		} else if(value->type == NUL_VALUE) {

@@ -19,7 +19,7 @@ end_of_line = lf
 insert_final_newline = true
 charset = utf-8
 
-[{*.c,*.h,*.h.in,*.m}]
+[{*.c,*.h,*.h.in,*.m,*.y,*.ctemplate}]
 indent_style = tab
 indent_size = 8
 trim_trailing_whitespace = true
@@ -29,8 +29,3 @@ max_line_length = 132
 [{*.json,*.yml}]
 indent_style = space
 indent_size = 2
-
-[{*.ctemplate}]
-indent_style = space
-indent_size = 4
-trim_trailing_whitespace = true

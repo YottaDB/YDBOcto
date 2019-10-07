@@ -74,7 +74,7 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *plan, LogicalPlan *tablejoin, unsigned in
 			%{})'=0){}%
 			if (NULL != value)
 			{
-				%{}&(({{ value->v.string_literal }})>$GET({}%
+				%{}&(($GET({{ config->global_names.cursor }}(cursorId,"parameters",{{ value->parameter_index }})))>$GET({}%
 				%{}%%ydboctozlimit{}%
 				%{})){}%
 			}
@@ -104,7 +104,7 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *plan, LogicalPlan *tablejoin, unsigned in
 		TMPL(tmpl_key_end, key);
 		if (NULL != value)
 		{
-			%{})!(({{ value->v.string_literal }})'>$GET({}%
+			%{})!(($GET({{ config->global_names.cursor }}(cursorId,"parameters",{{ value->parameter_index }})))'>$GET({}%
 			%{}%%ydboctozlimit{}%
 			%{}){}%
 		}

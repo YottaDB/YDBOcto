@@ -296,6 +296,9 @@ verify_output() {
   sed -i 's/Uncommitted changes: .*/Uncommitted changes: false/' clean_output.txt
   # Filter forked process pid
   sed -i 's/rocto server process forked with pid [0-9]*/rocto server process forked with pid PID/' clean_output.txt
+  # Convert psql prompt to root for compatibility when running tests on systems with different PostgreSQL user permissions
+  # Specifically, some test machines do not run tests with full PostgreSQL user permissions and so receive a prompt with '>' instead of '#'
+  sed -i 's/=>/=#/' clean_output.txt
 
   # Selectively process output
   for i in "$@"; do

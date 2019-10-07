@@ -1,0 +1,8 @@
+OCTO> select id-2*(id/2::integer) from names;
+0
+1
+0
+1
+0
+1
+OCTO> 

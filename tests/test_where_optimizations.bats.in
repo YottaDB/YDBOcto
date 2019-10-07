@@ -74,7 +74,7 @@ OCTO
   verify_output TWO05 output.txt
 }
 
-@test "TW006 : fixed column optimizations where first column isn't a key" {
+@test "TWO06 : fixed column optimizations where first column isn't a key" {
   octo >& output.txt <<OCTO
 SELECT * FROM namesWithAges AS t1
 CROSS JOIN namesWithAges AS t2
@@ -113,7 +113,7 @@ OCTO
   verify_output TWO08 output.txt
 }
 
-@test "TW009 : WHERE with AND of EQUALS and NOT EQUAL - prefix" {
+@test "TWO09 : WHERE with AND of EQUALS and NOT EQUAL - prefix" {
   octo >& output.txt <<OCTO
 SELECT * FROM names AS t1
 CROSS JOIN names AS t2
@@ -142,7 +142,7 @@ OCTO
   verify_output TWO10 output.txt
 }
 
-@test "TW011 : WHERE with disjunction" {
+@test "TWO11 : WHERE with disjunction" {
   octo -vv <<OCTO > output.txt 2> plan.txt
 SELECT *
 FROM names

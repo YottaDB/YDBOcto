@@ -70,7 +70,7 @@ char *get_type_string(SqlValueType type) {
 // Helper function that is invoked when we have to traverse a "column_list_alias_STATEMENT".
 // Caller passes "do_loop" variable set to TRUE  if they want us to traverse the linked list.
 //                              and set to FALSE if they want us to traverse only the first element in the linked list.
-int populate_data_type_column_list_alias(SqlStatement *v, SqlValueType *type, boolean_t do_loop) {
+int populate_data_type_column_list_alias(SqlStatement *v, SqlValueType *type, boolean_t do_loop, char *cursorId) {
 	SqlColumnListAlias	*column_list_alias, *cur_column_list_alias;
 	SqlValueType		child_type1;
 	int			result = 0;
@@ -84,7 +84,7 @@ int populate_data_type_column_list_alias(SqlStatement *v, SqlValueType *type, bo
 		do {
 			child_type1 = UNKNOWN_SqlValueType;
 			// SqlColumnList
-			result |= populate_data_type(cur_column_list_alias->column_list, &child_type1);
+			result |= populate_data_type(cur_column_list_alias->column_list, &child_type1, cursorId);
 			if (UNKNOWN_SqlValueType == cur_column_list_alias->type) {
 				cur_column_list_alias->type = child_type1;
 			} else if (cur_column_list_alias->type != child_type1) {
@@ -104,7 +104,7 @@ int populate_data_type_column_list_alias(SqlStatement *v, SqlValueType *type, bo
 // Helper function that is invoked when we have to traverse a "column_list_STATEMENT".
 // Caller passes "do_loop" variable set to TRUE  if they want us to traverse the linked list.
 //                              and set to FALSE if they want us to traverse only the first element in the linked list.
-int populate_data_type_column_list(SqlStatement *v, SqlValueType *type, boolean_t do_loop) {
+int populate_data_type_column_list(SqlStatement *v, SqlValueType *type, boolean_t do_loop, char *cursorId) {
 	SqlColumnList	*column_list, *cur_column_list;
 	int		result = 0;
 
@@ -116,14 +116,14 @@ int populate_data_type_column_list(SqlStatement *v, SqlValueType *type, boolean_
 		cur_column_list = column_list;
 		do {
 			// SqlValue or SqlColumnAlias
-			result |= populate_data_type(cur_column_list->value, type);
+			result |= populate_data_type(cur_column_list->value, type, cursorId);
 			cur_column_list = cur_column_list->next;
 		} while (do_loop && (cur_column_list != column_list));
 	}
 	return result;
 }
 
-int populate_data_type(SqlStatement *v, SqlValueType *type) {
+int populate_data_type(SqlStatement *v, SqlValueType *type, char *cursorId) {
 	SqlBinaryOperation	*binary = NULL;
 	SqlCaseBranchStatement	*cas_branch, *cur_branch;
 	SqlCaseStatement	*cas;
@@ -148,46 +148,46 @@ int populate_data_type(SqlStatement *v, SqlValueType *type) {
 	case cas_STATEMENT:
 		UNPACK_SQL_STATEMENT(cas, v, cas);
 		// We expect type to get overriden here; only the last type matters
-		result |= populate_data_type(cas->value, type);
-		result |= populate_data_type(cas->branches, type);
-		result |= populate_data_type(cas->optional_else, type);
+		result |= populate_data_type(cas->value, type, cursorId);
+		result |= populate_data_type(cas->branches, type, cursorId);
+		result |= populate_data_type(cas->optional_else, type, cursorId);
 		break;
 	case cas_branch_STATEMENT:
 		UNPACK_SQL_STATEMENT(cas_branch, v, cas_branch);
 		cur_branch = cas_branch;
 		do {
-			result |= populate_data_type(cur_branch->condition, type);
+			result |= populate_data_type(cur_branch->condition, type, cursorId);
 			// TODO: we should check type here to make sure all branches have the same type
-			result |= populate_data_type(cur_branch->value, type);
+			result |= populate_data_type(cur_branch->value, type, cursorId);
 			cur_branch = cur_branch->next;
 		} while (cur_branch != cas_branch);
 		break;
 	case select_STATEMENT:
 		UNPACK_SQL_STATEMENT(select, v, select);
 		// SqlColumnListAlias that is a linked list
-		result |= populate_data_type_column_list_alias(select->select_list, &child_type1, TRUE);
+		result |= populate_data_type_column_list_alias(select->select_list, &child_type1, TRUE, cursorId);
 		*type = child_type1;
 		// SqlJoin
-		result |= populate_data_type(select->table_list, &child_type1);
+		result |= populate_data_type(select->table_list, &child_type1, cursorId);
 		// SqlValue (?)
-		result |= populate_data_type(select->where_expression, &child_type1);
+		result |= populate_data_type(select->where_expression, &child_type1, cursorId);
 		// SqlColumnListAlias that is a linked list
-		result |= populate_data_type_column_list_alias(select->order_expression, &child_type1, TRUE);
+		result |= populate_data_type_column_list_alias(select->order_expression, &child_type1, TRUE, cursorId);
 		break;
 	case function_call_STATEMENT:
 		// TODO: we will need to know the return types of functions to do this
 		// For now, just say STRING_LITERAL
 		UNPACK_SQL_STATEMENT(function_call, v, function_call);
 		// SqlColumnList
-		result |= populate_data_type_column_list(function_call->parameters, type, TRUE);
+		result |= populate_data_type_column_list(function_call->parameters, type, TRUE, cursorId);
 		*type = STRING_LITERAL;
 		break;
 	case join_STATEMENT:
 		UNPACK_SQL_STATEMENT(start_join, v, join);
 		cur_join = start_join;
 		do {
-			result |= populate_data_type(cur_join->value, type);
-			result |= populate_data_type(cur_join->condition, type);
+			result |= populate_data_type(cur_join->value, type, cursorId);
+			result |= populate_data_type(cur_join->condition, type, cursorId);
 			cur_join = cur_join->next;
 		} while(cur_join != start_join);
 		break;
@@ -195,7 +195,7 @@ int populate_data_type(SqlStatement *v, SqlValueType *type) {
 		UNPACK_SQL_STATEMENT(value, v, value);
 		switch(value->type) {
 		case CALCULATED_VALUE:
-			result |= populate_data_type(value->v.calculated, &child_type1);
+			result |= populate_data_type(value->v.calculated, &child_type1, cursorId);
 			*type = child_type1;
 			break;
 		case NUMERIC_LITERAL:
@@ -220,7 +220,7 @@ int populate_data_type(SqlStatement *v, SqlValueType *type) {
 			break;
 		case COERCE_TYPE:
 			*type = value->coerced_type;
-			result |= populate_data_type(value->v.coerce_target, &child_type1);
+			result |= populate_data_type(value->v.coerce_target, &child_type1, cursorId);
 			*v = *value->v.coerce_target;
 			if (value_STATEMENT == v->type) {
 				/* This is a work around the current way COERCE works
@@ -240,7 +240,7 @@ int populate_data_type(SqlStatement *v, SqlValueType *type) {
 		break;
 	case column_alias_STATEMENT:
 		if (column_list_alias_STATEMENT == v->v.column_alias->column->type) {
-			result |= populate_data_type(v->v.column_alias->column, type);
+			result |= populate_data_type(v->v.column_alias->column, type, cursorId);
 		} else {
 			UNPACK_SQL_STATEMENT(column, v->v.column_alias->column, column);
 			switch(column->type) {
@@ -258,7 +258,7 @@ int populate_data_type(SqlStatement *v, SqlValueType *type) {
 				// was qualified (in "qualify_statement.c"). But by now we would have finished qualifying
 				// all columns so we should be able to find out the column type at this point. Fix it now.
 				assert(NULL != column->pre_qualified_cla);
-				result |= populate_data_type(column->pre_qualified_cla->column_list, type);
+				result |= populate_data_type(column->pre_qualified_cla->column_list, type, cursorId);
 				switch(*type) {
 				case NUMERIC_LITERAL:
 					column->type = NUMERIC_TYPE;
@@ -292,33 +292,33 @@ int populate_data_type(SqlStatement *v, SqlValueType *type) {
 		break;
 	case column_list_STATEMENT:
 		// Note: We do not loop through the list (just like is done in "hash_canonical_query")
-		result |= populate_data_type_column_list(v, type, FALSE);
+		result |= populate_data_type_column_list(v, type, FALSE, cursorId);
 		break;
 	case column_list_alias_STATEMENT:
 		// Note: We do not loop through the list (just like is done in "hash_canonical_query")
-		result |= populate_data_type_column_list_alias(v, type, FALSE);
+		result |= populate_data_type_column_list_alias(v, type, FALSE, cursorId);
 		break;
 	case table_STATEMENT:
 		// Do nothing; we got here through a table_alias
 		break;
 	case table_alias_STATEMENT:
 		UNPACK_SQL_STATEMENT(table_alias, v, table_alias);
-		result |= populate_data_type(table_alias->table, type);
+		result |= populate_data_type(table_alias->table, type, cursorId);
 		assert((select_STATEMENT != table_alias->table->type)
 			|| (table_alias->table->v.select->select_list == table_alias->column_list));
 		if (select_STATEMENT != table_alias->table->type)
-			result |= populate_data_type(table_alias->column_list, &child_type1);
+			result |= populate_data_type(table_alias->column_list, &child_type1, cursorId);
 		break;
 	case binary_STATEMENT:
 		UNPACK_SQL_STATEMENT(binary, v, binary);
-		result |= populate_data_type(binary->operands[0], &child_type1);
+		result |= populate_data_type(binary->operands[0], &child_type1, cursorId);
 		if (((BOOLEAN_IN == binary->operation) || (BOOLEAN_NOT_IN == binary->operation))
 			&& (column_list_STATEMENT == binary->operands[1]->type))
 		{	// SqlColumnList
-			result |= populate_data_type_column_list(binary->operands[1], &child_type2, TRUE);
+			result |= populate_data_type_column_list(binary->operands[1], &child_type2, TRUE, cursorId);
 		} else {
 			// SqlStatement (?)
-			result |= populate_data_type(binary->operands[1], &child_type2);
+			result |= populate_data_type(binary->operands[1], &child_type2, cursorId);
 		}
 		if ((PARAMETER_VALUE == child_type1) || (NUL_VALUE == child_type1)) {
 			child_type1 = child_type2;
@@ -351,16 +351,16 @@ int populate_data_type(SqlStatement *v, SqlValueType *type) {
 			ERROR(ERR_TYPE_MISMATCH, get_type_string(child_type1), get_type_string(child_type2));
 			for (i = 0; i < 2; i++) {
 				location = binary->operands[i]->loc;
-				yyerror(NULL, NULL, &binary->operands[i], NULL, NULL);
+				yyerror(NULL, NULL, &binary->operands[i], NULL, NULL, NULL);
 			}
 			result = 1;
 		}
 		break;
 	case set_operation_STATEMENT:
 		UNPACK_SQL_STATEMENT(set_operation, v, set_operation);
-		result |= populate_data_type(set_operation->operand[0], &child_type1);
+		result |= populate_data_type(set_operation->operand[0], &child_type1, cursorId);
 		*type = child_type1;
-		result |= populate_data_type(set_operation->operand[1], &child_type2);
+		result |= populate_data_type(set_operation->operand[1], &child_type2, cursorId);
 		/* Now that the types of operands to the SET operation have been populated, do some more checks of
 		 * whether the # and types of columns on both operands match. If not issue error.
 		 */
@@ -399,23 +399,23 @@ int populate_data_type(SqlStatement *v, SqlValueType *type) {
 				// The # of columns in the two operands (of the SET operation) do not match. Issue error.
 				ERROR(ERR_SETOPER_NUMCOLS_MISMATCH, get_setoperation_string(set_operation->type));
 				location = ((!terminate_loop[0]) ? cur_cla[0]->column_list->loc : cur_cla[1]->column_list->loc);
-				yyerror(&location, NULL, NULL, NULL, NULL);
+				yyerror(&location, NULL, NULL, NULL, cursorId, NULL);
 				result = 1;
 			} else if (NULL != type_mismatch_cla[0]) {
 				// The type of one column in the two operands (of the SET operation) do not match. Issue error.
 				ERROR(ERR_SETOPER_TYPE_MISMATCH, get_setoperation_string(set_operation->type),		\
 					get_type_string(type_mismatch_cla[0]->type), get_type_string(type_mismatch_cla[1]->type));
 				location = type_mismatch_cla[0]->column_list->loc;
-				yyerror(&location, NULL, NULL, NULL, NULL);
+				yyerror(&location, NULL, NULL, NULL, cursorId, NULL);
 				location = type_mismatch_cla[1]->column_list->loc;
-				yyerror(&location, NULL, NULL, NULL, NULL);
+				yyerror(&location, NULL, NULL, NULL, cursorId, NULL);
 				result = 1;
 			}
 		}
 		break;
 	case unary_STATEMENT:
 		UNPACK_SQL_STATEMENT(unary, v, unary);
-		result |= populate_data_type(unary->operand, &child_type1);
+		result |= populate_data_type(unary->operand, &child_type1, cursorId);
 		/* If the unary operation is EXISTS, then set the type of the result to BOOLEAN,
 		 * not to the type inherited from the sub-query passed to EXISTS.
 		 */

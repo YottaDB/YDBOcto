@@ -18,9 +18,10 @@
 
 #include "parser.h"
 
-void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, int *plan_id, char const *s)
+void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, int *plan_id, char *cursorId, char const *s)
 {
 	UNUSED(plan_id);
+	UNUSED(cursorId);
 	if ((NULL == scan) && (NULL != out)) {
 		/* This is a "yyerror" call from outside the parser (e.g. "populate_data_type.c").
 		 * In this case, compute "llocp" from "out".

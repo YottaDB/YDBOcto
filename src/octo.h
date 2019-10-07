@@ -28,6 +28,11 @@
 
 #include "mmrhash.h"
 
+// Maximum number of chars needed to convert unsigned int to char*, including null terminator
+#define UINT_TO_STRING_MAX 11
+// Maximum number of chars needed to convert unsigned long long to char*, including null terminator
+#define ULONG_TO_STRING_MAX 21
+
 /* Set OCTO_PATH_MAX to be the same as the system PATH_MAX (should be defined by limits.h or sys/param.h)
  * but in case it is not available, set it to a value of 1024 just like is done in YDB.
  */
@@ -105,11 +110,34 @@
 	hash_canonical_query(&STATE, RESULT, &STATUS);		\
 }
 
-#define LOG_LOCAL_ONLY(SEVERITY, ERROR, ...)\
-{\
-	rocto_session.sending_message = TRUE;\
-	SEVERITY(ERROR, ## __VA_ARGS__);\
-	rocto_session.sending_message = FALSE;\
+#define LOG_LOCAL_ONLY(SEVERITY, ERROR, ...)	\
+{						\
+	rocto_session.sending_message = TRUE;	\
+	SEVERITY(ERROR, ## __VA_ARGS__);	\
+	rocto_session.sending_message = FALSE;	\
+}
+
+#define INVOKE_ROW_VALUE_CONSTRUCTOR_BINARY_STATEMENT(RESULT, ROW_VALUE_CONSTRUCTOR, CURSORID)	\
+{												\
+	RESULT = row_value_constructor_binary_statement(ROW_VALUE_CONSTRUCTOR, CURSORID);	\
+	if (NULL == RESULT)									\
+		YYABORT;									\
+}
+
+#define INVOKE_REGEX_SPECIFICATION(STMT, OP0, OP1, IS_REGEX_LIKE_OR_SIMILAR, IS_SENSITIVE, IS_NOT, CURSORID)		\
+{															\
+	int status;													\
+	status = regex_specification(STMT, OP0, OP1, IS_REGEX_LIKE_OR_SIMILAR, IS_SENSITIVE, IS_NOT, CURSORID);		\
+	if (0 != status)												\
+		YYABORT;												\
+}
+
+#define INVOKE_PARSE_LITERAL_TO_PARAMETER(CURSORID, VALUE_STMT, UPDATE_EXISTING)	\
+{											\
+	int status;									\
+	status = parse_literal_to_parameter(CURSORID, VALUE_STMT, UPDATE_EXISTING);	\
+	if (0 != status)								\
+		YYABORT;								\
 }
 
 int emit_column_specification(char *buffer, int buffer_size, SqlColumn *column);
@@ -129,9 +157,9 @@ int m_escape_string2(char *buffer, int buffer_len, char *string);
 char *m_unescape_string(const char *string);
 
 int readline_get_more();
-SqlStatement *parse_line();
+SqlStatement *parse_line(char *cursorId);
 
-int populate_data_type(SqlStatement *v, SqlValueType *type);
+int populate_data_type(SqlStatement *v, SqlValueType *type, char *cursorId);
 SqlTable *find_table(const char *table_name);
 SqlColumn *find_column(char *column_name, SqlTable *table);
 SqlStatement *find_column_alias_name(SqlStatement *stmt);
@@ -180,9 +208,10 @@ void cleanup_tables();
 SqlStatement *query_specification(SqlStatement *set_quantifier, SqlStatement *select_list,
 					SqlStatement *table_expression, SqlStatement *sort_specification_list, int *plan_id);
 SqlStatement *sort_specification(SqlStatement *sort_key, SqlStatement *collate_clause, SqlStatement *ordering_specification);
-void regex_specification(SqlStatement **stmt, SqlStatement *op0, SqlStatement *op1, int is_regex_like_or_similar, int is_sensitive, int is_not);
+int regex_specification(SqlStatement **stmt, SqlStatement *op0, SqlStatement *op1, int is_regex_like_or_similar, int is_sensitive, int is_not, char *cursorId);
 SqlStatement *set_operation(enum SqlSetOperationType setoper_type, SqlStatement *left_operand, SqlStatement *right_operand);
-SqlStatement *row_value_constructor_binary_statement(SqlStatement *row_value_constructor);
+SqlStatement *row_value_constructor_binary_statement(SqlStatement *row_value_constructor, char *cursorId);
+int parse_literal_to_parameter(char *cursorId, SqlValue *value, boolean_t update_existing);
 
 /* trims duplicate '.*'s from regex */
 void trim_dot_star(SqlValue *regex);
@@ -210,5 +239,5 @@ char		*input_buffer_combined;		// The input buffer for octo. Contains the query 
 int		(*cur_input_more)();
 
 int get_input(char *buf, int size);
-void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, int *plan_id, char const *s);
+void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, int *plan_id, char *cursorId, char const *s);
 #endif

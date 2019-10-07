@@ -148,7 +148,7 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
 			}
 			if (NULL != keyword)
 			{
-				%{}!({{ value->v.string_literal }}<%%ydboctoi(0)){}%
+			  %{}!($GET({{ config->global_names.cursor }}(cursorId,"parameters",{{ value->parameter_index }}))<%%ydboctoi(0)){}%
 			}
 			%{}`n    {}%
 			order_by = order_by->v.operand[1];
@@ -162,7 +162,7 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
 		%{})) QUIT:(%%ydboctoi({{ num_cols|%d }})=""){}%
 		if (NULL != keyword)
 		{
-			%{}!({{ value->v.string_literal }}<%%ydboctoi(0)){}%
+			%{}!($GET({{ config->global_names.cursor }}(cursorId,"parameters",{{ value->parameter_index }}))<%%ydboctoi(0)){}%
 		}
 		%{}  DO`n    {}%
 		TMPL(tmpl_print_dots, num_cols);

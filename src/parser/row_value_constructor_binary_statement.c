@@ -18,11 +18,12 @@
 // Function invoked by various rules involving "row_value_constructor" in src/parser.y
 // where the operand is to be treated as a boolean expression.
 // We transform "(row_value_constructor)" usages to instead be "(row_value_constructor != 0)".
-SqlStatement *row_value_constructor_binary_statement(SqlStatement *row_value_constructor)
+SqlStatement *row_value_constructor_binary_statement(SqlStatement *row_value_constructor, char *cursorId)
 {
 	SqlStatement		*stmt;
 	SqlBinaryOperation	*binary;
 	SqlStatement		*zero;
+	int			status = 0;
 
 	SQL_STATEMENT(stmt, binary_STATEMENT);
 	MALLOC_STATEMENT(stmt, binary, SqlBinaryOperation);
@@ -32,6 +33,11 @@ SqlStatement *row_value_constructor_binary_statement(SqlStatement *row_value_con
 	MALLOC_STATEMENT(zero, value, SqlValue);
 	zero->v.value->type = INTEGER_LITERAL;
 	zero->v.value->v.string_literal = "0";
+	status = parse_literal_to_parameter(cursorId, zero->v.value, FALSE);
+	if (0 != status) {
+		OCTO_CFREE(memory_chunks);
+		return NULL;
+	}
 	binary->operands[0] = row_value_constructor;
 	binary->operands[1] = zero;
 	return stmt;

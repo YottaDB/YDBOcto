@@ -43,7 +43,17 @@ gensetqueries	;
 	. . if $random(2) do
 	. . . ; generate ORDER BY
 	. . . set sqlquery(j)=sqlquery(j)_" order by name"
-	. . if $random(2) do
+	. . ;
+	. . ; If there is more than one boolean expression, we cannot reliably use LIMIT as Postgres and Octo could
+	. . ; give different outputs in that case. This is because Postgres reorders the boolean expressions to go in
+	. . ; order while Octo still does not do that. Example queries are
+	. . ;	select name from easynames where id > 14 OR id = 13 limit 1
+	. . ;	select name from easynames where id > 13 OR id < 3 limit 1
+	. . ; The below reordered queries would work as operands for the OR are in sequence. But it is not easy to
+	. . ; ensure that in this M program so we skip using limit if numbools is > 1 (i.e. OR or AND etc. is used).
+	. . ;	select name from easynames where id = 13 OR id > 14 limit 1
+	. . ;	select name from easynames where id < 3 OR id > 13 limit 1
+	. . if (1=$get(numbools))&($random(2)) do
 	. . . ; generate LIMIT
 	. . . set sqlquery(j)=sqlquery(j)_" limit "_$random(17)
 	. . set file="testhelper"_$translate($justify(q,2)," ","0")_"."_j_".sql"

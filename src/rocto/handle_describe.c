@@ -162,7 +162,7 @@ int handle_describe(Describe *describe, RoctoSession *session) {
 						return 1;
 					}
 					if (access(filename, F_OK) == -1) {
-						pplan = emit_select_statement(input_buffer_combined, statement, filename);
+						pplan = emit_select_statement(statement, filename);
 						if(pplan == NULL) {
 							status = ydb_lock_decr_s(&filename_lock[0], 2, &filename_lock[1]);
 							YDB_ERROR_CHECK(status);

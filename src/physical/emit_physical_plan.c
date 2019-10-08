@@ -26,7 +26,7 @@
 
 #include "mmrhash.h"
 
-int emit_physical_plan(char *sql_query, PhysicalPlan *pplan, char *plan_filename) {
+int emit_physical_plan(PhysicalPlan *pplan, char *plan_filename) {
 	int		plan_id, len, fd, buffer_len, buffer_index;
 	PhysicalPlan	*cur_plan = pplan, *first_plan, xrefplan, nondeferredplan, deferredplan, *tmp_plan;
 	PhysicalPlan	*prev_plan, *next_plan;
@@ -178,20 +178,21 @@ int emit_physical_plan(char *sql_query, PhysicalPlan *pplan, char *plan_filename
 	fprintf(output_file,
 		";; This is a generated file; do not modify. Generated M code corresponds to below SQL query\n;; %s\n",
 		hyphenline);
-	// sql_query would contain '\n'; Ensure after every newline, an M comment is printed for the next line of the SQL query
-	for (linestart = sql_query; ; )
+	// input_buffer_combined would contain '\n'; Ensure after every newline, an M comment is printed for the next line of the SQL query
+	for (linestart = input_buffer_combined + old_input_index; ; )
 	{
 		lineend = strchr(linestart, '\n');
-		if (NULL != lineend)
-		{
-			fprintf(output_file, ";  %.*s\n", (int)(lineend - linestart), linestart);
-			linestart = lineend + 1;	/* + 1 to skip past matching '\n' to go to next line to print */
-		} else
-		{
-			if ('\0' != *linestart)
-				fprintf(output_file, ";; %s\n", linestart);
+		/* cur_input_index marks the start of the next query do not print past it
+		 * if it is null then there is no \n in the rest of the string so also set lineend to cur_input_index
+		 */
+		if ((NULL == lineend) || (lineend > (input_buffer_combined + cur_input_index)))
+			lineend = input_buffer_combined + cur_input_index;
+		assert(NULL != lineend);
+		fprintf(output_file, ";  %.*s\n", (int)(lineend - linestart), linestart);
+		linestart = lineend + 1;	/* + 1 to skip past matching '\n' to go to next line to print */
+		/* if we hit cur_input_index stop looping */
+		if (lineend == (input_buffer_combined + cur_input_index))
 			break;
-		}
 	}
 	fprintf(output_file, ";; %s\n", hyphenline);
 	// Emit meta plan first that invokes all the Non-Deferred plans in sequence

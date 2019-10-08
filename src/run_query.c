@@ -35,7 +35,7 @@
 #include "lexer.h"
 #include "helpers.h"
 
-int run_query(char *sql_query, int (*callback)(SqlStatement *, int, void*, char*), void *parms) {
+int run_query(int (*callback)(SqlStatement *, int, void*, char*), void *parms) {
 	FILE		*out;
 	PhysicalPlan	*pplan;
 	SqlStatement	*result;
@@ -61,8 +61,8 @@ int run_query(char *sql_query, int (*callback)(SqlStatement *, int, void*, char*
 		cur_input_index++;
 		old_input_index++;
 	}
-	result = parse_line(sql_query);
-	INFO(CUSTOM_ERROR, "Parsing done for SQL command [%.*s]", cur_input_index - old_input_index, sql_query + old_input_index);
+	result = parse_line();
+	INFO(CUSTOM_ERROR, "Parsing done for SQL command [%.*s]", cur_input_index - old_input_index, input_buffer_combined + old_input_index);
 	if(result == NULL) {
 		INFO(CUSTOM_ERROR, "Returning failure from run_query");
 		OCTO_CFREE(memory_chunks);
@@ -131,7 +131,7 @@ int run_query(char *sql_query, int (*callback)(SqlStatement *, int, void*, char*
 				return 1;
 			}
 			if (access(filename, F_OK) == -1) {
-				pplan = emit_select_statement(sql_query, result, filename);
+				pplan = emit_select_statement(result, filename);
 				if(pplan == NULL) {
 					YDB_FREE_BUFFER(&cursor_exe_global);
 					OCTO_CFREE(memory_chunks);
@@ -357,7 +357,7 @@ int run_query(char *sql_query, int (*callback)(SqlStatement *, int, void*, char*
 		(*callback)(result, cursorId, parms, NULL);
 		break;
 	default:
-		WARNING(ERR_FEATURE_NOT_IMPLEMENTED, sql_query);
+		WARNING(ERR_FEATURE_NOT_IMPLEMENTED, input_buffer_combined);
 	}
 	YDB_FREE_BUFFER(&cursor_exe_global);
 	if (free_memory_chunks) {

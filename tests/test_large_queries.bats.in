@@ -36,6 +36,9 @@ setup() {
   fi
   yottadb -r gt10mbOutA^genlargequery
   sed '/\[ INFO\]\|^INFO:/d' output.txt > clean_output.txt
+  # check that the full query is printed in the header of the generated M code
+  awk 'BEGIN {p = 0} /^;; -*$/ {p = 0} NR == 3 {p = 1} p {print substr($0, 4)}' _ydboctoP* > query.cmp
+  diff in.sql query.cmp
   diff output.ref clean_output.txt
 }
 
@@ -52,5 +55,8 @@ setup() {
   fi
   yottadb -r gt10mbOutB^genlargequery
   sed '/\[ INFO\]\|^INFO:/d' output.txt > clean_output.txt
+  # check that the full query is printed in the header of the generated M code
+  awk 'BEGIN {p = 0} /^;; -*$/ {p = 0} NR == 3 {p = 1} p {print substr($0, 4)}' _ydboctoP* > query.cmp
+  diff in.sql query.cmp
   diff output.ref clean_output.txt
 }

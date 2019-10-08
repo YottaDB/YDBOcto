@@ -24,22 +24,9 @@
  *
  * @returns the parsed statement, or NULL if there was an error parsing.
  */
-SqlStatement *parse_line(const char *line) {
+SqlStatement *parse_line() {
 	SqlStatement *result = 0;
 	yyscan_t scanner;
-	int line_length;
-
-	if(line != input_buffer_combined) {
-		INFO(CUSTOM_ERROR, "Moving line to input_buffer_combined");
-		line_length = strlen(line);
-		if(line_length >= MAX_STR_CONST - 1) {
-			ERROR(ERR_LINE_TOO_LONG, "");
-			return NULL;
-		}
-		strncpy(input_buffer_combined, line, line_length);
-		input_buffer_combined[line_length] = '\0';
-		cur_input_index = 0;
-	}
 
 	if (yylex_init(&scanner)) {
 		ERROR(ERR_INIT_SCANNER, "");

@@ -19,48 +19,48 @@ setup() {
   load_fixture names.zwr
 }
 
-@test "run two queries on the same line" {
+@test "TML000 : run two queries on the same line" {
   octo >& output.txt <<OCTO
 select firstname from names limit 1; select lastname from names limit 1;
 OCTO
-  verify_output TM000 output.txt noinfo nodebug
+  verify_output TML000 output.txt noinfo nodebug
 }
 
-@test "complete a dangling query on the same line" {
+@test "TML001 : complete a dangling query on the same line" {
   octo >& output.txt <<OCTO
 select firstname from names limit 1; select lastname from
 names limit 1;
 OCTO
-  verify_output TM001 output.txt noinfo nodebug
+  verify_output TML001 output.txt noinfo nodebug
 }
 
-@test "test that -vv only reports the current parsed query" {
+@test "TML002 : test that -vv only reports the current parsed query" {
   octo -vv >& output.txt <<OCTO
 select firstname from names limit 1; select lastname from names limit 1;
 select * from names limit 1;
 ;
 OCTO
-  verify_output TM002 output.txt nodebug
+  verify_output TML002 output.txt nodebug
 }
 
-@test "test that trailing white space is trimmed from commands so that -vv reports only the current parsed query" {
+@test "TML003 : test that trailing white space is trimmed from commands so that -vv reports only the current parsed query" {
 # the first line has 5 spaces after it
 # to prevent white space stripping this must be echoed in to a temp file
 echo "select firstname from names limit 1;     " > input.in
 echo "select lastname from names limit 1;" >> input.in
   octo -vv >& output.txt < input.in
-  verify_output TM003 output.txt nodebug
+  verify_output TML003 output.txt nodebug
 }
 
-@test "test that input buffer is cleared on an invalid parse" {
+@test "TML004 : test that input buffer is cleared on an invalid parse" {
   octo -vv >& output.txt <<OCTO
 qwertyuiop;
 select * from names limit 1;
 OCTO
-  verify_output TM004 output.txt nodebug
+  verify_output TML004 output.txt nodebug
 }
 
-@test "test that -vv reports dangling queries with blank lines" {
+@test "TML005 : test that -vv reports dangling queries with blank lines" {
   octo -vv >& output.txt <<OCTO
 select firstname from names
 
@@ -69,35 +69,55 @@ select firstname from names
 
 limit 1;
 OCTO
-  verify_output TM005 output.txt nodebug
+  verify_output TML005 output.txt nodebug
 }
 
-@test "test that a correct query after an error still runs" {
+@test "TML006 : test that a correct query after an error still runs" {
   octo -vv >& output.txt <<OCTO
 qwerty; select * from names limit 1;
 OCTO
-  verify_output TM006 output.txt nodebug
+  verify_output TML006 output.txt nodebug
 }
 
-@test "test that a correct query after a multiline error still runs" {
+@test "TML007 : test that a correct query after a multiline error still runs" {
   octo -vv >& output.txt <<OCTO
 qwerty
 uiop; select *
 from names limit 1;
 OCTO
-  verify_output TM007 output.txt nodebug
+  verify_output TML007 output.txt nodebug
 }
 
-@test "run two queries on the same line with no space between" {
+@test "TML008 : run two queries on the same line with no space between" {
   octo >& output.txt <<OCTO
 select firstname from names limit 1;select lastname from names limit 1;
 OCTO
-  verify_output TM008 output.txt noinfo nodebug
+  verify_output TML008 output.txt noinfo nodebug
 }
 
-@test "test that -vv only reports the current parsed query with no space between" {
+@test "TML009 : test that -vv only reports the current parsed query with no space between" {
   octo -vv >& output.txt <<OCTO
 select firstname from names limit 1;select lastname from names limit 1;
 OCTO
-  verify_output TM009 output.txt nodebug
+  verify_output TML009 output.txt nodebug
 }
+
+@test "TML010 : generated code header for multiquery lines lists only the correct query" {
+  export LC_ALL=en_US.UTF8 # needed to avoid wildcard expansion changing based on LC_TYPE
+  octo <<OCTO 2>&1 | tee output.txt
+select firstname from names limit 1; select lastname from names limit 1;
+OCTO
+  cat _ydboctoP*.m >> output.txt
+  verify_output TML010 output.txt
+}
+@test "TML011 : generated code header for multiquery lines lists only the correct query using octo -f" {
+  export LC_ALL=en_US.UTF8 # needed to avoid wildcard expansion changing based on LC_TYPE
+  cat <<CAT >> input.sql
+select firstname from names limit 1; select lastname from names limit 1;
+CAT
+  octo -f input.sql 2>&1 | tee output.txt
+  cat _ydboctoP*.m >> output.txt
+  verify_output TML011 output.txt
+}
+
+

@@ -76,7 +76,7 @@ int main(int argc, char **argv)
 		}
 		/* else: It is a file input and we cannot easily clear input buffer */
 		/* Read new query and run it at the same time */
-		run_query(input_buffer_combined, &print_temporary_table, NULL);
+		run_query(&print_temporary_table, NULL);
 		if(eof_hit)
 			break;
 	} while(!feof(inputFile));

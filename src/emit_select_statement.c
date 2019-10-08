@@ -30,7 +30,7 @@
  * Returns a table describing the temporary table containing the resulting
  *  values
  */
-PhysicalPlan *emit_select_statement(char *sql_query, SqlStatement *stmt, char *plan_filename)
+PhysicalPlan *emit_select_statement(SqlStatement *stmt, char *plan_filename)
 {
 	LPActionType	set_oper_type;
 	LogicalPlan	*plan, *cur_plan, *column_alias;
@@ -87,7 +87,7 @@ PhysicalPlan *emit_select_statement(char *sql_query, SqlStatement *stmt, char *p
 		return NULL;
 	}
 	assert(NULL != plan_filename);
-	status = emit_physical_plan(sql_query, pplan, plan_filename);
+	status = emit_physical_plan(pplan, plan_filename);
 	if (YDB_OK != status)
 		return NULL;
 

@@ -100,7 +100,7 @@ int m_escape_string2(char *buffer, int buffer_len, char *string);
 char *m_unescape_string(const char *string);
 
 int readline_get_more();
-SqlStatement *parse_line(const char *line);
+SqlStatement *parse_line();
 
 int populate_data_type(SqlStatement *v, SqlValueType *type);
 SqlTable *find_table(const char *table_name);
@@ -167,14 +167,14 @@ int no_more();
 /* Globals */
 SqlTable	*definedTables;
 uint64_t	hash_canonical_query_cycle;	// incremented before every outermost call to "hash_canonical_query"
-int		cur_input_index;
-int		old_input_index;
+int		cur_input_index;		// Current index of input_buffer_combined the parser should read from, and readlines should write to. Effectively marks the end of the current query.
+int		old_input_index;		// The previous value of cur_input_index before the parser modifies it. Effectively marks the start of the current query.
 int		cur_input_max;
 int		cancel_received;
 int		eof_hit;
 FILE		*inputFile;
 FILE		*err_buffer;
-char		*input_buffer_combined;
+char		*input_buffer_combined;		// The input buffer for octo. Contains the query strings.
 int		(*cur_input_more)();
 
 int get_input(char *buf, int size);

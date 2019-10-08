@@ -82,7 +82,7 @@ int handle_execute(Execute *execute, RoctoSession *session) {
 	parms.max_data_to_send = execute->rows_to_return;
 	do {
 		parms.data_sent = FALSE;
-		run_query_result = run_query(input_buffer_combined, &handle_query_response, (void*)&parms);
+		run_query_result = run_query(&handle_query_response, (void*)&parms);
 		if(run_query_result == FALSE && !eof_hit) {
 			fflush(err_buffer);
 			fclose(err_buffer);

@@ -103,7 +103,7 @@ PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlanOptions *opt
 // Outputs physical plans to temporary files located in config.tmp_dir
 //  Names are like ppplanXXXX, where XXXX is a unique number
 // Returns TRUE on success
-int emit_physical_plan(char *sql_query, PhysicalPlan *pplan, char *plan_filename);
+int emit_physical_plan(PhysicalPlan *pplan, char *plan_filename);
 
 // Returns true if the key is a version of this column
 int key_equals_column(SqlKey *key, SqlColumn *column);
@@ -116,9 +116,9 @@ int print_temporary_table(SqlStatement *, int cursor_id, void *parms, char *plan
  *
  * @returns TRUE on success, FALSE on failure
  */
-int run_query(char *query, int (*callback)(SqlStatement *, int, void *, char*), void *parms);
+int run_query(int (*callback)(SqlStatement *, int, void *, char*), void *parms);
 
-PhysicalPlan	*emit_select_statement(char *sql_query, SqlStatement *stmt, char *plan_filename);
+PhysicalPlan	*emit_select_statement(SqlStatement *stmt, char *plan_filename);
 boolean_t	is_prev_plan_in_same_dnf(PhysicalPlan *plan);
 
 #endif

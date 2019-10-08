@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -35,7 +35,8 @@ int no_more() {
 
 int main(int argc, char **argv)
 {
-	int	status;
+	ParseContext	parse_context;
+	int		status;
 
 	inputFile = NULL;
 	status = octo_init(argc, argv);
@@ -74,7 +75,8 @@ int main(int argc, char **argv)
 		// Read new query and run it at the same time and discard return value
 		// Any meaningful errors will have already been reported lower in the stack and failed queries are recoverable,
 		// so it can safely be discarded.
-		run_query(&print_temporary_table, NULL);
+		memset(&parse_context, 0, sizeof(parse_context));
+		run_query(&print_temporary_table, NULL, FALSE, &parse_context);
 		if(eof_hit)
 			break;
 	} while(!feof(inputFile));

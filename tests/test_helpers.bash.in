@@ -66,13 +66,13 @@ init_tls() {
 	# Sign certificate based on request and local CA
 	openssl x509 -req -in $test_temp/server.csr -CA $test_temp/CA.crt -CAkey $test_temp/CA.key -CAcreateserial \
 		-out server.crt -days 365
-  # Set $USER to prevent docker ENV problems
-  export USER=root
+	# Set $USER to prevent docker ENV problems
+	export USER=root
 	# Pass private key password to environment variable
-  echo tester | $ydb_dist/plugin/gtmcrypt/maskpass | cut -f 3 -d " " >> env.log
-  export ydb_tls_passwd_OCTOSERVER=$(echo tester | $ydb_dist/plugin/gtmcrypt/maskpass | cut -f 3 -d " ")
-  export ydb_crypt_config=$test_temp/octo.conf
-  cat <<OCTO &>> $test_temp/octo.conf
+	echo tester | $ydb_dist/plugin/gtmcrypt/maskpass | cut -f 3 -d " " >> env.log
+	export ydb_tls_passwd_OCTOSERVER=$(echo tester | $ydb_dist/plugin/gtmcrypt/maskpass | cut -f 3 -d " ")
+	export ydb_crypt_config=$test_temp/octo.conf
+	cat <<OCTO &>> $test_temp/octo.conf
 rocto: {
 	ssl_on: true;
 }
@@ -90,203 +90,222 @@ OCTO
 }
 
 copy_test_files() {
-  for f in $@; do
-    mkdir -p $test_temp/$(dirname $f)
-    cp @PROJECT_SOURCE_DIR@/tests/$f $test_temp/$f
-  done
+	for f in $@; do
+		mkdir -p $test_temp/$(dirname $f)
+		cp @PROJECT_SOURCE_DIR@/tests/$f $test_temp/$f
+	done
 }
 
 # load_fixture <fixture name, relative to tests/fixtures
 load_fixture() {
-  fixture_name=$1
-  echo "Loading fixture $fixture_name"
-  if [[ $fixture_name == *.zwr ]]; then
-    $ydb_dist/mupip load  @PROJECT_SOURCE_DIR@/tests/fixtures/$fixture_name
-  elif [[ $fixture_name == *.sql ]]; then
-    if [[ $2 == "subtest" ]]; then
-      cp @PROJECT_SOURCE_DIR@/tests/fixtures/$fixture_name $fixture_name
-      grep -v '^#' $fixture_name > output.txt	   # Filter out copyright from output
-      grep -vE '^-- |^#' $fixture_name > input.sql # Filter out comment lines as they otherwise clutter the parse error output (if any)
-      if [[ $3 == "novv" ]]; then
-        octoflags=""
-      else
-        octoflags="-vv"
-      fi
-      octo $octoflags -f input.sql >> output.txt 2>&1
-    else
-      octo -f @PROJECT_SOURCE_DIR@/tests/fixtures/$fixture_name
-    fi
-  else
-    exit 1
-  fi
+	fixture_name=$1
+	echo "Loading fixture $fixture_name"
+	if [[ $fixture_name == *.zwr ]]; then
+		$ydb_dist/mupip load  @PROJECT_SOURCE_DIR@/tests/fixtures/$fixture_name
+	elif [[ $fixture_name == *.sql ]]; then
+		if [[ $2 == "subtest" ]]; then
+			cp @PROJECT_SOURCE_DIR@/tests/fixtures/$fixture_name $fixture_name
+			grep -v '^#' $fixture_name > output.txt	   # Filter out copyright from output
+			grep -vE '^-- |^#' $fixture_name > input.sql # Filter out comment lines as they otherwise clutter the parse error output (if any)
+			if [[ $3 == "novv" ]]; then
+				octoflags=""
+			else
+				octoflags="-vv"
+			fi
+				octo $octoflags -f input.sql >> output.txt 2>&1
+		else
+			octo -f @PROJECT_SOURCE_DIR@/tests/fixtures/$fixture_name
+		fi
+	else
+		exit 1
+	fi
 }
 
 create_postgres_database() {
-  psql postgres <<PSQL
-  -- Need to use LC_COLLATE='C' to ensure string comparison of 'Z' < 'a' returns TRUE (default is en_US.UTF-8)
-  -- Need template=template0 to avoid the following error
-  -- `new collation (C) is incompatible with the collation of the template database (en_US.UTF-8)`
-  create database $1 LC_COLLATE='C' template=template0;
+	psql postgres <<PSQL
+	-- Need to use LC_COLLATE='C' to ensure string comparison of 'Z' < 'a' returns TRUE (default is en_US.UTF-8)
+	-- Need template=template0 to avoid the following error
+	-- `new collation (C) is incompatible with the collation of the template database (en_US.UTF-8)`
+	create database $1 LC_COLLATE='C' template=template0;
 PSQL
 }
 
 load_postgres_fixture() {
-  psql $1 -f @PROJECT_SOURCE_DIR@/tests/fixtures/$2
+	# If the table already exists, the psql command will return with a non-zero exit status due to the
+	# `\set ON_ERROR_STOP on` usage in the .sql script. But that is not a real error and so we use the `run` command
+	# below to avoid bats from treating this as an error.
+	run psql $1 -f @PROJECT_SOURCE_DIR@/tests/fixtures/$2
 }
 
 # Load a large amount of dummy data for tests requiring slow queries
 load_big_data() {
-  $ydb_dist/mumps -run ^%XCMD 'for i=1:4:1000000 s ^names(i+5)=(i+5)_"|A|B"'
-  $ydb_dist/mumps -run ^%XCMD 'for i=2:4:1000000 s ^names(i+5)=(i+5)_"|C|B"'
-  $ydb_dist/mumps -run ^%XCMD 'for i=3:4:1000000 s ^names(i+5)=(i+5)_"|A|C"'
-  $ydb_dist/mumps -run ^%XCMD 'for i=4:4:1000000 s ^names(i+5)=(i+5)_"|B|A"'
+	$ydb_dist/mumps -run ^%XCMD 'for i=1:4:1000000 s ^names(i+5)=(i+5)_"|A|B"'
+	$ydb_dist/mumps -run ^%XCMD 'for i=2:4:1000000 s ^names(i+5)=(i+5)_"|C|B"'
+	$ydb_dist/mumps -run ^%XCMD 'for i=3:4:1000000 s ^names(i+5)=(i+5)_"|A|C"'
+	$ydb_dist/mumps -run ^%XCMD 'for i=4:4:1000000 s ^names(i+5)=(i+5)_"|B|A"'
 }
 
 createdb() {
-  export ydb_gbldir="mumps.gld"
-  echo "ydb_gbldir: $ydb_gbldir"
-  # Create two regions by default. One to hold application/user data. One to hold Octo internal data (%ydbocto* namespace)
-  # But if user specified number of regions explicitly (only allowed value currently is 1) then create 1 region only.
-  if [[ $1 == "1" ]]; then
-    $ydb_dist/mumps -r ^GDE <<FILE
-    change -r DEFAULT -key_size=1019 -record_size=1048576
-    change -segment DEFAULT -file_name=$test_temp/mumps.dat
-    change -r DEFAULT -NULL_SUBSCRIPTS=true
-    exit
+	export ydb_gbldir="mumps.gld"
+	echo "ydb_gbldir: $ydb_gbldir"
+	# Create two regions by default. One to hold application/user data. One to hold Octo internal data (%ydbocto* namespace)
+	# But if user specified number of regions explicitly (only allowed value currently is 1) then create 1 region only.
+	if [[ $1 == "1" ]]; then
+		$ydb_dist/mumps -r ^GDE <<FILE
+		change -r DEFAULT -key_size=1019 -record_size=1048576
+		change -segment DEFAULT -file_name=$test_temp/mumps.dat
+		change -r DEFAULT -NULL_SUBSCRIPTS=true
+		exit
 FILE
-  else
-    $ydb_dist/mumps -r ^GDE <<FILE
-    change -region DEFAULT -null_subscripts=true -record_size=1024
-    change -segment DEFAULT -file_name=$test_temp/mumps.dat
-    add -name %ydbocto* -region=OCTOREG
-    add -region OCTOREG -dyn=OCTOSEG
-    add -segment OCTOSEG -file=$test_temp/octo.dat
-    change -region OCTOREG -null_subscripts=true -key_size=1019 -record_size=1048576
-    exit
+	else
+		$ydb_dist/mumps -r ^GDE <<FILE
+change -region DEFAULT -null_subscripts=true -record_size=1024
+change -segment DEFAULT -file_name=$test_temp/mumps.dat
+add -name %ydbocto* -region=OCTOREG
+add -region OCTOREG -dyn=OCTOSEG
+add -segment OCTOSEG -file=$test_temp/octo.dat
+change -region OCTOREG -null_subscripts=true -key_size=1019 -record_size=1048576
+exit
 FILE
-  fi
-  rm *.dat || true
-  $ydb_dist/mupip create
-  echo "Populating seed data"
-  load_fixture postgres-seed.sql
-  load_fixture postgres-seed.zwr
-  # Set the below env var to ensure no DBFILEXT messages show up in syslog and in turn in individual test output files
-  # e.g. if a test redirects stderr to a file output.txt, then syslog messages would show up in that file if run through
-  # the pipeline causing a test failure if that is compared against a reference file (e.g. TC001 in test_create_table.bats.in)
-  export ydb_dbfilext_syslog_disable=1
+	fi
+	rm *.dat || true
+	$ydb_dist/mupip create
+	echo "Populating seed data"
+	load_fixture postgres-seed.sql
+	load_fixture postgres-seed.zwr
+	# Set the below env var to ensure no DBFILEXT messages show up in syslog and in turn in individual test output files
+	# e.g. if a test redirects stderr to a file output.txt, then syslog messages would show up in that file if run through
+	# the pipeline causing a test failure if that is compared against a reference file (e.g. TC001 in test_create_table.bats.in)
+	export ydb_dbfilext_syslog_disable=1
 }
 
 gde_add_region() {
-  $ydb_dist/mumps -r ^GDE <<FILE
+	$ydb_dist/mumps -r ^GDE <<FILE
 add -name $2 -region=$1
 add -region $1 -dynamic=$1 -key_size=1019 -record_size=1048576
 add -segment $1 -file_name=$test_temp/$1.dat
 exit
 FILE
-  $ydb_dist/mupip create -region=$1
+	$ydb_dist/mupip create -region=$1
 }
 
 gde_add_name() {
-  echo "NAME: $1"
-  $ydb_dist/mumps -r ^GDE <<FILE
+	echo "NAME: $1"
+	$ydb_dist/mumps -r ^GDE <<FILE
 add -name $1 -region=$2
 exit
 FILE
 }
 
 set_null_subs() {
-  $ydb_dist/mupip set -region $1 -NULL_SUBSCRIPTS=$2
+	$ydb_dist/mupip set -region $1 -NULL_SUBSCRIPTS=$2
 }
 
 find_open_port() {
-  if [[ $1 =~ ^[-+]?[0-9]+$ ]]; then
-    open_port=$1
-  else
-    open_port=1337
-  fi
-  netstat -tulpn | grep ":$open_port" &> /dev/null
-  result=$?
-  while [[ $result -eq 0 ]]; do
-    open_port=$(($open_port+1))
-    netstat -tulpn | grep ":$open_port" &> /dev/null
-    result=$?
-  done
-  echo $open_port
+	if [[ $1 =~ ^[-+]?[0-9]+$ ]]; then
+		open_port=$1
+	else
+		open_port=1337
+	fi
+	netstat -tulpn | grep ":$open_port" &> /dev/null
+	result=$?
+	while [[ $result -eq 0 ]]; do
+		open_port=$(($open_port+1))
+		netstat -tulpn | grep ":$open_port" &> /dev/null
+		result=$?
+	done
+	echo $open_port
 }
 
 start_rocto() {
-  echo "ROCTO START" >> env.log
-  env >> env.log
-  if [[ $2 == "quiet" ]]; then
-    quiet=""
-  else
-    quiet="-vv"
-    # Allow optional second argument
-    opt2=$2
-  fi
-  rocto_port=$(find_open_port $1)
-  rocto $quiet -p $rocto_port $2 &> rocto.log &
-  echo $! > rocto.pid
-  while [[ "$(grep -c "rocto started" rocto.log)" == "0" ]]; do
-    sleep .1s
-  done
-  echo $rocto_port
+	echo "ROCTO START" >> env.log
+	env >> env.log
+	if [[ $2 == "quiet" ]]; then
+		verbosity=""
+	elif [[ $2 == "verbose" ]]; then
+		verbosity="-vvvv"
+	else
+		verbosity="-vv"
+		# Allow optional second argument
+		opt2=$2
+	fi
+	rocto_port=$(find_open_port $1)
+	rocto $verbosity -p $rocto_port $2 &> rocto.log &
+	# valgrind --leak-check=yes --track-origins=yes rocto $verbosity -p $rocto_port $2 &> rocto.log &
+	echo $! > rocto.pid
+	while [[ "$(grep -c "rocto started" rocto.log)" == "0" ]]; do
+		sleep .1s
+	done
+	echo $rocto_port
 }
 
 stop_rocto() {
-  if [[ -e rocto.pid ]]; then
-    rocto_pid=$(cat rocto.pid)
-    if [[ $(ps -A | grep -c $rocto_pid) -gt 0 ]]; then
-      $ydb_dist/mupip stop $rocto_pid
-    fi
-  fi
+	if [[ -e rocto.pid ]]; then
+		rocto_pid=$(cat rocto.pid)
+		if [[ $(ps -A | grep -c $rocto_pid) -gt 0 ]]; then
+			$ydb_dist/mupip stop $rocto_pid
+		fi
+	fi
 }
 
 run_psql() {
-  if [[ @YDB_TLS_AVAILABLE@ -eq 1 ]]; then
-    PGPASSWORD=ydbrocks psql -U ydb "host=localhost port=$1"
-  else
-    PGPASSWORD=ydbrocks psql -U ydb "sslmode=disable host=localhost port=$1"
-  fi
+	if [[ @YDB_TLS_AVAILABLE@ -eq 1 ]]; then
+		PGPASSWORD=ydbrocks psql -U ydb "host=localhost port=$1"
+	else
+		PGPASSWORD=ydbrocks psql -U ydb "sslmode=disable host=localhost port=$1"
+	fi
 }
 
 run_psql_auth() {
-  if [[ @YDB_TLS_AVAILABLE@ -eq 1 ]]; then
-    PGPASSWORD=$2 psql -U $1 "host=localhost port=$3"
-  else
-    PGPASSWORD=$2 psql -U $1 "sslmode=disable host=localhost port=$3"
-  fi
+	if [[ @YDB_TLS_AVAILABLE@ -eq 1 ]]; then
+		PGPASSWORD=$2 psql -U $1 "host=localhost port=$3"
+	else
+		PGPASSWORD=$2 psql -U $1 "sslmode=disable host=localhost port=$3"
+	fi
 }
 
 run_psql_expect() {
-  unset PGPASSWORD
-  (expect -d -f @PROJECT_SOURCE_DIR@/tests/fixtures/$1.exp $2 > expect.out) &> expect.dbg
+	unset PGPASSWORD
+	(expect -d -f @PROJECT_SOURCE_DIR@/tests/fixtures/$1.exp $2 > expect.out) &> expect.dbg
 }
 
 create_user() {
-  echo -n $2 | yottadb -r %ydboctoAdmin add user $1
+	echo -n $2 | yottadb -r %ydboctoAdmin add user $1
 }
 
 delete_users() {
-  for user in $@; do
-    yottadb -r %ydboctoAdmin delete user $user
-  done
+	for user in $@; do
+		yottadb -r %ydboctoAdmin delete user $user
+	done
 }
 
 setup_go() {
-  mkdir -p "$test_temp/go/src/"
-  export GOPATH="$test_temp/go"
+	mkdir -p "$test_temp/go/src/"
+	export GOPATH="$test_temp/go"
 }
 
 run_go() {
-  cp -r @PROJECT_SOURCE_DIR@/tests/go/src/$1 $GOPATH/src/$1
-  go get $1
-  go build $1
-  $GOPATH/bin/$1
+	cp -r @PROJECT_SOURCE_DIR@/tests/go/src/$1 $GOPATH/src/$1
+	go get $1
+	go build $1
+	$GOPATH/bin/$1 $2
+}
+
+run_java() {
+	# Check if .java file has already been compiled to a .class file. If so skip that step.
+	if [[ ! -e @PROJECT_BINARY_DIR@/$1.class ]]; then
+		# Copy .java file from fixtures directory to current directory to create .class file
+		cp @PROJECT_SOURCE_DIR@/tests/fixtures/$1.java @PROJECT_BINARY_DIR@
+		# Compile the .java file to a .class file
+		javac @PROJECT_BINARY_DIR@/$1.java	# will create the file $1.class
+	fi
+	# Run the $1.java file now that the $1.class file has been compiled/created.
+	# Ensure both the postgresql-$JDBC_VERSION.jar file and the $1.class file will be found in the -classpath specification below
+	java -classpath @PROJECT_BINARY_DIR@/postgresql-$JDBC_VERSION.jar:@PROJECT_BINARY_DIR@ $1 $2 "$3"
 }
 
 strip_psql_header() {
-  sed -i '/Password for user /,/^[[:space:]]*$/d' $1
+	sed -i '/Password for user /,/^[[:space:]]*$/d' $1
 }
 
 strip_expect_artifacts() {
@@ -301,205 +320,216 @@ strip_expect_artifacts() {
 }
 
 verify_output() {
-  echo "Comparing outref/$1 $2"
-  copy_test_files outref/$1.ref
-  cp $2 clean_output.txt
+	echo "Comparing outref/$1 $2"
+	copy_test_files outref/$1.ref
+	cp $2 clean_output.txt
 
-  # Universal filters
-  # Filter time and dates
-  sed -i 's/[0-9]\{4\}-[0-9]\{2\}-[0-9]\{2\}/DATE/g' clean_output.txt
-  sed -i 's/[0-9]\{2\}:[0-9]\{2\}:[0-9]\{2\}/TIME/g' clean_output.txt
-  # Filter file path
-  sed -i 's/\/.*\/.*\.[yc]:[0-9]*/PATH:LINENUM/' clean_output.txt
-  # Filter global octo.conf (any not in the local directory)
-  sed -i '/^.*\[ INFO\].* \/.*\/octo.conf/d' clean_output.txt
-  # Filter M routine name
-  sed -i 's/_ydboctoP.*\.m/_ydboctoP*.m/' clean_output.txt
-  sed -i 's/_ydboctoX.*\.m/_ydboctoX*.m/' clean_output.txt
-  # Filter M routine name with %
-  sed -i 's/\%ydboctoP[a-zA-Z0-9]*,/%ydboctoP*,/' clean_output.txt
-  # Filter OBJ file name
-  sed -i 's/_ydboctoP.*\.o/_ydboctoP*.o/' clean_output.txt
-  # Filter cursor number
-  sed -i 's/cursor [0-9]*/CURSOR_NUM/' clean_output.txt
-  # Filter ydb_* environment variables
-  sed -i '/^.*\[ INFO\] PATH:LINENUM DATE TIME : # .*$/d' clean_output.txt
-  # Convert non-deterministic $PWD into a deterministic one
-  sed -i 's,'$PWD',$PWD,g' clean_output.txt
-  # Filter version number
-  sed -i 's/Octo version [0-9]\.[0-9]\.[0-9]/Octo version x\.x\.x/' clean_output.txt
-  sed -i 's/Rocto version [0-9]\.[0-9]\.[0-9]/Rocto version x\.x\.x/' clean_output.txt
-  # Filter git commit hash
-  sed -i 's/Git commit: [0-9,a-f]*/Git commit: xxxx/' clean_output.txt
-  # Filter git uncommitted changes
-  sed -i 's/Uncommitted changes: .*/Uncommitted changes: false/' clean_output.txt
-  # Filter forked process pid
-  sed -i 's/rocto server process forked with pid [0-9]*/rocto server process forked with pid PID/' clean_output.txt
-  # Convert psql prompt to root for compatibility when running tests on systems with different PostgreSQL user permissions
-  # Specifically, some test machines do not run tests with full PostgreSQL user permissions and so receive a prompt with '>' instead of '#'
-  sed -i 's/=>/=#/' clean_output.txt
+	# Universal filters
+	# Filter time and dates
+	sed -i 's/[0-9]\{4\}-[0-9]\{2\}-[0-9]\{2\}/DATE/g' clean_output.txt
+	sed -i 's/[0-9]\{2\}:[0-9]\{2\}:[0-9]\{2\}/TIME/g' clean_output.txt
+	# Filter file path
+	sed -i 's/\/.*\/.*\.[yc]:[0-9]*/PATH:LINENUM/' clean_output.txt
+	# Filter global octo.conf (any not in the local directory)
+	sed -i '/^.*\[ INFO\].* \/.*\/octo.conf/d' clean_output.txt
+	# Filter M routine name
+	sed -i 's/_ydboctoP.*\.m/_ydboctoP*.m/' clean_output.txt
+	sed -i 's/_ydboctoX.*\.m/_ydboctoX*.m/' clean_output.txt
+	# Filter M routine name with %
+	sed -i 's/\%ydboctoP[a-zA-Z0-9]*,/%ydboctoP*,/' clean_output.txt
+	# Filter OBJ file name
+	sed -i 's/_ydboctoP.*\.o/_ydboctoP*.o/' clean_output.txt
+	# Filter cursor number
+	sed -i 's/cursor [0-9]*/CURSOR_NUM/' clean_output.txt
+	# Filter ydb_* environment variables
+	sed -i '/^.*\[ INFO\] PATH:LINENUM DATE TIME : # .*$/d' clean_output.txt
+	# Convert non-deterministic $PWD into a deterministic one
+	sed -i 's,'$PWD',$PWD,g' clean_output.txt
+	# Filter version number
+	sed -i 's/Octo version [0-9]\.[0-9]\.[0-9]/Octo version x\.x\.x/' clean_output.txt
+	sed -i 's/Rocto version [0-9]\.[0-9]\.[0-9]/Rocto version x\.x\.x/' clean_output.txt
+	# Filter git commit hash
+	sed -i 's/Git commit: [0-9,a-f]*/Git commit: xxxx/' clean_output.txt
+	# Filter git uncommitted changes
+	sed -i 's/Uncommitted changes: .*/Uncommitted changes: false/' clean_output.txt
+	# Filter forked process pid
+	sed -i 's/rocto server process forked with pid [0-9]*/rocto server process forked with pid PID/' clean_output.txt
+	# Convert psql prompt to root for compatibility when running tests on systems with different PostgreSQL user permissions
+	# Specifically, some test machines do not run tests with full PostgreSQL user permissions and so receive a prompt with '>' instead of '#'
+	sed -i 's/=>/=#/' clean_output.txt
 
-  # Selectively process output
-  for i in "$@"; do
-    # Filter verbosity statements from octo and psql
-    # a default octo install will have WARNING verbosity so INFO and DEBUG will need to be filtered for most tests
-    if [[ $i == "noinfo" ]]; then
-      sed -i '/\[ INFO\]\|^INFO:/d' clean_output.txt
-    fi
-    if [[ $i == "nodebug" ]]; then
-      sed -i '/\[DEBUG\]\|^DEBUG:/,/^[[:space:]]*$/d' clean_output.txt
-    fi
-    if [[ $i == "nowarn" ]]; then
-      sed -i '/\[ WARN\]\|^WARN:/d' clean_output.txt
-    fi
-    if [[ $i == "nosenderror" ]]; then
-      sed -i '/failed to send message/d' clean_output.txt
-    fi
-    if [[ $i == "noconnclose" ]]; then
-      # Remove "connection closed cleanly" messages
-      sed -i '/connection closed cleanly/d' clean_output.txt
-    fi
-    if [[ $i == "noprompt" ]]; then
-      # Remove octo prompt, but keep remainder of line
-      sed -i 's/^.*OCTO>//' clean_output.txt
-    fi
-    if [[ $i == "nopromptline" ]]; then
-      # Remove octo prompt lines
-      sed -i '/OCTO>/,$!d' clean_output.txt
-    fi
-    if [[ $i == "psql" ]]; then
-      # filter socket info
-      sed -i 's/\[[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*:[0-9]*\]/\[SOCKET\]/' clean_output.txt
-    fi
-    if [[ $i == "noexpect" ]]; then
-      # Remove expect script artifacts
-      strip_expect_artifacts clean_output.txt
-      strip_psql_header clean_output.txt
-    fi
-    if [[ $i == "stripreturns" ]]; then
-      sed -i 's/\r//g' clean_output.txt
-    fi
-    if [[ $i == "striphex" ]]; then
-      # Remove any hex values consisting of 2 to 8 hex characters (16-64 bits)
-      sed -i 's/0x[0-9a-fA-F]\{2,16\}/HEX/' clean_output.txt
-    fi
-    if [[ $i == "noforcedhalt" ]]; then
-      sed -i '/%YDB-F-FORCEDHALT/d' clean_output.txt
-    fi
-    # The sort argument should be passed last to allow sorting of final output file
-    if [[ $i == "sort" ]]; then
-      cat clean_output.txt | sort -o clean_output.txt
-    fi
-  done
+	# Selectively process output
+	for i in "$@"; do
+		# Filter verbosity statements from octo and psql
+		# a default octo install will have WARNING verbosity so INFO and DEBUG will need to be filtered for most tests
+		if [[ $i == "noinfo" ]]; then
+			sed -i '/\[ INFO\]\|^INFO:/d' clean_output.txt
+		fi
+		if [[ $i == "nodebug" ]]; then
+			sed -i '/\[DEBUG\]\|^DEBUG:/,/^[[:space:]]*$/d' clean_output.txt
+		fi
+		if [[ $i == "nowarn" ]]; then
+			sed -i '/\[ WARN\]\|^WARN:/d' clean_output.txt
+		fi
+		if [[ $i == "nosenderror" ]]; then
+			sed -i '/failed to send message/d' clean_output.txt
+		fi
+		if [[ $i == "noconnclose" ]]; then
+			# Remove "connection closed cleanly" messages
+			sed -i '/connection closed cleanly/d' clean_output.txt
+		fi
+		if [[ $i == "noprompt" ]]; then
+			# Remove octo prompt, but keep remainder of line
+			sed -i 's/^.*OCTO>//' clean_output.txt
+		fi
+		if [[ $i == "nopromptline" ]]; then
+			# Remove octo prompt lines
+			sed -i '/OCTO>/,$!d' clean_output.txt
+		fi
+		if [[ $i == "psql" ]]; then
+			# filter socket info
+			sed -i 's/\[[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*:[0-9]*\]/\[SOCKET\]/' clean_output.txt
+		fi
+		if [[ $i == "noport" ]]; then
+			# filter port from INFO messages in rocto
+			sed -i 's/rocto started on port [0-9]*/\[PORT\]/' clean_output.txt
+		fi
+		if [[ $i == "noexpect" ]]; then
+			# Remove expect script artifacts
+			strip_expect_artifacts clean_output.txt
+			strip_psql_header clean_output.txt
+		fi
+		if [[ $i == "stripreturns" ]]; then
+			sed -i 's/\r//g' clean_output.txt
+		fi
+		if [[ $i == "striphex" ]]; then
+			# Remove any hex values consisting of 2 to 8 hex characters (16-64 bits)
+			sed -i 's/0x[0-9a-fA-F]\{2,16\}/HEX/' clean_output.txt
+		fi
+		if [[ $i == "noforcedhalt" ]]; then
+			sed -i '/%YDB-F-FORCEDHALT/d' clean_output.txt
+		fi
+		# The sort argument should be passed last to allow sorting of final output file
+		if [[ $i == "sort" ]]; then
+			cat clean_output.txt | sort -o clean_output.txt
+		fi
+	done
 
-  diff outref/$1.ref clean_output.txt
-  return
+	diff outref/$1.ref clean_output.txt
+	return
 }
 
 count_for_loops() {
-  numloops=$(grep -c "FOR " $1) || true	# grep -c can return non-zero status in case of no match hence the need for "|| true"
-  if [[ $numloops -ne $2 ]]; then
-    echo "Expected $2 FOR loops but found $numloops loops instead in $1"
-    return -1
-  fi
-  return
+	numloops=$(grep -c "FOR " $1) || true	# grep -c can return non-zero status in case of no match hence the need for "|| true"
+	if [[ $numloops -ne $2 ]]; then
+		echo "Expected $2 FOR loops but found $numloops loops instead in $1"
+		return -1
+	fi
+	return
 }
 
 count_num_occurrences() {
-  numoccurrences=$(grep -c "$1" $2) || true # grep -c can return non-zero status in case of no match hence the need for "|| true"
-  if [[ $numoccurrences -ne $3 ]]; then
-    echo "Expected $3 occurrences of [$1] but found $numoccurrences occurrences instead in $2"
-    return -1
-  fi
-  return
+	numoccurrences=$(grep -c "$1" $2) || true # grep -c can return non-zero status in case of no match hence the need for "|| true"
+	if [[ $numoccurrences -ne $3 ]]; then
+		echo "Expected $3 occurrences of [$1] but found $numoccurrences occurrences instead in $2"
+		return -1
+	fi
+	return
 }
 
 run_query_in_octo_and_postgres_and_crosscheck_multiple_queries() {
-    # Query file has multiple queries.
-    # Split it into multiple query files each containing one query and invoke "run_query_in_octo_and_postgres_and_crosscheck()".
-    # Needed as otherwise Postgres and Octo output cannot be easily compared.
-    database="$1"
-    queryfile="$2"
-    if [[ ! -f $queryfile ]]; then
-        cp @PROJECT_SOURCE_DIR@/tests/fixtures/$queryfile .
-    fi
-    remove="$3"
-    trimzeroes="$4"
-    nowarn="$5"
-    $ydb_dist/mumps -run splitqueries $queryfile
-    fname=`echo $queryfile | sed 's/\..*//g'`
-    for splitfile in $fname-*.sql
-    do
-        run_query_in_octo_and_postgres_and_crosscheck $database $splitfile $remove $trimzeroes $nowarn
-    done
-    return
+	# Query file has multiple queries.
+	# Split it into multiple query files each containing one query and invoke "run_query_in_octo_and_postgres_and_crosscheck()".
+	# Needed as otherwise Postgres and Octo output cannot be easily compared.
+	database="$1"
+	queryfile="$2"
+	if [[ ! -f $queryfile ]]; then
+		cp @PROJECT_SOURCE_DIR@/tests/fixtures/$queryfile .
+	fi
+	remove="$3"
+	trimzeroes="$4"
+	nowarn="$5"
+	$ydb_dist/mumps -run splitqueries $queryfile
+	fname=`echo $queryfile | sed 's/\..*//g'`
+	for splitfile in $fname-*.sql
+	do
+		run_query_in_octo_and_postgres_and_crosscheck $database $splitfile $remove $trimzeroes $nowarn
+	done
+	return
 }
 
 run_query_in_octo_and_postgres_and_crosscheck() {
-    database="$1"
-    queryfile="$2"
-    if [[ ! -f $queryfile ]]; then
-        cp @PROJECT_SOURCE_DIR@/tests/fixtures/$queryfile .
-    fi
-    remove="$3"
-    trimzeroes="$4"
-    nowarn="$5"
-    fname=`echo $queryfile | sed 's/\..*//g'`
-    grep -v '^#' $queryfile > $queryfile.inp # Filter out '#' comment lines, if any, as that is not valid in Postgres
-    psql $database -f $queryfile.inp >& $fname.psql.out
-    # Postgres displays boolean values as t and f whereas Octo displays them as 1 and 0 so fix that before the diff.
-    # Remove leading spaces, not proper ones in things like "123 fake street"
-    tail -n +3 $fname.psql.out | head -n -2 | sed 's/^[ \t]*//g;s/[ \t]*$//g;s/  //g;s/  //g;s/ | /|/g;s/ |/|/g;s/| /|/g;s/\<t\>/1/g;s/\<f\>/0/g;' | sort >& $fname.ref
-    if [[ $trimzeroes == "trim_trailing_zeroes" ]]; then
-	# Remove floating point numbers with extraneous 0s at the end (e.g. convert 2.5000000000000000 -> 2.5)
-	# Postgres creates these floating point numbers if an AVG aggregate function is invoked whereas Octo does not.
-	mv $fname.ref $fname.ref1
-	sed '/\./ s/\.\{0,1\}0\{1,\}$//;/\./ s/\.\{0,1\}0\{1,\}|/|/;' $fname.ref1 > $fname.ref
-    fi
-    octo -f $queryfile >& $fname.octo.out
-    sed -i '/^.*\[ INFO\].* \/.*\/octo.conf/d' $fname.octo.out
-    if [[ $nowarn == "nowarn" ]]; then
-    	# Remove "[ WARN]" lines from Octo output (caller allows for this possibility).
-	mv $fname.octo.out $fname.octo.out.pre_nowarn
-	grep -v '^\[ WARN\]' $fname.octo.out.pre_nowarn > $fname.octo.out
-    fi
-    # Remove at most 1 trailing and leading empty/blank line if "$remove" specifies so.
-    # The parser/lexer in Octo produces an empty line at the end when run with `octo -f`. Most likely due to an empty query
-    #   at the end of the query file. It is not yet clear if that is easily fixable so we account for that by passing a
-    #   "remove_empty_line_at_tail" option which will remove that empty line.
-    # Not yet sure why octo produces an empty line at the start for some queries. Specifying "remove_empty_line_at_head"
-    #   removes this line.
-    if [[ $remove == "remove_empty_line_at_head" ]]; then
-      firstline=`head -n 1 $fname.octo.out`
-      if [[ "$firstline" = "" ]]; then # Remove line
-        tail -n +2 $fname.octo.out | sort >& $fname.log
-      else # Just create .log file
-        cat $fname.octo.out | sort >& $fname.log
-      fi
-      shift
-    elif [[ $remove == "remove_empty_line_at_tail" ]]; then
-        lastline=`tail -n 1 $fname.octo.out`
-        if [ "$lastline" = "" ]; then # Remove line
-          head -n -1 $fname.octo.out | sort >& $fname.log
-        else # Just create .log file
-          cat $fname.octo.out | sort >& $fname.log
-        fi
-        shift
-    fi
-    rowcountonlycheck=$(grep -c "rowcount-only-check" $queryfile) || true	# grep -c can return non-zero status in case of no match hence the need for "|| true"
-    if [[ $rowcountonlycheck -eq 0 ]]; then
-      diff $fname.ref $fname.log >& $fname.diff
-    else
-      # .sql file requests only rowcount check. No exact content check.
-      # Check only # of lines in output match. Not contents of lines.
-      psqllines=$(wc -l $fname.ref | awk '{print $1}')
-      octolines=$(wc -l $fname.log | awk '{print $1}')
-      if [[ $psqllines -ne $octolines ]]; then
-        echo "Expected $psqllines lines but found $octolines lines in $fname.log"
-	exit -1
-      fi
-    fi
-    return
+	database="$1"
+	queryfile="$2"
+	if [[ ! -f $queryfile ]]; then
+		cp @PROJECT_SOURCE_DIR@/tests/fixtures/$queryfile .
+	fi
+	remove="$3"
+	trimzeroes="$4"
+	nowarn="$5"
+	usejdbc="$6"
+	fname=`echo $queryfile | sed 's/\..*//g'`
+	grep -v '^#' $queryfile > $queryfile.inp # Filter out '#' comment lines, if any, as that is not valid in Postgres
+	psql $database -f $queryfile.inp >& $fname.psql.out
+	# Postgres displays boolean values as t and f whereas Octo displays them as 1 and 0 so fix that before the diff.
+	# Remove leading spaces, not proper ones in things like "123 fake street"
+	tail -n +3 $fname.psql.out | head -n -2 | sed 's/^[ \t]*//g;s/[ \t]*$//g;s/  //g;s/  //g;s/ | /|/g;s/ |/|/g;s/| /|/g;s/\<t\>/1/g;s/\<f\>/0/g;' | sort >& $fname.ref
+	if [[ $trimzeroes == "trim_trailing_zeroes" ]]; then
+		# Remove floating point numbers with extraneous 0s at the end (e.g. convert 2.5000000000000000 -> 2.5)
+		# Postgres creates these floating point numbers if an AVG aggregate function is invoked whereas Octo does not.
+		mv $fname.ref $fname.ref1
+		sed '/\./ s/\.\{0,1\}0\{1,\}$//;/\./ s/\.\{0,1\}0\{1,\}|/|/;' $fname.ref1 > $fname.ref
+	fi
+	if [[ $usejdbc == "usejdbc" ]]; then
+		run_java run_query $test_port "$(cat $queryfile.inp)" &> $fname.octo.out
+	else
+		octo -f $queryfile >& $fname.octo.out
+	fi
+	sed -i '/^.*\[ INFO\].* \/.*\/octo.conf/d' $fname.octo.out
+	if [[ $nowarn == "nowarn" ]]; then
+		# Remove "[ WARN]" lines from Octo output (caller allows for this possibility).
+		mv $fname.octo.out $fname.octo.out.pre_nowarn
+		grep -v '^\[ WARN\]' $fname.octo.out.pre_nowarn > $fname.octo.out
+	fi
+	# Remove at most 1 trailing and leading empty/blank line if "$remove" specifies so.
+	# The parser/lexer in Octo produces an empty line at the end when run with `octo -f`. Most likely due to an empty query
+	#   at the end of the query file. It is not yet clear if that is easily fixable so we account for that by passing a
+	#   "remove_empty_line_at_tail" option which will remove that empty line.
+	# Not yet sure why octo produces an empty line at the start for some queries. Specifying "remove_empty_line_at_head"
+	#   removes this line.
+	if [[ $remove == "remove_empty_line_at_head" ]]; then
+		firstline=`head -n 1 $fname.octo.out`
+		if [[ "$firstline" = "" ]]; then # Remove line
+			tail -n +2 $fname.octo.out | sort >& $fname.log
+		else # Just create .log file
+			cat $fname.octo.out | sort >& $fname.log
+		fi
+		shift
+	elif [[ $remove == "remove_empty_line_at_tail" ]]; then
+		lastline=`tail -n 1 $fname.octo.out`
+		if [ "$lastline" = "" ]; then # Remove line
+			head -n -1 $fname.octo.out | sort >& $fname.log
+		else # Just create .log file
+			cat $fname.octo.out | sort >& $fname.log
+		fi
+		shift
+	else
+		cat $fname.octo.out | sort >& $fname.log
+	fi
+	rowcountonlycheck=$(grep -c "rowcount-only-check" $queryfile) || true	# grep -c can return non-zero status in case of no match hence the need for "|| true"
+	if [[ $rowcountonlycheck -eq 0 ]]; then
+		diff $fname.ref $fname.log >& $fname.diff
+	else
+		# .sql file requests only rowcount check. No exact content check.
+		# Check only # of lines in output match. Not contents of lines.
+		psqllines=$(wc -l $fname.ref | awk '{print $1}')
+		octolines=$(wc -l $fname.log | awk '{print $1}')
+		if [[ $psqllines -ne $octolines ]]; then
+			echo "Expected $psqllines lines but found $octolines lines in $fname.log"
+		exit -1
+		fi
+	fi
+	return
 }
 
 run_query_generator() {

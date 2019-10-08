@@ -200,7 +200,7 @@ LogicalPlan *lp_generate_where(SqlStatement *stmt, int *plan_id, SqlStatement *p
 				// Sub query inside of a WHERE expression can only return one column
 				ERROR(ERR_SUBQUERY_ONE_COLUMN, "");
 				// Print error context
-				yyerror(NULL, NULL, &stmt, NULL, NULL, NULL);
+				yyerror(NULL, NULL, &stmt, NULL, NULL, NULL, NULL);
 				ret = NULL;
 			} else {
 				// TODO: should this be moved to the optimize phase for this plan?

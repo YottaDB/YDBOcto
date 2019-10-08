@@ -20,6 +20,7 @@
 
 #include <libyottadb.h>
 
+#include "rocto/message_formats.h"
 #include "errors.h"
 #include "octo_types.h"
 #include "config.h"
@@ -28,10 +29,14 @@
 
 #include "mmrhash.h"
 
-// Maximum number of chars needed to convert unsigned int to char*, including null terminator
-#define UINT_TO_STRING_MAX 11
-// Maximum number of chars needed to convert unsigned long long to char*, including null terminator
-#define ULONG_TO_STRING_MAX 21
+// Max number of chars needed to convert signed or unsigned int to char*, including null terminator and possible negative sign
+#define INT16_TO_STRING_MAX 7
+// Max number of chars needed to convert signed or unsigned int to char*, including null terminator and possible negative sign
+#define INT32_TO_STRING_MAX 12
+// Max number of chars needed to convert int64_t OR uint64_t to char*, including null terminator and possible negative sign
+#define INT64_TO_STRING_MAX 21
+// Number of characters needed for a UUID, including null terminator. See https://www.postgresql.org/docs/11/datatype-uuid.html
+#define UUID_CHARACTER_LENGTH 37
 
 /* Set OCTO_PATH_MAX to be the same as the system PATH_MAX (should be defined by limits.h or sys/param.h)
  * but in case it is not available, set it to a value of 1024 just like is done in YDB.
@@ -45,9 +50,6 @@
 // Allows us to leave parameters in place even if they are unused and avoid warning from the
 // compiler.
 #define UNUSED(x) (void)(x)
-
-// Set maximum M routine length - must be in sync with MAX_MIDENT_LEN in YDB/sr_port/mdef.h
-#define MAX_ROUTINE_LEN 31
 
 /* Set maximum trigger name length
  * This cannot be greater than MAX_USER_TRIGNAME_LEN defined in https://gitlab.com/YottaDB/DB/YDB/blob/master/sr_unix/trigger.h
@@ -76,6 +78,59 @@
 
 // Do a memcpy onto a string target using a string literal as the source
 #define	MEMCPY_LIT(TARGET, LITERAL)		memcpy(TARGET, LITERAL, sizeof(LITERAL) - 1)
+
+// Copy a literal using strcpy and do bounds checking
+#define	STRCPY_LIT(TARGET, LITERAL, MAX_LEN)				\
+{									\
+	assert(MAX_LEN >= strlen(LITERAL));				\
+	strcpy(TARGET, LITERAL);					\
+}
+
+// Increase the amount of memory allocated for a give array by the size specified by NEW_SIZE,
+// preserving the values from ARRAY and updating SIZE to NEW_SIZE
+#define EXPAND_ARRAY_ALLOCATION(ARRAY, SIZE, NEW_SIZE, TYPE)				\
+{											\
+	TYPE *new_array;								\
+	new_array = (TYPE*)malloc(NEW_SIZE * sizeof(TYPE));				\
+	memcpy(new_array, ARRAY, SIZE * sizeof(TYPE));					\
+	memset(&new_array[SIZE], 0, (NEW_SIZE - SIZE) * sizeof(TYPE));			\
+	free(ARRAY);									\
+	ARRAY = new_array;								\
+	SIZE = NEW_SIZE;								\
+}
+
+// Double the amount of memory allocated for a given array and copy in values from previous allocation
+// and zero-initialize remaining memory
+#define DOUBLE_ARRAY_ALLOCATION(ARRAY, SIZE, TYPE)				\
+{										\
+	TYPE *new_array;							\
+	new_array = (TYPE*)malloc(SIZE * 2 * sizeof(TYPE));			\
+	memcpy(new_array, ARRAY, SIZE * sizeof(TYPE));				\
+	memset(&new_array[SIZE], 0, SIZE * sizeof(TYPE));			\
+	free(ARRAY);								\
+	ARRAY = new_array;							\
+	SIZE = SIZE * 2;							\
+}
+
+// Convert a 16-bit integer to a string and store in a ydb_buffer_t
+#define OCTO_INT16_TO_BUFFER(INT, BUFFERP)									\
+{														\
+	(BUFFERP)->len_used = snprintf((BUFFERP)->buf_addr, INT16_TO_STRING_MAX, "%d", INT);			\
+	assert(sizeof(INT) == sizeof(int16_t));									\
+	assert((BUFFERP)->len_alloc >= (BUFFERP)->len_used);							\
+	assert(INT16_TO_STRING_MAX >= (BUFFERP)->len_used);	/* The result should never be truncated. */	\
+	(BUFFERP)->buf_addr[(BUFFERP)->len_used] = '\0';	/* Often reuse this string, so add null. */	\
+}
+
+// Convert a 32-bit integer to a string and store in a ydb_buffer_t
+#define OCTO_INT32_TO_BUFFER(INT, BUFFERP)									\
+{														\
+	(BUFFERP)->len_used = snprintf((BUFFERP)->buf_addr, INT32_TO_STRING_MAX, "%d", INT);			\
+	assert(sizeof(INT) == sizeof(int32_t));									\
+	assert((BUFFERP)->len_alloc >= (BUFFERP)->len_used);							\
+	assert(INT32_TO_STRING_MAX >= (BUFFERP)->len_used);	/* The result should never be truncated. */	\
+	(BUFFERP)->buf_addr[(BUFFERP)->len_used] = '\0';	/* Often reuse this string, so add null. */	\
+}
 
 #define GET_FULL_PATH_OF_GENERATED_M_FILE(FILENAME, ROUTINE_NAME)						\
 {														\
@@ -139,6 +194,9 @@
 #define	AGGREGATE_DEPTH_WHERE_CLAUSE		-2
 #define	AGGREGATE_DEPTH_GROUP_BY_CLAUSE		-3
 
+// Convenience type definition for run_query callback function
+typedef int (*callback_fnptr_t)(SqlStatement *, int, void*, char*, boolean_t);
+
 int emit_column_specification(char *buffer, int buffer_size, SqlColumn *column);
 int emit_create_table(FILE *output, struct SqlStatement *stmt);
 // Recursively copies all of stmt, including making copies of strings
@@ -156,9 +214,9 @@ int m_escape_string2(char *buffer, int buffer_len, char *string);
 char *m_unescape_string(const char *string);
 
 int readline_get_more();
-SqlStatement *parse_line(char *cursorId);
+SqlStatement *parse_line(char *cursorId, ParseContext *parse_context);
 
-int populate_data_type(SqlStatement *v, SqlValueType *type, char *cursorId);
+int populate_data_type(SqlStatement *v, SqlValueType *type, char *cursorId, ParseContext *parse_context);
 SqlTable *find_table(const char *table_name);
 SqlColumn *find_column(char *column_name, SqlTable *table);
 SqlStatement *find_column_alias_name(SqlStatement *stmt);
@@ -221,6 +279,11 @@ SqlStatement *natural_join_condition(SqlStatement *left, SqlStatement *right, bo
 
 int parse_literal_to_parameter(char *cursorId, SqlValue *value, boolean_t update_existing);
 
+// Creates a new cursor by assigning a new cursorId
+int64_t create_cursor(ydb_buffer_t *schema_global, ydb_buffer_t *cursor_buffer);
+boolean_t is_query_canceled(callback_fnptr_t callback, int32_t cursorId, void *parms,
+		char *plan_name, boolean_t send_row_description);
+
 /* trims duplicate '.*'s from regex */
 void trim_dot_star(SqlValue *regex);
 
@@ -230,6 +293,9 @@ void trim_dot_star(SqlValue *regex);
 int columns_equal(SqlColumn *a, SqlColumn *b);
 int tables_equal(SqlTable *a, SqlTable *b);
 int values_equal(SqlValue *a, SqlValue *b);
+
+// Returns the amount of memory used by the current process
+int64_t get_mem_usage();
 
 int no_more();
 
@@ -248,5 +314,5 @@ char		*input_buffer_combined;		// The input buffer for octo. Contains the query 
 int		(*cur_input_more)();
 
 int get_input(char *buf, int size);
-void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, int *plan_id, char *cursorId, char const *s);
+void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, int *plan_id, char *cursorId, ParseContext *parse_context, char const *s);
 #endif

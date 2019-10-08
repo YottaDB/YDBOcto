@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -25,10 +25,9 @@
 
 #define	DATA_ROW_PARMS_ARRAY_INIT_ALLOC	16
 
-int handle_query_response(SqlStatement *stmt, int32_t cursor_id, void *_parms, char *plan_name) {
+int handle_query_response(SqlStatement *stmt, int32_t cursor_id, void *_parms, char *plan_name, boolean_t send_row_description) {
 	QueryResponseParms	*parms = (QueryResponseParms*)_parms;
 	RowDescription		*row_description;
-	CommandComplete		*command_complete;
 	RoctoSession		*session = parms->session;
 	// Large chunks copied from print_temporary table, mostly ydb_buffer stuff
 	/// WARNING: the ordering of these buffers is essential to the ydb calls;
@@ -68,10 +67,6 @@ int handle_query_response(SqlStatement *stmt, int32_t cursor_id, void *_parms, c
 			UNPACK_SQL_STATEMENT(val2, set_stmt->variable, value);
 			set(val1->v.string_literal, config->global_names.session, 3,
 					session->session_id->buf_addr, "variables", val2->v.string_literal);
-			snprintf(buffer, MAX_STR_CONST, "SET");
-			command_complete = make_command_complete(buffer);
-			send_message(parms->session, (BaseMessage*)(&command_complete->type));
-			free(command_complete);
 			YDB_FREE_BUFFER(row_id_b);
 			YDB_FREE_BUFFER(row_value_b);
 			return 0;
@@ -90,12 +85,15 @@ int handle_query_response(SqlStatement *stmt, int32_t cursor_id, void *_parms, c
 			if(val_buff == NULL) {
 				val_buff = empty_buffer;
 			}
-			// Send RowDescription
-			memset(&row_desc_parm, 0, sizeof(RowDescriptionParm));
-			row_desc_parm.name = val1->v.string_literal;
-			description = make_row_description(&row_desc_parm, 1);
-			send_message(session, (BaseMessage*)(&description->type));
-			free(description);
+			// Responses to Execute messages should not send RowDescriptions
+			if (send_row_description) {
+				// Send RowDescription
+				memset(&row_desc_parm, 0, sizeof(RowDescriptionParm));
+				row_desc_parm.name = val1->v.string_literal;
+				description = make_row_description(&row_desc_parm, 1);
+				send_message(session, (BaseMessage*)(&description->type));
+				free(description);
+			}
 
 			// Send DataRow
 			assert(0 < data_row_parms_alloc_len);
@@ -107,11 +105,6 @@ int handle_query_response(SqlStatement *stmt, int32_t cursor_id, void *_parms, c
 			free(data_row_parms);
 			parms->data_sent = TRUE;
 
-			// Done
-			snprintf(buffer, MAX_STR_CONST, "SHOW");
-			command_complete = make_command_complete(buffer);
-			send_message(parms->session, (BaseMessage*)(&command_complete->type));
-			free(command_complete);
 			// Empty buffer is on the stack and its buf_addr is not allocated
 			if (val_buff != empty_buffer) {
 				YDB_FREE_BUFFER(val_buff);
@@ -125,11 +118,15 @@ int handle_query_response(SqlStatement *stmt, int32_t cursor_id, void *_parms, c
 		// Go through and make rows for each row in the output plan
 		parms->data_sent = TRUE;
 
-		plan_name_b.buf_addr = plan_name;
-		plan_name_b.len_alloc = plan_name_b.len_used = strlen(plan_name);
-		row_description = get_plan_row_description(&plan_name_b);
-		send_message(parms->session, (BaseMessage*)(&row_description->type));
-		free(row_description);
+		// Responses to Execute messages should not send RowDescriptions
+		if(send_row_description) {
+			// Send RowDescription
+			plan_name_b.buf_addr = plan_name;
+			plan_name_b.len_alloc = plan_name_b.len_used = strlen(plan_name);
+			row_description = get_plan_row_description(&plan_name_b);
+			send_message(parms->session, (BaseMessage*)(&row_description->type));
+			free(row_description);
+		}
 
 		YDB_STRING_TO_BUFFER(config->global_names.cursor, cursor_b);
 
@@ -235,6 +232,7 @@ int handle_query_response(SqlStatement *stmt, int32_t cursor_id, void *_parms, c
 				return 1;
 			}
 		}
+		parms->rows_sent = row_count;
 
 		// Cleanup tables
 		ydb_delete_s(cursor_b, 1, cursor_id_b, YDB_DEL_TREE);
@@ -245,10 +243,6 @@ int handle_query_response(SqlStatement *stmt, int32_t cursor_id, void *_parms, c
 		YDB_FREE_BUFFER(outputKeyId);
 		free(outputKeyId);
 		free(data_row_parms);
-		snprintf(buffer, MAX_STR_CONST, "SELECT %d", row_count);
-		command_complete = make_command_complete(buffer);
-		send_message(parms->session, (BaseMessage*)(&command_complete->type));
-		free(command_complete);
 	} else {
 		// Issue ErrorResponse expected by clients indicating a CancelRequest was processed
 		ERROR(ERR_ROCTO_QUERY_CANCELED, "");

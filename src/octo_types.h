@@ -17,8 +17,17 @@
 
 typedef void *yyscan_t;
 
+#include <libyottadb.h>
+
 #include "memory_chunk.h"
 #include "double_list.h"
+
+// Set maximum M routine length - must be in sync with MAX_MIDENT_LEN in YDB/sr_port/mdef.h
+#define MAX_ROUTINE_LEN 31
+
+// Set maximum command tag length for use in extended query protocol, including null terminator
+// This value should be large enough to hold the longest possible first keyword of a SQL query, i.e. "DEALLOCATE"
+#define MAX_TAG_LEN 11
 
 // Allocates ONE structure of type TYPE
 #define	OCTO_CMALLOC_STRUCT(RET, TYPE)								\
@@ -255,6 +264,19 @@ typedef enum SqlAggregateType {
 	AGGREGATE_LAST
 } SqlAggregateType;
 
+// Values for this enum are derived from the PostgreSQL catalog and
+// only include types Octo currently supports.
+// Typename to OID mappings can be acquired by running the following
+// query against an existing PostgreSQL database:
+//	select typname,oid from pg_catalog.pg_type
+typedef enum {
+	PSQL_TypeOid_int4 = 23,
+	PSQL_TypeOid_numeric = 1700,
+	PSQL_TypeOid_varchar = 1043,
+	PSQL_TypeOid_unknown = 705,
+} PSQL_TypeOid;
+
+
 #define YYLTYPE yyltype
 
 typedef struct YYLTYPE YYLTYPE;
@@ -265,6 +287,29 @@ struct YYLTYPE
 	int last_line;
 	int last_column;
 };
+
+// Used to maintain various parse related information primarily for use in Extended Query protocol modules
+typedef struct {
+	// General purpose parser fields
+	int64_t		cursorId;
+	boolean_t	abort;				// Used to defer YYABORT in certain error cases
+	// Extended Query specific fields
+	PSQL_TypeOid	*types;
+	int16_t		types_size;
+	int16_t		*parm_start;
+	int16_t		*parm_end;
+	int16_t		cur_type;
+	int16_t		num_bind_parms;
+	int16_t		num_bind_parm_types;
+	int16_t		total_parms;
+	boolean_t	is_select;
+	boolean_t	is_extended_query;
+	boolean_t	skip_cursor_cleanup;
+	boolean_t	*is_bind_parm;			// Used to track which literal parameters are bind parameters
+	int16_t		is_bind_parm_size;
+	char		routine[MAX_ROUTINE_LEN];
+	char		command_tag[MAX_TAG_LEN];
+} ParseContext;
 
 struct SqlColumn;
 struct SqlColumnAlias;

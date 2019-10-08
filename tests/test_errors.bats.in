@@ -168,3 +168,10 @@ OCTO
   verify_output TERR014 output.txt
 }
 
+@test "TERR015 : Octo issues error for \$1 syntax" {
+  testname="TERR015"
+  cp @PROJECT_SOURCE_DIR@/tests/fixtures/$testname.sql .
+  grep -v '^#'  $testname.sql | grep -v '^[[:space:]]*$' > $testname.inp # Filter out '#' comment lines, if any
+  octo -f $testname.inp 2>&1 | tee -a output.txt
+  verify_output $testname output.txt noinfo nodebug
+}

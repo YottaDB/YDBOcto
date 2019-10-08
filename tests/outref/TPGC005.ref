@@ -1,0 +1,10 @@
+0|Zero|Cool
+5|Zero|Cool
+1|Acid|Burn
+3|Lord|Nikon
+2|Cereal|Killer
+4|Joey|
+[SOCKET] [TRACE] PATH:LINENUM DATE TIME : Memory expanded for variable parse_context->is_bind_parm
+[SOCKET] [TRACE] PATH:LINENUM DATE TIME : Memory doubled for variable parse_context->is_bind_parm
+[SOCKET] [TRACE] PATH:LINENUM DATE TIME : Memory doubled for variable parse_context->types
+[SOCKET] [TRACE] PATH:LINENUM DATE TIME : Memory doubled for variable parse_context->types

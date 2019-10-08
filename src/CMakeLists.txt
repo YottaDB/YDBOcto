@@ -93,11 +93,14 @@ ADD_CUSTOM_COMMAND(
 )
 
 add_library(libocto OBJECT
+  get_mem_usage.c
   default_octo_conf.h
   ydb_hash_to_string.c
   yyerror.c
   yywrap.c
   format_error_string.c
+  create_cursor.c
+  is_query_canceled.c
   parse_line.c
   emit_create_table.c
   emit_select_statement.c
@@ -354,6 +357,7 @@ set(aux_files
   aux/_ydboctoAdmin.m
   aux/_ydboctoCleanup.m
   aux/_ydboctoInit.m
+  aux/_ydboctoUtils.m
   aux/_ydboctocurrentSchema.m
   aux/_ydboctopgCurrentSchemas.m
   aux/_ydboctopgGetExpr.m

@@ -26,7 +26,7 @@
 /**
  * Iterates over the last output of the plan and prints it to the screen
  */
-int print_temporary_table(SqlStatement *stmt, int cursor_id, void *parms, char *plan_name) {
+int print_temporary_table(SqlStatement *stmt, int cursor_id, void *parms, char *plan_name, boolean_t send_row_description) {
 	char buffer[MAX_STR_CONST];
 	/// WARNING: the ordering of these buffers is essential to the ydb calls;
 	//   if altered, make sure the order is correct
@@ -43,6 +43,7 @@ int print_temporary_table(SqlStatement *stmt, int cursor_id, void *parms, char *
 	int status;
 
 	UNUSED(parms);
+	UNUSED(send_row_description);
 
 	INFO(CUSTOM_ERROR, "%s", "print_temporary_table()");
 

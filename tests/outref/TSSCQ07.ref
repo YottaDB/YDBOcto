@@ -9,4 +9,5 @@ WHERE  n.nspname != 'pg_toast'
 bool
 int4
 numeric
+unknown
 varchar

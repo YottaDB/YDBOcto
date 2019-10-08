@@ -4,7 +4,7 @@
 3|Lord|Nikon
 4|Joey|
 5|Zero|Cool
-[IP_UNSET:PORT_UNSET] [ INFO] PATH:LINENUM DATE TIME : rocto started on port 1337
+[IP_UNSET:PORT_UNSET] [ INFO] PATH:LINENUM DATE TIME : [PORT]
 [IP_UNSET:PORT_UNSET] [ INFO] PATH:LINENUM DATE TIME : rocto server process forked with pid PID
 [SOCKET] [ INFO] PATH:LINENUM DATE TIME : Client connected
 [SOCKET] [ WARN] PATH:LINENUM DATE TIME : SSLRequest: invalid length value 94: must be 8

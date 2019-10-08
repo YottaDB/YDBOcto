@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -24,9 +24,6 @@
 #include <libyottadb.h>
 #include <gtmxc_types.h>
 
-// Remove when done debugging
-#include <time.h>
-
 #include "mmrhash.h"
 
 #include "octo.h"
@@ -36,7 +33,8 @@
 #include "lexer.h"
 #include "helpers.h"
 
-int run_query(int (*callback)(SqlStatement *, int, void*, char*), void *parms) {
+int run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_description,
+		ParseContext *parse_context) {
 	FILE		*out;
 	PhysicalPlan	*pplan;
 	SqlStatement	*result;
@@ -44,7 +42,7 @@ int run_query(int (*callback)(SqlStatement *, int, void*, char*), void *parms) {
 	bool		free_memory_chunks;
 	char		*buffer, filename[OCTO_PATH_MAX], routine_name[MAX_ROUTINE_LEN];
 	char		placeholder;
-	gtm_long_t	cursorId;
+	int64_t		cursorId;
 	hash128_state_t	state;
 	int		done, routine_len = MAX_ROUTINE_LEN;
 	int		status;
@@ -52,30 +50,29 @@ int run_query(int (*callback)(SqlStatement *, int, void*, char*), void *parms) {
 	ydb_buffer_t	*filename_lock = NULL;
 	ydb_string_t	ci_filename, ci_routine;
 	HIST_ENTRY	*cur_hist;
+	ydb_buffer_t	cursor_local;
+	ydb_buffer_t	cursor_buffer;
+	ydb_buffer_t	schema_global;
+	boolean_t	canceled = FALSE, cursor_used;
 
 	memory_chunks = alloc_chunk(MEMORY_CHUNK_SIZE);
 
 	// Assign cursor prior to parsing to allow tracking and storage of literal parameters under the cursor local variable
-	ydb_buffer_t	cursor_exe_global;
-	ydb_buffer_t	schema_global;
-
-	// Increment the cursor global node to make the cursorId available to the parser for use in optimizations
-	YDB_MALLOC_BUFFER(&cursor_exe_global, MAX_STR_CONST);
+	YDB_MALLOC_BUFFER(&cursor_buffer, INT64_TO_STRING_MAX);
 	YDB_STRING_TO_BUFFER(config->global_names.schema, &schema_global);
-	status = ydb_incr_s(&schema_global, 0, NULL, NULL, &cursor_exe_global);
-	YDB_ERROR_CHECK(status);
-	if (YDB_OK != status) {
-		YDB_FREE_BUFFER(&cursor_exe_global);
+	cursorId = create_cursor(&schema_global, &cursor_buffer);
+	if (0 > cursorId) {
+		YDB_FREE_BUFFER(&cursor_buffer);
 		OCTO_CFREE(memory_chunks);
 		return 1;
 	}
-	cursor_exe_global.buf_addr[cursor_exe_global.len_used] = '\0';
+	parse_context->cursorId = cursorId;
 
 	/* To print only the current query store the index for the last one
 	 * then print the difference between the cur_input_index - old_input_index
 	 */
 	old_input_index = cur_input_index;
-	result = parse_line(cursor_exe_global.buf_addr);
+	result = parse_line(cursor_buffer.buf_addr, parse_context);
 
 	/* add the current query to the readlines history */
 	if (config->is_tty) {
@@ -105,7 +102,7 @@ int run_query(int (*callback)(SqlStatement *, int, void*, char*), void *parms) {
 		result = NULL;
 		return 0;
 	}
-	INFO(CUSTOM_ERROR, "Generating SQL for cursor %s", cursor_exe_global.buf_addr);
+	INFO(CUSTOM_ERROR, "Generating SQL for cursor %s", cursor_buffer.buf_addr);
 	free_memory_chunks = true;	// By default run "octo_cfree(memory_chunks)" at the end
 
 	// These are used in the drop and create table cases, but we can't put them closer
@@ -116,6 +113,20 @@ int run_query(int (*callback)(SqlStatement *, int, void*, char*), void *parms) {
 			*table_sub_buffer = &table_name_buffers[2];
 	ydb_buffer_t	table_binary_buffer, table_create_buffer;
 
+	switch (result->type) {
+		case set_operation_STATEMENT:
+		case table_alias_STATEMENT:
+		case show_STATEMENT:
+		case set_STATEMENT:
+			cursor_used = TRUE;
+			break;
+		default:
+			// Other statement types don't require the cursor, so just free it now
+			YDB_FREE_BUFFER(&cursor_buffer);
+			cursor_used = FALSE;
+			break;
+	}
+
 	switch(result->type) {
 	// This effectively means select_STATEMENT, but we have to assign ID's inside this function
 	// and so need to propagate them out
@@ -124,14 +135,14 @@ int run_query(int (*callback)(SqlStatement *, int, void*, char*), void *parms) {
 		TRACE(ERR_ENTERING_FUNCTION, "hash_canonical_query");
 		INVOKE_HASH_CANONICAL_QUERY(state, result, status);	/* "state" holds final hash */
 		if (0 != status) {
-			YDB_FREE_BUFFER(&cursor_exe_global);
+			YDB_FREE_BUFFER(&cursor_buffer);
 			OCTO_CFREE(memory_chunks);
 			return 1;
 		}
 		status = generate_routine_name(&state, routine_name, routine_len, OutputPlan);
 		if (1 == status) {
 			ERROR(ERR_PLAN_HASH_FAILED, "");
-			YDB_FREE_BUFFER(&cursor_exe_global);
+			YDB_FREE_BUFFER(&cursor_buffer);
 			OCTO_CFREE(memory_chunks);
 			return 1;
 		}
@@ -143,7 +154,7 @@ int run_query(int (*callback)(SqlStatement *, int, void*, char*), void *parms) {
 			status = ydb_lock_incr_s(5000000000, &filename_lock[0], 2, &filename_lock[1]);
 			YDB_ERROR_CHECK(status);
 			if (YDB_OK != status) {
-				YDB_FREE_BUFFER(&cursor_exe_global);
+				YDB_FREE_BUFFER(&cursor_buffer);
 				OCTO_CFREE(memory_chunks);
 				free(filename_lock);
 				return 1;
@@ -151,7 +162,7 @@ int run_query(int (*callback)(SqlStatement *, int, void*, char*), void *parms) {
 			if (access(filename, F_OK) == -1) {
 				pplan = emit_select_statement(result, filename);
 				if(pplan == NULL) {
-					YDB_FREE_BUFFER(&cursor_exe_global);
+					YDB_FREE_BUFFER(&cursor_buffer);
 					OCTO_CFREE(memory_chunks);
 					ydb_lock_decr_s(&filename_lock[0], 2, &filename_lock[1]);
 					free(filename_lock);
@@ -163,51 +174,45 @@ int run_query(int (*callback)(SqlStatement *, int, void*, char*), void *parms) {
 			status = ydb_lock_decr_s(&filename_lock[0], 2, &filename_lock[1]);
 			free(filename_lock);
 			if (YDB_OK != status) {
-				YDB_FREE_BUFFER(&cursor_exe_global);
+				YDB_FREE_BUFFER(&cursor_buffer);
 				OCTO_CFREE(memory_chunks);
 				return 1;
 			}
 		} else {
 			INFO(CUSTOM_ERROR, "Using already generated M file [%s] (to execute SQL query)", filename);
 		}
-		cursorId = atol(cursor_exe_global.buf_addr);
+		if (parse_context->is_extended_query){
+			memcpy(parse_context->routine, routine_name, routine_len);
+			YDB_FREE_BUFFER(&cursor_buffer);
+			OCTO_CFREE(memory_chunks);
+			return 0;
+		}
+		cursorId = atol(cursor_buffer.buf_addr);
 		ci_filename.address = filename;
 		ci_filename.length = strlen(filename);
 		ci_routine.address = routine_name;
 		ci_routine.length = routine_len;
 		// Call the select routine
-		status = ydb_ci("_ydboctoselect", cursorId, &ci_filename, &ci_routine);
+		// cursorId is typecast here since the YottaDB call-in interface does not yet support 64-bit parameters
+		status = ydb_ci("_ydboctoselect", (ydb_long_t)cursorId, &ci_filename, &ci_routine);
 		YDB_ERROR_CHECK(status);
 		if (YDB_OK != status) {
-			YDB_FREE_BUFFER(&cursor_exe_global);
+			YDB_FREE_BUFFER(&cursor_buffer);
 			OCTO_CFREE(memory_chunks);
 			return 1;
 		}
 		// Check for cancel requests only if running rocto
 		if (config->is_rocto) {
-			// Check if execution was interrupted by a CancelRequest by checking local variable
-			ydb_buffer_t ydboctoCancel;
-			unsigned int cancel_result = 0;
-			YDB_LITERAL_TO_BUFFER("%ydboctoCancel", &ydboctoCancel);
-			status = ydb_data_s(&ydboctoCancel, 0, NULL, &cancel_result);
-			YDB_ERROR_CHECK(status);
-			if (0 != cancel_result) {
-				// Omit results after handling CancelRequest
-				YDB_FREE_BUFFER(&cursor_exe_global);
+			canceled = is_query_canceled(callback, cursorId, parms, filename, send_row_description);
+			if (canceled) {
+				YDB_FREE_BUFFER(&cursor_buffer);
 				OCTO_CFREE(memory_chunks);
-				status = (*callback)(NULL, cursorId, parms, filename);
-				if (0 != status) {
-					// This should never happen
-					assert(0 == status);
-					FATAL(ERR_UNKNOWN_KEYWORD_STATE, "");
-					return 1;
-				}
 				return -1;
 			}
 		}
-		status = (*callback)(result, cursorId, parms, filename);
+		assert(!config->is_rocto || (NULL != parms));
+		status = (*callback)(result, cursorId, parms, filename, send_row_description);
 		if (0 != status) {
-			YDB_FREE_BUFFER(&cursor_exe_global);
 			// May be freed in the callback function, must check before freeing
 			if (NULL != memory_chunks) {
 				OCTO_CFREE(memory_chunks);
@@ -225,7 +230,6 @@ int run_query(int (*callback)(SqlStatement *, int, void*, char*), void *parms) {
 		fclose(out);	// at this point "buffer" and "buffer_size" are usable
 		if (0 != status) {
 			free(buffer);
-			YDB_FREE_BUFFER(&cursor_exe_global);
 			OCTO_CFREE(memory_chunks);
 			return 1;
 		}
@@ -242,7 +246,6 @@ int run_query(int (*callback)(SqlStatement *, int, void*, char*), void *parms) {
 					table_name_buffer->len_alloc,
 					strlen(value->v.reference));
 			free(buffer);
-			YDB_FREE_BUFFER(&cursor_exe_global);
 			YDB_FREE_BUFFER(table_name_buffer);
 			YDB_FREE_BUFFER(table_sub_buffer);
 			OCTO_CFREE(memory_chunks);
@@ -256,7 +259,6 @@ int run_query(int (*callback)(SqlStatement *, int, void*, char*), void *parms) {
 		YDB_ERROR_CHECK(status);
 		if (YDB_OK != status) {
 			free(buffer);
-			YDB_FREE_BUFFER(&cursor_exe_global);
 			YDB_FREE_BUFFER(table_name_buffer);
 			YDB_FREE_BUFFER(table_sub_buffer);
 			OCTO_CFREE(memory_chunks);
@@ -285,7 +287,6 @@ int run_query(int (*callback)(SqlStatement *, int, void*, char*), void *parms) {
 			YDB_ERROR_CHECK(status);
 			if (YDB_OK != status) {
 				free(table_buffer);
-				YDB_FREE_BUFFER(&cursor_exe_global);
 				YDB_FREE_BUFFER(table_name_buffer);
 				YDB_FREE_BUFFER(table_sub_buffer);
 				OCTO_CFREE(memory_chunks);
@@ -301,7 +302,6 @@ int run_query(int (*callback)(SqlStatement *, int, void*, char*), void *parms) {
 		YDB_ERROR_CHECK(status);
 		if (YDB_OK != status) {
 			free(table_buffer);
-			YDB_FREE_BUFFER(&cursor_exe_global);
 			YDB_FREE_BUFFER(table_name_buffer);
 			YDB_FREE_BUFFER(table_sub_buffer);
 			OCTO_CFREE(memory_chunks);
@@ -310,7 +310,6 @@ int run_query(int (*callback)(SqlStatement *, int, void*, char*), void *parms) {
 		status = store_table_in_pg_class(table);
 		if (YDB_OK != status) {
 			free(table_buffer);
-			YDB_FREE_BUFFER(&cursor_exe_global);
 			YDB_FREE_BUFFER(table_name_buffer);
 			YDB_FREE_BUFFER(table_sub_buffer);
 			OCTO_CFREE(memory_chunks);
@@ -325,7 +324,6 @@ int run_query(int (*callback)(SqlStatement *, int, void*, char*), void *parms) {
 		YDB_ERROR_CHECK(status);
 		if (YDB_OK != status) {
 			free(table_buffer);
-			YDB_FREE_BUFFER(&cursor_exe_global);
 			YDB_FREE_BUFFER(table_name_buffer);
 			YDB_FREE_BUFFER(table_sub_buffer);
 			OCTO_CFREE(memory_chunks);
@@ -342,7 +340,6 @@ int run_query(int (*callback)(SqlStatement *, int, void*, char*), void *parms) {
 				      YDB_DEL_TREE);
 		YDB_ERROR_CHECK(status);
 		if (YDB_OK != status) {
-			YDB_FREE_BUFFER(&cursor_exe_global);
 			YDB_FREE_BUFFER(table_name_buffer);
 			OCTO_CFREE(memory_chunks);
 			return 1;
@@ -354,7 +351,6 @@ int run_query(int (*callback)(SqlStatement *, int, void*, char*), void *parms) {
 				YDB_DEL_TREE);
 		YDB_ERROR_CHECK(status);
 		if (YDB_OK != status) {
-			YDB_FREE_BUFFER(&cursor_exe_global);
 			YDB_FREE_BUFFER(table_name_buffer);
 			OCTO_CFREE(memory_chunks);
 			return 1;
@@ -370,14 +366,29 @@ int run_query(int (*callback)(SqlStatement *, int, void*, char*), void *parms) {
 		break;
 	case set_STATEMENT:
 	case show_STATEMENT:
-		cursorId = atol(cursor_exe_global.buf_addr);
-		(*callback)(result, cursorId, parms, NULL);
+		cursorId = atol(cursor_buffer.buf_addr);
+		(*callback)(result, cursorId, parms, NULL, send_row_description);
 		break;
 	default:
 		WARNING(ERR_FEATURE_NOT_IMPLEMENTED, input_buffer_combined);
 		break;
 	}
-	YDB_FREE_BUFFER(&cursor_exe_global);
+	// Must free the cursor buffer now if it was used for a statement type that required it
+	if (cursor_used) {
+		// Cleanup cursor
+		if (!parse_context->skip_cursor_cleanup) {
+			YDB_MALLOC_BUFFER(&cursor_local, INT64_TO_STRING_MAX);
+			YDB_COPY_STRING_TO_BUFFER("%ydboctocursor", &cursor_local, done);
+			if (done) {
+				status = ydb_delete_s(&cursor_local, 1, &cursor_buffer, YDB_DEL_TREE);
+				YDB_ERROR_CHECK(status);
+			} else {
+				ERROR(ERR_YOTTADB, "YDB_COPY_STRING_TO_BUFFER failed");
+			}
+			YDB_FREE_BUFFER(&cursor_local);
+		}
+		YDB_FREE_BUFFER(&cursor_buffer);
+	}
 	if (free_memory_chunks) {
 		OCTO_CFREE(memory_chunks);
 	}

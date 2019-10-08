@@ -46,15 +46,15 @@ typedef void* yyscan_t;
 #define YYMAXDEPTH 10000000
 
 extern int yylex(YYSTYPE * yylval_param, YYLTYPE *llocp, yyscan_t yyscanner);
-extern int yyparse(yyscan_t scan, SqlStatement **out, int *plan_id, char *cursorId);
-extern void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, int *plan_id, char *cursorId, char const *s);
+extern int yyparse(yyscan_t scan, SqlStatement **out, int *plan_id, char *cursorId, ParseContext *parse_context);
+extern void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, int *plan_id, char *cursorId, ParseContext *parse_context, char const *s);
 
 %}
 
 %define api.pure full
 %locations
 %lex-param   { yyscan_t scanner }
-%parse-param { yyscan_t scanner } { SqlStatement **out } { int *plan_id } { char *cursorId }
+%parse-param { yyscan_t scanner } { SqlStatement **out } { int *plan_id } { char *cursorId } { ParseContext *parse_context }
 
 %token ADVANCE
 %token ALL
@@ -192,8 +192,9 @@ extern void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, int *plan
 
 sql_statement
   : sql_schema_statement semicolon_or_eof {
+      parse_context->is_select = FALSE;
       if (!config->allow_schema_changes){
-           ERROR(ERR_ROCTO_NO_SCHEMA, NULL);
+           ERROR(ERR_ROCTO_NO_SCHEMA, "");
            YYABORT;
       }
       *out = $sql_schema_statement;
@@ -201,31 +202,48 @@ sql_statement
     }
   | sql_data_statement semicolon_or_eof { *out = $sql_data_statement; YYACCEPT; }
   | query_expression semicolon_or_eof {
+      STRCPY_LIT(parse_context->command_tag, "SELECT", MAX_TAG_LEN);
+      parse_context->is_select = TRUE;
+      if (parse_context->abort) {
+        YYABORT;
+      }
       if (qualify_query($query_expression, NULL, NULL)) {
           YYABORT;
       }
       SqlValueType type;
-      if (populate_data_type($query_expression, &type, cursorId)) {
+      if (populate_data_type($query_expression, &type, cursorId, parse_context)) {
           YYABORT;
       }
       *out = $query_expression; YYACCEPT;
     }
   | BEG semicolon_or_eof {
+      STRCPY_LIT(parse_context->command_tag, "BEG", MAX_TAG_LEN);
+      parse_context->is_select = FALSE;
       // For now, we don't do transaction, so just say OK to this word
       SQL_STATEMENT(*out, begin_STATEMENT);
       YYACCEPT;
     }
   | COMMIT semicolon_or_eof {
+      STRCPY_LIT(parse_context->command_tag, "COMMIT", MAX_TAG_LEN);
+      parse_context->is_select = FALSE;
       SQL_STATEMENT(*out, commit_STATEMENT);
       YYACCEPT;
     }
   | error semicolon_or_eof { *out = NULL; YYABORT; }
-  | sql_set_statement semicolon_or_eof { *out = $sql_set_statement; YYACCEPT; }
+  | sql_set_statement semicolon_or_eof {
+      parse_context->is_select = FALSE;
+      *out = $sql_set_statement;
+      // No routine will be generated for SET statements, so indicate that for extended query
+      STRCPY_LIT(parse_context->routine, "none", MAX_ROUTINE_LEN);
+      YYACCEPT;
+    }
   | semicolon_or_eof {
+      parse_context->is_select = FALSE;
       SQL_STATEMENT(*out, no_data_STATEMENT);
       YYACCEPT;
     }
   | exit_command {
+      parse_context->is_select = FALSE;
       SQL_STATEMENT(*out, no_data_STATEMENT);
       eof_hit = TRUE;
       YYACCEPT;
@@ -1146,11 +1164,11 @@ sql_schema_statement
 
 /// TODO: not complete
 sql_schema_manipulation_statement
-  : drop_table_statement { $$ = $drop_table_statement; }
+  : drop_table_statement { $$ = $drop_table_statement; STRCPY_LIT(parse_context->command_tag, "DROP", MAX_TAG_LEN); }
   ;
 
 sql_schema_definition_statement
-  : table_definition { $$ = $table_definition; }
+  : table_definition { $$ = $table_definition; STRCPY_LIT(parse_context->command_tag, "CREATE", MAX_TAG_LEN); }
   ;
 
 /// TODO: not complete
@@ -1582,16 +1600,56 @@ scale
 
 literal_value
   : LITERAL {
-	$$ = $LITERAL; ($$)->loc = yyloc;
-	assert(NULL != cursorId);
-	if ((value_STATEMENT == ($$)->type)
-			&& ((BOOLEAN_VALUE == ($$)->v.value->type)
-				|| (INTEGER_LITERAL == ($$)->v.value->type)
-				|| (NUMERIC_LITERAL == ($$)->v.value->type)
-				|| (STRING_LITERAL == ($$)->v.value->type))) {
-		INVOKE_PARSE_LITERAL_TO_PARAMETER(cursorId, ($$)->v.value, FALSE);
+	SqlStatement *ret = $LITERAL;
+	ret->loc = yyloc;
+	if (value_STATEMENT == ret->type) {
+		if ((NUMERIC_LITERAL == ret->v.value->type)
+			|| (INTEGER_LITERAL == ret->v.value->type)
+			|| (BOOLEAN_VALUE == ret->v.value->type)
+			|| (STRING_LITERAL == ret->v.value->type)) {
+			INVOKE_PARSE_LITERAL_TO_PARAMETER(cursorId, ret->v.value, FALSE);
+		} else if (PARAMETER_VALUE == ret->v.value->type) {
+			// ROCTO ONLY: Populate ParseContext to handle prepared statements in extended query protocol
+			if (config->is_rocto && (TRUE == parse_context->is_extended_query)) {
+				if (0 <= parse_context->num_bind_parms) {
+					parse_context->num_bind_parms++;
+					// Resize is_bind_parm array as needed
+					if (parse_context->total_parms >= parse_context->is_bind_parm_size) {
+						if (parse_context->total_parms > (2 * parse_context->is_bind_parm_size)) {
+							// Sync is_bind_parm array size to total_parms
+							EXPAND_ARRAY_ALLOCATION(parse_context->is_bind_parm,
+								parse_context->is_bind_parm_size, parse_context->total_parms,
+								boolean_t);
+							TRACE(ERR_MEM_REALLOCATION, "expanded", "parse_context->is_bind_parm");
+						}
+						DOUBLE_ARRAY_ALLOCATION(parse_context->is_bind_parm,
+							parse_context->is_bind_parm_size, boolean_t);
+						TRACE(ERR_MEM_REALLOCATION, "doubled", "parse_context->is_bind_parm");
+					}
+					parse_context->is_bind_parm[parse_context->total_parms] = TRUE;
+				}
+				// Only track parameter offsets when binding, but skip if populating types during
+				// handle_parse, in which case these members will be NULL
+				if ((NULL != parse_context->parm_start) && (NULL != parse_context->parm_end)) {
+					// -1 to convert parameter indexing (starts at 1) to zero-indexing for array access
+					parse_context->parm_start[parse_context->num_bind_parms-1] = ret->loc.first_column;
+					parse_context->parm_end[parse_context->num_bind_parms-1] = ret->loc.last_column;
+				}
+				INVOKE_PARSE_LITERAL_TO_PARAMETER(cursorId, ret->v.value, FALSE);
+			} else if (!parse_context->abort) {
+				parse_context->abort = TRUE;
+				ERROR(ERR_DOLLAR_SYNTAX, "");
+				yyerror(&yyloc, NULL, NULL, NULL, NULL, NULL, NULL);
+			}
+		}
+		// ROCTO ONLY: Track total number of parameters, both literals and PARAMETER_VALUES
+		if (config->is_rocto) {
+			assert(0 <= parse_context->total_parms);
+			parse_context->total_parms++;
+		}
 	}
-    }
+	$$ = ret;
+	}
 
 partition_by_clause
   : LEFT_PAREN PARTITION BY column_reference optional_order_by RIGHT_PAREN {

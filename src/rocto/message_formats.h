@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -12,6 +12,9 @@
 
 #ifndef MESSAGE_FORMATS_H
 #define MESSAGE_FORMATS_H
+
+#include <libyottadb.h>
+#include "octo_types.h"
 
 // Source: https://www.postgresql.org/docs/current/protocol-message-formats.html
 // Structs annotated with // B are "backend" messages (sent from the backend)
@@ -108,6 +111,7 @@ typedef struct __attribute__((packed)) {
 
 // F
 typedef struct __attribute__((packed)) {
+	ParseContext parse_context;
 	char *dest;
 	char *source;
 	int16_t num_parm_format_codes;
@@ -373,7 +377,6 @@ typedef enum {
 } PSQL_ErrorSeverity;
 #undef ERROR_DEF
 #undef ERROR_END
-
 
 typedef enum {
 	      PSQL_TransactionStatus_IDLE = 'I',

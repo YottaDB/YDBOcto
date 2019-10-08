@@ -37,7 +37,7 @@ int emit_column_specification(char *buffer, int buffer_size, SqlColumn *cur_colu
 		break;
 	case STRING_TYPE:
 		// We should determine the actual size based on the constraint
-		buff_ptr += snprintf(buff_ptr, buffer_size - (buff_ptr - buffer), " VARCHAR(%d)", 25);
+		buff_ptr += snprintf(buff_ptr, buffer_size - (buff_ptr - buffer), " VARCHAR(%d)", PSQL_TypeOid_varchar);
 		break;
 	default:
 		ERROR(ERR_UNKNOWN_KEYWORD_STATE, "");

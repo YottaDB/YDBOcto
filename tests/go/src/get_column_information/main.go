@@ -16,11 +16,19 @@ import (
   "database/sql"
   _ "github.com/lib/pq"
   "fmt"
+  "os"
+  "strings"
 )
 
 func main() {
-  connStr := "host=127.0.0.1 port=1337 user=ydb password=ydbrocks dbname=hello sslmode=disable"
-  db, err := sql.Open("postgres", connStr)
+  port := os.Args[1]
+  // Build connection string using port specified by caller
+  var connStr strings.Builder
+  connStr.WriteString("host=127.0.0.1 port=")
+  connStr.WriteString(port)
+  connStr.WriteString(" user=ydb password=ydbrocks dbname=hello sslmode=disable")
+
+  db, err := sql.Open("postgres", connStr.String())
   if err != nil {
     panic(err)
   }

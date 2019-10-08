@@ -1,0 +1,4 @@
+SQL State: 0100E
+Multiple ResultSets were returned by the query.
+_ydboctoP*.m:;  select * from names where id != 1
+_ydboctoP*.m:;  select * from names where id = 2

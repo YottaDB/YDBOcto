@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -29,7 +29,7 @@ int handle_cancel_request(CancelRequest *cancel_request) {
 	TRACE(ERR_ENTERING_FUNCTION, "handle_cancel_request");
 	ydb_buffer_t secret_key_list_buffer, pid_subs[2];
 	ydb_buffer_t *pid_buffer = &pid_subs[0];
-	char pid_str[UINT_TO_STRING_MAX], secret_key_str[UINT_TO_STRING_MAX];
+	char pid_str[INT32_TO_STRING_MAX], secret_key_str[INT32_TO_STRING_MAX];
 	unsigned int ret_value, secret_key;
 	int status;
 	pid_t pid;
@@ -38,7 +38,7 @@ int handle_cancel_request(CancelRequest *cancel_request) {
 
 	// Populate buffers
 	YDB_LITERAL_TO_BUFFER("%ydboctoSecretKeyList", &secret_key_list_buffer);
-	snprintf(pid_str, UINT_TO_STRING_MAX, "%u", cancel_request->pid);	// pid
+	snprintf(pid_str, INT32_TO_STRING_MAX, "%u", cancel_request->pid);	// pid
 	YDB_STRING_TO_BUFFER(pid_str, pid_buffer);
 
 	// Ensure data exists for PID
@@ -53,9 +53,9 @@ int handle_cancel_request(CancelRequest *cancel_request) {
 	// Confirm PID corresponds to original rocto process by checking against start timestamp
 	// Initialize buffer for PID timestamp lookup result
 	ydb_buffer_t timestamp_result;
-	char timestamp_result_str[ULONG_TO_STRING_MAX];
+	char timestamp_result_str[INT64_TO_STRING_MAX];
 	timestamp_result.buf_addr = timestamp_result_str;
-	timestamp_result.len_alloc = ULONG_TO_STRING_MAX;
+	timestamp_result.len_alloc = INT64_TO_STRING_MAX;
 	YDB_LITERAL_TO_BUFFER("timestamp", &pid_subs[1]);
 
 	// Retrieve timestamp for given PID
@@ -65,15 +65,15 @@ int handle_cancel_request(CancelRequest *cancel_request) {
 	timestamp_result.buf_addr[timestamp_result.len_used] = '\0';
 
 	// Validate current PID timestamp against stored PID timestamp
-	char cur_timestamp_str[ULONG_TO_STRING_MAX];
+	char cur_timestamp_str[INT64_TO_STRING_MAX];
 	unsigned long long cur_timestamp;
 	cur_timestamp = get_pid_start_time(pid);
 	if (0 == cur_timestamp) {
 		// Error message emitted by callee get_pid_start_time()
 		return -1;
 	}
-	snprintf(cur_timestamp_str, ULONG_TO_STRING_MAX, "%llu", cur_timestamp);
-	if (0 != strncmp(cur_timestamp_str, timestamp_result.buf_addr, UINT_TO_STRING_MAX)) {
+	snprintf(cur_timestamp_str, INT64_TO_STRING_MAX, "%llu", cur_timestamp);
+	if (0 != strncmp(cur_timestamp_str, timestamp_result.buf_addr, INT64_TO_STRING_MAX)) {
 		// Error NOT propagated to client for security reasons
 		WARNING(ERR_ROCTO_BAD_TIMESTAMP, "");
 		return -1;
@@ -81,7 +81,7 @@ int handle_cancel_request(CancelRequest *cancel_request) {
 
 	// Initialize buffer for secret key lookup result
 	ydb_buffer_t secret_key_result;
-	char secret_key_result_str[UINT_TO_STRING_MAX];
+	char secret_key_result_str[INT32_TO_STRING_MAX];
 	secret_key_result.buf_addr = secret_key_result_str;
 	secret_key_result.len_alloc = sizeof(secret_key_result_str);
 
@@ -92,8 +92,8 @@ int handle_cancel_request(CancelRequest *cancel_request) {
 	secret_key_result.buf_addr[secret_key_result.len_used] = '\0';
 
 	// Validate received secret key against stored secret key
-	snprintf(secret_key_str, UINT_TO_STRING_MAX, "%u", secret_key);		// secret key
-	if (0 != strncmp(secret_key_str, secret_key_result.buf_addr, UINT_TO_STRING_MAX)) {
+	snprintf(secret_key_str, INT32_TO_STRING_MAX, "%u", secret_key);		// secret key
+	if (0 != strncmp(secret_key_str, secret_key_result.buf_addr, INT32_TO_STRING_MAX)) {
 		// Error NOT propagated to client for security reasons
 		WARNING(ERR_ROCTO_SECRET_KEY_MISMATCH, "");
 		return -1;

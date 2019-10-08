@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -12,6 +12,9 @@
 
 sql_set_statement
   : SET identifier EQUALS literal_value {
+      if (TRUE == parse_context->is_extended_query) {
+	strncpy(parse_context->command_tag, "SET", strlen("SET") + 1);
+      }
       SqlSetStatement *set;
       SQL_STATEMENT($$, set_STATEMENT);
       MALLOC_STATEMENT($$, set, SqlSetStatement);
@@ -20,6 +23,9 @@ sql_set_statement
       set->value = $literal_value;
     }
   | SET identifier TO literal_value {
+      if (TRUE == parse_context->is_extended_query) {
+	strncpy(parse_context->command_tag, "SET", strlen("SET") + 1);
+      }
       SqlSetStatement *set;
       SQL_STATEMENT($$, set_STATEMENT);
       MALLOC_STATEMENT($$, set, SqlSetStatement);
@@ -28,6 +34,9 @@ sql_set_statement
       set->value = $literal_value;
     }
   | SHOW identifier {
+      if (TRUE == parse_context->is_extended_query) {
+	strncpy(parse_context->command_tag, "SHOW", strlen("SHOW") + 1);
+      }
       SqlShowStatement *show;
       SQL_STATEMENT($$, show_STATEMENT);
       MALLOC_STATEMENT($$, show, SqlShowStatement);

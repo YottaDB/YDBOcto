@@ -240,6 +240,8 @@ void hash_canonical_query(hash128_state_t *state, SqlStatement *stmt, int *statu
 		case CALCULATED_VALUE:
 			hash_canonical_query(state, value->v.calculated, status);
 			break;
+		case PARAMETER_VALUE:
+			// PARAMETER_VALUEs are just literals representing positional parameters, i.e. $1, $2, etc.
 		case BOOLEAN_VALUE:
 		case NUMERIC_LITERAL:
 		case INTEGER_LITERAL:

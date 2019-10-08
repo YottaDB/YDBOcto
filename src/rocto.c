@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -12,7 +12,6 @@
 
 #include <stdio.h>
 #include <unistd.h>
-#include <stdio.h>
 #include <sys/socket.h>
 #include <sys/syscall.h>
 #include <stdlib.h>
@@ -88,7 +87,7 @@ int main(int argc, char **argv) {
 
 	// Create buffers for managing secret keys for CancelRequests
 	ydb_buffer_t secret_key_list_buffer, secret_key_buffer;
-	char pid_str[UINT_TO_STRING_MAX], secret_key_str[UINT_TO_STRING_MAX], timestamp_str[ULONG_TO_STRING_MAX];
+	char pid_str[INT32_TO_STRING_MAX], secret_key_str[INT32_TO_STRING_MAX], timestamp_str[INT64_TO_STRING_MAX];
 	int secret_key = 0;
 	YDB_LITERAL_TO_BUFFER("%ydboctoSecretKeyList", &secret_key_list_buffer);
 
@@ -193,12 +192,12 @@ int main(int argc, char **argv) {
 
 		// Create secret key and matching buffer
 		syscall(SYS_getrandom, &secret_key, 4, 0);
-		snprintf(secret_key_str, UINT_TO_STRING_MAX, "%u", secret_key);
+		snprintf(secret_key_str, INT32_TO_STRING_MAX, "%u", secret_key);
 		YDB_STRING_TO_BUFFER(secret_key_str, &secret_key_buffer);
 
 		child_id = fork();
 		if (0 != child_id) {
-			unsigned long long timestamp;
+			uint64_t timestamp;
 
 			if (0 > child_id) {
 				ERROR(ERR_SYSCALL, "fork", errno, strerror(errno));
@@ -206,7 +205,7 @@ int main(int argc, char **argv) {
 			}
 			INFO(INFO_ROCTO_SERVER_FORKED, child_id);
 			// Create pid buffer
-			snprintf(pid_str, UINT_TO_STRING_MAX, "%u", child_id);
+			snprintf(pid_str, INT32_TO_STRING_MAX, "%u", child_id);
 			YDB_STRING_TO_BUFFER(pid_str, pid_buffer);
 			// Add pid/secret key pair to list in listener/parent
 			status = ydb_set_s(&secret_key_list_buffer, 1, pid_buffer, &secret_key_buffer);
@@ -224,7 +223,7 @@ int main(int argc, char **argv) {
 			}
 			// Populate pid/timestamp buffers
 			YDB_LITERAL_TO_BUFFER("timestamp", &pid_subs[1]);
-			snprintf(timestamp_str, ULONG_TO_STRING_MAX, "%llu", timestamp);
+			snprintf(timestamp_str, INT64_TO_STRING_MAX, "%zu", timestamp);
 			YDB_STRING_TO_BUFFER(timestamp_str, &timestamp_buffer);
 			// Add timestamp under PID key
 			status = ydb_set_s(&secret_key_list_buffer, 2, &pid_subs[0], &timestamp_buffer);
@@ -343,7 +342,7 @@ int main(int argc, char **argv) {
 
 		// Get actual (non-zero) pid of child/server
 		child_id = getpid();
-		snprintf(pid_str, UINT_TO_STRING_MAX, "%u", child_id);
+		snprintf(pid_str, INT32_TO_STRING_MAX, "%u", child_id);
 		YDB_STRING_TO_BUFFER(pid_str, pid_buffer);
 		// Clear all other secret key/pid pairs from other servers
 		status = ydb_delete_s(&secret_key_list_buffer, 0, NULL, YDB_DEL_TREE);
@@ -363,6 +362,8 @@ int main(int argc, char **argv) {
 		if (result) {
 			WARNING(ERR_ROCTO_SEND_FAILED, "failed to send MD5 authentication required");
 			free(md5auth);
+			free(startup_message->parameters);
+			free(startup_message);
 			break;
 		}
 		free(md5auth);
@@ -374,10 +375,14 @@ int main(int argc, char **argv) {
 			if (-2 != rocto_err) {
 				WARNING(ERR_ROCTO_READ_FAILED, "failed to read MD5 password");
 			}
+			free(startup_message->parameters);
+			free(startup_message);
 			break;
 		}
 		password_message = read_password_message(base_message);
 		if (NULL == password_message) {
+			free(startup_message->parameters);
+			free(startup_message);
 			break;
 		}
 
@@ -385,7 +390,10 @@ int main(int argc, char **argv) {
 
 		// Validate user credentials
 		result = handle_password_message(password_message, startup_message, salt);
+		free(password_message);
 		if (0 != result) {
+			free(startup_message->parameters);
+			free(startup_message);
 			break;
 		}
 
@@ -444,6 +452,8 @@ int main(int argc, char **argv) {
 					rocto_session.session_id->buf_addr, "variables",
 					startup_message->parameters[cur_parm].name);
 		}
+		free(startup_message->parameters);
+		free(startup_message);
 
 		var_sets[3].len_used = 0;
 		do {
@@ -483,6 +493,7 @@ int main(int argc, char **argv) {
 		// Send secret key info to client
 		backend_key_data = make_backend_key_data(secret_key, child_id);
 		result = send_message(&rocto_session, (BaseMessage*)(&backend_key_data->type));
+		free(backend_key_data);
 		if (result) {
 			return 0;
 		}
@@ -500,6 +511,11 @@ int main(int argc, char **argv) {
 		// We only want to close the sfd if we are the parent process which actually listens to
 		// the socket; thread_id will be 0 if we are a child process
 		close(sfd);
+	}
+	TRACE(INFO_MEMORY_USAGE, get_mem_usage());
+	if (TRACE >= config->record_error_level) {
+		status = ydb_ci("_ydboctoNodeDump");
+		YDB_ERROR_CHECK(status);
 	}
 	return 0;
 }

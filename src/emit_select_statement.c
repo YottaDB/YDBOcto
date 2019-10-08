@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -127,9 +127,10 @@ PhysicalPlan *emit_select_statement(SqlStatement *stmt, char *plan_filename)
 			break;
 
 		YDB_LITERAL_TO_BUFFER("data_type", &plan_meta[5]);
-		value_buffer.buf_addr = "25";
-		value_buffer.len_used = value_buffer.len_alloc = strlen(value_buffer.buf_addr);
+		YDB_MALLOC_BUFFER(&value_buffer, INT16_TO_STRING_MAX);
+		value_buffer.len_used = snprintf(value_buffer.buf_addr, INT16_TO_STRING_MAX, "%d", PSQL_TypeOid_varchar);
 		status = ydb_set_s(plan_meta, 5, &plan_meta[1], &value_buffer);
+		YDB_FREE_BUFFER(&value_buffer);
 		YDB_ERROR_CHECK(status);
 		if (YDB_OK != status)
 			break;

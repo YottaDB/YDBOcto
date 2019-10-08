@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -119,7 +119,7 @@ int emit_physical_plan(PhysicalPlan *pplan, char *plan_filename);
 // Returns true if the key is a version of this column
 int key_equals_column(SqlKey *key, SqlColumn *column);
 
-int print_temporary_table(SqlStatement *, int cursor_id, void *parms, char *plan_name);
+int print_temporary_table(SqlStatement *, int cursor_id, void *parms, char *plan_name, boolean_t send_row_description);
 
 /**
  * Parses query, and calls the callback if it is a select statement. Otherwise, the query is a data altering
@@ -127,7 +127,7 @@ int print_temporary_table(SqlStatement *, int cursor_id, void *parms, char *plan
  *
  * @returns TRUE on success, FALSE on failure
  */
-int run_query(int (*callback)(SqlStatement *, int, void *, char*), void *parms);
+int run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_description, ParseContext *parse_context);
 
 PhysicalPlan	*emit_select_statement(SqlStatement *stmt, char *plan_filename);
 

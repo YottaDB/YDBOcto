@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -54,7 +54,7 @@ unsigned long long get_pid_start_time(pid_t pid) {
 		return 0;
 	}
 	// Create buffer with target file path (length of pid string + strlen("/proc//stat") + null)
-	snprintf(file_path, UINT_TO_STRING_MAX + 12, "/proc/%u/stat", pid);
+	snprintf(file_path, INT32_TO_STRING_MAX + 12, "/proc/%u/stat", pid);
 	// Read the file
 	stat_fd = open(file_path, O_RDONLY);
 	result = read(stat_fd, stat_buf, stat_buf_size);

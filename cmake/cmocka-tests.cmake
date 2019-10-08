@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -54,8 +54,6 @@ ADD_UNIT_TEST_WITH_OPTIONS(test_read_describe src/rocto/test_read_describe "")
 ADD_UNIT_TEST_WITH_OPTIONS(test_make_error_response src/rocto/test_make_error_response "")
 ADD_UNIT_TEST_WITH_OPTIONS(test_make_bind_complete src/rocto/test_make_bind_complete "")
 ADD_UNIT_TEST_WITH_OPTIONS(test_make_ready_for_query src/rocto/test_make_ready_for_query "")
-set(functions_to_wrap send_message)
-ADD_UNIT_TEST_WITH_OPTIONS(test_handle_bind src/rocto/test_handle_bind "${functions_to_wrap}")
 ADD_UNIT_TEST_WITH_OPTIONS(test_make_row_description src/rocto/test_make_row_description "")
 ADD_UNIT_TEST_WITH_OPTIONS(test_make_data_row src/rocto/test_make_data_row "")
 ADD_UNIT_TEST_WITH_OPTIONS(test_make_command_complete src/rocto/test_make_command_complete "")
@@ -88,3 +86,5 @@ set(functions_to_wrap kill get_pid_start_time)
 ADD_UNIT_TEST_WITH_OPTIONS(test_handle_cancel_request src/rocto/test_handle_cancel_request "${functions_to_wrap}")
 ADD_UNIT_TEST_WITH_OPTIONS(test_make_backend_key_data src/rocto/test_make_backend_key_data "")
 ADD_UNIT_TEST_WITH_OPTIONS(test_get_pid_start_time src/rocto/test_get_pid_start_time "")
+set(functions_to_wrap ydb_subscript_next_s ydb_get_s)
+ADD_UNIT_TEST_WITH_OPTIONS(test_make_parameter_description src/rocto/test_make_parameter_description "${functions_to_wrap}")

@@ -1,0 +1,21 @@
+-------------------------------------------------------------------------
+ --> Running query : select * from names where id = 1 OR firstname = 'Zero' <--
+-------------------------------------------------------------------------
+1|Acid|Burn
+0|Zero|Cool
+5|Zero|Cool
+-------------------------------------------------------------------------
+ --> Running query : select * from names where id = 1 OR firstname = 1 <--
+-------------------------------------------------------------------------
+SQL State: 42804
+ERROR: Type mismatch: left VARCHAR, right INTEGER
+-------------------------------------------------------------------------
+ --> Running query : select * from names where id = 'Acid' OR firstname = 1 <--
+-------------------------------------------------------------------------
+SQL State: 42804
+ERROR: Type mismatch: left INTEGER, right VARCHAR
+-------------------------------------------------------------------------
+ --> Running query : select * from names where id = 2 OR firstname = 'Joey' <--
+-------------------------------------------------------------------------
+2|Cereal|Killer
+4|Joey|

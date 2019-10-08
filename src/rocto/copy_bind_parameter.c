@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -25,70 +25,84 @@
 #define INT32_MAX_DIGITS 10
 #define INT64_MAX_DIGITS 20
 
-char *copy_text_parameter(RoctoSession *session, Bind *bind, const int32_t cur_parm, char *query, const char *end_query) {
-	char *text_parm_start, *text_parm_end;
-
-	// Currently unused parameters
-	UNUSED(session);
-
-	// Copy text value
-	text_parm_start = (char*)bind->parms[cur_parm].value;
-	text_parm_end = text_parm_start + bind->parms[cur_parm].length;
-	while(text_parm_start < text_parm_end) {
-		*query = *text_parm_start;
-		query++;
-		text_parm_start++;
-		// We need to leave an extra place for the closing quote, hence
-		//  the +1
-		if(query + 1 >= end_query) {
-			ERROR(ERR_ROCTO_QUERY_TOO_LONG, "");
-			return NULL;
-		}
-	}
-	return query;
+int32_t copy_text_parameter(Bind *bind, const int32_t cur_parm, char *bound_query, int32_t bound_offset) {
+	memcpy(&bound_query[bound_offset], bind->parms[cur_parm].value, bind->parms[cur_parm].length);
+	bound_offset += bind->parms[cur_parm].length;
+	return bound_offset;
 }
 
-char *copy_binary_parameter(RoctoSession *session, Bind *bind, const int32_t cur_parm, char *query, const char *end_query) {
-	// Currently unused parameters
-	UNUSED(session);
-
-	char str_value[MAX_STR_CONST];
+// TODO: Confirm that this function does what clients expect it to. This has not yet been done as the only clients known to use this
+// feature are proprietary and therefore difficult to test.
+int32_t copy_binary_parameter(Bind *bind, const int32_t cur_parm, char *bound_query, int32_t bound_offset) {
 	int64_t value = 0;
 	int32_t copied = 0;
-	char uuid[MAX_STR_CONST];
 
 	switch (bind->parms[cur_parm].length) {
 		case 1:
 			value = bin_to_char(bind->parms[cur_parm].value);
-			copied = snprintf(str_value, MAX_STR_CONST, "%lld", (long long int)value);
+			copied = snprintf(&bound_query[bound_offset], INT64_TO_STRING_MAX, "%lld", (long long int)value);
 			break;
 		case 2:
 			value = bin_to_int16(bind->parms[cur_parm].value);
-			copied = snprintf(str_value, MAX_STR_CONST, "%lld", (long long int)value);
+			copied = snprintf(&bound_query[bound_offset], INT64_TO_STRING_MAX, "%lld", (long long int)value);
 			break;
 		case 4:
 			value = bin_to_int32(bind->parms[cur_parm].value);
-			copied = snprintf(str_value, MAX_STR_CONST, "%lld", (long long int)value);
+			copied = snprintf(&bound_query[bound_offset], INT64_TO_STRING_MAX, "%lld", (long long int)value);
 			break;
 		case 8:
 			// This covers the OID case, as it is just an integer
 			value = bin_to_int64(bind->parms[cur_parm].value);
-			copied = snprintf(str_value, MAX_STR_CONST, "%lld", (long long int)value);
+			copied = snprintf(&bound_query[bound_offset], INT64_TO_STRING_MAX, "%lld", (long long int)value);
 			break;
 		case 16:
-			bin_to_uuid(bind->parms[cur_parm].value, uuid, MAX_STR_CONST);
-			copied = snprintf(str_value, MAX_STR_CONST, "%s", uuid);
-			break;
+			// TODO: Allow this case to fallthrough until binary formats are understood or at least testable
+			// bin_to_uuid(bind->parms[cur_parm].value, uuid, MAX_STR_CONST);
+			// copied = snprintf(&bound_query[bound_offset], UUID_CHARACTER_LENGTH, "%s", uuid);
+			// break;
 		default:
-			ERROR(ERR_ROCTO_UNSUPPORTED_BIND_PARAMETER, "");
-			return NULL;
+			// TODO: Assume the data can be used without conversion until more types are supported and binary formats
+			// are fully understood
+			memcpy(&bound_query[bound_offset], bind->parms[cur_parm].value, bind->parms[cur_parm].length);
+			copied = bind->parms[cur_parm].length;
 			break;
 	}
-	if ((0 > copied) || ((query + copied) > end_query)) {
-		ERROR(ERR_ROCTO_BIND_PARAMETER_DECODE_FAILURE, "");
-		return NULL;
+	return bound_offset + copied;
+}
+
+int32_t get_binary_parameter_length(Bind *bind, const int32_t cur_parm) {
+	int64_t value = 0;
+	int32_t copied = 0;
+	char buffer[MAX_STR_CONST];
+
+	switch (bind->parms[cur_parm].length) {
+		case 1:
+			value = bin_to_char(bind->parms[cur_parm].value);
+			copied = snprintf(buffer, INT64_TO_STRING_MAX, "%lld", (long long int)value);
+			break;
+		case 2:
+			value = bin_to_int16(bind->parms[cur_parm].value);
+			copied = snprintf(buffer, INT64_TO_STRING_MAX, "%lld", (long long int)value);
+			break;
+		case 4:
+			value = bin_to_int32(bind->parms[cur_parm].value);
+			copied = snprintf(buffer, INT64_TO_STRING_MAX, "%lld", (long long int)value);
+			break;
+		case 8:
+			// This covers the OID case, as it is just an integer
+			value = bin_to_int64(bind->parms[cur_parm].value);
+			copied = snprintf(buffer, INT64_TO_STRING_MAX, "%lld", (long long int)value);
+			break;
+		case 16:
+			// TODO: Allow this case to fallthrough until binary formats are understood or at least testable
+			// bin_to_uuid(bind->parms[cur_parm].value, uuid, MAX_STR_CONST);
+			// copied = snprintf(buffer, UUID_CHARACTER_LENGTH, "%s", uuid);
+			// break;
+		default:
+			// TODO: Assume the data can be used without conversion until more types are supported and binary formats
+			// are fully understood
+			copied = bind->parms[cur_parm].length;
+			break;
 	}
-	strncpy(query, str_value, copied);
-	query += copied;
-	return query;
+	return copied;
 }

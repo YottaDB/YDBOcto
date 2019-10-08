@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -46,6 +46,8 @@ Bind *read_bind(BaseMessage *message) {
 	last_byte = cur_pointer + remaining_length;
 	// Set destination
 	ret->dest = cur_pointer;
+	ret->parse_context.parm_start = NULL;
+	ret->parse_context.parm_end = NULL;
 	// Ensure destination has null terminator
 	while(cur_pointer < last_byte && *cur_pointer != '\0')
 		cur_pointer++;

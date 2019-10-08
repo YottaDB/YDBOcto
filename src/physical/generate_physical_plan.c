@@ -249,7 +249,7 @@ PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlanOptions *opt
 		out->emit_duplication_check = TRUE;
 		out->maintain_columnwise_index = TRUE;	/* needs to be set in all DNF siblings */
 		if (NULL != plan_options.dnf_plan_next) {
-			/* Caller indicates this plan is part of a set of DNF plans. Maintain liked list of DNF siblings. */
+			/* Caller indicates this plan is part of a set of DNF plans. Maintain linked list of DNF siblings. */
 			out->dnf_next = plan_options.dnf_plan_next;
 			assert(NULL == plan_options.dnf_plan_next->dnf_prev);
 			plan_options.dnf_plan_next->dnf_prev = out;

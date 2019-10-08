@@ -20,6 +20,7 @@ GT.M MUPIP EXTRACT
 ^%ydboctoocto("tables","pg_catalog","pg_type","int4")="int4|11|10|4|1|b|N|0|1|,|0|0|1007|int4in|int4out|int4recv|int4send|-|-|-|i|p|0|0|-1|0|0||||23"
 ^%ydboctoocto("tables","pg_catalog","pg_type","numeric")="varchar|11|10|-1|0|b|S|0|1|,|0|0|1015|varcharin|varcharout|varcharrecv|varcharsend|varchartypmodin|varchartypmodout|-|i|x|0|0|-1|0|100||||1043"
 ^%ydboctoocto("tables","pg_catalog","pg_type","varchar")="numeric|11|10|-1|0|b|N|0|1|,|0|0|1231|numeric_in|numeric_out|numeric_recv|numeric_send|numerictypmodin|numerictypmodout|-|i|m|0|0|-1|0|0||||1700"
+^%ydboctoocto("tables","pg_catalog","pg_type","unknown")="|11|10|-2|f|p|X|f|t|,|0|0|0|unknownin|unknownout|unknownrecv|unknownsend|-|-|-|c|p|f|0|-1|0|0|||705"
 ^%ydboctoocto("variables","DateStyle")="ISO, MDY"
 ^%ydboctoocto("variables","IntervalStyle")="postgres"
 ^%ydboctoocto("variables","TimeZone")="UTC"

@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -34,7 +34,7 @@ int __wrap_send_message(RoctoSession *session, BaseMessage *message) {
 	return 0;
 }
 
-int __wrap_run_query(char *query, void (*callback)(PhysicalPlan *, int, void *), void *parms) {
+int __wrap_run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_description, ParseContext *parse_context) {
 	int32_t expected_return = mock_type(int);
 	eof_hit = TRUE;
 
@@ -125,7 +125,7 @@ static void test_run_query_result_equals_negative_one(void **state) {
 	will_return(__wrap_run_query, -1);
 	result = handle_query(query, &session);
 
-	assert_int_equal(result, 0);
+	assert_int_equal(result, -1);
 }
 
 //Also cannot equal -1, as that would trigger the same thing as the test above
@@ -146,7 +146,7 @@ static void test_run_query_result_does_not_equal_zero(void **state) {
 	will_return(__wrap_run_query, 1);
 	result = handle_query(query, &session);
 
-	assert_int_equal(result, 0);
+	assert_int_equal(result, 1);
 }
 
 int main(void) {

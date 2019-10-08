@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -26,20 +26,19 @@
 #include "message_formats.h"
 
 int rocto_main_loop(RoctoSession *session) {
-	BaseMessage	*message;
+	BaseMessage	*message = NULL;
 	Bind		*bind;
-	Flush		*flush;
 	Describe	*describe;
 	Execute		*execute;
 	Parse		*parse;
 	Query		*query;
 	ReadyForQuery	*ready_for_query;
-	Sync		*sync;
 	fd_set		rfds;
 	struct timeval	select_timeout;
 	char		buffer[MAX_STR_CONST];
 	int		result;
-	int		send_ready_for_query = TRUE;
+	boolean_t	send_ready_for_query = TRUE;
+	boolean_t	extended_query_error = FALSE;
 
 	TRACE(ERR_ENTERING_FUNCTION, "rocto_main_loop");
 	// Send an initial ready
@@ -59,91 +58,103 @@ int rocto_main_loop(RoctoSession *session) {
 			result = select(session->connection_fd+1, &rfds, NULL, NULL, &select_timeout);
 		} while(-1 == result && EINTR == errno);
 
-		if(-1 == result) {
+		if (-1 == result) {
 			ERROR(ERR_SYSCALL, "select", errno, strerror(errno));
 			break;
 		}
-		if(0 == result && send_ready_for_query) {
+		if ((0 == result) && send_ready_for_query) {
 			ready_for_query = make_ready_for_query(PSQL_TransactionStatus_IDLE);
 			result = send_message(session, (BaseMessage*)(&ready_for_query->type));
 			if(result)
 				break;
 			free(ready_for_query);
 		}
-		send_ready_for_query = TRUE;
 		int32_t rocto_err = 0;
 		message = read_message(session, buffer, MAX_STR_CONST, &rocto_err);
-		if(NULL == message) {
+		if (NULL == message) {
 			break;
 		}
 		TRACE(ERR_READ_MESSAGE, message->type, ntohl(message->length));
-		switch(message->type) {
+		// Discard any messages received after an error in an extended query exchange until hitting a Sync message
+		if (extended_query_error && (PSQL_Sync != message->type))
+			continue;
+		switch (message->type) {
+		case PSQL_Query:
+			query = read_query(message);
+			if(NULL == query)
+				break;
+			result = handle_query(query, session);
+			free(query);
+			if(0 != result) {
+				break;
+			}
+			break;
+		// Begin Extended Query message types
+		case PSQL_Parse:
+			send_ready_for_query = FALSE;
+			parse = read_parse(message);
+			if (NULL == parse)
+				break;
+			result = handle_parse(parse, session);
+			free(parse);
+			if (1 == result) {
+				extended_query_error = TRUE;
+				break;
+			}
+			break;
 		case PSQL_Bind:
 			bind = read_bind(message);
-			if(NULL == bind) {
+			if (NULL == bind) {
+				extended_query_error = TRUE;
 				break;
 			}
 			result = handle_bind(bind, session);
-			if(1 == result) {
-				return 0;
-			}
-			break;
-		case PSQL_Query:
-			query = read_query(message);
-			if(NULL == query) {
-				break;
-			}
-			result = handle_query(query, session);
-			if(1 == result) {
-				return 0;
-			}
-			break;
-		case PSQL_Execute:
-		//case PSQL_ErrorResponse: // Same letter code, different meaning
-			execute = read_execute(message);
-			if(NULL == execute) {
-				break;
-			}
-			result = handle_execute(execute, session);
-			if(1 == result) {
-				return 0;
-			}
-			send_ready_for_query = FALSE;
-			break;
-		case PSQL_Flush:
-			// Do nothing for now, until extended query functionality added
-			flush = read_flush(message);
-			if (NULL == flush) {
-				break;
-			}
-			break;
-		case PSQL_Parse:
-			parse = read_parse(message);
-			if(NULL == parse) {
-				break;
-			}
-			result = handle_parse(parse, session);
-			if(1 == result) {
-				return 0;
-			}
-			break;
-		case PSQL_Sync:
-			// This requires no action right now, but eventually we will have to end transactions
-			sync = read_sync(message);
-			if (NULL == sync) {
+			free(bind->parms);
+			free(bind);
+			if (1 == result) {
+				extended_query_error = TRUE;
 				break;
 			}
 			break;
 		case PSQL_Describe:
 		// case PSQL_DataRow: // Same letter, different meaning
 			describe = read_describe(message);
-			if(NULL == describe) {
+			if (NULL == describe) {
+				extended_query_error = TRUE;
 				break;
 			}
 			result = handle_describe(describe, session);
-			if(1 == result ) {
-				return 0;
+			free(describe);
+			if (1 == result ) {
+				extended_query_error = TRUE;
+				break;
 			}
+			break;
+		case PSQL_Execute:
+		//case PSQL_ErrorResponse: // Same letter code, different meaning
+			execute = read_execute(message);
+			if (NULL == execute) {
+				extended_query_error = TRUE;
+				break;
+			}
+			result = handle_execute(execute, session);
+			free(execute);
+			if (1 == result) {
+				extended_query_error = TRUE;
+				break;
+			}
+			break;
+		case PSQL_Sync:
+			// After a Sync we can send ReadyForQuery again, as the extended query exchange is complete
+			// No read is necessary, as Sync messages only contain a type field, which has already been read
+			send_ready_for_query = TRUE;
+			extended_query_error = FALSE;
+			break;
+		// End Extended Query message types
+		case PSQL_Flush:
+			// Do nothing for now, until extended query functionality added, see issue #375
+			// TODO: Add error handling when this feature is supported
+			// flush = read_flush(message);
 			break;
 		case PSQL_Terminate:
 			// Gracefully terminate the connection

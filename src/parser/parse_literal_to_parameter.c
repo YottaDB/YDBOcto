@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -32,7 +32,7 @@ int parse_literal_to_parameter(char *cursorId, SqlValue *value, boolean_t update
 		parm_count_subs = make_buffers(config->global_names.cursor, 3, cursorId, "parameters", value->parameter_index);
 	} else {
 		parm_count_subs = make_buffers(config->global_names.cursor, 2, cursorId, "parameters");
-		YDB_MALLOC_BUFFER(&parm_count, ULONG_TO_STRING_MAX);
+		YDB_MALLOC_BUFFER(&parm_count, INT64_TO_STRING_MAX);
 		status = ydb_incr_s(&parm_count_subs[0], 2, &parm_count_subs[1], NULL, &parm_count);
 		YDB_ERROR_CHECK(status);
 		if (YDB_OK != status) {
@@ -53,7 +53,13 @@ int parse_literal_to_parameter(char *cursorId, SqlValue *value, boolean_t update
 		parm_count_subs = make_buffers(config->global_names.cursor, 3, cursorId, "parameters", parm_count.buf_addr);
 	}
 	// Store literal value in database (mapped to above index) for later lookup by physical plan
-	YDB_STRING_TO_BUFFER(value->v.string_literal, &literal_buf);
+	if (PARAMETER_VALUE == value->type) {
+		YDB_STRING_TO_BUFFER("", &literal_buf);		// If an extended query parameter, e.g. $1, we have no value to
+								// store here. Use an empty string for now and populate in
+								// handle_execute
+	} else {
+		YDB_STRING_TO_BUFFER(value->v.string_literal, &literal_buf);
+	}
 	status = ydb_set_s(&parm_count_subs[0], 3, &parm_count_subs[1], &literal_buf);
 	free(parm_count_subs);
 	if (!update_existing)

@@ -54,6 +54,9 @@ cd bats-core
 ./install.sh /usr/local
 cd ..
 
+# Download PostgreSQL JDBC driver for testing
+wget https://jdbc.postgresql.org/download/postgresql-$JDBC_VERSION.jar
+
 # Check repo for unused outref files
 pushd ../tests
 unused_outrefs=$(../tools/ci/find_unused_outrefs.sh)

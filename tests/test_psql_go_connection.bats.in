@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -18,7 +18,7 @@ setup() {
   load_fixture names.sql
   load_fixture names.zwr
   load_fixture default_user.zwr
-  start_rocto 1337
+  test_port=$(start_rocto 1337)
   setup_go
 }
 
@@ -27,12 +27,12 @@ teardown() {
 }
 
 @test "TPGC000 : select wildcard columns" {
-  run_go simple_go_select_all 2>&1 | tee output.txt
+  run_go simple_go_select_all $test_port 2>&1 | tee output.txt
   verify_output TPGC000 output.txt
 }
 
 @test "TPGC001 : fetch column data types" {
-  run_go get_column_information 2>&1 | tee output.txt
+  run_go get_column_information $test_port 2>&1 | tee output.txt
   # Not crashing is success for this test
   # There is a column in the data types output that contains what appears to be a
   # hex address that changes across subsequent test runs. The 'striphex' option is used to remove this.
@@ -41,9 +41,33 @@ teardown() {
 
 @test "TPGC002 : rocto sends ParameterStatus messages" {
   # Can reuse previous Go test file as query output doesn't matter for this test
-  run_go simple_go_select_all 2>&1 | tee output.txt
+  run_go simple_go_select_all $test_port 2>&1 | tee output.txt
   # Need to validate INFO messages for ParameterStatus messages,
   # but DEBUGs make outrefs needlessly large
   cat rocto.log >> output.txt
-  verify_output TPGC002 output.txt psql nodebug
+  verify_output TPGC002 output.txt psql nodebug noport
 }
+
+@test "TPGC003 : send ParameterDescriptions" {
+  stop_rocto
+  test_port=$(start_rocto 1337 verbose)
+  run_go send_parameter_description $test_port 2>&1 | tee output.txt
+  grep "sent ParameterDescription for prepared statement" rocto.log >> output.txt
+  verify_output TPGC003 output.txt psql
+}
+
+@test "TPGC004 : send prepared statement with multiple parameters" {
+  run_go bind_multiple_parameters $test_port 2>&1 | tee output.txt
+  # Confirm error reported for unsupported $1 = $2 syntax
+  grep "Feature not implemented: comparison between literal parameters" rocto.log >> output.txt
+  verify_output TPGC004 output.txt psql
+}
+
+@test "TPGC005 : parse_context->is_bind_parm array correctly resizes for large numbers of parameters" {
+  stop_rocto
+  test_port=$(start_rocto 1337 verbose)
+  run_go TPGC005 $test_port 2>&1 | tee output.txt
+  grep -E "Memory doubled|Memory expanded" rocto.log >> output.txt
+  verify_output TPGC005 output.txt psql
+}
+

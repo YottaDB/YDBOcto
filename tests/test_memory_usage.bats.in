@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -40,4 +40,49 @@ setup() {
   # Ensure plans were properly generated for all queries in expect script
   grep select _ydboctoP*.m | cut -d";" -f 2 | sort > output.txt 2>&1
   verify_output TMU01 output.txt
+}
+
+@test "TMU02 : memory usage remains constant across subsequent query executions using extended query protocol (JDBC)" {
+  load_fixture northwind.sql
+  load_fixture northwind.zwr
+  export JDBC_VERSION=42.2.6
+  test_port=$(start_rocto 1444 verbose)
+  cp @PROJECT_SOURCE_DIR@/tests/fixtures/TMU0*.sql .
+
+  for queryfile in $(ls TMU0*.sql); do
+    grep -v '^#'  $queryfile | grep -v '^[[:space:]]*$' > $queryfile.inp # Filter out '#' comment lines, if any
+    run_java run_multi_query $test_port "$queryfile.inp" &> output.txt
+  done
+
+  stop_rocto
+  grep "Memory usage" rocto.log > mem_messages.log
+
+  set1_mem=$(sed -n '1p' < mem_messages.log | cut -d' ' -f 12)
+  set2_mem=$(sed -n '2p' < mem_messages.log | cut -d' ' -f 12)
+  set3_mem=$(sed -n '3p' < mem_messages.log | cut -d' ' -f 12)
+  average=$(( ($set1_mem + $set2_mem) / 2))
+  set1_diff=$(( $average - $set1_mem ))
+  set2_diff=$(( $average - $set2_mem ))
+  set3_diff=$(( $average - $set3_mem ))
+  set1_diff=${set1_diff#-}	# Remove sign, if any
+  set2_diff=${set2_diff#-}	# Remove sign, if any
+  set3_diff=${set3_diff#-}	# Remove sign, if any
+
+  echo "Average: $average" >> mem_usage.log
+  echo "TMU02a: $set1_mem" >> mem_usage.log
+  echo "TMU02b: $set2_mem" >> mem_usage.log
+  echo "TMU02c: $set3_mem" >> mem_usage.log
+
+  # Ensure difference in memory usage is less than 10% across increasingly large numbers of queries
+  [[ $(( ($set1_diff / $average) * 100 )) -lt 10 ]]
+  [[ $(( ($set2_diff / $average) * 100 )) -lt 10 ]]
+  [[ $(( ($set3_diff / $average) * 100 )) -lt 10 ]]
+
+  # Check local variable nodes in use at process exit, excluding the following variable items:
+  #	1. Binary data stored in %ydboctoloadedschemas
+  #	2. Secret key information used for CancelRequests
+  #	3. TimeZone information
+  #	4. rocto.log itself
+  grep "\%ydbocto" rocto.log | grep -Ev "loadedschemas|SecretKeyList|TimeZone|Binary file rocto.log" | sort &> node_usage.log
+  verify_output TMU02 node_usage.log
 }

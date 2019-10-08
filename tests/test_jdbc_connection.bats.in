@@ -1,0 +1,121 @@
+#################################################################
+#								#
+# Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	#
+# All rights reserved.						#
+#								#
+#	This source code contains the intellectual property	#
+#	of its copyright holder(s), and is made available	#
+#	under a license.  If you do not know the terms of	#
+#	the license, please stop and do not read further.	#
+#								#
+#################################################################
+
+load test_helpers
+
+setup() {
+  init_test
+  createdb
+  if [[ @YDB_TLS_AVAILABLE@ -eq 1 ]]; then
+    init_tls
+  fi
+  load_fixture names.sql
+  load_fixture names.zwr
+  load_fixture pastas.sql
+  load_fixture pastas.zwr
+  load_fixture default_user.zwr
+  export JDBC_VERSION=42.2.6
+  test_port=$(start_rocto 1344)
+}
+
+teardown() {
+  stop_rocto
+}
+
+@test "TJC000 : Basic SquirrelSQL query runs without error using unmodified JDBC driver" {
+  run_java run_query $test_port "select current_schema()" &> output.txt
+  verify_output TJC000 output.txt
+}
+
+@test "TJC001 : Random inner/outer join queries" {
+  load_fixture customers.sql
+  load_fixture customers.zwr
+  # 8 below is max # of inner/outer joins in one query
+  yottadb -run TOJ03 8	# this generates a set of queries jointest01.sql, jointest02.sql ...
+  # Run using psql and Octo against each of the generated queries
+  for file in jointest*.sql
+  do
+    run_query_in_octo_and_postgres_and_crosscheck customers $file "" "" "" usejdbc
+  done
+}
+
+@test "TJC002 : Simple extended query parameter tests" {
+  load_fixture customers.sql
+  load_fixture customers.zwr
+  run_java TJC002 $test_port &> output.txt
+  verify_output TJC002 output.txt
+}
+
+@test "TJC003 : First character of subsequent select query not consumed" {
+  load_fixture customers.sql
+  load_fixture customers.zwr
+  # Run using psql and Octo against each of the generated queries
+  run_java run_query $test_port "select * from names where id != 1; select * from names where id = 2;" &> output.txt
+  echo "" >> output.txt
+  grep -r elect _ydboctoP*.m | sort >> output.txt
+  verify_output TJC003 output.txt
+}
+
+@test "TJC004 : Test Query Generator against customers database" {
+  run_query_generator customers 150 TQG01- "" "" usejdbc
+}
+
+@test "TJC005 : Test Query Generator against pastas database" {
+  run_query_generator pastas 150 TQG02- "" "" usejdbc
+}
+
+@test "TJC006 : Test Query Generator against names database" {
+  run_query_generator names 150 TQG03- "" "" usejdbc
+}
+
+@test "TJC007 : Test Query Generator against northwind database" {
+  run_query_generator northwind 150 TQG04- "" "" usejdbc
+}
+
+@test "TJC007 : Test Query Generator against northwind database" {
+  run_query_generator northwind 150 TQG04- "" "" usejdbc
+}
+
+@test "TJC008 : Validate usage of Simple vs. Extended Query protocol using PrepareThreshold" {
+  stop_rocto
+  test_port=$(start_rocto 1344 verbose)
+  load_fixture customers.sql
+  load_fixture customers.zwr
+  run_java TJC008 $test_port &> output.txt
+  # Confirm both simple and extended query were used
+  grep "handle_query" rocto.log >> output.txt
+  grep "handle_bind" rocto.log >> output.txt
+  verify_output TJC008 output.txt psql
+}
+
+@test "TJC009 : Octo returns RowDescription for query with no return rows" {
+  stop_rocto
+  test_port=$(start_rocto 1344 verbose)
+  load_fixture names.sql
+  load_fixture names.zwr
+  testname="TJC009"
+  run_query_in_octo_and_postgres_and_crosscheck names $testname.sql "" "" "" usejdbc
+  grep "sent RowDescription" rocto.log &> output.txt
+  verify_output $testname output.txt psql
+}
+
+@test "TJC010 : parse_context->is_bind_parm array correctly resizes for large numbers of parameters" {
+  stop_rocto
+  test_port=$(start_rocto 1344 verbose)
+  load_fixture names.sql
+  load_fixture names.zwr
+  testname="TJC010"
+  run_java $testname $test_port &> output.txt
+  # Cannot test memory expansion path since JDBC driver specifies parameter types; TPGC005 tests the expansion case
+  grep "Memory doubled" rocto.log >> output.txt
+  verify_output $testname output.txt psql
+}

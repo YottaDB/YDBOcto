@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -45,6 +45,8 @@ typedef struct {
 	RoctoSession *session;
 	int32_t data_sent;
 	int32_t max_data_to_send;
+	int32_t rows_sent;
+	char *command_type;
 } QueryResponseParms;
 
 void *rocto_helper_waitpid(void *args);
@@ -122,7 +124,7 @@ int32_t handle_describe(Describe *describe, RoctoSession *session);
 int32_t handle_password_message(PasswordMessage *password_message, StartupMessage *startup_message, char *salt);
 
 // This isn't a handle function in-of itself, but a helper to handle the results of a query
-int handle_query_response(SqlStatement *stmt, int32_t cursor_id, void *_parms, char *plan_name);
+int handle_query_response(SqlStatement *stmt, int32_t cursor_id, void *_parms, char *plan_name, boolean_t send_row_description);
 
 // Helper to indicate that there is no more input
 int no_more();
@@ -144,8 +146,9 @@ char *bin_to_bytea(char *bin);
 void bin_to_uuid(char *bin, char *buffer, int32_t buf_len);
 
 // Utility functions for copying Bind parameters into query string
-char *copy_text_parameter(RoctoSession *session, Bind *bind, const int32_t cur_parm, char *query_ptr, const char *end_query_ptr);
-char *copy_binary_parameter(RoctoSession *session, Bind *bind, const int32_t cur_parm, char *query_ptr, const char *end_query_ptr);
+int32_t copy_text_parameter(Bind *bind, const int32_t cur_parm, char *bound_query, int32_t bound_offset);
+int32_t copy_binary_parameter(Bind *bind, const int32_t cur_parm, char *bound_query, int32_t bound_offset);
+int32_t get_binary_parameter_length(Bind *bind, const int32_t cur_parm);
 
 // Helper to extract column values from delimited row string
 uint32_t get_user_column_value(char *buffer, const uint32_t buf_len, const char *row, const uint32_t row_len,

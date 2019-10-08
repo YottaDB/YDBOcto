@@ -1,0 +1,13 @@
+0|Zero|Cool
+5|Zero|Cool
+---
+0|Zero|Cool
+---
+0|Zero|Cool
+---
+0|Zero|Cool
+5|Zero|Cool
+---
+0|Zero|Cool
+5|Zero|Cool
+[SOCKET] [ERROR] PATH:LINENUM DATE TIME : Feature not implemented: comparison between literal parameters, e.g. $1 = $2

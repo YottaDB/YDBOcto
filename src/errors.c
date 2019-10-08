@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -182,13 +182,15 @@ void octo_log(int line, char *file, enum ERROR_LEVEL level, enum ERROR error, ..
 				err_level = PSQL_Error_FATAL;
 				break;
 		}
-		err = make_error_response(err_level,
-				err_code_map[error],
-				buffer,
-				0);
-		send_message(&rocto_session, (BaseMessage*)(&err->type));
-		free_error_response(err);
-		rocto_session.sending_message = FALSE;
+		if (TRACE < level) {
+			err = make_error_response(err_level,
+					err_code_map[error],
+					buffer,
+					0);
+			send_message(&rocto_session, (BaseMessage*)(&err->type));
+			free_error_response(err);
+			rocto_session.sending_message = FALSE;
+		}
 	}
 #	else
 	snprintf(err_prefix, MAX_STR_CONST, log_prefix, type,

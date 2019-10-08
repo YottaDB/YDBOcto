@@ -1,0 +1,5 @@
+select * from names where id = 7;
+ ID | FIRSTNAME | LASTNAME 
+----+-----------+----------
+(0 rows)
+

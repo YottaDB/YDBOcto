@@ -301,6 +301,7 @@ bool|16
 int4|23
 name|19
 numeric|1043
+unknown|
 varchar|1700
 [ INFO] PATH:LINENUM DATE TIME : Parsing done for SQL command []
 

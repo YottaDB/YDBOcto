@@ -101,3 +101,8 @@ find_program(go NAMES go)
 if(go)
   ADD_BATS_TEST(test_psql_go_connection)
 endif()
+
+find_program(java NAMES java)
+if(java)
+  ADD_BATS_TEST(test_jdbc_connection)
+endif()

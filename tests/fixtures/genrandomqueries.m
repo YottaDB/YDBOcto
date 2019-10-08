@@ -87,8 +87,10 @@ genrandomqueries	;
 	. ; choose column names that are join candidates for each table
 	. set i=1,sqlquery=sqlquery_" from "_table(i)_" "_tablealias(i)_i
 	. set fulljoinchosen=0,notequalchosen=0	;  ###TMPDISABLE (until FULL JOINs work AND != check in LEFT JOINs work)
+	. set outerjoinchosen=0
 	. for i=2:1:numjoins  do
 	. . set modulo=$random(4)
+	. . set:(modulo>0) outerjoinchosen=1
 	. . set sqlquery=sqlquery_" "_joinstr(modulo)_" "_table(i)_" "_tablealias(i)_i
 	. . set:modulo=3 fulljoinchosen=1
 	. . set modulo=$random(2)
@@ -98,8 +100,11 @@ genrandomqueries	;
 	. ; Add optional WHERE
 	. if (1=numjoins)&$random(2) do	 ; ###TMPDISABLE Remove (1=numjoins) once #311 is fixed
 	. . set sqlquery=sqlquery_" where "_$$boolexpr(1+$random(4))
-	. ; Add optional ORDER BY
-	. set orderby=$random(2)
+	. ; Add optional ORDER BY.
+	. ; Note: Do not choose ORDER BY if an OUTER JOIN got chosen until #336 is fixed. This is because they can generate
+	. ;       NULL values and ORDER BY of NULL values does not work correctly (at least the output is not identical to
+	. ;       what Postgres generates). See https://gitlab.com/YottaDB/DBMS/YDBOcto/issues/336 for an example query.
+	. set orderby=('outerjoinchosen)&$random(2) ; ###TMPDISABLE Remove ('outerjoinchosen) once #336 is fixed
 	. if orderby do
 	. . ; Currently choose only ONE column for ORDER BY. When #228 is fixed, enable multiple columns here ###TMPDISABLE
 	. . set sqlquery=sqlquery_" order by "_column($random(numcols))

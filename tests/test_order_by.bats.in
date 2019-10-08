@@ -130,3 +130,13 @@ CAT
   verify_output TOB04 output.txt
 }
 
+@test "TOB05 : OCTO334 : ORDER BY ORDER BY on a column with empty string values does not work correctly" {
+  cat <<CAT > input.sql
+  SELECT lastname,firstname FROM names ORDER BY lastname;
+  SELECT lastname,firstname FROM names ORDER BY lastname DESC;
+CAT
+  cat input.sql > output.txt
+  octo -f input.sql >> output.txt 2>&1
+  verify_output TOB05 output.txt
+}
+

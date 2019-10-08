@@ -1,0 +1,15 @@
+  SELECT lastname,firstname FROM names ORDER BY lastname;
+  SELECT lastname,firstname FROM names ORDER BY lastname DESC;
+|Joey
+Burn|Acid
+Cool|Zero
+Cool|Zero
+Killer|Cereal
+Nikon|Lord
+Nikon|Lord
+Killer|Cereal
+Cool|Zero
+Cool|Zero
+Burn|Acid
+|Joey
+

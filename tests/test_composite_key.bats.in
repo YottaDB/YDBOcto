@@ -90,7 +90,7 @@ ORDER  BY A.order1_id :: INTEGER;
 OCTO
   # Verify that 4 plans are created for the boolean expression and each one has just one FOR loop (that too inside a DO)
   # and the corresponding key in the generated M code
-  sed 's/=.*//g' _ydboctoP*.m | grep -E "octoPlan|FOR.*ydboctocursor" >> output.txt
+  sed 's/=.*//g' _ydboctoP*.m | grep -E "octoPlan|FOR.*ydboctocursor" | grep -vw '"order"' >> output.txt
   verify_output TCK02 output.txt
 }
 

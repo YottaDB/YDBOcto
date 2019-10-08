@@ -110,11 +110,24 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
 		%{}NEW %%ydboctoi0,%%ydboctoi1,%%ydboctoi2`n    {}%
 		assert((NULL != plan->outputKey) && ((NULL == plan->next) || (NULL != plan->next->outputKey)));
 		%{}SET %%ydboctoi0=1,%%ydboctoi1="",%%ydboctoi2=""`n    {}%
-		%{}FOR  SET %%ydboctoi1=$ORDER({}%
-		TMPL(tmpl_key, plan->outputKey); (*buffer_index)--;
-		%{},"order",%%ydboctoi1),{{ direction }})  QUIT:$DATA({}%
-		TMPL(tmpl_key, plan->outputKey); (*buffer_index)--;
-		%{},"order",%%ydboctoi1))=0  DO  QUIT:(%%ydboctoi1=""){}%
+		/* In case of ASCENDING order, we want an empty string subscript (if any) to show up first
+		 * whereas for DESCENDING order, we want it to show up last. Handle it accordingly below.
+		 */
+		if (OPTIONAL_DESC == plan->order_by->extra_detail)
+		{
+			%{}FOR  SET %%ydboctoi1=$ORDER({}%
+			TMPL(tmpl_key, plan->outputKey); (*buffer_index)--;
+			%{},"order",%%ydboctoi1),{{ direction }})  QUIT:$DATA({}%
+			TMPL(tmpl_key, plan->outputKey); (*buffer_index)--;
+			%{},"order",%%ydboctoi1))=0  DO  QUIT:(%%ydboctoi1=""){}%
+		} else
+		{
+			%{}FOR  DO:$DATA({}%
+			TMPL(tmpl_key, plan->outputKey); (*buffer_index)--;
+			%{},"order",%%ydboctoi1))  SET %%ydboctoi1=$ORDER({}%
+			TMPL(tmpl_key, plan->outputKey); (*buffer_index)--;
+			%{},"order",%%ydboctoi1),{{ direction }})  QUIT:(%%ydboctoi1=""){}%
+		}
 		if (NULL != keyword)
 		{
 			%{}!({{ value->v.string_literal }}<%%ydboctoi0){}%

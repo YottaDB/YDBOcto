@@ -60,7 +60,7 @@ OCTO
 @test "TL03 : OCTO269a : Verify simple queries without UNION usages but with WHERE/OR usages work fine with LIMIT and/or ORDER BY" {
   load_fixture easynames.sql
   load_fixture easynames.zwr
-  octo <<OCTO 2>&1 | tee output.txt
+  cat <<CAT > input.sql
 select * from easynames where id = 1 or id = 2 or id = 10 limit 0;
 select * from easynames where id = 1 or id = 2 or id = 10 limit 1;
 select * from easynames where id = 1 or id = 2 or id = 10 limit 2;
@@ -72,7 +72,9 @@ select * from easynames where id = 1 or id = 2 or id = 10 order by name limit 1;
 select * from easynames where id = 1 or id = 2 or id = 10 order by name limit 2;
 select * from easynames where id = 1 or id = 2 or id = 10 order by name limit 3;
 select * from easynames where id = 1 or id = 2 or id = 10 order by name limit 4;
-OCTO
+CAT
+  cat input.sql > output.txt
+  octo -f input.sql >> output.txt 2>&1
   verify_output TL03 output.txt
 }
 

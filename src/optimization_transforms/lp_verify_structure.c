@@ -167,7 +167,6 @@ int lp_verify_structure_helper(LogicalPlan *plan, LPActionType expected) {
 	case LP_WHERE:
 	case LP_CASE_STATEMENT:
 	case LP_CASE_BRANCH_STATEMENT:
-	case LP_COLUMN_LIST:
 	        ret &= lp_verify_structure_helper(plan->v.operand[0], LP_ADDITION)
 			| lp_verify_structure_helper(plan->v.operand[0], LP_SUBTRACTION)
 			| lp_verify_structure_helper(plan->v.operand[0], LP_DIVISION)
@@ -231,6 +230,18 @@ int lp_verify_structure_helper(LogicalPlan *plan, LPActionType expected) {
 			| lp_verify_structure_helper(plan->v.operand[1], LP_CASE)
 			| lp_verify_structure_helper(plan->v.operand[1], LP_WHERE)
 			| lp_verify_structure_helper(plan->v.operand[1], LP_VALUE);
+		break;
+	case LP_COLUMN_LIST:
+		/* to avoid a large recursion stack walk the column list iteratively */
+		while (NULL != plan) {
+			assert(LP_COLUMN_LIST == plan->type);
+		        ret &= lp_verify_structure_helper(plan->v.operand[0], LP_WHERE)
+				| lp_verify_structure_helper(plan->v.operand[0], LP_COLUMN_ALIAS)
+				| lp_verify_structure_helper(plan->v.operand[0], LP_VALUE)
+				| lp_verify_structure_helper(plan->v.operand[0], LP_FUNCTION_CALL);
+			assert(ret);
+			plan = plan->v.operand[1];
+		}
 		break;
 	case LP_FORCE_NUM:
 	case LP_NEGATIVE:

@@ -1,5 +1,5 @@
 OCTO> SELECT * FROM names WHERE firstName IN ('Zero', 'Acid');
-Added SET and/or Non-SET trigger on ^names named names#1
+Added SET and/or Non-SET trigger on ^names named %ydboctoT*
 1|Acid|Burn
 0|Zero|Cool
 5|Zero|Cool

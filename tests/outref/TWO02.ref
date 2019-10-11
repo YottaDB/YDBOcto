@@ -1,5 +1,5 @@
 OCTO> select * from names where id = 2 or firstName = "Zero";
-Added SET and/or Non-SET trigger on ^names named names#1
+Added SET and/or Non-SET trigger on ^names named %ydboctoT*
 2|Cereal|Killer
 0|Zero|Cool
 5|Zero|Cool

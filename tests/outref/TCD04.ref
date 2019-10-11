@@ -2,7 +2,7 @@ OCTO> SELECT first_name, last_name, order_date, order_amount
 OCTO> FROM customers c
 OCTO> LEFT JOIN orders o
 OCTO> ON c.customer_id = o.customer_id;
-Added SET and/or Non-SET trigger on ^orders named orders#1
+Added SET and/or Non-SET trigger on ^orders named %ydboctoT*
 George|Washington|07/04/1776|$234.56
 John|Adams|05/23/1784|$124.00
 Thomas|Jefferson|03/14/1760|$78.50

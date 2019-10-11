@@ -27,13 +27,13 @@
 #include "mmrhash.h"
 
 int emit_physical_plan(PhysicalPlan *pplan, char *plan_filename) {
-	int		plan_id, len, fd, buffer_len, buffer_index;
+	int		plan_id, len, fd, buffer_len, buffer_index, status;
 	PhysicalPlan	*cur_plan = pplan, *first_plan, xrefplan, nondeferredplan, deferredplan, *tmp_plan;
 	PhysicalPlan	*prev_plan, *next_plan;
 	char		*buffer, plan_name_buffer[MAX_STR_CONST];
-	char		filename[OCTO_PATH_MAX], *routine_name, *tableName, *columnName;
+	char		filename[OCTO_PATH_MAX], *routine_name, *trigger_name, *tableName, *columnName;
 	char		*tmp_plan_filename = NULL;
-	unsigned int	routine_name_len, plan_filename_len;
+	unsigned int	routine_name_len = MAX_ROUTINE_LEN, plan_filename_len;
 	SqlValue	*value;
 	SqlKey		*key;
 	FILE		*output_file;
@@ -119,9 +119,17 @@ int emit_physical_plan(PhysicalPlan *pplan, char *plan_filename) {
 		ydb_mmrhash_128_ingest(&state, (void*)tableName, strlen(tableName));
 		ydb_mmrhash_128_ingest(&state, (void*)columnName, strlen(columnName));
 		routine_name = octo_cmalloc(memory_chunks, MAX_ROUTINE_LEN + 1);	// + 1 needed for null terminator
-		routine_name_len = generate_routine_name(&state, routine_name, MAX_ROUTINE_LEN, CrossReference);
+		status = generate_routine_name(&state, routine_name, routine_name_len, CrossReference);
 		// copy routine name (starts with %)
-		if (0 == routine_name_len) {
+		if (1 == status) {
+			ERROR(ERR_PLAN_HASH_FAILED, "");
+			/* cleanup the buffer */
+			free(buffer);
+			return 1;
+		}
+		trigger_name = octo_cmalloc(memory_chunks, MAX_TRIGGER_LEN + 1);	// + 1 needed for null terminator
+		status = generate_routine_name(&state, trigger_name, MAX_TRIGGER_LEN, YDBTrigger);
+		if (1 == status) {
 			ERROR(ERR_PLAN_HASH_FAILED, "");
 			/* cleanup the buffer */
 			free(buffer);
@@ -141,6 +149,7 @@ int emit_physical_plan(PhysicalPlan *pplan, char *plan_filename) {
 				return 1;
 			}
 			cur_plan->filename = key->cross_reference_filename;
+			cur_plan->trigger_name = trigger_name;
 			buffer_index = 0;
 			tmpl_physical_plan(&buffer, &buffer_len, &buffer_index, cur_plan);
 			assert(output_file != NULL);

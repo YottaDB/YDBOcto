@@ -36,7 +36,7 @@ OCTO>          AND ( A.stop_date > 1 OR A.stop_date IS NULL )
 OCTO>          AND E.name NOT LIKE "ZZ%"
 OCTO>          AND E.current_movement IS NOT NULL )
 OCTO> ORDER  BY A.order1_id :: INTEGER;
-Added SET and/or Non-SET trigger on ^OR named OR#1
+Added SET and/or Non-SET trigger on ^OR named %ydboctoT*
 OCTO> 
 octoPlan0(cursorId)
     DO octoPlan1(cursorId)

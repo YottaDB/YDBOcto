@@ -44,7 +44,7 @@ int run_query(int (*callback)(SqlStatement *, int, void*, char*), void *parms) {
 	char		*buffer, filename[OCTO_PATH_MAX], routine_name[MAX_ROUTINE_LEN];
 	gtm_long_t	cursorId;
 	hash128_state_t	state;
-	int		done, routine_len = 0;
+	int		done, routine_len = MAX_ROUTINE_LEN;
 	int		status;
 	size_t		buffer_size = 0;
 	ydb_buffer_t	*filename_lock = NULL;
@@ -110,8 +110,8 @@ int run_query(int (*callback)(SqlStatement *, int, void*, char*), void *parms) {
 			OCTO_CFREE(memory_chunks);
 			return 1;
 		}
-		routine_len = generate_routine_name(&state, routine_name, MAX_STR_CONST, OutputPlan);
-		if (routine_len < 0) {
+		status = generate_routine_name(&state, routine_name, routine_len, OutputPlan);
+		if (1 == status) {
 			ERROR(ERR_PLAN_HASH_FAILED, "");
 			YDB_FREE_BUFFER(&cursor_exe_global);
 			OCTO_CFREE(memory_chunks);

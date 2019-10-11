@@ -49,7 +49,7 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
 		%{}LOCK -^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}") QUIT`n    {}%
 		%{}IF '$ZTRIGGER("item","+{}%
 		TMPL(tmpl_column_reference_trigger, plan, column_alias);
-		%{} -commands=SET,KILL -xecute=""DO handleSet^{{ plan->filename }}""") HALT`n    {}%
+		%{} -commands=SET,KILL -xecute=""DO handleSet^{{ plan->filename }}"" -name={{ plan->trigger_name }}")  HALT`n    {}%
 		%{}SET %%ydboctoCancel("{{ tableName }}","{{ columnName }}","Trigger")="-{}%
 		TMPL(tmpl_column_reference_trigger, plan, column_alias);
 		%{} -commands=SET,KILL -xecute=""DO handleSet^{{ plan->filename }}"""`n    {}%

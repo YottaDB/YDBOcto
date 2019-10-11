@@ -85,6 +85,7 @@ typedef int boolean_t;
 typedef enum FileType {
 	CrossReference,
 	OutputPlan,
+	YDBTrigger,
 } FileType;
 
 typedef enum SqlStatementType {

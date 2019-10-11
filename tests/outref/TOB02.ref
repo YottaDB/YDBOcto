@@ -1,5 +1,5 @@
 OCTO> SELECT id,firstname FROM names WHERE (firstname = "Zero" AND lastname = "Cool") OR (id = 2) ORDER BY firstname;
-Added SET and/or Non-SET trigger on ^names named names#1
+Added SET and/or Non-SET trigger on ^names named %ydboctoT*
 2|Cereal
 0|Zero
 5|Zero

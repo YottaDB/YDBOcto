@@ -2,7 +2,7 @@ OCTO> SELECT    n1.firstname, DOLLAR_ZWRITE(n2.firstname)
 OCTO> FROM      names n1
 OCTO> LEFT JOIN names n2
 OCTO> ON        n1.lastname = n2.firstname;
-Added SET and/or Non-SET trigger on ^names named names#1
+Added SET and/or Non-SET trigger on ^names named %ydboctoT*
 Zero|""
 Acid|""
 Cereal|""

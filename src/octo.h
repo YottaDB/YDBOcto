@@ -44,6 +44,11 @@
 // Set maximum M routine length - must be in sync with MAX_MIDENT_LEN in YDB/sr_port/mdef.h
 #define MAX_ROUTINE_LEN 31
 
+/* Set maximum trigger name length
+ * This cannot be greater than MAX_USER_TRIGNAME_LEN defined in https://gitlab.com/YottaDB/DB/YDB/blob/master/sr_unix/trigger.h
+ */
+#define MAX_TRIGGER_LEN 28
+
 // Specify character for delimiting column values in Octo
 #define COLUMN_DELIMITER "|"
 

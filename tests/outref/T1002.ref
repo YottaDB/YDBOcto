@@ -1,6 +1,6 @@
 OCTO> select * from names3
 OCTO> where lastName = "Buttons" order by firstName desc;
-Added SET and/or Non-SET trigger on ^names3 named names3#1
+Added SET and/or Non-SET trigger on ^names3 named %ydboctoT*
 6|Bobby|Buttons
 9|Betty|Buttons
 OCTO> 

@@ -27,20 +27,15 @@ int generate_routine_name(hash128_state_t *state, char *routine_name, int routin
 	char hash_str[MAX_ROUTINE_LEN];
 	char *xref_prefix = "%ydboctoX";
 	char *output_plan_prefix = "%ydboctoP";
+	char *ydb_trigger_prefix = "%ydboctoT";
 	char *c = NULL;
 	unsigned int prefix_len = 0;
 	unsigned int hash_len = 0;
 	ydb_uint16 hash;
 
 	assert(state);
-	assert(routine_len >= MAX_ROUTINE_LEN);
 
 	prefix_len = strlen(xref_prefix);	// All prefixes have the same size
-	hash_len = MAX_ROUTINE_LEN - prefix_len;
-
-	ydb_mmrhash_128_result(state, 0, &hash);
-	ydb_hash_to_string(&hash, hash_str, hash_len);
-
 	switch (file_type) {
 		case CrossReference:
 			strncpy(routine_name, xref_prefix, prefix_len);
@@ -48,9 +43,17 @@ int generate_routine_name(hash128_state_t *state, char *routine_name, int routin
 		case OutputPlan:
 			strncpy(routine_name, output_plan_prefix, prefix_len);
 			break;
+		case YDBTrigger:
+			strncpy(routine_name, ydb_trigger_prefix, prefix_len);
+			break;
 		default:
-			return 0;
+			return 1;
 	}
+
+	hash_len = routine_len - prefix_len;
+
+	ydb_mmrhash_128_result(state, 0, &hash);
+	ydb_hash_to_string(&hash, hash_str, hash_len);
 
 	// Copy hash string into filename
 	c = routine_name;
@@ -59,5 +62,5 @@ int generate_routine_name(hash128_state_t *state, char *routine_name, int routin
 	c += hash_len;
 	*c = '\0';
 
-	return MAX_ROUTINE_LEN;
+	return 0;
 }

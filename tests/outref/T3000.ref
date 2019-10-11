@@ -1,8 +1,8 @@
 OCTO> select pastas.id, firstName, lastName, pastaName from names4
 OCTO> inner join pastas on pastas.pastaName = names4.favoritePasta
 OCTO> where lastName = "Buttons";
-Added SET and/or Non-SET trigger on ^names4 named names4#1
-Added SET and/or Non-SET trigger on ^pastas named pastas#1
+Added SET and/or Non-SET trigger on ^names4 named %ydboctoT*
+Added SET and/or Non-SET trigger on ^pastas named %ydboctoT*
 1|Bobby|Buttons|Cavatelli
 1|Betty|Buttons|Cavatelli
 OCTO> 

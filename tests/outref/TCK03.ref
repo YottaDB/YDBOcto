@@ -2,7 +2,7 @@ OCTO> SELECT c1.name FROM composite c1
 OCTO> INNER JOIN composite c2 ON c2.name = c1.name
 OCTO> INNER JOIN composite c3 ON c3.name = c1.name
 OCTO> WHERE (c1.name LIKE "Name%") OR (c1.id1 < 10)
-OCTO> Added SET and/or Non-SET trigger on ^composite named composite#1
+OCTO> Added SET and/or Non-SET trigger on ^composite named %ydboctoT*
 
 Name1
 Name2

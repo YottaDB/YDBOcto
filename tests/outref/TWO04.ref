@@ -36,14 +36,13 @@ octoPlan1(cursorId)
     . . IF 1 DO
     . . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",5,"","")) %ydboctoz=42
     . . . SET:1 %ydboctocursor(cursorId,"keys",5,"","","order",$PIECE($GET(^names(%ydboctocursor(cursorId,"keys",0,"NAMES","ID"))),"|",2),%ydboctocursor(cursorId,"keys",5,"",""))=$GET(%ydboctocursor(cursorId,"keys",5,"","","order",$PIECE($GET(^names(%ydboctocursor(cursorId,"keys",0,"NAMES","ID"))),"|",2),%ydboctocursor(cursorId,"keys",5,"","")))_%ydboctocursor(cursorId,"keys",0,"NAMES","ID")_"|"_$PIECE($GET(^names(%ydboctocursor(cursorId,"keys",0,"NAMES","ID"))),"|",2)_"|"_$PIECE($GET(^names(%ydboctocursor(cursorId,"keys",0,"NAMES","ID"))),"|",3)_"|"_%ydboctocursor(cursorId,"keys",1,"NAMES","ID")_"|"_$PIECE($GET(^names(%ydboctocursor(cursorId,"keys",1,"NAMES","ID"))),"|",2)_"|"_$PIECE($GET(^names(%ydboctocursor(cursorId,"keys",1,"NAMES","ID"))),"|",3)
-    NEW %ydboctoi0,%ydboctoi1,%ydboctoi2
-    SET %ydboctoi0=1,%ydboctoi1="",%ydboctoi2=""
-    FOR  DO:$DATA(%ydboctocursor(cursorId,"keys",5,"","","order",%ydboctoi1))  SET %ydboctoi1=$ORDER(%ydboctocursor(cursorId,"keys",5,"","","order",%ydboctoi1),1)  QUIT:(%ydboctoi1="")
-    . FOR  SET %ydboctoi2=$ORDER(%ydboctocursor(cursorId,"keys",5,"","","order",%ydboctoi1,%ydboctoi2)) QUIT:(%ydboctoi2="")  DO
-    . . SET %ydboctocursor(cursorId,"keys",5,"","",%ydboctoi0)=%ydboctocursor(cursorId,"keys",5,"","","order",%ydboctoi1,%ydboctoi2)
-    . . IF $INCREMENT(%ydboctoi0)
+    NEW %ydboctoi  SET %ydboctoi(0)=1
+    SET %ydboctoi(1)="" FOR  DO:$DATA(%ydboctocursor(cursorId,"keys",5,"","","order",%ydboctoi(1)))  SET %ydboctoi(1)=$ORDER(%ydboctocursor(cursorId,"keys",5,"","","order",%ydboctoi(1)),1)  QUIT:(%ydboctoi(1)="")
+    . SET %ydboctoi(2)="" FOR  SET %ydboctoi(2)=$ORDER(%ydboctocursor(cursorId,"keys",5,"","","order",%ydboctoi(1),%ydboctoi(2))) QUIT:(%ydboctoi(2)="")  DO
+    . . SET %ydboctocursor(cursorId,"keys",5,"","",%ydboctoi(0))=%ydboctocursor(cursorId,"keys",5,"","","order",%ydboctoi(1),%ydboctoi(2))
+    . . IF $INCREMENT(%ydboctoi(0))
     KILL %ydboctocursor(cursorId,"keys",5,"","","order")
-    SET %ydboctocursor(cursorId,"keys",5,"","")=%ydboctoi0-1
+    SET %ydboctocursor(cursorId,"keys",5,"","")=%ydboctoi(0)-1
     QUIT
 
 octoPlan2(cursorId)

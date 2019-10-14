@@ -64,7 +64,7 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *plan, LogicalPlan *tablejoin, unsigned in
 		 * to include ALL rows from the right table for the RIGHT JOIN.
 		 */
 		if (key->value && !right_join_second_half) {
-			TMPL(print_dots, dot_count);
+			TMPL(tmpl_print_dots, dot_count);
 			%{}SET {}%
 			TMPL(tmpl_key, key);
 			%{}={}%
@@ -92,10 +92,10 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *plan, LogicalPlan *tablejoin, unsigned in
 			key->cross_reference_output_key = NULL;
 		} else
 			save_key = NULL;
-		TMPL(print_dots, dot_count);
+		TMPL(tmpl_print_dots, dot_count);
 		TMPL(tmpl_key_start, key);
 		%{}`n    {}%
-		TMPL(print_dots, dot_count);
+		TMPL(tmpl_print_dots, dot_count);
 		%{}FOR  SET {}%
 		TMPL(tmpl_key, key);
 		%{}=$ORDER({}%
@@ -139,7 +139,7 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *plan, LogicalPlan *tablejoin, unsigned in
 				if (key->is_cross_reference_key)
 				{
 					assert(!key->skip_column_reference_optimization);
-					TMPL(print_dots, dot_count);
+					TMPL(tmpl_print_dots, dot_count);
 					%{}SET {}%
 					TMPL(tmpl_key, key);
 					%{}={}%
@@ -149,7 +149,7 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *plan, LogicalPlan *tablejoin, unsigned in
 					%{}`n    {}%
 				}
 			}
-			TMPL(print_dots, dot_count);
+			TMPL(tmpl_print_dots, dot_count);
 			%{}IF '$DATA(%%ydboctoz({}%
 			TMPL(tmpl_rightjoin_key, plan, key_start, cur_key);
 			%{})) DO`n    {}%
@@ -168,7 +168,7 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *plan, LogicalPlan *tablejoin, unsigned in
 			next_join_type = LEFT_JOIN;
 		if (LEFT_JOIN == next_join_type)
 		{
-			TMPL(print_dots, dot_count);
+			TMPL(tmpl_print_dots, dot_count);
 			%{}SET %%ydboctoz({{ cur_key|%d }})=0`n    {}%
 		}
 		TMPL(tmpl_tablejoin, plan, right_tablejoin, cur_key, FALSE, dot_count, tableName, columnName);
@@ -176,7 +176,7 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *plan, LogicalPlan *tablejoin, unsigned in
 		{   /* Generate M code to include rows from the left table where there is no matching right table rows */
 			assert(NULL != right_tablejoin->join_on_condition);
 			%{}`n    {}%
-			TMPL(print_dots, dot_count);
+			TMPL(tmpl_print_dots, dot_count);
 			%{}IF %%ydboctoz({{ cur_key|%d }})=0 DO`n    {}%
 			dot_count++;
 			/* Treat all keys in the right table as NULL and invoke nested joins (if needed) */

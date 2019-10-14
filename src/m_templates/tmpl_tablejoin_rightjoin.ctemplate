@@ -26,14 +26,14 @@ TEMPLATE(tmpl_tablejoin_rightjoin, PhysicalPlan *plan, LogicalPlan *tablejoin, b
 		if (NULL != join_condition)
 			join_condition = join_condition->v.operand[0];
 		if (NULL != join_condition) {
-			TMPL(print_dots, *dot_count);
+			TMPL(tmpl_print_dots, *dot_count);
 			%{}IF ({}%
 			TMPL(tmpl_print_expression, join_condition, plan);
 			%{}) DO`n    {}%
 			(*dot_count)++;
 		}
 	}
-	TMPL(print_dots, *dot_count);
+	TMPL(tmpl_print_dots, *dot_count);
 	%{}SET %%ydboctoz({}%
 	TMPL(tmpl_rightjoin_key, plan, key_start, key_end);
 	%{})=""`n    {}%

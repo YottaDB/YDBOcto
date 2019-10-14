@@ -179,7 +179,7 @@ add_library(libocto OBJECT
   physical/generate_physical_plan.c
   physical/emit_physical_plan.c
   physical/is_prev_plan_in_same_dnf.c
-  m_templates/print_dots.c
+  m_templates/tmpl_print_dots.c
   m_templates/resize_tmpl_buffer.c
   m_escape_string2.c
   copy_sql_statement.c
@@ -326,6 +326,7 @@ set(template_files
   ${template_dir}/tmpl_emit_source.ctemplate
   ${template_dir}/tmpl_column_reference_trigger.ctemplate
   ${template_dir}/tmpl_duplication_check.ctemplate
+  ${template_dir}/tmpl_order_by_key.ctemplate
   )
 foreach(template ${template_files})
   get_filename_component(fileName ${template} NAME)

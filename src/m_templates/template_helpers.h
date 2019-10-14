@@ -53,7 +53,7 @@ enum EmitSourceForm {
 
 void resize_tmpl_buffer(char **global_buffer, int *buffer_len, int *buffer_index);
 
-TEMPLATE(print_dots, int dots);
+TEMPLATE(tmpl_print_dots, int dots);
 TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan);
 TEMPLATE(tmpl_tablejoin, PhysicalPlan *plan, LogicalPlan *tablejoin, unsigned int cur_key, boolean_t right_join_second_half,	\
 								int dot_count, char *tableName, char *columnName);
@@ -75,6 +75,6 @@ TEMPLATE(tmpl_column_list_combine, LogicalPlan *plan, PhysicalPlan *pplan, char 
 TEMPLATE(tmpl_emit_source, char *source, char *table_name, int unique_id, int keys_to_match, enum EmitSourceForm form);
 TEMPLATE(tmpl_column_reference_trigger, PhysicalPlan *pplan, SqlColumnAlias *column_alias);
 TEMPLATE(tmpl_duplication_check, PhysicalPlan *plan);
-
+TEMPLATE(tmpl_order_by_key, int num_cols);
 
 #endif

@@ -27,7 +27,7 @@ TEMPLATE(tmpl_tablejoin_body, PhysicalPlan *plan, int dot_count, char *tableName
 		temp_plan = temp_plan->prev;
 	while (NULL != temp_plan) {
 		if ((temp_plan->parent_plan == plan) && temp_plan->deferred_plan) {
-			TMPL(print_dots, dot_count);
+			TMPL(tmpl_print_dots, dot_count);
 			%{}DO {{ temp_plan->plan_name }}(cursorId)`n    {}%
 		}
 		temp_plan = temp_plan->next;
@@ -35,7 +35,7 @@ TEMPLATE(tmpl_tablejoin_body, PhysicalPlan *plan, int dot_count, char *tableName
 	// Apply the conditions for this statement
 	//  We put the 'IF 1' here so it's easy to add extra clauses from any of the
 	//  below conditions which may or may not emit boolean logic
-	TMPL(print_dots, dot_count);
+	TMPL(tmpl_print_dots, dot_count);
 	%{}IF 1{}%
 	if(plan->where && plan->where->v.operand[0]) {
 		%{}&({}%
@@ -60,7 +60,7 @@ TEMPLATE(tmpl_tablejoin_body, PhysicalPlan *plan, int dot_count, char *tableName
 	// Output the value
 	// Note down where the "resume" pointer starts, incuding the preceeding whitespace
 	start_resume = (*buffer_index) - 4;
-	TMPL(print_dots, dot_count);
+	TMPL(tmpl_print_dots, dot_count);
 	if (plan->stash_columns_in_keys)
 	{
 		%{}IF $INCREMENT({}%
@@ -82,7 +82,7 @@ TEMPLATE(tmpl_tablejoin_body, PhysicalPlan *plan, int dot_count, char *tableName
 			%{},{}%
 			TMPL(tmpl_column_list_combine, plan->projection, plan, ",", 0, 0);
 			%{})=""`n    {}%
-			TMPL(print_dots, dot_count);
+			TMPL(tmpl_print_dots, dot_count);
 			%{}IF $INCREMENT(^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}"{}%
 			%{})),$INCREMENT(^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}",{}%
 			// Temporarily sever the key from the projection
@@ -162,7 +162,7 @@ TEMPLATE(tmpl_tablejoin_body, PhysicalPlan *plan, int dot_count, char *tableName
 	}
 	if (!plan->distinct_values && plan->emit_duplication_check) {
 		%{}`n    {}%
-		TMPL(print_dots, dot_count);
+		TMPL(tmpl_print_dots, dot_count);
 		%{}SET {}%
 		TMPL(tmpl_duplication_check, plan);
 		%{}=1{}%
@@ -171,7 +171,7 @@ TEMPLATE(tmpl_tablejoin_body, PhysicalPlan *plan, int dot_count, char *tableName
 	if (plan->distinct_values) {
 		// Newline for the M code
 		%{}`n    {}%
-		TMPL(print_dots, dot_count);
+		TMPL(tmpl_print_dots, dot_count);
 		%{}SET:1{}%
 
 		%{} {{ config->global_names.cursor }}(cursorId,"index",{}%

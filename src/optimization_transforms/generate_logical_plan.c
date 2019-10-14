@@ -80,28 +80,28 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt, int *plan_id) {
 	memset(dst_key->v.key, 0, sizeof(SqlKey));
 	dst_key->v.key->unique_id = get_plan_unique_number(insert);
 	if (NULL != select_stmt->order_expression) {
-		int			list_unique_id;
 		SqlColumnListAlias	*cur_cla, *start_cla;
-		SqlColumnList		*column_list;
-		SqlColumnAlias		*column_alias;
 
 		MALLOC_LP(order_by, dst->v.operand[1], LP_COLUMN_LIST);
 		UNPACK_SQL_STATEMENT(list, select_stmt->order_expression, column_list_alias);
-		// Manually drill down to the expression so we can convert it
-		// We have to do some drilling to get the correct item,
-		// since the output from the parser is not super uniform
-		UNPACK_SQL_STATEMENT(column_list, list->column_list, column_list);
-		// Ensure that we only have one element in this list
-		assert(column_list->next == column_list);
-		UNPACK_SQL_STATEMENT(column_alias, column_list->value, column_alias);
-		assert(table_alias_STATEMENT == column_alias->table_alias->type);
-		list_unique_id = column_alias->table_alias->v.table_alias->unique_id;
 		cur_cla = start_cla = list;
 		do {
-			SqlColumnListAlias	*cla, *save_next, *cla_chosen;
-			SqlOptionalKeyword	*keyword;
 			int			cla_unique_id;
+			int			list_unique_id;
+			SqlColumnAlias		*column_alias;
+			SqlColumnListAlias	*cla, *save_next, *cla_chosen;
+			SqlColumnList		*column_list;
+			SqlOptionalKeyword	*keyword;
 
+			// Manually drill down to the expression so we can convert it
+			// We have to do some drilling to get the correct item,
+			// since the output from the parser is not super uniform
+			UNPACK_SQL_STATEMENT(column_list, cur_cla->column_list, column_list);
+			// Ensure that we only have one element in this list
+			assert(column_list->next == column_list);
+			UNPACK_SQL_STATEMENT(column_alias, column_list->value, column_alias);
+			assert(table_alias_STATEMENT == column_alias->table_alias->type);
+			list_unique_id = column_alias->table_alias->v.table_alias->unique_id;
 			// If this breaks, it means we allowed the user to pass in a value directly
 			// in the parser. This is a silly thing to do, and the parser should
 			// reject it
@@ -120,7 +120,7 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt, int *plan_id) {
 			{
 				UNPACK_SQL_STATEMENT(column_alias, column_list->value, column_alias);
 				cla_unique_id = column_alias->table_alias->v.table_alias->unique_id;
-				cla_chosen = (list_unique_id == cla_unique_id) ? cla : list;
+				cla_chosen = (list_unique_id == cla_unique_id) ? cla : cur_cla;
 			} else
 				cla_chosen = cla;
 			save_next = cla_chosen->next;
@@ -129,9 +129,9 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt, int *plan_id) {
 							 */
 			order_by->v.operand[0] = lp_column_list_to_lp(cla_chosen, plan_id);
 			cla_chosen->next = save_next;
-			if (NULL != list->keywords)
+			if (NULL != cur_cla->keywords)
 			{
-				UNPACK_SQL_STATEMENT(keyword, list->keywords, keyword);
+				UNPACK_SQL_STATEMENT(keyword, cur_cla->keywords, keyword);
 				assert(keyword->next == keyword);
 				assert(keyword->prev == keyword);
 			} else

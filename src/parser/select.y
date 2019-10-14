@@ -78,7 +78,7 @@ optional_query_word_element
 
 sort_specification_list
   : sort_specification sort_specification_list_tail {
-      SqlColumnListAlias	*alias;
+      SqlColumnListAlias	*alias, *alias_tail;
       SqlValue			*value;
       SqlColumnList		*column_list;
       SqlStatement		*sort_specification;
@@ -89,6 +89,10 @@ sort_specification_list
       UNPACK_SQL_STATEMENT(alias, $$, column_list_alias);
       dqinit(alias);
       assert(alias->next == alias);
+      if ($sort_specification_list_tail) {
+        UNPACK_SQL_STATEMENT(alias_tail, $sort_specification_list_tail, column_list_alias);
+        dqappend(alias, alias_tail);
+      }
       SQL_STATEMENT(alias->alias, value_STATEMENT);
       MALLOC_STATEMENT(alias->alias, value, SqlValue);
       UNPACK_SQL_STATEMENT(value, alias->alias, value);
@@ -112,7 +116,7 @@ sort_specification_list
 
 sort_specification_list_tail
   : /* Empty */ { $$ = NULL; }
-  | COMMA sort_specification_list { WARNING(ERR_FEATURE_NOT_IMPLEMENTED, "sub sort-by"); $$ = $sort_specification_list; }
+  | COMMA sort_specification_list { $$ = $sort_specification_list; }
   ;
 
 sort_specification
@@ -130,18 +134,10 @@ sort_key
 
 ordering_specification
   : ASC  {
-      SQL_STATEMENT($$, keyword_STATEMENT);
-      OCTO_CMALLOC_STRUCT(($$)->v.keyword, SqlOptionalKeyword);
-      ($$)->v.keyword->keyword = OPTIONAL_ASC;
-      ($$)->v.keyword->v = NULL;
-      dqinit(($$)->v.keyword);
+      $$ = (YYSTYPE)OPTIONAL_ASC;
    }
   | DESC {
-      SQL_STATEMENT($$, keyword_STATEMENT);
-      OCTO_CMALLOC_STRUCT(($$)->v.keyword, SqlOptionalKeyword);
-      ($$)->v.keyword->keyword = OPTIONAL_DESC;
-      ($$)->v.keyword->v = NULL;
-      dqinit(($$)->v.keyword);
+      $$ = (YYSTYPE)OPTIONAL_DESC;
    }
   ;
 

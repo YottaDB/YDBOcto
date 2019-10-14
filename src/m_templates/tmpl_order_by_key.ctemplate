@@ -1,3 +1,4 @@
+{}%
 /****************************************************************
  *								*
  * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
@@ -10,23 +11,20 @@
  *								*
  ****************************************************************/
 
-#include <assert.h>
-
 #include "octo_types.h"
+#include "logical_plan.h"
+
 #include "template_helpers.h"
 
-void print_dots(char **global_buffer, int *buffer_len, int *buffer_index, int dots) {
-	int i;
-	char *buffer;
+TEMPLATE(tmpl_order_by_key, int num_cols) {
+	TEMPLATE_INIT();
 
-	/* dots * 2 as a dot followed by a space is printed */
-	while((dots * 2) >= (*buffer_len - *buffer_index)){
-		resize_tmpl_buffer(global_buffer, buffer_len, buffer_index);
+	int	i;
+
+	%{},"order"{}%
+	for (i = 1; i <= num_cols; i++) {
+		%{},%%ydboctoi({{ i|%d }}){}%
 	}
-	buffer = *global_buffer;
-	for(i=0; i < dots; i++) {
-		buffer[(*buffer_index)++] = '.';
-		buffer[(*buffer_index)++] = ' ';
-	}
-	return;
+	TEMPLATE_END();
 }
+%{}

@@ -172,9 +172,7 @@ typedef enum SqlDataType {
 	UNKNOWN_SqlDataType,
 	CHARACTER_STRING_TYPE,
 	NUMERIC_TYPE,
-	INTEGER_TYPE,
-	DATE_TIME_TYPE,
-	INTERVAL_TYPE
+	INTEGER_TYPE
 } SqlDataType;
 
 /* Note: Additions of keywords in the middle of the table can cause SIG-11s because the actual binary value
@@ -280,11 +278,12 @@ struct SqlNoDataStatement;
  */
 typedef struct SqlColumn
 {
-	struct SqlStatement	*columnName;
-	enum SqlDataType	type;
-	int			column_number;
-	struct SqlStatement	*table;
-	struct SqlStatement	*keywords;
+	struct SqlStatement		*columnName;
+	enum SqlDataType		type;
+	int				column_number;
+	struct SqlStatement		*table;
+	struct SqlStatement		*keywords;
+	struct SqlColumnListAlias	*pre_qualified_cla; /* initialized/usable only if "type" field is UNKNOWN_SqlDataType */
 	dqcreate(SqlColumn);
 } SqlColumn;
 
@@ -357,8 +356,6 @@ typedef struct SqlSelectStatement
 	struct SqlStatement	*order_expression;
 	// SqlOptionalKeyword
 	struct SqlStatement	*optional_words;
-	// SqlSetOperation
-	struct SqlStatement	*set_operation;
 	int			num_outer_joins;		/* total # of outer joins used in this query */
 	boolean_t		num_outer_joins_computed;	/* TRUE if "num_outer_joins" field has been computed */
 } SqlSelectStatement;
@@ -428,12 +425,13 @@ typedef struct SqlColumnList {
 
 typedef struct SqlColumnListAlias {
 	// SqlColumnList
-	struct SqlStatement	*column_list;
+	struct SqlStatement		*column_list;
 	// SqlValue
-	struct SqlStatement	*alias;
+	struct SqlStatement		*alias;
 	// Keywords used for the SORT column
-	struct SqlStatement	*keywords;
-	SqlValueType		type;
+	struct SqlStatement		*keywords;
+	SqlValueType			type;
+	struct SqlColumnListAlias	*pre_qualified_cla; /* initialized/usable only if "type" field is UNKNOWN_SqlValueType */
 	dqcreate(SqlColumnListAlias);
 } SqlColumnListAlias;
 

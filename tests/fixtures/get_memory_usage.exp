@@ -11,7 +11,8 @@
 #								#
 #################################################################
 
-set timeout 2
+# set huge timeout since on a loaded system it is possible the psql password prompt takes some time to show up
+set timeout 60
 set port [lindex $argv 0];
 spawn /bin/bash
 # Enable long lines to prevent wrapping
@@ -19,37 +20,37 @@ send -- "stty cols 4096\r"
 expect "stty cols 4096\r"
 # Start psql
 send -- "psql -U ydb -h localhost -p $port\r"
-expect timeout 60 ".*Password for user ydb: "
+expect -re ".*Password for user ydb: "
 send "ydbrocks\r"
-expect ".*ydb=. "
+expect -re ".*ydb=. "
 # Get memory usage after running the same three queries again
 set output [exec ./report_memory_usage.sh]
 # Run first query
 send "select * from names;\r"
 expect "select * from names;\r\n"
-expect ".*ydb=. "
+expect -re ".*ydb=. "
 # Run second query
 send "select firstname from names where firstname = \"Zero\";\r"
 expect "select firstname from names where firstname = \"Zero\";\r\n"
-expect ".*ydb=. "
+expect -re ".*ydb=. "
 # Run third query
 send "select a.lastname from names a left join names b on id = 3;\r"
 expect "select a.lastname from names a left join names b on id = 3;\r\n"
-expect ".*ydb=. "
+expect -re ".*ydb=. "
 # Get memory usage after running three queries
 set output [exec ./report_memory_usage.sh]
 # Run first query again
 send "select * from names;\r"
 expect "select * from names;\r\n"
-expect ".*ydb=. "
+expect -re ".*ydb=. "
 # Run second query again
 send "select firstname from names where firstname = \"Zero\";\r"
 expect "select firstname from names where firstname = \"Zero\";\r\n"
-expect ".*ydb=. "
+expect -re ".*ydb=. "
 # Run third query again
 send "select a.lastname from names a left join names b on id = 3;\r"
 expect "select a.lastname from names a left join names b on id = 3;\r\n"
-expect ".*ydb=. "
+expect -re ".*ydb=. "
 # Get memory usage after running the same three queries again
 set output [exec ./report_memory_usage.sh]
 send "\\q\r"

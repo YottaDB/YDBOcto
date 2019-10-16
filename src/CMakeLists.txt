@@ -185,9 +185,11 @@ add_library(libocto OBJECT
   copy_sql_statement.c
   cleanup_tables.c
   parser/query_specification.c
+  parser/set_operation.c
   parser/sort_specification.c
   parser/trim_dot_star.c
   parser/regex_specification.c
+  parser/row_value_constructor_binary_statement.c
   ${BISON_OctoParser_OUTPUTS}
   ${FLEX_OctoLexer_OUTPUTS}
   ${POST_CONFIGURE_FILE}

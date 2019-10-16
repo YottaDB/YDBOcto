@@ -145,9 +145,6 @@ int emit_plan_helper(char *buffer, size_t buffer_len, int depth, LogicalPlan *pl
 		break;
 	case LP_COLUMN_LIST_ALIAS:
 		switch(plan->v.column_list_alias->type) {
-			case UNKNOWN_SqlValueType:
-				data_type_ptr = "UNKNOWN_SqlValueType";
-				break;
 			case NUMBER_LITERAL:
 				data_type_ptr = "NUMBER_LITERAL";
 				break;
@@ -184,7 +181,7 @@ int emit_plan_helper(char *buffer, size_t buffer_len, int depth, LogicalPlan *pl
 			case NUL_VALUE:
 				data_type_ptr = "NULL";
 				break;
-			case INVALID_SqlValueType:
+			default:
 				assert(FALSE);
 				break;
 		}

@@ -45,6 +45,9 @@ SqlColumn *column_list_alias_to_columns(SqlTableAlias *table_alias) {
 		dqinit(cur_column->keywords->v.keyword);
 		switch(cla_cur->type) {
 		case UNKNOWN_SqlValueType:
+			cur_column->type = UNKNOWN_SqlDataType;
+			cur_column->pre_qualified_cla = cla_cur;
+			break;
 		case NUMBER_LITERAL:
 			cur_column->type = NUMERIC_TYPE;
 			break;
@@ -55,6 +58,7 @@ SqlColumn *column_list_alias_to_columns(SqlTableAlias *table_alias) {
 			cur_column->type = CHARACTER_STRING_TYPE;
 			break;
 		default:
+			assert(FALSE);
 			ERROR(ERR_FEATURE_NOT_IMPLEMENTED, "");
 			return NULL;
 		}

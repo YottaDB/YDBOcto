@@ -174,6 +174,8 @@ SqlStatement *query_specification(SqlStatement *set_quantifier, SqlStatement *se
 					SqlStatement *table_expression, SqlStatement *sort_specification_list, int *plan_id);
 SqlStatement *sort_specification(SqlStatement *sort_key, SqlStatement *collate_clause, SqlStatement *ordering_specification);
 void regex_specification(SqlStatement **stmt, SqlStatement *op0, SqlStatement *op1, int is_regex_like_or_similar, int is_sensitive, int is_not);
+SqlStatement *set_operation(enum SqlSetOperationType setoper_type, SqlStatement *left_operand, SqlStatement *right_operand);
+SqlStatement *row_value_constructor_binary_statement(SqlStatement *row_value_constructor);
 
 /* trims duplicate '.*'s from regex */
 void trim_dot_star(SqlValue *regex);

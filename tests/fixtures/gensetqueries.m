@@ -20,8 +20,7 @@
 gensetqueries	;
 	set numqueries=30	; generate 30 queries so as not to take a long time for this test to run in pipeline
 	set q=0
-	set setoper(0)="union"
-	set setoper(1)="union all"
+	set setoper(0)="union",setoper(1)="union all"
 	set setoper(2)="intersect",setoper(3)="intersect all"
 	set setoper(4)="except",setoper(5)="except all"
 	for q=1:1:numqueries do

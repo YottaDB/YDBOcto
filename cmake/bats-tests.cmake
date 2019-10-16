@@ -81,6 +81,7 @@ ADD_BATS_TEST(test_memory_usage)
 ADD_BATS_TEST(test_large_queries)
 ADD_BATS_TEST(test_regex_type_expressions)
 ADD_BATS_TEST(test_readlines)
+ADD_BATS_TEST(test_select_subquery)
 
 find_program(psql NAMES psql)
 if(psql)

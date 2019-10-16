@@ -1,0 +1,276 @@
+Parsing done for SQL command [select * from names where id != firstname;]
+Parsing done for SQL command [select * from (select * from names) where id != firstname;]
+Parsing done for SQL command [select * from names where lastname != firstname;]
+        LP_COLUMN_ALIAS: NAMES(0).ID
+        - type: INTEGER_LITERAL
+        - alias: ID
+          LP_COLUMN_ALIAS: NAMES(0).FIRSTNAME
+          - type: STRING_LITERAL
+          - alias: FIRSTNAME
+            LP_COLUMN_ALIAS: NAMES(0).LASTNAME
+            - type: STRING_LITERAL
+            - alias: LASTNAME
+              LP_COLUMN_ALIAS: NAMES(0).LASTNAME
+              LP_COLUMN_ALIAS: NAMES(0).FIRSTNAME
+        LP_COLUMN_ALIAS: NAMES(0).ID
+        - type: INTEGER_LITERAL
+        - alias: ID
+          LP_COLUMN_ALIAS: NAMES(0).FIRSTNAME
+          - type: STRING_LITERAL
+          - alias: FIRSTNAME
+            LP_COLUMN_ALIAS: NAMES(0).LASTNAME
+            - type: STRING_LITERAL
+            - alias: LASTNAME
+              LP_COLUMN_ALIAS: NAMES(0).LASTNAME
+              LP_COLUMN_ALIAS: NAMES(0).FIRSTNAME
+Parsing done for SQL command [select * from (select * from names) where lastname != firstname;]
+        - type: INTEGER_LITERAL
+        - alias: ID
+          - type: STRING_LITERAL
+          - alias: FIRSTNAME
+            - type: STRING_LITERAL
+            - alias: LASTNAME
+                LP_COLUMN_ALIAS: NAMES(0).ID
+                - type: INTEGER_LITERAL
+                - alias: ID
+                  LP_COLUMN_ALIAS: NAMES(0).FIRSTNAME
+                  - type: STRING_LITERAL
+                  - alias: FIRSTNAME
+                    LP_COLUMN_ALIAS: NAMES(0).LASTNAME
+                    - type: STRING_LITERAL
+                    - alias: LASTNAME
+        - type: INTEGER_LITERAL
+        - alias: ID
+          - type: STRING_LITERAL
+          - alias: FIRSTNAME
+            - type: STRING_LITERAL
+            - alias: LASTNAME
+                LP_COLUMN_ALIAS: NAMES(0).ID
+                - type: INTEGER_LITERAL
+                - alias: ID
+                  LP_COLUMN_ALIAS: NAMES(0).FIRSTNAME
+                  - type: STRING_LITERAL
+                  - alias: FIRSTNAME
+                    LP_COLUMN_ALIAS: NAMES(0).LASTNAME
+                    - type: STRING_LITERAL
+                    - alias: LASTNAME
+Parsing done for SQL command [select col1 from (select id as col1 from names) n2;]
+        - type: INTEGER_LITERAL
+        - alias: COL1
+                LP_COLUMN_ALIAS: NAMES(0).ID
+                - type: INTEGER_LITERAL
+                - alias: COL1
+        - type: INTEGER_LITERAL
+        - alias: COL1
+                LP_COLUMN_ALIAS: NAMES(0).ID
+                - type: INTEGER_LITERAL
+                - alias: COL1
+Parsing done for SQL command [select col1 from (select id::numeric as col1 from names) n2;]
+        - type: NUMBER_LITERAL
+        - alias: COL1
+                LP_COLUMN_ALIAS: NAMES(0).ID
+                - type: NUMBER_LITERAL
+                - alias: COL1
+        - type: NUMBER_LITERAL
+        - alias: COL1
+                LP_COLUMN_ALIAS: NAMES(0).ID
+                - type: NUMBER_LITERAL
+                - alias: COL1
+Parsing done for SQL command [select (firstname = 'd' AND id) from names;]
+            LP_COLUMN_ALIAS: NAMES(0).FIRSTNAME
+            LP_COLUMN_ALIAS: NAMES(0).ID
+        - type: BOOLEAN_VALUE
+        - alias: FIRSTNAME
+            LP_COLUMN_ALIAS: NAMES(0).FIRSTNAME
+            LP_COLUMN_ALIAS: NAMES(0).ID
+        - type: BOOLEAN_VALUE
+        - alias: FIRSTNAME
+Parsing done for SQL command [select (1 AND id) from names;]
+            LP_COLUMN_ALIAS: NAMES(0).ID
+        - type: BOOLEAN_VALUE
+        - alias: ID
+            LP_COLUMN_ALIAS: NAMES(0).ID
+        - type: BOOLEAN_VALUE
+        - alias: ID
+Parsing done for SQL command [select (firstname = 'd' AND id = 0) from names;]
+            LP_COLUMN_ALIAS: NAMES(0).FIRSTNAME
+            LP_COLUMN_ALIAS: NAMES(0).ID
+        - type: BOOLEAN_VALUE
+        - alias: FIRSTNAME
+            LP_COLUMN_ALIAS: NAMES(0).FIRSTNAME
+            LP_COLUMN_ALIAS: NAMES(0).ID
+        - type: BOOLEAN_VALUE
+        - alias: FIRSTNAME
+Parsing done for SQL command [select (firstname AND id) from names;]
+Parsing done for SQL command [select id and 0 = 1 from names;]
+            LP_COLUMN_ALIAS: NAMES(0).ID
+        - type: BOOLEAN_VALUE
+        - alias: ID
+            LP_COLUMN_ALIAS: NAMES(0).ID
+        - type: BOOLEAN_VALUE
+        - alias: ID
+Parsing done for SQL command [select id and (0 = 1) from names;]
+Parsing done for SQL command [select (0 = 1) and (id = 1) from names;]
+            LP_COLUMN_ALIAS: NAMES(0).ID
+        - type: BOOLEAN_VALUE
+        - alias: ID
+            LP_COLUMN_ALIAS: NAMES(0).ID
+        - type: BOOLEAN_VALUE
+        - alias: ID
+Parsing done for SQL command [select (0 = 1) and id from names;]
+            LP_COLUMN_ALIAS: NAMES(0).ID
+        - type: BOOLEAN_VALUE
+        - alias: ID
+            LP_COLUMN_ALIAS: NAMES(0).ID
+        - type: BOOLEAN_VALUE
+        - alias: ID
+Parsing done for SQL command [select id and id from names;]
+            LP_COLUMN_ALIAS: NAMES(0).ID
+            LP_COLUMN_ALIAS: NAMES(0).ID
+        - type: BOOLEAN_VALUE
+        - alias: ID
+            LP_COLUMN_ALIAS: NAMES(0).ID
+            LP_COLUMN_ALIAS: NAMES(0).ID
+        - type: BOOLEAN_VALUE
+        - alias: ID
+Parsing done for SQL command [select * from (select NULL from names);]
+        - type: NULL
+        - alias: ???
+                - type: NULL
+                - alias: ???
+        - type: NULL
+        - alias: ???
+                - type: NULL
+                - alias: ???
+Parsing done for SQL command [select (col1 = '') from (select NULL as col1 from names);]
+        - type: BOOLEAN_VALUE
+        - alias: COL1
+                - type: NULL
+                - alias: COL1
+        - type: BOOLEAN_VALUE
+        - alias: COL1
+                - type: NULL
+                - alias: COL1
+Parsing done for SQL command [select (col1 = NULL) from (select NULL as col1 from names);]
+        - type: BOOLEAN_VALUE
+        - alias: COL1
+                - type: NULL
+                - alias: COL1
+        - type: BOOLEAN_VALUE
+        - alias: COL1
+                - type: NULL
+                - alias: COL1
+Parsing done for SQL command [select (col1 is NULL) from (select NULL as col1 from names);]
+Parsing done for SQL command [select (col1 = 0) from (select NULL as col1 from names);]
+        - type: BOOLEAN_VALUE
+        - alias: COL1
+                - type: NULL
+                - alias: COL1
+        - type: BOOLEAN_VALUE
+        - alias: COL1
+                - type: NULL
+                - alias: COL1
+Parsing done for SQL command [select (col1 = 'abcd') from (select NULL as col1 from names);]
+        - type: BOOLEAN_VALUE
+        - alias: COL1
+                - type: NULL
+                - alias: COL1
+        - type: BOOLEAN_VALUE
+        - alias: COL1
+                - type: NULL
+                - alias: COL1
+Parsing done for SQL command [select (col1 is NULL) from (select NULL as col1 from names);]
+Parsing done for SQL command [select (col1 is NOT NULL) from (select NULL as col1 from names);]
+        - type: BOOLEAN_VALUE
+        - alias: COL1
+                - type: NULL
+                - alias: COL1
+        - type: BOOLEAN_VALUE
+        - alias: COL1
+                - type: NULL
+                - alias: COL1
+Parsing done for SQL command [select * from names where id IS NULL;]
+        LP_COLUMN_ALIAS: NAMES(0).ID
+        - type: INTEGER_LITERAL
+        - alias: ID
+          LP_COLUMN_ALIAS: NAMES(0).FIRSTNAME
+          - type: STRING_LITERAL
+          - alias: FIRSTNAME
+            LP_COLUMN_ALIAS: NAMES(0).LASTNAME
+            - type: STRING_LITERAL
+            - alias: LASTNAME
+              LP_COLUMN_ALIAS: NAMES(0).ID
+        LP_COLUMN_ALIAS: NAMES(0).ID
+        - type: INTEGER_LITERAL
+        - alias: ID
+          LP_COLUMN_ALIAS: NAMES(0).FIRSTNAME
+          - type: STRING_LITERAL
+          - alias: FIRSTNAME
+            LP_COLUMN_ALIAS: NAMES(0).LASTNAME
+            - type: STRING_LITERAL
+            - alias: LASTNAME
+Parsing done for SQL command [select * from names where id IS NOT NULL;]
+        LP_COLUMN_ALIAS: NAMES(0).ID
+        - type: INTEGER_LITERAL
+        - alias: ID
+          LP_COLUMN_ALIAS: NAMES(0).FIRSTNAME
+          - type: STRING_LITERAL
+          - alias: FIRSTNAME
+            LP_COLUMN_ALIAS: NAMES(0).LASTNAME
+            - type: STRING_LITERAL
+            - alias: LASTNAME
+              LP_COLUMN_ALIAS: NAMES(0).ID
+        LP_COLUMN_ALIAS: NAMES(0).ID
+        - type: INTEGER_LITERAL
+        - alias: ID
+          LP_COLUMN_ALIAS: NAMES(0).FIRSTNAME
+          - type: STRING_LITERAL
+          - alias: FIRSTNAME
+            LP_COLUMN_ALIAS: NAMES(0).LASTNAME
+            - type: STRING_LITERAL
+            - alias: LASTNAME
+              LP_COLUMN_ALIAS: NAMES(0).ID
+Parsing done for SQL command [select * from names where firstname IS NULL;]
+        LP_COLUMN_ALIAS: NAMES(0).ID
+        - type: INTEGER_LITERAL
+        - alias: ID
+          LP_COLUMN_ALIAS: NAMES(0).FIRSTNAME
+          - type: STRING_LITERAL
+          - alias: FIRSTNAME
+            LP_COLUMN_ALIAS: NAMES(0).LASTNAME
+            - type: STRING_LITERAL
+            - alias: LASTNAME
+              LP_COLUMN_ALIAS: NAMES(0).FIRSTNAME
+        LP_COLUMN_ALIAS: NAMES(0).ID
+        - type: INTEGER_LITERAL
+        - alias: ID
+          LP_COLUMN_ALIAS: NAMES(0).FIRSTNAME
+          - type: STRING_LITERAL
+          - alias: FIRSTNAME
+            LP_COLUMN_ALIAS: NAMES(0).LASTNAME
+            - type: STRING_LITERAL
+            - alias: LASTNAME
+                LP_COLUMN_ALIAS: NAMES(3).FIRSTNAME
+                  LP_COLUMN_ALIAS: NAMES(3).ID
+Parsing done for SQL command [select * from names where firstname IS NOT NULL;]
+        LP_COLUMN_ALIAS: NAMES(0).ID
+        - type: INTEGER_LITERAL
+        - alias: ID
+          LP_COLUMN_ALIAS: NAMES(0).FIRSTNAME
+          - type: STRING_LITERAL
+          - alias: FIRSTNAME
+            LP_COLUMN_ALIAS: NAMES(0).LASTNAME
+            - type: STRING_LITERAL
+            - alias: LASTNAME
+              LP_COLUMN_ALIAS: NAMES(0).FIRSTNAME
+        LP_COLUMN_ALIAS: NAMES(0).ID
+        - type: INTEGER_LITERAL
+        - alias: ID
+          LP_COLUMN_ALIAS: NAMES(0).FIRSTNAME
+          - type: STRING_LITERAL
+          - alias: FIRSTNAME
+            LP_COLUMN_ALIAS: NAMES(0).LASTNAME
+            - type: STRING_LITERAL
+            - alias: LASTNAME
+              LP_COLUMN_ALIAS: NAMES(0).FIRSTNAME
+Parsing done for SQL command []

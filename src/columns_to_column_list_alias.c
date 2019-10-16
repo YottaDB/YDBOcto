@@ -40,6 +40,26 @@ SqlColumnListAlias *columns_to_column_list_alias(SqlColumn *column, SqlTableAlia
 
 		OCTO_CMALLOC_STRUCT(cur_column_list_alias, SqlColumnListAlias);
 		cur_column_list_alias->alias = cur_column->columnName;
+		switch(cur_column->type)
+		{
+		case UNKNOWN_SqlDataType:
+			cur_column_list_alias->type = UNKNOWN_SqlValueType;
+			cur_column_list_alias->pre_qualified_cla = cur_column->pre_qualified_cla;
+			break;
+		case CHARACTER_STRING_TYPE:
+			cur_column_list_alias->type = STRING_LITERAL;
+			break;
+		case NUMERIC_TYPE:
+			cur_column_list_alias->type = NUMBER_LITERAL;
+			break;
+		case INTEGER_TYPE:
+			cur_column_list_alias->type = INTEGER_LITERAL;
+			break;
+		default:
+			assert(FALSE);
+			ERROR(ERR_UNKNOWN_KEYWORD_STATE, "");
+			break;
+		}
 		PACK_SQL_STATEMENT(cur_column_list_alias->column_list, cur, column_list);
 		dqinit(cur_column_list_alias);
 		PACK_SQL_STATEMENT(alias->table_alias, table_alias, table_alias);

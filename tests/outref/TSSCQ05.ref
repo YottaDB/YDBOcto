@@ -1,0 +1,13 @@
+ SELECT setting
+FROM   pg_catalog.pg_settings
+WHERE  NAME = 'max_index_keys'
+[ERROR] PATH:LINENUM DATE TIME : Unknown table: PG_CATALOG.PG_SETTINGS
+
+ SELECT setting
+FROM   pg_catalog.pg_settings
+       ^^^^^^^^^^^^^^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT setting
+FROM   pg_catalog.pg_settings
+WHERE  NAME = 'max_index_keys'
+
+

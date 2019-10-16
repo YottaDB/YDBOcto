@@ -280,47 +280,36 @@ search_condition
     }
   | row_value_constructor OR boolean_term {
       // This is a special form where the column is assumed to be a boolean
+      SqlStatement		*left;
+
       SQL_STATEMENT($$, binary_STATEMENT);
       MALLOC_STATEMENT($$, binary, SqlBinaryOperation);
       ($$)->v.binary->operation = BOOLEAN_OR;
-
-      SqlStatement *left;
-      SQL_STATEMENT(left, binary_STATEMENT);
-      MALLOC_STATEMENT(left, binary, SqlBinaryOperation);
-      SqlBinaryOperation *binary;
-      UNPACK_SQL_STATEMENT(binary, left, binary);
-      binary->operation = BOOLEAN_NOT_EQUALS;
-      SqlStatement *nul;
-      SQL_STATEMENT(nul, value_STATEMENT);
-      MALLOC_STATEMENT(nul, value, SqlValue);
-      nul->v.value->type = NUL_VALUE;
-      binary->operands[0] = $row_value_constructor;
-      binary->operands[1] = nul;
-
+      left = row_value_constructor_binary_statement($row_value_constructor);
       ($$)->v.binary->operands[0] = left;
       ($$)->v.binary->operands[1] = ($boolean_term);
     }
   | search_condition OR row_value_constructor {
       // This is a special form where the column is assumed to be a boolean
+      SqlStatement		*right;
+
       SQL_STATEMENT($$, binary_STATEMENT);
       MALLOC_STATEMENT($$, binary, SqlBinaryOperation);
       ($$)->v.binary->operation = BOOLEAN_OR;
-
-      SqlStatement *right;
-      SQL_STATEMENT(right, binary_STATEMENT);
-      MALLOC_STATEMENT(right, binary, SqlBinaryOperation);
-      SqlBinaryOperation *binary;
-      UNPACK_SQL_STATEMENT(binary, right, binary);
-      binary->operation = BOOLEAN_NOT_EQUALS;
-      SqlStatement *nul;
-      SQL_STATEMENT(nul, value_STATEMENT);
-      MALLOC_STATEMENT(nul, value, SqlValue);
-      nul->v.value->type = UNKNOWN_SqlValueType;
-      nul->v.value->v.string_literal = "0";
-      binary->operands[0] = $row_value_constructor;
-      binary->operands[1] = nul;
-
+      right = row_value_constructor_binary_statement($row_value_constructor);
       ($$)->v.binary->operands[0] = $1;
+      ($$)->v.binary->operands[1] = right;
+    }
+  | row_value_constructor OR row_value_constructor {
+      // This is a special form where the column is assumed to be a boolean
+      SqlStatement		*left, *right;
+
+      SQL_STATEMENT($$, binary_STATEMENT);
+      MALLOC_STATEMENT($$, binary, SqlBinaryOperation);
+      ($$)->v.binary->operation = BOOLEAN_OR;
+      left = row_value_constructor_binary_statement($1);
+      right = row_value_constructor_binary_statement($3);
+      ($$)->v.binary->operands[0] = left;
       ($$)->v.binary->operands[1] = right;
     }
   ;
@@ -336,48 +325,36 @@ boolean_term
     }
   | row_value_constructor AND boolean_factor {
       // This is a special form where the column is assumed to be a boolean
+      SqlStatement		*left;
+
       SQL_STATEMENT($$, binary_STATEMENT);
       MALLOC_STATEMENT($$, binary, SqlBinaryOperation);
       ($$)->v.binary->operation = BOOLEAN_AND;
-
-      SqlStatement *left;
-      SQL_STATEMENT(left, binary_STATEMENT);
-      MALLOC_STATEMENT(left, binary, SqlBinaryOperation);
-      SqlBinaryOperation *binary;
-      UNPACK_SQL_STATEMENT(binary, left, binary);
-      binary->operation = BOOLEAN_NOT_EQUALS;
-      SqlStatement *nul;
-      SQL_STATEMENT(nul, value_STATEMENT);
-      MALLOC_STATEMENT(nul, value, SqlValue);
-      nul->v.value->type = UNKNOWN_SqlValueType;
-      nul->v.value->v.string_literal = "0";
-      binary->operands[0] = $row_value_constructor;
-      binary->operands[1] = nul;
-
+      left = row_value_constructor_binary_statement($row_value_constructor);
       ($$)->v.binary->operands[0] = left;
       ($$)->v.binary->operands[1] = ($boolean_factor);
     }
   | boolean_term AND row_value_constructor {
       // This is a special form where the column is assumed to be a boolean
+      SqlStatement		*right;
+
       SQL_STATEMENT($$, binary_STATEMENT);
       MALLOC_STATEMENT($$, binary, SqlBinaryOperation);
       ($$)->v.binary->operation = BOOLEAN_AND;
-
-      SqlStatement *right;
-      SQL_STATEMENT(right, binary_STATEMENT);
-      MALLOC_STATEMENT(right, binary, SqlBinaryOperation);
-      SqlBinaryOperation *binary;
-      UNPACK_SQL_STATEMENT(binary, right, binary);
-      binary->operation = BOOLEAN_NOT_EQUALS;
-      SqlStatement *nul;
-      SQL_STATEMENT(nul, value_STATEMENT);
-      MALLOC_STATEMENT(nul, value, SqlValue);
-      nul->v.value->type = UNKNOWN_SqlValueType;
-      nul->v.value->v.string_literal = "0";
-      binary->operands[0] = $row_value_constructor;
-      binary->operands[1] = nul;
-
+      right = row_value_constructor_binary_statement($row_value_constructor);
       ($$)->v.binary->operands[0] = $1;
+      ($$)->v.binary->operands[1] = right;
+    }
+  | row_value_constructor AND row_value_constructor {
+      // This is a special form where the column is assumed to be a boolean
+      SqlStatement		*left, *right;
+
+      SQL_STATEMENT($$, binary_STATEMENT);
+      MALLOC_STATEMENT($$, binary, SqlBinaryOperation);
+      ($$)->v.binary->operation = BOOLEAN_AND;
+      left = row_value_constructor_binary_statement($1);
+      right = row_value_constructor_binary_statement($3);
+      ($$)->v.binary->operands[0] = left;
       ($$)->v.binary->operands[1] = right;
     }
   ;
@@ -392,24 +369,12 @@ boolean_factor
     }
   | NOT row_value_constructor {
       // This is a special form where the column is assumed to be a boolean
+      SqlStatement		*right;
+
       SQL_STATEMENT($$, unary_STATEMENT);
       MALLOC_STATEMENT($$, unary, SqlUnaryOperation);
       ($$)->v.unary->operation = BOOLEAN_NOT;
-
-      SqlStatement *right;
-      SQL_STATEMENT(right, binary_STATEMENT);
-      MALLOC_STATEMENT(right, binary, SqlBinaryOperation);
-      SqlBinaryOperation *binary;
-      UNPACK_SQL_STATEMENT(binary, right, binary);
-      binary->operation = BOOLEAN_NOT_EQUALS;
-      SqlStatement *nul;
-      SQL_STATEMENT(nul, value_STATEMENT);
-      MALLOC_STATEMENT(nul, value, SqlValue);
-      nul->v.value->type = UNKNOWN_SqlValueType;
-      nul->v.value->v.string_literal = "0";
-      binary->operands[0] = $row_value_constructor;
-      binary->operands[1] = nul;
-
+      right = row_value_constructor_binary_statement($row_value_constructor);
       ($$)->v.unary->operand = right;
     }
   ;
@@ -1081,46 +1046,22 @@ query_expression
 non_join_query_expression
   : non_join_query_term { $$ = $non_join_query_term; }
   | query_expression UNION query_term non_join_query_expression_tail_tail {
-        SqlSetOperation *set_operation;
-        SQL_STATEMENT($$, set_operation_STATEMENT);
-        MALLOC_STATEMENT($$, set_operation, SqlSetOperation);
-        UNPACK_SQL_STATEMENT(set_operation, $$, set_operation);
-        set_operation->type = SET_UNION;
-        set_operation->operand[0] = $query_expression;
-        set_operation->operand[1] = $query_term;
+        $$ = set_operation(SET_UNION, $query_expression, $query_term);
     }
   | query_expression UNION ALL query_term non_join_query_expression_tail_tail {
-        SqlSetOperation *set_operation;
-        SQL_STATEMENT($$, set_operation_STATEMENT);
-        MALLOC_STATEMENT($$, set_operation, SqlSetOperation);
-        UNPACK_SQL_STATEMENT(set_operation, $$, set_operation);
-        set_operation->type = SET_UNION_ALL;
-        set_operation->operand[0] = $query_expression;
-        set_operation->operand[1] = $query_term;
+        $$ = set_operation(SET_UNION_ALL, $query_expression, $query_term);
     }
-  | query_expression EXCEPT query_term {
-        SqlSetOperation *set_operation;
-        SQL_STATEMENT($$, set_operation_STATEMENT);
-        MALLOC_STATEMENT($$, set_operation, SqlSetOperation);
-        UNPACK_SQL_STATEMENT(set_operation, $$, set_operation);
-        set_operation->type = SET_EXCEPT;
-        set_operation->operand[0] = $query_expression;
-        set_operation->operand[1] = $query_term;
+  | query_expression EXCEPT query_term non_join_query_expression_tail_tail {
+        $$ = set_operation(SET_EXCEPT, $query_expression, $query_term);
     }
   | query_expression EXCEPT ALL query_term non_join_query_expression_tail_tail {
-        SqlSetOperation *set_operation;
-        SQL_STATEMENT($$, set_operation_STATEMENT);
-        MALLOC_STATEMENT($$, set_operation, SqlSetOperation);
-        UNPACK_SQL_STATEMENT(set_operation, $$, set_operation);
-        set_operation->type = SET_EXCEPT_ALL;
-        set_operation->operand[0] = $query_expression;
-        set_operation->operand[1] = $query_term;
+        $$ = set_operation(SET_EXCEPT_ALL, $query_expression, $query_term);
     }
   ;
 
 non_join_query_expression_tail_tail
   : /* Empty */ { $$ = NULL; }
-  | CORRESPONDING non_join_query_expression_tail_tail_tail
+  | CORRESPONDING non_join_query_expression_tail_tail_tail { WARNING(ERR_FEATURE_NOT_IMPLEMENTED, "non_join_query_expression_tail_tail : CORRESPONDING non_join_query_expression_tail_tail_tail: BY LEFT_PAREN corresponding_column_list RIGHT_PAREN"); YYABORT; }
   ;
 
 non_join_query_expression_tail_tail_tail
@@ -1149,22 +1090,10 @@ query_term
 non_join_query_term
   : non_join_query_primary {$$ = $non_join_query_primary; }
   | query_term INTERSECT corresponding_spec query_primary {
-        SqlSetOperation *set_operation;
-        SQL_STATEMENT($$, set_operation_STATEMENT);
-        MALLOC_STATEMENT($$, set_operation, SqlSetOperation);
-        UNPACK_SQL_STATEMENT(set_operation, $$, set_operation);
-        set_operation->type = SET_INTERSECT;
-        set_operation->operand[0] = $query_term;
-        set_operation->operand[1] = $query_primary;
+        $$ = set_operation(SET_INTERSECT, $query_term, $query_primary);
     }
   | query_term INTERSECT ALL corresponding_spec query_primary {
-        SqlSetOperation *set_operation;
-        SQL_STATEMENT($$, set_operation_STATEMENT);
-        MALLOC_STATEMENT($$, set_operation, SqlSetOperation);
-        UNPACK_SQL_STATEMENT(set_operation, $$, set_operation);
-        set_operation->type = SET_INTERSECT_ALL;
-        set_operation->operand[0] = $query_term;
-        set_operation->operand[1] = $query_primary;
+        $$ = set_operation(SET_INTERSECT_ALL, $query_term, $query_primary);
     }
   ;
 

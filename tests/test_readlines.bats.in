@@ -20,6 +20,6 @@ setup() {
 }
 
 @test "TRL000 : readlines history" {
-  (expect -f @PROJECT_SOURCE_DIR@/tests/fixtures/test_readlines_history.exp > expect.out) &> expect.dbg
+  (expect -d -f @PROJECT_SOURCE_DIR@/tests/fixtures/test_readlines_history.exp > expect.out) &> expect.dbg
   verify_output TRL000 expect.out noinfo nodebug noexpect
 }

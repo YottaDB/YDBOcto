@@ -40,7 +40,7 @@ SqlColumnAlias *qualify_column_name(SqlValue *column_value, SqlJoin *tables, Sql
 	int			table_name_len, column_name_len;
 
 	// If the value is not a column_reference, we should not be here
-	assert(column_value->type == COLUMN_REFERENCE);
+	assert(COLUMN_REFERENCE == column_value->type);
 
 	// Find the first period; if it is missing, we need to match against
 	//  all columns in all tables

@@ -1,0 +1,2 @@
+SET application_name = 'PostgreSQL JDBC Driver';
+

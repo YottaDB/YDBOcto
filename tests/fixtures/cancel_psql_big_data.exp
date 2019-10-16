@@ -11,7 +11,8 @@
 #								#
 #################################################################
 
-set timeout 2
+# set huge timeout since on a loaded system it is possible the psql password prompt takes some time to show up
+set timeout 60
 set port [lindex $argv 0];
 spawn /bin/bash
 # Enable long lines to prevent wrapping
@@ -19,17 +20,18 @@ send -- "stty cols 4096\r"
 expect "stty cols 4096\r"
 # Start psql
 send -- "psql -U ydb -h localhost -p $port\r"
-expect timeout 60 ".*Password for user ydb: "
+expect -re ".*Password for user ydb: "
 send "ydbrocks\r"
-expect ".*ydb=. "
+expect -re ".*ydb=. "
 # Run a long time AND generate cross references
 send "select firstname from names where firstname = \"abcd\";\r"
-expect "select firstname from names where firstname = \"abcd\";\r\n"
+# get back to small timeout since we want the below to timeout so we can continue with canceling the query
+set timeout 2
 expect timeout
 # Send interrupt to trigger cancel request
 send \x03
-expect ".*Cancel request sent\r\n"
-expect "ERROR:  canceling statement due to user request\r\nydb=. "
+expect -re ".*Cancel request sent\r\n"
+expect -re "ERROR:  canceling statement due to user request\r\nydb=. "
 send "\\q\r"
 expect timeout
 exit

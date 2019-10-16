@@ -27,9 +27,7 @@ SqlStatement *match_column_in_table(SqlTableAlias *table_alias, char *column_nam
 	SqlStatement		*ret = NULL;
 	int			value_len;
 
-	// If there is no column list for this table alias, we won't match anything
-	if(table_alias->column_list == NULL)
-		return NULL;
+	assert(NULL != table_alias->column_list);
 	UNPACK_SQL_STATEMENT(start_column_list, table_alias->column_list, column_list_alias);
 	cur_column_list = start_column_list;
 	do {

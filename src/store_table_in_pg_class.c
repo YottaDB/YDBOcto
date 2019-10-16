@@ -89,10 +89,9 @@ int store_table_in_pg_class(SqlTable *table) {
 			case CHARACTER_STRING_TYPE:
 				atttypid = 1043;
 				break;
-			case DATE_TIME_TYPE:
-			case INTERVAL_TYPE:
-			case UNKNOWN_SqlDataType:
+			default:
 				status = 1;
+				assert(FALSE);
 				ERROR(ERR_UNKNOWN_KEYWORD_STATE, "");
 				break;
 		}

@@ -49,9 +49,9 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *column_
 			result = (NULL == stmt->v.column_alias);
 			if (result)
 				print_yyloc(&stmt->loc);
-			// Convert this statement to a qualified one.
-			// Note: "match_column_in_table.c" and "qualify_column_name.c" rely on the below for qualifying
-			//       column names (in case MATCH_QUALIFIED_COLUMNS_TRUE is passed in to those functions.
+			// Convert this statement to a qualified one by changing the "type".
+			// Note: "qualify_column_name.c" relies on the below for qualifying column names
+			//	(in case MATCH_QUALIFIED_COLUMNS_TRUE is passed in to that function).
 			stmt->type = column_alias_STATEMENT;
 			break;
 		case CALCULATED_VALUE:

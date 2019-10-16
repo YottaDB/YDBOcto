@@ -30,25 +30,24 @@
 SqlColumnAlias *qualify_column_name(SqlValue *column_value, SqlJoin *tables, SqlStatement *table_alias_stmt,
 					boolean_t match_qualified_columns)
 {
-	int table_name_len = 0, column_name_len = 0;
-	char *table_name = NULL, *column_name = NULL, *c;
-	SqlColumnAlias *ret;
-	SqlStatement *column = NULL, *t_column;
-	SqlTableAlias *cur_alias, *matching_alias, *table_alias;
-	SqlColumnListAlias *start_cla, *cur_cla;
-	SqlJoin *cur_join, *start_join;
-	SqlValue *value;
-
+	SqlColumnAlias		*ret;
+	SqlColumnListAlias	*start_cla, *cur_cla;
+	SqlJoin			*cur_join, *start_join;
+	SqlStatement		*column, *t_column;
+	SqlTableAlias		*cur_alias, *matching_alias, *table_alias;
+	SqlValue		*value;
+	char			*table_name, *column_name, *c;
+	int			table_name_len, column_name_len;
 
 	// If the value is not a column_reference, we should not be here
 	assert(column_value->type == COLUMN_REFERENCE);
 
 	// Find the first period; if it is missing, we need to match against
 	//  all columns in all tables
-	for(c = column_value->v.string_literal; *c != '\0' && *c != '.'; c++) {
+	for (c = column_value->v.string_literal; ('\0' != *c) && ('.' != *c); c++) {
 		// Pass
 	}
-	if(*c == '.') {
+	if ('.' == *c) {
 		table_name = column_value->v.reference;
 		table_name_len = c - table_name;
 		column_name = c+1;
@@ -56,31 +55,34 @@ SqlColumnAlias *qualify_column_name(SqlValue *column_value, SqlJoin *tables, Sql
 	} else {
 		column_name = column_value->v.reference;
 		column_name_len = c - column_name;
+		table_name = NULL;
+		table_name_len = 0;
 	}
-
-
 	cur_join = start_join = tables;
+	column = NULL;
 	do {
 		SqlStatement *sql_stmt;
 
 		sql_stmt = drill_to_table_alias(cur_join->value);
 		// If we need to match a table, ensure this table is the correct one before calling the helper
 		UNPACK_SQL_STATEMENT(cur_alias, sql_stmt, table_alias);
-		if(table_name) {
-			if(cur_alias->alias != NULL) {
+		if (NULL != table_name) {
+			if (NULL != cur_alias->alias) {
+				int table_name_len2;
+
 				UNPACK_SQL_STATEMENT(value, cur_alias->alias, value);
-				int table_name_len2 = strlen(value->v.reference);
-				if(table_name_len == table_name_len2 && memcmp(value->v.reference, table_name, table_name_len) == 0) {
+				table_name_len2 = strlen(value->v.reference);
+				if ((table_name_len == table_name_len2)
+						&& (0 == memcmp(value->v.reference, table_name, table_name_len))) {
 					matching_alias = cur_alias;
-					column = match_column_in_table(cur_alias, column_name, column_name_len,
-									match_qualified_columns);
+					column = match_column_in_table(cur_alias, column_name, column_name_len);
 					break;
 				}
 			}
 		} else {
-			t_column = match_column_in_table(cur_alias, column_name, column_name_len, match_qualified_columns);
-			if(t_column != NULL) {
-				if(column != NULL) {
+			t_column = match_column_in_table(cur_alias, column_name, column_name_len);
+			if (NULL != t_column) {
+				if (NULL != column) {
 					WARNING(ERR_AMBIGUOUS_COLUMN_NAME, column_name);
 					cur_join = cur_join->next;
 					continue;
@@ -92,8 +94,7 @@ SqlColumnAlias *qualify_column_name(SqlValue *column_value, SqlJoin *tables, Sql
 		}
 		cur_join = cur_join->next;
 	} while(cur_join != start_join);
-
-	if(table_alias_stmt != NULL && table_name == NULL && column == NULL) {
+	if ((NULL != table_alias_stmt) && (NULL == table_name) && (NULL == column)) {
 		UNPACK_SQL_STATEMENT(table_alias, table_alias_stmt, table_alias);
 		UNPACK_SQL_STATEMENT(start_cla, table_alias->column_list, column_list_alias);
 		cur_cla = start_cla;
@@ -106,7 +107,13 @@ SqlColumnAlias *qualify_column_name(SqlValue *column_value, SqlJoin *tables, Sql
 				UNPACK_SQL_STATEMENT(column_list, cur_cla->column_list, column_list);
 				assert(column_list == column_list->next);
 				assert(column_list == column_list->prev);
-				/* For a description of the below "if" check, see similar code in "match_column_in_table.c" */
+				/* If match_qualified_columns is TRUE, we will return an input column name as a valid name
+				 *    only if it matches the name of an existing column in the table whose column name has already
+				 *    been qualified by a prior call to the "qualify_column_name" function (this is checked by
+				 *    the "column_alias_STATEMENT == column_list->value->type" check below.
+				 * If match_qualified_columns is FALSE, we will return an input column name as a valid name
+				 *    as long as it matches the name of an existing column in the table.
+				 */
 				if (!match_qualified_columns || (column_alias_STATEMENT == column_list->value->type))
 				{
 					UNPACK_SQL_STATEMENT(value, cur_cla->alias, value);
@@ -127,14 +134,12 @@ SqlColumnAlias *qualify_column_name(SqlValue *column_value, SqlJoin *tables, Sql
 			cur_cla = cur_cla->next;
 		} while(cur_cla != start_cla);
 	}
-
-	if(column == NULL) {
+	if (NULL == column) {
 		// Note: If table_name is non-NULL, it points to a string of the form "tablename.columnname"
 		//       so both table name and column name will be printed below if "table_name" is non-NULL.
 		WARNING(ERR_UNKNOWN_COLUMN_NAME, (NULL != table_name) ? table_name : column_name);
 		return NULL;
 	}
-
 	OCTO_CMALLOC_STRUCT(ret, SqlColumnAlias);
 	ret->column = column;
 	PACK_SQL_STATEMENT(ret->table_alias, matching_alias, table_alias);

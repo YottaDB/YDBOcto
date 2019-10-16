@@ -438,3 +438,14 @@ CAT_EOF
   octo -f input.sql >> output.txt 2>&1
   verify_output TSC14 output.txt noinfo nodebug
 }
+
+@test "TSC15 : #340 : Incorrect <Unknown column> error for column names inherited from sub-query" {
+  cat <<CAT_EOF > input.sql
+select a,b from (select 1 as a, 2 as b);
+select a,c from (select 1 as a, 2 as b);
+select c,b from (select 1 as a, 2 as b);
+CAT_EOF
+  cat input.sql > output.txt
+  octo -f input.sql >> output.txt 2>&1
+  verify_output TSC15 output.txt noinfo nodebug
+}

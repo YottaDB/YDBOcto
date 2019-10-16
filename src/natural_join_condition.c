@@ -59,8 +59,7 @@ SqlStatement *natural_join_condition(SqlStatement *left, SqlStatement *right) {
 
 				right_sql_stmt = drill_to_table_alias(r_cur_join->value);
 				UNPACK_SQL_STATEMENT(r_cur_alias, right_sql_stmt, table_alias);
-				r_matched_column = match_column_in_table(r_cur_alias, column_name, column_name_len,
-										MATCH_QUALIFIED_COLUMNS_FALSE);
+				r_matched_column = match_column_in_table(r_cur_alias, column_name, column_name_len);
 				if(r_matched_column != NULL) {
 					UNPACK_SQL_STATEMENT(value, r_cur_alias->alias, value);
 					r_table_name = value->v.string_literal;

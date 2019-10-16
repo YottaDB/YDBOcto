@@ -1,5 +1,5 @@
 OCTO> select notathing as a from names; select * from names limit 1;
-[ WARN] PATH:LINENUM DATE TIME : Unknown column: NOTATHING
+[ERROR] PATH:LINENUM DATE TIME : Unknown column: NOTATHING
 
 select notathing as a from names; select * from names limit 1;
        ^^^^^^^^^

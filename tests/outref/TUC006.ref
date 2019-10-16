@@ -1,13 +1,13 @@
 OCTO> select notathing as a
 OCTO> from names; select * from names where
-[ WARN] PATH:LINENUM DATE TIME : Unknown column: NOTATHING
+[ERROR] PATH:LINENUM DATE TIME : Unknown column: NOTATHING
 
 select notathing as a
        ^^^^^^^^^
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select notathing as a
 from names;
 OCTO> alsonotathing = 0; select * from names limit 1;
-[ WARN] PATH:LINENUM DATE TIME : Unknown column: ALSONOTATHING
+[ERROR] PATH:LINENUM DATE TIME : Unknown column: ALSONOTATHING
 
 from names; select * from names where
 alsonotathing = 0; select * from names limit 1;

@@ -350,6 +350,7 @@ set(aux_files
   aux/_ydboctoplanhelpers.m
   aux/_ydboctoreplace.m
   aux/_ydboctoselect.m
+  aux/_ydboctosqlfunctions.m
   aux/_ydboctoversion.m
 )
 add_library(_ydbocto SHARED ${aux_files})

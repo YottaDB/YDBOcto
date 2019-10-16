@@ -1,9 +1,9 @@
-[ WARN] PATH:LINENUM DATE TIME : Unknown column: COLUMN_A
+[ERROR] PATH:LINENUM DATE TIME : Unknown column: COLUMN_A
 
 select
 COLUMN_A
 COLUMN_A_ERROR
-[ WARN] PATH:LINENUM DATE TIME : Unknown column: COLUMN_B
+[ERROR] PATH:LINENUM DATE TIME : Unknown column: COLUMN_B
 
 select
 COLUMN_A
@@ -13,7 +13,7 @@ COLUMN_B_ERROR
 COLUMN_A
 ,COLUMN_B
 from names;
-[ WARN] PATH:LINENUM DATE TIME : Unknown column: NOTATHING
+[ERROR] PATH:LINENUM DATE TIME : Unknown column: NOTATHING
 
 select notathing from names; select firstname from names limit 1;
        ^^^^^^^^^

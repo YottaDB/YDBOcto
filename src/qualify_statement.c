@@ -61,9 +61,15 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *column_
 			// If it starts with '$$', trim those off and leave it alone (MUMPS expression)
 			// Else, match it with a value from the dictionary in ^octo("functions")
 			result = qualify_function_name(stmt);
+			if(result) {
+				print_yyloc(&stmt->loc);
+			}
 			break;
 		case COERCE_TYPE:
 			result |= qualify_statement(value->v.coerce_target, tables, column_list_alias, match_qualified_columns);
+			if(result) {
+				print_yyloc(&stmt->loc);
+			}
 			break;
 		default:
 			break;

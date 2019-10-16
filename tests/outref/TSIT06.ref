@@ -10,7 +10,7 @@ OCTO>             SELECT *
 OCTO>             FROM names n3
 OCTO>             WHERE n1.id = n3.id
 OCTO>            );
-[ WARN] PATH:LINENUM DATE TIME : Unknown column: N1.ID
+[ERROR] PATH:LINENUM DATE TIME : Unknown column: N1.ID
 
 SELECT *
 FROM names n1
@@ -18,7 +18,7 @@ CROSS JOIN (SELECT *
             FROM names n2
             WHERE n1.id = n2.id
                   ^^^^^
-[ WARN] PATH:LINENUM DATE TIME : Unknown column: N1.ID
+[ERROR] PATH:LINENUM DATE TIME : Unknown column: N1.ID
 
 SELECT *
 FROM names n1

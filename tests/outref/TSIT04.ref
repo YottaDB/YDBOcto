@@ -5,7 +5,7 @@ OCTO>             FROM names n2
 OCTO>             WHERE n1.id = n2.id
 OCTO>            ) as n3
 OCTO> ON n3.id = n1.id;
-[ WARN] PATH:LINENUM DATE TIME : Unknown column: N1.ID
+[ERROR] PATH:LINENUM DATE TIME : Unknown column: N1.ID
 
 SELECT *
 FROM names n1

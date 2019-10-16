@@ -2,7 +2,6 @@ GT.M MUPIP EXTRACT
 01-JUL-2019  00:29:12 ZWR
 ^%ydboctoocto="1"
 ^%ydboctoocto("functions","CURRENT_SCHEMA")="$$^%ydboctocurrentSchema"
-^%ydboctoocto("functions","MPIECE")="$PIECE"
 ^%ydboctoocto("functions","PG_CATALOG.CURRENT_SCHEMAS")="$$^%ydboctopgCurrentSchemas"
 ^%ydboctoocto("functions","PG_CATALOG.OBJ_DESCRIPTION")="$$^%ydboctopgObjDescription"
 ^%ydboctoocto("functions","PG_CATALOG.PG_GET_EXPR")="$$^%ydboctopgGetExpr"

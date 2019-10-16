@@ -137,7 +137,7 @@ SqlColumnAlias *qualify_column_name(SqlValue *column_value, SqlJoin *tables, Sql
 	if (NULL == column) {
 		// Note: If table_name is non-NULL, it points to a string of the form "tablename.columnname"
 		//       so both table name and column name will be printed below if "table_name" is non-NULL.
-		WARNING(ERR_UNKNOWN_COLUMN_NAME, (NULL != table_name) ? table_name : column_name);
+		ERROR(ERR_UNKNOWN_COLUMN_NAME, (NULL != table_name) ? table_name : column_name);
 		return NULL;
 	}
 	OCTO_CMALLOC_STRUCT(ret, SqlColumnAlias);

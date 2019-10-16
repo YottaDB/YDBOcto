@@ -1,5 +1,5 @@
 OCTO> SELECT invalid FROM names;
-[ WARN] PATH:LINENUM DATE TIME : Unknown column: INVALID
+[ERROR] PATH:LINENUM DATE TIME : Unknown column: INVALID
 
 SELECT invalid FROM names;
        ^^^^^^^

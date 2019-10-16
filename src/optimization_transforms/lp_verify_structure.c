@@ -238,7 +238,15 @@ int lp_verify_structure_helper(LogicalPlan *plan, LPActionType expected) {
 		        ret &= lp_verify_structure_helper(plan->v.operand[0], LP_WHERE)
 				| lp_verify_structure_helper(plan->v.operand[0], LP_COLUMN_ALIAS)
 				| lp_verify_structure_helper(plan->v.operand[0], LP_VALUE)
-				| lp_verify_structure_helper(plan->v.operand[0], LP_FUNCTION_CALL);
+				| lp_verify_structure_helper(plan->v.operand[0], LP_FUNCTION_CALL)
+				| lp_verify_structure_helper(plan->v.operand[0], LP_ADDITION)
+				| lp_verify_structure_helper(plan->v.operand[0], LP_SUBTRACTION)
+				| lp_verify_structure_helper(plan->v.operand[0], LP_MULTIPLICATION)
+				| lp_verify_structure_helper(plan->v.operand[0], LP_DIVISION)
+				| lp_verify_structure_helper(plan->v.operand[0], LP_CONCAT)
+				| lp_verify_structure_helper(plan->v.operand[0], LP_NEGATIVE)
+				| lp_verify_structure_helper(plan->v.operand[0], LP_DERIVED_COLUMN)
+				;
 			assert(ret);
 			plan = plan->v.operand[1];
 		}

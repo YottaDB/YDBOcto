@@ -1,30 +1,30 @@
-[ WARN] PATH:LINENUM DATE TIME : Unknown column: C.INVALIDE
+[ERROR] PATH:LINENUM DATE TIME : Unknown column: C.INVALIDE
 
 select invalidA, invalidB, invalidC, invalidD
 from names c
 inner join names o
 on c.invalidE = o.invalidF
    ^^^^^^^^^^
-[ WARN] PATH:LINENUM DATE TIME : Unknown column: O.INVALIDF
+[ERROR] PATH:LINENUM DATE TIME : Unknown column: O.INVALIDF
 
 select invalidA, invalidB, invalidC, invalidD
 from names c
 inner join names o
 on c.invalidE = o.invalidF
                 ^^^^^^^^^^
-[ WARN] PATH:LINENUM DATE TIME : Unknown column: INVALIDA
+[ERROR] PATH:LINENUM DATE TIME : Unknown column: INVALIDA
 
 select invalidA, invalidB, invalidC, invalidD
        ^^^^^^^^
-[ WARN] PATH:LINENUM DATE TIME : Unknown column: INVALIDB
+[ERROR] PATH:LINENUM DATE TIME : Unknown column: INVALIDB
 
 select invalidA, invalidB, invalidC, invalidD
                  ^^^^^^^^
-[ WARN] PATH:LINENUM DATE TIME : Unknown column: INVALIDC
+[ERROR] PATH:LINENUM DATE TIME : Unknown column: INVALIDC
 
 select invalidA, invalidB, invalidC, invalidD
                            ^^^^^^^^
-[ WARN] PATH:LINENUM DATE TIME : Unknown column: INVALIDD
+[ERROR] PATH:LINENUM DATE TIME : Unknown column: INVALIDD
 
 select invalidA, invalidB, invalidC, invalidD
                                      ^^^^^^^^

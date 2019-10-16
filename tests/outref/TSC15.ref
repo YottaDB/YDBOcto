@@ -2,12 +2,12 @@ select a,b from (select 1 as a, 2 as b);
 select a,c from (select 1 as a, 2 as b);
 select c,b from (select 1 as a, 2 as b);
 1|2
-[ WARN] PATH:LINENUM DATE TIME : Unknown column: C
+[ERROR] PATH:LINENUM DATE TIME : Unknown column: C
 
 select a,c from (select 1 as a, 2 as b);
          ^
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select a,c from (select 1 as a, 2 as b);
-[ WARN] PATH:LINENUM DATE TIME : Unknown column: C
+[ERROR] PATH:LINENUM DATE TIME : Unknown column: C
 
 select c,b from (select 1 as a, 2 as b);
        ^

@@ -436,7 +436,7 @@ select * from (select 2,3,4,5);
 CAT_EOF
   cat input.sql > output.txt
   octo -f input.sql >> output.txt 2>&1
-  verify_output TSC14 output.txt noinfo nodebug
+  verify_output TSC14 output.txt
 }
 
 @test "TSC15 : #340 : Incorrect <Unknown column> error for column names inherited from sub-query" {
@@ -447,5 +447,32 @@ select c,b from (select 1 as a, 2 as b);
 CAT_EOF
   cat input.sql > output.txt
   octo -f input.sql >> output.txt 2>&1
-  verify_output TSC15 output.txt noinfo nodebug
+  verify_output TSC15 output.txt
+}
+
+@test "TSC16 : #282 : Test of ABS() function as well as lp_verify_structure() for LP_COLUMN_LIST" {
+  cat <<CAT_EOF > input.sql
+select abs(-2*id) from names;
+select abs(-1.45);
+select abs(1.45);
+select abs(1.45-2.50);
+select abs(1.23456789-9.87654321);
+-- The below tests verify that lp_verify_structure() does handle various possible operand[0] types for LP_COLUMN_LIST
+select abs(id+1) from names limit 1;            	-- LP_ADDITION
+select abs(id-1) from names limit 1;                    -- LP_SUBTRACTION
+select abs(id*1) from names limit 1;                    -- LP_MULTIPLICATION
+select abs(id/1) from names limit 1;                    -- LP_DIVISION
+select abs("abcd" || "efgh");                   	-- LP_CONCAT
+select abs(-id) from names limit 1;                     -- LP_NEGATIVE
+select abs(id) from (select * from names) limit 1;      -- LP_DERIVED_COLUMN
+select abs(id+1) from (select * from names) limit 1;    -- LP_ADDITION
+select abs(id-1) from (select * from names) limit 1;    -- LP_SUBTRACTION
+select abs(id*1) from (select * from names) limit 1;    -- LP_MULTIPLICATION
+select abs(id/1) from (select * from names) limit 1;    -- LP_DIVISION
+select abs("abcd" || "efgh");                   	-- LP_CONCAT
+select abs(-id) from (select * from names) limit 1;     -- LP_NEGATIVE
+CAT_EOF
+  cat input.sql > output.txt
+  octo -f input.sql >> output.txt 2>&1
+  verify_output TSC16 output.txt
 }

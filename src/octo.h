@@ -55,6 +55,23 @@
 // Default buffer allocated for $zroutines
 #define ZRO_INIT_ALLOC 512
 
+// Below are a few utility macros that are similar to those defined in sr_port/gtm_common_defs.h.
+// But we do not use those as that is outside the control of Octo's source code repository
+// Therefore we undef those macros (if any defined) and redefine it ourselves here.
+
+#undef LIT_LEN			// in case it gets defined in sr_port/gtm_common_defs.h (which is included by mmrhash.h above)
+#undef MEMCMP_LIT		// would have been defined by sr_port/gtm_common_defs.h (which is included by mmrhash.h above)
+#undef MEMCPY_LIT		// would have been defined by sr_port/gtm_common_defs.h (which is included by mmrhash.h above)
+
+// Returns the length of a string literal (similar to STR_LIT_LEN in sr_port/gtm_common_defs.h)
+#define	LIT_LEN(LITERAL)	(sizeof(LITERAL) - 1)
+
+// Do a memcmp of a source string against a string literal
+#define	MEMCMP_LIT(SOURCE, LITERAL)		memcmp(SOURCE, LITERAL, sizeof(LITERAL) - 1)
+
+// Do a memcpy onto a string target using a string literal as the source
+#define	MEMCPY_LIT(TARGET, LITERAL)		memcpy(TARGET, LITERAL, sizeof(LITERAL) - 1)
+
 #define GET_FULL_PATH_OF_GENERATED_M_FILE(FILENAME, ROUTINE_NAME)						\
 {														\
 	unsigned int	want_to_write;										\

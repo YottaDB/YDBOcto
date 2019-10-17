@@ -476,3 +476,17 @@ CAT_EOF
   octo -f input.sql >> output.txt 2>&1
   verify_output TSC16 output.txt
 }
+
+@test "TSC17 : #337 : Test of MODULO (%) operator" {
+  cat <<CAT_EOF > input.sql
+select 3%2, 4%2 from names limit 1;
+select id%3 from names;
+select 1+3%2 from names limit 1;
+select (1+3)%2 from names limit 1;
+select 2*3%2 from names limit 1;
+select (1+id)*2%5 from names;
+CAT_EOF
+  cat input.sql > output.txt
+  octo -f input.sql >> output.txt 2>&1
+  verify_output TSC17 output.txt
+}

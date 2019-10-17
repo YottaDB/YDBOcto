@@ -154,8 +154,9 @@ int populate_data_type(SqlStatement *v, SqlValueType *type) {
 		switch(binary->operation) {
 		case ADDITION:
 		case SUBTRACTION:
-		case DVISION:
+		case DIVISION:
 		case MULTIPLICATION:
+		case MODULO:
 			*type = child_type1;
 			break;
 		case CONCAT:

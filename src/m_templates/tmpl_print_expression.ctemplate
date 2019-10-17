@@ -118,6 +118,9 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan) {
 	case LP_MULTIPLICATION:
 		mid = "*";
 		break;
+	case LP_MODULO:
+		mid = "#";
+		break;
 	case LP_CONCAT:
 		mid = "_";
 		break;

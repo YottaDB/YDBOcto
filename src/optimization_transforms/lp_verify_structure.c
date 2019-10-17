@@ -150,6 +150,7 @@ int lp_verify_structure_helper(LogicalPlan *plan, LPActionType expected) {
 	case LP_SUBTRACTION:
 	case LP_DIVISION:
 	case LP_MULTIPLICATION:
+	case LP_MODULO:
 	case LP_CONCAT:
 	case LP_BOOLEAN_OR:
 	case LP_BOOLEAN_AND:
@@ -171,6 +172,7 @@ int lp_verify_structure_helper(LogicalPlan *plan, LPActionType expected) {
 			| lp_verify_structure_helper(plan->v.operand[0], LP_SUBTRACTION)
 			| lp_verify_structure_helper(plan->v.operand[0], LP_DIVISION)
 			| lp_verify_structure_helper(plan->v.operand[0], LP_MULTIPLICATION)
+			| lp_verify_structure_helper(plan->v.operand[0], LP_MODULO)
 			| lp_verify_structure_helper(plan->v.operand[0], LP_CONCAT)
 			| lp_verify_structure_helper(plan->v.operand[0], LP_BOOLEAN_OR)
 			| lp_verify_structure_helper(plan->v.operand[0], LP_BOOLEAN_AND)
@@ -200,6 +202,7 @@ int lp_verify_structure_helper(LogicalPlan *plan, LPActionType expected) {
 			| lp_verify_structure_helper(plan->v.operand[1], LP_SUBTRACTION)
 			| lp_verify_structure_helper(plan->v.operand[1], LP_DIVISION)
 			| lp_verify_structure_helper(plan->v.operand[1], LP_MULTIPLICATION)
+			| lp_verify_structure_helper(plan->v.operand[1], LP_MODULO)
 			| lp_verify_structure_helper(plan->v.operand[1], LP_CONCAT)
 			| lp_verify_structure_helper(plan->v.operand[1], LP_BOOLEAN_OR)
 			| lp_verify_structure_helper(plan->v.operand[1], LP_BOOLEAN_AND)
@@ -243,6 +246,7 @@ int lp_verify_structure_helper(LogicalPlan *plan, LPActionType expected) {
 				| lp_verify_structure_helper(plan->v.operand[0], LP_SUBTRACTION)
 				| lp_verify_structure_helper(plan->v.operand[0], LP_MULTIPLICATION)
 				| lp_verify_structure_helper(plan->v.operand[0], LP_DIVISION)
+				| lp_verify_structure_helper(plan->v.operand[0], LP_MODULO)
 				| lp_verify_structure_helper(plan->v.operand[0], LP_CONCAT)
 				| lp_verify_structure_helper(plan->v.operand[0], LP_NEGATIVE)
 				| lp_verify_structure_helper(plan->v.operand[0], LP_DERIVED_COLUMN)
@@ -258,6 +262,7 @@ int lp_verify_structure_helper(LogicalPlan *plan, LPActionType expected) {
 			| lp_verify_structure_helper(plan->v.operand[0], LP_SUBTRACTION)
 			| lp_verify_structure_helper(plan->v.operand[0], LP_DIVISION)
 			| lp_verify_structure_helper(plan->v.operand[0], LP_MULTIPLICATION)
+			| lp_verify_structure_helper(plan->v.operand[0], LP_MODULO)
 			| lp_verify_structure_helper(plan->v.operand[0], LP_CONCAT)
 			| lp_verify_structure_helper(plan->v.operand[0], LP_BOOLEAN_OR)
 			| lp_verify_structure_helper(plan->v.operand[0], LP_BOOLEAN_AND)

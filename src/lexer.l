@@ -178,6 +178,7 @@ int copied_so_far;
 - { return MINUS; }
 \* { return ASTERISK; }
 \/ { return SOLIDUS; }
+\% { return PERCENT; }
 \. { return PERIOD; }
 \= { return EQUALS; }
 \<= { return LESS_THAN_OR_EQUALS; }

@@ -160,6 +160,7 @@ extern void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, int *plan
 %token MINUS
 %token ASTERISK
 %token SOLIDUS
+%token PERCENT
 %token PERIOD
 %token EQUALS
 %token NOT_EQUALS
@@ -759,7 +760,14 @@ term
   | term SOLIDUS factor {
       SQL_STATEMENT($$, binary_STATEMENT);
       MALLOC_STATEMENT($$, binary, SqlBinaryOperation);
-      ($$)->v.binary->operation = DVISION;
+      ($$)->v.binary->operation = DIVISION;
+      ($$)->v.binary->operands[0] = ($1);
+      ($$)->v.binary->operands[1] = ($factor);
+    }
+  | term PERCENT factor {
+      SQL_STATEMENT($$, binary_STATEMENT);
+      MALLOC_STATEMENT($$, binary, SqlBinaryOperation);
+      ($$)->v.binary->operation = MODULO;
       ($$)->v.binary->operands[0] = ($1);
       ($$)->v.binary->operands[1] = ($factor);
     }

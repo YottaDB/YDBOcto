@@ -130,8 +130,9 @@ typedef enum UnaryOperations {
 typedef enum BinaryOperations {
 	ADDITION,
 	SUBTRACTION,
-	DVISION,
+	DIVISION,
 	MULTIPLICATION,
+	MODULO,
 	CONCAT,
 	BOOLEAN_OR,
 	BOOLEAN_AND,

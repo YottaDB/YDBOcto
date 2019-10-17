@@ -121,15 +121,32 @@ sort_specification_list_tail
 
 sort_specification
   : sort_key { $$ = sort_specification($sort_key, NULL, NULL); }
-  | sort_key collate_clause { $$ = sort_specification($sort_key, $collate_clause, NULL); }
   | sort_key ordering_specification { $$ = sort_specification($sort_key, NULL, $ordering_specification); }
-  | sort_key collate_clause ordering_specification { $$ = sort_specification($sort_key, $collate_clause, $ordering_specification); }
   ;
 
 sort_key
   /// TODO: we somehow need to influence YottaDB's collation order
-  : column_reference optional_cast_specification { $$ = $column_reference; }
-  | LITERAL { $$ = $LITERAL; }
+  : numeric_value_expression {
+	SqlValue *value;
+	/* if it is a value check if it is a column and return that otherwise issue a warning
+	 * if it is not a value then it is some kind of expression so emit a warning
+	*/
+	if (value_STATEMENT == ($1)->type) {
+		UNPACK_SQL_STATEMENT(value, $1, value);
+		if (COLUMN_REFERENCE == value->type) {
+			$$ = $1;
+		} else if (COERCE_TYPE == value->type) {
+			WARNING(ERR_FEATURE_NOT_IMPLEMENTED, "ORDER BY typecast");
+			YYABORT;
+		} else {
+			WARNING(ERR_FEATURE_NOT_IMPLEMENTED, "ORDER BY column_number");
+			YYABORT;
+		}
+	} else {
+		WARNING(ERR_FEATURE_NOT_IMPLEMENTED, "ORDER BY expression");
+		YYABORT;
+	}
+    }
   ;
 
 ordering_specification

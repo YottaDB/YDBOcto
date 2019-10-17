@@ -1,0 +1,16 @@
+[ WARN] PATH:LINENUM DATE TIME : Feature not implemented: ORDER BY expression
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select * from names order by 1+1;
+
+[ WARN] PATH:LINENUM DATE TIME : Feature not implemented: ORDER BY expression
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select * from names order by 1*1;
+
+[ WARN] PATH:LINENUM DATE TIME : Feature not implemented: ORDER BY expression
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select * from names order by 1+id;
+
+[ WARN] PATH:LINENUM DATE TIME : Feature not implemented: ORDER BY expression
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select * from names order by id+1;
+
+[ WARN] PATH:LINENUM DATE TIME : Feature not implemented: ORDER BY expression
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select * from names order by id+id;
+
+

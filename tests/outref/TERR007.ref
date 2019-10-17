@@ -1,0 +1,7 @@
+[ WARN] PATH:LINENUM DATE TIME : Feature not implemented: ORDER BY typecast
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select * from names order by id::text;
+
+[ WARN] PATH:LINENUM DATE TIME : Feature not implemented: ORDER BY typecast
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select * from names order by id::integer;
+
+

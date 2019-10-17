@@ -1,0 +1,69 @@
+OCTO> SELECT
+OCTO>   NULL AS TABLE_CAT,
+OCTO>   n.nspname AS TABLE_SCHEM,
+OCTO>   c.relname AS TABLE_NAME,
+OCTO>   CASE n.nspname ~ '^pg_'
+OCTO>   OR n.nspname = 'information_schema' WHEN true THEN CASE WHEN n.nspname = 'pg_catalog'
+OCTO>   OR n.nspname = 'information_schema' THEN CASE c.relkind WHEN 'r' THEN 'SYSTEM TABLE' WHEN 'v' THEN 'SYSTEM VIEW' WHEN 'i' THEN 'SYSTEM INDEX' ELSE NULL END WHEN n.nspname = 'pg_toast' THEN CASE c.relkind WHEN 'r' THEN 'SYSTEM TOAST TABLE' WHEN 'i' THEN 'SYSTEM TOAST INDEX' ELSE NULL END ELSE CASE c.relkind WHEN 'r' THEN 'TEMPORARY TABLE' WHEN 'p' THEN 'TEMPORARY TABLE' WHEN 'i' THEN 'TEMPORARY INDEX' WHEN 'S' THEN 'TEMPORARY SEQUENCE' WHEN 'v' THEN 'TEMPORARY VIEW' ELSE NULL END END WHEN false THEN CASE c.relkind WHEN 'r' THEN 'TABLE' WHEN 'p' THEN 'TABLE' WHEN 'i' THEN 'INDEX' WHEN 'S' THEN 'SEQUENCE' WHEN 'v' THEN 'VIEW' WHEN 'c' THEN 'TYPE' WHEN 'f' THEN 'FOREIGN TABLE' WHEN 'm' THEN 'MATERIALIZED VIEW' ELSE NULL END ELSE NULL END AS TABLE_TYPE,
+OCTO>   d.description AS REMARKS,
+OCTO>   '' as TYPE_CAT,
+OCTO>   '' as TYPE_SCHEM,
+OCTO>   '' as TYPE_NAME,
+OCTO>   '' AS SELF_REFERENCING_COL_NAME,
+OCTO>   '' AS REF_GENERATION
+OCTO> FROM
+OCTO>   pg_catalog.pg_namespace n,
+OCTO>   pg_catalog.pg_class c
+OCTO>   LEFT JOIN pg_catalog.pg_description d ON (
+OCTO>     c.oid = d.objoid
+OCTO>     AND d.objsubid = 0
+OCTO>   )
+OCTO>   LEFT JOIN pg_catalog.pg_class dc ON (
+OCTO>     d.classoid = dc.oid
+OCTO>     AND dc.relname = 'pg_class'
+OCTO>   )
+OCTO>   LEFT JOIN pg_catalog.pg_namespace dn ON (
+OCTO>     dn.oid = dc.relnamespace
+OCTO>     AND dn.nspname = 'pg_catalog'
+OCTO>   )
+OCTO> WHERE
+OCTO>   c.relnamespace = n.oid
+OCTO>   AND (
+OCTO>     false
+OCTO>     OR (
+OCTO>       c.relkind IN ('r', 'p')
+OCTO>       AND n.nspname ! ~ '^pg_'
+OCTO>       AND n.nspname <> 'information_schema'
+OCTO>     )
+OCTO>     OR (
+OCTO>       c.relkind = 'r'
+OCTO>       AND (
+OCTO>         n.nspname = 'pg_catalog'
+OCTO>         OR n.nspname = 'information_schema'
+OCTO>       )
+OCTO>     )
+OCTO>     OR (
+OCTO>       c.relkind = 'v'
+OCTO>       AND n.nspname <> 'pg_catalog'
+OCTO>       AND n.nspname <> 'information_schema'
+OCTO>     )
+OCTO>   )
+OCTO> ORDER BY
+OCTO>   TABLE_TYPE,
+OCTO>   TABLE_SCHEM,
+OCTO>   TABLE_NAME
+OCTO> Added SET and/or Non-SET trigger on ^%ydboctoocto named %ydboctoT*
+
+|public|INFORMATION_SCHEMA.TABLES|TABLE||||||
+|public|NAMES|TABLE||||||
+|public|NAMESWITHAGES|TABLE||||||
+|public|OCTOONEROWTABLE|TABLE||||||
+|public|PG_CATALOG.PG_ATTRDEF|TABLE||||||
+|public|PG_CATALOG.PG_ATTRIBUTE|TABLE||||||
+|public|PG_CATALOG.PG_CLASS|TABLE||||||
+|public|PG_CATALOG.PG_DESCRIPTION|TABLE||||||
+|public|PG_CATALOG.PG_NAMESPACE|TABLE||||||
+|public|PG_CATALOG.PG_PROC|TABLE||||||
+|public|PG_CATALOG.PG_TYPE|TABLE||||||
+|public|PG_TYPE|TABLE||||||
+|public|USERS|TABLE||||||

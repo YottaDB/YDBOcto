@@ -27,7 +27,7 @@ OCTO
   [[ "$output" =~ "ZGBLDIRACC" ]]
 }
 
-@test "Feature not implemented: between_predicate" {
+@test "TERR000 : Feature not implemented: between_predicate" {
   octo <<OCTO 2>&1 | tee output.txt
 select * from names where id between 1 and 10;
 select * from names where id between 1+1 and 10;
@@ -36,14 +36,14 @@ OCTO
   verify_output TERR000 output.txt
 }
 
-@test "Feature not implemented: exists_predicate" {
+@test "TERR001 : Feature not implemented: exists_predicate" {
   octo <<OCTO 2>&1 | tee output.txt
 select * from names where exists (select * from names);
 OCTO
   verify_output TERR001 output.txt
 }
 
-@test "Octo can recover from error (e.g. DIVBYZERO)" {
+@test "TERR002 : Octo can recover from error (e.g. DIVBYZERO)" {
   octo <<OCTO 2>&1 | tee output.txt
 select 1/0 from names;
 select * from names;
@@ -51,7 +51,7 @@ OCTO
   verify_output TERR002 output.txt noinfo nodebug
 }
 
-@test "Octo issues FATAL error for missing input file" {
+@test "TERR003 : Octo issues FATAL error for missing input file" {
   octo -f missing.sql 2>&1 | tee output.txt
   verify_output TERR003 output.txt noinfo nodebug
 }
@@ -63,7 +63,7 @@ OCTO
   [[ $status -eq 1 ]]
 }
 
-@test "Rocto can recover from error (e.g. DIVBYZERO)" {
+@test "TERR004 : Rocto can recover from error (e.g. DIVBYZERO)" {
   load_fixture default_user.zwr
   test_port=$(start_rocto 1443)
   run_psql $test_port <<OCTO 2>&1 | tee output.txt
@@ -74,3 +74,30 @@ OCTO
   verify_output TERR004 output.txt noinfo nodebug
 }
 
+@test "TERR005 : Feature not implemented: ORDER BY column_number" {
+  octo <<OCTO 2>&1 | tee output.txt
+select * from names order by 1;
+OCTO
+  verify_output TERR005 output.txt
+}
+
+@test "TERR006 : Feature not implemented: ORDER BY expression" {
+  cat >>input.sql<<CAT
+select * from names order by 1+1;
+select * from names order by 1*1;
+select * from names order by 1+id;
+select * from names order by id+1;
+select * from names order by id+id;
+CAT
+  octo -f  input.sql 2>&1 | tee output.txt
+  verify_output TERR006 output.txt
+}
+
+@test "TERR007 : Feature not implemented: ORDER BY typecast" {
+  cat >>input.sql<<CAT
+select * from names order by id::text;
+select * from names order by id::integer;
+CAT
+  octo -f  input.sql 2>&1 | tee output.txt
+  verify_output TERR007 output.txt
+}

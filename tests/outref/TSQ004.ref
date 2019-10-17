@@ -1,0 +1,53 @@
+OCTO>  SELECT NULL          AS PROCEDURE_CAT,
+OCTO>        n.nspname     AS PROCEDURE_SCHEM,
+OCTO>        p.proname     AS PROCEDURE_NAME,
+OCTO>        NULL,
+OCTO>        NULL,
+OCTO>        NULL,
+OCTO>        d.description AS REMARKS,
+OCTO>        2             AS PROCEDURE_TYPE,
+OCTO>        p.proname
+OCTO>        || '_'
+OCTO>        || p.oid      AS SPECIFIC_NAME
+OCTO> FROM   pg_catalog.pg_namespace n,
+OCTO>        pg_catalog.pg_proc p
+OCTO>        left join pg_catalog.pg_description d
+OCTO>               ON ( p.oid = d.objoid )
+OCTO>        left join pg_catalog.pg_class c
+OCTO>               ON ( d.classoid = c.oid
+OCTO>                    AND c.relname = 'pg_proc' )
+OCTO>        left join pg_catalog.pg_namespace pn
+OCTO>               ON ( c.relnamespace = pn.oid
+OCTO>                    AND pn.nspname = 'pg_catalog' )
+OCTO> WHERE  p.pronamespace = n.oid
+OCTO> ORDER  BY procedure_schem,
+OCTO>           procedure_name,
+OCTO>           p.oid :: text
+OCTO> [ WARN] PATH:LINENUM DATE TIME : Feature not implemented: ORDER BY typecast
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT NULL          AS PROCEDURE_CAT,
+       n.nspname     AS PROCEDURE_SCHEM,
+       p.proname     AS PROCEDURE_NAME,
+       NULL,
+       NULL,
+       NULL,
+       d.description AS REMARKS,
+       2             AS PROCEDURE_TYPE,
+       p.proname
+       || '_'
+       || p.oid      AS SPECIFIC_NAME
+FROM   pg_catalog.pg_namespace n,
+       pg_catalog.pg_proc p
+       left join pg_catalog.pg_description d
+              ON ( p.oid = d.objoid )
+       left join pg_catalog.pg_class c
+              ON ( d.classoid = c.oid
+                   AND c.relname = 'pg_proc' )
+       left join pg_catalog.pg_namespace pn
+              ON ( c.relnamespace = pn.oid
+                   AND pn.nspname = 'pg_catalog' )
+WHERE  p.pronamespace = n.oid
+ORDER  BY procedure_schem,
+          procedure_name,
+          p.oid :: text
+
+

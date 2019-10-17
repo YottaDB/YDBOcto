@@ -86,7 +86,8 @@ WHERE  ( ( A.patient_id IS NOT NULL
          AND ( A.stop_date > 1 OR A.stop_date IS NULL )
          AND E.name NOT LIKE "ZZ%"
          AND E.current_movement IS NOT NULL )
-ORDER  BY A.order1_id :: INTEGER;
+/* TODO this line should be "ORDER  BY A.order_id :: INTEGER;" pending on issue #304 */
+ORDER  BY A.order1_id;
 OCTO
   # Verify that 4 plans are created for the boolean expression and each one has just one FOR loop (that too inside a DO)
   # and the corresponding key in the generated M code

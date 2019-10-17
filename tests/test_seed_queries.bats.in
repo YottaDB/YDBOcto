@@ -19,16 +19,16 @@ setup() {
   load_fixture names.zwr
 }
 
-@test "get oids" {
+@test "TSQ000 : get oids" {
   octo <<OCTO 2>&1 | tee output.txt
 SELECT t.typlen
 FROM pg_catalog.pg_type t, pg_catalog.pg_namespace n
 WHERE t.typnamespace=n.oid AND t.typname='name' AND n.nspname='pg_catalog'
 OCTO
-  [[ "$(grep -c "ERROR" output.txt)" == "0" ]]
+  verify_output TSQ000 output.txt
 }
 
-@test "get relkind" {
+@test "TSQ001 : get relkind" {
   ## TODO: this is actually really hard because we make a reference to a table
   ##  out of scope in the subquery; for now, skip it
   skip
@@ -41,10 +41,10 @@ WHERE n.nspname  != 'pg_toast'
   AND (t.typrelid = 0 OR
     (SELECT c.relkind = 'c' FROM pg_catalog.pg_class c WHERE c.oid = t.typrelid))
 OCTO
-  [[ "$(grep -c "ERROR" output.txt)" == "0" ]]
+  verify_output TSQ001 output.txt
 }
 
-@test "get tables" {
+@test "TSQ002 : get tables" {
   octo <<OCTO 2>&1 | tee output.txt
 SELECT
   NULL AS TABLE_CAT,
@@ -101,10 +101,10 @@ ORDER BY
   TABLE_SCHEM,
   TABLE_NAME
 OCTO
-  [[ "$(grep -c "ERROR" output.txt)" == "0" ]]
+  verify_output TSQ002 output.txt
 }
 
-@test "test1" {
+@test "TSQ003" {
   octo <<OCTO 2>&1 | tee output.txt
  SELECT NULL          AS TABLE_CAT,
        n.nspname     AS TABLE_SCHEM,
@@ -184,10 +184,10 @@ ORDER  BY table_type,
           table_schem,
           table_name
 OCTO
-  [[ "$(grep -c "ERROR" output.txt)" == "0" ]]
+  verify_output TSQ003 output.txt
 }
 
-@test "test2" {
+@test "TSQ004" {
   octo <<OCTO 2>&1 | tee output.txt
  SELECT NULL          AS PROCEDURE_CAT,
        n.nspname     AS PROCEDURE_SCHEM,
@@ -215,10 +215,10 @@ ORDER  BY procedure_schem,
           procedure_name,
           p.oid :: text
 OCTO
-  [[ "$(grep -c "ERROR" output.txt)" == "0" ]]
+  verify_output TSQ004 output.txt
 }
 
-@test "test3" {
+@test "TSQ005" {
   octo <<OCTO 2>&1 | tee output.txt
  SELECT NULL                                         AS type_cat,
        n.nspname                                    AS type_schem,
@@ -335,7 +335,7 @@ ORDER  BY data_type,
           type_schem,
           type_name
 OCTO
-  [[ "$(grep -c "ERROR" output.txt)" == "0" ]]
+  verify_output TSQ005 output.txt
 }
 
 @test "select database version" {
@@ -346,7 +346,7 @@ OCTO
   # will change often and I don't feel like updating this test all the time
 }
 
-@test "psql \\dt" {
+@test "TSQ006 : psql \\dt" {
   octo <<OCTO 2>&1 | tee output.txt
  SELECT n.nspname                              AS "Schema",
        c.relname                              AS "Name",
@@ -374,13 +374,14 @@ WHERE  c.relkind IN ( 'r', 'p', 'v', 'm',
 ORDER  BY 1,
           2;
 OCTO
+  verify_output TSQ006 output.txt
 }
 
-@test "verify that OIDs are lined up for namespaces" {
+@test "TSQ007 : verify that OIDs are lined up for namespaces" {
   export ydb_mstack_size=10000
   octo <<OCTO &>output.txt
 select c.relnamespace, n.oid from pg_catalog.pg_namespace n, pg_catalog.pg_class c
 WHERE n.oid = c.relnamespace;
 OCTO
-  [[ $(grep -c "|" output.txt) -gt 0 ]]
+  verify_output TSQ007 output.txt
 }

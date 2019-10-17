@@ -1,0 +1,17 @@
+OCTO> select c.relnamespace, n.oid from pg_catalog.pg_namespace n, pg_catalog.pg_class c
+OCTO> WHERE n.oid = c.relnamespace;
+Added SET and/or Non-SET trigger on ^%ydboctoocto named %ydboctoT*
+2200|2200
+2200|2200
+2200|2200
+2200|2200
+2200|2200
+2200|2200
+2200|2200
+2200|2200
+2200|2200
+2200|2200
+2200|2200
+2200|2200
+2200|2200
+OCTO> 

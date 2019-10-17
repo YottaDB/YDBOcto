@@ -1,0 +1,5 @@
+OCTO> SELECT t.typlen
+OCTO> FROM pg_catalog.pg_type t, pg_catalog.pg_namespace n
+OCTO> WHERE t.typnamespace=n.oid AND t.typname='name' AND n.nspname='pg_catalog'
+OCTO> 
+64

@@ -1,0 +1,71 @@
+#!/usr/bin/expect
+#################################################################
+#								#
+# Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	#
+# All rights reserved.						#
+#								#
+#	This source code contains the intellectual property	#
+#	of its copyright holder(s), and is made available	#
+#	under a license.  If you do not know the terms of	#
+#	the license, please stop and do not read further.	#
+#								#
+#################################################################
+
+set timeout 2
+spawn /bin/bash
+# Enable long lines to prevent wrapping
+send -- "stty cols 4096\r"
+expect "stty cols 4096\r"
+# Start octo
+send -- "octo\r"
+expect "OCTO> "
+# Single line query
+send -- "select 'a' from names limit 1;\r"
+expect -exact "select 'a' from names limit 1;\r
+a\r
+OCTO> "
+# this is the control sequence for "up arrow"
+send -- "\[A"
+expect -exact "select 'a' from names limit 1;"
+send -- "\r"
+expect -exact "\r
+a\r
+OCTO> "
+# Multi-line query
+send -- "select 'a' from \r"
+expect -exact "select 'a' from \r
+OCTO> "
+send -- "names limit 1;\r"
+expect -exact "names limit 1;\r
+a\r
+OCTO> "
+send -- "\[A"
+expect -exact "select 'a' from\r
+\rnames limit 1;"
+send -- "\r"
+expect -exact "\r
+a\r
+OCTO> "
+# Multiple queries on the same line
+send -- "select 'a' from names limit 1; select 'b' from names limit 1;\r"
+expect -exact "from names limit 1; select 'b' from names limit 1;\r
+a\r
+b\r
+OCTO> "
+send -- "\[A"
+expect -exact "select 'b' from names limit 1;"
+send -- "\r"
+expect -exact "\r
+b\r
+OCTO> "
+send -- "\[A"
+expect -exact "select 'b' from names limit 1;"
+send -- "\[A"
+send -- "\r"
+expect -exact "\r
+a\r
+OCTO> "
+send -- "\\q\r"
+expect -exact "\\q\r"
+expect timeout
+exit

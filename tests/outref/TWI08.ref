@@ -6,7 +6,7 @@ Zero
 OCTO> 
 ;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
 ;; ---------------------------------------------------------
-;    SELECT firstName FROM names WHERE firstName IN ('Zero', 'Acid', 'Cool');
+;  SELECT firstName FROM names WHERE firstName IN ('Zero', 'Acid', 'Cool');
 ;; ---------------------------------------------------------
 
 octoPlan0(cursorId)

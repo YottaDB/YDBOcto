@@ -110,6 +110,7 @@ OCTO
   cat _ydboctoP*.m >> output.txt
   verify_output TML010 output.txt
 }
+
 @test "TML011 : generated code header for multiquery lines lists only the correct query using octo -f" {
   export LC_ALL=en_US.UTF8 # needed to avoid wildcard expansion changing based on LC_TYPE
   cat <<CAT >> input.sql
@@ -120,4 +121,18 @@ CAT
   verify_output TML011 output.txt
 }
 
-
+@test "TML012 : generated code header, -vv for very ugly multiquery line" {
+  export LC_ALL=en_US.UTF8 # needed to avoid wildcard expansion changing based on LC_TYPE
+  cat <<CAT >> input.sql
+     select
+     'a'
+     from
+     names;     select
+     'b'
+     from
+     names;
+CAT
+  octo -vv -f input.sql 2>&1 | tee output.txt
+  cat _ydboctoP*.m >> output.txt
+  verify_output TML012 output.txt
+}

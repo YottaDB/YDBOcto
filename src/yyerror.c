@@ -31,15 +31,17 @@ void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, int *plan_id, ch
 void print_yyloc(YYLTYPE *llocp) {
 	// llocp is 0 based
 	int cur_line = 0, cur_column = 0, offset = old_input_index;
-	char *c = input_buffer_combined, *line_begin, *line_end, old_terminator;
+	char *c, *line_begin = input_buffer_combined, *line_end, old_terminator;
+
 	/* start at begining of buffer
 	 * if a newline is found before the old_input_index (a multiline query)
 	 * move the start of the string, and shrink the offest
 	 */
-	line_begin = c;
-	for(; *c != '\0' && cur_column < old_input_index; c++, cur_column++) {
-		if (*c == '\n'){
+	c = line_begin;
+	for (; ('\0' != *c) && (cur_column < old_input_index); c++, cur_column++) {
+		if ('\n' == *c) {
 			line_begin = c + 1;
+			/* shift the offset over */
 			offset = old_input_index - cur_column - 1;
 		}
 	}
@@ -49,14 +51,14 @@ void print_yyloc(YYLTYPE *llocp) {
 	 * because no previous query could be on that line
 	 */
 	c = line_begin;
-	for(;*c != '\0' && cur_line < llocp->first_line; c++) {
-		if(*c == '\n'){
+	for (; ('\0' != *c) && (cur_line < llocp->first_line); c++) {
+		if ('\n' == *c) {
 			cur_line++;
 			offset = -1;
 		}
 	}
 	/* find the next newline or null terminator */
-	for(; *c != '\0' && *c != '\n'; c++) {
+	for (; ('\0' != *c) && ('\n' != *c); c++) {
 		// Left blank
 	}
 	/* store the old line terminator as we will need to restore it at the end
@@ -72,10 +74,10 @@ void print_yyloc(YYLTYPE *llocp) {
 	// Underline the issue
 	c = line_begin;
 	/* offset is the length of previous queries on the same line */
-	for(; *c != '\0' && cur_column < offset + llocp->first_column; c++, cur_column++) {
+	for (; ('\0' != *c) && (cur_column < offset + llocp->first_column); c++, cur_column++) {
 		fprintf(err_buffer, " ");
 	}
-	for(; *c != '\0' && cur_column < offset + llocp->last_column; c++, cur_column++) {
+	for (; ('\0' != *c) && (cur_column < offset + llocp->last_column); c++, cur_column++) {
 		fprintf(err_buffer, "^");
 	}
 	fprintf(err_buffer, "\n");

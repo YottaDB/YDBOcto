@@ -71,7 +71,6 @@ int readline_get_more() {
 			 */
 			return 1;
 		}
-		add_history(line);
 		/* if input line is too long resize buffer
 		 * by min(cur_input_max * 2, line_length) + 2 (for the \n\0)
 		 */

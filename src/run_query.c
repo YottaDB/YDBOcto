@@ -18,6 +18,7 @@
 #include <assert.h>
 #include <string.h>
 #include <stdbool.h>
+#include <readline/history.h>
 
 
 #include <libyottadb.h>
@@ -42,6 +43,7 @@ int run_query(int (*callback)(SqlStatement *, int, void*, char*), void *parms) {
 	SqlValue	*value;
 	bool		free_memory_chunks;
 	char		*buffer, filename[OCTO_PATH_MAX], routine_name[MAX_ROUTINE_LEN];
+	char		placeholder;
 	gtm_long_t	cursorId;
 	hash128_state_t	state;
 	int		done, routine_len = MAX_ROUTINE_LEN;
@@ -49,6 +51,7 @@ int run_query(int (*callback)(SqlStatement *, int, void*, char*), void *parms) {
 	size_t		buffer_size = 0;
 	ydb_buffer_t	*filename_lock = NULL;
 	ydb_string_t	ci_filename, ci_routine;
+	HIST_ENTRY	*cur_hist;
 
 	memory_chunks = alloc_chunk(MEMORY_CHUNK_SIZE);
 
@@ -56,12 +59,25 @@ int run_query(int (*callback)(SqlStatement *, int, void*, char*), void *parms) {
 	 * then print the difference between the cur_input_index - old_input_index
 	 */
 	old_input_index = cur_input_index;
-	while ('\0' != input_buffer_combined[cur_input_index]
-			&& ((' ' == input_buffer_combined[cur_input_index]) || ('\n' == input_buffer_combined[cur_input_index]))) {
-		cur_input_index++;
-		old_input_index++;
-	}
 	result = parse_line();
+
+	/* add the current query to the readlines history */
+	if (config->is_tty) {
+		placeholder = input_buffer_combined[cur_input_index];
+		input_buffer_combined[cur_input_index] = '\0';
+		/* get the last item added to the history
+		 * if it is the same as the current query don't add it to thhe history again
+		 */
+		cur_hist = history_get(history_length);
+		if(NULL != cur_hist){
+			if (0 != strcmp(cur_hist->line, input_buffer_combined + old_input_index))
+				add_history(input_buffer_combined + old_input_index);
+		} else {
+			add_history(input_buffer_combined + old_input_index);
+		}
+		input_buffer_combined[cur_input_index] = placeholder;
+	}
+
 	INFO(CUSTOM_ERROR, "Parsing done for SQL command [%.*s]", cur_input_index - old_input_index, input_buffer_combined + old_input_index);
 	if(result == NULL) {
 		INFO(CUSTOM_ERROR, "Returning failure from run_query");

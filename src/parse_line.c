@@ -34,9 +34,6 @@ SqlStatement *parse_line() {
 	}
 
 	config->plan_id = 0;
-	/* To print only the current query store the index for the last one
-	 * then print the difference between the cur_input_index - old_input_index
-	 */
 	int status = yyparse(scanner, &result, &config->plan_id);
 	yylex_destroy(scanner);
 	if(status)

@@ -21,18 +21,18 @@
 
 #define YY_INPUT(buf, result, max_size) while((result = get_input(buf, max_size)) == -1 && result != YY_NULL) { };
 
-#define YY_USER_ACTION \
-    yylloc->first_line = yylloc->last_line; \
-    yylloc->first_column = yylloc->last_column; \
-    for(int i = 0; yytext[i] != '\0'; i++) { \
-        if(yytext[i] == '\n') { \
-            yylloc->last_line++; \
-            yylloc->first_column = 1; \
-            yylloc->last_column = 1; \
-        } \
-        else { \
-            yylloc->last_column++; \
-        } \
+#define YY_USER_ACTION 							\
+	yylloc->first_line = yylloc->last_line; 			\
+	yylloc->first_column = yylloc->last_column;			\
+	for(int i = 0; yytext[i] != '\0'; i++) { 			\
+		if(yytext[i] == '\n') { 				\
+			yylloc->last_line++; 				\
+			yylloc->first_column = 1; 			\
+			yylloc->last_column = 1; 			\
+		}							\
+		else {							\
+			yylloc->last_column++;				\
+		}							\
     }
 
 /*
@@ -194,6 +194,14 @@ int copied_so_far;
 \: { return COLON; }
 \\q { return QUIT; }
 
+^[ \t\r\n]* { /* skip leading whitespace */
+		if (0 == yylloc->first_line) {
+			int leading_spaces = strlen(yytext);
+			old_input_index += leading_spaces;
+			yylloc->last_column -= leading_spaces;
+			yylloc->last_line = 0;
+		}
+	}
 
 [0-9](\.)?[0-9]* {
                 copied_so_far = 0;

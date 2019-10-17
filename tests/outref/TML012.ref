@@ -1,0 +1,186 @@
+[ INFO] PATH:LINENUM DATE TIME : Parsing done for SQL command [select
+     'a'
+     from
+     names;]
+[ INFO] PATH:LINENUM DATE TIME : Generating SQL for CURSOR_NUM
+[ INFO] PATH:LINENUM DATE TIME : Generating M file [./_ydboctoP*.m] (to execute SQL query)
+[DEBUG] PATH:LINENUM DATE TIME : Current plan: 
+LP_INSERT: 
+  LP_PROJECT: 
+    LP_COLUMN_LIST: 
+      LP_WHERE: 
+        LP_VALUE: a
+        LP_COLUMN_LIST_ALIAS: 
+        - type: STRING_LITERAL
+        - alias: ???
+    LP_SELECT: 
+      LP_TABLE_JOIN: 
+        LP_TABLE: NAMES
+      LP_CRITERIA: 
+        LP_KEYS: 
+        LP_SELECT_OPTIONS: 
+          LP_WHERE: 
+          LP_KEYWORDS: keywords
+  LP_OUTPUT: 
+    LP_KEY: 
+    - table_name:  
+    - column_name:  
+    - unique_id: 2
+    - method: LP_KEY_ADVANCE
+    - xref_key: false
+    - uses_xref_key: false
+
+[DEBUG] PATH:LINENUM DATE TIME : Current plan: 
+LP_INSERT: 
+  LP_PROJECT: 
+    LP_COLUMN_LIST: 
+      LP_WHERE: 
+        LP_VALUE: a
+        LP_COLUMN_LIST_ALIAS: 
+        - type: STRING_LITERAL
+        - alias: ???
+    LP_SELECT: 
+      LP_TABLE_JOIN: 
+        LP_TABLE: NAMES
+      LP_CRITERIA: 
+        LP_KEYS: 
+          LP_KEY: 
+          - table_name: NAMES
+          - column_name: ID
+          - unique_id: 0
+          - method: LP_KEY_ADVANCE
+          - xref_key: false
+          - uses_xref_key: false
+        LP_SELECT_OPTIONS: 
+          LP_WHERE: 
+          LP_KEYWORDS: keywords
+  LP_OUTPUT: 
+    LP_KEY: 
+    - table_name:  
+    - column_name:  
+    - unique_id: 2
+    - method: LP_KEY_ADVANCE
+    - xref_key: false
+    - uses_xref_key: false
+
+[ INFO] PATH:LINENUM DATE TIME : print_temporary_table()
+a
+a
+a
+a
+a
+a
+[ INFO] PATH:LINENUM DATE TIME : Parsing done for SQL command [select
+     'b'
+     from
+     names;]
+[ INFO] PATH:LINENUM DATE TIME : Generating SQL for CURSOR_NUM
+[ INFO] PATH:LINENUM DATE TIME : Generating M file [./_ydboctoP*.m] (to execute SQL query)
+[DEBUG] PATH:LINENUM DATE TIME : Current plan: 
+LP_INSERT: 
+  LP_PROJECT: 
+    LP_COLUMN_LIST: 
+      LP_WHERE: 
+        LP_VALUE: b
+        LP_COLUMN_LIST_ALIAS: 
+        - type: STRING_LITERAL
+        - alias: ???
+    LP_SELECT: 
+      LP_TABLE_JOIN: 
+        LP_TABLE: NAMES
+      LP_CRITERIA: 
+        LP_KEYS: 
+        LP_SELECT_OPTIONS: 
+          LP_WHERE: 
+          LP_KEYWORDS: keywords
+  LP_OUTPUT: 
+    LP_KEY: 
+    - table_name:  
+    - column_name:  
+    - unique_id: 2
+    - method: LP_KEY_ADVANCE
+    - xref_key: false
+    - uses_xref_key: false
+
+[DEBUG] PATH:LINENUM DATE TIME : Current plan: 
+LP_INSERT: 
+  LP_PROJECT: 
+    LP_COLUMN_LIST: 
+      LP_WHERE: 
+        LP_VALUE: b
+        LP_COLUMN_LIST_ALIAS: 
+        - type: STRING_LITERAL
+        - alias: ???
+    LP_SELECT: 
+      LP_TABLE_JOIN: 
+        LP_TABLE: NAMES
+      LP_CRITERIA: 
+        LP_KEYS: 
+          LP_KEY: 
+          - table_name: NAMES
+          - column_name: ID
+          - unique_id: 0
+          - method: LP_KEY_ADVANCE
+          - xref_key: false
+          - uses_xref_key: false
+        LP_SELECT_OPTIONS: 
+          LP_WHERE: 
+          LP_KEYWORDS: keywords
+  LP_OUTPUT: 
+    LP_KEY: 
+    - table_name:  
+    - column_name:  
+    - unique_id: 2
+    - method: LP_KEY_ADVANCE
+    - xref_key: false
+    - uses_xref_key: false
+
+[ INFO] PATH:LINENUM DATE TIME : print_temporary_table()
+b
+b
+b
+b
+b
+b
+[ INFO] PATH:LINENUM DATE TIME : Parsing done for SQL command []
+
+;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
+;; ---------------------------------------------------------
+;  select
+;       'b'
+;       from
+;       names;
+;; ---------------------------------------------------------
+
+octoPlan0(cursorId)
+    DO octoPlan1(cursorId)
+    QUIT
+
+octoPlan1(cursorId)
+    NEW %ydboctoz KILL %ydboctocursor(cursorId,"keys",2,"","")
+    SET %ydboctocursor(cursorId,"keys",0,"NAMES","ID")=""
+    FOR  SET %ydboctocursor(cursorId,"keys",0,"NAMES","ID")=$ORDER(^names(%ydboctocursor(cursorId,"keys",0,"NAMES","ID"))) QUIT:(%ydboctocursor(cursorId,"keys",0,"NAMES","ID")="")  DO
+    . IF 1 DO
+    . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",2,"","")) %ydboctoz=42
+    . . SET:1 %ydboctocursor(cursorId,"keys",2,"","",%ydboctocursor(cursorId,"keys",2,"",""))=$GET(%ydboctocursor(cursorId,"keys",2,"","",%ydboctocursor(cursorId,"keys",2,"","")))_"b"
+    QUIT
+;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
+;; ---------------------------------------------------------
+;  select
+;       'a'
+;       from
+;       names;
+;; ---------------------------------------------------------
+
+octoPlan0(cursorId)
+    DO octoPlan1(cursorId)
+    QUIT
+
+octoPlan1(cursorId)
+    NEW %ydboctoz KILL %ydboctocursor(cursorId,"keys",2,"","")
+    SET %ydboctocursor(cursorId,"keys",0,"NAMES","ID")=""
+    FOR  SET %ydboctocursor(cursorId,"keys",0,"NAMES","ID")=$ORDER(^names(%ydboctocursor(cursorId,"keys",0,"NAMES","ID"))) QUIT:(%ydboctocursor(cursorId,"keys",0,"NAMES","ID")="")  DO
+    . IF 1 DO
+    . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",2,"","")) %ydboctoz=42
+    . . SET:1 %ydboctocursor(cursorId,"keys",2,"","",%ydboctocursor(cursorId,"keys",2,"",""))=$GET(%ydboctocursor(cursorId,"keys",2,"","",%ydboctocursor(cursorId,"keys",2,"","")))_"a"
+    QUIT

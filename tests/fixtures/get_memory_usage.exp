@@ -19,7 +19,7 @@ send -- "stty cols 4096\r"
 expect "stty cols 4096\r"
 # Start psql
 send -- "psql -U ydb -h localhost -p $port\r"
-expect ".*Password for user ydb: "
+expect timeout 60 ".*Password for user ydb: "
 send "ydbrocks\r"
 expect ".*ydb=. "
 # Get memory usage after running the same three queries again

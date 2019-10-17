@@ -18,6 +18,9 @@
 
 void regex_specification(SqlStatement **stmt, SqlStatement *op0, SqlStatement *op1, int is_regex_like_or_similar, int is_sensitive, int is_not){
 	SqlStatement *regex;
+	char *c;
+	int is_dot_star = TRUE;
+	SqlValue *value;
 	if (is_not) {
 		SQL_STATEMENT(*stmt, unary_STATEMENT);
 		MALLOC_STATEMENT(*stmt, unary, SqlUnaryOperation);
@@ -52,6 +55,33 @@ void regex_specification(SqlStatement **stmt, SqlStatement *op0, SqlStatement *o
 			trim_dot_star(value);
 		}
 		regex->v.binary->operands[1] = op1;
+	}
+
+	/* check if the converted regex is just '.*' and if so replace it with boolean TRUE */
+	value = regex->v.binary->operands[1]->v.value;
+	c = value->v.string_literal;
+	if ('^' == *c) {
+		c++;
+	}
+	if (('.' == *c) && ('*' == *(c+1))) {
+		c += 2;
+	} else {
+		is_dot_star = FALSE;
+	}
+	if ('$' == *c) {
+		c++;
+	}
+	if('\0' == *c && is_dot_star){
+		SQL_STATEMENT(regex, value_STATEMENT);
+		MALLOC_STATEMENT(regex, value, SqlValue);
+		regex->type = value_STATEMENT;
+		regex->v.value->type = BOOLEAN_VALUE;
+		if (is_not){
+			regex->v.value->v.string_literal = "0";
+		} else {
+			regex->v.value->v.string_literal = "1";
+		}
+			(*stmt) = regex;
 	}
 }
 

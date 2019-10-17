@@ -102,7 +102,7 @@ LogicalPlan *lp_generate_where(SqlStatement *stmt, int *plan_id) {
 				/* flags for optimization
 				 * loop through the regex once and disable the flags as they are ruled out
 				 */
-				int done = FALSE, is_literal = TRUE, is_dot_star = TRUE;
+				int done = FALSE, is_literal = TRUE;
 				while(*c != '\0' && *c != '$' && !done) {
 					switch(*c) {
 					case '\\':
@@ -115,24 +115,11 @@ LogicalPlan *lp_generate_where(SqlStatement *stmt, int *plan_id) {
 					case '[':
 					case ']':
 					case '?':
-
+					case '.':
 						is_literal = FALSE;
 						done = TRUE;
 						break;
-					case '.':
-						/* peek at the next character if it is a * skip it and keep parsing
-						 * otherwise break out of the loop as we found a '.'
-						 */
-						if('*' == *(c+1)){
-							c += 2;
-							is_literal = FALSE;
-						} else {
-							is_dot_star = FALSE;
-							done = TRUE;
-						}
-						break;
 					default:
-						is_dot_star = FALSE;
 						c++;
 						break;
 					}
@@ -140,12 +127,6 @@ LogicalPlan *lp_generate_where(SqlStatement *stmt, int *plan_id) {
 				}
 				if('$' == *c){
 					c++;
-				}
-				if('\0' == *c && is_dot_star){
-					ret->type = LP_VALUE;
-					ret->v.value->type = BOOLEAN_VALUE;
-					ret->v.value->v.string_literal = "1";
-					break;
 				}
 
 				/* check that the start and end of the regex is ^$

@@ -57,6 +57,8 @@ ERROR_DEF(ERR_MULTIPLE_ZERO_KEYS, "Multiple %d keys found for table %s", PSQL_Co
 ERROR_DEF(ERR_MISSING_KEY, "Missing key %d in table %s; max key was %d", PSQL_Code_Undefined_Object)
 ERROR_DEF(ERR_TABLE_DEFINITION_TOO_LONG, "Table definition for %s too long; max size is %d, table length is %d", PSQL_Code_Invalid_Table_Definition)
 ERROR_DEF(ERR_TYPE_MISMATCH, "Type mismatch: left %s, right %s", PSQL_Code_Datatype_Mismatch)
+ERROR_DEF(ERR_SETOPER_NUMCOLS_MISMATCH, "Each %s query must have same number of columns", PSQL_Code_Datatype_Mismatch)
+ERROR_DEF(ERR_SETOPER_TYPE_MISMATCH, "%s types %s and %s cannot be matched", PSQL_Code_Syntax_Error)
 // ROCTO //
 ERROR_DEF(ERR_ROCTO_M_CALL, "M extrinsic function calls are disallowed in rocto", PSQL_Code_Internal_Error)
 

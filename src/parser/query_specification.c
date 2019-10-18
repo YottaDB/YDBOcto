@@ -64,6 +64,17 @@ SqlStatement *query_specification(SqlStatement *set_quantifier, SqlStatement *se
 				dqappend(cl_alias, t_cl_alias);
 			cur_join = cur_join->next;
 		} while(cur_join != start_join);
+		/* Copy location of ASTERISK (noted down in ASTERISK rule in "src/parser/select.y")
+		 * for potential error reporting (with line/column context) in "populate_data_type.c".
+		 * Do this in all the created column list aliases.
+		 */
+		t_cl_alias = cl_alias;
+		if (NULL != t_cl_alias) {
+			do {
+				t_cl_alias->column_list->loc = select_list->loc;
+				t_cl_alias = t_cl_alias->next;
+			} while (t_cl_alias != cl_alias);
+		}
 		select_list->v.column_list_alias = cl_alias;
 	}
 	select->optional_words = set_quantifier;

@@ -74,9 +74,6 @@ LogicalPlan *lp_generate_set_logical_plan(SqlStatement *stmt, int *plan_id) {
 	dst_key->counter = plan_id;
 	dst_key->v.key->unique_id = get_plan_unique_number(dst_key);
 	dst_key->v.key->type = LP_KEY_ADVANCE;
-	/// TODO: we should verify the selects being join have the same number
-	///  of columns during the parsing phase
-
 	// Restore set_operation for cleanup
 	return set_operation;
 }

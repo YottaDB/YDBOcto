@@ -203,7 +203,7 @@ query_specification
 select_list
   : ASTERISK {
       SQL_STATEMENT($$, column_list_alias_STATEMENT);
-      ($$)->v.column_list = NULL;
+      $$->loc = yyloc; /* note down the location of the ASTERISK for later use in populate_data_type (for error reporting) */
     }
   | select_sublist { $$ = $select_sublist;  }
   ;
@@ -281,6 +281,7 @@ derived_column
         alias->alias->v.value->v.string_literal = octo_cmalloc(memory_chunks, strlen("???") + 2);
         strcpy(alias->alias->v.value->v.string_literal, "???");
       }
+      alias->column_list->loc = yyloc;
     }
   | derived_column_expression AS column_name {
       SQL_STATEMENT($$, column_list_alias_STATEMENT);
@@ -295,6 +296,7 @@ derived_column
       dqinit(column_list);
       column_list->value = $derived_column_expression;
       alias->alias = $column_name;
+      alias->column_list->loc = yyloc;
     }
   ;
 

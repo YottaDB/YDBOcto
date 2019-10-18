@@ -22,7 +22,7 @@ int qualify_query(SqlStatement *stmt, SqlJoin *parent_join) {
 	int	result = 0;
 
 	assert(stmt->type == table_alias_STATEMENT || stmt->type == set_operation_STATEMENT);
-	if(stmt->type == table_alias_STATEMENT) {
+	if (stmt->type == table_alias_STATEMENT) {
 		SqlTableAlias		*table_alias;
 		SqlSelectStatement	*select;
 		SqlJoin			*join;
@@ -30,7 +30,7 @@ int qualify_query(SqlStatement *stmt, SqlJoin *parent_join) {
 		SqlJoin			*start_join, *cur_join;
 
 		UNPACK_SQL_STATEMENT(table_alias, stmt, table_alias);
-		if(table_alias->table->type == table_STATEMENT) {
+		if (table_STATEMENT == table_alias->table->type) {
 			return result;
 		}
 		UNPACK_SQL_STATEMENT(select, table_alias->table, select);
@@ -39,7 +39,7 @@ int qualify_query(SqlStatement *stmt, SqlJoin *parent_join) {
 		// Make note of my join so children can use them
 		prev_start = join;
 		prev_end = join->prev;
-		if(parent_join != NULL) {
+		if (NULL != parent_join) {
 			dqappend(join, parent_join);
 		}
 		// First qualify subqueries
@@ -76,16 +76,16 @@ int qualify_query(SqlStatement *stmt, SqlJoin *parent_join) {
 		 * Hence the MATCH_QUALIFIED_COLUMNS_FALSE use below.
 		 */
 		result |= qualify_statement(select->order_expression, start_join, stmt, MATCH_QUALIFIED_COLUMNS_FALSE);
-
 		// Make sure to reset parent query
-		if(parent_join != NULL) {
+		if (NULL != parent_join) {
 			parent_join->prev = start_join->prev;
 			parent_join->prev->next = parent_join;
 			start_join->prev = prev_end;
 			start_join->prev->next = prev_start;
 		}
-	} else if(stmt->type == set_operation_STATEMENT) {
-		SqlSetOperation *set_opr;
+	} else if (set_operation_STATEMENT == stmt->type) {
+		SqlSetOperation		*set_opr;
+
 		UNPACK_SQL_STATEMENT(set_opr, stmt, set_operation);
 		result |= qualify_query(set_opr->operand[0], parent_join);
 		result |= qualify_query(set_opr->operand[1], parent_join);

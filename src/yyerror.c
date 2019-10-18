@@ -25,7 +25,8 @@ void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, int *plan_id, ch
 	UNUSED(scan);
 	fprintf(err_buffer, "Error with syntax near (line %d, column %d):", llocp->first_line + 1, llocp->first_column);
 	print_yyloc(llocp);
-	fprintf(err_buffer, "%s\n", s);
+	if (NULL != s)
+		fprintf(err_buffer, "%s\n", s);
 }
 
 void print_yyloc(YYLTYPE *llocp) {

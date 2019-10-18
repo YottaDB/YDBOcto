@@ -52,7 +52,7 @@ OCTO
 
 @test "outer join followed by a SET operation" {
   octo <<OCTO &> output1.txt
-SELECT *
+SELECT n1.id,n1.firstname,n2.lastname
 FROM names n1
 LEFT JOIN names n2
 ON n1.id = n2.id
@@ -61,7 +61,7 @@ SELECT *
 FROM names n1;
 OCTO
   octo <<OCTO &> output2.txt
-SELECT *
+SELECT n2.id,n2.firstname,n1.lastname
 FROM names n1
 INNER JOIN names n2
 ON n1.id = n2.id
@@ -108,7 +108,7 @@ OCTO
 
 @test "right outer join followed by a SET operation" {
   octo <<OCTO &> output1.txt
-SELECT *
+SELECT n1.id,n1.firstname,n2.lastname
 FROM names n1
 RIGHT JOIN names n2
 ON n1.id = n2.id
@@ -117,7 +117,7 @@ SELECT *
 FROM names n1;
 OCTO
   octo <<OCTO &> output2.txt
-SELECT *
+SELECT n2.id,n2.firstname,n1.lastname
 FROM names n1
 INNER JOIN names n2
 ON n1.id = n2.id

@@ -207,9 +207,8 @@ int run_query(int (*callback)(SqlStatement *, int, void*, char*), void *parms) {
 		if (0 != status) {
 			YDB_FREE_BUFFER(&cursor_exe_global);
 			// May be freed in the callback function, must check before freeing
-			if(memory_chunks != NULL) {
+			if (NULL != memory_chunks) {
 				OCTO_CFREE(memory_chunks);
-				memory_chunks = NULL;
 			}
 			return 1;
 		}
@@ -378,7 +377,6 @@ int run_query(int (*callback)(SqlStatement *, int, void*, char*), void *parms) {
 	YDB_FREE_BUFFER(&cursor_exe_global);
 	if (free_memory_chunks) {
 		OCTO_CFREE(memory_chunks);
-		memory_chunks = NULL;
 	}
 	result = NULL;
 	return 0;

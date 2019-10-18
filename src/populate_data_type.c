@@ -18,6 +18,33 @@
 #include "octo.h"
 #include "octo_types.h"
 
+char	*get_setoperation_string(SqlSetOperationType type) {
+	switch(type) {
+	case SET_UNION:
+		return "UNION";
+		break;
+	case SET_UNION_ALL:
+		return "UNION ALL";
+		break;
+	case SET_EXCEPT:
+		return "EXCEPT";
+		break;
+	case SET_EXCEPT_ALL:
+		return "EXCEPT ALL";
+		break;
+	case SET_INTERSECT:
+		return "INTERSECT";
+		break;
+	case SET_INTERSECT_ALL:
+		return "INTERSECT ALL";
+		break;
+	default:
+		assert(FALSE);
+		ERROR(ERR_UNKNOWN_KEYWORD_STATE, "");
+	}
+	return "";
+}
+
 char *get_type_string(SqlValueType type) {
 	switch(type) {
 	case NUMBER_LITERAL:
@@ -298,13 +325,13 @@ int populate_data_type(SqlStatement *v, SqlValueType *type) {
 			// SqlStatement (?)
 			result |= populate_data_type(binary->operands[1], &child_type2);
 		}
-		if (child_type1 == PARAMETER_VALUE || child_type1 == NUL_VALUE) {
+		if ((PARAMETER_VALUE == child_type1) || (NUL_VALUE == child_type1)) {
 			child_type1 = child_type2;
-		} else if (child_type2 == PARAMETER_VALUE || child_type2 == NUL_VALUE) {
+		} else if ((PARAMETER_VALUE == child_type2) || (NUL_VALUE == child_type2)) {
 			child_type2 = child_type1;
-		} else if (child_type1 == INTEGER_LITERAL && child_type2 == NUMBER_LITERAL){
+		} else if ((INTEGER_LITERAL == child_type1) && (NUMBER_LITERAL == child_type2)){
 			child_type1 = child_type2;
-		} else if (child_type2 == INTEGER_LITERAL && child_type1 == NUMBER_LITERAL){
+		} else if ((INTEGER_LITERAL == child_type2) && (NUMBER_LITERAL == child_type1)){
 			child_type2 = child_type1;
 		}
 		switch(binary->operation) {
@@ -323,7 +350,7 @@ int populate_data_type(SqlStatement *v, SqlValueType *type) {
 			*type = BOOLEAN_VALUE;
 			break;
 		}
-		if (child_type1 != child_type2 && child_type2 != TEMPORARY_TABLE_TYPE) {
+		if ((child_type1 != child_type2) && (TEMPORARY_TABLE_TYPE != child_type2)) {
 			WARNING(ERR_TYPE_MISMATCH, get_type_string(child_type1), get_type_string(child_type2));
 			location = binary->operands[0]->loc;
 			location.last_line = binary->operands[1]->loc.last_line;
@@ -337,6 +364,57 @@ int populate_data_type(SqlStatement *v, SqlValueType *type) {
 		UNPACK_SQL_STATEMENT(set_operation, v, set_operation);
 		result |= populate_data_type(set_operation->operand[0], &child_type1);
 		result |= populate_data_type(set_operation->operand[1], &child_type2);
+		/* Now that the types of operands to the SET operation have been populated, do some more checks of
+		 * whether the # and types of columns on both operands match. If not issue error.
+		 */
+		{
+			SqlTableAlias		*table_alias[2];
+			SqlColumnListAlias	*cur_cla[2], *start_cla[2];
+			SqlStatement		*sql_stmt;
+			boolean_t		terminate_loop[2] = {FALSE, FALSE};
+			SqlColumnListAlias	*type_mismatch_cla[2] = {NULL, NULL};
+			int			i;
+
+			for (i = 0; i < 2; i++)
+			{
+				sql_stmt = drill_to_table_alias(set_operation->operand[i]);
+				UNPACK_SQL_STATEMENT(table_alias[i], sql_stmt, table_alias);
+				assert(NULL != table_alias[i]->column_list);
+				UNPACK_SQL_STATEMENT(start_cla[i], table_alias[i]->column_list, column_list_alias);
+				cur_cla[i] = start_cla[i];
+			}
+			do {
+				/* Note: NULL should match against any non-NULL type hence the NUL_VALUE check below */
+				if ((NULL == type_mismatch_cla[0]) && (cur_cla[0]->type != cur_cla[1]->type)
+					&& (NUL_VALUE != cur_cla[0]->type) && (NUL_VALUE != cur_cla[1]->type))
+				{
+					type_mismatch_cla[0] = cur_cla[0];
+					type_mismatch_cla[1] = cur_cla[1];
+				}
+				for (i = 0; i < 2; i++)
+				{
+					cur_cla[i] = cur_cla[i]->next;
+					if (cur_cla[i] == start_cla[i])
+						terminate_loop[i] = TRUE;
+				}
+			} while (!terminate_loop[0] && !terminate_loop[1]);
+			if (terminate_loop[0] != terminate_loop[1]) {
+				// The # of columns in the two operands (of the SET operation) do not match. Issue error.
+				ERROR(ERR_SETOPER_NUMCOLS_MISMATCH, get_setoperation_string(set_operation->type));
+				location = ((!terminate_loop[0]) ? cur_cla[0]->column_list->loc : cur_cla[1]->column_list->loc);
+				yyerror(&location, NULL, NULL, NULL, NULL);
+				result = 1;
+			} else if (NULL != type_mismatch_cla[0]) {
+				// The type of one column in the two operands (of the SET operation) do not match. Issue error.
+				ERROR(ERR_SETOPER_TYPE_MISMATCH, get_setoperation_string(set_operation->type),		\
+					get_type_string(type_mismatch_cla[0]->type), get_type_string(type_mismatch_cla[1]->type));
+				location = type_mismatch_cla[0]->column_list->loc;
+				yyerror(&location, NULL, NULL, NULL, NULL);
+				location = type_mismatch_cla[1]->column_list->loc;
+				yyerror(&location, NULL, NULL, NULL, NULL);
+				result = 1;
+			}
+		}
 		break;
 	case unary_STATEMENT:
 		UNPACK_SQL_STATEMENT(unary, v, unary);

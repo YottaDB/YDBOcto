@@ -1458,7 +1458,7 @@ regular_identifier
   ;
 
 identifier_body
-  : IDENTIFIER_START { $$ = $IDENTIFIER_START; ($$)->loc =  yyloc; }
+  : IDENTIFIER_START { $$ = $IDENTIFIER_START; ($$)->loc = yyloc; }
   | EXTRINSIC_FUNCTION {
        if (config->is_rocto) {
           ERROR(ERR_ROCTO_M_CALL, NULL);

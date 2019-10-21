@@ -32,7 +32,7 @@ void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, int *plan_id, ch
 void print_yyloc(YYLTYPE *llocp) {
 	// llocp is 0 based
 	int cur_line = 0, cur_column = 0, offset = old_input_index;
-	char *c, *line_begin = input_buffer_combined, *line_end, old_terminator;
+	char *c, *line_begin = input_buffer_combined, *line_end, *issue_line, old_terminator;
 
 	/* start at begining of buffer
 	 * if a newline is found before the old_input_index (a multiline query)
@@ -58,6 +58,7 @@ void print_yyloc(YYLTYPE *llocp) {
 			offset = -1;
 		}
 	}
+	issue_line = c;
 	/* find the next newline or null terminator */
 	for (; ('\0' != *c) && ('\n' != *c); c++) {
 		// Left blank
@@ -73,10 +74,10 @@ void print_yyloc(YYLTYPE *llocp) {
 	fprintf(err_buffer, "\n%s\n", line_begin);
 
 	// Underline the issue
-	c = line_begin;
+	c = issue_line;
 	/* offset is the length of previous queries on the same line */
 	for (; ('\0' != *c) && (cur_column < offset + llocp->first_column); c++, cur_column++) {
-		fprintf(err_buffer, " ");
+		'\t' == *c ? fprintf(err_buffer, "\t") : fprintf(err_buffer, " ");
 	}
 	for (; ('\0' != *c) && (cur_column < offset + llocp->last_column); c++, cur_column++) {
 		fprintf(err_buffer, "^");

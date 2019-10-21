@@ -26,6 +26,8 @@
 #include <openssl/evp.h>
 #include <openssl/err.h>
 
+#include <readline.h>
+
 #include "octo.h"
 #include "octo_types.h"
 
@@ -511,5 +513,7 @@ int octo_init(int argc, char **argv) {
 		ERROR(ERR_NULL_SUBS_DISABLED, "");
 		return 1;
 	}
+	/* readlines setup */
+	rl_bind_key ('\t', rl_insert); // display the tab_completion of '\t' and just insert it as a character
 	return 0;
 }

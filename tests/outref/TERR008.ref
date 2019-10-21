@@ -1,0 +1,21 @@
+OCTO>      select
+OCTO>   notathing         from
+OCTO>                   names
+OCTO>   ;
+[ERROR] PATH:LINENUM DATE TIME : Unknown column: NOTATHING
+
+	   select
+	notathing  	  from
+	^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select
+	notathing  	  from
+			names
+	;
+
+[ INFO] PATH:LINENUM DATE TIME : Parsing done for SQL command [select
+	notathing  	  from
+			names
+	;]
+[ INFO] PATH:LINENUM DATE TIME : Returning failure from run_query
+OCTO> [ INFO] PATH:LINENUM DATE TIME : Parsing done for SQL command []
+

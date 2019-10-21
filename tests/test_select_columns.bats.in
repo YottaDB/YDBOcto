@@ -490,3 +490,14 @@ CAT_EOF
   octo -f input.sql >> output.txt 2>&1
   verify_output TSC17 output.txt
 }
+
+@test "TSC18 : Test of tabs in readline input" {
+  # this input string contains only tabs not spaces;
+  octo -vv <<OCTO 2>&1 | tee output.txt
+		select
+		*		from
+	names
+				;
+OCTO
+  verify_output TSC18 output.txt
+}

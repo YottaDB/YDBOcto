@@ -101,3 +101,14 @@ CAT
   octo -f  input.sql 2>&1 | tee output.txt
   verify_output TERR007 output.txt
 }
+
+@test "TERR008 : Test inputs with tabs are underlined correctly" {
+  # this input contains  mix of spaces a tabs
+  octo -vv <<OCTO 2>&1 | tee output.txt
+	   select
+	notathing  	  from
+			names
+	;
+OCTO
+  verify_output TERR008 output.txt
+}

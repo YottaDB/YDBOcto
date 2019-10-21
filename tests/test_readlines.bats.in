@@ -20,6 +20,8 @@ setup() {
 }
 
 @test "TRL000 : readlines history" {
+  # set TERM so that contol sequences are consistant on different machines
+  export TERM=dummy
   (expect -d -f @PROJECT_SOURCE_DIR@/tests/fixtures/test_readlines_history.exp > expect.out) &> expect.dbg
   verify_output TRL000 expect.out noinfo nodebug noexpect
 }

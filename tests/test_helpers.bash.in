@@ -340,6 +340,9 @@ verify_output() {
     if [[ $i == "stripreturns" ]]; then
       sed -i 's/\r//g' clean_output.txt
     fi
+    if [[ $i == "noforcedhalt" ]]; then
+      sed -i '/%YDB-F-FORCEDHALT/d' clean_output.txt
+    fi
     # The sort argument should be passed last to allow sorting of final output file
     if [[ $i == "sort" ]]; then
       cat clean_output.txt | sort -o clean_output.txt

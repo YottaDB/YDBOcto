@@ -1,0 +1,53 @@
+[SOCKET] [ERROR] PATH:LINENUM DATE TIME : Error with syntax near (line 1, column 38):
+[SOCKET] [ERROR] PATH:LINENUM DATE TIME : select -((select 1 from names limit 1)+(select 2 from names limit 1))+3;
+[SOCKET] [ERROR] PATH:LINENUM DATE TIME :                                       ^
+[SOCKET] [ERROR] PATH:LINENUM DATE TIME : syntax error, unexpected PLUS, expecting EXCEPT or UNION or RIGHT_PAREN
+[SOCKET] [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select -((select 1 from names limit 1)+(select 2 from names limit 1))+3;
+Added SET and/or Non-SET trigger on ^names named %ydboctoT*
+[SOCKET] [ERROR] PATH:LINENUM DATE TIME : Type BOOLEAN does not exist
+[SOCKET] [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select * from names as n1 where 1::boolean;
+[SOCKET] [ERROR] PATH:LINENUM DATE TIME : Error with syntax near (line 1, column 89):
+[SOCKET] [ERROR] PATH:LINENUM DATE TIME : select * from names as n1 where (select n2.id % 2 != 1 from names n2 where n1.id = n2.id);
+[SOCKET] [ERROR] PATH:LINENUM DATE TIME :                                                                                          ^
+[SOCKET] [ERROR] PATH:LINENUM DATE TIME : syntax error, unexpected SEMICOLON
+[SOCKET] [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select * from names as n1 where (select n2.id % 2 != 1 from names n2 where n1.id = n2.id);
+[SOCKET] [ERROR] PATH:LINENUM DATE TIME : Type mismatch: left BOOLEAN, right INTEGER
+[SOCKET] [ERROR] PATH:LINENUM DATE TIME : Error with syntax near (line 1, column 57):
+[SOCKET] [ERROR] PATH:LINENUM DATE TIME : select * from names as n1 where (n1.id != 0) AND (select n2.id != 1 from names n2 where n1.id = n2.id);
+[SOCKET] [ERROR] PATH:LINENUM DATE TIME :                                                          ^^^^^^^^^^
+[SOCKET] [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select * from names as n1 where (n1.id != 0) AND (select n2.id != 1 from names n2 where n1.id = n2.id);
+[SOCKET] [ERROR] PATH:LINENUM DATE TIME : Type mismatch: left BOOLEAN, right INTEGER
+[SOCKET] [ERROR] PATH:LINENUM DATE TIME : Error with syntax near (line 1, column 44):
+[SOCKET] [ERROR] PATH:LINENUM DATE TIME : select * from names as n1 where NOT (select n2.id != 1 from names n2 where n1.id = n2.id);
+[SOCKET] [ERROR] PATH:LINENUM DATE TIME :                                             ^^^^^^^^^^
+[SOCKET] [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select * from names as n1 where NOT (select n2.id != 1 from names n2 where n1.id = n2.id);
+[SOCKET] [ERROR] PATH:LINENUM DATE TIME : Type mismatch: left BOOLEAN, right INTEGER
+[SOCKET] [ERROR] PATH:LINENUM DATE TIME : Error with syntax near (line 12, column 29):
+[SOCKET] [ERROR] PATH:LINENUM DATE TIME : SELECT t.typname,
+[SOCKET] [ERROR] PATH:LINENUM DATE TIME :        t.oid
+[SOCKET] [ERROR] PATH:LINENUM DATE TIME : FROM   pg_catalog.pg_type t
+[SOCKET] [ERROR] PATH:LINENUM DATE TIME : JOIN   pg_catalog.pg_namespace n
+[SOCKET] [ERROR] PATH:LINENUM DATE TIME : ON     (
+[SOCKET] [ERROR] PATH:LINENUM DATE TIME :               t.typnamespace = n.oid)
+[SOCKET] [ERROR] PATH:LINENUM DATE TIME : WHERE  n.nspname != 'pg_toast'
+[SOCKET] [ERROR] PATH:LINENUM DATE TIME : AND    (
+[SOCKET] [ERROR] PATH:LINENUM DATE TIME :               t.typrelid = 0
+[SOCKET] [ERROR] PATH:LINENUM DATE TIME :        OR
+[SOCKET] [ERROR] PATH:LINENUM DATE TIME :               (
+[SOCKET] [ERROR] PATH:LINENUM DATE TIME :                      SELECT c.relkind = 'c'
+[SOCKET] [ERROR] PATH:LINENUM DATE TIME :                             ^^^^^^^^^^^^^^^
+[SOCKET] [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT t.typname,
+[SOCKET] [ERROR] PATH:LINENUM DATE TIME :        t.oid
+[SOCKET] [ERROR] PATH:LINENUM DATE TIME : FROM   pg_catalog.pg_type t
+[SOCKET] [ERROR] PATH:LINENUM DATE TIME : JOIN   pg_catalog.pg_namespace n
+[SOCKET] [ERROR] PATH:LINENUM DATE TIME : ON     (
+[SOCKET] [ERROR] PATH:LINENUM DATE TIME :               t.typnamespace = n.oid)
+[SOCKET] [ERROR] PATH:LINENUM DATE TIME : WHERE  n.nspname != 'pg_toast'
+[SOCKET] [ERROR] PATH:LINENUM DATE TIME : AND    (
+[SOCKET] [ERROR] PATH:LINENUM DATE TIME :               t.typrelid = 0
+[SOCKET] [ERROR] PATH:LINENUM DATE TIME :        OR
+[SOCKET] [ERROR] PATH:LINENUM DATE TIME :               (
+[SOCKET] [ERROR] PATH:LINENUM DATE TIME :                      SELECT c.relkind = 'c'
+[SOCKET] [ERROR] PATH:LINENUM DATE TIME :                      FROM   pg_catalog.pg_class c
+[SOCKET] [ERROR] PATH:LINENUM DATE TIME :                      WHERE  c.oid = t.typrelid));
+

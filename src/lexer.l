@@ -197,7 +197,7 @@ int copied_so_far;
 
 ^[ \t\r\n]* { /* skip leading whitespace */
 		if (0 == yylloc->first_line) {
-			int leading_spaces = strlen(yytext);
+			leading_spaces = strlen(yytext);
 			old_input_index += leading_spaces;
 			yylloc->last_column -= leading_spaces;
 			yylloc->last_line = 0;

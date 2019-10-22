@@ -17,6 +17,7 @@ setup() {
   createdb
   load_fixture names.sql
   load_fixture names.zwr
+  load_fixture default_user.zwr
 }
 
 @test "invalid Octo GLD" {
@@ -57,7 +58,6 @@ OCTO
 }
 
 @test "TERR004 : Rocto can recover from error (e.g. DIVBYZERO)" {
-  load_fixture default_user.zwr
   test_port=$(start_rocto 1443)
   run_psql $test_port <<OCTO 2>&1 | tee output.txt
 select 1/0 from names;
@@ -112,4 +112,39 @@ OCTO
 CAT
   octo -f input.sql 2>&1 | tee output.txt
   verify_output TERR009 output.txt
+}
+
+@test "TERR010 : Rocto prefixes query errors in its log" {
+  test_port=$(start_rocto 1337)
+  cat <<CAT >> input.sql
+select -((select 1 from names limit 1)+(select 2 from names limit 1))+3;
+select ABS(-id)+(select firstname from names limit 1) as absid from names;
+SELECT  A.firstName, (SELECT B.firstName FROM NAMES LIMIT 1) FROM NAMES A INNER JOIN NAMES B on (A.firstName = B.firstName);
+SELECT  A.firstName, (SELECT C.firstName FROM NAMES AS C WHERE C.firstName = B.firstName LIMIT 1) FROM NAMES A INNER JOIN NAMES B on (A.firstName = B.firstName);
+SELECT  A.id,A.firstName,B.id,B.firstName,(SELECT C.firstName FROM NAMES AS C WHERE C.firstName = B.firstName LIMIT 1) FROM NAMES A INNER JOIN NAMES B on (A.firstName = B.firstName);
+SELECT  A.id,A.firstName,B.id,B.firstName,(SELECT C.firstName FROM NAMES AS C WHERE C.firstName = B.firstName) FROM NAMES A INNER JOIN NAMES B on (A.firstName = B.firstName);
+select * from names as n1 where 1::boolean;
+select * from names as n1 where (select n2.id % 2 != 1 from names n2 where n1.id = n2.id);
+select * from names as n1 where (n1.id != 0) AND (select n2.id != 1 from names n2 where n1.id = n2.id);
+select * from names as n1 where NOT (select n2.id != 1 from names n2 where n1.id = n2.id);
+SELECT t.typname,
+       t.oid
+FROM   pg_catalog.pg_type t
+JOIN   pg_catalog.pg_namespace n
+ON     (
+              t.typnamespace = n.oid)
+WHERE  n.nspname != 'pg_toast'
+AND    (
+              t.typrelid = 0
+       OR
+              (
+                     SELECT c.relkind = 'c'
+                     FROM   pg_catalog.pg_class c
+                     WHERE  c.oid = t.typrelid));
+CAT
+  run_psql $test_port < input.sql 2>&1 | tee output.txt
+  stop_rocto
+  # needed because the normal nodebug parameter deletes too many lines
+  sed -i '/\[DEBUG\]/d' rocto.log
+  verify_output TERR010 rocto.log noinfo nowarn psql noforcedhalt
 }

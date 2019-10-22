@@ -82,6 +82,7 @@ void octo_log(int line, char *file, enum ERROR_LEVEL level, enum ERROR error, ..
 	const char *type;
 	time_t log_time;
 	struct tm local_time;
+	int copied;
 	char err_prefix[MAX_STR_CONST];
 	char full_err_format_str[MAX_STR_CONST];
 
@@ -113,6 +114,10 @@ void octo_log(int line, char *file, enum ERROR_LEVEL level, enum ERROR error, ..
 		break;
 	}
 #	ifdef IS_ROCTO
+	const char 	*line_start, *line_end;
+	char 		buffer[MAX_STR_CONST];
+	int 		err_level;
+	ErrorResponse 	*err;
 	snprintf(err_prefix, MAX_STR_CONST, rocto_log_prefix,
 		rocto_session.ip,
 		rocto_session.port,
@@ -125,37 +130,29 @@ void octo_log(int line, char *file, enum ERROR_LEVEL level, enum ERROR error, ..
 	        local_time.tm_hour,
 	        local_time.tm_min,
 	        local_time.tm_sec);
-#	else
-	snprintf(err_prefix, MAX_STR_CONST, log_prefix, type,
-		file,
-		line,
-	        local_time.tm_year + 1900,
-	        local_time.tm_mon + 1,
-	        local_time.tm_mday,
-	        local_time.tm_hour,
-	        local_time.tm_min,
-	        local_time.tm_sec);
-#	endif
 	if (CUSTOM_ERROR == error) {
 		// Combine populated prefix with given error format string into new format string
-		int copied = snprintf(full_err_format_str, MAX_STR_CONST, "%s%s\n", err_prefix, va_arg(args, const char *));
-		if (0 < copied) {
-			vfprintf(stderr, full_err_format_str, args);
-		}
+		copied = vsnprintf(full_err_format_str, MAX_STR_CONST, va_arg(args, const char *), args);
 	} else {
 		// Combine populated prefix with given error format string into new format string
-		int copied = snprintf(full_err_format_str, MAX_STR_CONST, "%s%s\n", err_prefix, err_format_str[error]);
-		if (0 < copied) {
-			vfprintf(stderr, full_err_format_str, args);
-		}
+		copied = vsnprintf(full_err_format_str, MAX_STR_CONST, err_format_str[error], args);
 	}
+	line_start = full_err_format_str;
+	line_end = line_start;
+	while ('\0' != *line_end) {
+		if ('\n' == *line_end) {
+			copied = line_end - line_start;
+			if (0 < copied)
+				fprintf(stderr, "%s%.*s\n", err_prefix, copied, line_start);
+			line_start = line_end + 1;
+		}
+		line_end++;
+	}
+	copied = line_end - line_start;
+	if (0 < copied)
+		fprintf(stderr, "%s%.*s\n", err_prefix, copied, line_start);
 	va_end(args);
-#	ifdef IS_ROCTO
-	char		buffer[MAX_STR_CONST];
-	int		err_level;
-	ErrorResponse	*err;
-
-	if (!rocto_session.sending_message && (0 != rocto_session.connection_fd)) {
+	if(!rocto_session.sending_message && rocto_session.connection_fd != 0) {
 		rocto_session.sending_message = TRUE;
 		va_start(args, error);
 
@@ -193,6 +190,30 @@ void octo_log(int line, char *file, enum ERROR_LEVEL level, enum ERROR error, ..
 		free_error_response(err);
 		rocto_session.sending_message = FALSE;
 	}
+#	else
+	snprintf(err_prefix, MAX_STR_CONST, log_prefix, type,
+		file,
+		line,
+	        local_time.tm_year + 1900,
+	        local_time.tm_mon + 1,
+	        local_time.tm_mday,
+	        local_time.tm_hour,
+	        local_time.tm_min,
+	        local_time.tm_sec);
+	if(error == CUSTOM_ERROR) {
+		// Combine populated prefix with given error format string into new format string
+		copied = snprintf(full_err_format_str, MAX_STR_CONST, "%s%s\n", err_prefix, va_arg(args, const char *));
+		if (0 < copied) {
+			vfprintf(stderr, full_err_format_str, args);
+		}
+	} else {
+		// Combine populated prefix with given error format string into new format string
+		copied = snprintf(full_err_format_str, MAX_STR_CONST, "%s%s\n", err_prefix, err_format_str[error]);
+		if (0 < copied) {
+			vfprintf(stderr, full_err_format_str, args);
+		}
+	}
+	va_end(args);
 #	endif
 	if (FATAL == level) {
 #		ifdef IS_ROCTO

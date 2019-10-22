@@ -18,6 +18,34 @@
 
 #include "parser.h"
 
+/* if rocto is running the error needs to be replicated to
+ * be printed via octo_log which replicated to rocto and psql logs
+ * otherwise print via the err_buffer
+ */
+#define PRINT_YYERROR(...) 							\
+	if (config->is_rocto) {							\
+		ERROR(CUSTOM_ERROR, ##__VA_ARGS__);				\
+	} else {								\
+		fprintf(err_buffer, ##__VA_ARGS__);				\
+		fprintf(err_buffer, "\n"); /* formatting */					\
+	}
+
+#define SNPRINTF_ERR_BUFF(...)										\
+	do {												\
+		written = snprintf(err_ptr, err_out_len - (err_ptr - err_out), ##__VA_ARGS__);	\
+		if (written < (err_out_len - (err_ptr - err_out))) {					\
+			err_ptr += written;								\
+			break;										\
+		} else {										\
+			err_out_len *= 2;								\
+			char *tmp = malloc(err_out_len);						\
+			memcpy(tmp, err_out, err_ptr - err_out);					\
+			err_ptr = tmp + (err_ptr - err_out);						\
+			free(err_out);									\
+			err_out = tmp;									\
+		}											\
+	} while (TRUE);
+
 void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, int *plan_id, char *cursorId, char const *s)
 {
 	UNUSED(plan_id);
@@ -50,10 +78,16 @@ void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, int *plan_id, ch
 		}
 	}
 	if (llocp->first_line || llocp->first_column || llocp->last_column) {
-		fprintf(err_buffer, "Error with syntax near (line %d, column %d):", llocp->first_line + 1, llocp->first_column);
+		if (0 == llocp->first_line) {
+			PRINT_YYERROR("Error with syntax near (line %d, column %d):", llocp->first_line + 1, llocp->first_column + leading_spaces);
+		} else {
+			PRINT_YYERROR("Error with syntax near (line %d, column %d):", llocp->first_line + 1, llocp->first_column);
+		}
+
 		print_yyloc(llocp);
-		if (NULL != s)
-			fprintf(err_buffer, "%s\n", s);
+		if (NULL != s) {
+			PRINT_YYERROR("%s\n", s);
+		}
 	} else {
 		assert(NULL == s);
 	}
@@ -61,10 +95,14 @@ void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, int *plan_id, ch
 
 void print_yyloc(YYLTYPE *llocp) {
 	// llocp is 0 based
-	int cur_line = 0, cur_column = 0, offset = old_input_index;
+	int cur_line = 0, cur_column = 0, offset = old_input_index, err_out_len = MAX_STR_CONST, written;
 	char *c, *line_begin = input_buffer_combined, *line_end, *issue_line, old_terminator;
+	char *err_out, *err_ptr;
 
-	/* start at begining of buffer
+	err_out = malloc(err_out_len);
+	err_ptr = err_out;
+
+	/* start at beginning of buffer
 	 * if a newline is found before the old_input_index (a multiline query)
 	 * move the start of the string, and shrink the offest
 	 */
@@ -78,10 +116,15 @@ void print_yyloc(YYLTYPE *llocp) {
 	}
 	cur_column = 0;
 
+	/* for formatting purposes only print this if we are not in rocto */
+	if (!config->is_rocto)
+		fprintf(err_buffer, "\n");
 	/* if a newline is found in this loop then offset is -1 (-1 not 0 due to spacing)
 	 * because no previous query could be on that line
+	 * additionally print the current line
 	 */
 	c = line_begin;
+	issue_line = c;
 	for (; ('\0' != *c) && (cur_line < llocp->first_line); c++) {
 		if ('\n' == *c) {
 			cur_line++;
@@ -101,18 +144,24 @@ void print_yyloc(YYLTYPE *llocp) {
 
 	// Print this line
 	*line_end = '\0';
-	fprintf(err_buffer, "\n%s\n", line_begin);
+	PRINT_YYERROR("%s", line_begin);
 
 	// Underline the issue
 	c = issue_line;
 	/* offset is the length of previous queries on the same line */
 	for (; ('\0' != *c) && (cur_column < offset + llocp->first_column); c++, cur_column++) {
-		'\t' == *c ? fprintf(err_buffer, "\t") : fprintf(err_buffer, " ");
+
+		if ('\t' == *c) {
+		       	SNPRINTF_ERR_BUFF("\t");
+		} else {
+			SNPRINTF_ERR_BUFF(" ");
+		}
 	}
 	for (; ('\0' != *c) && (cur_column < offset + llocp->last_column); c++, cur_column++) {
-		fprintf(err_buffer, "^");
+		SNPRINTF_ERR_BUFF("^");
 	}
-	fprintf(err_buffer, "\n");
+	PRINT_YYERROR("%s", err_out);
+	free(err_out);
 	/* restore terminator */
 	*line_end = old_terminator;
 }

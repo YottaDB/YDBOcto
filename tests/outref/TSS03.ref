@@ -76,10 +76,12 @@ Added SET and/or Non-SET trigger on ^names named %ydboctoT*
 4|Joey|
 5|Zero|Cool
 [ERROR] PATH:LINENUM DATE TIME : Type mismatch: left INTEGER, right STRING
-Error with syntax near (line 1, column 29):
+Error with syntax near (line 1, column 30):
+
 SELECT * from names n1 where n1.id IN (SELECT * FROM names n2 WHERE n2.id = ((n1.id + 1) % 6));
                              ^^^^^
-Error with syntax near (line 1, column 46):
+Error with syntax near (line 1, column 47):
+
 SELECT * from names n1 where n1.id IN (SELECT * FROM names n2 WHERE n2.id = ((n1.id + 1) % 6));
                                               ^
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT * from names n1 where n1.id IN (SELECT * FROM names n2 WHERE n2.id = ((n1.id + 1) % 6));
@@ -144,54 +146,66 @@ SELECT * from names n1 where n1.id IN (SELECT * FROM names n2 WHERE n2.id = ((n1
 -5
 ZeroCool
 [ERROR] PATH:LINENUM DATE TIME : Type mismatch: left STRING, right INTEGER
-Error with syntax near (line 1, column 28):
+Error with syntax near (line 1, column 29):
+
 SELECT * FROM names a WHERE a.firstName = (SELECT b.id FROM names b WHERE a.id = b.id);
                             ^^^^^^^^^^^
-Error with syntax near (line 1, column 50):
+Error with syntax near (line 1, column 51):
+
 SELECT * FROM names a WHERE a.firstName = (SELECT b.id FROM names b WHERE a.id = b.id);
                                                   ^^^^
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT * FROM names a WHERE a.firstName = (SELECT b.id FROM names b WHERE a.id = b.id);
 [ERROR] PATH:LINENUM DATE TIME : Type mismatch: left STRING, right INTEGER
-Error with syntax near (line 1, column 28):
+Error with syntax near (line 1, column 29):
+
 SELECT * FROM names a WHERE a.firstName != (SELECT b.id FROM names b WHERE a.id = b.id);
                             ^^^^^^^^^^^
-Error with syntax near (line 1, column 51):
+Error with syntax near (line 1, column 52):
+
 SELECT * FROM names a WHERE a.firstName != (SELECT b.id FROM names b WHERE a.id = b.id);
                                                    ^^^^
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT * FROM names a WHERE a.firstName != (SELECT b.id FROM names b WHERE a.id = b.id);
 0|Zero|Cool
 [ERROR] PATH:LINENUM DATE TIME : Subquery must return only one column
-Error with syntax near (line 1, column 50):
+Error with syntax near (line 1, column 51):
+
 SELECT * FROM names a WHERE a.firstName = (SELECT b.firstName,b.lastname FROM names b WHERE a.id = b.id);
                                                   ^^^^^^^^^^^
 [ERROR] PATH:LINENUM DATE TIME : Subquery must return only one column
-Error with syntax near (line 1, column 51):
+Error with syntax near (line 1, column 52):
+
 SELECT * FROM names a WHERE a.firstName != (SELECT b.firstName,b.lastname FROM names b WHERE a.id = b.id);
                                                    ^^^^^^^^^^^
 [ERROR] PATH:LINENUM DATE TIME : More than one row returned by a subquery used as an expression
 [ERROR] PATH:LINENUM DATE TIME : More than one row returned by a subquery used as an expression
 [ERROR] PATH:LINENUM DATE TIME : Subquery must return only one column
-Error with syntax near (line 1, column 50):
+Error with syntax near (line 1, column 51):
+
 SELECT * FROM names a WHERE a.firstName = (SELECT b.firstName,b.lastname FROM names b WHERE (a.id % 2) = (b.id % 2));
                                                   ^^^^^^^^^^^
 [ERROR] PATH:LINENUM DATE TIME : Subquery must return only one column
-Error with syntax near (line 1, column 51):
+Error with syntax near (line 1, column 52):
+
 SELECT * FROM names a WHERE a.firstName != (SELECT b.firstName,b.lastname FROM names b WHERE (a.id % 2) = (b.id % 2));
                                                    ^^^^^^^^^^^
 [ERROR] PATH:LINENUM DATE TIME : Subquery must return only one column
-Error with syntax near (line 1, column 50):
+Error with syntax near (line 1, column 51):
+
 SELECT * FROM names a WHERE a.firstName = (SELECT NULL, NULL, firstname);
                                                   ^^^^
 [ERROR] PATH:LINENUM DATE TIME : Subquery must return only one column
-Error with syntax near (line 1, column 51):
+Error with syntax near (line 1, column 52):
+
 SELECT * FROM names a WHERE a.firstName != (SELECT NULL, NULL, firstname);
                                                    ^^^^
 [ERROR] PATH:LINENUM DATE TIME : Subquery must return only one column
-Error with syntax near (line 1, column 52):
+Error with syntax near (line 1, column 53):
+
 SELECT * FROM names n1 WHERE n1.firstName = (SELECT NULL, n2.id, NULL from names n2);
                                                     ^^^^
 [ERROR] PATH:LINENUM DATE TIME : Subquery must return only one column
-Error with syntax near (line 1, column 53):
+Error with syntax near (line 1, column 54):
+
 SELECT * FROM names n1 WHERE n1.firstName != (SELECT NULL, n2.id, NULL from names n2);
                                                      ^^^^
 [ERROR] PATH:LINENUM DATE TIME : Unknown column: ID

@@ -1,8 +1,10 @@
 OCTO>  SELECT n.nspname                              AS "Schema",
-Error with syntax near (line 1, column 57):
+Error with syntax near (line 1, column 58):
+
  SELECT n.nspname                              AS "Schema",
                                                           ^
 syntax error, unexpected COMMA, expecting PERIOD
+
 OCTO>        c.relname                              AS "Name",
 OCTO>        CASE c.relkind
 OCTO>          WHEN 'r' THEN 'table'

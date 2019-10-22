@@ -230,6 +230,7 @@ SqlTable	*definedTables;
 uint64_t	hash_canonical_query_cycle;	// incremented before every outermost call to "hash_canonical_query"
 int		cur_input_index;		// Current index of input_buffer_combined the parser should read from, and readlines should write to. Effectively marks the end of the current query.
 int		old_input_index;		// The previous value of cur_input_index before the parser modifies it. Effectively marks the start of the current query.
+int		leading_spaces;			// leading spaces in the current query it needs to be stored somewhere accessible but should be ignored, except by the lexer and yyerror
 int		cur_input_max;
 int		cancel_received;
 int		eof_hit;

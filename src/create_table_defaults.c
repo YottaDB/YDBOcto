@@ -64,7 +64,7 @@ int create_table_defaults(SqlStatement *table_statement, SqlStatement *keywords_
 			strncpy(out_buffer, buffer, len+1);
 			SQL_STATEMENT(keyword->v, value_STATEMENT);
 			MALLOC_STATEMENT(keyword->v, value, SqlValue);
-			keyword->v->v.value->type = NUMBER_LITERAL;
+			keyword->v->v.value->type = NUMERIC_LITERAL;
 			keyword->v->v.value->v.string_literal = out_buffer;
 			// Insert statement into column keyword list
 			dqinit(keyword);

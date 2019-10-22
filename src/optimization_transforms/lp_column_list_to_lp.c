@@ -19,13 +19,14 @@
 #include "logical_plan.h"
 
 LogicalPlan *lp_column_list_to_lp(SqlColumnListAlias *list, int *plan_id) {
-	LogicalPlan *column_list, *ret_column_list = NULL;
-	LogicalPlan *where;
-	LogicalPlan *column_list_alias;
-	SqlColumnListAlias *cur_column_list, *start_column_list;
-	SqlColumnList *t_column_list;
-	assert(list != NULL);
+	LogicalPlan		*column_list, *ret_column_list = NULL;
+	LogicalPlan		*where;
+	LogicalPlan		*column_list_alias;
+	SqlColumnListAlias	*cur_column_list, *start_column_list;
+	SqlColumnList		*t_column_list;
+	boolean_t		null_return_seen = FALSE;
 
+	assert(NULL != list);
 	MALLOC_LP_2ARGS(column_list, LP_COLUMN_LIST);
 
 	cur_column_list = start_column_list = list;
@@ -33,7 +34,7 @@ LogicalPlan *lp_column_list_to_lp(SqlColumnListAlias *list, int *plan_id) {
 		MALLOC_LP(where, column_list->v.operand[0], LP_WHERE);
 		/// TODO: handle the absence of prev
 		UNPACK_SQL_STATEMENT(t_column_list, cur_column_list->column_list, column_list);
-		where->v.operand[0] = lp_generate_where(t_column_list->value, plan_id);
+		LP_GENERATE_WHERE(t_column_list->value, plan_id, where->v.operand[0], null_return_seen);
 		MALLOC_LP(column_list_alias, where->v.operand[1], LP_COLUMN_LIST_ALIAS);
 		// When we do this copy, we only want a single CLA; this prevents the copy from
 		//   grabbing more
@@ -42,14 +43,12 @@ LogicalPlan *lp_column_list_to_lp(SqlColumnListAlias *list, int *plan_id) {
 		column_list_alias->v.column_list_alias->alias = cur_column_list->alias;
 		column_list_alias->v.column_list_alias->type = cur_column_list->type;
 		cur_column_list = cur_column_list->next;
-		if(ret_column_list == NULL)
+		if (NULL == ret_column_list)
 			ret_column_list = column_list;
-		if(cur_column_list != start_column_list) {
+		if (cur_column_list != start_column_list) {
 			MALLOC_LP_2ARGS(column_list->v.operand[1], LP_COLUMN_LIST);
 			column_list = column_list->v.operand[1];
 		}
-	} while(cur_column_list != start_column_list);
-
-
-	return ret_column_list;
+	} while (cur_column_list != start_column_list);
+	return (null_return_seen ? NULL : ret_column_list);
 }

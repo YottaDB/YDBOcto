@@ -36,7 +36,7 @@ LP_INSERT:
         LP_KEYS: 
         LP_SELECT_OPTIONS: 
           LP_WHERE: 
-          LP_KEYWORDS: keywords
+          LP_KEYWORDS: 
   LP_OUTPUT: 
     LP_KEY: 
     - table_name:  
@@ -81,7 +81,7 @@ LP_INSERT:
           - uses_xref_key: false
         LP_SELECT_OPTIONS: 
           LP_WHERE: 
-          LP_KEYWORDS: keywords
+          LP_KEYWORDS: 
   LP_OUTPUT: 
     LP_KEY: 
     - table_name:  

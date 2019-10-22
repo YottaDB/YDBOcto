@@ -21,12 +21,41 @@
 void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, int *plan_id, char const *s)
 {
 	UNUSED(plan_id);
-	UNUSED(out);
-	UNUSED(scan);
-	fprintf(err_buffer, "Error with syntax near (line %d, column %d):", llocp->first_line + 1, llocp->first_column);
-	print_yyloc(llocp);
-	if (NULL != s)
-		fprintf(err_buffer, "%s\n", s);
+	if ((NULL == scan) && (NULL != out)) {
+		/* This is a "yyerror" call from outside the parser (e.g. "populate_data_type.c").
+		 * In this case, compute "llocp" from "out".
+		 */
+		SqlColumnListAlias	*cur_cla;
+		SqlSetOperation		*set_operation;
+		SqlStatement		*sql_stmt, *stmt;
+		SqlTableAlias		*table_alias;
+
+		assert(NULL == llocp);
+		stmt = *out;
+		if (set_operation_STATEMENT == stmt->type) {
+			UNPACK_SQL_STATEMENT(set_operation, stmt, set_operation);
+			sql_stmt = drill_to_table_alias(set_operation->operand[0]);
+		} else if (table_alias_STATEMENT == stmt->type) {
+			sql_stmt = stmt;
+		} else
+			sql_stmt = NULL;
+		if (NULL != sql_stmt) {
+			UNPACK_SQL_STATEMENT(table_alias, sql_stmt, table_alias);
+			assert(NULL != table_alias->column_list);
+			UNPACK_SQL_STATEMENT(cur_cla, table_alias->column_list, column_list_alias);
+			llocp = &cur_cla->column_list->loc;
+		} else {
+			llocp = &stmt->loc;
+		}
+	}
+	if (llocp->first_line || llocp->first_column) {
+		fprintf(err_buffer, "Error with syntax near (line %d, column %d):", llocp->first_line + 1, llocp->first_column);
+		print_yyloc(llocp);
+		if (NULL != s)
+			fprintf(err_buffer, "%s\n", s);
+	} else {
+		assert(NULL == s);
+	}
 }
 
 void print_yyloc(YYLTYPE *llocp) {

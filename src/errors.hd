@@ -55,10 +55,12 @@ ERROR_DEF(ERR_UNKNOWN_COLUMN_NAME, "Unknown column: %s", PSQL_Code_Undefined_Col
 ERROR_DEF(ERR_AMBIGUOUS_COLUMN_NAME, "Ambiguous column name \"%s\": qualify name for safe execution", PSQL_Code_Ambiguous_Column)
 ERROR_DEF(ERR_MULTIPLE_ZERO_KEYS, "Multiple %d keys found for table %s", PSQL_Code_Ambiguous_Parameter)
 ERROR_DEF(ERR_MISSING_KEY, "Missing key %d in table %s; max key was %d", PSQL_Code_Undefined_Object)
+ERROR_DEF(ERR_INVALID_TYPE, "Type %s does not exist", PSQL_Code_Undefined_Object)
 ERROR_DEF(ERR_TABLE_DEFINITION_TOO_LONG, "Table definition for %s too long; max size is %d, table length is %d", PSQL_Code_Invalid_Table_Definition)
 ERROR_DEF(ERR_TYPE_MISMATCH, "Type mismatch: left %s, right %s", PSQL_Code_Datatype_Mismatch)
 ERROR_DEF(ERR_SETOPER_NUMCOLS_MISMATCH, "Each %s query must have same number of columns", PSQL_Code_Datatype_Mismatch)
 ERROR_DEF(ERR_SETOPER_TYPE_MISMATCH, "%s types %s and %s cannot be matched", PSQL_Code_Syntax_Error)
+ERROR_DEF(ERR_SUBQUERY_ONE_COLUMN, "Subquery must return only one column", PSQL_Code_Syntax_Error)
 // ROCTO //
 ERROR_DEF(ERR_ROCTO_M_CALL, "M extrinsic function calls are disallowed in rocto", PSQL_Code_Internal_Error)
 
@@ -117,6 +119,10 @@ ERROR_DEF(ERR_ROCTO_BAD_PASSWORD, "%s: password doesn't match stored value", PSQ
 ERROR_DEF(ERR_ROCTO_NONEXISTENT_KEY, "handle_cancel_request: received non-existent secret key", PSQL_Code_Invalid_Authorization_Specification)
 ERROR_DEF(ERR_ROCTO_SECRET_KEY_MISMATCH, "handle_cancel_request: secret key/PID pair doesn't match stored value", PSQL_Code_Invalid_Authorization_Specification)
 ERROR_DEF(ERR_ROCTO_BAD_TIMESTAMP, "handle_cancel_request: PID timestamp doesn't match stored value", PSQL_Code_Invalid_Authorization_Specification)
+
+/*** Cardinality Violations ***/
+// OCTO //
+ERROR_DEF(ERR_SUBQUERY_MULTIPLE_ROWS, "More than one row returned by a subquery used as an expression", PSQL_Code_Cardinality_Violation)
 
 /*** Data exceptions ***/
 // OCTO //

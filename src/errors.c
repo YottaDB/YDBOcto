@@ -195,9 +195,9 @@ void octo_log(int line, char *file, enum ERROR_LEVEL level, enum ERROR error, ..
 	}
 #	endif
 	if(level == FATAL) {
-#ifdef IS_ROCTO
+#		ifdef IS_ROCTO
 		shutdown(rocto_session.connection_fd, SHUT_RDWR);
-#endif
+#		endif
 		exit(error);
 	}
 	return;

@@ -48,7 +48,7 @@ SqlColumn *column_list_alias_to_columns(SqlTableAlias *table_alias) {
 			cur_column->type = UNKNOWN_SqlDataType;
 			cur_column->pre_qualified_cla = cla_cur;
 			break;
-		case NUMBER_LITERAL:
+		case NUMERIC_LITERAL:
 			cur_column->type = NUMERIC_TYPE;
 			break;
 		case INTEGER_LITERAL:

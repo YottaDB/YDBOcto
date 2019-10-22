@@ -214,7 +214,7 @@ void hash_canonical_query(hash128_state_t *state, SqlStatement *stmt, int *statu
 		case CALCULATED_VALUE:
 			hash_canonical_query(state, value->v.calculated, status);
 			break;
-		case NUMBER_LITERAL:
+		case NUMERIC_LITERAL:
 		case INTEGER_LITERAL:
 		case STRING_LITERAL:
 		case FUNCTION_NAME:

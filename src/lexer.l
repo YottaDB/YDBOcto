@@ -212,7 +212,7 @@ int copied_so_far;
                 *str_buf_ptr = '\0';
                 SQL_STATEMENT(*yylval_param, value_STATEMENT);
                 OCTO_CMALLOC_STRUCT((*yylval_param)->v.value, SqlValue);
-                (*yylval_param)->v.value->type = NUMBER_LITERAL;
+                (*yylval_param)->v.value->type = NUMERIC_LITERAL;
                 (*yylval_param)->v.value->v.string_literal = (char*)octo_cmalloc(memory_chunks, copied_so_far+1);
                 strncpy((*yylval_param)->v.value->v.string_literal, string_buffer, copied_so_far+1);
                 return LITERAL;

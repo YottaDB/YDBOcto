@@ -23,7 +23,7 @@
 
 void gen_source_keys(PhysicalPlan *out, LogicalPlan *plan);
 void iterate_keys(PhysicalPlan *out, LogicalPlan *plan);
-LogicalPlan *walk_where_statement(PhysicalPlanOptions *options, LogicalPlan *stmt);
+LogicalPlan *walk_where_statement(PhysicalPlanOptions *options, LogicalPlan *stmt, LogicalPlan *parent);
 
 #define	SET_PLAN_PROPERTY_IN_ALL_DNF_SIBLINGS(STARTPLAN, FIELDNAME, VALUE)	\
 {										\
@@ -54,7 +54,7 @@ PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlanOptions *opt
 
 	assert((LP_INSERT == plan->type) || (LP_SET_OPERATION == plan->type));
 	// If this is a union plan, construct physical plans for the two children
-	if(plan->type == LP_SET_OPERATION) {
+	if (LP_SET_OPERATION == plan->type) {
 		GET_LP(set_option, plan, 0, LP_SET_OPTION);
 		GET_LP(set_plans, plan, 1, LP_PLANS);
 		out = generate_physical_plan(set_plans->v.operand[1], &curr_plan);
@@ -100,7 +100,7 @@ PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlanOptions *opt
 	}
 
 	// Make sure the plan is in good shape
-	if(lp_verify_structure(plan) == FALSE) {
+	if (FALSE == lp_verify_structure(plan)) {
 		/// TODO: replace this with a real error message
 		ERROR(ERR_PLAN_NOT_WELL_FORMED, "");
 		return NULL;
@@ -110,18 +110,18 @@ PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlanOptions *opt
 	curr_plan.parent = out;
 
 	out->next = *curr_plan.last_plan;
-	if(*curr_plan.last_plan != NULL) {
+	if (NULL != *curr_plan.last_plan) {
 		(*curr_plan.last_plan)->prev = out;
 	}
 	*(curr_plan.last_plan) = out;
 
 	// Set my output key
 	GET_LP(output, plan, 1, LP_OUTPUT);
-	if(output->v.operand[0]->type == LP_KEY) {
+	if (LP_KEY == output->v.operand[0]->type) {
 		GET_LP(output_key, output, 0, LP_KEY);
 		out->outputKey = output_key->v.key;
 		out->is_cross_reference_key = out->outputKey->is_cross_reference_key;
-	} else if(output->v.operand[0]->type == LP_TABLE) {
+	} else if (LP_TABLE == output->v.operand[0]->type) {
 		out->outputKey = NULL;
 		out->outputTable = output->v.operand[1]->v.table_alias;
 	} else {
@@ -129,7 +129,7 @@ PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlanOptions *opt
 	}
 
 	// If there is an order by, note it down
-	if(output->v.operand[1]) {
+	if (output->v.operand[1]) {
 		GET_LP(out->order_by, output, 1, LP_COLUMN_LIST);
 	}
 
@@ -142,47 +142,49 @@ PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlanOptions *opt
 		assert(LP_TABLE_JOIN == table_joins->type);
 		// If this is a plan that doesn't have a source table,
 		//  this will be null and we need to skip this step
-		if(table_joins->v.operand[0] == NULL)
+		if (NULL == table_joins->v.operand[0])
 			break;
-		if(table_joins->v.operand[0]->type == LP_INSERT) {
+		if (LP_INSERT == table_joins->v.operand[0]->type) {
 			// This is a sub plan, and should be inserted as prev
 			GET_LP(insert, table_joins, 0, LP_INSERT);
 			PhysicalPlan *ret = generate_physical_plan(insert, &curr_plan);
 			if (NULL == ret)
 				return NULL;
-		} else if(table_joins->v.operand[0]->type == LP_SET_OPERATION) {
+		} else if (LP_SET_OPERATION == table_joins->v.operand[0]->type) {
+			PhysicalPlan	*ret;
+
 			GET_LP(set_operation, table_joins, 0, LP_SET_OPERATION);
-			PhysicalPlan *ret = generate_physical_plan(set_operation, &curr_plan);
+			ret = generate_physical_plan(set_operation, &curr_plan);
 			if (NULL == ret)
 				return NULL;
 		}
 		table_joins = table_joins->v.operand[1];
-	} while(table_joins != NULL);
+	} while (NULL != table_joins);
 
 	// Iterate through the key substructures and fill out the source keys
 	keys = lp_get_keys(plan);
 	// All tables should have at least one key
-	assert(keys != NULL);
+	assert(NULL != keys);
 	// Either we have some keys already, or we have a list of keys
-	assert(out->total_iter_keys > 0 || keys->v.operand[0] != NULL);
-	if(keys->v.operand[0])
+	assert((0 < out->total_iter_keys) || (NULL != keys->v.operand[0]));
+	if (keys->v.operand[0])
 		iterate_keys(out, keys);
 
 	// The output key should be a cursor key
 
 	// Is this most convenient representation of the WHERE?
 	where = lp_get_select_where(plan);
-	out->where = walk_where_statement(&curr_plan, where);
+	out->where = walk_where_statement(&curr_plan, where, NULL);
 	if (NULL != where->v.operand[1])
 	{	/* If where->v.operand[1] is non-NULL, this is the alternate list that "lp_optimize_where_multi_equal_ands_helper()"
 		 * built that needs to be checked too for deferred plans which would have
 		 * been missed out in case the keys for those had been fixed to keys from parent queries (see comment above
 		 * "lp_get_select_where()" function call in "lp_optimize_where_multi_equal_ands_helper()").
 		 */
-		walk_where_statement(&curr_plan, where->v.operand[1]);
+		walk_where_statement(&curr_plan, where->v.operand[1], NULL);
 		where->v.operand[1] = NULL;	/* Discard alternate list now that its purpose is served */
 	}
-	walk_where_statement(&curr_plan, lp_get_project(plan)->v.operand[0]->v.operand[0]);
+	walk_where_statement(&curr_plan, lp_get_project(plan)->v.operand[0]->v.operand[0], NULL);
 	out->keywords = lp_get_select_keywords(plan)->v.keywords;
 	out->projection = lp_get_projection_columns(plan);
 
@@ -194,7 +196,7 @@ PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlanOptions *opt
 		out->maintain_columnwise_index = TRUE;
 	}
 
-	keyword = get_keyword_from_keywords(keywords, OPTIONAL_PART_OF_EXPANSION);
+	keyword = get_keyword_from_keywords(keywords, OPTIONAL_BOOLEAN_EXPANSION);
 	if (NULL != keyword) {
 		out->emit_duplication_check = TRUE;
 	}
@@ -205,29 +207,28 @@ PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlanOptions *opt
 }
 
 void iterate_keys(PhysicalPlan *out, LogicalPlan *plan) {
-	LogicalPlan *left, *right;
-	assert(plan->type == LP_KEYS);
+	LogicalPlan	*left, *right;
 
+	assert(LP_KEYS == plan->type);
 	GET_LP(left, plan, 0, LP_KEY);
 	out->iterKeys[out->total_iter_keys] = left->v.key;
 	out->total_iter_keys++;
-
-	if(plan->v.operand[1] != NULL) {
+	if (NULL != plan->v.operand[1]) {
 		GET_LP(right, plan, 1, LP_KEYS);
 		iterate_keys(out, right);
 	}
 }
 
-LogicalPlan *walk_where_statement(PhysicalPlanOptions *options, LogicalPlan *stmt) {
+LogicalPlan *walk_where_statement(PhysicalPlanOptions *options, LogicalPlan *stmt, LogicalPlan *parent) {
 
-	if(stmt == NULL)
+	if (NULL == stmt)
 		return NULL;
 
-	if(stmt->type >= LP_ADDITION && stmt->type <= LP_BOOLEAN_NOT_IN) {
-		stmt->v.operand[0] = walk_where_statement(options, stmt->v.operand[0]);
-		stmt->v.operand[1] = walk_where_statement(options, stmt->v.operand[1]);
+	if (stmt->type >= LP_ADDITION && stmt->type <= LP_BOOLEAN_NOT_IN) {
+		stmt->v.operand[0] = walk_where_statement(options, stmt->v.operand[0], stmt);
+		stmt->v.operand[1] = walk_where_statement(options, stmt->v.operand[1], stmt);
 	} else if (stmt->type >= LP_FORCE_NUM && stmt->type <= LP_BOOLEAN_NOT) {
-		stmt->v.operand[0] = walk_where_statement(options, stmt->v.operand[0]);
+		stmt->v.operand[0] = walk_where_statement(options, stmt->v.operand[0], stmt);
 	} else {
 		PhysicalPlanOptions	curr_plan;
 		PhysicalPlan		*cur, *out;
@@ -243,14 +244,14 @@ LogicalPlan *walk_where_statement(PhysicalPlanOptions *options, LogicalPlan *stm
 			/* No action */
 			break;
 		case LP_WHERE:
-			stmt->v.operand[0] = walk_where_statement(options, stmt->v.operand[0]);
+			stmt->v.operand[0] = walk_where_statement(options, stmt->v.operand[0], stmt);
 			break;
 		case LP_COLUMN_ALIAS:
 			// Check if this value is a parent reference; if so, mark this as deferred
 			out = options->parent;
 			cur = out;
 			UNPACK_SQL_STATEMENT(table_alias, stmt->v.column_alias->table_alias, table_alias);
-			while(cur) {
+			while (cur) {
 				unsigned int	i;
 
 				for (i = 0; i < out->total_iter_keys; i++)
@@ -270,17 +271,20 @@ LogicalPlan *walk_where_statement(PhysicalPlanOptions *options, LogicalPlan *stm
 			break;
 		case LP_INSERT:
 		case LP_SET_OPERATION:
-			// Insert this to the physical plan, then create a
-			//  reference to the first item in the column list
+			// Generate a separate physical plan for this sub-query.
 			curr_plan = *options;
 			curr_plan.stash_columns_in_keys = TRUE;
 			new_plan = generate_physical_plan(stmt, &curr_plan);
 			if (NULL == new_plan)
 				return NULL;
-			MALLOC_LP_2ARGS(lp_key, LP_KEY);
-			cur_lp_key = lp_get_output_key(stmt);
-			lp_key->v.key = cur_lp_key->v.key;
-			stmt = lp_key;
+			if ((LP_BOOLEAN_IN == parent->type) || (LP_BOOLEAN_NOT_IN == parent->type)) {
+				// Create a reference to the output key in the column list
+				// (used later by "tmpl_print_expression.ctemplate" for the LP_BOOLEAN_IN/LP_BOOLEAN_NOT_IN cases)
+				MALLOC_LP_2ARGS(lp_key, LP_KEY);
+				cur_lp_key = lp_get_output_key(stmt);
+				lp_key->v.key = cur_lp_key->v.key;
+				stmt = lp_key;
+			}
 			break;
 		case LP_FUNCTION_CALL:
 		case LP_COLUMN_LIST:
@@ -288,8 +292,8 @@ LogicalPlan *walk_where_statement(PhysicalPlanOptions *options, LogicalPlan *stm
 		case LP_CASE_STATEMENT:
 		case LP_CASE_BRANCH:
 		case LP_CASE_BRANCH_STATEMENT:
-			stmt->v.operand[0] = walk_where_statement(options, stmt->v.operand[0]);
-			stmt->v.operand[1] = walk_where_statement(options, stmt->v.operand[1]);
+			stmt->v.operand[0] = walk_where_statement(options, stmt->v.operand[0], stmt);
+			stmt->v.operand[1] = walk_where_statement(options, stmt->v.operand[1], stmt);
 			break;
 		case LP_TABLE:
 			// This should never happen; fall through to error case

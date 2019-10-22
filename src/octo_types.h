@@ -120,13 +120,14 @@ typedef enum SqlStatementType {
 	invalid_STATEMENT
 } SqlStatementType;
 
+// The order of these must be kept in sync with `LPActionType` in `src/optimization_transforms/lp_action_type.hd`
 typedef enum UnaryOperations {
 	FORCE_NUM,
 	NEGATIVE,
 	BOOLEAN_NOT
 } UnaryOperations;
 
-// The order of these must be mainted with LPActionType
+// The order of these must be kept in sync with `LPActionType` in `src/optimization_transforms/lp_action_type.hd`
 typedef enum BinaryOperations {
 	ADDITION,
 	SUBTRACTION,
@@ -153,13 +154,12 @@ typedef enum BinaryOperations {
 
 typedef enum SqlValueType {
 	UNKNOWN_SqlValueType,
-	NUMBER_LITERAL,
+	NUMERIC_LITERAL,
 	INTEGER_LITERAL,
 	STRING_LITERAL,
 	DATE_TIME,
 	COLUMN_REFERENCE,
 	CALCULATED_VALUE,
-	TEMPORARY_TABLE_TYPE,
 	FUNCTION_NAME,
 	BOOLEAN_VALUE,
 	PARAMETER_VALUE,
@@ -179,11 +179,14 @@ typedef enum SqlDataType {
  *       of these enums (e.g. PRIMARY_KEY) is stored in the ^%ydboctoschema(<tablename>,"b",*) global nodes
  *       and using a newer build of Octo without killing ^%ydboctoschema could load a table definition that
  *       is out of date with respect to the newer build.
+ * Note: Any additions/deletions to this list might need to be correspondingly changed in "lp_emit_plan.c".
  */
 typedef enum OptionalKeyword {
 	NO_KEYWORD,
+	PRIMARY_KEY,
+	NOT_NULL,
+	UNIQUE_CONSTRAINT,
 	OPTIONAL_SOURCE,
-	OPTIONAL_CURSE,
 	OPTIONAL_END,
 	OPTIONAL_START,
 	OPTIONAL_DELIM,
@@ -195,16 +198,8 @@ typedef enum OptionalKeyword {
 	OPTIONAL_ADVANCE,
 	OPTIONAL_LIMIT,
 	OPTIONAL_DISTINCT,
-	OPTIONAL_POPULATE_INDEX, // not sure if this should be here; gets populated through LP
-	OPTIONAL_PART_OF_EXPANSION, // indicates that this statement is part of a OR explosion and we
-	// should maintain the structure to ensure we only insert a single element for each key part
-	UNKNOWN_SqlConstraintType,
-	NOT_NULL,
-	UNIQUE_CONSTRAINT,
-	PRIMARY_KEY,
-	REFERENCES,
-	CHECK_CONSTRAINT,
-	MAX_LENGTH,
+	OPTIONAL_XREF_INDEX,		// not sure if this should be here; gets populated through LP
+	OPTIONAL_BOOLEAN_EXPANSION,	// indicates that this statement is part of an OR boolean expression expansion to BNF form
 	OPTIONAL_ASC,
 	OPTIONAL_DESC,
 } OptionalKeyword;

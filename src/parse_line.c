@@ -25,19 +25,17 @@
  * @returns the parsed statement, or NULL if there was an error parsing.
  */
 SqlStatement *parse_line() {
-	SqlStatement *result = 0;
-	yyscan_t scanner;
+	SqlStatement	*result = 0;
+	yyscan_t	scanner;
 
 	if (yylex_init(&scanner)) {
 		ERROR(ERR_INIT_SCANNER, "");
 		return NULL;
 	}
-
 	config->plan_id = 0;
 	int status = yyparse(scanner, &result, &config->plan_id);
 	yylex_destroy(scanner);
-	if(status)
-	{
+	if (status) {
 		ERROR(ERR_PARSING_COMMAND, cur_input_index - old_input_index, input_buffer_combined + old_input_index);
 	}
 	/* Remove newline at end of query line if present.

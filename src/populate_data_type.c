@@ -47,16 +47,14 @@ char	*get_setoperation_string(SqlSetOperationType type) {
 
 char *get_type_string(SqlValueType type) {
 	switch(type) {
-	case NUMBER_LITERAL:
-		return "NUMBER";
+	case NUMERIC_LITERAL:
+		return "NUMERIC";
 	case INTEGER_LITERAL:
 		return "INTEGER";
 	case STRING_LITERAL:
 		return "STRING";
 	case DATE_TIME:
 		return "DATE TIME";
-	case TEMPORARY_TABLE_TYPE:
-		return "TEMPORARY TABLE TYPE";
 	case BOOLEAN_VALUE:
 		return "BOOLEAN";
 	case PARAMETER_VALUE:
@@ -140,6 +138,7 @@ int populate_data_type(SqlStatement *v, SqlValueType *type) {
 	SqlValue		*value = NULL;
 	SqlValueType		child_type1, child_type2;
 	YYLTYPE			location;
+	SqlSelectStatement	*select;
 	int			result = 0;
 
 	*type = UNKNOWN_SqlValueType;
@@ -166,11 +165,10 @@ int populate_data_type(SqlStatement *v, SqlValueType *type) {
 		} while (cur_branch != cas_branch);
 		break;
 	case select_STATEMENT:
-		*type = TEMPORARY_TABLE_TYPE;
-		SqlSelectStatement *select;
 		UNPACK_SQL_STATEMENT(select, v, select);
 		// SqlColumnListAlias that is a linked list
 		result |= populate_data_type_column_list_alias(select->select_list, &child_type1, TRUE);
+		*type = child_type1;
 		// SqlJoin
 		result |= populate_data_type(select->table_list, &child_type1);
 		// SqlValue (?)
@@ -202,7 +200,7 @@ int populate_data_type(SqlStatement *v, SqlValueType *type) {
 			result |= populate_data_type(value->v.calculated, &child_type1);
 			*type = child_type1;
 			break;
-		case NUMBER_LITERAL:
+		case NUMERIC_LITERAL:
 		case INTEGER_LITERAL:
 		case STRING_LITERAL:
 		case FUNCTION_NAME:
@@ -232,7 +230,7 @@ int populate_data_type(SqlStatement *v, SqlValueType *type) {
 				 * It can only currently change the types of literals
 				 * It does not work on columns or functions see issue #304
 				 */
-				if ((STRING_LITERAL == v->v.value->type) || (NUMBER_LITERAL == v->v.value->type)
+				if ((STRING_LITERAL == v->v.value->type) || (NUMERIC_LITERAL == v->v.value->type)
 										|| (INTEGER_LITERAL == v->v.value->type))
 					v->v.value->type = *type;
 			}
@@ -253,7 +251,7 @@ int populate_data_type(SqlStatement *v, SqlValueType *type) {
 				*type = STRING_LITERAL;
 				break;
 			case NUMERIC_TYPE:
-				*type = NUMBER_LITERAL;
+				*type = NUMERIC_LITERAL;
 				break;
 			case INTEGER_TYPE:
 				*type = INTEGER_LITERAL;
@@ -265,7 +263,7 @@ int populate_data_type(SqlStatement *v, SqlValueType *type) {
 				assert(NULL != column->pre_qualified_cla);
 				result |= populate_data_type(column->pre_qualified_cla->column_list, type);
 				switch(*type) {
-				case NUMBER_LITERAL:
+				case NUMERIC_LITERAL:
 					column->type = NUMERIC_TYPE;
 					break;
 				case BOOLEAN_VALUE:
@@ -329,9 +327,9 @@ int populate_data_type(SqlStatement *v, SqlValueType *type) {
 			child_type1 = child_type2;
 		} else if ((PARAMETER_VALUE == child_type2) || (NUL_VALUE == child_type2)) {
 			child_type2 = child_type1;
-		} else if ((INTEGER_LITERAL == child_type1) && (NUMBER_LITERAL == child_type2)){
+		} else if ((INTEGER_LITERAL == child_type1) && (NUMERIC_LITERAL == child_type2)){
 			child_type1 = child_type2;
-		} else if ((INTEGER_LITERAL == child_type2) && (NUMBER_LITERAL == child_type1)){
+		} else if ((INTEGER_LITERAL == child_type2) && (NUMERIC_LITERAL == child_type1)){
 			child_type2 = child_type1;
 		}
 		switch(binary->operation) {
@@ -350,19 +348,21 @@ int populate_data_type(SqlStatement *v, SqlValueType *type) {
 			*type = BOOLEAN_VALUE;
 			break;
 		}
-		if ((child_type1 != child_type2) && (TEMPORARY_TABLE_TYPE != child_type2)) {
-			WARNING(ERR_TYPE_MISMATCH, get_type_string(child_type1), get_type_string(child_type2));
-			location = binary->operands[0]->loc;
-			location.last_line = binary->operands[1]->loc.last_line;
-			location.last_column = binary->operands[1]->loc.last_column;
-			yyerror(&location, NULL, NULL, NULL, "Type mismatch");
+		if (child_type1 != child_type2) {
+			int	i;
+
+			ERROR(ERR_TYPE_MISMATCH, get_type_string(child_type1), get_type_string(child_type2));
+			for (i = 0; i < 2; i++) {
+				location = binary->operands[i]->loc;
+				yyerror(NULL, NULL, &binary->operands[i], NULL, NULL);
+			}
 			result = 1;
 		}
 		break;
 	case set_operation_STATEMENT:
-		*type = TEMPORARY_TABLE_TYPE;
 		UNPACK_SQL_STATEMENT(set_operation, v, set_operation);
 		result |= populate_data_type(set_operation->operand[0], &child_type1);
+		*type = child_type1;
 		result |= populate_data_type(set_operation->operand[1], &child_type2);
 		/* Now that the types of operands to the SET operation have been populated, do some more checks of
 		 * whether the # and types of columns on both operands match. If not issue error.

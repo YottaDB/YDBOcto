@@ -1,5 +1,4 @@
 OCTO> select 1/0 from names;
-Error occurred: 150373210,octoPlan1+6^%ydboctoP*,%YDB-E-DIVZERO, Attempt to divide by zero
 [ERROR] PATH:LINENUM DATE TIME : YottaDB error: 150373210,octoPlan1+6^%ydboctoP*,%YDB-E-DIVZERO, Attempt to divide by zero
 OCTO> select * from names;
 0|Zero|Cool

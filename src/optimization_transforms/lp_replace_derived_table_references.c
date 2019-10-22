@@ -44,7 +44,7 @@ LogicalPlan *lp_replace_derived_table_references(LogicalPlan *root, SqlTableAlia
 		if (NULL != t)
 			t->v.operand[0] = lp_replace_helper(t->v.operand[0], table_alias, key);
 		table_join = table_join->v.operand[1];
-	} while(NULL != table_join);
+	} while (NULL != table_join);
 	return root;
 }
 
@@ -53,9 +53,8 @@ LogicalPlan *lp_replace_helper(LogicalPlan *where, SqlTableAlias *table_alias, S
 	LogicalPlan *ret = where;
 	int part = 1;
 
-	if(where == NULL)
+	if (NULL == where)
 		return NULL;
-
 	switch(where->type) {
 	case LP_COLUMN_ALIAS:
 		alias = where->v.column_alias;
@@ -76,9 +75,9 @@ LogicalPlan *lp_replace_helper(LogicalPlan *where, SqlTableAlias *table_alias, S
 	case LP_WHERE:
 		ret->v.operand[0] = lp_replace_helper(where->v.operand[0], table_alias, key);
 		break;
+	case LP_INSERT:
 	case LP_SET_OPERATION:
-		// I don't expect this to happen, but seems like a possible path
-		assert(FALSE);
+		lp_replace_derived_table_references(where, table_alias, key);
 		break;
 	case LP_VALUE:
 	case LP_DERIVED_COLUMN:

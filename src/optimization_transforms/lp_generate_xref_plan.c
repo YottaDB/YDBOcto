@@ -98,7 +98,7 @@ LogicalPlan *lp_generate_xref_plan(LogicalPlan *plan, SqlTable *table, SqlColumn
 	memset(lp_keywords->v.keywords, 0, sizeof(SqlOptionalKeyword));
 	keywords = lp_keywords->v.keywords;
 	dqinit(keywords);
-	keywords->keyword = OPTIONAL_POPULATE_INDEX;
+	keywords->keyword = OPTIONAL_XREF_INDEX;
 
 	// Select an LP_KEY to output things to that is correct
 	MALLOC_LP(lp_output_key, output->v.operand[0], LP_KEY);

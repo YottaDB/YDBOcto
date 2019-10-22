@@ -21,7 +21,6 @@ TEMPLATE(tmpl_tablejoin_body, PhysicalPlan *plan, int dot_count, char *tableName
 	int		start_resume = 0;
 	int		end_resume = 0;
 	PhysicalPlan	*temp_plan = plan;
-	boolean_t	is_xref_plan;
 
 	// Run any plans which reference parent queries
 	while (NULL != temp_plan->prev)
@@ -59,66 +58,63 @@ TEMPLATE(tmpl_tablejoin_body, PhysicalPlan *plan, int dot_count, char *tableName
 	%{} DO`n    {}%
 	dot_count++;
 	// Output the value
-	// Note down where the "resume" pointer starts, incuding the preceeding whitespace
+	// Note down where the "resume" pointer starts, including the preceding whitespace
 	start_resume = (*buffer_index) - 4;
 	TMPL(tmpl_print_dots, dot_count);
-	is_xref_plan = (plan->outputKey && plan->outputKey->is_cross_reference_key);
-	if (!is_xref_plan && plan->stash_columns_in_keys)
-	{
-		%{}IF $INCREMENT({}%
-		TMPL(tmpl_key, plan->outputKey);
-		(*buffer_index)--;
+	assert(plan->outputKey);
+	if (plan->outputKey->is_cross_reference_key) {
+		%{}SET:1{}%
+		%{} ^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}"{}%
 		%{},{}%
 		TMPL(tmpl_column_list_combine, plan->projection, plan, ",", 0, 0);
+		%{})=""`n    {}%
+		TMPL(tmpl_print_dots, dot_count);
+		%{}IF $INCREMENT(^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}"{}%
+		%{})),$INCREMENT(^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}",{}%
+		// Temporarily sever the key from the projection
+		LogicalPlan	*lp_temp;
+
+		lp_temp = plan->projection->v.operand[1];
+		plan->projection->v.operand[1] = NULL;
+		TMPL(tmpl_column_list_combine, plan->projection, plan, ",", 0, 0);
+		plan->projection->v.operand[1] = lp_temp;
 		%{})){}%
-	} else
-	{
-		%{}SET:1{}%
+	} else if (plan->outputKey) {
+		// Note down where we are, do a dummy assignment to increment the row count, then paste our row again
+		int			resume_length;
+		char			c;
+		SqlOptionalKeyword	*keyword;
 
-		/// TODO: key has overloaded meaning here to mean table; we need to
-		// increment something somewhere
-		if (plan->outputKey && plan->outputKey->insert) {
-			%{}{{ plan->outputKey->insert->v.string_literal }}{}%
-		} else if (is_xref_plan) {
-			%{} ^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}"{}%
-			%{},{}%
-			TMPL(tmpl_column_list_combine, plan->projection, plan, ",", 0, 0);
-			%{})=""`n    {}%
-			TMPL(tmpl_print_dots, dot_count);
-			%{}IF $INCREMENT(^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}"{}%
-			%{})),$INCREMENT(^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}",{}%
-			// Temporarily sever the key from the projection
-			LogicalPlan	*lp_temp;
-
-			lp_temp = plan->projection->v.operand[1];
-			plan->projection->v.operand[1] = NULL;
-			TMPL(tmpl_column_list_combine, plan->projection, plan, ",", 0, 0);
-			plan->projection->v.operand[1] = lp_temp;
-			%{})){}%
-		} else if (plan->outputKey) {
-			// Note down where we are, do a dummy assignment to increment the row count, then paste our row again
-			int			resume_length;
-			char			c;
-			SqlOptionalKeyword	*keyword;
-
+		if (!plan->stash_columns_in_keys) {
+			%{}SET:1{}%
 			end_resume = *buffer_index;
 			%{}&$INCREMENT({}%
 			TMPL(tmpl_key, plan->outputKey);
 			%{}){}%
-			// If this plan has no ORDER BY, then any LIMIT related processing can happen. Otherwise we need to
-			// apply the LIMIT after the ORDER BY processing finally happens in "tmpl_physical_plan".
-			if (NULL == plan->order_by)
-			{
-				keyword = get_keyword_from_keywords(plan->keywords, OPTIONAL_LIMIT);
-				if (NULL != keyword)
-				{	/* Need to maintain a local variable parallely with the output key to be used to break from
-					 * the FOR loop in case the LIMIT is reached. Cannot use the output key for example if a
-					 * UNION is in effect across this plan and another plan in which case both will share the
-					 * same output key but could have differing limits (#269).
-					 */
-					%{}&$INCREMENT(%%ydboctozlimit){}%
-				}
+		} else
+		{
+			%{}IF $INCREMENT({}%
+			TMPL(tmpl_key, plan->outputKey);
+			(*buffer_index)--;
+			%{},{}%
+			TMPL(tmpl_column_list_combine, plan->projection, plan, ",", 0, 0);
+			%{})){}%
+		}
+		// If this plan has no ORDER BY, then any LIMIT related processing can happen. Otherwise we need to
+		// apply the LIMIT after the ORDER BY processing finally happens in "tmpl_physical_plan".
+		if (NULL == plan->order_by)
+		{
+			keyword = get_keyword_from_keywords(plan->keywords, OPTIONAL_LIMIT);
+			if (NULL != keyword)
+			{	/* Need to maintain a local variable parallely with the output key to be used to break from
+				 * the FOR loop in case the LIMIT is reached. Cannot use the output key for example if a
+				 * UNION is in effect across this plan and another plan in which case both will share the
+				 * same output key but could have differing limits (#269).
+				 */
+				%{}&$INCREMENT(%%ydboctozlimit){}%
 			}
+		}
+		if (!plan->stash_columns_in_keys) {
 			%{} {}%
 			%{}%%ydboctoz=42{}%
 			c = (*global_buffer)[end_resume];
@@ -153,14 +149,14 @@ TEMPLATE(tmpl_tablejoin_body, PhysicalPlan *plan, int dot_count, char *tableName
 			%{})_{}%
 			end_resume = *buffer_index;
 			TMPL(tmpl_column_list_combine, plan->projection, plan, "_\"|\"_", start_resume, end_resume - start_resume);
-		} else if (plan->outputTable) {
-			/// TODO: do we ever get to this branch?
-			/// Possible scenario is "We are putting the value directly into a table"
-			/// Not sure how to handle this yet.
-			/// Keeping this comment block intact until it is understood and fixed (if needed).
-		} else {
-			assert(FALSE);
 		}
+	} else {
+		assert(plan->outputTable);
+		/// TODO: do we ever get to this branch?
+		/// Possible scenario is "We are putting the value directly into a table"
+		/// Not sure how to handle this yet.
+		/// Keeping this comment block intact until it is understood and fixed (if needed).
+		assert(FALSE);
 	}
 	if (!plan->distinct_values && plan->emit_duplication_check) {
 		%{}`n    {}%

@@ -50,7 +50,7 @@ SqlColumnListAlias *columns_to_column_list_alias(SqlColumn *column, SqlTableAlia
 			cur_column_list_alias->type = STRING_LITERAL;
 			break;
 		case NUMERIC_TYPE:
-			cur_column_list_alias->type = NUMBER_LITERAL;
+			cur_column_list_alias->type = NUMERIC_LITERAL;
 			break;
 		case INTEGER_TYPE:
 			cur_column_list_alias->type = INTEGER_LITERAL;

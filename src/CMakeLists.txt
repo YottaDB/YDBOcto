@@ -142,6 +142,7 @@ add_library(libocto OBJECT
   compress_statement.c
   decompress_statement.c
   store_table_in_pg_class.c
+  ydb_error_check.c
   optimization_transforms/optimize_logical_plan.c
   optimization_transforms/lp_get_select.c
   optimization_transforms/lp_get_select_where.c
@@ -150,6 +151,7 @@ add_library(libocto OBJECT
   optimization_transforms/lp_emit_plan.c
   optimization_transforms/lp_get_keys.c
   optimization_transforms/lp_get_projection_columns.c
+  optimization_transforms/lp_get_num_cols_in_select_column_list.c
   optimization_transforms/get_plan_unique_number.c
   optimization_transforms/lp_insert_key.c
   optimization_transforms/lp_copy_plan.c
@@ -343,7 +345,7 @@ endforeach()
 set(aux_files
   aux/_ydboctoAdmin.m
   aux/_ydboctoCleanup.m
-  aux/_ydboctoNullSubsCheck.m
+  aux/_ydboctoInit.m
   aux/_ydboctocurrentSchema.m
   aux/_ydboctopgCurrentSchemas.m
   aux/_ydboctopgGetExpr.m

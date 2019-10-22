@@ -196,11 +196,11 @@ sql_statement
     }
   | sql_data_statement semicolon_or_eof { *out = $sql_data_statement; YYACCEPT; }
   | query_expression semicolon_or_eof {
-      if(qualify_query($query_expression, NULL)) {
+      if (qualify_query($query_expression, NULL)) {
           YYABORT;
       }
       SqlValueType type;
-      if(populate_data_type($query_expression, &type)) {
+      if (populate_data_type($query_expression, &type)) {
           YYABORT;
       }
       *out = $query_expression; YYACCEPT;
@@ -228,7 +228,7 @@ sql_statement
   ;
 
 semicolon_or_eof
-  : SEMICOLON { if('\0' != input_buffer_combined[cur_input_index]) cur_input_index--; } // The lexer will read one past the SEMICOLON if there is a character there so back up one character
+  : SEMICOLON { if ('\0' != input_buffer_combined[cur_input_index]) cur_input_index--; } // The lexer will read one past the SEMICOLON if there is a character there so back up one character
   | ENDOFFILE { assert(TRUE == eof_hit); } // The lexer should have set eof_hit at this point and this should always be true
   ;
 
@@ -381,7 +381,7 @@ boolean_factor
 
 boolean_test
   : boolean_primary boolean_test_tail {
-      if($boolean_test_tail != NULL) {
+      if (NULL != $boolean_test_tail) {
         SQL_STATEMENT($$, binary_STATEMENT);
         MALLOC_STATEMENT($$, binary, SqlBinaryOperation);
         ($$)->v.binary->operation = BOOLEAN_IS;
@@ -589,7 +589,7 @@ in_value_list
       UNPACK_SQL_STATEMENT(column_list, $$, column_list);
       column_list->value = $truth_value;
       dqinit(column_list);
-      if($in_value_list_tail != NULL) {
+      if (NULL != $in_value_list_tail) {
         UNPACK_SQL_STATEMENT(cl_tail, $in_value_list_tail, column_list);
         dqappend(column_list, cl_tail);
       }
@@ -601,7 +601,7 @@ in_value_list
       UNPACK_SQL_STATEMENT(column_list, $$, column_list);
       column_list->value = $value_expression;
       dqinit(column_list);
-      if($in_value_list_tail != NULL) {
+      if (NULL != $in_value_list_tail) {
         UNPACK_SQL_STATEMENT(cl_tail, $in_value_list_tail, column_list);
         dqappend(column_list, cl_tail);
       }
@@ -781,42 +781,36 @@ collation_name
 
 numeric_primary
   : value_expression_primary optional_subscript optional_cast_specification {
-      $$ = $value_expression_primary;
-      if($optional_cast_specification != NULL) {
-          // For now, we support a subset of types. More shall be added as needed
-          SqlValue *value;
-          UNPACK_SQL_STATEMENT(value, $optional_cast_specification, value);
-          char *c = value->v.string_literal;
-          while(*c != '\0') {
-              *c = toupper(*c);
-              c++;
-          }
-          c = value->v.string_literal;
-          if(strcmp(c, "TEXT") == 0) {
-              SQL_STATEMENT($$, value_STATEMENT);
-              MALLOC_STATEMENT($$, value, SqlValue);
-              UNPACK_SQL_STATEMENT(value, $$, value);
-              value->type = COERCE_TYPE;
-              value->coerced_type = STRING_LITERAL;
-              value->v.coerce_target = $value_expression_primary;
-          } else if(strcmp(c, "NUMERIC") == 0) {
-              SQL_STATEMENT($$, value_STATEMENT);
-              MALLOC_STATEMENT($$, value, SqlValue);
-              UNPACK_SQL_STATEMENT(value, $$, value);
-              value->type = COERCE_TYPE;
-              value->coerced_type = NUMBER_LITERAL;
-              value->v.coerce_target = $value_expression_primary;
-          } else if(strcmp(c, "INTEGER") == 0) {
-              SQL_STATEMENT($$, value_STATEMENT);
-              MALLOC_STATEMENT($$, value, SqlValue);
-              UNPACK_SQL_STATEMENT(value, $$, value);
-              value->type = COERCE_TYPE;
-              value->coerced_type = INTEGER_LITERAL;
-              value->v.coerce_target = $value_expression_primary;
-          } else {
-              WARNING(ERR_FEATURE_NOT_IMPLEMENTED, "coerce_type %s", c); YYABORT;
-          }
-      }
+	$$ = $value_expression_primary;
+	if (NULL != $optional_cast_specification) {
+		// For now, we support a subset of types. More shall be added as needed
+		SqlValue	*value;
+		SqlValueType	type;
+
+		UNPACK_SQL_STATEMENT(value, $optional_cast_specification, value);
+		char *c = value->v.string_literal;
+		while(*c != '\0') {
+			*c = toupper(*c);
+			c++;
+		}
+		c = value->v.string_literal;
+		if (0 == strcmp(c, "TEXT")) {
+			type = STRING_LITERAL;
+		} else if (0 == strcmp(c, "NUMERIC")) {
+			type = NUMERIC_LITERAL;
+		} else if (0 == strcmp(c, "INTEGER")) {
+			type = INTEGER_LITERAL;
+		} else {
+			ERROR(ERR_INVALID_TYPE, c);
+			YYABORT;
+		}
+		SQL_STATEMENT($$, value_STATEMENT);
+		MALLOC_STATEMENT($$, value, SqlValue);
+		UNPACK_SQL_STATEMENT(value, $$, value);
+		value->type = COERCE_TYPE;
+		value->coerced_type = type;
+		value->v.coerce_target = $value_expression_primary;
+	}
     }
 //  | numeric_value_function
   ;
@@ -909,7 +903,7 @@ simple_when_clause
       cas_branch->condition = $value_expression;
       cas_branch->value = $result;
       dqinit(cas_branch);
-      if($simple_when_clause_tail != NULL) {
+      if (NULL != $simple_when_clause_tail) {
         UNPACK_SQL_STATEMENT(tail_cas_branch, $simple_when_clause_tail, cas_branch);
         dqappend(cas_branch, tail_cas_branch);
       }
@@ -922,7 +916,7 @@ simple_when_clause
       cas_branch->condition = $search_condition;
       cas_branch->value = $result;
       dqinit(cas_branch);
-      if($simple_when_clause_tail != NULL) {
+      if (NULL != $simple_when_clause_tail) {
         UNPACK_SQL_STATEMENT(tail_cas_branch, $simple_when_clause_tail, cas_branch);
         dqappend(cas_branch, tail_cas_branch);
       }
@@ -1164,7 +1158,7 @@ table_definition
         ($$)->v.table->tableName = $column_name;
         ($$)->v.table->columns = $table_element_list;
         assign_table_to_columns($$);
-        if(create_table_defaults($$, $table_definition_tail)) {
+        if (create_table_defaults($$, $table_definition_tail)) {
           YYABORT;
         }
       }
@@ -1222,7 +1216,7 @@ table_element_list
   :  table_element table_element_list_tail  {
       $$ = $table_element;
       assert($$->type == column_STATEMENT);
-      if($table_element_list_tail)
+      if ($table_element_list_tail)
       {
         assert($table_element_list_tail->type == column_STATEMENT);
         dqappend($table_element_list_tail->v.column, ($$)->v.column);

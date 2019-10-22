@@ -163,11 +163,11 @@ LogicalPlan *optimize_logical_plan(LogicalPlan *plan) {
 			SqlOptionalKeyword	*keywords, *new_keyword;
 
 			keywords = lp_get_select_keywords(plan)->v.keywords;
-			new_keyword = get_keyword_from_keywords(keywords, OPTIONAL_PART_OF_EXPANSION);
+			new_keyword = get_keyword_from_keywords(keywords, OPTIONAL_BOOLEAN_EXPANSION);
 			if(new_keyword == NULL) {
 				OCTO_CMALLOC_STRUCT(new_keyword, SqlOptionalKeyword);
 				dqinit(new_keyword);
-				new_keyword->keyword = OPTIONAL_PART_OF_EXPANSION;
+				new_keyword->keyword = OPTIONAL_BOOLEAN_EXPANSION;
 				dqappend(keywords, new_keyword);
 			}
 			LogicalPlan	*p = lp_copy_plan(plan);

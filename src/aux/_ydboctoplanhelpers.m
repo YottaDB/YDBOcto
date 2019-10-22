@@ -277,3 +277,21 @@ columnkeyEXCEPT(inputId1,inputId2,outputId)
 	FOR  SET %ydboctozsubs=$ORDER(%ydboctozindex(ydboctozsubs)) QUIT:%ydboctozsubs=""  DO
 	. SET %ydboctocursor(cursorId,"keys",outputId,"","",%ydboctozsubs)=1
 	QUIT
+
+GetScalar(keyId)
+	; Helper M function that given an output key # (keyId) checks if the output key has only one column
+	; and at most one row. If so it returns that as the value. If not, it issues an error.
+	; Used by generated plans where a sub-query is used in place of a scalar value (e.g. arithmetic expression etc.)
+	; Assumes "%ydboctocursor" and "cursorId" are appropriately set by caller.
+	;
+	NEW %ydboctofirstrowfirstcol,%ydboctomultiplerow,%ydboctomultiplecol
+	SET %ydboctofirstrowfirstcol=$ORDER(%ydboctocursor(cursorId,"keys",keyId,"","",""))
+	QUIT:(""=%ydboctofirstrowfirstcol) ""	; "" needs to be replaced with $ZYSQLNULL when #311 is fixed
+	; Find out if the output key has more than one row. If so issue an error
+	; Note that it is possible the same row gets duplicated more than once. In that case though
+	; the node value would be greater than 1. So check that too (in addition to checking $ORDER returns "").
+	SET %ydboctomultiplerow=(""'=$ORDER(%ydboctocursor(cursorId,"keys",keyId,"","",%ydboctofirstrowfirstcol)))
+	SET:'%ydboctomultiplerow %ydboctomultiplerow=(1<%ydboctocursor(cursorId,"keys",keyId,"","",%ydboctofirstrowfirstcol))
+	ZMESSAGE:%ydboctomultiplerow %ydboctoerror("SUBQUERYMULTIPLEROWS")
+	QUIT %ydboctofirstrowfirstcol	; Return scalar in only column and only row of keyId
+

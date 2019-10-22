@@ -49,7 +49,6 @@ PhysicalPlan *emit_select_statement(SqlStatement *stmt, char *plan_filename)
 	assert(stmt && (stmt->type == table_alias_STATEMENT || stmt->type == set_operation_STATEMENT));
 	plan = generate_logical_plan(stmt, &config->plan_id);
 	if (NULL == plan) {
-		ERROR(ERR_PLAN_NOT_GENERATED, "logical");
 		return NULL;
 	}
 	if(config->record_error_level <= DEBUG) {

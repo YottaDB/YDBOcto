@@ -34,9 +34,10 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt, int *plan_id) {
 	SqlColumnListAlias	*list;
 	int			num_outer_joins;
 	enum SqlJoinType 	cur_join_type;
+	boolean_t		null_return_seen = FALSE;
 
 	// Set operations should be handled in a different function
-	if (stmt->type == set_operation_STATEMENT) {
+	if (set_operation_STATEMENT == stmt->type) {
 		return lp_generate_set_logical_plan(stmt, plan_id);
 	}
 
@@ -72,7 +73,7 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt, int *plan_id) {
 	MALLOC_LP_2ARGS(criteria->v.operand[0], LP_KEYS);
 	MALLOC_LP(select_options, criteria->v.operand[1], LP_SELECT_OPTIONS);
 	MALLOC_LP(where, select_options->v.operand[0], LP_WHERE);
-	where->v.operand[0] = lp_generate_where(select_stmt->where_expression, plan_id);
+	LP_GENERATE_WHERE(select_stmt->where_expression, plan_id, where->v.operand[0], null_return_seen);
 	insert->counter = plan_id;
 	MALLOC_LP(dst, insert->v.operand[1], LP_OUTPUT);
 	MALLOC_LP(dst_key, dst->v.operand[0], LP_KEY);
@@ -181,7 +182,7 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt, int *plan_id) {
 		if (cur_join->condition)
 		{
 			MALLOC_LP_2ARGS(t_join_condition, LP_WHERE);
-			t_join_condition->v.operand[0] = lp_generate_where(cur_join->condition, plan_id);
+			LP_GENERATE_WHERE(cur_join->condition, plan_id, t_join_condition->v.operand[0], null_return_seen);
 			if (num_outer_joins)
 				join_right->join_on_condition = t_join_condition;
 			else
@@ -260,5 +261,5 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt, int *plan_id) {
 	//  Before we can do that, we need to resolve the JOINs, which are
 	//  an area where we definitely want to look at optimization
 	//  therefore, we leave the plan in a semi-valid state
-	return insert;
+	return (null_return_seen ? NULL : insert);
 }

@@ -42,6 +42,16 @@
 	(DEST) = (SOURCE)->v.operand[(SIDE)];			\
 }
 
+#define	LP_GENERATE_WHERE(STMT, PLAN_ID, RET, NULL_RETURN_SEEN)	{	\
+	if (NULL != STMT) {						\
+		RET = lp_generate_where(STMT, PLAN_ID);			\
+		if (NULL == RET)					\
+			NULL_RETURN_SEEN = TRUE;			\
+	} else {							\
+		RET = NULL;						\
+	}								\
+}
+
 // Forward declarations
 struct LogicalPlan;
 struct SqlKey;
@@ -94,9 +104,6 @@ typedef struct SqlKey {
 	int			unique_id;
 	// If this key is fixed, this is the value
 	LogicalPlan		*value;
-	// Used to customize how insert works; default is to
-	//  get the key and add an integer column
-	SqlValue		*insert;
 	// The only relevant types are KEY_FIXED, KEY_ADVANCE
 	LPActionType		type;
 	// Table that owns this key; used to extract key from plan
@@ -169,6 +176,8 @@ SqlKey *lp_get_key(LogicalPlan *plan, LogicalPlan *column_alias);
 int lp_get_key_index(LogicalPlan *plan, LogicalPlan *column_alias);
 // Returns the output key
 LogicalPlan *lp_get_output_key(LogicalPlan *plan);
+// Returns the number of columns in the SELECT column list for a given plan
+int lp_get_num_cols_in_select_column_list(LogicalPlan *plan);
 // Returns the
 // Inserts a key at the end of the plans keys
 void lp_insert_key(LogicalPlan *plan, LogicalPlan *key);

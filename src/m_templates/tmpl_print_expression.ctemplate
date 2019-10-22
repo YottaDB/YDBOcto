@@ -59,7 +59,7 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan) {
 			zwr.buf_addr[zwr.len_used] = '\0';
 			%{}{{ zwr.buf_addr }}{}%
 			break;
-		case NUMBER_LITERAL:
+		case NUMERIC_LITERAL:
 			%{}"{{ value->v.string_literal }}"{}%
 			break;
 		case COLUMN_REFERENCE:
@@ -269,11 +269,10 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan) {
 		%{}){}%
 		break;
 	case LP_INSERT:
+	case LP_SET_OPERATION:
 		// Fetch the first value from the output key of this table
 		key = lp_get_output_key(plan);
-		%{}$ORDER({}%
-		TMPL(tmpl_key, key->v.key); (*buffer_index)--;
-		%{},"")){}%
+		%{}$$GetScalar^%%ydboctoplanhelpers({{ key->v.key->unique_id|%d }}){}%
 		break;
 	case LP_CASE:
 		%{}$SELECT({}%

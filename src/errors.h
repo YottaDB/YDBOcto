@@ -16,8 +16,8 @@
 #include <stdarg.h>
 #include "constants.h"
 
-#define TRUE 1
-#define FALSE 0
+#define FALSE	0
+#define TRUE	1
 
 enum ERROR_LEVEL {
 	TRACE,
@@ -45,8 +45,6 @@ typedef enum {
 #undef ERROR_DEF
 #undef ERROR_END
 
-
-
 extern const char *err_format_str[];
 
 typedef struct ErrorBuffer {
@@ -55,44 +53,12 @@ typedef struct ErrorBuffer {
 } ErrorBuffer;
 
 void octo_log(int line, char *file, enum ERROR_LEVEL level, enum ERROR error, ...);
+void ydb_error_check(int status, char *file, int line);
+
+/* This macro is needed so we record the caller's __FILE__ and __LINE__ locations instead of that inside `ydb_error_check.c` */
+#define	YDB_ERROR_CHECK(STATUS)	ydb_error_check(STATUS, __FILE__, __LINE__)
 
 const char *format_error_string(struct ErrorBuffer *err_buff, enum ERROR error, ...);
-
-#define YDB_ERROR_CHECK(status) do {										\
-	ydb_buffer_t z_status, z_status_value;									\
-	int severity = 0;											\
-														\
-	if(YDB_OK != status) {											\
-		YDB_LITERAL_TO_BUFFER("$ZSTATUS", &z_status);							\
-		YDB_MALLOC_BUFFER(&z_status_value, MAX_STR_CONST);						\
-		ydb_get_s(&z_status, 0, NULL, &z_status_value);							\
-		z_status_value.buf_addr[z_status_value.len_used] = '\0';					\
-		YDB_SEVERITY(status, severity);									\
-		switch (severity) {										\
-			case YDB_SEVERITY_SUCCESS:								\
-				octo_log(__LINE__, __FILE__, TRACE, ERR_YOTTADB, z_status_value.buf_addr);	\
-				status = YDB_OK;								\
-				break;										\
-			case YDB_SEVERITY_INFORMATIONAL:							\
-				octo_log(__LINE__, __FILE__, INFO, ERR_YOTTADB, z_status_value.buf_addr);	\
-				status = YDB_OK;								\
-				break;										\
-			case YDB_SEVERITY_WARNING:								\
-				octo_log(__LINE__, __FILE__, WARNING, ERR_YOTTADB, z_status_value.buf_addr);	\
-				break;										\
-			case YDB_SEVERITY_ERROR:								\
-				octo_log(__LINE__, __FILE__, ERROR, ERR_YOTTADB, z_status_value.buf_addr);	\
-				break;										\
-			case YDB_SEVERITY_FATAL:								\
-				octo_log(__LINE__, __FILE__, FATAL, ERR_YOTTADB, z_status_value.buf_addr);	\
-				break;										\
-			default:										\
-				status = YDB_OK;								\
-				break;										\
-		}												\
-		YDB_FREE_BUFFER(&z_status_value);								\
-	}													\
-} while(0);
 
 #define TRACE(err, ...) TRACE >= config->record_error_level  \
 	? octo_log(__LINE__, __FILE__, TRACE, err, ## __VA_ARGS__) : (void)0;

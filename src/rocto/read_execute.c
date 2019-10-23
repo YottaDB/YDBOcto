@@ -20,13 +20,10 @@
 #include "rocto.h"
 #include "message_formats.h"
 
-Execute *read_execute(BaseMessage *message, ErrorResponse **err) {
+Execute *read_execute(BaseMessage *message) {
 	Execute *ret;
-	ErrorBuffer err_buff;
 	char *cur_pointer, *last_byte;
-	const char *error_message;
 	uint32_t remaining_length;
-	err_buff.offset = 0;
 
 	// Create Execute message and initialize ALL bytes
 	remaining_length = ntohl(message->length);
@@ -42,11 +39,7 @@ Execute *read_execute(BaseMessage *message, ErrorResponse **err) {
 
 	// Ensure message has correct type
 	if(ret->type != PSQL_Execute) {
-		error_message = format_error_string(&err_buff, ERR_ROCTO_INVALID_TYPE, "Execute", ret->type, PSQL_Execute);
-		*err = make_error_response(PSQL_Error_ERROR,
-					   PSQL_Code_Protocol_Violation,
-					   error_message,
-					   0);
+		ERROR(ERR_ROCTO_INVALID_TYPE, "Execute", ret->type, PSQL_Execute);
 		free(ret);
 		return NULL;
 	}
@@ -55,32 +48,20 @@ Execute *read_execute(BaseMessage *message, ErrorResponse **err) {
 		cur_pointer++;
 	}
 	if(cur_pointer == last_byte || '\0' != *cur_pointer) {
-		error_message = format_error_string(&err_buff, ERR_ROCTO_MISSING_NULL, "Execute", "source");
-		*err = make_error_response(PSQL_Error_ERROR,
-					   PSQL_Code_Protocol_Violation,
-					   error_message,
-					   0);
+		ERROR(ERR_ROCTO_MISSING_NULL, "Execute", "source");
 		free(ret);
 		return NULL;
 	}
 	cur_pointer++;		// Skip over null pointer
 	// Ensure rows_to_return field included
 	if(cur_pointer + sizeof(uint32_t) > last_byte) {
-		error_message = format_error_string(&err_buff, ERR_ROCTO_MISSING_DATA, "Execute", "number of rows to return");
-		*err = make_error_response(PSQL_Error_ERROR,
-					   PSQL_Code_Protocol_Violation,
-					   error_message,
-					   0);
+		ERROR(ERR_ROCTO_MISSING_DATA, "Execute", "number of rows to return");
 		free(ret);
 		return NULL;
 	}
 	// Check for trailing characters
 	if(cur_pointer != last_byte - sizeof(uint32_t)) {
-		error_message = format_error_string(&err_buff, ERR_ROCTO_TRAILING_CHARS, "Execute");
-		*err = make_error_response(PSQL_Error_ERROR,
-					   PSQL_Code_Protocol_Violation,
-					   error_message,
-					   0);
+		ERROR(ERR_ROCTO_TRAILING_CHARS, "Execute");
 		free(ret);
 		return NULL;
 	}

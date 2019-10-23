@@ -31,7 +31,6 @@ int no_more() {
 int handle_query(Query *query, RoctoSession *session) {
 	QueryResponseParms parms;
 	EmptyQueryResponse *empty_query_response;
-	ErrorResponse *err;
 	int32_t query_length = 0;
 	int32_t run_query_result = 0;
 	char *err_buff;
@@ -52,12 +51,7 @@ int handle_query(Query *query, RoctoSession *session) {
 	//  this buffer is large enough that this won't happen
 	// Enforced by this check
 	if(query_length > cur_input_max) {
-		err = make_error_response(PSQL_Error_ERROR,
-				PSQL_Code_Protocol_Violation,
-				"query length exceeded maximum size",
-				0);
-		send_message(session, (BaseMessage*)(&err->type));
-		free_error_response(err);
+		ERROR(ERR_ROCTO_QUERY_TOO_LONG, "");
 		return 1;
 	}
 	memcpy(input_buffer_combined, query->query, query_length);
@@ -74,12 +68,8 @@ int handle_query(Query *query, RoctoSession *session) {
 			eof_hit = TRUE;
 		} else if(0 != run_query_result) {
 			fclose(err_buffer);
-			err = make_error_response(PSQL_Error_ERROR,
-					PSQL_Code_Syntax_Error,
-					err_buff,
-					0);
-			send_message(session, (BaseMessage*)(&err->type));
-			free_error_response(err);
+			ERROR(CUSTOM_ERROR, err_buff);
+
 			free(err_buff);
 			err_buffer = open_memstream(&err_buff, &err_buff_size);
 		}

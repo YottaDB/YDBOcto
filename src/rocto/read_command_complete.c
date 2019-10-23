@@ -21,11 +21,9 @@
 #include "rocto.h"
 #include "message_formats.h"
 
-CommandComplete *read_command_complete(BaseMessage *message, ErrorResponse **err) {
+CommandComplete *read_command_complete(BaseMessage *message) {
 	CommandComplete *ret;
 	uint32_t remaining_length = 0;
-
-	UNUSED(err);
 
 	remaining_length = ntohl(message->length);
 	ret = (CommandComplete*)malloc(remaining_length + sizeof(CommandComplete) - sizeof(uint32_t));

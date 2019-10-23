@@ -34,7 +34,6 @@ static void test_valid_input_no_parms(void **state) {
 	int16_t num_parms = htons(0);
 	int16_t num_result_col_format_codes = htons(0);
 	int32_t message_length = sizeof(uint32_t) + strlen(dest) + strlen(source) + 2 + sizeof(int16_t) * 3;
-	ErrorResponse *err = NULL;
 
 	BaseMessage *test_data = (BaseMessage*)malloc(message_length + sizeof(BaseMessage) - sizeof(uint32_t));
 	test_data->type = PSQL_Bind;
@@ -54,7 +53,7 @@ static void test_valid_input_no_parms(void **state) {
 	ptr += sizeof(int16_t);
 
 	// The actual test
-	Bind *bind = read_bind(test_data, &err);
+	Bind *bind = read_bind(test_data);
 
 	// Standard checks
 	assert_non_null(bind);
@@ -68,10 +67,9 @@ static void test_valid_input_no_parms(void **state) {
 	assert_null(bind->parm_format_codes);
 	assert_null(bind->parms);
 	assert_null(bind->result_col_format_codes);
-	assert_null(err);
 
-        free(test_data);
-        free(bind);
+	free(test_data);
+	free(bind);
 }
 
 static void test_valid_input_one_parm_no_parm_code(void **state) {
@@ -104,7 +102,6 @@ static void test_valid_input_one_parm_no_parm_code(void **state) {
 	int16_t col_formats[1] = {0};			// arbitrary col format code
 	message_length += sizeof(col_formats);
 
-	ErrorResponse *err = NULL;
 	char *c = NULL;
 
 	// Create and initialize base message
@@ -133,7 +130,7 @@ static void test_valid_input_one_parm_no_parm_code(void **state) {
 	c += sizeof(col_formats);
 
 	// The actual test
-	Bind *bind = read_bind(test_data, &err);
+	Bind *bind = read_bind(test_data);
 
 	// Standard checks
 	assert_non_null(bind);
@@ -147,11 +144,10 @@ static void test_valid_input_one_parm_no_parm_code(void **state) {
 	assert_null(bind->parm_format_codes);
 	assert_non_null(bind->parms);
 	assert_non_null(bind->result_col_format_codes);
-	assert_null(err);
 
-        free(test_data);
+	free(test_data);
 	free(parm);
-        free(bind->parms);
+	free(bind->parms);
 	free(bind);
 }
 
@@ -187,7 +183,6 @@ static void test_valid_input_one_parm_one_parm_code(void **state) {
 	int16_t col_formats[1] = {0};			// arbitrary col format code
 	message_length += sizeof(col_formats);
 
-	ErrorResponse *err = NULL;
 	char *c = NULL;
 
 	// Create and initialize base message
@@ -218,7 +213,7 @@ static void test_valid_input_one_parm_one_parm_code(void **state) {
 	c += sizeof(col_formats);
 
 	// The actual test
-	Bind *bind = read_bind(test_data, &err);
+	Bind *bind = read_bind(test_data);
 
 	// Standard checks
 	assert_non_null(bind);
@@ -232,11 +227,10 @@ static void test_valid_input_one_parm_one_parm_code(void **state) {
 	assert_non_null(bind->parm_format_codes);
 	assert_non_null(bind->parms);
 	assert_non_null(bind->result_col_format_codes);
-	assert_null(err);
 
-        free(test_data);
+	free(test_data);
 	free(parm);
-        free(bind->parms);
+	free(bind->parms);
 	free(bind);
 }
 
@@ -278,7 +272,6 @@ static void test_valid_input_multi_parms_default_parm_code(void **state) {
 	int16_t col_formats[2] = {0, 0};			// arbitrary col format code
 	message_length += sizeof(col_formats);
 
-	ErrorResponse *err = NULL;
 	char *c = NULL;
 
 	// Create and initialize base message
@@ -309,7 +302,7 @@ static void test_valid_input_multi_parms_default_parm_code(void **state) {
 	c += sizeof(col_formats);
 
 	// The actual test
-	Bind *bind = read_bind(test_data, &err);
+	Bind *bind = read_bind(test_data);
 
 	// Standard checks
 	assert_non_null(bind);
@@ -323,12 +316,11 @@ static void test_valid_input_multi_parms_default_parm_code(void **state) {
 	assert_null(bind->parm_format_codes);
 	assert_non_null(bind->parms);
 	assert_non_null(bind->result_col_format_codes);
-	assert_null(err);
 
-        free(test_data);
+	free(test_data);
 	free(parm1);
 	free(parm2);
-        free(bind->parms);
+	free(bind->parms);
 	free(bind);
 }
 
@@ -372,7 +364,6 @@ static void test_valid_input_multi_parms_one_parm_code(void **state) {
 	int16_t col_formats[2] = {0, 0};			// arbitrary col format code
 	message_length += sizeof(col_formats);
 
-	ErrorResponse *err = NULL;
 	char *c = NULL;
 
 	// Create and initialize base message
@@ -405,7 +396,7 @@ static void test_valid_input_multi_parms_one_parm_code(void **state) {
 	c += sizeof(col_formats);
 
 	// The actual test
-	Bind *bind = read_bind(test_data, &err);
+	Bind *bind = read_bind(test_data);
 
 	// Standard checks
 	assert_non_null(bind);
@@ -419,12 +410,11 @@ static void test_valid_input_multi_parms_one_parm_code(void **state) {
 	assert_non_null(bind->parm_format_codes);
 	assert_non_null(bind->parms);
 	assert_non_null(bind->result_col_format_codes);
-	assert_null(err);
 
-        free(test_data);
+	free(test_data);
 	free(parm1);
 	free(parm2);
-        free(bind->parms);
+	free(bind->parms);
 	free(bind);
 }
 
@@ -467,7 +457,6 @@ static void test_valid_input_multi_parms_actual_parm_codes(void **state) {
 	int16_t col_formats[2] = {0, 0};			// arbitrary col format code
 	message_length += sizeof(col_formats);
 
-	ErrorResponse *err = NULL;
 	char *c = NULL;
 
 	// Create and initialize base message
@@ -500,7 +489,7 @@ static void test_valid_input_multi_parms_actual_parm_codes(void **state) {
 	c += sizeof(col_formats);
 
 	// The actual test
-	Bind *bind = read_bind(test_data, &err);
+	Bind *bind = read_bind(test_data);
 
 	// Standard checks
 	assert_non_null(bind);
@@ -514,12 +503,11 @@ static void test_valid_input_multi_parms_actual_parm_codes(void **state) {
 	assert_non_null(bind->parm_format_codes);
 	assert_non_null(bind->parms);
 	assert_non_null(bind->result_col_format_codes);
-	assert_null(err);
 
-        free(test_data);
+	free(test_data);
 	free(parm1);
 	free(parm2);
-        free(bind->parms);
+	free(bind->parms);
 	free(bind);
 }
 
@@ -565,7 +553,6 @@ static void test_too_many_parameters(void **state) {
 	int16_t col_formats[2] = {0, 0};			// arbitrary col format code
 	message_length += sizeof(col_formats);
 
-	ErrorResponse *err = NULL;
 	char *c = NULL;
 
 	// Create and initialize base message
@@ -590,7 +577,6 @@ static void test_too_many_parameters(void **state) {
 	memcpy(c, parm2, sizeof(int) + strlen(parm2_value) + 1);
 	c += sizeof(int) + strlen(parm2_value) + 1;
 	memcpy(c, parm3, sizeof(int) + strlen(parm3_value) + 1);
-	c += sizeof(int) + strlen(parm3_value) + 1;
 	// Copy column format codes into message
 	*((int16_t*)c) = num_result_col_format_codes;
 	c += sizeof(int16_t);
@@ -598,10 +584,9 @@ static void test_too_many_parameters(void **state) {
 	c += sizeof(col_formats);
 
 	// The actual test
-	Bind *bind = read_bind(test_data, &err);
+	Bind *bind = read_bind(test_data);
 
 	// Standard checks
-	assert_non_null(err);
 	assert_non_null(bind);		// May contain junk, but this is acceptable
 	assert_string_equal(bind->dest, dest);
 	assert_string_equal(bind->source, source);
@@ -610,13 +595,12 @@ static void test_too_many_parameters(void **state) {
 	assert_non_null(bind->parms);
 	// Ignore bad result_col_format_codes data, since it may be junk
 
-        free(test_data);
+	free(test_data);
 	free(parm1);
 	free(parm2);
 	free(parm3);
 	free(bind->parms);
 	free(bind);
-	free_error_response(err);
 }
 
 static void test_no_parms_with_too_many_num_parm_codes(void **state) {
@@ -627,10 +611,6 @@ static void test_no_parms_with_too_many_num_parm_codes(void **state) {
 	int16_t num_parms = htons(0);
 	int16_t num_result_col_format_codes = htons(0);
 	int32_t message_length = sizeof(uint32_t) + strlen(dest) + strlen(source) + 2 + sizeof(int16_t) * 3;
-	ErrorResponse *err = NULL;
-	ErrorBuffer err_buff;
-	err_buff.offset = 0;
-	const char *error_message;
 
 	BaseMessage *test_data = (BaseMessage*)malloc(message_length + sizeof(BaseMessage) - sizeof(uint32_t));
 	test_data->type = PSQL_Bind;
@@ -650,25 +630,15 @@ static void test_no_parms_with_too_many_num_parm_codes(void **state) {
 	ptr += sizeof(int16_t);
 
 	// The actual test
-	Bind *bind = read_bind(test_data, &err);
+	Bind *bind = read_bind(test_data);
 
 	// Standard checks
-	assert_non_null(err);
 	assert_null(bind);
 
-	// Ensure correct error message
-	error_message = format_error_string(&err_buff, ERR_ROCTO_TOO_MANY_VALUES, "Bind", "parameter format codes");
-	assert_string_equal(error_message, err->args[2].value + 1);
-
-        free(test_data);
-        free_error_response(err);
+	free(test_data);
 }
 
 static void test_one_parm_with_too_many_num_parm_codes(void **state) {
-	ErrorBuffer err_buff;
-	err_buff.offset = 0;
-	const char *error_message;
-
 	int32_t message_length = 0;
 	message_length += sizeof(uint32_t);		// length
 
@@ -699,7 +669,6 @@ static void test_one_parm_with_too_many_num_parm_codes(void **state) {
 	int16_t col_formats[1] = {0};			// arbitrary col format code
 	message_length += sizeof(col_formats);
 
-	ErrorResponse *err = NULL;
 	char *c = NULL;
 
 	// Create and initialize base message
@@ -730,27 +699,17 @@ static void test_one_parm_with_too_many_num_parm_codes(void **state) {
 	c += sizeof(col_formats);
 
 	// The actual test
-	Bind *bind = read_bind(test_data, &err);
+	Bind *bind = read_bind(test_data);
 
 	// Standard checks
 	assert_null(bind);
-	assert_non_null(err);
 
-	// Ensure correct error message
-	error_message = format_error_string(&err_buff, ERR_ROCTO_TOO_MANY_VALUES, "Bind", "parameter format codes");
-	assert_string_equal(error_message, err->args[2].value + 1);
-
-        free(test_data);
+	free(test_data);
 	free(parm);
-	free_error_response(err);
 }
 
 
 static void test_multi_parms_with_too_many_num_parm_codes(void **state) {
-	ErrorBuffer err_buff;
-	err_buff.offset = 0;
-	const char *error_message;
-
 	int32_t message_length = 0;
 	message_length += sizeof(uint32_t);		// length
 
@@ -788,7 +747,6 @@ static void test_multi_parms_with_too_many_num_parm_codes(void **state) {
 	int16_t col_formats[2] = {0, 0};			// arbitrary col format code
 	message_length += sizeof(col_formats);
 
-	ErrorResponse *err = NULL;
 	char *c = NULL;
 
 	// Create and initialize base message
@@ -821,27 +779,17 @@ static void test_multi_parms_with_too_many_num_parm_codes(void **state) {
 	c += sizeof(col_formats);
 
 	// The actual test
-	Bind *bind = read_bind(test_data, &err);
+	Bind *bind = read_bind(test_data);
 
 	// Standard checks
-	assert_non_null(err);
 	assert_null(bind);
 
-	// Ensure correct error message
-	error_message = format_error_string(&err_buff, ERR_ROCTO_TOO_MANY_VALUES, "Bind", "parameter format codes");
-	assert_string_equal(error_message, err->args[2].value + 1);
-
-        free(test_data);
+	free(test_data);
 	free(parm1);
 	free(parm2);
-	free_error_response(err);
 }
 
 static void test_multi_parms_with_too_few_num_parm_codes(void **state) {
-	ErrorBuffer err_buff;
-	err_buff.offset = 0;
-	const char *error_message;
-
 	int32_t message_length = 0;
 	message_length += sizeof(uint32_t);		// length
 
@@ -885,7 +833,6 @@ static void test_multi_parms_with_too_few_num_parm_codes(void **state) {
 	int16_t col_formats[2] = {0, 0};			// arbitrary col format code
 	message_length += sizeof(col_formats);
 
-	ErrorResponse *err = NULL;
 	char *c = NULL;
 
 	// Create and initialize base message
@@ -920,21 +867,15 @@ static void test_multi_parms_with_too_few_num_parm_codes(void **state) {
 	c += sizeof(col_formats);
 
 	// The actual test
-	Bind *bind = read_bind(test_data, &err);
+	Bind *bind = read_bind(test_data);
 
 	// Standard checks
-	assert_non_null(err);
 	assert_null(bind);
 
-	// Ensure correct error message
-	error_message = format_error_string(&err_buff, ERR_ROCTO_TOO_FEW_VALUES, "Bind", "parameter format codes");
-	assert_string_equal(error_message, err->args[2].value + 1);
-
-        free(test_data);
+	free(test_data);
 	free(parm1);
 	free(parm2);
 	free(parm3);
-	free_error_response(err);
 }
 
 static void test_input_too_short(void **state) {
@@ -946,10 +887,6 @@ static void test_input_too_short(void **state) {
 	int16_t num_parms = htons(0);
 	int16_t num_result_col_format_codes = htons(0);
 	int32_t message_length = sizeof(uint32_t) + strlen(dest) + strlen(source) + 2 + sizeof(int16_t) * 3;
-	ErrorResponse *err = NULL;
-	ErrorBuffer err_buff;
-	err_buff.offset = 0;
-	const char *error_message;
 
 	BaseMessage *test_data = (BaseMessage*)malloc(message_length + sizeof(BaseMessage) - sizeof(uint32_t));
 	test_data->type = PSQL_Bind;
@@ -969,18 +906,12 @@ static void test_input_too_short(void **state) {
 	ptr += sizeof(int16_t);
 
 	// The actual test
-	Bind *bind = read_bind(test_data, &err);
+	Bind *bind = read_bind(test_data);
 
 	assert_null(bind);
-	assert_non_null(err);
 
-	// Ensure correct error message returned
-	error_message = format_error_string(&err_buff, ERR_ROCTO_MISSING_NULL, "Bind", "source");
-	assert_string_equal(error_message, err->args[2].value + 1);
-
-        free(test_data);
-        free(bind);
-	free_error_response(err);
+	free(test_data);
+	free(bind);
 }
 
 static void test_input_too_long(void **state) {
@@ -993,10 +924,6 @@ static void test_input_too_long(void **state) {
 	int16_t num_result_col_format_codes = htons(0);
 	// Add 50 to make the input too long
 	int32_t message_length = sizeof(uint32_t) + strlen(dest) + strlen(source) + 2  + sizeof(int16_t) * 3 + 50;
-	ErrorResponse *err = NULL;
-	ErrorBuffer err_buff;
-	err_buff.offset = 0;
-	const char *error_message;
 
 	BaseMessage *test_data = (BaseMessage*)malloc(message_length + sizeof(BaseMessage) - sizeof(uint32_t));
 	test_data->type = PSQL_Bind;
@@ -1016,7 +943,7 @@ static void test_input_too_long(void **state) {
 	ptr += sizeof(int16_t);
 
 	// The actual test
-	Bind *bind = read_bind(test_data, &err);
+	Bind *bind = read_bind(test_data);
 
 	// Standard checks
 	assert_non_null(bind);
@@ -1031,14 +958,8 @@ static void test_input_too_long(void **state) {
 	assert_null(bind->parms);
 	assert_null(bind->result_col_format_codes);
 
-	// Verify an error was issued with correct error message
-	assert_non_null(err);
-	error_message = format_error_string(&err_buff, ERR_ROCTO_TRAILING_CHARS, "Bind");
-	assert_string_equal(error_message, err->args[2].value + 1);
-
-        free(test_data);
-        free(bind);
-	free_error_response(err);
+	free(test_data);
+	free(bind);
 }
 
 static void test_no_null_terminators_on_dest(void **state) {
@@ -1046,10 +967,6 @@ static void test_no_null_terminators_on_dest(void **state) {
 	char *ptr = NULL;
 	char *dest = "Hello";
 	int32_t message_length = sizeof(uint32_t) + strlen(dest);
-	ErrorResponse *err = NULL;
-	ErrorBuffer err_buff;
-	err_buff.offset = 0;
-	const char *error_message;
 
 	BaseMessage *test_data = (BaseMessage*)malloc(message_length + sizeof(BaseMessage) - sizeof(uint32_t));
 	memset(test_data, 0xdeadbeef, message_length + 0);
@@ -1060,18 +977,12 @@ static void test_no_null_terminators_on_dest(void **state) {
 	ptr += strlen(dest);
 
 	// The actual test
-	Bind *bind = read_bind(test_data, &err);
+	Bind *bind = read_bind(test_data);
 
 	assert_null(bind);
-	assert_non_null(err);
 
-	// Ensure the return error mentions "dest"
-	error_message = format_error_string(&err_buff, ERR_ROCTO_MISSING_NULL, "Bind", "destination");
-	assert_string_equal(error_message, err->args[2].value + 1);
-
-        free(test_data);
-        free(bind);
-	free_error_response(err);
+	free(test_data);
+	free(bind);
 }
 
 static void test_no_null_terminators_on_source(void **state) {
@@ -1080,10 +991,6 @@ static void test_no_null_terminators_on_source(void **state) {
 	char *dest = "Hello";
 	char *source = "SELECT * FROM names;";
 	int32_t message_length = sizeof(uint32_t) + strlen(dest) + 1 + strlen(source);
-	ErrorResponse *err = NULL;
-	ErrorBuffer err_buff;
-	err_buff.offset = 0;
-	const char *error_message;
 
 	BaseMessage *test_data = (BaseMessage*)malloc(message_length + sizeof(BaseMessage) - sizeof(uint32_t));
 	memset(test_data, 0xdeadbeef, message_length + sizeof(BaseMessage) - sizeof(uint32_t));
@@ -1097,18 +1004,12 @@ static void test_no_null_terminators_on_source(void **state) {
 	ptr += strlen(source);
 
 	// The actual test
-	Bind *bind = read_bind(test_data, &err);
+	Bind *bind = read_bind(test_data);
 
 	assert_null(bind);
-	assert_non_null(err);
 
-	// Ensure correct error message
-	error_message = format_error_string(&err_buff, ERR_ROCTO_MISSING_NULL, "Bind", "source");
-	assert_string_equal(error_message, err->args[2].value + 1);
-
-        free(test_data);
-        free(bind);
-	free_error_response(err);
+	free(test_data);
+	free(bind);
 }
 
 static void test_unexpected_null_terminator_on_source(void **state) {
@@ -1118,10 +1019,6 @@ static void test_unexpected_null_terminator_on_source(void **state) {
 	char *source = "SELECT * FROM nam\0es;";
 	// Count extra chars and nulls in source
 	int32_t message_length = sizeof(uint32_t) + strlen(dest) + 1 + strlen(source) + 5;
-	ErrorResponse *err = NULL;
-	ErrorBuffer err_buff;
-	err_buff.offset = 0;
-	const char *error_message;
 
 	BaseMessage *test_data = (BaseMessage*)malloc(message_length + sizeof(BaseMessage) - sizeof(uint32_t));
 	memset(test_data, 0xdeadbeef, message_length + sizeof(BaseMessage) - sizeof(uint32_t));
@@ -1135,18 +1032,12 @@ static void test_unexpected_null_terminator_on_source(void **state) {
 	ptr += strlen(source);
 
 	// The actual test
-	Bind *bind = read_bind(test_data, &err);
+	Bind *bind = read_bind(test_data);
 
 	assert_null(bind);
-	assert_non_null(err);
 
-	// Ensure correct error message
-	error_message = format_error_string(&err_buff, ERR_ROCTO_MISSING_NULL, "Bind", "source");
-	assert_string_equal(error_message, err->args[2].value + 1);
-
-        free(test_data);
-        free(bind);
-	free_error_response(err);
+	free(test_data);
+	free(bind);
 }
 
 static void test_unexpected_null_terminator_on_dest(void **state) {
@@ -1154,10 +1045,6 @@ static void test_unexpected_null_terminator_on_dest(void **state) {
 	char *ptr = NULL;
 	char *dest = "Hel\0lo";
 	int32_t message_length = sizeof(uint32_t) + strlen(dest) + 4;		// count extra chars and nulls
-	ErrorResponse *err = NULL;
-	ErrorBuffer err_buff;
-	err_buff.offset = 0;
-	const char *error_message;
 
 	BaseMessage *test_data = (BaseMessage*)malloc(message_length + sizeof(BaseMessage) - sizeof(uint32_t));
 	memset(test_data, 0xdeadbeef, message_length + sizeof(BaseMessage) - sizeof(uint32_t));
@@ -1167,18 +1054,12 @@ static void test_unexpected_null_terminator_on_dest(void **state) {
 	memcpy(ptr, dest, strlen(dest) + 4);		// count extra chars and nulls
 
 	// The actual test
-	Bind *bind = read_bind(test_data, &err);
+	Bind *bind = read_bind(test_data);
 
 	assert_null(bind);
-	assert_non_null(err);
 
-	// Ensure correct error message
-	error_message = format_error_string(&err_buff, ERR_ROCTO_MISSING_DATA, "Bind", "number of parameter format codes");
-	assert_string_equal(error_message, err->args[2].value + 1);
-
-        free(test_data);
-        free(bind);
-	free_error_response(err);
+	free(test_data);
+	free(bind);
 }
 
 
@@ -1189,10 +1070,6 @@ static void test_missing_parameter_types(void **state) {
 	char *source = "SELECT * FROM names;";
 	int16_t num_parm_format_codes = htons(10);
 	int32_t message_length = sizeof(uint32_t) + strlen(dest) + strlen(source) + 2 + sizeof(int16_t) * 1;
-	ErrorResponse *err = NULL;
-	ErrorBuffer err_buff;
-	err_buff.offset = 0;
-	const char *error_message;
 
 	BaseMessage *test_data = (BaseMessage*)malloc(message_length + sizeof(BaseMessage) - sizeof(uint32_t));
 	test_data->type = PSQL_Bind;
@@ -1208,18 +1085,12 @@ static void test_missing_parameter_types(void **state) {
 	ptr += sizeof(int16_t);
 
 	// The actual test
-	Bind *bind = read_bind(test_data, &err);
+	Bind *bind = read_bind(test_data);
 
 	assert_null(bind);
-	assert_non_null(err);
 
-	// Ensure correct error message
-	error_message = format_error_string(&err_buff, ERR_ROCTO_MISSING_DATA, "Bind", "parameter format codes");
-	assert_string_equal(error_message, err->args[2].value + 1);
-
-        free(test_data);
-        free(bind);
-	free_error_response(err);
+	free(test_data);
+	free(bind);
 }
 
 static void test_missing_parameters(void **state) {
@@ -1230,10 +1101,6 @@ static void test_missing_parameters(void **state) {
 	int16_t num_parm_format_codes = htons(0);
 	int16_t num_parms = htons(10);
 	int32_t message_length = sizeof(uint32_t) + strlen(dest) + strlen(source) + 2 + sizeof(int16_t) * 2;
-	ErrorResponse *err = NULL;
-	ErrorBuffer err_buff;
-	err_buff.offset = 0;
-	const char *error_message;
 
 	BaseMessage *test_data = (BaseMessage*)malloc(message_length + sizeof(BaseMessage) - sizeof(uint32_t));
 	test_data->type = PSQL_Bind;
@@ -1251,18 +1118,12 @@ static void test_missing_parameters(void **state) {
 	ptr += sizeof(int16_t);
 
 	// The actual test
-	Bind *bind = read_bind(test_data, &err);
+	Bind *bind = read_bind(test_data);
 
 	assert_null(bind);
-	assert_non_null(err);
 
-	// Ensure correct error message
-	error_message = format_error_string(&err_buff, ERR_ROCTO_MISSING_DATA, "Bind", "parameters");
-	assert_string_equal(error_message, err->args[2].value + 1);
-
-        free(test_data);
-        free(bind);
-	free_error_response(err);
+	free(test_data);
+	free(bind);
 }
 
 static void test_missing_result_col_format_codes(void **state) {
@@ -1274,10 +1135,6 @@ static void test_missing_result_col_format_codes(void **state) {
 	int16_t num_parms = htons(0);
 	int16_t num_result_col_format_codes = htons(10);
 	int32_t message_length = sizeof(uint32_t) + strlen(dest) + strlen(source) + 2 + sizeof(int16_t) * 3;
-	ErrorResponse *err = NULL;
-	ErrorBuffer err_buff;
-	err_buff.offset = 0;
-	const char *error_message;
 
 	BaseMessage *test_data = (BaseMessage*)malloc(message_length + sizeof(BaseMessage) - sizeof(uint32_t));
 	test_data->type = PSQL_Bind;
@@ -1297,18 +1154,12 @@ static void test_missing_result_col_format_codes(void **state) {
 	ptr += sizeof(int16_t);
 
 	// The actual test
-	Bind *bind = read_bind(test_data, &err);
+	Bind *bind = read_bind(test_data);
 
 	assert_null(bind);
-	assert_non_null(err);
 
-	// Ensure correct error message
-	error_message = format_error_string(&err_buff, ERR_ROCTO_MISSING_DATA, "Bind", "result column format codes");
-	assert_string_equal(error_message, err->args[2].value + 1);
-
-        free(test_data);
-        free(bind);
-	free_error_response(err);
+	free(test_data);
+	free(bind);
 }
 
 static void test_invalid_type(void **state) {
@@ -1320,10 +1171,6 @@ static void test_invalid_type(void **state) {
 	int16_t num_parms = htons(0);
 	int16_t num_result_col_format_codes = htons(0);
 	int32_t message_length = sizeof(uint32_t) + strlen(dest) + strlen(source) + 2 + sizeof(int16_t) * 3;
-	ErrorResponse *err = NULL;
-	ErrorBuffer err_buff;
-	err_buff.offset = 0;
-	const char *error_message;
 
 	BaseMessage *test_data = (BaseMessage*)malloc(message_length + sizeof(BaseMessage) - sizeof(uint32_t));
 	test_data->type = 'X';
@@ -1343,18 +1190,12 @@ static void test_invalid_type(void **state) {
 	ptr += sizeof(int16_t);
 
 	// The actual test
-	Bind *bind = read_bind(test_data, &err);
+	Bind *bind = read_bind(test_data);
 
 	// Standard checks
-	assert_non_null(err);
 	assert_null(bind);
 
-	// Ensure correct error message
-	error_message = format_error_string(&err_buff, ERR_ROCTO_INVALID_TYPE, "Bind", test_data->type, PSQL_Bind);
-	assert_string_equal(error_message, err->args[2].value + 1);
-
-        free(test_data);
-        free_error_response(err);
+	free(test_data);
 }
 
 static void test_invalid_num_parm_format_codes(void **state) {
@@ -1366,10 +1207,6 @@ static void test_invalid_num_parm_format_codes(void **state) {
 	int16_t num_result_col_format_codes = htons(0);
 	int32_t message_length = sizeof(uint32_t) + strlen(dest) + strlen(source) + 2 + sizeof(int16_t) * 3;
 	char *ptr = NULL;
-	ErrorResponse *err = NULL;
-	ErrorBuffer err_buff;
-	err_buff.offset = 0;
-	const char *error_message;
 
 	BaseMessage *test_data = (BaseMessage*)malloc(message_length + sizeof(BaseMessage) - sizeof(uint32_t));
 	test_data->type = PSQL_Bind;
@@ -1389,18 +1226,12 @@ static void test_invalid_num_parm_format_codes(void **state) {
 	ptr += sizeof(int16_t);
 
 	// The actual test
-	Bind *bind = read_bind(test_data, &err);
+	Bind *bind = read_bind(test_data);
 
 	// Standard checks
-	assert_non_null(err);
 	assert_null(bind);
 
-	// Ensure correct error message
-	error_message = format_error_string(&err_buff, ERR_ROCTO_INVALID_NUMBER, "Bind", "parameter format codes");
-	assert_string_equal(error_message, err->args[2].value + 1);
-
-        free(test_data);
-        free_error_response(err);
+	free(test_data);
 }
 
 static void test_invalid_num_parms(void **state) {
@@ -1412,10 +1243,6 @@ static void test_invalid_num_parms(void **state) {
 	int16_t num_result_col_format_codes = htons(0);
 	int32_t message_length = sizeof(uint32_t) + strlen(dest) + strlen(source) + 2 + sizeof(int16_t) * 3;
 	char *ptr = NULL;
-	ErrorResponse *err = NULL;
-	ErrorBuffer err_buff;
-	err_buff.offset = 0;
-	const char *error_message;
 
 	BaseMessage *test_data = (BaseMessage*)malloc(message_length + sizeof(BaseMessage) - sizeof(uint32_t));
 	test_data->type = PSQL_Bind;
@@ -1435,18 +1262,12 @@ static void test_invalid_num_parms(void **state) {
 	ptr += sizeof(int16_t);
 
 	// The actual test
-	Bind *bind = read_bind(test_data, &err);
+	Bind *bind = read_bind(test_data);
 
 	// Standard checks
-	assert_non_null(err);
 	assert_null(bind);
 
-	// Ensure correct error message
-	error_message = format_error_string(&err_buff, ERR_ROCTO_INVALID_NUMBER, "Bind", "parameters");
-	assert_string_equal(error_message, err->args[2].value + 1);
-
-        free(test_data);
-        free_error_response(err);
+	free(test_data);
 }
 
 static void test_invalid_num_col_format_codes(void **state) {
@@ -1458,10 +1279,6 @@ static void test_invalid_num_col_format_codes(void **state) {
 	int16_t num_result_col_format_codes = htons(-1);
 	int32_t message_length = sizeof(uint32_t) + strlen(dest) + strlen(source) + 2 + sizeof(int16_t) * 3;
 	char *ptr = NULL;
-	ErrorResponse *err = NULL;
-	ErrorBuffer err_buff;
-	err_buff.offset = 0;
-	const char *error_message;
 
 	BaseMessage *test_data = (BaseMessage*)malloc(message_length + sizeof(BaseMessage) - sizeof(uint32_t));
 	test_data->type = PSQL_Bind;
@@ -1481,21 +1298,16 @@ static void test_invalid_num_col_format_codes(void **state) {
 	ptr += sizeof(int16_t);
 
 	// The actual test
-	Bind *bind = read_bind(test_data, &err);
+	Bind *bind = read_bind(test_data);
 
 	// Standard checks
-	assert_non_null(err);
 	assert_null(bind);
 
-	// Ensure correct error message
-	error_message = format_error_string(&err_buff, ERR_ROCTO_INVALID_NUMBER, "Bind", "result column format codes");
-	assert_string_equal(error_message, err->args[2].value + 1);
-
-        free(test_data);
-        free_error_response(err);
+	free(test_data);
 }
 
 int main(void) {
+	octo_init(0, NULL);
 	const struct CMUnitTest tests[] = {
 		cmocka_unit_test(test_valid_input_no_parms),
 		cmocka_unit_test(test_valid_input_one_parm_no_parm_code),

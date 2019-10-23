@@ -28,17 +28,15 @@
 static void test_valid_input(void **state) {
 	AuthenticationOk *response = NULL;
 	AuthenticationOk *received_response = NULL;
-	ErrorResponse *err = NULL;
 	int32_t expected_type = 'R';
 	uint32_t expected_length = sizeof(uint32_t) + sizeof(int);
 	int32_t expected_result = 0;
 
 	response = make_authentication_ok();
-	received_response = read_authentication_ok((BaseMessage*)response, &err);
+	received_response = read_authentication_ok((BaseMessage*)response);
 
 	// Standard checks
 	assert_non_null(received_response);
-	assert_null(err);
 	assert_int_equal(received_response->type, expected_type);
 	assert_int_equal(received_response->length, htonl(expected_length));
 	assert_int_equal(received_response->result, htonl(expected_result));

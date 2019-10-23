@@ -335,7 +335,7 @@ verify_output() {
       strip_psql_header clean_output.txt
     fi
     if [[ $i == "stripreturns" ]]; then
-      sed -i 's///g' clean_output.txt
+      sed -i 's/\r//g' clean_output.txt
     fi
     # The sort argument should be passed last to allow sorting of final output file
     if [[ $i == "sort" ]]; then
@@ -398,4 +398,3 @@ run_query_in_octo_and_postgres_and_crosscheck() {
     fi
     return
 }
-

@@ -21,10 +21,8 @@
 #include "rocto.h"
 #include "message_formats.h"
 
-CloseComplete *read_close_complete(BaseMessage *message, ErrorResponse **err) {
+CloseComplete *read_close_complete(BaseMessage *message) {
 	CloseComplete *ret;
-
-	UNUSED(err);
 
 	ret = (CloseComplete*)malloc(sizeof(CloseComplete));
 

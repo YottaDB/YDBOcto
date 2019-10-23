@@ -33,7 +33,6 @@ static void test_valid_input(void **state) {
 	char *message = "SELECT * FROM names;";
 	message_length += strlen(message) + 1;		// count null
 	char *c = NULL;
-	ErrorResponse *err = NULL;
 
 	// Populate base message
         BaseMessage *test_data = (BaseMessage*)malloc(message_length + sizeof(BaseMessage) - sizeof(uint32_t));
@@ -46,11 +45,10 @@ static void test_valid_input(void **state) {
 	strncpy(c, message, message_length - sizeof(uint32_t) - 1);
 
 	// The actual test
-	Close *close = read_close(test_data, &err);
+	Close *close = read_close(test_data);
 
 	// Standard checks
 	assert_non_null(close);
-	assert_null(err);
 	assert_string_equal(message, close->data);
 
 	free(close);
@@ -65,10 +63,6 @@ static void test_non_terminated_input(void **state) {
 	char *message = "SELECT * FROM names;";
 	message_length += strlen(message);		// exclude null
 	char *c = NULL;
-	ErrorResponse *err = NULL;
-	ErrorBuffer err_buff;
-	err_buff.offset = 0;
-	const char *error_message;
 
 	// Populate base message
         BaseMessage *test_data = (BaseMessage*)malloc(message_length + sizeof(BaseMessage) - sizeof(uint32_t));
@@ -81,19 +75,13 @@ static void test_non_terminated_input(void **state) {
 	strncpy(c, message, message_length - sizeof(uint32_t) - 1 - 1);
 
 	// The actual test
-	Close *close = read_close(test_data, &err);
+	Close *close = read_close(test_data);
 
 	// Standard checks
 	assert_null(close);
-	assert_non_null(err);
-
-	// Ensure correct error message
-	error_message = format_error_string(&err_buff, ERR_ROCTO_MISSING_NULL, "Close", "data");
-	assert_string_equal(error_message, err->args[2].value + 1);
 
 	free(close);
 	free(test_data);
-	free_error_response(err);
 }
 
 static void test_invalid_type(void **state) {
@@ -104,10 +92,6 @@ static void test_invalid_type(void **state) {
 	char *message = "SELECT * FROM names;";
 	message_length += strlen(message) + 1;		// count null
 	char *c = NULL;
-	ErrorResponse *err = NULL;
-	ErrorBuffer err_buff;
-	err_buff.offset = 0;
-	const char *error_message;
 
 	// Populate base message
         BaseMessage *test_data = (BaseMessage*)malloc(message_length + sizeof(BaseMessage) - sizeof(uint32_t));
@@ -120,19 +104,13 @@ static void test_invalid_type(void **state) {
 	strncpy(c, message, message_length - sizeof(uint32_t) - 1);
 
 	// The actual test
-	Close *close = read_close(test_data, &err);
+	Close *close = read_close(test_data);
 
 	// Standard checks
 	assert_null(close);
-	assert_non_null(err);
-
-	// Ensure correct error message
-	error_message = format_error_string(&err_buff, ERR_ROCTO_INVALID_TYPE, "Close", test_data->type, PSQL_Close);
-	assert_string_equal(error_message, err->args[2].value + 1);
 
 	free(close);
 	free(test_data);
-	free_error_response(err);
 }
 
 static void test_invalid_item(void **state) {
@@ -143,10 +121,6 @@ static void test_invalid_item(void **state) {
 	char *message = "SELECT * FROM datas;";
 	message_length += strlen(message) + 1;		// count null
 	char *c = NULL;
-	ErrorResponse *err = NULL;
-	ErrorBuffer err_buff;
-	err_buff.offset = 0;
-	const char *error_message;
 
 	// Populate base message
         BaseMessage *test_data = (BaseMessage*)malloc(message_length + sizeof(BaseMessage) - sizeof(uint32_t));
@@ -159,20 +133,13 @@ static void test_invalid_item(void **state) {
 	strncpy(c, message, message_length - sizeof(uint32_t) - 1);
 
 	// The actual test
-	Close *close = read_close(test_data, &err);
+	Close *close = read_close(test_data);
 
 	// Standard checks
 	assert_null(close);
-	assert_non_null(err);
-
-	// Ensure correct error message
-	error_message = format_error_string(&err_buff, ERR_ROCTO_INVALID_CHAR_VALUE, "Close", "item",
-			*(char*)test_data->data, "'S' or 'P'");
-	assert_string_equal(error_message, err->args[2].value + 1);
 
 	free(close);
 	free(test_data);
-	free_error_response(err);
 }
 
 static void test_unexpectedly_terminated_input(void **state) {
@@ -183,10 +150,6 @@ static void test_unexpectedly_terminated_input(void **state) {
 	char *message = "SELECT * FROM names\0;";
 	message_length += strlen(message) + 2;		// expecting extra character after null
 	char *c = NULL;
-	ErrorResponse *err = NULL;
-	ErrorBuffer err_buff;
-	err_buff.offset = 0;
-	const char *error_message;
 
 	// Populate base message
         BaseMessage *test_data = (BaseMessage*)malloc(message_length + sizeof(BaseMessage) - sizeof(uint32_t));
@@ -199,22 +162,17 @@ static void test_unexpectedly_terminated_input(void **state) {
 	strncpy(c, message, message_length - sizeof(uint32_t) - 1);
 
 	// The actual test
-	Close *close = read_close(test_data, &err);
+	Close *close = read_close(test_data);
 
 	// Standard checks
 	assert_null(close);
-	assert_non_null(err);
-
-	// Ensure correct error message
-	error_message = format_error_string(&err_buff, ERR_ROCTO_TRAILING_CHARS, "Close");
-	assert_string_equal(error_message, err->args[2].value + 1);
 
 	free(close);
 	free(test_data);
-	free_error_response(err);
 }
 
 int main(void) {
+	octo_init(0, NULL);
 	const struct CMUnitTest tests[] = {
 		   cmocka_unit_test(test_valid_input),
 		   cmocka_unit_test(test_non_terminated_input),

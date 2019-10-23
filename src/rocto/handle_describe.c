@@ -34,7 +34,6 @@ int handle_describe(Describe *describe, RoctoSession *session) {
 	ydb_buffer_t cursor_global, cursor_exe_global[3];
 	PhysicalPlan *pplan;
 	SqlStatement *statement;
-	ErrorResponse *err;
 	RowDescription *description;
 	NoData *no_data;
 	hash128_state_t state;
@@ -95,12 +94,7 @@ int handle_describe(Describe *describe, RoctoSession *session) {
 		statement = parse_line(input_buffer_combined);
 		if(statement == NULL) {
 			fflush(err_buffer);
-			err = make_error_response(PSQL_Error_ERROR,
-					PSQL_Code_Syntax_Error,
-					err_buff,
-					0);
-			send_message(session, (BaseMessage*)(&err->type));
-			free_error_response(err);
+			ERROR(CUSTOM_ERROR, err_buff);
 			fclose(err_buffer);
 			free(err_buff);
 			err_buffer = open_memstream(&err_buff, &err_buff_size);
@@ -175,12 +169,7 @@ int handle_describe(Describe *describe, RoctoSession *session) {
 							// Need to "fflush" the stream returned by "open_memstream" before
 							// trying to access "err_buff" (per man pages of "open_memstream").
 							fflush(err_buffer);
-							err = make_error_response(PSQL_Error_ERROR,
-									PSQL_Code_Syntax_Error,
-									err_buff,
-									0);
-							send_message(session, (BaseMessage*)(&err->type));
-							free_error_response(err);
+							ERROR(CUSTOM_ERROR, err_buff);
 							// Need to free "err_buff" right after closing the stream returned by
 							// "open_memstream" (per man pages).
 							fclose(err_buffer);

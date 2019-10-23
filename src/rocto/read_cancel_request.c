@@ -20,11 +20,8 @@
 #include "rocto.h"
 #include "message_formats.h"
 
-CancelRequest *read_cancel_request(RoctoSession *session, char *data, int32_t data_length, ErrorResponse **err) {
+CancelRequest *read_cancel_request(RoctoSession *session, char *data, int32_t data_length) {
 	CancelRequest *ret = NULL;
-
-	// Currently unused parameters - maintained for consistency across similar read_* functions
-	UNUSED(err);
 
 	// Length = length + request_code + pid + secret_key
 	uint32_t expected_length = sizeof(uint32_t) + sizeof(int32_t) + sizeof(int32_t) + sizeof(int32_t);

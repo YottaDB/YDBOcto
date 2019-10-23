@@ -24,22 +24,14 @@
 #include "rocto.h"
 #include "helpers.h"
 
-int handle_password_message(PasswordMessage *password_message, ErrorResponse **err, StartupMessage
-		*startup_message, char *salt) {
-	ErrorBuffer err_buff;
-	err_buff.offset = 0;
-	const char *error_message;
+int handle_password_message(PasswordMessage *password_message, StartupMessage
+	*startup_message, char *salt) {
 	const uint32_t md5_hex_len = MD5_DIGEST_LENGTH * 2 + 1;
 
 	// Check the type of password message, for now just md5 is accepted
 	int32_t result = strncmp(password_message->password, "md5", 3);
 	if (result != 0) {
-		WARNING(ERR_ROCTO_PASSWORD_TYPE, "handle_password_message", "md5");
-		error_message = format_error_string(&err_buff, ERR_ROCTO_PASSWORD_TYPE, "handle_password_message", "md5");
-		*err = make_error_response(PSQL_Error_ERROR,
-					   PSQL_Code_Syntax_Error,
-					   error_message,
-					   0);
+		FATAL(ERR_ROCTO_PASSWORD_TYPE, "handle_password_message", "md5");
 		return 1;
 	}
 
@@ -60,12 +52,7 @@ int handle_password_message(PasswordMessage *password_message, ErrorResponse **e
 	result = ydb_get_s(&user_subs[0], 2, &user_subs[1], &user_info_subs);
 	free(user_subs);
 	if (YDB_ERR_GVUNDEF == result || YDB_ERR_LVUNDEF == result) {
-		WARNING(ERR_ROCTO_DB_LOOKUP, "handle_password_message", "user info");
-		error_message = format_error_string(&err_buff, ERR_ROCTO_DB_LOOKUP, "handle_password_message", "user info");
-		*err = make_error_response(PSQL_Error_ERROR,
-					   PSQL_Code_Syntax_Error,
-					   error_message,
-					   0);
+		FATAL(ERR_ROCTO_DB_LOOKUP, "handle_password_message", "user info");
 		YDB_FREE_BUFFER(&user_info_subs);
 		return 1;
 	}
@@ -81,13 +68,7 @@ int handle_password_message(PasswordMessage *password_message, ErrorResponse **e
 			UserColumn_ROLPASSWORD);
 	YDB_FREE_BUFFER(&user_info_subs);
 	if (0 == buf_len) {
-		WARNING(ERR_ROCTO_COLUMN_VALUE, "handle_password_message", "rolpassword (hashed password)");
-		error_message = format_error_string(&err_buff, ERR_ROCTO_COLUMN_VALUE,
-				"handle_password_message", "rolpassword (hashed password)");
-		*err = make_error_response(PSQL_Error_ERROR,
-					   PSQL_Code_Syntax_Error,
-					   error_message,
-					   0);
+		FATAL(ERR_ROCTO_COLUMN_VALUE, "handle_password_message", "rolpassword (hashed password)");
 		return 1;
 	}
 
@@ -103,27 +84,21 @@ int handle_password_message(PasswordMessage *password_message, ErrorResponse **e
 	char md5_hex[md5_hex_len];
 	result = md5_to_hex(hash_buf, md5_hex, md5_hex_len);
 	if (0 != result) {
-		WARNING(ERR_ROCTO_HASH_CONVERSION, "handle_password_message", "md5 hash", "hexidecimal string");
-		error_message = format_error_string(&err_buff, ERR_ROCTO_HASH_CONVERSION,
-				"handle_password_message", "md5 hash", "hexidecimal string");
-		*err = make_error_response(PSQL_Error_ERROR,
-					   PSQL_Code_Syntax_Error,
-					   error_message,
-					   0);
+		FATAL(ERR_ROCTO_HASH_CONVERSION, "handle_password_message", "md5 hash", "hexidecimal string");
 		return 1;
 	}
 	// Compare final hash of stored password against hash sent by client
 	result = strncmp(md5_hex, &password_message->password[3], md5_hex_len);	// Exclude "md5" prefix
 	if (0 != result) {
-		WARNING(ERR_ROCTO_BAD_PASSWORD, "handle_password_message");
-		error_message = format_error_string(&err_buff, ERR_ROCTO_BAD_PASSWORD, "handle_password_message");
-		*err = make_error_response(PSQL_Error_ERROR,
-					   PSQL_Code_Syntax_Error,
-					   error_message,
-					   0);
+		FATAL(ERR_ROCTO_BAD_PASSWORD, "handle_password_message");
 		return 1;
 	}
+	// Note down that user authenticated successfully without notifying the client,
+	// as the client doesn't expect any notifications during authentication
+	/*rocto_session.sending_message = TRUE;
 	INFO(INFO_AUTH_SUCCESS, "handle_password_message");
+	rocto_session.sending_message = FALSE;*/
+	LOG_LOCAL_ONLY(INFO, INFO_AUTH_SUCCESS, "handle_password_message");
 
 	return 0;
 }

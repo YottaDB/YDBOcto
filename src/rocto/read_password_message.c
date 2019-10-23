@@ -20,13 +20,10 @@
 #include "rocto.h"
 #include "message_formats.h"
 
-PasswordMessage *read_password_message(BaseMessage *message, ErrorResponse **err) {
+PasswordMessage *read_password_message(BaseMessage *message) {
 	PasswordMessage *ret;
-	ErrorBuffer err_buff;
 	uint32_t length;
 	char *c, *message_end;
-	const char *error_message;
-	err_buff.offset = 0;
 
 	length = ntohl(message->length);
 	ret = (PasswordMessage*)malloc(sizeof(PasswordMessage) + length - sizeof(uint32_t));
@@ -38,11 +35,7 @@ PasswordMessage *read_password_message(BaseMessage *message, ErrorResponse **err
 
 	// Ensure that message has correct type
 	if(ret->type != PSQL_PasswordMessage) {
-		error_message = format_error_string(&err_buff, ERR_ROCTO_INVALID_TYPE, "PasswordMessage", ret->type, PSQL_PasswordMessage);
-		*err = make_error_response(PSQL_Error_ERROR,
-					   PSQL_Code_Syntax_Error,
-					   error_message,
-					   0);
+		ERROR(ERR_ROCTO_INVALID_TYPE, "PasswordMessage", ret->type, PSQL_PasswordMessage);
 		free(ret);
 		return NULL;
 	}
@@ -53,29 +46,17 @@ PasswordMessage *read_password_message(BaseMessage *message, ErrorResponse **err
 	if(c == message_end) {
 		// Ensure a password string is included
 		if(length == sizeof(uint32_t)) {
-			error_message = format_error_string(&err_buff, ERR_ROCTO_MISSING_DATA, "PasswordMessage", "password");
-			*err = make_error_response(PSQL_Error_ERROR,
-						   PSQL_Code_Syntax_Error,
-						   error_message,
-						   0);
+			ERROR(ERR_ROCTO_MISSING_DATA, "PasswordMessage", "password");
 			free(ret);
 			return NULL;
 		}
 		// Ensure password has null terminator
-		error_message = format_error_string(&err_buff, ERR_ROCTO_MISSING_NULL, "PasswordMessage", "password");
-		*err = make_error_response(PSQL_Error_ERROR,
-					   PSQL_Code_Syntax_Error,
-					   error_message,
-					   0);
+		ERROR(ERR_ROCTO_MISSING_NULL, "PasswordMessage", "password");
 		free(ret);
 		return NULL;
 	}
 	else if(c < message_end - 1) {
-		error_message = format_error_string(&err_buff, ERR_ROCTO_TRAILING_CHARS, "PasswordMessage");
-		*err = make_error_response(PSQL_Error_ERROR,
-					   PSQL_Code_Syntax_Error,
-					   error_message,
-					   0);
+		ERROR(ERR_ROCTO_TRAILING_CHARS, "PasswordMessage");
 		free(ret);
 		return NULL;
 	}

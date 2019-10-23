@@ -55,11 +55,14 @@ int __wrap_md5_to_hex(char *md5_hash, char *hex, uint32_t hex_len) {
 	return mock_type(int);
 }
 
+int32_t __wrap_octo_log(int line, char *file, enum ERROR_LEVEL level, enum ERROR error, ...) {
+	return mock_type(int32_t);
+}
+
 static void test_valid_input(void **state) {
 	PasswordMessage *password_message;
 	RoctoSession session;
 	ydb_buffer_t session_id;
-	ErrorResponse *err = NULL;
 
 	YDB_LITERAL_TO_BUFFER("0", &session_id);
 	session.session_id = &session_id;
@@ -95,9 +98,8 @@ static void test_valid_input(void **state) {
 	char *salt = "salt";
 	password_message = make_password_message(username, password, salt);
 
-	int32_t result = handle_password_message(password_message, &err, startup_message, salt);
+	int32_t result = handle_password_message(password_message, startup_message, salt);
 	assert_int_equal(result, 0);
-	assert_null(err);
 
 	free(password_message);
 	free(startup_message->parameters);
@@ -108,10 +110,6 @@ static void test_error_not_md5(void **state) {
 	PasswordMessage *password_message;
 	RoctoSession session;
 	ydb_buffer_t session_id;
-	ErrorResponse *err = NULL;
-	ErrorBuffer err_buff;
-	err_buff.offset = 0;
-	const char *error_message;
 
 	YDB_LITERAL_TO_BUFFER("0", &session_id);
 	session.session_id = &session_id;
@@ -126,19 +124,15 @@ static void test_error_not_md5(void **state) {
 	will_return(__wrap_md5_to_hex, 0);
 	will_return(__wrap_md5_to_hex, "8e998aaa66bd302e5592df3642c16f78");
 	will_return(__wrap_md5_to_hex, 0);
+	will_return(__wrap_octo_log, 0);
 
 	password_message = make_password_message(username, password, salt);
 	password_message->password = "password";
 
-	int32_t result = handle_password_message(password_message, &err, startup_message, salt);
+	int32_t result = handle_password_message(password_message, startup_message, salt);
 	assert_int_equal(result, 1);
-	assert_non_null(err);
-
-	error_message = format_error_string(&err_buff, ERR_ROCTO_PASSWORD_TYPE, "handle_password_message", "md5");
-	assert_string_equal(error_message, err->args[2].value + 1);
 
 	free(password_message);
-	free_error_response(err);
 	free(startup_message->parameters);
 	free(startup_message);
 }
@@ -147,10 +141,6 @@ static void test_error_user_info_lookup(void **state) {
 	PasswordMessage *password_message;
 	RoctoSession session;
 	ydb_buffer_t session_id;
-	ErrorResponse *err = NULL;
-	ErrorBuffer err_buff;
-	err_buff.offset = 0;
-	const char *error_message;
 
 	YDB_LITERAL_TO_BUFFER("0", &session_id);
 	session.session_id = &session_id;
@@ -175,18 +165,14 @@ static void test_error_user_info_lookup(void **state) {
 	will_return(__wrap_md5_to_hex, 0);
 	will_return(__wrap_md5_to_hex, "8e998aaa66bd302e5592df3642c16f78");
 	will_return(__wrap_md5_to_hex, 0);
+	will_return(__wrap_octo_log, 0);
 
 	password_message = make_password_message(username, password, salt);
 
-	int32_t result = handle_password_message(password_message, &err, startup_message, salt);
+	int32_t result = handle_password_message(password_message, startup_message, salt);
 	assert_int_equal(result, 1);
-	assert_non_null(err);
-
-	error_message = format_error_string(&err_buff, ERR_ROCTO_DB_LOOKUP, "handle_password_message", "user info");
-	assert_string_equal(error_message, err->args[2].value + 1);
 
 	free(password_message);
-	free_error_response(err);
 	free(startup_message->parameters);
 	free(startup_message);
 }
@@ -195,10 +181,6 @@ static void test_error_hash_lookup(void **state) {
 	PasswordMessage *password_message;
 	RoctoSession session;
 	ydb_buffer_t session_id;
-	ErrorResponse *err = NULL;
-	ErrorBuffer err_buff;
-	err_buff.offset = 0;
-	const char *error_message;
 
 	YDB_LITERAL_TO_BUFFER("0", &session_id);
 	session.session_id = &session_id;
@@ -224,21 +206,16 @@ static void test_error_hash_lookup(void **state) {
 	will_return(__wrap_md5_to_hex, 0);
 	will_return(__wrap_md5_to_hex, "8e998aaa66bd302e5592df3642c16f78");
 	will_return(__wrap_md5_to_hex, 0);
+	will_return(__wrap_octo_log, 0);
 
 	char *salt = "salt";
 	char *password = "password";
 	password_message = make_password_message(username, password, salt);
 
-	int32_t result = handle_password_message(password_message, &err, startup_message, salt);
+	int32_t result = handle_password_message(password_message, startup_message, salt);
 	assert_int_equal(result, 1);
-	assert_non_null(err);
-
-	error_message = format_error_string(&err_buff, ERR_ROCTO_COLUMN_VALUE,
-			"handle_password_message", "rolpassword (hashed password)");
-	assert_string_equal(error_message, err->args[2].value + 1);
 
 	free(password_message);
-	free_error_response(err);
 	free(startup_message->parameters);
 	free(startup_message);
 }
@@ -247,10 +224,6 @@ static void test_error_hash_conversion(void **state) {
 	PasswordMessage *password_message;
 	RoctoSession session;
 	ydb_buffer_t session_id;
-	ErrorResponse *err = NULL;
-	ErrorBuffer err_buff;
-	err_buff.offset = 0;
-	const char *error_message;
 
 	YDB_LITERAL_TO_BUFFER("0", &session_id);
 	session.session_id = &session_id;
@@ -284,17 +257,12 @@ static void test_error_hash_conversion(void **state) {
 	// Wrap calls in handle_password_message
 	will_return(__wrap_md5_to_hex, "arbitrary");
 	will_return(__wrap_md5_to_hex, 1);
+	will_return(__wrap_octo_log, 0);
 
-	int32_t result = handle_password_message(password_message, &err, startup_message, salt);
+	int32_t result = handle_password_message(password_message, startup_message, salt);
 	assert_int_equal(result, 1);
-	assert_non_null(err);
-
-	error_message = format_error_string(&err_buff, ERR_ROCTO_HASH_CONVERSION,
-			"handle_password_message", "md5 hash", "hexidecimal string");
-	assert_string_equal(error_message, err->args[2].value + 1);
 
 	free(password_message);
-	free_error_response(err);
 	free(startup_message->parameters);
 	free(startup_message);
 }
@@ -303,10 +271,6 @@ static void test_error_bad_password(void **state) {
 	PasswordMessage *password_message;
 	RoctoSession session;
 	ydb_buffer_t session_id;
-	ErrorResponse *err = NULL;
-	ErrorBuffer err_buff;
-	err_buff.offset = 0;
-	const char *error_message;
 
 	YDB_LITERAL_TO_BUFFER("0", &session_id);
 	session.session_id = &session_id;
@@ -336,20 +300,16 @@ static void test_error_bad_password(void **state) {
 	// Wrap calls in handle_password_message
 	will_return(__wrap_md5_to_hex, "arbitrary");
 	will_return(__wrap_md5_to_hex, 0);
+	will_return(__wrap_octo_log, 0);
 
 	char *salt = "salt";
 	char *password = "balugawhales";
 	password_message = make_password_message(username, password, salt);
 
-	int32_t result = handle_password_message(password_message, &err, startup_message, salt);
+	int32_t result = handle_password_message(password_message, startup_message, salt);
 	assert_int_equal(result, 1);
-	assert_non_null(err);
-
-	error_message = format_error_string(&err_buff, ERR_ROCTO_BAD_PASSWORD, "handle_password_message");
-	assert_string_equal(error_message, err->args[2].value + 1);
 
 	free(password_message);
-	free_error_response(err);
 	free(startup_message->parameters);
 	free(startup_message);
 }

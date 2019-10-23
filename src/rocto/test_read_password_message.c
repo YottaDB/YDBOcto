@@ -39,12 +39,10 @@ static void test_valid_input(void **state) {
 	strncpy(test_data->data, message, message_length - sizeof(uint32_t));
 
 	// The actual test
-	ErrorResponse *err = NULL;
-	PasswordMessage *password_message = read_password_message(test_data, &err);
+	PasswordMessage *password_message = read_password_message(test_data);
 
 	// Standard checks
 	assert_non_null(password_message);
-	assert_null(err);
 	assert_string_equal(message, password_message->password);
 
 	free(password_message);
@@ -57,9 +55,6 @@ static void test_non_terminated_input(void **state) {
 	message_length += sizeof(uint32_t);		// count length member
 	char *message = "bad_password";
 	message_length += strlen(message);		// exclude null for test case
-	ErrorBuffer err_buff;
-	err_buff.offset = 0;
-	const char *error_message;
 
 	// Populate base message
 	BaseMessage *test_data = (BaseMessage*)malloc(message_length + sizeof(BaseMessage) - sizeof(uint32_t));
@@ -68,18 +63,11 @@ static void test_non_terminated_input(void **state) {
 	strncpy(test_data->data, message, message_length - sizeof(uint32_t));
 
 	// The actual test
-	ErrorResponse *err = NULL;
-	PasswordMessage *password_message = read_password_message(test_data, &err);
+	PasswordMessage *password_message = read_password_message(test_data);
 
 	// Standard checks
 	assert_null(password_message);
-	assert_non_null(err);
 
-	// Ensure correct error message
-	error_message = format_error_string(&err_buff, ERR_ROCTO_MISSING_NULL, "PasswordMessage", "password");
-	assert_string_equal(error_message, err->args[2].value + 1);
-
-	free_error_response(err);
 	free(test_data);
 }
 
@@ -89,9 +77,6 @@ static void test_unexpectedly_terminated_input(void **state) {
 	message_length += sizeof(uint32_t);		// count length member
 	char *message = "bad_passwor\0d";
 	message_length += strlen(message) + 2;		// expecting extra char after null
-	ErrorBuffer err_buff;
-	err_buff.offset = 0;
-	const char *error_message;
 
 	// Populate base message
 	BaseMessage *test_data = (BaseMessage*)malloc(message_length + sizeof(BaseMessage) - sizeof(uint32_t));
@@ -100,18 +85,11 @@ static void test_unexpectedly_terminated_input(void **state) {
 	strncpy(test_data->data, message, message_length - sizeof(uint32_t));
 
 	// The actual test
-	ErrorResponse *err = NULL;
-	PasswordMessage *password_message = read_password_message(test_data, &err);
+	PasswordMessage *password_message = read_password_message(test_data);
 
 	// Standard checks
 	assert_null(password_message);
-	assert_non_null(err);
 
-	// Ensure correct error message
-	error_message = format_error_string(&err_buff, ERR_ROCTO_TRAILING_CHARS, "PasswordMessage");
-	assert_string_equal(error_message, err->args[2].value + 1);
-
-	free_error_response(err);
 	free(test_data);
 }
 
@@ -119,9 +97,6 @@ static void test_missing_password(void **state) {
 	// Test a single startup message
 	uint32_t message_length = 0;
 	message_length += sizeof(uint32_t);		// count length member
-	ErrorBuffer err_buff;
-	err_buff.offset = 0;
-	const char *error_message;
 
 	// Populate base message
 	BaseMessage *test_data = (BaseMessage*)malloc(message_length + sizeof(BaseMessage) - sizeof(uint32_t));
@@ -129,18 +104,11 @@ static void test_missing_password(void **state) {
 	test_data->length = htonl(message_length);
 
 	// The actual test
-	ErrorResponse *err = NULL;
-	PasswordMessage *password_message = read_password_message(test_data, &err);
+	PasswordMessage *password_message = read_password_message(test_data);
 
 	// Standard checks
 	assert_null(password_message);
-	assert_non_null(err);
 
-	// Ensure correct error message
-	error_message = format_error_string(&err_buff, ERR_ROCTO_MISSING_DATA, "PasswordMessage", "password");
-	assert_string_equal(error_message, err->args[2].value + 1);
-
-	free_error_response(err);
 	free(test_data);
 }
 
@@ -150,9 +118,6 @@ static void test_invalid_type(void **state) {
 	message_length += sizeof(uint32_t);		// count length member
 	char *message = "bad_password";
 	message_length += strlen(message) + 1;		// expecting extra char after null
-	ErrorBuffer err_buff;
-	err_buff.offset = 0;
-	const char *error_message;
 
 	// Populate base message
 	BaseMessage *test_data = (BaseMessage*)malloc(message_length + sizeof(BaseMessage) - sizeof(uint32_t));
@@ -161,22 +126,16 @@ static void test_invalid_type(void **state) {
 	strncpy(test_data->data, message, message_length - sizeof(uint32_t));
 
 	// The actual test
-	ErrorResponse *err = NULL;
-	PasswordMessage *password_message = read_password_message(test_data, &err);
+	PasswordMessage *password_message = read_password_message(test_data);
 
 	// Standard checks
 	assert_null(password_message);
-	assert_non_null(err);
 
-	// Ensure correct error message
-	error_message = format_error_string(&err_buff, ERR_ROCTO_INVALID_TYPE, "PasswordMessage", test_data->type, PSQL_PasswordMessage);
-	assert_string_equal(error_message, err->args[2].value + 1);
-
-	free_error_response(err);
 	free(test_data);
 }
 
 int main(void) {
+	octo_init(0, NULL);
 	const struct CMUnitTest tests[] = {
 		   cmocka_unit_test(test_valid_input),
 		   cmocka_unit_test(test_non_terminated_input),

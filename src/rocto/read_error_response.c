@@ -21,12 +21,10 @@
 #include "rocto.h"
 #include "message_formats.h"
 
-ErrorResponse *read_error_response(BaseMessage *message, ErrorResponse **err) {
+ErrorResponse *read_error_response(BaseMessage *message) {
 	ErrorResponse *ret = NULL;
 	char *cur_pointer = NULL, *last_byte = NULL;
 	uint32_t remaining_length = 0, num_args = 0, i = 0;
-
-	UNUSED(err);
 
 	remaining_length = ntohl(message->length);
 	ret = (ErrorResponse*)malloc(remaining_length + sizeof(ErrorResponse) - sizeof(uint32_t));

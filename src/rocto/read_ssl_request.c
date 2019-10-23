@@ -20,11 +20,8 @@
 #include "rocto.h"
 #include "message_formats.h"
 
-SSLRequest *read_ssl_request(RoctoSession *session, char *data, int32_t data_length, ErrorResponse **err) {
+SSLRequest *read_ssl_request(RoctoSession *session, char *data, int32_t data_length) {
 	SSLRequest *ret = NULL;
-	ErrorBuffer err_buff;
-	const char *error_message;
-	err_buff.offset = 0;
 
 	// Currently unused parameters
 	UNUSED(session);
@@ -47,24 +44,12 @@ SSLRequest *read_ssl_request(RoctoSession *session, char *data, int32_t data_len
 	// Length must be 8 (sum of two ints)
 	if(ret->length != expected_length) {
 		WARNING(ERR_ROCTO_INVALID_INT_VALUE, "SSLRequest", "length", ret->length, expected_length);
-		error_message = format_error_string(&err_buff, ERR_ROCTO_INVALID_INT_VALUE,
-				"SSLRequest", "length", ret->length, expected_length);
-		*err = make_error_response(PSQL_Error_FATAL,
-					   PSQL_Code_Protocol_Violation,
-					   error_message,
-					   0);
 		free(ret);
 		return NULL;
 	}
 
 	if (expected_request_code != ret->request_code) {
 		WARNING(ERR_ROCTO_INVALID_INT_VALUE, "SSLRequest", "request code", ret->request_code, expected_request_code);
-		error_message = format_error_string(&err_buff, ERR_ROCTO_INVALID_INT_VALUE,
-				"SSLRequest", "request code", ret->request_code, expected_request_code);
-		*err = make_error_response(PSQL_Error_FATAL,
-					   PSQL_Code_Protocol_Violation,
-					   error_message,
-					   0);
 		free(ret);
 		return NULL;
 	}

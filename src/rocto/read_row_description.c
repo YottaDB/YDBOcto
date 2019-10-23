@@ -21,12 +21,10 @@
 #include "rocto.h"
 #include "message_formats.h"
 
-RowDescription *read_row_description(BaseMessage *message, ErrorResponse **err) {
+RowDescription *read_row_description(BaseMessage *message) {
 	RowDescription *ret;
 	char *cur_pointer;
 	uint32_t remaining_length = 0;
-
-	UNUSED(err);
 
 	remaining_length = ntohl(message->length);
 	ret = (RowDescription*)malloc(remaining_length + sizeof(RowDescription) - sizeof(uint32_t) - sizeof(int16_t));

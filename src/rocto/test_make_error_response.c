@@ -28,7 +28,6 @@
 static void test_error_with_one_parm(void **state) {
 	ErrorResponse *received_response = NULL;
 	ErrorResponse *response = NULL;
-	ErrorResponse *err = NULL;
 	char *message = "Seems OK to me man";
 	char *detail = "This is a more complicated message";
 	ErrorResponseArg a = {PSQL_Error_Detail, detail};
@@ -44,10 +43,9 @@ static void test_error_with_one_parm(void **state) {
 		+ strlen(message) + strlen(detail) + (4 * sizeof(char))
 		+ sizeof(uint32_t) + sizeof(uint32_t) + sizeof(char);
 
-	received_response = read_error_response((BaseMessage*)&response->type, &err);
+	received_response = read_error_response((BaseMessage*)&response->type);
 
 	// Standard checks
-	assert_null(err);
 	assert_non_null(received_response);
 	assert_int_equal(received_response->type, PSQL_ErrorResponse);
 	assert_int_equal(received_response->length, expected_length);
@@ -59,7 +57,6 @@ static void test_error_with_one_parm(void **state) {
 static void test_error_with_no_additional_parms(void **state) {
 	ErrorResponse *received_response = NULL;
 	ErrorResponse *response = NULL;
-	ErrorResponse *err = NULL;
 	char *message = "Seems OK to me man";
 	char *detail = "This is a more complicated message";
 	ErrorResponseArg a = {PSQL_Error_Detail, detail};
@@ -73,10 +70,9 @@ static void test_error_with_no_additional_parms(void **state) {
 		+ strlen(psql_sqlstate_codes_str[PSQL_Code_Success]) + strlen(message)
 		+ (3 * sizeof(char)) + (3 * sizeof(char)) + sizeof(uint32_t) + sizeof(char);
 
-	received_response = read_error_response((BaseMessage*)&response->type, &err);
+	received_response = read_error_response((BaseMessage*)&response->type);
 
 	// Standard checks
-	assert_null(err);
 	assert_non_null(received_response);
 	assert_int_equal(received_response->type, PSQL_ErrorResponse);
 	assert_int_equal(received_response->length, expected_length);
@@ -88,7 +84,6 @@ static void test_error_with_no_additional_parms(void **state) {
 static void test_error_with_additional_parms(void **state) {
 	ErrorResponse *received_response = NULL;
 	ErrorResponse *response = NULL;
-	ErrorResponse *err = NULL;
 	char *message = "Seems OK to me man";
 	char *detail = "This is a more complicated message";
 	ErrorResponseArg a = {PSQL_Error_Detail, detail};
@@ -103,10 +98,9 @@ static void test_error_with_additional_parms(void **state) {
 		+ strlen(psql_sqlstate_codes_str[PSQL_Code_Success]) + strlen(message)
 		+ (10 * strlen(detail)) + (13 * sizeof(char)) + (13 * sizeof(char)) + sizeof(uint32_t) + sizeof(char);
 
-	received_response = read_error_response((BaseMessage*)&response->type, &err);
+	received_response = read_error_response((BaseMessage*)&response->type);
 
 	// Standard checks
-	assert_null(err);
 	assert_non_null(received_response);
 	assert_int_equal(received_response->type, PSQL_ErrorResponse);
 	assert_int_equal(received_response->length, expected_length);
@@ -118,7 +112,6 @@ static void test_error_with_additional_parms(void **state) {
 static void test_error_verify_args_pointers_correct(void **state) {
 	ErrorResponse *received_response = NULL;
 	ErrorResponse *response = NULL;
-	ErrorResponse *err = NULL;
 	char *message = "Seems OK to me man";
 	char *detail = "This is a more complicated message";
 	ErrorResponseArg a = {PSQL_Error_Detail, detail};
@@ -135,10 +128,9 @@ static void test_error_verify_args_pointers_correct(void **state) {
 		+ strlen(psql_sqlstate_codes_str[PSQL_Code_Success]) + strlen(message)
 		+ (10 * strlen(detail)) + (num_args * sizeof(char)) + (num_args * sizeof(char)) + sizeof(uint32_t) + sizeof(char);
 
-	received_response = read_error_response((BaseMessage*)&response->type, &err);
+	received_response = read_error_response((BaseMessage*)&response->type);
 
 	// Standard checks
-	assert_null(err);
 	assert_non_null(received_response);
 	assert_int_equal(received_response->type, PSQL_ErrorResponse);
 	assert_int_equal(received_response->length, expected_length);
@@ -173,7 +165,6 @@ static void test_error_verify_args_pointers_correct(void **state) {
 static void test_notice_with_one_parm(void **state) {
 	ErrorResponse *received_response = NULL;
 	ErrorResponse *response = NULL;
-	ErrorResponse *err = NULL;
 	char *message = "Seems OK to me man";
 	char *detail = "This is a more complicated message";
 	ErrorResponseArg a = {PSQL_Error_Detail, detail};
@@ -189,10 +180,9 @@ static void test_notice_with_one_parm(void **state) {
 		+ strlen(message) + strlen(detail) + (4 * sizeof(char))
 		+ sizeof(uint32_t) + sizeof(uint32_t) + sizeof(char);
 
-	received_response = read_error_response((BaseMessage*)&response->type, &err);
+	received_response = read_error_response((BaseMessage*)&response->type);
 
 	// Standard checks
-	assert_null(err);
 	assert_non_null(received_response);
 	assert_int_equal(received_response->type, PSQL_NoticeResponse);
 	assert_int_equal(received_response->length, expected_length);
@@ -204,7 +194,6 @@ static void test_notice_with_one_parm(void **state) {
 static void test_notice_with_no_additional_parms(void **state) {
 	ErrorResponse *received_response = NULL;
 	ErrorResponse *response = NULL;
-	ErrorResponse *err = NULL;
 	char *message = "Seems OK to me man";
 	char *detail = "This is a more complicated message";
 	ErrorResponseArg a = {PSQL_Error_Detail, detail};
@@ -218,10 +207,9 @@ static void test_notice_with_no_additional_parms(void **state) {
 		+ strlen(psql_sqlstate_codes_str[PSQL_Code_Protocol_Violation]) + strlen(message)
 		+ (3 * sizeof(char)) + (3 * sizeof(char)) + sizeof(uint32_t) + sizeof(char);
 
-	received_response = read_error_response((BaseMessage*)&response->type, &err);
+	received_response = read_error_response((BaseMessage*)&response->type);
 
 	// Standard checks
-	assert_null(err);
 	assert_non_null(received_response);
 	assert_int_equal(received_response->type, PSQL_NoticeResponse);
 	assert_int_equal(received_response->length, expected_length);
@@ -233,7 +221,6 @@ static void test_notice_with_no_additional_parms(void **state) {
 static void test_notice_with_additional_parms(void **state) {
 	ErrorResponse *received_response = NULL;
 	ErrorResponse *response = NULL;
-	ErrorResponse *err = NULL;
 	char *message = "Seems OK to me man";
 	char *detail = "This is a more complicated message";
 	ErrorResponseArg a = {PSQL_Error_Detail, detail};
@@ -248,10 +235,9 @@ static void test_notice_with_additional_parms(void **state) {
 		+ strlen(psql_sqlstate_codes_str[PSQL_Code_Protocol_Violation]) + strlen(message)
 		+ (10 * strlen(detail)) + (13 * sizeof(char)) + (13 * sizeof(char)) + sizeof(uint32_t) + sizeof(char);
 
-	received_response = read_error_response((BaseMessage*)&response->type, &err);
+	received_response = read_error_response((BaseMessage*)&response->type);
 
 	// Standard checks
-	assert_null(err);
 	assert_non_null(received_response);
 	assert_int_equal(received_response->type, PSQL_NoticeResponse);
 	assert_int_equal(received_response->length, expected_length);
@@ -263,7 +249,6 @@ static void test_notice_with_additional_parms(void **state) {
 static void test_notice_verify_args_pointers_correct(void **state) {
 	ErrorResponse *received_response = NULL;
 	ErrorResponse *response = NULL;
-	ErrorResponse *err = NULL;
 	char *message = "Seems OK to me man";
 	char *detail = "This is a more complicated message";
 	ErrorResponseArg a = {PSQL_Error_Detail, detail};
@@ -280,10 +265,9 @@ static void test_notice_verify_args_pointers_correct(void **state) {
 		+ strlen(psql_sqlstate_codes_str[PSQL_Code_Protocol_Violation]) + strlen(message)
 		+ (10 * strlen(detail)) + (num_args * sizeof(char)) + (num_args * sizeof(char)) + sizeof(uint32_t) + sizeof(char);
 
-	received_response = read_error_response((BaseMessage*)&response->type, &err);
+	received_response = read_error_response((BaseMessage*)&response->type);
 
 	// Standard checks
-	assert_null(err);
 	assert_non_null(received_response);
 	assert_int_equal(received_response->type, PSQL_NoticeResponse);
 	assert_int_equal(received_response->length, expected_length);

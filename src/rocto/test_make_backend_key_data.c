@@ -36,7 +36,6 @@ int __wrap_ydb_set_s(ydb_buffer_t *varname, int subs_used, ydb_buffer_t *subsarr
 
 static void test_valid_input(void **state) {
 	RoctoSession session;
-	ErrorResponse *err = NULL;
 	ydb_buffer_t session_id;
 	YDB_STRING_TO_BUFFER("0", &session_id);
 	session.session_id = &session_id;
@@ -47,7 +46,6 @@ static void test_valid_input(void **state) {
 
 	BackendKeyData *backend_key_data = make_backend_key_data(secret_key, pid);
 
-	assert_null(err);
 	assert_non_null(backend_key_data);
 	assert_int_equal(backend_key_data->length, htonl(expected_length));
 	assert_int_equal(backend_key_data->pid, htonl(pid));

@@ -36,7 +36,7 @@ teardown() {
   run_psql_auth buttons bobby $test_port <<OCTO 2>&1 | tee output.txt
 SELECT * FROM names;
 OCTO
-    [[ ! "$(cat results.log)" =~ "read failure: failed to read MD5 password" ]]
+    [[ ! "$(cat results.log)" =~ "failed to retrieve user info from database" ]]
 }
 
 @test "select wildcard columns" {

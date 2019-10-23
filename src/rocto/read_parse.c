@@ -20,13 +20,10 @@
 #include "rocto.h"
 #include "message_formats.h"
 
-Parse *read_parse(BaseMessage *message, ErrorResponse **err) {
+Parse *read_parse(BaseMessage *message) {
 	Parse *ret;
-	ErrorBuffer err_buff;
 	char *cur_pointer, *last_byte;
-	const char *error_message;
 	uint32_t remaining_length;
-	err_buff.offset = 0;
 
 	// Begin Parse initialization from message
 	remaining_length = ntohl(message->length);
@@ -36,11 +33,7 @@ Parse *read_parse(BaseMessage *message, ErrorResponse **err) {
 
 	// Ensure correct message type
 	if(ret->type != PSQL_Parse) {
-		error_message = format_error_string(&err_buff, ERR_ROCTO_INVALID_TYPE, "Parse", ret->type, PSQL_Parse);
-		*err = make_error_response(PSQL_Error_ERROR,
-					   PSQL_Code_Protocol_Violation,
-					   error_message,
-					   0);
+		ERROR(ERR_ROCTO_INVALID_TYPE, "Parse", ret->type, PSQL_Parse);
 		free(ret);
 		return NULL;
 	}
@@ -57,21 +50,13 @@ Parse *read_parse(BaseMessage *message, ErrorResponse **err) {
 		cur_pointer++;
 	}
 	if(cur_pointer == last_byte || '\0' != *cur_pointer) {
-		error_message = format_error_string(&err_buff, ERR_ROCTO_MISSING_NULL, "Parse", "destination");
-		*err = make_error_response(PSQL_Error_ERROR,
-					   PSQL_Code_Protocol_Violation,
-					   error_message,
-					   0);
+		ERROR(ERR_ROCTO_MISSING_NULL, "Parse", "destination");
 		free(ret);
 		return NULL;
 	}
 	// Ensure both dest and query fields included
 	if(cur_pointer + 1 == last_byte) {
-		error_message = format_error_string(&err_buff, ERR_ROCTO_MISSING_DATA, "Parse", "destination or query");
-		*err = make_error_response(PSQL_Error_ERROR,
-					   PSQL_Code_Protocol_Violation,
-					   error_message,
-					   0);
+		ERROR(ERR_ROCTO_MISSING_DATA, "Parse", "destination or query");
 		free(ret);
 		return NULL;
 	}
@@ -82,54 +67,34 @@ Parse *read_parse(BaseMessage *message, ErrorResponse **err) {
 		cur_pointer++;
 	}
 	if('\0' != *cur_pointer || cur_pointer == last_byte) {
-		error_message = format_error_string(&err_buff, ERR_ROCTO_MISSING_NULL, "Parse", "query");
-		*err = make_error_response(PSQL_Error_ERROR,
-					   PSQL_Code_Protocol_Violation,
-					   error_message,
-					   0);
+		ERROR(ERR_ROCTO_MISSING_NULL, "Parse", "query");
 		free(ret);
 		return NULL;
 	}
 	cur_pointer++;		// skip null terminator
 	// Ensure number of parameter data types included
 	if(cur_pointer == last_byte) {
-		error_message = format_error_string(&err_buff, ERR_ROCTO_MISSING_DATA, "Parse", "number of parameter data types");
-		*err = make_error_response(PSQL_Error_ERROR,
-					   PSQL_Code_Protocol_Violation,
-					   error_message,
-					   0);
+		ERROR(ERR_ROCTO_MISSING_DATA, "Parse", "number of parameter data types");
 		free(ret);
 		return NULL;
 	}
 	ret->num_parm_data_types = ntohs(*((int16_t*)(cur_pointer)));
 	// Ensure number of parameter data types valid
 	if (0 > ret->num_parm_data_types) {
-		error_message = format_error_string(&err_buff, ERR_ROCTO_INVALID_NUMBER, "Parse", "parameter data types");
-		*err = make_error_response(PSQL_Error_ERROR,
-					   PSQL_Code_Protocol_Violation,
-					   error_message,
-					   0);
+		ERROR(ERR_ROCTO_INVALID_NUMBER, "Parse", "parameter data types");
 		free(ret);
 		return NULL;
 	}
 	cur_pointer += sizeof(int16_t);
 	// Ensure parameter data types in bounds
 	if(cur_pointer + sizeof(uint32_t) * ret->num_parm_data_types < last_byte) {
-		error_message = format_error_string(&err_buff, ERR_ROCTO_TOO_MANY_VALUES, "Parse", "parameter data types");
-		*err = make_error_response(PSQL_Error_ERROR,
-				PSQL_Code_Protocol_Violation,
-				error_message,
-				0);
+		ERROR(ERR_ROCTO_TOO_MANY_VALUES, "Parse", "parameter data types");
 		free(ret);
 		return NULL;
 	}
 	// Ensure all parameter data types included
 	if(cur_pointer + sizeof(uint32_t) * ret->num_parm_data_types > last_byte) {
-		error_message = format_error_string(&err_buff, ERR_ROCTO_MISSING_DATA, "Parse", "parameter data types");
-		*err = make_error_response(PSQL_Error_ERROR,
-				PSQL_Code_Protocol_Violation,
-				error_message,
-				0);
+		ERROR(ERR_ROCTO_MISSING_DATA, "Parse", "parameter data types");
 		free(ret);
 		return NULL;
 	}

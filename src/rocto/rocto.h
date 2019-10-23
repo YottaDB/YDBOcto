@@ -99,22 +99,22 @@ NoData *make_no_data();
 ParameterDescription *make_parameter_description();
 
 // read_* messages parse the message and return a pointer to the filled out message type
-// If the message was invalid, the return is NULL and *err is populated with an error message
-Bind *read_bind(BaseMessage *message, ErrorResponse **err);
-Close *read_close(BaseMessage *message, ErrorResponse **err);
-Flush *read_flush(BaseMessage *message, ErrorResponse **err);
-Query *read_query(BaseMessage *message, ErrorResponse **err);
-Parse *read_parse(BaseMessage *message, ErrorResponse **err);
-PasswordMessage *read_password_message(BaseMessage *message, ErrorResponse **err);
-Execute *read_execute(BaseMessage *message, ErrorResponse **err);
-Sync *read_sync(BaseMessage *message, ErrorResponse **err);
-Terminate *read_terminate(BaseMessage *message, ErrorResponse **err);
-Describe *read_describe(BaseMessage *message, ErrorResponse **err);
+// If the message was invalid, the return is NULL
+Bind *read_bind(BaseMessage *message);
+Close *read_close(BaseMessage *message);
+Flush *read_flush(BaseMessage *message);
+Query *read_query(BaseMessage *message);
+Parse *read_parse(BaseMessage *message);
+PasswordMessage *read_password_message(BaseMessage *message);
+Execute *read_execute(BaseMessage *message);
+Sync *read_sync(BaseMessage *message);
+Terminate *read_terminate(BaseMessage *message);
+Describe *read_describe(BaseMessage *message);
 
 // This is a special case because it must read more from the buffer
-StartupMessage *read_startup_message(RoctoSession *session, char *data, int32_t data_length, ErrorResponse **err);
-SSLRequest *read_ssl_request(RoctoSession *session, char *data, int32_t data_length, ErrorResponse **err);
-CancelRequest *read_cancel_request(RoctoSession *session, char *data, int32_t data_length, ErrorResponse **err);
+StartupMessage *read_startup_message(RoctoSession *session, char *data, int32_t data_length);
+SSLRequest *read_ssl_request(RoctoSession *session, char *data, int32_t data_length);
+CancelRequest *read_cancel_request(RoctoSession *session, char *data, int32_t data_length);
 
 // handle_* messages respond to a message of a given type, using send_message if needed
 //  and returns 0 if the exchange is a "success", or non-zero if there was a problem
@@ -125,7 +125,7 @@ int32_t handle_query(Query *query, RoctoSession *session);
 int32_t handle_parse(Parse *parse, RoctoSession *session);
 int32_t handle_execute(Execute *execute, RoctoSession *session);
 int32_t handle_describe(Describe *describe, RoctoSession *session);
-int32_t handle_password_message(PasswordMessage *password_message, ErrorResponse **err, StartupMessage *startup_message, char *salt);
+int32_t handle_password_message(PasswordMessage *password_message, StartupMessage *startup_message, char *salt);
 
 // This isn't a handle function in-of itself, but a helper to handle the results of a query
 int handle_query_response(SqlStatement *stmt, int32_t cursor_id, void *_parms, char *plan_name);
@@ -165,19 +165,19 @@ unsigned long long get_pid_start_time(pid_t pid);
 RowDescription *get_plan_row_description(ydb_buffer_t *plan_filename);
 
 // Read functions to simulate client reception of the various make_* response messages. Used for testing.
-// AuthenticationMD5Password *read_authentication_md5_password(BaseMessage *message, ErrorResponse **err);
-AuthenticationOk *read_authentication_ok(BaseMessage *message, ErrorResponse **err);
-BindComplete *read_bind_complete(BaseMessage *message, ErrorResponse **err);
-CloseComplete *read_close_complete(BaseMessage *message, ErrorResponse **err);
-CommandComplete *read_command_complete(BaseMessage *message, ErrorResponse **err);
-DataRow *read_data_row(BaseMessage *message, ErrorResponse **err);
-EmptyQueryResponse *read_empty_query_response(BaseMessage *message, ErrorResponse **err);
-ErrorResponse *read_error_response(BaseMessage *message, ErrorResponse **err);
-ParameterStatus *read_parameter_status(BaseMessage *message, ErrorResponse **err);
-ParseComplete *read_parse_complete(BaseMessage *message, ErrorResponse **err);
-PortalSuspended *read_portal_suspended(BaseMessage *message, ErrorResponse **err);
-ReadyForQuery *read_ready_for_query(BaseMessage *message, ErrorResponse **err);
-RowDescription *read_row_description(BaseMessage *message, ErrorResponse **err);
+// AuthenticationMD5Password *read_authentication_md5_password(BaseMessage *message);
+AuthenticationOk *read_authentication_ok(BaseMessage *message);
+BindComplete *read_bind_complete(BaseMessage *message);
+CloseComplete *read_close_complete(BaseMessage *message);
+CommandComplete *read_command_complete(BaseMessage *message);
+DataRow *read_data_row(BaseMessage *message);
+EmptyQueryResponse *read_empty_query_response(BaseMessage *message);
+ErrorResponse *read_error_response(BaseMessage *message);
+ParameterStatus *read_parameter_status(BaseMessage *message);
+ParseComplete *read_parse_complete(BaseMessage *message);
+PortalSuspended *read_portal_suspended(BaseMessage *message);
+ReadyForQuery *read_ready_for_query(BaseMessage *message);
+RowDescription *read_row_description(BaseMessage *message);
 
 // Make functions to simulate client transmission of certain make_* messages. Used for testing.
 PasswordMessage *make_password_message(char *user, char *password, char *salt);

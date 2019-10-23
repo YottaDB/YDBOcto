@@ -101,8 +101,6 @@ static void test_query_length_greater_than_max(void **state) {
 
 	assert(query->length > cur_input_max);
 
-	will_return(__wrap_send_message, PSQL_ErrorResponse);
-
 	result = handle_query(query, &session);
 
 	//change global variable's value back to what it should be
@@ -145,7 +143,6 @@ static void test_run_query_result_does_not_equal_zero(void **state) {
 	query->data[query_length] = '\0';
 	query->query = query->data;
 
-	will_return(__wrap_send_message, PSQL_ErrorResponse);
 	will_return(__wrap_run_query, 1);
 	result = handle_query(query, &session);
 

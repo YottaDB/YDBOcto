@@ -21,11 +21,9 @@
 #include "rocto.h"
 #include "message_formats.h"
 
-ParameterStatus *read_parameter_status(BaseMessage *message, ErrorResponse **err) {
+ParameterStatus *read_parameter_status(BaseMessage *message) {
 	ParameterStatus *ret;
 	uint32_t remaining_length = 0;
-
-	UNUSED(err);
 
 	if (NULL == message) {
 		return NULL;

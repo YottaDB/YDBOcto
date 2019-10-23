@@ -28,14 +28,12 @@
 static void test_valid_input(void **state) {
 	PortalSuspended *response;
 	PortalSuspended *received_response;
-	ErrorResponse *err = NULL;
 
 	int32_t expected_length = sizeof(uint32_t);
 	response = make_portal_suspended();
-	received_response = read_portal_suspended((BaseMessage*)&response->type, &err);
+	received_response = read_portal_suspended((BaseMessage*)&response->type);
 
 	// Standard checks
-	assert_null(err);
 	assert_non_null(received_response);
 	assert_int_equal(received_response->type, PSQL_PortalSuspended);
 	assert_int_equal(received_response->length, expected_length);

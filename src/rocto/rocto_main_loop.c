@@ -28,7 +28,6 @@
 int rocto_main_loop(RoctoSession *session) {
 	BaseMessage	*message;
 	Bind		*bind;
-	ErrorResponse	*err;
 	Flush		*flush;
 	Describe	*describe;
 	Execute		*execute;
@@ -81,10 +80,8 @@ int rocto_main_loop(RoctoSession *session) {
 		TRACE(ERR_READ_MESSAGE, message->type, ntohl(message->length));
 		switch(message->type) {
 		case PSQL_Bind:
-			bind = read_bind(message, &err);
+			bind = read_bind(message);
 			if(NULL == bind) {
-				send_message(session, (BaseMessage*)(&err->type));
-				free_error_response(err);
 				break;
 			}
 			result = handle_bind(bind, session);
@@ -93,10 +90,8 @@ int rocto_main_loop(RoctoSession *session) {
 			}
 			break;
 		case PSQL_Query:
-			query = read_query(message, &err);
+			query = read_query(message);
 			if(NULL == query) {
-				send_message(session, (BaseMessage*)(&err->type));
-				free_error_response(err);
 				break;
 			}
 			result = handle_query(query, session);
@@ -106,10 +101,8 @@ int rocto_main_loop(RoctoSession *session) {
 			break;
 		case PSQL_Execute:
 		//case PSQL_ErrorResponse: // Same letter code, different meaning
-			execute = read_execute(message, &err);
+			execute = read_execute(message);
 			if(NULL == execute) {
-				send_message(session, (BaseMessage*)(&err->type));
-				free_error_response(err);
 				break;
 			}
 			result = handle_execute(execute, session);
@@ -120,18 +113,14 @@ int rocto_main_loop(RoctoSession *session) {
 			break;
 		case PSQL_Flush:
 			// Do nothing for now, until extended query functionality added
-			flush = read_flush(message, &err);
+			flush = read_flush(message);
 			if (NULL == flush) {
-				send_message(session, (BaseMessage*)(&err->type));
-				free_error_response(err);
 				break;
 			}
 			break;
 		case PSQL_Parse:
-			parse = read_parse(message, &err);
+			parse = read_parse(message);
 			if(NULL == parse) {
-				send_message(session, (BaseMessage*)(&err->type));
-				free_error_response(err);
 				break;
 			}
 			result = handle_parse(parse, session);
@@ -141,19 +130,15 @@ int rocto_main_loop(RoctoSession *session) {
 			break;
 		case PSQL_Sync:
 			// This requires no action right now, but eventually we will have to end transactions
-			sync = read_sync(message, &err);
+			sync = read_sync(message);
 			if (NULL == sync) {
-				send_message(session, (BaseMessage*)(&err->type));
-				free_error_response(err);
 				break;
 			}
 			break;
 		case PSQL_Describe:
 		// case PSQL_DataRow: // Same letter, different meaning
-			describe = read_describe(message, &err);
+			describe = read_describe(message);
 			if(NULL == describe) {
-				send_message(session, (BaseMessage*)(&err->type));
-				free_error_response(err);
 				break;
 			}
 			result = handle_describe(describe, session);
@@ -163,10 +148,8 @@ int rocto_main_loop(RoctoSession *session) {
 			break;
 		case PSQL_Terminate:
 			// Do nothing for now, until Terminate functionality added
-			terminate = read_terminate(message, &err);
+			terminate = read_terminate(message);
 			if (NULL == terminate) {
-				send_message(session, (BaseMessage*)(&err->type));
-				free_error_response(err);
 				break;
 			}
 			break;

@@ -27,7 +27,9 @@
 
 char *copy_text_parameter(RoctoSession *session, Bind *bind, const int32_t cur_parm, char *query, const char *end_query) {
 	char *text_parm_start, *text_parm_end;
-	ErrorResponse *err;
+
+	// Currently unused parameters
+	UNUSED(session);
 
 	// Copy text value
 	text_parm_start = (char*)bind->parms[cur_parm].value;
@@ -39,12 +41,7 @@ char *copy_text_parameter(RoctoSession *session, Bind *bind, const int32_t cur_p
 		// We need to leave an extra place for the closing quote, hence
 		//  the +1
 		if(query + 1 >= end_query) {
-			err = make_error_response(PSQL_Error_ERROR,
-						  PSQL_Code_Syntax_Error,
-						  "expression exceeds maximum buffer length",
-						  0);
-			send_message(session, (BaseMessage*)(&err->type));
-			free_error_response(err);
+			ERROR(ERR_ROCTO_QUERY_TOO_LONG, "");
 			return NULL;
 		}
 	}
@@ -52,11 +49,13 @@ char *copy_text_parameter(RoctoSession *session, Bind *bind, const int32_t cur_p
 }
 
 char *copy_binary_parameter(RoctoSession *session, Bind *bind, const int32_t cur_parm, char *query, const char *end_query) {
+	// Currently unused parameters
+	UNUSED(session);
+
 	char str_value[MAX_STR_CONST];
 	int64_t value = 0;
 	int32_t copied = 0;
 	char uuid[MAX_STR_CONST];
-	ErrorResponse *err;
 
 	switch (bind->parms[cur_parm].length) {
 		case 1:
@@ -81,21 +80,11 @@ char *copy_binary_parameter(RoctoSession *session, Bind *bind, const int32_t cur
 			copied = snprintf(str_value, MAX_STR_CONST, "%s", uuid);
 			break;
 		default:
-			err = make_error_response(PSQL_Error_ERROR,
-						  PSQL_Code_Syntax_Error,
-						  "unsupported bind parameter type received",
-						  0);
-			send_message(session, (BaseMessage*)(&err->type));
-			free_error_response(err);
+			ERROR(ERR_ROCTO_UNSUPPORTED_BIND_PARAMETER, PSQL_Code_Syntax_Error, "unsupported bind parameter type received", 0);
 			return NULL;
 	}
 	if (0 > copied || query + copied > end_query) {
-			err = make_error_response(PSQL_Error_ERROR,
-						  PSQL_Code_Syntax_Error,
-						  "failed to decode binary bind parameter",
-						  0);
-			send_message(session, (BaseMessage*)(&err->type));
-			free_error_response(err);
+			ERROR(ERR_ROCTO_BIND_PARAMETER_DECODE_FAILURE, PSQL_Code_Syntax_Error, "failed to decode binary bind parameter", 0);
 			return NULL;
 	}
 	strncpy(query, str_value, copied);

@@ -26,76 +26,49 @@
 #include "message_formats.h"
 
 static void test_valid_input(void **state) {
-	// Test a single startup message
-	ErrorResponse *err = NULL;
-
 	// Populate base message
         BaseMessage *test_data = (BaseMessage*)malloc(sizeof(BaseMessage));
 	test_data->type = PSQL_Terminate;
 	test_data->length = htonl(sizeof(uint32_t));
 
 	// The actual test
-	Terminate *terminate = read_terminate(test_data, &err);
+	Terminate *terminate = read_terminate(test_data);
 
 	// Standard checks
 	assert_non_null(terminate);
-	assert_null(err);
 
 	free(test_data);
 	free(terminate);
 }
 
 static void test_invalid_type(void **state) {
-	ErrorResponse *err = NULL;
-	ErrorBuffer err_buff;
-	const char *error_message;
-	err_buff.offset = 0;
-
 	// Populate base message
         BaseMessage *test_data = (BaseMessage*)malloc(sizeof(BaseMessage));
 	test_data->type = 'S';
 	test_data->length = htonl(sizeof(uint32_t));
 
 	// The actual test
-	Terminate *terminate = read_terminate(test_data, &err);
+	Terminate *terminate = read_terminate(test_data);
 
 	// Standard checks
 	assert_null(terminate);
-	assert_non_null(err);
-
-	// Ensure correct error message
-	error_message = format_error_string(&err_buff, ERR_ROCTO_INVALID_TYPE, "Terminate", test_data->type, PSQL_Terminate);
-	assert_string_equal(error_message, err->args[2].value + 1);
 
 	free(test_data);
-	free_error_response(err);
 }
 
 static void test_invalid_length(void **state) {
-	ErrorResponse *err = NULL;
-	ErrorBuffer err_buff;
-	const char *error_message;
-	err_buff.offset = 0;
-
 	// Populate base message
         BaseMessage *test_data = (BaseMessage*)malloc(sizeof(BaseMessage));
 	test_data->type = PSQL_Terminate;
 	test_data->length = htonl(12);
 
 	// The actual test
-	Terminate *terminate = read_terminate(test_data, &err);
+	Terminate *terminate = read_terminate(test_data);
 
 	// Standard checks
 	assert_null(terminate);
-	assert_non_null(err);
-
-	// Ensure correct error message
-	error_message = format_error_string(&err_buff, ERR_ROCTO_INVALID_INT_VALUE, "Terminate", "length",
-			ntohl(test_data->length), 4);
-	assert_string_equal(error_message, err->args[2].value + 1);
 
 	free(test_data);
-	free_error_response(err);
 }
 
 int main(void) {

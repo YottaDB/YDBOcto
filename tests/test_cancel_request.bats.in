@@ -60,4 +60,3 @@ YDB
   run_psql_expect cancel_psql_extended $test_port2 &> output.txt
   verify_output TCR04 output.txt
 }
-

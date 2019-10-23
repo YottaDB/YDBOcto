@@ -20,13 +20,10 @@
 #include "rocto.h"
 #include "message_formats.h"
 
-Describe *read_describe(BaseMessage *message, ErrorResponse **err) {
+Describe *read_describe(BaseMessage *message) {
 	Describe *ret;
-	ErrorBuffer err_buff;
 	char *cur_pointer, *last_byte;
-	const char *error_message;
 	uint32_t remaining_length;
-	err_buff.offset = 0;
 
 	// Create Describe struct and initialize ALL bytes to prevent leaks
 	remaining_length = ntohl(message->length);
@@ -41,23 +38,14 @@ Describe *read_describe(BaseMessage *message, ErrorResponse **err) {
 
 	// Ensure valid value for type field
 	if (ret->type != 'D') {
-		error_message = format_error_string(&err_buff, ERR_ROCTO_INVALID_TYPE, "Describe", ret->type, PSQL_Describe);
-		*err = make_error_response(PSQL_Error_WARNING,
-					   PSQL_Code_Protocol_Violation,
-					   error_message,
-					   0);
-                free(ret);
+		ERROR(ERR_ROCTO_INVALID_TYPE, "Describe", ret->type, PSQL_Describe);
+		free(ret);
 		return NULL;
 	}
 	// Ensure valid value for item field
 	if (ret->item != 'S' && ret->item != 'P') {
-		error_message = format_error_string(&err_buff, ERR_ROCTO_INVALID_CHAR_VALUE, "Describe", "item",
-				ret->item, "'S' or 'P'");
-		*err = make_error_response(PSQL_Error_WARNING,
-					   PSQL_Code_Protocol_Violation,
-					   error_message,
-					   0);
-                free(ret);
+		ERROR(ERR_ROCTO_INVALID_CHAR_VALUE, "Describe", "item", ret->item, "'S' or 'P'");
+		free(ret);
 		return NULL;
 	}
 
@@ -69,22 +57,14 @@ Describe *read_describe(BaseMessage *message, ErrorResponse **err) {
 	cur_pointer++;
 	// Check for missing null terminator
 	if(cur_pointer > last_byte) {
-		error_message = format_error_string(&err_buff, ERR_ROCTO_MISSING_NULL, "Describe", "name");
-		*err = make_error_response(PSQL_Error_WARNING,
-					   PSQL_Code_Protocol_Violation,
-					   error_message,
-					   0);
-                free(ret);
+		ERROR(ERR_ROCTO_MISSING_NULL, "Describe", "name");
+		free(ret);
 		return NULL;
 	}
 	// Check for premature null terminator
 	if(cur_pointer < last_byte) {
-		error_message = format_error_string(&err_buff, ERR_ROCTO_TRAILING_CHARS, "Describe");
-		*err = make_error_response(PSQL_Error_WARNING,
-					   PSQL_Code_Protocol_Violation,
-					   error_message,
-					   0);
-                free(ret);
+		ERROR(ERR_ROCTO_TRAILING_CHARS, "Describe");
+		free(ret);
 		return NULL;
 	}
 

@@ -51,8 +51,6 @@ int main(int argc, char **argv) {
 	BackendKeyData			*backend_key_data;
 	BaseMessage			*base_message;
 	CancelRequest			*cancel_request;
-	ErrorBuffer			err_buff;
-	ErrorResponse			*err;
 	ParameterStatus			*parameter_status;
 	PasswordMessage			*password_message;
 	SSLRequest			*ssl_request;
@@ -60,8 +58,6 @@ int main(int argc, char **argv) {
 	StartupMessageParm		message_parm;
 	char				buffer[MAX_STR_CONST];
 	char				host_buf[NI_MAXHOST], serv_buf[NI_MAXSERV];
-	const char			*err_str;
-	const char			*error_message;
 	int				cur_parm = 0, i = 0;
 	int				sfd, cfd, opt, addrlen, result, status = 0;
 	int				tls_errno;
@@ -86,7 +82,6 @@ int main(int argc, char **argv) {
 		return status;
 
 	sfd = cfd = opt = addrlen = result = status = 0;
-	err_buff.offset = 0;
 
 	// Create buffers for managing secret keys for CancelRequests
 	ydb_buffer_t secret_key_list_buffer, secret_key_buffer;
@@ -265,7 +260,7 @@ int main(int argc, char **argv) {
 		read_bytes(&rocto_session, buffer, MAX_STR_CONST, sizeof(int) * 2);
 
 		// Attempt TLS connection, if configured
-		ssl_request = read_ssl_request(&rocto_session, buffer, sizeof(int) * 2, &err);
+		ssl_request = read_ssl_request(&rocto_session, buffer, sizeof(int) * 2);
 		if (NULL != ssl_request & TRUE == config->rocto_config.ssl_on) {
 #			if YDB_TLS_AVAILABLE
 			// gtm_tls_conn_info tls_connection;
@@ -280,11 +275,9 @@ int main(int argc, char **argv) {
 			if (INVALID_TLS_CONTEXT == tls_context) {
 				tls_errno = gtm_tls_errno();
 				if (0 < tls_errno) {
-					err_str = gtm_tls_get_error();
-					WARNING(ERR_SYSCALL, err_str, tls_errno, strerror(tls_errno));
+					WARNING(ERR_SYSCALL, "", tls_errno, strerror(tls_errno));
 				} else {
-					err_str = gtm_tls_get_error();
-					WARNING(ERR_ROCTO_TLS_INIT, err_str);
+					WARNING(ERR_ROCTO_TLS_INIT, gtm_tls_get_error());
 				}
 				break;
 			}
@@ -294,11 +287,9 @@ int main(int argc, char **argv) {
 			if (INVALID_TLS_SOCKET == tls_socket) {
 				tls_errno = gtm_tls_errno();
 				if (0 < tls_errno) {
-					err_str = gtm_tls_get_error();
-					WARNING(ERR_SYSCALL, err_str, tls_errno, strerror(tls_errno));
+					WARNING(ERR_SYSCALL, gtm_tls_get_error(), tls_errno, strerror(tls_errno));
 				} else {
-					err_str = gtm_tls_get_error();
-					WARNING(ERR_ROCTO_TLS_SOCKET, err_str);
+					WARNING(ERR_ROCTO_TLS_SOCKET, gtm_tls_get_error());
 				}
 				break;
 			}
@@ -309,8 +300,7 @@ int main(int argc, char **argv) {
 					if (-1 == result) {
 						tls_errno = gtm_tls_errno();
 						if (-1 == tls_errno) {
-							err_str = gtm_tls_get_error();
-							WARNING(ERR_ROCTO_TLS_ACCEPT, err_str);
+							WARNING(ERR_ROCTO_TLS_ACCEPT, gtm_tls_get_error());
 						} else {
 							WARNING(CUSTOM_ERROR, "unknown", tls_errno, strerror(tls_errno));
 						}
@@ -334,12 +324,13 @@ int main(int argc, char **argv) {
 			result = send_bytes(&rocto_session, "N", sizeof(char));
 			read_bytes(&rocto_session, buffer, MAX_STR_CONST, sizeof(int) * 2);
 		} else if (NULL == ssl_request) {
-			free(err);
+
 		}
 		// Check for CancelRequest and handle if so
-		cancel_request = read_cancel_request(&rocto_session, buffer, sizeof(unsigned int) + sizeof(int), &err);
+		cancel_request = read_cancel_request(&rocto_session, buffer, sizeof(unsigned int) + sizeof(int));
 		if (NULL != cancel_request) {
-			INFO(ERR_ROCTO_QUERY_CANCELED, "");
+			//INFO(ERR_ROCTO_QUERY_CANCELED, "");
+			LOG_LOCAL_ONLY(INFO, ERR_ROCTO_QUERY_CANCELED, "");
 			handle_cancel_request(cancel_request);
 			// Shutdown connection immediately to free client prompt
 			shutdown(rocto_session.connection_fd, SHUT_RDWR);
@@ -357,11 +348,8 @@ int main(int argc, char **argv) {
 		status = ydb_set_s(&secret_key_list_buffer, 1, pid_buffer, &secret_key_buffer);
 		YDB_ERROR_CHECK(status);
 
-
-		startup_message = read_startup_message(&rocto_session, buffer, sizeof(int) * 2, &err);
+		startup_message = read_startup_message(&rocto_session, buffer, sizeof(int) * 2);
 		if(startup_message == NULL) {
-			send_message(&rocto_session, (BaseMessage*)(&err->type));
-			free(err);
 			break;
 		}
 		// Require md5 authentication
@@ -370,14 +358,6 @@ int main(int argc, char **argv) {
 		result = send_message(&rocto_session, (BaseMessage*)(&md5auth->type));
 		if(result) {
 			WARNING(ERR_ROCTO_SEND_FAILED, "failed to send MD5 authentication required");
-			error_message = format_error_string(&err_buff, ERR_ROCTO_SEND_FAILED,
-					"failed to send MD5 authentication required");
-			err = make_error_response(PSQL_Error_ERROR,
-						   PSQL_Code_Protocol_Violation,
-						   error_message,
-						   0);
-			send_message(&rocto_session, (BaseMessage*)(&err->type));
-			free(err);
 			free(md5auth);
 			break;
 		}
@@ -389,27 +369,19 @@ int main(int argc, char **argv) {
 		if(base_message == NULL) {
 			if (-2 != rocto_err) {
 				WARNING(ERR_ROCTO_READ_FAILED, "failed to read MD5 password");
-				error_message = format_error_string(&err_buff, ERR_ROCTO_READ_FAILED, "failed to read MD5 password");
-				err = make_error_response(PSQL_Error_ERROR,
-							   PSQL_Code_Protocol_Violation,
-							   error_message,
-							   0);
-				send_message(&rocto_session, (BaseMessage*)(&err->type));
-				free(err);
 			}
 			break;
 		}
-		password_message = read_password_message(base_message, &err);
+		password_message = read_password_message(base_message);
 		if(password_message == NULL) {
-			send_message(&rocto_session, (BaseMessage*)(&err->type));
-			free_error_response(err);
 			break;
 		}
+
+		rocto_session.sending_message = FALSE;
+
 		// Validate user credentials
-		result = handle_password_message(password_message, &err, startup_message, salt);
+		result = handle_password_message(password_message, startup_message, salt);
 		if (0 != result) {
-			send_message(&rocto_session, (BaseMessage*)(&err->type));
-			free_error_response(err);
 			break;
 		}
 
@@ -418,10 +390,7 @@ int main(int argc, char **argv) {
 		send_message(&rocto_session, (BaseMessage*)(&authok->type));
 		free(authok);
 
-		rocto_session.sending_message = FALSE;
-
 		// Enter the main loop
-		session_buffer = &(ydb_buffers[0]);
 		session_id_buffer = &(ydb_buffers[1]);
 		YDB_STRING_TO_BUFFER(config->global_names.session, session_buffer);
 		YDB_MALLOC_BUFFER(session_id_buffer, MAX_STR_CONST);

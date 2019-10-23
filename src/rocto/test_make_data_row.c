@@ -28,11 +28,10 @@
 static void test_null_input(void **state) {
 	DataRow *response = NULL;
 	DataRow *received_response = NULL;
-	ErrorResponse *err = NULL;
 
 	int32_t expected_length = sizeof(uint32_t) + sizeof(int16_t);
 	response = make_data_row(NULL, 0);
-	received_response = read_data_row((BaseMessage*)&response->type, &err);
+	received_response = read_data_row((BaseMessage*)&response->type);
 
 	// Standard checks
 	assert_non_null(received_response);
@@ -47,7 +46,6 @@ static void test_null_input(void **state) {
 static void test_zero_parms(void **state) {
 	DataRow *response = NULL;
 	DataRow *received_response = NULL;
-	ErrorResponse *err = NULL;
 	int32_t num_parms = 0;
 	DataRowParm parms[num_parms];
 
@@ -55,7 +53,7 @@ static void test_zero_parms(void **state) {
 	int32_t expected_length = sizeof(uint32_t) + sizeof(int16_t) + (sizeof(uint32_t)) * num_parms;
 
 	response = make_data_row(parms, num_parms);
-	received_response = read_data_row((BaseMessage*)&response->type, &err);
+	received_response = read_data_row((BaseMessage*)&response->type);
 
 	// Standard checks
 	assert_non_null(received_response);
@@ -70,8 +68,7 @@ static void test_zero_parms(void **state) {
 static void test_one_parms(void **state) {
 	DataRow *response = NULL;
 	DataRow *received_response = NULL;
-	ErrorResponse *err = NULL;
-	int32_t num_parms = 1;
+	int32_t num_parms = 1, i = 0;
 	DataRowParm parms[num_parms];
 
 	memset(parms, 0, sizeof(DataRowParm) * num_parms);
@@ -84,7 +81,7 @@ static void test_one_parms(void **state) {
 	int32_t expected_length = sizeof(uint32_t) + sizeof(int16_t) + (sizeof(uint32_t)) * num_parms + parm_length;
 
 	response = make_data_row(parms, num_parms);
-	received_response = read_data_row((BaseMessage*)&response->type, &err);
+	received_response = read_data_row((BaseMessage*)&response->type);
 
 	// Standard checks
 	assert_non_null(received_response);
@@ -102,7 +99,6 @@ static void test_one_parms(void **state) {
 static void test_two_parms(void **state) {
 	DataRow *response = NULL;
 	DataRow *received_response = NULL;
-	ErrorResponse *err = NULL;
 	int32_t num_parms = 2;
 	DataRowParm parms[num_parms];
 	memset(parms, 0, sizeof(DataRowParm) * num_parms);
@@ -124,7 +120,7 @@ static void test_two_parms(void **state) {
 		+ (sizeof(uint32_t)) * num_parms + parm1_length + parm2_length;
 
 	response = make_data_row(parms, num_parms);
-	received_response = read_data_row((BaseMessage*)&response->type, &err);
+	received_response = read_data_row((BaseMessage*)&response->type);
 
 	// Standard checks
 	assert_non_null(received_response);
@@ -145,7 +141,6 @@ static void test_two_parms(void **state) {
 static void test_three_parms(void **state) {
 	DataRow *response = NULL;
 	DataRow *received_response = NULL;
-	ErrorResponse *err = NULL;
 	int32_t num_parms = 3;
 	DataRowParm parms[num_parms];
 	memset(parms, 0, sizeof(DataRowParm) * num_parms);
@@ -173,7 +168,7 @@ static void test_three_parms(void **state) {
 		+ (sizeof(uint32_t)) * num_parms + parm1_length + parm2_length + parm3_length;
 
 	response = make_data_row(parms, num_parms);
-	received_response = read_data_row((BaseMessage*)&response->type, &err);
+	received_response = read_data_row((BaseMessage*)&response->type);
 
 	// Standard checks
 	assert_non_null(received_response);
@@ -200,7 +195,7 @@ int main(void) {
 		cmocka_unit_test(test_zero_parms),
 		cmocka_unit_test(test_one_parms),
 		cmocka_unit_test(test_two_parms),
-		cmocka_unit_test(test_three_parms),
+		cmocka_unit_test(test_three_parms)
 	};
 	return cmocka_run_group_tests(tests, NULL, NULL);
 }

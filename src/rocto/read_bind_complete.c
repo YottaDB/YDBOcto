@@ -21,11 +21,9 @@
 #include "rocto.h"
 #include "message_formats.h"
 
-BindComplete *read_bind_complete(BaseMessage *message, ErrorResponse **err) {
+BindComplete *read_bind_complete(BaseMessage *message) {
 	BindComplete *ret;
 	uint32_t remaining_length = 0;
-
-	UNUSED(err);
 
 	remaining_length = ntohl(message->length);
 	ret = (BindComplete*)malloc(sizeof(BindComplete));

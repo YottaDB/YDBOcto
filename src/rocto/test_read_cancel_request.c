@@ -41,7 +41,6 @@ static void test_valid_input(void **state) {
 	// most significant 16 bits: 1234, least significant 16 bits: 5679
 	unsigned int request_code = 80877102;
 	unsigned int message_length = sizeof(CancelRequest);
-	ErrorResponse *err = NULL;
 
 	// Length + extra stuff - already counted (length, protocol version)
 	CancelRequest *test_data = (CancelRequest*)malloc(sizeof(CancelRequest));
@@ -54,11 +53,10 @@ static void test_valid_input(void **state) {
 	// The actual test
 	will_return(__wrap_read_bytes, test_data->pid);
 	will_return(__wrap_read_bytes, test_data->secret_key);
-	CancelRequest *cancel = read_cancel_request(NULL, (char*)(&test_data->length), message_length, &err);
+	CancelRequest *cancel = read_cancel_request(NULL, (char*)(&test_data->length), message_length);
 
 	// Standard checks
 	assert_non_null(cancel);
-	assert_null(err);
 	assert_int_equal(message_length, cancel->length);
 	assert_int_equal(request_code, cancel->request_code);
 	assert_int_equal(ntohl(test_data->pid), cancel->pid);
@@ -73,7 +71,6 @@ static void test_invalid_length(void **state) {
 	// most significant 16 bits: 1234, least significant 16 bits: 5678
 	unsigned int request_code = 80877102;
 	unsigned int message_length = 17;
-	ErrorResponse *err = NULL;
 
 	// Length + extra stuff - already counted (length, protocol version)
 	CancelRequest *test_data = (CancelRequest*)malloc(sizeof(CancelRequest));
@@ -84,7 +81,7 @@ static void test_invalid_length(void **state) {
 	test_data->secret_key = htonl(8888);
 
 	// The actual test
-	CancelRequest *cancel = read_cancel_request(NULL, (char*)(&test_data->length), message_length, &err);
+	CancelRequest *cancel = read_cancel_request(NULL, (char*)(&test_data->length), message_length);
 
 	// Standard checks
 	assert_null(cancel);
@@ -97,7 +94,6 @@ static void test_invalid_request_code(void **state) {
 	// most significant 16 bits: 1234, least significant 16 bits: 5678
 	unsigned int request_code = 0x43219765;
 	unsigned int message_length = sizeof(CancelRequest);
-	ErrorResponse *err = NULL;
 
 	// Length + extra stuff - already counted (length, protocol version)
 	CancelRequest *test_data = (CancelRequest*)malloc(sizeof(CancelRequest));
@@ -108,7 +104,7 @@ static void test_invalid_request_code(void **state) {
 	test_data->secret_key = htonl(8888);
 
 	// The actual test
-	CancelRequest *cancel = read_cancel_request(NULL, (char*)(&test_data->length), message_length, &err);
+	CancelRequest *cancel = read_cancel_request(NULL, (char*)(&test_data->length), message_length);
 
 	// Standard checks
 	assert_null(cancel);

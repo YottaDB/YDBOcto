@@ -63,6 +63,8 @@ ERROR_DEF(ERR_SETOPER_TYPE_MISMATCH, "%s types %s and %s cannot be matched", PSQ
 ERROR_DEF(ERR_SUBQUERY_ONE_COLUMN, "Subquery must return only one column", PSQL_Code_Syntax_Error)
 // ROCTO //
 ERROR_DEF(ERR_ROCTO_M_CALL, "M extrinsic function calls are disallowed in rocto", PSQL_Code_Internal_Error)
+ERROR_DEF(ERR_ROCTO_UNSUPPORTED_BIND_PARAMETER, "Unsupported bind parameter type received", PSQL_Code_Internal_Error)
+ERROR_DEF(ERR_ROCTO_BIND_PARAMETER_DECODE_FAILURE, "Failed to decode binary bind parameter", PSQL_Code_Internal_Error)
 
 /*** Trace messages ***/
 // OCTO //
@@ -140,6 +142,8 @@ ERROR_DEF(ERR_ROCTO_MISSING_DATA, "%s: missing %s", PSQL_Code_Data_Exception)
 ERROR_DEF(ERR_ROCTO_MISSING_NULL, "%s: %s missing null terminator", PSQL_Code_Unterminated_C_String)
 ERROR_DEF(ERR_ROCTO_TOO_FEW_VALUES, "%s: too few %s", PSQL_Code_Numeric_Value_Out_Of_Range)
 ERROR_DEF(ERR_ROCTO_TOO_MANY_VALUES, "%s: too many %s", PSQL_Code_Numeric_Value_Out_Of_Range)
+ERROR_DEF(ERR_ROCTO_QUERY_TOO_LONG, "Query length exceeded maximum size", PSQL_Code_Protocol_Violation)
+ERROR_DEF(ERR_ROCTO_BIND_TO_UNKNOWN_QUERY, "Bind to unknown query attempted", PSQL_Code_Protocol_Violation)
 
 // End of errors
 ERROR_END(CUSTOM_ERROR, "Error not found", PSQL_Code_Internal_Error)

@@ -530,8 +530,6 @@ static void test_bind_to_non_existent_source(void **state) {
 	bind.num_result_col_format_codes = 0;
 	bind.result_col_format_codes = NULL;
 
-	will_return(__wrap_send_message, PSQL_ErrorResponse);
-
 	result = handle_bind(&bind, &session);
 
 	assert_int_equal(result, 1);
@@ -559,8 +557,6 @@ static void test_bind_with_too_many_parms(void **state) {
 	bind.parms[1].length = strlen(bind.parms[0].value);
 	bind.num_result_col_format_codes = 0;
 	bind.result_col_format_codes = NULL;
-
-	will_return(__wrap_send_message, PSQL_ErrorResponse);
 
 	result = handle_bind(&bind, &session);
 
@@ -595,8 +591,6 @@ static void test_bind_greater_than_max_str_const(void **state) {
 
 	// Store a value in ^session(id, "prepared", "sample1")
 	set("select * from names where firstName = $0", config->global_names.session, 3, "0", "prepared", "sample1");
-
-	will_return(__wrap_send_message, PSQL_ErrorResponse);
 
 	result = handle_bind(&bind, &session);
 

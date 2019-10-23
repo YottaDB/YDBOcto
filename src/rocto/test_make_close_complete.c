@@ -28,12 +28,11 @@
 static void test_valid_input(void **state) {
 	CloseComplete *response = NULL;
 	CloseComplete *received_response = NULL;
-	ErrorResponse *err = NULL;
 
 	int32_t expected_length = sizeof(uint32_t);
 
 	response = make_close_complete();
-	received_response = read_close_complete((BaseMessage*)&response->type, &err);
+	received_response = read_close_complete((BaseMessage*)&response->type);
 
 	// Standard checks
 	assert_non_null(received_response);

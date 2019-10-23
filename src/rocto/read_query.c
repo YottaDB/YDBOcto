@@ -20,13 +20,10 @@
 #include "rocto.h"
 #include "message_formats.h"
 
-Query *read_query(BaseMessage *message, ErrorResponse **err) {
+Query *read_query(BaseMessage *message) {
 	Query *ret;
-	ErrorBuffer err_buff;
 	uint32_t length;
 	char *c, *message_end;
-	const char *error_message;
-	err_buff.offset = 0;
 
 	length = ntohl(message->length);
 	ret = (Query*)malloc(sizeof(Query) + length - sizeof(uint32_t));
@@ -38,11 +35,7 @@ Query *read_query(BaseMessage *message, ErrorResponse **err) {
 
 	// Ensure that message has correct type
 	if(ret->type != PSQL_Query) {
-		error_message = format_error_string(&err_buff, ERR_ROCTO_INVALID_TYPE, "Query", ret->type, PSQL_Query);
-		*err = make_error_response(PSQL_Error_ERROR,
-					   PSQL_Code_Syntax_Error,
-					   error_message,
-					   0);
+		ERROR(ERR_ROCTO_INVALID_TYPE, "Query", ret->type, PSQL_Query);
 		free(ret);
 		return NULL;
 	}
@@ -53,29 +46,17 @@ Query *read_query(BaseMessage *message, ErrorResponse **err) {
 	if(c == message_end) {
 		// Ensure a query string is included
 		if(length == sizeof(uint32_t)) {
-			error_message = format_error_string(&err_buff, ERR_ROCTO_MISSING_DATA, "Query", "query");
-			*err = make_error_response(PSQL_Error_ERROR,
-						   PSQL_Code_Syntax_Error,
-						   error_message,
-						   0);
+			ERROR(ERR_ROCTO_MISSING_DATA, "Query", "query");
 			free(ret);
 			return NULL;
 		}
 		// Ensure query has null terminator
-		error_message = format_error_string(&err_buff, ERR_ROCTO_MISSING_NULL, "Query", "query");
-		*err = make_error_response(PSQL_Error_ERROR,
-					   PSQL_Code_Syntax_Error,
-					   error_message,
-					   0);
+		ERROR(ERR_ROCTO_MISSING_NULL, "Query", "query");
 		free(ret);
 		return NULL;
 	}
 	else if(c < message_end - 1) {
-		error_message = format_error_string(&err_buff, ERR_ROCTO_TRAILING_CHARS, "Query");
-		*err = make_error_response(PSQL_Error_ERROR,
-					   PSQL_Code_Syntax_Error,
-					   error_message,
-					   0);
+		ERROR(ERR_ROCTO_TRAILING_CHARS, "Query");
 		free(ret);
 		return NULL;
 	}

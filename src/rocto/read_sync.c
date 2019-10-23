@@ -21,20 +21,12 @@
 #include "rocto.h"
 #include "message_formats.h"
 
-Sync *read_sync(BaseMessage *message, ErrorResponse **err) {
+Sync *read_sync(BaseMessage *message) {
 	Sync *ret;
-	ErrorBuffer err_buff;
-	const char *error_message;
-	err_buff.offset = 0;
 	uint32_t expected_length = sizeof(uint32_t);
 
 	if(message->type != PSQL_Sync) {
 		WARNING(ERR_ROCTO_INVALID_TYPE, "Sync", message->type, PSQL_Sync);
-		error_message = format_error_string(&err_buff, ERR_ROCTO_INVALID_TYPE, "Sync", message->type, PSQL_Sync);
-		*err = make_error_response(PSQL_Error_WARNING,
-					   PSQL_Code_Protocol_Violation,
-					   error_message,
-					   0);
 		return NULL;
 	}
 
@@ -45,12 +37,6 @@ Sync *read_sync(BaseMessage *message, ErrorResponse **err) {
 	// Length must be 4 (one int)
 	if(ret->length != expected_length) {
 		WARNING(ERR_ROCTO_INVALID_INT_VALUE, "Sync", "length", ret->length, expected_length);
-		error_message = format_error_string(&err_buff, ERR_ROCTO_INVALID_INT_VALUE,
-				"Sync", "length", ret->length, expected_length);
-		*err = make_error_response(PSQL_Error_FATAL,
-					   PSQL_Code_Protocol_Violation,
-					   error_message,
-					   0);
 		free(ret);
 		return NULL;
 	}

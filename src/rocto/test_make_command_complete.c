@@ -28,13 +28,12 @@
 static void test_valid_input(void **state) {
 	CommandComplete *response = NULL;
 	CommandComplete *received_response = NULL;
-	ErrorResponse *err = NULL;
 
 	char *message = "SELECT 5";
 	int32_t expected_length = sizeof(uint32_t) + strlen(message) + 1;
 
 	response = make_command_complete(message);
-	received_response = read_command_complete((BaseMessage*)&response->type, &err);
+	received_response = read_command_complete((BaseMessage*)&response->type);
 
 	// Standard checks
 	assert_non_null(received_response);
@@ -48,13 +47,12 @@ static void test_valid_input(void **state) {
 static void test_null_input(void **state) {
 	CommandComplete *response = NULL;
 	CommandComplete *received_response = NULL;
-	ErrorResponse *err = NULL;
 
 	char *message = NULL;
 	int32_t expected_length = sizeof(uint32_t) + 1;		// count empty string null terminator
 
 	response = make_command_complete(message);
-	received_response = read_command_complete((BaseMessage*)&response->type, &err);
+	received_response = read_command_complete((BaseMessage*)&response->type);
 
 	// Standard checks
 	assert_non_null(received_response);

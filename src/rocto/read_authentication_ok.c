@@ -20,10 +20,8 @@
 #include "rocto.h"
 #include "message_formats.h"
 
-AuthenticationOk *read_authentication_ok(BaseMessage *message, ErrorResponse **err) {
+AuthenticationOk *read_authentication_ok(BaseMessage *message) {
 	AuthenticationOk *ret = NULL;
-
-	UNUSED(err);
 
 	ret = (AuthenticationOk*)malloc(sizeof(AuthenticationOk));
 

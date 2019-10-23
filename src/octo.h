@@ -105,6 +105,13 @@
 	hash_canonical_query(&STATE, RESULT, &STATUS);		\
 }
 
+#define LOG_LOCAL_ONLY(SEVERITY, ERROR, ...)\
+{\
+	rocto_session.sending_message = TRUE;\
+	SEVERITY(ERROR, ## __VA_ARGS__);\
+	rocto_session.sending_message = FALSE;\
+}
+
 int emit_column_specification(char *buffer, int buffer_size, SqlColumn *column);
 int emit_create_table(FILE *output, struct SqlStatement *stmt);
 // Recursively copies all of stmt, including making copies of strings

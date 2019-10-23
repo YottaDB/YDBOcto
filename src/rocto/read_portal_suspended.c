@@ -21,11 +21,9 @@
 #include "rocto.h"
 #include "message_formats.h"
 
-PortalSuspended *read_portal_suspended(BaseMessage *message, ErrorResponse **err) {
+PortalSuspended *read_portal_suspended(BaseMessage *message) {
 	PortalSuspended *ret;
 	uint32_t remaining_length = 0;
-
-	UNUSED(err);
 
 	remaining_length = ntohl(message->length);
 	ret = (PortalSuspended*)malloc(sizeof(PortalSuspended));

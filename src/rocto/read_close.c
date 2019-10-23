@@ -20,13 +20,10 @@
 #include "rocto.h"
 #include "message_formats.h"
 
-Close *read_close(BaseMessage *message, ErrorResponse **err) {
+Close *read_close(BaseMessage *message) {
 	Close *ret;
-	ErrorBuffer err_buff;
 	char *cur_pointer, *last_byte;
-	const char *error_message;
 	uint32_t remaining_length;
-	err_buff.offset = 0;
 
 	// Create Close struct and initialize ALL bytes to prevent leaks
 	remaining_length = ntohl(message->length);
@@ -41,23 +38,14 @@ Close *read_close(BaseMessage *message, ErrorResponse **err) {
 
 	// Ensure valid value for type field
 	if (ret->type != PSQL_Close) {
-		error_message = format_error_string(&err_buff, ERR_ROCTO_INVALID_TYPE, "Close", ret->type, PSQL_Close);
-		*err = make_error_response(PSQL_Error_WARNING,
-					   PSQL_Code_Protocol_Violation,
-					   error_message,
-					   0);
-                free(ret);
+		ERROR(ERR_ROCTO_INVALID_TYPE, "", ret->type, PSQL_Close);
+		free(ret);
 		return NULL;
 	}
 	// Ensure valid value for item field
 	if ('S' != ret->item && 'P' != ret->item ) {
-		error_message = format_error_string(&err_buff, ERR_ROCTO_INVALID_CHAR_VALUE, "Close", "item",
-				ret->item, "'S' or 'P'");
-		*err = make_error_response(PSQL_Error_WARNING,
-					   PSQL_Code_Protocol_Violation,
-					   error_message,
-					   0);
-                free(ret);
+		ERROR(ERR_ROCTO_INVALID_CHAR_VALUE, "Close", "item", ret->item, "'S' or 'P'");
+		free(ret);
 		return NULL;
 	}
 
@@ -69,22 +57,14 @@ Close *read_close(BaseMessage *message, ErrorResponse **err) {
 	cur_pointer++;
 	// Check for missing null terminator
 	if (cur_pointer > last_byte) {
-		error_message = format_error_string(&err_buff, ERR_ROCTO_MISSING_NULL, "Close", "data");
-		*err = make_error_response(PSQL_Error_WARNING,
-					   PSQL_Code_Protocol_Violation,
-					   error_message,
-					   0);
-                free(ret);
+		ERROR(ERR_ROCTO_MISSING_NULL, "Close", "data");
+		free(ret);
 		return NULL;
 	}
 	// Check for premature null terminator
 	if(cur_pointer < last_byte) {
-		error_message = format_error_string(&err_buff, ERR_ROCTO_TRAILING_CHARS, "Close");
-		*err = make_error_response(PSQL_Error_WARNING,
-					   PSQL_Code_Protocol_Violation,
-					   error_message,
-					   0);
-                free(ret);
+		ERROR(ERR_ROCTO_TRAILING_CHARS, "Close");
+		free(ret);
 		return NULL;
 	}
 

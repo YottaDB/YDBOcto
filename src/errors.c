@@ -159,6 +159,7 @@ void octo_log(int line, char *file, enum ERROR_LEVEL level, enum ERROR error, ..
 	if(!rocto_session.sending_message && rocto_session.connection_fd != 0) {
 		rocto_session.sending_message = TRUE;
 		va_start(args, error);
+
 		if(error == CUSTOM_ERROR) {
 			vsnprintf(buffer, MAX_STR_CONST, va_arg(args, const char *), args);
 		} else {
@@ -189,7 +190,7 @@ void octo_log(int line, char *file, enum ERROR_LEVEL level, enum ERROR error, ..
 				err_code_map[error],
 				buffer,
 				0);
-		int sent_ret = send_message(&rocto_session, (BaseMessage*)(&err->type));
+		send_message(&rocto_session, (BaseMessage*)(&err->type));
 		free_error_response(err);
 		rocto_session.sending_message = FALSE;
 	}
@@ -197,6 +198,7 @@ void octo_log(int line, char *file, enum ERROR_LEVEL level, enum ERROR error, ..
 	if(level == FATAL) {
 #		ifdef IS_ROCTO
 		shutdown(rocto_session.connection_fd, SHUT_RDWR);
+		close(rocto_session.connection_fd);
 #		endif
 		exit(error);
 	}

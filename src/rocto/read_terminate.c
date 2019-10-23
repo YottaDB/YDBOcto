@@ -21,20 +21,13 @@
 #include "rocto.h"
 #include "message_formats.h"
 
-Terminate *read_terminate(BaseMessage *message, ErrorResponse **err) {
+Terminate *read_terminate(BaseMessage *message) {
 	Terminate *ret;
-	ErrorBuffer err_buff;
-	const char *error_message;
-	err_buff.offset = 0;
 	uint32_t expected_length = sizeof(uint32_t);
 
 	if(message->type != PSQL_Terminate) {
 		WARNING(ERR_ROCTO_INVALID_TYPE, "Terminate", message->type, PSQL_Terminate);
-		error_message = format_error_string(&err_buff, ERR_ROCTO_INVALID_TYPE, "Terminate", message->type, PSQL_Terminate);
-		*err = make_error_response(PSQL_Error_WARNING,
-					   PSQL_Code_Protocol_Violation,
-					   error_message,
-					   0);
+
 		return NULL;
 	}
 
@@ -45,12 +38,7 @@ Terminate *read_terminate(BaseMessage *message, ErrorResponse **err) {
 	// Length must be 4 (one int)
 	if(ret->length != expected_length) {
 		WARNING(ERR_ROCTO_INVALID_INT_VALUE, "Terminate", "length", ret->length, expected_length);
-		error_message = format_error_string(&err_buff, ERR_ROCTO_INVALID_INT_VALUE,
-				"Terminate", "length", ret->length, expected_length);
-		*err = make_error_response(PSQL_Error_FATAL,
-					   PSQL_Code_Protocol_Violation,
-					   error_message,
-					   0);
+
 		free(ret);
 		return NULL;
 	}

@@ -28,16 +28,14 @@
 static void test_valid_input(void **state) {
 	ReadyForQuery *response;
 	ReadyForQuery *received_response;
-	ErrorResponse *err = NULL;
 	char status = PSQL_TransactionStatus_TRANSACTION;
 
 	// Expect the length field and status field
 	int32_t expected_length = sizeof(uint32_t) + sizeof(char);
 	response = make_ready_for_query(status);
-	received_response = read_ready_for_query((BaseMessage*)&response->type, &err);
+	received_response = read_ready_for_query((BaseMessage*)&response->type);
 
 	// Standard checks
-	assert_null(err);
 	assert_non_null(received_response);
 	assert_int_equal(received_response->type, PSQL_ReadyForQuery);
 	assert_int_equal(received_response->length, expected_length);

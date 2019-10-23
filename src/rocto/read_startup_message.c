@@ -20,15 +20,12 @@
 #include "rocto.h"
 #include "message_formats.h"
 
-StartupMessage *read_startup_message(RoctoSession *session, char *data, int32_t data_length, ErrorResponse **err) {
+StartupMessage *read_startup_message(RoctoSession *session, char *data, int32_t data_length) {
 	StartupMessage *ret = NULL;
-	ErrorBuffer err_buff;
 	int32_t num_parms = 0, cur_parm = 0;
 	char *c, *message_end;
-	const char *error_message;
 	// Length plus protocol version
 	uint32_t hard_coded_ints = sizeof(uint32_t) + sizeof(int);
-	err_buff.offset = 0;
 
 	// First read length and protocol type, then we will reallocate things
 	ret = (StartupMessage*)malloc(sizeof(StartupMessage));
@@ -40,23 +37,14 @@ StartupMessage *read_startup_message(RoctoSession *session, char *data, int32_t 
 	// 	most significant 16 bits:  major version #, i.e. 3
 	// 	least significant 16 bits: minor version #, i.e. 0
 	if(ret->protocol_version != 0x00030000) {
-		error_message = format_error_string(&err_buff, ERR_ROCTO_INVALID_VERSION,
-				"StartupMessage", ret->protocol_version, 0x00030000);
-		*err = make_error_response(PSQL_Error_FATAL,
-					   PSQL_Code_Protocol_Violation,
-					   error_message,
-					   0);
+		ERROR(ERR_ROCTO_INVALID_VERSION, "StartupMessage", ret->protocol_version, 0x00030000);
 		free(ret);
 		return NULL;
 	}
 
 	// No parameters send
 	if(ret->length == hard_coded_ints) {
-		error_message = format_error_string(&err_buff, ERR_ROCTO_MISSING_NULL, "StartupMessage", "parameter list");
-		*err = make_error_response(PSQL_Error_FATAL,
-					   PSQL_Code_Protocol_Violation,
-					   error_message,
-					   0);
+		ERROR(ERR_ROCTO_MISSING_NULL, "StartupMessage", "parameter list");
 		free(ret);
 		return NULL;
 	}
@@ -81,11 +69,7 @@ StartupMessage *read_startup_message(RoctoSession *session, char *data, int32_t 
 			// Left blank
 		}
 		if(c == message_end || *c != '\0') {
-			error_message = format_error_string(&err_buff, ERR_ROCTO_MISSING_DATA, "StartupMessage", "parameter name");
-			*err = make_error_response(PSQL_Error_ERROR,
-						   PSQL_Code_Protocol_Violation,
-						   error_message,
-						   0);
+			ERROR(ERR_ROCTO_MISSING_DATA, "StartupMessage", "parameter name");
 			free(ret);
 			return NULL;
 		}
@@ -95,11 +79,7 @@ StartupMessage *read_startup_message(RoctoSession *session, char *data, int32_t 
 			// Left blank
 		}
 		if(c == message_end || *c != '\0') {
-		error_message = format_error_string(&err_buff, ERR_ROCTO_MISSING_NULL, "StartupMessage", "name or value");
-			*err = make_error_response(PSQL_Error_ERROR,
-						   PSQL_Code_Protocol_Violation,
-						   error_message,
-						   0);
+			ERROR(ERR_ROCTO_MISSING_NULL, "StartupMessage", "name or value");
 			free(ret);
 			return NULL;
 		}
@@ -108,11 +88,7 @@ StartupMessage *read_startup_message(RoctoSession *session, char *data, int32_t 
 	}
 	// Ensure parameter list has null terminator
 	if (c == message_end || *c != '\0') {
-		error_message = format_error_string(&err_buff, ERR_ROCTO_MISSING_NULL, "StartupMessage", "parameter list");
-		*err = make_error_response(PSQL_Error_ERROR,
-					   PSQL_Code_Protocol_Violation,
-					   error_message,
-					   0);
+		ERROR(ERR_ROCTO_MISSING_NULL, "StartupMessage", "parameter list");
 		free(ret);
 		return NULL;
 	}
@@ -122,11 +98,7 @@ StartupMessage *read_startup_message(RoctoSession *session, char *data, int32_t 
 	// If there are trailing characters, note it
 	//  Right now, we will abort the startup, but it's possible to continue in this case
 	if(c != message_end) {
-		error_message = format_error_string(&err_buff, ERR_ROCTO_TRAILING_CHARS, "StartupMessage");
-		*err = make_error_response(PSQL_Error_ERROR,
-					   PSQL_Code_Protocol_Violation,
-					   error_message,
-					   0);
+		ERROR(ERR_ROCTO_TRAILING_CHARS, "StartupMessage");
 		free(ret);
 		return NULL;
 	}

@@ -28,16 +28,14 @@
 static void test_null_input(void **state) {
 	RowDescription *response = NULL;
 	RowDescription *received_response = NULL;
-	ErrorResponse *err = NULL;
 
 	// Expect length field and number of parameters field
 	int32_t expected_length = sizeof(uint32_t) + sizeof(int16_t);
 
 	response = make_row_description(NULL, 0);
-	received_response = read_row_description((BaseMessage*)&response->type, &err);
+	received_response = read_row_description((BaseMessage*)&response->type);
 
 	// Standard checks
-	assert_null(err);
 	assert_non_null(received_response);
 	assert_int_equal(received_response->length, expected_length);
 	assert_int_equal(received_response->num_parms, 0);
@@ -49,7 +47,6 @@ static void test_null_input(void **state) {
 static void test_one_parms(void **state) {
 	RowDescription *response = NULL;
 	RowDescription *received_response = NULL;
-	ErrorResponse *err = NULL;
 	int32_t num_parms = 1;
 	RowDescriptionParm parms[num_parms];
 
@@ -67,10 +64,9 @@ static void test_one_parms(void **state) {
 		+ strlen(parms[0].name) + sizeof(char);
 
 	response = make_row_description(parms, num_parms);
-	received_response = read_row_description((BaseMessage*)&response->type, &err);
+	received_response = read_row_description((BaseMessage*)&response->type);
 
 	// Standard checks
-	assert_null(err);
 	assert_non_null(response);
 	assert_int_equal(received_response->length, expected_length);
 	assert_int_equal(received_response->num_parms, num_parms);
@@ -90,7 +86,6 @@ static void test_one_parms(void **state) {
 static void test_multi_parms(void **state) {
 	RowDescription *response = NULL;
 	RowDescription *received_response = NULL;
-	ErrorResponse *err = NULL;
 	int32_t num_parms = 2;
 	RowDescriptionParm parms[num_parms];
 
@@ -115,10 +110,9 @@ static void test_multi_parms(void **state) {
 		+ strlen(parms[0].name) + sizeof(char) + strlen(parms[1].name) + sizeof(char);
 
 	response = make_row_description(parms, num_parms);
-	received_response = read_row_description((BaseMessage*)&response->type, &err);
+	received_response = read_row_description((BaseMessage*)&response->type);
 
 	// Standard checks
-	assert_null(err);
 	assert_non_null(response);
 	assert_int_equal(received_response->length, expected_length);
 

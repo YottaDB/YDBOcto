@@ -21,11 +21,9 @@
 #include "rocto.h"
 #include "message_formats.h"
 
-EmptyQueryResponse *read_empty_query_response(BaseMessage *message, ErrorResponse **err) {
+EmptyQueryResponse *read_empty_query_response(BaseMessage *message) {
 	EmptyQueryResponse *ret;
 	uint32_t remaining_length = 0;
-
-	UNUSED(err);
 
 	remaining_length = ntohl(message->length);
 	ret = (EmptyQueryResponse*)malloc(sizeof(EmptyQueryResponse));

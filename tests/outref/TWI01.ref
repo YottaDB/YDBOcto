@@ -3,6 +3,8 @@ OCTO> select * from names where firstName in (select firstName from names where 
 [ WARN] PATH:LINENUM DATE TIME : Ambiguous column name "FIRSTNAME": qualify name for safe execution
 [ WARN] PATH:LINENUM DATE TIME : Ambiguous column name "FIRSTNAME": qualify name for safe execution
 Added SET and/or Non-SET trigger on ^names named %ydboctoT*
+0|Zero|Cool
+5|Zero|Cool
 OCTO> 
 ;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
 ;; ---------------------------------------------------------

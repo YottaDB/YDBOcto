@@ -21,6 +21,7 @@ TEMPLATE(tmpl_tablejoin_body, PhysicalPlan *plan, int dot_count, char *tableName
 	int		start_resume = 0;
 	int		end_resume = 0;
 	PhysicalPlan	*temp_plan = plan;
+	boolean_t	is_xref_plan;
 
 	// Run any plans which reference parent queries
 	while (NULL != temp_plan->prev)
@@ -37,7 +38,7 @@ TEMPLATE(tmpl_tablejoin_body, PhysicalPlan *plan, int dot_count, char *tableName
 	//  below conditions which may or may not emit boolean logic
 	TMPL(tmpl_print_dots, dot_count);
 	%{}IF 1{}%
-	if(plan->where && plan->where->v.operand[0]) {
+	if (plan->where && plan->where->v.operand[0]) {
 		%{}&({}%
 		TMPL(tmpl_print_expression, plan->where->v.operand[0], plan);
 		%{}){}%
@@ -61,7 +62,8 @@ TEMPLATE(tmpl_tablejoin_body, PhysicalPlan *plan, int dot_count, char *tableName
 	// Note down where the "resume" pointer starts, incuding the preceeding whitespace
 	start_resume = (*buffer_index) - 4;
 	TMPL(tmpl_print_dots, dot_count);
-	if (plan->stash_columns_in_keys)
+	is_xref_plan = (plan->outputKey && plan->outputKey->is_cross_reference_key);
+	if (!is_xref_plan && plan->stash_columns_in_keys)
 	{
 		%{}IF $INCREMENT({}%
 		TMPL(tmpl_key, plan->outputKey);
@@ -75,9 +77,9 @@ TEMPLATE(tmpl_tablejoin_body, PhysicalPlan *plan, int dot_count, char *tableName
 
 		/// TODO: key has overloaded meaning here to mean table; we need to
 		// increment something somewhere
-		if(plan->outputKey && plan->outputKey->insert) {
+		if (plan->outputKey && plan->outputKey->insert) {
 			%{}{{ plan->outputKey->insert->v.string_literal }}{}%
-		} else if(plan->outputKey && plan->outputKey->is_cross_reference_key) {
+		} else if (is_xref_plan) {
 			%{} ^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}"{}%
 			%{},{}%
 			TMPL(tmpl_column_list_combine, plan->projection, plan, ",", 0, 0);
@@ -93,7 +95,7 @@ TEMPLATE(tmpl_tablejoin_body, PhysicalPlan *plan, int dot_count, char *tableName
 			TMPL(tmpl_column_list_combine, plan->projection, plan, ",", 0, 0);
 			plan->projection->v.operand[1] = lp_temp;
 			%{})){}%
-		} else if(plan->outputKey) {
+		} else if (plan->outputKey) {
 			// Note down where we are, do a dummy assignment to increment the row count, then paste our row again
 			int			resume_length;
 			char			c;

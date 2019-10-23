@@ -65,3 +65,12 @@ CAT_EOF
   verify_output TSS01_lp lp_output.txt
 }
 
+@test "TSS02 : OCTO348 : Sub-query that uses column value from parent query and generates cross-reference plan" {
+  cat <<CAT_EOF > input.sql
+SELECT * FROM names n1 WHERE n1.firstName in (SELECT n2.firstname from names n2 where n2.firstname = n1.firstname);
+CAT_EOF
+  cat input.sql > output.txt
+  octo -f input.sql >> output.txt 2>&1
+  verify_output TSS02 output.txt
+}
+

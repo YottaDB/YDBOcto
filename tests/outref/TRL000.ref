@@ -1,18 +1,0 @@
-octo
-OCTO> select 'a' from names limit 1;
-a
-OCTO> select 'a' from names limit 1;
-a
-OCTO> select 'a' from 
-OCTO> names limit 1;
-a
-OCTO> select 'a' from^Jnames limit 1;
-a
-OCTO> select 'a' from names limit 1; select 'b' from names limit 1;
-a
-b
-OCTO> select 'b' from names limit 1;
-b
-OCTO> select 'b' from names limit 1;OCTO> select 'a' from names limit 1;
-a
-OCTO> \q

@@ -19,9 +19,9 @@ setup() {
   load_fixture names.zwr
 }
 
-@test "TRL000 : readlines history" {
-  # set TERM so that contol sequences are consistant on different machines
-  export TERM=dummy
+@test "TR01 : readlines history" {
   (expect -d -f @PROJECT_SOURCE_DIR@/tests/fixtures/test_readlines_history.exp > expect.out) &> expect.dbg
-  verify_output TRL000 expect.out noinfo nodebug noexpect
+  # stripreturns needed below since different terminals seem to output different amount of ^M characters on history return
+  # (in the pipeline vs in-house environments) even with TERM set to a fixed value (in `init_test`).
+  verify_output TR01 expect.out noinfo nodebug noexpect stripreturns
 }

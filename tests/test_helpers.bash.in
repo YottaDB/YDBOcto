@@ -17,8 +17,18 @@ init_test() {
   exec 2> >(tee -ia $test_temp/stderr.txt >&2)
   cd $test_temp
   export PATH="@PROJECT_BINARY_DIR@/src:$PATH"
-  # Needed to circumvent Ctrl-M ('^M') characters in long query strings
+  # Disable any user-level (~/.inputrc) customizations that can cause test failures (e.g. TERR008, TSC18 subtests)
+  # For example "set editing-mode vi" in ~/.inputrc somehow re-enables tab-completion even though Octo disables it
+  #	by calling `rl_bind_key('\t', rl_insert);`
+  export INPUTRC=/etc/inputrc
+  # Below is needed to ensure all tests run with same TERMINAL emulator (escape sequences in readline rely on this)
+  export TERM=dummy
+  # Below has been seen to avoid Ctrl-M ('^M') characters in long query strings
   export COLUMNS=1024
+  # Log env vars and shell vars in files for later analysis (if needed)
+  echo " --> Running test [$BATS_TEST_FILENAME] : subtest [$BATS_TEST_DESCRIPTION] : in $PWD" > bats_test.out
+  env > env.out
+  set > set.out
 }
 
 init_sqllogictest() {

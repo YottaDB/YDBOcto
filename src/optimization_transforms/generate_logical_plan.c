@@ -45,27 +45,16 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt, int *plan_id) {
 	UNPACK_SQL_STATEMENT(select_stmt, table_alias->table, select);
 	UNPACK_SQL_STATEMENT(start_join, select_stmt->table_list, join);
 
-	if (!select_stmt->num_outer_joins_computed)
+	/* Compute `num_outer_joins` so it can be stored in the LP_WHERE logical plan for later use in `optimize_logical_plan.c` */
+	cur_join = start_join;
+	num_outer_joins = 0;
+	do
 	{
-		/* If we have not already done so, determine whether it is okay to expand boolean expression to
-		 * Disjunctive Normal Form. If LEFT/RIGHT/FULL JOIN (all of them are OUTER JOINs) nesting is involved,
-		 * avoid the expansion as it causes a LOT of plans to be generated. Each LEFT JOIN and RIGHT JOIN causes
-		 * 3x plans and each FULL JOIN causes 5x plans to be generated. Therefore allow for at most
-		 * ONE LEFT/RIGHT/FULL JOIN but no more.
-		 */
-		cur_join = start_join;
-		num_outer_joins = 0;
-		do
-		{
-			cur_join_type = cur_join->type;
-			if ((LEFT_JOIN == cur_join_type) || (RIGHT_JOIN == cur_join_type) || (FULL_JOIN == cur_join_type))
-				num_outer_joins++;
-			cur_join = cur_join->next;
-		} while (cur_join != start_join);
-		select_stmt->num_outer_joins = num_outer_joins;
-		select_stmt->num_outer_joins_computed= TRUE;
-	}
-	num_outer_joins = select_stmt->num_outer_joins;
+		cur_join_type = cur_join->type;
+		if ((LEFT_JOIN == cur_join_type) || (RIGHT_JOIN == cur_join_type) || (FULL_JOIN == cur_join_type))
+			num_outer_joins++;
+		cur_join = cur_join->next;
+	} while (cur_join != start_join);
 	MALLOC_LP_2ARGS(insert, LP_INSERT);
 	MALLOC_LP(project, insert->v.operand[0], LP_PROJECT);
 	MALLOC_LP(select, project->v.operand[1], LP_SELECT);

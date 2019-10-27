@@ -21,8 +21,6 @@ init_test() {
   # For example "set editing-mode vi" in ~/.inputrc somehow re-enables tab-completion even though Octo disables it
   #	by calling `rl_bind_key('\t', rl_insert);`
   export INPUTRC=/etc/inputrc
-  # Below is needed to ensure all tests run with same TERMINAL emulator (escape sequences in readline rely on this)
-  export TERM=dummy
   # Below has been seen to avoid Ctrl-M ('^M') characters in long query strings
   export COLUMNS=1024
   # Log env vars and shell vars in files for later analysis (if needed)
@@ -397,11 +395,5 @@ run_query_in_octo_and_postgres_and_crosscheck() {
       fi
     fi
     return
-}
-
-run_lines_in_octo() {
-	while read line; do
-		echo $line | octo  2>&1 | tee -a output.txt
-	done < $1
 }
 

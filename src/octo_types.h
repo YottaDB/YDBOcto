@@ -157,7 +157,6 @@ typedef enum SqlValueType {
 	NUMERIC_LITERAL,
 	INTEGER_LITERAL,
 	STRING_LITERAL,
-	DATE_TIME,
 	COLUMN_REFERENCE,
 	CALCULATED_VALUE,
 	FUNCTION_NAME,
@@ -351,8 +350,6 @@ typedef struct SqlSelectStatement
 	struct SqlStatement	*order_expression;
 	// SqlOptionalKeyword
 	struct SqlStatement	*optional_words;
-	int			num_outer_joins;		/* total # of outer joins used in this query */
-	boolean_t		num_outer_joins_computed;	/* TRUE if "num_outer_joins" field has been computed */
 } SqlSelectStatement;
 
 typedef struct SqlInsertStatement

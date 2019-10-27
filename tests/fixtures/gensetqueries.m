@@ -14,7 +14,6 @@
 ; This program generates a few random simple SQL queries (with optional boolean expressions (OR/AND etc.), ORDER BY,
 ; and LIMIT usage each), that in turn are connected with SET operations (UNION/INTERSECT/EXCEPT etc.) and ORDER BY.
 ; Certain features of this test are currently disabled due to pending issues.
-; Those lines (if any) are marked with a ###TMPDISABLE.
 ; --------------------------------------------------------------------------------------------------------------------
 
 gensetqueries	;

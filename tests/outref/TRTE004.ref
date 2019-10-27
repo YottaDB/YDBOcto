@@ -1,86 +1,55 @@
-OCTO> select id from names where 'abc' ~~ 'abc';
 0
 1
 2
 3
 4
 5
-OCTO> 
-OCTO> select id from names where 'abc' ~~ 'ABC';
-OCTO> 
-OCTO> select id from names where 'abc' ~~ 'xyz';
-OCTO> 
-OCTO> select id from names where 'abc' ~~ 'a';
-OCTO> 
-OCTO> select id from names where 'abc' ~~ '%';
 0
 1
 2
 3
 4
 5
-OCTO> 
-OCTO> select id from names where 'abc' ~~ '___';
 0
 1
 2
 3
 4
 5
-OCTO> 
-OCTO> select id from names where 'abc' ~~ 'a_c';
 0
 1
 2
 3
 4
 5
-OCTO> 
-OCTO> select id from names where 'abc' ~~ '.*';
-OCTO> 
-OCTO> select id from names where '.*' ~~ '.*';
 0
 1
 2
 3
 4
 5
-OCTO> 
-OCTO> select id from names where '.*' ~~ '\.\*';
 0
 1
 2
 3
 4
 5
-OCTO> 
-OCTO> select id from names where '\.\*' ~~ '\\.\\*';
 0
 1
 2
 3
 4
 5
-OCTO> 
-OCTO> select id from names where 'aaaa' ~~ 'a*';
-OCTO> 
-OCTO> select id from names where 'aaaa' ~~ 'a\*';
-OCTO> 
-OCTO> select id from names where 'a' ~~ '[abc]';
-OCTO> 
-OCTO> select id from names where '[abc]' ~~ '[abc]';
 0
 1
 2
 3
 4
 5
-OCTO> 
-OCTO> select id from names where '\' ~~ '\\';
 0
 1
 2
 3
 4
 5
-OCTO> 
+

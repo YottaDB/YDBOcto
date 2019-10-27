@@ -1,32 +1,25 @@
-OCTO> select id from names where 'abc' ~~* 'abc';
 0
 1
 2
 3
 4
 5
-OCTO> 
-OCTO> select id from names where 'abc' ~~* 'ABC';
 0
 1
 2
 3
 4
 5
-OCTO> 
-OCTO> select id from names where 'abc' ~~* 'AbC';
 0
 1
 2
 3
 4
 5
-OCTO> 
-OCTO> select id from names where 'ABC' ~~* 'abc';
 0
 1
 2
 3
 4
 5
-OCTO> 
+

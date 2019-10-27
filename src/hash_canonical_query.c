@@ -218,7 +218,6 @@ void hash_canonical_query(hash128_state_t *state, SqlStatement *stmt, int *statu
 		case INTEGER_LITERAL:
 		case STRING_LITERAL:
 		case FUNCTION_NAME:
-		case DATE_TIME:
 		case BOOLEAN_VALUE:
 		case COLUMN_REFERENCE:
 			ydb_mmrhash_128_ingest(state, (void*)value->v.reference, strlen(value->v.reference));

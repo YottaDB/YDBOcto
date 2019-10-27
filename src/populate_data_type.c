@@ -53,8 +53,6 @@ char *get_type_string(SqlValueType type) {
 		return "INTEGER";
 	case STRING_LITERAL:
 		return "STRING";
-	case DATE_TIME:
-		return "DATE TIME";
 	case BOOLEAN_VALUE:
 		return "BOOLEAN";
 	case PARAMETER_VALUE:
@@ -204,7 +202,6 @@ int populate_data_type(SqlStatement *v, SqlValueType *type) {
 		case INTEGER_LITERAL:
 		case STRING_LITERAL:
 		case FUNCTION_NAME:
-		case DATE_TIME:
 		case BOOLEAN_VALUE:
 		case PARAMETER_VALUE:	   // Note: This is a possibility in "populate_data_type" but not in "hash_canonical_query"
 		case UNKNOWN_SqlValueType: // Note: This is a possibility in "populate_data_type" but not in "hash_canonical_query"

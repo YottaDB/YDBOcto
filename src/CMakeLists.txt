@@ -181,7 +181,6 @@ add_library(libocto OBJECT
   physical/generate_physical_plan.c
   physical/emit_physical_plan.c
   physical/is_prev_plan_in_same_dnf.c
-  m_templates/tmpl_print_dots.c
   m_templates/resize_tmpl_buffer.c
   m_escape_string2.c
   copy_sql_statement.c
@@ -311,26 +310,27 @@ add_dependencies(pparser check_git_repository)
 # Generate C files from templates
 set(template_dir ${PROJECT_SOURCE_DIR}/src/m_templates)
 set(template_files
+  ${template_dir}/tmpl_column_list_combine.ctemplate
+  ${template_dir}/tmpl_column_reference.ctemplate
+  ${template_dir}/tmpl_column_reference_trigger.ctemplate
+  ${template_dir}/tmpl_duplication_check.ctemplate
+  ${template_dir}/tmpl_emit_source.ctemplate
+  ${template_dir}/tmpl_key.ctemplate
+  ${template_dir}/tmpl_key_advance.ctemplate
+  ${template_dir}/tmpl_key_end.ctemplate
+  ${template_dir}/tmpl_key_source.ctemplate
+  ${template_dir}/tmpl_key_start.ctemplate
+  ${template_dir}/tmpl_order_by_key.ctemplate
   ${template_dir}/tmpl_physical_plan.ctemplate
+  ${template_dir}/tmpl_print_dots.ctemplate
+  ${template_dir}/tmpl_print_expression.ctemplate
+  ${template_dir}/tmpl_rightjoin_key.ctemplate
   ${template_dir}/tmpl_tablejoin.ctemplate
+  ${template_dir}/tmpl_tablejoin_body.ctemplate
   ${template_dir}/tmpl_tablejoin_innerjoin.ctemplate
   ${template_dir}/tmpl_tablejoin_leftjoin.ctemplate
   ${template_dir}/tmpl_tablejoin_rightjoin.ctemplate
-  ${template_dir}/tmpl_rightjoin_key.ctemplate
-  ${template_dir}/tmpl_tablejoin_body.ctemplate
-  ${template_dir}/tmpl_key_start.ctemplate
-  ${template_dir}/tmpl_key_end.ctemplate
-  ${template_dir}/tmpl_key.ctemplate
-  ${template_dir}/tmpl_key_advance.ctemplate
-  ${template_dir}/tmpl_key_source.ctemplate
   ${template_dir}/tmpl_temp_key_advance.ctemplate
-  ${template_dir}/tmpl_print_expression.ctemplate
-  ${template_dir}/tmpl_column_reference.ctemplate
-  ${template_dir}/tmpl_column_list_combine.ctemplate
-  ${template_dir}/tmpl_emit_source.ctemplate
-  ${template_dir}/tmpl_column_reference_trigger.ctemplate
-  ${template_dir}/tmpl_duplication_check.ctemplate
-  ${template_dir}/tmpl_order_by_key.ctemplate
   )
 foreach(template ${template_files})
   get_filename_component(fileName ${template} NAME)

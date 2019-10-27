@@ -17,6 +17,8 @@ setup() {
   createdb
   load_fixture names.sql
   load_fixture names.zwr
+  # set TERM env to same value so this test passes in-house and in pipeline (escape sequences in readline rely on this)
+  export TERM=dummy
 }
 
 @test "TR01 : readlines history" {

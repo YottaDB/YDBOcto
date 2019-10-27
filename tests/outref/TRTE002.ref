@@ -1,32 +1,25 @@
-OCTO> select id from names where 'abc' ilike 'abc';
 0
 1
 2
 3
 4
 5
-OCTO> 
-OCTO> select id from names where 'abc' ilike 'ABC';
 0
 1
 2
 3
 4
 5
-OCTO> 
-OCTO> select id from names where 'abc' ilike 'AbC';
 0
 1
 2
 3
 4
 5
-OCTO> 
-OCTO> select id from names where 'ABC' ilike 'abc';
 0
 1
 2
 3
 4
 5
-OCTO> 
+

@@ -233,9 +233,6 @@ int emit_plan_helper(char *buffer, size_t buffer_len, int depth, LogicalPlan *pl
 			case STRING_LITERAL:
 				data_type_ptr = "STRING_LITERAL";
 				break;
-			case DATE_TIME:
-				data_type_ptr = "DATE_TIME";
-				break;
 			case COLUMN_REFERENCE:
 				data_type_ptr = "COLUMN_REFERENCE";
 				break;

@@ -48,7 +48,7 @@ void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, int *plan_id, ch
 			llocp = &stmt->loc;
 		}
 	}
-	if (llocp->first_line || llocp->first_column) {
+	if (llocp->first_line || llocp->first_column || llocp->last_column) {
 		fprintf(err_buffer, "Error with syntax near (line %d, column %d):", llocp->first_line + 1, llocp->first_column);
 		print_yyloc(llocp);
 		if (NULL != s)

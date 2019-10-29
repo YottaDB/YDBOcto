@@ -1,0 +1,7 @@
+Error with syntax near (line 1, column 0):
+  !;
+  ^
+syntax error, unexpected EXCLAMATION
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: !;
+
+

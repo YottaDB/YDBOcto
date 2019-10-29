@@ -89,7 +89,7 @@ select * from names order by 1+id;
 select * from names order by id+1;
 select * from names order by id+id;
 CAT
-  octo -f  input.sql 2>&1 | tee output.txt
+  octo -f input.sql 2>&1 | tee output.txt
   verify_output TERR006 output.txt
 }
 
@@ -98,7 +98,7 @@ CAT
 select * from names order by id::text;
 select * from names order by id::integer;
 CAT
-  octo -f  input.sql 2>&1 | tee output.txt
+  octo -f input.sql 2>&1 | tee output.txt
   verify_output TERR007 output.txt
 }
 
@@ -111,4 +111,12 @@ CAT
 	;
 OCTO
   verify_output TERR008 output.txt
+}
+
+@test "TERR009 : Test syntax error" {
+  cat >>input.sql<<CAT
+  !;
+CAT
+  octo -f input.sql 2>&1 | tee output.txt
+  verify_output TERR009 output.txt
 }

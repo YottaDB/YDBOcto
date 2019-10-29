@@ -23,10 +23,10 @@ init_test() {
   export INPUTRC=/etc/inputrc
   # Below has been seen to avoid Ctrl-M ('^M') characters in long query strings
   export COLUMNS=1024
-  # Log env vars and shell vars in files for later analysis (if needed)
+  # Log env vars and shell vars in files for later analysis (if needed). Mask any sensitive env vars out.
   echo " --> Running test [$BATS_TEST_FILENAME] : subtest [$BATS_TEST_DESCRIPTION] : in $PWD" > bats_test.out
-  env > env.out
-  set > set.out
+  env | grep -vE "HUB_USERNAME|HUB_PASSWORD|CI_JOB_TOKEN|CI_REGISTRY_PASSWORD|CI_BUILD_TOKEN|CI_REPOSITORY_URL" > env.out
+  set | grep -vE "HUB_USERNAME|HUB_PASSWORD|CI_JOB_TOKEN|CI_REGISTRY_PASSWORD|CI_BUILD_TOKEN|CI_REPOSITORY_URL" > set.out
 }
 
 init_sqllogictest() {

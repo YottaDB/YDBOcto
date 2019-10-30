@@ -11,42 +11,36 @@
 #################################################################
 
 init_test() {
-  export test_temp=$(mktemp -d @TEST_OUTPUT_DIR@/bats-test.XXXXXX)
-  echo "Temporary files in: $test_temp"
-  exec >  >(tee -ia $test_temp/stdout.txt)
-  exec 2> >(tee -ia $test_temp/stderr.txt >&2)
-  cd $test_temp
-  export PATH="@PROJECT_BINARY_DIR@/src:$PATH"
-  # Disable any user-level (~/.inputrc) customizations that can cause test failures (e.g. TERR008, TSC18 subtests)
-  # For example "set editing-mode vi" in ~/.inputrc somehow re-enables tab-completion even though Octo disables it
-  #	by calling `rl_bind_key('\t', rl_insert);`
-  export INPUTRC=/etc/inputrc
-  # Below has been seen to avoid Ctrl-M ('^M') characters in long query strings
-  export COLUMNS=1024
-  # Log env vars and shell vars in files for later analysis (if needed). Mask any sensitive env vars out.
-  echo " --> Running test [$BATS_TEST_FILENAME] : subtest [$BATS_TEST_DESCRIPTION] : in $PWD" > bats_test.out
-  env | grep -vE "HUB_USERNAME|HUB_PASSWORD|CI_JOB_TOKEN|CI_REGISTRY_PASSWORD|CI_BUILD_TOKEN|CI_REPOSITORY_URL" > env.out
-  set | grep -vE "HUB_USERNAME|HUB_PASSWORD|CI_JOB_TOKEN|CI_REGISTRY_PASSWORD|CI_BUILD_TOKEN|CI_REPOSITORY_URL" > set.out
-  # Set env var to allow .m and .o file timestamps to be identical. This is expected to be particularly useful in the pipeline
-  # test runs where we have seen the _ydboctoP*.o file almost always created with a timestamp that is 1 second later than the
-  # corresponding _ydboctoP*.m file. We suspect this is due to the underlying file system granularity being at 1-second
-  # (instead of 1-milli/micro/nano second). Once this env var is set, YDB will not wait for the .o file time stamp to be different
-  # than the .m file. Since there are almost thousands of queries that run in the pipeline tests lots of these 1-second delays
-  # adds up to minutes of slowdown which should all hopefully go away with this env var set.
-  export ydb_recompile_newer_src=TRUE
-}
-
-init_sqllogictest() {
-  export test_temp=$(mktemp -d @TEST_OUTPUT_DIR@/bats-test.XXXXXX)
-  echo "Temporary files in: $test_temp"
-  # force output to files as the full output is unhelpful to print on error
-  exec > $test_temp/stdout.txt
-  exec 2> $test_temp/stderr.txt
-  cd $test_temp
-  # copy over the compressed test files and uncompress
-  export PATH="@PROJECT_BINARY_DIR@/src:$PATH"
-  # Needed to circumvent Ctrl-M ('^M') characters in long query strings
-  export COLUMNS=1024
+	export test_temp=$(mktemp -d @TEST_OUTPUT_DIR@/bats-test.XXXXXX)
+	echo "Temporary files in: $test_temp"
+	if [[ $1 == "force_output_to_files" ]]; then
+		# force output to files as the full output is unhelpful to print on error
+		exec > $test_temp/stdout.txt
+		exec 2> $test_temp/stderr.txt
+	else
+		exec >  >(tee -ia $test_temp/stdout.txt)
+		exec 2> >(tee -ia $test_temp/stderr.txt >&2)
+	fi
+	cd $test_temp
+	export PATH="@PROJECT_BINARY_DIR@/src:$PATH"
+	# Disable any user-level (~/.inputrc) customizations that can cause test failures (e.g. TERR008, TSC18 subtests)
+	# For example "set editing-mode vi" in ~/.inputrc somehow re-enables tab-completion even though Octo disables it
+	#	by calling `rl_bind_key('\t', rl_insert);`
+	export INPUTRC=/etc/inputrc
+	# Below has been seen to avoid Ctrl-M ('^M') characters in long query strings
+	export COLUMNS=1024
+	# Log env vars and shell vars in files for later analysis (if needed). Mask any sensitive env vars out.
+	echo " --> Running test [$BATS_TEST_FILENAME] : subtest [$BATS_TEST_DESCRIPTION] : in $PWD" > bats_test.out
+	env | grep -vE "HUB_USERNAME|HUB_PASSWORD|CI_JOB_TOKEN|CI_REGISTRY_PASSWORD|CI_BUILD_TOKEN|CI_REPOSITORY_URL" > env.out
+	set | grep -vE "HUB_USERNAME|HUB_PASSWORD|CI_JOB_TOKEN|CI_REGISTRY_PASSWORD|CI_BUILD_TOKEN|CI_REPOSITORY_URL" > set.out
+	# Set env var to allow .m and .o file timestamps to be identical. This is expected to be particularly useful
+	# in the pipeline test runs where we have seen the _ydboctoP*.o file almost always created with a timestamp
+	# that is 1 second later than the corresponding _ydboctoP*.m file. We suspect this is due to the underlying
+	# file system granularity being at 1-second (instead of 1-milli/micro/nano second). Once this env var is
+	# set, YDB will not wait for the .o file time stamp to be different than the .m file. Since there are almost
+	# thousands of queries that run in the pipeline tests lots of these 1-second delays adds up to minutes of
+	# slowdown which should all hopefully go away with this env var set.
+	export ydb_recompile_newer_src=TRUE
 }
 
 init_tls() {

@@ -1,0 +1,3 @@
+  select * from names
+  select a.lastname from names a left join names b on id = 3
+  select firstname from names where firstname = "Zero"

@@ -23,6 +23,10 @@ send -- "psql -U ydb -h localhost -p $port\r"
 expect -re ".*Password for user ydb: "
 send "ydbrocks\r"
 expect -re ".*ydb=. "
+# Disable psql pager as it can otherwise confuse the expect commands below (it did in the pipeline causing timeouts
+# and huge test run times).
+send -- "\\pset pager off\r"
+expect -re ".*ydb=. "
 # Get memory usage after running the same three queries again
 set output [exec ./report_memory_usage.sh]
 # Run first query

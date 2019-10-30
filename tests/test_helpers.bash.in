@@ -27,6 +27,13 @@ init_test() {
   echo " --> Running test [$BATS_TEST_FILENAME] : subtest [$BATS_TEST_DESCRIPTION] : in $PWD" > bats_test.out
   env | grep -vE "HUB_USERNAME|HUB_PASSWORD|CI_JOB_TOKEN|CI_REGISTRY_PASSWORD|CI_BUILD_TOKEN|CI_REPOSITORY_URL" > env.out
   set | grep -vE "HUB_USERNAME|HUB_PASSWORD|CI_JOB_TOKEN|CI_REGISTRY_PASSWORD|CI_BUILD_TOKEN|CI_REPOSITORY_URL" > set.out
+  # Set env var to allow .m and .o file timestamps to be identical. This is expected to be particularly useful in the pipeline
+  # test runs where we have seen the _ydboctoP*.o file almost always created with a timestamp that is 1 second later than the
+  # corresponding _ydboctoP*.m file. We suspect this is due to the underlying file system granularity being at 1-second
+  # (instead of 1-milli/micro/nano second). Once this env var is set, YDB will not wait for the .o file time stamp to be different
+  # than the .m file. Since there are almost thousands of queries that run in the pipeline tests lots of these 1-second delays
+  # adds up to minutes of slowdown which should all hopefully go away with this env var set.
+  export ydb_recompile_newer_src=TRUE
 }
 
 init_sqllogictest() {

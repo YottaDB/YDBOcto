@@ -24,7 +24,6 @@ setup() {
   load_fixture pastas.zwr
   load_fixture default_user.zwr
   test_port=$(start_rocto 1339)
-  sleep 1
 }
 
 teardown() {
@@ -89,7 +88,6 @@ OCTO
     echo "rocto: { use_dns: false; }" > octo.conf
   fi
   test_portA=$(start_rocto $test_port)
-  sleep 5
   run_psql $test_portA <<OCTO 2>&1 | tee output.txt
 SELECT * FROM names WHERE firstName = "Zero";
 OCTO
@@ -103,7 +101,6 @@ OCTO
     echo "rocto: { use_dns: true; }" > octo.conf
   fi
   test_portB=$(start_rocto $test_port)
-  sleep 5
   run_psql $test_portB <<OCTO 2>&1 | tee output.txt
 SELECT * FROM names WHERE firstName = "Zero";
 OCTO

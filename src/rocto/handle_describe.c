@@ -111,10 +111,9 @@ int handle_describe(Describe *describe, RoctoSession *session) {
 		cursor_exe_global[2].len_used = 1;
 		*cursor_exe_global[2].buf_addr = '0';
 
+		statement = parse_line(cursor_exe_global[0].buf_addr);
 		YDB_FREE_BUFFER(&cursor_exe_global[0]);
 		YDB_FREE_BUFFER(&cursor_exe_global[2]);
-
-		statement = parse_line(cursor_exe_global[0].buf_addr);
 		if(NULL == statement) {
 			fflush(err_buffer);
 			ERROR(CUSTOM_ERROR, err_buff);

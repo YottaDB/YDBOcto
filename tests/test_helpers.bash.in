@@ -340,6 +340,10 @@ verify_output() {
     if [[ $i == "stripreturns" ]]; then
       sed -i 's/\r//g' clean_output.txt
     fi
+    if [[ $i == "striphex" ]]; then
+      # Remove any hex values consisting of 2 to 8 hex characters (16-64 bits)
+      sed -i 's/0x[0-9a-fA-F]\{2,16\}/HEX/' clean_output.txt
+    fi
     if [[ $i == "noforcedhalt" ]]; then
       sed -i '/%YDB-F-FORCEDHALT/d' clean_output.txt
     fi

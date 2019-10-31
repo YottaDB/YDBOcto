@@ -84,6 +84,7 @@ ERROR_DEF(ERR_ROCTO_CLEAN_DISCONNECT, "connection closed cleanly", PSQL_Code_Suc
 ERROR_DEF(INFO_AUTH_SUCCESS, "%s: user successfully authenticated", PSQL_Code_Success)
 ERROR_DEF(INFO_ROCTO_STARTED, "rocto started on port %d", PSQL_Code_Success)
 ERROR_DEF(INFO_ROCTO_SERVER_FORKED, "rocto server process forked with pid %d", PSQL_Code_Success)
+ERROR_DEF(INFO_ROCTO_PARAMETER_STATUS_SENT, "sent ParameterStatus with parameter '%s' set to '%s'", PSQL_Code_Success)
 
 /*** Operator Intervention ***/
 ERROR_DEF(ERR_ROCTO_QUERY_CANCELED, "canceling statement due to user request", PSQL_Code_Query_Canceled)

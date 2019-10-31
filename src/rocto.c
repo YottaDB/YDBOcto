@@ -329,9 +329,8 @@ int main(int argc, char **argv) {
 		} else if ((NULL != ssl_request) && !config->rocto_config.ssl_on) {
 			result = send_bytes(&rocto_session, "N", sizeof(char));
 			read_bytes(&rocto_session, buffer, MAX_STR_CONST, sizeof(int) * 2);
-		} else if (NULL == ssl_request) {
-
 		}
+
 		// Check for CancelRequest and handle if so
 		cancel_request = read_cancel_request(&rocto_session, buffer, sizeof(unsigned int) + sizeof(int));
 		if (NULL != cancel_request) {
@@ -466,6 +465,7 @@ int main(int argc, char **argv) {
 			message_parm.value = var_value.buf_addr;
 			parameter_status = make_parameter_status(&message_parm);
 			result = send_message(&rocto_session, (BaseMessage*)(&parameter_status->type));
+			LOG_LOCAL_ONLY(INFO, INFO_ROCTO_PARAMETER_STATUS_SENT, message_parm.name, message_parm.value);
 			free(parameter_status);
 			if (result) {
 				return 0;

@@ -1,0 +1,30 @@
+0|Zero|Cool
+1|Acid|Burn
+2|Cereal|Killer
+3|Lord|Nikon
+4|Joey|
+5|Zero|Cool
+[IP_UNSET:PORT_UNSET] [ INFO] PATH:LINENUM DATE TIME : rocto started on port 1337
+[IP_UNSET:PORT_UNSET] [ INFO] PATH:LINENUM DATE TIME : rocto server process forked with pid PID
+[SOCKET] [ INFO] PATH:LINENUM DATE TIME : Client connected
+[SOCKET] [ WARN] PATH:LINENUM DATE TIME : SSLRequest: invalid length value 94: must be 8
+[SOCKET] [ INFO] PATH:LINENUM DATE TIME : CancelRequest: invalid length value 94: must be 16
+[SOCKET] [ INFO] PATH:LINENUM DATE TIME : handle_password_message: user successfully authenticated
+[SOCKET] [ INFO] PATH:LINENUM DATE TIME : sent ParameterStatus with parameter 'DateStyle' set to 'ISO, MDY'
+[SOCKET] [ INFO] PATH:LINENUM DATE TIME : sent ParameterStatus with parameter 'IntervalStyle' set to 'postgres'
+[SOCKET] [ INFO] PATH:LINENUM DATE TIME : sent ParameterStatus with parameter 'TimeZone' set to 'UTC'
+[SOCKET] [ INFO] PATH:LINENUM DATE TIME : sent ParameterStatus with parameter 'application_name' set to ''
+[SOCKET] [ INFO] PATH:LINENUM DATE TIME : sent ParameterStatus with parameter 'client_encoding' set to 'UTF8'
+[SOCKET] [ INFO] PATH:LINENUM DATE TIME : sent ParameterStatus with parameter 'database' set to 'hello'
+[SOCKET] [ INFO] PATH:LINENUM DATE TIME : sent ParameterStatus with parameter 'datestyle' set to 'ISO, MDY'
+[SOCKET] [ INFO] PATH:LINENUM DATE TIME : sent ParameterStatus with parameter 'extra_float_digits' set to '2'
+[SOCKET] [ INFO] PATH:LINENUM DATE TIME : sent ParameterStatus with parameter 'integer_datetimes' set to 'on'
+[SOCKET] [ INFO] PATH:LINENUM DATE TIME : sent ParameterStatus with parameter 'is_superuser' set to 'on'
+[SOCKET] [ INFO] PATH:LINENUM DATE TIME : sent ParameterStatus with parameter 'server_encoding' set to 'UTF8'
+[SOCKET] [ INFO] PATH:LINENUM DATE TIME : sent ParameterStatus with parameter 'server_version' set to '9.6.5'
+[SOCKET] [ INFO] PATH:LINENUM DATE TIME : sent ParameterStatus with parameter 'session_authorization' set to 'postgres'
+[SOCKET] [ INFO] PATH:LINENUM DATE TIME : sent ParameterStatus with parameter 'standard_conforming_strings' set to 'on'
+[SOCKET] [ INFO] PATH:LINENUM DATE TIME : sent ParameterStatus with parameter 'user' set to 'ydb'
+[SOCKET] [ INFO] PATH:LINENUM DATE TIME : Parsing done for SQL command [SELECT * FROM names]
+[SOCKET] [ INFO] PATH:LINENUM DATE TIME : Generating SQL for CURSOR_NUM
+[SOCKET] [ INFO] PATH:LINENUM DATE TIME : Generating M file [./_ydboctoP*.m] (to execute SQL query)

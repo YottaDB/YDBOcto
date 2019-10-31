@@ -11,7 +11,7 @@
 #								#
 #################################################################
 
-set timeout 2
+set timeout 60
 spawn /bin/bash
 # Enable long lines to prevent wrapping
 send -- "stty cols 4096\r"
@@ -40,8 +40,7 @@ expect -exact "names limit 1;\r
 a\r
 OCTO> "
 send -- "\[A"
-expect -exact "select 'a' from\r
-\rnames limit 1;"
+expect -exact "select 'a' from^Jnames limit 1;"
 send -- "\r"
 expect -exact "\r
 a\r
@@ -65,7 +64,6 @@ send -- "\r"
 expect -exact "\r
 a\r
 OCTO> "
-send -- "\\q\r"
-expect -exact "\\q\r"
-expect timeout
+send -- "quit;\r"
+expect -re "\[#\$] "
 exit

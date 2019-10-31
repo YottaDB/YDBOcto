@@ -15,4 +15,4 @@ OCTO> select 'b' from names limit 1;
 b
 OCTO> select 'b' from names limit 1;OCTO> select 'a' from names limit 1;
 a
-OCTO> \q
+OCTO> quit;

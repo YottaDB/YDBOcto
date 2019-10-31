@@ -124,7 +124,9 @@ typedef enum SqlStatementType {
 typedef enum UnaryOperations {
 	FORCE_NUM,
 	NEGATIVE,
-	BOOLEAN_NOT
+	BOOLEAN_NOT,
+	BOOLEAN_EXISTS,
+	BOOLEAN_NOT_EXISTS	// Not used but needed to be in sync with LP_BOOLEAN_NOT_EXISTS in `lp_action_type.hd`
 } UnaryOperations;
 
 // The order of these must be kept in sync with `LPActionType` in `src/optimization_transforms/lp_action_type.hd`

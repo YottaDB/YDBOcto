@@ -190,11 +190,14 @@ int lp_verify_structure_helper(LogicalPlan *plan, LPActionType expected) {
 	case LP_BOOLEAN_IN:
 	case LP_BOOLEAN_NOT_IN:
 	case LP_BOOLEAN_NOT:
+	case LP_BOOLEAN_EXISTS:
+	case LP_BOOLEAN_NOT_EXISTS:
 	case LP_WHERE:
 		for (i = 0; i < 2; i++) {
 			boolean_t	is_where;
 
-			if (LP_BOOLEAN_NOT == expected) {
+			if ((LP_BOOLEAN_NOT == expected) || (LP_BOOLEAN_EXISTS == expected)
+					|| (LP_BOOLEAN_NOT_EXISTS == expected)) {
 				ret &= (NULL == plan->v.operand[1]);
 				break;
 			}
@@ -225,6 +228,8 @@ int lp_verify_structure_helper(LogicalPlan *plan, LPActionType expected) {
 				| lp_verify_structure_helper(plan->v.operand[i], LP_BOOLEAN_IN)
 				| lp_verify_structure_helper(plan->v.operand[i], LP_BOOLEAN_NOT_IN)
 				| lp_verify_structure_helper(plan->v.operand[i], LP_BOOLEAN_NOT)
+				| lp_verify_structure_helper(plan->v.operand[i], LP_BOOLEAN_EXISTS)
+				| lp_verify_structure_helper(plan->v.operand[i], LP_BOOLEAN_NOT_EXISTS)
 				// LP_INSERT/LP_SET_OPERATIONs usually show up as operand[1] only for the IN boolean expression.
 				// But they can show up wherever a scalar is expected (e.g. arithmetic operations etc.)
 				// and hence have to be allowed in a lot more cases.

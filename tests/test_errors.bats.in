@@ -36,13 +36,6 @@ OCTO
   verify_output TERR000 output.txt
 }
 
-@test "TERR001 : Feature not implemented: exists_predicate" {
-  octo <<OCTO 2>&1 | tee output.txt
-select * from names where exists (select * from names);
-OCTO
-  verify_output TERR001 output.txt
-}
-
 @test "TERR002 : Octo can recover from error (e.g. DIVBYZERO)" {
   octo <<OCTO 2>&1 | tee output.txt
 select 1/0 from names;

@@ -638,7 +638,12 @@ null_predicate
   ;
 
 exists_predicate
-  : EXISTS subquery { WARNING(ERR_FEATURE_NOT_IMPLEMENTED, "EXISTS operator (grammar rule : exists_predicate)"); YYABORT; }
+  : EXISTS subquery {
+      SQL_STATEMENT($$, unary_STATEMENT);
+      MALLOC_STATEMENT($$, unary, SqlUnaryOperation);
+      ($$)->v.unary->operation = BOOLEAN_EXISTS;
+      ($$)->v.unary->operand = ($subquery);
+    }
   ;
 
 row_value_constructor

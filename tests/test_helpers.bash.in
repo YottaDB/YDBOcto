@@ -371,7 +371,8 @@ run_query_in_octo_and_postgres_and_crosscheck() {
     remove="$3"
     fname=`echo $file | sed 's/\..*//g'`
     psql $queryfile -f $file >& $fname.psql.out
-    tail -n +3 $fname.psql.out | head -n -2 | sed 's/ //g' | sort >& $fname.ref
+    # Postgres displays boolean values as t and f whereas Octo displays them as 1 and 0 so fix that before the diff.
+    tail -n +3 $fname.psql.out | head -n -2 | sed 's/ //g;s/\<t\>/1/g;s/\<f\>/0/g;' | sort >& $fname.ref
     octo -f $file >& $fname.octo.out
     # Remove trailing and leading blank lines. Not yet sure why octo produces an empty line at the start for some queries
     # and an empty line at the end of the output for some other queries.

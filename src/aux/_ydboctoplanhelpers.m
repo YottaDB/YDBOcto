@@ -295,3 +295,10 @@ GetScalar(keyId)
 	ZMESSAGE:%ydboctomultiplerow %ydboctoerror("SUBQUERYMULTIPLEROWS")
 	QUIT %ydboctofirstrowfirstcol	; Return scalar in only column and only row of keyId
 
+Exists(keyId)
+	; Helper M function that given an output key # (keyId) checks if the output key has at least one row
+	; If so returns 1 and if not returns 0. Implements the EXISTS operator in SQL.
+	; Assumes "%ydboctocursor" and "cursorId" are appropriately set by caller.
+	;
+	QUIT (1<$DATA(%ydboctocursor(cursorId,"keys",keyId,"","")))
+

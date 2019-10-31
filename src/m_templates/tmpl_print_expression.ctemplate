@@ -37,7 +37,7 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan) {
 
 	switch(plan->type) {
 	case LP_WHERE:
-		TMPL(tmpl_print_expression, plan->v.operand[0], pplan);
+		TMPL(tmpl_print_expression, first_operand, pplan);
 		TEMPLATE_END();
 		break;
 	case LP_VALUE:
@@ -221,43 +221,54 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan) {
 	case LP_BOOLEAN_IN:
 		// IN expressions require a key; we should resolve the keys in generate_physical_plan
 		//  so enforce that the search list is a key to search in
-		assert(LP_KEY == plan->v.operand[1]->type);
+		assert(LP_KEY == second_operand->type);
 		%{}($DATA({}%
-		TMPL(tmpl_key, plan->v.operand[1]->v.key);
+		TMPL(tmpl_key, second_operand->v.key);
 		/// WARNING: this happens in tmpl_physical_plan, but it is probably dangerous
 		(*buffer_index)--;
 		%{},{}%
-		TMPL(tmpl_print_expression, plan->v.operand[0], pplan);
+		TMPL(tmpl_print_expression, first_operand, pplan);
 		%{}))'=0){}%
 		break;
 	case LP_BOOLEAN_NOT_IN:
 		// IN expressions require a key; we should resolve the keys in generate_physical_plan
 		//  so enforce that the search list is a key to search in
-		assert(LP_KEY == plan->v.operand[1]->type);
+		assert(LP_KEY == second_operand->type);
 		%{}($DATA({}%
-		TMPL(tmpl_key, plan->v.operand[1]->v.key);
+		TMPL(tmpl_key, second_operand->v.key);
 		/// WARNING: this happens in tmpl_physical_plan, but it is probably dangerous
 		(*buffer_index)--;
 		%{},{}%
-		TMPL(tmpl_print_expression, plan->v.operand[0], pplan);
+		TMPL(tmpl_print_expression, first_operand, pplan);
 		%{}))=0){}%
 		break;
 	case LP_FORCE_NUM:
 		%{}+{}%
-		TMPL(tmpl_print_expression, plan->v.operand[0], pplan);
+		TMPL(tmpl_print_expression, first_operand, pplan);
 		break;
 	case LP_NEGATIVE:
 		%{}-{}%
-		TMPL(tmpl_print_expression, plan->v.operand[0], pplan);
+		TMPL(tmpl_print_expression, first_operand, pplan);
 		break;
 	case LP_BOOLEAN_NOT:
 		%{}'{}%
-		TMPL(tmpl_print_expression, plan->v.operand[0], pplan);
+		TMPL(tmpl_print_expression, first_operand, pplan);
+		break;
+	case LP_BOOLEAN_EXISTS:
+	case LP_BOOLEAN_NOT_EXISTS:
+		assert((LP_INSERT == first_operand->type) || (LP_SET_OPERATION == first_operand->type));
+		// Fetch the first value from the output key of this query/table
+		key = lp_get_output_key(first_operand);
+		if (LP_BOOLEAN_NOT_EXISTS == plan->type) {
+			%{}'{}%
+		}
+		%{}$$Exists^%%ydboctoplanhelpers({{ key->v.key->unique_id|%d }}){}%
+		break;
 		break;
 	case LP_FUNCTION_CALL:
 		cur_plan = plan;
 		%{}{}%
-		TMPL(tmpl_print_expression, plan->v.operand[0], pplan);
+		TMPL(tmpl_print_expression, first_operand, pplan);
 		%{}({}%
 		while(cur_plan->v.operand[1] != NULL) {
 			if(cur_plan != plan) {
@@ -270,7 +281,7 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan) {
 		break;
 	case LP_INSERT:
 	case LP_SET_OPERATION:
-		// Fetch the first value from the output key of this table
+		// Fetch the first value from the output key of this query/table
 		key = lp_get_output_key(plan);
 		%{}$$GetScalar^%%ydboctoplanhelpers({{ key->v.key->unique_id|%d }}){}%
 		break;

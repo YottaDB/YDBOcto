@@ -20,10 +20,11 @@
 
 LogicalPlan *lp_column_list_to_lp(SqlColumnListAlias *list, int *plan_id) {
 	LogicalPlan		*column_list, *ret_column_list = NULL;
-	LogicalPlan		*where;
 	LogicalPlan		*column_list_alias;
-	SqlColumnListAlias	*cur_column_list, *start_column_list;
+	LogicalPlan		*where;
 	SqlColumnList		*t_column_list;
+	SqlColumnListAlias	*cur_column_list, *start_column_list;
+	SqlStatement		*column_stmt;
 	boolean_t		null_return_seen = FALSE;
 
 	assert(NULL != list);
@@ -33,8 +34,9 @@ LogicalPlan *lp_column_list_to_lp(SqlColumnListAlias *list, int *plan_id) {
 	do {
 		MALLOC_LP(where, column_list->v.operand[0], LP_WHERE);
 		/// TODO: handle the absence of prev
-		UNPACK_SQL_STATEMENT(t_column_list, cur_column_list->column_list, column_list);
-		LP_GENERATE_WHERE(t_column_list->value, plan_id, where->v.operand[0], null_return_seen);
+		column_stmt = cur_column_list->column_list;
+		UNPACK_SQL_STATEMENT(t_column_list, column_stmt, column_list);
+		LP_GENERATE_WHERE(t_column_list->value, plan_id, column_stmt, where->v.operand[0], null_return_seen);
 		MALLOC_LP(column_list_alias, where->v.operand[1], LP_COLUMN_LIST_ALIAS);
 		// When we do this copy, we only want a single CLA; this prevents the copy from
 		//   grabbing more

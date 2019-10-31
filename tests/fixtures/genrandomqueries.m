@@ -186,4 +186,5 @@ genouterjoinonpastas;
 	. . open file:(newversion)  use file
 	. . write $piece(query(i),"inner",1)_type_$piece(query(i),"inner",2),!	; replace inner join with left join or right join or full join (assumes only one "inner join" usage)
 	. . close file
+	quit
 	;

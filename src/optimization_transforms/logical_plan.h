@@ -42,14 +42,14 @@
 	(DEST) = (SOURCE)->v.operand[(SIDE)];			\
 }
 
-#define	LP_GENERATE_WHERE(STMT, PLAN_ID, RET, NULL_RETURN_SEEN)	{	\
-	if (NULL != STMT) {						\
-		RET = lp_generate_where(STMT, PLAN_ID);			\
-		if (NULL == RET)					\
-			NULL_RETURN_SEEN = TRUE;			\
-	} else {							\
-		RET = NULL;						\
-	}								\
+#define	LP_GENERATE_WHERE(STMT, PLAN_ID, PARENT, RET, NULL_RETURN_SEEN)	{	\
+	if (NULL != STMT) {							\
+		RET = lp_generate_where(STMT, PLAN_ID, PARENT);			\
+		if (NULL == RET)						\
+			NULL_RETURN_SEEN = TRUE;				\
+	} else {								\
+		RET = NULL;							\
+	}									\
 }
 
 // Forward declarations
@@ -184,7 +184,7 @@ void lp_insert_key(LogicalPlan *plan, LogicalPlan *key);
 // Returns LP_WHERE with an AND of the two wheres
 LogicalPlan *lp_join_where(LogicalPlan *where1, LogicalPlan *where2);
 // Returns a new logical plan representing the boolean structure from stmt
-LogicalPlan *lp_generate_where(SqlStatement *stmt, int *plan_id);
+LogicalPlan *lp_generate_where(SqlStatement *stmt, int *plan_id, SqlStatement *parent);
 // Given a column and a table, generates a cross reference plan and returns it
 LogicalPlan *lp_generate_xref_plan(LogicalPlan *plan, SqlTable *table, SqlColumn *column, int unique_id);
 /**

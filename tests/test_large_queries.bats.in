@@ -24,7 +24,6 @@ setup() {
   if [[ $( grep -i "centos" /etc/*-release ) ]]; then
     skip "Skipping test as it does not work on CentOS"
   fi
-  cp @PROJECT_SOURCE_DIR@/tests/fixtures/genlargequery.m .
   yottadb -run gt10mb^genlargequery
   octo < in.sql 2>&1 | tee output.txt
   if (( 10485760 >= $(stat --printf="%s\n" _ydboctoP*.m) )); then
@@ -42,7 +41,6 @@ setup() {
 }
 
 @test "octo -f on query larger than 10MiB" {
-  cp @PROJECT_SOURCE_DIR@/tests/fixtures/genlargequery.m .
   yottadb -run gt10mb^genlargequery
   octo -f in.sql 2>&1 | tee output.txt
   if (( 10485760 >= $(stat --printf="%s\n" _ydboctoP*.m) )); then

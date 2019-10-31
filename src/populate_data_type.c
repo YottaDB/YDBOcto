@@ -416,7 +416,11 @@ int populate_data_type(SqlStatement *v, SqlValueType *type) {
 	case unary_STATEMENT:
 		UNPACK_SQL_STATEMENT(unary, v, unary);
 		result |= populate_data_type(unary->operand, &child_type1);
-		*type = child_type1;
+		/* If the unary operation is EXISTS, then set the type of the result to BOOLEAN,
+		 * not to the type inherited from the sub-query passed to EXISTS.
+		 */
+		*type = ((BOOLEAN_EXISTS == unary->operation) ? BOOLEAN_VALUE : child_type1);
+		assert((BOOLEAN_NOT != unary->operation) || (BOOLEAN_VALUE == *type));
 		break;
 	default:
 		assert(FALSE);

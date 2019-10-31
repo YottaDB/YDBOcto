@@ -62,7 +62,7 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt, int *plan_id) {
 	MALLOC_LP_2ARGS(criteria->v.operand[0], LP_KEYS);
 	MALLOC_LP(select_options, criteria->v.operand[1], LP_SELECT_OPTIONS);
 	MALLOC_LP(where, select_options->v.operand[0], LP_WHERE);
-	LP_GENERATE_WHERE(select_stmt->where_expression, plan_id, where->v.operand[0], null_return_seen);
+	LP_GENERATE_WHERE(select_stmt->where_expression, plan_id, stmt, where->v.operand[0], null_return_seen);
 	insert->counter = plan_id;
 	MALLOC_LP(dst, insert->v.operand[1], LP_OUTPUT);
 	MALLOC_LP(dst_key, dst->v.operand[0], LP_KEY);
@@ -171,7 +171,7 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt, int *plan_id) {
 		if (cur_join->condition)
 		{
 			MALLOC_LP_2ARGS(t_join_condition, LP_WHERE);
-			LP_GENERATE_WHERE(cur_join->condition, plan_id, t_join_condition->v.operand[0], null_return_seen);
+			LP_GENERATE_WHERE(cur_join->condition, plan_id, stmt, t_join_condition->v.operand[0], null_return_seen);
 			if (num_outer_joins)
 				join_right->join_on_condition = t_join_condition;
 			else

@@ -223,11 +223,11 @@ LogicalPlan *walk_where_statement(PhysicalPlanOptions *options, LogicalPlan *stm
 
 	if (NULL == stmt)
 		return NULL;
-
+	assert(LP_UNARY_LAST != stmt->type);
 	if (stmt->type >= LP_ADDITION && stmt->type <= LP_BOOLEAN_NOT_IN) {
 		stmt->v.operand[0] = walk_where_statement(options, stmt->v.operand[0], stmt);
 		stmt->v.operand[1] = walk_where_statement(options, stmt->v.operand[1], stmt);
-	} else if (stmt->type >= LP_FORCE_NUM && stmt->type <= LP_BOOLEAN_NOT) {
+	} else if (stmt->type >= LP_FORCE_NUM && stmt->type < LP_UNARY_LAST) {
 		stmt->v.operand[0] = walk_where_statement(options, stmt->v.operand[0], stmt);
 	} else {
 		PhysicalPlanOptions	curr_plan;

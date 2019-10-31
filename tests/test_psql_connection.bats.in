@@ -154,9 +154,8 @@ OCTO
 
 @test "ensure error message when trying to call an M function in rocto" {
   DDOLAR='$$'
-  cp @PROJECT_SOURCE_DIR@/tests/fixtures/USERFUNC1.m .
   run_psql $test_port <<OCTO 2>&1 | tee output.txt
-select $DDOLAR^userfunc1(42) from names;
+select $DDOLAR^USERFUNC1(42) from names;
 OCTO
   verify_output T0023 output.txt noinfo nodebug
 }

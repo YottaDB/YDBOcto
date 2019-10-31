@@ -18,7 +18,7 @@
 #include "octo_types.h"
 #include "logical_plan.h"
 
-LogicalPlan *lp_generate_where(SqlStatement *stmt, int *plan_id) {
+LogicalPlan *lp_generate_where(SqlStatement *stmt, int *plan_id, SqlStatement *parent) {
 	LogicalPlan		*ret = NULL, *next, *cur_lp, *t, *prev;
 	LPActionType		type;
 	SqlValue		*value;
@@ -36,7 +36,7 @@ LogicalPlan *lp_generate_where(SqlStatement *stmt, int *plan_id) {
 		UNPACK_SQL_STATEMENT(value, stmt, value);
 		switch(value->type) {
 		case CALCULATED_VALUE:
-			LP_GENERATE_WHERE(value->v.calculated, plan_id, ret, null_return_seen);
+			LP_GENERATE_WHERE(value->v.calculated, plan_id, stmt, ret, null_return_seen);
 			break;
 		default:
 			MALLOC_LP_2ARGS(ret, LP_VALUE);
@@ -53,7 +53,7 @@ LogicalPlan *lp_generate_where(SqlStatement *stmt, int *plan_id) {
 		{
 			// Walk through the column list, converting each statement to an OR/AND
 			UNPACK_SQL_STATEMENT(start_cl, binary->operands[1], column_list);
-			LP_GENERATE_WHERE(binary->operands[0], plan_id, t, null_return_seen);
+			LP_GENERATE_WHERE(binary->operands[0], plan_id, stmt, t, null_return_seen);
 			cur_cl = start_cl;
 			do {
 				if (LP_BOOLEAN_IN == type) {
@@ -62,7 +62,7 @@ LogicalPlan *lp_generate_where(SqlStatement *stmt, int *plan_id) {
 					MALLOC_LP_2ARGS(next, LP_BOOLEAN_NOT_EQUALS);
 				}
 				next->v.operand[0] = t;
-				LP_GENERATE_WHERE(cur_cl->value, plan_id, next->v.operand[1], null_return_seen);
+				LP_GENERATE_WHERE(cur_cl->value, plan_id, stmt, next->v.operand[1], null_return_seen);
 				cur_cl = cur_cl->next;
 				if (NULL == ret) {
 					ret = next;
@@ -79,8 +79,8 @@ LogicalPlan *lp_generate_where(SqlStatement *stmt, int *plan_id) {
 			} while(start_cl != cur_cl);
 		} else {
 			MALLOC_LP_2ARGS(ret, type);
-			LP_GENERATE_WHERE(binary->operands[0], plan_id, ret->v.operand[0], null_return_seen);
-			LP_GENERATE_WHERE(binary->operands[1], plan_id, ret->v.operand[1], null_return_seen);
+			LP_GENERATE_WHERE(binary->operands[0], plan_id, stmt, ret->v.operand[0], null_return_seen);
+			LP_GENERATE_WHERE(binary->operands[1], plan_id, stmt, ret->v.operand[1], null_return_seen);
 			/* OPTIMIZATION: if this is a regex
 			 * see if the pattern is entirely characters,
 			 * and if so, change it to a LP_BOOLEAN_EQUALS so we can optimize it later
@@ -151,20 +151,20 @@ LogicalPlan *lp_generate_where(SqlStatement *stmt, int *plan_id) {
 		/// WARNING: we simply add the enum offset to find the type
 		type = unary->operation + LP_FORCE_NUM;
 		MALLOC_LP_2ARGS(ret, type);
-		LP_GENERATE_WHERE(unary->operand, plan_id, ret->v.operand[0], null_return_seen);
+		LP_GENERATE_WHERE(unary->operand, plan_id, stmt, ret->v.operand[0], null_return_seen);
 		break;
 	case function_call_STATEMENT:
 		UNPACK_SQL_STATEMENT(function_call, stmt, function_call);
 		type = LP_FUNCTION_CALL;
 		MALLOC_LP_2ARGS(ret, type);
-		LP_GENERATE_WHERE(function_call->function_name, plan_id, ret->v.operand[0], null_return_seen);
+		LP_GENERATE_WHERE(function_call->function_name, plan_id, stmt, ret->v.operand[0], null_return_seen);
 		// TODO: we should move the logic to loop through the list to a seperate function and reuse it
 		// Too bad this isn't written in Go :'(
 		UNPACK_SQL_STATEMENT(start_cl, function_call->parameters, column_list);
 		cur_cl = start_cl;
 		cur_lp = ret;
 		do {
-			LP_GENERATE_WHERE(cur_cl->value, plan_id, next, null_return_seen);
+			LP_GENERATE_WHERE(cur_cl->value, plan_id, stmt, next, null_return_seen);
 			if (NULL != next) {
 				MALLOC_LP_2ARGS(cur_lp->v.operand[1], LP_COLUMN_LIST);
 				cur_lp = cur_lp->v.operand[1];
@@ -182,17 +182,17 @@ LogicalPlan *lp_generate_where(SqlStatement *stmt, int *plan_id) {
 		UNPACK_SQL_STATEMENT(cas, stmt, cas);
 		// First put in the default branch, if needed, and value
 		MALLOC_LP(cur_lp, ret->v.operand[0], LP_CASE_STATEMENT);
-		LP_GENERATE_WHERE(cas->value, plan_id, cur_lp->v.operand[0], null_return_seen);
+		LP_GENERATE_WHERE(cas->value, plan_id, stmt, cur_lp->v.operand[0], null_return_seen);
 		if (NULL != cas->optional_else) {
-			LP_GENERATE_WHERE(cas->optional_else, plan_id, cur_lp->v.operand[1], null_return_seen);
+			LP_GENERATE_WHERE(cas->optional_else, plan_id, stmt, cur_lp->v.operand[1], null_return_seen);
 		}
 		UNPACK_SQL_STATEMENT(cas_branch, cas->branches, cas_branch);
 		cur_branch = cas_branch;
 		MALLOC_LP(cur_lp, ret->v.operand[1], LP_CASE_BRANCH);
 		do {
 			MALLOC_LP(t, cur_lp->v.operand[0], LP_CASE_BRANCH_STATEMENT);
-			LP_GENERATE_WHERE(cur_branch->condition, plan_id, t->v.operand[0], null_return_seen);
-			LP_GENERATE_WHERE(cur_branch->value, plan_id, t->v.operand[1], null_return_seen);
+			LP_GENERATE_WHERE(cur_branch->condition, plan_id, stmt, t->v.operand[0], null_return_seen);
+			LP_GENERATE_WHERE(cur_branch->value, plan_id, stmt, t->v.operand[1], null_return_seen);
 			cur_branch = cur_branch->next;
 			if (cur_branch != cas_branch) {
 				MALLOC_LP_2ARGS(cur_lp->v.operand[1], LP_CASE_BRANCH);
@@ -204,12 +204,18 @@ LogicalPlan *lp_generate_where(SqlStatement *stmt, int *plan_id) {
 	case table_alias_STATEMENT:
 		ret = generate_logical_plan(stmt, plan_id);
 		if (NULL != ret)
-		{
-			int	num_cols;
+		{	/* A sub-query inside of a WHERE expression can return only one column in most cases.
+			 * The only exception to it is if the parent is an EXISTS operator. Check accordingly.
+			 */
+			boolean_t	do_num_cols_check;
+			int		num_cols;
 
-			num_cols = lp_get_num_cols_in_select_column_list(ret);
-			assert(0 < num_cols);
-			if (1 < num_cols) {
+			do_num_cols_check = ((unary_STATEMENT != parent->type) || (BOOLEAN_EXISTS != parent->v.unary->operation));
+			if (do_num_cols_check) {
+				num_cols = lp_get_num_cols_in_select_column_list(ret);
+				assert(0 < num_cols);
+			}
+			if (do_num_cols_check && (1 < num_cols)) {
 				// Sub query inside of a WHERE expression can only return one column
 				ERROR(ERR_SUBQUERY_ONE_COLUMN, "");
 				// Print error context

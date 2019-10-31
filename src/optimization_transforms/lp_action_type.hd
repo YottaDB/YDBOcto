@@ -57,7 +57,10 @@ LP_ACTION_TYPE(LP_CASE_STATEMENT)
 LP_ACTION_TYPE(LP_CASE_BRANCH)
 LP_ACTION_TYPE(LP_CASE_BRANCH_STATEMENT)
 // The order of these must be kept in sync with `enum BinaryOperations` in `src/octo_types.h`
-LP_ACTION_TYPE(LP_ADDITION)
+LP_ACTION_TYPE(LP_ADDITION)	/* Marks the beginning of binary/unary/boolean operations. Has to be start of this section
+				 * as there is code that does boolean checks on this (e.g. `LP_ADDITION > type` etc.).
+				 * assuming this is the first. Such checks will otherwise break.
+				 */
 LP_ACTION_TYPE(LP_SUBTRACTION)
 LP_ACTION_TYPE(LP_DIVISION)
 LP_ACTION_TYPE(LP_MULTIPLICATION)
@@ -80,3 +83,9 @@ LP_ACTION_TYPE(LP_BOOLEAN_NOT_IN)
 LP_ACTION_TYPE(LP_FORCE_NUM)
 LP_ACTION_TYPE(LP_NEGATIVE)
 LP_ACTION_TYPE(LP_BOOLEAN_NOT)
+LP_ACTION_TYPE(LP_BOOLEAN_EXISTS)
+LP_ACTION_TYPE(LP_BOOLEAN_NOT_EXISTS)
+LP_ACTION_TYPE(LP_UNARY_LAST)	/* Marks the end of unary operations. Any new unary operation opcode should be added BEFORE this.
+				 * This is because there is code that does boolean checks on this (e.g. `LP_UNARY_LAST > type`)
+				 * assuming this is the last of the unary operations. Such checks will otherwise break.
+				 */

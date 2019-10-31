@@ -20,24 +20,28 @@
 #include "logical_plan.h"
 
 /**
- * Applies a NOT operation to all sub-plans if count % 2 == 1
+ * Applies a NOT operation to all sub-plans if (count % 2) is non-zero (i.e. 1)
  * Effectively, this means switching OR to AND, and inverting
  * < to be >=, > to be <=, = to be <>, and <> to be =
  */
 LogicalPlan *lp_apply_not(LogicalPlan *root, int count) {
-	if(root->type == LP_BOOLEAN_NOT) {
-		// Don't recurse for regex calls, or anything like a function call or columns ref
-		if(root->v.operand[0]->type == LP_BOOLEAN_REGEX_SENSITIVE ||
-				root->v.operand[0]->type == LP_BOOLEAN_REGEX_INSENSITIVE ||
-				root->v.operand[0]->type == LP_BOOLEAN_IS ||
-				root->v.operand[0]->type < LP_ADDITION) {
+	LPActionType	type;
+
+	if (LP_BOOLEAN_NOT == root->type) {
+		type = root->v.operand[0]->type;
+		// Don't recurse for stuff that we cannot apply the NOT operation.
+		// (e.g. regex calls, or anything like a function call or columns ref)
+		if ((LP_BOOLEAN_REGEX_SENSITIVE == type)
+				|| (LP_BOOLEAN_REGEX_INSENSITIVE == type)
+				|| (LP_BOOLEAN_IS == type)
+				|| (LP_ADDITION > type)) {
 			return root;
 		}
 		count++;
 		// This will trim the NOT from the expression
 		return lp_apply_not(root->v.operand[0], count);
 	}
-	if(count % 2 == 1) {
+	if (count % 2) {
 		switch(root->type) {
 			case LP_BOOLEAN_OR:
 				root->type = LP_BOOLEAN_AND;
@@ -67,17 +71,14 @@ LogicalPlan *lp_apply_not(LogicalPlan *root, int count) {
 			case LP_BOOLEAN_GREATER_THAN_OR_EQUALS:
 				root->type = LP_BOOLEAN_LESS_THAN;
 				break;
-			case LP_BOOLEAN_REGEX_SENSITIVE:
-			case LP_BOOLEAN_REGEX_INSENSITIVE:
-				// We can't do anything to invert this, so we should catch it earlier
-				// and just not recurse down this far
-				assert(FALSE);
-				break;
 			case LP_BOOLEAN_IN:
 				root->type = LP_BOOLEAN_NOT_IN;
 				break;
 			case LP_BOOLEAN_NOT_IN:
 				root->type = LP_BOOLEAN_IN;
+				break;
+			case LP_BOOLEAN_EXISTS:
+				root->type = LP_BOOLEAN_NOT_EXISTS;
 				break;
 			default:
 				// We should never recurse into anything except boolean values
@@ -89,15 +90,15 @@ LogicalPlan *lp_apply_not(LogicalPlan *root, int count) {
 }
 
 /**
- * After a call to this function, all logical disjunections will be on the right, with each left
+ * After a call to this function, all logical disjunctions will be on the right, with each left
  * representing a term with only conjunctions and boolean operations
  */
 LogicalPlan *lp_make_normal_disjunctive_form(LogicalPlan *root) {
 	// TODO: we need to handle NOT
-	if(root == NULL)
+	if (NULL == root)
 		return root;
 	root = lp_apply_not(root, 0);
-	if(root->type != LP_BOOLEAN_AND && root->type != LP_BOOLEAN_OR) {
+	if ((LP_BOOLEAN_AND != root->type) && (LP_BOOLEAN_OR != root->type)) {
 		return root;
 	}
 	LogicalPlan *left = lp_make_normal_disjunctive_form(root->v.operand[0]);
@@ -111,7 +112,7 @@ LogicalPlan *lp_make_normal_disjunctive_form(LogicalPlan *root) {
 	//   2.1.2 If clause of left is AND, and clause on right is OR, join with
 
 	// If this case is not an AND, we don't need to combine things, so return early
-	if(root->type != LP_BOOLEAN_AND) {
+	if (LP_BOOLEAN_AND != root->type) {
 		root->v.operand[0] = left;
 		root->v.operand[1] = right;
 		return root;
@@ -128,49 +129,49 @@ LogicalPlan *lp_make_normal_disjunctive_form(LogicalPlan *root) {
 			MALLOC_LP_2ARGS(lp, LP_BOOLEAN_AND);
 
 			LogicalPlan *next_l = l;
-			if(next_l->type == LP_BOOLEAN_OR) {
+			if (LP_BOOLEAN_OR == next_l->type) {
 				next_l = next_l->v.operand[0];
 			}
 			LogicalPlan *next_r = r;
-			if(next_r->type == LP_BOOLEAN_OR) {
+			if (LP_BOOLEAN_OR == next_r->type) {
 				next_r = next_r->v.operand[0];
 			}
-			if(l->type != LP_BOOLEAN_OR && r->type != LP_BOOLEAN_OR) {
+			if ((LP_BOOLEAN_OR != l->type) && (LP_BOOLEAN_OR != r->type)) {
 				boolean_type = LP_BOOLEAN_AND;
 			}
 			lp->v.operand[0] = next_l;
 			lp->v.operand[1] = next_r;
-			if(cur == NULL) {
+			if (NULL == cur) {
 				MALLOC_LP_2ARGS(ret, boolean_type);
 				cur = ret;
 			}
 			cur->v.operand[0] = lp;
 			MALLOC_LP_2ARGS(cur->v.operand[1], boolean_type);
 			cur = cur->v.operand[1];
-			if(r->type != LP_BOOLEAN_OR) {
+			if ((LP_BOOLEAN_OR != r->type)) {
 				break;
 			}
 			r = r->v.operand[1];
-		} while(r);
-		if(l->type != LP_BOOLEAN_OR) {
+		} while (r);
+		if ((LP_BOOLEAN_OR != l->type)) {
 			break;
 		}
 		l = l->v.operand[1];
-	} while(l);
+	} while (l);
 
 	// Promote the last item
-	if(ret->v.operand[1] == NULL || ret->v.operand[1]->v.operand[0] == NULL) {
+	if ((NULL == ret->v.operand[1]) || (NULL == ret->v.operand[1]->v.operand[0])) {
 		ret = ret->v.operand[0];
 	} else {
-		LogicalPlan *prev;
+		LogicalPlan	*prev;
+
 		prev = ret;
 		cur = ret->v.operand[1];
-		while(cur->v.operand[1] != NULL && cur->v.operand[1]->v.operand[0] != NULL) {
+		while ((NULL != cur->v.operand[1]) && (NULL != cur->v.operand[1]->v.operand[0])) {
 			prev = cur;
 			cur = cur->v.operand[1];
 		}
 		prev->v.operand[1] = cur->v.operand[0];
 	}
-
 	return ret;
 }

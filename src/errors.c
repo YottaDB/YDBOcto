@@ -85,7 +85,7 @@ void octo_log(int line, char *file, enum ERROR_LEVEL level, enum ERROR error, ..
 	char err_prefix[MAX_STR_CONST];
 	char full_err_format_str[MAX_STR_CONST];
 
-	if(level < config->record_error_level)
+	if (level < config->record_error_level)
 		return;
 
 	va_start(args, error);
@@ -136,7 +136,7 @@ void octo_log(int line, char *file, enum ERROR_LEVEL level, enum ERROR error, ..
 	        local_time.tm_min,
 	        local_time.tm_sec);
 #	endif
-	if(error == CUSTOM_ERROR) {
+	if (CUSTOM_ERROR == error) {
 		// Combine populated prefix with given error format string into new format string
 		int copied = snprintf(full_err_format_str, MAX_STR_CONST, "%s%s\n", err_prefix, va_arg(args, const char *));
 		if (0 < copied) {
@@ -151,16 +151,15 @@ void octo_log(int line, char *file, enum ERROR_LEVEL level, enum ERROR error, ..
 	}
 	va_end(args);
 #	ifdef IS_ROCTO
-	const char *error_message;
-	char buffer[MAX_STR_CONST];
-	int err_level;
-	int message_type;
-	ErrorResponse *err;
-	if(!rocto_session.sending_message && rocto_session.connection_fd != 0) {
+	char		buffer[MAX_STR_CONST];
+	int		err_level;
+	ErrorResponse	*err;
+
+	if (!rocto_session.sending_message && (0 != rocto_session.connection_fd)) {
 		rocto_session.sending_message = TRUE;
 		va_start(args, error);
 
-		if(error == CUSTOM_ERROR) {
+		if (CUSTOM_ERROR == error) {
 			vsnprintf(buffer, MAX_STR_CONST, va_arg(args, const char *), args);
 		} else {
 			vsnprintf(buffer, MAX_STR_CONST, err_format_str[error], args);
@@ -195,7 +194,7 @@ void octo_log(int line, char *file, enum ERROR_LEVEL level, enum ERROR error, ..
 		rocto_session.sending_message = FALSE;
 	}
 #	endif
-	if(level == FATAL) {
+	if (FATAL == level) {
 #		ifdef IS_ROCTO
 		shutdown(rocto_session.connection_fd, SHUT_RDWR);
 		close(rocto_session.connection_fd);

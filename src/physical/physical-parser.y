@@ -17,7 +17,7 @@
 {
   #include "physical-parser.h"
   #define YYDEBUG 1
-  struct Expr typedef Expr;
+  typedef struct Expr Expr;
 
   enum ExprType {
     LITERAL_TYPE,

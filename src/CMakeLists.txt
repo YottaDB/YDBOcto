@@ -370,8 +370,14 @@ set_property(TARGET pparser PROPERTY C_STANDARD 11)
 set_property(TARGET octo PROPERTY C_STANDARD 11)
 set_property(TARGET rocto PROPERTY C_STANDARD 11)
 
-target_compile_options(libocto PRIVATE -Wall -Wextra -pedantic )
-target_compile_options(librocto PRIVATE -Wall -Wextra -pedantic )
+# Set C compiler flags for all Octo targets
+set(GCC_COMPILE_FLAGS "-Wall -Wextra -pedantic")
+# gcc 6.3.0 is known to have -Wmisleading-indentation. And gcc 4.8.5 is known to not have that.
+# Not sure what the intermediate versions support so we add this warning flag only for versions >= 6.3.0
+if(${CMAKE_C_COMPILER_VERSION} STRGREATER "6.3.0")
+	set(GCC_COMPILE_FLAGS "${GCC_COMPILE_FLAGS} -Wmisleading-indentation")
+endif()
+set_target_properties(libocto librocto pparser octo rocto PROPERTIES COMPILE_FLAGS "${GCC_COMPILE_FLAGS}")
 
 target_link_libraries(octo ${YOTTADB_LIBRARIES} ${Readline_LIBRARY} ${CONFIG_LIBRARY} ${OPENSSL_LIBRARIES})
 target_link_libraries(rocto

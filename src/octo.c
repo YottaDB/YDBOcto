@@ -35,11 +35,7 @@ int no_more() {
 
 int main(int argc, char **argv)
 {
-	int c, error = 0, status;
-	int done;
-	SqlValue *value;
-	SqlTable *table, *t_table;
-	SqlStatement *tmp_statement;
+	int	status;
 
 	inputFile = NULL;
 	status = octo_init(argc, argv);
@@ -84,5 +80,5 @@ int main(int argc, char **argv)
 	} while(!feof(inputFile));
 
 	cleanup_tables();
-	return error;
+	return 0;
 }

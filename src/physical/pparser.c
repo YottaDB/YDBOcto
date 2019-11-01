@@ -26,7 +26,7 @@ char	linestart_prefix[64];
 Expr	*print_template(Expr *expr, Expr *prev);
 void	store_linestart_prefix(char *str);
 
-int main(int argc, char **argv) {
+int main() {
 	if(yyparse()) {
 		ERROR(ERR_PARSING_COMMAND, "Trouble parsing input");
 		return 1;

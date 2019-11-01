@@ -40,6 +40,11 @@ int copied_so_far;
 %option stack
 %option bison-bridge
 %option noyywrap
+%option noyy_top_state
+%option noyy_pop_state
+%option noyy_push_state
+%option noinput
+%option nounput
 
 %x VALUE_STATE
 %x EXPR_STATE

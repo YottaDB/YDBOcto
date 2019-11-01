@@ -30,7 +30,10 @@
 #include "rocto/message_formats.h"
 #include "helpers.h"
 
-void handle_sigint(int sig) {
+void handle_sigint(int sig, siginfo_t *info, void *context) {
+	UNUSED(sig);
+	UNUSED(info);
+	UNUSED(context);
 	rocto_session.session_ending = TRUE;
 }
 
@@ -58,11 +61,10 @@ int main(int argc, char **argv) {
 	StartupMessageParm		message_parm;
 	char				buffer[MAX_STR_CONST];
 	char				host_buf[NI_MAXHOST], serv_buf[NI_MAXSERV];
-	int				cur_parm = 0, i = 0;
-	int				sfd, cfd, opt, addrlen, result, status = 0;
-	int				tls_errno;
+	int				cur_parm = 0;
+	int				sfd, cfd, opt, result, status = 0;
 	pid_t				child_id = 0;
-	struct sigaction		ctrlc_action, sigusr1_action;
+	struct sigaction		ctrlc_action;
 	struct sockaddr_in		*address = NULL;
 	struct sockaddr_in6		addressv6;
 	ydb_buffer_t			ydb_buffers[2], *var_defaults, *var_sets, var_value;
@@ -70,6 +72,7 @@ int main(int argc, char **argv) {
 	ydb_buffer_t			z_interrupt, z_interrupt_handler;
 	ydb_buffer_t			pid_subs[2], timestamp_buffer;
 	ydb_buffer_t			*pid_buffer = &pid_subs[0];
+	socklen_t			addrlen;
 
 	// Initialize connection details in case errors prior to connections - needed before octo_init for Rocto error reporting
 	rocto_session.ip = "IP_UNSET";
@@ -92,7 +95,7 @@ int main(int argc, char **argv) {
 	// Initialize a handler to respond to ctrl + c
 	memset(&ctrlc_action, 0, sizeof(ctrlc_action));
 	ctrlc_action.sa_flags = SA_SIGINFO;
-	ctrlc_action.sa_sigaction = (void *)handle_sigint;
+	ctrlc_action.sa_sigaction = handle_sigint;
 	status = sigaction(SIGINT, &ctrlc_action, NULL);
 	if (0 != status)
 		FATAL(ERR_SYSCALL, "sigaction", errno, strerror(errno));
@@ -155,15 +158,15 @@ int main(int argc, char **argv) {
 	}
 	address->sin_port = htons(config->rocto_config.port);
 
-	if((sfd = socket(address->sin_family, SOCK_STREAM, 0)) == -1) {
+	if (-1 == (sfd = socket(address->sin_family, SOCK_STREAM, 0))) {
 		FATAL(ERR_SYSCALL, "socket", errno, strerror(errno));
 	}
 	opt = 1;
-	if(setsockopt(sfd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &opt, sizeof(opt)) == -1) {
+	if (-1 == setsockopt(sfd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &opt, sizeof(opt))) {
 		FATAL(ERR_SYSCALL, "setsockopt", errno, strerror(errno));
 	}
 
-	if(bind(sfd, (struct sockaddr *)&addressv6, sizeof(addressv6)) < 0) {
+	if (bind(sfd, (struct sockaddr *)&addressv6, sizeof(addressv6)) < 0) {
 		FATAL(ERR_SYSCALL, "bind", errno, strerror(errno));
 	}
 
@@ -173,15 +176,15 @@ int main(int argc, char **argv) {
 	if (0 != status)
 		FATAL(ERR_SYSCALL, "pthread_create", status, strerror(status));
 
-	if(listen(sfd, 3) < 0) {
+	if (listen(sfd, 3) < 0) {
 		FATAL(ERR_SYSCALL, "listen", errno, strerror(errno));
 	}
 	while (!rocto_session.session_ending) {
-		if((cfd = accept(sfd, (struct sockaddr *)&address, &addrlen)) < 0) {
-			if(rocto_session.session_ending) {
+		if ((cfd = accept(sfd, (struct sockaddr *)&address, &addrlen)) < 0) {
+			if (rocto_session.session_ending) {
 				break;
 			}
-			if(errno == EINTR) {
+			if (EINTR == errno) {
 				continue;
 			}
 			ERROR(ERR_SYSCALL, "accept", errno, strerror(errno));
@@ -194,7 +197,9 @@ int main(int argc, char **argv) {
 		YDB_STRING_TO_BUFFER(secret_key_str, &secret_key_buffer);
 
 		child_id = fork();
-		if(child_id != 0) {
+		if (0 != child_id) {
+			unsigned long long timestamp;
+
 			if (0 > child_id) {
 				ERROR(ERR_SYSCALL, "fork", errno, strerror(errno));
 				continue;
@@ -208,7 +213,6 @@ int main(int argc, char **argv) {
 			YDB_ERROR_CHECK(status);
 
 			// Get timestamp of the new process
-			unsigned long long timestamp;
 			timestamp = get_pid_start_time(child_id);
 			if (0 == timestamp) {
 				// Error emitted by callee get_pid_start_time()
@@ -248,7 +252,7 @@ int main(int argc, char **argv) {
 		}
 		rocto_session.ip = host_buf;
 		rocto_session.port = serv_buf;
-		INFO(ERR_CLIENT_CONNECTED);
+		INFO(ERR_CLIENT_CONNECTED, NULL);
 
 		status = ydb_init();		// YDB init needed by gtm_tls_init call below */
 		YDB_ERROR_CHECK(status);
@@ -261,8 +265,10 @@ int main(int argc, char **argv) {
 
 		// Attempt TLS connection, if configured
 		ssl_request = read_ssl_request(&rocto_session, buffer, sizeof(int) * 2);
-		if (NULL != ssl_request & TRUE == config->rocto_config.ssl_on) {
+		if ((NULL != ssl_request) && config->rocto_config.ssl_on) {
 #			if YDB_TLS_AVAILABLE
+			int	tls_errno;
+
 			// gtm_tls_conn_info tls_connection;
 			result = send_bytes(&rocto_session, "S", sizeof(char));
 			if (0 != result) {
@@ -306,9 +312,9 @@ int main(int argc, char **argv) {
 						}
 						break;
 					} else if (GTMTLS_WANT_READ == result) {
-						WARNING(ERR_ROCTO_TLS_WANT_READ);
+						WARNING(ERR_ROCTO_TLS_WANT_READ, NULL);
 					} else if (GTMTLS_WANT_WRITE == result) {
-						WARNING(ERR_ROCTO_TLS_WANT_WRITE);
+						WARNING(ERR_ROCTO_TLS_WANT_WRITE, NULL);
 					} else {
 						WARNING(ERR_ROCTO_TLS_UNKNOWN, "failed to accept incoming connection(s)");
 						break;
@@ -320,7 +326,7 @@ int main(int argc, char **argv) {
 			read_bytes(&rocto_session, buffer, MAX_STR_CONST, sizeof(int) * 2);
 #			endif
 		// Attempt unencrypted connection if SSL not requested
-		} else if (NULL != ssl_request & FALSE == config->rocto_config.ssl_on) {
+		} else if ((NULL != ssl_request) && !config->rocto_config.ssl_on) {
 			result = send_bytes(&rocto_session, "N", sizeof(char));
 			read_bytes(&rocto_session, buffer, MAX_STR_CONST, sizeof(int) * 2);
 		} else if (NULL == ssl_request) {
@@ -348,14 +354,14 @@ int main(int argc, char **argv) {
 		YDB_ERROR_CHECK(status);
 
 		startup_message = read_startup_message(&rocto_session, buffer, sizeof(int) * 2);
-		if(startup_message == NULL) {
+		if (NULL == startup_message) {
 			break;
 		}
 		// Require md5 authentication
 		char salt[4];
 		md5auth = make_authentication_md5_password(&rocto_session, salt);
 		result = send_message(&rocto_session, (BaseMessage*)(&md5auth->type));
-		if(result) {
+		if (result) {
 			WARNING(ERR_ROCTO_SEND_FAILED, "failed to send MD5 authentication required");
 			free(md5auth);
 			break;
@@ -365,14 +371,14 @@ int main(int argc, char **argv) {
 		// This next message is the user sending the password
 		int rocto_err = 0;
 		base_message = read_message(&rocto_session, buffer, MAX_STR_CONST, &rocto_err);
-		if(base_message == NULL) {
+		if (NULL == base_message) {
 			if (-2 != rocto_err) {
 				WARNING(ERR_ROCTO_READ_FAILED, "failed to read MD5 password");
 			}
 			break;
 		}
 		password_message = read_password_message(base_message);
-		if(password_message == NULL) {
+		if (NULL == password_message) {
 			break;
 		}
 
@@ -411,7 +417,7 @@ int main(int argc, char **argv) {
 		var_sets[3] = var_defaults[2];
 		do {
 			status = ydb_subscript_next_s(&var_defaults[0], 2, &var_defaults[1], &var_defaults[2]);
-			if(YDB_ERR_NODEEND == status) {
+			if (YDB_ERR_NODEEND == status) {
 				status = YDB_OK;
 				break;
 			}
@@ -427,7 +433,7 @@ int main(int argc, char **argv) {
 			YDB_ERROR_CHECK(status);
 			if (0 != status)
 				break;
-		} while(TRUE);
+		} while (TRUE);
 		if (YDB_OK != status) {
 			// No cleanup necessary, as process will exit
 			return 1;
@@ -443,9 +449,10 @@ int main(int argc, char **argv) {
 		var_sets[3].len_used = 0;
 		do {
 			status = ydb_subscript_next_s(&var_sets[0], 3, &var_sets[1], &var_sets[3]);
-			if(status == YDB_ERR_NODEEND)
+			if (YDB_ERR_NODEEND == status) {
 				status = YDB_OK;
 				break;
+			}
 			YDB_ERROR_CHECK(status);
 			if (0 != status)
 				break;
@@ -460,10 +467,10 @@ int main(int argc, char **argv) {
 			parameter_status = make_parameter_status(&message_parm);
 			result = send_message(&rocto_session, (BaseMessage*)(&parameter_status->type));
 			free(parameter_status);
-			if(result) {
+			if (result) {
 				return 0;
 			}
-		} while(TRUE);
+		} while (TRUE);
 		// Clean up after any errors from the above loop
 		if (YDB_OK != status) {
 			YDB_FREE_BUFFER(session_id_buffer);
@@ -476,7 +483,7 @@ int main(int argc, char **argv) {
 		// Send secret key info to client
 		backend_key_data = make_backend_key_data(secret_key, child_id);
 		result = send_message(&rocto_session, (BaseMessage*)(&backend_key_data->type));
-		if(result) {
+		if (result) {
 			return 0;
 		}
 
@@ -489,8 +496,7 @@ int main(int argc, char **argv) {
 		YDB_FREE_BUFFER(session_id_buffer);
 		break;
 	}
-
-	if(thread_id != 0) {
+	if (0 != thread_id) {
 		// We only want to close the sfd if we are the parent process which actually listens to
 		// the socket; thread_id will be 0 if we are a child process
 		close(sfd);

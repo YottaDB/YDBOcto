@@ -17,9 +17,9 @@ This is also not an exhaustive list as some failures might not show until others
 
 Failure Types
 octo55: Feature not implemented: set_function_type: AVG
-octo199: Feature not implemented: EXISTS
 octo198: Feature not implemented: BETWEEN
 octo55: Feature not implemented: set_function_specification: COUNT LEFT_PAREN ASTERISK RIGHT_PAREN
+octo362: Assert failure with EXISTS and WHERE expressions
 
 
 octo55: Feature not implemented: set_function_type: AVG
@@ -222,125 +222,6 @@ octo55: Feature not implemented: set_function_type: AVG
 	986
 	992
 	997
-
-octo199: Feature not implemented: EXISTS
-	2
-	9
-	10
-	39
-	42
-	45
-	48
-	63
-	64
-	67
-	70
-	71
-	77
-	78
-	83
-	85
-	93
-	96
-	99
-	105
-	108
-	110
-	119
-	120
-	121
-	136
-	137
-	140
-	147
-	158
-	161
-	164
-	174
-	184
-	205
-	212
-	224
-	231
-	246
-	248
-	254
-	257
-	258
-	270
-	279
-	306
-	315
-	317
-	340
-	366
-	383
-	399
-	402
-	414
-	419
-	435
-	438
-	441
-	459
-	475
-	481
-	484
-	487
-	528
-	549
-	550
-	556
-	566
-	568
-	597
-	607
-	609
-	627
-	628
-	631
-	639
-	656
-	666
-	667
-	668
-	678
-	681
-	687
-	695
-	700
-	721
-	722
-	724
-	728
-	729
-	732
-	737
-	768
-	786
-	796
-	798
-	804
-	819
-	822
-	823
-	824
-	827
-	841
-	847
-	855
-	860
-	866
-	869
-	889
-	901
-	909
-	915
-	930
-	973
-	983
-	984
-	999
 
 octo198: Feature not implemented: BETWEEN
 	3
@@ -974,3 +855,10 @@ octo55: Feature not implemented: set_function_specification: COUNT LEFT_PAREN AS
 	990
 	997
 
+octo362: Assert failure with EXISTS and WHERE expressions
+	2
+	231
+	258
+	487
+	627
+	804

@@ -28,7 +28,7 @@ init_test() {
 	#	by calling `rl_bind_key('\t', rl_insert);`
 	export INPUTRC=/etc/inputrc
 	# Below has been seen to avoid Ctrl-M ('^M') characters in long query strings
-	export COLUMNS=1024
+	export COLUMNS=4096
 	# Log env vars and shell vars in files for later analysis (if needed). Mask any sensitive env vars out.
 	echo " --> Running test [$BATS_TEST_FILENAME] : subtest [$BATS_TEST_DESCRIPTION] : in $PWD" > bats_test.out
 	env | grep -vE "HUB_USERNAME|HUB_PASSWORD|CI_JOB_TOKEN|CI_REGISTRY_PASSWORD|CI_BUILD_TOKEN|CI_REPOSITORY_URL" > env.out

@@ -275,8 +275,18 @@ int emit_plan_helper(char *buffer, size_t buffer_len, int depth, LogicalPlan *pl
 		break;
 	default:
 		if (LP_TABLE_JOIN == plan->type)
+		{
 			SAFE_SNPRINTF_JOIN_TYPE_IF_NEEDED(written, buff_ptr, buffer, buffer_len, plan);
-		SAFE_SNPRINTF(written, buff_ptr, buffer, buffer_len, "\n");
+			if (NULL != plan->join_on_condition) {
+				SAFE_SNPRINTF(written, buff_ptr, buffer, buffer_len, "\n");
+				buff_ptr += emit_plan_helper(buff_ptr, buffer_len - (buff_ptr - buffer),
+										depth + 2, plan->join_on_condition);
+			} else {
+				SAFE_SNPRINTF(written, buff_ptr, buffer, buffer_len, "\n");
+			}
+		} else {
+			SAFE_SNPRINTF(written, buff_ptr, buffer, buffer_len, "\n");
+		}
 		buff_ptr += emit_plan_helper(buff_ptr, buffer_len - (buff_ptr - buffer), depth + 2, plan->v.operand[0]);
 		buff_ptr += emit_plan_helper(buff_ptr, buffer_len - (buff_ptr - buffer), depth + 2, plan->v.operand[1]);
 		break;

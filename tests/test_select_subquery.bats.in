@@ -20,44 +20,9 @@ setup() {
 }
 
 @test "TSS01 : OCTO181 : Data types are not correctly propagated from nested SELECTs; Misc other queries" {
-  cat <<CAT_EOF > input_orig.sql
-  # The below queries test that data types are correctly propagated from nested SELECTs
-select * from names where id != firstname;
-select * from (select * from names) where id != firstname;
-select * from names where lastname != firstname;
-select * from (select * from names) where lastname != firstname;
-  # The below query was found at https://gitlab.com/YottaDB/DBMS/YDBOcto/issues/181#note_210480253
-  # Although it was fixed by some prior commit, it is included here because it was recorded in #181
-select col1 from (select id as col1 from names) n2;
-select col1 from (select id::numeric as col1 from names) n2;
-  # The below queries test that boolean expressions involving just "column" operands work (equivalent to "column != 0")
-  # And issue errors if needed.
-select (firstname = 'd' AND id) from names;
-select (1 AND id) from names;
-select (firstname = 'd' AND id = 0) from names;
-select (firstname AND id) from names;
-select id and 0 = 1 from names;
-select id and (0 = 1) from names;
-select (0 = 1) and (id = 1) from names;
-select (0 = 1) and id from names;
-select id and id from names;
-  # The below query tests NULL usage in sub-queries. Is not directly related to #181 but was found to fail
-  # while analyzing various issues related to #181.
-select * from (select NULL from names);
-select (col1 = '') from (select NULL as col1 from names);
-select (col1 = NULL) from (select NULL as col1 from names);
-select (col1 is NULL) from (select NULL as col1 from names);
-select (col1 = 0) from (select NULL as col1 from names);
-select (col1 = 'abcd') from (select NULL as col1 from names);
-select (col1 is NULL) from (select NULL as col1 from names);
-select (col1 is NOT NULL) from (select NULL as col1 from names);
-select * from names where id IS NULL;
-select * from names where id IS NOT NULL;
-select * from names where firstname IS NULL;
-select * from names where firstname IS NOT NULL;
-CAT_EOF
-  cat input_orig.sql > output.txt
-  grep -v '^  #' input_orig.sql > input.sql
+  cp @PROJECT_SOURCE_DIR@/tests/fixtures/TSS01.sql .
+  grep -v '^#' TSS01.sql > output.txt
+  grep -vE '^-- |^#' TSS01.sql > input.sql
   octo -vv -f input.sql >> output.txt 2>&1
   verify_output TSS01 output.txt noinfo nodebug
   # Verify the types of columns and alias names etc. for all above queries from octo -vv output
@@ -66,75 +31,28 @@ CAT_EOF
 }
 
 @test "TSS02 : OCTO348 : Sub-query that uses column value from parent query and generates cross-reference plan" {
-  cat <<CAT_EOF > input.sql
-SELECT * FROM names n1 WHERE n1.firstName in (SELECT n2.firstname from names n2 where n2.firstname = n1.firstname);
-CAT_EOF
-  cat input.sql > output.txt
+  cp @PROJECT_SOURCE_DIR@/tests/fixtures/TSS02.sql .
+  grep -v '^#' TSS02.sql > output.txt
+  grep -vE '^-- |^#' TSS02.sql > input.sql
   octo -f input.sql >> output.txt 2>&1
   verify_output TSS02 output.txt
 }
 
 @test "TSS03 : OCTO192 : Using sub-query in a WHERE clause produces <Plan produced by optimizer appears incorrect> warning" {
-  # Below is a list of queries using sub-queries.
-  # It is a mix of valid and invalid queries and this test checks the behavior of Octo in both cases.
-  cat <<CAT_EOF > input_orig.sql
-  # Sub-query that returns 1 row, 1 column (i.e. a scalar) and type match
-SELECT * FROM names a WHERE a.firstName = (SELECT b.firstName FROM names b WHERE a.id = b.id);
-SELECT * FROM names a WHERE a.firstName != (SELECT b.firstName FROM names b WHERE a.id = b.id);
-  # Misc queries
-SELECT * FROM names n1 WHERE n1.firstName = (SELECT n2.firstname FROM names n2 WHERE n2.firstname = n1.firstname);
-SELECT * FROM names n1 WHERE n1.firstName = (SELECT n2.firstname FROM names n2 WHERE n2.firstname = n1.firstname limit 1);
-SELECT * FROM names n1 WHERE n1.firstName = (SELECT n2.firstname FROM names n2 WHERE n2.firstname != n1.firstname limit 1);
-SELECT * FROM names n1 WHERE 'Zero' = (SELECT n2.firstname FROM names n2 WHERE n2.firstname != n1.firstname limit 1);
-SELECT * FROM names n1 WHERE n1.firstName IN (SELECT n2.firstname FROM names n2 WHERE n2.firstname = n1.firstname limit 1);
-SELECT * from names n1 where n1.id IN (SELECT * FROM names n2 WHERE n2.id = ((n1.id + 1) % 6));
-  # Sub-query that returns 1 row, 1 column (i.e. a scalar) and type match. Use a sub-query wherever a scalar is possible
-select * from names where id = 1+(select 1 from names limit 1);
-select (case when id > (select 1) then (select 1) else (select 0) end)-1 as idbool from names;
-select (select 1 from names limit 1)%(select 2 from names limit 1);
-select (select 1 from names limit 1)*(select 2 from names limit 1)/3;
-select (select 1 from names limit 1)-(select 2 from names limit 1)+3;
-select 4/(select 2 from names limit 1)-3;
-select (select 1 from names limit 1)*(select 2 from names limit 1)*3;
-select 3%(select 2 from names limit 1)+3;
-select id+(select 2 from names limit 1) from names;
-select id*(select 2 from names limit 1) from (select id from names) as n2;
-select id/(select 2 from names) from (select id from names) as n2;
-select 2*(select id*id from names) from (select id from names) as n2;
-select 2+(select * from ((select id from names) union (select id from names)) as n1 limit 1) from (select id from names) as n2;
-select 2-(select * from ((select id from names) union (select 2::integer from names)) as n1 limit 1) from (select id from names) as n2;
-select (case when id > (select 1 from names limit 1) then 1 else 0 end)+1 as idbool from names;
-select (select 1 from names limit 1)*(case when id > 1 then 1 else 0 end) as idbool from names;
-select id-(id*(select 2 from names limit 1)) from names;
-select (select firstname from names limit 1) || (select lastname from names limit 1);
-  # Sub-query that returns 1 row, 1 column (i.e. a scalar) and type mismatch
-SELECT * FROM names a WHERE a.firstName = (SELECT b.id FROM names b WHERE a.id = b.id);
-SELECT * FROM names a WHERE a.firstName != (SELECT b.id FROM names b WHERE a.id = b.id);
-  # Sub-query that returns 0 rows
-SELECT * FROM names a WHERE a.firstName = (SELECT b.firstName FROM names b WHERE -a.id = b.id);
-  # Sub-query that returns 1 row but multiple columns
-SELECT * FROM names a WHERE a.firstName = (SELECT b.firstName,b.lastname FROM names b WHERE a.id = b.id);
-SELECT * FROM names a WHERE a.firstName != (SELECT b.firstName,b.lastname FROM names b WHERE a.id = b.id);
-  # Sub-query that returns > 1 rows but == 1 column
-SELECT * FROM names a WHERE a.firstName = (SELECT b.firstName FROM names b WHERE (a.id % 2) = (b.id % 2));
-SELECT * FROM names a WHERE a.firstName != (SELECT b.firstName FROM names b WHERE (a.id % 2) = (b.id % 2));
-  # Sub-query that returns > 1 rows and  > 1 columns
-SELECT * FROM names a WHERE a.firstName = (SELECT b.firstName,b.lastname FROM names b WHERE (a.id % 2) = (b.id % 2));
-SELECT * FROM names a WHERE a.firstName != (SELECT b.firstName,b.lastname FROM names b WHERE (a.id % 2) = (b.id % 2));
-  # Sub-query that returns a scalar NULL (== 1 row, == 1 column)
-SELECT * FROM names a WHERE a.firstName = (SELECT NULL);
-  # Sub-query that returns a NULL in == 1 row, > 1 columns
-SELECT * FROM names a WHERE a.firstName = (SELECT NULL, NULL, firstname);
-SELECT * FROM names a WHERE a.firstName != (SELECT NULL, NULL, firstname);
-  # Sub-query that returns a NULL in  > 1 row, > 1 columns
-SELECT * FROM names n1 WHERE n1.firstName = (SELECT NULL, n2.id, NULL from names n2);
-SELECT * FROM names n1 WHERE n1.firstName != (SELECT NULL, n2.id, NULL from names n2);
-  # Miscellaneous queries that issue error but used to assert fail due to an incorrect change to match_column_in_table.c
-select id+2;
-CAT_EOF
-  cat input_orig.sql > output.txt
-  grep -v '^  #' input_orig.sql > input.sql
+  cp @PROJECT_SOURCE_DIR@/tests/fixtures/TSS03.sql .
+  grep -v '^#' TSS03.sql > output.txt
+  grep -vE '^-- |^#' TSS03.sql > input.sql
   octo -vv -f input.sql >> output.txt 2>&1
   verify_output TSS03 output.txt noinfo nodebug
+}
+
+@test "TSS04 : OCTO361 : OUTER JOIN with sub-query in the ON condition expression does not work correctly" {
+  cp @PROJECT_SOURCE_DIR@/tests/fixtures/TSS04.sql TSS04orig.sql
+  grep -vE '^-- |^#' TSS04orig.sql > TSS04.sql
+  yottadb -run genqueryfiles TSS04.sql	# this generates query files of the form TSS04_01.sql, TSS04_02.sql ...
+  for file in TSS04_*.sql
+  do
+    run_query_in_octo_and_postgres_and_crosscheck names $file "remove_empty_line_at_tail"
+  done
 }
 

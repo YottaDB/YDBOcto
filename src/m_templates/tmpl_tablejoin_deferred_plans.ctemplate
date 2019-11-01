@@ -14,22 +14,20 @@
 #include "physical_plan.h"
 #include "template_helpers.h"
 
-TEMPLATE(tmpl_tablejoin_innerjoin, PhysicalPlan *plan, LogicalPlan *tablejoin, int *dot_count, boolean_t *deferred_plans_emitted) {
+TEMPLATE(tmpl_tablejoin_deferred_plans, PhysicalPlan *plan, int dot_count) {
 	TEMPLATE_INIT();
 
-	LogicalPlan		*join_condition;
+	PhysicalPlan	*temp_plan = plan;
 
-	join_condition = tablejoin->join_on_condition;
-	if (NULL != join_condition)
-		join_condition = join_condition->v.operand[0];
-	if (NULL != join_condition) {
-		TMPL(tmpl_tablejoin_deferred_plans, plan, *dot_count);
-		*deferred_plans_emitted = TRUE;
-		TMPL(tmpl_print_dots, *dot_count);
-		%{}IF ({}%
-		TMPL(tmpl_print_expression, join_condition, plan);
-		%{}) DO`n    {}%
-		(*dot_count)++;
+	// Run any plans which reference parent queries
+	while (NULL != temp_plan->prev)
+		temp_plan = temp_plan->prev;
+	while (NULL != temp_plan) {
+		if ((temp_plan->parent_plan == plan) && temp_plan->deferred_plan) {
+			TMPL(tmpl_print_dots, dot_count);
+			%{}DO {{ temp_plan->plan_name }}(cursorId)`n    {}%
+		}
+		temp_plan = temp_plan->next;
 	}
 	TEMPLATE_END();
 }

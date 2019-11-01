@@ -24,7 +24,7 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *plan, LogicalPlan *tablejoin, unsigned in
 	enum SqlJoinType	this_join_type, next_join_type;
 	SqlOptionalKeyword	*keyword;
 	LogicalPlan		*right_tablejoin;
-	boolean_t		nested_call, this_join_is_left_join;
+	boolean_t		deferred_plans_emitted, nested_call, this_join_is_left_join;
 
 	total_keys = plan->total_iter_keys;
 	assert(((NULL != tablejoin) && (LP_TABLE_JOIN == tablejoin->type)) || ((NULL == tablejoin) && (cur_key == total_keys)));
@@ -113,16 +113,18 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *plan, LogicalPlan *tablejoin, unsigned in
 			key->cross_reference_output_key = save_key;	/* Restore cross-reference output key */
 		dot_count++;
 	}
+	deferred_plans_emitted = FALSE;
 	// If there is an OUTER JOIN with an ON condition, generate an IF statement in M for doing the check
 	if (INNER_JOIN == this_join_type)
-		TMPL(tmpl_tablejoin_innerjoin, plan, tablejoin, &dot_count);
+		TMPL(tmpl_tablejoin_innerjoin, plan, tablejoin, &dot_count, &deferred_plans_emitted);
 	if (this_join_is_left_join && !plan->treat_key_as_null[left_table_id])
-		TMPL(tmpl_tablejoin_leftjoin, plan, tablejoin, key_start, &dot_count);
+		TMPL(tmpl_tablejoin_leftjoin, plan, tablejoin, key_start, &dot_count, &deferred_plans_emitted);
 	if ((RIGHT_JOIN == this_join_type) || (FULL_JOIN == this_join_type))
 	{
 		if (!right_join_second_half)
 		{
-			TMPL(tmpl_tablejoin_rightjoin, plan, tablejoin, this_join_is_left_join, key_start, cur_key, &dot_count);
+			TMPL(tmpl_tablejoin_rightjoin, plan, tablejoin, this_join_is_left_join, key_start, cur_key,	\
+										&dot_count, &deferred_plans_emitted);
 		} else
 		{	/* Generate code for second half of RIGHT JOIN */
 			/* First, if there are any cross-reference keys, generate code to set them based off the primary key.
@@ -158,6 +160,9 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *plan, LogicalPlan *tablejoin, unsigned in
 	}
 	if (!nested_call)
 	{
+		if (!deferred_plans_emitted) {
+			TMPL(tmpl_tablejoin_deferred_plans, plan, dot_count);
+		}
 		TMPL(tmpl_tablejoin_body, plan, dot_count, tableName, columnName);
 	} else
 	{
@@ -173,7 +178,7 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *plan, LogicalPlan *tablejoin, unsigned in
 		}
 		TMPL(tmpl_tablejoin, plan, right_tablejoin, cur_key, FALSE, dot_count, tableName, columnName);
 		if (LEFT_JOIN == next_join_type)
-		{   /* Generate M code to include rows from the left table where there is no matching right table rows */
+		{	/* Generate M code to include rows from the left table where there is no matching right table rows */
 			assert(NULL != right_tablejoin->join_on_condition);
 			%{}`n    {}%
 			TMPL(tmpl_print_dots, dot_count);

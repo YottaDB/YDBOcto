@@ -1,3 +1,14 @@
+#################################################################
+#								#
+# Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	#
+# All rights reserved.						#
+#								#
+#	This source code contains the intellectual property	#
+#	of its copyright holder(s), and is made available	#
+#	under a license.  If you do not know the terms of	#
+#	the license, please stop and do not read further.	#
+#								#
+#################################################################
 
 -- The below queries test that data types are correctly propagated from nested SELECTs
 select * from names where id != firstname;
@@ -33,163 +44,3 @@ select * from names where id IS NULL;
 select * from names where id IS NOT NULL;
 select * from names where firstname IS NULL;
 select * from names where firstname IS NOT NULL;
-[ERROR] PATH:LINENUM DATE TIME : Type mismatch: left INTEGER, right STRING
-Error with syntax near (line 1, column 27):
-
-select * from names where id != firstname;
-                          ^^
-Error with syntax near (line 1, column 33):
-
-select * from names where id != firstname;
-                                ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select * from names where id != firstname;
-[ERROR] PATH:LINENUM DATE TIME : Type mismatch: left INTEGER, right STRING
-Error with syntax near (line 1, column 43):
-
-select * from (select * from names) where id != firstname;
-                                          ^^
-Error with syntax near (line 1, column 49):
-
-select * from (select * from names) where id != firstname;
-                                                ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select * from (select * from names) where id != firstname;
-0|Zero|Cool
-1|Acid|Burn
-2|Cereal|Killer
-3|Lord|Nikon
-4|Joey|
-5|Zero|Cool
-0|Zero|Cool
-1|Acid|Burn
-2|Cereal|Killer
-3|Lord|Nikon
-4|Joey|
-5|Zero|Cool
-0
-1
-2
-3
-4
-5
-0
-1
-2
-3
-4
-5
-0
-0
-0
-0
-0
-0
-0
-1
-1
-1
-1
-1
-0
-0
-0
-0
-0
-0
-[ERROR] PATH:LINENUM DATE TIME : Type mismatch: left STRING, right INTEGER
-Error with syntax near (line 1, column 9):
-
-select (firstname AND id) from names;
-        ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select (firstname AND id) from names;
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-1
-1
-1
-1
-1
-
-
-
-
-
-
-1
-1
-1
-1
-1
-1
-1
-1
-1
-1
-1
-1
-1
-1
-1
-1
-1
-1
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-0
-1
-1
-1
-1
-1
-1
-0
-0
-0
-0
-0
-0
-0|Zero|Cool
-1|Acid|Burn
-2|Cereal|Killer
-3|Lord|Nikon
-4|Joey|
-5|Zero|Cool
-Added SET and/or Non-SET trigger on ^names named %ydboctoT*
-0|Zero|Cool
-1|Acid|Burn
-2|Cereal|Killer
-3|Lord|Nikon
-4|Joey|
-5|Zero|Cool
-

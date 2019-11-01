@@ -14,8 +14,8 @@
 #include "physical_plan.h"
 #include "template_helpers.h"
 
-TEMPLATE(tmpl_tablejoin_rightjoin, PhysicalPlan *plan, LogicalPlan *tablejoin, boolean_t skip_on_condition,	\
-			unsigned int key_start, unsigned int key_end, int *dot_count) {
+TEMPLATE(tmpl_tablejoin_rightjoin, PhysicalPlan *plan, LogicalPlan *tablejoin, boolean_t skip_on_condition,			\
+			unsigned int key_start, unsigned int key_end, int *dot_count, boolean_t *deferred_plans_emitted) {
 	TEMPLATE_INIT();
 
 	LogicalPlan		*join_condition;
@@ -26,6 +26,8 @@ TEMPLATE(tmpl_tablejoin_rightjoin, PhysicalPlan *plan, LogicalPlan *tablejoin, b
 		if (NULL != join_condition)
 			join_condition = join_condition->v.operand[0];
 		if (NULL != join_condition) {
+			TMPL(tmpl_tablejoin_deferred_plans, plan, *dot_count);
+			*deferred_plans_emitted = TRUE;
 			TMPL(tmpl_print_dots, *dot_count);
 			%{}IF ({}%
 			TMPL(tmpl_print_expression, join_condition, plan);

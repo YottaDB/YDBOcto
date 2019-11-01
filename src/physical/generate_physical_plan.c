@@ -43,15 +43,14 @@ LogicalPlan *walk_where_statement(PhysicalPlanOptions *options, LogicalPlan *stm
 
 PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlanOptions *options) {
 	SqlOptionalKeyword	*keywords, *keyword;
-	LogicalPlan		*keys, *table_joins, *select, *insert, *output_key, *output;
-	LogicalPlan		*set_operation, *where;
+	LogicalPlan		*keys, *table_joins, *select, *insert_or_set_operation, *output_key, *output;
+	LogicalPlan		*where;
 	LogicalPlan		*set_option, *set_plans, *set_output, *set_key;
 	PhysicalPlan		*out, *prev = NULL;
-	LPActionType		set_oper_type;
+	LPActionType		set_oper_type, type;
+	PhysicalPlanOptions	curr_plan;
 
-	PhysicalPlanOptions curr_plan;
 	curr_plan = *options;
-
 	assert((LP_INSERT == plan->type) || (LP_SET_OPERATION == plan->type));
 	// If this is a union plan, construct physical plans for the two children
 	if (LP_SET_OPERATION == plan->type) {
@@ -133,8 +132,7 @@ PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlanOptions *opt
 		GET_LP(out->order_by, output, 1, LP_COLUMN_LIST);
 	}
 
-	// See if there are any tables we rely on in the SELECT or WHERE;
-	//  if so, add them as prev records
+	// See if there are any tables we rely on in the SELECT tablejoin list. If so, add them as prev records in physical plan.
 	select = lp_get_select(plan);
 	GET_LP(table_joins, select, 0, LP_TABLE_JOIN);
 	out->tablejoin = table_joins;
@@ -144,17 +142,13 @@ PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlanOptions *opt
 		//  this will be null and we need to skip this step
 		if (NULL == table_joins->v.operand[0])
 			break;
-		if (LP_INSERT == table_joins->v.operand[0]->type) {
-			// This is a sub plan, and should be inserted as prev
-			GET_LP(insert, table_joins, 0, LP_INSERT);
-			PhysicalPlan *ret = generate_physical_plan(insert, &curr_plan);
-			if (NULL == ret)
-				return NULL;
-		} else if (LP_SET_OPERATION == table_joins->v.operand[0]->type) {
+		type = table_joins->v.operand[0]->type;
+		if ((LP_INSERT == type) || (LP_SET_OPERATION == type)) {
 			PhysicalPlan	*ret;
 
-			GET_LP(set_operation, table_joins, 0, LP_SET_OPERATION);
-			ret = generate_physical_plan(set_operation, &curr_plan);
+			// This is a sub plan, and should be inserted as prev
+			GET_LP(insert_or_set_operation, table_joins, 0, type);
+			ret = generate_physical_plan(insert_or_set_operation, &curr_plan);
 			if (NULL == ret)
 				return NULL;
 		}
@@ -169,10 +163,19 @@ PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlanOptions *opt
 	assert((0 < out->total_iter_keys) || (NULL != keys->v.operand[0]));
 	if (keys->v.operand[0])
 		iterate_keys(out, keys);
-
-	// The output key should be a cursor key
-
-	// Is this most convenient representation of the WHERE?
+	// Note: The below do/while loop can be done only after we have initialized "iterKeys[]" for this table_join.
+	//       That is why this is not done as part of the previous do/while loop as "iterate_keys()" gets called only after
+	//       the previous do/while loop.
+	table_joins = out->tablejoin;
+	do {
+		// See if there are any tables we rely on in the ON clause of any JOINs.
+		// If so, add them as prev records in physical plan.
+		if (NULL != table_joins->join_on_condition) {
+			walk_where_statement(&curr_plan, table_joins->join_on_condition, NULL);
+		}
+		table_joins = table_joins->v.operand[1];
+	} while (NULL != table_joins);
+	// See if there are any tables we rely on in the WHERE clause. If so, add them as prev records in physical plan.
 	where = lp_get_select_where(plan);
 	out->where = walk_where_statement(&curr_plan, where, NULL);
 	if (NULL != where->v.operand[1])
@@ -184,6 +187,7 @@ PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlanOptions *opt
 		walk_where_statement(&curr_plan, where->v.operand[1], NULL);
 		where->v.operand[1] = NULL;	/* Discard alternate list now that its purpose is served */
 	}
+	// See if there are any tables we rely on in the SELECT column list. If so, add them as prev records in physical plan.
 	walk_where_statement(&curr_plan, lp_get_project(plan)->v.operand[0]->v.operand[0], NULL);
 	out->keywords = lp_get_select_keywords(plan)->v.keywords;
 	out->projection = lp_get_projection_columns(plan);
@@ -200,9 +204,7 @@ PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlanOptions *opt
 	if (NULL != keyword) {
 		out->emit_duplication_check = TRUE;
 	}
-
 	out->stash_columns_in_keys = options->stash_columns_in_keys;
-
 	return out;
 }
 

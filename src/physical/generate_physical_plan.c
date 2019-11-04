@@ -48,18 +48,18 @@ PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlanOptions *opt
 	LogicalPlan		*set_option, *set_plans, *set_output, *set_key;
 	PhysicalPlan		*out, *prev = NULL;
 	LPActionType		set_oper_type, type;
-	PhysicalPlanOptions	curr_plan;
+	PhysicalPlanOptions	plan_options;
 
-	curr_plan = *options;
+	plan_options = *options;
 	assert((LP_INSERT == plan->type) || (LP_SET_OPERATION == plan->type));
 	// If this is a union plan, construct physical plans for the two children
 	if (LP_SET_OPERATION == plan->type) {
 		GET_LP(set_option, plan, 0, LP_SET_OPTION);
 		GET_LP(set_plans, plan, 1, LP_PLANS);
-		out = generate_physical_plan(set_plans->v.operand[1], &curr_plan);
+		out = generate_physical_plan(set_plans->v.operand[1], &plan_options);
 		if (NULL == out)
 			return NULL;
-		prev = generate_physical_plan(set_plans->v.operand[0], &curr_plan);
+		prev = generate_physical_plan(set_plans->v.operand[0], &plan_options);
 		if (NULL == prev)
 			return NULL;
 
@@ -106,13 +106,13 @@ PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlanOptions *opt
 	}
 	OCTO_CMALLOC_STRUCT(out, PhysicalPlan);
 	out->parent_plan = options->parent;
-	curr_plan.parent = out;
+	plan_options.parent = out;
 
-	out->next = *curr_plan.last_plan;
-	if (NULL != *curr_plan.last_plan) {
-		(*curr_plan.last_plan)->prev = out;
+	out->next = *plan_options.last_plan;
+	if (NULL != *plan_options.last_plan) {
+		(*plan_options.last_plan)->prev = out;
 	}
-	*(curr_plan.last_plan) = out;
+	*(plan_options.last_plan) = out;
 
 	// Set my output key
 	GET_LP(output, plan, 1, LP_OUTPUT);
@@ -148,7 +148,7 @@ PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlanOptions *opt
 
 			// This is a sub plan, and should be inserted as prev
 			GET_LP(insert_or_set_operation, table_joins, 0, type);
-			ret = generate_physical_plan(insert_or_set_operation, &curr_plan);
+			ret = generate_physical_plan(insert_or_set_operation, &plan_options);
 			if (NULL == ret)
 				return NULL;
 		}
@@ -171,24 +171,24 @@ PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlanOptions *opt
 		// See if there are any tables we rely on in the ON clause of any JOINs.
 		// If so, add them as prev records in physical plan.
 		if (NULL != table_joins->join_on_condition) {
-			walk_where_statement(&curr_plan, table_joins->join_on_condition, NULL);
+			walk_where_statement(&plan_options, table_joins->join_on_condition, NULL);
 		}
 		table_joins = table_joins->v.operand[1];
 	} while (NULL != table_joins);
 	// See if there are any tables we rely on in the WHERE clause. If so, add them as prev records in physical plan.
 	where = lp_get_select_where(plan);
-	out->where = walk_where_statement(&curr_plan, where, NULL);
+	out->where = walk_where_statement(&plan_options, where, NULL);
 	if (NULL != where->v.operand[1])
 	{	/* If where->v.operand[1] is non-NULL, this is the alternate list that "lp_optimize_where_multi_equal_ands_helper()"
 		 * built that needs to be checked too for deferred plans which would have
 		 * been missed out in case the keys for those had been fixed to keys from parent queries (see comment above
 		 * "lp_get_select_where()" function call in "lp_optimize_where_multi_equal_ands_helper()").
 		 */
-		walk_where_statement(&curr_plan, where->v.operand[1], NULL);
+		walk_where_statement(&plan_options, where->v.operand[1], NULL);
 		where->v.operand[1] = NULL;	/* Discard alternate list now that its purpose is served */
 	}
 	// See if there are any tables we rely on in the SELECT column list. If so, add them as prev records in physical plan.
-	walk_where_statement(&curr_plan, lp_get_project(plan)->v.operand[0]->v.operand[0], NULL);
+	walk_where_statement(&plan_options, lp_get_project(plan)->v.operand[0]->v.operand[0], NULL);
 	out->keywords = lp_get_select_keywords(plan)->v.keywords;
 	out->projection = lp_get_projection_columns(plan);
 
@@ -232,7 +232,7 @@ LogicalPlan *walk_where_statement(PhysicalPlanOptions *options, LogicalPlan *stm
 	} else if (stmt->type >= LP_FORCE_NUM && stmt->type < LP_UNARY_LAST) {
 		stmt->v.operand[0] = walk_where_statement(options, stmt->v.operand[0], stmt);
 	} else {
-		PhysicalPlanOptions	curr_plan;
+		PhysicalPlanOptions	plan_options;
 		PhysicalPlan		*cur, *out;
 		SqlTableAlias		*table_alias;
 		PhysicalPlan		*new_plan;
@@ -274,9 +274,9 @@ LogicalPlan *walk_where_statement(PhysicalPlanOptions *options, LogicalPlan *stm
 		case LP_INSERT:
 		case LP_SET_OPERATION:
 			// Generate a separate physical plan for this sub-query.
-			curr_plan = *options;
-			curr_plan.stash_columns_in_keys = TRUE;
-			new_plan = generate_physical_plan(stmt, &curr_plan);
+			plan_options = *options;
+			plan_options.stash_columns_in_keys = TRUE;
+			new_plan = generate_physical_plan(stmt, &plan_options);
 			if (NULL == new_plan)
 				return NULL;
 			if ((LP_BOOLEAN_IN == parent->type) || (LP_BOOLEAN_NOT_IN == parent->type)) {

@@ -29,7 +29,16 @@ boolean_t	is_prev_plan_in_same_dnf(PhysicalPlan *plan)
 	assert((NULL == prev_plan) || prev_plan->total_iter_keys);
 	if ((NULL == prev_plan) || !prev_plan->total_iter_keys || !plan->total_iter_keys)
 		return FALSE;
+	// First verify that the key unique_id is the same in plan and prev_plan.
 	prev_plan_is_in_same_dnf = (plan->iterKeys[0]->unique_id == prev_plan->iterKeys[0]->unique_id);
-	assert(!prev_plan_is_in_same_dnf || plan->emit_duplication_check);
+	// This is usually good enough. In rare cases though, it is possible both plan and prev_plan have
+	// the same unique_id but they are not plans from the same DNF. For example, if they are the same
+	// sub-query that got expanded into different sides of a DNF expansion (e.g. below query from #362)
+	//	SELECT 1 FROM t1 WHERE (1=1 OR 1=1) AND EXISTS(SELECT 1 FROM t1 AS x WHERE 1=t1.b);
+	// Hence the additional check for "emit_duplication_check" below which gets set only for DNF expanded plans.
+	// If that also turns out to be TRUE, then we are guaranteed plan and prev_plan are part of same DNF.
+	// In the above example query, the EXISTS sub-query that gets copied over to multiple parts of the DNF will
+	// have "emit_duplication_check" FALSE so this additional check will help return an accurate value.
+	prev_plan_is_in_same_dnf &= plan->emit_duplication_check && prev_plan->emit_duplication_check;
 	return prev_plan_is_in_same_dnf;
 }

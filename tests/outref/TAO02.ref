@@ -1,0 +1,34 @@
+
+-- Test type mismatch between operands of ALL/ANY/SOME. Should issue error.
+select * from names n1 where n1.firstname =  ALL (select n2.id from names n2 where n1.id > n2.id + 3);
+select * from names n1 where n1.id =  ALL (select * from names n2 where n1.id > n2.id + 3);
+
+-- Test more than 1 column in sub-query of ALL/ANY/SOME. Should issue error.
+select * from names n1 where n1.firstname =  ALL (select * from names n2 where n1.id > n2.id + 3);
+
+[ERROR] PATH:LINENUM DATE TIME : Type mismatch: left STRING, right INTEGER
+Error with syntax near (line 1, column 30):
+
+select * from names n1 where n1.firstname =  ALL (select n2.id from names n2 where n1.id > n2.id + 3);
+                             ^^^^^^^^^^^^
+Error with syntax near (line 1, column 58):
+
+select * from names n1 where n1.firstname =  ALL (select n2.id from names n2 where n1.id > n2.id + 3);
+                                                         ^^^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select * from names n1 where n1.firstname =  ALL (select n2.id from names n2 where n1.id > n2.id + 3);
+[ERROR] PATH:LINENUM DATE TIME : Type mismatch: left INTEGER, right STRING
+Error with syntax near (line 1, column 30):
+
+select * from names n1 where n1.id =  ALL (select * from names n2 where n1.id > n2.id + 3);
+                             ^^^^^
+Error with syntax near (line 1, column 51):
+
+select * from names n1 where n1.id =  ALL (select * from names n2 where n1.id > n2.id + 3);
+                                                  ^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select * from names n1 where n1.id =  ALL (select * from names n2 where n1.id > n2.id + 3);
+[ERROR] PATH:LINENUM DATE TIME : Subquery must return only one column
+Error with syntax near (line 1, column 58):
+
+select * from names n1 where n1.firstname =  ALL (select * from names n2 where n1.id > n2.id + 3);
+                                                        ^
+

@@ -48,6 +48,7 @@ int generate_routine_name(hash128_state_t *state, char *routine_name, int routin
 			break;
 		default:
 			return 1;
+			break;
 	}
 
 	hash_len = routine_len - prefix_len;

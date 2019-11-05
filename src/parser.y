@@ -59,6 +59,7 @@ extern void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, int *plan
 %token ADVANCE
 %token ALL
 %token AND
+%token ANY
 %token AS
 %token ASC
 %token AVG
@@ -434,52 +435,17 @@ predicate
   | in_predicate { $$ = $in_predicate; }
 //  | like_predicate
   | null_predicate { $$ = $null_predicate; }
-//  | quantified_comparison_predicate
+  | quantified_comparison_predicate
   | exists_predicate
 //  | match_predicate
 //  | overlaps_predicate
   ;
 
 comparison_predicate
-  : row_value_constructor EQUALS row_value_constructor {
+  : row_value_constructor comp_op row_value_constructor {
       SQL_STATEMENT($$, binary_STATEMENT);
       MALLOC_STATEMENT($$, binary, SqlBinaryOperation);
-      ($$)->v.binary->operation = BOOLEAN_EQUALS;
-      ($$)->v.binary->operands[0] = ($1);
-      ($$)->v.binary->operands[1] = ($3);
-    }
-  | row_value_constructor NOT_EQUALS row_value_constructor {
-      SQL_STATEMENT($$, binary_STATEMENT);
-      MALLOC_STATEMENT($$, binary, SqlBinaryOperation);
-      ($$)->v.binary->operation = BOOLEAN_NOT_EQUALS;
-      ($$)->v.binary->operands[0] = ($1);
-      ($$)->v.binary->operands[1] = ($3);
-    }
-  | row_value_constructor LESS_THAN row_value_constructor {
-      SQL_STATEMENT($$, binary_STATEMENT);
-      MALLOC_STATEMENT($$, binary, SqlBinaryOperation);
-      ($$)->v.binary->operation = BOOLEAN_LESS_THAN;
-      ($$)->v.binary->operands[0] = ($1);
-      ($$)->v.binary->operands[1] = ($3);
-    }
-  | row_value_constructor GREATER_THAN row_value_constructor {
-      SQL_STATEMENT($$, binary_STATEMENT);
-      MALLOC_STATEMENT($$, binary, SqlBinaryOperation);
-      ($$)->v.binary->operation = BOOLEAN_GREATER_THAN;
-      ($$)->v.binary->operands[0] = ($1);
-      ($$)->v.binary->operands[1] = ($3);
-    }
-  | row_value_constructor LESS_THAN_OR_EQUALS row_value_constructor {
-      SQL_STATEMENT($$, binary_STATEMENT);
-      MALLOC_STATEMENT($$, binary, SqlBinaryOperation);
-      ($$)->v.binary->operation = BOOLEAN_LESS_THAN_OR_EQUALS;
-      ($$)->v.binary->operands[0] = ($1);
-      ($$)->v.binary->operands[1] = ($3);
-    }
-  | row_value_constructor GREATER_THAN_OR_EQUALS row_value_constructor {
-      SQL_STATEMENT($$, binary_STATEMENT);
-      MALLOC_STATEMENT($$, binary, SqlBinaryOperation);
-      ($$)->v.binary->operation = BOOLEAN_GREATER_THAN_OR_EQUALS;
+      ($$)->v.binary->operation = (BinaryOperations)$comp_op;	/* Note: "comp_op" rule returns "BinaryOperations" type */
       ($$)->v.binary->operands[0] = ($1);
       ($$)->v.binary->operands[1] = ($3);
     }
@@ -520,6 +486,17 @@ comparison_predicate
   | row_value_constructor NOT SIMILAR TO row_value_constructor {
       INVOKE_REGEX_SPECIFICATION(&($$), ($1), ($5), 2, TRUE, TRUE, cursorId);
     }
+  ;
+
+comp_op		/* Note: This rule actually returns a "BinaryOperations" type (not a proper "SqlStatement *" structure pointer)
+		 * and caller rules need to know that.
+		 */
+  : EQUALS                 { $$ = (SqlStatement *)BOOLEAN_EQUALS; }
+  | NOT_EQUALS             { $$ = (SqlStatement *)BOOLEAN_NOT_EQUALS; }
+  | LESS_THAN              { $$ = (SqlStatement *)BOOLEAN_LESS_THAN; }
+  | GREATER_THAN           { $$ = (SqlStatement *)BOOLEAN_GREATER_THAN; }
+  | LESS_THAN_OR_EQUALS    { $$ = (SqlStatement *)BOOLEAN_LESS_THAN_OR_EQUALS; }
+  | GREATER_THAN_OR_EQUALS { $$ = (SqlStatement *)BOOLEAN_GREATER_THAN_OR_EQUALS; }
   ;
 
 like_predicate
@@ -641,6 +618,47 @@ null_predicate
       ($$)->v.binary->operands[1]->v.value->v.string_literal = "";
     }
 
+  ;
+
+quantified_comparison_predicate
+  : row_value_constructor comp_op quantifier table_subquery {
+	SqlStatement		*ret;
+
+	SQL_STATEMENT(ret, binary_STATEMENT);
+	MALLOC_STATEMENT(ret, binary, SqlBinaryOperation);
+	ret->v.binary->operands[0] = ($row_value_constructor);
+	ret->v.binary->operands[1] = ($table_subquery);
+	// Assert that all the ANY boolean opcodes are lined up in same order as non-ANY ones
+	assert((BOOLEAN_ANY_EQUALS - BOOLEAN_EQUALS) == (BOOLEAN_ANY_NOT_EQUALS - BOOLEAN_NOT_EQUALS));
+	assert((BOOLEAN_ANY_EQUALS - BOOLEAN_EQUALS) == (BOOLEAN_ANY_LESS_THAN - BOOLEAN_LESS_THAN));
+	assert((BOOLEAN_ANY_EQUALS - BOOLEAN_EQUALS) == (BOOLEAN_ANY_GREATER_THAN - BOOLEAN_GREATER_THAN));
+	assert((BOOLEAN_ANY_EQUALS - BOOLEAN_EQUALS) == (BOOLEAN_ANY_LESS_THAN_OR_EQUALS - BOOLEAN_LESS_THAN_OR_EQUALS));
+	assert((BOOLEAN_ANY_EQUALS - BOOLEAN_EQUALS) == (BOOLEAN_ANY_GREATER_THAN_OR_EQUALS - BOOLEAN_GREATER_THAN_OR_EQUALS));
+	// Assert that all the ALL boolean opcodes are lined up in same order as non-ALL ones
+	assert((BOOLEAN_ALL_EQUALS - BOOLEAN_EQUALS) == (BOOLEAN_ALL_NOT_EQUALS - BOOLEAN_NOT_EQUALS));
+	assert((BOOLEAN_ALL_EQUALS - BOOLEAN_EQUALS) == (BOOLEAN_ALL_LESS_THAN - BOOLEAN_LESS_THAN));
+	assert((BOOLEAN_ALL_EQUALS - BOOLEAN_EQUALS) == (BOOLEAN_ALL_GREATER_THAN - BOOLEAN_GREATER_THAN));
+	assert((BOOLEAN_ALL_EQUALS - BOOLEAN_EQUALS) == (BOOLEAN_ALL_LESS_THAN_OR_EQUALS - BOOLEAN_LESS_THAN_OR_EQUALS));
+	assert((BOOLEAN_ALL_EQUALS - BOOLEAN_EQUALS) == (BOOLEAN_ALL_GREATER_THAN_OR_EQUALS - BOOLEAN_GREATER_THAN_OR_EQUALS));
+	/* Note: "comp_op" rule returns "BinaryOperations" type as a "SqlStatement *" so directly typecast it */
+	ret->v.binary->operation = (((SqlStatement *)ALL == $quantifier)
+					? (BinaryOperations)$comp_op + (BOOLEAN_ALL_EQUALS - BOOLEAN_EQUALS)
+					: (BinaryOperations)$comp_op + (BOOLEAN_ANY_EQUALS - BOOLEAN_EQUALS));
+	$$ = ret;
+    }
+  ;
+
+quantifier
+  : all
+  | some
+  ;
+
+all
+  : ALL { $$ = (SqlStatement *)ALL; }
+  ;
+
+some		/* rule is named to allow for SOME or ANY but lexer.l returns ANY in both cases so there is only one rule below */
+  : ANY  { $$ = (SqlStatement *)ANY; }
   ;
 
 exists_predicate

@@ -53,6 +53,7 @@ void safe_print_string(char *s) {
 			break;
 		default:
 			printf("%c", *s);
+			break;
 		}
 		s++;
 	}

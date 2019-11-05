@@ -81,6 +81,7 @@ LogicalPlan *lp_table_join_to_column_list(LogicalPlan *table_join, int *plan_id)
 	default:
 		ERROR(ERR_UNKNOWN_KEYWORD_STATE, "");
 		return NULL;
+		break;
 	}
 
 	if(table_join->v.operand[1]) {

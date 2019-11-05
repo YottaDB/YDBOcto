@@ -103,6 +103,7 @@ int create_table_defaults(SqlStatement *table_statement, SqlStatement *keywords_
 		default:
 			ERROR(ERR_UNKNOWN_KEYWORD_STATE, "");
 			return 1;
+			break;
 		}
 		cur_keyword = cur_keyword->next;
 	} while(cur_keyword != start_keyword);
@@ -173,6 +174,7 @@ int create_table_defaults(SqlStatement *table_statement, SqlStatement *keywords_
 		default:
 			ERROR(ERR_UNKNOWN_KEYWORD_STATE, "");
 			return 1;
+			break;
 		}
 		cur_keyword = cur_keyword->next;
 	} while(cur_keyword != start_keyword);

@@ -226,10 +226,10 @@ LogicalPlan *walk_where_statement(PhysicalPlanOptions *options, LogicalPlan *stm
 	if (NULL == stmt)
 		return NULL;
 	assert(LP_UNARY_LAST != stmt->type);
-	if (stmt->type >= LP_ADDITION && stmt->type <= LP_BOOLEAN_NOT_IN) {
+	if ((LP_ADDITION <= stmt->type) && (LP_BOOLEAN_LAST > stmt->type)) {
 		stmt->v.operand[0] = walk_where_statement(options, stmt->v.operand[0], stmt);
 		stmt->v.operand[1] = walk_where_statement(options, stmt->v.operand[1], stmt);
-	} else if (stmt->type >= LP_FORCE_NUM && stmt->type < LP_UNARY_LAST) {
+	} else if ((LP_FORCE_NUM <= stmt->type) && (LP_UNARY_LAST > stmt->type)) {
 		stmt->v.operand[0] = walk_where_statement(options, stmt->v.operand[0], stmt);
 	} else {
 		PhysicalPlanOptions	plan_options;
@@ -302,6 +302,7 @@ LogicalPlan *walk_where_statement(PhysicalPlanOptions *options, LogicalPlan *stm
 		default:
 			ERROR(ERR_UNKNOWN_KEYWORD_STATE, "");
 			return NULL;
+			break;
 		}
 	}
 	return stmt;

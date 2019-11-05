@@ -75,6 +75,7 @@ int copied_so_far;
 (?i:ADVANCE) { return ADVANCE; }
 (?i:ALL) { return ALL; }
 (?i:AND) { return AND; }
+(?i:ANY) { return ANY; }
 (?i:AS) { return AS; }
 (?i:ASC) { return ASC; }
 (?i:AVG) { return AVG; }
@@ -148,6 +149,7 @@ int copied_so_far;
 (?i:SIMILAR) { return SIMILAR; }
 (?i:SHOW) { return SHOW; }
 (?i:SMALLINT) { return SMALLINT; }
+(?i:SOME) { return ANY; }			/* SOME is the same as ANY */
 (?i:START) { return START; }
 (?i:SUM) { return SUM; }
 (?i:TABLE) { return TABLE; }

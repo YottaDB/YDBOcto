@@ -205,6 +205,7 @@ int handle_describe(Describe *describe, RoctoSession *session) {
 				description = make_row_description(NULL, 0);
 				send_message(session, (BaseMessage*)(&description->type));
 				free(description);
+				break;
 		}
 		OCTO_CFREE(memory_chunks);
 	} while(!eof_hit);

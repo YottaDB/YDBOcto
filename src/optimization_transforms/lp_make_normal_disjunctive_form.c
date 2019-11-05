@@ -77,6 +77,42 @@ LogicalPlan *lp_apply_not(LogicalPlan *root, int count) {
 			case LP_BOOLEAN_NOT_IN:
 				root->type = LP_BOOLEAN_IN;
 				break;
+			case LP_BOOLEAN_ANY_EQUALS:
+				root->type = LP_BOOLEAN_ALL_NOT_EQUALS;
+				break;
+			case LP_BOOLEAN_ANY_NOT_EQUALS:
+				root->type = LP_BOOLEAN_ALL_EQUALS;
+				break;
+			case LP_BOOLEAN_ANY_LESS_THAN:
+				root->type = LP_BOOLEAN_ALL_GREATER_THAN_OR_EQUALS;
+				break;
+			case LP_BOOLEAN_ANY_GREATER_THAN:
+				root->type = LP_BOOLEAN_ALL_LESS_THAN_OR_EQUALS;
+				break;
+			case LP_BOOLEAN_ANY_LESS_THAN_OR_EQUALS:
+				root->type = LP_BOOLEAN_ALL_GREATER_THAN;
+				break;
+			case LP_BOOLEAN_ANY_GREATER_THAN_OR_EQUALS:
+				root->type = LP_BOOLEAN_ALL_LESS_THAN;
+				break;
+			case LP_BOOLEAN_ALL_EQUALS:
+				root->type = LP_BOOLEAN_ANY_NOT_EQUALS;
+				break;
+			case LP_BOOLEAN_ALL_NOT_EQUALS:
+				root->type = LP_BOOLEAN_ANY_EQUALS;
+				break;
+			case LP_BOOLEAN_ALL_LESS_THAN:
+				root->type = LP_BOOLEAN_ANY_GREATER_THAN_OR_EQUALS;
+				break;
+			case LP_BOOLEAN_ALL_GREATER_THAN:
+				root->type = LP_BOOLEAN_ANY_LESS_THAN_OR_EQUALS;
+				break;
+			case LP_BOOLEAN_ALL_LESS_THAN_OR_EQUALS:
+				root->type = LP_BOOLEAN_ANY_GREATER_THAN;
+				break;
+			case LP_BOOLEAN_ALL_GREATER_THAN_OR_EQUALS:
+				root->type = LP_BOOLEAN_ANY_LESS_THAN;
+				break;
 			case LP_BOOLEAN_EXISTS:
 				root->type = LP_BOOLEAN_NOT_EXISTS;
 				break;

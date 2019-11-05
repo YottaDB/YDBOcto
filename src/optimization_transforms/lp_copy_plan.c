@@ -54,6 +54,7 @@ LogicalPlan *lp_copy_plan(LogicalPlan *plan) {
 	default:
 		new_plan->v.operand[0] = lp_copy_plan(plan->v.operand[0]);
 		new_plan->v.operand[1] = lp_copy_plan(plan->v.operand[1]);
+		break;
 	}
 	return new_plan;
 }

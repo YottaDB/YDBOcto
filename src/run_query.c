@@ -375,6 +375,7 @@ int run_query(int (*callback)(SqlStatement *, int, void*, char*), void *parms) {
 		break;
 	default:
 		WARNING(ERR_FEATURE_NOT_IMPLEMENTED, input_buffer_combined);
+		break;
 	}
 	YDB_FREE_BUFFER(&cursor_exe_global);
 	if (free_memory_chunks) {

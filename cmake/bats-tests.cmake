@@ -84,6 +84,7 @@ ADD_BATS_TEST(test_readlines)
 ADD_BATS_TEST(test_select_subquery)
 ADD_BATS_TEST(test_exists_operator)
 ADD_BATS_TEST(test_between_operator)
+ADD_BATS_TEST(test_anyallsome_operator)
 ADD_BATS_TEST(test_prep_statements)
 
 find_program(psql NAMES psql)

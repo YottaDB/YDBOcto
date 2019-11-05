@@ -150,6 +150,7 @@ int parse_startup_flags(int argc, char **argv) {
 			printf("Please use '%s --help' for more information.\n", argv[0]);
 			exit(1);
 			return 1;
+			break;
 		}
 	}
 	return 0;

@@ -43,12 +43,12 @@ void merge_config_file(const char *path, config_t *config_file) {
 	int error_line;
 	config_t new_config_file;
 	config_setting_t *a_root, *b_root;
-	if(access(path, F_OK) == -1) {
+	if (access(path, F_OK) == -1) {
 		// File not found or no access; skip it
 		return;
 	}
 	config_init(&new_config_file);
-	if(config_read_file(&new_config_file, path) == CONFIG_FALSE) {
+	if (config_read_file(&new_config_file, path) == CONFIG_FALSE) {
 		error_message = config_error_text(config_file);
 		error_file = config_error_file(config_file);
 		error_line = config_error_line(config_file);
@@ -72,13 +72,13 @@ void merge_config_file_helper(config_setting_t *a, config_setting_t *b) {
 	int setting_type;
 	int b_index;
 	b_index = 0;
-	while(TRUE) {
+	while (TRUE) {
 		b_setting = config_setting_get_elem(b, b_index);
-		if(b_setting == NULL)
+		if (NULL == b_setting)
 			break;
 		setting_name = config_setting_name(b_setting);
 		setting_type = config_setting_type(b_setting);
-		if(config_setting_is_group(b_setting) || config_setting_is_array(b_setting)
+		if (config_setting_is_group(b_setting) || config_setting_is_array(b_setting)
 				|| config_setting_is_list(b_setting)) {
 			switch(config_setting_type(a))
 			{
@@ -89,8 +89,9 @@ void merge_config_file_helper(config_setting_t *a, config_setting_t *b) {
 			case CONFIG_TYPE_LIST:
 			default:
 				t_setting = NULL;
+				break;
 			}
-			if(t_setting == NULL) {
+			if (NULL == t_setting) {
 				t_setting = config_setting_add(a, setting_name, setting_type);
 			}
 			merge_config_file_helper(t_setting, b_setting);
@@ -186,7 +187,7 @@ int octo_init(int argc, char **argv) {
 
 	// Parse the startup flags; we will have to do this again after we read the config
 	status = parse_startup_flags(argc, argv);
-	if(status)
+	if (status)
 		return status;
 
 	// Search for config file octo.conf (OCTO_CONF_FILE_NAME) in directories "$ydb_dist/plugin/etc", "~" and "." in that order
@@ -203,9 +204,9 @@ int octo_init(int argc, char **argv) {
 	config_read_string(config_file, default_octo_conf);
 
 	// Load config file
-	if(config->config_file_name == NULL) {
+	if (NULL == config->config_file_name) {
 		ydb_dist = getenv("ydb_dist");
-		if(ydb_dist != NULL) {
+		if (ydb_dist != NULL) {
 			c = snprintf(buff, sizeof(buff), "%s/plugin/etc/%s", ydb_dist, OCTO_CONF_FILE_NAME);
 			if (c < sizeof(buff))
 			{
@@ -215,7 +216,7 @@ int octo_init(int argc, char **argv) {
 			/* else : snprintf output was truncated. Ignore this conf file and try other conf files. */
 		}
 		homedir = getenv("HOME");
-		if(homedir != NULL) {
+		if (homedir != NULL) {
 			c = snprintf(buff, sizeof(buff), "%s/%s", homedir, OCTO_CONF_FILE_NAME);
 			if (c < sizeof(buff))
 			{
@@ -236,28 +237,28 @@ int octo_init(int argc, char **argv) {
 	}
 	free(default_octo_conf);
 
-	if(config_lookup_string(config_file, "verbosity", &verbosity) == CONFIG_TRUE) {
-		if(strcmp(verbosity, "TRACE") == 0) {
+	if (config_lookup_string(config_file, "verbosity", &verbosity) == CONFIG_TRUE) {
+		if (strcmp(verbosity, "TRACE") == 0) {
 			verbosity_int = TRACE;
-		} else if(strcmp(verbosity, "INFO") == 0) {
+		} else if (strcmp(verbosity, "INFO") == 0) {
 			verbosity_int = INFO;
-		} else if(strcmp(verbosity, "DEBUG") == 0) {
+		} else if (strcmp(verbosity, "DEBUG") == 0) {
 			verbosity_int = DEBUG;
-		} else if(strcmp(verbosity, "WARNING") == 0) {
+		} else if (strcmp(verbosity, "WARNING") == 0) {
 			verbosity_int = WARNING;
-		} else if(strcmp(verbosity, "ERROR") == 0) {
+		} else if (strcmp(verbosity, "ERROR") == 0) {
 			verbosity_int = ERROR;
-		} else if(strcmp(verbosity, "FATAL") == 0) {
+		} else if (strcmp(verbosity, "FATAL") == 0) {
 			verbosity_int = FATAL;
 		} else {
 			FATAL(ERR_BAD_CONFIG, "verbosity");
 		}
-	} else if(config_lookup_int(config_file, "verbosity", &verbosity_int) == CONFIG_FALSE) {
+	} else if (config_lookup_int(config_file, "verbosity", &verbosity_int) == CONFIG_FALSE) {
 		printf("Verbosity set to %s\n", verbosity);
 		FATAL(ERR_BAD_CONFIG, "verbosity");
 	}
 
-	if(config_lookup_string(config_file, "octo_zroutines", (const char**) &tmp_buf) == CONFIG_TRUE) {
+	if (config_lookup_string(config_file, "octo_zroutines", (const char**) &tmp_buf) == CONFIG_TRUE) {
 		/* prepend to the start of $zroutines */
 		YDB_LITERAL_TO_BUFFER("$zroutines", &dollar_zro);
 		zro_buf = malloc(zro_buf_size);
@@ -278,7 +279,7 @@ int octo_init(int argc, char **argv) {
 		zroutines.len_used = 0;
 		status = ydb_get_s(&dollar_zro, 0, NULL, &zroutines);
 		/* if the stack buffer isn't large enough allocate more and call ydb_get_s() again */
-		if(YDB_ERR_INVSTRLEN == status){
+		if (YDB_ERR_INVSTRLEN == status){
 			zro_buf_size = zroutines.len_used + c + 1;
 			char *tmp;
 			tmp = malloc(zro_buf_size);
@@ -290,7 +291,7 @@ int octo_init(int argc, char **argv) {
 			zroutines.len_used = 0;
 			status = ydb_get_s(&dollar_zro, 0, NULL, &zroutines);
 		}
-		if(YDB_OK != status){
+		if (YDB_OK != status){
 			ydb_zstatus(ydb_errbuf, sizeof(ydb_errbuf));
 			FATAL(ERR_YOTTADB, ydb_errbuf);
 		}
@@ -299,7 +300,7 @@ int octo_init(int argc, char **argv) {
 		zroutines.len_used += c;
 		zroutines.len_alloc = zro_buf_size;
 		status = ydb_set_s(&dollar_zro, 0, NULL, &zroutines);
-		if(YDB_ERR_ZROSYNTAX == status || YDB_ERR_DLLNOOPEN == status){
+		if (YDB_ERR_ZROSYNTAX == status || YDB_ERR_DLLNOOPEN == status){
 			FATAL(ERR_BAD_CONFIG, "octo_zroutines");
 		} else if (YDB_OK != status){
 			ydb_zstatus(ydb_errbuf, sizeof(ydb_errbuf));
@@ -317,7 +318,7 @@ int octo_init(int argc, char **argv) {
 		zroutines.len_used = 0;
 		status = ydb_get_s(&dollar_zro, 0, NULL, &zroutines);
 		/* if ZRO_INIT_ALLOC isn't large enough allocate more and call ydb_get_s() again */
-		if(YDB_ERR_INVSTRLEN == status){
+		if (YDB_ERR_INVSTRLEN == status){
 			zro_buf_size = zroutines.len_used + 1;
 			free(zro_buf);
 			zro_buf = malloc(zro_buf_size);
@@ -326,13 +327,13 @@ int octo_init(int argc, char **argv) {
 			zroutines.len_used = 0;
 			status = ydb_get_s(&dollar_zro, 0, NULL, &zroutines);
 		}
-		if(YDB_OK != status){
+		if (YDB_OK != status){
 			ydb_zstatus(ydb_errbuf, sizeof(ydb_errbuf));
 			FATAL(ERR_YOTTADB, ydb_errbuf);
 		}
 	}
 	/* check if buffer will need a resize with the padding */
-	if(zroutines.len_alloc - 2 < zroutines.len_used) {
+	if (zroutines.len_alloc - 2 < zroutines.len_used) {
 		char *tmp = malloc(zroutines.len_alloc + 2);
 		strncpy(tmp, zro_buf, zroutines.len_used);
 		free(zro_buf);
@@ -342,7 +343,7 @@ int octo_init(int argc, char **argv) {
 	/* trim leading white space */
 	c = 0;
 	status = TRUE;
-	while(c < zroutines.len_used && status){
+	while (c < zroutines.len_used && status){
 		switch(zroutines.buf_addr[c]){
 			case ' ' :
 				c++;
@@ -360,7 +361,7 @@ int octo_init(int argc, char **argv) {
 	zroutines.buf_addr[zroutines.len_used + 1] = '\0';
 	zroutines.len_used += 2;
 	struct stat statbuf;
-	while('\0' != zroutines.buf_addr[c]){
+	while ('\0' != zroutines.buf_addr[c]){
 		switch(zroutines.buf_addr[c]){
 			/* white space characters, and right paren are delimiters */
 			case ' ' :
@@ -384,7 +385,7 @@ int octo_init(int argc, char **argv) {
 				if (0 != status && 2 != errno && 0 != c){
 					FATAL(ERR_SYSCALL, "stat", errno, strerror(errno));
 				}
-				if(!S_ISDIR(statbuf.st_mode)){
+				if (!S_ISDIR(statbuf.st_mode)){
 					zroutines.buf_addr += (c+1);
 					c = 0;
 					break;
@@ -404,39 +405,39 @@ int octo_init(int argc, char **argv) {
 				break;
 		}
 	}
-	if(!config->tmp_dir){
+	if (!config->tmp_dir){
 		FATAL(ERR_BAD_ZROUTINES, NULL);
 	}
 	free(zro_buf);
 
-	if(config_lookup_string(config_file, "rocto.address", &config->rocto_config.address)
+	if (config_lookup_string(config_file, "rocto.address", &config->rocto_config.address)
 			== CONFIG_FALSE) {
 		FATAL(ERR_BAD_CONFIG, "rocto.address");
 	}
-	if(config_lookup_int(config_file, "rocto.port", &config->rocto_config.port)
+	if (config_lookup_int(config_file, "rocto.port", &config->rocto_config.port)
 			== CONFIG_FALSE) {
 		FATAL(ERR_BAD_CONFIG, "rocto.port");
 	}
-	if(config_lookup_bool(config_file, "rocto.use_dns", &config->rocto_config.use_dns)
+	if (config_lookup_bool(config_file, "rocto.use_dns", &config->rocto_config.use_dns)
 			== CONFIG_FALSE) {
 		FATAL(ERR_BAD_CONFIG, "rocto.use_dns");
 	}
 #	if YDB_TLS_AVAILABLE
-	if(config_lookup_string(config_file, "tls.OCTOSERVER.cert", &config->rocto_config.ssl_cert_file)
+	if (config_lookup_string(config_file, "tls.OCTOSERVER.cert", &config->rocto_config.ssl_cert_file)
 			== CONFIG_FALSE) {
 		FATAL(ERR_BAD_CONFIG, "tls.OCTOSERVER.cert");
 	}
-	if(config_lookup_string(config_file, "tls.OCTOSERVER.key", &config->rocto_config.ssl_key_file)
+	if (config_lookup_string(config_file, "tls.OCTOSERVER.key", &config->rocto_config.ssl_key_file)
 			== CONFIG_FALSE) {
 		FATAL(ERR_BAD_CONFIG, "tls.OCTOSERVER.key");
 	}
-	if(config_lookup_bool(config_file, "rocto.ssl_on", &config->rocto_config.ssl_on)
+	if (config_lookup_bool(config_file, "rocto.ssl_on", &config->rocto_config.ssl_on)
 			== CONFIG_FALSE) {
 		FATAL(ERR_BAD_CONFIG, "rocto.ssl_on");
 	}
 
 #	else
-	if(config_lookup_bool(config_file, "rocto.ssl_on", &config->rocto_config.ssl_on)
+	if (config_lookup_bool(config_file, "rocto.ssl_on", &config->rocto_config.ssl_on)
 			== CONFIG_FALSE) {
 		FATAL(ERR_BAD_CONFIG, "rocto.ssl_on");
 	}
@@ -447,12 +448,12 @@ int octo_init(int argc, char **argv) {
 #	endif
 	// Read in YDB settings
 	ydb_settings = config_lookup(config_file, "yottadb");
-	if(ydb_settings != NULL && config_setting_is_group(ydb_settings) == CONFIG_TRUE) {
+	if (ydb_settings != NULL && config_setting_is_group(ydb_settings) == CONFIG_TRUE) {
 		i = 0;
-		while((cur_ydb_setting = config_setting_get_elem(ydb_settings, i)) != NULL) {
+		while ((cur_ydb_setting = config_setting_get_elem(ydb_settings, i)) != NULL) {
 			item_name = config_setting_name(cur_ydb_setting);
 			item_value = config_setting_get_string(cur_ydb_setting);
-			if(getenv(item_name) == NULL) {
+			if (NULL == getenv(item_name)) {
 				setenv(item_name, item_value, 0);
 			}
 			i++;
@@ -465,12 +466,12 @@ int octo_init(int argc, char **argv) {
 
 	// Reparse the startup flags to ensure they overwrite the config files
 	status = parse_startup_flags(argc, argv);
-	if(status)
+	if (status)
 		return status;
 
 	// Verify that the directory exists, or issue an error
 	dir = opendir(config->tmp_dir);
-	if(dir == NULL) {
+	if (NULL == dir) {
 		FATAL(ERR_SYSCALL, "opendir (config.tmp_dir)", errno, strerror(errno));
 	}
 	free(dir);

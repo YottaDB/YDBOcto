@@ -29,7 +29,7 @@ SqlColumn *column_list_alias_to_columns(SqlTableAlias *table_alias) {
 	SqlStatement		*stmt;
 	int			column_number;
 
-	if(table_alias->column_list == NULL)
+	if (NULL == table_alias->column_list)
 		return NULL;
 	UNPACK_SQL_STATEMENT(cla_start, table_alias->column_list, column_list_alias);
 	cla_cur = cla_start;
@@ -61,6 +61,7 @@ SqlColumn *column_list_alias_to_columns(SqlTableAlias *table_alias) {
 			assert(FALSE);
 			ERROR(ERR_FEATURE_NOT_IMPLEMENTED, "");
 			return NULL;
+			break;
 		}
 		// Initialize COLUMN # field
 		keyword	= add_optional_piece_keyword_to_sql_column(column_number);
@@ -69,12 +70,12 @@ SqlColumn *column_list_alias_to_columns(SqlTableAlias *table_alias) {
 		cur_column->column_number = column_number;
 		// Initialize remaining fields
 		dqinit(cur_column);
-		if(start_column == NULL) {
+		if (NULL == start_column) {
 			start_column = cur_column;
 		} else {
 			dqappend(cur_column, start_column);
 		}
 		cla_cur = cla_cur->next;
-	} while(cla_start != cla_cur);
+	} while (cla_start != cla_cur);
 	return start_column;
 }

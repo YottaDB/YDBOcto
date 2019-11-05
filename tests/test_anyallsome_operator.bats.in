@@ -1,0 +1,37 @@
+#################################################################
+#								#
+# Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	#
+# All rights reserved.						#
+#								#
+#	This source code contains the intellectual property	#
+#	of its copyright holder(s), and is made available	#
+#	under a license.  If you do not know the terms of	#
+#	the license, please stop and do not read further.	#
+#								#
+#################################################################
+
+load test_helpers
+
+setup() {
+  init_test
+  createdb
+  load_fixture names.sql
+  load_fixture names.zwr
+}
+
+@test "TAO01 : OCTO356 : Test ANY/ALL/SOME operator" {
+  yottadb -run TAO01 # this generates query files of the form TAO01_01.sql, TAO01_02.sql ...
+  for file in TAO01_*.sql
+  do
+    run_query_in_octo_and_postgres_and_crosscheck names $file "remove_empty_line_at_tail"
+  done
+}
+
+@test "TAO02 : OCTO356 : Test ANY/ALL/SOME operator for type mismatch and more-than-1-column errors" {
+  cp @PROJECT_SOURCE_DIR@/tests/fixtures/TAO02.sql .
+  grep -v '^#' TAO02.sql > output.txt	# Filter out copyright from output
+  grep -vE '^-- |^#' TAO02.sql > input.sql	# Filter out comment lines as they otherwise clutter the parse error output
+  octo -f input.sql >> output.txt 2>&1
+  verify_output TAO02 output.txt
+}
+

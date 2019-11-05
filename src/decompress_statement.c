@@ -17,7 +17,7 @@
 
 #define CALL_DECOMPRESS_HELPER(value, out, out_length)			\
 {									\
-	if(value != NULL) {						\
+	if (value != NULL) {						\
 		value = R2A(value);					\
 		decompress_statement_helper(value, out, out_length);	\
 	}								\
@@ -41,7 +41,7 @@ void *decompress_statement_helper(SqlStatement *stmt, char *out, int out_length)
 	SqlOptionalKeyword	*start_keyword, *cur_keyword;
 
 	assert(((char*)stmt) < out + out_length);
-	if(stmt == NULL)
+	if (NULL == stmt)
 		return NULL;
 	// In each case below, after storing the pointer of the statement in
 	//  a temporary variable we mark the statement as NULL, then check here
@@ -49,7 +49,7 @@ void *decompress_statement_helper(SqlStatement *stmt, char *out, int out_length)
 	// This lets us play a bit fast-and-loose with the structures to
 	//  avoid extra copies during runtime, and not have issues with double
 	//  frees
-	if(stmt->v.value == NULL)
+	if (NULL == stmt->v.value)
 		return NULL;
 	stmt->v.value = R2A(stmt->v.value);
 	switch(stmt->type) {
@@ -78,7 +78,7 @@ void *decompress_statement_helper(SqlStatement *stmt, char *out, int out_length)
 			CALL_DECOMPRESS_HELPER(cur_column->columnName, out, out_length);
 			// Don't copy table
 			CALL_DECOMPRESS_HELPER(cur_column->keywords, out, out_length);
-			if(cur_column->next == 0) {
+			if (cur_column->next == 0) {
 				cur_column->next = start_column;
 			} else {
 				cur_column->next = R2A(cur_column->next);
@@ -86,21 +86,21 @@ void *decompress_statement_helper(SqlStatement *stmt, char *out, int out_length)
 			cur_column->table = (SqlStatement *)out; /* table is first element in compressed structure i.e. "out" */
 			cur_column->next->prev = cur_column;
 			cur_column = cur_column->next;
-		} while(cur_column != start_column);
+		} while (cur_column != start_column);
 		break;
 	case keyword_STATEMENT:
 		UNPACK_SQL_STATEMENT(start_keyword, stmt, keyword);
 		cur_keyword = start_keyword;
 		do {
 			CALL_DECOMPRESS_HELPER(cur_keyword->v, out, out_length);
-			if(cur_keyword->next == 0) {
+			if (cur_keyword->next == 0) {
 				cur_keyword->next = start_keyword;
 			} else {
 				cur_keyword->next = R2A(cur_keyword->next);
 			}
 			cur_keyword->next->prev = cur_keyword;
 			cur_keyword = cur_keyword->next;
-		} while(cur_keyword != start_keyword);
+		} while (cur_keyword != start_keyword);
 		break;
 	default:
 		assert(FALSE);

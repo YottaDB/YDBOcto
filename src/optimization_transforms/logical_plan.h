@@ -181,6 +181,8 @@ int lp_get_num_cols_in_select_column_list(LogicalPlan *plan);
 // Returns the
 // Inserts a key at the end of the plans keys
 void lp_insert_key(LogicalPlan *plan, LogicalPlan *key);
+// Returns if either operand of a boolean operation logical plan (e.g. LP_BOOLEAN_LESS_THAN) is of type STRING
+boolean_t lp_is_bool_operand_type_string(LogicalPlan *plan);
 // Returns LP_WHERE with an AND of the two wheres
 LogicalPlan *lp_join_where(LogicalPlan *where1, LogicalPlan *where2);
 // Returns a new logical plan representing the boolean structure from stmt

@@ -100,6 +100,7 @@ int emit_column_specification(char *buffer, int buffer_size, SqlColumn *cur_colu
 		default:
 			ERROR(ERR_UNKNOWN_KEYWORD_STATE, "");
 			return -1;
+			break;
 		}
 		cur_keyword = cur_keyword->next;
 	} while(cur_keyword != start_keyword);

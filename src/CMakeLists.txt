@@ -178,6 +178,7 @@ add_library(libocto OBJECT
   optimization_transforms/lp_join_plans.c
   optimization_transforms/generate_logical_plan.c
   optimization_transforms/logical_plan.c
+  optimization_transforms/lp_is_bool_operand_type_string.c
   physical/generate_physical_plan.c
   physical/emit_physical_plan.c
   physical/is_prev_plan_in_same_dnf.c

@@ -279,12 +279,12 @@ columnkeyEXCEPT(inputId1,inputId2,outputId)
 	QUIT
 
 GetScalar(keyId)
-	; Helper M function that given an output key # (keyId) checks if the output key has only one column
-	; and at most one row. If so it returns that as the value. If not, it issues an error.
+	; Helper M function that given an output key # (keyId) checks if the output key at most one row (guaranteed
+	; to have only one column at parse time). If so it returns that as the value. If not, it issues an error.
 	; Used by generated plans where a sub-query is used in place of a scalar value (e.g. arithmetic expression etc.)
 	; Assumes "%ydboctocursor" and "cursorId" are appropriately set by caller.
 	;
-	NEW %ydboctofirstrowfirstcol,%ydboctomultiplerow,%ydboctomultiplecol
+	NEW %ydboctofirstrowfirstcol,%ydboctomultiplerow
 	SET %ydboctofirstrowfirstcol=$ORDER(%ydboctocursor(cursorId,"keys",keyId,"","",""))
 	QUIT:(""=%ydboctofirstrowfirstcol) ""	; "" needs to be replaced with $ZYSQLNULL when #311 is fixed
 	; Find out if the output key has more than one row. If so issue an error
@@ -295,10 +295,56 @@ GetScalar(keyId)
 	ZMESSAGE:%ydboctomultiplerow %ydboctoerror("SUBQUERYMULTIPLEROWS")
 	QUIT %ydboctofirstrowfirstcol	; Return scalar in only column and only row of keyId
 
-Exists(keyId)
+EXISTS(keyId)
 	; Helper M function that given an output key # (keyId) checks if the output key has at least one row
 	; If so returns 1 and if not returns 0. Implements the EXISTS operator in SQL.
 	; Assumes "%ydboctocursor" and "cursorId" are appropriately set by caller.
 	;
 	QUIT (1<$DATA(%ydboctocursor(cursorId,"keys",keyId,"","")))
+
+ANY(inputValue,keyId,compOp,isString)
+	; Helper M function that implements the ANY/SOME operator in SQL.
+	; Given an output key # (keyId) checks if the output key has at least one row with a value that satisfies the
+	; compOp property (which can be any one of "<",">","<=",">=","=","'=") against the input value (inputValue).
+	; If so returns 1 and if not returns 0.
+	; Assumes "%ydboctocursor" and "cursorId" are appropriately set by caller.
+	; NOTE: Examine the below program for potential $ZYSQLNULL handling once #311 is fixed
+	;
+	NEW %ydboctoret,%ydboctosub
+	SET %ydboctosub="",%ydboctoret=0
+	FOR  SET %ydboctosub=$ORDER(%ydboctocursor(cursorId,"keys",keyId,"","",%ydboctosub)) QUIT:%ydboctoret!(""=%ydboctosub)  DO
+	. SET %ydboctoret=$$Compare(inputValue,compOp,%ydboctosub,isString)
+	QUIT %ydboctoret
+
+ALL(inputValue,keyId,compOp,isString)
+	; Helper M function that implements the ALL operator in SQL.
+	; Given an output key # (keyId) checks if the output key has ALL rows with a value that satisfies the
+	; compOp property (which can be any one of "<",">","<=",">=","=","'=") against the input value (inputValue).
+	; If so returns 1 and if not returns 0.
+	; Assumes "%ydboctocursor" and "cursorId" are appropriately set by caller.
+	; NOTE: Examine the below program for potential $ZYSQLNULL handling once #311 is fixed
+	;
+	NEW %ydboctoret,%ydboctosub
+	SET %ydboctosub="",%ydboctoret=1
+	FOR  SET %ydboctosub=$ORDER(%ydboctocursor(cursorId,"keys",keyId,"","",%ydboctosub)) QUIT:'%ydboctoret!(""=%ydboctosub)  DO
+	. SET %ydboctoret=$$Compare(inputValue,compOp,%ydboctosub,isString)
+	QUIT %ydboctoret
+
+Compare(value1,compOp,value2,isString)
+	; Helper M function used by $$ANY and $$ALL to perform comparison
+	NEW %ydboctoret
+	QUIT:("="=compOp) value1=value2
+	QUIT:("'="=compOp) value1'=value2
+	IF 'isString  DO  QUIT %ydboctoret
+	. SET:("<"=compOp) %ydboctoret=(value1<value2)
+	. SET:("<="=compOp) %ydboctoret=(value1<=value2)
+	. SET:(">"=compOp) %ydboctoret=(value1>value2)
+	. SET:(">="=compOp) %ydboctoret=(value1>=value2)
+	; Now that we know it is a string type and we have inequality checks, we need to figure out
+	; the right operator to use (M FOLLOWS operator or its complement).
+	QUIT:(">"=compOp) value1]value2
+	QUIT:("<="=compOp) value1']value2
+	QUIT:(">="=compOp) value2']value1
+	QUIT:(">"=compOp) value2]value1
+	QUIT  ; We do not expect to reach here. Hence the QUIT without any value (will generate a runtime error).
 

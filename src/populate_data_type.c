@@ -41,6 +41,7 @@ char	*get_setoperation_string(SqlSetOperationType type) {
 	default:
 		assert(FALSE);
 		ERROR(ERR_UNKNOWN_KEYWORD_STATE, "");
+		break;
 	}
 	return "";
 }
@@ -63,6 +64,7 @@ char *get_type_string(SqlValueType type) {
 	default:
 		assert(FALSE);
 		ERROR(ERR_UNKNOWN_KEYWORD_STATE, "");
+		break;
 	}
 	return "";
 }
@@ -426,6 +428,7 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, char *cursorId) {
 		assert(FALSE);
 		ERROR(ERR_UNKNOWN_KEYWORD_STATE, "");
 		result = 1;
+		break;
 	}
 	return result;
 }

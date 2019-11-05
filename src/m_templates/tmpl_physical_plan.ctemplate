@@ -225,6 +225,7 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
 			default:
 				plan_helper_mlabref = NULL;
 				assert(FALSE);
+				break;
 		}
 		if (NULL != plan_helper_mlabref)
 		{

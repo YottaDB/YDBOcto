@@ -82,10 +82,11 @@ char *copy_binary_parameter(RoctoSession *session, Bind *bind, const int32_t cur
 		default:
 			ERROR(ERR_ROCTO_UNSUPPORTED_BIND_PARAMETER, PSQL_Code_Syntax_Error, "unsupported bind parameter type received", 0);
 			return NULL;
+			break;
 	}
-	if (0 > copied || query + copied > end_query) {
-			ERROR(ERR_ROCTO_BIND_PARAMETER_DECODE_FAILURE, PSQL_Code_Syntax_Error, "failed to decode binary bind parameter", 0);
-			return NULL;
+	if ((0 > copied) || ((query + copied) > end_query)) {
+		ERROR(ERR_ROCTO_BIND_PARAMETER_DECODE_FAILURE, PSQL_Code_Syntax_Error, "failed to decode binary bind parameter", 0);
+		return NULL;
 	}
 	strncpy(query, str_value, copied);
 	query += copied;

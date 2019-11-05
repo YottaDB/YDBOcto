@@ -75,6 +75,7 @@ ErrorResponse *make_error_response(PSQL_ErrorSeverity severity, PSQL_SQLSTATECod
 		break;
 	default:
 		ret->type = PSQL_ErrorResponse;
+		break;
 	}
 	ret->length = htonl(new_length + sizeof(uint32_t));
 	ptr = ret->data;

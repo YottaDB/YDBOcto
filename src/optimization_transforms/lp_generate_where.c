@@ -41,6 +41,7 @@ LogicalPlan *lp_generate_where(SqlStatement *stmt, int *plan_id, SqlStatement *p
 		default:
 			MALLOC_LP_2ARGS(ret, LP_VALUE);
 			ret->v.value = value;
+			break;
 		}
 		break;
 	case binary_STATEMENT:
@@ -235,6 +236,7 @@ LogicalPlan *lp_generate_where(SqlStatement *stmt, int *plan_id, SqlStatement *p
 	default:
 		ERROR(ERR_UNKNOWN_KEYWORD_STATE, "");
 		ret = NULL;
+		break;
 	}
 	return (null_return_seen ? NULL : ret);
 }

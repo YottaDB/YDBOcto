@@ -190,6 +190,18 @@ int lp_verify_structure_helper(LogicalPlan *plan, LPActionType expected) {
 	case LP_BOOLEAN_IN:
 	case LP_BOOLEAN_NOT_IN:
 	case LP_BOOLEAN_NOT:
+	case LP_BOOLEAN_ANY_EQUALS:
+	case LP_BOOLEAN_ANY_NOT_EQUALS:
+	case LP_BOOLEAN_ANY_LESS_THAN:
+	case LP_BOOLEAN_ANY_GREATER_THAN:
+	case LP_BOOLEAN_ANY_LESS_THAN_OR_EQUALS:
+	case LP_BOOLEAN_ANY_GREATER_THAN_OR_EQUALS:
+	case LP_BOOLEAN_ALL_EQUALS:
+	case LP_BOOLEAN_ALL_NOT_EQUALS:
+	case LP_BOOLEAN_ALL_LESS_THAN:
+	case LP_BOOLEAN_ALL_GREATER_THAN:
+	case LP_BOOLEAN_ALL_LESS_THAN_OR_EQUALS:
+	case LP_BOOLEAN_ALL_GREATER_THAN_OR_EQUALS:
 	case LP_BOOLEAN_EXISTS:
 	case LP_BOOLEAN_NOT_EXISTS:
 	case LP_WHERE:
@@ -228,6 +240,18 @@ int lp_verify_structure_helper(LogicalPlan *plan, LPActionType expected) {
 				| lp_verify_structure_helper(plan->v.operand[i], LP_BOOLEAN_IN)
 				| lp_verify_structure_helper(plan->v.operand[i], LP_BOOLEAN_NOT_IN)
 				| lp_verify_structure_helper(plan->v.operand[i], LP_BOOLEAN_NOT)
+				| lp_verify_structure_helper(plan->v.operand[i], LP_BOOLEAN_ANY_EQUALS)
+				| lp_verify_structure_helper(plan->v.operand[i], LP_BOOLEAN_ANY_NOT_EQUALS)
+				| lp_verify_structure_helper(plan->v.operand[i], LP_BOOLEAN_ANY_LESS_THAN)
+				| lp_verify_structure_helper(plan->v.operand[i], LP_BOOLEAN_ANY_GREATER_THAN)
+				| lp_verify_structure_helper(plan->v.operand[i], LP_BOOLEAN_ANY_LESS_THAN_OR_EQUALS)
+				| lp_verify_structure_helper(plan->v.operand[i], LP_BOOLEAN_ANY_GREATER_THAN_OR_EQUALS)
+				| lp_verify_structure_helper(plan->v.operand[i], LP_BOOLEAN_ALL_EQUALS)
+				| lp_verify_structure_helper(plan->v.operand[i], LP_BOOLEAN_ALL_NOT_EQUALS)
+				| lp_verify_structure_helper(plan->v.operand[i], LP_BOOLEAN_ALL_LESS_THAN)
+				| lp_verify_structure_helper(plan->v.operand[i], LP_BOOLEAN_ALL_GREATER_THAN)
+				| lp_verify_structure_helper(plan->v.operand[i], LP_BOOLEAN_ALL_LESS_THAN_OR_EQUALS)
+				| lp_verify_structure_helper(plan->v.operand[i], LP_BOOLEAN_ALL_GREATER_THAN_OR_EQUALS)
 				| lp_verify_structure_helper(plan->v.operand[i], LP_BOOLEAN_EXISTS)
 				| lp_verify_structure_helper(plan->v.operand[i], LP_BOOLEAN_NOT_EXISTS)
 				// LP_INSERT/LP_SET_OPERATIONs usually show up as operand[1] only for the IN boolean expression.
@@ -286,6 +310,7 @@ int lp_verify_structure_helper(LogicalPlan *plan, LPActionType expected) {
 	default:
 		// This should never happen
 		assert(FALSE);
+		break;
 	}
 	assert(ret);
 	return ret;

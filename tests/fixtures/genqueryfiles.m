@@ -16,7 +16,7 @@
 ; Also expects the input query file to be passed in the command line as the first/only parameter ($zcmdline).
 ;
 genqueryfiles
-	new queryfile,file,line,nlines,i,prefix
+	new queryfile,file,line,nlines,i,prefix,cnt
 	set queryfile=$zcmdline
 	open queryfile:(readonly)
 	use queryfile
@@ -25,7 +25,9 @@ genqueryfiles
 	kill line(nlines)  if $incr(nlines,-1)
 	set prefix=$piece(queryfile,".",1)
 	for i=1:1:nlines do
-	. set file=prefix_"_"_$translate($justify(i,2)," ","0")_".sql"
+	. set firstpiece=$piece(line(i)," ",1)
+	. quit:(""=line(i))!("#"=$zextract(line(i),1))!("--"=$zextract(line(i),1,2))
+	. set file=prefix_"_"_$translate($justify($incr(cnt),2)," ","0")_".sql"
 	. open file:(newversion)  use file
 	. write line(i),!
 	. close file

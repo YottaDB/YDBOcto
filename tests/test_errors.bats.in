@@ -28,15 +28,6 @@ OCTO
   [[ "$output" =~ "ZGBLDIRACC" ]]
 }
 
-@test "TERR000 : Feature not implemented: between_predicate" {
-  octo <<OCTO 2>&1 | tee output.txt
-select * from names where id between 1 and 10;
-select * from names where id between 1+1 and 10;
-select * from names where id between id+10 and 10;
-OCTO
-  verify_output TERR000 output.txt
-}
-
 @test "TERR002 : Octo can recover from error (e.g. DIVBYZERO)" {
   octo <<OCTO 2>&1 | tee output.txt
 select 1/0 from names;

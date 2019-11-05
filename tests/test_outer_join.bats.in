@@ -20,8 +20,7 @@ setup() {
 }
 
 @test "TOJ01 : Various OUTER JOIN queries (including OCTO363)" {
-  cp @PROJECT_SOURCE_DIR@/tests/fixtures/TOJ01.sql TOJ01orig.sql
-  grep -vE '^-- |^#' TOJ01orig.sql > TOJ01.sql
+  cp @PROJECT_SOURCE_DIR@/tests/fixtures/TOJ01.sql .
   yottadb -run genqueryfiles TOJ01.sql	# this generates query files of the form TOJ01_01.sql, TOJ01_02.sql ...
   for file in TOJ01_*.sql
   do
@@ -58,10 +57,10 @@ setup() {
 }
 
 @test "TOJ04 : outer join with no ON condition specified" {
-  cp @PROJECT_SOURCE_DIR@/tests/fixtures/TOJ04.sql TOJ04orig.sql
-  grep -vE '^-- |^#' TOJ04orig.sql > TOJ04.sql
-  cat TOJ04.sql > output.txt
-  octo -f TOJ04.sql >> output.txt 2>&1
+  cp @PROJECT_SOURCE_DIR@/tests/fixtures/TOJ04.sql .	# contains only one query
+  yottadb -run genqueryfiles TOJ04.sql	# this generates the query file TOJ04_01.sql (only one)
+  cat TOJ04_*.sql > output.txt
+  octo -f TOJ04_*.sql >> output.txt 2>&1
   verify_output TOJ04 output.txt
 }
 

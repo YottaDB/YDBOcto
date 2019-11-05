@@ -430,7 +430,7 @@ boolean_primary
 
 predicate
   : comparison_predicate { $$ = $comparison_predicate; }
-  | between_predicate
+  | between_predicate { $$ = $between_predicate; }
   | in_predicate { $$ = $in_predicate; }
 //  | like_predicate
   | null_predicate { $$ = $null_predicate; }
@@ -545,7 +545,10 @@ not_insensitive_like_predicate
 
 between_predicate
   : row_value_constructor BETWEEN value_expression AND value_expression {
-      WARNING(ERR_FEATURE_NOT_IMPLEMENTED, "BETWEEN operator (grammar rule : between_predicate)"); YYABORT;
+	$$ = between_predicate($row_value_constructor, $3, $5, FALSE);
+    }
+  | row_value_constructor NOT BETWEEN value_expression AND value_expression {
+	$$ = between_predicate($row_value_constructor, $4, $6, TRUE);
     }
   ;
 

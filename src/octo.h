@@ -211,6 +211,7 @@ SqlStatement *sort_specification(SqlStatement *sort_key, SqlStatement *collate_c
 int regex_specification(SqlStatement **stmt, SqlStatement *op0, SqlStatement *op1, int is_regex_like_or_similar, int is_sensitive, int is_not, char *cursorId);
 SqlStatement *set_operation(enum SqlSetOperationType setoper_type, SqlStatement *left_operand, SqlStatement *right_operand);
 SqlStatement *row_value_constructor_binary_statement(SqlStatement *row_value_constructor, char *cursorId);
+SqlStatement *between_predicate(SqlStatement *row_value_constructor, SqlStatement *from, SqlStatement *to, boolean_t not_specified);
 int parse_literal_to_parameter(char *cursorId, SqlValue *value, boolean_t update_existing);
 
 /* trims duplicate '.*'s from regex */

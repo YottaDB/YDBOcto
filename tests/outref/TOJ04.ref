@@ -1,6 +1,5 @@
-
 SELECT * FROM names n1 LEFT JOIN (SELECT * FROM names WHERE firstName < 'Zero') n2;
-Error with syntax near (line 1, column 83):
+Error with syntax near (line 1, column 82):
 
 SELECT * FROM names n1 LEFT JOIN (SELECT * FROM names WHERE firstName < 'Zero') n2;
                                                                                   ^

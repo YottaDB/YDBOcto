@@ -22,11 +22,14 @@ setup() {
 @test "sqllogictest test num failures will be printed in the top level output.txt" {
 	failures=""
 	skips=""
+	# Construct the list of test #s to disable by taking a UNION of the test #s corresponding to each issue
+	cp @PROJECT_SOURCE_DIR@/tests/fixtures/sqllogictest/select1/issuetypes.txt .
+	grep '	[0-9][0-9]*$' issuetypes.txt | sort -un | sed 's/^	//g' > disablelist.txt
 	# Loop though the list of subtests in this test
 	for i in {0..999}; do
-		# for tests in the issuelist skip them so the pipeline passes
+		# for tests in the disablelist skip them so the pipeline passes
 		# they can be added later once they have been addressed
-		if [ $(grep "^$i\$" @PROJECT_SOURCE_DIR@/tests/fixtures/sqllogictest/select1/issuelist.txt) ]; then
+		if [ $(grep "\<$i\>" disablelist.txt) ]; then
 			skips="$skips$i\n"
 			continue
 		fi

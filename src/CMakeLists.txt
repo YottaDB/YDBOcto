@@ -192,6 +192,7 @@ add_library(libocto OBJECT
   parser/trim_dot_star.c
   parser/regex_specification.c
   parser/row_value_constructor_binary_statement.c
+  parser/between_predicate.c
   ${BISON_OctoParser_OUTPUTS}
   ${FLEX_OctoLexer_OUTPUTS}
   ${POST_CONFIGURE_FILE}

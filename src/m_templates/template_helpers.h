@@ -57,11 +57,6 @@ TEMPLATE(tmpl_print_dots, int dots);
 TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan);
 TEMPLATE(tmpl_tablejoin, PhysicalPlan *plan, LogicalPlan *tablejoin, unsigned int cur_key, boolean_t right_join_second_half,	\
 								int dot_count, char *tableName, char *columnName);
-TEMPLATE(tmpl_tablejoin_innerjoin, PhysicalPlan *plan, LogicalPlan *tablejoin, int *dot_count, boolean_t *deferred_plans_emitted);
-TEMPLATE(tmpl_tablejoin_leftjoin, PhysicalPlan *plan, LogicalPlan *tablejoin, unsigned int cur_key, int *dot_count,		\
-											boolean_t *deferred_plans_emitted);
-TEMPLATE(tmpl_tablejoin_rightjoin, PhysicalPlan *plan, LogicalPlan *tablejoin, boolean_t skip_on_condition,			\
-			unsigned int key_start, unsigned int key_end, int *dot_count, boolean_t *deferred_plans_emitted);
 TEMPLATE(tmpl_rightjoin_key, PhysicalPlan *plan, unsigned int key_start, unsigned int key_end);
 TEMPLATE(tmpl_tablejoin_body, PhysicalPlan *plan, int dot_count, char *tableName, char *columnName);
 TEMPLATE(tmpl_tablejoin_deferred_plans, PhysicalPlan *plan, int dot_count);

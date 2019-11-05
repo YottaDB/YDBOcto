@@ -19,162 +19,17 @@ setup() {
   load_fixture names.zwr
 }
 
-@test "outer join with no condition specified" {
-  octo <<OCTO 2>&1 | tee output.txt
-SELECT *
-FROM names n1
-LEFT JOIN (
-  SELECT *
-  FROM names
-  WHERE firstName < "Zero"
-) n2;
-OCTO
-  [[ "$(grep -c "Error parsing statement" output.txt)" == "1" ]]
+@test "TOJ01 : Various OUTER JOIN queries (including OCTO363)" {
+  cp @PROJECT_SOURCE_DIR@/tests/fixtures/TOJ01.sql TOJ01orig.sql
+  grep -vE '^-- |^#' TOJ01orig.sql > TOJ01.sql
+  yottadb -run genqueryfiles TOJ01.sql	# this generates query files of the form TOJ01_01.sql, TOJ01_02.sql ...
+  for file in TOJ01_*.sql
+  do
+    run_query_in_octo_and_postgres_and_crosscheck names $file "remove_empty_line_at_tail"
+  done
 }
 
-@test "outer join with matching rows is the same as inner join" {
-  octo <<OCTO &> output1.txt
-SELECT *
-FROM names n1
-LEFT JOIN names n2
-ON n1.id = n2.id;
-OCTO
-  octo <<OCTO &> output2.txt
-SELECT *
-FROM names n1
-INNER JOIN names n2
-ON n1.id = n2.id;
-OCTO
-  grep "|" output1.txt > output1_filtered.txt
-  grep "|" output2.txt > output2_filtered.txt
-  [[ "$(diff output1_filtered.txt output2_filtered.txt)" == "" ]]
-}
-
-@test "outer join followed by a SET operation" {
-  octo <<OCTO &> output1.txt
-SELECT n1.id,n1.firstname,n2.lastname
-FROM names n1
-LEFT JOIN names n2
-ON n1.id = n2.id
-UNION ALL
-SELECT *
-FROM names n1;
-OCTO
-  octo <<OCTO &> output2.txt
-SELECT n2.id,n2.firstname,n1.lastname
-FROM names n1
-INNER JOIN names n2
-ON n1.id = n2.id
-UNION ALL
-SELECT *
-FROM names n1;
-OCTO
-  grep "|" output1.txt > output1_filtered.txt
-  grep "|" output2.txt > output2_filtered.txt
-  [[ "$(diff output1_filtered.txt output2_filtered.txt)" == "" ]]
-}
-
-@test "left outer join with missing columns" {
-  octo <<OCTO 2>&1 | tee output.txt
-SELECT *
-FROM names n1
-LEFT JOIN (
-  SELECT *
-  FROM names
-  WHERE firstName < 'Zero'
-) n2
-ON n1.id = n2.id;
-OCTO
-  [[ "$(grep -c "|" output.txt)" == "6" ]]
-}
-
-@test "right outer join with matching rows is the same as inner join" {
-  octo <<OCTO &> output1.txt
-SELECT *
-FROM names n1
-RIGHT JOIN names n2
-ON n1.id = n2.id;
-OCTO
-  octo <<OCTO &> output2.txt
-SELECT *
-FROM names n1
-INNER JOIN names n2
-ON n1.id = n2.id;
-OCTO
-  grep "|" output1.txt > output1_filtered.txt
-  grep "|" output2.txt > output2_filtered.txt
-  [[ "$(diff output1_filtered.txt output2_filtered.txt)" == "" ]]
-}
-
-@test "right outer join followed by a SET operation" {
-  octo <<OCTO &> output1.txt
-SELECT n1.id,n1.firstname,n2.lastname
-FROM names n1
-RIGHT JOIN names n2
-ON n1.id = n2.id
-UNION ALL
-SELECT *
-FROM names n1;
-OCTO
-  octo <<OCTO &> output2.txt
-SELECT n2.id,n2.firstname,n1.lastname
-FROM names n1
-INNER JOIN names n2
-ON n1.id = n2.id
-UNION ALL
-SELECT *
-FROM names n1;
-OCTO
-  grep "|" output1.txt > output1_filtered.txt
-  grep "|" output2.txt > output2_filtered.txt
-  [[ "$(diff output1_filtered.txt output2_filtered.txt)" == "" ]]
-}
-
-@test "right outer join with missing columns" {
-  octo <<OCTO 2>&1 | tee output.txt
-SELECT *
-FROM  (
-  SELECT *
-  FROM names
-  WHERE firstName < 'Zero'
-) n1
-RIGHT JOIN names n2
-ON n1.id = n2.id;
-OCTO
-  [[ "$(grep -c "|" output.txt)" == "6" ]]
-}
-
-@test "full outer join with missing columns" {
-  octo <<OCTO 2>&1 | tee output.txt
-SELECT *
-FROM  (
-  SELECT *
-  FROM names
-  WHERE firstName = 'Zero'
-) n1
-FULL OUTER JOIN (
-  SELECT *
-  FROM names
-  WHERE firstName = 'Acid'
-) n2
-ON n1.id = n2.id;
-OCTO
-  [[ "$(grep -c "|" output.txt)" == "3" ]]
-}
-
-@test "nested select with outer join" {
-  octo <<OCTO 2>&1 | tee output.txt
-SELECT * FROM (
-  SELECT *
-  FROM names n1
-  LEFT JOIN names n2
-  ON n1.id = n2.id
-) WHERE firstName :: text = 'Zero';
-OCTO
-  # Not crashing is valid for this test
-}
-
-@test "LEFT/RIGHT/FULL JOIN on various queries from pastas database" {
+@test "TOJ02 : LEFT/RIGHT/FULL JOIN on various queries from pastas database" {
   load_fixture pastas.sql
   load_fixture pastas.zwr
   # Below are all queries that were found in the following files.
@@ -191,7 +46,7 @@ OCTO
   done
 }
 
-@test "random outer join queries" {
+@test "TOJ03 : random outer join queries" {
   load_fixture customers.sql
   load_fixture customers.zwr
   yottadb -run ^genrandomqueries	# this generates a set of queries jointest01.sql, jointest02.sql ...
@@ -201,3 +56,12 @@ OCTO
     run_query_in_octo_and_postgres_and_crosscheck customers $file "remove_empty_line_at_tail"
   done
 }
+
+@test "TOJ04 : outer join with no ON condition specified" {
+  cp @PROJECT_SOURCE_DIR@/tests/fixtures/TOJ04.sql TOJ04orig.sql
+  grep -vE '^-- |^#' TOJ04orig.sql > TOJ04.sql
+  cat TOJ04.sql > output.txt
+  octo -f TOJ04.sql >> output.txt 2>&1
+  verify_output TOJ04 output.txt
+}
+

@@ -61,6 +61,7 @@ ERROR_DEF(ERR_TYPE_MISMATCH, "Type mismatch: left %s, right %s", PSQL_Code_Datat
 ERROR_DEF(ERR_SETOPER_NUMCOLS_MISMATCH, "Each %s query must have same number of columns", PSQL_Code_Datatype_Mismatch)
 ERROR_DEF(ERR_SETOPER_TYPE_MISMATCH, "%s types %s and %s cannot be matched", PSQL_Code_Syntax_Error)
 ERROR_DEF(ERR_SUBQUERY_ONE_COLUMN, "Subquery must return only one column", PSQL_Code_Syntax_Error)
+ERROR_DEF(ERR_JOIN_ALIAS_DUPLICATE, "table name \"%s\" specified more than once", PSQL_Code_Duplicate_Alias)
 // ROCTO //
 ERROR_DEF(ERR_ROCTO_M_CALL, "M extrinsic function calls are disallowed in rocto", PSQL_Code_Internal_Error)
 ERROR_DEF(ERR_ROCTO_UNSUPPORTED_BIND_PARAMETER, "Unsupported bind parameter type received", PSQL_Code_Internal_Error)

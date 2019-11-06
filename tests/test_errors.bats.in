@@ -139,3 +139,37 @@ CAT
   sed -i '/\[DEBUG\]/d' rocto.log
   verify_output TERR010 rocto.log noinfo nowarn psql noforcedhalt
 }
+
+@test "TERR011 : queries ensure each table has a unique alias" {
+  cat <<CAT >> input.sql
+select * from names natural join names;
+select * from names as n1 natural join names as n1;
+select * from names as n1 natural join names as n2 natural join names as n1;
+select * from names as n1 natural join names as n2 join names as n1 on n1.id = n2.id;
+select * from names as n1 inner join names as n1 on n1.id = n1.id;
+select * from names as n1 left join names as n1 on n1.id = n1.id;
+select * from names as n1 right join names as n1 on n1.id = n1.id;
+select * from names as n1 join names as n1 on n1.id = n1.id;
+select * from names as n1 cross join names as n1;
+select * from names n1 inner join names n2 on n1.id = n2.id left join names n2 on n1.id = n2.id;
+select * from names n1 left join names n2 on n1.id = n2.id inner join names n2 on n1.id = n2.id;
+select * from names n1 right join names n2 on n1.id = n2.id left join names n2 on n1.id = n2.id;
+select * from names n1 right join names n2 on n1.id = n2.id natural join names n2;
+select * from names, names;
+select * from names as n1, names as n1;
+select * from names as n1, names as n2 inner join names n3 on n1.id = n2.id left join names n2 on n1.id = n2.id;
+select * from names as n1 left join names as n1 on n1.id = n1.id left join names as n3 on n1.id = n3.id;
+select * from names left join names names on n1.id = names.id;
+select * from names left join nameswithages names on n1.id = names.id;
+select * from ((select * from names union select * from names) union (select * from names union select * from names)) n1 left join names n1 on n1.id = n1.id;
+select * from (((select * from names union select * from names) union (select * from names union select * from names)) union ((select * from names union select * from names) union (select * from names union select * from names))) n1 left join names n1 on n1.id = n1.id;
+
+
+-- Test that table name is no longer usable once an alias has been assigned to it
+select * from names n1 left join nameswithages names on n1.id = names.id;
+
+CAT
+  cat input.sql >> output.txt
+  octo -f input.sql 2>&1 | tee -a output.txt
+  verify_output TERR011 output.txt
+}

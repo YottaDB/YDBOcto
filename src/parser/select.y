@@ -306,7 +306,40 @@ derived_column_expression
   ;
 
 from_clause
-  : FROM table_reference {$$ = $table_reference; }
+  : FROM table_reference {
+      SqlJoin *start_join, *cmp_join, *cur_join;
+      SqlTableAlias *alias;
+      SqlValue *value;
+      SqlStatement *stmt;
+      char *cmp_name, *cur_name;
+      $$ = $table_reference;
+      /* traverse the entire table linked list and compare the table_alias
+       * this ensures each table has a unique alias
+      */
+      UNPACK_SQL_STATEMENT(start_join, $$, join);
+      cmp_join = start_join;
+      do {
+        stmt = drill_to_table_alias(cmp_join->value);
+        UNPACK_SQL_STATEMENT(alias, stmt, table_alias);
+        UNPACK_SQL_STATEMENT(value, alias->alias, value);
+        assert((COLUMN_REFERENCE == value->type) || (NUL_VALUE == value->type));
+        cmp_name = value->v.string_literal;
+        cur_join = cmp_join->next;
+        while (cur_join != start_join) {
+          stmt = drill_to_table_alias(cur_join->value);
+          UNPACK_SQL_STATEMENT(alias, stmt, table_alias);
+          UNPACK_SQL_STATEMENT(value, alias->alias, value);
+          assert((COLUMN_REFERENCE == value->type) || (NUL_VALUE == value->type));
+          cur_name = value->v.string_literal;
+          if (0 == strcmp(cmp_name, cur_name)) {
+            ERROR(ERR_JOIN_ALIAS_DUPLICATE, cmp_name);
+            YYABORT;
+          }
+          cur_join = cur_join->next;
+        }
+        cmp_join = cmp_join->next;
+      } while (cmp_join != start_join);
+   }
   ;
 
 // Just consider these a list of values for all intensive purposes

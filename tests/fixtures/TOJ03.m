@@ -12,12 +12,13 @@
 
 ; -----------------------------------------------------------------------------------------------------
 ; This program generates a random SQL query that optionally uses INNER or OUTER JOINs with a join nesting
-; depth up to 7 using the customers database. And runs this query against Postgres and Octo and verifies
+; depth up to "$zcmdline" using the customers database. And runs this query against Postgres and Octo and verifies
 ; the outputs are identical. Certain features of this test are currently disabled due to pending issues.
 ; Those lines are marked with a ###TMPDISABLE.
 ; -----------------------------------------------------------------------------------------------------
 
 genrandomqueries	;
+	set maxjoins=+$zcmdline
 	set primarykey("customers")="customer_id"
 	set primarykey("orders")="order_id"
 	; Define possible values of columns in customers and orders table (later used by WHERE clause)
@@ -70,7 +71,7 @@ genrandomqueries	;
 	set numqueries=30	; generate 30 queries so as not to take a long time for this test to run in pipeline
 	set q=0
 	for  do  quit:q=numqueries
-	. set numjoins=1+(q#8)	; can be 1-way, 2-way, 3-way, ... up to 7-way join
+	. set numjoins=1+(q#maxjoins)	; can be 1-way, 2-way, 3-way, ... up to n-way join where n is specified through $zcmdline
 	. for i=1:1:numjoins  do
 	. . set modulo=$random(2),table(i)=$select(modulo:"customers",1:"orders"),tablealias(i)=$extract(table(i),1)
 	. ; choose table names for the join(s) next
@@ -92,13 +93,19 @@ genrandomqueries	;
 	. . set modulo=$random(4)
 	. . set:(modulo>0) outerjoinchosen=1
 	. . set sqlquery=sqlquery_" "_joinstr(modulo)_" "_table(i)_" "_tablealias(i)_i
+	. . set:modulo>0 outerjoinchosen=1
 	. . set:modulo=3 fulljoinchosen=1
 	. . set modulo=$random(2)
 	. . set sqlquery=sqlquery_" on "_tablealias(i-1)_(i-1)_".customer_id "_$select(modulo:"!",1:"")
 	. . set:modulo=1 notequalchosen=1
 	. . set sqlquery=sqlquery_"= "_tablealias(i)_(i)_".customer_id"
 	. ; Add optional WHERE
-	. if (1=numjoins)&$random(2) do	 ; ###TMPDISABLE Remove (1=numjoins) once #311 is fixed
+	. if ('outerjoinchosen)&$random(2) do 	; ###TMPDISABLE Remove ('outerjoinchosen) once #311 is fixed
+	. .					; The reason is that WHERE clause can generate comparisons e.g. x < y
+	. .					; and that will return incorrect results if x or y is $ZYSQLNULL
+	. .					; (which can happen if there is at least one OUTER JOIN).
+	. .					; The generated M code should be replaced to use $ZYSQLNULL instead of ""
+	. .					; once #311 is fixed to make $ZYSQLNULL honor the SQL NULL rules.
 	. . set sqlquery=sqlquery_" where "_$$boolexpr(1+$random(4))
 	. ; Add optional ORDER BY.
 	. ; Note: Do not choose ORDER BY if an OUTER JOIN got chosen until #336 is fixed. This is because they can generate
@@ -154,37 +161,4 @@ boolexpr(maxdepth)
 	set oper=$select($random(2):"OR",1:"AND")
 	for d=2:1:depth set boolstr=boolstr_" "_oper_" "_$$boolexpr(maxdepth-1)
 	quit boolstr
-	;
-genouterjoinonpastas;
-	set query($increment(query))="select pastas.id, firstName, lastName, pastaName from names4 inner join pastas on pastas.pastaName = names4.favoritePasta order by pastas.id;"
-	set query($increment(query))="select pastas.id, firstName, lastName, pastaName from names4 inner join pastas on pastas.pastaName = names4.favoritePasta order by pastas.id asc;"
-	set query($increment(query))="select pastas.id, firstName, lastName, pastaName from names4 inner join pastas on pastas.pastaName = names4.favoritePasta order by pastas.id desc;"
-	set query($increment(query))="select pastas.id, firstName, lastName, pastaName from names4 inner join pastas on pastas.pastaName = names4.favoritePasta order by lastName;"
-	set query($increment(query))="select pastas.id, firstName, lastName, pastaName from names4 inner join pastas on pastas.pastaName = names4.favoritePasta order by lastName asc;"
-	set query($increment(query))="select pastas.id, firstName, lastName, pastaName from names4 inner join pastas on pastas.pastaName = names4.favoritePasta order by lastName desc;"
-	set query($increment(query))="select pastas.id, firstName, lastName, pastaName from names4 inner join pastas on pastas.pastaName = names4.favoritePasta order by firstName;"
-	set query($increment(query))="select pastas.id, firstName, lastName, pastaName from names4 inner join pastas on pastas.pastaName = names4.favoritePasta order by firstName asc;"
-	set query($increment(query))="select pastas.id, firstName, lastName, pastaName from names4 inner join pastas on pastas.pastaName = names4.favoritePasta order by firstName desc;"
-	set query($increment(query))="select pastas.id, firstName, lastName, pastaName from names4 inner join pastas on pastas.pastaName = names4.favoritePasta order by pastaName;"
-	set query($increment(query))="select pastas.id, firstName, lastName, pastaName from names4 inner join pastas on pastas.pastaName = names4.favoritePasta order by pastaName asc;"
-	set query($increment(query))="select pastas.id, firstName, lastName, pastaName from names4 inner join pastas on pastas.pastaName = names4.favoritePasta order by pastaName desc;"
-	set query($increment(query))="select pastas.id, firstName, lastName, pastaName from names4 inner join pastas on pastas.pastaName = names4.favoritePasta where lastName = 'Buttons';"
-	set query($increment(query))="select pastas.id, firstName, lastName, pastaName from names4 inner join pastas on pastas.pastaName = names4.favoritePasta where firstName = 'Zero';"
-	set query($increment(query))="select pastas.id, firstName, lastName, pastaName from names4 inner join pastas on pastas.pastaName = names4.favoritePasta where firstName = 'Zero' and names4.favoritePasta = 'Lasagna';"
-	set query($increment(query))="select pastas.id, firstName, lastName, pastaName from names4 inner join pastas on pastas.pastaName = names4.favoritePasta where names4.favoritePasta = 'Penne';"
-	set query($increment(query))="select pastas.id, firstName, lastName, pastaName from names4 inner join pastas on pastas.pastaName = names4.favoritePasta where names4.favoritePasta = 'Spaghetti';"
-	set query($increment(query))="select pastas.id, firstName, lastName, pastaName from names4 inner join pastas on pastas.pastaName = names4.favoritePasta where names4.favoritePasta = 'Cavatelli';"
-	set query($increment(query))="select distinct pastas.id, favoritePasta from names4 inner join pastas on pastas.pastaName = names4.favoritePasta where names4.favoritePasta = 'Cavatelli';"
-	set query($increment(query))="select pastas.id, firstName, lastName, pastaName from names4 inner join pastas on pastas.pastaName = names4.favoritePasta where lastName = 'Buttons' order by firstName;"
-	set query($increment(query))="select names4.id, firstName, lastName, pastaName from names4 inner join pastas on pastas.pastaName = names4.favoritePasta where firstName = 'Zero' order by names4.id;"
-	set query($increment(query))="select names4.id, firstName, lastName, pastaName from names4 inner join pastas on pastas.pastaName = names4.favoritePasta where firstName = 'Zero' order by lastName;"
-	set query($increment(query))="select names4.id, firstName, lastName, pastaName from names4 inner join pastas on pastas.pastaName = names4.favoritePasta where favoritePasta = 'Cavatelli' order by firstName;"
-	set query($increment(query))="select distinct pastas.id, favoritePasta from names4 inner join pastas on pastas.pastaName = names4.favoritePasta where favoritePasta = 'Cavatelli' order by pastas.id;"
-	for i=1:1:query do
-	. for type="left","right","full" do
-	. . set file="jointest"_$translate($justify(i,2)," ","0")_type_".sql"
-	. . open file:(newversion)  use file
-	. . write $piece(query(i),"inner",1)_type_$piece(query(i),"inner",2),!	; replace inner join with left join or right join or full join (assumes only one "inner join" usage)
-	. . close file
-	quit
 	;

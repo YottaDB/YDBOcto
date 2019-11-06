@@ -111,7 +111,8 @@ EXCEPTALL(inputId1,inputId2,outputId)
 	. . ELSE  IF +$GET(%ydboctozindex(%ydboctozval)) DO
 	. . . IF $INCREMENT(%ydboctozindex(%ydboctozval),-1)
 	. KILL %ydboctocursor(cursorId,"keys",%ydboctoid,"","")
-	SET %ydboctozsubs="" FOR  SET %ydboctozsubs=$ORDER(%ydboctozindex(%ydboctozsubs)) QUIT:%ydboctozsubs=""  DO
+	SET %ydboctozsubs=""
+	FOR  SET %ydboctozsubs=$ORDER(%ydboctozindex(%ydboctozsubs)) QUIT:%ydboctozsubs=""  DO
 	. FOR %ydboctoz=1:1:%ydboctozindex(%ydboctozsubs) DO
 	. . SET %ydboctocursor(cursorId,"keys",outputId,"","",$INCREMENT(%ydboctoz2))=%ydboctozsubs
 	; Set # of records in output table before returning
@@ -132,7 +133,8 @@ EXCEPT(inputId1,inputId2,outputId)
 	. . IF (%ydboctoid=inputId1) SET %ydboctozindex(%ydboctozval)=""
 	. . ELSE  KILL %ydboctozindex(%ydboctozval)
 	. KILL %ydboctocursor(cursorId,"keys",%ydboctoid,"","")
-	SET %ydboctozsubs="" FOR  SET %ydboctozsubs=$ORDER(%ydboctozindex(%ydboctozsubs)) QUIT:%ydboctozsubs=""  DO
+	SET %ydboctozsubs=""
+	FOR  SET %ydboctozsubs=$ORDER(%ydboctozindex(%ydboctozsubs)) QUIT:%ydboctozsubs=""  DO
 	. SET %ydboctocursor(cursorId,"keys",outputId,"","",$INCREMENT(%ydboctoz2))=%ydboctozsubs
 	; Set # of records in output table before returning
 	SET:$DATA(%ydboctoz2) %ydboctocursor(cursorId,"keys",outputId,"","")=%ydboctoz2
@@ -195,6 +197,7 @@ columnkeyINTERSECTALL(inputId1,inputId2,outputId)
 	KILL %ydboctocursor(cursorId,"keys",outputId,"","")
 	; Merge key corresponding to inputId1 and inputId2 into outputId
 	FOR %ydboctoid=inputId1,inputId2 DO
+	. SET %ydboctozsubs=""
 	. FOR  SET %ydboctozsubs=$ORDER(%ydboctocursor(cursorId,"keys",%ydboctoid,"","",%ydboctozsubs)) QUIT:%ydboctozsubs=""  DO
 	. . SET %ydboctozval=%ydboctocursor(cursorId,"keys",%ydboctoid,"","",%ydboctozsubs)
 	. . IF (%ydboctoid=inputId1) DO
@@ -219,6 +222,7 @@ columnkeyINTERSECT(inputId1,inputId2,outputId)
 	KILL %ydboctocursor(cursorId,"keys",outputId,"","")
 	; Merge key corresponding to inputId1 and inputId2 into outputId
 	FOR %ydboctoid=inputId1,inputId2 DO
+	. SET %ydboctozsubs=""
 	. FOR  SET %ydboctozsubs=$ORDER(%ydboctocursor(cursorId,"keys",%ydboctoid,"","",%ydboctozsubs)) QUIT:%ydboctozsubs=""  DO
 	. . IF (%ydboctoid=inputId1) DO
 	. . . SET %ydboctozindex(%ydboctozsubs)=1
@@ -240,6 +244,7 @@ columnkeyEXCEPTALL(inputId1,inputId2,outputId)
 	KILL %ydboctocursor(cursorId,"keys",outputId,"","")
 	; Merge key corresponding to inputId1 and inputId2 into outputId
 	FOR %ydboctoid=inputId1,inputId2 DO
+	. SET %ydboctozsubs=""
 	. FOR  SET %ydboctozsubs=$ORDER(%ydboctocursor(cursorId,"keys",%ydboctoid,"","",%ydboctozsubs)) QUIT:%ydboctozsubs=""  DO
 	. . SET %ydboctozval=%ydboctocursor(cursorId,"keys",%ydboctoid,"","",%ydboctozsubs)
 	. . IF (%ydboctoid=inputId1) DO
@@ -249,7 +254,8 @@ columnkeyEXCEPTALL(inputId1,inputId2,outputId)
 	. . . SET:(%ydboctozval>%ydboctozval2) %ydboctozval=%ydboctozval2
 	. . . IF $INCREMENT(%ydboctozindex(%ydboctozsubs),-%ydboctozval)
 	. KILL %ydboctocursor(cursorId,"keys",%ydboctoid,"","")
-	FOR  SET %ydboctozsubs=$ORDER(%ydboctozindex(ydboctozsubs)) QUIT:%ydboctozsubs=""  DO
+	SET %ydboctozsubs=""
+	FOR  SET %ydboctozsubs=$ORDER(%ydboctozindex(%ydboctozsubs)) QUIT:%ydboctozsubs=""  DO
 	. SET %ydboctozval=+$GET(%ydboctozindex(%ydboctozsubs))
 	. QUIT:'%ydboctozval
 	. SET %ydboctocursor(cursorId,"keys",outputId,"","",%ydboctozsubs)=%ydboctozval
@@ -268,13 +274,15 @@ columnkeyEXCEPT(inputId1,inputId2,outputId)
 	KILL %ydboctocursor(cursorId,"keys",outputId,"","")
 	; Merge key corresponding to inputId1 and inputId2 into outputId
 	FOR %ydboctoid=inputId1,inputId2 DO
+	. SET %ydboctozsubs=""
 	. FOR  SET %ydboctozsubs=$ORDER(%ydboctocursor(cursorId,"keys",%ydboctoid,"","",%ydboctozsubs)) QUIT:%ydboctozsubs=""  DO
 	. . IF (%ydboctoid=inputId1) DO
 	. . . SET %ydboctozindex(%ydboctozsubs)=1
 	. . ELSE  IF $GET(%ydboctozindex(%ydboctozsubs)) DO
 	. . . KILL %ydboctozindex(%ydboctozsubs)
 	. KILL %ydboctocursor(cursorId,"keys",%ydboctoid,"","")
-	FOR  SET %ydboctozsubs=$ORDER(%ydboctozindex(ydboctozsubs)) QUIT:%ydboctozsubs=""  DO
+	SET %ydboctozsubs=""
+	FOR  SET %ydboctozsubs=$ORDER(%ydboctozindex(%ydboctozsubs)) QUIT:%ydboctozsubs=""  DO
 	. SET %ydboctocursor(cursorId,"keys",outputId,"","",%ydboctozsubs)=1
 	QUIT
 

@@ -37,3 +37,15 @@ select * from (select * from (select * from names n1 where EXISTS (select n2.id 
 select * from (select * from (select * from names n1 where NOT EXISTS (select n2.id from names n2 where n2.id = n1.id + 2)) n3) n4;
 select * from names n1 where NOT((n1.id = 1) OR EXISTS (select * from names n2 where n2.id != 2));
 select * from names n1 where NOT((id = 1) OR NOT EXISTS (select * from names n2 where n2.id != 2));
+select * from names n1 where EXISTS (select n2.id from names n2 intersect select n3.id from names n3);
+select * from names n1 where EXISTS (select n2.id from names n2 intersect all select n3.id from names n3);
+select * from names n1 where EXISTS (select n2.id from names n2 union select n3.id from names n3);
+select * from names n1 where EXISTS (select n2.id from names n2 union all select n3.id from names n3);
+select * from names n1 where EXISTS (select n2.id from names n2 except select n3.id from names n3);
+select * from names n1 where EXISTS (select n2.id from names n2 except all select n3.id from names n3);
+select * from names n1 where NOT EXISTS (select n2.id from names n2 intersect select n3.id from names n3);
+select * from names n1 where NOT EXISTS (select n2.id from names n2 intersect all select n3.id from names n3);
+select * from names n1 where NOT EXISTS (select n2.id from names n2 union select n3.id from names n3);
+select * from names n1 where NOT EXISTS (select n2.id from names n2 union all select n3.id from names n3);
+select * from names n1 where NOT EXISTS (select n2.id from names n2 except select n3.id from names n3);
+select * from names n1 where NOT EXISTS (select n2.id from names n2 except all select n3.id from names n3);

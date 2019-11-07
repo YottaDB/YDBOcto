@@ -1,8 +1,9 @@
+# Note: The below output is actually incorrect. Will be correct once YDBOcto#235 is fixed
 OCTO> select id-2*(id/2::integer) from names;
 0
-1
 0
-1
 0
-1
+0
+0
+0
 OCTO> 

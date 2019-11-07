@@ -47,15 +47,20 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan) {
 				%{}$GET({{ config->global_names.cursor }}(cursorId,"parameters",{{ value->parameter_index }})){}%
 			}
 			break;
+		/* NOTE: For the INTEGER_LITERAL and NUMERIC_LITERAL case, one might be tempted to typecast the result
+		 * (like indicated in the commented lines for the respective `case` blocks below). But one should not
+		 * do that until $ZYSQLNULL (YottaDB/DBMS/YDBOcto/issues/311 which in turn depends YottaDB/DB/YDB/issues/484)
+		 * is fully implemented. See https://gitlab.com/YottaDB/DBMS/YDBOcto/issues/235#note_217262044 for more details.
+		 * Hence INTEGER_LITERAL/NUMERIC_LITERAL/STRING_LITERAL all fall through to the same case block for now.
+		 */
+		case INTEGER_LITERAL:
+			// Below line is commented until #311 is fixed (see above comment for details)
+			// %{}$GET({{ config->global_names.cursor }}(cursorId,"parameters",{{ value->parameter_index }}))\1{}%
+		case NUMERIC_LITERAL:
+			// Below line is commented until #311 is fixed (see above comment for details)
+			// %{}+$GET({{ config->global_names.cursor }}(cursorId,"parameters",{{ value->parameter_index }})){}%
 		case STRING_LITERAL:
 			%{}$GET({{ config->global_names.cursor }}(cursorId,"parameters",{{ value->parameter_index }})){}%
-			break;
-		case NUMERIC_LITERAL:
-			%{}+$GET({{ config->global_names.cursor }}(cursorId,"parameters",{{ value->parameter_index }})){}%
-			break;
-		case COLUMN_REFERENCE:
-			// We should only pass LP_COLUMN_ALIASes to this function
-			assert(FALSE);
 			break;
 		case FUNCTION_NAME:
 			%{}{{ value->v.string_literal }}{}%
@@ -66,11 +71,12 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan) {
 		case NUL_VALUE:
 			%{}""{}%
 			break;
-		case INTEGER_LITERAL:
-			%{}$GET({{ config->global_names.cursor }}(cursorId,"parameters",{{ value->parameter_index }}))\1{}%
-			break;
+		case COLUMN_REFERENCE:
+			// We should only pass LP_COLUMN_ALIASes to this function
 		default:
+			assert(FALSE);
 			FATAL(ERR_UNKNOWN_KEYWORD_STATE, "");
+			break;
 		}
 		break;
 	case LP_DERIVED_COLUMN:

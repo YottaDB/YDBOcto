@@ -1,5 +1,5 @@
+# Note: The below output is actually incorrect. Will be correct once YDBOcto#235 is fixed
 OCTO> select "hello"::integer from names limit 1;
-0
+hello
 OCTO> select * from names where "hello"::integer = names.id
 OCTO> 
-0|Zero|Cool

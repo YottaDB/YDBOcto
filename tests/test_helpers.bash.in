@@ -41,6 +41,10 @@ init_test() {
 	# thousands of queries that run in the pipeline tests lots of these 1-second delays adds up to minutes of
 	# slowdown which should all hopefully go away with this env var set.
 	export ydb_recompile_newer_src=TRUE
+	# Below is needed to avoid wildcard expansion order (e.g. cat *.m used in various tests) changing based on LC_TYPE
+	# It is also needed to avoid sort order changing (and reference file issues) based on LC_CTYPE being "C" or "en_US.UTF-8".
+	# Fixing LC_ALL to a particular value ensures caller environment does not affect test results.
+	export LC_ALL=en_US.UTF8
 }
 
 init_tls() {

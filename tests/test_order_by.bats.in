@@ -182,7 +182,6 @@ CAT
   # output so it can be compared against the reference file.
   echo "; Queries that have generated plans" >> output.txt 2>&1
   echo "; ---------------------------------" >> output.txt 2>&1
-  export LC_ALL=C # needed to avoid sort order changing (and reference file issues) based on LC_CTYPE being "C" or "en_US.UTF-8"
   grep select _ydboctoP*.m | cut -d";" -f 2 | sort >> output.txt 2>&1
   verify_output TOB06 output.txt
 }

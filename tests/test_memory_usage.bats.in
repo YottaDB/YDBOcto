@@ -37,7 +37,6 @@ setup() {
   [[ $start_mem != $first_query_mem ]]
   # Ensure memory usage doesn't increase for subsequent execution of same queries
   [[ $first_query_mem == $second_query_mem ]]
-  export LC_ALL=C # needed to avoid sort order changing (and reference file issues) based on LC_CTYPE being "C" or "en_US.UTF-8"
   # Ensure plans were properly generated for all queries in expect script
   grep select _ydboctoP*.m | cut -d";" -f 2 | sort > output.txt 2>&1
   verify_output TMU01 output.txt

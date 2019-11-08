@@ -134,4 +134,3 @@ pages:
     paths:
       - public
     when: always
-

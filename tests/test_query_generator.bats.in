@@ -1,0 +1,38 @@
+#################################################################
+#								#
+# Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	#
+# All rights reserved.						#
+#								#
+#	This source code contains the intellectual property	#
+#	of its copyright holder(s), and is made available	#
+#	under a license.  If you do not know the terms of	#
+#	the license, please stop and do not read further.	#
+#								#
+#################################################################
+
+load test_helpers
+
+setup() {
+  init_test
+  createdb
+  load_fixture customers.sql
+  load_fixture customers.zwr
+}
+
+@test "TQG01 : Test Query Generator against customers database" {
+  cp @PROJECT_SOURCE_DIR@/tests/fixtures/QueryGenerator.m .
+  cp @PROJECT_SOURCE_DIR@/tests/fixtures/customers.sql .
+  cp @PROJECT_SOURCE_DIR@/tests/fixtures/customers.zwr .
+
+  numQueries=25
+  prefix="TQG01-"
+  $ydb_dist/mumps -run QueryGenerator customers.sql customers.zwr "$numQueries" "$prefix"
+
+  count=1
+  while [ $count -le $numQueries ]
+  do
+    queryfile="${prefix}${count}.sql"
+    run_query_in_octo_and_postgres_and_crosscheck customers "$queryfile" "remove_empty_line_at_head"
+    count=`expr $count + 1`
+  done
+}

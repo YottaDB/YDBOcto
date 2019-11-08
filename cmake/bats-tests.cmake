@@ -86,6 +86,7 @@ ADD_BATS_TEST(test_exists_operator)
 ADD_BATS_TEST(test_between_operator)
 ADD_BATS_TEST(test_anyallsome_operator)
 ADD_BATS_TEST(test_prep_statements)
+ADD_BATS_TEST(test_query_generator)
 
 find_program(psql NAMES psql)
 if(psql)

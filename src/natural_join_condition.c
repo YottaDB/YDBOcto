@@ -29,8 +29,8 @@ SqlStatement *natural_join_condition(SqlStatement *left, SqlStatement *right) {
 	SqlColumnListAlias *cl_start, *cl_cur;
 	SqlValue *value;
 	SqlBinaryOperation *binary;
-	char *column_name, *table_name, *r_table_name;
-	size_t column_name_len, table_name_len, r_table_name_len;
+	char *column_name, *l_table_name, *r_table_name;
+	size_t column_name_len, l_table_name_len, r_table_name_len;
 	UNPACK_SQL_STATEMENT(j_left, left, join);
 	UNPACK_SQL_STATEMENT(j_right, right, join);
 
@@ -44,8 +44,8 @@ SqlStatement *natural_join_condition(SqlStatement *left, SqlStatement *right) {
 		UNPACK_SQL_STATEMENT(cur_alias, left_sql_stmt, table_alias);
 		UNPACK_SQL_STATEMENT(cl_start, cur_alias->column_list, column_list_alias);
 		UNPACK_SQL_STATEMENT(value, cur_alias->alias, value);
-		table_name = value->v.string_literal;
-		table_name_len = strlen(table_name);
+		l_table_name = value->v.string_literal;
+		l_table_name_len = strlen(l_table_name);
 		cl_cur = cl_start;
 		do {
 			UNPACK_SQL_STATEMENT(value, cl_start->alias, value);
@@ -63,7 +63,7 @@ SqlStatement *natural_join_condition(SqlStatement *left, SqlStatement *right) {
 				if(r_matched_column != NULL) {
 					UNPACK_SQL_STATEMENT(value, r_cur_alias->alias, value);
 					r_table_name = value->v.string_literal;
-					r_table_name_len = strlen(table_name);
+					r_table_name_len = strlen(r_table_name);
 
 					// Create a value for the left item
 					SQL_STATEMENT(l_qual_col_name, value_STATEMENT);
@@ -71,8 +71,8 @@ SqlStatement *natural_join_condition(SqlStatement *left, SqlStatement *right) {
 					UNPACK_SQL_STATEMENT(value, l_qual_col_name, value);
 					value->type = COLUMN_REFERENCE;
 					value->v.string_literal = octo_cmalloc(memory_chunks,
-							table_name_len + column_name_len + 2);
-					sprintf(value->v.string_literal, "%s.%s", table_name, column_name);
+							l_table_name_len + column_name_len + 2);
+					sprintf(value->v.string_literal, "%s.%s", l_table_name, column_name);
 					//
 					// Create a value for the right item
 					SQL_STATEMENT(r_qual_col_name, value_STATEMENT);

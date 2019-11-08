@@ -19,26 +19,26 @@ setup() {
   load_fixture names.zwr
 }
 
-@test "TNJ000 : natural join no matches" {
+@test "TNJ00 : natural join no matches" {
   # If there are no matches in a natural join, it is effectively a cross join
   octo <<OCTO 2>&1 | tee output.txt
 SELECT *
 FROM (SELECT id as A FROM names) n1
 NATURAL JOIN (SELECT id as B FROM names) n2;
 OCTO
-  verify_output TNJ000 output.txt
+  verify_output TNJ00 output.txt
 }
 
-@test "TNJ001 : natural join many matches" {
+@test "TNJ01 : natural join many matches" {
   octo <<OCTO 2>&1 | tee output.txt
 SELECT *
 FROM names n1
 NATURAL JOIN names n2;
 OCTO
-  verify_output TNJ001 output.txt
+  verify_output TNJ01 output.txt
 }
 
-@test "TNJ002 : natural join many matches with many tables" {
+@test "TNJ02 : natural join many matches with many tables" {
   octo <<OCTO 2>&1 | tee output.txt
 SELECT *
 FROM names n1
@@ -46,24 +46,24 @@ NATURAL JOIN names n2
 NATURAL JOIN names n3
 NATURAL JOIN names n4;
 OCTO
-  verify_output TNJ002 output.txt
+  verify_output TNJ02 output.txt
 }
 
-@test "TNJ003 : natural join with no alias on right table" {
+@test "TNJ03 : natural join with no alias on right table" {
   octo <<OCTO 2>&1 | tee output.txt
 SELECT *
 FROM names n1
 NATURAL JOIN names;
 OCTO
-  verify_output TNJ003 output.txt
+  verify_output TNJ03 output.txt
 }
 
-@test "TNJ004 : natural join with right alias longer then the left" {
+@test "TNJ04 : natural join with right alias longer then the left" {
   octo <<OCTO 2>&1 | tee output.txt
 SELECT *
 FROM names n1
 NATURAL JOIN names as longeralias;
 OCTO
-  verify_output TNJ004 output.txt
+  verify_output TNJ04 output.txt
 }
 

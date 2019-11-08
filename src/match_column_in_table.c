@@ -20,11 +20,10 @@
 
 #include "logical_plan.h"
 
-SqlStatement *match_column_in_table(SqlTableAlias *table_alias, char *column_name, int column_name_len)
+SqlColumnListAlias *match_column_in_table(SqlTableAlias *table_alias, char *column_name, int column_name_len)
 {
-	SqlColumnListAlias	*cur_column_list, *start_column_list;
+	SqlColumnListAlias	*cur_column_list, *start_column_list, *ret = NULL;
 	SqlValue		*value;
-	SqlStatement		*ret = NULL;
 	int			value_len;
 
 	// If there is no column list for this table alias, we won't match anything
@@ -42,12 +41,11 @@ SqlStatement *match_column_in_table(SqlTableAlias *table_alias, char *column_nam
 			value_len = strlen(value->v.string_literal);
 			if ((value_len == column_name_len)
 					&& memcmp(value->v.string_literal, column_name, column_name_len) == 0) {
-				PACK_SQL_STATEMENT(ret, cur_column_list, column_list_alias);
+				ret = cur_column_list;
 				break;
 			}
 		}
 		cur_column_list = cur_column_list->next;
-	} while(cur_column_list != start_column_list);
-
+	} while (cur_column_list != start_column_list);
 	return ret;
 }

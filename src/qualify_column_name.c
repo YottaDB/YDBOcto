@@ -31,9 +31,9 @@ SqlColumnAlias *qualify_column_name(SqlValue *column_value, SqlJoin *tables, Sql
 					boolean_t match_qualified_columns)
 {
 	SqlColumnAlias		*ret;
-	SqlColumnListAlias	*start_cla, *cur_cla;
+	SqlColumnListAlias	*start_cla, *cur_cla, *col_cla, *t_col_cla;
+	SqlColumnList		*col_list;
 	SqlJoin			*cur_join, *start_join;
-	SqlStatement		*column, *t_column;
 	SqlTableAlias		*cur_alias, *matching_alias, *table_alias;
 	SqlValue		*value;
 	char			*table_name, *column_name, *c;
@@ -59,7 +59,7 @@ SqlColumnAlias *qualify_column_name(SqlValue *column_value, SqlJoin *tables, Sql
 		table_name_len = 0;
 	}
 	cur_join = start_join = tables;
-	column = NULL;
+	col_cla = NULL;
 	do {
 		SqlStatement *sql_stmt;
 
@@ -75,26 +75,26 @@ SqlColumnAlias *qualify_column_name(SqlValue *column_value, SqlJoin *tables, Sql
 				if ((table_name_len == table_name_len2)
 						&& (0 == memcmp(value->v.reference, table_name, table_name_len))) {
 					matching_alias = cur_alias;
-					column = match_column_in_table(cur_alias, column_name, column_name_len);
+					col_cla = match_column_in_table(cur_alias, column_name, column_name_len);
 					break;
 				}
 			}
 		} else {
-			t_column = match_column_in_table(cur_alias, column_name, column_name_len);
-			if (NULL != t_column) {
-				if (NULL != column) {
+			t_col_cla = match_column_in_table(cur_alias, column_name, column_name_len);
+			if (NULL != t_col_cla) {
+				if (NULL != col_cla) {
 					WARNING(ERR_AMBIGUOUS_COLUMN_NAME, column_name);
 					cur_join = cur_join->next;
 					continue;
 				}
 				matching_alias = cur_alias;
-				column = t_column;
+				col_cla = t_col_cla;
 			}
 
 		}
 		cur_join = cur_join->next;
-	} while(cur_join != start_join);
-	if ((NULL != table_alias_stmt) && (NULL == table_name) && (NULL == column)) {
+	} while (cur_join != start_join);
+	if ((NULL != table_alias_stmt) && (NULL == table_name) && (NULL == col_cla)) {
 		UNPACK_SQL_STATEMENT(table_alias, table_alias_stmt, table_alias);
 		UNPACK_SQL_STATEMENT(start_cla, table_alias->column_list, column_list_alias);
 		cur_cla = start_cla;
@@ -104,6 +104,7 @@ SqlColumnAlias *qualify_column_name(SqlValue *column_value, SqlJoin *tables, Sql
 				 * If so, we can use this alias for qualification/verification purposes.
 				 */
 				SqlColumnList	*column_list;
+
 				UNPACK_SQL_STATEMENT(column_list, cur_cla->column_list, column_list);
 				assert(column_list == column_list->next);
 				assert(column_list == column_list->prev);
@@ -119,29 +120,45 @@ SqlColumnAlias *qualify_column_name(SqlValue *column_value, SqlJoin *tables, Sql
 					UNPACK_SQL_STATEMENT(value, cur_cla->alias, value);
 					if ((column_name_len == (int)strlen(value->v.reference))
 							&& (0 == memcmp(value->v.reference, column_name, column_name_len))) {
-						if (NULL != column) {
+						if (NULL != col_cla) {
 							WARNING(ERR_AMBIGUOUS_COLUMN_NAME, column_name);
 							cur_cla = cur_cla->next;
 							continue;
 						}
 						UNPACK_SQL_STATEMENT(matching_alias, table_alias_stmt, table_alias);
-						SQL_STATEMENT(t_column, column_list_alias_STATEMENT);
-						t_column->v.column_list_alias = cur_cla;
-						column = t_column;
+						col_cla = cur_cla;
 					}
 				}
 			}
 			cur_cla = cur_cla->next;
-		} while(cur_cla != start_cla);
+		} while (cur_cla != start_cla);
 	}
-	if (NULL == column) {
+	if (NULL == col_cla) {
 		// Note: If table_name is non-NULL, it points to a string of the form "tablename.columnname"
 		//       so both table name and column name will be printed below if "table_name" is non-NULL.
 		ERROR(ERR_UNKNOWN_COLUMN_NAME, (NULL != table_name) ? table_name : column_name);
 		return NULL;
 	}
-	OCTO_CMALLOC_STRUCT(ret, SqlColumnAlias);
-	ret->column = column;
-	PACK_SQL_STATEMENT(ret->table_alias, matching_alias, table_alias);
+	/* Check if "column" already points to a SqlColumnAlias that we can return.
+	 * If so, use that instead of allocating a new one.
+	 */
+	UNPACK_SQL_STATEMENT(col_list, col_cla->column_list, column_list);
+	if (column_alias_STATEMENT == col_list->value->type) {
+		UNPACK_SQL_STATEMENT(ret, col_list->value, column_alias);
+		/* Note: ret can be NULL in case of a parse error. Hence the need to handle this case below */
+		if (NULL != ret) {
+			UNPACK_SQL_STATEMENT(table_alias, ret->table_alias, table_alias);
+			if (matching_alias != table_alias) {
+				ret = NULL;
+			}
+		}
+	} else {
+		ret = NULL;
+	}
+	if (NULL == ret) {
+		OCTO_CMALLOC_STRUCT(ret, SqlColumnAlias);
+		PACK_SQL_STATEMENT(ret->column, col_cla, column_list_alias);
+		PACK_SQL_STATEMENT(ret->table_alias, matching_alias, table_alias);
+	}
 	return ret;
 }

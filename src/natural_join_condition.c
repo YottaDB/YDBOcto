@@ -21,21 +21,20 @@
 // Construct a WHERE statement by finding all columns in left and all columns in right
 // which have the same name, and saying left.COLUMN = right.COLUMN AND ...
 SqlStatement *natural_join_condition(SqlStatement *left, SqlStatement *right) {
-	SqlStatement *r_matched_column, *ret, *cur_condition, *t_condition;
-	SqlStatement *l_qual_col_name, *r_qual_col_name;
-	SqlJoin *j_left, *j_right, *cur_join;
-	SqlJoin *r_cur_join;
-	SqlTableAlias *cur_alias, *r_cur_alias;
-	SqlColumnListAlias *cl_start, *cl_cur;
-	SqlValue *value;
-	SqlBinaryOperation *binary;
-	char *column_name, *l_table_name, *r_table_name;
-	size_t column_name_len, l_table_name_len, r_table_name_len;
+	SqlStatement		*ret, *cur_condition, *t_condition;
+	SqlStatement		*l_qual_col_name, *r_qual_col_name;
+	SqlJoin			*j_left, *j_right, *cur_join;
+	SqlJoin			*r_cur_join;
+	SqlTableAlias		*cur_alias, *r_cur_alias;
+	SqlColumnListAlias	*cl_start, *cl_cur;
+	SqlValue		*value;
+	SqlBinaryOperation	*binary;
+	char			*column_name, *l_table_name, *r_table_name;
+	size_t			column_name_len, l_table_name_len, r_table_name_len;
+
 	UNPACK_SQL_STATEMENT(j_left, left, join);
 	UNPACK_SQL_STATEMENT(j_right, right, join);
-
 	ret = NULL;
-
 	cur_join = j_left;
 	do {
 		SqlStatement *left_sql_stmt;
@@ -55,12 +54,13 @@ SqlStatement *natural_join_condition(SqlStatement *left, SqlStatement *right) {
 			// Check each of rights tables for the item in question
 			r_cur_join = j_right;
 			do {
-				SqlStatement *right_sql_stmt;
+				SqlStatement		*right_sql_stmt;
+				SqlColumnListAlias	*r_matched_column;
 
 				right_sql_stmt = drill_to_table_alias(r_cur_join->value);
 				UNPACK_SQL_STATEMENT(r_cur_alias, right_sql_stmt, table_alias);
 				r_matched_column = match_column_in_table(r_cur_alias, column_name, column_name_len);
-				if(r_matched_column != NULL) {
+				if (NULL != r_matched_column) {
 					UNPACK_SQL_STATEMENT(value, r_cur_alias->alias, value);
 					r_table_name = value->v.string_literal;
 					r_table_name_len = strlen(r_table_name);
@@ -90,7 +90,7 @@ SqlStatement *natural_join_condition(SqlStatement *left, SqlStatement *right) {
 					binary->operands[0] = l_qual_col_name;
 					binary->operands[1] = r_qual_col_name;
 					binary->operation = BOOLEAN_EQUALS;
-					if(ret == NULL) {
+					if (NULL == ret) {
 						ret = cur_condition;
 					} else {
 						SQL_STATEMENT(t_condition, binary_STATEMENT);
@@ -103,10 +103,10 @@ SqlStatement *natural_join_condition(SqlStatement *left, SqlStatement *right) {
 					}
 				}
 				r_cur_join = r_cur_join->next;
-			} while(r_cur_join != j_right);
+			} while (r_cur_join != j_right);
 			cl_cur = cl_cur->next;
-		} while(cl_cur != cl_start);
+		} while (cl_cur != cl_start);
 		cur_join = cur_join->next;
-	} while(cur_join != j_left);
+	} while (cur_join != j_left);
 	return ret;
 }

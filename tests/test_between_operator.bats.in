@@ -19,7 +19,7 @@ setup() {
   load_fixture names.zwr
 }
 
-@test "TBO01 : OCTO199 : Test EXISTS operator" {
+@test "TBO01 : OCTO198 : Test BETWEEN operator" {
   cp @PROJECT_SOURCE_DIR@/tests/fixtures/TBO01.sql .
   yottadb -run genqueryfiles TBO01.sql	# this generates query files of the form TBO01_01.sql, TBO01_02.sql ...
   for file in TBO01_*.sql

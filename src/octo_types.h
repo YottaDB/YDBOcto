@@ -291,6 +291,7 @@ typedef struct SqlColumn
 	int				column_number;
 	struct SqlStatement		*table;
 	struct SqlStatement		*keywords;
+	/* See detailed comment in "SqlColumnListAlias" structure typedef for the "pre_qualified_cla" member */
 	struct SqlColumnListAlias	*pre_qualified_cla; /* initialized/usable only if "type" field is UNKNOWN_SqlDataType */
 	dqcreate(SqlColumn);
 } SqlColumn;
@@ -438,7 +439,14 @@ typedef struct SqlColumnListAlias {
 	// Keywords used for the SORT column
 	struct SqlStatement		*keywords;
 	SqlValueType			type;
-	struct SqlColumnListAlias	*pre_qualified_cla; /* initialized/usable only if "type" field is UNKNOWN_SqlValueType */
+	/* Below field ("pre_qualified_cla") is initialized/usable only if "type" field above is UNKNOWN_SqlValueType.
+	 * It is needed after parsing starts to handle a column that came in from a sub-query before when the sub-query
+	 * column name was qualified (in "qualify_statement()"). Once the column names have been qualified,
+	 * "populate_data_type()" relies on this field to derive the type of this SqlColumnListAlias structure
+	 * (i.e. outer-query column name) based on the type that was determined for "pre_qualified_cla"
+	 * (i.e. the sub-query column) in "qualify_statement()".
+	 */
+	struct SqlColumnListAlias	*pre_qualified_cla;
 	dqcreate(SqlColumnListAlias);
 } SqlColumnListAlias;
 

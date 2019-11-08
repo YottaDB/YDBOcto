@@ -92,27 +92,35 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt, int *plan_id) {
 			UNPACK_SQL_STATEMENT(column_alias, column_list->value, column_alias);
 			assert(table_alias_STATEMENT == column_alias->table_alias->type);
 			list_unique_id = column_alias->table_alias->v.table_alias->unique_id;
-			// If this breaks, it means we allowed the user to pass in a value directly
-			// in the parser. This is a silly thing to do, and the parser should
-			// reject it
-			UNPACK_SQL_STATEMENT(cla, column_alias->column, column_list_alias);
-			UNPACK_SQL_STATEMENT(column_list, cla->column_list, column_list);
-			// If the table id of the outer column_alias matches that of the inner column alias
-			// then we need to peel off the unnecessary outer column_alias before passing it to
-			// lp_column_list_to_lp (which would otherwise get confused when it is trying to
-			// construct the LP_WHERE part of the select column list expression). Otherwise keep
-			// the outer column alias intact as otherwise we would generate wrong code in the
-			// physical plan because the inner column alias would correspond to a column in the
-			// sub-query instead of the outer query (#322). If the inner column list value does
-			// not correspond to a column alias, then it is a constant and so it is safe to peel
-			// off the outer column alias.
-			if (column_alias_STATEMENT == column_list->value->type)
-			{
-				UNPACK_SQL_STATEMENT(column_alias, column_list->value, column_alias);
-				cla_unique_id = column_alias->table_alias->v.table_alias->unique_id;
-				cla_chosen = (list_unique_id == cla_unique_id) ? cla : cur_cla;
-			} else
-				cla_chosen = cla;
+			if (column_list_alias_STATEMENT == column_alias->column->type) {
+				UNPACK_SQL_STATEMENT(cla, column_alias->column, column_list_alias);
+				UNPACK_SQL_STATEMENT(column_list, cla->column_list, column_list);
+				/* We are guaranteed that the table id of the outer column_alias does not match that of
+				 * the inner column alias. Therefore, we do not need to peel off an unnecessary outer
+				 * column_alias (we used to do this before) before passing it to "lp_column_list_to_lp()"
+				 * (which would otherwise get confused when it is trying to construct the LP_WHERE part of
+				 * the select column list expression). This guarantee is asserted below. Note that we need
+				 * to keep the outer column alias intact as otherwise we would generate wrong code in the
+				 * physical plan because the inner column alias would correspond to a column in the
+				 * sub-query instead of the outer query (#322).
+				 */
+				if (column_alias_STATEMENT == column_list->value->type)
+				{
+					UNPACK_SQL_STATEMENT(column_alias, column_list->value, column_alias);
+					cla_unique_id = column_alias->table_alias->v.table_alias->unique_id;
+					assert(list_unique_id != cla_unique_id);
+					cla_chosen = cur_cla;
+				} else {
+					/* If the inner column list value does not correspond to a column alias, then it is
+					 * a "constant" and so it is necessary to peel off the outer column alias so it is
+					 * treated as a LP_VALUE instead of LP_COLUMN_ALIAS.
+					 */
+					cla_chosen = cla;
+				}
+			} else {
+				/* There is no outer column alias. So pass outer cla as is to "lp_column_list_to_lp()". */
+				cla_chosen = cur_cla;
+			}
 			save_next = cla_chosen->next;
 			cla_chosen->next = cla_chosen;	/* set "next" to self so below call processes only one column instead of
 							 * multiple columns in table corresponding to the desired column.

@@ -341,7 +341,7 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, char *cursorId) {
 			break;
 		case CONCAT:
 			// Postgres suggests we should force things into a string when we encounter this
-			child_type1 = child_type2 = *type = CHARACTER_STRING_TYPE;
+			child_type1 = child_type2 = *type = STRING_LITERAL;
 			break;
 		default:
 			*type = BOOLEAN_VALUE;

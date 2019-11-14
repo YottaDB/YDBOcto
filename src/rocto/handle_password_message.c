@@ -24,9 +24,10 @@
 #include "rocto.h"
 #include "helpers.h"
 
-int handle_password_message(PasswordMessage *password_message, StartupMessage
-	*startup_message, char *salt) {
-	const uint32_t md5_hex_len = MD5_DIGEST_LENGTH * 2 + 1;
+#define	MD5_HEX_LEN	((MD5_DIGEST_LENGTH * 2) + 1)
+
+int handle_password_message(PasswordMessage *password_message, StartupMessage *startup_message, char *salt) {
+	char		md5_hex[MD5_HEX_LEN];
 
 	// Check the type of password message, for now just md5 is accepted
 	int32_t result = strncmp(password_message->password, "md5", 3);
@@ -81,14 +82,13 @@ int handle_password_message(PasswordMessage *password_message, StartupMessage
 	MD5(hash_buf, buf_len-3+4, hash_buf);
 
 	// Convert raw md5 hash to hex string
-	char md5_hex[md5_hex_len];
-	result = md5_to_hex(hash_buf, md5_hex, md5_hex_len);
+	result = md5_to_hex(hash_buf, md5_hex, MD5_HEX_LEN);
 	if (0 != result) {
 		FATAL(ERR_ROCTO_HASH_CONVERSION, "handle_password_message", "md5 hash", "hexidecimal string");
 		return 1;
 	}
 	// Compare final hash of stored password against hash sent by client
-	result = strncmp(md5_hex, &password_message->password[3], md5_hex_len);	// Exclude "md5" prefix
+	result = strncmp(md5_hex, &password_message->password[3], MD5_HEX_LEN);	// Exclude "md5" prefix
 	if (0 != result) {
 		FATAL(ERR_ROCTO_BAD_PASSWORD, "handle_password_message");
 		return 1;

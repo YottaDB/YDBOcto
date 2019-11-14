@@ -32,7 +32,7 @@
 #include "helpers.h"
 
 static void test_byte_to_hex(void **state) {
-	char c = UINT8_MAX, hex[3];
+	char c = 0xff, hex[3];
 	byte_to_hex(c, hex);
 	assert_string_equal(hex, "ff");
 
@@ -188,10 +188,10 @@ static void test_bin_to_uuid(void **state) {
 static void test_md5_to_hex(void **state) {
 	const uint32_t md5_len = 33;
 	char hex_buf[md5_len];
-	char *message = "bluemonday";		// md5 hash: 1865f47f47b0ccc5c69178ecbbcbf645
-	char digest[MD5_DIGEST_LENGTH + 1];	// count null
+	char *message = "bluemonday";			// md5 hash: 1865f47f47b0ccc5c69178ecbbcbf645
+	unsigned char digest[MD5_DIGEST_LENGTH + 1];	// count null
 
-	MD5(message, strlen(message), digest);
+	MD5((const unsigned char *)message, strlen(message), digest);
 	digest[MD5_DIGEST_LENGTH] = '\0';
 
 	// Check with valid input

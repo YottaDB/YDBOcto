@@ -401,7 +401,7 @@ boolean_test_tail
   ;
 
 boolean_test_tail_tail
-  : truth_value { $$ = $boolean_test_tail_tail; }
+  : truth_value { $$ = $truth_value; }
   | NOT truth_value { WARNING(ERR_FEATURE_NOT_IMPLEMENTED, "boolean_test_tail_tail: NOT truth_value"); YYABORT; }
   ;
 

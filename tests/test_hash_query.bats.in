@@ -21,7 +21,7 @@ setup() {
   load_fixture customers.zwr
 }
 
-@test "THQ01 : OCTO290 : Test queries with different SELECT COLUMN LIST do not hash to same plan name" {
+@test "THQ01 : OCTO290 : Test queries with different SELECT COLUMN LIST (single column) do not hash to same plan name" {
   octo <<OCTO 2>&1 | tee output.txt
 select o1.order_id from orders o1 inner join orders o2 on o1.customer_id < o2.customer_id;
 select o2.order_id from orders o1 inner join orders o2 on o1.customer_id < o2.customer_id;
@@ -72,5 +72,14 @@ CAT_EOF
   verify_output THQ03 output.txt noinfo nodebug
   # Verify that each of the above queries generates a unique plan by checking for 24 plans below
   [[ $(ls -l _ydboctoP*.m | wc -l) -eq 24 ]]
+}
+
+@test "THQ04 : OCTO379 : Test queries with different SELECT COLUMN LISTs (multiple columns) do not hash to same plan name" {
+  octo <<OCTO 2>&1 | tee output.txt
+select o1.order_id,o2.order_id from orders o1 inner join orders o2 on o1.customer_id < o2.customer_id;
+select o2.order_id,o1.order_id from orders o1 inner join orders o2 on o1.customer_id < o2.customer_id;
+OCTO
+  verify_output THQ04 output.txt noinfo nodebug
+  [[ $(ls -l _ydboctoP*.m | wc -l) -eq 2 ]]
 }
 

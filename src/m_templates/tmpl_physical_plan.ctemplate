@@ -31,12 +31,12 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
 
 	%{}`n{{ plan->plan_name }}(cursorId)`n    {}% // The whitespace here is needed for proper M formatting
 
+	// The below initialization is needed for cross-reference plans and the regular plans
 	assert(NULL == plan->treat_key_as_null);
 	plan->treat_key_as_null = octo_cmalloc(memory_chunks, sizeof(boolean_t) * config->plan_id);
-
+	assert(NULL != plan->outputKey);
 	// Check if there are any cross references that need to be built
-	// If this a plan for a cross reference, put safeguards in place to prevent building twice
-	if(plan->outputKey && plan->outputKey->is_cross_reference_key) {
+	if (plan->outputKey->is_cross_reference_key) {
 		UNPACK_SQL_STATEMENT(value, plan->outputKey->table->tableName, value);
 		tableName = value->v.reference;
 		UNPACK_SQL_STATEMENT (value, plan->outputKey->column->columnName, value);
@@ -46,6 +46,7 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
 		column_alias = lp_temp->v.column_alias;
 		%{}LOCK +^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}"):10`n    {}%
 		%{}IF $GET(^{{ config->global_names.raw_octo }}("xref_status","{{ tableName }}","{{ columnName }}"))="done" {}%
+		// If this a plan for a cross reference, put safeguards in place (i.e. QUIT) to prevent building twice.
 		%{}LOCK -^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}") QUIT`n    {}%
 		%{}IF '$ZTRIGGER("item","+{}%
 		TMPL(tmpl_column_reference_trigger, plan, column_alias);
@@ -55,26 +56,103 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
 		%{} -commands=SET,KILL -xecute=""DO handleSet^{{ plan->filename }}"""`n    {}%
 		%{}SET %%ydboctoCancel("{{ tableName }}","{{ columnName }}","Node")="^{{ config->global_names.raw_xref }}(""{}%
 		%{}{{ tableName }}"",""{{ columnName }}"")"`n    {}%
-	} else {
-		prev_t_key = NULL;
-		for(cur_key = 0; cur_key < plan->total_iter_keys; cur_key++)
-		{
-			key = plan->iterKeys[cur_key];
-			t_key = key->cross_reference_output_key;
-			// If cross-reference-output-key is same or the corresponding table/column is same, an xref has already been
-			// generated in this physical plan so skip doing the check again for whether it has been generated or not.
-			if ((NULL == t_key) || (prev_t_key == t_key)
-				|| ((NULL != prev_t_key) && (prev_t_key->table == t_key->table)
-								&& (prev_t_key->column == t_key->column)))
-			continue;
-			prev_t_key = t_key;
-			UNPACK_SQL_STATEMENT(value, t_key->table->tableName, value);
-			tableName = value->v.reference;
-			UNPACK_SQL_STATEMENT (value, t_key->column->columnName, value);
-			columnName = value->v.reference;
-			%{}DO:'$DATA(^{{ config->global_names.raw_octo }}("xref_status","{{ tableName }}","{{ columnName }}")) {}%
-			%{}^{{ t_key->cross_reference_filename }}(cursorId)`n    {}%
+		%{}DO populateXref`n    {}%
+		%{}SET ^{{ config->global_names.raw_octo }}("xref_status","{{ tableName }}","{{ columnName }}")="done"`n    {}%
+		%{}KILL %%ydboctoCancel`n    {}%
+		%{}LOCK -^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}"){}%
+		%{}`n    QUIT{}%
+		// Generate the populateXref entryref here
+		%{}`npopulateXref`n    {}%
+		cur_key = 0;
+		dot_count = 0;
+		TMPL(tmpl_tablejoin, plan, plan->tablejoin, cur_key, FALSE, dot_count, tableName, columnName);
+		%{}`n    QUIT{}%
+		// Generate the trigger definitions here
+		%{}`nhandleSet`n    {}%
+		%{}NEW t`n    {}%
+		%{}IF $ZTRIGGEROP="K" DO`n    {}%
+		%{}. SET val=""`n    {}%
+		%{}. FOR  SET val=$ORDER(^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}",val)) {}%
+		%{}QUIT:val=""  DO:$DATA(^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}",val{}%
+		lp_temp = plan->projection->v.operand[1];
+		i = 0;
+		while (NULL != lp_temp) {
+			%{},sub{{ i|%d }}{}%
+			lp_temp = lp_temp->v.operand[1];
+			i++;
 		}
+		%{}))'=0`n    {}%
+		%{}. . KILL ^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}",val{}%
+		lp_temp = plan->projection->v.operand[1];
+		i = 0;
+		while (NULL != lp_temp) {
+			%{},sub{{ i|%d }}{}%
+			lp_temp = lp_temp->v.operand[1];
+			i++;
+		}
+		%{})`n    {}%
+		%{}. . KILL:$INCREMENT(^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}",val),-1)=0 ^{}%
+		%{}{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}",val)`n    {}%
+		%{}. . KILL:$INCREMENT(^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}"),-1)=0 ^{}%
+		%{}{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}")`n    {}%
+		%{}ELSE  DO`n    {}%
+		%{}. SET newValue=$PIECE($ZTVALUE,$ZTDELIM,$ZTUPDATE)`n    {}%
+		%{}. SET oldValue=$PIECE($ZTOLDVAL,$ZTDELIM,$ZTUPDATE)`n    {}%
+		%{}. KILL:oldValue'="" ^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}",oldValue{}%
+		lp_temp = plan->projection->v.operand[1];
+		i = 0;
+		while (NULL != lp_temp) {
+			%{},sub{{ i|%d }}{}%
+			lp_temp = lp_temp->v.operand[1];
+			i++;
+		}
+		%{}){}%
+		// Now decrement the counts for the globals
+		%{}`n    {}%
+		%{}. IF oldValue'="" {}%
+		%{}IF $SELECT($INCREMENT(^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}",oldValue),-1){}%
+		%{}:$INCREMENT(^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}"),-1),{}%
+		%{}1:$INCREMENT(^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}"),-1))`n    {}%
+		%{}. KILL:(oldValue'="")&(^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}",oldValue)=0) {}%
+		%{}^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}",oldValue)`n    {}%
+		%{}. SET:newValue'="" ^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}",newValue{}%
+		lp_temp = plan->projection->v.operand[1];
+		i = 0;
+		while (NULL != lp_temp) {
+			%{},sub{{ i|%d }}{}%
+			lp_temp = lp_temp->v.operand[1];
+			i++;
+		}
+		%{})=""{}%
+		// Now decrement the counts for the globals
+		%{}`n    {}%
+		%{}. IF newValue'="" {}%
+		%{}IF $SELECT($INCREMENT(^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}",newValue)){}%
+		%{}:$INCREMENT(^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}")),{}%
+		%{}1:$INCREMENT(^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}")))`n    {}%
+		%{}QUIT{}%
+		TEMPLATE_END();
+		assert(FALSE);
+	}
+	// Not a cross-reference plan
+	prev_t_key = NULL;
+	for(cur_key = 0; cur_key < plan->total_iter_keys; cur_key++)
+	{
+		key = plan->iterKeys[cur_key];
+		t_key = key->cross_reference_output_key;
+		// If cross-reference-output-key is same or the corresponding table/column is same, an xref has already been
+		// generated in this physical plan so skip doing the check again for whether it has been generated or not.
+		if ((NULL == t_key) || (prev_t_key == t_key)
+			|| ((NULL != prev_t_key) && (prev_t_key->table == t_key->table)
+							&& (prev_t_key->column == t_key->column)))
+		continue;
+		prev_t_key = t_key;
+		UNPACK_SQL_STATEMENT(value, t_key->table->tableName, value);
+		tableName = value->v.reference;
+		UNPACK_SQL_STATEMENT (value, t_key->column->columnName, value);
+		columnName = value->v.reference;
+		%{}DO:'$DATA(^{{ config->global_names.raw_octo }}("xref_status","{{ tableName }}","{{ columnName }}")) {}%
+		%{}^{{ t_key->cross_reference_filename }}(cursorId)`n    {}%
 	}
 	%{}NEW %%ydboctoz{}%
 	if ((NULL != get_keyword_from_keywords(plan->keywords, OPTIONAL_LIMIT)) && !is_prev_plan_in_same_dnf(plan))
@@ -92,7 +170,6 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
 	// If this expression had an order by, we now need to go back and make the ordering uniform
 	// If we have a lot of plans each of which have the same output key and order by, then do this step
 	// only for the last plan in that set.
-	assert((NULL == plan->order_by) || ((NULL != plan->outputKey) && !plan->outputKey->is_cross_reference_key));
 	if ((NULL != plan->order_by)
 		&& ((NULL == plan->next) || (NULL == plan->next->order_by) || !is_prev_plan_in_same_dnf(plan->next)))
 	{
@@ -186,12 +263,6 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
 	{
 		%{}`n    KILL %%ydboctocursor(cursorId,"dupl"){}%
 	}
-	if (plan->outputKey && plan->outputKey->is_cross_reference_key) {
-		%{}`n    {}%
-		%{}SET ^{{ config->global_names.raw_octo }}("xref_status","{{ tableName }}","{{ columnName }}")="done"`n    {}%
-		%{}KILL %%ydboctoCancel`n    {}%
-		%{}LOCK -^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}"){}%
-	}
 	set_oper = plan->set_oper_list;
 	prev_oper = set_oper;
 	assert((NULL == set_oper) || (NULL == set_oper->prev));
@@ -235,73 +306,6 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
 		prev_oper = prev_oper->prev;
 	}
 	%{}`n    QUIT{}%
-
-	// If this is a cross reference key, put the trigger definitions here
-	if(plan->outputKey && plan->outputKey->is_cross_reference_key) {
-		%{}`nhandleSet`n    {}%
-		%{}NEW t`n    {}%
-		%{}IF $ZTRIGGEROP="K" DO`n    {}%
-		%{}. SET val=""`n    {}%
-		%{}. FOR  SET val=$ORDER(^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}",val)) {}%
-		%{}QUIT:val=""  DO:$DATA(^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}",val{}%
-		lp_temp = plan->projection->v.operand[1];
-		i = 0;
-		while(lp_temp != NULL) {
-			%{},sub{{ i|%d }}{}%
-			lp_temp = lp_temp->v.operand[1];
-			i++;
-		}
-		%{}))'=0`n    {}%
-		%{}. . KILL ^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}",val{}%
-		lp_temp = plan->projection->v.operand[1];
-		i = 0;
-		while(lp_temp != NULL) {
-			%{},sub{{ i|%d }}{}%
-			lp_temp = lp_temp->v.operand[1];
-			i++;
-		}
-		%{})`n    {}%
-		%{}. . KILL:$INCREMENT(^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}",val),-1)=0 ^{}%
-		%{}{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}",val)`n    {}%
-		%{}. . KILL:$INCREMENT(^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}"),-1)=0 ^{}%
-		%{}{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}")`n    {}%
-		%{}ELSE  DO`n    {}%
-		%{}. SET newValue=$PIECE($ZTVALUE,$ZTDELIM,$ZTUPDATE)`n    {}%
-		%{}. SET oldValue=$PIECE($ZTOLDVAL,$ZTDELIM,$ZTUPDATE)`n    {}%
-		%{}. KILL:oldValue'="" ^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}",oldValue{}%
-		lp_temp = plan->projection->v.operand[1];
-		i = 0;
-		while(lp_temp != NULL) {
-			%{},sub{{ i|%d }}{}%
-			lp_temp = lp_temp->v.operand[1];
-			i++;
-		}
-		%{}){}%
-		// Now decrement the counts for the globals
-		%{}`n    {}%
-		%{}. IF oldValue'="" {}%
-		%{}IF $SELECT($INCREMENT(^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}",oldValue),-1){}%
-		%{}:$INCREMENT(^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}"),-1),{}%
-		%{}1:$INCREMENT(^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}"),-1))`n    {}%
-		%{}. KILL:(oldValue'="")&(^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}",oldValue)=0) {}%
-		%{}^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}",oldValue)`n    {}%
-		%{}. SET:newValue'="" ^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}",newValue{}%
-		lp_temp = plan->projection->v.operand[1];
-		i = 0;
-		while(lp_temp != NULL) {
-			%{},sub{{ i|%d }}{}%
-			lp_temp = lp_temp->v.operand[1];
-			i++;
-		}
-		%{})=""{}%
-		// Now decrement the counts for the globals
-		%{}`n    {}%
-		%{}. IF newValue'="" {}%
-		%{}IF $SELECT($INCREMENT(^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}",newValue)){}%
-		%{}:$INCREMENT(^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}")),{}%
-		%{}1:$INCREMENT(^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}")))`n    {}%
-		%{}QUIT{}%
-	}
 	TEMPLATE_END();
 }
 %{}

@@ -21,6 +21,7 @@ TEMPLATE(tmpl_tablejoin_body, PhysicalPlan *plan, int dot_count, char *tableName
 	int		start_resume = 0;
 	int		end_resume = 0;
 
+	assert(NULL != plan->outputKey);
 	// Apply the conditions for this statement
 	//  We put the 'IF 1' here so it's easy to add extra clauses from any of the
 	//  below conditions which may or may not emit boolean logic
@@ -37,7 +38,6 @@ TEMPLATE(tmpl_tablejoin_body, PhysicalPlan *plan, int dot_count, char *tableName
 		TMPL(tmpl_column_list_combine, plan->projection, plan, ",", 0, 0);
 		%{}))=0){}%
 	}
-
 	// Ensure we don't emit duplicates
 	if (!plan->distinct_values && plan->emit_duplication_check) {
 		%{}&($DATA({}%
@@ -50,7 +50,6 @@ TEMPLATE(tmpl_tablejoin_body, PhysicalPlan *plan, int dot_count, char *tableName
 	// Note down where the "resume" pointer starts, including the preceding whitespace
 	start_resume = (*buffer_index) - 4;
 	TMPL(tmpl_print_dots, dot_count);
-	assert(plan->outputKey);
 	if (plan->outputKey->is_cross_reference_key) {
 		%{}SET:1{}%
 		%{} ^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}"{}%
@@ -68,7 +67,7 @@ TEMPLATE(tmpl_tablejoin_body, PhysicalPlan *plan, int dot_count, char *tableName
 		TMPL(tmpl_column_list_combine, plan->projection, plan, ",", 0, 0);
 		plan->projection->v.operand[1] = lp_temp;
 		%{})){}%
-	} else if (plan->outputKey) {
+	} else {
 		// Note down where we are, do a dummy assignment to increment the row count, then paste our row again
 		int			resume_length;
 		char			c;
@@ -139,13 +138,6 @@ TEMPLATE(tmpl_tablejoin_body, PhysicalPlan *plan, int dot_count, char *tableName
 			end_resume = *buffer_index;
 			TMPL(tmpl_column_list_combine, plan->projection, plan, "_\"|\"_", start_resume, end_resume - start_resume);
 		}
-	} else {
-		assert(plan->outputTable);
-		/// TODO: do we ever get to this branch?
-		/// Possible scenario is "We are putting the value directly into a table"
-		/// Not sure how to handle this yet.
-		/// Keeping this comment block intact until it is understood and fixed (if needed).
-		assert(FALSE);
 	}
 	if (!plan->distinct_values && plan->emit_duplication_check) {
 		%{}`n    {}%

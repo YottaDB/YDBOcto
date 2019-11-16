@@ -128,7 +128,7 @@ void hash_canonical_query(hash128_state_t *state, SqlStatement *stmt, int *statu
 			case table_alias_STATEMENT:
 				add_sql_type_hash(state, table_alias_STATEMENT);
 				// On a revisit, just hash the table alias unique_id # and return without retraversing
-				// Since unique_id is an int, can use treat it as if it were a type enum
+				// Since unique_id is an int, we can treat it as if it were a type enum
 				UNPACK_SQL_STATEMENT(table_alias, stmt, table_alias);
 				add_sql_type_hash(state, table_alias->unique_id);
 				return;
@@ -240,6 +240,8 @@ void hash_canonical_query(hash128_state_t *state, SqlStatement *stmt, int *statu
 		add_sql_type_hash(state, column_alias_STATEMENT);
 		// SqlColumn or SqlColumnListAlias
 		hash_canonical_query(state, column_alias->column, status);
+		// SqlTableAlias
+		hash_canonical_query(state, column_alias->table_alias, status);
 		break;
 	case column_list_STATEMENT:
 		hash_canonical_query_column_list(state, stmt, status, FALSE);	// FALSE so we do not loop
@@ -267,11 +269,16 @@ void hash_canonical_query(hash128_state_t *state, SqlStatement *stmt, int *statu
 		// SqlColumnListAlias
 		// If table_alias->table is of type "select_STATEMENT", we can skip "table_alias->column_list"
 		// as that would have been already traversed as part of "table_alias->table->v.select->select_list" above.
-		// This is asserted below.
+		// If table_alias->table is of type "table_STATEMENT", then the "table_alias->column_list" is derived
+		// from the list of all available columns in the corresponding SqlTable. In this case too, there is no need
+		// to go through all the available columns in the table. We are interested only in the columns that this
+		// query is interested in which would already be part of the SELECT column list or other parts of the query.
+		// And since the only two types possible are "select_STATEMENT" or "table_STATEMENT", no need to traverse
+		// "table_alias->column_list" as part of "hash_canonical_query". This is asserted below.
+		assert((select_STATEMENT == table_alias->table->type) || (table_STATEMENT == table_alias->table->type));
 		assert((select_STATEMENT != table_alias->table->type)
 			|| (table_alias->table->v.select->select_list == table_alias->column_list));
-		if (select_STATEMENT != table_alias->table->type)
-			hash_canonical_query(state, table_alias->column_list, status);
+		// hash_canonical_query(state, table_alias->column_list, status);
 		break;
 	case binary_STATEMENT:
 		UNPACK_SQL_STATEMENT(binary, stmt, binary);

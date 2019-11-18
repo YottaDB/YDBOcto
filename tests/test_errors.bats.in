@@ -20,12 +20,12 @@ setup() {
   load_fixture default_user.zwr
 }
 
-@test "invalid Octo GLD" {
+@test "TERR001 : Invalid Octo GLD" {
   export ydb_gbldir="does_not_exist.gld"
-  run octo <<OCTO
+  octo <<OCTO 2>&1 | tee output.txt
 SELECT * FROM names WHERE lastName = "Cool";
 OCTO
-  [[ "$output" =~ "ZGBLDIRACC" ]]
+  verify_output TERR001 output.txt noinfo nodebug
 }
 
 @test "TERR002 : Octo can recover from error (e.g. DIVBYZERO)" {
@@ -173,3 +173,16 @@ CAT
   octo -f input.sql 2>&1 | tee -a output.txt
   verify_output TERR011 output.txt
 }
+
+@test "TERR012 : ydb_routines env var not set correctly" {
+  export ydb_routines=""
+  octo <<OCTO 2>&1 | tee output.txt
+SELECT * FROM names WHERE lastName = "Cool";
+OCTO
+  export ydb_routines=". $ydb_dist"
+  octo <<OCTO 2>&1 | tee -a output.txt
+SELECT * FROM names WHERE lastName = "Cool";
+OCTO
+  verify_output TERR012 output.txt noinfo nodebug
+}
+

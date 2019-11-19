@@ -58,34 +58,6 @@ OCTO
   verify_output TERR004 output.txt noinfo nodebug
 }
 
-@test "TERR005 : Feature not implemented: ORDER BY column_number" {
-  octo <<OCTO 2>&1 | tee output.txt
-select * from names order by 1;
-OCTO
-  verify_output TERR005 output.txt
-}
-
-@test "TERR006 : Feature not implemented: ORDER BY expression" {
-  cat >>input.sql<<CAT
-select * from names order by 1+1;
-select * from names order by 1*1;
-select * from names order by 1+id;
-select * from names order by id+1;
-select * from names order by id+id;
-CAT
-  octo -f input.sql 2>&1 | tee output.txt
-  verify_output TERR006 output.txt
-}
-
-@test "TERR007 : Feature not implemented: ORDER BY typecast" {
-  cat >>input.sql<<CAT
-select * from names order by id::text;
-select * from names order by id::integer;
-CAT
-  octo -f input.sql 2>&1 | tee output.txt
-  verify_output TERR007 output.txt
-}
-
 @test "TERR008 : Test inputs with tabs are underlined correctly" {
   # this input contains  mix of spaces a tabs
   octo -vv <<OCTO 2>&1 | tee output.txt

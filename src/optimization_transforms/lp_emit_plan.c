@@ -259,9 +259,13 @@ int emit_plan_helper(char *buffer, size_t buffer_len, int depth, LogicalPlan *pl
 				break;
 		}
 		SAFE_SNPRINTF(written, buff_ptr, buffer, buffer_len, "\n%*s- type: %s", depth, "", data_type_ptr);
-		UNPACK_SQL_STATEMENT(value, plan->v.column_list_alias->alias, value);
-		column_name = value->v.string_literal;
-		SAFE_SNPRINTF(written, buff_ptr, buffer, buffer_len, "\n%*s- alias: %s\n", depth, "", column_name);
+		if (NULL != plan->v.column_list_alias->alias) {
+			/* Need to check above since alias can be NULL in case of ORDER BY */
+			UNPACK_SQL_STATEMENT(value, plan->v.column_list_alias->alias, value);
+			column_name = value->v.string_literal;
+			SAFE_SNPRINTF(written, buff_ptr, buffer, buffer_len, "\n%*s- alias: %s", depth, "", column_name);
+		}
+		SAFE_SNPRINTF(written, buff_ptr, buffer, buffer_len, "\n");
 		break;
 	case LP_KEYWORDS:
 		start_keyword = plan->v.keywords;

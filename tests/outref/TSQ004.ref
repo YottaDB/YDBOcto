@@ -25,34 +25,6 @@ ORDER  BY procedure_schem,
           procedure_name,
           p.oid :: text
 
-[ WARN] PATH:LINENUM DATE TIME : Feature not implemented: ORDER BY typecast
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT NULL          AS PROCEDURE_CAT,
-       n.nspname     AS PROCEDURE_SCHEM,
-       p.proname     AS PROCEDURE_NAME,
-       NULL,
-       NULL,
-       NULL,
-       d.description AS REMARKS,
-       2             AS PROCEDURE_TYPE,
-       p.proname
-       || '_'
-       || p.oid      AS SPECIFIC_NAME
-FROM   pg_catalog.pg_namespace n,
-       pg_catalog.pg_proc p
-       left join pg_catalog.pg_description d
-              ON ( p.oid = d.objoid )
-       left join pg_catalog.pg_class c
-              ON ( d.classoid = c.oid
-                   AND c.relname = 'pg_proc' )
-       left join pg_catalog.pg_namespace pn
-              ON ( c.relnamespace = pn.oid
-                   AND pn.nspname = 'pg_catalog' )
-WHERE  p.pronamespace = n.oid
-ORDER  BY procedure_schem,
-          procedure_name,
-          p.oid :: text
-
-
 [ INFO] PATH:LINENUM DATE TIME : Parsing done for SQL command [SELECT NULL          AS PROCEDURE_CAT,
        n.nspname     AS PROCEDURE_SCHEM,
        p.proname     AS PROCEDURE_NAME,
@@ -79,5 +51,335 @@ ORDER  BY procedure_schem,
           procedure_name,
           p.oid :: text
 ]
-[ INFO] PATH:LINENUM DATE TIME : Returning failure from run_query
+[ INFO] PATH:LINENUM DATE TIME : Generating SQL for CURSOR_NUM
+[ INFO] PATH:LINENUM DATE TIME : Generating M file [./_ydboctoP*.m] (to execute SQL query)
+[DEBUG] PATH:LINENUM DATE TIME : Current plan: 
+LP_INSERT: 
+  LP_PROJECT: 
+    LP_COLUMN_LIST: 
+      LP_WHERE: 
+        LP_VALUE: 
+        LP_COLUMN_LIST_ALIAS: 
+        - type: NULL
+        - alias: PROCEDURE_CAT
+      LP_COLUMN_LIST: 
+        LP_WHERE: 
+          LP_COLUMN_ALIAS: N(4).NSPNAME
+          LP_COLUMN_LIST_ALIAS: 
+          - type: STRING_LITERAL
+          - alias: PROCEDURE_SCHEM
+        LP_COLUMN_LIST: 
+          LP_WHERE: 
+            LP_COLUMN_ALIAS: P(0).PRONAME
+            LP_COLUMN_LIST_ALIAS: 
+            - type: STRING_LITERAL
+            - alias: PROCEDURE_NAME
+          LP_COLUMN_LIST: 
+            LP_WHERE: 
+              LP_VALUE: 
+              LP_COLUMN_LIST_ALIAS: 
+              - type: NULL
+              - alias: ???
+            LP_COLUMN_LIST: 
+              LP_WHERE: 
+                LP_VALUE: 
+                LP_COLUMN_LIST_ALIAS: 
+                - type: NULL
+                - alias: ???
+              LP_COLUMN_LIST: 
+                LP_WHERE: 
+                  LP_VALUE: 
+                  LP_COLUMN_LIST_ALIAS: 
+                  - type: NULL
+                  - alias: ???
+                LP_COLUMN_LIST: 
+                  LP_WHERE: 
+                    LP_COLUMN_ALIAS: D(1).DESCRIPTION
+                    LP_COLUMN_LIST_ALIAS: 
+                    - type: STRING_LITERAL
+                    - alias: REMARKS
+                  LP_COLUMN_LIST: 
+                    LP_WHERE: 
+                      LP_VALUE: 2
+                      LP_COLUMN_LIST_ALIAS: 
+                      - type: NUMERIC_LITERAL
+                      - alias: PROCEDURE_TYPE
+                    LP_COLUMN_LIST: 
+                      LP_WHERE: 
+                        LP_CONCAT: 
+                          LP_CONCAT: 
+                            LP_COLUMN_ALIAS: P(0).PRONAME
+                            LP_VALUE: _
+                          LP_COLUMN_ALIAS: P(0).OID
+                        LP_COLUMN_LIST_ALIAS: 
+                        - type: STRING_LITERAL
+                        - alias: SPECIFIC_NAME
+    LP_SELECT: 
+      LP_TABLE_JOIN: CROSS_JOIN: 
+        LP_TABLE: N
+        LP_TABLE_JOIN: 
+          LP_TABLE: P
+          LP_TABLE_JOIN: LEFT_JOIN: 
+            LP_WHERE: 
+              LP_BOOLEAN_EQUALS: 
+                LP_COLUMN_ALIAS: P(0).OID
+                LP_COLUMN_ALIAS: D(1).OBJOID
+            LP_TABLE: D
+            LP_TABLE_JOIN: LEFT_JOIN: 
+              LP_WHERE: 
+                LP_BOOLEAN_AND: 
+                  LP_BOOLEAN_EQUALS: 
+                    LP_COLUMN_ALIAS: D(1).CLASSOID
+                    LP_COLUMN_ALIAS: C(2).OID
+                  LP_BOOLEAN_EQUALS: 
+                    LP_COLUMN_ALIAS: C(2).RELNAME
+                    LP_VALUE: pg_proc
+              LP_TABLE: C
+              LP_TABLE_JOIN: LEFT_JOIN: 
+                LP_WHERE: 
+                  LP_BOOLEAN_AND: 
+                    LP_BOOLEAN_EQUALS: 
+                      LP_COLUMN_ALIAS: C(2).RELNAMESPACE
+                      LP_COLUMN_ALIAS: PN(3).OID
+                    LP_BOOLEAN_EQUALS: 
+                      LP_COLUMN_ALIAS: PN(3).NSPNAME
+                      LP_VALUE: pg_catalog
+                LP_TABLE: PN
+      LP_CRITERIA: 
+        LP_KEYS: 
+        LP_SELECT_OPTIONS: 
+          LP_WHERE: 
+            LP_BOOLEAN_EQUALS: 
+              LP_COLUMN_ALIAS: P(0).PRONAMESPACE
+              LP_COLUMN_ALIAS: N(4).OID
+          LP_KEYWORDS: 
+  LP_OUTPUT: 
+    LP_KEY: 
+    - table_name:  
+    - column_name:  
+    - unique_id: 6
+    - method: LP_KEY_ADVANCE
+    - xref_key: false
+    - uses_xref_key: false
+    LP_COLUMN_LIST: ORDER BY ASC: 
+      LP_COLUMN_LIST: 
+        LP_WHERE: 
+          LP_COLUMN_ALIAS: (5).PROCEDURE_SCHEM
+          LP_COLUMN_LIST_ALIAS: 
+          - type: STRING_LITERAL
+      LP_COLUMN_LIST: ORDER BY ASC: 
+        LP_COLUMN_LIST: 
+          LP_WHERE: 
+            LP_COLUMN_ALIAS: (5).PROCEDURE_NAME
+            LP_COLUMN_LIST_ALIAS: 
+            - type: STRING_LITERAL
+        LP_COLUMN_LIST: ORDER BY ASC: 
+          LP_COLUMN_LIST: 
+            LP_WHERE: 
+              LP_COLUMN_ALIAS: P(0).OID
+              LP_COLUMN_LIST_ALIAS: 
+              - type: STRING_LITERAL
+
+[DEBUG] PATH:LINENUM DATE TIME : Current plan: 
+LP_INSERT: 
+  LP_PROJECT: 
+    LP_COLUMN_LIST: 
+      LP_WHERE: 
+        LP_VALUE: 
+        LP_COLUMN_LIST_ALIAS: 
+        - type: NULL
+        - alias: PROCEDURE_CAT
+      LP_COLUMN_LIST: 
+        LP_WHERE: 
+          LP_COLUMN_ALIAS: N(4).NSPNAME
+          LP_COLUMN_LIST_ALIAS: 
+          - type: STRING_LITERAL
+          - alias: PROCEDURE_SCHEM
+        LP_COLUMN_LIST: 
+          LP_WHERE: 
+            LP_COLUMN_ALIAS: P(0).PRONAME
+            LP_COLUMN_LIST_ALIAS: 
+            - type: STRING_LITERAL
+            - alias: PROCEDURE_NAME
+          LP_COLUMN_LIST: 
+            LP_WHERE: 
+              LP_VALUE: 
+              LP_COLUMN_LIST_ALIAS: 
+              - type: NULL
+              - alias: ???
+            LP_COLUMN_LIST: 
+              LP_WHERE: 
+                LP_VALUE: 
+                LP_COLUMN_LIST_ALIAS: 
+                - type: NULL
+                - alias: ???
+              LP_COLUMN_LIST: 
+                LP_WHERE: 
+                  LP_VALUE: 
+                  LP_COLUMN_LIST_ALIAS: 
+                  - type: NULL
+                  - alias: ???
+                LP_COLUMN_LIST: 
+                  LP_WHERE: 
+                    LP_COLUMN_ALIAS: D(1).DESCRIPTION
+                    LP_COLUMN_LIST_ALIAS: 
+                    - type: STRING_LITERAL
+                    - alias: REMARKS
+                  LP_COLUMN_LIST: 
+                    LP_WHERE: 
+                      LP_VALUE: 2
+                      LP_COLUMN_LIST_ALIAS: 
+                      - type: NUMERIC_LITERAL
+                      - alias: PROCEDURE_TYPE
+                    LP_COLUMN_LIST: 
+                      LP_WHERE: 
+                        LP_CONCAT: 
+                          LP_CONCAT: 
+                            LP_COLUMN_ALIAS: P(0).PRONAME
+                            LP_VALUE: _
+                          LP_COLUMN_ALIAS: P(0).OID
+                        LP_COLUMN_LIST_ALIAS: 
+                        - type: STRING_LITERAL
+                        - alias: SPECIFIC_NAME
+    LP_SELECT: 
+      LP_TABLE_JOIN: CROSS_JOIN: 
+        LP_TABLE: N
+        LP_TABLE_JOIN: 
+          LP_TABLE: P
+          LP_TABLE_JOIN: LEFT_JOIN: 
+            LP_WHERE: 
+            LP_INSERT: 
+              LP_PROJECT: 
+                LP_COLUMN_LIST: 
+                  LP_WHERE: 
+                    LP_COLUMN_ALIAS: PG_CATALOG.PG_DESCRIPTION(7).OBJOID
+                  LP_COLUMN_LIST: 
+                    LP_WHERE: 
+                      LP_COLUMN_ALIAS: PG_CATALOG.PG_DESCRIPTION(7).OID
+                LP_SELECT: 
+                  LP_TABLE_JOIN: 
+                    LP_TABLE: PG_CATALOG.PG_DESCRIPTION
+                  LP_CRITERIA: 
+                    LP_KEYS: 
+                      LP_KEY: 
+                      - table_name: PG_CATALOG.PG_DESCRIPTION
+                      - column_name: OID
+                      - unique_id: 7
+                      - method: LP_KEY_ADVANCE
+                      - xref_key: false
+                      - uses_xref_key: false
+                    LP_SELECT_OPTIONS: 
+                      LP_WHERE: 
+                      LP_KEYWORDS:  XREF_INDEX;
+              LP_OUTPUT: 
+                LP_KEY: 
+                - table_name: PG_CATALOG.PG_DESCRIPTION
+                - column_name: OBJOID
+                - unique_id: 1
+                - method: LP_INVALID_ACTION
+                - xref_key: true
+                - uses_xref_key: false
+            LP_TABLE_JOIN: LEFT_JOIN: 
+              LP_WHERE: 
+                LP_BOOLEAN_EQUALS: 
+                  LP_COLUMN_ALIAS: C(2).RELNAME
+                  LP_VALUE: pg_proc
+              LP_TABLE: C
+              LP_TABLE_JOIN: LEFT_JOIN: 
+                LP_WHERE: 
+                  LP_BOOLEAN_EQUALS: 
+                    LP_COLUMN_ALIAS: PN(3).NSPNAME
+                    LP_VALUE: pg_catalog
+                LP_TABLE: PN
+      LP_CRITERIA: 
+        LP_KEYS: 
+          LP_KEY: 
+          - table_name: PG_CATALOG.PG_NAMESPACE
+          - column_name: OID
+          - unique_id: 4
+          - method: LP_KEY_ADVANCE
+          - xref_key: false
+          - uses_xref_key: false
+          LP_KEYS: 
+            LP_KEY: 
+            - table_name: PG_CATALOG.PG_PROC
+            - column_name: OID
+            - unique_id: 0
+            - method: LP_KEY_ADVANCE
+            - xref_key: false
+            - uses_xref_key: false
+            LP_KEYS: 
+              LP_KEY: 
+              - table_name: PG_CATALOG.PG_DESCRIPTION
+              - column_name: OBJOID
+              - unique_id: 1
+              - method: LP_KEY_FIX
+              - xref_key: true
+              - uses_xref_key: false
+              - value:
+                  LP_COLUMN_ALIAS: P(0).OID
+              LP_KEYS: 
+                LP_KEY: 
+                - table_name: PG_CATALOG.PG_DESCRIPTION
+                - column_name: OID
+                - unique_id: 1
+                - method: LP_KEY_ADVANCE
+                - xref_key: false
+                - uses_xref_key: true
+                LP_KEYS: 
+                  LP_KEY: 
+                  - table_name: PG_CATALOG.PG_CLASS
+                  - column_name: OID
+                  - unique_id: 2
+                  - method: LP_KEY_FIX
+                  - xref_key: false
+                  - uses_xref_key: false
+                  - value:
+                      LP_COLUMN_ALIAS: D(1).CLASSOID
+                  LP_KEYS: 
+                    LP_KEY: 
+                    - table_name: PG_CATALOG.PG_NAMESPACE
+                    - column_name: OID
+                    - unique_id: 3
+                    - method: LP_KEY_FIX
+                    - xref_key: false
+                    - uses_xref_key: false
+                    - value:
+                        LP_COLUMN_ALIAS: C(2).RELNAMESPACE
+        LP_SELECT_OPTIONS: 
+          LP_WHERE: 
+            LP_BOOLEAN_EQUALS: 
+              LP_COLUMN_ALIAS: P(0).PRONAMESPACE
+              LP_COLUMN_ALIAS: N(4).OID
+          LP_KEYWORDS: 
+  LP_OUTPUT: 
+    LP_KEY: 
+    - table_name:  
+    - column_name:  
+    - unique_id: 6
+    - method: LP_KEY_ADVANCE
+    - xref_key: false
+    - uses_xref_key: false
+    LP_COLUMN_LIST: ORDER BY ASC: 
+      LP_COLUMN_LIST: 
+        LP_WHERE: 
+          LP_COLUMN_ALIAS: (5).PROCEDURE_SCHEM
+          LP_COLUMN_LIST_ALIAS: 
+          - type: STRING_LITERAL
+      LP_COLUMN_LIST: ORDER BY ASC: 
+        LP_COLUMN_LIST: 
+          LP_WHERE: 
+            LP_COLUMN_ALIAS: (5).PROCEDURE_NAME
+            LP_COLUMN_LIST_ALIAS: 
+            - type: STRING_LITERAL
+        LP_COLUMN_LIST: ORDER BY ASC: 
+          LP_COLUMN_LIST: 
+            LP_WHERE: 
+              LP_COLUMN_ALIAS: P(0).OID
+              LP_COLUMN_LIST_ALIAS: 
+              - type: STRING_LITERAL
+
+[ INFO] PATH:LINENUM DATE TIME : Generating helper cross reference M file [./_ydboctoX*.m] for table [PG_CATALOG.PG_DESCRIPTION] and column [OBJOID]
+Added SET and/or Non-SET trigger on ^%ydboctoocto named %ydboctoT*
+[ INFO] PATH:LINENUM DATE TIME : print_temporary_table()
 

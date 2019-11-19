@@ -64,18 +64,18 @@ int qualify_query(SqlStatement *stmt, SqlJoin *parent_join) {
 				save_join = cur_join->next;	/* save join list before tampering with it */
 				cur_join->next = start_join;	/* stop join list at current join */
 			}
-			result |= qualify_statement(cur_join->condition, start_join, stmt, MATCH_QUALIFIED_COLUMNS_TRUE);
+			result |= qualify_statement(cur_join->condition, start_join, stmt, MATCH_QUALIFIED_COLUMNS_TRUE, 0);
 			if (NATURAL_JOIN != cur_join->type)
 				cur_join->next = save_join;	/* restore join list to original */
 			cur_join = cur_join->next;
 		} while(cur_join != start_join && cur_join != parent_join);
-		result |= qualify_statement(select->select_list, start_join, stmt, MATCH_QUALIFIED_COLUMNS_TRUE);
-		result |= qualify_statement(select->where_expression, start_join, stmt, MATCH_QUALIFIED_COLUMNS_TRUE);
+		result |= qualify_statement(select->select_list, start_join, stmt, MATCH_QUALIFIED_COLUMNS_TRUE, 0);
+		result |= qualify_statement(select->where_expression, start_join, stmt, MATCH_QUALIFIED_COLUMNS_TRUE, 0);
 		/* Now that all column names used in the query have been validated, allow columns specified in
 		 * ORDER BY to be validated against any column names specified till now without any strict checking.
 		 * Hence the MATCH_QUALIFIED_COLUMNS_FALSE use below.
 		 */
-		result |= qualify_statement(select->order_expression, start_join, stmt, MATCH_QUALIFIED_COLUMNS_FALSE);
+		result |= qualify_statement(select->order_expression, start_join, stmt, MATCH_QUALIFIED_COLUMNS_FALSE, 0);
 		// Make sure to reset parent query
 		if (NULL != parent_join) {
 			parent_join->prev = start_join->prev;

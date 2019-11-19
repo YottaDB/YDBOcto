@@ -1,0 +1,18 @@
+
+-- TOB07 : ORDER BY typecast
+
+select * from names order by id::text;
+select * from names order by id::integer;
+0|Zero|Cool
+1|Acid|Burn
+2|Cereal|Killer
+3|Lord|Nikon
+4|Joey|
+5|Zero|Cool
+0|Zero|Cool
+1|Acid|Burn
+2|Cereal|Killer
+3|Lord|Nikon
+4|Joey|
+5|Zero|Cool
+

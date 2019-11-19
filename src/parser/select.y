@@ -78,39 +78,18 @@ optional_query_word_element
 
 sort_specification_list
   : sort_specification sort_specification_list_tail {
-      SqlColumnListAlias	*alias, *alias_tail;
-      SqlValue			*value;
-      SqlColumnList		*column_list;
-      SqlStatement		*sort_specification;
-      SqlSortSpecList		*sort_spec_list;
+	SqlStatement		*sort_spec, *sort_spec_tail;
 
-      SQL_STATEMENT($$, column_list_alias_STATEMENT);
-      MALLOC_STATEMENT($$, column_list_alias, SqlColumnListAlias);
-      UNPACK_SQL_STATEMENT(alias, $$, column_list_alias);
-      dqinit(alias);
-      assert(alias->next == alias);
-      if ($sort_specification_list_tail) {
-        UNPACK_SQL_STATEMENT(alias_tail, $sort_specification_list_tail, column_list_alias);
-        dqappend(alias, alias_tail);
-      }
-      SQL_STATEMENT(alias->alias, value_STATEMENT);
-      MALLOC_STATEMENT(alias->alias, value, SqlValue);
-      UNPACK_SQL_STATEMENT(value, alias->alias, value);
-      value->type = NUL_VALUE;
-      value->v.string_literal = "";
-      // Allocate the column list
-      SQL_STATEMENT(alias->column_list, column_list_STATEMENT);
-      MALLOC_STATEMENT(alias->column_list, column_list, SqlColumnList);
-      // Get the allocated column list
-      UNPACK_SQL_STATEMENT(column_list, alias->column_list, column_list);
-      dqinit(column_list);
-      sort_specification = $sort_specification;
-      // The sort spec should be a value column_REFERENCE
-      UNPACK_SQL_STATEMENT(sort_spec_list, sort_specification, sort_spec_list);
-      UNPACK_SQL_STATEMENT(value, sort_spec_list->column_value, value);
-      assert(COLUMN_REFERENCE == value->type);
-      column_list->value = sort_spec_list->column_value;
-      alias->keywords = sort_spec_list->sort_type;
+	sort_spec = $sort_specification;
+	sort_spec_tail = $sort_specification_list_tail;
+	if (NULL != sort_spec_tail) {
+		SqlColumnListAlias	*list1, *list2;
+
+		UNPACK_SQL_STATEMENT(list1, sort_spec, column_list_alias);
+		UNPACK_SQL_STATEMENT(list2, sort_spec_tail, column_list_alias);
+		dqappend(list2, list1);
+	}
+	$$ = sort_spec;
     }
   ;
 
@@ -126,26 +105,9 @@ sort_specification
 
 sort_key
   /// TODO: we somehow need to influence YottaDB's collation order
-  : numeric_value_expression {
-	SqlValue *value;
-	/* if it is a value check if it is a column and return that otherwise issue a warning
-	 * if it is not a value then it is some kind of expression so emit a warning
-	*/
-	if (value_STATEMENT == ($1)->type) {
-		UNPACK_SQL_STATEMENT(value, $1, value);
-		if (COLUMN_REFERENCE == value->type) {
-			$$ = $1;
-		} else if (COERCE_TYPE == value->type) {
-			WARNING(ERR_FEATURE_NOT_IMPLEMENTED, "ORDER BY typecast");
-			YYABORT;
-		} else {
-			WARNING(ERR_FEATURE_NOT_IMPLEMENTED, "ORDER BY column_number");
-			YYABORT;
-		}
-	} else {
-		WARNING(ERR_FEATURE_NOT_IMPLEMENTED, "ORDER BY expression");
-		YYABORT;
-	}
+  : derived_column_expression {
+	$$ = $derived_column_expression;
+	$$->loc = yyloc;	// for later use by "sort_specification()"
     }
   ;
 
@@ -210,14 +172,15 @@ select_list
 
 select_sublist
   : derived_column select_sublist_tail {
-      $$ = $derived_column;
-      // deviation from pattern here so we don't have to deal with "NOT_A_COLUMN" elsewhere
-      if($select_sublist_tail != NULL) {
-        SqlColumnListAlias *list1, *list2;
-        UNPACK_SQL_STATEMENT(list1, $$, column_list_alias);
-        UNPACK_SQL_STATEMENT(list2, $select_sublist_tail, column_list_alias);
-        dqappend(list2, list1);
-      }
+	$$ = $derived_column;
+	// deviation from pattern here so we don't have to deal with "NOT_A_COLUMN" elsewhere
+	if (NULL != $select_sublist_tail) {
+		SqlColumnListAlias	*list1, *list2;
+
+		UNPACK_SQL_STATEMENT(list1, $$, column_list_alias);
+		UNPACK_SQL_STATEMENT(list2, $select_sublist_tail, column_list_alias);
+		dqappend(list2, list1);
+	}
     }
   ;
 
@@ -274,7 +237,7 @@ derived_column
       column_list->value = $derived_column_expression;
       /// TODO: we should search here for a reasonable "name" for the column
       alias->alias = find_column_alias_name($derived_column_expression);
-      if(alias->alias == NULL) {
+      if (alias->alias == NULL) {
         SQL_STATEMENT(alias->alias, value_STATEMENT);
         MALLOC_STATEMENT(alias->alias, value, SqlValue);
         alias->alias->v.value->type = STRING_LITERAL;
@@ -351,7 +314,7 @@ table_reference
       SqlJoin *join = $$->v.join, *join_tail;
       SqlColumn *column;
       SqlTableAlias *alias;
-      if(table == NULL) {
+      if (table == NULL) {
         ERROR(ERR_UNKNOWN_TABLE, $column_name->v.value->v.reference);
         print_yyloc(&($column_name)->loc);
         YYERROR;
@@ -369,7 +332,7 @@ table_reference
       PACK_SQL_STATEMENT(alias->column_list,
                          columns_to_column_list_alias(column, alias), column_list_alias);
       dqinit(join);
-      if($table_reference_tail) {
+      if ($table_reference_tail) {
         UNPACK_SQL_STATEMENT(join_tail, $table_reference_tail, join);
         join->type = CROSS_JOIN;
         dqappend(join, join_tail);
@@ -382,7 +345,7 @@ table_reference
       SqlJoin *join = $$->v.join, *join_tail;
       SqlColumn *column;
       SqlTableAlias *alias;
-      if(table == NULL) {
+      if (table == NULL) {
         ERROR(ERR_UNKNOWN_TABLE, $column_name->v.value->v.reference);
         print_yyloc(&($column_name)->loc);
         YYERROR;
@@ -400,7 +363,7 @@ table_reference
       PACK_SQL_STATEMENT(alias->column_list,
                          columns_to_column_list_alias(column, alias), column_list_alias);
       dqinit(join);
-      if($table_reference_tail) {
+      if ($table_reference_tail) {
         UNPACK_SQL_STATEMENT(join_tail, $table_reference_tail, join);
         join->type = CROSS_JOIN;
         dqappend(join, join_tail);
@@ -488,7 +451,7 @@ qualified_join
       UNPACK_SQL_STATEMENT(right, $4, join);
       left->type = NATURAL_JOIN;
       assert(left->condition == NULL);
-      if($optional_join_specification == NULL) {
+      if ($optional_join_specification == NULL) {
         left->condition = natural_join_condition($1, $4);
       } else {
         left->condition = $optional_join_specification;

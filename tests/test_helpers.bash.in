@@ -285,6 +285,7 @@ verify_output() {
   sed -i '/^.*\[ INFO\].* \/.*\/octo.conf/d' clean_output.txt
   # Filter M routine name
   sed -i 's/_ydboctoP.*\.m/_ydboctoP*.m/' clean_output.txt
+  sed -i 's/_ydboctoX.*\.m/_ydboctoX*.m/' clean_output.txt
   # Filter M routine name with %
   sed -i 's/\%ydboctoP[a-zA-Z0-9]*,/%ydboctoP*,/' clean_output.txt
   # Filter M trigger name with %

@@ -28,7 +28,7 @@
  *  followed by searching without seperating the two parts
  */
 SqlColumnAlias *qualify_column_name(SqlValue *column_value, SqlJoin *tables, SqlStatement *table_alias_stmt,
-					boolean_t match_qualified_columns)
+					boolean_t match_qualified_columns, int depth)
 {
 	SqlColumnAlias		*ret;
 	SqlColumnListAlias	*start_cla, *cur_cla, *col_cla, *t_col_cla;
@@ -127,6 +127,27 @@ SqlColumnAlias *qualify_column_name(SqlValue *column_value, SqlJoin *tables, Sql
 						}
 						UNPACK_SQL_STATEMENT(matching_alias, table_alias_stmt, table_alias);
 						col_cla = cur_cla;
+						if (!match_qualified_columns) {
+							/* We qualified an input column name as a valid name because it matched
+							 * the alias name of an already qualified column in the SELECT column list.
+							 * But in this case, we only allow alias names to be used as it.
+							 * Not inside an expression. Check for that. "depth" (the nesting of
+							 * "qualify_statement" calls) is guaranteed to be at least 3 here.
+							 * Following is the C-stack in case alias name is used as is.
+							 *	depth=0 : "qualify_statement() : case column_list_alias_STATEMENT"
+							 *	depth=1 : "qualify_statement() : case column_list_STATEMENT"
+							 *	depth=2 : "qualify_statement() : case column_list_STATEMENT"
+							 *	depth=3 : "qualify_column_name()"
+							 * If alias name is used in an expression though, depth would be
+							 * GREATER THAN 3. So check for that.
+							 */
+							assert(3 <= depth);
+							if (3 < depth) {
+								ERROR(ERR_UNKNOWN_COLUMN_NAME,
+										(NULL != table_name) ? table_name : column_name);
+								return NULL;
+							}
+						}
 					}
 				}
 			}

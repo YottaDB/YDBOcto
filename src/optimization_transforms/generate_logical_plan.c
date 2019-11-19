@@ -76,23 +76,25 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt, int *plan_id) {
 		UNPACK_SQL_STATEMENT(list, select_stmt->order_expression, column_list_alias);
 		cur_cla = start_cla = list;
 		do {
-			int			cla_unique_id;
 			int			list_unique_id;
+			boolean_t		outer_column_alias_exists;
 			SqlColumnAlias		*column_alias;
 			SqlColumnListAlias	*cla, *save_next, *cla_chosen;
 			SqlColumnList		*column_list;
 			SqlOptionalKeyword	*keyword;
 
-			// Manually drill down to the expression so we can convert it
-			// We have to do some drilling to get the correct item,
-			// since the output from the parser is not super uniform
 			UNPACK_SQL_STATEMENT(column_list, cur_cla->column_list, column_list);
 			// Ensure that we only have one element in this list
 			assert(column_list->next == column_list);
-			UNPACK_SQL_STATEMENT(column_alias, column_list->value, column_alias);
-			assert(table_alias_STATEMENT == column_alias->table_alias->type);
-			list_unique_id = column_alias->table_alias->v.table_alias->unique_id;
-			if (column_list_alias_STATEMENT == column_alias->column->type) {
+			if (column_alias_STATEMENT == column_list->value->type) {
+				UNPACK_SQL_STATEMENT(column_alias, column_list->value, column_alias);
+				assert(table_alias_STATEMENT == column_alias->table_alias->type);
+				list_unique_id = column_alias->table_alias->v.table_alias->unique_id;
+				outer_column_alias_exists = (column_list_alias_STATEMENT == column_alias->column->type);
+			} else {
+				outer_column_alias_exists = FALSE;
+			}
+			if (outer_column_alias_exists) {
 				UNPACK_SQL_STATEMENT(cla, column_alias->column, column_list_alias);
 				UNPACK_SQL_STATEMENT(column_list, cla->column_list, column_list);
 				/* We are guaranteed that the table id of the outer column_alias does not match that of
@@ -107,8 +109,7 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt, int *plan_id) {
 				if (column_alias_STATEMENT == column_list->value->type)
 				{
 					UNPACK_SQL_STATEMENT(column_alias, column_list->value, column_alias);
-					cla_unique_id = column_alias->table_alias->v.table_alias->unique_id;
-					assert(list_unique_id != cla_unique_id);
+					assert(list_unique_id != column_alias->table_alias->v.table_alias->unique_id);
 					cla_chosen = cur_cla;
 				} else {
 					/* If the inner column list value does not correspond to a column alias, then it is

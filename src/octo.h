@@ -163,16 +163,13 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, char *cursorId);
 SqlTable *find_table(const char *table_name);
 SqlColumn *find_column(char *column_name, SqlTable *table);
 SqlStatement *find_column_alias_name(SqlStatement *stmt);
-int qualify_column_list_alias(SqlColumnListAlias *alias, SqlJoin *tables, SqlStatement *column_list_alias,
-					boolean_t match_qualified_columns);
-int qualify_column_list(SqlColumnList *select_columns, SqlJoin *tables, SqlStatement *column_list_alias,
-					boolean_t match_qualified_columns);
-SqlColumnAlias *qualify_column_name(SqlValue *column_value, SqlJoin *tables, SqlStatement *column_list_alias,
-					boolean_t match_qualified_columns);
-SqlColumnListAlias *match_column_in_table(SqlTableAlias *table, char *column_name, int column_name_len);
-int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *column_list_alias, boolean_t match_qualified_columns);
-int qualify_function_name(SqlStatement *stmt);
 int qualify_query(SqlStatement *stmt, SqlJoin *parent_join);
+int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *column_list_alias,
+							boolean_t match_qualified_columns, int depth);
+SqlColumnAlias *qualify_column_name(SqlValue *column_value, SqlJoin *tables, SqlStatement *column_list_alias,
+					boolean_t match_qualified_columns, int depth);
+SqlColumnListAlias *match_column_in_table(SqlTableAlias *table, char *column_name, int column_name_len);
+int qualify_function_name(SqlStatement *stmt);
 void print_yyloc(YYLTYPE *llocp);
 SqlOptionalKeyword *get_keyword(SqlColumn *column, enum OptionalKeyword keyword);
 SqlOptionalKeyword *get_keyword_from_keywords(SqlOptionalKeyword *start_keyword, enum OptionalKeyword keyword);

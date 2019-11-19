@@ -506,13 +506,6 @@ typedef struct SqlNoDataStatement {
 	char b;
 } SqlNoDataStatement;
 
-typedef struct SqlSortSpecList {
-	// SqlValue
-	struct SqlStatement	*column_value;
-	struct SqlStatement	*sort_type;
-	dqcreate(SqlSortSpecList);
-} SqlSortSpecList;
-
 typedef struct SqlStatement{
 	enum SqlStatementType	type;
 	struct YYLTYPE loc;
@@ -541,7 +534,6 @@ typedef struct SqlStatement{
 		struct SqlSetStatement *set;
 		struct SqlShowStatement *show;
 		struct SqlNoDataStatement *no_data;
-		struct SqlSortSpecList *sort_spec_list;
 		enum SqlDataType data_type;
 		enum SqlJoinType join_type;
 	} v;

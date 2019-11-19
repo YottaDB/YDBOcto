@@ -110,8 +110,6 @@ add_library(libocto OBJECT
   find_table.c
   find_column.c
   find_column_alias_name.c
-  qualify_column_list.c
-  qualify_column_list_alias.c
   qualify_column_name.c
   qualify_statement.c
   qualify_function_name.c

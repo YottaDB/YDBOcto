@@ -1,3 +1,14 @@
+#################################################################
+#								#
+# Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	#
+# All rights reserved.						#
+#								#
+#	This source code contains the intellectual property	#
+#	of its copyright holder(s), and is made available	#
+#	under a license.  If you do not know the terms of	#
+#	the license, please stop and do not read further.	#
+#								#
+#################################################################
 
 -- TOB04 : OCTO322 : ORDER BY derived column where sub-query does UNION ALL
 
@@ -11,118 +22,3 @@ SELECT namesunion.firstname from ((select * from names) UNION ALL (select * from
 SELECT NULL as computed_id from (select * from names UNION ALL select * from names) ORDER BY computed_id;
 SELECT 1 as computed_id from (select * from names UNION ALL select * from names) ORDER BY computed_id;
 SELECT 1+id*2 as computed_id from (select * from names UNION ALL select * from names) ORDER BY computed_id;
-0|Zero|Cool
-1|Acid|Burn
-2|Cereal|Killer
-3|Lord|Nikon
-4|Joey|
-5|Zero|Cool
-0|Zero|Cool
-0|Zero|Cool
-1|Acid|Burn
-1|Acid|Burn
-2|Cereal|Killer
-2|Cereal|Killer
-3|Lord|Nikon
-3|Lord|Nikon
-4|Joey|
-4|Joey|
-5|Zero|Cool
-5|Zero|Cool
-
-Acid
-Burn
-Cereal
-Cool
-Cool
-Joey
-Killer
-Lord
-Nikon
-Zero
-Zero
-
-Acid
-Burn
-Cereal
-Cool
-Cool
-Joey
-Killer
-Lord
-Nikon
-Zero
-Zero
-1|Acid|Burn
-1|Acid|Burn
-2|Cereal|Killer
-2|Cereal|Killer
-4|Joey|
-4|Joey|
-3|Lord|Nikon
-3|Lord|Nikon
-0|Zero|Cool
-5|Zero|Cool
-0|Zero|Cool
-5|Zero|Cool
-1|Acid|Burn
-1|Acid|Burn
-2|Cereal|Killer
-2|Cereal|Killer
-4|Joey|
-4|Joey|
-3|Lord|Nikon
-3|Lord|Nikon
-0|Zero|Cool
-5|Zero|Cool
-0|Zero|Cool
-5|Zero|Cool
-Acid
-Acid
-Cereal
-Cereal
-Joey
-Joey
-Lord
-Lord
-Zero
-Zero
-Zero
-Zero
-
-
-
-
-
-
-
-
-
-
-
-
-1
-1
-1
-1
-1
-1
-1
-1
-1
-1
-1
-1
-1
-1
-3
-3
-5
-5
-7
-7
-9
-9
-11
-11
-

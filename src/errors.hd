@@ -62,6 +62,8 @@ ERROR_DEF(ERR_SETOPER_NUMCOLS_MISMATCH, "Each %s query must have same number of 
 ERROR_DEF(ERR_SETOPER_TYPE_MISMATCH, "%s types %s and %s cannot be matched", PSQL_Code_Syntax_Error)
 ERROR_DEF(ERR_SUBQUERY_ONE_COLUMN, "Subquery must return only one column", PSQL_Code_Syntax_Error)
 ERROR_DEF(ERR_JOIN_ALIAS_DUPLICATE, "table name \"%s\" specified more than once", PSQL_Code_Duplicate_Alias)
+ERROR_DEF(ERR_ORDER_BY_POSITION_INVALID, "ORDER BY position %s%s is not in select list", PSQL_Code_Invalid_Column_Reference)
+ERROR_DEF(ERR_ORDER_BY_POSITION_NOT_INTEGER, "Non integer constant %s%s in ORDER BY", PSQL_Code_Syntax_Error)
 // ROCTO //
 ERROR_DEF(ERR_ROCTO_M_CALL, "M extrinsic function calls are disallowed in rocto", PSQL_Code_Internal_Error)
 ERROR_DEF(ERR_ROCTO_UNSUPPORTED_BIND_PARAMETER, "Unsupported bind parameter type received", PSQL_Code_Internal_Error)

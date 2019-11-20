@@ -14,11 +14,11 @@ octoPlan0(cursorId)
     QUIT
 
 octoPlan1(cursorId)
-    NEW %ydboctoz KILL %ydboctocursor(cursorId,"keys",3,"","")
-    SET %ydboctocursor(cursorId,"keys",0,"NAMESWITHAGES","ID")=""
-    FOR  SET %ydboctocursor(cursorId,"keys",0,"NAMESWITHAGES","ID")=$ORDER(^names(%ydboctocursor(cursorId,"keys",0,"NAMESWITHAGES","ID"))) QUIT:(%ydboctocursor(cursorId,"keys",0,"NAMESWITHAGES","ID")="")  DO
-    . SET %ydboctocursor(cursorId,"keys",1,"NAMESWITHAGES","ID")=$PIECE($GET(^names(%ydboctocursor(cursorId,"keys",0,"NAMESWITHAGES","ID"))),"|",4) IF ($DATA(^names(%ydboctocursor(cursorId,"keys",1,"NAMESWITHAGES","ID")))'=0) DO
+    NEW %ydboctoz KILL %ydboctocursor(cursorId,"keys",4,"","")
+    SET %ydboctocursor(cursorId,"keys",1,"NAMESWITHAGES","ID")=""
+    FOR  SET %ydboctocursor(cursorId,"keys",1,"NAMESWITHAGES","ID")=$ORDER(^names(%ydboctocursor(cursorId,"keys",1,"NAMESWITHAGES","ID"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"NAMESWITHAGES","ID")="")  DO
+    . SET %ydboctocursor(cursorId,"keys",2,"NAMESWITHAGES","ID")=$PIECE($GET(^names(%ydboctocursor(cursorId,"keys",1,"NAMESWITHAGES","ID"))),"|",4) IF ($DATA(^names(%ydboctocursor(cursorId,"keys",2,"NAMESWITHAGES","ID")))'=0) DO
     . . IF 1 DO
-    . . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42
-    . . . SET:1 %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=$GET(%ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"","")))_%ydboctocursor(cursorId,"keys",0,"NAMESWITHAGES","ID")_"|"_$PIECE($GET(^names(%ydboctocursor(cursorId,"keys",0,"NAMESWITHAGES","ID"))),"|",2)_"|"_$PIECE($GET(^names(%ydboctocursor(cursorId,"keys",0,"NAMESWITHAGES","ID"))),"|",3)_"|"_$PIECE($GET(^names(%ydboctocursor(cursorId,"keys",0,"NAMESWITHAGES","ID"))),"|",4)_"|"_$ZDATE($HOROLOG,"YEAR-MM-DD 24:60:SS")_"|"_%ydboctocursor(cursorId,"keys",1,"NAMESWITHAGES","ID")_"|"_$PIECE($GET(^names(%ydboctocursor(cursorId,"keys",1,"NAMESWITHAGES","ID"))),"|",2)_"|"_$PIECE($GET(^names(%ydboctocursor(cursorId,"keys",1,"NAMESWITHAGES","ID"))),"|",3)_"|"_$PIECE($GET(^names(%ydboctocursor(cursorId,"keys",1,"NAMESWITHAGES","ID"))),"|",4)_"|"_$ZDATE($HOROLOG,"YEAR-MM-DD 24:60:SS")
+    . . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",4,"","")) %ydboctoz=42
+    . . . SET:1 %ydboctocursor(cursorId,"keys",4,"","",%ydboctocursor(cursorId,"keys",4,"",""))=$GET(%ydboctocursor(cursorId,"keys",4,"","",%ydboctocursor(cursorId,"keys",4,"","")))_%ydboctocursor(cursorId,"keys",1,"NAMESWITHAGES","ID")_"|"_$PIECE($GET(^names(%ydboctocursor(cursorId,"keys",1,"NAMESWITHAGES","ID"))),"|",2)_"|"_$PIECE($GET(^names(%ydboctocursor(cursorId,"keys",1,"NAMESWITHAGES","ID"))),"|",3)_"|"_$PIECE($GET(^names(%ydboctocursor(cursorId,"keys",1,"NAMESWITHAGES","ID"))),"|",4)_"|"_$ZDATE($HOROLOG,"YEAR-MM-DD 24:60:SS")_"|"_%ydboctocursor(cursorId,"keys",2,"NAMESWITHAGES","ID")_"|"_$PIECE($GET(^names(%ydboctocursor(cursorId,"keys",2,"NAMESWITHAGES","ID"))),"|",2)_"|"_$PIECE($GET(^names(%ydboctocursor(cursorId,"keys",2,"NAMESWITHAGES","ID"))),"|",3)_"|"_$PIECE($GET(^names(%ydboctocursor(cursorId,"keys",2,"NAMESWITHAGES","ID"))),"|",4)_"|"_$ZDATE($HOROLOG,"YEAR-MM-DD 24:60:SS")
     QUIT

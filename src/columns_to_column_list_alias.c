@@ -44,7 +44,6 @@ SqlColumnListAlias *columns_to_column_list_alias(SqlColumn *column, SqlTableAlia
 		{
 		case UNKNOWN_SqlDataType:
 			cur_column_list_alias->type = UNKNOWN_SqlValueType;
-			cur_column_list_alias->pre_qualified_cla = cur_column->pre_qualified_cla;
 			break;
 		case CHARACTER_STRING_TYPE:
 			cur_column_list_alias->type = STRING_LITERAL;

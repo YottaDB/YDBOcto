@@ -39,6 +39,7 @@ ERROR_DEF(PSQL_Code_Undefined_Table, "42P01")
 ERROR_DEF(PSQL_Code_Undefined_Object, "42704")
 ERROR_DEF(PSQL_Code_Ambiguous_Column, "42702")
 ERROR_DEF(PSQL_Code_Ambiguous_Parameter, "42P08")
+ERROR_DEF(PSQL_Code_Invalid_Column_Reference, "42P10")
 ERROR_DEF(PSQL_Code_Invalid_Table_Definition, "42P16")
 ERROR_DEF(PSQL_Code_Duplicate_Alias, "42712")
 // Class 57 - Operator Intervention

@@ -291,7 +291,13 @@ typedef struct SqlColumn
 	int				column_number;
 	struct SqlStatement		*table;
 	struct SqlStatement		*keywords;
-	/* See detailed comment in "SqlColumnListAlias" structure typedef for the "pre_qualified_cla" member */
+	/* Below field ("pre_qualified_cla") is initialized/usable only if "type" field above is UNKNOWN_SqlDataType.
+	 * It is needed after parsing starts to handle a column that came in from a sub-query before when the sub-query
+	 * column name was qualified (in "qualify_statement()"). Once the column names have been qualified,
+	 * "populate_data_type()" relies on this field to derive the type of this SqlColumn structure
+	 * (i.e. outer-query column name) based on the type that was determined for "pre_qualified_cla"
+	 * (i.e. the sub-query column) in "qualify_statement()".
+	 */
 	struct SqlColumnListAlias	*pre_qualified_cla; /* initialized/usable only if "type" field is UNKNOWN_SqlDataType */
 	dqcreate(SqlColumn);
 } SqlColumn;
@@ -431,6 +437,13 @@ typedef struct SqlColumnList {
 	dqcreate(SqlColumnList);
 } SqlColumnList;
 
+// Structure to hold a table unique_id and a column number. Used in SqlColumnListAlias for ORDER BY columns
+// that match an alias name of a column in the SELECT column list.
+typedef struct SqlTableIdColumnId {
+	int	unique_id;
+	int	column_number;
+} SqlTableIdColumnId;
+
 typedef struct SqlColumnListAlias {
 	// SqlColumnList
 	struct SqlStatement		*column_list;
@@ -439,14 +452,11 @@ typedef struct SqlColumnListAlias {
 	// Keywords used for the SORT column
 	struct SqlStatement		*keywords;
 	SqlValueType			type;
-	/* Below field ("pre_qualified_cla") is initialized/usable only if "type" field above is UNKNOWN_SqlValueType.
-	 * It is needed after parsing starts to handle a column that came in from a sub-query before when the sub-query
-	 * column name was qualified (in "qualify_statement()"). Once the column names have been qualified,
-	 * "populate_data_type()" relies on this field to derive the type of this SqlColumnListAlias structure
-	 * (i.e. outer-query column name) based on the type that was determined for "pre_qualified_cla"
-	 * (i.e. the sub-query column) in "qualify_statement()".
+	/* The below field is needed to store the unique_id of the table and column number of the column in the
+	 * SELECT column list of that table if this cla was matched to an ALIAS NAME from another cla
+	 * (see "QUALIFY_COLUMN_REFERENCE" in qualify_statement.c).
 	 */
-	struct SqlColumnListAlias	*pre_qualified_cla;
+	SqlTableIdColumnId		tbl_and_col_id;
 	dqcreate(SqlColumnListAlias);
 } SqlColumnListAlias;
 

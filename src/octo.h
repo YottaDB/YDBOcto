@@ -99,9 +99,6 @@
 	}													\
 }
 
-#define	MATCH_QUALIFIED_COLUMNS_FALSE	FALSE
-#define	MATCH_QUALIFIED_COLUMNS_TRUE	TRUE
-
 #define	INVOKE_HASH_CANONICAL_QUERY(STATE, RESULT, STATUS)	\
 {								\
 	STATUS = 0;						\
@@ -164,10 +161,10 @@ SqlTable *find_table(const char *table_name);
 SqlColumn *find_column(char *column_name, SqlTable *table);
 SqlStatement *find_column_alias_name(SqlStatement *stmt);
 int qualify_query(SqlStatement *stmt, SqlJoin *parent_join);
-int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *column_list_alias,
-							boolean_t match_qualified_columns, int depth);
-SqlColumnAlias *qualify_column_name(SqlValue *column_value, SqlJoin *tables, SqlStatement *column_list_alias,
-					boolean_t match_qualified_columns, int depth);
+int qualify_statement(SqlStatement *stmt, SqlJoin *tables,
+						SqlStatement *column_list_alias, int depth, SqlColumnListAlias **ret_cla);
+SqlColumnAlias *qualify_column_name(SqlValue *column_value, SqlJoin *tables,
+						SqlStatement *column_list_alias, int depth, SqlColumnListAlias **ret_cla);
 SqlColumnListAlias *match_column_in_table(SqlTableAlias *table, char *column_name, int column_name_len);
 int qualify_function_name(SqlStatement *stmt);
 void print_yyloc(YYLTYPE *llocp);
@@ -193,6 +190,8 @@ SqlColumn *column_list_alias_to_columns(SqlTableAlias *table_alias);
 
 SqlStatement *drill_to_table_alias(SqlStatement *sqlStmt);
 int get_column_piece_number(SqlColumnAlias *alias, SqlTableAlias *table_alias);
+int get_column_number_from_column_list_alias(SqlColumnListAlias *input_cla, SqlStatement *table_alias_stmt);
+SqlColumnListAlias *get_column_list_alias_n_from_table_alias(SqlStatement *table_alias_stmt, int column_number);
 
 SqlStatement *copy_sql_statement(SqlStatement *stmt);
 

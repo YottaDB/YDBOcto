@@ -129,6 +129,8 @@ add_library(libocto OBJECT
   column_list_alias_to_columns.c
   columns_to_column_list_alias.c
   get_column_piece_number.c
+  get_column_number_from_column_list_alias.c
+  get_column_list_alias_n_from_table_alias.c
   drill_to_table_alias.c
   run_query.c
   parse_startup_flags.c

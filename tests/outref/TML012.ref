@@ -25,7 +25,7 @@ LP_INSERT:
     LP_KEY: 
     - table_name:  
     - column_name:  
-    - unique_id: 2
+    - unique_id: 3
     - method: LP_KEY_ADVANCE
     - xref_key: false
     - uses_xref_key: false
@@ -47,7 +47,7 @@ LP_INSERT:
           LP_KEY: 
           - table_name: NAMES
           - column_name: ID
-          - unique_id: 0
+          - unique_id: 1
           - method: LP_KEY_ADVANCE
           - xref_key: false
           - uses_xref_key: false
@@ -58,7 +58,7 @@ LP_INSERT:
     LP_KEY: 
     - table_name:  
     - column_name:  
-    - unique_id: 2
+    - unique_id: 3
     - method: LP_KEY_ADVANCE
     - xref_key: false
     - uses_xref_key: false
@@ -98,10 +98,10 @@ octoPlan0(cursorId)
     QUIT
 
 octoPlan1(cursorId)
-    NEW %ydboctoz KILL %ydboctocursor(cursorId,"keys",2,"","")
-    SET %ydboctocursor(cursorId,"keys",0,"NAMES","ID")=""
-    FOR  SET %ydboctocursor(cursorId,"keys",0,"NAMES","ID")=$ORDER(^names(%ydboctocursor(cursorId,"keys",0,"NAMES","ID"))) QUIT:(%ydboctocursor(cursorId,"keys",0,"NAMES","ID")="")  DO
+    NEW %ydboctoz KILL %ydboctocursor(cursorId,"keys",3,"","")
+    SET %ydboctocursor(cursorId,"keys",1,"NAMES","ID")=""
+    FOR  SET %ydboctocursor(cursorId,"keys",1,"NAMES","ID")=$ORDER(^names(%ydboctocursor(cursorId,"keys",1,"NAMES","ID"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"NAMES","ID")="")  DO
     . IF 1 DO
-    . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",2,"","")) %ydboctoz=42
-    . . SET:1 %ydboctocursor(cursorId,"keys",2,"","",%ydboctocursor(cursorId,"keys",2,"",""))=$GET(%ydboctocursor(cursorId,"keys",2,"","",%ydboctocursor(cursorId,"keys",2,"","")))_$GET(%ydboctocursor(cursorId,"parameters",1))
+    . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42
+    . . SET:1 %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=$GET(%ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"","")))_$GET(%ydboctocursor(cursorId,"parameters",1))
     QUIT

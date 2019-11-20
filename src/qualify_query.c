@@ -19,7 +19,8 @@
 #include "octo_types.h"
 
 int qualify_query(SqlStatement *stmt, SqlJoin *parent_join) {
-	int	result = 0;
+	int			result = 0;
+	SqlColumnListAlias	*ret_cla;
 
 	assert(stmt->type == table_alias_STATEMENT || stmt->type == set_operation_STATEMENT);
 	if (stmt->type == table_alias_STATEMENT) {
@@ -45,7 +46,7 @@ int qualify_query(SqlStatement *stmt, SqlJoin *parent_join) {
 		// First qualify subqueries
 		start_join = cur_join = join;
 		/* Ensure strict column name qualification checks (i.e. all column name references have to be a valid column
-		 * name in a valid existing table) by using MATCH_QUALIFIED_COLUMNS_TRUE below.
+		 * name in a valid existing table) by using NULL value (instead of "&ret_cla") in "qualify_statement" calls below.
 		 */
 		do {
 			SqlJoin	*save_join;
@@ -59,23 +60,23 @@ int qualify_query(SqlStatement *stmt, SqlJoin *parent_join) {
 			 * column names like one needs to in say a LEFT JOIN. Therefore skip this forward-reference-check
 			 * related for a NATURAL JOIN.
 			 */
-			if (NATURAL_JOIN != cur_join->type)
-			{
+			if (NATURAL_JOIN != cur_join->type) {
 				save_join = cur_join->next;	/* save join list before tampering with it */
 				cur_join->next = start_join;	/* stop join list at current join */
 			}
-			result |= qualify_statement(cur_join->condition, start_join, stmt, MATCH_QUALIFIED_COLUMNS_TRUE, 0);
+			result |= qualify_statement(cur_join->condition, start_join, stmt, 0, NULL);
 			if (NATURAL_JOIN != cur_join->type)
 				cur_join->next = save_join;	/* restore join list to original */
 			cur_join = cur_join->next;
 		} while(cur_join != start_join && cur_join != parent_join);
-		result |= qualify_statement(select->select_list, start_join, stmt, MATCH_QUALIFIED_COLUMNS_TRUE, 0);
-		result |= qualify_statement(select->where_expression, start_join, stmt, MATCH_QUALIFIED_COLUMNS_TRUE, 0);
+		result |= qualify_statement(select->select_list, start_join, stmt, 0, NULL);
+		result |= qualify_statement(select->where_expression, start_join, stmt, 0, NULL);
 		/* Now that all column names used in the query have been validated, allow columns specified in
 		 * ORDER BY to be validated against any column names specified till now without any strict checking.
-		 * Hence the MATCH_QUALIFIED_COLUMNS_FALSE use below.
+		 * Hence the non-NULL value of "&ret_cla" passed below to "qualify_statement".
 		 */
-		result |= qualify_statement(select->order_expression, start_join, stmt, MATCH_QUALIFIED_COLUMNS_FALSE, 0);
+		ret_cla = NULL;
+		result |= qualify_statement(select->order_expression, start_join, stmt, 0, &ret_cla);
 		// Make sure to reset parent query
 		if (NULL != parent_join) {
 			parent_join->prev = start_join->prev;

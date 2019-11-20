@@ -1,12 +1,72 @@
 
 -- TOB08 : OCTO280 : ORDER BY column_number
 
-select * from names order by 1;
-select * from names order by 2;
+-- Test with valid column numbers
+select * from names order by 1 desc;
+select * from names order by 2 desc;
 select * from names order by 3;
+select * from names order by 3,2,1 desc;
+select * from names order by 3,2;
+select * from names order by 2,1 desc;
+
+-- Test that ORDER BY valid-column-numbers but inside expressions are treated as ORDER BY expression
+select * from names order by 1+1 desc;
+select * from names order by +2 desc;
+
+-- Test with column number that is out of valid range
 select * from names order by 4;
-select * from names order by -1;
 select * from names order by 0;
+select * from names order by -1;
+
+-- Test with fractional column numbers
+select * from names order by 1.234;
+select * from names order by -1.234;
+
+-- Test with huge column numbers
+select * from names order by 12345678901234567890;
+select * from names order by -12345678901234567890;
+
+-- Test with multiple column numbers with errors
+select * from names order by 1.235,-12345678901234567890;
+select * from names order by -1.235,12345678901234567890;
+select * from names order by 1,2,-12345678901234567890;
+
+5|Zero|Cool
+4|Joey|
+3|Lord|Nikon
+2|Cereal|Killer
+1|Acid|Burn
+0|Zero|Cool
+0|Zero|Cool
+5|Zero|Cool
+3|Lord|Nikon
+4|Joey|
+2|Cereal|Killer
+1|Acid|Burn
+4|Joey|
+1|Acid|Burn
+0|Zero|Cool
+5|Zero|Cool
+2|Cereal|Killer
+3|Lord|Nikon
+4|Joey|
+1|Acid|Burn
+5|Zero|Cool
+0|Zero|Cool
+2|Cereal|Killer
+3|Lord|Nikon
+4|Joey|
+1|Acid|Burn
+0|Zero|Cool
+5|Zero|Cool
+2|Cereal|Killer
+3|Lord|Nikon
+1|Acid|Burn
+2|Cereal|Killer
+4|Joey|
+3|Lord|Nikon
+5|Zero|Cool
+0|Zero|Cool
 0|Zero|Cool
 1|Acid|Burn
 2|Cereal|Killer
@@ -19,28 +79,62 @@ select * from names order by 0;
 3|Lord|Nikon
 4|Joey|
 5|Zero|Cool
-0|Zero|Cool
-1|Acid|Burn
-2|Cereal|Killer
-3|Lord|Nikon
-4|Joey|
-5|Zero|Cool
-0|Zero|Cool
-1|Acid|Burn
-2|Cereal|Killer
-3|Lord|Nikon
-4|Joey|
-5|Zero|Cool
-0|Zero|Cool
-1|Acid|Burn
-2|Cereal|Killer
-3|Lord|Nikon
-4|Joey|
-5|Zero|Cool
-0|Zero|Cool
-1|Acid|Burn
-2|Cereal|Killer
-3|Lord|Nikon
-4|Joey|
-5|Zero|Cool
+[ERROR] PATH:LINENUM DATE TIME : ORDER BY position 4 is not in select list
+
+-- Test with column number that is out of valid range
+select * from names order by 4;
+                             ^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: -- Test with column number that is out of valid range
+select * from names order by 4;
+[ERROR] PATH:LINENUM DATE TIME : ORDER BY position 0 is not in select list
+
+select * from names order by 0;
+                             ^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select * from names order by 0;
+[ERROR] PATH:LINENUM DATE TIME : ORDER BY position -1 is not in select list
+
+select * from names order by -1;
+                             ^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select * from names order by -1;
+[ERROR] PATH:LINENUM DATE TIME : Non integer constant 1.234 in ORDER BY
+
+-- Test with fractional column numbers
+select * from names order by 1.234;
+                             ^^^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: -- Test with fractional column numbers
+select * from names order by 1.234;
+[ERROR] PATH:LINENUM DATE TIME : Non integer constant -1.234 in ORDER BY
+
+select * from names order by -1.234;
+                             ^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select * from names order by -1.234;
+[ERROR] PATH:LINENUM DATE TIME : Non integer constant 12345678901234567890 in ORDER BY
+
+-- Test with huge column numbers
+select * from names order by 12345678901234567890;
+                             ^^^^^^^^^^^^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: -- Test with huge column numbers
+select * from names order by 12345678901234567890;
+[ERROR] PATH:LINENUM DATE TIME : Non integer constant -12345678901234567890 in ORDER BY
+
+select * from names order by -12345678901234567890;
+                             ^^^^^^^^^^^^^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select * from names order by -12345678901234567890;
+[ERROR] PATH:LINENUM DATE TIME : Non integer constant 1.235 in ORDER BY
+
+-- Test with multiple column numbers with errors
+select * from names order by 1.235,-12345678901234567890;
+                             ^^^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: -- Test with multiple column numbers with errors
+select * from names order by 1.235,-12345678901234567890;
+[ERROR] PATH:LINENUM DATE TIME : Non integer constant -1.235 in ORDER BY
+
+select * from names order by -1.235,12345678901234567890;
+                             ^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select * from names order by -1.235,12345678901234567890;
+[ERROR] PATH:LINENUM DATE TIME : Non integer constant -12345678901234567890 in ORDER BY
+
+select * from names order by 1,2,-12345678901234567890;
+                                 ^^^^^^^^^^^^^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select * from names order by 1,2,-12345678901234567890;
 

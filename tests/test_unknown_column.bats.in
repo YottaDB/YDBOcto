@@ -19,7 +19,7 @@ setup() {
   load_fixture names.zwr
 }
 
-@test "test unknown column with alias doesn't stop the next query from running" {
+@test "TUC000 : test unknown column with alias doesn't stop the next query from running" {
   octo >& output.txt <<OCTO
 select notathing as a from names;
 select * from names limit 1;
@@ -27,14 +27,14 @@ OCTO
   verify_output TUC000 output.txt noinfo nodebug
 }
 
-@test "test unknown column with alias doesn't stop the next query from running on one line" {
+@test "TUC001 : test unknown column with alias doesn't stop the next query from running on one line" {
   octo >& output.txt <<OCTO
 select notathing as a from names; select * from names limit 1;
 OCTO
   verify_output TUC001 output.txt noinfo nodebug
 }
 
-@test "test unknown column in where clause doesn't stop the next query from running" {
+@test "TUC002 : test unknown column in where clause doesn't stop the next query from running" {
   octo >& output.txt <<OCTO
 select * from names where notathing = 0;
 select * from names limit 1;
@@ -42,28 +42,28 @@ OCTO
   verify_output TUC002 output.txt noinfo nodebug
 }
 
-@test "test unknown column in where clause doesn't stop the next query from running on one line" {
+@test "TUC003 : test unknown column in where clause doesn't stop the next query from running on one line" {
   octo >& output.txt <<OCTO
 select * from names where notathing = 0; select * from names limit 1;
 OCTO
   verify_output TUC003 output.txt noinfo nodebug
 }
 
-@test "test 2 unknown column queries in a row" {
+@test "TUC004 : test 2 unknown column queries in a row" {
   octo >& output.txt <<OCTO
 select * from names where notathing = 0; select * from names where alsonotathing = 1; select * from names limit 1;
 OCTO
   verify_output TUC004 output.txt noinfo nodebug
 }
 
-@test "test 2 unknown columns in the same query" {
+@test "TUC005 : test 2 unknown columns in the same query" {
   octo >& output.txt <<OCTO
 select * from names where notathing = 0 and alsonotathing = 1; select * from names limit 1;
 OCTO
   verify_output TUC005 output.txt noinfo nodebug
 }
 
-@test "test 2 unknown column muliline queries in a row" {
+@test "TUC006 : test 2 unknown column multiline queries in a row" {
   octo >& output.txt <<OCTO
 select notathing as a
 from names; select * from names where
@@ -72,7 +72,7 @@ OCTO
   verify_output TUC006 output.txt noinfo nodebug
 }
 
-@test "test octo -f with EOF terminated query with unknown columns" {
+@test "TUC007 : test octo -f with EOF terminated query with unknown columns" {
   cat >> input.sql <<OCTO
 select invalidA, invalidB, invalidC, invalidD
 from names c

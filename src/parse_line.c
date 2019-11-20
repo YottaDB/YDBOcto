@@ -32,7 +32,9 @@ SqlStatement *parse_line(char *cursorId) {
 		ERROR(ERR_INIT_SCANNER, "");
 		return NULL;
 	}
-	config->plan_id = 0;
+	config->plan_id = 1;	/* Start valid unique_id for tables at 1 (relied upon by "hash_canonical_query"
+				 * when referencing "tbl_and_col_id" field in SqlColumnListAlias)
+				 */
 	int status = yyparse(scanner, &result, &config->plan_id, cursorId);
 	yylex_destroy(scanner);
 	if (status) {

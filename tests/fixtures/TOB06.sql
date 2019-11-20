@@ -11,6 +11,7 @@
 #################################################################
 
 -- TOB06 : OCTO228 : Support ORDER BY with more than one column
+-- Note: We use MODULO here instead of % operator since we want to also test function call usages with parameters
 
 select id as c1, id as c2 from names order by c1,c2;
 select id as c1, id as c2 from names order by c2,c1;

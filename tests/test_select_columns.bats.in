@@ -255,81 +255,9 @@ OCTO
 }
 
 @test "TSC07 Miscellaneous SELECT using valid and/or invalid column names and a level-1 sub-query" {
-  cat > queries_input.txt << CAT
-select * from (select * from names as n2) as n1;
-select * from (select * from names as n2);
-select * from (select * from names) as n1;
-select * from (select * from names);
-select * from (select firstname from names) as n1;
-select * from (select firstname from names);
-select * from (select invalid from names) as n1;
-select * from (select invalid from names);
-select * from (select n1.firstname from names) as n1;
-select * from (select n1.invalid from names) as n1;
-select * from (select n2.firstname from names as n2) as n1;
-select * from (select n2.firstname from names as n2);
-select * from (select n2.invalid from names as n2) as n1;
-select * from (select n2.invalid from names as n2);
-select firstname from (select * from names as n2) as n1;
-select firstname from (select * from names as n2);
-select firstname from (select * from names) as n1;
-select firstname from (select * from names);
-select firstname from (select firstname from names) as n1;
-select firstname from (select firstname from names);
-select firstname from (select invalid from names) as n1;
-select firstname from (select invalid from names);
-select firstname from (select lastname from names as n2) as n1;
-select firstname from (select lastname from names);
-select firstname from (select n1.firstname from names) as n1;
-select firstname from (select n1.invalid from names) as n1;
-select firstname from (select n2.firstname from names as n2);
-select firstname from (select n2.invalid from names as n2);
-select invalid from (select * from names as n2) as n1;
-select invalid from (select * from names as n2);
-select invalid from (select * from names) as n1;
-select invalid from (select * from names);
-select invalid from (select firstname from names) as n1;
-select invalid from (select firstname from names);
-select invalid from (select invalid from names as n2) as n1;
-select invalid from (select invalid from names) as n1;
-select invalid from (select invalid from names);
-select invalid from (select n1.firstname from names) as n1;
-select invalid from (select n1.invalid from names) as n1;
-select invalid from (select n2.firstname from names as n2);
-select invalid from (select n2.invalid from names as n2);
-select invalid as invalid1 from (select invalid from names);
-select invalid as invalid from names;
-select invalid1 as invalid from names;
-select invalid as invalid1 from names;
-select invalid1 from (select invalid2 from names) as n1;
-select invalid1 from (select invalid2 from names);
-select invalid1 from (select n1.invalid2 from names) as n1;
-select invalid1 from (select n2.invalid2 from names as n2);
-select invalid1 from (select invalid as invalid1 from names);
-select n1.firstname from (select * from names as n2) as n1;
-select n1.firstname from (select * from names) as n1;
-select n1.firstname from (select n1.firstname from names) as n1;
-select n1.firstname from (select n1.invalid from names) as n1;
-select n1.firstname from (select n2.firstname from names as n2) as n1;
-select n1.firstname from (select n2.invalid from names as n2) as n1;
-select n1.invalid from (select * from names as n2) as n1;
-select n1.invalid from (select * from names) as n1;
-select n1.invalid from (select n1.firstname from names) as n1;
-select n1.invalid from (select n1.invalid from names) as n1;
-select n1.invalid from (select n2.firstname from names as n2) as n1;
-select n1.invalid from (select n2.invalid from names as n2) as n1;
-select n1.invalid1 from (select n1.invalid2 from names) as n1;
-select n1.invalid1 from (select n2.invalid2 from names as n2) as n1;
-select n2.firstname from (select * from names as n2);
-select n2.firstname from (select n2.firstname from names as n2);
-select n2.firstname from (select n2.invalid from names as n2);
-select n2.invalid from (select * from names as n2);
-select n2.invalid from (select n2.firstname from names as n2);
-select n2.invalid from (select n2.invalid from names as n2);
-select n2.invalid1 from (select n2.invalid2 from names as n2);
-select NULL as a from names order by a;
-CAT
-  inputfile="queries_input.txt"
+  inputfile="TSC07.sql"
+  cp @PROJECT_SOURCE_DIR@/tests/fixtures/$inputfile ${inputfile}.orig
+  grep -vE '^-- |^#|^$' ${inputfile}.orig > $inputfile # Filter out comment lines as they otherwise clutter the parse error output
   linenum=1
   set -f	# we use * in the query file so avoid expanding it in the loop below
   while read -r line
@@ -444,53 +372,35 @@ CAT_EOF
 }
 
 @test "TSC16 : #282 : Test of ABS() function as well as lp_verify_structure() for LP_COLUMN_LIST" {
-  cat <<CAT_EOF > input.sql
-select abs(-2*id) from names;
-select abs(-1.45);
-select abs(1.45);
-select abs(1.45-2.50);
-select abs(1.23456789-9.87654321);
--- The below tests verify that lp_verify_structure() does handle various possible operand[0] types for LP_COLUMN_LIST
-select abs(id+1) from names limit 1;            	-- LP_ADDITION
-select abs(id-1) from names limit 1;                    -- LP_SUBTRACTION
-select abs(id*1) from names limit 1;                    -- LP_MULTIPLICATION
-select abs(id/1) from names limit 1;                    -- LP_DIVISION
-select abs("abcd" || "efgh");                   	-- LP_CONCAT
-select abs(-id) from names limit 1;                     -- LP_NEGATIVE
-select abs(id) from (select * from names) limit 1;      -- LP_DERIVED_COLUMN
-select abs(id+1) from (select * from names) limit 1;    -- LP_ADDITION
-select abs(id-1) from (select * from names) limit 1;    -- LP_SUBTRACTION
-select abs(id*1) from (select * from names) limit 1;    -- LP_MULTIPLICATION
-select abs(id/1) from (select * from names) limit 1;    -- LP_DIVISION
-select abs("abcd" || "efgh");                   	-- LP_CONCAT
-select abs(-id) from (select * from names) limit 1;     -- LP_NEGATIVE
-CAT_EOF
-  cat input.sql > output.txt
-  octo -f input.sql >> output.txt 2>&1
+  inputfile="TSC16.sql"
+  cp @PROJECT_SOURCE_DIR@/tests/fixtures/$inputfile .
+  cat $inputfile > output.txt
+  grep -v '^#' $inputfile > output.txt	# Filter out copyright from output
+  octo -f $inputfile >> output.txt 2>&1
   verify_output TSC16 output.txt
 }
 
 @test "TSC17 : #337 : Test of MODULO (%) operator" {
-  cat <<CAT_EOF > input.sql
-select 3%2, 4%2 from names limit 1;
-select id%3 from names;
-select 1+3%2 from names limit 1;
-select (1+3)%2 from names limit 1;
-select 2*3%2 from names limit 1;
-select (1+id)*2%5 from names;
-CAT_EOF
-  cat input.sql > output.txt
-  octo -f input.sql >> output.txt 2>&1
+  inputfile="TSC17.sql"
+  cp @PROJECT_SOURCE_DIR@/tests/fixtures/$inputfile .
+  grep -v '^#' $inputfile > output.txt	# Filter out copyright from output
+  octo -f $inputfile >> output.txt 2>&1
   verify_output TSC17 output.txt
 }
 
 @test "TSC18 : Test of tabs in readline input" {
-  # this input string contains only tabs not spaces;
-  octo -vv <<OCTO 2>&1 | tee output.txt
-		select
-		*		from
-	names
-				;
-OCTO
+  inputfile="TSC18.sql"
+  cp @PROJECT_SOURCE_DIR@/tests/fixtures/$inputfile ${inputfile}.orig
+  grep -vE '^-- |^#|^$' ${inputfile}.orig > $inputfile # Filter out comment lines as they otherwise clutter the parse error output
+  grep -v '^#' $inputfile > output.txt	# Filter out copyright from output
+  octo -vv < $inputfile  2>&1 | tee output.txt
   verify_output TSC18 output.txt
+}
+
+@test "TSC19 : OCTO370 : Test of string concatenation in select column list" {
+  inputfile="TSC19.sql"
+  cp @PROJECT_SOURCE_DIR@/tests/fixtures/$inputfile .
+  grep -v '^#' $inputfile > output.txt	# Filter out copyright from output
+  octo -f $inputfile >> output.txt 2>&1
+  verify_output TSC19 output.txt
 }

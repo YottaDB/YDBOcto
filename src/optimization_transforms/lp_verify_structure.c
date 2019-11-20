@@ -167,6 +167,7 @@ int lp_verify_structure_helper(LogicalPlan *plan, LPActionType expected) {
 				| lp_verify_structure_helper(plan->v.operand[i], LP_FUNCTION_CALL)
 				| lp_verify_structure_helper(plan->v.operand[i], LP_DERIVED_COLUMN)
 				| lp_verify_structure_helper(plan->v.operand[i], LP_VALUE)
+				| lp_verify_structure_helper(plan->v.operand[i], LP_CONCAT)
 				// LP_INSERT/LP_SET_OPERATIONs usually show up as operand[1] only for the IN boolean expression.
 				// But they can show up wherever a scalar is expected (e.g. string concatenation operations etc.)
 				// and hence have to be allowed in a lot more cases.

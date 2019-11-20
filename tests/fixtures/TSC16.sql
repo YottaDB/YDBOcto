@@ -1,3 +1,14 @@
+#################################################################
+#								#
+# Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	#
+# All rights reserved.						#
+#								#
+#	This source code contains the intellectual property	#
+#	of its copyright holder(s), and is made available	#
+#	under a license.  If you do not know the terms of	#
+#	the license, please stop and do not read further.	#
+#								#
+#################################################################
 
 -- TSC16 : #282 : Test of ABS() function as well as lp_verify_structure() for LP_COLUMN_LIST"
 
@@ -21,28 +32,3 @@ select abs(id*1) from (select * from names) limit 1;    -- LP_MULTIPLICATION
 select abs(id/1) from (select * from names) limit 1;    -- LP_DIVISION
 select abs("abcd" || "efgh");                   	-- LP_CONCAT
 select abs(-id) from (select * from names) limit 1;     -- LP_NEGATIVE
-0
-2
-4
-6
-8
-10
-1.45
-1.45
-1.05
-8.64197532
-1
-1
-0
-0
-0
-0
-0
-0
-1
-1
-0
-0
-0
-0
-

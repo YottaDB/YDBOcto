@@ -205,8 +205,8 @@ LogicalPlan *lp_drill_to_insert(LogicalPlan *plan);
 // Given a plan, attempts to calculate a "cost" estimate of that plan
 int lp_calculate_plan_cost(LogicalPlan *plan);
 
-// Fills buffer with a representation of the plan
-int lp_emit_plan(char *buffer, size_t buffer_len, LogicalPlan *plan);
+// Fills buffer with a representation of the plan and emits it to stderr; Is a no-op if octo/rocto not started with -vv at least
+void lp_emit_plan(LogicalPlan *plan, char *stage);
 
 // Attempts to replace as many statements in the WHERE as possible
 //  with table KEYS

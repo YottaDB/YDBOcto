@@ -35,8 +35,10 @@ LogicalPlan *lp_replace_derived_table_references(LogicalPlan *root, SqlTableAlia
 	t->v.operand[0] = lp_replace_helper(t->v.operand[0], table_alias, key);
 	// Make sure to update table references in order by clauses
 	t = root->v.operand[1]->v.operand[1];
-	if (NULL != t)
+	if (NULL != t) {
 		t->v.operand[0] = lp_replace_helper(t->v.operand[0], table_alias, key);
+		t->v.operand[1] = lp_replace_helper(t->v.operand[1], table_alias, key);
+	}
 	// Update table references in join conditions (if they exist)
 	table_join = lp_get_table_join(root);
 	do {

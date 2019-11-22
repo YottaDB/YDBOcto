@@ -138,12 +138,23 @@
 
 int emit_plan_helper(char *buffer, size_t buffer_len, int depth, LogicalPlan *plan);
 
-int lp_emit_plan(char *buffer, size_t buffer_len, LogicalPlan *plan) {
-	char	*buff_ptr = buffer;
-	size_t	written;
+void lp_emit_plan(LogicalPlan *plan, char *stage) {
+	char		*buffer, *buff_ptr;
+	size_t		buffer_len, written;
 
+	if (DEBUG < config->record_error_level) {
+		return;
+	}
+	// We use malloc here since it is a large temporary buffer
+	// No need to force it to stay around until compilation ends
+	buffer_len = (MAX_STR_CONST * 5);
+	buffer = malloc(buffer_len);
+	buff_ptr = buffer;
 	SAFE_SNPRINTF(written, buff_ptr, buffer, buffer_len, "\n");
-	return emit_plan_helper(buff_ptr, buffer_len - (buff_ptr - buffer), 0, plan);
+	emit_plan_helper(buff_ptr, buffer_len - (buff_ptr - buffer), 0, plan);
+	DEBUG(ERR_CURPLAN, stage, buffer);
+	free(buffer);
+	return;
 }
 
 int emit_plan_helper(char *buffer, size_t buffer_len, int depth, LogicalPlan *plan) {

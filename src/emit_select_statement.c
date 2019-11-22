@@ -32,16 +32,16 @@
  */
 PhysicalPlan *emit_select_statement(SqlStatement *stmt, char *plan_filename)
 {
-	LPActionType	set_oper_type;
-	LogicalPlan	*plan, *cur_plan, *column_alias;
-	PhysicalPlan	*pplan;
-	SqlColumn	*column;
-	SqlValue	*value;
-	char		*buffer;
-	char		output_key[MAX_STR_CONST], column_id_buffer[MAX_STR_CONST];
-	int		output_key_id, status = 0;
-	ydb_buffer_t	*plan_meta, value_buffer;
-	SetOperType	*set_oper;
+	LPActionType		set_oper_type;
+	LogicalPlan		*plan, *cur_plan, *column_alias;
+	PhysicalPlan		*pplan;
+	SqlColumn		*column;
+	SqlValue		*value;
+	char			output_key[MAX_STR_CONST], column_id_buffer[MAX_STR_CONST];
+	int			output_key_id, status = 0;
+	ydb_buffer_t		*plan_meta, value_buffer;
+	SetOperType		*set_oper;
+	PhysicalPlanOptions	options;
 
 	TRACE(ERR_ENTERING_FUNCTION, "emit_select_statement");
 	memset(output_key, 0, MAX_STR_CONST);
@@ -51,14 +51,7 @@ PhysicalPlan *emit_select_statement(SqlStatement *stmt, char *plan_filename)
 	if (NULL == plan) {
 		return NULL;
 	}
-	if(config->record_error_level <= DEBUG) {
-		// We use malloc here since it is a large temporary buffer
-		// No need to force it to stay around until compilation ends
-		buffer = malloc(MAX_STR_CONST * 5);
-		lp_emit_plan(buffer, MAX_STR_CONST * 5, plan);
-		DEBUG(ERR_CURPLAN, buffer);
-		free(buffer);
-	}
+	lp_emit_plan(plan, "BEFORE optimize_logical_plan()");
 	if(lp_verify_structure(plan) == FALSE) {
 		ERROR(ERR_PLAN_NOT_WELL_FORMED, "");
 		return NULL;
@@ -68,15 +61,7 @@ PhysicalPlan *emit_select_statement(SqlStatement *stmt, char *plan_filename)
 		ERROR(ERR_FAILED_TO_OPTIMIZE_PLAN, "");
 		return NULL;
 	}
-	if(config->record_error_level <= DEBUG) {
-		// We use malloc here since it is a large temporary buffer
-		// No need to force it to stay around until compilation ends
-		buffer = malloc(MAX_STR_CONST * 5);
-		lp_emit_plan(buffer, MAX_STR_CONST * 5, plan);
-		DEBUG(ERR_CURPLAN, buffer);
-		free(buffer);
-	}
-	PhysicalPlanOptions options;
+	lp_emit_plan(plan, "AFTER optimize_logical_plan()");
 	memset(&options, 0, sizeof(PhysicalPlanOptions));
 	pplan = NULL;
 	options.last_plan = &pplan;

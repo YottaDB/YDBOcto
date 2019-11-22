@@ -1,0 +1,32 @@
+
+-- Below is a slightly revised form of the query found in TSSLAC02.sql.
+-- This query has one more column from a sub-query in the ORDER BY of the outer query.
+-- Like TSSLAC02.sql, this query too produces some output so we can validate the output.
+
+SELECT   *
+FROM     (
+                   SELECT    n.nspname,
+                             c.relname,
+                             row_number() AS attnum
+                   FROM      pg_catalog.pg_namespace n
+                   JOIN      pg_catalog.pg_class c
+                   ON        (c.relnamespace = n.oid)) c
+ORDER BY nspname,
+         relname desc,
+	 attnum
+
+Added SET and/or Non-SET trigger on ^%ydboctoocto named %ydboctoT*
+
+public|USERS|11
+public|PG_TYPE|3
+public|PG_CATALOG.PG_TYPE|4
+public|PG_CATALOG.PG_PROC|8
+public|PG_CATALOG.PG_NAMESPACE|2
+public|PG_CATALOG.PG_DESCRIPTION|6
+public|PG_CATALOG.PG_CLASS|5
+public|PG_CATALOG.PG_ATTRIBUTE|9
+public|PG_CATALOG.PG_ATTRDEF|10
+public|OCTOONEROWTABLE|1
+public|NAMESWITHAGES|13
+public|NAMES|12
+public|INFORMATION_SCHEMA.TABLES|7

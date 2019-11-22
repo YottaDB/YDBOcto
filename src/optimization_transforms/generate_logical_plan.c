@@ -76,58 +76,15 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt, int *plan_id) {
 		UNPACK_SQL_STATEMENT(list, select_stmt->order_expression, column_list_alias);
 		cur_cla = start_cla = list;
 		do {
-			int			list_unique_id;
-			boolean_t		outer_column_alias_exists;
-			SqlColumnAlias		*column_alias;
-			SqlColumnListAlias	*cla, *save_next, *cla_chosen;
-			SqlColumnList		*column_list;
+			SqlColumnListAlias	*save_next;
 			SqlOptionalKeyword	*keyword;
 
-			UNPACK_SQL_STATEMENT(column_list, cur_cla->column_list, column_list);
-			// Ensure that we only have one element in this list
-			assert(column_list->next == column_list);
-			if (column_alias_STATEMENT == column_list->value->type) {
-				UNPACK_SQL_STATEMENT(column_alias, column_list->value, column_alias);
-				assert(table_alias_STATEMENT == column_alias->table_alias->type);
-				list_unique_id = column_alias->table_alias->v.table_alias->unique_id;
-				outer_column_alias_exists = (column_list_alias_STATEMENT == column_alias->column->type);
-			} else {
-				outer_column_alias_exists = FALSE;
-			}
-			if (outer_column_alias_exists) {
-				UNPACK_SQL_STATEMENT(cla, column_alias->column, column_list_alias);
-				UNPACK_SQL_STATEMENT(column_list, cla->column_list, column_list);
-				/* We are guaranteed that the table id of the outer column_alias does not match that of
-				 * the inner column alias. Therefore, we do not need to peel off an unnecessary outer
-				 * column_alias (we used to do this before) before passing it to "lp_column_list_to_lp()"
-				 * (which would otherwise get confused when it is trying to construct the LP_WHERE part of
-				 * the select column list expression). This guarantee is asserted below. Note that we need
-				 * to keep the outer column alias intact as otherwise we would generate wrong code in the
-				 * physical plan because the inner column alias would correspond to a column in the
-				 * sub-query instead of the outer query (#322).
-				 */
-				if (column_alias_STATEMENT == column_list->value->type)
-				{
-					UNPACK_SQL_STATEMENT(column_alias, column_list->value, column_alias);
-					assert(list_unique_id != column_alias->table_alias->v.table_alias->unique_id);
-					cla_chosen = cur_cla;
-				} else {
-					/* If the inner column list value does not correspond to a column alias, then it is
-					 * a "constant" and so it is necessary to peel off the outer column alias so it is
-					 * treated as a LP_VALUE instead of LP_COLUMN_ALIAS.
-					 */
-					cla_chosen = cla;
-				}
-			} else {
-				/* There is no outer column alias. So pass outer cla as is to "lp_column_list_to_lp()". */
-				cla_chosen = cur_cla;
-			}
-			save_next = cla_chosen->next;
-			cla_chosen->next = cla_chosen;	/* set "next" to self so below call processes only one column instead of
+			save_next = cur_cla->next;
+			cur_cla->next = cur_cla;	/* set "next" to self so below call processes only one column instead of
 							 * multiple columns in table corresponding to the desired column.
 							 */
-			order_by->v.operand[0] = lp_column_list_to_lp(cla_chosen, plan_id);
-			cla_chosen->next = save_next;
+			order_by->v.operand[0] = lp_column_list_to_lp(cur_cla, plan_id);
+			cur_cla->next = save_next;
 			if (NULL != cur_cla->keywords)
 			{
 				UNPACK_SQL_STATEMENT(keyword, cur_cla->keywords, keyword);

@@ -4,7 +4,7 @@
      names;]
 [ INFO] PATH:LINENUM DATE TIME : Generating SQL for CURSOR_NUM
 [ INFO] PATH:LINENUM DATE TIME : Generating M file [./_ydboctoP*.m] (to execute SQL query)
-[DEBUG] PATH:LINENUM DATE TIME : Current plan: 
+[DEBUG] PATH:LINENUM DATE TIME : LOGICAL_PLAN BEFORE optimize_logical_plan() follows
 LP_INSERT: 
   LP_PROJECT: 
     LP_COLUMN_LIST: 
@@ -30,7 +30,7 @@ LP_INSERT:
     - xref_key: false
     - uses_xref_key: false
 
-[DEBUG] PATH:LINENUM DATE TIME : Current plan: 
+[DEBUG] PATH:LINENUM DATE TIME : LOGICAL_PLAN AFTER optimize_logical_plan() follows
 LP_INSERT: 
   LP_PROJECT: 
     LP_COLUMN_LIST: 

@@ -1,3 +1,14 @@
+#################################################################
+#								#
+# Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	#
+# All rights reserved.						#
+#								#
+#	This source code contains the intellectual property	#
+#	of its copyright holder(s), and is made available	#
+#	under a license.  If you do not know the terms of	#
+#	the license, please stop and do not read further.	#
+#								#
+#################################################################
 
 SELECT   *
 FROM     (
@@ -57,10 +68,3 @@ AND      attname LIKE '%'
 ORDER BY nspname,
          c.relname,
          attnum
-[ WARN] PATH:LINENUM DATE TIME : Feature not implemented: OVER not implemented, just returning columns
-Added SET and/or Non-SET trigger on ^%ydboctoocto named %ydboctoT*
-Added SET and/or Non-SET trigger on ^%ydboctoocto named %ydboctoT*
-Added SET and/or Non-SET trigger on ^%ydboctoocto named %ydboctoT*
-Added SET and/or Non-SET trigger on ^%ydboctoocto named %ydboctoT*
-Added SET and/or Non-SET trigger on ^%ydboctoocto named %ydboctoT*
-

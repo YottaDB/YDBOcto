@@ -17,6 +17,8 @@ setup() {
   createdb
   load_fixture names.sql
   load_fixture names.zwr
+  # below is used by various subtests so keep it here
+  $ydb_dist/mumps -run ^%XCMD 'set ^%ydboctoocto("functions","MODULO")="$$^MODULO"'
 }
 
 @test "order by firstName ascending" {
@@ -129,7 +131,6 @@ OCTO
 }
 
 @test "TOB06 : OCTO228 : Support ORDER BY with more than one column" {
-  $ydb_dist/mumps -run ^%XCMD 'set ^%ydboctoocto("functions","MODULO")="$$^MODULO"'
   inputfile="TOB06.sql"
   cp @PROJECT_SOURCE_DIR@/tests/fixtures/$inputfile .
   grep -v '^#' $inputfile > output.txt	# Filter out copyright from output
@@ -165,5 +166,13 @@ OCTO
   grep -v '^#' $inputfile > output.txt	# Filter out copyright from output
   octo -f $inputfile >> output.txt 2>&1
   verify_output TOB09 output.txt
+}
+
+@test "TOB10 : OCTO384 : ORDER BY using column name derived from a sub-query returns incorrect results" {
+  inputfile="TOB10.sql"
+  cp @PROJECT_SOURCE_DIR@/tests/fixtures/$inputfile .
+  grep -v '^#' $inputfile > output.txt	# Filter out copyright from output
+  octo -f $inputfile >> output.txt 2>&1
+  verify_output TOB10 output.txt
 }
 

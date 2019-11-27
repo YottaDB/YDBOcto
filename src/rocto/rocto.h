@@ -103,7 +103,6 @@ Parse *read_parse(BaseMessage *message);
 PasswordMessage *read_password_message(BaseMessage *message);
 Execute *read_execute(BaseMessage *message);
 Sync *read_sync(BaseMessage *message);
-Terminate *read_terminate(BaseMessage *message);
 Describe *read_describe(BaseMessage *message);
 
 // This is a special case because it must read more from the buffer

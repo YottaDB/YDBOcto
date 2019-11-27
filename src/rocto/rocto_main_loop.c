@@ -35,7 +35,6 @@ int rocto_main_loop(RoctoSession *session) {
 	Query		*query;
 	ReadyForQuery	*ready_for_query;
 	Sync		*sync;
-	Terminate	*terminate;
 	fd_set		rfds;
 	struct timeval	select_timeout;
 	char		buffer[MAX_STR_CONST];
@@ -147,11 +146,11 @@ int rocto_main_loop(RoctoSession *session) {
 			}
 			break;
 		case PSQL_Terminate:
-			// Do nothing for now, until Terminate functionality added
-			terminate = read_terminate(message);
-			if (NULL == terminate) {
-				break;
-			}
+			// Gracefully terminate the connection
+			shutdown(session->connection_fd, SHUT_RDWR);
+			close(session->connection_fd);
+			LOG_LOCAL_ONLY(INFO, ERR_ROCTO_CLEAN_DISCONNECT, "");
+			return 0;
 			break;
 		default:
 			TRACE(ERR_UNKNOWN_MESSAGE_TYPE, message->type);

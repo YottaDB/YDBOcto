@@ -1,3 +1,101 @@
-Loading fixture TSQ000.sql
+
+SELECT t.typlen
+FROM pg_catalog.pg_type t, pg_catalog.pg_namespace n
+WHERE t.typnamespace=n.oid AND t.typname='name' AND n.nspname='pg_catalog'
+[ INFO] PATH:LINENUM DATE TIME : Parsing done for SQL command [SELECT t.typlen
+FROM pg_catalog.pg_type t, pg_catalog.pg_namespace n
+WHERE t.typnamespace=n.oid AND t.typname='name' AND n.nspname='pg_catalog']
+[ INFO] PATH:LINENUM DATE TIME : Generating SQL for CURSOR_NUM
+[ INFO] PATH:LINENUM DATE TIME : Generating M file [./_ydboctoP*.m] (to execute SQL query)
+[DEBUG] PATH:LINENUM DATE TIME : LOGICAL_PLAN BEFORE optimize_logical_plan() follows
+LP_INSERT: 
+  LP_PROJECT: 
+    LP_COLUMN_LIST: 
+      LP_WHERE: 
+        LP_COLUMN_ALIAS: T(2).TYPLEN
+        LP_COLUMN_LIST_ALIAS: 
+        - type: INTEGER_LITERAL
+        - alias: TYPLEN
+    LP_SELECT: 
+      LP_TABLE_JOIN: CROSS_JOIN: 
+        LP_TABLE: T
+        LP_TABLE_JOIN: 
+          LP_TABLE: N
+      LP_CRITERIA: 
+        LP_KEYS: 
+        LP_SELECT_OPTIONS: 
+          LP_WHERE: 
+            LP_BOOLEAN_AND: 
+              LP_BOOLEAN_AND: 
+                LP_BOOLEAN_EQUALS: 
+                  LP_COLUMN_ALIAS: T(2).TYPNAMESPACE
+                  LP_COLUMN_ALIAS: N(1).OID
+                LP_BOOLEAN_EQUALS: 
+                  LP_COLUMN_ALIAS: T(2).TYPNAME
+                  LP_VALUE: name
+              LP_BOOLEAN_EQUALS: 
+                LP_COLUMN_ALIAS: N(1).NSPNAME
+                LP_VALUE: pg_catalog
+          LP_KEYWORDS: 
+  LP_OUTPUT: 
+    LP_KEY: 
+    - table_name:  
+    - column_name:  
+    - unique_id: 4
+    - method: LP_KEY_ADVANCE
+    - xref_key: false
+    - uses_xref_key: false
+
+[DEBUG] PATH:LINENUM DATE TIME : LOGICAL_PLAN AFTER optimize_logical_plan() follows
+LP_INSERT: 
+  LP_PROJECT: 
+    LP_COLUMN_LIST: 
+      LP_WHERE: 
+        LP_COLUMN_ALIAS: T(2).TYPLEN
+        LP_COLUMN_LIST_ALIAS: 
+        - type: INTEGER_LITERAL
+        - alias: TYPLEN
+    LP_SELECT: 
+      LP_TABLE_JOIN: CROSS_JOIN: 
+        LP_TABLE: T
+        LP_TABLE_JOIN: 
+          LP_TABLE: N
+      LP_CRITERIA: 
+        LP_KEYS: 
+          LP_KEY: 
+          - table_name: PG_CATALOG.PG_TYPE
+          - column_name: TYPNAME
+          - unique_id: 2
+          - method: LP_KEY_FIX
+          - xref_key: false
+          - uses_xref_key: false
+          - value:
+              LP_VALUE: name
+          LP_KEYS: 
+            LP_KEY: 
+            - table_name: PG_CATALOG.PG_NAMESPACE
+            - column_name: OID
+            - unique_id: 1
+            - method: LP_KEY_FIX
+            - xref_key: false
+            - uses_xref_key: false
+            - value:
+                LP_COLUMN_ALIAS: T(2).TYPNAMESPACE
+        LP_SELECT_OPTIONS: 
+          LP_WHERE: 
+            LP_BOOLEAN_EQUALS: 
+              LP_COLUMN_ALIAS: N(1).NSPNAME
+              LP_VALUE: pg_catalog
+          LP_KEYWORDS: 
+  LP_OUTPUT: 
+    LP_KEY: 
+    - table_name:  
+    - column_name:  
+    - unique_id: 4
+    - method: LP_KEY_ADVANCE
+    - xref_key: false
+    - uses_xref_key: false
+
+[ INFO] PATH:LINENUM DATE TIME : print_temporary_table()
 
 64

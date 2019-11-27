@@ -20,10 +20,7 @@ setup() {
 }
 
 @test "TSS01 : OCTO181 : Data types are not correctly propagated from nested SELECTs; Misc other queries" {
-  cp @PROJECT_SOURCE_DIR@/tests/fixtures/TSS01.sql .
-  grep -v '^#' TSS01.sql > output.txt	# Filter out copyright from output
-  grep -vE '^-- |^#' TSS01.sql > input.sql	# Filter out comment lines as they otherwise clutter the parse error output
-  octo -vv -f input.sql >> output.txt 2>&1
+  load_fixture TSS01.sql subtest
   verify_output TSS01 output.txt noinfo nodebug
   # Verify the types of columns and alias names etc. for all above queries from octo -vv output
   grep -E "Parsing done|LP_COLUMN_ALIAS| - type: | - alias: " output.txt | sed 's/.*Parsing done/Parsing done/g' > lp_output.txt
@@ -31,17 +28,12 @@ setup() {
 }
 
 @test "TSS02 : OCTO348 : Sub-query that uses column value from parent query and generates cross-reference plan" {
-  cp @PROJECT_SOURCE_DIR@/tests/fixtures/TSS02.sql .
-  grep -v '^#' TSS02.sql > output.txt	# Filter out copyright from output
-  octo -f TSS02.sql >> output.txt 2>&1
-  verify_output TSS02 output.txt
+  load_fixture TSS02.sql subtest
+  verify_output TSS02 output.txt nodebug noinfo
 }
 
 @test "TSS03 : OCTO192 : Using sub-query in a WHERE clause produces <Plan produced by optimizer appears incorrect> warning" {
-  cp @PROJECT_SOURCE_DIR@/tests/fixtures/TSS03.sql .
-  grep -v '^#' TSS03.sql > output.txt	# Filter out copyright from output
-  grep -vE '^-- |^#' TSS03.sql > input.sql	# Filter out comment lines as they otherwise clutter the parse error output
-  octo -vv -f input.sql >> output.txt 2>&1
+  load_fixture TSS03.sql subtest
   verify_output TSS03 output.txt noinfo nodebug
 }
 

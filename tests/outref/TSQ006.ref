@@ -1,3 +1,70 @@
-Loading fixture TSQ006.sql
+
+SELECT version();
+[ INFO] PATH:LINENUM DATE TIME : Parsing done for SQL command [SELECT version();]
+[ INFO] PATH:LINENUM DATE TIME : Generating SQL for CURSOR_NUM
+[ INFO] PATH:LINENUM DATE TIME : Generating M file [./_ydboctoP*.m] (to execute SQL query)
+[DEBUG] PATH:LINENUM DATE TIME : LOGICAL_PLAN BEFORE optimize_logical_plan() follows
+LP_INSERT: 
+  LP_PROJECT: 
+    LP_COLUMN_LIST: 
+      LP_WHERE: 
+        LP_FUNCTION_CALL: 
+          LP_VALUE: $$^%ydboctoversion
+        LP_COLUMN_LIST_ALIAS: 
+        - type: STRING_LITERAL
+        - alias: ???
+    LP_SELECT: 
+      LP_TABLE_JOIN: 
+        LP_TABLE: OCTOONEROWTABLE
+      LP_CRITERIA: 
+        LP_KEYS: 
+        LP_SELECT_OPTIONS: 
+          LP_WHERE: 
+          LP_KEYWORDS: 
+  LP_OUTPUT: 
+    LP_KEY: 
+    - table_name:  
+    - column_name:  
+    - unique_id: 3
+    - method: LP_KEY_ADVANCE
+    - xref_key: false
+    - uses_xref_key: false
+
+[DEBUG] PATH:LINENUM DATE TIME : LOGICAL_PLAN AFTER optimize_logical_plan() follows
+LP_INSERT: 
+  LP_PROJECT: 
+    LP_COLUMN_LIST: 
+      LP_WHERE: 
+        LP_FUNCTION_CALL: 
+          LP_VALUE: $$^%ydboctoversion
+        LP_COLUMN_LIST_ALIAS: 
+        - type: STRING_LITERAL
+        - alias: ???
+    LP_SELECT: 
+      LP_TABLE_JOIN: 
+        LP_TABLE: OCTOONEROWTABLE
+      LP_CRITERIA: 
+        LP_KEYS: 
+          LP_KEY: 
+          - table_name: OCTOONEROWTABLE
+          - column_name: ID
+          - unique_id: 1
+          - method: LP_KEY_ADVANCE
+          - xref_key: false
+          - uses_xref_key: false
+        LP_SELECT_OPTIONS: 
+          LP_WHERE: 
+          LP_KEYWORDS: 
+  LP_OUTPUT: 
+    LP_KEY: 
+    - table_name:  
+    - column_name:  
+    - unique_id: 3
+    - method: LP_KEY_ADVANCE
+    - xref_key: false
+    - uses_xref_key: false
+
+[ INFO] PATH:LINENUM DATE TIME : print_temporary_table()
 PostgreSQL 9.6.5 on x86_64-pc-linux-gnu, compiled by gcc (GCC) 7.1.1 20170630, 64-bit
+[ INFO] PATH:LINENUM DATE TIME : Parsing done for SQL command []
 

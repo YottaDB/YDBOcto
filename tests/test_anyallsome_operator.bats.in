@@ -28,10 +28,7 @@ setup() {
 }
 
 @test "TAO02 : OCTO356 : Test ANY/ALL/SOME operator for type mismatch and more-than-1-column errors" {
-  cp @PROJECT_SOURCE_DIR@/tests/fixtures/TAO02.sql .
-  grep -v '^#' TAO02.sql > output.txt	# Filter out copyright from output
-  grep -vE '^-- |^#' TAO02.sql > input.sql	# Filter out comment lines as they otherwise clutter the parse error output
-  octo -f input.sql >> output.txt 2>&1
-  verify_output TAO02 output.txt
+  load_fixture TAO02.sql subtest
+  verify_output TAO02 output.txt noinfo
 }
 

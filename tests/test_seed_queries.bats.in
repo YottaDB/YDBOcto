@@ -20,7 +20,7 @@ setup() {
 }
 
 @test "TSQ000 : OID type length" {
-  load_fixture TSQ000.sql 2>&1 | tee output.txt
+  load_fixture TSQ000.sql subtest
   verify_output TSQ000 output.txt
 }
 
@@ -28,48 +28,42 @@ setup() {
   ## TODO: this is actually really hard because we make a reference to a table
   ##  out of scope in the subquery; for now, skip it
   skip
-  load_fixture TSQ001.sql 2>&1 | tee output.txt
+  load_fixture TSQ001.sql subtest
   verify_output TSQ001 output.txt
 }
 
 @test "TSQ002 : get tables" {
-  load_fixture TSQ002.sql 2>&1 | tee output.txt
-  verify_output TSQ002 output.txt
+  load_fixture TSQ002.sql subtest
+  verify_output TSQ002 output.txt nodebug   # nodebug added to reduce otherwise large outref size
 }
 
 @test "TSQ003 : test1" {
-  load_fixture TSQ003.sql 2>&1 | tee output.txt
-  verify_output TSQ003 output.txt
+  load_fixture TSQ003.sql subtest
+  verify_output TSQ003 output.txt nodebug   # nodebug added to reduce otherwise large outref size
 }
 
 @test "TSQ004 : test2" {
-  cp @PROJECT_SOURCE_DIR@/tests/fixtures/TSQ004.sql .
-  grep -v '^#' TSQ004.sql > output.txt	# Filter out copyright from output
-  grep -vE '^-- |^#' TSQ004.sql > input.sql	# Filter out comment lines as they otherwise clutter the parse error output
-  octo -vv -f input.sql >> output.txt 2>&1
+  load_fixture TSQ004.sql subtest
   verify_output TSQ004 output.txt
 }
 
 @test "TSQ005 : test3" {
-  load_fixture TSQ005.sql 2>&1 | tee output.txt
-  verify_output TSQ005 output.txt
+  load_fixture TSQ005.sql subtest
+  verify_output TSQ005 output.txt nodebug   # nodebug added as DEBUG messages cause erratic terminal output
 }
 
 @test "TSQ006 : select database version" {
-  load_fixture TSQ006.sql 2>&1 | tee output.txt
+  load_fixture TSQ006.sql subtest
   verify_output TSQ006 output.txt
 }
 
 @test "TSQ007 : psql \\dt" {
-  cp @PROJECT_SOURCE_DIR@/tests/fixtures/TSQ007.sql .
-  grep -v '^#' TSQ007.sql > output.txt	# Filter out copyright from output
-  grep -vE '^-- |^#' TSQ007.sql > input.sql	# Filter out comment lines as they otherwise clutter the parse error output
-  octo -vv -f input.sql >> output.txt 2>&1
+  load_fixture TSQ007.sql subtest
   verify_output TSQ007 output.txt
 }
 
 @test "TSQ008 : verify that OIDs are lined up for namespaces" {
   export ydb_mstack_size=10000
-  load_fixture TSQ008.sql &>output.txt
+  load_fixture TSQ008.sql subtest
   verify_output TSQ008 output.txt
 }

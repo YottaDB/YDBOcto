@@ -24,7 +24,7 @@ setup() {
   cp @PROJECT_SOURCE_DIR@/tests/fixtures/customers.sql .
   cp @PROJECT_SOURCE_DIR@/tests/fixtures/customers.zwr .
 
-  numQueries=25
+  numQueries=100
   prefix="TQG01-"
   $ydb_dist/mumps -run QueryGenerator customers.sql customers.zwr "$numQueries" "$prefix"
 

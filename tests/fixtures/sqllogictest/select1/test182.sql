@@ -22,5 +22,5 @@ SELECT e,
  WHERE a>b
    AND (c<=d-2 OR c>=d+2)
    AND c>d
- /*ORDER BY 6,5,4,2,3,1*/
+ ORDER BY 6,5,4,2,3,1
 ;

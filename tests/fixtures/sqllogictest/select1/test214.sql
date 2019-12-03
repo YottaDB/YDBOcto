@@ -22,5 +22,5 @@ SELECT c,
   FROM t1
  WHERE c BETWEEN b-2 AND d+2
     OR (e>a AND e<b)
- /*ORDER BY 7,4,1,2,6,5,3*/
+ ORDER BY 7,4,1,2,6,5,3
 ;

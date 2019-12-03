@@ -16,5 +16,5 @@ SELECT d,
   FROM t1
  WHERE (e>c OR e<d)
    AND b>c
- /*ORDER BY 2,1*/
+ ORDER BY 2,1
 ;

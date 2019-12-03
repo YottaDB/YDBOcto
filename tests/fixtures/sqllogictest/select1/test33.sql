@@ -19,5 +19,5 @@ SELECT a-b,
        d-e
   FROM t1
  WHERE (e>a AND e<b)
- /*ORDER BY 2,6,4,1,5,3*/
+ ORDER BY 2,6,4,1,5,3
 ;

@@ -16,5 +16,5 @@ SELECT e,
        abs(a),
        b
   FROM t1
- /*ORDER BY 4,2,1,3*/
+ ORDER BY 4,2,1,3
 ;

@@ -18,5 +18,5 @@ SELECT b-c,
   FROM t1
  WHERE (a>b-2 AND a<b+2)
     OR (e>c OR e<d)
- /*ORDER BY 1,2,3*/
+ ORDER BY 1,2,3
 ;

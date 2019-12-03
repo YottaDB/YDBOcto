@@ -18,5 +18,5 @@ SELECT abs(b-c),
         WHEN a<b+3 THEN 333 ELSE 444 END,
        (SELECT count(*) FROM t1 AS x WHERE x.b<t1.b)
   FROM t1
- /*ORDER BY 2,3,1,4,5*/
+ ORDER BY 2,3,1,4,5
 ;

@@ -19,5 +19,5 @@ SELECT a+b*2+c*3+d*4,
        abs(a)
   FROM t1
  WHERE d>e
- /*ORDER BY 3,4,1,5,2*/
+ ORDER BY 3,4,1,5,2
 ;

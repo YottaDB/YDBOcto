@@ -21,5 +21,5 @@ SELECT d-e,
        a+b*2+c*3
   FROM t1
  WHERE (e>a AND e<b)
- /*ORDER BY 2,3,6,7,1,5,4*/
+ ORDER BY 2,3,6,7,1,5,4
 ;

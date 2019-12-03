@@ -23,5 +23,5 @@ SELECT c-d,
  WHERE (a>b-2 AND a<b+2)
    AND (e>c OR e<d)
    AND (c<=d-2 OR c>=d+2)
- /*ORDER BY 6,7,2,1,3,4,5*/
+ ORDER BY 6,7,2,1,3,4,5
 ;

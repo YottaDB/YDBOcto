@@ -17,5 +17,5 @@ SELECT (a+b+c+d+e)/5,
  WHERE b>c
     OR d NOT BETWEEN 110 AND 150
     OR c BETWEEN b-2 AND d+2
- /*ORDER BY 2,1*/
+ ORDER BY 2,1
 ;

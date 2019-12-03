@@ -16,5 +16,5 @@ SELECT abs(a)
  WHERE c BETWEEN b-2 AND d+2
    AND d>e
    AND (e>a AND e<b)
- /*ORDER BY 1*/
+ ORDER BY 1
 ;

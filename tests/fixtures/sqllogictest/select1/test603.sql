@@ -20,5 +20,5 @@ SELECT a-b,
        b-c,
        d-e
   FROM t1
- /*ORDER BY 7,2,5,4,1,3,6*/
+ ORDER BY 7,2,5,4,1,3,6
 ;

@@ -18,5 +18,5 @@ SELECT abs(a),
   FROM t1
  WHERE b>c
     OR (e>a AND e<b)
- /*ORDER BY 2,4,1,3*/
+ ORDER BY 2,4,1,3
 ;

@@ -22,5 +22,5 @@ SELECT b-c,
  WHERE d>e
    AND d NOT BETWEEN 110 AND 150
    AND (e>a AND e<b)
- /*ORDER BY 1,3,2,5,4,6*/
+ ORDER BY 1,3,2,5,4,6
 ;

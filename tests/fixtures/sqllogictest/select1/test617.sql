@@ -18,5 +18,5 @@ SELECT a+b*2+c*3,
  WHERE b>c
     OR d NOT BETWEEN 110 AND 150
     OR e+d BETWEEN a+b-10 AND c+130
- /*ORDER BY 3,2,1*/
+ ORDER BY 3,2,1
 ;

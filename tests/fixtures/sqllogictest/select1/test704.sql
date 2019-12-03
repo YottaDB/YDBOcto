@@ -16,5 +16,5 @@ SELECT d-e,
   FROM t1
  WHERE b>c
     OR a>b
- /*ORDER BY 1,2*/
+ ORDER BY 1,2
 ;

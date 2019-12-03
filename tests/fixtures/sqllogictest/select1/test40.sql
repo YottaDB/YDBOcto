@@ -18,5 +18,5 @@ SELECT a-b,
   FROM t1
  WHERE d>e
     OR (e>a AND e<b)
- /*ORDER BY 4,1,3,2*/
+ ORDER BY 4,1,3,2
 ;

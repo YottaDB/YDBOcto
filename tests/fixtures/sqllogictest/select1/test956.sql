@@ -21,5 +21,5 @@ SELECT b-c,
  WHERE e+d BETWEEN a+b-10 AND c+130
    AND d NOT BETWEEN 110 AND 150
    AND d>e
- /*ORDER BY 6,1,5,3,2,4*/
+ ORDER BY 6,1,5,3,2,4
 ;

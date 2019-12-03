@@ -19,5 +19,5 @@ SELECT b-c,
  WHERE (c<=d-2 OR c>=d+2)
     OR (a>b-2 AND a<b+2)
     OR d>e
- /*ORDER BY 1,3,2,4*/
+ ORDER BY 1,3,2,4
 ;

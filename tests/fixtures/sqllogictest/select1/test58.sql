@@ -18,5 +18,5 @@ SELECT abs(b-c),
  WHERE (e>c OR e<d)
     OR b>c
     OR (a>b-2 AND a<b+2)
- /*ORDER BY 2,1*/
+ ORDER BY 2,1
 ;

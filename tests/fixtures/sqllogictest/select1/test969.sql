@@ -21,5 +21,5 @@ SELECT d-e,
   FROM t1
  WHERE (a>b-2 AND a<b+2)
     OR e+d BETWEEN a+b-10 AND c+130
- /*ORDER BY 5,3,4,2,6,1*/
+ ORDER BY 5,3,4,2,6,1
 ;

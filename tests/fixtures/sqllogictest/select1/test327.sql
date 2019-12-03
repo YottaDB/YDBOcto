@@ -17,5 +17,5 @@ SELECT a+b*2+c*3+d*4,
        e,
        a+b*2
   FROM t1
- /*ORDER BY 2,3,4,1,5*/
+ ORDER BY 2,3,4,1,5
 ;

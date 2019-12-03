@@ -20,5 +20,5 @@ SELECT d-e,
   FROM t1
  WHERE c>d
    AND a>b
- /*ORDER BY 2,4,3,6,1,5*/
+ ORDER BY 2,4,3,6,1,5
 ;

@@ -22,5 +22,5 @@ SELECT (SELECT count(*) FROM t1 AS x WHERE x.b<t1.b),
  WHERE b>c
    AND EXISTS(SELECT 1 FROM t1 AS x WHERE x.b<t1.b)
    AND (e>c OR e<d)
- /*ORDER BY 6,2,1,3,5,4*/
+ ORDER BY 6,2,1,3,5,4
 ;

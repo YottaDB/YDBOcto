@@ -17,5 +17,5 @@ SELECT CASE a+1 WHEN b THEN 111 WHEN c THEN 222
        b-c,
        d-e
   FROM t1
- /*ORDER BY 1,2,3,4*/
+ ORDER BY 1,2,3,4
 ;

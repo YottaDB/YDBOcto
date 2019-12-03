@@ -19,5 +19,5 @@ SELECT e,
        abs(a)
   FROM t1
  WHERE b>c
- /*ORDER BY 3,6,2,1,5,4*/
+ ORDER BY 3,6,2,1,5,4
 ;

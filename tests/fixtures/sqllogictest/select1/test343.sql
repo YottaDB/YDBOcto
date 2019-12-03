@@ -21,5 +21,5 @@ SELECT a+b*2,
  WHERE (a>b-2 AND a<b+2)
    AND e+d BETWEEN a+b-10 AND c+130
    AND (c<=d-2 OR c>=d+2)
- /*ORDER BY 3,2,5,4,1*/
+ ORDER BY 3,2,5,4,1
 ;

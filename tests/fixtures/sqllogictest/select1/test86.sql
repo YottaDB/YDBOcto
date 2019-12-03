@@ -20,5 +20,5 @@ SELECT a+b*2,
        e
   FROM t1
  WHERE d>e
- /*ORDER BY 4,5,3,6,2,1,7*/
+ ORDER BY 4,5,3,6,2,1,7
 ;

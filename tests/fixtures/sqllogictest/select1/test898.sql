@@ -21,5 +21,5 @@ SELECT b,
   FROM t1
  WHERE c BETWEEN b-2 AND d+2
    AND d>e
- /*ORDER BY 2,1,5,3,6,4,7*/
+ ORDER BY 2,1,5,3,6,4,7
 ;

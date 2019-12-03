@@ -21,5 +21,5 @@ SELECT abs(a),
  WHERE c BETWEEN b-2 AND d+2
    AND d>e
    AND d NOT BETWEEN 110 AND 150
- /*ORDER BY 5,3,1,4,2*/
+ ORDER BY 5,3,1,4,2
 ;

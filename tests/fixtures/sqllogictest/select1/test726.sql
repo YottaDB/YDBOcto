@@ -20,5 +20,5 @@ SELECT c,
        (SELECT count(*) FROM t1 AS x WHERE x.b<t1.b),
        a
   FROM t1
- /*ORDER BY 1,4,3,5,6,7,2*/
+ ORDER BY 1,4,3,5,6,7,2
 ;

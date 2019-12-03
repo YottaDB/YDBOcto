@@ -19,5 +19,5 @@ SELECT CASE WHEN a<b-3 THEN 111 WHEN a<=b THEN 222
  WHERE c BETWEEN b-2 AND d+2
    AND b>c
    AND c>d
- /*ORDER BY 2,1,3*/
+ ORDER BY 2,1,3
 ;

@@ -22,5 +22,5 @@ SELECT a,
  WHERE (e>a AND e<b)
    AND e+d BETWEEN a+b-10 AND c+130
    AND (e>c OR e<d)
- /*ORDER BY 4,2,5,1,3,6*/
+ ORDER BY 4,2,5,1,3,6
 ;

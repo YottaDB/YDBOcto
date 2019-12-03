@@ -17,5 +17,5 @@ SELECT d-e,
   FROM t1
  WHERE (c<=d-2 OR c>=d+2)
    AND (e>a AND e<b)
- /*ORDER BY 2,3,1*/
+ ORDER BY 2,3,1
 ;

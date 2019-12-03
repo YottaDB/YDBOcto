@@ -16,5 +16,5 @@ SELECT a,
        e
   FROM t1
  WHERE (e>c OR e<d)
- /*ORDER BY 3,1,2*/
+ ORDER BY 3,1,2
 ;

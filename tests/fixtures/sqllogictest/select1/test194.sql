@@ -20,5 +20,5 @@ SELECT a+b*2,
        b
   FROM t1
  WHERE a>b
- /*ORDER BY 3,2,1,4,7,5,6*/
+ ORDER BY 3,2,1,4,7,5,6
 ;

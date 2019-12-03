@@ -17,5 +17,5 @@ SELECT abs(a),
  WHERE (e>a AND e<b)
    AND a>b
    AND c>d
- /*ORDER BY 2,1*/
+ ORDER BY 2,1
 ;

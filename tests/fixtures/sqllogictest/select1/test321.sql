@@ -19,5 +19,5 @@ SELECT CASE WHEN a<b-3 THEN 111 WHEN a<=b THEN 222
        (a+b+c+d+e)/5,
        c-d
   FROM t1
- /*ORDER BY 2,4,5,1,3*/
+ ORDER BY 2,4,5,1,3
 ;

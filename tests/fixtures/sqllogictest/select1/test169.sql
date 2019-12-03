@@ -18,5 +18,5 @@ SELECT abs(a),
  WHERE c BETWEEN b-2 AND d+2
    AND d NOT BETWEEN 110 AND 150
    AND (a>b-2 AND a<b+2)
- /*ORDER BY 2,1*/
+ ORDER BY 2,1
 ;

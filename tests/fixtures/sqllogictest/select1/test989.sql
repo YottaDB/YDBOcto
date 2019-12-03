@@ -21,5 +21,5 @@ SELECT a-b,
         WHEN d THEN 333  WHEN e THEN 444 ELSE 555 END
   FROM t1
  WHERE a>b
- /*ORDER BY 3,5,4,2,1,6*/
+ ORDER BY 3,5,4,2,1,6
 ;

@@ -19,5 +19,5 @@ SELECT a+b*2+c*3,
  WHERE a>b
     OR EXISTS(SELECT 1 FROM t1 AS x WHERE x.b<t1.b)
     OR d>e
- /*ORDER BY 2,1,3,4*/
+ ORDER BY 2,1,3,4
 ;

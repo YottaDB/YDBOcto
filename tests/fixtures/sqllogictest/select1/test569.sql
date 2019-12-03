@@ -22,5 +22,5 @@ SELECT e,
   FROM t1
  WHERE a>b
     OR d NOT BETWEEN 110 AND 150
- /*ORDER BY 1,4,7,6,5,3,2*/
+ ORDER BY 1,4,7,6,5,3,2
 ;

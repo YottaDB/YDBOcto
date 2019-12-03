@@ -19,5 +19,5 @@ SELECT b,
        c-d,
        a
   FROM t1
- /*ORDER BY 1,4,2,7,3,6,5*/
+ ORDER BY 1,4,2,7,3,6,5
 ;

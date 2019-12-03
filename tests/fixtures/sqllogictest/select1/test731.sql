@@ -17,5 +17,5 @@ SELECT abs(a),
  WHERE d>e
     OR b>c
     OR d NOT BETWEEN 110 AND 150
- /*ORDER BY 2,1*/
+ ORDER BY 2,1
 ;

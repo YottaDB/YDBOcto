@@ -19,5 +19,5 @@ SELECT c,
        e,
        c-d
   FROM t1
- /*ORDER BY 5,4,6,2,1,3*/
+ ORDER BY 5,4,6,2,1,3
 ;

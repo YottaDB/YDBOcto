@@ -16,5 +16,5 @@ SELECT c-d,
        d,
        a+b*2+c*3
   FROM t1
- /*ORDER BY 3,2,4,1*/
+ ORDER BY 3,2,4,1
 ;

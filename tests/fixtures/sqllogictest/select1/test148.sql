@@ -20,5 +20,5 @@ SELECT (a+b+c+d+e)/5,
   FROM t1
  WHERE b>c
    AND d>e
- /*ORDER BY 4,5,6,3,2,1*/
+ ORDER BY 4,5,6,3,2,1
 ;

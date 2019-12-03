@@ -20,5 +20,5 @@ SELECT d-e,
        a+b*2+c*3+d*4,
        a+b*2
   FROM t1
- /*ORDER BY 6,2,5,1,4,7,3*/
+ ORDER BY 6,2,5,1,4,7,3
 ;

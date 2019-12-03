@@ -18,5 +18,5 @@ SELECT CASE a+1 WHEN b THEN 111 WHEN c THEN 222
        a+b*2+c*3+d*4
   FROM t1
  WHERE c>d
- /*ORDER BY 2,1,4,3*/
+ ORDER BY 2,1,4,3
 ;

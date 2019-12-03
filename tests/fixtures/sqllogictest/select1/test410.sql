@@ -17,5 +17,5 @@ SELECT e,
  WHERE (e>a AND e<b)
     OR b>c
     OR (e>c OR e<d)
- /*ORDER BY 2,1*/
+ ORDER BY 2,1
 ;

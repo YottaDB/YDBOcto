@@ -22,5 +22,5 @@ SELECT a+b*2+c*3,
   FROM t1
  WHERE d NOT BETWEEN 110 AND 150
    AND (e>a AND e<b)
- /*ORDER BY 1,5,3,4,6,2,7*/
+ ORDER BY 1,5,3,4,6,2,7
 ;

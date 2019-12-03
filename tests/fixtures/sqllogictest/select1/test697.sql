@@ -20,5 +20,5 @@ SELECT CASE a+1 WHEN b THEN 111 WHEN c THEN 222
   FROM t1
  WHERE (a>b-2 AND a<b+2)
    AND a>b
- /*ORDER BY 4,1,5,3,2*/
+ ORDER BY 4,1,5,3,2
 ;

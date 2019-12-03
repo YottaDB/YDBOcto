@@ -20,5 +20,5 @@ SELECT a+b*2+c*3+d*4+e*5,
        d
   FROM t1
  WHERE b>c
- /*ORDER BY 6,2,5,4,3,1*/
+ ORDER BY 6,2,5,4,3,1
 ;

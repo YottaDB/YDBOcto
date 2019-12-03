@@ -22,5 +22,5 @@ SELECT (SELECT count(*) FROM t1 AS x WHERE x.b<t1.b),
  WHERE e+d BETWEEN a+b-10 AND c+130
     OR d>e
     OR c BETWEEN b-2 AND d+2
- /*ORDER BY 4,1,5,6,3,2*/
+ ORDER BY 4,1,5,6,3,2
 ;

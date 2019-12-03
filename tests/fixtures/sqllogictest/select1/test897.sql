@@ -21,5 +21,5 @@ SELECT a,
   FROM t1
  WHERE b>c
    AND c>d
- /*ORDER BY 6,1,7,2,5,4,3*/
+ ORDER BY 6,1,7,2,5,4,3
 ;

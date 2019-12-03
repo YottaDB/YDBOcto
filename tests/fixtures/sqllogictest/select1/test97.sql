@@ -22,5 +22,5 @@ SELECT c-d,
   FROM t1
  WHERE d>e
    AND (e>a AND e<b)
- /*ORDER BY 7,2,6,1,3,4,5*/
+ ORDER BY 7,2,6,1,3,4,5
 ;

@@ -16,5 +16,5 @@ SELECT abs(b-c)
  WHERE (c<=d-2 OR c>=d+2)
    AND c>d
    AND (a>b-2 AND a<b+2)
- /*ORDER BY 1*/
+ ORDER BY 1
 ;

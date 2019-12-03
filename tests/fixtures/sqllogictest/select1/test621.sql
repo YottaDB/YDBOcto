@@ -17,5 +17,5 @@ SELECT (SELECT count(*) FROM t1 AS x WHERE x.b<t1.b),
        d
   FROM t1
  WHERE (c<=d-2 OR c>=d+2)
- /*ORDER BY 4,3,2,1*/
+ ORDER BY 4,3,2,1
 ;

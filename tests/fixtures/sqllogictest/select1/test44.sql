@@ -17,5 +17,5 @@ SELECT a+b*2+c*3,
        (a+b+c+d+e)/5,
        b
   FROM t1
- /*ORDER BY 5,4,1,3,2*/
+ ORDER BY 5,4,1,3,2
 ;

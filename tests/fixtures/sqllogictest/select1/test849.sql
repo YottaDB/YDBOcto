@@ -19,5 +19,5 @@ SELECT (SELECT count(*) FROM t1 AS x WHERE x.c>t1.c AND x.d<t1.d),
   FROM t1
  WHERE d NOT BETWEEN 110 AND 150
    AND a>b
- /*ORDER BY 3,4,2,1*/
+ ORDER BY 3,4,2,1
 ;

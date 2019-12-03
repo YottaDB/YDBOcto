@@ -20,5 +20,5 @@ SELECT abs(b-c),
  WHERE e+d BETWEEN a+b-10 AND c+130
    AND d>e
    AND c BETWEEN b-2 AND d+2
- /*ORDER BY 1,2,5,3,4*/
+ ORDER BY 1,2,5,3,4
 ;

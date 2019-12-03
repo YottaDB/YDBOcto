@@ -22,5 +22,5 @@ SELECT abs(a),
  WHERE a>b
     OR d NOT BETWEEN 110 AND 150
     OR b>c
- /*ORDER BY 4,6,1,2,3,5*/
+ ORDER BY 4,6,1,2,3,5
 ;

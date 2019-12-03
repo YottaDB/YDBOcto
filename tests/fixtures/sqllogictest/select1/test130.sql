@@ -20,5 +20,5 @@ SELECT a+b*2+c*3,
  WHERE (a>b-2 AND a<b+2)
    AND b>c
    AND c>d
- /*ORDER BY 3,5,1,4,2*/
+ ORDER BY 3,5,1,4,2
 ;

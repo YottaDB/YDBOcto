@@ -21,5 +21,5 @@ SELECT d,
   FROM t1
  WHERE a>b
     OR b>c
- /*ORDER BY 3,1,5,6,4,2*/
+ ORDER BY 3,1,5,6,4,2
 ;

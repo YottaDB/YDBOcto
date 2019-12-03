@@ -21,5 +21,5 @@ SELECT abs(a),
   FROM t1
  WHERE (c<=d-2 OR c>=d+2)
    AND EXISTS(SELECT 1 FROM t1 AS x WHERE x.b<t1.b)
- /*ORDER BY 1,2,5,3,6,4*/
+ ORDER BY 1,2,5,3,6,4
 ;

@@ -17,5 +17,5 @@ SELECT a+b*2,
        a+b*2+c*3,
        c-d
   FROM t1
- /*ORDER BY 4,1,5,3,2*/
+ ORDER BY 4,1,5,3,2
 ;

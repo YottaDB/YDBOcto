@@ -20,5 +20,5 @@ SELECT d,
   FROM t1
  WHERE (e>a AND e<b)
    AND c BETWEEN b-2 AND d+2
- /*ORDER BY 5,1,3,6,4,2*/
+ ORDER BY 5,1,3,6,4,2
 ;

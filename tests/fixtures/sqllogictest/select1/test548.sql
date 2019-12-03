@@ -20,5 +20,5 @@ SELECT abs(a),
        b-c
   FROM t1
  WHERE e+d BETWEEN a+b-10 AND c+130
- /*ORDER BY 3,2,4,6,1,5*/
+ ORDER BY 3,2,4,6,1,5
 ;

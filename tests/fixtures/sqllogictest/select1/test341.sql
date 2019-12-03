@@ -18,5 +18,5 @@ SELECT a+b*2+c*3+d*4,
        d
   FROM t1
  WHERE a>b
- /*ORDER BY 1,5,4,2,3*/
+ ORDER BY 1,5,4,2,3
 ;

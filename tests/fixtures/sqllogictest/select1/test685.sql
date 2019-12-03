@@ -20,5 +20,5 @@ SELECT (SELECT count(*) FROM t1 AS x WHERE x.b<t1.b),
   FROM t1
  WHERE c BETWEEN b-2 AND d+2
     OR (e>a AND e<b)
- /*ORDER BY 6,3,1,5,4,2*/
+ ORDER BY 6,3,1,5,4,2
 ;

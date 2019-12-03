@@ -18,5 +18,5 @@ SELECT c,
  WHERE (e>a AND e<b)
    AND b>c
    AND (c<=d-2 OR c>=d+2)
- /*ORDER BY 1,2*/
+ ORDER BY 1,2
 ;

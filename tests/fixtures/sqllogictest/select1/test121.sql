@@ -22,5 +22,5 @@ SELECT a+b*2,
   FROM t1
  WHERE c BETWEEN b-2 AND d+2
     OR EXISTS(SELECT 1 FROM t1 AS x WHERE x.b<t1.b)
- /*ORDER BY 5,1,4,7,3,2,6*/
+ ORDER BY 5,1,4,7,3,2,6
 ;

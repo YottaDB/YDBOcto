@@ -17,5 +17,5 @@ SELECT b-c,
  WHERE b>c
    AND a>b
    AND (e>a AND e<b)
- /*ORDER BY 2,1*/
+ ORDER BY 2,1
 ;

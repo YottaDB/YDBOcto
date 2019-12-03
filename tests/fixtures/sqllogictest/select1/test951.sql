@@ -19,5 +19,5 @@ SELECT (a+b+c+d+e)/5,
        c-d,
        CASE WHEN c>(SELECT avg(c) FROM t1) THEN a*2 ELSE b*10 END
   FROM t1
- /*ORDER BY 6,7,2,4,1,5,3*/
+ ORDER BY 6,7,2,4,1,5,3
 ;

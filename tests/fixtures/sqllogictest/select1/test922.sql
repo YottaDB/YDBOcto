@@ -21,5 +21,5 @@ SELECT c,
   FROM t1
  WHERE b>c
    AND a>b
- /*ORDER BY 3,4,2,5,1*/
+ ORDER BY 3,4,2,5,1
 ;

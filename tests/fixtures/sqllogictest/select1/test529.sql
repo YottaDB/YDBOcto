@@ -17,5 +17,5 @@ SELECT a,
   FROM t1
  WHERE e+d BETWEEN a+b-10 AND c+130
     OR c>d
- /*ORDER BY 1,2,3*/
+ ORDER BY 1,2,3
 ;

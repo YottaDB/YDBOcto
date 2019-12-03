@@ -19,5 +19,5 @@ SELECT b-c,
        e
   FROM t1
  WHERE (a>b-2 AND a<b+2)
- /*ORDER BY 3,5,1,2,4*/
+ ORDER BY 3,5,1,2,4
 ;

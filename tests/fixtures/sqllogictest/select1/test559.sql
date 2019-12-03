@@ -16,5 +16,5 @@ SELECT a-b,
   FROM t1
  WHERE b>c
     OR c>d
- /*ORDER BY 2,1*/
+ ORDER BY 2,1
 ;

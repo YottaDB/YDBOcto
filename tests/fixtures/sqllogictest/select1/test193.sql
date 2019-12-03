@@ -16,5 +16,5 @@ SELECT a-b,
        d,
        e
   FROM t1
- /*ORDER BY 2,4,1,3*/
+ ORDER BY 2,4,1,3
 ;

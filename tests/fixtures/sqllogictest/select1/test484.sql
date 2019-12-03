@@ -21,5 +21,5 @@ SELECT e,
  WHERE c>d
    AND d>e
    AND EXISTS(SELECT 1 FROM t1 AS x WHERE x.b<t1.b)
- /*ORDER BY 2,4,1,5,3,6*/
+ ORDER BY 2,4,1,5,3,6
 ;

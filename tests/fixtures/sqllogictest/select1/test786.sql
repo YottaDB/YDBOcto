@@ -20,5 +20,5 @@ SELECT (SELECT count(*) FROM t1 AS x WHERE x.b<t1.b),
  WHERE c BETWEEN b-2 AND d+2
    AND EXISTS(SELECT 1 FROM t1 AS x WHERE x.b<t1.b)
    AND c>d
- /*ORDER BY 1,2,3,4*/
+ ORDER BY 1,2,3,4
 ;

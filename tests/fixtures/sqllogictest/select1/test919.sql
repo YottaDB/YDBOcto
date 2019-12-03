@@ -17,5 +17,5 @@ SELECT (SELECT count(*) FROM t1 AS x WHERE x.b<t1.b),
        (a+b+c+d+e)/5
   FROM t1
  WHERE (e>a AND e<b)
- /*ORDER BY 4,3,2,1*/
+ ORDER BY 4,3,2,1
 ;

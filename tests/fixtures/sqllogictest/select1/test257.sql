@@ -20,5 +20,5 @@ SELECT d,
   FROM t1
  WHERE d>e
    AND EXISTS(SELECT 1 FROM t1 AS x WHERE x.b<t1.b)
- /*ORDER BY 4,3,5,1,2*/
+ ORDER BY 4,3,5,1,2
 ;

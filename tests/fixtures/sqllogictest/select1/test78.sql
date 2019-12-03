@@ -17,5 +17,5 @@ SELECT b,
  WHERE c>d
    AND a>b
    AND EXISTS(SELECT 1 FROM t1 AS x WHERE x.b<t1.b)
- /*ORDER BY 2,1*/
+ ORDER BY 2,1
 ;

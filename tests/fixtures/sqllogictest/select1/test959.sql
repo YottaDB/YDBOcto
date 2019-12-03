@@ -21,5 +21,5 @@ SELECT (a+b+c+d+e)/5,
  WHERE e+d BETWEEN a+b-10 AND c+130
     OR (c<=d-2 OR c>=d+2)
     OR d>e
- /*ORDER BY 2,1,3,5,6,4*/
+ ORDER BY 2,1,3,5,6,4
 ;

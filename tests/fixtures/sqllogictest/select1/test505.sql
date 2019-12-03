@@ -19,5 +19,5 @@ SELECT CASE WHEN c>(SELECT avg(c) FROM t1) THEN a*2 ELSE b*10 END,
         WHEN a<b+3 THEN 333 ELSE 444 END
   FROM t1
  WHERE (a>b-2 AND a<b+2)
- /*ORDER BY 4,1,3,5,2*/
+ ORDER BY 4,1,3,5,2
 ;

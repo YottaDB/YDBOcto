@@ -18,5 +18,5 @@ SELECT d,
        a
   FROM t1
  WHERE a>b
- /*ORDER BY 1,3,4,2*/
+ ORDER BY 1,3,4,2
 ;

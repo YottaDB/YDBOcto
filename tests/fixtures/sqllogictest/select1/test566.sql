@@ -18,5 +18,5 @@ SELECT b,
  WHERE d>e
     OR (a>b-2 AND a<b+2)
     OR EXISTS(SELECT 1 FROM t1 AS x WHERE x.b<t1.b)
- /*ORDER BY 2,1,3*/
+ ORDER BY 2,1,3
 ;

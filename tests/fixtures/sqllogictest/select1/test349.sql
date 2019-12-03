@@ -21,5 +21,5 @@ SELECT a-b,
        abs(b-c)
   FROM t1
  WHERE b>c
- /*ORDER BY 5,2,1,7,3,4,6*/
+ ORDER BY 5,2,1,7,3,4,6
 ;

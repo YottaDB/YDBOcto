@@ -21,5 +21,5 @@ SELECT CASE a+1 WHEN b THEN 111 WHEN c THEN 222
        a+b*2+c*3
   FROM t1
  WHERE c BETWEEN b-2 AND d+2
- /*ORDER BY 7,2,5,1,3,6,4*/
+ ORDER BY 7,2,5,1,3,6,4
 ;

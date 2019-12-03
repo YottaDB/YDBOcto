@@ -23,5 +23,5 @@ SELECT e,
  WHERE (e>c OR e<d)
     OR EXISTS(SELECT 1 FROM t1 AS x WHERE x.b<t1.b)
     OR b>c
- /*ORDER BY 4,6,3,1,5,7,2*/
+ ORDER BY 4,6,3,1,5,7,2
 ;

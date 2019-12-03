@@ -22,5 +22,5 @@ SELECT c-d,
   FROM t1
  WHERE e+d BETWEEN a+b-10 AND c+130
     OR (e>a AND e<b)
- /*ORDER BY 2,4,1,3,5,6*/
+ ORDER BY 2,4,1,3,5,6
 ;

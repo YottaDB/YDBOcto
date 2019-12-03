@@ -18,5 +18,5 @@ SELECT a+b*2,
   FROM t1
  WHERE (a>b-2 AND a<b+2)
     OR b>c
- /*ORDER BY 3,1,2,4*/
+ ORDER BY 3,1,2,4
 ;

@@ -17,5 +17,5 @@ SELECT a-b,
         WHEN a<b+3 THEN 333 ELSE 444 END
   FROM t1
  WHERE c BETWEEN b-2 AND d+2
- /*ORDER BY 2,3,1*/
+ ORDER BY 2,3,1
 ;

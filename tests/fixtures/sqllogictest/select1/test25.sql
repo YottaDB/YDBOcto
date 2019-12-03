@@ -21,5 +21,5 @@ SELECT a+b*2,
  WHERE d>e
    AND (c<=d-2 OR c>=d+2)
    AND b>c
- /*ORDER BY 2,3,1,5,4*/
+ ORDER BY 2,3,1,5,4
 ;

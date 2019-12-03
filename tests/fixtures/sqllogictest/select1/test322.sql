@@ -19,5 +19,5 @@ SELECT CASE a+1 WHEN b THEN 111 WHEN c THEN 222
   FROM t1
  WHERE (c<=d-2 OR c>=d+2)
     OR (a>b-2 AND a<b+2)
- /*ORDER BY 4,3,2,1*/
+ ORDER BY 4,3,2,1
 ;

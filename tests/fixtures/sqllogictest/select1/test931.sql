@@ -18,5 +18,5 @@ SELECT a+b*2+c*3,
        abs(a)
   FROM t1
  WHERE (e>a AND e<b)
- /*ORDER BY 4,1,3,5,2*/
+ ORDER BY 4,1,3,5,2
 ;

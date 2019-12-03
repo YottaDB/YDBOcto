@@ -22,5 +22,5 @@ SELECT abs(b-c),
  WHERE b>c
     OR c>d
     OR e+d BETWEEN a+b-10 AND c+130
- /*ORDER BY 6,5,7,2,3,1,4*/
+ ORDER BY 6,5,7,2,3,1,4
 ;

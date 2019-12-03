@@ -16,5 +16,5 @@ SELECT c,
   FROM t1
  WHERE a>b
     OR b>c
- /*ORDER BY 1,2*/
+ ORDER BY 1,2
 ;

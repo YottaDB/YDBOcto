@@ -19,5 +19,5 @@ SELECT e,
   FROM t1
  WHERE c>d
     OR EXISTS(SELECT 1 FROM t1 AS x WHERE x.b<t1.b)
- /*ORDER BY 4,5,1,3,2*/
+ ORDER BY 4,5,1,3,2
 ;

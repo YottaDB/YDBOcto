@@ -22,5 +22,5 @@ SELECT a+b*2+c*3+d*4+e*5,
  WHERE b>c
    AND a>b
    AND c>d
- /*ORDER BY 4,2,1,7,5,6,3*/
+ ORDER BY 4,2,1,7,5,6,3
 ;

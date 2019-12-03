@@ -21,5 +21,5 @@ SELECT abs(a),
   FROM t1
  WHERE c BETWEEN b-2 AND d+2
    AND b>c
- /*ORDER BY 5,3,6,1,4,2*/
+ ORDER BY 5,3,6,1,4,2
 ;

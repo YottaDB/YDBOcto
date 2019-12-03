@@ -22,5 +22,5 @@ SELECT b,
   FROM t1
  WHERE (c<=d-2 OR c>=d+2)
    AND (e>a AND e<b)
- /*ORDER BY 3,4,1,5,6,2,7*/
+ ORDER BY 3,4,1,5,6,2,7
 ;

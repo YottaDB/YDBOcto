@@ -21,5 +21,5 @@ SELECT e,
        b,
        (a+b+c+d+e)/5
   FROM t1
- /*ORDER BY 6,7,5,4,1,3,2*/
+ ORDER BY 6,7,5,4,1,3,2
 ;

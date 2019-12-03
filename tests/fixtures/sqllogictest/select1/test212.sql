@@ -20,5 +20,5 @@ SELECT b,
        b-c
   FROM t1
  WHERE EXISTS(SELECT 1 FROM t1 AS x WHERE x.b<t1.b)
- /*ORDER BY 1,6,4,5,2,7,3*/
+ ORDER BY 1,6,4,5,2,7,3
 ;

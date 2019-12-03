@@ -17,5 +17,5 @@ SELECT CASE WHEN a<b-3 THEN 111 WHEN a<=b THEN 222
        abs(b-c)
   FROM t1
  WHERE d>e
- /*ORDER BY 2,3,1*/
+ ORDER BY 2,3,1
 ;

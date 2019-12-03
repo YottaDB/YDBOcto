@@ -22,5 +22,5 @@ SELECT a,
   FROM t1
  WHERE c>d
     OR e+d BETWEEN a+b-10 AND c+130
- /*ORDER BY 7,3,6,5,2,1,4*/
+ ORDER BY 7,3,6,5,2,1,4
 ;

@@ -20,5 +20,5 @@ SELECT a+b*2+c*3+d*4+e*5,
        c-d,
        (SELECT count(*) FROM t1 AS x WHERE x.c>t1.c AND x.d<t1.d)
   FROM t1
- /*ORDER BY 3,5,1,4,2,6*/
+ ORDER BY 3,5,1,4,2,6
 ;

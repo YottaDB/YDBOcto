@@ -21,5 +21,5 @@ SELECT a-b,
        a+b*2+c*3
   FROM t1
  WHERE (e>c OR e<d)
- /*ORDER BY 1,5,7,2,6,4,3*/
+ ORDER BY 1,5,7,2,6,4,3
 ;

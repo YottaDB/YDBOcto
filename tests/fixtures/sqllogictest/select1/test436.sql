@@ -16,5 +16,5 @@ SELECT b,
         WHEN a<b+3 THEN 333 ELSE 444 END,
        d
   FROM t1
- /*ORDER BY 3,2,1*/
+ ORDER BY 3,2,1
 ;

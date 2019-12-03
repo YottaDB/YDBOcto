@@ -23,5 +23,5 @@ SELECT d-e,
  WHERE (e>c OR e<d)
    AND d>e
    AND c>d
- /*ORDER BY 1,3,7,5,2,6,4*/
+ ORDER BY 1,3,7,5,2,6,4
 ;

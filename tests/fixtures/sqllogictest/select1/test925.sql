@@ -18,5 +18,5 @@ SELECT a,
        abs(b-c),
        b
   FROM t1
- /*ORDER BY 1,2,5,4,6,3*/
+ ORDER BY 1,2,5,4,6,3
 ;

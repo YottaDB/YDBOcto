@@ -20,5 +20,5 @@ SELECT d,
         WHEN d THEN 333  WHEN e THEN 444 ELSE 555 END,
        (a+b+c+d+e)/5
   FROM t1
- /*ORDER BY 5,2,7,1,4,6,3*/
+ ORDER BY 5,2,7,1,4,6,3
 ;

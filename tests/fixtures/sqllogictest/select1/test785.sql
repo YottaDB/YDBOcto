@@ -20,5 +20,5 @@ SELECT d,
  WHERE (e>a AND e<b)
    AND (c<=d-2 OR c>=d+2)
    AND a>b
- /*ORDER BY 5,2,1,4,3*/
+ ORDER BY 5,2,1,4,3
 ;

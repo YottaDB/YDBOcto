@@ -19,5 +19,5 @@ SELECT a+b*2,
        a+b*2+c*3
   FROM t1
  WHERE d>e
- /*ORDER BY 4,2,1,5,3*/
+ ORDER BY 4,2,1,5,3
 ;

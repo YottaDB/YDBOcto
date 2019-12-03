@@ -14,5 +14,5 @@
 SELECT d
   FROM t1
  WHERE d>e
- /*ORDER BY 1*/
+ ORDER BY 1
 ;

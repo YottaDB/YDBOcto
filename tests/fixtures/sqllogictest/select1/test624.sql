@@ -16,5 +16,5 @@ SELECT b,
         WHEN a<b+3 THEN 333 ELSE 444 END,
        abs(b-c)
   FROM t1
- /*ORDER BY 2,1,3*/
+ ORDER BY 2,1,3
 ;

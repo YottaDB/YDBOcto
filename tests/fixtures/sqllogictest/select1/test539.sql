@@ -20,5 +20,5 @@ SELECT a-b,
        c
   FROM t1
  WHERE (e>a AND e<b)
- /*ORDER BY 3,5,1,4,6,2*/
+ ORDER BY 3,5,1,4,6,2
 ;

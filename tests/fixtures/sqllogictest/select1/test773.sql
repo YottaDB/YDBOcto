@@ -18,5 +18,5 @@ SELECT b-c,
         WHEN d THEN 333  WHEN e THEN 444 ELSE 555 END
   FROM t1
  WHERE (a>b-2 AND a<b+2)
- /*ORDER BY 2,3,1,4*/
+ ORDER BY 2,3,1,4
 ;

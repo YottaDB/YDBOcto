@@ -19,5 +19,5 @@ SELECT c-d,
   FROM t1
  WHERE d NOT BETWEEN 110 AND 150
     OR (e>c OR e<d)
- /*ORDER BY 2,5,3,1,4*/
+ ORDER BY 2,5,3,1,4
 ;

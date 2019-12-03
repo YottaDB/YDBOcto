@@ -19,5 +19,5 @@ SELECT a-b,
         WHEN d THEN 333  WHEN e THEN 444 ELSE 555 END,
        c-d
   FROM t1
- /*ORDER BY 5,2,1,4,3,6*/
+ ORDER BY 5,2,1,4,3,6
 ;

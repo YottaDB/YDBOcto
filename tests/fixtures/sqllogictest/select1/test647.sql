@@ -20,5 +20,5 @@ SELECT b,
        abs(a),
        a+b*2
   FROM t1
- /*ORDER BY 4,1,2,7,5,3,6*/
+ ORDER BY 4,1,2,7,5,3,6
 ;

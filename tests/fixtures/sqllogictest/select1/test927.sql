@@ -21,5 +21,5 @@ SELECT c,
        d
   FROM t1
  WHERE d NOT BETWEEN 110 AND 150
- /*ORDER BY 1,7,6,2,3,4,5*/
+ ORDER BY 1,7,6,2,3,4,5
 ;

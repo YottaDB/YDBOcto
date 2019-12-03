@@ -17,5 +17,5 @@ SELECT d-e,
         WHEN a<b+3 THEN 333 ELSE 444 END
   FROM t1
  WHERE e+d BETWEEN a+b-10 AND c+130
- /*ORDER BY 2,1,3*/
+ ORDER BY 2,1,3
 ;

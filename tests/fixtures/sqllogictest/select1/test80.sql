@@ -19,5 +19,5 @@ SELECT d,
         WHEN a<b+3 THEN 333 ELSE 444 END,
        d-e
   FROM t1
- /*ORDER BY 1,6,2,3,5,4*/
+ ORDER BY 1,6,2,3,5,4
 ;

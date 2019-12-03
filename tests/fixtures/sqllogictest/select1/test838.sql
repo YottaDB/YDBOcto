@@ -20,5 +20,5 @@ SELECT (SELECT count(*) FROM t1 AS x WHERE x.c>t1.c AND x.d<t1.d),
        d
   FROM t1
  WHERE d>e
- /*ORDER BY 3,4,2,6,5,7,1*/
+ ORDER BY 3,4,2,6,5,7,1
 ;

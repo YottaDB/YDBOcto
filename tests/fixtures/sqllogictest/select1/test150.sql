@@ -18,5 +18,5 @@ SELECT abs(b-c),
   FROM t1
  WHERE b>c
    AND d>e
- /*ORDER BY 4,1,3,2*/
+ ORDER BY 4,1,3,2
 ;

@@ -21,5 +21,5 @@ SELECT d,
  WHERE d>e
     OR (e>a AND e<b)
     OR (e>c OR e<d)
- /*ORDER BY 2,3,1,4,5,6*/
+ ORDER BY 2,3,1,4,5,6
 ;

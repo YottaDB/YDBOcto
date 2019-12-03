@@ -22,5 +22,5 @@ SELECT b,
  WHERE (e>a AND e<b)
    AND d NOT BETWEEN 110 AND 150
    AND c>d
- /*ORDER BY 5,4,2,3,1,6*/
+ ORDER BY 5,4,2,3,1,6
 ;

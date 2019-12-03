@@ -16,5 +16,5 @@ SELECT a+b*2,
        a+b*2+c*3
   FROM t1
  WHERE (e>c OR e<d)
- /*ORDER BY 2,3,1*/
+ ORDER BY 2,3,1
 ;

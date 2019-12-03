@@ -23,5 +23,5 @@ SELECT (SELECT count(*) FROM t1 AS x WHERE x.b<t1.b),
  WHERE (e>a AND e<b)
    AND d NOT BETWEEN 110 AND 150
    AND EXISTS(SELECT 1 FROM t1 AS x WHERE x.b<t1.b)
- /*ORDER BY 4,2,3,7,1,5,6*/
+ ORDER BY 4,2,3,7,1,5,6
 ;

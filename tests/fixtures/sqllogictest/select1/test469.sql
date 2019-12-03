@@ -16,5 +16,5 @@ SELECT abs(b-c)
  WHERE c>d
    AND d NOT BETWEEN 110 AND 150
    AND a>b
- /*ORDER BY 1*/
+ ORDER BY 1
 ;

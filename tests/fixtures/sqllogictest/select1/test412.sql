@@ -20,5 +20,5 @@ SELECT a+b*2+c*3+d*4,
  WHERE b>c
    AND (e>a AND e<b)
    AND d NOT BETWEEN 110 AND 150
- /*ORDER BY 5,1,2,3,4*/
+ ORDER BY 5,1,2,3,4
 ;

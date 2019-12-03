@@ -16,5 +16,5 @@ SELECT abs(a),
        a,
        (a+b+c+d+e)/5
   FROM t1
- /*ORDER BY 4,3,2,1*/
+ ORDER BY 4,3,2,1
 ;

@@ -18,5 +18,5 @@ SELECT a+b*2+c*3,
  WHERE (c<=d-2 OR c>=d+2)
    AND (a>b-2 AND a<b+2)
    AND c>d
- /*ORDER BY 1,2,3*/
+ ORDER BY 1,2,3
 ;

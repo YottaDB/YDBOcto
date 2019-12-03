@@ -14,5 +14,5 @@
 SELECT abs(a)
   FROM t1
  WHERE a>b
- /*ORDER BY 1*/
+ ORDER BY 1
 ;

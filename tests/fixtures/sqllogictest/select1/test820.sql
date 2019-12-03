@@ -21,5 +21,5 @@ SELECT a+b*2,
   FROM t1
  WHERE a>b
    AND (e>a AND e<b)
- /*ORDER BY 6,3,1,5,2,4*/
+ ORDER BY 6,3,1,5,2,4
 ;

@@ -19,5 +19,5 @@ SELECT c,
        a
   FROM t1
  WHERE c BETWEEN b-2 AND d+2
- /*ORDER BY 6,3,1,2,4,5*/
+ ORDER BY 6,3,1,2,4,5
 ;

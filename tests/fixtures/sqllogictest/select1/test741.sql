@@ -20,5 +20,5 @@ SELECT CASE WHEN a<b-3 THEN 111 WHEN a<=b THEN 222
        d,
        a-b
   FROM t1
- /*ORDER BY 3,1,7,6,4,2,5*/
+ ORDER BY 3,1,7,6,4,2,5
 ;

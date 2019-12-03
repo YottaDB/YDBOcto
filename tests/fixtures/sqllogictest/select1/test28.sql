@@ -16,5 +16,5 @@ SELECT (SELECT count(*) FROM t1 AS x WHERE x.b<t1.b)
  WHERE e+d BETWEEN a+b-10 AND c+130
    AND a>b
    AND (a>b-2 AND a<b+2)
- /*ORDER BY 1*/
+ ORDER BY 1
 ;

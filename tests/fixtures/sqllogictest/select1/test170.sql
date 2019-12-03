@@ -20,5 +20,5 @@ SELECT (a+b+c+d+e)/5,
  WHERE d>e
    AND (e>a AND e<b)
    AND b>c
- /*ORDER BY 1,5,3,4,2*/
+ ORDER BY 1,5,3,4,2
 ;

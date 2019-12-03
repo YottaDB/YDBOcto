@@ -22,5 +22,5 @@ SELECT a+b*2+c*3+d*4+e*5,
  WHERE (e>a AND e<b)
    AND EXISTS(SELECT 1 FROM t1 AS x WHERE x.b<t1.b)
    AND c BETWEEN b-2 AND d+2
- /*ORDER BY 6,4,1,5,3,7,2*/
+ ORDER BY 6,4,1,5,3,7,2
 ;

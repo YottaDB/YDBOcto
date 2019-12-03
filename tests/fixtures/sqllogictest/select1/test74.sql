@@ -19,5 +19,5 @@ SELECT b,
   FROM t1
  WHERE d>e
     OR c BETWEEN b-2 AND d+2
- /*ORDER BY 2,1,4,3,5*/
+ ORDER BY 2,1,4,3,5
 ;

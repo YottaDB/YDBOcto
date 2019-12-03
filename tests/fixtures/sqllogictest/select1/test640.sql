@@ -18,5 +18,5 @@ SELECT a,
  WHERE c>d
    AND (c<=d-2 OR c>=d+2)
    AND (e>c OR e<d)
- /*ORDER BY 3,2,1*/
+ ORDER BY 3,2,1
 ;

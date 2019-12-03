@@ -19,5 +19,5 @@ SELECT d-e,
  WHERE d>e
     OR d NOT BETWEEN 110 AND 150
     OR c BETWEEN b-2 AND d+2
- /*ORDER BY 3,4,2,1*/
+ ORDER BY 3,4,2,1
 ;

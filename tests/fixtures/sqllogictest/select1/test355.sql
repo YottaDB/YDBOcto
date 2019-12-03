@@ -22,5 +22,5 @@ SELECT a+b*2,
  WHERE d NOT BETWEEN 110 AND 150
     OR (c<=d-2 OR c>=d+2)
     OR (e>a AND e<b)
- /*ORDER BY 2,6,1,4,3,5*/
+ ORDER BY 2,6,1,4,3,5
 ;

@@ -22,5 +22,5 @@ SELECT a+b*2+c*3,
   FROM t1
  WHERE (a>b-2 AND a<b+2)
    AND c BETWEEN b-2 AND d+2
- /*ORDER BY 6,1,7,3,4,5,2*/
+ ORDER BY 6,1,7,3,4,5,2
 ;

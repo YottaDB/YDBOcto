@@ -21,5 +21,5 @@ SELECT a+b*2+c*3+d*4,
   FROM t1
  WHERE b>c
    AND c>d
- /*ORDER BY 3,4,5,1,2,6*/
+ ORDER BY 3,4,5,1,2,6
 ;

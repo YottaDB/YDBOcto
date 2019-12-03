@@ -19,5 +19,5 @@ SELECT a+b*2+c*3,
         WHEN a<b+3 THEN 333 ELSE 444 END,
        a+b*2
   FROM t1
- /*ORDER BY 4,3,6,1,2,5*/
+ ORDER BY 4,3,6,1,2,5
 ;

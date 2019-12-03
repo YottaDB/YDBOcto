@@ -22,5 +22,5 @@ SELECT CASE a+1 WHEN b THEN 111 WHEN c THEN 222
  WHERE a>b
     OR c BETWEEN b-2 AND d+2
     OR c>d
- /*ORDER BY 3,2,1,4,5*/
+ ORDER BY 3,2,1,4,5
 ;

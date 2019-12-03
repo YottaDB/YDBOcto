@@ -18,5 +18,5 @@ SELECT a+b*2,
  WHERE (e>a AND e<b)
    AND d NOT BETWEEN 110 AND 150
    AND d>e
- /*ORDER BY 3,1,2*/
+ ORDER BY 3,1,2
 ;

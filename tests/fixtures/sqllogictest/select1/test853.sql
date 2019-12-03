@@ -20,5 +20,5 @@ SELECT (a+b+c+d+e)/5,
        d
   FROM t1
  WHERE d NOT BETWEEN 110 AND 150
- /*ORDER BY 6,4,7,5,2,3,1*/
+ ORDER BY 6,4,7,5,2,3,1
 ;

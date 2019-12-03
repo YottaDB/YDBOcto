@@ -22,5 +22,5 @@ SELECT d,
  WHERE d>e
     OR e+d BETWEEN a+b-10 AND c+130
     OR EXISTS(SELECT 1 FROM t1 AS x WHERE x.b<t1.b)
- /*ORDER BY 1,3,6,2,4,5*/
+ ORDER BY 1,3,6,2,4,5
 ;

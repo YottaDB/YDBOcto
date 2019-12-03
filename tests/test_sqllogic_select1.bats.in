@@ -39,12 +39,8 @@ setup() {
 		cp @PROJECT_SOURCE_DIR@/tests/outref/sqllogictest/select1/${prefix}.ref .
 		sed '/\[ INFO\]\|^INFO:/d' ${prefix}_output.txt > ${prefix}_noinfo.txt
 		sed '/\[DEBUG\]\|^DEBUG:/,/^$/d' ${prefix}_noinfo.txt > ${prefix}_nodebug.txt
-		# TEMP: until ORDER BY COLUMN NUM (issue #280) is implemented we need to manually sort the files
-		# This could lead to false positve passes.
-		sort -n ${prefix}_nodebug.txt > ${prefix}_sorted.txt
-		sort -n ${prefix}.ref > ${prefix}_refsorted.ref
 		# Check against the reference file. If it is different append it to the failure list.
-		run diff ${prefix}_refsorted.ref ${prefix}_sorted.txt
+		run diff ${prefix}.ref ${prefix}_nodebug.txt
 		if [[ "$output" != "" ]]; then
 			echo "$output" > ${prefix}.diff
 		fi

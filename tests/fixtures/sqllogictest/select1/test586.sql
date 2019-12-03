@@ -19,5 +19,5 @@ SELECT e,
        abs(b-c)
   FROM t1
  WHERE (e>a AND e<b)
- /*ORDER BY 2,4,6,1,5,3*/
+ ORDER BY 2,4,6,1,5,3
 ;

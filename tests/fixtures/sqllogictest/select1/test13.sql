@@ -21,5 +21,5 @@ SELECT a+b*2,
         WHEN a<b+3 THEN 333 ELSE 444 END
   FROM t1
  WHERE a>b
- /*ORDER BY 5,4,6,2,1,7,3*/
+ ORDER BY 5,4,6,2,1,7,3
 ;

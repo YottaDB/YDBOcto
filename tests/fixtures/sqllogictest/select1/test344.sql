@@ -20,5 +20,5 @@ SELECT e,
   FROM t1
  WHERE a>b
     OR (e>c OR e<d)
- /*ORDER BY 4,3,6,5,2,1*/
+ ORDER BY 4,3,6,5,2,1
 ;

@@ -20,5 +20,5 @@ SELECT b,
        abs(a)
   FROM t1
  WHERE (e>a AND e<b)
- /*ORDER BY 5,4,2,1,3,6*/
+ ORDER BY 5,4,2,1,3,6
 ;

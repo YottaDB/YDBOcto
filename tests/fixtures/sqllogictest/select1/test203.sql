@@ -20,5 +20,5 @@ SELECT a+b*2+c*3+d*4,
         WHEN a<b+3 THEN 333 ELSE 444 END
   FROM t1
  WHERE c BETWEEN b-2 AND d+2
- /*ORDER BY 5,2,1,4,6,3*/
+ ORDER BY 5,2,1,4,6,3
 ;

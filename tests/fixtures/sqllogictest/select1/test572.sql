@@ -18,5 +18,5 @@ SELECT a+b*2,
        b-c
   FROM t1
  WHERE b>c
- /*ORDER BY 5,1,3,2,4*/
+ ORDER BY 5,1,3,2,4
 ;

@@ -19,5 +19,5 @@ SELECT a+b*2+c*3,
  WHERE d>e
    AND c BETWEEN b-2 AND d+2
    AND (a>b-2 AND a<b+2)
- /*ORDER BY 2,1,3,4*/
+ ORDER BY 2,1,3,4
 ;

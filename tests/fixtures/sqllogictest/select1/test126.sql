@@ -18,5 +18,5 @@ SELECT (SELECT count(*) FROM t1 AS x WHERE x.b<t1.b),
         WHEN a<b+3 THEN 333 ELSE 444 END,
        a+b*2
   FROM t1
- /*ORDER BY 2,4,1,5,3*/
+ ORDER BY 2,4,1,5,3
 ;

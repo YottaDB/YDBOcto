@@ -19,5 +19,5 @@ SELECT abs(b-c),
        a+b*2+c*3
   FROM t1
  WHERE a>b
- /*ORDER BY 3,4,6,1,2,5*/
+ ORDER BY 3,4,6,1,2,5
 ;

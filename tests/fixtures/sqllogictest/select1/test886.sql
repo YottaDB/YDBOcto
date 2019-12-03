@@ -17,5 +17,5 @@ SELECT abs(b-c),
   FROM t1
  WHERE (e>c OR e<d)
     OR d>e
- /*ORDER BY 3,2,1*/
+ ORDER BY 3,2,1
 ;

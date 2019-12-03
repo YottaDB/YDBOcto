@@ -20,5 +20,5 @@ SELECT b-c,
  WHERE c>d
     OR (a>b-2 AND a<b+2)
     OR b>c
- /*ORDER BY 1,3,5,2,4*/
+ ORDER BY 1,3,5,2,4
 ;

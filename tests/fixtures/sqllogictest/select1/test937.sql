@@ -20,5 +20,5 @@ SELECT CASE a+1 WHEN b THEN 111 WHEN c THEN 222
        abs(b-c),
        a+b*2+c*3
   FROM t1
- /*ORDER BY 4,3,5,1,7,2,6*/
+ ORDER BY 4,3,5,1,7,2,6
 ;

@@ -23,5 +23,5 @@ SELECT (a+b+c+d+e)/5,
  WHERE a>b
     OR b>c
     OR c>d
- /*ORDER BY 1,4,5,2,6,7,3*/
+ ORDER BY 1,4,5,2,6,7,3
 ;

@@ -19,5 +19,5 @@ SELECT a+b*2+c*3,
        d
   FROM t1
  WHERE (c<=d-2 OR c>=d+2)
- /*ORDER BY 1,5,3,2,4*/
+ ORDER BY 1,5,3,2,4
 ;

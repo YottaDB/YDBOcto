@@ -19,5 +19,5 @@ SELECT a,
  WHERE (a>b-2 AND a<b+2)
     OR d NOT BETWEEN 110 AND 150
     OR (e>c OR e<d)
- /*ORDER BY 2,1,3*/
+ ORDER BY 2,1,3
 ;

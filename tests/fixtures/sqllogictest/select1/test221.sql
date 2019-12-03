@@ -20,5 +20,5 @@ SELECT d,
        e,
        b
   FROM t1
- /*ORDER BY 2,6,3,5,7,4,1*/
+ ORDER BY 2,6,3,5,7,4,1
 ;

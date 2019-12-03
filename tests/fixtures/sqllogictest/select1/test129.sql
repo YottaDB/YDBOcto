@@ -18,5 +18,5 @@ SELECT a+b*2,
   FROM t1
  WHERE b>c
    AND a>b
- /*ORDER BY 3,2,1*/
+ ORDER BY 3,2,1
 ;

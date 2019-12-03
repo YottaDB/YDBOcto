@@ -18,5 +18,5 @@ SELECT b-c,
        (SELECT count(*) FROM t1 AS x WHERE x.b<t1.b),
        b
   FROM t1
- /*ORDER BY 2,6,3,1,4,5*/
+ ORDER BY 2,6,3,1,4,5
 ;

@@ -16,5 +16,5 @@ SELECT CASE WHEN a<b-3 THEN 111 WHEN a<=b THEN 222
        a-b,
        a+b*2
   FROM t1
- /*ORDER BY 2,3,1*/
+ ORDER BY 2,3,1
 ;

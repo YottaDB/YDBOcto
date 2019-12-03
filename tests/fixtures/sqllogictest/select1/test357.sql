@@ -19,5 +19,5 @@ SELECT c,
  WHERE b>c
     OR (e>c OR e<d)
     OR d NOT BETWEEN 110 AND 150
- /*ORDER BY 3,2,1,4*/
+ ORDER BY 3,2,1,4
 ;

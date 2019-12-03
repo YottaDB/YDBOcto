@@ -21,5 +21,5 @@ SELECT b-c,
   FROM t1
  WHERE (e>c OR e<d)
     OR c BETWEEN b-2 AND d+2
- /*ORDER BY 1,5,2,4,6,3*/
+ ORDER BY 1,5,2,4,6,3
 ;

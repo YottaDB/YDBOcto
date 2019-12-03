@@ -19,5 +19,5 @@ SELECT b,
        a
   FROM t1
  WHERE (e>a AND e<b)
- /*ORDER BY 2,3,5,4,1*/
+ ORDER BY 2,3,5,4,1
 ;

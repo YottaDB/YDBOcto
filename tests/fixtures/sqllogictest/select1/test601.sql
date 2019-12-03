@@ -18,5 +18,5 @@ SELECT a+b*2+c*3+d*4,
         WHEN d THEN 333  WHEN e THEN 444 ELSE 555 END
   FROM t1
  WHERE d>e
- /*ORDER BY 3,1,2,4*/
+ ORDER BY 3,1,2,4
 ;

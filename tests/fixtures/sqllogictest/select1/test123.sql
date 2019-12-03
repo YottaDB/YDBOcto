@@ -18,5 +18,5 @@ SELECT a+b*2+c*3+d*4,
  WHERE c>d
     OR d>e
     OR b>c
- /*ORDER BY 3,1,2*/
+ ORDER BY 3,1,2
 ;

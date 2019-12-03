@@ -19,5 +19,5 @@ SELECT abs(b-c),
  WHERE c BETWEEN b-2 AND d+2
    AND (e>a AND e<b)
    AND d>e
- /*ORDER BY 2,1,4,3*/
+ ORDER BY 2,1,4,3
 ;

@@ -20,5 +20,5 @@ SELECT d-e,
        (a+b+c+d+e)/5
   FROM t1
  WHERE b>c
- /*ORDER BY 7,4,2,6,5,3,1*/
+ ORDER BY 7,4,2,6,5,3,1
 ;

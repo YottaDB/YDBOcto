@@ -17,5 +17,5 @@ SELECT d-e,
        abs(b-c),
        e
   FROM t1
- /*ORDER BY 3,4,5,1,2*/
+ ORDER BY 3,4,5,1,2
 ;

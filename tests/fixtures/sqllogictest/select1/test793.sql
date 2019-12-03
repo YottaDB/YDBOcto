@@ -19,5 +19,5 @@ SELECT c,
        a+b*2,
        d-e
   FROM t1
- /*ORDER BY 4,3,1,7,2,5,6*/
+ ORDER BY 4,3,1,7,2,5,6
 ;

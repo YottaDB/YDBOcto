@@ -22,5 +22,5 @@ SELECT c,
  WHERE d NOT BETWEEN 110 AND 150
    AND a>b
    AND c>d
- /*ORDER BY 7,1,5,3,2,4,6*/
+ ORDER BY 7,1,5,3,2,4,6
 ;

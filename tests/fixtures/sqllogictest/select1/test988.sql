@@ -17,5 +17,5 @@ SELECT c,
  WHERE b>c
    AND (e>a AND e<b)
    AND d>e
- /*ORDER BY 1,2*/
+ ORDER BY 1,2
 ;

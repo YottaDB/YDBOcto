@@ -17,5 +17,5 @@ SELECT b-c,
        d
   FROM t1
  WHERE (a>b-2 AND a<b+2)
- /*ORDER BY 4,2,3,1*/
+ ORDER BY 4,2,3,1
 ;

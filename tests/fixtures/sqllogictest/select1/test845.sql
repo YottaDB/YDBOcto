@@ -20,5 +20,5 @@ SELECT d,
        a+b*2+c*3,
        abs(a)
   FROM t1
- /*ORDER BY 1,2,7,6,4,3,5*/
+ ORDER BY 1,2,7,6,4,3,5
 ;

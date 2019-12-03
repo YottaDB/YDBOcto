@@ -15,5 +15,5 @@ SELECT (SELECT count(*) FROM t1 AS x WHERE x.b<t1.b),
        abs(a)
   FROM t1
  WHERE (e>a AND e<b)
- /*ORDER BY 2,1*/
+ ORDER BY 2,1
 ;

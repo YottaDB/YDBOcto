@@ -19,5 +19,5 @@ SELECT c-d,
        abs(b-c),
        a+b*2+c*3
   FROM t1
- /*ORDER BY 6,1,4,2,5,3,7*/
+ ORDER BY 6,1,4,2,5,3,7
 ;

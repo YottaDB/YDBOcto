@@ -20,5 +20,5 @@ SELECT d,
         WHEN a<b+3 THEN 333 ELSE 444 END,
        a+b*2+c*3
   FROM t1
- /*ORDER BY 3,2,4,5,7,1,6*/
+ ORDER BY 3,2,4,5,7,1,6
 ;

@@ -19,5 +19,5 @@ SELECT abs(b-c),
        (a+b+c+d+e)/5
   FROM t1
  WHERE (e>c OR e<d)
- /*ORDER BY 6,3,1,4,5,2*/
+ ORDER BY 6,3,1,4,5,2
 ;

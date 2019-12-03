@@ -19,5 +19,5 @@ SELECT c-d,
        c,
        a+b*2
   FROM t1
- /*ORDER BY 1,5,4,3,2,6,7*/
+ ORDER BY 1,5,4,3,2,6,7
 ;

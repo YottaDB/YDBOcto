@@ -22,5 +22,5 @@ SELECT abs(a),
  WHERE d>e
     OR b>c
     OR (a>b-2 AND a<b+2)
- /*ORDER BY 1,5,6,4,2,3*/
+ ORDER BY 1,5,6,4,2,3
 ;

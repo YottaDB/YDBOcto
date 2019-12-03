@@ -16,5 +16,5 @@ SELECT a+b*2+c*3+d*4+e*5
  WHERE c BETWEEN b-2 AND d+2
    AND (e>a AND e<b)
    AND e+d BETWEEN a+b-10 AND c+130
- /*ORDER BY 1*/
+ ORDER BY 1
 ;

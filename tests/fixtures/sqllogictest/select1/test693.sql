@@ -19,5 +19,5 @@ SELECT (SELECT count(*) FROM t1 AS x WHERE x.b<t1.b),
        a-b
   FROM t1
  WHERE d NOT BETWEEN 110 AND 150
- /*ORDER BY 6,3,2,1,4,5*/
+ ORDER BY 6,3,2,1,4,5
 ;

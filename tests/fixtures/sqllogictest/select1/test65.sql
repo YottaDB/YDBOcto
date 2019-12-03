@@ -17,5 +17,5 @@ SELECT c-d,
        a+b*2+c*3+d*4+e*5
   FROM t1
  WHERE (e>a AND e<b)
- /*ORDER BY 3,2,4,1*/
+ ORDER BY 3,2,4,1
 ;

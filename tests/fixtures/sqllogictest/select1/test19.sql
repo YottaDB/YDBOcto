@@ -18,5 +18,5 @@ SELECT a,
        b-c,
        a+b*2
   FROM t1
- /*ORDER BY 6,2,4,5,3,1*/
+ ORDER BY 6,2,4,5,3,1
 ;

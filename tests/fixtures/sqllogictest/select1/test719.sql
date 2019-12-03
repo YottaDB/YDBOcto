@@ -16,5 +16,5 @@ SELECT a+b*2+c*3,
   FROM t1
  WHERE b>c
    AND a>b
- /*ORDER BY 1,2*/
+ ORDER BY 1,2
 ;

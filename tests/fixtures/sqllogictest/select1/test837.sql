@@ -19,5 +19,5 @@ SELECT b-c,
  WHERE (a>b-2 AND a<b+2)
    AND c>d
    AND d>e
- /*ORDER BY 4,2,3,1*/
+ ORDER BY 4,2,3,1
 ;

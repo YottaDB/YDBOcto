@@ -19,5 +19,5 @@ SELECT b,
  WHERE (e>c OR e<d)
     OR e+d BETWEEN a+b-10 AND c+130
     OR a>b
- /*ORDER BY 3,2,1*/
+ ORDER BY 3,2,1
 ;

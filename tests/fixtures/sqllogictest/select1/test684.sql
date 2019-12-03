@@ -20,5 +20,5 @@ SELECT a+b*2,
  WHERE a>b
    AND (a>b-2 AND a<b+2)
    AND c BETWEEN b-2 AND d+2
- /*ORDER BY 3,4,1,2*/
+ ORDER BY 3,4,1,2
 ;

@@ -22,5 +22,5 @@ SELECT a+b*2+c*3,
  WHERE (e>c OR e<d)
    AND c BETWEEN b-2 AND d+2
    AND (e>a AND e<b)
- /*ORDER BY 7,5,3,2,6,4,1*/
+ ORDER BY 7,5,3,2,6,4,1
 ;

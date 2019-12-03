@@ -16,5 +16,5 @@ SELECT a+b*2+c*3+d*4
  WHERE d NOT BETWEEN 110 AND 150
    AND c>d
    AND d>e
- /*ORDER BY 1*/
+ ORDER BY 1
 ;

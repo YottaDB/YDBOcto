@@ -18,5 +18,5 @@ SELECT (a+b+c+d+e)/5,
        d-e,
        b
   FROM t1
- /*ORDER BY 6,1,4,3,5,2*/
+ ORDER BY 6,1,4,3,5,2
 ;

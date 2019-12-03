@@ -20,5 +20,5 @@ SELECT c-d,
  WHERE c BETWEEN b-2 AND d+2
    AND (a>b-2 AND a<b+2)
    AND (e>c OR e<d)
- /*ORDER BY 4,1,3,2,5*/
+ ORDER BY 4,1,3,2,5
 ;

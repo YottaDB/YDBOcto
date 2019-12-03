@@ -19,5 +19,5 @@ SELECT a,
   FROM t1
  WHERE c>d
     OR d>e
- /*ORDER BY 2,5,1,3,4*/
+ ORDER BY 2,5,1,3,4
 ;

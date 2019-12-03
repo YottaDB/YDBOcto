@@ -19,5 +19,5 @@ SELECT c-d,
   FROM t1
  WHERE c>d
    AND (e>c OR e<d)
- /*ORDER BY 3,1,4,5,2*/
+ ORDER BY 3,1,4,5,2
 ;

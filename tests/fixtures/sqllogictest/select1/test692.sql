@@ -19,5 +19,5 @@ SELECT CASE a+1 WHEN b THEN 111 WHEN c THEN 222
        a+b*2,
        d
   FROM t1
- /*ORDER BY 3,1,2,5,4,6*/
+ ORDER BY 3,1,2,5,4,6
 ;

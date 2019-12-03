@@ -18,5 +18,5 @@ SELECT a+b*2,
        abs(a)
   FROM t1
  WHERE d>e
- /*ORDER BY 1,3,2,4,5*/
+ ORDER BY 1,3,2,4,5
 ;

@@ -16,5 +16,5 @@ SELECT CASE WHEN a<b-3 THEN 111 WHEN a<=b THEN 222
   FROM t1
  WHERE (e>c OR e<d)
    AND (a>b-2 AND a<b+2)
- /*ORDER BY 1*/
+ ORDER BY 1
 ;

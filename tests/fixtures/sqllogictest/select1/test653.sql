@@ -19,5 +19,5 @@ SELECT c-d,
  WHERE a>b
    AND e+d BETWEEN a+b-10 AND c+130
    AND (e>a AND e<b)
- /*ORDER BY 3,4,1,2*/
+ ORDER BY 3,4,1,2
 ;

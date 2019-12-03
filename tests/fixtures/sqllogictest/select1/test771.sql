@@ -18,5 +18,5 @@ SELECT c-d,
   FROM t1
  WHERE c BETWEEN b-2 AND d+2
    AND (e>c OR e<d)
- /*ORDER BY 1,4,2,3*/
+ ORDER BY 1,4,2,3
 ;

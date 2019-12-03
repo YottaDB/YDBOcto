@@ -22,5 +22,5 @@ SELECT abs(a),
   FROM t1
  WHERE (a>b-2 AND a<b+2)
    AND d NOT BETWEEN 110 AND 150
- /*ORDER BY 3,2,7,6,4,1,5*/
+ ORDER BY 3,2,7,6,4,1,5
 ;

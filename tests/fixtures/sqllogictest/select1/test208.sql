@@ -20,5 +20,5 @@ SELECT b,
        abs(a)
   FROM t1
  WHERE d>e
- /*ORDER BY 2,1,4,5,6,3,7*/
+ ORDER BY 2,1,4,5,6,3,7
 ;

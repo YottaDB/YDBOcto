@@ -22,5 +22,5 @@ SELECT c-d,
   FROM t1
  WHERE c BETWEEN b-2 AND d+2
     OR b>c
- /*ORDER BY 3,5,4,2,6,7,1*/
+ ORDER BY 3,5,4,2,6,7,1
 ;

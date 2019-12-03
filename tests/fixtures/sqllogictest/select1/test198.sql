@@ -17,5 +17,5 @@ SELECT a+b*2,
        d
   FROM t1
  WHERE d NOT BETWEEN 110 AND 150
- /*ORDER BY 1,3,2,4*/
+ ORDER BY 1,3,2,4
 ;

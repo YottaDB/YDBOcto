@@ -20,5 +20,5 @@ SELECT CASE WHEN c>(SELECT avg(c) FROM t1) THEN a*2 ELSE b*10 END,
        abs(b-c),
        c-d
   FROM t1
- /*ORDER BY 3,7,1,4,6,2,5*/
+ ORDER BY 3,7,1,4,6,2,5
 ;

@@ -13,9 +13,11 @@ YottaDB r1.28 or greater is required for successful installation of Octo. Instal
 
 *NOTE: the environment variable `$ydb_dist` is required to be defined - `$gtm_dist` is not a valid subsitute*
 
-## Quickstart - Install prerequisites
+## Quickstart 
 
-* Install YottaDB POSIX plugin
+### Install prerequisites
+
+#### Install YottaDB POSIX plugin
 
 More detailed instructions are on the [YottaDB POSIX plugin page](https://gitlab.com/YottaDB/Util/YDBposix/blob/master/README.md).
 
@@ -30,7 +32,7 @@ cmake ..
 make -j `grep -c ^processor /proc/cpuinfo` && sudo make install
 ```
 
-* (Optional) Install YottaDB encryption plugin
+#### (Optional) Install YottaDB encryption plugin
 
 Installing the YottaDB encryption plugin enables TLS support (Recommended for production installations). You will need to make sure TLS/SSL is enabled for the driver in the client software chosen.
 
@@ -42,17 +44,19 @@ sudo ydb_dist=$ydb_dist make -j `grep -c ^processor /proc/cpuinfo`
 sudo ydb_dist=$ydb_dist make install
 ```
 
-### Quickstart - Install from binary
+### Install Octo
 
 Note: there are no binary releases during the beta period
 
-* Decompress the Octo binary package
+#### From Tarball
+
+1. Decompress the Octo binary package
 
 ```sh
 tar xzf Octo-*-Linux.tar.gz
 ```
 
-* Install Octo
+2. Install Octo
 
 This will install Octo to your `$ydb_dist/plugin` directory.
 
@@ -61,11 +65,11 @@ cd Octo-*-Linux
 ./install.sh
 ```
 
-### Quickstart - Install from source
+#### From source
 
 Note: This is the recommended instructions during the beta period as it provides the easiest upgrade path from each commit.
 
-* Install prerequisite packages
+1. Install prerequisite packages
 
 ```sh
 # Ubuntu Linux OR Raspbian Linux OR Beagleboard Debian
@@ -77,7 +81,7 @@ sudo yum install epel-release
 sudo yum install vim-common cmake3 bison flex readline-devel libconfig-devel openssl-devel
 ```
 
-* (Optional) Install Bats Automated Test System (BATS)
+2. (Optional) Install Bats Automated Test System (BATS)
 
 Octo uses BATS for automated integration and regression testing. To use BATS to run tests on Octo, BATS version 1.1+ must be installed:
 
@@ -91,7 +95,7 @@ This will install BATS to /usr/bin. Note that installing to /usr may require roo
 
 Details available in the [BATS source repo](https://github.com/bats-core/bats-core).
 
-* (Optional) Install cmocka unit testing framework
+3. (Optional) Install cmocka unit testing framework
 
 Octo uses cmocka for automated unit testing. To build and run Octo's unit tests, cmocka must be installed:
 
@@ -103,7 +107,7 @@ sudo apt-get install libcmocka-dev
 sudo yum install libcmocka-devel
 ```
 
-* (Optional) Install PostgreSQL client (psql)
+4. (Optional) Install PostgreSQL client (psql)
 
 Octo uses the psql PostgreSQL for some integration/regression tests. To build and run these tests, psql must be installed:
 
@@ -115,7 +119,7 @@ sudo apt-get install postgresql-client
 sudo yum install postgresql
 ```
 
-* (Optional) Install PostgreSQL server
+5. (Optional) Install PostgreSQL server
 
 Octo uses the PostgreSQL server for some integration/regression tests. To build and run these tests, PostgreSQL must be installed:
 
@@ -136,7 +140,7 @@ alter user [username] createdb;
 PSQL
 ```
 
-* Download Octo Source Code
+6. Download Octo Source Code
 
 ```sh
 # In a temporary directory perform the following commands
@@ -145,7 +149,7 @@ tar xzf YDBOcto-master.tar.gz
 cd YDBOcto-master
 ```
 
-* Compile Octo
+7. Compile Octo
 
 ```sh
 mkdir build
@@ -155,9 +159,7 @@ cmake -DCMAKE_INSTALL_PREFIX=$ydb_dist/plugin .. # for CentOS/RedHat use cmake3 
 make -j `grep -c ^processor /proc/cpuinfo`
 ```
 
-##### Optional CMake parameters
-
-Octo uses some cmake parameters to control generation of fixed-size buffer allocations. These are:
+**NOTE**: Octo uses some CMake parameters to control generation of fixed-size buffer allocations. These are:
 
 * STRING_BUFFER_LENGTH -- the maximum length of a string within the system; this supersedes any VARCHAR definitions.
 * INIT_M_ROUTINE_LENGTH -- the initial length for the buffer of generated M routines. The default is 10MB.
@@ -170,7 +172,7 @@ Example usage of above parameters:
 cmake -DSTRING_BUFFER_LENGTH=600000 -DCMAKE_INSTALL_PREFIX=$ydb_dist/plugin ..
 ```
 
-* Install Octo
+8. Install Octo
 
 You may want to back up your global `octo.conf` located in `$ydb_dist/plugin/etc/octo.conf` before installing Octo as it may be overwritten. To backup your global `octo.conf`:
 
@@ -178,27 +180,48 @@ You may want to back up your global `octo.conf` located in `$ydb_dist/plugin/etc
 cp $ydb_dist/plugin/etc/octo.conf $ydb_dist/plugin/etc/octo.conf.bak
 ```
 
-Install Octo
+Install Octo:
 
 ```sh
 source activate
-make install
+sudo make install
 ```
 
-You will want to review if there are any change needed to your backed up global `octo.conf` before restoring it. To restore the backed up global `octo.conf`:
+You will want to review if there are any changes needed to your backed up global `octo.conf` before restoring it. To restore the backed up global `octo.conf`:
 
 ```sh
 cp $ydb_dist/plugin/etc/octo.conf.bak $ydb_dist/plugin/etc/octo.conf
 ```
+### Configure Octo
 
-* Install PostgreSQL seed data
+Octo uses several internal global variables to map a SQL schema/DDL to a YottaDB database: %ydboctoschema, %ydboctoxref, and %ydboctoocto. It is best practice to map these to a separate region that is exclusive to Octo, which requires settings that may conflict with those required by other regions. For more information, refer to the Additional Configuration section below.
+
+Please see the following example for creating a database from scratch with the recommended settings. For more information on setting up a database in YottaDB, refer to the [Administration and Operations Guide](https://docs.yottadb.com/AdminOpsGuide/index.html). 
+
+#### Setup Database
+
+```sh
+$ cd build
+$ export ydb_gbldir=*path to build directory*/octo.gld
+$ $ydb_dist/mumps -r GDE
+GDE> add -segment OCTO -access_method=bg -file_name=*path to build directory*/octo.dat
+GDE> add -region OCTO -dynamic=octo -journal=(before,file="*path to build directory*/octo.mjl") -null_subscripts=always -key_size=1019 -record_size=300000
+GDE> add -name %ydboctoschema -region=octo
+GDE> add -name %ydboctoxref -region=octo
+GDE> add -name %ydboctoocto -region=octo
+GDE> verify
+GDE> exit
+$ mupip create
+```
+
+#### Install PostgreSQL seed data
 
 ```sh
 $ydb_dist/mupip load $ydb_dist/plugin/etc/postgres-seed.zwr
 $ydb_dist/plugin/bin/octo -f $ydb_dist/plugin/etc/postgres-seed.sql
 ```
 
-## Configuration
+## Additional Configuration
 
 Octo currently looks for a configuration file in the following directories:
 

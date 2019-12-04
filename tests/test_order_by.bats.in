@@ -176,3 +176,8 @@ OCTO
   verify_output TOB10 output.txt
 }
 
+@test "TOB11 : OCTO390 : ORDER BY does not work correctly for empty string values when more than one column is specified" {
+  load_fixture TOB11.sql subtest
+  verify_output TOB11 output.txt noinfo nodebug
+}
+

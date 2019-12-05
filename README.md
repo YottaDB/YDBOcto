@@ -155,6 +155,21 @@ cmake -DCMAKE_INSTALL_PREFIX=$ydb_dist/plugin .. # for CentOS/RedHat use cmake3 
 make -j `grep -c ^processor /proc/cpuinfo`
 ```
 
+##### Optional CMake parameters
+
+Octo uses some cmake parameters to control generation of fixed-size buffer allocations. These are:
+
+* STRING_BUFFER_LENGTH -- the maximum length of a string within the system; this supersedes any VARCHAR definitions.
+* INIT_M_ROUTINE_LENGTH -- the initial length for the buffer of generated M routines. The default is 10MB.
+* MEMORY_CHUNK_SIZE -- size of memory chunks to allocate; default is 32MB.
+* MEMORY_CHUNK_PROTECT -- if non-zero, memory following chunks is protected to detect buffer overflows. If 2, data is placed closer to the protected region to increase the chances of detecting an error.
+
+Example usage of above parameters:
+
+```sh
+cmake -DSTRING_BUFFER_LENGTH=600000 -DCMAKE_INSTALL_PREFIX=$ydb_dist/plugin ..
+```
+
 * Install Octo
 
 You may want to back up your global `octo.conf` located in `$ydb_dist/plugin/etc/octo.conf` before installing Octo as it may be overwritten. To backup your global `octo.conf`:
@@ -181,21 +196,6 @@ cp $ydb_dist/plugin/etc/octo.conf.bak $ydb_dist/plugin/etc/octo.conf
 ```sh
 $ydb_dist/mupip load $ydb_dist/plugin/etc/postgres-seed.zwr
 $ydb_dist/plugin/bin/octo -f $ydb_dist/plugin/etc/postgres-seed.sql
-```
-
-#### Optional CMake parameters
-
-Octo uses some cmake parameters to control generation of fixed-size buffer allocations. These are:
-
-* STRING_BUFFER_LENGTH -- the maximum length of a string within the system; this supersedes any VARCHAR definitions.
-* INIT_M_ROUTINE_LENGTH -- the initial length for the buffer of generated M routines. The default is 10MB.
-* MEMORY_CHUNK_SIZE -- size of memory chunks to allocate; default is 32MB.
-* MEMORY_CHUNK_PROTECT -- if non-zero, memory following chunks is protected to detect buffer overflows. If 2, data is placed closer to the protected region to increase the chances of detecting an error.
-
-Example usage of above parameters:
-
-```sh
-cmake -DSTRING_BUFFER_LENGTH=600000 -DCMAKE_INSTALL_PREFIX=$ydb_dist/plugin ..
 ```
 
 ## Configuration

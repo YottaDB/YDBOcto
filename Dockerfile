@@ -23,4 +23,4 @@ ADD ./tools/entrypoint.sh /
 RUN cd /tmp/Octo-*-Linux && . /opt/yottadb/current/ydb_env_set && yes | ./install.sh
 
 ENV ydb_ci /opt/yottadb/current/plugin/ydbocto.ci
-ENTRYPOINT "bash"
+ENTRYPOINT "/entrypoint.sh"

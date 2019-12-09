@@ -109,11 +109,16 @@ load_fixture() {
   if [[ $fixture_name == *.zwr ]]; then
     $ydb_dist/mupip load  @PROJECT_SOURCE_DIR@/tests/fixtures/$fixture_name
   elif [[ $fixture_name == *.sql ]]; then
-    if [[ $2 =~ "subtest" ]]; then
+    if [[ $2 == "subtest" ]]; then
       cp @PROJECT_SOURCE_DIR@/tests/fixtures/$fixture_name $fixture_name
-      grep -v '^#' $fixture_name > output.txt	      # Filter out copyright from output
-      grep -vE '^-- |^#' $fixture_name > input.sql	# Filter out comment lines as they otherwise clutter the parse error output (if any)
-      octo -vv -f input.sql >> output.txt 2>&1
+      grep -v '^#' $fixture_name > output.txt	   # Filter out copyright from output
+      grep -vE '^-- |^#' $fixture_name > input.sql # Filter out comment lines as they otherwise clutter the parse error output (if any)
+      if [[ $3 == "novv" ]]; then
+        octoflags=""
+      else
+        octoflags="-vv"
+      fi
+      octo $octoflags -f input.sql >> output.txt 2>&1
     else
       octo -f @PROJECT_SOURCE_DIR@/tests/fixtures/$fixture_name
     fi

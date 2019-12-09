@@ -62,7 +62,13 @@ int qualify_query(SqlStatement *stmt, SqlJoin *parent_join) {
 			 */
 			if (NATURAL_JOIN != cur_join->type) {
 				save_join = cur_join->next;	/* save join list before tampering with it */
-				cur_join->next = start_join;	/* stop join list at current join */
+				/* Note that if "parent_join" is non-NULL, we need to include that even though it comes
+				 * after all the tables in the join list at the current level. This is so any references
+				 * to columns in parent queries are still considered as valid. Hence the parent_join check below.
+				 */
+				cur_join->next = ((NULL != parent_join) ? parent_join : start_join);	/* stop join list at
+													 * current join.
+													 */
 			}
 			result |= qualify_statement(cur_join->condition, start_join, stmt, 0, NULL);
 			if (NATURAL_JOIN != cur_join->type)

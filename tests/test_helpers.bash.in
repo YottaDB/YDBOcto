@@ -29,6 +29,19 @@ init_test() {
 	export INPUTRC=/etc/inputrc
 	# Below has been seen to avoid Ctrl-M ('^M') characters in long query strings
 	export COLUMNS=4096
+	# Set YDB related env vars
+	unset ydb_gbldir gtmgbldir	# needed or else ydb_env_set can issue ZGBLDIRACC error (due to it calling MUPIP DUMPFHEAD)
+					# if ydb_gbldir is defined and points to a non-existent gld file.
+	source @YOTTADB_INCLUDE_DIRS@/ydb_env_set
+	# tests/fixtures has lots of M programs. Make sure .o files for those get created in current test output directory
+	# (and not in tests/fixtures) as it can otherwise cause .o file format issues (e.g. if YDB changes the M .o file format)
+	# since tests/fixtures persists a lot longer than the test output directory. We had previously seen COLLATIONUNDEF errors
+	# while trying to use the master branch of YDB repo when .o files created by r1.29 in Nov 2019 were tried to be used
+	# by r1.29 in Dec 2019 (after the .o file format was changed in between). Having the .o files in the test output directory
+	# avoids such issues.
+	ydbroutines=".(. @PROJECT_SOURCE_DIR@/tests/fixtures) @PROJECT_BINARY_DIR@/src/_ydbocto.so @PROJECT_BINARY_DIR@"
+	export ydb_routines="$ydbroutines $ydb_routines"
+	export ydb_ci="@PROJECT_BINARY_DIR@/ydbocto.ci"
 	# Log env vars and shell vars in files for later analysis (if needed). Mask any sensitive env vars out.
 	echo " --> Running test [$BATS_TEST_FILENAME] : subtest [$BATS_TEST_DESCRIPTION] : in $PWD" > bats_test.out
 	env | grep -vE "HUB_USERNAME|HUB_PASSWORD|CI_JOB_TOKEN|CI_REGISTRY_PASSWORD|CI_BUILD_TOKEN|CI_REPOSITORY_URL" > env.out
@@ -131,12 +144,6 @@ load_big_data() {
 }
 
 createdb() {
-  unset ydb_gbldir gtmgbldir	# needed or else ydb_env_set can issue ZGBLDIRACC error (due to it calling MUPIP DUMPFHEAD)
-				# if ydb_gbldir is defined and points to a non-existent gld file.
-  source @YOTTADB_INCLUDE_DIRS@/ydb_env_set
-  export ydb_routines=". @PROJECT_BINARY_DIR@/src/_ydbocto.so @PROJECT_BINARY_DIR@ $ydb_routines @PROJECT_SOURCE_DIR@/tests/fixtures"
-  export ydb_ci="@PROJECT_BINARY_DIR@/ydbocto.ci"
-
   export ydb_gbldir="mumps.gld"
   echo "ydb_gbldir: $ydb_gbldir"
   $ydb_dist/mumps -r ^GDE <<FILE

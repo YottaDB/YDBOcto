@@ -1,0 +1,104 @@
+
+-- OCTO395 : Assertion failed in LP_VERIFY_STRUCTURE.C when UNARY + operator is used
+
+select * from names where id = 2 || 3;
+select * from names where id = 2 || (+3);
+select * from names where '23' = 2 || 3;
+select * from names where '2-3' = 2 || -3;
+select * from names where '23' = 2 || (+3);
+select * from names where firstname = +'abcd';
+select * from names where firstname = +'Zero';
+select * from names where firstname = +lastname;
+select * from names where id = +3;
+select * from names where id = -(-(+3));
+select * from names where id = 2+(+3);
+select * from names where firstname = 'Zero' || +'';
+select * from names where firstname = 'Zero' || -'';
+select * from names where firstname = 'Zero' || +lastname;
+select * from names where firstname = 'Zero' || -lastname;
+
+-- Note: The below queries currently work in Octo but fail with Postgres.
+--       The Octo output might change once YDBOcto#304 is fixed
+
+select * from names where firstname = 'Zero' || lastname::integer;
+select * from names where firstname = 'Zero' || 'abcd'::integer;
+select * from names where firstname = 'Zero' || ''::integer;
+
+[ERROR] PATH:LINENUM DATE TIME : Type mismatch: left INTEGER, right STRING
+Error with syntax near (line 1, column 27):
+
+select * from names where id = 2 || 3;
+                         ^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select * from names where id = 2 || 3;
+[ERROR] PATH:LINENUM DATE TIME : Type mismatch: left INTEGER, right STRING
+Error with syntax near (line 1, column 27):
+
+select * from names where id = 2 || (+3);
+                          ^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select * from names where id = 2 || (+3);
+0|Zero|Cool
+1|Acid|Burn
+2|Cereal|Killer
+3|Lord|Nikon
+4|Joey|
+5|Zero|Cool
+0|Zero|Cool
+1|Acid|Burn
+2|Cereal|Killer
+3|Lord|Nikon
+4|Joey|
+5|Zero|Cool
+0|Zero|Cool
+1|Acid|Burn
+2|Cereal|Killer
+3|Lord|Nikon
+4|Joey|
+5|Zero|Cool
+[ERROR] PATH:LINENUM DATE TIME : Invalid input syntax : Expecting type NUMERIC or INTEGER : Actual type STRING
+Error with syntax near (line 1, column 45):
+
+select * from names where firstname = +'abcd';
+                                            ^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select * from names where firstname = +'abcd';
+[ERROR] PATH:LINENUM DATE TIME : Invalid input syntax : Expecting type NUMERIC or INTEGER : Actual type STRING
+Error with syntax near (line 1, column 45):
+
+select * from names where firstname = +'Zero';
+                                            ^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select * from names where firstname = +'Zero';
+[ERROR] PATH:LINENUM DATE TIME : Invalid input syntax : Expecting type NUMERIC or INTEGER : Actual type STRING
+Error with syntax near (line 1, column 40):
+
+select * from names where firstname = +lastname;
+                                       ^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select * from names where firstname = +lastname;
+3|Lord|Nikon
+3|Lord|Nikon
+5|Zero|Cool
+[ERROR] PATH:LINENUM DATE TIME : Invalid input syntax : Expecting type NUMERIC or INTEGER : Actual type STRING
+Error with syntax near (line 1, column 51):
+
+select * from names where firstname = 'Zero' || +'';
+                                                  ^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select * from names where firstname = 'Zero' || +'';
+[ERROR] PATH:LINENUM DATE TIME : Invalid input syntax : Expecting type NUMERIC or INTEGER : Actual type STRING
+Error with syntax near (line 1, column 51):
+
+select * from names where firstname = 'Zero' || -'';
+                                                  ^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select * from names where firstname = 'Zero' || -'';
+[ERROR] PATH:LINENUM DATE TIME : Invalid input syntax : Expecting type NUMERIC or INTEGER : Actual type STRING
+Error with syntax near (line 1, column 50):
+
+select * from names where firstname = 'Zero' || +lastname;
+                                                 ^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select * from names where firstname = 'Zero' || +lastname;
+[ERROR] PATH:LINENUM DATE TIME : Invalid input syntax : Expecting type NUMERIC or INTEGER : Actual type STRING
+Error with syntax near (line 1, column 50):
+
+select * from names where firstname = 'Zero' || -lastname;
+                                                 ^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select * from names where firstname = 'Zero' || -lastname;
+0|Zero|Cool
+5|Zero|Cool
+

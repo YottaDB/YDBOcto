@@ -141,13 +141,20 @@ int lp_verify_structure_helper(LogicalPlan *plan, LPActionType expected) {
 	case LP_MULTIPLICATION:
 	case LP_MODULO:
 	case LP_NEGATIVE:
+	case LP_FORCE_NUM:
 		for (i = 0; i < 2; i++) {
+			if ((1 == i) && ((LP_NEGATIVE == expected) || (LP_FORCE_NUM== expected))) {
+				/* Unary operation. So second operand should be NULL. */
+				ret &= (NULL == plan->v.operand[1]);
+				break;
+			}
 			ret &= lp_verify_structure_helper(plan->v.operand[i], LP_ADDITION)
 				| lp_verify_structure_helper(plan->v.operand[i], LP_SUBTRACTION)
 				| lp_verify_structure_helper(plan->v.operand[i], LP_DIVISION)
 				| lp_verify_structure_helper(plan->v.operand[i], LP_MULTIPLICATION)
 				| lp_verify_structure_helper(plan->v.operand[i], LP_MODULO)
 				| lp_verify_structure_helper(plan->v.operand[i], LP_NEGATIVE)
+				| lp_verify_structure_helper(plan->v.operand[i], LP_FORCE_NUM)
 				| lp_verify_structure_helper(plan->v.operand[i], LP_CASE)
 				| lp_verify_structure_helper(plan->v.operand[i], LP_COLUMN_ALIAS)
 				| lp_verify_structure_helper(plan->v.operand[i], LP_FUNCTION_CALL)
@@ -168,6 +175,8 @@ int lp_verify_structure_helper(LogicalPlan *plan, LPActionType expected) {
 				| lp_verify_structure_helper(plan->v.operand[i], LP_DERIVED_COLUMN)
 				| lp_verify_structure_helper(plan->v.operand[i], LP_VALUE)
 				| lp_verify_structure_helper(plan->v.operand[i], LP_CONCAT)
+				| lp_verify_structure_helper(plan->v.operand[i], LP_NEGATIVE)
+				| lp_verify_structure_helper(plan->v.operand[i], LP_FORCE_NUM)
 				// LP_INSERT/LP_SET_OPERATIONs usually show up as operand[1] only for the IN boolean expression.
 				// But they can show up wherever a scalar is expected (e.g. string concatenation operations etc.)
 				// and hence have to be allowed in a lot more cases.
@@ -209,8 +218,8 @@ int lp_verify_structure_helper(LogicalPlan *plan, LPActionType expected) {
 		for (i = 0; i < 2; i++) {
 			boolean_t	is_where;
 
-			if ((LP_BOOLEAN_NOT == expected) || (LP_BOOLEAN_EXISTS == expected)
-					|| (LP_BOOLEAN_NOT_EXISTS == expected)) {
+			if ((1 == i) && ((LP_BOOLEAN_NOT == expected) || (LP_BOOLEAN_EXISTS == expected)
+					|| (LP_BOOLEAN_NOT_EXISTS == expected))) {
 				ret &= (NULL == plan->v.operand[1]);
 				break;
 			}
@@ -221,6 +230,7 @@ int lp_verify_structure_helper(LogicalPlan *plan, LPActionType expected) {
 				| lp_verify_structure_helper(plan->v.operand[i], LP_MULTIPLICATION)
 				| lp_verify_structure_helper(plan->v.operand[i], LP_MODULO)
 				| lp_verify_structure_helper(plan->v.operand[i], LP_NEGATIVE)
+				| lp_verify_structure_helper(plan->v.operand[i], LP_FORCE_NUM)
 				| lp_verify_structure_helper(plan->v.operand[i], LP_CASE)
 				| lp_verify_structure_helper(plan->v.operand[i], LP_CONCAT)
 				| lp_verify_structure_helper(plan->v.operand[i], LP_COLUMN_ALIAS)
@@ -275,6 +285,7 @@ int lp_verify_structure_helper(LogicalPlan *plan, LPActionType expected) {
 				| lp_verify_structure_helper(plan->v.operand[0], LP_DIVISION)
 				| lp_verify_structure_helper(plan->v.operand[0], LP_MODULO)
 				| lp_verify_structure_helper(plan->v.operand[0], LP_NEGATIVE)
+				| lp_verify_structure_helper(plan->v.operand[0], LP_FORCE_NUM)
 				| lp_verify_structure_helper(plan->v.operand[0], LP_CONCAT)
 				| lp_verify_structure_helper(plan->v.operand[0], LP_COLUMN_ALIAS)
 				| lp_verify_structure_helper(plan->v.operand[0], LP_FUNCTION_CALL)

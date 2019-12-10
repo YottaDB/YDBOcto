@@ -347,12 +347,11 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, char *cursorId) {
 			*type = BOOLEAN_VALUE;
 			break;
 		}
-		if (child_type1 != child_type2) {
+		if (!result && (child_type1 != child_type2)) {
 			int	i;
 
 			ERROR(ERR_TYPE_MISMATCH, get_type_string(child_type1), get_type_string(child_type2));
 			for (i = 0; i < 2; i++) {
-				location = binary->operands[i]->loc;
 				yyerror(NULL, NULL, &binary->operands[i], NULL, NULL, NULL);
 			}
 			result = 1;
@@ -418,6 +417,15 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, char *cursorId) {
 	case unary_STATEMENT:
 		UNPACK_SQL_STATEMENT(unary, v, unary);
 		result |= populate_data_type(unary->operand, &child_type1, cursorId);
+		/* Check for type mismatches */
+		if (((FORCE_NUM == unary->operation) || (NEGATIVE == unary->operation))
+				&& ((NUMERIC_LITERAL != child_type1) && (INTEGER_LITERAL != child_type1))) {
+			/* Unary + and - operators cannot be used on non-numeric or non-integer types */
+			ERROR(ERR_INVALID_INPUT_SYNTAX, get_type_string(child_type1));
+			yyerror(NULL, NULL, &unary->operand, NULL, NULL, NULL);
+			result = 1;
+			break;
+		}
 		/* If the unary operation is EXISTS, then set the type of the result to BOOLEAN,
 		 * not to the type inherited from the sub-query passed to EXISTS.
 		 */

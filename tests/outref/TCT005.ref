@@ -1,5 +1,9 @@
-OCTO> select 1::numeric from names limit 1;
+
+-- TCT005 : coerce INTEGER type to INTEGER
+
+select 1::numeric from names limit 1;
+select * from names where 1::numeric = names.id
+
 1
-OCTO> select * from names where 1::numeric = names.id
-OCTO> 
+
 1|Acid|Burn

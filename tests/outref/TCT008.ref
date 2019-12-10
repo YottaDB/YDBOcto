@@ -1,8 +1,12 @@
-OCTO> select dollarzwrite(id)::integer from names limit 1;
+
+-- TCT008 : test 2 coerced functions generate different M files
+
+select dollarzwrite(id)::integer from names limit 1;
+select dollarrev(id)::integer from names limit 1;
+
 0
-OCTO> select dollarrev(id)::integer from names limit 1;
 0
-OCTO> 
+
 Listing of M files, should see 2
 _ydboctoP*.m
 _ydboctoP*.m

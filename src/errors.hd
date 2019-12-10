@@ -60,6 +60,7 @@ ERROR_DEF(ERR_TABLE_DEFINITION_TOO_LONG, "Table definition for %s too long; max 
 ERROR_DEF(ERR_TYPE_MISMATCH, "Type mismatch: left %s, right %s", PSQL_Code_Datatype_Mismatch)
 ERROR_DEF(ERR_SETOPER_NUMCOLS_MISMATCH, "Each %s query must have same number of columns", PSQL_Code_Datatype_Mismatch)
 ERROR_DEF(ERR_SETOPER_TYPE_MISMATCH, "%s types %s and %s cannot be matched", PSQL_Code_Syntax_Error)
+ERROR_DEF(ERR_INVALID_INPUT_SYNTAX, "Invalid input syntax : Expecting type NUMERIC or INTEGER : Actual type %s", PSQL_Invalid_Text_Representation)
 ERROR_DEF(ERR_SUBQUERY_ONE_COLUMN, "Subquery must return only one column", PSQL_Code_Syntax_Error)
 ERROR_DEF(ERR_JOIN_ALIAS_DUPLICATE, "table name \"%s\" specified more than once", PSQL_Code_Duplicate_Alias)
 ERROR_DEF(ERR_ORDER_BY_POSITION_INVALID, "ORDER BY position %s%s is not in select list", PSQL_Code_Invalid_Column_Reference)

@@ -1,3 +1,7 @@
-OCTO> select dollarzwrite(id)::integer from names limit 1;
+
+-- TCT007 : test coerce of functions
+
+select dollarzwrite(id)::integer from names limit 1;
+
 0
-OCTO> 
+

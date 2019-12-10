@@ -1,3 +1,7 @@
-OCTO> select * from names where 1::integer = 1::numeric limit 1;
+
+-- TCT006 : compare integer and numeric types
+
+select * from names where 1::integer = 1::numeric limit 1;
+
 0|Zero|Cool
-OCTO> 
+

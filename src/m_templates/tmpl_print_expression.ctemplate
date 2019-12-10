@@ -82,9 +82,9 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan) {
 	case LP_DERIVED_COLUMN:
 		GET_LP(key, plan, 0, LP_KEY);
 		if (pplan->treat_key_as_null[key->v.key->unique_id])
-		{   /* Treat all columns in the table as NULL (used for OUTER JOINs) */
+		{	/* Treat all columns in the table as NULL (used for OUTER JOINs) */
 			%{}""{}%	/* needs to be replaced with $ZYSQLNULL when #311 is fixed */
-		break;
+			break;
 		}
 		GET_LP(piece_num, plan, 1, LP_PIECE_NUMBER);
 		%{}($PIECE({}%

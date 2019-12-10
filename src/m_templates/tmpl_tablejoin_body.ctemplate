@@ -35,7 +35,7 @@ TEMPLATE(tmpl_tablejoin_body, PhysicalPlan *plan, int dot_count, char *tableName
 	// Distinct values if needed
 	if (plan->distinct_values) {
 		%{}&($DATA({{ config->global_names.cursor }}(cursorId,"Distinct",{}%
-		TMPL(tmpl_column_list_combine, plan->projection, plan, ",", 0, 0);
+		TMPL(tmpl_column_list_combine, plan->projection, plan, ",", 0, 0, FALSE);
 		%{}))=0){}%
 	} else if (plan->emit_duplication_check) {
 		// Ensure we don't emit duplicates
@@ -53,7 +53,7 @@ TEMPLATE(tmpl_tablejoin_body, PhysicalPlan *plan, int dot_count, char *tableName
 		%{}SET:1{}%
 		%{} ^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}"{}%
 		%{},{}%
-		TMPL(tmpl_column_list_combine, plan->projection, plan, ",", 0, 0);
+		TMPL(tmpl_column_list_combine, plan->projection, plan, ",", 0, 0, FALSE);
 		%{})=""`n    {}%
 		TMPL(tmpl_print_dots, dot_count);
 		%{}IF $INCREMENT(^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}"{}%
@@ -63,7 +63,7 @@ TEMPLATE(tmpl_tablejoin_body, PhysicalPlan *plan, int dot_count, char *tableName
 
 		lp_temp = plan->projection->v.operand[1];
 		plan->projection->v.operand[1] = NULL;
-		TMPL(tmpl_column_list_combine, plan->projection, plan, ",", 0, 0);
+		TMPL(tmpl_column_list_combine, plan->projection, plan, ",", 0, 0, FALSE);
 		plan->projection->v.operand[1] = lp_temp;
 		%{})){}%
 	} else {
@@ -90,7 +90,7 @@ TEMPLATE(tmpl_tablejoin_body, PhysicalPlan *plan, int dot_count, char *tableName
 			TMPL(tmpl_key, plan->outputKey);
 			(*buffer_index)--;
 			%{},{}%
-			TMPL(tmpl_column_list_combine, plan->projection, plan, ",", 0, 0);
+			TMPL(tmpl_column_list_combine, plan->projection, plan, ",", 0, 0, FALSE);
 			%{})){}%
 		}
 		// If this plan has no ORDER BY, then any LIMIT related processing can happen. Otherwise we need to
@@ -123,7 +123,8 @@ TEMPLATE(tmpl_tablejoin_body, PhysicalPlan *plan, int dot_count, char *tableName
 			(*buffer_index)--;
 			if (plan->order_by) {
 				%{},"order",{}%
-				TMPL(tmpl_column_list_combine, plan->order_by, plan, ",", 0, 0);
+				/* Last parameter of TRUE indicates this call is for an ORDER BY list */
+				TMPL(tmpl_column_list_combine, plan->order_by, plan, ",", 0, 0, TRUE);
 				%{},{}%
 				TMPL(tmpl_key, plan->outputKey);
 				%{}){}%
@@ -141,7 +142,8 @@ TEMPLATE(tmpl_tablejoin_body, PhysicalPlan *plan, int dot_count, char *tableName
 			(*global_buffer)[end_table_reference] = c;
 			%{})_{}%
 			end_resume = *buffer_index;
-			TMPL(tmpl_column_list_combine, plan->projection, plan, "_\"|\"_", start_resume, end_resume - start_resume);
+			TMPL(tmpl_column_list_combine, plan->projection, plan, "_\"|\"_",
+							start_resume, end_resume - start_resume, FALSE);
 		}
 	}
 	if (!plan->distinct_values && plan->emit_duplication_check) {
@@ -159,11 +161,11 @@ TEMPLATE(tmpl_tablejoin_body, PhysicalPlan *plan, int dot_count, char *tableName
 		%{}SET:1{}%
 
 		%{} {{ config->global_names.cursor }}(cursorId,"Distinct",{}%
-		TMPL(tmpl_column_list_combine, plan->projection, plan, ",", 0, 0);
+		TMPL(tmpl_column_list_combine, plan->projection, plan, ",", 0, 0, FALSE);
 		%{},{}%
 		TMPL(tmpl_key, plan->outputKey);
 		%{})="",tmpVar=$INCREMENT({{ config->global_names.cursor }}(cursorId,"Distinct",{}%
-		TMPL(tmpl_column_list_combine, plan->projection, plan, ",", 0, 0);
+		TMPL(tmpl_column_list_combine, plan->projection, plan, ",", 0, 0, FALSE);
 		%{})){}%
 	}
 	TEMPLATE_END();

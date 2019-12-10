@@ -181,3 +181,9 @@ OCTO
   verify_output TOB11 output.txt noinfo nodebug
 }
 
+@test "TOB12 : ORDER BY does not work correctly if VARCHAR type (i.e. string) column stores numeric values" {
+  load_fixture customers.sql
+  load_fixture customers.zwr
+  load_fixture TOB12.sql subtest
+  run_query_in_octo_and_postgres_and_crosscheck customers TOB12.sql "remove_empty_line_at_tail"
+}

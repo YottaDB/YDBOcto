@@ -22,14 +22,39 @@
  */
 #define MAX_M_LINE_LENGTH 4096
 
-TEMPLATE(tmpl_column_list_combine, LogicalPlan *plan, PhysicalPlan *pplan, char *delim, int resume, int resume_length) {
+TEMPLATE(tmpl_column_list_combine, LogicalPlan *plan, PhysicalPlan *pplan, char *delim,
+						int resume, int resume_length, boolean_t is_order_by) {
 	TEMPLATE_INIT();
 
 	char	c;
 
 	while (NULL != plan) {
 		assert(plan->type == LP_COLUMN_LIST);
+		if (is_order_by) {
+			/* This is a call for an ORDER BY. If the ORDER BY was done on an expression which
+			 * has a STRING_LITERAL type, then we need to ensure that it gets treated as a STRING
+			 * in M even if the string holds a numeric value or else ORDER BY would work incorrectly
+			 * (see YDBOcto#397 for details). We address this by prefixing the ORDER BY expression
+			 * with a small string "Z".
+			 */
+			SqlValueType	order_by_expr_type;
+			LogicalPlan	*tmpPlan;
 
+			tmpPlan = plan->v.operand[0];
+			assert(LP_COLUMN_LIST == tmpPlan->type);
+			tmpPlan = tmpPlan->v.operand[0];
+			assert(LP_WHERE == tmpPlan->type);
+			tmpPlan = tmpPlan->v.operand[1];
+			assert(LP_COLUMN_LIST_ALIAS == tmpPlan->type);
+			order_by_expr_type = tmpPlan->v.column_list_alias->type;
+			assert((NUMERIC_LITERAL == order_by_expr_type)
+				|| (INTEGER_LITERAL == order_by_expr_type)
+				|| (STRING_LITERAL == order_by_expr_type)
+				|| (NUL_VALUE == order_by_expr_type));
+			if (STRING_LITERAL == order_by_expr_type) {
+				%{}"Z"_{}%
+			}
+		}
 		TMPL(tmpl_print_expression, plan->v.operand[0]->v.operand[0], pplan);
 		if(plan->v.operand[1]) {
 			if ((0 != resume) && (MAX_M_LINE_LENGTH < (*buffer_index - resume))) {

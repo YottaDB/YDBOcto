@@ -1,0 +1,118 @@
+{}%
+/****************************************************************
+ *								*
+ * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * All rights reserved.						*
+ *								*
+ *	This source code contains the intellectual property	*
+ *	of its copyright holder(s), and is made available	*
+ *	under a license.  If you do not know the terms of	*
+ *	the license, please stop and do not read further.	*
+ *								*
+ ****************************************************************/
+
+#include "physical_plan.h"
+#include "template_helpers.h"
+
+TEMPLATE(tmpl_populate_output_key, PhysicalPlan *plan, int dot_count) {
+	TEMPLATE_INIT();
+
+	assert(NULL != plan->outputKey);
+	assert(!plan->outputKey->is_cross_reference_key);	/* caller should have ensured this */
+	// Populate records in the output key (i.e. SELECT column list)
+	%{}`n{{ PLAN_LINE_START }}{}%
+	dot_count++;
+	TMPL(tmpl_print_dots, dot_count);
+	if (!plan->stash_columns_in_keys) {
+		%{}SET:1{}%
+		%{}&$INCREMENT({}%
+		TMPL(tmpl_key, plan->outputKey);
+		%{}){}%
+	} else {
+		if (plan->distinct_values) {
+			%{}IF $INCREMENT({}%
+			TMPL(tmpl_key, plan->outputKey);
+			%{})`n{{ PLAN_LINE_START }}{}%
+			TMPL(tmpl_print_dots, dot_count);
+		}
+		%{}IF $INCREMENT({}%
+		TMPL(tmpl_key, plan->outputKey);
+		(*buffer_index)--;
+		%{},{}%
+		TMPL(tmpl_column_list_combine, plan->projection, plan, ",", 0, 0, 0);
+		%{})){}%
+	}
+	// If this plan has no ORDER BY, then any LIMIT related processing can happen. Otherwise we need to
+	// apply the LIMIT after the ORDER BY processing finally happens in "tmpl_physical_plan".
+	if (NULL == plan->order_by) {
+		SqlOptionalKeyword	*keyword;
+
+		keyword = get_keyword_from_keywords(plan->keywords, OPTIONAL_LIMIT);
+		if (NULL != keyword)
+		{	/* Need to maintain a local variable parallely with the output key to be used to break from
+			 * the FOR loop in case the LIMIT is reached. Cannot use the output key for example if a
+			 * UNION is in effect across this plan and another plan in which case both will share the
+			 * same output key but could have differing limits (#269).
+			 */
+			%{}&$INCREMENT(%%ydboctozlimit){}%
+		}
+	}
+	if (!plan->stash_columns_in_keys) {
+		int	start_output_key, end_output_key;
+
+		%{} %%ydboctoz=42`n{{ PLAN_LINE_START }}{}%
+		TMPL(tmpl_print_dots, dot_count);
+		%{}SET {}%
+		/* Track the output key (we need it later in "tmpl_column_list_combine" in case we are about
+		 * to exceed the maximum M line length. This output key will be used to split the M SET command
+		 * across multiple M lines.
+		 */
+		start_output_key = *buffer_index;
+		TMPL(tmpl_key, plan->outputKey);
+		(*buffer_index)--;
+		if (NULL != plan->order_by) {
+			%{},{{ ORDER_BY_SUBSCRIPT }},{}%
+			TMPL(tmpl_column_list_combine, plan->order_by, plan, ",", 0, 0, 0);
+			%{},{}%
+			TMPL(tmpl_key, plan->outputKey);
+			%{}){}%
+		} else {
+			%{},{}%
+			TMPL(tmpl_key, plan->outputKey);
+			%{}){}%
+		}
+		end_output_key = *buffer_index;
+		%{}={}%
+		TMPL(tmpl_column_list_combine, plan->projection, plan, "_\"|\"_",
+					start_output_key, end_output_key - start_output_key, dot_count);
+	}
+	if (!plan->distinct_values) {
+		/* If we are being called here through `tmpl_group_by`, then we don't need to worry about `tmpl_duplication_check`
+		 * as the output key is being populated from the GROUP BY subscript (`%ydboctog`) which has already aggregated
+		 * the results across DNF plans (if any) and hence already accounted for duplicates. In that case though,
+		 * `plan->tablejoin_body_group_by_done` would be TRUE hence the `!` check below.
+		 */
+		if (!plan->tablejoin_body_group_by_done && plan->emit_duplication_check) {
+			%{}`n{{ PLAN_LINE_START }}{}%
+			TMPL(tmpl_print_dots, dot_count);
+			%{}SET {}%
+			TMPL(tmpl_duplication_check, plan);
+			%{}=1{}%
+		}
+	} else {
+		// Do DISTINCT processing
+		%{}`n{{ PLAN_LINE_START }}{}%
+		TMPL(tmpl_print_dots, dot_count);
+		%{}SET:1{}%
+
+		%{} {{ config->global_names.cursor }}(cursorId,{{ DISTINCT_SUBSCRIPT }},{}%
+		TMPL(tmpl_column_list_combine, plan->projection, plan, ",", 0, 0, 0);
+		%{},{}%
+		TMPL(tmpl_key, plan->outputKey);
+		%{})="",tmpVar=$INCREMENT({{ config->global_names.cursor }}(cursorId,{{ DISTINCT_SUBSCRIPT }},{}%
+		TMPL(tmpl_column_list_combine, plan->projection, plan, ",", 0, 0, 0);
+		%{})){}%
+	}
+	TEMPLATE_END();
+}
+%{}

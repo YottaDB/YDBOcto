@@ -33,7 +33,7 @@ int qualify_function_name(SqlStatement *stmt) {
 
 	result = 0;
 	UNPACK_SQL_STATEMENT(value, stmt, value);
-	assert(value->type == FUNCTION_NAME);
+	assert(FUNCTION_NAME == value->type);
 	c = value->v.string_literal;
 	name_length = strlen(value->v.string_literal);
 	if ((2 < name_length) && ('$' == *c) && ('$' == *(c+1))) {
@@ -72,7 +72,7 @@ int qualify_function_name(SqlStatement *stmt) {
 		} while (YDB_ERR_INVSTRLEN == status);
 		if (YDB_ERR_GVUNDEF == status) {
 			// Not found. Else issue an error.
-			ERROR(CUSTOM_ERROR, "Unknown function: %s", value->v.string_literal);
+			ERROR(ERR_UNKNOWN_FUNCTION, value->v.string_literal);
 			return 1;
 		}
 		YDB_ERROR_CHECK(status);

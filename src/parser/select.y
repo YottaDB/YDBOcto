@@ -122,10 +122,11 @@ ordering_specification
 
 query_specification
   : SELECT set_quantifier select_list table_expression {
-      $$ = query_specification($set_quantifier, $select_list, $table_expression, NULL, plan_id);
+      $$ = query_specification((OptionalKeyword)$set_quantifier, $select_list, $table_expression, NULL, plan_id);
     }
   | SELECT set_quantifier select_list table_expression ORDER BY sort_specification_list {
-      $$ = query_specification($set_quantifier, $select_list, $table_expression, $sort_specification_list, plan_id);
+      $$ = query_specification((OptionalKeyword)$set_quantifier, $select_list, $table_expression,
+      									$sort_specification_list, plan_id);
     }
   | SELECT set_quantifier select_list {
       // We're going to run against a secret table with one row so the list gets found
@@ -158,7 +159,7 @@ query_specification
       alias->unique_id = *plan_id;
       (*plan_id)++;
       select->table_list = join_statement;
-      $$ = query_specification($set_quantifier, $select_list, t_stmt, NULL, plan_id);
+      $$ = query_specification((OptionalKeyword)$set_quantifier, $select_list, t_stmt, NULL, plan_id);
     }
   ;
 
@@ -173,13 +174,12 @@ select_list
 select_sublist
   : derived_column select_sublist_tail {
 	$$ = $derived_column;
-	// deviation from pattern here so we don't have to deal with "NOT_A_COLUMN" elsewhere
 	if (NULL != $select_sublist_tail) {
 		SqlColumnListAlias	*list1, *list2;
 
 		UNPACK_SQL_STATEMENT(list1, $$, column_list_alias);
 		UNPACK_SQL_STATEMENT(list2, $select_sublist_tail, column_list_alias);
-		dqappend(list2, list1);
+		dqappend(list1, list2);
 	}
     }
   ;
@@ -191,34 +191,27 @@ select_sublist_tail
 
 table_expression
   : from_clause where_clause group_by_clause having_clause {
-      SQL_STATEMENT($$, select_STATEMENT);
-      MALLOC_STATEMENT($$, select, SqlSelectStatement);
-      ($$)->v.select->table_list = ($from_clause);
-      ($$)->v.select->where_expression = $where_clause;
+	SqlStatement	*ret;
+
+	SQL_STATEMENT(ret, select_STATEMENT);
+	MALLOC_STATEMENT(ret, select, SqlSelectStatement);
+	ret->v.select->table_list = $from_clause;
+	ret->v.select->where_expression = $where_clause;
+	ret->v.select->group_by_expression = $group_by_clause;
+	ret->v.select->having_expression = $having_clause;
+	$$ = ret;
     }
   ;
 
 set_quantifier
   : /* Empty; default ALL */ {
-      SQL_STATEMENT($$, keyword_STATEMENT);
-      OCTO_CMALLOC_STRUCT(($$)->v.keyword, SqlOptionalKeyword);
-      ($$)->v.keyword->keyword = NO_KEYWORD;
-      ($$)->v.keyword->v = NULL;
-      dqinit(($$)->v.keyword);
+      $$ = (SqlStatement *)NO_KEYWORD;
     }
   | ALL {
-      SQL_STATEMENT($$, keyword_STATEMENT);
-      OCTO_CMALLOC_STRUCT(($$)->v.keyword, SqlOptionalKeyword);
-      ($$)->v.keyword->keyword = NO_KEYWORD;
-      ($$)->v.keyword->v = NULL;
-      dqinit(($$)->v.keyword);
+      $$ = (SqlStatement *)NO_KEYWORD;
     }
   | DISTINCT {
-      SQL_STATEMENT($$, keyword_STATEMENT);
-      OCTO_CMALLOC_STRUCT(($$)->v.keyword, SqlOptionalKeyword);
-      ($$)->v.keyword->keyword = OPTIONAL_DISTINCT;
-      ($$)->v.keyword->v = NULL;
-      dqinit(($$)->v.keyword);
+      $$ = (SqlStatement *)OPTIONAL_DISTINCT;
     }
   ;
 
@@ -330,7 +323,7 @@ table_reference
       (*plan_id)++;
       UNPACK_SQL_STATEMENT(column, table->columns, column);
       PACK_SQL_STATEMENT(alias->column_list,
-                         columns_to_column_list_alias(column, alias), column_list_alias);
+                         columns_to_column_list_alias(column, join->value), column_list_alias);
       dqinit(join);
       if ($table_reference_tail) {
         UNPACK_SQL_STATEMENT(join_tail, $table_reference_tail, join);
@@ -361,7 +354,7 @@ table_reference
       (*plan_id)++;
       UNPACK_SQL_STATEMENT(column, table->columns, column);
       PACK_SQL_STATEMENT(alias->column_list,
-                         columns_to_column_list_alias(column, alias), column_list_alias);
+                         columns_to_column_list_alias(column, join->value), column_list_alias);
       dqinit(join);
       if ($table_reference_tail) {
         UNPACK_SQL_STATEMENT(join_tail, $table_reference_tail, join);
@@ -444,18 +437,13 @@ qualified_join
       right->condition = $join_specification;
       dqappend(left, right);
     }
-  | table_reference NATURAL JOIN table_reference optional_join_specification {
+  | table_reference NATURAL JOIN table_reference {
       SqlJoin *left, *right;
       $$ = $1;
       UNPACK_SQL_STATEMENT(left, $$, join);
       UNPACK_SQL_STATEMENT(right, $4, join);
-      left->type = NATURAL_JOIN;
-      assert(left->condition == NULL);
-      if ($optional_join_specification == NULL) {
-        left->condition = natural_join_condition($1, $4);
-      } else {
-        left->condition = $optional_join_specification;
-      }
+      right->type = NATURAL_JOIN;
+      right->condition = natural_join_condition($1, $4);
       dqappend(left, right);
     }
 
@@ -468,12 +456,9 @@ qualified_join
       right->condition = $join_specification;
       dqappend(left, right);
     }
-  | table_reference NATURAL join_type JOIN table_reference join_specification
-  ;
-
-optional_join_specification
-  : /* Empty */ { $$ = NULL; }
-  | join_specification { $$ = $join_specification; }
+  | table_reference NATURAL join_type JOIN table_reference join_specification {
+	WARNING(ERR_FEATURE_NOT_IMPLEMENTED, "NATURAL INNER|LEFT|RIGHT|FULL JOIN"); YYABORT;
+    }
   ;
 
 join_specification
@@ -518,25 +503,58 @@ where_clause
   ;
 
 group_by_clause
-  : /* Empty */
-  | GROUP BY grouping_column_reference_list
+  : /* Empty */ { $$ = NULL; }
+  | GROUP BY grouping_column_reference_list { $$ = $grouping_column_reference_list; }
   ;
 
 grouping_column_reference_list
-  : grouping_column_reference grouping_column_reference_list_tail
+  : grouping_column_reference grouping_column_reference_list_tail	{
+	if (NULL != $grouping_column_reference_list_tail) {
+		SqlColumnListAlias	*group_by_head, *group_by_tail;
+
+		UNPACK_SQL_STATEMENT(group_by_head, $grouping_column_reference, column_list_alias);
+		UNPACK_SQL_STATEMENT(group_by_tail, $grouping_column_reference_list_tail, column_list_alias);
+		dqappend(group_by_head, group_by_tail);
+	}
+	$$ = $grouping_column_reference;
+    }
   ;
 
 grouping_column_reference_list_tail
-  : /* Empty */
-  | COMMA grouping_column_reference_list
+  : /* Empty */ { $$ = NULL; }
+  | COMMA grouping_column_reference_list { $$ = $grouping_column_reference_list; }
   ;
 
 grouping_column_reference
-  : column_reference
-  | column_reference collate_clause
+  : derived_column_expression {
+	SqlStatement	*ret;
+
+	$derived_column_expression->loc = yyloc;	// for later use by "grouping_column_reference()"
+	ret = grouping_column_reference($derived_column_expression, NULL);
+	if (NULL == ret) {
+		/* GROUP BY specified using an expression. Issue error as this usage is not valid. */
+		ERROR(ERR_GROUP_BY_ONLY_COLUMN_NAME, "");
+        	print_yyloc(&($derived_column_expression)->loc);
+		YYERROR;
+	}
+	$$ = ret;
+    }
+  | derived_column_expression collate_clause {
+	SqlStatement	*ret;
+
+	$derived_column_expression->loc = yyloc;	// for later use by "grouping_column_reference()"
+	ret = grouping_column_reference($derived_column_expression, $collate_clause);
+	if (NULL == ret) {
+		/* GROUP BY specified using an expression. Issue error as this usage is not valid. */
+		ERROR(ERR_GROUP_BY_ONLY_COLUMN_NAME, "");
+        	print_yyloc(&($derived_column_expression)->loc);
+		YYERROR;
+	}
+	$$ = ret;
+    }
   ;
 
 having_clause
-  : /* Empty */
-  | HAVING search_condition
+  : /* Empty */	{ $$ = NULL; }
+  | HAVING search_condition { $$ = $search_condition; }
   ;

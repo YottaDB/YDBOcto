@@ -17,11 +17,9 @@
 
 // Returns the Nth cla (from the SELECT column list) in the input table_alias
 // Returns NULL if N is outside of the valid range (e.g. if table has 3 columns, valid range is 1,2,3)
-SqlColumnListAlias *get_column_list_alias_n_from_table_alias(SqlStatement *table_alias_stmt, int column_number) {
-	SqlTableAlias		*table_alias;
+SqlColumnListAlias *get_column_list_alias_n_from_table_alias(SqlTableAlias *table_alias, int column_number) {
 	SqlColumnListAlias	*start_cla, *cur_cla;
 
-	UNPACK_SQL_STATEMENT(table_alias, table_alias_stmt, table_alias);
 	UNPACK_SQL_STATEMENT(start_cla, table_alias->column_list, column_list_alias);
 	cur_cla = start_cla;
 	assert(0 <= column_number);

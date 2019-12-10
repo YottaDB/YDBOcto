@@ -61,29 +61,33 @@ void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, int *plan_id, ch
 
 		assert(NULL == llocp);
 		stmt = *out;
-		if (set_operation_STATEMENT == stmt->type) {
-			UNPACK_SQL_STATEMENT(set_operation, stmt, set_operation);
-			sql_stmt = drill_to_table_alias(set_operation->operand[0]);
-		} else if (table_alias_STATEMENT == stmt->type) {
-			sql_stmt = stmt;
-		} else
-			sql_stmt = NULL;
-		if (NULL != sql_stmt) {
+		switch(stmt->type) {
+		case set_operation_STATEMENT:
+		case table_alias_STATEMENT:
+			/* In this case, use the location of the first select column_list operand */
+			if (set_operation_STATEMENT == stmt->type) {
+				UNPACK_SQL_STATEMENT(set_operation, stmt, set_operation);
+				sql_stmt = drill_to_table_alias(set_operation->operand[0]);
+			} else {
+				sql_stmt = stmt;
+			}
 			UNPACK_SQL_STATEMENT(table_alias, sql_stmt, table_alias);
 			assert(NULL != table_alias->column_list);
 			UNPACK_SQL_STATEMENT(cur_cla, table_alias->column_list, column_list_alias);
 			llocp = &cur_cla->column_list->loc;
-		} else {
+			break;
+		default:
 			llocp = &stmt->loc;
+			break;
 		}
 	}
 	if (llocp->first_line || llocp->first_column || llocp->last_column) {
 		if (0 == llocp->first_line) {
-			PRINT_YYERROR("Error with syntax near (line %d, column %d):", llocp->first_line + 1, llocp->first_column + leading_spaces);
+			PRINT_YYERROR("Error with syntax near (line %d, column %d):", llocp->first_line + 1,		\
+										llocp->first_column + leading_spaces);
 		} else {
 			PRINT_YYERROR("Error with syntax near (line %d, column %d):", llocp->first_line + 1, llocp->first_column);
 		}
-
 		print_yyloc(llocp);
 		if (NULL != s) {
 			PRINT_YYERROR("%s\n", s);

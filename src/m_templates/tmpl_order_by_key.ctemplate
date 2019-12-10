@@ -21,7 +21,7 @@ TEMPLATE(tmpl_order_by_key, int num_cols) {
 
 	int	i;
 
-	%{},"order"{}%
+	%{},{{ ORDER_BY_SUBSCRIPT }}{}%
 	for (i = 1; i <= num_cols; i++) {
 		%{},%%ydboctoi({{ i|%d }}){}%
 	}

@@ -23,13 +23,15 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan) {
 	char		*m_operator = NULL, *sql_operator, *compare_operator;
 	boolean_t	use_string_comparison;
 	SqlValue	*value;
+	SqlColumnAlias	*subquery_column_alias;
 	LogicalPlan	*key, *piece_num, *cur_plan, *branch_value, *cas_value, *condition;
 	LogicalPlan	*cur_branch, *default_value;
 	LogicalPlan	*first_operand, *second_operand, *t_operand;
+	LogicalPlan	*cur_lp_key;
 
 	assert(NULL != plan);
-	first_operand = plan->v.operand[0];
-	second_operand = plan->v.operand[1];
+	first_operand = plan->v.lp_default.operand[0];
+	second_operand = plan->v.lp_default.operand[1];
 
 	switch(plan->type) {
 	case LP_WHERE:
@@ -37,7 +39,7 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan) {
 		TEMPLATE_END();
 		break;
 	case LP_VALUE:
-		value = plan->v.value;
+		value = plan->v.lp_value.value;
 		switch(value->type) {
 		case BOOLEAN_VALUE:
 			// Handle case where LP_BOOLEAN_REGEX* gets optimized
@@ -81,25 +83,34 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan) {
 		break;
 	case LP_DERIVED_COLUMN:
 		GET_LP(key, plan, 0, LP_KEY);
-		if (pplan->treat_key_as_null[key->v.key->unique_id])
+		if (pplan->treat_key_as_null[key->v.lp_key.key->unique_id])
 		{	/* Treat all columns in the table as NULL (used for OUTER JOINs) */
 			%{}""{}%	/* needs to be replaced with $ZYSQLNULL when #311 is fixed */
 			break;
 		}
+		subquery_column_alias = plan->extra_detail.lp_derived_column.subquery_column_alias;
+		if (pplan->tablejoin_body_group_by_done && subquery_column_alias->group_by_column_number) {
+			/* This column reference was specified in the GROUP BY clause and GROUP BY related processing already
+			 * happened and wrote the records (based on the FROM/WHERE clauses) into the lvn subtree under
+			 * GROUP_BY_SUBSCRIPT. Retrieve the column reference from there.
+			 */
+			%{}$PIECE(%%ydboctog,"|",{{ subquery_column_alias->group_by_column_number|%d }}){}%
+			break;
+		}
 		GET_LP(piece_num, plan, 1, LP_PIECE_NUMBER);
 		%{}($PIECE({}%
-		TMPL(tmpl_key, key->v.key);
+		TMPL(tmpl_key, key->v.lp_key.key);
 		// We're getting a bit abusive again; go back one, removing paren, comma and print
 		(*buffer_index)--;
 		%{},{}%
-		TMPL(tmpl_key, key->v.key);
-		%{}),"|",{{ piece_num->v.piece_number|%d }})){}%
+		TMPL(tmpl_key, key->v.lp_key.key);
+		%{}),"|",{{ piece_num->v.lp_piece_number.piece_number|%d }})){}%
 		break;
 	case LP_COLUMN_ALIAS:
-		TMPL(tmpl_column_reference, pplan, plan->v.column_alias);
+		TMPL(tmpl_column_reference, pplan, plan->v.lp_column_alias.column_alias);
 		break;
 	case LP_KEY:
-		TMPL(tmpl_key, plan->v.key);
+		TMPL(tmpl_key, plan->v.lp_key.key);
 		break;
 	case LP_ADDITION:
 		m_operator = "+";
@@ -186,11 +197,10 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan) {
 		break;
 	case LP_BOOLEAN_IN:
 	case LP_BOOLEAN_NOT_IN:
-		// IN expressions require a key; we would have resolved the keys already in `generate_physical_plan.c`
-		//  so enforce that the search list is a key to search in.
-		assert(LP_KEY == second_operand->type);
+		assert((LP_INSERT == second_operand->type) || (LP_SET_OPERATION == second_operand->type));
 		%{}($DATA({}%
-		TMPL(tmpl_key, second_operand->v.key);
+		cur_lp_key = lp_get_output_key(second_operand);
+		TMPL(tmpl_key, cur_lp_key->v.lp_key.key);
 		(*buffer_index)--;
 		%{},{}%
 		TMPL(tmpl_print_expression, first_operand, pplan);
@@ -271,7 +281,7 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan) {
 		use_string_comparison = lp_is_bool_operand_type_string(plan);
 		%{}$${{ sql_operator }}^%%ydboctoplanhelpers({}%
 		TMPL(tmpl_print_expression, first_operand, pplan);
-		%{},{{ key->v.key->unique_id|%d }},"{{ compare_operator }}",{{ use_string_comparison|%d }}){}%
+		%{},{{ key->v.lp_key.key->unique_id|%d }},"{{ compare_operator }}",{{ use_string_comparison|%d }}){}%
 		break;
 	case LP_FORCE_NUM:
 		%{}+{}%
@@ -293,38 +303,81 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan) {
 		if (LP_BOOLEAN_NOT_EXISTS == plan->type) {
 			%{}'{}%
 		}
-		%{}$$EXISTS^%%ydboctoplanhelpers({{ key->v.key->unique_id|%d }}){}%
+		%{}$$EXISTS^%%ydboctoplanhelpers({{ key->v.lp_key.key->unique_id|%d }}){}%
 		break;
 	case LP_FUNCTION_CALL:
 		cur_plan = plan;
 		%{}{}%
 		TMPL(tmpl_print_expression, first_operand, pplan);
 		%{}({}%
-		while (NULL != cur_plan->v.operand[1]) {
+		while (NULL != cur_plan->v.lp_default.operand[1]) {
 			if (cur_plan != plan) {
 				%{},{}%
 			}
-			cur_plan = cur_plan->v.operand[1];
-			TMPL(tmpl_print_expression, cur_plan->v.operand[0], pplan);
+			cur_plan = cur_plan->v.lp_default.operand[1];
+			TMPL(tmpl_print_expression, cur_plan->v.lp_default.operand[0], pplan);
 		}
+		%{}){}%
+		break;
+	case LP_AGGREGATE_FUNCTION_COUNT_ASTERISK:
+	case LP_AGGREGATE_FUNCTION_COUNT:
+	case LP_AGGREGATE_FUNCTION_MIN:
+	case LP_AGGREGATE_FUNCTION_MAX:
+	case LP_AGGREGATE_FUNCTION_SUM:
+	case LP_AGGREGATE_FUNCTION_COUNT_DISTINCT:
+	case LP_AGGREGATE_FUNCTION_SUM_DISTINCT:
+		/* Note that the GROUP_BY_SUBSCRIPT node might not exist in case all values aggregated were NULL.
+		 * Hence the need for $GET.
+		 */
+		%{}$GET({}%
+		TMPL(tmpl_key, pplan->outputKey);
+		(*buffer_index)--;
+		assert(plan->extra_detail.lp_aggregate_function.aggregate_cnt);
+		%{},{{ GROUP_BY_SUBSCRIPT }},%%ydboctog,{{ plan->extra_detail.lp_aggregate_function.aggregate_cnt|%d }}){}%
+		if ((LP_AGGREGATE_FUNCTION_COUNT == plan->type) || (LP_AGGREGATE_FUNCTION_COUNT == plan->type)) {
+			/* In case COUNT encountered only NULL rows, return the value 0 */
+			%{},0{}%
+		}
+		%{}){}%
+		break;
+	case LP_AGGREGATE_FUNCTION_AVG:
+	case LP_AGGREGATE_FUNCTION_AVG_DISTINCT:
+		/* AVG is slightly different from other aggregate functions in that the actual average is not stored anywhere
+		 * yet. Only the cumulative sum and cumulative count are stored (in `Avg` or `AvgDistinct` labels in
+		 * `src/aux/_ydboctoplanhelpers.m`). So generate code that computes the average using the stored quantities.
+		 * See previous switch/case block for why `$GET` is needed.
+		 */
+		%{}({}%
+		%{}$GET({}%
+		TMPL(tmpl_key, pplan->outputKey);
+		(*buffer_index)--;
+		assert(plan->extra_detail.lp_aggregate_function.aggregate_cnt);
+		%{},{{ GROUP_BY_SUBSCRIPT }},%%ydboctog,-{{ plan->extra_detail.lp_aggregate_function.aggregate_cnt|%d }},"SUM"){}%
+		%{},0){}%
+		%{}/{}%
+		%{}$GET({}%
+		TMPL(tmpl_key, pplan->outputKey);
+		(*buffer_index)--;
+		%{},{{ GROUP_BY_SUBSCRIPT }},%%ydboctog,-{{ plan->extra_detail.lp_aggregate_function.aggregate_cnt|%d }},"COUNT"){}%
+		%{},1){}%
 		%{}){}%
 		break;
 	case LP_INSERT:
 	case LP_SET_OPERATION:
 		// Fetch the first value from the output key of this query/table
 		key = lp_get_output_key(plan);
-		%{}$$GetScalar^%%ydboctoplanhelpers({{ key->v.key->unique_id|%d }}){}%
+		%{}$$GetScalar^%%ydboctoplanhelpers({{ key->v.lp_key.key->unique_id|%d }}){}%
 		break;
 	case LP_CASE:
 		%{}$SELECT({}%
 		GET_LP(cur_plan, plan, 0, LP_CASE_STATEMENT);
-		cas_value = cur_plan->v.operand[0];
-		default_value = cur_plan->v.operand[1];
+		cas_value = cur_plan->v.lp_default.operand[0];
+		default_value = cur_plan->v.lp_default.operand[1];
 		GET_LP(cur_plan, plan, 1, LP_CASE_BRANCH);
 		while (NULL != cur_plan) {
 			GET_LP(cur_branch, cur_plan, 0, LP_CASE_BRANCH_STATEMENT);
-			condition = cur_branch->v.operand[0];
-			branch_value = cur_branch->v.operand[1];
+			condition = cur_branch->v.lp_default.operand[0];
+			branch_value = cur_branch->v.lp_default.operand[1];
 			%{}({}%
 			TMPL(tmpl_print_expression, condition, pplan);
 			%{})=({}%
@@ -336,7 +389,7 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan) {
 			%{}):({}%
 			TMPL(tmpl_print_expression, branch_value, pplan);
 			%{}),{}%
-			cur_plan = cur_plan->v.operand[1];
+			cur_plan = cur_plan->v.lp_default.operand[1];
 		}
 		if (NULL != default_value) {
 			%{}1:{}%

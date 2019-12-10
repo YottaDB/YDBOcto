@@ -52,6 +52,8 @@ OCTO
   load_postgres_fixture pastas postgres-pastas.sql
   create_postgres_database easynames
   load_postgres_fixture easynames postgres-easynames.sql
+  create_postgres_database northwind
+  load_postgres_fixture northwind postgres-northwind.sql
 
   # Check names database
   psql names >& output.txt <<PSQL

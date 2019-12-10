@@ -23,6 +23,7 @@ LogicalPlan *lp_get_select_keywords(LogicalPlan *plan) {
 
 	GET_LP(select, select, 1, LP_CRITERIA);
 	GET_LP(select, select, 1, LP_SELECT_OPTIONS);
+	GET_LP(select, select, 1, LP_SELECT_MORE_OPTIONS);
 	GET_LP(select, select, 1, LP_KEYWORDS);
 	return select;
 }

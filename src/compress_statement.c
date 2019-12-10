@@ -84,24 +84,17 @@ void *compress_statement_helper(SqlStatement *stmt, char *out, int *out_length) 
 			memcpy(new_value, value, sizeof(SqlValue));
 		}
 		*out_length += sizeof(SqlValue);
-		switch(value->type) {
-		case CALCULATED_VALUE:
-			CALL_COMPRESS_HELPER(r, value->v.calculated, new_value->v.calculated, out, out_length);
-			break;
-		default:
-			len = strlen(value->v.string_literal);
-			if (NULL != out) {
-				memcpy(&out[*out_length], value->v.string_literal, len);
-				new_value->v.string_literal = &out[*out_length];
-				A2R(new_value->v.string_literal, new_value->v.string_literal);
-			}
-			*out_length += len;
-			if (NULL != out) {
-				out[*out_length] = '\0';
-			}
-			*out_length += 1;
-			break;
+		len = strlen(value->v.string_literal);
+		if (NULL != out) {
+			memcpy(&out[*out_length], value->v.string_literal, len);
+			new_value->v.string_literal = &out[*out_length];
+			A2R(new_value->v.string_literal, new_value->v.string_literal);
 		}
+		*out_length += len;
+		if (NULL != out) {
+			out[*out_length] = '\0';
+		}
+		*out_length += 1;
 		break;
 	case column_STATEMENT:
 		UNPACK_SQL_STATEMENT(cur_column, stmt, column);

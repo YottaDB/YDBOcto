@@ -137,6 +137,15 @@
 		YYABORT;								\
 }
 
+/* Below are special values used as part of the `aggregate_depth` parameter passed to `qualify_statement()`
+ * to indicate we are qualifying a FROM clause, WHERE clause, GROUP BY clause etc.. These need to be negative as 0 is the
+ * first valid depth used in the normal case (e.g. when qualifying the SELECT column list i.e. select->select_list) etc.
+ * Some of these negative values indicate clauses where Aggregate functions are disallowed (i.e. FROM and WHERE).
+ */
+#define	AGGREGATE_DEPTH_FROM_CLAUSE		-1
+#define	AGGREGATE_DEPTH_WHERE_CLAUSE		-2
+#define	AGGREGATE_DEPTH_GROUP_BY_CLAUSE		-3
+
 int emit_column_specification(char *buffer, int buffer_size, SqlColumn *column);
 int emit_create_table(FILE *output, struct SqlStatement *stmt);
 // Recursively copies all of stmt, including making copies of strings
@@ -160,11 +169,12 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, char *cursorId);
 SqlTable *find_table(const char *table_name);
 SqlColumn *find_column(char *column_name, SqlTable *table);
 SqlStatement *find_column_alias_name(SqlStatement *stmt);
-int qualify_query(SqlStatement *stmt, SqlJoin *parent_join);
-int qualify_statement(SqlStatement *stmt, SqlJoin *tables,
-						SqlStatement *column_list_alias, int depth, SqlColumnListAlias **ret_cla);
-SqlColumnAlias *qualify_column_name(SqlValue *column_value, SqlJoin *tables,
-						SqlStatement *column_list_alias, int depth, SqlColumnListAlias **ret_cla);
+void init_parent_table_alias(SqlStatement *table_alias_stmt, SqlTableAlias *parent_table_alias);
+int qualify_query(SqlStatement *table_alias_stmt, SqlJoin *parent_join, SqlTableAlias *parent_table_alias);
+int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_alias_stmt,
+							int depth, SqlColumnListAlias **ret_cla);
+SqlColumnAlias *qualify_column_name(SqlValue *column_value, SqlJoin *tables, SqlStatement *table_alias_stmt,
+									int depth, SqlColumnListAlias **ret_cla);
 SqlColumnListAlias *match_column_in_table(SqlTableAlias *table, char *column_name, int column_name_len);
 int qualify_function_name(SqlStatement *stmt);
 void print_yyloc(YYLTYPE *llocp);
@@ -176,6 +186,10 @@ int generate_key_name(char *buffer, int buffer_size, int target_key_num, SqlTabl
 char *like_to_regex(const char *src);
 char *similar_to_regex(const char *src);
 
+char *get_func_name(SqlAggregateType type);
+char *get_setoperation_string(SqlSetOperationType type);
+char *get_type_string(SqlValueType type);
+
 /* Hashing support functions */
 int generate_routine_name(hash128_state_t *state, char *routine_name, int routine_len, FileType file_type);
 void hash_canonical_query(hash128_state_t *state, SqlStatement *stmt, int *status);
@@ -184,14 +198,14 @@ void ydb_hash_to_string(ydb_uint16 *hash, char *buffer, const unsigned int buf_l
 void assign_table_to_columns(SqlStatement *table_statement);
 SqlOptionalKeyword *add_optional_piece_keyword_to_sql_column(int column_number);
 
-// Converts a list of columns to a column list associated with the given table alias
-SqlColumnListAlias *columns_to_column_list_alias(SqlColumn *column, SqlTableAlias *table_alias);
-SqlColumn *column_list_alias_to_columns(SqlTableAlias *table_alias);
+// Converts a list of columns to a column list alias associated with the given table alias
+SqlColumnListAlias *columns_to_column_list_alias(SqlColumn *column, SqlStatement *table_alias_stmt);
 
 SqlStatement *drill_to_table_alias(SqlStatement *sqlStmt);
-int get_column_piece_number(SqlColumnAlias *alias, SqlTableAlias *table_alias);
-int get_column_number_from_column_list_alias(SqlColumnListAlias *input_cla, SqlStatement *table_alias_stmt);
-SqlColumnListAlias *get_column_list_alias_n_from_table_alias(SqlStatement *table_alias_stmt, int column_number);
+int get_column_piece_number(SqlColumnAlias *column_alias, SqlTableAlias *table_alias);
+int get_column_number_from_column_list_alias(SqlColumnListAlias *input_cla, SqlTableAlias *table_alias);
+SqlColumnListAlias *get_column_list_alias_n_from_table_alias(SqlTableAlias *table_alias, int column_number);
+SqlColumnAlias *get_column_alias_for_column_list_alias(SqlColumnListAlias *col_cla, SqlStatement *matching_alias_stmt);
 
 SqlStatement *copy_sql_statement(SqlStatement *stmt);
 
@@ -201,13 +215,17 @@ int store_table_in_pg_class(SqlTable *table);
 void cleanup_tables();
 
 /* Parse related functions invoked from the .y files (parser.y, select.y etc.) */
-SqlStatement *query_specification(SqlStatement *set_quantifier, SqlStatement *select_list,
+SqlStatement *query_specification(OptionalKeyword set_quantifier, SqlStatement *select_list,
 					SqlStatement *table_expression, SqlStatement *sort_specification_list, int *plan_id);
 SqlStatement *sort_specification(SqlStatement *sort_key, SqlStatement *collate_clause, SqlStatement *ordering_specification);
-int regex_specification(SqlStatement **stmt, SqlStatement *op0, SqlStatement *op1, int is_regex_like_or_similar, int is_sensitive, int is_not, char *cursorId);
+SqlStatement *grouping_column_reference(SqlStatement *derived_column_expression, SqlStatement *collate_clause);
+int regex_specification(SqlStatement **stmt, SqlStatement *op0, SqlStatement *op1, int is_regex_like_or_similar,
+									int is_sensitive, int is_not, char *cursorId);
 SqlStatement *set_operation(enum SqlSetOperationType setoper_type, SqlStatement *left_operand, SqlStatement *right_operand);
 SqlStatement *row_value_constructor_binary_statement(SqlStatement *row_value_constructor, char *cursorId);
 SqlStatement *between_predicate(SqlStatement *row_value_constructor, SqlStatement *from, SqlStatement *to, boolean_t not_specified);
+SqlStatement *aggregate_function(SqlAggregateType aggregate_type, OptionalKeyword set_quantifier, SqlStatement *value_expression);
+
 int parse_literal_to_parameter(char *cursorId, SqlValue *value, boolean_t update_existing);
 
 /* trims duplicate '.*'s from regex */

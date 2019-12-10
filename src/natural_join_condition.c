@@ -47,8 +47,8 @@ SqlStatement *natural_join_condition(SqlStatement *left, SqlStatement *right) {
 		l_table_name_len = strlen(l_table_name);
 		cl_cur = cl_start;
 		do {
-			UNPACK_SQL_STATEMENT(value, cl_start->alias, value);
-			assert(value->type != CALCULATED_VALUE);
+			UNPACK_SQL_STATEMENT(value, cl_cur->alias, value);
+			assert(CALCULATED_VALUE != value->type);
 			column_name = value->v.string_literal;
 			column_name_len = strlen(column_name);
 			// Check each of rights tables for the item in question

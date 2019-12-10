@@ -17,15 +17,16 @@
 TEMPLATE(tmpl_duplication_check, PhysicalPlan *plan) {
 	TEMPLATE_INIT();
 
-	SqlKey	*key;
+	unsigned int	i;
+	SqlKey		*key;
 
 	// Emit this as a series of keys (we do not choose key,value pairs to reduce the chances of a MAXNRSUBSCRIPTS error)
 	// Composite keys will be fine because they will be consistently represented
 	// Skip cross reference keys, since those will vary; they still have all the
 	// required keys, in order, under them anyway
 
-	%{}{{ config->global_names.cursor }}(cursorId,"dupl"{}%
-	for (unsigned int i = 0; i < plan->total_iter_keys; i++) {
+	%{}{{ config->global_names.cursor }}(cursorId,{{ DUPLICATE_SUBSCRIPT }}{}%
+	for (i = 0; i < plan->total_iter_keys; i++) {
 		key = plan->iterKeys[i];
 		if (key->is_cross_reference_key)
 			continue;

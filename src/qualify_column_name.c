@@ -37,11 +37,10 @@
 SqlColumnAlias *qualify_column_name(SqlValue *column_value, SqlJoin *tables, SqlStatement *table_alias_stmt,
 									int depth, SqlColumnListAlias **ret_cla)
 {
-	SqlColumnAlias		*ret;
 	SqlColumnListAlias	*start_cla, *cur_cla, *col_cla, *t_col_cla;
-	SqlColumnList		*col_list;
 	SqlJoin			*cur_join, *start_join;
-	SqlTableAlias		*cur_alias, *matching_alias, *table_alias;
+	SqlTableAlias		*cur_alias;
+	SqlStatement		*matching_alias_stmt;
 	SqlValue		*value;
 	char			*table_name, *column_name, *c;
 	int			table_name_len, column_name_len;
@@ -81,7 +80,7 @@ SqlColumnAlias *qualify_column_name(SqlValue *column_value, SqlJoin *tables, Sql
 				table_name_len2 = strlen(value->v.reference);
 				if ((table_name_len == table_name_len2)
 						&& (0 == memcmp(value->v.reference, table_name, table_name_len))) {
-					matching_alias = cur_alias;
+					matching_alias_stmt = sql_stmt;
 					col_cla = match_column_in_table(cur_alias, column_name, column_name_len);
 					break;
 				}
@@ -94,7 +93,7 @@ SqlColumnAlias *qualify_column_name(SqlValue *column_value, SqlJoin *tables, Sql
 					cur_join = cur_join->next;
 					continue;
 				}
-				matching_alias = cur_alias;
+				matching_alias_stmt = sql_stmt;
 				col_cla = t_col_cla;
 			}
 
@@ -105,6 +104,8 @@ SqlColumnAlias *qualify_column_name(SqlValue *column_value, SqlJoin *tables, Sql
 		/* ret_cla is non-NULL. This means we are allowed to match the input column name as a valid name
 		 *    as long as it matches the name of an existing alias name in the table select column list. Check that.
 		 */
+		SqlTableAlias	*table_alias;
+
 		UNPACK_SQL_STATEMENT(table_alias, table_alias_stmt, table_alias);
 		UNPACK_SQL_STATEMENT(start_cla, table_alias->column_list, column_list_alias);
 		cur_cla = start_cla;
@@ -124,7 +125,7 @@ SqlColumnAlias *qualify_column_name(SqlValue *column_value, SqlJoin *tables, Sql
 						continue;
 					}
 					col_cla = cur_cla;
-					UNPACK_SQL_STATEMENT(matching_alias, table_alias_stmt, table_alias);
+					matching_alias_stmt = table_alias_stmt;
 				}
 			}
 			cur_cla = cur_cla->next;
@@ -162,26 +163,5 @@ SqlColumnAlias *qualify_column_name(SqlValue *column_value, SqlJoin *tables, Sql
 		ERROR(ERR_UNKNOWN_COLUMN_NAME, (NULL != table_name) ? table_name : column_name);
 		return NULL;
 	}
-	/* Check if "column" already points to a SqlColumnAlias that we can return.
-	 * If so, use that instead of allocating a new one.
-	 */
-	UNPACK_SQL_STATEMENT(col_list, col_cla->column_list, column_list);
-	if (column_alias_STATEMENT == col_list->value->type) {
-		UNPACK_SQL_STATEMENT(ret, col_list->value, column_alias);
-		/* Note: ret can be NULL in case of a parse error. Hence the need to handle this case below */
-		if (NULL != ret) {
-			UNPACK_SQL_STATEMENT(table_alias, ret->table_alias, table_alias);
-			if (matching_alias != table_alias) {
-				ret = NULL;
-			}
-		}
-	} else {
-		ret = NULL;
-	}
-	if (NULL == ret) {
-		OCTO_CMALLOC_STRUCT(ret, SqlColumnAlias);
-		PACK_SQL_STATEMENT(ret->column, col_cla, column_list_alias);
-		PACK_SQL_STATEMENT(ret->table_alias, matching_alias, table_alias);
-	}
-	return ret;
+	return get_column_alias_for_column_list_alias(col_cla, matching_alias_stmt);
 }

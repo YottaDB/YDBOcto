@@ -1,6 +1,7 @@
 OCTO> select notathing as a
 OCTO> from names; select * from names where
 [ERROR] PATH:LINENUM DATE TIME : Unknown column: NOTATHING
+Error with syntax near (line 1, column 7):
 
 select notathing as a
        ^^^^^^^^^
@@ -8,6 +9,7 @@ select notathing as a
 from names;
 OCTO> alsonotathing = 0; select * from names limit 1;
 [ERROR] PATH:LINENUM DATE TIME : Unknown column: ALSONOTATHING
+Error with syntax near (line 2, column 1):
 
 from names; select * from names where
 alsonotathing = 0; select * from names limit 1;

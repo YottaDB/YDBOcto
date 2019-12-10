@@ -62,14 +62,7 @@ void *decompress_statement_helper(SqlStatement *stmt, char *out, int out_length)
 		break;
 	case value_STATEMENT:
 		UNPACK_SQL_STATEMENT(value, stmt, value);
-		switch(value->type) {
-		case CALCULATED_VALUE:
-			CALL_DECOMPRESS_HELPER(value->v.calculated, out, out_length);
-			break;
-		default:
-			value->v.string_literal = R2A(value->v.string_literal);
-			break;
-		}
+		value->v.string_literal = R2A(value->v.string_literal);
 		break;
 	case column_STATEMENT:
 		UNPACK_SQL_STATEMENT(cur_column, stmt, column);

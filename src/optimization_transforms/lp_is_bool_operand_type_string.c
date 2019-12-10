@@ -17,7 +17,7 @@
 #include "logical_plan.h"
 
 boolean_t lp_is_bool_operand_type_string(LogicalPlan *plan) {
-	boolean_t	ret;
+	boolean_t	ret, loop_done;
 	LogicalPlan	*cur_plan;
 	SqlColumnAlias	*column_alias;
 
@@ -37,42 +37,57 @@ boolean_t lp_is_bool_operand_type_string(LogicalPlan *plan) {
 		|| (LP_BOOLEAN_ALL_GREATER_THAN_OR_EQUALS == plan->type)
 		|| (LP_BOOLEAN_ALL_EQUALS == plan->type)
 		|| (LP_BOOLEAN_ALL_NOT_EQUALS == plan->type));
-	// We assume all values in this expression have the same type, which should be true
-	// due to the matching of types further up the stack
-	// Delve down the left side until we get to a leaf node (right hand side is NULL) and
-	// determine the type of that node
+	/* We assume all values in this expression have the same type, which should be true due to the matching of types
+	 * further up the stack (in `populate_data_type`). Traverse down the left side of the logical plan tree until we get
+	 * to a plan node which has only a left child (right hand child is NULL) OR stop traversing if we end up with
+	 * determine the type of that node
+	 */
 	cur_plan = plan;
-	while (NULL != cur_plan->v.operand[1]) {
-		cur_plan = cur_plan->v.operand[0];
-		assert(NULL != cur_plan);
-		if (LP_DERIVED_COLUMN == cur_plan->type) {
+	ret = FALSE;
+	for ( loop_done = FALSE; !loop_done; ) {
+		switch(cur_plan->type) {
+		case LP_VALUE:
+			if (STRING_LITERAL == cur_plan->v.lp_value.value->type) {
+				ret = TRUE;
+			}
+			loop_done = TRUE;
+			break;
+		case LP_COLUMN_ALIAS:
+		case LP_DERIVED_COLUMN:
+			column_alias = ((LP_COLUMN_ALIAS == cur_plan->type)
+						? cur_plan->v.lp_column_alias.column_alias
+						: cur_plan->extra_detail.lp_derived_column.subquery_column_alias);
+			if (column_alias->column->type == column_STATEMENT) {
+				if (CHARACTER_STRING_TYPE == column_alias->column->v.column->type) {
+					ret = TRUE;
+				}
+			} else {
+				assert(column_alias->column->type == column_list_alias_STATEMENT);
+				if (STRING_LITERAL == column_alias->column->v.column_list_alias->type) {
+					ret = TRUE;
+				}
+			}
+			loop_done = TRUE;
+			break;
+		case LP_COLUMN_LIST_ALIAS:
+		case LP_TABLE:
+		case LP_KEY:
+		case LP_KEYWORDS:
+		case LP_PIECE_NUMBER:
+			/* These cases should never show up inside a boolean expression. Hence the below assert. */
+			assert(FALSE);
+			break;
+		default:
+			/* Due to the above switch/case blocks, if we reach here, it means this plan type is guaranteed to
+			 * have `cur_plan->v.lp_default` usable. This relies on the current layout of the `v` member in the
+			 * `LogicalPlan` structure and that none of the LP_* possibilities in the "default:" case here
+			 * can possibly have a `v` member usable other than `lp_default`. Any changes to the `v` union
+			 * layout might need to be reflected here (LOGICAL_PLAN_KEEP_IN_SYNC).
+			 */
+			cur_plan = cur_plan->v.lp_default.operand[0];
+			assert(NULL != cur_plan);
 			break;
 		}
-	}
-	ret = FALSE;
-	switch(cur_plan->type) {
-	case LP_VALUE:
-		if (STRING_LITERAL == cur_plan->v.value->type) {
-			ret = TRUE;
-		}
-		break;
-	case LP_COLUMN_ALIAS:
-	case LP_DERIVED_COLUMN:
-		column_alias = ((LP_COLUMN_ALIAS == cur_plan->type) ? cur_plan->v.column_alias : cur_plan->subquery_column_alias);
-		if (column_alias->column->type == column_STATEMENT) {
-			if (column_alias->column->v.column->type == CHARACTER_STRING_TYPE) {
-				ret = TRUE;
-			}
-		} else {
-			assert(column_alias->column->type == column_list_alias_STATEMENT);
-			if (STRING_LITERAL == column_alias->column->v.column_list_alias->type) {
-				ret = TRUE;
-			}
-		}
-		break;
-	default:
-		assert(FALSE);
-		break;
 	}
 	return ret;
 }

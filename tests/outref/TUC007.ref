@@ -1,4 +1,5 @@
 [ERROR] PATH:LINENUM DATE TIME : Unknown column: C.INVALIDE
+Error with syntax near (line 4, column 4):
 
 select invalidA, invalidB, invalidC, invalidD
 from names c
@@ -6,6 +7,7 @@ inner join names o
 on c.invalidE = o.invalidF
    ^^^^^^^^^^
 [ERROR] PATH:LINENUM DATE TIME : Unknown column: O.INVALIDF
+Error with syntax near (line 4, column 17):
 
 select invalidA, invalidB, invalidC, invalidD
 from names c
@@ -13,18 +15,22 @@ inner join names o
 on c.invalidE = o.invalidF
                 ^^^^^^^^^^
 [ERROR] PATH:LINENUM DATE TIME : Unknown column: INVALIDA
+Error with syntax near (line 1, column 7):
 
 select invalidA, invalidB, invalidC, invalidD
        ^^^^^^^^
 [ERROR] PATH:LINENUM DATE TIME : Unknown column: INVALIDB
+Error with syntax near (line 1, column 17):
 
 select invalidA, invalidB, invalidC, invalidD
                  ^^^^^^^^
 [ERROR] PATH:LINENUM DATE TIME : Unknown column: INVALIDC
+Error with syntax near (line 1, column 27):
 
 select invalidA, invalidB, invalidC, invalidD
                            ^^^^^^^^
 [ERROR] PATH:LINENUM DATE TIME : Unknown column: INVALIDD
+Error with syntax near (line 1, column 37):
 
 select invalidA, invalidB, invalidC, invalidD
                                      ^^^^^^^^

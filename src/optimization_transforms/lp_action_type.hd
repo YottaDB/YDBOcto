@@ -17,7 +17,6 @@ LP_ACTION_TYPE(LP_INSERT)
 LP_ACTION_TYPE(LP_SET_OPERATION)
 LP_ACTION_TYPE(LP_TABLE)
 LP_ACTION_TYPE(LP_TABLE_JOIN)
-LP_ACTION_TYPE(LP_COLUMN_LIST)
 LP_ACTION_TYPE(LP_COLUMN_ALIAS)
 LP_ACTION_TYPE(LP_COLUMN_LIST_ALIAS)
 // This is similiar to ALIAS, but for values from derived tables
@@ -28,8 +27,12 @@ LP_ACTION_TYPE(LP_VALUE)
 LP_ACTION_TYPE(LP_PROJECT)
 LP_ACTION_TYPE(LP_SELECT)
 LP_ACTION_TYPE(LP_SELECT_OPTIONS)
+LP_ACTION_TYPE(LP_SELECT_MORE_OPTIONS)
+LP_ACTION_TYPE(LP_AGGREGATE_OPTIONS)
+LP_ACTION_TYPE(LP_GROUP_BY)
+LP_ACTION_TYPE(LP_HAVING)
 LP_ACTION_TYPE(LP_KEYWORDS)
-// Start of they where subtree
+// Start of the where subtree
 LP_ACTION_TYPE(LP_WHERE)
 LP_ACTION_TYPE(LP_CRITERIA)
 LP_ACTION_TYPE(LP_OUTPUT)
@@ -51,7 +54,6 @@ LP_ACTION_TYPE(LP_SET_INTERSECT_ALL)
 // Items for SET_OPERATION
 LP_ACTION_TYPE(LP_PLANS)
 LP_ACTION_TYPE(LP_SET_OPTION)
-LP_ACTION_TYPE(LP_FUNCTION_CALL)
 LP_ACTION_TYPE(LP_CASE)
 LP_ACTION_TYPE(LP_CASE_STATEMENT)
 LP_ACTION_TYPE(LP_CASE_BRANCH)
@@ -107,4 +109,23 @@ LP_ACTION_TYPE(LP_BOOLEAN_NOT_EXISTS)
 LP_ACTION_TYPE(LP_UNARY_LAST)	/* Marks the end of unary operations. Any new unary operation opcode should be added BEFORE this.
 				 * This is because there is code that does boolean checks on this (e.g. `LP_UNARY_LAST > type`)
 				 * assuming this is the last of the unary operations. Such checks will otherwise break.
+				 */
+/* The below section is placed AFTER the LP_ADDITION section of binary/unary/boolean operations as this is relied upon
+ * by an assert (`assert(LP_ADDITION <= where->type)`) in `src/optimization_transforms/lp_replace_derived_table_references.c`.
+ */
+LP_ACTION_TYPE(LP_COLUMN_LIST)
+LP_ACTION_TYPE(LP_FUNCTION_CALL)
+// Note: The order of the below LP_AGGREGATE_FUNCTION_* types should be kept in sync with order of types in `enum SqlAggregateType`
+LP_ACTION_TYPE(LP_AGGREGATE_FUNCTION_COUNT_ASTERISK)
+LP_ACTION_TYPE(LP_AGGREGATE_FUNCTION_COUNT)
+LP_ACTION_TYPE(LP_AGGREGATE_FUNCTION_SUM)
+LP_ACTION_TYPE(LP_AGGREGATE_FUNCTION_AVG)
+LP_ACTION_TYPE(LP_AGGREGATE_FUNCTION_MIN)
+LP_ACTION_TYPE(LP_AGGREGATE_FUNCTION_MAX)
+LP_ACTION_TYPE(LP_AGGREGATE_FUNCTION_COUNT_DISTINCT)
+LP_ACTION_TYPE(LP_AGGREGATE_FUNCTION_SUM_DISTINCT)
+LP_ACTION_TYPE(LP_AGGREGATE_FUNCTION_AVG_DISTINCT)
+LP_ACTION_TYPE(LP_AGGREGATE_LAST)
+LP_ACTION_TYPE(LP_ORDER_BY)	/* Needs to be AFTER LP_ADDITION as it is relied upon by `assert(LP_ADDITION <= where->type)`
+				 * check in `src/optimization_transforms/lp_replace_derived_table_references.c`.
 				 */

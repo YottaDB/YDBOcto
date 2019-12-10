@@ -3,6 +3,7 @@ OCTO>   notathing         from
 OCTO>                   names
 OCTO>   ;
 [ERROR] PATH:LINENUM DATE TIME : Unknown column: NOTATHING
+Error with syntax near (line 2, column 2):
 
 	   select
 	notathing  	  from

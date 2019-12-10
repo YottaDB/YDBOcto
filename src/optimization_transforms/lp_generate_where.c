@@ -25,6 +25,7 @@ LogicalPlan *lp_generate_where(SqlStatement *stmt, int *plan_id, SqlStatement *p
 	SqlUnaryOperation	*unary;
 	SqlBinaryOperation	*binary;
 	SqlFunctionCall		*function_call;
+	SqlAggregateFunction	*aggregate_function;
 	SqlColumnList		*cur_cl, *start_cl;
 	SqlCaseStatement	*cas;
 	SqlCaseBranchStatement	*cas_branch, *cur_branch;
@@ -40,7 +41,7 @@ LogicalPlan *lp_generate_where(SqlStatement *stmt, int *plan_id, SqlStatement *p
 			break;
 		default:
 			MALLOC_LP_2ARGS(ret, LP_VALUE);
-			ret->v.value = value;
+			ret->v.lp_value.value = value;
 			break;
 		}
 		break;
@@ -62,8 +63,8 @@ LogicalPlan *lp_generate_where(SqlStatement *stmt, int *plan_id, SqlStatement *p
 				} else {
 					MALLOC_LP_2ARGS(next, LP_BOOLEAN_NOT_EQUALS);
 				}
-				next->v.operand[0] = t;
-				LP_GENERATE_WHERE(cur_cl->value, plan_id, stmt, next->v.operand[1], null_return_seen);
+				next->v.lp_default.operand[0] = t;
+				LP_GENERATE_WHERE(cur_cl->value, plan_id, stmt, next->v.lp_default.operand[1], null_return_seen);
 				cur_cl = cur_cl->next;
 				if (NULL == ret) {
 					ret = next;
@@ -74,14 +75,14 @@ LogicalPlan *lp_generate_where(SqlStatement *stmt, int *plan_id, SqlStatement *p
 					} else {
 						MALLOC_LP_2ARGS(ret, LP_BOOLEAN_AND);
 					}
-					ret->v.operand[0] = next;
-					ret->v.operand[1] = prev;
+					ret->v.lp_default.operand[0] = next;
+					ret->v.lp_default.operand[1] = prev;
 				}
 			} while(start_cl != cur_cl);
 		} else {
 			MALLOC_LP_2ARGS(ret, type);
-			LP_GENERATE_WHERE(binary->operands[0], plan_id, stmt, ret->v.operand[0], null_return_seen);
-			LP_GENERATE_WHERE(binary->operands[1], plan_id, stmt, ret->v.operand[1], null_return_seen);
+			LP_GENERATE_WHERE(binary->operands[0], plan_id, stmt, ret->v.lp_default.operand[0], null_return_seen);
+			LP_GENERATE_WHERE(binary->operands[1], plan_id, stmt, ret->v.lp_default.operand[1], null_return_seen);
 			/* OPTIMIZATION: if this is a regex
 			 * see if the pattern is entirely characters,
 			 * and if so, change it to a LP_BOOLEAN_EQUALS so we can optimize it later
@@ -89,13 +90,14 @@ LogicalPlan *lp_generate_where(SqlStatement *stmt, int *plan_id, SqlStatement *p
 			 * see if the pattern is entirely .*'s
 			 * if so change it to a LP_VALUE->true as that matches everything and doesn't need to go though the engine
 			 */
-			if (((LP_BOOLEAN_REGEX_SENSITIVE == ret->type) || (LP_BOOLEAN_REGEX_INSENSITIVE == ret->type))
-										&& (LP_VALUE == ret->v.operand[1]->type)) {
+			if (((LP_BOOLEAN_REGEX_SENSITIVE == ret->type)
+				|| (LP_BOOLEAN_REGEX_INSENSITIVE == ret->type))
+								&& (LP_VALUE == ret->v.lp_default.operand[1]->type)) {
 				SqlValue	*value;
 				char		*c;
 				boolean_t	done, is_literal;
 
-				value = ret->v.operand[1]->v.value;
+				value = ret->v.lp_default.operand[1]->v.lp_value.value;
 				if ((STRING_LITERAL != value->type) && (NUMERIC_LITERAL != value->type)
 						&& (INTEGER_LITERAL != value->type)) {
 					break;
@@ -152,52 +154,88 @@ LogicalPlan *lp_generate_where(SqlStatement *stmt, int *plan_id, SqlStatement *p
 		/// WARNING: we simply add the enum offset to find the type
 		type = unary->operation + LP_FORCE_NUM;
 		MALLOC_LP_2ARGS(ret, type);
-		LP_GENERATE_WHERE(unary->operand, plan_id, stmt, ret->v.operand[0], null_return_seen);
+		LP_GENERATE_WHERE(unary->operand, plan_id, stmt, ret->v.lp_default.operand[0], null_return_seen);
 		break;
 	case function_call_STATEMENT:
 		UNPACK_SQL_STATEMENT(function_call, stmt, function_call);
 		type = LP_FUNCTION_CALL;
 		MALLOC_LP_2ARGS(ret, type);
-		LP_GENERATE_WHERE(function_call->function_name, plan_id, stmt, ret->v.operand[0], null_return_seen);
-		// TODO: we should move the logic to loop through the list to a seperate function and reuse it
-		// Too bad this isn't written in Go :'(
+		LP_GENERATE_WHERE(function_call->function_name, plan_id, stmt, ret->v.lp_default.operand[0], null_return_seen);
 		UNPACK_SQL_STATEMENT(start_cl, function_call->parameters, column_list);
 		cur_cl = start_cl;
 		cur_lp = ret;
 		do {
 			LP_GENERATE_WHERE(cur_cl->value, plan_id, stmt, next, null_return_seen);
 			if (NULL != next) {
-				MALLOC_LP_2ARGS(cur_lp->v.operand[1], LP_COLUMN_LIST);
-				cur_lp = cur_lp->v.operand[1];
-				cur_lp->v.operand[0] = next;
+				MALLOC_LP_2ARGS(cur_lp->v.lp_default.operand[1], LP_COLUMN_LIST);
+				cur_lp = cur_lp->v.lp_default.operand[1];
+				cur_lp->v.lp_default.operand[0] = next;
 			}
 			cur_cl = cur_cl->next;
 		} while(cur_cl != start_cl);
 		break;
+	case aggregate_function_STATEMENT:
+		UNPACK_SQL_STATEMENT(aggregate_function, stmt, aggregate_function);
+		assert((COUNT_AGGREGATE - COUNT_ASTERISK_AGGREGATE)
+			== (LP_AGGREGATE_FUNCTION_COUNT - LP_AGGREGATE_FUNCTION_COUNT_ASTERISK));
+		assert((SUM_AGGREGATE - COUNT_ASTERISK_AGGREGATE)
+			== (LP_AGGREGATE_FUNCTION_SUM - LP_AGGREGATE_FUNCTION_COUNT_ASTERISK));
+		assert((AVG_AGGREGATE - COUNT_ASTERISK_AGGREGATE)
+			== (LP_AGGREGATE_FUNCTION_AVG - LP_AGGREGATE_FUNCTION_COUNT_ASTERISK));
+		assert((MIN_AGGREGATE - COUNT_ASTERISK_AGGREGATE)
+			== (LP_AGGREGATE_FUNCTION_MIN - LP_AGGREGATE_FUNCTION_COUNT_ASTERISK));
+		assert((MAX_AGGREGATE - COUNT_ASTERISK_AGGREGATE)
+			== (LP_AGGREGATE_FUNCTION_MAX - LP_AGGREGATE_FUNCTION_COUNT_ASTERISK));
+		assert((COUNT_AGGREGATE_DISTINCT - COUNT_ASTERISK_AGGREGATE)
+			== (LP_AGGREGATE_FUNCTION_COUNT_DISTINCT - LP_AGGREGATE_FUNCTION_COUNT_ASTERISK));
+		assert((AVG_AGGREGATE_DISTINCT - COUNT_ASTERISK_AGGREGATE)
+			== (LP_AGGREGATE_FUNCTION_AVG_DISTINCT - LP_AGGREGATE_FUNCTION_COUNT_ASTERISK));
+		assert((SUM_AGGREGATE_DISTINCT - COUNT_ASTERISK_AGGREGATE)
+			== (LP_AGGREGATE_FUNCTION_SUM_DISTINCT - LP_AGGREGATE_FUNCTION_COUNT_ASTERISK));
+		assert((AGGREGATE_LAST - COUNT_ASTERISK_AGGREGATE)
+			== (LP_AGGREGATE_LAST - LP_AGGREGATE_FUNCTION_COUNT_ASTERISK));
+		assert(COUNT_ASTERISK_AGGREGATE <= aggregate_function->type);
+		assert(AGGREGATE_LAST > aggregate_function->type);
+		type = LP_AGGREGATE_FUNCTION_COUNT_ASTERISK + (aggregate_function->type - COUNT_ASTERISK_AGGREGATE);
+		assert(IS_TYPE_LP_AGGREGATE(type));
+		MALLOC_LP_2ARGS(ret, type);
+		ret->extra_detail.lp_aggregate_function.param_type = aggregate_function->param_type;
+		UNPACK_SQL_STATEMENT(cur_cl, aggregate_function->parameter, column_list);
+		assert((NULL != cur_cl->value) || (LP_AGGREGATE_FUNCTION_COUNT_ASTERISK == type));
+		assert((NULL == cur_cl->value) || (LP_AGGREGATE_FUNCTION_COUNT_ASTERISK != type));
+		if (NULL != cur_cl->value) {
+			LP_GENERATE_WHERE(cur_cl->value, plan_id, stmt, next, null_return_seen);
+			assert(NULL != next);
+			cur_lp = ret;
+			MALLOC_LP_2ARGS(cur_lp->v.lp_default.operand[0], LP_COLUMN_LIST);
+			cur_lp = cur_lp->v.lp_default.operand[0];
+			cur_lp->v.lp_default.operand[0] = next;
+		}
+		break;
 	case column_alias_STATEMENT:
 		MALLOC_LP_2ARGS(ret, LP_COLUMN_ALIAS);
-		UNPACK_SQL_STATEMENT(ret->v.column_alias, stmt, column_alias);
+		UNPACK_SQL_STATEMENT(ret->v.lp_column_alias.column_alias, stmt, column_alias);
 		break;
 	case cas_STATEMENT:
 		MALLOC_LP_2ARGS(ret, LP_CASE);
 		UNPACK_SQL_STATEMENT(cas, stmt, cas);
 		// First put in the default branch, if needed, and value
-		MALLOC_LP(cur_lp, ret->v.operand[0], LP_CASE_STATEMENT);
-		LP_GENERATE_WHERE(cas->value, plan_id, stmt, cur_lp->v.operand[0], null_return_seen);
+		MALLOC_LP(cur_lp, ret->v.lp_default.operand[0], LP_CASE_STATEMENT);
+		LP_GENERATE_WHERE(cas->value, plan_id, stmt, cur_lp->v.lp_default.operand[0], null_return_seen);
 		if (NULL != cas->optional_else) {
-			LP_GENERATE_WHERE(cas->optional_else, plan_id, stmt, cur_lp->v.operand[1], null_return_seen);
+			LP_GENERATE_WHERE(cas->optional_else, plan_id, stmt, cur_lp->v.lp_default.operand[1], null_return_seen);
 		}
 		UNPACK_SQL_STATEMENT(cas_branch, cas->branches, cas_branch);
 		cur_branch = cas_branch;
-		MALLOC_LP(cur_lp, ret->v.operand[1], LP_CASE_BRANCH);
+		MALLOC_LP(cur_lp, ret->v.lp_default.operand[1], LP_CASE_BRANCH);
 		do {
-			MALLOC_LP(t, cur_lp->v.operand[0], LP_CASE_BRANCH_STATEMENT);
-			LP_GENERATE_WHERE(cur_branch->condition, plan_id, stmt, t->v.operand[0], null_return_seen);
-			LP_GENERATE_WHERE(cur_branch->value, plan_id, stmt, t->v.operand[1], null_return_seen);
+			MALLOC_LP(t, cur_lp->v.lp_default.operand[0], LP_CASE_BRANCH_STATEMENT);
+			LP_GENERATE_WHERE(cur_branch->condition, plan_id, stmt, t->v.lp_default.operand[0], null_return_seen);
+			LP_GENERATE_WHERE(cur_branch->value, plan_id, stmt, t->v.lp_default.operand[1], null_return_seen);
 			cur_branch = cur_branch->next;
 			if (cur_branch != cas_branch) {
-				MALLOC_LP_2ARGS(cur_lp->v.operand[1], LP_CASE_BRANCH);
-				cur_lp = cur_lp->v.operand[1];
+				MALLOC_LP_2ARGS(cur_lp->v.lp_default.operand[1], LP_CASE_BRANCH);
+				cur_lp = cur_lp->v.lp_default.operand[1];
 			}
 		} while(cur_branch != cas_branch);
 		break;

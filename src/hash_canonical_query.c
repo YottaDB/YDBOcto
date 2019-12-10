@@ -100,6 +100,7 @@ void hash_canonical_query(hash128_state_t *state, SqlStatement *stmt, int *statu
 	SqlSelectStatement	*select;
 
 	SqlFunctionCall		*function_call;
+	SqlAggregateFunction	*aggregate_function;
 	SqlJoin			*join;
 	SqlValue		*value;
 
@@ -192,7 +193,11 @@ void hash_canonical_query(hash128_state_t *state, SqlStatement *stmt, int *statu
 		// SqlValue (?)
 		hash_canonical_query(state, select->where_expression, status);
 		// SqlColumnListAlias that is a linked list
-		hash_canonical_query_column_list_alias(state, select->order_expression, status, TRUE);
+		hash_canonical_query_column_list_alias(state, select->group_by_expression, status, TRUE);
+		// SqlValue (?)
+		hash_canonical_query(state, select->having_expression, status);
+		// SqlColumnListAlias that is a linked list
+		hash_canonical_query_column_list_alias(state, select->order_by_expression, status, TRUE);
 		// SqlOptionalKeyword
 		hash_canonical_query(state, select->optional_words, status);
 		break;
@@ -203,6 +208,14 @@ void hash_canonical_query(hash128_state_t *state, SqlStatement *stmt, int *statu
 		hash_canonical_query(state, function_call->function_name, status);
 		// SqlColumnList
 		hash_canonical_query_column_list(state, function_call->parameters, status, TRUE);
+		break;
+	case aggregate_function_STATEMENT:
+		UNPACK_SQL_STATEMENT(aggregate_function, stmt, aggregate_function);
+		ADD_INT_HASH(state, aggregate_function_STATEMENT);
+		// SqlAggregateType
+		ADD_INT_HASH(state, aggregate_function->type);
+		// SqlColumnList : We have only one parameter to aggregate functions so no loop needed hence FALSE used below.
+		hash_canonical_query_column_list(state, aggregate_function->parameter, status, FALSE);
 		break;
 	case join_STATEMENT:
 		UNPACK_SQL_STATEMENT(join, stmt, join);

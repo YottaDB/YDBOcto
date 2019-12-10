@@ -20,17 +20,17 @@ LogicalPlan *lp_join_where(LogicalPlan *where1, LogicalPlan *where2) {
 		return where2;
 	if(where2 == NULL)
 		return where1;
-	if(where1->v.operand[0] == NULL)
+	if(where1->v.lp_default.operand[0] == NULL)
 		return where2;
-	if(where2->v.operand[0] == NULL)
+	if(where2->v.lp_default.operand[0] == NULL)
 		return where1;
 	OCTO_CMALLOC_STRUCT(new_plan, LogicalPlan);
 	new_plan->type = LP_BOOLEAN_AND;
 	assert(where1->type == LP_WHERE);
-	w = where1->v.operand[0];
+	w = where1->v.lp_default.operand[0];
 	assert(where2->type == LP_WHERE);
-	new_plan->v.operand[0] = w;
-	new_plan->v.operand[1] = where2->v.operand[0];
-	where1->v.operand[0] = new_plan;
+	new_plan->v.lp_default.operand[0] = w;
+	new_plan->v.lp_default.operand[1] = where2->v.lp_default.operand[0];
+	where1->v.lp_default.operand[0] = new_plan;
 	return where1;
 }

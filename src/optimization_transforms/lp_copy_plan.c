@@ -26,7 +26,7 @@ LogicalPlan *lp_copy_plan(LogicalPlan *plan) {
 		/* Copy SqlStatements which is definitely needed for keys (as these are modified later
 		 * and need to be maintained separately for the source and target plans).
 		 */
-		new_plan->v.key = lp_copy_key(plan->v.key);
+		new_plan->v.lp_key.key = lp_copy_key(plan->v.lp_key.key);
 		break;
 	case LP_VALUE:
 	case LP_TABLE:
@@ -36,10 +36,11 @@ LogicalPlan *lp_copy_plan(LogicalPlan *plan) {
 	case LP_PIECE_NUMBER:
 		break;
 	default:
-		new_plan->v.operand[0] = lp_copy_plan(plan->v.operand[0]);
-		new_plan->v.operand[1] = lp_copy_plan(plan->v.operand[1]);
+		new_plan->v.lp_default.operand[0] = lp_copy_plan(plan->v.lp_default.operand[0]);
+		new_plan->v.lp_default.operand[1] = lp_copy_plan(plan->v.lp_default.operand[1]);
 		if (LP_TABLE_JOIN == plan->type) {
-			new_plan->join_on_condition = lp_copy_plan(plan->join_on_condition);
+			new_plan->extra_detail.lp_table_join.join_on_condition
+				= lp_copy_plan(plan->extra_detail.lp_table_join.join_on_condition);
 		}
 		break;
 	}

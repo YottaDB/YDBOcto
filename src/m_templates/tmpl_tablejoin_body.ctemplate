@@ -17,157 +17,67 @@
 TEMPLATE(tmpl_tablejoin_body, PhysicalPlan *plan, int dot_count, char *tableName, char *columnName) {
 	TEMPLATE_INIT();
 
-	int		start_table_reference, end_table_reference;
-	int		start_resume = 0;
-	int		end_resume = 0;
-
 	assert(NULL != plan->outputKey);
+	if (plan->outputKey->is_cross_reference_key) {
+		/* Simplest case. Finish it first */
+		LogicalPlan	*lp_temp;
+
+		assert(NULL == plan->where->v.lp_default.operand[0]);
+		assert(!plan->distinct_values);
+		assert(!plan->emit_duplication_check);
+		assert(NULL == plan->order_by);
+		assert(NULL == plan->aggregate_options);
+		TMPL(tmpl_print_dots, dot_count);
+		%{}SET{}%
+		%{} ^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}"{}%
+		%{},{}%
+		TMPL(tmpl_column_list_combine, plan->projection, plan, ",", 0, 0, 0);
+		%{})=""`n{{ PLAN_LINE_START }}{}%
+		TMPL(tmpl_print_dots, dot_count);
+		%{}IF $INCREMENT(^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}"{}%
+		%{})),$INCREMENT(^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}",{}%
+		// Temporarily sever the key from the projection
+		lp_temp = plan->projection->v.lp_default.operand[1];
+		plan->projection->v.lp_default.operand[1] = NULL;
+		TMPL(tmpl_column_list_combine, plan->projection, plan, ",", 0, 0, 0);
+		plan->projection->v.lp_default.operand[1] = lp_temp;
+		%{})){}%
+		TEMPLATE_END();
+	}
 	// Apply the conditions for this statement
 	//  We put the 'IF 1' here so it's easy to add extra clauses from any of the
 	//  below conditions which may or may not emit boolean logic
 	TMPL(tmpl_print_dots, dot_count);
 	%{}IF 1{}%
-	if (plan->where && plan->where->v.operand[0]) {
+	if (plan->where && plan->where->v.lp_default.operand[0]) {
 		%{}&({}%
-		TMPL(tmpl_print_expression, plan->where->v.operand[0], plan);
+		TMPL(tmpl_print_expression, plan->where->v.lp_default.operand[0], plan);
 		%{}){}%
 	}
-	// Distinct values if needed
+	// DISTINCT value processing (if needed)
 	if (plan->distinct_values) {
-		%{}&($DATA({{ config->global_names.cursor }}(cursorId,"Distinct",{}%
-		TMPL(tmpl_column_list_combine, plan->projection, plan, ",", 0, 0, FALSE);
-		%{}))=0){}%
+		/* If this plan has a GROUP BY, then we will do DISTINCT processing in `tmpl_group_by` so skip that here */
+		if (!IS_GROUP_BY_PLAN(plan)) {
+			%{}&($DATA({{ config->global_names.cursor }}(cursorId,{{ DISTINCT_SUBSCRIPT }},{}%
+			TMPL(tmpl_column_list_combine, plan->projection, plan, ",", 0, 0, 0);
+			%{}))=0){}%
+		}
 	} else if (plan->emit_duplication_check) {
 		// Ensure we don't emit duplicates
 		%{}&($DATA({}%
 		TMPL(tmpl_duplication_check, plan);
 		%{})=0){}%
 	}
-	%{} DO`n    {}%
-	dot_count++;
-	// Output the value
-	// Note down where the "resume" pointer starts, including the preceding whitespace
-	start_resume = (*buffer_index) - 4;
-	TMPL(tmpl_print_dots, dot_count);
-	if (plan->outputKey->is_cross_reference_key) {
-		%{}SET:1{}%
-		%{} ^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}"{}%
-		%{},{}%
-		TMPL(tmpl_column_list_combine, plan->projection, plan, ",", 0, 0, FALSE);
-		%{})=""`n    {}%
-		TMPL(tmpl_print_dots, dot_count);
-		%{}IF $INCREMENT(^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}"{}%
-		%{})),$INCREMENT(^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}",{}%
-		// Temporarily sever the key from the projection
-		LogicalPlan	*lp_temp;
-
-		lp_temp = plan->projection->v.operand[1];
-		plan->projection->v.operand[1] = NULL;
-		TMPL(tmpl_column_list_combine, plan->projection, plan, ",", 0, 0, FALSE);
-		plan->projection->v.operand[1] = lp_temp;
-		%{})){}%
-	} else {
-		// Note down where we are, do a dummy assignment to increment the row count, then paste our row again
-		int			resume_length;
-		char			c;
-		SqlOptionalKeyword	*keyword;
-
-		if (!plan->stash_columns_in_keys) {
-			%{}SET:1{}%
-			end_resume = *buffer_index;
-			%{}&$INCREMENT({}%
-			TMPL(tmpl_key, plan->outputKey);
-			%{}){}%
-		} else
-		{
-			if (plan->distinct_values) {
-				%{}IF $INCREMENT({}%
-				TMPL(tmpl_key, plan->outputKey);
-				%{})`n    {}%
-				TMPL(tmpl_print_dots, dot_count);
-			}
-			%{}IF $INCREMENT({}%
-			TMPL(tmpl_key, plan->outputKey);
-			(*buffer_index)--;
-			%{},{}%
-			TMPL(tmpl_column_list_combine, plan->projection, plan, ",", 0, 0, FALSE);
-			%{})){}%
-		}
-		// If this plan has no ORDER BY, then any LIMIT related processing can happen. Otherwise we need to
-		// apply the LIMIT after the ORDER BY processing finally happens in "tmpl_physical_plan".
-		if (NULL == plan->order_by)
-		{
-			keyword = get_keyword_from_keywords(plan->keywords, OPTIONAL_LIMIT);
-			if (NULL != keyword)
-			{	/* Need to maintain a local variable parallely with the output key to be used to break from
-				 * the FOR loop in case the LIMIT is reached. Cannot use the output key for example if a
-				 * UNION is in effect across this plan and another plan in which case both will share the
-				 * same output key but could have differing limits (#269).
-				 */
-				%{}&$INCREMENT(%%ydboctozlimit){}%
-			}
-		}
-		if (!plan->stash_columns_in_keys) {
-			%{} {}%
-			%{}%%ydboctoz=42{}%
-			c = (*global_buffer)[end_resume];
-			(*global_buffer)[end_resume] = '\0';
-			resume_length = end_resume - start_resume;
-			%{}`n{{*global_buffer + start_resume }} {}%
-			(*global_buffer)[end_resume] = c;
-			start_resume = (*buffer_index) - resume_length - 1; /* -1 for space at end of string in above "snprintf" */
-			// Track the output of the table so we can copy-paste it instead of repeating the below logic
-			start_table_reference = *buffer_index;
-			TMPL(tmpl_key, plan->outputKey);
-			// Go back on in the buffer
-			(*buffer_index)--;
-			if (plan->order_by) {
-				%{},"order",{}%
-				/* Last parameter of TRUE indicates this call is for an ORDER BY list */
-				TMPL(tmpl_column_list_combine, plan->order_by, plan, ",", 0, 0, TRUE);
-				%{},{}%
-				TMPL(tmpl_key, plan->outputKey);
-				%{}){}%
-			} else {
-				%{},{}%
-				TMPL(tmpl_key, plan->outputKey);
-				%{}){}%
-			}
-			// Then assign value
-			end_table_reference = *buffer_index;
-			%{}=$GET({}%
-			c = (*global_buffer)[end_table_reference];
-			(*global_buffer)[end_table_reference] = '\0';
-			%{}{{*global_buffer + start_table_reference }}{}%
-			(*global_buffer)[end_table_reference] = c;
-			%{})_{}%
-			end_resume = *buffer_index;
-			TMPL(tmpl_column_list_combine, plan->projection, plan, "_\"|\"_",
-							start_resume, end_resume - start_resume, FALSE);
-		}
+	%{} DO{}%
+	/* If GROUP BY or HAVING have been specified and/or Aggregate functions have been used, invoke another function
+	 * to do the M code generation as the flow is very different (more complicated).
+	 */
+	if (IS_GROUP_BY_PLAN(plan)) {
+		TMPL(tmpl_tablejoin_body_group_by, plan, dot_count);
+		TEMPLATE_END();
 	}
-	if (!plan->distinct_values && plan->emit_duplication_check) {
-		%{}`n    {}%
-		TMPL(tmpl_print_dots, dot_count);
-		%{}SET {}%
-		TMPL(tmpl_duplication_check, plan);
-		%{}=1{}%
-	}
-	// Do DISTINCT processing if needed
-	if (plan->distinct_values) {
-		// Newline for the M code
-		%{}`n    {}%
-		TMPL(tmpl_print_dots, dot_count);
-		%{}SET:1{}%
-
-		%{} {{ config->global_names.cursor }}(cursorId,"Distinct",{}%
-		TMPL(tmpl_column_list_combine, plan->projection, plan, ",", 0, 0, FALSE);
-		%{},{}%
-		TMPL(tmpl_key, plan->outputKey);
-		%{})="",tmpVar=$INCREMENT({{ config->global_names.cursor }}(cursorId,"Distinct",{}%
-		TMPL(tmpl_column_list_combine, plan->projection, plan, ",", 0, 0, FALSE);
-		%{})){}%
-	}
+	// Populate records in the output key (i.e. SELECT column list)
+	TMPL(tmpl_populate_output_key, plan, dot_count);
 	TEMPLATE_END();
 }
 %{}

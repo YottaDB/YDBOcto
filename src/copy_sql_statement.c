@@ -19,29 +19,30 @@
 #include "octo_types.h"
 
 SqlStatement *copy_sql_statement(SqlStatement *stmt) {
-	SqlTableAlias *table_alias, *new_table_alias;
-	SqlColumn *column;
-	SqlColumnList *cur_column_list, *start_column_list, *new_column_list;
-	SqlJoin *cur_join, *start_join, *new_join;
-	SqlInsertStatement *insert;
-	SqlStatement *ret;
-	SqlSelectStatement *select;
-	SqlDropStatement *drop;
-	SqlValue *value;
-	SqlBinaryOperation *binary;
-	SqlUnaryOperation *unary;
-	SqlOptionalKeyword *cur_keyword, *start_keyword, *new_keyword;
-	SqlColumnListAlias *new_cl_alias, *cur_cl_alias, *start_cl_alias;
-	SqlColumnAlias *column_alias;
-	SqlCaseStatement *cas;
-	SqlCaseBranchStatement *cur_cas_branch, *start_cas_branch, *new_cas_branch;
-	SqlFunctionCall *function_call;
-	int len;
+	SqlTableAlias		*table_alias, *new_table_alias;
+	SqlColumn		*column;
+	SqlColumnList		*cur_column_list, *start_column_list, *new_column_list;
+	SqlJoin			*cur_join, *start_join, *new_join;
+	SqlInsertStatement	*insert;
+	SqlStatement		*ret;
+	SqlSelectStatement	*select;
+	SqlDropStatement	*drop;
+	SqlValue		*value;
+	SqlBinaryOperation	*binary;
+	SqlUnaryOperation	*unary;
+	SqlOptionalKeyword	*cur_keyword, *start_keyword, *new_keyword;
+	SqlColumnListAlias	*new_cl_alias, *cur_cl_alias, *start_cl_alias;
+	SqlColumnAlias		*column_alias;
+	SqlCaseStatement	*cas;
+	SqlCaseBranchStatement	*cur_cas_branch, *start_cas_branch, *new_cas_branch;
+	SqlFunctionCall		*function_call;
+	SqlAggregateFunction	*aggregate_function;
+	int			len;
 
-	if(stmt == NULL)
+	if (NULL == stmt)
 		return NULL;
 	// We don't need copy these things because they never get changed
-	if(stmt->type == table_STATEMENT)
+	if (table_STATEMENT == stmt->type)
 		return stmt;
 	SQL_STATEMENT(ret, stmt->type);
 	switch(stmt->type) {
@@ -66,12 +67,14 @@ SqlStatement *copy_sql_statement(SqlStatement *stmt) {
 		ret->v.select->select_list = copy_sql_statement(select->select_list);
 		ret->v.select->table_list = copy_sql_statement(select->table_list);
 		ret->v.select->where_expression = copy_sql_statement(select->where_expression);
+		ret->v.select->group_by_expression = copy_sql_statement(select->group_by_expression);
+		ret->v.select->having_expression = copy_sql_statement(select->having_expression);
 		ret->v.select->optional_words = copy_sql_statement(select->optional_words);
 		// Don't copy the order by, which has a pointer to an element in the select list which has
 		// a pointer to this statement, which results in a loop that causes a stack overflow
 		/// TODO: update the pointers to match the new items in the select_list which has already
 		// been copied by looking at the aliases for each column below
-		//ret->v.select->order_expression = copy_sql_statement(select->order_expression);
+		//ret->v.select->order_by_expression = copy_sql_statement(select->order_by_expression);
 		// Don't copy the set operation because it has a pointer to this select statement
 		//ret->v.select->set_operation = copy_sql_statement(select->set_operation);
 		break;
@@ -87,9 +90,9 @@ SqlStatement *copy_sql_statement(SqlStatement *stmt) {
 		ret->v.value->type = value->type;
 		ret->v.value->data_type = value->data_type;
 		ret->v.value->parameter_index = value->parameter_index;
-		if(value->type == CALCULATED_VALUE) {
+		if (CALCULATED_VALUE == value->type) {
 			ret->v.value->v.calculated = copy_sql_statement(value->v.calculated);
-		} else if(value->type == NUL_VALUE) {
+		} else if (NUL_VALUE == value->type) {
 			// Don't copy a null value
 		} else {
 			len = strlen(value->v.reference) + 1;
@@ -113,24 +116,24 @@ SqlStatement *copy_sql_statement(SqlStatement *stmt) {
 	case column_list_STATEMENT:
 		UNPACK_SQL_STATEMENT(start_column_list, stmt, column_list);
 		//MALLOC_STATEMENT(ret, column_list, SqlColumnList);
-		if(start_column_list) {
+		if (start_column_list) {
 			cur_column_list = start_column_list;
 			do {
 				OCTO_CMALLOC_STRUCT(new_column_list, SqlColumnList);
 				dqinit(new_column_list);
 				new_column_list->value = copy_sql_statement(cur_column_list->value);
-				if(ret->v.column_list == NULL) {
+				if (NULL == ret->v.column_list) {
 					ret->v.column_list = new_column_list;
 				} else {
 					dqappend(new_column_list, ret->v.column_list);
 				}
 				cur_column_list = cur_column_list->next;
-			} while(cur_column_list != start_column_list);
+			} while (cur_column_list != start_column_list);
 		}
 		break;
 	case column_list_alias_STATEMENT:
 		UNPACK_SQL_STATEMENT(start_cl_alias, stmt, column_list_alias);
-		if(start_cl_alias) {
+		if (start_cl_alias) {
 			cur_cl_alias = start_cl_alias;
 			do {
 				OCTO_CMALLOC_STRUCT(new_cl_alias, SqlColumnListAlias);
@@ -139,18 +142,16 @@ SqlStatement *copy_sql_statement(SqlStatement *stmt) {
 				new_cl_alias->alias = copy_sql_statement(cur_cl_alias->alias);
 				new_cl_alias->keywords = copy_sql_statement(new_cl_alias->keywords);
 				new_cl_alias->type = cur_cl_alias->type;
-				if(ret->v.column_list_alias == NULL) {
+				if (NULL == ret->v.column_list_alias) {
 					ret->v.column_list_alias = new_cl_alias;
 				} else {
 					dqappend(new_cl_alias, ret->v.column_list_alias);
 				}
 				cur_cl_alias = cur_cl_alias->next;
-			} while(cur_cl_alias != start_cl_alias);
+			} while (cur_cl_alias != start_cl_alias);
 		}
 		break;
 	case column_STATEMENT:
-		// Columns should only be copied as part of a table copy, in copy_sql_table
-		//  Otherwise, they should be wrapped in a column_alias
 		UNPACK_SQL_STATEMENT(column, stmt, column);
 		MALLOC_STATEMENT(ret, column, SqlColumn);
 		*ret->v.column = *column;
@@ -165,13 +166,13 @@ SqlStatement *copy_sql_statement(SqlStatement *stmt) {
 			new_join->type = cur_join->type;
 			new_join->value = copy_sql_statement(cur_join->value);
 			new_join->condition = copy_sql_statement(cur_join->condition);
-			if(ret->v.join == NULL) {
+			if (NULL == ret->v.join) {
 				ret->v.join = new_join;
 			} else {
 				dqappend(new_join, ret->v.join);
 			}
 			cur_join = cur_join->next;
-		} while(cur_join != start_join);
+		} while (cur_join != start_join);
 		break;
 	case column_alias_STATEMENT:
 		MALLOC_STATEMENT(ret, column_alias, SqlColumnAlias);
@@ -187,7 +188,7 @@ SqlStatement *copy_sql_statement(SqlStatement *stmt) {
 		break;
 	case constraint_STATEMENT:
 	case keyword_STATEMENT:
-		if(stmt->v.keyword) {
+		if (stmt->v.keyword) {
 			UNPACK_SQL_STATEMENT(start_keyword, stmt, keyword);
 			cur_keyword = start_keyword;
 			do {
@@ -195,13 +196,13 @@ SqlStatement *copy_sql_statement(SqlStatement *stmt) {
 				*new_keyword = *cur_keyword;
 				dqinit(new_keyword);
 				new_keyword->v = copy_sql_statement(cur_keyword->v);
-				if(ret->v.keyword) {
+				if (ret->v.keyword) {
 					dqappend(ret->v.keyword, new_keyword);
 				} else {
 					ret->v.keyword = new_keyword;
 				}
 				cur_keyword = cur_keyword->next;
-			} while(cur_keyword != start_keyword);
+			} while (cur_keyword != start_keyword);
 		} else {
 			// Does this happen? It shouldn't, I don't think
 			assert(FALSE);
@@ -234,7 +235,7 @@ SqlStatement *copy_sql_statement(SqlStatement *stmt) {
 			// SqlValue
 			new_cas_branch->value = copy_sql_statement(cur_cas_branch->value);
 			dqinit(new_cas_branch);
-			if(ret->v.cas_branch) {
+			if (ret->v.cas_branch) {
 				dqappend(ret->v.cas_branch, new_cas_branch);
 			} else {
 				ret->v.cas_branch = new_cas_branch;
@@ -247,6 +248,12 @@ SqlStatement *copy_sql_statement(SqlStatement *stmt) {
 		MALLOC_STATEMENT(ret, function_call, SqlFunctionCall);
 		ret->v.function_call->function_name = copy_sql_statement(function_call->function_name);
 		ret->v.function_call->parameters = copy_sql_statement(function_call->parameters);
+		break;
+	case aggregate_function_STATEMENT:
+		UNPACK_SQL_STATEMENT(aggregate_function, stmt, aggregate_function);
+		MALLOC_STATEMENT(ret, aggregate_function, SqlAggregateFunction);
+		ret->v.aggregate_function->type = aggregate_function->type;
+		ret->v.aggregate_function->parameter = copy_sql_statement(aggregate_function->parameter);
 		break;
 	default:
 		assert(FALSE);

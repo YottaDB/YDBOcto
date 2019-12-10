@@ -36,7 +36,8 @@ LP_INSERT:
               LP_BOOLEAN_EQUALS: 
                 LP_COLUMN_ALIAS: N(1).NSPNAME
                 LP_VALUE: pg_catalog
-          LP_KEYWORDS: 
+          LP_SELECT_MORE_OPTIONS: 
+            LP_KEYWORDS: 
   LP_OUTPUT: 
     LP_KEY: 
     - table_name:  
@@ -86,7 +87,8 @@ LP_INSERT:
             LP_BOOLEAN_EQUALS: 
               LP_COLUMN_ALIAS: N(1).NSPNAME
               LP_VALUE: pg_catalog
-          LP_KEYWORDS: 
+          LP_SELECT_MORE_OPTIONS: 
+            LP_KEYWORDS: 
   LP_OUTPUT: 
     LP_KEY: 
     - table_name:  

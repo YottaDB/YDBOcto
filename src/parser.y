@@ -198,7 +198,7 @@ sql_statement
     }
   | sql_data_statement semicolon_or_eof { *out = $sql_data_statement; YYACCEPT; }
   | query_expression semicolon_or_eof {
-      if (qualify_query($query_expression, NULL)) {
+      if (qualify_query($query_expression, NULL, NULL)) {
           YYABORT;
       }
       SqlValueType type;
@@ -974,32 +974,36 @@ result
 
 set_function_specification
   : COUNT LEFT_PAREN ASTERISK RIGHT_PAREN {
-      WARNING(ERR_FEATURE_NOT_IMPLEMENTED, "set_function_specification: COUNT LEFT_PAREN ASTERISK RIGHT_PAREN");
-      SQL_STATEMENT($$, value_STATEMENT);
-      MALLOC_STATEMENT($$, value, SqlValue);
-      $$->v.value->type = UNKNOWN_SqlValueType;
-      $$->v.value->v.string_literal = "0";
+	$$ = aggregate_function(COUNT_ASTERISK_AGGREGATE, NO_KEYWORD, NULL);
     }
   | COUNT LEFT_PAREN set_quantifier value_expression RIGHT_PAREN {
-      WARNING(ERR_FEATURE_NOT_IMPLEMENTED, "set_function_specification: COUNT LEFT_PAREN set_quantifier value_expression RIGHT_PAREN");
-      SQL_STATEMENT($$, value_STATEMENT);
-      MALLOC_STATEMENT($$, value, SqlValue);
-      $$->v.value->type = UNKNOWN_SqlValueType;
-      $$->v.value->v.string_literal = "0";
+	YYLTYPE	tmploc;
+
+	tmploc = $value_expression->loc;	/* needed so we can pass a different yyloc to "aggregate_function()" */
+	$value_expression->loc = yyloc;		/* for later use by "aggregate_function()" */
+	$$ = aggregate_function(COUNT_AGGREGATE, (OptionalKeyword)$set_quantifier, $value_expression);
+	$value_expression->loc = tmploc;	/* Restore origin "loc" now that passing yyloc is done */
     }
   | general_set_function { $$ = $general_set_function; }
   | generic_function_call { $$ = $generic_function_call; }
   ;
 
 general_set_function
-  : set_function_type LEFT_PAREN set_quantifier value_expression RIGHT_PAREN { WARNING(ERR_FEATURE_NOT_IMPLEMENTED, "general_set_function: set_function_type LEFT_PAREN set_quantifier value_expression RIGHT_PAREN"); YYABORT; }
+  : set_function_type LEFT_PAREN set_quantifier value_expression RIGHT_PAREN {
+	YYLTYPE	tmploc;
+
+	tmploc = $value_expression->loc;	/* needed so we can pass a different yyloc to "aggregate_function()" */
+	$value_expression->loc = yyloc;		/* for later use by "aggregate_function()" */
+	$$ = aggregate_function((SqlAggregateType)$set_function_type, (OptionalKeyword)$set_quantifier, $value_expression);
+	$value_expression->loc = tmploc;	/* Restore origin "loc" now that passing yyloc is done */
+    }
   ;
 
 set_function_type
-  : AVG { WARNING(ERR_FEATURE_NOT_IMPLEMENTED, "set_function_type: AVG"); YYABORT; }
-  | MAX { WARNING(ERR_FEATURE_NOT_IMPLEMENTED, "set_function_type: MAX"); YYABORT; }
-  | MIN { WARNING(ERR_FEATURE_NOT_IMPLEMENTED, "set_function_type: MIN"); YYABORT; }
-  | SUM { WARNING(ERR_FEATURE_NOT_IMPLEMENTED, "set_function_type: SUM"); YYABORT; }
+  : AVG { $$ = (SqlStatement *)AVG_AGGREGATE; }
+  | MAX { $$ = (SqlStatement *)MAX_AGGREGATE; }
+  | MIN { $$ = (SqlStatement *)MIN_AGGREGATE; }
+  | SUM { $$ = (SqlStatement *)SUM_AGGREGATE; }
   ;
 
 generic_function_call
@@ -1050,6 +1054,7 @@ column_reference
       c += len_col_name;
       *c++ = '\0';
       qual->v.string_literal = new_string;
+      $$ = $qualifier;
     }
   | column_name { $$ = $column_name; }
   ;

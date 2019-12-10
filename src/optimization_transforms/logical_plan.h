@@ -35,11 +35,11 @@
 	MALLOC_LP(dummyPlan, DEST, DEST_TYPE);			\
 }
 
-#define GET_LP(DEST, SOURCE, SIDE, DEST_TYPE)			\
-{								\
-	assert((SIDE) < 2);					\
-	assert((SOURCE)->v.operand[(SIDE)]->type == DEST_TYPE);	\
-	(DEST) = (SOURCE)->v.operand[(SIDE)];			\
+#define GET_LP(DEST, SOURCE, SIDE, DEST_TYPE)					\
+{										\
+	assert((SIDE) < 2);							\
+	assert((SOURCE)->v.lp_default.operand[(SIDE)]->type == DEST_TYPE);	\
+	(DEST) = (SOURCE)->v.lp_default.operand[(SIDE)];			\
 }
 
 #define	LP_GENERATE_WHERE(STMT, PLAN_ID, PARENT, RET, NULL_RETURN_SEEN)	{	\
@@ -62,45 +62,112 @@ typedef enum {
 } LPActionType;
 #undef LP_ACTION_TYPE
 
+#define	IS_TYPE_LP_AGGREGATE(TYPE)	((LP_AGGREGATE_FUNCTION_COUNT_ASTERISK <= TYPE) && (TYPE < LP_AGGREGATE_LAST))
+
 extern const char *lp_action_type_str[];
 
-// We use yet another triple type here so we can easily traverse the tree
-//  to replace tables and wheres; specifically, the WHERE can have
-//  complete trees under it, and it would be awkward to overload
-//  void pointers
+/* Fields needed by various LP_* types */
+typedef struct LpColumnAlias {
+	SqlColumnAlias		*column_alias;
+} LpColumnAlias;
+
+typedef struct LpColumnListAlias {
+	SqlColumnListAlias	*column_list_alias;
+} LpColumnListAlias;
+
+typedef struct LpValue {
+	SqlValue 		*value;
+} LpValue;
+
+typedef struct LpTable {
+	SqlTableAlias		*table_alias;
+} LpTable;
+
+typedef struct LpKey {
+	struct SqlKey		*key;
+} LpKey;
+
+typedef struct LpKeywords {
+	SqlOptionalKeyword	*keywords;
+} LpKeywords;
+
+typedef struct LpPieceNumber {
+	int			piece_number;
+} LpPieceNumber;
+
+typedef struct LpDefault {
+	struct LogicalPlan	*operand[2];
+} LpDefault;
+
+/* Extra fields needed by LP_TABLE_JOIN */
+typedef struct LpExtraTableJoin {
+	enum SqlJoinType	cur_join_type;
+	struct LogicalPlan	*join_on_condition;
+} LpExtraTableJoin;
+
+/* Extra fields needed by LP_ORDER_BY */
+typedef struct LpExtraOrderBy {
+	enum OptionalKeyword	direction;	/* OPTIONAL_ASC or OPTIONAL_DESC */
+} LpExtraOrderBy;
+
+/* Extra fields needed by LP_ORDER_BY */
+typedef struct LpExtraWhere {
+	int			num_outer_joins;
+} LpExtraWhere;
+
+/* Extra fields needed by LP_INSERT */
+typedef struct LpExtraInsert {
+	SqlTableAlias		*root_table_alias;	/* The outer most SqlTableAlias structure corresponding to this
+							 * logical plan. Needed to forward this to the PhysicalPlan structure.
+							 */
+	struct LogicalPlan	*first_aggregate;
+} LpExtraInsert;
+
+/* Extra fields needed by LP_DERIVED_COLUMN */
+typedef struct LpExtraDerivedColumn {
+	SqlColumnAlias		*subquery_column_alias;	/* The original SqlColumnAlias structure (in the LP_COLUMN_ALIAS plan)
+							 * that was later replaced by a LP_DERIVED_COLUMN. Needed to know
+							 * the type of the original (and in turn the LP_DERIVED_COLUMN) column.
+							 * Also needed to determine the GROUP BY column number.
+							 */
+} LpExtraDerivedColumn;
+
+typedef struct LpExtraAggregateFunction {
+	struct LogicalPlan	*next_aggregate;
+	int			aggregate_cnt;
+	SqlValueType		param_type;	/* Data type (STRING_LITERAL, NUMERIC_LITERAL etc.) of function parameter.
+						 * Initialized/Needed only for LP_AGGREGATE_FUNCTION_MIN/LP_AGGREGATE_FUNCTION_MAX
+						 * Inherited from corresponding `SqlAggregateFunction->type`.
+						 */
+} LpExtraAggregateFunction;
+
+/* We use yet another triple type here so we can easily traverse the tree to replace tables and WHEREs.
+ * Specifically, the WHERE can have complete trees under it, and it would be awkward to overload void pointers.
+ */
 typedef struct LogicalPlan {
 	LPActionType	type;
-	int		extra_detail;	/* currently used for
-					 *  a) ORDER BY (if "type" member is LP_COLUMN_LIST)
-					 *  b) JOIN (if "type" member is LP_TABLE_JOIN)
-					 *  c) WHERE clause (if "type" member is LP_WHERE)
-					 */
 	int		*counter;
 	union {
-		// Set for most types
-		struct LogicalPlan *operand[2];
-		// Set if type == LP_COLUMN_ALIAS
-		SqlColumnAlias *column_alias;
-		// Set if type == LP_COLUMN_LIST_ALIAS
-		SqlColumnListAlias *column_list_alias;
-		// Set if type == LP_VALUE
-		SqlValue *value;
-		// Set if type == LP_TABLE
-		SqlTableAlias *table_alias;
-		// Set if type == LP_KEY
-		struct SqlKey *key;
-		// Set if type == LP_KEYWORD
-		SqlOptionalKeyword *keywords;
-		// Set if type == LP_PIECE_NUMBER
-		int piece_number;
+		/* If any changes to the below union layout happen (new members are added etc.), then code in
+		 * `lp_is_bool_operand_type_string.c` will need to be adjusted (search for LOGICAL_PLAN_KEEP_IN_SYNC).
+		 */
+		LpColumnAlias		lp_column_alias;	// To be used if type == LP_COLUMN_ALIAS
+		LpColumnListAlias	lp_column_list_alias;	// To be used if type == LP_COLUMN_LIST_ALIAS
+		LpValue			lp_value;		// To be used if type == LP_VALUE
+		LpTable			lp_table;		// To be used if type == LP_TABLE
+		LpKey			lp_key;			// To be used if type == LP_KEY
+		LpKeywords		lp_keywords;		// To be used if type == LP_KEYWORDS
+		LpPieceNumber		lp_piece_number;	// To be used if type == LP_PIECE_NUMBER
+		LpDefault		lp_default;		// To be used for all other LP_* types
 	} v;
-	struct LogicalPlan	*join_on_condition;	/* currently used only if "type" is LP_TABLE_JOIN */
-	SqlColumnAlias		*subquery_column_alias;	/* currently used only if "type" is LP_DERIVED_COLUMN.
-							 * This stores the original SqlColumnAlias structure (in the
-							 * LP_COLUMN_ALIAS plan) that was later replaced by a LP_DERIVED_COLUMN.
-							 * Needed to know the type of the original (and in turn the
-							 * LP_DERIVED_COLUMN) column.
-							 */
+	union {
+		LpExtraTableJoin		lp_table_join;		// To be used if type == LP_TABLE_JOIN
+		LpExtraOrderBy			lp_order_by;		// To be used if type == LP_ORDER_BY
+		LpExtraWhere			lp_where;		// To be used if type == LP_WHERE
+		LpExtraInsert			lp_insert;		// To be used if type == LP_INSERT
+		LpExtraDerivedColumn		lp_derived_column;	// To be used if type == LP_DERIVED_COLUMN
+		LpExtraAggregateFunction	lp_aggregate_function;	// To be used if type == LP_DERIVED_COLUMN
+	} extra_detail;
 } LogicalPlan;
 
 typedef struct SqlKey {
@@ -155,7 +222,8 @@ SqlKey *lp_copy_key(SqlKey *key);
 //  OR: root is SET_OPERATION, and has SET_OPTIONS and PLANS as parameters
 //    SET_OPTION has <set type>
 //    PLANS has <INSERT|SET_OPERATION> as both operands
-int lp_verify_structure(LogicalPlan *plan);
+// As a side effect, this also fills in the linked list of aggregate function (`aggregate` parameter).
+int lp_verify_structure(LogicalPlan *plan, LogicalPlan **aggregate);
 
 // Returns the projection triple
 LogicalPlan *lp_get_project(LogicalPlan *plan);
@@ -184,7 +252,8 @@ int lp_get_key_index(LogicalPlan *plan, LogicalPlan *column_alias);
 LogicalPlan *lp_get_output_key(LogicalPlan *plan);
 // Returns the number of columns in the SELECT column list for a given plan
 int lp_get_num_cols_in_select_column_list(LogicalPlan *plan);
-// Returns the
+// Returns the M function name in _ydboctoplanhelpers.m corresponding to the aggregate function type (input parameter `type`)
+char	*lp_get_aggregate_plan_helper_func_name(LPActionType type);
 // Inserts a key at the end of the plans keys
 void lp_insert_key(LogicalPlan *plan, LogicalPlan *key);
 // Returns if either operand of a boolean operation logical plan (e.g. LP_BOOLEAN_LESS_THAN) is of type STRING
@@ -203,7 +272,6 @@ LogicalPlan *lp_generate_xref_plan(LogicalPlan *plan, SqlTable *table, SqlColumn
 LogicalPlan *lp_generate_xref_keys(LogicalPlan *plan, SqlTable *table, SqlColumnAlias *column_alias, SqlTableAlias *table_alias);
 // Returns a logical plan representing the provided ColumnListAlias
 LogicalPlan *lp_column_list_to_lp(SqlColumnListAlias *list, int *plan_id);
-LogicalPlan *lp_table_join_to_column_list(LogicalPlan *table_join, int *plan_id);
 LogicalPlan *lp_replace_derived_table_references(LogicalPlan *root, SqlTableAlias *table_alias, SqlKey *key);
 // Given a SET operation, drills down until it encounters the first LP_INSERT statement
 LogicalPlan *lp_drill_to_insert(LogicalPlan *plan);
@@ -244,7 +312,6 @@ void lp_optimize_where_multi_equal_ands(LogicalPlan *plan, LogicalPlan *where);
 // Returns a unique number within the context of this plan;
 //  maybe not be unique in terms of global numbers
 int get_plan_unique_number(LogicalPlan *plan);
-
 
 // Optimization routines
 int lp_opt_fix_key_to_const(LogicalPlan *root, SqlKey *key, LogicalPlan *value);

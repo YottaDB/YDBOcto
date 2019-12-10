@@ -152,7 +152,8 @@ LP_INSERT:
             LP_BOOLEAN_EQUALS: 
               LP_COLUMN_ALIAS: P(1).PRONAMESPACE
               LP_COLUMN_ALIAS: N(5).OID
-          LP_KEYWORDS: 
+          LP_SELECT_MORE_OPTIONS: 
+            LP_KEYWORDS: 
   LP_OUTPUT: 
     LP_KEY: 
     - table_name:  
@@ -161,19 +162,19 @@ LP_INSERT:
     - method: LP_KEY_ADVANCE
     - xref_key: false
     - uses_xref_key: false
-    LP_COLUMN_LIST: ORDER BY ASC: 
+    LP_ORDER_BY: ORDER BY ASC: 
       LP_COLUMN_LIST: 
         LP_WHERE: 
           LP_COLUMN_ALIAS: N(5).NSPNAME
           LP_COLUMN_LIST_ALIAS: 
           - type: STRING_LITERAL
-      LP_COLUMN_LIST: ORDER BY ASC: 
+      LP_ORDER_BY: ORDER BY ASC: 
         LP_COLUMN_LIST: 
           LP_WHERE: 
             LP_COLUMN_ALIAS: P(1).PRONAME
             LP_COLUMN_LIST_ALIAS: 
             - type: STRING_LITERAL
-        LP_COLUMN_LIST: ORDER BY ASC: 
+        LP_ORDER_BY: ORDER BY ASC: 
           LP_COLUMN_LIST: 
             LP_WHERE: 
               LP_COLUMN_ALIAS: P(1).OID
@@ -270,7 +271,8 @@ LP_INSERT:
                       - uses_xref_key: false
                     LP_SELECT_OPTIONS: 
                       LP_WHERE: 
-                      LP_KEYWORDS:  XREF_INDEX;
+                      LP_SELECT_MORE_OPTIONS: 
+                        LP_KEYWORDS:  XREF_INDEX;
               LP_OUTPUT: 
                 LP_KEY: 
                 - table_name: PG_CATALOG.PG_DESCRIPTION
@@ -351,7 +353,8 @@ LP_INSERT:
             LP_BOOLEAN_EQUALS: 
               LP_COLUMN_ALIAS: P(1).PRONAMESPACE
               LP_COLUMN_ALIAS: N(5).OID
-          LP_KEYWORDS: 
+          LP_SELECT_MORE_OPTIONS: 
+            LP_KEYWORDS: 
   LP_OUTPUT: 
     LP_KEY: 
     - table_name:  
@@ -360,19 +363,19 @@ LP_INSERT:
     - method: LP_KEY_ADVANCE
     - xref_key: false
     - uses_xref_key: false
-    LP_COLUMN_LIST: ORDER BY ASC: 
+    LP_ORDER_BY: ORDER BY ASC: 
       LP_COLUMN_LIST: 
         LP_WHERE: 
           LP_COLUMN_ALIAS: N(5).NSPNAME
           LP_COLUMN_LIST_ALIAS: 
           - type: STRING_LITERAL
-      LP_COLUMN_LIST: ORDER BY ASC: 
+      LP_ORDER_BY: ORDER BY ASC: 
         LP_COLUMN_LIST: 
           LP_WHERE: 
             LP_COLUMN_ALIAS: P(1).PRONAME
             LP_COLUMN_LIST_ALIAS: 
             - type: STRING_LITERAL
-        LP_COLUMN_LIST: ORDER BY ASC: 
+        LP_ORDER_BY: ORDER BY ASC: 
           LP_COLUMN_LIST: 
             LP_WHERE: 
               LP_COLUMN_ALIAS: P(1).OID

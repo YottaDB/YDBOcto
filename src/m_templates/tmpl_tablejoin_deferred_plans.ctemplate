@@ -25,7 +25,7 @@ TEMPLATE(tmpl_tablejoin_deferred_plans, PhysicalPlan *plan, int dot_count) {
 	while (NULL != temp_plan) {
 		if ((temp_plan->parent_plan == plan) && temp_plan->deferred_plan) {
 			TMPL(tmpl_print_dots, dot_count);
-			%{}DO {{ temp_plan->plan_name }}(cursorId)`n    {}%
+			%{}DO {{ temp_plan->plan_name }}(cursorId)`n{{ PLAN_LINE_START }}{}%
 		}
 		temp_plan = temp_plan->next;
 	}

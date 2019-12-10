@@ -35,7 +35,6 @@ PhysicalPlan *emit_select_statement(SqlStatement *stmt, char *plan_filename)
 	LPActionType		set_oper_type;
 	LogicalPlan		*plan, *cur_plan, *column_alias;
 	PhysicalPlan		*pplan;
-	SqlColumn		*column;
 	SqlValue		*value;
 	char			output_key[MAX_STR_CONST], column_id_buffer[MAX_STR_CONST];
 	int			output_key_id, status = 0;
@@ -46,13 +45,13 @@ PhysicalPlan *emit_select_statement(SqlStatement *stmt, char *plan_filename)
 	TRACE(ERR_ENTERING_FUNCTION, "emit_select_statement");
 	memset(output_key, 0, MAX_STR_CONST);
 
-	assert(stmt && (stmt->type == table_alias_STATEMENT || stmt->type == set_operation_STATEMENT));
+	assert(stmt && ((table_alias_STATEMENT == stmt->type) || (set_operation_STATEMENT == stmt->type)));
 	plan = generate_logical_plan(stmt, &config->plan_id);
 	if (NULL == plan) {
 		return NULL;
 	}
 	lp_emit_plan(plan, "BEFORE optimize_logical_plan()");
-	if(lp_verify_structure(plan) == FALSE) {
+	if (lp_verify_structure(plan, NULL) == FALSE) {
 		ERROR(ERR_PLAN_NOT_WELL_FORMED, "");
 		return NULL;
 	}
@@ -96,15 +95,10 @@ PhysicalPlan *emit_select_statement(SqlStatement *stmt, char *plan_filename)
 	do {
 		assert(cur_plan->type == LP_COLUMN_LIST);
 		GET_LP(column_alias, cur_plan, 0, LP_WHERE);
-		if(column_alias->v.operand[1] != NULL) {
-			GET_LP(column_alias, column_alias, 1, LP_COLUMN_LIST_ALIAS);
-			UNPACK_SQL_STATEMENT(value, column_alias->v.column_list_alias->alias, value);
-			// This assumes the SqlValue will outlive this RowDescription
-		} else {
-			GET_LP(column_alias, column_alias, 0, LP_COLUMN_ALIAS);
-			UNPACK_SQL_STATEMENT(column, column_alias->v.column_alias->column, column);
-			UNPACK_SQL_STATEMENT(value, column->columnName, value);
-		}
+		assert(NULL != column_alias->v.lp_default.operand[1]);
+		GET_LP(column_alias, column_alias, 1, LP_COLUMN_LIST_ALIAS);
+		UNPACK_SQL_STATEMENT(value, column_alias->v.lp_column_list_alias.column_list_alias->alias, value);
+		// This assumes the SqlValue will outlive this RowDescription
 		num_columns++;
 		plan_meta[4].len_used = snprintf(column_id_buffer, MAX_STR_CONST, "%d", num_columns);
 
@@ -163,14 +157,11 @@ PhysicalPlan *emit_select_statement(SqlStatement *stmt, char *plan_filename)
 		YDB_ERROR_CHECK(status);
 		if (YDB_OK != status)
 			break;
-		cur_plan = cur_plan->v.operand[1];
-	} while(cur_plan != NULL);
-
+		cur_plan = cur_plan->v.lp_default.operand[1];
+	} while (NULL != cur_plan);
 	free(plan_meta);
 	if (YDB_OK != status)
 		return NULL;
-
-	// Create a table from the last physical table which reads from the output
-	//  values
+	// Create a table from the last physical table which reads from the output values
 	return pplan;
 }

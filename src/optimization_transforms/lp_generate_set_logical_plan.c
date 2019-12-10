@@ -39,12 +39,12 @@ LogicalPlan *lp_generate_set_logical_plan(SqlStatement *stmt, int *plan_id) {
 		return NULL;
 
 	MALLOC_LP_2ARGS(set_operation, LP_SET_OPERATION);
-	MALLOC_LP(options, set_operation->v.operand[0], LP_SET_OPTION);
-	MALLOC_LP(plans, set_operation->v.operand[1], LP_PLANS);
-	plans->v.operand[0] = set_plans[0];
-	plans->v.operand[1] = set_plans[1];
+	MALLOC_LP(options, set_operation->v.lp_default.operand[0], LP_SET_OPTION);
+	MALLOC_LP(plans, set_operation->v.lp_default.operand[1], LP_PLANS);
+	plans->v.lp_default.operand[0] = set_plans[0];
+	plans->v.lp_default.operand[1] = set_plans[1];
 
-	MALLOC_LP(key, options->v.operand[0], LP_SET_UNION);
+	MALLOC_LP(key, options->v.lp_default.operand[0], LP_SET_UNION);
 
 	// Setup the keys to be a set operation
 	switch(set_operation_sql->type) {
@@ -67,13 +67,13 @@ LogicalPlan *lp_generate_set_logical_plan(SqlStatement *stmt, int *plan_id) {
 		key->type = LP_SET_INTERSECT_ALL;
 		break;
 	}
-	MALLOC_LP(dst, options->v.operand[1], LP_OUTPUT);
-	MALLOC_LP(dst_key, dst->v.operand[0], LP_KEY);
-	OCTO_CMALLOC_STRUCT(dst_key->v.key, SqlKey);
-	memset(dst_key->v.key, 0, sizeof(SqlKey));
+	MALLOC_LP(dst, options->v.lp_default.operand[1], LP_OUTPUT);
+	MALLOC_LP(dst_key, dst->v.lp_default.operand[0], LP_KEY);
+	OCTO_CMALLOC_STRUCT(dst_key->v.lp_key.key, SqlKey);
+	memset(dst_key->v.lp_key.key, 0, sizeof(SqlKey));
 	dst_key->counter = plan_id;
-	dst_key->v.key->unique_id = get_plan_unique_number(dst_key);
-	dst_key->v.key->type = LP_KEY_ADVANCE;
+	dst_key->v.lp_key.key->unique_id = get_plan_unique_number(dst_key);
+	dst_key->v.lp_key.key->type = LP_KEY_ADVANCE;
 	// Restore set_operation for cleanup
 	return set_operation;
 }

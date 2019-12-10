@@ -18,32 +18,26 @@
 #include "octo.h"
 #include "octo_types.h"
 
-int get_column_piece_number(SqlColumnAlias *alias, SqlTableAlias *table_alias) {
+int get_column_piece_number(SqlColumnAlias *column_alias, SqlTableAlias *table_alias) {
 	SqlColumn		*column;
-	SqlValue		*value;
-	SqlColumnListAlias	*cur_cl_alias, *start_cl_alias, *t_cl_alias;
-	char			*column_name1, *column_name2;
+	SqlColumnListAlias	*cur_cl_alias, *start_cl_alias;
 	int			part;
 
-	if (column_STATEMENT == alias->column->type) {
-		UNPACK_SQL_STATEMENT(column, alias->column, column);
+	if (column_STATEMENT == column_alias->column->type) {
+		UNPACK_SQL_STATEMENT(column, column_alias->column, column);
 		assert(column->column_number);
 		return column->column_number;
 	}
-	UNPACK_SQL_STATEMENT(t_cl_alias, alias->column, column_list_alias);
-	UNPACK_SQL_STATEMENT(value, t_cl_alias->alias, value);
-	column_name1 = value->v.string_literal;
 	UNPACK_SQL_STATEMENT(start_cl_alias, table_alias->column_list, column_list_alias);
 	cur_cl_alias = start_cl_alias;
 	part = 1;
 	do {
-		UNPACK_SQL_STATEMENT(value, cur_cl_alias->alias, value);
-		column_name2 = value->v.string_literal;
-		if (!strcmp(column_name1, column_name2))
+		if (column_alias == cur_cl_alias->outer_query_column_alias) {
 			break;
+		}
 		part++;
 		cur_cl_alias = cur_cl_alias->next;
-	} while(cur_cl_alias != start_cl_alias);
+	} while (cur_cl_alias != start_cl_alias);
 	assert((1 == part) || (cur_cl_alias != start_cl_alias));
 	return part;
 }

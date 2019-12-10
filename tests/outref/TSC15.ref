@@ -3,11 +3,13 @@ select a,c from (select 1 as a, 2 as b);
 select c,b from (select 1 as a, 2 as b);
 1|2
 [ERROR] PATH:LINENUM DATE TIME : Unknown column: C
+Error with syntax near (line 1, column 10):
 
 select a,c from (select 1 as a, 2 as b);
          ^
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select a,c from (select 1 as a, 2 as b);
 [ERROR] PATH:LINENUM DATE TIME : Unknown column: C
+Error with syntax near (line 1, column 8):
 
 select c,b from (select 1 as a, 2 as b);
        ^

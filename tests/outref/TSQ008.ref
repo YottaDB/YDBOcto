@@ -32,7 +32,8 @@ LP_INSERT:
             LP_BOOLEAN_EQUALS: 
               LP_COLUMN_ALIAS: N(2).OID
               LP_COLUMN_ALIAS: C(1).RELNAMESPACE
-          LP_KEYWORDS: 
+          LP_SELECT_MORE_OPTIONS: 
+            LP_KEYWORDS: 
   LP_OUTPUT: 
     LP_KEY: 
     - table_name:  
@@ -83,7 +84,8 @@ LP_INSERT:
                     - uses_xref_key: false
                   LP_SELECT_OPTIONS: 
                     LP_WHERE: 
-                    LP_KEYWORDS:  XREF_INDEX;
+                    LP_SELECT_MORE_OPTIONS: 
+                      LP_KEYWORDS:  XREF_INDEX;
             LP_OUTPUT: 
               LP_KEY: 
               - table_name: PG_CATALOG.PG_CLASS
@@ -121,7 +123,8 @@ LP_INSERT:
               - uses_xref_key: true
         LP_SELECT_OPTIONS: 
           LP_WHERE: 
-          LP_KEYWORDS: 
+          LP_SELECT_MORE_OPTIONS: 
+            LP_KEYWORDS: 
   LP_OUTPUT: 
     LP_KEY: 
     - table_name:  

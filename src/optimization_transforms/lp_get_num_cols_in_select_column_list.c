@@ -31,7 +31,7 @@ int lp_get_num_cols_in_select_column_list(LogicalPlan *plan) {
 	num_cols = 0;
 	do {
 		num_cols++;
-		column_list = column_list->v.operand[1];
+		column_list = column_list->v.lp_default.operand[1];
 	} while (NULL != column_list);
 	return num_cols;
 }

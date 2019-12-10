@@ -12,7 +12,7 @@ LP_INSERT:
           LP_VALUE: $$^%ydboctoversion
         LP_COLUMN_LIST_ALIAS: 
         - type: STRING_LITERAL
-        - alias: ???
+        - alias: VERSION
     LP_SELECT: 
       LP_TABLE_JOIN: 
         LP_TABLE: OCTOONEROWTABLE
@@ -20,7 +20,8 @@ LP_INSERT:
         LP_KEYS: 
         LP_SELECT_OPTIONS: 
           LP_WHERE: 
-          LP_KEYWORDS: 
+          LP_SELECT_MORE_OPTIONS: 
+            LP_KEYWORDS: 
   LP_OUTPUT: 
     LP_KEY: 
     - table_name:  
@@ -39,7 +40,7 @@ LP_INSERT:
           LP_VALUE: $$^%ydboctoversion
         LP_COLUMN_LIST_ALIAS: 
         - type: STRING_LITERAL
-        - alias: ???
+        - alias: VERSION
     LP_SELECT: 
       LP_TABLE_JOIN: 
         LP_TABLE: OCTOONEROWTABLE
@@ -54,7 +55,8 @@ LP_INSERT:
           - uses_xref_key: false
         LP_SELECT_OPTIONS: 
           LP_WHERE: 
-          LP_KEYWORDS: 
+          LP_SELECT_MORE_OPTIONS: 
+            LP_KEYWORDS: 
   LP_OUTPUT: 
     LP_KEY: 
     - table_name:  

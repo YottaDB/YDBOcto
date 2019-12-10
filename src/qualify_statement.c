@@ -18,18 +18,20 @@
 #include "octo.h"
 #include "octo_types.h"
 
-int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *column_list_alias,
-								int depth, SqlColumnListAlias **ret_cla) {
-	SqlUnaryOperation	*unary;
+int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_alias_stmt,
+							int depth, SqlColumnListAlias **ret_cla) {
+	SqlAggregateFunction	*af;
 	SqlBinaryOperation	*binary;
-	SqlFunctionCall		*fc;
-	SqlColumnList		*start_cl, *cur_cl;
-	SqlValue		*value;
-	SqlCaseStatement	*cas;
 	SqlCaseBranchStatement	*cas_branch, *cur_branch;
-	SqlColumnListAlias	*start_cla, *cur_cla;
-	int			result;
+	SqlCaseStatement	*cas;
 	SqlColumnAlias		*new_column_alias;
+	SqlColumnList		*start_cl, *cur_cl;
+	SqlColumnListAlias	*start_cla, *cur_cla;
+	SqlFunctionCall		*fc;
+	SqlUnaryOperation	*unary;
+	SqlValue		*value;
+	int			result;
+	SqlTableAlias		*column_table_alias, *parent_table_alias, *table_alias;
 
 	result = 0;
 	if (NULL == stmt)
@@ -39,23 +41,65 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *column_
 		assert(FALSE);
 		break;
 	case column_alias_STATEMENT:
-		// We can get here if the select list was empty and we took
-		//  all columns from the table
+		/* We can get here if the select list was empty and we took all columns from the table.
+		 * OR if we are doing GROUP BY validation. Do some checks in the latter case.
+		 * The column name is being used outside of an aggregate function. Check if the outer query
+		 * has found at least one aggregate function or GROUP BY usage. In that case, we expect this
+		 * column name to have a GROUP BY specified. If not, issue error.
+		 */
+		UNPACK_SQL_STATEMENT(new_column_alias, stmt, column_alias);
+		UNPACK_SQL_STATEMENT(column_table_alias, new_column_alias->table_alias, table_alias);
+		parent_table_alias = column_table_alias->parent_table_alias;
+		if (parent_table_alias->do_group_by_checks && (0 == parent_table_alias->aggregate_depth)
+				&& parent_table_alias->aggregate_function_or_group_by_specified
+				&& !new_column_alias->group_by_column_number) {
+			SqlStatement	*column_name;
+			SqlValue	*value;
+
+			column_name = find_column_alias_name(stmt);
+			UNPACK_SQL_STATEMENT(value, column_name, value);
+			ERROR(ERR_GROUP_BY_OR_AGGREGATE_FUNCTION, value->v.string_literal);
+			yyerror(NULL, NULL, &stmt, NULL, NULL, NULL);
+			result = 1;
+		}
 		break;
 	case value_STATEMENT:
 		UNPACK_SQL_STATEMENT(value, stmt, value);
 		switch(value->type) {
 		case COLUMN_REFERENCE:
-			new_column_alias = qualify_column_name(value, tables, column_list_alias, depth + 1, ret_cla);
+			UNPACK_SQL_STATEMENT(table_alias, table_alias_stmt, table_alias);
+			if (table_alias->do_group_by_checks) {
+				/* This is the second pass. Any appropriate error has already been issued so skip this. */
+				break;
+			}
+			new_column_alias = qualify_column_name(value, tables, table_alias_stmt, depth + 1, ret_cla);
 			result = ((NULL == new_column_alias) && ((NULL == ret_cla) || (NULL == *ret_cla)));
 			if (result) {
-				print_yyloc(&stmt->loc);
+				yyerror(NULL, NULL, &stmt, NULL, NULL, NULL);
 			} else {
 				if ((NULL == ret_cla) || (NULL == *ret_cla)) {
 					// Convert this statement to a qualified one by changing the "type".
 					// Note: "qualify_column_name.c" relies on the below for qualifying column names
 					stmt->type = column_alias_STATEMENT;
 					stmt->v.column_alias = new_column_alias;
+					UNPACK_SQL_STATEMENT(column_table_alias, new_column_alias->table_alias, table_alias);
+					parent_table_alias = column_table_alias->parent_table_alias;
+					if (parent_table_alias == table_alias) {
+						if (0 < parent_table_alias->aggregate_depth) {
+							parent_table_alias->aggregate_function_or_group_by_specified = TRUE;
+						} else if (AGGREGATE_DEPTH_GROUP_BY_CLAUSE == parent_table_alias->aggregate_depth) {
+							new_column_alias->group_by_column_number
+									= ++parent_table_alias->group_by_column_count;
+						} else if (0 != parent_table_alias->aggregate_depth) {
+							assert((AGGREGATE_DEPTH_WHERE_CLAUSE == parent_table_alias->aggregate_depth)
+								|| (AGGREGATE_DEPTH_FROM_CLAUSE == parent_table_alias->aggregate_depth));
+							/* AGGREGATE_DEPTH_WHERE_CLAUSE case is inside a WHERE clause where aggregate
+							 * function use is disallowed so do not record anything in that case as that
+							 * will otherwise confuse non-aggregated use of the same column in say a
+							 * SELECT column list. Same reasoning for AGGREGATE_DEPTH_FROM_CLAUSE.
+							 */
+						}
+					}
 				} else {
 					/* Return pointer type is SqlColumnListAlias (not SqlColumnAlias).
 					 * In this case, the needed adjustment of data type will be done in an ancestor
@@ -67,20 +111,20 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *column_
 			}
 			break;
 		case CALCULATED_VALUE:
-			result |= qualify_statement(value->v.calculated, tables, column_list_alias, depth + 1, ret_cla);
+			result |= qualify_statement(value->v.calculated, tables, table_alias_stmt, depth + 1, ret_cla);
 			break;
 		case FUNCTION_NAME:
 			// If it starts with '$$', trim those off and leave it alone (MUMPS expression)
 			// Else, match it with a value from the dictionary in ^octo("functions")
 			result = qualify_function_name(stmt);
 			if (result) {
-				print_yyloc(&stmt->loc);
+				yyerror(NULL, NULL, &stmt, NULL, NULL, NULL);
 			}
 			break;
 		case COERCE_TYPE:
-			result |= qualify_statement(value->v.coerce_target, tables, column_list_alias, depth + 1, ret_cla);
+			result |= qualify_statement(value->v.coerce_target, tables, table_alias_stmt, depth + 1, ret_cla);
 			if (result) {
-				print_yyloc(&stmt->loc);
+				yyerror(NULL, NULL, &stmt, NULL, NULL, NULL);
 			}
 			break;
 		default:
@@ -89,30 +133,70 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *column_
 		break;
 	case binary_STATEMENT:
 		UNPACK_SQL_STATEMENT(binary, stmt, binary);
-		result |= qualify_statement(binary->operands[0], tables, column_list_alias, depth + 1, ret_cla);
-		result |= qualify_statement(binary->operands[1], tables, column_list_alias, depth + 1, ret_cla);
+		result |= qualify_statement(binary->operands[0], tables, table_alias_stmt, depth + 1, ret_cla);
+		result |= qualify_statement(binary->operands[1], tables, table_alias_stmt, depth + 1, ret_cla);
 		break;
 	case unary_STATEMENT:
 		UNPACK_SQL_STATEMENT(unary, stmt, unary);
-		result |= qualify_statement(unary->operand, tables, column_list_alias, depth + 1, ret_cla);
+		result |= qualify_statement(unary->operand, tables, table_alias_stmt, depth + 1, ret_cla);
 		break;
 	case function_call_STATEMENT:
 		UNPACK_SQL_STATEMENT(fc, stmt, function_call);
-		result |= qualify_statement(fc->function_name, tables, column_list_alias, depth + 1, ret_cla);
-		result |= qualify_statement(fc->parameters, tables, column_list_alias, depth + 1, ret_cla);
+		result |= qualify_statement(fc->function_name, tables, table_alias_stmt, depth + 1, ret_cla);
+		result |= qualify_statement(fc->parameters, tables, table_alias_stmt, depth + 1, ret_cla);
+		break;
+	case aggregate_function_STATEMENT:
+		UNPACK_SQL_STATEMENT(af, stmt, aggregate_function);
+		UNPACK_SQL_STATEMENT(table_alias, table_alias_stmt, table_alias);
+		if (table_alias->aggregate_depth) {
+			if (table_alias->do_group_by_checks) {
+				/* This is the second pass. Any appropriate error has already been issued so skip this. */
+				break;
+			}
+			if (0 < table_alias->aggregate_depth) {
+				/* Nesting of aggregate functions at the same query level is not allowed */
+				ERROR(ERR_AGGREGATE_FUNCTION_NESTED, "");
+			} else {
+				/* Note: AGGREGATE_DEPTH_GROUP_BY_CLAUSE is also negative but we should never get here in that
+				 *       case as the parser for GROUP BY would have issued an error if ever GROUP BY is
+				 *       used without just a plain column name.
+				 */
+				assert(AGGREGATE_DEPTH_GROUP_BY_CLAUSE != table_alias->aggregate_depth);
+				if (AGGREGATE_DEPTH_WHERE_CLAUSE == table_alias->aggregate_depth) {
+					/* Aggregate functions are not allowed inside a WHERE clause */
+					ERROR(ERR_AGGREGATE_FUNCTION_WHERE, "");
+				} else if (AGGREGATE_DEPTH_FROM_CLAUSE == table_alias->aggregate_depth) {
+					/* Aggregate functions are not allowed inside a FROM clause.
+					 * Since the only way to use aggregate functions inside a FROM clause is through
+					 * JOIN conditions, issue a JOIN related error (not a FROM related error).
+					 */
+					ERROR(ERR_AGGREGATE_FUNCTION_JOIN, "");
+				} else {
+					assert(FALSE);
+				}
+			}
+			yyerror(NULL, NULL, &af->parameter, NULL, NULL, NULL);
+			result = 1;
+		} else {
+			assert(!table_alias->do_group_by_checks || table_alias->aggregate_function_or_group_by_specified);
+			table_alias->aggregate_function_or_group_by_specified = TRUE;
+			table_alias->aggregate_depth++;
+			result |= qualify_statement(af->parameter, tables, table_alias_stmt, depth + 1, ret_cla);
+			table_alias->aggregate_depth--;
+		}
 		break;
 	case cas_STATEMENT:
 		UNPACK_SQL_STATEMENT(cas, stmt, cas);
-		result |= qualify_statement(cas->value, tables, column_list_alias, depth + 1, ret_cla);
-		result |= qualify_statement(cas->branches, tables, column_list_alias, depth + 1, ret_cla);
-		result |= qualify_statement(cas->optional_else, tables, column_list_alias, depth + 1, ret_cla);
+		result |= qualify_statement(cas->value, tables, table_alias_stmt, depth + 1, ret_cla);
+		result |= qualify_statement(cas->branches, tables, table_alias_stmt, depth + 1, ret_cla);
+		result |= qualify_statement(cas->optional_else, tables, table_alias_stmt, depth + 1, ret_cla);
 		break;
 	case cas_branch_STATEMENT:
 		UNPACK_SQL_STATEMENT(cas_branch, stmt, cas_branch);
 		cur_branch = cas_branch;
 		do {
-			result |= qualify_statement(cur_branch->condition, tables, column_list_alias, depth + 1, ret_cla);
-			result |= qualify_statement(cur_branch->value, tables, column_list_alias, depth + 1, ret_cla);
+			result |= qualify_statement(cur_branch->condition, tables, table_alias_stmt, depth + 1, ret_cla);
+			result |= qualify_statement(cur_branch->value, tables, table_alias_stmt, depth + 1, ret_cla);
 			cur_branch = cur_branch->next;
 		} while (cur_branch != cas_branch);
 		break;
@@ -121,20 +205,22 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *column_
 		UNPACK_SQL_STATEMENT(start_cl, stmt, column_list);
 		cur_cl = start_cl;
 		do {
-			result |= qualify_statement(cur_cl->value, tables, column_list_alias, depth + 1, ret_cla);
+			result |= qualify_statement(cur_cl->value, tables, table_alias_stmt, depth + 1, ret_cla);
 			cur_cl = cur_cl->next;
 		} while (cur_cl != start_cl);
 		break;
 	case table_alias_STATEMENT:
 	case set_operation_STATEMENT:
-		result |= qualify_query(stmt, tables);
+		UNPACK_SQL_STATEMENT(table_alias, table_alias_stmt, table_alias);
+		result |= qualify_query(stmt, tables, table_alias);
 		break;
 	case column_list_alias_STATEMENT:
 		UNPACK_SQL_STATEMENT(start_cla, stmt, column_list_alias);
+		UNPACK_SQL_STATEMENT(table_alias, table_alias_stmt, table_alias);
 		cur_cla = start_cla;
 		do {
 			assert(depth || (NULL == ret_cla) || (NULL == *ret_cla));/* assert that caller has initialized "*ret_cla" */
-			result |= qualify_statement(cur_cla->column_list, tables, column_list_alias, depth + 1, ret_cla);
+			result |= qualify_statement(cur_cla->column_list, tables, table_alias_stmt, depth + 1, ret_cla);
 			if ((NULL != ret_cla) && (0 == depth)) {
 				SqlColumnListAlias	*qualified_cla;
 				int			column_number;
@@ -202,7 +288,7 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *column_
 							if ('.' == *ptr) {
 								ERROR(ERR_ORDER_BY_POSITION_NOT_INTEGER,
 									is_negative_numeric_literal ? "-" : "", str);
-								print_yyloc(&cur_cla->column_list->loc);
+								yyerror(NULL, NULL, &cur_cla->column_list, NULL, NULL, NULL);
 								error_encountered = 1;
 								break;
 							}
@@ -216,7 +302,7 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *column_
 							if ((LONG_MIN == ret) || (LONG_MAX == ret)) {
 								ERROR(ERR_ORDER_BY_POSITION_NOT_INTEGER,
 									is_negative_numeric_literal ? "-" : "", str);
-								print_yyloc(&cur_cla->column_list->loc);
+								yyerror(NULL, NULL, &cur_cla->column_list, NULL, NULL, NULL);
 								error_encountered = 1;
 							}
 						}
@@ -231,14 +317,14 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *column_
 							if (!is_negative_numeric_literal) {
 								column_number = (int)ret;
 								qualified_cla = get_column_list_alias_n_from_table_alias(
-												column_list_alias, column_number);
+												table_alias, column_number);
 							} else {
 								qualified_cla = NULL;
 							}
 							if (NULL == qualified_cla) {
 								ERROR(ERR_ORDER_BY_POSITION_INVALID,
 									is_negative_numeric_literal ? "-" : "", str);
-								print_yyloc(&cur_cla->column_list->loc);
+								yyerror(NULL, NULL, &cur_cla->column_list, NULL, NULL, NULL);
 								error_encountered = 1;
 							}
 						}
@@ -252,8 +338,6 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *column_
 				}
 				/* Actual repointing to SELECT column list cla happens here (above code set things up for here) */
 				if (NULL != qualified_cla) {
-					SqlTableAlias		*table_alias;
-
 					cur_cla->column_list = qualified_cla->column_list;
 					assert(NULL == cur_cla->alias);
 					/* Note: It is not necessary to not copy " qualified_cla->alias" into "cur_cla->alias" */
@@ -261,7 +345,6 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *column_
 					 * which the qualified_cla would not have so do not overwrite those.
 					 */
 					cur_cla->type = qualified_cla->type;
-					UNPACK_SQL_STATEMENT(table_alias, column_list_alias, table_alias);
 					/* Set unique_id and column_number fields. Assert that they are non-zero as
 					 * "hash_canonical_query" skips hashing these fields if they are 0.
 					 */
@@ -270,7 +353,7 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *column_
 					if (order_by_alias) {
 						/* Find the column number from the matched cla */
 						cur_cla->tbl_and_col_id.column_number =
-							get_column_number_from_column_list_alias(qualified_cla, column_list_alias);
+							get_column_number_from_column_list_alias(qualified_cla, table_alias);
 					} else {
 						/* The column number was already specified. So use that as is. */
 						cur_cla->tbl_and_col_id.column_number = column_number;

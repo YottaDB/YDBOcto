@@ -80,6 +80,7 @@ select 1+id*2 as a from (select id from names) order by 1+a;
 9
 11
 [ERROR] PATH:LINENUM DATE TIME : Unknown column: A
+Error with syntax near (line 2, column 58):
 
 -- BUT ORDER BY expressions involving alias names are not allowed (and parse errors are issued)
 select 1+id*2 as a from (select id from names) order by -a;
@@ -87,6 +88,7 @@ select 1+id*2 as a from (select id from names) order by -a;
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: -- BUT ORDER BY expressions involving alias names are not allowed (and parse errors are issued)
 select 1+id*2 as a from (select id from names) order by -a;
 [ERROR] PATH:LINENUM DATE TIME : Unknown column: A
+Error with syntax near (line 1, column 59):
 
 select 1+id*2 as a from (select id from names) order by 1+a;
                                                           ^

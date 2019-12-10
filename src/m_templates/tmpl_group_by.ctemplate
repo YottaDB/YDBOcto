@@ -1,0 +1,72 @@
+{}%
+/****************************************************************
+ *								*
+ * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * All rights reserved.						*
+ *								*
+ *	This source code contains the intellectual property	*
+ *	of its copyright holder(s), and is made available	*
+ *	under a license.  If you do not know the terms of	*
+ *	the license, please stop and do not read further.	*
+ *								*
+ ****************************************************************/
+
+#include "physical_plan.h"
+#include "template_helpers.h"
+
+TEMPLATE(tmpl_group_by, PhysicalPlan *plan, int dot_count) {
+	TEMPLATE_INIT();
+
+	assert(NULL != plan->outputKey);
+	assert(IS_GROUP_BY_PLAN(plan));
+	assert(!plan->outputKey->is_cross_reference_key);	/* caller should have ensured this */
+	TMPL(tmpl_print_dots, dot_count);
+	%{}`n{{ PLAN_LINE_START }}{}%
+	%{}NEW %%ydboctog SET %%ydboctog=""{}%
+	%{}`n{{ PLAN_LINE_START }}{}%
+	TMPL(tmpl_print_dots, dot_count);
+	%{}FOR  {}%
+	if (NULL == plan->order_by) {
+		SqlOptionalKeyword	*limit_keyword;
+
+		limit_keyword = get_keyword_from_keywords(plan->keywords, OPTIONAL_LIMIT);
+		if (NULL != limit_keyword) {
+			%{}QUIT:{}%
+			TMPL(tmpl_limit_check, limit_keyword, "", "'>%ydboctozlimit");
+			%{}  {}%
+		}
+	}
+	%{}DO:$DATA({}%
+	TMPL(tmpl_key, plan->outputKey); (*buffer_index)--;
+	%{},{{ GROUP_BY_SUBSCRIPT }},%%ydboctog))  SET %%ydboctog=$ORDER({}%
+	TMPL(tmpl_key, plan->outputKey); (*buffer_index)--;
+	%{},{{ GROUP_BY_SUBSCRIPT }},%%ydboctog)) QUIT:(""=%%ydboctog){}%
+	// Apply the conditions for this statement
+	//  We put the 'IF 1' here so it's easy to add extra clauses from any of the
+	//  below conditions which may or may not emit boolean logic
+	%{}`n{{ PLAN_LINE_START }}{}%
+	dot_count++;
+	TMPL(tmpl_print_dots, dot_count);
+	%{}IF 1{}%
+	if (NULL != plan->aggregate_options) {
+		LogicalPlan	*having;
+
+		/* Check if there is a HAVING clause. If so, generate plan for that. */
+		having = plan->aggregate_options->v.lp_default.operand[1];
+		if (NULL != having) {
+			%{}&({}%
+			TMPL(tmpl_print_expression, having->v.lp_default.operand[0], plan);
+			%{}){}%
+		}
+	}
+	if (plan->distinct_values) {
+		%{}&($DATA({{ config->global_names.cursor }}(cursorId,{{ DISTINCT_SUBSCRIPT }},{}%
+		TMPL(tmpl_column_list_combine, plan->projection, plan, ",", 0, 0, 0);
+		%{}))=0){}%
+	}
+	%{} DO{}%
+	// Populate records in the output key (i.e. SELECT column list)
+	TMPL(tmpl_populate_output_key, plan, dot_count);
+	TEMPLATE_END();
+}
+%{}

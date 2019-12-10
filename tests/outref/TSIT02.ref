@@ -6,6 +6,7 @@ OCTO>             WHERE n1.id = n2.id
 OCTO>            ) as n3
 OCTO> ON n3.id = n1.id;
 [ERROR] PATH:LINENUM DATE TIME : Unknown column: N1.ID
+Error with syntax near (line 5, column 19):
 
 SELECT *
 FROM names n1

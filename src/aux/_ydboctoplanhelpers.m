@@ -356,3 +356,169 @@ Compare(value1,compOp,value2,isString)
 	QUIT:(">"=compOp) value2]value1
 	QUIT  ; We do not expect to reach here. Hence the QUIT without any value (will generate a runtime error).
 
+CountAsterisk(keyId,groupBySubs,aggrIndex,curValue)
+	; Helper M function to implement the COUNT(*) aggregate function in SQL.
+	; Input:
+	;	keyId       : output key #
+	;	groupBySubs : the subscript corresponding to the GROUP BY column list specification
+	;	aggrIndex   : N if we are processing the Nth aggregate function specified in the query
+	;	curValue    : the value that should be aggregated into `aggrIndex` (unused)
+	; Assumes "%ydboctocursor" and "cursorId" are appropriately set by caller.
+	; Ideally we should be using GROUP_BY_SUBSCRIPT instead of "GroupBy" below but we need some preprocessor in M for that
+	; So we use the hardcoded string instead here.
+	; Since COUNT(*) does not examine values for NULL, no need to use `curValue` in this case.
+	IF $INCREMENT(%ydboctocursor(cursorId,"keys",keyId,"","","GroupBy",groupBySubs,aggrIndex))
+	QUIT
+
+Count(keyId,groupBySubs,aggrIndex,curValue)
+	; Helper M function to implement the COUNT() aggregate function in SQL.
+	; Input:
+	;	keyId       : output key #
+	;	groupBySubs : the subscript corresponding to the GROUP BY column list specification
+	;	aggrIndex   : N if we are processing the Nth aggregate function specified in the query
+	;	curValue    : the value that should be aggregated into `aggrIndex`
+	; Assumes "%ydboctocursor" and "cursorId" are appropriately set by caller.
+	; NOTE: Examine the below program for potential $ZYSQLNULL handling once #311 is fixed
+	; Ideally we should be using GROUP_BY_SUBSCRIPT instead of "GroupBy" below but we need some preprocessor in M for that
+	; So we use the hardcoded string instead here.
+	QUIT:(""=curValue)  ; "" needs to be replaced with $ZYSQLNULL when #311 is fixed
+	IF $INCREMENT(%ydboctocursor(cursorId,"keys",keyId,"","","GroupBy",groupBySubs,aggrIndex))
+	QUIT
+
+Min(keyId,groupBySubs,aggrIndex,curValue,isString)
+	; Helper M function to implement the MIN() and MIN(DISTINCT) aggregate function in SQL.
+	; Input:
+	;	keyId       : output key #
+	;	groupBySubs : the subscript corresponding to the GROUP BY column list specification
+	;	aggrIndex   : N if we are processing the Nth aggregate function specified in the query
+	;	curValue    : the value that should be aggregated into `aggrIndex`
+	;	isString    : 1 if curValue is of string type, 0 if curValue is of numeric type
+	; Assumes "%ydboctocursor" and "cursorId" are appropriately set by caller.
+	; NOTE: Examine the below program for potential $ZYSQLNULL handling once #311 is fixed
+	; Ideally we should be using GROUP_BY_SUBSCRIPT instead of "GroupBy" below but we need some preprocessor in M for that
+	; So we use the hardcoded string instead here.
+	NEW curMin
+	QUIT:(""=curValue)  ; "" needs to be replaced with $ZYSQLNULL when #311 is fixed
+	IF $DATA(%ydboctocursor(cursorId,"keys",keyId,"","","GroupBy",groupBySubs,aggrIndex)) DO
+	. ; Values have already been aggregated. Compare current value against stored min value and update if needed.
+	. SET curMin=%ydboctocursor(cursorId,"keys",keyId,"","","GroupBy",groupBySubs,aggrIndex)
+	. IF (('isString&(curValue<curMin))!(isString&(curMin]curValue))) DO
+	. . SET %ydboctocursor(cursorId,"keys",keyId,"","","GroupBy",groupBySubs,aggrIndex)=curValue
+	ELSE  DO
+	. ; No values have been aggregated yet. Current value is the MIN.
+	. SET %ydboctocursor(cursorId,"keys",keyId,"","","GroupBy",groupBySubs,aggrIndex)=curValue
+	QUIT
+
+Max(keyId,groupBySubs,aggrIndex,curValue,isString)
+	; Helper M function to implement the MAX() and MAX(DISTINCT) aggregate function in SQL.
+	; Input:
+	;	keyId       : output key #
+	;	groupBySubs : the subscript corresponding to the GROUP BY column list specification
+	;	aggrIndex   : N if we are processing the Nth aggregate function specified in the query
+	;	curValue    : the value that should be aggregated into `aggrIndex`
+	;	isString    : 1 if curValue is of string type, 0 if curValue is of numeric type
+	; Assumes "%ydboctocursor" and "cursorId" are appropriately set by caller.
+	; NOTE: Examine the below program for potential $ZYSQLNULL handling once #311 is fixed
+	; Ideally we should be using GROUP_BY_SUBSCRIPT instead of "GroupBy" below but we need some preprocessor in M for that
+	; So we use the hardcoded string instead here.
+	NEW curMax
+	QUIT:(""=curValue)  ; "" needs to be replaced with $ZYSQLNULL when #311 is fixed
+	IF $DATA(%ydboctocursor(cursorId,"keys",keyId,"","","GroupBy",groupBySubs,aggrIndex)) DO
+	. ; Values have already been aggregated. Compare current value against stored max value and update if needed.
+	. SET curMax=%ydboctocursor(cursorId,"keys",keyId,"","","GroupBy",groupBySubs,aggrIndex)
+	. IF (('isString&(curValue>curMax))!(isString&(curValue]curMax))) DO
+	. . SET %ydboctocursor(cursorId,"keys",keyId,"","","GroupBy",groupBySubs,aggrIndex)=curValue
+	ELSE  DO
+	. ; No values have been aggregated yet. Current value is the MAX.
+	. SET %ydboctocursor(cursorId,"keys",keyId,"","","GroupBy",groupBySubs,aggrIndex)=curValue
+	QUIT
+
+Sum(keyId,groupBySubs,aggrIndex,curValue)
+	; Helper M function to implement the SUM() aggregate function in SQL.
+	; Input:
+	;	keyId       : output key #
+	;	groupBySubs : the subscript corresponding to the GROUP BY column list specification
+	;	aggrIndex   : N if we are processing the Nth aggregate function specified in the query
+	;	curValue    : the value that should be aggregated into `aggrIndex`
+	; Assumes "%ydboctocursor" and "cursorId" are appropriately set by caller.
+	; NOTE: Examine the below program for potential $ZYSQLNULL handling once #311 is fixed
+	; Ideally we should be using GROUP_BY_SUBSCRIPT instead of "GroupBy" below but we need some preprocessor in M for that
+	; So we use the hardcoded string instead here.
+	QUIT:(""=curValue)  ; "" needs to be replaced with $ZYSQLNULL when #311 is fixed
+	IF $INCREMENT(%ydboctocursor(cursorId,"keys",keyId,"","","GroupBy",groupBySubs,aggrIndex),curValue)
+	QUIT
+
+Avg(keyId,groupBySubs,aggrIndex,curValue)
+	; Helper M function to implement the AVG() aggregate function in SQL.
+	; Input:
+	;	keyId       : output key #
+	;	groupBySubs : the subscript corresponding to the GROUP BY column list specification
+	;	aggrIndex   : N if we are processing the Nth aggregate function specified in the query
+	;	curValue    : the value that should be aggregated into `aggrIndex`
+	; Assumes "%ydboctocursor" and "cursorId" are appropriately set by caller.
+	; NOTE: Examine the below program for potential $ZYSQLNULL handling once #311 is fixed
+	; Ideally we should be using GROUP_BY_SUBSCRIPT instead of "GroupBy" below but we need some preprocessor in M for that
+	; So we use the hardcoded string instead here.
+	; Note: We store the cumulative sum and the cumulative count here. Actual average will be taken in generated M code
+	;	(code generation happens in `src/m_templates/tmpl_print_expression.ctemplate` in the LP_AGGREGATE_FUNCTION_AVG
+	;	and LP_AGGREGATE_FUNCTION_AVG_DISTINCT switch/case blocks).
+	; If we use `aggrIndex` (without the minus sign prefix), we could encounter an issue.
+	;	This is because in the case of AVG(DISTINCT), the label `AvgDistinct` could encounter curValue as "SUM" or "COUNT"
+	;	in which case it is going to set that as a subscript underneath the `aggrIndex` subscript in which case, it
+	;	would confuse the "SUM"/"COUNT" maintenance for AVG. Hence the choice of a negative subscript.
+	QUIT:(""=curValue)  ; "" needs to be replaced with $ZYSQLNULL when #311 is fixed
+	IF $INCREMENT(%ydboctocursor(cursorId,"keys",keyId,"","","GroupBy",groupBySubs,-aggrIndex,"SUM"),curValue)
+	IF $INCREMENT(%ydboctocursor(cursorId,"keys",keyId,"","","GroupBy",groupBySubs,-aggrIndex,"COUNT"))
+	QUIT
+
+CountDistinct(keyId,groupBySubs,aggrIndex,curValue)
+	; Helper M function to implement the COUNT(DISTINCT) aggregate function in SQL.
+	; Input:
+	;	keyId       : output key #
+	;	groupBySubs : the subscript corresponding to the GROUP BY column list specification
+	;	aggrIndex   : N if we are processing the Nth aggregate function specified in the query
+	;	curValue    : the value that should be aggregated into `aggrIndex`
+	; Assumes "%ydboctocursor" and "cursorId" are appropriately set by caller.
+	; NOTE: Examine the below program for potential $ZYSQLNULL handling once #311 is fixed
+	; Ideally we should be using GROUP_BY_SUBSCRIPT instead of "GroupBy" below but we need some preprocessor in M for that
+	; So we use the hardcoded string instead here.
+	QUIT:(""=curValue)  ; "" needs to be replaced with $ZYSQLNULL when #311 is fixed
+	QUIT:$DATA(%ydboctocursor(cursorId,"keys",keyId,"","","GroupBy",groupBySubs,aggrIndex,curValue))
+	SET %ydboctocursor(cursorId,"keys",keyId,"","","GroupBy",groupBySubs,aggrIndex,curValue)=""
+	DO Count(keyId,groupBySubs,aggrIndex,curValue)
+	QUIT
+
+SumDistinct(keyId,groupBySubs,aggrIndex,curValue)
+	; Helper M function to implement the SUM(DISTINCT) aggregate function in SQL.
+	; Input:
+	;	keyId       : output key #
+	;	groupBySubs : the subscript corresponding to the GROUP BY column list specification
+	;	aggrIndex   : N if we are processing the Nth aggregate function specified in the query
+	;	curValue    : the value that should be aggregated into `aggrIndex`
+	; Assumes "%ydboctocursor" and "cursorId" are appropriately set by caller.
+	; NOTE: Examine the below program for potential $ZYSQLNULL handling once #311 is fixed
+	; Ideally we should be using GROUP_BY_SUBSCRIPT instead of "GroupBy" below but we need some preprocessor in M for that
+	; So we use the hardcoded string instead here.
+	QUIT:(""=curValue)  ; "" needs to be replaced with $ZYSQLNULL when #311 is fixed
+	QUIT:$DATA(%ydboctocursor(cursorId,"keys",keyId,"","","GroupBy",groupBySubs,aggrIndex,curValue))
+	SET %ydboctocursor(cursorId,"keys",keyId,"","","GroupBy",groupBySubs,aggrIndex,curValue)=""
+	DO Sum(keyId,groupBySubs,aggrIndex,curValue)
+	QUIT
+
+AvgDistinct(keyId,groupBySubs,aggrIndex,curValue)
+	; Helper M function to implement the AVG(DISTINCT) aggregate function in SQL.
+	; Input:
+	;	keyId       : output key #
+	;	groupBySubs : the subscript corresponding to the GROUP BY column list specification
+	;	aggrIndex   : N if we are processing the Nth aggregate function specified in the query
+	;	curValue    : the value that should be aggregated into `aggrIndex`
+	; Assumes "%ydboctocursor" and "cursorId" are appropriately set by caller.
+	; NOTE: Examine the below program for potential $ZYSQLNULL handling once #311 is fixed
+	; Ideally we should be using GROUP_BY_SUBSCRIPT instead of "GroupBy" below but we need some preprocessor in M for that
+	; So we use the hardcoded string instead here.
+	QUIT:(""=curValue)  ; "" needs to be replaced with $ZYSQLNULL when #311 is fixed
+	QUIT:$DATA(%ydboctocursor(cursorId,"keys",keyId,"","","GroupBy",groupBySubs,aggrIndex,curValue))
+	SET %ydboctocursor(cursorId,"keys",keyId,"","","GroupBy",groupBySubs,aggrIndex,curValue)=""
+	DO Avg(keyId,groupBySubs,aggrIndex,curValue)
+	QUIT
+

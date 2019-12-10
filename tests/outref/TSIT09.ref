@@ -12,6 +12,7 @@ OCTO>             WHERE n1.id = n3.id
 OCTO>            ) as n4
 OCTO> ON n4.id = n1.id;
 [ERROR] PATH:LINENUM DATE TIME : Unknown column: N1.ID
+Error with syntax near (line 5, column 19):
 
 SELECT *
 FROM names n1
@@ -20,6 +21,7 @@ RIGHT JOIN (SELECT *
             WHERE n1.id = n2.id
                   ^^^^^
 [ERROR] PATH:LINENUM DATE TIME : Unknown column: N1.ID
+Error with syntax near (line 9, column 19):
 
 SELECT *
 FROM names n1

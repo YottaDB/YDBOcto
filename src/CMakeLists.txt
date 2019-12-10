@@ -121,16 +121,17 @@ add_library(libocto OBJECT
   generate_key_name.c
   get_key_columns.c
   hash_canonical_query.c
+  init_parent_table_alias.c
   assign_table_to_columns.c
   add_optional_piece_keyword_to_sql_column.c
   columns_equal.c
   tables_equal.c
   values_equal.c
-  column_list_alias_to_columns.c
   columns_to_column_list_alias.c
   get_column_piece_number.c
   get_column_number_from_column_list_alias.c
   get_column_list_alias_n_from_table_alias.c
+  get_column_alias_for_column_list_alias.c
   drill_to_table_alias.c
   run_query.c
   parse_startup_flags.c
@@ -159,7 +160,6 @@ add_library(libocto OBJECT
   optimization_transforms/lp_join_where.c
   optimization_transforms/lp_generate_where.c
   optimization_transforms/lp_column_list_to_lp.c
-  optimization_transforms/lp_table_join_to_column_list.c
   optimization_transforms/lp_replace_derived_table_references.c
   optimization_transforms/lp_get_output_key.c
   optimization_transforms/lp_get_project.c
@@ -171,6 +171,7 @@ add_library(libocto OBJECT
   optimization_transforms/lp_generate_xref_plan.c
   optimization_transforms/lp_generate_xref_keys.c
   optimization_transforms/lp_get_table_join.c
+  optimization_transforms/lp_get_aggregate_plan_helper_func_name.c
   optimization_transforms/lp_make_key.c
   optimization_transforms/lp_optimize_where_multi_equals_ands.c
   optimization_transforms/lp_drill_to_insert.c
@@ -192,6 +193,8 @@ add_library(libocto OBJECT
   parser/regex_specification.c
   parser/row_value_constructor_binary_statement.c
   parser/between_predicate.c
+  parser/aggregate_function.c
+  parser/grouping_column_reference.c
   ${BISON_OctoParser_OUTPUTS}
   ${FLEX_OctoLexer_OUTPUTS}
   ${POST_CONFIGURE_FILE}
@@ -327,8 +330,12 @@ set(template_files
   ${template_dir}/tmpl_rightjoin_key.ctemplate
   ${template_dir}/tmpl_tablejoin.ctemplate
   ${template_dir}/tmpl_tablejoin_body.ctemplate
+  ${template_dir}/tmpl_tablejoin_body_group_by.ctemplate
   ${template_dir}/tmpl_tablejoin_deferred_plans.ctemplate
   ${template_dir}/tmpl_temp_key_advance.ctemplate
+  ${template_dir}/tmpl_group_by.ctemplate
+  ${template_dir}/tmpl_populate_output_key.ctemplate
+  ${template_dir}/tmpl_limit_check.ctemplate
   )
 foreach(template ${template_files})
   get_filename_component(fileName ${template} NAME)

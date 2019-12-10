@@ -20,7 +20,8 @@ LP_INSERT:
         LP_KEYS: 
         LP_SELECT_OPTIONS: 
           LP_WHERE: 
-          LP_KEYWORDS: 
+          LP_SELECT_MORE_OPTIONS: 
+            LP_KEYWORDS: 
   LP_OUTPUT: 
     LP_KEY: 
     - table_name:  
@@ -53,7 +54,8 @@ LP_INSERT:
           - uses_xref_key: false
         LP_SELECT_OPTIONS: 
           LP_WHERE: 
-          LP_KEYWORDS: 
+          LP_SELECT_MORE_OPTIONS: 
+            LP_KEYWORDS: 
   LP_OUTPUT: 
     LP_KEY: 
     - table_name:  
@@ -103,5 +105,5 @@ octoPlan1(cursorId)
     FOR  SET %ydboctocursor(cursorId,"keys",1,"NAMES","ID")=$ORDER(^names(%ydboctocursor(cursorId,"keys",1,"NAMES","ID"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"NAMES","ID")="")  DO
     . IF 1 DO
     . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42
-    . . SET:1 %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=$GET(%ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"","")))_$GET(%ydboctocursor(cursorId,"parameters",1))
+    . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=$GET(%ydboctocursor(cursorId,"parameters",1))
     QUIT

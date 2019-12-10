@@ -1,5 +1,6 @@
 OCTO> SELECT invalid from (SELECT invalid from names);
 [ERROR] PATH:LINENUM DATE TIME : Unknown column: INVALID
+Error with syntax near (line 1, column 28):
 
 SELECT invalid from (SELECT invalid from names);
                             ^^^^^^^

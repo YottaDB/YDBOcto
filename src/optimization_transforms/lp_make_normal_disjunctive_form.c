@@ -28,7 +28,7 @@ LogicalPlan *lp_apply_not(LogicalPlan *root, int count) {
 	LPActionType	type;
 
 	if (LP_BOOLEAN_NOT == root->type) {
-		type = root->v.operand[0]->type;
+		type = root->v.lp_default.operand[0]->type;
 		// Don't recurse for stuff that we cannot apply the NOT operation.
 		// (e.g. regex calls, or anything like a function call or columns ref)
 		if ((LP_BOOLEAN_REGEX_SENSITIVE == type)
@@ -39,19 +39,19 @@ LogicalPlan *lp_apply_not(LogicalPlan *root, int count) {
 		}
 		count++;
 		// This will trim the NOT from the expression
-		return lp_apply_not(root->v.operand[0], count);
+		return lp_apply_not(root->v.lp_default.operand[0], count);
 	}
 	if (count % 2) {
 		switch(root->type) {
 			case LP_BOOLEAN_OR:
 				root->type = LP_BOOLEAN_AND;
-				root->v.operand[0] = lp_apply_not(root->v.operand[0], count);
-				root->v.operand[1] = lp_apply_not(root->v.operand[1], count);
+				root->v.lp_default.operand[0] = lp_apply_not(root->v.lp_default.operand[0], count);
+				root->v.lp_default.operand[1] = lp_apply_not(root->v.lp_default.operand[1], count);
 				break;
 			case LP_BOOLEAN_AND:
 				root->type = LP_BOOLEAN_OR;
-				root->v.operand[0] = lp_apply_not(root->v.operand[0], count);
-				root->v.operand[1] = lp_apply_not(root->v.operand[1], count);
+				root->v.lp_default.operand[0] = lp_apply_not(root->v.lp_default.operand[0], count);
+				root->v.lp_default.operand[1] = lp_apply_not(root->v.lp_default.operand[1], count);
 				break;
 			case LP_BOOLEAN_EQUALS:
 				root->type = LP_BOOLEAN_NOT_EQUALS;
@@ -137,8 +137,8 @@ LogicalPlan *lp_make_normal_disjunctive_form(LogicalPlan *root) {
 	if ((LP_BOOLEAN_AND != root->type) && (LP_BOOLEAN_OR != root->type)) {
 		return root;
 	}
-	LogicalPlan *left = lp_make_normal_disjunctive_form(root->v.operand[0]);
-	LogicalPlan *right = lp_make_normal_disjunctive_form(root->v.operand[1]);
+	LogicalPlan *left = lp_make_normal_disjunctive_form(root->v.lp_default.operand[0]);
+	LogicalPlan *right = lp_make_normal_disjunctive_form(root->v.lp_default.operand[1]);
 
 	// Algorithm:
 	// 1. Process left and right children into normal form
@@ -149,8 +149,8 @@ LogicalPlan *lp_make_normal_disjunctive_form(LogicalPlan *root) {
 
 	// If this case is not an AND, we don't need to combine things, so return early
 	if (LP_BOOLEAN_AND != root->type) {
-		root->v.operand[0] = left;
-		root->v.operand[1] = right;
+		root->v.lp_default.operand[0] = left;
+		root->v.lp_default.operand[1] = right;
 		return root;
 	}
 
@@ -166,48 +166,48 @@ LogicalPlan *lp_make_normal_disjunctive_form(LogicalPlan *root) {
 
 			LogicalPlan *next_l = l;
 			if (LP_BOOLEAN_OR == next_l->type) {
-				next_l = next_l->v.operand[0];
+				next_l = next_l->v.lp_default.operand[0];
 			}
 			LogicalPlan *next_r = r;
 			if (LP_BOOLEAN_OR == next_r->type) {
-				next_r = next_r->v.operand[0];
+				next_r = next_r->v.lp_default.operand[0];
 			}
 			if ((LP_BOOLEAN_OR != l->type) && (LP_BOOLEAN_OR != r->type)) {
 				boolean_type = LP_BOOLEAN_AND;
 			}
-			lp->v.operand[0] = next_l;
-			lp->v.operand[1] = next_r;
+			lp->v.lp_default.operand[0] = next_l;
+			lp->v.lp_default.operand[1] = next_r;
 			if (NULL == cur) {
 				MALLOC_LP_2ARGS(ret, boolean_type);
 				cur = ret;
 			}
-			cur->v.operand[0] = lp;
-			MALLOC_LP_2ARGS(cur->v.operand[1], boolean_type);
-			cur = cur->v.operand[1];
+			cur->v.lp_default.operand[0] = lp;
+			MALLOC_LP_2ARGS(cur->v.lp_default.operand[1], boolean_type);
+			cur = cur->v.lp_default.operand[1];
 			if ((LP_BOOLEAN_OR != r->type)) {
 				break;
 			}
-			r = r->v.operand[1];
+			r = r->v.lp_default.operand[1];
 		} while (r);
 		if ((LP_BOOLEAN_OR != l->type)) {
 			break;
 		}
-		l = l->v.operand[1];
+		l = l->v.lp_default.operand[1];
 	} while (l);
 
 	// Promote the last item
-	if ((NULL == ret->v.operand[1]) || (NULL == ret->v.operand[1]->v.operand[0])) {
-		ret = ret->v.operand[0];
+	if ((NULL == ret->v.lp_default.operand[1]) || (NULL == ret->v.lp_default.operand[1]->v.lp_default.operand[0])) {
+		ret = ret->v.lp_default.operand[0];
 	} else {
 		LogicalPlan	*prev;
 
 		prev = ret;
-		cur = ret->v.operand[1];
-		while ((NULL != cur->v.operand[1]) && (NULL != cur->v.operand[1]->v.operand[0])) {
+		cur = ret->v.lp_default.operand[1];
+		while ((NULL != cur->v.lp_default.operand[1]) && (NULL != cur->v.lp_default.operand[1]->v.lp_default.operand[0])) {
 			prev = cur;
-			cur = cur->v.operand[1];
+			cur = cur->v.lp_default.operand[1];
 		}
-		prev->v.operand[1] = cur->v.operand[0];
+		prev->v.lp_default.operand[1] = cur->v.lp_default.operand[0];
 	}
 	return ret;
 }

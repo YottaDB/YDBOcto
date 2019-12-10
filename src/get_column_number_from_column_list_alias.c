@@ -17,13 +17,11 @@
 
 // Returns the column number of the input cla in the input table_alias
 // Searches for the cla in the table_alias SELECT column list (linked list)
-int get_column_number_from_column_list_alias(SqlColumnListAlias *input_cla, SqlStatement *table_alias_stmt) {
-	SqlTableAlias		*table_alias;
+int get_column_number_from_column_list_alias(SqlColumnListAlias *input_cla, SqlTableAlias *table_alias) {
 	SqlColumnListAlias	*start_cla, *cur_cla;
 	int			column_number;
 
 	column_number = 1;
-	UNPACK_SQL_STATEMENT(table_alias, table_alias_stmt, table_alias);
 	UNPACK_SQL_STATEMENT(start_cla, table_alias->column_list, column_list_alias);
 	cur_cla = start_cla;
 	do {

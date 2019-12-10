@@ -95,6 +95,7 @@ typedef enum SqlStatementType {
 	drop_STATEMENT,
 	value_STATEMENT,
 	function_call_STATEMENT,
+	aggregate_function_STATEMENT,
 	binary_STATEMENT,
 	unary_STATEMENT,
 	column_list_STATEMENT,
@@ -237,10 +238,21 @@ typedef enum SqlJoinType {
 	NATURAL_JOIN
 } SqlJoinType;
 
-typedef enum SqlSortType {
-	ASC_TYPE,
-	DESC_TYPE
-} SqlSortType;
+/* Note: Order of the below enums should be kept in sync with order of `LP_AGGREGATE_FUNCTION_*` types in `lp_action_type.hd` */
+typedef enum SqlAggregateType {
+	COUNT_ASTERISK_AGGREGATE,
+	COUNT_AGGREGATE,
+	SUM_AGGREGATE,
+	AVG_AGGREGATE,
+	MIN_AGGREGATE,
+	MAX_AGGREGATE,
+	COUNT_AGGREGATE_DISTINCT,
+	SUM_AGGREGATE_DISTINCT,
+	AVG_AGGREGATE_DISTINCT,
+	/* Note: MIN_AGGREGATE_DISTINCT is equivalent to MIN_AGGREGATE */
+	/* Note: MAX_AGGREGATE_DISTINCT is equivalent to MAX_AGGREGATE */
+	AGGREGATE_LAST
+} SqlAggregateType;
 
 #define YYLTYPE yyltype
 
@@ -305,9 +317,16 @@ typedef struct SqlColumn
 typedef struct SqlColumnAlias
 {
 	// SqlColumn or SqlColumnListAlias
-	struct SqlStatement *column;
+	struct SqlStatement	*column;
 	// SqlTableAlias
-	struct SqlStatement *table_alias;
+	struct SqlStatement	*table_alias;
+	int			group_by_column_number;		/* 0 if this column name was not specified in a GROUP BY.
+								 * Holds a non-zero index # if column name was specified in GROUP BY
+								 * (e.g. in query `SELECT 1+id FROM names GROUP BY id,firstname`,
+								 *  this field would be 1 for the SqlColumnAlias corresponding to
+								 *  `id` and 2 for the SqlColumnAlias corresponding to `firstname`
+								 *  and 0 for the SqlColumnAlias corresponding to `lastname`).
+								 */
 } SqlColumnAlias;
 
 /**
@@ -324,12 +343,26 @@ typedef struct SqlTable
 typedef struct SqlTableAlias
 {
 	// SqlTable or SqlSelectStatement
-	struct SqlStatement *table;
+	struct SqlStatement		*table;
 	// SqlValue
-	struct SqlStatement *alias;
-	int unique_id;
+	struct SqlStatement		*alias;
+	int				unique_id;
+	// Below fields are used for GROUP BY validation and/or to track Aggregate function use
+	int				group_by_column_count;
+	int				aggregate_depth;
+	boolean_t			aggregate_function_or_group_by_specified;
+	boolean_t			do_group_by_checks;	/* TRUE for the time we are in "qualify_statement()" while doing
+								 * GROUP BY related checks in the SELECT column list and ORDER BY
+								 * list. Note that "qualify_statement()" is invoked twice on these
+								 * lists. The first time, this flag is FALSE. The second time it is
+								 * TRUE. This is used to issue GROUP BY related errors (which
+								 * requires us to have scanned the entire SELECT column list at
+								 * least once) and also to avoid issuing duplicate errors related
+								 * to Unknown column name etc.
+								 */
+	struct SqlTableAlias		*parent_table_alias;
 	// SqlColumnListAlias list of available columns
-	struct SqlStatement *column_list;
+	struct SqlStatement		*column_list;
 } SqlTableAlias;
 
 /**
@@ -367,8 +400,12 @@ typedef struct SqlSelectStatement
 	struct SqlStatement	*table_list;
 	// SqlValue (?)
 	struct SqlStatement	*where_expression;
+	// SqlColumnListAlias
+	struct SqlStatement	*group_by_expression;
 	// SqlValue (?)
-	struct SqlStatement	*order_expression;
+	struct SqlStatement	*having_expression;
+	// SqlValue (?)
+	struct SqlStatement	*order_by_expression;
 	// SqlOptionalKeyword
 	struct SqlStatement	*optional_words;
 } SqlSelectStatement;
@@ -406,6 +443,15 @@ typedef struct SqlBinaryOperation
 	struct SqlStatement *operands[2];
 } SqlBinaryOperation;
 
+typedef struct SqlAggregateFunction {
+	SqlAggregateType	type;			// COUNT_ASTERISK, AVG, SUM, MIN, MAX
+	SqlValueType		param_type;		/* Data type (STRING_LITERAL, NUMERIC_LITERAL etc.) of function parameter.
+							 * Initialized/Needed only if `type` is MIN_AGGREGATE or MAX_AGGREGATE.
+							 */
+	// SqlColumnList
+	struct SqlStatement	*parameter;
+} SqlAggregateFunction;
+
 typedef struct SqlFunctionCall {
 	// SqlValue
 	struct SqlStatement *function_name;
@@ -421,7 +467,7 @@ typedef struct SqlValue {
 	union {
 		char *string_literal;
 		char *reference;
-		// SqlBinaryOperation, SqlUnaryOperation, SqlFunctionCall
+		// SqlBinaryOperation, SqlUnaryOperation, SqlFunctionCall, SqlAggregateFunction
 		struct SqlStatement *calculated;
 		// Target to coerce; SqlValue, SqlColumnAlias
 		struct SqlStatement *coerce_target;
@@ -457,6 +503,8 @@ typedef struct SqlColumnListAlias {
 	 * (see "QUALIFY_COLUMN_REFERENCE" in qualify_statement.c).
 	 */
 	SqlTableIdColumnId		tbl_and_col_id;
+	SqlColumnAlias			*outer_query_column_alias;	// the ColumnAlias structure corresponding to this
+									// ColumnListAlias if/when referenced in outer query
 	dqcreate(SqlColumnListAlias);
 } SqlColumnListAlias;
 
@@ -527,6 +575,7 @@ typedef struct SqlStatement{
 		struct SqlDropStatement *drop;
 		struct SqlValue *value;
 		struct SqlFunctionCall *function_call;
+		struct SqlAggregateFunction *aggregate_function;
 		struct SqlBinaryOperation *binary;
 		struct SqlUnaryOperation *unary;
 		struct SqlColumnList *column_list;

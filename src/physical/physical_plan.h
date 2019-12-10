@@ -53,12 +53,12 @@ typedef struct PhysicalPlan {
 	// These represent the keys we used to do the iteration
 	SqlKey			*iterKeys[MAX_KEY_COUNT];
 	SqlKey			*outputKey;
-	SqlTableAlias		*outputTable;
-	LogicalPlan		*where;
+	LogicalPlan		*where;			/* WHERE clause */
+	LogicalPlan		*tablejoin;		/* FROM clause */
+	LogicalPlan		*aggregate_options;	/* GROUP BY and HAVING */
+	SqlOptionalKeyword	*keywords;		/* DISTINCT etc. */
+	LogicalPlan		*order_by;		/* ORDER BY clause */
 	LogicalPlan		*projection;
-	LogicalPlan		*order_by;
-	LogicalPlan		*tablejoin;
-	SqlOptionalKeyword	*keywords;
 	unsigned int		total_iter_keys;
 	// If set to 1, this plan should emit the columns as subscripts of the key,
 	//  rather than using a row id
@@ -88,9 +88,18 @@ typedef struct PhysicalPlan {
 							 * references to columns from this table are automatically
 							 * treated as NULL (replaced with "") in the generated M code.
 							 */
+	boolean_t		tablejoin_body_group_by_done;	/* FALSE initially. Set to TRUE in "tmpl_physical_plan"
+								 * once "tmpl_tablejoin_body_group_by" call is done
+								 * but "tmpl_group_by" call has not happened.
+								 */
+	boolean_t		aggregate_function_or_group_by_specified;
 	SetOperType		*set_oper_list;		/* Linked list of SET OPERATIONS to do on this plan at the end */
 	struct PhysicalPlan	*dnf_prev, *dnf_next;	/* Linked list of plans that are at the same LP_SET_DNF level */
+	LogicalPlan		*lp_insert;		/* The owning LP_INSERT logical plan corresponding to this physical plan */
 } PhysicalPlan;
+
+/* Below macro returns TRUE if GROUP BY or HAVING have been specified and/or Aggregate functions have been used in plan */
+#define	IS_GROUP_BY_PLAN(PLAN) (PLAN->aggregate_function_or_group_by_specified)
 
 // This provides a convenient way to pass options to subplans
 // which need to be aware of a request from a higher level

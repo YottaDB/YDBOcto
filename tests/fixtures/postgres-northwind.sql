@@ -51,7 +51,7 @@ INSERT INTO Customers VALUES (20,'Ernst Handel','Roland Mendel','Kirchgasse 6','
 INSERT INTO Customers VALUES (21,'Familia Arquibaldo','Aria Cruz','Rua Ors, 92','So Paulo','05442-030','Brazil');
 INSERT INTO Customers VALUES (22,'FISSA Fabrica Inter. Salchichas S.A.','Diego Roel','C/ Moralzarzal, 86','Madrid','28034','Spain');
 INSERT INTO Customers VALUES (23,'Folies gourmandes','Martine Ranc','184, chausse de Tournai','Lille','59000','France');
-INSERT INTO Customers VALUES (24,'Folk och f HB','Maria Larsson','kergatan 24','Brcke','S-844 67','Sweden');
+INSERT INTO Customers VALUES (24,'Folk och ff HB','Maria Larsson','kergatan 24','Brcke','S-844 67','Sweden');
 INSERT INTO Customers VALUES (25,'Frankenversand','Peter Franken','Berliner Platz 43','Mnchen','80805','Germany');
 INSERT INTO Customers VALUES (26,'France restauration','Carine Schmitt','54, rue Royale','Nantes','44000','France');
 INSERT INTO Customers VALUES (27,'Franchi S.p.A.','Paolo Accorti','Via Monte Bianco 34','Torino','10100','Italy');

@@ -17,19 +17,20 @@
 TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
 	TEMPLATE_INIT();
 
-	int		i;
-	SqlKey		*key, *t_key, *prev_t_key;
-	SqlColumnAlias	*column_alias;
-	SqlValue	*value;
-	LogicalPlan	*lp_temp;
-	char		*tableName = "";
-	char		*columnName = "";
-	unsigned int	cur_key;
-	int		dot_count;
-	char		*plan_helper_mlabref;
-	SetOperType	*set_oper, *prev_oper;
+	int			i;
+	SqlKey			*key, *t_key, *prev_t_key;
+	SqlColumnAlias		*column_alias;
+	SqlValue		*value;
+	LogicalPlan		*lp_temp;
+	char			*tableName = "";
+	char			*columnName = "";
+	unsigned int		cur_key;
+	int			dot_count;
+	char			*plan_helper_mlabref;
+	SetOperType		*set_oper, *prev_oper;
+	SqlOptionalKeyword	*limit_keyword;
 
-	%{}`n{{ plan->plan_name }}(cursorId)`n    {}% // The whitespace here is needed for proper M formatting
+	%{}`n{{ plan->plan_name }}(cursorId)`n{{ PLAN_LINE_START }}{}% // The whitespace here is needed for proper M formatting
 
 	// The below initialization is needed for cross-reference plans and the regular plans
 	assert(NULL == plan->treat_key_as_null);
@@ -43,93 +44,96 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
 		columnName = value->v.reference;
 		GET_LP(lp_temp, plan->projection, 0, LP_WHERE);
 		GET_LP(lp_temp, lp_temp, 0, LP_COLUMN_ALIAS);
-		column_alias = lp_temp->v.column_alias;
-		%{}LOCK +^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}"):10`n    {}%
+		column_alias = lp_temp->v.lp_column_alias.column_alias;
+		%{}LOCK +^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}"):10`n{{ PLAN_LINE_START }}{}%
 		%{}IF $GET(^{{ config->global_names.raw_octo }}("xref_status","{{ tableName }}","{{ columnName }}"))="done" {}%
 		// If this a plan for a cross reference, put safeguards in place (i.e. QUIT) to prevent building twice.
-		%{}LOCK -^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}") QUIT`n    {}%
+		%{}LOCK -^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}") QUIT`n{{ PLAN_LINE_START }}{}%
 		%{}IF '$ZTRIGGER("item","+{}%
 		TMPL(tmpl_column_reference_trigger, plan, column_alias);
-		%{} -commands=SET,KILL -xecute=""DO handleSet^{{ plan->filename }}"" -name={{ plan->trigger_name }}")  HALT`n    {}%
+		%{} -commands=SET,KILL -xecute=""DO handleSet^{{ plan->filename }}"" -name={{ plan->trigger_name }}")  {}%
+		%{}HALT`n{{ PLAN_LINE_START }}{}%
 		%{}SET %%ydboctoCancel("{{ tableName }}","{{ columnName }}","Trigger")="-{}%
 		TMPL(tmpl_column_reference_trigger, plan, column_alias);
-		%{} -commands=SET,KILL -xecute=""DO handleSet^{{ plan->filename }}"""`n    {}%
+		%{} -commands=SET,KILL -xecute=""DO handleSet^{{ plan->filename }}"""`n{{ PLAN_LINE_START }}{}%
 		%{}SET %%ydboctoCancel("{{ tableName }}","{{ columnName }}","Node")="^{{ config->global_names.raw_xref }}(""{}%
-		%{}{{ tableName }}"",""{{ columnName }}"")"`n    {}%
-		%{}DO populateXref`n    {}%
-		%{}SET ^{{ config->global_names.raw_octo }}("xref_status","{{ tableName }}","{{ columnName }}")="done"`n    {}%
-		%{}KILL %%ydboctoCancel`n    {}%
+		%{}{{ tableName }}"",""{{ columnName }}"")"`n{{ PLAN_LINE_START }}{}%
+		%{}DO populateXref`n{{ PLAN_LINE_START }}{}%
+		%{}SET ^{{ config->global_names.raw_octo }}("xref_status","{{ tableName }}","{{ columnName }}")="done"{}%
+		%{}`n{{ PLAN_LINE_START }}{}%
+		%{}KILL %%ydboctoCancel`n{{ PLAN_LINE_START }}{}%
 		%{}LOCK -^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}"){}%
-		%{}`n    QUIT{}%
+		%{}`n{{ PLAN_LINE_START }}QUIT{}%
 		// Generate the populateXref entryref here
-		%{}`npopulateXref`n    {}%
+		%{}`npopulateXref`n{{ PLAN_LINE_START }}{}%
 		cur_key = 0;
 		dot_count = 0;
 		TMPL(tmpl_tablejoin, plan, plan->tablejoin, cur_key, FALSE, dot_count, tableName, columnName);
-		%{}`n    QUIT{}%
+		%{}`n{{ PLAN_LINE_START }}QUIT{}%
 		// Generate the trigger definitions here
-		%{}`nhandleSet`n    {}%
-		%{}NEW t`n    {}%
-		%{}IF $ZTRIGGEROP="K" DO`n    {}%
-		%{}. SET val=""`n    {}%
+		%{}`nhandleSet`n{{ PLAN_LINE_START }}{}%
+		%{}NEW t`n{{ PLAN_LINE_START }}{}%
+		%{}IF $ZTRIGGEROP="K" DO`n{{ PLAN_LINE_START }}{}%
+		%{}. SET val=""`n{{ PLAN_LINE_START }}{}%
 		%{}. FOR  SET val=$ORDER(^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}",val)) {}%
 		%{}QUIT:val=""  DO:$DATA(^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}",val{}%
-		lp_temp = plan->projection->v.operand[1];
+		lp_temp = plan->projection->v.lp_default.operand[1];
 		i = 0;
 		while (NULL != lp_temp) {
 			%{},sub{{ i|%d }}{}%
-			lp_temp = lp_temp->v.operand[1];
+			lp_temp = lp_temp->v.lp_default.operand[1];
 			i++;
 		}
-		%{}))'=0`n    {}%
+		%{}))'=0`n{{ PLAN_LINE_START }}{}%
 		%{}. . KILL ^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}",val{}%
-		lp_temp = plan->projection->v.operand[1];
+		lp_temp = plan->projection->v.lp_default.operand[1];
 		i = 0;
 		while (NULL != lp_temp) {
 			%{},sub{{ i|%d }}{}%
-			lp_temp = lp_temp->v.operand[1];
+			lp_temp = lp_temp->v.lp_default.operand[1];
 			i++;
 		}
-		%{})`n    {}%
+		%{})`n{{ PLAN_LINE_START }}{}%
 		%{}. . KILL:$INCREMENT(^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}",val),-1)=0 ^{}%
-		%{}{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}",val)`n    {}%
+		%{}{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}",val)`n{{ PLAN_LINE_START }}{}%
 		%{}. . KILL:$INCREMENT(^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}"),-1)=0 ^{}%
-		%{}{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}")`n    {}%
-		%{}ELSE  DO`n    {}%
-		%{}. SET newValue=$PIECE($ZTVALUE,$ZTDELIM,$ZTUPDATE)`n    {}%
-		%{}. SET oldValue=$PIECE($ZTOLDVAL,$ZTDELIM,$ZTUPDATE)`n    {}%
+		%{}{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}")`n{{ PLAN_LINE_START }}{}%
+		%{}ELSE  DO`n{{ PLAN_LINE_START }}{}%
+		%{}. SET newValue=$PIECE($ZTVALUE,$ZTDELIM,$ZTUPDATE)`n{{ PLAN_LINE_START }}{}%
+		%{}. SET oldValue=$PIECE($ZTOLDVAL,$ZTDELIM,$ZTUPDATE)`n{{ PLAN_LINE_START }}{}%
 		%{}. KILL:oldValue'="" ^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}",oldValue{}%
-		lp_temp = plan->projection->v.operand[1];
+		lp_temp = plan->projection->v.lp_default.operand[1];
 		i = 0;
 		while (NULL != lp_temp) {
 			%{},sub{{ i|%d }}{}%
-			lp_temp = lp_temp->v.operand[1];
+			lp_temp = lp_temp->v.lp_default.operand[1];
 			i++;
 		}
 		%{}){}%
 		// Now decrement the counts for the globals
-		%{}`n    {}%
+		%{}`n{{ PLAN_LINE_START }}{}%
 		%{}. IF oldValue'="" {}%
 		%{}IF $SELECT($INCREMENT(^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}",oldValue),-1){}%
 		%{}:$INCREMENT(^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}"),-1),{}%
-		%{}1:$INCREMENT(^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}"),-1))`n    {}%
+		%{}1:$INCREMENT(^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}"),-1)){}%
+		%{}`n{{ PLAN_LINE_START }}{}%
 		%{}. KILL:(oldValue'="")&(^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}",oldValue)=0) {}%
-		%{}^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}",oldValue)`n    {}%
+		%{}^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}",oldValue)`n{{ PLAN_LINE_START }}{}%
 		%{}. SET:newValue'="" ^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}",newValue{}%
-		lp_temp = plan->projection->v.operand[1];
+		lp_temp = plan->projection->v.lp_default.operand[1];
 		i = 0;
 		while (NULL != lp_temp) {
 			%{},sub{{ i|%d }}{}%
-			lp_temp = lp_temp->v.operand[1];
+			lp_temp = lp_temp->v.lp_default.operand[1];
 			i++;
 		}
 		%{})=""{}%
 		// Now decrement the counts for the globals
-		%{}`n    {}%
+		%{}`n{{ PLAN_LINE_START }}{}%
 		%{}. IF newValue'="" {}%
 		%{}IF $SELECT($INCREMENT(^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}",newValue)){}%
 		%{}:$INCREMENT(^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}")),{}%
-		%{}1:$INCREMENT(^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}")))`n    {}%
+		%{}1:$INCREMENT(^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}")))`n{{ PLAN_LINE_START }}{}%
 		%{}QUIT{}%
 		TEMPLATE_END();
 		assert(FALSE);
@@ -144,47 +148,54 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
 		// generated in this physical plan so skip doing the check again for whether it has been generated or not.
 		if ((NULL == t_key) || (prev_t_key == t_key)
 			|| ((NULL != prev_t_key) && (prev_t_key->table == t_key->table)
-							&& (prev_t_key->column == t_key->column)))
-		continue;
+							&& (prev_t_key->column == t_key->column))) {
+			continue;
+		}
 		prev_t_key = t_key;
 		UNPACK_SQL_STATEMENT(value, t_key->table->tableName, value);
 		tableName = value->v.reference;
 		UNPACK_SQL_STATEMENT (value, t_key->column->columnName, value);
 		columnName = value->v.reference;
 		%{}DO:'$DATA(^{{ config->global_names.raw_octo }}("xref_status","{{ tableName }}","{{ columnName }}")) {}%
-		%{}^{{ t_key->cross_reference_filename }}(cursorId)`n    {}%
+		%{}^{{ t_key->cross_reference_filename }}(cursorId)`n{{ PLAN_LINE_START }}{}%
 	}
 	%{}NEW %%ydboctoz{}%
-	if ((NULL != get_keyword_from_keywords(plan->keywords, OPTIONAL_LIMIT)) && (NULL == plan->dnf_prev)) {
+	limit_keyword = get_keyword_from_keywords(plan->keywords, OPTIONAL_LIMIT);
+	if ((NULL != limit_keyword) && (NULL == plan->dnf_prev)) {
 		%{} SET %%ydboctozlimit=0{}%
 	}
 	if (NULL == plan->dnf_prev) {
 		%{} KILL {}% TMPL(tmpl_key, plan->outputKey); %{}{}%
 	}
-	%{}`n    {}% // Whitespace for MUMPS
+	%{}`n{{ PLAN_LINE_START }}{}% // Whitespace for MUMPS
 	cur_key = 0;
 	dot_count = 0;
+	assert(FALSE == plan->tablejoin_body_group_by_done);
 	TMPL(tmpl_tablejoin, plan, plan->tablejoin, cur_key, FALSE, dot_count, tableName, columnName);
-
+	/* If this plan has GROUP BY, "tmpl_tablejoin" would not have generated output keys in the usual format.
+	 * It would have generated GROUP BY related subscript lvn tree that needs to be converted into an output key.
+	 * Do that here.
+	 */
+	if (IS_GROUP_BY_PLAN(plan) && (NULL == plan->dnf_next)) {
+		assert(FALSE == plan->tablejoin_body_group_by_done);
+		plan->tablejoin_body_group_by_done = TRUE;
+		TMPL(tmpl_group_by, plan, dot_count);
+		%{}`n{{ PLAN_LINE_START }}{}%
+		%{}KILL {}%
+		TMPL(tmpl_key, plan->outputKey); (*buffer_index)--;
+		%{},{{ GROUP_BY_SUBSCRIPT }}){}%
+	}
 	// If this expression had an order by, we now need to go back and make the ordering uniform
 	// If we have a lot of plans each of which have the same output key and order by, then do this step
 	// only for the last plan in that set.
-	if ((NULL != plan->order_by) && ((NULL == plan->next) || (NULL == plan->next->order_by) || (NULL == plan->dnf_next)))
-	{
+	if ((NULL != plan->order_by) && (NULL == plan->dnf_next)) {
 		char			*direction;
-		SqlOptionalKeyword	*keyword;
-		SqlValue		*value;
 		LogicalPlan		*order_by;
 		int			num_cols;
 
-		// Check if LIMIT has been specified.
-		// If so, apply that here (we skipped this in "tmpl_tablejoin.ctemplate" because of the presence of ORDER BY).
-		keyword = get_keyword_from_keywords(plan->keywords, OPTIONAL_LIMIT);
-		if (NULL != keyword)
-			UNPACK_SQL_STATEMENT(value, keyword->v, value);
 		order_by = plan->order_by;
-		%{}`n    {}%
-		%{}NEW %%ydboctoi  SET %%ydboctoi(0)=1`n    {}%
+		%{}`n{{ PLAN_LINE_START }}{}%
+		%{}NEW %%ydboctoi  SET %%ydboctoi(0)=1`n{{ PLAN_LINE_START }}{}%
 		assert((NULL != plan->outputKey) && ((NULL == plan->next) || (NULL != plan->next->outputKey)));
 		// Determine how many columns are specified in ORDER BY. Need to generate M code accordingly.
 		// The below code is a simplified version of that in "tmpl_column_list_combine.ctemplate".
@@ -193,17 +204,16 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
 		{
 			boolean_t	is_desc;
 
-			assert(LP_COLUMN_LIST == order_by->type);
+			assert(LP_ORDER_BY == order_by->type);
 			TMPL(tmpl_print_dots, num_cols);
 			num_cols++;
 			%{}SET %%ydboctoi({{ num_cols|%d }})="" {}%
-			is_desc = (OPTIONAL_DESC == order_by->extra_detail);
+			is_desc = (OPTIONAL_DESC == order_by->extra_detail.lp_order_by.direction);
 			direction = (is_desc ? "-1" : "1");
 			/* In case of ASCENDING order, we want an empty string subscript (if any) to show up first
 			 * whereas for DESCENDING order, we want it to show up last. Handle it accordingly below.
 			 */
-			if (is_desc)
-			{
+			if (is_desc) {
 				%{}FOR  SET %%ydboctoi({{ num_cols|%d }})=$ORDER({}%
 				TMPL(tmpl_key, plan->outputKey); (*buffer_index)--;
 				TMPL(tmpl_order_by_key, num_cols);
@@ -211,8 +221,7 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
 				TMPL(tmpl_key, plan->outputKey); (*buffer_index)--;
 				TMPL(tmpl_order_by_key, num_cols);
 				%{}))=0  DO  QUIT:(%%ydboctoi({{ num_cols|%d }})=""){}%
-			} else
-			{
+			} else {
 				%{}FOR  DO:$DATA({}%
 				TMPL(tmpl_key, plan->outputKey); (*buffer_index)--;
 				TMPL(tmpl_order_by_key, num_cols);
@@ -221,12 +230,11 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
 				TMPL(tmpl_order_by_key, num_cols);
 				%{}),{{ direction }})  QUIT:(%%ydboctoi({{ num_cols|%d }})=""){}%
 			}
-			if (NULL != keyword)
-			{
-			  %{}!($GET({{ config->global_names.cursor }}(cursorId,"parameters",{{ value->parameter_index }}))<%%ydboctoi(0)){}%
+			if (NULL != limit_keyword) {
+				TMPL(tmpl_limit_check, limit_keyword, "!", "<%ydboctoi(0)");
 			}
-			%{}`n    {}%
-			order_by = order_by->v.operand[1];
+			%{}`n{{ PLAN_LINE_START }}{}%
+			order_by = order_by->v.lp_default.operand[1];
 		} while (NULL != order_by);
 		TMPL(tmpl_print_dots, num_cols);
 		num_cols++;
@@ -235,34 +243,33 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
 		TMPL(tmpl_key, plan->outputKey); (*buffer_index)--;
 		TMPL(tmpl_order_by_key, num_cols);
 		%{})) QUIT:(%%ydboctoi({{ num_cols|%d }})=""){}%
-		if (NULL != keyword)
-		{
-			%{}!($GET({{ config->global_names.cursor }}(cursorId,"parameters",{{ value->parameter_index }}))<%%ydboctoi(0)){}%
+		if (NULL != limit_keyword) {
+			TMPL(tmpl_limit_check, limit_keyword, "!", "<%ydboctoi(0)");
 		}
-		%{}  DO`n    {}%
+		%{}  DO`n{{ PLAN_LINE_START }}{}%
 		TMPL(tmpl_print_dots, num_cols);
 		%{}SET {}%
 		TMPL(tmpl_key, plan->outputKey); (*buffer_index)--;
 		%{},%%ydboctoi(0))={}%
 		TMPL(tmpl_key, plan->outputKey); (*buffer_index)--;
 		TMPL(tmpl_order_by_key, num_cols);
-		%{})`n    {}%
+		%{})`n{{ PLAN_LINE_START }}{}%
 		TMPL(tmpl_print_dots, num_cols);
 		%{}IF $INCREMENT(%%ydboctoi(0)){}%
-		%{}`n    {}%
+		%{}`n{{ PLAN_LINE_START }}{}%
 		%{}KILL {}%
 		TMPL(tmpl_key, plan->outputKey); (*buffer_index)--;
-		%{},"order"){}%
-		%{}`n    SET {}%
+		%{},{{ ORDER_BY_SUBSCRIPT }}){}%
+		%{}`n{{ PLAN_LINE_START }}SET {}%
 		TMPL(tmpl_key, plan->outputKey); (*buffer_index)--;
 		%{})=%%ydboctoi(0)-1{}%
 	}
 	if (NULL == plan->dnf_next) {
 		if (plan->emit_duplication_check) {
-			%{}`n    KILL %%ydboctocursor(cursorId,"dupl"){}%
+			%{}`n{{ PLAN_LINE_START }}KILL %%ydboctocursor(cursorId,{{ DUPLICATE_SUBSCRIPT }}){}%
 		}
 		if (plan->distinct_values) {
-			%{}`n    KILL %%ydboctocursor(cursorId,"Distinct"){}%
+			%{}`n{{ PLAN_LINE_START }}KILL %%ydboctocursor(cursorId,{{ DISTINCT_SUBSCRIPT }}){}%
 		}
 	}
 	set_oper = plan->set_oper_list;
@@ -300,14 +307,13 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
 				assert(FALSE);
 				break;
 		}
-		if (NULL != plan_helper_mlabref)
-		{
-			%{}`n    DO {{ plan_helper_mlabref }}^%%ydboctoplanhelpers({}%
+		if (NULL != plan_helper_mlabref) {
+			%{}`n{{ PLAN_LINE_START }}DO {{ plan_helper_mlabref }}^%%ydboctoplanhelpers({}%
 			%{}{{ prev_oper->input_id1|%d }},{{ prev_oper->input_id2|%d }},{{ prev_oper->output_id|%d }}){}%
 		}
 		prev_oper = prev_oper->prev;
 	}
-	%{}`n    QUIT{}%
+	%{}`n{{ PLAN_LINE_START }}QUIT{}%
 	TEMPLATE_END();
 }
 %{}

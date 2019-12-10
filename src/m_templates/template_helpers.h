@@ -45,6 +45,15 @@
 			*buffer_index += written;										\
 		} while(retry);
 
+/* Note: The below macros contain double-quotes within the string literal (hence the use of \") as they are used
+ *       inside the tmpl_*.ctemplate functions. Not having that will cause generated M code to contain just OrderBy
+ *       instead of "OrderBy" as the subscript in an lvn.
+ */
+#define	ORDER_BY_SUBSCRIPT	"\"OrderBy\""
+#define	GROUP_BY_SUBSCRIPT	"\"GroupBy\""
+#define	DISTINCT_SUBSCRIPT	"\"Distinct\""
+#define	DUPLICATE_SUBSCRIPT	"\"dupl\""
+#define	PLAN_LINE_START		"    "		/* 4 spaces start an M line in the generated plan */
 
 enum EmitSourceForm {
 	EmitSourceForm_Value,
@@ -59,7 +68,9 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *plan, LogicalPlan *tablejoin, unsigned in
 								int dot_count, char *tableName, char *columnName);
 TEMPLATE(tmpl_rightjoin_key, PhysicalPlan *plan, unsigned int key_start, unsigned int key_end);
 TEMPLATE(tmpl_tablejoin_body, PhysicalPlan *plan, int dot_count, char *tableName, char *columnName);
+TEMPLATE(tmpl_tablejoin_body_group_by, PhysicalPlan *plan, int dot_count);
 TEMPLATE(tmpl_tablejoin_deferred_plans, PhysicalPlan *plan, int dot_count);
+TEMPLATE(tmpl_group_by, PhysicalPlan *plan, int dot_count);
 TEMPLATE(tmpl_key_start, SqlKey *key);
 TEMPLATE(tmpl_key_end, SqlKey *key);
 // Outputs: '%ydboctocursor(cursorId,"keys",key->unique_id,tableName,columnName)'
@@ -70,11 +81,13 @@ TEMPLATE(tmpl_temp_key_advance, SqlKey *key);
 TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan);
 TEMPLATE(tmpl_column_reference, PhysicalPlan *pplan, SqlColumnAlias *column_alias);
 TEMPLATE(tmpl_column_list_combine, LogicalPlan *plan, PhysicalPlan *pplan, char *delim,
-						int resume, int resume_length, boolean_t is_order_by);
+						int start_output_key, int output_key_length, int dot_count);
 TEMPLATE(tmpl_emit_source, char *source, char *table_name, int unique_id, int keys_to_match, enum EmitSourceForm form);
 // Sets up trigger for a column reference, i.e. alias
 TEMPLATE(tmpl_column_reference_trigger, PhysicalPlan *pplan, SqlColumnAlias *column_alias);
 TEMPLATE(tmpl_duplication_check, PhysicalPlan *plan);
 TEMPLATE(tmpl_order_by_key, int num_cols);
+TEMPLATE(tmpl_populate_output_key, PhysicalPlan *plan, int dot_count);
+TEMPLATE(tmpl_limit_check, SqlOptionalKeyword *limit_keyword, char *prefix, char *suffix);
 
 #endif

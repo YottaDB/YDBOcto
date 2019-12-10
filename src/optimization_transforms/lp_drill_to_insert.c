@@ -25,10 +25,10 @@ LogicalPlan *lp_drill_to_insert(LogicalPlan *plan) {
 	{
 		assert(cur_plan->type == LP_SET_OPERATION);
 		// Fetch one of the output plans from this set
-		assert(LP_SET_OPTION == cur_plan->v.operand[0]->type);
-		assert(LP_PLANS == cur_plan->v.operand[1]->type);
-		cur_plan = cur_plan->v.operand[1];
-		cur_plan = cur_plan->v.operand[0];
+		assert(LP_SET_OPTION == cur_plan->v.lp_default.operand[0]->type);
+		assert(LP_PLANS == cur_plan->v.lp_default.operand[1]->type);
+		cur_plan = cur_plan->v.lp_default.operand[1];
+		cur_plan = cur_plan->v.lp_default.operand[0];
 	}
 	return cur_plan;
 }

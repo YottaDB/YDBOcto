@@ -1,0 +1,95 @@
+{}%
+/****************************************************************
+ *								*
+ * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * All rights reserved.						*
+ *								*
+ *	This source code contains the intellectual property	*
+ *	of its copyright holder(s), and is made available	*
+ *	under a license.  If you do not know the terms of	*
+ *	the license, please stop and do not read further.	*
+ *								*
+ ****************************************************************/
+
+#include "physical_plan.h"
+#include "template_helpers.h"
+
+TEMPLATE(tmpl_tablejoin_body_group_by, PhysicalPlan *plan, int dot_count) {
+	TEMPLATE_INIT();
+
+	LogicalPlan	*group_by, *af, *first_aggregate;
+	int		aggregate_cnt;
+
+	assert(NULL != plan->outputKey);
+	assert(IS_GROUP_BY_PLAN(plan));
+	assert(!plan->outputKey->is_cross_reference_key);	/* caller should have ensured this */
+	/* At this point, M code for the WHERE clause has been emitted (in tmpl_tablejoin_body.ctemplate) */
+	%{}`n{{ PLAN_LINE_START }}{}%
+	dot_count++;
+	/* Do not yet populate records in the output key (i.e. SELECT column list). First populate the GROUP BY related
+	 * M lvn subtree. DISTINCT, ORDER BY, LIMIT etc. cannot be processed at this point. They will have to be deferred
+	 * until later when GROUP BY processing is done.
+	 */
+	TMPL(tmpl_print_dots, dot_count);
+	%{}NEW %%ydboctog,%%ydboctop{}%
+	%{}`n{{ PLAN_LINE_START }}{}%
+	TMPL(tmpl_print_dots, dot_count);
+	%{}SET %%ydboctog={}%
+	if ((NULL != plan->aggregate_options) && (NULL != plan->aggregate_options->v.lp_default.operand[0])) {
+		/* GROUP BY was specified. Emit the specified columns as the GROUP BY subscript */
+		GET_LP(group_by, plan->aggregate_options, 0, LP_GROUP_BY);
+		TMPL(tmpl_column_list_combine, group_by->v.lp_default.operand[0], plan, "_\"|\"_", 0, 0, 0);
+	} else {
+		/* GROUP BY was NOT specified. Emit "" as the GROUP BY subscript */
+		%{}""{}%
+	}
+	%{}`n{{ PLAN_LINE_START }}{}%
+	TMPL(tmpl_print_dots, dot_count);
+	%{}SET {}%
+	TMPL(tmpl_key, plan->outputKey);
+	(*buffer_index)--;
+	%{},{{ GROUP_BY_SUBSCRIPT }},%%ydboctog)=""{}%
+	assert(LP_INSERT == plan->lp_insert->type);
+	first_aggregate = plan->lp_insert->extra_detail.lp_insert.first_aggregate;
+	for (af = first_aggregate; NULL != af; af = af->extra_detail.lp_aggregate_function.next_aggregate) {
+		char	*m_func;
+
+		assert(IS_TYPE_LP_AGGREGATE(af->type));
+		aggregate_cnt = af->extra_detail.lp_aggregate_function.aggregate_cnt;
+		assert(aggregate_cnt);
+		%{}`n{{ PLAN_LINE_START }}{}%
+		TMPL(tmpl_print_dots, dot_count);
+		%{}SET %%ydboctop={}%
+		if (LP_AGGREGATE_FUNCTION_COUNT_ASTERISK == af->type) {
+			%{}""{}%
+		} else {
+			TMPL(tmpl_column_list_combine, af, plan, "", 0, 0, 0);
+		}
+		%{}`n{{ PLAN_LINE_START }}{}%
+		TMPL(tmpl_print_dots, dot_count);
+		m_func = lp_get_aggregate_plan_helper_func_name(af->type);
+		%{}DO {{ m_func }}^%%ydboctoplanhelpers({}%
+		%{}{{plan->outputKey->unique_id|%d }},%%ydboctog,{{ aggregate_cnt|%d }},%%ydboctop{}%
+		if ((LP_AGGREGATE_FUNCTION_MIN == af->type) || (LP_AGGREGATE_FUNCTION_MAX == af->type)) {
+			/* Need to pass an additional parameter `isString` to know if the type of %ydboctop is STRING or not */
+			SqlValueType	param_type;
+			boolean_t	isString;
+
+			param_type = af->extra_detail.lp_aggregate_function.param_type;
+			assert((NUMERIC_LITERAL == param_type) || (INTEGER_LITERAL == param_type)
+				|| (STRING_LITERAL == param_type) || (NUL_VALUE == param_type));
+			isString = (STRING_LITERAL == param_type) ? TRUE : FALSE;
+			%{},{{ isString|%d }}{}%
+		}
+		%{}){}%
+	}
+	if (plan->emit_duplication_check) {
+		%{}`n{{ PLAN_LINE_START }}{}%
+		TMPL(tmpl_print_dots, dot_count);
+		%{}SET {}%
+		TMPL(tmpl_duplication_check, plan);
+		%{}=1{}%
+	}
+	TEMPLATE_END();
+}
+%{}

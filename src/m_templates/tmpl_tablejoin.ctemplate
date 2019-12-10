@@ -22,7 +22,7 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *plan, LogicalPlan *tablejoin, unsigned in
 	unsigned int		total_keys, key_start;
 	int			left_table_id, right_table_id, this_table_id;
 	enum SqlJoinType	this_join_type, next_join_type;
-	SqlOptionalKeyword	*keyword;
+	SqlOptionalKeyword	*limit_keyword;
 	LogicalPlan		*right_tablejoin;
 	boolean_t		deferred_plans_emitted, nested_call, this_join_is_left_join;
 
@@ -34,13 +34,12 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *plan, LogicalPlan *tablejoin, unsigned in
 		left_table_id = key->unique_id;
 	}
 	nested_call = FALSE;
-	this_join_type = ((NULL == tablejoin) ? NO_JOIN : (enum SqlJoinType)(tablejoin->extra_detail));
+	this_join_type = ((NULL == tablejoin) ? NO_JOIN
+						: tablejoin->extra_detail.lp_table_join.cur_join_type);
 	this_join_is_left_join = ((LEFT_JOIN == this_join_type) || ((FULL_JOIN == this_join_type) && !right_join_second_half));
 	key_start = cur_key;
 	assert(((RIGHT_JOIN != this_join_type) && (FULL_JOIN != this_join_type)) || cur_key);
 	for ( ; cur_key < total_keys; cur_key++) {
-		SqlValue	*value;
-
 		// For each key, output the key start, a FOR loop, QUIT, and increment
 		key = plan->iterKeys[cur_key];
 		if (key->unique_id != left_table_id)
@@ -50,15 +49,12 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *plan, LogicalPlan *tablejoin, unsigned in
 		}
 		if (this_join_is_left_join && plan->treat_key_as_null[key->unique_id])
 			continue;
-		// If this plan has no ORDER BY, then any LIMIT usage can be safely applied right away.
-		// Otherwise, we need to apply the LIMIT after the ORDER BY processing finally happens in "tmpl_physical_plan".
-		value = NULL;
-		if (NULL == plan->order_by)
-		{
-			keyword = get_keyword_from_keywords(plan->keywords, OPTIONAL_LIMIT);
-			if (NULL != keyword)
-				UNPACK_SQL_STATEMENT(value, keyword->v, value);	/* value gets set to a non-NULL value here */
-		}
+		// If this plan has no ORDER BY or GROUP BY, then any LIMIT usage can be safely applied right away.
+		// Otherwise, we need to apply the LIMIT after the ORDER BY processing finally happens in "tmpl_physical_plan"
+		//	or GROUP BY processing finally happens in "tmpl_group_by"
+		limit_keyword = ((NULL == plan->order_by) && !IS_GROUP_BY_PLAN(plan))
+					? get_keyword_from_keywords(plan->keywords, OPTIONAL_LIMIT)
+					: NULL;
 		/* If this is the second half of the right join, then treat all keys as non-fixed.
 		 * And do not include cross-reference keys. Only primary-keys. This is because we want
 		 * to include ALL rows from the right table for the RIGHT JOIN.
@@ -72,13 +68,10 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *plan, LogicalPlan *tablejoin, unsigned in
 			%{} IF ($DATA({}%
 			TMPL(tmpl_key_source, plan, key);
 			%{})'=0){}%
-			if (NULL != value)
-			{
-				%{}&(($GET({{ config->global_names.cursor }}(cursorId,"parameters",{{ value->parameter_index }})))>$GET({}%
-				%{}%%ydboctozlimit{}%
-				%{})){}%
+			if (NULL != limit_keyword) {
+				TMPL(tmpl_limit_check, limit_keyword, "&", ">%ydboctozlimit");
 			}
-			%{} DO`n    {}%
+			%{} DO`n{{ PLAN_LINE_START }}{}%
 			dot_count++;
 			continue;
 		}
@@ -94,7 +87,7 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *plan, LogicalPlan *tablejoin, unsigned in
 			save_key = NULL;
 		TMPL(tmpl_print_dots, dot_count);
 		TMPL(tmpl_key_start, key);
-		%{}`n    {}%
+		%{}`n{{ PLAN_LINE_START }}{}%
 		TMPL(tmpl_print_dots, dot_count);
 		%{}FOR  SET {}%
 		TMPL(tmpl_key, key);
@@ -102,13 +95,11 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *plan, LogicalPlan *tablejoin, unsigned in
 		TMPL(tmpl_key_advance, plan, key);
 		%{}) QUIT:({}%
 		TMPL(tmpl_key_end, key);
-		if (NULL != value)
-		{
-			%{})!(($GET({{ config->global_names.cursor }}(cursorId,"parameters",{{ value->parameter_index }})))'>$GET({}%
-			%{}%%ydboctozlimit{}%
-			%{}){}%
+		%{}){}%
+		if (NULL != limit_keyword) {
+			TMPL(tmpl_limit_check, limit_keyword, "!", "'>%ydboctozlimit");
 		}
-		%{})  DO`n    {}%
+		%{}  DO`n{{ PLAN_LINE_START }}{}%
 		if (NULL != save_key)
 			key->cross_reference_output_key = save_key;	/* Restore cross-reference output key */
 		dot_count++;
@@ -118,36 +109,36 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *plan, LogicalPlan *tablejoin, unsigned in
 	if (INNER_JOIN == this_join_type) {
 		LogicalPlan		*join_condition;
 
-		join_condition = tablejoin->join_on_condition;
+		join_condition = tablejoin->extra_detail.lp_table_join.join_on_condition;
 		if (NULL != join_condition)
-			join_condition = join_condition->v.operand[0];
+			join_condition = join_condition->v.lp_default.operand[0];
 		if (NULL != join_condition) {
 			TMPL(tmpl_tablejoin_deferred_plans, plan, dot_count);
 			deferred_plans_emitted = TRUE;
 			TMPL(tmpl_print_dots, dot_count);
 			%{}IF ({}%
 			TMPL(tmpl_print_expression, join_condition, plan);
-			%{}) DO`n    {}%
+			%{}) DO`n{{ PLAN_LINE_START }}{}%
 			dot_count++;
 		}
 	}
 	if (this_join_is_left_join && !plan->treat_key_as_null[left_table_id]) {
 		LogicalPlan		*join_condition;
 
-		join_condition = tablejoin->join_on_condition;
+		join_condition = tablejoin->extra_detail.lp_table_join.join_on_condition;
 		if (NULL != join_condition)
-			join_condition = join_condition->v.operand[0];
+			join_condition = join_condition->v.lp_default.operand[0];
 		if (NULL != join_condition) {
 			TMPL(tmpl_tablejoin_deferred_plans, plan, dot_count);
 			deferred_plans_emitted = TRUE;
 			TMPL(tmpl_print_dots, dot_count);
 			%{}IF ({}%
 			TMPL(tmpl_print_expression, join_condition, plan);
-			%{}) DO`n    {}%
+			%{}) DO`n{{ PLAN_LINE_START }}{}%
 			dot_count++;
 		}
 		TMPL(tmpl_print_dots, dot_count);
-		%{}SET %%ydboctoz({{ key_start|%d }})=1`n    {}%
+		%{}SET %%ydboctoz({{ key_start|%d }})=1`n{{ PLAN_LINE_START }}{}%
 	}
 	if ((RIGHT_JOIN == this_join_type) || (FULL_JOIN == this_join_type))
 	{
@@ -156,16 +147,16 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *plan, LogicalPlan *tablejoin, unsigned in
 
 			if (!this_join_is_left_join)
 			{
-				join_condition = tablejoin->join_on_condition;
+				join_condition = tablejoin->extra_detail.lp_table_join.join_on_condition;
 				if (NULL != join_condition)
-					join_condition = join_condition->v.operand[0];
+					join_condition = join_condition->v.lp_default.operand[0];
 				if (NULL != join_condition) {
 					TMPL(tmpl_tablejoin_deferred_plans, plan, dot_count);
 					deferred_plans_emitted = TRUE;
 					TMPL(tmpl_print_dots, dot_count);
 					%{}IF ({}%
 					TMPL(tmpl_print_expression, join_condition, plan);
-					%{}) DO`n    {}%
+					%{}) DO`n{{ PLAN_LINE_START }}{}%
 					dot_count++;
 				}
 			}
@@ -178,7 +169,7 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *plan, LogicalPlan *tablejoin, unsigned in
 				TMPL(tmpl_print_dots, dot_count);
 				%{}SET %%ydboctoz({}%
 				TMPL(tmpl_rightjoin_key, plan, key_start, cur_key);
-				%{})=""`n    {}%
+				%{})=""`n{{ PLAN_LINE_START }}{}%
 			}
 		} else {
 			/* Generate code for second half of RIGHT JOIN */
@@ -203,13 +194,13 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *plan, LogicalPlan *tablejoin, unsigned in
 					key->skip_column_reference_optimization = TRUE;
 					TMPL(tmpl_column_reference, plan, key->cross_reference_column_alias);
 					key->skip_column_reference_optimization = FALSE;
-					%{}`n    {}%
+					%{}`n{{ PLAN_LINE_START }}{}%
 				}
 			}
 			TMPL(tmpl_print_dots, dot_count);
 			%{}IF '$DATA(%%ydboctoz({}%
 			TMPL(tmpl_rightjoin_key, plan, key_start, cur_key);
-			%{})) DO`n    {}%
+			%{})) DO`n{{ PLAN_LINE_START }}{}%
 			dot_count++;
 		}
 	}
@@ -219,28 +210,27 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *plan, LogicalPlan *tablejoin, unsigned in
 			TMPL(tmpl_tablejoin_deferred_plans, plan, dot_count);
 		}
 		TMPL(tmpl_tablejoin_body, plan, dot_count, tableName, columnName);
-	} else
-	{
+	} else {
 		assert(cur_key < total_keys);
-		right_tablejoin = tablejoin->v.operand[1];
-		next_join_type = (enum SqlJoinType)(right_tablejoin->extra_detail);
+		right_tablejoin = tablejoin->v.lp_default.operand[1];
+		next_join_type = right_tablejoin->extra_detail.lp_table_join.cur_join_type;
 		// Treat a FULL_JOIN as a LEFT_JOIN at this stage. It will be treated as a RIGHT JOIN at a later stage.
 		if (FULL_JOIN == next_join_type)
 			next_join_type = LEFT_JOIN;
 		if (LEFT_JOIN == next_join_type)
 		{
 			TMPL(tmpl_print_dots, dot_count);
-			%{}SET %%ydboctoz({{ cur_key|%d }})=0`n    {}%
+			%{}SET %%ydboctoz({{ cur_key|%d }})=0`n{{ PLAN_LINE_START }}{}%
 		}
 		TMPL(tmpl_tablejoin, plan, right_tablejoin, cur_key, FALSE, dot_count, tableName, columnName);
 		if (LEFT_JOIN == next_join_type)
 		{	/* Generate M code to include rows from the left table where there is no matching right table rows
 			 * (NO_MATCHING_RIGHT_TABLE_ROWS code block).
 			 */
-			assert(NULL != right_tablejoin->join_on_condition);
-			%{}`n    {}%
+			assert(NULL != right_tablejoin->extra_detail.lp_table_join.join_on_condition);
+			%{}`n{{ PLAN_LINE_START }}{}%
 			TMPL(tmpl_print_dots, dot_count);
-			%{}IF %%ydboctoz({{ cur_key|%d }})=0 DO`n    {}%
+			%{}IF %%ydboctoz({{ cur_key|%d }})=0 DO`n{{ PLAN_LINE_START }}{}%
 			dot_count++;
 			/* Treat all keys in the right table as NULL and invoke nested joins (if needed) */
 			key = plan->iterKeys[cur_key];
@@ -269,7 +259,7 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *plan, LogicalPlan *tablejoin, unsigned in
 		dot_count = 0;
 		do {
 			assert(LP_TABLE_JOIN == this_table_join->type);
-			this_join_type = (enum SqlJoinType)(this_table_join->extra_detail);
+			this_join_type = this_table_join->extra_detail.lp_table_join.cur_join_type;
 			if ((RIGHT_JOIN == this_join_type) || (FULL_JOIN == this_join_type))
 			{	/* Set keys of all tables till now to NULL */
 				assert(cur_key < total_keys);
@@ -287,12 +277,12 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *plan, LogicalPlan *tablejoin, unsigned in
 					}
 				}
 				assert(cur_key);
-				%{}`n    {}%
+				%{}`n{{ PLAN_LINE_START }}{}%
 				TMPL(tmpl_tablejoin, plan, this_table_join, cur_key, TRUE, dot_count, tableName, columnName);
 				num_tables = 1;	// include this table as first one for next round of RIGHT JOIN key nullification
 			} else
 				num_tables++;
-			this_table_join = this_table_join->v.operand[1];
+			this_table_join = this_table_join->v.lp_default.operand[1];
 		} while (NULL != this_table_join);
 		if (key_nullified)
 		{	/* We nullified at least one key above for a RIGHT JOIN. Undo all of those. */

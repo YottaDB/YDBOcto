@@ -28,7 +28,7 @@ LogicalPlan *lp_get_output_key(LogicalPlan *plan) {
 		LPActionType	set_oper_type;
 
 		GET_LP(set_option, plan, 0, LP_SET_OPTION);
-		set_oper_type = set_option->v.operand[0]->type;
+		set_oper_type = set_option->v.lp_default.operand[0]->type;
 		assert((LP_SET_UNION == set_oper_type) || (LP_SET_UNION_ALL == set_oper_type)
 			|| (LP_SET_DNF == set_oper_type)
 			|| (LP_SET_EXCEPT == set_oper_type) || (LP_SET_EXCEPT_ALL == set_oper_type)

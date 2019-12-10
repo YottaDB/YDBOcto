@@ -18,6 +18,36 @@
 #include "octo.h"
 #include "octo_types.h"
 
+char	*get_func_name(SqlAggregateType type) {
+	switch(type) {
+	case COUNT_ASTERISK_AGGREGATE:
+		return "COUNT(*)";
+		break;
+	case COUNT_AGGREGATE:
+	case COUNT_AGGREGATE_DISTINCT:
+		return "COUNT";
+		break;
+	case AVG_AGGREGATE:
+	case AVG_AGGREGATE_DISTINCT:
+		return "AVG";
+		break;
+	case MIN_AGGREGATE:
+		return "MIN";
+		break;
+	case MAX_AGGREGATE:
+		return "MAX";
+		break;
+	case SUM_AGGREGATE:
+	case SUM_AGGREGATE_DISTINCT:
+		return "SUM";
+		break;
+	default:
+		assert(FALSE);
+		break;
+	}
+	return "";
+}
+
 char	*get_setoperation_string(SqlSetOperationType type) {
 	switch(type) {
 	case SET_UNION:
@@ -53,7 +83,7 @@ char *get_type_string(SqlValueType type) {
 	case INTEGER_LITERAL:
 		return "INTEGER";
 	case STRING_LITERAL:
-		return "STRING";
+		return "VARCHAR";	/* VARCHAR (not STRING) is the externally visible type name in SQL */
 	case BOOLEAN_VALUE:
 		return "BOOLEAN";
 	case PARAMETER_VALUE:
@@ -131,6 +161,7 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, char *cursorId) {
 	SqlCaseStatement	*cas;
 	SqlColumn		*column = NULL;
 	SqlFunctionCall		*function_call;
+	SqlAggregateFunction	*aggregate_function;
 	SqlJoin			*start_join, *cur_join;
 	SqlSetOperation		*set_operation;
 	SqlTableAlias		*table_alias;
@@ -174,7 +205,11 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, char *cursorId) {
 		// SqlValue (?)
 		result |= populate_data_type(select->where_expression, &child_type1, cursorId);
 		// SqlColumnListAlias that is a linked list
-		result |= populate_data_type_column_list_alias(select->order_expression, &child_type1, TRUE, cursorId);
+		result |= populate_data_type_column_list_alias(select->group_by_expression, &child_type1, TRUE, cursorId);
+		// SqlValue (?)
+		result |= populate_data_type(select->having_expression, &child_type1, cursorId);
+		// SqlColumnListAlias that is a linked list
+		result |= populate_data_type_column_list_alias(select->order_by_expression, &child_type1, TRUE, cursorId);
 		break;
 	case function_call_STATEMENT:
 		// TODO: we will need to know the return types of functions to do this
@@ -183,6 +218,41 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, char *cursorId) {
 		// SqlColumnList
 		result |= populate_data_type_column_list(function_call->parameters, type, TRUE, cursorId);
 		*type = STRING_LITERAL;
+		break;
+	case aggregate_function_STATEMENT:
+		UNPACK_SQL_STATEMENT(aggregate_function, v, aggregate_function);
+		// SqlColumnList : We have only one parameter to aggregate functions so no loop needed hence FALSE used below.
+		result |= populate_data_type_column_list(aggregate_function->parameter, type, FALSE, cursorId);
+		// Note that COUNT(...) is always an INTEGER type even though ... might be a string type column.
+		// Hence the if check below.
+		switch(aggregate_function->type) {
+		case COUNT_ASTERISK_AGGREGATE:
+		case COUNT_AGGREGATE:
+		case COUNT_AGGREGATE_DISTINCT:
+			*type = INTEGER_LITERAL;
+			break;
+		case AVG_AGGREGATE:
+		case AVG_AGGREGATE_DISTINCT:
+		case SUM_AGGREGATE:
+		case SUM_AGGREGATE_DISTINCT:
+			if (STRING_LITERAL == *type) {
+				/* Strings cannot be input for the AVG or SUM function so signal an error in that case. */
+				ERROR(ERR_MISTYPED_FUNCTION, get_func_name(aggregate_function->type), get_type_string(*type));
+				yyerror(NULL, NULL, &aggregate_function->parameter, NULL, cursorId, NULL);
+				result = 1;
+			}
+			break;
+		case MIN_AGGREGATE:
+		case MAX_AGGREGATE:
+			/* In this case, *type should be the same as the type of "aggregate_function->parameter"
+			 * which is already set above so copy that over for later use in physical plan.
+			 */
+			aggregate_function->param_type = *type;
+			break;
+		default:
+			assert(FALSE);
+			break;
+		}
 		break;
 	case join_STATEMENT:
 		UNPACK_SQL_STATEMENT(start_join, v, join);

@@ -80,7 +80,7 @@ Added SET and/or Non-SET trigger on ^names named %ydboctoT*
 3|Lord|Nikon
 4|Joey|
 5|Zero|Cool
-[ERROR] PATH:LINENUM DATE TIME : Type mismatch: left INTEGER, right STRING
+[ERROR] PATH:LINENUM DATE TIME : Type mismatch: left INTEGER, right VARCHAR
 Error with syntax near (line 1, column 30):
 
 SELECT * from names n1 where n1.id IN (SELECT * FROM names n2 WHERE n2.id = ((n1.id + 1) % 6));
@@ -150,7 +150,7 @@ SELECT * from names n1 where n1.id IN (SELECT * FROM names n2 WHERE n2.id = ((n1
 -4
 -5
 ZeroCool
-[ERROR] PATH:LINENUM DATE TIME : Type mismatch: left STRING, right INTEGER
+[ERROR] PATH:LINENUM DATE TIME : Type mismatch: left VARCHAR, right INTEGER
 Error with syntax near (line 1, column 29):
 
 SELECT * FROM names a WHERE a.firstName = (SELECT b.id FROM names b WHERE a.id = b.id);
@@ -160,7 +160,7 @@ Error with syntax near (line 1, column 51):
 SELECT * FROM names a WHERE a.firstName = (SELECT b.id FROM names b WHERE a.id = b.id);
                                                   ^^^^
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT * FROM names a WHERE a.firstName = (SELECT b.id FROM names b WHERE a.id = b.id);
-[ERROR] PATH:LINENUM DATE TIME : Type mismatch: left STRING, right INTEGER
+[ERROR] PATH:LINENUM DATE TIME : Type mismatch: left VARCHAR, right INTEGER
 Error with syntax near (line 1, column 29):
 
 SELECT * FROM names a WHERE a.firstName != (SELECT b.id FROM names b WHERE a.id = b.id);
@@ -214,6 +214,7 @@ Error with syntax near (line 1, column 54):
 SELECT * FROM names n1 WHERE n1.firstName != (SELECT NULL, n2.id, NULL from names n2);
                                                      ^^^^
 [ERROR] PATH:LINENUM DATE TIME : Unknown column: ID
+Error with syntax near (line 1, column 8):
 
 select id+2;
        ^^

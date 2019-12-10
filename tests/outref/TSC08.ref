@@ -22,6 +22,7 @@ OCTO>        inner join orderstatus C
 OCTO>                ON A.status = C.order_status_id
 OCTO> WHERE  B.action = "NW";
 [ERROR] PATH:LINENUM DATE TIME : Unknown column: ORDER1
+Error with syntax near (line 1, column 7):
 
 SELECT order1
        ^^^^^^

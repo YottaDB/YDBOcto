@@ -29,7 +29,7 @@ int lp_get_key_index(LogicalPlan *plan, LogicalPlan *lp_column_alias) {
 	int key_id, search_id, cur_key_index;
 	LogicalPlan *cur_key, *lp_key;
 
-	column_alias = lp_column_alias->v.column_alias;
+	column_alias = lp_column_alias->v.lp_column_alias.column_alias;
 	UNPACK_SQL_STATEMENT(table_alias, column_alias->table_alias, table_alias);
 	search_id = table_alias->unique_id;
 	if(table_alias->table->type == table_STATEMENT) {
@@ -53,7 +53,7 @@ int lp_get_key_index(LogicalPlan *plan, LogicalPlan *lp_column_alias) {
 
 	do {
 		GET_LP(lp_key, cur_key, 0, LP_KEY);
-		key = lp_key->v.key;
+		key = lp_key->v.lp_key.key;
 		key_id = key->unique_id;
 		/// TODO: the only way something has a name of NULL is if it's an output key
 		// Which means we're looking for the key in a derived table; we don't currently
@@ -73,7 +73,7 @@ int lp_get_key_index(LogicalPlan *plan, LogicalPlan *lp_column_alias) {
 				break;
 			return cur_key_index;
 		} while(TRUE);
-		cur_key = cur_key->v.operand[1];
+		cur_key = cur_key->v.lp_default.operand[1];
 		cur_key_index++;
 	} while(cur_key != NULL);
 	return -1;

@@ -23,14 +23,17 @@
 #define MAX_M_LINE_LENGTH 4096
 
 TEMPLATE(tmpl_column_list_combine, LogicalPlan *plan, PhysicalPlan *pplan, char *delim,
-						int resume, int resume_length, boolean_t is_order_by) {
+						int start_output_key, int output_key_length, int dot_count) {
 	TEMPLATE_INIT();
 
 	char	c;
 
+	assert(NULL != plan);
 	while (NULL != plan) {
-		assert(plan->type == LP_COLUMN_LIST);
-		if (is_order_by) {
+		assert(((LP_COLUMN_LIST == plan->type) && (LP_WHERE == plan->v.lp_default.operand[0]->type))
+			|| (((LP_ORDER_BY == plan->type) || (LP_GROUP_BY == plan->type) || IS_TYPE_LP_AGGREGATE(plan->type))
+						&& (LP_COLUMN_LIST == plan->v.lp_default.operand[0]->type)));
+		if (LP_ORDER_BY == plan->type) {
 			/* This is a call for an ORDER BY. If the ORDER BY was done on an expression which
 			 * has a STRING_LITERAL type, then we need to ensure that it gets treated as a STRING
 			 * in M even if the string holds a numeric value or else ORDER BY would work incorrectly
@@ -40,13 +43,13 @@ TEMPLATE(tmpl_column_list_combine, LogicalPlan *plan, PhysicalPlan *pplan, char 
 			SqlValueType	order_by_expr_type;
 			LogicalPlan	*tmpPlan;
 
-			tmpPlan = plan->v.operand[0];
+			tmpPlan = plan->v.lp_default.operand[0];
 			assert(LP_COLUMN_LIST == tmpPlan->type);
-			tmpPlan = tmpPlan->v.operand[0];
+			tmpPlan = tmpPlan->v.lp_default.operand[0];
 			assert(LP_WHERE == tmpPlan->type);
-			tmpPlan = tmpPlan->v.operand[1];
+			tmpPlan = tmpPlan->v.lp_default.operand[1];
 			assert(LP_COLUMN_LIST_ALIAS == tmpPlan->type);
-			order_by_expr_type = tmpPlan->v.column_list_alias->type;
+			order_by_expr_type = tmpPlan->v.lp_column_list_alias.column_list_alias->type;
 			assert((NUMERIC_LITERAL == order_by_expr_type)
 				|| (INTEGER_LITERAL == order_by_expr_type)
 				|| (STRING_LITERAL == order_by_expr_type)
@@ -55,21 +58,26 @@ TEMPLATE(tmpl_column_list_combine, LogicalPlan *plan, PhysicalPlan *pplan, char 
 				%{}"Z"_{}%
 			}
 		}
-		TMPL(tmpl_print_expression, plan->v.operand[0]->v.operand[0], pplan);
-		if(plan->v.operand[1]) {
-			if ((0 != resume) && (MAX_M_LINE_LENGTH < (*buffer_index - resume))) {
-				c = (*global_buffer)[resume + resume_length];
-				(*global_buffer)[resume + resume_length] = '\0';
-				%{}`n{{*global_buffer + resume}}{}%
+		TMPL(tmpl_print_expression, plan->v.lp_default.operand[0]->v.lp_default.operand[0], pplan);
+		if (plan->v.lp_default.operand[1]) {
+			if ((0 != start_output_key) && (MAX_M_LINE_LENGTH < (*buffer_index - start_output_key))) {
+				/* The generated M line became close to exceeding the max M line length so split it.
+				 * Reuse the passed in output key to regenerate the first part of the new M line.
+				 */
+				c = (*global_buffer)[start_output_key + output_key_length];
+				(*global_buffer)[start_output_key + output_key_length] = '\0';
+				%{}`n{{ PLAN_LINE_START }}{}%
+				TMPL(tmpl_print_dots, dot_count);
+				%{}SET {}%
+				%{}{{*global_buffer + start_output_key}}{}%
+				%{}={{*global_buffer + start_output_key}}_{}%
 				(*buffer_index)--;
-				(*global_buffer)[resume + resume_length] = c;
-				resume = *buffer_index - resume_length + 1;
-				%{}{{ delim }}{}%
-			} else {
-				%{}{{ delim }}{}%
+				(*global_buffer)[start_output_key + output_key_length] = c;
+				start_output_key = *buffer_index - output_key_length;
 			}
+			%{}{{ delim }}{}%
 		}
-		plan = plan->v.operand[1];
+		plan = plan->v.lp_default.operand[1];
 	}
 	TEMPLATE_END();
 }

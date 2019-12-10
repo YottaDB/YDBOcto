@@ -40,10 +40,10 @@ int lp_verify_valid_for_key_fix(LogicalPlan *plan, LogicalPlan *equals) {
 
 	assert(NULL != equals);
 	assert(LP_BOOLEAN_EQUALS == equals->type);
-	left = equals->v.operand[0];
+	left = equals->v.lp_default.operand[0];
 	if(!(left->type == LP_VALUE || left->type == LP_COLUMN_ALIAS))
 		return FALSE;
-	right = equals->v.operand[1];
+	right = equals->v.lp_default.operand[1];
 	if(!(right->type == LP_VALUE || right->type == LP_COLUMN_ALIAS))
 		return FALSE;
 	if(right->type == LP_COLUMN_ALIAS && left->type == LP_COLUMN_ALIAS) {
@@ -52,8 +52,8 @@ int lp_verify_valid_for_key_fix(LogicalPlan *plan, LogicalPlan *equals) {
 		i2 = lp_get_key_index(plan, right);
 		// If the key is in the same table as the temporary value, we can't do anything
 		if(i1 == -1 || i2 == -1) {
-			UNPACK_SQL_STATEMENT(table_alias, left->v.column_alias->table_alias, table_alias);
-			UNPACK_SQL_STATEMENT(table_alias2, right->v.column_alias->table_alias, table_alias);
+			UNPACK_SQL_STATEMENT(table_alias, left->v.lp_column_alias.column_alias->table_alias, table_alias);
+			UNPACK_SQL_STATEMENT(table_alias2, right->v.lp_column_alias.column_alias->table_alias, table_alias);
 			if(table_alias->unique_id == table_alias2->unique_id)
 				return FALSE;
 		}
@@ -83,15 +83,17 @@ void lp_optimize_where_multi_equal_ands(LogicalPlan *plan, LogicalPlan *where) {
 		// "lp_optimize_where_multi_equal_ands_helper".
 	while(cur != NULL) {
 		GET_LP(lp_key, cur, 0, LP_KEY);
-		key = lp_key->v.key;
+		key = lp_key->v.lp_key.key;
 		// This will end up filling the table with "lowest" id, but since it'll be sequential,
 		// that will still be just about right
 		key_unique_id_array[key->unique_id] = i;
-		cur = cur->v.operand[1];
+		cur = cur->v.lp_default.operand[1];
 		i++;
 	}
-	/* The assert of (NULL == where->v.operand[1]) below is relied upon in "lp_optimize_where_multi_equal_ands_helper()" */
-	assert((LP_WHERE == where->type) && (NULL == where->v.operand[1]));
+	/* The assert of (NULL == where->v.lp_default.operand[1]) below is relied upon
+	 * in "lp_optimize_where_multi_equal_ands_helper()".
+	 */
+	assert((LP_WHERE == where->type) && (NULL == where->v.lp_default.operand[1]));
 	lp_optimize_where_multi_equal_ands_helper(plan, where, key_unique_id_array);
 }
 
@@ -108,7 +110,7 @@ LogicalPlan *lp_optimize_where_multi_equal_ands_helper(LogicalPlan *plan, Logica
 	int			left_id, right_id;
 
 	if(where->type == LP_WHERE) {
-		cur = where->v.operand[0];
+		cur = where->v.lp_default.operand[0];
 	} else {
 		cur = where;
 	}
@@ -116,26 +118,26 @@ LogicalPlan *lp_optimize_where_multi_equal_ands_helper(LogicalPlan *plan, Logica
 		return where;
 	if (LP_BOOLEAN_OR == cur->type)	/* OR is currently not optimized (only AND and EQUALS are) */
 		return where;
-	left = cur->v.operand[0];
-	right = cur->v.operand[1];
+	left = cur->v.lp_default.operand[0];
+	right = cur->v.lp_default.operand[1];
 	if (LP_BOOLEAN_AND == cur->type)
 	{
 		LogicalPlan	*new_left, *new_right;
 
 		new_left = lp_optimize_where_multi_equal_ands_helper(plan, left, key_unique_id_array);
-		cur->v.operand[0] = new_left;
+		cur->v.lp_default.operand[0] = new_left;
 		new_right = lp_optimize_where_multi_equal_ands_helper(plan, right, key_unique_id_array);
-		cur->v.operand[1] = new_right;
+		cur->v.lp_default.operand[1] = new_right;
 		if (NULL == new_left)
 		{
 			if (LP_WHERE == where->type)
-				where->v.operand[0] = new_right;
+				where->v.lp_default.operand[0] = new_right;
 			return new_right;
 		}
 		if (NULL == new_right)
 		{
 			if (LP_WHERE == where->type)
-				where->v.operand[0] = new_left;
+				where->v.lp_default.operand[0] = new_left;
 			return new_left;
 		}
 		return where;
@@ -147,9 +149,9 @@ LogicalPlan *lp_optimize_where_multi_equal_ands_helper(LogicalPlan *plan, Logica
 		return where;
 
 	if(right->type == LP_COLUMN_ALIAS && left->type == LP_COLUMN_ALIAS) {
-		UNPACK_SQL_STATEMENT(table_alias, right->v.column_alias->table_alias, table_alias);
+		UNPACK_SQL_STATEMENT(table_alias, right->v.lp_column_alias.column_alias->table_alias, table_alias);
 		right_id = table_alias->unique_id;
-		UNPACK_SQL_STATEMENT(table_alias, left->v.column_alias->table_alias, table_alias);
+		UNPACK_SQL_STATEMENT(table_alias, left->v.lp_column_alias.column_alias->table_alias, table_alias);
 		left_id = table_alias->unique_id;
 		// If both column references correspond to the same table, then we cannot fix either columns/keys.
 		if (left_id == right_id)
@@ -175,7 +177,7 @@ LogicalPlan *lp_optimize_where_multi_equal_ands_helper(LogicalPlan *plan, Logica
 		// At least one of these is a constant; just fix it
 		if(LP_COLUMN_ALIAS == right->type) {
 			// The left is a value, right a column, swap'em
-			UNPACK_SQL_STATEMENT(table_alias, right->v.column_alias->table_alias, table_alias);
+			UNPACK_SQL_STATEMENT(table_alias, right->v.lp_column_alias.column_alias->table_alias, table_alias);
 			right_id = table_alias->unique_id;
 			if(0 == key_unique_id_array[right_id]) {
 				// The right column corresponds to a unique_id coming in from the parent query.
@@ -189,7 +191,7 @@ LogicalPlan *lp_optimize_where_multi_equal_ands_helper(LogicalPlan *plan, Logica
 			// The right is a value, left a column. Check if left comes in from parent query.
 			// In that case, we cannot fix it. Else it is already in the right order so no swap needed
 			// like was the case in the previous "if" block.
-			UNPACK_SQL_STATEMENT(table_alias, left->v.column_alias->table_alias, table_alias);
+			UNPACK_SQL_STATEMENT(table_alias, left->v.lp_column_alias.column_alias->table_alias, table_alias);
 			left_id = table_alias->unique_id;
 			if(0 == key_unique_id_array[left_id]) {
 				// The left column corresponds to a unique_id coming in from the parent query.
@@ -209,7 +211,7 @@ LogicalPlan *lp_optimize_where_multi_equal_ands_helper(LogicalPlan *plan, Logica
 	// If the left isn't a key, generate a cross reference
 	if(key == NULL) {
 		// Get the table alias and column for left
-		column_alias = left->v.column_alias;
+		column_alias = left->v.lp_column_alias.column_alias;
 		UNPACK_SQL_STATEMENT(table_alias, column_alias->table_alias, table_alias);
 		/// TODO: how do we handle triggers on generated tables?
 		if(table_alias->table->type != table_STATEMENT)
@@ -228,10 +230,10 @@ LogicalPlan *lp_optimize_where_multi_equal_ands_helper(LogicalPlan *plan, Logica
 		first_key = keys = lp_get_keys(plan);
 		do {
 			GET_LP(t, first_key, 0, LP_KEY);
-			if(t->v.key->unique_id == table_alias->unique_id) {
+			if(t->v.lp_key.key->unique_id == table_alias->unique_id) {
 				break;
 			}
-			if(first_key->v.operand[1] == NULL) {
+			if(first_key->v.lp_default.operand[1] == NULL) {
 				break;
 			}
 			before_first_key = first_key;
@@ -242,11 +244,11 @@ LogicalPlan *lp_optimize_where_multi_equal_ands_helper(LogicalPlan *plan, Logica
 		before_last_key = first_key;
 		do {
 			GET_LP(t, last_key, 0, LP_KEY);
-			if(t->v.key->unique_id != table_alias->unique_id) {
+			if(t->v.lp_key.key->unique_id != table_alias->unique_id) {
 				break;
 			}
 			before_last_key = last_key;
-			if(last_key->v.operand[1] == NULL) {
+			if(last_key->v.lp_default.operand[1] == NULL) {
 				break;
 			}
 			GET_LP(last_key, last_key, 1, LP_KEYS);
@@ -254,28 +256,28 @@ LogicalPlan *lp_optimize_where_multi_equal_ands_helper(LogicalPlan *plan, Logica
 		// Generate the new key structure
 		// First, insert a new key corresponding to the column in question
 		xref_keys = lp_make_key(column_alias);
-		key = xref_keys->v.key;
+		key = xref_keys->v.lp_key.key;
 		key->is_cross_reference_key = TRUE;
 		key->cross_reference_column_alias = column_alias;
 		if(before_first_key->type == LP_CRITERIA) {
-			MALLOC_LP_2ARGS(before_first_key->v.operand[0], LP_KEYS);
-			before_first_key = before_first_key->v.operand[0];
+			MALLOC_LP_2ARGS(before_first_key->v.lp_default.operand[0], LP_KEYS);
+			before_first_key = before_first_key->v.lp_default.operand[0];
 		} else {
-			MALLOC_LP_2ARGS(before_first_key->v.operand[1], LP_KEYS);
-			before_first_key = before_first_key->v.operand[1];
+			MALLOC_LP_2ARGS(before_first_key->v.lp_default.operand[1], LP_KEYS);
+			before_first_key = before_first_key->v.lp_default.operand[1];
 		}
-		before_first_key->v.operand[0] = xref_keys;
+		before_first_key->v.lp_default.operand[0] = xref_keys;
 		xref_keys = generated_xref_keys;
 		assert(xref_keys != NULL);
-		before_first_key->v.operand[1] = xref_keys;
+		before_first_key->v.lp_default.operand[1] = xref_keys;
 		/* Note: It is possible the primary key for the table comprises of multiple columns in which case
 		 * we need to scan down the xref_keys list (through v.operand[1]) until we hit the end i.e. we cannot
 		 * assume there is only one column comprising the primary key. Hence the for loop below.
 		 */
-		for ( ; NULL != xref_keys->v.operand[1]; xref_keys = xref_keys->v.operand[1])
+		for ( ; NULL != xref_keys->v.lp_default.operand[1]; xref_keys = xref_keys->v.lp_default.operand[1])
 			;
-		if(before_last_key->v.operand[1] != NULL) {
-			xref_keys->v.operand[1] = before_last_key->v.operand[1];
+		if(before_last_key->v.lp_default.operand[1] != NULL) {
+			xref_keys->v.lp_default.operand[1] = before_last_key->v.lp_default.operand[1];
 		}
 	}
 	if (lp_opt_fix_key_to_const(plan, key, right))
@@ -285,32 +287,32 @@ LogicalPlan *lp_optimize_where_multi_equal_ands_helper(LogicalPlan *plan, Logica
 		 */
 		if (((LP_COLUMN_ALIAS == right->type) && (LP_COLUMN_ALIAS == left->type))
 			&& ((0 == key_unique_id_array[left_id]) || (0 == key_unique_id_array[right_id])))
-		{	/* Both are columns and one of them belongs to a parent query. In that case, do not
-			 * eliminate this altogether from the WHERE clause as that is relied upon in "walk_where_statement()"
-			 * (when "generate_physical_plan()" is called). Keep it in an alternate list (where->v.operand[1]),
+		{	/* Both are columns and one of them belongs to a parent query. In that case, do not eliminate this
+			 * altogether from the WHERE clause as that is relied upon in "walk_where_statement()" (when
+			 * "generate_physical_plan()" is called). Keep it in an alternate list (where->v.lp_default.operand[1]),
 			 * use it in "generate_physical_plan()" (in order to ensure deferred plans get identified properly)
-			 * and then switch back to where->v.operand[0] for generating the plan M code which has this
+			 * and then switch back to where->v.lp_default.operand[0] for generating the plan M code which has this
 			 * redundant check of a fixed key eliminated from the IF condition. This way the generated M code is
 			 * optimized (in terms of not having a redundant equality check) even for plans with references to
-			 * parent queries. It is okay to use where->v.operand[1] for the alternate list because it is
+			 * parent queries. It is okay to use where->v.lp_default.operand[1] for the alternate list because it is
 			 * guaranteed to be NULL (asserted in caller function "lp_optimize_where_multi_equal_ands()").
 			 */
 			LogicalPlan	*where2, *opr1, *lp;
 
 			where2 = lp_get_select_where(plan);
-			opr1 = where2->v.operand[1];
+			opr1 = where2->v.lp_default.operand[1];
 			if (NULL == opr1)
 				lp = cur;
 			else
 			{
 				MALLOC_LP_2ARGS(lp, LP_BOOLEAN_AND);
-				lp->v.operand[0] = opr1;
-				lp->v.operand[1] = cur;
+				lp->v.lp_default.operand[0] = opr1;
+				lp->v.lp_default.operand[1] = cur;
 			}
-			where2->v.operand[1] = lp;
+			where2->v.lp_default.operand[1] = lp;
 		}
 		if (LP_WHERE == where->type)
-			where->v.operand[0] = NULL;
+			where->v.lp_default.operand[0] = NULL;
 		return NULL;
 	} else
 		return where;

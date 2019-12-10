@@ -25,13 +25,13 @@ void lp_insert_key(LogicalPlan *plan, LogicalPlan *key) {
 	cur_keys = lp_get_keys(plan);
 
 	// Drill down to the last item
-	if(cur_keys->v.operand[0] != NULL) {
-		while(cur_keys->v.operand[1] != NULL) {
-			cur_keys = cur_keys->v.operand[1];
+	if(cur_keys->v.lp_default.operand[0] != NULL) {
+		while(cur_keys->v.lp_default.operand[1] != NULL) {
+			cur_keys = cur_keys->v.lp_default.operand[1];
 		}
-		MALLOC_LP(t, cur_keys->v.operand[1], LP_KEYS);
-		t->v.operand[0] = key;
+		MALLOC_LP(t, cur_keys->v.lp_default.operand[1], LP_KEYS);
+		t->v.lp_default.operand[0] = key;
 	} else {
-		cur_keys->v.operand[0] = key;
+		cur_keys->v.lp_default.operand[0] = key;
 	}
 }

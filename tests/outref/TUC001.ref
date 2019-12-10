@@ -1,5 +1,6 @@
 OCTO> select notathing as a from names; select * from names limit 1;
 [ERROR] PATH:LINENUM DATE TIME : Unknown column: NOTATHING
+Error with syntax near (line 1, column 7):
 
 select notathing as a from names; select * from names limit 1;
        ^^^^^^^^^

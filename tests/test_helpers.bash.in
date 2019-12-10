@@ -408,12 +408,29 @@ count_num_occurrences() {
   return
 }
 
+run_query_in_octo_and_postgres_and_crosscheck_multiple_queries() {
+    # Query file has multiple queries.
+    # Split it into multiple query files each containing one query and invoke "run_query_in_octo_and_postgres_and_crosscheck()".
+    # Needed as otherwise Postgres and Octo output cannot be easily compared.
+    database="$1"
+    queryfile="$2"
+    remove="$3"
+    $ydb_dist/mumps -run splitqueries $queryfile
+    fname=`echo $queryfile | sed 's/\..*//g'`
+    for splitfile in $fname-*.sql
+    do
+        run_query_in_octo_and_postgres_and_crosscheck $database $splitfile $remove
+    done
+    return
+}
+
 run_query_in_octo_and_postgres_and_crosscheck() {
     database="$1"
     queryfile="$2"
     remove="$3"
     fname=`echo $queryfile | sed 's/\..*//g'`
-    psql $database -f $queryfile >& $fname.psql.out
+    grep -v '^#' $queryfile > $queryfile.inp # Filter out '#' comment lines, if any, as that is not valid in Postgres
+    psql $database -f $queryfile.inp >& $fname.psql.out
     # Postgres displays boolean values as t and f whereas Octo displays them as 1 and 0 so fix that before the diff.
     # Remove leading spaces, not proper ones in things like "123 fake street"
     tail -n +3 $fname.psql.out | head -n -2 | sed 's/^[ \t]*//g;s/[ \t]*$//g;s/  //g;s/  //g;s/ | /|/g;s/ |/|/g;s/| /|/g;s/\<t\>/1/g;s/\<f\>/0/g;' | sort >& $fname.ref

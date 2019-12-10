@@ -62,7 +62,7 @@ readSQL(file)
 
 	for i=1:1:nlines do
 	. ; Filters out comment lines (start with '--' or '#'), and/or blank lines
-	. if (($extract(line(i),1)'="#")&($extract(line(i),1)'="")&($extract(line(i),2)'="--")) do
+	. if (($extract(line(i),1)'="#")&($extract(line(i),1)'="")&($extract(line(i),1,2)'="--")) do
 	. . ;TABLE NAMES
 	. . set tableNameStart=$find(line(i),"CREATE TABLE ")
 	. . set tableNameEnd=$find(line(i)," ",tableNameStart)

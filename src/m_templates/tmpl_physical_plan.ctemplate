@@ -259,9 +259,13 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
 		TMPL(tmpl_key, plan->outputKey); (*buffer_index)--;
 		%{})=%%ydboctoi(0)-1{}%
 	}
-	if (plan->emit_duplication_check && ((NULL == plan->next) || !is_prev_plan_in_same_dnf(plan->next)))
-	{
-		%{}`n    KILL %%ydboctocursor(cursorId,"dupl"){}%
+	if ((NULL == plan->next) || !is_prev_plan_in_same_dnf(plan->next)) {
+		if (plan->emit_duplication_check) {
+			%{}`n    KILL %%ydboctocursor(cursorId,"dupl"){}%
+		}
+		if (plan->distinct_values) {
+			%{}`n    KILL %%ydboctocursor(cursorId,"Distinct"){}%
+		}
 	}
 	set_oper = plan->set_oper_list;
 	prev_oper = set_oper;

@@ -34,12 +34,11 @@ TEMPLATE(tmpl_tablejoin_body, PhysicalPlan *plan, int dot_count, char *tableName
 	}
 	// Distinct values if needed
 	if (plan->distinct_values) {
-		%{}&($DATA({{ config->global_names.cursor }}(cursorId,"index",{}%
+		%{}&($DATA({{ config->global_names.cursor }}(cursorId,"Distinct",{}%
 		TMPL(tmpl_column_list_combine, plan->projection, plan, ",", 0, 0);
 		%{}))=0){}%
-	}
-	// Ensure we don't emit duplicates
-	if (!plan->distinct_values && plan->emit_duplication_check) {
+	} else if (plan->emit_duplication_check) {
+		// Ensure we don't emit duplicates
 		%{}&($DATA({}%
 		TMPL(tmpl_duplication_check, plan);
 		%{})=0){}%
@@ -81,6 +80,12 @@ TEMPLATE(tmpl_tablejoin_body, PhysicalPlan *plan, int dot_count, char *tableName
 			%{}){}%
 		} else
 		{
+			if (plan->distinct_values) {
+				%{}IF $INCREMENT({}%
+				TMPL(tmpl_key, plan->outputKey);
+				%{})`n    {}%
+				TMPL(tmpl_print_dots, dot_count);
+			}
 			%{}IF $INCREMENT({}%
 			TMPL(tmpl_key, plan->outputKey);
 			(*buffer_index)--;
@@ -153,11 +158,11 @@ TEMPLATE(tmpl_tablejoin_body, PhysicalPlan *plan, int dot_count, char *tableName
 		TMPL(tmpl_print_dots, dot_count);
 		%{}SET:1{}%
 
-		%{} {{ config->global_names.cursor }}(cursorId,"index",{}%
+		%{} {{ config->global_names.cursor }}(cursorId,"Distinct",{}%
 		TMPL(tmpl_column_list_combine, plan->projection, plan, ",", 0, 0);
 		%{},{}%
 		TMPL(tmpl_key, plan->outputKey);
-		%{})="",tmpVar=$INCREMENT({{ config->global_names.cursor }}(cursorId,"index",{}%
+		%{})="",tmpVar=$INCREMENT({{ config->global_names.cursor }}(cursorId,"Distinct",{}%
 		TMPL(tmpl_column_list_combine, plan->projection, plan, ",", 0, 0);
 		%{})){}%
 	}

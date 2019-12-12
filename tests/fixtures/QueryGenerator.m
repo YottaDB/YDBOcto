@@ -13,7 +13,8 @@
 	set initDone("setQuantifier")=0
 	set initDone("chooseTable")=0
 	set initDone("chooseColumn")=0
-	set initDone("whereClause")=0
+	set initDone("arithmeticOperator")=0
+	set initDone("comparisonOperators")=0
 
 	set arguments=$zcmdline
 	set sqlFile=$piece(arguments," ",1)
@@ -30,22 +31,21 @@
 
 	new i
 	for i=1:1:runCount do
-	. set query="SELECT "
-	. set query=query_$$setQuantifier
-	. set fc=$$fromClause ; fromClause needs to run before selectList
-	. set query=query_$$selectList($random(3)+1)
-	. set query=query_" "_fc
-	. set query=query_$$tableExpression
+	. set query=$$generateQuery()
 	. write query,!
 	.
 	. set file=prefix_i_".sql"
 	. open file:(newversion)
 	. use file
+	. ; Add a line to generated query file given LIMIT exists, and ORDER BY does not in the query
+	. ; This forces the crosscheck function to only count lines as having a LIMIT clause without an
+	. ; ORDER BY clause can cause different results to be returned by the database
+	. if (($find(query," LIMIT ")'=0)&($find(query," ORDER BY ")=0))  write "-- rowcount-only-check",!
 	. write query,!
 	. close file
-	. ; The tableColumn LVN exists for each individual query, thus it needs to be killed
-	. ; after each query is created
-	. kill tableColumn
+	. ; The tableColumn/selectListLVN LVNs exists for each individual query,
+	. ; thus they need to be KILLED and NEWED after each query is created
+	. kill tableColumn,selectListLVN
 
 	quit
 
@@ -89,7 +89,7 @@ readSQL(file)
 	quit
 
 readZWR(file)
-	new line,nlines,holder,firstData,table
+	new line,nlines,holder,firstData,table,i,i2
 	open file:(readonly)
 	use file
 		for  read line($increment(nlines))  quit:$zeof
@@ -131,65 +131,69 @@ selectList(curDepth)
 	new randInt,result
 	;This function serves the same purpose as select sublist in the grammar rules for SQL.
 
+	; #FUTURE_TODO: Change this code block to not "quit "*"", but rather just "set result="*"" also Issue #385
 	; Choose whether to use a wildcard or build a select list
 	set randInt=$random(4) ;25% chance to get an asterisk, 75% chance to continue further
 	if (randInt=0) do
 	. set table=$order(tableColumn(""))
 	. set tableColumn(table,"*")=""
-	if (randInt=0) quit "*"
+	if ((randInt=0)&(curDepth=0)) quit "*"
+	; #FUTURE_TODO: Reenable following line and remove preceding line, when Issue #385 is resolved
+	;if (randInt=0) quit "*"
 
 	set result=""
 	; Choose DerivedColumn or Qualifier
-	set randInt=$random(1)
-	set randInt=0 ; forced 0 until Qualifier notation (table.column) is done
-	if randInt=0 set result=$$chooseColumn ;Chooses column
-	set column=result
+	set randInt=$random(2)
 
-	; #FUTURE_TODO: Enable when Qualifier notation (table.column) is to be used
-	;if randInt=1 do
-	;. ;Call Qualifier (use dot)
-	;. ;set result="table"_"."_"column"
+	; Regular column notation is to be used
+	if randInt=0 set toBeAdded=$$chooseColumn
+
+	; Qualifier notation (table.column) is to be used
+	if randInt=1  set toBeAdded=$order(tableColumn(""))_"."_$$chooseColumn
+
+	set selectListLVN(toBeAdded)=""
+	set result=result_toBeAdded
 
 	if curDepth>0 do
 	. if $increment(curDepth,-1) ; to drop down a "level" in depth
 	. if (curDepth'=0) set result=result_", "_$$selectList(curDepth)
 
-	; #FUTURE_TODO: Find a more elegant way to do this, maybe don't insert this comma at all
-	; Strip off trailing commas
-	if ($extract(result,$length(result)-2)=",")  set result=($extract(result,1,$length(result)-3))
+	quit result
+
+; https://ronsavage.github.io/SQL/sql-92.bnf.html#select%20list
+innerQuerySelectList(curDepth,alias)
+	new randInt,result
+	;This function serves the same purpose as select sublist in the grammar rules for SQL.
+
+	set result=""
+
+	; Qualifier notation (table.column), with the value of the alias variable instead of a table
+	set toBeAdded=alias_"."_$$chooseColumn
+
+	set selectListLVN(toBeAdded)=""
+	set result=result_toBeAdded
+
+	if curDepth>0 do
+	. if $increment(curDepth,-1) ; to drop down a "level" in depth
+	. if (curDepth'=0) set result=result_", "_$$innerQuerySelectList(curDepth,alias)
 
 	quit result
 
 ; https://ronsavage.github.io/SQL/sql-92.bnf.html#table%20expression
 tableExpression()
-	new randInt
-	set randInt=$random(2)
-
 	; From Clause should go here, but it needs to be decided on early as to
 	; allow for proper column(s) to be chosen
 
-	; #FUTURE_TODO: Change this structure such that each "clause" can be selected indepently
-	;               of each other. IE have a seperate random variable that is either 0 or 1
-	;               that controls whether a clause could be added. Similar to how the notString
-	;               is implemnted in the WHERE Clause
 	set result=""
-	; none
-	if (randInt=0) set result=""
-	; where
-	if (randInt=1) set result=$$whereClause
-	; #FUTURE_TODO: groupby
-	if (randInt=2) set result="this shouldn't be printed"
-	; #FUTURE_TODO: having
-	if (randInt=3) set result="this shouldn't be printed"
-	; #FUTURE_TODO: where groupby
-	if (randInt=4) set result="this shouldn't be printed"
-	; #FUTURE_TODO: where having
-	if (randInt=5) set result="this shouldn't be printed"
-	; #FUTURE_TODO: groupby having
-	if (randInt=6) set result="this shouldn't be printed"
-	; #FUTURE_TODO: where groupby having
-	if (randInt=7) set result="this shouldn't be printed"
-	; #FUTURE_TODO: orderby clause
+
+	; WHERE
+	if $random(2)  set result=result_$$whereClause
+	; #FUTURE_TODO: Uncomment following line when GROUP BY is done in Octo Issue #55
+	;if $random(2)  set result=result_$$groupbyClause
+	; #FUTURE_TODO: Uncomment following line when HAVING is done in Octo Issue #55
+	;if $random(2)  set result=result_$$havingClause
+	if $random(2)  set result=result_$$orderbyClause
+	if $random(2)  set result=result_$$limitClause
 
 	quit result
 
@@ -197,7 +201,6 @@ tableExpression()
 fromClause()
 	new result,randInt,i,x
 	;Constructs a FROM clause from a random number of table references.
-	;:returns result: A string representing a derived column, i.e. column name.
 
 	set result="FROM "
 	; Choose number of table references to include based on the the maximum
@@ -223,30 +226,205 @@ fromClause()
 
 ; https://ronsavage.github.io/SQL/sql-92.bnf.html#where%20clause
 whereClause()
-	if (initDone("whereClause")=0) do
-	. set initDone("whereClause")=1
-	. set comparisonOperator=-1
-	. set comparisonOperator($increment(comparisonOperator))="="
-	. set comparisonOperator($increment(comparisonOperator))="!="
-	. set comparisonOperator($increment(comparisonOperator))="<"
-	. set comparisonOperator($increment(comparisonOperator))=">"
-	. set comparisonOperator($increment(comparisonOperator))="<="
-	. set comparisonOperator($increment(comparisonOperator))=">="
-	. ;set comparisonOperator($increment(comparisonOperator))="BETWEEN" ; #FUTURE_TODO: Not used currently, but is a valid option
-	. ;set comparisonOperator($increment(comparisonOperator))="LIKE" ; #FUTURE_TODO: Not used currently, but is a valid option
-	. ;set comparisonOperator($increment(comparisonOperator))="IN" ; #FUTURE_TODO: Not used currently, but is a valid option
-	. if $increment(number)
+	new result,randInt
+	set result=" WHERE "
+	set randInt=$random(8) ; 0,1,2,3,4,5,6,7
 
-	set notString=""
-	if $random(2) set notString="NOT "
+	; #FUTURE_TODO: change comparison numbers for the if statements when following if statements in WHERE clause are finished
 
-	; #FUTURE_TODO: operands can be literals/entries and column on either side
-	; #FUTURE_TODO: things like id + 1, column expressions
-	; #FUTURE_TODO: unary operations, NOT (id=2)
-	; #FUTURE_TODO: Involving boolean operators (expr1 AND expr2, expr1 OR expr2)
-	set chosenColumn=$$chooseColumn
+	; #FUTURE_TODO: Boolean expressions can be combined to create more complex Booleans
+	;               Example: ((id = 1) OR (firstname = 'Zero')) AND (lastname '= 'Cool')
+	if (randInt=0) do
+	. new loopCount,i,leftSide,rightSide,notString,andOrChoice,chosenColumn
+	. set loopCount=$random(3)+1 ; value between inclusive 1 and 3
+	. for i=1:1:loopCount do
+	. . set chosenColumn=$$chooseColumn
+	. . set leftSide=""
+	. . set rightSide=""
+	. . if $random(2)  set leftSide=chosenColumn
+	. . else  set leftSide=$$chooseEntry(table,chosenColumn)
+	. . ;Only needs to be decided once, as chooseEntry checks to make sure matching type
+	. . if $random(2)  set rightSide=chosenColumn
+	. . else  set rightSide=$$chooseEntry(table,chosenColumn)
+	. . set notString=""
+	. . if $random(2) set notString="NOT "
+	. .
+	. . ; First portion of WHERE, no AND or OR
+	. . if (i=1) set result=result_notString_"("_leftSide_" "_$$comparisonOperators_" "_rightSide_")"
+	. . ; Following portions of WHERE, with AND or OR separators
+	. . if (i'=1) do
+	. . . set andOrChoice=$random(2)
+	. . . ; AND
+	. . . if (andOrChoice=0) do
+	. . . . set result=result_" AND "_notString_"("_leftSide_" "_$$comparisonOperators_" "_rightSide_")"
+	. . . ; OR
+	. . . if (andOrChoice=1) do
+	. . . . set result=result_" OR "_notString_"("_leftSide_" "_$$comparisonOperators_" "_rightSide_")"
 
-	quit " WHERE "_notString_chosenColumn_" "_comparisonOperator($random(comparisonOperator))_" "_$$chooseEntry(table,chosenColumn)
+	if (randInt=1) do
+	. new type,chosenColumn,plusMinus
+	. set type=""
+	. for  quit:($find(type,"INTEGER")'=0)  do
+	. . set chosenColumn=$$chooseColumn
+	. . set type=$$returnColumnType(table,chosenColumn)
+	. set plusMinus="+"
+	. if $random(2) set plusMinus="-"
+	. set result=result_"(("_chosenColumn_plusMinus_$$chooseEntry(table,chosenColumn)_")="_$$chooseEntry(table,chosenColumn)_")"
+
+	if (randInt=2) do
+	. ; Left side of this expression will always be forced to be a varchar,
+	. ; the right side of this expression can be either varchar or integer
+	. ; This is done as PostgreSQL requires at least one side of a string concatenation
+	. ; to be a string/varchar and the other to not be.
+	. new leftSide,rightSide,type,entry1,entry2
+	.
+	. set leftSide=""
+	. set rightSide=""
+	.
+	. set type=""
+	. for  quit:($find(type,"VARCHAR")'=0)  do
+	. . set leftSide=$$chooseColumn
+	. . set type=$$returnColumnType(table,leftSide)
+	. set entry1=$$chooseEntry(table,leftSide)
+	. set entry1=$extract(entry1,2,$length(entry1)-1)
+	. if $random(2)  set leftSide=$$chooseEntry(table,leftSide)
+	.
+	. set rightSide=$$chooseColumn
+	. set entry2=$$chooseEntry(table,rightSide)
+	. set entry2=$extract(entry2,2,$length(entry2)-1)
+	. if $random(2)  set rightSide=$$chooseEntry(table,rightSide)
+	.
+	. set result=result_"(("_leftSide_"||"_rightSide_")"_$$comparisonOperators_"'"_entry1_entry2_"')"
+
+	if (randInt=3) do
+	. ; ... WHERE customer_id=-(-3)
+	. set type=""
+	. for  quit:($find(type,"INTEGER")'=0)  do
+	. . set chosenColumn=$$chooseColumn
+	. . set type=$$returnColumnType(table,chosenColumn)
+	. set plusMinus="+"
+	. if $random(2) set plusMinus="-"
+	. set plusMinus2="+"
+	. if $random(2) set plusMinus2="-"
+	. set result=result_chosenColumn_" "_$$comparisonOperators_" "_plusMinus_"("_plusMinus2_$$chooseEntry(table,chosenColumn)_")"
+
+	if (randInt=4) do
+	. ; ... WHERE customer_id=-(-3)
+	. ; ... WHERE (math expression) arithmetic operator -(math expression)
+	.
+	. set type=""
+	. for  quit:($find(type,"INTEGER")'=0)  do
+	. . set chosenColumn=$$chooseColumn
+	. . set type=$$returnColumnType(table,chosenColumn)
+	.
+	. set beginning="("_$$chooseEntry(table,chosenColumn)_")"
+	.
+	. new plusMinus
+	. set plusMinus="+"
+	. if $random(2) set plusMinus="-"
+	. set end=plusMinus_"("_plusMinus_$$chooseEntry(table,chosenColumn)_")"
+	.
+	. set result=result_"("_beginning_" "_$$arithmeticOperator_" "_end_") "_$$comparisonOperators_" "_chosenColumn
+
+	if (randInt=5) do
+	. ; ... WHERE EXISTS (SELECT ... query)
+	. set notString=""
+	. if $random(2) set notString="NOT "
+	. set alias="q2"
+	. set result=result_notString_"EXISTS ("_$$generateSimpleQuery(alias)_" "_alias_")"
+
+	if (randInt=6) do
+	. new notString,entryList,i
+	. set chosenColumn=$$chooseColumn
+	. set notString=""
+	. if $random(2) set notString="NOT "
+	. set entryList=""
+	. for i=1:1:($random($$maxIndex(table)-1)+1) do
+	. . set entryList=entryList_$$chooseEntry(table,chosenColumn)_", "
+	. ; strip the ", " off of entryList
+	. set entryList=$extract(entryList,0,$length(entryList)-2)
+	. set result=result_chosenColumn_" "_notString_"IN ("_entryList_")"
+
+	; #FUTURE_TODO: Make this pretty/better and improve on the string, maybe focus more on wildcards
+	; #FUTURE_TODO: Uncomment when Issue 398 (LIKE with wildcard characters) is fixed
+	; #FUTURE_TODO: Maybe have a separate BATs test that only tests this clause as this can create
+	;       a lot of varying queries, not sure how to do this though
+	;if (randInt=7) do
+	;. new chosenColumn,string,i,randInt
+	;. ; Forces column to be of type "VARCHAR" as to do a string comparison
+	;. set type=""
+	;. for  quit:($find(type,"VARCHAR")'=0)  do
+	;. . set chosenColumn=$$chooseColumn
+	;. . set type=$$returnColumnType(table,chosenColumn)
+	;. set string=""
+	;. for i=1:1:5 do
+	;. . set randInt=$random(6) ; 0,1,2,3,4,5
+	;. . if (randInt=0) set string=string_$char($random(27)+64) ; @,A-Z
+	;. . if (randInt=1) set string=string_$char($random(26)+97) ; a-z
+	;. . if (randInt=2) set string=string_$random(10) ; 0-9
+	;. . if (randInt=3) set string=string_"#"
+	;. . if (randInt=4) set string=string_"$"
+	;. . if (randInt=5) set string=string_"%"
+	;. . if (randInt=6) set string=string_"_"
+	;. set result=result_chosenColumn_" LIKE '"_string_"'"
+
+	if (randInt=7) do
+	. new i
+	. set chosenColumn=$$chooseColumn
+	. ; ... WHERE column BETWEEN entry1 and entry2
+	. set result=result_chosenColumn_" BETWEEN "_$$chooseEntry(table,chosenColumn)_" AND "_$$chooseEntry(table,chosenColumn)
+
+	quit result
+
+; https://ronsavage.github.io/SQL/sql-92.bnf.html#group%20by%20clause
+groupbyClause()
+	new result,randInt,i
+	set result=" GROUP BY "
+
+	set randInt=$random(3)+1
+	for i=1:1:randInt do
+	. set commaString=" "
+	. if (i<randInt) set commaString=", "
+	. set result=result_$$chooseColumn()_commaString
+
+	quit result
+
+; #FUTURE_TODO: Expand this with more "aggregrate functions" besides COUNT as there has to
+;               be more valid keywords/functions, do this when the HAVING clause is in Octo
+; https://ronsavage.github.io/SQL/sql-92.bnf.html#having%20clause
+havingClause()
+	new result,randInt,max,randFromMax
+	set result=" HAVING "
+
+	set max=$$maxIndex(table)
+	set randFromMax=$random(max-1)+1
+
+	set result=result_"COUNT(("_$$chooseColumn_") "_$$comparisonOperators_" "_($random(max-1)+1)_")"
+	quit result
+
+; https://ronsavage.github.io/SQL/sql-92.bnf.html#order%20by%20clause
+orderbyClause()
+	new result,randInt,i,holder
+	set result=" ORDER BY "
+
+	set holder=" "
+	for  quit:(holder="")  do
+	. set holder=$order(selectListLVN(holder))
+	. set result=result_holder_", "
+
+	; strip off the ", , " at the end of result
+	if ($extract(result,$length(result)-3,$length(result))=", , ")  set result=$extract(result,0,$length(result)-4)
+
+	quit result
+
+; Cannot find the link for this
+limitClause()
+	new result,holder,max,a
+	set result=" LIMIT "
+	set max=$$maxIndex(table)
+	set result=result_($random(max-1)+1)
+
+	quit result
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;Supporting Functions
@@ -291,19 +469,22 @@ chooseColumn()
 	quit selectedColumn
 
 chooseEntry(tableName,columnName)
-	new index,formatted,CC,temp,type,entry,i,randInt,test
+	new index,formatted,CC,type,entry,i,randInt,count,maxIndex,randFromMaxIndex
 
-	; Finds index of column
-	set index=1
-	for  quit:($order(columns(tableName,index,""))=columnName)  if $increment(index)
+	set maxIndex=$$maxIndex(tableName)
 
-	set formatted="^"_tableName_"("_index_")"
+	set randFromMaxIndex=$random(maxIndex-1)+1
+	set formatted="^"_tableName_"("_randFromMaxIndex_")"
 
 	; Gets type of selected entry
-	set type=$order(sqlInfo(tableName,index,columnName,""))
+	set type=$$returnColumnType(tableName,columnName)
+
+	set index=$$returnColumnIndex(tableName,columnName)
+	; index will occasionally be set to 0,
+	; which causes a blank entry to be returned
+	if (index=0)  set index=1
 
 	; randomly selects an entry to be returned
-	set CC=tableColumnCounts(tableName)
 	set entry=$order(data(formatted,index,""))
 
 	; If selected entry is not of "INTEGER" type, pre/append a single quote (')
@@ -312,3 +493,81 @@ chooseEntry(tableName,columnName)
 	if ($find(type,"INTEGER")=0) set entry="'"_entry_"'"
 
 	quit entry
+
+returnColumnIndex(tableName,columnName)
+	; Returns index of column
+	set index=0
+	for  quit:($order(columns(tableName,index,""))=columnName)  if $increment(index)
+	quit index
+
+returnColumnType(tableName,columnName)
+	set index=$$returnColumnIndex(tableName,columnName)
+	quit $order(sqlInfo(tableName,index,columnName,""))
+
+maxIndex(tableName)
+	set holder=" "
+	for maxIndex=1:1  do  quit:(holder="")
+	. set a="^"_tableName_"("_maxIndex_")"
+	. set holder=$order(data(a,""))
+	set maxIndex=maxIndex-1
+	quit maxIndex
+
+comparisonOperators()
+	if (initDone("comparisonOperators")=0) do
+	. set initDone("comparisonOperators")=1
+	. set comparisonOperators=-1
+	. set comparisonOperators($increment(comparisonOperators))="="
+	. set comparisonOperators($increment(comparisonOperators))="!="
+	. set comparisonOperators($increment(comparisonOperators))="<"
+	. set comparisonOperators($increment(comparisonOperators))=">"
+	. set comparisonOperators($increment(comparisonOperators))="<="
+	. set comparisonOperators($increment(comparisonOperators))=">="
+	. if $increment(comparisonOperators)
+
+	quit comparisonOperators($random(comparisonOperators))
+
+arithmeticOperator()
+	if (initDone("arithmeticOperator")=0) do
+	. set initDone("arithmeticOperator")=1
+	. set arithmeticOperator=-1
+	. set arithmeticOperator($increment(arithmeticOperator))="+"
+	. set arithmeticOperator($increment(arithmeticOperator))="-"
+	. set arithmeticOperator($increment(arithmeticOperator))="*"
+	. ;set arithmeticOperator($increment(arithmeticOperator))="/" ; #FUTURE_TODO: Uncomment when Issue 365 (Octo division returns decimal) is resolved
+	. set arithmeticOperator($increment(arithmeticOperator))="%"
+	. if $increment(arithmeticOperator)
+
+	quit arithmeticOperator($random(arithmeticOperator))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;Queries
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+generateQuery()
+	set query="SELECT "
+	set query=query_$$setQuantifier
+	set fc=$$fromClause ; fromClause needs to run before selectList
+	set query=query_$$selectList($random(3)+1)
+	set query=query_" "_fc
+	set query=query_$$tableExpression
+	quit query
+
+generateSimpleQuery(alias)
+	; This function is missing the call to tableExpression as that has
+	; the potential to cause an infinite loop with a bunch of EXISTS
+	; statements, probably rare but possible
+	merge tableColumnTemp=tableColumn
+	merge selectListLVNTemp=selectListLVN
+	new tableColumn,selectListLVN
+
+	new query
+	set query="SELECT "
+	set query=query_$$setQuantifier
+	set fc=$$fromClause ; fromClause needs to run before selectList
+	set query=query_$$innerQuerySelectList($random(3)+1,alias)
+	set query=query_" "_fc
+
+	new tableColumn,selectListLVN
+	merge tableColumn=tableColumnTemp
+	merge selectListLVN=selectListLVNTemp
+	quit query

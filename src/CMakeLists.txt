@@ -175,13 +175,11 @@ add_library(libocto OBJECT
   optimization_transforms/lp_optimize_where_multi_equals_ands.c
   optimization_transforms/lp_drill_to_insert.c
   optimization_transforms/lp_make_normal_disjunctive_form.c
-  optimization_transforms/lp_join_plans.c
   optimization_transforms/generate_logical_plan.c
   optimization_transforms/logical_plan.c
   optimization_transforms/lp_is_bool_operand_type_string.c
   physical/generate_physical_plan.c
   physical/emit_physical_plan.c
-  physical/is_prev_plan_in_same_dnf.c
   m_templates/resize_tmpl_buffer.c
   m_escape_string2.c
   copy_sql_statement.c

@@ -89,6 +89,7 @@ typedef struct PhysicalPlan {
 							 * treated as NULL (replaced with "") in the generated M code.
 							 */
 	SetOperType		*set_oper_list;		/* Linked list of SET OPERATIONS to do on this plan at the end */
+	struct PhysicalPlan	*dnf_prev, *dnf_next;	/* Linked list of plans that are at the same LP_SET_DNF level */
 } PhysicalPlan;
 
 // This provides a convenient way to pass options to subplans
@@ -96,6 +97,7 @@ typedef struct PhysicalPlan {
 typedef struct {
 	struct PhysicalPlan	*parent;
 	struct PhysicalPlan	**last_plan;
+	struct PhysicalPlan	*dnf_plan_next;
 	boolean_t		stash_columns_in_keys;
 } PhysicalPlanOptions;
 
@@ -119,6 +121,5 @@ int print_temporary_table(SqlStatement *, int cursor_id, void *parms, char *plan
 int run_query(int (*callback)(SqlStatement *, int, void *, char*), void *parms);
 
 PhysicalPlan	*emit_select_statement(SqlStatement *stmt, char *plan_filename);
-boolean_t	is_prev_plan_in_same_dnf(PhysicalPlan *plan);
 
 #endif

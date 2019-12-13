@@ -414,6 +414,9 @@ run_query_in_octo_and_postgres_and_crosscheck_multiple_queries() {
     # Needed as otherwise Postgres and Octo output cannot be easily compared.
     database="$1"
     queryfile="$2"
+    if [[ ! -f $queryfile ]]; then
+        cp @PROJECT_SOURCE_DIR@/tests/fixtures/$queryfile .
+    fi
     remove="$3"
     $ydb_dist/mumps -run splitqueries $queryfile
     fname=`echo $queryfile | sed 's/\..*//g'`
@@ -427,6 +430,9 @@ run_query_in_octo_and_postgres_and_crosscheck_multiple_queries() {
 run_query_in_octo_and_postgres_and_crosscheck() {
     database="$1"
     queryfile="$2"
+    if [[ ! -f $queryfile ]]; then
+        cp @PROJECT_SOURCE_DIR@/tests/fixtures/$queryfile .
+    fi
     remove="$3"
     fname=`echo $queryfile | sed 's/\..*//g'`
     grep -v '^#' $queryfile > $queryfile.inp # Filter out '#' comment lines, if any, as that is not valid in Postgres

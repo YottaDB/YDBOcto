@@ -15,40 +15,24 @@
 #include "logical_plan.h"
 
 LogicalPlan *lp_copy_plan(LogicalPlan *plan) {
-	LogicalPlan *new_plan;
-	if(plan == NULL)
+	LogicalPlan	*new_plan;
+
+	if (NULL == plan)
 		return NULL;
 	OCTO_CMALLOC_STRUCT(new_plan, LogicalPlan);
 	*new_plan = *plan;
-	// We copy SqlStatements where, which is definitely needed for keys
-	// and maybe needed for the others, but better safe than sorry
-	SqlStatement *stmt;
 	switch(plan->type) {
 	case LP_KEY:
+		/* Copy SqlStatements which is definitely needed for keys (as these are modified later
+		 * and need to be maintained separately for the source and target plans).
+		 */
 		new_plan->v.key = lp_copy_key(plan->v.key);
 		break;
 	case LP_VALUE:
-		SQL_STATEMENT(stmt, value_STATEMENT);
-		stmt->v.value = plan->v.value;
-		new_plan->v.value = copy_sql_statement(stmt)->v.value;
-		break;
 	case LP_TABLE:
-		break;
 	case LP_COLUMN_ALIAS:
-		SQL_STATEMENT(stmt, column_alias_STATEMENT);
-		stmt->v.value = plan->v.value;
-		new_plan->v.value = copy_sql_statement(stmt)->v.value;
-		break;
 	case LP_COLUMN_LIST_ALIAS:
-		SQL_STATEMENT(stmt, column_list_alias_STATEMENT);
-		stmt->v.value = plan->v.value;
-		new_plan->v.value = copy_sql_statement(stmt)->v.value;
-		break;
 	case LP_KEYWORDS:
-		SQL_STATEMENT(stmt, keyword_STATEMENT);
-		stmt->v.value = plan->v.value;
-		new_plan->v.value = copy_sql_statement(stmt)->v.value;
-		break;
 	case LP_PIECE_NUMBER:
 		break;
 	default:

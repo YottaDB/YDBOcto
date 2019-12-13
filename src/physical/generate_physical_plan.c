@@ -25,22 +25,6 @@ void gen_source_keys(PhysicalPlan *out, LogicalPlan *plan);
 void iterate_keys(PhysicalPlan *out, LogicalPlan *plan);
 LogicalPlan *walk_where_statement(PhysicalPlanOptions *options, LogicalPlan *stmt, LogicalPlan *parent);
 
-#define	SET_PLAN_PROPERTY_IN_ALL_DNF_SIBLINGS(STARTPLAN, FIELDNAME, VALUE)	\
-{										\
-	PhysicalPlan	*cur;							\
-										\
-	cur = STARTPLAN;							\
-	for ( ; ; )								\
-	{									\
-		cur->FIELDNAME = VALUE;						\
-		cur = cur->next;						\
-		if (NULL == cur)						\
-			break;							\
-		if (!is_prev_plan_in_same_dnf(cur))				\
-			break;							\
-	}									\
-}
-
 PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlanOptions *options) {
 	SqlOptionalKeyword	*keywords, *keyword;
 	LogicalPlan		*keys, *table_joins, *select, *insert_or_set_operation, *output_key, *output;
@@ -49,6 +33,7 @@ PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlanOptions *opt
 	PhysicalPlan		*out, *prev = NULL;
 	LPActionType		set_oper_type, type;
 	PhysicalPlanOptions	plan_options;
+	boolean_t		is_set_dnf;
 
 	plan_options = *options;
 	assert((LP_INSERT == plan->type) || (LP_SET_OPERATION == plan->type));
@@ -57,22 +42,35 @@ PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlanOptions *opt
 		GET_LP(set_option, plan, 0, LP_SET_OPTION);
 		GET_LP(set_plans, plan, 1, LP_PLANS);
 		out = generate_physical_plan(set_plans->v.operand[1], &plan_options);
-		if (NULL == out)
+		if (NULL == out) {
 			return NULL;
-		prev = generate_physical_plan(set_plans->v.operand[0], &plan_options);
-		if (NULL == prev)
-			return NULL;
-
+		}
 		set_oper_type = set_option->v.operand[0]->type;
 		assert((LP_SET_UNION == set_oper_type) || (LP_SET_UNION_ALL == set_oper_type) || (LP_SET_DNF == set_oper_type)
 			|| (LP_SET_EXCEPT == set_oper_type) || (LP_SET_EXCEPT_ALL == set_oper_type)
 			|| (LP_SET_INTERSECT == set_oper_type) || (LP_SET_INTERSECT_ALL == set_oper_type));
-		if (LP_SET_DNF == set_oper_type)
-		{
-			SET_PLAN_PROPERTY_IN_ALL_DNF_SIBLINGS(out, maintain_columnwise_index, TRUE);
-			SET_PLAN_PROPERTY_IN_ALL_DNF_SIBLINGS(prev, maintain_columnwise_index, TRUE);
-		} else
-		{
+		is_set_dnf = (LP_SET_DNF == set_oper_type);
+		if (is_set_dnf) {
+			PhysicalPlan	*next, *tmp;
+
+			tmp = out;
+			if (LP_SET_OPERATION == set_plans->v.operand[1]->type) {
+				/* Need to get the left most DNF sibling of out */
+				assert(NULL != tmp->dnf_prev);
+				do {
+					next = tmp;
+					tmp = next->dnf_prev;
+				} while (NULL != tmp);
+			} else {
+				next = out;
+			}
+			plan_options.dnf_plan_next = next; /* this helps set prev->dnf_next inside the below nested call */
+		}
+		prev = generate_physical_plan(set_plans->v.operand[0], &plan_options);
+		if (NULL == prev) {
+			return NULL;
+		}
+		if (!is_set_dnf) {
 			int		input_id1, input_id2;
 			SetOperType	*set_oper, *prev_oper, *out_oper, *next_oper;
 
@@ -107,7 +105,6 @@ PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlanOptions *opt
 	OCTO_CMALLOC_STRUCT(out, PhysicalPlan);
 	out->parent_plan = options->parent;
 	plan_options.parent = out;
-
 	out->next = *plan_options.last_plan;
 	if (NULL != *plan_options.last_plan) {
 		(*plan_options.last_plan)->prev = out;
@@ -199,10 +196,17 @@ PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlanOptions *opt
 		out->distinct_values = TRUE;
 		out->maintain_columnwise_index = TRUE;
 	}
-
 	keyword = get_keyword_from_keywords(keywords, OPTIONAL_BOOLEAN_EXPANSION);
 	if (NULL != keyword) {
 		out->emit_duplication_check = TRUE;
+		out->maintain_columnwise_index = TRUE;	/* needs to be set in all DNF siblings */
+		if (NULL != plan_options.dnf_plan_next) {
+			/* Caller indicates this plan is part of a set of DNF plans. Maintain liked list of DNF siblings. */
+			out->dnf_next = plan_options.dnf_plan_next;
+			assert(NULL == plan_options.dnf_plan_next->dnf_prev);
+			plan_options.dnf_plan_next->dnf_prev = out;
+			assert(NULL == out->dnf_prev);
+		}
 	}
 	out->stash_columns_in_keys = options->stash_columns_in_keys;
 	return out;

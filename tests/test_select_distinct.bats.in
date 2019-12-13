@@ -20,11 +20,9 @@ setup() {
 }
 
 @test "TSD01 : where select with distinct" {
-  load_fixture TSD01.sql subtest novv
   run_query_in_octo_and_postgres_and_crosscheck names TSD01.sql "remove_empty_line_at_tail"
 }
 
 @test "TSD02 : OCTO396 : LVUNDEF error when SELECT DISTINCT used in sub-query in EXISTS operator" {
-  load_fixture TSD02.sql subtest novv
   run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TSD02.sql "remove_empty_line_at_tail"
 }

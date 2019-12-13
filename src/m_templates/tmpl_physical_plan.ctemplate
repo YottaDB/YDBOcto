@@ -155,11 +155,10 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
 		%{}^{{ t_key->cross_reference_filename }}(cursorId)`n    {}%
 	}
 	%{}NEW %%ydboctoz{}%
-	if ((NULL != get_keyword_from_keywords(plan->keywords, OPTIONAL_LIMIT)) && !is_prev_plan_in_same_dnf(plan))
-	{
+	if ((NULL != get_keyword_from_keywords(plan->keywords, OPTIONAL_LIMIT)) && (NULL == plan->dnf_prev)) {
 		%{} SET %%ydboctozlimit=0{}%
 	}
-	if (!is_prev_plan_in_same_dnf(plan)) {
+	if (NULL == plan->dnf_prev) {
 		%{} KILL {}% TMPL(tmpl_key, plan->outputKey); %{}{}%
 	}
 	%{}`n    {}% // Whitespace for MUMPS
@@ -170,8 +169,7 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
 	// If this expression had an order by, we now need to go back and make the ordering uniform
 	// If we have a lot of plans each of which have the same output key and order by, then do this step
 	// only for the last plan in that set.
-	if ((NULL != plan->order_by)
-		&& ((NULL == plan->next) || (NULL == plan->next->order_by) || !is_prev_plan_in_same_dnf(plan->next)))
+	if ((NULL != plan->order_by) && ((NULL == plan->next) || (NULL == plan->next->order_by) || (NULL == plan->dnf_next)))
 	{
 		char			*direction;
 		SqlOptionalKeyword	*keyword;
@@ -259,7 +257,7 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
 		TMPL(tmpl_key, plan->outputKey); (*buffer_index)--;
 		%{})=%%ydboctoi(0)-1{}%
 	}
-	if ((NULL == plan->next) || !is_prev_plan_in_same_dnf(plan->next)) {
+	if (NULL == plan->dnf_next) {
 		if (plan->emit_duplication_check) {
 			%{}`n    KILL %%ydboctocursor(cursorId,"dupl"){}%
 		}

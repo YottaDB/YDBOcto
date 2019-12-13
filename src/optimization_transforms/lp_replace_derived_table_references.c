@@ -67,6 +67,8 @@ LogicalPlan *lp_replace_helper(LogicalPlan *where, SqlTableAlias *table_alias, S
 			part = get_column_piece_number(alias, table_alias);
 			MALLOC_LP_2ARGS(ret->v.operand[1], LP_PIECE_NUMBER);
 			ret->v.operand[1]->v.piece_number = part;
+			/* Note down sub-query SqlColumnAlias to later retrieve type information of this column */
+			ret->subquery_column_alias = alias;
 		}
 		break;
 	case LP_COLUMN_LIST:

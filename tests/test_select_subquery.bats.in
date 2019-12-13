@@ -46,3 +46,8 @@ setup() {
   done
 }
 
+@test "TSS05 : OCTO404 : Assert failure when referencing inherited sub-query columns in parent query WHERE clause" {
+  load_fixture TSS05.sql subtest novv
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TSS05.sql "remove_empty_line_at_tail"
+}
+

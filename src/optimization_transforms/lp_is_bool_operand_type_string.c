@@ -45,6 +45,9 @@ boolean_t lp_is_bool_operand_type_string(LogicalPlan *plan) {
 	while (NULL != cur_plan->v.operand[1]) {
 		cur_plan = cur_plan->v.operand[0];
 		assert(NULL != cur_plan);
+		if (LP_DERIVED_COLUMN == cur_plan->type) {
+			break;
+		}
 	}
 	ret = FALSE;
 	switch(cur_plan->type) {
@@ -54,7 +57,8 @@ boolean_t lp_is_bool_operand_type_string(LogicalPlan *plan) {
 		}
 		break;
 	case LP_COLUMN_ALIAS:
-		column_alias = cur_plan->v.column_alias;
+	case LP_DERIVED_COLUMN:
+		column_alias = ((LP_COLUMN_ALIAS == cur_plan->type) ? cur_plan->v.column_alias : cur_plan->subquery_column_alias);
 		if (column_alias->column->type == column_STATEMENT) {
 			if (column_alias->column->v.column->type == CHARACTER_STRING_TYPE) {
 				ret = TRUE;

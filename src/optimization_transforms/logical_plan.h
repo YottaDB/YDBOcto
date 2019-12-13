@@ -95,6 +95,12 @@ typedef struct LogicalPlan {
 		int piece_number;
 	} v;
 	struct LogicalPlan	*join_on_condition;	/* currently used only if "type" is LP_TABLE_JOIN */
+	SqlColumnAlias		*subquery_column_alias;	/* currently used only if "type" is LP_DERIVED_COLUMN.
+							 * This stores the original SqlColumnAlias structure (in the
+							 * LP_COLUMN_ALIAS plan) that was later replaced by a LP_DERIVED_COLUMN.
+							 * Needed to know the type of the original (and in turn the
+							 * LP_DERIVED_COLUMN) column.
+							 */
 } LogicalPlan;
 
 typedef struct SqlKey {

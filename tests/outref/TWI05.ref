@@ -1,10 +1,14 @@
-OCTO> SELECT *
-OCTO> FROM names n1
-OCTO> WHERE n1.firstName IN (SELECT n2.firstName
-OCTO>   FROM names n2
-OCTO>   WHERE n1.firstName = n1.lastName
-OCTO> );
-OCTO> 
+
+-- TWI05 : WHERE in sub-query only references TWO parent query columns that do not match (variant of T0006)
+
+SELECT *
+FROM names n1
+WHERE n1.firstName IN (SELECT n2.firstName
+  FROM names n2
+  WHERE n1.firstName = n1.lastName
+);
+
+
 ;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
 ;; ---------------------------------------------------------
 ;  SELECT *

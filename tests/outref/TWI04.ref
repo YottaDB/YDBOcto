@@ -1,23 +1,27 @@
-OCTO> SELECT *
-OCTO> FROM names a
-OCTO> WHERE a.firstName IN (
-OCTO>     SELECT b.firstName
-OCTO>     FROM names b
-OCTO>     WHERE b.id = a.id
-OCTO> 
-OCTO>     UNION ALL
-OCTO> 
-OCTO>     SELECT c.firstName
-OCTO>     FROM names c
-OCTO>     WHERE c.id = a.id
-OCTO> );
+
+-- TWI04 : where IN references parent from SET expression
+
+SELECT *
+FROM names a
+WHERE a.firstName IN (
+    SELECT b.firstName
+    FROM names b
+    WHERE b.id = a.id
+
+    UNION ALL
+
+    SELECT c.firstName
+    FROM names c
+    WHERE c.id = a.id
+);
+
 0|Zero|Cool
 1|Acid|Burn
 2|Cereal|Killer
 3|Lord|Nikon
 4|Joey|
 5|Zero|Cool
-OCTO> 
+
 ;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
 ;; ---------------------------------------------------------
 ;  SELECT *
@@ -26,7 +30,9 @@ OCTO>
 ;      SELECT b.firstName
 ;      FROM names b
 ;      WHERE b.id = a.id
+;  
 ;      UNION ALL
+;  
 ;      SELECT c.firstName
 ;      FROM names c
 ;      WHERE c.id = a.id

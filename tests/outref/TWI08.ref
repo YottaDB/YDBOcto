@@ -1,9 +1,13 @@
-OCTO>   SELECT firstName FROM names WHERE firstName IN ('Zero', 'Acid', 'Cool');
+
+-- TWI08 : Multiple plans resulting from WHERE IN usage do not nest but instead thread
+
+SELECT firstName FROM names WHERE firstName IN ('Zero', 'Acid', 'Cool');
+
 Added SET and/or Non-SET trigger on ^names named %ydboctoT*
 Acid
 Zero
 Zero
-OCTO> 
+
 ;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
 ;; ---------------------------------------------------------
 ;  SELECT firstName FROM names WHERE firstName IN ('Zero', 'Acid', 'Cool');

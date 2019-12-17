@@ -20,115 +20,66 @@ setup() {
 }
 
 @test "TWI01 : where with basic in statement" {
-  octo <<OCTO 2>&1 | tee output.txt
-select * from names where firstName in (select firstName from names where firstName="zero" or firstName="Zero");
-OCTO
+  load_fixture TWI01.sql subtest novv
   # Include generated M code in reference file to verify all optimizations there
   cat _ydboctoP*.m >> output.txt
   verify_output TWI01 output.txt
 }
 
 @test "TWI02 : where IN references parent query" {
-  octo <<OCTO 2>&1 | tee output.txt
-SELECT *
-FROM names n1
-WHERE n1.firstName IN (SELECT n2.firstName
-  FROM names n2
-  WHERE n1.id = n2.id
-);
-OCTO
+  load_fixture TWI02.sql subtest novv
   # Include generated M code in reference file to verify all optimizations there
   cat _ydboctoP*.m >> output.txt
   verify_output TWI02 output.txt
 }
 
 @test "TWI03 : where IN references grandparent query" {
-  octo <<OCTO 2>&1 | tee output.txt
-SELECT *
-FROM names a
-WHERE a.firstName IN (
-    SELECT b.firstName
-    FROM names b
-    WHERE b.id IN (SELECT c.id
-        FROM names c
-        WHERE c.id = a.id)
-);
-OCTO
+  load_fixture TWI03.sql subtest novv
   # Include generated M code in reference file to verify all optimizations there
   cat _ydboctoP*.m >> output.txt
   verify_output TWI03 output.txt
 }
 
 @test "TWI04 : where IN references parent from SET expression" {
-  octo <<OCTO 2>&1 | tee output.txt
-SELECT *
-FROM names a
-WHERE a.firstName IN (
-    SELECT b.firstName
-    FROM names b
-    WHERE b.id = a.id
-
-    UNION ALL
-
-    SELECT c.firstName
-    FROM names c
-    WHERE c.id = a.id
-);
-OCTO
+  load_fixture TWI04.sql subtest novv
   # Include generated M code in reference file to verify all optimizations there
   cat _ydboctoP*.m >> output.txt
   verify_output TWI04 output.txt
 }
 
 @test "TWI05 : WHERE in sub-query only references TWO parent query columns that do not match (variant of T0006)" {
-  octo <<OCTO 2>&1 | tee output.txt
-SELECT *
-FROM names n1
-WHERE n1.firstName IN (SELECT n2.firstName
-  FROM names n2
-  WHERE n1.firstName = n1.lastName
-);
-OCTO
+  load_fixture TWI05.sql subtest novv
   # Include generated M code in reference file to verify all optimizations there
   cat _ydboctoP*.m >> output.txt
   verify_output TWI05 output.txt
 }
 
 @test "TWI06 : WHERE in sub-query only references TWO parent query columns that match (variant of T0006)" {
-  octo <<OCTO 2>&1 | tee output.txt
-SELECT *
-FROM names n1
-INNER JOIN names n2
-ON (n1.id = n2.id)
-WHERE n1.firstName IN (
-  SELECT n3.firstName FROM names n3
-  WHERE n1.id = n2.id
-)
-OCTO
+  load_fixture TWI06.sql subtest novv
   # Include generated M code in reference file to verify all optimizations there
   cat _ydboctoP*.m >> output.txt
   verify_output TWI06 output.txt
 }
 
 @test "TWI07 : WHERE in sub-query only references ONE parent query column AND a CONSTANT (variant of T0013)" {
-  octo <<OCTO 2>&1 | tee output.txt
-SELECT *
-FROM names n1
-WHERE n1.firstName IN (SELECT n2.firstName
-  FROM names n2
-  WHERE n1.firstName = "Acid"
-);
-OCTO
+  load_fixture TWI07.sql subtest novv
   # Include generated M code in reference file to verify all optimizations there
   cat _ydboctoP*.m >> output.txt
   verify_output TWI07 output.txt
 }
 
 @test "TWI08 : Multiple plans resulting from WHERE IN usage do not nest but instead thread" {
-  octo <<OCTO 2>&1 | tee output.txt
-  SELECT firstName FROM names WHERE firstName IN ('Zero', 'Acid', 'Cool');
-OCTO
+  load_fixture TWI08.sql subtest novv
   # Include generated M code in reference file to verify all optimizations there
   cat _ydboctoP*.m >> output.txt
   verify_output TWI08 output.txt
+}
+
+@test "TWI09 : OCTO407 : IN operator returns incorrect results when used with LEFT JOIN" {
+  load_fixture customers.sql
+  load_fixture customers.zwr
+  load_fixture TWI09.sql subtest novv
+  # Include generated M code in reference file to verify all optimizations there
+  cat _ydboctoP*.m >> output.txt
+  verify_output TWI09 output.txt
 }

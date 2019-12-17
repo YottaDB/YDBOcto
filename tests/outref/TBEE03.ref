@@ -1,0 +1,21 @@
+
+-- TBEE03 : OCTO408 : LVUNDEF error when LEFT JOIN is used in the FROM clause and OR operator is used in the WHERE clause
+
+SELECT n1.id,n2.id FROM names n1 LEFT JOIN names n2 ON (n1.firstname = n2.lastname) WHERE (1 = 1) OR (1 = 1);
+SELECT orders.order_id FROM orders LEFT OUTER JOIN customers ON (orders.order_amount = customers.zipcode) WHERE NOT ('$25.50' > orders.order_amount) OR NOT (orders.customer_id <= 3) OR (orders.customer_id <= 3) ORDER BY orders.order_id;
+
+Added SET and/or Non-SET trigger on ^names named %ydboctoT*
+0|
+1|
+2|
+3|
+4|
+5|
+Added SET and/or Non-SET trigger on ^customers named %ydboctoT*
+1
+2
+3
+4
+5
+6
+

@@ -25,12 +25,17 @@ TEMPLATE(tmpl_duplication_check, PhysicalPlan *plan) {
 	// required keys, in order, under them anyway
 
 	%{}{{ config->global_names.cursor }}(cursorId,"dupl"{}%
-	for(unsigned int i = 0; i < plan->total_iter_keys; i++) {
+	for (unsigned int i = 0; i < plan->total_iter_keys; i++) {
 		key = plan->iterKeys[i];
-		if(key->is_cross_reference_key)
+		if (key->is_cross_reference_key)
 			continue;
 		%{},{}%
-		TMPL(tmpl_key, key);
+		/* Check if the table owning this key has all columns set to be treated as NULL (as part of an OUTER JOIN) */
+		if (!plan->treat_key_as_null[key->unique_id]) {
+			TMPL(tmpl_key, key);
+		} else {
+			%{}""{}%	/* needs to be replaced with $ZYSQLNULL when #311 is fixed */
+		}
 	}
 	%{}){}%
 	TEMPLATE_END();

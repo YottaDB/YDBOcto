@@ -20,17 +20,7 @@ setup() {
 }
 
 @test "TBEE01 : 3-way LEFT JOIN with 20 OR usages in BOOLEAN EXPRESSION should expand to only 27 plans (not 540 plans)" {
-  octo <<OCTO 2>&1 | tee output.txt
-SELECT *
-FROM names n1
-LEFT JOIN names n2 ON n1.id = n2.id
-LEFT JOIN names n3 ON n2.id = n3.id
-LEFT JOIN names n4 ON n3.id = n4.id
-WHERE    (n1.id = 1) OR (n1.id = 2) OR (n1.id = 3) OR (n1.id = 4) OR (n1.id = 5)
-      OR (n2.id = 1) OR (n2.id = 2) OR (n2.id = 3) OR (n2.id = 4) OR (n2.id = 5)
-      OR (n3.id = 1) OR (n3.id = 2) OR (n3.id = 3) OR (n3.id = 4) OR (n3.id = 5)
-      OR (n4.id = 1) OR (n4.id = 2) OR (n4.id = 3) OR (n4.id = 4) OR (n4.id = 5);
-OCTO
+  load_fixture TBEE01.sql subtest novv
   grep -E 'QUIT$|octoPlan' _ydboctoP*.m > physicalplan.txt
   verify_output TBEE01p physicalplan.txt
   verify_output TBEE01 output.txt
@@ -39,19 +29,13 @@ OCTO
 @test "TBEE02 : OCTO330 : OR usage processes left operand ahead of right operand" {
   load_fixture easynames.sql
   load_fixture easynames.zwr
-  cat << CAT_EOF > input.sql 2>&1
-SELECT name FROM easynames WHERE id < 3 OR id > 12 LIMIT 3;
-
-(SELECT name FROM easynames WHERE id < 3 ORDER BY name)
-	INTERSECT ALL (select name FROM easynames WHERE id < 3 OR id > 12)
-EXCEPT (select name FROM easynames WHERE id < 2 ORDER BY name)
-	INTERSECT ALL (select name FROM easynames WHERE id = 4);
-
-(SELECT name FROM easynames WHERE id < 3 ORDER BY name)
-	INTERSECT ALL (select name FROM easynames WHERE id < 3 OR id > 12 LIMIT 3)
-EXCEPT (select name FROM easynames WHERE id < 2 ORDER BY name)
-	INTERSECT ALL (select name FROM easynames WHERE id = 4 LIMIT 5);
-CAT_EOF
-  octo -f input.sql > output.txt 2>&1
+  load_fixture TBEE02.sql subtest novv
   verify_output TBEE02 output.txt
+}
+
+@test "TBEE03 : OCTO408 : LVUNDEF error when LEFT JOIN is used in the FROM clause and OR operator is used in the WHERE clause" {
+  load_fixture customers.sql
+  load_fixture customers.zwr
+  load_fixture TBEE03.sql subtest novv
+  verify_output TBEE03 output.txt
 }

@@ -48,7 +48,7 @@ int handle_bind(Bind *bind, RoctoSession *session) {
 
 	status = ydb_get_s(&src_subs[0], 3, &src_subs[1], &sql_expression);
 	if(YDB_ERR_LVUNDEF == status) {
-		ERROR(ERR_ROCTO_BIND_TO_UNKNOWN_QUERY, PSQL_Code_Invalid_Sql_Statement_Name, "Bind to unknown query attempted", 0);
+		ERROR(ERR_ROCTO_BIND_TO_UNKNOWN_QUERY, "");
 		YDB_FREE_BUFFER(&sql_expression);
 		free(src_subs);
 		return 1;
@@ -85,7 +85,7 @@ int handle_bind(Bind *bind, RoctoSession *session) {
 				// Copy in the value; if the type is a string, wrap it in
 				//  quotes, otherwise just place it
 				if(bind_parm >= bind->num_parms || bind_parm < 0) {
-					ERROR(ERR_ROCTO_INVALID_NUMBER, PSQL_Code_Syntax_Error, "parameters", "prepared statement", 0);
+					ERROR(ERR_ROCTO_INVALID_NUMBER, "handle_bind", "bind parameters");
 					YDB_FREE_BUFFER(&sql_expression);
 					return 1;
 				}

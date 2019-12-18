@@ -260,6 +260,8 @@ Example:
 DELETE
 ------------
 
+*(Currently not supported.)*
+
 .. parsed-literal::
    DELETE FROM table_name [WHERE search_condition];
 
@@ -339,54 +341,6 @@ CASE
 
 CASE tests a condition_expression. If the condition_expression following any of the WHEN keywords is TRUE, then the value is the "result" following THEN. If none of the conditions are matched, the value is the "result" following ELSE. The result is NULL if ELSE is omitted and none of the conditions are matched.
 
-------------------
-SET
-------------------
-
-.. parsed-literal::
-   SET identifier EQUALS value;
-
-The SET command can be used to give an identifier an associated value. Values set using the SET command are tied to the session in which they are set.
-
-For example,
-
-.. parsed-literal::
-   SET switch = "ON";
-
-To set default values not restricted to the session, use:
-
-.. parsed-literal::
-   set ^%ydboctoocto("variables","<variable name>")="My value"
-
-For example,
-
-.. parsed-literal::
-   set ^%ydboctoocto("variables","application_name")=""
-   set ^%ydboctoocto("variables","client_encoding")="UTF8"
-   set ^%ydboctoocto("variables","DateStyle")="ISO, MDY"
-   set ^%ydboctoocto("variables","integer_datetimes")="on"
-   set ^%ydboctoocto("variables","IntervalStyle")="postgres"
-   set ^%ydboctoocto("variables","is_superuser")="on"
-   set ^%ydboctoocto("variables","server_encoding")="UTF8"
-   set ^%ydboctoocto("variables","server_version")="0.1"
-   set ^%ydboctoocto("variables","session_authorization")="postgres"
-   set ^%ydboctoocto("variables","standard_conforming_strings")="on"
-   set ^%ydboctoocto("variables","TimeZone")="UTC"
-
-------------------
-SHOW
-------------------
-
-.. parsed-literal::
-   SHOW identifier;
-
-SHOW displays the current value set to an identifier.
-
-Example:
-
-.. parsed-literal::
-   SHOW switch;
-
 -----------------
 Operators
 -----------------
@@ -399,35 +353,6 @@ The comparative operators in Octo are:
 * GREATER THAN >
 * LESS THAN OR EQUALS <=
 * GREATER THAN OR EQUALS >=
-
-----------
-Functions
-----------
-
-++++++++++++++++++++++++++++
-Adding Functions into Octo
-++++++++++++++++++++++++++++
-
-To add a function from M into Octo, you can run the following command at the YDB prompt:
-
-.. parsed-literal::
-   YDB> set <Octo prefix>octo("functions","<function name>")="<M function>"
-
-The default configured Octo prefix is "^%ydbocto".
-
-So, for example, if you want to add a function in Octo for the intrinsic function $PIECE, use:
-
-.. parsed-literal::
-   YDB> set ^%ydboctoocto("functions","MPIECE")="$PIECE"
-
-Similarly, an extrinsic (user-defined) function $$AGE can be added to Octo using:
-
-.. parsed-literal::
-   YDB> set ^%ydboctoocto("functions","AGE")="$$AGE"
-
--------------------------
-Considerations
--------------------------
 
 +++++++++++++++++++++
 Empty string and NULL

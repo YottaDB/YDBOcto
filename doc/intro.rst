@@ -6,24 +6,53 @@ Introduction
 .. contents::
    :depth: 3
 
-This manual documents the YottaDB Database Management System i.e Octo.
+This manual documents Octo, the YottaDB Database Management System.
 
-The YottaDB Database Management System (Octo) is a layered application with a relational access model, built on top of the not-only-SQL database YottaDB. It aims to provide SQL 92 compliance and exceptional performance.
+Octo is a layered application with a relational access model, built on the NoSQL database YottaDB. It provides standard relational access to your YottaDB key-value store, allowing you to use popular SQL based tools.
+
+* It is quick and efficient in pulling data from the YottaDB datastore.
+* It is tightly integrated with the YottaDB object technology that allows for a mix of relational as well as object access to the YottaDB datastore seamlessly. It does not sacrifice one for the other.
+* It aims to provide SQL-92 compliance.
+
+-------------
+Architecture
+-------------
+
+* Octo uses the PostgreSQL wire protocol, allowing SQL access to YottaDB databases via the PostgreSQL ODBC/JDBC/OLE DB driver.
+* It uses YottaDB local and global variables to hold mapping data, temporary tables, and cross references to provide an efficient relational schema overlay using an augumented SQL DDL language.
+* It uses a 3-phase architecture, consisting of parsing, logical-plan generation and optimization, and physical-plan generation and emission.
+* Rocto is the Remote Octo Server that can communicate with PostgreSQL Server clients.
+
+-------------------
+Features
+-------------------
+
+Octo includes a full set of standard, relational features. These include:
+
+* The ability to define data structures, especially database schemas. (Data Definition Language, or DDL).
+* The ability to retrieve data. (Data Query Language, or DQL).
+
+.. note::
+   At the time of the release of this document, the features to manipulate data (Data Manipulation Language, or DML), manage transactions in the database (Transaction Control Language, or TCL), and control access to data stored in a database (Data Control Language, or DCL) are yet to be implemented. 
 
 --------------------
 Setup
 --------------------
 
-YottaDB r1.26 or greater is required for successful installation of Octo.
+YottaDB r1.28 or greater is required for successful installation of Octo.
 
 Installing and configuring YottaDB is described in the `Administration and Operations Guide <https://docs.yottadb.com/AdminOpsGuide/installydb.html>`_.
 
 .. note::
    It is required that the environment variable :code:`$ydb_dist` is defined - :code:`$gtm_dist` is not a valid subsitute.
 
-++++++++++++++++++++++++++++++++++
-Quickstart - Install from Source
-++++++++++++++++++++++++++++++++++
++++++++++++
+Quickstart 
++++++++++++
+
+~~~~~~~~~~~~~~~~~~~~~~
+Install Prerequisites
+~~~~~~~~~~~~~~~~~~~~~~
 
 * Install YottaDB POSIX plugin
 
@@ -51,7 +80,11 @@ Quickstart - Install from Source
      sudo ydb_dist=$ydb_dist make
      sudo ydb_dist=$ydb_dist make install
 
-* Install prerequisite packages
+~~~~~~~~~~~~
+Install Octo
+~~~~~~~~~~~~
+
+* Install Prerequisite Packages
 
   .. parsed-literal::
 
@@ -80,29 +113,27 @@ Quickstart - Install from Source
      \# For VistA the String Buffer Length needs to be larger (described below) add "-DSTRING_BUFFER_LENGTH=300000" to the cmake command below
      cmake -DCMAKE_INSTALL_PREFIX=$ydb_dist/plugin .. # for CentOS/RedHat use cmake3 instead
      make
+ 
+** Optional CMAKE Parameters
+
+        Octo uses some cmake parameters to control generation of fixed-size buffer allocations. These are:
+
+        * STRING_BUFFER_LENGTH - The maximum length of a string within the system. Also, this supercedes any VARCHAR definitions.
+        * INIT_M_ROUTINE_LENGTH - The initial length for the buffer of generated M routines. The default is 10MB.
+        * MEMORY_CHUNK_SIZE - Size of memory chunks to allocate; default is 32MB.
+        * MEMORY_CHUNK_PROTECT - If non-zero, memory following chunks is protected to detect buffer overflows. Set to 1 to detect buffer overflows and prevent then on mass-allocated memory chunks. Set to 2 to place data closer to the protected region to increase the chances of detecting an error.
+
+        Example usage of the above parameters:
+
+        .. parsed-literal::
+
+                cmake -DSTRING_BUFFER_LENGTH=600000 -DCMAKE_INSTALL_PREFIX=$ydb_dist/plugin ..
 
 * Install Octo
 
   .. parsed-literal::
 
      make install
-
-++++++++++++++++++++++++++
-Optional CMAKE Parameters
-++++++++++++++++++++++++++
-
-Octo uses some cmake parameters to control generation of fixed-size buffer allocations. These are:
-
-* STRING_BUFFER_LENGTH - the maximum length of a string within the system; this supercedes any VARCHAR definitions.
-* INIT_M_ROUTINE_LENGTH - the initial length for the buffer of generated M routines. The default is 10MB.
-* MEMORY_CHUNK_SIZE - size of memory chunks to allocate; default is 32MB.
-* MEMORY_CHUNK_PROTECT - if non-zero, memory following chunks is protected to detect buffer overflows. If 2, data is placed closer to the protected region to increase the chances of detecting an error.
-
-Example usage of the above parameters:
-
-.. parsed-literal::
-
-   cmake -DSTRING_BUFFER_LENGTH=600000 -DCMAKE_INSTALL_PREFIX=$ydb_dist/plugin ..
 
 +++++++++++++++++
 Usage

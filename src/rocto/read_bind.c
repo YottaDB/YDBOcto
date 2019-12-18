@@ -69,7 +69,7 @@ Bind *read_bind(BaseMessage *message) {
 	// Set number of parameter format codes and ensure valid value
 	ret->num_parm_format_codes = ntohs(*((int16_t *)cur_pointer));
 	if (ret->num_parm_format_codes < 0) {
-		ERROR(ERR_ROCTO_INVALID_NUMBER, "Bind", "parameter format codes");
+		ERROR(ERR_ROCTO_INVALID_NUMBER, "Bind", "parameter format codes", ret->num_parm_format_codes, 0, INT16_MAX);
 		free(ret);
 		return NULL;
 	}
@@ -101,7 +101,7 @@ Bind *read_bind(BaseMessage *message) {
 	// Set number of parameters and ensure valid value
 	ret->num_parms = ntohs(*((int16_t*)cur_pointer));
 	if (ret->num_parms < 0) {
-		ERROR(ERR_ROCTO_INVALID_NUMBER, "Bind", "parameters");
+		ERROR(ERR_ROCTO_INVALID_NUMBER, "Bind", "parameters", ret->num_parms, 0, INT16_MAX);
 		free(ret);
 		return NULL;
 	}
@@ -155,7 +155,7 @@ Bind *read_bind(BaseMessage *message) {
 	// Set number of column format codes and ensure correct values
 	ret->num_result_col_format_codes = ntohs(*((int16_t*)cur_pointer));
 	if (ret->num_result_col_format_codes < 0) {
-		ERROR(ERR_ROCTO_INVALID_NUMBER, "Bind", "result column format codes");
+		ERROR(ERR_ROCTO_INVALID_NUMBER, "Bind", "result column format codes", ret->num_result_col_format_codes, 0, INT16_MAX);
 		free(ret);
 		return NULL;
 	}

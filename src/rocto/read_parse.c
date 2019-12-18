@@ -81,7 +81,7 @@ Parse *read_parse(BaseMessage *message) {
 	ret->num_parm_data_types = ntohs(*((int16_t*)(cur_pointer)));
 	// Ensure number of parameter data types valid
 	if (0 > ret->num_parm_data_types) {
-		ERROR(ERR_ROCTO_INVALID_NUMBER, "Parse", "parameter data types");
+		ERROR(ERR_ROCTO_INVALID_NUMBER, "Parse", "parameter data types", ret->num_parm_data_types, 0, INT16_MAX);
 		free(ret);
 		return NULL;
 	}

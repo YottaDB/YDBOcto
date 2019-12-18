@@ -85,7 +85,7 @@ int handle_bind(Bind *bind, RoctoSession *session) {
 				// Copy in the value; if the type is a string, wrap it in
 				//  quotes, otherwise just place it
 				if(bind_parm >= bind->num_parms || bind_parm < 0) {
-					ERROR(ERR_ROCTO_INVALID_NUMBER, "handle_bind", "bind parameters");
+					ERROR(ERR_ROCTO_INVALID_NUMBER, "handle_bind", "parameters", bind_parm, 0, bind->num_parms);
 					YDB_FREE_BUFFER(&sql_expression);
 					return 1;
 				}

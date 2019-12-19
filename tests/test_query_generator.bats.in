@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2020 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -15,42 +15,20 @@ load test_helpers
 setup() {
   init_test
   createdb
-  load_fixture customers.sql
-  load_fixture customers.zwr
-  load_fixture pastas.sql
-  load_fixture pastas.zwr
 }
 
 @test "TQG01 : Test Query Generator against customers database" {
-  cp @PROJECT_SOURCE_DIR@/tests/fixtures/QueryGenerator.m .
-
-  numQueries=150
-  prefix="TQG01-"
-  $ydb_dist/mumps -run QueryGenerator customers.sql customers.zwr "$numQueries" "$prefix"
-
-  count=1
-  while [ $count -le $numQueries ]
-  do
-    queryfile="${prefix}${count}.sql"
-    run_query_in_octo_and_postgres_and_crosscheck customers "$queryfile" "remove_empty_line_at_head"
-    count=`expr $count + 1`
-  done
+  run_query_generator customers 150 TQG01-
 }
 
 @test "TQG02 : Test Query Generator against pastas database" {
-  cp @PROJECT_SOURCE_DIR@/tests/fixtures/QueryGenerator.m .
-
-  numQueries=150
-  prefix="TQG02-"
-  $ydb_dist/mumps -run QueryGenerator pastas.sql pastas.zwr "$numQueries" "$prefix"
-
-  count=1
-  while [ $count -le $numQueries ]
-  do
-    queryfile="${prefix}${count}.sql"
-    run_query_in_octo_and_postgres_and_crosscheck pastas "$queryfile" "remove_empty_line_at_head"
-    count=`expr $count + 1`
-  done
+  run_query_generator pastas 150 TQG02-
 }
 
-# #FUTURE_TODO: Add subtests for names and northwind database
+@test "TQG03 : Test Query Generator against names database" {
+  run_query_generator names 150 TQG03-
+}
+
+@test "TQG04 : Test Query Generator against northwind database" {
+  run_query_generator northwind 150 TQG04-
+}

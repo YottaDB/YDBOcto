@@ -500,3 +500,24 @@ run_query_in_octo_and_postgres_and_crosscheck() {
     fi
     return
 }
+
+run_query_generator() {
+  databaseName="$1"
+  numQueries="$2"
+  prefix="$3"
+
+  cp @PROJECT_SOURCE_DIR@/tests/fixtures/QueryGenerator.m .
+  load_fixture "$databaseName.sql"
+  load_fixture "$databaseName.zwr"
+
+  $ydb_dist/mumps -run QueryGenerator "$databaseName.sql" "$databaseName.zwr" "$numQueries" "$prefix"
+
+  count=1
+  while [ $count -le $numQueries ]
+  do
+    queryfile=$prefix$count
+    queryfile+=".sql"
+    run_query_in_octo_and_postgres_and_crosscheck $databaseName $queryfile "remove_empty_line_at_tail"
+    count=`expr $count + 1`
+  done
+}

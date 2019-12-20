@@ -17,8 +17,7 @@
 TEMPLATE(tmpl_tablejoin_body_group_by, PhysicalPlan *plan, int dot_count) {
 	TEMPLATE_INIT();
 
-	LogicalPlan	*group_by, *af, *first_aggregate;
-	int		aggregate_cnt;
+	LogicalPlan	*af, *first_aggregate;
 
 	assert(NULL != plan->outputKey);
 	assert(IS_GROUP_BY_PLAN(plan));
@@ -36,6 +35,8 @@ TEMPLATE(tmpl_tablejoin_body_group_by, PhysicalPlan *plan, int dot_count) {
 	TMPL(tmpl_print_dots, dot_count);
 	%{}SET %%ydboctog={}%
 	if ((NULL != plan->aggregate_options) && (NULL != plan->aggregate_options->v.lp_default.operand[0])) {
+		LogicalPlan	*group_by;
+
 		/* GROUP BY was specified. Emit the specified columns as the GROUP BY subscript */
 		GET_LP(group_by, plan->aggregate_options, 0, LP_GROUP_BY);
 		TMPL(tmpl_column_list_combine, group_by->v.lp_default.operand[0], plan, "_\"|\"_", 0, 0, 0);
@@ -53,6 +54,7 @@ TEMPLATE(tmpl_tablejoin_body_group_by, PhysicalPlan *plan, int dot_count) {
 	first_aggregate = plan->lp_insert->extra_detail.lp_insert.first_aggregate;
 	for (af = first_aggregate; NULL != af; af = af->extra_detail.lp_aggregate_function.next_aggregate) {
 		char	*m_func;
+		int	aggregate_cnt;
 
 		assert(IS_TYPE_LP_AGGREGATE(af->type));
 		aggregate_cnt = af->extra_detail.lp_aggregate_function.aggregate_cnt;

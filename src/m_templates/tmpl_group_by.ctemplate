@@ -17,12 +17,43 @@
 TEMPLATE(tmpl_group_by, PhysicalPlan *plan, int dot_count) {
 	TEMPLATE_INIT();
 
+	LogicalPlan	*af, *first_aggregate, *group_by;
+
 	assert(NULL != plan->outputKey);
 	assert(IS_GROUP_BY_PLAN(plan));
 	assert(!plan->outputKey->is_cross_reference_key);	/* caller should have ensured this */
 	TMPL(tmpl_print_dots, dot_count);
 	%{}`n{{ PLAN_LINE_START }}{}%
 	%{}NEW %%ydboctog SET %%ydboctog=""{}%
+	/* If there is no GROUP BY clause in the query, check if any COUNT or COUNT(*) function usages happened.
+	 * If so initialize those to 0 if they don't exist (due to WHERE clauses skipping all rows).
+	 */
+	if (NULL != plan->aggregate_options) {
+		group_by = plan->aggregate_options->v.lp_default.operand[0];
+	} else {
+		group_by = NULL;
+	}
+	if (NULL == group_by) {
+		first_aggregate = plan->lp_insert->extra_detail.lp_insert.first_aggregate;
+		for (af = first_aggregate; NULL != af; af = af->extra_detail.lp_aggregate_function.next_aggregate) {
+			assert(IS_TYPE_LP_AGGREGATE(af->type));
+			assert(af->extra_detail.lp_aggregate_function.aggregate_cnt);
+			if ((LP_AGGREGATE_FUNCTION_COUNT_ASTERISK == af->type)
+					|| (LP_AGGREGATE_FUNCTION_COUNT == af->type)) {
+				%{}`n{{ PLAN_LINE_START }}{}%
+				TMPL(tmpl_print_dots, dot_count);
+				%{}SET:'$DATA({}%
+				TMPL(tmpl_key, plan->outputKey);
+				(*buffer_index)--;
+				%{},{{ GROUP_BY_SUBSCRIPT }},%%ydboctog,{}%
+				%{}{{ af->extra_detail.lp_aggregate_function.aggregate_cnt|%d }})) {}%
+				TMPL(tmpl_key, plan->outputKey);
+				(*buffer_index)--;
+				%{},{{ GROUP_BY_SUBSCRIPT }},%%ydboctog,{}%
+				%{}{{ af->extra_detail.lp_aggregate_function.aggregate_cnt|%d }})=0{}%
+			}
+		}
+	}
 	%{}`n{{ PLAN_LINE_START }}{}%
 	TMPL(tmpl_print_dots, dot_count);
 	%{}FOR  {}%

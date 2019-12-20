@@ -54,6 +54,8 @@ OCTO
   load_postgres_fixture easynames postgres-easynames.sql
   create_postgres_database northwind
   load_postgres_fixture northwind postgres-northwind.sql
+  create_postgres_database sqllogic1
+  load_postgres_fixture sqllogic1 postgres-sqllogic1.sql
 
   # Check names database
   psql names >& output.txt <<PSQL

@@ -13,14 +13,8 @@
 init_test() {
 	export test_temp=$(mktemp -d @TEST_OUTPUT_DIR@/bats-test.XXXXXX)
 	echo "Temporary files in: $test_temp"
-	if [[ $1 == "force_output_to_files" ]]; then
-		# force output to files as the full output is unhelpful to print on error
-		exec > $test_temp/stdout.txt
-		exec 2> $test_temp/stderr.txt
-	else
-		exec >  >(tee -ia $test_temp/stdout.txt)
-		exec 2> >(tee -ia $test_temp/stderr.txt >&2)
-	fi
+	exec >  >(tee -ia $test_temp/stdout.txt)
+	exec 2> >(tee -ia $test_temp/stderr.txt >&2)
 	cd $test_temp
 	export PATH="@PROJECT_BINARY_DIR@/src:$PATH"
 	# Disable any user-level (~/.inputrc) customizations that can cause test failures (e.g. TERR008, TSC18 subtests)
@@ -419,11 +413,12 @@ run_query_in_octo_and_postgres_and_crosscheck_multiple_queries() {
     fi
     remove="$3"
     trimzeroes="$4"
+    nowarn="$5"
     $ydb_dist/mumps -run splitqueries $queryfile
     fname=`echo $queryfile | sed 's/\..*//g'`
     for splitfile in $fname-*.sql
     do
-        run_query_in_octo_and_postgres_and_crosscheck $database $splitfile $remove $trimzeroes
+        run_query_in_octo_and_postgres_and_crosscheck $database $splitfile $remove $trimzeroes $nowarn
     done
     return
 }
@@ -436,6 +431,7 @@ run_query_in_octo_and_postgres_and_crosscheck() {
     fi
     remove="$3"
     trimzeroes="$4"
+    nowarn="$5"
     fname=`echo $queryfile | sed 's/\..*//g'`
     grep -v '^#' $queryfile > $queryfile.inp # Filter out '#' comment lines, if any, as that is not valid in Postgres
     psql $database -f $queryfile.inp >& $fname.psql.out
@@ -449,6 +445,11 @@ run_query_in_octo_and_postgres_and_crosscheck() {
 	sed '/\./ s/\.\{0,1\}0\{1,\}$//;/\./ s/\.\{0,1\}0\{1,\}|/|/;' $fname.ref1 > $fname.ref
     fi
     octo -f $queryfile >& $fname.octo.out
+    if [[ $nowarn == "nowarn" ]]; then
+    	# Remove "[ WARN]" lines from Octo output (caller allows for this possibility).
+	mv $fname.octo.out $fname.octo.out.pre_nowarn
+	grep -v '^\[ WARN\]' $fname.octo.out.pre_nowarn > $fname.octo.out
+    fi
     # #FUTURE_TODO: Remove all greps and other checks for Triggers when Issue 400 is resolved
     while [ true ]
     do

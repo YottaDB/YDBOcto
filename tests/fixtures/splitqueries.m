@@ -12,6 +12,7 @@
 
 ; --------------------------------------------------------------------------------------------------------------------
 ; This program splits an input file containing multiple SQL queries into multiple files each containing 1 query.
+; Assumes that each query is contained in 1 line (i.e. not split across multiple lines).
 ; --------------------------------------------------------------------------------------------------------------------
 
 splitqueries;

@@ -81,7 +81,6 @@ ERROR_DEF(ERR_ROCTO_BIND_PARAMETER_DECODE_FAILURE, "Failed to decode binary bind
 // OCTO //
 ERROR_DEF(ERR_ENTERING_FUNCTION, "Entering %s", PSQL_Code_Success)
 ERROR_DEF(ERR_LEAVING_FUNCTION, "LEAVING %s", PSQL_Code_Success)
-ERROR_DEF(ERR_ADDING_EXE, "Adding EXE(%s) to cursor: %s", PSQL_Code_Success)
 ERROR_DEF(ERR_CURPLAN, "LOGICAL_PLAN %s follows%s", PSQL_Code_Success)
 ERROR_DEF(ERR_CLIENT_CONNECTED, "Client connected", PSQL_Code_Success)
 ERROR_DEF(ERR_READ_MESSAGE, "Read message of type %c and length %d", PSQL_Code_Success)

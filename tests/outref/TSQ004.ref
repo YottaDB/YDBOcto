@@ -168,12 +168,14 @@ LP_INSERT:
           LP_COLUMN_ALIAS: N(5).NSPNAME
           LP_COLUMN_LIST_ALIAS: 
           - type: STRING_LITERAL
+          - alias: PROCEDURE_SCHEM
       LP_ORDER_BY: ORDER BY ASC: 
         LP_COLUMN_LIST: 
           LP_WHERE: 
             LP_COLUMN_ALIAS: P(1).PRONAME
             LP_COLUMN_LIST_ALIAS: 
             - type: STRING_LITERAL
+            - alias: PROCEDURE_NAME
         LP_ORDER_BY: ORDER BY ASC: 
           LP_COLUMN_LIST: 
             LP_WHERE: 
@@ -369,12 +371,14 @@ LP_INSERT:
           LP_COLUMN_ALIAS: N(5).NSPNAME
           LP_COLUMN_LIST_ALIAS: 
           - type: STRING_LITERAL
+          - alias: PROCEDURE_SCHEM
       LP_ORDER_BY: ORDER BY ASC: 
         LP_COLUMN_LIST: 
           LP_WHERE: 
             LP_COLUMN_ALIAS: P(1).PRONAME
             LP_COLUMN_LIST_ALIAS: 
             - type: STRING_LITERAL
+            - alias: PROCEDURE_NAME
         LP_ORDER_BY: ORDER BY ASC: 
           LP_COLUMN_LIST: 
             LP_WHERE: 

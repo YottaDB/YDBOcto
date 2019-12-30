@@ -144,41 +144,42 @@ add_library(libocto OBJECT
   decompress_statement.c
   store_table_in_pg_class.c
   ydb_error_check.c
-  optimization_transforms/optimize_logical_plan.c
-  optimization_transforms/lp_get_select.c
-  optimization_transforms/lp_get_select_where.c
-  optimization_transforms/lp_get_select_keywords.c
-  optimization_transforms/lp_verify_structure.c
-  optimization_transforms/lp_emit_plan.c
-  optimization_transforms/lp_get_keys.c
-  optimization_transforms/lp_get_projection_columns.c
-  optimization_transforms/lp_get_num_cols_in_select_column_list.c
+  optimization_transforms/generate_logical_plan.c
   optimization_transforms/get_plan_unique_number.c
-  optimization_transforms/lp_insert_key.c
-  optimization_transforms/lp_copy_plan.c
-  optimization_transforms/lp_copy_key.c
-  optimization_transforms/lp_join_where.c
-  optimization_transforms/lp_generate_where.c
+  optimization_transforms/logical_plan.c
   optimization_transforms/lp_column_list_to_lp.c
-  optimization_transforms/lp_replace_derived_table_references.c
+  optimization_transforms/lp_copy_key.c
+  optimization_transforms/lp_copy_plan.c
+  optimization_transforms/lp_drill_to_insert.c
+  optimization_transforms/lp_emit_plan.c
+  optimization_transforms/lp_generate_set_logical_plan.c
+  optimization_transforms/lp_generate_where.c
+  optimization_transforms/lp_generate_xref_keys.c
+  optimization_transforms/lp_generate_xref_plan.c
+  optimization_transforms/lp_get_aggregate_plan_helper_func_name.c
+  optimization_transforms/lp_get_col_num_n_in_select_column_list.c
+  optimization_transforms/lp_get_criteria.c
+  optimization_transforms/lp_get_key.c
+  optimization_transforms/lp_get_key_index.c
+  optimization_transforms/lp_get_keys.c
+  optimization_transforms/lp_get_num_cols_in_select_column_list.c
   optimization_transforms/lp_get_output_key.c
   optimization_transforms/lp_get_project.c
-  optimization_transforms/lp_opt_fix_key_to_const.c
-  optimization_transforms/lp_get_key.c
-  optimization_transforms/lp_get_criteria.c
-  optimization_transforms/lp_get_key_index.c
-  optimization_transforms/lp_generate_set_logical_plan.c
-  optimization_transforms/lp_generate_xref_plan.c
-  optimization_transforms/lp_generate_xref_keys.c
+  optimization_transforms/lp_get_projection_columns.c
+  optimization_transforms/lp_get_select.c
+  optimization_transforms/lp_get_select_keywords.c
+  optimization_transforms/lp_get_select_where.c
   optimization_transforms/lp_get_table_join.c
-  optimization_transforms/lp_get_aggregate_plan_helper_func_name.c
-  optimization_transforms/lp_make_key.c
-  optimization_transforms/lp_optimize_where_multi_equals_ands.c
-  optimization_transforms/lp_drill_to_insert.c
-  optimization_transforms/lp_make_normal_disjunctive_form.c
-  optimization_transforms/generate_logical_plan.c
-  optimization_transforms/logical_plan.c
+  optimization_transforms/lp_insert_key.c
   optimization_transforms/lp_is_bool_operand_type_string.c
+  optimization_transforms/lp_join_where.c
+  optimization_transforms/lp_make_key.c
+  optimization_transforms/lp_make_normal_disjunctive_form.c
+  optimization_transforms/lp_opt_fix_key_to_const.c
+  optimization_transforms/lp_optimize_where_multi_equals_ands.c
+  optimization_transforms/lp_replace_derived_table_references.c
+  optimization_transforms/lp_verify_structure.c
+  optimization_transforms/optimize_logical_plan.c
   physical/generate_physical_plan.c
   physical/emit_physical_plan.c
   m_templates/resize_tmpl_buffer.c

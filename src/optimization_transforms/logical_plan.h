@@ -107,7 +107,8 @@ typedef struct LpExtraTableJoin {
 
 /* Extra fields needed by LP_ORDER_BY */
 typedef struct LpExtraOrderBy {
-	enum OptionalKeyword	direction;	/* OPTIONAL_ASC or OPTIONAL_DESC */
+	enum OptionalKeyword	direction;		/* OPTIONAL_ASC or OPTIONAL_DESC */
+	boolean_t		order_by_column_num;	/* this is an ORDER BY COLUMN NUM usage */
 } LpExtraOrderBy;
 
 /* Extra fields needed by LP_ORDER_BY */
@@ -251,6 +252,9 @@ int lp_get_key_index(LogicalPlan *plan, LogicalPlan *column_alias);
 // Returns the output key
 LogicalPlan *lp_get_output_key(LogicalPlan *plan);
 // Returns the number of columns in the SELECT column list for a given plan
+int lp_get_num_cols_in_select_column_list(LogicalPlan *plan);
+// Returns the 'n'th LP_COLUMN_LIST in the SELECT column list for a given plan */
+LogicalPlan *lp_get_col_num_n_in_select_column_list(LogicalPlan *column_list, int n);
 int lp_get_num_cols_in_select_column_list(LogicalPlan *plan);
 // Returns the M function name in _ydboctoplanhelpers.m corresponding to the aggregate function type (input parameter `type`)
 char	*lp_get_aggregate_plan_helper_func_name(LPActionType type);

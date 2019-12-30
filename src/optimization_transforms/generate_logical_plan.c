@@ -71,38 +71,6 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt, int *plan_id) {
 	memset(dst_key->v.lp_key.key, 0, sizeof(SqlKey));
 	dst_key->v.lp_key.key->unique_id = get_plan_unique_number(insert);
 	insert->extra_detail.lp_insert.root_table_alias = table_alias;
-	if (NULL != select_stmt->order_by_expression) {
-		SqlColumnListAlias	*cur_cla, *start_cla;
-
-		MALLOC_LP(order_by, dst->v.lp_default.operand[1], LP_ORDER_BY);
-		UNPACK_SQL_STATEMENT(list, select_stmt->order_by_expression, column_list_alias);
-		cur_cla = start_cla = list;
-		do {
-			SqlColumnListAlias	*save_next;
-			SqlOptionalKeyword	*keyword;
-
-			save_next = cur_cla->next;
-			cur_cla->next = cur_cla;	/* set "next" to self so below call processes only one column instead of
-							 * multiple columns in table corresponding to the desired column.
-							 */
-			order_by->v.lp_default.operand[0] = lp_column_list_to_lp(cur_cla, plan_id);
-			cur_cla->next = save_next;
-			if (NULL != cur_cla->keywords)
-			{
-				UNPACK_SQL_STATEMENT(keyword, cur_cla->keywords, keyword);
-				assert(keyword->next == keyword);
-				assert(keyword->prev == keyword);
-			} else
-				keyword = NULL;
-			order_by->extra_detail.lp_order_by.direction = (NULL != keyword) ? keyword->keyword : OPTIONAL_ASC;
-					/* ASCENDING order is default direction for ORDER BY */
-			cur_cla = cur_cla->next;
-			if (cur_cla != start_cla) {
-				MALLOC_LP_2ARGS(order_by->v.lp_default.operand[1], LP_ORDER_BY);
-				order_by = order_by->v.lp_default.operand[1];
-			}
-		} while (cur_cla != start_cla);
-	}
 	/// TODO: we should look at the columns to decide which values
 	//   are keys, and if none, create a rowId as part of the advance
 	dst_key->v.lp_key.key->type = LP_KEY_ADVANCE;
@@ -156,13 +124,71 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt, int *plan_id) {
 		cur_join = cur_join->next;
 	} while (cur_join != start_join);
 
+	// Add SELECT column list to logical plan
 	assert(NULL != select_stmt->select_list->v.column_list);
 	UNPACK_SQL_STATEMENT(list, select_stmt->select_list, column_list_alias);
 	temp = lp_column_list_to_lp(list, plan_id);
+	project->v.lp_default.operand[0] = temp;
+
+	/* Now that SELECT column list is done, add ORDER BY column list to logical plan.
+	 * Need to do this in this order so any references in ORDER BY to a COLUMN NUM are automatically translated to
+	 * the corresponding logical plan already generated for that COLUMN NUM in the "lp_column_list_to_lp" call above
+	 * for the SELECT column list. Not doing so could cause issues if a sub-query is part of that column (the sub-query
+	 * would have different unique_id values generated one for the SELECT column list and one for the ORDER BY COLUMN NUM
+	 * reference which would cause incorrect results).
+	 */
+	if (NULL != select_stmt->order_by_expression) {
+		SqlColumnListAlias	*cur_cla, *start_cla;
+
+		MALLOC_LP(order_by, dst->v.lp_default.operand[1], LP_ORDER_BY);
+		UNPACK_SQL_STATEMENT(list, select_stmt->order_by_expression, column_list_alias);
+		cur_cla = start_cla = list;
+		do {
+			SqlColumnListAlias	*save_next;
+			SqlOptionalKeyword	*keyword;
+
+			if (cur_cla->tbl_and_col_id.unique_id) {
+				LogicalPlan	*column_list, *select_column_list;
+
+				/* This is an ORDER BY COLUMN NUM usage. Get the Nth LP_COLUMN_LIST from the SELECT column list
+				 * and connect that to this LP_ORDER_BY plan.
+				 */
+				MALLOC_LP_2ARGS(column_list, LP_COLUMN_LIST);
+				assert(cur_cla->tbl_and_col_id.column_number);
+				select_column_list
+					= lp_get_col_num_n_in_select_column_list(temp, cur_cla->tbl_and_col_id.column_number);
+				assert(LP_COLUMN_LIST == select_column_list->type);
+				column_list->v.lp_default.operand[0] = select_column_list->v.lp_default.operand[0];
+				order_by->v.lp_default.operand[0] = column_list;
+				order_by->extra_detail.lp_order_by.order_by_column_num = TRUE;
+			} else {
+				save_next = cur_cla->next;
+				cur_cla->next = cur_cla; /* set "next" to self so below call processes only one column instead of
+							  * multiple columns in table corresponding to the desired column.
+							  */
+				order_by->v.lp_default.operand[0] = lp_column_list_to_lp(cur_cla, plan_id);
+				cur_cla->next = save_next;
+				order_by->extra_detail.lp_order_by.order_by_column_num = FALSE;
+			}
+			if (NULL != cur_cla->keywords)
+			{
+				UNPACK_SQL_STATEMENT(keyword, cur_cla->keywords, keyword);
+				assert(keyword->next == keyword);
+				assert(keyword->prev == keyword);
+			} else
+				keyword = NULL;
+			order_by->extra_detail.lp_order_by.direction = (NULL != keyword) ? keyword->keyword : OPTIONAL_ASC;
+					/* ASCENDING order is default direction for ORDER BY */
+			cur_cla = cur_cla->next;
+			if (cur_cla != start_cla) {
+				MALLOC_LP_2ARGS(order_by->v.lp_default.operand[1], LP_ORDER_BY);
+				order_by = order_by->v.lp_default.operand[1];
+			}
+		} while (cur_cla != start_cla);
+	}
 
 	// Ensure that any added conditions as a result of a join are added to the WHERE
 	// before we go through and replace derived table references
-	project->v.lp_default.operand[0] = temp;
 	if (NULL != start_join_condition)
 	{
 		where = lp_join_where(start_join_condition, where);

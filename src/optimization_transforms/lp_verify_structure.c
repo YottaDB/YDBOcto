@@ -403,8 +403,16 @@ int lp_verify_structure_helper(LogicalPlan *plan, LogicalPlan **aggregate, LPAct
 		/* to avoid a large recursion stack walk the column list iteratively */
 		while (NULL != plan) {
 			assert(LP_ORDER_BY == plan->type);
-			ret &= lp_verify_structure_helper(plan->v.lp_default.operand[0], aggregate, LP_COLUMN_LIST);
-			assert(ret);
+			/* In the ORDER BY COLUMN NUM case, the ORDER BY plan (LP_ORDER_BY -> LP_COLUMN_LIST -> LP_WHERE)
+			 * points to the same plan as the SELECT column list (LP_PROJECT -> LP_COLUMN_LIST -> ... -> LP_WHERE)
+			 * and so do not descend down the ORDER BY plan to avoid duplicate descents as well as avoid
+			 * confusion (e.g. cycles in linked list) in case we need to construct the
+			 * first_aggregate/next_aggregate linked list.
+			 */
+			if (!plan->extra_detail.lp_order_by.order_by_column_num) {
+				ret &= lp_verify_structure_helper(plan->v.lp_default.operand[0], aggregate, LP_COLUMN_LIST);
+				assert(ret);
+			}
 			plan = plan->v.lp_default.operand[1];
 		}
 		break;

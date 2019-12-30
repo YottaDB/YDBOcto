@@ -187,3 +187,8 @@ OCTO
   load_fixture TOB12.sql subtest
   run_query_in_octo_and_postgres_and_crosscheck customers TOB12.sql "remove_empty_line_at_tail"
 }
+
+@test "TOB13 : OCTO412 : ORDER BY COLUMN NUM does not work if COLUMN NUM in select column list has a sub-query" {
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TOB13.sql "remove_empty_line_at_tail"
+}
+

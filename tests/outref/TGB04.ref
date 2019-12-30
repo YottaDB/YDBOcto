@@ -104,6 +104,7 @@ LP_INSERT:
           LP_COLUMN_ALIAS: N1(1).FIRSTNAME
           LP_COLUMN_LIST_ALIAS: 
           - type: STRING_LITERAL
+          - alias: FIRSTNAME
       LP_ORDER_BY: ORDER BY ASC: 
         LP_COLUMN_LIST: 
           LP_WHERE: 
@@ -116,6 +117,7 @@ LP_INSERT:
                     LP_VALUE: 2
             LP_COLUMN_LIST_ALIAS: 
             - type: NUMERIC_LITERAL
+            - alias: COUNT
 
 [DEBUG] PATH:LINENUM DATE TIME : LOGICAL_PLAN AFTER optimize_logical_plan() follows
 LP_INSERT: 
@@ -222,6 +224,7 @@ LP_INSERT:
           LP_COLUMN_ALIAS: N1(1).FIRSTNAME
           LP_COLUMN_LIST_ALIAS: 
           - type: STRING_LITERAL
+          - alias: FIRSTNAME
       LP_ORDER_BY: ORDER BY ASC: 
         LP_COLUMN_LIST: 
           LP_WHERE: 
@@ -234,6 +237,7 @@ LP_INSERT:
                     LP_VALUE: 2
             LP_COLUMN_LIST_ALIAS: 
             - type: NUMERIC_LITERAL
+            - alias: COUNT
 
 [ INFO] PATH:LINENUM DATE TIME : print_temporary_table()
 2|Joey
@@ -279,14 +283,12 @@ octoPlan2(cursorId)
     . . SET %ydboctog=$PIECE($GET(^names(%ydboctocursor(cursorId,"keys",1,"NAMES","ID"))),"|",2)
     . . SET %ydboctocursor(cursorId,"keys",6,"","","GroupBy",%ydboctog)=""
     . . SET %ydboctop=(%ydboctocursor(cursorId,"keys",1,"NAMES","ID")*$GET(%ydboctocursor(cursorId,"parameters",2)))
-    . . DO Count^%ydboctoplanhelpers(6,%ydboctog,2,%ydboctop)
-    . . SET %ydboctop=(%ydboctocursor(cursorId,"keys",1,"NAMES","ID")*$GET(%ydboctocursor(cursorId,"parameters",2)))
     . . DO Count^%ydboctoplanhelpers(6,%ydboctog,1,%ydboctop)
     NEW %ydboctog SET %ydboctog=""
     FOR  DO:$DATA(%ydboctocursor(cursorId,"keys",6,"","","GroupBy",%ydboctog))  SET %ydboctog=$ORDER(%ydboctocursor(cursorId,"keys",6,"","","GroupBy",%ydboctog)) QUIT:(""=%ydboctog)
     . IF 1&($DATA(%ydboctocursor(cursorId,"Distinct",($GET(%ydboctocursor(cursorId,"parameters",1))+$GET(%ydboctocursor(cursorId,"keys",6,"","","GroupBy",%ydboctog,1),0)),$PIECE(%ydboctog,"|",1)))=0) DO
     . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",6,"","")) %ydboctoz=42
-    . . SET %ydboctocursor(cursorId,"keys",6,"","","OrderBy","Z"_$PIECE(%ydboctog,"|",1),($GET(%ydboctocursor(cursorId,"parameters",1))+$GET(%ydboctocursor(cursorId,"keys",6,"","","GroupBy",%ydboctog,2),0)),%ydboctocursor(cursorId,"keys",6,"",""))=($GET(%ydboctocursor(cursorId,"parameters",1))+$GET(%ydboctocursor(cursorId,"keys",6,"","","GroupBy",%ydboctog,1),0))_"|"_$PIECE(%ydboctog,"|",1)
+    . . SET %ydboctocursor(cursorId,"keys",6,"","","OrderBy","Z"_$PIECE(%ydboctog,"|",1),($GET(%ydboctocursor(cursorId,"parameters",1))+$GET(%ydboctocursor(cursorId,"keys",6,"","","GroupBy",%ydboctog,1),0)),%ydboctocursor(cursorId,"keys",6,"",""))=($GET(%ydboctocursor(cursorId,"parameters",1))+$GET(%ydboctocursor(cursorId,"keys",6,"","","GroupBy",%ydboctog,1),0))_"|"_$PIECE(%ydboctog,"|",1)
     . . SET:1 %ydboctocursor(cursorId,"Distinct",($GET(%ydboctocursor(cursorId,"parameters",1))+$GET(%ydboctocursor(cursorId,"keys",6,"","","GroupBy",%ydboctog,1),0)),$PIECE(%ydboctog,"|",1),%ydboctocursor(cursorId,"keys",6,"",""))="",tmpVar=$INCREMENT(%ydboctocursor(cursorId,"Distinct",($GET(%ydboctocursor(cursorId,"parameters",1))+$GET(%ydboctocursor(cursorId,"keys",6,"","","GroupBy",%ydboctog,1),0)),$PIECE(%ydboctog,"|",1)))
     KILL %ydboctocursor(cursorId,"keys",6,"","","GroupBy")
     NEW %ydboctoi  SET %ydboctoi(0)=1

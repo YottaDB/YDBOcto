@@ -340,7 +340,7 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 				if (NULL != qualified_cla) {
 					cur_cla->column_list = qualified_cla->column_list;
 					assert(NULL == cur_cla->alias);
-					/* Note: It is not necessary to not copy " qualified_cla->alias" into "cur_cla->alias" */
+					/* Note: It is not necessary to copy " qualified_cla->alias" into "cur_cla->alias" */
 					/* "cur_cla->keywords" might have ASC or DESC keywords (for ORDER BY)
 					 * which the qualified_cla would not have so do not overwrite those.
 					 */

@@ -349,7 +349,7 @@ int lp_verify_structure_helper(LogicalPlan *plan, LogicalPlan **aggregate, LPAct
 		}
 		break;
 	case LP_COLUMN_LIST:
-		/* to avoid a large recursion stack walk the column list iteratively */
+		/* To avoid a large recursion stack in case of thousands of columns, walk the column list iteratively */
 		while (NULL != plan) {
 			assert(LP_COLUMN_LIST == plan->type);
 			ret &= lp_verify_structure_helper(plan->v.lp_default.operand[0], aggregate, LP_WHERE)

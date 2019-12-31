@@ -4,6 +4,7 @@
 [SOCKET] [ERROR] PATH:LINENUM DATE TIME : syntax error, unexpected PLUS, expecting EXCEPT or UNION or RIGHT_PAREN
 [SOCKET] [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select -((select 1 from names limit 1)+(select 2 from names limit 1))+3;
 Added SET and/or Non-SET trigger on ^names named %ydboctoT*
+[SOCKET] [ERROR] PATH:LINENUM DATE TIME : More than one row returned by a subquery used as an expression
 [SOCKET] [ERROR] PATH:LINENUM DATE TIME : Type BOOLEAN does not exist
 [SOCKET] [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select * from names as n1 where 1::boolean;
 [SOCKET] [ERROR] PATH:LINENUM DATE TIME : Error with syntax near (line 1, column 89):

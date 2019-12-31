@@ -23,11 +23,12 @@
 
 void gen_source_keys(PhysicalPlan *out, LogicalPlan *plan);
 void iterate_keys(PhysicalPlan *out, LogicalPlan *plan);
-LogicalPlan *walk_where_statement(PhysicalPlanOptions *options, LogicalPlan *stmt);
+LogicalPlan *sub_query_check_and_generate_physical_plan(PhysicalPlanOptions *options, LogicalPlan *stmt);
 
 PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlanOptions *options) {
 	SqlOptionalKeyword	*keywords, *keyword;
 	LogicalPlan		*keys, *table_joins, *select, *insert_or_set_operation, *output_key, *output;
+	LogicalPlan		*project, *select_column_list;
 	LogicalPlan		*criteria, *select_options, *select_more_options;
 	LogicalPlan		*where;
 	LogicalPlan		*set_option, *set_plans, *set_output, *set_key;
@@ -93,8 +94,9 @@ PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlanOptions *opt
 			set_oper->prev = NULL;
 			next_oper = out->set_oper_list;
 			set_oper->next = next_oper;
-			if (NULL != next_oper)
+			if (NULL != next_oper) {
 				next_oper->prev = set_oper;
+			}
 			out->set_oper_list = set_oper;
 		}
 		return out;
@@ -144,8 +146,9 @@ PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlanOptions *opt
 		assert(LP_TABLE_JOIN == table_joins->type);
 		// If this is a plan that doesn't have a source table,
 		//  this will be null and we need to skip this step
-		if (NULL == table_joins->v.lp_default.operand[0])
+		if (NULL == table_joins->v.lp_default.operand[0]) {
 			break;
+		}
 		type = table_joins->v.lp_default.operand[0]->type;
 		if ((LP_INSERT == type) || (LP_SET_OPERATION == type)) {
 			PhysicalPlan	*ret;
@@ -153,8 +156,9 @@ PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlanOptions *opt
 			// This is a sub plan, and should be inserted as prev
 			GET_LP(insert_or_set_operation, table_joins, 0, type);
 			ret = generate_physical_plan(insert_or_set_operation, &plan_options);
-			if (NULL == ret)
+			if (NULL == ret) {
 				return NULL;
+			}
 		}
 		table_joins = table_joins->v.lp_default.operand[1];
 	} while (NULL != table_joins);
@@ -171,8 +175,9 @@ PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlanOptions *opt
 	assert(NULL != keys);
 	// Either we have some keys already, or we have a list of keys
 	assert((0 < out->total_iter_keys) || (NULL != keys->v.lp_default.operand[0]));
-	if (keys->v.lp_default.operand[0])
+	if (keys->v.lp_default.operand[0]) {
 		iterate_keys(out, keys);
+	}
 	// Note: The below do/while loop can be done only after we have initialized "iterKeys[]" for this table_join.
 	//       That is why this is not done as part of the previous do/while loop as "iterate_keys()" gets called only after
 	//       the previous do/while loop.
@@ -180,38 +185,54 @@ PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlanOptions *opt
 	do {
 		LogicalPlan	*join_on_condition;
 
-		// See if there are any tables we rely on in the ON clause of any JOINs.
-		// If so, add them as prev records in physical plan.
+		/* See if there are any sub-queries in the ON clause of any JOINs. If so, generate separate physical plans
+		 * (deferred and/or non-deferred) for them and add them as prev records in physical plan.
+		 */
 		join_on_condition = table_joins->extra_detail.lp_table_join.join_on_condition;
 		if (NULL != join_on_condition) {
-			walk_where_statement(&plan_options, join_on_condition);
+			sub_query_check_and_generate_physical_plan(&plan_options, join_on_condition);
 		}
 		table_joins = table_joins->v.lp_default.operand[1];
 	} while (NULL != table_joins);
-	// See if there are any tables we rely on in the WHERE clause. If so, add them as prev records in physical plan.
+	/* See if there are any sub-queries in the WHERE clause. If so, generate separate physical plans
+	 * (deferred and/or non-deferred) for them and add them as prev records in physical plan.
+	 */
 	where = lp_get_select_where(plan);
-	out->where = walk_where_statement(&plan_options, where);
-	if (NULL != where->v.lp_default.operand[1])
-	{	/* If where->v.lp_default.operand[1] is non-NULL, this is the alternate list that
+	out->where = sub_query_check_and_generate_physical_plan(&plan_options, where);
+	if (NULL != where->v.lp_default.operand[1]) {
+		/* If where->v.lp_default.operand[1] is non-NULL, this is the alternate list that
 		 * "lp_optimize_where_multi_equal_ands_helper()" built that needs to be checked too for deferred plans which
 		 * would have been missed out in case the keys for those had been fixed to keys from parent queries (see
 		 * comment above "lp_get_select_where()" function call in "lp_optimize_where_multi_equal_ands_helper()").
 		 */
-		walk_where_statement(&plan_options, where->v.lp_default.operand[1]);
+		sub_query_check_and_generate_physical_plan(&plan_options, where->v.lp_default.operand[1]);
 		where->v.lp_default.operand[1] = NULL;	/* Discard alternate list now that its purpose is served */
 	}
-	// See if there are any tables we rely on in the SELECT column list. If so, add them as prev records in physical plan.
-	walk_where_statement(&plan_options, lp_get_project(plan)->v.lp_default.operand[0]->v.lp_default.operand[0]);
+	/* See if there are any sub-queries in the SELECT column list. If so, generate separate physical plans
+	 * (deferred and/or non-deferred) for them and add them as prev records in physical plan.
+	 */
+	project = lp_get_project(plan);
+	GET_LP(select_column_list, project, 0, LP_COLUMN_LIST);
+	sub_query_check_and_generate_physical_plan(&plan_options, select_column_list);
 	out->keywords = lp_get_select_keywords(plan)->v.lp_keywords.keywords;
 	out->projection = lp_get_projection_columns(plan);
-	// See if there are any tables we rely on in the HAVING clause. If so, add them as prev records in physical plan.
+	/* See if there are any sub-queries in the HAVING clause. If so, generate separate physical plans
+	 * (deferred and/or non-deferred) for them and add them as prev records in physical plan.
+	 */
 	if (NULL != out->aggregate_options) {
 		LogicalPlan	*having;
 
-		having = out->aggregate_options->v.lp_default.operand[1];
+		having = out->aggregate_options->v.lp_default.operand[1];	/* cannot use GET_LP as having can be NULL */
 		if (NULL != having) {
-			out->aggregate_options->v.lp_default.operand[1] = walk_where_statement(&plan_options, having);
+			out->aggregate_options->v.lp_default.operand[1]
+				= sub_query_check_and_generate_physical_plan(&plan_options, having);
 		}
+	}
+	/* See if there are any sub-queries in the ORDER BY clause. If so, generate separate physical plans
+	 * (deferred and/or non-deferred) for them and add them as prev records in physical plan.
+	 */
+	if (NULL != out->order_by) {
+		sub_query_check_and_generate_physical_plan(&plan_options, out->order_by);
 	}
 	// Check the optional words for distinct
 	keywords = lp_get_select_keywords(plan)->v.lp_keywords.keywords;
@@ -249,21 +270,24 @@ void iterate_keys(PhysicalPlan *out, LogicalPlan *plan) {
 	}
 }
 
-LogicalPlan *walk_where_statement(PhysicalPlanOptions *options, LogicalPlan *stmt) {
+LogicalPlan *sub_query_check_and_generate_physical_plan(PhysicalPlanOptions *options, LogicalPlan *stmt) {
+	int		i;
 
-	if (NULL == stmt)
+	if (NULL == stmt) {
 		return NULL;
+	}
 	assert(LP_UNARY_LAST != stmt->type);
 	if ((LP_ADDITION <= stmt->type) && (LP_BOOLEAN_LAST > stmt->type)) {
-		stmt->v.lp_default.operand[0] = walk_where_statement(options, stmt->v.lp_default.operand[0]);
-		stmt->v.lp_default.operand[1] = walk_where_statement(options, stmt->v.lp_default.operand[1]);
+		stmt->v.lp_default.operand[0] = sub_query_check_and_generate_physical_plan(options, stmt->v.lp_default.operand[0]);
+		stmt->v.lp_default.operand[1] = sub_query_check_and_generate_physical_plan(options, stmt->v.lp_default.operand[1]);
 	} else if ((LP_FORCE_NUM <= stmt->type) && (LP_UNARY_LAST > stmt->type)) {
-		stmt->v.lp_default.operand[0] = walk_where_statement(options, stmt->v.lp_default.operand[0]);
+		stmt->v.lp_default.operand[0] = sub_query_check_and_generate_physical_plan(options, stmt->v.lp_default.operand[0]);
 	} else {
 		PhysicalPlanOptions	plan_options;
 		PhysicalPlan		*cur, *out;
 		SqlTableAlias		*table_alias;
 		PhysicalPlan		*new_plan;
+		LogicalPlan		*plan;
 
 		switch(stmt->type) {
 		case LP_KEY:
@@ -274,7 +298,8 @@ LogicalPlan *walk_where_statement(PhysicalPlanOptions *options, LogicalPlan *stm
 			break;
 		case LP_WHERE:
 		case LP_HAVING:
-			stmt->v.lp_default.operand[0] = walk_where_statement(options, stmt->v.lp_default.operand[0]);
+			stmt->v.lp_default.operand[0]
+				= sub_query_check_and_generate_physical_plan(options, stmt->v.lp_default.operand[0]);
 			break;
 		case LP_COLUMN_ALIAS:
 			// Check if this value is a parent reference; if so, mark this as deferred
@@ -282,13 +307,16 @@ LogicalPlan *walk_where_statement(PhysicalPlanOptions *options, LogicalPlan *stm
 			cur = out;
 			UNPACK_SQL_STATEMENT(table_alias, stmt->v.lp_column_alias.column_alias->table_alias, table_alias);
 			while (cur) {
-				unsigned int	i;
+				unsigned int	iter_key_index;
 
-				for (i = 0; i < out->total_iter_keys; i++)
-					if (cur->iterKeys[i]->unique_id == table_alias->unique_id)
+				for (iter_key_index = 0; iter_key_index < out->total_iter_keys; iter_key_index++) {
+					if (cur->iterKeys[iter_key_index]->unique_id == table_alias->unique_id) {
 						break;
-				if (i != cur->total_iter_keys)
+					}
+				}
+				if (iter_key_index != cur->total_iter_keys) {
 					break;
+				}
 				cur->deferred_plan = TRUE;
 				cur = cur->parent_plan;
 			}
@@ -306,8 +334,9 @@ LogicalPlan *walk_where_statement(PhysicalPlanOptions *options, LogicalPlan *stm
 			plan_options = *options;
 			plan_options.stash_columns_in_keys = TRUE;
 			new_plan = generate_physical_plan(stmt, &plan_options);
-			if (NULL == new_plan)
+			if (NULL == new_plan) {
 				return NULL;
+			}
 			break;
 		case LP_FUNCTION_CALL:
 		case LP_AGGREGATE_FUNCTION_COUNT_ASTERISK:
@@ -319,13 +348,40 @@ LogicalPlan *walk_where_statement(PhysicalPlanOptions *options, LogicalPlan *stm
 		case LP_AGGREGATE_FUNCTION_COUNT_DISTINCT:
 		case LP_AGGREGATE_FUNCTION_AVG_DISTINCT:
 		case LP_AGGREGATE_FUNCTION_SUM_DISTINCT:
-		case LP_COLUMN_LIST:
 		case LP_CASE:
 		case LP_CASE_STATEMENT:
 		case LP_CASE_BRANCH:
 		case LP_CASE_BRANCH_STATEMENT:
-			stmt->v.lp_default.operand[0] = walk_where_statement(options, stmt->v.lp_default.operand[0]);
-			stmt->v.lp_default.operand[1] = walk_where_statement(options, stmt->v.lp_default.operand[1]);
+			for (i = 0; i < 2; i++) {
+				stmt->v.lp_default.operand[i]
+					= sub_query_check_and_generate_physical_plan(options, stmt->v.lp_default.operand[i]);
+			}
+			break;
+		case LP_COLUMN_LIST:
+			/* To avoid a large recursion stack in case of thousands of columns, walk the column list iteratively */
+			plan = stmt;
+			while (NULL != plan) {
+				assert(LP_COLUMN_LIST != plan->v.lp_default.operand[0]->type);
+				sub_query_check_and_generate_physical_plan(options, plan->v.lp_default.operand[0]);
+				plan = plan->v.lp_default.operand[1];
+				assert((NULL == plan) || (LP_COLUMN_LIST == plan->type));
+			}
+			break;
+		case LP_ORDER_BY:
+			/* In the ORDER BY COLUMN NUM case, the ORDER BY plan (LP_ORDER_BY -> LP_COLUMN_LIST -> LP_WHERE)
+			 * points to the same plan as the SELECT column list (LP_PROJECT -> LP_COLUMN_LIST -> ... -> LP_WHERE)
+			 * and so do not descend down the LP_COLUMN_LIST plan (operand[0]) to avoid duplicate descents as this
+			 * will cause multiple `unique_id` to be created for the same sub-query in case sub-queries are present
+			 * in the SELECT column list (one for the SELECT column list reference and one for the ORDER BY COLUMN NUM
+			 * reference) which is incorrect. For operand[1], the same logic applies if it is non-NULL and is an
+			 * ORDER BY COLUMN NUM reference too but that would be caught by the recursive call below.
+			 */
+			if (!stmt->extra_detail.lp_order_by.order_by_column_num) {
+				stmt->v.lp_default.operand[0]
+					= sub_query_check_and_generate_physical_plan(options, stmt->v.lp_default.operand[0]);
+			}
+			stmt->v.lp_default.operand[1]
+				= sub_query_check_and_generate_physical_plan(options, stmt->v.lp_default.operand[1]);
 			break;
 		case LP_TABLE:
 			// This should never happen; fall through to error case

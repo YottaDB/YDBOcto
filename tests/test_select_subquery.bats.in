@@ -54,3 +54,7 @@ setup() {
   run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TSS06.sql "remove_empty_line_at_tail"
 }
 
+@test "TSS07 : OCTO352 : Incorrect results when sub-query is used in SELECT or ORDER BY column list" {
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TSS07.sql "remove_empty_line_at_tail"
+}
+

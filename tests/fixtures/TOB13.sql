@@ -16,18 +16,16 @@ SELECT (SELECT 6-n1.id) FROM names n1 ORDER BY 1;
 SELECT (SELECT 6-n1.id) FROM names n1 where (n1.id < 2) ORDER BY 1;
 SELECT (SELECT 6-n2.id FROM names n2 where n2.id = n1.id) FROM names n1 where (n1.id <= 2) ORDER BY 1;
 SELECT (SELECT 6-n2.id FROM names n2 where n2.id = n1.id) FROM names n1 where (n1.id <= 2 OR n1.id >= 3) ORDER BY 1;
-
--- Below needs to wait for #352 to be fixed before they can be re-enabled
--- SELECT (SELECT 6-n1.id),(SELECT 5-n1.id),id FROM names n1 ORDER BY 1,2,n1.id;
--- SELECT (SELECT 6-n1.id),(SELECT 5-n1.id),id FROM names n1 ORDER BY 1,n1.id,2;
--- SELECT (SELECT 6-n1.id),(SELECT 5-n1.id),id FROM names n1 ORDER BY 2,1,n1.id;
--- SELECT (SELECT 6-n1.id),(SELECT 5-n1.id),id FROM names n1 ORDER BY 2,n1.id,1;
--- SELECT (SELECT 6-n1.id),(SELECT 5-n1.id),id FROM names n1 ORDER BY n1.id,1,2;
--- SELECT (SELECT 6-n1.id),(SELECT 5-n1.id),id FROM names n1 ORDER BY n1.id,2,1;
--- SELECT (SELECT 6-n1.id),(SELECT 5-n1.id),id FROM names n1 ORDER BY 1 desc,2,n1.id;
--- SELECT (SELECT 6-n1.id),(SELECT 5-n1.id),id FROM names n1 ORDER BY 1 desc,n1.id,2;
--- SELECT (SELECT 6-n1.id),(SELECT 5-n1.id),id FROM names n1 ORDER BY 2 desc,1,n1.id;
--- SELECT (SELECT 6-n1.id),(SELECT 5-n1.id),id FROM names n1 ORDER BY 2 desc,n1.id,1;
--- SELECT (SELECT 6-n1.id),(SELECT 5-n1.id),id FROM names n1 ORDER BY n1.id desc,1,2;
--- SELECT (SELECT 6-n1.id),(SELECT 5-n1.id),id FROM names n1 ORDER BY n1.id desc,2,1;
+SELECT (SELECT 6-n1.id),(SELECT 5-n1.id),id FROM names n1 ORDER BY 1,2,n1.id;
+SELECT (SELECT 6-n1.id),(SELECT 5-n1.id),id FROM names n1 ORDER BY 1,n1.id,2;
+SELECT (SELECT 6-n1.id),(SELECT 5-n1.id),id FROM names n1 ORDER BY 2,1,n1.id;
+SELECT (SELECT 6-n1.id),(SELECT 5-n1.id),id FROM names n1 ORDER BY 2,n1.id,1;
+SELECT (SELECT 6-n1.id),(SELECT 5-n1.id),id FROM names n1 ORDER BY n1.id,1,2;
+SELECT (SELECT 6-n1.id),(SELECT 5-n1.id),id FROM names n1 ORDER BY n1.id,2,1;
+SELECT (SELECT 6-n1.id),(SELECT 5-n1.id),id FROM names n1 ORDER BY 1 desc,2,n1.id;
+SELECT (SELECT 6-n1.id),(SELECT 5-n1.id),id FROM names n1 ORDER BY 1 desc,n1.id,2;
+SELECT (SELECT 6-n1.id),(SELECT 5-n1.id),id FROM names n1 ORDER BY 2 desc,1,n1.id;
+SELECT (SELECT 6-n1.id),(SELECT 5-n1.id),id FROM names n1 ORDER BY 2 desc,n1.id,1;
+SELECT (SELECT 6-n1.id),(SELECT 5-n1.id),id FROM names n1 ORDER BY n1.id desc,1,2;
+SELECT (SELECT 6-n1.id),(SELECT 5-n1.id),id FROM names n1 ORDER BY n1.id desc,2,1;
 

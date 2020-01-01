@@ -1,7 +1,7 @@
 {}%
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -29,12 +29,6 @@ TEMPLATE(tmpl_populate_output_key, PhysicalPlan *plan, int dot_count) {
 		TMPL(tmpl_key, plan->outputKey);
 		%{}){}%
 	} else {
-		if (plan->distinct_values) {
-			%{}IF $INCREMENT({}%
-			TMPL(tmpl_key, plan->outputKey);
-			%{})`n{{ PLAN_LINE_START }}{}%
-			TMPL(tmpl_print_dots, dot_count);
-		}
 		%{}IF $INCREMENT({}%
 		TMPL(tmpl_key, plan->outputKey);
 		(*buffer_index)--;
@@ -107,11 +101,7 @@ TEMPLATE(tmpl_populate_output_key, PhysicalPlan *plan, int dot_count) {
 
 		%{} {{ config->global_names.cursor }}(cursorId,{{ DISTINCT_SUBSCRIPT }},{}%
 		TMPL(tmpl_column_list_combine, plan->projection, plan, ",", 0, 0, 0);
-		%{},{}%
-		TMPL(tmpl_key, plan->outputKey);
-		%{})="",tmpVar=$INCREMENT({{ config->global_names.cursor }}(cursorId,{{ DISTINCT_SUBSCRIPT }},{}%
-		TMPL(tmpl_column_list_combine, plan->projection, plan, ",", 0, 0, 0);
-		%{})){}%
+		%{})=""{}%
 	}
 	TEMPLATE_END();
 }

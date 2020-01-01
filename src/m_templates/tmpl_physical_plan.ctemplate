@@ -1,7 +1,7 @@
 {}%
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -248,11 +248,23 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
 		}
 		%{}  DO`n{{ PLAN_LINE_START }}{}%
 		TMPL(tmpl_print_dots, num_cols);
-		%{}SET {}%
-		TMPL(tmpl_key, plan->outputKey); (*buffer_index)--;
-		%{},%%ydboctoi(0))={}%
-		TMPL(tmpl_key, plan->outputKey); (*buffer_index)--;
-		TMPL(tmpl_order_by_key, num_cols);
+		if (!plan->stash_columns_in_keys) {
+			%{}SET {}%
+			TMPL(tmpl_key, plan->outputKey); (*buffer_index)--;
+			%{},%%ydboctoi(0))={}%
+			TMPL(tmpl_key, plan->outputKey); (*buffer_index)--;
+			TMPL(tmpl_order_by_key, num_cols);
+		} else {
+			/* Plan is part of a sub-query with an ORDER BY. Finish actual stashing of keys in columns
+			 * that was deferred in "tmpl_populate_output_key".
+			 */
+			%{}IF $INCREMENT({}%
+			TMPL(tmpl_key, plan->outputKey); (*buffer_index)--;
+			%{},{}%
+			TMPL(tmpl_key, plan->outputKey); (*buffer_index)--;
+			TMPL(tmpl_order_by_key, num_cols);
+			%{})){}%
+		}
 		%{})`n{{ PLAN_LINE_START }}{}%
 		TMPL(tmpl_print_dots, num_cols);
 		%{}IF $INCREMENT(%%ydboctoi(0)){}%

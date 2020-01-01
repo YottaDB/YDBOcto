@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -56,5 +56,9 @@ setup() {
 
 @test "TSS07 : OCTO352 : Incorrect results when sub-query is used in SELECT or ORDER BY column list" {
   run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TSS07.sql "remove_empty_line_at_tail"
+}
+
+@test "TSS08 : OCTO413 : Sub query in SELECT column list issues incorrect <More than one row returned by a subquery> error" {
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TSS08.sql "remove_empty_line_at_tail"
 }
 

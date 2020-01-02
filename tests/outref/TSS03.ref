@@ -62,7 +62,6 @@ select id+2;
 3|Lord|Nikon
 4|Joey|
 5|Zero|Cool
-Added SET and/or Non-SET trigger on ^names named %ydboctoT*
 [ERROR] PATH:LINENUM DATE TIME : More than one row returned by a subquery used as an expression
 0|Zero|Cool
 1|Acid|Burn

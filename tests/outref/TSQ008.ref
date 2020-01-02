@@ -135,7 +135,6 @@ LP_INSERT:
     - uses_xref_key: false
 
 [ INFO] PATH:LINENUM DATE TIME : Generating helper cross reference M file [./_ydboctoX*.m] for table [PG_CATALOG.PG_CLASS] and column [RELNAMESPACE]
-Added SET and/or Non-SET trigger on ^%ydboctoocto named %ydboctoT*
 [ INFO] PATH:LINENUM DATE TIME : print_temporary_table()
 2200|2200
 2200|2200

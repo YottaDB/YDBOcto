@@ -5,7 +5,6 @@ FROM   pg_catalog.pg_type t
 WHERE  n.nspname != 'pg_toast'
        AND typelem = 0
        AND typrelid = 0
-Added SET and/or Non-SET trigger on ^%ydboctoocto named %ydboctoT*
 
 oid
 text

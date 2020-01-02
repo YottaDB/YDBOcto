@@ -3,7 +3,6 @@ OCTO> FROM customers c
 OCTO> LEFT JOIN orders o
 OCTO> ON c.customer_id = o.customer_id
 OCTO> WHERE order_date is NULL;
-Added SET and/or Non-SET trigger on ^orders named %ydboctoT*
 James|Madison||
 James|Monroe||
 OCTO> 

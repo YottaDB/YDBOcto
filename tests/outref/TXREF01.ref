@@ -1,5 +1,4 @@
 OCTO> SELECT * FROM names WHERE firstName = "Zero";
-Added SET and/or Non-SET trigger on ^names named %ydboctoT*
 0|Zero|Cool
 5|Zero|Cool
 OCTO> 

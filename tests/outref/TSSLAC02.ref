@@ -14,7 +14,6 @@ FROM     (
 ORDER BY nspname,
          relname desc
 
-Added SET and/or Non-SET trigger on ^%ydboctoocto named %ydboctoT*
 
 public|USERS|11
 public|PG_TYPE|3

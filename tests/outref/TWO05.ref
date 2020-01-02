@@ -1,7 +1,6 @@
 OCTO> SELECT * FROM namesWithAges AS t1
 OCTO> CROSS JOIN namesWithAges AS t2
 OCTO> WHERE t1.id = t2.age;
-Added SET and/or Non-SET trigger on ^names named %ydboctoT*
 OCTO> 
 ;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
 ;; ---------------------------------------------------------

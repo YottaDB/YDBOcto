@@ -313,6 +313,5 @@ ORDER  BY data_type,
 [ INFO] PATH:LINENUM DATE TIME : Generating M file [./_ydboctoP*.m] (to execute SQL query)
 [ INFO] PATH:LINENUM DATE TIME : Generating helper cross reference M file [./_ydboctoX*.m] for table [PG_TYPE] and column [OID]
 [ INFO] PATH:LINENUM DATE TIME : Generating helper cross reference M file [./_ydboctoX*.m] for table [PG_CATALOG.PG_TYPE] and column [TYPTYPE]
-Added SET and/or Non-SET trigger on ^%ydboctoocto named %ydboctoT*
 [ INFO] PATH:LINENUM DATE TIME : print_temporary_table()
 

@@ -1,5 +1,4 @@
 OCTO> select pastas.id, firstName, lastName, pastaName from names4 inner join pastas on pastas.pastaName = names4.favoritePasta order by pastas.id asc;
-Added SET and/or Non-SET trigger on ^pastas named %ydboctoT*
 1|Acid|Burn|Cavatelli
 1|Bobby|Buttons|Cavatelli
 1|Betty|Buttons|Cavatelli

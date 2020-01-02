@@ -1,6 +1,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;								;
-; Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	;
+; Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	;
 ; All rights reserved.						;
 ;								;
 ;	This source code contains the intellectual property	;
@@ -16,7 +16,7 @@ run
   SET tableName="",columnName=""
   FOR  SET tableName=$ORDER(%ydboctoCancel(tableName)) QUIT:""=tableName  DO
   . FOR  SET columnName=$ORDER(%ydboctoCancel(tableName,columnName)) QUIT:""=columnName  DO
-  . . IF $ZTRIGGER("item",%ydboctoCancel(tableName,columnName,"Trigger"))
+  . . IF $$dollarZTRIGGER^%ydboctoplanhelpers("item",%ydboctoCancel(tableName,columnName,"Trigger"))
   . . KILL @%ydboctoCancel(tableName,columnName,"Node")
   KILL %ydboctoCancel
   ; Set to let run_query know the query was canceled

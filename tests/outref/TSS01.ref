@@ -185,7 +185,6 @@ select (firstname AND id) from names;
 3|Lord|Nikon
 4|Joey|
 5|Zero|Cool
-Added SET and/or Non-SET trigger on ^names named %ydboctoT*
 0|Zero|Cool
 1|Acid|Burn
 2|Cereal|Killer

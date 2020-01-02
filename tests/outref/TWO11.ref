@@ -1,9 +1,7 @@
 OCTO> SELECT *
 OCTO> FROM names
 OCTO> WHERE firstName = 'Zero' OR lastName = 'Cool'
-OCTO> Added SET and/or Non-SET trigger on ^names named %ydboctoT*
-Added SET and/or Non-SET trigger on ^names named %ydboctoT*
-
+OCTO> 
 0|Zero|Cool
 5|Zero|Cool
 ;; This is a generated file; do not modify. Generated M code corresponds to below SQL query

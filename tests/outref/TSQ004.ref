@@ -387,6 +387,5 @@ LP_INSERT:
               - type: STRING_LITERAL
 
 [ INFO] PATH:LINENUM DATE TIME : Generating helper cross reference M file [./_ydboctoX*.m] for table [PG_CATALOG.PG_DESCRIPTION] and column [OBJOID]
-Added SET and/or Non-SET trigger on ^%ydboctoocto named %ydboctoT*
 [ INFO] PATH:LINENUM DATE TIME : print_temporary_table()
 

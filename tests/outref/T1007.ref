@@ -1,5 +1,4 @@
 OCTO> select * from names3 where firstName = "Zero" order by lastName asc;
-Added SET and/or Non-SET trigger on ^names3 named %ydboctoT*
 0|Zero|Cool
 8|Zero|Day
 5|Zero|Lame

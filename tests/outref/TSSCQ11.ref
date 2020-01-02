@@ -72,7 +72,6 @@ WHERE  c.relnamespace = n.oid
 ORDER  BY table_type,
           table_schem,
           table_name
-Added SET and/or Non-SET trigger on ^%ydboctoocto named %ydboctoT*
 
 |public|INFORMATION_SCHEMA.TABLES|TABLE||||||
 |public|NAMES|TABLE||||||

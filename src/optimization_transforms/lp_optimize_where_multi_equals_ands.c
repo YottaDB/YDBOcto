@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -153,7 +153,7 @@ LogicalPlan *lp_optimize_where_multi_equal_ands_helper(LogicalPlan *plan, Logica
 	if (FALSE == lp_verify_valid_for_key_fix(plan, cur)) {
 		return where;
 	}
-	if (right->type == LP_COLUMN_ALIAS && left->type == LP_COLUMN_ALIAS) {
+	if ((LP_COLUMN_ALIAS == right->type) && (LP_COLUMN_ALIAS == left->type)) {
 		UNPACK_SQL_STATEMENT(table_alias, right->v.lp_column_alias.column_alias->table_alias, table_alias);
 		right_id = table_alias->unique_id;
 		UNPACK_SQL_STATEMENT(table_alias, left->v.lp_column_alias.column_alias->table_alias, table_alias);
@@ -215,22 +215,22 @@ LogicalPlan *lp_optimize_where_multi_equal_ands_helper(LogicalPlan *plan, Logica
 	}
 	key = lp_get_key(plan, left);
 	// If the left isn't a key, generate a cross reference
-	if (key == NULL) {
+	if (NULL == key) {
 		// Get the table alias and column for left
 		column_alias = left->v.lp_column_alias.column_alias;
 		UNPACK_SQL_STATEMENT(table_alias, column_alias->table_alias, table_alias);
 		/// TODO: how do we handle triggers on generated tables?
-		if (table_alias->table->type != table_STATEMENT) {
+		if (table_STATEMENT != table_alias->table->type) {
 			return where;
 		}
 		UNPACK_SQL_STATEMENT(table, table_alias->table, table);
-		if (column_alias->column->type != column_STATEMENT) {
+		if (column_STATEMENT != column_alias->column->type) {
 			UNPACK_SQL_STATEMENT(column_list_alias, column_alias->column, column_list_alias);
 			UNPACK_SQL_STATEMENT(column_list, column_list_alias->column_list, column_list);
 			UNPACK_SQL_STATEMENT(column_alias, column_list->value, column_alias);
 		}
 		generated_xref_keys = lp_generate_xref_keys(plan, table, column_alias, table_alias);
-		if (generated_xref_keys == NULL) {
+		if (NULL == generated_xref_keys) {
 			return where;
 		}
 		// Remove all keys for the table alias
@@ -241,7 +241,7 @@ LogicalPlan *lp_optimize_where_multi_equal_ands_helper(LogicalPlan *plan, Logica
 			if (t->v.lp_key.key->unique_id == table_alias->unique_id) {
 				break;
 			}
-			if (first_key->v.lp_default.operand[1] == NULL) {
+			if (NULL == first_key->v.lp_default.operand[1]) {
 				break;
 			}
 			before_first_key = first_key;
@@ -256,7 +256,7 @@ LogicalPlan *lp_optimize_where_multi_equal_ands_helper(LogicalPlan *plan, Logica
 				break;
 			}
 			before_last_key = last_key;
-			if (last_key->v.lp_default.operand[1] == NULL) {
+			if (NULL == last_key->v.lp_default.operand[1]) {
 				break;
 			}
 			GET_LP(last_key, last_key, 1, LP_KEYS);
@@ -267,7 +267,7 @@ LogicalPlan *lp_optimize_where_multi_equal_ands_helper(LogicalPlan *plan, Logica
 		key = xref_keys->v.lp_key.key;
 		key->is_cross_reference_key = TRUE;
 		key->cross_reference_column_alias = column_alias;
-		if (before_first_key->type == LP_CRITERIA) {
+		if (LP_CRITERIA == before_first_key->type) {
 			MALLOC_LP_2ARGS(before_first_key->v.lp_default.operand[0], LP_KEYS);
 			before_first_key = before_first_key->v.lp_default.operand[0];
 		} else {
@@ -284,7 +284,7 @@ LogicalPlan *lp_optimize_where_multi_equal_ands_helper(LogicalPlan *plan, Logica
 		 */
 		for ( ; NULL != xref_keys->v.lp_default.operand[1]; xref_keys = xref_keys->v.lp_default.operand[1])
 			;
-		if (before_last_key->v.lp_default.operand[1] != NULL) {
+		if (NULL != before_last_key->v.lp_default.operand[1]) {
 			xref_keys->v.lp_default.operand[1] = before_last_key->v.lp_default.operand[1];
 		}
 	}

@@ -37,7 +37,6 @@ OCTO>          AND E.name NOT LIKE "ZZ%"
 OCTO>          AND E.current_movement IS NOT NULL )
 OCTO> /* TODO this line should be "ORDER  BY A.order_id :: INTEGER;" pending on issue #304 */
 OCTO> ORDER  BY A.order1_id;
-Added SET and/or Non-SET trigger on ^OR named %ydboctoT*
 OCTO> 
 octoPlan0(cursorId)
     DO octoPlan1(cursorId)

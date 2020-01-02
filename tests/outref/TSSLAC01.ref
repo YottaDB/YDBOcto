@@ -58,9 +58,4 @@ ORDER BY nspname,
          c.relname,
          attnum
 [ WARN] PATH:LINENUM DATE TIME : Feature not implemented: OVER not implemented, just returning columns
-Added SET and/or Non-SET trigger on ^%ydboctoocto named %ydboctoT*
-Added SET and/or Non-SET trigger on ^%ydboctoocto named %ydboctoT*
-Added SET and/or Non-SET trigger on ^%ydboctoocto named %ydboctoT*
-Added SET and/or Non-SET trigger on ^%ydboctoocto named %ydboctoT*
-Added SET and/or Non-SET trigger on ^%ydboctoocto named %ydboctoT*
 

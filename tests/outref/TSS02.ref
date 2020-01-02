@@ -1,6 +1,5 @@
 
 SELECT * FROM names n1 WHERE n1.firstName in (SELECT n2.firstname from names n2 where n2.firstname = n1.firstname);
-Added SET and/or Non-SET trigger on ^names named %ydboctoT*
 0|Zero|Cool
 1|Acid|Burn
 2|Cereal|Killer

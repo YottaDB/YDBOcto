@@ -1,6 +1,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;								;
-; Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	;
+; Copyright (c) 2020 YottaDB LLC and/or its subsidiaries.	;
 ; All rights reserved.						;
 ;								;
 ;	This source code contains the intellectual property	;
@@ -37,18 +37,28 @@
 	; This can be user-unfriendly for Octo since we would see $ZSTATUS show up for non-YDB errors (which Octo simulates above).
 	; Hence the need to clear $ETRAP at Octo startup.
 	SET $ETRAP=""
-	; -----------------------------------------------------------
+	; ------------------------------------------------------------------------------------------------
 	; Perform NullSubs check
-	; -----------------------------------------------------------
-	NEW verified,octogbl,reglist,regnum,regname,numregs
-	SET quit=0
+	; Also issue a warning if "*" namespace maps to the same region that ^%ydbocto* namespace maps to
+	;	as this is likely a user misconfiguration issue. But the check for that uses '$VIEW("REGION","^*")'
+	;	which was implemented in `r1.30` (production release) and `r1.29` (development release) hence the
+	;	`"r1.29"']` check below.
+	; ------------------------------------------------------------------------------------------------
+	NEW verified,octogbl,reglist,regnum,regname,numregs,quit,starwarningissued,starregname
+	SET quit=0,starwarningissued=0,starregname=""
+	SET:("r1.29"']($PIECE($ZYRELEASE," ",2))) starregname=$VIEW("REGION","^*")
 	FOR octogbl="^%ydboctoxref","^%ydboctoocto","^%ydboctoschema" DO
 	. SET reglist=$VIEW("REGION",octogbl),numregs=$LENGTH(reglist,",")
 	. FOR regnum=1:1:numregs DO
 	. . SET regname=$PIECE(reglist,",",regnum)
 	. . QUIT:$DATA(verified(regname))
+	. . IF ('starwarningissued&(regname=starregname)) DO
+	. . . WRITE "[ WARN] Global "_octogbl_" maps to default region "_regname_". Recommended mapping for ^%ydbocto* is to a separate region",!
+	. . . USE $PRINCIPAL	; In case principal device is terminal, above WRITE is flushed
+	. . . SET starwarningissued=1
 	. . IF ($$^%PEEKBYNAME("sgmnt_data.null_subs",regname)'=1) DO
-	. . . WRITE "ERROR: Null subscripts must be enabled for global "_octogbl_" in region "_regname,!
+	. . . WRITE "[ERROR] Null subscripts must be enabled for region "_regname_" (global "_octogbl_" maps to this region)",!
+	. . . USE $PRINCIPAL	; In case principal device is terminal, above WRITE is flushed
 	. . . SET quit=1
 	. . SET verified(regname)=""
 	QUIT quit

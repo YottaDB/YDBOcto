@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -131,7 +131,10 @@ PSQL
 }
 
 load_postgres_fixture() {
-  psql $1 -f @PROJECT_SOURCE_DIR@/tests/fixtures/$2
+  # If the table already exists, the psql command will return with a non-zero exit status due to the
+  # `\set ON_ERROR_STOP on` usage in the .sql script. But that is not a real error and so we use the `run` command
+  # below to avoid bats from treating this as an error.
+  run psql $1 -f @PROJECT_SOURCE_DIR@/tests/fixtures/$2
 }
 
 # Load a large amount of dummy data for tests requiring slow queries
@@ -145,12 +148,26 @@ load_big_data() {
 createdb() {
   export ydb_gbldir="mumps.gld"
   echo "ydb_gbldir: $ydb_gbldir"
-  $ydb_dist/mumps -r ^GDE <<FILE
-change -r DEFAULT -key_size=1019 -record_size=1048576
-change -segment DEFAULT -file_name=$test_temp/mumps.dat
-change -r DEFAULT -NULL_SUBSCRIPTS=true
-exit
+  # Create two regions by default. One to hold application/user data. One to hold Octo internal data (%ydbocto* namespace)
+  # But if user specified number of regions explicitly (only allowed value currently is 1) then create 1 region only.
+  if [[ $1 == "1" ]]; then
+    $ydb_dist/mumps -r ^GDE <<FILE
+    change -r DEFAULT -key_size=1019 -record_size=1048576
+    change -segment DEFAULT -file_name=$test_temp/mumps.dat
+    change -r DEFAULT -NULL_SUBSCRIPTS=true
+    exit
 FILE
+  else
+    $ydb_dist/mumps -r ^GDE <<FILE
+    change -region DEFAULT -null_subscripts=true -record_size=1024
+    change -segment DEFAULT -file_name=$test_temp/mumps.dat
+    add -name %ydbocto* -region=OCTOREG
+    add -region OCTOREG -dyn=OCTOSEG
+    add -segment OCTOSEG -file=$test_temp/octo.dat
+    change -region OCTOREG -null_subscripts=true -key_size=1019 -record_size=1048576
+    exit
+FILE
+  fi
   rm *.dat || true
   $ydb_dist/mupip create
   echo "Populating seed data"

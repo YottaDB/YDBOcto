@@ -10,7 +10,8 @@
 -- #									#
 -- ######################################################################
 
-DROP TABLE t1;
+-- Below is to skip the INSERT commands if the table already exists (CREATE TABLE will cause an error and script will exit)
+\set ON_ERROR_STOP on
 
 CREATE TABLE t1(a INTEGER, b INTEGER, c INTEGER, d INTEGER, e INTEGER);
 

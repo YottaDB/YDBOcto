@@ -3,6 +3,12 @@
 
 SELECT DISTINCT 1 + COUNT(n1.id * 2),n1.firstname from names n1 where n1.id IN (SELECT DISTINCT MAX((n2.id % 3) + 4) from names n2 GROUP BY n2.firstname) GROUP BY n1.firstname ORDER BY 2, 1;
 
+-- OCTO412 : Test that we do not generate M code to unnecessarily compute duplicate aggregate function usage.
+-- In the below query, currently COUNT(id) in the SELECT column list and ORDER BY 2 are treated as 1 aggregate function
+--	and COUNT(id) in the ORDER BY column list is treated as a 2nd aggregate function use so we expect to see
+--	2 aggregate function counts generated in the physical plan. When #414 is fixed, we will see only 1 aggregate function count.
+SELECT firstname,COUNT(id) FROM names GROUP BY firstname ORDER BY 2,COUNT(id);
+
 [ INFO] PATH:LINENUM DATE TIME : Parsing done for SQL command [SELECT DISTINCT 1 + COUNT(n1.id * 2),n1.firstname from names n1 where n1.id IN (SELECT DISTINCT MAX((n2.id % 3) + 4) from names n2 GROUP BY n2.firstname) GROUP BY n1.firstname ORDER BY 2, 1;]
 [ INFO] PATH:LINENUM DATE TIME : Generating SQL for CURSOR_NUM
 [ INFO] PATH:LINENUM DATE TIME : Generating M file [./_ydboctoP*.m] (to execute SQL query)
@@ -242,6 +248,142 @@ LP_INSERT:
 [ INFO] PATH:LINENUM DATE TIME : print_temporary_table()
 2|Joey
 2|Zero
+[ INFO] PATH:LINENUM DATE TIME : Parsing done for SQL command [--	and COUNT(id) in the ORDER BY column list is treated as a 2nd aggregate function use so we expect to see
+--	2 aggregate function counts generated in the physical plan. When #414 is fixed, we will see only 1 aggregate function count.
+SELECT firstname,COUNT(id) FROM names GROUP BY firstname ORDER BY 2,COUNT(id);]
+[ INFO] PATH:LINENUM DATE TIME : Generating SQL for CURSOR_NUM
+[ INFO] PATH:LINENUM DATE TIME : Generating M file [./_ydboctoP*.m] (to execute SQL query)
+[DEBUG] PATH:LINENUM DATE TIME : LOGICAL_PLAN BEFORE optimize_logical_plan() follows
+LP_INSERT: 
+  LP_PROJECT: 
+    LP_COLUMN_LIST: 
+      LP_WHERE: 
+        LP_COLUMN_ALIAS: NAMES(1).FIRSTNAME
+        LP_COLUMN_LIST_ALIAS: 
+        - type: STRING_LITERAL
+        - alias: FIRSTNAME
+      LP_COLUMN_LIST: 
+        LP_WHERE: 
+          LP_AGGREGATE_FUNCTION_COUNT: 
+            LP_COLUMN_LIST: 
+              LP_COLUMN_ALIAS: NAMES(1).ID
+          LP_COLUMN_LIST_ALIAS: 
+          - type: INTEGER_LITERAL
+          - alias: COUNT
+    LP_SELECT: 
+      LP_TABLE_JOIN: 
+        LP_TABLE: NAMES
+      LP_CRITERIA: 
+        LP_KEYS: 
+        LP_SELECT_OPTIONS: 
+          LP_WHERE: 
+          LP_SELECT_MORE_OPTIONS: 
+            LP_AGGREGATE_OPTIONS: 
+              LP_GROUP_BY: 
+                LP_COLUMN_LIST: 
+                  LP_WHERE: 
+                    LP_COLUMN_ALIAS: NAMES(1).FIRSTNAME
+                    LP_COLUMN_LIST_ALIAS: 
+                    - type: STRING_LITERAL
+            LP_KEYWORDS: 
+  LP_OUTPUT: 
+    LP_KEY: 
+    - table_name:  
+    - column_name:  
+    - unique_id: 3
+    - method: LP_KEY_ADVANCE
+    - xref_key: false
+    - uses_xref_key: false
+    LP_ORDER_BY: ORDER BY ASC: 
+      LP_COLUMN_LIST: 
+        LP_WHERE: 
+          LP_AGGREGATE_FUNCTION_COUNT: 
+            LP_COLUMN_LIST: 
+              LP_COLUMN_ALIAS: NAMES(1).ID
+          LP_COLUMN_LIST_ALIAS: 
+          - type: INTEGER_LITERAL
+          - alias: COUNT
+      LP_ORDER_BY: ORDER BY ASC: 
+        LP_COLUMN_LIST: 
+          LP_WHERE: 
+            LP_AGGREGATE_FUNCTION_COUNT: 
+              LP_COLUMN_LIST: 
+                LP_COLUMN_ALIAS: NAMES(1).ID
+            LP_COLUMN_LIST_ALIAS: 
+            - type: INTEGER_LITERAL
+
+[DEBUG] PATH:LINENUM DATE TIME : LOGICAL_PLAN AFTER optimize_logical_plan() follows
+LP_INSERT: 
+  LP_PROJECT: 
+    LP_COLUMN_LIST: 
+      LP_WHERE: 
+        LP_COLUMN_ALIAS: NAMES(1).FIRSTNAME
+        LP_COLUMN_LIST_ALIAS: 
+        - type: STRING_LITERAL
+        - alias: FIRSTNAME
+      LP_COLUMN_LIST: 
+        LP_WHERE: 
+          LP_AGGREGATE_FUNCTION_COUNT: 
+            LP_COLUMN_LIST: 
+              LP_COLUMN_ALIAS: NAMES(1).ID
+          LP_COLUMN_LIST_ALIAS: 
+          - type: INTEGER_LITERAL
+          - alias: COUNT
+    LP_SELECT: 
+      LP_TABLE_JOIN: 
+        LP_TABLE: NAMES
+      LP_CRITERIA: 
+        LP_KEYS: 
+          LP_KEY: 
+          - table_name: NAMES
+          - column_name: ID
+          - unique_id: 1
+          - method: LP_KEY_ADVANCE
+          - xref_key: false
+          - uses_xref_key: false
+        LP_SELECT_OPTIONS: 
+          LP_WHERE: 
+          LP_SELECT_MORE_OPTIONS: 
+            LP_AGGREGATE_OPTIONS: 
+              LP_GROUP_BY: 
+                LP_COLUMN_LIST: 
+                  LP_WHERE: 
+                    LP_COLUMN_ALIAS: NAMES(1).FIRSTNAME
+                    LP_COLUMN_LIST_ALIAS: 
+                    - type: STRING_LITERAL
+            LP_KEYWORDS: 
+  LP_OUTPUT: 
+    LP_KEY: 
+    - table_name:  
+    - column_name:  
+    - unique_id: 3
+    - method: LP_KEY_ADVANCE
+    - xref_key: false
+    - uses_xref_key: false
+    LP_ORDER_BY: ORDER BY ASC: 
+      LP_COLUMN_LIST: 
+        LP_WHERE: 
+          LP_AGGREGATE_FUNCTION_COUNT: 
+            LP_COLUMN_LIST: 
+              LP_COLUMN_ALIAS: NAMES(1).ID
+          LP_COLUMN_LIST_ALIAS: 
+          - type: INTEGER_LITERAL
+          - alias: COUNT
+      LP_ORDER_BY: ORDER BY ASC: 
+        LP_COLUMN_LIST: 
+          LP_WHERE: 
+            LP_AGGREGATE_FUNCTION_COUNT: 
+              LP_COLUMN_LIST: 
+                LP_COLUMN_ALIAS: NAMES(1).ID
+            LP_COLUMN_LIST_ALIAS: 
+            - type: INTEGER_LITERAL
+
+[ INFO] PATH:LINENUM DATE TIME : print_temporary_table()
+Acid|1
+Cereal|1
+Joey|1
+Lord|1
+Zero|2
 [ INFO] PATH:LINENUM DATE TIME : Parsing done for SQL command []
 
 ;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
@@ -299,4 +441,42 @@ octoPlan2(cursorId)
     KILL %ydboctocursor(cursorId,"keys",6,"","","OrderBy")
     SET %ydboctocursor(cursorId,"keys",6,"","")=%ydboctoi(0)-1
     KILL %ydboctocursor(cursorId,"Distinct")
+    QUIT
+;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
+;; ---------------------------------------------------------
+;  --	and COUNT(id) in the ORDER BY column list is treated as a 2nd aggregate function use so we expect to see
+;  --	2 aggregate function counts generated in the physical plan. When #414 is fixed, we will see only 1 aggregate function count.
+;  SELECT firstname,COUNT(id) FROM names GROUP BY firstname ORDER BY 2,COUNT(id);
+;; ---------------------------------------------------------
+
+octoPlan0(cursorId)
+    DO octoPlan1(cursorId)
+    QUIT
+
+octoPlan1(cursorId)
+    NEW %ydboctoz KILL %ydboctocursor(cursorId,"keys",3,"","")
+    SET %ydboctocursor(cursorId,"keys",1,"NAMES","ID")=""
+    FOR  SET %ydboctocursor(cursorId,"keys",1,"NAMES","ID")=$ORDER(^names(%ydboctocursor(cursorId,"keys",1,"NAMES","ID"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"NAMES","ID")="")  DO
+    . IF 1 DO
+    . . NEW %ydboctog,%ydboctop
+    . . SET %ydboctog=$PIECE($GET(^names(%ydboctocursor(cursorId,"keys",1,"NAMES","ID"))),"|",2)
+    . . SET %ydboctocursor(cursorId,"keys",3,"","","GroupBy",%ydboctog)=""
+    . . SET %ydboctop=%ydboctocursor(cursorId,"keys",1,"NAMES","ID")
+    . . DO Count^%ydboctoplanhelpers(3,%ydboctog,2,%ydboctop)
+    . . SET %ydboctop=%ydboctocursor(cursorId,"keys",1,"NAMES","ID")
+    . . DO Count^%ydboctoplanhelpers(3,%ydboctog,1,%ydboctop)
+    NEW %ydboctog SET %ydboctog=""
+    FOR  DO:$DATA(%ydboctocursor(cursorId,"keys",3,"","","GroupBy",%ydboctog))  SET %ydboctog=$ORDER(%ydboctocursor(cursorId,"keys",3,"","","GroupBy",%ydboctog)) QUIT:(""=%ydboctog)
+    . IF 1 DO
+    . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42
+    . . SET %ydboctocursor(cursorId,"keys",3,"","","OrderBy",$GET(%ydboctocursor(cursorId,"keys",3,"","","GroupBy",%ydboctog,1),0),$GET(%ydboctocursor(cursorId,"keys",3,"","","GroupBy",%ydboctog,2),0),%ydboctocursor(cursorId,"keys",3,"",""))=$PIECE(%ydboctog,"|",1)_"|"_$GET(%ydboctocursor(cursorId,"keys",3,"","","GroupBy",%ydboctog,1),0)
+    KILL %ydboctocursor(cursorId,"keys",3,"","","GroupBy")
+    NEW %ydboctoi  SET %ydboctoi(0)=1
+    SET %ydboctoi(1)="" FOR  DO:$DATA(%ydboctocursor(cursorId,"keys",3,"","","OrderBy",%ydboctoi(1)))  SET %ydboctoi(1)=$ORDER(%ydboctocursor(cursorId,"keys",3,"","","OrderBy",%ydboctoi(1)),1)  QUIT:(%ydboctoi(1)="")
+    . SET %ydboctoi(2)="" FOR  DO:$DATA(%ydboctocursor(cursorId,"keys",3,"","","OrderBy",%ydboctoi(1),%ydboctoi(2)))  SET %ydboctoi(2)=$ORDER(%ydboctocursor(cursorId,"keys",3,"","","OrderBy",%ydboctoi(1),%ydboctoi(2)),1)  QUIT:(%ydboctoi(2)="")
+    . . SET %ydboctoi(3)="" FOR  SET %ydboctoi(3)=$ORDER(%ydboctocursor(cursorId,"keys",3,"","","OrderBy",%ydboctoi(1),%ydboctoi(2),%ydboctoi(3))) QUIT:(%ydboctoi(3)="")  DO
+    . . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctoi(0))=%ydboctocursor(cursorId,"keys",3,"","","OrderBy",%ydboctoi(1),%ydboctoi(2),%ydboctoi(3))
+    . . . IF $INCREMENT(%ydboctoi(0))
+    KILL %ydboctocursor(cursorId,"keys",3,"","","OrderBy")
+    SET %ydboctocursor(cursorId,"keys",3,"","")=%ydboctoi(0)-1
     QUIT

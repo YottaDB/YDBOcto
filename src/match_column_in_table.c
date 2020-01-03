@@ -20,7 +20,9 @@
 
 #include "logical_plan.h"
 
-/* "*ambiguous" is set to TRUE if multiple columns in the input `table_alias` match the input `column_name` */
+/* Note: ambiguous is an output parameter. `*ambiguous` is set to TRUE if multiple columns in the input
+ * `table_alias` match the input `column_name`.
+ */
 SqlColumnListAlias *match_column_in_table(SqlTableAlias *table_alias, char *column_name, int column_name_len, boolean_t *ambiguous)
 {
 	SqlColumnListAlias	*cur_column_list, *start_column_list, *ret;

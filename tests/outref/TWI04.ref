@@ -49,7 +49,9 @@ octoPlan1(cursorId)
     FOR  SET %ydboctocursor(cursorId,"keys",1,"NAMES","ID")=$ORDER(^names(%ydboctocursor(cursorId,"keys",1,"NAMES","ID"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"NAMES","ID")="")  DO
     . DO octoPlan2(cursorId)
     . DO octoPlan3(cursorId)
-    . IF 1&(($DATA(%ydboctocursor(cursorId,"keys",9,"","",$PIECE($GET(^names(%ydboctocursor(cursorId,"keys",1,"NAMES","ID"))),"|",2)))'=0)) DO
+    . NEW %ydboctobool SET %ydboctobool=1
+    . SET %ydboctobool=($DATA(%ydboctocursor(cursorId,"keys",9,"","",$PIECE($GET(^names(%ydboctocursor(cursorId,"keys",1,"NAMES","ID"))),"|",2)))'=0)
+    . IF %ydboctobool DO
     . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",10,"","")) %ydboctoz=42
     . . SET %ydboctocursor(cursorId,"keys",10,"","",%ydboctocursor(cursorId,"keys",10,"",""))=%ydboctocursor(cursorId,"keys",1,"NAMES","ID")_"|"_$PIECE($GET(^names(%ydboctocursor(cursorId,"keys",1,"NAMES","ID"))),"|",2)_"|"_$PIECE($GET(^names(%ydboctocursor(cursorId,"keys",1,"NAMES","ID"))),"|",3)
     QUIT
@@ -57,14 +59,16 @@ octoPlan1(cursorId)
 octoPlan2(cursorId)
     NEW %ydboctoz KILL %ydboctocursor(cursorId,"keys",7,"","")
     SET %ydboctocursor(cursorId,"keys",2,"NAMES","ID")=$PIECE($GET(^names(%ydboctocursor(cursorId,"keys",1,"NAMES","ID"))),"|",1) IF ($DATA(^names(%ydboctocursor(cursorId,"keys",2,"NAMES","ID")))'=0) DO
-    . IF 1 DO
+    . NEW %ydboctobool SET %ydboctobool=1
+    . IF %ydboctobool DO
     . . IF $INCREMENT(%ydboctocursor(cursorId,"keys",7,"","",$PIECE($GET(^names(%ydboctocursor(cursorId,"keys",2,"NAMES","ID"))),"|",2)))
     QUIT
 
 octoPlan3(cursorId)
     NEW %ydboctoz KILL %ydboctocursor(cursorId,"keys",8,"","")
     SET %ydboctocursor(cursorId,"keys",4,"NAMES","ID")=$PIECE($GET(^names(%ydboctocursor(cursorId,"keys",1,"NAMES","ID"))),"|",1) IF ($DATA(^names(%ydboctocursor(cursorId,"keys",4,"NAMES","ID")))'=0) DO
-    . IF 1 DO
+    . NEW %ydboctobool SET %ydboctobool=1
+    . IF %ydboctobool DO
     . . IF $INCREMENT(%ydboctocursor(cursorId,"keys",8,"","",$PIECE($GET(^names(%ydboctocursor(cursorId,"keys",4,"NAMES","ID"))),"|",2)))
     DO columnkeyUNIONALL^%ydboctoplanhelpers(7,8,9)
     QUIT

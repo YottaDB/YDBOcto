@@ -1,0 +1,46 @@
+{}%
+/****************************************************************
+ *								*
+ * Copyright (c) 2020 YottaDB LLC and/or its subsidiaries.	*
+ * All rights reserved.						*
+ *								*
+ *	This source code contains the intellectual property	*
+ *	of its copyright holder(s), and is made available	*
+ *	under a license.  If you do not know the terms of	*
+ *	the license, please stop and do not read further.	*
+ *								*
+ ****************************************************************/
+
+#include "physical_plan.h"
+#include "template_helpers.h"
+
+TEMPLATE(tmpl_tablejoin_on_condition, LogicalPlan *tablejoin, PhysicalPlan *plan, int *dot_count,
+									boolean_t *deferred_plans_emitted) {
+	TEMPLATE_INIT();
+
+	LogicalPlan		*join_condition;
+
+	join_condition = tablejoin->extra_detail.lp_table_join.join_on_condition;
+	if (NULL != join_condition)
+		join_condition = join_condition->v.lp_default.operand[0];
+	if (NULL != join_condition) {
+		TMPL(tmpl_tablejoin_deferred_plans, plan, *dot_count);
+		*deferred_plans_emitted = TRUE;
+		TMPL(tmpl_print_dots, *dot_count);
+		%{}NEW %%ydboctobool SET %%ydboctobool=1{}%
+		%{}`n{{ PLAN_LINE_START }}{}%
+		TMPL(tmpl_print_dots, *dot_count);
+		%{}SET %%ydboctobool={}%
+		assert(*dot_count);	/* Ensure "tmpl_print_expression" knows to split boolean expression
+					 * across multiple lines so we do not exceed M maximum source line limit.
+					 */
+		TMPL(tmpl_print_expression, join_condition, plan, *dot_count, 0);
+		%{}`n{{ PLAN_LINE_START }}{}%
+		TMPL(tmpl_print_dots, *dot_count);
+		%{}IF %%ydboctobool DO{}%
+		%{}`n{{ PLAN_LINE_START }}{}%
+		(*dot_count)++;
+	}
+	TEMPLATE_END();
+}
+%{}

@@ -1,7 +1,7 @@
 {}%
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -17,7 +17,13 @@
 #include "physical_plan.h"
 #include "template_helpers.h"
 
-TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan) {
+/* Note on input parameters:
+ * a) If the input parameter `dot_count` is non-zero, it implies the caller wants the M code generation to split each
+ *    leaf level expression into a separate M line (to avoid generating all of them in one M line and exceeding the
+ *    M max source line length limit (currently 32Kb).
+ * b) The input parameter `depth` is a recursion depth indicator which is used only if `dot_count` is non-zero.
+ */
+TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_count, int depth) {
 	TEMPLATE_INIT();
 
 	char		*m_operator = NULL, *sql_operator, *compare_operator;
@@ -28,14 +34,21 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan) {
 	LogicalPlan	*cur_branch, *default_value;
 	LogicalPlan	*first_operand, *second_operand, *t_operand;
 	LogicalPlan	*cur_lp_key;
+	boolean_t	split_m_line;
 
 	assert(NULL != plan);
 	first_operand = plan->v.lp_default.operand[0];
 	second_operand = plan->v.lp_default.operand[1];
-
+	/* By default, do not split the M line. But do it only for AND or OR boolean operations as they can result in very
+	 * long M lines (see #416 for example using NOT IN which translates to a sequence of AND operations). Do this only
+	 * if caller has set "dot_count" to a non-zero value as that indicates the caller is okay generating split M lines.
+	 * The caller in that case relies on "%ydboctobool" as the M variable that holds the boolean result.
+	 */
+	split_m_line = FALSE;
+	depth++;
 	switch(plan->type) {
 	case LP_WHERE:
-		TMPL(tmpl_print_expression, first_operand, pplan);
+		TMPL(tmpl_print_expression, first_operand, pplan, dot_count, depth);
 		TEMPLATE_END();
 		break;
 	case LP_VALUE:
@@ -132,9 +145,11 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan) {
 		break;
 	case LP_BOOLEAN_OR:
 		m_operator = "!";
+		split_m_line = (0 != dot_count);
 		break;
 	case LP_BOOLEAN_AND:
 		m_operator = "&";
+		split_m_line = (0 != dot_count);
 		break;
 	case LP_BOOLEAN_IS:
 		m_operator = "=";
@@ -182,17 +197,17 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan) {
 		break;
 	case LP_BOOLEAN_REGEX_SENSITIVE:
 		%{}$$regmatch^%%ydbposix({}%
-		TMPL(tmpl_print_expression, first_operand, pplan);
+		TMPL(tmpl_print_expression, first_operand, pplan, 0, 0);
 		%{},{}%
-		TMPL(tmpl_print_expression, second_operand, pplan);
+		TMPL(tmpl_print_expression, second_operand, pplan, 0, 0);
 		%{}){}%
 		break;
 	case LP_BOOLEAN_REGEX_INSENSITIVE:
 		// The extra ',3' below marks this as case insensitive
 		%{}$$regmatch^%%ydbposix({}%
-		TMPL(tmpl_print_expression, first_operand, pplan);
+		TMPL(tmpl_print_expression, first_operand, pplan, 0, 0);
 		%{},{}%
-		TMPL(tmpl_print_expression, second_operand, pplan);
+		TMPL(tmpl_print_expression, second_operand, pplan, 0, 0);
 		%{},3){}%
 		break;
 	case LP_BOOLEAN_IN:
@@ -203,7 +218,7 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan) {
 		TMPL(tmpl_key, cur_lp_key->v.lp_key.key);
 		(*buffer_index)--;
 		%{},{}%
-		TMPL(tmpl_print_expression, first_operand, pplan);
+		TMPL(tmpl_print_expression, first_operand, pplan, 0, 0);
 		if (LP_BOOLEAN_IN == plan->type) {
 			%{}))'=0){}%
 		} else {
@@ -280,20 +295,20 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan) {
 		}
 		use_string_comparison = lp_is_bool_operand_type_string(plan);
 		%{}$${{ sql_operator }}^%%ydboctoplanhelpers({}%
-		TMPL(tmpl_print_expression, first_operand, pplan);
+		TMPL(tmpl_print_expression, first_operand, pplan, 0, 0);
 		%{},{{ key->v.lp_key.key->unique_id|%d }},"{{ compare_operator }}",{{ use_string_comparison|%d }}){}%
 		break;
 	case LP_FORCE_NUM:
 		%{}+{}%
-		TMPL(tmpl_print_expression, first_operand, pplan);
+		TMPL(tmpl_print_expression, first_operand, pplan, 0, 0);
 		break;
 	case LP_NEGATIVE:
 		%{}-{}%
-		TMPL(tmpl_print_expression, first_operand, pplan);
+		TMPL(tmpl_print_expression, first_operand, pplan, 0, 0);
 		break;
 	case LP_BOOLEAN_NOT:
 		%{}'{}%
-		TMPL(tmpl_print_expression, first_operand, pplan);
+		TMPL(tmpl_print_expression, first_operand, pplan, 0, 0);
 		break;
 	case LP_BOOLEAN_EXISTS:
 	case LP_BOOLEAN_NOT_EXISTS:
@@ -308,14 +323,14 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan) {
 	case LP_FUNCTION_CALL:
 		cur_plan = plan;
 		%{}{}%
-		TMPL(tmpl_print_expression, first_operand, pplan);
+		TMPL(tmpl_print_expression, first_operand, pplan, 0, 0);
 		%{}({}%
 		while (NULL != cur_plan->v.lp_default.operand[1]) {
 			if (cur_plan != plan) {
 				%{},{}%
 			}
 			cur_plan = cur_plan->v.lp_default.operand[1];
-			TMPL(tmpl_print_expression, cur_plan->v.lp_default.operand[0], pplan);
+			TMPL(tmpl_print_expression, cur_plan->v.lp_default.operand[0], pplan, 0, 0);
 		}
 		%{}){}%
 		break;
@@ -379,21 +394,21 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan) {
 			condition = cur_branch->v.lp_default.operand[0];
 			branch_value = cur_branch->v.lp_default.operand[1];
 			%{}({}%
-			TMPL(tmpl_print_expression, condition, pplan);
+			TMPL(tmpl_print_expression, condition, pplan, 0, 0);
 			%{})=({}%
 			if (NULL != cas_value) {
-				TMPL(tmpl_print_expression, cas_value, pplan);
+				TMPL(tmpl_print_expression, cas_value, pplan, 0, 0);
 			} else {
 				%{}1{}%
 			}
 			%{}):({}%
-			TMPL(tmpl_print_expression, branch_value, pplan);
+			TMPL(tmpl_print_expression, branch_value, pplan, 0, 0);
 			%{}),{}%
 			cur_plan = cur_plan->v.lp_default.operand[1];
 		}
 		if (NULL != default_value) {
 			%{}1:{}%
-			TMPL(tmpl_print_expression, default_value, pplan);
+			TMPL(tmpl_print_expression, default_value, pplan, 0, 0);
 			%{}){}%
 		} else {
 			%{}1:""){}%
@@ -404,11 +419,31 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan) {
 		FATAL(ERR_UNKNOWN_KEYWORD_STATE, "");
 	}
 	if (m_operator) {
-		%{}({}%
-		TMPL(tmpl_print_expression, first_operand, pplan);
-		%{}{{ m_operator }}{}%
-		TMPL(tmpl_print_expression, second_operand, pplan);
-		%{}){}%
+		if (split_m_line) {
+			/* Evaluate left hand side of boolean AND or OR */
+			TMPL(tmpl_print_expression, first_operand, pplan, dot_count, depth);
+			%{}`n{{ PLAN_LINE_START }}{}%
+			TMPL(tmpl_print_dots, dot_count);
+			/* Move result into temporary variable (using recursion "depth" to avoid interference from M code generated
+			 * by next "tmpl_print_expression" call which evaluates right side of boolean AND or OR).
+			 */
+			%{}SET %%ydboctobool({{ depth|%d }})=%%ydboctobool{}%
+			/* Evaluate right hand side of boolean AND or OR */
+			%{}`n{{ PLAN_LINE_START }}{}%
+			TMPL(tmpl_print_dots, dot_count);
+			%{}SET %%ydboctobool={}%
+			TMPL(tmpl_print_expression, second_operand, pplan, dot_count, depth);
+			/* Evaluate result of boolean AND or OR */
+			%{}`n{{ PLAN_LINE_START }}{}%
+			TMPL(tmpl_print_dots, dot_count);
+			%{}SET %%ydboctobool=%%ydboctobool({{ depth|%d }}){{ m_operator }}%%ydboctobool{}%
+		} else {
+			%{}({}%
+			TMPL(tmpl_print_expression, first_operand, pplan, 0, 0);
+			%{}{{ m_operator }}{}%
+			TMPL(tmpl_print_expression, second_operand, pplan, 0, 0);
+			%{}){}%
+		}
 	}
 	TEMPLATE_END();
 }

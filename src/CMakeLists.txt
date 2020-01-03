@@ -319,13 +319,16 @@ set(template_files
   ${template_dir}/tmpl_column_reference_trigger.ctemplate
   ${template_dir}/tmpl_duplication_check.ctemplate
   ${template_dir}/tmpl_emit_source.ctemplate
+  ${template_dir}/tmpl_group_by.ctemplate
   ${template_dir}/tmpl_key.ctemplate
   ${template_dir}/tmpl_key_advance.ctemplate
   ${template_dir}/tmpl_key_end.ctemplate
   ${template_dir}/tmpl_key_source.ctemplate
   ${template_dir}/tmpl_key_start.ctemplate
+  ${template_dir}/tmpl_limit_check.ctemplate
   ${template_dir}/tmpl_order_by_key.ctemplate
   ${template_dir}/tmpl_physical_plan.ctemplate
+  ${template_dir}/tmpl_populate_output_key.ctemplate
   ${template_dir}/tmpl_print_dots.ctemplate
   ${template_dir}/tmpl_print_expression.ctemplate
   ${template_dir}/tmpl_rightjoin_key.ctemplate
@@ -333,10 +336,8 @@ set(template_files
   ${template_dir}/tmpl_tablejoin_body.ctemplate
   ${template_dir}/tmpl_tablejoin_body_group_by.ctemplate
   ${template_dir}/tmpl_tablejoin_deferred_plans.ctemplate
+  ${template_dir}/tmpl_tablejoin_on_condition.ctemplate
   ${template_dir}/tmpl_temp_key_advance.ctemplate
-  ${template_dir}/tmpl_group_by.ctemplate
-  ${template_dir}/tmpl_populate_output_key.ctemplate
-  ${template_dir}/tmpl_limit_check.ctemplate
   )
 foreach(template ${template_files})
   get_filename_component(fileName ${template} NAME)

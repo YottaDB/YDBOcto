@@ -1,7 +1,7 @@
 {}%
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -73,29 +73,36 @@ TEMPLATE(tmpl_group_by, PhysicalPlan *plan, int dot_count) {
 	TMPL(tmpl_key, plan->outputKey); (*buffer_index)--;
 	%{},{{ GROUP_BY_SUBSCRIPT }},%%ydboctog)) QUIT:(""=%%ydboctog){}%
 	// Apply the conditions for this statement
-	//  We put the 'IF 1' here so it's easy to add extra clauses from any of the
-	//  below conditions which may or may not emit boolean logic
 	%{}`n{{ PLAN_LINE_START }}{}%
 	dot_count++;
 	TMPL(tmpl_print_dots, dot_count);
-	%{}IF 1{}%
+	%{}NEW %%ydboctobool SET %%ydboctobool=1{}%
 	if (NULL != plan->aggregate_options) {
 		LogicalPlan	*having;
 
 		/* Check if there is a HAVING clause. If so, generate plan for that. */
 		having = plan->aggregate_options->v.lp_default.operand[1];
 		if (NULL != having) {
-			%{}&({}%
-			TMPL(tmpl_print_expression, having->v.lp_default.operand[0], plan);
-			%{}){}%
+			%{}`n{{ PLAN_LINE_START }}{}%
+			TMPL(tmpl_print_dots, dot_count);
+			%{}SET %%ydboctobool={}%
+			assert(dot_count);	/* Ensure "tmpl_print_expression" knows to split boolean expression
+						 * across multiple lines so we do not exceed M maximum source line limit.
+						 */
+			TMPL(tmpl_print_expression, having->v.lp_default.operand[0], plan, dot_count, 0);
 		}
 	}
 	if (plan->distinct_values) {
-		%{}&($DATA({{ config->global_names.cursor }}(cursorId,{{ DISTINCT_SUBSCRIPT }},{}%
+		%{}`n{{ PLAN_LINE_START }}{}%
+		TMPL(tmpl_print_dots, dot_count);
+		%{}SET %%ydboctobool=%%ydboctobool&{}%
+		%{}('$DATA({{ config->global_names.cursor }}(cursorId,{{ DISTINCT_SUBSCRIPT }},{}%
 		TMPL(tmpl_column_list_combine, plan->projection, plan, ",", 0, 0, 0);
-		%{}))=0){}%
+		%{}))){}%
 	}
-	%{} DO{}%
+	%{}`n{{ PLAN_LINE_START }}{}%
+	TMPL(tmpl_print_dots, dot_count);
+	%{}IF %%ydboctobool DO{}%
 	// Populate records in the output key (i.e. SELECT column list)
 	TMPL(tmpl_populate_output_key, plan, dot_count);
 	TEMPLATE_END();

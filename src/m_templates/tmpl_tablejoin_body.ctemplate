@@ -1,7 +1,7 @@
 {}%
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -45,30 +45,40 @@ TEMPLATE(tmpl_tablejoin_body, PhysicalPlan *plan, int dot_count, char *tableName
 		TEMPLATE_END();
 	}
 	// Apply the conditions for this statement
-	//  We put the 'IF 1' here so it's easy to add extra clauses from any of the
-	//  below conditions which may or may not emit boolean logic
 	TMPL(tmpl_print_dots, dot_count);
-	%{}IF 1{}%
+	%{}NEW %%ydboctobool SET %%ydboctobool=1{}%
 	if (plan->where && plan->where->v.lp_default.operand[0]) {
-		%{}&({}%
-		TMPL(tmpl_print_expression, plan->where->v.lp_default.operand[0], plan);
-		%{}){}%
+		%{}`n{{ PLAN_LINE_START }}{}%
+		TMPL(tmpl_print_dots, dot_count);
+		%{}SET %%ydboctobool={}%
+		assert(dot_count);	/* Ensure "tmpl_print_expression" knows to split boolean expression
+					 * across multiple lines so we do not exceed M maximum source line limit.
+					 */
+		TMPL(tmpl_print_expression, plan->where->v.lp_default.operand[0], plan, dot_count, 0);
 	}
 	// DISTINCT value processing (if needed)
 	if (plan->distinct_values) {
 		/* If this plan has a GROUP BY, then we will do DISTINCT processing in `tmpl_group_by` so skip that here */
 		if (!IS_GROUP_BY_PLAN(plan)) {
-			%{}&($DATA({{ config->global_names.cursor }}(cursorId,{{ DISTINCT_SUBSCRIPT }},{}%
+			%{}`n{{ PLAN_LINE_START }}{}%
+			TMPL(tmpl_print_dots, dot_count);
+			%{}SET %%ydboctobool=%%ydboctobool&{}%
+			%{}('$DATA({{ config->global_names.cursor }}(cursorId,{{ DISTINCT_SUBSCRIPT }},{}%
 			TMPL(tmpl_column_list_combine, plan->projection, plan, ",", 0, 0, 0);
-			%{}))=0){}%
+			%{}))){}%
 		}
 	} else if (plan->emit_duplication_check) {
 		// Ensure we don't emit duplicates
-		%{}&($DATA({}%
+		%{}`n{{ PLAN_LINE_START }}{}%
+		TMPL(tmpl_print_dots, dot_count);
+		%{}SET %%ydboctobool=%%ydboctobool&{}%
+		%{}('$DATA({}%
 		TMPL(tmpl_duplication_check, plan);
-		%{})=0){}%
+		%{})){}%
 	}
-	%{} DO{}%
+	%{}`n{{ PLAN_LINE_START }}{}%
+	TMPL(tmpl_print_dots, dot_count);
+	%{}IF %%ydboctobool DO{}%
 	/* If GROUP BY or HAVING have been specified and/or Aggregate functions have been used, invoke another function
 	 * to do the M code generation as the flow is very different (more complicated).
 	 */

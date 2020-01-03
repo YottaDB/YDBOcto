@@ -1,7 +1,7 @@
 {}%
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -58,7 +58,7 @@ TEMPLATE(tmpl_column_list_combine, LogicalPlan *plan, PhysicalPlan *pplan, char 
 				%{}"Z"_{}%
 			}
 		}
-		TMPL(tmpl_print_expression, plan->v.lp_default.operand[0]->v.lp_default.operand[0], pplan);
+		TMPL(tmpl_print_expression, plan->v.lp_default.operand[0]->v.lp_default.operand[0], pplan, 0, 0);
 		if (plan->v.lp_default.operand[1]) {
 			if ((0 != start_output_key) && (MAX_M_LINE_LENGTH < (*buffer_index - start_output_key))) {
 				/* The generated M line became close to exceeding the max M line length so split it.

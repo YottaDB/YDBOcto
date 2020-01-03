@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -70,6 +70,8 @@ TEMPLATE(tmpl_rightjoin_key, PhysicalPlan *plan, unsigned int key_start, unsigne
 TEMPLATE(tmpl_tablejoin_body, PhysicalPlan *plan, int dot_count, char *tableName, char *columnName);
 TEMPLATE(tmpl_tablejoin_body_group_by, PhysicalPlan *plan, int dot_count);
 TEMPLATE(tmpl_tablejoin_deferred_plans, PhysicalPlan *plan, int dot_count);
+TEMPLATE(tmpl_tablejoin_on_condition, LogicalPlan *tablejoin, PhysicalPlan *plan, int *dot_count,
+									boolean_t *deferred_plans_emitted);
 TEMPLATE(tmpl_group_by, PhysicalPlan *plan, int dot_count);
 TEMPLATE(tmpl_key_start, SqlKey *key);
 TEMPLATE(tmpl_key_end, SqlKey *key);
@@ -78,7 +80,7 @@ TEMPLATE(tmpl_key, SqlKey *key);
 TEMPLATE(tmpl_key_advance, PhysicalPlan *pplan, SqlKey *key);
 TEMPLATE(tmpl_key_source, PhysicalPlan *pplan, SqlKey *key);
 TEMPLATE(tmpl_temp_key_advance, SqlKey *key);
-TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan);
+TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_count, int depth);
 TEMPLATE(tmpl_column_reference, PhysicalPlan *pplan, SqlColumnAlias *column_alias);
 TEMPLATE(tmpl_column_list_combine, LogicalPlan *plan, PhysicalPlan *pplan, char *delim,
 						int start_output_key, int output_key_length, int dot_count);

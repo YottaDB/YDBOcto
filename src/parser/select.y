@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -438,13 +438,18 @@ qualified_join
       dqappend(left, right);
     }
   | table_reference NATURAL JOIN table_reference {
-      SqlJoin *left, *right;
-      $$ = $1;
-      UNPACK_SQL_STATEMENT(left, $$, join);
-      UNPACK_SQL_STATEMENT(right, $4, join);
-      right->type = NATURAL_JOIN;
-      right->condition = natural_join_condition($1, $4);
-      dqappend(left, right);
+	SqlJoin		*left, *right;
+	boolean_t	ambiguous;
+
+	$$ = $1;
+	UNPACK_SQL_STATEMENT(left, $$, join);
+	UNPACK_SQL_STATEMENT(right, $4, join);
+	right->type = NATURAL_JOIN;
+	right->condition = natural_join_condition($1, $4, &ambiguous);
+	if (ambiguous) {
+		YYABORT;
+	}
+	dqappend(left, right);
     }
 
   | table_reference join_type JOIN table_reference join_specification {

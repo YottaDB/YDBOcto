@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -137,7 +137,6 @@ add_library(libocto OBJECT
   parse_startup_flags.c
   memory_chunk.c
   match_column_in_table.c
-  natural_join_condition.c
   like_to_regex.c
   similar_to_regex.c
   compress_statement.c
@@ -196,6 +195,7 @@ add_library(libocto OBJECT
   parser/between_predicate.c
   parser/aggregate_function.c
   parser/grouping_column_reference.c
+  parser/natural_join_condition.c
   ${BISON_OctoParser_OUTPUTS}
   ${FLEX_OctoLexer_OUTPUTS}
   ${POST_CONFIGURE_FILE}

@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -20,20 +20,24 @@
 
 #include "logical_plan.h"
 
-SqlColumnListAlias *match_column_in_table(SqlTableAlias *table_alias, char *column_name, int column_name_len)
+/* "*ambiguous" is set to TRUE if multiple columns in the input `table_alias` match the input `column_name` */
+SqlColumnListAlias *match_column_in_table(SqlTableAlias *table_alias, char *column_name, int column_name_len, boolean_t *ambiguous)
 {
-	SqlColumnListAlias	*cur_column_list, *start_column_list, *ret = NULL;
-	SqlValue		*value;
-	int			value_len;
+	SqlColumnListAlias	*cur_column_list, *start_column_list, *ret;
 
 	// If there is no column list for this table alias, we won't match anything
 	if (NULL == table_alias->column_list)
 		return NULL;
 	UNPACK_SQL_STATEMENT(start_column_list, table_alias->column_list, column_list_alias);
 	cur_column_list = start_column_list;
+	ret = NULL;
+	*ambiguous = FALSE;
 	do {
 		if (NULL != cur_column_list->alias) {
 			SqlColumnList	*column_list;
+			SqlValue	*value;
+			int		value_len;
+
 			UNPACK_SQL_STATEMENT(column_list, cur_column_list->column_list, column_list);
 			assert(column_list == column_list->next);
 			assert(column_list == column_list->prev);
@@ -41,8 +45,18 @@ SqlColumnListAlias *match_column_in_table(SqlTableAlias *table_alias, char *colu
 			value_len = strlen(value->v.string_literal);
 			if ((value_len == column_name_len)
 					&& memcmp(value->v.string_literal, column_name, column_name_len) == 0) {
+				if (NULL != ret) {
+					/* We found at least 2 matching columns. Signal ambiguous reference
+					 * so caller can issue error. We can break out of the loop now.
+					 */
+					*ambiguous = TRUE;
+					ERROR(ERR_AMBIGUOUS_COLUMN_NAME, column_name);
+					break;
+				}
 				ret = cur_column_list;
-				break;
+				/* Note: We cannot break out of the loop yet as we could have multiple columns with the same name.
+				 * We can find that out only by checking for the rest of the columns.
+				 */
 			}
 		}
 		cur_column_list = cur_column_list->next;

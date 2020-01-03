@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -156,5 +156,10 @@ OCTO
 SELECT * FROM names WHERE lastName = "Cool";
 OCTO
   verify_output TERR012 output.txt noinfo nodebug
+}
+
+@test "TERR013 : Issue error when column name in query is ambiguous (due to multiple columns with same name)" {
+  load_fixture TERR013.sql subtest novv
+  verify_output TERR013 output.txt
 }
 

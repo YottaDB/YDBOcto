@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -175,7 +175,7 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 							int depth, SqlColumnListAlias **ret_cla);
 SqlColumnAlias *qualify_column_name(SqlValue *column_value, SqlJoin *tables, SqlStatement *table_alias_stmt,
 									int depth, SqlColumnListAlias **ret_cla);
-SqlColumnListAlias *match_column_in_table(SqlTableAlias *table, char *column_name, int column_name_len);
+SqlColumnListAlias *match_column_in_table(SqlTableAlias *table, char *column_name, int column_name_len, boolean_t *ambiguous);
 int qualify_function_name(SqlStatement *stmt);
 void print_yyloc(YYLTYPE *llocp);
 SqlOptionalKeyword *get_keyword(SqlColumn *column, enum OptionalKeyword keyword);
@@ -225,6 +225,7 @@ SqlStatement *set_operation(enum SqlSetOperationType setoper_type, SqlStatement 
 SqlStatement *row_value_constructor_binary_statement(SqlStatement *row_value_constructor, char *cursorId);
 SqlStatement *between_predicate(SqlStatement *row_value_constructor, SqlStatement *from, SqlStatement *to, boolean_t not_specified);
 SqlStatement *aggregate_function(SqlAggregateType aggregate_type, OptionalKeyword set_quantifier, SqlStatement *value_expression);
+SqlStatement *natural_join_condition(SqlStatement *left, SqlStatement *right, boolean_t *ambiguous);
 
 int parse_literal_to_parameter(char *cursorId, SqlValue *value, boolean_t update_existing);
 

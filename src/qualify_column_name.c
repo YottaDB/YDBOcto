@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -67,7 +67,8 @@ SqlColumnAlias *qualify_column_name(SqlValue *column_value, SqlJoin *tables, Sql
 	cur_join = start_join = tables;
 	col_cla = NULL;
 	do {
-		SqlStatement *sql_stmt;
+		SqlStatement	*sql_stmt;
+		boolean_t	ambiguous;
 
 		sql_stmt = drill_to_table_alias(cur_join->value);
 		// If we need to match a table, ensure this table is the correct one before calling the helper
@@ -81,14 +82,35 @@ SqlColumnAlias *qualify_column_name(SqlValue *column_value, SqlJoin *tables, Sql
 				if ((table_name_len == table_name_len2)
 						&& (0 == memcmp(value->v.reference, table_name, table_name_len))) {
 					matching_alias_stmt = sql_stmt;
-					col_cla = match_column_in_table(cur_alias, column_name, column_name_len);
+					col_cla = match_column_in_table(cur_alias, column_name, column_name_len, &ambiguous);
+					if ((NULL != col_cla) && ambiguous) {
+						/* There are multiple column matches within one table in the FROM list.
+						 * An error has already been issued inside "match_column_in_table".
+						 * Record error context here.
+						 * Signal an error return from this function by returning NULL.
+						 */
+						yyerror(NULL, NULL, &cur_alias->alias, NULL, NULL, NULL);
+						return NULL;
+					}
 					break;
 				}
 			}
 		} else {
-			t_col_cla = match_column_in_table(cur_alias, column_name, column_name_len);
+			t_col_cla = match_column_in_table(cur_alias, column_name, column_name_len, &ambiguous);
 			if (NULL != t_col_cla) {
+				if (ambiguous) {
+					/* There are multiple column matches within one table in the FROM list.
+					 * An error has already been issued inside "match_column_in_table".
+					 * Record error context here.
+					 * Signal an error return from this function by returning NULL.
+					 */
+					yyerror(NULL, NULL, &sql_stmt, NULL, NULL, NULL);
+					return NULL;
+				}
 				if (NULL != col_cla) {
+					/* There are multiple column matches across multiple tables in the FROM list.
+					 * Allow this by choosing the first table for the column reference but signal WARNING.
+					 */
 					WARNING(ERR_AMBIGUOUS_COLUMN_NAME, column_name);
 					cur_join = cur_join->next;
 					continue;

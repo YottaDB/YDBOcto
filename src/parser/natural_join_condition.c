@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -18,9 +18,11 @@
 #include "octo.h"
 #include "octo_types.h"
 
+// Function invoked by the rule named "qualified_join" in src/parser/select.y
+
 // Construct a WHERE statement by finding all columns in left and all columns in right
 // which have the same name, and saying left.COLUMN = right.COLUMN AND ...
-SqlStatement *natural_join_condition(SqlStatement *left, SqlStatement *right) {
+SqlStatement *natural_join_condition(SqlStatement *left, SqlStatement *right, boolean_t *ambiguous) {
 	SqlStatement		*ret, *cur_condition, *t_condition;
 	SqlStatement		*l_qual_col_name, *r_qual_col_name;
 	SqlJoin			*j_left, *j_right, *cur_join;
@@ -59,8 +61,11 @@ SqlStatement *natural_join_condition(SqlStatement *left, SqlStatement *right) {
 
 				right_sql_stmt = drill_to_table_alias(r_cur_join->value);
 				UNPACK_SQL_STATEMENT(r_cur_alias, right_sql_stmt, table_alias);
-				r_matched_column = match_column_in_table(r_cur_alias, column_name, column_name_len);
+				r_matched_column = match_column_in_table(r_cur_alias, column_name, column_name_len, ambiguous);
 				if (NULL != r_matched_column) {
+					if (*ambiguous) {
+						yyerror(NULL, NULL, &right_sql_stmt, NULL, NULL, NULL);
+					}
 					UNPACK_SQL_STATEMENT(value, r_cur_alias->alias, value);
 					r_table_name = value->v.string_literal;
 					r_table_name_len = strlen(r_table_name);

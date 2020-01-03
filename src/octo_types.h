@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -600,6 +600,4 @@ typedef struct SqlStatement{
 								// multiple traversals of same node.
 } SqlStatement;
 
-/// TODO: this should be located in octo.h, but for some reason it's not being detected there
-SqlStatement *natural_join_condition(SqlStatement *left, SqlStatement *right);
 #endif

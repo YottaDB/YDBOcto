@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -83,70 +83,6 @@ LogicalPlan *lp_generate_where(SqlStatement *stmt, int *plan_id, SqlStatement *p
 			MALLOC_LP_2ARGS(ret, type);
 			LP_GENERATE_WHERE(binary->operands[0], plan_id, stmt, ret->v.lp_default.operand[0], null_return_seen);
 			LP_GENERATE_WHERE(binary->operands[1], plan_id, stmt, ret->v.lp_default.operand[1], null_return_seen);
-			/* OPTIMIZATION: if this is a regex
-			 * see if the pattern is entirely characters,
-			 * and if so, change it to a LP_BOOLEAN_EQUALS so we can optimize it later
-			 *
-			 * see if the pattern is entirely .*'s
-			 * if so change it to a LP_VALUE->true as that matches everything and doesn't need to go though the engine
-			 */
-			if (((LP_BOOLEAN_REGEX_SENSITIVE == ret->type)
-				|| (LP_BOOLEAN_REGEX_INSENSITIVE == ret->type))
-								&& (LP_VALUE == ret->v.lp_default.operand[1]->type)) {
-				SqlValue	*value;
-				char		*c;
-				boolean_t	done, is_literal;
-
-				value = ret->v.lp_default.operand[1]->v.lp_value.value;
-				if ((STRING_LITERAL != value->type) && (NUMERIC_LITERAL != value->type)
-						&& (INTEGER_LITERAL != value->type)) {
-					break;
-				}
-				c = value->v.string_literal;
-				if ('^' == *c) {
-					c++;
-				}
-				/* flags for optimization
-				 * loop through the regex once and disable the flags as they are ruled out
-				 */
-				done = FALSE, is_literal = TRUE;
-				while(*c != '\0' && *c != '$' && !done) {
-					switch(*c) {
-					case '\\':
-					case '*':
-					case '+':
-					case '{':
-					case '(':
-					case ')':
-					case '}':
-					case '[':
-					case ']':
-					case '?':
-					case '.':
-						is_literal = FALSE;
-						done = TRUE;
-						break;
-					default:
-						c++;
-						break;
-					}
-
-				}
-				if ('$' == *c) {
-					c++;
-				}
-				/* check that the start and end of the regex is ^$
-				 * and is a sensitive regex*/
-				if (('$' != *(c - 1)) || ('^' != value->v.string_literal[0])
-						|| (LP_BOOLEAN_REGEX_INSENSITIVE == ret->type)) {
-					break;
-				}
-				if ('\0' == *c && is_literal) {
-					value->v.string_literal = value->v.string_literal + 1;
-					*(c - 1) = '\0';
-					ret->type = LP_BOOLEAN_EQUALS;
-				}
-			}
 		}
 		break;
 	case unary_STATEMENT:

@@ -131,10 +131,7 @@ PSQL
 }
 
 load_postgres_fixture() {
-  # If the table already exists, the psql command will return with a non-zero exit status due to the
-  # `\set ON_ERROR_STOP on` usage in the .sql script. But that is not a real error and so we use the `run` command
-  # below to avoid bats from treating this as an error.
-  run psql $1 -f @PROJECT_SOURCE_DIR@/tests/fixtures/$2
+  psql $1 -f @PROJECT_SOURCE_DIR@/tests/fixtures/$2
 }
 
 # Load a large amount of dummy data for tests requiring slow queries

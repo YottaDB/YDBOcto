@@ -13,8 +13,8 @@
 -- Below is to skip the INSERT commands if the table already exists (CREATE TABLE will cause an error and script will exit)
 \set ON_ERROR_STOP on
 
-CREATE TABLE customers (customer_id INTEGER PRIMARY KEY, first_name CHAR(8), last_name CHAR(10), email CHAR(20), address CHAR(26), city CHAR(16), state CHAR(2), zipcode CHAR(5));
-CREATE TABLE orders (order_id INTEGER PRIMARY KEY, order_date CHAR(10), order_amount VARCHAR(7), customer_id INTEGER);
+CREATE TABLE customers (customer_id INTEGER PRIMARY KEY, first_name VARCHAR(8), last_name VARCHAR(10), email VARCHAR(20), address VARCHAR(26), city VARCHAR(16), state VARCHAR(2), zipcode VARCHAR(5));
+CREATE TABLE orders (order_id INTEGER PRIMARY KEY, order_date VARCHAR(10), order_amount VARCHAR(7), customer_id INTEGER);
 
 INSERT INTO customers VALUES (1,'George','Washington','gwashington@usa.gov','3200 Mt Vernon Hwy','Mount Vernon','VA','22121');
 INSERT INTO customers VALUES (2,'John','Adams','jadams@usa.gov','1250 Hancock St','Quincy','MA','02169');

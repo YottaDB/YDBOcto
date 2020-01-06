@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -16,11 +16,11 @@ setup() {
   init_test
 }
 
-@test "make sure the test system works" {
+@test "HB01 : make sure the test system works" {
   run echo "Hello world!"
 }
 
-@test "ensure that we can create a database for testing" {
+@test "HB02 : ensure that we can create a database for testing" {
   createdb
   run ls mumps.dat
   copy_test_files helloBats/hello1.sql
@@ -32,7 +32,7 @@ setup() {
   [[ "$output" =~ "Hello world" ]]
 }
 
-@test "can load basic fixtures" {
+@test "HB03 : can load basic fixtures" {
   createdb
   load_fixture names.sql
   load_fixture names.zwr
@@ -43,31 +43,37 @@ OCTO
   [[ "$output" =~ "Lord|Nikon" ]]
 }
 
-@test "can communicate with PostgreSQL server" {
-  create_postgres_database names
-  load_postgres_fixture names postgres-names.sql
-  create_postgres_database customers
-  load_postgres_fixture customers postgres-customers.sql
-  create_postgres_database pastas
-  load_postgres_fixture pastas postgres-pastas.sql
-  create_postgres_database easynames
-  load_postgres_fixture easynames postgres-easynames.sql
-  create_postgres_database northwind
-  load_postgres_fixture northwind postgres-northwind.sql
-  create_postgres_database sqllogic1
-  load_postgres_fixture sqllogic1 postgres-sqllogic1.sql
-
-  # Check names database
-  psql names >& output.txt <<PSQL
-select * from names;
-PSQL
-  run cat output.txt
-  [[ "$output" =~ "  5 | Zero                           | Cool " ]]
-
-  # Check customers database
-  psql customers >& output.txt <<PSQL
-select * from customers;
-PSQL
-  run cat output.txt
-  [[ "$output" =~ "           5 | James      | Monroe" ]]
+@test "HB04 : Can load data into Postgres database/tables and communicate with the PostgreSQL server" {
+  echo "\d" > listdb.sql
+  for schema in names customers pastas easynames northwind sqllogic1
+  do
+	# If the database and/or table already exists, the `create_postgres_database` or `lost_postgres_fixture` function
+	# invocations might return with a non-zero exit status due to the database being created by a different userid
+	# (implying current userid does not have permissions to run CREATE DATABASE) OR due to `\set ON_ERROR_STOP on` usage
+	# in the .sql script used by the `load_postgres_fixture` function etc.. Do not consider these as real errors hence
+	# the use of the `run` command below to avoid bats from treating this as an error.
+	run create_postgres_database $schema
+	run load_postgres_fixture $schema postgres-$schema.sql
+	# Do minimal check of database contents after Postgres load
+	# First find list of table names in this database/schema
+	psql $schema -f listdb.sql | grep public | awk '{print $3}' >& tables_$schema.txt
+	declare -a tablearray
+	readarray -t tablearray < tables_$schema.txt
+	i=0
+	while (( ${#tablearray[@]} > i )); do
+		tablename=${tablearray[i++]}
+		inputfile="input_${schema}_${tablename}.sql"
+		outputfile="output_${schema}_${tablename}.txt"
+		echo "select * from $tablename;" > $inputfile
+		psql $schema -f $inputfile >& $outputfile
+		echo "#######################################################################" >> output.txt
+		echo "# Listing first 2 lines and last 2 lines of [SCHEMA : $schema] [TABLE : $tablename]" >> output.txt
+		echo "#######################################################################" >> output.txt
+		head -4 $outputfile >> output.txt 2>&1
+		echo "..." >> output.txt
+		echo "..." >> output.txt
+		tail -4 $outputfile >> output.txt 2>&1
+	done
+  done
+  verify_output HB04 output.txt
 }

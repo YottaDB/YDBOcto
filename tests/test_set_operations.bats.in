@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -144,7 +144,6 @@ OCTO
 @test "OCTO269 : Verify randomly generated queries with UNION/EXCEPT/INTERSECT/UNION ALL/EXCEPT ALL/INTERSECT ALL usages against Postgres" {
   load_fixture easynames.sql
   load_fixture easynames.zwr
-  load_postgres_fixture easynames postgres-easynames.sql
   # Next test with complicated randomly generated queries; Crosscheck Octo output against Postgres
   yottadb -run ^gensetqueries	# this generates a max of 20 queries settest01.sql, settest02.sql ...
   # Run using Octo against each of the generated queries

@@ -13,8 +13,8 @@
 -- Below is to skip the INSERT commands if the table already exists (CREATE TABLE will cause an error and script will exit)
 \set ON_ERROR_STOP on
 
-CREATE TABLE names4 (id INTEGER PRIMARY KEY, firstName CHAR(30), lastName CHAR(30), favoritePasta CHAR(30));
-CREATE TABLE pastas (id INTEGER PRIMARY KEY, pastaName CHAR(30));
+CREATE TABLE names4 (id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName VARCHAR(30), favoritePasta VARCHAR(30));
+CREATE TABLE pastas (id INTEGER PRIMARY KEY, pastaName VARCHAR(30));
 
 INSERT INTO names4 VALUES (0,'Zero','Cool','Pappardelle');
 INSERT INTO names4 VALUES (1,'Acid','Burn','Cavatelli');

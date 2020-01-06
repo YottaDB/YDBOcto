@@ -1,7 +1,7 @@
 %{
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -206,7 +206,7 @@ int copied_so_far;
 		}
 	}
 
-[0-9](\.)?[0-9]* {
+[0-9]*(\.)?[0-9]* {
                 copied_so_far = 0;
                 str_buf_ptr = string_buffer;
                 char *yptr = yytext;

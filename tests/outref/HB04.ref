@@ -146,12 +146,12 @@
 #######################################################################
  productid |           productname            | supplierid | categoryid |         unit         | price  
 -----------+----------------------------------+------------+------------+----------------------+--------
-         1 | Chais                            |          1 |          1 | 10 boxes x 20 bags   | 18
-         2 | Chang                            |          1 |          1 | 24 - 12 oz bottles   | 19
+         1 | Chais                            |          1 |          1 | 10 boxes x 20 bags   |     18
+         2 | Chang                            |          1 |          1 | 24 - 12 oz bottles   |     19
 ...
 ...
-        76 | Lakkalikri                       |         23 |          1 | 500 ml               | 18
-        77 | Original Frankfurter grne Soe    |         12 |          2 | 12 boxes             | 13
+        76 | Lakkalikri                       |         23 |          1 | 500 ml               |     18
+        77 | Original Frankfurter grne Soe    |         12 |          2 | 12 boxes             |     13
 (77 rows)
 
 #######################################################################

@@ -319,7 +319,7 @@ int lp_optimize_where_replace_non_key_equal(LogicalPlan *plan, LogicalPlan *wher
  * Attempts to optimize there WHERE statement which contains nothing but items like
  *   "X = Y AND Y = Z AND Z = A"
  */
-void lp_optimize_where_multi_equal_ands(LogicalPlan *plan, LogicalPlan *where);
+void lp_optimize_where_multi_equal_ands(LogicalPlan *plan, LogicalPlan *where, SqlTableAlias *right_table_alias);
 
 // Returns a unique number within the context of this plan;
 //  maybe not be unique in terms of global numbers

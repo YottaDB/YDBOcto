@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -201,7 +201,33 @@ LogicalPlan *optimize_logical_plan(LogicalPlan *plan) {
 	do {
 		assert(LP_TABLE_JOIN == table_join->type);
 		if (NULL != table_join->extra_detail.lp_table_join.join_on_condition) {
-			lp_optimize_where_multi_equal_ands(plan, table_join->extra_detail.lp_table_join.join_on_condition);
+			LogicalPlan	*insert, *operand0;
+			SqlTableAlias	*right_table_alias;
+
+			/* Note that even an INNER JOIN will have a non-NULL join_on_condition if it is preceded by
+			 * an OUTER JOIN.
+			 */
+			operand0 = table_join->v.lp_default.operand[0];
+			switch(operand0->type) {
+			case LP_TABLE:
+				right_table_alias = operand0->v.lp_table.table_alias;
+				break;
+			case LP_INSERT:
+			case LP_SET_OPERATION:
+				insert = operand0;
+				if (LP_SET_OPERATION == operand0->type) {
+					insert = lp_drill_to_insert(insert);
+					assert(LP_INSERT == insert->type);
+				}
+				right_table_alias = insert->extra_detail.lp_insert.root_table_alias;
+				break;
+			default:
+				assert(FALSE);
+				break;
+			}
+			lp_optimize_where_multi_equal_ands(plan,
+								table_join->extra_detail.lp_table_join.join_on_condition,
+								right_table_alias);
 		}
 		table_join = table_join->v.lp_default.operand[1];
 	} while (NULL != table_join);
@@ -210,7 +236,8 @@ LogicalPlan *optimize_logical_plan(LogicalPlan *plan) {
 	 * Skip it for now.
 	 */
 	if (!num_outer_joins) {
-		lp_optimize_where_multi_equal_ands(plan, where);
+		/* Pass FALSE as last parameter to indicate this is not an OUTER JOIN ON CLAUSE */
+		lp_optimize_where_multi_equal_ands(plan, where, NULL);
 	}
 	return new_plan;
 }

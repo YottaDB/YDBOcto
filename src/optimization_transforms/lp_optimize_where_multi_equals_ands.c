@@ -21,7 +21,8 @@
 
 // Below is a helper function that should be invoked only from this file hence the prototype is defined in the .c file
 // and not in the .h file like is the usual case.
-LogicalPlan *lp_optimize_where_multi_equal_ands_helper(LogicalPlan *plan, LogicalPlan *where, int *key_unique_id_array);
+LogicalPlan *lp_optimize_where_multi_equal_ands_helper(LogicalPlan *plan, LogicalPlan *where, int *key_unique_id_array,
+								SqlTableAlias *right_table_alias);
 
 /**
  * Verifies that the equals statement in equals can be "fixed", which involves checking
@@ -68,7 +69,7 @@ int lp_verify_valid_for_key_fix(LogicalPlan *plan, LogicalPlan *equals) {
 	return TRUE;
 }
 
-void lp_optimize_where_multi_equal_ands(LogicalPlan *plan, LogicalPlan *where) {
+void lp_optimize_where_multi_equal_ands(LogicalPlan *plan, LogicalPlan *where, SqlTableAlias *right_table_alias) {
 	int		*key_unique_id_array;	// keys_unique_id_ordering[unique_id] = index in the ordered list
 	int		max_unique_id;		// 1 more than maximum possible table_id/unique_id
 	int		i;
@@ -97,10 +98,11 @@ void lp_optimize_where_multi_equal_ands(LogicalPlan *plan, LogicalPlan *where) {
 	 * in "lp_optimize_where_multi_equal_ands_helper()".
 	 */
 	assert((LP_WHERE == where->type) && (NULL == where->v.lp_default.operand[1]));
-	lp_optimize_where_multi_equal_ands_helper(plan, where, key_unique_id_array);
+	lp_optimize_where_multi_equal_ands_helper(plan, where, key_unique_id_array, right_table_alias);
 }
 
-LogicalPlan *lp_optimize_where_multi_equal_ands_helper(LogicalPlan *plan, LogicalPlan *where, int *key_unique_id_array) {
+LogicalPlan *lp_optimize_where_multi_equal_ands_helper(LogicalPlan *plan, LogicalPlan *where, int *key_unique_id_array,
+								SqlTableAlias *right_table_alias) {
 	LogicalPlan		*cur, *left, *right, *t, *keys;
 	LogicalPlan		*first_key, *before_first_key, *last_key, *before_last_key, *xref_keys;
 	LogicalPlan		*generated_xref_keys;
@@ -128,9 +130,9 @@ LogicalPlan *lp_optimize_where_multi_equal_ands_helper(LogicalPlan *plan, Logica
 	if (LP_BOOLEAN_AND == cur->type) {
 		LogicalPlan	*new_left, *new_right;
 
-		new_left = lp_optimize_where_multi_equal_ands_helper(plan, left, key_unique_id_array);
+		new_left = lp_optimize_where_multi_equal_ands_helper(plan, left, key_unique_id_array, right_table_alias);
 		cur->v.lp_default.operand[0] = new_left;
-		new_right = lp_optimize_where_multi_equal_ands_helper(plan, right, key_unique_id_array);
+		new_right = lp_optimize_where_multi_equal_ands_helper(plan, right, key_unique_id_array, right_table_alias);
 		cur->v.lp_default.operand[1] = new_right;
 		if (NULL == new_left) {
 			if (LP_WHERE == where->type) {
@@ -213,6 +215,24 @@ LogicalPlan *lp_optimize_where_multi_equal_ands_helper(LogicalPlan *plan, Logica
 			return where;
 		}
 	}
+	/* Check if this is part of a JOIN ON clause (`right_table_alias` variable non-NULL). In this case, we cannot fix the key
+	 * if it corresponds to a column reference i.e. LP_COLUMN_ALIAS (see YDBOcto#426 for examples that fail) from a previous
+	 * table in the join list. But if the key being fixed belongs to the RIGHT side table of this JOIN then it is safe to fix.
+	 * Check that. Note that the key being fixed corresponds to the variable `left` hence the check for `left->type` below.
+	 */
+	if ((NULL != right_table_alias) && (LP_COLUMN_ALIAS == left->type)) {
+		SqlColumnAlias	*column_alias;
+		SqlTableAlias	*column_table_alias;
+
+		column_alias = left->v.lp_column_alias.column_alias;
+		UNPACK_SQL_STATEMENT(column_table_alias, column_alias->table_alias, table_alias);
+		if (column_table_alias != right_table_alias) {
+			/* The column reference being fixed does not belong to the RIGHT side table of OUTER JOIN.
+			 * Cannot fix this. Return unfixed plan as is.
+			 */
+			return where;
+		}
+	}
 	key = lp_get_key(plan, left);
 	// If the left isn't a key, generate a cross reference
 	if (NULL == key) {
@@ -288,8 +308,8 @@ LogicalPlan *lp_optimize_where_multi_equal_ands_helper(LogicalPlan *plan, Logica
 			xref_keys->v.lp_default.operand[1] = before_last_key->v.lp_default.operand[1];
 		}
 	}
-	/* See if we can fix the key. Note that we can't fix keys that are already fixed, or keys that are part of
-	 * a cross reference iteration.
+	/* See if we can fix the key (`left` variable) to `right` variable. Note that we can't fix keys that are already fixed,
+	 * or keys that are part of a cross reference iteration. Hence the `if` check below.
 	 */
 	if ((LP_KEY_ADVANCE == key->type) && (NULL == key->cross_reference_output_key)) {
 		key->fixed_to_value = right;

@@ -1,6 +1,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;								;
-; Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	;
+; Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	;
 ; All rights reserved.						;
 ;								;
 ;	This source code contains the intellectual property	;
@@ -21,16 +21,17 @@ genrandomqueries	;
 	set maxjoins=+$zcmdline
 	set primarykey("customers")="customer_id"
 	set primarykey("orders")="order_id"
-	; Define possible values of columns in customers and orders table (later used by WHERE clause)
-	; Might be used by ON clause in the future too when #311 is fixed ###TMPDISABLE
+	; Define possible values of columns in customers and orders table (later used by ON and/or WHERE clause)
 	set numcolumns("customers")=4
 	set numcolumns("customers",0)="customer_id"
 	set numcolumns("customers",1)="first_name"
 	set numcolumns("customers",2)="last_name"
 	set numcolumns("customers",3)="zipcode"
-	set numcolumns("orders")=2
-	set numcolumns("orders",0)="order_date"
-	set numcolumns("orders",1)="order_amount"
+	set numcolumns("orders")=4
+	set numcolumns("orders",0)="order_id"
+	set numcolumns("orders",1)="order_date"
+	set numcolumns("orders",2)="order_amount"
+	set numcolumns("orders",3)="customer_id"
 	;
 	set numtype("customers","customer_id")=""	; indicates numeric; non-existence implies VARCHAR/CHAR
 	set columns("customers","customer_id",1)=""
@@ -51,6 +52,13 @@ genrandomqueries	;
 	set columns("customers","zipcode","02169")=""
 	set columns("customers","zipcode","22902")=""
 	set columns("customers","zipcode","22960")=""
+	set numtype("orders","order_id")=""	; indicates numeric; non-existence implies VARCHAR/CHAR
+	set columns("orders","order_id",1)=""
+	set columns("orders","order_id",2)=""
+	set columns("orders","order_id",3)=""
+	set columns("orders","order_id",4)=""
+	set columns("orders","order_id",5)=""
+	set columns("orders","order_id",6)=""
 	set columns("orders","order_date","07/04/1776")=""
 	set columns("orders","order_date","03/14/1760")=""
 	set columns("orders","order_date","05/23/1784")=""
@@ -63,6 +71,13 @@ genrandomqueries	;
 	set columns("orders","order_amount","$65.50")=""
 	set columns("orders","order_amount","$25.50")=""
 	set columns("orders","order_amount","$14.40")=""
+	set numtype("orders","customer_id")=""	; indicates numeric; non-existence implies VARCHAR/CHAR
+	set columns("orders","customer_id",1)=""
+	set columns("orders","customer_id",2)=""
+	set columns("orders","customer_id",3)=""
+	set columns("orders","customer_id",9)=""
+	set columns("orders","customer_id",10)=""
+	do initnumvalues	; initialize # of possible values of each table/column combination
 	;
 	set joinstr(0)="inner join"
 	set joinstr(1)="left join"
@@ -94,11 +109,17 @@ genrandomqueries	;
 	. . set:(modulo>0) outerjoinchosen=1
 	. . set sqlquery=sqlquery_" "_joinstr(modulo)_" "_table(i)_" "_tablealias(i)_i
 	. . set:modulo>0 outerjoinchosen=1
-	. . set:modulo=3 fulljoinchosen=1
+	. . if modulo=3 do
+	. . . ; Due to Postgres not supporting arbitrary ON clauses with a FULL JOIN, limit it to a simple one
+	. . . set fulljoinchosen=1
+	. . . set left=tablealias(i-1)_(i-1)_".customer_id"
+	. . . set right=tablealias(i)_(i)_".customer_id"
+	. . else  do
+	. . . ; Not a FULL JOIN so can choose arbitrary ON clause
+	. . . do chooseOnClauseOperands(.left,.right,i)
 	. . set modulo=$random(2)
-	. . set sqlquery=sqlquery_" on "_tablealias(i-1)_(i-1)_".customer_id "_$select(modulo:"!",1:"")
 	. . set:modulo=1 notequalchosen=1
-	. . set sqlquery=sqlquery_"= "_tablealias(i)_(i)_".customer_id"
+	. . set sqlquery=sqlquery_" on "_left_$select(modulo:"!",1:"")_" = "_right
 	. ; Add optional WHERE
 	. if ('outerjoinchosen)&$random(2) do 	; ###TMPDISABLE Remove ('outerjoinchosen) once #311 is fixed
 	. .					; The reason is that WHERE clause can generate comparisons e.g. x < y
@@ -122,11 +143,11 @@ genrandomqueries	;
 	. ; and hence we cannot reliably get the test to pass.
 	. ; Also can only do this if the # of columns selected for ORDER BY is the same as the # of SELECT columns
 	. ; Or else the order of row output could differ in the columns that are not selected.
-	. set limit=$random(2)
-	. if limit do
+	. set limit=$random(4)
+	. if 'limit do
 	. . set sqlquery=sqlquery_" limit "_$random(10)
 	. set sqlquery=sqlquery_";"
-	. set exactcheck=('limit)!(orderby&(numorderbycols=numcols))
+	. set exactcheck=(limit)!(orderby&(numorderbycols=numcols))
 	. ; The below if check is because postgres issues the following error in this case
 	. ;	--> ERROR:  FULL JOIN is only supported with merge-joinable or hash-joinable join conditions
 	. quit:fulljoinchosen&notequalchosen
@@ -162,3 +183,89 @@ boolexpr(maxdepth)
 	for d=2:1:depth set boolstr=boolstr_" "_oper_" "_$$boolexpr(maxdepth-1)
 	quit boolstr
 	;
+chooseOnClauseOperands(left,right,i)
+	; left is LEFT operand of ON clause that we need to fill in
+	; right is RIGHT operand of ON clause that we need to fill in
+	; i is loop index indicating which join we are right now at (i can range from 2 to `numjoins`)
+	;
+	new rand
+	set rand=$random(16)
+	; Randomly (with 1/16 probability) choose both sides to be literals.
+	if 0=rand do  quit
+	. if $random(2) do
+	. .	; choose literals that are not equal to each other
+	. .	set left="1",right="2"
+	. else  do
+	. .	; choose literals that are equal to each other
+	. .	set left="1",right="1"
+	; Randomly (with 3/16 probability) choose one side to be a literal and one side to be a column reference.
+	if 4>rand do  quit
+	. ; choose column reference randomly from available tables till `i`th index
+	. new t,col,ncol,colref,colname,lit,delim
+	. set t=1+$random(i)
+	. set col=tablealias(t)_t
+	. set ncol=$random(numcolumns(table(t))),colname=numcolumns(table(t),ncol)
+	. set colref=tablealias(t)_t_"."_colname
+	. ; choose literal based on the chosen column reference
+	. set lit=value(table(t),colname,1+$random(value(table(t),colname)))
+	. set delim=$select($data(numtype(table(t),colname)):"",1:"'")
+	. set lit=delim_lit_delim
+	. ; choose literal position (in left or right) randomly
+	. if $random(2) do
+	. . set left=colref,right=lit
+	. else  do
+	. . set left=lit,right=colref
+	; Randomly (with 8/16 probability) choose both sides to be column references.
+	; Choose one column reference randomly from available tables till `i`th index.
+	new t1,t2,col,ncol,colref1,colref2,colname
+	set t1=1+$random(i)
+	set col=tablealias(t1)_t1
+	set ncol=$random(numcolumns(table(t1))),colname=numcolumns(table(t1),ncol)
+	set colref1=tablealias(t1)_t1_"."_colname
+	; Choose second column reference randomly from available tables till `i`th index.
+	if "customer_id"=colname  do
+	. ; If `customer_id` is chosen column in first table, then second table can be arbitrarily chosen as it is guaranteed
+	. ; to have a `customer_id` column.
+	. set t2=1+$random(i)
+	. ; If the ON clause contains two column references neither of which belongs to the current table, then a query like
+	. ; `... FULL JOIN orders o2 ON c1.customer_id = o2.customer_id RIGHT JOIN orders o3 ON o2.order_id = o2.order_id`
+	. ; will return incorrect results since `o2.order_id = o2.order_id` check of the last ON clause can be comparing
+	. ; NULL values (possible because o2 is part of a FULL JOIN) which currently returns incorrect results and needs to
+	. ; wait for #311 to be fixed. Until that is fixed, have the following line. Remove it once that is fixed.
+	. ; If at least one of the column references belongs to the current table, then we do not have that issue so
+	. ; ensure that is the case below until #311 is fixed.
+	. set:(t2'=i) t2=i	; ###TMPDISABLE. Remove this line when #311 is fixed.
+	. set col=tablealias(t2)_t2
+	. set colref2=tablealias(t2)_t2_"."_"customer_id"
+	else  do
+	. ; Chosen column in first table is not `customer_id`. In that case, the same column has to be chosen in the
+	. ; second table too. And that second table has to match the tablename of the first table even though its index
+	. ; could be different (same table name could be chosen for multiple tables in the N-way join list).
+	. new j,matchnum
+	. ; ----------------------------------------------------------------------------------------------------
+	. ; Choose last table column temporarily to work around #311 issue described in `if` code block above.
+	. ; Remove below block of code once #311 is fixed. ###TMPDISABLE
+	. set:(t1'=i) t1=i
+	. set col=tablealias(t1)_t1
+	. set ncol=$random(numcolumns(table(t1))),colname=numcolumns(table(t1),ncol)
+	. set colref1=tablealias(t1)_t1_"."_colname
+	. ; ----------------------------------------------------------------------------------------------------
+	. for j=1:1:i if tablealias(j)=tablealias(t1) set matchnum($increment(matchnum))=j
+	. set t2=1+$random(matchnum)
+	. set colref2=tablealias(matchnum(t2))_matchnum(t2)_"."_colname
+	; choose column reference position (in left or right) randomly
+	if $random(2) do
+	. set left=colref1,right=colref2
+	else  do
+	. set left=colref2,right=colref1
+	quit
+
+initnumvalues;
+	new tablename,columnname,numvalues
+	set tablename="" for  set tablename=$order(columns(tablename))  quit:tablename=""  do
+	. set columnname="" for  set columnname=$order(columns(tablename,columnname))  quit:columnname=""  do
+	. . set numvalues=0,value="" for  set value=$order(columns(tablename,columnname,value))  quit:value=""  do
+	. . . if $increment(numvalues)
+	. . . set value(tablename,columnname,numvalues)=value
+	. . set value(tablename,columnname)=numvalues
+	quit

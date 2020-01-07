@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -46,8 +46,12 @@ setup() {
   verify_output TJOC05 output.txt noinfo nodebug
 }
 
-@test "TJOCO6 : OCTO393 : <Unknown column> error when valid column name alias from parent query is used in ON clause of sub-query" {
+@test "TJOC06 : OCTO393 : <Unknown column> error when valid column name alias from parent query is used in ON clause of sub-query" {
   load_fixture TJOC06.sql subtest novv
   verify_output TJOC06 output.txt noinfo nodebug
+}
+
+@test "TJOC07 : OCTO426 : Incorrect results from LEFT/RIGHT/FULL JOIN if ON clause has = or IN operator" {
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries customers TJOC07.sql "remove_empty_line_at_tail"
 }
 

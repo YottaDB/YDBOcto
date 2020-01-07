@@ -62,3 +62,7 @@ setup() {
   run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TSS08.sql "remove_empty_line_at_tail"
 }
 
+@test "TSS09 : OCTO428 : Assert failure when sub-queries and SET operations are used in same query" {
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TSS09.sql "remove_empty_line_at_tail"
+}
+

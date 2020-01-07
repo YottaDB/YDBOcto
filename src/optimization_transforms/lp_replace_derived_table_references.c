@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -30,6 +30,7 @@ LogicalPlan *lp_replace_derived_table_references(LogicalPlan *root, SqlTableAlia
 	LogicalPlan	*table_join;
 	LogicalPlan	*select, *criteria, *select_options, *select_more_options, *aggregate_options;
 
+	assert(LP_INSERT == root->type);
 	select = lp_get_select(root);
 	GET_LP(criteria, select, 1, LP_CRITERIA);
 	GET_LP(select_options, criteria, 1, LP_SELECT_OPTIONS);
@@ -82,6 +83,7 @@ LogicalPlan *lp_replace_derived_table_references(LogicalPlan *root, SqlTableAlia
 LogicalPlan *lp_replace_helper(LogicalPlan *plan, SqlTableAlias *table_alias, SqlKey *key) {
 	SqlColumnAlias	*alias;
 	LogicalPlan	*ret;
+	LogicalPlan	*set_plans;
 
 	if (NULL == plan)
 		return NULL;
@@ -106,8 +108,12 @@ LogicalPlan *lp_replace_helper(LogicalPlan *plan, SqlTableAlias *table_alias, Sq
 		ret->v.lp_default.operand[0] = lp_replace_helper(plan->v.lp_default.operand[0], table_alias, key);
 		break;
 	case LP_INSERT:
-	case LP_SET_OPERATION:
 		lp_replace_derived_table_references(plan, table_alias, key);
+		break;
+	case LP_SET_OPERATION:
+		GET_LP(set_plans, plan, 1, LP_PLANS);
+		lp_replace_helper(set_plans->v.lp_default.operand[0], table_alias, key);
+		lp_replace_helper(set_plans->v.lp_default.operand[1], table_alias, key);
 		break;
 	case LP_VALUE:
 	case LP_DERIVED_COLUMN:

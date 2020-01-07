@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -151,11 +151,15 @@ PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlanOptions *opt
 		}
 		type = table_joins->v.lp_default.operand[0]->type;
 		if ((LP_INSERT == type) || (LP_SET_OPERATION == type)) {
-			PhysicalPlan	*ret;
+			PhysicalPlan		*ret;
+			PhysicalPlanOptions	tmp_options;
 
+			/* This is a fresh sub-query start so do not inherit any DNF context from parent query. */
+			tmp_options = plan_options;
+			tmp_options.dnf_plan_next = NULL;
 			// This is a sub plan, and should be inserted as prev
 			GET_LP(insert_or_set_operation, table_joins, 0, type);
-			ret = generate_physical_plan(insert_or_set_operation, &plan_options);
+			ret = generate_physical_plan(insert_or_set_operation, &tmp_options);
 			if (NULL == ret) {
 				return NULL;
 			}
@@ -330,8 +334,11 @@ LogicalPlan *sub_query_check_and_generate_physical_plan(PhysicalPlanOptions *opt
 			break;
 		case LP_INSERT:
 		case LP_SET_OPERATION:
-			// Generate a separate physical plan for this sub-query.
+			/* Generate a separate physical plan for this sub-query.
+			 * This is a fresh sub-query start so do not inherit any DNF context from parent query.
+			 */
 			plan_options = *options;
+			plan_options.dnf_plan_next = NULL;
 			plan_options.stash_columns_in_keys = TRUE;
 			new_plan = generate_physical_plan(stmt, &plan_options);
 			if (NULL == new_plan) {
@@ -394,3 +401,4 @@ LogicalPlan *sub_query_check_and_generate_physical_plan(PhysicalPlanOptions *opt
 	}
 	return stmt;
 }
+

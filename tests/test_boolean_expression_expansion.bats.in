@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -38,4 +38,8 @@ setup() {
   load_fixture customers.zwr
   load_fixture TBEE03.sql subtest novv
   verify_output TBEE03 output.txt
+}
+
+@test "TBEE04 : OCTO427 : Assert failure when sub-query and outer query both have OR conditions with = operator" {
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TBEE04.sql "remove_empty_line_at_tail"
 }

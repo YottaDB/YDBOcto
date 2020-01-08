@@ -209,7 +209,6 @@ PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlanOptions *opt
 		 * would have been missed out in case the keys for those had been fixed to keys from parent queries (see
 		 * comment above "lp_get_select_where()" function call in "lp_optimize_where_multi_equal_ands_helper()").
 		 */
-		sub_query_check_and_generate_physical_plan(&plan_options, where->v.lp_default.operand[1]);
 		where->v.lp_default.operand[1] = NULL;	/* Discard alternate list now that its purpose is served */
 	}
 	/* See if there are any sub-queries in the SELECT column list. If so, generate separate physical plans
@@ -288,33 +287,55 @@ LogicalPlan *sub_query_check_and_generate_physical_plan(PhysicalPlanOptions *opt
 		stmt->v.lp_default.operand[0] = sub_query_check_and_generate_physical_plan(options, stmt->v.lp_default.operand[0]);
 	} else {
 		PhysicalPlanOptions	plan_options;
-		PhysicalPlan		*cur, *out;
+		PhysicalPlan		*cur;
 		SqlTableAlias		*table_alias;
+		SqlColumnAlias		*column_alias;
 		PhysicalPlan		*new_plan;
-		LogicalPlan		*plan;
+		LogicalPlan		*plan, *oper1;
+		int			unique_id;
 
 		switch(stmt->type) {
 		case LP_KEY:
-			/* No action */
-			break;
-		case LP_DERIVED_COLUMN:
 			/* No action */
 			break;
 		case LP_WHERE:
 		case LP_HAVING:
 			stmt->v.lp_default.operand[0]
 				= sub_query_check_and_generate_physical_plan(options, stmt->v.lp_default.operand[0]);
+			if (LP_HAVING == stmt->type) {
+				break;
+			}
+			assert(LP_WHERE == stmt->type);
+			oper1 = stmt->v.lp_default.operand[1];
+			if ((NULL != oper1) && (LP_COLUMN_LIST_ALIAS != oper1->type)) {
+				/* Note that it is possible we have `operand[1]` set to a non-NULL value for a LP_WHERE.
+				 * In this case, this is the alternate list that "lp_optimize_where_multi_equal_ands_helper()"
+				 * built that needs to also be checked for sub-queries.
+				 */
+				stmt->v.lp_default.operand[1]
+					= sub_query_check_and_generate_physical_plan(options, stmt->v.lp_default.operand[1]);
+			}
 			break;
+		case LP_DERIVED_COLUMN:
 		case LP_COLUMN_ALIAS:
 			// Check if this value is a parent reference; if so, mark this as deferred
-			out = options->parent;
-			cur = out;
-			UNPACK_SQL_STATEMENT(table_alias, stmt->v.lp_column_alias.column_alias->table_alias, table_alias);
+			cur = options->parent;
+			if (LP_COLUMN_ALIAS == stmt->type) {
+				column_alias = stmt->v.lp_column_alias.column_alias;
+				UNPACK_SQL_STATEMENT(table_alias, column_alias->table_alias, table_alias);
+				unique_id = table_alias->unique_id;
+			} else {
+				LogicalPlan	*output_key;
+
+				assert(LP_DERIVED_COLUMN == stmt->type);
+				GET_LP(output_key, stmt, 0, LP_KEY);
+				unique_id = output_key->v.lp_key.key->unique_id;
+			}
 			while (cur) {
 				unsigned int	iter_key_index;
 
-				for (iter_key_index = 0; iter_key_index < out->total_iter_keys; iter_key_index++) {
-					if (cur->iterKeys[iter_key_index]->unique_id == table_alias->unique_id) {
+				for (iter_key_index = 0; iter_key_index < cur->total_iter_keys; iter_key_index++) {
+					if (cur->iterKeys[iter_key_index]->unique_id == unique_id) {
 						break;
 					}
 				}

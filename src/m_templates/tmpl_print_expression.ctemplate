@@ -33,7 +33,7 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 	LogicalPlan	*key, *piece_num, *cur_plan, *branch_value, *cas_value, *condition;
 	LogicalPlan	*cur_branch, *default_value;
 	LogicalPlan	*first_operand, *second_operand, *t_operand;
-	LogicalPlan	*cur_lp_key;
+	LogicalPlan	*cur_lp_key, *derived_column;
 	boolean_t	split_m_line;
 
 	assert(NULL != plan);
@@ -120,7 +120,15 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 		%{}),"|",{{ piece_num->v.lp_piece_number.piece_number|%d }})){}%
 		break;
 	case LP_COLUMN_ALIAS:
-		TMPL(tmpl_column_reference, pplan, plan->v.lp_column_alias.column_alias);
+		/* Check if this LP_COLUMN_ALIAS was later replaced by a LP_DERIVED_COLUMN.
+		 * If so generate code for the latter.
+		 */
+		derived_column = plan->extra_detail.lp_column_alias.derived_column;
+		if (NULL != derived_column) {
+			TMPL(tmpl_print_expression, derived_column, pplan, dot_count, depth);
+		} else {
+			TMPL(tmpl_column_reference, pplan, plan->v.lp_column_alias.column_alias);
+		}
 		break;
 	case LP_KEY:
 		TMPL(tmpl_key, plan->v.lp_key.key);

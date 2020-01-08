@@ -288,7 +288,12 @@ LogicalPlan *lp_optimize_where_multi_equal_ands_helper(LogicalPlan *plan, Logica
 			xref_keys->v.lp_default.operand[1] = before_last_key->v.lp_default.operand[1];
 		}
 	}
-	if (lp_opt_fix_key_to_const(plan, key, right)) {
+	/* See if we can fix the key. Note that we can't fix keys that are already fixed, or keys that are part of
+	 * a cross reference iteration.
+	 */
+	if ((LP_KEY_ADVANCE == key->type) && (NULL == key->cross_reference_output_key)) {
+		key->fixed_to_value = right;
+		key->type = LP_KEY_FIX;
 		/* Now that a key has been fixed to a constant (or another key), eliminate this LP_BOOLEAN_EQUALS from the
 		 * WHERE expression as it will otherwise result in a redundant IF check in the generated M code. There is
 		 * a subtlety involved with keys from parent queries which is handled below.

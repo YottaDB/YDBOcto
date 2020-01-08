@@ -174,7 +174,6 @@ add_library(libocto OBJECT
   optimization_transforms/lp_join_where.c
   optimization_transforms/lp_make_key.c
   optimization_transforms/lp_make_normal_disjunctive_form.c
-  optimization_transforms/lp_opt_fix_key_to_const.c
   optimization_transforms/lp_optimize_where_multi_equals_ands.c
   optimization_transforms/lp_replace_derived_table_references.c
   optimization_transforms/lp_verify_structure.c

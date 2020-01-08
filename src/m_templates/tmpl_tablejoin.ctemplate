@@ -59,12 +59,12 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *plan, LogicalPlan *tablejoin, unsigned in
 		 * And do not include cross-reference keys. Only primary-keys. This is because we want
 		 * to include ALL rows from the right table for the RIGHT JOIN.
 		 */
-		if (key->value && !right_join_second_half) {
+		if ((NULL != key->fixed_to_value) && !right_join_second_half) {
 			TMPL(tmpl_print_dots, dot_count);
 			%{}SET {}%
 			TMPL(tmpl_key, key);
 			%{}={}%
-			TMPL(tmpl_print_expression, key->value, plan, 0, 0);
+			TMPL(tmpl_print_expression, key->fixed_to_value, plan, 0, 0);
 			%{} IF ($DATA({}%
 			TMPL(tmpl_key_source, plan, key);
 			%{})'=0){}%

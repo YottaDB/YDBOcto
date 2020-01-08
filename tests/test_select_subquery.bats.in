@@ -70,3 +70,11 @@ setup() {
   run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TSS10.sql "remove_empty_line_at_tail"
 }
 
+@test "TSS11 : OCTO430 : <Problem resolving owner for deferred plan; undefined behavior> error when inherited sub-query column is used in another sub-query" {
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TSS11.sql "remove_empty_line_at_tail"
+}
+
+@test "TSS12 : OCTO431 : SIG-11 when inherited sub-query column is used in another sub-query that contains an OR operator" {
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TSS12.sql "remove_empty_line_at_tail"
+}
+

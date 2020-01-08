@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -198,7 +198,7 @@ int emit_plan_helper(char *buffer, size_t buffer_len, int depth, LogicalPlan *pl
 								key->cross_reference_output_key ? "true" : "false");
 		if (LP_KEY_FIX == key->type) {
 			SAFE_SNPRINTF(written, buff_ptr, buffer, buffer_len, "%*s- value:\n", depth, "");
-			buff_ptr += emit_plan_helper(buff_ptr, buffer_len - (buff_ptr - buffer), depth + 4, key->value);
+			buff_ptr += emit_plan_helper(buff_ptr, buffer_len - (buff_ptr - buffer), depth + 4, key->fixed_to_value);
 		}
 		break;
 	case LP_COLUMN_LIST:

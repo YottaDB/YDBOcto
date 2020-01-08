@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -124,6 +124,13 @@ typedef struct LpExtraInsert {
 	struct LogicalPlan	*first_aggregate;
 } LpExtraInsert;
 
+/* Extra fields needed by LP_COLUMN_ALIAS */
+typedef struct LpExtraColumnAlias {
+	struct LogicalPlan	*derived_column;	/* The LP_DERIVED_COLUMN plan corresponding to this LP_COLUMN_ALIAS
+							 * if one exists. Otherwise this is NULL.
+							 */
+} LpExtraColumnAlias;
+
 /* Extra fields needed by LP_DERIVED_COLUMN */
 typedef struct LpExtraDerivedColumn {
 	SqlColumnAlias		*subquery_column_alias;	/* The original SqlColumnAlias structure (in the LP_COLUMN_ALIAS plan)
@@ -166,8 +173,9 @@ typedef struct LogicalPlan {
 		LpExtraOrderBy			lp_order_by;		// To be used if type == LP_ORDER_BY
 		LpExtraWhere			lp_where;		// To be used if type == LP_WHERE
 		LpExtraInsert			lp_insert;		// To be used if type == LP_INSERT
+		LpExtraColumnAlias		lp_column_alias;	// To be used if type == LP_COLUMN_ALIAS
 		LpExtraDerivedColumn		lp_derived_column;	// To be used if type == LP_DERIVED_COLUMN
-		LpExtraAggregateFunction	lp_aggregate_function;	// To be used if type == LP_DERIVED_COLUMN
+		LpExtraAggregateFunction	lp_aggregate_function;	// To be used if type == LP_AGGREGATE_*
 	} extra_detail;
 } LogicalPlan;
 
@@ -177,7 +185,7 @@ typedef struct SqlKey {
 	int			key_num;
 	int			unique_id;
 	// If this key is fixed, this is the value
-	LogicalPlan		*value;
+	LogicalPlan		*fixed_to_value;
 	// The only relevant types are KEY_FIXED, KEY_ADVANCE
 	LPActionType		type;
 	// Table that owns this key; used to extract key from plan
@@ -316,8 +324,5 @@ void lp_optimize_where_multi_equal_ands(LogicalPlan *plan, LogicalPlan *where);
 // Returns a unique number within the context of this plan;
 //  maybe not be unique in terms of global numbers
 int get_plan_unique_number(LogicalPlan *plan);
-
-// Optimization routines
-int lp_opt_fix_key_to_const(LogicalPlan *root, SqlKey *key, LogicalPlan *value);
 
 #endif

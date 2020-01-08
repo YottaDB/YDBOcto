@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -124,12 +124,12 @@ int lp_verify_structure_helper(LogicalPlan *plan, LogicalPlan **aggregate, LPAct
 	case LP_KEY_FIX:
 		ret = !((NULL == plan->v.lp_default.operand[0]) || (NULL != plan->v.lp_default.operand[1])
 				|| (NULL == plan->v.lp_default.operand[0]->v.lp_key.key)
-				|| (NULL == plan->v.lp_default.operand[0]->v.lp_key.key->value));
+				|| (NULL == plan->v.lp_default.operand[0]->v.lp_key.key->fixed_to_value));
 		break;
 	case LP_KEY_ADVANCE:
 		ret = !((NULL == plan->v.lp_default.operand[0]) || (NULL != plan->v.lp_default.operand[1])
 				|| (NULL == plan->v.lp_default.operand[0]->v.lp_key.key)
-				|| (NULL != plan->v.lp_default.operand[0]->v.lp_key.key->value)
+				|| (NULL != plan->v.lp_default.operand[0]->v.lp_key.key->fixed_to_value)
 				|| (NULL == plan->v.lp_default.operand[0]->v.lp_key.key->column));
 		break;
 	case LP_SELECT_OPTIONS:

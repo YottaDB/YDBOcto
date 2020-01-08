@@ -35,7 +35,7 @@ LogicalPlan *lp_replace_derived_table_references(LogicalPlan *root, SqlTableAlia
 	GET_LP(criteria, select, 1, LP_CRITERIA);
 	GET_LP(select_options, criteria, 1, LP_SELECT_OPTIONS);
 	GET_LP(t, select_options, 0, LP_WHERE);
-	t->v.lp_default.operand[0] = lp_replace_helper(t->v.lp_default.operand[0], table_alias, key);
+	lp_replace_helper(t, table_alias, key);
 	t = lp_get_project(root);
 	t->v.lp_default.operand[0] = lp_replace_helper(t->v.lp_default.operand[0], table_alias, key);
 	// Make sure to update table references in ORDER BY clause
@@ -82,7 +82,7 @@ LogicalPlan *lp_replace_derived_table_references(LogicalPlan *root, SqlTableAlia
 
 LogicalPlan *lp_replace_helper(LogicalPlan *plan, SqlTableAlias *table_alias, SqlKey *key) {
 	SqlColumnAlias	*alias;
-	LogicalPlan	*ret;
+	LogicalPlan	*ret, *oper1;
 	LogicalPlan	*set_plans;
 
 	if (NULL == plan)
@@ -102,10 +102,22 @@ LogicalPlan *lp_replace_helper(LogicalPlan *plan, SqlTableAlias *table_alias, Sq
 			ret->v.lp_default.operand[1]->v.lp_piece_number.piece_number = part;
 			/* Note down sub-query SqlColumnAlias to later retrieve type information of this column */
 			ret->extra_detail.lp_derived_column.subquery_column_alias = alias;
+			/* Note down pointer to LP_DERIVED_COLUMN in the LP_COLUMN_ALIAS (needed later by template files
+			 * to generate correct M code)
+			 */
+			plan->extra_detail.lp_column_alias.derived_column = ret;
 		}
 		break;
 	case LP_WHERE:
 		ret->v.lp_default.operand[0] = lp_replace_helper(plan->v.lp_default.operand[0], table_alias, key);
+		oper1 = plan->v.lp_default.operand[1];
+		if ((NULL != oper1) && (LP_COLUMN_LIST_ALIAS != oper1->type)) {
+			/* Note that it is possible we have `operand[1]` set to a non-NULL value for a LP_WHERE.
+			 * In this case, this is the alternate list that "lp_optimize_where_multi_equal_ands_helper()"
+			 * built that needs to also be checked for derived table references.
+			 */
+			ret->v.lp_default.operand[1] = lp_replace_helper(plan->v.lp_default.operand[1], table_alias, key);
+		}
 		break;
 	case LP_INSERT:
 		lp_replace_derived_table_references(plan, table_alias, key);

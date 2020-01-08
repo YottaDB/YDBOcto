@@ -66,3 +66,7 @@ setup() {
   run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TSS09.sql "remove_empty_line_at_tail"
 }
 
+@test "TSS10 : OCTO429 : Incorrect results when sub-queries with OR operators are used in WHERE clause of outer query with OR operators" {
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TSS10.sql "remove_empty_line_at_tail"
+}
+

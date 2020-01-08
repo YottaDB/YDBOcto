@@ -278,10 +278,12 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
 	}
 	if (NULL == plan->dnf_next) {
 		if (plan->emit_duplication_check) {
-			%{}`n{{ PLAN_LINE_START }}KILL %%ydboctocursor(cursorId,{{ DUPLICATE_SUBSCRIPT }}){}%
+			%{}`n{{ PLAN_LINE_START }}{}%
+			%{}KILL %%ydboctocursor(cursorId,{{ DUPLICATE_SUBSCRIPT }},{{ plan->outputKey->unique_id|%d }}){}%
 		}
 		if (plan->distinct_values) {
-			%{}`n{{ PLAN_LINE_START }}KILL %%ydboctocursor(cursorId,{{ DISTINCT_SUBSCRIPT }}){}%
+			%{}`n{{ PLAN_LINE_START }}{}%
+			%{}KILL %%ydboctocursor(cursorId,{{ DISTINCT_SUBSCRIPT }}){}%
 		}
 	}
 	set_oper = plan->set_oper_list;

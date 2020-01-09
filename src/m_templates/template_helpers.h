@@ -51,8 +51,6 @@
  */
 #define	ORDER_BY_SUBSCRIPT	"\"OrderBy\""
 #define	GROUP_BY_SUBSCRIPT	"\"GroupBy\""
-#define	DISTINCT_SUBSCRIPT	"\"Distinct\""
-#define	DUPLICATE_SUBSCRIPT	"\"dupl\""
 #define	PLAN_LINE_START		"    "		/* 4 spaces start an M line in the generated plan */
 
 enum EmitSourceForm {

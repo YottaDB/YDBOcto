@@ -105,8 +105,7 @@ TEMPLATE(tmpl_populate_output_key, PhysicalPlan *plan, int dot_count) {
 		%{}`n{{ PLAN_LINE_START }}{}%
 		TMPL(tmpl_print_dots, dot_count);
 		%{}SET:1{}%
-
-		%{} {{ config->global_names.cursor }}(cursorId,{{ DISTINCT_SUBSCRIPT }},{}%
+		%{} %%ydboctozdistinct({{ plan->outputKey->unique_id|%d }},{}%
 		TMPL(tmpl_column_list_combine, plan->projection, plan, ",", 0, 0, 0);
 		%{})=""{}%
 	}

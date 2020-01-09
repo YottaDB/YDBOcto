@@ -27,10 +27,10 @@ octoPlan1(cursorId)
     . SET %ydboctocursor(cursorId,"keys",2,"NAMES","ID")=""
     . FOR  SET %ydboctocursor(cursorId,"keys",2,"NAMES","ID")=$ORDER(^%ydboctoxref("NAMES","FIRSTNAME",%ydboctocursor(cursorId,"keys",2,"NAMES","FIRSTNAME"),%ydboctocursor(cursorId,"keys",2,"NAMES","ID"))) QUIT:(%ydboctocursor(cursorId,"keys",2,"NAMES","ID")="")  DO
     . . NEW %ydboctobool SET %ydboctobool=1
-    . . SET %ydboctobool=%ydboctobool&('$DATA(%ydboctocursor(cursorId,"dupl",5,%ydboctocursor(cursorId,"keys",2,"NAMES","ID"))))
+    . . SET %ydboctobool=%ydboctobool&('$DATA(%ydboctozduplicate(5,%ydboctocursor(cursorId,"keys",2,"NAMES","ID"))))
     . . IF %ydboctobool DO
     . . . IF $INCREMENT(%ydboctocursor(cursorId,"keys",5,"","",%ydboctocursor(cursorId,"keys",2,"NAMES","FIRSTNAME")))
-    . . . SET %ydboctocursor(cursorId,"dupl",5,%ydboctocursor(cursorId,"keys",2,"NAMES","ID"))=1
+    . . . SET %ydboctozduplicate(5,%ydboctocursor(cursorId,"keys",2,"NAMES","ID"))=1
     QUIT
 
 octoPlan2(cursorId)
@@ -40,11 +40,11 @@ octoPlan2(cursorId)
     . SET %ydboctocursor(cursorId,"keys",2,"NAMES","ID")=""
     . FOR  SET %ydboctocursor(cursorId,"keys",2,"NAMES","ID")=$ORDER(^%ydboctoxref("NAMES","FIRSTNAME",%ydboctocursor(cursorId,"keys",2,"NAMES","FIRSTNAME"),%ydboctocursor(cursorId,"keys",2,"NAMES","ID"))) QUIT:(%ydboctocursor(cursorId,"keys",2,"NAMES","ID")="")  DO
     . . NEW %ydboctobool SET %ydboctobool=1
-    . . SET %ydboctobool=%ydboctobool&('$DATA(%ydboctocursor(cursorId,"dupl",5,%ydboctocursor(cursorId,"keys",2,"NAMES","ID"))))
+    . . SET %ydboctobool=%ydboctobool&('$DATA(%ydboctozduplicate(5,%ydboctocursor(cursorId,"keys",2,"NAMES","ID"))))
     . . IF %ydboctobool DO
     . . . IF $INCREMENT(%ydboctocursor(cursorId,"keys",5,"","",%ydboctocursor(cursorId,"keys",2,"NAMES","FIRSTNAME")))
-    . . . SET %ydboctocursor(cursorId,"dupl",5,%ydboctocursor(cursorId,"keys",2,"NAMES","ID"))=1
-    KILL %ydboctocursor(cursorId,"dupl",5)
+    . . . SET %ydboctozduplicate(5,%ydboctocursor(cursorId,"keys",2,"NAMES","ID"))=1
+    KILL %ydboctozduplicate(5)
     QUIT
 
 octoPlan3(cursorId)

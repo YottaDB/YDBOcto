@@ -279,7 +279,7 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
 	if (NULL == plan->dnf_next) {
 		if (plan->emit_duplication_check) {
 			%{}`n{{ PLAN_LINE_START }}{}%
-			%{}KILL %%ydboctocursor(cursorId,{{ DUPLICATE_SUBSCRIPT }},{{ plan->outputKey->unique_id|%d }}){}%
+			%{}KILL %%ydboctozduplicate({{ plan->outputKey->unique_id|%d }}){}%
 		}
 		if (NULL != limit_keyword) {
 			%{}`n{{ PLAN_LINE_START }}{}%
@@ -287,7 +287,7 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
 		}
 		if (plan->distinct_values) {
 			%{}`n{{ PLAN_LINE_START }}{}%
-			%{}KILL %%ydboctocursor(cursorId,{{ DISTINCT_SUBSCRIPT }}){}%
+			%{}KILL %%ydboctozdistinct({{ plan->outputKey->unique_id|%d }}){}%
 		}
 	}
 	set_oper = plan->set_oper_list;

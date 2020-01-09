@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2020 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -26,3 +26,8 @@ setup() {
 @test "TSD02 : OCTO396 : LVUNDEF error when SELECT DISTINCT used in sub-query in EXISTS operator" {
   run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TSD02.sql "remove_empty_line_at_tail"
 }
+
+@test "TSD03 : OCTO434 : DISTINCT in sub-query and outer-query returns duplicate rows if outer query WHERE clause has OR conditions that match the same row" {
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TSD03.sql "remove_empty_line_at_tail"
+}
+

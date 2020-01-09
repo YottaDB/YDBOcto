@@ -1,0 +1,18 @@
+
+-- TL05 : Simple LIMIT tests
+
+-- select with limit of one row
+select * from names limit 1;
+
+-- select with limit of one row from nested query
+select * from (select * from names limit 1);
+
+-- select with limit of one on outer statement of join
+select * from names n1 INNER JOIN names n2 ON (n1.id = n2.id) WHERE n1.firstName = 'Joey' LIMIT 1;
+select * from names n1 INNER JOIN names n2 ON (n1.id = n2.id) WHERE n1.firstName > 'Cereal' LIMIT 1;
+
+0|Zero|Cool
+0|Zero|Cool
+4|Joey||4|Joey|
+0|Zero|Cool|0|Zero|Cool
+

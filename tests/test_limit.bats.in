@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -17,30 +17,6 @@ setup() {
   createdb
   load_fixture names.sql
   load_fixture names.zwr
-}
-
-@test "select with limit of one row" {
-  octo >& output.txt <<OCTO
-select * from names limit 1;
-OCTO
-  run cat output.txt
-  ! [[ "$output" =~ "1|Acid|Burn" ]]
-}
-
-@test "select with limit of one row from nested query" {
-  octo >& output.txt <<OCTO
-select * from (select * from names limit 1);
-OCTO
-  run cat output.txt
-  ! [[ "$output" =~ "1|Acid|Burn" ]]
-}
-@test "select with limit of one on outer statement of join" {
-  octo >& output.txt <<OCTO
-select * from names n1 INNER JOIN names n2 ON (n1.id = n2.id) WHERE n1.firstName = "Joey" LIMIT 1;
-OCTO
-  run cat output.txt
-  ! [[ "$output" =~ "1|Acid|Burn" ]]
-  [[ "$output" =~ "Joey" ]]
 }
 
 @test "TL01 : OCTO321 : LIMIT returns more rows than requested if there is a WHERE clause with OR usages" {
@@ -78,12 +54,21 @@ CAT
   verify_output TL03 output.txt
 }
 
-@test "OCTO269b : Verify simple queries with UNION usages and optional ORDER BY and optional LIMIT usages" {
+@test "TL04 : OCTO269b : Verify simple queries with UNION usages and optional ORDER BY and optional LIMIT usages" {
   # First test against simple fixed queries; Crosscheck Octo output with Postgres
   yottadb -run genfixedsetqueries^gensetqueries # this generates queries of the form setquery01.sql, setquery02.sql ...
   for file in setquery*.sql
   do
     run_query_in_octo_and_postgres_and_crosscheck names $file "remove_empty_line_at_tail"
   done
+}
+
+@test "TL05 : Simple LIMIT tests" {
+  load_fixture TL05.sql subtest novv
+  verify_output TL05 output.txt
+}
+
+@test "TL06 : OCTO433 : LIMIT in sub-query causes LIMIT in outer query with OR/IN operator in WHERE clause to return more rows than expected" {
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TL06.sql "remove_empty_line_at_tail"
 }
 

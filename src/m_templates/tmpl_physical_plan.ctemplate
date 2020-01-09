@@ -162,7 +162,7 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
 	%{}NEW %%ydboctoz{}%
 	limit_keyword = get_keyword_from_keywords(plan->keywords, OPTIONAL_LIMIT);
 	if ((NULL != limit_keyword) && (NULL == plan->dnf_prev)) {
-		%{} SET %%ydboctozlimit=0{}%
+		%{} SET %%ydboctozlimit({{ plan->outputKey->unique_id|%d }})=0{}%
 	}
 	if (NULL == plan->dnf_prev) {
 		%{} KILL {}% TMPL(tmpl_key, plan->outputKey); %{}{}%
@@ -280,6 +280,10 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
 		if (plan->emit_duplication_check) {
 			%{}`n{{ PLAN_LINE_START }}{}%
 			%{}KILL %%ydboctocursor(cursorId,{{ DUPLICATE_SUBSCRIPT }},{{ plan->outputKey->unique_id|%d }}){}%
+		}
+		if (NULL != limit_keyword) {
+			%{}`n{{ PLAN_LINE_START }}{}%
+			%{}KILL %%ydboctozlimit({{ plan->outputKey->unique_id|%d }}){}%
 		}
 		if (plan->distinct_values) {
 			%{}`n{{ PLAN_LINE_START }}{}%

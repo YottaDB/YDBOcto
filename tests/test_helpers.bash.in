@@ -462,8 +462,12 @@ run_query_in_octo_and_postgres_and_crosscheck() {
 	mv $fname.octo.out $fname.octo.out.pre_nowarn
 	grep -v '^\[ WARN\]' $fname.octo.out.pre_nowarn > $fname.octo.out
     fi
-    # Remove trailing and leading blank lines. Not yet sure why octo produces an empty line at the start for some queries
-    # and an empty line at the end of the output for some other queries.
+    # Remove at most 1 trailing and leading empty/blank line if "$remove" specifies so.
+    # The parser/lexer in Octo produces an empty line at the end when run with `octo -f`. Most likely due to an empty query
+    #   at the end of the query file. It is not yet clear if that is easily fixable so we account for that by passing a
+    #   "remove_empty_line_at_tail" option which will remove that empty line.
+    # Not yet sure why octo produces an empty line at the start for some queries. Specifying "remove_empty_line_at_head"
+    #   removes this line.
     if [[ $remove == "remove_empty_line_at_head" ]]; then
       firstline=`head -n 1 $fname.octo.out`
       if [[ "$firstline" = "" ]]; then # Remove line

@@ -55,7 +55,7 @@ TEMPLATE(tmpl_populate_output_key, PhysicalPlan *plan, int dot_count) {
 			 * UNION is in effect across this plan and another plan in which case both will share the
 			 * same output key but could have differing limits (#269).
 			 */
-			%{}&$INCREMENT(%%ydboctozlimit){}%
+			%{}&$INCREMENT(%%ydboctozlimit({{ plan->outputKey->unique_id|%d }})){}%
 		}
 	}
 	if (!stash_columns_in_keys) {

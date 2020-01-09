@@ -64,6 +64,9 @@ TEMPLATE(tmpl_group_by, PhysicalPlan *plan, int dot_count) {
 		if (NULL != limit_keyword) {
 			%{}QUIT:{}%
 			TMPL(tmpl_limit_check, limit_keyword, "", "'>%ydboctozlimit");
+			(*buffer_index)--;	/* Remove the trailing ")" from `tmpl_limit_check` call */
+			%{}({{ plan->outputKey->unique_id|%d }}){}%	/* Add subscript based on output key */
+			%{}){}%	/* Add back the trailing ")" from `tmpl_limit_check` call above */
 			%{}  {}%
 		}
 	}

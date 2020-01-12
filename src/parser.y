@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -812,7 +812,6 @@ numeric_primary
   : value_expression_primary optional_subscript optional_cast_specification {
 	$$ = $value_expression_primary;
 	if (NULL != $optional_cast_specification) {
-		INVOKE_PARSE_LITERAL_TO_PARAMETER(cursorId, ($$)->v.value, FALSE);
 		// For now, we support a subset of types. More shall be added as needed
 		SqlValue	*value;
 		SqlValueType	type;

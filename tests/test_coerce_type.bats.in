@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -84,5 +84,12 @@ setup() {
 @test "TCT009 : OCTO394 : Assertion failed in LP_VERIFY_STRUCTURE.C when UNARY + operator is used" {
   load_fixture TCT009.sql subtest novv
   verify_output TCT009 output.txt
+}
+
+@test "TCT010 : OCTO437 : DIVZERO error even though query that does no divide by 0 is run with and without :: (type cast operator)" {
+  load_fixture TCT010.sql subtest novv
+  # Include generated M code in reference file to verify all optimizations there
+  cat _ydboctoP*.m >> output.txt
+  verify_output TCT010 output.txt
 }
 

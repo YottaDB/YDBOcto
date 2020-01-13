@@ -101,3 +101,10 @@ setup() {
   verify_output TCT011 output.txt
 }
 
+@test "TCT012 : OCTO300 : Octo uses right most type in calculated columns rather than highest precision type" {
+  load_fixture TCT012.sql subtest novv
+  # Include generated M code in reference file to also verify generated M code
+  cat _ydboctoP*.m >> output.txt
+  verify_output TCT012 output.txt
+}
+

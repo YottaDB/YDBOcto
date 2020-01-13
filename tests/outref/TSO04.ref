@@ -1,0 +1,10 @@
+
+-- TSO04 : INTERSECT ALL provides items in both sets, with duplicates from both sets
+
+select firstName, lastName from names
+intersect all
+select firstName, lastName from names where firstName = "Zero";
+
+Zero|Cool
+Zero|Cool
+

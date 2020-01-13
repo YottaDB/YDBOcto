@@ -1,0 +1,9 @@
+
+-- TSO03 : INTERSECT provides items in both sets, with duplicates removed
+
+select firstName, lastName from names
+intersect
+select firstName, lastName from names where firstName = "Zero";
+
+Zero|Cool
+

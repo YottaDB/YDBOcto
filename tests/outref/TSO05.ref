@@ -1,0 +1,12 @@
+
+-- TSO05 : EXCEPT removes items from second set in the first set
+
+select firstName, lastName from names
+except
+select firstName, lastName from names where firstName = "Zero";
+
+Acid|Burn
+Cereal|Killer
+Joey|
+Lord|Nikon
+

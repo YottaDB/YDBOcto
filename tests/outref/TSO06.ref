@@ -1,0 +1,13 @@
+
+-- TSO06 : EXCEPT ALL removes the same count of items from the first set as exist in the second set
+
+select firstName, lastName from names
+except all
+select firstName, lastName from names where firstName = "Zero" and id = 0;
+
+Acid|Burn
+Cereal|Killer
+Joey|
+Lord|Nikon
+Zero|Cool
+

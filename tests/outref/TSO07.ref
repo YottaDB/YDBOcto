@@ -1,0 +1,16 @@
+
+-- TSO07 : Simulate outer join using UNION
+
+SELECT a.id as A_id, b.id as B_id FROM names a INNER JOIN names b ON a.firstName = b.firstName
+UNION
+SELECT id as A_id, NULL AS B_id FROM names a WHERE a.firstName NOT IN (SELECT b.firstName FROM names b);
+
+0|0
+0|5
+1|1
+2|2
+3|3
+4|4
+5|0
+5|5
+

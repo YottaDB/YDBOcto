@@ -149,6 +149,10 @@ typedef struct LpExtraAggregateFunction {
 						 */
 } LpExtraAggregateFunction;
 
+typedef struct LpExtraCoerceType {
+	SqlValueType		coerce_type;	/* The resulting type of the typecast/coercion operator */
+} LpExtraCoerceType;
+
 /* We use yet another triple type here so we can easily traverse the tree to replace tables and WHEREs.
  * Specifically, the WHERE can have complete trees under it, and it would be awkward to overload void pointers.
  */
@@ -176,6 +180,7 @@ typedef struct LogicalPlan {
 		LpExtraColumnAlias		lp_column_alias;	// To be used if type == LP_COLUMN_ALIAS
 		LpExtraDerivedColumn		lp_derived_column;	// To be used if type == LP_DERIVED_COLUMN
 		LpExtraAggregateFunction	lp_aggregate_function;	// To be used if type == LP_AGGREGATE_*
+		LpExtraCoerceType		lp_coerce_type;		// To be used if type == LP_COERCE_TYPE
 	} extra_detail;
 } LogicalPlan;
 

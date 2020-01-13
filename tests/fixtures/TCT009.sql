@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -34,4 +34,7 @@ select * from names where firstname = 'Zero' || -lastname;
 select * from names where firstname = 'Zero' || lastname::integer;
 select * from names where firstname = 'Zero' || 'abcd'::integer;
 select * from names where firstname = 'Zero' || ''::integer;
+select * from names where firstname = 'Zero' or lastname::integer;
+select * from names where firstname = 'Zero' or 'abcd'::integer;
+select * from names where firstname = 'Zero' or ''::integer;
 

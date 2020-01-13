@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -106,6 +106,7 @@ LP_ACTION_TYPE(LP_NEGATIVE)
 LP_ACTION_TYPE(LP_BOOLEAN_NOT)
 LP_ACTION_TYPE(LP_BOOLEAN_EXISTS)
 LP_ACTION_TYPE(LP_BOOLEAN_NOT_EXISTS)
+LP_ACTION_TYPE(LP_COERCE_TYPE)
 LP_ACTION_TYPE(LP_UNARY_LAST)	/* Marks the end of unary operations. Any new unary operation opcode should be added BEFORE this.
 				 * This is because there is code that does boolean checks on this (e.g. `LP_UNARY_LAST > type`)
 				 * assuming this is the last of the unary operations. Such checks will otherwise break.

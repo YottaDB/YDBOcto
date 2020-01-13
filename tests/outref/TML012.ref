@@ -9,7 +9,7 @@ LP_INSERT:
   LP_PROJECT: 
     LP_COLUMN_LIST: 
       LP_WHERE: 
-        LP_VALUE: a
+        LP_VALUE: 'a'
         LP_COLUMN_LIST_ALIAS: 
         - type: STRING_LITERAL
         - alias: ???
@@ -36,7 +36,7 @@ LP_INSERT:
   LP_PROJECT: 
     LP_COLUMN_LIST: 
       LP_WHERE: 
-        LP_VALUE: a
+        LP_VALUE: 'a'
         LP_COLUMN_LIST_ALIAS: 
         - type: STRING_LITERAL
         - alias: ???

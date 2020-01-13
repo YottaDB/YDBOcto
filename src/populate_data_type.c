@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -17,87 +17,6 @@
 
 #include "octo.h"
 #include "octo_types.h"
-
-char	*get_func_name(SqlAggregateType type) {
-	switch(type) {
-	case COUNT_ASTERISK_AGGREGATE:
-		return "COUNT(*)";
-		break;
-	case COUNT_AGGREGATE:
-	case COUNT_AGGREGATE_DISTINCT:
-		return "COUNT";
-		break;
-	case AVG_AGGREGATE:
-	case AVG_AGGREGATE_DISTINCT:
-		return "AVG";
-		break;
-	case MIN_AGGREGATE:
-		return "MIN";
-		break;
-	case MAX_AGGREGATE:
-		return "MAX";
-		break;
-	case SUM_AGGREGATE:
-	case SUM_AGGREGATE_DISTINCT:
-		return "SUM";
-		break;
-	default:
-		assert(FALSE);
-		break;
-	}
-	return "";
-}
-
-char	*get_setoperation_string(SqlSetOperationType type) {
-	switch(type) {
-	case SET_UNION:
-		return "UNION";
-		break;
-	case SET_UNION_ALL:
-		return "UNION ALL";
-		break;
-	case SET_EXCEPT:
-		return "EXCEPT";
-		break;
-	case SET_EXCEPT_ALL:
-		return "EXCEPT ALL";
-		break;
-	case SET_INTERSECT:
-		return "INTERSECT";
-		break;
-	case SET_INTERSECT_ALL:
-		return "INTERSECT ALL";
-		break;
-	default:
-		assert(FALSE);
-		ERROR(ERR_UNKNOWN_KEYWORD_STATE, "");
-		break;
-	}
-	return "";
-}
-
-char *get_type_string(SqlValueType type) {
-	switch(type) {
-	case NUMERIC_LITERAL:
-		return "NUMERIC";
-	case INTEGER_LITERAL:
-		return "INTEGER";
-	case STRING_LITERAL:
-		return "VARCHAR";	/* VARCHAR (not STRING) is the externally visible type name in SQL */
-	case BOOLEAN_VALUE:
-		return "BOOLEAN";
-	case PARAMETER_VALUE:
-		return "PARAMETER";
-	case COLUMN_REFERENCE:
-	case CALCULATED_VALUE:
-	case UNKNOWN_SqlValueType:
-	default:
-		assert(FALSE);
-		ERROR(ERR_UNKNOWN_KEYWORD_STATE, "");
-		break;
-	}
-	return "";
-}
 
 // Helper function that is invoked when we have to traverse a "column_list_alias_STATEMENT".
 // Caller passes "do_loop" variable set to TRUE  if they want us to traverse the linked list.
@@ -237,7 +156,8 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, char *cursorId) {
 		case SUM_AGGREGATE_DISTINCT:
 			if (STRING_LITERAL == *type) {
 				/* Strings cannot be input for the AVG or SUM function so signal an error in that case. */
-				ERROR(ERR_MISTYPED_FUNCTION, get_func_name(aggregate_function->type), get_type_string(*type));
+				ERROR(ERR_MISTYPED_FUNCTION, get_aggregate_func_name(aggregate_function->type),
+								get_user_visible_type_string(*type));
 				yyerror(NULL, NULL, &aggregate_function->parameter, NULL, cursorId, NULL);
 				result = 1;
 			}
@@ -291,18 +211,15 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, char *cursorId) {
 			*type = NUL_VALUE;
 			break;
 		case COERCE_TYPE:
-			*type = value->coerced_type;
 			result |= populate_data_type(value->v.coerce_target, &child_type1, cursorId);
-			*v = *value->v.coerce_target;
-			if (value_STATEMENT == v->type) {
-				/* This is a work around the current way COERCE works
-				 * It can only currently change the types of literals
-				 * It does not work on columns or functions see issue #304
-				 */
-				if ((STRING_LITERAL == v->v.value->type) || (NUMERIC_LITERAL == v->v.value->type)
-										|| (INTEGER_LITERAL == v->v.value->type))
-					v->v.value->type = *type;
-			}
+			/* At this time (Jan 2020), we allow any type to be coerced to any other type at parser time.
+			 * Errors in type conversion, if any, should show up at run-time based on the actual values.
+			 * But since our run-time is M and we currently only allow INTEGER/NUMERIC/STRING types,
+			 * M will allow for converting between either of these types without any errors which is
+			 * different from Postgres (where `'Zero'::integer` will cause an error). We will deal with
+			 * this if users complain about this incompatibility with Postgres.
+			 */
+			*type = value->coerced_type;
 			break;
 		default:
 			assert(FALSE);
@@ -420,7 +337,8 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, char *cursorId) {
 		if (!result && (child_type1 != child_type2)) {
 			int	i;
 
-			ERROR(ERR_TYPE_MISMATCH, get_type_string(child_type1), get_type_string(child_type2));
+			ERROR(ERR_TYPE_MISMATCH, get_user_visible_type_string(child_type1),
+							get_user_visible_type_string(child_type2));
 			for (i = 0; i < 2; i++) {
 				yyerror(NULL, NULL, &binary->operands[i], NULL, NULL, NULL);
 			}
@@ -468,14 +386,15 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, char *cursorId) {
 			} while (!terminate_loop[0] && !terminate_loop[1]);
 			if (terminate_loop[0] != terminate_loop[1]) {
 				// The # of columns in the two operands (of the SET operation) do not match. Issue error.
-				ERROR(ERR_SETOPER_NUMCOLS_MISMATCH, get_setoperation_string(set_operation->type));
+				ERROR(ERR_SETOPER_NUMCOLS_MISMATCH, get_set_operation_string(set_operation->type));
 				location = ((!terminate_loop[0]) ? cur_cla[0]->column_list->loc : cur_cla[1]->column_list->loc);
 				yyerror(&location, NULL, NULL, NULL, cursorId, NULL);
 				result = 1;
 			} else if (NULL != type_mismatch_cla[0]) {
 				// The type of one column in the two operands (of the SET operation) do not match. Issue error.
-				ERROR(ERR_SETOPER_TYPE_MISMATCH, get_setoperation_string(set_operation->type),		\
-					get_type_string(type_mismatch_cla[0]->type), get_type_string(type_mismatch_cla[1]->type));
+				ERROR(ERR_SETOPER_TYPE_MISMATCH, get_set_operation_string(set_operation->type),		\
+					get_user_visible_type_string(type_mismatch_cla[0]->type),			\
+					get_user_visible_type_string(type_mismatch_cla[1]->type));
 				location = type_mismatch_cla[0]->column_list->loc;
 				yyerror(&location, NULL, NULL, NULL, cursorId, NULL);
 				location = type_mismatch_cla[1]->column_list->loc;
@@ -491,7 +410,7 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, char *cursorId) {
 		if (((FORCE_NUM == unary->operation) || (NEGATIVE == unary->operation))
 				&& ((NUMERIC_LITERAL != child_type1) && (INTEGER_LITERAL != child_type1))) {
 			/* Unary + and - operators cannot be used on non-numeric or non-integer types */
-			ERROR(ERR_INVALID_INPUT_SYNTAX, get_type_string(child_type1));
+			ERROR(ERR_INVALID_INPUT_SYNTAX, get_user_visible_type_string(child_type1));
 			yyerror(NULL, NULL, &unary->operand, NULL, NULL, NULL);
 			result = 1;
 			break;

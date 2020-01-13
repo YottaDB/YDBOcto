@@ -115,6 +115,9 @@ add_library(libocto OBJECT
   qualify_function_name.c
   qualify_query.c
   octo_init.c
+  get_aggregate_func_name.c
+  get_set_operation_string.c
+  get_user_visible_type_string.c
   get_keyword.c
   get_keyword_from_keywords.c
   generate_routine_name.c

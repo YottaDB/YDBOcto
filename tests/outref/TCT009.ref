@@ -23,6 +23,9 @@ select * from names where firstname = 'Zero' || -lastname;
 select * from names where firstname = 'Zero' || lastname::integer;
 select * from names where firstname = 'Zero' || 'abcd'::integer;
 select * from names where firstname = 'Zero' || ''::integer;
+select * from names where firstname = 'Zero' or lastname::integer;
+select * from names where firstname = 'Zero' or 'abcd'::integer;
+select * from names where firstname = 'Zero' or ''::integer;
 
 [ERROR] PATH:LINENUM DATE TIME : Type mismatch: left INTEGER, right VARCHAR
 Error with syntax near (line 1, column 27):
@@ -99,6 +102,10 @@ Error with syntax near (line 1, column 50):
 select * from names where firstname = 'Zero' || -lastname;
                                                  ^^^^^^^^
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select * from names where firstname = 'Zero' || -lastname;
+0|Zero|Cool
+5|Zero|Cool
+0|Zero|Cool
+5|Zero|Cool
 0|Zero|Cool
 5|Zero|Cool
 

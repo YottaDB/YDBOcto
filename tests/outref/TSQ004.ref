@@ -58,7 +58,7 @@ LP_INSERT:
   LP_PROJECT: 
     LP_COLUMN_LIST: 
       LP_WHERE: 
-        LP_VALUE: 
+        LP_VALUE: ''
         LP_COLUMN_LIST_ALIAS: 
         - type: NULL
         - alias: PROCEDURE_CAT
@@ -76,19 +76,19 @@ LP_INSERT:
             - alias: PROCEDURE_NAME
           LP_COLUMN_LIST: 
             LP_WHERE: 
-              LP_VALUE: 
+              LP_VALUE: ''
               LP_COLUMN_LIST_ALIAS: 
               - type: NULL
               - alias: ???
             LP_COLUMN_LIST: 
               LP_WHERE: 
-                LP_VALUE: 
+                LP_VALUE: ''
                 LP_COLUMN_LIST_ALIAS: 
                 - type: NULL
                 - alias: ???
               LP_COLUMN_LIST: 
                 LP_WHERE: 
-                  LP_VALUE: 
+                  LP_VALUE: ''
                   LP_COLUMN_LIST_ALIAS: 
                   - type: NULL
                   - alias: ???
@@ -100,7 +100,7 @@ LP_INSERT:
                     - alias: REMARKS
                   LP_COLUMN_LIST: 
                     LP_WHERE: 
-                      LP_VALUE: 2
+                      LP_VALUE: '2'
                       LP_COLUMN_LIST_ALIAS: 
                       - type: NUMERIC_LITERAL
                       - alias: PROCEDURE_TYPE
@@ -109,7 +109,7 @@ LP_INSERT:
                         LP_CONCAT: 
                           LP_CONCAT: 
                             LP_COLUMN_ALIAS: P(1).PRONAME
-                            LP_VALUE: _
+                            LP_VALUE: '_'
                           LP_COLUMN_ALIAS: P(1).OID
                         LP_COLUMN_LIST_ALIAS: 
                         - type: STRING_LITERAL
@@ -133,7 +133,7 @@ LP_INSERT:
                     LP_COLUMN_ALIAS: C(3).OID
                   LP_BOOLEAN_EQUALS: 
                     LP_COLUMN_ALIAS: C(3).RELNAME
-                    LP_VALUE: pg_proc
+                    LP_VALUE: 'pg_proc'
               LP_TABLE: C
               LP_TABLE_JOIN: LEFT_JOIN: 
                 LP_WHERE: 
@@ -143,7 +143,7 @@ LP_INSERT:
                       LP_COLUMN_ALIAS: PN(4).OID
                     LP_BOOLEAN_EQUALS: 
                       LP_COLUMN_ALIAS: PN(4).NSPNAME
-                      LP_VALUE: pg_catalog
+                      LP_VALUE: 'pg_catalog'
                 LP_TABLE: PN
       LP_CRITERIA: 
         LP_KEYS: 
@@ -179,7 +179,8 @@ LP_INSERT:
         LP_ORDER_BY: ORDER BY ASC: 
           LP_COLUMN_LIST: 
             LP_WHERE: 
-              LP_COLUMN_ALIAS: P(1).OID
+              LP_COERCE_TYPE: [coerce_type = VARCHAR]:
+                LP_COLUMN_ALIAS: P(1).OID
               LP_COLUMN_LIST_ALIAS: 
               - type: STRING_LITERAL
 
@@ -188,7 +189,7 @@ LP_INSERT:
   LP_PROJECT: 
     LP_COLUMN_LIST: 
       LP_WHERE: 
-        LP_VALUE: 
+        LP_VALUE: ''
         LP_COLUMN_LIST_ALIAS: 
         - type: NULL
         - alias: PROCEDURE_CAT
@@ -206,19 +207,19 @@ LP_INSERT:
             - alias: PROCEDURE_NAME
           LP_COLUMN_LIST: 
             LP_WHERE: 
-              LP_VALUE: 
+              LP_VALUE: ''
               LP_COLUMN_LIST_ALIAS: 
               - type: NULL
               - alias: ???
             LP_COLUMN_LIST: 
               LP_WHERE: 
-                LP_VALUE: 
+                LP_VALUE: ''
                 LP_COLUMN_LIST_ALIAS: 
                 - type: NULL
                 - alias: ???
               LP_COLUMN_LIST: 
                 LP_WHERE: 
-                  LP_VALUE: 
+                  LP_VALUE: ''
                   LP_COLUMN_LIST_ALIAS: 
                   - type: NULL
                   - alias: ???
@@ -230,7 +231,7 @@ LP_INSERT:
                     - alias: REMARKS
                   LP_COLUMN_LIST: 
                     LP_WHERE: 
-                      LP_VALUE: 2
+                      LP_VALUE: '2'
                       LP_COLUMN_LIST_ALIAS: 
                       - type: NUMERIC_LITERAL
                       - alias: PROCEDURE_TYPE
@@ -239,7 +240,7 @@ LP_INSERT:
                         LP_CONCAT: 
                           LP_CONCAT: 
                             LP_COLUMN_ALIAS: P(1).PRONAME
-                            LP_VALUE: _
+                            LP_VALUE: '_'
                           LP_COLUMN_ALIAS: P(1).OID
                         LP_COLUMN_LIST_ALIAS: 
                         - type: STRING_LITERAL
@@ -287,13 +288,13 @@ LP_INSERT:
               LP_WHERE: 
                 LP_BOOLEAN_EQUALS: 
                   LP_COLUMN_ALIAS: C(3).RELNAME
-                  LP_VALUE: pg_proc
+                  LP_VALUE: 'pg_proc'
               LP_TABLE: C
               LP_TABLE_JOIN: LEFT_JOIN: 
                 LP_WHERE: 
                   LP_BOOLEAN_EQUALS: 
                     LP_COLUMN_ALIAS: PN(4).NSPNAME
-                    LP_VALUE: pg_catalog
+                    LP_VALUE: 'pg_catalog'
                 LP_TABLE: PN
       LP_CRITERIA: 
         LP_KEYS: 
@@ -382,7 +383,8 @@ LP_INSERT:
         LP_ORDER_BY: ORDER BY ASC: 
           LP_COLUMN_LIST: 
             LP_WHERE: 
-              LP_COLUMN_ALIAS: P(1).OID
+              LP_COERCE_TYPE: [coerce_type = VARCHAR]:
+                LP_COLUMN_ALIAS: P(1).OID
               LP_COLUMN_LIST_ALIAS: 
               - type: STRING_LITERAL
 

@@ -170,8 +170,9 @@ int lp_verify_structure_helper(LogicalPlan *plan, LogicalPlan **aggregate, LPAct
 	case LP_MODULO:
 	case LP_NEGATIVE:
 	case LP_FORCE_NUM:
+	case LP_COERCE_TYPE:
 		for (i = 0; i < 2; i++) {
-			if ((1 == i) && ((LP_NEGATIVE == expected) || (LP_FORCE_NUM== expected))) {
+			if ((1 == i) && ((LP_NEGATIVE == expected) || (LP_FORCE_NUM == expected) || (LP_COERCE_TYPE == expected))) {
 				/* Unary operation. So second operand should be NULL. */
 				ret &= (NULL == plan->v.lp_default.operand[1]);
 				break;
@@ -201,6 +202,7 @@ int lp_verify_structure_helper(LogicalPlan *plan, LogicalPlan **aggregate, LPAct
 									LP_AGGREGATE_FUNCTION_SUM_DISTINCT)
 				| lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_DERIVED_COLUMN)
 				| lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_VALUE)
+				| lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_COERCE_TYPE)
 				// LP_INSERT/LP_SET_OPERATIONs usually show up as operand[1] only for the IN boolean expression.
 				// But they can show up wherever a scalar is expected (e.g. arithmetic operations etc.)
 				// and hence have to be allowed in a lot more cases.
@@ -228,6 +230,7 @@ int lp_verify_structure_helper(LogicalPlan *plan, LogicalPlan **aggregate, LPAct
 									LP_AGGREGATE_FUNCTION_SUM_DISTINCT)
 				| lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_DERIVED_COLUMN)
 				| lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_VALUE)
+				| lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_COERCE_TYPE)
 				| lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_CONCAT)
 				| lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_NEGATIVE)
 				| lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_FORCE_NUM)
@@ -304,6 +307,7 @@ int lp_verify_structure_helper(LogicalPlan *plan, LogicalPlan **aggregate, LPAct
 									LP_AGGREGATE_FUNCTION_SUM_DISTINCT)
 				| lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_DERIVED_COLUMN)
 				| lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_VALUE)
+				| lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_COERCE_TYPE)
 				| lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_BOOLEAN_OR)
 				| lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_BOOLEAN_AND)
 				| lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_BOOLEAN_IS)
@@ -379,6 +383,7 @@ int lp_verify_structure_helper(LogicalPlan *plan, LogicalPlan **aggregate, LPAct
 									LP_AGGREGATE_FUNCTION_SUM_DISTINCT)
 				| lp_verify_structure_helper(plan->v.lp_default.operand[0], aggregate, LP_DERIVED_COLUMN)
 				| lp_verify_structure_helper(plan->v.lp_default.operand[0], aggregate, LP_VALUE)
+				| lp_verify_structure_helper(plan->v.lp_default.operand[0], aggregate, LP_COERCE_TYPE)
 				// LP_INSERT/LP_SET_OPERATIONs usually show up as operand[1] only for the IN boolean expression.
 				// But they can show up wherever a scalar is expected (e.g. select column list etc.)
 				// and hence have to be allowed in a lot more cases.

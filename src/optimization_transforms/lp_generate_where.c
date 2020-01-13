@@ -39,6 +39,11 @@ LogicalPlan *lp_generate_where(SqlStatement *stmt, int *plan_id, SqlStatement *p
 		case CALCULATED_VALUE:
 			LP_GENERATE_WHERE(value->v.calculated, plan_id, stmt, ret, null_return_seen);
 			break;
+		case COERCE_TYPE:
+			MALLOC_LP_2ARGS(ret, LP_COERCE_TYPE);
+			ret->extra_detail.lp_coerce_type.coerce_type = value->coerced_type;
+			LP_GENERATE_WHERE(value->v.coerce_target, plan_id, stmt, ret->v.lp_default.operand[0], null_return_seen);
+			break;
 		default:
 			MALLOC_LP_2ARGS(ret, LP_VALUE);
 			ret->v.lp_value.value = value;

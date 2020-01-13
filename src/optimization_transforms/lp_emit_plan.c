@@ -208,7 +208,7 @@ int emit_plan_helper(char *buffer, size_t buffer_len, int depth, LogicalPlan *pl
 		break;
 	case LP_VALUE:
 		value = plan->v.lp_value.value;
-		SAFE_SNPRINTF(written, buff_ptr, buffer, buffer_len, "%s\n", value->v.string_literal);
+		SAFE_SNPRINTF(written, buff_ptr, buffer, buffer_len, "'%s'\n", value->v.string_literal);
 		break;
 	case LP_TABLE:
 		UNPACK_SQL_STATEMENT(value, plan->v.lp_table.table_alias->alias, value);
@@ -284,8 +284,7 @@ int emit_plan_helper(char *buffer, size_t buffer_len, int depth, LogicalPlan *pl
 		SAFE_SNPRINTF(written, buff_ptr, buffer, buffer_len, "\n");
 		break;
 	default:
-		if (LP_TABLE_JOIN == plan->type)
-		{
+		if (LP_TABLE_JOIN == plan->type) {
 			LogicalPlan	*join_on_condition;
 
 			SAFE_SNPRINTF_JOIN_TYPE_IF_NEEDED(written, buff_ptr, buffer, buffer_len, plan);
@@ -307,6 +306,10 @@ int emit_plan_helper(char *buffer, size_t buffer_len, int depth, LogicalPlan *pl
 				assert((OPTIONAL_ASC == direction) || (OPTIONAL_DESC == direction));
 				str = (OPTIONAL_ASC == direction) ? "ASC" : "DESC";
 				SAFE_SNPRINTF(written, buff_ptr, buffer, buffer_len, "ORDER BY %s: ", str);
+			}
+			if (LP_COERCE_TYPE == plan->type) {
+				SAFE_SNPRINTF(written, buff_ptr, buffer, buffer_len, "[coerce_type = %s]:",
+					get_user_visible_type_string(plan->extra_detail.lp_coerce_type.coerce_type));
 			}
 			SAFE_SNPRINTF(written, buff_ptr, buffer, buffer_len, "\n");
 		}

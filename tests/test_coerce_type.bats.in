@@ -88,8 +88,16 @@ setup() {
 
 @test "TCT010 : OCTO437 : DIVZERO error even though query that does no divide by 0 is run with and without :: (type cast operator)" {
   load_fixture TCT010.sql subtest novv
-  # Include generated M code in reference file to verify all optimizations there
+  # Include generated M code in reference file to also verify generated M code
   cat _ydboctoP*.m >> output.txt
   verify_output TCT010 output.txt
+}
+
+@test "TCT011 : OCTO304 : Type cast operator (`::`) does not work" {
+  $ydb_dist/mumps -run %XCMD 'set ^%ydboctoocto("functions","DOLLARZWRITE")="$ZWRITE"'	# Needed by one query in TCT011.sql
+  load_fixture TCT011.sql subtest novv
+  # Include generated M code in reference file to also verify generated M code
+  cat _ydboctoP*.m >> output.txt
+  verify_output TCT011 output.txt
 }
 

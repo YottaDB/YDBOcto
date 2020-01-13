@@ -68,12 +68,12 @@ Parsing done for SQL command [select col1 from (select id as col1 from names) n2
 Parsing done for SQL command [select col1 from (select id::numeric as col1 from names) n2;]
         - type: NUMERIC_LITERAL
         - alias: COL1
-                LP_COLUMN_ALIAS: NAMES(1).ID
+                  LP_COLUMN_ALIAS: NAMES(1).ID
                 - type: NUMERIC_LITERAL
                 - alias: COL1
         - type: NUMERIC_LITERAL
         - alias: COL1
-                LP_COLUMN_ALIAS: NAMES(1).ID
+                  LP_COLUMN_ALIAS: NAMES(1).ID
                 - type: NUMERIC_LITERAL
                 - alias: COL1
 Parsing done for SQL command [select (firstname = 'd' AND id) from names;]

@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -109,7 +109,7 @@ SqlStatement *find_column_alias_name(SqlStatement *stmt) {
 		SQL_STATEMENT(ret, value_STATEMENT);
 		OCTO_CMALLOC_STRUCT(ret->v.value, SqlValue);
 		ret->v.value->type = STRING_LITERAL;
-		ret->v.value->v.string_literal = get_func_name(aggregate_function->type);
+		ret->v.value->v.string_literal = get_aggregate_func_name(aggregate_function->type);
 		break;
 	case cas_STATEMENT:
 		UNPACK_SQL_STATEMENT(cas, stmt, cas);

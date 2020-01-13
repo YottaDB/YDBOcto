@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -48,6 +48,12 @@ boolean_t lp_is_bool_operand_type_string(LogicalPlan *plan) {
 		switch(cur_plan->type) {
 		case LP_VALUE:
 			if (STRING_LITERAL == cur_plan->v.lp_value.value->type) {
+				ret = TRUE;
+			}
+			loop_done = TRUE;
+			break;
+		case LP_COERCE_TYPE:
+			if (STRING_LITERAL == cur_plan->extra_detail.lp_coerce_type.coerce_type) {
 				ret = TRUE;
 			}
 			loop_done = TRUE;

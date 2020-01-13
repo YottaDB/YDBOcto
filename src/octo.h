@@ -186,9 +186,9 @@ int generate_key_name(char *buffer, int buffer_size, int target_key_num, SqlTabl
 char *like_to_regex(const char *src);
 char *similar_to_regex(const char *src);
 
-char *get_func_name(SqlAggregateType type);
-char *get_setoperation_string(SqlSetOperationType type);
-char *get_type_string(SqlValueType type);
+char *get_aggregate_func_name(SqlAggregateType type);
+char *get_set_operation_string(SqlSetOperationType type);
+char *get_user_visible_type_string(SqlValueType type);
 
 /* Hashing support functions */
 int generate_routine_name(hash128_state_t *state, char *routine_name, int routine_len, FileType file_type);

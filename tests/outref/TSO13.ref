@@ -1,0 +1,280 @@
+
+-- TSO13 : OCTO440 : UNION/INTERSECT/EXCEPT does not issue column type mismatch error in some cases
+
+--------------------------------------------------------
+-- Queries that use the `names` database
+--------------------------------------------------------
+
+SELECT id, NULL, firstname FROM names UNION ALL SELECT id, firstname, NULL FROM names;
+SELECT id, NULL, firstname FROM names UNION ALL SELECT id, id, NULL FROM names UNION ALL SELECT id, firstname, NULL from names;
+SELECT id, id, firstname FROM names UNION ALL SELECT id, NULL, NULL FROM names UNION ALL SELECT id, firstname, NULL from names;
+SELECT id, id, firstname FROM names UNION ALL SELECT id, firstname, NULL FROM names UNION ALL SELECT id, NULL, NULL from names;
+SELECT id, id, firstname FROM names UNION ALL SELECT id, NULL, NULL FROM names UNION ALL SELECT id, NULL, NULL from names UNION ALL SELECT id, firstname, NULL from names;
+SELECT id, id, firstname FROM names UNION ALL SELECT id, NULL, NULL FROM names UNION ALL SELECT id, firstname, NULL from names UNION ALL SELECT id, NULL, NULL from names;
+SELECT id, id, firstname FROM names UNION ALL SELECT id, firstname, NULL FROM names UNION ALL SELECT id, NULL, NULL from names UNION ALL SELECT id, NULL, NULL from names;
+SELECT id, firstname, firstname FROM names UNION ALL SELECT id, NULL, NULL FROM names UNION ALL SELECT id, NULL, NULL from names UNION ALL SELECT id, id, NULL from names;
+SELECT id, firstname, firstname FROM names UNION ALL SELECT id, NULL, NULL FROM names UNION ALL SELECT id, id, NULL from names UNION ALL SELECT id, NULL, NULL from names;
+SELECT id, firstname, firstname FROM names UNION ALL SELECT id, id, NULL FROM names UNION ALL SELECT id, NULL, NULL from names UNION ALL SELECT id, NULL, NULL from names;
+SELECT id, NULL, firstname FROM names UNION ALL SELECT id, firstname, NULL FROM names UNION ALL SELECT id, NULL, NULL from names UNION ALL SELECT id, id, NULL from names;
+SELECT id, NULL, firstname FROM names UNION ALL SELECT id, firstname, NULL FROM names UNION ALL SELECT id, id, NULL from names UNION ALL SELECT id, NULL, NULL from names;
+SELECT id, NULL, firstname FROM names UNION ALL SELECT id, id, NULL FROM names UNION ALL SELECT id, firstname, NULL from names UNION ALL SELECT id, NULL, NULL from names;
+SELECT id, NULL, firstname FROM names UNION ALL SELECT id, id, NULL FROM names UNION ALL SELECT id, NULL, NULL from names UNION ALL SELECT id, firstname, NULL from names;
+SELECT id, NULL, firstname FROM names UNION ALL SELECT id, NULL, NULL FROM names UNION ALL SELECT id, id, NULL from names UNION ALL SELECT id, firstname, NULL from names;
+SELECT id, NULL, firstname FROM names UNION ALL SELECT id, NULL, NULL FROM names UNION ALL SELECT id, firstname, NULL from names UNION ALL SELECT id, id, NULL from names;
+
+SELECT * FROM names n1 INNER JOIN names n2 ON n1.id = n2.id
+UNION ALL
+(
+  SELECT id, firstName, lastName, NULL, NULL, '' FROM names
+  EXCEPT ALL
+  SELECT n1.id, n1.firstName, n1.lastName, ''::text, NULL, NULL FROM names n1 INNER JOIN names n2 ON n1.id = n2.id
+);
+
+--------------------------------------------------------
+-- Queries that use the `northwind` database
+--------------------------------------------------------
+
+-- Union of INTEGER and NUMERIC should not issue type mismatch error
+SELECT * FROM (SELECT Price FROM Products UNION SELECT ProductID FROM Products) LIMIT 1;
+
+-- Arithmetic operation of INTEGER and NUMERIC should not issue type mismatch error
+SELECT Price + ProductID FROM Products LIMIT 1;
+
+-- Union of NUMERIC and STRING/VARCHAR should issue type mismatch error
+SELECT Price FROM Products UNION SELECT ProductName FROM Products LIMIT 1;
+
+-- Arithmetic operation of NUMERIC and STRING/VARCHAR should issue type mismatch error
+SELECT Price + ProductName FROM Products LIMIT 1;
+
+-- Union of INTEGER and STRING/VARCHAR should issue type mismatch error
+SELECT ProductID FROM Products UNION SELECT ProductName FROM Products LIMIT 1;
+
+-- Arithmetic operation of INTEGER and STRING/VARCHAR should issue type mismatch error
+SELECT ProductID + ProductName FROM Products LIMIT 1;
+
+0||Zero
+1||Acid
+2||Cereal
+3||Lord
+4||Joey
+5||Zero
+0|Zero|
+1|Acid|
+2|Cereal|
+3|Lord|
+4|Joey|
+5|Zero|
+[ERROR] PATH:LINENUM DATE TIME : UNION ALL types INTEGER and VARCHAR cannot be matched
+Error with syntax near (line 1, column 60):
+
+SELECT id, NULL, firstname FROM names UNION ALL SELECT id, id, NULL FROM names UNION ALL SELECT id, firstname, NULL from names;
+                                                           ^^
+Error with syntax near (line 1, column 101):
+
+SELECT id, NULL, firstname FROM names UNION ALL SELECT id, id, NULL FROM names UNION ALL SELECT id, firstname, NULL from names;
+                                                                                                    ^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT id, NULL, firstname FROM names UNION ALL SELECT id, id, NULL FROM names UNION ALL SELECT id, firstname, NULL from names;
+[ERROR] PATH:LINENUM DATE TIME : UNION ALL types INTEGER and VARCHAR cannot be matched
+Error with syntax near (line 1, column 12):
+
+SELECT id, id, firstname FROM names UNION ALL SELECT id, NULL, NULL FROM names UNION ALL SELECT id, firstname, NULL from names;
+           ^^
+Error with syntax near (line 1, column 101):
+
+SELECT id, id, firstname FROM names UNION ALL SELECT id, NULL, NULL FROM names UNION ALL SELECT id, firstname, NULL from names;
+                                                                                                    ^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT id, id, firstname FROM names UNION ALL SELECT id, NULL, NULL FROM names UNION ALL SELECT id, firstname, NULL from names;
+[ERROR] PATH:LINENUM DATE TIME : UNION ALL types INTEGER and VARCHAR cannot be matched
+Error with syntax near (line 1, column 12):
+
+SELECT id, id, firstname FROM names UNION ALL SELECT id, firstname, NULL FROM names UNION ALL SELECT id, NULL, NULL from names;
+           ^^
+Error with syntax near (line 1, column 58):
+
+SELECT id, id, firstname FROM names UNION ALL SELECT id, firstname, NULL FROM names UNION ALL SELECT id, NULL, NULL from names;
+                                                         ^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT id, id, firstname FROM names UNION ALL SELECT id, firstname, NULL FROM names UNION ALL SELECT id, NULL, NULL from names;
+[ERROR] PATH:LINENUM DATE TIME : UNION ALL types INTEGER and VARCHAR cannot be matched
+Error with syntax near (line 1, column 12):
+
+SELECT id, id, firstname FROM names UNION ALL SELECT id, NULL, NULL FROM names UNION ALL SELECT id, NULL, NULL from names UNION ALL SELECT id, firstname, NULL from names;
+           ^^
+Error with syntax near (line 1, column 144):
+
+SELECT id, id, firstname FROM names UNION ALL SELECT id, NULL, NULL FROM names UNION ALL SELECT id, NULL, NULL from names UNION ALL SELECT id, firstname, NULL from names;
+                                                                                                                                               ^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT id, id, firstname FROM names UNION ALL SELECT id, NULL, NULL FROM names UNION ALL SELECT id, NULL, NULL from names UNION ALL SELECT id, firstname, NULL from names;
+[ERROR] PATH:LINENUM DATE TIME : UNION ALL types INTEGER and VARCHAR cannot be matched
+Error with syntax near (line 1, column 12):
+
+SELECT id, id, firstname FROM names UNION ALL SELECT id, NULL, NULL FROM names UNION ALL SELECT id, firstname, NULL from names UNION ALL SELECT id, NULL, NULL from names;
+           ^^
+Error with syntax near (line 1, column 101):
+
+SELECT id, id, firstname FROM names UNION ALL SELECT id, NULL, NULL FROM names UNION ALL SELECT id, firstname, NULL from names UNION ALL SELECT id, NULL, NULL from names;
+                                                                                                    ^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT id, id, firstname FROM names UNION ALL SELECT id, NULL, NULL FROM names UNION ALL SELECT id, firstname, NULL from names UNION ALL SELECT id, NULL, NULL from names;
+[ERROR] PATH:LINENUM DATE TIME : UNION ALL types INTEGER and VARCHAR cannot be matched
+Error with syntax near (line 1, column 12):
+
+SELECT id, id, firstname FROM names UNION ALL SELECT id, firstname, NULL FROM names UNION ALL SELECT id, NULL, NULL from names UNION ALL SELECT id, NULL, NULL from names;
+           ^^
+Error with syntax near (line 1, column 58):
+
+SELECT id, id, firstname FROM names UNION ALL SELECT id, firstname, NULL FROM names UNION ALL SELECT id, NULL, NULL from names UNION ALL SELECT id, NULL, NULL from names;
+                                                         ^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT id, id, firstname FROM names UNION ALL SELECT id, firstname, NULL FROM names UNION ALL SELECT id, NULL, NULL from names UNION ALL SELECT id, NULL, NULL from names;
+[ERROR] PATH:LINENUM DATE TIME : UNION ALL types VARCHAR and INTEGER cannot be matched
+Error with syntax near (line 1, column 12):
+
+SELECT id, firstname, firstname FROM names UNION ALL SELECT id, NULL, NULL FROM names UNION ALL SELECT id, NULL, NULL from names UNION ALL SELECT id, id, NULL from names;
+           ^^^^^^^^^
+Error with syntax near (line 1, column 151):
+
+SELECT id, firstname, firstname FROM names UNION ALL SELECT id, NULL, NULL FROM names UNION ALL SELECT id, NULL, NULL from names UNION ALL SELECT id, id, NULL from names;
+                                                                                                                                                      ^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT id, firstname, firstname FROM names UNION ALL SELECT id, NULL, NULL FROM names UNION ALL SELECT id, NULL, NULL from names UNION ALL SELECT id, id, NULL from names;
+[ERROR] PATH:LINENUM DATE TIME : UNION ALL types VARCHAR and INTEGER cannot be matched
+Error with syntax near (line 1, column 12):
+
+SELECT id, firstname, firstname FROM names UNION ALL SELECT id, NULL, NULL FROM names UNION ALL SELECT id, id, NULL from names UNION ALL SELECT id, NULL, NULL from names;
+           ^^^^^^^^^
+Error with syntax near (line 1, column 108):
+
+SELECT id, firstname, firstname FROM names UNION ALL SELECT id, NULL, NULL FROM names UNION ALL SELECT id, id, NULL from names UNION ALL SELECT id, NULL, NULL from names;
+                                                                                                           ^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT id, firstname, firstname FROM names UNION ALL SELECT id, NULL, NULL FROM names UNION ALL SELECT id, id, NULL from names UNION ALL SELECT id, NULL, NULL from names;
+[ERROR] PATH:LINENUM DATE TIME : UNION ALL types VARCHAR and INTEGER cannot be matched
+Error with syntax near (line 1, column 12):
+
+SELECT id, firstname, firstname FROM names UNION ALL SELECT id, id, NULL FROM names UNION ALL SELECT id, NULL, NULL from names UNION ALL SELECT id, NULL, NULL from names;
+           ^^^^^^^^^
+Error with syntax near (line 1, column 65):
+
+SELECT id, firstname, firstname FROM names UNION ALL SELECT id, id, NULL FROM names UNION ALL SELECT id, NULL, NULL from names UNION ALL SELECT id, NULL, NULL from names;
+                                                                ^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT id, firstname, firstname FROM names UNION ALL SELECT id, id, NULL FROM names UNION ALL SELECT id, NULL, NULL from names UNION ALL SELECT id, NULL, NULL from names;
+[ERROR] PATH:LINENUM DATE TIME : UNION ALL types VARCHAR and INTEGER cannot be matched
+Error with syntax near (line 1, column 60):
+
+SELECT id, NULL, firstname FROM names UNION ALL SELECT id, firstname, NULL FROM names UNION ALL SELECT id, NULL, NULL from names UNION ALL SELECT id, id, NULL from names;
+                                                           ^^^^^^^^^
+Error with syntax near (line 1, column 151):
+
+SELECT id, NULL, firstname FROM names UNION ALL SELECT id, firstname, NULL FROM names UNION ALL SELECT id, NULL, NULL from names UNION ALL SELECT id, id, NULL from names;
+                                                                                                                                                      ^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT id, NULL, firstname FROM names UNION ALL SELECT id, firstname, NULL FROM names UNION ALL SELECT id, NULL, NULL from names UNION ALL SELECT id, id, NULL from names;
+[ERROR] PATH:LINENUM DATE TIME : UNION ALL types VARCHAR and INTEGER cannot be matched
+Error with syntax near (line 1, column 60):
+
+SELECT id, NULL, firstname FROM names UNION ALL SELECT id, firstname, NULL FROM names UNION ALL SELECT id, id, NULL from names UNION ALL SELECT id, NULL, NULL from names;
+                                                           ^^^^^^^^^
+Error with syntax near (line 1, column 108):
+
+SELECT id, NULL, firstname FROM names UNION ALL SELECT id, firstname, NULL FROM names UNION ALL SELECT id, id, NULL from names UNION ALL SELECT id, NULL, NULL from names;
+                                                                                                           ^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT id, NULL, firstname FROM names UNION ALL SELECT id, firstname, NULL FROM names UNION ALL SELECT id, id, NULL from names UNION ALL SELECT id, NULL, NULL from names;
+[ERROR] PATH:LINENUM DATE TIME : UNION ALL types INTEGER and VARCHAR cannot be matched
+Error with syntax near (line 1, column 60):
+
+SELECT id, NULL, firstname FROM names UNION ALL SELECT id, id, NULL FROM names UNION ALL SELECT id, firstname, NULL from names UNION ALL SELECT id, NULL, NULL from names;
+                                                           ^^
+Error with syntax near (line 1, column 101):
+
+SELECT id, NULL, firstname FROM names UNION ALL SELECT id, id, NULL FROM names UNION ALL SELECT id, firstname, NULL from names UNION ALL SELECT id, NULL, NULL from names;
+                                                                                                    ^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT id, NULL, firstname FROM names UNION ALL SELECT id, id, NULL FROM names UNION ALL SELECT id, firstname, NULL from names UNION ALL SELECT id, NULL, NULL from names;
+[ERROR] PATH:LINENUM DATE TIME : UNION ALL types INTEGER and VARCHAR cannot be matched
+Error with syntax near (line 1, column 60):
+
+SELECT id, NULL, firstname FROM names UNION ALL SELECT id, id, NULL FROM names UNION ALL SELECT id, NULL, NULL from names UNION ALL SELECT id, firstname, NULL from names;
+                                                           ^^
+Error with syntax near (line 1, column 144):
+
+SELECT id, NULL, firstname FROM names UNION ALL SELECT id, id, NULL FROM names UNION ALL SELECT id, NULL, NULL from names UNION ALL SELECT id, firstname, NULL from names;
+                                                                                                                                               ^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT id, NULL, firstname FROM names UNION ALL SELECT id, id, NULL FROM names UNION ALL SELECT id, NULL, NULL from names UNION ALL SELECT id, firstname, NULL from names;
+[ERROR] PATH:LINENUM DATE TIME : UNION ALL types INTEGER and VARCHAR cannot be matched
+Error with syntax near (line 1, column 103):
+
+SELECT id, NULL, firstname FROM names UNION ALL SELECT id, NULL, NULL FROM names UNION ALL SELECT id, id, NULL from names UNION ALL SELECT id, firstname, NULL from names;
+                                                                                                      ^^
+Error with syntax near (line 1, column 144):
+
+SELECT id, NULL, firstname FROM names UNION ALL SELECT id, NULL, NULL FROM names UNION ALL SELECT id, id, NULL from names UNION ALL SELECT id, firstname, NULL from names;
+                                                                                                                                               ^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT id, NULL, firstname FROM names UNION ALL SELECT id, NULL, NULL FROM names UNION ALL SELECT id, id, NULL from names UNION ALL SELECT id, firstname, NULL from names;
+[ERROR] PATH:LINENUM DATE TIME : UNION ALL types VARCHAR and INTEGER cannot be matched
+Error with syntax near (line 1, column 103):
+
+SELECT id, NULL, firstname FROM names UNION ALL SELECT id, NULL, NULL FROM names UNION ALL SELECT id, firstname, NULL from names UNION ALL SELECT id, id, NULL from names;
+                                                                                                      ^^^^^^^^^
+Error with syntax near (line 1, column 151):
+
+SELECT id, NULL, firstname FROM names UNION ALL SELECT id, NULL, NULL FROM names UNION ALL SELECT id, firstname, NULL from names UNION ALL SELECT id, id, NULL from names;
+                                                                                                                                                      ^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT id, NULL, firstname FROM names UNION ALL SELECT id, NULL, NULL FROM names UNION ALL SELECT id, firstname, NULL from names UNION ALL SELECT id, id, NULL from names;
+[ERROR] PATH:LINENUM DATE TIME : UNION ALL types INTEGER and VARCHAR cannot be matched
+Error with syntax near (line 1, column 8):
+
+SELECT * FROM names n1 INNER JOIN names n2 ON n1.id = n2.id
+      ^
+Error with syntax near (line 6, column 45):
+
+SELECT * FROM names n1 INNER JOIN names n2 ON n1.id = n2.id
+UNION ALL
+(
+  SELECT id, firstName, lastName, NULL, NULL, '' FROM names
+  EXCEPT ALL
+  SELECT n1.id, n1.firstName, n1.lastName, ''::text, NULL, NULL FROM names n1 INNER JOIN names n2 ON n1.id = n2.id
+                                            ^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT * FROM names n1 INNER JOIN names n2 ON n1.id = n2.id
+UNION ALL
+(
+  SELECT id, firstName, lastName, NULL, NULL, '' FROM names
+  EXCEPT ALL
+  SELECT n1.id, n1.firstName, n1.lastName, ''::text, NULL, NULL FROM names n1 INNER JOIN names n2 ON n1.id = n2.id
+);
+18
+19
+[ERROR] PATH:LINENUM DATE TIME : UNION types NUMERIC and VARCHAR cannot be matched
+Error with syntax near (line 1, column 8):
+
+SELECT Price FROM Products UNION SELECT ProductName FROM Products LIMIT 1;
+      ^^^^^
+Error with syntax near (line 1, column 41):
+
+SELECT Price FROM Products UNION SELECT ProductName FROM Products LIMIT 1;
+                                       ^^^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT Price FROM Products UNION SELECT ProductName FROM Products LIMIT 1;
+[ERROR] PATH:LINENUM DATE TIME : Type mismatch: left NUMERIC, right VARCHAR
+Error with syntax near (line 1, column 8):
+
+SELECT Price + ProductName FROM Products LIMIT 1;
+      ^^^^^
+Error with syntax near (line 1, column 16):
+
+SELECT Price + ProductName FROM Products LIMIT 1;
+              ^^^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT Price + ProductName FROM Products LIMIT 1;
+[ERROR] PATH:LINENUM DATE TIME : UNION types INTEGER and VARCHAR cannot be matched
+Error with syntax near (line 1, column 8):
+
+SELECT ProductID FROM Products UNION SELECT ProductName FROM Products LIMIT 1;
+      ^^^^^^^^^
+Error with syntax near (line 1, column 45):
+
+SELECT ProductID FROM Products UNION SELECT ProductName FROM Products LIMIT 1;
+                                           ^^^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT ProductID FROM Products UNION SELECT ProductName FROM Products LIMIT 1;
+[ERROR] PATH:LINENUM DATE TIME : Type mismatch: left INTEGER, right VARCHAR
+Error with syntax near (line 1, column 8):
+
+SELECT ProductID + ProductName FROM Products LIMIT 1;
+      ^^^^^^^^^
+Error with syntax near (line 1, column 20):
+
+SELECT ProductID + ProductName FROM Products LIMIT 1;
+                  ^^^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT ProductID + ProductName FROM Products LIMIT 1;
+

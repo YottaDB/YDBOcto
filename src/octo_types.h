@@ -516,8 +516,17 @@ typedef struct SqlColumnListAlias {
  *  we should consider merging it
  */
 typedef struct SqlSetOperation {
-	SqlSetOperationType type;
-	struct SqlStatement *operand[2];
+	SqlSetOperationType	type;
+	struct SqlStatement	*operand[2];
+	SqlColumnListAlias	*col_type_list;	/* List of available columns with type information indicating the union of
+						 * the types of the two operands of the SET operation. For example if this is
+						 * an INTERSECT SET operation and the left operand has a column of type
+						 * NUL_VALUE and the right operand has the same column of type INTEGER_LITERAL,
+						 * then the SET operation would store INTEGER_LITERAL as the type (since NUL_VALUE
+						 * can be matched with any other type, the other type should be inherited as the
+						 * type of this column as the result of this SET operation). Used only by
+						 * `populate_data_type` for type check of columns involved in the SET operation.
+						 */
 } SqlSetOperation;
 
 typedef struct SqlBeginStatement {
@@ -550,8 +559,8 @@ typedef struct SqlCaseBranchStatement {
 } SqlCaseBranchStatement;
 
 typedef struct SqlSetStatement {
-	struct SqlStatement *variable;
-	struct SqlStatement *value;
+	struct SqlStatement	*variable;
+	struct SqlStatement	*value;
 } SqlSetStatement;
 
 typedef struct SqlShowStatement {

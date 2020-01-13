@@ -359,26 +359,82 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, char *cursorId) {
 			SqlStatement		*sql_stmt;
 			boolean_t		terminate_loop[2] = {FALSE, FALSE};
 			SqlColumnListAlias	*type_mismatch_cla[2] = {NULL, NULL};
+			SqlColumnListAlias	*cur_set_cla, *start_set_cla;
+			SqlSetOperation		*set_operand;
 			int			i;
 
-			for (i = 0; i < 2; i++)
-			{
-				sql_stmt = drill_to_table_alias(set_operation->operand[i]);
-				UNPACK_SQL_STATEMENT(table_alias[i], sql_stmt, table_alias);
-				assert(NULL != table_alias[i]->column_list);
-				UNPACK_SQL_STATEMENT(start_cla[i], table_alias[i]->column_list, column_list_alias);
+			for (i = 0; i < 2; i++) {
+				sql_stmt = set_operation->operand[i];
+				if (table_alias_STATEMENT == sql_stmt->type) {
+					UNPACK_SQL_STATEMENT(table_alias[i], sql_stmt, table_alias);
+					assert(NULL != table_alias[i]->column_list);
+					UNPACK_SQL_STATEMENT(start_cla[i], table_alias[i]->column_list, column_list_alias);
+				} else {
+					assert(set_operation_STATEMENT == sql_stmt->type);
+					UNPACK_SQL_STATEMENT(set_operand, sql_stmt, set_operation);
+					start_cla[i] = set_operand->col_type_list;
+				}
+				assert(NULL != start_cla[i]);
 				cur_cla[i] = start_cla[i];
 			}
+			assert(NULL == set_operation->col_type_list);
+			start_set_cla = NULL;
 			do {
-				/* Note: NULL should match against any non-NULL type hence the NUL_VALUE check below */
-				if ((NULL == type_mismatch_cla[0]) && (cur_cla[0]->type != cur_cla[1]->type)
-					&& (NUL_VALUE != cur_cla[0]->type) && (NUL_VALUE != cur_cla[1]->type))
-				{
-					type_mismatch_cla[0] = cur_cla[0];
-					type_mismatch_cla[1] = cur_cla[1];
+				SqlValueType	left_type, right_type;
+				boolean_t	is_type_mismatch;
+
+				left_type = cur_cla[0]->type;
+				right_type = cur_cla[1]->type;
+				assert((INTEGER_LITERAL == left_type) || (NUMERIC_LITERAL == left_type)
+							|| (STRING_LITERAL == left_type) || (NUL_VALUE == left_type));
+				assert((INTEGER_LITERAL == right_type) || (NUMERIC_LITERAL == right_type)
+							|| (STRING_LITERAL == right_type) || (NUL_VALUE == right_type));
+				/* If not yet found any type mismatch, check for one. If already found one, keep just that.
+				 * Note: NUMERIC and INTEGER are compatible with each other. But NUMERIC and INTEGER are
+				 * not compatible with STRING. NULL is compatible with any type.
+				 */
+				if (NULL == type_mismatch_cla[0]) {
+					switch(left_type) {
+					case INTEGER_LITERAL:
+					case NUMERIC_LITERAL:
+						is_type_mismatch = (STRING_LITERAL == right_type);
+						break;
+					case STRING_LITERAL:
+						is_type_mismatch = ((INTEGER_LITERAL == right_type)
+										|| (NUMERIC_LITERAL == right_type));
+						break;
+					case NUL_VALUE:
+						is_type_mismatch = FALSE;
+						break;
+					default:
+						assert(FALSE);
+						FATAL(ERR_UNKNOWN_KEYWORD_STATE, "");
+						break;
+					}
+					if (is_type_mismatch) {
+						/* Record the first type mismatch location */
+						type_mismatch_cla[0] = cur_cla[0];
+						type_mismatch_cla[1] = cur_cla[1];
+					}
 				}
-				for (i = 0; i < 2; i++)
-				{
+				/* Construct `column_list` for `set_operation` (needed by caller `populate_data_type`) */
+				OCTO_CMALLOC_STRUCT(cur_set_cla, SqlColumnListAlias);
+				if (NUL_VALUE != left_type) {
+					/* Left side column is not NULL, inherit that type for outer SET operation */
+					*cur_set_cla = *cur_cla[0];
+				} else {
+					/* Left side column is NULL, inherit right side column type
+					 * for outer SET operation.
+					 */
+					*cur_set_cla = *cur_cla[1];
+				}
+				dqinit(cur_set_cla);
+				if (NULL != start_set_cla) {
+					dqappend(start_set_cla, cur_set_cla);
+				} else {
+					start_set_cla = cur_set_cla;
+				}
+				for (i = 0; i < 2; i++) {
 					cur_cla[i] = cur_cla[i]->next;
 					if (cur_cla[i] == start_cla[i])
 						terminate_loop[i] = TRUE;
@@ -401,6 +457,8 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, char *cursorId) {
 				yyerror(&location, NULL, NULL, NULL, cursorId, NULL);
 				result = 1;
 			}
+			assert(NULL != start_set_cla);
+			set_operation->col_type_list = start_set_cla;
 		}
 		break;
 	case unary_STATEMENT:

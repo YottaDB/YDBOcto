@@ -17,6 +17,6 @@ UNION ALL
 (
   SELECT id, firstName, lastName, NULL, NULL, '' FROM names
   EXCEPT ALL
-  SELECT n1.id, n1.firstName, n1.lastName, ''::text, NULL, NULL FROM names n1 INNER JOIN names n2 ON n1.id = n2.id
+  SELECT n1.id, n1.firstName, n1.lastName, NULL, NULL, ''::text FROM names n1 INNER JOIN names n2 ON n1.id = n2.id
 );
 

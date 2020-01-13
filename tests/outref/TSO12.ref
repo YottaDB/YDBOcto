@@ -192,16 +192,13 @@ UNION ALL
   ON n1.id = n2.id
 );
 
-[ERROR] PATH:LINENUM DATE TIME : UNION types INTEGER and NUMERIC cannot be matched
-Error with syntax near (line 1, column 9):
-
-(select id        from names) union (select 1+id      from names);
-       ^^
-Error with syntax near (line 1, column 45):
-
-(select id        from names) union (select 1+id      from names);
-                                           ^^^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: (select id        from names) union (select 1+id      from names);
+0
+1
+2
+3
+4
+5
+6
 [ERROR] PATH:LINENUM DATE TIME : UNION types INTEGER and VARCHAR cannot be matched
 Error with syntax near (line 1, column 9):
 
@@ -212,16 +209,13 @@ Error with syntax near (line 1, column 45):
 (select id        from names) union (select firstname from names);
                                             ^^^^^^^^^
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: (select id        from names) union (select firstname from names);
-[ERROR] PATH:LINENUM DATE TIME : UNION types NUMERIC and INTEGER cannot be matched
-Error with syntax near (line 1, column 9):
-
-(select 1+id      from names) union (select id        from names);
-        ^^^^
-Error with syntax near (line 1, column 45):
-
-(select 1+id      from names) union (select id        from names);
-                                            ^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: (select 1+id      from names) union (select id        from names);
+1
+2
+3
+4
+5
+6
+0
 [ERROR] PATH:LINENUM DATE TIME : UNION types NUMERIC and VARCHAR cannot be matched
 Error with syntax near (line 1, column 9):
 
@@ -412,16 +406,18 @@ Error with syntax near (line 1, column 45):
 (select firstname from names) union (select new2id from (select newid+2 as new2id from (select 1+id as newid from names)));
                                             ^^^^^^
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: (select firstname from names) union (select new2id from (select newid+2 as new2id from (select 1+id as newid from names)));
-[ERROR] PATH:LINENUM DATE TIME : UNION ALL types INTEGER and NUMERIC cannot be matched
-Error with syntax near (line 1, column 9):
-
-(select id        from names) union all (select 1+id      from names);
-        ^^
-Error with syntax near (line 1, column 49):
-
-(select id        from names) union all (select 1+id      from names);
-                                                ^^^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: (select id        from names) union all (select 1+id      from names);
+0
+1
+2
+3
+4
+5
+1
+2
+3
+4
+5
+6
 [ERROR] PATH:LINENUM DATE TIME : UNION ALL types INTEGER and VARCHAR cannot be matched
 Error with syntax near (line 1, column 9):
 
@@ -432,16 +428,18 @@ Error with syntax near (line 1, column 49):
 (select id        from names) union all (select firstname from names);
                                                 ^^^^^^^^^
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: (select id        from names) union all (select firstname from names);
-[ERROR] PATH:LINENUM DATE TIME : UNION ALL types NUMERIC and INTEGER cannot be matched
-Error with syntax near (line 1, column 9):
-
-(select 1+id      from names) union all (select id        from names);
-        ^^^^
-Error with syntax near (line 1, column 49):
-
-(select 1+id      from names) union all (select id        from names);
-                                                ^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: (select 1+id      from names) union all (select id        from names);
+1
+2
+3
+4
+5
+6
+0
+1
+2
+3
+4
+5
 [ERROR] PATH:LINENUM DATE TIME : UNION ALL types NUMERIC and VARCHAR cannot be matched
 Error with syntax near (line 1, column 9):
 
@@ -632,16 +630,11 @@ Error with syntax near (line 1, column 49):
 (select firstname from names) union all (select new2id from (select newid+2 as new2id from (select 1+id as newid from names)));
                                                 ^^^^^^
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: (select firstname from names) union all (select new2id from (select newid+2 as new2id from (select 1+id as newid from names)));
-[ERROR] PATH:LINENUM DATE TIME : INTERSECT types INTEGER and NUMERIC cannot be matched
-Error with syntax near (line 1, column 9):
-
-(select id        from names) intersect (select 1+id      from names);
-        ^^
-Error with syntax near (line 1, column 49):
-
-(select id        from names) intersect (select 1+id      from names);
-                                                ^^^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: (select id        from names) intersect (select 1+id      from names);
+1
+2
+3
+4
+5
 [ERROR] PATH:LINENUM DATE TIME : INTERSECT types INTEGER and VARCHAR cannot be matched
 Error with syntax near (line 1, column 9):
 
@@ -652,16 +645,11 @@ Error with syntax near (line 1, column 49):
 (select id        from names) intersect (select firstname from names);
                                                 ^^^^^^^^^
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: (select id        from names) intersect (select firstname from names);
-[ERROR] PATH:LINENUM DATE TIME : INTERSECT types NUMERIC and INTEGER cannot be matched
-Error with syntax near (line 1, column 9):
-
-(select 1+id      from names) intersect (select id        from names);
-        ^^^^
-Error with syntax near (line 1, column 49):
-
-(select 1+id      from names) intersect (select id        from names);
-                                                ^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: (select 1+id      from names) intersect (select id        from names);
+1
+2
+3
+4
+5
 [ERROR] PATH:LINENUM DATE TIME : INTERSECT types NUMERIC and VARCHAR cannot be matched
 Error with syntax near (line 1, column 9):
 
@@ -852,16 +840,11 @@ Error with syntax near (line 1, column 49):
 (select firstname from names) intersect (select new2id from (select newid+2 as new2id from (select 1+id as newid from names)));
                                                 ^^^^^^
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: (select firstname from names) intersect (select new2id from (select newid+2 as new2id from (select 1+id as newid from names)));
-[ERROR] PATH:LINENUM DATE TIME : INTERSECT ALL types INTEGER and NUMERIC cannot be matched
-Error with syntax near (line 1, column 9):
-
-(select id        from names) intersect all (select 1+id      from names);
-        ^^
-Error with syntax near (line 1, column 53):
-
-(select id        from names) intersect all (select 1+id      from names);
-                                                    ^^^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: (select id        from names) intersect all (select 1+id      from names);
+1
+2
+3
+4
+5
 [ERROR] PATH:LINENUM DATE TIME : INTERSECT ALL types INTEGER and VARCHAR cannot be matched
 Error with syntax near (line 1, column 9):
 
@@ -872,16 +855,11 @@ Error with syntax near (line 1, column 53):
 (select id        from names) intersect all (select firstname from names);
                                                     ^^^^^^^^^
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: (select id        from names) intersect all (select firstname from names);
-[ERROR] PATH:LINENUM DATE TIME : INTERSECT ALL types NUMERIC and INTEGER cannot be matched
-Error with syntax near (line 1, column 9):
-
-(select 1+id      from names) intersect all (select id        from names);
-        ^^^^
-Error with syntax near (line 1, column 53):
-
-(select 1+id      from names) intersect all (select id        from names);
-                                                    ^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: (select 1+id      from names) intersect all (select id        from names);
+1
+2
+3
+4
+5
 [ERROR] PATH:LINENUM DATE TIME : INTERSECT ALL types NUMERIC and VARCHAR cannot be matched
 Error with syntax near (line 1, column 9):
 
@@ -1072,16 +1050,7 @@ Error with syntax near (line 1, column 53):
 (select firstname from names) intersect all (select new2id from (select newid+2 as new2id from (select 1+id as newid from names)));
                                                     ^^^^^^
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: (select firstname from names) intersect all (select new2id from (select newid+2 as new2id from (select 1+id as newid from names)));
-[ERROR] PATH:LINENUM DATE TIME : EXCEPT types INTEGER and NUMERIC cannot be matched
-Error with syntax near (line 1, column 9):
-
-(select id        from names) except (select 1+id      from names);
-        ^^
-Error with syntax near (line 1, column 46):
-
-(select id        from names) except (select 1+id      from names);
-                                             ^^^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: (select id        from names) except (select 1+id      from names);
+0
 [ERROR] PATH:LINENUM DATE TIME : EXCEPT types INTEGER and VARCHAR cannot be matched
 Error with syntax near (line 1, column 9):
 
@@ -1092,16 +1061,7 @@ Error with syntax near (line 1, column 46):
 (select id        from names) except (select firstname from names);
                                              ^^^^^^^^^
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: (select id        from names) except (select firstname from names);
-[ERROR] PATH:LINENUM DATE TIME : EXCEPT types NUMERIC and INTEGER cannot be matched
-Error with syntax near (line 1, column 9):
-
-(select 1+id      from names) except (select id        from names);
-        ^^^^
-Error with syntax near (line 1, column 46):
-
-(select 1+id      from names) except (select id        from names);
-                                             ^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: (select 1+id      from names) except (select id        from names);
+6
 [ERROR] PATH:LINENUM DATE TIME : EXCEPT types NUMERIC and VARCHAR cannot be matched
 Error with syntax near (line 1, column 9):
 
@@ -1292,16 +1252,7 @@ Error with syntax near (line 1, column 46):
 (select firstname from names) except (select new2id from (select newid+2 as new2id from (select 1+id as newid from names)));
                                              ^^^^^^
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: (select firstname from names) except (select new2id from (select newid+2 as new2id from (select 1+id as newid from names)));
-[ERROR] PATH:LINENUM DATE TIME : EXCEPT ALL types INTEGER and NUMERIC cannot be matched
-Error with syntax near (line 1, column 9):
-
-(select id        from names) except all (select 1+id      from names);
-        ^^
-Error with syntax near (line 1, column 50):
-
-(select id        from names) except all (select 1+id      from names);
-                                                 ^^^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: (select id        from names) except all (select 1+id      from names);
+0
 [ERROR] PATH:LINENUM DATE TIME : EXCEPT ALL types INTEGER and VARCHAR cannot be matched
 Error with syntax near (line 1, column 9):
 
@@ -1312,16 +1263,7 @@ Error with syntax near (line 1, column 50):
 (select id        from names) except all (select firstname from names);
                                                  ^^^^^^^^^
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: (select id        from names) except all (select firstname from names);
-[ERROR] PATH:LINENUM DATE TIME : EXCEPT ALL types NUMERIC and INTEGER cannot be matched
-Error with syntax near (line 1, column 9):
-
-(select 1+id      from names) except all (select id        from names);
-        ^^^^
-Error with syntax near (line 1, column 50):
-
-(select 1+id      from names) except all (select id        from names);
-                                                 ^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: (select 1+id      from names) except all (select id        from names);
+6
 [ERROR] PATH:LINENUM DATE TIME : EXCEPT ALL types NUMERIC and VARCHAR cannot be matched
 Error with syntax near (line 1, column 9):
 

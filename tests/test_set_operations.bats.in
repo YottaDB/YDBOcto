@@ -86,3 +86,11 @@ setup() {
   verify_output TSO12 output.txt
 }
 
+@test "TSO13 : OCTO440 : UNION/INTERSECT/EXCEPT does not issue column type mismatch error in some cases" {
+  # This test has a few queries that use the Northwind schema so load that too.
+  load_fixture northwind.sql
+  load_fixture northwind.zwr
+  load_fixture TSO13.sql subtest novv
+  verify_output TSO13 output.txt
+}
+

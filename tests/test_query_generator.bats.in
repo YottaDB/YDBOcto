@@ -32,3 +32,8 @@ setup() {
 @test "TQG04 : Test Query Generator against northwind database" {
   run_query_generator northwind 150 TQG04-
 }
+
+@test "TQG05 : Test Query Generator against boolean database" {
+  skip #Skipped until issue 346 is resolved
+  run_query_generator boolean 150 TQG05-
+}

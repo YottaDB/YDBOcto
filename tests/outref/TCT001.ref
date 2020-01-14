@@ -1,5 +1,5 @@
 
--- TCT001: coerce cannonical number string to INTEGER
+-- TCT001: coerce canonical number string to INTEGER
 
 select "1"::integer from names limit 1;
 select "1.1"::integer from names limit 1;

@@ -1,5 +1,5 @@
 
--- TCT004 : coerce cannonical number string to NUMERIC
+-- TCT004 : coerce canonical number string to NUMERIC
 
 select "1"::numeric from names limit 1;
 select "1.1"::numeric from names limit 1;

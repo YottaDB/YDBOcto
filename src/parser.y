@@ -1548,9 +1548,9 @@ exact_numeric_type
   ;
 
 integer_type
-  : INTEGER { $$ = NULL; }
-  | INT { $$ = NULL; }
-  | SMALLINT { $$ = NULL; }
+  : INTEGER integer_type_tail { $$ = NULL; }
+  | INT integer_type_tail { $$ = NULL; }
+  | SMALLINT integer_type_tail { $$ = NULL; }
   ;
 
 datetime_type
@@ -1577,6 +1577,12 @@ exact_numeric_type_tail_tail
   | COMMA scale { $$ = $scale; }
   ;
 
+integer_type_tail
+  : /* Empty */ { $$ = NULL; }
+  | LEFT_PAREN precision RIGHT_PAREN {
+      $$ = $precision;
+    }
+
 precision
   : literal_value { $$ = $literal_value; }
   ;
@@ -1587,15 +1593,15 @@ scale
 
 literal_value
   : LITERAL {
-      $$ = $LITERAL; ($$)->loc = yyloc;
-      assert(NULL != cursorId);
-      if ((value_STATEMENT == ($$)->type) &&
-          ((NUMERIC_LITERAL == ($$)->v.value->type) ||
-          (STRING_LITERAL == ($$)->v.value->type) ||
-          (INTEGER_LITERAL == ($$)->v.value->type))) {
-              INVOKE_PARSE_LITERAL_TO_PARAMETER(cursorId, ($$)->v.value, FALSE);
-          }
-      }
+	$$ = $LITERAL; ($$)->loc = yyloc;
+	assert(NULL != cursorId);
+	if ((value_STATEMENT == ($$)->type)
+			&& ((NUMERIC_LITERAL == ($$)->v.value->type)
+				|| (STRING_LITERAL == ($$)->v.value->type)
+				|| (INTEGER_LITERAL == ($$)->v.value->type))) {
+		INVOKE_PARSE_LITERAL_TO_PARAMETER(cursorId, ($$)->v.value, FALSE);
+	}
+    }
 
 partition_by_clause
   : LEFT_PAREN PARTITION BY column_reference optional_order_by RIGHT_PAREN {

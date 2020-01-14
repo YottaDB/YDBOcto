@@ -24,7 +24,7 @@ setup() {
   verify_output TCT000 output.txt
 }
 
-@test "TCT001: coerce cannonical number string to INTEGER" {
+@test "TCT001: coerce canonical number string to INTEGER" {
   load_fixture TCT001.sql subtest novv
   verify_output TCT001 output.txt
 }
@@ -39,7 +39,7 @@ setup() {
   verify_output TCT003 output.txt
 }
 
-@test "TCT004 : coerce cannonical number string to NUMERIC" {
+@test "TCT004 : coerce canonical number string to NUMERIC" {
   load_fixture TCT004.sql subtest novv
   verify_output TCT004 output.txt
 }

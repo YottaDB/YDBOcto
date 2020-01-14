@@ -142,7 +142,18 @@ OCTO
   yottadb -run TC010	# load ^datetime global
   load_fixture TC010.sql subtest novv
   # Do not use `verify_output` here as we do not want DATE/TIME substitutions to happen
-  # but want to see the actual date/time strings displayed in the reference file.
-  diff @PROJECT_SOURCE_DIR@/tests/outref/TC010.ref output.txt
+  # but want to see the actual date/time strings from the ^datetime global displayed in the reference file.
+  # That said, there are a few date/time usages that will show up in error message that we want taken out as they
+  # correspond to non-deterministic output.
+  cp output.txt clean_output.txt
+  sed -i 's/[0-9]\{4\}-[0-9]\{2\}-[0-9]\{2\} [0-9]\{2\}:[0-9]\{2\}:[0-9]\{2\}/DATE TIME/g' clean_output.txt
+  # Filter file path
+  sed -i 's/\/.*\/.*\.[yc]:[0-9]*/PATH:LINENUM/' clean_output.txt
+  diff @PROJECT_SOURCE_DIR@/tests/outref/TC010.ref clean_output.txt
+}
+
+@test "TC011 : OCTO411 : Add support for INTEGER precision specification to parser for CREATE TABLE statements" {
+  load_fixture TC011.sql subtest novv
+  verify_output TC011 output.txt
 }
 

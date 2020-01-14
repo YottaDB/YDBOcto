@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -10,7 +10,7 @@
 #								#
 #################################################################
 
--- TCT004 : coerce cannonical number string to NUMERIC
+-- TCT004 : coerce canonical number string to NUMERIC
 
 select "1"::numeric from names limit 1;
 select "1.1"::numeric from names limit 1;

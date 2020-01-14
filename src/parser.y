@@ -78,6 +78,7 @@ extern void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, int *plan
 %token CREATE
 %token CROSS
 %token CURSOR
+%token DATE
 %token DEC
 %token DECIMAL
 %token DEFAULT
@@ -138,6 +139,7 @@ extern void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, int *plan
 %token SUM
 %token TABLE
 %token THEN
+%token TIME
 %token TO
 %token UNION
 %token UNIQUE
@@ -857,6 +859,12 @@ optional_cast_specification
   | COLON COLON INTEGER {
 	$$ = (SqlStatement *)INTEGER_LITERAL;
     }
+  | COLON COLON DATE {
+	$$ = (SqlStatement *)STRING_LITERAL;
+    }
+  | COLON COLON TIME {
+	$$ = (SqlStatement *)STRING_LITERAL;
+    }
   | COLON COLON identifier {
 	SqlValue	*value;
 
@@ -1502,7 +1510,11 @@ data_type
       SQL_STATEMENT($$, data_type_STATEMENT);
       ($$)->v.data_type = INTEGER_TYPE;
     }
-//  | datetime_type
+  | datetime_type {
+	/* For now treat DATE or TIME types as equivalent to the STRING/VARCHAR type */
+	SQL_STATEMENT($$, data_type_STATEMENT);
+	($$)->v.data_type = CHARACTER_STRING_TYPE;
+    }
 //  | interval_type
   ;
 
@@ -1533,6 +1545,7 @@ exact_numeric_type
   : NUMERIC exact_numeric_type_tail { $$ = $exact_numeric_type_tail; }
   | DECIMAL exact_numeric_type_tail { $$ = $exact_numeric_type_tail; }
   | DEC exact_numeric_type_tail { $$ = $exact_numeric_type_tail; }
+  ;
 
 integer_type
   : INTEGER { $$ = NULL; }
@@ -1540,6 +1553,16 @@ integer_type
   | SMALLINT { $$ = NULL; }
   ;
 
+datetime_type
+  : DATE { $$ = NULL; }
+  | TIME time_type_tail { $$ = $time_type_tail; }
+  ;
+
+time_type_tail
+  : /* Empty */ { $$ = NULL; }
+  | LEFT_PAREN precision RIGHT_PAREN {
+      $$ = $precision;
+    }
 
 /// TODO: we should have a triple for this type of numeric which includes scale
 exact_numeric_type_tail

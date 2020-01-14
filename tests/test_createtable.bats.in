@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -20,7 +20,7 @@ setup() {
   load_fixture names4.zwr
 }
 
-@test "TC001 create a table so large it can't fit in the buffer" {
+@test "TC001 : create a table so large it can't fit in the buffer" {
   # Generate a file with the mapping
   cat <<OCTO > table1.sql
 CREATE TABLE table1 (
@@ -37,7 +37,7 @@ OCTO
   verify_output TC001 output.txt noinfo nodebug
 }
 
-@test "create table with key in extract" {
+@test "TC001A : create table with key in extract" {
   octo <<OCTO 2>&1 | tee output.txt
 CREATE TABLE namesE(
   id INTEGER PRIMARY KEY,
@@ -51,7 +51,7 @@ OCTO
   [ "$status" -eq 0 ]
 }
 
-@test "create multiple tables in sequence" {
+@test "TC001B : create multiple tables in sequence" {
   octo <<OCTO 2>&1 | tee output.txt
 CREATE TABLE Customers (CustomerID INTEGER PRIMARY KEY);
 CREATE TABLE Orders (OrderID INTEGER PRIMARY KEY);
@@ -59,14 +59,14 @@ OCTO
   [ "$?" -eq 0 ]
 }
 
-@test "create a table which has no keys" {
+@test "TC002 : create a table which has no keys" {
   octo <<OCTO 2>&1 | tee output.txt
 create table names4 (id int, First char(20), Last char(30));
 OCTO
   verify_output TC002 output.txt noinfo nodebug
 }
 
-@test "create a table which has no keys and select from it later" {
+@test "TC003 : create a table which has no keys and select from it later" {
   octo <<OCTO 2>&1 | tee output.txt
 create table names4 (id int, First char(20), Last char(30));
 select * from names4
@@ -74,7 +74,7 @@ OCTO
   verify_output TC003 output.txt noinfo nodebug
 }
 
-@test "recreate a cached table and check that the cached version is deleted" {
+@test "TC004 : recreate a cached table and check that the cached version is deleted" {
   # create a row that will change when more columns are added
   yottadb -run %XCMD 'set ^T1(1)="1|2|3|4"'
   octo <<OCTO 2>&1 | tee output.txt
@@ -91,7 +91,7 @@ OCTO
   verify_output TC004 output.txt noinfo nodebug
 }
 
-@test "create a table with duplicate primary keys then select from it" {
+@test "TC005 : create a table with duplicate primary keys then select from it" {
   octo <<OCTO 2>&1 | tee output.txt
 drop table t1;
 create table t1 (a int primary key, b int primary key);
@@ -100,7 +100,7 @@ OCTO
   verify_output TC005 output.txt noinfo nodebug
 }
 
-@test "create a table with duplicate key nums then select from it" {
+@test "TC006 : create a table with duplicate key nums then select from it" {
   octo <<OCTO 2>&1 | tee output.txt
 drop table t1;
 create table t1 (a int primary key, b int key num 1, c int key num 1);
@@ -109,7 +109,7 @@ OCTO
   verify_output TC006 output.txt noinfo nodebug
 }
 
-@test "create a table with gaps in key nums then select from it" {
+@test "TC007 : create a table with gaps in key nums then select from it" {
   octo <<OCTO 2>&1 | tee output.txt
 drop table t1;
 create table t1 (a int key num 10, b int key num 5, c int key num 7);
@@ -118,7 +118,7 @@ OCTO
   verify_output TC007 output.txt noinfo nodebug
 }
 
-@test "create a table with an INTEGER and NUMERIC columns with decimals and integers stored in both" {
+@test "TC008 : create a table with an INTEGER and NUMERIC columns with decimals and integers stored in both" {
   yottadb -run %XCMD 'kill ^T1 set ^T1(1,2.2,3.3)="1|1.1|2|2.2|3|3.3"'
   octo <<OCTO 2>&1 | tee output.txt
 drop table t1;
@@ -128,7 +128,7 @@ OCTO
   verify_output TC008 output.txt
 }
 
-@test "create a table with INTEGER and NUMERIC column types with strings stored in both" {
+@test "TC009 : create a table with INTEGER and NUMERIC column types with strings stored in both" {
   yottadb -run %XCMD 'kill ^T1 set ^T1("hello")="hello|world"'
   octo <<OCTO 2>&1 | tee output.txt
 drop table t1;
@@ -137,3 +137,12 @@ select * from t1;
 OCTO
   verify_output TC009 output.txt
 }
+
+@test "TC010 : OCTO381 : Allow DATE and TIME types to be specified in the Octo DDL but treated as strings internally" {
+  yottadb -run TC010	# load ^datetime global
+  load_fixture TC010.sql subtest novv
+  # Do not use `verify_output` here as we do not want DATE/TIME substitutions to happen
+  # but want to see the actual date/time strings displayed in the reference file.
+  diff @PROJECT_SOURCE_DIR@/tests/outref/TC010.ref output.txt
+}
+

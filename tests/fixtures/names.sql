@@ -17,6 +17,6 @@ CREATE TABLE namesWithAges (
  firstName VARCHAR(30),
  lastName VARCHAR(30),
  age INTEGER,
- time VARCHAR(11) EXTRACT "$ZDATE($HOROLOG,""YEAR-MM-DD 24:60:SS"")"	-- this is a computed column
+ datetime TIME(10) EXTRACT "$ZDATE($HOROLOG,""YEAR-MM-DD 24:60:SS"")"	-- this is a computed column
 )
  GLOBAL "^names(keys(""id""))";

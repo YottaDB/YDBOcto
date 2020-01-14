@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -46,7 +46,7 @@ ADD_BATS_TEST(test_select_subquery_union)
 ADD_BATS_TEST(test_set_operations)
 ADD_BATS_TEST(test_optional_create_table_settings)
 ADD_BATS_TEST(test_cross_index_optimization)
-ADD_BATS_TEST(test_create_table)
+ADD_BATS_TEST(test_createtable)
 ADD_BATS_TEST(test_natural_join)
 ADD_BATS_TEST(test_outer_join)
 ADD_BATS_TEST(test_errors)

@@ -1,0 +1,94 @@
+
+-- Test that DATE and TIME types work (TIME specified without any precision)
+CREATE TABLE DATETIME (id INTEGER PRIMARY KEY, date1 DATE, time1 TIME);
+SELECT date1 from DATETIME;
+SELECT time1 from DATETIME;
+SELECT id::DATE from DATETIME;
+SELECT id::TIME from DATETIME;
+SELECT date1::integer from DATETIME;
+SELECT date1::numeric from DATETIME;
+SELECT date1::varchar from DATETIME;
+SELECT date1::text from DATETIME;
+SELECT date1::date from DATETIME;
+SELECT date1::time from DATETIME;
+
+
+-- Test that TIME(precision) (TIME type specified with precision) also works
+CREATE TABLE DATETIME (id INTEGER PRIMARY KEY, date1 DATE, time1 TIME(10));
+SELECT time1 from DATETIME;
+SELECT time1::integer from DATETIME;
+SELECT time1::numeric from DATETIME;
+SELECT time1::varchar from DATETIME;
+SELECT time1::text from DATETIME;
+SELECT time1::date from DATETIME;
+SELECT time1::time from DATETIME;
+
+2020-01-04
+1998-11-13
+2005-09-22
+1975-05-31
+14:01:10
+14:12:59
+13:23:09
+15:15:22
+1
+2
+3
+4
+1
+2
+3
+4
+2020
+1998
+2005
+1975
+2020
+1998
+2005
+1975
+2020-01-04
+1998-11-13
+2005-09-22
+1975-05-31
+2020-01-04
+1998-11-13
+2005-09-22
+1975-05-31
+2020-01-04
+1998-11-13
+2005-09-22
+1975-05-31
+2020-01-04
+1998-11-13
+2005-09-22
+1975-05-31
+14:01:10
+14:12:59
+13:23:09
+15:15:22
+14
+14
+13
+15
+14
+14
+13
+15
+14:01:10
+14:12:59
+13:23:09
+15:15:22
+14:01:10
+14:12:59
+13:23:09
+15:15:22
+14:01:10
+14:12:59
+13:23:09
+15:15:22
+14:01:10
+14:12:59
+13:23:09
+15:15:22
+

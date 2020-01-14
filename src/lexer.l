@@ -94,6 +94,7 @@ int copied_so_far;
 (?i:CREATE) { return CREATE; }
 (?i:CROSS) { return CROSS; }
 (?i:CURSOR) { return CURSOR; }
+(?i:DATE) { return DATE; }
 (?i:DEC) { return DEC; }
 (?i:DECIMAL) { return DECIMAL; }
 (?i:DEFAULT) { return DEFAULT; }
@@ -155,6 +156,7 @@ int copied_so_far;
 (?i:TABLE) { return TABLE; }
 (?i:TEXT) { return VARCHAR; }			/* TEXT is the same as VARCHAR */
 (?i:THEN) { return THEN; }
+(?i:TIME) { return TIME; }
 (?i:TO) { return TO; }
 (?i:UNION) { return UNION; }
 (?i:UNIQUE) { return UNIQUE; }

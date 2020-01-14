@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -60,9 +60,9 @@ OCTO
 }
 
 @test "TPS005: type casting enforced to allow stand-in modulo implementation to function correctly" {
-  echo "# Note: The below output is actually incorrect. Will be correct once YDBOcto#235 is fixed" > output.txt
   octo <<OCTO 2>&1 | tee -a output.txt
 select id-2*(id/2::integer) from names;
+select id-2*((id/2)::integer) from names;
 OCTO
   verify_output TPS005 output.txt
 }

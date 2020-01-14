@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -19,14 +19,14 @@ setup() {
   load_fixture names.zwr
 }
 
-@test "select wildcard columns" {
+@test "TSC00A: select wildcard columns" {
   run octo <<OCTO
 select * from names;
 OCTO
   [[ "$output" =~ "Zero|Cool" ]]
 }
 
-@test "select columns via short name" {
+@test "TSC00B : select columns via short name" {
   run octo <<OCTO
 select firstName, lastName from names;
 OCTO
@@ -34,7 +34,7 @@ OCTO
   ! [[ "$output" =~ "0|Zero|Cool" ]]
 }
 
-@test "select columns via long name" {
+@test "TSC00C : select columns via long name" {
   run octo <<OCTO
 select names.firstName, names.lastName from names;
 OCTO
@@ -42,7 +42,7 @@ OCTO
   ! [[ "$output" =~ "0|Zero|Cool" ]]
 }
 
-@test "select column which doesn't exist" {
+@test "TSC00D : select column which doesn't exist" {
   octo <<OCTO 2>&1 | tee output.txt
 select names.hackName from names;
 OCTO
@@ -51,16 +51,14 @@ OCTO
   [[ "$output" =~ "Unknown column" ]]
 }
 
-@test "select column with invalid typing" {
+@test "TSC00E : select column with invalid typing" {
   octo <<OCTO 2>&1 | tee output.txt
 select names.firstName + 5 from names;
 OCTO
-  run cat output.txt
-  [[ "$output" =~ "ERROR" ]]
-  [[ "$output" =~ "Type mismatch" ]]
+  verify_output TSC00E output.txt
 }
 
-@test "select with a semicolon in string" {
+@test "TSC00F : select with a semicolon in string" {
   octo <<OCTO 2>&1 | tee output.txt
 select * from names where firstName = "; hello world";
 OCTO
@@ -69,7 +67,7 @@ OCTO
   [[ $(grep -c "|" output.txt) == "0" ]]
 }
 
-# @test "select from table with multiple keys" {
+# @test "TSC00G : select from table with multiple keys" {
 #   octo <<OCTO 2>&1 | tee output.txt
 # create table names2 (
 #   id INTEGER PRIMARY KEY,
@@ -84,21 +82,21 @@ OCTO
 # }
 #
 
-@test "select without a from statement" {
+@test "TSC00H : select without a from statement" {
   octo <<OCTO 2>&1 | tee output.txt
 select 17+5*5;
 OCTO
   [[ $( grep -c "^42$" output.txt) == "1" ]]
 }
 
-@test "select without a from with a syntax error" {
+@test "TSC00I : select without a from with a syntax error" {
   octo <<OCTO 2>&1 | tee output.txt
 select * asdfasdfsdf;
 OCTO
   [[ $( grep -c "ERROR" output.txt) == "1" ]]
 }
 
-@test "select so many columns it would exceed the M line length" {
+@test "TSC00J : select so many columns it would exceed the M line length" {
   octo -vv <<OCTO 2>&1 | tee output.txt
 SELECT firstName, firstName, firstName, firstName, firstName, firstName, firstName, firstName,
  firstName, firstName, firstName, firstName, firstName, firstName, firstName, firstName, firstName,
@@ -137,7 +135,7 @@ FROM names;
 OCTO
 }
 
-@test "select using a CASE statement" {
+@test "TSC00K : select using a CASE statement" {
   octo <<OCTO 2>&1 | tee output.txt
 SELECT
   firstName
@@ -152,7 +150,7 @@ OCTO
   [[ "$(grep -c "Zero" output.txt)" == "3" ]]
 }
 
-@test "select a negative number" {
+@test "TSC00L : select a negative number" {
   octo <<OCTO 2>&1 | tee output.txt
 SELECT -5
 FROM names;
@@ -160,7 +158,7 @@ OCTO
   [[ "$(grep -c -- "-5" output.txt)" != "0" ]]
 }
 
-@test "select some columns with C-style comments interwoven" {
+@test "TSC00M : select some columns with C-style comments interwoven" {
   octo <<OCTO 2>&1 | tee output.txt
 SELECT firstName /* We need first names */
   , lastName /* We also need last names */
@@ -174,7 +172,7 @@ OCTO
   [[ "$(grep -c "|" output.txt)" == "6" ]]
 }
 
-@test "order by a calculated column" {
+@test "TSC00N : order by a calculated column" {
   octo <<OCTO 2>&1 | tee output.txt
 SELECT nspname AS TABLE_SCHEM,
   NULL AS TABLE_CATALOG
@@ -188,7 +186,7 @@ OCTO
   [[ $(grep -c "|" output.txt) -eq 3 ]]
 }
 
-@test "cast int column to text" {
+@test "TSC00O : cast int column to text" {
   octo <<OCTO 2>&1 | tee output.txt
 SELECT *
 FROM names
@@ -197,7 +195,7 @@ OCTO
   [[ "$(grep -c "|" output.txt)" == "1" ]]
 }
 
-@test "verify that columns are cleaned after data is sent" {
+@test "TSC00P : verify that columns are cleaned after data is sent" {
   octo <<OCTO 2>&1 | tee output.txt
 SELECT * FROM names;
 OCTO

@@ -20,34 +20,22 @@ setup() {
 }
 
 @test "TCT000: coerce string to INTEGER" {
-  echo "# Note: The below output is actually incorrect. Will be correct once YDBOcto#235 is fixed" > output1.txt
   load_fixture TCT000.sql subtest novv
-  mv output.txt output2.txt
-  cat output1.txt output2.txt > output.txt
   verify_output TCT000 output.txt
 }
 
 @test "TCT001: coerce cannonical number string to INTEGER" {
-  echo "# Note: The below output is actually incorrect. Will be correct once YDBOcto#235 is fixed" > output1.txt
   load_fixture TCT001.sql subtest novv
-  mv output.txt output2.txt
-  cat output1.txt output2.txt > output.txt
   verify_output TCT001 output.txt
 }
 
 @test "TCT002: coerce NUMERIC type to INTEGER" {
-  echo "# Note: The below output is actually incorrect. Will be correct once YDBOcto#235 is fixed" > output1.txt
   load_fixture TCT002.sql subtest novv
-  mv output.txt output2.txt
-  cat output1.txt output2.txt > output.txt
   verify_output TCT002 output.txt
 }
 
 @test "TCT003: coerce string to NUMERIC" {
-  echo "# Note: The below output is actually incorrect. Will be correct once YDBOcto#235 is fixed" > output1.txt
   load_fixture TCT003.sql subtest novv
-  mv output.txt output2.txt
-  cat output1.txt output2.txt > output.txt
   verify_output TCT003 output.txt
 }
 
@@ -106,5 +94,13 @@ setup() {
   # Include generated M code in reference file to also verify generated M code
   cat _ydboctoP*.m >> output.txt
   verify_output TCT012 output.txt
+}
+
+@test "TCT013 : OCTO235 : Rename INT data type to NUMERIC as we do also support floating-point/decimal numbers" {
+  # This test has a few queries that use the Northwind schema so load that too.
+  load_fixture northwind.sql
+  load_fixture northwind.zwr
+  load_fixture TCT013.sql subtest novv
+  verify_output TCT013 output.txt
 }
 

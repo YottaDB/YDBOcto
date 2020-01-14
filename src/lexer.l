@@ -153,6 +153,7 @@ int copied_so_far;
 (?i:START) { return START; }
 (?i:SUM) { return SUM; }
 (?i:TABLE) { return TABLE; }
+(?i:TEXT) { return VARCHAR; }			/* TEXT is the same as VARCHAR */
 (?i:THEN) { return THEN; }
 (?i:TO) { return TO; }
 (?i:UNION) { return UNION; }

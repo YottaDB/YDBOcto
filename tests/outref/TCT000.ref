@@ -1,4 +1,3 @@
-# Note: The below output is actually incorrect. Will be correct once YDBOcto#235 is fixed
 
 -- TCT000 : coerce string to INTEGER
 

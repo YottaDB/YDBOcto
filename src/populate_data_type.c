@@ -325,6 +325,11 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, char *cursorId) {
 		case MULTIPLICATION:
 		case MODULO:
 			*type = child_type1;
+			if (!result && (STRING_LITERAL == child_type1)) {
+				ERROR(ERR_TYPE_NOT_COMPATIBLE, get_user_visible_type_string(child_type1), "arithmetic operations");
+				yyerror(NULL, NULL, &binary->operands[0], NULL, NULL, NULL);
+				result = 1;
+			}
 			break;
 		case CONCAT:
 			// Postgres suggests we should force things into a string when we encounter this

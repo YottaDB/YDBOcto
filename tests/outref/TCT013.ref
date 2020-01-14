@@ -1,0 +1,649 @@
+
+-- TCT013 : OCTO235 : Rename INT data type to NUMERIC as we do also support floating-point/decimal numbers
+
+SELECT id + firstname FROM names;
+SELECT id - firstname FROM names;
+SELECT id * firstname FROM names;
+SELECT id / firstname FROM names;
+SELECT id % firstname FROM names;
+SELECT id || firstname FROM names;
+SELECT firstname + lastname FROM names;
+SELECT firstname - lastname FROM names;
+SELECT firstname * lastname FROM names;
+SELECT firstname / lastname FROM names;
+SELECT firstname % lastname FROM names;
+SELECT firstname || lastname FROM names;
+
+-- Test typecast operator for various supported types (INTEGER/NUMERIC/VARCHAR/TEXT) and invalid type
+
+-- Test typecast of integer literals
+SELECT 1::integer FROM names;
+SELECT 1::numeric FROM names;
+SELECT 1::varchar FROM names;
+SELECT 1::text FROM names;
+SELECT 1::invalid FROM names;
+
+-- Test typecast of numeric literals
+SELECT -1.5::integer FROM names;
+SELECT -1.5::numeric FROM names;
+SELECT -1.5::varchar FROM names;
+SELECT -1.5::text FROM names;
+SELECT -1.5::invalid FROM names;
+
+SELECT (-1.5)::integer FROM names;
+SELECT (-1.5)::numeric FROM names;
+SELECT (-1.5)::varchar FROM names;
+SELECT (-1.5)::text FROM names;
+SELECT (-1.5)::invalid FROM names;
+
+-- Test typecast of string literals
+SELECT 'abcd'::integer FROM names;
+SELECT 'abcd'::numeric FROM names;
+SELECT 'abcd'::varchar FROM names;
+SELECT 'abcd'::text FROM names;
+SELECT 'abcd'::invalid FROM names;
+
+SELECT '1.5abcd'::integer FROM names;
+SELECT '2.5abcd'::numeric FROM names;
+SELECT '3.5abcd'::varchar FROM names;
+SELECT '4.5abcd'::text FROM names;
+SELECT '5.5abcd'::invalid FROM names;
+
+-- Test typecast of integer column references
+SELECT id::integer FROM names;
+SELECT id::numeric FROM names;
+SELECT id::varchar FROM names;
+SELECT id::text FROM names;
+SELECT id::invalid FROM names;
+
+-- Test typecast of numeric column references
+select Price::integer from Products;
+select Price::numeric from Products;
+select Price::varchar from Products;
+select Price::text from Products;
+select Price::invalid from Products;
+
+-- Test typecast of string column references
+SELECT firstname::integer FROM names;
+SELECT firstname::numeric FROM names;
+SELECT firstname::varchar FROM names;
+SELECT firstname::text FROM names;
+SELECT firstname::invalid FROM names;
+
+[ERROR] PATH:LINENUM DATE TIME : Type mismatch: left INTEGER, right VARCHAR
+Error with syntax near (line 1, column 8):
+
+SELECT id + firstname FROM names;
+      ^^
+Error with syntax near (line 1, column 13):
+
+SELECT id + firstname FROM names;
+           ^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT id + firstname FROM names;
+[ERROR] PATH:LINENUM DATE TIME : Type mismatch: left INTEGER, right VARCHAR
+Error with syntax near (line 1, column 8):
+
+SELECT id - firstname FROM names;
+       ^^
+Error with syntax near (line 1, column 13):
+
+SELECT id - firstname FROM names;
+            ^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT id - firstname FROM names;
+[ERROR] PATH:LINENUM DATE TIME : Type mismatch: left INTEGER, right VARCHAR
+Error with syntax near (line 1, column 8):
+
+SELECT id * firstname FROM names;
+       ^^
+Error with syntax near (line 1, column 13):
+
+SELECT id * firstname FROM names;
+            ^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT id * firstname FROM names;
+[ERROR] PATH:LINENUM DATE TIME : Type mismatch: left INTEGER, right VARCHAR
+Error with syntax near (line 1, column 8):
+
+SELECT id / firstname FROM names;
+       ^^
+Error with syntax near (line 1, column 13):
+
+SELECT id / firstname FROM names;
+            ^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT id / firstname FROM names;
+[ERROR] PATH:LINENUM DATE TIME : Type mismatch: left INTEGER, right VARCHAR
+Error with syntax near (line 1, column 8):
+
+SELECT id % firstname FROM names;
+       ^^
+Error with syntax near (line 1, column 13):
+
+SELECT id % firstname FROM names;
+            ^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT id % firstname FROM names;
+0Zero
+1Acid
+2Cereal
+3Lord
+4Joey
+5Zero
+[ERROR] PATH:LINENUM DATE TIME : Type VARCHAR not compatible for arithmetic operations
+Error with syntax near (line 1, column 8):
+
+SELECT firstname + lastname FROM names;
+       ^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT firstname + lastname FROM names;
+[ERROR] PATH:LINENUM DATE TIME : Type VARCHAR not compatible for arithmetic operations
+Error with syntax near (line 1, column 8):
+
+SELECT firstname - lastname FROM names;
+       ^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT firstname - lastname FROM names;
+[ERROR] PATH:LINENUM DATE TIME : Type VARCHAR not compatible for arithmetic operations
+Error with syntax near (line 1, column 8):
+
+SELECT firstname * lastname FROM names;
+       ^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT firstname * lastname FROM names;
+[ERROR] PATH:LINENUM DATE TIME : Type VARCHAR not compatible for arithmetic operations
+Error with syntax near (line 1, column 8):
+
+SELECT firstname / lastname FROM names;
+       ^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT firstname / lastname FROM names;
+[ERROR] PATH:LINENUM DATE TIME : Type VARCHAR not compatible for arithmetic operations
+Error with syntax near (line 1, column 8):
+
+SELECT firstname % lastname FROM names;
+       ^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT firstname % lastname FROM names;
+ZeroCool
+AcidBurn
+CerealKiller
+LordNikon
+Joey
+ZeroCool
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+[ERROR] PATH:LINENUM DATE TIME : Type INVALID does not exist
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT 1::invalid FROM names;
+-1
+-1
+-1
+-1
+-1
+-1
+-1.5
+-1.5
+-1.5
+-1.5
+-1.5
+-1.5
+[ERROR] PATH:LINENUM DATE TIME : Invalid input syntax : Expecting type NUMERIC or INTEGER : Actual type VARCHAR
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT -1.5::varchar FROM names;
+[ERROR] PATH:LINENUM DATE TIME : Invalid input syntax : Expecting type NUMERIC or INTEGER : Actual type VARCHAR
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT -1.5::text FROM names;
+[ERROR] PATH:LINENUM DATE TIME : Type INVALID does not exist
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT -1.5::invalid FROM names;
+-1
+-1
+-1
+-1
+-1
+-1
+-1.5
+-1.5
+-1.5
+-1.5
+-1.5
+-1.5
+-1.5
+-1.5
+-1.5
+-1.5
+-1.5
+-1.5
+-1.5
+-1.5
+-1.5
+-1.5
+-1.5
+-1.5
+[ERROR] PATH:LINENUM DATE TIME : Type INVALID does not exist
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT (-1.5)::invalid FROM names;
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+abcd
+abcd
+abcd
+abcd
+abcd
+abcd
+abcd
+abcd
+abcd
+abcd
+abcd
+abcd
+[ERROR] PATH:LINENUM DATE TIME : Type INVALID does not exist
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT 'abcd'::invalid FROM names;
+1
+1
+1
+1
+1
+1
+2.5
+2.5
+2.5
+2.5
+2.5
+2.5
+3.5abcd
+3.5abcd
+3.5abcd
+3.5abcd
+3.5abcd
+3.5abcd
+4.5abcd
+4.5abcd
+4.5abcd
+4.5abcd
+4.5abcd
+4.5abcd
+[ERROR] PATH:LINENUM DATE TIME : Type INVALID does not exist
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT '5.5abcd'::invalid FROM names;
+0
+1
+2
+3
+4
+5
+0
+1
+2
+3
+4
+5
+0
+1
+2
+3
+4
+5
+0
+1
+2
+3
+4
+5
+[ERROR] PATH:LINENUM DATE TIME : Type INVALID does not exist
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT id::invalid FROM names;
+18
+19
+10
+22
+21
+25
+30
+40
+97
+31
+21
+38
+6
+23
+15
+17
+39
+62
+9
+81
+10
+21
+9
+4
+14
+31
+43
+45
+123
+25
+12
+32
+2
+14
+18
+19
+26
+263
+18
+18
+9
+14
+46
+19
+9
+12
+9
+12
+20
+16
+53
+7
+32
+7
+24
+38
+19
+13
+55
+34
+28
+49
+43
+33
+21
+17
+14
+12
+36
+15
+21
+34
+15
+10
+7
+18
+13
+18
+19
+10
+22
+21.35
+25
+30
+40
+97
+31
+21
+38
+6
+23.25
+15.5
+17.45
+39
+62.5
+9.2
+81
+10
+21
+9
+4.5
+14
+31.23
+43.9
+45.6
+123.79
+25.89
+12.5
+32
+2.5
+14
+18
+19
+26
+263.5
+18
+18.4
+9.65
+14
+46
+19.45
+9.5
+12
+9.5
+12.75
+20
+16.25
+53
+7
+32.8
+7.45
+24
+38
+19.5
+13.25
+55
+34
+28.5
+49.3
+43.9
+33.25
+21.05
+17
+14
+12.5
+36
+15
+21.5
+34.8
+15
+10
+7.75
+18
+13
+18
+19
+10
+22
+21.35
+25
+30
+40
+97
+31
+21
+38
+6
+23.25
+15.5
+17.45
+39
+62.5
+9.2
+81
+10
+21
+9
+4.5
+14
+31.23
+43.9
+45.6
+123.79
+25.89
+12.5
+32
+2.5
+14
+18
+19
+26
+263.5
+18
+18.4
+9.65
+14
+46
+19.45
+9.5
+12
+9.5
+12.75
+20
+16.25
+53
+7
+32.8
+7.45
+24
+38
+19.5
+13.25
+55
+34
+28.5
+49.3
+43.9
+33.25
+21.05
+17
+14
+12.5
+36
+15
+21.5
+34.8
+15
+10
+7.75
+18
+13
+18
+19
+10
+22
+21.35
+25
+30
+40
+97
+31
+21
+38
+6
+23.25
+15.5
+17.45
+39
+62.5
+9.2
+81
+10
+21
+9
+4.5
+14
+31.23
+43.9
+45.6
+123.79
+25.89
+12.5
+32
+2.5
+14
+18
+19
+26
+263.5
+18
+18.4
+9.65
+14
+46
+19.45
+9.5
+12
+9.5
+12.75
+20
+16.25
+53
+7
+32.8
+7.45
+24
+38
+19.5
+13.25
+55
+34
+28.5
+49.3
+43.9
+33.25
+21.05
+17
+14
+12.5
+36
+15
+21.5
+34.8
+15
+10
+7.75
+18
+13
+[ERROR] PATH:LINENUM DATE TIME : Type INVALID does not exist
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select Price::invalid from Products;
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+Zero
+Acid
+Cereal
+Lord
+Joey
+Zero
+Zero
+Acid
+Cereal
+Lord
+Joey
+Zero
+[ERROR] PATH:LINENUM DATE TIME : Type INVALID does not exist
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT firstname::invalid FROM names;
+

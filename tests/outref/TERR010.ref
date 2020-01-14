@@ -3,6 +3,8 @@
 [SOCKET] [ERROR] PATH:LINENUM DATE TIME :                                       ^
 [SOCKET] [ERROR] PATH:LINENUM DATE TIME : syntax error, unexpected PLUS, expecting EXCEPT or UNION or RIGHT_PAREN
 [SOCKET] [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select -((select 1 from names limit 1)+(select 2 from names limit 1))+3;
+[SOCKET] [ERROR] PATH:LINENUM DATE TIME : Type VARCHAR not compatible for arithmetic operations
+[SOCKET] [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select ABS(-id)+(select firstname from names limit 1) as absid from names;
 [SOCKET] [ERROR] PATH:LINENUM DATE TIME : More than one row returned by a subquery used as an expression
 [SOCKET] [ERROR] PATH:LINENUM DATE TIME : Type BOOLEAN does not exist
 [SOCKET] [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select * from names as n1 where 1::boolean;
@@ -50,4 +52,3 @@
 [SOCKET] [ERROR] PATH:LINENUM DATE TIME :                      SELECT c.relkind = 'c'
 [SOCKET] [ERROR] PATH:LINENUM DATE TIME :                      FROM   pg_catalog.pg_class c
 [SOCKET] [ERROR] PATH:LINENUM DATE TIME :                      WHERE  c.oid = t.typrelid));
-

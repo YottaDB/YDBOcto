@@ -812,33 +812,20 @@ numeric_primary
   : value_expression_primary optional_subscript optional_cast_specification {
 	$$ = $value_expression_primary;
 	if (NULL != $optional_cast_specification) {
-		// For now, we support a subset of types. More shall be added as needed
 		SqlValue	*value;
 		SqlValueType	type;
 
-		UNPACK_SQL_STATEMENT(value, $optional_cast_specification, value);
-		char *c = value->v.string_literal;
-		while(*c != '\0') {
-			*c = toupper(*c);
-			c++;
-		}
-		c = value->v.string_literal;
-		if (0 == strcmp(c, "TEXT")) {
-			type = STRING_LITERAL;
-		} else if (0 == strcmp(c, "NUMERIC")) {
-			type = NUMERIC_LITERAL;
-		} else if (0 == strcmp(c, "INTEGER")) {
-			type = INTEGER_LITERAL;
+		type = (SqlValueType)$optional_cast_specification;
+		if (INVALID_SqlValueType == type) {
+			YYERROR;
 		} else {
-			ERROR(ERR_INVALID_TYPE, c);
-			YYABORT;
+			SQL_STATEMENT($$, value_STATEMENT);
+			MALLOC_STATEMENT($$, value, SqlValue);
+			UNPACK_SQL_STATEMENT(value, $$, value);
+			value->type = COERCE_TYPE;
+			value->coerced_type = type;
+			value->v.coerce_target = $value_expression_primary;
 		}
-		SQL_STATEMENT($$, value_STATEMENT);
-		MALLOC_STATEMENT($$, value, SqlValue);
-		UNPACK_SQL_STATEMENT(value, $$, value);
-		value->type = COERCE_TYPE;
-		value->coerced_type = type;
-		value->v.coerce_target = $value_expression_primary;
 	}
     }
 //  | numeric_value_function
@@ -860,30 +847,22 @@ value_expression_primary
 
 optional_cast_specification
   : /* Empty */ { $$ = NULL; }
-  | COLON COLON identifier {
-      $$ = $identifier;
+  // For now, we support a subset of types. More shall be added as needed
+  | COLON COLON VARCHAR {
+	$$ = (SqlStatement *)STRING_LITERAL;
     }
   | COLON COLON NUMERIC {
-	SqlValue *value;
-	size_t str_len;
-	SQL_STATEMENT($$, value_STATEMENT);
-	MALLOC_STATEMENT($$, value, SqlValue);
-	UNPACK_SQL_STATEMENT(value, $$, value);
-	value->type = STRING_LITERAL;
-	str_len = LIT_LEN("NUMERIC") + 1;       // null terminator
-	value->v.string_literal = octo_cmalloc(memory_chunks, str_len);
-	strncpy(value->v.string_literal, "NUMERIC", str_len);
+	$$ = (SqlStatement *)NUMERIC_LITERAL;
     }
   | COLON COLON INTEGER {
-	SqlValue *value;
-	size_t str_len;
-	SQL_STATEMENT($$, value_STATEMENT);
-	MALLOC_STATEMENT($$, value, SqlValue);
-	UNPACK_SQL_STATEMENT(value, $$, value);
-	value->type = STRING_LITERAL;
-	str_len = LIT_LEN("INTEGER") + 1;       // null terminator
-	value->v.string_literal = octo_cmalloc(memory_chunks, str_len);
-	strncpy(value->v.string_literal, "INTEGER", str_len);
+	$$ = (SqlStatement *)INTEGER_LITERAL;
+    }
+  | COLON COLON identifier {
+	SqlValue	*value;
+
+	UNPACK_SQL_STATEMENT(value, $identifier, value);
+	ERROR(ERR_INVALID_TYPE, value->v.string_literal);
+	$$ = (SqlStatement *)INVALID_SqlValueType;
     }
   ;
 

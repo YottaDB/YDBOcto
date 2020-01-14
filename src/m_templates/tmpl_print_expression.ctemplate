@@ -90,14 +90,28 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 		}
 		break;
 	case LP_COERCE_TYPE:
-		if (INTEGER_LITERAL == plan->extra_detail.lp_coerce_type.coerce_type) {
+		switch(plan->extra_detail.lp_coerce_type.coerce_type) {
+		case INTEGER_LITERAL:
 			%{}({}%
+			break;
+		case NUMERIC_LITERAL:
+			%{}(+{}%
+			break;
+		default:
+			break;
 		}
 		%{}({}%
 		TMPL(tmpl_print_expression, plan->v.lp_default.operand[0], pplan, dot_count, depth);
 		%{}){}%
-		if (INTEGER_LITERAL == plan->extra_detail.lp_coerce_type.coerce_type) {
+		switch(plan->extra_detail.lp_coerce_type.coerce_type) {
+		case INTEGER_LITERAL:
 			%{}\1){}%
+			break;
+		case NUMERIC_LITERAL:
+			%{}){}%
+			break;
+		default:
+			break;
 		}
 		break;
 	case LP_DERIVED_COLUMN:

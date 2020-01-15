@@ -70,51 +70,31 @@ SELECT firstname::varchar FROM names;
 SELECT firstname::text FROM names;
 SELECT firstname::invalid FROM names;
 
-[ERROR] PATH:LINENUM DATE TIME : Type mismatch: left INTEGER, right VARCHAR
-Error with syntax near (line 1, column 8):
-
-SELECT id + firstname FROM names;
-       ^^
+[ERROR] PATH:LINENUM DATE TIME : Type VARCHAR not compatible for arithmetic operations
 Error with syntax near (line 1, column 13):
 
 SELECT id + firstname FROM names;
             ^^^^^^^^^
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT id + firstname FROM names;
-[ERROR] PATH:LINENUM DATE TIME : Type mismatch: left INTEGER, right VARCHAR
-Error with syntax near (line 1, column 8):
-
-SELECT id - firstname FROM names;
-       ^^
+[ERROR] PATH:LINENUM DATE TIME : Type VARCHAR not compatible for arithmetic operations
 Error with syntax near (line 1, column 13):
 
 SELECT id - firstname FROM names;
             ^^^^^^^^^
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT id - firstname FROM names;
-[ERROR] PATH:LINENUM DATE TIME : Type mismatch: left INTEGER, right VARCHAR
-Error with syntax near (line 1, column 8):
-
-SELECT id * firstname FROM names;
-       ^^
+[ERROR] PATH:LINENUM DATE TIME : Type VARCHAR not compatible for arithmetic operations
 Error with syntax near (line 1, column 13):
 
 SELECT id * firstname FROM names;
             ^^^^^^^^^
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT id * firstname FROM names;
-[ERROR] PATH:LINENUM DATE TIME : Type mismatch: left INTEGER, right VARCHAR
-Error with syntax near (line 1, column 8):
-
-SELECT id / firstname FROM names;
-       ^^
+[ERROR] PATH:LINENUM DATE TIME : Type VARCHAR not compatible for arithmetic operations
 Error with syntax near (line 1, column 13):
 
 SELECT id / firstname FROM names;
             ^^^^^^^^^
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT id / firstname FROM names;
-[ERROR] PATH:LINENUM DATE TIME : Type mismatch: left INTEGER, right VARCHAR
-Error with syntax near (line 1, column 8):
-
-SELECT id % firstname FROM names;
-       ^^
+[ERROR] PATH:LINENUM DATE TIME : Type VARCHAR not compatible for arithmetic operations
 Error with syntax near (line 1, column 13):
 
 SELECT id % firstname FROM names;
@@ -131,30 +111,55 @@ Error with syntax near (line 1, column 8):
 
 SELECT firstname + lastname FROM names;
        ^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : Type VARCHAR not compatible for arithmetic operations
+Error with syntax near (line 1, column 20):
+
+SELECT firstname + lastname FROM names;
+                   ^^^^^^^^
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT firstname + lastname FROM names;
 [ERROR] PATH:LINENUM DATE TIME : Type VARCHAR not compatible for arithmetic operations
 Error with syntax near (line 1, column 8):
 
 SELECT firstname - lastname FROM names;
        ^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : Type VARCHAR not compatible for arithmetic operations
+Error with syntax near (line 1, column 20):
+
+SELECT firstname - lastname FROM names;
+                   ^^^^^^^^
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT firstname - lastname FROM names;
 [ERROR] PATH:LINENUM DATE TIME : Type VARCHAR not compatible for arithmetic operations
 Error with syntax near (line 1, column 8):
 
 SELECT firstname * lastname FROM names;
        ^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : Type VARCHAR not compatible for arithmetic operations
+Error with syntax near (line 1, column 20):
+
+SELECT firstname * lastname FROM names;
+                   ^^^^^^^^
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT firstname * lastname FROM names;
 [ERROR] PATH:LINENUM DATE TIME : Type VARCHAR not compatible for arithmetic operations
 Error with syntax near (line 1, column 8):
 
 SELECT firstname / lastname FROM names;
        ^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : Type VARCHAR not compatible for arithmetic operations
+Error with syntax near (line 1, column 20):
+
+SELECT firstname / lastname FROM names;
+                   ^^^^^^^^
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT firstname / lastname FROM names;
 [ERROR] PATH:LINENUM DATE TIME : Type VARCHAR not compatible for arithmetic operations
 Error with syntax near (line 1, column 8):
 
 SELECT firstname % lastname FROM names;
        ^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : Type VARCHAR not compatible for arithmetic operations
+Error with syntax near (line 1, column 20):
+
+SELECT firstname % lastname FROM names;
+                   ^^^^^^^^
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT firstname % lastname FROM names;
 ZeroCool
 AcidBurn

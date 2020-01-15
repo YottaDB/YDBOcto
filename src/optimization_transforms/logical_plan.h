@@ -150,7 +150,8 @@ typedef struct LpExtraAggregateFunction {
 } LpExtraAggregateFunction;
 
 typedef struct LpExtraCoerceType {
-	SqlValueType		coerce_type;	/* The resulting type of the typecast/coercion operator */
+	SqlValueType		coerce_type;		/* The resulting type of the typecast/coercion operator */
+	SqlValueType		pre_coerce_type;	/* The type of the operand before the typecast/coercion operator */
 } LpExtraCoerceType;
 
 /* We use yet another triple type here so we can easily traverse the tree to replace tables and WHEREs.

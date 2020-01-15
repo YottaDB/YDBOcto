@@ -23,7 +23,7 @@
 #define MAX_M_LINE_LENGTH 4096
 
 TEMPLATE(tmpl_column_list_combine, LogicalPlan *plan, PhysicalPlan *pplan, char *delim,
-						int start_output_key, int output_key_length, int dot_count) {
+				int start_output_key, int output_key_length, int dot_count) {
 	TEMPLATE_INIT();
 
 	char	c;
@@ -50,8 +50,9 @@ TEMPLATE(tmpl_column_list_combine, LogicalPlan *plan, PhysicalPlan *pplan, char 
 			tmpPlan = tmpPlan->v.lp_default.operand[1];
 			assert(LP_COLUMN_LIST_ALIAS == tmpPlan->type);
 			order_by_expr_type = tmpPlan->v.lp_column_list_alias.column_list_alias->type;
-			assert((NUMERIC_LITERAL == order_by_expr_type)
+			assert((BOOLEAN_VALUE == order_by_expr_type)
 				|| (INTEGER_LITERAL == order_by_expr_type)
+				|| (NUMERIC_LITERAL == order_by_expr_type)
 				|| (STRING_LITERAL == order_by_expr_type)
 				|| (NUL_VALUE == order_by_expr_type));
 			if (STRING_LITERAL == order_by_expr_type) {

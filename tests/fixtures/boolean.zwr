@@ -1,0 +1,10 @@
+GT.M MUPIP EXTRACT
+21-SEP-2018  14:55:45 ZWR
+^stockAvailable(100)="100|1"
+^stockAvailable(200)="200|0"
+^stockAvailable(300)="300|1"
+^stockAvailable(400)="400|1"
+^stockAvailable(500)="500|1"
+^stockAvailable(600)="600|1"
+^stockAvailable(700)="700|0"
+^stockAvailable(800)="800|0"

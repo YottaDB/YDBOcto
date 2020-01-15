@@ -179,7 +179,7 @@ LP_INSERT:
         LP_ORDER_BY: ORDER BY ASC: 
           LP_COLUMN_LIST: 
             LP_WHERE: 
-              LP_COERCE_TYPE: [coerce_type = VARCHAR]:
+              LP_COERCE_TYPE: [pre_coerce_type = INTEGER] [post_coerce_type = VARCHAR]:
                 LP_COLUMN_ALIAS: P(1).OID
               LP_COLUMN_LIST_ALIAS: 
               - type: STRING_LITERAL
@@ -383,7 +383,7 @@ LP_INSERT:
         LP_ORDER_BY: ORDER BY ASC: 
           LP_COLUMN_LIST: 
             LP_WHERE: 
-              LP_COERCE_TYPE: [coerce_type = VARCHAR]:
+              LP_COERCE_TYPE: [pre_coerce_type = INTEGER] [post_coerce_type = VARCHAR]:
                 LP_COLUMN_ALIAS: P(1).OID
               LP_COLUMN_LIST_ALIAS: 
               - type: STRING_LITERAL

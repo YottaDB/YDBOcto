@@ -6,5 +6,7 @@ WHERE  n.nspname != 'pg_toast'
        AND typelem = 0
        AND typrelid = 0
 
-oid
-text
+bool
+int4
+numeric
+varchar

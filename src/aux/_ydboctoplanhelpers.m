@@ -538,3 +538,33 @@ AvgDistinct(keyId,groupBySubs,aggrIndex,curValue)
 	DO Avg(keyId,groupBySubs,aggrIndex,curValue)
 	QUIT
 
+Integer2Boolean(intvalue)	;
+	; Converts an input boolean parameter (`intvalue`) to 1 if it evaluates to a non-zero value and 0 otherwise.
+	; This is so we are compatible with Postgres
+	QUIT $SELECT(+intvalue:1,1:0)
+
+Boolean2String(boolvalue)	;
+	; Converts an input boolean parameter (`boolvalue`) to `true` if it evaluates to a non-zero value and `false` otherwise
+	; This is so we are compatible with Postgres
+	QUIT $SELECT(+boolvalue:"true",1:"false")
+
+String2Boolean(boolstr)	;
+	; Converts an input boolean string value (`boolstr`) (can be `t` or `f`) to 1 or 0 respectively
+	IF '$DATA(%ydboctoStr2Bool) DO
+	.	; Below are list of string literals which are accepted for boolean conversion
+	.	; Anything else is treated as the boolean value 0 (false).
+	.	SET %ydboctoStr2Bool("true")=1
+	.	SET %ydboctoStr2Bool("t")=1
+	.	SET %ydboctoStr2Bool("yes")=1
+	.	SET %ydboctoStr2Bool("y")=1
+	.	SET %ydboctoStr2Bool("1")=1
+	.	SET %ydboctoStr2Bool("false")=0
+	.	SET %ydboctoStr2Bool("f")=0
+	.	SET %ydboctoStr2Bool("no")=0
+	.	SET %ydboctoStr2Bool("n")=0
+	.	SET %ydboctoStr2Bool("0")=0
+	IF '$DATA(%ydboctoStr2Bool(boolstr))  DO
+	.	SET %ydboctoerror("INVALIDINPUTSYNTAXBOOL",1)=boolstr	; pass parameter to `src/ydb_error_check.c`
+	.	ZMESSAGE %ydboctoerror("INVALIDINPUTSYNTAXBOOL")
+	QUIT %ydboctoStr2Bool(boolstr)
+

@@ -230,11 +230,14 @@ int emit_plan_helper(char *buffer, size_t buffer_len, int depth, LogicalPlan *pl
 		break;
 	case LP_COLUMN_LIST_ALIAS:
 		switch(plan->v.lp_column_list_alias.column_list_alias->type) {
-			case NUMERIC_LITERAL:
-				data_type_ptr = "NUMERIC_LITERAL";
+			case BOOLEAN_VALUE:
+				data_type_ptr = "BOOLEAN_VALUE";
 				break;
 			case INTEGER_LITERAL:
 				data_type_ptr = "INTEGER_LITERAL";
+				break;
+			case NUMERIC_LITERAL:
+				data_type_ptr = "NUMERIC_LITERAL";
 				break;
 			case STRING_LITERAL:
 				data_type_ptr = "STRING_LITERAL";
@@ -244,9 +247,6 @@ int emit_plan_helper(char *buffer, size_t buffer_len, int depth, LogicalPlan *pl
 				break;
 			case CALCULATED_VALUE:
 				data_type_ptr = "CALCULATED_VALUE";
-				break;
-			case BOOLEAN_VALUE:
-				data_type_ptr = "BOOLEAN_VALUE";
 				break;
 			case FUNCTION_NAME:
 				data_type_ptr = "FUNCTION";
@@ -308,7 +308,9 @@ int emit_plan_helper(char *buffer, size_t buffer_len, int depth, LogicalPlan *pl
 				SAFE_SNPRINTF(written, buff_ptr, buffer, buffer_len, "ORDER BY %s: ", str);
 			}
 			if (LP_COERCE_TYPE == plan->type) {
-				SAFE_SNPRINTF(written, buff_ptr, buffer, buffer_len, "[coerce_type = %s]:",
+				SAFE_SNPRINTF(written, buff_ptr, buffer, buffer_len,
+					"[pre_coerce_type = %s] [post_coerce_type = %s]:",
+					get_user_visible_type_string(plan->extra_detail.lp_coerce_type.pre_coerce_type),
 					get_user_visible_type_string(plan->extra_detail.lp_coerce_type.coerce_type));
 			}
 			SAFE_SNPRINTF(written, buff_ptr, buffer, buffer_len, "\n");

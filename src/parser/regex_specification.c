@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -44,14 +44,19 @@ int regex_specification(SqlStatement **stmt, SqlStatement *op0, SqlStatement *op
 		trim_dot_star(op1->v.value);
 		regex->v.binary->operands[1] = op1;
 	} else if (0 < is_regex_like_or_similar) {
-		SqlValue *value;
+		SqlValue	*value;
+
 		UNPACK_SQL_STATEMENT(value, op1, value);
-		if(COERCE_TYPE == value->type){
-			value->v.coerce_target->v.value->v.string_literal = (1 == is_regex_like_or_similar ?
-				like_to_regex(value->v.coerce_target->v.value->v.string_literal) : similar_to_regex(value->v.coerce_target->v.value->v.string_literal));
+		if (COERCE_TYPE == value->type){
+			value->v.coerce_target->v.value->v.string_literal
+				= ((1 == is_regex_like_or_similar)
+					?  like_to_regex(value->v.coerce_target->v.value->v.string_literal)
+					: similar_to_regex(value->v.coerce_target->v.value->v.string_literal));
 			trim_dot_star(value->v.coerce_target->v.value);
 		} else {
-			value->v.string_literal = (1 == is_regex_like_or_similar  ? like_to_regex(value->v.string_literal) : similar_to_regex(value->v.string_literal));
+			value->v.string_literal = ((1 == is_regex_like_or_similar)
+							? like_to_regex(value->v.string_literal)
+							: similar_to_regex(value->v.string_literal));
 			trim_dot_star(value);
 			int status = parse_literal_to_parameter(cursorId, value, TRUE);
 			if (0 != status) {
@@ -76,7 +81,7 @@ int regex_specification(SqlStatement **stmt, SqlStatement *op0, SqlStatement *op
 	if ('$' == *c) {
 		c++;
 	}
-	if('\0' == *c && is_dot_star){
+	if ('\0' == *c && is_dot_star){
 		int status;
 		SQL_STATEMENT(regex, value_STATEMENT);
 		MALLOC_STATEMENT(regex, value, SqlValue);

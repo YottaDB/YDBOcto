@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -57,6 +57,9 @@ CREATE TABLE pg_type (
   typacl VARCHAR(25) PIECE "30",
   oid INTEGER PIECE "31"
 ) GLOBAL "^%ydboctoocto(""tables"",""pg_catalog"",""pg_type"",keys(""typname""))";
+
+-- Note: Above GLOBAL is populated in `tests/fixtures/postgres-seed.zwr` using the following query and removing spaces from the output.
+--	select *,oid from pg_catalog.pg_type where typname in ('bool','int4','numeric','varchar','name');
 
 CREATE TABLE pg_catalog.pg_type (
   typname VARCHAR(25) PRIMARY KEY PIECE "1",

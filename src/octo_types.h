@@ -169,13 +169,13 @@ typedef enum BinaryOperations {
 
 typedef enum SqlValueType {
 	UNKNOWN_SqlValueType,
+	BOOLEAN_VALUE,
 	NUMERIC_LITERAL,
 	INTEGER_LITERAL,
 	STRING_LITERAL,
 	COLUMN_REFERENCE,
 	CALCULATED_VALUE,
 	FUNCTION_NAME,
-	BOOLEAN_VALUE,
 	PARAMETER_VALUE,
 	NUL_VALUE,
 	COERCE_TYPE,
@@ -184,9 +184,10 @@ typedef enum SqlValueType {
 
 typedef enum SqlDataType {
 	UNKNOWN_SqlDataType,
-	CHARACTER_STRING_TYPE,
+	BOOLEAN_TYPE,
+	INTEGER_TYPE,
 	NUMERIC_TYPE,
-	INTEGER_TYPE
+	STRING_TYPE
 } SqlDataType;
 
 /* Note: Additions of keywords in the middle of the table can cause SIG-11s because the actual binary value
@@ -461,8 +462,8 @@ typedef struct SqlFunctionCall {
 
 typedef struct SqlValue {
 	enum SqlValueType	type;
-	enum SqlValueType	coerced_type;
-	enum SqlDataType	data_type;
+	enum SqlValueType	coerced_type;		/* initialized/usable only if `type` is COERCE_TYPE */
+	enum SqlValueType	pre_coerced_type;	/* initialized/usable only if `type` is COERCE_TYPE */
 	char			*parameter_index;
 	union {
 		char *string_literal;

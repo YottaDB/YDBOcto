@@ -88,6 +88,7 @@ ADD_BATS_TEST(test_anyallsome_operator)
 ADD_BATS_TEST(test_prep_statements)
 ADD_BATS_TEST(test_query_generator)
 ADD_BATS_TEST(test_group_by)
+ADD_BATS_TEST(test_boolean_type)
 
 find_program(psql NAMES psql)
 if(psql)

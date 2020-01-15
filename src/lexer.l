@@ -81,6 +81,8 @@ int copied_so_far;
 (?i:AVG) { return AVG; }
 (?i:BEG) { return BEG; }
 (?i:BETWEEN) { return BETWEEN; }
+(?i:BOOL) { return BOOLEAN; }
+(?i:BOOLEAN) { return BOOLEAN; }
 (?i:BY) { return BY; }
 (?i:CASCADE) { return CASCADE; }
 (?i:CASE) { return CASE; }

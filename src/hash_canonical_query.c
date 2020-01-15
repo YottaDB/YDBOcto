@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -236,8 +236,6 @@ void hash_canonical_query(hash128_state_t *state, SqlStatement *stmt, int *statu
 		ADD_INT_HASH(state, value_STATEMENT);
 		// SqlValueType
 		ADD_INT_HASH(state, value->type);
-		// SqlDataType
-		ADD_INT_HASH(state, value->data_type);
 		switch(value->type) {
 		case CALCULATED_VALUE:
 			hash_canonical_query(state, value->v.calculated, status);
@@ -246,16 +244,22 @@ void hash_canonical_query(hash128_state_t *state, SqlStatement *stmt, int *statu
 		case NUMERIC_LITERAL:
 		case INTEGER_LITERAL:
 		case STRING_LITERAL:
+		case NUL_VALUE:
 			// Ignore literals to prevent redundant plans
 			break;
 		case FUNCTION_NAME:
 		case COLUMN_REFERENCE:
 			ydb_mmrhash_128_ingest(state, (void*)value->v.reference, strlen(value->v.reference));
 			break;
-		case NUL_VALUE:
-			break;
 		case COERCE_TYPE:
+			assert((BOOLEAN_VALUE == value->coerced_type) || (NUMERIC_LITERAL == value->coerced_type)
+				|| (INTEGER_LITERAL == value->coerced_type) || (STRING_LITERAL == value->coerced_type)
+				|| (NUL_VALUE == value->coerced_type));
 			ADD_INT_HASH(state, value->coerced_type);
+			assert((BOOLEAN_VALUE == value->pre_coerced_type) || (NUMERIC_LITERAL == value->pre_coerced_type)
+				|| (INTEGER_LITERAL == value->pre_coerced_type) || (STRING_LITERAL == value->pre_coerced_type)
+				|| (NUL_VALUE == value->pre_coerced_type));
+			ADD_INT_HASH(state, value->pre_coerced_type);
 			hash_canonical_query(state, value->v.coerce_target, status);
 			break;
 		default:

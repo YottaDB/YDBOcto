@@ -1,7 +1,7 @@
 {}%
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -78,7 +78,9 @@ TEMPLATE(tmpl_tablejoin_body_group_by, PhysicalPlan *plan, int dot_count) {
 			boolean_t	isString;
 
 			param_type = af->extra_detail.lp_aggregate_function.param_type;
-			assert((NUMERIC_LITERAL == param_type) || (INTEGER_LITERAL == param_type)
+			assert((BOOLEAN_VALUE == param_type)
+				|| (INTEGER_LITERAL == param_type)
+				|| (NUMERIC_LITERAL == param_type)
 				|| (STRING_LITERAL == param_type) || (NUL_VALUE == param_type));
 			isString = (STRING_LITERAL == param_type) ? TRUE : FALSE;
 			%{},{{ isString|%d }}{}%

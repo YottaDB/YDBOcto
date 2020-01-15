@@ -45,7 +45,7 @@ OCTO
 
 @test "HB04 : Can load data into Postgres database/tables and communicate with the PostgreSQL server" {
   echo "\d" > listdb.sql
-  for schema in names customers pastas easynames northwind sqllogic1
+  for schema in names customers pastas easynames northwind sqllogic1 boolean
   do
 	# If the database and/or table already exists, the `create_postgres_database` or `lost_postgres_fixture` function
 	# invocations might return with a non-zero exit status due to the database being created by a different userid

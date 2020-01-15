@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -44,14 +44,17 @@ SqlColumnListAlias *columns_to_column_list_alias(SqlColumn *column, SqlStatement
 		case UNKNOWN_SqlDataType:
 			cur_column_list_alias->type = UNKNOWN_SqlValueType;
 			break;
-		case CHARACTER_STRING_TYPE:
-			cur_column_list_alias->type = STRING_LITERAL;
+		case BOOLEAN_TYPE:
+			cur_column_list_alias->type = BOOLEAN_VALUE;
+			break;
+		case INTEGER_TYPE:
+			cur_column_list_alias->type = INTEGER_LITERAL;
 			break;
 		case NUMERIC_TYPE:
 			cur_column_list_alias->type = NUMERIC_LITERAL;
 			break;
-		case INTEGER_TYPE:
-			cur_column_list_alias->type = INTEGER_LITERAL;
+		case STRING_TYPE:
+			cur_column_list_alias->type = STRING_LITERAL;
 			break;
 		default:
 			assert(FALSE);

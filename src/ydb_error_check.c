@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -60,6 +60,21 @@ void ydb_error_check(int status, char *file, int line)
 		ydboctoerrcode++;
 		if (status == ydboctoerrcode) {
 			octo_log(line, file, ERROR, ERR_SUBQUERY_MULTIPLE_ROWS, NULL);
+		}
+		/* Check if %ydboctoerror("INVALIDINPUTSYNTAXBOOL")	*/
+		ydboctoerrcode++;
+		if (status == ydboctoerrcode) {
+			ydb_buffer_t	subs[2];
+
+			/* M code would have passed the actual string involved in an M node. Get that before printing error. */
+			YDB_LITERAL_TO_BUFFER("%ydboctoerror", &varname);
+			YDB_LITERAL_TO_BUFFER("INVALIDINPUTSYNTAXBOOL", &subs[0]);
+			YDB_LITERAL_TO_BUFFER("1", &subs[1]);
+			ydb_get_s(&varname, 2, subs, &ret_value);
+			ret_value.buf_addr[ret_value.len_used] = '\0';
+			octo_log(line, file, ERROR, ERR_INVALID_INPUT_SYNTAX_BOOL, ret_value.buf_addr);
+			/* Now that we have got the value, delete the M node */
+			ydb_delete_s(&varname, 2, subs, YDB_DEL_NODE);
 		}
 		ydboctoerrcode++;
 		assert(ydboctoerrcode == ydboctoerrcodemax);

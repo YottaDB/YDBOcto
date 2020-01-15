@@ -35,6 +35,7 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 	LogicalPlan	*first_operand, *second_operand, *t_operand;
 	LogicalPlan	*cur_lp_key, *derived_column;
 	boolean_t	split_m_line;
+	SqlValueType	coerce_type, pre_coerce_type;
 
 	assert(NULL != plan);
 	first_operand = plan->v.lp_default.operand[0];
@@ -90,25 +91,72 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 		}
 		break;
 	case LP_COERCE_TYPE:
-		switch(plan->extra_detail.lp_coerce_type.coerce_type) {
+		coerce_type = plan->extra_detail.lp_coerce_type.coerce_type;
+		pre_coerce_type = plan->extra_detail.lp_coerce_type.pre_coerce_type;
+		switch(coerce_type) {
+		case BOOLEAN_VALUE:
+			switch(pre_coerce_type) {
+			case BOOLEAN_VALUE:
+				break;
+			case INTEGER_LITERAL:
+				%{}$$Integer2Boolean^%%ydboctoplanhelpers({}%
+				break;
+			case NUMERIC_LITERAL:
+				%{}$$Integer2Boolean^%%ydboctoplanhelpers({}%
+				break;
+			case STRING_LITERAL:
+				%{}$$String2Boolean^%%ydboctoplanhelpers({}%
+				break;
+			case NUL_VALUE:
+				/* Need to address it as part of YDBOcto#311 */
+				break;
+			default:
+				break;
+			}
+			break;
 		case INTEGER_LITERAL:
 			%{}({}%
 			break;
 		case NUMERIC_LITERAL:
 			%{}(+{}%
 			break;
+		case NUL_VALUE:
+			break;
+		case STRING_LITERAL:
+			if (BOOLEAN_VALUE == pre_coerce_type) {
+				%{}$$Boolean2String^%%ydboctoplanhelpers({}%
+			}
+			break;
 		default:
+			assert(FALSE);
 			break;
 		}
 		%{}({}%
 		TMPL(tmpl_print_expression, plan->v.lp_default.operand[0], pplan, dot_count, depth);
 		%{}){}%
 		switch(plan->extra_detail.lp_coerce_type.coerce_type) {
+		case BOOLEAN_VALUE:
+			switch(pre_coerce_type) {
+			case INTEGER_LITERAL:
+			case NUMERIC_LITERAL:
+			case STRING_LITERAL:
+				%{}){}%
+			default:
+				break;
+			}
+			break;
 		case INTEGER_LITERAL:
 			%{}\1){}%
 			break;
 		case NUMERIC_LITERAL:
 			%{}){}%
+			break;
+		case NUL_VALUE:
+			break;
+		case STRING_LITERAL:
+			if (BOOLEAN_VALUE == pre_coerce_type) {
+				%{}){}%
+			}
 			break;
 		default:
 			break;
@@ -224,19 +272,16 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 		}
 		break;
 	case LP_BOOLEAN_REGEX_SENSITIVE:
-		%{}$$regmatch^%%ydbposix({}%
-		TMPL(tmpl_print_expression, first_operand, pplan, 0, 0);
-		%{},{}%
-		TMPL(tmpl_print_expression, second_operand, pplan, 0, 0);
-		%{}){}%
-		break;
 	case LP_BOOLEAN_REGEX_INSENSITIVE:
-		// The extra ',3' below marks this as case insensitive
 		%{}$$regmatch^%%ydbposix({}%
 		TMPL(tmpl_print_expression, first_operand, pplan, 0, 0);
 		%{},{}%
 		TMPL(tmpl_print_expression, second_operand, pplan, 0, 0);
-		%{},3){}%
+		if (LP_BOOLEAN_REGEX_INSENSITIVE == plan->type) {
+			// The extra ',3' below marks this as case insensitive
+			%{},3{}%
+		}
+		%{}){}%
 		break;
 	case LP_BOOLEAN_IN:
 	case LP_BOOLEAN_NOT_IN:

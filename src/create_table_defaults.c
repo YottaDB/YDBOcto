@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -25,16 +25,16 @@
  * non-zero return value implies error while creating table
  */
 int create_table_defaults(SqlStatement *table_statement, SqlStatement *keywords_statement) {
-	SqlTable *table;
-	SqlOptionalKeyword *keyword, *cur_keyword, *start_keyword, *t_keyword;
-	SqlColumn *key_columns[MAX_KEY_COUNT], *cur_column, *start_column;
-	SqlStatement *statement;
-	SqlValue *value;
-	char buffer[MAX_STR_CONST], buffer2[MAX_STR_CONST], *out_buffer;
-	char *buff_ptr;
-	size_t str_len;
-	int max_key = 0, i, len;
-	unsigned int options = 0;
+	SqlTable		*table;
+	SqlOptionalKeyword	*keyword, *cur_keyword, *start_keyword, *t_keyword;
+	SqlColumn		*key_columns[MAX_KEY_COUNT], *cur_column, *start_column;
+	SqlStatement		*statement;
+	SqlValue		*value;
+	char			buffer[MAX_STR_CONST], buffer2[MAX_STR_CONST], *out_buffer;
+	char			*buff_ptr;
+	size_t			str_len;
+	int			max_key = 0, i, len;
+	unsigned int		options = 0;
 
 	assert(keywords_statement != NULL);
 
@@ -47,7 +47,7 @@ int create_table_defaults(SqlStatement *table_statement, SqlStatement *keywords_
 	 * -1 indicates no keys found to make all columns keys
 	 * -2 inidicates there was some error in the key columns
 	 */
-	if(max_key == -1) {
+	if (max_key == -1) {
 		UNPACK_SQL_STATEMENT(start_column, table->columns, column);
 		cur_column = start_column;
 		i = 0;
@@ -80,7 +80,6 @@ int create_table_defaults(SqlStatement *table_statement, SqlStatement *keywords_
 	} else if (max_key == -2) {
 		return 1; // non-zero return value is an error (i.e causes YYABORT in caller)
 	}
-
 	cur_keyword = start_keyword;
 	do {
 		switch(cur_keyword->keyword) {
@@ -106,18 +105,17 @@ int create_table_defaults(SqlStatement *table_statement, SqlStatement *keywords_
 			break;
 		}
 		cur_keyword = cur_keyword->next;
-	} while(cur_keyword != start_keyword);
-	if(options == (SOURCE | DELIM))
+	} while (cur_keyword != start_keyword);
+	if (options == (SOURCE | DELIM))
 		return 0;
-
-	if(!(options & SOURCE)) {
+	if (!(options & SOURCE)) {
 		UNPACK_SQL_STATEMENT(value, table->tableName, value);
 		buff_ptr = buffer;
 		buff_ptr += snprintf(buff_ptr, MAX_STR_CONST - (buff_ptr - buffer), "^%s(",
 				     value->v.reference);
 		for(i = 0; i <= max_key; i++) {
 			generate_key_name(buffer2, MAX_STR_CONST, i, table, key_columns);
-			if(i != 0)
+			if (i != 0)
 				buff_ptr += snprintf(buff_ptr, MAX_STR_CONST - (buff_ptr - buffer), ",");
 			buff_ptr += snprintf(buff_ptr, MAX_STR_CONST - (buff_ptr - buffer), "%s", buffer2);
 		}
@@ -135,7 +133,7 @@ int create_table_defaults(SqlStatement *table_statement, SqlStatement *keywords_
 		dqinit(keyword);
 		dqappend(start_keyword, keyword);
 	}
-	if(!(options & DELIM)) {
+	if (!(options & DELIM)) {
 		snprintf(buffer, MAX_STR_CONST, COLUMN_DELIMITER);
 		str_len = strnlen(buffer, MAX_STR_CONST);
 		out_buffer = octo_cmalloc(memory_chunks, str_len + 1);
@@ -154,7 +152,7 @@ int create_table_defaults(SqlStatement *table_statement, SqlStatement *keywords_
 	do {
 		switch(cur_keyword->keyword) {
 		case OPTIONAL_SOURCE:
-			if(table->source != NULL && table->source->v.keyword == cur_keyword)
+			if (table->source != NULL && table->source->v.keyword == cur_keyword)
 				break;
 			assert(table->source == NULL);
 			SQL_STATEMENT(statement, keyword_STATEMENT);
@@ -162,7 +160,7 @@ int create_table_defaults(SqlStatement *table_statement, SqlStatement *keywords_
 			table->source = statement;
 			break;
 		case OPTIONAL_DELIM:
-			if(table->delim != NULL && table->delim->v.keyword == cur_keyword)
+			if (table->delim != NULL && table->delim->v.keyword == cur_keyword)
 				break;
 			assert(table->delim == NULL);
 			SQL_STATEMENT(statement, keyword_STATEMENT);
@@ -177,6 +175,6 @@ int create_table_defaults(SqlStatement *table_statement, SqlStatement *keywords_
 			break;
 		}
 		cur_keyword = cur_keyword->next;
-	} while(cur_keyword != start_keyword);
+	} while (cur_keyword != start_keyword);
 	return 0;
 }

@@ -23,3 +23,13 @@ select id-2*(id/2::integer) from names;
 select id-2*((id/2)::integer) from names;
 select DOLLARZWRITE(id)::integer from names;
 
+-- Test typecast to boolean. Occasionally test that `bool` is equivalent to `boolean`
+select id::boolean,(ABS(2)::boolean || id::bool) from names;
+select id::boolean,(ABS(2)::bool + id) from names;
+select id::boolean || id::boolean,ABS(2)::numeric * id from names;
+select id::boolean || id::boolean,ABS(2)::boolean * id from names;
+select id from (select * from names UNION select 6.5::bool,'A','B');
+select * from names where firstname::boolean = id;
+select id-2*(id/2::bool) from names;
+select id-2*((id/2)::boolean) from names;
+

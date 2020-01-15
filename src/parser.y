@@ -65,6 +65,7 @@ extern void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, int *plan
 %token AVG
 %token BEG
 %token BETWEEN
+%token BOOLEAN
 %token BY
 %token CASCADE
 %token CASE
@@ -826,6 +827,7 @@ numeric_primary
 			UNPACK_SQL_STATEMENT(value, $$, value);
 			value->type = COERCE_TYPE;
 			value->coerced_type = type;
+			/* value->pre_coerced_type will be initialized in populate_data_type */
 			value->v.coerce_target = $value_expression_primary;
 		}
 	}
@@ -850,14 +852,17 @@ value_expression_primary
 optional_cast_specification
   : /* Empty */ { $$ = NULL; }
   // For now, we support a subset of types. More shall be added as needed
-  | COLON COLON VARCHAR {
-	$$ = (SqlStatement *)STRING_LITERAL;
+  | COLON COLON BOOLEAN {
+	$$ = (SqlStatement *)BOOLEAN_VALUE;
+    }
+  | COLON COLON INTEGER {
+	$$ = (SqlStatement *)INTEGER_LITERAL;
     }
   | COLON COLON NUMERIC {
 	$$ = (SqlStatement *)NUMERIC_LITERAL;
     }
-  | COLON COLON INTEGER {
-	$$ = (SqlStatement *)INTEGER_LITERAL;
+  | COLON COLON VARCHAR {
+	$$ = (SqlStatement *)STRING_LITERAL;
     }
   | COLON COLON DATE {
 	$$ = (SqlStatement *)STRING_LITERAL;
@@ -1496,24 +1501,28 @@ identifier_body
 
 data_type
   : character_string_type {
-      SQL_STATEMENT($$, data_type_STATEMENT);
-      ($$)->v.data_type = CHARACTER_STRING_TYPE;
+	SQL_STATEMENT($$, data_type_STATEMENT);
+	($$)->v.data_type = STRING_TYPE;
     }
 //  | character_string_type CHARACTER SET character_set_specification
 //  | national_character_string_type
 //  | bit_string_type
   | numeric_type {
-      SQL_STATEMENT($$, data_type_STATEMENT);
-      ($$)->v.data_type = NUMERIC_TYPE;
+	SQL_STATEMENT($$, data_type_STATEMENT);
+	($$)->v.data_type = NUMERIC_TYPE;
     }
   | integer_type {
-      SQL_STATEMENT($$, data_type_STATEMENT);
-      ($$)->v.data_type = INTEGER_TYPE;
+	SQL_STATEMENT($$, data_type_STATEMENT);
+	($$)->v.data_type = INTEGER_TYPE;
+    }
+  | boolean_type {
+	SQL_STATEMENT($$, data_type_STATEMENT);
+	($$)->v.data_type = BOOLEAN_TYPE;
     }
   | datetime_type {
 	/* For now treat DATE or TIME types as equivalent to the STRING/VARCHAR type */
 	SQL_STATEMENT($$, data_type_STATEMENT);
-	($$)->v.data_type = CHARACTER_STRING_TYPE;
+	($$)->v.data_type = STRING_TYPE;
     }
 //  | interval_type
   ;
@@ -1551,6 +1560,10 @@ integer_type
   : INTEGER integer_type_tail { $$ = NULL; }
   | INT integer_type_tail { $$ = NULL; }
   | SMALLINT integer_type_tail { $$ = NULL; }
+  ;
+
+boolean_type
+  : BOOLEAN { $$ = NULL; }
   ;
 
 datetime_type
@@ -1596,9 +1609,10 @@ literal_value
 	$$ = $LITERAL; ($$)->loc = yyloc;
 	assert(NULL != cursorId);
 	if ((value_STATEMENT == ($$)->type)
-			&& ((NUMERIC_LITERAL == ($$)->v.value->type)
-				|| (STRING_LITERAL == ($$)->v.value->type)
-				|| (INTEGER_LITERAL == ($$)->v.value->type))) {
+			&& ((BOOLEAN_VALUE == ($$)->v.value->type)
+				|| (INTEGER_LITERAL == ($$)->v.value->type)
+				|| (NUMERIC_LITERAL == ($$)->v.value->type)
+				|| (STRING_LITERAL == ($$)->v.value->type))) {
 		INVOKE_PARSE_LITERAL_TO_PARAMETER(cursorId, ($$)->v.value, FALSE);
 	}
     }

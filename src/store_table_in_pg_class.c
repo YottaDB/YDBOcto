@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -80,14 +80,20 @@ int store_table_in_pg_class(SqlTable *table) {
 	do {
 		int atttypid;
 		switch(cur_column->type) {
-			case NUMERIC_TYPE:
-				atttypid = 1700;
+			/* Below atttypid values were obtained from Postgres using the below query.
+			 *	`select typname,oid from pg_type where typname in ('numeric','int4','varchar','bool');`
+			 */
+			case BOOLEAN_TYPE:
+				atttypid = 16;
 				break;
 			case INTEGER_TYPE:
 				atttypid = 23;
 				break;
-			case CHARACTER_STRING_TYPE:
+			case STRING_TYPE:
 				atttypid = 1043;
+				break;
+			case NUMERIC_TYPE:
+				atttypid = 1700;
 				break;
 			default:
 				status = 1;

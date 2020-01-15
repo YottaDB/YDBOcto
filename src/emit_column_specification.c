@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -26,13 +26,16 @@ int emit_column_specification(char *buffer, int buffer_size, SqlColumn *cur_colu
 	buff_ptr += snprintf(buff_ptr, buffer_size - (buff_ptr - buffer), "`%s`", value->v.reference);
 	switch(cur_column->type)
        	{
-	case NUMERIC_TYPE:
-		buff_ptr += snprintf(buff_ptr, buffer_size - (buff_ptr - buffer), " NUMERIC");
+	case BOOLEAN_TYPE:
+		buff_ptr += snprintf(buff_ptr, buffer_size - (buff_ptr - buffer), " BOOLEAN");
 		break;
 	case INTEGER_TYPE:
 		buff_ptr += snprintf(buff_ptr, buffer_size - (buff_ptr - buffer), " INTEGER");
 		break;
-	case CHARACTER_STRING_TYPE:
+	case NUMERIC_TYPE:
+		buff_ptr += snprintf(buff_ptr, buffer_size - (buff_ptr - buffer), " NUMERIC");
+		break;
+	case STRING_TYPE:
 		// We should determine the actual size based on the constraint
 		buff_ptr += snprintf(buff_ptr, buffer_size - (buff_ptr - buffer), " VARCHAR(%d)", 25);
 		break;

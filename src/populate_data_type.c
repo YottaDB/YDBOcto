@@ -154,8 +154,10 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, char *cursorId) {
 		case AVG_AGGREGATE_DISTINCT:
 		case SUM_AGGREGATE:
 		case SUM_AGGREGATE_DISTINCT:
-			if (STRING_LITERAL == *type) {
-				/* Strings cannot be input for the AVG or SUM function so signal an error in that case. */
+			if ((STRING_LITERAL == *type) || (BOOLEAN_VALUE == *type)) {
+				/* STRING or BOOLEAN type cannot be input for the AVG or SUM function so signal
+				 * an error in that case.
+				 */
 				ERROR(ERR_MISTYPED_FUNCTION, get_aggregate_func_name(aggregate_function->type),
 								get_user_visible_type_string(*type));
 				yyerror(NULL, NULL, &aggregate_function->parameter, NULL, cursorId, NULL);
@@ -164,6 +166,14 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, char *cursorId) {
 			break;
 		case MIN_AGGREGATE:
 		case MAX_AGGREGATE:
+			if (BOOLEAN_VALUE == *type) {
+				/* BOOLEAN type cannot be input for the MIN or MAX function so signal an error in that case. */
+				ERROR(ERR_MISTYPED_FUNCTION, get_aggregate_func_name(aggregate_function->type),
+								get_user_visible_type_string(*type));
+				yyerror(NULL, NULL, &aggregate_function->parameter, NULL, cursorId, NULL);
+				result = 1;
+				break;
+			}
 			/* In this case, *type should be the same as the type of "aggregate_function->parameter"
 			 * which is already set above so copy that over for later use in physical plan.
 			 */
@@ -190,11 +200,12 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, char *cursorId) {
 			result |= populate_data_type(value->v.calculated, &child_type1, cursorId);
 			*type = child_type1;
 			break;
+		case BOOLEAN_VALUE:
 		case NUMERIC_LITERAL:
 		case INTEGER_LITERAL:
 		case STRING_LITERAL:
+		case NUL_VALUE:
 		case FUNCTION_NAME:
-		case BOOLEAN_VALUE:
 		case PARAMETER_VALUE:	   // Note: This is a possibility in "populate_data_type" but not in "hash_canonical_query"
 		case UNKNOWN_SqlValueType: // Note: This is a possibility in "populate_data_type" but not in "hash_canonical_query"
 			*type = value->type;
@@ -207,11 +218,10 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, char *cursorId) {
 			assert(FALSE);
 			result = 1;
 			break;
-		case NUL_VALUE:
-			*type = NUL_VALUE;
-			break;
 		case COERCE_TYPE:
 			result |= populate_data_type(value->v.coerce_target, &child_type1, cursorId);
+			/* Note down type of target before coerce */
+			value->pre_coerced_type = child_type1;
 			/* At this time (Jan 2020), we allow any type to be coerced to any other type at parser time.
 			 * Errors in type conversion, if any, should show up at run-time based on the actual values.
 			 * But since our run-time is M and we currently only allow INTEGER/NUMERIC/STRING types,
@@ -233,14 +243,17 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, char *cursorId) {
 		} else {
 			UNPACK_SQL_STATEMENT(column, v->v.column_alias->column, column);
 			switch(column->type) {
-			case CHARACTER_STRING_TYPE:
-				*type = STRING_LITERAL;
+			case BOOLEAN_TYPE:
+				*type = BOOLEAN_VALUE;
+				break;
+			case INTEGER_TYPE:
+				*type = INTEGER_LITERAL;
 				break;
 			case NUMERIC_TYPE:
 				*type = NUMERIC_LITERAL;
 				break;
-			case INTEGER_TYPE:
-				*type = INTEGER_LITERAL;
+			case STRING_TYPE:
+				*type = STRING_LITERAL;
 				break;
 			case UNKNOWN_SqlDataType:
 				// This could be a column that came in from a sub-query before when the sub-query column
@@ -249,22 +262,24 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, char *cursorId) {
 				assert(NULL != column->pre_qualified_cla);
 				result |= populate_data_type(column->pre_qualified_cla->column_list, type, cursorId);
 				switch(*type) {
-				case NUMERIC_LITERAL:
-					column->type = NUMERIC_TYPE;
-					break;
 				case BOOLEAN_VALUE:
+					column->type = BOOLEAN_TYPE;
+					break;
 				case INTEGER_LITERAL:
 					column->type = INTEGER_TYPE;
 					break;
+				case NUMERIC_LITERAL:
+					column->type = NUMERIC_TYPE;
+					break;
 				case STRING_LITERAL:
-					column->type = CHARACTER_STRING_TYPE;
+					column->type = STRING_TYPE;
 					break;
 				case NUL_VALUE:
-					/* NULL values need to be treated as some known type. We choose CHARACTER_STRING_TYPE
+					/* NULL values need to be treated as some known type. We choose STRING_TYPE
 					 * as this corresponds to the TEXT type of postgres to be compatible with it.
 					 * See https://doxygen.postgresql.org/parse__coerce_8c.html#l01373 for more details.
 					 */
-					column->type = CHARACTER_STRING_TYPE;
+					column->type = STRING_TYPE;
 					break;
 				default:
 					assert(FALSE);
@@ -324,16 +339,84 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, char *cursorId) {
 		case DIVISION:
 		case MULTIPLICATION:
 		case MODULO:
-			*type = child_type1;
-			if (!result && (STRING_LITERAL == child_type1)) {
-				ERROR(ERR_TYPE_NOT_COMPATIBLE, get_user_visible_type_string(child_type1), "arithmetic operations");
-				yyerror(NULL, NULL, &binary->operands[0], NULL, NULL, NULL);
-				result = 1;
+			if (!result) {
+				if ((INTEGER_LITERAL != child_type1) && (NUMERIC_LITERAL != child_type1)) {
+					ERROR(ERR_TYPE_NOT_COMPATIBLE, get_user_visible_type_string(child_type1),	\
+												"arithmetic operations");
+					yyerror(NULL, NULL, &binary->operands[0], NULL, NULL, NULL);
+					result = 1;
+				}
+				if ((INTEGER_LITERAL != child_type2) && (NUMERIC_LITERAL != child_type2)) {
+					ERROR(ERR_TYPE_NOT_COMPATIBLE, get_user_visible_type_string(child_type2),	\
+												"arithmetic operations");
+					yyerror(NULL, NULL, &binary->operands[1], NULL, NULL, NULL);
+					result = 1;
+				}
 			}
+			*type = child_type1;
 			break;
 		case CONCAT:
-			// Postgres suggests we should force things into a string when we encounter this
+			/* Postgres allows || operator as long as at least one operand is STRING type. Else it issues an error.
+			 * Do the same in Octo for compatibility.
+			 */
+			if ((STRING_LITERAL != child_type1) && (STRING_LITERAL != child_type2)) {
+				if (!result) {
+					ERROR(ERR_TYPE_NOT_COMPATIBLE, get_user_visible_type_string(child_type1), "|| operator");
+					yyerror(NULL, NULL, &binary->operands[0], NULL, NULL, NULL);
+					ERROR(ERR_TYPE_NOT_COMPATIBLE, get_user_visible_type_string(child_type2), "|| operator");
+					yyerror(NULL, NULL, &binary->operands[1], NULL, NULL, NULL);
+					result = 1;
+				}
+			} else {
+				SqlStatement	**target;
+				SqlValueType	child_type;
+
+				/* If one operand is BOOLEAN_VALUE, add type cast operator (::string) to it.
+				 * Not needed for INTEGER_LITERAL or NUMERIC_LITERAL as M handles this fine.
+				 */
+				if (BOOLEAN_VALUE == child_type1) {
+					assert(BOOLEAN_VALUE != child_type2);
+					child_type = child_type1;
+					target = &binary->operands[0];
+				} else if (BOOLEAN_VALUE == child_type2) {
+					assert(BOOLEAN_VALUE != child_type1);
+					child_type = child_type2;
+					target = &binary->operands[1];
+				} else {
+					target = NULL;
+				}
+				if (NULL != target) {
+					SqlStatement	*sql_stmt;
+
+					SQL_STATEMENT(sql_stmt, value_STATEMENT);
+					MALLOC_STATEMENT(sql_stmt, value, SqlValue);
+					UNPACK_SQL_STATEMENT(value, sql_stmt, value);
+					value->type = COERCE_TYPE;
+					value->coerced_type = STRING_LITERAL;
+					value->pre_coerced_type = child_type;
+					value->v.coerce_target = *target;
+					*target = sql_stmt;
+				}
+			}
 			child_type1 = child_type2 = *type = STRING_LITERAL;
+			break;
+		case BOOLEAN_OR:
+		case BOOLEAN_AND:
+			if (!result) {
+				if (BOOLEAN_VALUE != child_type1) {
+					ERROR(ERR_TYPE_NOT_COMPATIBLE, get_user_visible_type_string(child_type1),	\
+												"boolean operations");
+					yyerror(NULL, NULL, &binary->operands[0], NULL, NULL, NULL);
+					result = 1;
+				}
+				if (BOOLEAN_VALUE != child_type2) {
+					ERROR(ERR_TYPE_NOT_COMPATIBLE, get_user_visible_type_string(child_type2),	\
+												"boolean operations");
+					yyerror(NULL, NULL, &binary->operands[1], NULL, NULL, NULL);
+					result = 1;
+				}
+			}
+			*type = BOOLEAN_VALUE;
 			break;
 		default:
 			*type = BOOLEAN_VALUE;
@@ -390,23 +473,33 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, char *cursorId) {
 
 				left_type = cur_cla[0]->type;
 				right_type = cur_cla[1]->type;
-				assert((INTEGER_LITERAL == left_type) || (NUMERIC_LITERAL == left_type)
-							|| (STRING_LITERAL == left_type) || (NUL_VALUE == left_type));
-				assert((INTEGER_LITERAL == right_type) || (NUMERIC_LITERAL == right_type)
-							|| (STRING_LITERAL == right_type) || (NUL_VALUE == right_type));
+				/* Assert all possible valid types. This is used to simplify the `if` checks below
+				 * that determine the value of `is_type_mismatch`.
+				 */
+				assert((BOOLEAN_VALUE == left_type) || (INTEGER_LITERAL == left_type)
+					|| (NUMERIC_LITERAL == left_type) || (STRING_LITERAL == left_type)
+					|| (NUL_VALUE == left_type));
+				assert((BOOLEAN_VALUE == right_type) || (INTEGER_LITERAL == right_type)
+					|| (NUMERIC_LITERAL == right_type) || (STRING_LITERAL == right_type)
+					|| (NUL_VALUE == right_type));
 				/* If not yet found any type mismatch, check for one. If already found one, keep just that.
-				 * Note: NUMERIC and INTEGER are compatible with each other. But NUMERIC and INTEGER are
-				 * not compatible with STRING. NULL is compatible with any type.
+				 * In general, all types are compatible with only themselves.
+				 * Exception is that
+				 *	a) NUMERIC and INTEGER are compatible with each other and no other type.
+				 *	b) NULL is compatible with any type.
 				 */
 				if (NULL == type_mismatch_cla[0]) {
 					switch(left_type) {
+					case BOOLEAN_VALUE:
+						is_type_mismatch = ((NUL_VALUE != right_type) && (BOOLEAN_VALUE != right_type));
+						break;
 					case INTEGER_LITERAL:
 					case NUMERIC_LITERAL:
-						is_type_mismatch = (STRING_LITERAL == right_type);
+						is_type_mismatch = ((NUL_VALUE != right_type) && (INTEGER_LITERAL != right_type)
+									&& (NUMERIC_LITERAL != right_type));
 						break;
 					case STRING_LITERAL:
-						is_type_mismatch = ((INTEGER_LITERAL == right_type)
-										|| (NUMERIC_LITERAL == right_type));
+						is_type_mismatch = ((NUL_VALUE != right_type) && (STRING_LITERAL != right_type));
 						break;
 					case NUL_VALUE:
 						is_type_mismatch = FALSE;
@@ -471,7 +564,7 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, char *cursorId) {
 		result |= populate_data_type(unary->operand, &child_type1, cursorId);
 		/* Check for type mismatches */
 		if (((FORCE_NUM == unary->operation) || (NEGATIVE == unary->operation))
-				&& ((NUMERIC_LITERAL != child_type1) && (INTEGER_LITERAL != child_type1))) {
+				&& ((INTEGER_LITERAL != child_type1) && (NUMERIC_LITERAL != child_type1))) {
 			/* Unary + and - operators cannot be used on non-numeric or non-integer types */
 			ERROR(ERR_INVALID_INPUT_SYNTAX, get_user_visible_type_string(child_type1));
 			yyerror(NULL, NULL, &unary->operand, NULL, NULL, NULL);

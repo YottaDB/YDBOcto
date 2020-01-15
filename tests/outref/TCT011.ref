@@ -12,6 +12,16 @@ select id-2*(id/2::integer) from names;
 select id-2*((id/2)::integer) from names;
 select DOLLARZWRITE(id)::integer from names;
 
+-- Test typecast to boolean. Occasionally test that `bool` is equivalent to `boolean`
+select id::boolean,(ABS(2)::boolean || id::bool) from names;
+select id::boolean,(ABS(2)::bool + id) from names;
+select id::boolean || id::boolean,ABS(2)::numeric * id from names;
+select id::boolean || id::boolean,ABS(2)::boolean * id from names;
+select id from (select * from names UNION select 6.5::bool,'A','B');
+select * from names where firstname::boolean = id;
+select id-2*(id/2::bool) from names;
+select id-2*((id/2)::boolean) from names;
+
 0|2
 1|2
 2|2
@@ -68,10 +78,42 @@ select DOLLARZWRITE(id)::integer from names;
 3
 4
 5
+[ERROR] PATH:LINENUM DATE TIME : Type BOOLEAN not compatible for || operator
+[ERROR] PATH:LINENUM DATE TIME : Type BOOLEAN not compatible for || operator
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select id::boolean,(ABS(2)::boolean || id::bool) from names;
+[ERROR] PATH:LINENUM DATE TIME : Type BOOLEAN not compatible for arithmetic operations
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select id::boolean,(ABS(2)::bool + id) from names;
+[ERROR] PATH:LINENUM DATE TIME : Type BOOLEAN not compatible for || operator
+[ERROR] PATH:LINENUM DATE TIME : Type BOOLEAN not compatible for || operator
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select id::boolean || id::boolean,ABS(2)::numeric * id from names;
+[ERROR] PATH:LINENUM DATE TIME : Type BOOLEAN not compatible for || operator
+[ERROR] PATH:LINENUM DATE TIME : Type BOOLEAN not compatible for || operator
+[ERROR] PATH:LINENUM DATE TIME : Type BOOLEAN not compatible for arithmetic operations
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select id::boolean || id::boolean,ABS(2)::boolean * id from names;
+[ERROR] PATH:LINENUM DATE TIME : UNION types INTEGER and BOOLEAN cannot be matched
+Error with syntax near (line 1, column 24):
+
+select id from (select * from names UNION select 6.5::bool,'A','B');
+                       ^
+Error with syntax near (line 1, column 50):
+
+select id from (select * from names UNION select 6.5::bool,'A','B');
+                                                 ^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select id from (select * from names UNION select 6.5::bool,'A','B');
+[ERROR] PATH:LINENUM DATE TIME : Type mismatch: left BOOLEAN, right INTEGER
+Error with syntax near (line 1, column 48):
+
+select * from names where firstname::boolean = id;
+                                               ^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select * from names where firstname::boolean = id;
+[ERROR] PATH:LINENUM DATE TIME : Type BOOLEAN not compatible for arithmetic operations
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select id-2*(id/2::bool) from names;
+[ERROR] PATH:LINENUM DATE TIME : Type BOOLEAN not compatible for arithmetic operations
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select id-2*((id/2)::boolean) from names;
 
 ;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
 ;; ---------------------------------------------------------
-;  select id::integer,ABS(2) from names;
+;  select id::integer,(ABS(2)::text || id::text) from names;
 ;; ---------------------------------------------------------
 
 octoPlan0(cursorId)
@@ -85,25 +127,7 @@ octoPlan1(cursorId)
     . NEW %ydboctobool SET %ydboctobool=1
     . IF %ydboctobool DO
     . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42
-    . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=((%ydboctocursor(cursorId,"keys",1,"NAMES","ID"))\1)_"|"_$$ABS^%ydboctosqlfunctions($GET(%ydboctocursor(cursorId,"parameters",1)))
-    QUIT
-;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
-;; ---------------------------------------------------------
-;  select id-2*((id/2)::integer) from names;
-;; ---------------------------------------------------------
-
-octoPlan0(cursorId)
-    DO octoPlan1(cursorId)
-    QUIT
-
-octoPlan1(cursorId)
-    NEW %ydboctoz KILL %ydboctocursor(cursorId,"keys",3,"","")
-    SET %ydboctocursor(cursorId,"keys",1,"NAMES","ID")=""
-    FOR  SET %ydboctocursor(cursorId,"keys",1,"NAMES","ID")=$ORDER(^names(%ydboctocursor(cursorId,"keys",1,"NAMES","ID"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"NAMES","ID")="")  DO
-    . NEW %ydboctobool SET %ydboctobool=1
-    . IF %ydboctobool DO
-    . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42
-    . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=(%ydboctocursor(cursorId,"keys",1,"NAMES","ID")-($GET(%ydboctocursor(cursorId,"parameters",1))*(((%ydboctocursor(cursorId,"keys",1,"NAMES","ID")/$GET(%ydboctocursor(cursorId,"parameters",2))))\1)))
+    . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=((%ydboctocursor(cursorId,"keys",1,"NAMES","ID"))\1)_"|"_(($$ABS^%ydboctosqlfunctions($GET(%ydboctocursor(cursorId,"parameters",1))))_(%ydboctocursor(cursorId,"keys",1,"NAMES","ID")))
     QUIT
 ;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
 ;; ---------------------------------------------------------
@@ -167,24 +191,6 @@ octoPlan1(cursorId)
     QUIT
 ;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
 ;; ---------------------------------------------------------
-;  select DOLLARZWRITE(id)::integer from names;
-;; ---------------------------------------------------------
-
-octoPlan0(cursorId)
-    DO octoPlan1(cursorId)
-    QUIT
-
-octoPlan1(cursorId)
-    NEW %ydboctoz KILL %ydboctocursor(cursorId,"keys",3,"","")
-    SET %ydboctocursor(cursorId,"keys",1,"NAMES","ID")=""
-    FOR  SET %ydboctocursor(cursorId,"keys",1,"NAMES","ID")=$ORDER(^names(%ydboctocursor(cursorId,"keys",1,"NAMES","ID"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"NAMES","ID")="")  DO
-    . NEW %ydboctobool SET %ydboctobool=1
-    . IF %ydboctobool DO
-    . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42
-    . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=(($ZWRITE(%ydboctocursor(cursorId,"keys",1,"NAMES","ID")))\1)
-    QUIT
-;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
-;; ---------------------------------------------------------
 ;  select id::integer,(ABS(2)::numeric + id) from names;
 ;; ---------------------------------------------------------
 
@@ -200,42 +206,6 @@ octoPlan1(cursorId)
     . IF %ydboctobool DO
     . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42
     . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=((%ydboctocursor(cursorId,"keys",1,"NAMES","ID"))\1)_"|"_((+($$ABS^%ydboctosqlfunctions($GET(%ydboctocursor(cursorId,"parameters",1)))))+%ydboctocursor(cursorId,"keys",1,"NAMES","ID"))
-    QUIT
-;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
-;; ---------------------------------------------------------
-;  select id::integer,(ABS(2)::text || id::text) from names;
-;; ---------------------------------------------------------
-
-octoPlan0(cursorId)
-    DO octoPlan1(cursorId)
-    QUIT
-
-octoPlan1(cursorId)
-    NEW %ydboctoz KILL %ydboctocursor(cursorId,"keys",3,"","")
-    SET %ydboctocursor(cursorId,"keys",1,"NAMES","ID")=""
-    FOR  SET %ydboctocursor(cursorId,"keys",1,"NAMES","ID")=$ORDER(^names(%ydboctocursor(cursorId,"keys",1,"NAMES","ID"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"NAMES","ID")="")  DO
-    . NEW %ydboctobool SET %ydboctobool=1
-    . IF %ydboctobool DO
-    . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42
-    . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=((%ydboctocursor(cursorId,"keys",1,"NAMES","ID"))\1)_"|"_(($$ABS^%ydboctosqlfunctions($GET(%ydboctocursor(cursorId,"parameters",1))))_(%ydboctocursor(cursorId,"keys",1,"NAMES","ID")))
-    QUIT
-;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
-;; ---------------------------------------------------------
-;  select id-2*(id/2::integer) from names;
-;; ---------------------------------------------------------
-
-octoPlan0(cursorId)
-    DO octoPlan1(cursorId)
-    QUIT
-
-octoPlan1(cursorId)
-    NEW %ydboctoz KILL %ydboctocursor(cursorId,"keys",3,"","")
-    SET %ydboctocursor(cursorId,"keys",1,"NAMES","ID")=""
-    FOR  SET %ydboctocursor(cursorId,"keys",1,"NAMES","ID")=$ORDER(^names(%ydboctocursor(cursorId,"keys",1,"NAMES","ID"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"NAMES","ID")="")  DO
-    . NEW %ydboctobool SET %ydboctobool=1
-    . IF %ydboctobool DO
-    . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42
-    . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=(%ydboctocursor(cursorId,"keys",1,"NAMES","ID")-($GET(%ydboctocursor(cursorId,"parameters",1))*(%ydboctocursor(cursorId,"keys",1,"NAMES","ID")/(($GET(%ydboctocursor(cursorId,"parameters",2)))\1))))
     QUIT
 ;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
 ;; ---------------------------------------------------------
@@ -272,4 +242,76 @@ octoPlan1(cursorId)
     . IF %ydboctobool DO
     . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42
     . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=(($PIECE($GET(^names(%ydboctocursor(cursorId,"keys",1,"NAMES","ID"))),"|",2))\1)
+    QUIT
+;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
+;; ---------------------------------------------------------
+;  select id-2*(id/2::integer) from names;
+;; ---------------------------------------------------------
+
+octoPlan0(cursorId)
+    DO octoPlan1(cursorId)
+    QUIT
+
+octoPlan1(cursorId)
+    NEW %ydboctoz KILL %ydboctocursor(cursorId,"keys",3,"","")
+    SET %ydboctocursor(cursorId,"keys",1,"NAMES","ID")=""
+    FOR  SET %ydboctocursor(cursorId,"keys",1,"NAMES","ID")=$ORDER(^names(%ydboctocursor(cursorId,"keys",1,"NAMES","ID"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"NAMES","ID")="")  DO
+    . NEW %ydboctobool SET %ydboctobool=1
+    . IF %ydboctobool DO
+    . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42
+    . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=(%ydboctocursor(cursorId,"keys",1,"NAMES","ID")-($GET(%ydboctocursor(cursorId,"parameters",1))*(%ydboctocursor(cursorId,"keys",1,"NAMES","ID")/(($GET(%ydboctocursor(cursorId,"parameters",2)))\1))))
+    QUIT
+;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
+;; ---------------------------------------------------------
+;  select DOLLARZWRITE(id)::integer from names;
+;; ---------------------------------------------------------
+
+octoPlan0(cursorId)
+    DO octoPlan1(cursorId)
+    QUIT
+
+octoPlan1(cursorId)
+    NEW %ydboctoz KILL %ydboctocursor(cursorId,"keys",3,"","")
+    SET %ydboctocursor(cursorId,"keys",1,"NAMES","ID")=""
+    FOR  SET %ydboctocursor(cursorId,"keys",1,"NAMES","ID")=$ORDER(^names(%ydboctocursor(cursorId,"keys",1,"NAMES","ID"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"NAMES","ID")="")  DO
+    . NEW %ydboctobool SET %ydboctobool=1
+    . IF %ydboctobool DO
+    . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42
+    . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=(($ZWRITE(%ydboctocursor(cursorId,"keys",1,"NAMES","ID")))\1)
+    QUIT
+;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
+;; ---------------------------------------------------------
+;  select id-2*((id/2)::integer) from names;
+;; ---------------------------------------------------------
+
+octoPlan0(cursorId)
+    DO octoPlan1(cursorId)
+    QUIT
+
+octoPlan1(cursorId)
+    NEW %ydboctoz KILL %ydboctocursor(cursorId,"keys",3,"","")
+    SET %ydboctocursor(cursorId,"keys",1,"NAMES","ID")=""
+    FOR  SET %ydboctocursor(cursorId,"keys",1,"NAMES","ID")=$ORDER(^names(%ydboctocursor(cursorId,"keys",1,"NAMES","ID"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"NAMES","ID")="")  DO
+    . NEW %ydboctobool SET %ydboctobool=1
+    . IF %ydboctobool DO
+    . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42
+    . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=(%ydboctocursor(cursorId,"keys",1,"NAMES","ID")-($GET(%ydboctocursor(cursorId,"parameters",1))*(((%ydboctocursor(cursorId,"keys",1,"NAMES","ID")/$GET(%ydboctocursor(cursorId,"parameters",2))))\1)))
+    QUIT
+;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
+;; ---------------------------------------------------------
+;  select id::integer,ABS(2) from names;
+;; ---------------------------------------------------------
+
+octoPlan0(cursorId)
+    DO octoPlan1(cursorId)
+    QUIT
+
+octoPlan1(cursorId)
+    NEW %ydboctoz KILL %ydboctocursor(cursorId,"keys",3,"","")
+    SET %ydboctocursor(cursorId,"keys",1,"NAMES","ID")=""
+    FOR  SET %ydboctocursor(cursorId,"keys",1,"NAMES","ID")=$ORDER(^names(%ydboctocursor(cursorId,"keys",1,"NAMES","ID"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"NAMES","ID")="")  DO
+    . NEW %ydboctobool SET %ydboctobool=1
+    . IF %ydboctobool DO
+    . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42
+    . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=((%ydboctocursor(cursorId,"keys",1,"NAMES","ID"))\1)_"|"_$$ABS^%ydboctosqlfunctions($GET(%ydboctocursor(cursorId,"parameters",1)))
     QUIT

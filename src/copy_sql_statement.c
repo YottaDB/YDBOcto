@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -88,7 +88,10 @@ SqlStatement *copy_sql_statement(SqlStatement *stmt) {
 		value = stmt->v.value;
 		MALLOC_STATEMENT(ret, value, SqlValue);
 		ret->v.value->type = value->type;
-		ret->v.value->data_type = value->data_type;
+		if (COERCE_TYPE == value->type) {
+			ret->v.value->pre_coerced_type = value->pre_coerced_type;
+			ret->v.value->coerced_type = value->coerced_type;
+		}
 		ret->v.value->parameter_index = value->parameter_index;
 		if (CALCULATED_VALUE == value->type) {
 			ret->v.value->v.calculated = copy_sql_statement(value->v.calculated);

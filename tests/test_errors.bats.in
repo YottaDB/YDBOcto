@@ -163,3 +163,8 @@ OCTO
   verify_output TERR013 output.txt
 }
 
+@test "TERR014 : Error underline is correct when there are extra newlines between queries (only possible with octo -f)" {
+  load_fixture TERR014.sql subtest novv
+  verify_output TERR014 output.txt
+}
+

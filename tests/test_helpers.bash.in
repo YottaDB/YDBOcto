@@ -457,6 +457,7 @@ run_query_in_octo_and_postgres_and_crosscheck() {
 	sed '/\./ s/\.\{0,1\}0\{1,\}$//;/\./ s/\.\{0,1\}0\{1,\}|/|/;' $fname.ref1 > $fname.ref
     fi
     octo -f $queryfile >& $fname.octo.out
+    sed -i '/^.*\[ INFO\].* \/.*\/octo.conf/d' $fname.octo.out
     if [[ $nowarn == "nowarn" ]]; then
     	# Remove "[ WARN]" lines from Octo output (caller allows for this possibility).
 	mv $fname.octo.out $fname.octo.out.pre_nowarn

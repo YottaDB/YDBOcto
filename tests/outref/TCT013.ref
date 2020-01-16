@@ -74,11 +74,11 @@ SELECT firstname::invalid FROM names;
 Error with syntax near (line 1, column 8):
 
 SELECT id + firstname FROM names;
-      ^^
+       ^^
 Error with syntax near (line 1, column 13):
 
 SELECT id + firstname FROM names;
-           ^^^^^^^^^
+            ^^^^^^^^^
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT id + firstname FROM names;
 [ERROR] PATH:LINENUM DATE TIME : Type mismatch: left INTEGER, right VARCHAR
 Error with syntax near (line 1, column 8):

@@ -31,7 +31,7 @@ select * from names where firstname = 'Zero' or ''::integer;
 Error with syntax near (line 1, column 27):
 
 select * from names where id = 2 || 3;
-                         ^^
+                          ^^
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select * from names where id = 2 || 3;
 [ERROR] PATH:LINENUM DATE TIME : Type mismatch: left INTEGER, right VARCHAR
 Error with syntax near (line 1, column 27):

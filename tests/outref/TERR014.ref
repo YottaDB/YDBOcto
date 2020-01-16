@@ -1,0 +1,45 @@
+
+-- TERR014 : Error underline is correct when there are extra newlines between queries (only possible with octo -f)
+
+select * from aaaa;
+
+select * from aaaa;
+
+
+
+
+select * from aaaa;
+
+
+
+
+
+select * from
+
+aaaa;
+[ERROR] PATH:LINENUM DATE TIME : Unknown table: AAAA
+
+select * from aaaa;
+              ^^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select * from aaaa;
+[ERROR] PATH:LINENUM DATE TIME : Unknown table: AAAA
+
+select * from aaaa;
+              ^^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select * from aaaa;
+[ERROR] PATH:LINENUM DATE TIME : Unknown table: AAAA
+
+select * from aaaa;
+              ^^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select * from aaaa;
+[ERROR] PATH:LINENUM DATE TIME : Unknown table: AAAA
+
+select * from
+
+aaaa;
+^^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select * from
+
+aaaa;
+
+

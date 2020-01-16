@@ -1458,7 +1458,7 @@ Error with syntax near (line 1, column 50):
 Error with syntax near (line 1, column 22):
 
 SELECT a.id as A_id, b.id as B_id
-                    ^^^^^^^^^^^^
+                     ^^^^^^^^^^^^
 Error with syntax near (line 4, column 21):
 
 SELECT a.id as A_id, b.id as B_id
@@ -1476,7 +1476,7 @@ WHERE a.firstName NOT IN (SELECT b.firstName FROM names b);
 Error with syntax near (line 1, column 8):
 
 SELECT *
-      ^
+       ^
 Error with syntax near (line 7, column 36):
 
 SELECT *

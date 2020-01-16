@@ -61,11 +61,11 @@ SELECT * FROM names n3 NATURAL JOIN (SELECT * FROM names n1, names n2) n3 WHERE 
 Error with syntax near (line 1, column 23):
 
 SELECT * FROM (SELECT * FROM names n1, names n2) n3 WHERE firstName = 'Zero';
-                     ^
+                      ^
 Error with syntax near (line 1, column 59):
 
 SELECT * FROM (SELECT * FROM names n1, names n2) n3 WHERE firstName = 'Zero';
-                                                         ^^^^^^^^^
+                                                          ^^^^^^^^^
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT * FROM (SELECT * FROM names n1, names n2) n3 WHERE firstName = 'Zero';
 [ERROR] PATH:LINENUM DATE TIME : Ambiguous column name "FIRSTNAME": qualify name for safe execution
 Error with syntax near (line 1, column 50):
@@ -81,32 +81,32 @@ SELECT * FROM (SELECT * FROM names n1, names n2) n3 WHERE n3.firstName = 'Zero';
 Error with syntax near (line 1, column 50):
 
 SELECT * FROM (SELECT * FROM names n1, names n2) n3 NATURAL JOIN names n4;
-                                                ^^
+                                                 ^^
 [ERROR] PATH:LINENUM DATE TIME : Ambiguous column name "FIRSTNAME": qualify name for safe execution
 Error with syntax near (line 1, column 50):
 
 SELECT * FROM (SELECT * FROM names n1, names n2) n3 NATURAL JOIN names n4;
-                                                ^^
+                                                 ^^
 [ERROR] PATH:LINENUM DATE TIME : Ambiguous column name "LASTNAME": qualify name for safe execution
 Error with syntax near (line 1, column 50):
 
 SELECT * FROM (SELECT * FROM names n1, names n2) n3 NATURAL JOIN names n4;
-                                                ^^
+                                                 ^^
 [ERROR] PATH:LINENUM DATE TIME : Ambiguous column name "ID": qualify name for safe execution
 Error with syntax near (line 1, column 50):
 
 SELECT * FROM (SELECT * FROM names n1, names n2) n3 NATURAL JOIN names n4;
-                                                ^^
+                                                 ^^
 [ERROR] PATH:LINENUM DATE TIME : Ambiguous column name "FIRSTNAME": qualify name for safe execution
 Error with syntax near (line 1, column 50):
 
 SELECT * FROM (SELECT * FROM names n1, names n2) n3 NATURAL JOIN names n4;
-                                                ^^
+                                                 ^^
 [ERROR] PATH:LINENUM DATE TIME : Ambiguous column name "LASTNAME": qualify name for safe execution
 Error with syntax near (line 1, column 50):
 
 SELECT * FROM (SELECT * FROM names n1, names n2) n3 NATURAL JOIN names n4;
-                                                ^^
+                                                 ^^
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT * FROM (SELECT * FROM names n1, names n2) n3 NATURAL JOIN names n4;
 [ERROR] PATH:LINENUM DATE TIME : Ambiguous column name "ID": qualify name for safe execution
 Error with syntax near (line 1, column 50):

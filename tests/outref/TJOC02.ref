@@ -7,11 +7,11 @@ select o1.order_id from orders o1 left join orders o2 on o3.customer_id != o3.or
 Error with syntax near (line 1, column 58):
 
 select o1.order_id from orders o1 left join orders o2 on o3.customer_id != o3.order_id left join orders o3 on o2.customer_id = o3.customer_id;
-                                                        ^^^^^^^^^^^^^^
+                                                         ^^^^^^^^^^^^^^
 [ERROR] PATH:LINENUM DATE TIME : Unknown column: O3.ORDER_ID
 Error with syntax near (line 1, column 76):
 
 select o1.order_id from orders o1 left join orders o2 on o3.customer_id != o3.order_id left join orders o3 on o2.customer_id = o3.customer_id;
-                                                                          ^^^^^^^^^^^
+                                                                           ^^^^^^^^^^^
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select o1.order_id from orders o1 left join orders o2 on o3.customer_id != o3.order_id left join orders o3 on o2.customer_id = o3.customer_id;
 

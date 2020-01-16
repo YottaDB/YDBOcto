@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019,2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -118,6 +118,14 @@ void print_yyloc(YYLTYPE *llocp) {
 			offset = old_input_index - cur_column - 1;
 		}
 	}
+	/* because files are read as one continous input extra newlines are not trimed by the parser
+	 * so count them and adjust the underline offset
+	 */
+	if (!config->is_tty) {
+		c--;
+		for (; (0 != cur_column) && ('\n' == *(c - 1)); c--, cur_column--)
+			offset++;
+	}
 	cur_column = 0;
 
 	/* for formatting purposes only print this if we are not in rocto */
@@ -128,7 +136,6 @@ void print_yyloc(YYLTYPE *llocp) {
 	 * additionally print the current line
 	 */
 	c = line_begin;
-	issue_line = c;
 	for (; ('\0' != *c) && (cur_line < llocp->first_line); c++) {
 		if ('\n' == *c) {
 			cur_line++;

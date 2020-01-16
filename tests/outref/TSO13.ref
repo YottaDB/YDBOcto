@@ -218,7 +218,7 @@ SELECT id, NULL, firstname FROM names UNION ALL SELECT id, NULL, NULL FROM names
 Error with syntax near (line 1, column 8):
 
 SELECT * FROM names n1 INNER JOIN names n2 ON n1.id = n2.id
-      ^
+       ^
 Error with syntax near (line 6, column 45):
 
 SELECT * FROM names n1 INNER JOIN names n2 ON n1.id = n2.id
@@ -241,40 +241,40 @@ UNION ALL
 Error with syntax near (line 1, column 8):
 
 SELECT Price FROM Products UNION SELECT ProductName FROM Products LIMIT 1;
-      ^^^^^
+       ^^^^^
 Error with syntax near (line 1, column 41):
 
 SELECT Price FROM Products UNION SELECT ProductName FROM Products LIMIT 1;
-                                       ^^^^^^^^^^^
+                                        ^^^^^^^^^^^
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT Price FROM Products UNION SELECT ProductName FROM Products LIMIT 1;
 [ERROR] PATH:LINENUM DATE TIME : Type mismatch: left NUMERIC, right VARCHAR
 Error with syntax near (line 1, column 8):
 
 SELECT Price + ProductName FROM Products LIMIT 1;
-      ^^^^^
+       ^^^^^
 Error with syntax near (line 1, column 16):
 
 SELECT Price + ProductName FROM Products LIMIT 1;
-              ^^^^^^^^^^^
+               ^^^^^^^^^^^
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT Price + ProductName FROM Products LIMIT 1;
 [ERROR] PATH:LINENUM DATE TIME : UNION types INTEGER and VARCHAR cannot be matched
 Error with syntax near (line 1, column 8):
 
 SELECT ProductID FROM Products UNION SELECT ProductName FROM Products LIMIT 1;
-      ^^^^^^^^^
+       ^^^^^^^^^
 Error with syntax near (line 1, column 45):
 
 SELECT ProductID FROM Products UNION SELECT ProductName FROM Products LIMIT 1;
-                                           ^^^^^^^^^^^
+                                            ^^^^^^^^^^^
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT ProductID FROM Products UNION SELECT ProductName FROM Products LIMIT 1;
 [ERROR] PATH:LINENUM DATE TIME : Type mismatch: left INTEGER, right VARCHAR
 Error with syntax near (line 1, column 8):
 
 SELECT ProductID + ProductName FROM Products LIMIT 1;
-      ^^^^^^^^^
+       ^^^^^^^^^
 Error with syntax near (line 1, column 20):
 
 SELECT ProductID + ProductName FROM Products LIMIT 1;
-                  ^^^^^^^^^^^
+                   ^^^^^^^^^^^
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT ProductID + ProductName FROM Products LIMIT 1;
 

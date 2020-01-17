@@ -78,3 +78,7 @@ setup() {
   run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TSS12.sql "remove_empty_line_at_tail"
 }
 
+@test "TSS13 : OCTO353 : Sub-query with a SELECT column list that is of BOOLEAN type does not work as a boolean operand in the parent query" {
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TSS13.sql "remove_empty_line_at_tail"
+}
+

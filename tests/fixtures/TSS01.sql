@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -30,6 +30,13 @@ select id and (0 = 1) from names;
 select (0 = 1) and (id = 1) from names;
 select (0 = 1) and id from names;
 select id and id from names;
+select (firstname = 'd' AND id::boolean) from names;
+select (1::boolean AND id::boolean) from names;
+select (firstname::boolean AND id::boolean) from names;
+select id::boolean and 0 = 1 from names;
+select id::boolean and (0 = 1) from names;
+select (0 = 1) and id::boolean from names;
+select id::boolean and id::boolean from names;
 -- The below query tests NULL usage in sub-queries. Is not directly related to #181 but was found to fail
 -- while analyzing various issues related to #181.
 select * from (select NULL from names);

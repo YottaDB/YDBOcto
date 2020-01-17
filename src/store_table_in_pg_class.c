@@ -57,9 +57,12 @@ int store_table_in_pg_class(SqlTable *table) {
 		table_name++;
 	}
 	table_name = value->v.string_literal;
-	// These are hard-coded magic values related to the Postgres catalog
+	/* These are hard-coded magic values related to the Postgres catalog.
+	 * Columns of `pg_catalog.pg_class` table in `tests/fixtures/postgres.sql`.
+	 * Any changes to that table definition will require changes here too.
+	 */
 	snprintf(buffer, sizeof(buffer),
-		"%s|2200|16388|0|16385|0|16386|0|0|0|0|16389|t|0|p|r|3|0|0|0|0|0|0|0|t|d|0|0|571|1||||%s",
+		"%s|2200|16388|0|16385|0|16386|0|0|0|0|16389|1|0|p|r|3|0|0|1|0|0|0|0|0|1|d|0|571|1||||%s",
 		table_name, pg_class[4].buf_addr);
 	buffer_b.len_alloc = buffer_b.len_used = strlen(buffer);
 	buffer_b.buf_addr = buffer;
@@ -111,8 +114,12 @@ int store_table_in_pg_class(SqlTable *table) {
 			column_name++;
 		}
 		column_name = value->v.string_literal;
-		// Store table oid, column name, type,
-		snprintf(buffer, sizeof(buffer), "%s|%s|%d|-1|-1|2|0|-1|-1|0|x|i|0|0|0|\"\"|0|t|0|100||||",
+		/* Store table oid, column name, type,
+		 * These are hard-coded magic values related to the Postgres catalog
+		 * Columns of `pg_catalog.pg_attribute` table in `tests/fixtures/postgres.sql`.
+		 * Any changes to that table definition will require changes here too.
+		 */
+		snprintf(buffer, sizeof(buffer), "%s|%s|%d|-1|-1|2|0|-1|-1|0|x|i|0|0|0|\"\"|0|1|0|100||||",
 				pg_class[4].buf_addr, column_name, atttypid);
 		status = ydb_incr_s(&oid_buffer[0], 1, &oid_buffer[1], NULL, &pg_attribute[4]);
 		YDB_ERROR_CHECK(status);

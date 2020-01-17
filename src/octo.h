@@ -114,13 +114,6 @@
 	rocto_session.sending_message = FALSE;	\
 }
 
-#define INVOKE_ROW_VALUE_CONSTRUCTOR_BINARY_STATEMENT(RESULT, ROW_VALUE_CONSTRUCTOR, CURSORID)	\
-{												\
-	RESULT = row_value_constructor_binary_statement(ROW_VALUE_CONSTRUCTOR, CURSORID);	\
-	if (NULL == RESULT)									\
-		YYABORT;									\
-}
-
 #define INVOKE_REGEX_SPECIFICATION(STMT, OP0, OP1, IS_REGEX_LIKE_OR_SIMILAR, IS_SENSITIVE, IS_NOT, CURSORID)		\
 {															\
 	int status;													\
@@ -222,7 +215,6 @@ SqlStatement *grouping_column_reference(SqlStatement *derived_column_expression,
 int regex_specification(SqlStatement **stmt, SqlStatement *op0, SqlStatement *op1, int is_regex_like_or_similar,
 									int is_sensitive, int is_not, char *cursorId);
 SqlStatement *set_operation(enum SqlSetOperationType setoper_type, SqlStatement *left_operand, SqlStatement *right_operand);
-SqlStatement *row_value_constructor_binary_statement(SqlStatement *row_value_constructor, char *cursorId);
 SqlStatement *between_predicate(SqlStatement *row_value_constructor, SqlStatement *from, SqlStatement *to, boolean_t not_specified);
 SqlStatement *aggregate_function(SqlAggregateType aggregate_type, OptionalKeyword set_quantifier, SqlStatement *value_expression);
 SqlStatement *natural_join_condition(SqlStatement *left, SqlStatement *right, boolean_t *ambiguous);

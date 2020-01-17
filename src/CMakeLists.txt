@@ -193,7 +193,6 @@ add_library(libocto OBJECT
   parser/sort_specification.c
   parser/trim_dot_star.c
   parser/regex_specification.c
-  parser/row_value_constructor_binary_statement.c
   parser/between_predicate.c
   parser/aggregate_function.c
   parser/grouping_column_reference.c

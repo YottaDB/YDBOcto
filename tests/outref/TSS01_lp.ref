@@ -77,21 +77,7 @@ Parsing done for SQL command [select col1 from (select id::numeric as col1 from 
                 - type: NUMERIC_LITERAL
                 - alias: COL1
 Parsing done for SQL command [select (firstname = 'd' AND id) from names;]
-            LP_COLUMN_ALIAS: NAMES(1).FIRSTNAME
-            LP_COLUMN_ALIAS: NAMES(1).ID
-        - type: BOOLEAN_VALUE
-        - alias: FIRSTNAME
-            LP_COLUMN_ALIAS: NAMES(1).FIRSTNAME
-            LP_COLUMN_ALIAS: NAMES(1).ID
-        - type: BOOLEAN_VALUE
-        - alias: FIRSTNAME
 Parsing done for SQL command [select (1 AND id) from names;]
-            LP_COLUMN_ALIAS: NAMES(1).ID
-        - type: BOOLEAN_VALUE
-        - alias: ID
-            LP_COLUMN_ALIAS: NAMES(1).ID
-        - type: BOOLEAN_VALUE
-        - alias: ID
 Parsing done for SQL command [select (firstname = 'd' AND id = 0) from names;]
             LP_COLUMN_ALIAS: NAMES(1).FIRSTNAME
             LP_COLUMN_ALIAS: NAMES(1).ID
@@ -103,12 +89,6 @@ Parsing done for SQL command [select (firstname = 'd' AND id = 0) from names;]
         - alias: FIRSTNAME
 Parsing done for SQL command [select (firstname AND id) from names;]
 Parsing done for SQL command [select id and 0 = 1 from names;]
-            LP_COLUMN_ALIAS: NAMES(1).ID
-        - type: BOOLEAN_VALUE
-        - alias: ID
-            LP_COLUMN_ALIAS: NAMES(1).ID
-        - type: BOOLEAN_VALUE
-        - alias: ID
 Parsing done for SQL command [select id and (0 = 1) from names;]
 Parsing done for SQL command [select (0 = 1) and (id = 1) from names;]
             LP_COLUMN_ALIAS: NAMES(1).ID
@@ -118,21 +98,56 @@ Parsing done for SQL command [select (0 = 1) and (id = 1) from names;]
         - type: BOOLEAN_VALUE
         - alias: ID
 Parsing done for SQL command [select (0 = 1) and id from names;]
-            LP_COLUMN_ALIAS: NAMES(1).ID
-        - type: BOOLEAN_VALUE
-        - alias: ID
-            LP_COLUMN_ALIAS: NAMES(1).ID
-        - type: BOOLEAN_VALUE
-        - alias: ID
 Parsing done for SQL command [select id and id from names;]
+Parsing done for SQL command [select (firstname = 'd' AND id::boolean) from names;]
+            LP_COLUMN_ALIAS: NAMES(1).FIRSTNAME
+            LP_COLUMN_ALIAS: NAMES(1).ID
+        - type: BOOLEAN_VALUE
+        - alias: FIRSTNAME
+            LP_COLUMN_ALIAS: NAMES(1).FIRSTNAME
+            LP_COLUMN_ALIAS: NAMES(1).ID
+        - type: BOOLEAN_VALUE
+        - alias: FIRSTNAME
+Parsing done for SQL command [select (1::boolean AND id::boolean) from names;]
+            LP_COLUMN_ALIAS: NAMES(1).ID
+        - type: BOOLEAN_VALUE
+        - alias: ???
+            LP_COLUMN_ALIAS: NAMES(1).ID
+        - type: BOOLEAN_VALUE
+        - alias: ???
+Parsing done for SQL command [select (firstname::boolean AND id::boolean) from names;]
+            LP_COLUMN_ALIAS: NAMES(1).FIRSTNAME
+            LP_COLUMN_ALIAS: NAMES(1).ID
+        - type: BOOLEAN_VALUE
+        - alias: ???
+            LP_COLUMN_ALIAS: NAMES(1).FIRSTNAME
+            LP_COLUMN_ALIAS: NAMES(1).ID
+        - type: BOOLEAN_VALUE
+        - alias: ???
+Parsing done for SQL command [select id::boolean and 0 = 1 from names;]
+            LP_COLUMN_ALIAS: NAMES(1).ID
+        - type: BOOLEAN_VALUE
+        - alias: ???
+            LP_COLUMN_ALIAS: NAMES(1).ID
+        - type: BOOLEAN_VALUE
+        - alias: ???
+Parsing done for SQL command [select id::boolean and (0 = 1) from names;]
+Parsing done for SQL command [select (0 = 1) and id::boolean from names;]
+            LP_COLUMN_ALIAS: NAMES(1).ID
+        - type: BOOLEAN_VALUE
+        - alias: ???
+            LP_COLUMN_ALIAS: NAMES(1).ID
+        - type: BOOLEAN_VALUE
+        - alias: ???
+Parsing done for SQL command [select id::boolean and id::boolean from names;]
             LP_COLUMN_ALIAS: NAMES(1).ID
             LP_COLUMN_ALIAS: NAMES(1).ID
         - type: BOOLEAN_VALUE
-        - alias: ID
+        - alias: ???
             LP_COLUMN_ALIAS: NAMES(1).ID
             LP_COLUMN_ALIAS: NAMES(1).ID
         - type: BOOLEAN_VALUE
-        - alias: ID
+        - alias: ???
 Parsing done for SQL command [select * from (select NULL from names);]
         - type: NULL
         - alias: ???

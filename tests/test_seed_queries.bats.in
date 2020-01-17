@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -25,9 +25,6 @@ setup() {
 }
 
 @test "TSQ001 : get relkind" {
-  ## TODO: this is actually really hard because we make a reference to a table
-  ##  out of scope in the subquery; for now, skip it
-  skip
   load_fixture TSQ001.sql subtest
   verify_output TSQ001 output.txt
 }

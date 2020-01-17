@@ -285,37 +285,26 @@ search_condition
     }
   | row_value_constructor OR boolean_term {
       // This is a special form where the column is assumed to be a boolean
-      SqlStatement		*left;
-
       SQL_STATEMENT($$, binary_STATEMENT);
       MALLOC_STATEMENT($$, binary, SqlBinaryOperation);
       ($$)->v.binary->operation = BOOLEAN_OR;
-      INVOKE_ROW_VALUE_CONSTRUCTOR_BINARY_STATEMENT(left, $row_value_constructor, cursorId);
-      ($$)->v.binary->operands[0] = left;
+      ($$)->v.binary->operands[0] = ($row_value_constructor);
       ($$)->v.binary->operands[1] = ($boolean_term);
     }
   | search_condition OR row_value_constructor {
       // This is a special form where the column is assumed to be a boolean
-      SqlStatement		*right;
-
       SQL_STATEMENT($$, binary_STATEMENT);
       MALLOC_STATEMENT($$, binary, SqlBinaryOperation);
       ($$)->v.binary->operation = BOOLEAN_OR;
-      INVOKE_ROW_VALUE_CONSTRUCTOR_BINARY_STATEMENT(right, $row_value_constructor, cursorId);
-      ($$)->v.binary->operands[0] = $1;
-      ($$)->v.binary->operands[1] = right;
+      ($$)->v.binary->operands[0] = ($1);
+      ($$)->v.binary->operands[1] = ($row_value_constructor);
     }
   | row_value_constructor OR row_value_constructor {
       // This is a special form where the column is assumed to be a boolean
-      SqlStatement		*left, *right;
-
-      SQL_STATEMENT($$, binary_STATEMENT);
       MALLOC_STATEMENT($$, binary, SqlBinaryOperation);
       ($$)->v.binary->operation = BOOLEAN_OR;
-      INVOKE_ROW_VALUE_CONSTRUCTOR_BINARY_STATEMENT(left, $1, cursorId);
-      INVOKE_ROW_VALUE_CONSTRUCTOR_BINARY_STATEMENT(right, $3, cursorId);
-      ($$)->v.binary->operands[0] = left;
-      ($$)->v.binary->operands[1] = right;
+      ($$)->v.binary->operands[0] = ($1);
+      ($$)->v.binary->operands[1] = ($3);
     }
   ;
 
@@ -330,37 +319,27 @@ boolean_term
     }
   | row_value_constructor AND boolean_factor {
       // This is a special form where the column is assumed to be a boolean
-      SqlStatement		*left;
-
       SQL_STATEMENT($$, binary_STATEMENT);
       MALLOC_STATEMENT($$, binary, SqlBinaryOperation);
       ($$)->v.binary->operation = BOOLEAN_AND;
-      INVOKE_ROW_VALUE_CONSTRUCTOR_BINARY_STATEMENT(left, $row_value_constructor, cursorId);
-      ($$)->v.binary->operands[0] = left;
+      ($$)->v.binary->operands[0] = ($row_value_constructor);
       ($$)->v.binary->operands[1] = ($boolean_factor);
     }
   | boolean_term AND row_value_constructor {
       // This is a special form where the column is assumed to be a boolean
-      SqlStatement		*right;
-
       SQL_STATEMENT($$, binary_STATEMENT);
       MALLOC_STATEMENT($$, binary, SqlBinaryOperation);
       ($$)->v.binary->operation = BOOLEAN_AND;
-      INVOKE_ROW_VALUE_CONSTRUCTOR_BINARY_STATEMENT(right, $row_value_constructor, cursorId);
-      ($$)->v.binary->operands[0] = $1;
-      ($$)->v.binary->operands[1] = right;
+      ($$)->v.binary->operands[0] = ($1);
+      ($$)->v.binary->operands[1] = ($row_value_constructor);
     }
   | row_value_constructor AND row_value_constructor {
       // This is a special form where the column is assumed to be a boolean
-      SqlStatement		*left, *right;
-
       SQL_STATEMENT($$, binary_STATEMENT);
       MALLOC_STATEMENT($$, binary, SqlBinaryOperation);
       ($$)->v.binary->operation = BOOLEAN_AND;
-      INVOKE_ROW_VALUE_CONSTRUCTOR_BINARY_STATEMENT(left, $1, cursorId);
-      INVOKE_ROW_VALUE_CONSTRUCTOR_BINARY_STATEMENT(right, $3, cursorId);
-      ($$)->v.binary->operands[0] = left;
-      ($$)->v.binary->operands[1] = right;
+      ($$)->v.binary->operands[0] = ($1);
+      ($$)->v.binary->operands[1] = ($3);
     }
   ;
 
@@ -374,13 +353,10 @@ boolean_factor
     }
   | NOT row_value_constructor {
       // This is a special form where the column is assumed to be a boolean
-      SqlStatement		*right;
-
       SQL_STATEMENT($$, unary_STATEMENT);
       MALLOC_STATEMENT($$, unary, SqlUnaryOperation);
       ($$)->v.unary->operation = BOOLEAN_NOT;
-      INVOKE_ROW_VALUE_CONSTRUCTOR_BINARY_STATEMENT(right, $row_value_constructor, cursorId);
-      ($$)->v.unary->operand = right;
+      ($$)->v.unary->operand = ($row_value_constructor);
     }
   ;
 

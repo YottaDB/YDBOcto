@@ -36,7 +36,7 @@ int create_table_defaults(SqlStatement *table_statement, SqlStatement *keywords_
 	int			max_key = 0, i, len;
 	unsigned int		options = 0;
 
-	assert(keywords_statement != NULL);
+	assert(NULL != keywords_statement);
 
 	UNPACK_SQL_STATEMENT(start_keyword, keywords_statement, keyword);
 	UNPACK_SQL_STATEMENT(table, table_statement, table);
@@ -77,7 +77,7 @@ int create_table_defaults(SqlStatement *table_statement, SqlStatement *keywords_
 		// Get the new key columns
 		max_key = get_key_columns(table, key_columns);
 		assert(max_key == i - 1);
-	} else if (max_key == -2) {
+	} else if (-2 == max_key) {
 		return 1; // non-zero return value is an error (i.e causes YYABORT in caller)
 	}
 	cur_keyword = start_keyword;
@@ -106,7 +106,7 @@ int create_table_defaults(SqlStatement *table_statement, SqlStatement *keywords_
 		}
 		cur_keyword = cur_keyword->next;
 	} while (cur_keyword != start_keyword);
-	if (options == (SOURCE | DELIM))
+	if ((SOURCE | DELIM) == options)
 		return 0;
 	if (!(options & SOURCE)) {
 		UNPACK_SQL_STATEMENT(value, table->tableName, value);
@@ -115,7 +115,7 @@ int create_table_defaults(SqlStatement *table_statement, SqlStatement *keywords_
 				     value->v.reference);
 		for(i = 0; i <= max_key; i++) {
 			generate_key_name(buffer2, MAX_STR_CONST, i, table, key_columns);
-			if (i != 0)
+			if (0 != i)
 				buff_ptr += snprintf(buff_ptr, MAX_STR_CONST - (buff_ptr - buffer), ",");
 			buff_ptr += snprintf(buff_ptr, MAX_STR_CONST - (buff_ptr - buffer), "%s", buffer2);
 		}
@@ -152,17 +152,19 @@ int create_table_defaults(SqlStatement *table_statement, SqlStatement *keywords_
 	do {
 		switch(cur_keyword->keyword) {
 		case OPTIONAL_SOURCE:
-			if (table->source != NULL && table->source->v.keyword == cur_keyword)
+			if ((NULL != table->source) && (table->source->v.keyword == cur_keyword)) {
 				break;
-			assert(table->source == NULL);
+			}
+			assert(NULL == table->source);
 			SQL_STATEMENT(statement, keyword_STATEMENT);
 			statement->v.keyword = cur_keyword;
 			table->source = statement;
 			break;
 		case OPTIONAL_DELIM:
-			if (table->delim != NULL && table->delim->v.keyword == cur_keyword)
+			if ((NULL != table->delim) && (table->delim->v.keyword == cur_keyword)) {
 				break;
-			assert(table->delim == NULL);
+			}
+			assert(NULL == table->delim);
 			SQL_STATEMENT(statement, keyword_STATEMENT);
 			statement->v.keyword = cur_keyword;
 			table->delim = statement;

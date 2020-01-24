@@ -242,8 +242,12 @@ start_rocto() {
 stop_rocto() {
 	if [[ -e rocto.pid ]]; then
 		rocto_pid=$(cat rocto.pid)
-		if [[ $(ps -A | grep -c $rocto_pid) -gt 0 ]]; then
+		if [[ -d /proc/$rocto_pid ]]; then
 			$ydb_dist/mupip stop $rocto_pid
+			# Wait for rocto process to actually die
+			while [[ -d /proc/$rocto_pid ]]; do
+				sleep .1s
+			done
 		fi
 	fi
 }

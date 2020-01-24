@@ -11,7 +11,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 	; #FUTURE_TODO: Implement subqueries into other places (Group By, Having, etc.). Example below
 	;               SELECT n1.id from names n1 where n1.id * (select n2.id from names n2 where n2.id = n1.id % 3) = n1.id * 2;
-	; #FUTURE_TODO: Make it so subqueries from the select list can be used in other places
+	; #FUTURE_TODO: Make it so subqueries from the select list can be used in other places (I'm pretty sure that they can)
 	;               EX: Select (subquery) AS alias FROM table WHERE alias = 1;
 	; #FUTURE_TODO: Add aliases into FROM clause like example query below.
 	;               SELECT n1.id FROM names n1;
@@ -33,8 +33,8 @@
 	set initDone("booleanOperator")=0
 	set initDone("joinTypes")=0
 	set initDone("tf")=0
+	set initDone("aas")=0
 	set GLOBALtotalTables=0
-	set joinNum=0
 	set orderByExists="FALSE"
 	set limitExists="FALSE"
 	set outerJoinExists="FALSE"
@@ -59,6 +59,7 @@
 	for i=1:1:runCount do
 	. set aliasNum=1
 	. set fromNum=1
+	. set joinNum=0
 	. set query=""
 	. set query=$$generateQuery
 	. write query,!
@@ -75,7 +76,7 @@
 	. ; The following LVNs exist for each individual query,
 	. ; thus they need to be KILLED after each query is created
 	. kill tableColumn,selectListLVN,subQuerySelectedTables,tableColumnCopy,innerQuerySLLVN,dontJoin
-	. set orderByExists="FALSE"  set limitExists="FALSE"  set outerJoinExists="FALSE"  set joinNum=0
+	. set orderByExists="FALSE"  set limitExists="FALSE"  set outerJoinExists="FALSE"
 	. set outerJoinsAllowed="FALSE"
 
 	quit
@@ -331,7 +332,7 @@ fromClause()
 whereClause()
 	new result,randInt,i,x
 	set result=" WHERE "
-	set randInt=$random(9) ; 0-8 ; Increase this range as new versions of WHERE clauses are added
+	set randInt=$random(10) ; 0-9 ; Increase this range as new versions of WHERE clauses are added
 
 	set table=$piece(fc," ",2)
 
@@ -349,12 +350,15 @@ whereClause()
 	. . set type=$qsubscript(x,4)
 	. . if ($qsubscript(x,1)'=table)  set randInt=0
 
-	; When randInt=9 a BOOLEAN type column is necessary in the selected table,
+	; The comparison for randInt is set to 999 as to allow for new cases in the
+	; WHERE clause to be added in numerical order, when reenabled change the 999
+	; to whatever the next integer value would be in the series
+	; When randInt=999 a BOOLEAN type column is necessary in the selected table,
 	; this code block ensures that this requirement is satisfied, and if it isn't
 	; then set randInt to a different value.
-	; WHERE clause type 9 is just "WHERE boolean-type-column"
+	; WHERE clause type 999 is just "WHERE boolean-type-column"
 	; Currently commented out until issue 346 is resolved
-	;if (randInt=9)  do
+	;if (randInt=999)  do
 	;. set x="sqlInfo("""_table_""")"
 	;. for i=1:1:15  do  quit:(($find(type,"BOOLEAN")'=0)!(x=""))
 	;. . set x=$query(@x)
@@ -433,7 +437,6 @@ whereClause()
 
 	if (randInt=3) do
 	. new type,chosenColumn,plusMinus,plusMinus2
-	. ; ... WHERE customer_id=-(-3)
 	. set type=""
 	. for  quit:($find(type,"INTEGER")'=0)  do
 	. . set chosenColumn=$$chooseColumn("")
@@ -446,8 +449,6 @@ whereClause()
 
 	if (randInt=4) do
 	. new type,chosenColumn,beginning,plusMinus,end,aOperator
-	. ; ... WHERE customer_id=-(-3)
-	. ; ... WHERE (math expression) arithmetic operator -(math expression)
 	.
 	. set type=""
 	. for  quit:($find(type,"INTEGER")'=0)  do
@@ -473,7 +474,6 @@ whereClause()
 
 	if (randInt=5) do
 	. new notString,alias
-	. ; ... WHERE EXISTS (SELECT ... query)
 	. set notString=""
 	. if $random(2) set notString="NOT "
 	. set result=result_notString_"EXISTS ("_$$generateSubQuery("full")_")"
@@ -495,7 +495,6 @@ whereClause()
 	if (randInt=7) do
 	. new chosenColumn
 	. set chosenColumn=$$chooseColumn("")
-	. ; ... WHERE column BETWEEN entry1 and entry2
 	. set result=result_table_"."_chosenColumn_" BETWEEN "_$$chooseEntry(table,chosenColumn)_" AND "_$$chooseEntry(table,chosenColumn)
 
 	if (randInt=8) do
@@ -518,12 +517,45 @@ whereClause()
 	. . if (randInt=8) set string=string_"_"
 	. set result=result_table_"."_chosenColumn_" LIKE '"_string_"'"
 
+	if (randInt=9) do
+	. new randInt,word,leftSide,rightSide,chosenColumn,entryList,limit,rightType
+	. set word=$$aas
+	. set leftSide=$$chooseColumn(table)
+	. set leftType=$$returnColumnType(table,leftSide)
+	. set rightSide="("_$$generateSubQuery("limited")_")"
+	. if $increment(aliasNum,-1)
+	. set aliasDotColumn=""
+	. for i=1:1  do  quit:($find(aliasDotColumn,"alias"_aliasNum)'=0)
+	. . set aliasDotColumn=$piece(rightSide," ",i)
+	. set rightColumn=$piece(aliasDotColumn,".",2)
+	.
+	. new i
+	. set holder=""
+	. for i=1:1  do  quit:($find(holder,"FROM")'=0)
+	. . set holder=$piece(rightSide," ",i)
+	. set rightTable=$piece(rightSide," ",i+1)
+	.
+	. set rightType=$$returnColumnType(rightTable,rightColumn)
+	.
+	. for i=1:1:15  do  quit:($piece(leftType,"(")=$piece(rightType,"("))
+	. . set leftSide=$$chooseColumn(table)
+	. . set leftType=$$returnColumnType(table,leftSide)
+	.
+	. set leftSide=table_"."_leftSide
+	.
+	. if (i'=15) do
+	. . set result=result_leftSide_" "_$$comparisonOperators_" "_word_" "_rightSide
+	. else  set result=""
+
 	; #FUTURE_TODO: Add more complexity here (boolean operators mostly)
 	;               WHERE NOT booleanColumn, WHERE booleanColumn=TRUE/FALSE
 	; Currently disabled until issue 346 is resolved
-	if (randInt=9) do
+	; The comparison for randInt is set to 999 as to allow for new cases in the
+	; WHERE clause to be added in numerical order, when reenabled change the 999
+	; to whatever the next integer value would be in the series
+	if (randInt=999) do
 	. set type=""
-	. for  quit:($find(type,"BOOLEAN")'=0)  do
+	. for  do  quit:($find(type,"BOOLEAN")'=0)
 	. . set chosenColumn=$$chooseColumn("")
 	. . set type=$$returnColumnType(table,chosenColumn)
 	. . ;if (type="BOOLEAN")  set result=result_chosenColumn
@@ -533,7 +565,10 @@ whereClause()
 	;               Example: ((id = 1) OR (firstname = 'Zero')) AND (lastname '= 'Cool')
 	; #FUTURE_TODO: Maybe combine this with WHERE clause version #0 (randInt=0)
 	; Disabled until issues 346,353 are resolved, also isn't yet finished
-	if (randInt=10) do
+	; The comparison for randInt is set to 999 as to allow for new cases in the
+	; WHERE clause to be added in numerical order, when reenabled change the 999
+	; to whatever the next integer value would be in the series
+	if (randInt=999) do
 	. new operator,leftSide,rightSide
 	. set operator=$$comparisonOperators
 	. set chosenColumn=$$chooseColumn("")
@@ -657,6 +692,7 @@ joinClause()
 
 	if (randInt=1)  do
 	. new subquery,i
+	. set chosenEntry2=""
 	. set subquery=$$generateSubQuery("full")
 	. if $increment(aliasNum,-1)
 	. for i=0:1:$random(innerQuerySLLVN)  do
@@ -681,12 +717,37 @@ joinClause()
 	set opened="FALSE"
 	if ((result'="")&(joinType'="CROSS")&(joinType'="NATURAL"))  do
 	. for i=1:1:loopCount  do
+	. . new rightRand
 	. . set notString=""
 	. . if $random(2) set notString=" NOT"
 	. . if ($random(2))  set leftSide=chosenTable1_"."_chosenColumn1
 	. . else  set leftSide=chosenEntry1
-	. . if (($random(2))!(chosenEntry2=""))  set rightSide=chosenTable2_"."_chosenColumn2
-	. . else  set rightSide=chosenEntry2
+	. .
+	. . set rightRand=$random(3) ; 0-2
+	. . if ((rightRand=0)!(chosenEntry2=""))  set rightSide=chosenTable2_"."_chosenColumn2
+	. . if ((rightRand=1)&(chosenEntry2'=""))  set rightSide=chosenEntry2
+	. . if (rightRand=2) do
+	. . . set rightSide=$$aas_" ("_$$generateSubQuery("limited")_")"
+	. . .
+	. . . set aliasDotColumn=""
+	. . . if $increment(aliasNum,-1)
+	. . . for i=1:1  do  quit:($find(aliasDotColumn,"alias"_aliasNum)'=0)
+	. . . . set aliasDotColumn=$piece(rightSide," ",i)
+	. . . set rightColumn=$piece(aliasDotColumn,".",2)
+	. . .
+	. . . new rightI
+	. . . set holder=""
+	. . . for rightI=1:1  do  quit:($find(holder,"FROM")'=0)
+	. . . . set holder=$piece(rightSide," ",rightI)
+	. . . set rightTable=$piece(rightSide," ",rightI+1)
+	. . . set rightType=$$returnColumnType(rightTable,rightColumn)
+	. . .
+	. . . set leftType=""
+	. . . for i=1:1:15  do  quit:($piece(leftType,"(")=$piece(rightType,"("))
+	. . . . set leftSide=$$chooseColumn(chosenTable1)
+	. . . . set leftType=$$returnColumnType(chosenTable1,leftSide)
+	. . .
+	. . . set leftSide=$piece(fc," ",2)_"."_leftSide
 	. .
 	. . set operator=$$comparisonOperators
 	. .
@@ -714,8 +775,10 @@ joinClause()
 	. . . set onClause=onClause_")"
 	. . . set opened="FALSE"
 	. . if (i<loopCount)  set onClause=onClause_" "_$$booleanOperator_notString_" "
-	. set onClause=" ON ("_$extract(onClause,1,$length(onClause))_")"
-	. if ((i=loopCount)&(opened="TRUE"))  set onClause=onClause_")"
+	. ;set onClause=" ON ("_$extract(onClause,1,$length(onClause))_")" ;remove before MR if not needed
+	. set onClause=" ON ("_onClause_")"
+	. if (opened="TRUE")  set onClause=onClause_")"  set opened="FALSE"
+	. if (i=15)  set onClause=""  set result=""
 
 	quit result_onClause
 
@@ -894,6 +957,16 @@ tf()
 	. if $increment(tf)
 	quit tf($random(tf))
 
+aas()
+	if (initDone("aas")=0) do
+	. set initDone("aas")=1
+	. set aas=-1
+	. set aas($increment(aas))="ANY"
+	. set aas($increment(aas))="ALL"
+	. set aas($increment(aas))="SOME"
+	. if $increment(aas)
+	quit aas($random(aas))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;Queries
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -926,7 +999,7 @@ generateQuery()
 ; Passing "limited" returns a query that contains clauses that limit the
 ; query to only return a single row, and single column
 generateSubQuery(subQueryType)
-	new fc,alias
+	new innerFC,alias
 	set alias="alias"_aliasNum
 
 	merge tableColumnTemp=tableColumn
@@ -936,10 +1009,10 @@ generateSubQuery(subQueryType)
 	new innerQuery
 	set innerQuery="SELECT "
 	set innerQuery=innerQuery_$$setQuantifier
-	set fc=$$fromClause ; fromClause needs to run before selectList
+	set innerFC=$$fromClause ; fromClause needs to run before selectList
 	if (subQueryType="full")  set innerQuery=innerQuery_$$innerSelectList(subQueryType,$random(3)+1,alias)
 	if (subQueryType="limited")  set innerQuery=innerQuery_$$innerSelectList(subQueryType,0,alias)
-	set innerQuery=innerQuery_" "_fc_" "_alias
+	set innerQuery=innerQuery_" "_innerFC_" "_alias
 	set innerQuery=innerQuery_$$innerTableExpression(subQueryType)
 
 	new tableColumn,selectListLVN
@@ -948,7 +1021,10 @@ generateSubQuery(subQueryType)
 	if $increment(aliasNum)
 	quit innerQuery
 
-; #FUTURE_TODO: Try to make as many of these the same as their non-inner specific ounterparts
+; #FUTURE_TODO: Try to make as many of these the same as their non-subquery counterparts
+;               innerSelectList is almost the same as selectList (Different logic, but same idea)
+;               innerTableExpression is almost the same as tableExpression
+;               innerWhereClause is almost the same as whereClause
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;Inner Specific Versions of Other Functions
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -968,7 +1044,7 @@ innerSelectList(subQueryType,curDepth,alias)
 	.
 	. if (i'=15)  do
 	. . set selectListLVN(toBeAdded)=""
-	. . set innerQuerySLLVN($piece(toBeAdded,"."),$piece(toBeAdded,".",2))=$piece(fc," ",2)
+	. . set innerQuerySLLVN($piece(toBeAdded,"."),$piece(toBeAdded,".",2))=$piece(innerFC," ",2)
 	. . if $increment(innerQuerySLLVN)
 	. . set result=result_toBeAdded
 	.
@@ -980,22 +1056,18 @@ innerSelectList(subQueryType,curDepth,alias)
 
 	if (subQueryType="limited")  do
 	. set selectListLVN(toBeAdded)=""
+	. set innerQuerySLLVN(toBeAdded)=""
 	. set result=result_toBeAdded
 
 	quit result
 
 ; https://ronsavage.github.io/SQL/sql-92.bnf.html#table%20expression
 innerTableExpression(subQueryType)
+	new innerResult
 	; From Clause should go here, but it needs to be decided on early as to
 	; allow for proper column(s) to be chosen
 	set innerResult=""
 
-	; #FUTURE_TODO: Avoid WHERE clause selection if OUTER JOINs are used in the query (related to Issue 311).
-	;               When 311 is resolved, the line containing `$find` calls below (to search for OUTER JOIN usages)
-	;               can be removed and the line after it can instead be uncommented.
-	; The following line assumes that LEFT, LEFT OUTER, RIGHT, RIGHT OUTER can only exist in the
-	; query string as the join operators, added spaces before and after them to try to limit the
-	; overall effect of this
 	if ($random(2))  set innerResult=innerResult_$$innerWhereClause
 	; #FUTURE_TODO: Uncomment following line when GROUP BY is done in Octo Issue #55
 	;if $random(2)  set result=result_$$groupbyClause
@@ -1010,7 +1082,7 @@ innerTableExpression(subQueryType)
 innerWhereClause()
 	new result,randInt,i,x
 	set result=" WHERE "
-	set randInt=$random(9) ; 0-8 ; Increase this range as new versions of WHERE clauses are added
+	set randInt=$random(10) ; 0-8 ; Increase this range as new versions of WHERE clauses are added
 
 	; #FUTURE_TODO: Fix WHERE clause version 5 (randInt=5) of innerWhereClause and remove following
 	;               check (currently disabled).
@@ -1020,7 +1092,7 @@ innerWhereClause()
 	; EX: ... WHERE EXISTS subquery(... WHERE EXISTS subquery(... WHERE EXISTS subquery(... WHERE EXISTS)))
 	for  quit:(randInt'=5)  set randInt=$random(9)
 
-	set table=$piece(fc," ",2)
+	set innerTable=$piece(innerFC," ",2)
 
 	set type=""
 
@@ -1030,23 +1102,26 @@ innerWhereClause()
 	; WHERE clause type 2 is string concatenation, which requires at least one VARCHAR in order to function
 	; WHERE clause type 8 is LIKE with wildcards, this comparison can only occur on VARCHARs, not numeric/integer
 	if ((randInt=2)!(randInt=8))  do
-	. set x="sqlInfo("""_table_""")"
+	. set x="sqlInfo("""_innerTable_""")"
 	. for i=1:1  do  quit:($find(type,"VARCHAR")'=0)
 	. . set x=$query(@x)
 	. . set type=$qsubscript(x,4)
-	. . if ($qsubscript(x,1)'=table)  set randInt=0
+	. . if ($qsubscript(x,1)'=innerTable)  set randInt=0
 
-	; When randInt=9 a BOOLEAN type column is necessary in the selected table,
+	; The comparison for randInt is set to 999 as to allow for new cases in the
+	; WHERE clause to be added in numerical order, when reenabled change the 999
+	; to whatever the next integer value would be in the series
+	; When randInt=999 a BOOLEAN type column is necessary in the selected table,
 	; this code block ensures that this requirement is satisfied, and if it isn't
 	; then set randInt to a different value.
-	; WHERE clause type 9 is just "WHERE boolean-type-column"
+	; WHERE clause type 999 is just "WHERE boolean-type-column"
 	; Currently commented out until issue 346 is resolved
-	;if (randInt=9)  do
-	;. set x="sqlInfo("""_table_""")"
+	;if (randInt=999)  do
+	;. set x="sqlInfo("""_innerTable_""")"
 	;. for i=1:1:15  do  quit:(($find(type,"BOOLEAN")'=0)!(x=""))
 	;. . set x=$query(@x)
 	;. . if (x'="")  set type=$qsubscript(x,4)
-	;. . if ((x'="")&($qsubscript(x,1)'=table))  set randInt=0
+	;. . if ((x'="")&($qsubscript(x,1)'=innerTable))  set randInt=0
 	;. if ((i=15)!(x=""))  set randInt=0
 
 	if (randInt=0) do
@@ -1058,9 +1133,9 @@ innerWhereClause()
 	. . set leftSide=""
 	. . set rightSide=""
 	. . if $random(2)  set leftSide="alias"_aliasNum_"."_chosenColumn
-	. . else  set leftSide=$$chooseEntry(table,chosenColumn)
+	. . else  set leftSide=$$chooseEntry(innerTable,chosenColumn)
 	. . if $random(2)  set rightSide="alias"_aliasNum_"."_chosenColumn
-	. . else  set rightSide=$$chooseEntry(table,chosenColumn)
+	. . else  set rightSide=$$chooseEntry(innerTable,chosenColumn)
 	. . set notString=""
 	. . if $random(2) set notString="NOT "
 	. .
@@ -1084,10 +1159,10 @@ innerWhereClause()
 	. set type=""
 	. for  quit:($find(type,"INTEGER")'=0)  do
 	. . set chosenColumn=$$chooseColumn("")
-	. . set type=$$returnColumnType(table,chosenColumn)
+	. . set type=$$returnColumnType(innerTable,chosenColumn)
 	. set plusMinus="+"
 	. if $random(2) set plusMinus="-"
-	. set result=result_"(("_"alias"_aliasNum_"."_chosenColumn_plusMinus_$$chooseEntry(table,chosenColumn)_")="_$$chooseEntry(table,chosenColumn)_")"
+	. set result=result_"(("_"alias"_aliasNum_"."_chosenColumn_plusMinus_$$chooseEntry(innerTable,chosenColumn)_")="_$$chooseEntry(innerTable,chosenColumn)_")"
 
 	if (randInt=2) do
 	. new leftSide,rightSide,type,entry1,entry2
@@ -1104,17 +1179,17 @@ innerWhereClause()
 	. set type=""
 	. for  quit:($find(type,"VARCHAR")'=0)  do
 	. . set chosenColumn1=$$chooseColumn("")
-	. . set type=$$returnColumnType(table,chosenColumn1)
-	. set entry1=$$chooseEntry(table,chosenColumn1)
+	. . set type=$$returnColumnType(innerTable,chosenColumn1)
+	. set entry1=$$chooseEntry(innerTable,chosenColumn1)
 	. set entry1=$extract(entry1,2,$length(entry1)-1)
 	. set leftSide="alias"_aliasNum_"."_chosenColumn1
-	. if $random(2)  set leftSide=$$chooseEntry(table,chosenColumn1)
+	. if $random(2)  set leftSide=$$chooseEntry(innerTable,chosenColumn1)
 	.
 	. set chosenColumn2=$$chooseColumn("")
-	. set entry2=$$chooseEntry(table,chosenColumn2)
+	. set entry2=$$chooseEntry(innerTable,chosenColumn2)
 	. set entry2=$extract(entry2,2,$length(entry2)-1)
 	. set rightSide="alias"_aliasNum_"."_chosenColumn2
-	. if $random(2)  set rightSide=$$chooseEntry(table,chosenColumn2)
+	. if $random(2)  set rightSide=$$chooseEntry(innerTable,chosenColumn2)
 	.
 	. set result=result_"(("_leftSide_"||"_rightSide_")"_$$comparisonOperators_"'"_entry1_entry2_"')"
 
@@ -1124,12 +1199,12 @@ innerWhereClause()
 	. set type=""
 	. for  quit:($find(type,"INTEGER")'=0)  do
 	. . set chosenColumn=$$chooseColumn("")
-	. . set type=$$returnColumnType(table,chosenColumn)
+	. . set type=$$returnColumnType(innerTable,chosenColumn)
 	. set plusMinus="+"
 	. if $random(2) set plusMinus="-"
 	. set plusMinus2="+"
 	. if $random(2) set plusMinus2="-"
-	. set result=result_"("_"alias"_aliasNum_"."_chosenColumn_" "_$$comparisonOperators_" "_plusMinus_"("_plusMinus2_$$chooseEntry(table,chosenColumn)_"))"
+	. set result=result_"("_"alias"_aliasNum_"."_chosenColumn_" "_$$comparisonOperators_" "_plusMinus_"("_plusMinus2_$$chooseEntry(innerTable,chosenColumn)_"))"
 
 	if (randInt=4) do
 	. new type,chosenColumn,beginning,plusMinus,end,aOperator
@@ -1139,15 +1214,15 @@ innerWhereClause()
 	. set type=""
 	. for  quit:($find(type,"INTEGER")'=0)  do
 	. . set chosenColumn=$$chooseColumn("")
-	. . set type=$$returnColumnType(table,chosenColumn)
+	. . set type=$$returnColumnType(innerTable,chosenColumn)
 	.
-	. set beginning="("_$$chooseEntry(table,chosenColumn)_")"
+	. set beginning="("_$$chooseEntry(innerTable,chosenColumn)_")"
 	.
 	. new plusMinus
 	. set plusMinus="+"
 	. if $random(2) set plusMinus="-"
 	.
-	. set endEntry=$$chooseEntry(table,chosenColumn)
+	. set endEntry=$$chooseEntry(innerTable,chosenColumn)
 	.
 	. ; Checks if the selected operator is division/modulo and then checks if the
 	. ; divisor is 0, if it is 0, it then forces it to a non zero number (1)
@@ -1171,10 +1246,10 @@ innerWhereClause()
 	. set notString=""
 	. if $random(2) set notString="NOT "
 	. set entryList=""
-	. set limit=($random($$maxIndex(table)-1)+1)
+	. set limit=($random($$maxIndex(innerTable)-1)+1)
 	. if (limit>8)  set limit=8
 	. for i=1:1:limit do
-	. . set entryList=entryList_$$chooseEntry(table,chosenColumn)_", "
+	. . set entryList=entryList_$$chooseEntry(innerTable,chosenColumn)_", "
 	. ; strip the ", " off of entryList
 	. set entryList=$extract(entryList,0,$length(entryList)-2)
 	. set result=result_"alias"_aliasNum_"."_chosenColumn_" "_notString_"IN ("_entryList_")"
@@ -1183,7 +1258,7 @@ innerWhereClause()
 	. new chosenColumn
 	. set chosenColumn=$$chooseColumn("")
 	. ; ... WHERE column BETWEEN entry1 and entry2
-	. set result=result_"alias"_aliasNum_"."_chosenColumn_" BETWEEN "_$$chooseEntry(table,chosenColumn)_" AND "_$$chooseEntry(table,chosenColumn)
+	. set result=result_"alias"_aliasNum_"."_chosenColumn_" BETWEEN "_$$chooseEntry(innerTable,chosenColumn)_" AND "_$$chooseEntry(innerTable,chosenColumn)
 
 	if (randInt=8) do
 	. new chosenColumn,string,i,randInt
@@ -1191,7 +1266,7 @@ innerWhereClause()
 	. set type=""
 	. for  quit:($find(type,"VARCHAR")'=0)  do
 	. . set chosenColumn=$$chooseColumn("")
-	. . set type=$$returnColumnType(table,chosenColumn)
+	. . set type=$$returnColumnType(innerTable,chosenColumn)
 	. set string=""
 	. set desiredStringLength=$random(7)+1 ; 1-7
 	. for i=1:1:desiredStringLength do
@@ -1205,14 +1280,50 @@ innerWhereClause()
 	. . if (randInt=8) set string=string_"_"
 	. set result=result_"alias"_aliasNum_"."_chosenColumn_" LIKE '"_string_"'"
 
+	if (randInt=9) do
+	. new randInt,word,leftSide,rightSide,chosenColumn,entryList,limit,rightType
+	. set word=$$aas
+	. set leftSide=$$chooseColumn(innerTable)
+	. set leftType=$$returnColumnType(innerTable,leftSide)
+	.
+	. set rightSide="("_$$generateSubQuery("limited")_")"
+	. set innerTable=$piece(innerFC," ",2)
+	.
+	. if $increment(aliasNum,-1)
+	. set aliasDotColumn=""
+	. for i=1:1  do  quit:($find(aliasDotColumn,"alias"_aliasNum)'=0)
+	. . set aliasDotColumn=$piece(rightSide," ",i)
+	. set rightColumn=$piece(aliasDotColumn,".",2)
+	.
+	. new i
+	. set holder=""
+	. for i=1:1  do  quit:($find(holder,"FROM")'=0)
+	. . set holder=$piece(rightSide," ",i)
+	. set rightTable=$piece(rightSide," ",i+1)
+	.
+	. set rightType=$$returnColumnType(rightTable,rightColumn)
+	.
+	. for i=1:1:15  do  quit:($piece(leftType,"(")=$piece(rightType,"("))
+	. . set leftSide=$$chooseColumn(innerTable)
+	. . set leftType=$$returnColumnType(innerTable,leftSide)
+	.
+	. set leftSide="alias"_aliasNum_"."_leftSide
+	.
+	. if (i'=15) do
+	. . set result=result_leftSide_" "_$$comparisonOperators_" "_word_" "_rightSide
+	. else  set result=""
+
 	; #FUTURE_TODO: Add more complexity here (boolean operators mostly)
 	;               WHERE NOT booleanColumn, WHERE booleanColumn=TRUE/FALSE
 	; Currently disabled until issue 346 is resolved
-	if (randInt=9) do
+	; The comparison for randInt is set to 999 as to allow for new cases in the
+	; WHERE clause to be added in numerical order, when reenabled change the 999
+	; to whatever the next integer value would be in the series
+	if (randInt=999) do
 	. set type=""
 	. for  quit:($find(type,"BOOLEAN")'=0)  do
 	. . set chosenColumn=$$chooseColumn("")
-	. . set type=$$returnColumnType(table,chosenColumn)
+	. . set type=$$returnColumnType(innerTable,chosenColumn)
 	. . ;if (type="BOOLEAN")  set result=result_chosenColumn
 	. set result=result_chosenColumn
 
@@ -1220,16 +1331,19 @@ innerWhereClause()
 	;               Example: ((id = 1) OR (firstname = 'Zero')) AND (lastname '= 'Cool')
 	; #FUTURE_TODO: Maybe combine this with WHERE clause version #0 (randInt=0)
 	; Disabled until issues 346 are resolved, also isn't yet finished
-	if (randInt=10) do
+	; The comparison for randInt is set to 999 as to allow for new cases in the
+	; WHERE clause to be added in numerical order, when reenabled change the 999
+	; to whatever the next integer value would be in the series
+	if (randInt=999) do
 	. new operator,leftSide,rightSide
 	. set operator=$$comparisonOperators
 	. set chosenColumn=$$chooseColumn("")
 	. set leftSide=""
 	. set rightSide=""
 	. if ($random(2))  set leftSide=chosenColumn
-	. else  set leftSide=$$chooseEntry(table,chosenColumn)
+	. else  set leftSide=$$chooseEntry(innerTable,chosenColumn)
 	. if ($random(2))  set rightSide=chosenColumn
-	. else  set rightSide=$$chooseEntry(table,chosenColumn)
+	. else  set rightSide=$$chooseEntry(innerTable,chosenColumn)
 	. set result=result_"(("_leftSide_" "_operator_" "_rightSide_") = "_$$tf_")"
 
 	quit result

@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -30,5 +30,9 @@ setup() {
 @test "TAO02 : OCTO356 : Test ANY/ALL/SOME operator for type mismatch and more-than-1-column errors" {
   load_fixture TAO02.sql subtest
   verify_output TAO02 output.txt noinfo
+}
+
+@test "TAO03 : OCTO447 : QUITARGREQD error when < is used with ALL/ANY/SOME operator" {
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TAO03.sql "remove_empty_line_at_tail"
 }
 

@@ -369,7 +369,7 @@ Compare(value1,compOp,value2,isString)
 	QUIT:(">"=compOp) value1]value2
 	QUIT:("<="=compOp) value1']value2
 	QUIT:(">="=compOp) value2']value1
-	QUIT:(">"=compOp) value2]value1
+	QUIT:("<"=compOp) value2]value1
 	QUIT  ; We do not expect to reach here. Hence the QUIT without any value (will generate a runtime error).
 
 CountAsterisk(keyId,groupBySubs,aggrIndex,curValue)

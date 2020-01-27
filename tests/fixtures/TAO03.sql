@@ -10,6 +10,8 @@
 #								#
 #################################################################
 
+-- TAO03 : OCTO447 : QUITARGREQD error when < is used with ALL/ANY/SOME operator
+
 -- Test STRING type returned in sub-query for ALL/ANY/SOME operator
 select n1.firstname from names n1 where n1.firstname = ALL (select n2.firstname from names n2);
 select n1.firstname from names n1 where n1.firstname != ALL (select n2.firstname from names n2);

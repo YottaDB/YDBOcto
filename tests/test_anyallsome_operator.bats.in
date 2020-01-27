@@ -36,3 +36,7 @@ setup() {
   run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TAO03.sql "remove_empty_line_at_tail"
 }
 
+@test "TAO04 : OCTO448 : Incorrect results from ALL/ANY when empty string is in the list" {
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TAO04.sql "remove_empty_line_at_tail"
+}
+

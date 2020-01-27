@@ -336,7 +336,7 @@ ANY(inputValue,keyId,compOp,isString)
 	;
 	NEW %ydboctoret,%ydboctosub
 	SET %ydboctosub="",%ydboctoret=0
-	FOR  SET %ydboctosub=$ORDER(%ydboctocursor(cursorId,"keys",keyId,"","",%ydboctosub)) QUIT:%ydboctoret!(""=%ydboctosub)  DO
+	FOR  DO:$DATA(%ydboctocursor(cursorId,"keys",keyId,"","",%ydboctosub))  SET %ydboctosub=$ORDER(%ydboctocursor(cursorId,"keys",keyId,"","",%ydboctosub)) QUIT:%ydboctoret!(""=%ydboctosub)  DO
 	. SET %ydboctoret=$$Compare(inputValue,compOp,%ydboctosub,isString)
 	QUIT %ydboctoret
 
@@ -350,7 +350,7 @@ ALL(inputValue,keyId,compOp,isString)
 	;
 	NEW %ydboctoret,%ydboctosub
 	SET %ydboctosub="",%ydboctoret=1
-	FOR  SET %ydboctosub=$ORDER(%ydboctocursor(cursorId,"keys",keyId,"","",%ydboctosub)) QUIT:'%ydboctoret!(""=%ydboctosub)  DO
+	FOR  DO:$DATA(%ydboctocursor(cursorId,"keys",keyId,"","",%ydboctosub))  SET %ydboctosub=$ORDER(%ydboctocursor(cursorId,"keys",keyId,"","",%ydboctosub)) QUIT:'%ydboctoret!(""=%ydboctosub)  DO
 	. SET %ydboctoret=$$Compare(inputValue,compOp,%ydboctosub,isString)
 	QUIT %ydboctoret
 

@@ -94,3 +94,7 @@ setup() {
   verify_output TSO13 output.txt
 }
 
+@test "TSO14 : OCTO449 : Incorrect results from UNION/INTERSECT/EXCEPT when inside IN operator and empty string is in the list" {
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TSO14.sql "remove_empty_line_at_tail"
+}
+

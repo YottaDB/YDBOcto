@@ -44,10 +44,6 @@
 	free(cursor_subs);									\
 
 int handle_parse(Parse *parse, RoctoSession *session) {
-	// At the moment, we don't have "bound function"
-	// This feature should be implemented before 1.0
-	// For now, just a search-and-replace of anything starting with a '$'
-	// This is not super great because it means one could have a SQLI attack
 	QueryResponseParms	response_parms;
 	ParseComplete		*response;
 	ParseContext		parse_context;
@@ -182,23 +178,8 @@ int handle_parse(Parse *parse, RoctoSession *session) {
 		return 1;
 	}
 	// Store command tag
-	YDB_MALLOC_BUFFER(&tag_buffer, MAX_TAG_LEN);
-	YDB_COPY_STRING_TO_BUFFER(parse_context.command_tag, &tag_buffer, done);
-	if (!done) {
-		ERROR(ERR_YOTTADB, "YDB_COPY_STRING_TO_BUFFER failed");
-		status = ydb_delete_s(&statement_subs[0], 3, &statement_subs[1], YDB_DEL_TREE);
-		YDB_ERROR_CHECK(status);
-		status = ydb_delete_s(&cursor_subs[0], 1, &cursor_subs[1], YDB_DEL_TREE);
-		YDB_ERROR_CHECK(status);
-		YDB_FREE_BUFFER(&tag_buffer);
-		free(parse_context.is_bind_parm);
-		free(parse_context.types);
-		free(parse_context_array);
-		free(statement_subs);
-		free(all_parms_subs);
-		free(cursor_subs);
-		return 1;
-	}
+	YDB_MALLOC_BUFFER(&tag_buffer, INT32_TO_STRING_MAX);
+	OCTO_INT32_TO_BUFFER(parse_context.command_tag, &tag_buffer);
 	YDB_MALLOC_BUFFER(&statement_subs[4], MAX_TAG_LEN);
 	YDB_COPY_STRING_TO_BUFFER("tag", &statement_subs[4], done);
 	if (!done) {
@@ -277,9 +258,13 @@ int handle_parse(Parse *parse, RoctoSession *session) {
 	}
 	// SET or SHOW statements don't have plans to execute, so just return
 	if (!parse_context.is_select) {
+		response = make_parse_complete();
+		send_message(session, (BaseMessage*)(&response->type));
+		free(response);
 		// The cursor is no longer needed as there are no parameters to extract for later binding
 		status = ydb_delete_s(&cursor_subs[0], 1, &cursor_subs[1], YDB_DEL_TREE);
 		YDB_ERROR_CHECK(status);
+
 		free(parse_context.is_bind_parm);
 		free(parse_context.types);
 		free(parse_context_array);
@@ -300,10 +285,10 @@ int handle_parse(Parse *parse, RoctoSession *session) {
 	YDB_MALLOC_BUFFER(&cur_parm_buffer, INT16_TO_STRING_MAX);
 	YDB_MALLOC_BUFFER(&offset_buffer, INT16_TO_STRING_MAX);
 	for (cur_parm = 0, cur_bind_parm = 0; cur_parm < parse_context.total_parms; cur_parm++) {
-		if (parse_context.is_bind_parm[cur_parm]) {
+		if ((cur_parm <= parse_context.is_bind_parm_size) && (parse_context.is_bind_parm[cur_parm])) {
 			// Only need type information for bind parameters
 			if (cur_bind_parm < parse_context.num_bind_parms) {
-				if ((0 < parse_context.num_bind_parms)&& (cur_bind_parm >= parse->num_parm_data_types)) {
+				if ((0 < parse_context.num_bind_parms) && (cur_bind_parm >= parse->num_parm_data_types)) {
 					assert(cur_bind_parm < parse_context.cur_type);
 					OCTO_INT32_TO_BUFFER(parse_context.types[cur_bind_parm], &parm_type_buffer);
 				} else {

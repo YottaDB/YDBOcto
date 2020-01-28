@@ -15,6 +15,7 @@ import java.util.Properties;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.Statement;
+import java.util.Random;
 
 public class run_query {
 	public static void main( String args[] ) {
@@ -23,7 +24,25 @@ public class run_query {
 		props.setProperty("password","ydbrocks");
 		props.setProperty("ssl","false");
 		props.setProperty("sslmode","disable");
-		props.setProperty("preferQueryMode","extended");
+
+		boolean use_extended = false;
+		if (3 == args.length) {
+			// Use the query protocol specified by caller, if any
+			if (args[2].equals("useextended")) {
+				use_extended = true;
+			} else if (args[2].equals("usesimple")) {
+				use_extended = false;
+			}
+		} else {
+			// Randomize use of extended query
+			Random rand = new Random();
+			use_extended = rand.nextBoolean();
+		}
+		if (use_extended) {
+			props.setProperty("preferQueryMode","extended");
+		} else {
+			props.setProperty("preferQueryMode","simple");
+		}
 
 		String connectionString = "jdbc:postgresql://localhost:" + args[0] + "/";
 		try (Connection conn = DriverManager.getConnection(connectionString, props)) {
@@ -34,7 +53,7 @@ public class run_query {
 					ResultSetMetaData resultSetMetaData;
 					int columnCount;
 
-					if (2 == args.length) {
+					if (2 <= args.length) {
 						preparedStatement = conn.prepareStatement(args[1]);
 						resultSet = preparedStatement.executeQuery();
 						resultSetMetaData = resultSet.getMetaData();

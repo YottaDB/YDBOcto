@@ -1,4 +1,4 @@
- SELECT NULL          AS TABLE_CAT,
+SELECT NULL          AS TABLE_CAT,
        n.nspname     AS TABLE_SCHEM,
        c.relname     AS TABLE_NAME,
        CASE n.nspname ~ '^pg_'
@@ -73,3 +73,6 @@ ORDER  BY table_type,
           table_schem,
           table_name
 
+----- ROCTO/JDBC -----
+
+----- OCTO -----

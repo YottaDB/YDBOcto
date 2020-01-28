@@ -24,7 +24,7 @@
  *
  * @returns the parsed statement, or NULL if there was an error parsing.
  */
-SqlStatement *parse_line(char *cursorId, ParseContext *parse_context) {
+SqlStatement *parse_line(ParseContext *parse_context) {
 	SqlStatement *result = 0;
 	yyscan_t scanner;
 
@@ -35,7 +35,7 @@ SqlStatement *parse_line(char *cursorId, ParseContext *parse_context) {
 	config->plan_id = 1;	/* Start valid unique_id for tables at 1 (relied upon by "hash_canonical_query"
 				 * when referencing "tbl_and_col_id" field in SqlColumnListAlias)
 				 */
-	int status = yyparse(scanner, &result, &config->plan_id, cursorId, parse_context);
+	int status = yyparse(scanner, &result, &config->plan_id, parse_context);
 	yylex_destroy(scanner);
 	if (status) {
 		ERROR(ERR_PARSING_COMMAND, cur_input_index - old_input_index, input_buffer_combined + old_input_index);

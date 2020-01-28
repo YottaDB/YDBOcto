@@ -31,11 +31,6 @@ teardown() {
   stop_rocto
 }
 
-@test "TJC000 : Basic SquirrelSQL query runs without error using unmodified JDBC driver" {
-  run_java run_query $test_port "select current_schema()" &> output.txt
-  verify_output TJC000 output.txt
-}
-
 @test "TJC001 : Random inner/outer join queries" {
   load_fixture customers.sql
   load_fixture customers.zwr
@@ -44,7 +39,7 @@ teardown() {
   # Run using psql and Octo against each of the generated queries
   for file in jointest*.sql
   do
-    run_query_in_octo_and_postgres_and_crosscheck customers $file "" "" "" usejdbc
+    run_query_in_octo_and_postgres_and_crosscheck customers $file "" "" "" usejdbc useextended
   done
 }
 
@@ -58,31 +53,28 @@ teardown() {
 @test "TJC003 : First character of subsequent select query not consumed" {
   load_fixture customers.sql
   load_fixture customers.zwr
+  testname="TJC003"
   # Run using psql and Octo against each of the generated queries
-  run_java run_query $test_port "select * from names where id != 1; select * from names where id = 2;" &> output.txt
+  run_java run_query $test_port $testname useextended &> output.txt
   echo "" >> output.txt
   grep -r elect _ydboctoP*.m | sort >> output.txt
-  verify_output TJC003 output.txt
+  verify_output $testname output.txt
 }
 
 @test "TJC004 : Test Query Generator against customers database" {
-  run_query_generator customers 150 TQG01- "" "" usejdbc
+  run_query_generator customers 150 TJC04- "" "" usejdbc
 }
 
 @test "TJC005 : Test Query Generator against pastas database" {
-  run_query_generator pastas 150 TQG02- "" "" usejdbc
+  run_query_generator pastas 150 TJC05- "" "" usejdbc
 }
 
 @test "TJC006 : Test Query Generator against names database" {
-  run_query_generator names 150 TQG03- "" "" usejdbc
+  run_query_generator names 150 TJC06- "" "" usejdbc
 }
 
 @test "TJC007 : Test Query Generator against northwind database" {
-  run_query_generator northwind 150 TQG04- "" "" usejdbc
-}
-
-@test "TJC007 : Test Query Generator against northwind database" {
-  run_query_generator northwind 150 TQG04- "" "" usejdbc
+  run_query_generator northwind 150 TJC07- "" "" usejdbc
 }
 
 @test "TJC008 : Validate usage of Simple vs. Extended Query protocol using PrepareThreshold" {
@@ -104,7 +96,7 @@ teardown() {
   load_fixture names.zwr
   testname="TJC009"
   run_query_in_octo_and_postgres_and_crosscheck names $testname.sql "" "" "" usejdbc
-  grep "sent RowDescription" rocto.log &> output.txt
+  grep "Sending message of type T" rocto.log &> output.txt
   verify_output $testname output.txt psql
 }
 

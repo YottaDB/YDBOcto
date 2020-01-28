@@ -46,15 +46,15 @@ typedef void* yyscan_t;
 #define YYMAXDEPTH 10000000
 
 extern int yylex(YYSTYPE * yylval_param, YYLTYPE *llocp, yyscan_t yyscanner);
-extern int yyparse(yyscan_t scan, SqlStatement **out, int *plan_id, char *cursorId, ParseContext *parse_context);
-extern void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, int *plan_id, char *cursorId, ParseContext *parse_context, char const *s);
+extern int yyparse(yyscan_t scan, SqlStatement **out, int *plan_id, ParseContext *parse_context);
+extern void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, int *plan_id, ParseContext *parse_context, char const *s);
 
 %}
 
 %define api.pure full
 %locations
 %lex-param   { yyscan_t scanner }
-%parse-param { yyscan_t scanner } { SqlStatement **out } { int *plan_id } { char *cursorId } { ParseContext *parse_context }
+%parse-param { yyscan_t scanner } { SqlStatement **out } { int *plan_id } { ParseContext *parse_context }
 
 %token ADVANCE
 %token ALL
@@ -202,7 +202,7 @@ sql_statement
     }
   | sql_data_statement semicolon_or_eof { *out = $sql_data_statement; YYACCEPT; }
   | query_expression semicolon_or_eof {
-      STRCPY_LIT(parse_context->command_tag, "SELECT", MAX_TAG_LEN);
+      parse_context->command_tag = select_STATEMENT;
       parse_context->is_select = TRUE;
       if (parse_context->abort) {
         YYABORT;
@@ -211,20 +211,20 @@ sql_statement
           YYABORT;
       }
       SqlValueType type;
-      if (populate_data_type($query_expression, &type, cursorId, parse_context)) {
+      if (populate_data_type($query_expression, &type, parse_context)) {
           YYABORT;
       }
       *out = $query_expression; YYACCEPT;
     }
   | BEG semicolon_or_eof {
-      STRCPY_LIT(parse_context->command_tag, "BEG", MAX_TAG_LEN);
+      parse_context->command_tag = begin_STATEMENT;
       parse_context->is_select = FALSE;
       // For now, we don't do transaction, so just say OK to this word
       SQL_STATEMENT(*out, begin_STATEMENT);
       YYACCEPT;
     }
   | COMMIT semicolon_or_eof {
-      STRCPY_LIT(parse_context->command_tag, "COMMIT", MAX_TAG_LEN);
+      parse_context->command_tag = commit_STATEMENT;
       parse_context->is_select = FALSE;
       SQL_STATEMENT(*out, commit_STATEMENT);
       YYACCEPT;
@@ -408,14 +408,14 @@ truth_value
       MALLOC_STATEMENT($$, value, SqlValue);
       ($$)->v.value->type = BOOLEAN_VALUE;
       ($$)->v.value->v.string_literal = "1";
-      INVOKE_PARSE_LITERAL_TO_PARAMETER(cursorId, ($$)->v.value, FALSE);
+      INVOKE_PARSE_LITERAL_TO_PARAMETER(parse_context, ($$)->v.value, FALSE);
     }
   | FALSE_TOKEN {
       SQL_STATEMENT($$, value_STATEMENT);
       MALLOC_STATEMENT($$, value, SqlValue);
       ($$)->v.value->type = BOOLEAN_VALUE;
       ($$)->v.value->v.string_literal = "0";
-      INVOKE_PARSE_LITERAL_TO_PARAMETER(cursorId, ($$)->v.value, FALSE);
+      INVOKE_PARSE_LITERAL_TO_PARAMETER(parse_context, ($$)->v.value, FALSE);
     }
   | UNKNOWN { WARNING(ERR_FEATURE_NOT_IMPLEMENTED, "truth_value: UNKNOWN"); YYABORT; }
   ;
@@ -454,34 +454,34 @@ comparison_predicate
        * operand 5 - case sensitivity: FALSE = insensitive; TRUE = sensitive
        * operand 6 - not operator: FALSE = no NOT; TRUE = NOT
        */
-      INVOKE_REGEX_SPECIFICATION(&($$), ($1), ($3), 0, TRUE, FALSE, cursorId);
+      INVOKE_REGEX_SPECIFICATION(&($$), ($1), ($3), 0, TRUE, FALSE, parse_context);
     }
   | row_value_constructor TILDE ASTERISK row_value_constructor {
-      INVOKE_REGEX_SPECIFICATION(&($$), ($1), ($4), 0, FALSE, FALSE, cursorId);
+      INVOKE_REGEX_SPECIFICATION(&($$), ($1), ($4), 0, FALSE, FALSE, parse_context);
     }
   | row_value_constructor EXCLAMATION TILDE row_value_constructor {
-      INVOKE_REGEX_SPECIFICATION(&($$), ($1), ($4), 0, TRUE, TRUE, cursorId);
+      INVOKE_REGEX_SPECIFICATION(&($$), ($1), ($4), 0, TRUE, TRUE, parse_context);
     }
   | row_value_constructor EXCLAMATION TILDE ASTERISK row_value_constructor {
-      INVOKE_REGEX_SPECIFICATION(&($$), ($1), ($5), 0, FALSE, TRUE, cursorId);
+      INVOKE_REGEX_SPECIFICATION(&($$), ($1), ($5), 0, FALSE, TRUE, parse_context);
     }
   | row_value_constructor like_predicate row_value_constructor {
-      INVOKE_REGEX_SPECIFICATION(&($$), ($1), ($3), 1, TRUE, FALSE, cursorId);
+      INVOKE_REGEX_SPECIFICATION(&($$), ($1), ($3), 1, TRUE, FALSE, parse_context);
     }
   | row_value_constructor not_like_predicate row_value_constructor {
-      INVOKE_REGEX_SPECIFICATION(&($$), ($1), ($3), 1, TRUE, TRUE, cursorId);
+      INVOKE_REGEX_SPECIFICATION(&($$), ($1), ($3), 1, TRUE, TRUE, parse_context);
     }
   | row_value_constructor insensitive_like_predicate row_value_constructor {
-      INVOKE_REGEX_SPECIFICATION(&($$), ($1), ($3), 1, FALSE, FALSE, cursorId);
+      INVOKE_REGEX_SPECIFICATION(&($$), ($1), ($3), 1, FALSE, FALSE, parse_context);
     }
   | row_value_constructor not_insensitive_like_predicate row_value_constructor {
-      INVOKE_REGEX_SPECIFICATION(&($$), ($1), ($3), 1, FALSE, TRUE, cursorId);
+      INVOKE_REGEX_SPECIFICATION(&($$), ($1), ($3), 1, FALSE, TRUE, parse_context);
     }
   | row_value_constructor SIMILAR TO row_value_constructor {
-      INVOKE_REGEX_SPECIFICATION(&($$), ($1), ($4), 2, TRUE, FALSE, cursorId);
+      INVOKE_REGEX_SPECIFICATION(&($$), ($1), ($4), 2, TRUE, FALSE, parse_context);
     }
   | row_value_constructor NOT SIMILAR TO row_value_constructor {
-      INVOKE_REGEX_SPECIFICATION(&($$), ($1), ($5), 2, TRUE, TRUE, cursorId);
+      INVOKE_REGEX_SPECIFICATION(&($$), ($1), ($5), 2, TRUE, TRUE, parse_context);
     }
   ;
 
@@ -1164,11 +1164,11 @@ sql_schema_statement
 
 /// TODO: not complete
 sql_schema_manipulation_statement
-  : drop_table_statement { $$ = $drop_table_statement; STRCPY_LIT(parse_context->command_tag, "DROP", MAX_TAG_LEN); }
+  : drop_table_statement { $$ = $drop_table_statement; parse_context->command_tag = drop_STATEMENT; }
   ;
 
 sql_schema_definition_statement
-  : table_definition { $$ = $table_definition; STRCPY_LIT(parse_context->command_tag, "CREATE", MAX_TAG_LEN); }
+  : table_definition { $$ = $table_definition; parse_context->command_tag = table_STATEMENT; }
   ;
 
 /// TODO: not complete
@@ -1607,7 +1607,7 @@ literal_value
 			|| (INTEGER_LITERAL == ret->v.value->type)
 			|| (BOOLEAN_VALUE == ret->v.value->type)
 			|| (STRING_LITERAL == ret->v.value->type)) {
-			INVOKE_PARSE_LITERAL_TO_PARAMETER(cursorId, ret->v.value, FALSE);
+			INVOKE_PARSE_LITERAL_TO_PARAMETER(parse_context, ret->v.value, FALSE);
 		} else if (PARAMETER_VALUE == ret->v.value->type) {
 			// ROCTO ONLY: Populate ParseContext to handle prepared statements in extended query protocol
 			if (config->is_rocto && (TRUE == parse_context->is_extended_query)) {
@@ -1635,17 +1635,12 @@ literal_value
 					parse_context->parm_start[parse_context->num_bind_parms-1] = ret->loc.first_column;
 					parse_context->parm_end[parse_context->num_bind_parms-1] = ret->loc.last_column;
 				}
-				INVOKE_PARSE_LITERAL_TO_PARAMETER(cursorId, ret->v.value, FALSE);
+				INVOKE_PARSE_LITERAL_TO_PARAMETER(parse_context, ret->v.value, FALSE);
 			} else if (!parse_context->abort) {
 				parse_context->abort = TRUE;
 				ERROR(ERR_DOLLAR_SYNTAX, "");
-				yyerror(&yyloc, NULL, NULL, NULL, NULL, NULL, NULL);
+				yyerror(&yyloc, NULL, NULL, NULL, NULL, NULL);
 			}
-		}
-		// ROCTO ONLY: Track total number of parameters, both literals and PARAMETER_VALUES
-		if (config->is_rocto) {
-			assert(0 <= parse_context->total_parms);
-			parse_context->total_parms++;
 		}
 	}
 	$$ = ret;

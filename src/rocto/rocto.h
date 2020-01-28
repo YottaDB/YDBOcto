@@ -86,7 +86,7 @@ ReadyForQuery *make_ready_for_query(PSQL_TransactionStatus status);
 EmptyQueryResponse *make_empty_query_response();
 RowDescription *make_row_description(RowDescriptionParm *parms, int16_t num_parms);
 DataRow *make_data_row(DataRowParm *parms, int16_t num_parms);
-CommandComplete *make_command_complete(char *command_tag);
+CommandComplete *make_command_complete(SqlStatementType type, int32_t rows_sent);
 AuthenticationMD5Password *make_authentication_md5_password(RoctoSession *session, char *salt);
 AuthenticationOk *make_authentication_ok();
 ParseComplete *make_parse_complete();

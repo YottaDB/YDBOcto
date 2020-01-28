@@ -1,3 +1,8 @@
 select current_schema()
 
+----- ROCTO/JDBC -----
+DEFAULT
+
+----- OCTO -----
+
 DEFAULT

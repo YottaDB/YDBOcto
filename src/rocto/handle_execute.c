@@ -34,10 +34,11 @@ int handle_execute(Execute *execute, RoctoSession *session) {
 	ydb_string_t		ci_filename, ci_routine;
 	ydb_long_t		result, cursorId;
 	boolean_t		canceled = FALSE;
+	long int		temp_long;
 	int32_t			status, done;
 	int16_t			num_parms, cur_parm, cur_parm_temp;
 	char			filename[OCTO_PATH_MAX];
-	char			command_tag[MAX_TAG_LEN];
+	SqlStatementType	command_tag;
 
 	TRACE(ERR_ENTERING_FUNCTION, "handle_execute");
 
@@ -62,7 +63,7 @@ int handle_execute(Execute *execute, RoctoSession *session) {
 		free(portal_subs);
 		return 1;
 	}
-	YDB_MALLOC_BUFFER(&tag_buf, MAX_TAG_LEN);
+	YDB_MALLOC_BUFFER(&tag_buf, INT32_TO_STRING_MAX);
 	status = ydb_get_s(&portal_subs[0], 4, &portal_subs[1], &tag_buf);
 	YDB_FREE_BUFFER(&portal_subs[4]);
 	YDB_ERROR_CHECK(status);
@@ -73,6 +74,15 @@ int handle_execute(Execute *execute, RoctoSession *session) {
 		return 1;
 	}
 	tag_buf.buf_addr[tag_buf.len_used] = '\0';
+	temp_long = strtol(tag_buf.buf_addr, NULL, 10);
+	YDB_FREE_BUFFER(&tag_buf);
+	if ((ERANGE != errno) && (0 <= temp_long) && (INT32_MAX >= temp_long) && (invalid_STATEMENT >= temp_long)) {
+		command_tag = (int32_t)temp_long;
+	} else {
+		YDB_FREE_BUFFER(&routine_buffer);
+		free(portal_subs);
+		return 1;
+	}
 
 	// Skip plan execution for SET and SHOW statements
 	if (0 != strncmp(routine_buffer.buf_addr, "none", MAX_ROUTINE_LEN)) {
@@ -86,7 +96,6 @@ int handle_execute(Execute *execute, RoctoSession *session) {
 		if (YDB_OK != status) {
 			YDB_FREE_BUFFER(&routine_buffer);
 			YDB_FREE_BUFFER(&num_parms_buf);
-			YDB_FREE_BUFFER(&tag_buf);
 			free(portal_subs);
 			return 1;
 		}
@@ -98,7 +107,6 @@ int handle_execute(Execute *execute, RoctoSession *session) {
 		} else {
 			ERROR(ERR_LIBCALL, "strtol")
 			YDB_FREE_BUFFER(&routine_buffer);
-			YDB_FREE_BUFFER(&tag_buf);
 			free(portal_subs);
 			return 1;
 		}
@@ -127,7 +135,6 @@ int handle_execute(Execute *execute, RoctoSession *session) {
 				YDB_FREE_BUFFER(&portal_subs[6]);
 				YDB_FREE_BUFFER(&cursor_subs[3]);
 				YDB_FREE_BUFFER(&parm_buf);
-				YDB_FREE_BUFFER(&tag_buf);
 				free(portal_subs);
 				free(cursor_subs);
 				return 1;
@@ -146,7 +153,6 @@ int handle_execute(Execute *execute, RoctoSession *session) {
 				YDB_FREE_BUFFER(&portal_subs[6]);
 				YDB_FREE_BUFFER(&cursor_subs[3]);
 				YDB_FREE_BUFFER(&parm_buf);
-				YDB_FREE_BUFFER(&tag_buf);
 				free(portal_subs);
 				free(cursor_subs);
 				return 1;
@@ -160,7 +166,6 @@ int handle_execute(Execute *execute, RoctoSession *session) {
 		memset(&parms, 0, sizeof(QueryResponseParms));
 		parms.session = session;
 		parms.max_data_to_send = execute->rows_to_return;
-		parms.data_sent = TRUE;
 		stmt.type = select_STATEMENT;		// Only need this for the type to let the callee know we are running a SELECT statement
 		GET_FULL_PATH_OF_GENERATED_M_FILE(filename, &routine_buffer.buf_addr[1]);	/* updates "filename" to be full path */
 		ci_filename.address = filename;
@@ -175,7 +180,6 @@ int handle_execute(Execute *execute, RoctoSession *session) {
 			// Cleanup cursor parameters
 			status = ydb_delete_s(&cursor_subs[0], 1, &cursor_subs[1], YDB_DEL_TREE);
 			YDB_ERROR_CHECK(status);
-			YDB_FREE_BUFFER(&tag_buf);
 			YDB_FREE_BUFFER(&cursor_subs[3]);
 			YDB_FREE_BUFFER(&cursor_buffer);
 			YDB_FREE_BUFFER(&routine_buffer);
@@ -189,7 +193,6 @@ int handle_execute(Execute *execute, RoctoSession *session) {
 				// Cleanup cursor parameters
 				status = ydb_delete_s(&cursor_subs[0], 1, &cursor_subs[1], YDB_DEL_TREE);
 				YDB_ERROR_CHECK(status);
-				YDB_FREE_BUFFER(&tag_buf);
 				YDB_FREE_BUFFER(&cursor_subs[3]);
 				YDB_FREE_BUFFER(&cursor_buffer);
 				YDB_FREE_BUFFER(&routine_buffer);
@@ -203,7 +206,6 @@ int handle_execute(Execute *execute, RoctoSession *session) {
 			// Cleanup cursor parameters
 			status = ydb_delete_s(&cursor_subs[0], 1, &cursor_subs[1], YDB_DEL_TREE);
 			YDB_ERROR_CHECK(status);
-			YDB_FREE_BUFFER(&tag_buf);
 			YDB_FREE_BUFFER(&cursor_subs[3]);
 			YDB_FREE_BUFFER(&cursor_buffer);
 			YDB_FREE_BUFFER(&routine_buffer);
@@ -217,31 +219,28 @@ int handle_execute(Execute *execute, RoctoSession *session) {
 		YDB_FREE_BUFFER(&cursor_buffer);
 		free(cursor_subs);
 		if (YDB_OK != status) {
-			YDB_FREE_BUFFER(&tag_buf);
 			YDB_FREE_BUFFER(&routine_buffer);
 			return 1;
 		}
-		if(!parms.data_sent) {
-			empty = make_empty_query_response();
-			send_message(session, (BaseMessage*)(&empty->type));
-			free(empty);
-		}
 	} else {
+		parms.data_sent = FALSE;
 		free(portal_subs);
 	}
 	YDB_FREE_BUFFER(&routine_buffer);
 
 	// TODO: we need to limit the returns and provide a PortalSuspend if a limit on rows was requested per issue #255
 	// For now, we always return all rows
-	// Get the query to identify the type, e.g. SELECT, INSERT, etc.
 
-	if (0 == strncmp(tag_buf.buf_addr, "SELECT", MAX_TAG_LEN)) {
-		snprintf(command_tag, MAX_TAG_LEN, "%s %d", tag_buf.buf_addr, parms.rows_sent);
-		response = make_command_complete(command_tag);
+	response = make_command_complete(command_tag, parms.rows_sent);
+	if (NULL != response) {
 		send_message(session, (BaseMessage*)(&response->type));
 		free(response);
 	}
-	YDB_FREE_BUFFER(&tag_buf);
+	if (!parms.data_sent) {
+		empty = make_empty_query_response();
+		send_message(session, (BaseMessage*)(&empty->type));
+		free(empty);
+	}
 
 	return 0;
 }

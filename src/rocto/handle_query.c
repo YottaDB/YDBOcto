@@ -36,7 +36,6 @@ int handle_query(Query *query, RoctoSession *session) {
 	int32_t			query_length = 0, run_query_result = 0;
 	char			*err_buff;
 	size_t			err_buff_size;
-	char			command_tag[MAX_TAG_LEN];
 
 	TRACE(ERR_ENTERING_FUNCTION, "handle_query");
 
@@ -80,10 +79,8 @@ int handle_query(Query *query, RoctoSession *session) {
 		return 1;
 	}
 
-	// Only SELECT statements get command tags
-	if (0 == strncmp(parse_context.command_tag, "SELECT", MAX_TAG_LEN)) {
-		snprintf(command_tag, MAX_TAG_LEN + INT64_TO_STRING_MAX,  "%s %d", parse_context.command_tag, parms.rows_sent);
-		response = make_command_complete(command_tag);
+	response = make_command_complete(parse_context.command_tag, parms.rows_sent);
+	if (NULL != response) {
 		send_message(session, (BaseMessage*)(&response->type));
 		free(response);
 	}

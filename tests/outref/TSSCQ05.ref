@@ -1,13 +1,17 @@
- SELECT setting
+SELECT setting
 FROM   pg_catalog.pg_settings
 WHERE  NAME = 'max_index_keys'
+
+----- ROCTO/JDBC -----
+SQL State: 42P01
+ERROR: Unknown table: PG_CATALOG.PG_SETTINGS
+
+----- OCTO -----
 [ERROR] PATH:LINENUM DATE TIME : Unknown table: PG_CATALOG.PG_SETTINGS
 
- SELECT setting
+SELECT setting
 FROM   pg_catalog.pg_settings
        ^^^^^^^^^^^^^^^^^^^^^^
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT setting
 FROM   pg_catalog.pg_settings
 WHERE  NAME = 'max_index_keys'
-
-

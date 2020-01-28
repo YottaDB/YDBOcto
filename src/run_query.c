@@ -67,12 +67,13 @@ int run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_descrip
 		return 1;
 	}
 	parse_context->cursorId = cursorId;
+	parse_context->cursorIdString = cursor_buffer.buf_addr;
 
 	/* To print only the current query store the index for the last one
 	 * then print the difference between the cur_input_index - old_input_index
 	 */
 	old_input_index = cur_input_index;
-	result = parse_line(cursor_buffer.buf_addr, parse_context);
+	result = parse_line(parse_context);
 
 	/* add the current query to the readlines history */
 	if (config->is_tty) {

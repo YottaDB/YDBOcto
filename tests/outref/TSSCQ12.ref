@@ -1,4 +1,4 @@
- SELECT   nspname AS table_schem,
+SELECT   nspname AS table_schem,
          NULL    AS table_catalog
 FROM     pg_catalog.pg_namespace
 WHERE    nspname <> 'pg_toast'
@@ -9,6 +9,15 @@ AND      (
                   nspname !~ '^pg_toast_temp_'
          OR       nspname = replace((pg_catalog.current_schemas(true))[1], 'pg_temp_', 'pg_toast_temp_'))
 ORDER BY table_schem
+
+----- ROCTO/JDBC -----
+information_schema|
+pg_catalog|
+public|
+[SOCKET] [ WARN] PATH:LINENUM DATE TIME : Feature not implemented: arrays
+[SOCKET] [ WARN] PATH:LINENUM DATE TIME : Feature not implemented: arrays
+
+----- OCTO -----
 [ WARN] PATH:LINENUM DATE TIME : Feature not implemented: arrays
 [ WARN] PATH:LINENUM DATE TIME : Feature not implemented: arrays
 

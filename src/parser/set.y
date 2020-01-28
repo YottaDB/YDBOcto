@@ -13,7 +13,7 @@
 sql_set_statement
   : SET identifier EQUALS literal_value {
       if (TRUE == parse_context->is_extended_query) {
-	strncpy(parse_context->command_tag, "SET", strlen("SET") + 1);
+	parse_context->command_tag = set_STATEMENT;
       }
       SqlSetStatement *set;
       SQL_STATEMENT($$, set_STATEMENT);
@@ -24,7 +24,7 @@ sql_set_statement
     }
   | SET identifier TO literal_value {
       if (TRUE == parse_context->is_extended_query) {
-	strncpy(parse_context->command_tag, "SET", strlen("SET") + 1);
+	parse_context->command_tag = set_STATEMENT;
       }
       SqlSetStatement *set;
       SQL_STATEMENT($$, set_STATEMENT);
@@ -35,7 +35,7 @@ sql_set_statement
     }
   | SHOW identifier {
       if (TRUE == parse_context->is_extended_query) {
-	strncpy(parse_context->command_tag, "SHOW", strlen("SHOW") + 1);
+	parse_context->command_tag = show_STATEMENT;
       }
       SqlShowStatement *show;
       SQL_STATEMENT($$, show_STATEMENT);

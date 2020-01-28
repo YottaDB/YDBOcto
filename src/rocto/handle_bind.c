@@ -321,6 +321,9 @@ int handle_bind(Bind *bind, RoctoSession *session) {
 			YDB_ERROR_CHECK(status);
 			return 1;
 		}
+		response = make_bind_complete();
+		send_message(session, (BaseMessage*)response);
+		free(response);
 		return 0;
 	}
 	YDB_FREE_BUFFER(&num_parms_buf);

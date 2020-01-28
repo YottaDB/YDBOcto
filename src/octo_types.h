@@ -291,24 +291,25 @@ struct YYLTYPE
 // Used to maintain various parse related information primarily for use in Extended Query protocol modules
 typedef struct {
 	// General purpose parser fields
-	int64_t		cursorId;
-	boolean_t	abort;				// Used to defer YYABORT in certain error cases
+	int64_t			cursorId;
+	char			*cursorIdString;
+	boolean_t		abort;				// Used to defer YYABORT in certain error cases
 	// Extended Query specific fields
-	PSQL_TypeOid	*types;
-	int16_t		types_size;
-	int16_t		*parm_start;
-	int16_t		*parm_end;
-	int16_t		cur_type;
-	int16_t		num_bind_parms;
-	int16_t		num_bind_parm_types;
-	int16_t		total_parms;
-	boolean_t	is_select;
-	boolean_t	is_extended_query;
-	boolean_t	skip_cursor_cleanup;
-	boolean_t	*is_bind_parm;			// Used to track which literal parameters are bind parameters
-	int16_t		is_bind_parm_size;
-	char		routine[MAX_ROUTINE_LEN];
-	char		command_tag[MAX_TAG_LEN];
+	PSQL_TypeOid		*types;
+	SqlStatementType	command_tag;
+	int16_t			types_size;
+	int16_t			*parm_start;
+	int16_t			*parm_end;
+	int16_t			cur_type;
+	int16_t			num_bind_parms;
+	int16_t			num_bind_parm_types;
+	int16_t			total_parms;
+	boolean_t		is_select;
+	boolean_t		is_extended_query;
+	boolean_t		skip_cursor_cleanup;
+	boolean_t		*is_bind_parm;			// Used to track which literal parameters are bind parameters
+	int16_t			is_bind_parm_size;
+	char			routine[MAX_ROUTINE_LEN];
 } ParseContext;
 
 struct SqlColumn;

@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -19,396 +19,284 @@ load test_helpers
 setup() {
   init_test
   createdb
+  if [[ @YDB_TLS_AVAILABLE@ -eq 1 ]]; then
+    init_tls
+  fi
   load_fixture names.sql
   load_fixture names.zwr
+  load_fixture default_user.zwr
+  export JDBC_VERSION=42.2.6
+  test_port=$(start_rocto 1345)
+}
+
+teardown() {
+  stop_rocto
 }
 
 @test "TSSCQ01 : Squirrel SQL : SET extra_float_digits" {
-  cat <<CAT_EOF > input.sql
-SET extra_float_digits = 3;
-CAT_EOF
-  cat input.sql > output.txt
-  octo -f input.sql >> output.txt 2>&1
-  verify_output TSSCQ01 output.txt
+  testname="TSSCQ01"
+  echo -e "\n----- ROCTO/JDBC -----" &> output.txt
+  run_java run_query $test_port $testname 2>&1 output.txt
+  # Confirm no errors
+  [[ $(grep -c "ERROR" rocto.log) -eq 0 ]]
+  # Confirm command was parsed
+  grep "SET extra_float_digits = 3" rocto.log >> output.txt
+  echo -e "\n----- OCTO -----" >> output.txt
+  octo -f $testname.sql >> output.txt 2>&1
+  # Prepend query executed
+  printf '%s\n%s\n' "$(cat $testname.sql)" "$(cat output.txt)" > output.txt
+  verify_output $testname output.txt psql noconfig
 }
 
 @test "TSSCQ02 : Squirrel SQL : SET application_name" {
-  cat <<CAT_EOF > input.sql
-SET application_name = 'PostgreSQL JDBC Driver';
-CAT_EOF
-  cat input.sql > output.txt
-  octo -f input.sql >> output.txt 2>&1
-  verify_output TSSCQ02 output.txt
+  testname="TSSCQ02"
+  echo -en "\n----- ROCTO/JDBC -----" &> output.txt
+  run_java run_query $test_port $testname 2>&1 output.txt
+  # Confirm no errors
+  [[ $(grep -c "ERROR" rocto.log) -eq 0 ]]
+  # Newline for outref readability
+  echo >> output.txt
+  # Confirm command was parsed
+  grep "SET application_name = 'PostgreSQL JDBC Driver'" rocto.log >> output.txt
+  echo -e "\n----- OCTO -----" >> output.txt
+  octo -f $testname.sql >> output.txt 2>&1
+  # Prepend query executed
+  printf '%s\n%s\n' "$(cat $testname.sql)" "$(cat output.txt)" > output.txt
+  verify_output $testname output.txt psql noconfig
 }
 
 @test "TSSCQ03 : Squirrel SQL : SELECT current_schema()" {
-  cat <<CAT_EOF > input.sql
-select current_schema()
-CAT_EOF
-  cat input.sql > output.txt
-  octo -f input.sql >> output.txt 2>&1
-  verify_output TSSCQ03 output.txt
+  testname="TSSCQ03"
+  echo -e "\n----- ROCTO/JDBC -----" &> output.txt
+  run_java run_query $test_port $testname >> output.txt 2>&1
+  # Confirm no errors
+  [[ $(grep -c "ERROR" rocto.log) -eq 0 ]]
+  echo -e "\n----- OCTO -----" >> output.txt
+  octo -f $testname.sql >> output.txt 2>&1
+  # Prepend query executed
+  printf '%s\n%s\n' "$(cat $testname.sql)" "$(cat output.txt)" > output.txt
+  verify_output $testname output.txt psql noinfo
 }
 
 @test "TSSCQ04 : Squirrel SQL : typname = name and nspname = pg_catalog" {
   # Seems to only return a single row
-  cat <<CAT_EOF > input.sql
- SELECT t.typlen
-FROM   pg_catalog.pg_type t,
-       pg_catalog.pg_namespace n
-WHERE  t.typnamespace = n.oid
-       AND t.typname = 'name'
-       AND n.nspname = 'pg_catalog'
-CAT_EOF
-  cat input.sql > output.txt
-  octo -f input.sql >> output.txt 2>&1
-  verify_output TSSCQ04 output.txt
+  testname="TSSCQ04"
+  echo -e "\n----- ROCTO/JDBC -----" &> output.txt
+  run_java run_query $test_port $testname >> output.txt 2>&1
+  echo -e "\n----- OCTO -----" >> output.txt
+  octo -f $testname.sql >> output.txt 2>&1
+  # Prepend query executed
+  printf '%s\n%s\n' "$(cat $testname.sql)" "$(cat output.txt)" > output.txt
+  verify_output $testname output.txt psql noinfo
 }
 
 @test "TSSCQ05 : Squirrel SQL : name = max_index_keys" {
   # Currently returns an error because of Unknown table pg_catalog.pg_settings
-  cat <<CAT_EOF > input.sql
- SELECT setting
-FROM   pg_catalog.pg_settings
-WHERE  NAME = 'max_index_keys'
-CAT_EOF
-  cat input.sql > output.txt
-  octo -f input.sql >> output.txt 2>&1
-  verify_output TSSCQ05 output.txt
+  testname="TSSCQ05"
+  echo -e "\n----- ROCTO/JDBC -----" &> output.txt
+  run_java run_query $test_port $testname >> output.txt 2>&1
+  echo -e "\n\n----- OCTO -----" >> output.txt
+  octo -f $testname.sql >> output.txt 2>&1
+  # Prepend query executed
+  printf '%s\n%s\n' "$(cat $testname.sql)" "$(cat output.txt)" > output.txt
+  verify_output $testname output.txt noinfo
 }
 
 @test "TSSCQ06 : Squirrel SQL : word <> ALL known keywords" {
   # Gets additional keywords beyond just the known keywords, maybe?
   # Currently returns an error because it tries to interpret the function pg_catalog.Pg_get_keywords() as a
   # table name and ends up with an Unknown table error.
-  cat <<CAT_EOF > input.sql
- SELECT String_agg(word, ',')
-FROM   pg_catalog.Pg_get_keywords()
-WHERE  word <> ALL ('{a,abs,absolute,action,ada,add,admin,after,all,allocate,alter,always,and,any,are,array,as,asc,asensitive,assertion,assignment,asymmetric,at,atomic,attribute,attributes,authorization,avg,before,begin,bernoulli,between,bigint,binary,blob,boolean,both,breadth,by,c,call,called,cardinality,cascade,cascaded,case,cast,catalog,catalog_name,ceil,ceiling,chain,char,char_length,character,character_length,character_set_catalog,character_set_name,character_set_schema,characteristics,characters,check,checked,class_origin,clob,close,coalesce,cobol,code_units,collate,collation,collation_catalog,collation_name,collation_schema,collect,column,column_name,command_function,command_function_code,commit,committed,condition,condition_number,connect,connection_name,constraint,constraint_catalog,constraint_name,constraint_schema,constraints,constructors,contains,continue,convert,corr,corresponding,count,covar_pop,covar_samp,create,cross,cube,cume_dist,current,current_collation,current_date,current_default_transform_group,current_path,current_role,current_time,current_timestamp,current_transform_group_for_type,current_user,cursor,cursor_name,cycle,data,date,datetime_interval_code,datetime_interval_precision,day,deallocate,dec,decimal,declare,default,defaults,deferrable,deferred,defined,definer,degree,delete,dense_rank,depth,deref,derived,desc,describe,descriptor,deterministic,diagnostics,disconnect,dispatch,distinct,domain,double,drop,dynamic,dynamic_function,dynamic_function_code,each,element,else,end,end-exec,equals,escape,every,except,exception,exclude,excluding,exec,execute,exists,exp,external,extract,false,fetch,filter,final,first,float,floor,following,for,foreign,fortran,found,free,from,full,function,fusion,g,general,get,global,go,goto,grant,granted,group,grouping,having,hierarchy,hold,hour,identity,immediate,implementation,in,including,increment,indicator,initially,inner,inout,input,insensitive,insert,instance,instantiable,int,integer,intersect,intersection,interval,into,invoker,is,isolation,join,k,key,key_member,key_type,language,large,last,lateral,leading,left,length,level,like,ln,local,localtime,localtimestamp,locator,lower,m,map,match,matched,max,maxvalue,member,merge,message_length,message_octet_length,message_text,method,min,minute,minvalue,mod,modifies,module,month,more,multiset,mumps,name,names,national,natural,nchar,nclob,nesting,new,next,no,none,normalize,normalized,not,"null",nullable,nullif,nulls,number,numeric,object,octet_length,octets,of,old,on,only,open,option,options,or,order,ordering,ordinality,others,out,outer,output,over,overlaps,overlay,overriding,pad,parameter,parameter_mode,parameter_name,parameter_ordinal_position,parameter_specific_catalog,parameter_specific_name,parameter_specific_schema,partial,partition,pascal,path,percent_rank,percentile_cont,percentile_disc,placing,pli,position,power,preceding,precision,prepare,preserve,primary,prior,privileges,procedure,public,range,rank,read,reads,real,recursive,ref,references,referencing,regr_avgx,regr_avgy,regr_count,regr_intercept,regr_r2,regr_slope,regr_sxx,regr_sxy,regr_syy,relative,release,repeatable,restart,result,return,returned_cardinality,returned_length,returned_octet_length,returned_sqlstate,returns,revoke,right,role,rollback,rollup,routine,routine_catalog,routine_name,routine_schema,row,row_count,row_number,rows,savepoint,scale,schema,schema_name,scope_catalog,scope_name,scope_schema,scroll,search,second,section,security,select,self,sensitive,sequence,serializable,server_name,session,session_user,set,sets,similar,simple,size,smallint,some,source,space,specific,specific_name,specifictype,sql,sqlexception,sqlstate,sqlwarning,sqrt,start,state,statement,static,stddev_pop,stddev_samp,structure,style,subclass_origin,submultiset,substring,sum,symmetric,system,system_user,table,table_name,tablesample,temporary,then,ties,time,timestamp,timezone_hour,timezone_minute,to,top_level_count,trailing,transaction,transaction_active,transactions_committed,transactions_rolled_back,transform,transforms,translate,translation,treat,trigger,trigger_catalog,trigger_name,trigger_schema,trim,true,type,uescape,unbounded,uncommitted,under,union,unique,unknown,unnamed,unnest,update,upper,usage,user,user_defined_type_catalog,user_defined_type_code,user_defined_type_name,user_defined_type_schema,using,value,values,var_pop,var_samp,varchar,varying,view,when,whenever,where,width_bucket,window,with,within,without,work,write,year,zone}'::text[])
-CAT_EOF
-  cat input.sql > output.txt
-  octo -f input.sql >> output.txt 2>&1
-  verify_output TSSCQ06 output.txt
+  # Also note that this query uses SQL arrays, which are currently unsupported.
+  testname="TSSCQ06"
+  echo -e "\n----- ROCTO/JDBC -----" &> output.txt
+  run_java run_query $test_port $testname >> output.txt 2>&1
+  echo -e "\n\n----- OCTO -----" >> output.txt
+  octo -f $testname.sql >> output.txt 2>&1
+  # Prepend query executed
+  printf '%s\n%s\n' "$(cat $testname.sql)" "$(cat output.txt)" > output.txt
+  verify_output $testname output.txt noinfo
 }
 
 @test "TSSCQ07 : Squirrel SQL : nspname != pg_toast and typelem = 0 and typrelid = 0" {
   # Supposed to return a list of data type names (bool, int, char ...)
   # Currently returns only "oid" and "text".
-  cat <<CAT_EOF > input.sql
- SELECT t.typname
-FROM   pg_catalog.pg_type t
-       JOIN pg_catalog.pg_namespace n
-         ON ( t.typnamespace = n.oid )
-WHERE  n.nspname != 'pg_toast'
-       AND typelem = 0
-       AND typrelid = 0
-CAT_EOF
-  cat input.sql > output.txt
-  octo -f input.sql >> output.txt 2>&1
-  verify_output TSSCQ07 output.txt
+  testname="TSSCQ07"
+  echo -e "\n----- ROCTO/JDBC -----" &> output.txt
+  run_java run_query $test_port $testname >> output.txt 2>&1
+  echo -e "\n----- OCTO -----" >> output.txt
+  octo -f $testname.sql >> output.txt 2>&1
+  # Prepend query executed
+  printf '%s\n%s\n' "$(cat $testname.sql)" "$(cat output.txt)" > output.txt
+  verify_output $testname output.txt noinfo
 }
 
 @test "TSSCQ08 : Squirrel SQL : 5-way join" {
-  # Returns value is 1 row
   # Query truncated?
-  cat <<CAT_EOF > input.sql
- SELECT c.oid,
-       a.attnum,
-       a.attname,
-       c.relname,
-       n.nspname,
-       a.attnotnull
-        OR ( t.typtype = 'd'
-             AND t.typnotnull ),
-       a.attidentity != ''
-        OR pg_catalog.Pg_get_expr(d.adbin, d.adrelid) LIKE '%nextval(%'
-FROM   pg_catalog.pg_class c
-       JOIN pg_catalog.pg_namespace n
-         ON ( c.relnamespace = n.oid )
-       JOIN pg_catalog.pg_attribute a
-         ON ( c.oid = a.attrelid )
-       JOIN pg_catalog.pg_type t
-         ON ( a.atttypid = t.oid )
-       LEFT JOIN pg_catalog.pg_attrdef d
-              ON ( d.adrelid = a.attrelid
-                   AND d.adnum = a.attnum )
-       JOIN (SELECT 2615 AS oid,
-                    1    AS attnum) vals
-         ON ( c.oid = vals.oid
-              AND a.attnum = vals.attnum )
-CAT_EOF
-  cat input.sql > output.txt
-  octo -f input.sql >> output.txt 2>&1
-  verify_output TSSCQ08 output.txt
+  testname="TSSCQ08"
+  echo -e "\n----- ROCTO/JDBC -----" &> output.txt
+  run_java run_query $test_port $testname >> output.txt 2>&1
+  echo -e "\n----- OCTO -----" >> output.txt
+  octo -f $testname.sql >> output.txt 2>&1
+  # Prepend query executed
+  printf '%s\n%s\n' "$(cat $testname.sql)" "$(cat output.txt)" > output.txt
+  verify_output $testname output.txt noinfo
 }
 
 @test "TSSCQ09 : Squirrel SQL : List of tables from the information schema" {
   # Returns a list of tables from the information schema
   # Query truncated?
-  cat <<CAT_EOF > input.sql
- SELECT NULL          AS TABLE_CAT,
-       n.nspname     AS TABLE_SCHEM,
-       c.relname     AS TABLE_NAME,
-       CASE n.nspname ~ '^pg_'
-             OR n.nspname = 'information_schema'
-         WHEN true THEN
-           CASE
-             WHEN n.nspname = 'pg_catalog'
-                   OR n.nspname = 'information_schema' THEN
-               CASE c.relkind
-                 WHEN 'r' THEN 'SYSTEM TABLE'
-                 WHEN 'v' THEN 'SYSTEM VIEW'
-                 WHEN 'i' THEN 'SYSTEM INDEX'
-                 ELSE NULL
-               end
-             WHEN n.nspname = 'pg_toast' THEN
-               CASE c.relkind
-                 WHEN 'r' THEN 'SYSTEM TOAST TABLE'
-                 WHEN 'i' THEN 'SYSTEM TOAST INDEX'
-                 ELSE NULL
-               end
-             ELSE
-               CASE c.relkind
-                 WHEN 'r' THEN 'TEMPORARY TABLE'
-                 WHEN 'p' THEN 'TEMPORARY TABLE'
-                 WHEN 'i' THEN 'TEMPORARY INDEX'
-                 WHEN 'S' THEN 'TEMPORARY SEQUENCE'
-                 WHEN 'v' THEN 'TEMPORARY VIEW'
-                 ELSE NULL
-               end
-           end
-         WHEN false THEN
-           CASE c.relkind
-             WHEN 'r' THEN 'TABLE'
-             WHEN 'p' THEN 'TABLE'
-             WHEN 'i' THEN 'INDEX'
-             WHEN 'S' THEN 'SEQUENCE'
-             WHEN 'v' THEN 'VIEW'
-             WHEN 'c' THEN 'TYPE'
-             WHEN 'f' THEN 'FOREIGN TABLE'
-             WHEN 'm' THEN 'MATERIALIZED VIEW'
-             ELSE NULL
-           end
-         ELSE NULL
-       end           AS TABLE_TYPE,
-       d.description AS REMARKS,
-       ''            AS TYPE_CAT,
-       ''            AS TYPE_SCHEM,
-       ''            AS TYPE_NAME,
-       ''            AS SELF_REFERENCING_COL_NAME,
-       ''            AS REF_GENERATION
-FROM   pg_catalog.pg_namespace n,
-       pg_catalog.pg_class c
-       LEFT JOIN pg_catalog.pg_description d
-              ON ( c.oid = d.objoid
-                   AND d.objsubid = 0 )
-       LEFT JOIN pg_catalog.pg_class dc
-              ON ( d.classoid = dc.oid
-                   AND dc.relname = 'pg_class' )
-       LEFT JOIN pg_catalog.pg_namespace dn
-              ON ( dn.oid = dc.relnamespace
-                   AND dn.nspname = 'pg_catalog' )
-WHERE  c.relnamespace = n.oid
-       AND n.nspname LIKE 'information_schema'
-       AND ( false
-              OR ( c.relkind IN ( 'r', 'p' )
-                   AND n.nspname !~ '^pg_'
-                   AND n.nspname <> 'information_schema' )
-              OR ( c.relkind = 'r'
-                   AND ( n.nspname = 'pg_catalog'
-                          OR n.nspname = 'information_schema' ) ) )
-ORDER  BY table_type,
-          table_schem,
-          table_name
-CAT_EOF
-  cat input.sql > output.txt
-  octo -f input.sql >> output.txt 2>&1
-  verify_output TSSCQ09 output.txt
+  testname="TSSCQ09"
+  echo -e "\n----- ROCTO/JDBC -----" &> output.txt
+  run_java run_query $test_port $testname >> output.txt 2>&1
+  echo -e "\n----- OCTO -----" >> output.txt
+  octo -f $testname.sql >> output.txt 2>&1
+  # Prepend query executed
+  printf '%s\n%s\n' "$(cat $testname.sql)" "$(cat output.txt)" > output.txt
+  verify_output $testname output.txt noconfig
 }
 
 @test "TSSCQ10 : Squirrel SQL : List of system tables from the pg_catalog" {
   # Returns a list of system tables
-  cat <<CAT_EOF > input.sql
- SELECT NULL          AS TABLE_CAT,
-       n.nspname     AS TABLE_SCHEM,
-       c.relname     AS TABLE_NAME,
-       CASE n.nspname ~ '^pg_'
-             OR n.nspname = 'information_schema'
-         WHEN true THEN
-           CASE
-             WHEN n.nspname = 'pg_catalog'
-                   OR n.nspname = 'information_schema' THEN
-               CASE c.relkind
-                 WHEN 'r' THEN 'SYSTEM TABLE'
-                 WHEN 'v' THEN 'SYSTEM VIEW'
-                 WHEN 'i' THEN 'SYSTEM INDEX'
-                 ELSE NULL
-               end
-             WHEN n.nspname = 'pg_toast' THEN
-               CASE c.relkind
-                 WHEN 'r' THEN 'SYSTEM TOAST TABLE'
-                 WHEN 'i' THEN 'SYSTEM TOAST INDEX'
-                 ELSE NULL
-               end
-             ELSE
-               CASE c.relkind
-                 WHEN 'r' THEN 'TEMPORARY TABLE'
-                 WHEN 'p' THEN 'TEMPORARY TABLE'
-                 WHEN 'i' THEN 'TEMPORARY INDEX'
-                 WHEN 'S' THEN 'TEMPORARY SEQUENCE'
-                 WHEN 'v' THEN 'TEMPORARY VIEW'
-                 ELSE NULL
-               end
-           end
-         WHEN false THEN
-           CASE c.relkind
-             WHEN 'r' THEN 'TABLE'
-             WHEN 'p' THEN 'TABLE'
-             WHEN 'i' THEN 'INDEX'
-             WHEN 'S' THEN 'SEQUENCE'
-             WHEN 'v' THEN 'VIEW'
-             WHEN 'c' THEN 'TYPE'
-             WHEN 'f' THEN 'FOREIGN TABLE'
-             WHEN 'm' THEN 'MATERIALIZED VIEW'
-             ELSE NULL
-           end
-         ELSE NULL
-       end           AS TABLE_TYPE,
-       d.description AS REMARKS,
-       ''            AS TYPE_CAT,
-       ''            AS TYPE_SCHEM,
-       ''            AS TYPE_NAME,
-       ''            AS SELF_REFERENCING_COL_NAME,
-       ''            AS REF_GENERATION
-FROM   pg_catalog.pg_namespace n,
-       pg_catalog.pg_class c
-       LEFT JOIN pg_catalog.pg_description d
-              ON ( c.oid = d.objoid
-                   AND d.objsubid = 0 )
-       LEFT JOIN pg_catalog.pg_class dc
-              ON ( d.classoid = dc.oid
-                   AND dc.relname = 'pg_class' )
-       LEFT JOIN pg_catalog.pg_namespace dn
-              ON ( dn.oid = dc.relnamespace
-                   AND dn.nspname = 'pg_catalog' )
-WHERE  c.relnamespace = n.oid
-       AND n.nspname LIKE 'pg_catalog'
-       AND ( false
-              OR ( c.relkind IN ( 'r', 'p' )
-                   AND n.nspname !~ '^pg_'
-                   AND n.nspname <> 'information_schema' )
-              OR ( c.relkind = 'r'
-                   AND ( n.nspname = 'pg_catalog'
-                          OR n.nspname = 'information_schema' ) ) )
-ORDER  BY table_type,
-          table_schem,
-          table_name
-CAT_EOF
-  cat input.sql > output.txt
-  octo -f input.sql >> output.txt 2>&1
-  verify_output TSSCQ10 output.txt
+  testname="TSSCQ10"
+  echo -e "\n----- ROCTO/JDBC -----" &> output.txt
+  run_java run_query $test_port $testname >> output.txt 2>&1
+  echo -e "\n----- OCTO -----" >> output.txt
+  octo -f $testname.sql >> output.txt 2>&1
+  # Prepend query executed
+  printf '%s\n%s\n' "$(cat $testname.sql)" "$(cat output.txt)" > output.txt
+  verify_output $testname output.txt noconfig
 }
 
 @test "TSSCQ11 : Squirrel SQL : List of user defined tables" {
   # Returns a list of user defined tables
-  cat <<CAT_EOF > input.sql
- SELECT NULL          AS TABLE_CAT,
-       n.nspname     AS TABLE_SCHEM,
-       c.relname     AS TABLE_NAME,
-       CASE n.nspname ~ '^pg_'
-             OR n.nspname = 'information_schema'
-         WHEN true THEN
-           CASE
-             WHEN n.nspname = 'pg_catalog'
-                   OR n.nspname = 'information_schema' THEN
-               CASE c.relkind
-                 WHEN 'r' THEN 'SYSTEM TABLE'
-                 WHEN 'v' THEN 'SYSTEM VIEW'
-                 WHEN 'i' THEN 'SYSTEM INDEX'
-                 ELSE NULL
-               end
-             WHEN n.nspname = 'pg_toast' THEN
-               CASE c.relkind
-                 WHEN 'r' THEN 'SYSTEM TOAST TABLE'
-                 WHEN 'i' THEN 'SYSTEM TOAST INDEX'
-                 ELSE NULL
-               end
-             ELSE
-               CASE c.relkind
-                 WHEN 'r' THEN 'TEMPORARY TABLE'
-                 WHEN 'p' THEN 'TEMPORARY TABLE'
-                 WHEN 'i' THEN 'TEMPORARY INDEX'
-                 WHEN 'S' THEN 'TEMPORARY SEQUENCE'
-                 WHEN 'v' THEN 'TEMPORARY VIEW'
-                 ELSE NULL
-               end
-           end
-         WHEN false THEN
-           CASE c.relkind
-             WHEN 'r' THEN 'TABLE'
-             WHEN 'p' THEN 'TABLE'
-             WHEN 'i' THEN 'INDEX'
-             WHEN 'S' THEN 'SEQUENCE'
-             WHEN 'v' THEN 'VIEW'
-             WHEN 'c' THEN 'TYPE'
-             WHEN 'f' THEN 'FOREIGN TABLE'
-             WHEN 'm' THEN 'MATERIALIZED VIEW'
-             ELSE NULL
-           end
-         ELSE NULL
-       end           AS TABLE_TYPE,
-       d.description AS REMARKS,
-       ''            AS TYPE_CAT,
-       ''            AS TYPE_SCHEM,
-       ''            AS TYPE_NAME,
-       ''            AS SELF_REFERENCING_COL_NAME,
-       ''            AS REF_GENERATION
-FROM   pg_catalog.pg_namespace n,
-       pg_catalog.pg_class c
-       LEFT JOIN pg_catalog.pg_description d
-              ON ( c.oid = d.objoid
-                   AND d.objsubid = 0 )
-       LEFT JOIN pg_catalog.pg_class dc
-              ON ( d.classoid = dc.oid
-                   AND dc.relname = 'pg_class' )
-       LEFT JOIN pg_catalog.pg_namespace dn
-              ON ( dn.oid = dc.relnamespace
-                   AND dn.nspname = 'pg_catalog' )
-WHERE  c.relnamespace = n.oid
-       AND n.nspname LIKE 'public'
-       AND ( false
-              OR ( c.relkind IN ( 'r', 'p' )
-                   AND n.nspname !~ '^pg_'
-                   AND n.nspname <> 'information_schema' )
-              OR ( c.relkind = 'r'
-                   AND ( n.nspname = 'pg_catalog'
-                          OR n.nspname = 'information_schema' ) ) )
-ORDER  BY table_type,
-          table_schem,
-          table_name
-CAT_EOF
-  cat input.sql > output.txt
-  octo -f input.sql >> output.txt 2>&1
-  verify_output TSSCQ11 output.txt
+  testname="TSSCQ11"
+  echo -e "\n----- ROCTO/JDBC -----" &> output.txt
+  run_java run_query $test_port $testname >> output.txt 2>&1
+  echo -e "\n----- OCTO -----" >> output.txt
+  octo -f $testname.sql >> output.txt 2>&1
+  # Prepend query executed
+  printf '%s\n%s\n' "$(cat $testname.sql)" "$(cat output.txt)" > output.txt
+  verify_output $testname output.txt noconfig
 }
 
 @test "TSSCQ12 : Squirrel SQL : Returns information_schema, pg_catalog, public" {
   # Return value is 3 rows, information_schema, pg_catalog, public
-  cat <<CAT_EOF > input.sql
- SELECT   nspname AS table_schem,
-         NULL    AS table_catalog
-FROM     pg_catalog.pg_namespace
-WHERE    nspname <> 'pg_toast'
-AND      (
-                  nspname !~ '^pg_temp_'
-         OR       nspname = (pg_catalog.Current_schemas(true))[1])
-AND      (
-                  nspname !~ '^pg_toast_temp_'
-         OR       nspname = replace((pg_catalog.current_schemas(true))[1], 'pg_temp_', 'pg_toast_temp_'))
-ORDER BY table_schem
-CAT_EOF
-  cat input.sql > output.txt
-  octo -f input.sql >> output.txt 2>&1
-  verify_output TSSCQ12 output.txt
+  testname="TSSCQ12"
+  echo -e "\n----- ROCTO/JDBC -----" &> output.txt
+  run_java run_query $test_port $testname >> output.txt 2>&1
+  # Confirm unimplemented feature warning
+  grep "WARN.*arrays" rocto.log >> output.txt 2>&1
+  echo -e "\n----- OCTO -----" >> output.txt
+  octo -f $testname.sql >> output.txt 2>&1
+  # Prepend query executed
+  printf '%s\n%s\n' "$(cat $testname.sql)" "$(cat output.txt)" > output.txt
+  verify_output $testname output.txt psql noconfig
 }
 
+@test "TSSCQ13 : Squirrel SQL : Column retrieval query" {
+  load_fixture customers.sql
+  load_fixture customers.zwr
+  testname="TSSCQ13"
+  echo -e "\n----- ROCTO/JDBC -----" &> output.txt
+  run_java run_query $test_port $testname >> output.txt 2>&1
+  echo -e "\n----- OCTO -----" >> output.txt
+  octo -f $testname.sql >> output.txt 2>&1
+  # Prepend query executed
+  printf '%s\n%s\n' "$(cat $testname.sql)" "$(cat output.txt)" > output.txt
+  verify_output $testname output.txt  noconfig
+}
+
+@test "TSSCQ14 : Squirrel SQL : Column retrieval query" {
+  testname="TSSCQ14"
+  echo -e "\n----- ROCTO/JDBC -----" &> output.txt
+  run_java run_query $test_port $testname >> output.txt 2>&1
+  echo -e "\n----- OCTO -----" >> output.txt
+  octo -f $testname.sql >> output.txt 2>&1
+  # Prepend query executed
+  printf '%s\n%s\n' "$(cat $testname.sql)" "$(cat output.txt)" > output.txt
+  verify_output $testname output.txt noconfig
+}
+
+@test "TSSCQ15 : Squirrel SQL : Column retrieval query" {
+  testname="TSSCQ15"
+  echo -e "\n----- ROCTO/JDBC -----" &> output.txt
+  run_java run_query $test_port $testname >> output.txt 2>&1
+  echo -e "\n----- OCTO -----" >> output.txt
+  octo -f $testname.sql >> output.txt 2>&1
+  # Prepend query executed
+  printf '%s\n%s\n' "$(cat $testname.sql)" "$(cat output.txt)" > output.txt
+  verify_output $testname output.txt noconfig
+}
+
+@test "TSSCQ16 : Squirrel SQL : Column retrieval query" {
+  testname="TSSCQ16"
+  echo -e "\n----- ROCTO/JDBC -----" &> output.txt
+  run_java run_query $test_port $testname >> output.txt 2>&1
+  echo -e "\n----- OCTO -----" >> output.txt
+  octo -f $testname.sql >> output.txt 2>&1
+  # Prepend query executed
+  printf '%s\n%s\n' "$(cat $testname.sql)" "$(cat output.txt)" > output.txt
+  verify_output $testname output.txt noinfo
+}
+
+@test "TSSCQ17 : Squirrel SQL : Column retrieval query" {
+  testname="TSSCQ17"
+  echo -e "\n----- ROCTO/JDBC -----" &> output.txt
+  run_java run_query $test_port $testname >> output.txt 2>&1
+  echo -e "\n----- OCTO -----" >> output.txt
+  octo -f $testname.sql >> output.txt 2>&1
+  # Prepend query executed
+  printf '%s\n%s\n' "$(cat $testname.sql)" "$(cat output.txt)" > output.txt
+  verify_output $testname output.txt noinfo
+}
+
+@test "TSSCQ18 : Squirrel SQL : Column retrieval query" {
+  load_fixture northwind.sql
+  load_fixture northwind.zwr
+  testname="TSSCQ18"
+  echo -e "\n----- ROCTO/JDBC -----" &> output.txt
+  run_java run_query $test_port $testname >> output.txt 2>&1
+  echo -e "\n----- OCTO -----" >> output.txt
+  octo -f $testname.sql >> output.txt 2>&1
+  # Prepend query executed
+  printf '%s\n%s\n' "$(cat $testname.sql)" "$(cat output.txt)" > output.txt
+  verify_output $testname output.txt noinfo
+}
+
+@test "TSSCQ19 : Squirrel SQL : Column retrieval query" {
+  load_fixture northwind.sql
+  load_fixture northwind.zwr
+  testname="TSSCQ19"
+  echo -e "\n----- ROCTO/JDBC -----" &> output.txt
+  run_java run_query $test_port $testname >> output.txt 2>&1
+  echo -e "\n----- OCTO -----" >> output.txt
+  octo -f $testname.sql >> output.txt 2>&1
+  # Prepend query executed
+  printf '%s\n%s\n' "$(cat $testname.sql)" "$(cat output.txt)" > output.txt
+  verify_output $testname output.txt noinfo
+}
+
+@test "TSSCQ20 : Squirrel SQL : Column retrieval query" {
+  load_fixture customers.sql
+  load_fixture customers.zwr
+  testname="TSSCQ20"
+  echo -e "\n----- ROCTO/JDBC -----" &> output.txt
+  run_java run_query $test_port $testname >> output.txt 2>&1
+  echo -e "\n----- OCTO -----" >> output.txt
+  octo -f $testname.sql >> output.txt 2>&1
+  # Prepend query executed
+  printf '%s\n%s\n' "$(cat $testname.sql)" "$(cat output.txt)" > output.txt
+  verify_output $testname output.txt noinfo
+}
+
+@test "TSSCQ21 : Squirrel SQL : Connection query" {
+  # Returns syntax error due to unsupported array syntax
+  testname="TSSCQ21"
+  echo -e "\n----- ROCTO/JDBC -----" &> output.txt
+  run_java run_query $test_port $testname >> output.txt 2>&1
+  echo -e "\n\n----- OCTO -----" >> output.txt
+  octo -f $testname.sql >> output.txt 2>&1
+  # Prepend query executed
+  printf '%s\n%s\n' "$(cat $testname.sql)" "$(cat output.txt)" > output.txt
+  verify_output $testname output.txt noinfo
+}

@@ -16,7 +16,8 @@
 #include "octo.h"
 #include "octo_types.h"
 
-int regex_specification(SqlStatement **stmt, SqlStatement *op0, SqlStatement *op1, int is_regex_like_or_similar, int is_sensitive, int is_not, char *cursorId){
+int regex_specification(SqlStatement **stmt, SqlStatement *op0, SqlStatement *op1, int is_regex_like_or_similar, int is_sensitive,
+		int is_not, ParseContext *parse_context){
 	SqlStatement *regex;
 	char *c;
 	int is_dot_star = TRUE;
@@ -58,7 +59,7 @@ int regex_specification(SqlStatement **stmt, SqlStatement *op0, SqlStatement *op
 							? like_to_regex(value->v.string_literal)
 							: similar_to_regex(value->v.string_literal));
 			trim_dot_star(value);
-			int status = parse_literal_to_parameter(cursorId, value, TRUE);
+			int status = parse_literal_to_parameter(parse_context, value, TRUE);
 			if (0 != status) {
 				OCTO_CFREE(memory_chunks);
 				return 1;
@@ -90,7 +91,7 @@ int regex_specification(SqlStatement **stmt, SqlStatement *op0, SqlStatement *op
 		// Convert regex to simple boolean value as ".*" is all or nothing
 		// No need to differentiate based on is_not here, since the NOT case is handled below
 		regex->v.value->v.string_literal = "1";
-		status = parse_literal_to_parameter(cursorId, regex->v.value, FALSE);
+		status = parse_literal_to_parameter(parse_context, regex->v.value, FALSE);
 		if (0 != status) {
 			OCTO_CFREE(memory_chunks);
 			return 1;

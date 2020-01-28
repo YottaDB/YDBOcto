@@ -89,7 +89,7 @@ SqlColumnAlias *qualify_column_name(SqlValue *column_value, SqlJoin *tables, Sql
 						 * Record error context here.
 						 * Signal an error return from this function by returning NULL.
 						 */
-						yyerror(NULL, NULL, &cur_alias->alias, NULL, NULL, NULL, NULL);
+						yyerror(NULL, NULL, &cur_alias->alias, NULL, NULL, NULL);
 						return NULL;
 					}
 					break;
@@ -104,7 +104,7 @@ SqlColumnAlias *qualify_column_name(SqlValue *column_value, SqlJoin *tables, Sql
 					 * Record error context here.
 					 * Signal an error return from this function by returning NULL.
 					 */
-					yyerror(NULL, NULL, &sql_stmt, NULL, NULL, NULL, NULL);
+					yyerror(NULL, NULL, &sql_stmt, NULL, NULL, NULL);
 					return NULL;
 				}
 				if (NULL != col_cla) {

@@ -93,8 +93,10 @@ int rocto_main_loop(RoctoSession *session) {
 		case PSQL_Parse:
 			send_ready_for_query = FALSE;
 			parse = read_parse(message);
-			if (NULL == parse)
+			if (NULL == parse) {
+				extended_query_error = TRUE;
 				break;
+			}
 			result = handle_parse(parse, session);
 			free(parse);
 			if (1 == result) {
@@ -117,7 +119,6 @@ int rocto_main_loop(RoctoSession *session) {
 			}
 			break;
 		case PSQL_Describe:
-		// case PSQL_DataRow: // Same letter, different meaning
 			describe = read_describe(message);
 			if (NULL == describe) {
 				extended_query_error = TRUE;
@@ -131,7 +132,6 @@ int rocto_main_loop(RoctoSession *session) {
 			}
 			break;
 		case PSQL_Execute:
-		//case PSQL_ErrorResponse: // Same letter code, different meaning
 			execute = read_execute(message);
 			if (NULL == execute) {
 				extended_query_error = TRUE;
@@ -161,8 +161,8 @@ int rocto_main_loop(RoctoSession *session) {
 			shutdown(session->connection_fd, SHUT_RDWR);
 			close(session->connection_fd);
 			LOG_LOCAL_ONLY(INFO, ERR_ROCTO_CLEAN_DISCONNECT, "");
+			rocto_session.sending_message = TRUE;
 			return 0;
-			break;
 		default:
 			TRACE(ERR_UNKNOWN_MESSAGE_TYPE, message->type);
 			break;

@@ -298,7 +298,7 @@ from_clause
    }
   ;
 
-// Just consider these a list of values for all intensive purposes
+// Just consider these a list of values for all intents and purposes
 table_reference
   : column_name table_reference_tail {
       SQL_STATEMENT($$, join_STATEMENT);

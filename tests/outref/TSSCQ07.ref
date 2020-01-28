@@ -1,10 +1,19 @@
- SELECT t.typname
+SELECT t.typname
 FROM   pg_catalog.pg_type t
        JOIN pg_catalog.pg_namespace n
          ON ( t.typnamespace = n.oid )
 WHERE  n.nspname != 'pg_toast'
        AND typelem = 0
        AND typrelid = 0
+
+----- ROCTO/JDBC -----
+bool
+int4
+numeric
+unknown
+varchar
+
+----- OCTO -----
 
 bool
 int4

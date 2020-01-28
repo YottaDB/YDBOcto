@@ -64,7 +64,7 @@ SqlStatement *natural_join_condition(SqlStatement *left, SqlStatement *right, bo
 				r_matched_column = match_column_in_table(r_cur_alias, column_name, column_name_len, ambiguous);
 				if (NULL != r_matched_column) {
 					if (*ambiguous) {
-						yyerror(NULL, NULL, &right_sql_stmt, NULL, NULL, NULL, NULL);
+						yyerror(NULL, NULL, &right_sql_stmt, NULL, NULL, NULL);
 					}
 					UNPACK_SQL_STATEMENT(value, r_cur_alias->alias, value);
 					r_table_name = value->v.string_literal;

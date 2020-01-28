@@ -240,12 +240,22 @@ start_rocto() {
 }
 
 stop_rocto() {
+	# Wait for rocto listener to die
 	if [[ -e rocto.pid ]]; then
-		rocto_pid=$(cat rocto.pid)
-		if [[ -d /proc/$rocto_pid ]]; then
-			$ydb_dist/mupip stop $rocto_pid
+		listener_pid=$(cat rocto.pid)
+		# Wait for rocto servers (i.e. children of the listener) to die
+		ps --no-headers --ppid $listener_pid | awk '{print $1}' | while read server_pid; do
+			if [[ -d /proc/$server_pid ]]; then
+				# Wait for rocto process to actually die
+				while [[ -d /proc/$server_pid ]]; do
+					sleep .1s
+				done
+			fi
+		done
+		if [[ -d /proc/$listener_pid ]]; then
+			$ydb_dist/mupip stop $listener_pid
 			# Wait for rocto process to actually die
-			while [[ -d /proc/$rocto_pid ]]; do
+			while [[ -d /proc/$listener_pid ]]; do
 				sleep .1s
 			done
 		fi
@@ -303,9 +313,22 @@ run_java() {
 		# Compile the .java file to a .class file
 		javac @PROJECT_BINARY_DIR@/$1.java	# will create the file $1.class
 	fi
+	strip_sql_comments $3
+	if [[ $1 == "run_query" ]]; then
+		# Only append ".sql" for queries derived from fixtures, not for generated queries
+		if [[ -f $3 ]]; then
+			query=$(cat $3)
+		else
+			query=$(cat $3.sql)
+		fi
+	elif [[ $1 == "run_multi_query" ]]; then
+		query=$3.sql
+	else
+		query=""
+	fi
 	# Run the $1.java file now that the $1.class file has been compiled/created.
 	# Ensure both the postgresql-$JDBC_VERSION.jar file and the $1.class file will be found in the -classpath specification below
-	java -classpath @PROJECT_BINARY_DIR@/postgresql-$JDBC_VERSION.jar:@PROJECT_BINARY_DIR@ $1 $2 "$3"
+	java -classpath @PROJECT_BINARY_DIR@/postgresql-$JDBC_VERSION.jar:@PROJECT_BINARY_DIR@ $1 $2 "$query" $4
 }
 
 strip_psql_header() {
@@ -321,6 +344,17 @@ strip_expect_artifacts() {
 	# Account for that in the 2 lines below. The [#$] is to account for either a # or a $ as the shell prompt
 	sed -i '/^.*bats-test\..*[#$].*$/d' $1
 	sed -i '/^.*\$PWD[#$]*.*$/d' $1
+}
+
+# Filter out '#' comment lines and blank lines, if any
+strip_sql_comments() {
+	# Remove .sql extension (occurs when root caller is run_query_in_octo_and_postgres_and_crosscheck)
+	filename=$(echo $1 | cut -d'.' -f 1)
+	# Comments are only present for fixtures
+	if [[ -f @PROJECT_SOURCE_DIR@/tests/fixtures/$filename.sql ]]; then
+		cp @PROJECT_SOURCE_DIR@/tests/fixtures/$filename.sql $filename.in
+		grep -v '^#' $filename.in | grep -v '^[[:space:]]*$' > $filename.sql
+	fi
 }
 
 verify_output() {
@@ -413,6 +447,10 @@ verify_output() {
 		if [[ $i == "noforcedhalt" ]]; then
 			sed -i '/%YDB-F-FORCEDHALT/d' clean_output.txt
 		fi
+		if [[ $i == "noconfig" ]]; then
+			# Remove Octo's "Loading config from ..." message while leaving other INFO messages intact
+			sed -i '/Loading config from/d' clean_output.txt
+		fi
 		# The sort argument should be passed last to allow sorting of final output file
 		if [[ $i == "sort" ]]; then
 			cat clean_output.txt | sort -o clean_output.txt
@@ -472,6 +510,7 @@ run_query_in_octo_and_postgres_and_crosscheck() {
 	trimzeroes="$4"
 	nowarn="$5"
 	usejdbc="$6"
+	jdbcprotocol="$7"
 	fname=`echo $queryfile | sed 's/\..*//g'`
 	grep -v '^#' $queryfile > $queryfile.inp # Filter out '#' comment lines, if any, as that is not valid in Postgres
 	psql $database -f $queryfile.inp >& $fname.psql.out
@@ -485,7 +524,7 @@ run_query_in_octo_and_postgres_and_crosscheck() {
 		sed '/\./ s/\.\{0,1\}0\{1,\}$//;/\./ s/\.\{0,1\}0\{1,\}|/|/;' $fname.ref1 > $fname.ref
 	fi
 	if [[ $usejdbc == "usejdbc" ]]; then
-		run_java run_query $test_port "$(cat $queryfile.inp)" &> $fname.octo.out
+		run_java run_query $test_port $queryfile $jdbcprotocol &> $fname.octo.out
 	else
 		octo -f $queryfile >& $fname.octo.out
 	fi
@@ -540,6 +579,8 @@ run_query_generator() {
   databaseName="$1"
   numQueries="$2"
   prefix="$3"
+  usejdbc="$4"
+  useextended="$5"
 
   cp @PROJECT_SOURCE_DIR@/tests/fixtures/QueryGenerator.m .
   load_fixture "$databaseName.sql"
@@ -552,7 +593,7 @@ run_query_generator() {
   do
     queryfile=$prefix$count
     queryfile+=".sql"
-    run_query_in_octo_and_postgres_and_crosscheck $databaseName $queryfile "remove_empty_line_at_tail"
+    run_query_in_octo_and_postgres_and_crosscheck $databaseName $queryfile "remove_empty_line_at_tail" "" "" $usejdbc $useextended
     count=`expr $count + 1`
   done
 }

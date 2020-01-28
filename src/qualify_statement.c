@@ -59,7 +59,7 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 			column_name = find_column_alias_name(stmt);
 			UNPACK_SQL_STATEMENT(value, column_name, value);
 			ERROR(ERR_GROUP_BY_OR_AGGREGATE_FUNCTION, value->v.string_literal);
-			yyerror(NULL, NULL, &stmt, NULL, NULL, NULL, NULL);
+			yyerror(NULL, NULL, &stmt, NULL, NULL, NULL);
 			result = 1;
 		}
 		break;
@@ -75,7 +75,7 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 			new_column_alias = qualify_column_name(value, tables, table_alias_stmt, depth + 1, ret_cla);
 			result = ((NULL == new_column_alias) && ((NULL == ret_cla) || (NULL == *ret_cla)));
 			if (result) {
-				yyerror(NULL, NULL, &stmt, NULL, NULL, NULL, NULL);
+				yyerror(NULL, NULL, &stmt, NULL, NULL, NULL);
 			} else {
 				if ((NULL == ret_cla) || (NULL == *ret_cla)) {
 					// Convert this statement to a qualified one by changing the "type".
@@ -118,13 +118,13 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 			// Else, match it with a value from the dictionary in ^octo("functions")
 			result = qualify_function_name(stmt);
 			if (result) {
-				yyerror(NULL, NULL, &stmt, NULL, NULL, NULL, NULL);
+				yyerror(NULL, NULL, &stmt, NULL, NULL, NULL);
 			}
 			break;
 		case COERCE_TYPE:
 			result |= qualify_statement(value->v.coerce_target, tables, table_alias_stmt, depth + 1, ret_cla);
 			if (result) {
-				yyerror(NULL, NULL, &stmt, NULL, NULL, NULL, NULL);
+				yyerror(NULL, NULL, &stmt, NULL, NULL, NULL);
 			}
 			break;
 		default:
@@ -175,7 +175,7 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 					assert(FALSE);
 				}
 			}
-			yyerror(NULL, NULL, &af->parameter, NULL, NULL, NULL, NULL);
+			yyerror(NULL, NULL, &af->parameter, NULL, NULL, NULL);
 			result = 1;
 		} else {
 			assert(!table_alias->do_group_by_checks || table_alias->aggregate_function_or_group_by_specified);
@@ -288,7 +288,7 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 							if ('.' == *ptr) {
 								ERROR(ERR_ORDER_BY_POSITION_NOT_INTEGER,
 									is_negative_numeric_literal ? "-" : "", str);
-								yyerror(NULL, NULL, &cur_cla->column_list, NULL, NULL, NULL, NULL);
+								yyerror(NULL, NULL, &cur_cla->column_list, NULL, NULL, NULL);
 								error_encountered = 1;
 								break;
 							}
@@ -302,7 +302,7 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 							if ((LONG_MIN == ret) || (LONG_MAX == ret)) {
 								ERROR(ERR_ORDER_BY_POSITION_NOT_INTEGER,
 									is_negative_numeric_literal ? "-" : "", str);
-								yyerror(NULL, NULL, &cur_cla->column_list, NULL, NULL, NULL, NULL);
+								yyerror(NULL, NULL, &cur_cla->column_list, NULL, NULL, NULL);
 								error_encountered = 1;
 							}
 						}
@@ -324,7 +324,7 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 							if (NULL == qualified_cla) {
 								ERROR(ERR_ORDER_BY_POSITION_INVALID,
 									is_negative_numeric_literal ? "-" : "", str);
-								yyerror(NULL, NULL, &cur_cla->column_list, NULL, NULL, NULL, NULL);
+								yyerror(NULL, NULL, &cur_cla->column_list, NULL, NULL, NULL);
 								error_encountered = 1;
 							}
 						}

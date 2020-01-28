@@ -169,20 +169,20 @@
 	rocto_session.sending_message = FALSE;	\
 }
 
-#define INVOKE_REGEX_SPECIFICATION(STMT, OP0, OP1, IS_REGEX_LIKE_OR_SIMILAR, IS_SENSITIVE, IS_NOT, CURSORID)		\
+#define INVOKE_REGEX_SPECIFICATION(STMT, OP0, OP1, IS_REGEX_LIKE_OR_SIMILAR, IS_SENSITIVE, IS_NOT, PARSE_CONTEXT)	\
 {															\
 	int status;													\
-	status = regex_specification(STMT, OP0, OP1, IS_REGEX_LIKE_OR_SIMILAR, IS_SENSITIVE, IS_NOT, CURSORID);		\
+	status = regex_specification(STMT, OP0, OP1, IS_REGEX_LIKE_OR_SIMILAR, IS_SENSITIVE, IS_NOT, PARSE_CONTEXT);	\
 	if (0 != status)												\
 		YYABORT;												\
 }
 
-#define INVOKE_PARSE_LITERAL_TO_PARAMETER(CURSORID, VALUE_STMT, UPDATE_EXISTING)	\
-{											\
-	int status;									\
-	status = parse_literal_to_parameter(CURSORID, VALUE_STMT, UPDATE_EXISTING);	\
-	if (0 != status)								\
-		YYABORT;								\
+#define INVOKE_PARSE_LITERAL_TO_PARAMETER(PARSE_CONTEXT, VALUE_STMT, UPDATE_EXISTING)		\
+{												\
+	int status;										\
+	status = parse_literal_to_parameter(PARSE_CONTEXT, VALUE_STMT, UPDATE_EXISTING);	\
+	if (0 != status)									\
+		YYABORT;									\
 }
 
 /* Below are special values used as part of the `aggregate_depth` parameter passed to `qualify_statement()`
@@ -214,9 +214,9 @@ int m_escape_string2(char *buffer, int buffer_len, char *string);
 char *m_unescape_string(const char *string);
 
 int readline_get_more();
-SqlStatement *parse_line(char *cursorId, ParseContext *parse_context);
+SqlStatement *parse_line(ParseContext *parse_context);
 
-int populate_data_type(SqlStatement *v, SqlValueType *type, char *cursorId, ParseContext *parse_context);
+int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_context);
 SqlTable *find_table(const char *table_name);
 SqlColumn *find_column(char *column_name, SqlTable *table);
 SqlStatement *find_column_alias_name(SqlStatement *stmt);
@@ -271,13 +271,13 @@ SqlStatement *query_specification(OptionalKeyword set_quantifier, SqlStatement *
 SqlStatement *sort_specification(SqlStatement *sort_key, SqlStatement *collate_clause, SqlStatement *ordering_specification);
 SqlStatement *grouping_column_reference(SqlStatement *derived_column_expression, SqlStatement *collate_clause);
 int regex_specification(SqlStatement **stmt, SqlStatement *op0, SqlStatement *op1, int is_regex_like_or_similar,
-									int is_sensitive, int is_not, char *cursorId);
+									int is_sensitive, int is_not, ParseContext *parse_context);
 SqlStatement *set_operation(enum SqlSetOperationType setoper_type, SqlStatement *left_operand, SqlStatement *right_operand);
 SqlStatement *between_predicate(SqlStatement *row_value_constructor, SqlStatement *from, SqlStatement *to, boolean_t not_specified);
 SqlStatement *aggregate_function(SqlAggregateType aggregate_type, OptionalKeyword set_quantifier, SqlStatement *value_expression);
 SqlStatement *natural_join_condition(SqlStatement *left, SqlStatement *right, boolean_t *ambiguous);
 
-int parse_literal_to_parameter(char *cursorId, SqlValue *value, boolean_t update_existing);
+int parse_literal_to_parameter(ParseContext *parse_context, SqlValue *value, boolean_t update_existing);
 
 // Creates a new cursor by assigning a new cursorId
 int64_t create_cursor(ydb_buffer_t *schema_global, ydb_buffer_t *cursor_buffer);
@@ -314,5 +314,5 @@ char		*input_buffer_combined;		// The input buffer for octo. Contains the query 
 int		(*cur_input_more)();
 
 int get_input(char *buf, int size);
-void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, int *plan_id, char *cursorId, ParseContext *parse_context, char const *s);
+void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, int *plan_id, ParseContext *parse_context, char const *s);
 #endif

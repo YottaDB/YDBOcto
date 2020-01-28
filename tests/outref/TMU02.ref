@@ -28,9 +28,9 @@
 %ydboctosession(1,"bound","")="SELECT * FROM OrderDetails WHERE OrderDetailID = 101"
 %ydboctosession(1,"bound","")="SELECT * FROM OrderDetails WHERE OrderDetailID = 3"
 %ydboctosession(1,"bound","")="SELECT * FROM Shippers WHERE ShipperID = 3"
-%ydboctosession(1,"bound","","tag")="SELECT"
-%ydboctosession(1,"bound","","tag")="SELECT"
-%ydboctosession(1,"bound","","tag")="SELECT"
+%ydboctosession(1,"bound","","tag")=1
+%ydboctosession(1,"bound","","tag")=1
+%ydboctosession(1,"bound","","tag")=1
 %ydboctosession(1,"prepared","","parameters")=0
 %ydboctosession(1,"prepared","","parameters")=0
 %ydboctosession(1,"prepared","","parameters")=0
@@ -46,9 +46,9 @@
 %ydboctosession(1,"prepared","")="SELECT * FROM OrderDetails WHERE OrderDetailID = 101"
 %ydboctosession(1,"prepared","")="SELECT * FROM OrderDetails WHERE OrderDetailID = 3"
 %ydboctosession(1,"prepared","")="SELECT * FROM Shippers WHERE ShipperID = 3"
-%ydboctosession(1,"prepared","","tag")="SELECT"
-%ydboctosession(1,"prepared","","tag")="SELECT"
-%ydboctosession(1,"prepared","","tag")="SELECT"
+%ydboctosession(1,"prepared","","tag")=1
+%ydboctosession(1,"prepared","","tag")=1
+%ydboctosession(1,"prepared","","tag")=1
 %ydboctosession(1,"variables","application_name")=""
 %ydboctosession(1,"variables","application_name")=""
 %ydboctosession(1,"variables","application_name")=""

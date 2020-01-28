@@ -1,4 +1,4 @@
- SELECT c.oid,
+SELECT c.oid,
        a.attnum,
        a.attname,
        c.relname,
@@ -23,3 +23,6 @@ FROM   pg_catalog.pg_class c
          ON ( c.oid = vals.oid
               AND a.attnum = vals.attnum )
 
+----- ROCTO/JDBC -----
+
+----- OCTO -----

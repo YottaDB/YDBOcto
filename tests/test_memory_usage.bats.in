@@ -50,8 +50,7 @@ setup() {
   cp @PROJECT_SOURCE_DIR@/tests/fixtures/TMU0*.sql .
 
   for queryfile in $(ls TMU0*.sql); do
-    grep -v '^#'  $queryfile | grep -v '^[[:space:]]*$' > $queryfile.inp # Filter out '#' comment lines, if any
-    run_java run_multi_query $test_port "$queryfile.inp" &> output.txt
+    run_java run_multi_query $test_port "${queryfile%.*}" &> output.txt
   done
 
   stop_rocto

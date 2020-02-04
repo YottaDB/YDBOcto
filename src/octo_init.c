@@ -21,6 +21,7 @@
 #include <dirent.h>
 #include <errno.h>
 #include <limits.h>
+#include <libgen.h>
 
 #include <openssl/conf.h>
 #include <openssl/evp.h>
@@ -169,11 +170,14 @@ int octo_init(int argc, char **argv) {
 	unsigned int		c, zro_buf_size = ZRO_INIT_ALLOC;
 	config_t		*config_file;
 	config_setting_t	*ydb_settings, *cur_ydb_setting;
-	const char		*item_name, *item_value;
-	char			*default_octo_conf, buff[OCTO_PATH_MAX];
+	const char		*item_name, *item_value, *src_path;
+	char			*default_octo_conf, buff[OCTO_PATH_MAX], ci_path[OCTO_PATH_MAX], exe_path[OCTO_PATH_MAX];
 	char			*homedir, *ydb_dist, *zro_buf, ydb_errbuf[2048], *tmp_buf;
+	uintptr_t		ci_tab_handle_new, ci_tab_handle_old;
+	ydb_long_t		ci_return;
 	ydb_buffer_t		zroutines, dollar_zro;
 	DIR			*dir;
+	ssize_t			exe_path_len;
 
 	const char *verbosity;
 	int verbosity_int;
@@ -204,8 +208,8 @@ int octo_init(int argc, char **argv) {
 	config_read_string(config_file, default_octo_conf);
 
 	// Load config file
+	ydb_dist = getenv("ydb_dist");
 	if (NULL == config->config_file_name) {
-		ydb_dist = getenv("ydb_dist");
 		if (ydb_dist != NULL) {
 			c = snprintf(buff, sizeof(buff), "%s/plugin/etc/%s", ydb_dist, OCTO_CONF_FILE_NAME);
 			if (c < sizeof(buff))
@@ -271,7 +275,7 @@ int octo_init(int argc, char **argv) {
 			free(zro_buf);
 			zro_buf = malloc(zro_buf_size);
 		}
-		strncpy(zro_buf, tmp_buf, c);
+		memcpy(zro_buf, tmp_buf, c);		// Null terminator
 		zro_buf[c] = ' ';
 		c++;
 		zroutines.buf_addr = zro_buf + c;
@@ -279,7 +283,7 @@ int octo_init(int argc, char **argv) {
 		zroutines.len_used = 0;
 		status = ydb_get_s(&dollar_zro, 0, NULL, &zroutines);
 		/* if the stack buffer isn't large enough allocate more and call ydb_get_s() again */
-		if (YDB_ERR_INVSTRLEN == status){
+		if (YDB_ERR_INVSTRLEN == status) {
 			zro_buf_size = zroutines.len_used + c + 1;
 			char *tmp;
 			tmp = malloc(zro_buf_size);
@@ -318,7 +322,7 @@ int octo_init(int argc, char **argv) {
 		zroutines.len_used = 0;
 		status = ydb_get_s(&dollar_zro, 0, NULL, &zroutines);
 		/* if ZRO_INIT_ALLOC isn't large enough allocate more and call ydb_get_s() again */
-		if (YDB_ERR_INVSTRLEN == status){
+		if (YDB_ERR_INVSTRLEN == status) {
 			zro_buf_size = zroutines.len_used + 1;
 			free(zro_buf);
 			zro_buf = malloc(zro_buf_size);
@@ -504,8 +508,39 @@ int octo_init(int argc, char **argv) {
 			INFO(CUSTOM_ERROR, "# %s=\"%s\"", envvar_array[i], ptr);
 		}
 	}
-
-	ydb_int64_t ci_return = 1;
+	if (!DISABLE_INSTALL) {
+		if (NULL != ydb_dist)  {
+			status = snprintf(ci_path, OCTO_PATH_MAX, "%s/plugin/octo/ydbocto.ci", ydb_dist);
+			if (OCTO_PATH_MAX <= status) {
+				ERROR(ERR_BUFFER_TOO_SMALL, "Octo call-in table path");
+				return 1;
+			}
+		} else {
+			ERROR(ERR_FAILED_TO_RETRIEVE_ENVIRONMENT_VARIABLE, "ydb_dist");
+			return 1;
+		}
+	} else {
+		exe_path_len = readlink("/proc/self/exe", exe_path, OCTO_PATH_MAX);
+		if ((-1 != exe_path_len) && (OCTO_PATH_MAX > exe_path_len)) {
+			exe_path[exe_path_len] = '\0';		// readlink() doesn't add a null terminator per man page
+			src_path = dirname(exe_path);
+			if (NULL != src_path) {
+				status = snprintf(ci_path, OCTO_PATH_MAX, "%s/ydbocto.ci", src_path);
+				if (OCTO_PATH_MAX <= status) {
+					ERROR(ERR_BUFFER_TOO_SMALL, "Octo call-in table path");
+					return 1;
+				}
+			} else {
+				ERROR(ERR_LIBCALL_WITH_ARG, "dirname", exe_path);
+				return 1;
+			}
+		} else {
+			ERROR(ERR_LIBCALL_WITH_ARG, "readlink", "/proc/self/exe");
+			return 1;
+		}
+	}
+	ydb_ci_tab_open(ci_path, &ci_tab_handle_new);
+	ydb_ci_tab_switch(ci_tab_handle_new, &ci_tab_handle_old);
 	status = ydb_ci("_ydboctoInit", &ci_return);
 	YDB_ERROR_CHECK(status);
 	if (YDB_OK != status) {

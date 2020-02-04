@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -98,14 +98,12 @@ Parse *read_parse(BaseMessage *message) {
 		free(ret);
 		return NULL;
 	}
-	// We could malloc a new array to store the values converted from network endian here,
-	//  but that makes cleanup a bit more messy. Given that there is no reason for a backend
-	//  send a read_parse message, just alter it in place. If we ever sent it, we would need
-	//  to go back through and convert back to network endian
-	ret->parm_data_types = (uint32_t *)cur_pointer;
+	// Allocate a new array and use memcpy to prevent alignment issues from compiler optimizations
+	// caused by casting char * into uint32_t *.
+	ret->parm_data_types = (uint32_t *)calloc(ret->num_parm_data_types, sizeof(uint32_t));
+	memcpy(ret->parm_data_types, cur_pointer, ret->num_parm_data_types * sizeof(uint32_t));
 	for(int16_t i = 0; i < ret->num_parm_data_types; i++) {
 		ret->parm_data_types[i] = ntohl(*((int*)(&ret->parm_data_types[i])));
-		cur_pointer += sizeof(uint32_t);
 	}
 	return ret;
 }

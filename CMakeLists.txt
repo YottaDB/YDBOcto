@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -18,7 +18,24 @@ project(OctoSQL C MUMPS)
 set(OCTO_SQL_MAJOR_VERSION 0)
 set(OCTO_SQL_MINOR_VERSION 2)
 set(OCTO_SQL_PATCH_VERSION 0)
-set(CMAKE_BUILD_TYPE Debug)
+
+if(NOT CMAKE_BUILD_TYPE)
+	set(CMAKE_BUILD_TYPE RelWithDebInfo)
+endif()
+message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
+set(CMAKE_INSTALL_PREFIX "$ENV{ydb_dist}/plugin")
+if(NOT DISABLE_INSTALL)
+	set(DISABLE_INSTALL "OFF")
+endif()
+if(${DISABLE_INSTALL} MATCHES "OFF")
+	message(STATUS "Install destination: ${CMAKE_INSTALL_PREFIX}")
+endif()
+if(NOT FULL_TEST_SUITE)
+	set(FULL_TEST_SUITE "OFF")
+	message(STATUS "Test suite run by `make test`: Limited")
+else()
+	message(STATUS "Test suite run by `make test`: Full")
+endif()
 
 set(OCTO_TOOLS_DIR "${CMAKE_SOURCE_DIR}/tools/")
 set(TEST_OUTPUT_DIR "${CMAKE_CURRENT_BINARY_DIR}")

@@ -24,6 +24,27 @@ set(POST_CONFIGURE_FILE "${PROJECT_BINARY_DIR}/git_hashes.h")
 include(${PROJECT_SOURCE_DIR}/cmake/git-watcher.cmake)
 set_property(DIRECTORY PROPERTY ADDITIONAL_MAKE_CLEAN_FILES "${PROJECT_BINARY_DIR}/git-state")
 
+# Detect if YDB is also installed in UTF-8 mode
+if($ENV{ydb_dist} MATCHES "utf8" OR EXISTS $ENV{ydb_dist}/utf8)
+	set(ydb_chsets "" "UTF-8")
+	set(utf8_installed 1)
+else()
+	set(ydb_chsets "")
+endif()
+
+if(DEFINED YOTTADB_INCLUDE_DIRS AND EXISTS "${YOTTADB_INCLUDE_DIRS}/plugin/o/_ydbposix.so")
+	message(STATUS "Found YDBPosix plugin: ${YOTTADB_INCLUDE_DIRS}/plugin/o/_ydbposix.so")
+	if(utf8_installed)
+		if(EXISTS "${YOTTADB_INCLUDE_DIRS}/plugin/o/utf8/_ydbposix.so")
+			message(STATUS "Found YDBPosix plugin with UTF-8 support: ${YOTTADB_INCLUDE_DIRS}/plugin/o/utf8/_ydbposix.so")
+		else()
+			message(FATAL_ERROR "YottaDB supports UTF-8, but YDBPosix does not. Please install YDBPosix with UTF-8 support.")
+		endif()
+	endif()
+else()
+	message(FATAL_ERROR "Could NOT find YDBPosix plugin in ${YOTTADB_INCLUDE_DIRS}/o. Please install YDBPosix and rebuild Octo.")
+endif()
+
 if(DEFINED YOTTADB_INCLUDE_DIRS AND EXISTS "${YOTTADB_INCLUDE_DIRS}/plugin/libgtmtls.so")
   message(STATUS "Found YottaDB TLS plugin: ${YOTTADB_INCLUDE_DIRS}")
     set(YDB_TLS_AVAILABLE 1)
@@ -35,11 +56,6 @@ endif()
 configure_file (
   "${PROJECT_SOURCE_DIR}/src/constants.h.in"
   "${PROJECT_BINARY_DIR}/constants.h")
-
-configure_file (
-  "${PROJECT_SOURCE_DIR}/tools/activate.in"
-  "${PROJECT_BINARY_DIR}/activate"
-)
 
 # Generate the physical-parser
 BISON_TARGET(PhysicalParser ${PROJECT_SOURCE_DIR}/src/physical/physical-parser.y
@@ -222,7 +238,6 @@ if(${YDB_TLS_AVAILABLE})
   )
 endif()
 
-
 add_library(librocto OBJECT
   default_octo_conf.h
   rocto/copy_bind_parameter.c
@@ -373,7 +388,7 @@ add_library(_ydbocto SHARED ${aux_files})
 set_target_properties(_ydbocto PROPERTIES PREFIX "")
 
 # manually place Call-In file
-configure_file("${PROJECT_SOURCE_DIR}/src/aux/ydbocto.ci" ${PROJECT_BINARY_DIR}/ydbocto.ci COPYONLY)
+configure_file("${PROJECT_SOURCE_DIR}/src/aux/ydbocto.ci" ${PROJECT_BINARY_DIR}/src/ydbocto.ci COPYONLY)
 
 set_property(TARGET libocto PROPERTY C_STANDARD 11)
 set_property(TARGET librocto PROPERTY C_STANDARD 11)
@@ -410,7 +425,6 @@ endif()
 target_link_libraries(pparser ${YOTTADB_LIBRARIES} ${Readline_LIBRARY} ${CONFIG_LIBRARY} ${OPENSSL_LIBRARIES})
 
 enable_testing()
-include(${PROJECT_SOURCE_DIR}/cmake/tests.cmake)
 
 if(CMOCKA_FOUND)
   include(${PROJECT_SOURCE_DIR}/cmake/cmocka-tests.cmake)
@@ -419,37 +433,148 @@ if(BATS_FOUND)
   include(${PROJECT_SOURCE_DIR}/cmake/bats-tests.cmake)
 endif()
 
+# Create separate object files and libraries for M and UTF-8 mode, if supported
+set(LC_ALL_TEMP ${LC_ALL})
+set(ICU_TEMP ${ydb_icu_version})
+foreach(ydb_chset ${ydb_chsets})
+	list(FIND ydb_chset "UTF-8" utf8_chset)
+	if(0 GREATER_EQUAL ${utf8_chset})
+		find_program(PKGCONFIG NAMES pkg-config)
+		if(PKGCONFIG)
+			execute_process(
+				COMMAND ${PKGCONFIG} --modversion icu-io
+				OUTPUT_VARIABLE icu_version
+				RESULT_VARIABLE icu_failed
+				OUTPUT_STRIP_TRAILING_WHITESPACE
+				)
+			if(icu_failed)
+				message(FATAL_ERROR "Command\n ${PKGCONFIG} --modversion icu-io\nfailed (${icu_failed}).")
+			elseif("${icu_version}" MATCHES "([0-9]+\\.[0-9]+)")
+				set(ydb_icu_version "${icu_version}")
+			else()
+				message(FATAL_ERROR "Command\n ${PKGCONFIG} --modversion icu-io\nproduced unrecognized output:\n ${icu_version}")
+			endif()
+		else()
+			message(FATAL_ERROR "Unable to find 'pkg-config'.  Set PKGCONFIG in CMake cache.")
+		endif()
+
+		find_program(LOCALECFG NAMES locale)
+		if(LOCALECFG)
+			execute_process(
+				COMMAND ${LOCALECFG} -a
+				OUTPUT_VARIABLE locale_list
+				RESULT_VARIABLE locale_failed
+				OUTPUT_STRIP_TRAILING_WHITESPACE
+				)
+			if(locale_failed)
+				message(FATAL_ERROR "Command\n ${LOCALECFG} -a\nfailed (${locale_failed}).")
+			endif()
+			STRING(REGEX REPLACE "\n" ";" locale_list "${locale_list}")
+			foreach(lc ${locale_list})
+				string(TOLOWER "${lc}" lc_lower)
+				if("x${lc_lower}" MATCHES "^x[a-zA-Z_]+\\.?utf-?8")
+					set(LC_ALL ${lc})
+					message("-- Setting locale to ${LC_ALL}")
+					break()
+				endif()
+			endforeach(lc)
+			if("${LC_ALL}" STREQUAL "")
+				message("Locale undefined. Expect to see NONUTF8LOCALE during MUMPS routine compilation: ${locale_list}\n")
+			endif()
+		else()
+			message(FATAL_ERROR "Unable to find 'locale'.  Set LOCALECFG in CMake cache.")
+		endif()
+		if (NOT EXISTS "${PROJECT_BINARY_DIR}/src/utf8")
+			file(MAKE_DIRECTORY "${PROJECT_BINARY_DIR}/src/utf8")
+		endif()
+		set(WORKING_DIR "${PROJECT_BINARY_DIR}/src/utf8")
+	else()
+		set(LC_ALL ${LC_ALL_TEMP})
+		set(ydb_icu_version ${ICU_TEMP})
+		set(WORKING_DIR "${PROJECT_BINARY_DIR}/src")
+	endif()
+
+	foreach(in ${aux_files})
+		set(infile ${PROJECT_SOURCE_DIR}/src/${in})
+		string(REPLACE "aux/" "" mfiles "${in}")
+		string(REPLACE ".m" ".o" out "${mfiles}")
+		add_custom_command(TARGET octo rocto POST_BUILD
+			COMMAND ${CMAKE_COMMAND}
+			  -D ydb_routines=.
+			  -D ydb_chset=${ydb_chset}
+			  -D LC_ALL=${LC_ALL}
+			  -D mumps=$ENV{ydb_dist}/yottadb
+			  -D ydb_icu_version=${ydb_icu_version}
+			  -D args=${infile}
+			  -P ${CMAKE_SOURCE_DIR}/cmake/mumps.cmake
+			  WORKING_DIRECTORY ${WORKING_DIR}
+			VERBATIM
+			)
+		if(ydb_chset MATCHES "UTF-8")
+			list(APPEND utf8_objects ${WORKING_DIR}/${out})
+		else()
+			list(APPEND m_mode_objects ${WORKING_DIR}/${out})
+		endif()
+	endforeach()
+endforeach()
+if(utf8_installed)
+	add_custom_command(TARGET octo rocto POST_BUILD
+		COMMAND /usr/bin/cc -shared -o _ydbocto.so ${utf8_objects}
+		DEPENDS ${utf8_objects}
+		WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/src/utf8)
+endif()
+set(LC_ALL ${LC_ALL_TEMP})
+
 # Files to be installed
 
-# Binaries
-install(TARGETS octo
-        DESTINATION bin)
-install(TARGETS rocto
-        DESTINATION bin)
-install(PROGRAMS aux/install.sh
-        DESTINATION .)
+if (DISABLE_INSTALL MATCHES "OFF")
+	# Binaries
+	install(TARGETS octo
+			DESTINATION octo/bin)
+	install(TARGETS rocto
+			DESTINATION octo/bin)
 
-# M Routines
-# Source Code
-install(FILES ${aux_files}
-        DESTINATION r)
+	if (NOT EXISTS ${CMAKE_INSTALL_PREFIX}/bin/)
+	  install(DIRECTORY DESTINATION ${CMAKE_INSTALL_PREFIX}/bin/)
+	endif()
 
-# Shared Library
-if(MUMPS_UTF8_MODE)
-  install(TARGETS _ydbocto
-          DESTINATION o/utf8)
+	# Create symbolic (soft) links to binaries from $ydb_dist/plugin/bin
+	INSTALL(CODE "execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink ${CMAKE_INSTALL_PREFIX}/octo/bin/octo ${CMAKE_INSTALL_PREFIX}/bin/octo)")
+	INSTALL(CODE "execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink ${CMAKE_INSTALL_PREFIX}/octo/bin/rocto ${CMAKE_INSTALL_PREFIX}/bin/rocto)")
+
+	# M Routines
+	# Source Code
+	install(FILES ${aux_files}
+			DESTINATION r)
+
+
+	if(utf8_installed)
+		install(FILES ${utf8_objects} DESTINATION ${CMAKE_INSTALL_PREFIX}/o/utf8)
+		install(FILES ${PROJECT_BINARY_DIR}/src/utf8/_ydbocto.so
+			DESTINATION ${CMAKE_INSTALL_PREFIX}/o/utf8)
+	endif()
+	install(FILES ${m_mode_objects} DESTINATION ${CMAKE_INSTALL_PREFIX}/o)
+
+	# Configuration file
+	install(FILES aux/octo.conf.default
+			DESTINATION octo
+			RENAME octo.conf)
+	install(FILES ${PROJECT_SOURCE_DIR}/src/aux/ydbocto.ci
+			DESTINATION octo)
+
+	install(TARGETS _ydbocto
+		DESTINATION ${CMAKE_INSTALL_PREFIX}/o)
+	# This line can be used when all supported platforms use CMake version 3.12 or above
+	# add_compile_definitions(DISABLE_INSTALL=0)
+	add_definitions(-DDISABLE_INSTALL=0)
 else()
-  install(TARGETS _ydbocto
-          DESTINATION o)
+	install(CODE "MESSAGE(STATUS \"Installation disabled. No files were installed.\")")
+	# This line can be used when all supported platforms use CMake version 3.12 or above
+	# add_compile_definitions(DISABLE_INSTALL=1)
+	add_definitions(-DDISABLE_INSTALL=1)
 endif()
 
-# Configuration file
-install(FILES aux/octo.conf.default
-        DESTINATION etc
-        RENAME octo.conf)
-install(FILES ${PROJECT_SOURCE_DIR}/src/aux/ydbocto.ci
-        DESTINATION .)
-
+# Seed Data
 # Copy CREATE TABLE statements for PostgreSQL catalog tables without "pg_catalog" or "information_schema" prefixes
 add_custom_command(OUTPUT ${PROJECT_BINARY_DIR}/postgres-seed.sql
 	COMMAND ${PROJECT_SOURCE_DIR}/tests/fixtures/convert_catalog_sql.sh ${PROJECT_BINARY_DIR}
@@ -471,11 +596,22 @@ add_custom_target(
 	DEPENDS ${PROJECT_BINARY_DIR}/postgres-seed.zwr
 )
 
-# Seed Data
-install(FILES ${PROJECT_BINARY_DIR}/postgres-seed.zwr
-        DESTINATION etc)
-install(FILES ${PROJECT_BINARY_DIR}/postgres-seed.sql
-        DESTINATION etc)
+# Strip debug symbols from files
+if("${CMAKE_BUILD_TYPE}" MATCHES "RelWithDebInfo")
+	list(APPEND executable_target_list
+		octo
+		rocto
+		)
+
+	foreach(e ${executable_target_list})
+		add_custom_command(TARGET ${e} POST_BUILD
+			COMMAND objcopy --only-keep-debug $<TARGET_FILE:${e}> ${e}.dbg
+			COMMAND objcopy --strip-debug $<TARGET_FILE:${e}>
+			COMMAND objcopy --add-gnu-debuglink=${e}.dbg $<TARGET_FILE:${e}>
+			WORKING_DIRECTORY "${PROJECT_BINARY_DIR}"
+			)
+	endforeach()
+endif()
 
 # CPack required variables
 include (InstallRequiredSystemLibraries)

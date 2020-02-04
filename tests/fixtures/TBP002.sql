@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -36,5 +36,5 @@ Select * from Employee where Rownum <= 5;
 
 select distinct salary from employee a where 3 >= (select count(distinct salary) from employee b where a.salary <= b.salary) order by a.salary desc;
 select min(salary)from(select distinct salary from emp order by salary desc)where rownum<=3;
--- Some exaples using UNION should be added after it is supported
+-- Some examples using UNION should be added after it is supported
 SELECT 5+5/5 FROM A;

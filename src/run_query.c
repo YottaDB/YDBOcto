@@ -42,7 +42,7 @@ int run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_descrip
 	bool		free_memory_chunks;
 	char		*buffer, filename[OCTO_PATH_MAX], routine_name[MAX_ROUTINE_LEN];
 	char		placeholder;
-	int64_t		cursorId;
+	ydb_long_t	cursorId;
 	hash128_state_t	state;
 	int		done, routine_len = MAX_ROUTINE_LEN;
 	int		status;

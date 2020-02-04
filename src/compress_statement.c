@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -49,14 +49,14 @@ void *compress_statement_helper(SqlStatement *stmt, char *out, int *out_length) 
 	int			len;
 	void			*r, *ret;
 
-	if(stmt == NULL)
-		return NULL;
-	if(stmt->v.value == NULL)
+	if ((NULL == stmt) || (NULL == stmt->v.value))
 		return NULL;
 	if (NULL != out) {
 		new_stmt = ((void*)&out[*out_length]);
 		memcpy(new_stmt, stmt, sizeof(SqlStatement));
 		ret = new_stmt;
+	} else {
+		ret = NULL;
 	}
 	*out_length += sizeof(SqlStatement);
 	if (NULL != out) {

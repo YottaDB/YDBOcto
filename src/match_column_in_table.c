@@ -36,13 +36,15 @@ SqlColumnListAlias *match_column_in_table(SqlTableAlias *table_alias, char *colu
 	*ambiguous = FALSE;
 	do {
 		if (NULL != cur_column_list->alias) {
-			SqlColumnList	*column_list;
-			SqlValue	*value;
 			int		value_len;
+			SqlValue	*value;
+#			ifndef NDEBUG
+			SqlColumnList	*column_list;
 
 			UNPACK_SQL_STATEMENT(column_list, cur_column_list->column_list, column_list);
 			assert(column_list == column_list->next);
 			assert(column_list == column_list->prev);
+#			endif
 			UNPACK_SQL_STATEMENT(value, cur_column_list->alias, value);
 			value_len = strlen(value->v.string_literal);
 			if ((value_len == column_name_len)

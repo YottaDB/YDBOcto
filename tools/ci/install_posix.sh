@@ -1,7 +1,7 @@
 #!/bin/bash
 #################################################################
 #								#
-# Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2020 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -11,12 +11,22 @@
 #								#
 #################################################################
 
-source /opt/yottadb/current/ydb_env_set
-
 # Download, Compile, and Install the YottaDB POSIX plugin
-# Install the YottaDB POSIX plugin
-./tools/ci/install_posix.sh cmake
-
+# This
+if [[ ! $1 =~ "cmake" ]]; then
+	echo "Please specify a CMake command, i.e. 'cmake' or 'cmake3' (CentOS)."
+	exit 1
+fi
+pushd /root
+git clone https://gitlab.com/YottaDB/Util/YDBposix.git
+cd YDBposix
+mkdir build && mkdir build_utf8
 cd build
-make docs
-mv html ../public
+${1} ..
+make
+make install
+cd ../build_utf8
+${1} -DMUMPS_UTF8_MODE=1 ..
+make
+make install
+popd

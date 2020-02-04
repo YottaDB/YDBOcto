@@ -99,8 +99,8 @@ sort_specification_list_tail
   ;
 
 sort_specification
-  : sort_key { $$ = sort_specification($sort_key, NULL, NULL); }
-  | sort_key ordering_specification { $$ = sort_specification($sort_key, NULL, $ordering_specification); }
+  : sort_key { $$ = sort_specification($sort_key, NULL); }
+  | sort_key ordering_specification { $$ = sort_specification($sort_key, $ordering_specification); }
   ;
 
 sort_key

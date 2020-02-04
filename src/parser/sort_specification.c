@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -16,13 +16,13 @@
 #include "octo_types.h"
 
 // Function invoked by the rule named "sort_specification" in src/parser/parser.y
-SqlStatement *sort_specification(SqlStatement *sort_key, SqlStatement *collate_clause, SqlStatement *ordering_specification)
+// When supported collate clause SqlStatement may be passed here.
+SqlStatement *sort_specification(SqlStatement *sort_key, SqlStatement *ordering_specification)
 {
 	SqlStatement		*ret, *order_spec;
 	SqlColumnListAlias	*alias;
 	SqlColumnList		*column_list;
 
-	assert(NULL == collate_clause);	/* COLLATE feature is currently not supported */
 	SQL_STATEMENT(ret, column_list_alias_STATEMENT);
 	MALLOC_STATEMENT(ret, column_list_alias, SqlColumnListAlias);
 	UNPACK_SQL_STATEMENT(alias, ret, column_list_alias);

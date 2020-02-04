@@ -291,7 +291,7 @@ struct YYLTYPE
 // Used to maintain various parse related information primarily for use in Extended Query protocol modules
 typedef struct {
 	// General purpose parser fields
-	int64_t			cursorId;
+	ydb_long_t		cursorId;
 	char			*cursorIdString;
 	boolean_t		abort;				// Used to defer YYABORT in certain error cases
 	// Extended Query specific fields

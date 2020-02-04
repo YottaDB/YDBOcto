@@ -1,0 +1,27 @@
+grouping_column_reference.c:In function ‘grouping_column_reference’:
+grouping_column_reference.c:warning: unused parameter ‘collate_clause’ [-Wunused-parameter]
+lexer.c:In function ‘yyalloc’:
+lexer.c:In function ‘yy_fatal_error’:
+lexer.c:In function ‘yyfree’:
+lexer.c:In function ‘yy_get_next_buffer’:
+lexer.c:In function ‘yyrealloc’:
+lexer.c:note: in expansion of macro ‘YY_INPUT’
+lexer.c:warning: unused parameter ‘yyscanner’ [-Wunused-parameter]
+lexer.c:warning: unused parameter ‘yyscanner’ [-Wunused-parameter]
+lexer.c:warning: unused parameter ‘yyscanner’ [-Wunused-parameter]
+lexer.c:warning: unused parameter ‘yyscanner’ [-Wunused-parameter]
+lp_optimize_where_multi_equals_ands.c:In function ‘lp_optimize_where_multi_equal_ands_helper’:
+lp_optimize_where_multi_equals_ands.c:warning: ‘left_id’ may be used uninitialized in this function [-Wmaybe-uninitialized]
+lp_optimize_where_multi_equals_ands.c:warning: ‘right_id’ may be used uninitialized in this function [-Wmaybe-uninitialized]
+optimize_logical_plan.c:In function ‘optimize_logical_plan’:
+optimize_logical_plan.c:warning: ‘right_table_alias’ may be used uninitialized in this function [-Wmaybe-uninitialized]
+parser.y:warning: 29 shift/reduce conflicts [-Wconflicts-sr]
+physical-lexer.c:In function ‘yylex’:
+physical-lexer.c:warning: variable ‘yylval’ set but not used [-Wunused-but-set-variable]
+template_helpers.h:warning: ‘compare_operator’ may be used uninitialized in this function [-Wmaybe-uninitialized]
+template_helpers.h:warning: ‘sql_operator’ may be used uninitialized in this function [-Wmaybe-uninitialized]
+tmpl_print_expression.ctemplate.c:In function ‘tmpl_print_expression’:
+tmpl_print_expression.ctemplate.c:note: ‘compare_operator’ was declared here
+tmpl_print_expression.ctemplate.c:note: ‘sql_operator’ was declared here
+tmpl_tablejoin.ctemplate.c:In function ‘tmpl_tablejoin’:
+tmpl_tablejoin.ctemplate.c:warning: ‘left_table_id’ may be used uninitialized in this function [-Wmaybe-uninitialized]

@@ -1,0 +1,15 @@
+grouping_column_reference.c:In function ‘grouping_column_reference’:
+grouping_column_reference.c:warning: unused parameter ‘collate_clause’ [-Wunused-parameter]
+lp_optimize_where_multi_equals_ands.c:In function ‘lp_optimize_where_multi_equal_ands_helper’:
+lp_optimize_where_multi_equals_ands.c:warning: ‘left_id’ may be used uninitialized in this function [-Wmaybe-uninitialized]
+lp_optimize_where_multi_equals_ands.c:warning: ‘right_id’ may be used uninitialized in this function [-Wmaybe-uninitialized]
+optimize_logical_plan.c:In function ‘optimize_logical_plan’:
+optimize_logical_plan.c:warning: ‘right_table_alias’ may be used uninitialized in this function [-Wmaybe-uninitialized]
+parser.y:warning: 29 shift/reduce conflicts [-Wconflicts-sr]
+physical-lexer.c:In function ‘yylex’:
+physical-lexer.c:warning: variable ‘yylval’ set but not used [-Wunused-but-set-variable]
+template_helpers.h:note: in definition of macro ‘TEMPLATE_SNPRINTF’
+tmpl_column_reference_trigger.ctemplate.c:In function ‘tmpl_column_reference_trigger’:
+tmpl_column_reference_trigger.ctemplate.c:warning: ‘%s’ directive argument is null [-Wformat-truncation=]
+tmpl_tablejoin.ctemplate.c:In function ‘tmpl_tablejoin’:
+tmpl_tablejoin.ctemplate.c:warning: ‘left_table_id’ may be used uninitialized in this function [-Wmaybe-uninitialized]

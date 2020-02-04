@@ -1,7 +1,7 @@
 #!/bin/bash
 #################################################################
 #								#
-# Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -29,15 +29,10 @@ else
   ctestCommand="ctest"
 fi
 
-# Download, Compile, and Install the YottaDB POSIX plugin
-cd /root
-git clone https://gitlab.com/YottaDB/Util/YDBposix.git
-cd YDBposix
-mkdir build
-cd build
-${cmakeCommand} ..
-make
-make install
+# Install the YottaDB POSIX plugin
+pushd $start_dir
+./tools/ci/install_posix.sh $cmakeCommand
+popd
 
 # Source the ENV script again to YottaDB environment variables after installing POSIX plugin
 source /opt/yottadb/current/ydb_env_unset
@@ -77,8 +72,30 @@ if [ "$unused_tests" != "" ]; then
 fi
 popd
 
+# Randomly choose to test Debug or Release build
+if [[ $(( $RANDOM % 2)) -eq 0 ]]; then
+	build_type="Debug"
+else
+	build_type="RelWithDebInfo"
+fi
+# Randomly choose whether to use the full test suite or its limited version (prefer full version 3/4 times)
+if [[ $(( $RANDOM % 4)) -eq 0 ]]; then
+	full_test="OFF"
+else
+	full_test="ON"
+fi
+# Randomly choose whether to use to test installation or in build directory (prefer installation 3/4 times)
+if [[ $(( $RANDOM % 4)) -eq 0 ]]; then
+	disable_install="ON"
+else
+	disable_install="OFF"
+fi
+
 # Configure the build system for Octo
-${cmakeCommand} -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_INSTALL_PREFIX=${ydb_dist}/plugin ..
+${cmakeCommand} -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_INSTALL_PREFIX=${ydb_dist}/plugin -DCMAKE_BUILD_TYPE=$build_type -DFULL_TEST_SUITE=$full_test -DDISABLE_INSTALL=$disable_install ..
+if [[ $? -ne 0 ]]; then
+	exit 1
+fi
 
 # Compile Octo
 make -j `grep -c ^processor /proc/cpuinfo` 2> make_warnings.txt
@@ -87,9 +104,17 @@ make -j `grep -c ^processor /proc/cpuinfo` 2> make_warnings.txt
 ../tools/ci/sort_warnings.sh
 echo -n "Checking for unexpected warning(s)... "
 if [ -x "$(command -v yum)" ]; then
-  diff sorted_warnings.txt ../tools/ci/expected_warnings-centos.ref &> differences.txt
+	if [[ $build_type == "Debug" ]]; then
+		diff sorted_warnings.txt ../tools/ci/expected_warnings-centos.ref &> differences.txt
+	else
+		diff sorted_warnings.txt ../tools/ci/expected_warnings-centos_release.ref &> differences.txt
+	fi
 else
-  diff sorted_warnings.txt ../tools/ci/expected_warnings.ref &> differences.txt
+	if [[ $build_type == "Debug" ]]; then
+		diff sorted_warnings.txt ../tools/ci/expected_warnings.ref &> differences.txt
+	else
+		diff sorted_warnings.txt ../tools/ci/expected_warnings-release.ref &> differences.txt
+	fi
 fi
 
 if [ $(wc -l differences.txt | awk '{print $1}') -gt 0 ]; then
@@ -98,6 +123,14 @@ if [ $(wc -l differences.txt | awk '{print $1}') -gt 0 ]; then
   exit 1
 fi
 echo "OK."
+
+# Set Octo environment variables and install Octo
+if [[ $disable_install == "ON" ]]; then
+	source octo_test_env_set
+else
+	source octo_env_set
+fi
+make install
 
 if [ -z $USER ]; then
   export USER=root
@@ -124,9 +157,19 @@ alter user $USER SUPERUSER;
 PSQL
 
 # Setup for tests
-source activate
 pushd src
 $ydb_dist/mupip set -n=true -reg '*'
+
+# Source ydb_env_set after building and installing Octo
+if [[ $disable_install == "OFF" ]]; then
+	source /opt/yottadb/current/ydb_env_unset
+	source /opt/yottadb/current/ydb_env_set
+	echo "Done setting up Octo plugin"
+	echo "ydb_routines: $ydb_routines"
+else
+	export ydb_routines="$(pwd)/_ydbocto.so $ydb_routines"
+	echo "ydb_routines: $ydb_routines"
+fi
 
 # Load the data required for tests
 ./octo -f ../../tests/fixtures/names.sql

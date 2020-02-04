@@ -584,6 +584,9 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_
 					default:
 						assert(FALSE);
 						FATAL(ERR_UNKNOWN_KEYWORD_STATE, "");
+						// This line exists to prevent a -Wmaybe-uninitialized compiler warning and is
+						// unreachable after the preceding assert (Debug builds) or FATAL (Release builds)
+						is_type_mismatch = TRUE;
 						break;
 					}
 					if (is_type_mismatch) {

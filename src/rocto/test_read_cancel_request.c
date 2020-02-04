@@ -1,18 +1,15 @@
-/* Copyright (C) 2018-2019 YottaDB, LLC
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- */
+/****************************************************************
+ *								*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
+ * All rights reserved.						*
+ *								*
+ *	This source code contains the intellectual property	*
+ *	of its copyright holder(s), and is made available	*
+ *	under a license.  If you do not know the terms of	*
+ *	the license, please stop and do not read further.	*
+ *								*
+ ****************************************************************/
+
 #include <stdio.h>
 #include <stdarg.h>
 #include <stddef.h>
@@ -53,7 +50,7 @@ static void test_valid_input(void **state) {
 	// The actual test
 	will_return(__wrap_read_bytes, test_data->pid);
 	will_return(__wrap_read_bytes, test_data->secret_key);
-	CancelRequest *cancel = read_cancel_request(NULL, (char*)(&test_data->length), message_length);
+	CancelRequest *cancel = read_cancel_request(NULL, (char*)(&test_data->length));
 
 	// Standard checks
 	assert_non_null(cancel);
@@ -81,7 +78,7 @@ static void test_invalid_length(void **state) {
 	test_data->secret_key = htonl(8888);
 
 	// The actual test
-	CancelRequest *cancel = read_cancel_request(NULL, (char*)(&test_data->length), message_length);
+	CancelRequest *cancel = read_cancel_request(NULL, (char*)(&test_data->length));
 
 	// Standard checks
 	assert_null(cancel);
@@ -104,7 +101,7 @@ static void test_invalid_request_code(void **state) {
 	test_data->secret_key = htonl(8888);
 
 	// The actual test
-	CancelRequest *cancel = read_cancel_request(NULL, (char*)(&test_data->length), message_length);
+	CancelRequest *cancel = read_cancel_request(NULL, (char*)(&test_data->length));
 
 	// Standard checks
 	assert_null(cancel);

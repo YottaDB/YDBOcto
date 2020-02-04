@@ -32,7 +32,7 @@ int handle_execute(Execute *execute, RoctoSession *session) {
 	ydb_buffer_t		routine_buffer, tag_buf, num_parms_buf, parm_buf;
 	ydb_buffer_t		schema_global, cursor_buffer;
 	ydb_string_t		ci_filename, ci_routine;
-	ydb_int64_t		result, cursorId;
+	ydb_long_t		result, cursorId;
 	boolean_t		canceled = FALSE;
 	long int		temp_long;
 	int32_t			status, done;

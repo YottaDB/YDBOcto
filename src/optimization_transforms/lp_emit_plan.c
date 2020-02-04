@@ -56,6 +56,7 @@
 			break;								\
 		default:								\
 			assert(FALSE);							\
+			str = "INVALID_JOIN";						\
 			break;								\
 		}									\
 		SAFE_SNPRINTF(WRITTEN, BUFF_PTR, BUFFER, BUFFER_LEN, "%s: ", str);	\

@@ -1,0 +1,19 @@
+Error with syntax near (line 6, column 3):
+
+CREATE TABLE abc (
+  id INTEGER PRIMARY KEY EXTRACT "abc"
+  GLOBAL "someGLobal"
+  PIECE "0"
+  DELIM "|"
+) CURSOR "$$CURSE" DELIM "|"
+  ^^^^^^
+syntax error, unexpected CURSOR, expecting SEMICOLON or ENDOFFILE
+
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: CREATE TABLE abc (
+  id INTEGER PRIMARY KEY EXTRACT "abc"
+  GLOBAL "someGLobal"
+  PIECE "0"
+  DELIM "|"
+) CURSOR "$$CURSE" DELIM "|"
+END "keys(0)" GLOBAL "someGLobal";
+

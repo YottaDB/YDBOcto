@@ -16,9 +16,9 @@
 
 #include "octo.h"
 
-int64_t create_cursor(ydb_buffer_t *schema_global, ydb_buffer_t *cursor_buffer) {
+ydb_long_t create_cursor(ydb_buffer_t *schema_global, ydb_buffer_t *cursor_buffer) {
 	int status = 0;
-	int64_t cursorId;
+	ydb_long_t cursorId;
 
 	status = ydb_incr_s(schema_global, 0, NULL, NULL, cursor_buffer);
 	YDB_ERROR_CHECK(status);

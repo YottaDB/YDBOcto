@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -20,11 +20,10 @@
 #include "rocto.h"
 #include "message_formats.h"
 
-CancelRequest *read_cancel_request(RoctoSession *session, char *data, int32_t data_length) {
+CancelRequest *read_cancel_request(RoctoSession *session, char *data) {
 	CancelRequest *ret = NULL;
-
-	// Length = length + request_code + pid + secret_key
-	uint32_t expected_length = sizeof(uint32_t) + sizeof(int32_t) + sizeof(int32_t) + sizeof(int32_t);
+	uint32_t expected_length = sizeof(CancelRequest);
+	uint32_t data_length = sizeof(pid_t) + sizeof(uint32_t);	// pid and secret key
 	// Request code format:
 	// 	decimal value of most significant 16 bits:  1234
 	// 	decimal value of least significant 16 bits: 5678
@@ -33,16 +32,14 @@ CancelRequest *read_cancel_request(RoctoSession *session, char *data, int32_t da
 	// Read all message parameters into return struct
 	ret = (CancelRequest*)malloc(sizeof(CancelRequest));
 	memset(&ret->length, 0, expected_length);
-	memcpy(&ret->length, data, data_length);
+	memcpy(&ret->length, data, expected_length);
 
 	// Convert to host endianness
 	ret->length = ntohl(ret->length);
 	ret->request_code = ntohl(ret->request_code);
 
-	// Length must be 16 (sum of four ints)
-	if(ret->length != expected_length) {
-		INFO(ERR_ROCTO_INVALID_INT_VALUE, "CancelRequest", "length", ret->length, sizeof(uint32_t) * 4);
-		free(ret);
+	if (ret->length != expected_length) {
+		INFO(ERR_ROCTO_INVALID_INT_VALUE, "CancelRequest", "length", ret->length, sizeof(CancelRequest));
 		return NULL;
 	}
 

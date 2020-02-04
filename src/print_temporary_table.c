@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -27,105 +27,118 @@
  * Iterates over the last output of the plan and prints it to the screen
  */
 int print_temporary_table(SqlStatement *stmt, int cursor_id, void *parms, char *plan_name, boolean_t send_row_description) {
-	char buffer[MAX_STR_CONST];
-	/// WARNING: the ordering of these buffers is essential to the ydb calls;
-	//   if altered, make sure the order is correct
-	ydb_buffer_t *outputKeyId;
-	ydb_buffer_t ydb_buffers[9];
-	ydb_buffer_t *cursor_b = &ydb_buffers[0], *cursor_id_b = &ydb_buffers[1],
-		*keys_b = &ydb_buffers[2], *key_id_b = &ydb_buffers[3],
-		*space_b = &ydb_buffers[4], *space_b2 = &ydb_buffers[5],
-		*row_id_b = &ydb_buffers[6], *row_value_b = &ydb_buffers[7],
-		*empty_buffer = &ydb_buffers[8], *val_buff;
-	SqlSetStatement *set_stmt;
-	SqlShowStatement *show_stmt;
-	SqlValue *val1, *val2;
-	int status;
+	SqlShowStatement	*show_stmt;
+	SqlSetStatement		*set_stmt;
+	ydb_buffer_t		*session_buffers, *outkey_buffers, *cursor_buffers, *octo_buffers;
+	ydb_buffer_t		value_buffer;
+	SqlValue		*val1, *val2;
+	int32_t			status, done;
+	char			cursor_id_str[INT64_TO_STRING_MAX];
 
 	UNUSED(parms);
 	UNUSED(send_row_description);
-
 	INFO(CUSTOM_ERROR, "%s", "print_temporary_table()");
 
-	YDB_STRING_TO_BUFFER(config->global_names.cursor, cursor_b);
-
-	snprintf(buffer, sizeof(buffer), "%d", cursor_id);
-	cursor_id_b->len_alloc = cursor_id_b->len_used = strlen(buffer);
-	cursor_id_b->buf_addr = buffer;
-
-	YDB_LITERAL_TO_BUFFER("keys", keys_b);
-
-	YDB_LITERAL_TO_BUFFER("", space_b);
-	YDB_LITERAL_TO_BUFFER("", space_b2);
-	YDB_MALLOC_BUFFER(row_id_b, MAX_STR_CONST);
-
-	YDB_LITERAL_TO_BUFFER("", empty_buffer);
-	YDB_MALLOC_BUFFER(row_value_b, MAX_STR_CONST);
-	/* reduce by 1 for the null terminator */
-	row_value_b->len_alloc--;
-
-	if(stmt->type == set_STATEMENT) {
+	YDB_MALLOC_BUFFER(&value_buffer, MAX_STR_CONST);
+	if (stmt->type == set_STATEMENT) {
+		session_buffers = make_buffers(config->global_names.session, 3, "0", "variables", "");
 		UNPACK_SQL_STATEMENT(set_stmt, stmt, set);
 		UNPACK_SQL_STATEMENT(val1, set_stmt->value, value);
 		UNPACK_SQL_STATEMENT(val2, set_stmt->variable, value);
-		set(val1->v.string_literal, config->global_names.session, 3,
-				"0", "variables", val2->v.string_literal);
+		YDB_COPY_STRING_TO_BUFFER(val2->v.string_literal, &value_buffer, done);
+		if (!done) {
+			ERROR(ERR_YOTTADB, "YDB_COPY_STRING_TO_BUFFER failed");
+			free(session_buffers);
+			YDB_FREE_BUFFER(&value_buffer);
+			return 1;
+		}
+		status = ydb_set_s(&session_buffers[0], 3, &session_buffers[1], &value_buffer);
+		free(session_buffers);
+		YDB_FREE_BUFFER(&value_buffer);
+		if (YDB_OK != status)
+			return 1;
 		return 0;
 	}
-	if(stmt->type == show_STATEMENT) {
+	if (stmt->type == show_STATEMENT) {
+		session_buffers = make_buffers(config->global_names.session, 3, "0", "variables", "");
 		UNPACK_SQL_STATEMENT(show_stmt, stmt, show);
 		UNPACK_SQL_STATEMENT(val1, show_stmt->variable, value);
-		val_buff = get(config->global_names.session, 3, "0", "variables",
-				val1->v.string_literal);
-		if(val_buff == NULL) {
-			val_buff = get(config->global_names.octo, 2, "variables",
-					val1->v.string_literal);
+		YDB_COPY_STRING_TO_BUFFER(val1->v.string_literal, &value_buffer, done);
+		if (!done) {
+			ERROR(ERR_YOTTADB, "YDB_COPY_STRING_TO_BUFFER failed");
+			YDB_FREE_BUFFER(&value_buffer);
+			free(session_buffers);
+			return 1;
 		}
-		if(val_buff == NULL) {
-			val_buff = empty_buffer;
+		status = ydb_get_s(&session_buffers[0], 3, &session_buffers[1], &value_buffer);
+		if (YDB_OK != status) {
+			octo_buffers = make_buffers(config->global_names.octo, 3, "variables", "", "");
+			YDB_MALLOC_BUFFER(&octo_buffers[2], MAX_STR_CONST);
+			YDB_COPY_STRING_TO_BUFFER(val1->v.string_literal, &octo_buffers[2], done);
+			if (!done) {
+				ERROR(ERR_YOTTADB, "YDB_COPY_STRING_TO_BUFFER failed");
+				YDB_FREE_BUFFER(&octo_buffers[2]);
+				YDB_FREE_BUFFER(&value_buffer);
+				free(session_buffers);
+				free(octo_buffers);
+				return 1;
+			}
+			status = ydb_get_s(&octo_buffers[0], 2, &octo_buffers[1], &value_buffer);
+			if (YDB_OK != status) {
+				value_buffer.buf_addr[0] = '\0';
+				value_buffer.len_used = 0;
+			}
+			free(octo_buffers);
+			YDB_FREE_BUFFER(&octo_buffers[2]);
 		}
-		fprintf(stdout, "%s\n", val_buff->buf_addr);
-		// Empty buffer is on the stack and its buf_addr is not allocated
-		if (val_buff != empty_buffer) {
-			YDB_FREE_BUFFER(val_buff);
-			free(val_buff);
-		}
+		fprintf(stdout, "%s\n", value_buffer.buf_addr);
+		YDB_FREE_BUFFER(&value_buffer);
+		free(session_buffers);
 		return 0;
 	}
 
-	outputKeyId = get("^%ydboctoocto", 3, "plan_metadata", plan_name, "output_key");
-	if(outputKeyId == NULL) {
-		YDB_FREE_BUFFER(row_id_b);
-		YDB_FREE_BUFFER(row_value_b);
+	snprintf(cursor_id_str, INT64_TO_STRING_MAX, "%d", cursor_id);
+	cursor_buffers = make_buffers(config->global_names.cursor, 6, cursor_id_str, "keys", "", "", "", "");
+	outkey_buffers = make_buffers("^%ydboctoocto", 3, "plan_metadata", plan_name, "output_key");
+
+	YDB_MALLOC_BUFFER(&cursor_buffers[3], INT64_TO_STRING_MAX);
+	status = ydb_get_s(&outkey_buffers[0], 3, &outkey_buffers[1], &cursor_buffers[3]);
+	free(outkey_buffers);
+	YDB_ERROR_CHECK(status);
+	if(YDB_OK != status) {
+		YDB_FREE_BUFFER(&cursor_buffers[3]);
+		free(cursor_buffers);
 		if(memory_chunks != NULL) {
 			OCTO_CFREE(memory_chunks);
 		}
 		ERROR(ERR_DATABASE_FILES_OOS, "");
 		return 1;
 	}
-	*key_id_b = *outputKeyId;
 
-	status = ydb_subscript_next_s(cursor_b, 6, cursor_id_b, row_id_b);
+	// Retrieve the row ID for the given output key
+	YDB_MALLOC_BUFFER(&cursor_buffers[6], INT64_TO_STRING_MAX);
+	status = ydb_subscript_next_s(&cursor_buffers[0], 6, &cursor_buffers[1], &cursor_buffers[6]);
 	if (YDB_ERR_NODEEND == status)
 		return 0;
 	YDB_ERROR_CHECK(status);
 	if (YDB_OK == status) {
-		while (!YDB_BUFFER_IS_SAME(empty_buffer, row_id_b)) {
-			status = ydb_get_s(cursor_b, 6, cursor_id_b, row_value_b);
-			while (YDB_ERR_INVSTRLEN == status){
-				int newsize = row_value_b->len_used;
-				YDB_FREE_BUFFER(row_value_b);
-				YDB_MALLOC_BUFFER(row_value_b, newsize + 1);
-				row_value_b->len_alloc--;
-				status = ydb_get_s(cursor_b, 6, cursor_id_b, row_value_b);
+		while (0 != strncmp("", cursor_buffers[6].buf_addr, MAX_STR_CONST)) {
+			status = ydb_get_s(&cursor_buffers[0], 6, &cursor_buffers[1], &value_buffer);
+			// Expand value_buffer allocation until it's large enough to store the row value retrieved from the database
+			while (YDB_ERR_INVSTRLEN == status) {
+				int newsize = value_buffer.len_used;
+				YDB_FREE_BUFFER(&value_buffer);
+				YDB_MALLOC_BUFFER(&value_buffer, newsize + 1);
+				value_buffer.len_alloc--;
+				status = ydb_get_s(&cursor_buffers[0], 6, &cursor_buffers[1], &value_buffer);
 			}
 			YDB_ERROR_CHECK(status);
 			if (YDB_OK != status) {
 				break;
 			}
-			row_value_b->buf_addr[row_value_b->len_used] = '\0';
-			fprintf(stdout, "%s\n", row_value_b->buf_addr);
-			status = ydb_subscript_next_s(cursor_b, 6, cursor_id_b, row_id_b);
+			value_buffer.buf_addr[value_buffer.len_used] = '\0';
+			fprintf(stdout, "%s\n", value_buffer.buf_addr);
+			status = ydb_subscript_next_s(&cursor_buffers[0], 6, &cursor_buffers[1], &cursor_buffers[6]);
 			if(YDB_ERR_NODEEND == status) {
 				status = YDB_OK;
 				break;
@@ -138,12 +151,12 @@ int print_temporary_table(SqlStatement *stmt, int cursor_id, void *parms, char *
 		fflush(stdout);
 	}
 	// Cleanup tables
-	ydb_delete_s(cursor_b, 1, cursor_id_b, YDB_DEL_TREE);
+	ydb_delete_s(&cursor_buffers[0], 1, &cursor_buffers[1], YDB_DEL_TREE);
 
-	YDB_FREE_BUFFER(row_id_b);
-	YDB_FREE_BUFFER(row_value_b);
-	YDB_FREE_BUFFER(outputKeyId);
-	free(outputKeyId);
+	YDB_FREE_BUFFER(&cursor_buffers[3]);
+	YDB_FREE_BUFFER(&cursor_buffers[6]);
+	YDB_FREE_BUFFER(&value_buffer);
+	free(cursor_buffers);
 	if(memory_chunks != NULL) {
 		OCTO_CFREE(memory_chunks);
 	}

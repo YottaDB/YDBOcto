@@ -1,0 +1,37 @@
+Error with syntax near (line 1, column 20):
+
+INSERT INTO myTable VALUES (1, 2, "Name");
+                    ^^^^^^
+syntax error, unexpected VALUES, expecting DEFAULT or LEFT_PAREN
+
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: INSERT INTO myTable VALUES (1, 2, "Name");
+[ WARN] PATH:LINENUM DATE TIME : Feature not implemented: column_name_list: column_name column_name_list_tail
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: INSERT INTO myTable (id, name) 
+[ WARN] PATH:LINENUM DATE TIME : Feature not implemented: row_value_constructor_list: element/list_tail
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: VALUES (1, "Emma");
+[ WARN] PATH:LINENUM DATE TIME : Feature not implemented: column_name_list: column_name column_name_list_tail
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: INSERT INTO myTable (id, name) 
+[ WARN] PATH:LINENUM DATE TIME : Feature not implemented: row_value_constructor_list: element/list_tail
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: VALUES
+  (1, "Emma"),
+Error with syntax near (line 1, column 5):
+
+  (2, "Jojo"),
+    ^
+syntax error, unexpected COMMA, expecting PERIOD
+
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: (2, "Jojo"),
+  (3, "Max")
+;
+Error with syntax near (line 2, column 1):
+
+INSERT INTO myTable2
+SELECT * from myTable3;
+^^^^^^
+syntax error, unexpected SELECT, expecting DEFAULT or LEFT_PAREN
+
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: INSERT INTO myTable2
+SELECT * from myTable3;
+[ WARN] PATH:LINENUM DATE TIME : Feature not implemented: insert_statement: INSERT INTO column_name DEFAULT VALUES
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: INSERT INTO theTable DEFAULT VALUES;
+

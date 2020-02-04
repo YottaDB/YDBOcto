@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -32,7 +32,11 @@ OCTO
 
 @test "try no octo_zroutines with directory as second element in \$zroutines" {
   mkdir dirA
-  export ydb_routines="@PROJECT_BINARY_DIR@/src/_ydbocto.so $(pwd)/dirA $ydb_routines"
+  if [[ $ydb_chset == "UTF-8" ]]; then
+	export ydb_routines="@PROJECT_BINARY_DIR@/src/utf8/_ydbocto.so $(pwd)/dirA $ydb_routines"
+  else
+	export ydb_routines="@PROJECT_BINARY_DIR@/src/_ydbocto.so $(pwd)/dirA $ydb_routines"
+  fi
   octo <<OCTO 2>&1 | tee output.txt
 select * from names limit 1;
 OCTO

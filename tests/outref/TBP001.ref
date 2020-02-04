@@ -1,0 +1,13 @@
+[ WARN] PATH:LINENUM DATE TIME : Feature not implemented: WHERE search_condition
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: DELETE FROM myTable WHERE id = 1;
+
+[ WARN] PATH:LINENUM DATE TIME : Feature not implemented: WHERE search_condition
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: delete from abc where id in (1, 2, 3, 4);
+
+[ WARN] PATH:LINENUM DATE TIME : Feature not implemented: WHERE search_condition
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: DELETE FROM abc WHERE abc.value = 5+5/5;
+
+[ WARN] PATH:LINENUM DATE TIME : Feature not implemented: WHERE search_condition
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: DELETE FROM thing where mixedCase = 1;
+
+

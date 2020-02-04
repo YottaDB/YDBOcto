@@ -106,11 +106,12 @@ void octo_log(int line, char *file, enum ERROR_LEVEL level, enum ERROR error, ..
 	case WARNING:
 		type = "WARN";
 		break;
-	case ERROR:
-		type = "ERROR";
-		break;
 	case FATAL:
 		type = "FATAL";
+		break;
+	case ERROR:
+	default:
+		type = "ERROR";
 		break;
 	}
 #	ifdef IS_ROCTO
@@ -175,11 +176,12 @@ void octo_log(int line, char *file, enum ERROR_LEVEL level, enum ERROR error, ..
 			case WARNING:
 				err_level = PSQL_Error_WARNING;
 				break;
-			case ERROR:
-				err_level = PSQL_Error_ERROR;
-				break;
 			case FATAL:
 				err_level = PSQL_Error_FATAL;
+				break;
+			case ERROR:
+			default:
+				err_level = PSQL_Error_ERROR;
 				break;
 		}
 		if (TRACE < level) {

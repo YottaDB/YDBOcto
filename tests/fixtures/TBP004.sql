@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -10,7 +10,8 @@
 #								#
 #################################################################
 
-source @YOTTADB_INCLUDE_DIRS@/ydb_env_set
-export LD_LIBRARY_PATH=@YOTTADB_INCLUDE_DIRS@
-export ydb_routines=". @PROJECT_BINARY_DIR@/src/_ydbocto.so @PROJECT_BINARY_DIR@ $ydb_routines"
-export ydb_ci="@PROJECT_BINARY_DIR@/ydbocto.ci"
+UPDATE myTable
+SET id = 3, name = "Orion"
+WHERE breed = "Black Lab";
+UPDATE myTable
+SET name = (SELECT name FROM tableOfDogs WHERE breed = "Black lab");

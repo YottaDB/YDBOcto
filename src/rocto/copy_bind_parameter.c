@@ -57,7 +57,8 @@ int32_t copy_binary_parameter(Bind *bind, const int32_t cur_parm, char *bound_qu
 			break;
 		case 16:
 			// TODO: Allow this case to fallthrough until binary formats are understood or at least testable
-			// bin_to_uuid(bind->parms[cur_parm].value, uuid, MAX_STR_CONST);
+			// assert(sizeof(uuid) >= UUID_CHARACTER_LENGTH);
+			// bin_to_uuid(bind->parms[cur_parm].value, uuid);
 			// copied = snprintf(&bound_query[bound_offset], UUID_CHARACTER_LENGTH, "%s", uuid);
 			// break;
 		default:
@@ -95,7 +96,8 @@ int32_t get_binary_parameter_length(Bind *bind, const int32_t cur_parm) {
 			break;
 		case 16:
 			// TODO: Allow this case to fallthrough until binary formats are understood or at least testable
-			// bin_to_uuid(bind->parms[cur_parm].value, uuid, MAX_STR_CONST);
+			// assert(sizeof(buffer) >= UUID_CHARACTER_LENGTH);
+			// bin_to_uuid(bind->parms[cur_parm].value, uuid);
 			// copied = snprintf(buffer, UUID_CHARACTER_LENGTH, "%s", uuid);
 			// break;
 		default:

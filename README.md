@@ -13,28 +13,44 @@ YottaDB r1.28 or greater is required for successful installation of Octo. Instal
 
 *NOTE: the environment variable `$ydb_dist` is required to be defined - `$gtm_dist` is not a valid subsitute*
 
-## Quickstart 
+## Quickstart
 
 ### Install prerequisites
 
 #### Install YottaDB POSIX plugin
 
-More detailed instructions are on the [YottaDB POSIX plugin page](https://gitlab.com/YottaDB/Util/YDBposix/blob/master/README.md).
+The YottaDB POSIX plugin can be installed easily by adding the `--posix` option when installing YottaDB with the `ydbinstall` script:
+
+```sh
+./ydbinstall --posix
+```
+
+Alternatively, users can build the POSIX plugin from source:
 
 ```sh
 # In a temporary directory perform the following commands
-curl -fSsLO https://gitlab.com/YottaDB/Util/YDBposix/-/archive/master/YDBposix-master.tar.gz
-tar xzf YDBposix-master.tar.gz
-cd YDBposix-master
+curl -fSsLO https://gitlab.com/YottaDB/Util/YDBPosix/-/archive/master/YDBPosix-master.tar.gz
+tar xzf YDBPosix-master.tar.gz
+cd YDBPosix-master
 mkdir build && cd build
 # Make sure that you have YottaDB environment variables in your shell before continuing
 cmake ..
 make -j `grep -c ^processor /proc/cpuinfo` && sudo make install
 ```
 
+More detailed instructions are on the [YottaDB POSIX plugin page](https://gitlab.com/YottaDB/Util/YDBPosix/blob/master/README.md).
+
 #### (Optional) Install YottaDB encryption plugin
 
 Installing the YottaDB encryption plugin enables TLS support (Recommended for production installations). You will need to make sure TLS/SSL is enabled for the driver in the client software chosen.
+
+The YottaDB encryption plugin can be installed by adding the `--encplugin` option when installing YottaDB with the `ydbinstall` script:
+
+```sh
+./ydbinstall --encplugin
+```
+
+Alternatively, users can build the encryption plugin from source:
 
 ```sh
 # In a temporary directory perform the following commands
@@ -159,12 +175,16 @@ cmake -DCMAKE_INSTALL_PREFIX=$ydb_dist/plugin .. # for CentOS/RedHat use cmake3 
 make -j `grep -c ^processor /proc/cpuinfo`
 ```
 
+To generate a Debug build instead of a Release build (the default), add `-DCMAKE_BUILD_TYPE=Debug` to the CMake line above.
+
+To additionally disable the generation of installation rules for `make install`, add `-DDISABLE_INSTALL=ON`. This can be useful when doing testing in a temporary build directory only.
+
 **NOTE**: Octo uses some CMake parameters to control generation of fixed-size buffer allocations. These are:
 
-* STRING_BUFFER_LENGTH -- the maximum length of a string within the system; this supersedes any VARCHAR definitions.
-* INIT_M_ROUTINE_LENGTH -- the initial length for the buffer of generated M routines. The default is 10MB.
-* MEMORY_CHUNK_SIZE -- size of memory chunks to allocate; default is 32MB.
-* MEMORY_CHUNK_PROTECT -- if non-zero, memory following chunks is protected to detect buffer overflows. If 2, data is placed closer to the protected region to increase the chances of detecting an error.
+* `STRING_BUFFER_LENGTH` -- the maximum length of a string within the system; this supersedes any VARCHAR definitions.
+* `INIT_M_ROUTINE_LENGTH` -- the initial length for the buffer of generated M routines. The default is 10MB.
+* `MEMORY_CHUNK_SIZE` -- size of memory chunks to allocate; default is 32MB.
+* `MEMORY_CHUNK_PROTECT` -- if non-zero, memory following chunks is protected to detect buffer overflows. If 2, data is placed closer to the protected region to increase the chances of detecting an error.
 
 Example usage of above parameters:
 
@@ -183,8 +203,8 @@ cp $ydb_dist/plugin/etc/octo.conf $ydb_dist/plugin/etc/octo.conf.bak
 Install Octo:
 
 ```sh
-source activate
-sudo make install
+source octo_env_set
+sudo -E make install
 ```
 
 You will want to review if there are any changes needed to your backed up global `octo.conf` before restoring it. To restore the backed up global `octo.conf`:
@@ -196,7 +216,7 @@ cp $ydb_dist/plugin/etc/octo.conf.bak $ydb_dist/plugin/etc/octo.conf
 
 Octo uses several internal global variables to map a SQL schema/DDL to a YottaDB database: %ydboctoschema, %ydboctoxref, and %ydboctoocto. It is best practice to map these to a separate region that is exclusive to Octo, which requires settings that may conflict with those required by other regions. For more information, refer to the Additional Configuration section below.
 
-Please see the following example for creating a database from scratch with the recommended settings. For more information on setting up a database in YottaDB, refer to the [Administration and Operations Guide](https://docs.yottadb.com/AdminOpsGuide/index.html). 
+Please see the following example for creating a database from scratch with the recommended settings. For more information on setting up a database in YottaDB, refer to the [Administration and Operations Guide](https://docs.yottadb.com/AdminOpsGuide/index.html).
 
 #### Setup Database
 

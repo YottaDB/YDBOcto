@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -37,7 +37,7 @@ int handle_password_message(PasswordMessage *password_message, StartupMessage *s
 	}
 
 	// Retrieve username from StartupMessage
-	char username[MAX_STR_CONST];
+	char username[MAX_STR_CONST+1];		// Null terminator
 	for(int cur_parm = 0; cur_parm < startup_message->num_parameters; cur_parm++) {
 		result = strcmp(startup_message->parameters[cur_parm].name, "user");
 		if (0 == result) {

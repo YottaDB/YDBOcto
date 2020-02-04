@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -174,14 +174,14 @@ static void test_bin_to_bytea(void **state) {
 }
 
 static void test_bin_to_uuid(void **state) {
-	int32_t buf_len = 37;
+	int32_t buf_len = UUID_CHARACTER_LENGTH;
 	char bin[16];
 	char buffer[buf_len];
 	int32_t i = 0;
 	for (i = 0; i < 16; i++) {
 		bin[i] = i;
 	}
-	bin_to_uuid(bin, buffer, buf_len);
+	bin_to_uuid(bin, buffer);
 	assert_string_equal(buffer, "00010203-0405-0607-0809-0a0b0c0d0e0f");
 }
 

@@ -33,7 +33,7 @@ Octo includes a full set of standard, relational features. These include:
 * The ability to retrieve data. (Data Query Language, or DQL).
 
 .. note::
-   At the time of the release of this document, the features to manipulate data (Data Manipulation Language, or DML), manage transactions in the database (Transaction Control Language, or TCL), and control access to data stored in a database (Data Control Language, or DCL) are yet to be implemented. 
+   At the time of the release of this document, the features to manipulate data (Data Manipulation Language, or DML), manage transactions in the database (Transaction Control Language, or TCL), and control access to data stored in a database (Data Control Language, or DCL) are yet to be implemented.
 
 --------------------
 Setup
@@ -47,7 +47,7 @@ Installing and configuring YottaDB is described in the `Administration and Opera
    It is required that the environment variable :code:`$ydb_dist` is defined - :code:`$gtm_dist` is not a valid subsitute.
 
 +++++++++++
-Quickstart 
+Quickstart
 +++++++++++
 
 ~~~~~~~~~~~~~~~~~~~~~~
@@ -56,13 +56,13 @@ Install Prerequisites
 
 * Install YottaDB POSIX plugin
 
-  More detailed instructions are on the YottaDB `POSIX plugin README <https://gitlab.com/YottaDB/Util/YDBposix/blob/master/README.md>`_.
+  More detailed instructions are on the YottaDB `POSIX plugin README <https://gitlab.com/YottaDB/Util/YDBPosix/blob/master/README.md>`_.
 
   .. parsed-literal::
 
-     curl -fSsLO https://gitlab.com/YottaDB/Util/YDBposix/-/archive/master/YDBposix-master.tar.gz
-     tar xzf YDBposix-master.tar.gz
-     cd YDBposix-master
+     curl -fSsLO https://gitlab.com/YottaDB/Util/YDBPosix/-/archive/master/YDBPosix-master.tar.gz
+     tar xzf YDBPosix-master.tar.gz
+     cd YDBPosix-master
      mkdir build && cd build
      \# Make sure that you have YottaDB environment variables in your shell before continuing
      cmake ..
@@ -113,7 +113,7 @@ Install Octo
      \# For VistA the String Buffer Length needs to be larger (described below) add "-DSTRING_BUFFER_LENGTH=300000" to the cmake command below
      cmake -DCMAKE_INSTALL_PREFIX=$ydb_dist/plugin .. # for CentOS/RedHat use cmake3 instead
      make
- 
+
 ** Optional CMAKE Parameters
 
         Octo uses some cmake parameters to control generation of fixed-size buffer allocations. These are:

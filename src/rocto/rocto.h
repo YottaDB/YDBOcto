@@ -110,7 +110,7 @@ Describe *read_describe(BaseMessage *message);
 // This is a special case because it must read more from the buffer
 StartupMessage *read_startup_message(RoctoSession *session, char *data, int32_t data_length);
 SSLRequest *read_ssl_request(RoctoSession *session, char *data, int32_t data_length);
-CancelRequest *read_cancel_request(RoctoSession *session, char *data, int32_t data_length);
+CancelRequest *read_cancel_request(RoctoSession *session, char *data);
 
 // handle_* messages respond to a message of a given type, using send_message if needed
 //  and returns 0 if the exchange is a "success", or non-zero if there was a problem
@@ -143,7 +143,7 @@ int64_t bin_to_oid(char *bin);
 // float bin_to_float4(char *bin);
 // double bin_to_float8(char *bin);
 char *bin_to_bytea(char *bin);
-void bin_to_uuid(char *bin, char *buffer, int32_t buf_len);
+void bin_to_uuid(char *bin, char *buffer);
 
 // Utility functions for copying Bind parameters into query string
 int32_t copy_text_parameter(Bind *bind, const int32_t cur_parm, char *bound_query, int32_t bound_offset);

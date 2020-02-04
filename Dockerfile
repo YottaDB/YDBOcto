@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -20,7 +20,7 @@ RUN apt-get install -y -qq \
 
 ADD ./build/Octo-*.tar.gz /tmp
 ADD ./tools/entrypoint.sh /
-RUN cd /tmp/Octo-*-Linux && . /opt/yottadb/current/ydb_env_set && yes | ./install.sh
+RUN cd /tmp/Octo-*-Linux && . /opt/yottadb/current/ydb_env_set && yes
 
-ENV ydb_ci /opt/yottadb/current/plugin/ydbocto.ci
+ENV ydb_ci /opt/yottadb/current/plugin/octo/ydbocto.ci
 ENTRYPOINT "/entrypoint.sh"

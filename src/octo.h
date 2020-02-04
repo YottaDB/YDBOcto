@@ -150,7 +150,7 @@
 		want_to_write = snprintf(FILENAME, sizeof(FILENAME), "%s/_%s.m", tmp_dir, ROUTINE_NAME);	\
 	}													\
 	if (want_to_write >= (int)sizeof(FILENAME)) {								\
-		FATAL(ERR_BUFFER_TOO_SMALL, "");								\
+		FATAL(ERR_BUFFER_TOO_SMALL, "output plan");								\
 	}													\
 }
 
@@ -268,7 +268,7 @@ void cleanup_tables();
 /* Parse related functions invoked from the .y files (parser.y, select.y etc.) */
 SqlStatement *query_specification(OptionalKeyword set_quantifier, SqlStatement *select_list,
 					SqlStatement *table_expression, SqlStatement *sort_specification_list, int *plan_id);
-SqlStatement *sort_specification(SqlStatement *sort_key, SqlStatement *collate_clause, SqlStatement *ordering_specification);
+SqlStatement *sort_specification(SqlStatement *sort_key, SqlStatement *ordering_specification);
 SqlStatement *grouping_column_reference(SqlStatement *derived_column_expression, SqlStatement *collate_clause);
 int regex_specification(SqlStatement **stmt, SqlStatement *op0, SqlStatement *op1, int is_regex_like_or_similar,
 									int is_sensitive, int is_not, ParseContext *parse_context);

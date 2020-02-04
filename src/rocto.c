@@ -331,7 +331,7 @@ int main(int argc, char **argv) {
 		}
 
 		// Check for CancelRequest and handle if so
-		cancel_request = read_cancel_request(&rocto_session, buffer, sizeof(unsigned int) + sizeof(int));
+		cancel_request = read_cancel_request(&rocto_session, buffer);
 		if (NULL != cancel_request) {
 			LOG_LOCAL_ONLY(INFO, ERR_ROCTO_QUERY_CANCELED, "");
 			handle_cancel_request(cancel_request);

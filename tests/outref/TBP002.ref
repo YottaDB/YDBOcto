@@ -1,0 +1,84 @@
+[ERROR] PATH:LINENUM DATE TIME : Unknown table: MYTABLE
+
+SELECT * FROM myTable;
+              ^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT * FROM myTable;
+[ERROR] PATH:LINENUM DATE TIME : Unknown table: HELLOTABLE
+
+SELECT "Hello world!" FROM helloTable;
+                           ^^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT "Hello world!" FROM helloTable;
+[ERROR] PATH:LINENUM DATE TIME : Unknown table: PEOPLE
+
+SELECT toppings.name
+FROM people
+     ^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT toppings.name
+FROM people
+INNER JOIN people_toppings
+ON (people.id = people_toppings.people_id)
+INNER JOIN toppings
+ON (toppings.id = people_toppings.toppings_id)
+WHERE people.name IN ("Christopher", "Charles", "Bhaskar",
+  "Narayanan", "Steve", "Ran")
+GROUP BY toppings.name
+HAVING COUNT(people.id) > 5;
+[ERROR] PATH:LINENUM DATE TIME : Unknown table: TABLEA
+
+SELECT * FROM tableA
+              ^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT * FROM tableA
+INNER JOIN (SELECT personId as id
+  FROM tableB WHERE AGE < 15) as tableC
+ON (tableA.id = tableC.id);
+[ERROR] PATH:LINENUM DATE TIME : Unknown table: EMPLOYEE
+
+-- Many of these examples were from http://www.complexsql.com/complex-sql-queries-examples-with-answers/
+Select distinct Salary from Employee e1 where 2=(Select count(distinct Salary) from Employee e2 where e1.salary<=e2.salary);
+                            ^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: -- Many of these examples were from http://www.complexsql.com/complex-sql-queries-examples-with-answers/
+Select distinct Salary from Employee e1 where 2=(Select count(distinct Salary) from Employee e2 where e1.salary<=e2.salary);
+[ERROR] PATH:LINENUM DATE TIME : Unknown table: EMPLOYEE
+
+Select * from Employee a where rowid <>( select max(rowid) from Employee b where a.Employee_num=b.Employee_num);
+              ^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: Select * from Employee a where rowid <>( select max(rowid) from Employee b where a.Employee_num=b.Employee_num);
+[ERROR] PATH:LINENUM DATE TIME : Unknown table: EMPLOYEE
+
+Select Employee_name,Salary/12 as `Monthly Salary` from employee;
+                                                        ^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: Select Employee_name,Salary/12 as `Monthly Salary` from employee;
+[ERROR] PATH:LINENUM DATE TIME : Unknown table: EMPLOYEE
+
+Select * from Employee where Rownum =1;
+              ^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: Select * from Employee where Rownum =1;
+[ERROR] PATH:LINENUM DATE TIME : Unknown table: EMPLOYEE
+
+Select * from Employee where Rowid=(select max(Rowid) from Employee);
+              ^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: Select * from Employee where Rowid=(select max(Rowid) from Employee);
+[ERROR] PATH:LINENUM DATE TIME : Unknown table: EMPLOYEE
+
+Select * from Employee where Rownum <= 5;
+              ^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: Select * from Employee where Rownum <= 5;
+[ERROR] PATH:LINENUM DATE TIME : Unknown table: EMPLOYEE
+
+select distinct salary from employee a where 3 >= (select count(distinct salary) from employee b where a.salary <= b.salary) order by a.salary desc;
+                            ^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select distinct salary from employee a where 3 >= (select count(distinct salary) from employee b where a.salary <= b.salary) order by a.salary desc;
+[ERROR] PATH:LINENUM DATE TIME : Unknown table: EMP
+
+select min(salary)from(select distinct salary from emp order by salary desc)where rownum<=3;
+                                                   ^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select min(salary)from(select distinct salary from emp order by salary desc)where rownum<=3;
+[ERROR] PATH:LINENUM DATE TIME : Unknown table: A
+
+-- Some examples using UNION should be added after it is supported
+SELECT 5+5/5 FROM A;
+                  ^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: -- Some examples using UNION should be added after it is supported
+SELECT 5+5/5 FROM A;
+
+

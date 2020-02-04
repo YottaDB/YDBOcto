@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -10,5 +10,7 @@
 #								#
 #################################################################
 
-DROP TABLE abc;
-DROP TABLE abc CASCADE;
+DELETE FROM myTable WHERE id = 1;
+delete from abc where id in (1, 2, 3, 4);
+DELETE FROM abc WHERE abc.value = 5+5/5;
+DELETE FROM thing where mixedCase = 1;

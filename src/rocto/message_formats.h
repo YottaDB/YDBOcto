@@ -134,10 +134,10 @@ typedef struct __attribute__((packed)) {
 
 // F
 typedef struct __attribute__((packed)) {
-	unsigned int length;
-	int request_code;
+	uint32_t length;
+	int32_t request_code;
 	pid_t pid;
-	unsigned int secret_key;
+	uint32_t secret_key;
 } CancelRequest;
 
 // F

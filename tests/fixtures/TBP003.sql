@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -10,8 +10,13 @@
 #								#
 #################################################################
 
-UPDATE myTable
-SET id = 3, name = "Orion"
-WHERE breed = "Black Lab";
-UPDATE myTable
-SET name = (SELECT name FROM tableOfDogs WHERE breed = "Black lab");
+INSERT INTO myTable VALUES (1, 2, "Name");
+INSERT INTO myTable (id, name) VALUES (1, "Emma");
+INSERT INTO myTable (id, name) VALUES
+  (1, "Emma"),
+  (2, "Jojo"),
+  (3, "Max")
+;
+INSERT INTO myTable2
+SELECT * from myTable3;
+INSERT INTO theTable DEFAULT VALUES;

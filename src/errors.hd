@@ -112,6 +112,7 @@ ERROR_DEF(ERR_ROCTO_QUERY_CANCELED, "canceling statement due to user request", P
 // OCTO //
 ERROR_DEF(ERR_SYSCALL, "System call failed: %s, return %d (%s)", PSQL_Code_System_Error)
 ERROR_DEF(ERR_LIBCALL, "Library call failed: %s", PSQL_Code_System_Error)
+ERROR_DEF(ERR_LIBCALL_WITH_ARG, "Library call %s failed with argument %s", PSQL_Code_System_Error)
 // ROCTO //
 
 /*** Configuration errors ***/
@@ -120,6 +121,7 @@ ERROR_DEF(ERR_BAD_CONFIG, "Bad config setting: %s", PSQL_Code_Config_File_Error)
 ERROR_DEF(ERR_PARSING_CONFIG, "Error parsing config: %s:%d %s", PSQL_Code_Config_File_Error)
 ERROR_DEF(ERR_NULL_SUBS_DISABLED, "Null subscripts must be enabled for proper operation. Please set '-null_subscripts=always' for all regions containing Octo global variables.", PSQL_Code_Config_File_Error)
 ERROR_DEF(ERR_BAD_ZROUTINES, "Error no valid source directory found in octo_zroutines config or $zroutines ISV", PSQL_Code_Config_File_Error)
+ERROR_DEF(ERR_FAILED_TO_RETRIEVE_ENVIRONMENT_VARIABLE, "Failed to retrieve value of environment variable: \"%s\"", PSQL_Code_Config_File_Error)
 // ROCTO //
 
 /*** Connection errors ***/
@@ -151,9 +153,9 @@ ERROR_DEF(ERR_SUBQUERY_MULTIPLE_ROWS, "More than one row returned by a subquery 
 // OCTO //
 ERROR_DEF(ERR_LINE_TOO_LONG, "Input line too long", PSQL_Code_String_Data_Length_Mismatch)
 ERROR_DEF(ERR_READ_TOO_LARGE, "Read size %d greater than buffer size %d", PSQL_Code_Data_Exception)
-ERROR_DEF(ERR_BUFFER_TOO_SMALL, "Buffer used to store output plans is too small for the query", PSQL_Code_Data_Exception)
+ERROR_DEF(ERR_BUFFER_TOO_SMALL, "%s buffer too small", PSQL_Code_Data_Exception)
 ERROR_DEF(ERR_INVALID_READ_SIZE, "Read size %d out of range", PSQL_Code_Numeric_Value_Out_Of_Range)
-ERROR_DEF(ERR_INVALID_WRITE_SIZE, "Read size %d out of range", PSQL_Code_Numeric_Value_Out_Of_Range)
+ERROR_DEF(ERR_INVALID_WRITE_SIZE, "Write size %d out of range", PSQL_Code_Numeric_Value_Out_Of_Range)
 // ROCTO //
 ERROR_DEF(ERR_ROCTO_INVALID_CHAR_VALUE, "%s: invalid %s value %c: must be %s", PSQL_Code_Data_Exception)
 ERROR_DEF(ERR_ROCTO_INVALID_INT_VALUE, "%s: invalid %s value %d: must be %d", PSQL_Code_Numeric_Value_Out_Of_Range)

@@ -147,6 +147,10 @@ CAT
 }
 
 @test "TERR012 : ydb_routines env var not set correctly" {
+# This validates the behavior of $ydb_routines when not set correctly. In order to perform this test, we need to remove previously
+# generated object files in the current directory (which happens during fixture loading). Failure to remove these object files may
+# result in their reuse below, leading to erroneous output.
+  rm -f _ydbocto*.o
   export ydb_routines=""
   octo <<OCTO 2>&1 | tee output.txt
 SELECT * FROM names WHERE lastName = "Cool";

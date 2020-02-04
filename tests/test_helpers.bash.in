@@ -16,7 +16,6 @@ init_test() {
 	exec >  >(tee -ia $test_temp/stdout.txt)
 	exec 2> >(tee -ia $test_temp/stderr.txt >&2)
 	cd $test_temp
-	export PATH="@PROJECT_BINARY_DIR@/src:$PATH"
 	# Disable any user-level (~/.inputrc) customizations that can cause test failures (e.g. TERR008, TSC18 subtests)
 	# For example "set editing-mode vi" in ~/.inputrc somehow re-enables tab-completion even though Octo disables it
 	#	by calling `rl_bind_key('\t', rl_insert);`
@@ -26,18 +25,32 @@ init_test() {
 	# Set YDB related env vars
 	unset ydb_gbldir gtmgbldir	# needed or else ydb_env_set can issue ZGBLDIRACC error (due to it calling MUPIP DUMPFHEAD)
 					# if ydb_gbldir is defined and points to a non-existent gld file.
+	# Randomly choose whether to use UTF-8 or M mode
+	source @YOTTADB_INCLUDE_DIRS@/ydb_env_unset
+	if [[ $(( $RANDOM % 2)) -eq 0 ]]; then
+		export ydb_chset=UTF-8
+		utf8_path="/utf8"
+	else
+		unset ydb_chset
+		utf8_path=""
+	fi
 	source @YOTTADB_INCLUDE_DIRS@/ydb_env_set
-	# tests/fixtures has lots of M programs. Make sure .o files for those get created in current test output directory
-	# (and not in tests/fixtures) as it can otherwise cause .o file format issues (e.g. if YDB changes the M .o file format)
-	# since tests/fixtures persists a lot longer than the test output directory. We had previously seen COLLATIONUNDEF errors
-	# while trying to use the master branch of YDB repo when .o files created by r1.29 in Nov 2019 were tried to be used
-	# by r1.29 in Dec 2019 (after the .o file format was changed in between). Having the .o files in the test output directory
-	# avoids such issues.
-	ydbroutines=".(. @PROJECT_SOURCE_DIR@/tests/fixtures) @PROJECT_BINARY_DIR@/src/_ydbocto.so @PROJECT_BINARY_DIR@"
+	# Run tests locally without installing Octo/Rocto to $ydb_dist
+	if [[ @DISABLE_INSTALL@ == "ON" ]]; then
+		export PATH="@PROJECT_BINARY_DIR@/src:$PATH"
+		# tests/fixtures has lots of M programs. Make sure .o files for those get created in current test output directory
+		# (and not in tests/fixtures) as it can otherwise cause .o file format issues (e.g. if YDB changes the M .o file format)
+		# since tests/fixtures persists a lot longer than the test output directory. We had previously seen COLLATIONUNDEF errors
+		# while trying to use the master branch of YDB repo when .o files created by r1.29 in Nov 2019 were tried to be used
+		# by r1.29 in Dec 2019 (after the .o file format was changed in between). Having the .o files in the test output directory
+		# avoids such issues. This comment also applies to the similar line in the below `else` block.
+		ydbroutines=".(. @PROJECT_SOURCE_DIR@/tests/fixtures) @PROJECT_BINARY_DIR@/src$utf8_path/_ydbocto.so @PROJECT_BINARY_DIR@"
+	else
+		ydbroutines=".(. @PROJECT_SOURCE_DIR@/tests/fixtures) .(. @YOTTADB_INCLUDE_DIRS@/plugin/r/) @PROJECT_BINARY_DIR@"
+	fi
 	export ydb_routines="$ydbroutines $ydb_routines"
-	export ydb_ci="@PROJECT_BINARY_DIR@/ydbocto.ci"
 	# Log env vars and shell vars in files for later analysis (if needed). Mask any sensitive env vars out.
-	echo " --> Running test [$BATS_TEST_FILENAME] : subtest [$BATS_TEST_DESCRIPTION] : in $PWD" > bats_test.out
+	echo " --> Running test [$BATS_TEST_FILENAME] : subtest [$BATS_TEST_DESCRIPTION] : in $PWD : build type @CMAKE_BUILD_TYPE@ " > bats_test.out
 	env | grep -vE "HUB_USERNAME|HUB_PASSWORD|CI_JOB_TOKEN|CI_REGISTRY_PASSWORD|CI_BUILD_TOKEN|CI_REPOSITORY_URL" > env.out
 	set | grep -vE "HUB_USERNAME|HUB_PASSWORD|CI_JOB_TOKEN|CI_REGISTRY_PASSWORD|CI_BUILD_TOKEN|CI_REPOSITORY_URL" > set.out
 	# Set env var to allow .m and .o file timestamps to be identical. This is expected to be particularly useful
@@ -101,7 +114,8 @@ load_fixture() {
 	fixture_name=$1
 	echo "Loading fixture $fixture_name"
 	if [[ $fixture_name == *.zwr ]]; then
-		$ydb_dist/mupip load  @PROJECT_SOURCE_DIR@/tests/fixtures/$fixture_name
+		# Load all fixtures in M mode to prevent duplicate fixtures for UTF-8 mode
+		ydb_chset="" LC_ALL=C $ydb_dist/mupip load @PROJECT_SOURCE_DIR@/tests/fixtures/$fixture_name
 	elif [[ $fixture_name == *.sql ]]; then
 		if [[ $2 == "subtest" ]]; then
 			cp @PROJECT_SOURCE_DIR@/tests/fixtures/$fixture_name $fixture_name
@@ -172,7 +186,7 @@ FILE
 	$ydb_dist/mupip create
 	echo "Populating seed data"
 	octo -f @PROJECT_BINARY_DIR@/postgres-seed.sql
-	$ydb_dist/mupip load  @PROJECT_BINARY_DIR@/postgres-seed.zwr
+	ydb_chset="" LC_ALL=C $ydb_dist/mupip load  @PROJECT_BINARY_DIR@/postgres-seed.zwr
 	# Set the below env var to ensure no DBFILEXT messages show up in syslog and in turn in individual test output files
 	# e.g. if a test redirects stderr to a file output.txt, then syslog messages would show up in that file if run through
 	# the pipeline causing a test failure if that is compared against a reference file (e.g. TC001 in test_create_table.bats.in)
@@ -231,7 +245,6 @@ start_rocto() {
 	fi
 	rocto_port=$(find_open_port $1)
 	rocto $verbosity -p $rocto_port $2 &> rocto.log &
-	# valgrind --leak-check=yes --track-origins=yes rocto $verbosity -p $rocto_port $2 &> rocto.log &
 	echo $! > rocto.pid
 	while [[ "$(grep -c "rocto started" rocto.log)" == "0" ]]; do
 		sleep .1s
@@ -307,11 +320,13 @@ run_go() {
 
 run_java() {
 	# Check if .java file has already been compiled to a .class file. If so skip that step.
-	if [[ ! -e @PROJECT_BINARY_DIR@/$1.class ]]; then
+	if [[ ! -e @PROJECT_BINARY_DIR@/$1.class ||
+		$(stat -c '%Y' @PROJECT_BINARY_DIR@/$1.class) -le $(stat -c '%Y' @PROJECT_SOURCE_DIR@/tests/fixtures/$1.java) ]]; then
 		# Copy .java file from fixtures directory to current directory to create .class file
 		cp @PROJECT_SOURCE_DIR@/tests/fixtures/$1.java @PROJECT_BINARY_DIR@
 		# Compile the .java file to a .class file
 		javac @PROJECT_BINARY_DIR@/$1.java	# will create the file $1.class
+
 	fi
 	strip_sql_comments $3
 	if [[ $1 == "run_query" ]]; then

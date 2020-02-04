@@ -62,7 +62,7 @@ int qualify_query(SqlStatement *table_alias_stmt, SqlJoin *parent_join, SqlTable
 	}
 	start_join = cur_join = join;
 	do {
-		SqlJoin		*save_join;
+		SqlJoin		*next_join;
 
 		/* Qualify sub-queries involved in the join. Note that it is possible a `table` is involved in the join instead
 		 * of a `sub-query` in which case the below `qualify_query` call will return right away.
@@ -76,9 +76,8 @@ int qualify_query(SqlStatement *table_alias_stmt, SqlJoin *parent_join, SqlTable
 		 * there is no need to disallow forward references like one needs to in, say, a LEFT JOIN. Therefore
 		 * skip this forward-reference-check for a NATURAL JOIN.
 		 */
-		if (NATURAL_JOIN != cur_join->type)
-		{
-			save_join = cur_join->next;	/* save join list before tampering with it */
+		next_join = cur_join->next;	/* save join list before tampering with it */
+		if (NATURAL_JOIN != cur_join->type) {
 			/* Note that if "parent_join" is non-NULL, we need to include that even though it comes
 			 * after all the tables in the join list at the current level. This is so any references
 			 * to columns in parent queries are still considered as valid. Hence the parent_join check below.
@@ -96,8 +95,8 @@ int qualify_query(SqlStatement *table_alias_stmt, SqlJoin *parent_join, SqlTable
 		table_alias->aggregate_depth = AGGREGATE_DEPTH_FROM_CLAUSE;
 		result |= qualify_statement(cur_join->condition, start_join, table_alias_stmt, 0, NULL);
 		if (NATURAL_JOIN != cur_join->type)
-			cur_join->next = save_join;	/* restore join list to original */
-		cur_join = cur_join->next;
+			cur_join->next = next_join;	/* restore join list to original */
+		cur_join = next_join;
 	} while (cur_join != start_join && cur_join != parent_join);
 	// Qualify WHERE clause next
 	table_alias->aggregate_depth = AGGREGATE_DEPTH_WHERE_CLAUSE;

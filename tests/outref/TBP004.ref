@@ -1,0 +1,9 @@
+[ERROR] PATH:LINENUM DATE TIME : Unknown table: TABLEOFDOGS
+
+UPDATE myTable
+SET name = (SELECT name FROM tableOfDogs WHERE breed = "Black lab");
+                             ^^^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: UPDATE myTable
+SET name = (SELECT name FROM tableOfDogs WHERE breed = "Black lab");
+
+

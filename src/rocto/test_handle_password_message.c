@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -19,6 +19,8 @@
 #include <assert.h>
 #include <string.h>
 #include <endian.h>
+#include <unistd.h>
+#include <libgen.h>
 
 // Used to convert between network and host endian
 #include <arpa/inet.h>
@@ -34,8 +36,28 @@ int __wrap_ydb_get_s(ydb_buffer_t *varname, int32_t subs_used, ydb_buffer_t *sub
 	if (0 == strncmp(varname->buf_addr, "$ZGBLDIR", varname->len_used)) {
 		return 0;
 	} else if (0 == strncmp(varname->buf_addr, "$zroutines", varname->len_used)){
-		strcpy(ret_value->buf_addr, ".");
-		ret_value->len_used = 1;
+		char *ydb_chset, *ydb_routines, *src_path;
+		char exe_path[OCTO_PATH_MAX];
+		ssize_t exe_path_len;
+
+		exe_path_len = readlink("/proc/self/exe", exe_path, OCTO_PATH_MAX);
+		if ((-1 != exe_path_len) && (OCTO_PATH_MAX > exe_path_len)) {
+			exe_path[exe_path_len] = '\0';		// readlink() doesn't add a null terminator per man page
+			src_path = dirname(exe_path);
+		}
+		ydb_chset = getenv("ydb_chset");
+		ydb_routines = getenv("ydb_routines");
+		if ((NULL != ydb_chset) && (0 == strncmp(ydb_chset, "UTF-8", INT16_TO_STRING_MAX))) {
+			if (NULL != strstr(ydb_routines, ". ")) {
+				// Strip current directory from $ydb_routines if found
+				setenv("ydb_routines", &ydb_routines[2], TRUE);
+			}
+			if (NULL != src_path)
+				ret_value->len_used = snprintf(ret_value->buf_addr, OCTO_PATH_MAX, "%s/utf8", src_path);
+		} else {
+			if (NULL != src_path)
+				ret_value->len_used = snprintf(ret_value->buf_addr, OCTO_PATH_MAX, "%s", src_path);
+		}
 		return 0;
 	}
 

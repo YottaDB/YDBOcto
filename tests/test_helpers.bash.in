@@ -516,13 +516,15 @@ run_query_in_octo_and_postgres_and_crosscheck() {
 	psql $database -f $queryfile.inp >& $fname.psql.out
 	# Postgres displays boolean values as t and f whereas Octo displays them as 1 and 0 so fix that before the diff.
 	# Remove leading spaces, not proper ones in things like "123 fake street"
-	tail -n +3 $fname.psql.out | head -n -2 | sed 's/^[ \t]*//g;s/[ \t]*$//g;s/  //g;s/  //g;s/ | /|/g;s/ |/|/g;s/| /|/g;s/\<t\>/1/g;s/\<f\>/0/g;' | sort >& $fname.ref
-	if [[ $trimzeroes == "trim_trailing_zeroes" ]]; then
-		# Remove floating point numbers with extraneous 0s at the end (e.g. convert 2.5000000000000000 -> 2.5)
-		# Postgres creates these floating point numbers if an AVG aggregate function is invoked whereas Octo does not.
-		mv $fname.ref $fname.ref1
-		sed '/\./ s/\.\{0,1\}0\{1,\}$//;/\./ s/\.\{0,1\}0\{1,\}|/|/;' $fname.ref1 > $fname.ref
-	fi
+	tail -n +3 $fname.psql.out | head -n -2 | sed 's/^[ \t]*//g;s/[ \t]*$//g;s/  //g;s/  //g;s/ | /|/g;s/ |/|/g;s/| /|/g;s/\<t\>/1/g;s/\<f\>/0/g;' >& $fname.ref
+	#if [[ $trimzeroes == "trim_trailing_zeroes" ]]; then
+	#	# Remove floating point numbers with extraneous 0s at the end (e.g. convert 2.5000000000000000 -> 2.5)
+	#	# Postgres creates these floating point numbers if an AVG aggregate function is invoked whereas Octo does not.
+	#	mv $fname.ref $fname.ref1
+	#	sed '/\./ s/\.\{0,1\}0\{1,\}$//;/\./ s/\.\{0,1\}0\{1,\}|/|/;' $fname.ref1 > $fname.ref
+	#	#mv $fname.log $fname.log1
+	#	#sed '/\./ s/\.\{0,1\}0\{1,\}$//;/\./ s/\.\{0,1\}0\{1,\}|/|/;' $fname.log1 > $fname.log
+	#fi
 	if [[ $usejdbc == "usejdbc" ]]; then
 		run_java run_query $test_port $queryfile $jdbcprotocol &> $fname.octo.out
 	else
@@ -543,22 +545,48 @@ run_query_in_octo_and_postgres_and_crosscheck() {
 	if [[ $remove == "remove_empty_line_at_head" ]]; then
 		firstline=`head -n 1 $fname.octo.out`
 		if [[ "$firstline" = "" ]]; then # Remove line
-			tail -n +2 $fname.octo.out | sort >& $fname.log
+			tail -n +2 $fname.octo.out >& $fname.log
 		else # Just create .log file
-			cat $fname.octo.out | sort >& $fname.log
+			cat $fname.octo.out >& $fname.log
 		fi
 		shift
 	elif [[ $remove == "remove_empty_line_at_tail" ]]; then
 		lastline=`tail -n 1 $fname.octo.out`
 		if [ "$lastline" = "" ]; then # Remove line
-			head -n -1 $fname.octo.out | sort >& $fname.log
+			head -n -1 $fname.octo.out >& $fname.log
 		else # Just create .log file
-			cat $fname.octo.out | sort >& $fname.log
+			cat $fname.octo.out >& $fname.log
 		fi
 		shift
 	else
-		cat $fname.octo.out | sort >& $fname.log
+		cat $fname.octo.out >& $fname.log
 	fi
+	if [[ $trimzeroes == "trim_trailing_zeroes" ]]; then
+		# Remove floating point numbers with extraneous 0s at the end (e.g. convert 2.5000000000000000 -> 2.5)
+		# Postgres creates these floating point numbers if an AVG aggregate function is invoked whereas Octo does not.
+		# sed command is ran twice below, as the first sed removes all trailing zeros, and the second removes the trailing zeros caused by the first sed command
+		# Example: PSQL(10.0000000000000000 -> 10 -> 1) and Octo(10 -> 1 -> 1)
+		mv $fname.ref $fname.ref1
+		sed 's/\.\{0,1\}0\{1,\}$//;/\./ s/\.\{0,1\}0\{1,\}|/|/;' $fname.ref1 > $fname.ref2
+		sed 's/\.\{0,1\}0\{1,\}$//;/\./ s/\.\{0,1\}0\{1,\}|/|/;' $fname.ref2 > $fname.unsorted.ref3
+		mv $fname.log $fname.log1
+		sed 's/\.\{0,1\}0\{1,\}$//;/\./ s/\.\{0,1\}0\{1,\}|/|/;' $fname.log1 > $fname.log2
+		sed 's/\.\{0,1\}0\{1,\}$//;/\./ s/\.\{0,1\}0\{1,\}|/|/;' $fname.log2 > $fname.unsorted.log3
+	else
+		# If $trimzeroes != "trim_trailing_zeroes", still move the files into their unsorted
+		# versions for use later on in the process.
+		mv $fname.ref $fname.unsorted.ref3
+		mv $fname.log $fname.unsorted.log3
+	fi
+	# Below two awks add leading zeros into the Octo output in oder to match PSQL's output
+	# Octo Output: .333   PSQL Output: 0.333
+	awk '{gsub(/[^0-9]\.[0-9]/,"|0.")}1' $fname.unsorted.log3 > $fname.unsorted.log4
+	awk '{gsub(/^\.[0-9]/,"0.")}1' $fname.unsorted.log4 > $fname.unsorted.log
+	mv $fname.unsorted.ref3 $fname.unsorted.ref
+	# Below two seds set numerical values to only have 10 digits after the decimal point as both Octo
+	# and PSQL can return varying levels of precision (12 is the least amount of decimals seen so far)
+	sort $fname.unsorted.ref | sed -re 's/([0-9]+\.[0-9]{10})[0-9]+/\1/g' >& $fname.ref
+	sort $fname.unsorted.log | sed -re 's/([0-9]+\.[0-9]{10})[0-9]+/\1/g' >& $fname.log
 	rowcountonlycheck=$(grep -c "rowcount-only-check" $queryfile) || true	# grep -c can return non-zero status in case of no match hence the need for "|| true"
 	if [[ $rowcountonlycheck -eq 0 ]]; then
 		diff $fname.ref $fname.log >& $fname.diff
@@ -593,7 +621,7 @@ run_query_generator() {
   do
     queryfile=$prefix$count
     queryfile+=".sql"
-    run_query_in_octo_and_postgres_and_crosscheck $databaseName $queryfile "remove_empty_line_at_tail" "" "" $usejdbc $useextended
+    run_query_in_octo_and_postgres_and_crosscheck $databaseName $queryfile "remove_empty_line_at_tail" "trim_trailing_zeroes" "" $usejdbc $useextended
     count=`expr $count + 1`
   done
 }

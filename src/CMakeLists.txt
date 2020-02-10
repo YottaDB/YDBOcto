@@ -450,10 +450,31 @@ install(FILES aux/octo.conf.default
 install(FILES ${PROJECT_SOURCE_DIR}/src/aux/ydbocto.ci
         DESTINATION .)
 
+# Copy CREATE TABLE statements for PostgreSQL catalog tables without "pg_catalog" or "information_schema" prefixes
+add_custom_command(OUTPUT ${PROJECT_BINARY_DIR}/postgres-seed.sql
+	COMMAND ${PROJECT_SOURCE_DIR}/tests/fixtures/convert_catalog_sql.sh ${PROJECT_BINARY_DIR}
+	WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/tests/fixtures
+)
+
+# Copy PostgreSQL catalog functions without "pg_catalog" prefix
+add_custom_command(OUTPUT ${PROJECT_BINARY_DIR}/postgres-seed.zwr
+	COMMAND ${PROJECT_SOURCE_DIR}/tests/fixtures/convert_catalog_zwr.sh ${PROJECT_BINARY_DIR}
+	WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/tests/fixtures
+)
+
+add_custom_target(
+	convert_catalog_sql ALL
+	DEPENDS ${PROJECT_BINARY_DIR}/postgres-seed.sql
+)
+add_custom_target(
+	convert_catalog_zwr ALL
+	DEPENDS ${PROJECT_BINARY_DIR}/postgres-seed.zwr
+)
+
 # Seed Data
-install(FILES ${PROJECT_SOURCE_DIR}/tests/fixtures/postgres-seed.zwr
+install(FILES ${PROJECT_BINARY_DIR}/postgres-seed.zwr
         DESTINATION etc)
-install(FILES ${PROJECT_SOURCE_DIR}/tests/fixtures/postgres-seed.sql
+install(FILES ${PROJECT_BINARY_DIR}/postgres-seed.sql
         DESTINATION etc)
 
 # CPack required variables

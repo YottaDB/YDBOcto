@@ -64,3 +64,8 @@ setup() {
   load_fixture TSQ008.sql subtest
   verify_output TSQ008 output.txt
 }
+
+@test "TSQ009 : verify attrdef table and pg_get_expr function exist (ODBC)" {
+  load_fixture TSQ009.sql subtest
+  verify_output TSQ009 output.txt
+}

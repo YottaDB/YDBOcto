@@ -12,7 +12,7 @@
 
 /* Has exactly one row, and is used to allow SELECT without a FROM clause
  */
-CREATE TABLE octoOneRowTable (id INTEGER primary key) global "^%ydboctoocto(""tables"",""octoOneRow"",keys(""id""))";
+CREATE TABLE octoOneRowTable (id INTEGER primary key) GLOBAL "^%ydboctoocto(""tables"",""octoOneRow"",keys(""id""))";
 
 /* Used to store a list of 'namespaces'; basically everything we do should
  * fit in one of: public, pg_catalog, or information_schema
@@ -23,40 +23,6 @@ CREATE TABLE pg_catalog.pg_namespace (
   nspacl VARCHAR,
   oid INTEGER primary key
 ) GLOBAL "^%ydboctoocto(""tables"",""pg_catalog"",""pg_namespace"",keys(""oid""))";
-
-CREATE TABLE pg_type (
-  typname VARCHAR(25) PRIMARY KEY PIECE "1",
-  typnamespace INTEGER PIECE "2",
-  typowner INTEGER PIECE "3",
-  typlen INTEGER PIECE "4",
-  typbyval BOOL PIECE "5",		-- specifying BOOL here just to test that works as good as BOOLEAN
-  typtype VARCHAR(25) PIECE "6",
-  typcategory VARCHAR(25) PIECE "7",
-  typispreferred BOOLEAN PIECE "8",
-  typisdefined BOOLEAN PIECE "9",
-  typdelim VARCHAR(25) PIECE "10",
-  typrelid INTEGER PIECE "11",
-  typelem INTEGER PIECE "12",
-  typarray INTEGER PIECE "13",
-  typinput VARCHAR(25) PIECE "14",
-  typoutput VARCHAR(25) PIECE "15",
-  typreceive VARCHAR(25) PIECE "16",
-  typsend VARCHAR(25) PIECE "17",
-  typmodin VARCHAR(25) PIECE "18",
-  typmodout VARCHAR(25) PIECE "19",
-  typanalyze VARCHAR(25) PIECE "20",
-  typalign VARCHAR(25) PIECE "21",
-  typstorage VARCHAR(25) PIECE "22",
-  typnotnull BOOLEAN PIECE "23",
-  typbasetype INTEGER PIECE "24",
-  typtypmod INTEGER PIECE "25",
-  typndims INTEGER PIECE "26",
-  typcollation INTEGER PIECE "27",
-  typdefaultbin VARCHAR(25) PIECE "28",
-  typdefault VARCHAR(25) PIECE "29",
-  typacl VARCHAR(25) PIECE "30",
-  oid INTEGER PIECE "31"
-) GLOBAL "^%ydboctoocto(""tables"",""pg_catalog"",""pg_type"",keys(""typname""))";
 
 -- Note: Above GLOBAL is populated in `tests/fixtures/postgres-seed.zwr` using the following query
 --	select *,oid from pg_catalog.pg_type where typname in ('bool','int4','numeric','varchar','name');
@@ -164,7 +130,7 @@ CREATE TABLE information_schema.tables (
 ) GLOBAL "^%ydboctoocto(""tables"",""information_schema"",""tables"",keys(""oid"")";
 
 
-CREATE TABLE pg_catalog.pg_proc(
+CREATE TABLE pg_catalog.pg_proc (
   proname VARCHAR,
   pronamespace INTEGER,
   proowner INTEGER,
@@ -248,4 +214,5 @@ CREATE TABLE users (
   rolconnlimit INTEGER,
   rolpassword VARCHAR,
   rolvaliduntil VARCHAR
-)
+);
+

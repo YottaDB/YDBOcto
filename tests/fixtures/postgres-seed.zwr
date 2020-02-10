@@ -32,5 +32,3 @@ GT.M MUPIP EXTRACT
 ^%ydboctoocto("variables","server_version")="9.6.5"
 ^%ydboctoocto("variables","session_authorization")="postgres"
 ^%ydboctoocto("variables","standard_conforming_strings")="on"
-
-

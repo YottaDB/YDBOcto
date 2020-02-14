@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -53,5 +53,9 @@ setup() {
 
 @test "TGB07 : OCTO401 : COUNT(DISTINCT) usage issues `Assert failed` error" {
   run_query_in_octo_and_postgres_and_crosscheck_multiple_queries northwind TGB07.sql "remove_empty_line_at_tail" "trim_trailing_zeroes"
+}
+
+@test "TGB08 : OCTO456 : SIG-11 in Octo when using aggregate functions in sub-queries in WHERE clause that also uses OR operator" {
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TGB08.sql "remove_empty_line_at_tail"
 }
 

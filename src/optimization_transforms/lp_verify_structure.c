@@ -435,6 +435,9 @@ int lp_verify_structure_helper(LogicalPlan *plan, LogicalPlan **aggregate, LPAct
 			LogicalPlan	*prev_aggregate;
 
 			prev_aggregate = *aggregate;
+			assert(prev_aggregate != plan);	/* otherwise we would end up in an infinite loop later during
+							 * template file generation (see YDBOcto#456 for example).
+							 */
 			plan->extra_detail.lp_aggregate_function.next_aggregate = prev_aggregate;
 			prev_aggregate_cnt = ((NULL == prev_aggregate)
 						? 0

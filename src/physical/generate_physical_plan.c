@@ -103,11 +103,18 @@ PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlanOptions *opt
 	}
 	// Make sure the plan is in good shape. Overload this plan verify phase to also fix aggregate function counts.
 	assert(LP_INSERT == plan->type);
-	if (FALSE == lp_verify_structure(plan, &plan->extra_detail.lp_insert.first_aggregate)) {
-		/// TODO: replace this with a real error message
-		ERROR(ERR_PLAN_NOT_WELL_FORMED, "");
-		return NULL;
+	if (NULL == plan->extra_detail.lp_insert.first_aggregate)
+	{
+		if (FALSE == lp_verify_structure(plan, &plan->extra_detail.lp_insert.first_aggregate)) {
+			/// TODO: replace this with a real error message
+			ERROR(ERR_PLAN_NOT_WELL_FORMED, "");
+			return NULL;
+		}
 	}
+	/* Else this logical plan already had GROUP BY stuff filled in.
+	 * In that case, should not do `lp_verify_structure` again as GROUP BY related information has already been
+	 * filled in and a second invocation would create a linked list with a cycle (see YDBOcto#456 for example).
+	 */
 	OCTO_CMALLOC_STRUCT(out, PhysicalPlan);
 	out->parent_plan = options->parent;
 	out->lp_insert = plan;

@@ -195,7 +195,7 @@ int run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_descrip
 		ci_routine.length = routine_len;
 		// Call the select routine
 		// cursorId is typecast here since the YottaDB call-in interface does not yet support 64-bit parameters
-		status = ydb_ci("_ydboctoselect", (ydb_long_t)cursorId, &ci_filename, &ci_routine);
+		status = ydb_ci("_ydboctoselect", cursorId, &ci_filename, &ci_routine);
 		YDB_ERROR_CHECK(status);
 		if (YDB_OK != status) {
 			YDB_FREE_BUFFER(&cursor_buffer);

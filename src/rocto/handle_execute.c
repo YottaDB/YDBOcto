@@ -32,7 +32,7 @@ int handle_execute(Execute *execute, RoctoSession *session) {
 	ydb_buffer_t		routine_buffer, tag_buf, num_parms_buf, parm_buf;
 	ydb_buffer_t		schema_global, cursor_buffer;
 	ydb_string_t		ci_filename, ci_routine;
-	ydb_long_t		result, cursorId;
+	ydb_int64_t		result, cursorId;
 	boolean_t		canceled = FALSE;
 	long int		temp_long;
 	int32_t			status, done;
@@ -174,7 +174,7 @@ int handle_execute(Execute *execute, RoctoSession *session) {
 		ci_routine.length = routine_buffer.len_used;
 		// Run the target routine
 		// cursorId is typecast here since the YottaDB call-in interface does not yet support 64-bit parameters
-		status = ydb_ci("_ydboctoselect", (ydb_long_t)cursorId, &ci_filename, &ci_routine);
+		status = ydb_ci("_ydboctoselect", cursorId, &ci_filename, &ci_routine);
 		YDB_ERROR_CHECK(status);
 		if (YDB_OK != status) {
 			// Cleanup cursor parameters

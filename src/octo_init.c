@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -505,7 +505,7 @@ int octo_init(int argc, char **argv) {
 		}
 	}
 
-	ydb_long_t ci_return = 1;
+	ydb_int64_t ci_return = 1;
 	status = ydb_ci("_ydboctoInit", &ci_return);
 	YDB_ERROR_CHECK(status);
 	if (YDB_OK != status) {

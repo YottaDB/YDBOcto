@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -104,14 +104,20 @@ int qualify_query(SqlStatement *table_alias_stmt, SqlJoin *parent_join, SqlTable
 	result |= qualify_statement(select->where_expression, start_join, table_alias_stmt, 0, NULL);
 	// Qualify GROUP BY clause next
 	group_by_expression = select->group_by_expression;
-	if (NULL != group_by_expression) {
+	/* Note that while table_alias->aggregate_function_or_group_by_specified will mostly be FALSE at this point, it is
+	 * possible for it to be TRUE in some cases (see YDBOcto#457 for example query) if this `qualify_query()` invocation
+	 * corresponds to a sub-query in say the HAVING clause of an outer query. In that case, `qualify_query()` for the
+	 * sub-query would be invoked twice by the `qualify_query()` of the outer query (see `table_alias->do_group_by_checks`
+	 * `for` loop later in this function). If so, we can skip the GROUP BY expression processing for the sub-query the
+	 * second time. Hence the `&& !table_alias->aggregate_function_or_group_by_specified)` in the `if` check below.
+	 */
+	if ((NULL != group_by_expression) && !table_alias->aggregate_function_or_group_by_specified) {
 		SqlColumnListAlias	*start_cla, *cur_cla;
 		SqlTableAlias		*group_by_table_alias;
 		SqlColumnList		*col_list;
 		SqlColumnAlias		*column_alias;
 		int			group_by_column_count;
 
-		assert(!table_alias->aggregate_function_or_group_by_specified);
 		table_alias->aggregate_depth = AGGREGATE_DEPTH_GROUP_BY_CLAUSE;
 		assert(0 == table_alias->group_by_column_count);
 		result |= qualify_statement(group_by_expression, start_join, table_alias_stmt, 0, NULL);

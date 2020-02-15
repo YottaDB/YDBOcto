@@ -103,8 +103,7 @@ PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlanOptions *opt
 	}
 	// Make sure the plan is in good shape. Overload this plan verify phase to also fix aggregate function counts.
 	assert(LP_INSERT == plan->type);
-	if (NULL == plan->extra_detail.lp_insert.first_aggregate)
-	{
+	if (NULL == plan->extra_detail.lp_insert.first_aggregate) {
 		if (FALSE == lp_verify_structure(plan, &plan->extra_detail.lp_insert.first_aggregate)) {
 			/// TODO: replace this with a real error message
 			ERROR(ERR_PLAN_NOT_WELL_FORMED, "");

@@ -59,3 +59,7 @@ setup() {
   run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TGB08.sql "remove_empty_line_at_tail"
 }
 
+@test "TGB09 : OCTO457 : Assertion failed when GROUP BY is also used in a sub-query inside HAVING clause" {
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TGB09.sql "remove_empty_line_at_tail"
+}
+

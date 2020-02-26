@@ -259,6 +259,22 @@ $ydb_dist/mupip load $ydb_dist/plugin/octo/postgres-seed.zwr
 $ydb_dist/plugin/bin/octo -f $ydb_dist/plugin/octo/postgres-seed.sql
 ```
 
+#### Test with dummy data
+
+The `northwind` dummy data set can be found in the `tests/fixtures` directory of the YDBOcto repository. These are typically used for automated testing, but can also be used for manual testing.
+
+Each dummy data set consists of a `.zwr` file and a `.sql` file. The former contains the actual data to be stored in YottaDB, while the latter contains a schema that maps relational SQL structures (tables and columns) to the NoSQL data contained in YottaDB.
+
+Accordingly, to use this dummy data, both the data and DDL must be loaded. For example, to load these data sets from a temporary build directory within the YDBOcto repo (`YDBOcto/build`):
+
+```sh
+$ydb_dist/mupip load ../tests/fixtures/northwind.zwr
+$ydb_dist/plugin/bin/octo -f ../tests/fixtures/northwind.sql
+```
+
+Once loaded, these data sets may be queried with standard SQL queries.
+
+
 ## Additional Configuration
 
 Octo currently looks for a configuration file in the following directories:

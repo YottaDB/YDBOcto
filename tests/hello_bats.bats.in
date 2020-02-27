@@ -42,38 +42,3 @@ OCTO
   run cat output.txt
   [[ "$output" =~ "Lord|Nikon" ]]
 }
-
-@test "HB04 : Can load data into Postgres database/tables and communicate with the PostgreSQL server" {
-  echo "\d" > listdb.sql
-  for schema in names customers pastas easynames northwind sqllogic1 boolean
-  do
-	# If the database and/or table already exists, the `create_postgres_database` or `lost_postgres_fixture` function
-	# invocations might return with a non-zero exit status due to the database being created by a different userid
-	# (implying current userid does not have permissions to run CREATE DATABASE) OR due to `\set ON_ERROR_STOP on` usage
-	# in the .sql script used by the `load_postgres_fixture` function etc.. Do not consider these as real errors hence
-	# the use of the `run` command below to avoid bats from treating this as an error.
-	run create_postgres_database $schema
-	run load_postgres_fixture $schema postgres-$schema.sql
-	# Do minimal check of database contents after Postgres load
-	# First find list of table names in this database/schema
-	psql $schema -f listdb.sql | grep public | awk '{print $3}' >& tables_$schema.txt
-	declare -a tablearray
-	readarray -t tablearray < tables_$schema.txt
-	i=0
-	while (( ${#tablearray[@]} > i )); do
-		tablename=${tablearray[i++]}
-		inputfile="input_${schema}_${tablename}.sql"
-		outputfile="output_${schema}_${tablename}.txt"
-		echo "select * from $tablename;" > $inputfile
-		psql $schema -f $inputfile >& $outputfile
-		echo "#######################################################################" >> output.txt
-		echo "# Listing first 2 lines and last 2 lines of [SCHEMA : $schema] [TABLE : $tablename]" >> output.txt
-		echo "#######################################################################" >> output.txt
-		head -4 $outputfile >> output.txt 2>&1
-		echo "..." >> output.txt
-		echo "..." >> output.txt
-		tail -4 $outputfile >> output.txt 2>&1
-	done
-  done
-  verify_output HB04 output.txt
-}

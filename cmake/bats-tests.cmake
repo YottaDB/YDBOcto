@@ -37,6 +37,7 @@ endif()
 
 # These tests are only run in the full test suite, but omitted during installation testing
 if("${FULL_TEST_SUITE}" MATCHES "ON")
+	ADD_BATS_TEST(hello_psql)
 	ADD_BATS_TEST(test_where)
 	ADD_BATS_TEST(test_order_by)
 	ADD_BATS_TEST(test_order_by_where)

@@ -203,7 +203,6 @@ cp $ydb_dist/plugin/etc/octo.conf $ydb_dist/plugin/etc/octo.conf.bak
 Install Octo:
 
 ```sh
-source octo_env_set
 sudo -E make install
 ```
 

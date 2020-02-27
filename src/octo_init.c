@@ -476,7 +476,7 @@ int octo_init(int argc, char **argv) {
 	// Verify that the directory exists, or issue an error
 	dir = opendir(config->tmp_dir);
 	if (NULL == dir) {
-		FATAL(ERR_SYSCALL, "opendir (config.tmp_dir)", errno, strerror(errno));
+		FATAL(ERR_SYSCALL_WITH_ARG, "opendir (config.tmp_dir)", errno, strerror(errno), config->tmp_dir);
 	}
 	free(dir);
 

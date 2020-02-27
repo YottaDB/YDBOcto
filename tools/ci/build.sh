@@ -124,12 +124,6 @@ if [ $(wc -l differences.txt | awk '{print $1}') -gt 0 ]; then
 fi
 echo "OK."
 
-# Set Octo environment variables and install Octo
-if [[ $disable_install == "ON" ]]; then
-	source octo_test_env_set
-else
-	source octo_env_set
-fi
 make install
 
 if [ -z $USER ]; then
@@ -176,11 +170,6 @@ fi
 ./octo -f ../../tests/fixtures/names.sql
 $ydb_dist/mupip load ../../tests/fixtures/names.zwr
 popd
-
-# Skip slow tests on CentOS
-if [[ $(cat /etc/*-release | grep '[cC]ent[oO][sS]' | wc -l) -gt 0 ]]; then
-    sed -i '/^@test.*{/a skip' ./bats_tests/test_port_option.bats
-fi
 
 # Run the tests
 ${ctestCommand} -j `grep -c ^processor /proc/cpuinfo` || exit 1

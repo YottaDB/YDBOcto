@@ -147,6 +147,8 @@ CAT
 }
 
 @test "TERR012 : ydb_routines env var not set correctly" {
+	# TODO: Reenable this test when YDB issue #539 is resolved by removing the following line ("skip").
+	skip
 # This validates the behavior of $ydb_routines when not set correctly. In order to perform this test, we need to remove previously
 # generated object files in the current directory (which happens during fixture loading). Failure to remove these object files may
 # result in their reuse below, leading to erroneous output.

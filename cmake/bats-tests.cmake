@@ -32,7 +32,7 @@ ADD_BATS_TEST(test_select_columns)
 
 find_program(psql NAMES psql)
 if(psql)
-	  ADD_BATS_TEST(test_psql_authentication)
+	ADD_BATS_TEST(test_psql_authentication)
 endif()
 
 # These tests are only run in the full test suite, but omitted during installation testing
@@ -109,12 +109,12 @@ if("${FULL_TEST_SUITE}" MATCHES "ON")
 
 	find_program(go NAMES go)
 	if(go)
-	  ADD_BATS_TEST(test_psql_go_connection)
+		ADD_BATS_TEST(test_psql_go_connection)
 	endif()
 
 	find_program(java NAMES java)
 	if(java)
-	  ADD_BATS_TEST(test_jdbc_connection)
+		ADD_BATS_TEST(test_jdbc_connection)
 	endif()
 endif()
 

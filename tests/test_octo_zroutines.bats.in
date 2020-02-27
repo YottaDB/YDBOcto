@@ -19,7 +19,7 @@ setup() {
   load_fixture names.zwr
 }
 
-@test "try no octo_zroutines with directory as first element in \$zroutines" {
+@test "TOZ000 : try no octo_zroutines with directory as first element in \$zroutines" {
   mkdir dirA
   export ydb_routines="$(pwd)/dirA $ydb_routines"
   octo <<OCTO 2>&1 | tee output.txt
@@ -30,7 +30,7 @@ OCTO
   verify_output TOZ000 output.txt
 }
 
-@test "try no octo_zroutines with directory as second element in \$zroutines" {
+@test "TOZ001 : try no octo_zroutines with directory as second element in \$zroutines" {
   mkdir dirA
   if [[ $ydb_chset == "UTF-8" ]]; then
 	export ydb_routines="@PROJECT_BINARY_DIR@/src/utf8/_ydbocto.so $(pwd)/dirA $ydb_routines"
@@ -45,7 +45,7 @@ OCTO
   verify_output TOZ001 output.txt
 }
 
-@test "try no octo_zroutines with object(source) syntax in \$zroutines" {
+@test "TOZ002 : try no octo_zroutines with object(source) syntax in \$zroutines" {
   mkdir dirA dirB
   export ydb_routines="$(pwd)/dirA($(pwd)/dirB) $ydb_routines"
   octo <<OCTO 2>&1 | tee output.txt
@@ -58,7 +58,7 @@ OCTO
   verify_output TOZ002 output.txt
 }
 
-@test "try no octo_zroutines with no valid directories in \$zroutines" {
+@test "TOZ003 : try no octo_zroutines with no valid directories in \$zroutines" {
   export ydb_routines="@PROJECT_BINARY_DIR@/src/_ydbocto.so"
   octo <<OCTO 2>&1 | tee output.txt
 select * from names limit 1;
@@ -66,7 +66,7 @@ OCTO
   verify_output TOZ003 output.txt
 }
 
-@test "try with octo_zroutines set and in \$zroutines" {
+@test "TOZ004 : try with octo_zroutines set and in \$zroutines" {
 	mkdir dirA
 	cat >>octo.conf <<OCTO
 octo_zroutines = "$(pwd)/dirA"
@@ -90,7 +90,7 @@ OCTO
 	diff expected_ydb_routines.txt actual_ydb_routines.txt
 }
 
-@test "try with octo_zroutines set but not in \$zroutines" {
+@test "TOZ005 : try with octo_zroutines set but not in \$zroutines" {
   mkdir dirA
   cat >>octo.conf <<OCTO
 octo_zroutines = "$(pwd)/dirA"
@@ -103,7 +103,7 @@ OCTO
   verify_output TOZ005 output.txt
 }
 
-@test "use .*() as first element in \$zroutines" {
+@test "TOZ006 : use .*() as first element in \$zroutines" {
   mkdir dirA
   export ydb_routines=".*() $(pwd)/dirA $ydb_routines"
   octo <<OCTO 2>&1 | tee output.txt
@@ -114,15 +114,7 @@ OCTO
   verify_output TOZ006 output.txt
 }
 
-@test "use a non-existent directory as first element in \$zroutines" {
-  export ydb_routines="$(pwd)/dirA $ydb_routines"
-  octo <<OCTO 2>&1 | tee output.txt
-select * from names limit 1;
-OCTO
-  grep "YottaDB error: 150374634,(SimpleAPI),%YDB-E-ZROSYNTAX" output.txt
-}
-
-@test "use a non-existent directory as first element in octo_zroutines" {
+@test "TOZ007 : use a non-existent directory as first element in octo_zroutines" {
   cat >>octo.conf <<OCTO
 octo_zroutines = "$(pwd)/dirA"
 OCTO
@@ -133,7 +125,7 @@ OCTO
   verify_output TOZ007 output.txt
 }
 
-@test "use a regular file as value of octo_zroutines" {
+@test "TOZ008 : use a regular file as value of octo_zroutines" {
   cat >>octo.conf <<OCTO
 octo_zroutines = "$(pwd)/fileA"
 OCTO
@@ -145,7 +137,7 @@ OCTO
   verify_output TOZ008 output.txt
 }
 
-@test "use object(source) syntax as value of octo_zroutines" {
+@test "TOZ009 : use object(source) syntax as value of octo_zroutines" {
   mkdir dirA dirB
   cat >> octo.conf <<OCTO
 octo_zroutines = "$(pwd)/dirA($(pwd)/dirB)"
@@ -161,7 +153,7 @@ OCTO
 }
 
 
-@test "set \$zroutines entirely though octo_zroutines" {
+@test "TOZ010 : set \$zroutines entirely though octo_zroutines" {
   cat >>octo.conf <<OCTO
 octo_zroutines = "$ydb_routines"
 OCTO
@@ -171,4 +163,63 @@ OCTO
 select * from names limit 1;
 OCTO
   verify_output TOZ010 output.txt
+}
+
+@test "TOZ011 : use a non-existent directory as first element in \$zroutines" {
+  export ydb_routines="$(pwd)/dirA $ydb_routines"
+  octo <<OCTO 2>&1 | tee output.txt
+select * from names limit 1;
+OCTO
+  grep "YottaDB error: 150374634,(SimpleAPI),%YDB-E-ZROSYNTAX" output.txt
+}
+
+@test "TOZ012 : use .*() as the only element in \$zroutines" {
+  mkdir dirA
+  export ydb_routines=".*()"
+  octo <<OCTO 2>&1 | tee output.txt
+select * from names limit 1;
+OCTO
+  verify_output TOZ012 output.txt
+}
+
+@test "TOZ013 : \$zroutines with length > 512 bytes" {
+  cat >>octo.conf <<OCTO
+octo_zroutines = "$ydb_routines"
+OCTO
+  while [[ $(echo "$ydb_routines" | wc -c) -lt 512 ]]; do
+	export ydb_routines="$ydb_routines .()"
+  done
+  octo <<OCTO 2>&1 | tee output.txt
+select * from names limit 1;
+OCTO
+  verify_output TOZ013 output.txt
+}
+
+@test "TOZ014 : \$zroutines with length == 512 bytes" {
+	cat >>octo.conf <<OCTO
+octo_zroutines = "$ydb_routines"
+OCTO
+	# Add paths of 'a's and 'b's to make length of $ydb_routines + octo_zroutines equal to ZRO_INIT_ALLOC (512) without
+	# triggering a $ZROUTINES syntax error
+	octo_zroutines_len=$(echo -n "$ydb_routines" | wc -c)
+	# target_len offsets:
+	#	-6 to account for the first ".(./)" and " " in ydb_routines used to create valid $ZROUTINES path
+	#	-5 to account for the second ".(./)" in ydb_routines used to create valid $ZROUTINES path
+	#	-1 to account for ' ' allocated in octo_init in the failing case, i.e.:
+	#		`zroutines_buffer.len_alloc = zroutines_len - zroutines_from_file_len - 1;`
+	target_len=$(( (512 - $octo_zroutines_len) - 6 - 5 - 1 ))
+	path_len=$(( $target_len / 2 ))
+	path1=$(eval "printf '%.sa' {1..$path_len}")
+	if [[ $(( $target_len % 2 )) -ne 0 ]]; then
+		path2=$(eval "printf '%.sb' {1..$(( $path_len + 1))}")
+	else
+		path2=$(eval "printf '%.sb' {1..$path_len}")
+	fi
+	mkdir $path1 $path2
+	ydb_routines=".(./$path1) .(./$path2)"
+
+	octo <<OCTO 2>&1 | tee output.txt
+select * from names limit 1;
+OCTO
+	verify_output TOZ014 output.txt
 }

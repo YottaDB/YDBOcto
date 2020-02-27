@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -13,7 +13,7 @@
 #ifndef GIT_HASHES_H
 #define GIT_HASHES_H
 
-#define OCTO_SQL_GIT_COMMIT_VERSION "@GIT_HEAD_SHA1@"
-#define OCTO_SQL_GIT_IS_DIRTY "@GIT_IS_DIRTY@"
+#define YDBOCTO_GIT_COMMIT_VERSION "@GIT_HEAD_SHA1@"
+#define YDBOCTO_GIT_IS_DIRTY "@GIT_IS_DIRTY@"
 
 #endif

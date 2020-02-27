@@ -248,7 +248,7 @@ start_rocto() {
 	rocto_port=$(find_open_port $1)
 	rocto $verbosity -p $rocto_port $2 &> rocto.log &
 	echo $! > rocto.pid
-	while [[ "$(grep -c "rocto started" rocto.log)" == "0" ]]; do
+	while [[ ! -e rocto.log || "$(grep -c "rocto started" rocto.log)" == "0" ]]; do
 		sleep .1s
 	done
 	echo $rocto_port

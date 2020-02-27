@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -53,7 +53,7 @@ OCTO
   # Avoid calling the find_open_port function for this test case
   rocto -vv &> rocto.log &
   echo $! > rocto.pid
-  while [[ "$(grep -c "rocto started" rocto.log)" == "0" ]]; do
+  while [[ ! -e rocto.log || "$(grep -c "rocto started" rocto.log)" == "0" ]]; do
     sleep .1s
   done
   [[ "$(grep -c "rocto started on port $test_port" rocto.log)" == "1" ]]

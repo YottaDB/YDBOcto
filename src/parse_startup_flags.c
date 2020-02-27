@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -141,9 +141,9 @@ int parse_startup_flags(int argc, char **argv) {
 			} else {
 				printf("Octo");
 			}
-			printf(" version %d.%d.%d\n",OCTO_SQL_MAJOR_VERSION, OCTO_SQL_MINOR_VERSION, OCTO_SQL_PATCH_VERSION);
-			printf("Git commit: %s\n", OCTO_SQL_GIT_COMMIT_VERSION);
-			printf("Uncommitted changes: %s\n", OCTO_SQL_GIT_IS_DIRTY);
+			printf(" version %d.%d.%d\n",YDBOCTO_MAJOR_VERSION, YDBOCTO_MINOR_VERSION, YDBOCTO_PATCH_VERSION);
+			printf("Git commit: %s\n", YDBOCTO_GIT_COMMIT_VERSION);
+			printf("Uncommitted changes: %s\n", YDBOCTO_GIT_IS_DIRTY);
 			exit(0);
 			break;
 		default:

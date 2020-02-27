@@ -23,7 +23,7 @@ typedef void *yyscan_t;
 #include "double_list.h"
 
 // Set maximum M routine length - must be in sync with MAX_MIDENT_LEN in YDB/sr_port/mdef.h
-#define MAX_ROUTINE_LEN 31
+#define MAX_ROUTINE_LEN YDB_MAX_IDENT
 
 // Set maximum command tag length for use in extended query protocol, including null terminator
 // This value should be large enough to hold the longest possible first keyword of a SQL query, i.e. "DEALLOCATE"

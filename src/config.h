@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -31,9 +31,16 @@ typedef struct RoctoConfig {
 	int use_dns;
 } RoctoConfig;
 
+// Contains YottaDB global and local variable names used internally by Octo.
+// Each buffer includes an extra byte for the null terminator.
 typedef struct {
-	char *schema, *session, *cursor, *octo, *xref;
-	char *raw_octo, *raw_xref;
+	char schema[YDB_MAX_IDENT+1];
+	char session[YDB_MAX_IDENT+1];
+	char cursor[YDB_MAX_IDENT+1];
+	char octo[YDB_MAX_IDENT+1];
+	char xref[YDB_MAX_IDENT+1];
+	char *raw_octo;
+	char *raw_xref;
 } GlobalNames;
 
 typedef struct OctoConfig {

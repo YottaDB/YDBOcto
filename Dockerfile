@@ -18,7 +18,7 @@ RUN apt-get install -y -qq \
         libreadline-dev \
         libconfig-dev
 
-ADD ./build/Octo-*.tar.gz /tmp
+ADD ./build/YDBOcto-*.tar.gz /tmp
 ADD ./tools/entrypoint.sh /
 RUN cd /tmp/Octo-*-Linux && . /opt/yottadb/current/ydb_env_set && yes
 

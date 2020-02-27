@@ -564,6 +564,12 @@ if (DISABLE_INSTALL MATCHES "OFF")
 
 	install(TARGETS _ydbocto
 		DESTINATION ${CMAKE_INSTALL_PREFIX}/o)
+
+	install(FILES ${PROJECT_BINARY_DIR}/postgres-seed.sql
+		DESTINATION ${CMAKE_INSTALL_PREFIX}/octo)
+	install(FILES ${PROJECT_BINARY_DIR}/postgres-seed.zwr
+		DESTINATION ${CMAKE_INSTALL_PREFIX}/octo)
+
 	# This line can be used when all supported platforms use CMake version 3.12 or above
 	# add_compile_definitions(DISABLE_INSTALL=0)
 	add_definitions(-DDISABLE_INSTALL=0)

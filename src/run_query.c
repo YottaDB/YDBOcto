@@ -370,6 +370,8 @@ int run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_descrip
 		cursorId = atol(cursor_buffer.buf_addr);
 		(*callback)(result, cursorId, parms, NULL, send_row_description);
 		break;
+	case index_STATEMENT:
+		break;
 	default:
 		WARNING(ERR_FEATURE_NOT_IMPLEMENTED, input_buffer_combined);
 		break;

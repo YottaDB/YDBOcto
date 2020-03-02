@@ -102,6 +102,7 @@ extern void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, int *plan
 %token IDENTIFIER_START
 %token ILIKE
 %token IN
+%token INDEX
 %token INNER
 %token INSERT
 %token INT
@@ -1169,6 +1170,7 @@ sql_schema_manipulation_statement
 
 sql_schema_definition_statement
   : table_definition { $$ = $table_definition; parse_context->command_tag = table_STATEMENT; }
+  | index_definition { $$ = $index_definition; }
   ;
 
 /// TODO: not complete
@@ -1451,6 +1453,20 @@ unique_specifications
 constraint_attributes
   : /* Empty */
   ;
+
+// TODO: Implement indexes. For now, create a dummy struct to ignore them in run_query.
+index_definition
+	: INDEX index_name literal_value {
+		WARNING(ERR_FEATURE_NOT_IMPLEMENTED, "INDEX statements");
+		SQL_STATEMENT($$, index_STATEMENT);
+		MALLOC_STATEMENT($$, index, SqlIndex);
+		memset(($$)->v.index, 0, sizeof(SqlIndex));
+		}
+	;
+
+index_name
+	: column_name { $$ = $index_name; }
+	;
 
 qualified_name
   : qualified_identifier { $$ = $qualified_identifier; }

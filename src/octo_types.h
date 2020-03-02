@@ -127,7 +127,8 @@ typedef enum SqlStatementType {
 	show_STATEMENT,
 	no_data_STATEMENT,
 	sort_spec_list_STATEMENT,
-	invalid_STATEMENT
+	invalid_STATEMENT,
+	index_STATEMENT,
 } SqlStatementType;
 
 // The order of these must be kept in sync with `LPActionType` in `src/optimization_transforms/lp_action_type.hd`
@@ -422,6 +423,12 @@ typedef struct SqlOptionalKeyword
 	dqcreate(SqlOptionalKeyword);
 } SqlOptionalKeyword;
 
+// Stores custom index information specified in INDEX statements.
+typedef struct SqlIndex
+{
+	struct SqlStatement *indexName;
+} SqlIndex;
+
 /**
  * Effectively provides a list of tables that may or may not be joined
  */
@@ -638,6 +645,7 @@ typedef struct SqlStatement{
 		struct SqlColumn *column; // Note singular versus plural
 		struct SqlJoin *join;
 		struct SqlTable *table;
+		struct SqlIndex *index;
 		struct SqlOptionalKeyword *constraint;
 		struct SqlOptionalKeyword *keyword;
 		struct SqlColumnListAlias *column_list_alias;

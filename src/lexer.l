@@ -118,6 +118,7 @@ int copied_so_far;
 (?i:IDENTIFIER_START) { return IDENTIFIER_START; }
 (?i:ILIKE) { return ILIKE; }
 (?i:IN) { return IN; }
+(?i:INDEX) { return INDEX; }
 (?i:INNER) { return INNER; }
 (?i:INSERT) { return INSERT; }
 (?i:INT) { return INT; }

@@ -113,22 +113,32 @@
 }
 
 // Convert a 16-bit integer to a string and store in a ydb_buffer_t
-#define OCTO_INT16_TO_BUFFER(INT, BUFFERP)									\
+#define OCTO_INT16_TO_BUFFER(INT16, BUFFERP)									\
 {														\
-	(BUFFERP)->len_used = snprintf((BUFFERP)->buf_addr, INT16_TO_STRING_MAX, "%d", INT);			\
-	assert(sizeof(INT) == sizeof(int16_t));									\
+	(BUFFERP)->len_used = snprintf((BUFFERP)->buf_addr, INT16_TO_STRING_MAX, "%d", INT16);			\
+	assert(sizeof(INT16) == sizeof(int16_t));									\
 	assert((BUFFERP)->len_alloc >= (BUFFERP)->len_used);							\
 	assert(INT16_TO_STRING_MAX >= (BUFFERP)->len_used);	/* The result should never be truncated. */	\
 	(BUFFERP)->buf_addr[(BUFFERP)->len_used] = '\0';	/* Often reuse this string, so add null. */	\
 }
 
 // Convert a 32-bit integer to a string and store in a ydb_buffer_t
-#define OCTO_INT32_TO_BUFFER(INT, BUFFERP)									\
+#define OCTO_INT32_TO_BUFFER(INT32, BUFFERP)									\
 {														\
-	(BUFFERP)->len_used = snprintf((BUFFERP)->buf_addr, INT32_TO_STRING_MAX, "%d", INT);			\
-	assert(sizeof(INT) == sizeof(int32_t));									\
+	(BUFFERP)->len_used = snprintf((BUFFERP)->buf_addr, INT32_TO_STRING_MAX, "%d", INT32);			\
+	assert(sizeof(INT32) == sizeof(int32_t));									\
 	assert((BUFFERP)->len_alloc >= (BUFFERP)->len_used);							\
 	assert(INT32_TO_STRING_MAX >= (BUFFERP)->len_used);	/* The result should never be truncated. */	\
+	(BUFFERP)->buf_addr[(BUFFERP)->len_used] = '\0';	/* Often reuse this string, so add null. */	\
+}
+
+// Convert a 64-bit integer to a string and store in a ydb_buffer_t
+#define OCTO_INT64_TO_BUFFER(INT64, BUFFERP)									\
+{														\
+	(BUFFERP)->len_used = snprintf((BUFFERP)->buf_addr, INT64_TO_STRING_MAX, "%lld", INT64);		\
+	assert(sizeof(INT64) == sizeof(int64_t));									\
+	assert((BUFFERP)->len_alloc >= (BUFFERP)->len_used);							\
+	assert(INT64_TO_STRING_MAX >= (BUFFERP)->len_used);	/* The result should never be truncated. */	\
 	(BUFFERP)->buf_addr[(BUFFERP)->len_used] = '\0';	/* Often reuse this string, so add null. */	\
 }
 

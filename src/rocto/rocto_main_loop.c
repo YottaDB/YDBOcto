@@ -36,7 +36,8 @@ int rocto_main_loop(RoctoSession *session) {
 	fd_set		rfds;
 	struct timeval	select_timeout;
 	char		buffer[MAX_STR_CONST];
-	int		result;
+	int32_t		result;
+	ydb_long_t	cursorId = -1;		// Initialize cursorId to -1 to signal there is no cursor in reuse
 	boolean_t	send_ready_for_query = TRUE;
 	boolean_t	extended_query_error = FALSE;
 
@@ -137,9 +138,12 @@ int rocto_main_loop(RoctoSession *session) {
 				extended_query_error = TRUE;
 				break;
 			}
-			result = handle_execute(execute, session);
+			// Pass cursorId as a pointer so we can reuse the same cursor for
+			// subsequent Execute requests in the PortalSuspended case, when
+			// result rows remain to be sent.
+			result = handle_execute(execute, session, &cursorId);
 			free(execute);
-			if (1 == result) {
+			if (1 == result) {	// Catch failure from send_message, if any
 				extended_query_error = TRUE;
 				break;
 			}
@@ -147,6 +151,9 @@ int rocto_main_loop(RoctoSession *session) {
 		case PSQL_Sync:
 			// After a Sync we can send ReadyForQuery again, as the extended query exchange is complete
 			// No read is necessary, as Sync messages only contain a type field, which has already been read
+			// The cursor should also be reset now, as Sync concludes an Extended Query sequence.
+			// Any unsent rows on the cursor are thus discarded.
+			cursorId = -1;
 			send_ready_for_query = TRUE;
 			extended_query_error = FALSE;
 			break;

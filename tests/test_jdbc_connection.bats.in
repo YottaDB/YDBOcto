@@ -111,3 +111,13 @@ teardown() {
   grep "Memory doubled" rocto.log >> output.txt
   verify_output $testname output.txt psql
 }
+
+# TODO: This test is insufficient for fully testing PortalSuspended message handling,
+# since the JDBC driver doesn't support it. Accordingly, when a method is identified
+# for testing this portion of the PostgreSQL wire protocol, it should be added.
+@test "TJC011 : Row limiting with Extended Query" {
+  load_fixture customers.sql
+  load_fixture customers.zwr
+  run_java TJC011 $test_port &> output.txt
+  verify_output TJC011 output.txt
+}

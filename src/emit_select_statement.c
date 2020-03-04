@@ -36,14 +36,15 @@ PhysicalPlan *emit_select_statement(SqlStatement *stmt, char *plan_filename)
 	LogicalPlan		*plan, *cur_plan, *column_alias;
 	PhysicalPlan		*pplan;
 	SqlValue		*value;
-	char			output_key[MAX_STR_CONST], column_id_buffer[MAX_STR_CONST];
-	int			output_key_id, status = 0;
+	char			output_key[INT32_TO_STRING_MAX];
+	int32_t			output_key_id, status = 0;
+	int16_t			num_columns = 0;
 	ydb_buffer_t		*plan_meta, value_buffer;
 	SetOperType		*set_oper;
 	PhysicalPlanOptions	options;
 
 	TRACE(ERR_ENTERING_FUNCTION, "emit_select_statement");
-	memset(output_key, 0, MAX_STR_CONST);
+	memset(output_key, 0, INT32_TO_STRING_MAX);
 
 	assert(stmt && ((table_alias_STATEMENT == stmt->type) || (set_operation_STATEMENT == stmt->type)));
 	plan = generate_logical_plan(stmt, &config->plan_id);
@@ -81,16 +82,22 @@ PhysicalPlan *emit_select_statement(SqlStatement *stmt, char *plan_filename)
 		|| (LP_SET_EXCEPT == set_oper_type) || (LP_SET_EXCEPT_ALL == set_oper_type)
 		|| (LP_SET_INTERSECT == set_oper_type) || (LP_SET_INTERSECT_ALL == set_oper_type));
 	output_key_id = (set_oper_type ? set_oper->output_id : pplan->outputKey->unique_id);
-	// convert output key to string
-	snprintf(output_key, MAX_STR_CONST, "%d", output_key_id);
-	set(output_key, config->global_names.octo, 3, "plan_metadata", plan_filename, "output_key");
+	// Prepare metadata buffers
 	plan_meta = make_buffers(config->global_names.octo, 5, "plan_metadata", plan_filename,
-			"output_columns", "", "");
-	plan_meta[4].len_alloc = MAX_STR_CONST;
-	plan_meta[4].buf_addr = column_id_buffer;
+			"output_key", "", "");
+	YDB_MALLOC_BUFFER(&value_buffer, INT32_TO_STRING_MAX);
+	OCTO_INT32_TO_BUFFER(output_key_id, &value_buffer);
+	// Store output key for the given plan
+	status = ydb_set_s(&plan_meta[0], 3, &plan_meta[1], &value_buffer);
+	YDB_FREE_BUFFER(&value_buffer);
+	if (YDB_OK != status) {
+		free(plan_meta);
+		return NULL;
+	}
+	YDB_LITERAL_TO_BUFFER("output_columns", &plan_meta[3]);
+	YDB_MALLOC_BUFFER(&plan_meta[4], INT16_TO_STRING_MAX);		// Column ID
 
 	// Note down column data types
-	int num_columns = 0;
 	cur_plan = pplan->projection;
 	do {
 		assert(cur_plan->type == LP_COLUMN_LIST);
@@ -100,7 +107,7 @@ PhysicalPlan *emit_select_statement(SqlStatement *stmt, char *plan_filename)
 		UNPACK_SQL_STATEMENT(value, column_alias->v.lp_column_list_alias.column_list_alias->alias, value);
 		// This assumes the SqlValue will outlive this RowDescription
 		num_columns++;
-		plan_meta[4].len_used = snprintf(column_id_buffer, MAX_STR_CONST, "%d", num_columns);
+		OCTO_INT16_TO_BUFFER(num_columns, &plan_meta[4]);
 
 		YDB_LITERAL_TO_BUFFER("name", &plan_meta[5]);
 		value_buffer.buf_addr = value->v.string_literal;
@@ -160,7 +167,19 @@ PhysicalPlan *emit_select_statement(SqlStatement *stmt, char *plan_filename)
 			break;
 		cur_plan = cur_plan->v.lp_default.operand[1];
 	} while (NULL != cur_plan);
+	if (YDB_OK != status) {
+		YDB_FREE_BUFFER(&plan_meta[4]);
+		free(plan_meta);
+		return NULL;
+	}
+	// Note down number of output columns for use in RowDescriptions
+	YDB_MALLOC_BUFFER(&value_buffer, INT16_TO_STRING_MAX);
+	OCTO_INT16_TO_BUFFER(num_columns, &value_buffer);
+	status = ydb_set_s(plan_meta, 3, &plan_meta[1], &value_buffer);
+	YDB_FREE_BUFFER(&value_buffer);
+	YDB_FREE_BUFFER(&plan_meta[4]);
 	free(plan_meta);
+	YDB_ERROR_CHECK(status);
 	if (YDB_OK != status)
 		return NULL;
 	// Create a table from the last physical table which reads from the output values

@@ -26,6 +26,8 @@
 #include "ydb_tls_interface.h"
 #endif
 
+#define PORTAL_SUSPENDED -2
+
 typedef struct {
 	int32_t connection_fd;
 	int32_t sending_message;
@@ -46,6 +48,7 @@ typedef struct {
 	int32_t data_sent;
 	int32_t max_data_to_send;
 	int32_t rows_sent;
+	char *portal_name;
 	char *command_type;
 } QueryResponseParms;
 
@@ -119,12 +122,14 @@ int32_t handle_bind(Bind *bind, RoctoSession *session);
 int32_t handle_cancel_request(CancelRequest *cancel_request);
 int32_t handle_query(Query *query, RoctoSession *session);
 int32_t handle_parse(Parse *parse, RoctoSession *session);
-int32_t handle_execute(Execute *execute, RoctoSession *session);
+int32_t handle_execute(Execute *execute, RoctoSession *session, ydb_long_t *cursorId);
 int32_t handle_describe(Describe *describe, RoctoSession *session);
 int32_t handle_password_message(PasswordMessage *password_message, StartupMessage *startup_message, char *salt);
 
 // This isn't a handle function in-of itself, but a helper to handle the results of a query
 int handle_query_response(SqlStatement *stmt, int32_t cursor_id, void *_parms, char *plan_name, boolean_t send_row_description);
+// Returns result rows from plan_name stored on cursor_id
+int send_result_rows(int32_t cursor_id, void *_parms, char *plan_name);
 
 // Helper to indicate that there is no more input
 int no_more();

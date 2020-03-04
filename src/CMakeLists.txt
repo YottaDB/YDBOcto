@@ -289,6 +289,7 @@ add_library(librocto OBJECT
   rocto/get_plan_row_description.c
   rocto/get_user_column_value.c
   rocto/handle_query_response.c
+  rocto/send_result_rows.c
   #  rocto/read_authentication_md5_password.c
   rocto/read_authentication_ok.c
   rocto/read_bind_complete.c

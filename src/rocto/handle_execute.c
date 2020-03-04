@@ -23,8 +23,9 @@
 #include "rocto.h"
 #include "helpers.h"
 
-int handle_execute(Execute *execute, RoctoSession *session) {
-	CommandComplete		*response;
+int32_t handle_execute(Execute *execute, RoctoSession *session, ydb_long_t *cursorId) {
+	CommandComplete		*command_complete;
+	PortalSuspended		*portal_suspended;
 	QueryResponseParms	parms;
 	EmptyQueryResponse	*empty;
 	SqlStatement		stmt;
@@ -32,15 +33,21 @@ int handle_execute(Execute *execute, RoctoSession *session) {
 	ydb_buffer_t		routine_buffer, tag_buf, num_parms_buf, parm_buf;
 	ydb_buffer_t		schema_global, cursor_buffer;
 	ydb_string_t		ci_filename, ci_routine;
-	ydb_long_t		result, cursorId;
+	ydb_long_t		result;
 	boolean_t		canceled = FALSE;
 	long int		temp_long;
-	int32_t			status, done;
+	int32_t			status, done, tmp_status;
 	int16_t			num_parms, cur_parm, cur_parm_temp;
 	char			filename[OCTO_PATH_MAX];
 	SqlStatementType	command_tag;
 
 	TRACE(ERR_ENTERING_FUNCTION, "handle_execute");
+
+	// Prepare callback parameters
+	memset(&parms, 0, sizeof(QueryResponseParms));
+	parms.session = session;
+	parms.portal_name = execute->source;
+	parms.max_data_to_send = execute->rows_to_return;
 
 	// Set subscripts to access routine on portal: ^session(id, "bound", <name>, "routine"
 	portal_subs = make_buffers(config->global_names.session, 4, session->session_id->buf_addr, "bound", execute->source, "routine");
@@ -53,6 +60,7 @@ int handle_execute(Execute *execute, RoctoSession *session) {
 		return 1;
 	}
 	routine_buffer.buf_addr[routine_buffer.len_used] = '\0';
+	GET_FULL_PATH_OF_GENERATED_M_FILE(filename, &routine_buffer.buf_addr[1]);	// Updates "filename" to be full path
 
 	// Retrieve command tag from portal
 	YDB_MALLOC_BUFFER(&portal_subs[4], MAX_TAG_LEN);
@@ -84,8 +92,9 @@ int handle_execute(Execute *execute, RoctoSession *session) {
 		return 1;
 	}
 
-	// Skip plan execution for SET and SHOW statements
-	if (0 != strncmp(routine_buffer.buf_addr, "none", MAX_ROUTINE_LEN)) {
+	// Skip plan execution for SET and SHOW statements,
+	// OR when the portal is suspended (rows remain to return on an existing cursor)
+	if ((0 != strncmp(routine_buffer.buf_addr, "none", MAX_ROUTINE_LEN)) && (0 > *cursorId)) {
 		// Fetch number of parameters
 		free(portal_subs);
 		portal_subs = make_buffers(config->global_names.session, 6, session->session_id->buf_addr, "bound", execute->source,
@@ -114,7 +123,7 @@ int handle_execute(Execute *execute, RoctoSession *session) {
 		// Create a new cursor
 		YDB_MALLOC_BUFFER(&cursor_buffer, MAX_STR_CONST);
 		YDB_STRING_TO_BUFFER(config->global_names.schema, &schema_global);
-		cursorId = create_cursor(&schema_global, &cursor_buffer);
+		*cursorId = create_cursor(&schema_global, &cursor_buffer);
 
 		cursor_subs = make_buffers(config->global_names.cursor, 3, cursor_buffer.buf_addr, "parameters", "");
 		YDB_MALLOC_BUFFER(&cursor_subs[3], INT16_TO_STRING_MAX);
@@ -162,19 +171,16 @@ int handle_execute(Execute *execute, RoctoSession *session) {
 		YDB_FREE_BUFFER(&parm_buf);
 		free(portal_subs);
 
-		// Prepare callback parameters and call-in interface to execute query
-		memset(&parms, 0, sizeof(QueryResponseParms));
-		parms.session = session;
-		parms.max_data_to_send = execute->rows_to_return;
+		// Prepare call-in interface to execute query
 		stmt.type = select_STATEMENT;		// Only need this for the type to let the callee know we are running a SELECT statement
-		GET_FULL_PATH_OF_GENERATED_M_FILE(filename, &routine_buffer.buf_addr[1]);	/* updates "filename" to be full path */
 		ci_filename.address = filename;
 		ci_filename.length = strlen(filename);
 		ci_routine.address = routine_buffer.buf_addr;
 		ci_routine.length = routine_buffer.len_used;
 		// Run the target routine
 		// cursorId is typecast here since the YottaDB call-in interface does not yet support 64-bit parameters
-		status = ydb_ci("_ydboctoselect", cursorId, &ci_filename, &ci_routine);
+		status = ydb_ci("_ydboctoselect", *cursorId, &ci_filename, &ci_routine);
+		YDB_FREE_BUFFER(&routine_buffer);
 		YDB_ERROR_CHECK(status);
 		if (YDB_OK != status) {
 			// Cleanup cursor parameters
@@ -182,60 +188,63 @@ int handle_execute(Execute *execute, RoctoSession *session) {
 			YDB_ERROR_CHECK(status);
 			YDB_FREE_BUFFER(&cursor_subs[3]);
 			YDB_FREE_BUFFER(&cursor_buffer);
-			YDB_FREE_BUFFER(&routine_buffer);
 			free(cursor_subs);
 			return 1;
 		}
 		// Check for cancel requests
 		if (config->is_rocto) {
-			canceled = is_query_canceled(&handle_query_response, cursorId, (void*)&parms, filename, TRUE);
+			canceled = is_query_canceled(&handle_query_response, *cursorId, (void*)&parms, filename, TRUE);
 			if (canceled) {
 				// Cleanup cursor parameters
 				status = ydb_delete_s(&cursor_subs[0], 1, &cursor_subs[1], YDB_DEL_TREE);
 				YDB_ERROR_CHECK(status);
 				YDB_FREE_BUFFER(&cursor_subs[3]);
 				YDB_FREE_BUFFER(&cursor_buffer);
-				YDB_FREE_BUFFER(&routine_buffer);
 				free(cursor_subs);
 				return -1;
 			}
 		}
 		// Send back data rows, but pass FALSE to omit row descriptions as they are not expected in response to Execute messages
-		status = handle_query_response(&stmt, cursorId, (void*)&parms, filename, FALSE);
-		if (0 != status) {
+		status = handle_query_response(&stmt, *cursorId, (void*)&parms, filename, FALSE);
+		tmp_status = status;	// Store status so it doesn't get overwritten by result of ydb_delete_s
+		if (PORTAL_SUSPENDED != status) {	// Don't need to retain the cursor for later Execute messages (PortalSuspended case)
 			// Cleanup cursor parameters
 			status = ydb_delete_s(&cursor_subs[0], 1, &cursor_subs[1], YDB_DEL_TREE);
 			YDB_ERROR_CHECK(status);
 			YDB_FREE_BUFFER(&cursor_subs[3]);
 			YDB_FREE_BUFFER(&cursor_buffer);
-			YDB_FREE_BUFFER(&routine_buffer);
 			free(cursor_subs);
-			return 1;
+			if (YDB_OK != status)
+				return 1;
+			else
+				status = tmp_status;
 		}
-		// Cleanup cursor parameters
-		status = ydb_delete_s(&cursor_subs[0], 1, &cursor_subs[1], YDB_DEL_TREE);
-		YDB_ERROR_CHECK(status);
-		YDB_FREE_BUFFER(&cursor_subs[3]);
-		YDB_FREE_BUFFER(&cursor_buffer);
-		free(cursor_subs);
-		if (YDB_OK != status) {
-			YDB_FREE_BUFFER(&routine_buffer);
-			return 1;
-		}
+	} else if (0 <= *cursorId) {
+		// There is an active cursor and a PortalSuspended message was previously issued,
+		// So rows remain to be sent
+		status = send_result_rows(*cursorId, &parms, filename);
 	} else {
 		parms.data_sent = FALSE;
 		free(portal_subs);
 	}
-	YDB_FREE_BUFFER(&routine_buffer);
 
-	// TODO: we need to limit the returns and provide a PortalSuspend if a limit on rows was requested per issue #255
-	// For now, we always return all rows
-
-	response = make_command_complete(command_tag, parms.rows_sent);
-	if (NULL != response) {
-		send_message(session, (BaseMessage*)(&response->type));
-		free(response);
+	if (0 == status) {		// No errors, all rows sent
+		command_complete = make_command_complete(command_tag, parms.rows_sent);
+		if (NULL != command_complete) {
+			send_message(session, (BaseMessage*)(&command_complete->type));
+			free(command_complete);
+		}
+		*cursorId = -1;		// Reset the cursor
+	} else if (PORTAL_SUSPENDED == status) {	// Not all rows sent, save cursor and issue PortalSuspended
+		portal_suspended = make_portal_suspended();
+		assert(NULL != portal_suspended);
+		send_message(session, (BaseMessage*)(&portal_suspended->type));
+		free(portal_suspended);
+	} else {			// Error occurred
+		*cursorId = -1;		// Reset the cursor
+		return 1;
 	}
+
 	if (!parms.data_sent) {
 		empty = make_empty_query_response();
 		send_message(session, (BaseMessage*)(&empty->type));

@@ -196,7 +196,7 @@ int handle_bind(Bind *bind, RoctoSession *session) {
 	if ((ERANGE != errno) && (0 <= num_parms_long) && (INT16_MAX >= num_parms_long)) {
 		num_bind_parms = (int16_t)num_parms_long;
 	} else {
-		ERROR(ERR_LIBCALL, "strtol")
+		ERROR(ERR_LIBCALL, "strtol");
 		status = ydb_delete_s(&portal_subs[0], 3, &portal_subs[1], YDB_DEL_TREE);
 		YDB_ERROR_CHECK(status);
 		YDB_FREE_BUFFER(&num_parms_buf);

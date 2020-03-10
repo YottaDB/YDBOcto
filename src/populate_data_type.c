@@ -57,6 +57,21 @@
 	}															\
 }
 
+// Coverts ambiguous SqlValueTypes to determinate types.
+// Specifically:
+//	1. Uses DDL-specified types for prepared statement parameter types if not specified by client
+//	2. Converts INTEGER_LITERALs to NUMERIC_LITERALs, as they are equivalent internally within Octo
+#define CAST_AMBIGUOUS_TYPES(TYPE1, TYPE2)									\
+	if ((PARAMETER_VALUE == TYPE1) || (NUL_VALUE == TYPE1)) {						\
+		MAP_TYPE_TO_PARAMETER_VALUE(TYPE1, TYPE2);							\
+	} else if ((PARAMETER_VALUE == TYPE2) || (NUL_VALUE == TYPE2)) {					\
+		MAP_TYPE_TO_PARAMETER_VALUE(TYPE2, TYPE1);							\
+	} else if ((INTEGER_LITERAL == TYPE1) && (NUMERIC_LITERAL == TYPE2)){					\
+		TYPE1 = TYPE2;											\
+	} else if ((INTEGER_LITERAL == TYPE2) && (NUMERIC_LITERAL == TYPE1)){					\
+		TYPE2 = TYPE1;											\
+	}
+
 SqlValueType get_sqlvaluetype_from_psql_type(PSQL_TypeOid type) {
 	switch(type) {
 	case PSQL_TypeOid_int4:
@@ -179,17 +194,44 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_
 		UNPACK_SQL_STATEMENT(cas, v, cas);
 		// We expect type to get overriden here; only the last type matters
 		result |= populate_data_type(cas->value, type, parse_context);
-		result |= populate_data_type(cas->branches, type, parse_context);
-		result |= populate_data_type(cas->optional_else, type, parse_context);
+		result |= populate_data_type(cas->branches, &child_type1, parse_context);
+		if (NULL != cas->optional_else)	{	// No need to validate types if ELSE not present
+			result |= populate_data_type(cas->optional_else, &child_type2, parse_context);
+			CAST_AMBIGUOUS_TYPES(child_type1, child_type2);
+			// SQL NULL values are acceptable in CASE branches
+			if (child_type1 != child_type2) {
+				ERROR(ERR_CASE_BRANCH_TYPE_MISMATCH, get_user_visible_type_string(child_type1),
+								get_user_visible_type_string(child_type2));
+				yyerror(NULL, NULL, &cas->branches->v.cas_branch->value, NULL, NULL, NULL);
+				yyerror(NULL, NULL, &cas->optional_else, NULL, NULL, NULL);
+				result = 1;
+			}
+		}
+		*type = child_type1;
 		break;
 	case cas_branch_STATEMENT:
 		UNPACK_SQL_STATEMENT(cas_branch, v, cas_branch);
 		cur_branch = cas_branch;
+		result |= populate_data_type(cur_branch->value, &child_type1, parse_context);
 		do {
-			result |= populate_data_type(cur_branch->condition, type, parse_context); // TODO: we should check type here to make sure all branches have the same type
-			result |= populate_data_type(cur_branch->value, type, parse_context);
+			result |= populate_data_type(cur_branch->condition, type, parse_context);
+			if (cur_branch != cur_branch->next) {
+				result |= populate_data_type(cur_branch->next->value, &child_type2, parse_context);
+				// SQL NULL values are acceptable in CASE branches
+				CAST_AMBIGUOUS_TYPES(child_type1, child_type2);
+				if (child_type1 != child_type2) {
+					ERROR(ERR_CASE_BRANCH_TYPE_MISMATCH, get_user_visible_type_string(child_type1),
+									get_user_visible_type_string(child_type2));
+					yyerror(NULL, NULL, &cur_branch->value, NULL, NULL, NULL);
+					yyerror(NULL, NULL, &cur_branch->next->value, NULL, NULL, NULL);
+					result = 1;
+					break;
+				}
+				child_type1 = child_type2;
+			}
 			cur_branch = cur_branch->next;
 		} while (cur_branch != cas_branch);
+		*type = child_type1;
 		break;
 	case select_STATEMENT:
 		UNPACK_SQL_STATEMENT(select, v, select);
@@ -401,15 +443,7 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_
 			// SqlStatement (?)
 			result |= populate_data_type(binary->operands[1], &child_type2, parse_context);
 		}
-		if ((PARAMETER_VALUE == child_type1) || (NUL_VALUE == child_type1)) {
-			MAP_TYPE_TO_PARAMETER_VALUE(child_type1, child_type2);
-		} else if ((PARAMETER_VALUE == child_type2) || (NUL_VALUE == child_type2)) {
-			MAP_TYPE_TO_PARAMETER_VALUE(child_type2, child_type1);
-		} else if ((INTEGER_LITERAL == child_type1) && (NUMERIC_LITERAL == child_type2)){
-			child_type1 = child_type2;
-		} else if ((INTEGER_LITERAL == child_type2) && (NUMERIC_LITERAL == child_type1)){
-			child_type2 = child_type1;
-		}
+		CAST_AMBIGUOUS_TYPES(child_type1, child_type2);
 		switch(binary->operation) {
 		case ADDITION:
 		case SUBTRACTION:

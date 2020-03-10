@@ -68,6 +68,7 @@ ERROR_DEF(ERR_MISSING_KEY, "Missing key %d in table %s; max key was %d", PSQL_Co
 ERROR_DEF(ERR_INVALID_TYPE, "Type %s does not exist", PSQL_Code_Undefined_Object)
 ERROR_DEF(ERR_TABLE_DEFINITION_TOO_LONG, "Table definition for %s too long; max size is %d, table length is %d", PSQL_Code_Invalid_Table_Definition)
 ERROR_DEF(ERR_TYPE_MISMATCH, "Type mismatch: left %s, right %s", PSQL_Code_Datatype_Mismatch)
+ERROR_DEF(ERR_CASE_BRANCH_TYPE_MISMATCH, "CASE branch type mismatch: left %s, right %s", PSQL_Code_Datatype_Mismatch)
 ERROR_DEF(ERR_SETOPER_NUMCOLS_MISMATCH, "Each %s query must have same number of columns", PSQL_Code_Datatype_Mismatch)
 ERROR_DEF(ERR_SETOPER_TYPE_MISMATCH, "%s types %s and %s cannot be matched", PSQL_Code_Syntax_Error)
 ERROR_DEF(ERR_INVALID_INPUT_SYNTAX, "Invalid input syntax : Expecting type NUMERIC or INTEGER : Actual type %s", PSQL_Invalid_Text_Representation)

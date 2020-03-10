@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -20,16 +20,50 @@ setup() {
 }
 
 @test "TCS01 : #285 : Test that ELSE keyword in CASE statements works (used to return empty line for else case)" {
-  octo <<OCTO 2>&1 | tee output.txt
-  select case when id < 3 then "true" else "false" end from names;
-OCTO
+  load_fixture TCS01.sql subtest novv
   verify_output TCS01 output.txt
 }
 
 @test "TCS02 : #285 : Test that ELSE keyword in CASE statements works (used to return id column for else case)" {
-  octo <<OCTO 2>&1 | tee output.txt
-  select case id when 3 then "true" else "false" end from names;
-OCTO
+  load_fixture TCS02.sql subtest novv
   verify_output TCS02 output.txt
 }
 
+@test "TCS03 : #451 : Ensure consistent typing across WHEN and ELSE in CASE statements" {
+  load_fixture TCS03.sql subtest novv
+  verify_output TCS03 output.txt
+}
+
+@test "TCS04 : #451 : Ensure consistent typing across multiple WHENs and ELSE in CASE statements, with mismatch in WHENs" {
+  load_fixture TCS04.sql subtest novv
+  verify_output TCS04 output.txt
+}
+
+@test "TCS05 : #451 : Ensure consistent typing across WHEN cases in CASE statements" {
+  load_fixture TCS05.sql subtest novv
+  verify_output TCS05 output.txt
+}
+
+@test "TCS06 : #451 : Ensure consistent typing across multiple WHEN cases in CASE statements" {
+  load_fixture TCS06.sql subtest novv
+  verify_output TCS06 output.txt
+}
+
+@test "TCS07 : #451 : Ensure consistent typing across multiple WHENs and ELSE in CASE statements, with no mismatch in WHENs" {
+  load_fixture TCS07.sql subtest novv
+  verify_output TCS07 output.txt
+}
+
+@test "TCS08 : #451 : Ensure NULL values are accepted with other types in CASE branches (compatibility with SquirrelSQL)" {
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TCS08.sql "remove_empty_line_at_tail" "trim_trailing_zeroes"
+}
+
+@test "TCS09 : #451 : Ensure type errors still issued when NULL values are accepted in CASE branches" {
+  load_fixture TCS09.sql subtest novv
+  verify_output TCS09 output.txt
+}
+
+@test "TCS10 : #451 : Ensure type error detection in nested CASE statements" {
+  load_fixture TCS10.sql subtest novv
+  verify_output TCS10 output.txt
+}

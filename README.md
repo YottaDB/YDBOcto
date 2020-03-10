@@ -194,10 +194,10 @@ cmake -DSTRING_BUFFER_LENGTH=600000 -DCMAKE_INSTALL_PREFIX=$ydb_dist/plugin ..
 
 8. Install Octo
 
-You may want to back up your global `octo.conf` located in `$ydb_dist/plugin/etc/octo.conf` before installing Octo as it may be overwritten. To backup your global `octo.conf`:
+You may want to back up your global `octo.conf` located in `$ydb_dist/plugin/octo/octo.conf` before installing Octo as it may be overwritten. To backup your global `octo.conf`:
 
 ```sh
-cp $ydb_dist/plugin/etc/octo.conf $ydb_dist/plugin/etc/octo.conf.bak
+cp $ydb_dist/plugin/octo/octo.conf $ydb_dist/plugin/octo/octo.conf.bak
 ```
 
 Install Octo:
@@ -209,7 +209,7 @@ sudo -E make install
 You will want to review if there are any changes needed to your backed up global `octo.conf` before restoring it. To restore the backed up global `octo.conf`:
 
 ```sh
-cp $ydb_dist/plugin/etc/octo.conf.bak $ydb_dist/plugin/etc/octo.conf
+cp $ydb_dist/plugin/octo/octo.conf.bak $ydb_dist/plugin/octo/octo.conf
 ```
 ### Configure Octo
 
@@ -233,26 +233,9 @@ GDE> exit
 $ mupip create
 ```
 
-#### Install PostgreSQL seed data
+#### Setup environment variables
 
-```sh
-$ydb_dist/mupip load $ydb_dist/plugin/etc/postgres-seed.zwr
-$ydb_dist/plugin/bin/octo -f $ydb_dist/plugin/etc/postgres-seed.sql
-```
-
-## Additional Configuration
-
-Octo currently looks for a configuration file in the following directories:
-
-* $ydb_dist/plugin/etc/octo.conf
-* ~/octo.conf
-* ./octo.conf
-
-If the same setting exists in more than one configuration file the setting in the later file (according to the list above) will prevail. An example config file can be found in `$ydb_dist/plugin/etc/octo.conf`.
-
-### Environment variables
-
-The following environment variables must be set:
+The following environment variables must be set for Octo to operate properly:
 
 * ydb_dist
 * ydb_gbldir
@@ -260,20 +243,37 @@ The following environment variables must be set:
 * ydb_ci
 * ydb_xc_ydbposix
 
-The environment variables `ydb_dist`, `ydb_gbldir`, and `ydb_routines` can initially be set by souring `ydb_env_set` in your YottaDB installation directory. Additional modifications to ydb_routines may be needed due to configuration in `octo.conf` described later in this manual.
+The environment variables `ydb_dist`, `ydb_gbldir`, and `ydb_routines` can initially be set by sourcing `ydb_env_set` in your YottaDB installation directory. Additional modifications to ydb_routines may be needed due to configuration in `octo.conf` described later in this manual.
 
 Example setting of the environment variables (assuming default paths):
 
 ```sh
 source /usr/local/lib/yottadb/r1.28/ydb_env_set
-export ydb_routines=". $ydb_routines"
-export ydb_ci=$ydb_dist/plugin/ydbocto.ci
+export ydb_routines="$ydb_dist/plugin/octo/o/_ydbocto.so $ydb_routines"
+export ydb_ci=$ydb_dist/plugin/octo/ydbocto.ci
 export ydb_xc_ydbposix=$ydb_dist/plugin/ydbposix.xc
 ```
 
+#### Install PostgreSQL seed data
+
+```sh
+$ydb_dist/mupip load $ydb_dist/plugin/octo/postgres-seed.zwr
+$ydb_dist/plugin/bin/octo -f $ydb_dist/plugin/octo/postgres-seed.sql
+```
+
+## Additional Configuration
+
+Octo currently looks for a configuration file in the following directories:
+
+* $ydb_dist/plugin/octo/octo.conf
+* ~/octo.conf
+* ./octo.conf
+
+If the same setting exists in more than one configuration file the setting in the later file (according to the list above) will prevail. An example config file can be found in `$ydb_dist/plugin/octo/octo.conf`.
+
 ### Routines
 
-Octo requires that `$ydb_dist/plugin/o/_ydbocto.so`, `$ydb_dist/plugin/o/_ydbposix.so`, and the path configured for `routine_cache` setting in `octo.conf` be part of `$ydb_routines` - both for running the `octo` and `rocto` excutables and added to your normal environment setup scripts as YottaDB triggers are used to maintain cross references for Octo.
+Octo requires that `$ydb_dist/plugin/o/_ydbocto.so` and `$ydb_dist/plugin/o/_ydbposix.so` be included in `$ydb_routines`. This is necessary not only for running the `octo` and `rocto` excutables, but also for correctly updating and maintaining the YottaDB triggers that are used to maintain cross references for Octo. Accordingly, these paths should be added to `$ydb_routines` in your normal environment setup scripts.
 
 ### Globals
 
@@ -324,7 +324,7 @@ export ydb_crypt_config=/path/to/octo.conf
 
 #### Update Octo configuration file
 
-The $ydb_dist/plugin/etc/octo.conf contains an outline of the minimum configuration options needed to enable TLS/SSL. The key items are:
+The $ydb_dist/plugin/octo/octo.conf contains an outline of the minimum configuration options needed to enable TLS/SSL. The key items are:
 
 1. In the "rocto" section, "ssl_on" must be set to "true" (no quotes needed in the conf).
 2. A "tls" section must be present and generally conform to the requirements specified for the [TLS plugin itself](https://docs.yottadb.com/AdminOpsGuide/tls.html). Other notes:
@@ -352,7 +352,7 @@ A docker container is available in this repository and on [docker hub](https://h
     * `o` directory which contains the compiled M code
     * `r` directory which contains the source M code
   * a `r` directory which contains the source M code
-* The octo default configuration is used in `/opt/yottadb/current/plugin/etc/octo.conf`
+* The octo default configuration is used in `/opt/yottadb/current/plugin/octo/octo.conf`
 
 ### Starting the docker container
 

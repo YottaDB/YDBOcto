@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -23,6 +23,8 @@
 #include <arpa/inet.h>
 
 #include "rocto.h"
+#include "octo.h"
+#include "octo_types.h"
 #include "message_formats.h"
 
 static void test_null_input(void **state) {
@@ -30,7 +32,7 @@ static void test_null_input(void **state) {
 	DataRow *received_response = NULL;
 
 	int32_t expected_length = sizeof(uint32_t) + sizeof(int16_t);
-	response = make_data_row(NULL, 0);
+	response = make_data_row(NULL, 0, NULL);
 	received_response = read_data_row((BaseMessage*)&response->type);
 
 	// Standard checks
@@ -52,7 +54,7 @@ static void test_zero_parms(void **state) {
 	// DataRow.length + DataRow.num_columns + DataRowParms (each parm: length + string value)
 	int32_t expected_length = sizeof(uint32_t) + sizeof(int16_t) + (sizeof(uint32_t)) * num_parms;
 
-	response = make_data_row(parms, num_parms);
+	response = make_data_row(parms, num_parms, NULL);
 	received_response = read_data_row((BaseMessage*)&response->type);
 
 	// Standard checks
@@ -65,7 +67,7 @@ static void test_zero_parms(void **state) {
 	free_data_row(received_response);
 }
 
-static void test_one_parms(void **state) {
+static void test_one_text_parm(void **state) {
 	DataRow *response = NULL;
 	DataRow *received_response = NULL;
 	int32_t num_parms = 1, i = 0;
@@ -80,7 +82,7 @@ static void test_one_parms(void **state) {
 	// DataRow.length + DataRow.num_columns + DataRowParms (each parm: length + string value)
 	int32_t expected_length = sizeof(uint32_t) + sizeof(int16_t) + (sizeof(uint32_t)) * num_parms + parm_length;
 
-	response = make_data_row(parms, num_parms);
+	response = make_data_row(parms, num_parms, NULL);
 	received_response = read_data_row((BaseMessage*)&response->type);
 
 	// Standard checks
@@ -96,7 +98,7 @@ static void test_one_parms(void **state) {
 	free(parms[0].value);
 }
 
-static void test_two_parms(void **state) {
+static void test_two_text_parms(void **state) {
 	DataRow *response = NULL;
 	DataRow *received_response = NULL;
 	int32_t num_parms = 2;
@@ -119,7 +121,7 @@ static void test_two_parms(void **state) {
 	int32_t expected_length = sizeof(uint32_t) + sizeof(int16_t)
 		+ (sizeof(uint32_t)) * num_parms + parm1_length + parm2_length;
 
-	response = make_data_row(parms, num_parms);
+	response = make_data_row(parms, num_parms, NULL);
 	received_response = read_data_row((BaseMessage*)&response->type);
 
 	// Standard checks
@@ -138,7 +140,7 @@ static void test_two_parms(void **state) {
 	free(parms[1].value);
 }
 
-static void test_three_parms(void **state) {
+static void test_three_text_parms(void **state) {
 	DataRow *response = NULL;
 	DataRow *received_response = NULL;
 	int32_t num_parms = 3;
@@ -167,7 +169,7 @@ static void test_three_parms(void **state) {
 	int32_t expected_length = sizeof(uint32_t) + sizeof(int16_t)
 		+ (sizeof(uint32_t)) * num_parms + parm1_length + parm2_length + parm3_length;
 
-	response = make_data_row(parms, num_parms);
+	response = make_data_row(parms, num_parms, NULL);
 	received_response = read_data_row((BaseMessage*)&response->type);
 
 	// Standard checks
@@ -189,13 +191,44 @@ static void test_three_parms(void **state) {
 	free(parms[2].value);
 }
 
+static void test_one_binary_parm(void **state) {
+	DataRow *response = NULL;
+	DataRow *received_response = NULL;
+	int32_t num_parms = 1, i = 0;
+	DataRowParm parms[num_parms];
+
+	memset(parms, 0, sizeof(DataRowParm) * num_parms);
+	char *parm_value = "12";
+	int32_t parm_length = strlen(parm_value);
+	parms[0].length = PSQL_TypeSize_int4;
+	parms[0].value = (char*)malloc(parms[0].length);
+	strncpy(parms[0].value, parm_value, parm_length);
+	// DataRow.length + DataRow.num_columns + DataRowParms (each parm: length + string value)
+	int32_t expected_length = sizeof(uint32_t) + sizeof(int16_t) + (sizeof(uint32_t)) * num_parms + parms[0].length;
+
+	response = make_data_row(parms, num_parms, NULL);
+	received_response = read_data_row((BaseMessage*)&response->type);
+
+	// Standard checks
+	assert_non_null(received_response);
+	assert_non_null(received_response->parms);
+	assert_int_equal(received_response->length, expected_length);
+	assert_int_equal(received_response->num_columns, num_parms);
+	assert_int_equal(received_response->parms[0].length, parm_length);
+	assert_int_equal(ntohl(*(int32_t *)received_response->parms[0].value), 12);
+
+	free(response);
+	free_data_row(received_response);
+	free(parms[0].value);
+}
+
 int main(void) {
 	const struct CMUnitTest tests[] = {
 		cmocka_unit_test(test_null_input),
 		cmocka_unit_test(test_zero_parms),
-		cmocka_unit_test(test_one_parms),
-		cmocka_unit_test(test_two_parms),
-		cmocka_unit_test(test_three_parms)
+		cmocka_unit_test(test_one_text_parm),
+		cmocka_unit_test(test_two_text_parms),
+		cmocka_unit_test(test_three_text_parms)
 	};
 	return cmocka_run_group_tests(tests, NULL, NULL);
 }

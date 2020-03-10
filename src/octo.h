@@ -200,6 +200,13 @@
 		YYABORT;									\
 }
 
+// Initialize a stack-allocated ydb_buffer_t from a stack-allocated string (char *)
+#define OCTO_SET_BUFFER(BUFFER, STRING)					\
+{									\
+	BUFFER.buf_addr = STRING;					\
+	BUFFER.len_alloc = sizeof(STRING);				\
+}
+
 /* Below are special values used as part of the `aggregate_depth` parameter passed to `qualify_statement()`
  * to indicate we are qualifying a FROM clause, WHERE clause, GROUP BY clause etc.. These need to be negative as 0 is the
  * first valid depth used in the normal case (e.g. when qualifying the SELECT column list i.e. select->select_list) etc.
@@ -232,6 +239,9 @@ int readline_get_more();
 SqlStatement *parse_line(ParseContext *parse_context);
 
 int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_context);
+SqlValueType get_sqlvaluetype_from_psql_type(PSQL_TypeOid type);
+PSQL_TypeOid get_psql_type_from_sqlvaluetype(SqlValueType type);
+PSQL_TypeSize get_type_size_from_psql_type(PSQL_TypeOid type);
 SqlTable *find_table(const char *table_name);
 int drop_table_from_local_cache(ydb_buffer_t *table_name_buffer);
 SqlColumn *find_column(char *column_name, SqlTable *table);

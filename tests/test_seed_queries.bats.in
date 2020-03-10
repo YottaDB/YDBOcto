@@ -69,3 +69,8 @@ setup() {
   load_fixture TSQ009.sql subtest
   verify_output TSQ009 output.txt
 }
+
+@test "TSQ010 : verify typlen field is correct in pg_catalog.pg_type" {
+  load_fixture TSQ010.sql subtest novv
+  verify_output TSQ010 output.txt
+}

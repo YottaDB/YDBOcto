@@ -178,6 +178,7 @@ ERROR_DEF(ERR_ROCTO_TOO_MANY_VALUES, "%s: too many %s", PSQL_Code_Numeric_Value_
 ERROR_DEF(ERR_ROCTO_QUERY_TOO_LONG, "Query length exceeded maximum size", PSQL_Code_Protocol_Violation)
 ERROR_DEF(ERR_ROCTO_BIND_TO_UNKNOWN_QUERY, "Bind to unknown query attempted", PSQL_Code_Protocol_Violation)
 ERROR_DEF(ERR_ROCTO_INVALID_NUMBER_BIND_PARAMETERS, "%s: invalid number of parameters: expected %d got %d)", PSQL_Code_Numeric_Value_Out_Of_Range)
+ERROR_DEF(ERR_ROCTO_INVALID_NUMBER_COLUMN_FORMAT_CODES, "%s: invalid number of column format codes specified for portal %s: expected %d got %d)", PSQL_Code_Protocol_Violation)
 
 // End of errors
 ERROR_END(CUSTOM_ERROR, "Error not found", PSQL_Code_Internal_Error)

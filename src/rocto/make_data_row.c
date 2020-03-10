@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -14,18 +14,31 @@
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
+#include <errno.h>
 
 // Used to convert between network and host endian
 #include <arpa/inet.h>
 
+#include "octo.h"
+#include "octo_types.h"
 #include "message_formats.h"
+#include "rocto.h"
 
+#define COPY_TEXT_PARM(DATA_PTR, PARM)					\
+{									\
+	*((uint32_t*)DATA_PTR) = htonl(PARM.length);			\
+	DATA_PTR += sizeof(uint32_t);					\
+	memcpy(c, PARM.value, PARM.length);				\
+	DATA_PTR += PARM.length;					\
+}
 
-DataRow *make_data_row(DataRowParm *parms, int16_t num_parms) {
-	DataRow *ret;
-	uint32_t length;
-	char *c;
-	int32_t i;
+DataRow *make_data_row(DataRowParm *parms, int16_t num_parms, int32_t *col_data_types) {
+	uint32_t	length;
+	int32_t		i;
+	DataRow		*ret;
+	long		int4_value;
+	char		*c;
+	char		int_buffer[INT32_TO_STRING_MAX];
 
 	// Get the length we need to malloc
 	length = 0;
@@ -48,10 +61,37 @@ DataRow *make_data_row(DataRowParm *parms, int16_t num_parms) {
 		*((uint32_t*)c) = htonl(0);
 	} else {
 		for(i = 0; i < num_parms; i++) {
-			*((uint32_t*)c) = htonl(parms[i].length);
-			c += sizeof(uint32_t);
-			memcpy(c, parms[i].value, parms[i].length);
-			c += parms[i].length;
+			if (TEXT_FORMAT == parms[i].format) {	// Text format
+				COPY_TEXT_PARM(c, parms[i]);
+			} else {			// Binary format
+				assert(NULL != col_data_types);
+				switch (col_data_types[i]) {
+				case PSQL_TypeOid_int4:
+					*((uint32_t*)c) = htonl(parms[i].length);
+					c += sizeof(uint32_t);
+					// Convert parameter value to null-terminated string for conversion into an integer
+					memcpy(int_buffer, parms[i].value, parms[i].length);
+					int_buffer[parms[i].length] = '\0';
+					int4_value = strtol(int_buffer, NULL, 10);
+					// PostgreSQL protocol specifies a 16-bit integer to store the total number of columns
+					// Details linked in message_formats.h
+					if ((ERANGE != errno) && (INT32_MIN <= int4_value) && (INT32_MAX >= int4_value)) {
+						*((int32_t*)c) = htonl((int32_t)int4_value);
+						c += sizeof(int32_t);
+					} else {
+						ERROR(ERR_LIBCALL_WITH_ARG, "strtol", int_buffer);
+						free(ret);
+						return NULL;
+					}
+					break;
+				case PSQL_TypeOid_numeric:
+				case PSQL_TypeOid_unknown:
+				case PSQL_TypeOid_varchar:
+				default:
+					COPY_TEXT_PARM(c, parms[i]);
+					break;
+				}
+			}
 		}
 	}
 

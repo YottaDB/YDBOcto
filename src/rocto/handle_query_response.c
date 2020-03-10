@@ -102,7 +102,8 @@ int handle_query_response(SqlStatement *stmt, int32_t cursor_id, void *_parms, c
 			assert(0 < data_row_parms_alloc_len);
 			data_row_parms[0].value = value_buffer.buf_addr;
 			data_row_parms[0].length = strlen(value_buffer.buf_addr);
-			data_row = make_data_row(data_row_parms, 1);
+			data_row_parms[0].format = TEXT_FORMAT;
+			data_row = make_data_row(data_row_parms, 1, NULL);
 			send_message(parms->session, (BaseMessage*)(&data_row->type));
 			free(data_row);
 			free(data_row_parms);

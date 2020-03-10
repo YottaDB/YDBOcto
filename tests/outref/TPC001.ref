@@ -21,6 +21,6 @@ ERROR:  Error parsing statement: drop table t1;
 ERROR:  
  ID | FIRSTNAME | LASTNAME 
 ----+-----------+----------
- 0  | Zero      | Cool
+  0 | Zero      | Cool
 (1 row)
 

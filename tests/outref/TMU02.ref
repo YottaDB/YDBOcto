@@ -13,6 +13,12 @@
 %ydboctosession=1
 %ydboctosession=1
 %ydboctosession=1
+%ydboctosession(1,"bound","","col_formats")=0
+%ydboctosession(1,"bound","","col_formats")=0
+%ydboctosession(1,"bound","","col_formats")=0
+%ydboctosession(1,"bound","","col_formats",1)=0
+%ydboctosession(1,"bound","","col_formats",1)=0
+%ydboctosession(1,"bound","","col_formats",1)=0
 %ydboctosession(1,"bound","","parameters")=0
 %ydboctosession(1,"bound","","parameters")=0
 %ydboctosession(1,"bound","","parameters")=0

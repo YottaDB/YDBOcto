@@ -300,8 +300,8 @@ LP_SET_OPERATION:
 bool|16
 int4|23
 name|19
-numeric|1043
-unknown|
-varchar|1700
+numeric|1700
+unknown|705
+varchar|1043
 [ INFO] PATH:LINENUM DATE TIME : Parsing done for SQL command []
 

@@ -100,6 +100,9 @@ SqlValueType get_sqlvaluetype_from_psql_type(PSQL_TypeOid type) {
 
 PSQL_TypeOid get_psql_type_from_sqlvaluetype(SqlValueType type) {
 	switch(type) {
+	case BOOLEAN_VALUE:
+		return PSQL_TypeOid_bool;
+		break;
 	case INTEGER_LITERAL:
 		return PSQL_TypeOid_int4;
 		break;
@@ -108,6 +111,9 @@ PSQL_TypeOid get_psql_type_from_sqlvaluetype(SqlValueType type) {
 		break;
 	case STRING_LITERAL:
 		return PSQL_TypeOid_varchar;
+		break;
+	case NUL_VALUE:
+		return PSQL_TypeOid_unknown;
 		break;
 	default:
 		assert(FALSE);

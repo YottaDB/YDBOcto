@@ -29,6 +29,11 @@ typedef void *yyscan_t;
 // This value should be large enough to hold the longest possible first keyword of a SQL query, i.e. "DEALLOCATE"
 #define MAX_TAG_LEN 11
 
+// Per https://www.postgresql.org/docs/11/catalog-pg-type.html, for type length values of -1 and -2:
+//	"-1 indicates a 'varlena' type (one that has a length word), -2 indicates a null-terminated C string."
+#define TYPLEN_VARLENA		-1
+#define TYPLEN_CSTRING		-2
+
 // Allocates ONE structure of type TYPE
 #define	OCTO_CMALLOC_STRUCT(RET, TYPE)								\
 {												\
@@ -271,11 +276,25 @@ typedef enum SqlAggregateType {
 // query against an existing PostgreSQL database:
 //	select typname,oid from pg_catalog.pg_type
 typedef enum {
+	PSQL_TypeOid_bool = 16,
 	PSQL_TypeOid_int4 = 23,
-	PSQL_TypeOid_numeric = 1700,
-	PSQL_TypeOid_varchar = 1043,
 	PSQL_TypeOid_unknown = 705,
+	PSQL_TypeOid_varchar = 1043,
+	PSQL_TypeOid_numeric = 1700,
 } PSQL_TypeOid;
+
+// Values for this enum are derived from the PostgreSQL catalog and
+// only include types Octo currently supports.
+// Typename to type size mappings can be acquired by running the following
+// query against an existing PostgreSQL database:
+//	select oid,typname,typlen from pg_catalog.pg_type
+typedef enum {
+	PSQL_TypeSize_unknown = TYPLEN_CSTRING,
+	PSQL_TypeSize_numeric = TYPLEN_VARLENA,
+	PSQL_TypeSize_varchar = TYPLEN_VARLENA,
+	PSQL_TypeSize_bool = 1,
+	PSQL_TypeSize_int4 = 4,
+} PSQL_TypeSize;
 
 
 #define YYLTYPE yyltype

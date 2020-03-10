@@ -1,0 +1,9 @@
+
+select oid,typname,typlen from pg_catalog.pg_type;
+16|bool|1
+23|int4|4
+19|name|64
+1700|numeric|-1
+705|unknown|-2
+1043|varchar|-1
+

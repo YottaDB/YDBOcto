@@ -27,13 +27,18 @@ int handle_describe(Describe *describe, RoctoSession *session) {
 	RowDescription		*description;
 	NoData			*no_data;
 	ydb_buffer_t		routine_buf, filename_buf;
-	ydb_buffer_t		*describe_subs;
+	ydb_buffer_t		describe_subs[5];
 	uint32_t		found = 0;
-	int32_t			done = FALSE, status, routine_len = MAX_ROUTINE_LEN;
+	int32_t			status;
 	char			filename[OCTO_PATH_MAX];
+	char			routine_str[MAX_ROUTINE_LEN + 1];		// Null terminator
 
 	// Fetch the named SQL query from the session, either "prepared" or "bound" depending on Describe message type:
 	// ^session(id, "prepared", <name>) or ^session(id, "bound", <name>)
+	YDB_STRING_TO_BUFFER(config->global_names.session, &describe_subs[0])
+	YDB_STRING_TO_BUFFER(session->session_id->buf_addr, &describe_subs[1])
+	YDB_STRING_TO_BUFFER(describe->name, &describe_subs[3])
+	YDB_STRING_TO_BUFFER("routine", &describe_subs[4])
 	if ('S' == describe->item) {
 		// Client is seeking a ParameterDescription, make and send one
 		LOG_LOCAL_ONLY(TRACE, INFO_ROCTO_PARAMETER_DESCRIPTION_SENT, describe->name);
@@ -42,56 +47,48 @@ int handle_describe(Describe *describe, RoctoSession *session) {
 			return 1;
 		send_message(session, (BaseMessage*)(&parm_description->type));
 		free(parm_description);
-		describe_subs = make_buffers(config->global_names.session, 4, session->session_id->buf_addr, "prepared", describe->name, "routine");
+		YDB_STRING_TO_BUFFER("prepared", &describe_subs[2])
 	} else {
-		describe_subs = make_buffers(config->global_names.session, 4, session->session_id->buf_addr, "bound", describe->name, "routine");
+		YDB_STRING_TO_BUFFER("bound", &describe_subs[2])
 	}
 
 	// Check if portal exists
 	status = ydb_data_s(&describe_subs[0], 3, &describe_subs[1], &found);
 	YDB_ERROR_CHECK(status);
 	if ((YDB_OK != status) || (0 == found)) {
-		free(describe_subs);
 		return 1;
 	}
 
 	// Retrieve routine name
-	YDB_MALLOC_BUFFER(&routine_buf, MAX_ROUTINE_LEN + 1);		// Null terminator
+	OCTO_SET_BUFFER(routine_buf, routine_str);
 	status = ydb_get_s(&describe_subs[0], 4, &describe_subs[1], &routine_buf);
-	free(describe_subs);
 	YDB_ERROR_CHECK(status);
 	if (YDB_OK != status) {
-		YDB_FREE_BUFFER(&routine_buf);
 		return 1;
 	}
 	routine_buf.buf_addr[routine_buf.len_used] = '\0';
 
-	status = strncmp("none", routine_buf.buf_addr, routine_len);
+	status = strncmp("none", routine_buf.buf_addr, MAX_ROUTINE_LEN);
 	if (0 == status) {
 		no_data = make_no_data();
 		send_message(session, (BaseMessage*)(&no_data->type));
 		free(no_data);
 	} else {
 		GET_FULL_PATH_OF_GENERATED_M_FILE(filename, &routine_buf.buf_addr[1]);	/* updates "filename" to be full path */
-		YDB_MALLOC_BUFFER(&filename_buf, OCTO_PATH_MAX);
-		YDB_COPY_STRING_TO_BUFFER(filename, &filename_buf, done);
-		if (!done) {
-			ERROR(ERR_YOTTADB, "YDB_COPY_STRING_TO_BUFFER failed");
-			YDB_FREE_BUFFER(&filename_buf);
-			YDB_FREE_BUFFER(&routine_buf);
+		YDB_STRING_TO_BUFFER(filename, &filename_buf);
+		description = get_plan_row_description(&filename_buf);
+		if (NULL != description) {
+			send_message(session, (BaseMessage*)(&description->type));
+			if ('S' == describe->item) {
+				TRACE(INFO_ROCTO_ROW_DESCRIPTION_SENT, "prepared statement", describe->name);
+			} else {
+				TRACE(INFO_ROCTO_ROW_DESCRIPTION_SENT, "portal", describe->name);
+			}
+			free(description);
+		} else {
 			return 1;
 		}
-		description = get_plan_row_description(&filename_buf);
-		send_message(session, (BaseMessage*)(&description->type));
-		if ('S' == describe->item) {
-			TRACE(INFO_ROCTO_ROW_DESCRIPTION_SENT, "prepared statement", describe->name);
-		} else {
-			TRACE(INFO_ROCTO_ROW_DESCRIPTION_SENT, "portal", describe->name);
-		}
-		YDB_FREE_BUFFER(&filename_buf);
-		free(description);
 	}
-	YDB_FREE_BUFFER(&routine_buf);
 
 	return 0;
 }

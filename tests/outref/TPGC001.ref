@@ -1,3 +1,53 @@
-&{ID false true false false -5 VARCHAR 0 0 HEX}
+--- SELECT * FROM names; ---
+&{ID false false false false 0 INT4 0 0 HEX}
 &{FIRSTNAME false true false false -5 VARCHAR 0 0 HEX}
 &{LASTNAME false true false false -5 VARCHAR 0 0 HEX}
+
+--- SELECT * FROM Employees; ---
+&{EMPLOYEEID false false false false 0 INT4 0 0 HEX}
+&{LASTNAME false true false false -5 VARCHAR 0 0 HEX}
+&{FIRSTNAME false true false false -5 VARCHAR 0 0 HEX}
+&{BIRTHDATE false true false false -5 VARCHAR 0 0 HEX}
+&{PHOTO false true false false -5 VARCHAR 0 0 HEX}
+&{NOTES false true false false -5 VARCHAR 0 0 HEX}
+
+--- SELECT * FROM Products; ---
+&{PRODUCTID false false false false 0 INT4 0 0 HEX}
+&{PRODUCTNAME false true false false -5 VARCHAR 0 0 HEX}
+&{SUPPLIERID false false false false 0 INT4 0 0 HEX}
+&{CATEGORYID false false false false 0 INT4 0 0 HEX}
+&{UNIT false true false false -5 VARCHAR 0 0 HEX}
+&{PRICE false false true false 0 NUMERIC 65535 65531 HEX}
+
+--- SELECT * FROM pg_catalog.pg_type; ---
+&{TYPNAME false true false false -5 VARCHAR 0 0 HEX}
+&{TYPNAMESPACE false false false false 0 INT4 0 0 HEX}
+&{TYPOWNER false false false false 0 INT4 0 0 HEX}
+&{TYPLEN false false false false 0 INT4 0 0 HEX}
+&{TYPBYVAL false false false false 0 BOOL 0 0 HEX}
+&{TYPTYPE false true false false -5 VARCHAR 0 0 HEX}
+&{TYPCATEGORY false true false false -5 VARCHAR 0 0 HEX}
+&{TYPISPREFERRED false false false false 0 BOOL 0 0 HEX}
+&{TYPISDEFINED false false false false 0 BOOL 0 0 HEX}
+&{TYPDELIM false true false false -5 VARCHAR 0 0 HEX}
+&{TYPRELID false false false false 0 INT4 0 0 HEX}
+&{TYPELEM false false false false 0 INT4 0 0 HEX}
+&{TYPARRAY false false false false 0 INT4 0 0 HEX}
+&{TYPINPUT false true false false -5 VARCHAR 0 0 HEX}
+&{TYPOUTPUT false true false false -5 VARCHAR 0 0 HEX}
+&{TYPRECEIVE false true false false -5 VARCHAR 0 0 HEX}
+&{TYPSEND false true false false -5 VARCHAR 0 0 HEX}
+&{TYPMODIN false true false false -5 VARCHAR 0 0 HEX}
+&{TYPMODOUT false true false false -5 VARCHAR 0 0 HEX}
+&{TYPANALYZE false true false false -5 VARCHAR 0 0 HEX}
+&{TYPALIGN false true false false -5 VARCHAR 0 0 HEX}
+&{TYPSTORAGE false true false false -5 VARCHAR 0 0 HEX}
+&{TYPNOTNULL false false false false 0 BOOL 0 0 HEX}
+&{TYPBASETYPE false false false false 0 INT4 0 0 HEX}
+&{TYPTYPMOD false false false false 0 INT4 0 0 HEX}
+&{TYPNDIMS false false false false 0 INT4 0 0 HEX}
+&{TYPCOLLATION false false false false 0 INT4 0 0 HEX}
+&{TYPDEFAULTBIN false true false false -5 VARCHAR 0 0 HEX}
+&{TYPDEFAULT false true false false -5 VARCHAR 0 0 HEX}
+&{TYPACL false true false false -5 VARCHAR 0 0 HEX}
+&{OID false false false false 0 INT4 0 0 HEX}

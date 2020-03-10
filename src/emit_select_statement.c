@@ -23,6 +23,31 @@
 #include "physical_plan.h"
 #include "helpers.h"
 
+PSQL_TypeSize get_type_size_from_psql_type(PSQL_TypeOid type) {
+	switch (type) {
+	case PSQL_TypeOid_int4:
+		return PSQL_TypeSize_int4;
+		break;
+	case PSQL_TypeOid_numeric:
+		return PSQL_TypeSize_numeric;
+		break;
+	case PSQL_TypeOid_varchar:
+		return PSQL_TypeSize_varchar;
+		break;
+	case PSQL_TypeOid_unknown:
+		return PSQL_TypeSize_unknown;
+		break;
+	case PSQL_TypeOid_bool:
+		return PSQL_TypeSize_bool;
+		break;
+	default:
+		assert(FALSE);
+		ERROR(ERR_UNKNOWN_KEYWORD_STATE, "");
+		return PSQL_TypeSize_unknown;
+		break;
+	}
+}
+
 /**
  * Emits M code for retrieving values representing this SELECT statement
  *
@@ -30,18 +55,19 @@
  * Returns a table describing the temporary table containing the resulting
  *  values
  */
-PhysicalPlan *emit_select_statement(SqlStatement *stmt, char *plan_filename)
-{
+PhysicalPlan *emit_select_statement(SqlStatement *stmt, char *plan_filename) {
 	LPActionType		set_oper_type;
 	LogicalPlan		*plan, *cur_plan, *column_alias;
 	PhysicalPlan		*pplan;
 	SqlValue		*value;
-	char			output_key[INT32_TO_STRING_MAX];
+	char			output_key[INT32_TO_STRING_MAX], valbuff[INT32_TO_STRING_MAX];
 	int32_t			output_key_id, status = 0;
 	int16_t			num_columns = 0;
 	ydb_buffer_t		*plan_meta, value_buffer;
 	SetOperType		*set_oper;
 	PhysicalPlanOptions	options;
+	PSQL_TypeOid		column_type;
+	PSQL_TypeSize		type_size;
 
 	TRACE(ERR_ENTERING_FUNCTION, "emit_select_statement");
 	memset(output_key, 0, INT32_TO_STRING_MAX);
@@ -134,17 +160,21 @@ PhysicalPlan *emit_select_statement(SqlStatement *stmt, char *plan_filename)
 			break;
 
 		YDB_LITERAL_TO_BUFFER("data_type", &plan_meta[5]);
-		YDB_MALLOC_BUFFER(&value_buffer, INT16_TO_STRING_MAX);
-		value_buffer.len_used = snprintf(value_buffer.buf_addr, INT16_TO_STRING_MAX, "%d", PSQL_TypeOid_varchar);
+		value_buffer.buf_addr = valbuff;
+		value_buffer.len_alloc = INT32_TO_STRING_MAX;
+		column_type = get_psql_type_from_sqlvaluetype(column_alias->v.lp_column_list_alias.column_list_alias->type);
+		OCTO_INT32_TO_BUFFER(column_type, &value_buffer);
 		status = ydb_set_s(plan_meta, 5, &plan_meta[1], &value_buffer);
-		YDB_FREE_BUFFER(&value_buffer);
 		YDB_ERROR_CHECK(status);
 		if (YDB_OK != status)
 			break;
 
 		YDB_LITERAL_TO_BUFFER("data_type_size", &plan_meta[5]);
-		value_buffer.buf_addr = "-1";
-		value_buffer.len_used = value_buffer.len_alloc = strlen(value_buffer.buf_addr);
+		value_buffer.len_alloc = INT16_TO_STRING_MAX;
+		type_size = get_type_size_from_psql_type(column_type);
+		// PostgreSQL protocol specifies a 16-bit integer to store each data type size
+		// Details linked in rocto/message_formats.h
+		OCTO_INT16_TO_BUFFER((int16_t)type_size, &value_buffer);
 		status = ydb_set_s(plan_meta, 5, &plan_meta[1], &value_buffer);
 		YDB_ERROR_CHECK(status);
 		if (YDB_OK != status)
@@ -173,10 +203,10 @@ PhysicalPlan *emit_select_statement(SqlStatement *stmt, char *plan_filename)
 		return NULL;
 	}
 	// Note down number of output columns for use in RowDescriptions
-	YDB_MALLOC_BUFFER(&value_buffer, INT16_TO_STRING_MAX);
+	value_buffer.buf_addr = valbuff;
+	value_buffer.len_alloc = INT16_TO_STRING_MAX;
 	OCTO_INT16_TO_BUFFER(num_columns, &value_buffer);
 	status = ydb_set_s(plan_meta, 3, &plan_meta[1], &value_buffer);
-	YDB_FREE_BUFFER(&value_buffer);
 	YDB_FREE_BUFFER(&plan_meta[4]);
 	free(plan_meta);
 	YDB_ERROR_CHECK(status);

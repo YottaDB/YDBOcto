@@ -57,23 +57,23 @@ enum PSQL_MessageTypes {
 };
 
 typedef struct __attribute__((packed)) {
-		char type;
-		int32_t length;
-		char data[];
+	char		type;
+	int32_t		length;
+	char		data[];
 } BaseMessage;
 
 // B
 typedef struct __attribute__((packed)) {
-	char type;
-	uint32_t length;
-	int32_t result;
+	char		type;
+	uint32_t	length;
+	int32_t		result;
 } AuthenticationOk;
 
 // B
 typedef struct __attribute__((packed)) {
-	char type;
-	uint32_t length;
-	int32_t _b;
+	char		type;
+	uint32_t	length;
+	int32_t		_b;
 } AuthenticationCleartextPassword;
 
 // B
@@ -81,10 +81,10 @@ typedef struct __attribute__((packed)) {
 
 // B
 typedef struct __attribute__((packed)) {
-	char type;
-	uint32_t length;
-	uint32_t md5_required;
-	char salt[4];
+	char		type;
+	uint32_t	length;
+	uint32_t	md5_required;
+	char		salt[4];
 } AuthenticationMD5Password;
 
 // B
@@ -98,253 +98,255 @@ typedef struct __attribute__((packed)) {
 
 // B
 typedef struct __attribute__((packed)) {
-	char type;
-	unsigned int length;
-	pid_t pid;
-	unsigned int secret_key;
+	char		type;
+	unsigned int	length;
+	pid_t		pid;
+	unsigned int	secret_key;
 } BackendKeyData;
 
 typedef struct __attribute__((packed)) {
-	int32_t length;
-	void *value;
+	int32_t		length;
+	void		*value;
 } BindParm;
 
 // F
 typedef struct __attribute__((packed)) {
-	ParseContext parse_context;
-	char *dest;
-	char *source;
-	int16_t num_parm_format_codes;
-	int16_t *parm_format_codes;
-	int16_t num_parms;
-	BindParm *parms;
-	int16_t num_result_col_format_codes;
-	int16_t *result_col_format_codes;
+	ParseContext	parse_context;
+	char		*dest;
+	char		*source;
+	int16_t		num_parm_format_codes;
+	int16_t		*parm_format_codes;
+	int16_t		num_parms;
+	BindParm	*parms;
+	int16_t		num_result_col_format_codes;
+	int16_t		*result_col_format_codes;
 
-	char type;
-	uint32_t length;
-	char data[];
+	char		type;
+	uint32_t	length;
+	char		data[];
 } Bind;
 
 // B
 typedef struct __attribute__((packed)) {
-	char type;
-	uint32_t length;
+	char		type;
+	uint32_t	length;
 } BindComplete;
 
 // F
 typedef struct __attribute__((packed)) {
-	uint32_t length;
-	int32_t request_code;
-	pid_t pid;
-	uint32_t secret_key;
+	uint32_t	length;
+	int32_t		request_code;
+	pid_t		pid;
+	uint32_t	secret_key;
 } CancelRequest;
 
 // F
 typedef struct __attribute__((packed)) {
-	char type;
-	uint32_t length;
-	char item;
-	char data[];
+	char		type;
+	uint32_t	length;
+	char		item;
+	char		data[];
 } Close;
 
 // B
 typedef struct __attribute__((packed)) {
-	char type;
-	uint32_t length;
+	char		type;
+	uint32_t	length;
 } CloseComplete;
 
 // B
 typedef struct __attribute__((packed)) {
-  char *command_tag;
+  char		*command_tag;
 
-  char type;
-  uint32_t length;
-  char data[];
+  char		type;
+  uint32_t	length;
+  char		data[];
 } CommandComplete;
 
 typedef struct {
-	uint32_t length;
-	char *value;
+	uint32_t	length;
+	char		*value;
+	int16_t		format;
+	int32_t		column_type;
 } DataRowParm;
 
 // B
 typedef struct __attribute__((packed)) {
-	DataRowParm *parms;
+	DataRowParm	*parms;
 
-	char type;
-	uint32_t length;
-	int16_t num_columns;
-	char data[];
+	char		type;
+	uint32_t	length;
+	int16_t		num_columns;
+	char		data[];
 } DataRow;
 
 // F
 typedef struct __attribute__((packed)) {
-	char type;
-	uint32_t length;
-	char item;
-	char name[];
+	char		type;
+	uint32_t	length;
+	char		item;
+	char		name[];
 } Describe;
 
 // B
 typedef struct __attribute__((packed)) {
-	char type;
-	uint32_t length;
+	char		type;
+	uint32_t	length;
 } EmptyQueryResponse;
 
 typedef struct {
-	char type;
-	char *value;
+	char		type;
+	char		*value;
 } ErrorResponseArg;
 
 // B
 typedef struct __attribute__((packed)) {
-	ErrorResponseArg *args;
+	ErrorResponseArg	*args;
 
-	char type;
-	uint32_t length;
-	char data[];
+	char			type;
+	uint32_t		length;
+	char			data[];
 } ErrorResponse;
 
 // F
 typedef struct __attribute__((packed)) {
-	char *source;
-	uint32_t rows_to_return;
+	char		*source;
+	uint32_t	rows_to_return;
 
-	char type;
-	uint32_t length;
-	char data[];
+	char		type;
+	uint32_t	length;
+	char		data[];
 } Execute;
 
 // F
 typedef struct __attribute__((packed)) {
-	char type;
-	uint32_t length;
+	char		type;
+	uint32_t	length;
 } Flush;
 
 // B
 typedef struct __attribute__((packed)) {
-	char type;
-	uint32_t length;
+	char		type;
+	uint32_t	length;
 } NoData;
 
 // B
 typedef struct __attribute__((packed)) {
-	char type;
-	uint32_t length;
-	char data[];
+	char		type;
+	uint32_t	length;
+	char		data[];
 } ParameterStatus;
 
 // F
 typedef struct __attribute__((packed)) {
-	char *dest;
-	char *query;
-	int16_t num_parm_data_types;
-	uint32_t *parm_data_types;
+	char		*dest;
+	char		*query;
+	int16_t		num_parm_data_types;
+	uint32_t	*parm_data_types;
 
-	char type;
-	uint32_t length;
-	char data[];
+	char		type;
+	uint32_t	length;
+	char		data[];
 } Parse;
 
 // B
 typedef struct __attribute__((packed)) {
-	char type;
-	uint32_t length;
+	char		type;
+	uint32_t	length;
 } ParseComplete;
 
 // B
 typedef struct __attribute__((packed)) {
-	char type;
-	uint32_t length;
+	char		type;
+	uint32_t	length;
 } PortalSuspended;
 
 // F
 typedef struct __attribute__((packed)) {
-	char *query;
-	char type;
-	uint32_t length;
-	char data[];
+	char		*query;
+	char		type;
+	uint32_t	length;
+	char		data[];
 } Query;
 
 // F
 typedef struct __attribute__((packed)) {
-	char *password;
-	char type;
-	uint32_t length;
-	char data[];
+	char		*password;
+	char		type;
+	uint32_t	length;
+	char		data[];
 } PasswordMessage;
 
 // B
 typedef struct __attribute__((packed)) {
-	char type;
-	uint32_t length;
-	char status;
+	char		type;
+	uint32_t	length;
+	char		status;
 } ReadyForQuery;
 
 // This must be packed because we use it to calculate size
 //  of the RowDescription
 typedef struct __attribute__((packed)) {
-	char *name;
-	int32_t table_id;
-	int16_t column_id;
-	int32_t data_type;
-	int16_t data_type_size;
-	int32_t type_modifier;
-	int16_t format_code;
+	char		*name;
+	int32_t		table_id;
+	int16_t		column_id;
+	int32_t		data_type;
+	int16_t		data_type_size;
+	int32_t		type_modifier;
+	int16_t		format_code;
 } RowDescriptionParm;
 
 // B
 typedef struct __attribute__((packed)) {
-	int16_t num_fields;
-	RowDescriptionParm *parms;
+	int16_t			num_fields;
+	RowDescriptionParm	*parms;
 
-	char type;
-	uint32_t length;
-	int16_t num_parms;
-	char data[];
+	char			type;
+	uint32_t		length;
+	int16_t			num_parms;
+	char			data[];
 } RowDescription;
 
 typedef struct __attribute__((packed)) {
-	char type;
-	uint32_t length;
-	int16_t num_parms;
-	char data[];
+	char		type;
+	uint32_t	length;
+	int16_t		num_parms;
+	char		data[];
 } ParameterDescription;
 
 // F
 typedef struct __attribute__((packed)) {
-	uint32_t length;
-	int32_t request_code;
+	uint32_t	length;
+	int32_t		request_code;
 } SSLRequest;
 
 typedef struct {
-	char *name;
-	char *value;
+	char	*name;
+	char	*value;
 } StartupMessageParm;
 
 // F
 // This message is a special case; it's two hard-coded integers, followed by a series of
 //  string => string mappings
 typedef struct __attribute__((packed)) {
-	StartupMessageParm *parameters;
-	int32_t num_parameters;
+	StartupMessageParm	*parameters;
+	int32_t			num_parameters;
 
-	uint32_t length;
-	int32_t protocol_version;
-	char data[];
+	uint32_t		length;
+	int32_t			protocol_version;
+	char			data[];
 } StartupMessage;
 
 // F
 typedef struct __attribute__((packed)) {
-	char type;
-	uint32_t length;
+	char			type;
+	uint32_t		length;
 } Sync;
 
 // F
 typedef struct __attribute__((packed)) {
-	char type;
-	uint32_t length;
+	char		type;
+	uint32_t	length;
 } Terminate;
 
 typedef enum {

@@ -28,6 +28,11 @@
 
 #define PORTAL_SUSPENDED -2
 
+// Define column format codes for use when returning row data.
+// For the derivation of these values, see the `Bind` entry at https://www.postgresql.org/docs/11/protocol-message-formats.html
+#define	TEXT_FORMAT			0
+#define	BINARY_FORMAT			1
+
 typedef struct {
 	int32_t connection_fd;
 	int32_t sending_message;
@@ -88,7 +93,7 @@ CloseComplete *make_close_complete();
 ReadyForQuery *make_ready_for_query(PSQL_TransactionStatus status);
 EmptyQueryResponse *make_empty_query_response();
 RowDescription *make_row_description(RowDescriptionParm *parms, int16_t num_parms);
-DataRow *make_data_row(DataRowParm *parms, int16_t num_parms);
+DataRow *make_data_row(DataRowParm *parms, int16_t num_parms, int32_t *col_data_types);
 CommandComplete *make_command_complete(SqlStatementType type, int32_t rows_sent);
 AuthenticationMD5Password *make_authentication_md5_password(RoctoSession *session, char *salt);
 AuthenticationOk *make_authentication_ok();

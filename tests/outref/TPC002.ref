@@ -10,9 +10,9 @@ ERROR:  Error parsing statement: select * from t1;
 ERROR:  
   A   |  B   
 ------+------
- 1    | 2
- 42   | 9001
- 1337 | 42
+    1 |    2
+   42 | 9001
+ 1337 |   42
 (3 rows)
 
 ERROR:  Unknown table: T1

@@ -24,26 +24,12 @@
 #include "helpers.h"
 
 // Used to indicate index 0 for the array of bind parameter format codes specified by a PostgreSQL client in a Bind message
+// Details linked in message_formats.h
 #define FIRST_FORMAT_CODE 0
 
-#define FREE_HANDLE_BIND_POINTERS()							\
+#define INVOKE_YDB_DELETE_S()								\
 	status = ydb_delete_s(&portal_subs[0], 3, &portal_subs[1], YDB_DEL_TREE);	\
 	YDB_ERROR_CHECK(status);							\
-	YDB_FREE_BUFFER(&parm_value_buf);						\
-	YDB_FREE_BUFFER(&cur_bind_parm_buf);						\
-	YDB_FREE_BUFFER(&all_statement_parms_subs[6]);					\
-	YDB_FREE_BUFFER(&portal_subs[5]);						\
-	YDB_FREE_BUFFER(&statement_subs[5]);						\
-	YDB_FREE_BUFFER(&statement_subs[6]);						\
-	YDB_FREE_BUFFER(&parm_type_buf);						\
-	YDB_FREE_BUFFER(&parm_type_buf);						\
-	YDB_FREE_BUFFER(&cur_parm_buf);							\
-	YDB_FREE_BUFFER(&offset_buffer);						\
-	YDB_FREE_BUFFER(&sql_expression);						\
-	free(statement_subs);								\
-	free(all_statement_parms_subs);							\
-	free(all_portal_parms_subs);							\
-	free(portal_subs);
 
 // Args:
 //	Bind *bind: A PostgreSQL Bind message
@@ -53,129 +39,111 @@
 int handle_bind(Bind *bind, RoctoSession *session) {
 	// At the moment, we don't have "bound function"
 	// This feature should be implemented before 1.0
-	ydb_buffer_t	*statement_subs, *portal_subs, *all_statement_parms_subs, *all_portal_parms_subs;
 	ydb_buffer_t	num_parms_buf, cur_parm_buf, cur_bind_parm_buf, parm_type_buf, parm_value_buf;
-	ydb_buffer_t	sql_expression, routine_buf, tag_buf, offset_buffer;
+	ydb_buffer_t	sql_expression, routine_buf, tag_buf, offset_buffer, value_buffer;
+	ydb_buffer_t	statement_subs[7];
+	ydb_buffer_t	portal_subs[6];
+	ydb_buffer_t	all_statement_parms_subs[7];
+	ydb_buffer_t	all_portal_parms_subs[7];
+	char		value_str[INT16_TO_STRING_MAX];
+	char		sql_expression_str[MAX_STR_CONST];
+	char		num_parms_str[INT16_TO_STRING_MAX];
+	char		tag_str[MAX_TAG_LEN];
+	char		routine_str[MAX_ROUTINE_LEN + 1];	// Null terminator
+	char		parm_value_str[MAX_STR_CONST];
+	char		parm_type_str[INT16_TO_STRING_MAX];
+	char		offset_str[INT16_TO_STRING_MAX];
+	char		cur_format_str[INT16_TO_STRING_MAX];
+	char		cur_parm_str[INT16_TO_STRING_MAX];
+	char		cur_bind_parm_str[INT16_TO_STRING_MAX];
+	char		binary_parm_buffer[MAX_STR_CONST];
+	char		*bound_query;
 	uint32_t	data_ret;
-	int32_t		status, bound_offset, prepared_offset, done, routine_len = MAX_ROUTINE_LEN;
+	int32_t		status, bound_offset, prepared_offset, done;
 	int16_t		*parse_context_array;
 	int16_t		num_parms, num_bind_parms, cur_parm, cur_bind_parm, cur_parm_temp, cur_bind_parm_temp;
+	int16_t		num_col_format_codes, cur_format_code;
 	long int	num_parms_long, offset_long, type_long;
 	size_t		bound_query_size;
-	char		*bound_query, binary_parm_buffer[MAX_STR_CONST];
 	BindComplete	*response;
 	ParseContext	parse_context;
 
 	TRACE(ERR_ENTERING_FUNCTION, "handle_bind");
 
 	// Create buffers to get routine name from prepared statement: ^session(id, "prepared", <name>, "routine")
-	statement_subs = make_buffers(config->global_names.session, 4, session->session_id->buf_addr, "prepared", bind->source,
-			"routine");
+	YDB_STRING_TO_BUFFER(config->global_names.session, &statement_subs[0]);
+	YDB_STRING_TO_BUFFER(session->session_id->buf_addr, &statement_subs[1]);
+	YDB_STRING_TO_BUFFER("prepared", &statement_subs[2]);
+	YDB_STRING_TO_BUFFER(bind->source, &statement_subs[3]);
+	YDB_STRING_TO_BUFFER("routine", &statement_subs[4]);
+
 	// Create buffers to store routine name on portal: ^session(id, "bound", <name>, "routine")
-	portal_subs = make_buffers(config->global_names.session, 4, session->session_id->buf_addr, "bound", bind->dest, "routine");
+	YDB_STRING_TO_BUFFER(config->global_names.session, &portal_subs[0]);
+	YDB_STRING_TO_BUFFER(session->session_id->buf_addr, &portal_subs[1]);
+	YDB_STRING_TO_BUFFER("bound", &portal_subs[2]);
+	YDB_STRING_TO_BUFFER(bind->dest, &portal_subs[3]);
+	YDB_STRING_TO_BUFFER("routine", &portal_subs[4]);
+
 	// Check if a portal by the same name already exists and, if so, delete it before reusing the name for a new one
 	status = ydb_data_s(&portal_subs[0], 3, &portal_subs[1], &data_ret);
 	YDB_ERROR_CHECK(status);
 	if (YDB_OK != status) {
-		free(statement_subs);
-		free(portal_subs);
 		return 1;
 	}
 	if (0 < data_ret) {
 		status = ydb_delete_s(&portal_subs[0], 3, &portal_subs[1], YDB_DEL_TREE);
 		YDB_ERROR_CHECK(status);
 		if (YDB_OK != status) {
-			free(statement_subs);
-			free(portal_subs);
 			return 1;
 		}
 	}
 
 	// Copy routine name to portal for later execution in handle_execute
-	YDB_MALLOC_BUFFER(&routine_buf, routine_len + 1);	// Null terminator
+	OCTO_SET_BUFFER(routine_buf, routine_str);
 	status = ydb_get_s(&statement_subs[0], 4, &statement_subs[1], &routine_buf);
 	YDB_ERROR_CHECK(status);
 	if (YDB_OK != status) {
 		ERROR(ERR_ROCTO_DB_LOOKUP, "handle_bind", "routine name of prepared statement");
-		YDB_FREE_BUFFER(&routine_buf);
-		free(statement_subs);
-		free(portal_subs);
 		return 1;
 	}
 	routine_buf.buf_addr[routine_buf.len_used] = '\0';
 	status = ydb_set_s(&portal_subs[0], 4, &portal_subs[1], &routine_buf);
 	YDB_ERROR_CHECK(status);
 	if (YDB_OK != status) {
-		YDB_FREE_BUFFER(&routine_buf);
-		free(statement_subs);
-		free(portal_subs);
 		return 1;
 	}
 
 	// Copy command tag to portal for later retrieval in handle_execute
-	YDB_MALLOC_BUFFER(&statement_subs[4], MAX_TAG_LEN);
-	YDB_COPY_STRING_TO_BUFFER("tag", &statement_subs[4], done);
-	if (!done) {
-		YDB_FREE_BUFFER(&statement_subs[4]);
-		YDB_FREE_BUFFER(&routine_buf);
-		free(statement_subs);
-		free(portal_subs);
-		return 1;
-	}
-	YDB_MALLOC_BUFFER(&tag_buf, MAX_TAG_LEN);
+	OCTO_SET_BUFFER(tag_buf, tag_str);
+	YDB_STRING_TO_BUFFER("tag", &statement_subs[4]);
 	status = ydb_get_s(&statement_subs[0], 4, &statement_subs[1], &tag_buf);
-	YDB_FREE_BUFFER(&statement_subs[4]);
 	YDB_ERROR_CHECK(status);
 	if (YDB_OK != status) {
 		ERROR(ERR_ROCTO_DB_LOOKUP, "handle_bind", "routine name of prepared statement");
-		YDB_FREE_BUFFER(&tag_buf);
-		YDB_FREE_BUFFER(&routine_buf);
-		free(statement_subs);
-		free(portal_subs);
 		return 1;
 	}
-	YDB_MALLOC_BUFFER(&portal_subs[4], MAX_TAG_LEN);
-	YDB_COPY_STRING_TO_BUFFER("tag", &portal_subs[4], done);
-	if (!done) {
-		YDB_FREE_BUFFER(&portal_subs[4]);
-		YDB_FREE_BUFFER(&routine_buf);
-		free(statement_subs);
-		free(portal_subs);
-		return 1;
-	}
+	YDB_STRING_TO_BUFFER("tag", &portal_subs[4]);
 	status = ydb_set_s(&portal_subs[0], 4, &portal_subs[1], &tag_buf);
-	YDB_FREE_BUFFER(&portal_subs[4]);
-	YDB_FREE_BUFFER(&tag_buf);
 	YDB_ERROR_CHECK(status);
 	if (YDB_OK != status) {
 		status = ydb_delete_s(&portal_subs[0], 3, &portal_subs[1], YDB_DEL_TREE);
-		YDB_ERROR_CHECK(status);
-		YDB_FREE_BUFFER(&routine_buf);
-		free(statement_subs);
-		free(portal_subs);
 		return 1;
 	}
 
-	// Need to update multiple subscripts, just free and remake as this will be less expensive and more concise
-	free(statement_subs);
-	free(portal_subs);
-	// Create buffers to access prepared statement info: ^session(id, "prepared", <name>, ...)
-	statement_subs = make_buffers(config->global_names.session, 6, session->session_id->buf_addr, "prepared", bind->source,
-			"parameters", "all", "");
-	// Create buffers to for storing portal ("bound statement") info: ^session(id, "bound", <name>, ...)
-	portal_subs = make_buffers(config->global_names.session, 6, session->session_id->buf_addr, "bound", bind->dest,
-			"parameters", "", "");
+	// Reassign buffers to access prepared statement info: ^session(id, "prepared", <name>, ...)
+	YDB_STRING_TO_BUFFER("parameters", &statement_subs[4]);
+	YDB_STRING_TO_BUFFER("all", &statement_subs[5]);
+
+	// Reassign buffer for storing portal ("bound statement") info: ^session(id, "bound", <name>, ...)
+	YDB_STRING_TO_BUFFER("parameters", &portal_subs[4]);
+
 	// Retrieve the number of bind parameters on the prepared statement
-	YDB_MALLOC_BUFFER(&num_parms_buf, INT16_TO_STRING_MAX);
+	OCTO_SET_BUFFER(num_parms_buf, num_parms_str);
 	status = ydb_get_s(&statement_subs[0], 4, &statement_subs[1], &num_parms_buf);
 	YDB_ERROR_CHECK(status);
 	if (YDB_OK != status) {
 		status = ydb_delete_s(&portal_subs[0], 3, &portal_subs[1], YDB_DEL_TREE);
 		YDB_ERROR_CHECK(status);
-		YDB_FREE_BUFFER(&num_parms_buf);
-		YDB_FREE_BUFFER(&routine_buf);
-		free(statement_subs);
-		free(portal_subs);
 		return 1;
 	}
 	num_parms_buf.buf_addr[num_parms_buf.len_used] = '\0';
@@ -185,10 +153,6 @@ int handle_bind(Bind *bind, RoctoSession *session) {
 	if (YDB_OK != status) {
 		status = ydb_delete_s(&portal_subs[0], 3, &portal_subs[1], YDB_DEL_TREE);
 		YDB_ERROR_CHECK(status);
-		YDB_FREE_BUFFER(&num_parms_buf);
-		YDB_FREE_BUFFER(&routine_buf);
-		free(statement_subs);
-		free(portal_subs);
 		return 1;
 	}
 	// Convert number of bind parameters to an integer for use below
@@ -199,54 +163,45 @@ int handle_bind(Bind *bind, RoctoSession *session) {
 		ERROR(ERR_LIBCALL, "strtol");
 		status = ydb_delete_s(&portal_subs[0], 3, &portal_subs[1], YDB_DEL_TREE);
 		YDB_ERROR_CHECK(status);
-		YDB_FREE_BUFFER(&num_parms_buf);
-		YDB_FREE_BUFFER(&routine_buf);
-		free(statement_subs);
-		free(portal_subs);
 		return 1;
 	}
 	if (num_bind_parms != bind->num_parms) {
 		ERROR(ERR_ROCTO_INVALID_NUMBER_BIND_PARAMETERS, "handle_bind", num_bind_parms, bind->num_parms);
 		status = ydb_delete_s(&portal_subs[0], 3, &portal_subs[1], YDB_DEL_TREE);
 		YDB_ERROR_CHECK(status);
-		YDB_FREE_BUFFER(&num_parms_buf);
-		YDB_FREE_BUFFER(&routine_buf);
-		free(statement_subs);
-		free(portal_subs);
 		return 1;
 	}
+
 	// Retrieve the total number of parameters on the prepared statement (can discard old value after it's converted and stored)
 	// Set the subscripts for all prepared statement parameters: session(id, "prepared", <name>, "parameters", "all", ...)
-	all_statement_parms_subs = make_buffers(config->global_names.session, 6, session->session_id->buf_addr, "prepared", bind->source,
-			"parameters", "all", "");
+	YDB_STRING_TO_BUFFER(config->global_names.session, &all_statement_parms_subs[0]);
+	YDB_STRING_TO_BUFFER(session->session_id->buf_addr, &all_statement_parms_subs[1]);
+	YDB_STRING_TO_BUFFER("prepared", &all_statement_parms_subs[2]);
+	YDB_STRING_TO_BUFFER(bind->source, &all_statement_parms_subs[3]);
+	YDB_STRING_TO_BUFFER("parameters", &all_statement_parms_subs[4]);
+	YDB_STRING_TO_BUFFER("all", &all_statement_parms_subs[5]);
 	status = ydb_get_s(&all_statement_parms_subs[0], 5, &all_statement_parms_subs[1], &num_parms_buf);
 	YDB_ERROR_CHECK(status);
 	if (YDB_OK != status) {
 		status = ydb_delete_s(&portal_subs[0], 3, &portal_subs[1], YDB_DEL_TREE);
 		YDB_ERROR_CHECK(status);
-		YDB_FREE_BUFFER(&num_parms_buf);
-		YDB_FREE_BUFFER(&routine_buf);
-		free(all_statement_parms_subs);
-		free(statement_subs);
-		free(portal_subs);
 		return 1;
 	}
 	num_parms_buf.buf_addr[num_parms_buf.len_used] = '\0';
+
 	// Store the total number of parameters for use in handle_execute
 	// Set the subscripts for all prepared statement parameters: session(id, "prepared", <name>, "parameters", "all", ...)
-	all_portal_parms_subs = make_buffers(config->global_names.session, 6, session->session_id->buf_addr, "bound", bind->dest,
-			"parameters", "all", "");
+	YDB_STRING_TO_BUFFER(config->global_names.session, &all_portal_parms_subs[0]);
+	YDB_STRING_TO_BUFFER(session->session_id->buf_addr, &all_portal_parms_subs[1]);
+	YDB_STRING_TO_BUFFER("bound", &all_portal_parms_subs[2]);
+	YDB_STRING_TO_BUFFER(bind->dest, &all_portal_parms_subs[3]);
+	YDB_STRING_TO_BUFFER("parameters", &all_portal_parms_subs[4]);
+	YDB_STRING_TO_BUFFER("all", &all_portal_parms_subs[5]);
 	status = ydb_set_s(&all_portal_parms_subs[0], 5, &all_portal_parms_subs[1], &num_parms_buf);
 	YDB_ERROR_CHECK(status);
 	if (YDB_OK != status) {
 		status = ydb_delete_s(&portal_subs[0], 3, &portal_subs[1], YDB_DEL_TREE);
 		YDB_ERROR_CHECK(status);
-		YDB_FREE_BUFFER(&num_parms_buf);
-		YDB_FREE_BUFFER(&routine_buf);
-		free(all_statement_parms_subs);
-		free(all_portal_parms_subs);
-		free(statement_subs);
-		free(portal_subs);
 		return 1;
 	}
 	// Convert total number of parameters to an integer for use below
@@ -257,39 +212,70 @@ int handle_bind(Bind *bind, RoctoSession *session) {
 		ERROR(ERR_LIBCALL, "strtol")
 		status = ydb_delete_s(&portal_subs[0], 3, &portal_subs[1], YDB_DEL_TREE);
 		YDB_ERROR_CHECK(status);
-		YDB_FREE_BUFFER(&num_parms_buf);
-		YDB_FREE_BUFFER(&routine_buf);
-		free(all_statement_parms_subs);
-		free(all_portal_parms_subs);
-		free(statement_subs);
-		free(portal_subs);
 		return 1;
 	}
 
 	// Retrieve the prepared statement query string
-	YDB_MALLOC_BUFFER(&sql_expression, MAX_STR_CONST);
+	OCTO_SET_BUFFER(sql_expression, sql_expression_str);
 	status = ydb_get_s(&statement_subs[0], 3, &statement_subs[1], &sql_expression);
 	if(YDB_ERR_LVUNDEF == status) {
 		ERROR(ERR_ROCTO_BIND_TO_UNKNOWN_QUERY, "");
 		status = ydb_delete_s(&portal_subs[0], 3, &portal_subs[1], YDB_DEL_TREE);
 		YDB_ERROR_CHECK(status);
-		YDB_FREE_BUFFER(&sql_expression);
-		YDB_FREE_BUFFER(&routine_buf);
-		free(statement_subs);
-		free(portal_subs);
 		return 1;
 	}
 	YDB_ERROR_CHECK(status);
 	if (YDB_OK != status) {
 		status = ydb_delete_s(&portal_subs[0], 3, &portal_subs[1], YDB_DEL_TREE);
 		YDB_ERROR_CHECK(status);
-		YDB_FREE_BUFFER(&sql_expression);
-		YDB_FREE_BUFFER(&routine_buf);
-		free(statement_subs);
-		free(portal_subs);
 		return 1;
 	}
 	sql_expression.buf_addr[sql_expression.len_used] = '\0';
+
+	// Revise portal buffers to set column format information
+	YDB_STRING_TO_BUFFER("col_formats", &portal_subs[4]);
+	// Store number of column format codes: 0, 1, or > 1
+	num_col_format_codes = bind->num_result_col_format_codes;
+	OCTO_SET_BUFFER(value_buffer, value_str);
+	OCTO_INT16_TO_BUFFER(num_col_format_codes, &value_buffer);
+	status = ydb_set_s(&portal_subs[0], 4, &portal_subs[1], &value_buffer);
+	YDB_ERROR_CHECK(status);
+	if (YDB_OK != status) {
+		return 1;
+	}
+	// Store the format code for all columns:
+	//	Number of codes == 0: All are text format
+	//	Number of codes == 1: All are text or all are binary format, depending on what code is specified
+	//	Number of codes > 1:  Column formats may be a combination of text and binary, specified per column
+	OCTO_SET_BUFFER(portal_subs[5], cur_format_str);
+	if (1 >= num_col_format_codes) {
+		// Store the sole format code under the first column
+		OCTO_INT16_TO_BUFFER((int16_t)1, &portal_subs[5]);
+		if (0 == num_col_format_codes) {
+			// Use the default code (0) to specify text format
+			OCTO_INT16_TO_BUFFER((int16_t)TEXT_FORMAT, &value_buffer);
+		} else {
+			// Use the sole specified format code
+			OCTO_INT16_TO_BUFFER(bind->result_col_format_codes[0], &value_buffer);
+		}
+		status = ydb_set_s(&portal_subs[0], 5, &portal_subs[1], &value_buffer);
+		YDB_ERROR_CHECK(status);
+		if (YDB_OK != status) {
+			return 1;
+		}
+	} else {
+		// Store each specified format code under its matching column.
+		// Columns are indexed from 1, so start there instead of 0.
+		for (cur_format_code = 1; cur_format_code <= num_col_format_codes; cur_format_code++) {
+			OCTO_INT16_TO_BUFFER(cur_format_code, &portal_subs[5]);
+			OCTO_INT16_TO_BUFFER(bind->result_col_format_codes[cur_format_code-1], &value_buffer);	// 0-indexing here
+			status = ydb_set_s(&portal_subs[0], 5, &portal_subs[1], &value_buffer);
+			YDB_ERROR_CHECK(status);
+			if (YDB_OK != status) {
+				return 1;
+			}
+		}
+	}
 
 	// This check covers two cases:
 	//	1. This is a SELECT query with no parameters
@@ -298,23 +284,14 @@ int handle_bind(Bind *bind, RoctoSession *session) {
 	if ((0 == num_parms) || (0 == strncmp(routine_buf.buf_addr, "none", MAX_ROUTINE_LEN))) {
 		// Store the query for command tag generation in handle_execute
 		status = ydb_set_s(&portal_subs[0], 3, &portal_subs[1], &sql_expression);
-		YDB_FREE_BUFFER(&routine_buf);
-		YDB_FREE_BUFFER(&sql_expression);
-		free(all_statement_parms_subs);
-		free(statement_subs);
-		free(portal_subs);
 		YDB_ERROR_CHECK(status);
 		if (YDB_OK != status) {
 			status = ydb_delete_s(&portal_subs[0], 3, &portal_subs[1], YDB_DEL_TREE);
 			YDB_ERROR_CHECK(status);
-			YDB_FREE_BUFFER(&num_parms_buf);
-			free(all_portal_parms_subs);
 			return 1;
 		}
 		// Need to set the number of parameters to 0 for case 1.
 		status = ydb_set_s(&all_portal_parms_subs[0], 5, &all_portal_parms_subs[1], &num_parms_buf);
-		YDB_FREE_BUFFER(&num_parms_buf);
-		free(all_portal_parms_subs);
 		YDB_ERROR_CHECK(status);
 		if (YDB_OK != status) {
 			status = ydb_delete_s(&portal_subs[0], 3, &portal_subs[1], YDB_DEL_TREE);
@@ -326,8 +303,6 @@ int handle_bind(Bind *bind, RoctoSession *session) {
 		free(response);
 		return 0;
 	}
-	YDB_FREE_BUFFER(&num_parms_buf);
-	YDB_FREE_BUFFER(&routine_buf);
 
 	// Use arrays to track start/end offsets of parameter substrings in prepared statement
 	// 2 * num_parms is the number of offsets that must be mapped: one pair of start/end offsets for each parameter
@@ -343,64 +318,44 @@ int handle_bind(Bind *bind, RoctoSession *session) {
 		parse_context.types = NULL;
 	}
 	// Retrieve ParseContext info from prepared statement local variable
-	YDB_MALLOC_BUFFER(&parm_value_buf, MAX_STR_CONST);
-	YDB_MALLOC_BUFFER(&parm_type_buf, INT16_TO_STRING_MAX);
-	YDB_MALLOC_BUFFER(&cur_bind_parm_buf, INT16_TO_STRING_MAX);
-	YDB_MALLOC_BUFFER(&cur_parm_buf, INT16_TO_STRING_MAX);
-	YDB_MALLOC_BUFFER(&offset_buffer, INT16_TO_STRING_MAX);
-	YDB_MALLOC_BUFFER(&all_statement_parms_subs[6], INT16_TO_STRING_MAX);
-	YDB_MALLOC_BUFFER(&all_portal_parms_subs[6], INT16_TO_STRING_MAX);
-	YDB_MALLOC_BUFFER(&statement_subs[5], INT16_TO_STRING_MAX);
-	YDB_MALLOC_BUFFER(&portal_subs[5], INT16_TO_STRING_MAX);
-	YDB_MALLOC_BUFFER(&statement_subs[6], INT16_TO_STRING_MAX);
+
+	OCTO_SET_BUFFER(cur_parm_buf, cur_parm_str);
+	OCTO_SET_BUFFER(cur_bind_parm_buf, cur_bind_parm_str);
+	OCTO_SET_BUFFER(parm_value_buf, parm_value_str);
+	OCTO_SET_BUFFER(parm_type_buf, parm_type_str);
+	OCTO_SET_BUFFER(offset_buffer, offset_str);
 	for (cur_parm = 0, cur_bind_parm = 0; cur_parm < num_parms; cur_parm++) {
 		cur_parm_temp = cur_parm + 1;			// Convert to 1-indexing for parameter number mapping
 		OCTO_INT16_TO_BUFFER(cur_parm_temp, &cur_parm_buf);
 		cur_bind_parm_temp = cur_bind_parm + 1;		// Convert to 1-indexing for parameter number mapping
 		OCTO_INT16_TO_BUFFER(cur_bind_parm_temp, &cur_bind_parm_buf);
 		// Set the current prepared statement parameter
-		YDB_COPY_BUFFER_TO_BUFFER(&cur_bind_parm_buf, &statement_subs[5], done);
-		if (!done) {
-			ERROR(ERR_YOTTADB, "YDB_COPY_BUFFER_TO_BUFFER failed");
-			FREE_HANDLE_BIND_POINTERS();
-			return 1;
-		}
+		YDB_STRING_TO_BUFFER(cur_bind_parm_buf.buf_addr, &statement_subs[5]);
 		// Set the current overall parameter
-		YDB_COPY_BUFFER_TO_BUFFER(&cur_parm_buf, &all_statement_parms_subs[6], done);
-		if (!done) {
-			ERROR(ERR_YOTTADB, "YDB_COPY_BUFFER_TO_BUFFER failed");
-			FREE_HANDLE_BIND_POINTERS();
-			return 1;
-		}
+		YDB_STRING_TO_BUFFER(cur_parm_buf.buf_addr, &all_statement_parms_subs[6]);
 		// Check if parameter has a value. If so, retrieve it; if not, it's a bind parameter
 		status = ydb_data_s(&all_statement_parms_subs[0], 6, &all_statement_parms_subs[1], &data_ret);
 		YDB_ERROR_CHECK(status);
 		if (YDB_OK != status) {
-			FREE_HANDLE_BIND_POINTERS();
+			INVOKE_YDB_DELETE_S();
 			return 1;
 		}
 		if (1 == data_ret) {
 			status = ydb_get_s(&all_statement_parms_subs[0], 6, &all_statement_parms_subs[1], &parm_value_buf);
 			YDB_ERROR_CHECK(status);
 			if (YDB_OK != status) {
-				ERROR(ERR_YOTTADB, "YDB_COPY_BUFFER_TO_BUFFER failed");
-				FREE_HANDLE_BIND_POINTERS();
+				INVOKE_YDB_DELETE_S();
 				return 1;
 			}
 		} else if (cur_bind_parm < num_bind_parms) {
 			assert(NULL != parse_context_array);
 			// This is a bind parameter, as no value was stored during the initial parse
 			// Retrieve parameter offsets from database
-			YDB_COPY_STRING_TO_BUFFER("start", &statement_subs[6], done);
-			if (!done) {
-				ERROR(ERR_YOTTADB, "YDB_COPY_BUFFER_TO_BUFFER failed");
-				FREE_HANDLE_BIND_POINTERS();
-				return 1;
-			}
+			YDB_STRING_TO_BUFFER("start", &statement_subs[6]);
 			status = ydb_get_s(&statement_subs[0], 6, &statement_subs[1], &offset_buffer);
 			YDB_ERROR_CHECK(status);
 			if (YDB_OK != status) {
-				FREE_HANDLE_BIND_POINTERS();
+				INVOKE_YDB_DELETE_S();
 				return 1;
 			}
 			offset_buffer.buf_addr[offset_buffer.len_used] = '\0';
@@ -409,20 +364,14 @@ int handle_bind(Bind *bind, RoctoSession *session) {
 				parse_context.parm_start[cur_bind_parm] = (int16_t)offset_long;
 			} else {
 				ERROR(ERR_LIBCALL, "strtol")
-				FREE_HANDLE_BIND_POINTERS();
+				INVOKE_YDB_DELETE_S();
 				return 1;
 			}
-			YDB_COPY_STRING_TO_BUFFER("end", &statement_subs[6], done);
-			if (!done) {
-				ERROR(ERR_YOTTADB, "YDB_COPY_BUFFER_TO_BUFFER failed");
-				FREE_HANDLE_BIND_POINTERS();
-				return 1;
-			}
+			YDB_STRING_TO_BUFFER("end", &statement_subs[6]);
 			status = ydb_get_s(&statement_subs[0], 6, &statement_subs[1], &offset_buffer);
 			YDB_ERROR_CHECK(status);
 			if (YDB_OK != status) {
-				ERROR(ERR_YOTTADB, "YDB_COPY_BUFFER_TO_BUFFER failed");
-				FREE_HANDLE_BIND_POINTERS();
+				INVOKE_YDB_DELETE_S();
 				return 1;
 			}
 			offset_buffer.buf_addr[offset_buffer.len_used] = '\0';
@@ -431,20 +380,15 @@ int handle_bind(Bind *bind, RoctoSession *session) {
 				parse_context.parm_end[cur_bind_parm] = (int16_t)offset_long;
 			} else {
 				ERROR(ERR_LIBCALL, "strtol")
-				FREE_HANDLE_BIND_POINTERS();
+				INVOKE_YDB_DELETE_S();
 				return 1;
 			}
 			// Retrieve parameter type from database
-			YDB_COPY_STRING_TO_BUFFER("type", &statement_subs[6], done);
-			if (!done) {
-				ERROR(ERR_YOTTADB, "YDB_COPY_BUFFER_TO_BUFFER failed");
-				FREE_HANDLE_BIND_POINTERS();
-				return 1;
-			}
+			YDB_STRING_TO_BUFFER("type", &statement_subs[6]);
 			status = ydb_get_s(&statement_subs[0], 6, &statement_subs[1], &parm_type_buf);
 			YDB_ERROR_CHECK(status);
 			if (YDB_OK != status) {
-				FREE_HANDLE_BIND_POINTERS();
+				INVOKE_YDB_DELETE_S();
 				return 1;
 			}
 			parm_type_buf.buf_addr[parm_type_buf.len_used] = '\0';
@@ -453,7 +397,7 @@ int handle_bind(Bind *bind, RoctoSession *session) {
 				parse_context.types[cur_bind_parm] = (int16_t)type_long;
 			} else {
 				ERROR(ERR_LIBCALL, "strtol")
-				FREE_HANDLE_BIND_POINTERS();
+				INVOKE_YDB_DELETE_S();
 				return 1;
 			}
 			// Get bind parameter value if it is a binary parameter and update the parm_value_buf accordingly
@@ -461,36 +405,36 @@ int handle_bind(Bind *bind, RoctoSession *session) {
 			// by clients in a PostgreSQL Bind message. These combinations follow from the definition of a Bind message
 			// at https://www.postgresql.org/docs/11/protocol-message-formats.html.
 			if (1 < bind->num_parm_format_codes) {
-				if (1 == bind->parm_format_codes[cur_parm]) {			// Binary
+				if (BINARY_FORMAT == bind->parm_format_codes[cur_parm]) {			// Binary
 					copy_binary_parameter(bind, cur_bind_parm, binary_parm_buffer, 0);
 					YDB_COPY_STRING_TO_BUFFER(binary_parm_buffer, &parm_value_buf, done);
 					if (!done) {
 						ERROR(ERR_YOTTADB, "YDB_COPY_STRING_TO_BUFFER failed");
-						FREE_HANDLE_BIND_POINTERS();
+						INVOKE_YDB_DELETE_S();
 						return 1;
 					}
 				} else {							// Text
 					YDB_COPY_STRING_TO_BUFFER(bind->parms[cur_bind_parm].value, &parm_value_buf, done);
 					if (!done) {
 						ERROR(ERR_YOTTADB, "YDB_COPY_STRING_TO_BUFFER failed");
-						FREE_HANDLE_BIND_POINTERS();
+						INVOKE_YDB_DELETE_S();
 						return 1;
 					}
 				}
 			} else if (1 == bind->num_parm_format_codes) {
-				if (1 == bind->parm_format_codes[FIRST_FORMAT_CODE]) {		// Binary
+				if (BINARY_FORMAT == bind->parm_format_codes[FIRST_FORMAT_CODE]) {		// Binary
 					copy_binary_parameter(bind, cur_bind_parm, binary_parm_buffer, 0);
 					YDB_COPY_STRING_TO_BUFFER(binary_parm_buffer, &parm_value_buf, done);
 					if (!done) {
 						ERROR(ERR_YOTTADB, "YDB_COPY_STRING_TO_BUFFER failed");
-						FREE_HANDLE_BIND_POINTERS();
+						INVOKE_YDB_DELETE_S();
 						return 1;
 					}
 				} else {							// Text
 					YDB_COPY_STRING_TO_BUFFER(bind->parms[cur_bind_parm].value, &parm_value_buf, done);
 					if (!done) {
 						ERROR(ERR_YOTTADB, "YDB_COPY_STRING_TO_BUFFER failed");
-						FREE_HANDLE_BIND_POINTERS();
+						INVOKE_YDB_DELETE_S();
 						return 1;
 					}
 				}
@@ -498,40 +442,22 @@ int handle_bind(Bind *bind, RoctoSession *session) {
 				YDB_COPY_STRING_TO_BUFFER(bind->parms[cur_bind_parm].value, &parm_value_buf, done);
 				if (!done) {
 					ERROR(ERR_YOTTADB, "YDB_COPY_STRING_TO_BUFFER failed");
-					FREE_HANDLE_BIND_POINTERS();
+					INVOKE_YDB_DELETE_S();
 					return 1;
 				}
 			}
 			cur_bind_parm++;
 		}
 		// Store the parameter value on the portal, whether bind parameter or literal from previous parse
-		YDB_COPY_BUFFER_TO_BUFFER(&cur_parm_buf, &all_portal_parms_subs[6], done);
-		if (!done) {
-			ERROR(ERR_YOTTADB, "YDB_COPY_BUFFER_TO_BUFFER failed");
-			FREE_HANDLE_BIND_POINTERS();
-			return 1;
-		}
+		YDB_STRING_TO_BUFFER(cur_parm_buf.buf_addr, &all_portal_parms_subs[6]);
 		status = ydb_set_s(&all_portal_parms_subs[0], 6, &all_portal_parms_subs[1], &parm_value_buf);
 		YDB_ERROR_CHECK(status);
 		if (YDB_OK != status) {
-			FREE_HANDLE_BIND_POINTERS();
+			INVOKE_YDB_DELETE_S();
 			return 1;
 		}
 
 	}
-	YDB_FREE_BUFFER(&parm_value_buf);
-	YDB_FREE_BUFFER(&offset_buffer);
-	YDB_FREE_BUFFER(&parm_type_buf);
-	YDB_FREE_BUFFER(&parm_type_buf);
-	YDB_FREE_BUFFER(&cur_bind_parm_buf);
-	YDB_FREE_BUFFER(&cur_parm_buf);
-	YDB_FREE_BUFFER(&all_statement_parms_subs[6]);
-	YDB_FREE_BUFFER(&all_portal_parms_subs[6]);
-	YDB_FREE_BUFFER(&portal_subs[5]);
-	YDB_FREE_BUFFER(&statement_subs[5]);
-	YDB_FREE_BUFFER(&statement_subs[6]);
-	free(all_statement_parms_subs);
-	free(all_portal_parms_subs);
 
 	// Get size of final query string
 	// Bind format rules at https://www.postgresql.org/docs/11/protocol-message-formats.html
@@ -540,13 +466,13 @@ int handle_bind(Bind *bind, RoctoSession *session) {
 		for (cur_bind_parm = 0; cur_bind_parm < num_bind_parms; cur_bind_parm++) {
 			// Binary types will be converted to strings of various sizes, use converted sizes instead of listed length
 			if (1 < bind->num_parm_format_codes) {
-				if (1 == bind->parm_format_codes[cur_bind_parm]) {
+				if (BINARY_FORMAT == bind->parm_format_codes[cur_bind_parm]) {
 					bound_query_size += get_binary_parameter_length(bind, cur_bind_parm);
 				} else {
 					bound_query_size += bind->parms[cur_bind_parm].length;
 				}
 			} else if (1 == bind->num_parm_format_codes) {
-				if (1 == bind->parm_format_codes[0]) {
+				if (BINARY_FORMAT == bind->parm_format_codes[0]) {
 					bound_query_size += get_binary_parameter_length(bind, cur_bind_parm);
 				} else {
 					bound_query_size += bind->parms[cur_bind_parm].length;
@@ -576,7 +502,7 @@ int handle_bind(Bind *bind, RoctoSession *session) {
 			}
 			// Copy parameter value
 			if (1 < bind->num_parm_format_codes) {
-				if (0 == bind->parm_format_codes[cur_bind_parm]) {
+				if (TEXT_FORMAT == bind->parm_format_codes[cur_bind_parm]) {
 					bound_offset = copy_text_parameter(bind, cur_bind_parm, bound_query, bound_offset);
 				} else {
 					// Binary
@@ -586,7 +512,7 @@ int handle_bind(Bind *bind, RoctoSession *session) {
 				// All parameters are in text format
 				bound_offset = copy_text_parameter(bind, cur_bind_parm, bound_query, bound_offset);
 			} else if (1 == bind->num_parm_format_codes) {
-				if (0 == bind->parm_format_codes[FIRST_FORMAT_CODE]) {
+				if (TEXT_FORMAT == bind->parm_format_codes[FIRST_FORMAT_CODE]) {
 					bound_offset = copy_text_parameter(bind, cur_bind_parm, bound_query, bound_offset);
 				} else {
 					// Binary
@@ -618,28 +544,21 @@ int handle_bind(Bind *bind, RoctoSession *session) {
 		free(parse_context.types);
 
 		// Store the bound statement in a global for later reference, if needed
-		YDB_FREE_BUFFER(&sql_expression);
-
 		sql_expression.buf_addr = bound_query;
 		sql_expression.len_alloc = bound_query_size;
 		sql_expression.len_used = bound_query_size-1;	// exclude null terminator
 	}
 
 	status = ydb_set_s(&portal_subs[0], 3, &portal_subs[1], &sql_expression);
-	if (0 == num_bind_parms) {
-		YDB_FREE_BUFFER(&sql_expression);	// This buffer is freed above when there are bind parameters
-	} else {
+	if (0 != num_bind_parms) {
 		free(bound_query);			// This pointer is not allocated when there are no bind parameters
 	}
-	free(statement_subs);
 	YDB_ERROR_CHECK(status);
 	if (YDB_OK != status) {
 		status = ydb_delete_s(&portal_subs[0], 3, &portal_subs[1], YDB_DEL_TREE);
 		YDB_ERROR_CHECK(status);
-		free(portal_subs);
 		return 1;
 	}
-	free(portal_subs);
 
 	// Construct the response message
 	response = make_bind_complete();

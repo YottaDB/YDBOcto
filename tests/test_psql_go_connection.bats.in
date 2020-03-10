@@ -32,6 +32,8 @@ teardown() {
 }
 
 @test "TPGC001 : fetch column data types" {
+  load_fixture northwind.sql
+  load_fixture northwind.zwr
   run_go get_column_information $test_port 2>&1 | tee output.txt
   # Not crashing is success for this test
   # There is a column in the data types output that contains what appears to be a
@@ -71,3 +73,7 @@ teardown() {
   verify_output TPGC005 output.txt psql
 }
 
+@test "TPGC006 : result row format handling (i.e. 'text' vs. 'binary' formats)" {
+  run_go request_various_row_formats $test_port 2>&1 | tee output.txt
+  verify_output TPGC006 output.txt psql
+}

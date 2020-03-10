@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////
 //								//
-// Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	//
+// Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	//
 // All rights reserved.						//
 //								//
 //	This source code contains the intellectual property	//
@@ -33,12 +33,55 @@ func main() {
     panic(err)
   }
 
+  fmt.Printf("--- SELECT * FROM names; ---\n")
+  // Check column types from `names` table (INT and VARCHAR fields)
   rows, err := db.Query("SELECT * FROM names")
   if err != nil {
     panic(err)
   }
-
   rs, err := rows.ColumnTypes()
+  if err != nil {
+    panic(err)
+  }
+  for _, r := range rs {
+    fmt.Printf("%v\n", r)
+  }
+
+  // Check column types from `Employees` table from Northwind database (INT, VARCHAR, and DATE fields)
+  fmt.Printf("\n--- SELECT * FROM Employees; ---\n")
+  rows, err = db.Query("SELECT * FROM Employees")
+  if err != nil {
+    panic(err)
+  }
+  rs, err = rows.ColumnTypes()
+  if err != nil {
+    panic(err)
+  }
+  for _, r := range rs {
+    fmt.Printf("%v\n", r)
+  }
+
+  // Check column types from `Products` table from Northwind database (INT, VARCHAR, and NUMERIC fields)
+  fmt.Printf("\n--- SELECT * FROM Products; ---\n")
+  rows, err = db.Query("SELECT * FROM Products")
+  if err != nil {
+    panic(err)
+  }
+  rs, err = rows.ColumnTypes()
+  if err != nil {
+    panic(err)
+  }
+  for _, r := range rs {
+    fmt.Printf("%v\n", r)
+  }
+
+  // Check column types from `pg_type` table from PostgreSQL catalog database (INT, VARCHAR, and BOOLEAN fields)
+  fmt.Printf("\n--- SELECT * FROM pg_catalog.pg_type; ---\n")
+  rows, err = db.Query("SELECT * FROM pg_catalog.pg_type")
+  if err != nil {
+    panic(err)
+  }
+  rs, err = rows.ColumnTypes()
   if err != nil {
     panic(err)
   }

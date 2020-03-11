@@ -194,16 +194,16 @@ cmake -DSTRING_BUFFER_LENGTH=600000 -DCMAKE_INSTALL_PREFIX=$ydb_dist/plugin ..
 
 8. Install Octo
 
-You may want to back up your global `octo.conf` located in `$ydb_dist/plugin/octo/octo.conf` before installing Octo as it may be overwritten. To backup your global `octo.conf`:
-
-```sh
-cp $ydb_dist/plugin/octo/octo.conf $ydb_dist/plugin/octo/octo.conf.bak
-```
-
 Install Octo:
 
 ```sh
 sudo -E make install
+```
+
+Note: If this is not your first time installing Octo, you may want to back up your global `octo.conf` located in `$ydb_dist/plugin/octo/octo.conf` before re-installing Octo to prevent it from being overwritten. To backup your global `octo.conf`:
+
+```sh
+cp $ydb_dist/plugin/octo/octo.conf $ydb_dist/plugin/octo/octo.conf.bak
 ```
 
 You will want to review if there are any changes needed to your backed up global `octo.conf` before restoring it. To restore the backed up global `octo.conf`:
@@ -211,6 +211,7 @@ You will want to review if there are any changes needed to your backed up global
 ```sh
 cp $ydb_dist/plugin/octo/octo.conf.bak $ydb_dist/plugin/octo/octo.conf
 ```
+
 ### Configure Octo
 
 Octo uses several internal global variables to map a SQL schema/DDL to a YottaDB database: %ydboctoschema, %ydboctoxref, and %ydboctoocto. It is best practice to map these to a separate region that is exclusive to Octo, which requires settings that may conflict with those required by other regions. For more information, refer to the Additional Configuration section below.

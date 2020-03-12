@@ -200,17 +200,7 @@ Install Octo:
 sudo -E make install
 ```
 
-Note: If this is not your first time installing Octo, you may want to back up your global `octo.conf` located in `$ydb_dist/plugin/octo/octo.conf` before re-installing Octo to prevent it from being overwritten. To backup your global `octo.conf`:
-
-```sh
-cp $ydb_dist/plugin/octo/octo.conf $ydb_dist/plugin/octo/octo.conf.bak
-```
-
-You will want to review if there are any changes needed to your backed up global `octo.conf` before restoring it. To restore the backed up global `octo.conf`:
-
-```sh
-cp $ydb_dist/plugin/octo/octo.conf.bak $ydb_dist/plugin/octo/octo.conf
-```
+Note: New Octo installations include a default `octo.conf` configuration file at `$ydb_dist/plugin/octo/octo.conf`, which may be modified post-install. Re-installing Octo will *not* overwrite an existing `octo.conf` in this location, so modifications to this file will be preserved across installations.
 
 ### Configure Octo
 

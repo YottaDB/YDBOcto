@@ -556,9 +556,11 @@ if (DISABLE_INSTALL MATCHES "OFF")
 	install(FILES ${m_mode_objects} DESTINATION ${CMAKE_INSTALL_PREFIX}/o)
 
 	# Configuration file
-	install(FILES aux/octo.conf.default
-			DESTINATION octo
-			RENAME octo.conf)
+	if(NOT EXISTS ${CMAKE_INSTALL_PREFIX}/octo/octo.conf)
+		install(FILES aux/octo.conf.default
+				DESTINATION octo
+				RENAME octo.conf)
+	endif()
 	install(FILES ${PROJECT_SOURCE_DIR}/src/aux/ydbocto.ci
 			DESTINATION octo)
 

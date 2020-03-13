@@ -549,11 +549,9 @@ if (DISABLE_INSTALL MATCHES "OFF")
 
 
 	if(utf8_installed)
-		install(FILES ${utf8_objects} DESTINATION ${CMAKE_INSTALL_PREFIX}/o/utf8)
 		install(FILES ${PROJECT_BINARY_DIR}/src/utf8/_ydbocto.so
 			DESTINATION ${CMAKE_INSTALL_PREFIX}/o/utf8)
 	endif()
-	install(FILES ${m_mode_objects} DESTINATION ${CMAKE_INSTALL_PREFIX}/o)
 
 	# Configuration file
 	if(NOT EXISTS ${CMAKE_INSTALL_PREFIX}/octo/octo.conf)

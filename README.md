@@ -200,6 +200,13 @@ Install Octo:
 sudo -E make install
 ```
 
+Redefine environment variables to include newly installed files:
+
+```sh
+$ydb_dist/ydb_env_unset
+source $(pkg-config --variable=prefix yottadb)/ydb_env_set
+```
+
 Note: New Octo installations include a default `octo.conf` configuration file at `$ydb_dist/plugin/octo/octo.conf`, which may be modified post-install. Re-installing Octo will *not* overwrite an existing `octo.conf` in this location, so modifications to this file will be preserved across installations.
 
 ### Configure Octo

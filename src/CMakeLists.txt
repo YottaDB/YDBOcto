@@ -620,7 +620,7 @@ if("${CMAKE_BUILD_TYPE}" MATCHES "RelWithDebInfo")
 			COMMAND objcopy --only-keep-debug $<TARGET_FILE:${e}> ${e}.dbg
 			COMMAND objcopy --strip-debug $<TARGET_FILE:${e}>
 			COMMAND objcopy --add-gnu-debuglink=${e}.dbg $<TARGET_FILE:${e}>
-			WORKING_DIRECTORY "${PROJECT_BINARY_DIR}"
+			WORKING_DIRECTORY "${PROJECT_BINARY_DIR}/src"
 			)
 	endforeach()
 endif()

@@ -134,20 +134,29 @@ genrandomqueries	;
 	. ;       what Postgres generates). See https://gitlab.com/YottaDB/DBMS/YDBOcto/issues/336 for an example query.
 	. set orderby=('outerjoinchosen)&$random(2) ; ###TMPDISABLE Remove ('outerjoinchosen) once #336 is fixed
 	. if orderby do
+	. . ; Since we are going to choose a list of columns in ORDER BY, we need to maintain a list of unmatched
+	. . ; columns (compared against the SELECT column list) for later use when we need to see if an exact check
+	. . ; can be done or not when LIMIT also gets randomly chosen in the query. Hence start with all columns being unmatched.
+	. . merge unmatchedselectcolumn=column
 	. . set sqlquery=sqlquery_" order by "
 	. . set numorderbycols=1+$random(numcols)
-	. . set sqlquery=sqlquery_column($random(numcols))
-	. . for i=2:1:numorderbycols set sqlquery=sqlquery_","_column($random(numcols))
+	. . set sqlquery=sqlquery_column($$chooseorderbycolumn(numcols,.unmatchedselectcolumn))
+	. . for i=2:1:numorderbycols set sqlquery=sqlquery_","_column($$chooseorderbycolumn(numcols,.unmatchedselectcolumn))
 	. ; Add optional LIMIT
 	. ; Note that in this case, the output order between Postgres and Octo could be different
 	. ; and hence we cannot reliably get the test to pass.
 	. ; Also can only do this if the # of columns selected for ORDER BY is the same as the # of SELECT columns
 	. ; Or else the order of row output could differ in the columns that are not selected.
-	. set limit=$random(4)
-	. if 'limit do
+	. set nolimit=$random(4)
+	. if 'nolimit do
 	. . set sqlquery=sqlquery_" limit "_$random(10)
 	. set sqlquery=sqlquery_";"
-	. set exactcheck=(limit)!(orderby&(numorderbycols=numcols))
+	. ; If LIMIT is not part of the query, then we can do an exact check of the results between Postgres and Octo
+	. ; But if LIMIT is part of the query, then we have to check if ORDER BY is done on all the columns that are
+	. ;	part of the SELECT column list. Even if one column in the SELECT column list is left out in the ORDER BY
+	. ;	we cannot do an exact check since Postgres and Octo are free to present that column in an arbitrary order.
+	. ;	Hence the check for existence of an unmatched select column using `$data(unmatchedselectcolumn)`
+	. set exactcheck=(nolimit)!(orderby&'$data(unmatchedselectcolumn))
 	. ; The below if check is because postgres issues the following error in this case
 	. ;	--> ERROR:  FULL JOIN is only supported with merge-joinable or hash-joinable join conditions
 	. quit:fulljoinchosen&notequalchosen
@@ -269,3 +278,9 @@ initnumvalues;
 	. . . set value(tablename,columnname,numvalues)=value
 	. . set value(tablename,columnname)=numvalues
 	quit
+
+chooseorderbycolumn(numcols,unmatchedselectcolumn)
+	new col
+	set col=$random(numcols)
+	kill unmatchedselectcolumn(col)	; to indicate this column in the SELECT column list has been chosen/matched in the ORDER BY
+	quit col

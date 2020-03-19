@@ -211,11 +211,32 @@ Note: New Octo installations include a default `octo.conf` configuration file at
 
 ### Configure Octo
 
+#### Setup environment variables
+
+The following environment variables must be set for Octo to operate properly:
+
+* `ydb_dist`
+* `ydb_gbldir`
+* `ydb_routines`
+* `ydb_ci`
+* `ydb_xc_ydbposix`
+
+The environment variables `ydb_dist`, `ydb_gbldir`, and `ydb_routines` can initially be set by sourcing `ydb_env_set` in your YottaDB installation directory. Additional modifications to ydb_routines may be needed due to configuration in `octo.conf` described later in this manual.
+
+Example setting of the environment variables (assuming default paths):
+
+```sh
+source /usr/local/lib/yottadb/r1.28/ydb_env_set
+export ydb_routines="$ydb_dist/plugin/octo/o/_ydbocto.so $ydb_routines"
+export ydb_ci=$ydb_dist/plugin/octo/ydbocto.ci
+export ydb_xc_ydbposix=$ydb_dist/plugin/ydbposix.xc
+```
+
+#### Setup Database
+
 Octo uses several internal global variables to map a SQL schema/DDL to a YottaDB database: %ydboctoschema, %ydboctoxref, and %ydboctoocto. It is best practice to map these to a separate region that is exclusive to Octo, which requires settings that may conflict with those required by other regions. For more information, refer to the Additional Configuration section below.
 
 Please see the following example for creating a database from scratch with the recommended settings. For more information on setting up a database in YottaDB, refer to the [Administration and Operations Guide](https://docs.yottadb.com/AdminOpsGuide/index.html).
-
-#### Setup Database
 
 ```sh
 $ cd build
@@ -229,27 +250,6 @@ GDE> add -name %ydboctoocto -region=octo
 GDE> verify
 GDE> exit
 $ mupip create
-```
-
-#### Setup environment variables
-
-The following environment variables must be set for Octo to operate properly:
-
-* ydb_dist
-* ydb_gbldir
-* ydb_routines
-* ydb_ci
-* ydb_xc_ydbposix
-
-The environment variables `ydb_dist`, `ydb_gbldir`, and `ydb_routines` can initially be set by sourcing `ydb_env_set` in your YottaDB installation directory. Additional modifications to ydb_routines may be needed due to configuration in `octo.conf` described later in this manual.
-
-Example setting of the environment variables (assuming default paths):
-
-```sh
-source /usr/local/lib/yottadb/r1.28/ydb_env_set
-export ydb_routines="$ydb_dist/plugin/octo/o/_ydbocto.so $ydb_routines"
-export ydb_ci=$ydb_dist/plugin/octo/ydbocto.ci
-export ydb_xc_ydbposix=$ydb_dist/plugin/ydbposix.xc
 ```
 
 #### Install PostgreSQL seed data

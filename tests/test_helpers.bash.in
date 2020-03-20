@@ -46,7 +46,9 @@ init_test() {
 		# avoids such issues. This comment also applies to the similar line in the below `else` block.
 		ydbroutines=".(. @PROJECT_SOURCE_DIR@/tests/fixtures) @PROJECT_BINARY_DIR@/src$utf8_path/_ydbocto.so @PROJECT_BINARY_DIR@"
 	else
-		ydbroutines=".(. @PROJECT_SOURCE_DIR@/tests/fixtures) .(. @YOTTADB_INCLUDE_DIRS@/plugin/r/) @PROJECT_BINARY_DIR@"
+		# Add the UTF-8 path, if set, as this is not done by build.sh in the pipeline
+		ydbroutines="@YOTTADB_INCLUDE_DIRS@/plugin/octo/o$utf8_path/_ydbocto.so .(. @PROJECT_SOURCE_DIR@/tests/fixtures)"
+		ydbroutines="$ydbroutines .(. @YOTTADB_INCLUDE_DIRS@/plugin/r/) @PROJECT_BINARY_DIR@"
 	fi
 	export ydb_routines="$ydbroutines $ydb_routines"
 	# Log env vars and shell vars in files for later analysis (if needed). Mask any sensitive env vars out.

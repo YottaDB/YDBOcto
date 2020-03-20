@@ -67,24 +67,27 @@ OCTO
 }
 
 @test "try with octo_zroutines set and in \$zroutines" {
-  mkdir dirA
-  cat >>octo.conf <<OCTO
+	mkdir dirA
+	cat >>octo.conf <<OCTO
 octo_zroutines = "$(pwd)/dirA"
 OCTO
-  export ydb_routines="$(pwd)/dirA $ydb_routines"
-  octo -vv <<OCTO 2>&1 | tee output.txt
+	# Get $zroutines before starting Octo to compose the expected result by prepending the expected additions from
+	# octo_zroutines in the config file above (path not expanded) and the subsequent ydb_routines export (path gets expanded)
+	echo -n "$(pwd)/dirA $(pwd)/dirA($(pwd)/dirA) " >> expected_ydb_routines.txt
+	$ydb_dist/yottadb -direct <<ZRO 2>&1 | grep -v "YDB>" | tail -n +2 >> expected_ydb_routines.txt
+write \$zroutines
+ZRO
+	export ydb_routines="$(pwd)/dirA $ydb_routines"
+	octo -vv <<OCTO 2>&1 | tee output.txt
 select * from names limit 1;
 OCTO
-  echo "Listing of dirA should see generated files" | tee -a output.txt
-  ls dirA | tee -a output.txt
-  # Verify actual output
-  verify_output TOZ004 output.txt noinfo nodebug
-  # Verify ydb_routines is properly set
-  expect_ydb_routines="$(pwd)/dirA $ydb_routines"
-  actual_ydb_routines=`grep ydb_routines output.txt | sed 's/.*ydb_routines="//g;s/"$//g'`
-  echo "$expect_ydb_routines" > expect_ydb_routines.txt	# store it for debugging in case == test below fails
-  echo "$actual_ydb_routines" > actual_ydb_routines.txt	# store it for debugging in case == test below fails
-  [[ "$expect_ydb_routines" == "$actual_ydb_routines" ]]
+	echo "Listing of dirA should see generated files" | tee -a output.txt
+	ls dirA | tee -a output.txt
+	# Verify actual output
+	verify_output TOZ004 output.txt noinfo nodebug
+	# Verify ydb_routines is properly set
+	grep ydb_routines output.txt | sed 's/.*ydb_routines="//g;s/"$//g' > actual_ydb_routines.txt
+	diff expected_ydb_routines.txt actual_ydb_routines.txt
 }
 
 @test "try with octo_zroutines set but not in \$zroutines" {

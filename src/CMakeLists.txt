@@ -551,7 +551,7 @@ if (DISABLE_INSTALL MATCHES "OFF")
 
 	if(utf8_installed)
 		install(FILES ${PROJECT_BINARY_DIR}/src/utf8/_ydbocto.so
-			DESTINATION ${CMAKE_INSTALL_PREFIX}/o/utf8)
+			DESTINATION ${CMAKE_INSTALL_PREFIX}/octo/o/utf8)
 	endif()
 
 	# Configuration file
@@ -564,7 +564,7 @@ if (DISABLE_INSTALL MATCHES "OFF")
 			DESTINATION octo)
 
 	install(TARGETS _ydbocto
-		DESTINATION ${CMAKE_INSTALL_PREFIX}/o)
+		DESTINATION ${CMAKE_INSTALL_PREFIX}/octo/o)
 
 	install(FILES ${PROJECT_BINARY_DIR}/postgres-seed.sql
 		DESTINATION ${CMAKE_INSTALL_PREFIX}/octo)

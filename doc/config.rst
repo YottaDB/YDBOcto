@@ -131,7 +131,7 @@ Create server key and certificate request
 
    \# This creates a 2048 bit private key
    openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:2048 -out server.key
-   \# This creeates the certificate signing request
+   \# This creates the certificate signing request
    openssl req -new -key server.key -out server.csr
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

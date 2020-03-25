@@ -3,7 +3,7 @@
 Rocto
 =====================
 
-Rocto is the Remote Octo server. It is an implementation of the Postgres server, and recieves SQL queries from any clients that can communicate with Postgres over the network. These queries are passed to Octo, which interacts with the database and passes results back through Rocto to the clients.
+Rocto is the Remote Octo server. It is an implementation of the Postgres server, and receives SQL queries from any clients that can communicate with Postgres over the network. These queries are passed to Octo, which interacts with the database and passes results back through Rocto to the clients.
 
 ---------------------------
 Connecting to SquirrelSQL
@@ -29,7 +29,10 @@ Put in the path to your JAR file (e.g. :code:`~/user/postgresql-42.2.6-SNAPSHOT.
   .. parsed-literal::
      jdbc:postgresql://localhost:1337/example
 
-Add a user name and a password (if desired).
+Rocto requires the creation of a user name and password.
+Follow the directions given in the `Octo Administration Guide <https://docs.yottadb.com/Octo/admin.html>`_ to add a new user.
+
+Use the user name and password created in the previous step with the newly created connection alias.
 
 .. figure:: alias.png
 

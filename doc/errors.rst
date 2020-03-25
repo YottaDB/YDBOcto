@@ -616,12 +616,6 @@ PARAMETER_COUNT
 
 This error indicates that Rocto failed to count the number of parameters provided in the prepared statement. PSQL Error Code: XX000
 
-++++++++++++++++++++++++
-PARAMETER_STATUS_SENT
-++++++++++++++++++++++++
-
-This message indicates that Rocto recorded the value of a database parameter set by a ParameterStatus as part of the PostgreSQL wire protocol startup procedure. PSQL Error Code: 00000
-
 +++++++++++++++++++++++++
 PASSWORD_TYPE
 +++++++++++++++++++++++++
@@ -656,7 +650,7 @@ This message indicates that a Rocto ParameterDescription message has been sent f
 ROCTO_PARAMETER_STATUS_SENT
 +++++++++++++++++++++++++++++++++
 
-This message indicates that a Rocto ParameterStatus message has been sent. PSQL Error Code: 00000
+This message indicates that Rocto recorded the value of a database parameter set by a SET statement, and has notified the client using a ParameterStatus message as part of the PostgreSQL wire protocol startup procedure. PSQL Error Code: 00000
 
 +++++++++++++++++++++++++++++++++++
 ROCTO_ROW_DESCRIPTION_SENT

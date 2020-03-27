@@ -12,7 +12,7 @@ Configuration settings can be passed to the program with the following precedenc
 2. Environment settings
 3. octo.conf
 4. ~/octo.conf
-5. $ydb_dist/plugin/etc/octo.conf
+5. $ydb_dist/plugin/octo/octo.conf
 
 --------------------
 Config files
@@ -20,11 +20,11 @@ Config files
 
 Octo currently looks for a configuration file in the following directories:
 
-* $ydb_dist/plugin/etc/octo.conf
+* $ydb_dist/plugin/octo/octo.conf
 * ~/octo.conf
 * ./octo.conf
 
-If the same setting exists in more than one configuration file the setting in the later file (according to the list above) will prevail. An example config file can be found in :code:`$ydb_dist/plugin/etc/octo.conf`.
+If the same setting exists in more than one configuration file the setting in the later file (according to the list above) will prevail. An example config file can be found in :code:`$ydb_dist/plugin/octo/octo.conf`.
 
 Sample config file:
 
@@ -77,7 +77,7 @@ A config file can include instructions specifying verbosity for logging:
 Locations and Global Variables
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-All octo related globals are prefixed with :code:`^%ydbocto`. Using normal global mapping procedures for an existing application global directory (where you want to run Octo), map the global variable namespace :code:`^%ydbocto*` to a separate region (and its associated database file) that meets the below requirements (the below example commands assume the separate region is named :code:`OCTO`).
+All Octo related globals are prefixed with :code:`^%ydbocto`. Using normal global mapping procedures for an existing application global directory (where you want to run Octo), map the global variable namespace :code:`^%ydbocto*` to a separate region (and its associated database file) that meets the below requirements (the below example commands assume the separate region is named :code:`OCTO`).
 
 * :code:`NULL_SUBSCRIPTS` must be set to :code:`ALWAYS`.
 
@@ -101,9 +101,13 @@ Some of the globals used in Octo are:
 
 Since most of the Octo variables need to persist between sessions, it is necessary that the region(s) mapping the :code:`^%ydbocto*` namespace have replication turned on in a replicated environment (or journaling turned on in a non-replicated environment).
 
-+++++++++++++++++++++++
+-----------------------
 TLS/SSL Configuration
-+++++++++++++++++++++++
+-----------------------
+
+.. note::
+   The instructions provided in this section will help in setting up a :code:`self-signed` certificate for TLS, but *not* for setting up TLS in production.
+   Also, a full TLS setup will require certificates signed by a known and trusted certificate authority.
 
 Enabling TLS/SSL requires several additional steps beyond installing the YottaDB encryption plugin - it requires creating a Certificate Authority (CA), generating a TLS/SSL certificate, and making additional changes to :code:`octo.conf`.
 
@@ -148,7 +152,7 @@ Sign certificate based on request and local CA
 Update Octo configuration file
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The $ydb_dist/plugin/etc/octo.conf contains an outline of the minimum configuration options needed to enable TLS/SSL. The key items are:
+The $ydb_dist/plugin/octo/octo.conf contains an outline of the minimum configuration options needed to enable TLS/SSL. The key items are:
 
 1. In the "rocto" section, "ssl_on" must be set to "true" (no quotes needed in the conf).
 2. A "tls" section must be present and generally conform to the requirements specified for the `TLS plugin itself <https://docs.yottadb.com/AdminOpsGuide/tls.html>`_. Other notes:

@@ -199,7 +199,7 @@ int octo_init(int argc, char **argv) {
 	if (status)
 		return status;
 
-	// Search for config file octo.conf (OCTO_CONF_FILE_NAME) in directories "$ydb_dist/plugin/etc", "~" and "." in that order
+	// Search for config file octo.conf (OCTO_CONF_FILE_NAME) in directories "$ydb_dist/plugin/octo", "~" and "." in that order
 	config_init(config_file);
 
 	// This should always be 1
@@ -224,7 +224,7 @@ int octo_init(int argc, char **argv) {
 	ydb_dist = getenv("ydb_dist");
 	if (NULL == config->config_file_name) {
 		if (NULL != ydb_dist) {
-			MERGE_CONFIG_PATH_AND_RETURN_ON_ERROR("%s/plugin/etc/%s", ydb_dist, config_file);
+			MERGE_CONFIG_PATH_AND_RETURN_ON_ERROR("%s/plugin/octo/%s", ydb_dist, config_file);
 		}
 		homedir = getenv("HOME");
 		if (NULL != homedir) {

@@ -62,6 +62,7 @@ int main(int argc, char **argv) {
 	char				host_buf[NI_MAXHOST], serv_buf[NI_MAXSERV];
 	int				cur_parm = 0;
 	int				sfd, cfd, opt, result, status = 0;
+	int64_t				mem_usage;
 	pid_t				child_id = 0;
 	struct sigaction		ctrlc_action;
 	struct sockaddr_in		*address = NULL;
@@ -512,8 +513,14 @@ int main(int argc, char **argv) {
 		// the socket; thread_id will be 0 if we are a child process
 		close(sfd);
 	}
-	TRACE(INFO_MEMORY_USAGE, get_mem_usage());
+
 	if (TRACE >= config->record_error_level) {
+		mem_usage = get_mem_usage();
+		if (0 <= mem_usage) {
+			TRACE(INFO_MEMORY_USAGE, mem_usage);
+		} else {
+			ERROR(ERR_MEMORY_USAGE, "");
+		}
 		status = ydb_ci("_ydboctoNodeDump");
 		YDB_ERROR_CHECK(status);
 	}

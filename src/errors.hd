@@ -116,6 +116,7 @@ ERROR_DEF(ERR_SYSCALL_WITH_ARG, "System call failed: %s, return %d (%s): args: %
 ERROR_DEF(ERR_LIBCALL, "Library call failed: %s", PSQL_Code_System_Error)
 ERROR_DEF(ERR_LIBCALL_WITH_ARG, "Library call %s failed with argument '%s'", PSQL_Code_System_Error)
 // ROCTO //
+ERROR_DEF(ERR_MEMORY_USAGE, "Failed to retrieve memory usage at process exit", PSQL_Code_System_Error)
 
 /*** Configuration errors ***/
 // OCTO //

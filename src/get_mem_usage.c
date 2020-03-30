@@ -34,7 +34,9 @@ int64_t get_mem_usage() {
 		return -1;
 	}
 
-	status = fgets(mem_used, INT64_TO_STRING_MAX, fp);
+	do {
+		status = fgets(mem_used, INT64_TO_STRING_MAX, fp);
+	} while ((NULL == status) && (EINTR == errno));
 	pclose(fp);
 	if (NULL == status) {
 		ERROR(ERR_SYSCALL, "fgets", errno, strerror(errno))

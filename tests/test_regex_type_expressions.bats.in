@@ -35,3 +35,7 @@ setup() {
   verify_output TRTE03_errors output.txt noinfo nodebug
 }
 
+@test "TRTE04 : OCTO468 : LIKE works with two column references" {
+  load_fixture TRTE04.sql subtest
+  verify_output TRTE04 output.txt noinfo nodebug
+}

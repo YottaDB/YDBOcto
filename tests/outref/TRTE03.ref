@@ -1,0 +1,13 @@
+
+select id from names where firstname like lastname;
+[ERROR] PATH:LINENUM DATE TIME : Unknown column: ^LASTNAME$
+Error with syntax near (line 1, column 43):
+
+select id from names where firstname like lastname;
+                                          ^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select id from names where firstname like lastname;
+
+[ INFO] PATH:LINENUM DATE TIME : Parsing done for SQL command [select id from names where firstname like lastname;]
+[ INFO] PATH:LINENUM DATE TIME : Returning failure from run_query
+[ INFO] PATH:LINENUM DATE TIME : Parsing done for SQL command []
+

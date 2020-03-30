@@ -58,7 +58,7 @@ int regex_specification(SqlStatement **stmt, SqlStatement *op0, SqlStatement *op
 		SqlValue	*value;
 
 		UNPACK_SQL_STATEMENT(value, op1, value);
-		if (COERCE_TYPE == value->type){
+		if (COERCE_TYPE == value->type) {
 			c = ((1 == is_regex_like_or_similar)
 				?  like_to_regex(value->v.coerce_target->v.value->v.string_literal)
 				: similar_to_regex(value->v.coerce_target->v.value->v.string_literal));
@@ -66,16 +66,25 @@ int regex_specification(SqlStatement **stmt, SqlStatement *op0, SqlStatement *op
 			value->v.coerce_target->v.value->v.string_literal = c;
 			trim_dot_star(value->v.coerce_target->v.value);
 		} else {
+			assert((BOOLEAN_VALUE == value->type)
+				|| (NUMERIC_LITERAL == value->type)
+				|| (INTEGER_LITERAL == value->type)
+				|| (STRING_LITERAL == value->type)
+				|| (COLUMN_REFERENCE == value->type));
 			c = ((1 == is_regex_like_or_similar)
 				? like_to_regex(value->v.string_literal)
 				: similar_to_regex(value->v.string_literal));
 			LIKE_REGEX_ERROR_ON_NULL(c, op1, is_regex_like_or_similar);
 			value->v.string_literal = c;
 			trim_dot_star(value);
-			int status = parse_literal_to_parameter(parse_context, value, TRUE);
-			if (0 != status) {
-				OCTO_CFREE(memory_chunks);
-				return 1;
+			if (COLUMN_REFERENCE != value->type) {		// Only convert literals into parameters
+				int	status;
+
+				status = parse_literal_to_parameter(parse_context, value, TRUE);
+				if (0 != status) {
+					OCTO_CFREE(memory_chunks);
+					return 1;
+				}
 			}
 		}
 		regex->v.binary->operands[1] = op1;

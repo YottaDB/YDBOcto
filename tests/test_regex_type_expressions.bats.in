@@ -35,7 +35,16 @@ setup() {
   verify_output TRTE03_errors output.txt noinfo nodebug
 }
 
-@test "TRTE04 : OCTO468 : LIKE works with two column references" {
-  load_fixture TRTE04.sql subtest
-  verify_output TRTE04 output.txt noinfo nodebug
+@test "TRTE04a & TRTE04b : OCTO468 : LIKE, SIMLAR TO and ~ works with non string literal comparison" {
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TRTE04a.sql "remove_empty_line_at_tail"
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries customers TRTE04b.sql "remove_empty_line_at_tail"
+}
+
+@test "TRTE05 : LIKE/SIMILAR TO etc. only generate one plan for different string literals" {
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TRTE05.sql "remove_empty_line_at_tail"
+  [[ $(ls -l _ydboctoP*.m | wc -l) -eq 1 ]]
+}
+
+@test "TRTE06 : Verifies that optimization doesn't break pattern processing when same pattern but different operation is used" {
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TRTE06.sql "remove_empty_line_at_tail"
 }

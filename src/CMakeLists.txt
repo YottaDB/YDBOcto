@@ -144,7 +144,6 @@ add_library(libocto OBJECT
   get_user_visible_type_string.c
   hash_canonical_query.c
   is_query_canceled.c
-  like_to_regex.c
   m_escape_string2.c
   m_templates/resize_tmpl_buffer.c
   match_column_in_table.c
@@ -201,7 +200,6 @@ add_library(libocto OBJECT
   parser/set_operation.c
   parser/sort_specification.c
   parser/table_reference.c
-  parser/trim_dot_star.c
   physical/emit_physical_plan.c
   physical/generate_physical_plan.c
   physical/get_physical_plan_from_unique_id.c
@@ -215,7 +213,6 @@ add_library(libocto OBJECT
   quoting.c
   readline_get_more.c
   run_query.c
-  similar_to_regex.c
   store_table_in_pg_class.c
   tables_equal.c
   values_equal.c

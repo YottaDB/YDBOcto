@@ -30,6 +30,16 @@ select id from names where 'aaaa' like 'a*';
 select id from names where 'aaaa' like 'a\*';
 select id from names where 'a' like '[abc]';
 select id from names where '[abc]' like '[abc]';
+select id from names where '(abc)' like '\(abc\)';
+select id from names where 'a{4}' like 'a\{4\}';
+select id from names where 'a?' like 'a\?';
+select id from names where 'a+' like 'a\+';
+select id from names where 'abc|d' like 'abc\|d';
+select id from names where '%' like '\%';
+select id from names where 'abc' like 'abc|d';
+select id from names where 'abc' like '(xyz)|(abc)';
+select id from names where 'a' like 'ab?';
+select id from names where 'aaaa' like 'a+';
 
 -- NOT LIKE variants
 select id from names where firstname not like 'Z%';
@@ -48,6 +58,13 @@ select id from names where 'aaaa' not like 'a*';
 select id from names where 'aaaa' not like 'a\*';
 select id from names where 'a' not like '[abc]';
 select id from names where '[abc]' not like '[abc]';
+select id from names where '(abc)' not like '\(abc\)';
+select id from names where 'a{4}' not like 'a\{4\}';
+select id from names where 'a?' not like 'a\?';
+select id from names where 'a+' not like 'a\+';
+select id from names where 'abc|d' not like 'abc\|d';
+select id from names where '%' not like '\%';
+select id from names where 'abc' not like 'abc|d';
 
 -- ILIKE variants
 select id from names where 'abc' ilike 'abc';
@@ -118,6 +135,7 @@ select id from names where 'abc' similar to '_\*';
 select id from names where 'a*' similar to '_\*';
 select id from names where '_' similar to '\_';
 select id from names where '...' similar to '...';
+select id from names where '.*' similar to '\.\*';
 select id from names where 'aaaa' similar to 'a{4}';
 select id from names where 'aaaa' similar to 'a{1,}';
 select id from names where 'aaaa' similar to 'a{1,10}';
@@ -125,10 +143,12 @@ select id from names where 'a' similar to '[abc]';
 select id from names where 'abc' similar to 'abc|d';
 select id from names where 'abc|d' similar to 'abc\|d';
 select id from names where 'abc' similar to '(xyz)|(abc)';
+select id from names where '(abc)' similar to '\(abc\)';
 select id from names where 'aaaa' similar to 'a+';
 select id from names where 'a+' similar to 'a\+';
 select id from names where 'a' similar to 'ab?';
 select id from names where 'a?' similar to 'a\?';
+select id from names where 'ab' similar to '.*';
 
 -- NOT SIMILAR TO variants
 select id from names where 'abc' not similar to 'abc';
@@ -143,6 +163,7 @@ select id from names where 'abc' not similar to '_\*';
 select id from names where 'a*' not similar to '_\*';
 select id from names where '_' not similar to '\_';
 select id from names where '...' not similar to '...';
+select id from names where '.*' not similar to '\.\*';
 select id from names where 'aaaa' not similar to 'a{4}';
 select id from names where 'aaaa' not similar to 'a{1,}';
 select id from names where 'aaaa' not similar to 'a{1,10}';
@@ -150,6 +171,7 @@ select id from names where 'a' not similar to '[abc]';
 select id from names where 'abc' not similar to 'abc|d';
 select id from names where 'abc|d' not similar to 'abc\|d';
 select id from names where 'abc' not similar to '(xyz)|(abc)';
+select id from names where '(abc)' not similar to '\(abc\)';
 select id from names where 'aaaa' not similar to 'a+';
 select id from names where 'a+' not similar to 'a\+';
 select id from names where 'a' not similar to 'ab?';
@@ -172,6 +194,13 @@ select id from names where 'a' ~ '[abc]';
 select id from names where 'abc|d' ~ 'abc|d';
 select id from names where 'a+' ~ 'a+';
 select id from names where 'a?' ~ 'a?';
+select id from names where '(abc)' ~ '\(abc\)';
+select id from names where 'a?' ~ 'a\?';
+select id from names where 'a+' !~ 'a\+';
+select id from names where 'abc|d' ~ 'abc\|d';
+select id from names where 'abc' ~ '(xyz)|(abc)';
+select id from names where 'a' ~ 'ab?';
+select id from names where 'aaaa' ~ 'a+';
 
 -- !~ variants
 select id from names where 'abc' !~ 'abc';
@@ -188,6 +217,10 @@ select id from names where 'a' !~ '[abc]';
 select id from names where 'abc|d' !~ 'abc|d';
 select id from names where 'a+' !~ 'a+';
 select id from names where 'a?' !~ 'a?';
+select id from names where '(abc)' !~ '\(abc\)';
+select id from names where 'a?' !~ 'a\?';
+select id from names where 'a+' !~ 'a\+';
+select id from names where 'abc|d' !~ 'abc\|d';
 
 -- ~* variants
 select id from names where 'abc' ~* 'abc';
@@ -204,28 +237,31 @@ select id from names where 'xyz' !~* 'a';
 select id from names where 'xyz' !~* 'x';
 select id from names where 'xyz' !~* 'X';
 
----------------------------------------------------------------------------------------------------------------------
--- Below queries give different output between Octo and Postgres. They can be uncommented when YDBOcto#419 is fixed
----------------------------------------------------------------------------------------------------------------------
--- select id from names where 'abd' similar to 'abc|d';
--- select id from names where 'abd' not similar to 'abc|d';
--- select id from names where 'aaaa' ~ 'a\{4\}';
--- select id from names where 'aaaa' ~ 'a\{1,\}';
--- select id from names where 'aaaa' ~ 'a\{1,10\}';
--- select id from names where 'abc' ~ 'abc\|d';
--- select id from names where 'abd' ~ 'abc\|d';
--- select id from names where 'abc' ~ '\(xyz\)\|\(abc\)';
--- select id from names where 'aaaa' ~ 'a\+';
--- select id from names where 'a' ~ 'ab\?';
--- select id from names where 'aaaa' !~ 'a\{4\}';
--- select id from names where 'aaaa' !~ 'a\{1,\}';
--- select id from names where 'aaaa' !~ 'a\{1,10\}';
--- select id from names where 'abc' !~ 'abc\|d';
--- select id from names where 'abd' !~ 'abc\|d';
--- select id from names where 'abc' !~ '\(xyz\)\|\(abc\)';
--- select id from names where 'aaaa' !~ 'a\+';
--- select id from names where 'a' !~ 'ab\?';
----------------------------------------------------------------------------------------------------------------------
+-- Variants using |{}()+? in combination with backslash
+select id from names where 'abd' similar to 'abc|d';
+select id from names where 'abd' not similar to 'abc|d';
+select id from names where 'aaaa' ~ 'a\{4\}';
+select id from names where 'aaaa' ~ 'a\{1,\}';
+select id from names where 'aaaa' ~ 'a\{1,10\}';
+select id from names where 'abc' ~ 'abc\|d';
+select id from names where 'abd' ~ 'abc\|d';
+select id from names where 'abc' ~ '\(xyz\)\|\(abc\)';
+select id from names where 'aaaa' ~ 'a\+';
+select id from names where 'a' ~ 'ab\?';
+select id from names where 'aaaa' !~ 'a\{4\}';
+select id from names where 'aaaa' !~ 'a\{1,\}';
+select id from names where 'aaaa' !~ 'a\{1,10\}';
+select id from names where 'abc' !~ 'abc\|d';
+select id from names where 'abd' !~ 'abc\|d';
+select id from names where 'abc' !~ '\(xyz\)\|\(abc\)';
+select id from names where 'aaaa' !~ 'a\+';
+select id from names where 'a' !~ 'ab\?';
+select id from names where 'aaaa' !~ 'a{1,10}';
+select id from names where 'aaaa' !~ 'a{1,}';
+select id from names where 'aaaa' !~ 'a{4}';
+select id from names where 'aaaa' ~ 'a{1,10}';
+select id from names where 'aaaa' ~ 'a{1,}';
+select id from names where 'aaaa' ~ 'a{4}';
 
 -- Variants using backslash inside single-quotes. Moved to end as they otherwise disturb syntax highlighting in rest of sections
 select id from names where '\\' like '\\';
@@ -236,4 +272,33 @@ select id from names where '\' like '\\';
 select id from names where '\' not like '\\';
 select id from names where '\' ~~ '\\';
 select id from names where '\' !~~ '\\';
+select id from names where '\' similar to '\\';
+select id from names where '\' not similar to '\\';
+select id from names where '\' ~ '\\';
+select id from names where '\' !~ '\\';
 
+-- Verifies queries where octo performs a trim on .* values
+select * from names where (id*3)::varchar like '%1%';
+select * from names where firstname ~ '.*a';
+select * from names where firstname like '%a';
+select * from names where firstname like '%';
+select * from names where firstname like '%%%%%%';
+select * from names where firstname not like '%';
+select * from names where firstname not like '%%%%%%';
+select * from names where firstname similar to '%a';
+select * from names where firstname similar to '%';
+select * from names where firstname similar to '%%%%%%';
+select * from names where firstname not similar to '%';
+select * from names where firstname not similar to '%%%%%%';
+select * from names where firstname ~ '.*';
+select * from names where firstname ~ '.*.*.*.*';
+select * from names where firstname !~ '.*';
+select * from names where firstname !~ '.*.*.*.*';
+select * from names where firstname ~* '.*';
+select * from names where firstname ~* '.*.*.*.*';
+select * from names where firstname !~* '.*';
+select * from names where firstname !~* '.*.*.*.*';
+select * from names where firstname like '%%abc%%';
+select * from names where firstname not like '%%abc%%';
+select * from names where firstname similar to '%%abc%%';
+select * from names where firstname not similar to '%%abc%%';

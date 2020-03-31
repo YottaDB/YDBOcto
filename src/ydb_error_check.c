@@ -95,6 +95,20 @@ void ydb_error_check(int status, char *file, int line)
 			ydb_delete_s(&varname, 2, subs, YDB_DEL_NODE);
 		}
 		ydboctoerrcode++;
+		if (status == ydboctoerrcode) {
+			ydb_buffer_t    subs[2];
+
+			/* M code would have passed the actual string involved in an M node. Get that before printing error. */
+			YDB_LITERAL_TO_BUFFER("%ydboctoerror", &varname);
+			YDB_LITERAL_TO_BUFFER("INVALIDESCAPEPATTERN", &subs[0]);
+			YDB_LITERAL_TO_BUFFER("1", &subs[1]);
+			ydb_get_s(&varname, 2, subs, &ret_value);
+			ret_value.buf_addr[ret_value.len_used] = '\0';
+			octo_log(line, file, ERROR, ERROR_Severity, ERR_INVALID_ESCAPE_PATTERN, ret_value.buf_addr);
+			/* Now that we have got the value, delete the M node */
+			ydb_delete_s(&varname, 2, subs, YDB_DEL_NODE);
+		}
+		ydboctoerrcode++;
 		assert(ydboctoerrcode == ydboctoerrcodemax);
 		/* Clear "$ECODE" now that we have handled the Octo-internal error.
 		 * Otherwise "ydb_etrap" would be invoked at a later point in time.

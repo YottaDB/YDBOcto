@@ -53,6 +53,13 @@
 #define	GROUP_BY_SUBSCRIPT	"\"GroupBy\""
 #define	PLAN_LINE_START		"    "		/* 4 spaces start an M line in the generated plan */
 
+/* Pattern string in a regex operation requires operation specific formatting,
+ * following macro helps to convey the operation type information to m code from tmpl_*.ctemplate functions.
+ */
+#define PP_LIKE         1
+#define PP_SIMILAR_TO   2
+#define PP_TILDE        3
+
 enum EmitSourceForm {
 	EmitSourceForm_Value,
 	EmitSourceForm_Trigger

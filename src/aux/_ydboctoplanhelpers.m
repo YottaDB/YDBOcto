@@ -656,3 +656,171 @@ get3bytedatalen(byte1,mval,offset)
 	; `offset` indicates how many bytes to go past before extracting the 2nd/3rd byte
 	QUIT (byte1-192)*65536+($ZASCII($ZEXTRACT(mval,offset+2))*256)+$ZASCII($ZEXTRACT(mval,offset+3))-3
 
+trimdotstar(resstr)
+	; Removes consequent .*'s present in resstr
+	; Example: .*.* -> .*
+	NEW trim,result,len
+	SET trim=0,result=""
+	SET len=$ZLENGTH(resstr)
+	FOR i=1:1:len  DO
+	. SET ch=$ZEXTRACT(resstr,i)
+	. IF "."=ch DO
+	. . SET ch=$ZEXTRACT(resstr,i+1)
+	. . IF "*"=ch DO
+	. . . IF 1'=trim DO
+	. . . . SET trim=1
+	. . . . SET result=result_".*"
+	. . . SET i=i+1
+	. . ELSE  DO
+	. . . SET trim=0
+	. . . SET result=result_"."
+	. ELSE  DO
+	. . SET trim=0
+	. . SET result=result_ch
+	QUIT result
+
+regexinit
+	; Initialize the regex transformation local variables once per octo process.
+	; Comments at the beginning of routine regexmatch explains why and how the transformations
+	; arrays below are used.
+	IF (0=$GET(%ydboctoregex(0,1,"%"),0)) DO
+	. ; LIKE
+	. SET %ydboctoregex(0,1,"%")=".*",%ydboctoregex(0,1,"_")=".",%ydboctoregex(0,1,".")="\.",%ydboctoregex(0,1,"*")="\*"
+	. SET %ydboctoregex(0,1,"[")="\[",%ydboctoregex(0,1,"]")="\]",%ydboctoregex(0,1,"+")="+",%ydboctoregex(0,1,"?")="?"
+	. SET %ydboctoregex(0,1,"{")="{",%ydboctoregex(0,1,"}")="}",%ydboctoregex(0,1,"(")="(",%ydboctoregex(0,1,")")=")"
+	. SET %ydboctoregex(0,1,"|")="|"
+	. ; SIMILAR TO
+	. SET %ydboctoregex(0,2,"%")=".*",%ydboctoregex(0,2,"_")=".",%ydboctoregex(0,2,".")="\.",%ydboctoregex(0,2,"*")="*"
+	. SET %ydboctoregex(0,2,"[")="[",%ydboctoregex(0,2,"]")="]",%ydboctoregex(0,2,"+")="\+",%ydboctoregex(0,2,"?")="\?"
+	. SET %ydboctoregex(0,2,"{")="\{",%ydboctoregex(0,2,"}")="\}",%ydboctoregex(0,2,"(")="\(",%ydboctoregex(0,2,")")="\)"
+	. SET %ydboctoregex(0,2,"|")="$\|^"
+	. ; ~
+	. SET %ydboctoregex(0,3,"%")="%",%ydboctoregex(0,3,"_")="_",%ydboctoregex(0,3,".")=".",%ydboctoregex(0,3,"*")="*"
+	. SET %ydboctoregex(0,3,"[")="[",%ydboctoregex(0,3,"]")="]",%ydboctoregex(0,3,"+")="\+",%ydboctoregex(0,3,"?")="\?"
+	. SET %ydboctoregex(0,3,"{")="\{",%ydboctoregex(0,3,"}")="\}",%ydboctoregex(0,3,"(")="\(",%ydboctoregex(0,3,")")="\)"
+	. SET %ydboctoregex(0,3,"|")="\|"
+	. ; LIKE, SIMILAR TO & ~ operation with an escaped character
+	. SET %ydboctoregex(1,"%")="%",%ydboctoregex(1,"_")="_",%ydboctoregex(1,"|")="|",%ydboctoregex(1,"+")="+"
+	. SET %ydboctoregex(1,"?")="?",%ydboctoregex(1,"{")="{",%ydboctoregex(1,"}")="}",%ydboctoregex(1,"(")="("
+	. SET %ydboctoregex(1,")")=")",%ydboctoregex(1,"\")="\\",%ydboctoregex(1,".")="\.",%ydboctoregex(1,"*")="\*"
+	. SET %ydboctoregex(1,"[")="\[",%ydboctoregex(1,"]")="\]"
+	QUIT
+
+throwregexerr(regexstr)
+	SET %ydboctoerror("INVALIDESCAPEPATTERN",1)=regexstr  ; pass parameter to `src/ydb_error_check.c`
+	ZMESSAGE %ydboctoerror("INVALIDESCAPEPATTERN")
+	; QUIT will not be reached as ZMESSAGE triggers error handling and returns control out of M code back to caller C code
+	QUIT
+
+pattransform(patt,type)
+	; transform a pattern with appropriate escapes
+	; type=1 transformation for LIKE
+	; type=2 transfoprmation for SIMILAR TO
+	; type=3 transformation for ~
+	NEW len,ch,res,resstr
+	SET len=$ZLENGTH(patt),resstr=""
+	FOR i=1:1:len  DO
+	. SET (res,ch)=$ZEXTRACT(patt,i)
+	. IF "\"=ch DO
+	. . ; escape character encountered
+	. . IF ((i+1)>len) DO
+	. . . IF (1=type) DO
+	. . . . SET %ydboctoregex("result")="error"
+	. . . . DO throwregexerr(patt)
+	. . . ELSE  SET res="\"
+	. . ELSE  DO
+	. . . SET ch=$ZEXTRACT(patt,i+1),i=i+1
+	. . . SET res=$GET(%ydboctoregex(1,ch),0)
+	. . . SET:0=res res="\"_ch
+	. ELSE  DO
+	. . SET res=$GET(%ydboctoregex(0,type,ch),0)
+	. . SET:0=res res=ch
+	. SET resstr=resstr_res
+	quit resstr
+
+regexmatch(str,regexstr,plantype,intval)
+	; By default, regex engine ($$regmatch^ydbposix) treats some metacharacters as off.
+	; Where as SIMILAR TO and LIKE by default are expected to have these metacharacters to be on.
+	; In order to use regex engine to process all regex pattern operations, regexstr is processed
+	; to enable necessary metacharacters based on its operation.
+	; Example:
+	; 	Posix regex engine by default doesn't treat + with special meaning.
+	;	But, \+ provides the character special meaning.
+	;	SQL standard by default treats + with special meaning i.e using literal character +
+	;	means match one or more units in case of SIMILAR TO and ~.
+	;	To acheive synchronization between SQL standard and Posix regex engine we transform
+	;	+ in a SQl query to \+ (SIMILAR TO & ~ usage) to treat it with special meaning.
+	; This operation is done here as column values are not available in earlier stages and we
+	; need pattern strings passed as column reference also to be processed.
+	; Parameter:
+	;	intval -  if defined acts as the third argument for regex engine
+	; 	plantype -  represents operation : 1->PP_LIKE (LIKE) ,2->PP_SIMILARTO (SIMILAR TO) & 3->PP_TILDE (~)
+	; 	str - left operand of regex operation
+	;	regexstr - right operand of regex operation (pattern string)
+	; regexstr is processed using the following rules:
+	; Like			Similar TO			~
+	; Input	Output		Input	Output		Input	Output
+	; %	.*		%	.*		%	%
+	; _	.		_	.		_	_
+	; .	\.		.	\.		.	.
+	; *	\*		*	*		*	*
+	; [	\[		[	[		[	[
+	; ]	\]		]	]		]	]
+	; +	+		+	\+		+	\+
+	; ?	?		?	\?		?	\?
+	; {	{		{	\{		{	\{
+	; }	}		}	\}		}	\}
+	; (	(		(	\(		(	\(
+	; )	)		)	\)		)	\)
+	; |	|		|	$\|^		|	\|
+	; \%	%		\%	%		\%	%
+	; \_	_		\_	_		\_	_
+	; \|	|		\|	|		\|	|
+	; \+	+		\+	+		\+	+
+	; \?	?		\?	?		\?	?
+	; \{	{		\{	{		\{	{
+	; \}	}		\}	}		\}	}
+	; \(	(		\(	(		\(	(
+	; \)	)		\)	)		\)	)
+	; \\	\\		\\	\\		\\	\\
+	; \.	\.		\.	\.		\.	\.
+	; \*	\*		\*	\*		\*	\*
+	; \[	\[		\[	\[		\[	\[
+	; \]	\]		\]	\]		\]	\]
+	;
+	; if any of the input strings are $ZYSQLNULL return without processing
+	QUIT:$ZYISSQLNULL(regexstr) $ZYSQLNULL
+	QUIT:$ZYISSQLNULL(str) $ZYSQLNULL
+	; optimization:
+	; 	fetch previous regexstr, plantype and transformed regexstr("result")
+	; 	avoid performing transformation again when current and previous regexstr and plantype are same
+	NEW pvstr,pvrs,pvpln,ret
+	SET pvstr=$GET(%ydboctoregex("regexstr"))
+	SET pvrs=$GET(%ydboctoregex("result"))
+	SET pvpln=$GET(%ydboctoregex("plan"))
+	IF ((regexstr=pvstr)&(plantype=pvpln)) DO  QUIT ret
+	. IF ("error"=pvrs) DO throwregexerr(regexstr)
+	. ELSE  IF (".*"=pvrs) SET ret=1
+	. ELSE  IF (0=$DATA(intval)) SET ret=$$regmatch^%ydbposix(str,pvrs)
+	. ELSE  SET ret=$$regmatch^%ydbposix(str,pvrs,intval)
+	SET %ydboctoregex("regexstr")=regexstr
+	SET %ydboctoregex("plan")=plantype
+	DO regexinit
+	NEW resstr,result	; result will hold transformed regexstr
+	SET resstr=""
+	; anchor incase of SIMILAR TO and LIKE operation
+	SET:plantype'=3 resstr="^"
+	SET resstr=resstr_$$pattransform(regexstr,plantype)
+	; anchor in case of LIKE and SIMILAR TO
+	SET:3'=plantype resstr=resstr_"$"
+	SET ret=0,result=resstr
+	IF 3=plantype DO
+	. ; .*.* type of regexstr can only occur in ~ operation
+	. ; trim .* as its processing is faster here than in regex engine
+	. SET result=$$trimdotstar(resstr)
+	. IF (".*"=result) SET %ydboctoregex("result")=result,ret=1
+	QUIT:1=ret 1
+	SET %ydboctoregex("result")=result
+	IF (0=$DATA(intval)) SET ret=$$regmatch^%ydbposix(str,result)
+	ELSE  SET ret=$$regmatch^%ydbposix(str,result,intval)
+	QUIT ret

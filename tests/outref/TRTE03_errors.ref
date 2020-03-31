@@ -6,60 +6,14 @@ select id from names where '\' like '\';
 select id from names where '\' not like '\';
 select id from names where '\' ~~ '\';
 select id from names where '\' !~~ '\';
-[ERROR] PATH:LINENUM DATE TIME : Cannot end pattern with escape character
-Error with syntax near (line 1, column 39):
-
-select id from names where '\\' like '\';
-                                       ^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select id from names where '\\' like '\';
-
-[ERROR] PATH:LINENUM DATE TIME : Cannot end pattern with escape character
-Error with syntax near (line 1, column 44):
-
-select id from names where '\\' not like '\';
-                                           ^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select id from names where '\\' not like '\';
-
-[ERROR] PATH:LINENUM DATE TIME : Cannot end pattern with escape character
-Error with syntax near (line 1, column 38):
-
-select id from names where '\\' ~~ '\';
-                                     ^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select id from names where '\\' ~~ '\';
-
-[ERROR] PATH:LINENUM DATE TIME : Cannot end pattern with escape character
-Error with syntax near (line 1, column 39):
-
-select id from names where '\\' !~~ '\';
-                                      ^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select id from names where '\\' !~~ '\';
-
-[ERROR] PATH:LINENUM DATE TIME : Cannot end pattern with escape character
-Error with syntax near (line 1, column 39):
-
-select id from names where '\' like '\';
-                                      ^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select id from names where '\' like '\';
-
-[ERROR] PATH:LINENUM DATE TIME : Cannot end pattern with escape character
-Error with syntax near (line 1, column 43):
-
-select id from names where '\' not like '\';
-                                          ^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select id from names where '\' not like '\';
-
-[ERROR] PATH:LINENUM DATE TIME : Cannot end pattern with escape character
-Error with syntax near (line 1, column 37):
-
-select id from names where '\' ~~ '\';
-                                    ^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select id from names where '\' ~~ '\';
-
-[ERROR] PATH:LINENUM DATE TIME : Cannot end pattern with escape character
-Error with syntax near (line 1, column 38):
-
-select id from names where '\' !~~ '\';
-                                     ^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select id from names where '\' !~~ '\';
-
+select firstname from (select 8 as id,'ey' as firstname, '\' as lastname)n1 where firstname LIKE lastname;
+[ERROR] PATH:LINENUM DATE TIME : Cannot end pattern with escape character: \
+[ERROR] PATH:LINENUM DATE TIME : Cannot end pattern with escape character: \
+[ERROR] PATH:LINENUM DATE TIME : Cannot end pattern with escape character: \
+[ERROR] PATH:LINENUM DATE TIME : Cannot end pattern with escape character: \
+[ERROR] PATH:LINENUM DATE TIME : Cannot end pattern with escape character: \
+[ERROR] PATH:LINENUM DATE TIME : Cannot end pattern with escape character: \
+[ERROR] PATH:LINENUM DATE TIME : Cannot end pattern with escape character: \
+[ERROR] PATH:LINENUM DATE TIME : Cannot end pattern with escape character: \
+[ERROR] PATH:LINENUM DATE TIME : Cannot end pattern with escape character: \
 

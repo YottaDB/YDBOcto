@@ -1,9 +1,12 @@
-%ydboctoerrcodemax=1073741827
-%ydboctoerrcodemax=1073741827
-%ydboctoerrcodemax=1073741827
+%ydboctoerrcodemax=1073741828
+%ydboctoerrcodemax=1073741828
+%ydboctoerrcodemax=1073741828
 %ydboctoerrcodemin=1073741824
 %ydboctoerrcodemin=1073741824
 %ydboctoerrcodemin=1073741824
+%ydboctoerror("INVALIDESCAPEPATTERN")=1073741827
+%ydboctoerror("INVALIDESCAPEPATTERN")=1073741827
+%ydboctoerror("INVALIDESCAPEPATTERN")=1073741827
 %ydboctoerror("INVALIDINPUTSYNTAXBOOL")=1073741826
 %ydboctoerror("INVALIDINPUTSYNTAXBOOL")=1073741826
 %ydboctoerror("INVALIDINPUTSYNTAXBOOL")=1073741826

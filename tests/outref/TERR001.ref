@@ -1,1 +1,1 @@
-[ERROR] PATH:LINENUM DATE TIME : YottaDB error: 150374122,%ydboctoInit+31^%ydboctoInit,%YDB-E-ZGBLDIRACC, Cannot access global directory $PWD/does_not_exist.gld.  Cannot continue.,%SYSTEM-E-ENO2, No such file or directory
+[ERROR] PATH:LINENUM DATE TIME : YottaDB error: 150374122,%ydboctoInit+32^%ydboctoInit,%YDB-E-ZGBLDIRACC, Cannot access global directory $PWD/does_not_exist.gld.  Cannot continue.,%SYSTEM-E-ENO2, No such file or directory

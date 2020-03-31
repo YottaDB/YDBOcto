@@ -252,6 +252,10 @@ int lp_verify_structure_helper(LogicalPlan *plan, LogicalPlan **aggregate, LPAct
 	case LP_BOOLEAN_GREATER_THAN_OR_EQUALS:
 	case LP_BOOLEAN_REGEX_SENSITIVE:
 	case LP_BOOLEAN_REGEX_INSENSITIVE:
+	case LP_BOOLEAN_REGEX_SENSITIVE_LIKE:
+	case LP_BOOLEAN_REGEX_SENSITIVE_SIMILARTO:
+	case LP_BOOLEAN_REGEX_INSENSITIVE_LIKE:
+	case LP_BOOLEAN_REGEX_INSENSITIVE_SIMILARTO:
 	case LP_CASE_STATEMENT:
 	case LP_CASE_BRANCH_STATEMENT:
 	case LP_BOOLEAN_IN:
@@ -324,6 +328,10 @@ int lp_verify_structure_helper(LogicalPlan *plan, LogicalPlan **aggregate, LPAct
 									LP_BOOLEAN_GREATER_THAN_OR_EQUALS)
 				| lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_BOOLEAN_REGEX_SENSITIVE)
 				| lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_BOOLEAN_REGEX_INSENSITIVE)
+				| lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_BOOLEAN_REGEX_SENSITIVE_LIKE)
+				| lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_BOOLEAN_REGEX_SENSITIVE_SIMILARTO)
+				| lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_BOOLEAN_REGEX_INSENSITIVE_LIKE)
+				| lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_BOOLEAN_REGEX_INSENSITIVE_SIMILARTO)
 				| lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_BOOLEAN_IN)
 				| lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_BOOLEAN_NOT_IN)
 				| lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_BOOLEAN_NOT)

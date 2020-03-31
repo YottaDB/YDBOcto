@@ -33,6 +33,10 @@ LogicalPlan *lp_apply_not(LogicalPlan *root, int count) {
 		// (e.g. regex calls, or anything like a function call or columns ref)
 		if ((LP_BOOLEAN_REGEX_SENSITIVE == type)
 				|| (LP_BOOLEAN_REGEX_INSENSITIVE == type)
+				|| (LP_BOOLEAN_REGEX_SENSITIVE_LIKE == type)
+				|| (LP_BOOLEAN_REGEX_INSENSITIVE_LIKE == type)
+				|| (LP_BOOLEAN_REGEX_SENSITIVE_SIMILARTO == type)
+				|| (LP_BOOLEAN_REGEX_INSENSITIVE_SIMILARTO == type)
 				|| (LP_COERCE_TYPE == type)
 				|| (LP_BOOLEAN_IS == type)
 				|| (LP_ADDITION > type)) {

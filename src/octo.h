@@ -271,9 +271,6 @@ int get_mval_len(unsigned char *buff, int *data_len);
  */
 int run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_description, ParseContext *parse_context);
 
-char *like_to_regex(const char *src);
-char *similar_to_regex(const char *src);
-
 char *get_aggregate_func_name(SqlAggregateType type);
 char *get_set_operation_string(SqlSetOperationType type);
 char *get_user_visible_type_string(SqlValueType type);
@@ -322,9 +319,6 @@ SqlStatement *set_operation(enum SqlSetOperationType setoper_type, SqlStatement 
 SqlStatement *sort_specification(SqlStatement *sort_key, SqlStatement *ordering_specification);
 SqlStatement *table_reference(SqlStatement *column_name, SqlStatement *correlation_specification,
 							SqlStatement *table_reference_tail, int *plan_id);
-
-/* trims duplicate '.*'s from regex */
-void trim_dot_star(SqlValue *regex);
 
 // Creates a new cursor by assigning a new cursorId
 int64_t create_cursor(ydb_buffer_t *schema_global, ydb_buffer_t *cursor_buffer);

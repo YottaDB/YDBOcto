@@ -136,12 +136,12 @@ LP_INSERT:
                 LP_BOOLEAN_EQUALS: 
                   LP_COLUMN_ALIAS: N(2).OID
                   LP_COLUMN_ALIAS: C(1).RELNAMESPACE
-                LP_BOOLEAN_REGEX_SENSITIVE: 
+                LP_BOOLEAN_REGEX_SENSITIVE_LIKE: 
                   LP_COLUMN_ALIAS: C(1).RELNAME
-                  LP_VALUE: '^PATIENT$'
-              LP_BOOLEAN_REGEX_SENSITIVE: 
+                  LP_VALUE: 'PATIENT'
+              LP_BOOLEAN_REGEX_SENSITIVE_LIKE: 
                 LP_COLUMN_ALIAS: N(2).NSPNAME
-                LP_VALUE: '^public$'
+                LP_VALUE: 'public'
           LP_TABLE: N
           LP_TABLE_JOIN: INNER_JOIN: 
             LP_WHERE: 
@@ -336,12 +336,12 @@ LP_INSERT:
         LP_TABLE_JOIN: INNER_JOIN: 
           LP_WHERE: 
             LP_BOOLEAN_AND: 
-              LP_BOOLEAN_REGEX_SENSITIVE: 
+              LP_BOOLEAN_REGEX_SENSITIVE_LIKE: 
                 LP_COLUMN_ALIAS: C(1).RELNAME
-                LP_VALUE: '^PATIENT$'
-              LP_BOOLEAN_REGEX_SENSITIVE: 
+                LP_VALUE: 'PATIENT'
+              LP_BOOLEAN_REGEX_SENSITIVE_LIKE: 
                 LP_COLUMN_ALIAS: N(2).NSPNAME
-                LP_VALUE: '^public$'
+                LP_VALUE: 'public'
           LP_TABLE: N
           LP_TABLE_JOIN: INNER_JOIN: 
             LP_WHERE: 

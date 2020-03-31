@@ -534,6 +534,10 @@ endif()
 set(LC_ALL ${LC_ALL_TEMP})
 
 # Files to be installed
+#
+# NOTE: Any files installed here will need to be added to tools/ci/install.sh,
+# as `make install` cannot be straightforwardly used during Docker image creation
+# in the build pipeline.
 
 if (DISABLE_INSTALL MATCHES "OFF")
 	# Binaries

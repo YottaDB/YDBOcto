@@ -13,14 +13,20 @@
 FROM yottadb/yottadb-base:latest-master
 
 RUN export DEBIAN_FRONTEND=noninteractive
-RUN apt-get install -y -qq \
+# `apt-get update` is included to account for the case when the upstream Ubuntu container
+# goes out of sync with the upstream Ubuntu repositories. When this happens, `apt-get install`
+# fails, causing `docker build` to fail in turn.
+RUN apt-get update && \
+	apt-get install -y -qq \
         git \
         libreadline-dev \
-        libconfig-dev
+        libconfig-dev \
+		cmake
 
-ADD ./build/YDBOcto-*.tar.gz /tmp
+ADD ./build /tmp/build
 ADD ./tools/entrypoint.sh /
-RUN cd /tmp/Octo-*-Linux && . /opt/yottadb/current/ydb_env_set && yes
+RUN cd /tmp/build/ && . /opt/yottadb/current/ydb_env_set && ./install.sh
+RUN cd /tmp && rm -r build
 
 ENV ydb_ci /opt/yottadb/current/plugin/octo/ydbocto.ci
 ENTRYPOINT "/entrypoint.sh"

@@ -174,5 +174,30 @@ popd
 # Run the tests
 ${ctestCommand} -j `grep -c ^processor /proc/cpuinfo` || exit 1
 
+# Rebuild Octo for packaging if it wasn't a RelWithDebInfo build
+if [[ $build_type != "RelWithDebInfo" ]]; then
+	${cmakeCommand} -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_INSTALL_PREFIX=${ydb_dist}/plugin ..
+	make -j `grep -c ^processor /proc/cpuinfo`
+fi
+
+# Ubuntu pipelines only: Copy installation files for use in Docker image construction
+if [[ $cmakeCommand == "cmake" ]]; then
+	echo -n "Copying installation files for Docker image generation... "
+	cp ../tools/ci/install.sh .
+	# Create plugin directory structure for later reference by install.sh
+	mkdir -p plugin/r plugin/o/utf8 plugin/octo/
+	# Copy YDBPosix into build directory for later access by install.sh
+	cp $ydb_dist/plugin/libydbposix.so plugin
+	cp $ydb_dist/plugin/ydbposix.xc plugin
+	cp $ydb_dist/plugin/o/_ydbposix.so plugin/o
+	cp $ydb_dist/plugin/o/utf8/_ydbposix.so plugin/o/utf8
+	# Copy Octo-specific dependencies for later access by install.sh
+	cp ../src/aux/*.m plugin/r
+	cp ../tests/fixtures/postgres-seed.* plugin/octo
+	cp ../tests/fixtures/northwind.* plugin/octo
+	cp ../src/aux/octo.conf.default plugin/octo/octo.conf
+	echo "Done."
+fi
+
 # Build binary package
 make package

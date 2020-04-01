@@ -54,10 +54,6 @@ LP_ACTION_TYPE(LP_SET_INTERSECT_ALL)
 // Items for SET_OPERATION
 LP_ACTION_TYPE(LP_PLANS)
 LP_ACTION_TYPE(LP_SET_OPTION)
-LP_ACTION_TYPE(LP_CASE)
-LP_ACTION_TYPE(LP_CASE_STATEMENT)
-LP_ACTION_TYPE(LP_CASE_BRANCH)
-LP_ACTION_TYPE(LP_CASE_BRANCH_STATEMENT)
 // The order of these must be kept in sync with `enum BinaryOperations` in `src/octo_types.h`
 LP_ACTION_TYPE(LP_ADDITION)	/* Marks the beginning of binary/unary/boolean operations. Has to be start of this section
 				 * as there is code that does boolean checks on this (e.g. `LP_ADDITION <= type` etc.).
@@ -118,6 +114,11 @@ LP_ACTION_TYPE(LP_UNARY_LAST)	/* Marks the end of unary operations. Any new unar
  */
 LP_ACTION_TYPE(LP_COLUMN_LIST)
 LP_ACTION_TYPE(LP_FUNCTION_CALL)
+LP_ACTION_TYPE(LP_ORDER_BY)
+LP_ACTION_TYPE(LP_CASE)
+LP_ACTION_TYPE(LP_CASE_STATEMENT)
+LP_ACTION_TYPE(LP_CASE_BRANCH)
+LP_ACTION_TYPE(LP_CASE_BRANCH_STATEMENT)
 // Note: The order of the below LP_AGGREGATE_FUNCTION_* types should be kept in sync with order of types in `enum SqlAggregateType`
 LP_ACTION_TYPE(LP_AGGREGATE_FUNCTION_COUNT_ASTERISK)
 LP_ACTION_TYPE(LP_AGGREGATE_FUNCTION_COUNT)
@@ -129,6 +130,3 @@ LP_ACTION_TYPE(LP_AGGREGATE_FUNCTION_COUNT_DISTINCT)
 LP_ACTION_TYPE(LP_AGGREGATE_FUNCTION_SUM_DISTINCT)
 LP_ACTION_TYPE(LP_AGGREGATE_FUNCTION_AVG_DISTINCT)
 LP_ACTION_TYPE(LP_AGGREGATE_LAST)
-LP_ACTION_TYPE(LP_ORDER_BY)	/* Needs to be AFTER LP_ADDITION as it is relied upon by `assert(LP_ADDITION <= where->type)`
-				 * check in `src/optimization_transforms/lp_replace_derived_table_references.c`.
-				 */

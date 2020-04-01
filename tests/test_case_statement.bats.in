@@ -70,3 +70,7 @@ setup() {
   run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TCS11.sql "remove_empty_line_at_tail"
 }
 
+@test "TCS12 : OCTO460 : CASE in SELECT column list causes assertion failed in lp_replace_derived_table_references.c" {
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TCS12.sql "remove_empty_line_at_tail"
+}
+

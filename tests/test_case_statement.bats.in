@@ -20,13 +20,11 @@ setup() {
 }
 
 @test "TCS01 : #285 : Test that ELSE keyword in CASE statements works (used to return empty line for else case)" {
-  load_fixture TCS01.sql subtest novv
-  verify_output TCS01 output.txt
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TCS01.sql "remove_empty_line_at_tail"
 }
 
 @test "TCS02 : #285 : Test that ELSE keyword in CASE statements works (used to return id column for else case)" {
-  load_fixture TCS02.sql subtest novv
-  verify_output TCS02 output.txt
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TCS02.sql "remove_empty_line_at_tail"
 }
 
 @test "TCS03 : #451 : Ensure consistent typing across WHEN and ELSE in CASE statements" {
@@ -67,3 +65,8 @@ setup() {
   load_fixture TCS10.sql subtest novv
   verify_output TCS10 output.txt
 }
+
+@test "TCS11 : OCTO450 : Missing ELSE in CASE causes Assertion FALSE failure when octo/rocto is started with -vv" {
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TCS11.sql "remove_empty_line_at_tail"
+}
+

@@ -10,4 +10,7 @@
 #								#
 #################################################################
 
-select case id when 3 then 'true' else 'false' end from names;
+-- TCS11 : OCTO450 : Missing ELSE in CASE causes Assertion FALSE failure when octo/rocto is started with -vv
+
+SELECT case when id=1 then 'id_is_1' end as caseid FROM names;
+

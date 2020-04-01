@@ -10,4 +10,4 @@
 #								#
 #################################################################
 
-select case when id < 3 then "true" else "false" end from names;
+select case when id < 3 then 'true' else 'false' end from names;

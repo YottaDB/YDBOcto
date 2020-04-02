@@ -98,3 +98,7 @@ setup() {
   run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TSS15.sql "remove_empty_line_at_tail"
 }
 
+@test "TSS16 : OCTO445 : Assertion failed in generate_physical_plan.c with sub-queries and multiple INNER JOINs" {
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TSS16.sql "remove_empty_line_at_tail"
+}
+

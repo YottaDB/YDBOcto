@@ -594,55 +594,57 @@ mval2str(mval)
 	; Converts the input `mval` (`len,str` tuple) back into a string (just `str`) and returns that.
 	; This is the inverse of $$str2mval^%ydboctoplanhelpers.
 	;
-	NEW byte1,len,skip
+	NEW byte1,hdrlen,datalen
 	SET byte1=$ZASCII($ZEXTRACT(mval,1))
 	QUIT:0=byte1 $ZYSQLNULL
 	IF 128>byte1 DO
 	.	; 1-byte header
-	.	SET skip=1
-	.	SET len=byte1
+	.	SET hdrlen=1
+	.	SET datalen=byte1-1
 	ELSE  IF 192>byte1 DO
 	.	; 2-byte header
-	.	SET skip=2
-	.	SET len=$$get2bytelen(byte1,mval)
+	.	SET hdrlen=2
+	.	SET datalen=$$get2bytedatalen(byte1,mval,0)
 	ELSE  DO
 	.	; 3-byte header
-	.	SET skip=3
-	.	SET len=$$get3bytelen(byte1,mval)
-	QUIT $ZEXTRACT(mval,1+skip,len)
+	.	SET hdrlen=3
+	.	SET datalen=$$get3bytedatalen(byte1,mval,0)
+	QUIT $ZEXTRACT(mval,hdrlen+1,hdrlen+datalen)
 
 mvalPiece(mval,piecenum)
 	; Locates the `piecenum`th piece in `mval` (a concatenated sequence of `mval`s) and returns that `mval (`len,str`)
 	;
 	; Note: `src/get_mval_len.c` has very similar logic as below. So any changes here need to be reflected there as well.
 	;
-	NEW byte1,i,len,skip,cumullen
-	SET cumullen=1
-	FOR i=1:1:piecenum DO  QUIT:i=piecenum  IF $INCREMENT(cumullen,len)
-	.	SET byte1=$ZASCII($ZEXTRACT(mval,cumullen))
+	NEW byte1,i,hdrlen,datalen,cumullen
+	SET cumullen=0
+	FOR i=1:1:piecenum DO  QUIT:i=piecenum  IF $INCREMENT(cumullen,hdrlen+datalen)
+	.	SET byte1=$ZASCII($ZEXTRACT(mval,cumullen+1))
 	.	IF 0=byte1 DO
 	.	.	; $ZYSQLNULL
-	.	.	SET skip=1
-	.	.	SET len=1
+	.	.	SET hdrlen=1
+	.	.	SET datalen=0
 	.	ELSE  IF 128>byte1 DO
 	.	.	; 1-byte header
-	.	.	SET skip=1
-	.	.	SET len=byte1
+	.	.	SET hdrlen=1
+	.	.	SET datalen=byte1-1
 	.	ELSE  IF 192>byte1 DO
 	.	.	; 2-byte header
-	.	.	SET skip=2
-	.	.	SET len=$$get2bytelen(byte1,mval)
+	.	.	SET hdrlen=2
+	.	.	SET datalen=$$get2bytedatalen(byte1,mval,cumullen)
 	.	ELSE  DO
 	.	.	; 3-byte header
-	.	.	SET skip=3
-	.	.	SET len=$$get3bytelen(byte1,mval)
-	QUIT $ZEXTRACT(mval,cumullen+skip-1,cumullen+len-1)
+	.	.	SET hdrlen=3
+	.	.	SET datalen=$$get3bytedatalen(byte1,mval,cumullen)
+	QUIT $ZEXTRACT(mval,cumullen+1,cumullen+hdrlen+datalen)
 
-get2bytelen(byte1,mval)
+get2bytedatalen(byte1,mval,offset)
 	; Computes the length given a 2-byte header (1st byte is already in byte1 and 2nd byte is obtained from mval)
-	QUIT (byte1-128)*256+$ZASCII($ZEXTRACT(mval,2))
+	; `offset` indicates how many bytes to go past before extracting the 2nd byte
+	QUIT (byte1-128)*256+$ZASCII($ZEXTRACT(mval,offset+2))
 
-get3bytelen(byte1,mval)
+get3bytedatalen(byte1,mval,offset)
 	; Computes the length given a 3-byte header (1st byte is already in byte1 and 2nd/3rd bytes are obtained from mval)
-	QUIT (byte1-192)*65536+($ZASCII($ZEXTRACT(mval,2))*256)+$ZASCII($ZEXTRACT(mval,3))
+	; `offset` indicates how many bytes to go past before extracting the 2nd/3rd byte
+	QUIT (byte1-192)*65536+($ZASCII($ZEXTRACT(mval,offset+2))*256)+$ZASCII($ZEXTRACT(mval,offset+3))
 

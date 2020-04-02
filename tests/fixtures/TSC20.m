@@ -25,7 +25,7 @@ TSC20	;
 	.	.	set rand(j)=k
 	.	.	set ^longvalues(j)=j_"|"_$justify(k,k)
 	; Create reference file for later verification against Octo running SQL queries
-	set file="TSC20.ref"
+	set file="TSC20.half_ref"
 	open file:(newversion:stream:nowrap)
 	use file:(width=65535:nowrap)		; needed to write arbitrarily long lines
 	; Write expected output for : select id from longvalues order by id;
@@ -36,6 +36,5 @@ TSC20	;
 	set i="" for  set i=$order(rand(i)) quit:""=i  write $justify(rand(i),rand(i)),!
 	; Write expected output for : select id,value from longvalues order by id;
 	set i="" for  set i=$order(rand(i)) quit:""=i  write i_"|"_$justify(rand(i),rand(i)),!
-	write !	; octo produces this line at the end (due maybe to its use of readline) so do the same here
 	close file
 	quit

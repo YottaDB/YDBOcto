@@ -403,7 +403,7 @@ CAT_EOF
   verify_output TSC19 output.txt
 }
 
-@test "TSC20 : OCTO469 : Test SELECT COLUMN list values of length upto ~ 1Mb (MAX_STRLEN) in Octo and Rocto" {
+@test "TSC20 : OCTO469 : Test SELECT COLUMN list values ~ 1Mb long in Octo and Rocto; Also test OCTO473" {
   $ydb_dist/mupip set -key_size=1019 -record_size=1048576 -reg DEFAULT	# huge records are going to be created in next line
   yottadb -run TSC20	# populate ^longvalues global and create TSC20.ref
   inputfile="TSC20.sql"
@@ -413,6 +413,9 @@ CAT_EOF
   octo -f $inputfile > octo_output.txt 2>&1
   # Filter global octo.conf (any not in the local directory)
   sed -i '/^.*\[ INFO\].* \/.*\/octo.conf/d' octo_output.txt
+  # Generate the final reference file (it is two copies of what has been generated in TSC20.half_ref)
+  cat TSC20.half_ref TSC20.half_ref > TSC20.ref
+  echo "" >> TSC20.ref	# octo produces this line at the end (due maybe to its use of readline) so do the same here
   cmp TSC20.ref octo_output.txt
   # Test Rocto with same set of queries
   create_user ydb tester

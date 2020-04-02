@@ -13,8 +13,17 @@
 -- TSC21 : Test SELECT COLUMN list values of length ~ 16Kb
 
 create table longvalues (id INTEGER PRIMARY KEY, value VARCHAR) GLOBAL "^longvalues(keys(""id""))";
+
+-- Test queries with huge column values
 select id from longvalues order by id;
 select id from longvalues where value ~ id::varchar order by id;
 select value from longvalues order by id;
 select id,value from longvalues order by id;
+
+-- Test same queries as above but involving sub-queries with huge column values.
+-- The below queries should have the exact same output as the above.
+select * from (select id from longvalues) order by id;
+select * from (select id from longvalues where value ~ id::varchar) order by id;
+select * from (select value from longvalues order by id);
+select * from (select id,value from longvalues) order by id;
 

@@ -94,3 +94,7 @@ setup() {
   run_query_in_octo_and_postgres_and_crosscheck_multiple_queries northwind TSS14.sql "remove_empty_line_at_tail"
 }
 
+@test "TSS15 : OCTO444 : <Problem resolving owner for deferred plan; undefined behavior> error with sub-queries, IN clause and multiple joins" {
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TSS15.sql "remove_empty_line_at_tail"
+}
+

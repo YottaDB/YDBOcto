@@ -23,13 +23,14 @@
  * plan should be a LP_TABLE_JOIN
  */
 LogicalPlan *join_tables(LogicalPlan *root, LogicalPlan *plan) {
-	LogicalPlan	*next = NULL, *table_plan;
-	LogicalPlan	*keys = NULL, *select, *criteria, *cur_lp_key;
+	LogicalPlan	*table_plan;
+	LogicalPlan	*keys, *select, *criteria, *cur_lp_key;
 	LogicalPlan	*sub;
 	SqlTable	*table;
 	SqlTableAlias	*table_alias;
 	SqlColumn	*key_columns[MAX_KEY_COUNT];
 	int		max_key, cur_key, unique_id;
+	LogicalPlan	*set_plans;
 
 	if ((LP_TABLE_JOIN != plan->type) || (NULL == plan->v.lp_default.operand[0])) {
 		return plan;
@@ -44,9 +45,8 @@ LogicalPlan *join_tables(LogicalPlan *root, LogicalPlan *plan) {
 			return NULL;
 		assert(plan->counter == root->counter);
 	}
-	if (LP_SET_OPERATION == sub->type) {
-		LogicalPlan	*set_plans;
-
+	switch(sub->type) {
+	case LP_SET_OPERATION:
 		GET_LP(set_plans, sub, 1, LP_PLANS);
 		set_plans->v.lp_default.operand[0] = optimize_logical_plan(set_plans->v.lp_default.operand[0]);
 		if (NULL == set_plans->v.lp_default.operand[0])
@@ -56,70 +56,68 @@ LogicalPlan *join_tables(LogicalPlan *root, LogicalPlan *plan) {
 			return NULL;
 		cur_lp_key = lp_get_output_key(sub);
 		lp_insert_key(root, cur_lp_key);
-		return plan;
-	}
-	if (NULL != plan->v.lp_default.operand[1]) {
-		GET_LP(next, plan, 1, LP_TABLE_JOIN);
-	}
-	if (LP_INSERT == plan->v.lp_default.operand[0]->type) {
+		break;
+	case LP_INSERT:
 		// Append that plans output keys to my list of keys
 		GET_LP(cur_lp_key, sub, 1, LP_OUTPUT);
 		GET_LP(cur_lp_key, cur_lp_key, 0, LP_KEY);
 		lp_insert_key(root, cur_lp_key);
-		if (next)
-			if (NULL == join_tables(root, next))
-				return NULL;
-		return plan;
-	}
-	GET_LP(table_plan, plan, 0, LP_TABLE);
-	select = lp_get_select(root);
-	GET_LP(criteria, select, 1, LP_CRITERIA);
-	GET_LP(keys, criteria, 0, LP_KEYS);
-	// Drill down to the bottom of the keys
-	while (NULL != keys->v.lp_default.operand[1]) {
-		GET_LP(keys, keys, 1, LP_KEYS);
-	}
-	// If we drilled down somewhat, make sure we start on a fresh "key"
-	if (NULL != keys->v.lp_default.operand[0]) {
-		MALLOC_LP_2ARGS(keys->v.lp_default.operand[1], LP_KEYS);
-		keys = keys->v.lp_default.operand[1];
-	}
-	if (LP_TABLE == table_plan->type) {
-		table_alias = table_plan->v.lp_table.table_alias;
-		UNPACK_SQL_STATEMENT(table, table_alias->table, table);
-		unique_id = table_alias->unique_id;
-		memset(key_columns, 0, MAX_KEY_COUNT * sizeof(SqlColumn*));
-		max_key = get_key_columns(table, key_columns);
-		for(cur_key = 0; cur_key <= max_key; cur_key++) {
-			MALLOC_LP(cur_lp_key, keys->v.lp_default.operand[0], LP_KEY);
-			OCTO_CMALLOC_STRUCT(cur_lp_key->v.lp_key.key, SqlKey);
-			memset(cur_lp_key->v.lp_key.key, 0, sizeof(SqlKey));
-			cur_lp_key->v.lp_key.key->column = key_columns[cur_key];
-			cur_lp_key->v.lp_key.key->key_num = cur_key;
-			cur_lp_key->v.lp_key.key->unique_id = unique_id;
-			cur_lp_key->v.lp_key.key->table = table;
-			cur_lp_key->v.lp_key.key->type = LP_KEY_ADVANCE;
-			cur_lp_key->v.lp_key.key->owner = table_plan;
-			if (cur_key != max_key) {
-				MALLOC_LP_2ARGS(keys->v.lp_default.operand[1], LP_KEYS);
-				keys = keys->v.lp_default.operand[1];
-			}
+		break;
+	default:
+		GET_LP(table_plan, plan, 0, LP_TABLE);
+		select = lp_get_select(root);
+		GET_LP(criteria, select, 1, LP_CRITERIA);
+		GET_LP(keys, criteria, 0, LP_KEYS);
+		// Drill down to the bottom of the keys
+		while (NULL != keys->v.lp_default.operand[1]) {
+			GET_LP(keys, keys, 1, LP_KEYS);
 		}
-	} else if (LP_INSERT == table_plan->type) {
-		// Else, we read from the output of the previous statement statement as a key
-		GET_LP(cur_lp_key, table_plan, 1, LP_KEY);
-		keys->v.lp_default.operand[0] = lp_copy_plan(cur_lp_key);
-	} else {
-		assert(FALSE);
+		// If we drilled down somewhat, make sure we start on a fresh "key"
+		if (NULL != keys->v.lp_default.operand[0]) {
+			MALLOC_LP_2ARGS(keys->v.lp_default.operand[1], LP_KEYS);
+			keys = keys->v.lp_default.operand[1];
+		}
+		if (LP_TABLE == table_plan->type) {
+			table_alias = table_plan->v.lp_table.table_alias;
+			UNPACK_SQL_STATEMENT(table, table_alias->table, table);
+			unique_id = table_alias->unique_id;
+			memset(key_columns, 0, MAX_KEY_COUNT * sizeof(SqlColumn*));
+			max_key = get_key_columns(table, key_columns);
+			for(cur_key = 0; cur_key <= max_key; cur_key++) {
+				MALLOC_LP(cur_lp_key, keys->v.lp_default.operand[0], LP_KEY);
+				OCTO_CMALLOC_STRUCT(cur_lp_key->v.lp_key.key, SqlKey);
+				memset(cur_lp_key->v.lp_key.key, 0, sizeof(SqlKey));
+				cur_lp_key->v.lp_key.key->column = key_columns[cur_key];
+				cur_lp_key->v.lp_key.key->key_num = cur_key;
+				cur_lp_key->v.lp_key.key->unique_id = unique_id;
+				cur_lp_key->v.lp_key.key->table = table;
+				cur_lp_key->v.lp_key.key->type = LP_KEY_ADVANCE;
+				cur_lp_key->v.lp_key.key->owner = table_plan;
+				if (cur_key != max_key) {
+					MALLOC_LP_2ARGS(keys->v.lp_default.operand[1], LP_KEYS);
+					keys = keys->v.lp_default.operand[1];
+				}
+			}
+		} else if (LP_INSERT == table_plan->type) {
+			// Else, we read from the output of the previous statement statement as a key
+			GET_LP(cur_lp_key, table_plan, 1, LP_KEY);
+			keys->v.lp_default.operand[0] = lp_copy_plan(cur_lp_key);
+		} else {
+			assert(FALSE);
+		}
+		break;
 	}
-	if (next) {
+	/* See if there are other tables in the JOIN list. If so add keys from those too. */
+	if (NULL != plan->v.lp_default.operand[1]) {
+		LogicalPlan	*next;
+
+		GET_LP(next, plan, 1, LP_TABLE_JOIN);
 		if (NULL == join_tables(root, next)) {
 			return NULL;
 		}
 	}
 	return plan;
 }
-
 
 LogicalPlan *optimize_logical_plan(LogicalPlan *plan) {
 	LogicalPlan	*select, *table_join, *where;

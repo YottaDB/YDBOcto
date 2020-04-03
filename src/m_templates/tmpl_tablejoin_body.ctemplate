@@ -15,6 +15,8 @@
 #include "template_helpers.h"
 
 TEMPLATE(tmpl_tablejoin_body, PhysicalPlan *plan, int dot_count, char *tableName, char *columnName) {
+	boolean_t	distinct_processed;
+
 	TEMPLATE_INIT();
 
 	assert(NULL != plan->outputKey);
@@ -57,6 +59,7 @@ TEMPLATE(tmpl_tablejoin_body, PhysicalPlan *plan, int dot_count, char *tableName
 		TMPL(tmpl_print_expression, plan->where->v.lp_default.operand[0], plan, dot_count, 0);
 	}
 	// DISTINCT value processing (if needed)
+	distinct_processed = FALSE;
 	if (plan->distinct_values) {
 		/* If this plan has a GROUP BY, then we will do DISTINCT processing in `tmpl_group_by` so skip that here */
 		if (!IS_GROUP_BY_PLAN(plan)) {
@@ -66,8 +69,15 @@ TEMPLATE(tmpl_tablejoin_body, PhysicalPlan *plan, int dot_count, char *tableName
 			%{}('$DATA(%%ydboctozdistinct({{ plan->outputKey->unique_id|%d }},{}%
 			TMPL(tmpl_column_list_combine, plan->projection, plan, ",", FALSE, 0, 0, 0);
 			%{}))){}%
+			distinct_processed = TRUE;
 		}
-	} else if (plan->emit_duplication_check) {
+	}
+	/* DUPLICATE value processing (if needed) i.e. OR was specified in WHERE clause.
+	 * Note: This is usually not needed if DISTINCT value processing was already done above (since DISTINCT and DUPLICATE
+	 * processing both avoid duplicates). But if GROUP BY has been specified, we would have skipped DISTINCT processing
+	 * above in which case we DO need to check for DUPLICATE processing. Hence the check below.
+	 */
+	if (!distinct_processed && plan->emit_duplication_check) {
 		// Ensure we don't emit duplicates
 		%{}`n{{ PLAN_LINE_START }}{}%
 		TMPL(tmpl_print_dots, dot_count);

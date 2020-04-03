@@ -63,3 +63,7 @@ setup() {
   run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TGB09.sql "remove_empty_line_at_tail"
 }
 
+@test "TGB10 : OCTO453 : SELECT DISTINCT returns incorrect results when used with GROUP BY and OR operator in WHERE clause" {
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TGB10.sql "remove_empty_line_at_tail"
+}
+

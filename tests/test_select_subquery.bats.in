@@ -102,3 +102,9 @@ setup() {
   run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TSS16.sql "remove_empty_line_at_tail"
 }
 
+@test "TSS17 : OCTO474 : Incorrect results when a column from a sub-query (that selects more than 1 column) is used in the ON clause of a JOIN" {
+  load_fixture northwind.sql
+  load_fixture northwind.zwr
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries northwind TSS17.sql "remove_empty_line_at_tail"
+}
+

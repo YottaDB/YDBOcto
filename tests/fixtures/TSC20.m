@@ -36,5 +36,7 @@ TSC20	;
 	set i="" for  set i=$order(rand(i)) quit:""=i  write $justify(rand(i),rand(i)),!
 	; Write expected output for : select id,value from longvalues order by id;
 	set i="" for  set i=$order(rand(i)) quit:""=i  write i_"|"_$justify(rand(i),rand(i)),!
+	; Write expected output for : select l1.id,l2.id from longvalues l1 inner join longvalues l2 ON l1.id = l2.id;
+	set i="" for  set i=$order(rand(i)) quit:""=i  write i,"|",i,!
 	close file
 	quit

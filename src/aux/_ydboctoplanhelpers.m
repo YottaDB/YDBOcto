@@ -641,10 +641,10 @@ mvalPiece(mval,piecenum)
 get2bytedatalen(byte1,mval,offset)
 	; Computes the length given a 2-byte header (1st byte is already in byte1 and 2nd byte is obtained from mval)
 	; `offset` indicates how many bytes to go past before extracting the 2nd byte
-	QUIT (byte1-128)*256+$ZASCII($ZEXTRACT(mval,offset+2))
+	QUIT (byte1-128)*256+$ZASCII($ZEXTRACT(mval,offset+2))-2
 
 get3bytedatalen(byte1,mval,offset)
 	; Computes the length given a 3-byte header (1st byte is already in byte1 and 2nd/3rd bytes are obtained from mval)
 	; `offset` indicates how many bytes to go past before extracting the 2nd/3rd byte
-	QUIT (byte1-192)*65536+($ZASCII($ZEXTRACT(mval,offset+2))*256)+$ZASCII($ZEXTRACT(mval,offset+3))
+	QUIT (byte1-192)*65536+($ZASCII($ZEXTRACT(mval,offset+2))*256)+$ZASCII($ZEXTRACT(mval,offset+3))-3
 

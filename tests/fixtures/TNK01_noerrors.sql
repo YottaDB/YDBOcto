@@ -139,3 +139,115 @@ SELECT 'ok' from names WHERE (SELECT col1 from (SELECT 1 AS col1, NULL AS col2) 
 SELECT 'ok' from names WHERE (SELECT col1 from (SELECT NULL AS col1, NULL AS col2) AS n1) IS NULL;
 SELECT * FROM ((SELECT NULL::integer AS col1, NULL::integer AS col2)) u1 WHERE u1.col1/u1.col2 is NULL;
 
+-- Arithmetic Operators
+SELECT 10 - NULL FROM names;
+SELECT 10 * NULL FROM names;
+SELECT 10 / NULL FROM names;
+SELECT 10 % NULL FROM names;
+SELECT 1*((col2::varchar)::integer) FROM ((SELECT NULL as col1, NULL AS col2)) u1;
+-- Postgres issues an operator doesn't exist for integer * text operation error (when cast is not used) for the above query.
+-- But, though similar values are tested below, no errors are reported by postgres as type is inferred here.
+-- Octo works in both cases. These queries verify its behavior in both case.
+SELECT id + 1 FROM ((SELECT NULL AS col1, 1 AS id) UNION (SELECT '', 3) UNION (SELECT 'Cool',4) UNION (SELECT NULL AS col1, NULL AS id)) u1 order by id;
+SELECT id - 1 FROM ((SELECT NULL AS col1, 1 AS id) UNION (SELECT '', 3) UNION (SELECT 'Cool',4) UNION (SELECT NULL AS col1, NULL AS id)) u1 order by id;
+SELECT id * 1 FROM ((SELECT NULL AS col1, 1 AS id) UNION (SELECT '', 3) UNION (SELECT 'Cool',4) UNION (SELECT NULL AS col1, NULL AS id)) u1 order by id;
+SELECT id / 1 FROM ((SELECT NULL AS col1, 1 AS id) UNION (SELECT '', 3) UNION (SELECT 'Cool',4) UNION (SELECT NULL AS col1, NULL AS id)) u1 order by id;
+SELECT 10 / id FROM ((SELECT NULL AS col1, 1 AS id) UNION (SELECT '', 2) UNION (SELECT 'Cool',5) UNION (SELECT NULL AS col1, NULL AS id)) u1 order by id;
+SELECT 10 * id FROM ((SELECT NULL AS col1, 1 AS id) UNION (SELECT '', 3) UNION (SELECT 'Cool',4) UNION (SELECT NULL AS col1, NULL AS id)) u1 order by id;
+SELECT 10 - id FROM ((SELECT NULL AS col1, 1 AS id) UNION (SELECT '', 3) UNION (SELECT 'Cool',4) UNION (SELECT NULL AS col1, NULL AS id)) u1 order by id;
+SELECT 10 + id FROM ((SELECT NULL AS col1, 1 AS id) UNION (SELECT '', 3) UNION (SELECT 'Cool',4) UNION (SELECT NULL AS col1, NULL AS id)) u1 order by id;
+-- -- Original query had u1.col1/u1.col2 in the where clause. But, to avoid postgres type checking CAST operation is performed.
+SELECT * FROM ((SELECT NULL AS col1, NULL AS col2)) u1 WHERE ((u1.col1::varchar)::integer)/((u1.col2::varchar)::integer) = 5;
+SELECT * FROM ((SELECT NULL AS col1, NULL AS col2)) u1 WHERE ((u1.col1::varchar)::integer)*((u1.col2::varchar)::integer) = 20;
+SELECT ((col1::varchar)::integer)*((col2::varchar)::integer) FROM ((SELECT NULL AS col1, NULL AS col2)) u1;
+
+-- Comparison Operator =
+-- -- The result of comparing anything with a NULL value is NULL. It is expected select discards all rows when where clause evaluates to NULL.
+SELECT * FROM names WHERE id = NULL;
+SELECT * FROM ((SELECT NULL AS col1, 1 AS id) UNION (SELECT NULL AS col1, NULL AS id)) u1 WHERE id = NULL;
+SELECT * FROM ((SELECT NULL AS col1, 1 AS id) UNION (SELECT NULL AS col1, NULL AS id)) u1 WHERE id != NULL;
+SELECT * FROM (SELECT NULL AS col1, NULL AS col2) AS u1 WHERE u1.col1 = NULL;
+SELECT COUNT(col2) FROM ((SELECT NULL AS col1, NULL AS col2) UNION (SELECT NULL AS col1, 1 AS col2)) u1 having COUNT(u1.col2) = NULL;
+-- -- The result of comparing column values evaluates to true for only those rows which are not NULL
+SELECT * FROM (SELECT NULL AS col1, NULL AS col2) AS u1 WHERE u1.col1 = u1.col2;
+SELECT * FROM ((SELECT NULL AS col1, NULL AS col2) UNION (SELECT 1 AS col1, 1 AS col2)) AS u1 WHERE u1.col1 = u1.col2;
+
+-- Logical AND
+-- -- verifies three value logic of AND
+-- -- TRUE AND UNKNOWN -> UNKNOWN
+-- -- FALSE AND UNKNOWN -> FALSE
+SELECT lastname = 'Cool' AND NULL FROM names;
+-- -- UNKNOWN AND TRUE -> UNKNOWN
+-- -- UNKNOWN AND FALSE -> FALSE
+SELECT NULL AND lastname = 'Cool' FROM names;
+-- -- UNKNOWN AND UNKNOWN -> UNKNOWN
+SELECT NULL AND NULL FROM names;
+-- -- Other misc tests
+SELECT * FROM names WHERE lastname = 'Cool' AND NULL;
+SELECT * FROM ((SELECT NULL AS col1, NULL AS col2) UNION (SELECT NULL AS col1, 1 AS col2)) AS u1 WHERE u1.col1 IS NULL AND u1.col2 = 1;
+SELECT * FROM ((SELECT NULL AS col1, NULL AS col2) UNION (SELECT NULL AS col1, 1 AS col2)) AS u1 WHERE u1.col1 = NULL AND u1.col2 = 1;
+
+-- Logical OR
+-- -- verifies three value logic of OR
+-- -- TRUE OR UNKNOWN -> TRUE
+-- -- FALSE OR UNKNOWN -> UNKNOWN
+SELECT lastname = 'Cool' OR NULL FROM names;
+-- -- UNKNOWN OR TRUE -> TRUE
+-- -- UNKNOWN OR FALSE -> UNKNOWN
+SELECT NULL OR lastname = 'Cool' FROM names;
+-- -e UNKNOWN OR UNKNOWN -> UNKNOWN
+SELECT NULL OR NULL FROM names;
+-- -- Other misc tests
+SELECT * FROM names WHERE lastname='Cool' OR NULL;
+SELECT * FROM ((SELECT NULL AS col1, NULL AS col2) UNION (SELECT NULL AS col1, 1 AS col2)) AS u1 WHERE u1.col1 = NULL OR u1.col2 = 1;
+SELECT * FROM ((SELECT NULL AS col1, NULL AS col2) UNION (SELECT NULL AS col1, 1 AS col2)) AS u1 WHERE u1.col1 IS NULL OR u1.col2 = 1;
+
+-- Logical NOT
+-- verifies three value logic of NOT
+SELECT NOT NULL;
+-- -- Other misc tests with NOT
+SELECT * FROM names WHERE NOT NULL;
+SELECT NOT Null FROM names;
+
+-- String concatenation operator
+SELECT 'concatenation' || NULL || names.lastname FROM names;
+SELECT 'concatenation' || col1 || 'test' FROM ((SELECT NULL AS col1, NULL AS col2) UNION (SELECT NULL AS col1, 1 AS col2)) u1;
+
+-- Where clause
+-- -- Rows for which the predicate evaluates to either FALSE or UNKNOWN are discarded by SELECT queries
+SELECT names.id FROM names WHERE names.id = NULL;
+SELECT COUNT(col2) FROM ((SELECT NULL AS col1, NULL AS col2) UNION (SELECT NULL AS col1, 1 AS col2)) u1 WHERE exists (SELECT u2.col2 FROM ((SELECT NULL AS col1, NULL AS col2) UNION (SELECT NULL AS col1, 1 AS col2)) u2 WHERE u2.col2 IS NULL);
+SELECT * FROM ((SELECT NULL AS col1, NULL AS col2) UNION (SELECT NULL AS col1, 1 AS col2)) AS u1 WHERE u1.col2 IN (1,NULL);
+SELECT * FROM ((SELECT NULL AS col1, NULL AS col2) UNION (SELECT NULL AS col1, 1 AS col2)) AS u1 WHERE u1.col2 BETWEEN 0 AND NULL;
+-- -- CAST operation is performed to escape type checking in postgres
+SELECT * FROM ((SELECT 0 AS col1, NULL AS col2, 3 AS col3 )) AS u1 WHERE (u1.col2 :: INTEGER) BETWEEN (u1.col1 :: INTEGER) AND (u1.col3 :: INTEGER);
+-- Result should have 0 rows
+SELECT * FROM (SELECT 1 AS col1, NULL AS col2) AS u1 WHERE u1.col1=(u1.col2 :: INTEGER);
+SELECT * FROM (SELECT NULL AS col1, 1 AS col2) AS u1 WHERE (u1.col1 :: INTEGER)=u1.col2;
+
+-- NULL specific comparison predicates
+SELECT NULL is NULL;
+SELECT NULL is NOT NULL;
+SELECT * FROM (SELECT NULL AS col1) u1 WHERE u1.col1 is not NULL;
+SELECT * FROM (SELECT NULL AS col1) u1 WHERE u1.col1 is NULL;
+SELECT 'ok' FROM names WHERE (SELECT col1 FROM (SELECT 1 AS col1, NULL AS col2) AS n1) is null;
+SELECT 'ok' FROM names WHERE (SELECT col1 FROM (SELECT NULL AS col1, NULL AS col2) AS n1) is not null;
+
+-- JOIN
+-- -- below queries verify JOIN using predicates having IS NULL and IS NOT NULL conditions
+SELECT * FROM ((SELECT 0 AS customerid, 'Zoopacker' AS ordername) UNION (SELECT NULL AS customerid, 'Treble' AS ordername)) AS orders INNER JOIN ((SELECT 0 AS customerid, 'Louis' AS customername) UNION (SELECT NULL AS customerid, 'tom' AS customername)) AS customer ON (orders.customerid IS NULL AND customer.customerid IS NULL);
+SELECT * FROM ((SELECT 0 AS customerid, 'Zoopacker' AS ordername) UNION (SELECT NULL AS customerid, 'Treble' AS ordername)) AS orders INNER JOIN ((SELECT 0 AS customerid, 'Louis' AS customername) UNION (SELECT NULL AS customerid, 'tom' AS customername)) AS customer ON (orders.customerid IS NOT NULL AND customer.customerid IS NOT NULL);
+SELECT * FROM ((SELECT 0 AS customerid, 'Zoopacker' AS ordername) UNION (SELECT NULL AS customerid, 'Treble' AS ordername)) AS orders LEFT JOIN ((SELECT 0 AS customerid, 'Louis' AS customername) UNION (SELECT NULL AS customerid, 'tom' AS customername)) AS customer ON (orders.customerid IS NULL AND customer.customerid IS NULL);
+SELECT * FROM ((SELECT 0 AS customerid, 'Zoopacker' AS ordername) UNION (SELECT NULL AS customerid, 'Treble' AS ordername)) AS orders RIGHT JOIN ((SELECT 0 AS customerid, 'Louis' AS customername) UNION (SELECT NULL AS customerid, 'tom' AS customername)) AS customer ON (orders.customerid IS NULL AND customer.customerid IS NULL);
+SELECT * FROM ((SELECT 0 AS customerid, 'Zoopacker' AS ordername) UNION (SELECT NULL AS customerid, 'Treble' AS ordername)) AS orders LEFT JOIN ((SELECT 0 AS customerid, 'Louis' AS customername) UNION (SELECT NULL AS customerid, 'tom' AS customername)) AS customer ON (orders.customerid IS NOT NULL AND customer.customerid IS NOT NULL);
+SELECT * FROM ((SELECT 0 AS customerid, 'Zoopacker' AS ordername) UNION (SELECT NULL AS customerid, 'Treble' AS ordername)) AS orders RIGHT JOIN ((SELECT 0 AS customerid, 'Louis' AS customername) UNION (SELECT NULL AS customerid, 'tom' AS customername)) AS customer ON (orders.customerid IS NOT NULL AND customer.customerid IS NOT NULL);
+
+-- below queries verify the JOINs in the presence of NULL valued data
+SELECT * FROM ((SELECT 0 AS customerid, 'Zoopacker' AS ordername) UNION (SELECT NULL AS customerid, 'Treble' AS ordername)) AS orders RIGHT OUTER JOIN ((SELECT 0 AS customerid, 'Louis' AS customername) UNION (SELECT NULL AS customerid, 'tom' AS customername)) AS customer ON orders.customerid=customer.customerid;
+SELECT * FROM ((SELECT 0 AS customerid, 'Zoopacker' AS ordername) UNION (SELECT NULL AS customerid, 'Treble' AS ordername)) AS orders LEFT OUTER JOIN ((SELECT 0 AS customerid, 'Louis' AS customername) UNION (SELECT NULL AS customerid, 'tom' AS customername)) AS customer ON orders.customerid=customer.customerid;
+SELECT * FROM ((SELECT 0 AS customerid, 'Zoopacker' AS ordername) UNION (SELECT NULL AS customerid, 'Treble' AS ordername)) AS orders FULL OUTER JOIN ((SELECT 0 AS customerid, 'Louis' AS customername) UNION (SELECT NULL AS customerid, 'tom' AS customername)) AS customer ON orders.customerid=customer.customerid;
+SELECT * FROM ((SELECT 0 AS customerid, 'Zoopacker' AS ordername) UNION (SELECT NULL AS customerid, 'Treble' AS ordername)) AS orders INNER JOIN ((SELECT 0 AS customerid, 'Louis' AS customername) UNION (SELECT NULL AS customerid, 'tom' AS customername)) AS customer ON orders.customerid=customer.customerid;
+
+-- CASE
+SELECT CASE id WHEN NULL THEN 'is null' WHEN 0 THEN 'is zero' WHEN 1 THEN 'is one' end FROM ((SELECT 0 AS id) UNION (SELECT 1 AS id) UNION (SELECT NULL AS id)) n1 order by id;
+SELECT CASE WHEN id IS NULL THEN 'is null' WHEN id=0 THEN 'is zero' WHEN id=1 THEN 'is one' end FROM ((SELECT 0 AS id) UNION (SELECT 1 AS id) UNION (SELECT NULL AS id)) n1 order by id;

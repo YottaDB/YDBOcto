@@ -237,6 +237,7 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 SqlColumnAlias *qualify_column_name(SqlValue *column_value, SqlJoin *tables, SqlStatement *table_alias_stmt,
 									int depth, SqlColumnListAlias **ret_cla);
 SqlColumnListAlias *match_column_in_table(SqlTableAlias *table, char *column_name, int column_name_len, boolean_t *ambiguous);
+boolean_t match_column_list_alias_in_select_column_list(SqlColumnListAlias *match_cla, SqlStatement *cla_stmt);
 int qualify_function_name(SqlStatement *stmt);
 void print_yyloc(YYLTYPE *llocp);
 SqlOptionalKeyword *get_keyword(SqlColumn *column, enum OptionalKeyword keyword);
@@ -280,6 +281,7 @@ SqlColumnListAlias *get_column_list_alias_n_from_table_alias(SqlTableAlias *tabl
 SqlColumnAlias *get_column_alias_for_column_list_alias(SqlColumnListAlias *col_cla, SqlStatement *matching_alias_stmt);
 
 SqlStatement *copy_sql_statement(SqlStatement *stmt);
+boolean_t match_sql_statement(SqlStatement *stmt, SqlStatement *match_stmt);
 
 void compress_statement(SqlStatement *stmt, char **out, int *out_length);
 SqlStatement *decompress_statement(char *buffer, int out_length);

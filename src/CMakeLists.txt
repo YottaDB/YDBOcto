@@ -161,6 +161,7 @@ add_library(libocto OBJECT
   parse_startup_flags.c
   memory_chunk.c
   match_column_in_table.c
+  match_column_list_alias_in_select_column_list.c
   like_to_regex.c
   similar_to_regex.c
   compress_statement.c
@@ -207,6 +208,7 @@ add_library(libocto OBJECT
   m_templates/resize_tmpl_buffer.c
   m_escape_string2.c
   copy_sql_statement.c
+  match_sql_statement.c
   cleanup_tables.c
   parser/parse_literal_to_parameter.c
   parser/query_specification.c

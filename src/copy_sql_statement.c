@@ -18,9 +18,9 @@
 #include "octo.h"
 #include "octo_types.h"
 
+/* Note: This function is very similar to "match_sql_statement.c". Any changes there might need to be reflected here too. */
 SqlStatement *copy_sql_statement(SqlStatement *stmt) {
 	SqlTableAlias		*table_alias, *new_table_alias;
-	SqlColumn		*column;
 	SqlColumnList		*cur_column_list, *start_column_list, *new_column_list;
 	SqlJoin			*cur_join, *start_join, *new_join;
 	SqlInsertStatement	*insert;
@@ -42,7 +42,7 @@ SqlStatement *copy_sql_statement(SqlStatement *stmt) {
 	if (NULL == stmt)
 		return NULL;
 	// We don't need copy these things because they never get changed
-	if (table_STATEMENT == stmt->type)
+	if ((table_STATEMENT == stmt->type) || (column_STATEMENT == stmt->type))
 		return stmt;
 	SQL_STATEMENT(ret, stmt->type);
 	switch(stmt->type) {
@@ -75,8 +75,6 @@ SqlStatement *copy_sql_statement(SqlStatement *stmt) {
 		/// TODO: update the pointers to match the new items in the select_list which has already
 		// been copied by looking at the aliases for each column below
 		//ret->v.select->order_by_expression = copy_sql_statement(select->order_by_expression);
-		// Don't copy the set operation because it has a pointer to this select statement
-		//ret->v.select->set_operation = copy_sql_statement(select->set_operation);
 		break;
 	case drop_STATEMENT:
 		drop = stmt->v.drop;
@@ -154,11 +152,6 @@ SqlStatement *copy_sql_statement(SqlStatement *stmt) {
 			} while (cur_cl_alias != start_cl_alias);
 		}
 		break;
-	case column_STATEMENT:
-		UNPACK_SQL_STATEMENT(column, stmt, column);
-		MALLOC_STATEMENT(ret, column, SqlColumn);
-		*ret->v.column = *column;
-		break;
 	case join_STATEMENT:
 		UNPACK_SQL_STATEMENT(start_join, stmt, join);
 		//MALLOC_STATEMENT(ret, join, SqlJoin);
@@ -186,30 +179,21 @@ SqlStatement *copy_sql_statement(SqlStatement *stmt) {
 	case data_type_STATEMENT:
 		*ret = *stmt;
 		break;
-	case constraint_type_STATEMENT:
-		*ret = *stmt;
-		break;
-	case constraint_STATEMENT:
 	case keyword_STATEMENT:
-		if (stmt->v.keyword) {
-			UNPACK_SQL_STATEMENT(start_keyword, stmt, keyword);
-			cur_keyword = start_keyword;
-			do {
-				OCTO_CMALLOC_STRUCT(new_keyword, SqlOptionalKeyword);
-				*new_keyword = *cur_keyword;
-				dqinit(new_keyword);
-				new_keyword->v = copy_sql_statement(cur_keyword->v);
-				if (ret->v.keyword) {
-					dqappend(ret->v.keyword, new_keyword);
-				} else {
-					ret->v.keyword = new_keyword;
-				}
-				cur_keyword = cur_keyword->next;
-			} while (cur_keyword != start_keyword);
-		} else {
-			// Does this happen? It shouldn't, I don't think
-			assert(FALSE);
-		}
+		UNPACK_SQL_STATEMENT(start_keyword, stmt, keyword);
+		cur_keyword = start_keyword;
+		do {
+			OCTO_CMALLOC_STRUCT(new_keyword, SqlOptionalKeyword);
+			*new_keyword = *cur_keyword;
+			dqinit(new_keyword);
+			new_keyword->v = copy_sql_statement(cur_keyword->v);
+			if (ret->v.keyword) {
+				dqappend(ret->v.keyword, new_keyword);
+			} else {
+				ret->v.keyword = new_keyword;
+			}
+			cur_keyword = cur_keyword->next;
+		} while (cur_keyword != start_keyword);
 		break;
 	case insert_STATEMENT:
 		UNPACK_SQL_STATEMENT(insert, stmt, insert);

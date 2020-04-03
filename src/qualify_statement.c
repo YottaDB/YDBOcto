@@ -230,7 +230,7 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 				/* "ret_cla" is non-NULL implies this call is for an ORDER BY column list.
 				 * "depth" == 0 implies "cur_cla" is one of the ORDER BY columns
 				 * (i.e. not a cla corresponding to an inner evaluation in the ORDER BY expression).
-				 * There are 2 cases to handle.
+				 * There are 3 cases to handle.
 				 */
 				if (NULL != *ret_cla) {
 					/* Case (1) : If "*ret_cla" is non-NULL, it is a case of ORDER BY using an alias name */
@@ -338,6 +338,7 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 				}
 				/* Actual repointing to SELECT column list cla happens here (above code set things up for here) */
 				if (NULL != qualified_cla) {
+					/* Case (2) : Case of ORDER BY column-number */
 					cur_cla->column_list = qualified_cla->column_list;
 					assert(NULL == cur_cla->alias);
 					/* Note: It is not necessary to copy " qualified_cla->alias" into "cur_cla->alias" */
@@ -359,6 +360,27 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 						cur_cla->tbl_and_col_id.column_number = column_number;
 					}
 					assert(cur_cla->tbl_and_col_id.column_number);
+				} else {
+					/* Case (3) : Case of ORDER BY column expression */
+					SqlSelectStatement	*select;
+					SqlOptionalKeyword	*keywords, *keyword;
+
+					/* Check if SELECT DISTINCT was specified */
+					UNPACK_SQL_STATEMENT(select, table_alias->table, select);
+					UNPACK_SQL_STATEMENT(keywords, select->optional_words, keyword);
+					keyword = get_keyword_from_keywords(keywords, OPTIONAL_DISTINCT);
+					if (NULL != keyword) {
+						/* SELECT DISTINCT was specified. Check if the ORDER BY column expression matches
+						 * some column specification in the SELECT column list. If so that is good.
+						 * If not issue an error (see YDBOcto#461 for details).
+						 */
+						if (!match_column_list_alias_in_select_column_list(cur_cla, select->select_list)) {
+							ERROR(ERR_ORDER_BY_SELECT_DISTINCT, "");
+							yyerror(NULL, NULL, &cur_cla->column_list, NULL, NULL, NULL);
+							result = 1;
+							break;
+						}
+					}
 				}
 			}
 			cur_cla = cur_cla->next;

@@ -31,3 +31,14 @@ setup() {
   run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TSD03.sql "remove_empty_line_at_tail"
 }
 
+@test "TSD04 : SELECT DISTINCT should issue error if ORDER BY expression does not appear in SELECT column list" {
+  # TSD04_errors.sql cannot be used with `run_query_in_octo_and_postgres_and_crosscheck_multiple_queries` because of error
+  # returns from queries (Postgres and Octo issue different error outputs). Need a reference file.
+  load_fixture TSD04_errors.sql subtest
+  verify_output TSD04_errors output.txt noinfo nodebug
+  mv clean_output.txt errors_clean_output.txt
+  # TSD04_noerrors.sql can be used with `run_query_in_octo_and_postgres_and_crosscheck_multiple_queries` because all queries
+  # generate valid output (i.e. no errors at all). No reference file needed for this.
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TSD04_noerrors.sql "remove_empty_line_at_tail"
+}
+

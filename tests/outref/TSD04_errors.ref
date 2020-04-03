@@ -1,0 +1,96 @@
+
+-- TSD04 : SELECT DISTINCT should issue error if ORDER BY expression does not appear in SELECT column list
+
+-- All queries in this query file are invalid queries and generate an error both in Octo and Postgres.
+
+SELECT DISTINCT firstname FROM names ORDER BY lastname;
+SELECT DISTINCT firstname,lastname FROM names ORDER BY firstname,id;
+SELECT DISTINCT 2+id,lastname from names ORDER BY id;
+SELECT DISTINCT 2+id,lastname from names ORDER BY 2+id,firstname;
+SELECT DISTINCT 2+id,lastname from names ORDER BY 2+id,firstname,lastname;
+SELECT DISTINCT 2+id,lastname from names ORDER BY 2+id,lastname,firstname || 'abcd';
+SELECT DISTINCT 2+id,firstname || 'abcd',lastname FROM names ORDER BY 3,3+id,2;
+SELECT DISTINCT 2+id,firstname || 'abcd',lastname FROM names ORDER BY 2+id,firstname || 'abcd',lastname,firstname;
+
+-- Test that `2+id` in SELECT column list is not the same as `id+2` in ORDER BY column list
+SELECT DISTINCT 2+id,firstname || 'abcd' AS col2,lastname FROM names ORDER BY 3,id+2,2;
+
+SELECT DISTINCT id,(SELECT n1.lastname FROM names n1 LIMIT 1),firstname FROM names ORDER BY id,(SELECT DISTINCT n2.lastname FROM names n2 LIMIT 1),firstname;
+SELECT DISTINCT id,(SELECT n1.lastname FROM names n1 LIMIT 1),firstname FROM names ORDER BY id,(SELECT n2.lastname FROM names n2 ORDER BY n2.lastname LIMIT 1),firstname;
+
+-- The below query actually works in Octo but errors out in Postgres so is placed in this file instead of TSD04_noerrors.sql (as cross-check will fail)
+SELECT DISTINCT id,(SELECT n1.lastname FROM names n1 LIMIT 1),firstname FROM names ORDER BY id,(SELECT n2.lastname FROM names n2 LIMIT 1),firstname;
+
+[ERROR] PATH:LINENUM DATE TIME : For SELECT DISTINCT, ORDER BY expressions must appear in select list
+Error with syntax near (line 1, column 47):
+
+SELECT DISTINCT firstname FROM names ORDER BY lastname;
+                                              ^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT DISTINCT firstname FROM names ORDER BY lastname;
+[ERROR] PATH:LINENUM DATE TIME : For SELECT DISTINCT, ORDER BY expressions must appear in select list
+Error with syntax near (line 1, column 66):
+
+SELECT DISTINCT firstname,lastname FROM names ORDER BY firstname,id;
+                                                                 ^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT DISTINCT firstname,lastname FROM names ORDER BY firstname,id;
+[ERROR] PATH:LINENUM DATE TIME : For SELECT DISTINCT, ORDER BY expressions must appear in select list
+Error with syntax near (line 1, column 51):
+
+SELECT DISTINCT 2+id,lastname from names ORDER BY id;
+                                                  ^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT DISTINCT 2+id,lastname from names ORDER BY id;
+[ERROR] PATH:LINENUM DATE TIME : For SELECT DISTINCT, ORDER BY expressions must appear in select list
+Error with syntax near (line 1, column 56):
+
+SELECT DISTINCT 2+id,lastname from names ORDER BY 2+id,firstname;
+                                                       ^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT DISTINCT 2+id,lastname from names ORDER BY 2+id,firstname;
+[ERROR] PATH:LINENUM DATE TIME : For SELECT DISTINCT, ORDER BY expressions must appear in select list
+Error with syntax near (line 1, column 56):
+
+SELECT DISTINCT 2+id,lastname from names ORDER BY 2+id,firstname,lastname;
+                                                       ^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT DISTINCT 2+id,lastname from names ORDER BY 2+id,firstname,lastname;
+[ERROR] PATH:LINENUM DATE TIME : For SELECT DISTINCT, ORDER BY expressions must appear in select list
+Error with syntax near (line 1, column 65):
+
+SELECT DISTINCT 2+id,lastname from names ORDER BY 2+id,lastname,firstname || 'abcd';
+                                                                ^^^^^^^^^^^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT DISTINCT 2+id,lastname from names ORDER BY 2+id,lastname,firstname || 'abcd';
+[ERROR] PATH:LINENUM DATE TIME : For SELECT DISTINCT, ORDER BY expressions must appear in select list
+Error with syntax near (line 1, column 73):
+
+SELECT DISTINCT 2+id,firstname || 'abcd',lastname FROM names ORDER BY 3,3+id,2;
+                                                                        ^^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT DISTINCT 2+id,firstname || 'abcd',lastname FROM names ORDER BY 3,3+id,2;
+[ERROR] PATH:LINENUM DATE TIME : For SELECT DISTINCT, ORDER BY expressions must appear in select list
+Error with syntax near (line 1, column 105):
+
+SELECT DISTINCT 2+id,firstname || 'abcd',lastname FROM names ORDER BY 2+id,firstname || 'abcd',lastname,firstname;
+                                                                                                        ^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT DISTINCT 2+id,firstname || 'abcd',lastname FROM names ORDER BY 2+id,firstname || 'abcd',lastname,firstname;
+[ERROR] PATH:LINENUM DATE TIME : For SELECT DISTINCT, ORDER BY expressions must appear in select list
+Error with syntax near (line 1, column 81):
+
+SELECT DISTINCT 2+id,firstname || 'abcd' AS col2,lastname FROM names ORDER BY 3,id+2,2;
+                                                                                ^^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT DISTINCT 2+id,firstname || 'abcd' AS col2,lastname FROM names ORDER BY 3,id+2,2;
+[ERROR] PATH:LINENUM DATE TIME : For SELECT DISTINCT, ORDER BY expressions must appear in select list
+Error with syntax near (line 1, column 96):
+
+SELECT DISTINCT id,(SELECT n1.lastname FROM names n1 LIMIT 1),firstname FROM names ORDER BY id,(SELECT DISTINCT n2.lastname FROM names n2 LIMIT 1),firstname;
+                                                                                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT DISTINCT id,(SELECT n1.lastname FROM names n1 LIMIT 1),firstname FROM names ORDER BY id,(SELECT DISTINCT n2.lastname FROM names n2 LIMIT 1),firstname;
+[ERROR] PATH:LINENUM DATE TIME : For SELECT DISTINCT, ORDER BY expressions must appear in select list
+Error with syntax near (line 1, column 96):
+
+SELECT DISTINCT id,(SELECT n1.lastname FROM names n1 LIMIT 1),firstname FROM names ORDER BY id,(SELECT n2.lastname FROM names n2 ORDER BY n2.lastname LIMIT 1),firstname;
+                                                                                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT DISTINCT id,(SELECT n1.lastname FROM names n1 LIMIT 1),firstname FROM names ORDER BY id,(SELECT n2.lastname FROM names n2 ORDER BY n2.lastname LIMIT 1),firstname;
+0|Cool|Zero
+1|Cool|Acid
+2|Cool|Cereal
+3|Cool|Lord
+4|Cool|Joey
+5|Cool|Zero
+

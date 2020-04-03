@@ -16,6 +16,16 @@
 #include "octo.h"
 #include "octo_types.h"
 
+#define LIKE_REGEX_ERROR_ON_NULL(REGEX, OP, IS_LIKE)			\
+{									\
+	if ((1 == IS_LIKE) && (NULL == REGEX)) {			\
+		ERROR(ERR_ESCAPE_PATTERN, "");				\
+		yyerror(NULL, NULL, &OP, NULL, NULL, NULL);		\
+		OCTO_CFREE(memory_chunks);				\
+		return 1;						\
+	}								\
+}
+
 int regex_specification(SqlStatement **stmt, SqlStatement *op0, SqlStatement *op1, int is_regex_like_or_similar, int is_sensitive,
 		int is_not, ParseContext *parse_context){
 	SqlStatement *regex;
@@ -49,15 +59,18 @@ int regex_specification(SqlStatement **stmt, SqlStatement *op0, SqlStatement *op
 
 		UNPACK_SQL_STATEMENT(value, op1, value);
 		if (COERCE_TYPE == value->type){
-			value->v.coerce_target->v.value->v.string_literal
-				= ((1 == is_regex_like_or_similar)
-					?  like_to_regex(value->v.coerce_target->v.value->v.string_literal)
-					: similar_to_regex(value->v.coerce_target->v.value->v.string_literal));
+			c = ((1 == is_regex_like_or_similar)
+				?  like_to_regex(value->v.coerce_target->v.value->v.string_literal)
+				: similar_to_regex(value->v.coerce_target->v.value->v.string_literal));
+			LIKE_REGEX_ERROR_ON_NULL(c, op1, is_regex_like_or_similar);
+			value->v.coerce_target->v.value->v.string_literal = c;
 			trim_dot_star(value->v.coerce_target->v.value);
 		} else {
-			value->v.string_literal = ((1 == is_regex_like_or_similar)
-							? like_to_regex(value->v.string_literal)
-							: similar_to_regex(value->v.string_literal));
+			c = ((1 == is_regex_like_or_similar)
+				? like_to_regex(value->v.string_literal)
+				: similar_to_regex(value->v.string_literal));
+			LIKE_REGEX_ERROR_ON_NULL(c, op1, is_regex_like_or_similar);
+			value->v.string_literal = c;
 			trim_dot_star(value);
 			int status = parse_literal_to_parameter(parse_context, value, TRUE);
 			if (0 != status) {

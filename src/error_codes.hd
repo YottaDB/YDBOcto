@@ -27,6 +27,7 @@ ERROR_DEF(PSQL_Code_String_Data_Length_Mismatch, "22026")
 ERROR_DEF(PSQL_Code_Numeric_Value_Out_Of_Range, "22003")
 ERROR_DEF(PSQL_Code_Unterminated_C_String, "22024")
 ERROR_DEF(PSQL_Invalid_Text_Representation, "22P02")
+ERROR_DEF(PSQL_Invalid_Escape_Sequence, "22025")
 // Class 26 - Invalid SQL Statement Name
 ERROR_DEF(PSQL_Code_Invalid_Sql_Statement_Name, "26000")
 // Class 28 - Invalid Authorization Specification

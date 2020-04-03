@@ -18,6 +18,14 @@
 #include "octo.h"
 #include "octo_types.h"
 
+/*
+ * Converts src to a regex string for LIKE queries
+ * Parameter:
+ * 	src - string to be converted
+ * Result:
+ * 	returns converted regex string
+ *	returns NULL if src string ends with an escape character
+ */
 char *like_to_regex(const char *src) {
 	char *ret, *d, *end;
 	const char *c;
@@ -52,6 +60,9 @@ char *like_to_regex(const char *src) {
 					*d++ = '\\';
 					*d++ = '\\';
 					c++;
+				} else if ('\0' == *(c + 1)) {
+					/* ending with an escape character is not allowed */
+					return NULL;
 				}
 				break;
 			/* escape these as they should not be parsed by the regex engine */

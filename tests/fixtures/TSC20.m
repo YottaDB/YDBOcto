@@ -25,9 +25,9 @@ TSC20	;
 	.	.	set rand(j)=k
 	.	.	set ^longvalues(j)=j_"|"_$justify(k,k)
 	; Create reference file for later verification against Octo running SQL queries
-	set file="TSC20.half_ref"
-	open file:(newversion:stream:nowrap)
-	use file:(width=65535:nowrap)		; needed to write arbitrarily long lines
+	set reffile="TSC20.half_ref"
+	open reffile:(newversion:stream:nowrap)
+	use reffile:(width=65535:nowrap)		; needed to write arbitrarily long lines
 	; Write expected output for : select id from longvalues order by id;
 	set i="" for  set i=$order(rand(i)) quit:""=i  write i,!
 	; Write expected output for : select id from longvalues where value ~ id::varchar order by id;
@@ -38,5 +38,27 @@ TSC20	;
 	set i="" for  set i=$order(rand(i)) quit:""=i  write i_"|"_$justify(rand(i),rand(i)),!
 	; Write expected output for : select l1.id,l2.id from longvalues l1 inner join longvalues l2 ON l1.id = l2.id;
 	set i="" for  set i=$order(rand(i)) quit:""=i  write i,"|",i,!
+	;
+	; Test queries in Octo and Rocto that have lots of columns (~ 1024)
+	; Create ddl.sql file that has CREATE TABLE commands
+	set ncols=2**(3+$random(8))	; ncols is randomly set to 8,16,32,64,...,1024
+	set file="ddl.sql"
+	open file:(newversion)
+	use file
+	write "create table longvalues (id INTEGER PRIMARY KEY, value VARCHAR) GLOBAL ""^longvalues(keys(""""id""""))"";",!
+	write "create table lotsofcols (id INTEGER PRIMARY KEY,",!
+	for i=1:1:ncols write "  col"_i_" VARCHAR"  write:i'=ncols "," write !
+	write ") GLOBAL ""^lotsofcols(keys(""""id""""))"";",!
 	close file
+	;
+	use reffile
+	; Populate ^lotsofcols global
+	for i=1:1:8 do
+	. set val=i_"|"
+	. for j=1:1:ncols set val=val_$j(i_j,j)  set:j<ncols val=val_"|"
+	. set ^lotsofcols(i)=val
+	. ; Write expected output for : select * from lotsofcols;
+	. write val,!
+	;
+	close reffile
 	quit

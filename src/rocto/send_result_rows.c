@@ -216,6 +216,7 @@ int send_result_rows(int32_t cursor_id, void *_parms, char *plan_name) {
 				tmp = (DataRowParm*)malloc(data_row_parms_alloc_len * 2 * sizeof(DataRowParm));
 				memcpy(tmp, data_row_parms, (data_row_parms_alloc_len * sizeof(DataRowParm)));
 				free(data_row_parms);
+				cur_row_parms = tmp + (cur_row_parms - data_row_parms);	/* Fix `cur_row_parms` to new base */
 				data_row_parms = tmp;
 				data_row_parms_alloc_len = data_row_parms_alloc_len * 2;
 			}

@@ -158,7 +158,6 @@ $ydb_dist/mupip set -n=true -reg '*'
 if [[ $disable_install == "OFF" ]]; then
 	source /opt/yottadb/current/ydb_env_unset
 	source /opt/yottadb/current/ydb_env_set
-	export ydb_routines="$ydb_dist/plugin/octo/o/_ydbocto.so $ydb_routines"
 	echo "Done setting up Octo plugin"
 	echo "ydb_routines: $ydb_routines"
 else

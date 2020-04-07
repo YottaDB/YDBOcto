@@ -227,7 +227,6 @@ Example setting of the environment variables (assuming default paths):
 
 ```sh
 source /usr/local/lib/yottadb/r1.28/ydb_env_set
-export ydb_routines="$ydb_dist/plugin/octo/o/_ydbocto.so $ydb_routines"
 export ydb_ci=$ydb_dist/plugin/octo/ydbocto.ci
 export ydb_xc_ydbposix=$ydb_dist/plugin/ydbposix.xc
 ```

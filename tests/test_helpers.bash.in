@@ -47,7 +47,6 @@ init_test() {
 		ydbroutines=".(. @PROJECT_SOURCE_DIR@/tests/fixtures) @PROJECT_BINARY_DIR@/src$utf8_path/_ydbocto.so @PROJECT_BINARY_DIR@"
 	else
 		# Add the UTF-8 path, if set, as this is not done by build.sh in the pipeline
-		# ydbroutines="@YOTTADB_INCLUDE_DIRS@/plugin/octo/o$utf8_path/_ydbocto.so .(. @PROJECT_SOURCE_DIR@/tests/fixtures)"
 		ydbroutines=".(. @PROJECT_SOURCE_DIR@/tests/fixtures)"
 		ydbroutines="$ydbroutines .(. @YOTTADB_INCLUDE_DIRS@/plugin/r/) @PROJECT_BINARY_DIR@"
 	fi

@@ -46,11 +46,11 @@ The environment variables `ydb_dist`, `ydb_gbldir`, and `ydb_routines` can initi
 
 Example setting of the environment variables (assuming default paths):
 
-.. parsed-literal::
-   source /usr/local/lib/yottadb/r1.28/ydb_env_set
-   export ydb_routines=". $ydb_routines"
-   export ydb_ci=$ydb_dist/plugin/ydbocto.ci
-   export ydb_xc_ydbposix=$ydb_dist/plugin/ydbposix.xc
+ .. parsed-literal::
+    source /usr/local/lib/yottadb/r1.28/ydb_env_set
+    export ydb_routines=". $ydb_routines"
+    export ydb_ci=$ydb_dist/plugin/ydbocto.ci
+    export ydb_xc_ydbposix=$ydb_dist/plugin/ydbposix.xc
 
 ~~~~~~~~~~~~~~
 Routines
@@ -105,9 +105,9 @@ Since most of the Octo variables need to persist between sessions, it is necessa
 TLS/SSL Configuration
 -----------------------
 
-.. note::
-   The instructions provided in this section will help in setting up a :code:`self-signed` certificate for TLS, but *not* for setting up TLS in production.
-   Also, a full TLS setup will require certificates signed by a known and trusted certificate authority.
+ .. note::
+    The instructions provided in this section will help in setting up a :code:`self-signed` certificate for TLS, but *not* for setting up TLS in production.
+    Also, a full TLS setup will require certificates signed by a known and trusted certificate authority.
 
 Enabling TLS/SSL requires several additional steps beyond installing the YottaDB encryption plugin - it requires creating a Certificate Authority (CA), generating a TLS/SSL certificate, and making additional changes to :code:`octo.conf`.
 
@@ -115,38 +115,38 @@ Enabling TLS/SSL requires several additional steps beyond installing the YottaDB
 Generate CA key and certificate
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. parsed-literal::
+ .. parsed-literal::
 
-   \# In a directory in which you want to store all of the certificates for Octo
-   \# Be sure to create a good passphrase for the CA
-   openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:2048 -out CA.key
-   \# This creates a CA valid for 1 Year and interactively prompts for additional information
-   openssl req -new -nodes -key CA.key -days 365 -x509 -out CA.crt
+    # In a directory in which you want to store all of the certificates for Octo
+    # Be sure to create a strong passphrase for the CA
+    openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:2048 -out CA.key
+    # This creates a CA valid for 1 year and interactively prompts for additional information
+    openssl req -new -nodes -key CA.key -days 365 -x509 -out CA.crt
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Create server key and certificate request
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. parsed-literal::
+ .. parsed-literal::
 
-   \# This creates a 2048 bit private key
-   openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:2048 -out server.key
-   \# This creates the certificate signing request
-   openssl req -new -key server.key -out server.csr
+    # This creates a 2048 bit private key
+    openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:2048 -out server.key
+    # This creates the certificate signing request
+    openssl req -new -key server.key -out server.csr
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Sign certificate based on request and local CA
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. parsed-literal::
+ .. parsed-literal::
 
-   \# Asks the CA to sign the certificate with a 1 Year validity time
-   openssl x509 -req -in server.csr -CA CA.crt -CAkey CA.key -CAcreateserial \ -out server.crt -days 365
-   \# Mask the password for the certificate in a way YottaDB understands
-   $ydb_dist/plugin/gtmcrypt/maskpass
-   \# This will need to be added to any startup scripts for octo/rocto
-   export ydb_tls_passwd_OCTOSERVER=[Masked Password from maskpass]
-   export ydb_crypt_config=/path/to/octo.conf
+    # Asks the CA to sign the certificate with a 1 Year validity time
+    openssl x509 -req -in server.csr -CA CA.crt -CAkey CA.key -CAcreateserial -out server.crt -days 365
+    # Mask the password for the certificate in a way YottaDB understands
+    $ydb_dist/plugin/gtmcrypt/maskpass
+    # This will need to be added to any startup scripts for octo/rocto
+    export ydb_tls_passwd_OCTOSERVER=[Masked Password from maskpass]
+    export ydb_crypt_config=/path/to/octo.conf
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Update Octo configuration file

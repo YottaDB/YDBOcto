@@ -41,7 +41,7 @@ Setup
 
 YottaDB r1.28 or greater is required for successful installation of Octo.
 
-Installing and configuring YottaDB is described in the `Administration and Operations Guide <https://docs.yottadb.com/AdminOpsGuide/installydb.html>`_.
+Installing and configuring YottaDB is described in the `Administration and Operations Guide <https://docs.yottadb.com/AdminOpsGuide/installydb.html>`__.
 
  .. note::
     It is required that the environment variable :code:`$ydb_dist` is defined - :code:`$gtm_dist` is not a valid subsitute.
@@ -314,7 +314,7 @@ Configure Octo
 
   Octo uses several internal global variables to map a SQL schema/DDL to a YottaDB database: %ydboctoschema, %ydboctoxref, and %ydboctoocto. It is best practice to map these to a separate region that is exclusive to Octo, which requires settings that may conflict with those required by other regions. For more information, refer to the Additional Configuration section below.
 
-  Please see the following example for creating a database from scratch with the recommended settings. For more information on setting up a database in YottaDB, refer to the `Administration and Operations Guide <https://docs.yottadb.com/AdminOpsGuide/index.html>`_.
+  Please see the following example for creating a database from scratch with the recommended settings. For more information on setting up a database in YottaDB, refer to the `Administration and Operations Guide <https://docs.yottadb.com/AdminOpsGuide/index.html>`__.
 
   .. parsed-literal::
 
@@ -339,24 +339,214 @@ Configure Octo
      $ydb_dist/mupip load $ydb_dist/plugin/octo/postgres-seed.zwr
      $ydb_dist/plugin/bin/octo -f $ydb_dist/plugin/octo/postgres-seed.sql
 
-^^^^^^^^^^^^^^^^^^^^^^^^     
+~~~~~~~~~~~~~~~~~~~~~~~~~    
   Test with dummy data
-^^^^^^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~~~~
 
   The :code:`northwind` dummy data set can be found in the :code:`tests/fixtures` directory of the YDBOcto repository. These are typically used for automated testing, but can also be used for manual testing.
 
   Each dummy data set consists of a :code:`.zwr` file and a :code:`.sql` file. The former contains the actual data to be stored in YottaDB, while the latter contains a schema that maps relational SQL structures (tables and columns) to the NoSQL data contained in YottaDB.
 
-  Accordingly, to use this dummy data, both the data and DDL must be loaded. For example, to load these data sets from a temporary build directory within the YDBOcto repo (:code:`YDBOcto/build`):
+   .. note::
+     
+     The :code:`northwind` dummy data files are only available if Octo has built from source.
+     If you are working with a binary distribution, download the required files first and then move on to loading them.
+
+  Dowload :code:`northwind.zwr` and :code:`northwind.sql`:
 
   .. parsed-literal::
 
-     $ydb_dist/mupip load ../tests/fixtures/northwind.zwr
-     $ydb_dist/plugin/bin/octo -f ../tests/fixtures/northwind.sql
+     # Create a new directory within Octo
+     mkdir tests && cd tests
+     # Download the required files
+     curl -fSsLO https://gitlab.com/YottaDB/DBMS/YDBOcto/-/blob/master/tests/fixtures/northwind.zwr
+     curl -fSsLO https://gitlab.com/YottaDB/DBMS/YDBOcto/-/blob/master/tests/fixtures/northwind.sql
+     
+  Accordingly, to use this dummy data, both the data and DDL must be loaded.
+  
+  In a shell with no :code:`ydb*` environment variables defined other than :code:`ydb_dir`, do the following:
+
+  .. parsed-literal::
+
+     export ydb_chset="UTF-8"
+     source $(pkg-config --variable=prefix yottadb)/ydb_env_set
+
+  *(Optional)* If you would like to use a directory other than :code:`$HOME/.yottadb`, then set :code:`ydb_dir` to a directory of your choosing.
+
+  For example:
+
+  .. parsed-literal::
+
+     export ydb_dir=/tmp/octodemo
+
+  Now, load the northwind data set:
+  
+  .. parsed-literal::
+
+     # In the /tests/fixtures directory
+     
+     $ydb_dist/mupip load northwind.zwr
+     $ydb_dist/plugin/bin/octo -f northwind.sql
 
   Once loaded, these data sets may be queried with standard SQL queries.
+
+^^^^^^^^^^^^^^^^^^^^^
+Sample Queries
+^^^^^^^^^^^^^^^^^^^^^
+
+Given below are some sample queries that can be run in Octo once the :code:`northwind` data set has been loaded.
+
+  The following query selects only the DISTINCT values from the 'Country' column in the 'Suppliers' table.
   
+  .. parsed-literal::
+     
+     OCTO> SELECT DISTINCT Country FROM Suppliers;
+     UK
+     USA
+     Japan
+     Spain
+     Australia
+     Sweden 
+     Brazil
+     Germany
+     Italy
+     Norway
+     Sweden
+     France
+     Singapore
+     Denmark
+     Netherlands
+     Finland
+     Canada
+
+  The following query selects the first five records from the 'Customers' table where the country is 'France'.
   
+  .. parsed-literal::
+     
+     OCTO> SELECT * FROM Customers
+     OCTO> WHERE Country='France'
+     OCTO> LIMIT 5;
+     7|Blondel père et fils|Frédérique Citeaux|24, place Kléber|Strasbourg|67000|France
+     9|Bon app'|Laurence Lebihans|12, rue des Bouchers|Marseille|13008|France
+     18|Du monde entier|Janine Labrune|67, rue des Cinquante Otages|Nantes|44000|France
+     23|Folies gourmandes|Martine Rancé|184, chaussée de Tournai|Lille|59000|France
+     26|France restauration|Carine Schmitt|54, rue Royale|Nantes|44000|France
+
+  The following query selects all products from the 'Products' table with a ProductName that starts with 'L'.
+  
+  .. parsed-literal::
+     
+     OCTO> SELECT * FROM Products
+     OCTO> WHERE ProductName LIKE 'L%';
+     65|Louisiana Fiery Hot Pepper Sauce|2|2|32 - 8 oz bottles|21.05
+     66|Louisiana Hot Spiced Okra|2|2|24 - 8 oz jars|17
+     67|Laughing Lumberjack Lager|16|1|24 - 12 oz bottles|14
+     74|Longlife Tofu|4|7|5 kg pkg.|10
+     76|Lakkalikööri|23|1|500 ml |18
+
+  The following query displays the average price of Products per Category.
+
+  .. parsed-literal::
+     
+     OCTO> SELECT AVG(Price), CategoryID
+     OCTO> FROM Products
+     OCTO> GROUP BY CategoryID;
+     37.9791666666666666|1
+     23.0625|2
+     25.16|3
+     28.73|4
+     20.25|5
+     54.0066666666666666|6
+     32.37|7
+     20.6825|8
+
+  The following query displays each Product with its Category and Supplier in ascending order of the 'SupplierName'.
+
+  .. parsed-literal::
+
+     OCTO> SELECT Products.ProductName, Categories.CategoryName, Suppliers.SupplierName
+     OCTO> FROM ((Products
+     OCTO> INNER JOIN Categories ON Products.CategoryID = Categories.CategoryID)
+     OCTO> INNER JOIN Suppliers ON Products.SupplierID = Suppliers.SupplierID)
+     OCTO> ORDER BY Suppliers.SupplierName;
+     Côte de Blaye|Beverages|Aux joyeux ecclésiastiques
+     Chartreuse verte|Beverages|Aux joyeux ecclésiastiques
+     Sasquatch Ale|Beverages|Bigfoot Breweries
+     Steeleye Stout|Beverages|Bigfoot Breweries
+     Laughing Lumberjack Lager|Beverages|Bigfoot Breweries
+     Queso Cabrales|Dairy Products|Cooperativa de Quesos 'Las Cabras'
+     Queso Manchego La Pastora|Dairy Products|Cooperativa de Quesos 'Las Cabras'
+     Escargots de Bourgogne|Seafood|Escargots Nouveaux
+     Chais|Beverages|Exotic Liquid
+     Chang|Beverages|Exotic Liquid
+     Aniseed Syrup|Condiments|Exotic Liquid
+     Gorgonzola Telino|Dairy Products|Formaggi Fortini s.r.l.
+     Mascarpone Fabioli|Dairy Products|Formaggi Fortini s.r.l.
+     Mozzarella di Giovanni|Dairy Products|Formaggi Fortini s.r.l.
+     Sirop d'érable|Condiments|Forêts d'érables
+     Tarte au sucre|Confections|Forêts d'érables
+     Manjimup Dried Apples|Produce|G'day, Mate
+     Filo Mix|Grains/Cereals|G'day, Mate
+     Perth Pasties|Meat/Poultry|G'day, Mate
+     Raclette Courdavault|Dairy Products|Gai pâturage
+     Camembert Pierrot|Dairy Products|Gai pâturage
+     Grandma's Boysenberry Spread|Condiments|Grandma Kelly's Homestead
+     Uncle Bob's Organic Dried Pears|Produce|Grandma Kelly's Homestead
+     Northwoods Cranberry Sauce|Condiments|Grandma Kelly's Homestead
+     NuNuCa Nuß-Nougat-Creme|Confections|Heli Süßwaren GmbH & Co. KG
+     Gumbär Gummibärchen|Confections|Heli Süßwaren GmbH & Co. KG
+     Schoggi Schokolade|Confections|Heli Süßwaren GmbH & Co. KG
+     Maxilaku|Confections|Karkki Oy
+     Valkoinen suklaa|Confections|Karkki Oy
+     Lakkalikööri|Beverages|Karkki Oy
+     Singaporean Hokkien Fried Mee|Grains/Cereals|Leka Trading
+     Ipoh Coffee|Beverages|Leka Trading
+     Gula Malacca|Condiments|Leka Trading
+     Rűgede sild|Seafood|Lyngbysild
+     Spegesild|Seafood|Lyngbysild
+     Tourtière|Meat/Poultry|Ma Maison
+     Pâté chinois|Meat/Poultry|Ma Maison
+     Konbu|Seafood|Mayumi's
+     Tofu|Produce|Mayumi's
+     Genen Shouyu|Condiments|Mayumi's
+     Boston Crab Meat|Seafood|New England Seafood Cannery
+     Jack's New England Clam Chowder|Seafood|New England Seafood Cannery
+     Chef Anton's Cajun Seasoning|Condiments|New Orleans Cajun Delights
+     Chef Anton's Gumbo Mix|Condiments|New Orleans Cajun Delights
+     Louisiana Fiery Hot Pepper Sauce|Condiments|New Orleans Cajun Delights
+     Louisiana Hot Spiced Okra|Condiments|New Orleans Cajun Delights
+     Nord-Ost Matjeshering|Seafood|Nord-Ost-Fisch Handelsgesellschaft mbH
+     Geitost|Dairy Products|Norske Meierier
+     Gudbrandsdalsost|Dairy Products|Norske Meierier
+     Flűtemysost|Dairy Products|Norske Meierier
+     Gustaf's Knäckebröd|Grains/Cereals|PB Knäckebröd AB
+     Tunnbröd|Grains/Cereals|PB Knäckebröd AB
+     Gnocchi di nonna Alice|Grains/Cereals|Pasta Buttini s.r.l.
+     Ravioli Angelo|Grains/Cereals|Pasta Buttini s.r.l.
+     Pavlova|Confections|Pavlova, Ltd.
+     Alice Mutton|Meat/Poultry|Pavlova, Ltd.
+     Carnarvon Tigers|Seafood|Pavlova, Ltd.
+     Vegie-spread|Condiments|Pavlova, Ltd.
+     Outback Lager|Beverages|Pavlova, Ltd.
+     Rössle Sauerkraut|Produce|Plutzer Lebensmittelgroßmärkte AG
+     Thüringer Rostbratwurst|Meat/Poultry|Plutzer Lebensmittelgroßmärkte AG
+     Wimmers gute Semmelknödel|Grains/Cereals|Plutzer Lebensmittelgroßmärkte AG
+     Rhönbräu Klosterbier|Beverages|Plutzer Lebensmittelgroßmärkte AG
+     Original Frankfurter grüne Soße|Condiments|Plutzer Lebensmittelgroßmärkte AG
+     Guaraná Fantástica|Beverages|Refrescos Americanas LTDA
+     Teatime Chocolate Biscuits|Confections|Specialty Biscuits, Ltd.
+     Sir Rodney's Marmalade|Confections|Specialty Biscuits, Ltd.
+     Sir Rodney's Scones|Confections|Specialty Biscuits, Ltd.
+     Scottish Longbreads|Confections|Specialty Biscuits, Ltd.
+     Inlagd Sill|Seafood|Svensk Sjöföda AB
+     Gravad lax|Seafood|Svensk Sjöföda AB
+     Röd Kaviar|Seafood|Svensk Sjöföda AB
+     Mishi Kobe Niku|Meat/Poultry|Tokyo Traders
+     Ikura|Seafood|Tokyo Traders
+     Longlife Tofu|Produce|Tokyo Traders
+     Zaanse koeken|Confections|Zaanse Snoepfabriek
+     Chocolade|Confections|Zaanse Snoepfabriek
+
 ~~~~~~~~~~~~~~~~~
 Usage
 ~~~~~~~~~~~~~~~~~

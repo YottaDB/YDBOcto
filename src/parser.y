@@ -1457,7 +1457,7 @@ index_definition
 	;
 
 index_name
-	: column_name { $$ = $index_name; }
+	: column_name { $$ = $column_name; }
 	;
 
 qualified_name

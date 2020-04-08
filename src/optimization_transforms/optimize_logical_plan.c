@@ -207,9 +207,6 @@ LogicalPlan *optimize_logical_plan(LogicalPlan *plan) {
 			 */
 			operand0 = table_join->v.lp_default.operand[0];
 			switch(operand0->type) {
-			case LP_TABLE:
-				right_table_alias = operand0->v.lp_table.table_alias;
-				break;
 			case LP_INSERT:
 			case LP_SET_OPERATION:
 				insert = operand0;
@@ -220,7 +217,8 @@ LogicalPlan *optimize_logical_plan(LogicalPlan *plan) {
 				right_table_alias = insert->extra_detail.lp_insert.root_table_alias;
 				break;
 			default:
-				assert(FALSE);
+				assert(LP_TABLE == operand0->type);
+				right_table_alias = operand0->v.lp_table.table_alias;
 				break;
 			}
 			lp_optimize_where_multi_equal_ands(plan,

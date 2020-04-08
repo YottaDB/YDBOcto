@@ -3,8 +3,6 @@ grouping_column_reference.c:warning: unused parameter ‘collate_clause’ [-Wun
 lp_optimize_where_multi_equals_ands.c:In function ‘lp_optimize_where_multi_equal_ands_helper’:
 lp_optimize_where_multi_equals_ands.c:warning: ‘left_id’ may be used uninitialized in this function [-Wmaybe-uninitialized]
 lp_optimize_where_multi_equals_ands.c:warning: ‘right_id’ may be used uninitialized in this function [-Wmaybe-uninitialized]
-optimize_logical_plan.c:In function ‘optimize_logical_plan’:
-optimize_logical_plan.c:warning: ‘right_table_alias’ may be used uninitialized in this function [-Wmaybe-uninitialized]
 parser.y:warning: 29 shift/reduce conflicts [-Wconflicts-sr]
 physical-lexer.c:In function ‘yylex’:
 physical-lexer.c:warning: variable ‘yylval’ set but not used [-Wunused-but-set-variable]

@@ -23,5 +23,3 @@ template_helpers.h:warning: ‘sql_operator’ may be used uninitialized in this
 tmpl_print_expression.ctemplate.c:In function ‘tmpl_print_expression’:
 tmpl_print_expression.ctemplate.c:note: ‘compare_operator’ was declared here
 tmpl_print_expression.ctemplate.c:note: ‘sql_operator’ was declared here
-tmpl_tablejoin.ctemplate.c:In function ‘tmpl_tablejoin’:
-tmpl_tablejoin.ctemplate.c:warning: ‘left_table_id’ may be used uninitialized in this function [-Wmaybe-uninitialized]

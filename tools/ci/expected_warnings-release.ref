@@ -11,5 +11,3 @@ physical-lexer.c:warning: variable ‘yylval’ set but not used [-Wunused-but-s
 template_helpers.h:note: in definition of macro ‘TEMPLATE_SNPRINTF’
 tmpl_column_reference_trigger.ctemplate.c:In function ‘tmpl_column_reference_trigger’:
 tmpl_column_reference_trigger.ctemplate.c:warning: ‘%s’ directive argument is null [-Wformat-truncation=]
-tmpl_tablejoin.ctemplate.c:In function ‘tmpl_tablejoin’:
-tmpl_tablejoin.ctemplate.c:warning: ‘left_table_id’ may be used uninitialized in this function [-Wmaybe-uninitialized]

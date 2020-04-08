@@ -85,16 +85,6 @@ TEMPLATE(tmpl_column_reference_trigger, PhysicalPlan *pplan, SqlColumnAlias *col
 		}
 	}
 
-	keyword = get_keyword(column, OPTIONAL_EXTRACT);
-	if (NULL != keyword) {
-		UNPACK_SQL_STATEMENT(value, keyword->v, value);
-		TMPL(tmpl_emit_source, value->v.string_literal, table_name, table_alias->unique_id,		\
-									MAX_KEY_COUNT, EmitSourceForm_Trigger);
-		if (NULL != table_delim) {
-			%{} -delim=""{{ table_delim }}"" -pieces=""{{ piece }}""{}%
-		}
-		TEMPLATE_END();
-	}
 	keyword = get_keyword(column, OPTIONAL_PIECE);
 	if (NULL != keyword) {
 		UNPACK_SQL_STATEMENT(value, keyword->v, value);
@@ -106,14 +96,20 @@ TEMPLATE(tmpl_column_reference_trigger, PhysicalPlan *pplan, SqlColumnAlias *col
 		piece = piece_buffer;
 	}
 
-	keyword = get_keyword(column, OPTIONAL_SOURCE);
+	keyword = get_keyword(column, OPTIONAL_EXTRACT);
 	if (NULL != keyword) {
 		UNPACK_SQL_STATEMENT(value, keyword->v, value);
 		source = value->v.string_literal;
 	} else {
-		UNPACK_SQL_STATEMENT(keyword, table->source, keyword);
-		UNPACK_SQL_STATEMENT(value, keyword->v, value);
-		source = value->v.string_literal;
+		keyword = get_keyword(column, OPTIONAL_SOURCE);
+		if (NULL != keyword) {
+			UNPACK_SQL_STATEMENT(value, keyword->v, value);
+			source = value->v.string_literal;
+		} else {
+			UNPACK_SQL_STATEMENT(keyword, table->source, keyword);
+			UNPACK_SQL_STATEMENT(value, keyword->v, value);
+			source = value->v.string_literal;
+		}
 	}
 
 	TMPL(tmpl_emit_source, source, table_name, table_alias->unique_id, MAX_KEY_COUNT, EmitSourceForm_Trigger);

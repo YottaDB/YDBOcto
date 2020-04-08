@@ -118,7 +118,8 @@ else
 fi
 
 if [ $(wc -l differences.txt | awk '{print $1}') -gt 0 ]; then
-  echo "New build warnings detected!"
+  echo "Expected warnings differ from actual warnings!"
+  echo "note: '>' indicates an expected warning, '<' indicates an actual warning"
   cat differences.txt
   exit 1
 fi

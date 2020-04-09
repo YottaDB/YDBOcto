@@ -18,6 +18,10 @@
 #include "octo.h"
 #include "octo_types.h"
 
+/* Returns:
+ *	0 if query is successfully qualified.
+ *	1 if query had errors during qualification.
+ */
 int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_alias_stmt,
 							int depth, SqlColumnListAlias **ret_cla) {
 	SqlAggregateFunction	*af;

@@ -18,6 +18,10 @@
 #include "octo.h"
 #include "octo_types.h"
 
+/* Returns:
+ *	0 if query is successfully qualified.
+ *	1 if query had errors during qualification.
+ */
 int qualify_query(SqlStatement *table_alias_stmt, SqlJoin *parent_join, SqlTableAlias *parent_table_alias) {
 	SqlColumnListAlias	*ret_cla;
 	SqlJoin			*join;
@@ -114,7 +118,6 @@ int qualify_query(SqlStatement *table_alias_stmt, SqlJoin *parent_join, SqlTable
 		SqlColumnListAlias	*start_cla, *cur_cla;
 		SqlTableAlias		*group_by_table_alias;
 		SqlColumnList		*col_list;
-		SqlColumnAlias		*column_alias;
 		int			group_by_column_count;
 
 		table_alias->aggregate_depth = AGGREGATE_DEPTH_GROUP_BY_CLAUSE;
@@ -133,26 +136,39 @@ int qualify_query(SqlStatement *table_alias_stmt, SqlJoin *parent_join, SqlTable
 		cur_cla = start_cla;
 		do {
 			UNPACK_SQL_STATEMENT(col_list, cur_cla->column_list, column_list);
-			UNPACK_SQL_STATEMENT(column_alias, col_list->value, column_alias);
-			UNPACK_SQL_STATEMENT(group_by_table_alias, column_alias->table_alias, table_alias);
-			if (group_by_table_alias->parent_table_alias != table_alias) {
-				/* Column belongs to an outer query. Discard it from the GROUP BY list. */
-				SqlColumnListAlias	*prev, *next;
+			if (column_alias_STATEMENT == col_list->value->type) {
+				SqlColumnAlias		*column_alias;
 
-				prev = cur_cla->prev;
-				next = cur_cla->next;
-				prev->next = next;
-				next->prev = prev;
-			} else {
-				if (0 == group_by_column_count) {
-					group_by_expression->v.column_list_alias = cur_cla;
-					start_cla = cur_cla;
+				UNPACK_SQL_STATEMENT(column_alias, col_list->value, column_alias);
+				UNPACK_SQL_STATEMENT(group_by_table_alias, column_alias->table_alias, table_alias);
+				if (group_by_table_alias->parent_table_alias != table_alias) {
+					/* Column belongs to an outer query. Discard it from the GROUP BY list. */
+					SqlColumnListAlias	*prev, *next;
+
+					prev = cur_cla->prev;
+					next = cur_cla->next;
+					prev->next = next;
+					next->prev = prev;
+				} else {
+					if (0 == group_by_column_count) {
+						group_by_expression->v.column_list_alias = cur_cla;
+						start_cla = cur_cla;
+					}
+					group_by_column_count++;
 				}
-				group_by_column_count++;
+			} else {
+				/* This is a case of an invalid column name specified in the GROUP BY clause.
+				 * An "Unknown column" error would have already been issued about this (i.e. result would be 1).
+				 * Assert both these conditions.
+				 */
+				assert(result);
+				assert((value_STATEMENT == col_list->value->type)
+						&& (COLUMN_REFERENCE == col_list->value->v.value->type));
 			}
 			cur_cla = cur_cla->next;
 		} while (cur_cla != start_cla);
-		assert(group_by_column_count == table_alias->group_by_column_count);
+		/* The "|| result" case below is to account for query errors (e.g. "Unknown column" error, see comment above) */
+		assert((group_by_column_count == table_alias->group_by_column_count) || result);
 		if (!group_by_column_count) {
 			select->group_by_expression = NULL;
 		}

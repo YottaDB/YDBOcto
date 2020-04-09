@@ -67,3 +67,7 @@ setup() {
   run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TGB10.sql "remove_empty_line_at_tail"
 }
 
+@test "TGB11 : OCTO452 : Assert failure when invalid column name is specified in GROUP BY" {
+  load_fixture TGB11.sql subtest novv
+  verify_output TGB11 output.txt
+}

@@ -25,8 +25,10 @@ TEMPLATE(tmpl_group_by, PhysicalPlan *plan, int dot_count) {
 	TMPL(tmpl_print_dots, dot_count);
 	%{}`n{{ PLAN_LINE_START }}{}%
 	%{}NEW %%ydboctog SET %%ydboctog=""{}%
-	/* If there is no GROUP BY clause in the query, check if any COUNT or COUNT(*) function usages happened.
-	 * If so initialize those to 0 if they don't exist (due to WHERE clauses skipping all rows).
+	/* If there is no GROUP BY clause in the query, check if any aggregate function usages happened.
+	 * If so initialize those to 0 or NULL if they don't exist (due to WHERE clauses skipping all rows).
+	 * See https://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/455#note_321309198 for details on why only
+	 * the no-GROUP-BY-specified case is treated specially.
 	 */
 	if (NULL != plan->aggregate_options) {
 		group_by = plan->aggregate_options->v.lp_default.operand[0];
@@ -36,21 +38,54 @@ TEMPLATE(tmpl_group_by, PhysicalPlan *plan, int dot_count) {
 	if (NULL == group_by) {
 		first_aggregate = plan->lp_insert->extra_detail.lp_insert.first_aggregate;
 		for (af = first_aggregate; NULL != af; af = af->extra_detail.lp_aggregate_function.next_aggregate) {
-			assert(IS_TYPE_LP_AGGREGATE(af->type));
+			boolean_t	is_avg;
+			int		aggregate_cnt;
+			LPActionType	type;
+
+			type = af->type;
+			assert(IS_TYPE_LP_AGGREGATE(type));
 			assert(af->extra_detail.lp_aggregate_function.aggregate_cnt);
-			if ((LP_AGGREGATE_FUNCTION_COUNT_ASTERISK == af->type)
-					|| (LP_AGGREGATE_FUNCTION_COUNT == af->type)) {
-				%{}`n{{ PLAN_LINE_START }}{}%
-				TMPL(tmpl_print_dots, dot_count);
-				%{}SET:'$DATA({}%
-				TMPL(tmpl_key, plan->outputKey);
-				(*buffer_index)--;
-				%{},{{ GROUP_BY_SUBSCRIPT }},%%ydboctog,{}%
-				%{}{{ af->extra_detail.lp_aggregate_function.aggregate_cnt|%d }})) {}%
-				TMPL(tmpl_key, plan->outputKey);
-				(*buffer_index)--;
-				%{},{{ GROUP_BY_SUBSCRIPT }},%%ydboctog,{}%
-				%{}{{ af->extra_detail.lp_aggregate_function.aggregate_cnt|%d }})=0{}%
+			is_avg = ((LP_AGGREGATE_FUNCTION_AVG == type) || (LP_AGGREGATE_FUNCTION_AVG_DISTINCT == type));
+			%{}`n{{ PLAN_LINE_START }}{}%
+			TMPL(tmpl_print_dots, dot_count);
+			%{}SET:'$DATA({}%
+			TMPL(tmpl_key, plan->outputKey);
+			(*buffer_index)--;
+			%{},{{ GROUP_BY_SUBSCRIPT }},%%ydboctog,{}%
+			aggregate_cnt = af->extra_detail.lp_aggregate_function.aggregate_cnt;
+			if (is_avg) {
+				/* In case of AVG function, the SUM and COUNT are stored separately so use that to find the AVG.
+				 * The SUM and COUNT are stored in a negative subscript so do the negation here.
+				 */
+				aggregate_cnt = - aggregate_cnt;
+			}
+			%{}{{ aggregate_cnt|%d }}{}%
+			if (is_avg) {
+				%{},"SUM"{}%
+			}
+			%{})) {}%
+			TMPL(tmpl_key, plan->outputKey);
+			(*buffer_index)--;
+			%{},{{ GROUP_BY_SUBSCRIPT }},%%ydboctog,{}%
+			%{}{{ aggregate_cnt|%d }}{}%
+			if (is_avg) {
+				%{},"SUM"{}%
+			}
+			%{})={}%
+			switch(type) {
+			case LP_AGGREGATE_FUNCTION_MIN:
+			case LP_AGGREGATE_FUNCTION_MAX:
+			case LP_AGGREGATE_FUNCTION_SUM:
+			case LP_AGGREGATE_FUNCTION_SUM_DISTINCT:
+			case LP_AGGREGATE_FUNCTION_AVG:
+			case LP_AGGREGATE_FUNCTION_AVG_DISTINCT:
+				%{}$ZYSQLNULL{}%
+				break;
+			default:
+				assert((LP_AGGREGATE_FUNCTION_COUNT_ASTERISK == type)
+					|| (LP_AGGREGATE_FUNCTION_COUNT == type) || (LP_AGGREGATE_FUNCTION_COUNT_DISTINCT == type));
+				%{}0{}%
+				break;
 			}
 		}
 	}

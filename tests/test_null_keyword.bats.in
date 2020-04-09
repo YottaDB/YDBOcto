@@ -20,7 +20,7 @@ setup() {
 }
 
 @test "TNK01 : OCTO311 : Miscellaneous tests of NULL keyword" {
-  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TNK01.sql "remove_empty_line_at_tail"
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TNK01.sql "remove_empty_line_at_tail" "trim_trailing_zeroes"
 }
 
 @test "TNK02 : OCTO443 : Multiple OUTER JOIN returns incorrect results" {

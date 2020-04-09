@@ -18,8 +18,3 @@ optimize_logical_plan.c:warning: ‘right_table_alias’ may be used uninitializ
 parser.y:warning: 29 shift/reduce conflicts [-Wconflicts-sr]
 physical-lexer.c:In function ‘yylex’:
 physical-lexer.c:warning: variable ‘yylval’ set but not used [-Wunused-but-set-variable]
-template_helpers.h:warning: ‘compare_operator’ may be used uninitialized in this function [-Wmaybe-uninitialized]
-template_helpers.h:warning: ‘sql_operator’ may be used uninitialized in this function [-Wmaybe-uninitialized]
-tmpl_print_expression.ctemplate.c:In function ‘tmpl_print_expression’:
-tmpl_print_expression.ctemplate.c:note: ‘compare_operator’ was declared here
-tmpl_print_expression.ctemplate.c:note: ‘sql_operator’ was declared here

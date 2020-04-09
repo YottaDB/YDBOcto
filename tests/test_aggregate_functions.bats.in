@@ -23,3 +23,9 @@ setup() {
   run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TAF01.sql "remove_empty_line_at_tail"
 }
 
+@test "TAF02 : OCTO311 : Test aggregate function handling of NULL" {
+  load_fixture customers.sql
+  load_fixture customers.zwr
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries customers TAF02.sql "remove_empty_line_at_tail" "trim_trailing_zeroes"
+}
+

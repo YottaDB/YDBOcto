@@ -534,14 +534,6 @@ run_query_in_octo_and_postgres_and_crosscheck() {
 	# Postgres displays boolean values as t and f whereas Octo displays them as 1 and 0 so fix that before the diff.
 	# Remove leading spaces, not proper ones in things like "123 fake street"
 	tail -n +3 $fname.psql.out | head -n -2 | sed 's/^[ \t]*//g;s/[ \t]*$//g;s/  //g;s/  //g;s/ | /|/g;s/ |/|/g;s/| /|/g;s/\<t\>/1/g;s/\<f\>/0/g;' >& $fname.ref
-	#if [[ $trimzeroes == "trim_trailing_zeroes" ]]; then
-	#	# Remove floating point numbers with extraneous 0s at the end (e.g. convert 2.5000000000000000 -> 2.5)
-	#	# Postgres creates these floating point numbers if an AVG aggregate function is invoked whereas Octo does not.
-	#	mv $fname.ref $fname.ref1
-	#	sed '/\./ s/\.\{0,1\}0\{1,\}$//;/\./ s/\.\{0,1\}0\{1,\}|/|/;' $fname.ref1 > $fname.ref
-	#	#mv $fname.log $fname.log1
-	#	#sed '/\./ s/\.\{0,1\}0\{1,\}$//;/\./ s/\.\{0,1\}0\{1,\}|/|/;' $fname.log1 > $fname.log
-	#fi
 	if [[ $usejdbc == "usejdbc" ]]; then
 		run_java run_query $test_port $queryfile $jdbcprotocol &> $fname.octo.out
 	else

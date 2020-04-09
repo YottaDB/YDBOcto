@@ -36,6 +36,9 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 	LogicalPlan	*cur_lp_key, *derived_column;
 	boolean_t	split_m_line;
 	SqlValueType	coerce_type, pre_coerce_type;
+	LPActionType	plan_type;
+	boolean_t	is_avg;
+	int		aggregate_cnt;
 
 	assert(NULL != plan);
 	first_operand = plan->v.lp_default.operand[0];
@@ -47,7 +50,8 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 	 */
 	split_m_line = FALSE;
 	depth++;
-	switch(plan->type) {
+	plan_type = plan->type;
+	switch(plan_type) {
 	case LP_WHERE:
 		TMPL(tmpl_print_expression, first_operand, pplan, dot_count, depth);
 		TEMPLATE_END();
@@ -247,27 +251,27 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 		use_string_comparison = lp_is_bool_operand_type_string(plan);
 		if (use_string_comparison) {
 			// String type. Need to use "]" or "']" operator and swap operands as needed.
-			if (LP_BOOLEAN_GREATER_THAN == plan->type) {
+			if (LP_BOOLEAN_GREATER_THAN == plan_type) {
 				m_operator = "]";
-			} else if (LP_BOOLEAN_LESS_THAN_OR_EQUALS == plan->type) {
+			} else if (LP_BOOLEAN_LESS_THAN_OR_EQUALS == plan_type) {
 				m_operator = "']";
 			} else {
 				// Swap operands first
 				t_operand = first_operand;
 				first_operand = second_operand;
 				second_operand = t_operand;
-				if (LP_BOOLEAN_GREATER_THAN_OR_EQUALS == plan->type) {
+				if (LP_BOOLEAN_GREATER_THAN_OR_EQUALS == plan_type) {
 					m_operator = "']";
 				} else
 					m_operator = "]";
 				}
 		} else {
 			// Numeric/Integer type. Easy to do <, >, <= and >= comparison.
-			if (LP_BOOLEAN_LESS_THAN == plan->type) {
+			if (LP_BOOLEAN_LESS_THAN == plan_type) {
 				m_operator = "<";
-			} else if (LP_BOOLEAN_GREATER_THAN_OR_EQUALS == plan->type) {
+			} else if (LP_BOOLEAN_GREATER_THAN_OR_EQUALS == plan_type) {
 				m_operator = "'<";
-			} else if (LP_BOOLEAN_LESS_THAN_OR_EQUALS == plan->type) {
+			} else if (LP_BOOLEAN_LESS_THAN_OR_EQUALS == plan_type) {
 				m_operator = "'>";
 			} else {
 				m_operator = ">";
@@ -280,7 +284,7 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 		TMPL(tmpl_print_expression, first_operand, pplan, 0, 0);
 		%{},{}%
 		TMPL(tmpl_print_expression, second_operand, pplan, 0, 0);
-		if (LP_BOOLEAN_REGEX_INSENSITIVE == plan->type) {
+		if (LP_BOOLEAN_REGEX_INSENSITIVE == plan_type) {
 			// The extra ',3' below marks this as case insensitive
 			%{},3{}%
 		}
@@ -295,7 +299,7 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 		(*buffer_index)--;
 		%{},{}%
 		TMPL(tmpl_print_expression, first_operand, pplan, 0, 0);
-		if (LP_BOOLEAN_IN == plan->type) {
+		if (LP_BOOLEAN_IN == plan_type) {
 			%{}))'=0){}%
 		} else {
 			%{}))=0){}%
@@ -316,7 +320,7 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 		assert((LP_INSERT == second_operand->type) || (LP_SET_OPERATION == second_operand->type));
 		// Fetch the second value from the output key of this query/table
 		key = lp_get_output_key(second_operand);
-		switch(plan->type) {
+		switch(plan_type) {
 		case LP_BOOLEAN_ANY_EQUALS:
 			compare_operator = "=";
 			sql_operator = "ANY";
@@ -361,12 +365,10 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 			compare_operator = "<=";
 			sql_operator = "ALL";
 			break;
-		case LP_BOOLEAN_ALL_GREATER_THAN_OR_EQUALS:
+		default:
+			assert(LP_BOOLEAN_ALL_GREATER_THAN_OR_EQUALS == plan_type);
 			compare_operator = ">=";
 			sql_operator = "ALL";
-			break;
-		default:
-			assert(FALSE);
 			break;
 		}
 		use_string_comparison = lp_is_bool_operand_type_string(plan);
@@ -391,14 +393,14 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 		assert((LP_INSERT == first_operand->type) || (LP_SET_OPERATION == first_operand->type));
 		// Fetch the first value from the output key of this query/table
 		key = lp_get_output_key(first_operand);
-		if (LP_BOOLEAN_NOT_EXISTS == plan->type) {
+		if (LP_BOOLEAN_NOT_EXISTS == plan_type) {
 			%{}'{}%
 		}
 		%{}$$EXISTS^%%ydboctoplanhelpers({{ key->v.lp_key.key->unique_id|%d }}){}%
 		break;
 	case LP_BOOLEAN_IS_NULL:
 	case LP_BOOLEAN_IS_NOT_NULL:
-		if (LP_BOOLEAN_IS_NOT_NULL == plan->type) {
+		if (LP_BOOLEAN_IS_NOT_NULL == plan_type) {
 			%{}'{}%
 		}
 		%{}$ZYISSQLNULL({}%
@@ -426,6 +428,8 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 	case LP_AGGREGATE_FUNCTION_SUM:
 	case LP_AGGREGATE_FUNCTION_COUNT_DISTINCT:
 	case LP_AGGREGATE_FUNCTION_SUM_DISTINCT:
+	case LP_AGGREGATE_FUNCTION_AVG:
+	case LP_AGGREGATE_FUNCTION_AVG_DISTINCT:
 		/* Note that the GROUP_BY_SUBSCRIPT node might not exist in case all values aggregated were NULL.
 		 * Hence the need for $GET.
 		 */
@@ -433,34 +437,51 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 		TMPL(tmpl_key, pplan->outputKey);
 		(*buffer_index)--;
 		assert(plan->extra_detail.lp_aggregate_function.aggregate_cnt);
-		%{},{{ GROUP_BY_SUBSCRIPT }},%%ydboctog,{{ plan->extra_detail.lp_aggregate_function.aggregate_cnt|%d }}){}%
-		if ((LP_AGGREGATE_FUNCTION_COUNT == plan->type) || (LP_AGGREGATE_FUNCTION_COUNT == plan->type)) {
-			/* In case COUNT encountered only NULL rows, return the value 0 */
-			%{},0{}%
-		}
-		%{}){}%
-		break;
-	case LP_AGGREGATE_FUNCTION_AVG:
-	case LP_AGGREGATE_FUNCTION_AVG_DISTINCT:
+		aggregate_cnt = plan->extra_detail.lp_aggregate_function.aggregate_cnt;
+		is_avg = ((LP_AGGREGATE_FUNCTION_AVG == plan_type) || (LP_AGGREGATE_FUNCTION_AVG_DISTINCT == plan_type));
 		/* AVG is slightly different from other aggregate functions in that the actual average is not stored anywhere
 		 * yet. Only the cumulative sum and cumulative count are stored (in `Avg` or `AvgDistinct` labels in
 		 * `src/aux/_ydboctoplanhelpers.m`). So generate code that computes the average using the stored quantities.
-		 * See previous switch/case block for why `$GET` is needed.
 		 */
-		%{}({}%
-		%{}$GET({}%
-		TMPL(tmpl_key, pplan->outputKey);
-		(*buffer_index)--;
-		assert(plan->extra_detail.lp_aggregate_function.aggregate_cnt);
-		%{},{{ GROUP_BY_SUBSCRIPT }},%%ydboctog,-{{ plan->extra_detail.lp_aggregate_function.aggregate_cnt|%d }},"SUM"){}%
-		%{},0){}%
-		%{}/{}%
-		%{}$GET({}%
-		TMPL(tmpl_key, pplan->outputKey);
-		(*buffer_index)--;
-		%{},{{ GROUP_BY_SUBSCRIPT }},%%ydboctog,-{{ plan->extra_detail.lp_aggregate_function.aggregate_cnt|%d }},"COUNT"){}%
-		%{},1){}%
+		if (is_avg) {
+			/* In case of AVG function, the SUM and COUNT are stored separately so use that to find the AVG.
+			 * The SUM and COUNT are stored in a negative subscript so do the negation here.
+			 */
+			aggregate_cnt = - aggregate_cnt;
+		}
+		%{},{{ GROUP_BY_SUBSCRIPT }},%%ydboctog,{{ aggregate_cnt|%d }}{}%
+		if (is_avg) {
+			%{},"SUM"{}%
+		}
+		%{}),{}%
+		/* In case no rows exist, set default value of 0 for COUNT and NULL for AVG/SUM/MIN/MAX.
+		 * Similar code exists in "tmpl_group_by.ctemplate".
+		 */
+		switch(plan_type) {
+		case LP_AGGREGATE_FUNCTION_MIN:
+		case LP_AGGREGATE_FUNCTION_MAX:
+		case LP_AGGREGATE_FUNCTION_SUM:
+		case LP_AGGREGATE_FUNCTION_SUM_DISTINCT:
+		case LP_AGGREGATE_FUNCTION_AVG:
+		case LP_AGGREGATE_FUNCTION_AVG_DISTINCT:
+			%{}$ZYSQLNULL{}%
+			break;
+		default:
+			assert((LP_AGGREGATE_FUNCTION_COUNT_ASTERISK == plan_type)
+				|| (LP_AGGREGATE_FUNCTION_COUNT == plan_type)
+				|| (LP_AGGREGATE_FUNCTION_COUNT_DISTINCT == plan_type));
+			%{}0{}%
+			break;
+		}
 		%{}){}%
+		if (is_avg) {
+			%{}/{}%
+			%{}$GET({}%
+			TMPL(tmpl_key, pplan->outputKey);
+			(*buffer_index)--;
+			%{},{{ GROUP_BY_SUBSCRIPT }},%%ydboctog,{{ aggregate_cnt|%d }},"COUNT"){}%
+			%{},1){}%
+		}
 		break;
 	case LP_INSERT:
 	case LP_SET_OPERATION:

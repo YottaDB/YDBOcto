@@ -450,10 +450,10 @@ octoPlan1(cursorId)
     NEW %ydboctog SET %ydboctog=""
     FOR  DO:$DATA(%ydboctocursor(cursorId,"keys",5,"","","GroupBy",%ydboctog))  SET %ydboctog=$ORDER(%ydboctocursor(cursorId,"keys",5,"","","GroupBy",%ydboctog)) QUIT:(""=%ydboctog)
     . NEW %ydboctobool SET %ydboctobool=1
-    . SET %ydboctobool=%ydboctobool&('$DATA(%ydboctozdistinct(5,$GET(%ydboctocursor(cursorId,"keys",5,"","","GroupBy",%ydboctog,1)))))
+    . SET %ydboctobool=%ydboctobool&('$DATA(%ydboctozdistinct(5,$GET(%ydboctocursor(cursorId,"keys",5,"","","GroupBy",%ydboctog,1),$ZYSQLNULL))))
     . IF %ydboctobool DO
-    . . IF $INCREMENT(%ydboctocursor(cursorId,"keys",5,"","",$GET(%ydboctocursor(cursorId,"keys",5,"","","GroupBy",%ydboctog,1))))
-    . . SET:1 %ydboctozdistinct(5,$GET(%ydboctocursor(cursorId,"keys",5,"","","GroupBy",%ydboctog,1)))=""
+    . . IF $INCREMENT(%ydboctocursor(cursorId,"keys",5,"","",$GET(%ydboctocursor(cursorId,"keys",5,"","","GroupBy",%ydboctog,1),$ZYSQLNULL)))
+    . . SET:1 %ydboctozdistinct(5,$GET(%ydboctocursor(cursorId,"keys",5,"","","GroupBy",%ydboctog,1),$ZYSQLNULL))=""
     KILL %ydboctocursor(cursorId,"keys",5,"","","GroupBy")
     KILL %ydboctozdistinct(5)
     QUIT

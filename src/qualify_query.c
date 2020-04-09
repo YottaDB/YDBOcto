@@ -149,10 +149,13 @@ int qualify_query(SqlStatement *table_alias_stmt, SqlJoin *parent_join, SqlTable
 					next = cur_cla->next;
 					prev->next = next;
 					next->prev = prev;
+					if ((cur_cla == start_cla) && (next != cur_cla)) {
+						start_cla = cur_cla = next;
+						continue;
+					}
 				} else {
 					if (0 == group_by_column_count) {
 						group_by_expression->v.column_list_alias = cur_cla;
-						start_cla = cur_cla;
 					}
 					group_by_column_count++;
 				}
@@ -166,7 +169,13 @@ int qualify_query(SqlStatement *table_alias_stmt, SqlJoin *parent_join, SqlTable
 						&& (COLUMN_REFERENCE == col_list->value->v.value->type));
 			}
 			cur_cla = cur_cla->next;
-		} while (cur_cla != start_cla);
+			if (cur_cla == start_cla) {
+				/* Note: Cannot move the negation of the above check to the `while(TRUE)` done below
+				 * because there is a `continue` code path above which should go through without any checks.
+				 */
+				break;
+			}
+		} while (TRUE);
 		/* The "|| result" case below is to account for query errors (e.g. "Unknown column" error, see comment above) */
 		assert((group_by_column_count == table_alias->group_by_column_count) || result);
 		if (!group_by_column_count) {

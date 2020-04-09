@@ -71,3 +71,8 @@ setup() {
   load_fixture TGB11.sql subtest novv
   verify_output TGB11 output.txt
 }
+
+@test "TGB12 : OCTO479 : Hang when GROUP BY in sub-query uses all columns from parent query (and no columns from sub-query)" {
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TGB12.sql "remove_empty_line_at_tail"
+}
+

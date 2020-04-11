@@ -530,10 +530,9 @@ run_query_in_octo_and_postgres_and_crosscheck() {
 	jdbcprotocol="$7"
 	fname=`echo $queryfile | sed 's/\..*//g'`
 	grep -v '^#' $queryfile > $queryfile.inp # Filter out '#' comment lines, if any, as that is not valid in Postgres
-	psql $database -f $queryfile.inp >& $fname.psql.out
+	psql --no-align $database -f $queryfile.inp >& $fname.psql.out
 	# Postgres displays boolean values as t and f whereas Octo displays them as 1 and 0 so fix that before the diff.
-	# Remove leading spaces, not proper ones in things like "123 fake street"
-	tail -n +3 $fname.psql.out | head -n -2 | sed 's/^[ \t]*//g;s/[ \t]*$//g;s/  //g;s/  //g;s/ | /|/g;s/ |/|/g;s/| /|/g;s/\<t\>/1/g;s/\<f\>/0/g;' >& $fname.ref
+	tail -n +2 $fname.psql.out | head -n -1 | sed 's/\<t\>/1/g;s/\<f\>/0/g;' >& $fname.ref
 	if [[ $usejdbc == "usejdbc" ]]; then
 		run_java run_query $test_port $queryfile $jdbcprotocol &> $fname.octo.out
 	else

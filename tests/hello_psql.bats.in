@@ -16,7 +16,7 @@ setup() {
   init_test
 }
 
-@test "HPSQL00 : Can load data into Postgres database/tables and communicate with the PostgreSQL server" {
+@test "HP01 : Can load data into Postgres database/tables and communicate with the PostgreSQL server" {
   echo "\d" > listdb.sql
   for schema in names customers pastas easynames northwind sqllogic1 boolean
   do
@@ -38,9 +38,9 @@ setup() {
 		inputfile="input_${schema}_${tablename}.sql"
 		outputfile="output_${schema}_${tablename}.txt"
 		echo "select * from $tablename;" > $inputfile
-		psql $schema -f $inputfile >& $outputfile
+		psql --no-align $schema -f $inputfile >& $outputfile
 		echo "#######################################################################" >> output.txt
-		echo "# Listing first 2 lines and last 2 lines of [SCHEMA : $schema] [TABLE : $tablename]" >> output.txt
+		echo "# Listing first 3 lines and last 3 lines of [SCHEMA : $schema] [TABLE : $tablename]" >> output.txt
 		echo "#######################################################################" >> output.txt
 		head -4 $outputfile >> output.txt 2>&1
 		echo "..." >> output.txt
@@ -48,5 +48,5 @@ setup() {
 		tail -4 $outputfile >> output.txt 2>&1
 	done
   done
-  verify_output HB04 output.txt
+  verify_output HP01 output.txt
 }

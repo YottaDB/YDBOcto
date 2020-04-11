@@ -1,0 +1,208 @@
+#######################################################################
+# Listing first 3 lines and last 3 lines of [SCHEMA : names] [TABLE : names]
+#######################################################################
+id|firstname|lastname
+0|Zero|Cool
+1|Acid|Burn
+2|Cereal|Killer
+...
+...
+3|Lord|Nikon
+4|Joey|
+5|Zero|Cool
+(6 rows)
+#######################################################################
+# Listing first 3 lines and last 3 lines of [SCHEMA : customers] [TABLE : customers]
+#######################################################################
+customer_id|first_name|last_name|email|address|city|state|zipcode
+1|George|Washington|gwashington@usa.gov|3200 Mt Vernon Hwy|Mount Vernon|VA|22121
+2|John|Adams|jadams@usa.gov|1250 Hancock St|Quincy|MA|02169
+3|Thomas|Jefferson|tjefferson@usa.gov|931 Thomas Jefferson Pkwy|Charlottesville|VA|22902
+...
+...
+3|Thomas|Jefferson|tjefferson@usa.gov|931 Thomas Jefferson Pkwy|Charlottesville|VA|22902
+4|James|Madison|jmadison@usa.gov|11350 Constitution Hwy|Orange|VA|22960
+5|James|Monroe|jmonroe@usa.gov|2050 James Monroe Parkway|Charlottesville|VA|22902
+(5 rows)
+#######################################################################
+# Listing first 3 lines and last 3 lines of [SCHEMA : customers] [TABLE : orders]
+#######################################################################
+order_id|order_date|order_amount|customer_id
+1|07/04/1776|$234.56|1
+2|03/14/1760|$78.50|3
+3|05/23/1784|$124.00|2
+...
+...
+4|09/03/1790|$65.50|3
+5|07/21/1795|$25.50|10
+6|11/27/1787|$14.40|9
+(6 rows)
+#######################################################################
+# Listing first 3 lines and last 3 lines of [SCHEMA : pastas] [TABLE : names4]
+#######################################################################
+id|firstname|lastname|favoritepasta
+0|Zero|Cool|Pappardelle
+1|Acid|Burn|Cavatelli
+2|Cereal|Killer|Penne
+...
+...
+8|Zero|Day|Rotini
+9|Betty|Buttons|Cavatelli
+10|Carol||
+(11 rows)
+#######################################################################
+# Listing first 3 lines and last 3 lines of [SCHEMA : pastas] [TABLE : pastas]
+#######################################################################
+id|pastaname
+0|Fettucine
+1|Cavatelli
+2|Shells
+...
+...
+7|Orechiette
+8|Lasagna
+9|Pappardelle
+(10 rows)
+#######################################################################
+# Listing first 3 lines and last 3 lines of [SCHEMA : easynames] [TABLE : easynames]
+#######################################################################
+id|name
+0|Name0
+1|Name1
+2|Name2
+...
+...
+13|Name3
+14|Name4
+15|Name5
+(16 rows)
+#######################################################################
+# Listing first 3 lines and last 3 lines of [SCHEMA : northwind] [TABLE : categories]
+#######################################################################
+categoryid|categoryname|description
+1|Beverages|Soft drinks, coffees, teas, beers, and ales
+2|Condiments|Sweet and savory sauces, relishes, spreads, and seasonings
+3|Confections|Desserts, candies, and sweet breads
+...
+...
+6|Meat/Poultry|Prepared meats
+7|Produce|Dried fruit and bean curd
+8|Seafood|Seaweed and fish
+(8 rows)
+#######################################################################
+# Listing first 3 lines and last 3 lines of [SCHEMA : northwind] [TABLE : customers]
+#######################################################################
+customerid|customername|contactname|address|city|postalcode|country
+1|Alfreds Futterkiste|Maria Anders|Obere Str. 57|Berlin|12209|Germany
+2|Ana Trujillo Emparedados y helados|Ana Trujillo|Avda. de la Constitución 2222|México D.F.|05021|Mexico
+3|Antonio Moreno Taquería|Antonio Moreno|Mataderos 2312|México D.F.|05023|Mexico
+...
+...
+89|White Clover Markets|Karl Jablonski|305 - 14th Ave. S. Suite 3B|Seattle|98128|USA
+90|Wilman Kala|Matti Karttunen|Keskuskatu 45|Helsinki|21240|Finland
+91|Wolski|Zbyszek|ul. Filtrowa 68|Walla|01-012|Poland
+(91 rows)
+#######################################################################
+# Listing first 3 lines and last 3 lines of [SCHEMA : northwind] [TABLE : employees]
+#######################################################################
+employeeid|lastname|firstname|birthdate|photo|notes
+1|Davolio|Nancy|DATE|EmpID1.pic|Education includes a BA in psychology from Colorado State University. She also completed (The Art of the Cold Call). Nancy is a member of 'Toastmasters International'.
+2|Fuller|Andrew|DATE|EmpID2.pic|Andrew received his BTS commercial and a Ph.D. in international marketing from the University of Dallas. He is fluent in French and Italian and reads German. He joined the company as a sales representative, was promoted to sales manager and was then named vice president of sales. Andrew is a member of the Sales Management Roundtable, the Seattle Chamber of Commerce, and the Pacific Rim Importers Association.
+3|Leverling|Janet|DATE|EmpID3.pic|Janet has a BS degree in chemistry from Boston College). She has also completed a certificate program in food retailing management. Janet was hired as a sales associate and was promoted to sales representative.
+...
+...
+8|Callahan|Laura|DATE|EmpID8.pic|Laura received a BA in psychology from the University of Washington. She has also completed a course in business French. She reads and writes French.
+9|Dodsworth|Anne|DATE|EmpID9.pic|Anne has a BA degree in English from St. Lawrence College. She is fluent in French and German.
+10|West|Adam|DATE|EmpID10.pic|An old chum.
+(10 rows)
+#######################################################################
+# Listing first 3 lines and last 3 lines of [SCHEMA : northwind] [TABLE : orderdetails]
+#######################################################################
+orderdetailid|orderid|productid|quantity
+1|10248|11|12
+2|10248|42|10
+3|10248|72|5
+...
+...
+516|10442|66|60
+517|10443|11|6
+518|10443|28|12
+(518 rows)
+#######################################################################
+# Listing first 3 lines and last 3 lines of [SCHEMA : northwind] [TABLE : orders]
+#######################################################################
+orderid|customerid|employeeid|orderdate|shipperid
+10248|90|5|DATE|3
+10249|81|6|DATE|1
+10250|34|4|DATE|2
+...
+...
+10441|55|3|DATE|2
+10442|20|3|DATE|2
+10443|66|8|DATE|1
+(196 rows)
+#######################################################################
+# Listing first 3 lines and last 3 lines of [SCHEMA : northwind] [TABLE : products]
+#######################################################################
+productid|productname|supplierid|categoryid|unit|price
+1|Chais|1|1|10 boxes x 20 bags|18
+2|Chang|1|1|24 - 12 oz bottles|19
+3|Aniseed Syrup|1|2|12 - 550 ml bottles|10
+...
+...
+75|Rhönbräu Klosterbier|12|1|24 - 0.5 l bottles|7.75
+76|Lakkalikööri|23|1|500 ml |18
+77|Original Frankfurter grüne Soße|12|2|12 boxes|13
+(77 rows)
+#######################################################################
+# Listing first 3 lines and last 3 lines of [SCHEMA : northwind] [TABLE : shippers]
+#######################################################################
+shipperid|shippername|phone
+1|Speedy Express|(503) 555-9831
+2|United Package|(503) 555-3199
+3|Federal Shipping|(503) 555-9931
+...
+...
+1|Speedy Express|(503) 555-9831
+2|United Package|(503) 555-3199
+3|Federal Shipping|(503) 555-9931
+(3 rows)
+#######################################################################
+# Listing first 3 lines and last 3 lines of [SCHEMA : northwind] [TABLE : suppliers]
+#######################################################################
+supplierid|suppliername|contactname|address|city|postalcode|country|phone
+1|Exotic Liquid|Charlotte Cooper|49 Gilbert St.|Londona|EC1 4SD|UK|(171) 555-2222
+2|New Orleans Cajun Delights|Shelley Burke|P.O. Box 78934|New Orleans|70117|USA|(100) 555-4822
+3|Grandma Kelly's Homestead|Regina Murphy|707 Oxford Rd.|Ann Arbor|48104|USA|(313) 555-5735
+...
+...
+27|Escargots Nouveaux|Marie Delamare|22, rue H. Voiron|Montceau|71300|France|85.57.00.07
+28|Gai pâturage|Eliane Noz|Bat. B 3, rue des Alpes|Annecy|74000|France|38.76.98.06
+29|Forêts d'érables|Chantal Goulet|148 rue Chasseur|Ste-Hyacinthe|J2S 7S8|Canada|(514) 555-2955
+(29 rows)
+#######################################################################
+# Listing first 3 lines and last 3 lines of [SCHEMA : sqllogic1] [TABLE : t1]
+#######################################################################
+a|b|c|d|e
+104|100|102|101|103
+107|105|106|108|109
+111|112|113|114|110
+...
+...
+239|236|235|238|237
+243|240|244|241|242
+245|249|247|248|246
+(30 rows)
+#######################################################################
+# Listing first 3 lines and last 3 lines of [SCHEMA : boolean] [TABLE : stock_availability]
+#######################################################################
+product_id|available
+100|t
+200|f
+300|t
+...
+...
+600|t
+700|f
+800|f
+(8 rows)

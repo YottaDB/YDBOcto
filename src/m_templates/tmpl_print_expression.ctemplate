@@ -39,6 +39,8 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 	LPActionType	plan_type;
 	boolean_t	is_avg;
 	int		aggregate_cnt;
+	PhysicalPlan	*output_pplan;
+	boolean_t	stash_columns_in_keys;
 
 	assert(NULL != plan);
 	first_operand = plan->v.lp_default.operand[0];
@@ -184,15 +186,22 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 			%{}){}%
 			break;
 		}
+		output_pplan = get_physical_plan_from_unique_id(pplan, key->v.lp_key.key->unique_id);
+		stash_columns_in_keys = ((NULL != output_pplan) && (output_pplan->stash_columns_in_keys));
 		GET_LP(piece_num, plan, 1, LP_PIECE_NUMBER);
-		%{}$$mval2str^%%ydboctoplanhelpers{}%
-		%{}($$mvalPiece^%%ydboctoplanhelpers({}%
+		assert(!stash_columns_in_keys || (1 == piece_num->v.lp_piece_number.piece_number));
+		if (!stash_columns_in_keys) {
+			%{}$$mval2str^%%ydboctoplanhelpers({}%
+			%{}$$mvalPiece^%%ydboctoplanhelpers({}%
+		}
 		TMPL(tmpl_key, key->v.lp_key.key);
-		(*buffer_index)--;	// Go back one, removing paren
-		%{},{}%
-		TMPL(tmpl_key, key->v.lp_key.key);
-		%{}),{{ piece_num->v.lp_piece_number.piece_number|%d }}){}%
-		%{}){}%
+		if (!stash_columns_in_keys) {
+			(*buffer_index)--;	// Go back one, removing paren
+			%{},{}%
+			TMPL(tmpl_key, key->v.lp_key.key);
+			%{}),{{ piece_num->v.lp_piece_number.piece_number|%d }}{}%
+			%{})){}%
+		}
 		break;
 	case LP_COLUMN_ALIAS:
 		/* Check if this LP_COLUMN_ALIAS was later replaced by a LP_DERIVED_COLUMN.

@@ -62,6 +62,7 @@ SELECT COUNT(id),(SELECT n2.id FROM names n2 WHERE n2.id = n1.id) FROM names n1;
 SELECT (SELECT id FROM names n1 WHERE n2.id = 2),COUNT(n2.id) FROM names n2;
 SELECT (SELECT n3.id FROM names n3 LEFT JOIN names n4 ON n4.id = n1.id ORDER BY n1.id),COUNT(n1.id) FROM names n1;
 SELECT (SELECT n3.id FROM names n3 LEFT JOIN names n4 ON n4.id = n1.id ORDER BY n1.id),COUNT(n1.id),(SELECT n2.id FROM names n2 WHERE n2.id = n1.id) FROM names n1;
+SELECT COUNT(id),(SELECT * from (select n2.id FROM names n2 WHERE n2.id = n1.id) n3) FROM names n1;
 
 --> Below should error out because GROUP BY is done on firstname but * usage in SELECT implies columns other than country
 --> (e.g. lastname) are selected without any GROUP BY or AGGREGATE function use. And should be disallowed.
@@ -325,6 +326,12 @@ Error with syntax near (line 1, column 143):
 SELECT (SELECT n3.id FROM names n3 LEFT JOIN names n4 ON n4.id = n1.id ORDER BY n1.id),COUNT(n1.id),(SELECT n2.id FROM names n2 WHERE n2.id = n1.id) FROM names n1;
                                                                                                                                               ^^^^^
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT (SELECT n3.id FROM names n3 LEFT JOIN names n4 ON n4.id = n1.id ORDER BY n1.id),COUNT(n1.id),(SELECT n2.id FROM names n2 WHERE n2.id = n1.id) FROM names n1;
+[ERROR] PATH:LINENUM DATE TIME : Column ID must appear in the GROUP BY clause or be used in an aggregate function
+Error with syntax near (line 1, column 75):
+
+SELECT COUNT(id),(SELECT * from (select n2.id FROM names n2 WHERE n2.id = n1.id) n3) FROM names n1;
+                                                                          ^^^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT COUNT(id),(SELECT * from (select n2.id FROM names n2 WHERE n2.id = n1.id) n3) FROM names n1;
 [ERROR] PATH:LINENUM DATE TIME : Column ID must appear in the GROUP BY clause or be used in an aggregate function
 [ERROR] PATH:LINENUM DATE TIME : Column LASTNAME must appear in the GROUP BY clause or be used in an aggregate function
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: --> Below should error out because GROUP BY is done on firstname but * usage in SELECT implies columns other than country

@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -40,14 +40,15 @@ int emit_physical_plan(PhysicalPlan *pplan, char *plan_filename) {
 	char		*hyphenline = "---------------------------------------------------------", *linestart, *lineend;
 	hash128_state_t	state;
 
-	assert(cur_plan != NULL);
+	assert(NULL != cur_plan);
 	buffer_len = INIT_M_ROUTINE_LENGTH;
 	buffer_index = 0;
 	buffer = calloc(buffer_len, sizeof(char));
 
 	// Walk the plans back to the first
-	while(cur_plan->prev != NULL)
+	while (NULL != cur_plan->prev) {
 		cur_plan = cur_plan->prev;
+	}
 	first_plan = cur_plan;
 
 	// Reorder the plans in the order (1) Cross reference plans (2) Non-deferred plans and (3) Deferred plans
@@ -59,11 +60,10 @@ int emit_physical_plan(PhysicalPlan *pplan, char *plan_filename) {
 	nondeferredplan.next = NULL;
 	deferredplan.prev = NULL;
 	deferredplan.next = NULL;
-	for ( ; NULL != cur_plan; )
-	{
+	for ( ; NULL != cur_plan; ) {
 		if (cur_plan->outputKey && cur_plan->outputKey->is_cross_reference_key)
 			tmp_plan = &xrefplan;		// Use cross-reference plan linked list
-		else if (cur_plan->deferred_plan)
+		else if (NULL != cur_plan->deferred_parent_plan)
 			tmp_plan = &deferredplan;	// Use deferred plan linked list
 		else
 			tmp_plan = &nondeferredplan;	// Use non-deferred plan linked list
@@ -102,8 +102,7 @@ int emit_physical_plan(PhysicalPlan *pplan, char *plan_filename) {
 	if (NULL != xrefplan.prev)
 		xrefplan.prev->next = NULL;
 	plan_id = 0;
-	for (cur_plan = xrefplan.next; NULL != cur_plan; cur_plan = cur_plan->next, plan_id++)
-	{
+	for (cur_plan = xrefplan.next; NULL != cur_plan; cur_plan = cur_plan->next, plan_id++) {
 		assert(cur_plan->outputKey && cur_plan->outputKey->is_cross_reference_key);
 		key = cur_plan->outputKey;
 		UNPACK_SQL_STATEMENT(value, key->table->tableName, value);
@@ -163,8 +162,7 @@ int emit_physical_plan(PhysicalPlan *pplan, char *plan_filename) {
 	}
 
 	// Generate plan names for Non-deferred and Deferred plans
-	for (plan_id = 1, cur_plan = first_plan; NULL != cur_plan; cur_plan = cur_plan->next, plan_id++)
-	{
+	for (plan_id = 1, cur_plan = first_plan; NULL != cur_plan; cur_plan = cur_plan->next, plan_id++) {
 		assert(!(cur_plan->outputKey && cur_plan->outputKey->is_cross_reference_key));
 		len = snprintf(plan_name_buffer, MAX_STR_CONST, "octoPlan%d", plan_id);
 		cur_plan->plan_name = octo_cmalloc(memory_chunks, len+1);
@@ -188,8 +186,7 @@ int emit_physical_plan(PhysicalPlan *pplan, char *plan_filename) {
 		";; This is a generated file; do not modify. Generated M code corresponds to below SQL query\n;; %s\n",
 		hyphenline);
 	// input_buffer_combined would contain '\n'; Ensure after every newline, an M comment is printed for the next line of the SQL query
-	for (linestart = input_buffer_combined + old_input_index; ; )
-	{
+	for (linestart = input_buffer_combined + old_input_index; ; ) {
 		lineend = strchr(linestart, '\n');
 		/* cur_input_index marks the start of the next query do not print past it
 		 * if it is null then there is no \n in the rest of the string so also set lineend to cur_input_index
@@ -206,16 +203,14 @@ int emit_physical_plan(PhysicalPlan *pplan, char *plan_filename) {
 	fprintf(output_file, ";; %s\n", hyphenline);
 	// Emit meta plan first that invokes all the Non-Deferred plans in sequence
 	fprintf(output_file, "\noctoPlan0(cursorId)\n");
-	for (cur_plan = first_plan; NULL != cur_plan; cur_plan = cur_plan->next)
-	{
-		if (cur_plan->deferred_plan)
+	for (cur_plan = first_plan; NULL != cur_plan; cur_plan = cur_plan->next) {
+		if (NULL != cur_plan->deferred_parent_plan)
 			break;		// if we see a Deferred plan, it means we are done with the Non-Deferred plans
 		fprintf(output_file, "    DO %s(cursorId)\n", cur_plan->plan_name);
 	}
 	fprintf(output_file, "    QUIT\n");
 	// Emit Non-Deferred and Deferred plans in that order
-	for (cur_plan = first_plan; NULL != cur_plan; cur_plan = cur_plan->next)
-	{
+	for (cur_plan = first_plan; NULL != cur_plan; cur_plan = cur_plan->next) {
 		cur_plan->filename = NULL;	// filename needed only for cross reference plans
 		buffer_index = 0;
 		tmpl_physical_plan(&buffer, &buffer_len, &buffer_index, cur_plan);

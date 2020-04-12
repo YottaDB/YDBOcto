@@ -223,7 +223,7 @@ OCTO
 OCTO
     # Confirm that the Termination was received and applied within rocto_main_loop
     [[ "$(grep -c -E "rocto_main_loop.*connection closed cleanly" rocto.log)" == "1" ]]
-    grep -Ev "SSLRequest|Loading config" rocto.log >> rocto.clean
+    grep -Ev "SSLRequest|Loading config|rocto started on port" rocto.log >> rocto.clean
     verify_output TPC004 rocto.clean psql nodebug
 }
 

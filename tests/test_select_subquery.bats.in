@@ -108,3 +108,7 @@ setup() {
   run_query_in_octo_and_postgres_and_crosscheck_multiple_queries northwind TSS17.sql "remove_empty_line_at_tail"
 }
 
+@test "TSS18 : OCTO458 : Incorrect <Unknown column> error when column is inherited from a grandparent (not a parent) query" {
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TSS18.sql "remove_empty_line_at_tail"
+}
+

@@ -1,4 +1,3 @@
-[IP_UNSET:PORT_UNSET] [ INFO] PATH:LINENUM DATE TIME : rocto started on port 1339
 [IP_UNSET:PORT_UNSET] [ INFO] PATH:LINENUM DATE TIME : rocto server process forked with pid PID
 [SOCKET] [ INFO] PATH:LINENUM DATE TIME : Client connected
 [SOCKET] [ INFO] PATH:LINENUM DATE TIME : CancelRequest: invalid length value 53: must be 16

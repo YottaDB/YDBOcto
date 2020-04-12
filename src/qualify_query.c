@@ -71,7 +71,7 @@ int qualify_query(SqlStatement *table_alias_stmt, SqlJoin *parent_join, SqlTable
 		/* Qualify sub-queries involved in the join. Note that it is possible a `table` is involved in the join instead
 		 * of a `sub-query` in which case the below `qualify_query` call will return right away.
 		 */
-		result |= qualify_query(cur_join->value, NULL, table_alias);
+		result |= qualify_query(cur_join->value, parent_join, table_alias);
 		/* Make sure any table.column references in the ON condition of the JOIN (cur_join->condition) are qualified
 		 * until the current table in the join list (i.e. forward references should not be allowed). See YDBOcto#291
 		 * for example query. Note that NATURAL JOIN is an exception in that the current join could have table.column

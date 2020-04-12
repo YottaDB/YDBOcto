@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -73,6 +73,7 @@ SELECT COUNT(id),(SELECT n2.id FROM names n2 WHERE n2.id = n1.id) FROM names n1;
 SELECT (SELECT id FROM names n1 WHERE n2.id = 2),COUNT(n2.id) FROM names n2;
 SELECT (SELECT n3.id FROM names n3 LEFT JOIN names n4 ON n4.id = n1.id ORDER BY n1.id),COUNT(n1.id) FROM names n1;
 SELECT (SELECT n3.id FROM names n3 LEFT JOIN names n4 ON n4.id = n1.id ORDER BY n1.id),COUNT(n1.id),(SELECT n2.id FROM names n2 WHERE n2.id = n1.id) FROM names n1;
+SELECT COUNT(id),(SELECT * from (select n2.id FROM names n2 WHERE n2.id = n1.id) n3) FROM names n1;
 
 --> Below should error out because GROUP BY is done on firstname but * usage in SELECT implies columns other than country
 --> (e.g. lastname) are selected without any GROUP BY or AGGREGATE function use. And should be disallowed.

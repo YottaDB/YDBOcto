@@ -1,7 +1,7 @@
 {}%
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -23,7 +23,10 @@ TEMPLATE(tmpl_tablejoin_deferred_plans, PhysicalPlan *plan, int dot_count) {
 	while (NULL != temp_plan->prev)
 		temp_plan = temp_plan->prev;
 	while (NULL != temp_plan) {
-		if ((temp_plan->parent_plan == plan) && temp_plan->deferred_plan) {
+		if (plan == temp_plan->deferred_parent_plan) {
+			/* This physical plan references `plan` as the deferred parent plan so emit code to invoke this
+			 * physical plan as part of the parent plan.
+			 */
 			TMPL(tmpl_print_dots, dot_count);
 			%{}DO {{ temp_plan->plan_name }}(cursorId)`n{{ PLAN_LINE_START }}{}%
 		}

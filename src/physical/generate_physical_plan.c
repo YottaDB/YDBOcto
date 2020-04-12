@@ -293,12 +293,13 @@ LogicalPlan *sub_query_check_and_generate_physical_plan(PhysicalPlanOptions *opt
 		stmt->v.lp_default.operand[0] = sub_query_check_and_generate_physical_plan(options, stmt->v.lp_default.operand[0]);
 	} else {
 		PhysicalPlanOptions	plan_options;
-		PhysicalPlan		*cur;
+		PhysicalPlan		*cur, *child_plan;
 		SqlTableAlias		*table_alias;
 		SqlColumnAlias		*column_alias;
 		PhysicalPlan		*new_plan;
 		LogicalPlan		*plan, *oper1;
 		int			unique_id;
+		boolean_t		set_deferred_plan;
 
 		switch(stmt->type) {
 		case LP_KEY:
@@ -324,8 +325,11 @@ LogicalPlan *sub_query_check_and_generate_physical_plan(PhysicalPlanOptions *opt
 			break;
 		case LP_DERIVED_COLUMN:
 		case LP_COLUMN_ALIAS:
-			// Check if this value is a parent reference; if so, mark this as deferred
-			cur = options->parent;
+			/* Check if this value is a parent reference; if so, mark this physical plan as deferred.
+			 * Note that this physical plan might already be marked as deferred from a previous parent query
+			 * column reference. In that case, compare the two to see which physical plan is the closest ancestor
+			 * to the current physical plan and set that to be the deferred plan for this physical plan.
+			 */
 			if (LP_COLUMN_ALIAS == stmt->type) {
 				column_alias = stmt->v.lp_column_alias.column_alias;
 				UNPACK_SQL_STATEMENT(table_alias, column_alias->table_alias, table_alias);
@@ -337,7 +341,10 @@ LogicalPlan *sub_query_check_and_generate_physical_plan(PhysicalPlanOptions *opt
 				GET_LP(output_key, stmt, 0, LP_KEY);
 				unique_id = output_key->v.lp_key.key->unique_id;
 			}
-			while (cur) {
+			cur = options->parent;
+			child_plan = cur;
+			set_deferred_plan = FALSE;
+			while (NULL != cur) {
 				unsigned int	iter_key_index;
 
 				for (iter_key_index = 0; iter_key_index < cur->total_iter_keys; iter_key_index++) {
@@ -348,12 +355,40 @@ LogicalPlan *sub_query_check_and_generate_physical_plan(PhysicalPlanOptions *opt
 				if (iter_key_index != cur->total_iter_keys) {
 					break;
 				}
-				cur->deferred_plan = TRUE;
 				cur = cur->parent_plan;
+				set_deferred_plan = TRUE;
 			}
 			if (NULL == cur) {
 				assert(FALSE);
 				ERROR(CUSTOM_ERROR, "Problem resolving owner for deferred plan; undefined behavior");
+			}
+			if (set_deferred_plan) {
+				do {
+					PhysicalPlan	*parent;
+
+					set_deferred_plan = TRUE;	/* for next iteration */
+					parent = child_plan->deferred_parent_plan;
+					if (NULL != parent) {
+						/* We already have set `deferred_parent_plan`. Check if the new deferred parent
+						 * is a parent of the already set value. If so do not touch what was set.
+						 * Else update it to reflect the newly computed deferred parent.
+						 */
+						for ( ; parent != cur; ) {
+							parent = parent->parent_plan;
+							if (NULL == parent) {
+								/* The pre existing parent is a closer ancestor than the newly
+								 * computed parent so do not modify what was already set.
+								 */
+								set_deferred_plan = FALSE;
+								break;
+							}
+						}
+					}
+					if (set_deferred_plan) {
+						child_plan->deferred_parent_plan = cur;
+					}
+					child_plan = child_plan->parent_plan;
+				} while (child_plan != cur);
 			}
 			/* No action */
 			break;

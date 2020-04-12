@@ -72,10 +72,13 @@ typedef struct PhysicalPlan {
 	//  the columnwise index; requires the columnwise index
 	boolean_t		distinct_values;
 
-	// If true, this plan should not be emitted in order but waited until after all required
-	//   plans have been emitted first. This is important when the plan will not run in-order,
-	//   but will be called as a subquery which can't be extracted due to a parent reference
-	boolean_t		deferred_plan;
+	/* If non-NULL, this plan should not be emitted in order but waited until after all required
+	 * plans have been emitted first. This is important when the plan will not run in-order,
+	 * but will be called as a subquery which can't be extracted due to a parent reference.
+	 * This field points to a parent/ancestor physical plan that will need to generate a call to
+	 * this plan as part of going through every result row of that parent/ancestor physical plan.
+	 */
+	struct PhysicalPlan	*deferred_parent_plan;
 	// Points to the parent plan of this plan; we need this so we can resolve
 	//   references to parent queries and mark intermediate plans as deferred
 	struct PhysicalPlan	*parent_plan;
@@ -119,6 +122,7 @@ int emit_physical_plan(PhysicalPlan *pplan, char *plan_filename);
 // Returns true if the key is a version of this column
 int key_equals_column(SqlKey *key, SqlColumn *column);
 
+PhysicalPlan *get_physical_plan_from_unique_id(PhysicalPlan *pplan, int unique_id);
 PhysicalPlan	*emit_select_statement(SqlStatement *stmt, char *plan_filename);
 
 #endif

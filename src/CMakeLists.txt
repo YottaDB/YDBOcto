@@ -205,6 +205,7 @@ add_library(libocto OBJECT
   optimization_transforms/optimize_logical_plan.c
   physical/generate_physical_plan.c
   physical/emit_physical_plan.c
+  physical/get_physical_plan_from_unique_id.c
   m_templates/resize_tmpl_buffer.c
   m_escape_string2.c
   copy_sql_statement.c

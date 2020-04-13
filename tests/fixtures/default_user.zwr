@@ -1,4 +1,4 @@
-GT.M MUPIP EXTRACT
+YottaDB MUPIP EXTRACT
 21-JUN-2019  15:47:58 ZWR
 ^%ydboctoocto("users")="1"
 ^%ydboctoocto("users","ydb")="1|ydb|||||||||md51bad0576a41d8d9c0ae2314f14716163|"

@@ -1,4 +1,4 @@
-GT.M MUPIP EXTRACT
+YottaDB MUPIP EXTRACT
 21-SEP-2018  14:55:45 ZWR
 ^composite(0,1,2,3,4,5,6,7)="0|1|2|3|4|5|6|7|Name1"
 ^composite(0,1,2,3,4,5,6,8)="0|1|2|3|4|5|6|8|Name2"

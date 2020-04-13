@@ -1,4 +1,4 @@
-GT.M MUPIP EXTRACT
+YottaDB MUPIP EXTRACT
 01-JUL-2019  00:29:12 ZWR
 ^%ydboctoocto="1"
 ^%ydboctoocto("functions","CURRENT_SCHEMA")="$$^%ydboctocurrentSchema"

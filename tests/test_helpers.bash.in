@@ -33,6 +33,11 @@ init_test() {
 	else
 		unset ydb_chset
 		utf8_path=""
+		# Set ydb_icu_version to the right value even if we chose M mode. This way, wherever we set ydb_chset to "UTF-8"
+		# (e.g. in "load_fixture()" function while loading the northwind.zwr fixture) things will work fine.
+		# Not setting this can cause ICUSYMNOTFOUND errors. No need to do this for the case when "ydb_chset" is chosen
+		# to be "/utf8" as the "ydb_env_set" call done after this if/else block will set that env var.
+		export ydb_icu_version=`pkg-config --modversion icu-io`
 	fi
 	source @YOTTADB_INCLUDE_DIRS@/ydb_env_set
 	# Run tests locally without installing Octo/Rocto to $ydb_dist
@@ -51,10 +56,12 @@ init_test() {
 		ydbroutines="$ydbroutines .(. @YOTTADB_INCLUDE_DIRS@/plugin/r/) @PROJECT_BINARY_DIR@"
 	fi
 	export ydb_routines="$ydbroutines $ydb_routines"
-	# Log env vars and shell vars in files for later analysis (if needed). Mask any sensitive env vars out.
+	# Log env vars, shell vars, locale info in files for later analysis (if needed). Mask any sensitive env vars out.
 	echo " --> Running test [$BATS_TEST_FILENAME] : subtest [$BATS_TEST_DESCRIPTION] : in $PWD : build type @CMAKE_BUILD_TYPE@ " > bats_test.out
 	env | grep -vE "HUB_USERNAME|HUB_PASSWORD|CI_JOB_TOKEN|CI_REGISTRY_PASSWORD|CI_BUILD_TOKEN|CI_REPOSITORY_URL" > env.out
 	set | grep -vE "HUB_USERNAME|HUB_PASSWORD|CI_JOB_TOKEN|CI_REGISTRY_PASSWORD|CI_BUILD_TOKEN|CI_REPOSITORY_URL" > set.out
+	locale > locale.out
+	locale -a > localeall.out
 	# Set env var to allow .m and .o file timestamps to be identical. This is expected to be particularly useful
 	# in the pipeline test runs where we have seen the _ydboctoP*.o file almost always created with a timestamp
 	# that is 1 second later than the corresponding _ydboctoP*.m file. We suspect this is due to the underlying
@@ -64,7 +71,7 @@ init_test() {
 	# slowdown which should all hopefully go away with this env var set.
 	export ydb_recompile_newer_src=TRUE
 	# Below is needed to avoid wildcard expansion order (e.g. cat *.m used in various tests) changing based on LC_TYPE
-	# It is also needed to avoid sort order changing (and reference file issues) based on LC_CTYPE being "C" or "en_US.UTF-8".
+	# It is also needed to avoid sort order changing (and reference file issues) based on LC_CTYPE being "C" or "en_US.UTF8".
 	# Fixing LC_ALL to a particular value ensures caller environment does not affect test results.
 	export LC_ALL=en_US.UTF8
 }
@@ -116,8 +123,10 @@ load_fixture() {
 	fixture_name=$1
 	echo "Loading fixture $fixture_name"
 	if [[ $fixture_name == *.zwr ]]; then
-		# Load all fixtures in M mode to prevent duplicate fixtures for UTF-8 mode
-		ydb_chset="" LC_ALL=C $ydb_dist/mupip load @PROJECT_SOURCE_DIR@/tests/fixtures/$fixture_name
+		# Determine the chset (M or UTF-8) to use from the extract file. It will be either "UTF-8" or "".
+		chset=`grep "MUPIP EXTRACT" @PROJECT_SOURCE_DIR@/tests/fixtures/$fixture_name | awk '{print $4}'`
+		# Keep LC_ALL as en_US.UTF8 (set in "init_test()" function) for both M and UTF-8 mode. That should work just fine.
+		ydb_chset=$chset $ydb_dist/mupip load @PROJECT_SOURCE_DIR@/tests/fixtures/$fixture_name
 	elif [[ $fixture_name == *.sql ]]; then
 		if [[ $2 == "subtest" ]]; then
 			cp @PROJECT_SOURCE_DIR@/tests/fixtures/$fixture_name $fixture_name
@@ -139,7 +148,7 @@ load_fixture() {
 
 create_postgres_database() {
 	psql postgres <<PSQL
-	-- Need to use LC_COLLATE='C' to ensure string comparison of 'Z' < 'a' returns TRUE (default is en_US.UTF-8)
+	-- Need to use LC_COLLATE='C' to ensure string comparison of 'Z' < 'a' returns TRUE (default is en_US.UTF8)
 	-- Need template=template0 to avoid the following error
 	-- `new collation (C) is incompatible with the collation of the template database (en_US.UTF-8)`
 	create database $1 LC_COLLATE='C' template=template0;
@@ -188,7 +197,7 @@ FILE
 	$ydb_dist/mupip create
 	echo "Populating seed data"
 	octo -f @PROJECT_BINARY_DIR@/postgres-seed.sql
-	ydb_chset="" LC_ALL=C $ydb_dist/mupip load  @PROJECT_BINARY_DIR@/postgres-seed.zwr
+	ydb_chset="" $ydb_dist/mupip load  @PROJECT_BINARY_DIR@/postgres-seed.zwr
 	# Set the below env var to ensure no DBFILEXT messages show up in syslog and in turn in individual test output files
 	# e.g. if a test redirects stderr to a file output.txt, then syslog messages would show up in that file if run through
 	# the pipeline causing a test failure if that is compared against a reference file (e.g. TC001 in test_create_table.bats.in)

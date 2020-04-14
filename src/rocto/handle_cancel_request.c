@@ -46,7 +46,7 @@ int handle_cancel_request(CancelRequest *cancel_request) {
 	YDB_ERROR_CHECK(status);
 	if (11 != ret_value) {
 		// Error NOT propagated to client for security reasons
-		WARNING(ERR_ROCTO_DB_LOOKUP, "handle_cancel_request", "pid");
+		LOG_LOCAL_ONLY(ERROR, ERR_ROCTO_DB_LOOKUP, "handle_cancel_request", "pid");
 		return -1;
 	}
 
@@ -75,7 +75,7 @@ int handle_cancel_request(CancelRequest *cancel_request) {
 	snprintf(cur_timestamp_str, INT64_TO_STRING_MAX, "%llu", cur_timestamp);
 	if (0 != strncmp(cur_timestamp_str, timestamp_result.buf_addr, INT64_TO_STRING_MAX)) {
 		// Error NOT propagated to client for security reasons
-		WARNING(ERR_ROCTO_BAD_TIMESTAMP, "");
+		LOG_LOCAL_ONLY(ERROR, ERR_ROCTO_BAD_TIMESTAMP, "");
 		return -1;
 	}
 
@@ -95,14 +95,14 @@ int handle_cancel_request(CancelRequest *cancel_request) {
 	snprintf(secret_key_str, INT32_TO_STRING_MAX, "%u", secret_key);		// secret key
 	if (0 != strncmp(secret_key_str, secret_key_result.buf_addr, INT32_TO_STRING_MAX)) {
 		// Error NOT propagated to client for security reasons
-		WARNING(ERR_ROCTO_SECRET_KEY_MISMATCH, "");
+		LOG_LOCAL_ONLY(ERROR, ERR_ROCTO_SECRET_KEY_MISMATCH, "");
 		return -1;
 	}
 
 	// Send cancel signal (SIGUSR1) to target rocto session
 	status = kill(pid, SIGUSR1);
 	if (0 != status) {
-		WARNING(ERR_SYSCALL, "kill", errno, strerror(errno));
+		ERROR(ERR_SYSCALL, "kill", errno, strerror(errno));
 		return -1;
 	}
 

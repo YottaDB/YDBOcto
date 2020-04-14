@@ -16,7 +16,7 @@
 ; And does checks for null subscripts and returns 0 if checks succeed and 1 otherwise.
 ; Caller (Octo/Rocto) issue appropriate error on a non-zero return.
 ; -------------------------------------------------------------
-%ydboctoInit()	;
+%ydboctoInit(verbosity)	;
 	; -----------------------------------------------------------
 	; Perform error code initialization for generated M plan
 	; The M code (invoked through "ydb_ci") could detect an error situation that is not a YDB error.
@@ -53,7 +53,8 @@
 	. FOR regnum=1:1:numregs DO
 	. . SET regname=$PIECE(reglist,",",regnum)
 	. . QUIT:$DATA(verified(regname))
-	. . IF ('starwarningissued&(regname=starregname)) DO
+	. . ; 2=INFO level from VERBOSITY_LEVEL enum in errors.h. Changes there should also be reflected here.
+	. . IF ('starwarningissued&(regname=starregname)&(2>=verbosity)) DO
 	. . . WRITE "[ WARN] Global "_octogbl_" maps to default region "_regname_". Recommended mapping for ^%ydbocto* is to a separate region",!
 	. . . USE $PRINCIPAL	; In case principal device is terminal, above WRITE is flushed
 	. . . SET starwarningissued=1

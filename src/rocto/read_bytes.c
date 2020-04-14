@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -37,10 +37,10 @@ int read_bytes(RoctoSession *session, char *buffer, int32_t buffer_size, int32_t
 
 
 	if(bytes_to_read > buffer_size) {
-		WARNING(ERR_READ_TOO_LARGE, bytes_to_read, buffer_size);
+		ERROR(ERR_READ_TOO_LARGE, bytes_to_read, buffer_size);
 		return -1;
 	} else if(bytes_to_read < 0) {
-		WARNING(ERR_INVALID_READ_SIZE, bytes_to_read);
+		ERROR(ERR_INVALID_READ_SIZE, bytes_to_read);
 		return -1;
 	}
 
@@ -77,7 +77,7 @@ int read_bytes(RoctoSession *session, char *buffer, int32_t buffer_size, int32_t
 			if(read_now < 0) {
 				if(errno == EINTR)
 					continue;
-				WARNING(ERR_SYSCALL, "read", errno, strerror(errno));
+				ERROR(ERR_SYSCALL, "read", errno, strerror(errno));
 				return -1;
 			} else if(read_now == 0) {
 				// This means the socket was cleanly closed

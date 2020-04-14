@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -19,13 +19,20 @@
 #define FALSE	0
 #define TRUE	1
 
-enum ERROR_LEVEL {
+enum VERBOSITY_LEVEL {
 	TRACE,
-	INFO,
 	DEBUG,
-	WARNING,
-	ERROR,
-	FATAL
+	INFO,
+	ERROR
+};
+
+enum SEVERITY_LEVEL {
+	TRACE_Severity,
+	DEBUG_Severity,
+	INFO_Severity,
+	WARNING_Severity,
+	ERROR_Severity,
+	FATAL_Severity
 };
 
 #define ERROR_DEF(name, format_string, psql_error_code) name,
@@ -52,7 +59,7 @@ typedef struct ErrorBuffer {
 	int offset;
 } ErrorBuffer;
 
-void octo_log(int line, char *file, enum ERROR_LEVEL level, enum ERROR error, ...);
+void octo_log(int line, char *file, enum VERBOSITY_LEVEL level, enum SEVERITY_LEVEL severity, enum ERROR error, ...);
 void ydb_error_check(int status, char *file, int line);
 
 /* This macro is needed so we record the caller's __FILE__ and __LINE__ locations instead of that inside `ydb_error_check.c` */
@@ -60,17 +67,16 @@ void ydb_error_check(int status, char *file, int line);
 
 const char *format_error_string(struct ErrorBuffer *err_buff, enum ERROR error, ...);
 
-#define TRACE(err, ...) TRACE >= config->record_error_level  \
-	? octo_log(__LINE__, __FILE__, TRACE, err, ## __VA_ARGS__) : (void)0;
-#define INFO(err, ...) INFO >= config->record_error_level  \
-	? octo_log(__LINE__, __FILE__, INFO, err, ## __VA_ARGS__) : (void)0;
-#define DEBUG(err, ...) DEBUG >= config->record_error_level  \
-	? octo_log(__LINE__, __FILE__, DEBUG, err, ## __VA_ARGS__) : (void)0;
-#define WARNING(err, ...) WARNING >= config->record_error_level  \
-	? octo_log(__LINE__, __FILE__, WARNING, err, ## __VA_ARGS__) : (void)0;
-#define ERROR(err, ...) ERROR >= config->record_error_level  \
-	? octo_log(__LINE__, __FILE__, ERROR, err, ## __VA_ARGS__) : (void)0;
-#define FATAL(err, ...) FATAL >= config->record_error_level  \
-	? octo_log(__LINE__, __FILE__, FATAL, err, ## __VA_ARGS__) : (void)0;
+#define TRACE(err, ...) TRACE >= config->verbosity_level  \
+	? octo_log(__LINE__, __FILE__, TRACE, TRACE_Severity, err, ## __VA_ARGS__) : (void)0;
+#define DEBUG(err, ...) DEBUG >= config->verbosity_level  \
+	? octo_log(__LINE__, __FILE__, DEBUG, DEBUG_Severity, err, ## __VA_ARGS__) : (void)0;
+#define INFO(err, ...) INFO >= config->verbosity_level  \
+	? octo_log(__LINE__, __FILE__, INFO, INFO_Severity, err, ## __VA_ARGS__) : (void)0;
+#define WARNING(err, ...) INFO >= config->verbosity_level  \
+	? octo_log(__LINE__, __FILE__, INFO, WARNING_Severity, err, ## __VA_ARGS__) : (void)0;
+// ERROR and FATAL severity errors should always be reported, so don't bother checking the verbosity level
+#define ERROR(err, ...) octo_log(__LINE__, __FILE__, ERROR, ERROR_Severity, err, ## __VA_ARGS__);
+#define FATAL(err, ...) octo_log(__LINE__, __FILE__, ERROR, FATAL_Severity, err, ## __VA_ARGS__);
 
 #endif

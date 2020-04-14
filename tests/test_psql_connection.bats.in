@@ -150,12 +150,12 @@ OCTO
   verify_output T0023 output.txt noinfo nodebug
 }
 
-@test "TPC00M : ensure full SQL query is logged (no missing bytes) in rocto and octo log when started with -vv" {
+@test "TPC00M : ensure full SQL query is logged (no missing bytes) in rocto and octo log when started with -vvv" {
   query="select id from names"
   expectstring="Parsing done for SQL command \[$query\]"
   echo $query > query.sql
   run_psql $test_port < query.sql 2>&1 | tee output.txt
-  octo -vv -f query.sql 2>&1 | tee octo.log
+  octo -vvv -f query.sql 2>&1 | tee octo.log
   [[ $(grep -c "$expectstring" rocto.log) -eq 1 ]]
   [[ $(grep -c "$expectstring" octo.log) -eq 1 ]]
 }
@@ -223,7 +223,7 @@ OCTO
 OCTO
     # Confirm that the Termination was received and applied within rocto_main_loop
     [[ "$(grep -c -E "rocto_main_loop.*connection closed cleanly" rocto.log)" == "1" ]]
-    grep -Ev "SSLRequest|Loading config|rocto started on port" rocto.log >> rocto.clean
+    grep -Ev "SSLRequest|Loaded config|rocto started on port" rocto.log >> rocto.clean
     verify_output TPC004 rocto.clean psql nodebug
 }
 

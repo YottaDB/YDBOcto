@@ -77,7 +77,7 @@ int __wrap_md5_to_hex(char *md5_hash, char *hex, uint32_t hex_len) {
 	return mock_type(int);
 }
 
-int32_t __wrap_octo_log(int line, char *file, enum ERROR_LEVEL level, enum ERROR error, ...) {
+int32_t __wrap_octo_log(int line, char *file, enum VERBOSITY_LEVEL level, enum SEVERITY_LEVEL severity, enum ERROR error, ...) {
 	return mock_type(int32_t);
 }
 

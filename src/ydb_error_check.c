@@ -33,7 +33,7 @@ void ydb_error_check(int status, char *file, int line)
 		return;
 		break;
 	case YDB_LOCK_TIMEOUT:
-		octo_log(line, file, ERROR, ERR_YOTTADB, "ydb_lock_s()/ydb_lock_incr_s() call timed out. "
+		octo_log(line, file, ERROR, ERROR_Severity, ERR_YOTTADB, "ydb_lock_s()/ydb_lock_incr_s() call timed out. "
 				"Another process with schema change rights, or a long-running query, is active.");
 		return;
 	default:
@@ -77,7 +77,7 @@ void ydb_error_check(int status, char *file, int line)
 		/* Check if %ydboctoerror("SUBQUERYMULTIPLEROWS")	*/
 		ydboctoerrcode++;
 		if (status == ydboctoerrcode) {
-			octo_log(line, file, ERROR, ERR_SUBQUERY_MULTIPLE_ROWS, NULL);
+			octo_log(line, file, ERROR, ERROR_Severity, ERR_SUBQUERY_MULTIPLE_ROWS, NULL);
 		}
 		/* Check if %ydboctoerror("INVALIDINPUTSYNTAXBOOL")	*/
 		ydboctoerrcode++;
@@ -90,7 +90,7 @@ void ydb_error_check(int status, char *file, int line)
 			YDB_LITERAL_TO_BUFFER("1", &subs[1]);
 			ydb_get_s(&varname, 2, subs, &ret_value);
 			ret_value.buf_addr[ret_value.len_used] = '\0';
-			octo_log(line, file, ERROR, ERR_INVALID_INPUT_SYNTAX_BOOL, ret_value.buf_addr);
+			octo_log(line, file, ERROR, ERROR_Severity, ERR_INVALID_INPUT_SYNTAX_BOOL, ret_value.buf_addr);
 			/* Now that we have got the value, delete the M node */
 			ydb_delete_s(&varname, 2, subs, YDB_DEL_NODE);
 		}
@@ -108,21 +108,21 @@ void ydb_error_check(int status, char *file, int line)
 		YDB_SEVERITY(status, severity);
 		switch (severity) {
 			case YDB_SEVERITY_SUCCESS:
-				octo_log(line, file, TRACE, ERR_YOTTADB, ret_value.buf_addr);
+				octo_log(line, file, TRACE, TRACE_Severity, ERR_YOTTADB, ret_value.buf_addr);
 				status = YDB_OK;
 				break;
 			case YDB_SEVERITY_INFORMATIONAL:
-				octo_log(line, file, INFO, ERR_YOTTADB, ret_value.buf_addr);
+				octo_log(line, file, INFO, INFO_Severity, ERR_YOTTADB, ret_value.buf_addr);
 				status = YDB_OK;
 				break;
 			case YDB_SEVERITY_WARNING:
-				octo_log(line, file, WARNING, ERR_YOTTADB, ret_value.buf_addr);
+				octo_log(line, file, INFO, WARNING_Severity, ERR_YOTTADB, ret_value.buf_addr);
 				break;
 			case YDB_SEVERITY_ERROR:
-				octo_log(line, file, ERROR, ERR_YOTTADB, ret_value.buf_addr);
+				octo_log(line, file, ERROR, ERROR_Severity, ERR_YOTTADB, ret_value.buf_addr);
 				break;
 			case YDB_SEVERITY_FATAL:
-				octo_log(line, file, FATAL, ERR_YOTTADB, ret_value.buf_addr);
+				octo_log(line, file, ERROR, FATAL_Severity, ERR_YOTTADB, ret_value.buf_addr);
 				break;
 			default:
 				status = YDB_OK;

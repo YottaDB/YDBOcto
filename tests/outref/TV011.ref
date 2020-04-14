@@ -1,0 +1,31 @@
+Verbosity set to ERROR:
+OCTO> exit
+
+Verbosity set to INFO:
+[ WARN] Global ^%ydboctoxref maps to default region DEFAULT. Recommended mapping for ^%ydbocto* is to a separate region
+OCTO> exit
+[ INFO] PATH:LINENUM DATE TIME : Parsing done for SQL command [exit]
+
+Verbosity set to DEBUG:
+[ WARN] Global ^%ydboctoxref maps to default region DEFAULT. Recommended mapping for ^%ydbocto* is to a separate region
+OCTO> exit
+[ INFO] PATH:LINENUM DATE TIME : Parsing done for SQL command [exit]
+
+Verbosity set to TRACE:
+[ WARN] Global ^%ydboctoxref maps to default region DEFAULT. Recommended mapping for ^%ydbocto* is to a separate region
+[TRACE] PATH:LINENUM DATE TIME : Octo started
+Starting parse
+Entering state 0
+Reading a token: OCTO> exit
+Next token is token EXIT (: )
+Shifting token EXIT (: )
+Entering state 21
+Reducing stack by rule 13 (line 261):
+   $1 = token EXIT (: )
+-> $$ = nterm exit_command (: )
+Stack now 0
+Entering state 25
+Reducing stack by rule 9 (line 246):
+   $1 = nterm exit_command (: )
+Stack now 0
+[ INFO] PATH:LINENUM DATE TIME : Parsing done for SQL command [exit]

@@ -6,6 +6,9 @@ Mandatory arguments for long options are also mandatory for short options.
   -d, --dry-run				Run the parser in read-only mode and performs basic checks without executing any passed SQL statements.
   -f, --input-file=<filepath>		Read commands from specified file instead of opening interactive prompt.
   -h, --help				Display this help message and exit.
-  -v, --verbose=<number>		Specify amount of information to output when running commands by specifying a numeric level from 0-5 or adding additional 'v' characters.
+  -v, --verbose=<number>		Specify amount of information to output when running commands by adding 'v' characters. The mapping of 'v's to severity levels is as follows:
+	-v: include INFO and WARNING messages
+	-vv: include DEBUG messages
+	-vvv: include TRACE messages
   -r, --version				Display version information and exit.
   -r, --release				Display release information and exit.

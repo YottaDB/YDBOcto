@@ -6,6 +6,8 @@ Mandatory arguments for long options are also mandatory for short options.
   -c, --config-file=<filepath>		Use specified configuration file instead of the default.
   -h, --help				Display this help message and exit.
   -p, --port=<number>			Listen on the specified port.
-  -v, --verbose=<number>		Specify amount of information to output when running commands by specifying a numeric level from 0-5 or adding additional 'v' characters.
-  -r, --version				Display version information and exit.
+  -v, --verbose=<number>		Specify amount of information to output when running commands by adding 'v' characters. The mapping of 'v's to severity levels is as follows:
+	-v: include INFO and WARNING messages
+	-vv: include DEBUG messages
+	-vvv: include TRACE messages
   -r, --release				Display release information and exit.

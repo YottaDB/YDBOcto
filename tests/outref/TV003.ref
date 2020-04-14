@@ -1,0 +1,29 @@
+
+select * from nonexistanttable;
+
+INDEX fake_index "^notaglobal(""fake_index"",fields(""name""),fields(""age""),keys(""id""))";
+
+select * from names;
+[ INFO] PATH:LINENUM DATE TIME : Loaded config from ./octo.conf
+[ERROR] PATH:LINENUM DATE TIME : Unknown table: NONEXISTANTTABLE
+
+select * from nonexistanttable;
+              ^^^^^^^^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select * from nonexistanttable;
+[ INFO] PATH:LINENUM DATE TIME : Parsing done for SQL command [select * from nonexistanttable;]
+[ INFO] PATH:LINENUM DATE TIME : Returning failure from run_query
+[ WARN] PATH:LINENUM DATE TIME : Feature not implemented: INDEX statements
+[ INFO] PATH:LINENUM DATE TIME : Parsing done for SQL command [INDEX fake_index "^notaglobal(""fake_index"",fields(""name""),fields(""age""),keys(""id""))";]
+[ INFO] PATH:LINENUM DATE TIME : Generating SQL for CURSOR_NUM
+[ INFO] PATH:LINENUM DATE TIME : Parsing done for SQL command [select * from names;]
+[ INFO] PATH:LINENUM DATE TIME : Generating SQL for CURSOR_NUM
+[ INFO] PATH:LINENUM DATE TIME : Generating M file [./_ydboctoP*.m] (to execute SQL query)
+[ INFO] PATH:LINENUM DATE TIME : print_temporary_table()
+0|Zero|Cool
+1|Acid|Burn
+2|Cereal|Killer
+3|Lord|Nikon
+4|Joey|
+5|Zero|Cool
+[ INFO] PATH:LINENUM DATE TIME : Parsing done for SQL command []
+

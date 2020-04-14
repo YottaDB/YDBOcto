@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -57,7 +57,7 @@ char *__wrap_ERR_error_string(unsigned long error_code, char *buf) {
 	return expected_return;
 }
 
-void __wrap_octo_log(int line, char *file, enum ERROR_LEVEL level, enum ERROR error, ...) {
+void __wrap_octo_log(int line, char *file, enum VERBOSITY_LEVEL level, enum SEVERITY_LEVEL severity, enum ERROR error, ...) {
 	char *error_string = NULL;
 	va_list args;
 	va_start(args, error);

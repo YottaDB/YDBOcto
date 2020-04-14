@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -26,7 +26,7 @@ Flush *read_flush(BaseMessage *message) {
 	uint32_t expected_length = sizeof(uint32_t);
 
 	if(message->type != PSQL_Flush) {
-		WARNING(ERR_ROCTO_INVALID_TYPE, "Flush", message->type, PSQL_Flush);
+		ERROR(ERR_ROCTO_INVALID_TYPE, "Flush", message->type, PSQL_Flush);
 		return NULL;
 	}
 
@@ -35,7 +35,7 @@ Flush *read_flush(BaseMessage *message) {
 	ret->length = ntohl(message->length);
 	// Length must be 4 (one int)
 	if(ret->length != expected_length) {
-		WARNING(ERR_ROCTO_INVALID_INT_VALUE, "Flush", "length", ret->length, expected_length);
+		ERROR(ERR_ROCTO_INVALID_INT_VALUE, "Flush", "length", ret->length, expected_length);
 		free(ret);
 		return NULL;
 	}

@@ -18,8 +18,6 @@ public|
 [SOCKET] [ WARN] PATH:LINENUM DATE TIME : Feature not implemented: arrays
 
 ----- OCTO -----
-[ WARN] PATH:LINENUM DATE TIME : Feature not implemented: arrays
-[ WARN] PATH:LINENUM DATE TIME : Feature not implemented: arrays
 
 information_schema|
 pg_catalog|

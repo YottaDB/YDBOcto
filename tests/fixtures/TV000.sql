@@ -10,21 +10,11 @@
 #								#
 #################################################################
 
-load test_helpers
+# Should issue an unknown table error
+select * from nonexistanttable;
 
-setup() {
-  init_test
-  createdb
-}
+# Should NOT issue an unimplemented feature warning
+INDEX fake_index "^notaglobal(""fake_index"",fields(""name""),fields(""age""),keys(""id""))";
 
-# TODO: Remove when INDEX statements are fully implemented.
-@test "TIS000 : ignore INDEX statement" {
-  load_fixture TIS000.sql subtest
-  verify_output TIS000 output.txt noinfo
-}
-
-# TODO: Remove when INDEX statements are fully implemented.
-@test "TIS000 : run valid CREATE statements while ignoring INDEX statement" {
-  load_fixture TIS001.sql subtest
-  verify_output TIS001 output.txt noinfo
-}
+# Should issue no errors
+select * from names;

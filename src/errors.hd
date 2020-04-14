@@ -88,6 +88,7 @@ ERROR_DEF(ERR_ROCTO_BIND_PARAMETER_DECODE_FAILURE, "Failed to decode binary bind
 
 /*** Trace messages ***/
 // OCTO //
+ERROR_DEF(INFO_LOADED_CONFIG, "Loaded config from %s", PSQL_Code_Success)
 ERROR_DEF(ERR_ENTERING_FUNCTION, "Entering %s", PSQL_Code_Success)
 ERROR_DEF(ERR_LEAVING_FUNCTION, "LEAVING %s", PSQL_Code_Success)
 ERROR_DEF(ERR_CURPLAN, "LOGICAL_PLAN %s follows%s", PSQL_Code_Success)
@@ -95,7 +96,6 @@ ERROR_DEF(ERR_CLIENT_CONNECTED, "Client connected", PSQL_Code_Success)
 ERROR_DEF(ERR_READ_MESSAGE, "Read message of type %c and length %d", PSQL_Code_Success)
 ERROR_DEF(ERR_SEND_MESSAGE, "Sending message of type %c and length %d", PSQL_Code_Success)
 ERROR_DEF(ERR_PROCESSING_MESSAGE_TYPE, "Processing message type %c", PSQL_Code_Success)
-ERROR_DEF(ERR_LOADING_CONFIG, "Loading config from %s", PSQL_Code_Success)
 ERROR_DEF(ERR_CALLING_M_ROUTINE, "Calling M routine: %s", PSQL_Code_Success)
 ERROR_DEF(ERR_MEM_REALLOCATION, "Memory %s for variable %s", PSQL_Code_Success)
 // ROCTO //
@@ -123,8 +123,9 @@ ERROR_DEF(ERR_MEMORY_USAGE, "Failed to retrieve memory usage at process exit", P
 
 /*** Configuration errors ***/
 // OCTO //
-ERROR_DEF(ERR_BAD_CONFIG, "Bad config setting: %s", PSQL_Code_Config_File_Error)
-ERROR_DEF(ERR_PARSING_CONFIG, "Error parsing config: %s:%d %s", PSQL_Code_Config_File_Error)
+ERROR_DEF(ERR_BAD_CONFIG, "Bad config setting in %s: %s", PSQL_Code_Config_File_Error)
+ERROR_DEF(ERR_PARSING_CONFIG, "Error parsing config (%s): line %d: %s", PSQL_Code_Config_File_Error)
+ERROR_DEF(ERR_CONFIG_IO_FAILURE, "File I/O error reading config setting \"%s\" in config: %s", PSQL_Code_Config_File_Error)
 ERROR_DEF(ERR_NULL_SUBS_DISABLED, "Null subscripts must be enabled for proper operation. Please set '-null_subscripts=always' for all regions containing Octo global variables.", PSQL_Code_Config_File_Error)
 ERROR_DEF(ERR_BAD_ZROUTINES, "Error no valid source directory found in octo_zroutines config or $zroutines ISV", PSQL_Code_Config_File_Error)
 ERROR_DEF(ERR_FAILED_TO_RETRIEVE_ENVIRONMENT_VARIABLE, "Failed to retrieve value of environment variable: \"%s\"", PSQL_Code_Config_File_Error)

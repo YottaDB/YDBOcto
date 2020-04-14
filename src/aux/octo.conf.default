@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////
 //								//
-// Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	//
+// Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	//
 // All rights reserved.						//
 //								//
 //	This source code contains the intellectual property	//
@@ -10,10 +10,14 @@
 //								//
 //////////////////////////////////////////////////////////////////
 
-// Specifies the verbosity for logging; options are TRACE, INFO, DEBUG, WARNING, ERROR, and FATAL
-verbosity = "WARNING"
-// This is prepended to $zroutines on octo startup
-// Generated M routines (which represent SQL queries) are stored in the first source directory found in octo_zroutines followed by $ydb_routines
+/* Specifies the verbosity for logging. The valid options are, in order of decreasing verbosity:
+ * TRACE, DEBUG, INFO, and ERROR. The default is ERROR.
+ */
+verbosity = "ERROR"
+/* This is prepended to $zroutines on octo startup
+ * Generated M routines (which represent SQL queries) are stored in the first source directory found
+ * in octo_zroutines followed by $ydb_routines
+ */
 // octo_zroutines = "./"
 
 // Settings related to the octod process
@@ -28,8 +32,9 @@ rocto = {
   ssl_on = false
 }
 
-// Settings controlling YottaDB; these get set as environment variables during startup
-// Defined environment variables will take precedence
+/* Settings controlling YottaDB; these get set as environment variables during startup
+ * Defined environment variables will take precedence
+ */
 /*yottadb = {
   ydb_gbldir = "mumps.gld"
   ydb_ci = "calltab.ci"
@@ -46,8 +51,9 @@ tls: {
   // Session timeout limit, in seconds
   session-timeout: 600;
 
-  // List of certificate/key pairs specified by identifiers.
-  // Currently only the OCTOSERVER identifier is supported.
+  /* List of certificate/key pairs specified by identifiers.
+   * Currently only the OCTOSERVER identifier is supported.
+   */
   OCTOSERVER: {
     format: "PEM";
     cert: "server.crt";

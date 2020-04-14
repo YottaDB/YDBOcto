@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -26,7 +26,7 @@ Sync *read_sync(BaseMessage *message) {
 	uint32_t expected_length = sizeof(uint32_t);
 
 	if(message->type != PSQL_Sync) {
-		WARNING(ERR_ROCTO_INVALID_TYPE, "Sync", message->type, PSQL_Sync);
+		ERROR(ERR_ROCTO_INVALID_TYPE, "Sync", message->type, PSQL_Sync);
 		return NULL;
 	}
 
@@ -36,7 +36,7 @@ Sync *read_sync(BaseMessage *message) {
 
 	// Length must be 4 (one int)
 	if(ret->length != expected_length) {
-		WARNING(ERR_ROCTO_INVALID_INT_VALUE, "Sync", "length", ret->length, expected_length);
+		ERROR(ERR_ROCTO_INVALID_INT_VALUE, "Sync", "length", ret->length, expected_length);
 		free(ret);
 		return NULL;
 	}

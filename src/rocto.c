@@ -272,7 +272,7 @@ int main(int argc, char **argv) {
 			// gtm_tls_conn_info tls_connection;
 			result = send_bytes(&rocto_session, "S", sizeof(char));
 			if (0 != result) {
-				WARNING(ERR_ROCTO_SEND_FAILED, "failed to send SSL confirmation byte");
+				ERROR(ERR_ROCTO_SEND_FAILED, "failed to send SSL confirmation byte");
 				break;
 			}
 			// Initialize TLS context: load config, certs, keys, etc.
@@ -281,9 +281,9 @@ int main(int argc, char **argv) {
 			if (INVALID_TLS_CONTEXT == tls_context) {
 				tls_errno = gtm_tls_errno();
 				if (0 < tls_errno) {
-					WARNING(ERR_SYSCALL, "", tls_errno, strerror(tls_errno));
+					ERROR(ERR_SYSCALL, "", tls_errno, strerror(tls_errno));
 				} else {
-					WARNING(ERR_ROCTO_TLS_INIT, gtm_tls_get_error());
+					ERROR(ERR_ROCTO_TLS_INIT, gtm_tls_get_error());
 				}
 				break;
 			}
@@ -293,9 +293,9 @@ int main(int argc, char **argv) {
 			if (INVALID_TLS_SOCKET == tls_socket) {
 				tls_errno = gtm_tls_errno();
 				if (0 < tls_errno) {
-					WARNING(ERR_SYSCALL, gtm_tls_get_error(), tls_errno, strerror(tls_errno));
+					ERROR(ERR_SYSCALL, gtm_tls_get_error(), tls_errno, strerror(tls_errno));
 				} else {
-					WARNING(ERR_ROCTO_TLS_SOCKET, gtm_tls_get_error());
+					ERROR(ERR_ROCTO_TLS_SOCKET, gtm_tls_get_error());
 				}
 				break;
 			}
@@ -306,17 +306,17 @@ int main(int argc, char **argv) {
 					if (-1 == result) {
 						tls_errno = gtm_tls_errno();
 						if (-1 == tls_errno) {
-							WARNING(ERR_ROCTO_TLS_ACCEPT, gtm_tls_get_error());
+							ERROR(ERR_ROCTO_TLS_ACCEPT, gtm_tls_get_error());
 						} else {
-							WARNING(CUSTOM_ERROR, "unknown", tls_errno, strerror(tls_errno));
+							ERROR(CUSTOM_ERROR, "unknown", tls_errno, strerror(tls_errno));
 						}
 						break;
 					} else if (GTMTLS_WANT_READ == result) {
-						WARNING(ERR_ROCTO_TLS_WANT_READ, NULL);
+						ERROR(ERR_ROCTO_TLS_WANT_READ, NULL);
 					} else if (GTMTLS_WANT_WRITE == result) {
-						WARNING(ERR_ROCTO_TLS_WANT_WRITE, NULL);
+						ERROR(ERR_ROCTO_TLS_WANT_WRITE, NULL);
 					} else {
-						WARNING(ERR_ROCTO_TLS_UNKNOWN, "failed to accept incoming connection(s)");
+						ERROR(ERR_ROCTO_TLS_UNKNOWN, "failed to accept incoming connection(s)");
 						break;
 					}
 				}
@@ -361,7 +361,7 @@ int main(int argc, char **argv) {
 		md5auth = make_authentication_md5_password(&rocto_session, salt);
 		result = send_message(&rocto_session, (BaseMessage*)(&md5auth->type));
 		if (result) {
-			WARNING(ERR_ROCTO_SEND_FAILED, "failed to send MD5 authentication required");
+			ERROR(ERR_ROCTO_SEND_FAILED, "failed to send MD5 authentication required");
 			free(md5auth);
 			free(startup_message->parameters);
 			free(startup_message);
@@ -374,7 +374,7 @@ int main(int argc, char **argv) {
 		base_message = read_message(&rocto_session, buffer, MAX_STR_CONST, &rocto_err);
 		if (NULL == base_message) {
 			if (-2 != rocto_err) {
-				WARNING(ERR_ROCTO_READ_FAILED, "failed to read MD5 password");
+				ERROR(ERR_ROCTO_READ_FAILED, "failed to read MD5 password");
 			}
 			free(startup_message->parameters);
 			free(startup_message);
@@ -519,7 +519,7 @@ int main(int argc, char **argv) {
 		close(sfd);
 	}
 
-	if (TRACE >= config->record_error_level) {
+	if (TRACE >= config->verbosity_level) {
 		mem_usage = get_mem_usage();
 		if (0 <= mem_usage) {
 			TRACE(INFO_MEMORY_USAGE, mem_usage);

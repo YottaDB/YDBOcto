@@ -1,2 +1,1 @@
-[ INFO] PATH:LINENUM DATE TIME : Loading config from ./octo.conf
-[ERROR] PATH:LINENUM DATE TIME : Bad config setting: octo_zroutines
+[ERROR] PATH:LINENUM DATE TIME : Bad config setting in ./octo.conf: octo_zroutines

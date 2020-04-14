@@ -21,7 +21,7 @@
 #include "octo_types.h"
 
 int octo_init(int argc, char **argv);
-int parse_startup_flags(int argc, char **argv);
+int parse_startup_flags(int argc, char **argv, char *config_file_name);
 
 typedef struct RoctoConfig {
 	int port;
@@ -46,14 +46,14 @@ typedef struct {
 } GlobalNames;
 
 typedef struct OctoConfig {
-	config_t		config_file;
+	enum VERBOSITY_LEVEL	verbosity_level;
 	RoctoConfig		rocto_config;
 	GlobalNames		global_names;
-	enum ERROR_LEVEL	record_error_level;
-	int			dry_run, plan_id, page_size, allow_schema_changes;
-	const char		*tmp_dir, *config_file_name;
+	const char		*tmp_dir;
 	boolean_t		is_tty, is_rocto;
+	config_t		*config_file;
 	pid_t			process_id;
+	int			dry_run, plan_id, page_size, allow_schema_changes;
 } OctoConfig;
 
 OctoConfig *config;

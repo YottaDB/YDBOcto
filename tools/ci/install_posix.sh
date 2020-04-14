@@ -18,8 +18,8 @@ if [[ ! $1 =~ "cmake" ]]; then
 	exit 1
 fi
 pushd /root
-git clone https://gitlab.com/YottaDB/Util/YDBposix.git
-cd YDBposix
+git clone https://gitlab.com/YottaDB/Util/YDBPosix.git
+cd YDBPosix
 mkdir build && mkdir build_utf8
 cd build
 ${1} ..

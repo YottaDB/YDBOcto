@@ -51,7 +51,7 @@ rocto: {
 }
 OCTO
   # Avoid calling the find_open_port function for this test case
-  rocto -vv &> rocto.log &
+  rocto -vvv &> rocto.log &
   echo $! > rocto.pid
   while [[ ! -e rocto.log || "$(grep -c "rocto started" rocto.log)" == "0" ]]; do
     sleep .1s

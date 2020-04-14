@@ -147,7 +147,7 @@ void lp_emit_plan(LogicalPlan *plan, char *stage) {
 	char		*buffer, *buff_ptr;
 	size_t		buffer_len, written;
 
-	if (DEBUG < config->record_error_level) {
+	if (DEBUG < config->verbosity_level) {
 		return;
 	}
 	// We use malloc here since it is a large temporary buffer

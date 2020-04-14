@@ -73,11 +73,11 @@ const char *log_prefix = "[%5s] %s:%d %04d-%02d-%02d %02d:%02d:%02d : ";
 const char *rocto_log_prefix = "[%s:%s] [%5s] %s:%d %04d-%02d-%02d %02d:%02d:%02d : ";
 
 /**
- * Logs error at level, formatting output and sending to the correct location.
+ * Logs error at verbosity level, formatting output and sending to the correct location.
  *
- * If level is FATAL, terminates the process
+ * If severity is FATAL, terminates the process
  */
-void octo_log(int line, char *file, enum ERROR_LEVEL level, enum ERROR error, ...) {
+void octo_log(int line, char *file, enum VERBOSITY_LEVEL level, enum SEVERITY_LEVEL severity, enum ERROR error, ...) {
 	va_list args;
 	const char *type;
 	time_t log_time;
@@ -86,30 +86,30 @@ void octo_log(int line, char *file, enum ERROR_LEVEL level, enum ERROR error, ..
 	char err_prefix[MAX_STR_CONST];
 	char full_err_format_str[MAX_STR_CONST];
 
-	if (level < config->record_error_level)
+	if (level < config->verbosity_level)
 		return;
 
 	va_start(args, error);
 	log_time = time(NULL);
 	local_time = *localtime(&log_time);
 
-	switch(level) {
-	case TRACE:
+	switch(severity) {
+	case TRACE_Severity:
 		type = "TRACE";
 		break;
-	case INFO:
+	case INFO_Severity:
 		type = "INFO";
 		break;
-	case DEBUG:
+	case DEBUG_Severity:
 		type = "DEBUG";
 		break;
-	case WARNING:
+	case WARNING_Severity:
 		type = "WARN";
 		break;
-	case FATAL:
+	case FATAL_Severity:
 		type = "FATAL";
 		break;
-	case ERROR:
+	case ERROR_Severity:
 	default:
 		type = "ERROR";
 		break;
@@ -163,23 +163,23 @@ void octo_log(int line, char *file, enum ERROR_LEVEL level, enum ERROR error, ..
 			vsnprintf(buffer, MAX_STR_CONST, err_format_str[error], args);
 		}
 		va_end(args);
-		switch(level) {
-			case TRACE:
+		switch(severity) {
+			case TRACE_Severity:
 				err_level = PSQL_Error_INFO;
 				break;
-			case INFO:
+			case INFO_Severity:
 				err_level = PSQL_Error_INFO;
 				break;
-			case DEBUG:
+			case DEBUG_Severity:
 				err_level = PSQL_Error_DEBUG;
 				break;
-			case WARNING:
+			case WARNING_Severity:
 				err_level = PSQL_Error_WARNING;
 				break;
-			case FATAL:
+			case FATAL_Severity:
 				err_level = PSQL_Error_FATAL;
 				break;
-			case ERROR:
+			case ERROR_Severity:
 			default:
 				err_level = PSQL_Error_ERROR;
 				break;
@@ -219,7 +219,7 @@ void octo_log(int line, char *file, enum ERROR_LEVEL level, enum ERROR error, ..
 	}
 	va_end(args);
 #	endif
-	if (FATAL == level) {
+	if (FATAL_Severity == severity) {
 #		ifdef IS_ROCTO
 		shutdown(rocto_session.connection_fd, SHUT_RDWR);
 		close(rocto_session.connection_fd);

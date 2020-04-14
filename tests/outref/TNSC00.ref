@@ -1,3 +1,2 @@
-[ WARN] Global ^%ydboctoxref maps to default region DEFAULT. Recommended mapping for ^%ydbocto* is to a separate region
 [ERROR] Null subscripts must be enabled for database file [$PWD/mumps.dat] : region [DEFAULT] (global ^%ydboctoxref maps to this region)
 [ERROR] PATH:LINENUM DATE TIME : Null subscripts must be enabled for proper operation. Please set '-null_subscripts=always' for all regions containing Octo global variables.

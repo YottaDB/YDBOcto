@@ -16,7 +16,7 @@ setup() {
   init_test
   createdb
   #  Create config file for outref consistency
-  echo "verbosity = \"WARNING\"" > octo.conf
+  echo "verbosity = \"INFO\"" > octo.conf
   if [[ @YDB_TLS_AVAILABLE@ -eq 1 ]]; then
     init_tls
   fi

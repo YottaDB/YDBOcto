@@ -11,7 +11,6 @@ public|CUSTOMERS|STATE|1043|0|-1|-1|7||||0|b
 public|CUSTOMERS|ZIPCODE|1043|0|-1|-1|8||||0|b
 
 ----- OCTO -----
-[ WARN] PATH:LINENUM DATE TIME : Feature not implemented: OVER not implemented, just returning columns
 
 public|CUSTOMERS|CUSTOMER_ID|23|0|-1|-1|1||||0|b
 public|CUSTOMERS|FIRST_NAME|1043|0|-1|-1|2||||0|b

@@ -47,7 +47,7 @@ int main(int argc, char **argv)
 
 	/* Load the existing tables */
 
-	yydebug = config->record_error_level == TRACE;
+	yydebug = config->verbosity_level == TRACE;
 	cur_input_more = &readline_get_more;
 	if (inputFile == NULL) {
 		inputFile = stdin;

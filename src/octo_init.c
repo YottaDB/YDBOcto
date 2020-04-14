@@ -37,6 +37,8 @@
 
 #define	OCTO_CONF_FILE_NAME	"octo.conf"
 
+#define MAX_CONFIG_FILES	3
+
 #define SET_CONFIG_VARIABLE_NAME_AND_RETURN_ON_ERROR(NAME, CARET)							\
 {															\
 	int	length;													\
@@ -49,48 +51,117 @@
 	assert('\0' == config->global_names.NAME[length]);								\
 }
 
-#define MERGE_CONFIG_PATH_AND_RETURN_ON_ERROR(FORMAT, ENV_VAR, CONFIG_FILE)					\
-{														\
-	int	tmp_path_len, status;										\
-	char	config_path[OCTO_PATH_MAX];									\
-														\
-	tmp_path_len = snprintf(config_path, sizeof(config_path), FORMAT, ENV_VAR, OCTO_CONF_FILE_NAME);	\
-	/* Ignore this configuration file if snprintf output was truncated. */					\
-	if (tmp_path_len < (int)sizeof(config_path)) {								\
-		assert('\0' == config_path[tmp_path_len]);							\
-		status = merge_config_file(config_path, CONFIG_FILE);						\
-		if (0 != status) {										\
-			return 1;										\
-		}												\
-	}													\
+#define MERGE_CONFIG_PATH_AND_RETURN_ON_ERROR(FORMAT, ENV_VAR, CONFIG_FILE, CONFIG_FILE_LIST)					\
+{																\
+	int	tmp_path_len, status;												\
+	char	*filename;													\
+																\
+	CONFIG_FILE_LIST.filenames[CONFIG_FILE_LIST.num_files] = (char *)calloc(OCTO_PATH_MAX, sizeof(char));			\
+	filename = CONFIG_FILE_LIST.filenames[CONFIG_FILE_LIST.num_files];							\
+	tmp_path_len = snprintf(filename, OCTO_PATH_MAX, FORMAT, ENV_VAR,							\
+			OCTO_CONF_FILE_NAME);											\
+	/* Ignore this configuration file if snprintf output was truncated. */							\
+	if (OCTO_PATH_MAX > tmp_path_len) {											\
+		assert('\0' == filename[tmp_path_len]);										\
+		status = merge_config_file(filename, &CONFIG_FILE, FALSE);							\
+		if (0 == status) {												\
+			CONFIG_FILE_LIST.num_files++;										\
+			assert(MAX_CONFIG_FILES >= CONFIG_FILE_LIST.num_files);							\
+		} else if (1 == status) {											\
+			return 1;												\
+		} else {													\
+			/* The file wasn't found or was inaccessible, so don't add file to the list of loaded files. */		\
+		}														\
+	} else {														\
+		return 1;													\
+	}															\
 }
 
+/* Check for libconfig errors reported after attempting to read a configuration setting. In case of an error, report it and return.
+ * Note that this check is only done after another libconfig call failed, and is used to differentiate between the various failure
+ * cases of the preceding call. Particularly, this allows us to distinguish syntax errors in a setting from that setting simply
+ * being omitted (the CONFIG_ERR_NONE case).
+ */
+#define CONFIG_ERROR_CHECK(CONFIG_FILE, SETTING_NAME, RESULT)									\
+{																\
+	int	error_type;													\
+																\
+	error_type = config_error_type(CONFIG_FILE);										\
+	switch (error_type) {													\
+	case CONFIG_ERR_FILE_IO:												\
+		ERROR(ERR_CONFIG_IO_FAILURE, SETTING_NAME, config_file_name);							\
+		return 1;													\
+		break;														\
+	case CONFIG_ERR_PARSE:													\
+		ERROR(ERR_BAD_CONFIG, config_file_name, SETTING_NAME);								\
+		return 1;													\
+		break;														\
+	default:														\
+		assert(CONFIG_ERR_NONE == error_type);										\
+		break;														\
+	}															\
+}
+
+/* Contains a list of names for configuration files and the total number of such files.
+ * Used for outputting a list of all configuration files loaded.
+ */
+struct config_file_list {
+	char *filenames[MAX_CONFIG_FILES];
+	int num_files;
+} config_file_list;
+
+int parse_config_file_settings(const char *config_file_name, config_t *config_file);
 void merge_config_file_helper(config_setting_t *a, config_setting_t *b);
 
-int merge_config_file(const char *path, config_t *config_file) {
+/* Returns 0 for success, 1 on error, and 2 for file not found/inaccessible (not technically an error, but must be distinguished for
+ * so the caller only issues a config loaded message when the file is actually used)
+ * The is_default flag is used to indicate that the default configuration should be merged in. This is needed since the default
+ * config is read from a string, not a file, so this case must be treated separately.
+ */
+int merge_config_file(const char *path, config_t **config_file, boolean_t is_default) {
 	config_setting_t	*a_root, *b_root;
-	config_t		new_config_file;
+	config_t		*new_config_file;
 	const char		*error_message, *error_file;
-	int			error_line;
+	char			*default_octo_conf;
+	int			error_line, status;
 
-	if (-1 == access(path, F_OK)) {
-		// File not found or no access; skip it
-		return 0;
+	new_config_file = (config_t *)calloc(1, sizeof(config_t));
+	config_init(new_config_file);
+	if (!is_default) {
+		assert(NULL != path);
+		if (-1 == access(path, F_OK)) {
+			// File not found or no access; skip it
+			return 2;
+		}
+		if (CONFIG_FALSE == config_read_file(new_config_file, path)) {
+			error_message = config_error_text(new_config_file);
+			error_file = config_error_file(new_config_file);
+			error_line = config_error_line(new_config_file);
+			ERROR(ERR_PARSING_CONFIG, error_file, error_line, error_message);
+			return 1;
+		}
+	} else {
+		default_octo_conf = (char *)malloc(octo_conf_default_len + 1);
+		memcpy(default_octo_conf, octo_conf_default, octo_conf_default_len);
+		default_octo_conf[octo_conf_default_len] = '\0';
+		status = config_read_string(new_config_file, default_octo_conf);
+		free(default_octo_conf);
+		if (CONFIG_FALSE == status) {
+			error_message = config_error_text(new_config_file);
+			error_file = "default";
+			error_line = config_error_line(new_config_file);
+			ERROR(ERR_PARSING_CONFIG, error_file, error_line, error_message);
+			return 1;
+		}
+		path = "default";	// Use literal in place of file path when issuing errors in parse_config_file_settings
 	}
-	config_init(&new_config_file);
-	if (CONFIG_FALSE == config_read_file(&new_config_file, path)) {
-		error_message = config_error_text(config_file);
-		error_file = config_error_file(config_file);
-		error_line = config_error_line(config_file);
-		ERROR(ERR_PARSING_CONFIG, error_file, error_line, error_message);
-		return 1;
-	}
-	INFO(ERR_LOADING_CONFIG, path);
-	a_root = config_root_setting(config_file);
-	b_root = config_root_setting(&new_config_file);
-	merge_config_file_helper(a_root, b_root);
-	config_destroy(&new_config_file);
-	return 0;
+	a_root = config_root_setting(*config_file);
+	b_root = config_root_setting(new_config_file);
+	merge_config_file_helper(b_root, a_root);
+	config_destroy(*config_file);
+	*config_file = new_config_file;
+	status = parse_config_file_settings(path, *config_file);
+	return status;
 }
 
 // Merges b into a, updating a with any values from b
@@ -147,126 +218,86 @@ void merge_config_file_helper(config_setting_t *a, config_setting_t *b) {
 	}
 }
 
-int populate_global_names() {
-	SET_CONFIG_VARIABLE_NAME_AND_RETURN_ON_ERROR(schema, "^");				/* ^%ydboctoschema */
-	SET_CONFIG_VARIABLE_NAME_AND_RETURN_ON_ERROR(session, "");				/*  %ydboctosession */
-	SET_CONFIG_VARIABLE_NAME_AND_RETURN_ON_ERROR(cursor, "");				/*  %ydboctocursor */
-	SET_CONFIG_VARIABLE_NAME_AND_RETURN_ON_ERROR(octo, "^");				/* ^%ydboctoocto */
-	config->global_names.raw_octo = &config->global_names.octo[1];				/*  %ydboctoocto */
-	SET_CONFIG_VARIABLE_NAME_AND_RETURN_ON_ERROR(xref, "^");				/* ^%ydboctoxref */
-	config->global_names.raw_xref = &config->global_names.xref[1];				/*  %ydboctoxref */
-	SET_CONFIG_VARIABLE_NAME_AND_RETURN_ON_ERROR(loadedschemas, "");			/*  %ydboctoloadedschemas */
-	return 0;
-}
-
-void init_crypto() {
-	/* Load the human readable error strings for libcrypto */
-	ERR_load_crypto_strings();
-
-	/* Load all digest and cipher algorithms */
-	OpenSSL_add_all_algorithms();
-
-	/* Load default config file, and other important initialisation */
-	CONF_modules_load_file(NULL, NULL, 0);
-}
-
-int octo_init(int argc, char **argv) {
-	int			status, done, i;
-	unsigned int		offset, zroutines_from_file_len, zroutines_len = ZRO_INIT_ALLOC;
-	config_t		*config_file;
+int parse_config_file_settings(const char *config_file_name, config_t *config_file) {
 	config_setting_t	*ydb_settings, *cur_ydb_setting;
-	const char		*item_name, *item_value, *src_path;
-	const char		*verbosity, *error_message, *error_file;
-	char			*default_octo_conf;
-	char			ci_path[OCTO_PATH_MAX], exe_path[OCTO_PATH_MAX], zstatus_message[YDB_MAX_ERRORMSG];
-	char			*homedir, *ydb_dist, *zroutines_buf_start, *zroutines_from_file;
-	uintptr_t		ci_tab_handle_new, ci_tab_handle_old;
-	ydb_long_t		ci_return;
 	ydb_buffer_t		zroutines_buffer, dollar_zroutines_buffer;
-	DIR			*dir;
-	ssize_t			exe_path_len;
-	int			verbosity_int, error_line;
+	unsigned int		offset, zroutines_from_file_len, zroutines_len = ZRO_INIT_ALLOC;
+	const char		*item_name, *item_value, *verbosity;
+	char			*zroutines_buf_start, *zroutines_from_file;
+	int			status, done, i, verbosity_int;
 
-	config = (OctoConfig *)malloc(sizeof(OctoConfig));
-	memset(config, 0, sizeof(OctoConfig));
-	config_file = &config->config_file;
-
-	// If OCTO_SETTINGS env is set, we previously parsed the config and stashed it
-	//   in environment variables; load from there
-
-	// Parse the startup flags; we will have to do this again after we read the config
-	status = parse_startup_flags(argc, argv);
-	if (status)
-		return status;
-
-	// Search for config file octo.conf (OCTO_CONF_FILE_NAME) in directories "$ydb_dist/plugin/octo", "~" and "." in that order
-	config_init(config_file);
-
-	// This should always be 1
-	setenv("ydb_lvnullsubs", "1", 1);
-	status = ydb_init();
-	if (YDB_OK != status) {
-		ydb_zstatus(zstatus_message, sizeof(zstatus_message));
-		ERROR(ERR_YOTTADB, zstatus_message);
-		return 1;
-	}
-
-	default_octo_conf = (char *)malloc(octo_conf_default_len + 1);
-	memcpy(default_octo_conf, octo_conf_default, octo_conf_default_len);
-	default_octo_conf[octo_conf_default_len] = '\0';
-
-	status = config_read_string(config_file, default_octo_conf);
-	if (CONFIG_FALSE == status) {
-		error_message = config_error_text(config_file);
-		error_file = config_error_file(config_file);
-		error_line = config_error_line(config_file);
-		ERROR(ERR_PARSING_CONFIG, error_file, error_line, error_message);
-		free(default_octo_conf);
-		return 1;
-	}
-
-	// Load config file
-	ydb_dist = getenv("ydb_dist");
-	if (NULL == config->config_file_name) {
-		if (NULL != ydb_dist) {
-			MERGE_CONFIG_PATH_AND_RETURN_ON_ERROR("%s/plugin/octo/%s", ydb_dist, config_file);
-		}
-		homedir = getenv("HOME");
-		if (NULL != homedir) {
-			MERGE_CONFIG_PATH_AND_RETURN_ON_ERROR("%s/%s", homedir, config_file);
-		}
-		MERGE_CONFIG_PATH_AND_RETURN_ON_ERROR("./%s%s", "", config_file);
-	} else {
-		status = merge_config_file(config->config_file_name, config_file);
-		if (0 != status) {
-			return 1;
-		}
-	}
-	free(default_octo_conf);
-
-	if (config_lookup_string(config_file, "verbosity", &verbosity) == CONFIG_TRUE) {
+	if (CONFIG_TRUE == config_lookup_string(config_file, "verbosity", &verbosity)) {
 		if (strcmp(verbosity, "TRACE") == 0) {
 			verbosity_int = TRACE;
-		} else if (strcmp(verbosity, "INFO") == 0) {
-			verbosity_int = INFO;
 		} else if (strcmp(verbosity, "DEBUG") == 0) {
 			verbosity_int = DEBUG;
-		} else if (strcmp(verbosity, "WARNING") == 0) {
-			verbosity_int = WARNING;
+		} else if (strcmp(verbosity, "INFO") == 0) {
+			verbosity_int = INFO;
 		} else if (strcmp(verbosity, "ERROR") == 0) {
 			verbosity_int = ERROR;
-		} else if (strcmp(verbosity, "FATAL") == 0) {
-			verbosity_int = FATAL;
 		} else {
-			ERROR(ERR_BAD_CONFIG, "verbosity");
+			ERROR(ERR_BAD_CONFIG, config_file_name, "verbosity");
 			return 1;
 		}
-	} else if (config_lookup_int(config_file, "verbosity", &verbosity_int) == CONFIG_FALSE) {
-		printf("Verbosity set to %s\n", verbosity);
-		ERROR(ERR_BAD_CONFIG, "verbosity");
-		return 1;
+	} else if (CONFIG_FALSE == config_lookup_int(config_file, "verbosity", &verbosity_int)) {
+		CONFIG_ERROR_CHECK(config_file, "verbosity", status);
+		verbosity_int = ERROR;		// Set to the default if verbosity was not set, i.e. the error check succeeds
+	}
+	config->verbosity_level = verbosity_int;
+	if (config_lookup_string(config_file, "rocto.address", &config->rocto_config.address)
+			== CONFIG_FALSE) {
+		CONFIG_ERROR_CHECK(config_file, "rocto.address", status);
+	}
+	if (config_lookup_int(config_file, "rocto.port", &config->rocto_config.port)
+			== CONFIG_FALSE) {
+		CONFIG_ERROR_CHECK(config_file, "rocto.port", status);
+	}
+	if (config_lookup_bool(config_file, "rocto.use_dns", &config->rocto_config.use_dns)
+			== CONFIG_FALSE) {
+		CONFIG_ERROR_CHECK(config_file, "rocto.use_dns", status);
+	}
+#	if YDB_TLS_AVAILABLE
+	if (config_lookup_string(config_file, "tls.OCTOSERVER.cert", &config->rocto_config.ssl_cert_file)
+			== CONFIG_FALSE) {
+		CONFIG_ERROR_CHECK(config_file, "tls.OCTOSERVER.cert", status);
+	}
+	if (config_lookup_string(config_file, "tls.OCTOSERVER.key", &config->rocto_config.ssl_key_file)
+			== CONFIG_FALSE) {
+		CONFIG_ERROR_CHECK(config_file, "tls.OCTOSERVER.key", status);
+	}
+	if (config_lookup_bool(config_file, "rocto.ssl_on", &config->rocto_config.ssl_on)
+			== CONFIG_FALSE) {
+		CONFIG_ERROR_CHECK(config_file, "rocto.ssl_on", status);
 	}
 
+#	else
+	if (config_lookup_bool(config_file, "rocto.ssl_on", &config->rocto_config.ssl_on)
+			== CONFIG_FALSE) {
+		CONFIG_ERROR_CHECK(config_file, "rocto.ssl_on", status);
+	}
+	if (config->rocto_config.ssl_on) {
+		ERROR(ERR_BAD_CONFIG, config_file_name, "rocto.ssl_on set, but YottaDB TLS plugin not installed");
+		return 1;
+	}
+#	endif
+	// Read in YDB settings
+	ydb_settings = config_lookup(config_file, "yottadb");
+	if (ydb_settings != NULL && config_setting_is_group(ydb_settings) == CONFIG_TRUE) {
+		i = 0;
+		while ((cur_ydb_setting = config_setting_get_elem(ydb_settings, i)) != NULL) {
+			item_name = config_setting_name(cur_ydb_setting);
+			item_value = config_setting_get_string(cur_ydb_setting);
+			if (NULL == getenv(item_name)) {
+				setenv(item_name, item_value, 0);
+			}
+			i++;
+		}
+	}
+
+	// $ZROUTINES has already been set, just return now
+	if (NULL != config->tmp_dir) {
+		return 0;
+	}
 	YDB_MALLOC_BUFFER(&zroutines_buffer, ZRO_INIT_ALLOC);
 	YDB_LITERAL_TO_BUFFER("$zroutines", &dollar_zroutines_buffer);
 	// Prepend zroutines path from configuration file to the start of $zroutines, if specified.
@@ -295,8 +326,9 @@ int octo_init(int argc, char **argv) {
 			// Retrieve value of $zroutines
 			status = ydb_get_s(&dollar_zroutines_buffer, 0, NULL, &zroutines_buffer);
 			if (YDB_ERR_INVSTRLEN == status) {
-				// If the buffer isn't large enough allocate more and call ydb_get_s() again
-				// +2 for null terminator and space
+				/* If the buffer isn't large enough allocate more and call ydb_get_s() again
+				 * +2 for null terminator and space
+				 */
 				zroutines_len = zroutines_buffer.len_used + zroutines_from_file_len + 2;
 				zroutines_buffer.buf_addr = zroutines_buf_start;
 				YDB_FREE_BUFFER(&zroutines_buffer);
@@ -325,7 +357,7 @@ int octo_init(int argc, char **argv) {
 
 		status = ydb_set_s(&dollar_zroutines_buffer, 0, NULL, &zroutines_buffer);
 		if (YDB_ERR_ZROSYNTAX == status || YDB_ERR_DLLNOOPEN == status){
-			ERROR(ERR_BAD_CONFIG, "octo_zroutines");
+			ERROR(ERR_BAD_CONFIG, config_file_name, "octo_zroutines");
 			YDB_FREE_BUFFER(&zroutines_buffer);
 			return 1;
 		}
@@ -383,8 +415,7 @@ int octo_init(int argc, char **argv) {
 		// White space characters and right parenthesis are delimiters
 		case ' ' :
 		case ')' :
-			// Terminate everything read up to this point,
-			// if last character is a '*' remove it
+			// Terminate everything read up to this point, if last character is a '*' remove it
 			if (1 < offset){
 				if ('*' == zroutines_buffer.buf_addr[offset-1]){
 					offset--;
@@ -392,13 +423,13 @@ int octo_init(int argc, char **argv) {
 			}
 			// The current path string is the empty string, skip and continue.
 			if (0 == offset) {
-				// If the next character (offset+1) is the end of the buffer, the loop will break on '\0'
-				// and an error will be issued below for an invalid zroutines source path (empty string).
+				/* If the next character (offset+1) is the end of the buffer, the loop will break on '\0'
+				 * and an error will be issued below for an invalid zroutines source path (empty string).
+				 */
 				zroutines_buffer.buf_addr += (offset+1);
 				break;
 			}
-			// Check if this path is a directory and, if not,
-			// move the start of the string to the next token
+			// Check if this path is a directory and, if not, move the start of the string to the next token
 			zroutines_buffer.buf_addr[offset] = '\0';
 			status = stat(zroutines_buffer.buf_addr, &statbuf);
 			// If file doesn't exist, don't emit an error and skip it
@@ -435,71 +466,139 @@ int octo_init(int argc, char **argv) {
 		return 1;
 	}
 
-	if (config_lookup_string(config_file, "rocto.address", &config->rocto_config.address)
-			== CONFIG_FALSE) {
-		ERROR(ERR_BAD_CONFIG, "rocto.address");
-		return 1;
+	return 0;
+}
+
+int populate_global_names() {
+	SET_CONFIG_VARIABLE_NAME_AND_RETURN_ON_ERROR(schema, "^");				/* ^%ydboctoschema */
+	SET_CONFIG_VARIABLE_NAME_AND_RETURN_ON_ERROR(session, "");				/*  %ydboctosession */
+	SET_CONFIG_VARIABLE_NAME_AND_RETURN_ON_ERROR(cursor, "");				/*  %ydboctocursor */
+	SET_CONFIG_VARIABLE_NAME_AND_RETURN_ON_ERROR(octo, "^");				/* ^%ydboctoocto */
+	config->global_names.raw_octo = &config->global_names.octo[1];				/*  %ydboctoocto */
+	SET_CONFIG_VARIABLE_NAME_AND_RETURN_ON_ERROR(xref, "^");				/* ^%ydboctoxref */
+	config->global_names.raw_xref = &config->global_names.xref[1];				/*  %ydboctoxref */
+	SET_CONFIG_VARIABLE_NAME_AND_RETURN_ON_ERROR(loadedschemas, "");			/*  %ydboctoloadedschemas */
+	return 0;
+}
+
+void init_crypto() {
+	/* Load the human readable error strings for libcrypto */
+	ERR_load_crypto_strings();
+
+	/* Load all digest and cipher algorithms */
+	OpenSSL_add_all_algorithms();
+
+	/* Load default config file, and other important initialisation */
+	CONF_modules_load_file(NULL, NULL, 0);
+}
+
+int octo_init(int argc, char **argv) {
+	OctoConfig		temp_config;
+	const char		*src_path;
+	ydb_long_t		ci_return;
+	uintptr_t		ci_tab_handle_new, ci_tab_handle_old;
+	boolean_t		verbosity_set;
+	config_t		*config_file;
+	ssize_t			exe_path_len;
+	char			ci_path[OCTO_PATH_MAX], exe_path[OCTO_PATH_MAX], config_file_path[OCTO_PATH_MAX],  zstatus_message[YDB_MAX_ERRORMSG];
+	char			*homedir, *ydb_dist, *config_file_name = NULL;
+	int			status, i;
+	DIR			*dir;
+
+	config = (OctoConfig *)malloc(sizeof(OctoConfig));
+	memset(config, 0, sizeof(OctoConfig));
+	config->config_file = (config_t *)calloc(1, sizeof(config_t));
+	config_file = config->config_file;
+
+	// If OCTO_SETTINGS env is set, we previously parsed the config and stashed it in environment variables; load from there
+
+	// Parse the startup flags; we will have to do this again after we read the config
+	status = parse_startup_flags(argc, argv, config_file_name);
+	if (status) {
+		return status;
 	}
-	if (config_lookup_int(config_file, "rocto.port", &config->rocto_config.port)
-			== CONFIG_FALSE) {
-		ERROR(ERR_BAD_CONFIG, "rocto.port");
-		return 1;
+	/* Store initial startup flags for later overwriting configuration file settings
+	 * No need to track --dry_run or --allow_schema_changes, since these are only
+	 * command line options and have no corresponding settings in configuration files.
+	 */
+	if (ERROR >= config->verbosity_level) {
+		temp_config.verbosity_level = config->verbosity_level;
+		verbosity_set = TRUE;
+	} else {
+		/* This line is here to prevent incorrect -Wmaybe-uninitialized compiler warnings
+		 * in RelWithDebInfo builds on some platforms.
+		 */
+		temp_config.verbosity_level = ERROR;
+		verbosity_set = FALSE;
 	}
-	if (config_lookup_bool(config_file, "rocto.use_dns", &config->rocto_config.use_dns)
-			== CONFIG_FALSE) {
-		ERROR(ERR_BAD_CONFIG, "rocto.use_dns");
-		return 1;
-	}
-#	if YDB_TLS_AVAILABLE
-	if (config_lookup_string(config_file, "tls.OCTOSERVER.cert", &config->rocto_config.ssl_cert_file)
-			== CONFIG_FALSE) {
-		ERROR(ERR_BAD_CONFIG, "tls.OCTOSERVER.cert");
-		return 1;
-	}
-	if (config_lookup_string(config_file, "tls.OCTOSERVER.key", &config->rocto_config.ssl_key_file)
-			== CONFIG_FALSE) {
-		ERROR(ERR_BAD_CONFIG, "tls.OCTOSERVER.key");
-		return 1;
-	}
-	if (config_lookup_bool(config_file, "rocto.ssl_on", &config->rocto_config.ssl_on)
-			== CONFIG_FALSE) {
-		ERROR(ERR_BAD_CONFIG, "rocto.ssl_on");
+	temp_config.rocto_config.port = config->rocto_config.port;
+	/* Set initial verbosity to the default to rollback the verbosity_unset case in parse_startup_flags and
+	 * allow errors during config merging to be reported
+	 */
+	config->verbosity_level = ERROR;
+
+	// Search for config file octo.conf (OCTO_CONF_FILE_NAME) in directories ".", "~", and "$ydb_dist/plugin/octo" in that order
+	config_init(config_file);
+
+	// This should always be 1
+	setenv("ydb_lvnullsubs", "1", 1);
+	status = ydb_init();
+	if (YDB_OK != status) {
+		ydb_zstatus(zstatus_message, sizeof(zstatus_message));
+		ERROR(ERR_YOTTADB, zstatus_message);
 		return 1;
 	}
 
-#	else
-	if (config_lookup_bool(config_file, "rocto.ssl_on", &config->rocto_config.ssl_on)
-			== CONFIG_FALSE) {
-		ERROR(ERR_BAD_CONFIG, "rocto.ssl_on");
-		return 1;
-	}
-	if (config->rocto_config.ssl_on) {
-		ERROR(ERR_BAD_CONFIG, "rocto.ssl_on set, but YottaDB TLS plugin not installed");
-		return 1;
-	}
-#	endif
-	// Read in YDB settings
-	ydb_settings = config_lookup(config_file, "yottadb");
-	if (ydb_settings != NULL && config_setting_is_group(ydb_settings) == CONFIG_TRUE) {
-		i = 0;
-		while ((cur_ydb_setting = config_setting_get_elem(ydb_settings, i)) != NULL) {
-			item_name = config_setting_name(cur_ydb_setting);
-			item_value = config_setting_get_string(cur_ydb_setting);
-			if (NULL == getenv(item_name)) {
-				setenv(item_name, item_value, 0);
-			}
-			i++;
+
+	// Load config file
+	ydb_dist = getenv("ydb_dist");
+	if (NULL == config_file_name) {
+		config_file_name = config_file_path;
+		MERGE_CONFIG_PATH_AND_RETURN_ON_ERROR("./%s%s", "", config_file, config_file_list);
+		homedir = getenv("HOME");
+		if (NULL != homedir) {
+			MERGE_CONFIG_PATH_AND_RETURN_ON_ERROR("%s/%s", homedir, config_file, config_file_list);
 		}
+		if (NULL != ydb_dist) {
+			MERGE_CONFIG_PATH_AND_RETURN_ON_ERROR("%s/plugin/octo/%s", ydb_dist, config_file, config_file_list);
+		}
+	} else {
+		status = merge_config_file(config_file_name, &config_file, FALSE);
+		if (0 != status) {
+			return 1;
+		}
+		config_file_list.num_files++;
+	}
+	// Load the default config to populate any empty fields with default values
+	status = merge_config_file(NULL, &config_file, TRUE);
+	if (0 != status) {
+		return 1;
+	}
+	status = parse_config_file_settings(config_file_list.filenames[config_file_list.num_files-1], config_file);
+	if (status) {
+		// Cleanup list of configuration files
+		for (i = 0; i < config_file_list.num_files; i++) {
+			assert(NULL != config_file_list.filenames[i]);
+			free(config_file_list.filenames[i]);
+		}
+		return status;
 	}
 
-	config->record_error_level = verbosity_int;
-	//config->dry_run = FALSE;
 	err_buffer = stderr;
 
-	// Reparse the startup flags to ensure they overwrite the config files
-	status = parse_startup_flags(argc, argv);
-	if (status)
-		return status;
+	// Apply startup flags from initial parse to overwrite values from config files
+	if (verbosity_set) {	// Only overwrite if initialized
+		config->verbosity_level = temp_config.verbosity_level;
+	}
+	if (-1 != temp_config.rocto_config.port) {	// Only overwrite if initialized
+		config->rocto_config.port = temp_config.rocto_config.port;
+	}
+	// Issue INFO messages for loaded configuration files now that verbosity level is finalized and clean them up
+	for (i = 0; i < config_file_list.num_files; i++) {
+		assert(NULL != config_file_list.filenames[i]);
+		INFO(INFO_LOADED_CONFIG, config_file_list.filenames[i]);
+		free(config_file_list.filenames[i]);
+	}
 
 	// Verify that the directory exists, or issue an error
 	dir = opendir(config->tmp_dir);
@@ -525,8 +624,7 @@ int octo_init(int argc, char **argv) {
 	cur_input_more = &no_more;
 	eof_hit = 0;
 
-	if (INFO >= config->record_error_level)
-	{	// Record pertinent ydb_* env vars if -vv or higher verbosity is specified
+	if (INFO >= config->verbosity_level) {	// Record pertinent ydb_* env vars if -vv or higher verbosity is specified
 		char		*ptr;
 		char		*envvar_array[] = { "ydb_dist", "ydb_gbldir", "ydb_routines", "ydb_ci", "ydb_xc_ydbposix" };
 		unsigned int	i;
@@ -573,7 +671,7 @@ int octo_init(int argc, char **argv) {
 	}
 	ydb_ci_tab_open(ci_path, &ci_tab_handle_new);
 	ydb_ci_tab_switch(ci_tab_handle_new, &ci_tab_handle_old);
-	status = ydb_ci("_ydboctoInit", &ci_return);
+	status = ydb_ci("_ydboctoInit", &ci_return, (ydb_int_t)config->verbosity_level);
 	YDB_ERROR_CHECK(status);
 	if (YDB_OK != status) {
 		return 1;

@@ -1,3 +1,3 @@
 _ydboctoselect  :void        run^%ydboctoselect(I:ydb_ulong_t,I:ydb_string_t*,I:ydb_string_t*)
-_ydboctoInit    :ydb_long_t* ^%ydboctoInit()
+_ydboctoInit    :ydb_long_t* ^%ydboctoInit(I:ydb_int_t)
 _ydboctoNodeDump  :void        ydboctoNodeDump^%ydboctoUtils()

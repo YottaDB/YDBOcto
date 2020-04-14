@@ -1,0 +1,18 @@
+
+select * from nonexistanttable;
+
+INDEX fake_index "^notaglobal(""fake_index"",fields(""name""),fields(""age""),keys(""id""))";
+
+select * from names;
+[ERROR] PATH:LINENUM DATE TIME : Unknown table: NONEXISTANTTABLE
+
+select * from nonexistanttable;
+              ^^^^^^^^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select * from nonexistanttable;
+0|Zero|Cool
+1|Acid|Burn
+2|Cereal|Killer
+3|Lord|Nikon
+4|Joey|
+5|Zero|Cool
+

@@ -1,0 +1,181 @@
+#################################################################
+#								#
+# Copyright (c) 2020 YottaDB LLC and/or its subsidiaries.	#
+# All rights reserved.						#
+#								#
+#	This source code contains the intellectual property	#
+#	of its copyright holder(s), and is made available	#
+#	under a license.  If you do not know the terms of	#
+#	the license, please stop and do not read further.	#
+#								#
+#################################################################
+
+load test_helpers
+
+setup() {
+	init_test
+	createdb
+	load_fixture names.sql
+	load_fixture names.zwr
+}
+
+@test "TV000 : WITHOUT -v, WITHOUT config file verbosity" {
+	# Create local copy of octo.conf without verbosity setting
+	if [[ @DISABLE_INSTALL@ == "ON" ]]; then
+		grep -vE "^verbosity" @PROJECT_SOURCE_DIR@/src/aux/octo.conf.default &> octo.conf
+	else
+		grep -vE "^verbosity" $ydb_dist/plugin/octo/octo.conf &> octo.conf
+	fi
+	load_fixture TV000.sql subtest novv
+	verify_output TV000 output.txt
+}
+
+@test "TV001 : WITHOUT -v, WITH config file verbosity set to all valid levels" {
+	echo -e "------------------------------\nUsing command line verbosity level: default (no -v)\n------------------------------" >> output.txt
+	for verbosity in ERROR INFO DEBUG TRACE; do
+		cat <<OCTO &> octo.conf
+verbosity = "$verbosity"
+OCTO
+		rm -rf *.m *.o		# Cleanup plans to force regeneration
+		echo -e "\n------------------------------\nUsing config verbosity level: $verbosity\n------------------------------\n" >> output.txt
+		load_fixture TV000.sql subtest novv
+	done
+
+	verify_output TV001 output.txt
+}
+
+@test "TV002 : WITH -v, WITHOUT config file verbosity" {
+	# Only filter verbosity from config file if config file exists
+	if [[ @DISABLE_INSTALL@ == "ON" ]]; then
+		grep -vE "^verbosity" @PROJECT_SOURCE_DIR@/src/aux/octo.conf.default &> octo.conf
+	else
+		grep -vE "^verbosity" $ydb_dist/plugin/octo/octo.conf &> octo.conf
+	fi
+	load_fixture TV000.sql subtest v
+	verify_output TV002 output.txt
+}
+
+@test "TV003 : WITH -v, WITH config file verbosity set to all valid levels" {
+	# The output should be the same for all cases, as command line options override config file settings.
+	# Accordingly, use the same outref for all possible config file verbosity settings.
+	for verbosity in ERROR INFO DEBUG TRACE; do
+		cat <<OCTO &> octo.conf
+verbosity = "$verbosity"
+OCTO
+		rm -rf *.m *.o		# Cleanup plans to force regeneration
+		load_fixture TV000.sql subtest v
+		verify_output TV003 output.txt
+		# Rename to cleanup for the next loop iteration and save each output case for debugging in case of failure
+		mv output.txt $verbosity.txt
+	done
+}
+
+@test "TV004 : WITH -vv, WITHOUT config file verbosity" {
+	if [[ @DISABLE_INSTALL@ == "ON" ]]; then
+		grep -vE "^verbosity" @PROJECT_SOURCE_DIR@/src/aux/octo.conf.default &> octo.conf
+	else
+		grep -vE "^verbosity" $ydb_dist/plugin/octo/octo.conf &> octo.conf
+	fi
+	load_fixture TV000.sql subtest vv
+	verify_output TV004 output.txt
+}
+
+@test "TV005 : WITH -vv, WITH config file verbosity set to all valid levels" {
+	# The output should be the same for all cases, as command line options override config file settings.
+	# Accordingly, use the same outref for all possible config file verbosity settings.
+	for verbosity in ERROR INFO DEBUG TRACE; do
+		cat <<OCTO &> octo.conf
+verbosity = "$verbosity"
+OCTO
+		rm -rf *.m *.o		# Cleanup plans to force regeneration
+		load_fixture TV000.sql subtest vv
+		verify_output TV005 output.txt
+		# Rename to cleanup for the next loop iteration and save each output case for debugging in case of failure
+		mv output.txt $verbosity.txt
+	done
+}
+
+@test "TV006 : WITH -vvv, WITHOUT config file verbosity" {
+	if [[ @DISABLE_INSTALL@ == "ON" ]]; then
+		grep -vE "^verbosity" @PROJECT_SOURCE_DIR@/src/aux/octo.conf.default &> octo.conf
+	else
+		grep -vE "^verbosity" $ydb_dist/plugin/octo/octo.conf &> octo.conf
+	fi
+	load_fixture TV000.sql subtest vvv
+	verify_output TV006 output.txt
+}
+
+@test "TV007 : WITH -vvv, WITH config file verbosity set to all valid levels" {
+	# The output should be the same for all cases, as command line options override config file settings.
+	# Accordingly, use the same outref for all possible config file verbosity settings.
+	for verbosity in ERROR INFO DEBUG TRACE; do
+		cat <<OCTO &> octo.conf
+verbosity = "$verbosity"
+OCTO
+		rm -rf *.m *.o		# Cleanup plans to force regeneration
+		load_fixture TV000.sql subtest vvv
+		verify_output TV007 output.txt
+		# Rename to cleanup for the next loop iteration and save each output case for debugging in case of failure
+		mv output.txt $verbosity.txt
+	done
+}
+
+@test "TV008 : octo correctly outputs config file syntax errors" {
+	cat <<OCTO &> octo.conf
+verbosity = "ERROR"
+abcd
+OCTO
+	octo <<OCTO 2>&1 | tee output.txt
+exit
+OCTO
+	verify_output TV008 output.txt
+}
+
+@test "TV009 : octo correctly outputs the names of configuration files containing errors" {
+	cat <<OCTO &> ~/octo.conf
+OCTO
+	cat <<OCTO &> octo.conf
+verbosity = "ABCD"
+OCTO
+	octo <<OCTO 2>&1 | tee output.txt
+exit
+OCTO
+	rm -f ~/octo.conf		# Don't pollute the home directory of development/test environment
+	verify_output TV009 output.txt
+}
+
+@test "TV010 : octo disallows FATAL as verbosity level" {
+	cat <<OCTO &> octo.conf
+verbosity = "FATAL"
+OCTO
+	octo <<OCTO 2>&1 | tee output.txt
+exit
+OCTO
+	verify_output TV010 output.txt
+}
+
+@test "TV011 : verbosity is propagated to _ydboctoInit.m" {
+	rm mumps.*
+	createdb 1
+
+	echo -e "Verbosity set to ERROR:" >> output.txt
+	octo <<OCTO 2>&1 | tee -a output.txt
+exit
+OCTO
+
+	echo -e "\nVerbosity set to INFO:" >> output.txt
+	octo -v <<OCTO 2>&1 | tee -a output.txt
+exit
+OCTO
+
+	echo -e "\nVerbosity set to DEBUG:" >> output.txt
+	octo -vv <<OCTO 2>&1 | tee -a output.txt
+exit
+OCTO
+
+	echo -e "\nVerbosity set to TRACE:" >> output.txt
+	octo -vvv <<OCTO 2>&1 | tee -a output.txt
+exit
+OCTO
+	verify_output TV011 output.txt
+}

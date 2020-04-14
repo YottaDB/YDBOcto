@@ -1,4 +1,3 @@
-[ INFO] PATH:LINENUM DATE TIME : Loading config from ./octo.conf
 OCTO> select * from names limit 1;
 0|Zero|Cool
 OCTO> 

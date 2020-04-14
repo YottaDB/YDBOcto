@@ -12,6 +12,8 @@
 
 -- TERR013 : Issue error when column name in query is ambiguous (due to multiple columns with same name)
 
+-- OCTO364
+
 -- Below query should work fine because there is no explicit column reference
 SELECT * FROM (SELECT * FROM names n1, names n2) n3;
 
@@ -31,4 +33,12 @@ SELECT * FROM (SELECT * FROM names n1, names n2) n3 NATURAL JOIN names n3;
 SELECT * FROM (SELECT * FROM names n1, names n2) n3 NATURAL JOIN names n3 WHERE n3.firstName = 'Zero';
 SELECT * FROM names n3 NATURAL JOIN (SELECT * FROM names n1, names n2) n3;
 SELECT * FROM names n3 NATURAL JOIN (SELECT * FROM names n1, names n2) n3 WHERE n3.firstName = 'Zero';
+
+-- OCTO489
+
+SELECT id AS col, firstname AS col from names ORDER BY col;
+SELECT id AS id, firstname AS id from names ORDER BY id;
+SELECT id FROM names n1 INNER JOIN names n2 ON n1.id < n2.id;
+SELECT n1.id FROM names n1 INNER JOIN names n2 ON n1.id = (SELECT id);
+SELECT a.lastname FROM names a LEFT JOIN names b ON id = 3;
 

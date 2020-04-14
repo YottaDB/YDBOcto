@@ -217,9 +217,10 @@ set_quantifier
 
 derived_column
   : derived_column_expression {
+      SqlColumnListAlias	*alias;
+
       SQL_STATEMENT($$, column_list_alias_STATEMENT);
       MALLOC_STATEMENT($$, column_list_alias, SqlColumnListAlias);
-      SqlColumnListAlias *alias;
       UNPACK_SQL_STATEMENT(alias, $$, column_list_alias);
       SQL_STATEMENT(alias->column_list, column_list_STATEMENT);
       MALLOC_STATEMENT(alias->column_list, column_list, SqlColumnList);
@@ -228,7 +229,7 @@ derived_column
       UNPACK_SQL_STATEMENT(column_list, alias->column_list, column_list);
       dqinit(column_list);
       column_list->value = $derived_column_expression;
-      /// TODO: we should search here for a reasonable "name" for the column
+      alias->user_specified_alias = FALSE;
       alias->alias = find_column_alias_name($derived_column_expression);
       if (alias->alias == NULL) {
         SQL_STATEMENT(alias->alias, value_STATEMENT);
@@ -240,9 +241,10 @@ derived_column
       alias->column_list->loc = yyloc;
     }
   | derived_column_expression AS column_name {
+      SqlColumnListAlias	*alias;
+
       SQL_STATEMENT($$, column_list_alias_STATEMENT);
       MALLOC_STATEMENT($$, column_list_alias, SqlColumnListAlias);
-      SqlColumnListAlias *alias;
       UNPACK_SQL_STATEMENT(alias, $$, column_list_alias);
       SQL_STATEMENT(alias->column_list, column_list_STATEMENT);
       dqinit(alias);
@@ -252,6 +254,7 @@ derived_column
       dqinit(column_list);
       column_list->value = $derived_column_expression;
       alias->alias = $column_name;
+      alias->user_specified_alias = TRUE;
       alias->column_list->loc = yyloc;
     }
   ;

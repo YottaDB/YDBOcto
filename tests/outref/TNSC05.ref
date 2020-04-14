@@ -1,2 +1,2 @@
-[ERROR] Null subscripts must be enabled for region OCTO2 (global ^%ydboctoxref maps to this region)
+[ERROR] Null subscripts must be enabled for database file [$PWD/OCTO2.dat] : region [OCTO2] (global ^%ydboctoxref maps to this region)
 [ERROR] PATH:LINENUM DATE TIME : Null subscripts must be enabled for proper operation. Please set '-null_subscripts=always' for all regions containing Octo global variables.

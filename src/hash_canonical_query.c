@@ -56,6 +56,8 @@ void hash_canonical_query_column_list_alias(hash128_state_t *state, SqlStatement
 		hash_canonical_query(state, cur_cla->keywords, status);
 		// SqlValueType
 		ADD_INT_HASH(state, cur_cla->type);
+		// boolean_t
+		ADD_INT_HASH(state, cur_cla->user_specified_alias);
 		// SqlTableIdColumnId
 		assert((!cur_cla->tbl_and_col_id.unique_id && !cur_cla->tbl_and_col_id.column_number)
 			|| (cur_cla->tbl_and_col_id.unique_id && cur_cla->tbl_and_col_id.column_number));

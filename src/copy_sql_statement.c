@@ -143,6 +143,7 @@ SqlStatement *copy_sql_statement(SqlStatement *stmt) {
 				new_cl_alias->alias = copy_sql_statement(cur_cl_alias->alias);
 				new_cl_alias->keywords = copy_sql_statement(new_cl_alias->keywords);
 				new_cl_alias->type = cur_cl_alias->type;
+				new_cl_alias->user_specified_alias = cur_cl_alias->user_specified_alias;
 				if (NULL == ret->v.column_list_alias) {
 					ret->v.column_list_alias = new_cl_alias;
 				} else {

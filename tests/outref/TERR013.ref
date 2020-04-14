@@ -1,6 +1,8 @@
 
 -- TERR013 : Issue error when column name in query is ambiguous (due to multiple columns with same name)
 
+-- OCTO364
+
 -- Below query should work fine because there is no explicit column reference
 SELECT * FROM (SELECT * FROM names n1, names n2) n3;
 
@@ -20,6 +22,14 @@ SELECT * FROM (SELECT * FROM names n1, names n2) n3 NATURAL JOIN names n3;
 SELECT * FROM (SELECT * FROM names n1, names n2) n3 NATURAL JOIN names n3 WHERE n3.firstName = 'Zero';
 SELECT * FROM names n3 NATURAL JOIN (SELECT * FROM names n1, names n2) n3;
 SELECT * FROM names n3 NATURAL JOIN (SELECT * FROM names n1, names n2) n3 WHERE n3.firstName = 'Zero';
+
+-- OCTO489
+
+SELECT id AS col, firstname AS col from names ORDER BY col;
+SELECT id AS id, firstname AS id from names ORDER BY id;
+SELECT id FROM names n1 INNER JOIN names n2 ON n1.id < n2.id;
+SELECT n1.id FROM names n1 INNER JOIN names n2 ON n1.id = (SELECT id);
+SELECT a.lastname FROM names a LEFT JOIN names b ON id = 3;
 
 0|Zero|Cool|0|Zero|Cool
 0|Zero|Cool|1|Acid|Burn
@@ -226,4 +236,34 @@ SELECT * FROM names n3 NATURAL JOIN (SELECT * FROM names n1, names n2) n3 WHERE 
 SELECT * FROM names n3 NATURAL JOIN (SELECT * FROM names n1, names n2) n3 WHERE n3.firstName = 'Zero';
                                                                                 ^^^^^^^^^^^^
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: n3.firstName = 'Zero';
+[ERROR] PATH:LINENUM DATE TIME : Ambiguous column name "COL": qualify name for safe execution
+Error with syntax near (line 1, column 56):
+
+SELECT id AS col, firstname AS col from names ORDER BY col;
+                                                       ^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT id AS col, firstname AS col from names ORDER BY col;
+[ERROR] PATH:LINENUM DATE TIME : Ambiguous column name "ID": qualify name for safe execution
+Error with syntax near (line 1, column 54):
+
+SELECT id AS id, firstname AS id from names ORDER BY id;
+                                                     ^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT id AS id, firstname AS id from names ORDER BY id;
+[ERROR] PATH:LINENUM DATE TIME : Ambiguous column name "ID": qualify name for safe execution
+Error with syntax near (line 1, column 8):
+
+SELECT id FROM names n1 INNER JOIN names n2 ON n1.id < n2.id;
+       ^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT id FROM names n1 INNER JOIN names n2 ON n1.id < n2.id;
+[ERROR] PATH:LINENUM DATE TIME : Ambiguous column name "ID": qualify name for safe execution
+Error with syntax near (line 1, column 67):
+
+SELECT n1.id FROM names n1 INNER JOIN names n2 ON n1.id = (SELECT id);
+                                                                  ^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT n1.id FROM names n1 INNER JOIN names n2 ON n1.id = (SELECT id);
+[ERROR] PATH:LINENUM DATE TIME : Ambiguous column name "ID": qualify name for safe execution
+Error with syntax near (line 1, column 53):
+
+SELECT a.lastname FROM names a LEFT JOIN names b ON id = 3;
+                                                    ^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT a.lastname FROM names a LEFT JOIN names b ON id = 3;
 

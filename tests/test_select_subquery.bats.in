@@ -112,3 +112,9 @@ setup() {
   run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TSS18.sql "remove_empty_line_at_tail"
 }
 
+@test "TSS19 : OCTO489 : Identical column names in tables at different query levels should not cause Ambiguous column name error" {
+  load_fixture customers.sql
+  load_fixture customers.zwr
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries customers TSS19.sql "remove_empty_line_at_tail"
+}
+

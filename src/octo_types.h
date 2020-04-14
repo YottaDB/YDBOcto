@@ -552,6 +552,7 @@ typedef struct SqlColumnListAlias {
 	// Keywords used for the SORT column
 	struct SqlStatement		*keywords;
 	SqlValueType			type;
+	boolean_t			user_specified_alias;
 	/* The below field is needed to store the unique_id of the table and column number of the column in the
 	 * SELECT column list of that table if this cla was matched to an ALIAS NAME from another cla
 	 * (see "QUALIFY_COLUMN_REFERENCE" in qualify_statement.c).

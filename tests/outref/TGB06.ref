@@ -69,7 +69,6 @@ Error with syntax near (line 1, column 39):
 
 SELECT (SELECT id FROM names n1 WHERE COUNT(n2.id) = 6 LIMIT 1),COUNT(n2.id) FROM names n2;
                                       ^^^^^^^^^^^^
-[ WARN] PATH:LINENUM DATE TIME : Ambiguous column name "ID": qualify name for safe execution
 [ERROR] PATH:LINENUM DATE TIME : Aggregate functions are not allowed in WHERE
 Error with syntax near (line 1, column 39):
 

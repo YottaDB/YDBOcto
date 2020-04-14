@@ -58,7 +58,7 @@
 	. . . USE $PRINCIPAL	; In case principal device is terminal, above WRITE is flushed
 	. . . SET starwarningissued=1
 	. . IF ($$^%PEEKBYNAME("sgmnt_data.null_subs",regname)'=1) DO
-	. . . WRITE "[ERROR] Null subscripts must be enabled for region "_regname_" (global "_octogbl_" maps to this region)",!
+	. . . WRITE "[ERROR] Null subscripts must be enabled for database file ["_$VIEW("GVFILE",regname)_"] : region ["_regname_"] (global "_octogbl_" maps to this region)",!
 	. . . USE $PRINCIPAL	; In case principal device is terminal, above WRITE is flushed
 	. . . SET quit=1
 	. . SET verified(regname)=""

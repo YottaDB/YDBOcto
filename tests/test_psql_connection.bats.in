@@ -73,7 +73,7 @@ SELECT * AFRO names;
 OCTO
   cat output.txt rocto.log > combined_output.log
   sed -i '/.*failed to send.*/d' combined_output.log
-  verify_output TPC000 combined_output.log psql noinfo nodebug nowarn
+  verify_output TPC000 combined_output.log psql noinfo nodebug
 }
 
 @test "ensure correct columns are sent using xref" {

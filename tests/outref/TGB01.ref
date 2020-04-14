@@ -292,7 +292,6 @@ SELECT COUNT(id),(SELECT n2.id FROM names n2 WHERE n2.id = n1.id) FROM names n1;
                                                            ^^^^^
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: --> Below should error out because sub-query uses ungrouped column from outer query
 SELECT COUNT(id),(SELECT n2.id FROM names n2 WHERE n2.id = n1.id) FROM names n1;
-[ WARN] PATH:LINENUM DATE TIME : Ambiguous column name "ID": qualify name for safe execution
 [ERROR] PATH:LINENUM DATE TIME : Column ID must appear in the GROUP BY clause or be used in an aggregate function
 Error with syntax near (line 1, column 39):
 

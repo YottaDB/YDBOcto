@@ -27,3 +27,8 @@ SELECT DISTINCT (SELECT n1.lastname FROM names n1 LIMIT 1) FROM names ORDER BY 1
 SELECT DISTINCT (SELECT n1.lastname FROM names n1 LIMIT 1) FROM names ORDER BY (SELECT n1.lastname FROM names n1 LIMIT 1);
 SELECT DISTINCT id,(SELECT n1.lastname FROM names n1 LIMIT 1),firstname FROM names ORDER BY id,(SELECT n1.lastname FROM names n1 LIMIT 1),firstname;
 
+-- A similar query as the below exists in TSD04_errors.sql and errors out there but because we have an extra `AS id` here, it works fine here.
+-- This is because an `AS` specification means a user-specified column alias which an ORDER BY would match against. But any implies column alias
+-- (which would be the case if `AS` is not specified) would not be matched by ORDER BY.
+SELECT DISTINCT 2+id AS id,lastname FROM names ORDER BY id;
+

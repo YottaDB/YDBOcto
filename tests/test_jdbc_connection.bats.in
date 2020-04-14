@@ -39,7 +39,7 @@ teardown() {
   # Run using psql and Octo against each of the generated queries
   for file in jointest*.sql
   do
-    run_query_in_octo_and_postgres_and_crosscheck customers $file "" "" "" usejdbc useextended
+    run_query_in_octo_and_postgres_and_crosscheck customers $file "" "" usejdbc useextended
   done
 }
 
@@ -95,7 +95,7 @@ teardown() {
   load_fixture names.sql
   load_fixture names.zwr
   testname="TJC009"
-  run_query_in_octo_and_postgres_and_crosscheck names $testname.sql "" "" "" usejdbc
+  run_query_in_octo_and_postgres_and_crosscheck names $testname.sql "" "" usejdbc
   grep "Sending message of type T" rocto.log &> output.txt
   verify_output $testname output.txt psql
 }

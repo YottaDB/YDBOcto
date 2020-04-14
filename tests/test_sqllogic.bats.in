@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -23,10 +23,6 @@ setup() {
 	cp @PROJECT_SOURCE_DIR@/tests/fixtures/sqllogic/select1/test*.sql .
 	for file in test*.sql
 	do
-		# Queries in this test can cause Octo to issue warnings like the following (whereas Postgres does not).
-		#    [ WARN] src/qualify_column_name.c:92 <timestamp> : Ambiguous column name "C": qualify name for safe execution
-		# Since there are hundreds of such queries and since they are copied as is from the above jdbcSQSLTest url,
-		# we keep the queries unchanged and just filter those warnings out for now using "nowarn".
-		run_query_in_octo_and_postgres_and_crosscheck sqllogic1 $file "remove_empty_line_at_tail" "" "nowarn"
+		run_query_in_octo_and_postgres_and_crosscheck sqllogic1 $file "remove_empty_line_at_tail"
 	done
 }

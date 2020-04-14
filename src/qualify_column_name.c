@@ -65,75 +65,22 @@ SqlColumnAlias *qualify_column_name(SqlValue *column_value, SqlJoin *tables, Sql
 		table_name = NULL;
 		table_name_len = 0;
 	}
-	cur_join = start_join = tables;
 	col_cla = NULL;
-	do {
-		SqlStatement	*sql_stmt;
-		boolean_t	ambiguous;
-
-		sql_stmt = drill_to_table_alias(cur_join->value);
-		// If we need to match a table, ensure this table is the correct one before calling the helper
-		UNPACK_SQL_STATEMENT(cur_alias, sql_stmt, table_alias);
-		if (NULL != table_name) {
-			if (NULL != cur_alias->alias) {
-				int table_name_len2;
-
-				UNPACK_SQL_STATEMENT(value, cur_alias->alias, value);
-				table_name_len2 = strlen(value->v.reference);
-				if ((table_name_len == table_name_len2)
-						&& (0 == memcmp(value->v.reference, table_name, table_name_len))) {
-					matching_alias_stmt = sql_stmt;
-					col_cla = match_column_in_table(cur_alias, column_name, column_name_len, &ambiguous);
-					if ((NULL != col_cla) && ambiguous) {
-						/* There are multiple column matches within one table in the FROM list.
-						 * An error has already been issued inside "match_column_in_table".
-						 * Record error context here.
-						 * Signal an error return from this function by returning NULL.
-						 */
-						yyerror(NULL, NULL, &cur_alias->alias, NULL, NULL, NULL);
-						return NULL;
-					}
-					break;
-				}
-			}
-		} else {
-			t_col_cla = match_column_in_table(cur_alias, column_name, column_name_len, &ambiguous);
-			if (NULL != t_col_cla) {
-				if (ambiguous) {
-					/* There are multiple column matches within one table in the FROM list.
-					 * An error has already been issued inside "match_column_in_table".
-					 * Record error context here.
-					 * Signal an error return from this function by returning NULL.
-					 */
-					yyerror(NULL, NULL, &sql_stmt, NULL, NULL, NULL);
-					return NULL;
-				}
-				if (NULL != col_cla) {
-					/* There are multiple column matches across multiple tables in the FROM list.
-					 * Allow this by choosing the first table for the column reference but signal WARNING.
-					 */
-					WARNING(ERR_AMBIGUOUS_COLUMN_NAME, column_name);
-					cur_join = cur_join->next;
-					continue;
-				}
-				matching_alias_stmt = sql_stmt;
-				col_cla = t_col_cla;
-			}
-
-		}
-		cur_join = cur_join->next;
-	} while (cur_join != start_join);
-	if ((NULL != table_alias_stmt) && (NULL == table_name) && (NULL == col_cla) && (NULL != ret_cla)) {
-		/* ret_cla is non-NULL. This means we are allowed to match the input column name as a valid name
-		 *    as long as it matches the name of an existing alias name in the table select column list. Check that.
-		 */
+	assert(NULL != table_alias_stmt);
+	/* Check if ret_cla is non-NULL. If so, this means we are matching a column reference in the ORDER BY clause.
+	 * In this case, we should first check if any alias name specified explicitly by the user in the SELECT column list
+	 * matches the column name. If so match that. If not, we then later try to match this column name against an input
+	 * column name in the JOIN list of tables. Also check if the column reference in the ORDER BY clause has no table
+	 * name specified. If it does, then we cannot match it against the SELECT column list so skip this "if" block.
+	 */
+	if ((NULL != ret_cla) && (NULL == table_name)) {
 		SqlTableAlias	*table_alias;
 
 		UNPACK_SQL_STATEMENT(table_alias, table_alias_stmt, table_alias);
 		UNPACK_SQL_STATEMENT(start_cla, table_alias->column_list, column_list_alias);
 		cur_cla = start_cla;
 		do {
-			if (NULL != cur_cla->alias) {
+			if ((NULL != cur_cla->alias) && cur_cla->user_specified_alias) {
 #				ifndef NDEBUG
 				SqlColumnList	*column_list;
 
@@ -145,9 +92,8 @@ SqlColumnAlias *qualify_column_name(SqlValue *column_value, SqlJoin *tables, Sql
 				if (((int)strlen(value->v.reference) == column_name_len)
 						&& (0 == memcmp(value->v.reference, column_name, column_name_len))) {
 					if (NULL != col_cla) {
-						WARNING(ERR_AMBIGUOUS_COLUMN_NAME, column_name);
-						cur_cla = cur_cla->next;
-						continue;
+						ERROR(ERR_AMBIGUOUS_COLUMN_NAME, column_name);
+						return NULL;
 					}
 					col_cla = cur_cla;
 					matching_alias_stmt = table_alias_stmt;
@@ -182,11 +128,88 @@ SqlColumnAlias *qualify_column_name(SqlValue *column_value, SqlJoin *tables, Sql
 			}
 		}
 	}
+	/* If "col_cla" is non-NULL at this point, this means the column reference is in an ORDER BY clause and it was matched
+	 * by a user-specified column alias in the SELECT column list. If so, use that as the match and move on. No need to
+	 * go into the "if" block below in that case.
+	 */
 	if (NULL == col_cla) {
-		// Note: If table_name is non-NULL, it points to a string of the form "tablename.columnname"
-		//       so both table name and column name will be printed below if "table_name" is non-NULL.
-		ERROR(ERR_UNKNOWN_COLUMN_NAME, (NULL != table_name) ? table_name : column_name);
-		return NULL;
+		cur_join = start_join = tables;
+		do {
+			SqlStatement	*sql_stmt;
+			boolean_t	ambiguous;
+
+			sql_stmt = drill_to_table_alias(cur_join->value);
+			// If we need to match a table, ensure this table is the correct one before calling the helper
+			UNPACK_SQL_STATEMENT(cur_alias, sql_stmt, table_alias);
+			if (NULL != table_name) {
+				if (NULL != cur_alias->alias) {
+					int table_name_len2;
+
+					UNPACK_SQL_STATEMENT(value, cur_alias->alias, value);
+					table_name_len2 = strlen(value->v.reference);
+					if ((table_name_len == table_name_len2)
+							&& (0 == memcmp(value->v.reference, table_name, table_name_len))) {
+						matching_alias_stmt = sql_stmt;
+						col_cla =
+							match_column_in_table(cur_alias, column_name, column_name_len, &ambiguous);
+						if ((NULL != col_cla) && ambiguous) {
+							/* There are multiple column matches within one table in the FROM list.
+							 * An error has already been issued inside "match_column_in_table".
+							 * Record error context here.
+							 * Signal an error return from this function by returning NULL.
+							 */
+							yyerror(NULL, NULL, &cur_alias->alias, NULL, NULL, NULL);
+							return NULL;
+						}
+						break;
+					}
+				}
+			} else {
+				t_col_cla = match_column_in_table(cur_alias, column_name, column_name_len, &ambiguous);
+				if (NULL != t_col_cla) {
+					if (ambiguous) {
+						/* There are multiple column matches within one table in the FROM list.
+						 * An error has already been issued inside "match_column_in_table".
+						 * Record error context here.
+						 * Signal an error return from this function by returning NULL.
+						 */
+						yyerror(NULL, NULL, &sql_stmt, NULL, NULL, NULL);
+						return NULL;
+					}
+					if (NULL != col_cla) {
+						/* There are multiple column matches.
+						 * Check if the matches came across multiple tables in the FROM list at the
+						 * same level or a different level. Issue an error in the former case. Do not
+						 * issue an error in the latter case (consider closest level table as matching).
+						 */
+						SqlTableAlias	*matching_table_alias;
+
+						UNPACK_SQL_STATEMENT(matching_table_alias, matching_alias_stmt, table_alias);
+						assert(NULL != cur_alias->parent_table_alias);
+						assert(NULL != matching_table_alias->parent_table_alias);
+						if (cur_alias->parent_table_alias == matching_table_alias->parent_table_alias) {
+							ERROR(ERR_AMBIGUOUS_COLUMN_NAME, column_name);
+							return NULL;
+						} else {
+							/* In the JOIN list, we have gone past all tables in the first matching
+							 * table level. No need to even scan for any more tables in the join list.
+							 */
+							break;
+						}
+					}
+					matching_alias_stmt = sql_stmt;
+					col_cla = t_col_cla;
+				}
+
+			}
+			cur_join = cur_join->next;
+		} while (cur_join != start_join);
+		if (NULL == col_cla) {
+			// Note: If table_name is non-NULL, it points to a string of the form "tablename.columnname"
+			//       so both table name and column name will be printed below if "table_name" is non-NULL.
+			ERROR(ERR_UNKNOWN_COLUMN_NAME, (NULL != table_name) ? table_name : column_name);
+			return NULL;
+		}
 	}
 	return get_column_alias_for_column_list_alias(col_cla, matching_alias_stmt);
 }

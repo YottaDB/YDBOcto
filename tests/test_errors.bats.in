@@ -190,3 +190,33 @@ OCTO
   verify_output TERR017 output.txt
 }
 
+@test "TERR018 : OCTO488 : Confirm correct errors are issued for various character set configuration scenarios" {
+	# Enforce M mode in ydb_dist to prevent %YDB-E-DLLCHSETUTF8 when loading $ydb_dist/libyottadbutil.so when ydb_chset=M
+	export ydb_dist="$(echo $ydb_dist | sed 's/\/utf8//')"
+	export ydb_routines=". @PROJECT_BINARY_DIR@/src/_ydbocto.so $ydb_dist/libyottadbutil.so $ydb_dist"
+	rm _ydbocto*.o
+	unset ydb_icu_version gtm_icu_version
+
+	# Test Octo built in M mode with ydb_chset set to M. Should work just fine
+	echo "# Test Octo built in M mode with ydb_chset set to M. Should work just fine" >> output.txt
+	ydb_chset=M LC_ALL=C octo <<OCTO 2>&1 | tee -a output.txt
+exit
+OCTO
+
+	# Test of NONUTF8LOCALE error
+	echo "# Test of NONUTF8LOCALE error" >> output.txt
+	ydb_chset=UTF-8 LC_ALL=C octo <<OCTO 2>&1 | tee | sed 's/encoding (.*)/encoding (ENCODING)/' >> output.txt
+exit
+OCTO
+
+	# Test of ICUSYMNOTFOUND error
+	echo "# Test of ICUSYMNOTFOUND error" >> output.txt
+	ydb_chset=UTF-8 LC_ALL=en_US.UTF8 octo <<OCTO 2>&1 | tee | sed 's/, \/.*\/libicuio\.so/, LIBPATH\/libicuio.so/' >> output.txt
+exit
+OCTO
+
+	# Test of DLLCHSETM error
+	echo "# Test of DLLCHSETM error" >> output.txt
+	ydb_chset=UTF-8 LC_ALL=en_US.UTF8 ydb_icu_version=`pkg-config --modversion icu-io` octo 2>&1 | tee | sed 's/library \/.*\/_ydbocto\.so/library LIBPATH\/_ydbocto.so/' >> output.txt
+	verify_output TERR018 output.txt
+}

@@ -176,15 +176,15 @@ int octo_init(int argc, char **argv) {
 	config_t		*config_file;
 	config_setting_t	*ydb_settings, *cur_ydb_setting;
 	const char		*item_name, *item_value, *src_path;
+	const char		*verbosity, *error_message, *error_file;
 	char			*default_octo_conf;
-	char			ci_path[OCTO_PATH_MAX], exe_path[OCTO_PATH_MAX];
+	char			ci_path[OCTO_PATH_MAX], exe_path[OCTO_PATH_MAX], zstatus_message[YDB_MAX_ERRORMSG];
 	char			*homedir, *ydb_dist, *zroutines_buf_start, *zroutines_from_file;
 	uintptr_t		ci_tab_handle_new, ci_tab_handle_old;
 	ydb_long_t		ci_return;
 	ydb_buffer_t		zroutines_buffer, dollar_zroutines_buffer;
 	DIR			*dir;
 	ssize_t			exe_path_len;
-	const char		*verbosity, *error_message, *error_file;
 	int			verbosity_int, error_line;
 
 	config = (OctoConfig *)malloc(sizeof(OctoConfig));
@@ -204,7 +204,12 @@ int octo_init(int argc, char **argv) {
 
 	// This should always be 1
 	setenv("ydb_lvnullsubs", "1", 1);
-	ydb_init();
+	status = ydb_init();
+	if (YDB_OK != status) {
+		ydb_zstatus(zstatus_message, sizeof(zstatus_message));
+		ERROR(ERR_YOTTADB, zstatus_message);
+		return 1;
+	}
 
 	default_octo_conf = (char *)malloc(octo_conf_default_len + 1);
 	memcpy(default_octo_conf, octo_conf_default, octo_conf_default_len);

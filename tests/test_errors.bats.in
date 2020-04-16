@@ -179,3 +179,9 @@ OCTO
   octo -f $testname.inp 2>&1 | tee -a output.txt
   verify_output $testname output.txt noinfo nodebug
 }
+
+@test "TERR016 : OCTO493 : <Segmentation fault (core dumped)> fatal failure instead of an expected <Unknown column> error" {
+  load_fixture TERR016.sql subtest novv
+  verify_output TERR016 output.txt
+}
+

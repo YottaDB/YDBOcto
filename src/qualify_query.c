@@ -57,21 +57,32 @@ int qualify_query(SqlStatement *table_alias_stmt, SqlJoin *parent_join, SqlTable
 	 * name in a valid existing table) by using NULL as the last parameter in various `qualify_statement()` calls below.
 	 */
 	table_alias->do_group_by_checks = FALSE;	/* need to set this before invoking "qualify_statement()" */
-	// Qualify FROM clause first
-	// Add in joins (if any) from higher/parent level queries so sub-queries (current level) can use them
+	start_join = cur_join = join;
+	/* Qualify FROM clause first. For this qualification, only use tables from the parent query FROM list.
+	 * Do not use any tables from the current query level FROM list for this qualification.
+	 */
+	do {
+		/* Qualify sub-queries involved in the join. Note that it is possible a `table` is involved in the join instead
+		 * of a `sub-query` in which case the below `qualify_query` call will return right away.
+		 */
+		result |= qualify_query(cur_join->value, parent_join, table_alias);
+		cur_join = cur_join->next;
+	} while (cur_join != start_join);
+	/* Now that FROM clause has been qualified, qualify the JOIN conditions etc. in the FROM clause.
+	 * Also add in joins (if any) from higher/parent level queries so sub-queries (current level) can use them.
+	 * And for this part we can use tables from the FROM list at this level. In some cases we can only use
+	 * a partial FROM list (as the loop progresses, the list size increases in some cases). In other cases (NATURAL JOIN)
+	 * we can use the full FROM list.
+	 */
 	prev_start = join;
 	prev_end = join->prev;
 	if (NULL != parent_join) {
 		dqappend(join, parent_join);
 	}
-	start_join = cur_join = join;
+	cur_join = join;
 	do {
 		SqlJoin		*next_join;
 
-		/* Qualify sub-queries involved in the join. Note that it is possible a `table` is involved in the join instead
-		 * of a `sub-query` in which case the below `qualify_query` call will return right away.
-		 */
-		result |= qualify_query(cur_join->value, parent_join, table_alias);
 		/* Make sure any table.column references in the ON condition of the JOIN (cur_join->condition) are qualified
 		 * until the current table in the join list (i.e. forward references should not be allowed). See YDBOcto#291
 		 * for example query. Note that NATURAL JOIN is an exception in that the current join could have table.column
@@ -101,7 +112,7 @@ int qualify_query(SqlStatement *table_alias_stmt, SqlJoin *parent_join, SqlTable
 		if (NATURAL_JOIN != cur_join->type)
 			cur_join->next = next_join;	/* restore join list to original */
 		cur_join = next_join;
-	} while (cur_join != start_join && cur_join != parent_join);
+	} while ((cur_join != start_join) && (cur_join != parent_join));
 	// Qualify WHERE clause next
 	table_alias->aggregate_depth = AGGREGATE_DEPTH_WHERE_CLAUSE;
 	result |= qualify_statement(select->where_expression, start_join, table_alias_stmt, 0, NULL);

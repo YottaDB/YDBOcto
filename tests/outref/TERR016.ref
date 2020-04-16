@@ -1,0 +1,12 @@
+
+-- TERR016 : OCTO493 : <Segmentation fault (core dumped)> fatal failure instead of an expected <Unknown column> error"
+
+SELECT (SELECT * FROM (SELECT n3.id) n3);
+
+[ERROR] PATH:LINENUM DATE TIME : Unknown column: N3.ID
+Error with syntax near (line 1, column 31):
+
+SELECT (SELECT * FROM (SELECT n3.id) n3);
+                              ^^^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT (SELECT * FROM (SELECT n3.id) n3);
+

@@ -432,6 +432,10 @@ verify_output() {
 		if [[ $i == "nodebug" ]]; then
 			sed -i '/\[DEBUG\]\|^DEBUG:/,/^[[:space:]]*$/d' clean_output.txt
 		fi
+		# Below "sed" removes a user-unfriendly warning in rocto that is currently issued in case a non-TLS connection
+		# is initiated by a client. Remove it when "YDBOcto#491 Rocto option to require TLS connections from client"
+		# is fixed.
+		sed -i '/\[ WARN\].*SSLRequest: invalid length value 53: must be 8/d' clean_output.txt
 		if [[ $i == "nosenderror" ]]; then
 			sed -i '/failed to send message/d' clean_output.txt
 		fi

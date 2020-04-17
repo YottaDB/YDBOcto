@@ -122,3 +122,11 @@ setup() {
   run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TSS20.sql "remove_empty_line_at_tail"
 }
 
+@test "TSS21 : OCTO492 : SIG-11 from a query that also issues a <Subquery must return only one column> error" {
+  # TSS21_errors.sql cannot be used with `run_query_in_octo_and_postgres_and_crosscheck_multiple_queries` because of error
+  # returns from queries (Postgres and Octo issue different error outputs). Need a reference file.
+  load_fixture TSS21_errors.sql subtest
+  verify_output TSS21_errors output.txt noinfo nodebug
+  mv clean_output.txt errors_clean_output.txt
+}
+

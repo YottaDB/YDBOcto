@@ -1,0 +1,28 @@
+
+-- All queries in this query file are invalid queries and generate an error.
+
+-- TSS21 : OCTO492 : SIG-11 from a query that also issues a <Subquery must return only one column> error
+
+-- Below are queries that did generate a SIG-11 without the OCTO492 code fix
+SELECT (SELECT 1,2);
+SELECT 1 FROM names ORDER BY (SELECT 1,2);
+
+-- Below are queries that did not SIG-11 previously but are very similar to the above queries that did SIG-11 so are included here
+SELECT 1 FROM names WHERE 1 = (SELECT 1,2);
+
+[ERROR] PATH:LINENUM DATE TIME : Subquery must return only one column
+Error with syntax near (line 1, column 16):
+
+SELECT (SELECT 1,2);
+               ^
+[ERROR] PATH:LINENUM DATE TIME : Subquery must return only one column
+Error with syntax near (line 1, column 38):
+
+SELECT 1 FROM names ORDER BY (SELECT 1,2);
+                                     ^
+[ERROR] PATH:LINENUM DATE TIME : Subquery must return only one column
+Error with syntax near (line 1, column 39):
+
+SELECT 1 FROM names WHERE 1 = (SELECT 1,2);
+                                      ^
+

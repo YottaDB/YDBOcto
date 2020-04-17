@@ -13,4 +13,5 @@
 -- TERR016 : OCTO493 : <Segmentation fault (core dumped)> fatal failure instead of an expected <Unknown column> error"
 
 SELECT (SELECT * FROM (SELECT n3.id) n3);
+SELECT (SELECT * FROM names n1, (SELECT n1.id) n2);
 

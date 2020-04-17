@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -35,7 +35,7 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt, int *plan_id) {
 	SqlColumnListAlias	*list;
 	int			num_outer_joins;
 	enum SqlJoinType 	cur_join_type;
-	boolean_t		null_return_seen = FALSE;
+	boolean_t		error_encountered = FALSE;
 
 	// Set operations should be handled in a different function
 	if (set_operation_STATEMENT == stmt->type) {
@@ -63,7 +63,7 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt, int *plan_id) {
 	MALLOC_LP_2ARGS(criteria->v.lp_default.operand[0], LP_KEYS);
 	MALLOC_LP(select_options, criteria->v.lp_default.operand[1], LP_SELECT_OPTIONS);
 	MALLOC_LP(where, select_options->v.lp_default.operand[0], LP_WHERE);
-	LP_GENERATE_WHERE(select_stmt->where_expression, plan_id, stmt, where->v.lp_default.operand[0], null_return_seen);
+	LP_GENERATE_WHERE(select_stmt->where_expression, plan_id, stmt, where->v.lp_default.operand[0], error_encountered);
 	insert->counter = plan_id;
 	MALLOC_LP(dst, insert->v.lp_default.operand[1], LP_OUTPUT);
 	MALLOC_LP(dst_key, dst->v.lp_default.operand[0], LP_KEY);
@@ -111,7 +111,7 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt, int *plan_id) {
 		{
 			MALLOC_LP_2ARGS(t_join_condition, LP_WHERE);
 			LP_GENERATE_WHERE(cur_join->condition, plan_id, stmt,					\
-						t_join_condition->v.lp_default.operand[0], null_return_seen);
+						t_join_condition->v.lp_default.operand[0], error_encountered);
 			if (num_outer_joins)
 				join_right->extra_detail.lp_table_join.join_on_condition = t_join_condition;
 			else
@@ -127,7 +127,7 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt, int *plan_id) {
 	// Add SELECT column list to logical plan
 	assert(NULL != select_stmt->select_list->v.column_list);
 	UNPACK_SQL_STATEMENT(list, select_stmt->select_list, column_list_alias);
-	temp = lp_column_list_to_lp(list, plan_id);
+	temp = lp_column_list_to_lp(list, plan_id, &error_encountered);
 	project->v.lp_default.operand[0] = temp;
 
 	/* Now that SELECT column list is done, add ORDER BY column list to logical plan.
@@ -166,7 +166,7 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt, int *plan_id) {
 				cur_cla->next = cur_cla; /* set "next" to self so below call processes only one column instead of
 							  * multiple columns in table corresponding to the desired column.
 							  */
-				order_by->v.lp_default.operand[0] = lp_column_list_to_lp(cur_cla, plan_id);
+				order_by->v.lp_default.operand[0] = lp_column_list_to_lp(cur_cla, plan_id, &error_encountered);
 				cur_cla->next = save_next;
 				order_by->extra_detail.lp_order_by.order_by_column_num = FALSE;
 			}
@@ -206,7 +206,7 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt, int *plan_id) {
 
 			MALLOC_LP(group_by, aggregate_options->v.lp_default.operand[0], LP_GROUP_BY);
 			UNPACK_SQL_STATEMENT(list, select_stmt->group_by_expression, column_list_alias);
-			group_by->v.lp_default.operand[0] = lp_column_list_to_lp(list, plan_id);
+			group_by->v.lp_default.operand[0] = lp_column_list_to_lp(list, plan_id, &error_encountered);
 		}
 		if (NULL != select_stmt->having_expression) {
 			LogicalPlan	*having;
@@ -214,7 +214,7 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt, int *plan_id) {
 			MALLOC_LP(having, aggregate_options->v.lp_default.operand[1], LP_HAVING);
 			MALLOC_LP(where, having->v.lp_default.operand[0], LP_WHERE);
 			LP_GENERATE_WHERE(select_stmt->having_expression, plan_id, stmt,
-						where->v.lp_default.operand[0], null_return_seen);
+						where->v.lp_default.operand[0], error_encountered);
 		}
 	}
 	// Handle factoring in derived columns
@@ -247,5 +247,9 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt, int *plan_id) {
 	//  Before we can do that, we need to resolve the JOINs, which are
 	//  an area where we definitely want to look at optimization
 	//  therefore, we leave the plan in a semi-valid state
-	return (null_return_seen ? NULL : insert);
+
+	/* Examine "error_encountered" variable to see if any errors were encountered inside LP_GENERATE_WHERE.
+	 * If so, propagate this error back to caller so it can stop logical plan stage (i.e. not proceed to physical plan).
+	 */
+	return (error_encountered ? NULL : insert);
 }

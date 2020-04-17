@@ -42,14 +42,18 @@
 	(DEST) = (SOURCE)->v.lp_default.operand[(SIDE)];			\
 }
 
-#define	LP_GENERATE_WHERE(STMT, PLAN_ID, PARENT, RET, NULL_RETURN_SEEN)	{	\
-	if (NULL != STMT) {							\
-		RET = lp_generate_where(STMT, PLAN_ID, PARENT);			\
-		if (NULL == RET)						\
-			NULL_RETURN_SEEN = TRUE;				\
-	} else {								\
-		RET = NULL;							\
-	}									\
+/* The ERROR_ENCOUNTERED parameter is set to TRUE in case we notice errors inside "lp-generate_where()" (it could recurse
+ * and go deep). This is so outermost caller knows to issue an error at logical plan stage and not proceed with physical plan
+ * even if one error is seen anywhere in a recursive function call.
+ */
+#define	LP_GENERATE_WHERE(STMT, PLAN_ID, PARENT, RET, ERROR_ENCOUNTERED)	{	\
+	if (NULL != STMT) {								\
+		RET = lp_generate_where(STMT, PLAN_ID, PARENT);				\
+		if (NULL == RET)							\
+			ERROR_ENCOUNTERED = TRUE;					\
+	} else {									\
+		RET = NULL;								\
+	}										\
 }
 
 // Forward declarations
@@ -289,7 +293,7 @@ LogicalPlan *lp_generate_xref_plan(LogicalPlan *plan, SqlTable *table, SqlColumn
  */
 LogicalPlan *lp_generate_xref_keys(LogicalPlan *plan, SqlTable *table, SqlColumnAlias *column_alias, SqlTableAlias *table_alias);
 // Returns a logical plan representing the provided ColumnListAlias
-LogicalPlan *lp_column_list_to_lp(SqlColumnListAlias *list, int *plan_id);
+LogicalPlan *lp_column_list_to_lp(SqlColumnListAlias *list, int *plan_id, boolean_t *caller_error_encountered);
 LogicalPlan *lp_replace_derived_table_references(LogicalPlan *root, SqlTableAlias *table_alias, SqlKey *key);
 // Given a SET operation, drills down until it encounters the first LP_INSERT statement
 LogicalPlan *lp_drill_to_insert(LogicalPlan *plan);

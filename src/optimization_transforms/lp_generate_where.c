@@ -29,7 +29,7 @@ LogicalPlan *lp_generate_where(SqlStatement *stmt, int *plan_id, SqlStatement *p
 	SqlColumnList		*cur_cl, *start_cl;
 	SqlCaseStatement	*cas;
 	SqlCaseBranchStatement	*cas_branch, *cur_branch;
-	boolean_t		null_return_seen = FALSE;
+	boolean_t		error_encountered = FALSE;
 
 	assert(NULL != stmt);
 	switch(stmt->type) {
@@ -37,13 +37,13 @@ LogicalPlan *lp_generate_where(SqlStatement *stmt, int *plan_id, SqlStatement *p
 		UNPACK_SQL_STATEMENT(value, stmt, value);
 		switch(value->type) {
 		case CALCULATED_VALUE:
-			LP_GENERATE_WHERE(value->v.calculated, plan_id, stmt, ret, null_return_seen);
+			LP_GENERATE_WHERE(value->v.calculated, plan_id, stmt, ret, error_encountered);
 			break;
 		case COERCE_TYPE:
 			MALLOC_LP_2ARGS(ret, LP_COERCE_TYPE);
 			ret->extra_detail.lp_coerce_type.coerce_type = value->coerced_type;
 			ret->extra_detail.lp_coerce_type.pre_coerce_type = value->pre_coerced_type;
-			LP_GENERATE_WHERE(value->v.coerce_target, plan_id, stmt, ret->v.lp_default.operand[0], null_return_seen);
+			LP_GENERATE_WHERE(value->v.coerce_target, plan_id, stmt, ret->v.lp_default.operand[0], error_encountered);
 			break;
 		default:
 			MALLOC_LP_2ARGS(ret, LP_VALUE);
@@ -61,7 +61,7 @@ LogicalPlan *lp_generate_where(SqlStatement *stmt, int *plan_id, SqlStatement *p
 		{
 			// Walk through the column list, converting each statement to an OR/AND
 			UNPACK_SQL_STATEMENT(start_cl, binary->operands[1], column_list);
-			LP_GENERATE_WHERE(binary->operands[0], plan_id, stmt, t, null_return_seen);
+			LP_GENERATE_WHERE(binary->operands[0], plan_id, stmt, t, error_encountered);
 			cur_cl = start_cl;
 			do {
 				if (LP_BOOLEAN_IN == type) {
@@ -70,7 +70,7 @@ LogicalPlan *lp_generate_where(SqlStatement *stmt, int *plan_id, SqlStatement *p
 					MALLOC_LP_2ARGS(next, LP_BOOLEAN_NOT_EQUALS);
 				}
 				next->v.lp_default.operand[0] = t;
-				LP_GENERATE_WHERE(cur_cl->value, plan_id, stmt, next->v.lp_default.operand[1], null_return_seen);
+				LP_GENERATE_WHERE(cur_cl->value, plan_id, stmt, next->v.lp_default.operand[1], error_encountered);
 				cur_cl = cur_cl->next;
 				if (NULL == ret) {
 					ret = next;
@@ -87,8 +87,8 @@ LogicalPlan *lp_generate_where(SqlStatement *stmt, int *plan_id, SqlStatement *p
 			} while(start_cl != cur_cl);
 		} else {
 			MALLOC_LP_2ARGS(ret, type);
-			LP_GENERATE_WHERE(binary->operands[0], plan_id, stmt, ret->v.lp_default.operand[0], null_return_seen);
-			LP_GENERATE_WHERE(binary->operands[1], plan_id, stmt, ret->v.lp_default.operand[1], null_return_seen);
+			LP_GENERATE_WHERE(binary->operands[0], plan_id, stmt, ret->v.lp_default.operand[0], error_encountered);
+			LP_GENERATE_WHERE(binary->operands[1], plan_id, stmt, ret->v.lp_default.operand[1], error_encountered);
 		}
 		break;
 	case unary_STATEMENT:
@@ -96,18 +96,18 @@ LogicalPlan *lp_generate_where(SqlStatement *stmt, int *plan_id, SqlStatement *p
 		/// WARNING: we simply add the enum offset to find the type
 		type = unary->operation + LP_FORCE_NUM;
 		MALLOC_LP_2ARGS(ret, type);
-		LP_GENERATE_WHERE(unary->operand, plan_id, stmt, ret->v.lp_default.operand[0], null_return_seen);
+		LP_GENERATE_WHERE(unary->operand, plan_id, stmt, ret->v.lp_default.operand[0], error_encountered);
 		break;
 	case function_call_STATEMENT:
 		UNPACK_SQL_STATEMENT(function_call, stmt, function_call);
 		type = LP_FUNCTION_CALL;
 		MALLOC_LP_2ARGS(ret, type);
-		LP_GENERATE_WHERE(function_call->function_name, plan_id, stmt, ret->v.lp_default.operand[0], null_return_seen);
+		LP_GENERATE_WHERE(function_call->function_name, plan_id, stmt, ret->v.lp_default.operand[0], error_encountered);
 		UNPACK_SQL_STATEMENT(start_cl, function_call->parameters, column_list);
 		cur_cl = start_cl;
 		cur_lp = ret;
 		do {
-			LP_GENERATE_WHERE(cur_cl->value, plan_id, stmt, next, null_return_seen);
+			LP_GENERATE_WHERE(cur_cl->value, plan_id, stmt, next, error_encountered);
 			if (NULL != next) {
 				MALLOC_LP_2ARGS(cur_lp->v.lp_default.operand[1], LP_COLUMN_LIST);
 				cur_lp = cur_lp->v.lp_default.operand[1];
@@ -146,7 +146,7 @@ LogicalPlan *lp_generate_where(SqlStatement *stmt, int *plan_id, SqlStatement *p
 		assert((NULL != cur_cl->value) || (LP_AGGREGATE_FUNCTION_COUNT_ASTERISK == type));
 		assert((NULL == cur_cl->value) || (LP_AGGREGATE_FUNCTION_COUNT_ASTERISK != type));
 		if (NULL != cur_cl->value) {
-			LP_GENERATE_WHERE(cur_cl->value, plan_id, stmt, next, null_return_seen);
+			LP_GENERATE_WHERE(cur_cl->value, plan_id, stmt, next, error_encountered);
 			assert(NULL != next);
 			cur_lp = ret;
 			MALLOC_LP_2ARGS(cur_lp->v.lp_default.operand[0], LP_COLUMN_LIST);
@@ -163,17 +163,17 @@ LogicalPlan *lp_generate_where(SqlStatement *stmt, int *plan_id, SqlStatement *p
 		UNPACK_SQL_STATEMENT(cas, stmt, cas);
 		// First put in the default branch, if needed, and value
 		MALLOC_LP(cur_lp, ret->v.lp_default.operand[0], LP_CASE_STATEMENT);
-		LP_GENERATE_WHERE(cas->value, plan_id, stmt, cur_lp->v.lp_default.operand[0], null_return_seen);
+		LP_GENERATE_WHERE(cas->value, plan_id, stmt, cur_lp->v.lp_default.operand[0], error_encountered);
 		if (NULL != cas->optional_else) {
-			LP_GENERATE_WHERE(cas->optional_else, plan_id, stmt, cur_lp->v.lp_default.operand[1], null_return_seen);
+			LP_GENERATE_WHERE(cas->optional_else, plan_id, stmt, cur_lp->v.lp_default.operand[1], error_encountered);
 		}
 		UNPACK_SQL_STATEMENT(cas_branch, cas->branches, cas_branch);
 		cur_branch = cas_branch;
 		MALLOC_LP(cur_lp, ret->v.lp_default.operand[1], LP_CASE_BRANCH);
 		do {
 			MALLOC_LP(t, cur_lp->v.lp_default.operand[0], LP_CASE_BRANCH_STATEMENT);
-			LP_GENERATE_WHERE(cur_branch->condition, plan_id, stmt, t->v.lp_default.operand[0], null_return_seen);
-			LP_GENERATE_WHERE(cur_branch->value, plan_id, stmt, t->v.lp_default.operand[1], null_return_seen);
+			LP_GENERATE_WHERE(cur_branch->condition, plan_id, stmt, t->v.lp_default.operand[0], error_encountered);
+			LP_GENERATE_WHERE(cur_branch->value, plan_id, stmt, t->v.lp_default.operand[1], error_encountered);
 			cur_branch = cur_branch->next;
 			if (cur_branch != cas_branch) {
 				MALLOC_LP_2ARGS(cur_lp->v.lp_default.operand[1], LP_CASE_BRANCH);
@@ -218,5 +218,8 @@ LogicalPlan *lp_generate_where(SqlStatement *stmt, int *plan_id, SqlStatement *p
 		ret = NULL;
 		break;
 	}
-	return (null_return_seen ? NULL : ret);
+	/* Examine "error_encountered" variable to see if any errors were encountered inside LP_GENERATE_WHERE.
+	 * If so, propagate this error back to caller so it can stop logical plan stage (i.e. not proceed to physical plan).
+	 */
+	return (error_encountered ? NULL : ret);
 }

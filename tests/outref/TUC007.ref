@@ -1,4 +1,4 @@
-[ERROR] PATH:LINENUM DATE TIME : Unknown column: C.INVALIDE
+[ERROR] PATH:LINENUM DATE TIME : Missing FROM-clause entry for table : C
 Error with syntax near (line 4, column 4):
 
 select invalidA, invalidB, invalidC, invalidD
@@ -6,7 +6,7 @@ from names c
 inner join names o
 on c.invalidE = o.invalidF
    ^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : Unknown column: O.INVALIDF
+[ERROR] PATH:LINENUM DATE TIME : Missing FROM-clause entry for table : O
 Error with syntax near (line 4, column 17):
 
 select invalidA, invalidB, invalidC, invalidD

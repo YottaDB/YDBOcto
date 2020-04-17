@@ -185,3 +185,8 @@ OCTO
   verify_output TERR016 output.txt
 }
 
+@test "TERR017 : OCTO482 : Test of <Missing FROM-clause entry> error" {
+  load_fixture TERR017.sql subtest novv
+  verify_output TERR017 output.txt
+}
+

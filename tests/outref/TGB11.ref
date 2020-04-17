@@ -37,7 +37,7 @@ Error with syntax near (line 1, column 71):
 SELECT * FROM names n1 WHERE n1.id = (SELECT 1 FROM names n2 GROUP BY unknowncolumn,n1.id);
                                                                       ^^^^^^^^^^^^^
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT * FROM names n1 WHERE n1.id = (SELECT 1 FROM names n2 GROUP BY unknowncolumn,n1.id);
-[ERROR] PATH:LINENUM DATE TIME : Unknown column: N1.UNKNOWNCOLUMN
+[ERROR] PATH:LINENUM DATE TIME : Missing FROM-clause entry for table : N1
 Error with syntax near (line 1, column 71):
 
 SELECT * FROM names n1 WHERE n1.id = (SELECT 1 FROM names n2 GROUP BY n1.unknowncolumn);

@@ -205,9 +205,14 @@ SqlColumnAlias *qualify_column_name(SqlValue *column_value, SqlJoin *tables, Sql
 			cur_join = cur_join->next;
 		} while (cur_join != start_join);
 		if (NULL == col_cla) {
-			// Note: If table_name is non-NULL, it points to a string of the form "tablename.columnname"
-			//       so both table name and column name will be printed below if "table_name" is non-NULL.
-			ERROR(ERR_UNKNOWN_COLUMN_NAME, (NULL != table_name) ? table_name : column_name);
+			if (NULL == table_name) {
+				ERROR(ERR_UNKNOWN_COLUMN_NAME, column_name);
+			} else {
+				/* If table_name is non-NULL, it points to a string of the form "tablename.columnname" but
+				 * we want to only print the tablename hence the use of "table_name_len" below to stop there.
+				 */
+				ERROR(ERR_MISSING_FROM_ENTRY, table_name_len, table_name);
+			}
 			return NULL;
 		}
 	}

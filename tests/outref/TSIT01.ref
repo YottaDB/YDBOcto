@@ -4,7 +4,7 @@ OCTO> CROSS JOIN (SELECT *
 OCTO>             FROM names n2
 OCTO>             WHERE n1.id = n2.id
 OCTO>            );
-[ERROR] PATH:LINENUM DATE TIME : Unknown column: N1.ID
+[ERROR] PATH:LINENUM DATE TIME : Missing FROM-clause entry for table : N1
 Error with syntax near (line 5, column 19):
 
 SELECT *

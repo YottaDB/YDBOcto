@@ -82,7 +82,7 @@ select * from (select invalid from names);
 
 Running query file query9.sql : [select * from (select n1.firstname from names) as n1;]
 -------------------------------------------------
-[ERROR] PATH:LINENUM DATE TIME : Unknown column: N1.FIRSTNAME
+[ERROR] PATH:LINENUM DATE TIME : Missing FROM-clause entry for table : N1
 Error with syntax near (line 1, column 22):
 
 select * from (select n1.firstname from names) as n1;
@@ -93,7 +93,7 @@ select * from (select n1.firstname from names) as n1;
 
 Running query file query10.sql : [select * from (select n1.invalid from names) as n1;]
 -------------------------------------------------
-[ERROR] PATH:LINENUM DATE TIME : Unknown column: N1.INVALID
+[ERROR] PATH:LINENUM DATE TIME : Missing FROM-clause entry for table : N1
 Error with syntax near (line 1, column 22):
 
 select * from (select n1.invalid from names) as n1;
@@ -124,7 +124,7 @@ Zero
 
 Running query file query13.sql : [select * from (select n2.invalid from names as n2) as n1;]
 -------------------------------------------------
-[ERROR] PATH:LINENUM DATE TIME : Unknown column: N2.INVALID
+[ERROR] PATH:LINENUM DATE TIME : Missing FROM-clause entry for table : N2
 Error with syntax near (line 1, column 22):
 
 select * from (select n2.invalid from names as n2) as n1;
@@ -135,7 +135,7 @@ select * from (select n2.invalid from names as n2) as n1;
 
 Running query file query14.sql : [select * from (select n2.invalid from names as n2);]
 -------------------------------------------------
-[ERROR] PATH:LINENUM DATE TIME : Unknown column: N2.INVALID
+[ERROR] PATH:LINENUM DATE TIME : Missing FROM-clause entry for table : N2
 Error with syntax near (line 1, column 22):
 
 select * from (select n2.invalid from names as n2);
@@ -260,7 +260,7 @@ select firstname from (select lastname from names);
 
 Running query file query25.sql : [select firstname from (select n1.firstname from names) as n1;]
 -------------------------------------------------
-[ERROR] PATH:LINENUM DATE TIME : Unknown column: N1.FIRSTNAME
+[ERROR] PATH:LINENUM DATE TIME : Missing FROM-clause entry for table : N1
 Error with syntax near (line 1, column 30):
 
 select firstname from (select n1.firstname from names) as n1;
@@ -271,7 +271,7 @@ select firstname from (select n1.firstname from names) as n1;
 
 Running query file query26.sql : [select firstname from (select n1.invalid from names) as n1;]
 -------------------------------------------------
-[ERROR] PATH:LINENUM DATE TIME : Unknown column: N1.INVALID
+[ERROR] PATH:LINENUM DATE TIME : Missing FROM-clause entry for table : N1
 Error with syntax near (line 1, column 30):
 
 select firstname from (select n1.invalid from names) as n1;
@@ -297,7 +297,7 @@ Zero
 
 Running query file query28.sql : [select firstname from (select n2.invalid from names as n2);]
 -------------------------------------------------
-[ERROR] PATH:LINENUM DATE TIME : Unknown column: N2.INVALID
+[ERROR] PATH:LINENUM DATE TIME : Missing FROM-clause entry for table : N2
 Error with syntax near (line 1, column 30):
 
 select firstname from (select n2.invalid from names as n2);
@@ -412,7 +412,7 @@ select invalid from (select invalid from names);
 
 Running query file query38.sql : [select invalid from (select n1.firstname from names) as n1;]
 -------------------------------------------------
-[ERROR] PATH:LINENUM DATE TIME : Unknown column: N1.FIRSTNAME
+[ERROR] PATH:LINENUM DATE TIME : Missing FROM-clause entry for table : N1
 Error with syntax near (line 1, column 28):
 
 select invalid from (select n1.firstname from names) as n1;
@@ -428,7 +428,7 @@ select invalid from (select n1.firstname from names) as n1;
 
 Running query file query39.sql : [select invalid from (select n1.invalid from names) as n1;]
 -------------------------------------------------
-[ERROR] PATH:LINENUM DATE TIME : Unknown column: N1.INVALID
+[ERROR] PATH:LINENUM DATE TIME : Missing FROM-clause entry for table : N1
 Error with syntax near (line 1, column 28):
 
 select invalid from (select n1.invalid from names) as n1;
@@ -450,7 +450,7 @@ select invalid from (select n2.firstname from names as n2);
 
 Running query file query41.sql : [select invalid from (select n2.invalid from names as n2);]
 -------------------------------------------------
-[ERROR] PATH:LINENUM DATE TIME : Unknown column: N2.INVALID
+[ERROR] PATH:LINENUM DATE TIME : Missing FROM-clause entry for table : N2
 Error with syntax near (line 1, column 28):
 
 select invalid from (select n2.invalid from names as n2);
@@ -537,7 +537,7 @@ select invalid1 from (select invalid2 from names);
 
 Running query file query48.sql : [select invalid1 from (select n1.invalid2 from names) as n1;]
 -------------------------------------------------
-[ERROR] PATH:LINENUM DATE TIME : Unknown column: N1.INVALID2
+[ERROR] PATH:LINENUM DATE TIME : Missing FROM-clause entry for table : N1
 Error with syntax near (line 1, column 29):
 
 select invalid1 from (select n1.invalid2 from names) as n1;
@@ -553,7 +553,7 @@ select invalid1 from (select n1.invalid2 from names) as n1;
 
 Running query file query49.sql : [select invalid1 from (select n2.invalid2 from names as n2);]
 -------------------------------------------------
-[ERROR] PATH:LINENUM DATE TIME : Unknown column: N2.INVALID2
+[ERROR] PATH:LINENUM DATE TIME : Missing FROM-clause entry for table : N2
 Error with syntax near (line 1, column 29):
 
 select invalid1 from (select n2.invalid2 from names as n2);
@@ -600,7 +600,7 @@ Zero
 
 Running query file query53.sql : [select n1.firstname from (select n1.firstname from names) as n1;]
 -------------------------------------------------
-[ERROR] PATH:LINENUM DATE TIME : Unknown column: N1.FIRSTNAME
+[ERROR] PATH:LINENUM DATE TIME : Missing FROM-clause entry for table : N1
 Error with syntax near (line 1, column 33):
 
 select n1.firstname from (select n1.firstname from names) as n1;
@@ -611,12 +611,12 @@ select n1.firstname from (select n1.firstname from names) as n1;
 
 Running query file query54.sql : [select n1.firstname from (select n1.invalid from names) as n1;]
 -------------------------------------------------
-[ERROR] PATH:LINENUM DATE TIME : Unknown column: N1.INVALID
+[ERROR] PATH:LINENUM DATE TIME : Missing FROM-clause entry for table : N1
 Error with syntax near (line 1, column 33):
 
 select n1.firstname from (select n1.invalid from names) as n1;
                                  ^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : Unknown column: N1.FIRSTNAME
+[ERROR] PATH:LINENUM DATE TIME : Missing FROM-clause entry for table : N1
 Error with syntax near (line 1, column 7):
 
 select n1.firstname from (select n1.invalid from names) as n1;
@@ -637,12 +637,12 @@ Zero
 
 Running query file query56.sql : [select n1.firstname from (select n2.invalid from names as n2) as n1;]
 -------------------------------------------------
-[ERROR] PATH:LINENUM DATE TIME : Unknown column: N2.INVALID
+[ERROR] PATH:LINENUM DATE TIME : Missing FROM-clause entry for table : N2
 Error with syntax near (line 1, column 33):
 
 select n1.firstname from (select n2.invalid from names as n2) as n1;
                                  ^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : Unknown column: N1.FIRSTNAME
+[ERROR] PATH:LINENUM DATE TIME : Missing FROM-clause entry for table : N1
 Error with syntax near (line 1, column 7):
 
 select n1.firstname from (select n2.invalid from names as n2) as n1;
@@ -653,7 +653,7 @@ select n1.firstname from (select n2.invalid from names as n2) as n1;
 
 Running query file query57.sql : [select n1.invalid from (select * from names as n2) as n1;]
 -------------------------------------------------
-[ERROR] PATH:LINENUM DATE TIME : Unknown column: N1.INVALID
+[ERROR] PATH:LINENUM DATE TIME : Missing FROM-clause entry for table : N1
 Error with syntax near (line 1, column 7):
 
 select n1.invalid from (select * from names as n2) as n1;
@@ -664,7 +664,7 @@ select n1.invalid from (select * from names as n2) as n1;
 
 Running query file query58.sql : [select n1.invalid from (select * from names) as n1;]
 -------------------------------------------------
-[ERROR] PATH:LINENUM DATE TIME : Unknown column: N1.INVALID
+[ERROR] PATH:LINENUM DATE TIME : Missing FROM-clause entry for table : N1
 Error with syntax near (line 1, column 7):
 
 select n1.invalid from (select * from names) as n1;
@@ -675,12 +675,12 @@ select n1.invalid from (select * from names) as n1;
 
 Running query file query59.sql : [select n1.invalid from (select n1.firstname from names) as n1;]
 -------------------------------------------------
-[ERROR] PATH:LINENUM DATE TIME : Unknown column: N1.FIRSTNAME
+[ERROR] PATH:LINENUM DATE TIME : Missing FROM-clause entry for table : N1
 Error with syntax near (line 1, column 31):
 
 select n1.invalid from (select n1.firstname from names) as n1;
                                ^^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : Unknown column: N1.INVALID
+[ERROR] PATH:LINENUM DATE TIME : Missing FROM-clause entry for table : N1
 Error with syntax near (line 1, column 7):
 
 select n1.invalid from (select n1.firstname from names) as n1;
@@ -691,7 +691,7 @@ select n1.invalid from (select n1.firstname from names) as n1;
 
 Running query file query60.sql : [select n1.invalid from (select n1.invalid from names) as n1;]
 -------------------------------------------------
-[ERROR] PATH:LINENUM DATE TIME : Unknown column: N1.INVALID
+[ERROR] PATH:LINENUM DATE TIME : Missing FROM-clause entry for table : N1
 Error with syntax near (line 1, column 31):
 
 select n1.invalid from (select n1.invalid from names) as n1;
@@ -702,7 +702,7 @@ select n1.invalid from (select n1.invalid from names) as n1;
 
 Running query file query61.sql : [select n1.invalid from (select n2.firstname from names as n2) as n1;]
 -------------------------------------------------
-[ERROR] PATH:LINENUM DATE TIME : Unknown column: N1.INVALID
+[ERROR] PATH:LINENUM DATE TIME : Missing FROM-clause entry for table : N1
 Error with syntax near (line 1, column 7):
 
 select n1.invalid from (select n2.firstname from names as n2) as n1;
@@ -713,7 +713,7 @@ select n1.invalid from (select n2.firstname from names as n2) as n1;
 
 Running query file query62.sql : [select n1.invalid from (select n2.invalid from names as n2) as n1;]
 -------------------------------------------------
-[ERROR] PATH:LINENUM DATE TIME : Unknown column: N2.INVALID
+[ERROR] PATH:LINENUM DATE TIME : Missing FROM-clause entry for table : N2
 Error with syntax near (line 1, column 31):
 
 select n1.invalid from (select n2.invalid from names as n2) as n1;
@@ -724,12 +724,12 @@ select n1.invalid from (select n2.invalid from names as n2) as n1;
 
 Running query file query63.sql : [select n1.invalid1 from (select n1.invalid2 from names) as n1;]
 -------------------------------------------------
-[ERROR] PATH:LINENUM DATE TIME : Unknown column: N1.INVALID2
+[ERROR] PATH:LINENUM DATE TIME : Missing FROM-clause entry for table : N1
 Error with syntax near (line 1, column 32):
 
 select n1.invalid1 from (select n1.invalid2 from names) as n1;
                                 ^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : Unknown column: N1.INVALID1
+[ERROR] PATH:LINENUM DATE TIME : Missing FROM-clause entry for table : N1
 Error with syntax near (line 1, column 7):
 
 select n1.invalid1 from (select n1.invalid2 from names) as n1;
@@ -740,12 +740,12 @@ select n1.invalid1 from (select n1.invalid2 from names) as n1;
 
 Running query file query64.sql : [select n1.invalid1 from (select n2.invalid2 from names as n2) as n1;]
 -------------------------------------------------
-[ERROR] PATH:LINENUM DATE TIME : Unknown column: N2.INVALID2
+[ERROR] PATH:LINENUM DATE TIME : Missing FROM-clause entry for table : N2
 Error with syntax near (line 1, column 32):
 
 select n1.invalid1 from (select n2.invalid2 from names as n2) as n1;
                                 ^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : Unknown column: N1.INVALID1
+[ERROR] PATH:LINENUM DATE TIME : Missing FROM-clause entry for table : N1
 Error with syntax near (line 1, column 7):
 
 select n1.invalid1 from (select n2.invalid2 from names as n2) as n1;
@@ -756,7 +756,7 @@ select n1.invalid1 from (select n2.invalid2 from names as n2) as n1;
 
 Running query file query65.sql : [select n2.firstname from (select * from names as n2);]
 -------------------------------------------------
-[ERROR] PATH:LINENUM DATE TIME : Unknown column: N2.FIRSTNAME
+[ERROR] PATH:LINENUM DATE TIME : Missing FROM-clause entry for table : N2
 Error with syntax near (line 1, column 7):
 
 select n2.firstname from (select * from names as n2);
@@ -767,7 +767,7 @@ select n2.firstname from (select * from names as n2);
 
 Running query file query66.sql : [select n2.firstname from (select n2.firstname from names as n2);]
 -------------------------------------------------
-[ERROR] PATH:LINENUM DATE TIME : Unknown column: N2.FIRSTNAME
+[ERROR] PATH:LINENUM DATE TIME : Missing FROM-clause entry for table : N2
 Error with syntax near (line 1, column 7):
 
 select n2.firstname from (select n2.firstname from names as n2);
@@ -778,12 +778,12 @@ select n2.firstname from (select n2.firstname from names as n2);
 
 Running query file query67.sql : [select n2.firstname from (select n2.invalid from names as n2);]
 -------------------------------------------------
-[ERROR] PATH:LINENUM DATE TIME : Unknown column: N2.INVALID
+[ERROR] PATH:LINENUM DATE TIME : Missing FROM-clause entry for table : N2
 Error with syntax near (line 1, column 33):
 
 select n2.firstname from (select n2.invalid from names as n2);
                                  ^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : Unknown column: N2.FIRSTNAME
+[ERROR] PATH:LINENUM DATE TIME : Missing FROM-clause entry for table : N2
 Error with syntax near (line 1, column 7):
 
 select n2.firstname from (select n2.invalid from names as n2);
@@ -794,7 +794,7 @@ select n2.firstname from (select n2.invalid from names as n2);
 
 Running query file query68.sql : [select n2.invalid from (select * from names as n2);]
 -------------------------------------------------
-[ERROR] PATH:LINENUM DATE TIME : Unknown column: N2.INVALID
+[ERROR] PATH:LINENUM DATE TIME : Missing FROM-clause entry for table : N2
 Error with syntax near (line 1, column 7):
 
 select n2.invalid from (select * from names as n2);
@@ -805,7 +805,7 @@ select n2.invalid from (select * from names as n2);
 
 Running query file query69.sql : [select n2.invalid from (select n2.firstname from names as n2);]
 -------------------------------------------------
-[ERROR] PATH:LINENUM DATE TIME : Unknown column: N2.INVALID
+[ERROR] PATH:LINENUM DATE TIME : Missing FROM-clause entry for table : N2
 Error with syntax near (line 1, column 7):
 
 select n2.invalid from (select n2.firstname from names as n2);
@@ -816,12 +816,12 @@ select n2.invalid from (select n2.firstname from names as n2);
 
 Running query file query70.sql : [select n2.invalid from (select n2.invalid from names as n2);]
 -------------------------------------------------
-[ERROR] PATH:LINENUM DATE TIME : Unknown column: N2.INVALID
+[ERROR] PATH:LINENUM DATE TIME : Missing FROM-clause entry for table : N2
 Error with syntax near (line 1, column 31):
 
 select n2.invalid from (select n2.invalid from names as n2);
                                ^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : Unknown column: N2.INVALID
+[ERROR] PATH:LINENUM DATE TIME : Missing FROM-clause entry for table : N2
 Error with syntax near (line 1, column 7):
 
 select n2.invalid from (select n2.invalid from names as n2);
@@ -832,12 +832,12 @@ select n2.invalid from (select n2.invalid from names as n2);
 
 Running query file query71.sql : [select n2.invalid1 from (select n2.invalid2 from names as n2);]
 -------------------------------------------------
-[ERROR] PATH:LINENUM DATE TIME : Unknown column: N2.INVALID2
+[ERROR] PATH:LINENUM DATE TIME : Missing FROM-clause entry for table : N2
 Error with syntax near (line 1, column 32):
 
 select n2.invalid1 from (select n2.invalid2 from names as n2);
                                 ^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : Unknown column: N2.INVALID1
+[ERROR] PATH:LINENUM DATE TIME : Missing FROM-clause entry for table : N2
 Error with syntax near (line 1, column 7):
 
 select n2.invalid1 from (select n2.invalid2 from names as n2);

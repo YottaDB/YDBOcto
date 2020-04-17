@@ -118,3 +118,7 @@ setup() {
   run_query_in_octo_and_postgres_and_crosscheck_multiple_queries customers TSS19.sql "remove_empty_line_at_tail"
 }
 
+@test "TSS20 : OCTO482 : Test valid queries that should not issue <Misc FROM-clause entry> error" {
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TSS20.sql "remove_empty_line_at_tail"
+}
+

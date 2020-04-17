@@ -3,7 +3,7 @@
 
 SELECT (SELECT * FROM (SELECT n3.id) n3);
 
-[ERROR] PATH:LINENUM DATE TIME : Unknown column: N3.ID
+[ERROR] PATH:LINENUM DATE TIME : Missing FROM-clause entry for table : N3
 Error with syntax near (line 1, column 31):
 
 SELECT (SELECT * FROM (SELECT n3.id) n3);

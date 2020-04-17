@@ -48,7 +48,7 @@ select names.hackName from names;
 OCTO
   run cat output.txt
   [[ "$output" =~ "ERROR" ]]
-  [[ "$output" =~ "Unknown column" ]]
+  [[ "$output" =~ "Missing FROM-clause entry for table" ]]
 }
 
 @test "TSC00E : select column with invalid typing" {

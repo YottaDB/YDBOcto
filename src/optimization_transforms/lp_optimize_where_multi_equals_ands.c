@@ -155,17 +155,25 @@ LogicalPlan *lp_optimize_where_multi_equal_ands_helper(LogicalPlan *plan, Logica
 	if (FALSE == lp_verify_valid_for_key_fix(plan, cur)) {
 		return where;
 	}
-	if ((LP_COLUMN_ALIAS == right->type) && (LP_COLUMN_ALIAS == left->type)) {
+	if (LP_COLUMN_ALIAS == right->type) {
 		UNPACK_SQL_STATEMENT(table_alias, right->v.lp_column_alias.column_alias->table_alias, table_alias);
 		right_id = table_alias->unique_id;
+		assert(0 < right_id);
+	} else {
+		right_id = 0;
+	}
+	if (LP_COLUMN_ALIAS == left->type) {
 		UNPACK_SQL_STATEMENT(table_alias, left->v.lp_column_alias.column_alias->table_alias, table_alias);
 		left_id = table_alias->unique_id;
+		assert(0 < left_id);
+	} else {
+		left_id = 0;
+	}
+	if (left_id && right_id) {
 		// If both column references correspond to the same table, then we cannot fix either columns/keys.
 		if (left_id == right_id) {
 			return where;
 		}
-		assert(0 <= left_id);
-		assert(0 <= right_id);
 		assert(left_id < *plan->counter);
 		assert(right_id < *plan->counter);
 		// If both column references correspond to tables from parent query then we cannot fix either.
@@ -183,10 +191,8 @@ LogicalPlan *lp_optimize_where_multi_equal_ands_helper(LogicalPlan *plan, Logica
 		}
 	} else {
 		// At least one of these is a constant; just fix it
-		if (LP_COLUMN_ALIAS == right->type) {
+		if (right_id) {
 			// The left is a value, right a column, swap'em
-			UNPACK_SQL_STATEMENT(table_alias, right->v.lp_column_alias.column_alias->table_alias, table_alias);
-			right_id = table_alias->unique_id;
 			if (0 == key_unique_id_array[right_id]) {
 				// The right column corresponds to a unique_id coming in from the parent query.
 				// In that case we cannot fix it in the sub-query. Return.
@@ -195,12 +201,10 @@ LogicalPlan *lp_optimize_where_multi_equal_ands_helper(LogicalPlan *plan, Logica
 			t = left;
 			left = right;
 			right = t;
-		} else if (LP_COLUMN_ALIAS == left->type) {
+		} else if (left_id) {
 			// The right is a value, left a column. Check if left comes in from parent query.
 			// In that case, we cannot fix it. Else it is already in the right order so no swap needed
 			// like was the case in the previous "if" block.
-			UNPACK_SQL_STATEMENT(table_alias, left->v.lp_column_alias.column_alias->table_alias, table_alias);
-			left_id = table_alias->unique_id;
 			if (0 == key_unique_id_array[left_id]) {
 				// The left column corresponds to a unique_id coming in from the parent query.
 				// In that case we cannot fix it in the sub-query. Return.
@@ -220,7 +224,7 @@ LogicalPlan *lp_optimize_where_multi_equal_ands_helper(LogicalPlan *plan, Logica
 	 * table in the join list. But if the key being fixed belongs to the RIGHT side table of this JOIN then it is safe to fix.
 	 * Check that. Note that the key being fixed corresponds to the variable `left` hence the check for `left->type` below.
 	 */
-	if ((NULL != right_table_alias) && (LP_COLUMN_ALIAS == left->type)) {
+	if ((NULL != right_table_alias) && left_id) {
 		SqlColumnAlias	*column_alias;
 		SqlTableAlias	*column_table_alias;
 
@@ -318,8 +322,7 @@ LogicalPlan *lp_optimize_where_multi_equal_ands_helper(LogicalPlan *plan, Logica
 		 * WHERE expression as it will otherwise result in a redundant IF check in the generated M code. There is
 		 * a subtlety involved with keys from parent queries which is handled below.
 		 */
-		if (((LP_COLUMN_ALIAS == right->type) && (LP_COLUMN_ALIAS == left->type))
-				&& ((0 == key_unique_id_array[left_id]) || (0 == key_unique_id_array[right_id]))) {
+		if (left_id && right_id && ((0 == key_unique_id_array[left_id]) || (0 == key_unique_id_array[right_id]))) {
 			/* Both are columns and one of them belongs to a parent query. In that case, do not eliminate this
 			 * altogether from the WHERE clause as that is relied upon in "generate_physical_plan()". Keep it in
 			 * an alternate list (where->v.lp_default.operand[1]), use it in "generate_physical_plan()" (in order

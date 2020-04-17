@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -24,6 +24,7 @@ SqlStatement *grouping_column_reference(SqlStatement *derived_column_expression,
 	boolean_t		invalid_syntax;
 
 	assert(NULL == collate_clause);	/* below code needs to be fixed to handle collate_clause if/when it becomes non-NULL */
+	UNUSED(collate_clause);
 	/* If it is a value check if it is a column name. Otherwise return NULL so caller (select.y) can issue an error.
 	 * If it is not a value then it is some kind of expression so return NULL so caller (select.y) can issue an error.
 	 */

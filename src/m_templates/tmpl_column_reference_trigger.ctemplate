@@ -1,7 +1,7 @@
 {}%
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -65,7 +65,6 @@ TEMPLATE(tmpl_column_reference_trigger, PhysicalPlan *pplan, SqlColumnAlias *col
 		UNPACK_SQL_STATEMENT(value, keyword->v, value);
 		table_delim = value->v.string_literal;
 	}
-
 	/// OPTIMIZATION: use key rather than column value when possible
 	// If we already have this column in a key, use that
 	for(i = 0; i < pplan->total_iter_keys; i++) {
@@ -84,7 +83,6 @@ TEMPLATE(tmpl_column_reference_trigger, PhysicalPlan *pplan, SqlColumnAlias *col
 			}
 		}
 	}
-
 	keyword = get_keyword(column, OPTIONAL_PIECE);
 	if (NULL != keyword) {
 		UNPACK_SQL_STATEMENT(value, keyword->v, value);
@@ -95,28 +93,20 @@ TEMPLATE(tmpl_column_reference_trigger, PhysicalPlan *pplan, SqlColumnAlias *col
 		snprintf(piece_buffer, MAX_STR_CONST, "%d", piece_i);
 		piece = piece_buffer;
 	}
-
 	keyword = get_keyword(column, OPTIONAL_EXTRACT);
-	if (NULL != keyword) {
-		UNPACK_SQL_STATEMENT(value, keyword->v, value);
-		source = value->v.string_literal;
-	} else {
+	if (NULL == keyword) {
 		keyword = get_keyword(column, OPTIONAL_SOURCE);
-		if (NULL != keyword) {
-			UNPACK_SQL_STATEMENT(value, keyword->v, value);
-			source = value->v.string_literal;
-		} else {
+		if (NULL == keyword) {
 			UNPACK_SQL_STATEMENT(keyword, table->source, keyword);
-			UNPACK_SQL_STATEMENT(value, keyword->v, value);
-			source = value->v.string_literal;
 		}
 	}
+	UNPACK_SQL_STATEMENT(value, keyword->v, value);
+	source = value->v.string_literal;
 
 	TMPL(tmpl_emit_source, source, table_name, table_alias->unique_id, MAX_KEY_COUNT, EmitSourceForm_Trigger);
 	if (NULL != table_delim) {
 		%{}-delim=""{{ table_delim }}"" -pieces=""{{ piece }}""{}%
 	}
-
 	TEMPLATE_END();
 }
 %{}

@@ -309,8 +309,9 @@ GetScalar(keyId)
 	; Assumes "%ydboctocursor" and "cursorId" are appropriately set by caller.
 	;
 	NEW %firstrowfirstcol,%multiplerow
+	; Check if there are no rows in subquery output. If so we should return NULL per SQL standard.
+	QUIT:(1>=$DATA(%ydboctocursor(cursorId,"keys",keyId,"",""))) $ZYSQLNULL
 	SET %firstrowfirstcol=$ORDER(%ydboctocursor(cursorId,"keys",keyId,"","",""))
-	QUIT:(""=%firstrowfirstcol) ""	; "" needs to be replaced with $ZYSQLNULL when #311 is fixed
 	; Find out if the output key has more than one row. If so issue an error
 	; Note that it is possible the same row gets duplicated more than once. In that case though
 	; the node value would be greater than 1. So check that too (in addition to checking $ORDER returns "").

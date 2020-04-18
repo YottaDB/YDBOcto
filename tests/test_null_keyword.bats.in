@@ -20,7 +20,14 @@ setup() {
 }
 
 @test "TNK01 : OCTO311 : Miscellaneous tests of NULL keyword" {
-  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TNK01.sql "remove_empty_line_at_tail" "trim_trailing_zeroes"
+  # TNK01_errors.sql cannot be used with `run_query_in_octo_and_postgres_and_crosscheck_multiple_queries` because of error
+  # returns from queries (Postgres and Octo issue different error outputs). Need a reference file.
+  load_fixture TNK01_errors.sql subtest
+  verify_output TNK01_errors output.txt noinfo nodebug
+  mv clean_output.txt errors_clean_output.txt
+  # TNK01_noerrors.sql can be used with `run_query_in_octo_and_postgres_and_crosscheck_multiple_queries` because all queries
+  # generate valid output (i.e. no errors at all). No reference file needed for this.
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TNK01_noerrors.sql "remove_empty_line_at_tail" "trim_trailing_zeroes"
 }
 
 @test "TNK02 : OCTO443 : Multiple OUTER JOIN returns incorrect results" {

@@ -18,6 +18,12 @@
 #include "octo.h"
 #include "octo_types.h"
 
+#define	ISSUE_TYPE_COMPATIBILITY_ERROR(CHILD_TYPE, OPERATION, OPERAND, RESULT)	{		\
+	ERROR(ERR_TYPE_NOT_COMPATIBLE, get_user_visible_type_string(CHILD_TYPE), OPERATION);	\
+	yyerror(NULL, NULL, OPERAND, NULL, NULL, NULL);						\
+	RESULT = 1;										\
+}
+
 #define MAP_TYPE_TO_PARAMETER_VALUE(TYPE_1, TYPE_2)										\
 {																\
 	/* Map the column's type to the prepared statement parameter for ParameterDescriptions and Bind handling */		\
@@ -241,11 +247,23 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_
 		// SqlJoin
 		result |= populate_data_type(select->table_list, &child_type1, parse_context);
 		// SqlValue (?)
-		result |= populate_data_type(select->where_expression, &child_type1, parse_context);
+		if (NULL != select->where_expression) {
+			result |= populate_data_type(select->where_expression, &child_type1, parse_context);
+			if (!result && (BOOLEAN_VALUE != child_type1) && (NUL_VALUE != child_type1)) {
+				ISSUE_TYPE_COMPATIBILITY_ERROR(child_type1, "boolean operations",		\
+									&select->where_expression, result);
+			}
+		}
 		// SqlColumnListAlias that is a linked list
 		result |= populate_data_type_column_list_alias(select->group_by_expression, &child_type1, TRUE, parse_context);
 		// SqlValue (?)
-		result |= populate_data_type(select->having_expression, &child_type1, parse_context);
+		if (NULL != select->having_expression) {
+			result |= populate_data_type(select->having_expression, &child_type1, parse_context);
+			if (!result && (BOOLEAN_VALUE != child_type1) && (NUL_VALUE != child_type1)) {
+				ISSUE_TYPE_COMPATIBILITY_ERROR(child_type1, "boolean operations",		\
+									&select->having_expression, result);
+			}
+		}
 		// SqlColumnListAlias that is a linked list
 		result |= populate_data_type_column_list_alias(select->order_by_expression, &child_type1, TRUE, parse_context);
 		break;
@@ -451,32 +469,40 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_
 		case MULTIPLICATION:
 		case MODULO:
 			if (!result) {
-				if ((INTEGER_LITERAL != child_type1) && (NUMERIC_LITERAL != child_type1)) {
-					ERROR(ERR_TYPE_NOT_COMPATIBLE, get_user_visible_type_string(child_type1),	\
-												"arithmetic operations");
-					yyerror(NULL, NULL, &binary->operands[0], NULL, NULL, NULL);
-					result = 1;
-				}
-				if ((INTEGER_LITERAL != child_type2) && (NUMERIC_LITERAL != child_type2)) {
-					ERROR(ERR_TYPE_NOT_COMPATIBLE, get_user_visible_type_string(child_type2),	\
-												"arithmetic operations");
-					yyerror(NULL, NULL, &binary->operands[1], NULL, NULL, NULL);
-					result = 1;
+				int		i;
+				SqlValueType	child_type;
+
+				for (i = 0; i < 2; i++) {
+					child_type = ((0 == i) ? child_type1 : child_type2);
+					switch(child_type) {
+					case INTEGER_LITERAL:
+					case NUMERIC_LITERAL:
+					case NUL_VALUE:
+						/* These types are acceptable for arithmetic operations */
+						break;
+					default:
+						ISSUE_TYPE_COMPATIBILITY_ERROR(child_type, "arithmetic operations",	\
+											&binary->operands[i], result);
+					}
 				}
 			}
 			*type = child_type1;
 			break;
 		case CONCAT:
-			/* Postgres allows || operator as long as at least one operand is STRING type. Else it issues an error.
-			 * Do the same in Octo for compatibility.
+			/* Postgres allows || operator as long as at least one operand is STRING type or both operands are NULLs.
+			 * Otherwise it issues an error. Do the same in Octo for compatibility.
 			 */
-			if ((STRING_LITERAL != child_type1) && (STRING_LITERAL != child_type2)) {
+			if ((STRING_LITERAL != child_type1) && (NUL_VALUE != child_type1)
+					&& (STRING_LITERAL != child_type2) && (NUL_VALUE != child_type2)) {
 				if (!result) {
-					ERROR(ERR_TYPE_NOT_COMPATIBLE, get_user_visible_type_string(child_type1), "|| operator");
-					yyerror(NULL, NULL, &binary->operands[0], NULL, NULL, NULL);
-					ERROR(ERR_TYPE_NOT_COMPATIBLE, get_user_visible_type_string(child_type2), "|| operator");
-					yyerror(NULL, NULL, &binary->operands[1], NULL, NULL, NULL);
-					result = 1;
+					int		i;
+					SqlValueType	child_type;
+
+					for (i = 0; i < 2; i++) {
+						child_type = ((0 == i) ? child_type1 : child_type2);
+						ISSUE_TYPE_COMPATIBILITY_ERROR(child_type, "|| operator",	\
+										&binary->operands[i], result);
+					}
 				}
 			} else {
 				SqlStatement	**target;
@@ -514,17 +540,15 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_
 		case BOOLEAN_OR:
 		case BOOLEAN_AND:
 			if (!result) {
-				if (BOOLEAN_VALUE != child_type1) {
-					ERROR(ERR_TYPE_NOT_COMPATIBLE, get_user_visible_type_string(child_type1),	\
-												"boolean operations");
-					yyerror(NULL, NULL, &binary->operands[0], NULL, NULL, NULL);
-					result = 1;
-				}
-				if (BOOLEAN_VALUE != child_type2) {
-					ERROR(ERR_TYPE_NOT_COMPATIBLE, get_user_visible_type_string(child_type2),	\
-												"boolean operations");
-					yyerror(NULL, NULL, &binary->operands[1], NULL, NULL, NULL);
-					result = 1;
+				int		i;
+				SqlValueType	child_type;
+
+				for (i = 0; i < 2; i++) {
+					child_type = ((0 == i) ? child_type1 : child_type2);
+					if ((BOOLEAN_VALUE != child_type) && (NUL_VALUE != child_type)) {
+						ISSUE_TYPE_COMPATIBILITY_ERROR(child_type, "boolean operations",	\
+										&binary->operands[i], result);
+					}
 				}
 			}
 			*type = BOOLEAN_VALUE;
@@ -699,7 +723,8 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_
 			*type = child_type1;
 			break;
 		}
-		assert((BOOLEAN_NOT != unary->operation) || (BOOLEAN_VALUE == *type));
+		assert((BOOLEAN_NOT != unary->operation) || (BOOLEAN_VALUE == *type)
+			|| (NUL_VALUE == *type) || (NUMERIC_LITERAL == *type) || (STRING_LITERAL == *type));
 		break;
 	default:
 		assert(FALSE);

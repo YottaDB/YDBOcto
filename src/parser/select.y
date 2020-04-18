@@ -260,8 +260,7 @@ derived_column
   ;
 
 derived_column_expression
-  : value_expression { $$ = $value_expression; }
-  | search_condition { $$ = $search_condition; }
+  : search_condition { $$ = $search_condition; }
   ;
 
 from_clause
@@ -304,65 +303,15 @@ from_clause
 // Just consider these a list of values for all intents and purposes
 table_reference
   : column_name table_reference_tail {
-      SQL_STATEMENT($$, join_STATEMENT);
-      MALLOC_STATEMENT($$, join, SqlJoin);
-      SqlTable *table = find_table($column_name->v.value->v.reference);
-      SqlJoin *join = $$->v.join, *join_tail;
-      SqlColumn *column;
-      SqlTableAlias *alias;
-      if (table == NULL) {
-        ERROR(ERR_UNKNOWN_TABLE, $column_name->v.value->v.reference);
-        print_yyloc(&($column_name)->loc);
-        YYERROR;
-      }
-      SQL_STATEMENT(join->value, table_alias_STATEMENT);
-      MALLOC_STATEMENT(join->value, table_alias, SqlTableAlias);
-      UNPACK_SQL_STATEMENT(alias, join->value, table_alias);
-      SQL_STATEMENT_FROM_TABLE_STATEMENT(alias->table, table);
-      alias->table->v.table = table;
-      alias->alias = table->tableName;
-      // We can probably put a variable in the bison local for this
-      alias->unique_id = *plan_id;
-      (*plan_id)++;
-      UNPACK_SQL_STATEMENT(column, table->columns, column);
-      PACK_SQL_STATEMENT(alias->column_list,
-                         columns_to_column_list_alias(column, join->value), column_list_alias);
-      dqinit(join);
-      if ($table_reference_tail) {
-        UNPACK_SQL_STATEMENT(join_tail, $table_reference_tail, join);
-        join->type = CROSS_JOIN;
-        dqappend(join, join_tail);
+      $$ = table_reference($column_name, NULL, $table_reference_tail, plan_id);
+      if (NULL == $$) {
+	YYERROR;
       }
     }
   | column_name correlation_specification table_reference_tail {
-      SQL_STATEMENT($$, join_STATEMENT);
-      MALLOC_STATEMENT($$, join, SqlJoin);
-      SqlTable *table = find_table($column_name->v.value->v.reference);
-      SqlJoin *join = $$->v.join, *join_tail;
-      SqlColumn *column;
-      SqlTableAlias *alias;
-      if (table == NULL) {
-        ERROR(ERR_UNKNOWN_TABLE, $column_name->v.value->v.reference);
-        print_yyloc(&($column_name)->loc);
-        YYERROR;
-      }
-      SQL_STATEMENT(join->value, table_alias_STATEMENT);
-      MALLOC_STATEMENT(join->value, table_alias, SqlTableAlias);
-      UNPACK_SQL_STATEMENT(alias, join->value, table_alias);
-      SQL_STATEMENT_FROM_TABLE_STATEMENT(alias->table, table);
-      alias->table->v.table = table;
-      alias->alias = $correlation_specification;
-      // We can probably put a variable in the bison local for this
-      alias->unique_id = *plan_id;
-      (*plan_id)++;
-      UNPACK_SQL_STATEMENT(column, table->columns, column);
-      PACK_SQL_STATEMENT(alias->column_list,
-                         columns_to_column_list_alias(column, join->value), column_list_alias);
-      dqinit(join);
-      if ($table_reference_tail) {
-        UNPACK_SQL_STATEMENT(join_tail, $table_reference_tail, join);
-        join->type = CROSS_JOIN;
-        dqappend(join, join_tail);
+      $$ = table_reference($column_name, $correlation_specification, $table_reference_tail, plan_id);
+      if (NULL == $$) {
+	YYERROR;
       }
     }
   | derived_table {

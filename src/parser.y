@@ -302,29 +302,6 @@ search_condition
       ($$)->v.binary->operands[0] = ($1);
       ($$)->v.binary->operands[1] = ($boolean_term);
     }
-  | row_value_constructor OR boolean_term {
-      // This is a special form where the column is assumed to be a boolean
-      SQL_STATEMENT($$, binary_STATEMENT);
-      MALLOC_STATEMENT($$, binary, SqlBinaryOperation);
-      ($$)->v.binary->operation = BOOLEAN_OR;
-      ($$)->v.binary->operands[0] = ($row_value_constructor);
-      ($$)->v.binary->operands[1] = ($boolean_term);
-    }
-  | search_condition OR row_value_constructor {
-      // This is a special form where the column is assumed to be a boolean
-      SQL_STATEMENT($$, binary_STATEMENT);
-      MALLOC_STATEMENT($$, binary, SqlBinaryOperation);
-      ($$)->v.binary->operation = BOOLEAN_OR;
-      ($$)->v.binary->operands[0] = ($1);
-      ($$)->v.binary->operands[1] = ($row_value_constructor);
-    }
-  | row_value_constructor OR row_value_constructor {
-      // This is a special form where the column is assumed to be a boolean
-      MALLOC_STATEMENT($$, binary, SqlBinaryOperation);
-      ($$)->v.binary->operation = BOOLEAN_OR;
-      ($$)->v.binary->operands[0] = ($1);
-      ($$)->v.binary->operands[1] = ($3);
-    }
   ;
 
 boolean_term
@@ -336,30 +313,6 @@ boolean_term
       ($$)->v.binary->operands[0] = ($1);
       ($$)->v.binary->operands[1] = ($boolean_factor);
     }
-  | row_value_constructor AND boolean_factor {
-      // This is a special form where the column is assumed to be a boolean
-      SQL_STATEMENT($$, binary_STATEMENT);
-      MALLOC_STATEMENT($$, binary, SqlBinaryOperation);
-      ($$)->v.binary->operation = BOOLEAN_AND;
-      ($$)->v.binary->operands[0] = ($row_value_constructor);
-      ($$)->v.binary->operands[1] = ($boolean_factor);
-    }
-  | boolean_term AND row_value_constructor {
-      // This is a special form where the column is assumed to be a boolean
-      SQL_STATEMENT($$, binary_STATEMENT);
-      MALLOC_STATEMENT($$, binary, SqlBinaryOperation);
-      ($$)->v.binary->operation = BOOLEAN_AND;
-      ($$)->v.binary->operands[0] = ($1);
-      ($$)->v.binary->operands[1] = ($row_value_constructor);
-    }
-  | row_value_constructor AND row_value_constructor {
-      // This is a special form where the column is assumed to be a boolean
-      SQL_STATEMENT($$, binary_STATEMENT);
-      MALLOC_STATEMENT($$, binary, SqlBinaryOperation);
-      ($$)->v.binary->operation = BOOLEAN_AND;
-      ($$)->v.binary->operands[0] = ($1);
-      ($$)->v.binary->operands[1] = ($3);
-    }
   ;
 
 boolean_factor
@@ -369,13 +322,6 @@ boolean_factor
       MALLOC_STATEMENT($$, unary, SqlUnaryOperation);
       ($$)->v.unary->operation = BOOLEAN_NOT;
       ($$)->v.unary->operand = ($boolean_test);
-    }
-  | NOT row_value_constructor {
-      // This is a special form where the column is assumed to be a boolean
-      SQL_STATEMENT($$, unary_STATEMENT);
-      MALLOC_STATEMENT($$, unary, SqlUnaryOperation);
-      ($$)->v.unary->operation = BOOLEAN_NOT;
-      ($$)->v.unary->operand = ($row_value_constructor);
     }
   ;
 
@@ -399,7 +345,7 @@ boolean_test_tail
   ;
 
 boolean_test_tail_tail
-  : truth_value { $$ = $truth_value; }
+  : truth_value { WARNING(ERR_FEATURE_NOT_IMPLEMENTED, "boolean_test_tail_tail: truth_value"); YYABORT; }
   | NOT truth_value { WARNING(ERR_FEATURE_NOT_IMPLEMENTED, "boolean_test_tail_tail: NOT truth_value"); YYABORT; }
   ;
 
@@ -423,8 +369,21 @@ truth_value
 
 boolean_primary
   : predicate { $$ = $predicate; }
-  | truth_value { $$ = $truth_value; }
+  | truth_value optional_cast_specification {
+	if (NULL != $optional_cast_specification) {
+		SqlStatement	*ret;
+
+		ret = cast_specification($optional_cast_specification, $truth_value);
+		if (NULL == ret) {
+			YYERROR;
+		}
+		$$ = ret;
+	} else {
+		$$ = $truth_value;
+	}
+    }
   | LEFT_PAREN search_condition RIGHT_PAREN { $$ = $search_condition; }
+  | row_value_constructor { $$ = $row_value_constructor; }
   ;
 
 predicate
@@ -607,7 +566,6 @@ null_predicate
       ($$)->v.unary->operation = BOOLEAN_IS_NOT_NULL;
       ($$)->v.unary->operand = ($row_value_constructor);
     }
-
   ;
 
 quantified_comparison_predicate
@@ -661,23 +619,29 @@ exists_predicate
   ;
 
 row_value_constructor
-  : LEFT_PAREN row_value_constructor_list RIGHT_PAREN { $$ = $row_value_constructor_list; }
+  : LEFT_PAREN row_value_constructor_element RIGHT_PAREN { $$ = $row_value_constructor_element; }
+  // Remove previous line and uncomment below line when `row_value_constructor_list` rule is uncommented.
+  // : LEFT_PAREN row_value_constructor_list RIGHT_PAREN { $$ = $row_value_constructor_list; }
   | row_value_constructor_element { $$ = $row_value_constructor_element; }
   ;
 
-row_value_constructor_subquery
-  : query_expression { $$ = $query_expression; }
-  ;
-
-row_value_constructor_list
-  : row_value_constructor_element row_value_constructor_list_tail { WARNING(ERR_FEATURE_NOT_IMPLEMENTED, "row_value_constructor_list: element/list_tail"); YYABORT; }
-  | row_value_constructor_subquery { $$ = $row_value_constructor_subquery; }
-  ;
-
-row_value_constructor_list_tail
-  : /* Empty */ { $$ = NULL; }
-  | COMMA row_value_constructor_list { $$ = $row_value_constructor_list; }
-  ;
+// ----------------------------------------------------------------------------------------------
+// Uncomment below block of code when `row_value_constructor_list` rule needs to be implemented.
+// ----------------------------------------------------------------------------------------------
+// row_value_constructor_subquery
+//   : query_expression { $$ = $query_expression; }
+//   ;
+//
+// row_value_constructor_list
+//   : row_value_constructor_element row_value_constructor_list_tail { WARNING(ERR_FEATURE_NOT_IMPLEMENTED, "row_value_constructor_list: element/list_tail"); YYABORT; }
+//   | row_value_constructor_subquery { $$ = $row_value_constructor_subquery; }
+//   ;
+//
+// row_value_constructor_list_tail
+//   : /* Empty */ { $$ = NULL; }
+//   | COMMA row_value_constructor_list { $$ = $row_value_constructor_list; }
+//   ;
+// ----------------------------------------------------------------------------------------------
 
 row_value_constructor_element
   : value_expression { $$ = $value_expression; }
@@ -692,17 +656,19 @@ value_expression
   // WARNING: if this is enabled, we have to revisit the boolean logic to seperate
   // terms into UNION ALL terms
 //  | boolean_term { $$ = $boolean_term; }
-  | null_specification { $$ = $null_specification; }
 //  | datetime_value_expression
 //  | interval_expression
   ;
 
 null_specification
   : NULL_TOKEN {
-      SQL_STATEMENT(($$), value_STATEMENT);
-      MALLOC_STATEMENT(($$), value, SqlValue);
-      ($$)->v.value->type = NUL_VALUE;
-      ($$)->v.value->v.string_literal = "";
+      SqlStatement	*ret;
+
+      SQL_STATEMENT(ret, value_STATEMENT);
+      MALLOC_STATEMENT(ret, value, SqlValue);
+      ret->v.value->type = NUL_VALUE;
+      ret->v.value->v.string_literal = "";
+      $$ = ret;
     }
   ;
 
@@ -800,23 +766,16 @@ collation_name
 
 numeric_primary
   : value_expression_primary optional_subscript optional_cast_specification {
-	$$ = $value_expression_primary;
 	if (NULL != $optional_cast_specification) {
-		SqlValue	*value;
-		SqlValueType	type;
+		SqlStatement	*ret;
 
-		type = (SqlValueType)$optional_cast_specification;
-		if (INVALID_SqlValueType == type) {
+		ret = cast_specification($optional_cast_specification, $value_expression_primary);
+		if (NULL == ret) {
 			YYERROR;
-		} else {
-			SQL_STATEMENT($$, value_STATEMENT);
-			MALLOC_STATEMENT($$, value, SqlValue);
-			UNPACK_SQL_STATEMENT(value, $$, value);
-			value->type = COERCE_TYPE;
-			value->coerced_type = type;
-			/* value->pre_coerced_type will be initialized in populate_data_type */
-			value->v.coerce_target = $value_expression_primary;
 		}
+		$$ = ret;
+	} else {
+		$$ = $value_expression_primary;
 	}
     }
 //  | numeric_value_function
@@ -833,6 +792,7 @@ value_expression_primary
   | scalar_subquery { $$ = $scalar_subquery; }
   | case_expression { $$ = $case_expression; }
   | LEFT_PAREN value_expression RIGHT_PAREN { $$ = $value_expression; }
+  | null_specification { $$ = $null_specification; }
 //  | cast_specification
   ;
 

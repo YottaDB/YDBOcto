@@ -289,26 +289,29 @@ int store_table_in_pg_class(SqlTable *table);
 void cleanup_tables();
 
 /* Parse related functions invoked from the .y files (parser.y, select.y etc.) */
+SqlStatement *aggregate_function(SqlAggregateType aggregate_type, OptionalKeyword set_quantifier, SqlStatement *value_expression);
+SqlStatement *between_predicate(SqlStatement *row_value_constructor, SqlStatement *from, SqlStatement *to, boolean_t not_specified);
+SqlStatement *cast_specification(SqlStatement *cast_specification, SqlStatement *source);
+SqlStatement *grouping_column_reference(SqlStatement *derived_column_expression, SqlStatement *collate_clause);
+SqlStatement *natural_join_condition(SqlStatement *left, SqlStatement *right, boolean_t *ambiguous);
+int parse_literal_to_parameter(ParseContext *parse_context, SqlValue *value, boolean_t update_existing);
 SqlStatement *query_specification(OptionalKeyword set_quantifier, SqlStatement *select_list,
 					SqlStatement *table_expression, SqlStatement *sort_specification_list, int *plan_id);
-SqlStatement *sort_specification(SqlStatement *sort_key, SqlStatement *ordering_specification);
-SqlStatement *grouping_column_reference(SqlStatement *derived_column_expression, SqlStatement *collate_clause);
 int regex_specification(SqlStatement **stmt, SqlStatement *op0, SqlStatement *op1, int is_regex_like_or_similar,
 									int is_sensitive, int is_not, ParseContext *parse_context);
 SqlStatement *set_operation(enum SqlSetOperationType setoper_type, SqlStatement *left_operand, SqlStatement *right_operand);
-SqlStatement *between_predicate(SqlStatement *row_value_constructor, SqlStatement *from, SqlStatement *to, boolean_t not_specified);
-SqlStatement *aggregate_function(SqlAggregateType aggregate_type, OptionalKeyword set_quantifier, SqlStatement *value_expression);
-SqlStatement *natural_join_condition(SqlStatement *left, SqlStatement *right, boolean_t *ambiguous);
+SqlStatement *sort_specification(SqlStatement *sort_key, SqlStatement *ordering_specification);
+SqlStatement *table_reference(SqlStatement *column_name, SqlStatement *correlation_specification,
+							SqlStatement *table_reference_tail, int *plan_id);
 
-int parse_literal_to_parameter(ParseContext *parse_context, SqlValue *value, boolean_t update_existing);
+/* trims duplicate '.*'s from regex */
+void trim_dot_star(SqlValue *regex);
 
 // Creates a new cursor by assigning a new cursorId
 int64_t create_cursor(ydb_buffer_t *schema_global, ydb_buffer_t *cursor_buffer);
 boolean_t is_query_canceled(callback_fnptr_t callback, int32_t cursorId, void *parms,
 		char *plan_name, boolean_t send_row_description);
 
-/* trims duplicate '.*'s from regex */
-void trim_dot_star(SqlValue *regex);
 
 /**
  * Returns TRUE if the columns are equal, FALSE otherwise

@@ -151,13 +151,13 @@ genrandomqueries	;
 	. ;	part of the SELECT column list. Even if one column in the SELECT column list is left out in the ORDER BY
 	. ;	we cannot do an exact check since Postgres and Octo are free to present that column in an arbitrary order.
 	. ;	Hence the check for existence of an unmatched select column using `$data(unmatchedselectcolumn)`
-	. set exactcheck=(nolimit)!(orderby&'$data(unmatchedselectcolumn))
+	. set outputsorted=(orderby&'$data(unmatchedselectcolumn))
 	. ; The below if check is because postgres issues the following error in this case
 	. ;	--> ERROR:  FULL JOIN is only supported with merge-joinable or hash-joinable join conditions
 	. quit:fulljoinchosen&notequalchosen
 	. set file="jointest"_$translate($justify($increment(q),2)," ","0")_".sql"
 	. open file:(newversion)  use file
-	. write:'exactcheck "-- rowcount-only-check",!
+	. write:'outputsorted $select('nolimit:"-- rowcount-only-check",1:"-- sort-needed-check"),!
 	. write sqlquery,!
 	. close file
 	quit

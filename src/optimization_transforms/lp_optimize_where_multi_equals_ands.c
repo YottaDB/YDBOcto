@@ -224,7 +224,7 @@ LogicalPlan *lp_optimize_where_multi_equal_ands_helper(LogicalPlan *plan, Logica
 	 * table in the join list. But if the key being fixed belongs to the RIGHT side table of this JOIN then it is safe to fix.
 	 * Check that. Note that the key being fixed corresponds to the variable `left` hence the check for `left->type` below.
 	 */
-	if ((NULL != right_table_alias) && left_id) {
+	if ((NULL != right_table_alias) && (LP_COLUMN_ALIAS == left->type)) {
 		SqlColumnAlias	*column_alias;
 		SqlTableAlias	*column_table_alias;
 

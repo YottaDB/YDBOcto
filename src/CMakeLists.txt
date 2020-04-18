@@ -211,16 +211,18 @@ add_library(libocto OBJECT
   copy_sql_statement.c
   match_sql_statement.c
   cleanup_tables.c
-  parser/parse_literal_to_parameter.c
-  parser/query_specification.c
-  parser/set_operation.c
-  parser/sort_specification.c
-  parser/trim_dot_star.c
-  parser/regex_specification.c
-  parser/between_predicate.c
   parser/aggregate_function.c
+  parser/between_predicate.c
+  parser/cast_specification.c
   parser/grouping_column_reference.c
   parser/natural_join_condition.c
+  parser/parse_literal_to_parameter.c
+  parser/query_specification.c
+  parser/regex_specification.c
+  parser/set_operation.c
+  parser/sort_specification.c
+  parser/table_reference.c
+  parser/trim_dot_star.c
   ${BISON_OctoParser_OUTPUTS}
   ${FLEX_OctoLexer_OUTPUTS}
   ${POST_CONFIGURE_FILE}

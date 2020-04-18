@@ -584,7 +584,7 @@ run_query_in_octo_and_postgres_and_crosscheck() {
 		sed 's/\.\{0,1\}0\{1,\}$//;/\./ s/\.\{0,1\}0\{1,\}|/|/;' $fname.log1 > $fname.log2
 		sed 's/\.\{0,1\}0\{1,\}$//;/\./ s/\.\{0,1\}0\{1,\}|/|/;' $fname.log2 > $fname.log3
 	else
-		# If $trimzeroes != "trim_trailing_zeroes", still move the files into their unsorted
+		# If $trimzeroes != "trim_trailing_zeroes", still move the files into their "ref3" and "log3"
 		# versions for use later on in the process.
 		mv $fname.ref $fname.ref3
 		mv $fname.log $fname.log3
@@ -592,12 +592,22 @@ run_query_in_octo_and_postgres_and_crosscheck() {
 	# Below two awks add leading zeros into the Octo output in oder to match PSQL's output
 	# Octo Output: .333   PSQL Output: 0.333
 	awk '{gsub(/[^0-9]\.[0-9]/,"|0.")}1' $fname.log3 > $fname.log4
-	awk '{gsub(/^\.[0-9]/,"0.")}1' $fname.log4 > $fname.log
-	mv $fname.ref3 $fname.ref
+	awk '{gsub(/^\.[0-9]/,"0.")}1' $fname.log4 > $fname.log5
+	# Check if query has ORDER BY that is not inside a subquery OR if "--sort-needed-check" is present. If so, do not sort.
+	# Otherwise sort as order is not guaranteed to match between Octo and Postgres.
+	orderbyexists=$(sed 's/(.*)//g' $queryfile | grep -ci "ORDER BY") || true	# grep -c can return non-zero status in case of no match hence the need for "|| true"
+	sortneededcheck=$(grep -c "sort-needed-check" $queryfile) || true	# grep -c can return non-zero status in case of no match hence the need for "|| true"
+	if [[ $orderbyexists -eq 0 ]] || [[ $sortneededcheck -ne 0 ]]; then
+		# ORDER BY does not exist in the query. So sort the outputs.
+		mv $fname.ref3 $fname.unsorted.ref3
+		mv $fname.log5 $fname.unsorted.log5
+		sort $fname.unsorted.ref3 > $fname.ref3
+		sort $fname.unsorted.log5 > $fname.log5
+	fi
 	# Below two seds set numerical values to only have 10 digits after the decimal point as both Octo
 	# and PSQL can return varying levels of precision (12 is the least amount of decimals seen so far)
-	sed -re 's/([0-9]+\.[0-9]{10})[0-9]+/\1/g' $fname.ref >& $fname.ref
-	sed -re 's/([0-9]+\.[0-9]{10})[0-9]+/\1/g' $fname.log >& $fname.log
+	sed -re 's/([0-9]+\.[0-9]{10})[0-9]+/\1/g' $fname.ref3 >& $fname.ref
+	sed -re 's/([0-9]+\.[0-9]{10})[0-9]+/\1/g' $fname.log5 >& $fname.log
 	rowcountonlycheck=$(grep -c "rowcount-only-check" $queryfile) || true	# grep -c can return non-zero status in case of no match hence the need for "|| true"
 	if [[ $rowcountonlycheck -eq 0 ]]; then
 		diff $fname.ref $fname.log >& $fname.diff

@@ -1,0 +1,14 @@
+
+-- All queries in this query file are invalid queries and generate an error.
+
+-- TEO02 : OCTO496 : EXISTS on a sub query that has UNION operations fails assertions
+
+SELECT EXISTS (SELECT 1,2 UNION SELECT 3);
+
+[ERROR] PATH:LINENUM DATE TIME : Each UNION query must have same number of columns
+Error with syntax near (line 1, column 25):
+
+SELECT EXISTS (SELECT 1,2 UNION SELECT 3);
+                        ^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT EXISTS (SELECT 1,2 UNION SELECT 3);
+

@@ -123,10 +123,10 @@ SqlStatement *find_column_alias_name(SqlStatement *stmt) {
 		}
 		break;
 	case table_alias_STATEMENT:
-		// Nothing we can do here
+	case set_operation_STATEMENT:
+		/* We do not do anything for now */
 		break;
 	default:
-		// Nothing we can do here
 		assert(FALSE);
 		break;
 	}

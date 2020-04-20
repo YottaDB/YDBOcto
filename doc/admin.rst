@@ -3,6 +3,9 @@
 Administration
 ========================
 
+.. contents::
+   :depth: 4
+
 Octo uses an M routine to manage the users of the database and other administrative tasks, called %ydboctoAdmin.
 
 ----------------

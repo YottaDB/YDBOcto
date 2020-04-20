@@ -3,6 +3,9 @@
 Error Messages
 ==========================
 
+.. contents::
+   :depth: 4
+
 -------------------------
 Error Message Severities
 -------------------------
@@ -11,7 +14,7 @@ The error message severities are:
 
 * TRACE
 * INFO
-* DEBUG 
+* DEBUG
 * WARNING
 * ERROR
 * FATAL
@@ -607,7 +610,7 @@ NO_SCHEMA
 +++++++++++++++++++
 
 This error indicates that Rocto is not allowed to make schema changes without the startup flag set to :code:`--allowschemachanges`. PSQL Error Code: XX000
- 
+
 .. note:: Rocto is yet to implement certain features with respect to Data Manipulation Language (DML) and queries such as INSERT INTO, UPDATE, and DELETE could cause this error to be generated.
 
 ++++++++++++++++++++++++
@@ -666,7 +669,7 @@ This message is generated to show the Rocto server fork that is running, along w
 
 ++++++++++++++++++++
 ROCTO_STARTED
-++++++++++++++++++++    
+++++++++++++++++++++
 
 This message indicates a successful start of Rocto on the given port. PSQL Error Code: 00000
 
@@ -776,7 +779,7 @@ This error indicates that Rocto has received a request to bind a value of an uns
 PostgreSQL Error Codes Used
 ----------------------------
 
-Octo uses a few `PostgreSQL Error Codes <https://www.postgresql.org/docs/current/errcodes-appendix.html>`_. 
+Octo uses a few `PostgreSQL Error Codes <https://www.postgresql.org/docs/current/errcodes-appendix.html>`_.
 
 List of PostgreSQL error codes defined and used in Octo:
 

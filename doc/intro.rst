@@ -57,13 +57,13 @@ Install Prerequisites
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   Install YottaDB POSIX plugin
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  
+
   The YottaDB POSIX plugin can be installed easily by adding the :code:`--posix` option when installing YottaDB with the :code:`ydbinstall` script:
 
    .. parsed-literal::
 
       ./ydbinstall --posix
-     
+
   Alternatively, users can build the POSIX plugin from source:
 
    .. parsed-literal::
@@ -107,7 +107,7 @@ Install Octo
 .. note::
    There are no binary releases during the beta period.
 
-^^^^^^^^^^^^^^^   
+^^^^^^^^^^^^^^^
   From Tarball
 ^^^^^^^^^^^^^^^
   #. Decompress the Octo binary package
@@ -119,13 +119,13 @@ Install Octo
   #. Install Octo
 
      This will install Octo to your :code:`$ydb_dist/plugin` directory.
-     
+
      .. parsed-literal::
 
 	cd YDBOcto-\*-Linux
 	./install.sh
 
-^^^^^^^^^^^^^^^	
+^^^^^^^^^^^^^^^
   From source
 ^^^^^^^^^^^^^^^
 
@@ -133,9 +133,9 @@ Install Octo
 
      This is the recommended instructions during the beta period as it provides the easiest upgrade path from each commit.
 
-""""""""""""""""""""""""""""""""""  
+""""""""""""""""""""""""""""""""""
      Install Prerequisite Packages
-""""""""""""""""""""""""""""""""""   
+""""""""""""""""""""""""""""""""""
 
      .. parsed-literal::
 
@@ -147,9 +147,9 @@ Install Octo
         sudo yum install epel-release
         sudo yum install cmake3 bison flex readline-devel vim-common libconfig-devel openssl-devel
 
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""     
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
      *(Optional)* Install Bats Automated Test System (BATS)
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""    
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
      Octo uses BATS for automated integration and regression testing. To use BATS to run tests on Octo, BATS version 1.1+ must be installed:
 
@@ -160,13 +160,13 @@ Install Octo
 	sudo ./install.sh /usr
 
      This will install BATS to /usr/bin. Note that installing to /usr may require root access or use of :code:`sudo`. To specify an alternative path change the argument to your preferred location, e.g. "/usr/local" to install to /usr/local/bin.
-     
+
 
      Details available in the `BATS source repo <https://github.com/bats-core/bats-core>`_.
 
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""     
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""
      *(Optional)* Install cmocka unit testing framework
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""    
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
      Octo uses cmocka for automated unit testing. To build and run Octo's unit tests, cmocka must be installed:
 
@@ -177,7 +177,7 @@ Install Octo
 
 	\# CentOS Linux OR RedHat Linux
 	sudo yum install libcmocka-devel
-	
+
 """"""""""""""""""""""""""""""""""""""""""""""""""
      *(Optional)* Install PostgreSQL client (psql)
 """"""""""""""""""""""""""""""""""""""""""""""""""
@@ -192,9 +192,9 @@ Install Octo
 	\# CentOS Linux OR RedHat Linux
 	sudo yum install postgresql
 
-""""""""""""""""""""""""""""""""""""""""""""	
+""""""""""""""""""""""""""""""""""""""""""""
      *(Optional)* Install PostgreSQL server
-""""""""""""""""""""""""""""""""""""""""""""    
+""""""""""""""""""""""""""""""""""""""""""""
 
      Octo uses the PostgreSQL server for some integration/regression tests. To build and run these tests, PostgreSQL must be installed:
 
@@ -205,7 +205,7 @@ Install Octo
 
 	\# CentOS Linux OR RedHat Linux
 	sudo yum install postgresql
-	
+
      Additionally, PostgreSQL must be set up for the user who will be running the tests:
 
      .. parsed-literal::
@@ -215,7 +215,7 @@ Install Octo
 	alter user [username] createdb;
 	PSQL
 
-""""""""""""""""""""""""""""""	
+""""""""""""""""""""""""""""""
      Download Octo Source Code
 """"""""""""""""""""""""""""""
 
@@ -226,10 +226,10 @@ Install Octo
          tar xzf YDBOcto-master.tar.gz
          cd YDBOcto-master
 
-"""""""""""""""""	 
+"""""""""""""""""
      Compile Octo
-"""""""""""""""""    
- 
+"""""""""""""""""
+
       .. parsed-literal::
 
          mkdir build
@@ -246,9 +246,9 @@ Install Octo
 
 	 Octo uses some CMake parameters to control generation of fixed-size buffer allocations.
 
-	 
+
       These are:
-      
+
          * :code:`STRING_BUFFER_LENGTH` -- The maximum length of a string within the system. Also, this supercedes any VARCHAR definitions.
          * :code:`INIT_M_ROUTINE_LENGTH` -- The initial length for the buffer of generated M routines. The default is 10MB.
          * :code:`MEMORY_CHUNK_SIZE` -- Size of memory chunks to allocate; default is 32MB.
@@ -260,9 +260,9 @@ Install Octo
 
          cmake -DSTRING_BUFFER_LENGTH=600000 -DCMAKE_INSTALL_PREFIX=$ydb_dist/plugin ..
 
-"""""""""""""""""     
+"""""""""""""""""
      Install Octo
-"""""""""""""""""    
+"""""""""""""""""
 
       Install Octo:
 
@@ -296,7 +296,7 @@ Configure Octo
       * :code:`ydb_routines`
       * :code:`ydb_ci`
       * :code:`ydb_xc_ydbposix`
-	
+
   The environment variables :code:`ydb_dist`, :code:`ydb_gbldir`, and :code:`ydb_routines` can initiallly be set by sourcing :code:`ydb_env_set` in your YottaDB installation directory. Additional modifications to ydb_routines may be needed due to configuration in :code:`octo.conf` described later in this manual.
 
   Example setting of the environment variables (assuming default paths):
@@ -308,7 +308,7 @@ Configure Octo
      export ydb_ci=$ydb_dist/plugin/octo/ydbocto.ci
      export ydb_xc_ydbposix=$ydb_dist/plugin/ydbposix.xc
 
-^^^^^^^^^^^^^^^^^^     
+^^^^^^^^^^^^^^^^^^
   Setup Database
 ^^^^^^^^^^^^^^^^^^
 
@@ -330,7 +330,7 @@ Configure Octo
      GDE> exit
      $ mupip create
 
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^     
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   Install PostgreSQL seed data
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -339,16 +339,16 @@ Configure Octo
      $ydb_dist/mupip load $ydb_dist/plugin/octo/postgres-seed.zwr
      $ydb_dist/plugin/bin/octo -f $ydb_dist/plugin/octo/postgres-seed.sql
 
-~~~~~~~~~~~~~~~~~~~~~~~~~    
-  Test with dummy data
-~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  Test with dummy data using Octo
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
   The :code:`northwind` dummy data set can be found in the :code:`tests/fixtures` directory of the YDBOcto repository. These are typically used for automated testing, but can also be used for manual testing.
 
   Each dummy data set consists of a :code:`.zwr` file and a :code:`.sql` file. The former contains the actual data to be stored in YottaDB, while the latter contains a schema that maps relational SQL structures (tables and columns) to the NoSQL data contained in YottaDB.
 
    .. note::
-     
+
      The :code:`northwind` dummy data files are only available if Octo has built from source.
      If you are working with a binary distribution, download the required files first and then move on to loading them.
 
@@ -361,9 +361,9 @@ Configure Octo
      # Download the required files
      curl -fSsLO https://gitlab.com/YottaDB/DBMS/YDBOcto/-/blob/master/tests/fixtures/northwind.zwr
      curl -fSsLO https://gitlab.com/YottaDB/DBMS/YDBOcto/-/blob/master/tests/fixtures/northwind.sql
-     
+
   Accordingly, to use this dummy data, both the data and DDL must be loaded.
-  
+
   In a shell with no :code:`ydb*` environment variables defined other than :code:`ydb_dir`, do the following:
 
   .. parsed-literal::
@@ -380,11 +380,11 @@ Configure Octo
      export ydb_dir=/tmp/octodemo
 
   Now, load the northwind data set:
-  
+
   .. parsed-literal::
 
      # In the /tests/fixtures directory
-     
+
      $ydb_dist/mupip load northwind.zwr
      $ydb_dist/plugin/bin/octo -f northwind.sql
 
@@ -397,16 +397,16 @@ Sample Queries
 Given below are some sample queries that can be run in Octo once the :code:`northwind` data set has been loaded.
 
   The following query selects only the DISTINCT values from the 'Country' column in the 'Suppliers' table.
-  
+
   .. parsed-literal::
-     
+
      OCTO> SELECT DISTINCT Country FROM Suppliers;
      UK
      USA
      Japan
      Spain
      Australia
-     Sweden 
+     Sweden
      Brazil
      Germany
      Italy
@@ -420,34 +420,34 @@ Given below are some sample queries that can be run in Octo once the :code:`nort
      Canada
 
   The following query selects the first five records from the 'Customers' table where the country is 'France'.
-  
+
   .. parsed-literal::
-     
+
      OCTO> SELECT * FROM Customers
      OCTO> WHERE Country='France'
      OCTO> LIMIT 5;
-     7|Blondel père et fils|Frédérique Citeaux|24, place Kléber|Strasbourg|67000|France
-     9|Bon app'|Laurence Lebihans|12, rue des Bouchers|Marseille|13008|France
-     18|Du monde entier|Janine Labrune|67, rue des Cinquante Otages|Nantes|44000|France
-     23|Folies gourmandes|Martine Rancé|184, chaussée de Tournai|Lille|59000|France
-     26|France restauration|Carine Schmitt|54, rue Royale|Nantes|44000|France
+     7\|Blondel père et fils\|Frédérique Citeaux\|24, place Kléber\|Strasbourg\|67000\|France
+     9\|Bon app'\|Laurence Lebihans\|12, rue des Bouchers\|Marseille\|13008\|France
+     18\|Du monde entier\|Janine Labrune\|67, rue des Cinquante Otages\|Nantes\|44000\|France
+     23\|Folies gourmandes\|Martine Rancé\|184, chaussée de Tournai\|Lille\|59000\|France
+     26\|France restauration\|Carine Schmitt\|54, rue Royale\|Nantes\|44000\|France
 
   The following query selects all products from the 'Products' table with a ProductName that starts with 'L'.
-  
+
   .. parsed-literal::
-     
+
      OCTO> SELECT * FROM Products
      OCTO> WHERE ProductName LIKE 'L%';
-     65|Louisiana Fiery Hot Pepper Sauce|2|2|32 - 8 oz bottles|21.05
-     66|Louisiana Hot Spiced Okra|2|2|24 - 8 oz jars|17
-     67|Laughing Lumberjack Lager|16|1|24 - 12 oz bottles|14
-     74|Longlife Tofu|4|7|5 kg pkg.|10
-     76|Lakkalikööri|23|1|500 ml |18
+     65\|Louisiana Fiery Hot Pepper Sauce\|2\|2\|32 - 8 oz bottles\|21.05
+     66\|Louisiana Hot Spiced Okra\|2\|2\|24 - 8 oz jars\|17
+     67\|Laughing Lumberjack Lager\|16\|1\|24 - 12 oz bottles\|14
+     74\|Longlife Tofu\|4\|7\|5 kg pkg.\|10
+     76\|Lakkalikööri\|23\|1\|500 ml \|18
 
   The following query displays the average price of Products per Category.
 
   .. parsed-literal::
-     
+
      OCTO> SELECT AVG(Price), CategoryID
      OCTO> FROM Products
      OCTO> GROUP BY CategoryID;
@@ -547,6 +547,41 @@ Given below are some sample queries that can be run in Octo once the :code:`nort
      Zaanse koeken|Confections|Zaanse Snoepfabriek
      Chocolade|Confections|Zaanse Snoepfabriek
 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Test with dummy data using Rocto
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+  The :code:`northwind` data set can also be queried using Rocto (Remote Octo server).
+  :code:`SQuirreL SQL` needs to be configured in order to use Rocto.
+  An alias needs to be created, including the server IP address and port number.
+
+  For example:
+
+  .. parsed-literal::
+
+     jdbc:postgresql://localhost:1337/
+
+  A username and password should also be added to the alias.
+  This username and password combination should also be added to Octo using the following command:
+
+  .. parsed-literal::
+
+     yottadb -r %ydboctoAdmin add user <username>
+
+
+  In a shell with YottaDB and Octo environment variables set, start Rocto using the following command:
+
+  .. parsed-literal::
+
+     rocto
+
+  Now, in SQuirreL SQL press the :code:`Connect` button for the alias created.
+  You can now run queries on the :code:`northwind` data set through SQuirreL SQL.
+
+  For example:
+
+  .. figure:: squirrel.png
+
 ~~~~~~~~~~~~~~~~~
 Usage
 ~~~~~~~~~~~~~~~~~
@@ -569,13 +604,15 @@ Octo has a few options that can be specified when it is launched.
 
 The verbose option specifies the amount of additional information that is provided to the user when commands are run in Octo.
 
-.. parsed-literal::
-   --verbose={number}
+ .. parsed-literal::
+
+    --verbose={number}
 
 or equivalently,
 
-.. parsed-literal::
-   -v{v{v}}
+ .. parsed-literal::
+
+    -v{v{v}}
 
 The number given to the option corresponds to the following levels:
 

@@ -189,6 +189,7 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 		output_pplan = get_physical_plan_from_unique_id(pplan, key->v.lp_key.key->unique_id);
 		stash_columns_in_keys = ((NULL != output_pplan) && (output_pplan->stash_columns_in_keys));
 		GET_LP(piece_num, plan, 1, LP_PIECE_NUMBER);
+		assert(!stash_columns_in_keys || (1 == piece_num->v.lp_piece_number.piece_number));
 		if (!stash_columns_in_keys) {
 			%{}$$mval2str^%%ydboctoplanhelpers({}%
 			%{}$$mvalPiece^%%ydboctoplanhelpers({}%

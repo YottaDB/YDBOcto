@@ -23,7 +23,7 @@
 
 void gen_source_keys(PhysicalPlan *out, LogicalPlan *plan);
 void iterate_keys(PhysicalPlan *out, LogicalPlan *plan);
-LogicalPlan *sub_query_check_and_generate_physical_plan(PhysicalPlanOptions *options, LogicalPlan *stmt);
+LogicalPlan *sub_query_check_and_generate_physical_plan(PhysicalPlanOptions *options, LogicalPlan *stmt, LogicalPlan *parent);
 
 PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlanOptions *options) {
 	SqlOptionalKeyword	*keywords, *keyword;
@@ -200,7 +200,7 @@ PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlanOptions *opt
 		 */
 		join_on_condition = table_joins->extra_detail.lp_table_join.join_on_condition;
 		if (NULL != join_on_condition) {
-			sub_query_check_and_generate_physical_plan(&plan_options, join_on_condition);
+			sub_query_check_and_generate_physical_plan(&plan_options, join_on_condition, NULL);
 		}
 		table_joins = table_joins->v.lp_default.operand[1];
 	} while (NULL != table_joins);
@@ -208,7 +208,7 @@ PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlanOptions *opt
 	 * (deferred and/or non-deferred) for them and add them as prev records in physical plan.
 	 */
 	where = lp_get_select_where(plan);
-	out->where = sub_query_check_and_generate_physical_plan(&plan_options, where);
+	out->where = sub_query_check_and_generate_physical_plan(&plan_options, where, NULL);
 	if (NULL != where->v.lp_default.operand[1]) {
 		/* If where->v.lp_default.operand[1] is non-NULL, this is the alternate list that
 		 * "lp_optimize_where_multi_equal_ands_helper()" built that needs to be checked too for deferred plans which
@@ -222,7 +222,7 @@ PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlanOptions *opt
 	 */
 	project = lp_get_project(plan);
 	GET_LP(select_column_list, project, 0, LP_COLUMN_LIST);
-	sub_query_check_and_generate_physical_plan(&plan_options, select_column_list);
+	sub_query_check_and_generate_physical_plan(&plan_options, select_column_list, NULL);
 	out->keywords = lp_get_select_keywords(plan)->v.lp_keywords.keywords;
 	out->projection = lp_get_projection_columns(plan);
 	/* See if there are any sub-queries in the HAVING clause. If so, generate separate physical plans
@@ -234,14 +234,14 @@ PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlanOptions *opt
 		having = out->aggregate_options->v.lp_default.operand[1];	/* cannot use GET_LP as having can be NULL */
 		if (NULL != having) {
 			out->aggregate_options->v.lp_default.operand[1]
-				= sub_query_check_and_generate_physical_plan(&plan_options, having);
+				= sub_query_check_and_generate_physical_plan(&plan_options, having, NULL);
 		}
 	}
 	/* See if there are any sub-queries in the ORDER BY clause. If so, generate separate physical plans
 	 * (deferred and/or non-deferred) for them and add them as prev records in physical plan.
 	 */
 	if (NULL != out->order_by) {
-		sub_query_check_and_generate_physical_plan(&plan_options, out->order_by);
+		sub_query_check_and_generate_physical_plan(&plan_options, out->order_by, NULL);
 	}
 	// Check the optional words for distinct
 	keywords = lp_get_select_keywords(plan)->v.lp_keywords.keywords;
@@ -279,7 +279,7 @@ void iterate_keys(PhysicalPlan *out, LogicalPlan *plan) {
 	}
 }
 
-LogicalPlan *sub_query_check_and_generate_physical_plan(PhysicalPlanOptions *options, LogicalPlan *stmt) {
+LogicalPlan *sub_query_check_and_generate_physical_plan(PhysicalPlanOptions *options, LogicalPlan *stmt, LogicalPlan *parent) {
 	int		i;
 
 	if (NULL == stmt) {
@@ -287,10 +287,13 @@ LogicalPlan *sub_query_check_and_generate_physical_plan(PhysicalPlanOptions *opt
 	}
 	assert(LP_UNARY_LAST != stmt->type);
 	if ((LP_ADDITION <= stmt->type) && (LP_BOOLEAN_LAST > stmt->type)) {
-		stmt->v.lp_default.operand[0] = sub_query_check_and_generate_physical_plan(options, stmt->v.lp_default.operand[0]);
-		stmt->v.lp_default.operand[1] = sub_query_check_and_generate_physical_plan(options, stmt->v.lp_default.operand[1]);
+		stmt->v.lp_default.operand[0]
+			= sub_query_check_and_generate_physical_plan(options, stmt->v.lp_default.operand[0], stmt);
+		stmt->v.lp_default.operand[1]
+			= sub_query_check_and_generate_physical_plan(options, stmt->v.lp_default.operand[1], stmt);
 	} else if ((LP_FORCE_NUM <= stmt->type) && (LP_UNARY_LAST > stmt->type)) {
-		stmt->v.lp_default.operand[0] = sub_query_check_and_generate_physical_plan(options, stmt->v.lp_default.operand[0]);
+		stmt->v.lp_default.operand[0]
+			= sub_query_check_and_generate_physical_plan(options, stmt->v.lp_default.operand[0], stmt);
 	} else {
 		PhysicalPlanOptions	plan_options;
 		PhysicalPlan		*cur, *child_plan;
@@ -308,7 +311,7 @@ LogicalPlan *sub_query_check_and_generate_physical_plan(PhysicalPlanOptions *opt
 		case LP_WHERE:
 		case LP_HAVING:
 			stmt->v.lp_default.operand[0]
-				= sub_query_check_and_generate_physical_plan(options, stmt->v.lp_default.operand[0]);
+				= sub_query_check_and_generate_physical_plan(options, stmt->v.lp_default.operand[0], stmt);
 			if (LP_HAVING == stmt->type) {
 				break;
 			}
@@ -320,7 +323,7 @@ LogicalPlan *sub_query_check_and_generate_physical_plan(PhysicalPlanOptions *opt
 				 * built that needs to also be checked for sub-queries.
 				 */
 				stmt->v.lp_default.operand[1]
-					= sub_query_check_and_generate_physical_plan(options, stmt->v.lp_default.operand[1]);
+					= sub_query_check_and_generate_physical_plan(options, stmt->v.lp_default.operand[1], stmt);
 			}
 			break;
 		case LP_DERIVED_COLUMN:
@@ -402,7 +405,18 @@ LogicalPlan *sub_query_check_and_generate_physical_plan(PhysicalPlanOptions *opt
 			 */
 			plan_options = *options;
 			plan_options.dnf_plan_next = NULL;
-			plan_options.stash_columns_in_keys = TRUE;
+			if ((NULL != parent) && ((LP_BOOLEAN_EXISTS == parent->type) || (LP_BOOLEAN_NOT_EXISTS == parent->type))) {
+				/* If sub-query is due to an EXISTS or NOT EXISTS operation, then do not stash columns in keys.
+				 * Keep it as is (it can have any # of columns).
+				 */
+				plan_options.stash_columns_in_keys = FALSE;
+			} else {
+				/* Otherwise, we are guaranteed only 1 column in sub-query so stash it in a key (due to the
+				 * check done in "src/optimization_transforms/lp_generate_where.c" (search for BOOLEAN_EXISTS).
+				 */
+				assert(1 == lp_get_num_cols_in_select_column_list(stmt));
+				plan_options.stash_columns_in_keys = TRUE;
+			}
 			new_plan = generate_physical_plan(stmt, &plan_options);
 			if (NULL == new_plan) {
 				return NULL;
@@ -424,7 +438,7 @@ LogicalPlan *sub_query_check_and_generate_physical_plan(PhysicalPlanOptions *opt
 		case LP_CASE_BRANCH_STATEMENT:
 			for (i = 0; i < 2; i++) {
 				stmt->v.lp_default.operand[i]
-					= sub_query_check_and_generate_physical_plan(options, stmt->v.lp_default.operand[i]);
+					= sub_query_check_and_generate_physical_plan(options, stmt->v.lp_default.operand[i], stmt);
 			}
 			break;
 		case LP_COLUMN_LIST:
@@ -432,7 +446,7 @@ LogicalPlan *sub_query_check_and_generate_physical_plan(PhysicalPlanOptions *opt
 			plan = stmt;
 			while (NULL != plan) {
 				assert(LP_COLUMN_LIST != plan->v.lp_default.operand[0]->type);
-				sub_query_check_and_generate_physical_plan(options, plan->v.lp_default.operand[0]);
+				sub_query_check_and_generate_physical_plan(options, plan->v.lp_default.operand[0], plan);
 				plan = plan->v.lp_default.operand[1];
 				assert((NULL == plan) || (LP_COLUMN_LIST == plan->type));
 			}
@@ -448,10 +462,10 @@ LogicalPlan *sub_query_check_and_generate_physical_plan(PhysicalPlanOptions *opt
 			 */
 			if (!stmt->extra_detail.lp_order_by.order_by_column_num) {
 				stmt->v.lp_default.operand[0]
-					= sub_query_check_and_generate_physical_plan(options, stmt->v.lp_default.operand[0]);
+					= sub_query_check_and_generate_physical_plan(options, stmt->v.lp_default.operand[0], stmt);
 			}
 			stmt->v.lp_default.operand[1]
-				= sub_query_check_and_generate_physical_plan(options, stmt->v.lp_default.operand[1]);
+				= sub_query_check_and_generate_physical_plan(options, stmt->v.lp_default.operand[1], stmt);
 			break;
 		case LP_TABLE:
 			// This should never happen; fall through to error case

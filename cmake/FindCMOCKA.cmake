@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -35,7 +35,7 @@ set(CMOCKA_LIBRARIES ${CMOCKA_LIBRARY})
 set(CMOCKA_INCLUDE_DIRS ${CMOCKA_INCLUDE_DIR})
 
 include(FindPackageHandleStandardArgs)
-find_package_handle_standard_args(cmocka  DEFAULT_MSG
+find_package_handle_standard_args(CMOCKA  DEFAULT_MSG
                                   CMOCKA_LIBRARY CMOCKA_INCLUDE_DIR)
 
 mark_as_advanced(CMOCKA_INCLUDE_DIR CMOCKA_LIBRARY)

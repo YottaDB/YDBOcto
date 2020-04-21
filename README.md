@@ -5,7 +5,9 @@
 The YottaDB Octo Database Management System is a SQL access layer built on top of the not-only-SQL database YottaDB.
 It aims to provide SQL 92 compliance and exceptional performance.
 
-Homepage https://gitlab.com/YottaDB/DBMS/YDBOcto
+Homepage: https://gitlab.com/YottaDB/DBMS/YDBOcto
+
+Documentation: https://docs.yottadb.com/Octo/index.html
 
 ## Setup
 

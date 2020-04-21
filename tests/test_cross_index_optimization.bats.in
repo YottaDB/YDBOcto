@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -108,7 +108,7 @@ OCTO
   cut -d " " -f 1 wc.txt 2>&1 | tee output.txt
   run cat output.txt
   [[ $output -eq 1 ]]
-  $ydb_dist/mumps -r %XCMD 'SET ^names(6)="|Charles|Hathaway"'
+  $ydb_dist/mumps -r %XCMD 'SET ^names(6)="Charles|Hathaway"'
   run $ydb_dist/mumps -r %XCMD zwrite ^%ydboctoxref
   [[ "$output" =~ "%ydboctoxref(\"NAMES\",\"FIRSTNAME\",\"Charles\",6)" ]]
   $ydb_dist/mumps -r %XCMD 'kill ^names(6)'

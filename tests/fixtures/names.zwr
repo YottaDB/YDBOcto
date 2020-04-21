@@ -1,8 +1,8 @@
 YottaDB MUPIP EXTRACT
 21-SEP-2018  14:55:45 ZWR
-^names(0)="0|Zero|Cool"
-^names(1)="1|Acid|Burn"
-^names(2)="2|Cereal|Killer"
-^names(3)="3|Lord|Nikon"
-^names(4)="4|Joey|"
-^names(5)="5|Zero|Cool"
+^names(0)="Zero|Cool"
+^names(1)="Acid|Burn"
+^names(2)="Cereal|Killer"
+^names(3)="Lord|Nikon"
+^names(4)="Joey|"
+^names(5)="Zero|Cool"

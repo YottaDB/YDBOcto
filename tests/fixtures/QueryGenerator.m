@@ -177,13 +177,14 @@ readZWR(file)
 	. . . . set table=$piece(fullThing,"(")_"("_innerNumber_")" ; EX: ^Names(custom number)
 	. . . . if $increment(innerNumber)
 	. . . . set firstData=$piece($piece(line(i),"=""",2),"|")
-	. . . . set data(table,i2,firstData)=""
+	. . . . set data(table,i2,$piece($piece(fullThing,"(",2),")"))=""
+	. . . . set data(table,i2+1,firstData)=""
 	. . . set holder=" "
 	. . . if (i2'=1) do
 	. . . . set holder=$piece(line(i),"|",i2)
 	. . . . ;If there is a " in the string, remove it
 	. . . . if (holder["""") set holder=$extract(holder,1,$find(holder,"""")-2)
-	. . . . if (holder'="") set data(table,i2,holder)=""
+	. . . . if (holder'="") set data(table,i2+1,holder)=""
 	. . . set pKey=$extract(line(i),$find(line(i),"("),$find(line(i),")")-2)
 	. . . set primaryKeys($extract(table,0,$find(table,"(")-2),pKey)=""
 	quit

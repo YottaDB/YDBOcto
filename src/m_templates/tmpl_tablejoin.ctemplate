@@ -176,7 +176,7 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *plan, LogicalPlan *tablejoin, unsigned in
 					TMPL(tmpl_key, key);
 					%{}={}%
 					key->skip_column_reference_optimization = TRUE;
-					TMPL(tmpl_column_reference, plan, key->cross_reference_column_alias);
+					TMPL(tmpl_column_reference, plan, key->cross_reference_column_alias, FALSE);
 					key->skip_column_reference_optimization = FALSE;
 					%{}`n{{ PLAN_LINE_START }}{}%
 				}

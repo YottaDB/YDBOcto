@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -36,7 +36,7 @@ SqlOptionalKeyword *add_optional_piece_keyword_to_sql_column(int column_number)
 	strncpy(malloc_space, buffer, len+1);
 	SQL_STATEMENT(keyword->v, value_STATEMENT);
 	MALLOC_STATEMENT(keyword->v, value, SqlValue);
-	keyword->v->v.value->type = STRING_LITERAL;
+	keyword->v->v.value->type = NUMERIC_LITERAL;
 	keyword->v->v.value->v.string_literal = malloc_space;
 	dqinit(keyword);
 	return keyword;

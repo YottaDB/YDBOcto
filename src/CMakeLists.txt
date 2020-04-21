@@ -343,7 +343,6 @@ set(template_dir ${PROJECT_SOURCE_DIR}/src/m_templates)
 set(template_files
   ${template_dir}/tmpl_column_list_combine.ctemplate
   ${template_dir}/tmpl_column_reference.ctemplate
-  ${template_dir}/tmpl_column_reference_trigger.ctemplate
   ${template_dir}/tmpl_duplication_check.ctemplate
   ${template_dir}/tmpl_emit_source.ctemplate
   ${template_dir}/tmpl_group_by.ctemplate

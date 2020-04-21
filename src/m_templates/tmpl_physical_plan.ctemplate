@@ -50,11 +50,11 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
 		// If this a plan for a cross reference, put safeguards in place (i.e. QUIT) to prevent building twice.
 		%{}LOCK -^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}") QUIT`n{{ PLAN_LINE_START }}{}%
 		%{}IF '$$dollarZTRIGGER^%%ydboctoplanhelpers("item","+{}%
-		TMPL(tmpl_column_reference_trigger, plan, column_alias);
+		TMPL(tmpl_column_reference, plan, column_alias, TRUE);
 		%{} -commands=SET,KILL -xecute=""DO handleSet^{{ plan->filename }}"" -name={{ plan->trigger_name }}")  {}%
 		%{}HALT`n{{ PLAN_LINE_START }}{}%
 		%{}SET %%ydboctoCancel("{{ tableName }}","{{ columnName }}","Trigger")="-{}%
-		TMPL(tmpl_column_reference_trigger, plan, column_alias);
+		TMPL(tmpl_column_reference, plan, column_alias, TRUE);
 		%{} -commands=SET,KILL -xecute=""DO handleSet^{{ plan->filename }}"""`n{{ PLAN_LINE_START }}{}%
 		%{}SET %%ydboctoCancel("{{ tableName }}","{{ columnName }}","Node")="^{{ config->global_names.raw_xref }}(""{}%
 		%{}{{ tableName }}"",""{{ columnName }}"")"`n{{ PLAN_LINE_START }}{}%

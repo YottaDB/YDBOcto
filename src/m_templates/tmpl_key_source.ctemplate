@@ -38,7 +38,6 @@ TEMPLATE(tmpl_key_source, PhysicalPlan *pplan, SqlKey *key) {
 		UNPACK_SQL_STATEMENT(value, key->column->columnName, value);
 		columnName = value->v.reference;
 		%{}^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}"{}%
-		//TMPL(tmpl_column_reference, pplan, key->cross_reference_output_key->cross_reference_column_alias);
 		// Output the column this cross reference is sourced from
 		iter_key_index = 0;
 		while ((iter_key_index < pplan->total_iter_keys) && (pplan->iterKeys[iter_key_index]->unique_id != key->unique_id))

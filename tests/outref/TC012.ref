@@ -1,0 +1,154 @@
+
+-- TC012 : OCTO484 : PIECE numbers of non-primary-key columns specified in CREATE TABLE should start at 1 by default
+
+-- Note: Each `SELECT * FROM SIMPLE` query below is preceded by a comment line (e.g. ` -- SIMPLE0 QUERY01`).
+--	This is done intentionally so later we can check which generated plan corresponds to which query.
+--	The line begins with ` --` (a space) instead of `--` to avoid load_fixture() from filtering out these comment lines.
+
+-- Test table with 0 non-primary-key columns
+CREATE TABLE SIMPLE0 (id integer primary key);
+ -- SIMPLE0 QUERY01
+SELECT * from SIMPLE0;
+
+-- Test table with 1 non-primary-key column
+CREATE TABLE SIMPLE1 (id integer primary key, firstname varchar);
+ -- SIMPLE1 QUERY02
+SELECT * from SIMPLE1;
+CREATE TABLE SIMPLE1 (id integer primary key, firstname varchar PIECE 1);
+ -- SIMPLE1 QUERY03 (should not show up because it is same as QUERY02)
+SELECT * from SIMPLE1;
+CREATE TABLE SIMPLE1 (id integer primary key, firstname varchar PIECE 2);
+ -- SIMPLE1 QUERY04
+SELECT * from SIMPLE1;
+CREATE TABLE SIMPLE1 (id integer primary key, firstname varchar PIECE 0);
+ -- SIMPLE1 QUERY05
+SELECT * from SIMPLE1;
+
+-- Test table with 2 non-primary-key columns
+CREATE TABLE SIMPLE2 (id integer primary key, firstname varchar, lastname varchar);
+ -- SIMPLE2 QUERY06
+SELECT * from SIMPLE2;
+CREATE TABLE SIMPLE2 (id integer primary key, firstname varchar, lastname varchar PIECE 0);
+ -- SIMPLE2 QUERY07
+SELECT * from SIMPLE2;
+CREATE TABLE SIMPLE2 (id integer primary key, firstname varchar, lastname varchar PIECE 1);
+ -- SIMPLE2 QUERY08
+SELECT * from SIMPLE2;
+CREATE TABLE SIMPLE2 (id integer primary key, firstname varchar, lastname varchar PIECE 2);
+ -- SIMPLE2 QUERY09 (should not show up because it is same as QUERY06)
+SELECT * from SIMPLE2;
+CREATE TABLE SIMPLE2 (id integer primary key, firstname varchar, lastname varchar PIECE 3);
+ -- SIMPLE2 QUERY10
+SELECT * from SIMPLE2;
+CREATE TABLE SIMPLE2 (id integer primary key, firstname varchar PIECE 0, lastname varchar);
+ -- SIMPLE2 QUERY11
+SELECT * from SIMPLE2;
+CREATE TABLE SIMPLE2 (id integer primary key, firstname varchar PIECE 0, lastname varchar PIECE 0);
+ -- SIMPLE2 QUERY12
+SELECT * from SIMPLE2;
+CREATE TABLE SIMPLE2 (id integer primary key, firstname varchar PIECE 0, lastname varchar PIECE 1);
+ -- SIMPLE2 QUERY13 (should not show up because it is same as QUERY11)
+SELECT * from SIMPLE2;
+CREATE TABLE SIMPLE2 (id integer primary key, firstname varchar PIECE 0, lastname varchar PIECE 2);
+ -- SIMPLE2 QUERY14
+SELECT * from SIMPLE2;
+CREATE TABLE SIMPLE2 (id integer primary key, firstname varchar PIECE 0, lastname varchar PIECE 3);
+ -- SIMPLE2 QUERY15
+SELECT * from SIMPLE2;
+CREATE TABLE SIMPLE2 (id integer primary key, firstname varchar PIECE 1, lastname varchar);
+ -- SIMPLE2 QUERY16 (should not show up because it is same as QUERY06)
+SELECT * from SIMPLE2;
+CREATE TABLE SIMPLE2 (id integer primary key, firstname varchar PIECE 1, lastname varchar PIECE 0);
+ -- SIMPLE2 QUERY17 (should not show up because it is same as QUERY07)
+SELECT * from SIMPLE2;
+CREATE TABLE SIMPLE2 (id integer primary key, firstname varchar PIECE 1, lastname varchar PIECE 1);
+ -- SIMPLE2 QUERY18 (should not show up because it is same as QUERY08)
+SELECT * from SIMPLE2;
+CREATE TABLE SIMPLE2 (id integer primary key, firstname varchar PIECE 1, lastname varchar PIECE 2);
+ -- SIMPLE2 QUERY19 (should not show up because it is same as QUERY09)
+SELECT * from SIMPLE2;
+CREATE TABLE SIMPLE2 (id integer primary key, firstname varchar PIECE 1, lastname varchar PIECE 3);
+ -- SIMPLE2 QUERY20 (should not show up because it is same as QUERY10)
+SELECT * from SIMPLE2;
+CREATE TABLE SIMPLE2 (id integer primary key, firstname varchar PIECE 2, lastname varchar);
+ -- SIMPLE2 QUERY21
+SELECT * from SIMPLE2;
+CREATE TABLE SIMPLE2 (id integer primary key, firstname varchar PIECE 2, lastname varchar PIECE 0);
+ -- SIMPLE2 QUERY22
+SELECT * from SIMPLE2;
+CREATE TABLE SIMPLE2 (id integer primary key, firstname varchar PIECE 2, lastname varchar PIECE 1);
+ -- SIMPLE2 QUERY23 (should not show up because it is same as QUERY21)
+SELECT * from SIMPLE2;
+CREATE TABLE SIMPLE2 (id integer primary key, firstname varchar PIECE 2, lastname varchar PIECE 2);
+ -- SIMPLE2 QUERY24
+SELECT * from SIMPLE2;
+CREATE TABLE SIMPLE2 (id integer primary key, firstname varchar PIECE 2, lastname varchar PIECE 3);
+ -- SIMPLE2 QUERY25
+SELECT * from SIMPLE2;
+CREATE TABLE SIMPLE2 (id integer primary key, firstname varchar PIECE 3, lastname varchar);
+ -- SIMPLE2 QUERY26
+SELECT * from SIMPLE2;
+CREATE TABLE SIMPLE2 (id integer primary key, firstname varchar PIECE 3, lastname varchar PIECE 0);
+ -- SIMPLE2 QUERY27
+SELECT * from SIMPLE2;
+CREATE TABLE SIMPLE2 (id integer primary key, firstname varchar PIECE 3, lastname varchar PIECE 1);
+ -- SIMPLE2 QUERY28 (should not show up because it is same as QUERY26)
+SELECT * from SIMPLE2;
+CREATE TABLE SIMPLE2 (id integer primary key, firstname varchar PIECE 3, lastname varchar PIECE 2);
+ -- SIMPLE2 QUERY29
+SELECT * from SIMPLE2;
+CREATE TABLE SIMPLE2 (id integer primary key, firstname varchar PIECE 3, lastname varchar PIECE 3);
+ -- SIMPLE2 QUERY30
+SELECT * from SIMPLE2;
+
+1
+1|First
+1|First
+1|
+1|
+1|First|Last
+1|First|
+1|First|First
+1|First|Last
+1|First|
+1||First
+1||
+1||First
+1||Last
+1||
+1|First|First
+1|First|
+1|First|First
+1|First|Last
+1|First|
+1|Last|First
+1|Last|
+1|Last|First
+1|Last|Last
+1|Last|
+1||First
+1||
+1||First
+1||Last
+1||
+
+_ydboctoP*.m:;  -- SIMPLE0 QUERY01
+_ydboctoP*.m:;  -- SIMPLE1 QUERY02
+_ydboctoP*.m:;  -- SIMPLE1 QUERY04
+_ydboctoP*.m:;  -- SIMPLE1 QUERY05
+_ydboctoP*.m:;  -- SIMPLE2 QUERY06
+_ydboctoP*.m:;  -- SIMPLE2 QUERY07
+_ydboctoP*.m:;  -- SIMPLE2 QUERY08
+_ydboctoP*.m:;  -- SIMPLE2 QUERY10
+_ydboctoP*.m:;  -- SIMPLE2 QUERY11
+_ydboctoP*.m:;  -- SIMPLE2 QUERY12
+_ydboctoP*.m:;  -- SIMPLE2 QUERY14
+_ydboctoP*.m:;  -- SIMPLE2 QUERY15
+_ydboctoP*.m:;  -- SIMPLE2 QUERY21
+_ydboctoP*.m:;  -- SIMPLE2 QUERY22
+_ydboctoP*.m:;  -- SIMPLE2 QUERY24
+_ydboctoP*.m:;  -- SIMPLE2 QUERY25
+_ydboctoP*.m:;  -- SIMPLE2 QUERY26
+_ydboctoP*.m:;  -- SIMPLE2 QUERY27
+_ydboctoP*.m:;  -- SIMPLE2 QUERY29
+_ydboctoP*.m:;  -- SIMPLE2 QUERY30

@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -25,17 +25,17 @@
  * Other errors return -2
  */
 int get_key_columns(SqlTable *table, SqlColumn **key_columns) {
-	int key_num, max_key = -1, error = 0;
-	SqlColumn *start_column, *cur_column;
-	SqlOptionalKeyword *keyword;
-	SqlValue *value;
+	int			key_num, max_key = -1, error = 0;
+	SqlColumn		*start_column, *cur_column;
+	SqlOptionalKeyword	*keyword;
+	SqlValue		*value;
+
 	UNPACK_SQL_STATEMENT(start_column, table->columns, column);
 	cur_column = start_column;
-
 	do {
 		keyword = get_keyword(cur_column, PRIMARY_KEY);
 		if ((NULL != keyword) && (NULL != key_columns)) {
-			if(key_columns[0] != NULL) {
+			if (NULL != key_columns[0]) {
 				UNPACK_SQL_STATEMENT(value, table->tableName, value);
 				ERROR(ERR_MULTIPLE_ZERO_KEYS, 0, value->v.reference);
 				return -2;
@@ -47,22 +47,24 @@ int get_key_columns(SqlTable *table, SqlColumn **key_columns) {
 		if (NULL != keyword) {
 			UNPACK_SQL_STATEMENT(value, keyword->v, value);
 			key_num = atoi(value->v.string_literal);
-			if(key_columns != NULL && key_columns[key_num] != NULL) {
+			if ((NULL != key_columns) && (NULL != key_columns[key_num])) {
 				UNPACK_SQL_STATEMENT(value, table->tableName, value);
 				ERROR(ERR_MULTIPLE_ZERO_KEYS, key_num, value->v.reference);
 				return -2;
 			}
-			if(key_columns != NULL)
+			if (NULL != key_columns) {
 				key_columns[key_num] = cur_column;
-			if(key_num > max_key)
+			}
+			if (key_num > max_key) {
 				max_key = key_num;
+			}
 		}
 		cur_column = cur_column->next;
-		assert(max_key < MAX_KEY_COUNT);
-	} while(start_column != cur_column);
+		assert(MAX_KEY_COUNT > max_key);
+	} while (start_column != cur_column);
 	// check that all keys <= max_key have been initialized
-	for(key_num = 0; key_num <= max_key; key_num++){
-		if(key_columns[key_num] == NULL){
+	for (key_num = 0; key_num <= max_key; key_num++) {
+		if (NULL == key_columns[key_num]) {
 			UNPACK_SQL_STATEMENT(value, table->tableName, value);
 			ERROR(ERR_MISSING_KEY, key_num, value->v.reference, max_key);
 			error = 1;

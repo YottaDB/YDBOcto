@@ -211,7 +211,7 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 		if (NULL != derived_column) {
 			TMPL(tmpl_print_expression, derived_column, pplan, dot_count, depth);
 		} else {
-			TMPL(tmpl_column_reference, pplan, plan->v.lp_column_alias.column_alias);
+			TMPL(tmpl_column_reference, pplan, plan->v.lp_column_alias.column_alias, FALSE);
 		}
 		break;
 	case LP_KEY:

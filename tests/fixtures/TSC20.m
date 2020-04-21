@@ -23,7 +23,7 @@ TSC20	;
 	.	.	; Take care not to go to 1048566 or else we would end up with MAXSTRLEN errors
 	.	.	set k=j+$select('$random(8)&(1048565>j):1,1:0)
 	.	.	set rand(j)=k
-	.	.	set ^longvalues(j)=j_"|"_$justify(k,k)
+	.	.	set ^longvalues(j)=$justify(k,k)
 	; Create reference file for later verification against Octo running SQL queries
 	set reffile="TSC20.half_ref"
 	open reffile:(newversion:stream:nowrap)
@@ -54,11 +54,11 @@ TSC20	;
 	use reffile
 	; Populate ^lotsofcols global
 	for i=1:1:8 do
-	. set val=i_"|"
+	. set val=""
 	. for j=1:1:ncols set val=val_$j(i_j,j)  set:j<ncols val=val_"|"
 	. set ^lotsofcols(i)=val
 	. ; Write expected output for : select * from lotsofcols;
-	. write val,!
+	. write i_"|"_val,!
 	;
 	close reffile
 	quit

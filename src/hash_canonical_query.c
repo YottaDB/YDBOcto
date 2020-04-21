@@ -24,6 +24,10 @@
 #include "template_helpers.h"
 #include "mmrhash.h"		// YottaDB hash functions
 
+/* 0 OR negative values of "*status" are considered normal. Positive values are considered abnormal. */
+#define	HASH_LITERAL_VALUES	-1
+#define	ABNORMAL_STATUS		1
+
 // Helper macro: adds integer values (statement type values, unique_id, column_number etc.) to hash digest
 // This is kept as a macro as that way we can assert that the size of FIELD is the same as the size of an "int".
 // If that assert fails, it is time to use "long" or some other type based on the size of the input.
@@ -41,7 +45,8 @@
 void hash_canonical_query_column_list_alias(hash128_state_t *state, SqlStatement *stmt, int *status, boolean_t do_loop) {
 	SqlColumnListAlias	*start_cla, *cur_cla;
 
-	if ((NULL == stmt) || (0 != *status))
+	/* Note: 0 OR negative values of "*status" are considered normal. Positive values are considered abnormal. */
+	if ((NULL == stmt) || (0 < *status))
 		return;
 	// SqlColumnListAlias
 	UNPACK_SQL_STATEMENT(start_cla, stmt, column_list_alias);
@@ -78,7 +83,8 @@ void hash_canonical_query_column_list_alias(hash128_state_t *state, SqlStatement
 void hash_canonical_query_column_list(hash128_state_t *state, SqlStatement *stmt, int *status, boolean_t do_loop) {
 	SqlColumnList	*column_list, *cur_column_list;
 
-	if ((NULL == stmt) || (0 != *status))
+	/* Note: 0 OR negative values of "*status" are considered normal. Positive values are considered abnormal. */
+	if ((NULL == stmt) || (0 < *status))
 		return;
 	// SqlColumnList
 	UNPACK_SQL_STATEMENT(column_list, stmt, column_list);
@@ -125,7 +131,8 @@ void hash_canonical_query(hash128_state_t *state, SqlStatement *stmt, int *statu
 
 	BinaryOperations	binary_operation;
 
-	if ((NULL == stmt) || (0 != *status))
+	/* Note: 0 OR negative values of "*status" are considered normal. Positive values are considered abnormal. */
+	if ((NULL == stmt) || (0 < *status))
 		return;
 	if (stmt->hash_canonical_query_cycle == hash_canonical_query_cycle)
 	{
@@ -249,8 +256,14 @@ void hash_canonical_query(hash128_state_t *state, SqlStatement *stmt, int *statu
 		case INTEGER_LITERAL:
 		case STRING_LITERAL:
 		case NUL_VALUE:
-			// Ignore literals to prevent redundant plans
-			break;
+			if (HASH_LITERAL_VALUES != *status) {
+				// Ignore literals to prevent redundant plans
+				break;
+			} else {
+				/* Caller has asked for literals to be hashed. So do that */
+			}
+			/* Note: Below comment is needed to avoid gcc [-Wimplicit-fallthrough=] warning */
+			/* fall through */
 		case FUNCTION_NAME:
 		case COLUMN_REFERENCE:
 			ydb_mmrhash_128_ingest(state, (void*)value->v.reference, strlen(value->v.reference));
@@ -355,11 +368,28 @@ void hash_canonical_query(hash128_state_t *state, SqlStatement *stmt, int *statu
 		UNPACK_SQL_STATEMENT(keyword, stmt, keyword);
 		cur_keyword = keyword;
 		do {
-			ADD_INT_HASH(state, keyword_STATEMENT);
-			// OptionalKeyword
-			ADD_INT_HASH(state, cur_keyword->keyword);
-			// SqlValue or SqlSelectStatement
-			hash_canonical_query(state, cur_keyword->v, status);
+			int	save_status;
+
+			/* Skip hashing NO_KEYWORD (as it creates different physical plans for otherwise identical queries) */
+			if (NO_KEYWORD != cur_keyword->keyword) {
+				ADD_INT_HASH(state, keyword_STATEMENT);
+				// OptionalKeyword
+				ADD_INT_HASH(state, cur_keyword->keyword);
+				/* SqlValue or SqlSelectStatement.
+				 * Literals in "value_STATEMENT" are in general not hashed but in this case, we could have keywords
+				 * like "OPTIONAL_PIECE" which hold the column piece # information. We do want that hashed or else
+				 * we could have different queries hashing to the same plan. Hence the set of "*status" to
+				 * "HASH_LITERAL_VALUES" so "hash_canonical_query()" knows that keyword literals need to be hashed.
+				 */
+				save_status = *status;
+				*status = HASH_LITERAL_VALUES;
+				hash_canonical_query(state, cur_keyword->v, status);
+				if (HASH_LITERAL_VALUES == *status) {
+					*status = save_status;
+				} else {
+					/* *status was changed by the "hash_canonical_query()" call. Retain changed value. */
+				}
+			}
 			cur_keyword = cur_keyword->next;
 		} while (cur_keyword != keyword);
 		break;
@@ -375,7 +405,7 @@ void hash_canonical_query(hash128_state_t *state, SqlStatement *stmt, int *statu
 	default:
 		assert(FALSE);
 		ERROR(ERR_UNKNOWN_KEYWORD_STATE, "");
-		*status = 1;
+		*status = ABNORMAL_STATUS;
 		break;
 	}
 }

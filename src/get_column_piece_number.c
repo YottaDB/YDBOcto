@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -19,25 +19,20 @@
 #include "octo_types.h"
 
 int get_column_piece_number(SqlColumnAlias *column_alias, SqlTableAlias *table_alias) {
-	SqlColumn		*column;
 	SqlColumnListAlias	*cur_cl_alias, *start_cl_alias;
-	int			part;
+	int			piece_number;
 
-	if (column_STATEMENT == column_alias->column->type) {
-		UNPACK_SQL_STATEMENT(column, column_alias->column, column);
-		assert(column->column_number);
-		return column->column_number;
-	}
+	assert(column_STATEMENT != column_alias->column->type);
 	UNPACK_SQL_STATEMENT(start_cl_alias, table_alias->column_list, column_list_alias);
 	cur_cl_alias = start_cl_alias;
-	part = 1;
+	piece_number = 1;
 	do {
 		if (column_alias == cur_cl_alias->outer_query_column_alias) {
 			break;
 		}
-		part++;
+		piece_number++;
 		cur_cl_alias = cur_cl_alias->next;
 	} while (cur_cl_alias != start_cl_alias);
-	assert((1 == part) || (cur_cl_alias != start_cl_alias));
-	return part;
+	assert((1 == piece_number) || (cur_cl_alias != start_cl_alias));
+	return piece_number;
 }

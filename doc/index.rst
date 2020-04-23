@@ -15,3 +15,4 @@ Octo Documentation (BETA)
    rocto
    errors
    config
+   pitfalls

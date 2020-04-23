@@ -34,18 +34,19 @@ void handle_invalid_option(char *executable_name, char short_option) {
 }
 
 int parse_startup_flags(int argc, char **argv) {
-	int c;
-	config->is_rocto = FALSE;
+	int	c;
 	char *octo_usage = "Usage: octo [OPTION]...\nStart the Octo SQL server.\n\nMandatory arguments for long options are also mandatory for short options.\n  -c, --config-file=<filepath>\t\tUse specified configuration file instead of the default.\n  -d, --dry-run\t\t\t\tRun the parser in read-only mode and performs basic checks without executing any passed SQL statements.\n  -f, --input-file=<filepath>\t\tRead commands from specified file instead of opening interactive prompt.\n  -h, --help\t\t\t\tDisplay this help message and exit.\n  -v, --verbose=<number>\t\tSpecify amount of information to output when running commands by specifying a numeric level from 0-5 or adding additional 'v' characters.\n  -r, --version\t\t\t\tDisplay version information and exit.\n  -r, --release\t\t\t\tDisplay release information and exit.\n";
 	char *rocto_usage = "Usage: rocto [OPTION]...\nStart the Rocto remote SQL server.\n\nMandatory arguments for long options are also mandatory for short options.\n  -a, --allowschemachanges\t\tAllows rocto to make changes to the schema (CREATE TABLE and DROP TABLE)\n  -c, --config-file=<filepath>\t\tUse specified configuration file instead of the default.\n  -h, --help\t\t\t\tDisplay this help message and exit.\n  -p, --port=<number>\t\t\tListen on the specified port.\n  -v, --verbose=<number>\t\tSpecify amount of information to output when running commands by specifying a numeric level from 0-5 or adding additional 'v' characters.\n  -r, --version\t\t\t\tDisplay version information and exit.\n  -r, --release\t\t\t\tDisplay release information and exit.\n";
 
-	if (0 < argc && NULL != strstr(argv[0], "rocto")) {
+	if ((0 < argc) && (NULL != strstr(argv[0], "rocto"))) {
 		config->is_rocto = TRUE;
 		// Rocto is by default not allowed to make schema changes
 		config->allow_schema_changes = FALSE;
 	} else {
+		config->is_rocto = FALSE;
 		config->allow_schema_changes = TRUE;
 	}
+	config->process_id = getpid();
 	optind = 1;
 
 	/* Parse input parameters */

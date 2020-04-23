@@ -1,0 +1,112 @@
+#!/usr/bin/expect
+#################################################################
+#								#
+# Copyright (c) 2020 YottaDB LLC and/or its subsidiaries.	#
+# All rights reserved.						#
+#								#
+#	This source code contains the intellectual property	#
+#	of its copyright holder(s), and is made available	#
+#	under a license.  If you do not know the terms of	#
+#	the license, please stop and do not read further.	#
+#								#
+#################################################################
+
+spawn bash
+
+# Change shell prompt to something other than "$" or "#" as that is a substring of many YDB/Octo prompts
+# and can cause incorrect match later when we wait for the shell prompt.
+# Note: Changing the shell prompt to SHELL might seem easily achieved as follows.
+#	send -- "PS1=SHELL\r"
+#	expect -exact "SHELL"
+# But that will not work because it is possible the "expect" matches the SHELL from the "PS1=SHELL" input.
+# To avoid this, we first store the "SHELL" string in a variable and use that to set the prompt.
+send -- "shellprompt=SHELL\r"
+# Allow for # or $ prompt. In the pipeline # is the prompt since it runs as the root user id.
+expect -re "\[#\$] "
+send -- "PS1=\$shellprompt\r"
+expect -exact "SHELL"
+
+puts "# Start octo process OCTO1"
+spawn octo
+set octo1 $spawn_id
+
+puts "# Wait for OCTO> prompt to appear in OCTO1"
+expect -i octo1 "OCTO>"
+
+puts "# Run <SELECT * FROM names;> in OCTO1 so NAMES is loaded in OCTO1 process local cache. Should display 3 columns"
+send -i octo1 -- "SELECT * FROM names;\r"
+
+puts "# Wait for OCTO> prompt to appear in OCTO1"
+expect -i octo1 "OCTO>"
+
+puts "# Start octo process OCTO2"
+spawn octo
+set octo2 $spawn_id
+
+puts "# Wait for OCTO> prompt to appear in OCTO2"
+expect -i octo2 "OCTO>"
+
+puts "# Run <CREATE TABLE names with only id column> in OCTO2"
+send -i octo2 -- "CREATE TABLE names (id INTEGER PRIMARY KEY) GLOBAL \"^names(keys(\"\"id\"\"))\";\r"
+
+puts "# Run empty query multiple times in OCTO1 to let the CREATE TABLE in OCTO2 proceed"
+puts "# Doing this step just once (instead of multiple times) sometimes causes test failures because the CREATE TABLE"
+puts "#   does not get the exclusive lock in a timely fashion (failure particularly seen in the make-tls-centos and"
+puts "#   make-tls-ubuntu pipelines)."
+send -i octo1 -- ";\r"
+expect -i octo1 "OCTO>"
+send -i octo1 -- ";\r"
+expect -i octo1 "OCTO>"
+send -i octo1 -- ";\r"
+expect -i octo1 "OCTO>"
+send -i octo1 -- ";\r"
+expect -i octo1 "OCTO>"
+send -i octo1 -- ";\r"
+expect -i octo1 "OCTO>"
+send -i octo1 -- ";\r"
+expect -i octo1 "OCTO>"
+send -i octo1 -- ";\r"
+expect -i octo1 "OCTO>"
+send -i octo1 -- ";\r"
+expect -i octo1 "OCTO>"
+send -i octo1 -- ";\r"
+
+puts "# Wait for OCTO> prompt to appear in OCTO1"
+expect -i octo1 "OCTO>"
+
+puts "# Wait for OCTO> prompt to appear in OCTO2. This signals that the CREATE TABLE query in OCTO2 ran to completion"
+expect -i octo2 "OCTO>"
+
+puts "# Run <SELECT * FROM names;> in OCTO1. Should display only 1 column now that the CREATE TABLE in OCTO2 has finished"
+send -i octo1 -- "SELECT * FROM names;\r"
+
+puts "# Wait for OCTO> prompt to appear in OCTO1"
+expect -i octo1 "OCTO>"
+
+puts "# Run <DROP TABLE names> in OCTO2"
+send -i octo2 -- "DROP TABLE names;\r"
+
+puts "# Run <SELECT * FROM names;> in OCTO1 to let the DROP TABLE in OCTO2 proceed. Should still display 1 column"
+send -i octo1 -- "SELECT * FROM names;\r"
+
+puts "# Wait for OCTO> prompt to appear in OCTO2"
+expect -i octo2 "OCTO>"
+
+puts "# Wait for OCTO> prompt to appear in OCTO1"
+expect -i octo1 "OCTO>"
+
+puts "# Run <SELECT * FROM names;> in OCTO1. Should display table does not exist error since DROP TABLE has finished"
+send -i octo1 -- "SELECT * FROM names;\r"
+
+puts "# Wait for OCTO> prompt to appear in OCTO1"
+expect -i octo1 "OCTO>"
+
+puts "# Exit from process OCTO1"
+send -i octo1 -- "exit\r"
+expect -i octo1 "SHELL"
+
+puts "# Exit from process OCTO2"
+send -i octo2 -- "exit\r"
+expect -i octo2 "SHELL"
+
+exit

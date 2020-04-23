@@ -228,6 +228,7 @@ SqlStatement *parse_line(ParseContext *parse_context);
 
 int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_context);
 SqlTable *find_table(const char *table_name);
+int drop_table_from_local_cache(ydb_buffer_t *table_name_buffer);
 SqlColumn *find_column(char *column_name, SqlTable *table);
 SqlStatement *find_column_alias_name(SqlStatement *stmt);
 void init_parent_table_alias(SqlStatement *table_alias_stmt, SqlTableAlias *parent_table_alias);
@@ -285,7 +286,8 @@ boolean_t match_sql_statement(SqlStatement *stmt, SqlStatement *match_stmt);
 
 void compress_statement(SqlStatement *stmt, char **out, int *out_length);
 SqlStatement *decompress_statement(char *buffer, int out_length);
-int store_table_in_pg_class(SqlTable *table);
+int store_table_in_pg_class(SqlTable *table, ydb_buffer_t *table_name_buffer);
+int delete_table_from_pg_class(ydb_buffer_t *table_name_buffer);
 void cleanup_tables();
 
 /* Parse related functions invoked from the .y files (parser.y, select.y etc.) */

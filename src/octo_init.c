@@ -37,31 +37,32 @@
 
 #define	OCTO_CONF_FILE_NAME	"octo.conf"
 
-#define SET_CONFIG_VARIABLE_NAME_AND_RETURN_ON_ERROR(NAME, CARET)								\
-{																\
-	int	length;														\
-																\
-	length = snprintf(config->global_names.NAME, sizeof(config->global_names.NAME), "%s%s%s", CARET, global_prefix, #NAME);	\
-	if ((0 > length) || ((int)sizeof(config->global_names.NAME) <= length)) {						\
-		ERROR(ERR_MIDENT_LENGTH, length, YDB_MAX_IDENT);								\
-		return 1;													\
-	}															\
+#define SET_CONFIG_VARIABLE_NAME_AND_RETURN_ON_ERROR(NAME, CARET)							\
+{															\
+	int	length;													\
+															\
+	length = snprintf(config->global_names.NAME, sizeof(config->global_names.NAME), "%s%%ydbocto%s", CARET, #NAME);	\
+	if ((0 > length) || ((int)sizeof(config->global_names.NAME) <= length)) {					\
+		ERROR(ERR_MIDENT_LENGTH, length, YDB_MAX_IDENT);							\
+		return 1;												\
+	}														\
+	assert('\0' == config->global_names.NAME[length]);								\
 }
 
-#define MERGE_CONFIG_PATH_AND_RETURN_ON_ERROR(FORMAT, ENV_VAR, CONFIG_FILE)							\
-{																\
-	int	tmp_path_len, status;												\
-	char	config_path[OCTO_PATH_MAX];											\
-																\
-	tmp_path_len = snprintf(config_path, sizeof(config_path), FORMAT, ENV_VAR, OCTO_CONF_FILE_NAME);			\
-	/* Ignore this configuration file if snprintf output was truncated. */							\
-	if (tmp_path_len < (int)sizeof(config_path)) {										\
-		assert('\0' == config_path[tmp_path_len]);									\
-		status = merge_config_file(config_path, CONFIG_FILE);								\
-		if (0 != status) {												\
-			return 1;												\
-		}														\
-	}															\
+#define MERGE_CONFIG_PATH_AND_RETURN_ON_ERROR(FORMAT, ENV_VAR, CONFIG_FILE)					\
+{														\
+	int	tmp_path_len, status;										\
+	char	config_path[OCTO_PATH_MAX];									\
+														\
+	tmp_path_len = snprintf(config_path, sizeof(config_path), FORMAT, ENV_VAR, OCTO_CONF_FILE_NAME);	\
+	/* Ignore this configuration file if snprintf output was truncated. */					\
+	if (tmp_path_len < (int)sizeof(config_path)) {								\
+		assert('\0' == config_path[tmp_path_len]);							\
+		status = merge_config_file(config_path, CONFIG_FILE);						\
+		if (0 != status) {										\
+			return 1;										\
+		}												\
+	}													\
 }
 
 void merge_config_file_helper(config_setting_t *a, config_setting_t *b);
@@ -147,15 +148,14 @@ void merge_config_file_helper(config_setting_t *a, config_setting_t *b) {
 }
 
 int populate_global_names() {
-	char	*global_prefix = "%ydbocto";
-
-	SET_CONFIG_VARIABLE_NAME_AND_RETURN_ON_ERROR(schema, "^");
-	SET_CONFIG_VARIABLE_NAME_AND_RETURN_ON_ERROR(octo, "^");
-	config->global_names.raw_octo = &config->global_names.octo[1];
-	SET_CONFIG_VARIABLE_NAME_AND_RETURN_ON_ERROR(xref, "^");
-	config->global_names.raw_xref = &config->global_names.xref[1];
-	SET_CONFIG_VARIABLE_NAME_AND_RETURN_ON_ERROR(session, "");
-	SET_CONFIG_VARIABLE_NAME_AND_RETURN_ON_ERROR(cursor, "");
+	SET_CONFIG_VARIABLE_NAME_AND_RETURN_ON_ERROR(schema, "^");				/* ^%ydboctoschema */
+	SET_CONFIG_VARIABLE_NAME_AND_RETURN_ON_ERROR(session, "");				/*  %ydboctosession */
+	SET_CONFIG_VARIABLE_NAME_AND_RETURN_ON_ERROR(cursor, "");				/*  %ydboctocursor */
+	SET_CONFIG_VARIABLE_NAME_AND_RETURN_ON_ERROR(octo, "^");				/* ^%ydboctoocto */
+	config->global_names.raw_octo = &config->global_names.octo[1];				/*  %ydboctoocto */
+	SET_CONFIG_VARIABLE_NAME_AND_RETURN_ON_ERROR(xref, "^");				/* ^%ydboctoxref */
+	config->global_names.raw_xref = &config->global_names.xref[1];				/*  %ydboctoxref */
+	SET_CONFIG_VARIABLE_NAME_AND_RETURN_ON_ERROR(loadedschemas, "");			/*  %ydboctoloadedschemas */
 	return 0;
 }
 

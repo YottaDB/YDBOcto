@@ -1,0 +1,67 @@
+#!/usr/bin/expect
+#################################################################
+#								#
+# Copyright (c) 2020 YottaDB LLC and/or its subsidiaries.	#
+# All rights reserved.						#
+#								#
+#	This source code contains the intellectual property	#
+#	of its copyright holder(s), and is made available	#
+#	under a license.  If you do not know the terms of	#
+#	the license, please stop and do not read further.	#
+#								#
+#################################################################
+
+spawn /bin/bash
+
+# Change shell prompt to something other than "$" or "#" as that is a substring of many YDB/Octo prompts
+# and can cause incorrect match later when we wait for the shell prompt.
+# Note: Changing the shell prompt to SHELL might seem easily achieved as follows.
+#	send -- "PS1=SHELL\r"
+#	expect -exact "SHELL"
+# But that will not work because it is possible the "expect" matches the SHELL from the "PS1=SHELL" input.
+# To avoid this, we first store the "SHELL" string in a variable and use that to set the prompt.
+send -- "shellprompt=SHELL\r"
+# Allow for # or $ prompt. In the pipeline # is the prompt since it runs as the root user id.
+expect -re "\[#\$] "
+send -- "PS1=\$shellprompt\r"
+expect -exact "SHELL"
+
+puts "# Start octo process OCTO1"
+send -- "octo\r"
+puts "# Wait for OCTO> prompt to appear."
+expect "OCTO>"
+puts "# Let process OCTO1 sit at Octo prompt. Now send <Ctrl-Z> to suspend this process."
+send -- "\x1A\r"
+expect "SHELL"
+
+puts "# Start octo process OCTO2"
+send -- "octo\r"
+puts "# Wait for OCTO> prompt to appear"
+expect "OCTO>"
+
+puts "# Set expect timeout to a high value (60 seconds) as CREATE/DROP TABLE will take 10 seconds or more to return"
+set timeout 60
+puts "# Try CREATE TABLE or DROP TABLE (randomly) in process OCTO2. Should error/time out due to process OCTO1 in OCTO> prompt"
+set choice [expr {int(rand()*2)}]
+if {$choice == 0} {
+	# Choose CREATE TABLE
+	send -- "CREATE TABLE dummy (id INTEGER PRIMARY KEY);\r"
+} else {
+	# Choose DROP TABLE
+	send -- "DROP TABLE dummy;\r"
+}
+puts "# Verify the command timed out"
+expect "ydb_lock_s()/ydb_lock_incr_s() call timed out"
+expect "OCTO>"
+puts "# Exit from process OCTO2"
+send -- "exit\r"
+expect "SHELL"
+
+puts "# Go back to process OCTO1"
+send -- "fg\r"
+puts "# Exit from process OCTO1"
+send -- "exit\r"
+expect "SHELL"
+
+exit
+

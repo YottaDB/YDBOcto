@@ -1,0 +1,5 @@
+# Populate ^lotsofcols globals and create ddl.sql containing lots of CREATE TABLE commands : yottadb -run init^TC013
+# Create LOTSOFCOLS table before starting concurrency test : octo -f ddl.sql
+# Run CREATE TABLE and SELECT commands concurrently : yottadb -run job^TC013
+# Verify that the .mjo files contain what we expect them to : yottadb -run verify^TC013
+# Verify that the .mje files do not have any errors : cat *.mje*

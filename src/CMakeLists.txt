@@ -92,8 +92,6 @@ include_directories("${CONFIG_INCLUDE_DIR}")
 link_directories("${YOTTADB_INCLUDE_DIRS}")
 
 add_library(libhelpers OBJECT
-  helpers/set.c
-  helpers/get.c
   helpers/make_buffers.c
   ${POST_CONFIGURE_FILE}
 )
@@ -123,6 +121,7 @@ add_library(libocto OBJECT
   emit_column_specification.c
   quoting.c
   create_table_defaults.c
+  drop_table_from_local_cache.c
   print_result_row.c
   print_temporary_table.c
   readline_get_more.c
@@ -167,6 +166,7 @@ add_library(libocto OBJECT
   compress_statement.c
   decompress_statement.c
   store_table_in_pg_class.c
+  delete_table_from_pg_class.c
   ydb_error_check.c
   optimization_transforms/generate_logical_plan.c
   optimization_transforms/get_plan_unique_number.c

@@ -30,7 +30,7 @@ teardown() {
   stop_rocto
 }
 
-@test "test no MD5 authentication failure" {
+@test "TPC00A : test no MD5 authentication failure" {
   # Use non-existent user
   run_psql_auth buttons bobby $test_port <<OCTO 2>&1 | tee output.txt
 SELECT * FROM names;
@@ -38,14 +38,14 @@ OCTO
     [[ ! "$(cat results.log)" =~ "failed to retrieve user info from database" ]]
 }
 
-@test "select wildcard columns" {
+@test "TPC00B : select wildcard columns" {
   run_psql $test_port <<OCTO 2>&1 | tee output.txt
 SELECT * FROM names;
 OCTO
   [[ "$(grep -c -E "Zero.\+|Cool" output.txt)" == "2" ]]
 }
 
-@test "select wildcard columns with envvar ydb_lvnullsubs=2 (used to previously error out with LVNULLSUBS)" {
+@test "TPC00C : select wildcard columns with envvar ydb_lvnullsubs=2 (used to previously error out with LVNULLSUBS)" {
   export ydb_lvnullsubs=2
   run_psql $test_port <<OCTO 2>&1 | tee output.txt
 SELECT * FROM names;
@@ -53,37 +53,28 @@ OCTO
   [[ "$(grep -c -E "Zero.\+|Cool" output.txt)" == "2" ]]
 }
 
-@test "select lastName only (empty row+column check)" {
+@test "TPC00D : select lastName only (empty row+column check)" {
   run_psql $test_port <<OCTO 2>&1 | tee output.txt
 SELECT lastName FROM names;
 OCTO
   verify_output T0011 output.txt noinfo nodebug
 }
 
-@test "select two empty columns only (empty row+column check)" {
+@test "TPC00E : select two empty columns only (empty row+column check)" {
   run_psql $test_port <<OCTO 2>&1 | tee output.txt
 SELECT lastName, favoritePasta FROM names4;
 OCTO
   verify_output T0012 output.txt noinfo nodebug
 }
 
-@test "TPC000 : invalid syntax should get an error message" {
-  run_psql $test_port <<OCTO 2>&1 | tee output.txt
-SELECT * AFRO names;
-OCTO
-  cat output.txt rocto.log > combined_output.log
-  sed -i '/.*failed to send.*/d' combined_output.log
-  verify_output TPC000 combined_output.log psql noinfo nodebug
-}
-
-@test "ensure correct columns are sent using xref" {
+@test "TPC00F : ensure correct columns are sent using xref" {
   run_psql $test_port <<OCTO 2>&1 | tee output.txt
 SELECT * FROM names WHERE firstName = "Zero";
 OCTO
   [[ "$(grep -c -E "0.+Zero.+Cool" output.txt)" == "1" ]]
 }
 
-@test "use_dns config option false" {
+@test "TPC00G : use_dns config option false" {
   stop_rocto
   run sed -i '/rocto: {/a use_dns: false;' octo.conf
   if [[ $status -ne 0 ]]; then
@@ -96,7 +87,7 @@ OCTO
   [[ $(grep -c "127.0.0.1" rocto.log) -ge 1 ]]
 }
 
-@test "use_dns config option true" {
+@test "TPC00H : use_dns config option true" {
   stop_rocto
   run sed -i '/rocto: {/a use_dns: true;' octo.conf
   if [[ $status -ne 0 ]]; then
@@ -109,7 +100,7 @@ OCTO
   [[ $(grep -c "localhost" rocto.log) -ge 1 ]]
 }
 
-@test "verify that dead procs don't become zombies" {
+@test "TPC00I : verify that dead procs don't become zombies" {
   run_psql $test_port <<OCTO 2>&1 | tee output.txt
 SELECT * FROM names;
 OCTO
@@ -118,7 +109,7 @@ OCTO
   [[ $(ps -ef | awk '$3 == '`cat rocto.pid`' { print $0;}' | wc -l) -eq 0 ]]
 }
 
-@test "ensure error message when YDB_TLS_AVAILABLE not set and ssl_on is set " {
+@test "TPC00J : ensure error message when YDB_TLS_AVAILABLE not set and ssl_on is set " {
   if [[ @YDB_TLS_AVAILABLE@ -ne 0 ]]; then
     skip "YDB_TLS_AVAILABLE is set"
   fi
@@ -144,14 +135,14 @@ OCTO
   [[ "$output" =~ "YottaDB TLS plugin not installed" ]]
 }
 
-@test "ensure socket cleanup when rocto process is killed" {
+@test "TPC00K : ensure socket cleanup when rocto process is killed" {
   kill -9 $(cat rocto.pid)
   start_rocto $test_port
   log=$(cat rocto.log)
   [[ ! "$log" =~ "System error 98: Address already in use" ]]
 }
 
-@test "ensure error message when trying to call an M function in rocto" {
+@test "TPC00L : ensure error message when trying to call an M function in rocto" {
   DDOLAR='$$'
   run_psql $test_port <<OCTO 2>&1 | tee output.txt
 select $DDOLAR^USERFUNC1(42) from names;
@@ -159,7 +150,7 @@ OCTO
   verify_output T0023 output.txt noinfo nodebug
 }
 
-@test "ensure full SQL query is logged (no missing bytes) in rocto and octo log when started with -vv" {
+@test "TPC00M : ensure full SQL query is logged (no missing bytes) in rocto and octo log when started with -vv" {
   query="select id from names"
   expectstring="Parsing done for SQL command \[$query\]"
   echo $query > query.sql
@@ -169,7 +160,16 @@ OCTO
   [[ $(grep -c "$expectstring" octo.log) -eq 1 ]]
 }
 
-@test "start rocto without --allowschemachanges and try to change the schema" {
+@test "TPC000 : invalid syntax should get an error message" {
+  run_psql $test_port <<OCTO 2>&1 | tee output.txt
+SELECT * AFRO names;
+OCTO
+  cat output.txt rocto.log > combined_output.log
+  sed -i '/.*failed to send.*/d' combined_output.log
+  verify_output TPC000 combined_output.log psql noinfo nodebug
+}
+
+@test "TPC001 : start rocto without --allowschemachanges and try to change the schema" {
   yottadb -run %XCMD 'set ^T1(1,2)="1|2",^T1(42,9001)="42|9001",^T1(1337,42)="1337|42"'
   stop_rocto
   test_portC=$(start_rocto $test_port)
@@ -185,7 +185,7 @@ OCTO
   verify_output TPC001 output.txt noinfo nodebug
 }
 
-@test "start rocto with --allowschemachanges and try to change the schema" {
+@test "TPC002 : start rocto with --allowschemachanges and try to change the schema" {
   yottadb -run %XCMD 'set ^T1(1,2)="1|2",^T1(42,9001)="42|9001",^T1(1337,42)="1337|42"'
   stop_rocto
   test_portD=$(start_rocto $test_port --allowschemachanges)
@@ -201,7 +201,7 @@ OCTO
   verify_output TPC002 output.txt noinfo nodebug
 }
 
-@test "start rocto with -a and try to change the schema" {
+@test "TPC003 : start rocto with -a and try to change the schema" {
   yottadb -run %XCMD 'set ^T1(1,2)="1|2",^T1(42,9001)="42|9001",^T1(1337,42)="1337|42"'
   stop_rocto
   test_portE=$(start_rocto $test_port --allowschemachanges)

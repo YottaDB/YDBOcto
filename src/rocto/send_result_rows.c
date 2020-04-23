@@ -51,7 +51,7 @@ int send_result_rows(int32_t cursor_id, void *_parms, char *plan_name) {
 	// Populate buffers for cursor LVN and metadata GVN
 	snprintf(cursor_id_str, INT64_TO_STRING_MAX, "%d", cursor_id);
 	cursor_subs = make_buffers(config->global_names.cursor, 6, cursor_id_str, "keys", "", "", "", "");
-	outkey_buffers = make_buffers("^%ydboctoocto", 3, "plan_metadata", plan_name, "output_key");
+	outkey_buffers = make_buffers(config->global_names.octo, 3, "plan_metadata", plan_name, "output_key");
 
 	// Retrieve output key ID for result rows
 	YDB_MALLOC_BUFFER(&cursor_subs[3], INT32_TO_STRING_MAX);	// Output key ID

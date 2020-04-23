@@ -17,7 +17,7 @@ setup() {
   createdb
 }
 
-@test "drop a table check that octo reports it does not exist" {
+@test "TDT01 : drop a table check that octo reports it does not exist" {
   # create a table that can be selected from
   yottadb -run %XCMD 'set ^T1(1)="2|3|4"'
   octo <<OCTO 2>&1 | tee output.txt
@@ -27,10 +27,10 @@ OCTO
 drop table t1;
 select * from t1;
 OCTO
-  verify_output TD000 output.txt noinfo nodebug
+  verify_output TDT01 output.txt noinfo nodebug
 }
 
-@test "drop a cached table check that octo reports it does not exist" {
+@test "TDT02 : drop a cached table check that octo reports it does not exist" {
   # create a table that can be selected from
   yottadb -run %XCMD 'set ^T1(1)="2|3|4"'
   octo <<OCTO 2>&1 | tee output.txt
@@ -41,5 +41,32 @@ select * from t1;
 drop table t1;
 select * from t1;
 OCTO
-  verify_output TD001 output.txt noinfo nodebug
+  verify_output TDT02 output.txt noinfo nodebug
 }
+
+@test "TDT03 : OCTO439 : DROP TABLE (and CREATE TABLE) also deletes unnecessary global variables nodes from catalog" {
+  echo "# Load customers DDL" > output.txt
+  load_fixture customers.sql
+  echo "# Invoke TDT03.sql to print ALL columns of ORDERS table" >> output.txt
+  # Below query prints the names of ALL columns of the table called 'ORDERS' using the catalog.
+  # This query will be invoked multiple times by the caller after various DROP TABLE and CREATE TABLE queries run
+  # We expect the output of the query to not change. Before the OCTO439 code fixes, the output would increase in size
+  # after every DROP TABLE or CREATE TABLE.
+  octo -f @PROJECT_SOURCE_DIR@/tests/fixtures/TDT03.sql 2>&1 >> output.txt
+  echo "# Now load customers DDL again (CREATE TABLE)" >> output.txt
+  load_fixture customers.sql
+  echo "# Now run query again to verify number of columns of ORDERS table stayed the same as before." >> output.txt
+  octo -f @PROJECT_SOURCE_DIR@/tests/fixtures/TDT03.sql 2>&1 >> output.txt
+  echo "# Now run DROP TABLE command" >> output.txt
+  octo <<OCTO 2>&1 | tee -a output.txt
+    drop table ORDERS;
+OCTO
+  echo "# Now run query again to verify number of columns of ORDERS table came down to 0." >> output.txt
+  octo -f @PROJECT_SOURCE_DIR@/tests/fixtures/TDT03.sql 2>&1 >> output.txt
+  echo "# And a final load of customers DDL again (CREATE TABLE)" >> output.txt
+  load_fixture customers.sql
+  echo "# Now run query again to verify number of columns of ORDERS table went back to its original number." >> output.txt
+  octo -f @PROJECT_SOURCE_DIR@/tests/fixtures/TDT03.sql 2>&1 >> output.txt
+  verify_output TDT03 output.txt noinfo nodebug
+}
+

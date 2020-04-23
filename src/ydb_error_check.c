@@ -22,8 +22,26 @@ void ydb_error_check(int status, char *file, int line)
 	unsigned int	ydb_data_ret_value;
 	boolean_t	is_octo_internal_error;
 
-	if (YDB_OK == status)
+	/* First check for known YDB error codes that do not populate $ZSTATUS */
+	switch(status) {
+	case YDB_OK:
 		return;
+	case YDB_TP_RESTART:
+	case YDB_TP_ROLLBACK:
+	case YDB_NOTOK:
+		assert(FALSE);
+		return;
+		break;
+	case YDB_LOCK_TIMEOUT:
+		octo_log(line, file, ERROR, ERR_YOTTADB, "ydb_lock_s()/ydb_lock_incr_s() call timed out. "
+				"Another process with schema change rights, or a long-running query, is active.");
+		return;
+	default:
+		/* It is an Octo internal error code or a YDB error code that populates $ZSTATUS (i.e. YDB_ERR_*).
+		 * Fall through to code that handles these two cases.
+		 */
+		break;
+	}
 	/* Check if the error code returned is an Octo-internal error code.
 	 *	(i.e. %ydboctoerrcodemin < error-code < %ydboctoerrcodemax).
 	 * If so handle that separately. Else treat it as a YDB error code.

@@ -86,7 +86,7 @@ int print_temporary_table(SqlStatement *stmt, int cursor_id, void *parms, char *
 
 	snprintf(cursor_id_str, INT64_TO_STRING_MAX, "%d", cursor_id);
 	cursor_buffers = make_buffers(config->global_names.cursor, 6, cursor_id_str, "keys", "", "", "", "");
-	outkey_buffers = make_buffers("^%ydboctoocto", 3, "plan_metadata", plan_name, "output_key");
+	outkey_buffers = make_buffers(config->global_names.octo, 3, "plan_metadata", plan_name, "output_key");
 
 	YDB_MALLOC_BUFFER(&cursor_buffers[3], INT64_TO_STRING_MAX);
 	status = ydb_get_s(&outkey_buffers[0], 3, &outkey_buffers[1], &cursor_buffers[3]);

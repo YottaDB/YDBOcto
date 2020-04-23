@@ -21,10 +21,6 @@
 #include "message_formats.h"
 #include "rocto.h"
 
-#define INT16_MAX_DIGITS 5
-#define INT32_MAX_DIGITS 10
-#define INT64_MAX_DIGITS 20
-
 int32_t copy_text_parameter(Bind *bind, const int32_t cur_parm, char *bound_query, int32_t bound_offset) {
 	memcpy(&bound_query[bound_offset], bind->parms[cur_parm].value, bind->parms[cur_parm].length);
 	bound_offset += bind->parms[cur_parm].length;

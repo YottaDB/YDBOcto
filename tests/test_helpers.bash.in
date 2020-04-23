@@ -184,7 +184,7 @@ createdb() {
 FILE
 	else
 		$ydb_dist/mumps -r ^GDE <<FILE
-change -region DEFAULT -null_subscripts=true -record_size=1024
+change -region DEFAULT -null_subscripts=true -record_size=1048576
 change -segment DEFAULT -file_name=$test_temp/mumps.dat
 add -name %ydbocto* -region=OCTOREG
 add -region OCTOREG -dyn=OCTOSEG

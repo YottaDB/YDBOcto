@@ -15,6 +15,7 @@
 
 #include <libyottadb.h>
 #include <libconfig.h>
+#include <sys/types.h>
 
 #include "errors.h"
 #include "octo_types.h"
@@ -39,18 +40,20 @@ typedef struct {
 	char cursor[YDB_MAX_IDENT+1];
 	char octo[YDB_MAX_IDENT+1];
 	char xref[YDB_MAX_IDENT+1];
+	char loadedschemas[YDB_MAX_IDENT+1];
 	char *raw_octo;
 	char *raw_xref;
 } GlobalNames;
 
 typedef struct OctoConfig {
-	config_t config_file;
-	RoctoConfig rocto_config;
-	GlobalNames global_names;
-	enum ERROR_LEVEL record_error_level;
-	int dry_run, plan_id, page_size, allow_schema_changes;
-	const char *tmp_dir, *config_file_name;
-	boolean_t is_tty, is_rocto;
+	config_t		config_file;
+	RoctoConfig		rocto_config;
+	GlobalNames		global_names;
+	enum ERROR_LEVEL	record_error_level;
+	int			dry_run, plan_id, page_size, allow_schema_changes;
+	const char		*tmp_dir, *config_file_name;
+	boolean_t		is_tty, is_rocto;
+	pid_t			process_id;
 } OctoConfig;
 
 OctoConfig *config;

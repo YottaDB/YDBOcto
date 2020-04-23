@@ -382,10 +382,11 @@ typedef struct SqlColumnAlias
  */
 typedef struct SqlTable
 {
-	struct SqlStatement *tableName;
-	struct SqlStatement *source;
-	struct SqlStatement *columns;
-	struct SqlStatement *delim;
+	struct SqlStatement	*tableName;
+	struct SqlStatement	*source;
+	struct SqlStatement	*columns;
+	struct SqlStatement	*delim;
+	uint64_t		oid;		/* TABLEOID; compared against ^%ydboctoschema(TABLENAME,"pg_class") */
 } SqlTable;
 
 typedef struct SqlTableAlias

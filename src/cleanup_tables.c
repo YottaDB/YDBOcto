@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -20,17 +20,19 @@
 #include "helpers.h"
 
 void cleanup_tables() {
-	int status;
-	char buffer[MAX_STR_CONST];
-	ydb_buffer_t *loaded_schemas_b = make_buffers("%ydboctoloadedschemas", 2, "", "chunk");
+	int		status;
+	char		buffer[MAX_STR_CONST];
+	ydb_buffer_t	*loaded_schemas_b;
+
+	loaded_schemas_b = make_buffers(config->global_names.loadedschemas, 2, "", "chunk");
 	ydb_buffer_t result_b;
 	result_b.buf_addr = buffer;
 	result_b.len_alloc = result_b.len_used = sizeof(buffer);
 	YDB_MALLOC_BUFFER(&loaded_schemas_b[1], MAX_STR_CONST);
 
-	while(TRUE) {
+	while (TRUE) {
 		status = ydb_subscript_next_s(loaded_schemas_b, 1, &loaded_schemas_b[1], &loaded_schemas_b[1]);
-		if(status == YDB_ERR_NODEEND) {
+		if (YDB_ERR_NODEEND == status) {
 			break;
 		}
 		YDB_ERROR_CHECK(status);
@@ -42,7 +44,6 @@ void cleanup_tables() {
 			break;
 		OCTO_CFREE(*((MemoryChunk**)result_b.buf_addr));
 	}
-
 	YDB_FREE_BUFFER(&loaded_schemas_b[1]);
 	free(loaded_schemas_b);
 }

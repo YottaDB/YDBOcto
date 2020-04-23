@@ -28,7 +28,5 @@
 
 ydb_buffer_t *make_buffers(char *global, size_t num_args, ...);
 ydb_buffer_t *vmake_buffers(char *global, size_t num_args, va_list args);
-void set(char *new_value, char *global, size_t num_args, ...);
-ydb_buffer_t *get(char *global, size_t num_args, ...);
 
 #endif

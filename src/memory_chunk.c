@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -20,32 +20,29 @@
 #include "memory_chunk.h"
 
 MemoryChunk *alloc_chunk(size_t size) {
-	MemoryChunk *ret;
-	size_t alloc_size;
-	void *v;
+	MemoryChunk	*ret;
+	void		*v;
 
 	ret = (MemoryChunk*)malloc(sizeof(MemoryChunk));
 	memset(ret, 0, sizeof(MemoryChunk));
 	dqinit(ret);
-
-	alloc_size = MEMORY_CHUNK_SIZE;
-	if(size > MEMORY_CHUNK_SIZE) {
-		alloc_size = size;
-	}
-	v = calloc(alloc_size, 1);
+	v = calloc(size, 1);
 	ret->value = v;
-	ret->max_size = alloc_size;
+	ret->max_size = size;
 	return ret;
 }
 
 void *octo_cmalloc(MemoryChunk *root, size_t size) {
-	MemoryChunk *cur, *new;
-	void *ret;
-	assert(root != NULL);
+	MemoryChunk	*cur, *new;
+	void		*ret;
+	size_t		alloc_size;
+
+	assert(NULL != root);
 	cur = root->prev;
 
-	if(cur->offset + size > cur->max_size) {
-		new = alloc_chunk(size);
+	if (cur->offset + size > cur->max_size) {
+		alloc_size = ((MEMORY_CHUNK_SIZE < size) ? size : MEMORY_CHUNK_SIZE);
+		new = alloc_chunk(alloc_size);
 		dqappend(root, new);
 		assert(root->prev == new && new->next == root);
 		cur = root->prev;
@@ -56,19 +53,19 @@ void *octo_cmalloc(MemoryChunk *root, size_t size) {
 }
 
 void octo_cfree(MemoryChunk *root) {
-	MemoryChunk *cur;
+	MemoryChunk	*cur;
 
-	assert(root != NULL);
+	assert(NULL != root);
 	cur = root;
 	do {
 		MemoryChunk *next = cur->next;
-		if(next == root) {
+		if (next == root) {
 			break;
 		}
 		free(cur->value);
 		free(cur);
 		cur = next;
-	} while(TRUE);
+	} while (TRUE);
 	// Free the root
 	free(cur->value);
 	free(cur);

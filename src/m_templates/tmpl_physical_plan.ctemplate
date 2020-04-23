@@ -51,11 +51,11 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
 		%{}LOCK -^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}") QUIT`n{{ PLAN_LINE_START }}{}%
 		%{}IF '$$dollarZTRIGGER^%%ydboctoplanhelpers("item","+{}%
 		TMPL(tmpl_column_reference, plan, column_alias, TRUE);
-		%{} -commands=SET,KILL -xecute=""DO handleSet^{{ plan->filename }}"" -name={{ plan->trigger_name }}")  {}%
+		%{} -commands=SET,KILL,ZKILL -xecute=""DO handleSet^{{ plan->filename }}"" -name={{ plan->trigger_name }}")  {}%
 		%{}HALT`n{{ PLAN_LINE_START }}{}%
 		%{}SET %%ydboctoCancel("{{ tableName }}","{{ columnName }}","Trigger")="-{}%
 		TMPL(tmpl_column_reference, plan, column_alias, TRUE);
-		%{} -commands=SET,KILL -xecute=""DO handleSet^{{ plan->filename }}"""`n{{ PLAN_LINE_START }}{}%
+		%{} -commands=SET,KILL,ZKILL -xecute=""DO handleSet^{{ plan->filename }}"""`n{{ PLAN_LINE_START }}{}%
 		%{}SET %%ydboctoCancel("{{ tableName }}","{{ columnName }}","Node")="^{{ config->global_names.raw_xref }}(""{}%
 		%{}{{ tableName }}"",""{{ columnName }}"")"`n{{ PLAN_LINE_START }}{}%
 		%{}DO populateXref`n{{ PLAN_LINE_START }}{}%
@@ -73,7 +73,7 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
 		// Generate the trigger definitions here
 		%{}`nhandleSet`n{{ PLAN_LINE_START }}{}%
 		%{}NEW t`n{{ PLAN_LINE_START }}{}%
-		%{}IF $ZTRIGGEROP="K" DO`n{{ PLAN_LINE_START }}{}%
+		%{}IF $ZTRIGGEROP'="S" DO`n{{ PLAN_LINE_START }}{}%	/* Note: '="S" check is to account for KILL or ZKILL */
 		%{}. SET val=""`n{{ PLAN_LINE_START }}{}%
 		%{}. FOR  SET val=$ORDER(^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}",val)) {}%
 		%{}QUIT:val=""  DO:$DATA(^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}",val{}%

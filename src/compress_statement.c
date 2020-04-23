@@ -17,9 +17,9 @@
 #define CALL_COMPRESS_HELPER(temp, value, new_value, out, out_length)		\
 {										\
 	(temp) = compress_statement_helper((value), (out), (out_length));	\
-	if((out) != NULL) {							\
+	if (NULL != (out)) {							\
 		(new_value) = (temp);						\
-		if(new_value != NULL) {						\
+		if (NULL != new_value) {					\
 			A2R((new_value), temp);					\
 		}								\
 	}									\
@@ -76,6 +76,7 @@ void *compress_statement_helper(SqlStatement *stmt, char *out, int *out_length) 
 		CALL_COMPRESS_HELPER(r, table->source, new_table->source, out, out_length);
 		CALL_COMPRESS_HELPER(r, table->columns, new_table->columns, out, out_length);
 		CALL_COMPRESS_HELPER(r, table->delim, new_table->delim, out, out_length);
+		/* table->oid is not a pointer value so no need to call CALL_COMPRESS_HELPER on this member */
 		break;
 	case value_STATEMENT:
 		UNPACK_SQL_STATEMENT(value, stmt, value);
@@ -116,7 +117,7 @@ void *compress_statement_helper(SqlStatement *stmt, char *out, int *out_length) 
 				new_column->next = ((void*)&out[*out_length]);
 				A2R(new_column->next, new_column->next);
 			}
-		} while(cur_column != start_column);
+		} while (cur_column != start_column);
 		break;
 	case keyword_STATEMENT:
 		UNPACK_SQL_STATEMENT(start_keyword, stmt, keyword);
@@ -134,7 +135,7 @@ void *compress_statement_helper(SqlStatement *stmt, char *out, int *out_length) 
 				new_keyword->next = ((void*)&out[*out_length]);
 				A2R(new_keyword->next, new_keyword->next);
 			}
-		} while(cur_keyword != start_keyword);
+		} while (cur_keyword != start_keyword);
 		break;
 	default:
 		assert(FALSE);

@@ -1,0 +1,26 @@
+# Load customers DDL
+# Invoke TDT03.sql to print ALL columns of ORDERS table
+ORDERS|ORDER_ID
+ORDERS|ORDER_DATE
+ORDERS|ORDER_AMOUNT
+ORDERS|CUSTOMER_ID
+
+# Now load customers DDL again (CREATE TABLE)
+# Now run query again to verify number of columns of ORDERS table stayed the same as before.
+ORDERS|ORDER_ID
+ORDERS|ORDER_DATE
+ORDERS|ORDER_AMOUNT
+ORDERS|CUSTOMER_ID
+
+# Now run DROP TABLE command
+OCTO>     drop table ORDERS;
+OCTO> 
+# Now run query again to verify number of columns of ORDERS table came down to 0.
+
+# And a final load of customers DDL again (CREATE TABLE)
+# Now run query again to verify number of columns of ORDERS table went back to its original number.
+ORDERS|ORDER_ID
+ORDERS|ORDER_DATE
+ORDERS|ORDER_AMOUNT
+ORDERS|CUSTOMER_ID
+

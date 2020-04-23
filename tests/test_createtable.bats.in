@@ -17,7 +17,6 @@ setup() {
   createdb
   load_fixture names.sql
   load_fixture names.zwr
-  load_fixture names4.zwr
 }
 
 @test "TC001 : create a table so large it can't fit in the buffer" {
@@ -63,10 +62,12 @@ OCTO
   octo <<OCTO 2>&1 | tee output.txt
 create table names4 (id int, First char(20), Last char(30));
 OCTO
+  load_fixture names4.zwr
   verify_output TC002 output.txt noinfo nodebug
 }
 
 @test "TC003 : create a table which has no keys and select from it later" {
+  load_fixture names4.zwr
   octo <<OCTO 2>&1 | tee output.txt
 create table names4 (id int, First char(20), Last char(30));
 select * from names4
@@ -170,3 +171,31 @@ OCTO
   verify_output TC012 output.txt
 }
 
+@test "TC013 : OCTO439 : CREATE TABLE and SELECT can run concurrently without errors/assertions" {
+  export octo_dbg_drop_cache_expected=1	# needed to let Octo/Rocto know that concurrent DROP TABLE commands run in this test
+  echo "# Populate ^lotsofcols globals and create ddl.sql containing lots of CREATE TABLE commands : yottadb -run init^TC013" > output.txt
+  yottadb -run init^TC013
+  echo "# Create LOTSOFCOLS table before starting concurrency test : octo -f ddl.sql" >> output.txt
+  octo -f ddl.sql >& octo_ddl.out
+  echo "# Run CREATE TABLE and SELECT commands concurrently : yottadb -run job^TC013" >> output.txt
+  yottadb -run job^TC013 >> output.txt
+  echo "# Verify that the .mjo files contain what we expect them to : yottadb -run verify^TC013" >> output.txt
+  yottadb -run verify^TC013 >> output.txt
+  echo "# Verify that the .mje files do not have any errors : cat *.mje*" >> output.txt
+  cat *.mje* >> output.txt
+  verify_output TC013 output.txt
+}
+
+@test "TC014 : OCTO439 : Test that CREATE and DROP TABLE time out if another process is at the OCTO> prompt" {
+  (expect -d -f @PROJECT_SOURCE_DIR@/tests/fixtures/TC014.exp > expect.out) &> expect.dbg
+  sed 's/\r//g;s/.*SHELL#/#/g;s/# .*/\n&/g;s/^# #/#/;' expect.out | grep -E '^# |^\[ERROR' | grep -v PS1 > output.txt
+  verify_output TC014 output.txt
+}
+
+@test "TC015 : OCTO439 : Test that Octo/Rocto reload table from database after a concurrent CREATE or DROP TABLE" {
+  export octo_dbg_drop_cache_expected=1	# needed to let Octo/Rocto know that concurrent DROP TABLE commands run in this test
+  (expect -d -f @PROJECT_SOURCE_DIR@/tests/fixtures/TC015.exp > expect.out) &> expect.dbg
+  # Remove <Ctrl-M> characters (carriage return, i.e. \r) from expect output.
+  sed 's/\r//g;s/.*SHELL#/#/g;s/# .*/\n&/g;s/^# #/#/;' expect.out | grep -E "^# |^\[ERROR|^[0-5]" | grep -v PS1 > output.txt
+  verify_output TC015 output.txt
+}

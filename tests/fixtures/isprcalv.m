@@ -1,6 +1,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;								;
-; Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	;
+; Copyright (c) 2018-2020 YottaDB LLC and/or its subsidiaries.	;
 ; All rights reserved.						;
 ;								;
 ;	This source code contains the intellectual property	;
@@ -9,6 +9,10 @@
 ;	the license, please stop and do not read further.	;
 ;								;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Note: This file is a copy of YDBTest repo 'com/isprcalv.m'
+; and hence inherits the FIS copyright from there.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;
 ; Checks if "pid" passed as input is alive or not
 ;
 ; Returns

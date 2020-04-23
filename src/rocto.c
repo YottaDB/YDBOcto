@@ -446,12 +446,17 @@ int main(int argc, char **argv) {
 			// No cleanup necessary, as process will exit
 			return 1;
 		}
-
 		// Set parameters
-		for(cur_parm = 0; cur_parm < startup_message->num_parameters; cur_parm++) {
-			set(startup_message->parameters[cur_parm].value, config->global_names.session, 3,
-					rocto_session.session_id->buf_addr, "variables",
-					startup_message->parameters[cur_parm].name);
+		for (cur_parm = 0; cur_parm < startup_message->num_parameters; cur_parm++) {
+			ydb_buffer_t	varname, subs_array[3], value;
+
+			YDB_STRING_TO_BUFFER(config->global_names.session, &varname);
+			YDB_STRING_TO_BUFFER(rocto_session.session_id->buf_addr, &subs_array[0]);
+			YDB_LITERAL_TO_BUFFER("variables", &subs_array[1]);
+			YDB_STRING_TO_BUFFER(startup_message->parameters[cur_parm].name, &subs_array[2]);
+			YDB_STRING_TO_BUFFER(startup_message->parameters[cur_parm].value, &value);
+			status = ydb_set_s(&varname, 3, subs_array, &value);
+			YDB_ERROR_CHECK(status);
 		}
 		free(startup_message->parameters);
 		free(startup_message);

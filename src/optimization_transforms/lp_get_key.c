@@ -33,7 +33,7 @@ SqlKey *lp_get_key(LogicalPlan *plan, LogicalPlan *lp_column_alias) {
 	column_alias = lp_column_alias->v.lp_column_alias.column_alias;
 	UNPACK_SQL_STATEMENT(table_alias, column_alias->table_alias_stmt, table_alias);
 	search_id = table_alias->unique_id;
-	UNPACK_SQL_STATEMENT(table, table_alias->table, table);
+	UNPACK_SQL_STATEMENT(table, table_alias->table, create_table);
 	UNPACK_SQL_STATEMENT(search_table_name, table->tableName, value);
 
 	if (column_alias->column->type == column_STATEMENT) {

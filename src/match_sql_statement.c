@@ -25,7 +25,7 @@ boolean_t match_sql_statement(SqlStatement *stmt, SqlStatement *match_stmt) {
 	SqlJoin			*cur_join, *start_join;
 	SqlJoin			*match_cur_join, *match_start_join;
 	SqlSelectStatement	*select, *match_select;
-	SqlDropStatement	*drop, *match_drop;
+	SqlDropTableStatement	*drop_table, *match_drop_table;
 	SqlValue		*value, *match_value;
 	SqlBinaryOperation	*binary, *match_binary;
 	SqlUnaryOperation	*unary, *match_unary;
@@ -51,7 +51,7 @@ boolean_t match_sql_statement(SqlStatement *stmt, SqlStatement *match_stmt) {
 		return FALSE;
 	}
 	switch(stmt->type) {
-	case table_STATEMENT:
+	case create_table_STATEMENT:
 		/* This structure never gets copied in "copy_sql_statement.c" so just check if the pointers are identical */
 		ret = (stmt == match_stmt);
 		break;
@@ -80,11 +80,11 @@ boolean_t match_sql_statement(SqlStatement *stmt, SqlStatement *match_stmt) {
 		 */
 		ret = match_sql_statement(select->order_by_expression, match_select->order_by_expression); if (!ret) break;
 		break;
-	case drop_STATEMENT:
-		UNPACK_SQL_STATEMENT(drop, stmt, drop);
-		UNPACK_SQL_STATEMENT(match_drop, match_stmt, drop);
-		ret = match_sql_statement(drop->table_name, match_drop->table_name); if (!ret) break;
-		ret = match_sql_statement(drop->optional_keyword, match_drop->optional_keyword); if (!ret) break;
+	case drop_table_STATEMENT:
+		UNPACK_SQL_STATEMENT(drop_table, stmt, drop_table);
+		UNPACK_SQL_STATEMENT(match_drop_table, match_stmt, drop_table);
+		ret = match_sql_statement(drop_table->table_name, match_drop_table->table_name); if (!ret) break;
+		ret = match_sql_statement(drop_table->optional_keyword, match_drop_table->optional_keyword); if (!ret) break;
 		break;
 	case value_STATEMENT:
 		UNPACK_SQL_STATEMENT(value, stmt, value);

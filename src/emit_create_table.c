@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -34,7 +34,7 @@ int emit_create_table(FILE *output, struct SqlStatement *stmt) {
 	if (NULL == stmt) {
 		return 0;
 	}
-	table = stmt->v.table;
+	table = stmt->v.create_table;
 	assert(table->tableName);
 	assert(table->columns);
 	UNPACK_SQL_STATEMENT(value, table->tableName, value);

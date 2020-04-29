@@ -1,0 +1,54 @@
+
+-- TCF003 : OCTO345 : Report syntax error when incorrect number of parameters passed to function
+
+-- Test detection of single missing function argument
+select ABS() as missingarg from names;
+
+-- Test detection of multiple missing function arguments
+select REPLACE('balloons') as missingargs from names;
+
+-- Test detection of single extra function argument on multi-parameter function
+select PG_CATALOG.PG_GET_EXPR('balloons', 11, 'bananas') as extraarg from names;
+
+-- Test detection of multiple extra function argument on single parameter function
+select ABS(12, 'lots', 'of', 'extra', 'args') as extraargs from names;
+
+-- Test detection of single extra function argument on parameterless function
+select VERSION('should be no args here') as extraarg from names;
+
+-- Test detection of multiple extra function arguments on parameterless function
+select VERSION('should', 'be', 'no', 'args', 'here') as extraargs from names;
+[ERROR] PATH:LINENUM DATE TIME : Invalid number of arguments to function ABS: expected 1 got 0)
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select ABS() as missingarg from names;
+[ERROR] PATH:LINENUM DATE TIME : Invalid number of arguments to function REPLACE: expected 3 got 1)
+Error with syntax near (line 1, column 25):
+
+select REPLACE('balloons') as missingargs from names;
+                        ^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select REPLACE('balloons') as missingargs from names;
+[ERROR] PATH:LINENUM DATE TIME : Invalid number of arguments to function PG_CATALOG.PG_GET_EXPR: expected 2 got 3)
+Error with syntax near (line 1, column 40):
+
+select PG_CATALOG.PG_GET_EXPR('balloons', 11, 'bananas') as extraarg from names;
+                                       ^^^^^^^^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select PG_CATALOG.PG_GET_EXPR('balloons', 11, 'bananas') as extraarg from names;
+[ERROR] PATH:LINENUM DATE TIME : Invalid number of arguments to function ABS: expected 1 got 5)
+Error with syntax near (line 1, column 12):
+
+select ABS(12, 'lots', 'of', 'extra', 'args') as extraargs from names;
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select ABS(12, 'lots', 'of', 'extra', 'args') as extraargs from names;
+[ERROR] PATH:LINENUM DATE TIME : Invalid number of arguments to function VERSION: expected 0 got 1)
+Error with syntax near (line 1, column 39):
+
+select VERSION('should be no args here') as extraarg from names;
+                                      ^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select VERSION('should be no args here') as extraarg from names;
+[ERROR] PATH:LINENUM DATE TIME : Invalid number of arguments to function VERSION: expected 0 got 5)
+Error with syntax near (line 1, column 23):
+
+select VERSION('should', 'be', 'no', 'args', 'here') as extraargs from names;
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select VERSION('should', 'be', 'no', 'args', 'here') as extraargs from names;
+
+

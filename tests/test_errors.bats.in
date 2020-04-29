@@ -20,6 +20,13 @@ setup() {
   load_fixture default_user.zwr
 }
 
+@test "TERR000 : Octo doesn't generate core file for fatal errors" {
+  octo -f missing.sql 2>&1 | tee output.txt
+  verify_output TERR003 output.txt noinfo nodebug
+  run find "core*"
+  [[ $status -eq 1 ]]
+}
+
 @test "TERR001 : Invalid Octo GLD" {
   export ydb_gbldir="does_not_exist.gld"
   octo <<OCTO 2>&1 | tee output.txt
@@ -39,13 +46,6 @@ OCTO
 @test "TERR003 : Octo issues FATAL error for missing input file" {
   octo -f missing.sql 2>&1 | tee output.txt
   verify_output TERR003 output.txt noinfo nodebug
-}
-
-@test "Octo doesn't generate core file for fatal errors" {
-  octo -f missing.sql 2>&1 | tee output.txt
-  verify_output TERR003 output.txt noinfo nodebug
-  run find "core*"
-  [[ $status -eq 1 ]]
 }
 
 @test "TERR004 : Rocto can recover from error (e.g. DIVBYZERO)" {
@@ -252,12 +252,33 @@ OCTO
   verify_output TERR022 output.txt
 }
 
-@test "TERR024 : OCTO483 : Issue error when CREATE TABLE DELIM list contains non-integers" {
+@test "TERR023 : OCTO483 : Issue error when CREATE TABLE DELIM list contains non-integers" {
+	load_fixture TERR023.sql subtest novv
+	verify_output TERR023 output.txt
+}
+
+@test "TERR024 : OCTO483 : Issue error when invalid integer values are used in CREATE TABLE DELIM list" {
 	load_fixture TERR024.sql subtest novv
 	verify_output TERR024 output.txt
 }
 
-@test "TERR025 : OCTO483 : Issue error when invalid integer values are used in CREATE TABLE DELIM list" {
-	load_fixture TERR025.sql subtest novv
-	verify_output TERR025 output.txt
+@test "TERR025 : OCTO345 : Issue error for type mismatch between expression and function return type" {
+  load_fixture TERR025.sql subtest novv
+  verify_output TERR025 output.txt
 }
+
+@test "TERR026 : OCTO345 : Issue error if number of function arguments exceeds M limit" {
+  load_fixture TERR026.sql subtest novv
+  verify_output TERR026 output.txt
+}
+
+@test "TERR027 : OCTO345 : Issue error for extrinsic functions with '%' in invalid places" {
+  load_fixture TERR027.sql subtest novv
+  verify_output TERR027 output.txt
+}
+
+@test "TERR028 : OCTO345 : Issue error when inline M function use is attempted" {
+  load_fixture TERR028.sql subtest novv
+  verify_output TERR028 output.txt
+}
+

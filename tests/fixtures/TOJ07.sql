@@ -11,6 +11,7 @@
 #################################################################
 
 -- TOJ07 : OCTO312 : Use WHERE clause to optimize FULL JOIN (just like INNER JOIN)
+CREATE FUNCTION CURR_TIMESTAMP(VARCHAR) RETURNS NUMERIC AS $$^TIMESTAMP;
 
 SELECT A.ORDER1_ID, A.PATIENT_ID, A.OBJECT_OF_ORDER
 FROM ORDER1 A

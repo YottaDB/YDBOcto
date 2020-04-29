@@ -18,3 +18,4 @@ CREATE TABLE DELIMNAMES (id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName
 -- No values greater than UTF-8 max code point value (i.e. MAX_UTF8_VALUE = 1112064)
 CREATE TABLE DELIMNAMES (id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName VARCHAR(30), middleInitial VARCHAR(1), age INTEGER) DELIM (1112065) GLOBAL "^delimnames(keys(""id""))";
 CREATE TABLE DELIMNAMES (id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName VARCHAR(30), middleInitial VARCHAR(1), age INTEGER) DELIM (111206500) GLOBAL "^delimnames(keys(""id""))";
+

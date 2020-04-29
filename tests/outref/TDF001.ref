@@ -1,0 +1,23 @@
+
+-- TDF001 : OCTO345 : DROP FUNCTION works with new function
+
+CREATE FUNCTION DOLLARZWRITE(VARCHAR) RETURNS VARCHAR AS $ZWRITE;
+select DOLLARZWRITE(firstname) from names;
+DROP FUNCTION DOLLARZWRITE;
+select DOLLARZWRITE(firstname) from names;
+
+"Zero"
+"Acid"
+"Cereal"
+"Lord"
+"Joey"
+"Zero"
+[ERROR] PATH:LINENUM DATE TIME : Unknown function: DOLLARZWRITE
+Error with syntax near (line 1, column 8):
+
+select DOLLARZWRITE(firstname) from names;
+       ^^^^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select DOLLARZWRITE(firstname) from names;
+
+Successfully cleared ^%ydboctoocto("functions","DOLLARZWRITE")
+Successfully deleted function "DOLLARZWRITE" from pg_catalog.pg_proc

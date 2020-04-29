@@ -93,7 +93,7 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt, int *plan_id) {
 		}
 		assert(set_operation_STATEMENT != stmt->type);	/* else would have returned at beginning of this function */
 		sql_stmt = cur_join->value;
-		if ((table_alias_STATEMENT == sql_stmt->type) && (table_STATEMENT == sql_stmt->v.table_alias->table->type))
+		if ((table_alias_STATEMENT == sql_stmt->type) && (create_table_STATEMENT == sql_stmt->v.table_alias->table->type))
 		{
 			MALLOC_LP(join_left, join_right->v.lp_default.operand[0], LP_TABLE);
 			join_left->v.lp_table.table_alias = sql_stmt->v.table_alias;

@@ -1,0 +1,34 @@
+
+-- TCF006 : OCTO345 : M intrinsic functions created by CREATE FUNCTION are case sensitive" {
+
+-- Map function to intrinsic function (all caps)
+CREATE FUNCTION DOLLARZWRITE(VARCHAR) RETURNS VARCHAR AS $ZWRITE;
+select DOLLARZWRITE(firstname) from names;
+
+-- Map function to intrinsic function (lowercase)
+CREATE FUNCTION DOLLARZWRITE(VARCHAR) RETURNS VARCHAR AS $zwrite;
+select DOLLARZWRITE(firstname) from names;
+
+-- Map function to intrinsic function (mixed case)
+CREATE FUNCTION DOLLARZWRITE(VARCHAR) RETURNS VARCHAR AS $zWrItE;
+select DOLLARZWRITE(firstname) from names;
+
+"Zero"
+"Acid"
+"Cereal"
+"Lord"
+"Joey"
+"Zero"
+"Zero"
+"Acid"
+"Cereal"
+"Lord"
+"Joey"
+"Zero"
+"Zero"
+"Acid"
+"Cereal"
+"Lord"
+"Joey"
+"Zero"
+

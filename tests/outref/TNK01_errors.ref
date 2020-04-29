@@ -116,14 +116,14 @@ SELECT * FROM names WHERE 'abcd' AND NOT 1=1;
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT * FROM names WHERE NOT 'abcd' AND 1=1;
 [ERROR] PATH:LINENUM DATE TIME : Type VARCHAR not compatible for boolean operations
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT * FROM names WHERE NOT 'abcd' AND NOT 1=1;
-[ERROR] PATH:LINENUM DATE TIME : Invalid input syntax for type boolean: abcd
-[ERROR] PATH:LINENUM DATE TIME : Invalid input syntax for type boolean: abcd
-[ERROR] PATH:LINENUM DATE TIME : Invalid input syntax for type boolean: abcd
-[ERROR] PATH:LINENUM DATE TIME : Invalid input syntax for type boolean: abcd
-[ERROR] PATH:LINENUM DATE TIME : Invalid input syntax for type boolean: abcd
-[ERROR] PATH:LINENUM DATE TIME : Invalid input syntax for type boolean: abcd
-[ERROR] PATH:LINENUM DATE TIME : Invalid input syntax for type boolean: abcd
-[ERROR] PATH:LINENUM DATE TIME : Invalid input syntax for type boolean: abcd
+[ERROR] PATH:LINENUM DATE TIME : Invalid input syntax for type boolean: 'abcd' is not a valid boolean value
+[ERROR] PATH:LINENUM DATE TIME : Invalid input syntax for type boolean: 'abcd' is not a valid boolean value
+[ERROR] PATH:LINENUM DATE TIME : Invalid input syntax for type boolean: 'abcd' is not a valid boolean value
+[ERROR] PATH:LINENUM DATE TIME : Invalid input syntax for type boolean: 'abcd' is not a valid boolean value
+[ERROR] PATH:LINENUM DATE TIME : Invalid input syntax for type boolean: 'abcd' is not a valid boolean value
+[ERROR] PATH:LINENUM DATE TIME : Invalid input syntax for type boolean: 'abcd' is not a valid boolean value
+[ERROR] PATH:LINENUM DATE TIME : Invalid input syntax for type boolean: 'abcd' is not a valid boolean value
+[ERROR] PATH:LINENUM DATE TIME : Invalid input syntax for type boolean: 'abcd' is not a valid boolean value
 
 
 

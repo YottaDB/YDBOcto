@@ -229,10 +229,10 @@ LogicalPlan *lp_optimize_where_multi_equal_ands_helper(LogicalPlan *plan, Logica
 		column_alias = left->v.lp_column_alias.column_alias;
 		UNPACK_SQL_STATEMENT(table_alias, column_alias->table_alias_stmt, table_alias);
 		// TODO: how do we handle triggers on generated tables?
-		if (table_STATEMENT != table_alias->table->type) {
+		if (create_table_STATEMENT != table_alias->table->type) {
 			return where;
 		}
-		UNPACK_SQL_STATEMENT(table, table_alias->table, table);
+		UNPACK_SQL_STATEMENT(table, table_alias->table, create_table);
 		if (column_STATEMENT != column_alias->column->type) {
 			UNPACK_SQL_STATEMENT(column_list_alias, column_alias->column, column_list_alias);
 			UNPACK_SQL_STATEMENT(column_list, column_list_alias->column_list, column_list);

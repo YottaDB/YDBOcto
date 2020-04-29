@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -27,8 +27,8 @@ int columns_equal(SqlColumn *a, SqlColumn *b) {
 	UNPACK_SQL_STATEMENT(valB, b->columnName, value);
 	if(values_equal(valA, valB) == FALSE)
 		return FALSE;
-	UNPACK_SQL_STATEMENT(tableA, a->table, table);
-	UNPACK_SQL_STATEMENT(tableB, b->table, table);
+	UNPACK_SQL_STATEMENT(tableA, a->table, create_table);
+	UNPACK_SQL_STATEMENT(tableB, b->table, create_table);
 	if(tables_equal(tableA, tableB) == FALSE)
 		return FALSE;
 	// Note, we don't compare keywords because it is highly unlikely that they would

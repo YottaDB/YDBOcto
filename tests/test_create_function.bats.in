@@ -1,0 +1,150 @@
+#################################################################
+#								#
+# Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	#
+# All rights reserved.						#
+#								#
+#	This source code contains the intellectual property	#
+#	of its copyright holder(s), and is made available	#
+#	under a license.  If you do not know the terms of	#
+#	the license, please stop and do not read further.	#
+#								#
+#################################################################
+
+load test_helpers
+
+setup() {
+	init_test
+	createdb
+	load_fixture names.sql
+	load_fixture names.zwr
+}
+
+@test "TCF000 : CREATE FUNCTION works with existing functions (ABS)" {
+	load_fixture TCF000.sql subtest novv
+	# Confirm that a unique OID is generated for each CREATE FUNCTION statement for the same function name
+	[[ "$(grep "OID|" output.txt | cut -d'|' -f 2 | uniq | wc -l)" == "2" ]]
+	# Strip OIDs and compare to ensure they are different between CREATE FUNCTION statements
+	grep -v "OID|" output.txt &> nooid_output.txt
+	verify_output TCF000 nooid_output.txt noinfo nodebug
+}
+
+@test "TCF001 : OCTO345 : Allow specification of type for parameters and return value of user-defined functions" {
+	load_fixture TCF001.sql subtest novv
+	verify_output TCF001 output.txt noinfo nodebug
+}
+
+@test "TCF002 : OCTO345 : Report syntax errors for function call parameter type mismatches" {
+	# Note: this test uses functions created by octo-seed.sql.
+	load_fixture TCF002.sql subtest novv
+	verify_output TCF002 output.txt noinfo nodebug
+}
+
+@test "TCF003 : OCTO345 : Report syntax error when incorrect number of parameters passed to function" {
+	# Note: this test uses functions created by octo-seed.sql.
+	load_fixture TCF003.sql subtest novv
+	verify_output TCF003 output.txt noinfo nodebug
+}
+
+@test "TCF004 : OCTO345 : M intrinsic functions supported by CREATE FUNCTION" {
+	# Note: this test uses functions created by octo-seed.sql.
+	load_fixture TCF004.sql subtest novv
+	verify_output TCF004 output.txt noinfo nodebug
+}
+
+@test "TCF005 : OCTO345 : M extrinsic functions created by CREATE FUNCTION are case sensitive" {
+	load_fixture TCF005.sql subtest novv
+	verify_output TCF005 output.txt noinfo nodebug
+}
+
+@test "TCF006 : OCTO345 : M intrinsic functions created by CREATE FUNCTION are case insensitive" {
+	load_fixture TCF006.sql subtest novv
+	verify_output TCF006 output.txt noinfo nodebug
+}
+
+@test "TCF007 : OCTO345 : SQL functions created by CREATE FUNCTION are case insensitive" {
+	load_fixture TCF007.sql subtest novv
+	verify_output TCF007 output.txt noinfo nodebug
+}
+
+@test "TCF008 : OCTO345 : M label of extrinsic function can have all digits" {
+	load_fixture TCF008.sql subtest novv
+	verify_output TCF008 output.txt noinfo nodebug
+}
+
+@test "TCF009 : OCTO345 : % as leading character in M labels and routine names" {
+	load_fixture TCF009.sql subtest novv
+	verify_output TCF009 output.txt noinfo nodebug
+}
+
+@test "TCF010 : OCTO345 : CREATE FUNCTION with various return types" {
+	load_fixture TCF010.sql subtest novv
+	verify_output TCF010 output.txt noinfo nodebug
+}
+
+@test "TCF011 : OCTO345 : CREATE FUNCTION in rocto with --allowschemachanges" {
+	load_fixture default_user.zwr
+	test_port=$(start_rocto 1400 --allowschemachanges)
+	strip_sql_comments TCF004	# No need for new fixture, just testing whether DDL modification is allowed
+	run_psql $test_port < TCF004.sql 2>&1 | tee -a output.txt
+	stop_rocto
+	verify_output TCF011 output.txt noinfo nodebug
+}
+
+@test "TCF012 : OCTO345 : CREATE FUNCTION disallowed in rocto without --allowschemachanges" {
+	load_fixture default_user.zwr
+	test_port=$(start_rocto 1401)
+	strip_sql_comments TCF004	# No need for new fixture, just testing whether DDL modification is allowed
+	run_psql $test_port < TCF004.sql 2>&1 | tee -a output.txt
+	stop_rocto
+	verify_output TCF012 output.txt noinfo nodebug
+}
+
+@test "TCF013 : OCTO345 : Sub-queries in expressions work with CREATEd functions" {
+	load_fixture TCF013.sql subtest novv
+	verify_output TCF013 output.txt noinfo nodebug
+}
+
+@test "TCF014 : OCTO345 : Equivalent queries produce the same output due to accounting for function return type" {
+	load_fixture TCF014.sql subtest novv
+	verify_output TCF014 output.txt noinfo nodebug
+}
+
+@test "TCF015 : OCTO345 : CREATEd functions function with type coercion" {
+	load_fixture TCF015.sql subtest novv
+	verify_output TCF015 output.txt noinfo nodebug
+}
+
+@test "TCF016 : OCTO345 : CREATE FUNCTION with alternative type names" {
+	load_fixture TCF016.sql subtest novv
+	verify_output TCF016 output.txt noinfo nodebug
+}
+
+@test "TCF017 : OCTO345 : Single error output for nested erroneous function calls" {
+	load_fixture TCF017.sql subtest novv
+	verify_output TCF017 output.txt noinfo nodebug
+}
+
+@test "TCF018 : OCTO345 : Function return type correctly evaluated in boolean expressions" {
+	load_fixture TCF018.sql subtest novv
+	verify_output TCF018 output.txt noinfo nodebug
+}
+
+@test "TCF019 : OCTO345 : Include function name and return type in -vv DEBUG output" {
+	load_fixture TCF019.sql subtest
+	verify_output TCF019 output.txt noinfo
+}
+
+@test "TCF020 : OCTO345 : Nested functions work as expected" {
+	load_fixture TCF020.sql subtest novv
+	verify_output TCF020 output.txt noinfo
+}
+
+@test "TCF021 : OCTO345 : Octo able to CREATE FUNCTION with max number of M arguments" {
+	load_fixture TCF021.sql subtest novv
+	verify_output TCF021 output.txt noinfo
+}
+
+@test "TCF022 : OCTO345 : Catalog queries on pg_proc work for full table name and alias" {
+	load_fixture TCF022.sql subtest novv
+	verify_output TCF022 output.txt noinfo
+}

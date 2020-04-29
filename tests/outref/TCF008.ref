@@ -1,0 +1,13 @@
+
+-- TCF008 : OCTO345 : M label of extrinsic function can have all digits
+
+CREATE FUNCTION TESTDIGITS() RETURNS VARCHAR AS $$12345^TESTDIGITS;
+select TESTDIGITS() from names;
+
+SUCCESS
+SUCCESS
+SUCCESS
+SUCCESS
+SUCCESS
+SUCCESS
+

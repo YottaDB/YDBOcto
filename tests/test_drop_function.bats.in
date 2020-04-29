@@ -1,0 +1,32 @@
+#################################################################
+#								#
+# Copyright (c) 2020 YottaDB LLC and/or its subsidiaries.	#
+# All rights reserved.						#
+#								#
+#	This source code contains the intellectual property	#
+#	of its copyright holder(s), and is made available	#
+#	under a license.  If you do not know the terms of	#
+#	the license, please stop and do not read further.	#
+#								#
+#################################################################
+
+load test_helpers
+
+setup() {
+	init_test
+	createdb
+	load_fixture names.sql
+	load_fixture names.zwr
+}
+
+@test "TDF000 : OCTO345 : DROP FUNCTION works with existing functions (ABS)" {
+	load_fixture TDF000.sql subtest novv
+	yottadb -r CHECKFUNCDELETE ABS 2>&1 | tee -a output.txt	# Confirm the relevant database nodes for the function were deleted
+	verify_output TDF000 output.txt noinfo nodebug
+}
+
+@test "TDF001 : OCTO345 : DROP FUNCTION works with new function" {
+	load_fixture TDF001.sql subtest novv
+	yottadb -r CHECKFUNCDELETE DOLLARZWRITE 2>&1 | tee -a output.txt	# Confirm the relevant database nodes for the function were deleted
+	verify_output TDF001 output.txt noinfo nodebug
+}

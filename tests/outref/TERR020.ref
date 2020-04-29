@@ -2,11 +2,11 @@
 -- TERR020 : OCTO512 : SIG-11 (instead of an error) from SELECT *
 
 SELECT *;
-
 [ERROR] PATH:LINENUM DATE TIME : SELECT * with no tables specified is not valid
 Error with syntax near (line 1, column 8):
 
 SELECT *;
        ^
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT *;
+
 

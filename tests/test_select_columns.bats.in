@@ -305,14 +305,6 @@ OCTO
   verify_output TSC09 output.txt
 }
 
-@test "TSC10 : Run M function inside of select statement" {
-  DDOLAR='$$'
-  octo <<OCTO 2>&1 | tee output.txt
-select $DDOLAR^USERFUNC1(42) from names;
-OCTO
-  verify_output TSC10 output.txt
-}
-
 @test "TSC11 : test that multiline strings are inserted in to generated code correctly" {
   octo <<OCTO 2>&1 | tee output.txt
 select """
@@ -325,8 +317,8 @@ OCTO
 }
 
 @test "TSC12 : #302 : Run M function inside of SELECT statement with a LEFT JOIN (used to issue LVUNDEF error)" {
-  $ydb_dist/mumps -run %XCMD 'set ^%ydboctoocto("functions","DOLLAR_ZWRITE")="$ZWRITE"'
   octo <<OCTO 2>&1 | tee output.txt
+CREATE FUNCTION DOLLAR_ZWRITE(VARCHAR) RETURNS VARCHAR AS \$ZWRITE;
 SELECT    n1.firstname, DOLLAR_ZWRITE(n2.firstname)
 FROM      names n1
 LEFT JOIN names n2
@@ -336,8 +328,8 @@ OCTO
 }
 
 @test "TSC13 : #303 : Run M function inside of SELECT statement with a LEFT JOIN (used to issue <Problem resolving owner for deferred plan> error)" {
-  $ydb_dist/mumps -run %XCMD 'set ^%ydboctoocto("functions","DOLLAR_ZWRITE")="$ZWRITE"'
   octo <<OCTO 2>&1 | tee output.txt
+CREATE FUNCTION DOLLAR_ZWRITE(VARCHAR) RETURNS VARCHAR AS \$ZWRITE;
 SELECT    DOLLAR_ZWRITE(n2.firstname)
 FROM      names n1
 LEFT JOIN names n2

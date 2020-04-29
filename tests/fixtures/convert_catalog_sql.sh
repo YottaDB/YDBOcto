@@ -12,7 +12,9 @@
 #################################################################
 
 # Copy CREATE TABLE statements for PostgreSQL catalog tables without "pg_catalog" or "information_schema" prefixes
-cp postgres-seed.sql $1/postgres-seed.sql
- sed -n '/CREATE TABLE pg_catalog/,/^$/p' postgres-seed.sql |	# Extract SQL statements only, no comments
-	sed 's/\(CREATE TABLE \)pg_catalog\.\(.*\)/\1\2/' | 	# Remove prefixes
-	sed 's/""pg_catalog"",//' >> $1/postgres-seed.sql	# Remove pg_catalog subscript from GLOBAL
+cp octo-seed.sql $1/octo-seed.sql
+ sed -n '/CREATE TABLE pg_catalog/,/^$/p' octo-seed.sql |	# Extract SQL statements only, no comments
+	sed 's/\(CREATE TABLE \)pg_catalog\.\(.*\)/\1\2/' >> $1/octo-seed.sql # Remove prefixes
+
+ sed -n '/CREATE FUNCTION PG_CATALOG/,/^$/p' octo-seed.sql |			# Extract SQL statements only, no comments
+	sed 's/\(CREATE FUNCTION \)PG_CATALOG\.\(.*\)/\1\2/' >> $1/octo-seed.sql 	# Remove prefixes

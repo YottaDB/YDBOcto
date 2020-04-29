@@ -33,9 +33,9 @@
 	}									\
 }
 
-/**
- * Attempts to store a row in pg_catalog.pg_class for this table
- */
+ /* Attempts to store a row in pg_catalog.pg_class for this table.
+  * Note that this function is similar to store_function_in_pg_proc.
+  */
 int store_table_in_pg_class(SqlTable *table, ydb_buffer_t *table_name_buffer) {
 	int		status;
 	SqlValue	*value;

@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -12,6 +12,7 @@
 
 -- TOB06 : OCTO228 : Support ORDER BY with more than one column
 -- Note: We use MODULO here instead of % operator since we want to also test function call usages with parameters
+CREATE FUNCTION MODULO(INTEGER, INTEGER) RETURNS INTEGER AS $$^MODULO;
 
 select id as c1, id as c2 from names order by c1,c2;
 select id as c1, id as c2 from names order by c2,c1;

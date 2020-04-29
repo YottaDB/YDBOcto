@@ -73,8 +73,8 @@ typedef void *yyscan_t;
 #define	SQL_STATEMENT_FROM_TABLE_STATEMENT(RET, TABLE)			\
 {									\
 	RET = (SqlStatement *)((char *)TABLE - sizeof(SqlStatement));	\
-	assert(table_STATEMENT == RET->type);				\
-	assert(RET->v.table == TABLE);					\
+	assert(create_table_STATEMENT == RET->type);			\
+	assert(RET->v.create_table == TABLE);				\
 }
 
 /* Shamelessly stolen from mlkdef.h in YottaDB */
@@ -96,10 +96,12 @@ typedef enum FileType {
 } FileType;
 
 typedef enum SqlStatementType {
-	table_STATEMENT,
+	create_table_STATEMENT,
+	create_function_STATEMENT,
 	select_STATEMENT,
 	insert_STATEMENT,
-	drop_STATEMENT,
+	drop_table_STATEMENT,
+	drop_function_STATEMENT,
 	value_STATEMENT,
 	function_call_STATEMENT,
 	aggregate_function_STATEMENT,
@@ -109,6 +111,7 @@ typedef enum SqlStatementType {
 	column_STATEMENT,
 	join_STATEMENT,
 	data_type_STATEMENT,
+	parameter_type_list_STATEMENT,
 	constraint_STATEMENT,
 	constraint_type_STATEMENT,
 	keyword_STATEMENT,
@@ -126,8 +129,8 @@ typedef enum SqlStatementType {
 	no_data_STATEMENT,
 	sort_spec_list_STATEMENT,
 	delim_char_list_STATEMENT,
-	invalid_STATEMENT,
 	index_STATEMENT,
+	invalid_STATEMENT,
 } SqlStatementType;
 
 // The order of these must be kept in sync with `LPActionType` in `src/optimization_transforms/lp_action_type.hd`
@@ -189,6 +192,7 @@ typedef enum SqlValueType {
 	COLUMN_REFERENCE,
 	CALCULATED_VALUE,
 	FUNCTION_NAME,
+	EXTRINSIC_FUNCTION_NAME,
 	PARAMETER_VALUE,
 	NUL_VALUE,
 	COERCE_TYPE,
@@ -295,6 +299,11 @@ typedef enum {
 	PSQL_TypeSize_int4 = 4,
 } PSQL_TypeSize;
 
+// Simple enum for distinguishing between different types of schemas when caching
+typedef enum {
+	TableSchema,
+	FunctionSchema,
+} SqlSchemaType;
 
 #define YYLTYPE yyltype
 
@@ -336,13 +345,15 @@ struct SqlColumnAlias;
 //struct SqlConstraint;
 struct SqlSelectStatement;
 struct SqlInsertStatement;
-struct SqlDropStatement;
+struct SqlDropTableStatement;
 struct SqlUnaryOperation;
 struct SqlBinaryOperation;
 struct SqlFunctionCall;
 struct SqlValue;
 struct SqlColumnList;
 struct SqlTable;
+struct SqlFunction;
+struct SqlDropFunctionStatement;
 struct SqlTableAlias;
 struct SqlJoin;
 struct SqlColumnListAlias;
@@ -496,13 +507,13 @@ typedef struct SqlInsertStatement
 	struct SqlStatement *columns;
 } SqlInsertStatement;
 
-typedef struct SqlDropStatement
+typedef struct SqlDropTableStatement
 {
 	// SqlValue
 	struct SqlStatement *table_name;
 	// SqlOptionalKeyword
 	struct SqlStatement *optional_keyword;
-} SqlDropStatement;
+} SqlDropTableStatement;
 
 /*
  * Represents an binary operation
@@ -533,10 +544,33 @@ typedef struct SqlAggregateFunction {
 
 typedef struct SqlFunctionCall {
 	// SqlValue
-	struct SqlStatement *function_name;
+	struct SqlStatement	*function_name;
+	// SqlFunction
+	struct SqlStatement	*function_schema;
 	// SqlColumnList
-	struct SqlStatement *parameters;
+	struct SqlStatement	*parameters;
 } SqlFunctionCall;
+
+/**
+ * Represents a SQL function
+ */
+typedef struct SqlFunction {
+	struct SqlStatement	*function_name;			// SqlValue
+	struct SqlStatement	*parameter_type_list;		// SqlParameterTypeList
+	struct SqlStatement	*return_type;			// SqlDataType
+	struct SqlStatement	*extrinsic_function;		// SqlValue
+	int32_t			num_args;
+	uint64_t		oid;
+} SqlFunction;
+
+typedef struct SqlDropFunctionStatement {
+	struct SqlStatement	*function_name;			// SqlValue
+} SqlDropFunctionStatement;
+
+typedef struct SqlParameterTypeList {
+	struct SqlStatement	*data_type;
+	dqcreate(SqlParameterTypeList);
+} SqlParameterTypeList;
 
 typedef struct SqlValue {
 	enum SqlValueType	type;
@@ -554,10 +588,14 @@ typedef struct SqlValue {
 } SqlValue;
 
 /**
- * Used to represent a SELECT column list, not a table column list
+ * Used to represent a SELECT column list, not a table column list.
+ *
+ * Note that this structure is used for storing SQL function parameters as well,
+ * so any types stored in the `value` member must be accounted for in the
+ * `function_call_STATEMENT` branch of `populate_data_type`.
  */
 typedef struct SqlColumnList {
-	// SqlValue or SqlColumnAlias
+	// SqlValue, SqlColumnAlias, or SqlUnaryOperation
 	struct SqlStatement *value;
 	dqcreate(SqlColumnList);
 } SqlColumnList;
@@ -665,7 +703,7 @@ typedef struct SqlStatement{
 		struct SqlCommitStatement *commit;
 		struct SqlSelectStatement *select;
 		struct SqlInsertStatement *insert;
-		struct SqlDropStatement *drop;
+		struct SqlDropTableStatement *drop_table;
 		struct SqlValue *value;
 		struct SqlFunctionCall *function_call;
 		struct SqlAggregateFunction *aggregate_function;
@@ -674,7 +712,10 @@ typedef struct SqlStatement{
 		struct SqlColumnList *column_list;
 		struct SqlColumn *column; // Note singular versus plural
 		struct SqlJoin *join;
-		struct SqlTable *table;
+		struct SqlTable *create_table;
+		struct SqlFunction *create_function;
+		struct SqlDropFunctionStatement *drop_function;
+		struct SqlParameterTypeList *parameter_type_list;
 		struct SqlIndex *index;
 		struct SqlOptionalKeyword *constraint;
 		struct SqlOptionalKeyword *keyword;

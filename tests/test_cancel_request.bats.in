@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -28,7 +28,9 @@ teardown() {
 }
 
 @test "TCR01 : ensure cancel requests abort complicated queries (many joins)" {
-  yottadb -run ^%XCMD 'set ^%ydboctoocto("functions","HANGTIME")="$$^HANGTIME"'
+  octo <<OCTO
+CREATE FUNCTION HANGTIME(VARCHAR, INTEGER) RETURNS VARCHAR AS \$\$^HANGTIME;
+OCTO
   run_psql_expect cancel_psql_many_joins $test_port &> output.txt
   verify_output TCR01 expect.out noinfo nodebug noexpect stripreturns
 }

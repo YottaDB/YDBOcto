@@ -19,6 +19,9 @@ setup() {
   load_fixture names.zwr
   load_fixture northwind.sql
   load_fixture northwind.zwr
+  # Load octo-seed.* fixtures for access to ABS function
+  load_fixture octo-seed.sql
+  load_fixture octo-seed.zwr
 }
 
 @test "TGB01 : OCTO55 : GROUP BY and AGGREGATE FUNCTIONS : Error scenarios" {

@@ -337,8 +337,8 @@ Configure Octo
 
   .. parsed-literal::
 
-     $ydb_dist/mupip load $ydb_dist/plugin/octo/postgres-seed.zwr
-     $ydb_dist/plugin/bin/octo -f $ydb_dist/plugin/octo/postgres-seed.sql
+     $ydb_dist/mupip load $ydb_dist/plugin/octo/octo-seed.zwr
+     $ydb_dist/plugin/bin/octo -f $ydb_dist/plugin/octo/octo-seed.sql
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   Test with dummy data using Octo

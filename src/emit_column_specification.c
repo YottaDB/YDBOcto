@@ -24,8 +24,7 @@ int emit_column_specification(char *buffer, int buffer_size, SqlColumn *cur_colu
 	char buffer2[MAX_STR_CONST];
 	UNPACK_SQL_STATEMENT(value, cur_column->columnName, value);
 	buff_ptr += snprintf(buff_ptr, buffer_size - (buff_ptr - buffer), "`%s`", value->v.reference);
-	switch(cur_column->type)
-       	{
+	switch (cur_column->type) {
 	case BOOLEAN_TYPE:
 		buff_ptr += snprintf(buff_ptr, buffer_size - (buff_ptr - buffer), " BOOLEAN");
 		break;
@@ -47,8 +46,7 @@ int emit_column_specification(char *buffer, int buffer_size, SqlColumn *cur_colu
 	UNPACK_SQL_STATEMENT(start_keyword, cur_column->keywords, keyword);
 	cur_keyword = start_keyword;
 	do {
-		switch(cur_keyword->keyword)
-		{
+		switch (cur_keyword->keyword) {
 		case PRIMARY_KEY:
 			buff_ptr += snprintf(buff_ptr, buffer_size - (buff_ptr - buffer), " PRIMARY KEY");
 			break;
@@ -106,7 +104,7 @@ int emit_column_specification(char *buffer, int buffer_size, SqlColumn *cur_colu
 			break;
 		}
 		cur_keyword = cur_keyword->next;
-	} while(cur_keyword != start_keyword);
+	} while (cur_keyword != start_keyword);
 	assert(buff_ptr - buffer < buffer_size);
 	*buff_ptr = '\0';
 	// We don't count the null character we added for ease of use

@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -816,3 +816,18 @@ CREATE TABLE `PATIENT`(
 GLOBAL "^DPT(keys(""PATIENT_ID""))"
 DELIM "^";
 
+-- Various functions used by VistA. Commented functions are currently unused in the test system and are undefined.
+CREATE FUNCTION DATEFORMAT(INTEGER, VARCHAR) RETURNS INTEGER AS $$^DATETIME
+
+-- CREATE FUNCTION CURR_TIMESTAMP() RETURNS AS $$^TIMESTAMP
+-- CREATE FUNCTION CURRENT_TIMESTAMP() RETURNS AS $$^TIMESTAMP
+-- CREATE FUNCTION IFNULL() RETURNS AS $$^IFNULL
+-- CREATE FUNCTION TOKEN() RETURNS AS $PIECE
+-- CREATE FUNCTION REPLACE() RETURNS AS $$^REPLACE
+-- CREATE FUNCTION SUBSTRING() RETURNS AS $$^SUBSTRING
+-- CREATE FUNCTION FMGET() RETURNS AS $$^fmget
+-- CREATE FUNCTION LEXTRACT() RETURNS AS $$^LEFT
+-- CREATE FUNCTION LEFTY() RETURNS AS $$^LEFT
+-- CREATE FUNCTION REXTRACT() RETURNS AS $$^RIGHT
+-- CREATE FUNCTION PATINDEX() RETURNS AS $$^PATINDEX
+-- CREATE FUNCTION NUMBER() RETURNS AS $$^NUMBER

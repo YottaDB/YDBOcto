@@ -21,9 +21,9 @@ install -D plugin/libydbposix.so $ydb_dist/plugin
 install -D plugin/ydbposix.xc $ydb_dist/plugin
 install -D plugin/o/_ydbposix.so $ydb_dist/plugin/o
 install -D plugin/o/utf8/_ydbposix.so $ydb_dist/plugin/o/utf8
-# Install ydbocto.ci, octo.conf, and postgres-seed.* files
+# Install ydbocto.ci, octo.conf, and octo-seed.* files
 install -D src/ydbocto.ci $ydb_dist/plugin/octo/
-install -D plugin/octo/postgres-seed.* $ydb_dist/plugin/octo/
+install -D plugin/octo/octo-seed.* $ydb_dist/plugin/octo/
 # Don't overwrite octo.conf if it already exists
 if [[ ! -f "$ydb_dist/plugin/octo/octo.conf" ]]; then
 	install -D -m 644 plugin/octo/octo.conf $ydb_dist/plugin/octo
@@ -62,8 +62,8 @@ FILE
 $ydb_dist/mupip create
 $ydb_dist/mupip SET -reg DEFAULT -RECORD_SIZE=300000
 # Load PostgreSQL seed data
-octo -f $ydb_dist/plugin/octo/postgres-seed.sql
-ydb_chset="" LC_ALL=C $ydb_dist/mupip load $ydb_dist/plugin/octo/postgres-seed.zwr
+octo -f $ydb_dist/plugin/octo/octo-seed.sql
+ydb_chset="" LC_ALL=C $ydb_dist/mupip load $ydb_dist/plugin/octo/octo-seed.zwr
 octo -f plugin/octo/northwind.sql
 $ydb_dist/mupip load plugin/octo/northwind.zwr
 # Setup default user

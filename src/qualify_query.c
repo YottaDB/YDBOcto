@@ -47,7 +47,7 @@ int qualify_query(SqlStatement *table_alias_stmt, SqlJoin *parent_join, SqlTable
 	} else {
 		assert(table_alias->parent_table_alias == parent_table_alias);
 	}
-	if (table_STATEMENT == table_alias->table->type) {
+	if (create_table_STATEMENT == table_alias->table->type) {
 		return result;
 	}
 	UNPACK_SQL_STATEMENT(select, table_alias->table, select);
@@ -183,8 +183,7 @@ int qualify_query(SqlStatement *table_alias_stmt, SqlJoin *parent_join, SqlTable
 	}
 	ret_cla = NULL;
 	table_alias->aggregate_depth = 0;
-	for ( ; ; )
-	{
+	for ( ; ; ) {
 		assert(0 == table_alias->aggregate_depth);
 		// Qualify HAVING clause
 		result |= qualify_statement(select->having_expression, start_join, table_alias_stmt, 0, NULL);

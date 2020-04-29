@@ -79,7 +79,7 @@ LogicalPlan *join_tables(LogicalPlan *root, LogicalPlan *plan) {
 		}
 		if (LP_TABLE == table_plan->type) {
 			table_alias = table_plan->v.lp_table.table_alias;
-			UNPACK_SQL_STATEMENT(table, table_alias->table, table);
+			UNPACK_SQL_STATEMENT(table, table_alias->table, create_table);
 			unique_id = table_alias->unique_id;
 			memset(key_columns, 0, MAX_KEY_COUNT * sizeof(SqlColumn*));
 			max_key = get_key_columns(table, key_columns);

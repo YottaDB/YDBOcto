@@ -11,6 +11,7 @@
 #################################################################
 
 -- TBT03: Test of BOOLEAN type across various queries with errors OR different output between Octo & Postgres
+CREATE FUNCTION DOLLARZWRITE(INTEGER) RETURNS VARCHAR AS $ZWRITE;
 
 -- Test that unary operator on a boolean value issues error
 select +id::boolean from names;

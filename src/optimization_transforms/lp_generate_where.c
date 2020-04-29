@@ -29,13 +29,14 @@ LogicalPlan *lp_generate_where(SqlStatement *stmt, int *plan_id, SqlStatement *p
 	SqlColumnList		*cur_cl, *start_cl;
 	SqlCaseStatement	*cas;
 	SqlCaseBranchStatement	*cas_branch, *cur_branch;
+	SqlStatement		*ret_type, *sql_function_name;
 	boolean_t		error_encountered = FALSE;
 
 	assert(NULL != stmt);
-	switch(stmt->type) {
+	switch (stmt->type) {
 	case value_STATEMENT:
 		UNPACK_SQL_STATEMENT(value, stmt, value);
-		switch(value->type) {
+		switch (value->type) {
 		case CALCULATED_VALUE:
 			LP_GENERATE_WHERE(value->v.calculated, plan_id, stmt, ret, error_encountered);
 			break;
@@ -116,7 +117,7 @@ LogicalPlan *lp_generate_where(SqlStatement *stmt, int *plan_id, SqlStatement *p
 		break;
 	case unary_STATEMENT:
 		UNPACK_SQL_STATEMENT(unary, stmt, unary);
-		/// WARNING: we simply add the enum offset to find the type
+		// WARNING: we simply add the enum offset to find the type
 		type = unary->operation + LP_FORCE_NUM;
 		MALLOC_LP_2ARGS(ret, type);
 		LP_GENERATE_WHERE(unary->operand, plan_id, stmt, ret->v.lp_default.operand[0], error_encountered);
@@ -125,10 +126,34 @@ LogicalPlan *lp_generate_where(SqlStatement *stmt, int *plan_id, SqlStatement *p
 		UNPACK_SQL_STATEMENT(function_call, stmt, function_call);
 		type = LP_FUNCTION_CALL;
 		MALLOC_LP_2ARGS(ret, type);
-		LP_GENERATE_WHERE(function_call->function_name, plan_id, stmt, ret->v.lp_default.operand[0], error_encountered);
+		/* Place the SQL function name first for readability in DEBUG plan output. Note that this means we must skip over it
+		 * in tmpl_print_expression.ctemplate to get to the relevant node containing the extrinsic function call.
+		 */
+		SQL_STATEMENT(sql_function_name, value_STATEMENT);
+		MALLOC_STATEMENT(sql_function_name, value, SqlValue);
+		sql_function_name->v.value->type = STRING_LITERAL;
+		sql_function_name->v.value->v.string_literal =
+			function_call->function_schema->v.create_function->function_name->v.value->v.string_literal;
+		LP_GENERATE_WHERE(sql_function_name, plan_id, stmt, ret->v.lp_default.operand[0], error_encountered);
+
+		// Use an LP_COLUMN_LIST to store the LP_VALUEs used for the function's return type and its extrinsic function name
+		MALLOC_LP_2ARGS(ret->v.lp_default.operand[1], LP_COLUMN_LIST);
+		cur_lp = ret->v.lp_default.operand[1];
+		// Add the function's extrinsic function name to the plan
+		LP_GENERATE_WHERE(function_call->function_schema->v.create_function->extrinsic_function,
+				plan_id, stmt, cur_lp->v.lp_default.operand[0], error_encountered);
+		// Add the function's return type to the plan
+		MALLOC_LP_2ARGS(cur_lp->v.lp_default.operand[1], LP_COLUMN_LIST);
+		cur_lp = cur_lp->v.lp_default.operand[1];
+		SQL_STATEMENT(ret_type, value_STATEMENT);
+		MALLOC_STATEMENT(ret_type, value, SqlValue);
+		ret_type->v.value->type = get_sqlvaluetype_from_sqldatatype(
+				function_call->function_schema->v.create_function->return_type->v.data_type);
+		ret_type->v.value->v.string_literal = get_user_visible_type_string(ret_type->v.value->type);
+		LP_GENERATE_WHERE(ret_type, plan_id, stmt, cur_lp->v.lp_default.operand[0], error_encountered);
+
 		UNPACK_SQL_STATEMENT(start_cl, function_call->parameters, column_list);
 		cur_cl = start_cl;
-		cur_lp = ret;
 		do {
 			LP_GENERATE_WHERE(cur_cl->value, plan_id, stmt, next, error_encountered);
 			if (NULL != next) {
@@ -235,7 +260,7 @@ LogicalPlan *lp_generate_where(SqlStatement *stmt, int *plan_id, SqlStatement *p
 		break;
 	case select_STATEMENT:
 		// This should never happen, as all select statements are now wrapped in a table_alias
-	case table_STATEMENT:
+	case create_table_STATEMENT:
 		// In most other cases, we expect that this can be, but not here because a table can't exist
 		// in a WHERE statement
 	default:

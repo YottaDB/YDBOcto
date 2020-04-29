@@ -1,13 +1,6 @@
 YottaDB MUPIP EXTRACT
 01-JUL-2019  00:29:12 ZWR
 ^%ydboctoocto="1"
-^%ydboctoocto("functions","CURRENT_SCHEMA")="$$^%ydboctocurrentSchema"
-^%ydboctoocto("functions","PG_CATALOG.CURRENT_SCHEMAS")="$$^%ydboctopgCurrentSchemas"
-^%ydboctoocto("functions","PG_CATALOG.OBJ_DESCRIPTION")="$$^%ydboctopgObjDescription"
-^%ydboctoocto("functions","PG_CATALOG.PG_GET_EXPR")="$$^%ydboctopgGetExpr"
-^%ydboctoocto("functions","REPLACE")="$$^%ydboctoreplace"
-^%ydboctoocto("functions","ROW_NUMBER")="$$^%ydboctopgRowNumber"
-^%ydboctoocto("functions","VERSION")="$$^%ydboctoversion"
 ^%ydboctoocto("tables","octoOneRow",1)="1"
 ^%ydboctoocto("tables","pg_catalog","pg_namespace",11)="pg_catalog|10|""{postgres=UC/postgres|=U/postgres}"""
 ^%ydboctoocto("tables","pg_catalog","pg_namespace",99)="pg_toast|10|"

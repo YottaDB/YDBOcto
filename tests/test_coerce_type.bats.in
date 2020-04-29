@@ -55,14 +55,11 @@ setup() {
 }
 
 @test "TCT007 : test coerce of functions" {
-  yottadb -run ^%XCMD 'set ^%ydboctoocto("functions","DOLLARZWRITE")="$ZWRITE"'
   load_fixture TCT007.sql subtest novv
   verify_output TCT007 output.txt
 }
 
 @test "TCT008 : test 2 coerced functions generate different M files" {
-  yottadb -run ^%XCMD 'set ^%ydboctoocto("functions","DOLLARZWRITE")="$ZWRITE"'
-  yottadb -run ^%XCMD 'set ^%ydboctoocto("functions","DOLLARREV")="$REVERSE"'
   load_fixture TCT008.sql subtest novv
   echo "Listing of M files, should see 2" | tee -a output.txt
   ls -1 _ydboctoP*.m 2>&1 | tee -a output.txt
@@ -82,7 +79,6 @@ setup() {
 }
 
 @test "TCT011 : OCTO304 : Type cast operator (`::`) does not work" {
-  $ydb_dist/mumps -run %XCMD 'set ^%ydboctoocto("functions","DOLLARZWRITE")="$ZWRITE"'	# Needed by one query in TCT011.sql
   load_fixture TCT011.sql subtest novv
   # Include generated M code in reference file to also verify generated M code
   cat _ydboctoP*.m >> output.txt

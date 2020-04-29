@@ -26,7 +26,7 @@ LogicalPlan *lp_make_key(SqlColumnAlias *column_alias) {
 
 	UNPACK_SQL_STATEMENT(column, column_alias->column, column);
 	UNPACK_SQL_STATEMENT(table_alias, column_alias->table_alias_stmt, table_alias);
-	UNPACK_SQL_STATEMENT(table, table_alias->table, table);
+	UNPACK_SQL_STATEMENT(table, table_alias->table, create_table);
 
 	MALLOC_LP_2ARGS(ret, LP_KEY);
 	OCTO_CMALLOC_STRUCT(ret->v.lp_key.key, SqlKey);

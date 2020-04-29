@@ -24,7 +24,7 @@ CREATE TABLE pg_catalog.pg_namespace (
   oid INTEGER primary key
 ) GLOBAL "^%ydboctoocto(""tables"",""pg_catalog"",""pg_namespace"",keys(""oid""))";
 
--- Note: Above GLOBAL is populated in `tests/fixtures/postgres-seed.zwr` using the following query
+-- Note: Above GLOBAL is populated in `tests/fixtures/octo-seed.zwr` using the following query
 --	select *,oid from pg_catalog.pg_type where typname in ('bool','int4','numeric','varchar','name');
 -- And doing the following post-processing
 --	a) Removing spaces from the output.
@@ -139,8 +139,7 @@ CREATE TABLE pg_catalog.pg_proc (
   prorows INTEGER,
   provariadic INTEGER,
   protransform VARCHAR,
-  proisagg BOOLEAN,
-  proiswindow BOOLEAN,
+  prokind BOOLEAN,
   prosecdef BOOLEAN,
   proleakproof BOOLEAN,
   proisstrict BOOLEAN,
@@ -216,3 +215,20 @@ CREATE TABLE users (
   rolvaliduntil VARCHAR
 );
 
+/* Add standard SQL functions and internal Octo functions to the database and catalog
+ * Note that some catalog functions do NOT use the types specified for them in PostgreSQL,
+ * as Octo doesn't implement them (yet).
+ */
+CREATE FUNCTION ABS(NUMERIC) RETURNS NUMERIC AS $$ABS^%ydboctosqlfunctions;
+/* REPLACE is used by SquirrelSQL during connection intialize and so is included here.
+ * Note that REPLACE is not currently implemented and the matching M routine is an empty placeholder that
+ * simply returns the first argument passed to it.
+ */
+CREATE FUNCTION REPLACE(VARCHAR, VARCHAR, VARCHAR) RETURNS VARCHAR AS $$^%ydboctoreplace;
+CREATE FUNCTION ROW_NUMBER() RETURNS INTEGER AS $$^%ydboctopgRowNumber;
+CREATE FUNCTION VERSION() RETURNS VARCHAR AS $$^%ydboctoversion;
+
+CREATE FUNCTION CURRENT_SCHEMA() RETURNS VARCHAR AS $$^%ydboctocurrentSchema;
+CREATE FUNCTION PG_CATALOG.CURRENT_SCHEMAS(BOOLEAN) RETURNS VARCHAR AS $$^%ydboctopgCurrentSchemas;
+CREATE FUNCTION PG_CATALOG.OBJ_DESCRIPTION(INTEGER, VARCHAR) RETURNS VARCHAR AS $$^%ydboctopgObjDescription;
+CREATE FUNCTION PG_CATALOG.PG_GET_EXPR(VARCHAR, INTEGER) RETURNS VARCHAR AS $$^%ydboctopgGetExpr;

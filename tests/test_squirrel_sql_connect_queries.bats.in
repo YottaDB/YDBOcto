@@ -65,6 +65,8 @@ teardown() {
 }
 
 @test "TSSCQ03 : Squirrel SQL : SELECT current_schema()" {
+  # Note that this case also tests the usage of a function with 0 parameters,
+  # and so no specific test for that is needed in test_create_function.bats.in
   testname="TSSCQ03"
   echo -e "\n----- ROCTO/JDBC -----" &> output.txt
   run_java run_query $test_port $testname >> output.txt 2>&1

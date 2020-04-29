@@ -21,13 +21,13 @@ A SELECT statement is used to select and view data from the database.
    Comments can be placed within SQL statements using :code:`--`, :code:`#` or the :code:`/*...*/` symbols.
 
 ---------------
-CREATE
+CREATE TABLE
 ---------------
 
 .. parsed-literal::
    CREATE TABLE table_name (column_name data_type [constraints][, ... column_name data_type [constraints]]) [optional_keyword];
 
-The CREATE statement is used to create tables in the database. The keywords CREATE TABLE are used followed by the name of the table to be created.
+The CREATE TABLE statement is used to create tables in the database. The keywords CREATE TABLE are used followed by the name of the table to be created.
 
 The names of columns to be created in the database and their datatypes are then specified in a list, along with any constraints that might need to apply (such as denoting a PRIMARY KEY, UNIQUE KEY or FOREIGN KEY). If none of the columns are specified as keys (PRIMARY KEY or KEY NUM not specified in any column) then the primary key for the table is assumed to be the set of all columns in the order given.
 
@@ -121,14 +121,81 @@ In the table above:
 * table_name and cursor_name are variables representing the names of the table and the cursor being used.
 * keys is a special variable in Octo that contains all of the columns that are identified as keys in the DDL (either via the "PRIMARY KEY" or "KEY NUM X" set of keywords).
 
+---------------
+CREATE FUNCTION
+---------------
+
+.. parsed-literal::
+   CREATE FUNCTION function_name([data_type[, data_type[, ...]]]) RETURNS data_type AS extrinsic_function_name;
+
+The CREATE FUNCTION statement is used to create SQL functions that map to extrinsic M functions and store these mappings in the database. The keywords CREATE FUNCTION are followed by the name of the SQL function to be created, the data types of its parameters, its return type, and the fully-qualified extrinsic M function name.
+
+The SQL function's parameter data types are specified in a list, while the data type of the return value must be a single value (only one object can be returned from a function). The extrinsic function name must be of the form detailed in the `M Programmer's Guide <https://docs.yottadb.com/ProgrammersGuide/langfeat.html#id8>`__.
+
+When a function is created from a CREATE FUNCTION statement, an entry is added to Octo's internal PostgreSQL catalog. In other words, a row is added to the :code:`pg_catalog.pg_proc` system table. To view a list of created functions, their argument number and type(s), and return argument type, you can run:
+
+.. parsed-literal::
+   select proname,pronargs,prorettype,proargtypes from pg_proc;
+
+Type information for each function parameter and return type will be returned as an OID. This OID can be used to look up type information, including type name, from the :code:`pg_catalog.pg_type` system table. For example, to retrieve the human-readable return type name for all existing functions:
+
+.. parsed-literal::
+   select proname,typname from pg_catalog.pg_proc inner join pg_catalog.pg_type on pg_catalog.pg_proc.prorettype = pg_catalog.pg_type.oid;
+
+However, function parameter types are currently stored as a list in a VARCHAR string, rather than in a SQL array as the latter isn't yet supported by Octo. In the meantime, users can lookup the type name corresponding to a given type OID by using the following query:
+
+.. parsed-literal::
+   select oid,typname from pg_catalog.pg_type;
+
+Note that CREATE FUNCTION is the preferred method for creating new SQL functions and manually creating these functions through direct database modifications is not advised.
+
+Example:
+
+.. parsed-literal::
+   CREATE FUNCTION ADD(int, int) RETURNS int AS $$ADD^myextrinsicfunction;
+
+   CREATE FUNCTION APPEND(varchar, varchar) RETURNS varchar AS $$APPEND;
+
+++++++++++++++++++++
+Accepted Data Types
+++++++++++++++++++++
+
+~~~~~~~~~~~~~~~~~~~~~
+Character Data Types
+~~~~~~~~~~~~~~~~~~~~~
+
+* CHARACTER
+* CHAR
+* CHARACTER VARYING
+* CHAR VARYING
+* VARCHAR
+
+Octo does not differentiate between these data types. They can be used to represent character values, and can optionally be followed by a precision value in parentheses. Example: char(20).
+
+~~~~~~~~~~~~~~~~~~~
+Numeric Data Types
+~~~~~~~~~~~~~~~~~~~
+
+* NUMERIC
+* DECIMAL
+* DEC
+* INTEGER
+* INT
+* SMALLINT
+
+NUMERIC, DECIMAL and DEC can optionally be followed by a precision value in parentheses. Example: dec(10).
+
+.. note::
+   The specified precision values are ignored when queries are executed.
+
 -----------------
-DROP
+DROP TABLE
 -----------------
 
 .. parsed-literal::
    DROP TABLE table_name [CASCADE | RESTRICT];
 
-The DROP statement is used to remove tables from the database. The keywords DROP TABLE are followed by the name of the table desired to be dropped. Optional parameters include CASCADE and RESTRICT.
+The DROP TABLE statement is used to remove tables from the database. The keywords DROP TABLE are followed by the name of the table desired to be dropped. Optional parameters include CASCADE and RESTRICT.
 
 The CASCADE parameter is used to specify that all objects depending on the table will also be dropped.
 
@@ -138,6 +205,22 @@ Example:
 
 .. parsed-literal::
    DROP TABLE Employee CASCADE;
+
+-----------------
+DROP FUNCTION
+-----------------
+
+.. parsed-literal::
+   DROP FUNCTION function_name;
+
+The DROP FUNCTION statement is used to remove functions from the database. The keywords DROP FUNCTION are followed by the name of the function desired to be dropped. Note that the function name provided should be the name of the user-defined SQL function name, not the M label or routine name.
+
+A function deleted using the DROP FUNCTION statement will also be removed from Octo's internal PostgreSQL catalog. In other words, the function will be removed from the :code:`pg_catalog.pg_proc` system table.
+
+Example:
+
+.. parsed-literal::
+   DROP FUNCTION userfunc;
 
 -----------
 SELECT

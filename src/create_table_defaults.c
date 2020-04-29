@@ -39,7 +39,7 @@ int create_table_defaults(SqlStatement *table_statement, SqlStatement *keywords_
 	assert(NULL != keywords_statement);
 
 	UNPACK_SQL_STATEMENT(start_keyword, keywords_statement, keyword);
-	UNPACK_SQL_STATEMENT(table, table_statement, table);
+	UNPACK_SQL_STATEMENT(table, table_statement, create_table);
 
 	memset(key_columns, 0, MAX_KEY_COUNT * sizeof(SqlColumn*));
 	max_key = get_key_columns(table, key_columns);

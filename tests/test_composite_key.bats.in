@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -16,20 +16,6 @@ setup() {
   init_test
   createdb
   load_fixture vista-mini.sql
-  # load M functions needed by a Vista schema
-  $ydb_dist/mumps -run ^%XCMD 'set ^%ydboctoocto("functions","CURR_TIMESTAMP")="$$^TIMESTAMP"'
-  $ydb_dist/mumps -run ^%XCMD 'set ^%ydboctoocto("functions","CURRENT_TIMESTAMP")="$$^TIMESTAMP"'
-  $ydb_dist/mumps -run ^%XCMD 'set ^%ydboctoocto("functions","DATEFORMAT")="$$^DATETIME"'
-  $ydb_dist/mumps -run ^%XCMD 'set ^%ydboctoocto("functions","IFNULL")="$$^IFNULL"'
-  $ydb_dist/mumps -run ^%XCMD 'set ^%ydboctoocto("functions","TOKEN")="$PIECE"'
-  $ydb_dist/mumps -run ^%XCMD 'set ^%ydboctoocto("functions","REPLACE")="$$^REPLACE"'
-  $ydb_dist/mumps -run ^%XCMD 'set ^%ydboctoocto("functions","SUBSTRING")="$$^SUBSTRING"'
-  $ydb_dist/mumps -run ^%XCMD 'set ^%ydboctoocto("functions","FMGET")="$$^fmget"'
-  $ydb_dist/mumps -run ^%XCMD 'set ^%ydboctoocto("functions","LEXTRACT")="$$^LEFT"'
-  $ydb_dist/mumps -run ^%XCMD 'set ^%ydboctoocto("functions","LEFTY")="$$^LEFT"'
-  $ydb_dist/mumps -run ^%XCMD 'set ^%ydboctoocto("functions","REXTRACT")="$$^RIGHT"'
-  $ydb_dist/mumps -run ^%XCMD 'set ^%ydboctoocto("functions","PATINDEX")="$$^PATINDEX"'
-  $ydb_dist/mumps -run ^%XCMD 'set ^%ydboctoocto("functions","NUMBER")="$$^NUMBER"'
 }
 
 @test "TCK01 : #270 : LVUNDEF when running query involving composite key and a non-primary-key-column that is fixed" {

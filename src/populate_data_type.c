@@ -78,6 +78,28 @@
 		TYPE2 = TYPE1;											\
 	}
 
+SqlValueType get_sqlvaluetype_from_sqldatatype(SqlDataType type) {
+	switch (type) {
+	case BOOLEAN_TYPE:
+		return BOOLEAN_VALUE;
+		break;
+	case INTEGER_TYPE:
+		return INTEGER_LITERAL;
+		break;
+	case NUMERIC_TYPE:
+		return NUMERIC_LITERAL;
+		break;
+	case STRING_TYPE:
+		return STRING_LITERAL;
+		break;
+	default:
+		assert(FALSE);
+		ERROR(ERR_UNKNOWN_KEYWORD_STATE, "");
+		return UNKNOWN_SqlValueType;
+		break;
+	}
+}
+
 SqlValueType get_sqlvaluetype_from_psql_type(PSQL_TypeOid type) {
 	switch(type) {
 	case PSQL_TypeOid_int4:
@@ -184,7 +206,10 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_
 	SqlCaseBranchStatement	*cas_branch, *cur_branch;
 	SqlCaseStatement	*cas;
 	SqlColumn		*column = NULL;
+	SqlColumnList		*cur_column_list, *start_column_list;
 	SqlFunctionCall		*function_call;
+	SqlFunction		*function;
+	SqlParameterTypeList	*cur_parm_type_list, *start_parm_type_list;
 	SqlAggregateFunction	*aggregate_function;
 	SqlJoin			*start_join, *cur_join;
 	SqlSetOperation		*set_operation;
@@ -194,7 +219,7 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_
 	SqlValueType		child_type1, child_type2;
 	YYLTYPE			location;
 	SqlSelectStatement	*select;
-	int			result = 0;
+	int			result = 0, num_function_args;
 
 	*type = UNKNOWN_SqlValueType;
 	if (v == NULL || v->v.select == NULL)
@@ -274,12 +299,58 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_
 		result |= populate_data_type_column_list_alias(select->order_by_expression, &child_type1, TRUE, parse_context);
 		break;
 	case function_call_STATEMENT:
-		// TODO: we will need to know the return types of functions to do this
-		// For now, just say STRING_LITERAL
 		UNPACK_SQL_STATEMENT(function_call, v, function_call);
 		// SqlColumnList
 		result |= populate_data_type_column_list(function_call->parameters, type, TRUE, parse_context);
-		*type = STRING_LITERAL;
+		if (0 != result) {
+			break;
+		}
+		function = function_call->function_schema->v.create_function;
+
+		/* Check arguments to function for type correctness as well as total number.
+		 * If there are more arguments than expected, continue counting them so that we can tell the user exactly how many
+		 * arguments they passed vs. the expected value. In this case, skip the type check, as the parameter won't exist.
+		 */
+		num_function_args = 0;
+		if (NULL != function->parameter_type_list) {
+			cur_parm_type_list = start_parm_type_list = function->parameter_type_list->v.parameter_type_list;
+		} else {
+			cur_parm_type_list = NULL;
+		}
+		cur_column_list = start_column_list = function_call->parameters->v.column_list;
+		if (NULL != cur_column_list->value) {		// Only iterate over parameters if there are any
+			do {
+				if (num_function_args < function->num_args) {
+					result |= populate_data_type(cur_column_list->value, &child_type1, parse_context);
+					child_type2 = get_sqlvaluetype_from_sqldatatype(cur_parm_type_list->data_type->v.data_type);
+					CAST_AMBIGUOUS_TYPES(child_type1, child_type2);
+					if (child_type1 != child_type2) {
+						ERROR(ERR_FUNCTION_PARAMETER_TYPE_MISMATCH,
+								function_call->function_name->v.value->v.string_literal,
+								get_user_visible_type_string(child_type2),
+								get_user_visible_type_string(child_type1));
+						yyerror(NULL, NULL, &cur_column_list->value, NULL, NULL, NULL);
+						result = 1;
+						break;
+					}
+				}
+				cur_column_list = cur_column_list->next;
+				if (NULL != cur_parm_type_list) {
+					cur_parm_type_list = cur_parm_type_list->next;
+				}
+				num_function_args++;
+			} while (cur_column_list != start_column_list);
+		}
+		// The number of arguments will be incorrect if there was a type error above, so skip this check in that case.
+		if ((0 == result) && (num_function_args != function->num_args)) {
+			ERROR(ERR_INVALID_NUMBER_FUNCTION_ARGUMENTS, function_call->function_name->v.value->v.string_literal,
+					function->num_args,
+					num_function_args);
+			yyerror(NULL, NULL, &function_call->parameters, NULL, NULL, NULL);
+			result = 1;
+			break;
+		}
+		*type = get_sqlvaluetype_from_sqldatatype(function->return_type->v.data_type);
 		break;
 	case aggregate_function_STATEMENT:
 		UNPACK_SQL_STATEMENT(aggregate_function, v, aggregate_function);
@@ -445,7 +516,7 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_
 		// Note: We do not loop through the list (just like is done in "hash_canonical_query")
 		result |= populate_data_type_column_list_alias(v, type, FALSE, parse_context);
 		break;
-	case table_STATEMENT:
+	case create_table_STATEMENT:
 		// Do nothing; we got here through a table_alias
 		break;
 	case table_alias_STATEMENT:

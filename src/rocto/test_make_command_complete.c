@@ -85,7 +85,7 @@ static void test_show_statement(void **state) {
 static void test_no_command_tag_statement(void **state) {
 	CommandComplete *response = NULL;
 
-	response = make_command_complete(table_STATEMENT, 0);
+	response = make_command_complete(create_table_STATEMENT, 0);
 
 	assert_null(response);
 }

@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -49,7 +49,7 @@ LogicalPlan *lp_generate_xref_plan(LogicalPlan *plan, SqlTable *table, SqlColumn
 	MALLOC_STATEMENT(table_alias_statement, table_alias, SqlTableAlias);
 	UNPACK_SQL_STATEMENT(table_alias, table_alias_statement, table_alias);
 	/// TODO: copy table so we can more easily clean? Fill out other fields?
-	PACK_SQL_STATEMENT(table_alias->table, table, table);
+	PACK_SQL_STATEMENT(table_alias->table, table, create_table);
 	table_alias->unique_id = get_plan_unique_number(plan);
 	table_alias->alias = table->tableName;
 

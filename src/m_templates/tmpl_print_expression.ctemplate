@@ -35,7 +35,7 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 	LogicalPlan	*first_operand, *second_operand, *t_operand;
 	LogicalPlan	*cur_lp_key, *derived_column;
 	boolean_t	split_m_line;
-	SqlValueType	coerce_type, pre_coerce_type;
+	SqlValueType	coerce_type, pre_coerce_type, return_type;
 	LPActionType	plan_type;
 	boolean_t	is_avg;
 	int		aggregate_cnt;
@@ -505,18 +505,36 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 		%{}){}%
 		break;
 	case LP_FUNCTION_CALL:
-		cur_plan = plan;
+		/* As noted in lp_generate_where.c, the first_operand here is the SQL function name, which is not needed during
+		 * physical planning. Hence, we skip ignore that node in the tree and use only second_operand, which is the node
+		 * containing the relevant extrinsic function call.
+		 */
+		assert(NULL != second_operand);
+		/* The SqlFunctionCall argument list begins after the return type, which occurs after the extrinsic function node.
+		 * Accordingly, initialize cur_plan for iteration starting from the return type node instead of the parent extrinsic
+		 * function node, using t_operand to store this for convenience.
+		 */
+		t_operand = second_operand->v.lp_default.operand[1];
+		cur_plan = t_operand;
+		// Check for a BOOLEAN return type. If so, convert any string values to 0/1 in the generated plan.
+		return_type = t_operand->v.lp_default.operand[0]->v.lp_value.value->type;
+		if (BOOLEAN_VALUE == return_type) {
+			%{}$$String2Boolean^%%ydboctoplanhelpers({}%
+		}
 		%{}{}%
-		TMPL(tmpl_print_expression, first_operand, pplan, 0, 0);
+		TMPL(tmpl_print_expression, second_operand->v.lp_default.operand[0], pplan, 0, 0);
 		%{}({}%
 		while (NULL != cur_plan->v.lp_default.operand[1]) {
-			if (cur_plan != plan) {
+			if (cur_plan != t_operand) {
 				%{},{}%
 			}
 			cur_plan = cur_plan->v.lp_default.operand[1];
 			TMPL(tmpl_print_expression, cur_plan->v.lp_default.operand[0], pplan, 0, 0);
 		}
 		%{}){}%
+		if (BOOLEAN_VALUE == return_type) {
+			%{}){}%
+		}
 		break;
 	case LP_AGGREGATE_FUNCTION_COUNT_ASTERISK:
 	case LP_AGGREGATE_FUNCTION_COUNT:

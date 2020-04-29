@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -12,10 +12,18 @@
 
 drop_table_statement
   : DROP TABLE column_name DROP_BEHAVIOR {
-      SQL_STATEMENT($$, drop_STATEMENT);
-      OCTO_CMALLOC_STRUCT(($$)->v.drop, SqlDropStatement);
-      ($$)->v.drop->table_name = $column_name;
-      ($$)->v.drop->optional_keyword = $DROP_BEHAVIOR;
+      SQL_STATEMENT($$, drop_table_STATEMENT);
+      OCTO_CMALLOC_STRUCT(($$)->v.drop_table, SqlDropTableStatement);
+      ($$)->v.drop_table->table_name = $column_name;
+      ($$)->v.drop_table->optional_keyword = $DROP_BEHAVIOR;
+    }
+  ;
+
+drop_function_statement
+  : DROP FUNCTION IDENTIFIER_START {
+      SQL_STATEMENT($$, drop_function_STATEMENT);
+      OCTO_CMALLOC_STRUCT(($$)->v.drop_function, SqlDropFunctionStatement);
+      ($$)->v.drop_function->function_name = $IDENTIFIER_START;
     }
   ;
 

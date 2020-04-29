@@ -1,0 +1,7 @@
+ERROR:  Rocto is not allowed to make schema changes without startup flag --allowschemachanges
+ERROR:  Error parsing statement: CREATE FUNCTION DOLLARZWRITE(VARCHAR) RETURNS VARCHAR AS $ZWRITE;
+ERROR:  Unknown function: DOLLARZWRITE
+ERROR:  Error with syntax near (line 1, column 7):
+ERROR:  select DOLLARZWRITE(firstname) from names;
+ERROR:         ^^^^^^^^^^^^
+ERROR:  Error parsing statement: select DOLLARZWRITE(firstname) from names;

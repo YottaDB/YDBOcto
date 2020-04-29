@@ -11,6 +11,7 @@
 #################################################################
 
 -- TCT011 : OCTO304 : Type cast operator (`::`) does not work
+CREATE FUNCTION DOLLARZWRITE(INTEGER) RETURNS VARCHAR AS $ZWRITE;
 
 select id::integer,ABS(2) from names;
 select id::integer,(ABS(2)::text || id::text) from names;

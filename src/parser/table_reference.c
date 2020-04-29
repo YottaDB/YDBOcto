@@ -38,7 +38,7 @@ SqlStatement *table_reference(SqlStatement *column_name, SqlStatement *correlati
 	MALLOC_STATEMENT(join->value, table_alias, SqlTableAlias);
 	UNPACK_SQL_STATEMENT(alias, join->value, table_alias);
 	SQL_STATEMENT_FROM_TABLE_STATEMENT(alias->table, table);
-	alias->table->v.table = table;
+	alias->table->v.create_table = table;
 	alias->alias = ((NULL != correlation_specification) ? correlation_specification : table->tableName);
 	// We can probably put a variable in the bison local for this
 	alias->unique_id = *plan_id;

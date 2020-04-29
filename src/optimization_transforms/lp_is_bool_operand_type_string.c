@@ -18,8 +18,9 @@
 
 boolean_t lp_is_bool_operand_type_string(LogicalPlan *plan) {
 	boolean_t	ret, loop_done;
-	LogicalPlan	*cur_plan;
+	LogicalPlan	*cur_plan, *ret_type_plan;
 	SqlColumnAlias	*column_alias;
+	SqlValueType	return_type;
 
 	assert((LP_BOOLEAN_LESS_THAN == plan->type)
 		|| (LP_BOOLEAN_GREATER_THAN == plan->type)
@@ -45,7 +46,7 @@ boolean_t lp_is_bool_operand_type_string(LogicalPlan *plan) {
 	cur_plan = plan;
 	ret = FALSE;
 	for ( loop_done = FALSE; !loop_done; ) {
-		switch(cur_plan->type) {
+		switch (cur_plan->type) {
 		case LP_VALUE:
 			if (STRING_LITERAL == cur_plan->v.lp_value.value->type) {
 				ret = TRUE;
@@ -72,6 +73,14 @@ boolean_t lp_is_bool_operand_type_string(LogicalPlan *plan) {
 				if (STRING_LITERAL == column_alias->column->v.column_list_alias->type) {
 					ret = TRUE;
 				}
+			}
+			loop_done = TRUE;
+			break;
+		case LP_FUNCTION_CALL:
+			ret_type_plan = cur_plan->v.lp_default.operand[1]->v.lp_default.operand[1];
+			return_type = ret_type_plan->v.lp_default.operand[0]->v.lp_value.value->type;
+			if (STRING_LITERAL == return_type) {
+				ret = TRUE;
 			}
 			loop_done = TRUE;
 			break;

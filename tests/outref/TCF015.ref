@@ -1,0 +1,12 @@
+
+-- TCF015 : OCTO345 : CREATEd functions function with type coercion
+
+select id::boolean,(ABS(2)::boolean || id::text) from names;
+
+0|true0
+1|true1
+1|true2
+1|true3
+1|true4
+1|true5
+

@@ -119,14 +119,17 @@ add_library(libocto OBJECT
   decompress_statement.c
   default_octo_conf.h
   delete_table_from_pg_class.c
+  delete_function_from_pg_proc.c
   drill_to_table_alias.c
-  drop_table_from_local_cache.c
+  drop_schema_from_local_cache.c
   emit_column_specification.c
   emit_create_table.c
+  emit_create_function.c
   emit_select_statement.c
   find_column.c
   find_column_alias_name.c
   find_table.c
+  find_function.c
   format_error_string.c
   generate_key_name.c
   generate_routine_name.c
@@ -208,13 +211,13 @@ add_library(libocto OBJECT
   print_result_row.c
   print_temporary_table.c
   qualify_column_name.c
-  qualify_function_name.c
   qualify_query.c
   qualify_statement.c
   quoting.c
   readline_get_more.c
   run_query.c
   store_table_in_pg_class.c
+  store_function_in_pg_proc.c
   tables_equal.c
   values_equal.c
   ydb_error_check.c
@@ -582,9 +585,9 @@ if (DISABLE_INSTALL MATCHES "OFF")
 	install(TARGETS _ydbocto
 		DESTINATION ${CMAKE_INSTALL_PREFIX}/o)
 
-	install(FILES ${PROJECT_BINARY_DIR}/postgres-seed.sql
+	install(FILES ${PROJECT_BINARY_DIR}/octo-seed.sql
 		DESTINATION ${CMAKE_INSTALL_PREFIX}/octo)
-	install(FILES ${PROJECT_BINARY_DIR}/postgres-seed.zwr
+	install(FILES ${PROJECT_BINARY_DIR}/octo-seed.zwr
 		DESTINATION ${CMAKE_INSTALL_PREFIX}/octo)
 
 	# Add tests to make install target, if tests are supported. Only the limited test suite should be run at
@@ -605,24 +608,24 @@ endif()
 
 # Seed Data
 # Copy CREATE TABLE statements for PostgreSQL catalog tables without "pg_catalog" or "information_schema" prefixes
-add_custom_command(OUTPUT ${PROJECT_BINARY_DIR}/postgres-seed.sql
+add_custom_command(OUTPUT ${PROJECT_BINARY_DIR}/octo-seed.sql
 	COMMAND ${PROJECT_SOURCE_DIR}/tests/fixtures/convert_catalog_sql.sh ${PROJECT_BINARY_DIR}
 	WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/tests/fixtures
 )
 
 # Copy PostgreSQL catalog functions without "pg_catalog" prefix
-add_custom_command(OUTPUT ${PROJECT_BINARY_DIR}/postgres-seed.zwr
+add_custom_command(OUTPUT ${PROJECT_BINARY_DIR}/octo-seed.zwr
 	COMMAND ${PROJECT_SOURCE_DIR}/tests/fixtures/convert_catalog_zwr.sh ${PROJECT_BINARY_DIR}
 	WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/tests/fixtures
 )
 
 add_custom_target(
 	convert_catalog_sql ALL
-	DEPENDS ${PROJECT_BINARY_DIR}/postgres-seed.sql
+	DEPENDS ${PROJECT_BINARY_DIR}/octo-seed.sql
 )
 add_custom_target(
 	convert_catalog_zwr ALL
-	DEPENDS ${PROJECT_BINARY_DIR}/postgres-seed.zwr
+	DEPENDS ${PROJECT_BINARY_DIR}/octo-seed.zwr
 )
 
 # Strip debug symbols from files

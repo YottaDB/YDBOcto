@@ -136,9 +136,9 @@ void hash_canonical_query(hash128_state_t *state, SqlStatement *stmt, int *statu
 		return;
 	if (stmt->hash_canonical_query_cycle == hash_canonical_query_cycle) {
 		switch (stmt->type) {
-			case table_STATEMENT:
-				ADD_INT_HASH(state, table_STATEMENT);
-				UNPACK_SQL_STATEMENT(table, stmt, table);
+			case create_table_STATEMENT:
+				ADD_INT_HASH(state, create_table_STATEMENT);
+				UNPACK_SQL_STATEMENT(table, stmt, create_table);
 				// On a revisit, just hash the table name and return without retraversing.
 				assert(value_STATEMENT == table->tableName->type);
 				hash_canonical_query(state, table->tableName, status);
@@ -221,6 +221,10 @@ void hash_canonical_query(hash128_state_t *state, SqlStatement *stmt, int *statu
 		ADD_INT_HASH(state, function_call_STATEMENT);
 		// SqlValue
 		hash_canonical_query(state, function_call->function_name, status);
+		// SqlValue
+		hash_canonical_query(state,
+				function_call->function_schema->v.create_function->extrinsic_function,
+				status);
 		// SqlColumnList
 		hash_canonical_query_column_list(state, function_call->parameters, status, TRUE);
 		break;
@@ -305,10 +309,10 @@ void hash_canonical_query(hash128_state_t *state, SqlStatement *stmt, int *statu
 	case column_list_alias_STATEMENT:
 		hash_canonical_query_column_list_alias(state, stmt, status, FALSE);	// FALSE so we do not loop
 		break;
-	case table_STATEMENT:
-		UNPACK_SQL_STATEMENT(table, stmt, table);
+	case create_table_STATEMENT:
+		UNPACK_SQL_STATEMENT(table, stmt, create_table);
 		assert(table->tableName->type == value_STATEMENT);
-		ADD_INT_HASH(state, table_STATEMENT);
+		ADD_INT_HASH(state, create_table_STATEMENT);
 		hash_canonical_query(state, table->tableName, status);
 		hash_canonical_query(state, table->source, status);
 		hash_canonical_query(state, table->delim, status);
@@ -325,13 +329,13 @@ void hash_canonical_query(hash128_state_t *state, SqlStatement *stmt, int *statu
 		// SqlColumnListAlias
 		// If table_alias->table is of type "select_STATEMENT", we can skip "table_alias->column_list"
 		// as that would have been already traversed as part of "table_alias->table->v.select->select_list" above.
-		// If table_alias->table is of type "table_STATEMENT", then the "table_alias->column_list" is derived
+		// If table_alias->table is of type "create_table_STATEMENT", then the "table_alias->column_list" is derived
 		// from the list of all available columns in the corresponding SqlTable. In this case too, there is no need
 		// to go through all the available columns in the table. We are interested only in the columns that this
 		// query is interested in which would already be part of the SELECT column list or other parts of the query.
-		// And since the only two types possible are "select_STATEMENT" or "table_STATEMENT", no need to traverse
+		// And since the only two types possible are "select_STATEMENT" or "create_table_STATEMENT", no need to traverse
 		// "table_alias->column_list" as part of "hash_canonical_query". This is asserted below.
-		assert((select_STATEMENT == table_alias->table->type) || (table_STATEMENT == table_alias->table->type));
+		assert((select_STATEMENT == table_alias->table->type) || (create_table_STATEMENT == table_alias->table->type));
 		assert((select_STATEMENT != table_alias->table->type)
 			|| (table_alias->table->v.select->select_list == table_alias->column_list));
 		// hash_canonical_query(state, table_alias->column_list, status);

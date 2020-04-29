@@ -95,8 +95,10 @@ extern void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, int *plan
 %token EXISTS
 %token EXTRACT
 %token EXTRINSIC_FUNCTION
+%token INTRINSIC_FUNCTION
 %token FROM
 %token FULL
+%token FUNCTION
 %token GLOBAL
 %token GROUP
 %token HAVING
@@ -134,6 +136,7 @@ extern void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, int *plan
 %token PIECE
 %token PRIMARY
 %token RESTRICT
+%token RETURNS
 %token RIGHT
 %token SELECT
 %token SET
@@ -206,6 +209,8 @@ sql_statement
     }
   | sql_data_statement semicolon_or_eof { *out = $sql_data_statement; YYACCEPT; }
   | query_expression semicolon_or_eof {
+      SqlValueType	type;
+
       parse_context->command_tag = select_STATEMENT;
       parse_context->is_select = TRUE;
       if (parse_context->abort) {
@@ -214,7 +219,6 @@ sql_statement
       if (qualify_query($query_expression, NULL, NULL)) {
           YYABORT;
       }
-      SqlValueType type;
       if (populate_data_type($query_expression, &type, parse_context)) {
           YYABORT;
       }
@@ -532,9 +536,10 @@ in_value_list_allow_empty
 
 in_value_list_nonempty
   : truth_value in_value_list_tail {
+      SqlColumnList *column_list, *cl_tail;
+
       SQL_STATEMENT($$, column_list_STATEMENT);
       MALLOC_STATEMENT($$, column_list, SqlColumnList);
-      SqlColumnList *column_list, *cl_tail;
       UNPACK_SQL_STATEMENT(column_list, $$, column_list);
       column_list->value = $truth_value;
       dqinit(column_list);
@@ -544,10 +549,13 @@ in_value_list_nonempty
       }
     }
   | value_expression in_value_list_tail {
+      SqlColumnList *column_list, *cl_tail;
+
       SQL_STATEMENT($$, column_list_STATEMENT);
       MALLOC_STATEMENT($$, column_list, SqlColumnList);
-      SqlColumnList *column_list, *cl_tail;
       UNPACK_SQL_STATEMENT(column_list, $$, column_list);
+      ($$)->loc = yyloc;
+
       column_list->value = $value_expression;
       dqinit(column_list);
       if (NULL != $in_value_list_tail) {
@@ -970,9 +978,15 @@ generic_function_call
       fc->parameters = $in_value_list_allow_empty;
       value->v.calculated = fc_statement;
 
-      // Change the value to be a string literal rather than column reference
+      // Change the function name value to be a string literal rather than column reference
       UNPACK_SQL_STATEMENT(value, $column_name, value);
       value->type = FUNCTION_NAME;
+      SQL_STATEMENT(fc->function_schema, create_function_STATEMENT);
+      fc->function_schema->v.create_function = find_function(value->v.string_literal);	// Retrieve the DDL for the given function
+      if (NULL == fc->function_schema->v.create_function) {	// Issue syntax error and abort if function doesn't exist
+        yyerror(&(fc->function_name->loc), NULL, NULL, NULL, NULL, NULL);
+	YYERROR;
+      }
     }
   ;
 
@@ -1126,24 +1140,26 @@ sql_schema_statement
 
 /// TODO: not complete
 sql_schema_manipulation_statement
-  : drop_table_statement { $$ = $drop_table_statement; parse_context->command_tag = drop_STATEMENT; }
+  : drop_table_statement { $$ = $drop_table_statement; parse_context->command_tag = drop_table_STATEMENT; }
+  | drop_function_statement { $$ = $drop_function_statement; parse_context->command_tag = drop_function_STATEMENT; }
   ;
 
 sql_schema_definition_statement
-  : table_definition { $$ = $table_definition; parse_context->command_tag = table_STATEMENT; }
+  : table_definition { $$ = $table_definition; parse_context->command_tag = create_table_STATEMENT; }
   | index_definition { $$ = $index_definition; }
+  | function_definition { $$ = $function_definition; }
   ;
 
 /// TODO: not complete
 table_definition
   : CREATE TABLE column_name LEFT_PAREN table_element_list RIGHT_PAREN table_definition_tail {
-        SQL_STATEMENT($$, table_STATEMENT);
-        MALLOC_STATEMENT($$, table, SqlTable);
-        memset(($$)->v.table, 0, sizeof(SqlTable));
+        SQL_STATEMENT($$, create_table_STATEMENT);
+        MALLOC_STATEMENT($$, create_table, SqlTable);
+        memset(($$)->v.create_table, 0, sizeof(SqlTable));
         assert($column_name->type == value_STATEMENT
           && $column_name->v.value->type == COLUMN_REFERENCE);
-        ($$)->v.table->tableName = $column_name;
-        ($$)->v.table->columns = $table_element_list;
+        ($$)->v.create_table->tableName = $column_name;
+        ($$)->v.create_table->columns = $table_element_list;
         assign_table_to_columns($$);
         if (create_table_defaults($$, $table_definition_tail)) {
           YYABORT;
@@ -1581,17 +1597,16 @@ regular_identifier
 
 identifier_body
   : IDENTIFIER_START { $$ = $IDENTIFIER_START; ($$)->loc = yyloc; }
-  | EXTRINSIC_FUNCTION {
-       if (config->is_rocto) {
-          ERROR(ERR_ROCTO_M_CALL, NULL);
-          /* we issue a parser error here so that parsing for this token finish
-           * rather than using YYABORT to exit prematurely
-           */
-          YYERROR;
-       } else {
-          $$ = $EXTRINSIC_FUNCTION;
-          ($$)->loc = yyloc;
-       }
+  | m_function {
+	/* Disallow invoking arbitary M code (e.g. `SELECT $$^MCODE()`). Only M code defined
+	 * in the DDL (through a CREATE FUNCTION statement) is allowed to be invoked through an SQL function.
+	 */
+	ERROR(ERR_M_CALL, NULL);
+	/* We issue a parser error here so that parsing for this token finish
+	 * rather than using YYABORT to exit prematurely.
+	 */
+	yyerror(&yyloc, NULL, NULL, NULL, NULL, NULL);
+	YYERROR;
     }
 //  | identifier_start underscore
 //  | identifier_start identifier_part
@@ -1602,7 +1617,7 @@ IDENTIFIER_START
   | IDENTIFIER_PERIOD_IDENTIFIER { $$ = $IDENTIFIER_PERIOD_IDENTIFIER; ($$)->loc = yyloc; }
   | IDENTIFIER_ALONE { $$ = $IDENTIFIER_ALONE; ($$)->loc = yyloc; }
   ;
- 
+
 data_type
   : character_string_type {
 	SQL_STATEMENT($$, data_type_STATEMENT);
@@ -1765,6 +1780,73 @@ partition_by_clause
 optional_order_by
   : /* Empty */
   | ORDER BY sort_specification_list
+  ;
+
+function_definition
+  : CREATE FUNCTION IDENTIFIER_START LEFT_PAREN function_parameter_type_list RIGHT_PAREN RETURNS data_type AS m_function {
+        SQL_STATEMENT($$, create_function_STATEMENT);
+        MALLOC_STATEMENT($$, create_function, SqlFunction);
+        memset(($$)->v.create_function, 0, sizeof(SqlFunction));
+
+	($$)->v.create_function->function_name = $IDENTIFIER_START;
+	($$)->v.create_function->parameter_type_list = $function_parameter_type_list;
+	($$)->v.create_function->return_type = $data_type;
+	($$)->v.create_function->extrinsic_function = $m_function;
+	($$)->v.create_function->extrinsic_function->v.value->type = FUNCTION_NAME;
+      }
+  ;
+
+function_parameter_type_list
+  : /* Empty */ { $$ = 0; }
+  |  data_type function_parameter_type_list_tail  {
+	SqlParameterTypeList *parameter_type_list;
+        SQL_STATEMENT($$, parameter_type_list_STATEMENT);
+        MALLOC_STATEMENT($$, parameter_type_list, SqlParameterTypeList);
+	UNPACK_SQL_STATEMENT(parameter_type_list, $$, parameter_type_list);
+
+	assert(data_type_STATEMENT == ($data_type)->type);
+	parameter_type_list->data_type = $data_type;
+	dqinit(parameter_type_list);
+	if ($function_parameter_type_list_tail) {
+		assert(parameter_type_list_STATEMENT == $function_parameter_type_list_tail->type);
+		dqappend(parameter_type_list, $function_parameter_type_list_tail->v.parameter_type_list);
+	}
+    }
+  ;
+
+function_parameter_type_list_tail
+  : /* Empty */ { $$ = 0; }
+  | COMMA function_parameter_type_list { $$ = $function_parameter_type_list; }
+  ;
+
+m_function
+  : EXTRINSIC_FUNCTION {
+		char *c;
+
+		$$ = $EXTRINSIC_FUNCTION;
+		($$)->loc = yyloc;
+		/* The lexer makes it difficult to enforce the M name rule that '%' only occurs
+		 * at the start of a label or routine name. Accordingly, we add an extra check
+		 * here to cover the missed case where a '%' occurs in the middle of a label,
+		 * e.g. $$BAD%FUNC. Note that a case like $$LABEL^BAD%FUNC is handled by the parser,
+		 * which detects the '%' embedded in the routine name as an unexpected PERCENT token.
+		 */
+		c = ($$)->v.value->v.string_literal;
+		do {
+			if ('%' == *c) {
+				if (('$' != *(c-1)) && ('^' != *(c-1))) {
+					ERROR(ERR_PERCENT_IN_EXTRINSIC_FUNCTION_NAME, "");
+					yyerror(&yyloc, NULL, NULL, NULL, NULL, NULL);
+					YYABORT;
+				}
+			}
+			c++;
+		} while ('\0' != *c);
+    }
+  | INTRINSIC_FUNCTION {
+		$$ = $INTRINSIC_FUNCTION;
+		($$)->loc = yyloc;
+    }
   ;
 
 %%

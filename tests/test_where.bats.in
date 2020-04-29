@@ -125,8 +125,8 @@ OCTO
 }
 
 @test "TW10 :verify having a function in the WHERE doesn't break anything" {
-  $ydb_dist/mumps -r ^%XCMD 'SET ^%ydboctoocto("functions","MPIECE")="$PIECE"'
   octo <<OCTO 2>&1 | tee output.txt
+CREATE FUNCTION MPIECE(VARCHAR, VARCHAR, INTEGER) RETURNS VARCHAR AS \$PIECE;
 SELECT *
 FROM names
 WHERE MPIECE(firstName, "e", 1) = "Z"

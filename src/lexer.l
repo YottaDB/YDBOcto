@@ -112,6 +112,7 @@ int copied_so_far;
 (?i:EXTRACT) { return EXTRACT; }
 (?i:FROM) { return FROM; }
 (?i:FULL) { return FULL; }
+(?i:FUNCTION) { return FUNCTION; }
 (?i:GLOBAL) { return GLOBAL; }
 (?i:GROUP) { return GROUP; }
 (?i:HAVING) { return HAVING; }
@@ -149,6 +150,7 @@ int copied_so_far;
 (?i:PIECE) { return PIECE; }
 (?i:PRIMARY) { return PRIMARY; }
 (?i:RESTRICT) { return RESTRICT; }
+(?i:RETURNS) { return RETURNS; }
 (?i:RIGHT) { return RIGHT; }
 (?i:SELECT) { return SELECT; }
 (?i:SET) { return SET; }
@@ -227,7 +229,11 @@ int copied_so_far;
                 strncpy((*yylval_param)->v.value->v.string_literal, string_buffer, copied_so_far+1);
                 return LITERAL;
               }
-\$\$[a-zA-Z0-9]*\^[a-zA-Z][a-zA-Z0-9]* {
+\$\$[%a-zA-Z0-9]?[a-zA-Z0-9]*\^?[%a-zA-Z][a-zA-Z0-9]* {	/* M labels and M routine-names can have % as leading character.
+														 * M labels can be all digits. M labels can be optional too. Hence this fancy regex rule.
+														 * Note that this rule does not account an extra '%' in the label name, e.g. $$BAD%FUNC.
+														 * This case is handled manually in the EXTRINSIC_FUNCTION rule in parser.y.
+														 */
                 copied_so_far = 0;
                 str_buf_ptr = string_buffer;
                 char *yptr = yytext;
@@ -240,7 +246,7 @@ int copied_so_far;
                 char *d = (*yylval_param)->v.value->v.string_literal;
                 char *c = string_buffer;
                 while(*c != '\0') {
-                  *d++ = toupper(*c++);
+                  *d++ = *c++;
                 }
                 *d = '\0';
                 return EXTRINSIC_FUNCTION;
@@ -263,7 +269,25 @@ int copied_so_far;
                 *d = '\0';
                 return LITERAL;
               }
-[a-zA-Z$][a-zA-Z0-9_$^]* {
+\$[a-zA-Z]+ {
+                copied_so_far = 0;
+                str_buf_ptr = string_buffer;
+                char *yptr = yytext;
+                COPY_STRING(str_buf_ptr, yptr, copied_so_far, MAX_STR_CONST);
+                *str_buf_ptr = '\0';
+                SQL_STATEMENT(*yylval_param, value_STATEMENT);
+                OCTO_CMALLOC_STRUCT((*yylval_param)->v.value, SqlValue);
+                (*yylval_param)->v.value->type = COLUMN_REFERENCE;
+                (*yylval_param)->v.value->v.string_literal = (char*)octo_cmalloc(memory_chunks, copied_so_far+1);
+                char *d = (*yylval_param)->v.value->v.string_literal;
+                char *c = string_buffer;
+                while ('\0' != *c) {
+                  *d++ = toupper(*c++);
+                }
+                *d = '\0';
+                return INTRINSIC_FUNCTION;
+              }
+[a-zA-Z][a-zA-Z0-9_$^]* {
                 copied_so_far = 0;
                 str_buf_ptr = string_buffer;
                 char *yptr = yytext;

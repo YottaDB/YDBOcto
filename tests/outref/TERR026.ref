@@ -1,0 +1,17 @@
+
+-- TERR026 : OCTO345 : Issue error for if number of function arguments exceeds M limit
+
+-- Too many arguments in function declaration
+CREATE FUNCTION TOOMANYARGS(INTEGER, VARCHAR, INTEGER, VARCHAR, INTEGER, VARCHAR, INTEGER, VARCHAR, INTEGER, VARCHAR, INTEGER, VARCHAR, INTEGER, VARCHAR, INTEGER, VARCHAR, INTEGER, VARCHAR, INTEGER, VARCHAR, INTEGER, VARCHAR, INTEGER, VARCHAR, INTEGER, VARCHAR, INTEGER, VARCHAR, INTEGER, VARCHAR, INTEGER, VARCHAR, INTEGER) RETURNS VARCHAR AS $$TOOMANYARGS;
+
+-- Too many arguments in function call
+SELECT * FROM names where id = ABS(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33);
+
+[ERROR] PATH:LINENUM DATE TIME : Too many arguments passed for function TOOMANYARGS (max: 32)
+[ERROR] PATH:LINENUM DATE TIME : Invalid number of arguments to function ABS: expected 1 got 33)
+Error with syntax near (line 1, column 36):
+
+SELECT * FROM names where id = ABS(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33);
+                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT * FROM names where id = ABS(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33);
+

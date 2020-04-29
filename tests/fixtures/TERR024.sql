@@ -31,3 +31,4 @@ CREATE TABLE DELIMNAMES (id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName
 -- No functions as delimiters
 CREATE TABLE DELIMNAMES (id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName VARCHAR(30), middleInitial VARCHAR(1), age INTEGER) DELIM (ABS(-1)) GLOBAL "^delimnames(keys(""id""))";
 CREATE TABLE DELIMNAMES (id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName VARCHAR(30), middleInitial VARCHAR(1), age INTEGER) DELIM (9, ABS(-1)) GLOBAL "^delimnames(keys(""id""))";
+

@@ -1,0 +1,19 @@
+
+-- TCF014 : OCTO345 : Equivalent queries produce the same output due to accounting for function return type
+
+select id*3 from names order by 1;
+select ABS(id*3) from names order by 1;
+
+0
+3
+6
+9
+12
+15
+0
+3
+6
+9
+12
+15
+

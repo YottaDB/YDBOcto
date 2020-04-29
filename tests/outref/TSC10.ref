@@ -1,8 +1,0 @@
-OCTO> select $$^USERFUNC1(42) from names;
-42
-42
-42
-42
-42
-42
-OCTO> 

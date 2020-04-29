@@ -1,0 +1,12 @@
+
+-- TCF001 : OCTO345 : Allow specification of type for parameters and return value of user-defined functions
+
+CREATE FUNCTION ABS(NUMERIC) RETURNS NUMERIC AS $$ABS^%ydboctosqlfunctions;
+select ABS(-id)+2 as absid from names;
+2
+3
+4
+5
+6
+7
+

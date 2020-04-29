@@ -234,6 +234,7 @@ typedef int (*callback_fnptr_t)(SqlStatement *, int, void*, char*, boolean_t);
 
 int emit_column_specification(char *buffer, int buffer_size, SqlColumn *column);
 int emit_create_table(FILE *output, struct SqlStatement *stmt);
+int emit_create_function(FILE *output, struct SqlStatement *stmt);
 // Recursively copies all of stmt, including making copies of strings
 
 /**
@@ -252,11 +253,13 @@ int readline_get_more();
 SqlStatement *parse_line(ParseContext *parse_context);
 
 int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_context);
+SqlValueType get_sqlvaluetype_from_sqldatatype(SqlDataType type);
 SqlValueType get_sqlvaluetype_from_psql_type(PSQL_TypeOid type);
 PSQL_TypeOid get_psql_type_from_sqlvaluetype(SqlValueType type);
 PSQL_TypeSize get_type_size_from_psql_type(PSQL_TypeOid type);
 SqlTable *find_table(const char *table_name);
-int drop_table_from_local_cache(ydb_buffer_t *table_name_buffer);
+SqlFunction *find_function(const char *function_name);
+int drop_schema_from_local_cache(ydb_buffer_t *name_buffer, SqlSchemaType schema_type);
 SqlColumn *find_column(char *column_name, SqlTable *table);
 SqlStatement *find_column_alias_name(SqlStatement *stmt);
 int qualify_query(SqlStatement *table_alias_stmt, SqlJoin *parent_join, SqlTableAlias *parent_table_alias);
@@ -267,7 +270,6 @@ SqlColumnAlias *qualify_column_name(SqlValue *column_value, SqlJoin *tables, Sql
 SqlColumnListAlias *match_column_in_table(SqlTableAlias *table, char *column_name, int column_name_len,
 									boolean_t *ambiguous, boolean_t issue_error);
 boolean_t match_column_list_alias_in_select_column_list(SqlColumnListAlias *match_cla, SqlStatement *cla_stmt);
-int qualify_function_name(SqlStatement *stmt);
 SqlOptionalKeyword *get_keyword(SqlColumn *column, enum OptionalKeyword keyword);
 SqlOptionalKeyword *get_keyword_from_keywords(SqlOptionalKeyword *start_keyword, enum OptionalKeyword keyword);
 int get_key_columns(SqlTable *table, SqlColumn **key_columns);
@@ -313,6 +315,8 @@ SqlStatement *decompress_statement(char *buffer, int out_length);
 int store_table_in_pg_class(SqlTable *table, ydb_buffer_t *table_name_buffer);
 int delete_table_from_pg_class(ydb_buffer_t *table_name_buffer);
 void cleanup_tables();
+int store_function_in_pg_proc(SqlFunction *function);
+int delete_function_from_pg_proc(ydb_buffer_t *function_name_buffer);
 
 /* Parse related functions invoked from the .y files (parser.y, select.y etc.) */
 int as_name(SqlStatement *as_name, ParseContext *parse_context);

@@ -19,24 +19,6 @@ select 1.5::integer+2.5::numeric+"1abcd"::integer from names;
 
 ;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
 ;; ---------------------------------------------------------
-;  select 1.5::integer+2.5::numeric+"1abcd"::integer from names;
-;; ---------------------------------------------------------
-
-octoPlan0(cursorId)
-    DO octoPlan1(cursorId)
-    QUIT
-
-octoPlan1(cursorId)
-    NEW %ydboctoz KILL %ydboctocursor(cursorId,"keys",3,"","")
-    SET %ydboctocursor(cursorId,"keys",1,"NAMES","ID")=""
-    FOR  SET %ydboctocursor(cursorId,"keys",1,"NAMES","ID")=$ORDER(^names(%ydboctocursor(cursorId,"keys",1,"NAMES","ID"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"NAMES","ID")="")  DO
-    . NEW %ydboctobool SET %ydboctobool=1
-    . IF %ydboctobool DO
-    . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42
-    . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=$$str2mval^%ydboctoplanhelpers((((((+$GET(%ydboctocursor(cursorId,"parameters",1))))\1)+(+((+$GET(%ydboctocursor(cursorId,"parameters",2))))))+(($GET(%ydboctocursor(cursorId,"parameters",3)))\1)))
-    QUIT
-;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
-;; ---------------------------------------------------------
 ;  select 1.5::integer+2.5::numeric+"1abcd"::numeric from names;
 ;; ---------------------------------------------------------
 
@@ -52,4 +34,22 @@ octoPlan1(cursorId)
     . IF %ydboctobool DO
     . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42
     . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=$$str2mval^%ydboctoplanhelpers((((((+$GET(%ydboctocursor(cursorId,"parameters",1))))\1)+(+((+$GET(%ydboctocursor(cursorId,"parameters",2))))))+(+($GET(%ydboctocursor(cursorId,"parameters",3))))))
+    QUIT
+;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
+;; ---------------------------------------------------------
+;  select 1.5::integer+2.5::numeric+"1abcd"::integer from names;
+;; ---------------------------------------------------------
+
+octoPlan0(cursorId)
+    DO octoPlan1(cursorId)
+    QUIT
+
+octoPlan1(cursorId)
+    NEW %ydboctoz KILL %ydboctocursor(cursorId,"keys",3,"","")
+    SET %ydboctocursor(cursorId,"keys",1,"NAMES","ID")=""
+    FOR  SET %ydboctocursor(cursorId,"keys",1,"NAMES","ID")=$ORDER(^names(%ydboctocursor(cursorId,"keys",1,"NAMES","ID"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"NAMES","ID")="")  DO
+    . NEW %ydboctobool SET %ydboctobool=1
+    . IF %ydboctobool DO
+    . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42
+    . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=$$str2mval^%ydboctoplanhelpers((((((+$GET(%ydboctocursor(cursorId,"parameters",1))))\1)+(+((+$GET(%ydboctocursor(cursorId,"parameters",2))))))+(($GET(%ydboctocursor(cursorId,"parameters",3)))\1)))
     QUIT

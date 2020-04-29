@@ -45,6 +45,8 @@ void *compress_statement_helper(SqlStatement *stmt, char *out, int *out_length) 
 	SqlOptionalKeyword		*start_keyword, *cur_keyword, *new_keyword;
 	SqlStatement			*new_stmt;
 	SqlTable			*table, *new_table;
+	SqlFunction			*function, *new_function;
+	SqlParameterTypeList		*new_parameter_type_list, *cur_parameter_type_list, *start_parameter_type_list;
 	SqlValue			*value, *new_value;
 	int				len;
 	void				*r, *ret;
@@ -60,12 +62,19 @@ void *compress_statement_helper(SqlStatement *stmt, char *out, int *out_length) 
 	}
 	*out_length += sizeof(SqlStatement);
 	if (NULL != out) {
+		if (data_type_STATEMENT == new_stmt->type) {
+			/* In this case, the relevant data is the SqlDataType enum from the union member of `stmt`,
+			 * i.e. NOT a pointer. So, do not perform the A2R conversion and just return as is.
+			 * See similar note in decompress_statement.c.
+			 */
+			return ret;
+		}
 		new_stmt->v.value = ((void*)&out[*out_length]);
 		A2R(new_stmt->v.value, new_stmt->v.value);
 	}
 	switch (stmt->type) {
-	case table_STATEMENT:
-		UNPACK_SQL_STATEMENT(table, stmt, table);
+	case create_table_STATEMENT:
+		UNPACK_SQL_STATEMENT(table, stmt, create_table);
 		if (NULL != out) {
 			new_table = ((void*)&out[*out_length]);
 			memcpy(new_table, table, sizeof(SqlTable));
@@ -77,6 +86,46 @@ void *compress_statement_helper(SqlStatement *stmt, char *out, int *out_length) 
 		CALL_COMPRESS_HELPER(r, table->columns, new_table->columns, out, out_length);
 		CALL_COMPRESS_HELPER(r, table->delim, new_table->delim, out, out_length);
 		/* table->oid is not a pointer value so no need to call CALL_COMPRESS_HELPER on this member */
+		break;
+	case create_function_STATEMENT:
+		UNPACK_SQL_STATEMENT(function, stmt, create_function);
+		if (NULL != out) {
+			new_function = ((void*)&out[*out_length]);
+			memcpy(new_function, function, sizeof(SqlFunction));
+		}
+		*out_length += sizeof(SqlFunction);
+		CALL_COMPRESS_HELPER(r, function->function_name, new_function->function_name, out, out_length);
+		CALL_COMPRESS_HELPER(r, function->parameter_type_list, new_function->parameter_type_list, out, out_length);
+		CALL_COMPRESS_HELPER(r, function->return_type, new_function->return_type, out, out_length);
+		CALL_COMPRESS_HELPER(r, function->extrinsic_function, new_function->extrinsic_function, out, out_length);
+		break;
+	case parameter_type_list_STATEMENT:
+		UNPACK_SQL_STATEMENT(cur_parameter_type_list, stmt, parameter_type_list);
+		if (NULL == cur_parameter_type_list) {
+			// No parameter types were specified, nothing to compress
+			break;
+		}
+		start_parameter_type_list = cur_parameter_type_list;
+		do {
+			if (NULL != out) {
+				new_parameter_type_list = ((void*)&out[*out_length]);
+				memcpy(new_parameter_type_list, cur_parameter_type_list, sizeof(SqlParameterTypeList));
+				new_parameter_type_list->next = new_parameter_type_list->prev = NULL;
+			}
+			*out_length += sizeof(SqlParameterTypeList);
+
+			CALL_COMPRESS_HELPER(r, cur_parameter_type_list->data_type, new_parameter_type_list->data_type,
+					out, out_length);
+			cur_parameter_type_list = cur_parameter_type_list->next;
+			if ((NULL != out) && (cur_parameter_type_list != start_parameter_type_list)) {
+				new_parameter_type_list->next = ((void*)&out[*out_length]);
+				A2R(new_parameter_type_list->next, new_parameter_type_list->next);
+			}
+		} while (cur_parameter_type_list != start_parameter_type_list);
+		break;
+	case data_type_STATEMENT:
+		// Hit this case only for the initial length count, i.e. (NULL == out). See note on data_type_STATEMENTs above.
+		assert(NULL == out);
 		break;
 	case value_STATEMENT:
 		UNPACK_SQL_STATEMENT(value, stmt, value);

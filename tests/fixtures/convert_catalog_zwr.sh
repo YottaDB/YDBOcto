@@ -12,6 +12,6 @@
 #################################################################
 
 # Copy PostgreSQL catalog functions without "pg_catalog" prefix
-cp ./postgres-seed.zwr $1/postgres-seed.zwr
-grep '\^%ydboctoocto("functions","PG_CATALOG' ./postgres-seed.zwr |
-	sed 's/PG_CATALOG\.\(.*"\)/\1/' | sed '/^$/d' >> $1/postgres-seed.zwr			# Remove prefix
+cp ./octo-seed.zwr $1/octo-seed.zwr
+grep '\^%ydboctoocto("functions","PG_CATALOG' ./octo-seed.zwr |
+	sed 's/PG_CATALOG\.\(.*"\)/\1/' | sed '/^$/d' >> $1/octo-seed.zwr			# Remove prefix

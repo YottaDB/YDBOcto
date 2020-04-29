@@ -1,0 +1,22 @@
+
+-- TCF020 : OCTO345 : Nested functions work as expected
+
+SELECT ABS(-ABS(-id)) from names;
+SELECT ABS(ABS(-ABS(-id)-3)) from names;
+SELECT * from names where id = ABS(ABS(-1)+2);
+SELECT * from names where id = ABS(ABS(ABS(-1)+2)-1);
+0
+1
+2
+3
+4
+5
+3
+4
+5
+6
+7
+8
+3|Lord|Nikon
+2|Cereal|Killer
+

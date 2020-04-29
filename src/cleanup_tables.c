@@ -22,28 +22,30 @@
 void cleanup_tables() {
 	int		status;
 	char		buffer[MAX_STR_CONST];
-	ydb_buffer_t	*loaded_schemas_b;
+	char		table_name[MAX_STR_CONST];
+	ydb_buffer_t	loaded_schemas_b[4];
+	ydb_buffer_t	result_b;
 
-	loaded_schemas_b = make_buffers(config->global_names.loadedschemas, 2, "", "chunk");
-	ydb_buffer_t result_b;
+	YDB_STRING_TO_BUFFER(config->global_names.loadedschemas, &loaded_schemas_b[0]);
+	YDB_STRING_TO_BUFFER("tables", &loaded_schemas_b[1]);
+	loaded_schemas_b[2].buf_addr = table_name;
+	loaded_schemas_b[2].len_alloc = sizeof(table_name);
+	YDB_STRING_TO_BUFFER("chunk", &loaded_schemas_b[3]);
+
 	result_b.buf_addr = buffer;
 	result_b.len_alloc = result_b.len_used = sizeof(buffer);
-	YDB_MALLOC_BUFFER(&loaded_schemas_b[1], MAX_STR_CONST);
-
 	while (TRUE) {
-		status = ydb_subscript_next_s(loaded_schemas_b, 1, &loaded_schemas_b[1], &loaded_schemas_b[1]);
+		status = ydb_subscript_next_s(&loaded_schemas_b[0], 2, &loaded_schemas_b[1], &loaded_schemas_b[2]);
 		if (YDB_ERR_NODEEND == status) {
 			break;
 		}
 		YDB_ERROR_CHECK(status);
 		if (YDB_OK != status)
 			break;
-		status = ydb_get_s(loaded_schemas_b, 2, &loaded_schemas_b[1], &result_b);
+		status = ydb_get_s(&loaded_schemas_b[0], 3, &loaded_schemas_b[1], &result_b);
 		YDB_ERROR_CHECK(status);
 		if (YDB_OK != status)
 			break;
 		OCTO_CFREE(*((MemoryChunk**)result_b.buf_addr));
 	}
-	YDB_FREE_BUFFER(&loaded_schemas_b[1]);
-	free(loaded_schemas_b);
 }

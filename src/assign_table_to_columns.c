@@ -24,7 +24,7 @@ void assign_table_to_columns(SqlStatement *table_statement) {
 	SqlTable		*table;
 	int			column_number, piece_number;
 
-	UNPACK_SQL_STATEMENT(table, table_statement, table);
+	UNPACK_SQL_STATEMENT(table, table_statement, create_table);
 	UNPACK_SQL_STATEMENT(start_column, table->columns, column);
 	cur_column = start_column;
 	column_number = 0;

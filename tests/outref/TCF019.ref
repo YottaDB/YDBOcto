@@ -1,0 +1,254 @@
+
+-- TCF019 : OCTO345 : Include function name and return type in -vv DEBUG output
+
+select current_schema();
+select abs(-2*id) from names;
+select replace("abcd" || "efgh", "efgh", "abcd");
+[DEBUG] PATH:LINENUM DATE TIME : LOGICAL_PLAN BEFORE optimize_logical_plan() follows
+LP_INSERT: 
+  LP_PROJECT: 
+    LP_COLUMN_LIST: 
+      LP_WHERE: 
+        LP_FUNCTION_CALL: 
+          LP_VALUE: 'CURRENT_SCHEMA'
+          LP_COLUMN_LIST: 
+            LP_VALUE: '$$^%ydboctocurrentSchema'
+            LP_COLUMN_LIST: 
+              LP_VALUE: 'VARCHAR'
+        LP_COLUMN_LIST_ALIAS: 
+        - type: STRING_LITERAL
+        - alias: CURRENT_SCHEMA
+    LP_SELECT: 
+      LP_TABLE_JOIN: 
+        LP_TABLE: OCTOONEROWTABLE
+      LP_CRITERIA: 
+        LP_KEYS: 
+        LP_SELECT_OPTIONS: 
+          LP_WHERE: 
+          LP_SELECT_MORE_OPTIONS: 
+            LP_KEYWORDS: 
+  LP_OUTPUT: 
+    LP_KEY: 
+    - table_name: 
+    - column_name: 
+    - unique_id: 3
+    - method: LP_KEY_ADVANCE
+    - xref_key: false
+    - uses_xref_key: false
+
+[DEBUG] PATH:LINENUM DATE TIME : LOGICAL_PLAN AFTER optimize_logical_plan() follows
+LP_INSERT: 
+  LP_PROJECT: 
+    LP_COLUMN_LIST: 
+      LP_WHERE: 
+        LP_FUNCTION_CALL: 
+          LP_VALUE: 'CURRENT_SCHEMA'
+          LP_COLUMN_LIST: 
+            LP_VALUE: '$$^%ydboctocurrentSchema'
+            LP_COLUMN_LIST: 
+              LP_VALUE: 'VARCHAR'
+        LP_COLUMN_LIST_ALIAS: 
+        - type: STRING_LITERAL
+        - alias: CURRENT_SCHEMA
+    LP_SELECT: 
+      LP_TABLE_JOIN: 
+        LP_TABLE: OCTOONEROWTABLE
+      LP_CRITERIA: 
+        LP_KEYS: 
+          LP_KEY: 
+          - table_name: OCTOONEROWTABLE
+          - column_name: ID
+          - unique_id: 1
+          - method: LP_KEY_ADVANCE
+          - xref_key: false
+          - uses_xref_key: false
+        LP_SELECT_OPTIONS: 
+          LP_WHERE: 
+          LP_SELECT_MORE_OPTIONS: 
+            LP_KEYWORDS: 
+  LP_OUTPUT: 
+    LP_KEY: 
+    - table_name: 
+    - column_name: 
+    - unique_id: 3
+    - method: LP_KEY_ADVANCE
+    - xref_key: false
+    - uses_xref_key: false
+
+DEFAULT
+[DEBUG] PATH:LINENUM DATE TIME : LOGICAL_PLAN BEFORE optimize_logical_plan() follows
+LP_INSERT: 
+  LP_PROJECT: 
+    LP_COLUMN_LIST: 
+      LP_WHERE: 
+        LP_FUNCTION_CALL: 
+          LP_VALUE: 'ABS'
+          LP_COLUMN_LIST: 
+            LP_VALUE: '$$ABS^%ydboctosqlfunctions'
+            LP_COLUMN_LIST: 
+              LP_VALUE: 'NUMERIC'
+              LP_COLUMN_LIST: 
+                LP_MULTIPLICATION: 
+                  LP_NEGATIVE: 
+                    LP_VALUE: '2'
+                  LP_COLUMN_ALIAS: NAMES(1).ID
+        LP_COLUMN_LIST_ALIAS: 
+        - type: NUMERIC_LITERAL
+        - alias: ABS
+    LP_SELECT: 
+      LP_TABLE_JOIN: 
+        LP_TABLE: NAMES
+      LP_CRITERIA: 
+        LP_KEYS: 
+        LP_SELECT_OPTIONS: 
+          LP_WHERE: 
+          LP_SELECT_MORE_OPTIONS: 
+            LP_KEYWORDS: 
+  LP_OUTPUT: 
+    LP_KEY: 
+    - table_name: 
+    - column_name: 
+    - unique_id: 3
+    - method: LP_KEY_ADVANCE
+    - xref_key: false
+    - uses_xref_key: false
+
+[DEBUG] PATH:LINENUM DATE TIME : LOGICAL_PLAN AFTER optimize_logical_plan() follows
+LP_INSERT: 
+  LP_PROJECT: 
+    LP_COLUMN_LIST: 
+      LP_WHERE: 
+        LP_FUNCTION_CALL: 
+          LP_VALUE: 'ABS'
+          LP_COLUMN_LIST: 
+            LP_VALUE: '$$ABS^%ydboctosqlfunctions'
+            LP_COLUMN_LIST: 
+              LP_VALUE: 'NUMERIC'
+              LP_COLUMN_LIST: 
+                LP_MULTIPLICATION: 
+                  LP_NEGATIVE: 
+                    LP_VALUE: '2'
+                  LP_COLUMN_ALIAS: NAMES(1).ID
+        LP_COLUMN_LIST_ALIAS: 
+        - type: NUMERIC_LITERAL
+        - alias: ABS
+    LP_SELECT: 
+      LP_TABLE_JOIN: 
+        LP_TABLE: NAMES
+      LP_CRITERIA: 
+        LP_KEYS: 
+          LP_KEY: 
+          - table_name: NAMES
+          - column_name: ID
+          - unique_id: 1
+          - method: LP_KEY_ADVANCE
+          - xref_key: false
+          - uses_xref_key: false
+        LP_SELECT_OPTIONS: 
+          LP_WHERE: 
+          LP_SELECT_MORE_OPTIONS: 
+            LP_KEYWORDS: 
+  LP_OUTPUT: 
+    LP_KEY: 
+    - table_name: 
+    - column_name: 
+    - unique_id: 3
+    - method: LP_KEY_ADVANCE
+    - xref_key: false
+    - uses_xref_key: false
+
+0
+2
+4
+6
+8
+10
+[DEBUG] PATH:LINENUM DATE TIME : LOGICAL_PLAN BEFORE optimize_logical_plan() follows
+LP_INSERT: 
+  LP_PROJECT: 
+    LP_COLUMN_LIST: 
+      LP_WHERE: 
+        LP_FUNCTION_CALL: 
+          LP_VALUE: 'REPLACE'
+          LP_COLUMN_LIST: 
+            LP_VALUE: '$$^%ydboctoreplace'
+            LP_COLUMN_LIST: 
+              LP_VALUE: 'VARCHAR'
+              LP_COLUMN_LIST: 
+                LP_CONCAT: 
+                  LP_VALUE: 'abcd'
+                  LP_VALUE: 'efgh'
+                LP_COLUMN_LIST: 
+                  LP_VALUE: 'efgh'
+                  LP_COLUMN_LIST: 
+                    LP_VALUE: 'abcd'
+        LP_COLUMN_LIST_ALIAS: 
+        - type: STRING_LITERAL
+        - alias: REPLACE
+    LP_SELECT: 
+      LP_TABLE_JOIN: 
+        LP_TABLE: OCTOONEROWTABLE
+      LP_CRITERIA: 
+        LP_KEYS: 
+        LP_SELECT_OPTIONS: 
+          LP_WHERE: 
+          LP_SELECT_MORE_OPTIONS: 
+            LP_KEYWORDS: 
+  LP_OUTPUT: 
+    LP_KEY: 
+    - table_name: 
+    - column_name: 
+    - unique_id: 3
+    - method: LP_KEY_ADVANCE
+    - xref_key: false
+    - uses_xref_key: false
+
+[DEBUG] PATH:LINENUM DATE TIME : LOGICAL_PLAN AFTER optimize_logical_plan() follows
+LP_INSERT: 
+  LP_PROJECT: 
+    LP_COLUMN_LIST: 
+      LP_WHERE: 
+        LP_FUNCTION_CALL: 
+          LP_VALUE: 'REPLACE'
+          LP_COLUMN_LIST: 
+            LP_VALUE: '$$^%ydboctoreplace'
+            LP_COLUMN_LIST: 
+              LP_VALUE: 'VARCHAR'
+              LP_COLUMN_LIST: 
+                LP_CONCAT: 
+                  LP_VALUE: 'abcd'
+                  LP_VALUE: 'efgh'
+                LP_COLUMN_LIST: 
+                  LP_VALUE: 'efgh'
+                  LP_COLUMN_LIST: 
+                    LP_VALUE: 'abcd'
+        LP_COLUMN_LIST_ALIAS: 
+        - type: STRING_LITERAL
+        - alias: REPLACE
+    LP_SELECT: 
+      LP_TABLE_JOIN: 
+        LP_TABLE: OCTOONEROWTABLE
+      LP_CRITERIA: 
+        LP_KEYS: 
+          LP_KEY: 
+          - table_name: OCTOONEROWTABLE
+          - column_name: ID
+          - unique_id: 1
+          - method: LP_KEY_ADVANCE
+          - xref_key: false
+          - uses_xref_key: false
+        LP_SELECT_OPTIONS: 
+          LP_WHERE: 
+          LP_SELECT_MORE_OPTIONS: 
+            LP_KEYWORDS: 
+  LP_OUTPUT: 
+    LP_KEY: 
+    - table_name: 
+    - column_name: 
+    - unique_id: 3
+    - method: LP_KEY_ADVANCE
+    - xref_key: false
+    - uses_xref_key: false
+
+abcdefgh
+

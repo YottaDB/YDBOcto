@@ -54,7 +54,7 @@ TEMPLATE(tmpl_column_reference, PhysicalPlan *pplan, SqlColumnAlias *column_alia
 	}
 	UNPACK_SQL_STATEMENT(column, column_alias->column, column);
 	UNPACK_SQL_STATEMENT(table_alias, column_alias->table_alias_stmt, table_alias);
-	assert(table_STATEMENT == table_alias->table->type);
+	assert(create_table_STATEMENT == table_alias->table->type);
 	if (pplan->tablejoin_body_group_by_done && column_alias->group_by_column_number) {
 		/* This column reference was specified in the GROUP BY clause and GROUP BY related processing already
 		 * happened and wrote the records (based on the FROM/WHERE clauses) into the lvn subtree under
@@ -71,7 +71,7 @@ TEMPLATE(tmpl_column_reference, PhysicalPlan *pplan, SqlColumnAlias *column_alia
 		TEMPLATE_END();
 	}
 	// If this is a traditional value, fetch it from the database
-	UNPACK_SQL_STATEMENT(table, table_alias->table, table);
+	UNPACK_SQL_STATEMENT(table, table_alias->table, create_table);
 	UNPACK_SQL_STATEMENT(value, column->columnName, value);
 	// Find the columns in the table so we can look at the correct keywords
 	column = find_column(value->v.string_literal, table);

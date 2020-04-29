@@ -127,6 +127,12 @@ LogicalPlan *lp_replace_helper(LogicalPlan *plan, SqlTableAlias *table_alias, Sq
 		lp_replace_helper(set_plans->v.lp_default.operand[0], table_alias, key);
 		lp_replace_helper(set_plans->v.lp_default.operand[1], table_alias, key);
 		break;
+	case LP_FUNCTION_CALL:
+		assert(LP_VALUE == ret->v.lp_default.operand[0]->type);
+		ret->v.lp_default.operand[0] = lp_replace_helper(plan->v.lp_default.operand[0], table_alias, key);
+		assert(LP_COLUMN_LIST == ret->v.lp_default.operand[1]->type);
+		ret->v.lp_default.operand[1] = lp_replace_helper(plan->v.lp_default.operand[1], table_alias, key);
+		break;
 	case LP_VALUE:
 	case LP_DERIVED_COLUMN:
 		// Nothing to do

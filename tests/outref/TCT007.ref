@@ -1,7 +1,8 @@
 
 -- TCT007 : test coerce of functions
+CREATE FUNCTION DOLLARZWRITE(INTEGER) RETURNS VARCHAR AS $ZWRITE;
 
-select dollarzwrite(id)::integer from names limit 1;
+select DOLLARZWRITE(id)::integer from names limit 1;
 
 0
 

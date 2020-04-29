@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -11,6 +11,7 @@
 #################################################################
 
 -- TOB10 : OCTO384 : ORDER BY using column name derived from a sub-query returns incorrect results
+CREATE FUNCTION MODULO(INTEGER, INTEGER) RETURNS INTEGER AS $$^MODULO;
 
 -- Column name derived from 1-level-deep sub-query
 SELECT * FROM (SELECT id, id%2 AS newid FROM names) n1 ORDER BY newid;

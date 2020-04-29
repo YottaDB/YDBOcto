@@ -1,0 +1,12 @@
+
+-- TCF004 : OCTO345 : M intrinsic functions supported by CREATE FUNCTION
+
+CREATE FUNCTION DOLLARZWRITE(VARCHAR) RETURNS VARCHAR AS $ZWRITE;
+select DOLLARZWRITE(firstname) from names;
+"Zero"
+"Acid"
+"Cereal"
+"Lord"
+"Joey"
+"Zero"
+

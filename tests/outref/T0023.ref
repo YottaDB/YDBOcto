@@ -1,2 +1,5 @@
-ERROR:  M extrinsic function calls are disallowed in rocto
+ERROR:  Inline M function calls are disallowed. Use CREATE FUNCTION instead to map it to an SQL function.
+ERROR:  Error with syntax near (line 1, column 7):
+ERROR:  select $$^USERFUNC1(42) from names;
+ERROR:         ^^^^^^^^^^^^
 ERROR:  Error parsing statement: select $$^USERFUNC1(42) from names;

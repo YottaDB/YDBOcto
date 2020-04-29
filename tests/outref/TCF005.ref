@@ -1,0 +1,23 @@
+
+-- TCF005 : OCTO345 : M extrinsic functions created by CREATE FUNCTION are case sensitive" {
+
+-- Map function to existing extrinsic function (all caps)
+CREATE FUNCTION MODULO(INTEGER, INTEGER) RETURNS INTEGER AS $$^MODULO;
+SELECT id, MODULO(id,2) FROM names;
+
+-- Map function to non-existing extrinsic function (lowercase)
+CREATE FUNCTION MODULO(INTEGER, INTEGER) RETURNS INTEGER AS $$^modulo;
+SELECT id, MODULO(id,2) FROM names;
+
+-- Map function to non-existing extrinsic function (mixed case)
+CREATE FUNCTION MODULO(INTEGER, INTEGER) RETURNS INTEGER AS $$^mOdUlO;
+SELECT id, MODULO(id,2) FROM names;
+0|0
+1|1
+2|0
+3|1
+4|0
+5|1
+[ERROR] PATH:LINENUM DATE TIME : YottaDB error: 150373978,octoPlan1+7^%ydboctoP*,%YDB-E-ZLINKFILE, Error while zlinking "modulo",%YDB-E-FILENOTFND, File modulo not found
+[ERROR] PATH:LINENUM DATE TIME : YottaDB error: 150373978,octoPlan1+7^%ydboctoP*,%YDB-E-ZLINKFILE, Error while zlinking "mOdUlO",%YDB-E-FILENOTFND, File mOdUlO not found
+

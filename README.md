@@ -271,11 +271,13 @@ GDE> exit
 $ mupip create
 ```
 
-#### Install PostgreSQL seed data
+#### Install Octo seed data
+
+Note: This step is mandatory for full Octo functionality, as it loads internal system tables and functions required both by clients and Octo's own test system.
 
 ```sh
-$ydb_dist/mupip load $ydb_dist/plugin/octo/postgres-seed.zwr
-$ydb_dist/plugin/bin/octo -f $ydb_dist/plugin/octo/postgres-seed.sql
+$ydb_dist/mupip load $ydb_dist/plugin/octo/octo-seed.zwr
+$ydb_dist/plugin/bin/octo -f $ydb_dist/plugin/octo/octo-seed.sql
 ```
 
 #### Test with dummy data

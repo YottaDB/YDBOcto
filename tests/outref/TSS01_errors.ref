@@ -97,7 +97,7 @@ Error with syntax near (line 1, column 15):
 select id and id from names;
               ^^
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select id and id from names;
-[ERROR] PATH:LINENUM DATE TIME : Invalid input syntax for type boolean: Zero
+[ERROR] PATH:LINENUM DATE TIME : Invalid input syntax for type boolean: 'Zero' is not a valid boolean value
 
 
 

@@ -13,4 +13,3 @@
 -- TERR020 : OCTO512 : SIG-11 (instead of an error) from SELECT *
 
 SELECT *;
-

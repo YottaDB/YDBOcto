@@ -118,12 +118,7 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 			result |= qualify_statement(value->v.calculated, tables, table_alias_stmt, depth + 1, ret_cla);
 			break;
 		case FUNCTION_NAME:
-			// If it starts with '$$', trim those off and leave it alone (MUMPS expression)
-			// Else, match it with a value from the dictionary in ^octo("functions")
-			result = qualify_function_name(stmt);
-			if (result) {
-				yyerror(NULL, NULL, &stmt, NULL, NULL, NULL);
-			}
+			// The function name lookup is done in the parser by a call to find_function, and so nothing is needed here.
 			break;
 		case COERCE_TYPE:
 			result |= qualify_statement(value->v.coerce_target, tables, table_alias_stmt, depth + 1, ret_cla);
@@ -390,7 +385,7 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 			cur_cla = cur_cla->next;
 		} while (cur_cla != start_cla);
 		break;
-	case table_STATEMENT:
+	case create_table_STATEMENT:
 		break;
 	default:
 		ERROR(ERR_UNKNOWN_KEYWORD_STATE, "");

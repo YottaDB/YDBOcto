@@ -26,7 +26,7 @@ SqlStatement *copy_sql_statement(SqlStatement *stmt) {
 	SqlInsertStatement	*insert;
 	SqlStatement		*ret;
 	SqlSelectStatement	*select;
-	SqlDropStatement	*drop;
+	SqlDropTableStatement	*drop_table;
 	SqlValue		*value;
 	SqlBinaryOperation	*binary;
 	SqlUnaryOperation	*unary;
@@ -42,11 +42,11 @@ SqlStatement *copy_sql_statement(SqlStatement *stmt) {
 	if (NULL == stmt)
 		return NULL;
 	// We don't need copy these things because they never get changed
-	if ((table_STATEMENT == stmt->type) || (column_STATEMENT == stmt->type))
+	if ((create_table_STATEMENT == stmt->type) || (column_STATEMENT == stmt->type))
 		return stmt;
 	SQL_STATEMENT(ret, stmt->type);
 	switch(stmt->type) {
-	case table_STATEMENT:
+	case create_table_STATEMENT:
 		assert(FALSE);
 		break;
 	case table_alias_STATEMENT:
@@ -76,11 +76,11 @@ SqlStatement *copy_sql_statement(SqlStatement *stmt) {
 		// been copied by looking at the aliases for each column below
 		//ret->v.select->order_by_expression = copy_sql_statement(select->order_by_expression);
 		break;
-	case drop_STATEMENT:
-		drop = stmt->v.drop;
-		MALLOC_STATEMENT(ret, drop, SqlDropStatement);
-		ret->v.drop->table_name = copy_sql_statement(drop->table_name);
-		ret->v.drop->optional_keyword = copy_sql_statement(drop->optional_keyword);
+	case drop_table_STATEMENT:
+		drop_table = stmt->v.drop_table;
+		MALLOC_STATEMENT(ret, drop_table, SqlDropTableStatement);
+		ret->v.drop_table->table_name = copy_sql_statement(drop_table->table_name);
+		ret->v.drop_table->optional_keyword = copy_sql_statement(drop_table->optional_keyword);
 		break;
 	case value_STATEMENT:
 		value = stmt->v.value;

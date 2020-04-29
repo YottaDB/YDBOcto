@@ -416,15 +416,17 @@ int lp_verify_structure_helper(LogicalPlan *plan, LogicalPlan **aggregate, LPAct
 			plan = plan->v.lp_default.operand[1];
 		}
 		break;
+	case LP_VALUE:
 	case LP_COLUMN_ALIAS:
 	case LP_DERIVED_COLUMN:
 	case LP_PIECE_NUMBER:
-	case LP_VALUE:
 	case LP_COLUMN_LIST_ALIAS:
 		// This has no children to check
 		break;
 	case LP_FUNCTION_CALL:
+		assert(LP_VALUE == plan->v.lp_default.operand[0]->type);
 		ret &= lp_verify_structure_helper(plan->v.lp_default.operand[0], aggregate, LP_VALUE);
+		assert(LP_COLUMN_LIST == plan->v.lp_default.operand[1]->type);
 		ret &= lp_verify_structure_helper(plan->v.lp_default.operand[1], aggregate, LP_COLUMN_LIST);
 		break;
 	case LP_ORDER_BY:

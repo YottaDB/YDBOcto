@@ -180,7 +180,7 @@ query_specification
       MALLOC_STATEMENT(join->value, table_alias, SqlTableAlias);
       UNPACK_SQL_STATEMENT(alias, join->value, table_alias);
       SQL_STATEMENT_FROM_TABLE_STATEMENT(alias->table, table);
-      alias->table->v.table = table;
+      alias->table->v.create_table = table;
       alias->alias = table->tableName;
       // We can probably put a variable in the bison local for this
       alias->unique_id = *plan_id;

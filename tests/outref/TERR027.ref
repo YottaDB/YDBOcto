@@ -1,0 +1,20 @@
+
+-- TERR027 : OCTO345 : Issue error for extrinsic functions with '%' in invalid places
+
+CREATE FUNCTION BADFUNC() RETURNS INTEGER AS $$BAD%FUNC;
+CREATE FUNCTION BADFUNC() RETURNS INTEGER AS $$BAD^FU%NC;
+
+[ERROR] PATH:LINENUM DATE TIME : '%' is only allowed at the beginning of an M label or routine name.
+Error with syntax near (line 1, column 46):
+
+CREATE FUNCTION BADFUNC() RETURNS INTEGER AS $$BAD%FUNC;
+                                             ^^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: CREATE FUNCTION BADFUNC() RETURNS INTEGER AS $$BAD%FUNC;
+Error with syntax near (line 1, column 54):
+
+CREATE FUNCTION BADFUNC() RETURNS INTEGER AS $$BAD^FU%NC;
+                                                     ^
+syntax error, unexpected PERCENT, expecting SEMICOLON or ENDOFFILE
+
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: CREATE FUNCTION BADFUNC() RETURNS INTEGER AS $$BAD^FU%NC;
+

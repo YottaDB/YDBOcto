@@ -194,7 +194,7 @@ OCTO
 	# Enforce M mode in ydb_dist to prevent %YDB-E-DLLCHSETUTF8 when loading $ydb_dist/libyottadbutil.so when ydb_chset=M
 	export ydb_dist="$(echo $ydb_dist | sed 's/\/utf8//')"
 	export ydb_routines=". @PROJECT_BINARY_DIR@/src/_ydbocto.so $ydb_dist/libyottadbutil.so $ydb_dist"
-	rm _ydbocto*.o
+	rm -f _ydbocto*.o
 	unset ydb_icu_version gtm_icu_version
 
 	# Test Octo built in M mode with ydb_chset set to M. Should work just fine

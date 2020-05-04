@@ -142,7 +142,8 @@ int parse_startup_flags(int argc, char **argv, char *config_file_name) {
 		case 'f':
 			inputFile = fopen(optarg, "r");
 			if (NULL == inputFile) {
-				FATAL(ERR_FILE_NOT_FOUND, optarg);
+				ERROR(ERR_FILE_NOT_FOUND, optarg);
+				return 1;
 			}
 			break;
 		case 'd':

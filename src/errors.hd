@@ -137,6 +137,7 @@ ERROR_DEF(ERR_FAILED_TO_RETRIEVE_ENVIRONMENT_VARIABLE, "Failed to retrieve value
 ERROR_DEF(ERR_BAD_ADDRESS, "Bad listen address: %s", PSQL_Code_Connection_Exception)
 ERROR_DEF(ERR_UNKNOWN_MESSAGE_TYPE, "Unknown message type from frontend: %c", PSQL_Code_Protocol_Violation)
 // ROCTO //
+ERROR_DEF(ERR_ROCTO_TLS_REQUIRED, "Server requires all connections to be TLS encrypted. Please re-connect using a client with TLS/SSL enabled.", PSQL_Code_Protocol_Violation)
 ERROR_DEF(ERR_ROCTO_INVALID_TYPE, "%s: invalid type '%c': must be '%c'", PSQL_Code_Protocol_Violation)
 ERROR_DEF(ERR_ROCTO_INVALID_VERSION, "%s: invalid version %x: must be %x", PSQL_Code_Protocol_Violation)
 ERROR_DEF(ERR_ROCTO_READ_FAILED, "read failure: %s", PSQL_Code_Connection_Exception)

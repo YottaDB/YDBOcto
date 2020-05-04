@@ -252,7 +252,7 @@ int main(int argc, char **argv) {
 		}
 		rocto_session.ip = host_buf;
 		rocto_session.port = serv_buf;
-		INFO(ERR_CLIENT_CONNECTED, NULL);
+		LOG_LOCAL_ONLY(INFO, ERR_CLIENT_CONNECTED, NULL);
 
 		status = ydb_init();		// YDB init needed by gtm_tls_init call below */
 		YDB_ERROR_CHECK(status);
@@ -325,10 +325,15 @@ int main(int argc, char **argv) {
 			rocto_session.ssl_active = TRUE;
 			read_bytes(&rocto_session, buffer, MAX_STR_CONST, sizeof(int) * 2);
 #			endif
-		// Attempt unencrypted connection if SSL not requested
+		// Attempt unencrypted connection if SSL is disabled
 		} else if ((NULL != ssl_request) && !config->rocto_config.ssl_on) {
 			result = send_bytes(&rocto_session, "N", sizeof(char));
 			read_bytes(&rocto_session, buffer, MAX_STR_CONST, sizeof(int) * 2);
+		} else if ((NULL == ssl_request) && config->rocto_config.ssl_required) {
+			// Do not continue if TLS/SSL is required, but not requested by the client
+			rocto_session.sending_message = FALSE;		// Must enable message sending for client to be notified
+			FATAL(ERR_ROCTO_TLS_REQUIRED, "");
+			break;
 		}
 
 		// Check for CancelRequest and handle if so

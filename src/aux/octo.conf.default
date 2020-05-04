@@ -29,7 +29,15 @@ rocto = {
   use_dns = false
   // Authentication methods; supported options are "md5"
   authentication_method = "md5"
+  // Set to 'true' to enable SSL/TLS session encryption for remote connections when clients requests it,
+  // or to 'false' to disable SSL/TLS entirely. Note that even when set to 'true' unencrypted
+  // connections are accepted when the client requests them. To force SSL/TLS connections, use ssl_required.
   ssl_on = false
+  // Set to 'true' to require SSL/TLS session encryption for all remote connections and
+  // refuse any client connection that does not request or support SSL/TLS encryption.
+  // If set to 'false', unencrypted connections will be accepted.
+  // Note that ssl_on must be set to 'true' when ssl_required is set to 'true'.
+  ssl_required = false
 }
 
 /* Settings controlling YottaDB; these get set as environment variables during startup

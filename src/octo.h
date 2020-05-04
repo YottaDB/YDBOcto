@@ -172,11 +172,16 @@
 	hash_canonical_query(&STATE, RESULT, &STATUS);		\
 }
 
-#define LOG_LOCAL_ONLY(SEVERITY, ERROR, ...)	\
-{						\
-	rocto_session.sending_message = TRUE;	\
-	SEVERITY(ERROR, ## __VA_ARGS__);	\
-	rocto_session.sending_message = FALSE;	\
+#define LOG_LOCAL_ONLY(SEVERITY, ERROR, ...)			\
+{								\
+	/* Disable message sending only if already enabled */	\
+	if (!rocto_session.sending_message) {			\
+		rocto_session.sending_message = TRUE;		\
+		SEVERITY(ERROR, ## __VA_ARGS__);		\
+		rocto_session.sending_message = FALSE;		\
+	} else {						\
+		SEVERITY(ERROR, ## __VA_ARGS__);		\
+	}							\
 }
 
 #define INVOKE_REGEX_SPECIFICATION(STMT, OP0, OP1, IS_REGEX_LIKE_OR_SIMILAR, IS_SENSITIVE, IS_NOT, PARSE_CONTEXT)	\

@@ -43,13 +43,17 @@ SSLRequest *read_ssl_request(RoctoSession *session, char *data, int32_t data_len
 
 	// Length must be 8 (sum of two ints)
 	if(ret->length != expected_length) {
-		WARNING(ERR_ROCTO_INVALID_INT_VALUE, "SSLRequest", "length", ret->length, expected_length);
+		// This message may be useful for debugging, but is not generally useful to users as it provides protocol-level
+		// information that is not directly actionable from standard SQL clients.
+		TRACE(ERR_ROCTO_INVALID_INT_VALUE, "SSLRequest", "length", ret->length, expected_length);
 		free(ret);
 		return NULL;
 	}
 
 	if (expected_request_code != ret->request_code) {
-		WARNING(ERR_ROCTO_INVALID_INT_VALUE, "SSLRequest", "request code", ret->request_code, expected_request_code);
+		// This message may be useful for debugging, but is not generally useful to users as it provides protocol-level
+		// information that is not directly actionable from standard SQL clients.
+		TRACE(ERR_ROCTO_INVALID_INT_VALUE, "SSLRequest", "request code", ret->request_code, expected_request_code);
 		free(ret);
 		return NULL;
 	}

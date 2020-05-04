@@ -245,3 +245,71 @@ OCTO
   verify_output TPC006 output.txt noinfo nodebug
 }
 
+@test "TPC007 : Rocto enforces ssl_required configuration setting" {
+	if [[ @YDB_TLS_AVAILABLE@ -eq 1 ]]; then
+		stop_rocto
+		cat <<OCTO &> octo.conf
+rocto: {
+ssl_on: true;
+ssl_required: true;
+}
+
+tls: {
+CAfile: "$test_temp/CA.crt";
+CApath: "$test_temp/";
+OCTOSERVER: {
+	format: "PEM";
+	cert: "$test_temp/server.crt";
+	key: "$test_temp/server.key";
+}
+}
+OCTO
+		cat >> in.sql <<OCTO
+select * from names;
+exit
+OCTO
+
+		test_portF=$(start_rocto 1339)
+		run_psql $test_portF notls 2>&1 | tee -a output.txt
+		run_psql $test_portF < in.sql 2>&1 | tee -a output.txt
+		# Strip out extra verbiage emitted by some versions of psql
+		sed -i 's/error: could not connect to server: //' output.txt
+		verify_output TPC007 output.txt noinfo nodebug
+	else
+		skip "YDB_TLS_AVAILABLE is not set"
+	fi
+}
+
+@test "TPC008 : Rocto detects conflicts between ssl_required and ssl_on" {
+	if [[ @YDB_TLS_AVAILABLE@ -eq 1 ]]; then
+		stop_rocto
+		cat <<OCTO &> octo.conf
+rocto: {
+ssl_on: false;
+ssl_required: true;
+}
+OCTO
+		run rocto
+		echo $output &> rocto.log
+		verify_output TPC008 rocto.log noinfo nodebug
+	else
+		skip "YDB_TLS_AVAILABLE is not set"
+	fi
+}
+
+@test "TPC009 : Rocto flags use of ssl_required when YDB TLS plugin is not installed" {
+	if [[ @YDB_TLS_AVAILABLE@ -eq 0 ]]; then
+		stop_rocto
+		cat <<OCTO &> octo.conf
+rocto: {
+ssl_on: false;
+ssl_required: true;
+}
+OCTO
+		run rocto
+		echo $output &> rocto.log
+		verify_output TPC009 rocto.log noinfo nodebug
+	else
+		skip "YDB_TLS_AVAILABLE is set"
+	fi
+}

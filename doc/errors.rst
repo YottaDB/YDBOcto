@@ -26,7 +26,7 @@ Comparative to severities in PostgreSQL,
 * ERROR is equivalent to PSQL ERROR.
 * FATAL is equivalent to PSQL FATAL.
 
-TRACE, INFO and DEBUG are used to get helpful output for debugging. WARNING indicates strange behavior, invalid input or bad configuration. ERROR messages cause the currently executing query to fail. FATAL messages cause the program to halt and produce a core file.
+TRACE and DEBUG are used to get helpful output for debugging. INFO provides potentially helpful, but non-critical information about internal operation. WARNING is similar to INFO, but highlights potentially dangerous or undesirable, though non-critical, behavior. ERROR messages report disruptive but recoverable states. Note that ERRORs encountered while parsing or executing a query will cause it to fail. FATAL messages indicate disruptive, unrecoverable states and cause the program to immediately exit, closing any open network connection.
 
 ---------------
 Octo Errors

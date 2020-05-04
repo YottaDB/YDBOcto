@@ -244,39 +244,46 @@ int parse_config_file_settings(const char *config_file_name, config_t *config_fi
 		verbosity_int = ERROR;		// Set to the default if verbosity was not set, i.e. the error check succeeds
 	}
 	config->verbosity_level = verbosity_int;
-	if (config_lookup_string(config_file, "rocto.address", &config->rocto_config.address)
-			== CONFIG_FALSE) {
+	if (CONFIG_FALSE == config_lookup_string(config_file, "rocto.address", &config->rocto_config.address)) {
 		CONFIG_ERROR_CHECK(config_file, "rocto.address", status);
 	}
-	if (config_lookup_int(config_file, "rocto.port", &config->rocto_config.port)
-			== CONFIG_FALSE) {
+	if (CONFIG_FALSE == config_lookup_int(config_file, "rocto.port", &config->rocto_config.port)) {
 		CONFIG_ERROR_CHECK(config_file, "rocto.port", status);
 	}
-	if (config_lookup_bool(config_file, "rocto.use_dns", &config->rocto_config.use_dns)
-			== CONFIG_FALSE) {
+	if (CONFIG_FALSE == config_lookup_bool(config_file, "rocto.use_dns", &config->rocto_config.use_dns)) {
 		CONFIG_ERROR_CHECK(config_file, "rocto.use_dns", status);
 	}
 #	if YDB_TLS_AVAILABLE
-	if (config_lookup_string(config_file, "tls.OCTOSERVER.cert", &config->rocto_config.ssl_cert_file)
-			== CONFIG_FALSE) {
+	if (CONFIG_FALSE == config_lookup_string(config_file, "tls.OCTOSERVER.cert", &config->rocto_config.ssl_cert_file)) {
 		CONFIG_ERROR_CHECK(config_file, "tls.OCTOSERVER.cert", status);
 	}
-	if (config_lookup_string(config_file, "tls.OCTOSERVER.key", &config->rocto_config.ssl_key_file)
-			== CONFIG_FALSE) {
+	if (CONFIG_FALSE == config_lookup_string(config_file, "tls.OCTOSERVER.key", &config->rocto_config.ssl_key_file)) {
 		CONFIG_ERROR_CHECK(config_file, "tls.OCTOSERVER.key", status);
 	}
-	if (config_lookup_bool(config_file, "rocto.ssl_on", &config->rocto_config.ssl_on)
-			== CONFIG_FALSE) {
+	if (CONFIG_FALSE == config_lookup_bool(config_file, "rocto.ssl_on", &config->rocto_config.ssl_on)) {
 		CONFIG_ERROR_CHECK(config_file, "rocto.ssl_on", status);
+	}
+	if (CONFIG_FALSE == config_lookup_bool(config_file, "rocto.ssl_required", &config->rocto_config.ssl_required)) {
+		CONFIG_ERROR_CHECK(config_file, "rocto.ssl_required", status);
+	}
+	if (!config->rocto_config.ssl_on && config->rocto_config.ssl_required) {
+		ERROR(ERR_BAD_CONFIG, config_file_name, "rocto.ssl_required set, but rocto.ssl_on is disabled");
+		return 1;
 	}
 
 #	else
-	if (config_lookup_bool(config_file, "rocto.ssl_on", &config->rocto_config.ssl_on)
-			== CONFIG_FALSE) {
+	if (CONFIG_FALSE == config_lookup_bool(config_file, "rocto.ssl_on", &config->rocto_config.ssl_on)) {
 		CONFIG_ERROR_CHECK(config_file, "rocto.ssl_on", status);
 	}
 	if (config->rocto_config.ssl_on) {
 		ERROR(ERR_BAD_CONFIG, config_file_name, "rocto.ssl_on set, but YottaDB TLS plugin not installed");
+		return 1;
+	}
+	if (CONFIG_FALSE == config_lookup_bool(config_file, "rocto.ssl_required", &config->rocto_config.ssl_required)) {
+		CONFIG_ERROR_CHECK(config_file, "rocto.ssl_required", status);
+	}
+	if (config->rocto_config.ssl_required) {
+		ERROR(ERR_BAD_CONFIG, config_file_name, "rocto.ssl_required set, but YottaDB TLS plugin not installed");
 		return 1;
 	}
 #	endif

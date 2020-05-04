@@ -26,6 +26,7 @@ int parse_startup_flags(int argc, char **argv, char *config_file_name);
 typedef struct RoctoConfig {
 	int port;
 	int ssl_on;
+	int ssl_required;
 	const char *address;
 	const char *ssl_cert_file;
 	const char *ssl_key_file;

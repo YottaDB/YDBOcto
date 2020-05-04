@@ -1,0 +1,14 @@
+psql: could not connect to server: Connection refused
+	Is the server running on host "localhost" (::1) and accepting
+	TCP/IP connections on port 1339?
+FATAL:  Server requires all connections to be TLS encrypted. Please re-connect using a client with TLS/SSL enabled.
+ ID | FIRSTNAME | LASTNAME 
+----+-----------+----------
+ 0  | Zero      | Cool
+ 1  | Acid      | Burn
+ 2  | Cereal    | Killer
+ 3  | Lord      | Nikon
+ 4  | Joey      | 
+ 5  | Zero      | Cool
+(6 rows)
+

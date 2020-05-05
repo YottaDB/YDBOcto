@@ -220,3 +220,11 @@ OCTO
 	ydb_chset=UTF-8 LC_ALL=en_US.UTF8 ydb_icu_version=`pkg-config --modversion icu-io` octo 2>&1 | tee | sed 's/library \/.*\/_ydbocto\.so/library LIBPATH\/_ydbocto.so/' >> output.txt
 	verify_output TERR018 output.txt
 }
+
+@test "TERR019 : OCTO296 : Issue error when table on either side of NATURAL JOIN has duplicate columns with same name" {
+  load_fixture customers.sql
+  load_fixture customers.zwr
+  load_fixture TERR019.sql subtest novv
+  verify_output TERR019 output.txt
+}
+

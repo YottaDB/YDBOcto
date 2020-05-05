@@ -23,7 +23,8 @@
 /* Note: ambiguous is an output parameter. `*ambiguous` is set to TRUE if multiple columns in the input
  * `table_alias` match the input `column_name`.
  */
-SqlColumnListAlias *match_column_in_table(SqlTableAlias *table_alias, char *column_name, int column_name_len, boolean_t *ambiguous)
+SqlColumnListAlias *match_column_in_table(SqlTableAlias *table_alias, char *column_name, int column_name_len,
+						boolean_t *ambiguous, boolean_t issue_error)
 {
 	SqlColumnListAlias	*cur_column_list, *start_column_list, *ret;
 
@@ -54,7 +55,9 @@ SqlColumnListAlias *match_column_in_table(SqlTableAlias *table_alias, char *colu
 					 * so caller can issue error. We can break out of the loop now.
 					 */
 					*ambiguous = TRUE;
-					ERROR(ERR_AMBIGUOUS_COLUMN_NAME, column_name);
+					if (issue_error) {
+						ERROR(ERR_AMBIGUOUS_COLUMN_NAME, column_name);
+					}
 					break;
 				}
 				ret = cur_column_list;

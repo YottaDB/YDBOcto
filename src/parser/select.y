@@ -265,38 +265,49 @@ derived_column_expression
 
 from_clause
   : FROM table_reference {
-      SqlJoin *start_join, *cmp_join, *cur_join;
-      SqlTableAlias *alias;
-      SqlValue *value;
-      SqlStatement *stmt;
-      char *cmp_name, *cur_name;
-      $$ = $table_reference;
-      /* traverse the entire table linked list and compare the table_alias
-       * this ensures each table has a unique alias
-      */
-      UNPACK_SQL_STATEMENT(start_join, $$, join);
-      cmp_join = start_join;
-      do {
-        stmt = drill_to_table_alias(cmp_join->value);
-        UNPACK_SQL_STATEMENT(alias, stmt, table_alias);
-        UNPACK_SQL_STATEMENT(value, alias->alias, value);
-        assert((COLUMN_REFERENCE == value->type) || (NUL_VALUE == value->type));
-        cmp_name = value->v.string_literal;
-        cur_join = cmp_join->next;
-        while (cur_join != start_join) {
-          stmt = drill_to_table_alias(cur_join->value);
-          UNPACK_SQL_STATEMENT(alias, stmt, table_alias);
-          UNPACK_SQL_STATEMENT(value, alias->alias, value);
-          assert((COLUMN_REFERENCE == value->type) || (NUL_VALUE == value->type));
-          cur_name = value->v.string_literal;
-          if (0 == strcmp(cmp_name, cur_name)) {
-            ERROR(ERR_JOIN_ALIAS_DUPLICATE, cmp_name);
-            YYABORT;
-          }
-          cur_join = cur_join->next;
-        }
-        cmp_join = cmp_join->next;
-      } while (cmp_join != start_join);
+	SqlJoin		*start_join, *cmp_join;
+
+	$$ = $table_reference;
+	/* Traverse the all tables in the join list and ensure that each table has a unique alias. Else issue an error.
+	 * Also use this opportunity to finish setting up the NATURAL JOIN condition (deferred in a "qualified_join" rule).
+	 */
+	UNPACK_SQL_STATEMENT(start_join, $$, join);
+	cmp_join = start_join;
+	do {
+		SqlJoin		*cur_join;
+		SqlTableAlias	*alias;
+		SqlValue	*value;
+		SqlStatement	*stmt;
+		char		*cmp_name, *cur_name;
+
+		if (NATURAL_JOIN == cmp_join->type) {
+			/* cur_join->condition would not yet have been filled in (deferred in parser). Do that here and
+			 * at the same time do some qualification checks too (errors will be returned as a non-zero value).
+			 */
+			if (natural_join_condition(start_join, cmp_join)) {
+				YYERROR;
+			}
+		}
+		stmt = drill_to_table_alias(cmp_join->value);
+		UNPACK_SQL_STATEMENT(alias, stmt, table_alias);
+		UNPACK_SQL_STATEMENT(value, alias->alias, value);
+		assert((COLUMN_REFERENCE == value->type) || (NUL_VALUE == value->type));
+		cmp_name = value->v.string_literal;
+		cur_join = cmp_join->next;
+		while (cur_join != start_join) {
+			stmt = drill_to_table_alias(cur_join->value);
+			UNPACK_SQL_STATEMENT(alias, stmt, table_alias);
+			UNPACK_SQL_STATEMENT(value, alias->alias, value);
+			assert((COLUMN_REFERENCE == value->type) || (NUL_VALUE == value->type));
+			cur_name = value->v.string_literal;
+			if (0 == strcmp(cmp_name, cur_name)) {
+				ERROR(ERR_JOIN_ALIAS_DUPLICATE, cmp_name);
+				YYERROR;
+			}
+			cur_join = cur_join->next;
+		}
+		cmp_join = cmp_join->next;
+	} while (cmp_join != start_join);
    }
   ;
 
@@ -391,16 +402,16 @@ qualified_join
     }
   | table_reference NATURAL JOIN table_reference {
 	SqlJoin		*left, *right;
-	boolean_t	ambiguous;
 
 	$$ = $1;
 	UNPACK_SQL_STATEMENT(left, $$, join);
 	UNPACK_SQL_STATEMENT(right, $4, join);
 	right->type = NATURAL_JOIN;
-	right->condition = natural_join_condition($1, $4, &ambiguous);
-	if (ambiguous) {
-		YYABORT;
-	}
+	/* right->condition will be filled in at a later point as part of a call to "natural_join_condition()".
+	 * Calling it here does not work since it expects to process tables in the join list from left to right
+	 * whereas the current grammar rules causes it to be invoked from the rightmost table to the leftmost table
+	 * in the join list if it is invoked here.
+	 */
 	dqappend(left, right);
     }
 

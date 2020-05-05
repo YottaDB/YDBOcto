@@ -87,155 +87,23 @@ Error with syntax near (line 1, column 59):
 SELECT * FROM (SELECT * FROM names n1, names n2) n3 WHERE n3.firstName = 'Zero';
                                                           ^^^^^^^^^^^^
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT * FROM (SELECT * FROM names n1, names n2) n3 WHERE n3.firstName = 'Zero';
-[ERROR] PATH:LINENUM DATE TIME : Ambiguous column name "ID": qualify name for safe execution
-Error with syntax near (line 1, column 50):
-
-SELECT * FROM (SELECT * FROM names n1, names n2) n3 NATURAL JOIN names n4;
-                                                 ^^
-[ERROR] PATH:LINENUM DATE TIME : Ambiguous column name "FIRSTNAME": qualify name for safe execution
-Error with syntax near (line 1, column 50):
-
-SELECT * FROM (SELECT * FROM names n1, names n2) n3 NATURAL JOIN names n4;
-                                                 ^^
-[ERROR] PATH:LINENUM DATE TIME : Ambiguous column name "LASTNAME": qualify name for safe execution
-Error with syntax near (line 1, column 50):
-
-SELECT * FROM (SELECT * FROM names n1, names n2) n3 NATURAL JOIN names n4;
-                                                 ^^
-[ERROR] PATH:LINENUM DATE TIME : Ambiguous column name "ID": qualify name for safe execution
-Error with syntax near (line 1, column 50):
-
-SELECT * FROM (SELECT * FROM names n1, names n2) n3 NATURAL JOIN names n4;
-                                                 ^^
-[ERROR] PATH:LINENUM DATE TIME : Ambiguous column name "FIRSTNAME": qualify name for safe execution
-Error with syntax near (line 1, column 50):
-
-SELECT * FROM (SELECT * FROM names n1, names n2) n3 NATURAL JOIN names n4;
-                                                 ^^
-[ERROR] PATH:LINENUM DATE TIME : Ambiguous column name "LASTNAME": qualify name for safe execution
-Error with syntax near (line 1, column 50):
-
-SELECT * FROM (SELECT * FROM names n1, names n2) n3 NATURAL JOIN names n4;
-                                                 ^^
+[ERROR] PATH:LINENUM DATE TIME : Common column name "ID" appears more than once in left side of NATURAL JOIN
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT * FROM (SELECT * FROM names n1, names n2) n3 NATURAL JOIN names n4;
-[ERROR] PATH:LINENUM DATE TIME : Ambiguous column name "ID": qualify name for safe execution
-Error with syntax near (line 1, column 50):
-
-SELECT * FROM (SELECT * FROM names n1, names n2) n3 NATURAL JOIN names n4 WHERE n4.firstName = 'Zero';
-                                                 ^^
-[ERROR] PATH:LINENUM DATE TIME : Ambiguous column name "FIRSTNAME": qualify name for safe execution
-Error with syntax near (line 1, column 50):
-
-SELECT * FROM (SELECT * FROM names n1, names n2) n3 NATURAL JOIN names n4 WHERE n4.firstName = 'Zero';
-                                                 ^^
-[ERROR] PATH:LINENUM DATE TIME : Ambiguous column name "LASTNAME": qualify name for safe execution
-Error with syntax near (line 1, column 50):
-
-SELECT * FROM (SELECT * FROM names n1, names n2) n3 NATURAL JOIN names n4 WHERE n4.firstName = 'Zero';
-                                                 ^^
-[ERROR] PATH:LINENUM DATE TIME : Ambiguous column name "ID": qualify name for safe execution
-Error with syntax near (line 1, column 50):
-
-SELECT * FROM (SELECT * FROM names n1, names n2) n3 NATURAL JOIN names n4 WHERE n4.firstName = 'Zero';
-                                                 ^^
-[ERROR] PATH:LINENUM DATE TIME : Ambiguous column name "FIRSTNAME": qualify name for safe execution
-Error with syntax near (line 1, column 50):
-
-SELECT * FROM (SELECT * FROM names n1, names n2) n3 NATURAL JOIN names n4 WHERE n4.firstName = 'Zero';
-                                                 ^^
-[ERROR] PATH:LINENUM DATE TIME : Ambiguous column name "LASTNAME": qualify name for safe execution
-Error with syntax near (line 1, column 50):
-
-SELECT * FROM (SELECT * FROM names n1, names n2) n3 NATURAL JOIN names n4 WHERE n4.firstName = 'Zero';
-                                                 ^^
+[ERROR] PATH:LINENUM DATE TIME : Common column name "ID" appears more than once in left side of NATURAL JOIN
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT * FROM (SELECT * FROM names n1, names n2) n3 NATURAL JOIN names n4 WHERE n4.firstName = 'Zero';
-[ERROR] PATH:LINENUM DATE TIME : Ambiguous column name "ID": qualify name for safe execution
-Error with syntax near (line 1, column 45):
-
-SELECT * FROM names n3 NATURAL JOIN (SELECT * FROM names n1, names n2) n4;
-                                            ^
-[ERROR] PATH:LINENUM DATE TIME : Ambiguous column name "FIRSTNAME": qualify name for safe execution
-Error with syntax near (line 1, column 45):
-
-SELECT * FROM names n3 NATURAL JOIN (SELECT * FROM names n1, names n2) n4;
-                                            ^
-[ERROR] PATH:LINENUM DATE TIME : Ambiguous column name "LASTNAME": qualify name for safe execution
-Error with syntax near (line 1, column 45):
-
-SELECT * FROM names n3 NATURAL JOIN (SELECT * FROM names n1, names n2) n4;
-                                            ^
+[ERROR] PATH:LINENUM DATE TIME : Common column name "ID" appears more than once in right side of NATURAL JOIN
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT * FROM names n3 NATURAL JOIN (SELECT * FROM names n1, names n2) n4;
-
-[ERROR] PATH:LINENUM DATE TIME : Ambiguous column name "ID": qualify name for safe execution
-Error with syntax near (line 1, column 45):
-
-SELECT * FROM names n3 NATURAL JOIN (SELECT * FROM names n1, names n2) n4 WHERE n4.firstName = 'Zero';
-                                            ^
-[ERROR] PATH:LINENUM DATE TIME : Ambiguous column name "FIRSTNAME": qualify name for safe execution
-Error with syntax near (line 1, column 45):
-
-SELECT * FROM names n3 NATURAL JOIN (SELECT * FROM names n1, names n2) n4 WHERE n4.firstName = 'Zero';
-                                            ^
-[ERROR] PATH:LINENUM DATE TIME : Ambiguous column name "LASTNAME": qualify name for safe execution
-Error with syntax near (line 1, column 45):
-
-SELECT * FROM names n3 NATURAL JOIN (SELECT * FROM names n1, names n2) n4 WHERE n4.firstName = 'Zero';
-                                            ^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT * FROM names n3 NATURAL JOIN (SELECT * FROM names n1, names n2) n4 WHERE 
-[ERROR] PATH:LINENUM DATE TIME : Unknown table: N4.FIRSTNAME
-
-SELECT * FROM names n3 NATURAL JOIN (SELECT * FROM names n1, names n2) n4 WHERE n4.firstName = 'Zero';
-                                                                                ^^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: n4.firstName = 'Zero';
+[ERROR] PATH:LINENUM DATE TIME : Common column name "ID" appears more than once in right side of NATURAL JOIN
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT * FROM names n3 NATURAL JOIN (SELECT * FROM names n1, names n2) n4 WHERE n4.firstName = 'Zero';
 [ERROR] PATH:LINENUM DATE TIME : table name "N3" specified more than once
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: --	as well as a duplicate table alias name (n3)
 SELECT * FROM (SELECT * FROM names n1, names n2) n3 NATURAL JOIN names n3;
-
 [ERROR] PATH:LINENUM DATE TIME : table name "N3" specified more than once
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT * FROM (SELECT * FROM names n1, names n2) n3 NATURAL JOIN names n3 WHERE 
-[ERROR] PATH:LINENUM DATE TIME : Unknown table: N3.FIRSTNAME
-
-SELECT * FROM (SELECT * FROM names n1, names n2) n3 NATURAL JOIN names n3 WHERE n3.firstName = 'Zero';
-                                                                                ^^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: n3.firstName = 'Zero';
-[ERROR] PATH:LINENUM DATE TIME : Ambiguous column name "ID": qualify name for safe execution
-Error with syntax near (line 1, column 45):
-
-SELECT * FROM names n3 NATURAL JOIN (SELECT * FROM names n1, names n2) n3;
-                                            ^
-[ERROR] PATH:LINENUM DATE TIME : Ambiguous column name "FIRSTNAME": qualify name for safe execution
-Error with syntax near (line 1, column 45):
-
-SELECT * FROM names n3 NATURAL JOIN (SELECT * FROM names n1, names n2) n3;
-                                            ^
-[ERROR] PATH:LINENUM DATE TIME : Ambiguous column name "LASTNAME": qualify name for safe execution
-Error with syntax near (line 1, column 45):
-
-SELECT * FROM names n3 NATURAL JOIN (SELECT * FROM names n1, names n2) n3;
-                                            ^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT * FROM (SELECT * FROM names n1, names n2) n3 NATURAL JOIN names n3 WHERE n3.firstName = 'Zero';
+[ERROR] PATH:LINENUM DATE TIME : table name "N3" specified more than once
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT * FROM names n3 NATURAL JOIN (SELECT * FROM names n1, names n2) n3;
-
-[ERROR] PATH:LINENUM DATE TIME : Ambiguous column name "ID": qualify name for safe execution
-Error with syntax near (line 1, column 45):
-
-SELECT * FROM names n3 NATURAL JOIN (SELECT * FROM names n1, names n2) n3 WHERE n3.firstName = 'Zero';
-                                            ^
-[ERROR] PATH:LINENUM DATE TIME : Ambiguous column name "FIRSTNAME": qualify name for safe execution
-Error with syntax near (line 1, column 45):
-
-SELECT * FROM names n3 NATURAL JOIN (SELECT * FROM names n1, names n2) n3 WHERE n3.firstName = 'Zero';
-                                            ^
-[ERROR] PATH:LINENUM DATE TIME : Ambiguous column name "LASTNAME": qualify name for safe execution
-Error with syntax near (line 1, column 45):
-
-SELECT * FROM names n3 NATURAL JOIN (SELECT * FROM names n1, names n2) n3 WHERE n3.firstName = 'Zero';
-                                            ^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT * FROM names n3 NATURAL JOIN (SELECT * FROM names n1, names n2) n3 WHERE 
-[ERROR] PATH:LINENUM DATE TIME : Unknown table: N3.FIRSTNAME
-
-SELECT * FROM names n3 NATURAL JOIN (SELECT * FROM names n1, names n2) n3 WHERE n3.firstName = 'Zero';
-                                                                                ^^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: n3.firstName = 'Zero';
+[ERROR] PATH:LINENUM DATE TIME : table name "N3" specified more than once
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT * FROM names n3 NATURAL JOIN (SELECT * FROM names n1, names n2) n3 WHERE n3.firstName = 'Zero';
 [ERROR] PATH:LINENUM DATE TIME : Ambiguous column name "COL": qualify name for safe execution
 Error with syntax near (line 1, column 56):
 

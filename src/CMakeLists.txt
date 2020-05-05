@@ -107,67 +107,51 @@ ADD_CUSTOM_COMMAND(
 )
 
 add_library(libocto OBJECT
-  get_mem_usage.c
-  default_octo_conf.h
-  ydb_hash_to_string.c
-  yyerror.c
-  yywrap.c
-  format_error_string.c
+  add_optional_piece_keyword_to_sql_column.c
+  assign_table_to_columns.c
+  cleanup_tables.c
+  columns_equal.c
+  columns_to_column_list_alias.c
+  compress_statement.c
+  copy_sql_statement.c
   create_cursor.c
-  is_query_canceled.c
-  parse_line.c
+  create_table_defaults.c
+  decompress_statement.c
+  default_octo_conf.h
+  delete_table_from_pg_class.c
+  drill_to_table_alias.c
+  drop_table_from_local_cache.c
+  emit_column_specification.c
   emit_create_table.c
   emit_select_statement.c
-  emit_column_specification.c
-  quoting.c
-  create_table_defaults.c
-  drop_table_from_local_cache.c
-  print_result_row.c
-  print_temporary_table.c
-  readline_get_more.c
-  populate_data_type.c
-  find_table.c
   find_column.c
   find_column_alias_name.c
-  qualify_column_name.c
-  qualify_statement.c
-  qualify_function_name.c
-  qualify_query.c
-  octo_init.c
+  find_table.c
+  format_error_string.c
+  generate_key_name.c
+  generate_routine_name.c
   get_aggregate_func_name.c
+  get_column_alias_for_column_list_alias.c
+  get_column_list_alias_n_from_table_alias.c
+  get_column_number_from_column_list_alias.c
+  get_column_piece_number.c
+  get_key_columns.c
+  get_keyword.c
+  get_keyword_from_keywords.c
+  get_mem_usage.c
   get_mval_len.c
   get_set_operation_string.c
   get_user_visible_type_string.c
-  get_keyword.c
-  get_keyword_from_keywords.c
-  generate_routine_name.c
-  generate_key_name.c
-  get_key_columns.c
   hash_canonical_query.c
-  init_parent_table_alias.c
-  assign_table_to_columns.c
-  add_optional_piece_keyword_to_sql_column.c
-  columns_equal.c
-  tables_equal.c
-  values_equal.c
-  columns_to_column_list_alias.c
-  get_column_piece_number.c
-  get_column_number_from_column_list_alias.c
-  get_column_list_alias_n_from_table_alias.c
-  get_column_alias_for_column_list_alias.c
-  drill_to_table_alias.c
-  run_query.c
-  parse_startup_flags.c
-  memory_chunk.c
+  is_query_canceled.c
+  like_to_regex.c
+  m_escape_string2.c
+  m_templates/resize_tmpl_buffer.c
   match_column_in_table.c
   match_column_list_alias_in_select_column_list.c
-  like_to_regex.c
-  similar_to_regex.c
-  compress_statement.c
-  decompress_statement.c
-  store_table_in_pg_class.c
-  delete_table_from_pg_class.c
-  ydb_error_check.c
+  match_sql_statement.c
+  memory_chunk.c
+  octo_init.c
   optimization_transforms/generate_logical_plan.c
   optimization_transforms/get_plan_unique_number.c
   optimization_transforms/logical_plan.c
@@ -203,14 +187,8 @@ add_library(libocto OBJECT
   optimization_transforms/lp_replace_derived_table_references.c
   optimization_transforms/lp_verify_structure.c
   optimization_transforms/optimize_logical_plan.c
-  physical/generate_physical_plan.c
-  physical/emit_physical_plan.c
-  physical/get_physical_plan_from_unique_id.c
-  m_templates/resize_tmpl_buffer.c
-  m_escape_string2.c
-  copy_sql_statement.c
-  match_sql_statement.c
-  cleanup_tables.c
+  parse_line.c
+  parse_startup_flags.c
   parser/aggregate_function.c
   parser/between_predicate.c
   parser/cast_specification.c
@@ -223,6 +201,27 @@ add_library(libocto OBJECT
   parser/sort_specification.c
   parser/table_reference.c
   parser/trim_dot_star.c
+  physical/emit_physical_plan.c
+  physical/generate_physical_plan.c
+  physical/get_physical_plan_from_unique_id.c
+  populate_data_type.c
+  print_result_row.c
+  print_temporary_table.c
+  qualify_column_name.c
+  qualify_function_name.c
+  qualify_query.c
+  qualify_statement.c
+  quoting.c
+  readline_get_more.c
+  run_query.c
+  similar_to_regex.c
+  store_table_in_pg_class.c
+  tables_equal.c
+  values_equal.c
+  ydb_error_check.c
+  ydb_hash_to_string.c
+  yyerror.c
+  yywrap.c
   ${BISON_OctoParser_OUTPUTS}
   ${FLEX_OctoLexer_OUTPUTS}
   ${POST_CONFIGURE_FILE}

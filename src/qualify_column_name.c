@@ -150,8 +150,8 @@ SqlColumnAlias *qualify_column_name(SqlValue *column_value, SqlJoin *tables, Sql
 					if ((table_name_len == table_name_len2)
 							&& (0 == memcmp(value->v.reference, table_name, table_name_len))) {
 						matching_alias_stmt = sql_stmt;
-						col_cla =
-							match_column_in_table(cur_alias, column_name, column_name_len, &ambiguous);
+						col_cla = match_column_in_table(cur_alias,
+										column_name, column_name_len, &ambiguous, TRUE);
 						if ((NULL != col_cla) && ambiguous) {
 							/* There are multiple column matches within one table in the FROM list.
 							 * An error has already been issued inside "match_column_in_table".
@@ -165,7 +165,7 @@ SqlColumnAlias *qualify_column_name(SqlValue *column_value, SqlJoin *tables, Sql
 					}
 				}
 			} else {
-				t_col_cla = match_column_in_table(cur_alias, column_name, column_name_len, &ambiguous);
+				t_col_cla = match_column_in_table(cur_alias, column_name, column_name_len, &ambiguous, TRUE);
 				if (NULL != t_col_cla) {
 					if (ambiguous) {
 						/* There are multiple column matches within one table in the FROM list.

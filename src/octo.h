@@ -231,13 +231,13 @@ SqlTable *find_table(const char *table_name);
 int drop_table_from_local_cache(ydb_buffer_t *table_name_buffer);
 SqlColumn *find_column(char *column_name, SqlTable *table);
 SqlStatement *find_column_alias_name(SqlStatement *stmt);
-void init_parent_table_alias(SqlStatement *table_alias_stmt, SqlTableAlias *parent_table_alias);
 int qualify_query(SqlStatement *table_alias_stmt, SqlJoin *parent_join, SqlTableAlias *parent_table_alias);
 int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_alias_stmt,
 							int depth, SqlColumnListAlias **ret_cla);
 SqlColumnAlias *qualify_column_name(SqlValue *column_value, SqlJoin *tables, SqlStatement *table_alias_stmt,
 									int depth, SqlColumnListAlias **ret_cla);
-SqlColumnListAlias *match_column_in_table(SqlTableAlias *table, char *column_name, int column_name_len, boolean_t *ambiguous);
+SqlColumnListAlias *match_column_in_table(SqlTableAlias *table, char *column_name, int column_name_len,
+									boolean_t *ambiguous, boolean_t issue_error);
 boolean_t match_column_list_alias_in_select_column_list(SqlColumnListAlias *match_cla, SqlStatement *cla_stmt);
 int qualify_function_name(SqlStatement *stmt);
 void print_yyloc(YYLTYPE *llocp);
@@ -295,7 +295,7 @@ SqlStatement *aggregate_function(SqlAggregateType aggregate_type, OptionalKeywor
 SqlStatement *between_predicate(SqlStatement *row_value_constructor, SqlStatement *from, SqlStatement *to, boolean_t not_specified);
 SqlStatement *cast_specification(SqlStatement *cast_specification, SqlStatement *source);
 SqlStatement *grouping_column_reference(SqlStatement *derived_column_expression, SqlStatement *collate_clause);
-SqlStatement *natural_join_condition(SqlStatement *left, SqlStatement *right, boolean_t *ambiguous);
+int natural_join_condition(SqlJoin *start, SqlJoin *r_join);
 int parse_literal_to_parameter(ParseContext *parse_context, SqlValue *value, boolean_t update_existing);
 SqlStatement *query_specification(OptionalKeyword set_quantifier, SqlStatement *select_list,
 					SqlStatement *table_expression, SqlStatement *sort_specification_list, int *plan_id);

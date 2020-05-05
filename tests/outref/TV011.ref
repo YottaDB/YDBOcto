@@ -20,12 +20,12 @@ Reading a token: OCTO> exit
 Next token is token EXIT (: )
 Shifting token EXIT (: )
 Entering state 21
-Reducing stack by rule 13 (line 261):
+Reducing stack by rule 13 (line xxx):
    $1 = token EXIT (: )
 -> $$ = nterm exit_command (: )
 Stack now 0
 Entering state 25
-Reducing stack by rule 9 (line 246):
+Reducing stack by rule 9 (line xxx):
    $1 = nterm exit_command (: )
 Stack now 0
 [ INFO] PATH:LINENUM DATE TIME : Parsing done for SQL command [exit]

@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -21,49 +21,36 @@ setup() {
 
 @test "TNJ00 : natural join no matches" {
   # If there are no matches in a natural join, it is effectively a cross join
-  octo <<OCTO 2>&1 | tee output.txt
-SELECT *
-FROM (SELECT id as A FROM names) n1
-NATURAL JOIN (SELECT id as B FROM names) n2;
-OCTO
-  verify_output TNJ00 output.txt
+  run_query_in_octo_and_postgres_and_crosscheck names TNJ00.sql "remove_empty_line_at_tail"
 }
 
 @test "TNJ01 : natural join many matches" {
-  octo <<OCTO 2>&1 | tee output.txt
-SELECT *
-FROM names n1
-NATURAL JOIN names n2;
-OCTO
-  verify_output TNJ01 output.txt
+  run_query_in_octo_and_postgres_and_crosscheck names TNJ01.sql "remove_empty_line_at_tail"
 }
 
 @test "TNJ02 : natural join many matches with many tables" {
-  octo <<OCTO 2>&1 | tee output.txt
-SELECT *
-FROM names n1
-NATURAL JOIN names n2
-NATURAL JOIN names n3
-NATURAL JOIN names n4;
-OCTO
-  verify_output TNJ02 output.txt
+  run_query_in_octo_and_postgres_and_crosscheck names TNJ02.sql "remove_empty_line_at_tail"
 }
 
 @test "TNJ03 : natural join with no alias on right table" {
-  octo <<OCTO 2>&1 | tee output.txt
-SELECT *
-FROM names n1
-NATURAL JOIN names;
-OCTO
-  verify_output TNJ03 output.txt
+  run_query_in_octo_and_postgres_and_crosscheck names TNJ03.sql "remove_empty_line_at_tail"
 }
 
 @test "TNJ04 : natural join with right alias longer then the left" {
-  octo <<OCTO 2>&1 | tee output.txt
-SELECT *
-FROM names n1
-NATURAL JOIN names as longeralias;
-OCTO
-  verify_output TNJ04 output.txt
+  run_query_in_octo_and_postgres_and_crosscheck names TNJ04.sql "remove_empty_line_at_tail"
+}
+
+@test "TNJ05 : OCTO295 : names schema : Columns with same name should appear only once in NATURAL JOIN output" {
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TNJ05.sql "remove_empty_line_at_tail"
+}
+
+@test "TNJ06 : OCTO389 : NATURAL JOIN is mixed with INNER JOIN in the same query" {
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TNJ06.sql "remove_empty_line_at_tail"
+}
+
+@test "TNJ07 : OCTO295 : northwind schema : Columns with same name should appear only once in NATURAL JOIN output" {
+  load_fixture northwind.sql
+  load_fixture northwind.zwr
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries northwind TNJ07.sql "remove_empty_line_at_tail"
 }
 

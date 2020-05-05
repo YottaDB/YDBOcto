@@ -26,67 +26,46 @@ select * from names n1 left join nameswithages names on n1.id = names.id;
 
 [ERROR] PATH:LINENUM DATE TIME : table name "NAMES" specified more than once
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select * from names natural join names;
-
 [ERROR] PATH:LINENUM DATE TIME : table name "N1" specified more than once
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select * from names as n1 natural join names as n1;
-
 [ERROR] PATH:LINENUM DATE TIME : table name "N1" specified more than once
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select * from names as n1 natural join names as n2 natural join names as n1;
-
 [ERROR] PATH:LINENUM DATE TIME : table name "N1" specified more than once
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select * from names as n1 natural join names as n2 join names as n1 on n1.id = n2.id;
-
 [ERROR] PATH:LINENUM DATE TIME : table name "N1" specified more than once
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select * from names as n1 inner join names as n1 on n1.id = n1.id;
-
 [ERROR] PATH:LINENUM DATE TIME : table name "N1" specified more than once
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select * from names as n1 left join names as n1 on n1.id = n1.id;
-
 [ERROR] PATH:LINENUM DATE TIME : table name "N1" specified more than once
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select * from names as n1 right join names as n1 on n1.id = n1.id;
-
 [ERROR] PATH:LINENUM DATE TIME : table name "N1" specified more than once
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select * from names as n1 join names as n1 on n1.id = n1.id;
-
 [ERROR] PATH:LINENUM DATE TIME : table name "N1" specified more than once
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select * from names as n1 cross join names as n1;
-
 [ERROR] PATH:LINENUM DATE TIME : table name "N2" specified more than once
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select * from names n1 inner join names n2 on n1.id = n2.id left join names n2 on n1.id = n2.id;
-
 [ERROR] PATH:LINENUM DATE TIME : table name "N2" specified more than once
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select * from names n1 left join names n2 on n1.id = n2.id inner join names n2 on n1.id = n2.id;
-
 [ERROR] PATH:LINENUM DATE TIME : table name "N2" specified more than once
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select * from names n1 right join names n2 on n1.id = n2.id left join names n2 on n1.id = n2.id;
-
 [ERROR] PATH:LINENUM DATE TIME : table name "N2" specified more than once
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select * from names n1 right join names n2 on n1.id = n2.id natural join names n2;
-
 [ERROR] PATH:LINENUM DATE TIME : table name "NAMES" specified more than once
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select * from names, names;
-
 [ERROR] PATH:LINENUM DATE TIME : table name "N1" specified more than once
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select * from names as n1, names as n1;
-
 [ERROR] PATH:LINENUM DATE TIME : table name "N2" specified more than once
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select * from names as n1, names as n2 inner join names n3 on n1.id = n2.id left join names n2 on n1.id = n2.id;
-
 [ERROR] PATH:LINENUM DATE TIME : table name "N1" specified more than once
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select * from names as n1 left join names as n1 on n1.id = n1.id left join names as n3 on n1.id = n3.id;
-
 [ERROR] PATH:LINENUM DATE TIME : table name "NAMES" specified more than once
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select * from names left join names names on n1.id = names.id;
-
 [ERROR] PATH:LINENUM DATE TIME : table name "NAMES" specified more than once
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select * from names left join nameswithages names on n1.id = names.id;
-
 [ERROR] PATH:LINENUM DATE TIME : table name "N1" specified more than once
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select * from ((select * from names union select * from names) union (select * from names union select * from names)) n1 left join names n1 on n1.id = n1.id;
-
 [ERROR] PATH:LINENUM DATE TIME : table name "N1" specified more than once
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select * from (((select * from names union select * from names) union (select * from names union select * from names)) union ((select * from names union select * from names) union (select * from names union select * from names))) n1 left join names n1 on n1.id = n1.id;
-
 0|Zero|Cool|0|Zero|Cool||DATE TIME
 1|Acid|Burn|1|Acid|Burn||DATE TIME
 2|Cereal|Killer|2|Cereal|Killer||DATE TIME

@@ -84,33 +84,21 @@ int qualify_query(SqlStatement *table_alias_stmt, SqlJoin *parent_join, SqlTable
 		SqlJoin		*next_join;
 
 		/* Make sure any table.column references in the ON condition of the JOIN (cur_join->condition) are qualified
-		 * until the current table in the join list (i.e. forward references should not be allowed). See YDBOcto#291
-		 * for example query. Note that NATURAL JOIN is an exception in that the current join could have table.column
-		 * references to one or more later SqlJoin structures in the tablejoin list (`natural_join_condition.c` creates
-		 * them when there is more than one NATURAL JOIN in the query). Since there is no ON clause in a NATURAL JOIN,
-		 * there is no need to disallow forward references like one needs to in, say, a LEFT JOIN. Therefore
-		 * skip this forward-reference-check for a NATURAL JOIN.
+		 * until the current table in the join list (i.e. forward references should not be allowed). Hence the set of
+		 * "cur_join->next" below (to "start_join" effectively hiding the remaining tables to the right).
+		 * See YDBOcto#291 for example query that demonstrates why this is needed.
 		 */
 		next_join = cur_join->next;	/* save join list before tampering with it */
-		if (NATURAL_JOIN != cur_join->type) {
-			/* Note that if "parent_join" is non-NULL, we need to include that even though it comes
-			 * after all the tables in the join list at the current level. This is so any references
-			 * to columns in parent queries are still considered as valid. Hence the parent_join check below.
-			 */
-			cur_join->next = ((NULL != parent_join) ? parent_join : start_join);	/* stop join list at
-												 * current join.
-												 */
-		} else {
-			/* Natural join could have forward references to later tablejoins (if there are later NATURAL JOINs)
-			 * and so need to initialize `parent_table_alias` field in all tablejoins before `qualify_statement()`
-			 * call below.
-			 */
-			init_parent_table_alias(table_alias_stmt, table_alias);
-		}
+		/* Note that if "parent_join" is non-NULL, we need to include that even though it comes
+		 * after all the tables in the join list at the current level. This is so any references
+		 * to columns in parent queries are still considered as valid. Hence the parent_join check below.
+		 */
+		cur_join->next = ((NULL != parent_join) ? parent_join : start_join);	/* stop join list at
+											 * current join.
+											 */
 		table_alias->aggregate_depth = AGGREGATE_DEPTH_FROM_CLAUSE;
 		result |= qualify_statement(cur_join->condition, start_join, table_alias_stmt, 0, NULL);
-		if (NATURAL_JOIN != cur_join->type)
-			cur_join->next = next_join;	/* restore join list to original */
+		cur_join->next = next_join;     /* restore join list to original */
 		cur_join = next_join;
 	} while ((cur_join != start_join) && (cur_join != parent_join));
 	// Qualify WHERE clause next

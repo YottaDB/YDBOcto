@@ -40,6 +40,8 @@
 	; #FUTURE_TODO: Test to see if CASEs comparisons can be made against other CASEs, if so
 	;               implement this into WHERE and HAVING clauses
 
+	set $etrap="zshow ""*""  halt"
+	;
 	set initDone("setQuantifier")=0
 	set initDone("chooseTable")=0
 	set initDone("chooseColumn")=0
@@ -280,7 +282,8 @@ selectList(curDepth)
 	; #FUTURE_TODO: Uncomment line containing the "if" when issue 311 is resolved, and remove
 	;               line missing the "if" statement that follows the one with the "if" statement
 	;if (allowGBH("alias"_"0")'="TRUE")  set randInt=$random(9) ; 0-8 ; #FUTURE_TODO: Increase to 10 when issues #385 and #386 are resolved
-	set randInt=$random(9) ; 0-8 ; #FUTURE_TODO: Increase to 10 when issues #385 and #386 are resolved
+	; #FUTURE_TODO: Increase below to 9 when $$returnCaseFunction infinite loop and malformed query issues are resolved
+	set randInt=$random(6)	; #FUTURE_TODO: Increase to 10 when issues #385 and #386 are resolved
 
 	; To avoid ambiquity warnings, this is commented out
 	; Regular column notation is to be used
@@ -427,7 +430,8 @@ fromClause()
 whereClause()
 	new result,randInt,i,x
 	set result=" WHERE "
-	set randInt=$random(12) ; 0-11 ; Increase this range as new versions of WHERE clauses are added
+	; #FUTURE_TODO: Increase below to 12 when $$returnCaseFunction infinite loop and malformed query issues are resolved
+	set randInt=$random(10) ; 0-9 ; Increase this range as new versions of WHERE clauses are added
 
 	set table=$piece(fc," ",2)
 
@@ -755,7 +759,8 @@ havingClause(clauseType)
 	. . set holder=$piece(innerQuery," ",i)
 	. set table=$piece(innerQuery," ",i+1)
 
-	set randInt=$random(12) ; 0-11
+	; #FUTURE_TODO: Increase below to 12 when $$returnCaseFunction infinite loop and malformed query issues are resolved
+	set randInt=$random(10) ; 0-9
 
 	if ((randInt=5)&(existsInHavingExists="TRUE")) set randInt=1
 
@@ -1020,7 +1025,11 @@ orderbyClause(aNum,location)
 	; presence of a DISTINCT qualifier requires the ORDER BY to contain only
 	; things that also occur in the SELECT LIST
 	if ($data(quantiferLVN("alias"_aNum))'=0)  do
-	. if (($random(2))!(quantiferLVN("alias"_aNum)="DISTINCT "))  do
+	. new rand
+	. set rand=$random(2)
+	. ; #FUTURE_TODO: Remove below line when $$returnCaseFunction infinite loop and malformed query issues are resolved
+	. set rand=1	; disable going to "else" part as it is code that generates incorrect queries.
+	. if (rand!(quantiferLVN("alias"_aNum)="DISTINCT "))  do
 	. . set holder=" "
 	. . for  quit:(holder="")  do
 	. . . set holder=$order(selectListLVN(holder))
@@ -1029,10 +1038,11 @@ orderbyClause(aNum,location)
 	. . ; strip off the ", , " at the end of result
 	. . if ($extract(result,$length(result)-3,$length(result))=", , ")  set result=$extract(result,0,$length(result)-4)
 	. else  do
-	. . ; #FUTURE_TODO: There is no basis for determinig whether an ORDER BY occurs within a subquery
+	. . ; #FUTURE_TODO: There is no basis for determining whether an ORDER BY occurs within a subquery
 	. . ;               or not, so eventually add the fourth parameter to the below call to
 	. . ;               returnCaseFunction when this logic is implemented or needed
 	. . if (location="QUERY") do
+	. . . set table=$piece(fc," ",2)
 	. . . set toCompare=table_"."_$$chooseColumn(table)
 	. . . set result=result_$$returnCaseFunction("ORDER BY","randomNumbers","columns","FALSE",toCompare)
 	. . if (location="SUBQUERY") do
@@ -1575,7 +1585,7 @@ returnCaseFunction(location,conditionType,resultType,subqueryBoolean,toCompare)
 	. ; About 1/10 of the time nest another CASE into the current CASE
 	. if ('($random(10))&(caseFunctionExists="FALSE")&(location'="WHERE"))  do
 	. . set caseFunctionExists="TRUE"
-	. . set result=result_"  WHEN "_condition_" THEN "_$char(10)_$$returnCaseFunction(location,conditionType,resultType,toCompare)
+	. . set result=result_"  WHEN "_condition_" THEN "_$char(10)_$$returnCaseFunction(location,conditionType,resultType,subqueryBoolean,toCompare)
 	. else  do
 	. . if (caseFunctionExists="FALSE")  set result=result_"  WHEN "_condition_" THEN "_r_$char(10)
 	. . if (caseFunctionExists="TRUE")  set result=result_"    WHEN "_condition_" THEN "_r_$char(10)
@@ -1622,6 +1632,8 @@ generateQuery()
 	. if ($random(2**3)=0)  set joinCount=3
 	. if ($random(2**2)=0)  set joinCount=2
 	. else  set joinCount=1
+	. ; #FUTURE_TODO: Multiway JOINs generates malformed queries currently. Need to investigate/fix that. Until then disable it.
+	. set joinCount=1	; #FUTURE_TODO: Remove this line and previous comment one malformed query issue is fixed.
 	.
 	. ; Multiway JOINs are only currently supported with INNER JOIN,
 	. ; following check enforces this behavior, remove check when Issue #311 is resolved
@@ -1753,7 +1765,8 @@ innerTableExpression(subQueryType)
 innerWhereClause()
 	new result,randInt,i,x
 	set result=" WHERE "
-	set randInt=$random(12) ; 0-11 ; Increase this range as new versions of WHERE clauses are added
+	; #FUTURE_TODO: Increase below to 12 when $$returnCaseFunction infinite loop and malformed query issues are resolved
+	set randInt=$random(10) ; 0-9 ; Increase this range as new versions of WHERE clauses are added
 
 	; #FUTURE_TODO: Fix WHERE clause version 5 (randInt=5) of innerWhereClause and remove following
 	;               check (currently disabled).

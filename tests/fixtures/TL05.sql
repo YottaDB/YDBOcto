@@ -22,3 +22,8 @@ select * from (select * from names limit 1);
 select * from names n1 INNER JOIN names n2 ON (n1.id = n2.id) WHERE n1.firstName = 'Joey' LIMIT 1;
 select * from names n1 INNER JOIN names n2 ON (n1.id = n2.id) WHERE n1.firstName > 'Cereal' LIMIT 1;
 
+-- -- error cases
+select * from names limit .;
+select * from names limit;
+select * from names limit 'abcd';
+select * from names limit -3;

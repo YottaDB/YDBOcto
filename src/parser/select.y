@@ -54,12 +54,33 @@ optional_query_words
 
 optional_query_word_element
   : LIMIT literal_value {
-      SQL_STATEMENT($$, keyword_STATEMENT);
-      OCTO_CMALLOC_STRUCT(($$)->v.keyword, SqlOptionalKeyword);
-      ($$)->v.keyword->keyword = OPTIONAL_LIMIT;
-      ($$)->v.keyword->v = $literal_value;
-      dqinit(($$)->v.keyword);
-  }
+      assert(value_STATEMENT == ($literal_value)->type);
+      assert(INTEGER_LITERAL != ($literal_value)->v.value->type);
+      if (NUMERIC_LITERAL == ($literal_value)->v.value->type) {
+        SqlStatement    *ret;
+        char            *c, *new_string;
+        int             lit_int_val;
+        float           lit_fl_val;
+
+        SQL_STATEMENT(ret, keyword_STATEMENT);
+        OCTO_CMALLOC_STRUCT(ret->v.keyword, SqlOptionalKeyword);
+        ret->v.keyword->keyword = OPTIONAL_LIMIT;
+        ret->v.keyword->v = $literal_value;
+        c = ret->v.keyword->v->v.value->v.string_literal;
+        lit_fl_val = strtof(c, NULL);
+        lit_int_val = (int)(lit_fl_val + 0.5);
+        new_string = octo_cmalloc(memory_chunks, INT32_TO_STRING_MAX);
+        snprintf(new_string, INT32_TO_STRING_MAX, "%d", lit_int_val);
+        ret->v.keyword->v->v.value->v.string_literal = new_string;
+        INVOKE_PARSE_LITERAL_TO_PARAMETER(parse_context, ret->v.keyword->v->v.value, TRUE);
+        dqinit(ret->v.keyword);
+        $$ = ret;
+      } else {
+        ERROR(ERR_INVALID_INPUT_SYNTAX, get_user_visible_type_string(($literal_value)->v.value->type));
+	yyerror(NULL, NULL, &($literal_value), NULL, NULL, NULL);
+        YYABORT;
+      }
+    }
 /*  | UNION ALL sql_select_statement {
       SQL_STATEMENT($$, keyword_STATEMENT);
       OCTO_CMALLOC_STRUCT(($$)->v.keyword, SqlOptionalKeyword);

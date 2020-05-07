@@ -380,9 +380,14 @@ void hash_canonical_query(hash128_state_t *state, SqlStatement *stmt, int *statu
 				 * like "OPTIONAL_PIECE" which hold the column piece # information. We do want that hashed or else
 				 * we could have different queries hashing to the same plan. Hence the set of "*status" to
 				 * "HASH_LITERAL_VALUES" so "hash_canonical_query()" knows that keyword literals need to be hashed.
+				 * An exception is "OPTIONAL_LIMIT" keyword where we we want multiple queries that differ only in
+				 * the LIMIT value (e.g. SELECT * from names LIMIT 1 vs SELECT * from names LIMIT 2) to hash to the
+				 * same plan. So skip the HASH_LITERAL_VALUES set for this case.
 				 */
 				save_status = *status;
-				*status = HASH_LITERAL_VALUES;
+				if (OPTIONAL_LIMIT != cur_keyword->keyword) {
+					*status = HASH_LITERAL_VALUES;
+				}
 				hash_canonical_query(state, cur_keyword->v, status);
 				if (HASH_LITERAL_VALUES == *status) {
 					*status = save_status;

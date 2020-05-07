@@ -11,8 +11,41 @@ select * from (select * from names limit 1);
 select * from names n1 INNER JOIN names n2 ON (n1.id = n2.id) WHERE n1.firstName = 'Joey' LIMIT 1;
 select * from names n1 INNER JOIN names n2 ON (n1.id = n2.id) WHERE n1.firstName > 'Cereal' LIMIT 1;
 
+-- -- error cases
+select * from names limit .;
+select * from names limit;
+select * from names limit 'abcd';
+select * from names limit -3;
 0|Zero|Cool
 0|Zero|Cool
 4|Joey||4|Joey|
 0|Zero|Cool|0|Zero|Cool
+Error with syntax near (line 1, column 27):
+
+select * from names limit .;
+                          ^
+syntax error, unexpected PERIOD, expecting LITERAL
+
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select * from names limit .;
+Error with syntax near (line 1, column 26):
+
+select * from names limit;
+                         ^
+syntax error, unexpected SEMICOLON, expecting LITERAL
+
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select * from names limit;
+[ERROR] PATH:LINENUM DATE TIME : Invalid input syntax : Expecting type NUMERIC or INTEGER : Actual type VARCHAR
+Error with syntax near (line 1, column 32):
+
+select * from names limit 'abcd';
+                               ^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select * from names limit 'abcd';
+Error with syntax near (line 1, column 27):
+
+select * from names limit -3;
+                          ^
+syntax error, unexpected MINUS, expecting LITERAL
+
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select * from names limit -3;
+
 

@@ -72,3 +72,14 @@ CAT
   run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TL06.sql "remove_empty_line_at_tail"
 }
 
+@test "TL07 : LIMIT tests checking the handling of Numeric values" {
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TL07.sql "remove_empty_line_at_tail"
+  # Verify that TL07.sql queries generates only 1 plan as they only differ by limit value
+  [[ $(ls -l _ydboctoP*.m | wc -l) -eq 1 ]]
+}
+
+@test "TL08 : Generate two plans from two queries having same limit value but different select columns" {
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TL08.sql "remove_empty_line_at_tail"
+  [[ $(ls -l _ydboctoP*.m | wc -l) -eq 2 ]]
+}
+

@@ -35,7 +35,7 @@ SqlColumnListAlias *columns_to_column_list_alias(SqlColumn *column, SqlStatement
 		alias = stmt->v.column_alias;
 		PACK_SQL_STATEMENT(alias->column, cur_column, column);
 		assert(table_alias_STATEMENT == table_alias_stmt->type);
-		alias->table_alias = table_alias_stmt;
+		alias->table_alias_stmt = table_alias_stmt;
 
 		OCTO_CMALLOC_STRUCT(cur_column_list_alias, SqlColumnListAlias);
 		cur_column_list_alias->alias = cur_column->columnName;

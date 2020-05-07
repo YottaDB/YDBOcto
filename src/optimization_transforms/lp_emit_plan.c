@@ -224,9 +224,9 @@ int emit_plan_helper(char *buffer, size_t buffer_len, int depth, LogicalPlan *pl
 					plan->v.lp_column_alias.column_alias->column->v.column_list_alias->alias, value);
 			column_name = value->v.string_literal;
 		}
-		UNPACK_SQL_STATEMENT(value, plan->v.lp_column_alias.column_alias->table_alias->v.table_alias->alias, value);
+		UNPACK_SQL_STATEMENT(value, plan->v.lp_column_alias.column_alias->table_alias_stmt->v.table_alias->alias, value);
 		table_name = value->v.string_literal;
-		table_id = plan->v.lp_column_alias.column_alias->table_alias->v.table_alias->unique_id;
+		table_id = plan->v.lp_column_alias.column_alias->table_alias_stmt->v.table_alias->unique_id;
 		SAFE_SNPRINTF(written, buff_ptr, buffer, buffer_len, "%s(%d).%s\n", table_name, table_id, column_name);
 		break;
 	case LP_COLUMN_LIST_ALIAS:

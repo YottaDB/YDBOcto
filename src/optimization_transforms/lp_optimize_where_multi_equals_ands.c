@@ -24,51 +24,6 @@
 LogicalPlan *lp_optimize_where_multi_equal_ands_helper(LogicalPlan *plan, LogicalPlan *where, int *key_unique_id_array,
 								SqlTableAlias *right_table_alias);
 
-/**
- * Verifies that the equals statement in equals can be "fixed", which involves checking
- * that:
- *  1. At least one of the values is a column
- *  2. At least one of the columns is a key
- *  3. If one is a key, the other a column, that they're not from the same table
- *  4. No columns are from compound statements (which don't have xref)
- *
- * This does not generate cross references if needed
- */
-int lp_verify_valid_for_key_fix(LogicalPlan *plan, LogicalPlan *equals) {
-	LogicalPlan *left, *right;
-	int i1, i2;
-	SqlTableAlias *table_alias, *table_alias2;
-
-	assert(NULL != equals);
-	assert(LP_BOOLEAN_EQUALS == equals->type);
-	left = equals->v.lp_default.operand[0];
-	if (!(left->type == LP_VALUE || left->type == LP_COLUMN_ALIAS)) {
-		return FALSE;
-	}
-	right = equals->v.lp_default.operand[1];
-	if (!(right->type == LP_VALUE || right->type == LP_COLUMN_ALIAS)) {
-		return FALSE;
-	}
-	if (right->type == LP_COLUMN_ALIAS && left->type == LP_COLUMN_ALIAS) {
-		// Both are column references; find which occurs first
-		i1 = lp_get_key_index(plan, left);
-		i2 = lp_get_key_index(plan, right);
-		// If the key is in the same table as the temporary value, we can't do anything
-		if (i1 == -1 || i2 == -1) {
-			UNPACK_SQL_STATEMENT(table_alias, left->v.lp_column_alias.column_alias->table_alias, table_alias);
-			UNPACK_SQL_STATEMENT(table_alias2, right->v.lp_column_alias.column_alias->table_alias, table_alias);
-			if (table_alias->unique_id == table_alias2->unique_id) {
-				return FALSE;
-			}
-		}
-		// If the temporary value is a key from a compound statement, we can't do anything
-		if (i1 == -2 || i2 == -2) {
-			return FALSE;
-		}
-	}
-	return TRUE;
-}
-
 void lp_optimize_where_multi_equal_ands(LogicalPlan *plan, LogicalPlan *where, SqlTableAlias *right_table_alias) {
 	int		*key_unique_id_array;	// keys_unique_id_ordering[unique_id] = index in the ordered list
 	int		max_unique_id;		// 1 more than maximum possible table_id/unique_id
@@ -85,7 +40,7 @@ void lp_optimize_where_multi_equal_ands(LogicalPlan *plan, LogicalPlan *where, S
 	i = 1;	// start at non-zero value since 0 is a special value indicating key is not known to the current query/sub-query
 		// (e.g. comes in from parent query). Treat 0 as the highest possible unique_id in the function
 		// "lp_optimize_where_multi_equal_ands_helper".
-	while (cur != NULL) {
+	while (NULL != cur) {
 		GET_LP(lp_key, cur, 0, LP_KEY);
 		key = lp_key->v.lp_key.key;
 		// This will end up filling the table with "lowest" id, but since it'll be sequential,
@@ -105,7 +60,7 @@ LogicalPlan *lp_optimize_where_multi_equal_ands_helper(LogicalPlan *plan, Logica
 								SqlTableAlias *right_table_alias) {
 	LogicalPlan		*cur, *left, *right, *t, *keys;
 	LogicalPlan		*first_key, *before_first_key, *last_key, *before_last_key, *xref_keys;
-	LogicalPlan		*generated_xref_keys;
+	LogicalPlan		*generated_xref_keys, *lp_key;
 	SqlColumnList		*column_list;
 	SqlColumnListAlias	*column_list_alias;
 	SqlColumnAlias		*column_alias;
@@ -151,23 +106,47 @@ LogicalPlan *lp_optimize_where_multi_equal_ands_helper(LogicalPlan *plan, Logica
 	if (LP_BOOLEAN_EQUALS != cur->type) {
 		return where; // The only things we currently optimize are AND and EQUALS
 	}
-	// Go through and fix keys as best as we can
-	if (FALSE == lp_verify_valid_for_key_fix(plan, cur)) {
-		return where;
-	}
-	if (LP_COLUMN_ALIAS == right->type) {
-		UNPACK_SQL_STATEMENT(table_alias, right->v.lp_column_alias.column_alias->table_alias, table_alias);
-		right_id = table_alias->unique_id;
-		assert(0 < right_id);
-	} else {
-		right_id = 0;
-	}
-	if (LP_COLUMN_ALIAS == left->type) {
-		UNPACK_SQL_STATEMENT(table_alias, left->v.lp_column_alias.column_alias->table_alias, table_alias);
+	/* Go through and fix keys as best as we can.
+	 *  1. At least one of the values is a column
+	 *  2. At least one of the columns is a key
+	 *  3. If one is a key, the other a column, that they're not from the same table
+	 *  4. No columns are from compound statements (which don't have xref)
+	 */
+	switch (left->type) {
+	case LP_VALUE:
+		left_id = 0;
+		break;
+	case LP_COLUMN_ALIAS:
+		UNPACK_SQL_STATEMENT(table_alias, left->v.lp_column_alias.column_alias->table_alias_stmt, table_alias);
 		left_id = table_alias->unique_id;
 		assert(0 < left_id);
-	} else {
-		left_id = 0;
+		break;
+	case LP_DERIVED_COLUMN:
+		return where; /* Currently derived columns cannot be fixed. Remove this line when YDBOcto#355 is fixed */
+		GET_LP(lp_key, left, 0, LP_KEY);
+		right_id = lp_key->v.lp_key.key->unique_id;
+		break;
+	default:
+		return where;
+		break;
+	}
+	switch (right->type) {
+	case LP_VALUE:
+		right_id = 0;
+		break;
+	case LP_COLUMN_ALIAS:
+		UNPACK_SQL_STATEMENT(table_alias, right->v.lp_column_alias.column_alias->table_alias_stmt, table_alias);
+		right_id = table_alias->unique_id;
+		assert(0 < right_id);
+		break;
+	case LP_DERIVED_COLUMN:
+		return where; /* Currently derived columns cannot be fixed. Remove this line when YDBOcto#355 is fixed */
+		GET_LP(lp_key, right, 0, LP_KEY);
+		right_id = lp_key->v.lp_key.key->unique_id;
+		break;
+	default:
+		return where;
+		break;
 	}
 	if (left_id && right_id) {
 		// If both column references correspond to the same table, then we cannot fix either columns/keys.
@@ -229,7 +208,7 @@ LogicalPlan *lp_optimize_where_multi_equal_ands_helper(LogicalPlan *plan, Logica
 		SqlTableAlias	*column_table_alias;
 
 		column_alias = left->v.lp_column_alias.column_alias;
-		UNPACK_SQL_STATEMENT(column_table_alias, column_alias->table_alias, table_alias);
+		UNPACK_SQL_STATEMENT(column_table_alias, column_alias->table_alias_stmt, table_alias);
 		if (column_table_alias != right_table_alias) {
 			/* The column reference being fixed does not belong to the RIGHT side table of OUTER JOIN.
 			 * Cannot fix this. Return unfixed plan as is.
@@ -242,8 +221,8 @@ LogicalPlan *lp_optimize_where_multi_equal_ands_helper(LogicalPlan *plan, Logica
 	if (NULL == key) {
 		// Get the table alias and column for left
 		column_alias = left->v.lp_column_alias.column_alias;
-		UNPACK_SQL_STATEMENT(table_alias, column_alias->table_alias, table_alias);
-		/// TODO: how do we handle triggers on generated tables?
+		UNPACK_SQL_STATEMENT(table_alias, column_alias->table_alias_stmt, table_alias);
+		// TODO: how do we handle triggers on generated tables?
 		if (table_STATEMENT != table_alias->table->type) {
 			return where;
 		}
@@ -300,11 +279,11 @@ LogicalPlan *lp_optimize_where_multi_equal_ands_helper(LogicalPlan *plan, Logica
 		}
 		before_first_key->v.lp_default.operand[0] = xref_keys;
 		xref_keys = generated_xref_keys;
-		assert(xref_keys != NULL);
+		assert(NULL != xref_keys);
 		before_first_key->v.lp_default.operand[1] = xref_keys;
 		/* Note: It is possible the primary key for the table comprises of multiple columns in which case
-		 * we need to scan down the xref_keys list (through v.operand[1]) until we hit the end i.e. we cannot
-		 * assume there is only one column comprising the primary key. Hence the for loop below.
+		 * we need to scan down the xref_keys list (through v.operand[1]) until we hit the end, i.e. we
+		 * cannot assume there is only one column comprising the primary key. Hence the for loop below.
 		 */
 		for ( ; NULL != xref_keys->v.lp_default.operand[1]; xref_keys = xref_keys->v.lp_default.operand[1])
 			;

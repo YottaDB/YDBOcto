@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -19,13 +19,13 @@
 #include "logical_plan.h"
 
 LogicalPlan *lp_make_key(SqlColumnAlias *column_alias) {
-	LogicalPlan *ret;
-	SqlColumn *column;
-	SqlTableAlias *table_alias;
-	SqlTable *table;
+	LogicalPlan	*ret;
+	SqlColumn	*column;
+	SqlTable	*table;
+	SqlTableAlias	*table_alias;
 
 	UNPACK_SQL_STATEMENT(column, column_alias->column, column);
-	UNPACK_SQL_STATEMENT(table_alias, column_alias->table_alias, table_alias);
+	UNPACK_SQL_STATEMENT(table_alias, column_alias->table_alias_stmt, table_alias);
 	UNPACK_SQL_STATEMENT(table, table_alias->table, table);
 
 	MALLOC_LP_2ARGS(ret, LP_KEY);

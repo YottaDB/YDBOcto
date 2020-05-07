@@ -175,7 +175,7 @@ SqlStatement *copy_sql_statement(SqlStatement *stmt) {
 		MALLOC_STATEMENT(ret, column_alias, SqlColumnAlias);
 		UNPACK_SQL_STATEMENT(column_alias, stmt, column_alias);
 		ret->v.column_alias->column = copy_sql_statement(column_alias->column);
-		ret->v.column_alias->table_alias = copy_sql_statement(column_alias->table_alias);
+		ret->v.column_alias->table_alias_stmt = copy_sql_statement(column_alias->table_alias_stmt);
 		break;
 	case data_type_STATEMENT:
 		*ret = *stmt;

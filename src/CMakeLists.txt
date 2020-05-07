@@ -168,7 +168,6 @@ add_library(libocto OBJECT
   optimization_transforms/lp_get_col_num_n_in_select_column_list.c
   optimization_transforms/lp_get_criteria.c
   optimization_transforms/lp_get_key.c
-  optimization_transforms/lp_get_key_index.c
   optimization_transforms/lp_get_keys.c
   optimization_transforms/lp_get_num_cols_in_select_column_list.c
   optimization_transforms/lp_get_output_key.c

@@ -173,7 +173,7 @@ boolean_t match_sql_statement(SqlStatement *stmt, SqlStatement *match_stmt) {
 		UNPACK_SQL_STATEMENT(column_alias, stmt, column_alias);
 		UNPACK_SQL_STATEMENT(match_column_alias, match_stmt, column_alias);
 		ret = match_sql_statement(column_alias->column, match_column_alias->column); if (!ret) break;
-		ret = match_sql_statement(column_alias->table_alias, match_column_alias->table_alias); if (!ret) break;
+		ret = match_sql_statement(column_alias->table_alias_stmt, match_column_alias->table_alias_stmt); if (!ret) break;
 		break;
 	case data_type_STATEMENT:
 		ret = (stmt->v.data_type == match_stmt->v.data_type); if (!ret) break;

@@ -52,7 +52,7 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 		 * column name to have a GROUP BY specified. If not, issue error.
 		 */
 		UNPACK_SQL_STATEMENT(new_column_alias, stmt, column_alias);
-		UNPACK_SQL_STATEMENT(column_table_alias, new_column_alias->table_alias, table_alias);
+		UNPACK_SQL_STATEMENT(column_table_alias, new_column_alias->table_alias_stmt, table_alias);
 		parent_table_alias = column_table_alias->parent_table_alias;
 		if (parent_table_alias->do_group_by_checks && (0 == parent_table_alias->aggregate_depth)
 				&& parent_table_alias->aggregate_function_or_group_by_specified
@@ -86,7 +86,7 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 					// Note: "qualify_column_name.c" relies on the below for qualifying column names
 					stmt->type = column_alias_STATEMENT;
 					stmt->v.column_alias = new_column_alias;
-					UNPACK_SQL_STATEMENT(column_table_alias, new_column_alias->table_alias, table_alias);
+					UNPACK_SQL_STATEMENT(column_table_alias, new_column_alias->table_alias_stmt, table_alias);
 					parent_table_alias = column_table_alias->parent_table_alias;
 					if (parent_table_alias == table_alias) {
 						if (0 < parent_table_alias->aggregate_depth) {

@@ -88,10 +88,10 @@ LogicalPlan *lp_replace_helper(LogicalPlan *plan, SqlTableAlias *table_alias, Sq
 	if (NULL == plan)
 		return NULL;
 	ret = plan;
-	switch(plan->type) {
+	switch (plan->type) {
 	case LP_COLUMN_ALIAS:
 		alias = plan->v.lp_column_alias.column_alias;
-		if (alias->table_alias->v.table_alias->unique_id == table_alias->unique_id) {
+		if (alias->table_alias_stmt->v.table_alias->unique_id == table_alias->unique_id) {
 			int	part;
 
 			MALLOC_LP_2ARGS(ret, LP_DERIVED_COLUMN);

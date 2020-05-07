@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -31,12 +31,12 @@ SqlKey *lp_get_key(LogicalPlan *plan, LogicalPlan *lp_column_alias) {
 	boolean_t		first_matching_key;
 
 	column_alias = lp_column_alias->v.lp_column_alias.column_alias;
-	UNPACK_SQL_STATEMENT(table_alias, column_alias->table_alias, table_alias);
+	UNPACK_SQL_STATEMENT(table_alias, column_alias->table_alias_stmt, table_alias);
 	search_id = table_alias->unique_id;
 	UNPACK_SQL_STATEMENT(table, table_alias->table, table);
 	UNPACK_SQL_STATEMENT(search_table_name, table->tableName, value);
 
-	if(column_alias->column->type == column_STATEMENT) {
+	if (column_alias->column->type == column_STATEMENT) {
 		UNPACK_SQL_STATEMENT(column, column_alias->column, column);
 		UNPACK_SQL_STATEMENT(search_column_name, column->columnName, value);
 	} else {
@@ -60,7 +60,7 @@ SqlKey *lp_get_key(LogicalPlan *plan, LogicalPlan *lp_column_alias) {
 			join_table_num++;
 		}
 		do {
-			if(key_id != search_id)
+			if (key_id != search_id)
 				break;
 			/* If the table has a composite key and we found some of those columns already
 			 * fixed (LP_KEY_FIX) but found one column that is not so then we need to not
@@ -79,22 +79,22 @@ SqlKey *lp_get_key(LogicalPlan *plan, LogicalPlan *lp_column_alias) {
 			/// TODO: the only way something has a name of NULL is if it's an output key
 			// Which means we're looking for the key in a derived table; we don't currently
 			// support this
-			if(key->table == NULL) {
-				assert(key->column == NULL);
+			if (NULL == key->table) {
+				assert(NULL == key->column);
 				break;
 			}
 			UNPACK_SQL_STATEMENT(key_table_name, key->table->tableName, value);
-			if(strcmp(search_table_name->v.string_literal, key_table_name->v.string_literal) != 0)
+			if (0 != strcmp(search_table_name->v.string_literal, key_table_name->v.string_literal))
 				break;
 			UNPACK_SQL_STATEMENT(key_column_name, key->column->columnName, value);
-			if(strcmp(search_column_name->v.string_literal, key_column_name->v.string_literal) != 0)
+			if (0 != strcmp(search_column_name->v.string_literal, key_column_name->v.string_literal))
 				break;
 			return key;
-		} while(TRUE);
+		} while (TRUE);
 		cur_key = cur_key->v.lp_default.operand[1];
-	} while(cur_key != NULL);
-	if (NULL != primary_key)
-	{	/* If primary key is already fixed, then no point trying to generate xref key for the
+	} while (cur_key != NULL);
+	if (NULL != primary_key) {
+		/* If primary key is already fixed, then no point trying to generate xref key for the
 		 * same table. Return non-NULL value (corresponding to the primary key for this table)
 		 * so we skip xref generation in caller function "lp_optimize_where_multi_equal_ands_helper()".
 		 * In case this table has a composite key, we pick the first of those keys and return it.

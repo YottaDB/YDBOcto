@@ -53,7 +53,7 @@ TEMPLATE(tmpl_column_reference, PhysicalPlan *pplan, SqlColumnAlias *column_alia
 		}
 	}
 	UNPACK_SQL_STATEMENT(column, column_alias->column, column);
-	UNPACK_SQL_STATEMENT(table_alias, column_alias->table_alias, table_alias);
+	UNPACK_SQL_STATEMENT(table_alias, column_alias->table_alias_stmt, table_alias);
 	assert(table_STATEMENT == table_alias->table->type);
 	if (pplan->tablejoin_body_group_by_done && column_alias->group_by_column_number) {
 		/* This column reference was specified in the GROUP BY clause and GROUP BY related processing already

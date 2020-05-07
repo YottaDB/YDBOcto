@@ -64,7 +64,7 @@ LogicalPlan *lp_generate_xref_plan(LogicalPlan *plan, SqlTable *table, SqlColumn
 	cla = lp_cla->v.lp_column_alias.column_alias;
 	/// TODO: copy column so we can more easily clean things up?
 	PACK_SQL_STATEMENT(cla->column, column, column);
-	cla->table_alias = table_alias_statement;
+	cla->table_alias_stmt = table_alias_statement;
 	// Get a list of key columns
 	memset(key_columns, 0, MAX_KEY_COUNT * sizeof(SqlColumn*));
 	max_key = get_key_columns(table, key_columns);
@@ -81,7 +81,7 @@ LogicalPlan *lp_generate_xref_plan(LogicalPlan *plan, SqlTable *table, SqlColumn
 		cla = lp_cla->v.lp_column_alias.column_alias;
 		/// TODO: copy column so we can more easily clean things up?
 		PACK_SQL_STATEMENT(cla->column, key_columns[cur_key], column);
-		cla->table_alias = table_alias_statement;
+		cla->table_alias_stmt = table_alias_statement;
 	}
 
 	// Generate a normal table join for SELECT, then populate CRITERIA and KEYS

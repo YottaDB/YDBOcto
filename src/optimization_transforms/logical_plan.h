@@ -263,9 +263,6 @@ LogicalPlan *lp_get_keys(LogicalPlan *plan);
 LogicalPlan *lp_get_criteria(LogicalPlan *plan);
 // Returns the key corresponding to a column, or NULL
 SqlKey *lp_get_key(LogicalPlan *plan, LogicalPlan *column_alias);
-// Returns the index of the specified column in the key ordering, or -1
-//  if the specified column is not a key
-int lp_get_key_index(LogicalPlan *plan, LogicalPlan *column_alias);
 // Returns the output key
 LogicalPlan *lp_get_output_key(LogicalPlan *plan);
 // Returns the number of columns in the SELECT column list for a given plan

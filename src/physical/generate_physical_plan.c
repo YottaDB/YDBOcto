@@ -335,7 +335,7 @@ LogicalPlan *sub_query_check_and_generate_physical_plan(PhysicalPlanOptions *opt
 			 */
 			if (LP_COLUMN_ALIAS == stmt->type) {
 				column_alias = stmt->v.lp_column_alias.column_alias;
-				UNPACK_SQL_STATEMENT(table_alias, column_alias->table_alias, table_alias);
+				UNPACK_SQL_STATEMENT(table_alias, column_alias->table_alias_stmt, table_alias);
 				unique_id = table_alias->unique_id;
 			} else {
 				LogicalPlan	*output_key;

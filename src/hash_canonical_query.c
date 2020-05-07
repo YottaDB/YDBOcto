@@ -290,7 +290,7 @@ void hash_canonical_query(hash128_state_t *state, SqlStatement *stmt, int *statu
 		// SqlColumn or SqlColumnListAlias
 		hash_canonical_query(state, column_alias->column, status);
 		// SqlTableAlias
-		hash_canonical_query(state, column_alias->table_alias, status);
+		hash_canonical_query(state, column_alias->table_alias_stmt, status);
 		break;
 	case column_list_STATEMENT:
 		hash_canonical_query_column_list(state, stmt, status, FALSE);	// FALSE so we do not loop

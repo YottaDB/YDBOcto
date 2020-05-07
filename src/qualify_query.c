@@ -139,7 +139,7 @@ int qualify_query(SqlStatement *table_alias_stmt, SqlJoin *parent_join, SqlTable
 				SqlColumnAlias		*column_alias;
 
 				UNPACK_SQL_STATEMENT(column_alias, col_list->value, column_alias);
-				UNPACK_SQL_STATEMENT(group_by_table_alias, column_alias->table_alias, table_alias);
+				UNPACK_SQL_STATEMENT(group_by_table_alias, column_alias->table_alias_stmt, table_alias);
 				if (group_by_table_alias->parent_table_alias != table_alias) {
 					/* Column belongs to an outer query. Discard it from the GROUP BY list. */
 					SqlColumnListAlias	*prev, *next;

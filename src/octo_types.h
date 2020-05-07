@@ -386,7 +386,7 @@ typedef struct SqlColumnAlias
 	// SqlColumn or SqlColumnListAlias
 	struct SqlStatement	*column;
 	// SqlTableAlias
-	struct SqlStatement	*table_alias;
+	struct SqlStatement	*table_alias_stmt;
 	int			group_by_column_number;		/* 0 if this column name was not specified in a GROUP BY.
 								 * Holds a non-zero index # if column name was specified in GROUP BY
 								 * (e.g. in query `SELECT 1+id FROM names GROUP BY id,firstname`,

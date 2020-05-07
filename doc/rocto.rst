@@ -9,7 +9,7 @@ Rocto
 Rocto is the Remote Octo server. It is an implementation of the Postgres server, and receives SQL queries from any clients that can communicate with Postgres over the network. These queries are passed to Octo, which interacts with the database and passes results back through Rocto to the clients.
 
 ---------------------------
-Connecting to SquirrelSQL
+Connecting to SQuirreLSQL
 ---------------------------
 
 `SQuirreL SQL <http://squirrel-sql.sourceforge.net/>`_ is an open-source Java SQL Client program for any JDBC compliant database.
@@ -26,7 +26,7 @@ Connecting to SquirrelSQL
 
 Put in the path to your JAR file (e.g. :code:`~/user/postgresql-42.2.6-SNAPSHOT.jar`) in the dialog box that pops up after clicking "Add" on the interface above.
 
-* Create an alias for your Rocto server, including the server IP and port number. These can be configured for Rocto in the `config file <config.html#config-files>`_.
+* Create an alias for your Rocto server, including the server IP address and port number. These can be configured for Rocto in the `config file <config.html#config-files>`_.
   For example,
 
   .. parsed-literal::

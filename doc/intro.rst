@@ -72,7 +72,7 @@ Install Prerequisites
       tar xzf YDBPosix-master.tar.gz
       cd YDBPosix-master
       mkdir build && cd build
-      \# Make sure that you have YottaDB environment variables in your shell before continuing
+      # Make sure that you have YottaDB environment variables in your shell before continuing
       cmake ..
       make -j \`grep -c ^processor /proc/cpuinfo\` && sudo make install
 
@@ -94,9 +94,9 @@ Install Prerequisites
 
   .. parsed-literal::
 
-     \# In a temporary directory perform the following commands
+     # In a temporary directory perform the following commands
      sudo tar -xf $ydb_dist/plugin/gtmcrypt/source.tar
-     \# Make sure that you have YottaDB environment variables in your shell before continuing
+     # Make sure that you have YottaDB environment variables in your shell before continuing
      sudo ydb_dist=$ydb_dist make -j \`grep -c ^processor /proc/cpuinfo\`
      sudo ydb_dist=$ydb_dist make install
 
@@ -139,11 +139,11 @@ Install Octo
 
      .. parsed-literal::
 
-        \# Ubuntu Linux OR Raspbian Linux OR Beagleboard Debian
+        # Ubuntu Linux OR Raspbian Linux OR Beagleboard Debian
         sudo apt-get install build-essential cmake bison flex xxd libreadline-dev libssl-dev
 
-        \# CentOS Linux OR RedHat Linux
-        \# Note: epel-release has to be installed before cmake3 is installed
+        # CentOS Linux OR RedHat Linux
+        # Note: epel-release has to be installed before cmake3 is installed
         sudo yum install epel-release
         sudo yum install cmake3 bison flex readline-devel vim-common libconfig-devel openssl-devel
 
@@ -172,10 +172,10 @@ Install Octo
 
      .. parsed-literal::
 
-	\# Ubuntu Linux OR Raspbian Linux OR Beagleboard Debian
+	# Ubuntu Linux OR Raspbian Linux OR Beagleboard Debian
 	sudo apt-get install libcmocka-dev
 
-	\# CentOS Linux OR RedHat Linux
+	# CentOS Linux OR RedHat Linux
 	sudo yum install libcmocka-devel
 
 """"""""""""""""""""""""""""""""""""""""""""""""""
@@ -186,10 +186,10 @@ Install Octo
 
      .. parsed-literal::
 
-	\# Ubuntu Linux OR Raspbian Linux OR Beagleboard Debian
+	# Ubuntu Linux OR Raspbian Linux OR Beagleboard Debian
 	sudo apt-get install postgresql-client
 
-	\# CentOS Linux OR RedHat Linux
+	# CentOS Linux OR RedHat Linux
 	sudo yum install postgresql
 
 """"""""""""""""""""""""""""""""""""""""""""
@@ -200,10 +200,10 @@ Install Octo
 
      .. parsed-literal::
 
-	\# Ubuntu Linux OR Raspbian Linux OR Beagleboard Debian
+	# Ubuntu Linux OR Raspbian Linux OR Beagleboard Debian
 	sudo apt-get install postgresql
 
-	\# CentOS Linux OR RedHat Linux
+	# CentOS Linux OR RedHat Linux
 	sudo yum install postgresql
 
      Additionally, PostgreSQL must be set up for the user who will be running the tests:
@@ -221,7 +221,7 @@ Install Octo
 
       .. parsed-literal::
 
-         \# In a temporary directory perform the following commands
+         # In a temporary directory perform the following commands
          curl -fSsLO https://gitlab.com/YottaDB/DBMS/YDBOcto/-/archive/master/YDBOcto-master.tar.gz
          tar xzf YDBOcto-master.tar.gz
          cd YDBOcto-master
@@ -234,7 +234,7 @@ Install Octo
 
          mkdir build
          cd build
-         \# For VistA the String Buffer Length needs to be larger (described below) add "-DSTRING_BUFFER_LENGTH=300000" to the cmake command below
+         # For VistA the String Buffer Length needs to be larger (described below) add "-DSTRING_BUFFER_LENGTH=300000" to the cmake command below
          cmake -DCMAKE_INSTALL_PREFIX=$ydb_dist/plugin .. # for CentOS/RedHat use cmake3 instead
          make -j \`grep -c ^processor /proc/cpuinfo\`
 
@@ -352,7 +352,7 @@ Configure Octo
      The :code:`northwind` dummy data files are only available if Octo has built from source.
      If you are working with a binary distribution, download the required files first and then move on to loading them.
 
-  Dowload :code:`northwind.zwr` and :code:`northwind.sql`:
+  Download :code:`northwind.zwr` and :code:`northwind.sql`:
 
   .. parsed-literal::
 

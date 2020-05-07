@@ -117,7 +117,7 @@ Generate CA key and certificate
 
  .. parsed-literal::
 
-    # In a directory in which you want to store all of the certificates for Octo
+    # In a directory in which you want to store all the certificates for Octo
     # Be sure to create a strong passphrase for the CA
     openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:2048 -out CA.key
     # This creates a CA valid for 1 year and interactively prompts for additional information

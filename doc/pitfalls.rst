@@ -5,7 +5,7 @@ Programming Notes
 
 .. contents::
    :depth: 2
-	  
+
 +++++++++++++++++++++
 Empty string and NULL
 +++++++++++++++++++++
@@ -20,7 +20,7 @@ For example,
 and
 
 .. parsed-literal::
-   SELECT * FROM names WHERE firstName = "";
+   SELECT * FROM Employee WHERE FirstName = "";
 
 return the same results.
 

@@ -179,7 +179,7 @@ This error is generated when a column is :code:`SELECT` ed, but does not appear 
 INIT_SCANNER
 +++++++++++++++++
 
-This message indicates an error in intializing the scanner used to parse provided input. Please contact your YottaDB support channel. PSQL Error Code: XX000
+This message indicates an error in initializing the scanner used to parse provided input. Please contact your YottaDB support channel. PSQL Error Code: XX000
 
 +++++++++++++++++++++
 INVALID_INPUT_SYNTAX
@@ -477,7 +477,7 @@ This message indicates that the Rocto user has been successfully authenticated. 
 BAD_PASSWORD
 +++++++++++++++++++++++
 
-This messages indicates that the password entered does not match the stored value. PSQL Code Error: 28P01
+This message indicates that the password entered does not match the stored value. PSQL Code Error: 28P01
 
 +++++++++++++++++++++++
 BAD_TIMESTAMP
@@ -665,7 +665,7 @@ This message indicates that a Rocto RowDescription message has been sent. PSQL E
 ROCTO_SERVER_FORKED
 +++++++++++++++++++++++
 
-This message is generated to show the Rocto server fork that is running, along with it's PID. PSQL Error Code: 00000
+This message is generated to show the Rocto server fork that is running, along with its PID. PSQL Error Code: 00000
 
 ++++++++++++++++++++
 ROCTO_STARTED

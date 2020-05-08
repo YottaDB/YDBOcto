@@ -35,7 +35,7 @@ select * from nonexistanttable;
 INDEX fake_index "^notaglobal(""fake_index"",fields(""name""),fields(""age""),keys(""id""))";
 
 select * from names;
-[ INFO] PATH:LINENUM DATE TIME : Loaded config from ./octo.conf
+[ INFO] PATH:LINENUM DATE TIME : Loaded config from $PWD/octo.conf
 [ERROR] PATH:LINENUM DATE TIME : Unknown table: NONEXISTANTTABLE
 
 select * from nonexistanttable;
@@ -69,7 +69,7 @@ select * from nonexistanttable;
 INDEX fake_index "^notaglobal(""fake_index"",fields(""name""),fields(""age""),keys(""id""))";
 
 select * from names;
-[ INFO] PATH:LINENUM DATE TIME : Loaded config from ./octo.conf
+[ INFO] PATH:LINENUM DATE TIME : Loaded config from $PWD/octo.conf
 [ERROR] PATH:LINENUM DATE TIME : Unknown table: NONEXISTANTTABLE
 
 select * from nonexistanttable;
@@ -188,7 +188,7 @@ select * from nonexistanttable;
 INDEX fake_index "^notaglobal(""fake_index"",fields(""name""),fields(""age""),keys(""id""))";
 
 select * from names;
-[ INFO] PATH:LINENUM DATE TIME : Loaded config from ./octo.conf
+[ INFO] PATH:LINENUM DATE TIME : Loaded config from $PWD/octo.conf
 [TRACE] PATH:LINENUM DATE TIME : Octo started
 Starting parse
 Entering state 0

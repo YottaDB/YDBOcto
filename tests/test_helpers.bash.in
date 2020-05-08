@@ -398,8 +398,13 @@ verify_output() {
 	sed -i 's/\/.*\/.*\.[yc]:[0-9]*/PATH:LINENUM/' clean_output.txt
 	# Filter line #s printed by flex in TRACE verbosity level output
 	sed -i 's/\(Reducing stack by rule [0-9]* (line\) [0-9]*)/\1 xxx)/' clean_output.txt
-	# Filter global octo.conf (any not in the local directory)
-	sed -i '/^.*\[ INFO\].* \/.*\/octo.conf/d' clean_output.txt
+	# Filter octo.conf from $ydb_dist and $HOME, i.e. not in the local directory
+	# Cannot specify $ydb_dist directly as it varies depending on UTF-8 mode selection,
+	# so just use "plugin/octo" as that is guaranteed to be in the $ydb_dist path.
+	# Note also that the $ydb_dist case is unconditionally removed - otherwise this
+	# message will cause outref discrepancies for the two DISABLE_INSTALL cases ("ON" and "OFF").
+	sed -i "/\/.*\/plugin\/octo\/octo.conf/d" clean_output.txt
+	sed -i "s,$HOME\/octo.conf,\$HOME\/octo.conf," clean_output.txt
 	# Filter M routine name
 	sed -i 's/_ydboctoP.*\.m/_ydboctoP*.m/' clean_output.txt
 	sed -i 's/_ydboctoX.*\.m/_ydboctoX*.m/' clean_output.txt

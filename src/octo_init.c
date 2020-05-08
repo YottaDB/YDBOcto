@@ -507,7 +507,8 @@ int octo_init(int argc, char **argv) {
 	boolean_t		verbosity_set;
 	config_t		*config_file;
 	ssize_t			exe_path_len;
-	char			ci_path[OCTO_PATH_MAX], exe_path[OCTO_PATH_MAX], config_file_path[OCTO_PATH_MAX],  zstatus_message[YDB_MAX_ERRORMSG];
+	char			ci_path[OCTO_PATH_MAX], exe_path[OCTO_PATH_MAX], config_file_path[OCTO_PATH_MAX], cwd[OCTO_PATH_MAX];
+	char			zstatus_message[YDB_MAX_ERRORMSG];
 	char			*homedir, *ydb_dist, *config_file_name = NULL;
 	int			status, i;
 	DIR			*dir;
@@ -561,7 +562,11 @@ int octo_init(int argc, char **argv) {
 	ydb_dist = getenv("ydb_dist");
 	if (NULL == config_file_name) {
 		config_file_name = config_file_path;
-		MERGE_CONFIG_PATH_AND_RETURN_ON_ERROR("./%s%s", "", config_file, config_file_list);
+		if (NULL == getcwd(cwd, sizeof(cwd))) {
+			ERROR(ERR_SYSCALL, "getcwd", errno, strerror(errno));
+			return 1;
+		}
+		MERGE_CONFIG_PATH_AND_RETURN_ON_ERROR("%s/%s", cwd, config_file, config_file_list);
 		homedir = getenv("HOME");
 		if (NULL != homedir) {
 			MERGE_CONFIG_PATH_AND_RETURN_ON_ERROR("%s/%s", homedir, config_file, config_file_list);

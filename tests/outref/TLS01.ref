@@ -1,4 +1,4 @@
-[IP_UNSET:PORT_UNSET] [ INFO] PATH:LINENUM DATE TIME : Loaded config from ./octo.conf
+[IP_UNSET:PORT_UNSET] [ INFO] PATH:LINENUM DATE TIME : Loaded config from $PWD/octo.conf
 [IP_UNSET:PORT_UNSET] [ INFO] PATH:LINENUM DATE TIME : [PORT]
 [IP_UNSET:PORT_UNSET] [ INFO] PATH:LINENUM DATE TIME : rocto server process forked with pid PID
 [IP_UNSET:PORT_UNSET] [ INFO] PATH:LINENUM DATE TIME : rocto server process forked with pid PID

@@ -41,6 +41,11 @@ OCTO
 		load_fixture TV000.sql subtest novv
 	done
 
+	# Confirm that config is loaded from $ydb_dist if octo is installed there
+	if [[ @DISABLE_INSTALL@ == "OFF" ]]; then
+		# We expect this message 3 times, once each for the following verbosity levels: INFO, DEBUG, TRACE
+		[[ $(grep -c "Loaded config from /.*/plugin/octo/octo.conf" output.txt) -eq 3 ]]
+	fi
 	verify_output TV001 output.txt
 }
 

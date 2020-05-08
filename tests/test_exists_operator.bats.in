@@ -38,3 +38,16 @@ setup() {
   # generate valid output (i.e. no errors at all). No reference file needed for this.
   run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TEO02_noerrors.sql "remove_empty_line_at_tail"
 }
+
+@test "TEO03 : Test generated M code has no duplication if query has multiple physical plans mapping to the same logical plan " {
+  # In addition to the "names" schema, TEO03.sql uses queries that rely on the "sqllogic1" and "northwind" schema
+  load_fixture sqllogic1.sql
+  load_fixture sqllogic1.zwr
+  load_fixture northwind.sql
+  load_fixture northwind.zwr
+  load_fixture TEO03.sql subtest novv
+  # Include generated M code in reference file to verify all optimizations there
+  cat _ydboctoP*.m >> output.txt
+  verify_output TEO03 output.txt
+}
+

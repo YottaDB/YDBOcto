@@ -32,7 +32,7 @@ PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlanOptions *opt
 	LogicalPlan		*criteria, *select_options, *select_more_options;
 	LogicalPlan		*where;
 	LogicalPlan		*set_option, *set_plans, *set_output, *set_key;
-	PhysicalPlan		*out, *prev = NULL;
+	PhysicalPlan		*out, *prev = NULL, *out_from_lp;
 	LPActionType		set_oper_type, type;
 	PhysicalPlanOptions	plan_options;
 	boolean_t		is_set_dnf;
@@ -101,34 +101,67 @@ PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlanOptions *opt
 		}
 		return out;
 	}
-	// Make sure the plan is in good shape. Overload this plan verify phase to also fix aggregate function counts.
+	/* Note that it is possible a physical plan has already been generated for this logical plan.
+	 *
+	 * For example "select * from names where EXISTS (select * from names) and (id < 3 or id > 4);" would get expanded as
+	 *	"select * from names where EXISTS (select * from names) and (id < 3)"
+	 *		OR
+	 *	"select * from names where EXISTS (select * from names) and (id > 4)"
+	 * The sub-query corresponding to "EXISTS (select * from names)" would generate 2 physical plans but point to
+	 * the same logical plan.
+	 *
+	 * We have to generate the physical plan though as that is how we ensure the corresponding M code gets called twice.
+	 * So we cannot easily avoid the physical plan duplication. But note the fact that this is a duplicate that way we
+	 * skip code generation for duplicate plans and ensure the M code that gets emitted does not have duplicate code.
+	 */
+	out_from_lp = plan->extra_detail.lp_insert.physical_plan;
 	assert(LP_INSERT == plan->type);
-	if (NULL == plan->extra_detail.lp_insert.first_aggregate) {
+	if (NULL == out_from_lp) {
+		// Make sure the plan is in good shape. Overload this plan verify phase to also fix aggregate function counts.
+		assert(NULL == plan->extra_detail.lp_insert.first_aggregate);
 		if (FALSE == lp_verify_structure(plan, &plan->extra_detail.lp_insert.first_aggregate)) {
-			/// TODO: replace this with a real error message
+			assert(FALSE);
 			ERROR(ERR_PLAN_NOT_WELL_FORMED, "");
 			return NULL;
 		}
+	} else {
+		/* "lp_verify_structure()" would have been already called in a prior call to "generate_physical_plan" for a
+		 * different physical plan that points to the same logical plan. This logical plan already has had any GROUP BY
+		 * stuff filled in. In that case, should not do "lp_verify_structure" again as GROUP BY related information has
+		 * already been filled in and a second invocation would create a linked list with a cycle (e.g. see YDBOcto#456).
+		 *
+		 * But check if this is a cross-reference plan. If so we do not want to create a duplicate (one enough per query).
+		 */
+		if (out_from_lp->is_cross_reference_key) {
+			return out_from_lp;
+		}
 	}
-	/* Else this logical plan already had GROUP BY stuff filled in.
-	 * In that case, should not do `lp_verify_structure` again as GROUP BY related information has already been
-	 * filled in and a second invocation would create a linked list with a cycle (see YDBOcto#456 for example).
-	 */
 	OCTO_CMALLOC_STRUCT(out, PhysicalPlan);
-	out->parent_plan = options->parent;
+	if (NULL != out_from_lp) {
+		/* This is a duplicate physical plan pointing to the same logical plan. */
+		assert(out_from_lp->lp_insert == plan);
+	} else {
+		plan->extra_detail.lp_insert.physical_plan = out;
+	}
+	assert(NULL == out->prev);
 	out->lp_insert = plan;
-	root_table_alias = plan->extra_detail.lp_insert.root_table_alias;
-	/* Note: root_table_alias can be NULL for xref plans (which do not correspond to any actual user-specified query) */
-	out->aggregate_function_or_group_by_specified = ((NULL == root_table_alias)
-								? FALSE
-								: root_table_alias->aggregate_function_or_group_by_specified);
+	out->parent_plan = options->parent;
 	plan_options.parent = out;
 	out->next = *plan_options.last_plan;
 	if (NULL != *plan_options.last_plan) {
 		(*plan_options.last_plan)->prev = out;
 	}
 	*(plan_options.last_plan) = out;
-
+	/* Note: The below logic is executed multiple times in case multiple physical plans point to the same logical plan.
+	 * One might be tempted to think there is no need to execute it. But it is necessary because the below logic could create
+	 * other physical plans (through calls to "generate_physical_plan" and/or "sub_query_check_and_generate_physical_plan".
+	 * Skipping the logic would mean fewer number of physical plans than needed would be created which is incorrect.
+	 */
+	root_table_alias = plan->extra_detail.lp_insert.root_table_alias;
+	/* Note: root_table_alias can be NULL for xref plans (which do not correspond to any actual user-specified query) */
+	out->aggregate_function_or_group_by_specified = ((NULL == root_table_alias)
+							? FALSE
+							: root_table_alias->aggregate_function_or_group_by_specified);
 	// Set my output key
 	GET_LP(output, plan, 1, LP_OUTPUT);
 	if (LP_KEY == output->v.lp_default.operand[0]->type) {
@@ -163,7 +196,7 @@ PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlanOptions *opt
 			/* This is a fresh sub-query start so do not inherit any DNF context from parent query. */
 			tmp_options = plan_options;
 			tmp_options.dnf_plan_next = NULL;
-			/* By the same token, do not inherit any "stash_columns_in_keys" context from parent query either. */
+			/* By the same token, do not inherit any "stash_columns_in_keys" context from parent query */
 			tmp_options.stash_columns_in_keys = FALSE;
 			// This is a sub plan, and should be inserted as prev
 			GET_LP(insert_or_set_operation, table_joins, 0, type);

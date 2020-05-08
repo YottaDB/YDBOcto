@@ -126,6 +126,10 @@ typedef struct LpExtraInsert {
 							 * logical plan. Needed to forward this to the PhysicalPlan structure.
 							 */
 	struct LogicalPlan	*first_aggregate;
+	struct PhysicalPlan	*physical_plan;		/* Pointer to corresponding physical plan. Note that there could be
+							 * multiple physical plans corresponding to the same logical plan
+							 * (i.e. many physical plans to 1 logical plan relationship).
+							 */
 } LpExtraInsert;
 
 /* Extra fields needed by LP_COLUMN_ALIAS */

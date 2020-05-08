@@ -104,6 +104,13 @@ typedef struct PhysicalPlan {
 /* Below macro returns TRUE if GROUP BY or HAVING have been specified and/or Aggregate functions have been used in plan */
 #define	IS_GROUP_BY_PLAN(PLAN) (PLAN->aggregate_function_or_group_by_specified)
 
+/* The below macros take into account that multiple physical plans can correspond to the same logical plan in which case
+ * the physical plan name would have only been filled in one of those duplicates (the one whose logical plan points
+ * back to this physical plan).
+ */
+#define	PRIMARY_PHYSICAL_PLAN(PLAN)	PLAN->lp_insert->extra_detail.lp_insert.physical_plan
+#define	PHYSICAL_PLAN_NAME(PLAN)	PRIMARY_PHYSICAL_PLAN(PLAN)->plan_name
+
 // This provides a convenient way to pass options to subplans
 // which need to be aware of a request from a higher level
 typedef struct {

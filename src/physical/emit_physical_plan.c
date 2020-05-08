@@ -103,6 +103,10 @@ int emit_physical_plan(PhysicalPlan *pplan, char *plan_filename) {
 		xrefplan.prev->next = NULL;
 	plan_id = 0;
 	for (cur_plan = xrefplan.next; NULL != cur_plan; cur_plan = cur_plan->next, plan_id++) {
+		/* Assert that the logical plan corresponding to the xref physical plan points back to this physical plan.
+		 * This is because duplicate xref plans are avoided in "generate_physical_plan.c".
+		 */
+		assert(cur_plan->lp_insert->extra_detail.lp_insert.physical_plan == cur_plan);
 		assert(cur_plan->outputKey && cur_plan->outputKey->is_cross_reference_key);
 		key = cur_plan->outputKey;
 		UNPACK_SQL_STATEMENT(value, key->table->tableName, value);
@@ -162,12 +166,18 @@ int emit_physical_plan(PhysicalPlan *pplan, char *plan_filename) {
 	}
 
 	// Generate plan names for Non-deferred and Deferred plans
-	for (plan_id = 1, cur_plan = first_plan; NULL != cur_plan; cur_plan = cur_plan->next, plan_id++) {
+	for (plan_id = 1, cur_plan = first_plan; NULL != cur_plan; cur_plan = cur_plan->next) {
 		assert(!(cur_plan->outputKey && cur_plan->outputKey->is_cross_reference_key));
-		len = snprintf(plan_name_buffer, MAX_STR_CONST, "octoPlan%d", plan_id);
-		cur_plan->plan_name = octo_cmalloc(memory_chunks, len+1);
-		memcpy(cur_plan->plan_name, plan_name_buffer, len);
-		cur_plan->plan_name[len] = '\0';
+		/* Although there can be multiple physical plans corresponding to the same logical plan,
+		 * we will emit only one physical plan. So generate plan name only for the first of the duplicates.
+		 */
+		if (PRIMARY_PHYSICAL_PLAN(cur_plan) == cur_plan) {
+			len = snprintf(plan_name_buffer, MAX_STR_CONST, "octoPlan%d", plan_id);
+			cur_plan->plan_name = octo_cmalloc(memory_chunks, len+1);
+			memcpy(cur_plan->plan_name, plan_name_buffer, len);
+			cur_plan->plan_name[len] = '\0';
+			plan_id++;
+		}
 	}
 
 	plan_filename_len = strlen(plan_filename);
@@ -206,15 +216,25 @@ int emit_physical_plan(PhysicalPlan *pplan, char *plan_filename) {
 	for (cur_plan = first_plan; NULL != cur_plan; cur_plan = cur_plan->next) {
 		if (NULL != cur_plan->deferred_parent_plan)
 			break;		// if we see a Deferred plan, it means we are done with the Non-Deferred plans
-		fprintf(output_file, "    DO %s(cursorId)\n", cur_plan->plan_name);
+		/* Note that it is possible we encounter multiple physical plans that map to the same logical plan.
+		 * In that case, only the first of those physical plans would have had a name generated. So use that for
+		 * all the physical plans we go through.
+		 */
+		assert(NULL != PHYSICAL_PLAN_NAME(cur_plan));
+		fprintf(output_file, "    DO %s(cursorId)\n", PHYSICAL_PLAN_NAME(cur_plan));
 	}
 	fprintf(output_file, "    QUIT\n");
 	// Emit Non-Deferred and Deferred plans in that order
 	for (cur_plan = first_plan; NULL != cur_plan; cur_plan = cur_plan->next) {
-		cur_plan->filename = NULL;	// filename needed only for cross reference plans
-		buffer_index = 0;
-		tmpl_physical_plan(&buffer, &buffer_len, &buffer_index, cur_plan);
-		fprintf(output_file, "%s\n", buffer);
+		if (cur_plan == cur_plan->lp_insert->extra_detail.lp_insert.physical_plan) {
+			cur_plan->filename = NULL;	// filename needed only for cross reference plans
+			buffer_index = 0;
+			tmpl_physical_plan(&buffer, &buffer_len, &buffer_index, cur_plan);
+			fprintf(output_file, "%s\n", buffer);
+		}
+		/* else: This physical plan maps to the same logical plan that a prior physical plan points to.
+		 *	 Skip emitting this plan as the prior physical plan is good enough.
+		 */
 	}
 
 	// Close out the file

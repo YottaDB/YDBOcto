@@ -130,3 +130,11 @@ setup() {
   mv clean_output.txt errors_clean_output.txt
 }
 
+@test "TSS22 : OCTO504 : Error not issued in some cases when sub-query returns more than one row when used as an expression" {
+  # TSS22_errors.sql cannot be used with `run_query_in_octo_and_postgres_and_crosscheck_multiple_queries` because of error
+  # returns from queries (Postgres and Octo issue different error outputs). Need a reference file.
+  load_fixture TSS22_errors.sql subtest
+  verify_output TSS22_errors output.txt noinfo nodebug
+  mv clean_output.txt errors_clean_output.txt
+}
+

@@ -36,12 +36,60 @@ TEMPLATE(tmpl_populate_output_key, PhysicalPlan *plan, int dot_count) {
 		TMPL(tmpl_key, plan->outputKey);
 		%{}){}%
 	} else {
+		LogicalPlan	*column_list, *where, *first_operand;
+
 		%{}IF $INCREMENT({}%
 		TMPL(tmpl_key, plan->outputKey);
 		(*buffer_index)--;
 		%{},{}%
-		TMPL(tmpl_column_list_combine, plan->projection, plan, ",", FALSE, 0, 0, 0);
-		%{})){}%
+		column_list = plan->projection;
+		TMPL(tmpl_column_list_combine, column_list, plan, ",", FALSE, 0, 0, 0);
+		%{}){}%
+		/* Since "stash_columns_in_keys" is TRUE, this is a sub-query. Check if the SELECT column list for this
+		 * sub-query is being inherited from a child sub-query that in turn stashed its columns in keys. If so,
+		 * it is not enough to just increment the stashed key by 1. Need to increment it by exactly the count that
+		 * the we inherited from the child sub-query. This is done by supplying the inherited count as the increment
+		 * to $INCREMENT.
+		 */
+		GET_LP(where, column_list, 0, LP_WHERE);
+		assert(NULL == column_list->v.lp_default.operand[1]);	/* Since this is a sub-query that is stashing its select
+									 * column list in keys, we expect only ONE column.
+									 */
+		first_operand = where->v.lp_default.operand[0];
+		if (LP_DERIVED_COLUMN == first_operand->type) {
+			LogicalPlan	*key;
+			PhysicalPlan	*child_plan;
+			int		save_unique_id;
+			SqlKey		*outputKey;
+
+			GET_LP(key, first_operand, 0, LP_KEY);
+			child_plan = get_physical_plan_from_unique_id(plan, key->v.lp_key.key->unique_id);
+			if (child_plan->stash_columns_in_keys) {
+				/* It is possible "child_plan" is the result of a SET operation. In that case, the output_id
+				 * is actually "child_plan->set_oper_list->output_id" and not "child_plan->outputKey->unique_id".
+				 * But since "tmpl_key" assumes the latter, modify the latter temporarily if needed.
+				 */
+				outputKey = child_plan->outputKey;
+				/* It is enough if we save "save_unique_id" inside the "if" block. But that causes a
+				 * "-Wmaybe-uninitialized" warning due to a C compiler issue. Hence moving it outside.
+				 */
+				save_unique_id = outputKey->unique_id;
+				if (child_plan->set_oper_list) {
+					outputKey->unique_id = child_plan->set_oper_list->output_id;
+				}
+				%{},{}%
+				TMPL(tmpl_key, outputKey);
+				(*buffer_index)--;
+				%{},{}%
+				TMPL(tmpl_key, outputKey);
+				/* Now that all "tmpl_key" calls are done, reset "outputKey->unique_id" back to what it was */
+				if (child_plan->set_oper_list) {
+					outputKey->unique_id = save_unique_id;
+				}
+				%{}){}%
+			}
+		}
+		%{}){}%
 	}
 	// If this plan has no ORDER BY, then any LIMIT related processing can happen. Otherwise we need to
 	// apply the LIMIT after the ORDER BY processing finally happens in "tmpl_physical_plan".

@@ -138,3 +138,7 @@ setup() {
   mv clean_output.txt errors_clean_output.txt
 }
 
+@test "TSS23 : OCTO505 : Incorrect results when sub-query used as an expression inherits rows from another sub-query" {
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TSS23.sql "remove_empty_line_at_tail"
+}
+

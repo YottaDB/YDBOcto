@@ -163,6 +163,8 @@ PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlanOptions *opt
 			/* This is a fresh sub-query start so do not inherit any DNF context from parent query. */
 			tmp_options = plan_options;
 			tmp_options.dnf_plan_next = NULL;
+			/* By the same token, do not inherit any "stash_columns_in_keys" context from parent query either. */
+			tmp_options.stash_columns_in_keys = FALSE;
 			// This is a sub plan, and should be inserted as prev
 			GET_LP(insert_or_set_operation, table_joins, 0, type);
 			ret = generate_physical_plan(insert_or_set_operation, &tmp_options);

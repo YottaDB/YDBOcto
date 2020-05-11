@@ -18,10 +18,10 @@ SELECT * FROM names n1, (SELECT * FROM n1) n2;
 SELECT * FROM (SELECT n2.id) n1, names n2;
 SELECT * FROM names n1, (SELECT n1.id) n2;
 
-SELECT * FROM (SELECT * FROM names n1, (SELECT n1.id,n1.firstname,n1.lastname FROM names) n2);
-SELECT * FROM (SELECT * FROM names n1, (SELECT * FROM n1) n2);
-SELECT * FROM (SELECT * FROM (SELECT n2.id) n1, names n2);
-SELECT * FROM (SELECT * FROM names n1, (SELECT n1.id) n2);
+SELECT * FROM (SELECT * FROM names n1, (SELECT n1.id,n1.firstname,n1.lastname FROM names) n2) n3;
+SELECT * FROM (SELECT * FROM names n1, (SELECT * FROM n1) n2) n3;
+SELECT * FROM (SELECT * FROM (SELECT n2.id) n1, names n2) n3;
+SELECT * FROM (SELECT * FROM names n1, (SELECT n1.id) n2) n3;
 
 SELECT * FROM names n0, (SELECT * FROM names n1, (SELECT n0.id) n2) n3;
 SELECT (SELECT * FROM names n0, (SELECT * FROM names n1, (SELECT n0.id) n2) n3);
@@ -131,12 +131,11 @@ SELECT * FROM names n1, (SELECT n1.id,n1.firstname,n1.lastname FROM names) n2;
 SELECT * FROM names n1, (SELECT * FROM n1) n2;
                                        ^^
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT * FROM names n1, (SELECT * FROM n1) n2;
-Error with syntax near (line 1, column 32):
+[ERROR] PATH:LINENUM DATE TIME : Missing FROM-clause entry for table : N2
+Error with syntax near (line 1, column 23):
 
 SELECT * FROM (SELECT n2.id) n1, names n2;
-                               ^
-syntax error, unexpected COMMA, expecting EXCEPT or UNION or SEMICOLON or ENDOFFILE
-
+                      ^^^^^
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT * FROM (SELECT n2.id) n1, names n2;
 [ERROR] PATH:LINENUM DATE TIME : Missing FROM-clause entry for table : N1
 Error with syntax near (line 1, column 33):
@@ -147,37 +146,36 @@ SELECT * FROM names n1, (SELECT n1.id) n2;
 [ERROR] PATH:LINENUM DATE TIME : Missing FROM-clause entry for table : N1
 Error with syntax near (line 1, column 48):
 
-SELECT * FROM (SELECT * FROM names n1, (SELECT n1.id,n1.firstname,n1.lastname FROM names) n2);
+SELECT * FROM (SELECT * FROM names n1, (SELECT n1.id,n1.firstname,n1.lastname FROM names) n2) n3;
                                                ^^^^^
 [ERROR] PATH:LINENUM DATE TIME : Missing FROM-clause entry for table : N1
 Error with syntax near (line 1, column 54):
 
-SELECT * FROM (SELECT * FROM names n1, (SELECT n1.id,n1.firstname,n1.lastname FROM names) n2);
+SELECT * FROM (SELECT * FROM names n1, (SELECT n1.id,n1.firstname,n1.lastname FROM names) n2) n3;
                                                      ^^^^^^^^^^^^
 [ERROR] PATH:LINENUM DATE TIME : Missing FROM-clause entry for table : N1
 Error with syntax near (line 1, column 67):
 
-SELECT * FROM (SELECT * FROM names n1, (SELECT n1.id,n1.firstname,n1.lastname FROM names) n2);
+SELECT * FROM (SELECT * FROM names n1, (SELECT n1.id,n1.firstname,n1.lastname FROM names) n2) n3;
                                                                   ^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT * FROM (SELECT * FROM names n1, (SELECT n1.id,n1.firstname,n1.lastname FROM names) n2);
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT * FROM (SELECT * FROM names n1, (SELECT n1.id,n1.firstname,n1.lastname FROM names) n2) n3;
 [ERROR] PATH:LINENUM DATE TIME : Unknown table: N1
 
-SELECT * FROM (SELECT * FROM names n1, (SELECT * FROM n1) n2);
+SELECT * FROM (SELECT * FROM names n1, (SELECT * FROM n1) n2) n3;
                                                       ^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT * FROM (SELECT * FROM names n1, (SELECT * FROM n1) n2);
-Error with syntax near (line 1, column 47):
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT * FROM (SELECT * FROM names n1, (SELECT * FROM n1) n2) n3;
+[ERROR] PATH:LINENUM DATE TIME : Missing FROM-clause entry for table : N2
+Error with syntax near (line 1, column 38):
 
-SELECT * FROM (SELECT * FROM (SELECT n2.id) n1, names n2);
-                                              ^
-syntax error, unexpected COMMA, expecting EXCEPT or UNION or RIGHT_PAREN
-
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT * FROM (SELECT * FROM (SELECT n2.id) n1, names n2);
+SELECT * FROM (SELECT * FROM (SELECT n2.id) n1, names n2) n3;
+                                     ^^^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT * FROM (SELECT * FROM (SELECT n2.id) n1, names n2) n3;
 [ERROR] PATH:LINENUM DATE TIME : Missing FROM-clause entry for table : N1
 Error with syntax near (line 1, column 48):
 
-SELECT * FROM (SELECT * FROM names n1, (SELECT n1.id) n2);
+SELECT * FROM (SELECT * FROM names n1, (SELECT n1.id) n2) n3;
                                                ^^^^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT * FROM (SELECT * FROM names n1, (SELECT n1.id) n2);
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT * FROM (SELECT * FROM names n1, (SELECT n1.id) n2) n3;
 [ERROR] PATH:LINENUM DATE TIME : Missing FROM-clause entry for table : N0
 Error with syntax near (line 1, column 58):
 

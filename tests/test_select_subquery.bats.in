@@ -142,3 +142,7 @@ setup() {
   run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TSS23.sql "remove_empty_line_at_tail"
 }
 
+@test "TSS24 : OCTO368 : Using alias names for sub-query in select column list or FROM clause list fails with syntax error" {
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TSS24.sql "remove_empty_line_at_tail"
+}
+

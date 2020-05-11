@@ -7,60 +7,60 @@ select * from names;
 [ INFO] PATH:LINENUM DATE TIME : Loaded config from $PWD/octo.conf
 [TRACE] PATH:LINENUM DATE TIME : Octo started
 Starting parse
-Entering state 0
+Entering state sss
 Reading a token: Next token is token SELECT (: )
 Shifting token SELECT (: )
-Entering state 11
+Entering state sss
 Reading a token: Next token is token ASTERISK (: )
-Reducing stack by rule 37 (line xxx):
+Reducing stack by rule rrr (line lll):
 -> $$ = nterm set_quantifier (: )
-Stack now 0 11
-Entering state 71
+Stack now sss ...
+Entering state sss
 Next token is token ASTERISK (: )
 Shifting token ASTERISK (: )
-Entering state 154
-Reducing stack by rule 31 (line xxx):
+Entering state sss
+Reducing stack by rule rrr (line lll):
    $1 = token ASTERISK (: )
 -> $$ = nterm select_list (: )
-Stack now 0 11 71
-Entering state 155
+Stack now sss ...
+Entering state sss
 Reading a token: Next token is token FROM (: )
 Shifting token FROM (: )
-Entering state 249
+Entering state sss
 Reading a token: Next token is token IDENTIFIER_START (: )
 Shifting token IDENTIFIER_START (: )
-Entering state 8
-Reducing stack by rule 329 (line xxx):
+Entering state sss
+Reducing stack by rule rrr (line lll):
    $1 = token IDENTIFIER_START (: )
 -> $$ = nterm identifier_body (: )
-Stack now 0 11 71 155 249
-Entering state 59
-Reducing stack by rule 328 (line xxx):
+Stack now sss ...
+Entering state sss
+Reducing stack by rule rrr (line lll):
    $1 = nterm identifier_body (: )
 -> $$ = nterm regular_identifier (: )
-Stack now 0 11 71 155 249
-Entering state 58
-Reducing stack by rule 327 (line xxx):
+Stack now sss ...
+Entering state sss
+Reducing stack by rule rrr (line lll):
    $1 = nterm regular_identifier (: )
 -> $$ = nterm actual_identifier (: )
-Stack now 0 11 71 155 249
-Entering state 57
-Reducing stack by rule 326 (line xxx):
+Stack now sss ...
+Entering state sss
+Reducing stack by rule rrr (line lll):
    $1 = nterm actual_identifier (: )
 -> $$ = nterm identifier (: )
-Stack now 0 11 71 155 249
-Entering state 56
-Reducing stack by rule 303 (line xxx):
+Stack now sss ...
+Entering state sss
+Reducing stack by rule rrr (line lll):
    $1 = nterm identifier (: )
 -> $$ = nterm column_name (: )
-Stack now 0 11 71 155 249
-Entering state 54
+Stack now sss ...
+Entering state sss
 Reading a token: Next token is token SEMICOLON (: )
-Reducing stack by rule 49 (line xxx):
+Reducing stack by rule rrr (line lll):
 -> $$ = nterm table_reference_tail (: )
-Stack now 0 11 71 155 249 54
-Entering state 140
-Reducing stack by rule 44 (line xxx):
+Stack now sss ...
+Entering state sss
+Reducing stack by rule rrr (line lll):
    $1 = nterm column_name (: )
    $2 = nterm table_reference_tail (: )
 [TRACE] PATH:LINENUM DATE TIME : Searching for table NONEXISTANTTABLE
@@ -68,259 +68,259 @@ Reducing stack by rule 44 (line xxx):
 
 select * from nonexistanttable;
               ^^^^^^^^^^^^^^^^
-Stack now 0 11 71 155 249
+Stack now sss ...
 Error: popping token FROM (: )
-Stack now 0 11 71 155
+Stack now sss ...
 Error: popping nterm select_list (: )
-Stack now 0 11 71
+Stack now sss ...
 Error: popping nterm set_quantifier (: )
-Stack now 0 11
+Stack now sss ...
 Error: popping token SELECT (: )
-Stack now 0
+Stack now sss ...
 Shifting token error (: )
-Entering state 1
+Entering state sss
 Next token is token SEMICOLON (: )
 Shifting token SEMICOLON (: )
-Entering state 18
-Reducing stack by rule 10 (line xxx):
+Entering state sss
+Reducing stack by rule rrr (line lll):
    $1 = token SEMICOLON (: )
 -> $$ = nterm semicolon_or_eof (: )
-Stack now 0 1
-Entering state 60
-Reducing stack by rule 6 (line xxx):
+Stack now sss ...
+Entering state sss
+Reducing stack by rule rrr (line lll):
    $1 = token error (: )
    $2 = nterm semicolon_or_eof (: )
-Stack now 0
+Stack now sss ...
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select * from nonexistanttable;
 [ INFO] PATH:LINENUM DATE TIME : Parsing done for SQL command [select * from nonexistanttable;]
 [ INFO] PATH:LINENUM DATE TIME : Returning failure from run_query
 Starting parse
-Entering state 0
+Entering state sss
 Reading a token: Next token is token INDEX (: )
 Shifting token INDEX (: )
-Entering state 9
+Entering state sss
 Reading a token: Next token is token IDENTIFIER_START (: )
 Shifting token IDENTIFIER_START (: )
-Entering state 8
-Reducing stack by rule 329 (line xxx):
+Entering state sss
+Reducing stack by rule rrr (line lll):
    $1 = token IDENTIFIER_START (: )
 -> $$ = nterm identifier_body (: )
-Stack now 0 9
-Entering state 59
-Reducing stack by rule 328 (line xxx):
+Stack now sss ...
+Entering state sss
+Reducing stack by rule rrr (line lll):
    $1 = nterm identifier_body (: )
 -> $$ = nterm regular_identifier (: )
-Stack now 0 9
-Entering state 58
-Reducing stack by rule 327 (line xxx):
+Stack now sss ...
+Entering state sss
+Reducing stack by rule rrr (line lll):
    $1 = nterm regular_identifier (: )
 -> $$ = nterm actual_identifier (: )
-Stack now 0 9
-Entering state 57
-Reducing stack by rule 326 (line xxx):
+Stack now sss ...
+Entering state sss
+Reducing stack by rule rrr (line lll):
    $1 = nterm actual_identifier (: )
 -> $$ = nterm identifier (: )
-Stack now 0 9
-Entering state 56
-Reducing stack by rule 303 (line xxx):
+Stack now sss ...
+Entering state sss
+Reducing stack by rule rrr (line lll):
    $1 = nterm identifier (: )
 -> $$ = nterm column_name (: )
-Stack now 0 9
-Entering state 66
-Reducing stack by rule 323 (line xxx):
+Stack now sss ...
+Entering state sss
+Reducing stack by rule rrr (line lll):
    $1 = nterm column_name (: )
 -> $$ = nterm index_name (: )
-Stack now 0 9
-Entering state 67
+Stack now sss ...
+Entering state sss
 Reading a token: Next token is token LITERAL (: )
 Shifting token LITERAL (: )
-Entering state 145
-Reducing stack by rule 364 (line xxx):
+Entering state sss
+Reducing stack by rule rrr (line lll):
    $1 = token LITERAL (: )
 -> $$ = nterm literal_value (: )
-Stack now 0 9 67
-Entering state 146
-Reducing stack by rule 322 (line xxx):
+Stack now sss ...
+Entering state sss
+Reducing stack by rule rrr (line lll):
    $1 = token INDEX (: )
    $2 = nterm index_name (: )
    $3 = nterm literal_value (: )
 [ WARN] PATH:LINENUM DATE TIME : Feature not implemented: INDEX statements
 -> $$ = nterm index_definition (: )
-Stack now 0
-Entering state 55
-Reducing stack by rule 289 (line xxx):
+Stack now sss ...
+Entering state sss
+Reducing stack by rule rrr (line lll):
    $1 = nterm index_definition (: )
 -> $$ = nterm sql_schema_definition_statement (: )
-Stack now 0
-Entering state 52
-Reducing stack by rule 285 (line xxx):
+Stack now sss ...
+Entering state sss
+Reducing stack by rule rrr (line lll):
    $1 = nterm sql_schema_definition_statement (: )
 -> $$ = nterm sql_schema_statement (: )
-Stack now 0
-Entering state 50
+Stack now sss ...
+Entering state sss
 Reading a token: Next token is token SEMICOLON (: )
 Shifting token SEMICOLON (: )
-Entering state 18
-Reducing stack by rule 10 (line xxx):
+Entering state sss
+Reducing stack by rule rrr (line lll):
    $1 = token SEMICOLON (: )
 -> $$ = nterm semicolon_or_eof (: )
-Stack now 0 50
-Entering state 138
-Reducing stack by rule 1 (line xxx):
+Stack now sss ...
+Entering state sss
+Reducing stack by rule rrr (line lll):
    $1 = nterm sql_schema_statement (: )
    $2 = nterm semicolon_or_eof (: )
-Stack now 0
+Stack now sss ...
 [ INFO] PATH:LINENUM DATE TIME : Parsing done for SQL command [INDEX fake_index "^notaglobal(""fake_index"",fields(""name""),fields(""age""),keys(""id""))";]
 [ INFO] PATH:LINENUM DATE TIME : Generating SQL for CURSOR_NUM
 Starting parse
-Entering state 0
+Entering state sss
 Reading a token: Next token is token SELECT (: )
 Shifting token SELECT (: )
-Entering state 11
+Entering state sss
 Reading a token: Next token is token ASTERISK (: )
-Reducing stack by rule 37 (line xxx):
+Reducing stack by rule rrr (line lll):
 -> $$ = nterm set_quantifier (: )
-Stack now 0 11
-Entering state 71
+Stack now sss ...
+Entering state sss
 Next token is token ASTERISK (: )
 Shifting token ASTERISK (: )
-Entering state 154
-Reducing stack by rule 31 (line xxx):
+Entering state sss
+Reducing stack by rule rrr (line lll):
    $1 = token ASTERISK (: )
 -> $$ = nterm select_list (: )
-Stack now 0 11 71
-Entering state 155
+Stack now sss ...
+Entering state sss
 Reading a token: Next token is token FROM (: )
 Shifting token FROM (: )
-Entering state 249
+Entering state sss
 Reading a token: Next token is token IDENTIFIER_START (: )
 Shifting token IDENTIFIER_START (: )
-Entering state 8
-Reducing stack by rule 329 (line xxx):
+Entering state sss
+Reducing stack by rule rrr (line lll):
    $1 = token IDENTIFIER_START (: )
 -> $$ = nterm identifier_body (: )
-Stack now 0 11 71 155 249
-Entering state 59
-Reducing stack by rule 328 (line xxx):
+Stack now sss ...
+Entering state sss
+Reducing stack by rule rrr (line lll):
    $1 = nterm identifier_body (: )
 -> $$ = nterm regular_identifier (: )
-Stack now 0 11 71 155 249
-Entering state 58
-Reducing stack by rule 327 (line xxx):
+Stack now sss ...
+Entering state sss
+Reducing stack by rule rrr (line lll):
    $1 = nterm regular_identifier (: )
 -> $$ = nterm actual_identifier (: )
-Stack now 0 11 71 155 249
-Entering state 57
-Reducing stack by rule 326 (line xxx):
+Stack now sss ...
+Entering state sss
+Reducing stack by rule rrr (line lll):
    $1 = nterm actual_identifier (: )
 -> $$ = nterm identifier (: )
-Stack now 0 11 71 155 249
-Entering state 56
-Reducing stack by rule 303 (line xxx):
+Stack now sss ...
+Entering state sss
+Reducing stack by rule rrr (line lll):
    $1 = nterm identifier (: )
 -> $$ = nterm column_name (: )
-Stack now 0 11 71 155 249
-Entering state 54
+Stack now sss ...
+Entering state sss
 Reading a token: Next token is token SEMICOLON (: )
-Reducing stack by rule 49 (line xxx):
+Reducing stack by rule rrr (line lll):
 -> $$ = nterm table_reference_tail (: )
-Stack now 0 11 71 155 249 54
-Entering state 140
-Reducing stack by rule 44 (line xxx):
+Stack now sss ...
+Entering state sss
+Reducing stack by rule rrr (line lll):
    $1 = nterm column_name (: )
    $2 = nterm table_reference_tail (: )
 [TRACE] PATH:LINENUM DATE TIME : Searching for table NAMES
 -> $$ = nterm table_reference (: )
-Stack now 0 11 71 155 249
-Entering state 352
+Stack now sss ...
+Entering state sss
 Next token is token SEMICOLON (: )
-Reducing stack by rule 43 (line xxx):
+Reducing stack by rule rrr (line lll):
    $1 = token FROM (: )
    $2 = nterm table_reference (: )
 -> $$ = nterm from_clause (: )
-Stack now 0 11 71 155
-Entering state 251
+Stack now sss ...
+Entering state sss
 Next token is token SEMICOLON (: )
-Reducing stack by rule 75 (line xxx):
+Reducing stack by rule rrr (line lll):
 -> $$ = nterm where_clause (: )
-Stack now 0 11 71 155 251
-Entering state 355
+Stack now sss ...
+Entering state sss
 Next token is token SEMICOLON (: )
-Reducing stack by rule 77 (line xxx):
+Reducing stack by rule rrr (line lll):
 -> $$ = nterm group_by_clause (: )
-Stack now 0 11 71 155 251 355
-Entering state 450
+Stack now sss ...
+Entering state sss
 Next token is token SEMICOLON (: )
-Reducing stack by rule 84 (line xxx):
+Reducing stack by rule rrr (line lll):
 -> $$ = nterm having_clause (: )
-Stack now 0 11 71 155 251 355 450
-Entering state 534
-Reducing stack by rule 36 (line xxx):
+Stack now sss ...
+Entering state sss
+Reducing stack by rule rrr (line lll):
    $1 = nterm from_clause (: )
    $2 = nterm where_clause (: )
    $3 = nterm group_by_clause (: )
    $4 = nterm having_clause (: )
 -> $$ = nterm table_expression (: )
-Stack now 0 11 71 155
-Entering state 250
+Stack now sss ...
+Entering state sss
 Next token is token SEMICOLON (: )
-Reducing stack by rule 28 (line xxx):
+Reducing stack by rule rrr (line lll):
    $1 = token SELECT (: )
    $2 = nterm set_quantifier (: )
    $3 = nterm select_list (: )
    $4 = nterm table_expression (: )
 -> $$ = nterm query_specification (: )
-Stack now 0
-Entering state 27
+Stack now sss ...
+Entering state sss
 Next token is token SEMICOLON (: )
-Reducing stack by rule 16 (line xxx):
+Reducing stack by rule rrr (line lll):
 -> $$ = nterm optional_query_words (: )
-Stack now 0 27
-Entering state 118
-Reducing stack by rule 14 (line xxx):
+Stack now sss ...
+Entering state sss
+Reducing stack by rule rrr (line lll):
    $1 = nterm query_specification (: )
    $2 = nterm optional_query_words (: )
 -> $$ = nterm sql_select_statement (: )
-Stack now 0
-Entering state 26
-Reducing stack by rule 277 (line xxx):
+Stack now sss ...
+Entering state sss
+Reducing stack by rule rrr (line lll):
    $1 = nterm sql_select_statement (: )
 -> $$ = nterm simple_table (: )
-Stack now 0
-Entering state 47
-Reducing stack by rule 273 (line xxx):
+Stack now sss ...
+Entering state sss
+Reducing stack by rule rrr (line lll):
    $1 = nterm simple_table (: )
 -> $$ = nterm non_join_query_primary (: )
-Stack now 0
-Entering state 46
-Reducing stack by rule 267 (line xxx):
+Stack now sss ...
+Entering state sss
+Reducing stack by rule rrr (line lll):
    $1 = nterm non_join_query_primary (: )
 -> $$ = nterm non_join_query_term (: )
-Stack now 0
-Entering state 45
+Stack now sss ...
+Entering state sss
 Next token is token SEMICOLON (: )
-Reducing stack by rule 252 (line xxx):
+Reducing stack by rule rrr (line lll):
    $1 = nterm non_join_query_term (: )
 -> $$ = nterm non_join_query_expression (: )
-Stack now 0
-Entering state 43
-Reducing stack by rule 250 (line xxx):
+Stack now sss ...
+Entering state sss
+Reducing stack by rule rrr (line lll):
    $1 = nterm non_join_query_expression (: )
 -> $$ = nterm query_expression (: )
-Stack now 0
-Entering state 42
+Stack now sss ...
+Entering state sss
 Next token is token SEMICOLON (: )
 Shifting token SEMICOLON (: )
-Entering state 18
-Reducing stack by rule 10 (line xxx):
+Entering state sss
+Reducing stack by rule rrr (line lll):
    $1 = token SEMICOLON (: )
 -> $$ = nterm semicolon_or_eof (: )
-Stack now 0 42
-Entering state 136
-Reducing stack by rule 3 (line xxx):
+Stack now sss ...
+Entering state sss
+Reducing stack by rule rrr (line lll):
    $1 = nterm query_expression (: )
    $2 = nterm semicolon_or_eof (: )
-Stack now 0
+Stack now sss ...
 [ INFO] PATH:LINENUM DATE TIME : Parsing done for SQL command [select * from names;]
 [ INFO] PATH:LINENUM DATE TIME : Generating SQL for CURSOR_NUM
 [TRACE] PATH:LINENUM DATE TIME : Entering hash_canonical_query
@@ -422,17 +422,17 @@ LP_INSERT:
 4|Joey|
 5|Zero|Cool
 Starting parse
-Entering state 0
+Entering state sss
 Reading a token: Next token is token ENDOFFILE (: )
 Shifting token ENDOFFILE (: )
-Entering state 20
-Reducing stack by rule 11 (line xxx):
+Entering state sss
+Reducing stack by rule rrr (line lll):
    $1 = token ENDOFFILE (: )
 -> $$ = nterm semicolon_or_eof (: )
-Stack now 0
-Entering state 24
-Reducing stack by rule 8 (line xxx):
+Stack now sss ...
+Entering state sss
+Reducing stack by rule rrr (line lll):
    $1 = nterm semicolon_or_eof (: )
-Stack now 0
+Stack now sss ...
 [ INFO] PATH:LINENUM DATE TIME : Parsing done for SQL command []
 

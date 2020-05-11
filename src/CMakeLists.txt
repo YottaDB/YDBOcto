@@ -191,6 +191,8 @@ add_library(libocto OBJECT
   parser/aggregate_function.c
   parser/between_predicate.c
   parser/cast_specification.c
+  parser/derived_column.c
+  parser/derived_table.c
   parser/grouping_column_reference.c
   parser/natural_join_condition.c
   parser/parse_literal_to_parameter.c

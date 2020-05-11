@@ -15,17 +15,17 @@ Verbosity set to TRACE:
 [ WARN] Global ^%ydboctoxref maps to default region DEFAULT. Recommended mapping for ^%ydbocto* is to a separate region
 [TRACE] PATH:LINENUM DATE TIME : Octo started
 Starting parse
-Entering state 0
+Entering state sss
 Reading a token: OCTO> exit
 Next token is token EXIT (: )
 Shifting token EXIT (: )
-Entering state 21
-Reducing stack by rule 13 (line xxx):
+Entering state sss
+Reducing stack by rule rrr (line lll):
    $1 = token EXIT (: )
 -> $$ = nterm exit_command (: )
-Stack now 0
-Entering state 25
-Reducing stack by rule 9 (line xxx):
+Stack now sss ...
+Entering state sss
+Reducing stack by rule rrr (line lll):
    $1 = nterm exit_command (: )
-Stack now 0
+Stack now sss ...
 [ INFO] PATH:LINENUM DATE TIME : Parsing done for SQL command [exit]

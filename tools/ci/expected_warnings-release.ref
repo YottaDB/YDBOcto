@@ -1,3 +1,4 @@
+parser.y:warning: 1 reduce/reduce conflict [-Wconflicts-rr]
 parser.y:warning: 32 shift/reduce conflicts [-Wconflicts-sr]
 physical-lexer.c:In function ‘yylex’:
 physical-lexer.c:warning: variable ‘yylval’ set but not used [-Wunused-but-set-variable]

@@ -238,45 +238,13 @@ set_quantifier
 
 derived_column
   : derived_column_expression {
-      SqlColumnListAlias	*alias;
-
-      SQL_STATEMENT($$, column_list_alias_STATEMENT);
-      MALLOC_STATEMENT($$, column_list_alias, SqlColumnListAlias);
-      UNPACK_SQL_STATEMENT(alias, $$, column_list_alias);
-      SQL_STATEMENT(alias->column_list, column_list_STATEMENT);
-      MALLOC_STATEMENT(alias->column_list, column_list, SqlColumnList);
-      dqinit(alias);
-      SqlColumnList *column_list;
-      UNPACK_SQL_STATEMENT(column_list, alias->column_list, column_list);
-      dqinit(column_list);
-      column_list->value = $derived_column_expression;
-      alias->user_specified_alias = FALSE;
-      alias->alias = find_column_alias_name($derived_column_expression);
-      if (alias->alias == NULL) {
-        SQL_STATEMENT(alias->alias, value_STATEMENT);
-        MALLOC_STATEMENT(alias->alias, value, SqlValue);
-        alias->alias->v.value->type = STRING_LITERAL;
-        alias->alias->v.value->v.string_literal = octo_cmalloc(memory_chunks, strlen("???") + 2);
-        strcpy(alias->alias->v.value->v.string_literal, "???");
-      }
-      alias->column_list->loc = yyloc;
+	$$ = derived_column($derived_column_expression, NULL, &yyloc);
+    }
+  | derived_column_expression column_name {
+	$$ = derived_column($derived_column_expression, $column_name, &yyloc);
     }
   | derived_column_expression AS column_name {
-      SqlColumnListAlias	*alias;
-
-      SQL_STATEMENT($$, column_list_alias_STATEMENT);
-      MALLOC_STATEMENT($$, column_list_alias, SqlColumnListAlias);
-      UNPACK_SQL_STATEMENT(alias, $$, column_list_alias);
-      SQL_STATEMENT(alias->column_list, column_list_STATEMENT);
-      dqinit(alias);
-      MALLOC_STATEMENT(alias->column_list, column_list, SqlColumnList);
-      SqlColumnList *column_list;
-      UNPACK_SQL_STATEMENT(column_list, alias->column_list, column_list);
-      dqinit(column_list);
-      column_list->value = $derived_column_expression;
-      alias->alias = $column_name;
-      alias->user_specified_alias = TRUE;
-      alias->column_list->loc = yyloc;
+	$$ = derived_column($derived_column_expression, $column_name, &yyloc);
     }
   ;
 
@@ -335,63 +303,45 @@ from_clause
 // Just consider these a list of values for all intents and purposes
 table_reference
   : column_name table_reference_tail {
-      $$ = table_reference($column_name, NULL, $table_reference_tail, plan_id);
-      if (NULL == $$) {
-	YYERROR;
-      }
+	$$ = table_reference($column_name, NULL, $table_reference_tail, plan_id);
+	if (NULL == $$) {
+		YYERROR;
+	}
     }
   | column_name correlation_specification table_reference_tail {
-      $$ = table_reference($column_name, $correlation_specification, $table_reference_tail, plan_id);
-      if (NULL == $$) {
-	YYERROR;
-      }
+	$$ = table_reference($column_name, $correlation_specification, $table_reference_tail, plan_id);
+	if (NULL == $$) {
+		YYERROR;
+	}
     }
   | derived_table {
-      SQL_STATEMENT($$, join_STATEMENT);
-      MALLOC_STATEMENT($$, join, SqlJoin);
-      SqlJoin *join = $$->v.join;
-      join->value = $derived_table;
-      dqinit(join);
-    }
-  | derived_table correlation_specification {
-      SqlTableAlias	*table_alias;
-      SqlStatement	*sql_stmt;
-
-      SQL_STATEMENT($$, join_STATEMENT);
-      MALLOC_STATEMENT($$, join, SqlJoin);
-      SqlJoin *join = $$->v.join;
-      sql_stmt = $derived_table;
-      join->value = sql_stmt;
-
-      // Setup the alias
-      sql_stmt = drill_to_table_alias(sql_stmt);
-      UNPACK_SQL_STATEMENT(table_alias, sql_stmt, table_alias);
-      table_alias->alias = $correlation_specification;
-      dqinit(join);
+	$$ = $derived_table;
     }
   | joined_table { $$ = $joined_table; }
   ;
 
-table_reference_tail
-  : /* Empty */ {
-      $$ = NULL;
+derived_table
+  : table_subquery table_reference_tail {
+	$$ = derived_table($table_subquery, NULL, $table_reference_tail);
     }
+  | table_subquery correlation_specification table_reference_tail {
+	$$ = derived_table($table_subquery, $correlation_specification, $table_reference_tail);
+    }
+    ;
+
+table_reference_tail
+  : /* Empty */ { $$ = NULL; }
   | COMMA table_reference { $$ = $table_reference; }
   ;
 
-/// TODO: what is this (column_name_list) syntax?
 correlation_specification
   : optional_as column_name { $$ = $column_name; }
-  | optional_as column_name LEFT_PAREN column_name_list RIGHT_PAREN
+  | optional_as column_name LEFT_PAREN column_name_list RIGHT_PAREN	/* TODO: what is this (column_name_list) syntax? */
   ;
 
 optional_as
   : /* Empty */
   | AS
-  ;
-
-derived_table
-  : table_subquery {$$ = $table_subquery; }
   ;
 
 joined_table

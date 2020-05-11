@@ -29,10 +29,10 @@ SELECT * FROM names n1, (SELECT * FROM n1) n2;
 SELECT * FROM (SELECT n2.id) n1, names n2;
 SELECT * FROM names n1, (SELECT n1.id) n2;
 
-SELECT * FROM (SELECT * FROM names n1, (SELECT n1.id,n1.firstname,n1.lastname FROM names) n2);
-SELECT * FROM (SELECT * FROM names n1, (SELECT * FROM n1) n2);
-SELECT * FROM (SELECT * FROM (SELECT n2.id) n1, names n2);
-SELECT * FROM (SELECT * FROM names n1, (SELECT n1.id) n2);
+SELECT * FROM (SELECT * FROM names n1, (SELECT n1.id,n1.firstname,n1.lastname FROM names) n2) n3;
+SELECT * FROM (SELECT * FROM names n1, (SELECT * FROM n1) n2) n3;
+SELECT * FROM (SELECT * FROM (SELECT n2.id) n1, names n2) n3;
+SELECT * FROM (SELECT * FROM names n1, (SELECT n1.id) n2) n3;
 
 SELECT * FROM names n0, (SELECT * FROM names n1, (SELECT n0.id) n2) n3;
 SELECT (SELECT * FROM names n0, (SELECT * FROM names n1, (SELECT n0.id) n2) n3);

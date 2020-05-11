@@ -309,6 +309,9 @@ void cleanup_tables();
 SqlStatement *aggregate_function(SqlAggregateType aggregate_type, OptionalKeyword set_quantifier, SqlStatement *value_expression);
 SqlStatement *between_predicate(SqlStatement *row_value_constructor, SqlStatement *from, SqlStatement *to, boolean_t not_specified);
 SqlStatement *cast_specification(SqlStatement *cast_specification, SqlStatement *source);
+SqlStatement *derived_column(SqlStatement *derived_column_expression, SqlStatement *column_name, struct YYLTYPE *yloc);
+SqlStatement *derived_table(SqlStatement *table_subquery, SqlStatement *correlation_specification,
+									SqlStatement *table_reference_tail);
 SqlStatement *grouping_column_reference(SqlStatement *derived_column_expression, SqlStatement *collate_clause);
 int natural_join_condition(SqlJoin *start, SqlJoin *r_join);
 int parse_literal_to_parameter(ParseContext *parse_context, SqlValue *value, boolean_t update_existing);

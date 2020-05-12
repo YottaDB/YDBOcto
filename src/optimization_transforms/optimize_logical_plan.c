@@ -83,7 +83,7 @@ LogicalPlan *join_tables(LogicalPlan *root, LogicalPlan *plan) {
 			unique_id = table_alias->unique_id;
 			memset(key_columns, 0, MAX_KEY_COUNT * sizeof(SqlColumn*));
 			max_key = get_key_columns(table, key_columns);
-			for(cur_key = 0; cur_key <= max_key; cur_key++) {
+			for (cur_key = 0; cur_key <= max_key; cur_key++) {
 				MALLOC_LP(cur_lp_key, keys->v.lp_default.operand[0], LP_KEY);
 				OCTO_CMALLOC_STRUCT(cur_lp_key->v.lp_key.key, SqlKey);
 				memset(cur_lp_key->v.lp_key.key, 0, sizeof(SqlKey));
@@ -121,9 +121,9 @@ LogicalPlan *join_tables(LogicalPlan *root, LogicalPlan *plan) {
 
 LogicalPlan *optimize_logical_plan(LogicalPlan *plan) {
 	LogicalPlan	*select, *table_join, *where;
-	boolean_t	disable_dnf_expansion;
-	LogicalPlan	*new_plan;
-	int		num_outer_joins;
+	LogicalPlan	*cur;
+	LogicalPlan	*keys;
+
 	if (NULL == plan)
 		return NULL;
 
@@ -146,56 +146,13 @@ LogicalPlan *optimize_logical_plan(LogicalPlan *plan) {
 	GET_LP(table_join, select, 0, LP_TABLE_JOIN);
 	// We can end coming here with a already populated set of keys if the plan was split for optimization
 	// If so, don't add the keys again
-	LogicalPlan *keys;
 	keys = lp_get_keys(plan);
 	if (NULL == keys->v.lp_default.operand[0]) {
 		if (NULL == join_tables(plan, table_join)) {
 			return NULL;
 		}
 	}
-	// If there are no "OR" or "AND" statements, fix key values
-	where = lp_get_select_where(plan);
-	new_plan = plan;
-	num_outer_joins = where->extra_detail.lp_where.num_outer_joins;
-	disable_dnf_expansion = (1 < num_outer_joins);
-	if (!disable_dnf_expansion) {
-		LogicalPlan	*cur;
-
-		where->v.lp_default.operand[0] = lp_make_normal_disjunctive_form(where->v.lp_default.operand[0]);
-		// Expand the plan, if needed
-		cur = where->v.lp_default.operand[0];
-		while((NULL != cur) && (LP_BOOLEAN_OR == cur->type)) {
-			SqlOptionalKeyword	*keywords, *new_keyword;
-			LogicalPlan		*p;
-			LogicalPlan		*child_where;
-			LogicalPlan		*set_operation, *set_option, *set_plans;
-
-			keywords = lp_get_select_keywords(plan)->v.lp_keywords.keywords;
-			new_keyword = get_keyword_from_keywords(keywords, OPTIONAL_BOOLEAN_EXPANSION);
-			if (NULL == new_keyword) {
-				OCTO_CMALLOC_STRUCT(new_keyword, SqlOptionalKeyword);
-				dqinit(new_keyword);
-				new_keyword->keyword = OPTIONAL_BOOLEAN_EXPANSION;
-				dqappend(keywords, new_keyword);
-			}
-			p = lp_copy_plan(plan);	/* This will store LHS of the LP_BOOLEAN_OR condition */
-			child_where = lp_get_select_where(p);
-			child_where->v.lp_default.operand[0] = cur->v.lp_default.operand[0];
-			MALLOC_LP_2ARGS(set_operation, LP_SET_OPERATION);
-			MALLOC_LP(set_option, set_operation->v.lp_default.operand[0], LP_SET_OPTION);
-			MALLOC_LP_2ARGS(set_option->v.lp_default.operand[0], LP_SET_DNF);
-			MALLOC_LP(set_plans, set_operation->v.lp_default.operand[1], LP_PLANS);
-			set_plans->v.lp_default.operand[0] = p;		/* This stores left side of the LP_BOOLEAN_OR condition */
-			set_plans->v.lp_default.operand[1] = new_plan;	/* This stores right side of the LP_BOOLEAN_OR condition */
-			new_plan = set_operation;
-			cur = cur->v.lp_default.operand[1];
-		}
-		where->v.lp_default.operand[0] = cur;
-		if (new_plan != plan) {
-			return optimize_logical_plan(new_plan);
-		}
-	}
-	// Perform optimizations where we are able
+	/* Perform optimizations of the ON condition in JOINs if any exists. Do this before moving on to the WHERE clause. */
 	do {
 		assert(LP_TABLE_JOIN == table_join->type);
 		if (NULL != table_join->extra_detail.lp_table_join.join_on_condition) {
@@ -221,19 +178,65 @@ LogicalPlan *optimize_logical_plan(LogicalPlan *plan) {
 				right_table_alias = operand0->v.lp_table.table_alias;
 				break;
 			}
+			/* 3rd parameter below ("right_table_alias") is non-NULL and so last parameter ("num_outer_joins")
+			 * can be arbitrary (see comment before "lp_optimize_where_multi_equal_ands()" function definition
+			 * for details). Hence the choice of the 4th parameter as 0 even though it might not correctly
+			 * reflect the actual number of outer joins in the query.
+			 */
 			lp_optimize_where_multi_equal_ands(plan,
-								table_join->extra_detail.lp_table_join.join_on_condition,
-								right_table_alias);
+							table_join->extra_detail.lp_table_join.join_on_condition,
+							right_table_alias, 0);
 		}
 		table_join = table_join->v.lp_default.operand[1];
 	} while (NULL != table_join);
-	/* In case an OUTER JOIN exists, we cannot easily optimize the WHERE condition.
-	 * Care has to be taken while invoking key fixing optimizations. Will be done at a later time.
-	 * Skip it for now.
+	/* Now focus on the WHERE clause. Before any key fixing can be done, expand the WHERE clause into disjunctive normal form
+	 * (DNF expansion) as that is what enables key fixing.
 	 */
-	if (!num_outer_joins) {
-		/* Pass FALSE as last parameter to indicate this is not an OUTER JOIN ON CLAUSE */
-		lp_optimize_where_multi_equal_ands(plan, where, NULL);
+	where = lp_get_select_where(plan);
+	where->v.lp_default.operand[0] = lp_make_normal_disjunctive_form(where->v.lp_default.operand[0]);
+	// Expand the plan, if needed
+	cur = where->v.lp_default.operand[0];
+	if (NULL != cur) {
+		LogicalPlan	*new_plan;
+
+		new_plan = plan;	/* new_plan will change if DNF expansion happens below */
+		while (LP_BOOLEAN_OR == cur->type) {
+			SqlOptionalKeyword	*keywords, *new_keyword;
+			LogicalPlan		*p;
+			LogicalPlan		*child_where;
+			LogicalPlan		*set_operation, *set_option, *set_plans;
+
+			keywords = lp_get_select_keywords(plan)->v.lp_keywords.keywords;
+			new_keyword = get_keyword_from_keywords(keywords, OPTIONAL_BOOLEAN_EXPANSION);
+			if (NULL == new_keyword) {
+				OCTO_CMALLOC_STRUCT(new_keyword, SqlOptionalKeyword);
+				dqinit(new_keyword);
+				new_keyword->keyword = OPTIONAL_BOOLEAN_EXPANSION;
+				dqappend(keywords, new_keyword);
+			}
+			p = lp_copy_plan(plan);
+			child_where = lp_get_select_where(p);
+			/* Below sets the LHS of the LP_BOOLEAN_OR condition as the WHERE clause of one of the DNF plans */
+			child_where->v.lp_default.operand[0] = cur->v.lp_default.operand[0];
+			MALLOC_LP_2ARGS(set_operation, LP_SET_OPERATION);
+			MALLOC_LP(set_option, set_operation->v.lp_default.operand[0], LP_SET_OPTION);
+			MALLOC_LP_2ARGS(set_option->v.lp_default.operand[0], LP_SET_DNF);
+			MALLOC_LP(set_plans, set_operation->v.lp_default.operand[1], LP_PLANS);
+			set_plans->v.lp_default.operand[0] = p;		/* This stores left side of the LP_BOOLEAN_OR condition */
+			set_plans->v.lp_default.operand[1] = new_plan;	/* This stores right side of the LP_BOOLEAN_OR condition */
+			new_plan = set_operation;
+			cur = cur->v.lp_default.operand[1];
+		}
+		if (new_plan != plan) {
+			/* Below sets the RHS of the last LP_BOOLEAN_OR condition as the WHERE clause of the last DNF plans */
+			assert(NULL != cur);
+			where->v.lp_default.operand[0] = cur;
+			return optimize_logical_plan(new_plan);
+		}
+		/* Now that DNF expansion has occurred, fix any key values if possible using the WHERE clause. */
+		assert(where == lp_get_select_where(plan));
+		/* Pass 3rd parameter as FALSE below to indicate this is not an OUTER JOIN ON CLAUSE */
+		lp_optimize_where_multi_equal_ands(plan, where, NULL, where->extra_detail.lp_where.num_outer_joins);
 	}
-	return new_plan;
+	return plan;
 }

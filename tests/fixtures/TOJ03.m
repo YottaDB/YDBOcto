@@ -14,7 +14,7 @@
 ; This program generates a random SQL query that optionally uses INNER or OUTER JOINs with a join nesting
 ; depth up to "$zcmdline" using the customers database. And runs this query against Postgres and Octo and verifies
 ; the outputs are identical. Certain features of this test are currently disabled due to pending issues.
-; Those lines are marked with a ###TMPDISABLE.
+; Those lines are marked with a ##TMPDISABLE.
 ; -----------------------------------------------------------------------------------------------------
 
 genrandomqueries	;
@@ -102,7 +102,7 @@ genrandomqueries	;
 	. . set sqlquery=sqlquery_column(numcols)  if $increment(numcols)
 	. ; choose column names that are join candidates for each table
 	. set i=1,sqlquery=sqlquery_" from "_table(i)_" "_tablealias(i)_i
-	. set fulljoinchosen=0,notequalchosen=0	;  ###TMPDISABLE (until FULL JOINs work AND != check in LEFT JOINs work)
+	. set fulljoinchosen=0,notequalchosen=0
 	. set outerjoinchosen=0
 	. for i=2:1:numjoins  do
 	. . set modulo=$random(4)
@@ -124,10 +124,7 @@ genrandomqueries	;
 	. if $random(2) do
 	. . set sqlquery=sqlquery_" where "_$$boolexpr(1+$random(4))
 	. ; Add optional ORDER BY.
-	. ; Note: Do not choose ORDER BY if an OUTER JOIN got chosen until #336 is fixed. This is because they can generate
-	. ;       NULL values and ORDER BY of NULL values does not work correctly (at least the output is not identical to
-	. ;       what Postgres generates). See https://gitlab.com/YottaDB/DBMS/YDBOcto/issues/336 for an example query.
-	. set orderby=('outerjoinchosen)&$random(2) ; ###TMPDISABLE Remove ('outerjoinchosen) once #336 is fixed
+	. set orderby=$random(2)
 	. if orderby do
 	. . ; Since we are going to choose a list of columns in ORDER BY, we need to maintain a list of unmatched
 	. . ; columns (compared against the SELECT column list) for later use when we need to see if an exact check
@@ -152,7 +149,7 @@ genrandomqueries	;
 	. ;	we cannot do an exact check since Postgres and Octo are free to present that column in an arbitrary order.
 	. ;	Hence the check for existence of an unmatched select column using `$data(unmatchedselectcolumn)`
 	. set outputsorted=(orderby&'$data(unmatchedselectcolumn))
-	. ; The below if check is because postgres issues the following error in this case
+	. ; The below if check is because postgres issues the following error if FULL JOIN and != in ON clause is chosen
 	. ;	--> ERROR:  FULL JOIN is only supported with merge-joinable or hash-joinable join conditions
 	. quit:fulljoinchosen&notequalchosen
 	. set file="jointest"_$translate($justify($increment(q),2)," ","0")_".sql"

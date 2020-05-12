@@ -364,6 +364,7 @@ set(template_files
   ${template_dir}/tmpl_tablejoin_deferred_plans.ctemplate
   ${template_dir}/tmpl_tablejoin_on_condition.ctemplate
   ${template_dir}/tmpl_temp_key_advance.ctemplate
+  ${template_dir}/tmpl_where_or_having_or_on.ctemplate
   )
 foreach(template ${template_files})
   get_filename_component(fileName ${template} NAME)

@@ -90,8 +90,7 @@ TEMPLATE(tmpl_column_reference, PhysicalPlan *pplan, SqlColumnAlias *column_alia
 	 * "tmpl_emit_source()" function below (they should instead go through the "tmpl_key()" invocation below).
 	 */
 	cur_plan = pplan;
-	do
-	{
+	do {
 		PhysicalPlan	*next_plan;
 
 		next_plan = cur_plan->parent_plan;

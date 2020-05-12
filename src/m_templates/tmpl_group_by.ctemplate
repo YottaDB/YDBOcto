@@ -121,13 +121,7 @@ TEMPLATE(tmpl_group_by, PhysicalPlan *plan, int dot_count) {
 		/* Check if there is a HAVING clause. If so, generate plan for that. */
 		having = plan->aggregate_options->v.lp_default.operand[1];
 		if (NULL != having) {
-			%{}`n{{ PLAN_LINE_START }}{}%
-			TMPL(tmpl_print_dots, dot_count);
-			%{}SET %%ydboctobool={}%
-			assert(dot_count);	/* Ensure "tmpl_print_expression" knows to split boolean expression
-						 * across multiple lines so we do not exceed M maximum source line limit.
-						 */
-			TMPL(tmpl_print_expression, having->v.lp_default.operand[0], plan, dot_count, 0);
+			TMPL(tmpl_where_or_having_or_on, having->v.lp_default.operand[0], plan, dot_count);
 		}
 	}
 	if (plan->distinct_values) {

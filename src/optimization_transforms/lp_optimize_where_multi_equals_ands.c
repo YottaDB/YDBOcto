@@ -22,9 +22,13 @@
 // Below is a helper function that should be invoked only from this file hence the prototype is defined in the .c file
 // and not in the .h file like is the usual case.
 LogicalPlan *lp_optimize_where_multi_equal_ands_helper(LogicalPlan *plan, LogicalPlan *where, int *key_unique_id_array,
-								SqlTableAlias *right_table_alias);
+								SqlTableAlias *right_table_alias, boolean_t num_outer_joins);
 
-void lp_optimize_where_multi_equal_ands(LogicalPlan *plan, LogicalPlan *where, SqlTableAlias *right_table_alias) {
+/* Note: "num_outer_joins" is used by this function (and the function it calls) only if "right_table_alias" is NULL.
+ * So it is okay if "num_outer_joins" is set to an arbitrary value in case "right_table_alias" is non-NULL.
+ */
+void lp_optimize_where_multi_equal_ands(LogicalPlan *plan, LogicalPlan *where,
+					SqlTableAlias *right_table_alias, boolean_t num_outer_joins) {
 	int		*key_unique_id_array;	// keys_unique_id_ordering[unique_id] = index in the ordered list
 	int		max_unique_id;		// 1 more than maximum possible table_id/unique_id
 	int		i;
@@ -53,11 +57,11 @@ void lp_optimize_where_multi_equal_ands(LogicalPlan *plan, LogicalPlan *where, S
 	 * in "lp_optimize_where_multi_equal_ands_helper()".
 	 */
 	assert((LP_WHERE == where->type) && (NULL == where->v.lp_default.operand[1]));
-	lp_optimize_where_multi_equal_ands_helper(plan, where, key_unique_id_array, right_table_alias);
+	lp_optimize_where_multi_equal_ands_helper(plan, where, key_unique_id_array, right_table_alias, num_outer_joins);
 }
 
 LogicalPlan *lp_optimize_where_multi_equal_ands_helper(LogicalPlan *plan, LogicalPlan *where, int *key_unique_id_array,
-								SqlTableAlias *right_table_alias) {
+							SqlTableAlias *right_table_alias, boolean_t num_outer_joins) {
 	LogicalPlan		*cur, *left, *right, *t, *keys;
 	LogicalPlan		*first_key, *before_first_key, *last_key, *before_last_key, *xref_keys;
 	LogicalPlan		*generated_xref_keys, *lp_key;
@@ -85,9 +89,11 @@ LogicalPlan *lp_optimize_where_multi_equal_ands_helper(LogicalPlan *plan, Logica
 	if (LP_BOOLEAN_AND == cur->type) {
 		LogicalPlan	*new_left, *new_right;
 
-		new_left = lp_optimize_where_multi_equal_ands_helper(plan, left, key_unique_id_array, right_table_alias);
+		new_left = lp_optimize_where_multi_equal_ands_helper(plan, left, key_unique_id_array,
+										right_table_alias, num_outer_joins);
 		cur->v.lp_default.operand[0] = new_left;
-		new_right = lp_optimize_where_multi_equal_ands_helper(plan, right, key_unique_id_array, right_table_alias);
+		new_right = lp_optimize_where_multi_equal_ands_helper(plan, right, key_unique_id_array,
+										right_table_alias, num_outer_joins);
 		cur->v.lp_default.operand[1] = new_right;
 		if (NULL == new_left) {
 			if (LP_WHERE == where->type) {
@@ -295,40 +301,50 @@ LogicalPlan *lp_optimize_where_multi_equal_ands_helper(LogicalPlan *plan, Logica
 	 * or keys that are part of a cross reference iteration. Hence the `if` check below.
 	 */
 	if ((LP_KEY_ADVANCE == key->type) && (NULL == key->cross_reference_output_key)) {
+		boolean_t	remove_lp_boolean_equals;
+
 		key->fixed_to_value = right;
 		key->type = LP_KEY_FIX;
-		/* Now that a key has been fixed to a constant (or another key), eliminate this LP_BOOLEAN_EQUALS from the
-		 * WHERE expression as it will otherwise result in a redundant IF check in the generated M code. There is
-		 * a subtlety involved with keys from parent queries which is handled below.
+		/* Now that a key has been fixed to a constant (or another key), see if we can eliminate this LP_BOOLEAN_EQUALS
+		 * from the WHERE expression as it will otherwise result in a redundant IF check in the generated M code.
+		 * We cannot do this removal in case this is the WHERE clause and OUTER JOINs exist (it is okay to do this if it
+		 * is the ON condition and OUTER JOINs exist) as we need == check for this WHERE clause to be generated in the
+		 * M code for correctness of query results. If we can safely remove it safely, there is still a subtlety involved
+		 * with keys from parent queries which is handled below.
 		 */
-		if (left_id && right_id && ((0 == key_unique_id_array[left_id]) || (0 == key_unique_id_array[right_id]))) {
-			/* Both are columns and one of them belongs to a parent query. In that case, do not eliminate this
-			 * altogether from the WHERE clause as that is relied upon in "generate_physical_plan()". Keep it in
-			 * an alternate list (where->v.lp_default.operand[1]), use it in "generate_physical_plan()" (in order
-			 * to ensure deferred plans get identified properly) and then switch back to where->v.lp_default.operand[0]
-			 * for generating the plan M code which has this redundant check of a fixed key eliminated from the IF
-			 * condition. This way the generated M code is optimized (in terms of not having a redundant equality
-			 * check) even for plans with references to parent queries. It is okay to use
-			 * where->v.lp_default.operand[1] for the alternate list because it is guaranteed to be NULL
-			 * (asserted in caller function "lp_optimize_where_multi_equal_ands()").
-			 */
-			LogicalPlan	*where2, *opr1, *lp;
+		remove_lp_boolean_equals = ((NULL != right_table_alias) || (0 == num_outer_joins));
+		if (remove_lp_boolean_equals) {
+			if (left_id && right_id && ((0 == key_unique_id_array[left_id]) || (0 == key_unique_id_array[right_id]))) {
+				/* Both are columns and one of them belongs to a parent query. In that case, do not eliminate this
+				 * altogether from the WHERE clause as that is relied upon in "generate_physical_plan()". Keep it
+				 * in an alternate list (where->v.lp_default.operand[1]), use it in "generate_physical_plan()" (in
+				 * order to ensure deferred plans get identified properly) and then switch back to
+				 * where->v.lp_default.operand[0] for generating the plan M code which has this redundant check of
+				 * a fixed key eliminated from the IF condition. This way the generated M code is optimized (in
+				 * terms of not having a redundant equality check) even for plans with references to parent
+				 queries. It is okay to use where->v.lp_default.operand[1] for the alternate list because it is
+				 * guaranteed to be NULL (asserted in caller function "lp_optimize_where_multi_equal_ands()").
+				 */
+				LogicalPlan	*where2, *opr1, *lp;
 
-			where2 = lp_get_select_where(plan);
-			opr1 = where2->v.lp_default.operand[1];
-			if (NULL == opr1) {
-				lp = cur;
-			} else {
-				MALLOC_LP_2ARGS(lp, LP_BOOLEAN_AND);
-				lp->v.lp_default.operand[0] = opr1;
-				lp->v.lp_default.operand[1] = cur;
+				where2 = lp_get_select_where(plan);
+				opr1 = where2->v.lp_default.operand[1];
+				if (NULL == opr1) {
+					lp = cur;
+				} else {
+					MALLOC_LP_2ARGS(lp, LP_BOOLEAN_AND);
+					lp->v.lp_default.operand[0] = opr1;
+					lp->v.lp_default.operand[1] = cur;
+				}
+				where2->v.lp_default.operand[1] = lp;
 			}
-			where2->v.lp_default.operand[1] = lp;
+			if (LP_WHERE == where->type) {
+				where->v.lp_default.operand[0] = NULL;
+			}
+			where = NULL;
+		} else {
+			/* Do not remove this LP_BOOLEAN_EQUALS from the WHERE clause due to the presence of OUTER JOINs */
 		}
-		if (LP_WHERE == where->type) {
-			where->v.lp_default.operand[0] = NULL;
-		}
-		return NULL;
-	} else
-		return where;
+	}
+	return where;
 }

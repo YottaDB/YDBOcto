@@ -50,13 +50,7 @@ TEMPLATE(tmpl_tablejoin_body, PhysicalPlan *plan, int dot_count, char *tableName
 	TMPL(tmpl_print_dots, dot_count);
 	%{}NEW %%ydboctobool SET %%ydboctobool=1{}%
 	if (plan->where && plan->where->v.lp_default.operand[0]) {
-		%{}`n{{ PLAN_LINE_START }}{}%
-		TMPL(tmpl_print_dots, dot_count);
-		%{}SET %%ydboctobool={}%
-		assert(dot_count);	/* Ensure "tmpl_print_expression" knows to split boolean expression
-					 * across multiple lines so we do not exceed M maximum source line limit.
-					 */
-		TMPL(tmpl_print_expression, plan->where->v.lp_default.operand[0], plan, dot_count, 0);
+		TMPL(tmpl_where_or_having_or_on, plan->where->v.lp_default.operand[0], plan, dot_count);
 	}
 	// DISTINCT value processing (if needed)
 	distinct_processed = FALSE;

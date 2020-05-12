@@ -19,7 +19,8 @@
 #include "octo_types.h"
 
 /**
- * Returns the maximum KEY NUM set (>= 0). If key_columns is not null, populates key_columns[i] with a pointer to the column for that key
+ * Returns the maximum KEY NUM set (>= 0).
+ * If key_columns is not null, populates key_columns[i] with a pointer to the column for that key
  *
  * If there are no keys defined in table, returns -1
  * Other errors return -2

@@ -87,5 +87,6 @@ TEMPLATE(tmpl_duplication_check, PhysicalPlan *plan);
 TEMPLATE(tmpl_order_by_key, int num_cols);
 TEMPLATE(tmpl_populate_output_key, PhysicalPlan *plan, int dot_count);
 TEMPLATE(tmpl_limit_check, SqlOptionalKeyword *limit_keyword, char *prefix, char *suffix);
+TEMPLATE(tmpl_where_or_having_or_on, LogicalPlan *plan, PhysicalPlan *pplan, int dot_count);
 
 #endif

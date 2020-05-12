@@ -1,5 +1,62 @@
 octoPlan0(cursorId)
     DO octoPlan1(cursorId)
+    DO octoPlan2(cursorId)
+    DO octoPlan3(cursorId)
+    DO octoPlan4(cursorId)
+    DO octoPlan5(cursorId)
+    DO octoPlan6(cursorId)
+    DO octoPlan7(cursorId)
+    DO octoPlan8(cursorId)
+    DO octoPlan9(cursorId)
+    DO octoPlan10(cursorId)
+    DO octoPlan11(cursorId)
+    DO octoPlan12(cursorId)
+    DO octoPlan13(cursorId)
+    DO octoPlan14(cursorId)
+    DO octoPlan15(cursorId)
+    DO octoPlan16(cursorId)
+    DO octoPlan17(cursorId)
+    DO octoPlan18(cursorId)
+    DO octoPlan19(cursorId)
+    DO octoPlan20(cursorId)
     QUIT
 octoPlan1(cursorId)
+    QUIT
+octoPlan2(cursorId)
+    QUIT
+octoPlan3(cursorId)
+    QUIT
+octoPlan4(cursorId)
+    QUIT
+octoPlan5(cursorId)
+    QUIT
+octoPlan6(cursorId)
+    QUIT
+octoPlan7(cursorId)
+    QUIT
+octoPlan8(cursorId)
+    QUIT
+octoPlan9(cursorId)
+    QUIT
+octoPlan10(cursorId)
+    QUIT
+octoPlan11(cursorId)
+    QUIT
+octoPlan12(cursorId)
+    QUIT
+octoPlan13(cursorId)
+    QUIT
+octoPlan14(cursorId)
+    QUIT
+octoPlan15(cursorId)
+    QUIT
+octoPlan16(cursorId)
+    QUIT
+octoPlan17(cursorId)
+    QUIT
+octoPlan18(cursorId)
+    QUIT
+octoPlan19(cursorId)
+    QUIT
+octoPlan20(cursorId)
     QUIT

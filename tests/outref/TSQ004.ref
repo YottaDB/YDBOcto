@@ -249,7 +249,38 @@ LP_INSERT:
       LP_TABLE_JOIN: CROSS_JOIN: 
         LP_TABLE: N
         LP_TABLE_JOIN: 
-          LP_TABLE: P
+          LP_INSERT: 
+            LP_PROJECT: 
+              LP_COLUMN_LIST: 
+                LP_WHERE: 
+                  LP_COLUMN_ALIAS: PG_CATALOG.PG_PROC(9).PRONAMESPACE
+                LP_COLUMN_LIST: 
+                  LP_WHERE: 
+                    LP_COLUMN_ALIAS: PG_CATALOG.PG_PROC(9).OID
+              LP_SELECT: 
+                LP_TABLE_JOIN: 
+                  LP_TABLE: PG_CATALOG.PG_PROC
+                LP_CRITERIA: 
+                  LP_KEYS: 
+                    LP_KEY: 
+                    - table_name: PG_CATALOG.PG_PROC
+                    - column_name: OID
+                    - unique_id: 9
+                    - method: LP_KEY_ADVANCE
+                    - xref_key: false
+                    - uses_xref_key: false
+                  LP_SELECT_OPTIONS: 
+                    LP_WHERE: 
+                    LP_SELECT_MORE_OPTIONS: 
+                      LP_KEYWORDS:  XREF_INDEX;
+            LP_OUTPUT: 
+              LP_KEY: 
+              - table_name: PG_CATALOG.PG_PROC
+              - column_name: PRONAMESPACE
+              - unique_id: 1
+              - method: LP_INVALID_ACTION
+              - xref_key: true
+              - uses_xref_key: false
           LP_TABLE_JOIN: LEFT_JOIN: 
             LP_WHERE: 
             LP_INSERT: 
@@ -308,49 +339,59 @@ LP_INSERT:
           LP_KEYS: 
             LP_KEY: 
             - table_name: PG_CATALOG.PG_PROC
-            - column_name: OID
+            - column_name: PRONAMESPACE
             - unique_id: 1
-            - method: LP_KEY_ADVANCE
-            - xref_key: false
+            - method: LP_KEY_FIX
+            - xref_key: true
             - uses_xref_key: false
+            - value:
+                LP_COLUMN_ALIAS: N(5).OID
             LP_KEYS: 
               LP_KEY: 
-              - table_name: PG_CATALOG.PG_DESCRIPTION
-              - column_name: OBJOID
-              - unique_id: 2
-              - method: LP_KEY_FIX
-              - xref_key: true
-              - uses_xref_key: false
-              - value:
-                  LP_COLUMN_ALIAS: P(1).OID
+              - table_name: PG_CATALOG.PG_PROC
+              - column_name: OID
+              - unique_id: 1
+              - method: LP_KEY_ADVANCE
+              - xref_key: false
+              - uses_xref_key: true
               LP_KEYS: 
                 LP_KEY: 
                 - table_name: PG_CATALOG.PG_DESCRIPTION
-                - column_name: OID
+                - column_name: OBJOID
                 - unique_id: 2
-                - method: LP_KEY_ADVANCE
-                - xref_key: false
-                - uses_xref_key: true
+                - method: LP_KEY_FIX
+                - xref_key: true
+                - uses_xref_key: false
+                - value:
+                    LP_COLUMN_ALIAS: P(1).OID
                 LP_KEYS: 
                   LP_KEY: 
-                  - table_name: PG_CATALOG.PG_CLASS
+                  - table_name: PG_CATALOG.PG_DESCRIPTION
                   - column_name: OID
-                  - unique_id: 3
-                  - method: LP_KEY_FIX
+                  - unique_id: 2
+                  - method: LP_KEY_ADVANCE
                   - xref_key: false
-                  - uses_xref_key: false
-                  - value:
-                      LP_COLUMN_ALIAS: D(2).CLASSOID
+                  - uses_xref_key: true
                   LP_KEYS: 
                     LP_KEY: 
-                    - table_name: PG_CATALOG.PG_NAMESPACE
+                    - table_name: PG_CATALOG.PG_CLASS
                     - column_name: OID
-                    - unique_id: 4
+                    - unique_id: 3
                     - method: LP_KEY_FIX
                     - xref_key: false
                     - uses_xref_key: false
                     - value:
-                        LP_COLUMN_ALIAS: C(3).RELNAMESPACE
+                        LP_COLUMN_ALIAS: D(2).CLASSOID
+                    LP_KEYS: 
+                      LP_KEY: 
+                      - table_name: PG_CATALOG.PG_NAMESPACE
+                      - column_name: OID
+                      - unique_id: 4
+                      - method: LP_KEY_FIX
+                      - xref_key: false
+                      - uses_xref_key: false
+                      - value:
+                          LP_COLUMN_ALIAS: C(3).RELNAMESPACE
         LP_SELECT_OPTIONS: 
           LP_WHERE: 
             LP_BOOLEAN_EQUALS: 
@@ -389,5 +430,6 @@ LP_INSERT:
               - type: STRING_LITERAL
 
 [ INFO] PATH:LINENUM DATE TIME : Generating helper cross reference M file [./_ydboctoX*.m] for table [PG_CATALOG.PG_DESCRIPTION] and column [OBJOID]
+[ INFO] PATH:LINENUM DATE TIME : Generating helper cross reference M file [./_ydboctoX*.m] for table [PG_CATALOG.PG_PROC] and column [PRONAMESPACE]
 [ INFO] PATH:LINENUM DATE TIME : print_temporary_table()
 

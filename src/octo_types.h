@@ -67,7 +67,7 @@ typedef void *yyscan_t;
 	SQL_STATEMENT((dst), src->type);							\
 	MALLOC_STATEMENT((dst), NAME, TYPE);							\
 	*(dst)->v.NAME = *(src)->v.NAME;							\
-} while(0);
+} while (0);
 
 /* Determines the corresponding (SqlStatement *) structures that points to a (SqlTable *) structure */
 #define	SQL_STATEMENT_FROM_TABLE_STATEMENT(RET, TABLE)			\

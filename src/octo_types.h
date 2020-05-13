@@ -69,13 +69,6 @@ typedef void *yyscan_t;
 	*(dst)->v.NAME = *(src)->v.NAME;							\
 } while(0);
 
-#define SAFE_SNPRINTF(written, buff_ptr, buffer, buffer_size, ...) do {					\
-	(written) = snprintf((buff_ptr), (buffer_size) - ((buff_ptr) - (buffer)), ## __VA_ARGS__);	\
-	if((written) < ((buffer_size) - ((buff_ptr) - (buffer)))) {					\
-		buff_ptr += written;									\
-	}												\
-} while (FALSE);
-
 /* Determines the corresponding (SqlStatement *) structures that points to a (SqlTable *) structure */
 #define	SQL_STATEMENT_FROM_TABLE_STATEMENT(RET, TABLE)			\
 {									\

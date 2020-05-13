@@ -184,3 +184,18 @@ exit
 OCTO
 	verify_output TV011 output.txt
 }
+
+@test "TV012 : OCTO506 : octo -vv produces garbage logical plan output for queries with lots of OR conditions" {
+  load_fixture TV012.sql subtest
+  # Verify tail of logical plan (as full plan is almost 0.4Mb in size and would result in a huge reference file)
+  mv output.txt full_output.txt
+  echo "# head -20 of full_output.txt follows" > output.txt
+  # Note that "Loaded config" message could be variable (one could see octo.conf from $ydb_dist being loaded or not
+  # depending on whether @DISABLE_INSTALL@ is ON or OFF). Therefore filter it out before capturing first 20 and last 20 lines
+  # or else the reference file cannot be deterministic.
+  grep -v 'Loaded config' full_output.txt | head -20 >> output.txt
+  echo "# tail -20 of full_output.txt follows" >> output.txt
+  grep -v 'Loaded config' full_output.txt | tail -20 >> output.txt
+  verify_output TV012 output.txt
+}
+

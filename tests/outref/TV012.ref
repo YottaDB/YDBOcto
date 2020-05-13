@@ -1,0 +1,36 @@
+# head -20 of full_output.txt follows
+
+-- TV012 : OCTO506 : octo -vv produces garbage logical plan output for queries with lots of OR conditions
+
+select * from names where id IN (1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50);
+
+[ INFO] PATH:LINENUM DATE TIME : Parsing done for SQL command [select * from names where id IN (1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50);]
+[ INFO] PATH:LINENUM DATE TIME : Generating SQL for CURSOR_NUM
+[ INFO] PATH:LINENUM DATE TIME : Generating M file [./_ydboctoP*.m] (to execute SQL query)
+[DEBUG] PATH:LINENUM DATE TIME : LOGICAL_PLAN BEFORE optimize_logical_plan() follows
+LP_INSERT: 
+  LP_PROJECT: 
+    LP_COLUMN_LIST: 
+      LP_WHERE: 
+        LP_COLUMN_ALIAS: NAMES(1).ID
+# tail -20 of full_output.txt follows
+                                                                                                                                                                                                              LP_WHERE: 
+                                                                                                                                                                                                              LP_SELECT_MORE_OPTIONS: 
+                                                                                                                                                                                                                LP_KEYWORDS:  BOOLEAN_EXPANSION;
+                                                                                                                                                                                                      LP_OUTPUT: 
+                                                                                                                                                                                                        LP_KEY: 
+                                                                                                                                                                                                        - table_name: 
+                                                                                                                                                                                                        - column_name: 
+                                                                                                                                                                                                        - unique_id: 3
+                                                                                                                                                                                                        - method: LP_KEY_ADVANCE
+                                                                                                                                                                                                        - xref_key: false
+                                                                                                                                                                                                        - uses_xref_key: false
+
+[ INFO] PATH:LINENUM DATE TIME : print_temporary_table()
+2|Cereal|Killer
+3|Lord|Nikon
+4|Joey|
+5|Zero|Cool
+1|Acid|Burn
+[ INFO] PATH:LINENUM DATE TIME : Parsing done for SQL command []
+

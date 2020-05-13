@@ -156,8 +156,8 @@ LP_INSERT:
             LP_KEYWORDS: 
   LP_OUTPUT: 
     LP_KEY: 
-    - table_name:  
-    - column_name:  
+    - table_name: 
+    - column_name: 
     - unique_id: 7
     - method: LP_KEY_ADVANCE
     - xref_key: false
@@ -360,8 +360,8 @@ LP_INSERT:
             LP_KEYWORDS: 
   LP_OUTPUT: 
     LP_KEY: 
-    - table_name:  
-    - column_name:  
+    - table_name: 
+    - column_name: 
     - unique_id: 7
     - method: LP_KEY_ADVANCE
     - xref_key: false

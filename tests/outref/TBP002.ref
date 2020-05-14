@@ -49,11 +49,12 @@ Error with syntax near (line 1, column 15):
 Select * from Employee a where rowid <>( select max(rowid) from Employee b where a.Employee_num=b.Employee_num);
               ^^^^^^^^
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: Select * from Employee a where rowid <>( select max(rowid) from Employee b where a.Employee_num=b.Employee_num);
-[ERROR] PATH:LINENUM DATE TIME : Unknown table: EMPLOYEE
-Error with syntax near (line 1, column 57):
+Error with syntax near (line 1, column 50):
 
 Select Employee_name,Salary/12 as `Monthly Salary` from employee;
-                                                        ^^^^^^^^
+                                                 ^
+syntax error, unexpected IDENTIFIER_BACK_TICK, expecting IDENTIFIER_ALONE or LITERAL
+
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: Select Employee_name,Salary/12 as `Monthly Salary` from employee;
 [ERROR] PATH:LINENUM DATE TIME : Unknown table: EMPLOYEE
 Error with syntax near (line 1, column 15):

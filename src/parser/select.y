@@ -246,11 +246,8 @@ derived_column
   : derived_column_expression {
 	$$ = derived_column($derived_column_expression, NULL, &yyloc);
     }
-  | derived_column_expression column_name {
-	$$ = derived_column($derived_column_expression, $column_name, &yyloc);
-    }
-  | derived_column_expression AS column_name {
-	$$ = derived_column($derived_column_expression, $column_name, &yyloc);
+  | derived_column_expression optional_as as_name {
+        $$ = derived_column($derived_column_expression, $as_name, &yyloc);
     }
   ;
 
@@ -286,14 +283,14 @@ from_clause
 		stmt = drill_to_table_alias(cmp_join->value);
 		UNPACK_SQL_STATEMENT(alias, stmt, table_alias);
 		UNPACK_SQL_STATEMENT(value, alias->alias, value);
-		assert((COLUMN_REFERENCE == value->type) || (NUL_VALUE == value->type));
+		assert((COLUMN_REFERENCE == value->type) || (NUL_VALUE == value->type) || (STRING_LITERAL == value->type));
 		cmp_name = value->v.string_literal;
 		cur_join = cmp_join->next;
 		while (cur_join != start_join) {
 			stmt = drill_to_table_alias(cur_join->value);
 			UNPACK_SQL_STATEMENT(alias, stmt, table_alias);
 			UNPACK_SQL_STATEMENT(value, alias->alias, value);
-			assert((COLUMN_REFERENCE == value->type) || (NUL_VALUE == value->type));
+			assert((COLUMN_REFERENCE == value->type) || (NUL_VALUE == value->type) || (STRING_LITERAL == value->type));
 			cur_name = value->v.string_literal;
 			if (0 == strcmp(cmp_name, cur_name)) {
 				ERROR(ERR_JOIN_ALIAS_DUPLICATE, cmp_name);
@@ -333,7 +330,7 @@ derived_table
   | table_subquery correlation_specification table_reference_tail {
 	$$ = derived_table($table_subquery, $correlation_specification, $table_reference_tail);
     }
-    ;
+  ;
 
 table_reference_tail
   : /* Empty */ { $$ = NULL; }
@@ -341,13 +338,52 @@ table_reference_tail
   ;
 
 correlation_specification
-  : optional_as column_name { $$ = $column_name; }
-  | optional_as column_name LEFT_PAREN column_name_list RIGHT_PAREN	/* TODO: what is this (column_name_list) syntax? */
+  : optional_as as_name { $$ = $as_name; }
+  /*
+   * The commented rule appears in table alias context.
+   * Refer alias syntax for from_type usage in:
+   *     https://www.postgresql.org/docs/9.2/sql-select.html
+   * Example query:
+   *     select * from names as n1(ida,fm,lm);
+   * TODO: Uncomment once column_name_list is implemented.
+  | optional_as as_name LEFT_PAREN column_name_list RIGHT_PAREN
+  */
   ;
 
 optional_as
   : /* Empty */
   | AS
+  ;
+
+as_name
+  : IDENTIFIER_ALONE { $$ = $IDENTIFIER_ALONE; ($$)->loc = yyloc; }
+  | LITERAL {
+	SqlStatement *ret;
+
+	ret = $LITERAL;
+	if ((NUMERIC_LITERAL == ret->v.value->type) || (PARAMETER_VALUE == ret->v.value->type)) {
+		ERROR(ERR_INVALID_AS_SYNTAX, get_user_visible_type_string(ret->v.value->type));
+		yyerror(&yyloc, NULL, NULL, NULL, NULL, NULL);
+		YYERROR;
+	} else {
+		char *c;
+
+		assert(value_STATEMENT == ret->type);
+		/* Sqlvalue type of ret is set to STRING_LITERAL in order
+		 * to prevent multiple plan generation for queries differing
+		 * only by LITERAL value.
+		 */
+		ret->v.value->type = STRING_LITERAL;
+		c = ret->v.value->v.string_literal;
+		while('\0' != *c) {
+			*c = toupper(*c);
+			c++;
+		}
+		INVOKE_PARSE_LITERAL_TO_PARAMETER(parse_context, ret->v.value, FALSE);
+		$$ = ret;
+		($$)->loc = yyloc;
+	}
+    }
   ;
 
 joined_table

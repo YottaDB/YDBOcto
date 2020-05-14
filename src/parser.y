@@ -99,7 +99,9 @@ extern void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, int *plan
 %token GLOBAL
 %token GROUP
 %token HAVING
-%token IDENTIFIER_START
+%token IDENTIFIER_ALONE
+%token IDENTIFIER_BACK_TICK
+%token IDENTIFIER_PERIOD_IDENTIFIER
 %token ILIKE
 %token IN
 %token INDEX
@@ -1467,6 +1469,12 @@ identifier_body
 //  | identifier_start identifier_part
   ;
 
+IDENTIFIER_START
+  : IDENTIFIER_BACK_TICK { $$ = $IDENTIFIER_BACK_TICK; ($$)->loc = yyloc; }
+  | IDENTIFIER_PERIOD_IDENTIFIER { $$ = $IDENTIFIER_PERIOD_IDENTIFIER; ($$)->loc = yyloc; }
+  | IDENTIFIER_ALONE { $$ = $IDENTIFIER_ALONE; ($$)->loc = yyloc; }
+  ;
+ 
 data_type
   : character_string_type {
 	SQL_STATEMENT($$, data_type_STATEMENT);

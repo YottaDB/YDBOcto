@@ -1,0 +1,30 @@
+
+select id as "abc" from names;
+select id as "cba" from names;
+select id as 'lmo' from names;
+select id as 'klm' from names;
+0
+1
+2
+3
+4
+5
+0
+1
+2
+3
+4
+5
+0
+1
+2
+3
+4
+5
+0
+1
+2
+3
+4
+5
+

@@ -1,0 +1,30 @@
+
+select id from names as "n1";
+select id from names as "n2";
+select id from names as 'lmo';
+select id from names as 'klm';
+0
+1
+2
+3
+4
+5
+0
+1
+2
+3
+4
+5
+0
+1
+2
+3
+4
+5
+0
+1
+2
+3
+4
+5
+

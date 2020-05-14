@@ -115,7 +115,9 @@ int copied_so_far;
 (?i:GLOBAL) { return GLOBAL; }
 (?i:GROUP) { return GROUP; }
 (?i:HAVING) { return HAVING; }
-(?i:IDENTIFIER_START) { return IDENTIFIER_START; }
+(?i:IDENTIFIER_ALONE) { return IDENTIFIER_ALONE; }
+(?i:IDENTIFIER_BACK_TICK) { return IDENTIFIER_BACK_TICK; }
+(?i:IDENTIFIER_PERIOD_IDENTIFIER) { return IDENTIFIER_PERIOD_IDENTIFIER; }
 (?i:ILIKE) { return ILIKE; }
 (?i:IN) { return IN; }
 (?i:INDEX) { return INDEX; }
@@ -277,7 +279,7 @@ int copied_so_far;
                   *d++ = toupper(*c++);
                 }
                 *d = '\0';
-                return IDENTIFIER_START;
+                return IDENTIFIER_ALONE;
               }
 [a-zA-Z][a-zA-Z0-9_]*\.[a-zA-Z][a-zA-Z0-9_]* {
                 copied_so_far = 0;
@@ -295,7 +297,7 @@ int copied_so_far;
                   *d++ = toupper(*c++);
                 }
                 *d = '\0';
-                return IDENTIFIER_START;
+                return IDENTIFIER_PERIOD_IDENTIFIER;
               }
 -- { BEGIN(COMMENT); }
 # { BEGIN(COMMENT); }
@@ -348,7 +350,7 @@ int copied_so_far;
                 }
                 *d = '\0';
                 BEGIN(INITIAL);
-                return IDENTIFIER_START;
+                return IDENTIFIER_BACK_TICK;
               }
 
 <COMMENT>[\n\r] { BEGIN(INITIAL); }

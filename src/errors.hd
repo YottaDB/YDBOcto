@@ -83,6 +83,7 @@ ERROR_DEF(ERR_DOLLAR_SYNTAX, "Prepared statement dollar syntax (e.g. $1, $2, etc
 ERROR_DEF(ERR_INVALID_ESCAPE_PATTERN, "Cannot end pattern with escape character: %s", PSQL_Invalid_Escape_Sequence)
 ERROR_DEF(ERR_COMMON_COLUMN, "Common column name \"%s\" appears more than once in %s side of NATURAL JOIN", PSQL_Code_Ambiguous_Column)
 ERROR_DEF(ERR_SELECT_STAR_NO_TABLES, "SELECT * with no tables specified is not valid", PSQL_Code_Syntax_Error)
+ERROR_DEF(ERR_INVALID_AS_SYNTAX, "Invalid AS value type: %s", PSQL_Code_Syntax_Error)
 // ROCTO //
 ERROR_DEF(ERR_ROCTO_M_CALL, "M extrinsic function calls are disallowed in rocto", PSQL_Code_Internal_Error)
 ERROR_DEF(ERR_ROCTO_UNSUPPORTED_BIND_PARAMETER, "Unsupported bind parameter type received", PSQL_Code_Internal_Error)

@@ -214,11 +214,16 @@ Entering state sss
 Reading a token: Next token is token FROM (: )
 Shifting token FROM (: )
 Entering state sss
-Reading a token: Next token is token IDENTIFIER_START (: )
-Shifting token IDENTIFIER_START (: )
+Reading a token: Next token is token IDENTIFIER_ALONE (: )
+Shifting token IDENTIFIER_ALONE (: )
 Entering state sss
 Reducing stack by rule rrr (line lll):
-   $1 = token IDENTIFIER_START (: )
+   $1 = token IDENTIFIER_ALONE (: )
+-> $$ = nterm IDENTIFIER_START (: )
+Stack now sss ...
+Entering state sss
+Reducing stack by rule rrr (line lll):
+   $1 = nterm IDENTIFIER_START (: )
 -> $$ = nterm identifier_body (: )
 Stack now sss ...
 Entering state sss
@@ -287,11 +292,16 @@ Entering state sss
 Reading a token: Next token is token INDEX (: )
 Shifting token INDEX (: )
 Entering state sss
-Reading a token: Next token is token IDENTIFIER_START (: )
-Shifting token IDENTIFIER_START (: )
+Reading a token: Next token is token IDENTIFIER_ALONE (: )
+Shifting token IDENTIFIER_ALONE (: )
 Entering state sss
 Reducing stack by rule rrr (line lll):
-   $1 = token IDENTIFIER_START (: )
+   $1 = token IDENTIFIER_ALONE (: )
+-> $$ = nterm IDENTIFIER_START (: )
+Stack now sss ...
+Entering state sss
+Reducing stack by rule rrr (line lll):
+   $1 = nterm IDENTIFIER_START (: )
 -> $$ = nterm identifier_body (: )
 Stack now sss ...
 Entering state sss
@@ -381,11 +391,16 @@ Entering state sss
 Reading a token: Next token is token FROM (: )
 Shifting token FROM (: )
 Entering state sss
-Reading a token: Next token is token IDENTIFIER_START (: )
-Shifting token IDENTIFIER_START (: )
+Reading a token: Next token is token IDENTIFIER_ALONE (: )
+Shifting token IDENTIFIER_ALONE (: )
 Entering state sss
 Reducing stack by rule rrr (line lll):
-   $1 = token IDENTIFIER_START (: )
+   $1 = token IDENTIFIER_ALONE (: )
+-> $$ = nterm IDENTIFIER_START (: )
+Stack now sss ...
+Entering state sss
+Reducing stack by rule rrr (line lll):
+   $1 = nterm IDENTIFIER_START (: )
 -> $$ = nterm identifier_body (: )
 Stack now sss ...
 Entering state sss

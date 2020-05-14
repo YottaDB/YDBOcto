@@ -125,7 +125,7 @@ Error with syntax near (line 1, column 71):
 
 CREATE TABLE DATETIME (id INTEGER PRIMARY KEY, date1 DATE, time1 TIME(abcd));
                                                                       ^^^^
-syntax error, unexpected IDENTIFIER_START, expecting LITERAL
+syntax error, unexpected IDENTIFIER_ALONE, expecting LITERAL
 
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: CREATE TABLE DATETIME (id INTEGER PRIMARY KEY, date1 DATE, time1 TIME(abcd));
 

@@ -217,7 +217,7 @@ Error with syntax near (line 1, column 32):
 
 CREATE TABLE names (id INTEGER(abcd) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))";
                                ^^^^
-syntax error, unexpected IDENTIFIER_START, expecting LITERAL
+syntax error, unexpected IDENTIFIER_ALONE, expecting LITERAL
 
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: CREATE TABLE names (id INTEGER(abcd) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))";
 Error with syntax near (line 1, column 32):
@@ -238,7 +238,7 @@ Error with syntax near (line 1, column 32):
 
 CREATE TABLE names (id NUMERIC(abcd) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))";
                                ^^^^
-syntax error, unexpected IDENTIFIER_START, expecting LITERAL
+syntax error, unexpected IDENTIFIER_ALONE, expecting LITERAL
 
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: CREATE TABLE names (id NUMERIC(abcd) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))";
 Error with syntax near (line 1, column 32):
@@ -259,14 +259,14 @@ Error with syntax near (line 1, column 32):
 
 CREATE TABLE names (id NUMERIC(abcd,'efgh') PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))";
                                ^^^^
-syntax error, unexpected IDENTIFIER_START, expecting LITERAL
+syntax error, unexpected IDENTIFIER_ALONE, expecting LITERAL
 
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: CREATE TABLE names (id NUMERIC(abcd,'efgh') PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))";
 Error with syntax near (line 1, column 32):
 
 CREATE TABLE names (id NUMERIC(abcd,efgh) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))";
                                ^^^^
-syntax error, unexpected IDENTIFIER_START, expecting LITERAL
+syntax error, unexpected IDENTIFIER_ALONE, expecting LITERAL
 
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: CREATE TABLE names (id NUMERIC(abcd,efgh) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))";
 

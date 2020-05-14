@@ -1,0 +1,340 @@
+
+-- column alias
+-- following two queries generate syntax error from AS rule
+select id as 123 from names;
+select id as $1 from names;
+
+-- following types of alias usage is not supported (parser throws error)
+select id as `backtick` from names;
+select id as lit.lit from names;
+select id as 'quote'.'quote' from names;
+select id as "quote"."quote" from names;
+select id as $$dummyextrinsicfunction^something from names;
+
+-- wrong column alias name
+select idb from (select 8 as "ida");
+select idb from (select 8 as 'ida');
+select idb from (select 8 as ida);
+
+-- table alias
+-- following two queries generate syntax error from AS rule
+select id from names as 123;
+select id from names as $1;
+
+-- following types of alias usage is not supported (parser throws error)
+select id from names as `backtick`;
+select id from names as lit.lit;
+select id from names as 'quote'.'quote';
+select id from names as "quote"."quote";
+select id from names as $$dummyextrinsicfunction^something;
+
+-- wrong table alias name
+select n2.id from names as "n1";
+select n2.id from names as n1;
+
+-- shorthand alias usage --
+-- column alias
+-- following two queries generate syntax error from AS rule
+select id 123 from names;
+select id $1 from names;
+
+-- following types of alias usage is not supported (throws error)
+select id `backtick` from names;
+select id lit.lit from names;
+select id 'quote'.'quote' from names;
+select id "quote"."quote" from names;
+select id $$dummyextrinsicfunction^something from names;
+
+-- wrong column alias name
+select idb from (select 8 "ida") n1;
+select idb from (select 8 'ida') n1;
+select idb from (select 8 ida) n1;
+
+-- table alias
+-- following two queries generate syntax error from AS rule
+select id from names 123;
+select id from names $1;
+
+-- following types of alias usage is not supported (parser throws error)
+select id from names `backtick`;
+select id from names lit.lit;
+select id from names 'quote'.'quote';
+select id from names "quote"."quote";
+select id from names $$dummyextrinsicfunction^something;
+
+-- wrong table alias name
+select n2.id from names "n1";
+select n2.id from names n1;
+
+-- wrong column alias with null table alias
+select idb from (select 8 "ida");
+select idb from (select 8 'ida');
+select idb from (select 8 ida);
+[ERROR] PATH:LINENUM DATE TIME : Invalid AS value type: NUMERIC
+Error with syntax near (line 1, column 14):
+
+select id as 123 from names;
+             ^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select id as 123 from names;
+[ERROR] PATH:LINENUM DATE TIME : Invalid AS value type: PARAMETER
+Error with syntax near (line 1, column 14):
+
+select id as $1 from names;
+             ^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select id as $1 from names;
+Error with syntax near (line 1, column 23):
+
+select id as `backtick` from names;
+                      ^
+syntax error, unexpected IDENTIFIER_BACK_TICK, expecting IDENTIFIER_ALONE or LITERAL
+
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select id as `backtick` from names;
+Error with syntax near (line 1, column 14):
+
+select id as lit.lit from names;
+             ^^^^^^^
+syntax error, unexpected IDENTIFIER_PERIOD_IDENTIFIER, expecting IDENTIFIER_ALONE or LITERAL
+
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select id as lit.lit from names;
+Error with syntax near (line 1, column 21):
+
+select id as 'quote'.'quote' from names;
+                    ^
+syntax error, unexpected PERIOD, expecting EXCEPT or UNION or SEMICOLON or ENDOFFILE
+
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select id as 'quote'.'quote' from names;
+Error with syntax near (line 1, column 21):
+
+select id as "quote"."quote" from names;
+                    ^
+syntax error, unexpected PERIOD, expecting EXCEPT or UNION or SEMICOLON or ENDOFFILE
+
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select id as "quote"."quote" from names;
+Error with syntax near (line 1, column 14):
+
+select id as $$dummyextrinsicfunction^something from names;
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+syntax error, unexpected EXTRINSIC_FUNCTION, expecting IDENTIFIER_ALONE or LITERAL
+
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select id as $$dummyextrinsicfunction^something from names;
+[ERROR] PATH:LINENUM DATE TIME : Unknown column: IDB
+Error with syntax near (line 1, column 8):
+
+select idb from (select 8 as "ida");
+       ^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select idb from (select 8 as "ida");
+[ERROR] PATH:LINENUM DATE TIME : Unknown column: IDB
+Error with syntax near (line 1, column 8):
+
+select idb from (select 8 as 'ida');
+       ^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select idb from (select 8 as 'ida');
+[ERROR] PATH:LINENUM DATE TIME : Unknown column: IDB
+Error with syntax near (line 1, column 8):
+
+select idb from (select 8 as ida);
+       ^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select idb from (select 8 as ida);
+[ERROR] PATH:LINENUM DATE TIME : Invalid AS value type: NUMERIC
+Error with syntax near (line 1, column 25):
+
+select id from names as 123;
+                        ^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select id from names as 123;
+[ERROR] PATH:LINENUM DATE TIME : Invalid AS value type: PARAMETER
+Error with syntax near (line 1, column 25):
+
+select id from names as $1;
+                        ^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select id from names as $1;
+Error with syntax near (line 1, column 34):
+
+select id from names as `backtick`;
+                                 ^
+syntax error, unexpected IDENTIFIER_BACK_TICK, expecting IDENTIFIER_ALONE or LITERAL
+
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select id from names as `backtick`;
+Error with syntax near (line 1, column 25):
+
+select id from names as lit.lit;
+                        ^^^^^^^
+syntax error, unexpected IDENTIFIER_PERIOD_IDENTIFIER, expecting IDENTIFIER_ALONE or LITERAL
+
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select id from names as lit.lit;
+Error with syntax near (line 1, column 32):
+
+select id from names as 'quote'.'quote';
+                               ^
+syntax error, unexpected PERIOD, expecting EXCEPT or UNION or SEMICOLON or ENDOFFILE
+
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select id from names as 'quote'.'quote';
+Error with syntax near (line 1, column 32):
+
+select id from names as "quote"."quote";
+                               ^
+syntax error, unexpected PERIOD, expecting EXCEPT or UNION or SEMICOLON or ENDOFFILE
+
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select id from names as "quote"."quote";
+Error with syntax near (line 1, column 25):
+
+select id from names as $$dummyextrinsicfunction^something;
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+syntax error, unexpected EXTRINSIC_FUNCTION, expecting IDENTIFIER_ALONE or LITERAL
+
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select id from names as $$dummyextrinsicfunction^something;
+[ERROR] PATH:LINENUM DATE TIME : Missing FROM-clause entry for table : N2
+Error with syntax near (line 1, column 8):
+
+select n2.id from names as "n1";
+       ^^^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select n2.id from names as "n1";
+[ERROR] PATH:LINENUM DATE TIME : Missing FROM-clause entry for table : N2
+Error with syntax near (line 1, column 8):
+
+select n2.id from names as n1;
+       ^^^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select n2.id from names as n1;
+[ERROR] PATH:LINENUM DATE TIME : Invalid AS value type: NUMERIC
+Error with syntax near (line 1, column 11):
+
+select id 123 from names;
+          ^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select id 123 from names;
+[ERROR] PATH:LINENUM DATE TIME : Invalid AS value type: PARAMETER
+Error with syntax near (line 1, column 11):
+
+select id $1 from names;
+          ^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select id $1 from names;
+Error with syntax near (line 1, column 20):
+
+select id `backtick` from names;
+                   ^
+syntax error, unexpected IDENTIFIER_BACK_TICK, expecting EXCEPT or UNION or SEMICOLON or ENDOFFILE
+
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select id `backtick` from names;
+Error with syntax near (line 1, column 11):
+
+select id lit.lit from names;
+          ^^^^^^^
+syntax error, unexpected IDENTIFIER_PERIOD_IDENTIFIER, expecting EXCEPT or UNION or SEMICOLON or ENDOFFILE
+
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select id lit.lit from names;
+Error with syntax near (line 1, column 18):
+
+select id 'quote'.'quote' from names;
+                 ^
+syntax error, unexpected PERIOD, expecting EXCEPT or UNION or SEMICOLON or ENDOFFILE
+
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select id 'quote'.'quote' from names;
+Error with syntax near (line 1, column 18):
+
+select id "quote"."quote" from names;
+                 ^
+syntax error, unexpected PERIOD, expecting EXCEPT or UNION or SEMICOLON or ENDOFFILE
+
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select id "quote"."quote" from names;
+Error with syntax near (line 1, column 11):
+
+select id $$dummyextrinsicfunction^something from names;
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+syntax error, unexpected EXTRINSIC_FUNCTION, expecting EXCEPT or UNION or SEMICOLON or ENDOFFILE
+
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select id $$dummyextrinsicfunction^something from names;
+[ERROR] PATH:LINENUM DATE TIME : Unknown column: IDB
+Error with syntax near (line 1, column 8):
+
+select idb from (select 8 "ida") n1;
+       ^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select idb from (select 8 "ida") n1;
+[ERROR] PATH:LINENUM DATE TIME : Unknown column: IDB
+Error with syntax near (line 1, column 8):
+
+select idb from (select 8 'ida') n1;
+       ^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select idb from (select 8 'ida') n1;
+[ERROR] PATH:LINENUM DATE TIME : Unknown column: IDB
+Error with syntax near (line 1, column 8):
+
+select idb from (select 8 ida) n1;
+       ^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select idb from (select 8 ida) n1;
+[ERROR] PATH:LINENUM DATE TIME : Invalid AS value type: NUMERIC
+Error with syntax near (line 1, column 22):
+
+select id from names 123;
+                     ^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select id from names 123;
+[ERROR] PATH:LINENUM DATE TIME : Invalid AS value type: PARAMETER
+Error with syntax near (line 1, column 22):
+
+select id from names $1;
+                     ^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select id from names $1;
+Error with syntax near (line 1, column 31):
+
+select id from names `backtick`;
+                              ^
+syntax error, unexpected IDENTIFIER_BACK_TICK, expecting EXCEPT or UNION or SEMICOLON or ENDOFFILE
+
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select id from names `backtick`;
+Error with syntax near (line 1, column 22):
+
+select id from names lit.lit;
+                     ^^^^^^^
+syntax error, unexpected IDENTIFIER_PERIOD_IDENTIFIER, expecting EXCEPT or UNION or SEMICOLON or ENDOFFILE
+
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select id from names lit.lit;
+Error with syntax near (line 1, column 29):
+
+select id from names 'quote'.'quote';
+                            ^
+syntax error, unexpected PERIOD, expecting EXCEPT or UNION or SEMICOLON or ENDOFFILE
+
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select id from names 'quote'.'quote';
+Error with syntax near (line 1, column 29):
+
+select id from names "quote"."quote";
+                            ^
+syntax error, unexpected PERIOD, expecting EXCEPT or UNION or SEMICOLON or ENDOFFILE
+
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select id from names "quote"."quote";
+Error with syntax near (line 1, column 22):
+
+select id from names $$dummyextrinsicfunction^something;
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+syntax error, unexpected EXTRINSIC_FUNCTION, expecting EXCEPT or UNION or SEMICOLON or ENDOFFILE
+
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select id from names $$dummyextrinsicfunction^something;
+[ERROR] PATH:LINENUM DATE TIME : Missing FROM-clause entry for table : N2
+Error with syntax near (line 1, column 8):
+
+select n2.id from names "n1";
+       ^^^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select n2.id from names "n1";
+[ERROR] PATH:LINENUM DATE TIME : Missing FROM-clause entry for table : N2
+Error with syntax near (line 1, column 8):
+
+select n2.id from names n1;
+       ^^^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select n2.id from names n1;
+[ERROR] PATH:LINENUM DATE TIME : Unknown column: IDB
+Error with syntax near (line 1, column 8):
+
+select idb from (select 8 "ida");
+       ^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select idb from (select 8 "ida");
+[ERROR] PATH:LINENUM DATE TIME : Unknown column: IDB
+Error with syntax near (line 1, column 8):
+
+select idb from (select 8 'ida');
+       ^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select idb from (select 8 'ida');
+[ERROR] PATH:LINENUM DATE TIME : Unknown column: IDB
+Error with syntax near (line 1, column 8):
+
+select idb from (select 8 ida);
+       ^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select idb from (select 8 ida);
+
+

@@ -104,6 +104,7 @@ if("${FULL_TEST_SUITE}" MATCHES "ON")
 	ADD_BATS_TEST(test_boolean_type)
 	ADD_BATS_TEST(test_null_keyword)
 	ADD_BATS_TEST(test_aggregate_functions)
+	ADD_BATS_TEST(test_as_keyword)
 
 	if(psql)
 		ADD_BATS_TEST(test_psql_connection)

@@ -1,0 +1,51 @@
+#################################################################
+#								#
+# Copyright (c) 2020 YottaDB LLC and/or its subsidiaries.	#
+# All rights reserved.						#
+#								#
+#	This source code contains the intellectual property	#
+#	of its copyright holder(s), and is made available	#
+#	under a license.  If you do not know the terms of	#
+#	the license, please stop and do not read further.	#
+#								#
+#################################################################
+
+load test_helpers
+
+setup() {
+  init_test
+  createdb
+  load_fixture names.sql
+  load_fixture names.zwr
+}
+
+@test "TAK01 : Tests verify column and table alias behavior" {
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TAK01.sql "remove_empty_line_at_tail"
+}
+
+@test "TAK02 : Tests verify alias behavior in single quotes form" {
+  # Can't use run_query_in_octo_and_postgres_and_crosscheck_multiple_queries as postgres doesn't support single quoted alias
+  load_fixture TAK02.sql subtest novv
+  verify_output TAK02 output.txt
+}
+
+@test "TAK03 : Tests verify error cases for column and table alias" {
+  load_fixture TAK03.sql subtest novv
+  verify_output TAK03 output.txt
+}
+
+@test "TAK04 : Tests verify that one plan is generated for queries differing only by quoted alias values" {
+  # Both single and double quotes usage are verified
+  # Can't use run_query_in_octo_and_postgres_and_crosscheck_multiple_queries as postgres doesn't support single quoted alias
+  load_fixture TAK04.sql subtest novv
+  verify_output TAK04 output.txt
+  [[ $(ls -l _ydboctoP*.m | wc -l) -eq 1 ]]
+}
+
+@test "TAK05 : Tests verify that one plan is generated for queries differing only by quoted alias values (short form)" {
+  # Both single and double quotes usage are verified
+  # Can't use run_query_in_octo_and_postgres_and_crosscheck_multiple_queries as postgres doesn't support single quoted alias
+  load_fixture TAK05.sql subtest novv
+  verify_output TAK05 output.txt
+  [[ $(ls -l _ydboctoP*.m | wc -l) -eq 1 ]]
+}

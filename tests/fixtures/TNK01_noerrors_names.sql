@@ -10,7 +10,7 @@
 #								#
 #################################################################
 
--- TNK01 : OCTO311 : Miscellaneous tests of NULL keyword
+-- TNK01 : OCTO311 : Miscellaneous tests of NULL keyword using the `names` schema
 
 -- Test of IS NULL vs = NULL
 select * from names n1 where n1.id is NULL;
@@ -251,3 +251,60 @@ SELECT * FROM ((SELECT 0 AS customerid, 'Zoopacker' AS ordername) UNION (SELECT 
 -- CASE
 SELECT CASE id WHEN NULL THEN 'is null' WHEN 0 THEN 'is zero' WHEN 1 THEN 'is one' end FROM ((SELECT 0 AS id) UNION (SELECT 1 AS id) UNION (SELECT NULL AS id)) n1 order by id;
 SELECT CASE WHEN id IS NULL THEN 'is null' WHEN id=0 THEN 'is zero' WHEN id=1 THEN 'is one' end FROM ((SELECT 0 AS id) UNION (SELECT 1 AS id) UNION (SELECT NULL AS id)) n1 order by id;
+
+-- ANY
+select * from names n1 where n1.id > ANY (select 1 union select NULL union select 2);
+select * from names n1 where NOT (n1.id > ANY (select 1 union select NULL union select 2));
+
+-- ALL
+select * from names n1 where n1.id > ALL (select 1 union select NULL::integer union select 2);
+select * from names n1 where NOT (n1.id > ALL (select 1 union select NULL::integer union select 2));
+
+-- IN with scalar list
+select * from names n1 where (n1.id IN (1,NULL,2));
+select * from names n1 where NOT (n1.id IN (1,NULL,2));
+select * from names n1 where (NULL IN (1));
+select * from names n1 where (NULL IN (1,NULL));
+select * from names n1 where NOT (NULL IN (1));
+select * from names n1 where NOT (NULL IN (1,NULL));
+
+-- IN with subquery
+select * from names n1 where (n1.id IN (select 1 union select NULL::integer union select 2));
+select * from names n1 where NOT (n1.id IN (select 1 union select NULL::integer union select 2));
+select * from names n1 where (NULL IN (select 1));
+select * from names n1 where (NULL IN (select 1 union select NULL::integer));
+select * from names n1 where NOT (NULL IN (select 1));
+select * from names n1 where NOT (NULL IN (select 1 union select NULL::integer));
+
+-- NOT IN with scalar list
+select * from names n1 where (n1.id NOT IN (1,NULL,2));
+select * from names n1 where NOT (n1.id NOT IN (1,NULL,2));
+select * from names n1 where (NULL NOT IN (1));
+select * from names n1 where (NULL NOT IN (1,NULL));
+select * from names n1 where NOT (NULL NOT IN (1));
+select * from names n1 where NOT (NULL NOT IN (1,NULL));
+
+-- NOT IN with subquery
+select * from names n1 where (n1.id NOT IN (select 1 union select NULL::integer union select 2));
+select * from names n1 where NOT (n1.id NOT IN (select 1 union select NULL::integer union select 2));
+select * from names n1 where (NULL NOT IN (select 1));
+select * from names n1 where (NULL NOT IN (select 1 union select NULL::integer));
+select * from names n1 where NOT (NULL NOT IN (select 1));
+select * from names n1 where NOT (NULL NOT IN (select 1 union select NULL::integer));
+-- NOT IN involving NULL on left side of NOT IN and no rows returned from right side of NOT IN
+select * from names where NULL NOT IN (select id from names where id = 7);
+
+-- Test edge cases in GetScalar^%ydboctoplanhelpers (mostly related to NULL handling)
+select * from names where lastname = (select NULL);
+select * from names where (select NULL) is NULL;
+select * from names where NULL = (select NULL);
+select * from names where NULL < (select NULL);
+select * from names where lastname = (select ''::text);
+
+-- Test column name is inherited fine from sub-query in presence of type casts
+-- Note: This is unrelated to NULL handling but is placed here because this issue was noticed while testing for NULL.
+select id from (select id::boolean from names) n1;
+
+-- Test NULL and typecast to boolean
+select col1 from ((select NULL::boolean as col1) union (select true as col1)) subquery1 where col1 is NULL;
+

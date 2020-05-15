@@ -127,7 +127,7 @@ octoPlan1(cursorId)
     . NEW %ydboctobool SET %ydboctobool=1
     . IF %ydboctobool DO
     . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42
-    . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=$$str2mval^%ydboctoplanhelpers((%ydboctocursor(cursorId,"keys",1,"NAMES","ID")-($GET(%ydboctocursor(cursorId,"parameters",1))*(%ydboctocursor(cursorId,"keys",1,"NAMES","ID")/(($GET(%ydboctocursor(cursorId,"parameters",2)))\1)))))
+    . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=$$str2mval^%ydboctoplanhelpers((%ydboctocursor(cursorId,"keys",1,"NAMES","ID")-((+$GET(%ydboctocursor(cursorId,"parameters",1)))*(%ydboctocursor(cursorId,"keys",1,"NAMES","ID")/(((+$GET(%ydboctocursor(cursorId,"parameters",2))))\1)))))
     QUIT
 ;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
 ;; ---------------------------------------------------------
@@ -157,7 +157,7 @@ octoPlan2(cursorId)
     . NEW %ydboctobool SET %ydboctobool=1
     . IF %ydboctobool DO
     . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",8,"","")) %ydboctoz=42
-    . . SET %ydboctocursor(cursorId,"keys",8,"","",%ydboctocursor(cursorId,"keys",8,"",""))=$$str2mval^%ydboctoplanhelpers((($GET(%ydboctocursor(cursorId,"parameters",1)))\1))_$$str2mval^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",2)))_$$str2mval^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",3)))
+    . . SET %ydboctocursor(cursorId,"keys",8,"","",%ydboctocursor(cursorId,"keys",8,"",""))=$$str2mval^%ydboctoplanhelpers((((+$GET(%ydboctocursor(cursorId,"parameters",1))))\1))_$$str2mval^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",2)))_$$str2mval^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",3)))
     DO UNION^%ydboctoplanhelpers(7,8,9)
     QUIT
 
@@ -204,7 +204,7 @@ octoPlan1(cursorId)
     . NEW %ydboctobool SET %ydboctobool=1
     . IF %ydboctobool DO
     . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42
-    . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=$$str2mval^%ydboctoplanhelpers(((%ydboctocursor(cursorId,"keys",1,"NAMES","ID"))\1))_$$str2mval^%ydboctoplanhelpers($$ABS^%ydboctosqlfunctions($GET(%ydboctocursor(cursorId,"parameters",1))))
+    . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=$$str2mval^%ydboctoplanhelpers(((%ydboctocursor(cursorId,"keys",1,"NAMES","ID"))\1))_$$str2mval^%ydboctoplanhelpers($$ABS^%ydboctosqlfunctions((+$GET(%ydboctocursor(cursorId,"parameters",1)))))
     QUIT
 ;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
 ;; ---------------------------------------------------------
@@ -222,7 +222,7 @@ octoPlan1(cursorId)
     . NEW %ydboctobool SET %ydboctobool=1
     . IF %ydboctobool DO
     . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42
-    . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=$$str2mval^%ydboctoplanhelpers(((%ydboctocursor(cursorId,"keys",1,"NAMES","ID"))\1))_$$str2mval^%ydboctoplanhelpers((($$ABS^%ydboctosqlfunctions($GET(%ydboctocursor(cursorId,"parameters",1))))_(%ydboctocursor(cursorId,"keys",1,"NAMES","ID"))))
+    . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=$$str2mval^%ydboctoplanhelpers(((%ydboctocursor(cursorId,"keys",1,"NAMES","ID"))\1))_$$str2mval^%ydboctoplanhelpers((($$ABS^%ydboctosqlfunctions((+$GET(%ydboctocursor(cursorId,"parameters",1)))))_(%ydboctocursor(cursorId,"keys",1,"NAMES","ID"))))
     QUIT
 ;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
 ;; ---------------------------------------------------------
@@ -258,7 +258,7 @@ octoPlan1(cursorId)
     . NEW %ydboctobool SET %ydboctobool=1
     . IF %ydboctobool DO
     . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42
-    . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=$$str2mval^%ydboctoplanhelpers((%ydboctocursor(cursorId,"keys",1,"NAMES","ID")-($GET(%ydboctocursor(cursorId,"parameters",1))*(((%ydboctocursor(cursorId,"keys",1,"NAMES","ID")/$GET(%ydboctocursor(cursorId,"parameters",2))))\1))))
+    . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=$$str2mval^%ydboctoplanhelpers((%ydboctocursor(cursorId,"keys",1,"NAMES","ID")-((+$GET(%ydboctocursor(cursorId,"parameters",1)))*(((%ydboctocursor(cursorId,"keys",1,"NAMES","ID")/(+$GET(%ydboctocursor(cursorId,"parameters",2)))))\1))))
     QUIT
 ;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
 ;; ---------------------------------------------------------
@@ -295,7 +295,7 @@ octoPlan1(cursorId)
     . NEW %ydboctobool SET %ydboctobool=1
     . IF %ydboctobool DO
     . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42
-    . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=$$str2mval^%ydboctoplanhelpers(((%ydboctocursor(cursorId,"keys",1,"NAMES","ID"))\1))_$$str2mval^%ydboctoplanhelpers(((+($$ABS^%ydboctosqlfunctions($GET(%ydboctocursor(cursorId,"parameters",1)))))+%ydboctocursor(cursorId,"keys",1,"NAMES","ID")))
+    . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=$$str2mval^%ydboctoplanhelpers(((%ydboctocursor(cursorId,"keys",1,"NAMES","ID"))\1))_$$str2mval^%ydboctoplanhelpers(((+($$ABS^%ydboctosqlfunctions((+$GET(%ydboctocursor(cursorId,"parameters",1))))))+%ydboctocursor(cursorId,"keys",1,"NAMES","ID")))
     QUIT
 ;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
 ;; ---------------------------------------------------------
@@ -313,5 +313,5 @@ octoPlan1(cursorId)
     . NEW %ydboctobool SET %ydboctobool=1
     . IF %ydboctobool DO
     . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42
-    . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=$$str2mval^%ydboctoplanhelpers(((%ydboctocursor(cursorId,"keys",1,"NAMES","ID"))_(%ydboctocursor(cursorId,"keys",1,"NAMES","ID"))))_$$str2mval^%ydboctoplanhelpers(((+($$ABS^%ydboctosqlfunctions($GET(%ydboctocursor(cursorId,"parameters",1)))))*%ydboctocursor(cursorId,"keys",1,"NAMES","ID")))
+    . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=$$str2mval^%ydboctoplanhelpers(((%ydboctocursor(cursorId,"keys",1,"NAMES","ID"))_(%ydboctocursor(cursorId,"keys",1,"NAMES","ID"))))_$$str2mval^%ydboctoplanhelpers(((+($$ABS^%ydboctosqlfunctions((+$GET(%ydboctocursor(cursorId,"parameters",1))))))*%ydboctocursor(cursorId,"keys",1,"NAMES","ID")))
     QUIT

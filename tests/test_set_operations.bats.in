@@ -98,3 +98,9 @@ setup() {
   run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TSO14.sql "remove_empty_line_at_tail"
 }
 
+@test "TSO15 : OCTO311 : Test randomly generated queries using UNION/INTERSECT/EXCEPT and NULL values" {
+  # Next test with complicated randomly generated queries; Crosscheck Octo output against Postgres
+  yottadb -run ^TSO15 > TSO15.sql	# TSO15.sql will contain many with UNION/INTERSECT/EXCEPT/NULL usages
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TSO15.sql "remove_empty_line_at_tail"
+}
+

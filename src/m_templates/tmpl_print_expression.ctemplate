@@ -65,18 +65,12 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 		case BOOLEAN_VALUE:
 			%{}$GET({{ config->global_names.cursor }}(cursorId,"parameters",{{ value->parameter_index }})){}%
 			break;
-		/* NOTE: For the INTEGER_LITERAL and NUMERIC_LITERAL case, one might be tempted to typecast the result
-		 * (like indicated in the commented lines for the respective `case` blocks below). But one should not
-		 * do that until $ZYSQLNULL (YottaDB/DBMS/YDBOcto/issues/311 which in turn depends YottaDB/DB/YDB/issues/484)
-		 * is fully implemented. See https://gitlab.com/YottaDB/DBMS/YDBOcto/issues/235#note_217262044 for more details.
-		 * Hence INTEGER_LITERAL/NUMERIC_LITERAL/STRING_LITERAL all fall through to the same case block for now.
-		 */
 		case INTEGER_LITERAL:
-			// Below line is commented until #311 is fixed (see above comment for details)
-			// %{}$GET({{ config->global_names.cursor }}(cursorId,"parameters",{{ value->parameter_index }}))\1{}%
+			%{}($GET({{ config->global_names.cursor }}(cursorId,"parameters",{{ value->parameter_index }}))\1){}%
+			break;
 		case NUMERIC_LITERAL:
-			// Below line is commented until #311 is fixed (see above comment for details)
-			// %{}+$GET({{ config->global_names.cursor }}(cursorId,"parameters",{{ value->parameter_index }})){}%
+			%{}(+$GET({{ config->global_names.cursor }}(cursorId,"parameters",{{ value->parameter_index }}))){}%
+			break;
 		case PARAMETER_VALUE:
 			// Fallthrough as we don't know the actual type of a PARAMETER_VALUE
 		case STRING_LITERAL:
@@ -114,7 +108,6 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 				%{}$$String2Boolean^%%ydboctoplanhelpers({}%
 				break;
 			case NUL_VALUE:
-				/* Need to address it as part of YDBOcto#311 */
 				break;
 			default:
 				break;
@@ -303,17 +296,46 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 	case LP_BOOLEAN_IN:
 	case LP_BOOLEAN_NOT_IN:
 		assert((LP_INSERT == second_operand->type) || (LP_SET_OPERATION == second_operand->type));
-		%{}($DATA({}%
+		/* Note that there is a NULL related subtlety that needs to be handled here.
+		 * For LP_BOOLEAN_IN, if the left-hand expression yields null, or if there are no equal right-hand values and
+		 * at least one right-hand expression yields null, the result of the IN construct will be null, not false.
+		 * For LP_BOOLEAN_NOT_IN, if the left-hand expression yields null, or if there are no equal right-hand values and
+		 * at least one right-hand expression yields null, the result of the NOT IN construct will be null, not true.
+		 */
 		cur_lp_key = lp_get_output_key(second_operand);
+		%{}$SELECT({}%
+		/* If RHS did not return any row, then result of NOT IN is TRUE */
+		if (LP_BOOLEAN_NOT_IN == plan_type) {
+			%{}(1>=$DATA(%%ydboctocursor(cursorId,"keys",{{ cur_lp_key->v.lp_key.key->unique_id|%d }},"",""))):1,{}%
+		}
+		/* If LHS is NULL, the result is NULL */
+		%{}$ZYISSQLNULL({}%
+		TMPL(tmpl_print_expression, first_operand, pplan, 0, 0);
+		%{}):$ZYSQLNULL,{}%
+		/* Check if RHS has at least one equal value. If so use that. */
+		%{}$DATA({}%
 		TMPL(tmpl_key, cur_lp_key->v.lp_key.key);
 		(*buffer_index)--;
 		%{},{}%
 		TMPL(tmpl_print_expression, first_operand, pplan, 0, 0);
+		%{})){}%
 		if (LP_BOOLEAN_IN == plan_type) {
-			%{}))'=0){}%
+			%{}:1,{}%
 		} else {
-			%{}))=0){}%
+			%{}:0,{}%
 		}
+		/* Check if at least one right-hand expression yields NULL */
+		%{}$DATA({}%
+		TMPL(tmpl_key, cur_lp_key->v.lp_key.key);
+		(*buffer_index)--;
+		%{},$ZYSQLNULL)):$ZYSQLNULL,1:{}%
+		/* Now that all prior checks did not yield a definitive return value, return true/false for IN/NOT-IN */
+		if (LP_BOOLEAN_IN == plan_type) {
+			%{}0{}%
+		} else {
+			%{}1{}%
+		}
+		%{}){}%
 		break;
 	case LP_BOOLEAN_ANY_EQUALS:
 	case LP_BOOLEAN_ANY_NOT_EQUALS:

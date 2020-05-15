@@ -308,17 +308,21 @@ GetScalar(keyId)
 	; Used by generated plans where a sub-query is used in place of a scalar value (e.g. arithmetic expression etc.)
 	; Assumes "%ydboctocursor" and "cursorId" are appropriately set by caller.
 	;
-	NEW %firstrowfirstcol,%multiplerow
+	NEW firstsub,secondsub,morethanonesub
 	; Check if there are no rows in subquery output. If so we should return NULL per SQL standard.
 	QUIT:(1>=$DATA(%ydboctocursor(cursorId,"keys",keyId,"",""))) $ZYSQLNULL
-	SET %firstrowfirstcol=$ORDER(%ydboctocursor(cursorId,"keys",keyId,"","",""))
+	SET firstsub=$SELECT($DATA(%ydboctocursor(cursorId,"keys",keyId,"","","")):"",1:$ORDER(%ydboctocursor(cursorId,"keys",keyId,"","","")))
 	; Find out if the output key has more than one row. If so issue an error
 	; Note that it is possible the same row gets duplicated more than once. In that case though
 	; the node value would be greater than 1. So check that too (in addition to checking $ORDER returns "").
-	SET %multiplerow=(""'=$ORDER(%ydboctocursor(cursorId,"keys",keyId,"","",%firstrowfirstcol)))
-	SET:'%multiplerow %multiplerow=(1<%ydboctocursor(cursorId,"keys",keyId,"","",%firstrowfirstcol))
-	ZMESSAGE:%multiplerow %ydboctoerror("SUBQUERYMULTIPLEROWS")
-	QUIT %firstrowfirstcol	; Return scalar in only column and only row of keyId
+	SET secondsub=$ORDER(%ydboctocursor(cursorId,"keys",keyId,"","",firstsub))
+	; It is possible firstsub and secondsub are both "" in which case there is only one sub. Check for that.
+	; Note that if firstsub is $ZYSQLNULL, then we are guaranteed there is no second subscript (since
+	; $ZYSQLNULL is last subscript in $ORDER sequence).
+	SET morethanonesub=$SELECT($ZYISSQLNULL(firstsub):0,$ZYISSQLNULL(secondsub):1,'$DATA(%ydboctocursor(cursorId,"keys",keyId,"","",secondsub)):0,1:(firstsub'=secondsub))
+	SET:'morethanonesub morethanonesub=(1<%ydboctocursor(cursorId,"keys",keyId,"","",firstsub))
+	ZMESSAGE:morethanonesub %ydboctoerror("SUBQUERYMULTIPLEROWS")
+	QUIT firstsub ; Return scalar in only column and only row of keyId
 
 EXISTS(keyId)
 	; Helper M function that given an output key # (keyId) checks if the output key has at least one row
@@ -333,7 +337,8 @@ ANY(inputValue,keyId,compOp,isString)
 	; compOp property (which can be any one of "<",">","<=",">=","=","'=") against the input value (inputValue).
 	; If so returns 1 and if not returns 0.
 	; Assumes "%ydboctocursor" and "cursorId" are appropriately set by caller.
-	; NOTE: Examine the below program for potential $ZYSQLNULL handling once #311 is fixed
+	; NOTE: The below implementation returns $ZYSQLNULL in case none of the $$Compare calls returns TRUE and at
+	; least one of the return is NULL (in accordance with SQL rules for NULL).
 	;
 	NEW ret,sub
 	SET sub="",ret=0
@@ -347,7 +352,8 @@ ALL(inputValue,keyId,compOp,isString)
 	; compOp property (which can be any one of "<",">","<=",">=","=","'=") against the input value (inputValue).
 	; If so returns 1 and if not returns 0.
 	; Assumes "%ydboctocursor" and "cursorId" are appropriately set by caller.
-	; NOTE: Examine the below program for potential $ZYSQLNULL handling once #311 is fixed
+	; NOTE: The below implementation returns $ZYSQLNULL in case none of the $$Compare calls returns FALSE and at
+	; least one of the return is NULL (in accordance with SQL rules for NULL).
 	;
 	NEW ret,sub
 	SET sub="",ret=1
@@ -534,15 +540,16 @@ AvgDistinct(keyId,groupBySubs,aggrIndex,curValue)
 Integer2Boolean(intvalue)	;
 	; Converts an input boolean parameter (`intvalue`) to 1 if it evaluates to a non-zero value and 0 otherwise.
 	; This is so we are compatible with Postgres
-	QUIT $SELECT(+intvalue:1,1:0)
+	QUIT $SELECT($ZYISSQLNULL(intvalue):$ZYSQLNULL,+intvalue:1,1:0)
 
 Boolean2String(boolvalue)	;
 	; Converts an input boolean parameter (`boolvalue`) to `true` if it evaluates to a non-zero value and `false` otherwise
 	; This is so we are compatible with Postgres
-	QUIT $SELECT(+boolvalue:"true",1:"false")
+	QUIT $SELECT($ZYISSQLNULL(boolvalue):$ZYSQLNULL,+boolvalue:"true",1:"false")
 
 String2Boolean(boolstr)	;
 	; Converts an input boolean string value (`boolstr`) (can be `t` or `f`) to 1 or 0 respectively
+	QUIT:$ZYISSQLNULL(boolstr) $ZYSQLNULL
 	IF '$DATA(%ydboctoStr2Bool) DO
 	.	; Below are list of string literals which are accepted for boolean conversion
 	.	; Anything else is treated as the boolean value 0 (false).

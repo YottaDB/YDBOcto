@@ -56,3 +56,8 @@ SELECT 1*col2::INTEGER from ((SELECT NULL AS col1, NULL AS col2)) u1;
 SELECT * from ((SELECT 0 AS col1, NULL AS col2, 3 AS col3 )) AS u1 WHERE u1.col2::INTEGER BETWEEN u1.col1 AND u1.col3;
 SELECT * FROM ((SELECT NULL AS col1, NULL AS col2)) u1 WHERE u1.col1::INTEGER/u1.col2::INTEGER = 5;
 
+-- Test for "More than one row returned by a subquery used as an expression"
+select id from names where  ((select 1 union select null) intersect (select 1 union select null)) is NULL;
+select * from names where lastname = (select lastname from names where id = 4 union select NULL);
+select * from names where lastname = (select lastname from names where id = 4 union select 'abcd');
+

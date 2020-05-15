@@ -74,6 +74,9 @@ SqlStatement *find_column_alias_name(SqlStatement *stmt) {
 			*c = '\0';
 			ret->v.value->type = STRING_LITERAL;
 			break;
+		case COERCE_TYPE:
+			ret = find_column_alias_name(value->v.coerce_target);
+			break;
 		default:
 			// Nothing we can do
 			break;

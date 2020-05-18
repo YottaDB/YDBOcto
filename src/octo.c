@@ -81,5 +81,7 @@ int main(int argc, char **argv)
 	} while(!feof(inputFile));
 
 	cleanup_tables();
+	config_destroy(config->config_file);
+	free(config->config_file);
 	return 0;
 }

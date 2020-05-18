@@ -534,5 +534,8 @@ int main(int argc, char **argv) {
 		status = ydb_ci("_ydboctoNodeDump");
 		YDB_ERROR_CHECK(status);
 	}
+
+	config_destroy(config->config_file);
+	free(config->config_file);
 	return 0;
 }

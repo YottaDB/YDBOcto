@@ -131,6 +131,8 @@ int merge_config_file(const char *path, config_t **config_file, boolean_t is_def
 		assert(NULL != path);
 		if (-1 == access(path, F_OK)) {
 			// File not found or no access; skip it
+			config_destroy(new_config_file);
+			free(new_config_file);
 			return 2;
 		}
 		if (CONFIG_FALSE == config_read_file(new_config_file, path)) {
@@ -159,6 +161,7 @@ int merge_config_file(const char *path, config_t **config_file, boolean_t is_def
 	b_root = config_root_setting(new_config_file);
 	merge_config_file_helper(b_root, a_root);
 	config_destroy(*config_file);
+	free(*config_file);
 	*config_file = new_config_file;
 	status = parse_config_file_settings(path, *config_file);
 	return status;
@@ -693,5 +696,6 @@ int octo_init(int argc, char **argv) {
 	}
 	/* readlines setup */
 	rl_bind_key ('\t', rl_insert); // display the tab_completion of '\t' and just insert it as a character
+	config->config_file = config_file;
 	return 0;
 }

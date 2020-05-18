@@ -308,3 +308,35 @@ select id from (select id::boolean from names) n1;
 -- Test NULL and typecast to boolean
 select col1 from ((select NULL::boolean as col1) union (select true as col1)) subquery1 where col1 is NULL;
 
+-- Test of few NULL related edge cases from http://www-cs-students.stanford.edu/~wlam/compsci/sqlnulls
+---- Test MAX returns NULL if source table is empty
+select 'maxid is NULL' from (select MAX(id) as maxid from (select id from names where id > 6) n1) n2 where maxid is NULL;
+---- Test MAX of NULLs only
+select 'maxid is NULL' from (select MAX(id) as maxid from (select NULL::integer as id) n1) n2 where maxid is NULL;
+---- Test MAX using a >= ALL() on an empty table
+select distinct id from (select id from names where id > 6) n1 where id >= ALL(select n2.id from names n2 where n2.id > 6);
+---- Test MAX using a >= ALL() on a table that holds one NULL value
+select distinct id from (select NULL::integer as id) n1 where id >= ALL(select NULL::integer as id);
+---- Test MAX using EXCEPT on an empty table
+(select distinct * from (select id from names where id > 6) n1) except (select n2.id FROM (select n2.id from names n2 where n2.id > 6) n2, (select n3.id from names n3 where n3.id > 6) n3 where n2.id < n3.id);
+---- Test MAX using EXCEPT on a table that holds one NULL value
+(select distinct * from (select NULL::integer as id) n1) except (select n2.id FROM (select NULL::integer as id) n2, (select NULL::integer as id) n3 where n2.id < n3.id);
+---- Test MAX using EXCEPT on a table that holds one NULL and one non-NULL value
+(select distinct * from ((select NULL::integer as id) union (select 1)) n1) except (select n2.id FROM ((select NULL::integer as id) union (select 1)) n2, ((select NULL::integer as id) union (select 1)) n3 where n2.id < n3.id);
+---- Test MAX using EXCEPT on a table that holds one NULL and two non-NULL values
+(select distinct * from ((select NULL::integer as id) union (select 1) union (select 2)) n1) except (select n2.id FROM ((select NULL::integer as id) union (select 1) union (select 2)) n2, ((select NULL::integer as id) union (select 1) union (select 2)) n3 where n2.id < n3.id);
+---- Test MAX using NOT IN on an empty table
+select distinct * from (select id from names where id > 6) n1 where id NOT IN (select n2.id FROM (select n2.id from names n2 where n2.id > 6) n2, (select n3.id from names n3 where n3.id > 6) n3 where n2.id < n3.id);
+---- Test MAX using NOT IN on a table that holds one NULL and one non-NULL value
+select distinct * from ((select NULL::integer as id) union (select 1)) n1 where id NOT in (select n2.id FROM ((select NULL::integer as id) union (select 1)) n2, ((select NULL::integer as id) union (select 1)) n3 where n2.id < n3.id);
+---- Test MAX using NOT IN on a table that holds one NULL and two non-NULL values
+select distinct * from ((select NULL::integer as id) union (select 1) union (select 2)) n1 where id NOT in (select n2.id FROM ((select NULL::integer as id) union (select 1) union (select 2)) n2, ((select NULL::integer as id) union (select 1) union (select 2)) n3 where n2.id < n3.id);
+---- Test MAX using EXCEPT NULL on an empty table
+(select distinct * from (select id from names where id > 6) n1) except (select n2.id FROM (select n2.id from names n2 where n2.id > 6) n2, (select n3.id from names n3 where n3.id > 6) n3 where n2.id < n3.id OR n2.id is NULL);
+---- Test MAX using EXCEPT NULL on a table that holds one NULL value
+(select distinct * from (select NULL::integer as id) n1) except (select n2.id FROM (select NULL::integer as id) n2, (select NULL::integer as id) n3 where n2.id < n3.id OR n2.id is NULL);
+---- Test MAX using EXCEPT NULL on a table that holds one NULL and one non-NULL value
+(select distinct * from ((select NULL::integer as id) union (select 1)) n1) except (select n2.id FROM ((select NULL::integer as id) union (select 1)) n2, ((select NULL::integer as id) union (select 1)) n3 where n2.id < n3.id OR n2.id is NULL);
+---- Test MAX using EXCEPT on a table that holds one NULL and two non-NULL values
+(select distinct * from ((select NULL::integer as id) union (select 1) union (select 2)) n1) except (select n2.id FROM ((select NULL::integer as id) union (select 1) union (select 2)) n2, ((select NULL::integer as id) union (select 1) union (select 2)) n3 where n2.id < n3.id OR n2.id is NULL);
+

@@ -21,3 +21,7 @@ select customer_id from (select customer_id::boolean from (select c.customer_id 
 select bool1::boolean from (select bool1::text from (select (NULL = first_name) as bool1 from (select c.first_name from customers c right join orders o on c.customer_id = o.customer_id) subquery1) subquery2) subquery3 where bool1::boolean is NOT null;
 select bool1::boolean from (select bool1::text from (select (NULL = first_name) as bool1 from (select c.first_name from customers c right join orders o on c.customer_id = o.customer_id) subquery1) subquery2) subquery3 where bool1::boolean is null;
 
+-- Test of few NULL related edge cases from http://www-cs-students.stanford.edu/~wlam/compsci/sqlnulls
+---- Test HAVING and NULL
+select c.customer_id from orders o left join customers c on o.customer_id = c.customer_id group by c.customer_id having c.customer_id < 3;
+

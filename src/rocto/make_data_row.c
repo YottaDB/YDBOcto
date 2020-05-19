@@ -33,6 +33,7 @@
 }
 
 DataRow *make_data_row(DataRowParm *parms, int16_t num_parms, int32_t *col_data_types) {
+	PSQL_TypeSize	type_size;
 	uint32_t	length;
 	int32_t		i;
 	DataRow		*ret;
@@ -42,8 +43,18 @@ DataRow *make_data_row(DataRowParm *parms, int16_t num_parms, int32_t *col_data_
 
 	// Get the length we need to malloc
 	length = 0;
-	for(i = 0; i < num_parms; i++) {
-		length += parms[i].length;
+	for (i = 0; i < num_parms; i++) {
+		// Assign column length for the current column based on column format
+		if (0 == parms[i].format) {		// Text format
+			length += parms[i].length;
+		} else {					// Binary format
+			assert(NULL != col_data_types);
+			type_size = get_type_size_from_psql_type(col_data_types[i]);
+			if (0 > type_size)		// This means a variable type size, so don't convert to fixed size
+				length += parms[i].length;
+			else
+				length += type_size;
+		}
 		length += sizeof(uint32_t);
 	}
 
@@ -67,7 +78,7 @@ DataRow *make_data_row(DataRowParm *parms, int16_t num_parms, int32_t *col_data_
 				assert(NULL != col_data_types);
 				switch (col_data_types[i]) {
 				case PSQL_TypeOid_int4:
-					*((uint32_t*)c) = htonl(parms[i].length);
+					*((uint32_t*)c) = htonl(PSQL_TypeSize_int4);
 					c += sizeof(uint32_t);
 					// Convert parameter value to null-terminated string for conversion into an integer
 					memcpy(int_buffer, parms[i].value, parms[i].length);

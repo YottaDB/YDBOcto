@@ -330,7 +330,6 @@ int send_result_rows(int32_t cursor_id, void *_parms, char *plan_name) {
 		// Loop over row columns to build up DataRowParms for transmission to client
 		for (cur_column = 0, cur_row_parms = data_row_parms; ; cur_row_parms++) {
 			int		hdr_len, data_len;
-			PSQL_TypeSize	type_size;
 
 			// Assign column format code for the current column
 			if (NO_GLOBAL_COLUMN_FORMAT == global_column_format) {
@@ -343,17 +342,8 @@ int send_result_rows(int32_t cursor_id, void *_parms, char *plan_name) {
 			}
 
 			hdr_len = get_mval_len(buff, &data_len);
-			// Assign column length for the current column based on column format
-			if (0 == cur_row_parms->format) {		// Text format
-				cur_row_parms->length = data_len;
-			} else {					// Binary format
-				assert(NULL != col_data_types);
-				type_size = get_type_size_from_psql_type(col_data_types[cur_column]);
-				if (0 > type_size)		// This means a variable type size, so don't convert to fixed size
-					cur_row_parms->length = data_len;
-				else
-					cur_row_parms->length = get_type_size_from_psql_type(col_data_types[cur_column]);
-			}
+			// Store length of the M value for constructing a DataRow in make_data_row
+			cur_row_parms->length = data_len;
 			buff += hdr_len;
 			cur_row_parms->value = (char *)buff;
 			buff += data_len;

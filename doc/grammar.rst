@@ -354,6 +354,310 @@ The comparative operators in Octo are:
 * LESS THAN OR EQUALS <=
 * GREATER THAN OR EQUALS >=
 
+------------------------
+Pattern Processing
+------------------------
+
++++++++++++
+LIKE
++++++++++++
+
+.. parsed-literal::
+   string LIKE pattern
+
+If the pattern matches the string, LIKE operation returns true.
+
+Pattern is expected to match the entire string i.e.
+
+.. parsed-literal::
+   'a'  LIKE 'a' -> TRUE
+   'ab' LIKE 'a' -> FALSE
+
+:code:`%` and :code:`_` have a special meaning.
+:code:`%` matches any string of zero or more characters and :code:`_` matches any single chracter.
+
+.. parsed-literal::
+   'abcd' LIKE '%'    -> TRUE
+   'abcd' LIKE 'ab%'  -> TRUE
+   'cdcd' LIKE 'ab%'  -> FALSE
+   'abcd' LIKE 'a_cd' -> TRUE
+   'ebcd' LIKE 'a_cd' -> FALSE
+
+Escaping :code:`%` or :code:`_` will take away its special meaning, and, it will just match :code:`%` and :code:`_` in its literal form.
+
+.. parsed-literal::
+   'ab%ab' LIKE 'ab\\%ab' -> TRUE
+   'abab'  LIKE 'ab\\%ab' -> FALSE
+   'ab_ab' LIKE 'ab\\_ab' -> TRUE
+   'abab'  LIKE 'ab\\_ab' -> FALSE
+
+To match an escape as itself additional escape is required. Any other character if escaped has no special meaning. It will match its literal self.
+
+.. parsed-literal::
+   'ab\\ab' LIKE 'ab\\\\ab' -> TRUE
+   'ab\\ab' LIKE 'ab\\ab'  -> FALSE
+   'abab'  LIKE 'ab\\ab'  -> TRUE
+
+Any other character is matched without any special meaning.
+
+.. parsed-literal::
+   'ab*&$#' LIKE 'ab*&$#' -> TRUE
+   'ab*&$#' LIKE 'ab*'    -> FALSE
+
+~~~~~~~~~~~~~~~~~~~~~~~
+Variations of LIKE
+~~~~~~~~~~~~~~~~~~~~~~~
+
+#. :code:`~~` : Same as LIKE
+
+#. :code:`ILIKE` : Case insensitive version of LIKE
+
+   .. parsed-literal::
+      'abc' ILIKE 'Abc' -> TRUE
+      'abc' LIKE  'Abc' -> FALSE
+
+#. :code:`~~*` : Case insensitive version of LIKE
+
+#. :code:`NOT LIKE` : Negated version of LIKE
+
+   .. parsed-literal::
+     'abc' LIKE 'abc'      -> TRUE
+     'abc' LIKE 'cba'      -> FALSE
+     'abc' LIKE '%'        -> TRUE
+     'abc' NOT LIKE 'abc'  -> FALSE
+     'abc' NOT LIKE 'cba'  -> TRUE
+     'abc' NOT LIKE '%'    -> FALSE
+
+#. :code:`!~~` : Negated version of LIKE
+
+#. :code:`NOT ILIKE` : Negated version of case insensitive LIKE
+
+#. :code:`!~~*` : Negated version of case insensitive LIKE
+
+~~~~~~~~~~~~~
+Error Case
+~~~~~~~~~~~~~
+LIKE pattern cannot end with an escape character. This results in an error.
+
+.. parsed-literal::
+   'abc' LIKE 'abc\\'
+   [ERROR] PATH:LINENUM DATE TIME : Cannot end pattern with escape character: abc\\
+
+   'abc\\' LIKE 'abc\\\\' -> TRUE
+
+
++++++++++++++++++++
+SIMILAR TO
++++++++++++++++++++
+
+.. parsed-literal::
+   string SIMILAR TO pattern
+
+If the pattern matches the string, SIMILAR TO operation returns true.
+
+Pattern is expected to match the entire string i.e.
+
+.. parsed-literal::
+   'a'  SIMILAR TO 'a' -> TRUE
+   'ab' SIMILAR TO 'a' -> FALSE
+
+As seen in the :code:`LIKE` operation, following characters have special meaning:
+
+* :code:`%` matches any string of zero or more characters
+* :code:`_` matches any single character
+* Escaping :code:`%` or :code:`_` will take away its special meaning, and, it will just match :code:`%` or :code:`_` in its literal form
+* To match an escape as itself additional escape is required
+
+Additionally, the following characters also having special meaning:
+
+* :code:`|` : The whole string should match a unit on either side of :code:`|`
+
+  .. parsed-literal::
+     'abd' SIMILAR TO 'abc|d'       -> TRUE ( Here along with other characters, the right side of | which is 'd' is matched )
+     'dba' SIMILAR TO '(abc)|(dba)' -> TRUE ( Here the right side of | which is (dba) is matched )
+
+* :code:`*` : Match a sequence of zero or more units
+
+  .. parsed-literal::
+     'wow'         SIMILAR TO 'woo*w'    -> TRUE
+     'wooow'       SIMILAR TO 'woo*w'    -> TRUE
+     'dabcabcabcd' SIMILAR TO 'd(abc)*d' -> TRUE
+     'dd'          SIMILAR TO 'd(abc)*d' -> TRUE
+
+* :code:`+` : Match a sequence of one or more units
+
+  .. parsed-literal::
+     'dabcabcd' SIMILAR TO 'd(abc)+d'  -> TRUE
+     'dd'       SIMILAR TO 'd(abc)+d'  -> FALSE
+
+* :code:`( )` : Groups contained items into a single logical unit
+
+* :code:`[ ]` : Matches any one of the characters mentioned inside the brackets
+
+  .. parsed-literal::
+     'a' SIMILAR TO '[abc]' -> TRUE
+     'c' SIMILAR TO '[abc]' -> TRUE
+     'd' SIMILAR TO '[abc]' -> FALSE
+
+* :code:`{ }`
+
+  * :code:`{m}` : Match a sequence of exactly *m* units
+
+    .. parsed-literal::
+       'aaaa' SIMILAR TO 'a{4}' -> TRUE
+       'aaa'  SIMILAR TO 'a{4}' -> FALSE
+
+  * :code:`{m,}` : Match a sequence of *m* or more units
+
+    .. parsed-literal::
+       'aaaaa'  SIMILAR TO 'a{2,}'      -> TRUE
+       'a'      SIMILAR TO 'a{2,}'      -> FALSE
+       'ababab' SIMILAR TO '(ab){2,}'   -> TRUE
+       'ab'     SIMILAR TO '(ab){2,}'   -> FALSE
+
+  * :code:`{m,n}` : Match a sequence of exactly *m* through *n* (inclusive) units
+
+    .. parsed-literal::
+       'aaa' SIMILAR TO 'a{1,3}'   -> TRUE
+       'aa'  SIMILAR TO 'a{1,3}'   -> FALSE
+
+* :code:`?` : Match zero or one unit
+
+  .. parsed-literal::
+     'abc'  SIMILAR TO 'ab?c'    -> TRUE
+     'ac'   SIMILAR TO 'ab?c'    -> TRUE
+     'abbc' SIMILAR TO 'ab?c'    -> FALSE
+     'azyc' SIMILAR TO 'a(zy)?c' -> TRUE
+     'ac'   SIMILAR TO 'a(zy)?c' -> TRUE
+     'azc'  SIMILAR TO 'a(zy)?c' -> FALSE
+
+.. note::
+   * A **unit** refers to a logical grouping done using ( ) or a character depending on its usage
+
+     For example:
+
+             'ababab' SIMILAR TO '(ab)+' -> TRUE ( Here ab is the logical unit considered by + )
+
+             'abbb' SIMILAR TO 'ab+'     -> TRUE ( Here b is the logical unit considered by + )
+
+   * Similar to the LIKE operation, if the above characters are escaped they lose their special meaning
+
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Variation of SIMILAR TO
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+#. :code:`NOT SIMILAR TO` : Negated version of SIMILAR TO
+
+   .. parsed-literal::
+      'abc' SIMILAR TO     'abc'   -> TRUE
+      'abc' NOT SIMILAR TO 'abc'   -> FALSE
+
++++++++++++++++++++++
+ TILDE ~
++++++++++++++++++++++
+
+.. parsed-literal::
+   string ~ pattern
+
+If the pattern matches the string, ~ operation returns true.
+
+Partial match of the pattern is valid, i.e.
+
+.. parsed-literal::
+   'a'  ~ 'a'          -> TRUE
+   'ab' ~ 'a'          -> TRUE  (Partial match is valid)
+   'ab' SIMILAR TO 'a' -> FALSE (Partial match is not valid)
+   'ab' LIKE 'a'       -> FALSE (Partial match is not valid)
+
+:code:`%` and :code:`_` have no special meaning. They are matched as literals.
+
+To match an escape as itself additional escape is required.
+
+The following characters have special meaning:
+
+* :code:`.` : Matches any single character
+
+  .. parsed-literal::
+     'abc' ~ '...' -> TRUE
+
+* :code:`*` : Match a sequence of zero or more units
+
+  .. parsed-literal::
+     'aab' ~ 'a*'  -> TRUE
+     'baa' ~ 'a*'  -> TRUE
+
+* :code:`|` : Match a unit on either side of :code:`|`
+
+  .. parsed-literal::
+     'abd' LIKE       'abc|d'       -> FALSE ( | doesn't have special meaning for LIKE operation )
+     'abd' SIMILAR TO 'abc|d'       -> FALSE ( | expects 'abd' to match either 'abc' or 'd' . But, as 'abd' is not either of those, the result is FALSE )
+     'abd' ~          'abc|d'       -> TRUE  ( | expects 'abd' to match either 'abc' or 'abd'. Hence the result is TRUE )
+
+* :code:`+` : Match a sequence of one or more units
+
+  .. parsed-literal::
+     'dabcabcd' ~ '(abc)+'  -> TRUE
+     'dd'       ~ '(xyz)+'  -> FALSE
+     'dd'       ~ 'd+'      -> TRUE
+     'a'        ~ 'd+'      -> FALSE
+
+* :code:`( )` : Groups contained items into a single logical unit
+
+* :code:`[ ]` : Matches any one of the characters mentioned inside the brackets
+
+  .. parsed-literal::
+     'a'   ~ '[abc]' -> TRUE
+     'zay' ~ '[abc]' -> TRUE
+     'zy'  ~ '[abc]' -> FALSE
+
+* :code:`{ }`
+
+  * :code:`{m}` : Match a sequence of exactly *m* units
+
+    .. parsed-literal::
+       'yyaaaabcc' ~ 'a{4}' -> TRUE
+       'yyaaabcc'  ~ 'a{4}' -> FALSE
+
+  * :code:`{m,}` : Match a sequence of *m* or more units
+
+    .. parsed-literal::
+       'yyaaabcc'     ~ 'a{2,}'      -> TRUE
+       'yyabcc'       ~ 'a{2,}'      -> FALSE
+       'yyabaaababcc' ~ '(ab){2,}'   -> TRUE
+       'yyabcc'       ~ '(ab){2,}'   -> FALSE
+
+  * :code:`{m,n}` : Match a sequence of exactly *m* through *n* (inclusive) units
+
+    .. parsed-literal::
+       'aaa' ~ 'a{1,3}'   -> TRUE
+       'aa'  ~ 'a{1,3}'   -> FALSE
+
+* :code:`?` : Match zero or one unit
+
+  .. parsed-literal::
+     'abcd'  ~ 'ab?c'    -> TRUE
+     'acd'   ~ 'ab?c'    -> TRUE
+     'abbcd' ~ 'ab?c'    -> FALSE
+     'azycd' ~ 'a(zy)?c' -> TRUE
+     'acd'   ~ 'a(zy)?c' -> TRUE
+     'azcd'  ~ 'a(zy)?c' -> FALSE
+
+.. note::
+   * A **unit** refers to a logical grouping done using ( ) or a character depending on its usage
+
+   * If the above characters are escaped they lose their special meaning
+
+~~~~~~~~~~~~~~~~~~~~
+Variations of ~
+~~~~~~~~~~~~~~~~~~~~
+
+#. :code:`!~` : Negated version of ~
+
+#. :code:`~*` : Case insensitive version of ~
+
+#. :code:`!~*` : Negated version of case insensitive ~
+
 ---------------------
 Technical Notes
 ---------------------

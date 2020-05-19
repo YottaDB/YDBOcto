@@ -181,6 +181,8 @@ To generate a Debug build instead of a Release build (the default), add `-DCMAKE
 
 To additionally disable the generation of installation rules for `make install`, add `-DDISABLE_INSTALL=ON`. This can be useful when doing testing in a temporary build directory only.
 
+To build the full test suite rather than a subset of it, the `FULL_TEST_SUITE` option needs to be set to `ON`, e.g. `cmake -D FULL_TEST_SUITE=ON ..`.
+
 **NOTE**: Octo uses some CMake parameters to control generation of fixed-size buffer allocations. These are:
 
 * `STRING_BUFFER_LENGTH` -- the maximum length of a string within the system; this supersedes any VARCHAR definitions.

@@ -242,6 +242,9 @@ Install Octo
 
       To additionally disable the generation of installation rules for the :code:`make install`, add :code:`-DDISABLE_INSTALL=ON`. This can be useful when doing testing in a temporary build directory only.
 
+
+      To build the full test suite rather than a subset of it, the :code:`FULL_TEST_SUITE` option needs to be set to :code:`ON`, e.g. :code:`cmake -D FULL_TEST_SUITE=ON ..`.
+
       .. note::
 
 	 Octo uses some CMake parameters to control generation of fixed-size buffer allocations.

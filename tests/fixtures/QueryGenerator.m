@@ -9,12 +9,6 @@
 ;	the license, please stop and do not read further.	;
 ;								;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-	; The variable "currentAlias" maintains the parent queries alias number, it does not track
-	; any of the subquery alias number changes that do not apply to the parent query. It does not
-	; wrap any function calls pertaining to only the subqueries, namely any of the inner/subquery
-	; specific functions and a few of the cases of the "havingClause" function, which is done differently
-	; as a result of coding the "havingClause" function to handle both HAVINGs occuring within the parent
-	; query and the subquery.
 
 	; #FUTURE_TODO: Implement subqueries into other places (Group By, Having, etc.). Example below
 	;               SELECT n1.id from names n1 where n1.id * (select n2.id from names n2 where n2.id = n1.id % 3) = n1.id * 2;
@@ -43,20 +37,15 @@
 	set $etrap="zshow ""*""  halt"
 	;
 	set initDone("setQuantifier")=0
-	set initDone("chooseTable")=0
-	set initDone("chooseColumn")=0
 	set initDone("arithmeticOperator")=0
 	set initDone("comparisonOperators")=0
 	set initDone("booleanOperator")=0
 	set initDone("joinTypes")=0
 	set initDone("tf")=0
 	set initDone("aas")=0
-	set initDone("aggregrateFunctions")=0
 	set GLOBALtotalTables=0
 	set orderByExists="FALSE"
 	set limitExists="FALSE"
-	set outerJoinExists="FALSE"
-	set outerJoinsAllowed="FALSE"
 	set existsInHavingExists="FALSE"
 	set caseFunctionExists="FALSE"
 
@@ -74,25 +63,33 @@
 
 	do readSQL($$findFile(sqlFile))
 	do readZWR($$findFile(zwrFile))
-
 	do checkForEmptyTables()
+	do initTable()
+	do initColumn()
+	do initAggrFunc()
 
+	; Choose a max of 4 JOINs. 2 with probability ~ 25%, 3 with probability ~ 12.5%, 4 with probability ~ 6.25%
+	; Use the same join count for ALL queries generated in this round.
+	set joinCount=$select('$random(2**4):4,'$random(2**3):3,'$random(2**2):2,1:1)
+	; With the Northwind data set, 2 or 3 joins in the query with complex subquery invocations have known to cause
+	; result rows that are gigabytes long and take a long time to run (greater than 10 minutes)
+	; so restrict max joins to 1 in that case.
+	set:(sqlFile["northwind")&(1<joinCount) joinCount=1
+	zwrite sqlFile,joinCount
 	;Main Loop
-	new i
+	new i,savecolumns
 	for i=1:1:runCount do
+	. new tableAlias	; refresh the mapping of table names to alias names for each query
+	. kill savecolumns merge savecolumns=columns
 	. set aliasNum=0
-	. set currentAlias=0
 	. set fromNum=1
 	.
 	. ; About 1/5 of queries generated will contain GROUP BY and will also
 	. ; match the requirements for having a GROUP BY in the query
-	. ; #FUTURE_TODO: Uncomment following 2 lines when issue 311 is resolved, aggregate functions
-	. ;               cause issues when there are null strings in the database being queried
-	. ;set allowGBH("alias"_aliasNum)="FALSE"
-	. ;if '($random(5))  set allowGBH("alias"_aliasNum)="TRUE"
+	. set allowGBH("alias"_aliasNum)=$select('$random(5):"TRUE",1:"FALSE")
 	.
-	. set query=""
-	. set query=$$generateQuery
+	. set query="",queryDepth=0
+	. set query=$$generateQuery(queryDepth,joinCount)
 	. write query,!
 	.
 	. set file=prefix_i_".sql"
@@ -106,11 +103,12 @@
 	. close file
 	. ; The following LVNs exist for each individual query,
 	. ; thus they need to be KILLED after each query is created
-	. kill tableColumn,selectListLVN,subQuerySelectedTables,tableColumnCopy,innerQuerySLLVN,dontJoin
+	. kill tableColumn,selectListLVN,subQuerySelectedTables,innerQuerySLLVN
 	. ; The following variables need to be reset to their default values for each, seperate query.
-	. set orderByExists="FALSE"  set limitExists="FALSE"  set outerJoinExists="FALSE" set outerJoinsAllowed="FALSE"
+	. set orderByExists="FALSE"  set limitExists="FALSE"
 	. set existsInHavingExists="FALSE"  set caseFunctionExists="FALSE"
-	. set currentAlias=0
+	. kill columns
+	. merge columns=savecolumns	; refresh columns array for next query (remove any temporary tables created in prior query)
 
 	quit
 
@@ -250,28 +248,17 @@ setQuantifier(curDepth)
 	. set quantifier($increment(quantifier))="ALL "
 	. set quantifier($increment(quantifier))=""
 	. if $increment(quantifier)
-	; #FUTURE_TODO: The following if/else block can likely be removed when issue 311 is
-	;               resolved, but this will need to be tested as the if/else block prevents
-	;               the "DISTINCT" quantifer from being used in a query containing aggregate
-	;               functions
-	; #FUTURE_TODO: Uncomment following if/else/quit block when aggregate functions are to be
-	;               re-enabled (related to issue 311), aggregate functions cause issues
-	;               when there are null strings in the database being queried
-	;if (allowGBH("alias"_aliasNum)="TRUE") do
-	;. for  do  quit:(actualQuantifier'="DISTINCT ")
-	;. . set actualQuantifier=quantifier($random(quantifier))
-	;else  set actualQuantifier=quantifier($random(quantifier))
-	;quit actualQuantifier
-	; #FUTURE_TODO: Remove below 3 lines when #311 is fixed
 	set actualQuantifier=quantifier($random(quantifier))
-	set quantiferLVN("alias"_aliasNum)=actualQuantifier
+	set quantifierLVN("alias"_aliasNum)=actualQuantifier
 	quit actualQuantifier
 
 ; https://ronsavage.github.io/SQL/sql-92.bnf.html#select%20list
-; This function returns a select list only for the parent query. Currently it can only contain table.column, subquery, and case functions.
-; It takes in a curDepth value, since it is recursive. This value is continously lowered until it reaches 0, thus ending the recursive loop.
+; This function returns a select list only for the parent query.
+; Currently it can only contain table.column, subquery, and case functions.
+; It takes in a curDepth value, since it is recursive.
+; This value is continously lowered until it reaches 0, thus ending the recursive loop.
 ; It stores every value added into the SELECT LIST into a LVN called selectListLVN.
-selectList(curDepth)
+selectList(queryDepth,curDepth)
 	new randInt,result,toBeAdded
 	;This function serves the same purpose as select sublist in the grammar rules for SQL.
 
@@ -279,9 +266,6 @@ selectList(curDepth)
 	; Choose DerivedColumn or Qualifier
 	set randInt=""
 
-	; #FUTURE_TODO: Uncomment line containing the "if" when issue 311 is resolved, and remove
-	;               line missing the "if" statement that follows the one with the "if" statement
-	;if (allowGBH("alias"_"0")'="TRUE")  set randInt=$random(9) ; 0-8 ; #FUTURE_TODO: Increase to 10 when issues #385 and #386 are resolved
 	; #FUTURE_TODO: Increase below to 9 when $$returnCaseFunction infinite loop and malformed query issues are resolved
 	set randInt=$random(6)	; #FUTURE_TODO: Increase to 10 when issues #385 and #386 are resolved
 
@@ -294,87 +278,66 @@ selectList(curDepth)
 
 	; Qualifier notation (table.column) is to be used
 	if ((randInt=0)!(randInt=1)!(randInt=2))  do
-	. set table=$order(tableColumn(1))
+	. set table=$$chooseTableFromTableColumn()
 	. set toBeAdded=table_"."_$$chooseColumn(table)
-	. set selectListLVN(toBeAdded)=""
+	. set selectListLVN(queryDepth,toBeAdded)="table.column"
 
 	if ((randInt=3)!(randInt=4)!(randInt=5))  do
 	. set aliasNum1More=aliasNum+1
 	. set alias="alias"_aliasNum1More
-	. if $increment(currentAlias)
-	. set toBeAdded="("_$$generateSubQuery("limited")_") AS "_alias
-	. if $increment(currentAlias,-1)
-	. set selectListLVN(alias)=""
+	. set toBeAdded="("_$$generateSubQuery(queryDepth,"limited","")_") AS "_alias
+	. set selectListLVN(queryDepth,alias)="subquery"
 
 	if ((randInt=6)!(randInt=7)!(randInt=8))  do
 	. set toCompare=$random(4)+1
 	. set toBeAdded=$$returnCaseFunction("SELECT LIST","randomNumbers","numbers","FALSE",toCompare)
-	. set selectListLVN("alias"_aliasNum)=""
+	. set selectListLVN(queryDepth,"alias"_aliasNum)="case_statement"
 
 	if (randInt=9)  do
 	. set toBeAdded="*"
-	. set selectListLVN(toBeAdded)=""
+	. set selectListLVN(queryDepth,toBeAdded)="star"
 
-	; #FUTURE_TODO: Uncomment following code block when issue 311 is resolved, aggregate functions
-	;               cause issues when there are null strings in the database being queried
-	;if (allowGBH("alias"_"0")="TRUE")  do
-	;. new table,chosenColumn,agg,chosenColumn2,tc
-	;. ; #FUTURE_TODO: Remove following line when issues (both in Octo and in test_helpers)
-	;. ;               pertaining to aggregate functions are resolved
-	;. set curDepth=0
-	;.
-	;. set table=$order(tableColumn(1))
-	;. set chosenColumn=$$chooseColumn(table)
-	;. set agg=$$returnAggregateFunction(table,chosenColumn,"SL")
-	;.
-	;. for  do  quit:(chosenColumn'=chosenColumn2)
-	;. . set chosenColumn2=$$chooseColumn(table)
-	;. set tc=table_"."_chosenColumn2
-	;.
-	;. set toBeAdded=agg_", "_tc
-	;. set selectListLVN(tc)=""
+	if (allowGBH("alias"_"0")="TRUE")  do
+	. new table,chosenColumn,agg,chosenColumn2,tc
+	. ; #FUTURE_TODO: Remove following line when issues (both in Octo and in test_helpers)
+	. ;               pertaining to aggregate functions are resolved
+	. set curDepth=0
+	.
+	. set table=$$chooseTableFromTableColumn()
+	. set chosenColumn=$$chooseColumn(table)
+	. ; #FUTURE_TODO: Add more than one column in SELECT column list that uses aggregate functions
+	. set agg=$$returnAggregateFunction(queryDepth,table,chosenColumn)
+	. set selectListLVN(queryDepth,agg)="aggregate_function"
+	.
+	. new i
+	. for i=1:1:8 set chosenColumn2=$$chooseColumn(table) quit:(chosenColumn'=chosenColumn2)
+	. set tc=$select((8'=i):table_"."_chosenColumn2,1:"")
+	. set toBeAdded=toBeAdded_", "_agg_$select(""'=tc:", "_tc,1:"")
+	. set:(""'=tc) selectListLVN(queryDepth,tc)="table.column"
 
 	set result=result_toBeAdded
 
 	if curDepth>0 do
 	. if $increment(curDepth,-1) ; to drop down a "level" in depth
-	. if (curDepth'=0) set result=result_", "_$$selectList(curDepth)
+	. if (curDepth'=0) set result=result_", "_$$selectList(queryDepth,curDepth)
 
 	quit result
 
 ; https://ronsavage.github.io/SQL/sql-92.bnf.html#table%20expression
-; This function controls whether or not to add various other portions of a query into the parent query. This includes WHERE, GROUP BY, HAVING, ORDER BY, and LIMIT.
-tableExpression()
+; This function controls whether or not to add various other portions of a query into the parent query.
+; This includes WHERE, GROUP BY, HAVING, ORDER BY, and LIMIT.
+tableExpression(queryDepth)
 	new result
 	; From Clause should go here, but it needs to be decided on early as to
 	; allow for proper column(s) to be chosen
 	set result=""
 
-	; #FUTURE_TODO: Avoid WHERE clause selection if OUTER JOINs are used in the query (related to Issue 311).
-	;               When 311 is resolved, the line containing `$find` calls below (to search for OUTER JOIN usages)
-	;               can be removed and the line after it can instead be uncommented.
-	; The following line assumes that LEFT, LEFT OUTER, RIGHT, RIGHT OUTER can only exist in the
-	; query string as the join operators, added spaces before and after them to try to limit the
-	; overall effect of this
-	if ($random(2))&'(($find(query," LEFT OUTER ")'=0)!($find(query," RIGHT ")'=0)!($find(query," RIGHT OUTER ")'=0)!($find(query," LEFT ")'=0))  set result=result_$$whereClause
-	;if (($random(2))  set result=result_$$whereClause
-	; #FUTURE_TODO: Uncomment following line when issue 311 is resolved, aggregate functions
-	;               cause issues when there are null strings in the database being queried
-	;if (allowGBH("alias"_"0")="TRUE")  set result=result_$$groupbyClause
-	; #FUTURE_TODO: Uncomment following line when issue 311 is resolved, aggregate functions
-	;               cause issues when there are null strings in the database being queried
-	;if (allowGBH("alias"_"0")="TRUE")  set result=result_$$havingClause("query")
-	; #FUTURE_TODO: Avoid ORDER BY clause selection if OUTER JOINs are used in the query (related to Issue 311).
-	;               When 311 is resolved, the line containing `$find` calls below (to search for OUTER JOIN usages)
-	;               can be removed and the line after it can instead be uncommented.
-	; The following line assumes that LEFT, LEFT OUTER, RIGHT, RIGHT OUTER can only exist in the
-	; query string as the join operators, added spaces before and after them to try to limit the
-	; overall effect of this
-	if ($random(2))&'(($find(query," LEFT OUTER ")'=0)!($find(query," RIGHT ")'=0)!($find(query," RIGHT OUTER ")'=0)!($find(query," LEFT ")'=0))  set result=result_$$orderbyClause(0,"QUERY")  set orderByExists="TRUE"
-	; #FUTURE_TODO: Remove preceding line, and uncomment the following commented out line
-	;               when Issue 311 is resolved
-	;if ($random(2))  set result=result_$$orderbyClause(0,"QUERY")  set orderByExists="TRUE"
-	if '($random(8))  set result=result_$$limitClause  set limitExists="TRUE"
+	set:$random(2) result=result_$$whereClause(queryDepth)
+	if (allowGBH("alias"_"0")="TRUE")  do
+	. set result=result_$$groupbyClause(queryDepth)
+	. set result=result_$$havingClause(queryDepth,"query")
+	set:$random(2) result=result_$$orderbyClause(queryDepth,0,"QUERY"),orderByExists="TRUE"
+	set:'($random(8)) result=result_$$limitClause,limitExists="TRUE"
 
 	quit result
 
@@ -413,21 +376,20 @@ fromClause()
 	;. set tableColumn(toBeAdded)=""
 	;. set randInt=$increment(randInt,-1)
 
-	set chosenTable=""
-	for  do  quit:($data(tableColumnCopy(chosenTable))=0)
-	. set chosenTable=$$chooseTable
+	set chosenTable=$$chooseTable
+	set tableColumn(chosenTable)="",tableAlias(chosenTable)=chosenTable
+	write "fromClause() : set tableAlias(",chosenTable,")=",tableAlias(chosenTable),!
 
 	; Following two commented out lines, and the comments at the end of the quit statement
 	; are intended to support the eventual change to have a list of tables to be selected from.
 	;if $increment(fromNum)
 	;set tableColumn("f"_fromNum)=chosenTable
-	set tableColumn(chosenTable)=""
 
 	quit result_chosenTable ;_"f"_fromNum ;chosenTable OR fromTableList
 
 ; https://ronsavage.github.io/SQL/sql-92.bnf.html#where%20clause
 ; This function returns the WHERE clause, which contains the WHERE statement as well as a randomly selected condition type.
-whereClause()
+whereClause(queryDepth)
 	new result,randInt,i,x
 	set result=" WHERE "
 	; #FUTURE_TODO: Increase below to 12 when $$returnCaseFunction infinite loop and malformed query issues are resolved
@@ -444,7 +406,7 @@ whereClause()
 	; WHERE clause type 8 is LIKE with wildcards, this comparison can only occur on VARCHARs, not numeric/integer/boolean
 	if ((randInt=2)!(randInt=8))  do
 	. set x="sqlInfo("""_table_""")"
-	. for i=1:1  do  quit:($find(type,"VARCHAR")'=0)
+	. for i=1:1  do  quit:($find(type,"VARCHAR")'=0)  do assert(i<16)
 	. . set x=$query(@x)
 	. . set type=$qsubscript(x,4)
 	. . if ($qsubscript(x,1)'=table)  set randInt=0
@@ -496,31 +458,20 @@ whereClause()
 	. . if ((i=loopCount)&(opened="TRUE"))  set result=result_")"
 
 	if (randInt=1) do
-	. new condition,type,chosenColumn,plusMinus
-	. set type=""
-	. for  quit:($find(type,"INTEGER")'=0)  do
-	. . set chosenColumn=$$chooseColumn(table)
-	. . set type=$$returnColumnType(table,chosenColumn)
+	. new condition,chosenColumn,plusMinus,i
+	. set chosenColumn=$$getColumnOfType(table,"INTEGER")
 	. set plusMinus="+"
 	. if $random(2) set plusMinus="-"
 	. set result=result_"(("_table_"."_chosenColumn_plusMinus_$$chooseEntry(table,chosenColumn)_")="_$$chooseEntry(table,chosenColumn)_")"
 
 	if (randInt=2) do
-	. new leftSide,rightSide,type,entry1,entry2
 	. ; Left side of this expression will always be forced to be a varchar,
 	. ; the right side of this expression can be either varchar or integer
 	. ; This is done as PostgreSQL requires at least one side of a string concatenation
 	. ; to be a string/varchar and the other to not be.
-	. new leftSide,rightSide,type,chosenColumn1,chosenColumn2,entry1,entry2
+	. new leftSide,rightSide,chosenColumn1,chosenColumn2,entry1,entry2,i
 	.
-	. set leftSide=""
-	. set rightSide=""
-	.
-	. set chosenColumn1=""
-	. set type=""
-	. for  quit:($find(type,"VARCHAR")'=0)  do
-	. . set chosenColumn1=$$chooseColumn(table)
-	. . set type=$$returnColumnType(table,chosenColumn1)
+	. set chosenColumn1=$$getColumnOfType(table,"VARCHAR")
 	. set entry1=$$chooseEntry(table,chosenColumn1)
 	. set entry1=$extract(entry1,2,$length(entry1)-1)
 	. set leftSide=table_"."_chosenColumn1
@@ -537,11 +488,8 @@ whereClause()
 	. set result=result_"'"_entry1_entry2_"')"
 
 	if (randInt=3) do
-	. new type,chosenColumn,plusMinus,plusMinus2
-	. set type=""
-	. for  quit:($find(type,"INTEGER")'=0)  do
-	. . set chosenColumn=$$chooseColumn(table)
-	. . set type=$$returnColumnType(table,chosenColumn)
+	. new chosenColumn,plusMinus,plusMinus2,i
+	. set chosenColumn=$$getColumnOfType(table,"INTEGER")
 	. set plusMinus="+"
 	. if $random(2) set plusMinus="-"
 	. set plusMinus2="+"
@@ -549,21 +497,13 @@ whereClause()
 	. set result=result_"("_table_"."_chosenColumn_" "_$$comparisonOperators_" "_plusMinus_"("_plusMinus2_$$chooseEntry(table,chosenColumn)_"))"
 
 	if (randInt=4) do
-	. new type,chosenColumn,beginning,plusMinus,end,aOperator
-	.
-	. set type=""
-	. for  quit:($find(type,"INTEGER")'=0)  do
-	. . set chosenColumn=$$chooseColumn(table)
-	. . set type=$$returnColumnType(table,chosenColumn)
-	.
+	. new chosenColumn,beginning,plusMinus,end,aOperator,i
+	. set chosenColumn=$$getColumnOfType(table,"INTEGER")
 	. set beginning="("_$$chooseEntry(table,chosenColumn)_")"
-	.
 	. new plusMinus
 	. set plusMinus="+"
 	. if $random(2) set plusMinus="-"
-	.
 	. set endEntry=$$chooseEntry(table,chosenColumn)
-	.
 	. ; Checks if the selected operator is division/modulo and then checks if the
 	. ; divisor is 0, if it is 0, it then forces it to a non zero number (1)
 	. set aOperator=$$arithmeticOperator
@@ -577,9 +517,7 @@ whereClause()
 	. new notString,alias
 	. set notString=""
 	. if $random(2) set notString="NOT "
-	. if $increment(currentAlias)
-	. set result=result_notString_"EXISTS ("_$$generateSubQuery("full")_")"
-	. if $increment(currentAlias,-1)
+	. set result=result_notString_"EXISTS ("_$$generateSubQuery(queryDepth,"full","")_")"
 
 	if (randInt=6) do
 	. new chosenColumn,notString,entryList,i
@@ -601,12 +539,9 @@ whereClause()
 	. set result=result_table_"."_chosenColumn_" BETWEEN "_$$chooseEntry(table,chosenColumn)_" AND "_$$chooseEntry(table,chosenColumn)
 
 	if (randInt=8) do
-	. new chosenColumn,string,i,randInt
+	. new chosenColumn,string,i,randInt,i
 	. ; Forces column to be of type "VARCHAR" as to do a string comparison
-	. set type=""
-	. for  quit:($find(type,"VARCHAR")'=0)  do
-	. . set chosenColumn=$$chooseColumn(table)
-	. . set type=$$returnColumnType(table,chosenColumn)
+	. set chosenColumn=$$getColumnOfType(table,"VARCHAR")
 	. set string=""
 	. set desiredStringLength=$random(7)+1 ; 1-7
 	. for i=1:1:desiredStringLength do
@@ -621,27 +556,25 @@ whereClause()
 	. set result=result_table_"."_chosenColumn_" LIKE '"_string_"'"
 
 	if (randInt=9) do
-	. new randInt,word,leftSide,rightSide,chosenColumn,entryList,limit,rightType
-	. set word=$$aas
+	. new randInt,word,leftSide,rightSide,chosenColumn,entryList,limit,rightType,i,aliasNum1More
+	. set word=$$anyAllSome
 	. set leftSide=$$chooseColumn(table)
 	. set leftType=$$returnColumnType(table,leftSide)
-	. if $increment(currentAlias)
-	. set rightSide="("_$$generateSubQuery("limited")_")"
-	. if $increment(currentAlias,-1)
+	. set aliasNum1More=aliasNum+1
+	. set rightSide="("_$$generateSubQuery(queryDepth,"limited","")_")"
 	. set aliasDotColumn=""
-	. for i=1:1  do  quit:($find(aliasDotColumn,"alias"_aliasNum)'=0)
+	. for i=1:1  do  quit:($find(aliasDotColumn,"alias"_aliasNum1More)'=0)  do assert(i<16)
 	. . set aliasDotColumn=$piece(rightSide," ",i)
-	. set rightColumn=$piece(aliasDotColumn,".",2)
+	. set rightColumn=$piece($piece(aliasDotColumn,".",2),",",1)
 	.
-	. new i
 	. set holder=""
-	. for i=1:1  do  quit:($find(holder,"FROM")'=0)
+	. for i=1:1  do  quit:($find(holder,"FROM")'=0)  do assert(i<16)
 	. . set holder=$piece(rightSide," ",i)
 	. set rightTable=$piece(rightSide," ",i+1)
 	.
 	. set rightType=$$returnColumnType(rightTable,rightColumn)
 	.
-	. for i=1:1:15  do  quit:($piece(leftType,"(")=$piece(rightType,"("))
+	. for i=1:1:15  do  quit:(leftType=rightType)
 	. . set leftSide=$$chooseColumn(table)
 	. . set leftType=$$returnColumnType(table,leftSide)
 	.
@@ -661,7 +594,7 @@ whereClause()
 	. set leftColumn=$$chooseColumn(table)
 	.
 	. set leftType=$$returnColumnType(table,leftColumn)
-	. for i=1:1:15  do  quit:($piece(leftType,"(")=$piece(rightType,"("))
+	. for i=1:1:15  do  quit:(leftType=rightType)
 	. . set rightColumn=$$chooseColumn(table)
 	. . set rightType=$$returnColumnType(table,rightColumn)
 	.
@@ -685,11 +618,8 @@ whereClause()
 	; WHERE clause to be added in numerical order, when reenabled change the 999
 	; to whatever the next integer value would be in the series
 	if (randInt=999) do
-	. set type=""
-	. for  do  quit:($find(type,"BOOLEAN")'=0)
-	. . set chosenColumn=$$chooseColumn(table)
-	. . set type=$$returnColumnType(table,chosenColumn)
-	. . ;if (type="BOOLEAN")  set result=result_chosenColumn
+	. new i
+	. set chosenColumn=$$getColumnOfType(table,"BOOLEAN")
 	. set result=result_chosenColumn
 
 	; #FUTURE_TODO: Boolean expressions can be combined to create more complex Booleans
@@ -715,21 +645,24 @@ whereClause()
 
 ; https://ronsavage.github.io/SQL/sql-92.bnf.html#group%20by%20clause
 ; This function returns the GROUP BY clause. It pulls the necessary values from the selectListLVN.
-groupbyClause()
-	new result,randInt,i,holder
-	set result=" GROUP BY "
+groupbyClause(queryDepth)
+	new result,randInt,i,holder,firstholder
+	set result=""
+	zwrite tableAlias,tableColumn,selectListLVN
 
-	set holder=" "
-	for  quit:(holder="")  do
-	. set holder=$order(selectListLVN(holder))
-	. if (holder'="*")  set result=result_holder_", "
-
-	; strip off the ", , " at the end of result
-	if ($extract(result,$length(result)-3,$length(result))=", , ")  set result=$extract(result,0,$length(result)-3)
-
-	set result=$extract(result,1,$length(result)-1)
-
-	quit result
+	set firstholder=1
+	new i,j
+	for j=queryDepth:-1:0 do
+	. set holder=""
+	. for i=1:1 set holder=$order(selectListLVN(j,holder)) quit:(holder="")  do  do assert(i<16)
+	. . ; Skip columns in select list with "*" OR aggregate function OR subquery usage.
+	. . write "groupbyClause() : selectListLVN(",j,",",$zwrite(holder),")=",selectListLVN(j,holder),!
+	. . quit:selectListLVN(j,holder)="aggregate_function"
+	. . quit:selectListLVN(j,holder)="subquery"
+	. . quit:selectListLVN(j,holder)="star"
+	. . set result=result_$select(firstholder:"",1:", ")_holder,firstholder=0
+	write "groupbyClause() : result = ",result,!
+	quit $select(""=result:" ",1:" GROUP BY "_result)
 
 ; https://ronsavage.github.io/SQL/sql-92.bnf.html#having%20clause
 ; #FUTURE_TODO: integrate aggregate functions into all of the below if blocks
@@ -737,56 +670,46 @@ groupbyClause()
 ; "query" and "subquery" are valid clauseTypes
 ; If the HAVING Clause is to appear in the greater query (most external level) run with "query"
 ; If the HAVING Clause is to appear within a subquery run with "subquery"
-havingClause(clauseType)
-	if (clauseType="query")
-	new result,randInt,holder,count,i,randValue,table,count
+havingClause(queryDepth,clauseType)
+	quit:$random(2) ""	; Randomly generate EMPTY HAVING clause
+
+	new result,randInt,holder,count,randValue,table,count,chosenColumn,isAggrFuncColumn
 	set result=" HAVING "
 
-	set holder=" "
 	set count=-1
-	for  quit:(holder="")  do
-	. set holder=$order(selectListLVN(holder))
-	. if $increment(count)
-
-	if (clauseType="query") do
-	. for  do  quit:($find(holder,"alias")=0)
-	. . set holder=$order(selectListLVN(holder))
-	. set table=$piece(holder,".",1)
-
-	if (clauseType="subquery") do
+	new i,j
+	for j=queryDepth:-1:0 do
 	. set holder=""
-	. for i=1:1  do  quit:($find(holder,"FROM")'=0)
-	. . set holder=$piece(innerQuery," ",i)
-	. set table=$piece(innerQuery," ",i+1)
+	. for i=1:1 do  quit:(holder="")  do assert(i<16)
+	. . set holder=$order(selectListLVN(j,holder))
+	. . if (""=holder)!("subquery"'=selectListLVN(j,holder)) if $increment(count)
 
-	; #FUTURE_TODO: Increase below to 12 when $$returnCaseFunction infinite loop and malformed query issues are resolved
-	set randInt=$random(10) ; 0-9
-
-	if ((randInt=5)&(existsInHavingExists="TRUE")) set randInt=1
+	do assert(0<count)
+	; #FUTURE_TODO: Increase below to 8 when $$returnCaseFunction infinite loop and malformed query issues are resolved
+	set randInt=$random(6) ; 0-5
+	write "havingClause() : randInt = ",randInt,!
 
 	if (randInt=0) do
-	. new loopCount,opened,i,leftSide,rightSide,notString,rightRand,leftRand,chosenColumn
+	. new loopCount,opened,i,leftSide,rightSide,notString,rightRand,leftRand
 	. set loopCount=$random(3)+1 ; 1-3
 	. set opened="FALSE"
 	. for i=1:1:loopCount do
-	. . set leftSide=""
-	. . set rightSide=""
-	. . ; #FUTURE_TODO: Figure out way to identify type and match aggregate functions, and
-	. . ;               then change below $random statements to $random(3)
-	. . set leftRand=$random(2)+1
-	. . set rightRand=$random(2)+1
-	. . set chosenColumn=$$havingChooseColumn(count)
-	. . if ((leftRand=0)&(clauseType="query")) set leftSide=$$returnAggregateFunction(table,chosenColumn,"HAVING")
-	. . if ((leftRand=0)&(clauseType="subquery")) set leftSide=$$returnAggregateFunction(table,chosenColumn,"HAVING-SUBQUERY")
-	. . if ((leftRand=1)&(clauseType="query"))  set leftSide=table_"."_chosenColumn
-	. . if ((leftRand=1)&(clauseType="subquery"))  set leftSide="alias"_aliasNum_"."_chosenColumn
-	. . if (leftRand=2)  set leftSide=$$chooseEntry(table,chosenColumn)
+	. . set chosenColumn=$$havingChooseColumn(queryDepth,.table,.isAggrFuncColumn,count)
+	. . ; If chosen column is used with aggregate functions in the select column list, use it with an aggregate function
+	. . ; in the having clause too (i.e. ensure leftRand and rightRand never get set to 2).
+	. . set max=$select(""'=isAggrFuncColumn:1,1:3)
+	. . set leftRand=$random(max),rightRand=$random(max)
+	. . if (leftRand=0)  set leftSide=$$chooseEntry(table,chosenColumn)
+	. . if (leftRand=1) set leftSide=$$havingGetTblCol(isAggrFuncColumn,table,chosenColumn)
+	. . if (leftRand=2)  set leftSide=table_"."_chosenColumn
 	. .
-	. . if ((rightRand=0)&(clauseType="query"))  set rightSide=$$returnAggregateFunction(table,chosenColumn,"HAVING")
-	. . if ((rightRand=0)&(clauseType="subquery"))  set rightSide=$$returnAggregateFunction(table,chosenColumn,"HAVING-SUBQUERY")
-	. . if ((rightRand=1)&(clauseType="query"))  set rightSide=table_"."_chosenColumn
-	. . if ((rightRand=1)&(clauseType="subquery"))  set rightSide="alias"_aliasNum_"."_chosenColumn
-	. . if (rightRand=2)  set rightSide=$$chooseEntry(table,chosenColumn)
+	. . if (rightRand=0)  set rightSide=$$chooseEntry(table,chosenColumn)
+	. . if (rightRand=1) set rightSide=$$havingGetTblCol(isAggrFuncColumn,table,chosenColumn)
+	. . if (rightRand=2)  set rightSide=table_"."_chosenColumn
+	. . ; If COUNT got chosen as an aggregate function on one side, ensure the other side is a count and not a chooseEntry
+	. . if (leftRand=0)&(rightRand=1)&("COUNT"=isAggrFuncColumn) set leftSide=$$chooseCount
+	. . if (leftRand=1)&(rightRand=0)&("COUNT"=isAggrFuncColumn) set rightSide=$$chooseCount
+	. . zwrite leftRand,rightRand,leftSide,rightSide
 	. .
 	. . set notString=""
 	. . if $random(2) set notString="NOT "
@@ -807,188 +730,98 @@ havingClause(clauseType)
 	. . if ((i=loopCount)&(opened="TRUE"))  set result=result_")"
 
 	if (randInt=1) do
-	. new type,chosenColumn,plusMinus,i
-	. set type=""
-	. for i=1:1:15  quit:($find(type,"INTEGER")'=0)  do
-	. . set chosenColumn=$$havingChooseColumn(count)
-	. . if (chosenColumn'="") set type=$$returnColumnType(table,chosenColumn)
-	. set plusMinus="+"
-	. if $random(2) set plusMinus="-"
-	. if ((i'=15)&(clauseType="query")) set result=result_"(("_table_"."_chosenColumn_plusMinus_$$chooseEntry(table,chosenColumn)_")="_$$chooseEntry(table,chosenColumn)_")"
-	. if ((i'=15)&(clauseType="subquery")) set result=result_"(("_"alias"_aliasNum_"."_chosenColumn_plusMinus_$$chooseEntry(table,chosenColumn)_")="_$$chooseEntry(table,chosenColumn)_")"
-	. if (i=15)  set randInt=2
-
-	if (randInt=2) do
-	. ; Left side of this expression will always be forced to be a varchar,
-	. ; the right side of this expression can be either varchar or integer
-	. ; This is done as PostgreSQL requires at least one side of a string concatenation
-	. ; to be a string/varchar and the other to not be.
-	. new leftSide,rightSide,type,chosenColumn1,chosenColumn2,entry1,entry2
-	.
-	. set leftSide=""
-	. set rightSide=""
-	.
-	. set chosenColumn1=""
-	. set type=""
-	. for i=1:1:15  quit:($find(type,"VARCHAR")'=0)  do
-	. . set chosenColumn1=$$havingChooseColumn(count)
-	. . set type=$$returnColumnType(table,chosenColumn1)
-	. set entry1=$$chooseEntry(table,chosenColumn1)
-	. set entry1=$extract(entry1,2,$length(entry1)-1)
-	. if (clauseType="query") set leftSide=table_"."_chosenColumn1
-	. if (clauseType="subquery") set leftSide="alias"_aliasNum_"."_chosenColumn1
-	. if $random(2)  set leftSide=$$chooseEntry(table,chosenColumn1)
-	.
-	. set chosenColumn2=$$havingChooseColumn(count)
-	. set entry2=$$chooseEntry(table,chosenColumn2)
-	. set entry2=$extract(entry2,2,$length(entry2)-1)
-	. if (clauseType="query") set rightSide=table_"."_chosenColumn2
-	. if (clauseType="subquery") set rightSide="alias"_aliasNum_"."_chosenColumn2
-	. if $random(2)  set rightSide=$$chooseEntry(table,chosenColumn2)
-	.
-	. if (i'=15) set result=result_"(("_leftSide_"||"_rightSide_")"_$$comparisonOperators_"'"_entry1_entry2_"')"
-	. else  set randInt=3
-
-	if (randInt=3) do
-	. new type,chosenColumn,plusMinus,plusMinus2,i
-	. set type=""
-	. for i=1:1:15  quit:($find(type,"INTEGER")'=0)  do
-	. . set chosenColumn=$$havingChooseColumn(count)
-	. . set type=$$returnColumnType(table,chosenColumn)
-	. set plusMinus="+"
-	. if $random(2) set plusMinus="-"
-	. set plusMinus2="+"
-	. if $random(2) set plusMinus2="-"
-	.
-	. if ((i'=15)&(clauseType="query")) set result=result_"("_table_"."_chosenColumn_" "_$$comparisonOperators_" "_plusMinus_"("_plusMinus2_$$chooseEntry(table,chosenColumn)_"))"
-	. if ((i'=15)&(clauseType="subquery")) set result=result_"("_"alias"_aliasNum_"."_chosenColumn_" "_$$comparisonOperators_" "_plusMinus_"("_plusMinus2_$$chooseEntry(table,chosenColumn)_"))"
-	. else  set randInt=4
-
-	if (randInt=4) do
-	. new type,chosenColumn,beginning,plusMinus,end,aOperator
-	.
-	. set type=""
-	. for i=1:1:15  quit:($find(type,"INTEGER")'=0)  do
-	. . set chosenColumn=$$havingChooseColumn(count)
-	. . set type=$$returnColumnType(table,chosenColumn)
-	.
-	. set beginning="("_$$chooseEntry(table,chosenColumn)_")"
-	.
-	. new plusMinus
-	. set plusMinus="+"
-	. if $random(2) set plusMinus="-"
-	.
-	. set endEntry=$$chooseEntry(table,chosenColumn)
-	.
-	. ; Checks if the selected operator is division/modulo and then checks if the
-	. ; divisor is 0, if it is 0, it then forces it to a non zero number (1)
-	. set aOperator=$$arithmeticOperator
-	. if (((aOperator="/")!(aOperator="%"))&(endEntry=0))  set endEntry=1
-	.
-	. set end=plusMinus_"("_plusMinus_endEntry_")"
-	.
-	. if ((i'=15)&(clauseType="query")) set result=result_"(("_beginning_" "_aOperator_" "_end_") "_$$comparisonOperators_" "_table_"."_chosenColumn_")"
-	. if ((i'=15)&(clauseType="subquery")) set result=result_"(("_beginning_" "_aOperator_" "_end_") "_$$comparisonOperators_" "_"alias"_aliasNum_"."_chosenColumn_")"
-	. else  set randInt=5
-
-	if (randInt=5) do
 	. set existsInHavingExists="TRUE"
 	. new notString,alias
 	. set notString=""
 	. if $random(2) set notString="NOT "
-	. if $increment(currentAlias)
-	. set result=result_notString_"EXISTS ("_$$generateSubQuery("full")_")"
-	. if $increment(currentAlias,-1)
+	. set result=result_notString_"EXISTS ("_$$generateSubQuery(queryDepth,"full","")_")"
 
-	if (randInt=6) do
-	. new chosenColumn,notString,entryList,i
-	. set chosenColumn=$$havingChooseColumn(count)
+	if (randInt=2) do
+	. new chosenColumn,notString,entryList,i,tblcol
+	. set chosenColumn=$$havingChooseColumn(queryDepth,.table,.isAggrFuncColumn,count)
 	. set notString=""
 	. if $random(2) set notString="NOT "
 	. set entryList=""
 	. set limit=($random($$maxIndex(table)-1)+1)
 	. if (limit>8)  set limit=8
+	. set limit=1	; #FUTURE_TODO: Remove this line when YDBOcto#516 is fixed
 	. for i=1:1:limit do
-	. . set entryList=entryList_$$chooseEntry(table,chosenColumn)_", "
-	. ; strip the ", " off of entryList
-	. set entryList=$extract(entryList,0,$length(entryList)-2)
-	. if (clauseType="query") set result=result_table_"."_chosenColumn_" "_notString_"IN ("_entryList_")"
-	. if (clauseType="subquery") set result=result_"alias"_aliasNum_"."_chosenColumn_" "_notString_"IN ("_entryList_")"
+	. . set entryList=entryList_$select(1<i:", ",1:"")
+	. . set entryList=entryList_$select(("COUNT"=isAggrFuncColumn):$$chooseCount,1:$$chooseEntry(table,chosenColumn))
+	. set tblcol=$$havingGetTblCol(isAggrFuncColumn,table,chosenColumn)
+	. set result=result_tblcol_" "_notString_"IN ("_entryList_")"
 
-	if (randInt=7) do
-	. new chosenColumn
-	. set chosenColumn=$$havingChooseColumn(count)
-	. if (clauseType="query") set result=result_table_"."_chosenColumn_" BETWEEN "_$$chooseEntry(table,chosenColumn)_" AND "_$$chooseEntry(table,chosenColumn)
-	. if (clauseType="subquery") set result=result_"alias"_aliasNum_"."_chosenColumn_" BETWEEN "_$$chooseEntry(table,chosenColumn)_" AND "_$$chooseEntry(table,chosenColumn)
+	if (randInt=3) do
+	. new chosenColumn,tblcol
+	. set chosenColumn=$$havingChooseColumn(queryDepth,.table,.isAggrFuncColumn,count)
+	. set tblcol=$$havingGetTblCol(isAggrFuncColumn,table,chosenColumn)
+	. set result=result_tblcol_" BETWEEN "
+	. set result=result_$select(("COUNT"=isAggrFuncColumn):$$chooseCount,1:$$chooseEntry(table,chosenColumn))
+	. set result=result_" AND "
+	. set result=result_$select(("COUNT"=isAggrFuncColumn):$$chooseCount,1:$$chooseEntry(table,chosenColumn))
 
-	if (randInt=8) do
-	. new chosenColumn,string,i,charCount
+	if (randInt=4) do
+	. new chosenColumn,i
 	. ; Forces column to be of type "VARCHAR" as to do a string comparison
 	. set type=""
-	. for i=1:1:15  quit:($find(type,"VARCHAR")'=0)  do
-	. . set chosenColumn=$$havingChooseColumn(count)
+	. for i=1:1:15  quit:("VARCHAR"=type)&("COUNT"'=isAggrFuncColumn)  do
+	. . set chosenColumn=$$havingChooseColumn(queryDepth,.table,.isAggrFuncColumn,count)
 	. . set type=$$returnColumnType(table,chosenColumn)
-	. set string=""
-	. set desiredStringLength=$random(7)+1 ; 1-7
-	. for charCount=1:1:desiredStringLength do
-	. . set randValue=$random(9) ; 0-8
-	. . if ((randValue=0)!(randValue=1)) set string=string_$char($random(27)+64) ; @,A-Z
-	. . if ((randValue=2)!(randValue=3)) set string=string_$char($random(26)+97) ; a-z
-	. . if (randValue=4) set string=string_$random(10) ; 0-9
-	. . if (randValue=5) set string=string_"#"
-	. . if (randValue=6) set string=string_"$"
-	. . if (randValue=7) set string=string_"%"
-	. . if (randValue=8) set string=string_"_"
-	. if ((i'=15)&(clauseType="query")) set result=result_table_"."_chosenColumn_" LIKE '"_string_"'"
-	. if ((i'=15)&(clauseType="subquery")) set result=result_"alias"_aliasNum_"."_chosenColumn_" LIKE '"_string_"'"
-	. else  set randInt=9
+	. . write "havingClause() : i = ",i," : table = ",table," : chosenColumn = ",chosenColumn," : type = ",type," : isAggrFuncColumn = ",isAggrFuncColumn,!
+	. if (i'=15) do
+	. . new string,charCount
+	. . set string=""
+	. . set desiredStringLength=$random(7)+1 ; 1-7
+	. . for charCount=1:1:desiredStringLength do
+	. . . set randValue=$random(9) ; 0-8
+	. . . if ((randValue=0)!(randValue=1)) set string=string_$char($random(27)+64) ; @,A-Z
+	. . . if ((randValue=2)!(randValue=3)) set string=string_$char($random(26)+97) ; a-z
+	. . . if (randValue=4) set string=string_$random(10) ; 0-9
+	. . . if (randValue=5) set string=string_"#"
+	. . . if (randValue=6) set string=string_"$"
+	. . . if (randValue=7) set string=string_"%"
+	. . . if (randValue=8) set string=string_"_"
+	. . set tblcol=$$havingGetTblCol(isAggrFuncColumn,table,chosenColumn)
+	. . write "havingClause() : tblcol = ",tblcol,!
+	. . set result=result_tblcol_" LIKE '"_string_"'"
+	. else  set randInt=5
 
-	if (randInt=9) do
-	. new randInt,word,leftSide,rightSide,chosenColumn,entryList,limit,rightType,i
-	. set word=$$aas
-	. set leftSide=$$havingChooseColumn(count)
-	. set leftType=$$returnColumnType(table,leftSide)
-	. if $increment(currentAlias)
-	. set rightSide="("_$$generateSubQuery("limited")_")"
-	. if $increment(currentAlias,-1)
-	. ;if $increment(aliasNum,-1)
+	if (randInt=5) do
+	. new randInt,word,leftSide,rightSide,chosenColumn,entryList,limit,rightType,i,holder,aliasNum1More
+	. set word=$$anyAllSome
+	. set aliasNum1More=aliasNum+1
+	. set rightSide="("_$$generateSubQuery(queryDepth,"limited","")_")"
 	. set aliasDotColumn=""
-	. for i=1:1  do  quit:($find(aliasDotColumn,"alias"_aliasNum)'=0)
+	. for i=1:1  do  quit:($find(aliasDotColumn,"alias"_aliasNum1More)'=0)  do assert(i<16)
 	. . set aliasDotColumn=$piece(rightSide," ",i)
-	. set rightColumn=$piece(aliasDotColumn,".",2)
+	. set rightColumn=$piece($piece(aliasDotColumn,".",2),",",1)
 	.
-	. new i
 	. set holder=""
-	. for i=1:1  do  quit:($find(holder,"FROM")'=0)
+	. for i=1:1  do  quit:($find(holder,"FROM")'=0)  do assert(i<16)
 	. . set holder=$piece(rightSide," ",i)
 	. set rightTable=$piece(rightSide," ",i+1)
-	.
 	. set rightType=$$returnColumnType(rightTable,rightColumn)
 	.
-	. if $increment(aliasNum,-1)
-	. for i=1:1:15  do  quit:($piece(leftType,"(")=$piece(rightType,"("))
-	. . set leftSide=$$havingChooseColumn(count)
+	. for i=1:1:15  do  quit:(leftType=rightType)&(("COUNT"'=isAggrFuncColumn)!("VARCHAR"'=leftType))
+	. . set leftSide=$$havingChooseColumn(queryDepth,.table,.isAggrFuncColumn,count)
 	. . set leftType=$$returnColumnType(table,leftSide)
-	.
-	. if (clauseType="query") set leftSide=table_"."_leftSide
-	. if (clauseType="subquery") set leftSide="alias"_aliasNum_"."_leftSide
-	. if $increment(aliasNum)
-	.
-	. if (i'=15) set result=result_leftSide_" "_$$comparisonOperators_" "_word_" "_rightSide
+	. . set tblcol=$$havingGetTblCol(isAggrFuncColumn,table,leftSide)
+	. zwrite i,leftType,rightType,leftSide,tblcol,table,rightSide
+	. if (i'=15) set result=result_tblcol_" "_$$comparisonOperators_" "_word_" "_rightSide
 	. else  set result=""
 
-	if (randInt=10) do
+	if (randInt=6) do
 	. new toCompare
 	. set toCompare=$random(4)+1
 	. if (clauseType="subquery")  set result=result_toCompare_" = "_$$returnCaseFunction("WHERE","randomNumbers","numbers","TRUE",toCompare)
 	. if (clauseType="query")  set result=result_toCompare_" = "_$$returnCaseFunction("WHERE","randomNumbers","numbers","FALSE",toCompare)
 
-	if (randInt=11) do
+	if (randInt=7) do
 	. new leftCaseArg,rightCaseArg,i,toCompare
 	. set leftColumn=$$chooseColumn(table)
 	.
 	. set leftType=$$returnColumnType(table,leftColumn)
-	. for i=1:1:15  do  quit:($piece(leftType,"(")=$piece(rightType,"("))
+	. for i=1:1:15  do  quit:(leftType=rightType)
 	. . set rightColumn=$$chooseColumn(table)
 	. . set rightType=$$returnColumnType(table,rightColumn)
 	.
@@ -1005,11 +838,16 @@ havingClause(clauseType)
 	. . . set result=result_toCompare_" = "_$$returnCaseFunction("WHERE","lrComparison","columns","FALSE",toCompare)
 	. . if (clauseType="subquery") do
 	. . . set toCompare="alias"_aliasNum_"."_$$chooseColumn(table)
-	. . . set innerTable=table
 	. . . set result=result_toCompare_" = "_$$returnCaseFunction("WHERE","lrComparison","columns","TRUE",toCompare)
 	. else  set result=""
 
 	quit result
+
+havingGetTblCol(isAggrFuncColumn,table,chosenColumn)
+	new tblcol
+	if ""'=isAggrFuncColumn set tblcol=$$returnSimilarAggregateFunction(isAggrFuncColumn,table,chosenColumn)
+	else  set tblcol=table_"."_chosenColumn
+	quit tblcol
 
 ; https://ronsavage.github.io/SQL/sql-92.bnf.html#order%20by%20clause
 ; This function returns an ORDER BY clause for either a subquery or the parent query.
@@ -1017,26 +855,25 @@ havingClause(clauseType)
 ; It also takes in a location value as a parameter.
 ; If the ORDER BY Clause is to appear in the parent query run with "QUERY"
 ; If the ORDER BY Clause is to appear within a subquery run with "SUBQUERY"
-orderbyClause(aNum,location)
+orderbyClause(queryDepth,aNum,location)
 	new result,holder
 	set result=" ORDER BY "
 
 	; Following if statement checks for DISTINCT in the parent query as the
 	; presence of a DISTINCT qualifier requires the ORDER BY to contain only
 	; things that also occur in the SELECT LIST
-	if ($data(quantiferLVN("alias"_aNum))'=0)  do
+	if ($data(quantifierLVN("alias"_aNum))'=0)  do
 	. new rand
 	. set rand=$random(2)
 	. ; #FUTURE_TODO: Remove below line when $$returnCaseFunction infinite loop and malformed query issues are resolved
 	. set rand=1	; disable going to "else" part as it is code that generates incorrect queries.
-	. if (rand!(quantiferLVN("alias"_aNum)="DISTINCT "))  do
-	. . set holder=" "
-	. . for  quit:(holder="")  do
-	. . . set holder=$order(selectListLVN(holder))
-	. . . if (holder'="*")  set result=result_holder_", "
-	. .
-	. . ; strip off the ", , " at the end of result
-	. . if ($extract(result,$length(result)-3,$length(result))=", , ")  set result=$extract(result,0,$length(result)-4)
+	. if (rand!(quantifierLVN("alias"_aNum)="DISTINCT "))  do
+	. . write "orderbyClause() : aNum = ",aNum," : location = ",location,!
+	. . new firstholder
+	. . set firstholder=1
+	. . ; Only choose select column list columns at query depth "queryDepth" for ORDER BY due to SELECT DISTINCT usage.
+	. . set holder="" for  set holder=$order(selectListLVN(queryDepth,holder))  quit:holder=""  do
+	. . . if (holder'="*")  set result=result_$select(firstholder:"",1:", ")_holder,firstholder=0
 	. else  do
 	. . ; #FUTURE_TODO: There is no basis for determining whether an ORDER BY occurs within a subquery
 	. . ;               or not, so eventually add the fourth parameter to the below call to
@@ -1047,106 +884,95 @@ orderbyClause(aNum,location)
 	. . . set result=result_$$returnCaseFunction("ORDER BY","randomNumbers","columns","FALSE",toCompare)
 	. . if (location="SUBQUERY") do
 	. . . set subqueryTable=$extract(innerQuery,$find(innerQuery,"FROM "),$find(innerQuery," "))
-	. . . set toCompare="alias"_aliasNum_"."_$$chooseColumn(subqueryTable)
+	. . . set toCompare="alias"_aNum_"."_$$chooseColumn(subqueryTable)
 	. . . set result=result_$$returnCaseFunction("ORDER BY","randomNumbers","columns","TRUE",toCompare)
 	else  set result=""
 
 	quit result
 
-; Cannot find the link for this
-; This function returns a LIMIT Clause, with a number between 1 and the amount of elements in the table.
+; This function returns a LIMIT Clause, with a number between 0 and 31
 limitClause()
-	new result,holder,max,a
+	new result
 	set result=" LIMIT "
-	set max=$$maxIndex(table)
-	set result=result_($random(max-1)+1)
-
+	set result=result_($random(2**$random(8)))
 	quit result
 
-; Cannot find a single link that defines all of the Join clause, just the smaller portions of it
-; This function returns the JOIN clause. It only works for the parent query.
-; This function conatians the logic for the selecting of a JOIN type, what is actually being joined, and the ON clause.
-joinClause()
-	new result,chosenTable1,chosenColumn1,chosenColumn2,chosenTable2,type1,joinType,operator,fullString,loopCount
+; This function returns the JOIN clause. It only works for the parent query (not for a sub query).
+; This function contains the logic for selecting a JOIN type, what is actually being joined, and the ON clause.
+joinClause(queryDepth,joinCount)
+	new result,chosenTable1,chosenColumn1,chosenColumn2,chosenTable2,type1,joinType,operator,loopCount
 	set result=""
 
-	set joinType=$$joinTypes
+	set joinType=$$joinTypes(joinCount)
 
-	if (outerJoinsAllowed="FALSE")  set joinType="INNER"
+	set result=result_" "_joinType_" JOIN "
+	; Remove " OUTER" from join type for further processing so "LEFT" AND "LEFT OUTER" joins are treated the same.
+	set joinType=$piece(joinType," OUTER",1)
 
-	; Randomly tests FULL OUTER JOIN, as compared to just OUTER JOIN
-	set fullString=" "
-	if (($random(2))&(joinType="OUTER"))  set fullString=" FULL "
-
-	set result=result_fullString_joinType_" JOIN "
-
-	set chosenTable1=$order(tableColumn(1)) ; essentially table1
-	set chosenColumn1=$$chooseColumnBasedOffTable(chosenTable1)
+	set chosenTable1=$$chooseTableFromTableColumn()
+	set chosenColumn1=$$chooseColumn(chosenTable1)
 	set type1=$$returnColumnType(chosenTable1,chosenColumn1)
 	set chosenEntry1=$$chooseEntry(chosenTable1,chosenColumn1)
 
-	set randInt=$random(2)
-	set chosenTable2=""
-	set chosenColumn2=""
 	set chosenEntry2=""
 	set aliasNum1More=aliasNum+1
 	set asPiece=" AS alias"_aliasNum1More
 
+	set randInt=$random(2)
+	write "joinClause() : randInt = ",randInt,!
 	if (randInt=0)  do
-	. new type2,i,limiter
-	. set chosenTable2=chosenTable1
-	. for  quit:(chosenTable2'=chosenTable1)  do
-	. . set chosenTable2=$$chooseTable ; essentially table2
-	. set dontJoin(chosenTable2)=""
-	.
-	. set chosenColumn2=""
-	. set type2=""
-	. ; After 15 attempts at finding two compatible columns (same type), select a new chosenTable2
+	. new i,limiter,typematch
+	. ; After 8 attempts at finding two compatible columns (same type), select a new chosenTable2
 	. ; repeat this 2 more times and if this fails to produce a column that is valid, then delete
 	. ; the join portion of the query
-	. set limiter=1
-	. for i=1:1:16  quit:(($piece(type2,"(")=$piece(type1,"("))!(limiter=3))  do
-	. . if (i=15)  do
-	. . . set i=1
-	. . . if $increment(limiter)
-	. . . set chosenTable2=chosenTable1
-	. . . for  quit:((chosenTable2'=chosenTable1)&($data(chosenTable2)'=0))  do
-	. . . . set chosenTable2=$$chooseTable ; essentially table2
-	. . . set dontJoin(chosenTable2)=""
-	. . set chosenColumn2=$$chooseColumnBasedOffTable(chosenTable2)
-	. . set type2=$$returnColumnType(chosenTable2,chosenColumn2)
+	. set typematch=0
+	. for limiter=1:1:3 do  quit:typematch
+	. . set chosenTable2=$$chooseTable	; Note: it is possible chosenTable2 is same as chosenTable1
+	. . for i=1:1:8  do  quit:typematch
+	. . . new type2
+	. . . set chosenColumn2=$$chooseColumn(chosenTable2)
+	. . . set type2=$$returnColumnType(chosenTable2,chosenColumn2)
+	. . . set typematch=(type2=type1)
 	. set chosenEntry2=$$chooseEntry(chosenTable2,chosenColumn2)
-	.
-	. if (limiter'=3)  do
-	. . set result=result_chosenTable2_asPiece
-	. . set chosenTable2="alias"_aliasNum
-	. if (limiter=3)  set result=""
+	. set result=$select(typematch:result_chosenTable2_asPiece,1:"")
 
 	if (randInt=1)  do
-	. new subquery,i
+	. new subquery,i,aliasName
 	. set chosenEntry2=""
-	. if $increment(currentAlias)
-	. set subquery=$$generateSubQuery("full")
-	. if $increment(currentAlias,-1)
-	. set randFromInnerQuerySLLVN=$random(innerQuerySLLVN)
-	. for i=0:1:randFromInnerQuerySLLVN  do
-	. . set chosenColumn2=$order(innerQuerySLLVN("alias"_aliasNum,""))
-	. set chosenTable2=innerQuerySLLVN("alias"_aliasNum,chosenColumn2)
+	. set aliasName="alias"_aliasNum1More
+	. kill innerQuerySLLVN,columns(aliasName)	; kill any leftover artifacts from previous sub queries
+	. set subquery=$$generateSubQuery(queryDepth,"full",joinType)
+	. ; -------------------------------------------------------------------
+	. ; Record select column list of sub-query as column list of table in outer query join clause
+	. new aliasColumnName
+	. set aliasColumnName="",tableColumnCounts(aliasName)=1
+	. for  set aliasColumnName=$order(innerQuerySLLVN(aliasName,aliasColumnName))  quit:""=aliasColumnName  do
+	. . new tableName
+	. . set tableName=innerQuerySLLVN(aliasName,aliasColumnName)
+	. . set columns(aliasName,tableColumnCounts(aliasName),aliasColumnName)=$$getColumnType(tableName,aliasColumnName)
+	. . set columnAlias(aliasName,aliasColumnName)=tableName
+	. . if $increment(tableColumnCounts(aliasName))
+	. ; Note that it is possible we give up and return with result="" at the end of this function.
+	. ; In that case, the above (updates to "tableColumnCounts" and "columns" arrays) will still stay but it is benign.
+	. ; and so is left as is
+	. ; -------------------------------------------------------------------
+	. set randFromInnerQuerySLLVN=$random(innerQuerySLLVN),chosenColumn2=""
+	. for i=0:1:randFromInnerQuerySLLVN  set chosenColumn2=$order(innerQuerySLLVN(aliasName,chosenColumn2))
+	. set chosenTable2=innerQuerySLLVN(aliasName,chosenColumn2)
 	. set type2=$$returnColumnType(chosenTable2,chosenColumn2)
 	.
-	. for i=1:1:15  quit:($piece(type2,"(")=$piece(type1,"("))  do
-	. . set chosenColumn1=$$chooseColumnBasedOffTable(chosenTable1)
+	. for i=1:1:15  quit:(type2=type1)  do
+	. . set chosenColumn1=$$chooseColumn(chosenTable1)
 	. . set type1=$$returnColumnType(chosenTable1,chosenColumn1)
-	.	set chosenEntry1=$$chooseEntry(chosenTable1,chosenColumn1)
+	. set chosenEntry1=$$chooseEntry(chosenTable1,chosenColumn1)
 	.
 	. if ($find(subquery,"EXISTS (")'=0)  do
 	. . set aliasNum1Less=aliasNum-1
-	. . set chosenTable2="alias"_aliasNum1Less
 	. . for i=0:1:randFromInnerQuerySLLVN  do
 	. . . set chosenColumn2=$order(innerQuerySLLVN("alias"_aliasNum1Less,""))
-	. else  set chosenTable2="alias"_aliasNum
 	.
 	. if (i'=15)  set result=result_"("_subquery_")"_asPiece
+	. set chosenTable2=aliasName
 	. if (i=15)  set result=""
 
 	; #FUTURE_TODO: Implement CASE statements into ON clause like in below example
@@ -1164,6 +990,7 @@ joinClause()
 	. . else  set leftSide=chosenEntry1
 	. .
 	. . set rightRand=$random(3) ; 0-2
+	. . write "joinClause() : rightRand = ",rightRand," : chosenEntry2 = ",chosenEntry2,!
 	. . if ((rightRand=0)!(chosenEntry2="")) do
 	. . . set alias=""
 	. . . for aliasI=1:1  do  quit:(alias="AS")
@@ -1181,7 +1008,7 @@ joinClause()
 	. . . if (randInt=1) do
 	. . . . for rightSideI=1:1  do  quit:(($find(rightSide,alias)'=0)&($find(rightSide,")")=0))
 	. . . . . set rightSide=$piece(result," ",rightSideI)
-	. . . . if ($extract(rightSide,$length(rightSide))=",")  set rightSide=$extract(rightSide,$length(rightSide)-1)
+	. . . . if ($extract(rightSide,$length(rightSide))=",")  set rightSide=$piece(rightSide,",",1)
 	. . . . set tableInResult=""
 	. . . . for tableI=1:1  do  quit:(tableInResult="FROM")
 	. . . . . set tableInResult=$piece(result," ",tableI)
@@ -1192,21 +1019,21 @@ joinClause()
 	. . . . set rightType=$$returnColumnType(tableInResult,columnModified)
 	. . .
 	. . . set leftType=""
-	. . . for i=1:1:15  do  quit:($piece(leftType,"(")=$piece(rightType,"("))
+	. . . for i=1:1:15  do  quit:(leftType=rightType)
 	. . . . set leftSide=$$chooseColumn(chosenTable1)
 	. . . . set leftType=$$returnColumnType(chosenTable1,leftSide)
 	. . .
-	. . . set leftSide=$piece(fc," ",2)_"."_leftSide
+	. . . set leftSide=chosenTable1_"."_leftSide
 	. . if ((rightRand=1)&(chosenEntry2'=""))  set rightSide=chosenEntry2
 	. . if (rightRand=2) do
-	. . . if $increment(currentAlias)
-	. . . set rightSide=$$aas_" ("_$$generateSubQuery("limited")_")"
-	. . . if $increment(currentAlias,-1)
+	. . . new aliasNum2More
+	. . . set aliasNum2More=aliasNum+1
+	. . . set rightSide=$$anyAllSome_" ("_$$generateSubQuery(queryDepth,"limited","")_")"
 	. . .
 	. . . set aliasDotColumn=""
-	. . . for i=1:1:20  do  quit:($find(aliasDotColumn,"alias"_aliasNum)'=0)
+	. . . for i=1:1:20  do  quit:($find(aliasDotColumn,"alias"_aliasNum2More)'=0)
 	. . . . set aliasDotColumn=$piece(rightSide," ",i)
-	. . . set rightColumn=$piece(aliasDotColumn,".",2)
+	. . . set rightColumn=$piece($piece(aliasDotColumn,".",2),",",1)
 	. . .
 	. . . new rightI
 	. . . set holder=""
@@ -1216,34 +1043,19 @@ joinClause()
 	. . . set rightType=$$returnColumnType(rightTable,rightColumn)
 	. . .
 	. . . set leftType=""
-	. . . for i=1:1:15  do  quit:($piece(leftType,"(")=$piece(rightType,"("))
+	. . . for i=1:1:15  do  quit:(leftType=rightType)
 	. . . . set leftSide=$$chooseColumn(chosenTable1)
 	. . . . set leftType=$$returnColumnType(chosenTable1,leftSide)
 	. . .
-	. . . set leftSide=$piece(fc," ",2)_"."_leftSide
+	. . . set leftSide=chosenTable1_"."_leftSide
 	. .
 	. . set operator=$$comparisonOperators
-	. .
-	. . ; Must always compare with an "=" as PostgreSQL issues the following error when FULL join:
-	. . ; FULL JOIN is only supported with merge-joinable or hash-joinable join conditions
-	. . if (joinType="FULL")  set operator="="
-	. .
-	. . ; #FUTURE_TODO: If an OUTER JOIN is selected, the only valid/working operator is "=", remove this force setting when Issue 311 is resolved
-	. . ;               Also see tests/fixtures/TOJ03.m line 103 and 114 for more information pertaining to this problem
-	. . if ((joinType="LEFT")!(joinType="RIGHT")!(joinType="LEFT OUTER")!(joinType="RIGHT OUTER")) set operator="="  set outerJoinExists="TRUE"
-	. .
-	. . ; FULL JOINs require the operator to be "="
-	. . if (fullString=" FULL ")  set operator="="
-	. .
-	. . ; #FUTURE_TODO: Remove this check and all associated code/variables (outerJoinExists)
-	. . ;               from above checks, and from the "global" area at the top of this file
-	. . ;               when issue 311 is resolved
-	. . if (outerJoinExists="TRUE")  set operator="="
 	. .
 	. . if (($random(2))&(opened="FALSE"))  do
 	. . . set onClause=onClause_"("
 	. . . set opened="TRUE"
 	. . set onClause=onClause_"("_leftSide_" "_operator_" "_rightSide_")"
+	. . write "joinClause() : onClause = ",onClause,!
 	. . if (($random(2))&(opened="TRUE"))  do
 	. . . set onClause=onClause_")"
 	. . . set opened="FALSE"
@@ -1251,64 +1063,117 @@ joinClause()
 	. ;set onClause=" ON ("_$extract(onClause,1,$length(onClause))_")" ;remove before MR if not needed
 	. set onClause=" ON ("_onClause_")"
 	. if (opened="TRUE")  set onClause=onClause_")"  set opened="FALSE"
-	. if (i=15)  set onClause=""  set result=""
+	. set:(i=15) onClause="",result=""
+	if (""'=result) do
+	. set tableColumn("alias"_aliasNum1More)=""
+	. set tableAlias("alias"_aliasNum1More)=chosenTable2
+	. write "joinClause() : tableAlias(alias",aliasNum1More,")=",chosenTable2,!
 
 	quit result_onClause
+
+chooseTableFromTableColumn()
+	new tableCount,randInt,i,chosenTable
+	; Find out number of tables that are in the FROM/JOIN list
+	set tableCount=0,chosenTable=""
+	for  set chosenTable=$order(tableColumn(chosenTable))  quit:chosenTable=""  if $increment(tableCount)
+	; Choose a table randomly from this list
+	set randInt=$random(tableCount)
+	set chosenTable="" for i=0:1:randInt set chosenTable=$order(tableColumn(chosenTable))
+	quit chosenTable
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;Supporting Functions
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+initTable()
+	new x,count
+	set table=""
+	set tables=0
+	set x=""
+	for  set x=$order(sqlInfo(x))  set:(x'="") tables=tables+1  quit:x=""
+	set count=-1
+	set x=""
+	for  set x=$order(sqlInfo(x))  quit:x=""  set tables($increment(count))=x
+	quit
+
+initColumn()
+	new a,currentTable,column,columnCount,x,count
+	for a=0:1:GLOBALtotalTables-1 do
+	. set currentTable=tables(a)
+	. set column=""
+	. set columnCount=1
+	. set x=""
+	. for  set x=$order(sqlInfo(currentTable,x))  quit:x=""  if $increment(columnCount)
+	. set tableColumnCounts(currentTable)=columnCount
+	. set count=1
+	. set x=""
+	. for  set x=$order(sqlInfo(currentTable,count,x)) do  quit:(count=columnCount)  if $increment(count)
+	. . set columns(currentTable,count,x)=$$getType($order(sqlInfo(currentTable,count,x,"")))
+	. . set x=""
+	. kill columns(currentTable,count) ;kills empty last entry in this table
+	quit
+
+initAggrFunc()
+	set aggFunctionInt=-1
+	set aggFunctionInt($increment(aggFunctionInt))="AVG"
+	set aggFunctionInt($increment(aggFunctionInt))="COUNT"
+	set aggFunctionInt($increment(aggFunctionInt))="MIN"
+	set aggFunctionInt($increment(aggFunctionInt))="MAX"
+	set aggFunctionInt($increment(aggFunctionInt))="SUM"
+	if $increment(aggFunctionInt)
+
+	set aggFunction=-1
+	set aggFunction($increment(aggFunction))="MIN"
+	set aggFunction($increment(aggFunction))="MAX"
+	set aggFunction($increment(aggFunction))="COUNT"
+	if $increment(aggFunction)
+
+	set aggModifier=-1
+	set aggModifier($increment(aggModifier))=""
+	set aggModifier($increment(aggModifier))="DISTINCT "
+	set aggModifier($increment(aggModifier))="ALL "
+	if $increment(aggModifier)
+	quit
+
 ; This function will randomly select a table from an LVN of all possible tables.
 chooseTable()
-	if (initDone("chooseTable")=0) do
-	. set initDone("chooseTable")=1
-	. new x,count
-	. set table=""
-	. set tables=0
-	. set x=""
-	. for  set x=$order(sqlInfo(x))  set:(x'="") tables=tables+1  quit:x=""
-	. set count=-1
-	. set x=""
-	. for  set x=$order(sqlInfo(x))  quit:x=""  set tables($increment(count))=x
 	quit tables($random(tables))
 
 ; This function will randomly select a column from an LVN of all possible columns, based off of the provided table parameter.
 chooseColumn(table)
-	if (initDone("chooseColumn")=0) do
-	. new a,currentTable,column,columnCount,x,count
-	. for a=0:1:GLOBALtotalTables-1 do
-	. . set currentTable=tables(a)
-	. . set initDone("chooseColumn")=1
-	. . set column=""
-	. . set columnCount=1
-	. . set x=""
-	. . for  set x=$order(sqlInfo(currentTable,x))  quit:x=""  if $increment(columnCount)
-	. . set tableColumnCounts(currentTable)=columnCount
-	. . set count=1
-	. . set x=""
-	. . for  set x=$order(sqlInfo(currentTable,count,x)) do  quit:(count=columnCount)  if $increment(count)
-	. . . set columns(currentTable,count,x)=""
-	. . . set x=""
-	. . kill columns(currentTable,count) ;kills empty last entry in this table
-	. set initDone("chooseColumn")=1
-	new CC,selectedColumn
-	if (table="") set table=$order(tableColumn(""))
-
+	new CC,selectedColumn,aliastable
+	set aliastable=table,table=$$getRealTable(aliastable)
 	set CC=$SELECT($data(tableColumnCounts(table))=0:$$columnCounter(table),1:tableColumnCounts(table))
-
-	set selectedColumn=$order(columns(table,$random(CC-1)+1,$random(CC-1)+1))
-	set tableColumn(table,selectedColumn)=""
+	set selectedColumn=$order(columns(table,$random(CC-1)+1,""))
 	quit selectedColumn
 
-; This function is designed for the HAVING clause. It will randomly select a table from the selectListLVN, which is required for the HAVING clause.
-havingChooseColumn(count)
-	new holder,randValue
+; This function is designed for the HAVING clause.
+; It will randomly select a table from the selectListLVN, which is required for the HAVING clause.
+havingChooseColumn(queryDepth,table,isAggrFuncColumn,count)
+	new randValue,holderMinusAggrFunc,chosenColumn
 	set randValue=$random(count)+1
-	set holder=""
-	for iterator=1:1:randValue  do
-	. set holder=$order(selectListLVN(holder))
-
-	quit $piece(holder,".",2)
+	new i,j,holder,done
+	set i=randValue
+	set done=0
+	for j=queryDepth:-1:0 do  quit:done
+	. set holder="" for  set holder=$order(selectListLVN(j,holder))  do  quit:done
+	. . quit:holder=""
+	. . quit:"subquery"=selectListLVN(j,holder) 	; skip columns that are subqueries
+	. . if i=0 set done=1  quit
+	. . set i=i-1
+	; Remove any aggregate function usage (i.e. COUNT(x.y) should yield x.y; COUNT(ALL x.y) should yield x.y)
+	if $find(holder,"(") do
+	. set holderMinusAggrFunc=$piece($piece(holder,"(",2),")",1)
+	. if $find(holderMinusAggrFunc," ") do
+	. . set holderMinusAggrFunc=$piece(holderMinusAggrFunc," ",2)
+	. set isAggrFuncColumn=$piece(holder,"(",1)
+	else  do
+	. set holderMinusAggrFunc=holder
+	. set isAggrFuncColumn=""
+	set table=$piece(holderMinusAggrFunc,".",1)
+	do assert(""'=table)
+	set chosenColumn=$piece(holderMinusAggrFunc,".",2)
+	do assert(""'=chosenColumn)
+	quit chosenColumn
 
 ; This function returns the number of columns in the provided table. It is mainly used in other supporting functions.
 columnCounter(currentTable)
@@ -1318,26 +1183,21 @@ columnCounter(currentTable)
 	for  set x=$order(sqlInfo(currentTable,x))  quit:x=""  if $increment(columnCount)
 	quit columnCount
 
-; This function is very similar in function to chooseColumn, but its logic is setup for use in a specific spot (JOIN clause).
-chooseColumnBasedOffTable(table)
-	set CC=$SELECT($data(tableColumnCounts(table))=0:$$columnCounter(table),1:tableColumnCounts(table))
-	set selectedColumn=$order(columns(table,$random(CC-1)+1,$random(CC-1)+1))
-	quit selectedColumn
-
 ; This function returns a randomly selected entry from a table and column pair, which both need to be passed in as parameters.
-; This function is one of the most common spots for infinite loops, as it assumes that it is being handed a valid set of tableName and columnName.
+; This function assumes that it is being handed a valid set of tableName and columnName.
 chooseEntry(tableName,columnName)
-	new index,formatted,CC,type,entry,i,randInt,count,maxIndex,randFromMaxIndex
+	new index,formatted,CC,type,entry,i,randInt,count,maxIndex,randFromMaxIndex,realTable
 
-	set maxIndex=$$maxIndex(tableName)
+	set realTable=$$getRealTable(tableName,columnName)
+	set maxIndex=$$maxIndex(realTable)
 
 	set randFromMaxIndex=$random(maxIndex-1)+1
-	set formatted="^"_tableName_"("_randFromMaxIndex_")"
+	set formatted="^"_realTable_"("_randFromMaxIndex_")"
 
 	; Gets type of selected entry
-	set type=$$returnColumnType(tableName,columnName)
+	set type=$$returnColumnType(realTable,columnName)
 
-	set index=$$returnColumnIndex(tableName,columnName)
+	set index=$$returnColumnIndex(realTable,columnName)
 	; index will occasionally be set to 0,
 	; which causes a blank entry to be returned
 	if (index=0)  set index=1
@@ -1362,18 +1222,25 @@ chooseEntry(tableName,columnName)
 
 	quit entry
 
-; This function returns the positional number/index of a column in the columns LVN. It is mainly used for other supporting functions.
+; This function returns the positional number/index of a column in the columns LVN.
+; It is mainly used for other supporting functions.
 returnColumnIndex(tableName,columnName)
+	new realTable
 	; Returns index of column
 	set index=0
-	for  quit:($order(columns(tableName,index,""))=columnName)  if $increment(index)
+	set realTable=$$getRealTable(tableName,columnName)
+	for  quit:($order(columns(realTable,index,""))=columnName)  do assert(index<16) if $increment(index)
 	quit index
 
 ; This function returns the stored type of whatever tableName and columnName that is provided to it.
 ; This function also is a common cause of infinite loops as it assumes that it is being given a valid set of tableName and columnName.
 returnColumnType(tableName,columnName)
-	set index=$$returnColumnIndex(tableName,columnName)
-	quit $order(sqlInfo(tableName,index,columnName,""))
+	new realTable,index,type
+	set realTable=$$getRealTable(tableName,columnName)
+	set index=$$returnColumnIndex(realTable,columnName)
+	set type=$order(sqlInfo(realTable,index,columnName,""))
+	write "$$returnColumnType() : tableName = ",tableName," : columnName = ",columnName," : realTable = ",realTable," : index = ",index," : type = ",type,!
+	quit $$getType(type)
 
 ; This function returns the maximum value of items in the data LVN for a given table.
 ; Essentially this function returns the max possible integer value for items in a given tableName.
@@ -1424,23 +1291,32 @@ booleanOperator()
 	. if $increment(booleanOperator)
 	quit booleanOperator($random(booleanOperator))
 
-joinTypes()
+joinTypes(joinCount)
 	if (initDone("joinTypes")=0) do
 	. set initDone("joinTypes")=1
 	. set joinTypes=-1
-	. set joinTypes($increment(joinTypes))="LEFT"
-	. set joinTypes($increment(joinTypes))="LEFT OUTER"
-	. set joinTypes($increment(joinTypes))="RIGHT"
-	. set joinTypes($increment(joinTypes))="RIGHT OUTER"
+	. ; Choose most of the joins as optional that way we increase the randomness of test coverage
+	. set:(0=$random(2)) joinTypes($increment(joinTypes))="LEFT"
+	. set:(0=$random(4)) joinTypes($increment(joinTypes))="LEFT OUTER"
+	. set:(0=$random(2)) joinTypes($increment(joinTypes))="RIGHT"
+	. set:(0=$random(4)) joinTypes($increment(joinTypes))="RIGHT OUTER"
+	. ; -------------------------------------------------------------------------------------------------
+	. ; Need to disable FULL JOIN for now as Postgres gives the following error
+	. ;	FULL JOIN is only supported with merge-joinable or hash-joinable join conditions
+	. ; Don't think the below code will ever be enabled as it seems to be a permanent Postgres feature.
+	. ; -------------------------------------------------------------------------------------------------
+	. ; set joinTypes($increment(joinTypes))="FULL"
+	. ; set joinTypes($increment(joinTypes))="FULL OUTER"
+	. ; -------------------------------------------------------------------------------------------------
+	. ; It is possible in rare cases no join gets chosen. To avoid that, choose INNER JOIN always.
 	. set joinTypes($increment(joinTypes))="INNER"
-	. set joinTypes($increment(joinTypes))="CROSS"
-	. set joinTypes($increment(joinTypes))="NATURAL"
+	. set:(0=$random(2)) joinTypes($increment(joinTypes))="CROSS"
+	. ; If there is more than 1 JOIN it is possible a NATURAL JOIN follows the FROM clause and another JOIN
+	. ; in which case it is possible for column names to be duplicated (which is an error for a NATURAL JOIN).
+	. ; Hence disable NATURAL JOIN in case joinCount is greater than 1.
+	. set:(joinCount'>1) joinTypes($increment(joinTypes))="NATURAL"
 	. if $increment(joinTypes)
-	; #FUTURE_TODO: Remove following 3 lines, and uncomment 4th line when Issue 311 is resolved
-	set joinType=joinTypes($random(joinTypes))
-	if ($find(query,"DISTINCT")'=0) set joinType="INNER"
-	quit joinType
-	;quit joinTypes($random(joinTypes))
+	quit joinTypes($random(joinTypes))
 
 tf()
 	if (initDone("tf")=0) do
@@ -1453,7 +1329,7 @@ tf()
 
 ; The "aas" ancronym stands for ANY, ALL, and SOME. This function returns one
 ; of the three words, and was written to prevent unneccesary code duplication.
-aas()
+anyAllSome()
 	if (initDone("aas")=0) do
 	. set initDone("aas")=1
 	. set aas=-1
@@ -1466,62 +1342,34 @@ aas()
 ; #FUTURE_TODO: Handle nulls in aggregrate functions, worry about
 ;               this when outer joins are reimplemented
 ;               http://www.sqlsnippets.com/en/topic-12656.html
-; Valid placement parameters are "SL" and "HAVING" and "HAVING-SUBQUERY"
-; Passing "SL" (Select List) returns an aggregate function matching
-; requirements for an aggregate in the select list
-; Passing "SL-SUBQUERY" (Select List) returns an aggregate function matching
-; requirements for an aggregate in the select list, which is in turn located in a subquery
-; Passing "HAVING" returns an aggregate function matching
-; requirements for an aggregate in the having clause
-; Passing "HAVING-SUBQUERY" returns an aggregate function matching requirements
-; for an aggregate in the having clause, which is in turn located in a subquery
-returnAggregateFunction(table,column,placement)
-	if (initDone("aggregrateFunctions")=0) do
-	. set initDone("aggregrateFunctions")=1
-	.
-	. set aggFunctionInt=-1
-	. set aggFunctionInt($increment(aggFunctionInt))="AVG"
-	. set aggFunctionInt($increment(aggFunctionInt))="COUNT"
-	. set aggFunctionInt($increment(aggFunctionInt))="MIN"
-	. set aggFunctionInt($increment(aggFunctionInt))="MAX"
-	. set aggFunctionInt($increment(aggFunctionInt))="SUM"
-	. if $increment(aggFunctionInt)
-	.
-	. set aggFunction=-1
-	. set aggFunction($increment(aggFunction))="COUNT"
-	. set aggFunction($increment(aggFunction))="MIN"
-	. set aggFunction($increment(aggFunction))="MAX"
-	. if $increment(aggFunction)
-	.
-	. set aggModifier=-1
-	. set aggModifier($increment(aggModifier))=""
-	. set aggModifier($increment(aggModifier))="DISTINCT "
-	. set aggModifier($increment(aggModifier))="ALL "
-	. if $increment(aggModifier)
+returnAggregateFunction(queryDepth,table,column)
 	new result,function
+	if ($$returnColumnType(table,column)'="VARCHAR") do
+	. set function=aggFunctionInt($random(aggFunctionInt))
+	. write "$$returnAggregateFunction() : table = ",table," : column = ",column," : type is NOT VARCHAR : function = ",function,!
+	else  do
+	. ; This is a VARCHAR type. If inner query do not use COUNT aggregate function as it will pose problems if this
+	. ; gets inherited from a subquery select column list into an outer query (because COUNT(col) will be an integer
+	. ; whereas col would be of VARCHAR type and those two cannot be compared in higher level query generation clauses).
+	. for  set function=aggFunction($random(aggFunction))  quit:('queryDepth)!("COUNT"'=function)
+	. write "$$returnAggregateFunction() : table = ",table," : column = ",column," : type is VARCHAR : function = ",function,!
+	set result=function_"("_aggModifier($random(aggModifier))_table_"."_column_")"
+	quit result
 
-	set result=""
-	set function=""
-
-	if (placement="SL") do
-	. if ($$returnColumnType(table,column)="INTEGER")  set function="AVG";set function=aggFunctionInt($random(aggFunctionInt))
-	. else  set function=aggFunction($random(aggFunction))
-	. set result=function_"("_aggModifier($random(aggModifier))_table_"."_column_")"
-
-	if (placement="SL-SUBQUERY") do
-	. if ($$returnColumnType(table,column)="INTEGER")  set function=aggFunctionInt($random(aggFunctionInt))
-	. else  set function=aggFunction($random(aggFunction))
-	. set result=function_"("_aggModifier($random(aggModifier))_"alias"_aliasNum_"."_column_")"
-
-	if (placement="HAVING") do
-	. if ($$returnColumnType(table,column)="INTEGER")  set function=aggFunctionInt($random(aggFunctionInt))
-	. else  set function=aggFunction($random(aggFunction))
-	. set result=function_"("_table_"."_column_")"
-
-	if (placement="HAVING-SUBQUERY") do
-	. set function=aggFunction($random(aggFunction))
-	. set result=function_"("_"alias"_aliasNum_"."_column_")"
-
+returnSimilarAggregateFunction(isAggrFuncColumn,table,column)
+	new result,function
+	if "COUNT"=isAggrFuncColumn set function="COUNT"
+	else  if "SUM"=isAggrFuncColumn set function="SUM"
+	else  if "AVG"=isAggrFuncColumn do
+	. new rand
+	. set rand=$random(3)
+	. set function=$select(0=rand:"MIN",1=rand:"MAX",1:"AVG")
+	else  do
+	. do assert(("MIN"=isAggrFuncColumn)!("MAX"=isAggrFuncColumn))
+	. new rand
+	. set rand=$random(2)
+	. set function=$select(0=rand:"MIN",1:"MAX")
+	set result=function_"("_aggModifier($random(aggModifier))_table_"."_column_")"
 	quit result
 
 ; #FUTURE_TODO: Eventually increase the depth that CASEs can occur, currently a single CASE can be nested inside of a single CASE
@@ -1565,17 +1413,18 @@ returnCaseFunction(location,conditionType,resultType,subqueryBoolean,toCompare)
 	. if (resultType="columns")&(subqueryBoolean="FALSE") do
 	. . set mainType=$$returnColumnType(table,$piece(toCompare,".",2))
 	. . set otherType=""
-	. . for  do  quit:($piece(mainType,"(")=$piece(rType,"("))
+	. . for  do  quit:(mainType=rType)
 	. . . set r=$$chooseColumn(table)
 	. . . set rType=$$returnColumnType(table,r)
 	. . set r=table_"."_r
 	. if (resultType="columns")&(subqueryBoolean="TRUE") do
+	. . ; #FUTURE_TODO : innerTable seems to be used below but inherited from parent. Pass it as parameter or derive it here.
 	. . if ($find($piece(toCompare,"."),"alias")'=0) do
 	. . . set mainType=$$returnColumnType(innerTable,$piece(toCompare,".",2))
 	. . else  do
 	. . . set mainType=$$returnColumnType($piece(toCompare,"."),$piece(toCompare,".",2))
 	. . set otherType=""
-	. . for  do  quit:($piece(mainType,"(")=$piece(rType,"("))
+	. . for  do  quit:(mainType=rType)
 	. . . ;for  do  quit:($data(caseLVN("alias"_aliasNum,location)=11))
 	. . . set r=$$chooseColumn(innerTable)
 	. . . set rType=$$returnColumnType(innerTable,r)
@@ -1592,15 +1441,10 @@ returnCaseFunction(location,conditionType,resultType,subqueryBoolean,toCompare)
 	.
 	. if (limiter=15)  set result=""
 
-	;if ($random(2))  do
-	;. if $increment(i)
-	;. if (caseFunctionExists="FALSE")  set result=result_"  ELSE "_r_$char(10)
-	;. if (caseFunctionExists="TRUE")  set result=result_"    ELSE "_r_$char(10)
-	; #FUTURE_TODO: Uncomment preceding if block and remove following three lines when issue 450 is
-	;               resolved. "ELSE" currently cannot be optional until this issue is resolved.
-	if $increment(i)
-	if (caseFunctionExists="FALSE")  set result=result_"  ELSE "_r_$char(10)
-	if (caseFunctionExists="TRUE")  set result=result_"    ELSE "_r_$char(10)
+	if ($random(2))  do
+	. if $increment(i)
+	. if (caseFunctionExists="FALSE")  set result=result_"  ELSE "_r_$char(10)
+	. if (caseFunctionExists="TRUE")  set result=result_"    ELSE "_r_$char(10)
 
 	if (location="SELECT LIST")  do
 	. if (caseFunctionExists="FALSE")  if $increment(aliasNum)  set result=result_"END AS alias"_aliasNum
@@ -1617,30 +1461,17 @@ returnCaseFunction(location,conditionType,resultType,subqueryBoolean,toCompare)
 ;Queries
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; This function is responsible for the actual generation of the parent query, and such contains most of the logic to do so.
-generateQuery()
-	new fc,i
+generateQuery(queryDepth,joinCount)
+	new fc,i,query,joinclause
 	set selectListDepth=$random(GLOBALtotalTables)+1
 
 	set query="SELECT "
 	set query=query_$$setQuantifier
-	set fc=$$fromClause ; fromClause needs to run before selectList
-	set query=query_$$selectList(selectListDepth)
-	set query=query_" "_fc
-	if (($random(2))&(GLOBALtotalTables>1))  do
-	. if ($random(2**5)=0)  set joinCount=5
-	. if ($random(2**4)=0)  set joinCount=4
-	. if ($random(2**3)=0)  set joinCount=3
-	. if ($random(2**2)=0)  set joinCount=2
-	. else  set joinCount=1
-	. ; #FUTURE_TODO: Multiway JOINs generates malformed queries currently. Need to investigate/fix that. Until then disable it.
-	. set joinCount=1	; #FUTURE_TODO: Remove this line and previous comment one malformed query issue is fixed.
-	.
-	. ; Multiway JOINs are only currently supported with INNER JOIN,
-	. ; following check enforces this behavior, remove check when Issue #311 is resolved
-	. if (joinCount=1)  set outerJoinsAllowed="TRUE"
-	.
-	. for i=1:1:joinCount  set query=query_$$joinClause  if $increment(aliasNum)
-	set query=query_$$tableExpression
+	set fc=$$fromClause ; fromClause and joinClause needs to run before selectList
+	set joinclause="" for i=1:1:joinCount  set joinclause=joinclause_$$joinClause(queryDepth,joinCount)  if $increment(aliasNum)
+	set query=query_$$selectList(queryDepth,selectListDepth)
+	set query=query_" "_fc_" "_joinclause
+	set query=query_$$tableExpression(queryDepth)
 	quit query_";"
 
 ; This function generates all of the subqueries for the various other functions throughout this program.
@@ -1648,31 +1479,44 @@ generateQuery()
 ; Passing "full" returns a very general query with minimal restrictions
 ; Passing "limited" returns a query that contains clauses that limit the
 ; query to only return a single row, and single column
-generateSubQuery(subQueryType)
-	new innerFC,alias
+generateSubQuery(queryDepth,subQueryType,joinType)
+	new innerFC,alias,innerQuery
+	new tableColumnSave,selectListLVNSave,tableAliasSave
 	if $increment(aliasNum)
 	set alias="alias"_aliasNum
 
-	merge tableColumnTemp=tableColumn
-	merge selectListLVNTemp=selectListLVN
-	new tableColumn,selectListLVN
-
+	if $increment(queryDepth)	; increment the query depth for each sub-query
 
 	set allowGBH("alias"_aliasNum)="FALSE"
 	if '($random(5))  set allowGBH("alias"_aliasNum)="TRUE"
+	; If we are generating the table as a subquery inside a NATURAL JOIN, we do not want to use aggregate functions as
+	; we could then end up with two columns on either side of the NATURAL JOIN with the same name but different types
+	; (e.g. first_name and COUNT(first_name) would have same name but different types).
+	if ("NATURAL"=joinType) set allowGBH("alias"_aliasNum)="FALSE"
 
-	new innerQuery
+	; Do not let sub-query affect outer query global state. So save state
+	merge tableColumnSave=tableColumn
+	merge selectListLVNSave=selectListLVN
+	merge tableAliasSave=tableAlias
+
 	set innerQuery="SELECT "
 	set innerQuery=innerQuery_$$setQuantifier
 	set innerFC=$$fromClause ; fromClause needs to run before selectList
-	if (subQueryType="full")  set innerQuery=innerQuery_$$innerSelectList(subQueryType,$random(3)+1,alias)
-	if (subQueryType="limited")  set innerQuery=innerQuery_$$innerSelectList(subQueryType,0,alias)
-	set innerQuery=innerQuery_" "_innerFC_" "_alias
-	set innerQuery=innerQuery_$$innerTableExpression(subQueryType)
+	; Need to add this to tableAlias array as later calls (e.g. $$innerSelectList etc.) rely on this
+	set tableAlias(alias)=$piece(innerFC," ",2)
+	write "generateSubQuery : set tableAlias(",alias,")=",tableAlias(alias),!
 
-	new tableColumn,selectListLVN
-	merge tableColumn=tableColumnTemp
-	merge selectListLVN=selectListLVNTemp
+	if (subQueryType="full")  set innerQuery=innerQuery_$$innerSelectList(queryDepth,subQueryType,$random(3)+1,alias)
+	if (subQueryType="limited")  set innerQuery=innerQuery_$$innerSelectList(queryDepth,subQueryType,0,alias)
+	set innerQuery=innerQuery_" "_innerFC_" "_alias
+	set innerQuery=innerQuery_$$innerTableExpression(queryDepth,subQueryType)
+
+	; And restore outer query global state
+	kill tableColumn,selectListLVN,tableAlias
+	merge tableColumn=tableColumnSave
+	merge selectListLVN=selectListLVNSave
+	merge tableAlias=tableAliasSave
+
 	quit innerQuery
 
 ; #FUTURE_TODO: Try to make as many of these the same as their non-subquery counterparts
@@ -1684,23 +1528,25 @@ generateSubQuery(subQueryType)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; https://ronsavage.github.io/SQL/sql-92.bnf.html#select%20list
 ; This function returns an select list that matches requirements and utilizes the variables of subqueries.
-innerSelectList(subQueryType,curDepth,alias)
-	new randInt,result,toBeAdded
+innerSelectList(queryDepth,subQueryType,curDepth,alias)
+	new randInt,result,toBeAdded,aliastable,i
 	;This function serves the same purpose as select sublist in the grammar rules for SQL.
 
+	do assert(0'=+queryDepth)
 	set result=""
 
 	set toBeAdded=""
+	set aliastable=$piece(innerFC," ",2)
 	; Qualifier notation (table.column), with the value of the alias variable instead of a table
-	set toBeAdded=alias_"."_$$chooseColumn("")
+	set toBeAdded=alias_"."_$$chooseColumn(aliastable)
 
 	if ((subQueryType="full")&(allowGBH("alias"_aliasNum)="FALSE"))  do
-	. for i=1:1:15  quit:($data(selectListLVN(toBeAdded))=0)  do
-	. . set toBeAdded=alias_"."_$$chooseColumn("")
+	. for i=1:1:15  quit:($data(selectListLVN(queryDepth,toBeAdded))=0)  do
+	. . set toBeAdded=alias_"."_$$chooseColumn(aliastable)
 	.
 	. if (i'=15)  do
-	. . set selectListLVN(toBeAdded)=""
-	. . set innerQuerySLLVN($piece(toBeAdded,"."),$piece(toBeAdded,".",2))=$piece(innerFC," ",2)
+	. . set selectListLVN(queryDepth,toBeAdded)="table.column"
+	. . set innerQuerySLLVN($piece(toBeAdded,"."),$piece(toBeAdded,".",2))=aliastable
 	. . if $increment(innerQuerySLLVN)
 	. . set result=result_toBeAdded
 	.
@@ -1713,30 +1559,33 @@ innerSelectList(subQueryType,curDepth,alias)
 	. ;               pertaining to aggregate functions are resolved
 	. set curDepth=0
 	.
-	. set table=$order(tableColumn(1))
+	. set table="alias"_aliasNum
 	. set chosenColumn=$$chooseColumn(table)
-	. set agg=$$returnAggregateFunction(table,chosenColumn,"SL-SUBQUERY")
+	. set agg=$$returnAggregateFunction(queryDepth,table,chosenColumn)
+	. set selectListLVN(queryDepth,agg)="aggregate_function"
+	. set innerQuerySLLVN(table,chosenColumn)=$piece(innerFC," ",2)
+	. if $increment(innerQuerySLLVN)
 	.
-	. for  do  quit:(chosenColumn'=chosenColumn2)
+	. for i=1:1 do  quit:(chosenColumn'=chosenColumn2)  do assert(i<16)
 	. . set chosenColumn2=$$chooseColumn(table)
-	. set tc="alias"_aliasNum_"."_chosenColumn2
+	. set tc=table_"."_chosenColumn2
 	. set innerQuerySLLVN($piece(tc,"."),$piece(tc,".",2))=$piece(innerFC," ",2)
 	. if $increment(innerQuerySLLVN)
 	.
-	. set toBeAdded=agg_", "_tc
-	. set selectListLVN(tc)=""
+	. set toBeAdded=agg_" as "_chosenColumn_", "_tc
+	. set selectListLVN(queryDepth,tc)="table.column"
 	.
 	. set result=result_toBeAdded
 
 	if (subQueryType="limited")  do
-	. set selectListLVN(toBeAdded)=""
+	. set selectListLVN(queryDepth,toBeAdded)="table.column"
 	. set innerQuerySLLVN($piece(toBeAdded,"."),$piece(toBeAdded,".",2))=$piece(innerFC," ",2)
 	. set result=result_toBeAdded
 
 	; #FUTURE_TODO: Move the recursion logic down here
 	if ((subQueryType="full")&(curDepth>0)&(allowGBH("alias"_aliasNum)="FALSE"))  do
 	. if $increment(curDepth,-1) ; to drop down a "level" in depth
-	. if (curDepth'=0) set result=result_", "_$$innerSelectList(subQueryType,curDepth,alias)
+	. if (curDepth'=0) set result=result_", "_$$innerSelectList(queryDepth,subQueryType,curDepth,alias)
 
 	; strip off the ", " at the end of result, only if ", " is present in result
 	if ($extract(result,$length(result)-1,$length(result))=", ")  set result=$extract(result,0,$length(result)-2)
@@ -1745,36 +1594,41 @@ innerSelectList(subQueryType,curDepth,alias)
 
 ; https://ronsavage.github.io/SQL/sql-92.bnf.html#table%20expression
 ; This function returns the table expressions that matches requirements and utilizes the variables of subqueries.
-; It only contains code to return a subquery specific WHERE CLAUSE, and regular/general GROUP BY, HAVING, LIMIT, and ORDER BY clauses.
-innerTableExpression(subQueryType)
-	new innerResult
+; It only contains code to return a subquery specific WHERE CLAUSE,
+; and regular/general GROUP BY, HAVING, LIMIT, and ORDER BY clauses.
+innerTableExpression(queryDepth,subQueryType)
+	new innerResult,aliasNumSave
+	; We only want columns in select list of subquery to be added to innerQuerySLLVN.
+	; Not columns that are in select list of grand-subqueries in say the WHERE clause of the subquery.
+	; Hence the new below.
+	new innerQuerySLLVN
 	; From Clause should go here, but it needs to be decided on early as to
 	; allow for proper column(s) to be chosen
 	set innerResult=""
-
-	if ($random(2))  set innerResult=innerResult_$$innerWhereClause
-	if ((allowGBH("alias"_aliasNum)="TRUE")&(subQueryType="full"))  set innerResult=innerResult_$$groupbyClause
-	if ((allowGBH("alias"_aliasNum)="TRUE")&(subQueryType="full"))  set innerResult=innerResult_$$havingClause("subquery")
-	if (('$random(8))&(subQueryType="full"))  set innerResult=innerResult_$$orderbyClause(aliasNum,"SUBQUERY")_$$limitClause
-	if (subQueryType="limited")  set innerResult=innerResult_$$orderbyClause(aliasNum,"SUBQUERY")_" LIMIT 1"
+	set aliasNumSave=aliasNum	; save aliasNum before it gets potentially modified by $$innerWhereClause call below
+	if ($random(2))  set innerResult=innerResult_$$innerWhereClause(queryDepth)
+	if ((allowGBH("alias"_aliasNumSave)="TRUE")&(subQueryType="full")) do
+	. set innerResult=innerResult_$$groupbyClause(queryDepth)
+	. set innerResult=innerResult_$$havingClause(queryDepth,"subquery")
+	if (('$random(8))&(subQueryType="full")) do
+	. set innerResult=innerResult_$$orderbyClause(queryDepth,aliasNumSave,"SUBQUERY")_$$limitClause
+	if (subQueryType="limited") do
+	. set innerResult=innerResult_$$orderbyClause(queryDepth,aliasNumSave,"SUBQUERY")_" LIMIT 1"
 
 	quit innerResult
 
 ; https://ronsavage.github.io/SQL/sql-92.bnf.html#where%20clause
-; This function returns a WHERE CLAUSE specific to subqueries. This is due to the fact that the WHERE clause in a subquery needed a lot more logic to properly run, and select/use proper elements within.
-innerWhereClause()
-	new result,randInt,i,x
+; This function returns a WHERE CLAUSE specific to subqueries.
+; This is due to the fact that the WHERE clause in a subquery needed a lot more logic to properly run,
+; and select/use proper elements within.
+innerWhereClause(queryDepth)
+	new result,randInt,i,x,innerTable
 	set result=" WHERE "
 	; #FUTURE_TODO: Increase below to 12 when $$returnCaseFunction infinite loop and malformed query issues are resolved
 	set randInt=$random(10) ; 0-9 ; Increase this range as new versions of WHERE clauses are added
-
-	; #FUTURE_TODO: Fix WHERE clause version 5 (randInt=5) of innerWhereClause and remove following
-	;               check (currently disabled).
-	; randInt=5 does not work when there is also a JOIN with subquery in the query.
-	; This occurs as a result of the desired alias(#) not existing in innerQuerySLLVN
-	; randInt=5 also does not work as a result of it creating the "infinite" EXISTS loop
-	; EX: ... WHERE EXISTS subquery(... WHERE EXISTS subquery(... WHERE EXISTS subquery(... WHERE EXISTS)))
-	for  quit:(randInt'=5)  set randInt=$random(9)
+	; With the Northwind data set, we have seen at least one query with EXISTS in the inner WHERE clause take a long time
+	; in Postgres (takes 20 minutes to run while Octo takes 1 second to run). So avoid subquery generation in that case.
+	set:(sqlFile["northwind")&((randInt=5)!(randInt=9)) randInt=0
 
 	set innerTable=$piece(innerFC," ",2)
 
@@ -1787,7 +1641,7 @@ innerWhereClause()
 	; WHERE clause type 8 is LIKE with wildcards, this comparison can only occur on VARCHARs, not numeric/integer
 	if ((randInt=2)!(randInt=8))  do
 	. set x="sqlInfo("""_innerTable_""")"
-	. for i=1:1  do  quit:($find(type,"VARCHAR")'=0)
+	. for i=1:1  do  quit:($find(type,"VARCHAR")'=0)  do assert(i<16)
 	. . set x=$query(@x)
 	. . set type=$qsubscript(x,4)
 	. . if ($qsubscript(x,1)'=innerTable)  set randInt=0
@@ -1839,37 +1693,29 @@ innerWhereClause()
 	. . if ((i=loopCount)&(opened="TRUE"))  set result=result_")"
 
 	if (randInt=1) do
-	. new type,chosenColumn,plusMinus
-	. set type=""
-	. for  quit:($find(type,"INTEGER")'=0)  do
-	. . set chosenColumn=$$chooseColumn(innerTable)
-	. . set type=$$returnColumnType(innerTable,chosenColumn)
+	. new chosenColumn,plusMinus,i
+	. set chosenColumn=$$getColumnOfType(innerTable,"INTEGER")
 	. set plusMinus="+"
 	. if $random(2) set plusMinus="-"
 	. set result=result_"(("_"alias"_aliasNum_"."_chosenColumn_plusMinus_$$chooseEntry(innerTable,chosenColumn)_")="_$$chooseEntry(innerTable,chosenColumn)_")"
 
 	if (randInt=2) do
-	. new leftSide,rightSide,type,entry1,entry2
 	. ; Left side of this expression will always be forced to be a varchar,
 	. ; the right side of this expression can be either varchar or integer
 	. ; This is done as PostgreSQL requires at least one side of a string concatenation
 	. ; to be a string/varchar and the other to not be.
-	. new leftSide,rightSide,type,chosenColumn1,chosenColumn2,entry1,entry2
+	. new leftSide,rightSide,chosenColumn1,chosenColumn2,entry1,entry2,i
 	.
 	. set leftSide=""
 	. set rightSide=""
 	.
-	. set chosenColumn1=""
-	. set type=""
-	. for  quit:($find(type,"VARCHAR")'=0)  do
-	. . set chosenColumn1=$$chooseColumn(innerTable)
-	. . set type=$$returnColumnType(innerTable,chosenColumn1)
+	. set chosenColumn1=$$getColumnOfType(innerTable,"VARCHAR")
 	. set entry1=$$chooseEntry(innerTable,chosenColumn1)
 	. set entry1=$extract(entry1,2,$length(entry1)-1)
 	. set leftSide="alias"_aliasNum_"."_chosenColumn1
 	. if $random(2)  set leftSide=$$chooseEntry(innerTable,chosenColumn1)
 	.
-	. set chosenColumn2=$$chooseColumn("")
+	. set chosenColumn2=$$chooseColumn(innerTable)
 	. set entry2=$$chooseEntry(innerTable,chosenColumn2)
 	. set entry2=$extract(entry2,2,$length(entry2)-1)
 	. set rightSide="alias"_aliasNum_"."_chosenColumn2
@@ -1878,12 +1724,9 @@ innerWhereClause()
 	. set result=result_"(("_leftSide_"||"_rightSide_")"_$$comparisonOperators_"'"_entry1_entry2_"')"
 
 	if (randInt=3) do
-	. new type,chosenColumn,plusMinus,plusMinus2
+	. new chosenColumn,plusMinus,plusMinus2,i
 	. ; ... WHERE customer_id=-(-3)
-	. set type=""
-	. for  quit:($find(type,"INTEGER")'=0)  do
-	. . set chosenColumn=$$chooseColumn(innerTable)
-	. . set type=$$returnColumnType(innerTable,chosenColumn)
+	. set chosenColumn=$$getColumnOfType(innerTable,"INTEGER")
 	. set plusMinus="+"
 	. if $random(2) set plusMinus="-"
 	. set plusMinus2="+"
@@ -1891,13 +1734,9 @@ innerWhereClause()
 	. set result=result_"("_"alias"_aliasNum_"."_chosenColumn_" "_$$comparisonOperators_" "_plusMinus_"("_plusMinus2_$$chooseEntry(innerTable,chosenColumn)_"))"
 
 	if (randInt=4) do
-	. new type,chosenColumn,beginning,plusMinus,end,aOperator
+	. new chosenColumn,beginning,plusMinus,end,aOperator,i
 	.
-	. set type=""
-	. for  quit:($find(type,"INTEGER")'=0)  do
-	. . set chosenColumn=$$chooseColumn(innerTable)
-	. . set type=$$returnColumnType(innerTable,chosenColumn)
-	.
+	. set chosenColumn=$$getColumnOfType(innerTable,"INTEGER")
 	. set beginning="("_$$chooseEntry(innerTable,chosenColumn)_")"
 	.
 	. new plusMinus
@@ -1920,9 +1759,7 @@ innerWhereClause()
 	. ; ... WHERE EXISTS (SELECT ... query)
 	. set notString=""
 	. if $random(2) set notString="NOT "
-	. if $increment(currentAlias)
-	. set result=result_notString_"EXISTS ("_$$generateSubQuery("full")_")"
-	. if $increment(currentAlias,-1)
+	. set result=result_notString_"EXISTS ("_$$generateSubQuery(queryDepth,"full","")_")"
 
 	if (randInt=6) do
 	. new chosenColumn,notString,entryList,i
@@ -1945,12 +1782,9 @@ innerWhereClause()
 	. set result=result_"alias"_aliasNum_"."_chosenColumn_" BETWEEN "_$$chooseEntry(innerTable,chosenColumn)_" AND "_$$chooseEntry(innerTable,chosenColumn)
 
 	if (randInt=8) do
-	. new chosenColumn,string,i,randInt
+	. new chosenColumn,string,i,randInt,i
 	. ; Forces column to be of type "VARCHAR" as to do a string comparison
-	. set type=""
-	. for  quit:($find(type,"VARCHAR")'=0)  do
-	. . set chosenColumn=$$chooseColumn(innerTable)
-	. . set type=$$returnColumnType(innerTable,chosenColumn)
+	. set chosenColumn=$$getColumnOfType(innerTable,"VARCHAR")
 	. set string=""
 	. set desiredStringLength=$random(7)+1 ; 1-7
 	. for i=1:1:desiredStringLength do
@@ -1965,36 +1799,28 @@ innerWhereClause()
 	. set result=result_"alias"_aliasNum_"."_chosenColumn_" LIKE '"_string_"'"
 
 	if (randInt=9) do
-	. new randInt,word,leftSide,rightSide,chosenColumn,entryList,limit,rightType
-	. set word=$$aas
-	. set leftSide=$$chooseColumn(innerTable)
-	. set leftType=$$returnColumnType(innerTable,leftSide)
+	. new randInt,word,leftSide,rightSide,chosenColumn,entryList,limit,rightType,nextAliasNum,i
+	. set word=$$anyAllSome
 	.
-	. if $increment(currentAlias)
-	. set rightSide="("_$$generateSubQuery("limited")_")"
-	. if $increment(currentAlias,-1)
-	. set innerTable=$piece(innerFC," ",2)
-	.
-	. ;if $increment(aliasNum,-1)
+	. set nextAliasNum=aliasNum+1
+	. set rightSide="("_$$generateSubQuery(queryDepth,"limited","")_")"
 	. set aliasDotColumn=""
-	. for i=1:1  do  quit:($find(aliasDotColumn,"alias"_aliasNum)'=0)
+	. for i=1:1  do  quit:($find(aliasDotColumn,"alias"_nextAliasNum)'=0)  do assert(i<16)
 	. . set aliasDotColumn=$piece(rightSide," ",i)
-	. set rightColumn=$piece(aliasDotColumn,".",2)
+	. set rightColumn=$piece($piece(aliasDotColumn,".",2),",",1)
 	.
-	. new i
 	. set holder=""
-	. for i=1:1  do  quit:($find(holder,"FROM")'=0)
+	. for i=1:1  do  quit:($find(holder,"FROM")'=0)  do assert(i<16)
 	. . set holder=$piece(rightSide," ",i)
 	. set rightTable=$piece(rightSide," ",i+1)
 	.
 	. set rightType=$$returnColumnType(rightTable,rightColumn)
 	.
-	. for i=1:1:15  do  quit:($piece(leftType,"(")=$piece(rightType,"("))
+	. for i=1:1:15  do  quit:(leftType=rightType)  do assert(i<16)
 	. . set leftSide=$$chooseColumn(innerTable)
 	. . set leftType=$$returnColumnType(innerTable,leftSide)
 	.
-	. if $increment(aliasNum,-1)
-	. set leftSide="alias"_aliasNum_"."_leftSide
+	. set leftSide="alias"_(nextAliasNum-1)_"."_leftSide
 	.
 	. if (i'=15) do
 	. . set result=result_leftSide_" "_$$comparisonOperators_" "_word_" "_rightSide
@@ -2010,7 +1836,7 @@ innerWhereClause()
 	. set leftColumn=$$chooseColumn(innerTable)
 	.
 	. set leftType=$$returnColumnType(innerTable,leftColumn)
-	. for i=1:1:15  do  quit:($piece(leftType,"(")=$piece(rightType,"("))
+	. for i=1:1:15  do  quit:(leftType=rightType)  do assert(i<16)
 	. . set rightColumn=$$chooseColumn(innerTable)
 	. . set rightType=$$returnColumnType(innerTable,rightColumn)
 	.
@@ -2031,11 +1857,8 @@ innerWhereClause()
 	; WHERE clause to be added in numerical order, when reenabled change the 999
 	; to whatever the next integer value would be in the series
 	if (randInt=999) do
-	. set type=""
-	. for  quit:($find(type,"BOOLEAN")'=0)  do
-	. . set chosenColumn=$$chooseColumn(innerTable)
-	. . set type=$$returnColumnType(innerTable,chosenColumn)
-	. . ;if (type="BOOLEAN")  set result=result_chosenColumn
+	. new i
+	. set chosenColumn=$$getColumnOfType(innerTable,"BOOLEAN")
 	. set result=result_chosenColumn
 
 	; #FUTURE_TODO: Boolean expressions can be combined to create more complex Booleans
@@ -2058,3 +1881,40 @@ innerWhereClause()
 	. set result=result_"(("_leftSide_" "_operator_" "_rightSide_") = "_$$tf_")"
 
 	quit result
+
+getColumnOfType(table,neededType)
+	new i,type,chosenColumn,origTable,maxcols,availcols
+	set origTable=table,table=$$getRealTable(table)
+	set maxcols=tableColumnCounts(table),availcols=0
+	for i=1:1:maxcols set col=$order(columns(table,i,"")) quit:""=col  do
+	. if columns(table,i,col)=neededType set availcols(availcols)=col if $incr(availcols)
+	do assert(0<availcols)
+	quit availcols($random(availcols))
+
+getColumnType(table,column)
+	new maxcols,col
+	set maxcols=tableColumnCounts(table)
+	for i=1:1:maxcols set col=$order(columns(table,i,"")) quit:col=column
+	do assert(i<maxcols)
+	quit columns(table,i,col)
+
+getType(typestr)
+	new type
+	set type=$piece(typestr,"(",1)	; e.g. VARCHAR(32) -> VARCHAR
+	set:"TEXT"=type type="VARCHAR"	; convert TEXT -> VARCHAR
+	quit type
+
+getRealTable(table,column)
+	new realTable
+	if $data(column)&$data(columnAlias(table,column)) set realTable=columnAlias(table,column)
+	else  set realTable=$select($data(tableAlias(table)):tableAlias(table),1:table)
+	quit realTable
+
+chooseCount();
+	; This function is invoked when one needs a data point for comparison against the COUNT aggregate function.
+	; For now return a random number between 0 and 7.
+	quit $random(8)
+
+assert(cond)	;
+	if 'cond zshow "*"  halt
+	quit

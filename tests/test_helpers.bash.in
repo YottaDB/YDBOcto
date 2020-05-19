@@ -582,26 +582,28 @@ run_query_in_octo_and_postgres_and_crosscheck() {
 		cat $fname.octo.out >& $fname.log
 	fi
 	if [[ $trimzeroes == "trim_trailing_zeroes" ]]; then
-		# Remove floating point numbers with extraneous 0s at the end (e.g. convert 2.5000000000000000 -> 2.5)
+		# Remove floating point numbers with extraneous 0s at the end
 		# Postgres creates these floating point numbers if an AVG aggregate function is invoked whereas Octo does not.
-		# sed command is ran twice below, as the first sed removes all trailing zeros, and the second removes the trailing zeros caused by the first sed command
-		# Example: PSQL(10.0000000000000000 -> 10 -> 1) and Octo(10 -> 1 -> 1)
 		mv $fname.ref $fname.ref1
-		sed 's/\.\{0,1\}0\{1,\}$//;/\./ s/\.\{0,1\}0\{1,\}|/|/;' $fname.ref1 > $fname.ref2
-		sed 's/\.\{0,1\}0\{1,\}$//;/\./ s/\.\{0,1\}0\{1,\}|/|/;' $fname.ref2 > $fname.ref3
 		mv $fname.log $fname.log1
-		sed 's/\.\{0,1\}0\{1,\}$//;/\./ s/\.\{0,1\}0\{1,\}|/|/;' $fname.log1 > $fname.log2
-		sed 's/\.\{0,1\}0\{1,\}$//;/\./ s/\.\{0,1\}0\{1,\}|/|/;' $fname.log2 > $fname.log3
+		# The below step converts for example : 2.5000000000000000 -> 2.5
+		pat1='s/\(\.[0-9]*[1-9]\)0\{1,\}$/\1/;s/\(\.[0-9]*[1-9]\)0\{1,\}|/\1|/g;'
+		sed $pat1 $fname.ref1 > $fname.ref2
+		sed $pat1 $fname.log1 > $fname.log2
+		# The below step converts for example : 1.0000000000000000 -> 1
+		pat2='s/\.0\{1,\}$//;s/\.0\{1,\}|/|/g;'
+		sed $pat2 $fname.ref2 > $fname.ref3
+		sed $pat2 $fname.log2 > $fname.log3
 	else
 		# If $trimzeroes != "trim_trailing_zeroes", still move the files into their "ref3" and "log3"
 		# versions for use later on in the process.
 		mv $fname.ref $fname.ref3
 		mv $fname.log $fname.log3
 	fi
-	# Below two awks add leading zeros into the Octo output in oder to match PSQL's output
+	# Below two sed commands add leading zeros into the Octo output in order to match PSQL's output
 	# Octo Output: .333   PSQL Output: 0.333
-	awk '{gsub(/[^0-9]\.[0-9]/,"|0.")}1' $fname.log3 > $fname.log4
-	awk '{gsub(/^\.[0-9]/,"0.")}1' $fname.log4 > $fname.log5
+	sed 's/|\.\([0-9]*\)/|0.\1/;' $fname.log3 > $fname.log4
+	sed 's/^\.\([0-9]*\)/0.\1/;' $fname.log4 > $fname.log5
 	# Check if query has ORDER BY that is not inside a subquery OR if "--sort-needed-check" is present. If so, do not sort.
 	# Otherwise sort as order is not guaranteed to match between Octo and Postgres.
 	orderbyexists=$(sed 's/(.*)//g' $queryfile | grep -ci "ORDER BY") || true	# grep -c can return non-zero status in case of no match hence the need for "|| true"
@@ -610,8 +612,13 @@ run_query_in_octo_and_postgres_and_crosscheck() {
 		# ORDER BY does not exist in the query. So sort the outputs.
 		mv $fname.ref3 $fname.unsorted.ref3
 		mv $fname.log5 $fname.unsorted.log5
+		# We have noticed that setting LC_ALL to en_US.UTF8 results in different sort output in rare cases in TQG04 subtest.
+		# in the "run_query_in_octo_and_postgres_and_crosscheck()" function. "C" works fine in that case. So we choose "C"
+		# just for the "sort" command.
+		export LC_ALL=C
 		sort $fname.unsorted.ref3 > $fname.ref3
 		sort $fname.unsorted.log5 > $fname.log5
+		export LC_ALL=en_US.UTF8
 	fi
 	# Below two seds set numerical values to only have 10 digits after the decimal point as both Octo
 	# and PSQL can return varying levels of precision (12 is the least amount of decimals seen so far)

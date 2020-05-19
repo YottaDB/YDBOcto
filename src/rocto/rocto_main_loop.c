@@ -165,8 +165,16 @@ int rocto_main_loop(RoctoSession *session) {
 			break;
 		case PSQL_Terminate:
 			// Gracefully terminate the connection
-			shutdown(session->connection_fd, SHUT_RDWR);
-			close(session->connection_fd);
+			if (session->ssl_active) {
+#				if YDB_TLS_AVAILABLE
+				gtm_tls_session_close(&session->tls_socket);
+#				else
+				assert(FALSE);
+#				endif
+			} else {
+				shutdown(session->connection_fd, SHUT_RDWR);
+				close(session->connection_fd);
+			}
 			LOG_LOCAL_ONLY(INFO, ERR_ROCTO_CLEAN_DISCONNECT, "");
 			rocto_session.sending_message = TRUE;
 			return 0;

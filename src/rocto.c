@@ -73,6 +73,9 @@ int main(int argc, char **argv) {
 	ydb_buffer_t			pid_subs[2], timestamp_buffer;
 	ydb_buffer_t			*pid_buffer = &pid_subs[0];
 	socklen_t			addrlen;
+#	if YDB_TLS_AVAILABLE
+	gtm_tls_ctx_t 			*tls_context;
+#	endif
 
 	// Initialize connection details in case errors prior to connections - needed before octo_init for Rocto error reporting
 	rocto_session.ip = "IP_UNSET";
@@ -179,6 +182,9 @@ int main(int argc, char **argv) {
 	if (listen(sfd, 3) < 0) {
 		FATAL(ERR_SYSCALL, "listen", errno, strerror(errno));
 	}
+#	if YDB_TLS_AVAILABLE
+	tls_context = INVALID_TLS_CONTEXT;
+#	endif
 	while (!rocto_session.session_ending) {
 		if ((cfd = accept(sfd, (struct sockaddr *)&address, &addrlen)) < 0) {
 			if (rocto_session.session_ending) {
@@ -276,7 +282,6 @@ int main(int argc, char **argv) {
 				break;
 			}
 			// Initialize TLS context: load config, certs, keys, etc.
-			gtm_tls_ctx_t *tls_context;
 			tls_context = gtm_tls_init(GTM_TLS_API_VERSION, GTMTLS_OP_INTERACTIVE_MODE);
 			if (INVALID_TLS_CONTEXT == tls_context) {
 				tls_errno = gtm_tls_errno();
@@ -523,6 +528,13 @@ int main(int argc, char **argv) {
 		// the socket; thread_id will be 0 if we are a child process
 		close(sfd);
 	}
+	// Since each iteration of the loop spawns a child process, each of which calls `gtm_tls_init`,
+	// we call `gtm_tls_fini` for each child.
+#	if YDB_TLS_AVAILABLE
+	if (INVALID_TLS_CONTEXT != tls_context) {
+		gtm_tls_fini(&tls_context);
+	}
+#	endif
 
 	if (TRACE >= config->verbosity_level) {
 		mem_usage = get_mem_usage();

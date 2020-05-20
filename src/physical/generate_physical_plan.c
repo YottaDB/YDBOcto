@@ -244,14 +244,14 @@ PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlanOptions *opt
 	 */
 	where = lp_get_select_where(plan);
 	out->where = sub_query_check_and_generate_physical_plan(&plan_options, where, NULL);
-	if (NULL != where->v.lp_default.operand[1]) {
-		/* If where->v.lp_default.operand[1] is non-NULL, this is the alternate list that
-		 * "lp_optimize_where_multi_equal_ands_helper()" built that needs to be checked too for deferred plans which
-		 * would have been missed out in case the keys for those had been fixed to keys from parent queries (see
-		 * comment above "lp_get_select_where()" function call in "lp_optimize_where_multi_equal_ands_helper()").
-		 */
-		where->v.lp_default.operand[1] = NULL;	/* Discard alternate list now that its purpose is served */
-	}
+	/* Note: If where->v.lp_default.operand[1] is non-NULL, this is the alternate list that
+	 * "lp_optimize_where_multi_equal_ands_helper()" built that needs to be checked too for deferred plans which
+	 * would have been missed out in case the keys for those had been fixed to keys from parent queries (see
+	 * comment above "lp_get_select_where()" function call in "lp_optimize_where_multi_equal_ands_helper()").
+	 * One would be tempted to discard that alternate list now that its purpose is served above. But it is possible
+	 * the same logical plan is pointed to by multiple physical plans in which case it is still needed. As we have
+	 * no easy way of knowing that here, we continue to keep "where->v.lp_default.opreand[1]" set to a non-NULL value.
+	 */
 	/* See if there are any sub-queries in the SELECT column list. If so, generate separate physical plans
 	 * (deferred and/or non-deferred) for them and add them as prev records in physical plan.
 	 */

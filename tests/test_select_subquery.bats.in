@@ -146,3 +146,8 @@ setup() {
   run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TSS24.sql "remove_empty_line_at_tail"
 }
 
+@test "TSS25 : OCTO510 : LVUNDEF error when both sub query and parent query use parent query column with = operator in WHERE clause" {
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TSS25.sql "remove_empty_line_at_tail"
+}
+
+

@@ -246,3 +246,8 @@ OCTO
     return $status
 	fi
 }
+
+@test "TERR022 : OCTO511 : Give an error when file passed with -c is not found" {
+  octo -c /does/not/exist > output.txt 2>&1 || true
+  verify_output TERR022 output.txt
+}

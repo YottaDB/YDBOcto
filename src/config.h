@@ -21,7 +21,7 @@
 #include "octo_types.h"
 
 int octo_init(int argc, char **argv);
-int parse_startup_flags(int argc, char **argv, char *config_file_name);
+int parse_startup_flags(int argc, char **argv, char **config_file_name);
 
 typedef struct RoctoConfig {
 	int port;

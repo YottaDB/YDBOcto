@@ -60,7 +60,7 @@
 	/* Ignore this configuration file if snprintf output was truncated. */							\
 	if (OCTO_PATH_MAX > tmp_path_len) {											\
 		assert('\0' == FILENAME[tmp_path_len]);										\
-		status = merge_config_file(FILENAME, &CONFIG_FILE, FALSE);							\
+		status = merge_config_file(FILENAME, &CONFIG_FILE, CONFIG_IMPLICIT);							\
 		if (0 == status) {												\
 			CONFIG_FILE_LIST.filenames[CONFIG_FILE_LIST.num_files] = FILENAME;					\
 			CONFIG_FILE_LIST.num_files++;										\
@@ -108,6 +108,18 @@ struct config_file_list {
 	int num_files;
 } config_file_list;
 
+/* Holds the kind of config we are parsing.
+ * Used for customizing the behavior of `merge_config_file`.
+ */
+enum config_kind {
+	/* Use Octo's default configuration */
+	CONFIG_DEFAULT,
+	/* A config that was specified by a `-c` argument */
+	CONFIG_EXPLICIT,
+	/* A config that was automatically loaded */
+	CONFIG_IMPLICIT,
+};
+
 int parse_config_file_settings(const char *config_file_name, config_t *config_file);
 void merge_config_file_helper(config_setting_t *a, config_setting_t *b);
 
@@ -116,7 +128,7 @@ void merge_config_file_helper(config_setting_t *a, config_setting_t *b);
  * The is_default flag is used to indicate that the default configuration should be merged in. This is needed since the default
  * config is read from a string, not a file, so this case must be treated separately.
  */
-int merge_config_file(const char *path, config_t **config_file, boolean_t is_default) {
+int merge_config_file(const char *path, config_t **config_file, enum config_kind kind) {
 	config_setting_t	*a_root, *b_root;
 	config_t		*new_config_file;
 	const char		*error_message, *error_file;
@@ -125,10 +137,14 @@ int merge_config_file(const char *path, config_t **config_file, boolean_t is_def
 
 	new_config_file = (config_t *)calloc(1, sizeof(config_t));
 	config_init(new_config_file);
-	if (!is_default) {
+	if (CONFIG_DEFAULT != kind) {
 		assert(NULL != path);
 		if (-1 == access(path, F_OK)) {
 			// File not found or no access; skip it
+			if (CONFIG_EXPLICIT == kind) {
+				// This file was explicitly requested, so give an error if it's not found
+				ERROR(ERR_FILE_NOT_FOUND, path);
+			}
 			config_destroy(new_config_file);
 			free(new_config_file);
 			return 2;
@@ -508,7 +524,7 @@ int octo_init(int argc, char **argv) {
 	boolean_t		verbosity_set;
 	config_t		*config_file;
 	ssize_t			exe_path_len;
-	char			ci_path[OCTO_PATH_MAX], exe_path[OCTO_PATH_MAX], config_file_path[OCTO_PATH_MAX], cwd[OCTO_PATH_MAX];
+	char			ci_path[OCTO_PATH_MAX], exe_path[OCTO_PATH_MAX], cwd[OCTO_PATH_MAX];
 	char			cwd_file_name[OCTO_PATH_MAX], homedir_file_name[OCTO_PATH_MAX], plugin_file_name[OCTO_PATH_MAX];
 	char			zstatus_message[YDB_MAX_ERRORMSG];
 	char			*homedir, *ydb_dist, *config_file_name = NULL;
@@ -523,7 +539,7 @@ int octo_init(int argc, char **argv) {
 	// If OCTO_SETTINGS env is set, we previously parsed the config and stashed it in environment variables; load from there
 
 	// Parse the startup flags; we will have to do this again after we read the config
-	status = parse_startup_flags(argc, argv, config_file_name);
+	status = parse_startup_flags(argc, argv, &config_file_name);
 	if (status) {
 		return status;
 	}
@@ -563,7 +579,6 @@ int octo_init(int argc, char **argv) {
 	// Load config file
 	ydb_dist = getenv("ydb_dist");
 	if (NULL == config_file_name) {
-		config_file_name = config_file_path;
 		if (NULL == getcwd(cwd, sizeof(cwd))) {
 			ERROR(ERR_SYSCALL, "getcwd", errno, strerror(errno));
 			return 1;
@@ -577,14 +592,15 @@ int octo_init(int argc, char **argv) {
 			MERGE_CONFIG_PATH_AND_RETURN_ON_ERROR("%s/plugin/octo/%s", ydb_dist, config_file, config_file_list, plugin_file_name);
 		}
 	} else {
-		status = merge_config_file(config_file_name, &config_file, FALSE);
+		status = merge_config_file(config_file_name, &config_file, CONFIG_EXPLICIT);
 		if (0 != status) {
 			return 1;
 		}
-		config_file_list.num_files++;
+		config_file_list.filenames[config_file_list.num_files++] = config_file_name;
+		assert(MAX_CONFIG_FILES >= config_file_list.num_files);
 	}
 	// Load the default config to populate any empty fields with default values
-	status = merge_config_file(NULL, &config_file, TRUE);
+	status = merge_config_file(NULL, &config_file, CONFIG_DEFAULT);
 	if (0 != status) {
 		return 1;
 	}

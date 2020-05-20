@@ -199,3 +199,10 @@ OCTO
   verify_output TV012 output.txt
 }
 
+@test "TV013: OCTO511 : octo -c logs that the config file was read" {
+	mkdir tmp
+	touch tmp/octo.conf
+	octo -v -c tmp/octo.conf <<< exit > full_output.txt 2>&1
+	grep 'Loaded config' full_output.txt > output.txt
+	verify_output TV013 output.txt
+}

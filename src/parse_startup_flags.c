@@ -33,7 +33,7 @@ void handle_invalid_option(char *executable_name, char short_option) {
 	exit(1);
 }
 
-int parse_startup_flags(int argc, char **argv, char *config_file_name) {
+int parse_startup_flags(int argc, char **argv, char **config_file_name) {
 	enum VERBOSITY_LEVEL	prev_error_level = ERROR;	// ERROR is the default level
 	char			*octo_usage = "Usage: octo [OPTION]...\n"
 		"Start the Octo SQL server.\n\n"
@@ -128,8 +128,7 @@ int parse_startup_flags(int argc, char **argv, char *config_file_name) {
 			verbosity_unset = FALSE;
 			break;
 		case 'c':
-			config_file_name = optarg;
-			UNUSED(config_file_name);	// Suppress compiler warning
+			*config_file_name = optarg;
 			break;
 		case 'h':
 			if (config->is_rocto) {

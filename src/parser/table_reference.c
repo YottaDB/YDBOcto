@@ -28,7 +28,7 @@ SqlStatement *table_reference(SqlStatement *column_name, SqlStatement *correlati
 	table = find_table(column_name->v.value->v.reference);
 	if (NULL == table) {
 		ERROR(ERR_UNKNOWN_TABLE, column_name->v.value->v.reference);
-		print_yyloc(&(column_name)->loc);
+		yyerror(NULL, NULL, &column_name, NULL, NULL, NULL);
 		return NULL;
 	}
 	SQL_STATEMENT(ret, join_STATEMENT);

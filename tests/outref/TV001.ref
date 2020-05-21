@@ -13,6 +13,7 @@ INDEX fake_index "^notaglobal(""fake_index"",fields(""name""),fields(""age""),ke
 
 select * from names;
 [ERROR] PATH:LINENUM DATE TIME : Unknown table: NONEXISTANTTABLE
+Error with syntax near (line 1, column 15):
 
 select * from nonexistanttable;
               ^^^^^^^^^^^^^^^^
@@ -37,6 +38,7 @@ INDEX fake_index "^notaglobal(""fake_index"",fields(""name""),fields(""age""),ke
 select * from names;
 [ INFO] PATH:LINENUM DATE TIME : Loaded config from $PWD/octo.conf
 [ERROR] PATH:LINENUM DATE TIME : Unknown table: NONEXISTANTTABLE
+Error with syntax near (line 1, column 15):
 
 select * from nonexistanttable;
               ^^^^^^^^^^^^^^^^
@@ -71,6 +73,7 @@ INDEX fake_index "^notaglobal(""fake_index"",fields(""name""),fields(""age""),ke
 select * from names;
 [ INFO] PATH:LINENUM DATE TIME : Loaded config from $PWD/octo.conf
 [ERROR] PATH:LINENUM DATE TIME : Unknown table: NONEXISTANTTABLE
+Error with syntax near (line 1, column 15):
 
 select * from nonexistanttable;
               ^^^^^^^^^^^^^^^^
@@ -249,6 +252,7 @@ Reducing stack by rule rrr (line lll):
    $2 = nterm table_reference_tail (: )
 [TRACE] PATH:LINENUM DATE TIME : Searching for table NONEXISTANTTABLE
 [ERROR] PATH:LINENUM DATE TIME : Unknown table: NONEXISTANTTABLE
+Error with syntax near (line 1, column 15):
 
 select * from nonexistanttable;
               ^^^^^^^^^^^^^^^^

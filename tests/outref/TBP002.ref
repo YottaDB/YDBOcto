@@ -1,14 +1,17 @@
 [ERROR] PATH:LINENUM DATE TIME : Unknown table: MYTABLE
+Error with syntax near (line 1, column 14):
 
 SELECT * FROM myTable;
               ^^^^^^^
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT * FROM myTable;
 [ERROR] PATH:LINENUM DATE TIME : Unknown table: HELLOTABLE
+Error with syntax near (line 1, column 28):
 
 SELECT "Hello world!" FROM helloTable;
                            ^^^^^^^^^^
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT "Hello world!" FROM helloTable;
 [ERROR] PATH:LINENUM DATE TIME : Unknown table: PEOPLE
+Error with syntax near (line 2, column 6):
 
 SELECT toppings.name
 FROM people
@@ -24,6 +27,7 @@ WHERE people.name IN ("Christopher", "Charles", "Bhaskar",
 GROUP BY toppings.name
 HAVING COUNT(people.id) > 5;
 [ERROR] PATH:LINENUM DATE TIME : Unknown table: TABLEA
+Error with syntax near (line 1, column 15):
 
 SELECT * FROM tableA
               ^^^^^^
@@ -32,6 +36,7 @@ INNER JOIN (SELECT personId as id
   FROM tableB WHERE AGE < 15) as tableC
 ON (tableA.id = tableC.id);
 [ERROR] PATH:LINENUM DATE TIME : Unknown table: EMPLOYEE
+Error with syntax near (line 2, column 29):
 
 -- Many of these examples were from http://www.complexsql.com/complex-sql-queries-examples-with-answers/
 Select distinct Salary from Employee e1 where 2=(Select count(distinct Salary) from Employee e2 where e1.salary<=e2.salary);
@@ -39,41 +44,49 @@ Select distinct Salary from Employee e1 where 2=(Select count(distinct Salary) f
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: -- Many of these examples were from http://www.complexsql.com/complex-sql-queries-examples-with-answers/
 Select distinct Salary from Employee e1 where 2=(Select count(distinct Salary) from Employee e2 where e1.salary<=e2.salary);
 [ERROR] PATH:LINENUM DATE TIME : Unknown table: EMPLOYEE
+Error with syntax near (line 1, column 15):
 
 Select * from Employee a where rowid <>( select max(rowid) from Employee b where a.Employee_num=b.Employee_num);
               ^^^^^^^^
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: Select * from Employee a where rowid <>( select max(rowid) from Employee b where a.Employee_num=b.Employee_num);
 [ERROR] PATH:LINENUM DATE TIME : Unknown table: EMPLOYEE
+Error with syntax near (line 1, column 57):
 
 Select Employee_name,Salary/12 as `Monthly Salary` from employee;
                                                         ^^^^^^^^
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: Select Employee_name,Salary/12 as `Monthly Salary` from employee;
 [ERROR] PATH:LINENUM DATE TIME : Unknown table: EMPLOYEE
+Error with syntax near (line 1, column 15):
 
 Select * from Employee where Rownum =1;
               ^^^^^^^^
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: Select * from Employee where Rownum =1;
 [ERROR] PATH:LINENUM DATE TIME : Unknown table: EMPLOYEE
+Error with syntax near (line 1, column 15):
 
 Select * from Employee where Rowid=(select max(Rowid) from Employee);
               ^^^^^^^^
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: Select * from Employee where Rowid=(select max(Rowid) from Employee);
 [ERROR] PATH:LINENUM DATE TIME : Unknown table: EMPLOYEE
+Error with syntax near (line 1, column 15):
 
 Select * from Employee where Rownum <= 5;
               ^^^^^^^^
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: Select * from Employee where Rownum <= 5;
 [ERROR] PATH:LINENUM DATE TIME : Unknown table: EMPLOYEE
+Error with syntax near (line 1, column 29):
 
 select distinct salary from employee a where 3 >= (select count(distinct salary) from employee b where a.salary <= b.salary) order by a.salary desc;
                             ^^^^^^^^
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select distinct salary from employee a where 3 >= (select count(distinct salary) from employee b where a.salary <= b.salary) order by a.salary desc;
 [ERROR] PATH:LINENUM DATE TIME : Unknown table: EMP
+Error with syntax near (line 1, column 52):
 
 select min(salary)from(select distinct salary from emp order by salary desc)where rownum<=3;
                                                    ^^^
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select min(salary)from(select distinct salary from emp order by salary desc)where rownum<=3;
 [ERROR] PATH:LINENUM DATE TIME : Unknown table: A
+Error with syntax near (line 2, column 19):
 
 -- Some examples using UNION should be added after it is supported
 SELECT 5+5/5 FROM A;

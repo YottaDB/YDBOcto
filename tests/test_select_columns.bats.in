@@ -90,10 +90,8 @@ OCTO
 }
 
 @test "TSC00I : select without a from with a syntax error" {
-  octo <<OCTO 2>&1 | tee output.txt
-select * asdfasdfsdf;
-OCTO
-  [[ $( grep -c "ERROR" output.txt) == "1" ]]
+  load_fixture TSC00I.sql subtest novv
+  verify_output TSC00I output.txt
 }
 
 @test "TSC00J : select so many columns it would exceed the M line length" {

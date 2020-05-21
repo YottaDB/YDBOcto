@@ -65,6 +65,7 @@ Reducing stack by rule rrr (line lll):
    $2 = nterm table_reference_tail (: )
 [TRACE] PATH:LINENUM DATE TIME : Searching for table NONEXISTANTTABLE
 [ERROR] PATH:LINENUM DATE TIME : Unknown table: NONEXISTANTTABLE
+Error with syntax near (line 1, column 15):
 
 select * from nonexistanttable;
               ^^^^^^^^^^^^^^^^

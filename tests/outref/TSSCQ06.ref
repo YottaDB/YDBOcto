@@ -8,6 +8,7 @@ ERROR: Unknown table: PG_CATALOG.PG_GET_KEYWORDS
 
 ----- OCTO -----
 [ERROR] PATH:LINENUM DATE TIME : Unknown table: PG_CATALOG.PG_GET_KEYWORDS
+Error with syntax near (line 2, column 8):
 
 SELECT String_agg(word, ',')
 FROM   pg_catalog.Pg_get_keywords()

@@ -1,6 +1,7 @@
 OCTO> qwerty
 OCTO> uiop; select *
 [ERROR] PATH:LINENUM DATE TIME : Unknown table: QWERTY
+Error with syntax near (line 1, column 0):
 
 qwerty
 ^^^^^^

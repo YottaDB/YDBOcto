@@ -1,5 +1,6 @@
 OCTO> qwertyuiop;
 [ERROR] PATH:LINENUM DATE TIME : Unknown table: QWERTYUIOP
+Error with syntax near (line 1, column 0):
 
 qwertyuiop;
 ^^^^^^^^^^

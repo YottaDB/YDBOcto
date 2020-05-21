@@ -77,7 +77,7 @@ optional_query_word_element
         $$ = ret;
       } else {
         ERROR(ERR_INVALID_INPUT_SYNTAX, get_user_visible_type_string(($literal_value)->v.value->type));
-	yyerror(NULL, NULL, &($literal_value), NULL, NULL, NULL);
+        yyerror(NULL, NULL, &($literal_value), NULL, NULL, NULL);
         YYABORT;
       }
     }
@@ -153,10 +153,16 @@ query_specification
       // We're going to run against a secret table with one row so the list gets found
       SqlJoin			*join;
       SqlTable			*table;
-      SqlStatement		*join_statement, *t_stmt;
+      SqlStatement		*join_statement, *t_stmt, *select_list;
       SqlTableAlias		*alias;
       SqlSelectStatement	*select;
 
+      select_list = $select_list;
+      if (NULL == select_list->v.column_list_alias) {
+        ERROR(ERR_SELECT_STAR_NO_TABLES, NULL);
+        yyerror(NULL, NULL, &select_list, NULL, NULL, NULL);
+        YYERROR;
+      }
       SQL_STATEMENT(t_stmt, select_STATEMENT);
       MALLOC_STATEMENT(t_stmt, select, SqlSelectStatement);
       UNPACK_SQL_STATEMENT(select, t_stmt, select);
@@ -167,7 +173,7 @@ query_specification
       table = find_table("OCTOONEROWTABLE");
       if (NULL == table) {
         ERROR(ERR_UNKNOWN_TABLE, "octoOneRowTable");
-        print_yyloc(&($select_list)->loc);
+        yyerror(NULL, NULL, &select_list, NULL, NULL, NULL);
         YYERROR;
       }
       SQL_STATEMENT(join->value, table_alias_STATEMENT);
@@ -180,7 +186,7 @@ query_specification
       alias->unique_id = *plan_id;
       (*plan_id)++;
       select->table_list = join_statement;
-      $$ = query_specification((OptionalKeyword)$set_quantifier, $select_list, t_stmt, NULL, plan_id);
+      $$ = query_specification((OptionalKeyword)$set_quantifier, select_list, t_stmt, NULL, plan_id);
     }
   ;
 
@@ -473,7 +479,7 @@ grouping_column_reference
 	if (NULL == ret) {
 		/* GROUP BY specified using an expression. Issue error as this usage is not valid. */
 		ERROR(ERR_GROUP_BY_ONLY_COLUMN_NAME, "");
-        	print_yyloc(&($derived_column_expression)->loc);
+		yyerror(NULL, NULL, &($derived_column_expression), NULL, NULL, NULL);
 		YYERROR;
 	}
 	$$ = ret;
@@ -486,7 +492,7 @@ grouping_column_reference
 	if (NULL == ret) {
 		/* GROUP BY specified using an expression. Issue error as this usage is not valid. */
 		ERROR(ERR_GROUP_BY_ONLY_COLUMN_NAME, "");
-        	print_yyloc(&($derived_column_expression)->loc);
+		yyerror(NULL, NULL, &($derived_column_expression), NULL, NULL, NULL);
 		YYERROR;
 	}
 	$$ = ret;

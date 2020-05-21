@@ -127,6 +127,7 @@ SELECT * FROM names n1, (SELECT n1.id,n1.firstname,n1.lastname FROM names) n2;
                                                    ^^^^^^^^^^^
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT * FROM names n1, (SELECT n1.id,n1.firstname,n1.lastname FROM names) n2;
 [ERROR] PATH:LINENUM DATE TIME : Unknown table: N1
+Error with syntax near (line 1, column 40):
 
 SELECT * FROM names n1, (SELECT * FROM n1) n2;
                                        ^^
@@ -160,6 +161,7 @@ SELECT * FROM (SELECT * FROM names n1, (SELECT n1.id,n1.firstname,n1.lastname FR
                                                                   ^^^^^^^^^^^
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT * FROM (SELECT * FROM names n1, (SELECT n1.id,n1.firstname,n1.lastname FROM names) n2) n3;
 [ERROR] PATH:LINENUM DATE TIME : Unknown table: N1
+Error with syntax near (line 1, column 55):
 
 SELECT * FROM (SELECT * FROM names n1, (SELECT * FROM n1) n2) n3;
                                                       ^^
@@ -207,11 +209,13 @@ SELECT (SELECT n2.id FROM names n1, (SELECT n1.id) n2);
                                             ^^^^^
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT (SELECT n2.id FROM names n1, (SELECT n1.id) n2);
 [ERROR] PATH:LINENUM DATE TIME : Unknown table: CUSTOMERS
+Error with syntax near (line 1, column 15):
 
 SELECT * FROM customers c, (SELECT c.customer_id) c2;
               ^^^^^^^^^
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT * FROM customers c, (SELECT c.customer_id) c2;
 [ERROR] PATH:LINENUM DATE TIME : Unknown table: CUSTOMERS
+Error with syntax near (line 1, column 15):
 
 SELECT * FROM customers c inner join (SELECT c.customer_id) c2 ON c2.customer_id = c.customer_id;
               ^^^^^^^^^

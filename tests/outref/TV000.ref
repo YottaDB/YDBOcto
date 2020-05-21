@@ -5,6 +5,7 @@ INDEX fake_index "^notaglobal(""fake_index"",fields(""name""),fields(""age""),ke
 
 select * from names;
 [ERROR] PATH:LINENUM DATE TIME : Unknown table: NONEXISTANTTABLE
+Error with syntax near (line 1, column 15):
 
 select * from nonexistanttable;
               ^^^^^^^^^^^^^^^^

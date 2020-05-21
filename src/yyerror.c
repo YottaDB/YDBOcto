@@ -46,6 +46,8 @@
 		}											\
 	} while (TRUE);
 
+void print_yyloc(YYLTYPE *llocp);	/* A helper function internal to this file */
+
 void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, int *plan_id, ParseContext *parse_context, char const *s)
 {
 	UNUSED(plan_id);

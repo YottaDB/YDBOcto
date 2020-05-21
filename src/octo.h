@@ -255,7 +255,6 @@ SqlColumnListAlias *match_column_in_table(SqlTableAlias *table, char *column_nam
 									boolean_t *ambiguous, boolean_t issue_error);
 boolean_t match_column_list_alias_in_select_column_list(SqlColumnListAlias *match_cla, SqlStatement *cla_stmt);
 int qualify_function_name(SqlStatement *stmt);
-void print_yyloc(YYLTYPE *llocp);
 SqlOptionalKeyword *get_keyword(SqlColumn *column, enum OptionalKeyword keyword);
 SqlOptionalKeyword *get_keyword_from_keywords(SqlOptionalKeyword *start_keyword, enum OptionalKeyword keyword);
 int get_key_columns(SqlTable *table, SqlColumn **key_columns);

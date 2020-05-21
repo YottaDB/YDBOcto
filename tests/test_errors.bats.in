@@ -228,3 +228,7 @@ OCTO
   verify_output TERR019 output.txt
 }
 
+@test "TERR020 : OCTO512 : SIG-11 (instead of an error) from SELECT *" {
+  load_fixture TERR020.sql subtest novv
+  verify_output TERR020 output.txt
+}

@@ -1,4 +1,5 @@
 [ERROR] PATH:LINENUM DATE TIME : Unknown table: TABLEOFDOGS
+Error with syntax near (line 2, column 30):
 
 UPDATE myTable
 SET name = (SELECT name FROM tableOfDogs WHERE breed = "Black lab");

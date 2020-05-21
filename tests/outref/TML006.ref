@@ -1,5 +1,6 @@
 OCTO> qwerty; select * from names limit 1;
 [ERROR] PATH:LINENUM DATE TIME : Unknown table: QWERTY
+Error with syntax near (line 1, column 0):
 
 qwerty; select * from names limit 1;
 ^^^^^^

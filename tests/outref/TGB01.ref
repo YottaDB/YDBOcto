@@ -101,6 +101,7 @@ SELECT (SELECT n3.id FROM names n3 WHERE n3.id = n1.id),(SELECT n2.id FROM names
 SELECT (SELECT n3.id FROM names n3 WHERE n3.id = n1.id),(SELECT n2.id FROM names n2 ORDER BY COUNT(n1.id)) FROM names n1 GROUP BY n1.id;
 
 [ERROR] PATH:LINENUM DATE TIME : Only column names are valid in GROUP BY (not expressions or constants)
+Error with syntax near (line 2, column 30):
 
 --> Below queries should error out because GROUP BY is supported only with columns (not with constants or expressions)
 SELECT * FROM names GROUP BY 1;
@@ -108,11 +109,13 @@ SELECT * FROM names GROUP BY 1;
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: --> Below queries should error out because GROUP BY is supported only with columns (not with constants or expressions)
 SELECT * FROM names GROUP BY 1;
 [ERROR] PATH:LINENUM DATE TIME : Only column names are valid in GROUP BY (not expressions or constants)
+Error with syntax near (line 1, column 43):
 
 SELECT * FROM names GROUP BY id,firstname,1+id;
                                           ^^^^
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT * FROM names GROUP BY id,firstname,1+id;
 [ERROR] PATH:LINENUM DATE TIME : Only column names are valid in GROUP BY (not expressions or constants)
+Error with syntax near (line 2, column 66):
 
 --> Below query should error out because aggregate functions are not allowed in GROUP BY
 SELECT COUNT(CustomerID),Country FROM Customers GROUP BY Country,COUNT(CustomerID);

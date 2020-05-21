@@ -8,6 +8,7 @@ ERROR: Unknown table: PG_CATALOG.PG_SETTINGS
 
 ----- OCTO -----
 [ERROR] PATH:LINENUM DATE TIME : Unknown table: PG_CATALOG.PG_SETTINGS
+Error with syntax near (line 2, column 8):
 
 SELECT setting
 FROM   pg_catalog.pg_settings

@@ -6,6 +6,7 @@ INDEX fake_index "^notaglobal(""fake_index"",fields(""name""),fields(""age""),ke
 select * from names;
 [ INFO] PATH:LINENUM DATE TIME : Loaded config from $PWD/octo.conf
 [ERROR] PATH:LINENUM DATE TIME : Unknown table: NONEXISTANTTABLE
+Error with syntax near (line 1, column 15):
 
 select * from nonexistanttable;
               ^^^^^^^^^^^^^^^^

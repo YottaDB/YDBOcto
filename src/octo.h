@@ -348,16 +348,22 @@ int get_input(char *buf, int size);
 void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, int *plan_id, ParseContext *parse_context, char const *s);
 
 /* Globals */
-SqlTable	*definedTables;
-uint64_t	hash_canonical_query_cycle;	// incremented before every outermost call to "hash_canonical_query"
-int		cur_input_index;		// Current index of input_buffer_combined the parser should read from, and readlines should write to. Effectively marks the end of the current query.
-int		old_input_index;		// The previous value of cur_input_index before the parser modifies it. Effectively marks the start of the current query.
-int		leading_spaces;			// leading spaces in the current query it needs to be stored somewhere accessible but should be ignored, except by the lexer and yyerror
-int		cur_input_max;
-int		cancel_received;
-int		eof_hit;
-FILE		*inputFile;
-FILE		*err_buffer;
-char		*input_buffer_combined;		// The input buffer for octo. Contains the query strings.
-int		(*cur_input_more)();
+extern	SqlTable	*definedTables;
+extern	uint64_t	hash_canonical_query_cycle;	// incremented before every outermost call to "hash_canonical_query"
+extern	int		cur_input_index;		// Current index of input_buffer_combined the parser should read from,
+							// and readlines should write to. Effectively marks the end of the
+							// current query.
+extern	int		old_input_index;		// The previous value of cur_input_index before the parser modifies it.
+							// Effectively marks the start of the current query.
+extern	int		leading_spaces;			// leading spaces in the current query it needs to be stored somewhere
+							// accessible but should be ignored, except by the lexer and yyerror
+extern	int		cur_input_max;
+extern	int		cancel_received;
+extern	int		eof_hit;
+extern	FILE		*inputFile;
+extern	FILE		*err_buffer;
+extern	char		*input_buffer_combined;		// The input buffer for octo. Contains the query strings.
+extern	int		(*cur_input_more)();
+extern	OctoConfig	*config;
+
 #endif

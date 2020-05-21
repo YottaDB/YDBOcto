@@ -190,6 +190,7 @@ RowDescription *read_row_description(BaseMessage *message);
 PasswordMessage *make_password_message(char *user, char *password, char *salt);
 StartupMessage *make_startup_message(char *username);
 
-RoctoSession rocto_session;
+// Globals
+extern RoctoSession rocto_session;
 
 #endif

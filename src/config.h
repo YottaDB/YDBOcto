@@ -57,6 +57,6 @@ typedef struct OctoConfig {
 	int			dry_run, plan_id, page_size, allow_schema_changes;
 } OctoConfig;
 
-OctoConfig *config;
+extern	OctoConfig *config;
 
 #endif

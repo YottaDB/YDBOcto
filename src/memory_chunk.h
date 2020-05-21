@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -38,6 +38,6 @@ void *octo_cmalloc(MemoryChunk *root, size_t size);
 void octo_cfree(MemoryChunk *root);
 
 // GLOBAL
-MemoryChunk *memory_chunks;
+extern	MemoryChunk *memory_chunks;
 
 #endif

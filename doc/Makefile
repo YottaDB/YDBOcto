@@ -26,6 +26,12 @@ help:
 
 .PHONY: help Makefile
 
+# Clean target: remove all files under _build directory.
+# The Sphinx command below functions the same way as that for the
+# Catch-all target.
+clean:
+	@$(SPHINXBUILD) -M $@ "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
+
 # Catch-all target: route all unknown targets to Sphinx using the new
 # "make mode" option.  $(O) is meant as a shortcut for $(SPHINXOPTS).
 %: Makefile

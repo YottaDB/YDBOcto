@@ -310,7 +310,7 @@ run_psql_expect() {
 }
 
 create_user() {
-	echo -n $2 | yottadb -r %ydboctoAdmin add user $1
+	echo -en "$2\n$2" | yottadb -r %ydboctoAdmin add user $1
 }
 
 delete_users() {

@@ -565,11 +565,21 @@ Test with dummy data using Rocto
      jdbc:postgresql://localhost:1337/
 
   A username and password should also be added to the alias.
-  This username and password combination should also be added to Octo using the following command:
+  This username and password combination must first be added to Octo using the ydboctoAdmin utility:
 
   .. parsed-literal::
 
      yottadb -r %ydboctoAdmin add user <username>
+
+
+  For example:
+
+  .. parsed-literal::
+
+     $ydb_dist/yottadb -r %ydboctoAdmin add user myusername
+     Enter password for user myusername:
+     Re-enter password for user myusername:
+     Successfully added user: "myusername"
 
 
   In a shell with YottaDB and Octo environment variables set, start Rocto using the following command:

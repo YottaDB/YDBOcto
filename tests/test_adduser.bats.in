@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -17,28 +17,28 @@ setup() {
   createdb
 }
 
-@test "call %ydboctoAdmin add user with no user" {
+@test "TAU00 : call %ydboctoAdmin add user with no user" {
   yottadb -r %ydboctoAdmin add user > results.log
   log=$(cat results.log)
   [[ "$log" =~ "Usage" ]]
 }
 
-@test "call %ydboctoAdmin add user with one user" {
-  echo -n tester | yottadb -r %ydboctoAdmin add user jon > results.log
+@test "TAU01 : call %ydboctoAdmin add user with one user" {
+  echo -en "tester\ntester" | yottadb -r %ydboctoAdmin add user jon > results.log
   log=$(cat results.log)
   [[ "$log" =~ "Successfully added user: \"jon\"" ]]
 }
 
-@test "call %ydboctoAdmin add user with three users" {
-  echo -n tester | yottadb -r %ydboctoAdmin add user jon > results.log
+@test "TAU02 : call %ydboctoAdmin add user with three users" {
+  echo -en "tester\ntester" | yottadb -r %ydboctoAdmin add user jon > results.log
   log=$(cat results.log)
   [[ "$log" =~ "Successfully added user: \"jon\"" ]]
 
-  echo -n tester | yottadb -r %ydboctoAdmin add user bobby > results.log
+  echo -en "tester\ntester" | yottadb -r %ydboctoAdmin add user bobby > results.log
   log=$(cat results.log)
   [[ "$log" =~ "Successfully added user: \"bobby\"" ]]
 
-  echo -n tester | yottadb -r %ydboctoAdmin add user suzy > results.log
+  echo -en "tester\ntester" | yottadb -r %ydboctoAdmin add user suzy > results.log
   log=$(cat results.log)
   [[ "$log" =~ "Successfully added user: \"suzy\"" ]]
 }

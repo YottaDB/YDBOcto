@@ -1,6 +1,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;								;
-; Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	;
+; Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	;
 ; All rights reserved.						;
 ;								;
 ;	This source code contains the intellectual property	;
@@ -28,7 +28,7 @@
 	; Options:
 	;        -h --help	Print this message
 
-	new action,subAction,user,rawPass
+	new action,subAction,user,rawPass1,rawPass2
 	set action=$piece($zcmdline," ",1)
 	set subAction=$piece($zcmdline," ",2)
 	if "add"=action do
@@ -38,10 +38,17 @@
 		. . if ""'=$get(^%ydboctoocto("users",user)) write "AddUser: That user already exists",! quit
 		. . write "Enter password for user ",user,": "
 		. . use $principal:noecho ; disable echo here so plaintext password is not printed
-		. . read rawPass
+		. . read rawPass1
 		. . use $principal:echo
-		. . do addUser(user,rawPass)
-		. . write !,"Successfully added user: """,user,"""",!
+		. . write !,"Re-enter password for user ",user,": "
+		. . use $principal:noecho ; disable echo here so plaintext password is not printed
+		. . read rawPass2
+		. . use $principal:echo
+		. . if rawPass1=rawPass2 do
+		. . . do addUser(user,rawPass1)
+		. . . write !,"Successfully added user: """,user,"""",!
+		. . else  do
+		. . . write !,"Passwords don't match. Cancelling user creation.",!
 		. else  do usage()
 	else  if "delete"=action do
 		. if "user"=subAction do

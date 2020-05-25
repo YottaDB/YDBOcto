@@ -51,7 +51,7 @@ int readline_get_more() {
 		// Trim the trailing white space here so that cur_input_index is always at the end of a query
 		// Otherwise the buffer will not be reset and multiple queries will end up in the debug info
 		int is_white_space = TRUE;
-		while(is_white_space){
+		while (is_white_space && (0 < line_length)) {
 			switch (line[line_length - 1]) {
 				case ' ':
 					line_length--;

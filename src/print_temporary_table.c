@@ -108,6 +108,7 @@ int print_temporary_table(SqlStatement *stmt, int cursor_id, void *parms, char *
 	status = ydb_subscript_next_s(&cursor_buffers[0], 6, &cursor_buffers[1], &cursor_buffers[6]);
 	if (YDB_ERR_NODEEND == status) {
 		YDB_FREE_BUFFER(&cursor_buffers[3]);
+		YDB_FREE_BUFFER(&cursor_buffers[6]);
 		YDB_FREE_BUFFER(&value_buffer);
 		free(cursor_buffers);
 		return 0;

@@ -232,3 +232,17 @@ OCTO
   load_fixture TERR020.sql subtest novv
   verify_output TERR020 output.txt
 }
+
+@test "TERR021 : error when CI file does not exist" {
+	if [[ @DISABLE_INSTALL@ == "ON" ]]; then
+		mv ../src/ydbocto.ci call-in.bak
+    load_fixture TERR021.sql subtest novv
+    sed -i -e 's#table: .*/.*\.\(y\|c\|ci\),%YDB-E-SYSCALL#table: PATH,%YDB-E-SYSCALL#g' \
+           -e 's#at line [0-9]\+$#at line LINENUM#' \
+           -e 's#called from module .*/.*\.[yc]#called from module PATH#' output.txt
+    # cleanup afterwards even if this test fails, or it will cause other tests to fail
+    verify_output TERR021 output.txt && status=0 || status=$?
+		mv call-in.bak ../src/ydbocto.ci
+    return $status
+	fi
+}

@@ -678,9 +678,13 @@ int octo_init(int argc, char **argv) {
 			return 1;
 		}
 	}
-	ydb_ci_tab_open(ci_path, &ci_tab_handle_new);
-	ydb_ci_tab_switch(ci_tab_handle_new, &ci_tab_handle_old);
-	status = ydb_ci("_ydboctoInit", &ci_return, (ydb_int_t)config->verbosity_level);
+	status = ydb_ci_tab_open(ci_path, &ci_tab_handle_new);
+	if (YDB_OK == status) {
+		status = ydb_ci_tab_switch(ci_tab_handle_new, &ci_tab_handle_old);
+	}
+	if (YDB_OK == status) {
+		status = ydb_ci("_ydboctoInit", &ci_return, (ydb_int_t)config->verbosity_level);
+	}
 	YDB_ERROR_CHECK(status);
 	if (YDB_OK != status) {
 		return 1;

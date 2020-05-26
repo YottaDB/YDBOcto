@@ -51,20 +51,18 @@
 	assert('\0' == config->global_names.NAME[length]);								\
 }
 
-#define MERGE_CONFIG_PATH_AND_RETURN_ON_ERROR(FORMAT, ENV_VAR, CONFIG_FILE, CONFIG_FILE_LIST)					\
+#define MERGE_CONFIG_PATH_AND_RETURN_ON_ERROR(FORMAT, ENV_VAR, CONFIG_FILE, CONFIG_FILE_LIST, FILENAME)				\
 {																\
 	int	tmp_path_len, status;												\
-	char	*filename;													\
 																\
-	CONFIG_FILE_LIST.filenames[CONFIG_FILE_LIST.num_files] = (char *)calloc(OCTO_PATH_MAX, sizeof(char));			\
-	filename = CONFIG_FILE_LIST.filenames[CONFIG_FILE_LIST.num_files];							\
-	tmp_path_len = snprintf(filename, OCTO_PATH_MAX, FORMAT, ENV_VAR,							\
+	tmp_path_len = snprintf(FILENAME, OCTO_PATH_MAX, FORMAT, ENV_VAR,							\
 			OCTO_CONF_FILE_NAME);											\
 	/* Ignore this configuration file if snprintf output was truncated. */							\
 	if (OCTO_PATH_MAX > tmp_path_len) {											\
-		assert('\0' == filename[tmp_path_len]);										\
-		status = merge_config_file(filename, &CONFIG_FILE, FALSE);							\
+		assert('\0' == FILENAME[tmp_path_len]);										\
+		status = merge_config_file(FILENAME, &CONFIG_FILE, FALSE);							\
 		if (0 == status) {												\
+			CONFIG_FILE_LIST.filenames[CONFIG_FILE_LIST.num_files] = FILENAME;					\
 			CONFIG_FILE_LIST.num_files++;										\
 			assert(MAX_CONFIG_FILES >= CONFIG_FILE_LIST.num_files);							\
 		} else if (1 == status) {											\
@@ -511,6 +509,7 @@ int octo_init(int argc, char **argv) {
 	config_t		*config_file;
 	ssize_t			exe_path_len;
 	char			ci_path[OCTO_PATH_MAX], exe_path[OCTO_PATH_MAX], config_file_path[OCTO_PATH_MAX], cwd[OCTO_PATH_MAX];
+	char			cwd_file_name[OCTO_PATH_MAX], homedir_file_name[OCTO_PATH_MAX], plugin_file_name[OCTO_PATH_MAX];
 	char			zstatus_message[YDB_MAX_ERRORMSG];
 	char			*homedir, *ydb_dist, *config_file_name = NULL;
 	int			status, i;
@@ -569,13 +568,13 @@ int octo_init(int argc, char **argv) {
 			ERROR(ERR_SYSCALL, "getcwd", errno, strerror(errno));
 			return 1;
 		}
-		MERGE_CONFIG_PATH_AND_RETURN_ON_ERROR("%s/%s", cwd, config_file, config_file_list);
+		MERGE_CONFIG_PATH_AND_RETURN_ON_ERROR("%s/%s", cwd, config_file, config_file_list, cwd_file_name);
 		homedir = getenv("HOME");
 		if (NULL != homedir) {
-			MERGE_CONFIG_PATH_AND_RETURN_ON_ERROR("%s/%s", homedir, config_file, config_file_list);
+			MERGE_CONFIG_PATH_AND_RETURN_ON_ERROR("%s/%s", homedir, config_file, config_file_list, homedir_file_name);
 		}
 		if (NULL != ydb_dist) {
-			MERGE_CONFIG_PATH_AND_RETURN_ON_ERROR("%s/plugin/octo/%s", ydb_dist, config_file, config_file_list);
+			MERGE_CONFIG_PATH_AND_RETURN_ON_ERROR("%s/plugin/octo/%s", ydb_dist, config_file, config_file_list, plugin_file_name);
 		}
 	} else {
 		status = merge_config_file(config_file_name, &config_file, FALSE);
@@ -591,11 +590,6 @@ int octo_init(int argc, char **argv) {
 	}
 	status = parse_config_file_settings(config_file_list.filenames[config_file_list.num_files-1], config_file);
 	if (status) {
-		// Cleanup list of configuration files
-		for (i = 0; i < config_file_list.num_files; i++) {
-			assert(NULL != config_file_list.filenames[i]);
-			free(config_file_list.filenames[i]);
-		}
 		return status;
 	}
 
@@ -608,11 +602,10 @@ int octo_init(int argc, char **argv) {
 	if (-1 != temp_config.rocto_config.port) {	// Only overwrite if initialized
 		config->rocto_config.port = temp_config.rocto_config.port;
 	}
-	// Issue INFO messages for loaded configuration files now that verbosity level is finalized and clean them up
+	// Issue INFO messages for loaded configuration files now that verbosity level is finalized
 	for (i = 0; i < config_file_list.num_files; i++) {
 		assert(NULL != config_file_list.filenames[i]);
 		INFO(INFO_LOADED_CONFIG, config_file_list.filenames[i]);
-		free(config_file_list.filenames[i]);
 	}
 
 	// Verify that the directory exists, or issue an error

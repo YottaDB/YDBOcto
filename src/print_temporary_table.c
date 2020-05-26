@@ -96,7 +96,7 @@ int print_temporary_table(SqlStatement *stmt, int cursor_id, void *parms, char *
 		YDB_FREE_BUFFER(&cursor_buffers[3]);
 		YDB_FREE_BUFFER(&value_buffer);
 		free(cursor_buffers);
-		if(memory_chunks != NULL) {
+		if (NULL != memory_chunks) {
 			OCTO_CFREE(memory_chunks);
 		}
 		ERROR(ERR_DATABASE_FILES_OOS, "");
@@ -111,6 +111,9 @@ int print_temporary_table(SqlStatement *stmt, int cursor_id, void *parms, char *
 		YDB_FREE_BUFFER(&cursor_buffers[6]);
 		YDB_FREE_BUFFER(&value_buffer);
 		free(cursor_buffers);
+		if (NULL != memory_chunks) {
+			OCTO_CFREE(memory_chunks);
+		}
 		return 0;
 	}
 	YDB_ERROR_CHECK(status);
@@ -153,7 +156,7 @@ int print_temporary_table(SqlStatement *stmt, int cursor_id, void *parms, char *
 	YDB_FREE_BUFFER(&cursor_buffers[6]);
 	YDB_FREE_BUFFER(&value_buffer);
 	free(cursor_buffers);
-	if(memory_chunks != NULL) {
+	if (NULL != memory_chunks) {
 		OCTO_CFREE(memory_chunks);
 	}
 	return (YDB_OK != status);

@@ -28,5 +28,4 @@ ADD ./tools/entrypoint.sh /
 RUN cd /tmp/build/ && . /opt/yottadb/current/ydb_env_set && ./install.sh
 RUN cd /tmp && rm -r build
 
-ENV ydb_ci /opt/yottadb/current/plugin/octo/ydbocto.ci
 ENTRYPOINT "/entrypoint.sh"

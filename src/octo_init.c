@@ -641,7 +641,7 @@ int octo_init(int argc, char **argv) {
 
 	if (INFO >= config->verbosity_level) {	// Record pertinent ydb_* env vars if -vv or higher verbosity is specified
 		char		*ptr;
-		char		*envvar_array[] = { "ydb_dist", "ydb_gbldir", "ydb_routines", "ydb_ci", "ydb_xc_ydbposix" };
+		char		*envvar_array[] = { "ydb_dist", "ydb_gbldir", "ydb_routines", "ydb_xc_ydbposix" };
 		unsigned int	i;
 
 		INFO(CUSTOM_ERROR, "# Recording pertinent ydb_* env var values at process startup");
@@ -653,6 +653,7 @@ int octo_init(int argc, char **argv) {
 			INFO(CUSTOM_ERROR, "# %s=\"%s\"", envvar_array[i], ptr);
 		}
 	}
+	// NOTE: this uses hard-coded paths, not $ydb_ci
 	if (!DISABLE_INSTALL) {
 		if (NULL != ydb_dist)  {
 			status = snprintf(ci_path, sizeof(ci_path), "%s/plugin/octo/ydbocto.ci", ydb_dist);

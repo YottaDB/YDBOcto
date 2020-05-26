@@ -297,10 +297,9 @@ Configure Octo
       * :code:`ydb_dist`
       * :code:`ydb_gbldir`
       * :code:`ydb_routines`
-      * :code:`ydb_ci`
       * :code:`ydb_xc_ydbposix`
 
-  The environment variables :code:`ydb_dist`, :code:`ydb_gbldir`, and :code:`ydb_routines` can initiallly be set by sourcing :code:`ydb_env_set` in your YottaDB installation directory. Additional modifications to ydb_routines may be needed due to configuration in :code:`octo.conf` described later in this manual.
+  The environment variables :code:`ydb_dist`, :code:`ydb_gbldir`, and :code:`ydb_routines` can initially be set by sourcing :code:`ydb_env_set` in your YottaDB installation directory. Additional modifications to ydb_routines may be needed due to configuration in :code:`octo.conf` described later in this manual.
 
   Example setting of the environment variables (assuming default paths):
 
@@ -308,7 +307,6 @@ Configure Octo
 
      source /usr/local/lib/yottadb/r1.28/ydb_env_set
      export ydb_routines="$ydb_dist/plugin/octo/o/_ydbocto.so $ydb_routines"
-     export ydb_ci=$ydb_dist/plugin/octo/ydbocto.ci
      export ydb_xc_ydbposix=$ydb_dist/plugin/ydbposix.xc
 
 ^^^^^^^^^^^^^^^^^^

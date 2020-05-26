@@ -47,9 +47,7 @@ source $temp_dist/ydb_env_set
 # Configure database
 rm -f $ydb_dir/$ydb_rel/g/octo.*
 export ydb_gbldir="$ydb_dir/$ydb_rel/g/octo.gld"
-export ydb_ci="$ydb_dist/plugin/octo/ydbocto.ci"
 echo "install.sh: \$ydb_gbldir set to $ydb_gbldir"
-echo "install.sh: \$ydb_ci set to $ydb_ci"
 $ydb_dist/yottadb -r ^GDE <<FILE
 add -segment OCTO -access_method=bg -file_name=$ydb_dir/$ydb_rel/g/octo.dat
 add -region OCTO -dynamic=octo -journal=(before,file="$ydb_dir/$ydb_rel/g/octo.mjl") -null_subscripts=always -key_size=1019 -record_size=300000

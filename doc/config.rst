@@ -39,7 +39,6 @@ The following environment variables must be set:
 * ydb_dist
 * ydb_gbldir
 * ydb_routines
-* ydb_ci
 * ydb_xc_ydbposix
 
 The environment variables `ydb_dist`, `ydb_gbldir`, and `ydb_routines` can initially be set by sourcing `ydb_env_set` in your YottaDB installation directory.
@@ -49,7 +48,6 @@ Example setting of the environment variables (assuming default paths):
  .. parsed-literal::
     source /usr/local/lib/yottadb/r1.28/ydb_env_set
     export ydb_routines=". $ydb_routines"
-    export ydb_ci=$ydb_dist/plugin/ydbocto.ci
     export ydb_xc_ydbposix=$ydb_dist/plugin/ydbposix.xc
 
 ~~~~~~~~~~~~~~

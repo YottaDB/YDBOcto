@@ -119,24 +119,23 @@ void hash_canonical_query(hash128_state_t *state, SqlStatement *stmt, int *statu
 	SqlTableAlias		*table_alias;
 
 	// Operations and keywords
-	SqlBinaryOperation	*binary;
-	SqlSetOperation		*set_operation;
-	SqlUnaryOperation	*unary;
-	SqlOptionalKeyword	*keyword;
+	SqlBinaryOperation		*binary;
+	SqlSetOperation			*set_operation;
+	SqlUnaryOperation		*unary;
+	SqlOptionalKeyword		*keyword;
 
 	// Iteration pointers for doubly-linked list traversal
-	SqlCaseBranchStatement	*cur_cas_branch;
-	SqlJoin			*cur_join;
-	SqlOptionalKeyword	*cur_keyword;
+	SqlCaseBranchStatement		*cur_cas_branch;
+	SqlJoin				*cur_join;
+	SqlOptionalKeyword		*cur_keyword;
 
 	BinaryOperations	binary_operation;
 
 	/* Note: 0 OR negative values of "*status" are considered normal. Positive values are considered abnormal. */
 	if ((NULL == stmt) || (0 < *status))
 		return;
-	if (stmt->hash_canonical_query_cycle == hash_canonical_query_cycle)
-	{
-		switch(stmt->type) {
+	if (stmt->hash_canonical_query_cycle == hash_canonical_query_cycle) {
+		switch (stmt->type) {
 			case table_STATEMENT:
 				ADD_INT_HASH(state, table_STATEMENT);
 				UNPACK_SQL_STATEMENT(table, stmt, table);
@@ -262,6 +261,7 @@ void hash_canonical_query(hash128_state_t *state, SqlStatement *stmt, int *statu
 		case NUMERIC_LITERAL:
 		case INTEGER_LITERAL:
 		case STRING_LITERAL:
+		case DELIM_VALUE:
 		case NUL_VALUE:
 			if (HASH_LITERAL_VALUES != *status) {
 				// Ignore literals to prevent redundant plans

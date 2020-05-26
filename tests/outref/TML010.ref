@@ -4,25 +4,6 @@ Cool
 OCTO> 
 ;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
 ;; ---------------------------------------------------------
-;  select lastname from names limit 1;
-;; ---------------------------------------------------------
-
-octoPlan0(cursorId)
-    DO octoPlan1(cursorId)
-    QUIT
-
-octoPlan1(cursorId)
-    NEW %ydboctoz SET %ydboctozlimit(3)=0 KILL %ydboctocursor(cursorId,"keys",3,"","")
-    SET %ydboctocursor(cursorId,"keys",1,"NAMES","ID")=""
-    FOR  SET %ydboctocursor(cursorId,"keys",1,"NAMES","ID")=$ORDER(^names(%ydboctocursor(cursorId,"keys",1,"NAMES","ID"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"NAMES","ID")="")!($GET(%ydboctocursor(cursorId,"parameters",1))'>%ydboctozlimit(3))  DO
-    . NEW %ydboctobool SET %ydboctobool=1
-    . IF %ydboctobool DO
-    . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"",""))&$INCREMENT(%ydboctozlimit(3)) %ydboctoz=42
-    . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=$$str2mval^%ydboctoplanhelpers($PIECE($GET(^names(%ydboctocursor(cursorId,"keys",1,"NAMES","ID"))),"|",2))
-    KILL %ydboctozlimit(3)
-    QUIT
-;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
-;; ---------------------------------------------------------
 ;  select firstname from names limit 1;
 ;; ---------------------------------------------------------
 
@@ -38,5 +19,24 @@ octoPlan1(cursorId)
     . IF %ydboctobool DO
     . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"",""))&$INCREMENT(%ydboctozlimit(3)) %ydboctoz=42
     . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=$$str2mval^%ydboctoplanhelpers($PIECE($GET(^names(%ydboctocursor(cursorId,"keys",1,"NAMES","ID"))),"|",1))
+    KILL %ydboctozlimit(3)
+    QUIT
+;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
+;; ---------------------------------------------------------
+;  select lastname from names limit 1;
+;; ---------------------------------------------------------
+
+octoPlan0(cursorId)
+    DO octoPlan1(cursorId)
+    QUIT
+
+octoPlan1(cursorId)
+    NEW %ydboctoz SET %ydboctozlimit(3)=0 KILL %ydboctocursor(cursorId,"keys",3,"","")
+    SET %ydboctocursor(cursorId,"keys",1,"NAMES","ID")=""
+    FOR  SET %ydboctocursor(cursorId,"keys",1,"NAMES","ID")=$ORDER(^names(%ydboctocursor(cursorId,"keys",1,"NAMES","ID"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"NAMES","ID")="")!($GET(%ydboctocursor(cursorId,"parameters",1))'>%ydboctozlimit(3))  DO
+    . NEW %ydboctobool SET %ydboctobool=1
+    . IF %ydboctobool DO
+    . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"",""))&$INCREMENT(%ydboctozlimit(3)) %ydboctoz=42
+    . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=$$str2mval^%ydboctoplanhelpers($PIECE($GET(^names(%ydboctocursor(cursorId,"keys",1,"NAMES","ID"))),"|",2))
     KILL %ydboctozlimit(3)
     QUIT

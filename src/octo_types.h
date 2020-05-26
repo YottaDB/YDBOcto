@@ -125,6 +125,7 @@ typedef enum SqlStatementType {
 	show_STATEMENT,
 	no_data_STATEMENT,
 	sort_spec_list_STATEMENT,
+	delim_char_list_STATEMENT,
 	invalid_STATEMENT,
 	index_STATEMENT,
 } SqlStatementType;
@@ -191,6 +192,7 @@ typedef enum SqlValueType {
 	PARAMETER_VALUE,
 	NUL_VALUE,
 	COERCE_TYPE,
+	DELIM_VALUE,
 	INVALID_SqlValueType
 } SqlValueType;
 
@@ -446,6 +448,12 @@ typedef struct SqlIndex
 	struct SqlStatement *indexName;
 } SqlIndex;
 
+typedef struct SqlDelimiterCharacterList {
+	// struct SqlStatement	*character;	// SqlValue
+	int	character;
+	dqcreate(SqlDelimiterCharacterList);
+} SqlDelimiterCharacterList;
+
 /**
  * Effectively provides a list of tables that may or may not be joined
  */
@@ -679,6 +687,7 @@ typedef struct SqlStatement{
 		struct SqlSetStatement *set;
 		struct SqlShowStatement *show;
 		struct SqlNoDataStatement *no_data;
+		struct SqlDelimiterCharacterList *delim_char_list;
 		enum SqlDataType data_type;
 		enum SqlJoinType join_type;
 	} v;

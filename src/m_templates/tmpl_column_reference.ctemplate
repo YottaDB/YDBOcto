@@ -20,19 +20,19 @@
 TEMPLATE(tmpl_column_reference, PhysicalPlan *pplan, SqlColumnAlias *column_alias, boolean_t is_trigger) {
 	TEMPLATE_INIT();
 
-	SqlColumn		*column = NULL, *key_column;
-	SqlTable		*table;
-	SqlValue		*value;
-	SqlTableAlias		*table_alias;
-	SqlColumnListAlias	*cl_alias;
-	SqlColumnList		*column_list;
-	SqlOptionalKeyword	*keyword;
-	SqlKey			*key;
-	char			*table_name, *table_delim;
-	char			*piece = NULL, *source;
-	unsigned int		i;
-	boolean_t		skip_dollar_piece;
-	PhysicalPlan		*cur_plan;
+	SqlColumn			*column = NULL, *key_column;
+	SqlTable			*table;
+	SqlValue			*value;
+	SqlTableAlias			*table_alias;
+	SqlColumnListAlias		*cl_alias;
+	SqlColumnList			*column_list;
+	SqlOptionalKeyword		*keyword;
+	SqlKey				*key;
+	char				*table_name, *table_delim;
+	char				*piece = NULL, *source;
+	unsigned int			i;
+	boolean_t			skip_dollar_piece, is_dollar_char;
+	PhysicalPlan			*cur_plan;
 
 	// First check for EXTRACT, then GLOBAL & PIECE, and lastly assemble it ourselves based on table_alias->source
 	if (column_list_alias_STATEMENT == column_alias->column->type) {
@@ -77,10 +77,13 @@ TEMPLATE(tmpl_column_reference, PhysicalPlan *pplan, SqlColumnAlias *column_alia
 	column = find_column(value->v.string_literal, table);
 	UNPACK_SQL_STATEMENT(value, table->tableName, value);
 	table_name = value->v.string_literal;
+	is_dollar_char = FALSE;
 	if (table->delim) {
 		UNPACK_SQL_STATEMENT(keyword, table->delim, keyword);
 		UNPACK_SQL_STATEMENT(value, keyword->v, value);
 		table_delim = value->v.string_literal;
+		is_dollar_char = (DELIM_IS_DOLLAR_CHAR == table_delim[0] ? TRUE : FALSE);
+		table_delim = &value->v.string_literal[1];
 	} else {
 		table_delim = (is_trigger ? NULL : COLUMN_DELIMITER);
 	}
@@ -138,11 +141,19 @@ TEMPLATE(tmpl_column_reference, PhysicalPlan *pplan, SqlColumnAlias *column_alia
 				(is_trigger ? EmitSourceForm_Trigger : EmitSourceForm_Value));
 	if (!is_trigger) {
 		if (!skip_dollar_piece) {
-			%{}),"{{ table_delim }}",{{ piece }}){}%
+			if (is_dollar_char) {
+				%{}),{{ table_delim }},{{ piece }}){}%
+			} else {
+				%{}),"{{ table_delim }}",{{ piece }}){}%
+			}
 		}
 	} else {
 		if (NULL != table_delim) {
-			%{}-delim=""{{ table_delim }}"" -pieces=""{{ piece }}""{}%
+			if (is_dollar_char) {
+				%{}-delim={{ table_delim }} -pieces=""{{ piece }}""{}%
+			} else {
+				%{}-delim=""{{ table_delim }}"" -pieces=""{{ piece }}""{}%
+			}
 		}
 	}
 	TEMPLATE_END();

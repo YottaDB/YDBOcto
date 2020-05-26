@@ -35,10 +35,10 @@ SqlStatement *decompress_statement(char *buffer, int out_length) {
  * If the out buffer is NULL, doesn't copy the statement, but just counts size
  */
 void *decompress_statement_helper(SqlStatement *stmt, char *out, int out_length) {
-	SqlTable		*table;
-	SqlColumn		*cur_column, *start_column;
-	SqlValue		*value;
-	SqlOptionalKeyword	*start_keyword, *cur_keyword;
+	SqlTable			*table;
+	SqlColumn			*cur_column, *start_column;
+	SqlValue			*value;
+	SqlOptionalKeyword		*start_keyword, *cur_keyword;
 
 	assert(((char*)stmt) < out + out_length);
 	if (NULL == stmt)

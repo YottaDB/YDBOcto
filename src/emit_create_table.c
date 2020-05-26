@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -23,16 +23,17 @@
 //	SqlStatement *stmt: a SqlTable type SqlStatement
 // Returns:
 //	0 for success, 1 for error
-int emit_create_table(FILE *output, struct SqlStatement *stmt)
-{
-	int status = 0;
-	SqlColumn *start_column, *cur_column;
-	SqlTable *table;
-	SqlValue *value;
-	SqlOptionalKeyword *keyword;
-	char buffer[MAX_STR_CONST];
-	if(stmt == NULL)
+int emit_create_table(FILE *output, struct SqlStatement *stmt) {
+	int				status = 0;
+	SqlColumn			*start_column, *cur_column;
+	SqlTable			*table;
+	SqlValue			*value;
+	SqlOptionalKeyword		*keyword;
+	char				buffer[MAX_STR_CONST];
+
+	if (NULL == stmt) {
 		return 0;
+	}
 	table = stmt->v.table;
 	assert(table->tableName);
 	assert(table->columns);
@@ -47,21 +48,23 @@ int emit_create_table(FILE *output, struct SqlStatement *stmt)
 		}
 		fprintf(output, "%s", buffer);
 		cur_column = cur_column->next;
-		if(start_column != cur_column)
+		if (start_column != cur_column) {
 			fprintf(output, ", ");
-	} while(start_column != cur_column);
+		}
+	} while (start_column != cur_column);
 	fprintf(output, ")");
-	if(table->source) {
+	if (table->source) {
 		UNPACK_SQL_STATEMENT(keyword, table->source, keyword);
 		UNPACK_SQL_STATEMENT(value, keyword->v, value);
 		m_escape_string2(buffer, MAX_STR_CONST, value->v.reference);
 		fprintf(output, " GLOBAL \"%s\"", buffer);
 	}
-	if(table->delim) {
+	if (table->delim) {
+		fprintf(output, " DELIM ");
 		UNPACK_SQL_STATEMENT(keyword, table->delim, keyword);
 		UNPACK_SQL_STATEMENT(value, keyword->v, value);
 		m_escape_string2(buffer, MAX_STR_CONST, value->v.reference);
-		fprintf(output, " DELIM \"%s\"", buffer);
+		fprintf(output, "\"%s\"", buffer);
 	}
 	fprintf(output, ";");
 	return 0;

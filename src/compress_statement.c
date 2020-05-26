@@ -41,13 +41,13 @@ void compress_statement(SqlStatement *stmt, char **out, int *out_length) {
  * If the out buffer is NULL, doesn't copy the statement, but just counts size
  */
 void *compress_statement_helper(SqlStatement *stmt, char *out, int *out_length) {
-	SqlColumn		*cur_column, *start_column, *new_column;
-	SqlOptionalKeyword	*start_keyword, *cur_keyword, *new_keyword;
-	SqlStatement		*new_stmt;
-	SqlTable		*table, *new_table;
-	SqlValue		*value, *new_value;
-	int			len;
-	void			*r, *ret;
+	SqlColumn			*cur_column, *start_column, *new_column;
+	SqlOptionalKeyword		*start_keyword, *cur_keyword, *new_keyword;
+	SqlStatement			*new_stmt;
+	SqlTable			*table, *new_table;
+	SqlValue			*value, *new_value;
+	int				len;
+	void				*r, *ret;
 
 	if ((NULL == stmt) || (NULL == stmt->v.value))
 		return NULL;
@@ -63,7 +63,7 @@ void *compress_statement_helper(SqlStatement *stmt, char *out, int *out_length) 
 		new_stmt->v.value = ((void*)&out[*out_length]);
 		A2R(new_stmt->v.value, new_stmt->v.value);
 	}
-	switch(stmt->type) {
+	switch (stmt->type) {
 	case table_STATEMENT:
 		UNPACK_SQL_STATEMENT(table, stmt, table);
 		if (NULL != out) {

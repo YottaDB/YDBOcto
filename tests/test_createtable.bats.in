@@ -199,3 +199,46 @@ OCTO
   sed 's/\r//g;s/.*SHELL#/#/g;s/# .*/\n&/g;s/^# #/#/;' expect.out | grep -E "^# |^\[ERROR|^[0-5]" | grep -v PS1 > output.txt
   verify_output TC015 output.txt
 }
+
+@test "TC016 : OCTO483 : CREATE TABLE allows TAB characters in DELIM qualifier" {
+	# Load fixture with rows delimited by non-printable characters (TAB)
+	load_fixture TC016.zwr
+	load_fixture TC016.sql subtest novv
+	verify_output TC016 output.txt
+}
+
+@test "TC017 : OCTO483 : CREATE TABLE allows other non-printable characters in DELIM qualifier" {
+	# Load fixture with rows delimited by non-printable characters (carriage return)
+	load_fixture TC017.zwr
+	load_fixture TC017.sql subtest novv
+	verify_output TC017 output.txt
+}
+
+@test "TC018 : OCTO483 : CREATE TABLE works with regular characters as DELIM qualifier" {
+	# Load fixture with rows delimited by regular characters
+	load_fixture TC018U.zwr	# '_'-delimited
+	load_fixture TC018P.zwr # '|'-delimited
+	load_fixture TC018.sql subtest novv
+	verify_output TC018 output.txt
+}
+
+@test "TC019 : OCTO483 : CREATE TABLE works with multiple characters as DELIM qualifier" {
+	# Load fixture with rows delimited by multiple regular characters
+	load_fixture TC019.zwr
+	load_fixture TC019.sql subtest novv
+	verify_output TC019 output.txt
+}
+
+@test " TC020 : OCTO483 : CREATE TABLE works with multiple characters as DELIM qualifier, including non-printable characters" {
+	# Load fixture with rows delimited by multiple regular and non-printable characters
+	load_fixture TC020.zwr
+	load_fixture TC020.sql subtest novv
+	verify_output TC020 output.txt
+}
+
+@test " TC021 : OCTO483 : CREATE TABLE works with more characters in the DELIM qualifier than is initially allocated (8)" {
+	# Load fixture with rows delimited by multiple regular and non-printable characters
+	load_fixture TC021.zwr
+	load_fixture TC021.sql subtest novv
+	verify_output TC021 output.txt
+}

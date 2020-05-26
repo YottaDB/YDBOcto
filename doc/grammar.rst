@@ -40,6 +40,13 @@ Example:
    /* is equivalent to \*/
    CREATE TABLE (ID int KEY NUM 0, FirstName char(20) KEY NUM 1, LastName char(30) KEY NUM 2);
 
+Note that CREATE TABLE statements can also accept a list of ASCII integer values for use in the DELIM qualifier, for example:
+
+.. parsed-literal::
+   CREATE TABLE DELIMNAMES (id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName VARCHAR(30), middleInitial VARCHAR(1), age INTEGER) DELIM (9, 9) GLOBAL "^delimnames(keys(""id""))";
+
+Here, two TAB characters (ASCII value 9) act as the internal delimiter of an Octo table. Note, however, that these delimiters are not applied to Octo output, which retains the default pipe :code:`|` delimiter. The reason for this is that tables may be joined that have different delimiters, so one common delimiter needs to be chosen anyway. Thus, the default is used.
+
 ++++++++++++++++++++
 Accepted Data Types
 ++++++++++++++++++++

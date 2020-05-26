@@ -29,14 +29,21 @@
 
 #include "mmrhash.h"
 
-// Max number of chars needed to convert signed or unsigned int to char*, including null terminator and possible negative sign
+// Max number of chars needed to convert signed or unsigned 8-bit int to char*, including null terminator and possible negative sign
+#define INT8_TO_STRING_MAX 5
+// Max number of chars needed to convert signed or unsigned 16-bit int to char*, including null terminator and possible negative sign
 #define INT16_TO_STRING_MAX 7
-// Max number of chars needed to convert signed or unsigned int to char*, including null terminator and possible negative sign
+// Max number of chars needed to convert signed or unsigned 32-bit int to char*, including null terminator and possible negative sign
 #define INT32_TO_STRING_MAX 12
 // Max number of chars needed to convert int64_t OR uint64_t to char*, including null terminator and possible negative sign
 #define INT64_TO_STRING_MAX 21
 // Number of characters needed for a UUID, including null terminator. See https://www.postgresql.org/docs/11/datatype-uuid.html
 #define UUID_CHARACTER_LENGTH 37
+// Max ASCII value to accept for $CHAR arguments in delimiter
+#define DELIM_MAX 127
+// Distinguish between the cases of a DELIM being either a literal or a $CHAR call
+#define DELIM_IS_LITERAL	1
+#define DELIM_IS_DOLLAR_CHAR	2
 
 /* Set OCTO_PATH_MAX to be the same as the system PATH_MAX (should be defined by limits.h or sys/param.h)
  * but in case it is not available, set it to a value of 1024 just like is done in YDB.

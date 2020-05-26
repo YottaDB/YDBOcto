@@ -57,6 +57,7 @@ ERROR_DEF(ERR_MISSING_FROM_ENTRY, "Missing FROM-clause entry for table : %.*s", 
 ERROR_DEF(ERR_UNKNOWN_COLUMN_NAME, "Unknown column: %s", PSQL_Code_Undefined_Column)
 ERROR_DEF(ERR_UNKNOWN_FUNCTION, "Unknown function: %s", PSQL_Code_Undefined_Function)
 ERROR_DEF(ERR_TYPE_NOT_COMPATIBLE, "Type %s not compatible for %s", PSQL_Code_Undefined_Function)
+ERROR_DEF(ERR_INVALID_DELIM_CHAR, "Integer value %ld given for delimiter character is not a valid ASCII (0-127) character", PSQL_Code_Syntax_Error)
 ERROR_DEF(ERR_GROUP_BY_ONLY_COLUMN_NAME, "Only column names are valid in GROUP BY (not expressions or constants)", PSQL_Code_Grouping_Error)
 ERROR_DEF(ERR_AGGREGATE_FUNCTION_NESTED, "Aggregate function calls cannot be nested", PSQL_Code_Grouping_Error)
 ERROR_DEF(ERR_AGGREGATE_FUNCTION_WHERE, "Aggregate functions are not allowed in WHERE", PSQL_Code_Grouping_Error)

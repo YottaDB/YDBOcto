@@ -251,3 +251,13 @@ OCTO
   octo -c /does/not/exist > output.txt 2>&1 || true
   verify_output TERR022 output.txt
 }
+
+@test "TERR024 : OCTO483 : Issue error when CREATE TABLE DELIM list contains non-integers" {
+	load_fixture TERR024.sql subtest novv
+	verify_output TERR024 output.txt
+}
+
+@test "TERR025 : OCTO483 : Issue error when invalid integer values are used in CREATE TABLE DELIM list" {
+	load_fixture TERR025.sql subtest novv
+	verify_output TERR025 output.txt
+}

@@ -271,7 +271,8 @@ OCTO
 
 		test_portF=$(start_rocto 1339)
 		# Ignore extra verbiage emitted by some versions of psql and retain only the common/relevant message
-		run_psql $test_portF notls 2>&1 | grep "FATAL:  Server requires all connections to be TLS encrypted."	\
+		PGPASSWORD=ydbrocks psql -U ydb "sslmode=disable host=localhost port=$test_portF" 2>&1	\
+			| grep "FATAL:  Server requires all connections to be TLS encrypted."		\
 			| sed 's/psql: //' >> output.txt		# Remove psql prompt for output compatibility between versions
 		run_psql $test_portF < in.sql 2>&1 | tee -a output.txt
 		verify_output TPC007 output.txt noinfo nodebug
@@ -312,4 +313,65 @@ OCTO
 	else
 		skip "YDB_TLS_AVAILABLE is set"
 	fi
+}
+
+@test "TPC010 : OCTO483 : CREATE TABLE allows TAB characters in DELIM qualifier" {
+	# Load fixture with rows delimited by non-printable characters (TAB)
+	load_fixture TC016.zwr
+	# Restart rocto with --allowschemachanges
+	stop_rocto
+	test_portG=$(start_rocto $test_port quiet --allowschemachanges)
+	run_psql $test_portG TC016.sql 2>&1 | tee output.txt
+	verify_output TPC010 output.txt noinfo
+}
+
+@test "TPC011 : OCTO483 : CREATE TABLE allows other non-printable characters in DELIM qualifier" {
+	# Load fixture with rows delimited by non-printable characters (carriage return)
+	load_fixture TC017.zwr
+	# Restart rocto with --allowschemachanges
+	stop_rocto
+	test_portH=$(start_rocto $test_port quiet --allowschemachanges)
+	run_psql $test_portH TC017.sql 2>&1 | tee output.txt
+	verify_output TPC011 output.txt noinfo
+}
+
+@test "TPC012 : OCTO483 : CREATE TABLE works with regular characters as DELIM qualifier" {
+	# Load fixture with rows delimited by regular characters
+	load_fixture TC018U.zwr	# '_'-delimited
+	load_fixture TC018P.zwr # '|'-delimited
+	# Restart rocto with --allowschemachanges
+	stop_rocto
+	test_portI=$(start_rocto $test_port quiet --allowschemachanges)
+	run_psql $test_portI TC018.sql 2>&1 | tee output.txt
+	verify_output TPC012 output.txt noinfo
+}
+
+@test "TPC013 : OCTO483 : CREATE TABLE works with multiple characters as DELIM qualifier" {
+	# Load fixture with rows delimited by multiple regular characters
+	load_fixture TC019.zwr
+	# Restart rocto with --allowschemachanges
+	stop_rocto
+	test_portJ=$(start_rocto $test_port quiet --allowschemachanges)
+	run_psql $test_portJ TC019.sql 2>&1 | tee output.txt
+	verify_output TPC013 output.txt noinfo
+}
+
+@test " TPC014 : OCTO483 : CREATE TABLE works with multiple characters as DELIM qualifier, including non-printable characters" {
+	# Load fixture with rows delimited by multiple regular and non-printable characters
+	load_fixture TC020.zwr
+	# Restart rocto with --allowschemachanges
+	stop_rocto
+	test_portK=$(start_rocto $test_port quiet --allowschemachanges)
+	run_psql $test_portK TC020.sql 2>&1 | tee output.txt
+	verify_output TPC014 output.txt noinfo
+}
+
+@test " TPC015 : OCTO483 : Rocto issues error when CREATE TABLE DELIM list contains non-integers" {
+	run_psql $test_port TERR024.sql 2>&1 | tee output.txt
+	verify_output TPC015 output.txt noinfo
+}
+
+@test " TPC016 : OCTO483 : Rocto issues error when invalid integer values are used in CREATE TABLE DELIM list" {
+	run_psql $test_port TERR025.sql 2>&1 | tee output.txt
+	verify_output TPC016 output.txt noinfo
 }

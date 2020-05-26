@@ -1,0 +1,16 @@
+ERROR:  Error with syntax near (line 1, column 140):
+ERROR:  CREATE TABLE DELIMNAMES (id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName VARCHAR(30), middleInitial VARCHAR(1), age INTEGER) DELIM (-1) GLOBAL "^delimnames(keys(""id""))";
+ERROR:                                                                                                                                              ^
+ERROR:  syntax error, unexpected MINUS, expecting LITERAL
+
+ERROR:  Error parsing statement: CREATE TABLE DELIMNAMES (id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName VARCHAR(30), middleInitial VARCHAR(1), age INTEGER) DELIM (-1) GLOBAL "^delimnames(keys(""id""))";
+ERROR:  Integer value 1112065 given for delimiter character is not a valid ASCII (0-127) character
+ERROR:  Error with syntax near (line 1, column 140):
+ERROR:  CREATE TABLE DELIMNAMES (id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName VARCHAR(30), middleInitial VARCHAR(1), age INTEGER) DELIM (1112065) GLOBAL "^delimnames(keys(""id""))";
+ERROR:                                                                                                                                              ^^^^^^^
+ERROR:  Error parsing statement: CREATE TABLE DELIMNAMES (id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName VARCHAR(30), middleInitial VARCHAR(1), age INTEGER) DELIM (1112065) GLOBAL "^delimnames(keys(""id""))";
+ERROR:  Integer value 111206500 given for delimiter character is not a valid ASCII (0-127) character
+ERROR:  Error with syntax near (line 1, column 140):
+ERROR:  CREATE TABLE DELIMNAMES (id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName VARCHAR(30), middleInitial VARCHAR(1), age INTEGER) DELIM (111206500) GLOBAL "^delimnames(keys(""id""))";
+ERROR:                                                                                                                                              ^^^^^^^^^
+ERROR:  Error parsing statement: CREATE TABLE DELIMNAMES (id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName VARCHAR(30), middleInitial VARCHAR(1), age INTEGER) DELIM (111206500) GLOBAL "^delimnames(keys(""id""))";

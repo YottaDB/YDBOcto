@@ -248,16 +248,18 @@ start_rocto() {
 	echo "ROCTO START" >> env.log
 	env >> env.log
 	if [[ $2 == "quiet" ]]; then
-		verbosity=""
+		verbosity="-v"
+		opt=$3
 	elif [[ $2 == "verbose" ]]; then
 		verbosity="-vvv"
+		opt=$3
 	else
 		verbosity="-vv"
 		# Allow optional second argument
-		opt2=$2
+		opt=$2
 	fi
 	rocto_port=$(find_open_port $1)
-	rocto $verbosity -p $rocto_port $2 &> rocto.log &
+	rocto $verbosity -p $rocto_port $opt &> rocto.log &
 	echo $! > rocto.pid
 	while [[ ! -e rocto.log || "$(grep -c "rocto started" rocto.log)" == "0" ]]; do
 		sleep .1s
@@ -289,10 +291,12 @@ stop_rocto() {
 }
 
 run_psql() {
-	if [[ @YDB_TLS_AVAILABLE@ -eq 1 && $2 != "notls" ]]; then
-		PGPASSWORD=ydbrocks psql -U ydb "host=localhost port=$1"
+	if [[ $2 =~ ".sql" ]]; then
+		# Load a fixture
+		strip_sql_comments $2
+		PGPASSWORD=ydbrocks psql -U ydb "host=localhost port=$1" < $2
 	else
-		PGPASSWORD=ydbrocks psql -U ydb "sslmode=disable host=localhost port=$1"
+		PGPASSWORD=ydbrocks psql -U ydb "host=localhost port=$1"
 	fi
 }
 

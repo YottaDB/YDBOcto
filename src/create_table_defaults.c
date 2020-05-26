@@ -134,11 +134,12 @@ int create_table_defaults(SqlStatement *table_statement, SqlStatement *keywords_
 		dqappend(start_keyword, keyword);
 	}
 	if (!(options & DELIM)) {
-		snprintf(buffer, MAX_STR_CONST, COLUMN_DELIMITER);
-		str_len = strnlen(buffer, MAX_STR_CONST);
-		out_buffer = octo_cmalloc(memory_chunks, str_len + 1);
-		strncpy(out_buffer, buffer, str_len);
-		out_buffer[str_len] = '\0';
+		assert(2 == sizeof(COLUMN_DELIMITER));			// 2 includes null terminator
+		str_len = sizeof(COLUMN_DELIMITER) + 1;			// +1 for "is_dollar_char" flag
+		out_buffer = octo_cmalloc(memory_chunks, str_len);
+		out_buffer[0] = DELIM_IS_LITERAL;
+		MEMCPY_LIT(&out_buffer[1], COLUMN_DELIMITER);
+		out_buffer[str_len-1] = '\0';
 		OCTO_CMALLOC_STRUCT((keyword), SqlOptionalKeyword);
 		(keyword)->keyword = OPTIONAL_DELIM;
 		SQL_STATEMENT(keyword->v, value_STATEMENT);

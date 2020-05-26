@@ -95,9 +95,6 @@ int handle_password_message(PasswordMessage *password_message, StartupMessage *s
 	}
 	// Note down that user authenticated successfully without notifying the client,
 	// as the client doesn't expect any notifications during authentication
-	/*rocto_session.sending_message = TRUE;
-	INFO(INFO_AUTH_SUCCESS, "handle_password_message");
-	rocto_session.sending_message = FALSE;*/
 	LOG_LOCAL_ONLY(INFO, INFO_AUTH_SUCCESS, "handle_password_message");
 
 	return 0;

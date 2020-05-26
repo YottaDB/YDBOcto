@@ -26,6 +26,7 @@ typedef void* yyscan_t;
 #include <assert.h>
 #include <string.h>
 #include <ctype.h>
+#include <errno.h>
 
 #include "octo.h"
 #include "octo_types.h"
@@ -1179,12 +1180,139 @@ optional_keyword_element
       dqinit(($$)->v.keyword);
     }
   | DELIM literal_value {
-       SQL_STATEMENT($$, keyword_STATEMENT);
-        MALLOC_STATEMENT($$, keyword, SqlOptionalKeyword);
-       ($$)->v.keyword->keyword = OPTIONAL_DELIM;
-       ($$)->v.keyword->v = $literal_value;
-       dqinit(($$)->v.keyword);
+	char	*with_flag_byte, *str_lit;
+	size_t	length;
+
+	SQL_STATEMENT($$, keyword_STATEMENT);
+	MALLOC_STATEMENT($$, keyword, SqlOptionalKeyword);
+	($$)->v.keyword->keyword = OPTIONAL_DELIM;
+	($$)->v.keyword->v = $literal_value;
+	str_lit = ($$)->v.keyword->v->v.value->v.string_literal;
+	length = strlen(str_lit) + 2;	// "is_dollar_char" byte and a null terminator
+	with_flag_byte = octo_cmalloc(memory_chunks, length);
+	with_flag_byte[0] = DELIM_IS_LITERAL;	// Use first byte as a flag to indicate that DELIM is NOT a $CHAR list
+	snprintf(&with_flag_byte[1], length-1, "%s", str_lit);
+	($$)->v.keyword->v->v.value->v.string_literal = with_flag_byte;
+	dqinit(($$)->v.keyword);
      }
+  | DELIM LEFT_PAREN delim_char_list RIGHT_PAREN {
+	SqlStatement			*char_list_literal;
+	SqlDelimiterCharacterList	*start_delim_char_list, *cur_delim_char_list;
+	char				*c, *temp, *str_lit;
+	int				copied, len_used, len_alloc;
+
+	SQL_STATEMENT($$, keyword_STATEMENT);
+        MALLOC_STATEMENT($$, keyword, SqlOptionalKeyword);
+	($$)->v.keyword->keyword = OPTIONAL_DELIM;
+
+	SQL_STATEMENT(char_list_literal, value_STATEMENT);
+	MALLOC_STATEMENT(char_list_literal, value, SqlValue);
+	char_list_literal->v.value->type = DELIM_VALUE;
+	len_alloc = INT8_TO_STRING_MAX * 8;
+	str_lit = octo_cmalloc(memory_chunks, len_alloc);
+	str_lit[0] = DELIM_IS_DOLLAR_CHAR;	// Use first byte as a flag to indicate that DELIM is a $CHAR list
+	len_used = 1;
+	char_list_literal->v.value->v.string_literal = str_lit;
+	c = &str_lit[1];
+
+	// Need to allocate space to store string for full $CHAR call
+	UNPACK_SQL_STATEMENT(start_delim_char_list, $delim_char_list, delim_char_list);
+	cur_delim_char_list = start_delim_char_list;
+	copied = snprintf(c, INT16_TO_STRING_MAX, "$CHAR(");
+	len_used += copied;
+	assert(INT16_TO_STRING_MAX > copied);
+	c += copied;
+	do {
+		/* Expand allocation if there's not enough space for another value.
+		 * Note that it is acceptable here to do a new allocation without freeing the previous one
+		 * as the items allocated with octo_cmalloc are automatically freed after query execution is complete (or cancelled)
+		 */
+		if (INT8_TO_STRING_MAX > len_alloc - len_used) {
+			len_alloc *= 2;
+			temp = str_lit;
+			str_lit = octo_cmalloc(memory_chunks, len_alloc);
+			memcpy(str_lit, temp, len_used);
+			c = str_lit;
+			c+= len_used;
+		}
+		copied = snprintf(c, INT8_TO_STRING_MAX, "%d", cur_delim_char_list->character);
+		assert(INT8_TO_STRING_MAX > copied);
+		c += copied;
+		len_used += copied;
+		cur_delim_char_list = cur_delim_char_list->next;
+		if(start_delim_char_list != cur_delim_char_list) {
+			copied = snprintf(c, 3, ",");
+			assert(3 > copied);
+			c += copied;
+			len_used += copied;
+		}
+	} while (cur_delim_char_list != start_delim_char_list);
+	copied = snprintf(c, 2, ")");
+	assert(2 > copied);
+	c += copied;
+	*c = '\0';
+	char_list_literal->v.value->v.string_literal = str_lit;
+
+	($$)->v.keyword->v = char_list_literal;
+	dqinit(($$)->v.keyword);
+    }
+  ;
+
+delim_char_list
+  : literal_value delim_char_list_tail {
+	SqlDelimiterCharacterList	*delim_char_list;
+	SqlStatement			*literal;
+	SqlValueType			type;
+	long				delim_int;
+	char				*end_ptr, *str_lit;
+
+	literal = $literal_value;
+	type = literal->v.value->type;
+	str_lit = literal->v.value->v.string_literal;
+	/* We should only accept integer arguments for subsequent call to $CHAR, however
+	 * the lexer returns NUMERICs even if an integer is passed. To account for this,
+	 * we confirm NUMERIC here, then check the result of strtol below to confirm that
+	 * the value was in fact an integer.
+	 *
+	 * TODO: Add support for hexadecimal arguments.
+	 */
+	if (NUMERIC_LITERAL != type) {
+		ERROR(ERR_TYPE_NOT_COMPATIBLE, get_user_visible_type_string(type), "column DELIM specification");
+		yyerror(&yyloc, NULL, NULL, NULL, NULL, NULL);
+		YYERROR;
+	}
+
+	SQL_STATEMENT($$, delim_char_list_STATEMENT);
+	MALLOC_STATEMENT($$, delim_char_list, SqlDelimiterCharacterList);
+	UNPACK_SQL_STATEMENT(delim_char_list, $$, delim_char_list);
+
+	assert(value_STATEMENT == literal->type);
+
+	delim_int = strtol(str_lit, &end_ptr, 10);
+	if ((ERANGE == errno) || (0 > delim_int) || (DELIM_MAX < delim_int)) {
+		ERROR(ERR_INVALID_DELIM_CHAR, delim_int);
+		yyerror(&yyloc, NULL, NULL, NULL, NULL, NULL);
+		YYERROR;
+	}
+	// Confirm that the value passed was in fact an INTEGER and not NUMERIC. Check based off of `man strtol`.
+	if (('\0' != str_lit[0]) && ('\0' == *end_ptr)) {
+		delim_char_list->character = (int)delim_int;	// Range check above guarantees this is a safe cast
+	} else {
+		ERROR(ERR_TYPE_NOT_COMPATIBLE, "NUMERIC", "column DELIM specification");
+		yyerror(&yyloc, NULL, NULL, NULL, NULL, NULL);
+		YYERROR;
+	}
+	dqinit(delim_char_list);
+	if ($delim_char_list_tail) {
+		assert(delim_char_list_STATEMENT == $delim_char_list_tail->type);
+		dqappend(delim_char_list, $delim_char_list_tail->v.delim_char_list);
+	}
+    }
+  ;
+
+delim_char_list_tail
+  : /* Empty */ { $$ = NULL; }
+  | COMMA delim_char_list { $$ = $delim_char_list; }
   ;
 
 optional_keyword_tail

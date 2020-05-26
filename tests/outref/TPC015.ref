@@ -1,0 +1,56 @@
+ERROR:  Type VARCHAR not compatible for column DELIM specification
+ERROR:  Error with syntax near (line 1, column 146):
+ERROR:  CREATE TABLE DELIMNAMES (id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName VARCHAR(30), middleInitial VARCHAR(1), age INTEGER) DELIM ("hello") GLOBAL "^delimnames(keys(""id""))";
+ERROR:                                                                                                                                                    ^
+ERROR:  Error parsing statement: CREATE TABLE DELIMNAMES (id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName VARCHAR(30), middleInitial VARCHAR(1), age INTEGER) DELIM ("hello") GLOBAL "^delimnames(keys(""id""))";
+ERROR:  Type VARCHAR not compatible for column DELIM specification
+ERROR:  Error with syntax near (line 1, column 149):
+ERROR:  CREATE TABLE DELIMNAMES (id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName VARCHAR(30), middleInitial VARCHAR(1), age INTEGER) DELIM (9, "world") GLOBAL "^delimnames(keys(""id""))";
+ERROR:                                                                                                                                                       ^
+ERROR:  Error parsing statement: CREATE TABLE DELIMNAMES (id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName VARCHAR(30), middleInitial VARCHAR(1), age INTEGER) DELIM (9, "world") GLOBAL "^delimnames(keys(""id""))";
+ERROR:  Type NUMERIC not compatible for column DELIM specification
+ERROR:  Error with syntax near (line 1, column 140):
+ERROR:  CREATE TABLE DELIMNAMES (id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName VARCHAR(30), middleInitial VARCHAR(1), age INTEGER) DELIM (3.14) GLOBAL "^delimnames(keys(""id""))";
+ERROR:                                                                                                                                              ^^^^
+ERROR:  Error parsing statement: CREATE TABLE DELIMNAMES (id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName VARCHAR(30), middleInitial VARCHAR(1), age INTEGER) DELIM (3.14) GLOBAL "^delimnames(keys(""id""))";
+ERROR:  Type NUMERIC not compatible for column DELIM specification
+ERROR:  Error with syntax near (line 1, column 143):
+ERROR:  CREATE TABLE DELIMNAMES (id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName VARCHAR(30), middleInitial VARCHAR(1), age INTEGER) DELIM (9, 3.14) GLOBAL "^delimnames(keys(""id""))";
+ERROR:                                                                                                                                                 ^^^^
+ERROR:  Error parsing statement: CREATE TABLE DELIMNAMES (id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName VARCHAR(30), middleInitial VARCHAR(1), age INTEGER) DELIM (9, 3.14) GLOBAL "^delimnames(keys(""id""))";
+ERROR:  Error with syntax near (line 1, column 140):
+ERROR:  CREATE TABLE DELIMNAMES (id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName VARCHAR(30), middleInitial VARCHAR(1), age INTEGER) DELIM (true) GLOBAL "^delimnames(keys(""id""))";
+ERROR:                                                                                                                                              ^^^^
+ERROR:  syntax error, unexpected TRUE_TOKEN, expecting LITERAL
+
+ERROR:  Error parsing statement: CREATE TABLE DELIMNAMES (id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName VARCHAR(30), middleInitial VARCHAR(1), age INTEGER) DELIM (true) GLOBAL "^delimnames(keys(""id""))";
+ERROR:  Error with syntax near (line 1, column 143):
+ERROR:  CREATE TABLE DELIMNAMES (id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName VARCHAR(30), middleInitial VARCHAR(1), age INTEGER) DELIM (9, true) GLOBAL "^delimnames(keys(""id""))";
+ERROR:                                                                                                                                                 ^^^^
+ERROR:  syntax error, unexpected TRUE_TOKEN, expecting LITERAL
+
+ERROR:  Error parsing statement: CREATE TABLE DELIMNAMES (id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName VARCHAR(30), middleInitial VARCHAR(1), age INTEGER) DELIM (9, true) GLOBAL "^delimnames(keys(""id""))";
+ERROR:  Error with syntax near (line 1, column 140):
+ERROR:  CREATE TABLE DELIMNAMES (id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName VARCHAR(30), middleInitial VARCHAR(1), age INTEGER) DELIM (hello) GLOBAL "^delimnames(keys(""id""))";
+ERROR:                                                                                                                                              ^^^^^
+ERROR:  syntax error, unexpected IDENTIFIER_ALONE, expecting LITERAL
+
+ERROR:  Error parsing statement: CREATE TABLE DELIMNAMES (id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName VARCHAR(30), middleInitial VARCHAR(1), age INTEGER) DELIM (hello) GLOBAL "^delimnames(keys(""id""))";
+ERROR:  Error with syntax near (line 1, column 143):
+ERROR:  CREATE TABLE DELIMNAMES (id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName VARCHAR(30), middleInitial VARCHAR(1), age INTEGER) DELIM (9, hello) GLOBAL "^delimnames(keys(""id""))";
+ERROR:                                                                                                                                                 ^^^^^
+ERROR:  syntax error, unexpected IDENTIFIER_ALONE, expecting LITERAL
+
+ERROR:  Error parsing statement: CREATE TABLE DELIMNAMES (id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName VARCHAR(30), middleInitial VARCHAR(1), age INTEGER) DELIM (9, hello) GLOBAL "^delimnames(keys(""id""))";
+ERROR:  Error with syntax near (line 1, column 140):
+ERROR:  CREATE TABLE DELIMNAMES (id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName VARCHAR(30), middleInitial VARCHAR(1), age INTEGER) DELIM (ABS(-1)) GLOBAL "^delimnames(keys(""id""))";
+ERROR:                                                                                                                                              ^^^
+ERROR:  syntax error, unexpected IDENTIFIER_ALONE, expecting LITERAL
+
+ERROR:  Error parsing statement: CREATE TABLE DELIMNAMES (id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName VARCHAR(30), middleInitial VARCHAR(1), age INTEGER) DELIM (ABS(-1)) GLOBAL "^delimnames(keys(""id""))";
+ERROR:  Error with syntax near (line 1, column 143):
+ERROR:  CREATE TABLE DELIMNAMES (id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName VARCHAR(30), middleInitial VARCHAR(1), age INTEGER) DELIM (9, ABS(-1)) GLOBAL "^delimnames(keys(""id""))";
+ERROR:                                                                                                                                                 ^^^
+ERROR:  syntax error, unexpected IDENTIFIER_ALONE, expecting LITERAL
+
+ERROR:  Error parsing statement: CREATE TABLE DELIMNAMES (id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName VARCHAR(30), middleInitial VARCHAR(1), age INTEGER) DELIM (9, ABS(-1)) GLOBAL "^delimnames(keys(""id""))";

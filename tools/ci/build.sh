@@ -206,6 +206,5 @@ make package
 rm -rf CMakeFiles
 rm -rf _CPack_Packages
 rm -rf bats-test.*/go
-rm -rf src
 rm -f postgresql*.jar
 rm -f *.cmake

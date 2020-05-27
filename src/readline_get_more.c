@@ -40,9 +40,9 @@ int get_input(char *buf, int size) {
 int readline_get_more() {
 	int line_length, data_read;
 	char *line;
-	if(config->is_tty) {
+	if (config->is_tty) {
 		line = readline("OCTO> ");
-		if(line == NULL) {
+		if (NULL == line) {
 			// Detecting the EOF is handled by the lexer and this should never be true at this stage
 			assert(FALSE == eof_hit);
 			return 0;
@@ -65,10 +65,11 @@ int readline_get_more() {
 					break;
 			}
 		}
-		if(line_length == 0) {
+		if (0 == line_length) {
 			/* This means a user hit enter
 			 * there is nothing to do
 			 */
+			free(line);
 			return 1;
 		}
 		/* if input line is too long resize buffer

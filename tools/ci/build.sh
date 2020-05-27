@@ -201,3 +201,11 @@ fi
 
 # Build binary package
 make package
+
+# Cleanup files and directories that don't need to be included in the pipeline artifacts
+rm -rf CMakeFiles
+rm -rf _CPack_Packages
+rm -rf bats-test.*/go
+rm -f bats-test.*/*.o
+rm -f postgresql*.jar
+rm -f *.cmake

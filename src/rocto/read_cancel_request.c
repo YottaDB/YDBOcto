@@ -40,6 +40,7 @@ CancelRequest *read_cancel_request(RoctoSession *session, char *data) {
 
 	if (ret->length != expected_length) {
 		INFO(ERR_ROCTO_INVALID_INT_VALUE, "CancelRequest", "length", ret->length, sizeof(CancelRequest));
+		free(ret);
 		return NULL;
 	}
 

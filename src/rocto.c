@@ -185,6 +185,7 @@ int main(int argc, char **argv) {
 #	if YDB_TLS_AVAILABLE
 	tls_context = INVALID_TLS_CONTEXT;
 #	endif
+	ssl_request = NULL;
 	while (!rocto_session.session_ending) {
 		if ((cfd = accept(sfd, (struct sockaddr *)&address, &addrlen)) < 0) {
 			if (rocto_session.session_ending) {
@@ -535,6 +536,9 @@ int main(int argc, char **argv) {
 		gtm_tls_fini(&tls_context);
 	}
 #	endif
+	if (NULL != ssl_request) {
+		free(ssl_request);
+	}
 
 	if (TRACE >= config->verbosity_level) {
 		mem_usage = get_mem_usage();

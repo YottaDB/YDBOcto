@@ -624,7 +624,10 @@ int octo_init(int argc, char **argv) {
 	init_crypto();
 
 	definedTables = NULL;
-	cur_input_max = MAX_STR_CONST;
+	// Leave space for null terminator
+	// `read` takes the number of bytes to read _excluding_ the null terminator,
+	// and we pass cur_input_max directly into read in `readline_get_more`.
+	cur_input_max = MAX_STR_CONST - 1;
 	input_buffer_combined = malloc(MAX_STR_CONST);
 	memset(input_buffer_combined, 0, MAX_STR_CONST);
 	old_input_index = 0;

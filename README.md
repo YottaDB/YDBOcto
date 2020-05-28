@@ -113,6 +113,17 @@ This will install BATS to /usr/bin. Note that installing to /usr may require roo
 
 Details available in the [BATS source repo](https://github.com/bats-core/bats-core).
 
+Some bats tests also require go, java and expect.
+To run these, the appropriate libraries must installed:
+
+```sh
+# Ubuntu Linux OR Raspbian Linux OR Beagleboard Debian
+sudo apt-get install default-jdk expect golang-go
+
+# CentOS Linux OR RedHat Linux
+sudo yum install java-latest-openjdk expect golang
+```
+
 3. (Optional) Install cmocka unit testing framework
 
 Octo uses cmocka for automated unit testing. To build and run Octo's unit tests, cmocka must be installed:

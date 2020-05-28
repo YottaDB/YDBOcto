@@ -246,3 +246,10 @@ OCTO
   verify_output TW23 output.txt
 }
 
+@test "TW24 : Test of MODULO operator % with negative operands (Octo behavior differs from Postgres)" {
+  # The MODULO operator works differently between Octo and Postgres and so we cannot fold this into the
+  # "run_query_in_octo_and_postgres_and_crosscheck_multiple_queries" call.
+  load_fixture TW24.sql subtest novv
+  verify_output TW24 output.txt
+}
+

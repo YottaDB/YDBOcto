@@ -54,8 +54,7 @@ int handle_parse(Parse *parse, RoctoSession *session) {
 	int32_t			status, cur_type, done;
 	int16_t			cur_parm, cur_parm_temp, cur_bind_parm, cur_bind_parm_temp;
 	int16_t			*parse_context_array;
-	size_t			err_buff_size, query_length = 0;
-	char			*err_buff;
+	size_t			query_length = 0;
 	char			cursor_str[INT64_TO_STRING_MAX];
 
 	TRACE(ERR_ENTERING_FUNCTION, "handle_parse");
@@ -107,7 +106,6 @@ int handle_parse(Parse *parse, RoctoSession *session) {
 		return 1;
 	}
 
-	err_buffer = open_memstream(&err_buff, &err_buff_size);
 	// Store query in input buffer
 	query_length = sql_expression.len_used;
 	memcpy(input_buffer_combined, sql_expression.buf_addr, query_length);
@@ -115,8 +113,6 @@ int handle_parse(Parse *parse, RoctoSession *session) {
 	input_buffer_combined[query_length] = '\0';
 	cur_input_index = 0;
 	cur_input_more = &no_more;
-	fclose(err_buffer);
-	free(err_buff);
 	YDB_FREE_BUFFER(&sql_expression);
 
 	// Prepare parameter offset array; the number of parameters isn't known yet, so just use the max

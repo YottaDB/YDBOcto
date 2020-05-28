@@ -3,7 +3,6 @@ ERROR:  Error with syntax near (line 1, column 7):
 ERROR:  SELECT * AFRO names;
 ERROR:         ^
 ERROR:  Error parsing statement: SELECT * AFRO names;
-ERROR:  
 [SOCKET] [ERROR] PATH:LINENUM DATE TIME : SELECT * with no tables specified is not valid
 [SOCKET] [ERROR] PATH:LINENUM DATE TIME : Error with syntax near (line 1, column 7):
 [SOCKET] [ERROR] PATH:LINENUM DATE TIME : SELECT * AFRO names;

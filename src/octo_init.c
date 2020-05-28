@@ -593,8 +593,6 @@ int octo_init(int argc, char **argv) {
 		return status;
 	}
 
-	err_buffer = stderr;
-
 	// Apply startup flags from initial parse to overwrite values from config files
 	if (verbosity_set) {	// Only overwrite if initialized
 		config->verbosity_level = temp_config.verbosity_level;

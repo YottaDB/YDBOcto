@@ -355,7 +355,6 @@ extern	int		cur_input_max;
 extern	int		cancel_received;
 extern	int		eof_hit;
 extern	FILE		*inputFile;
-extern	FILE		*err_buffer;
 extern	char		*input_buffer_combined;		// The input buffer for octo. Contains the query strings.
 extern	int		(*cur_input_more)();
 extern	OctoConfig	*config;

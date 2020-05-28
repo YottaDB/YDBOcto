@@ -34,8 +34,6 @@ int handle_query(Query *query, RoctoSession *session) {
 	EmptyQueryResponse	*empty_query_response;
 	CommandComplete		*response;
 	int32_t			query_length = 0, run_query_result = 0;
-	char			*err_buff;
-	size_t			err_buff_size;
 
 	TRACE(ERR_ENTERING_FUNCTION, "handle_query");
 
@@ -63,7 +61,6 @@ int handle_query(Query *query, RoctoSession *session) {
 	eof_hit = FALSE;
 	cur_input_index = 0;
 	cur_input_more = &no_more;
-	err_buffer = open_memstream(&err_buff, &err_buff_size);
 
 	run_query_result = run_query(&handle_query_response, (void*)&parms, TRUE, &parse_context);
 	if (-1 == run_query_result) {
@@ -71,11 +68,6 @@ int handle_query(Query *query, RoctoSession *session) {
 		eof_hit = TRUE;
 		return -1;
 	} else if (0 != run_query_result) {
-		fclose(err_buffer);
-		ERROR(CUSTOM_ERROR, err_buff);
-
-		free(err_buff);
-		err_buffer = open_memstream(&err_buff, &err_buff_size);
 		return 1;
 	}
 

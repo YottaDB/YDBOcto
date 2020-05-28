@@ -18,21 +18,21 @@
 
 #include "parser.h"
 
-/* if rocto is running the error needs to be replicated to
- * be printed via octo_log which replicated to rocto and psql logs
- * otherwise print via the err_buffer
+/* When running rocto the error must be printed via octo_log,
+ * which will log the error locally as well as propagate it
+ * to the client. Otherwise print via stderr.
  */
 #define PRINT_YYERROR(...) 							\
 	if (config->is_rocto) {							\
 		ERROR(CUSTOM_ERROR, ##__VA_ARGS__);				\
 	} else {								\
-		fprintf(err_buffer, ##__VA_ARGS__);				\
-		fprintf(err_buffer, "\n"); /* formatting */					\
+		fprintf(stderr, ##__VA_ARGS__);					\
+		fprintf(stderr, "\n"); /* formatting */				\
 	}
 
 #define SNPRINTF_ERR_BUFF(...)										\
 	do {												\
-		written = snprintf(err_ptr, err_out_len - (err_ptr - err_out), ##__VA_ARGS__);	\
+		written = snprintf(err_ptr, err_out_len - (err_ptr - err_out), ##__VA_ARGS__);		\
 		if (written < (err_out_len - (err_ptr - err_out))) {					\
 			err_ptr += written;								\
 			break;										\
@@ -132,7 +132,7 @@ void print_yyloc(YYLTYPE *llocp) {
 
 	/* for formatting purposes only print this if we are not in rocto */
 	if (!config->is_rocto)
-		fprintf(err_buffer, "\n");
+		fprintf(stderr, "\n");
 	/* if a newline is found in this loop then offset is -1 (-1 not 0 due to spacing)
 	 * because no previous query could be on that line
 	 * additionally print the current line

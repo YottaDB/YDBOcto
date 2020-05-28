@@ -86,7 +86,6 @@ int		cur_input_max;
 int		cancel_received;
 int		eof_hit;
 FILE		*inputFile;
-FILE		*err_buffer;
 char		*input_buffer_combined;		// The input buffer for octo. Contains the query strings.
 int		(*cur_input_more)();
 OctoConfig	*config;

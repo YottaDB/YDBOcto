@@ -62,19 +62,19 @@ teardown() {
 }
 
 @test "TJC004 : Test Query Generator against customers database" {
-  run_query_generator customers 150 TJC04- "" "" usejdbc
+  run_query_generator customers TJC04- "" "" usejdbc
 }
 
 @test "TJC005 : Test Query Generator against pastas database" {
-  run_query_generator pastas 150 TJC05- "" "" usejdbc
+  run_query_generator pastas TJC05- "" "" usejdbc
 }
 
 @test "TJC006 : Test Query Generator against names database" {
-  run_query_generator names 150 TJC06- "" "" usejdbc
+  run_query_generator names TJC06- "" "" usejdbc
 }
 
 @test "TJC007 : Test Query Generator against northwind database" {
-  run_query_generator northwind 150 TJC07- "" "" usejdbc
+  run_query_generator northwind TJC07- "" "" usejdbc
 }
 
 @test "TJC008 : Validate usage of Simple vs. Extended Query protocol using PrepareThreshold" {

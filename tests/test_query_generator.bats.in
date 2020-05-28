@@ -18,22 +18,22 @@ setup() {
 }
 
 @test "TQG01 : Test Query Generator against customers database" {
-  run_query_generator customers 150 TQG01-
+  run_query_generator customers TQG01-
 }
 
 @test "TQG02 : Test Query Generator against pastas database" {
-  run_query_generator pastas 150 TQG02-
+  run_query_generator pastas TQG02-
 }
 
 @test "TQG03 : Test Query Generator against names database" {
-  run_query_generator names 150 TQG03-
+  run_query_generator names TQG03-
 }
 
 @test "TQG04 : Test Query Generator against northwind database" {
-  run_query_generator northwind 150 TQG04-
+  run_query_generator northwind TQG04-
 }
 
 @test "TQG05 : Test Query Generator against boolean database" {
   skip #Skipped until issue 346 is resolved
-  run_query_generator boolean 150 TQG05-
+  run_query_generator boolean TQG05-
 }

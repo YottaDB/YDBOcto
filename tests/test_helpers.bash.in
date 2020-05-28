@@ -329,6 +329,9 @@ run_go() {
 	go get $1
 	go build $1
 	$GOPATH/bin/$1 $2
+	# Executables created by go occupy a noticeable part of the artifacts.zip file created in the pipeline.
+	# They are not considered necessary at this point for test failure analysis so remove them.
+	rm -f $1
 }
 
 run_java() {
@@ -642,10 +645,10 @@ run_query_in_octo_and_postgres_and_crosscheck() {
 
 run_query_generator() {
   databaseName="$1"
-  numQueries="$2"
-  prefix="$3"
-  usejdbc="$4"
-  useextended="$5"
+  prefix="$2"
+  usejdbc="$3"
+  useextended="$4"
+  numQueries=100	# For now generate 100 queries by default (good balance of test runtime vs test coverage)
 
   cp @PROJECT_SOURCE_DIR@/tests/fixtures/QueryGenerator.m .
   load_fixture "$databaseName.sql"

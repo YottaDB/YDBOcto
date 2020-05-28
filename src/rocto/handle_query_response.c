@@ -41,11 +41,15 @@ int handle_query_response(SqlStatement *stmt, int32_t cursor_id, void *_parms, c
 	int			status, result = 0;
 	DataRow			*data_row;
 	DataRowParm		*data_row_parms;
-	int32_t			data_row_parms_alloc_len = 0, done;
+	int32_t			done;
 
 	// A NULL stmt means the query was canceled and we should not generate DataRows
 	if (NULL != stmt) {
-		YDB_MALLOC_BUFFER(&value_buffer, MAX_STR_CONST);
+		char value_buffer_arr[MAX_STR_CONST];
+
+		value_buffer.buf_addr = value_buffer_arr;
+		value_buffer.len_alloc = MAX_STR_CONST;
+		value_buffer.len_used = 0;
 		if (set_STATEMENT == stmt->type) {
 			// SET a runtime variable to a specified value by updating the appropriate session LVN
 			UNPACK_SQL_STATEMENT(set_stmt, stmt, set);
@@ -56,19 +60,21 @@ int handle_query_response(SqlStatement *stmt, int32_t cursor_id, void *_parms, c
 			if (!done) {
 				ERROR(ERR_YOTTADB, "YDB_COPY_STRING_TO_BUFFER failed");
 				free(session_buffers);
-				YDB_FREE_BUFFER(&value_buffer);
 				return 1;
 			}
 			status = ydb_set_s(&session_buffers[0], 3, &session_buffers[1], &value_buffer);
 			free(session_buffers);
-			YDB_FREE_BUFFER(&value_buffer);
 			if (YDB_OK != status)
 				return 1;
 			return 0;
 		}
-		data_row_parms_alloc_len = DATA_ROW_PARMS_ARRAY_INIT_ALLOC * sizeof(DataRowParm);
-		data_row_parms = (DataRowParm*)malloc(data_row_parms_alloc_len);
 		if (show_STATEMENT == stmt->type) {
+			int32_t data_row_parms_alloc_len;
+
+			data_row_parms_alloc_len = DATA_ROW_PARMS_ARRAY_INIT_ALLOC * sizeof(DataRowParm);
+			assert(0 < data_row_parms_alloc_len);
+			data_row_parms = (DataRowParm*)malloc(data_row_parms_alloc_len);
+
 			// Attempt to GET the value of the specified runtime variable from the appropriate session LVN
 			UNPACK_SQL_STATEMENT(show_stmt, stmt, show);
 			UNPACK_SQL_STATEMENT(runtime_variable, show_stmt->variable, value);
@@ -99,7 +105,6 @@ int handle_query_response(SqlStatement *stmt, int32_t cursor_id, void *_parms, c
 			}
 
 			// Send DataRow
-			assert(0 < data_row_parms_alloc_len);
 			data_row_parms[0].value = value_buffer.buf_addr;
 			data_row_parms[0].length = strlen(value_buffer.buf_addr);
 			data_row_parms[0].format = TEXT_FORMAT;
@@ -109,7 +114,6 @@ int handle_query_response(SqlStatement *stmt, int32_t cursor_id, void *_parms, c
 			free(data_row_parms);
 			parms->data_sent = TRUE;
 
-			YDB_FREE_BUFFER(&value_buffer);
 			free(session_buffers);
 			return 0;
 		}
@@ -124,8 +128,6 @@ int handle_query_response(SqlStatement *stmt, int32_t cursor_id, void *_parms, c
 			plan_name_buffer.len_alloc = plan_name_buffer.len_used = strnlen(plan_name, OCTO_PATH_MAX);
 			row_description = get_plan_row_description(&plan_name_buffer);
 			if (NULL == row_description) {
-				YDB_FREE_BUFFER(&value_buffer);
-				free(data_row_parms);
 				return 1;
 			}
 			send_message(parms->session, (BaseMessage*)(&row_description->type));
@@ -137,9 +139,8 @@ int handle_query_response(SqlStatement *stmt, int32_t cursor_id, void *_parms, c
 	} else {
 		// Issue ErrorResponse expected by clients indicating a CancelRequest was processed
 		ERROR(ERR_ROCTO_QUERY_CANCELED, "");
-		UNUSED(data_row_parms_alloc_len);
 	}
-	if(memory_chunks != NULL) {
+	if (NULL != memory_chunks) {
 		OCTO_CFREE(memory_chunks);
 	}
 	return result;

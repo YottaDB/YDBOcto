@@ -407,8 +407,15 @@ set(CC_COMPILE_FLAGS "-Wall -Wextra -pedantic")
 if (CMAKE_COMPILER_IS_GNUCC)
 	# gcc 6.3.0 is known to have -Wmisleading-indentation. And gcc 4.8.5 is known to not have that.
 	# Not sure what the intermediate versions support so we add this warning flag only for versions >= 6.3.0
-	if(${CMAKE_C_COMPILER_VERSION} STRGREATER "6.3.0")
+	if(${CMAKE_C_COMPILER_VERSION} VERSION_GREATER "6.3.0")
 		set(CC_COMPILE_FLAGS "${CC_COMPILE_FLAGS} -Wmisleading-indentation")
+	endif()
+	# gcc 10.1.0 issued a superfluous -Wrestrict warning in tmpl_column_list_combine.c (see commit message for details)
+	# so disable it for now. May re-enable this in the future if later versions of gcc do not issue this warning.
+	# gcc 7.5.0 is known to support -Wno-restrict. And gcc 4.8.5 is known to not support it.
+	# Not sure what the intermediate versions support so we add this warning disable flag only for versions >= 7.5.0
+	if(${CMAKE_C_COMPILER_VERSION} VERSION_GREATER "7.5.0")
+		set(CC_COMPILE_FLAGS "${CC_COMPILE_FLAGS} -Wno-restrict")
 	endif()
 else()
 	set(CC_COMPILE_FLAGS "${CC_COMPILE_FLAGS} -Wno-gnu-zero-variadic-macro-arguments")

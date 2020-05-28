@@ -83,6 +83,16 @@ boolean_t lp_is_bool_operand_type_string(LogicalPlan *plan) {
 			/* These cases should never show up inside a boolean expression. Hence the below assert. */
 			assert(FALSE);
 			break;
+		case LP_AGGREGATE_FUNCTION_COUNT_ASTERISK:
+		case LP_AGGREGATE_FUNCTION_COUNT:
+		case LP_AGGREGATE_FUNCTION_AVG:
+		case LP_AGGREGATE_FUNCTION_SUM:
+		case LP_AGGREGATE_FUNCTION_COUNT_DISTINCT:
+		case LP_AGGREGATE_FUNCTION_AVG_DISTINCT:
+		case LP_AGGREGATE_FUNCTION_SUM_DISTINCT:
+			assert(FALSE == ret);
+			loop_done = TRUE;
+			break;
 		default:
 			/* Due to the above switch/case blocks, if we reach here, it means this plan type is guaranteed to
 			 * have `cur_plan->v.lp_default` usable. This relies on the current layout of the `v` member in the

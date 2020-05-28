@@ -29,3 +29,7 @@ setup() {
   run_query_in_octo_and_postgres_and_crosscheck_multiple_queries customers TAF02.sql "remove_empty_line_at_tail" "trim_trailing_zeroes"
 }
 
+@test "TAF03 : OCTO517 : HAVING clause with COUNT() function usage returns incorrect results in some cases" {
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TAF03.sql "remove_empty_line_at_tail" "trim_trailing_zeroes"
+}
+

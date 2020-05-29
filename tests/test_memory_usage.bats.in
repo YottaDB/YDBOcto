@@ -45,7 +45,6 @@ setup() {
 @test "TMU02 : memory usage remains constant across subsequent query executions using extended query protocol (JDBC)" {
   load_fixture northwind.sql
   load_fixture northwind.zwr
-  export JDBC_VERSION=42.2.6
   test_port=$(start_rocto 1444 verbose)
   cp @PROJECT_SOURCE_DIR@/tests/fixtures/TMU0*.sql .
 

@@ -52,6 +52,7 @@ cd bats-core
 cd ..
 
 echo "# Download PostgreSQL JDBC driver for testing"
+export JDBC_VERSION=42.2.12
 wget https://jdbc.postgresql.org/download/postgresql-$JDBC_VERSION.jar
 
 echo "# Check repo for unused outref files"

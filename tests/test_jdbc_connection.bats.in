@@ -23,7 +23,6 @@ setup() {
   load_fixture pastas.sql
   load_fixture pastas.zwr
   load_fixture default_user.zwr
-  export JDBC_VERSION=42.2.6
   test_port=$(start_rocto 1344)
 }
 

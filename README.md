@@ -124,6 +124,13 @@ sudo apt-get install default-jdk expect golang-go
 sudo yum install java-latest-openjdk expect golang
 ```
 
+Additionally, some tests require a JDBC driver. The JDBC driver must be downloaded to the build directory and JDBC_VERSION must be set in the environment. Versions starting with 42.2.6 are tested, but earlier versions may work. For example, 42.2.12 is the latest release at time of writing:
+
+```sh
+export JDBC_VERSION=42.2.12
+wget https://jdbc.postgresql.org/download/postgresql-$JDBC_VERSION.jar
+```
+
 3. (Optional) Install cmocka unit testing framework
 
 Octo uses cmocka for automated unit testing. To build and run Octo's unit tests, cmocka must be installed:

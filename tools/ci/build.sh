@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -v
 #################################################################
 #								#
 # Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	#
@@ -22,25 +22,27 @@ if [ -x "$(command -v cmake3)" ]; then
 else
   cmakeCommand="cmake"
 fi
+echo " -> cmakeCommand = $cmakeCommand"
 
 if [ -x "$(command -v ctest3)" ]; then
   ctestCommand="ctest3"
 else
   ctestCommand="ctest"
 fi
+echo " -> ctestCommand = $ctestCommand"
 
-# Install the YottaDB POSIX plugin
+echo "# Install the YottaDB POSIX plugin"
 pushd $start_dir
 ./tools/ci/install_posix.sh $cmakeCommand
 popd
 
-# Source the ENV script again to YottaDB environment variables after installing POSIX plugin
+echo "# Source the ENV script again to YottaDB environment variables after installing POSIX plugin"
 source /opt/yottadb/current/ydb_env_unset
 source /opt/yottadb/current/ydb_env_set
-echo "Done setting up POSIX plugin"
-echo "ydb_routines: $ydb_routines"
+echo " -> Done setting up POSIX plugin"
+echo " -> ydb_routines: $ydb_routines"
 
-# Download and Install BATS testing framework
+echo "# Download and Install BATS testing framework"
 cd $start_dir
 mkdir build
 cd build
@@ -49,89 +51,95 @@ cd bats-core
 ./install.sh /usr/local
 cd ..
 
-# Download PostgreSQL JDBC driver for testing
+echo "# Download PostgreSQL JDBC driver for testing"
 wget https://jdbc.postgresql.org/download/postgresql-$JDBC_VERSION.jar
 
-# Check repo for unused outref files
+echo "# Check repo for unused outref files"
 pushd ../tests
 unused_outrefs=$(../tools/ci/find_unused_outrefs.sh)
 if [ "$unused_outrefs" != "" ]; then
-  echo "Unused outrefs found!"
+  echo " -> Unused outrefs found!"
   echo "$unused_outrefs"
   exit 1
 fi
 popd
 
-# Check repo for unused test files
+echo "# Check repo for unused test files"
 pushd ../cmake
 unused_tests=$(../tools/ci/find_unused_tests.sh)
 if [ "$unused_tests" != "" ]; then
-  echo "Unused test files found!"
+  echo " -> Unused test files found!"
   echo "$unused_tests"
   exit 1
 fi
 popd
 
-# Randomly choose to test Debug or Release build
+echo "# Randomly choose to test Debug or Release build"
 if [[ $(( $RANDOM % 2)) -eq 0 ]]; then
 	build_type="Debug"
 else
 	build_type="RelWithDebInfo"
 fi
-# Randomly choose whether to use the full test suite or its limited version (prefer full version 3/4 times)
+echo " -> build_type = $build_type"
+
+echo "# Randomly choose whether to use the full test suite or its limited version (prefer full version 3/4 times)"
 if [[ $(( $RANDOM % 4)) -eq 0 ]]; then
 	full_test="OFF"
 else
 	full_test="ON"
 fi
-# Randomly choose whether to use to test installation or in build directory (prefer installation 3/4 times)
+echo " -> full_test = $full_test"
+
+echo "# Randomly choose whether to use to test installation or in build directory (prefer installation 3/4 times)"
 if [[ $(( $RANDOM % 4)) -eq 0 ]]; then
 	disable_install="ON"
 else
 	disable_install="OFF"
 fi
+echo " -> disable_install = $disable_install"
 
-# Configure the build system for Octo
+echo "# Configure the build system for Octo"
 ${cmakeCommand} -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_INSTALL_PREFIX=${ydb_dist}/plugin -DCMAKE_BUILD_TYPE=$build_type -DFULL_TEST_SUITE=$full_test -DDISABLE_INSTALL=$disable_install ..
 if [[ $? -ne 0 ]]; then
 	exit 1
 fi
 
-# Compile Octo
+echo "# Compile Octo"
 make -j `grep -c ^processor /proc/cpuinfo` 2> make_warnings.txt
 
-# Check for unexpected warnings and error/exit if unexpected errors are found
+echo "# Check for unexpected warnings and error/exit if unexpected errors are found"
 ../tools/ci/sort_warnings.sh
-echo -n "Checking for unexpected warning(s)... "
+echo " -> Checking for unexpected warning(s)... "
 if [ -x "$(command -v yum)" ]; then
 	if [[ $build_type == "Debug" ]]; then
-		diff sorted_warnings.txt ../tools/ci/expected_warnings-centos.ref &> differences.txt
+		diff ../tools/ci/expected_warnings-centos.ref sorted_warnings.txt &> differences.txt
 	else
-		diff sorted_warnings.txt ../tools/ci/expected_warnings-centos_release.ref &> differences.txt
+		diff ../tools/ci/expected_warnings-centos_release.ref sorted_warnings.txt &> differences.txt
 	fi
 else
 	if [[ $build_type == "Debug" ]]; then
-		diff sorted_warnings.txt ../tools/ci/expected_warnings.ref &> differences.txt
+		diff ../tools/ci/expected_warnings.ref sorted_warnings.txt &> differences.txt
 	else
-		diff sorted_warnings.txt ../tools/ci/expected_warnings-release.ref &> differences.txt
+		diff ../tools/ci/expected_warnings-release.ref sorted_warnings.txt &> differences.txt
 	fi
 fi
 
 if [ $(wc -l differences.txt | awk '{print $1}') -gt 0 ]; then
-  echo "Expected warnings differ from actual warnings!"
-  echo "note: '>' indicates an expected warning, '<' indicates an actual warning"
+  echo " -> Expected warnings differ from actual warnings! diff output follows"
+  echo " -> note: '<' indicates an expected warning, '>' indicates an actual warning"
   cat differences.txt
   exit 1
 fi
-echo "OK."
 
+echo "# make install"
 make install
 
 if [ -z $USER ]; then
+  echo " -> export USER=root"
   export USER=root
 fi
 
-# start PostgreSQL Server
+echo "# Start PostgreSQL Server"
 if [ -f /etc/init.d/postgresql ]; then
   /etc/init.d/postgresql start
 else
@@ -145,67 +153,67 @@ else
   sleep 2
 fi
 
-# Make the current user a superuser
+echo "# Make the current user a superuser"
 su - postgres -c psql <<PSQL
 create user $USER;
 alter user $USER SUPERUSER;
 PSQL
 
-# Setup for tests
+echo "# Setup for tests"
 pushd src
 $ydb_dist/mupip set -n=true -reg '*'
 
-# Source ydb_env_set after building and installing Octo
+echo "# Source ydb_env_set after building and installing Octo"
 if [[ $disable_install == "OFF" ]]; then
 	source /opt/yottadb/current/ydb_env_unset
 	source /opt/yottadb/current/ydb_env_set
-	echo "Done setting up Octo plugin"
-	echo "ydb_routines: $ydb_routines"
+	echo " -> Done setting up Octo plugin"
+	echo " -> ydb_routines: $ydb_routines"
 else
 	export ydb_routines="$(pwd)/_ydbocto.so $ydb_routines"
-	echo "ydb_routines: $ydb_routines"
+	echo " -> ydb_routines: $ydb_routines"
 fi
 
-# Load the data required for tests
+echo "# Load the data required for tests"
 ./octo -f ../../tests/fixtures/names.sql
 $ydb_dist/mupip load ../../tests/fixtures/names.zwr
 popd
 
-# Run the tests
+echo "# Run the tests"
 ${ctestCommand} -j `grep -c ^processor /proc/cpuinfo`
 exit_status=$?
+echo " -> exit_status from ${ctestCommand} = $exit_status"
 
-if [[ ! $exit_status ]]; then
-	# Rebuild Octo for packaging if it wasn't a RelWithDebInfo build
+if [[ 0 == $exit_status ]]; then
 	if [[ $build_type != "RelWithDebInfo" ]]; then
+		echo "# Rebuild Octo for packaging as it wasn't a RelWithDebInfo build"
 		${cmakeCommand} -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_INSTALL_PREFIX=${ydb_dist}/plugin ..
 		make -j `grep -c ^processor /proc/cpuinfo`
 	fi
 
-	# Ubuntu pipelines only: Copy installation files for use in Docker image construction
 	if [[ $cmakeCommand == "cmake" ]]; then
-		echo -n "Copying installation files for Docker image generation... "
+		echo "# Ubuntu pipelines only: Copy installation files for use in Docker image construction"
+		echo " -> Copying installation files for Docker image generation... "
 		cp ../tools/ci/install.sh .
-		# Create plugin directory structure for later reference by install.sh
+		echo "# Create plugin directory structure for later reference by install.sh"
 		mkdir -p plugin/r plugin/o/utf8 plugin/octo/
-		# Copy YDBPosix into build directory for later access by install.sh
+		echo "# Copy YDBPosix into build directory for later access by install.sh"
 		cp $ydb_dist/plugin/libydbposix.so plugin
 		cp $ydb_dist/plugin/ydbposix.xc plugin
 		cp $ydb_dist/plugin/o/_ydbposix.so plugin/o
 		cp $ydb_dist/plugin/o/utf8/_ydbposix.so plugin/o/utf8
-		# Copy Octo-specific dependencies for later access by install.sh
+		echo "# Copy Octo-specific dependencies for later access by install.sh"
 		cp ../src/aux/*.m plugin/r
 		cp ../tests/fixtures/postgres-seed.* plugin/octo
 		cp ../tests/fixtures/northwind.* plugin/octo
 		cp ../src/aux/octo.conf.default plugin/octo/octo.conf
-		echo "Done."
 	fi
 
-	# Build binary package
+	echo "# Build binary package"
 	make package
 fi
 
-# Cleanup files and directories that don't need to be included in the pipeline artifacts
+echo "# Cleanup files and directories that don't need to be included in the pipeline artifacts"
 rm -rf CMakeFiles
 rm -rf _CPack_Packages
 rm -rf bats-test.*/go
@@ -213,4 +221,5 @@ rm -f postgresql*.jar
 rm -f *.cmake
 rm -f src/test_*	# these are the unit test case executables (should not be needed otherwise)
 
+echo " -> exit $exit_status"
 exit $exit_status

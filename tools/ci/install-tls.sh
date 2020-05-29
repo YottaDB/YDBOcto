@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -v
 #################################################################
 #								#
 # Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	#

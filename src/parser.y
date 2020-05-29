@@ -32,7 +32,6 @@ typedef void* yyscan_t;
 #include "parser.h"
 #include "helpers.h"
 
-#define YYERROR_VERBOSE
 #define YYDEBUG 1
 #define YYSTYPE SqlStatement *
 /* YYMAXDEPTH defines the number of symbols the parser can store in its stack
@@ -51,6 +50,7 @@ extern void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, int *plan
 
 %}
 
+%define parse.error verbose
 %define api.pure full
 %locations
 %lex-param   { yyscan_t scanner }

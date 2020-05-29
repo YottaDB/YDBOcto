@@ -528,6 +528,10 @@ int main(int argc, char **argv) {
 		// We only want to close the sfd if we are the parent process which actually listens to
 		// the socket; thread_id will be 0 if we are a child process
 		close(sfd);
+		status = pthread_join(thread_id, NULL);
+		if (0 != status) {
+			ERROR(ERR_SYSCALL, "failed to join helper_waitpid", status, strerror(status));
+		}
 	}
 	// Since each iteration of the loop spawns a child process, each of which calls `gtm_tls_init`,
 	// we call `gtm_tls_fini` for each child.

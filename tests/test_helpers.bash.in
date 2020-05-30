@@ -844,6 +844,8 @@ run_query_generator() {
   cp @PROJECT_SOURCE_DIR@/tests/fixtures/QueryGenerator.m .
   load_fixture "$databaseName.sql"
   load_fixture "$databaseName.zwr"
+  load_fixture "QueryGenerator.sql"
+  load_postgres_fixture $databaseName postgres-QueryGenerator.sql
 
   $ydb_dist/yottadb -run QueryGenerator "$databaseName.sql" "$databaseName.zwr" "$numQueries" "$prefix"
 

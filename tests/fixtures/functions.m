@@ -10,4 +10,8 @@
 ;								;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-samestr(str) quit str
+; Helper functions used by bats tests
+
+samevalue(param)	; Returns input parameter as output (used by a few bats tests)
+	quit param
+

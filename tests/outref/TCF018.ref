@@ -1,10 +1,10 @@
 
 -- TCF018 : OCTO345 : Function return type correctly evaluated in boolean expressions
 
-CREATE FUNCTION SAMESTR(VARCHAR) RETURNS VARCHAR AS $$^samestr;
+CREATE FUNCTION SAMEVALUE(VARCHAR) RETURNS VARCHAR AS $$samevalue^functions;
 
 SELECT * FROM names WHERE firstname > lastname;
-SELECT * FROM names WHERE SAMESTR(firstname) > SAMESTR(lastname);
+SELECT * FROM names WHERE SAMEVALUE(firstname) > SAMEVALUE(lastname);
 
 0|Zero|Cool
 5|Zero|Cool

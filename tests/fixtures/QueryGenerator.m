@@ -197,6 +197,7 @@ readZWR(file)
 	set previous=""
 	for i=1:1:nlines do
 	. if ($extract(line(i),1)="^") do
+	. . set line(i)=$zextract(line(i),1,$zlength(line(i))-1)	; remove trailing double quote
 	. . for i2=1:1 do  quit:(holder="")
 	. . . set firstData=""
 	. . . if (i2=1) do
@@ -211,8 +212,6 @@ readZWR(file)
 	. . . set holder=" "
 	. . . if (i2'=1) do
 	. . . . set holder=$piece(line(i),"|",i2)
-	. . . . ;If there is a " in the string, remove it
-	. . . . if (holder["""") set holder=$extract(holder,1,$find(holder,"""")-2)
 	. . . . if (holder'="") set data(table,i2+1,holder)=""
 	. . . set pKey=$extract(line(i),$find(line(i),"("),$find(line(i),")")-2)
 	. . . set primaryKeys($extract(table,0,$find(table,"(")-2),pKey)=""
@@ -463,13 +462,17 @@ whereClause(queryDepth)
 	. set loopCount=$random(3)+1 ; 1-3
 	. set opened="FALSE"
 	. for i=1:1:loopCount do
+	. . new type
 	. . set chosenColumn=$$chooseColumn(table)
+	. . set type=$$returnColumnType(table,chosenColumn)
 	. . set leftSide=""
 	. . set rightSide=""
 	. . if $random(2)  set leftSide=table_"."_chosenColumn
 	. . else  set leftSide=$$chooseEntry(table,chosenColumn)
 	. . if $random(2)  set rightSide=table_"."_chosenColumn
 	. . else  set rightSide=$$chooseEntry(table,chosenColumn)
+	. . set leftSide=$$getRandFunc(leftSide,type)
+	. . set rightSide=$$getRandFunc(rightSide,type)
 	. . set notString=""
 	. . if $random(2) set notString="NOT "
 	. .
@@ -493,7 +496,8 @@ whereClause(queryDepth)
 	. set chosenColumn=$$getColumnOfType(table,"INTEGER")
 	. set plusMinus="+"
 	. if $random(2) set plusMinus="-"
-	. set result=result_"(("_table_"."_chosenColumn_plusMinus_$$chooseEntry(table,chosenColumn)_")="_$$chooseEntry(table,chosenColumn)_")"
+	. set result=result_"(("_$$getRandFuncInt(table_"."_chosenColumn)
+	. set result=result_plusMinus_$$chooseEntry(table,chosenColumn)_")="_$$getRandFuncInt($$chooseEntry(table,chosenColumn))_")"
 
 	if (randInt=2) do
 	. ; Left side of this expression will always be forced to be a varchar,
@@ -507,12 +511,16 @@ whereClause(queryDepth)
 	. set entry1=$extract(entry1,2,$length(entry1)-1)
 	. set leftSide=table_"."_chosenColumn1
 	. if $random(2)  set leftSide=$$chooseEntry(table,chosenColumn1)
+	. else  set leftSide=$$getRandFuncStr(leftSide)
 	.
 	. set chosenColumn2=$$chooseColumn(table)
 	. set entry2=$$chooseEntry(table,chosenColumn2)
 	. set entry2=$extract(entry2,2,$length(entry2)-1)
 	. set rightSide=table_"."_chosenColumn2
 	. if $random(2)  set rightSide=$$chooseEntry(table,chosenColumn2)
+	. else  do
+	. . set type=$$returnColumnType(table,chosenColumn2)
+	. . set rightSide=$$getRandFunc(rightSide,type)
 	.
 	. set result=result_"(("_leftSide_"||"_rightSide_")"
 	. set result=result_$$comparisonOperators
@@ -2006,6 +2014,16 @@ chooseCount();
 	; For now return a random number between 0 and 7.
 	quit $random(8)
 
+getRandFuncInt(colEntry)
+	quit $$getRandFunc(colEntry,"INTEGER")
+
+getRandFuncStr(colEntry)
+	quit $$getRandFunc(colEntry,"VARCHAR")
+
+getRandFunc(colEntry,type)
+	quit "samevalue("_colEntry_")"
+
 assert(cond)	;
-	if 'cond zshow "*"  halt
+	if 'cond zshow "*"  zhalt 1
 	quit
+

@@ -10,10 +10,8 @@
 #								#
 #################################################################
 
--- TCF018 : OCTO345 : Function return type correctly evaluated in boolean expressions
-
+CREATE FUNCTION SAMEVALUE(INTEGER) RETURNS INTEGER AS $$samevalue^functions;
+CREATE FUNCTION SAMEVALUE(NUMERIC) RETURNS NUMERIC AS $$samevalue^functions;
 CREATE FUNCTION SAMEVALUE(VARCHAR) RETURNS VARCHAR AS $$samevalue^functions;
-
-SELECT * FROM names WHERE firstname > lastname;
-SELECT * FROM names WHERE SAMEVALUE(firstname) > SAMEVALUE(lastname);
+CREATE FUNCTION SAMEVALUE(BOOLEAN) RETURNS BOOLEAN AS $$samevalue^functions;
 

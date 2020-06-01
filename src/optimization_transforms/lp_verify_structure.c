@@ -279,7 +279,7 @@ int lp_verify_structure_helper(LogicalPlan *plan, LogicalPlan **aggregate, LPAct
 	case LP_BOOLEAN_IS_NOT_NULL:
 	case LP_WHERE:
 		for (i = 0; i < 2; i++) {
-			boolean_t	is_where;
+			boolean_t	is_where, is_bool_in;
 
 			if ((1 == i) && ((LP_BOOLEAN_NOT == expected) || (LP_BOOLEAN_EXISTS == expected)
 					|| (LP_BOOLEAN_NOT_EXISTS == expected)
@@ -288,6 +288,7 @@ int lp_verify_structure_helper(LogicalPlan *plan, LogicalPlan **aggregate, LPAct
 				break;
 			}
 			is_where = ((1 == i) && (LP_WHERE == expected));
+			is_bool_in = ((1 == i) && ((LP_BOOLEAN_IN == expected) || (LP_BOOLEAN_NOT_IN == expected)));
 			ret &= lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_ADDITION)
 				| lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_SUBTRACTION)
 				| lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_DIVISION)
@@ -326,12 +327,18 @@ int lp_verify_structure_helper(LogicalPlan *plan, LogicalPlan **aggregate, LPAct
 									LP_BOOLEAN_LESS_THAN_OR_EQUALS)
 				| lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate,
 									LP_BOOLEAN_GREATER_THAN_OR_EQUALS)
-				| lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_BOOLEAN_REGEX_SENSITIVE)
-				| lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_BOOLEAN_REGEX_INSENSITIVE)
-				| lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_BOOLEAN_REGEX_SENSITIVE_LIKE)
-				| lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_BOOLEAN_REGEX_SENSITIVE_SIMILARTO)
-				| lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_BOOLEAN_REGEX_INSENSITIVE_LIKE)
-				| lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_BOOLEAN_REGEX_INSENSITIVE_SIMILARTO)
+				| lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate,
+									LP_BOOLEAN_REGEX_SENSITIVE)
+				| lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate,
+									LP_BOOLEAN_REGEX_INSENSITIVE)
+				| lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate,
+									LP_BOOLEAN_REGEX_SENSITIVE_LIKE)
+				| lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate,
+									LP_BOOLEAN_REGEX_SENSITIVE_SIMILARTO)
+				| lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate,
+									LP_BOOLEAN_REGEX_INSENSITIVE_LIKE)
+				| lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate,
+									LP_BOOLEAN_REGEX_INSENSITIVE_SIMILARTO)
 				| lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_BOOLEAN_IN)
 				| lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_BOOLEAN_NOT_IN)
 				| lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_BOOLEAN_NOT)
@@ -355,6 +362,9 @@ int lp_verify_structure_helper(LogicalPlan *plan, LogicalPlan **aggregate, LPAct
 				| lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_BOOLEAN_NOT_EXISTS)
 				| lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_BOOLEAN_IS_NULL)
 				| lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_BOOLEAN_IS_NOT_NULL)
+				/* LP_BOOLEAN_IN and LP_BOOLEAN_NOT_IN can have a LP_COLUMN_LIST as operand 1 */
+				| (is_bool_in && lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate,
+									LP_COLUMN_LIST))
 				// LP_INSERT/LP_SET_OPERATIONs usually show up as operand[1] only for the IN boolean expression.
 				// But they can show up wherever a scalar is expected (e.g. arithmetic operations etc.)
 				// and hence have to be allowed in a lot more cases.

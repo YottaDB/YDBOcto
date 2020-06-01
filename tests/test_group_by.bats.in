@@ -76,3 +76,9 @@ setup() {
   run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TGB12.sql "remove_empty_line_at_tail"
 }
 
+@test "TGB13 : OCTO516 : SIG-11 when HAVING clause uses an aggregate function with the IN operator and multiple values" {
+  load_fixture customers.sql
+  load_fixture customers.zwr
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries customers TGB13.sql "remove_empty_line_at_tail"
+}
+

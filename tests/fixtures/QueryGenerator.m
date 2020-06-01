@@ -744,7 +744,6 @@ havingClause(queryDepth,clauseType)
 	. set entryList=""
 	. set limit=($random($$maxIndex(table)-1)+1)
 	. if (limit>8)  set limit=8
-	. set limit=1	; #FUTURE_TODO: Remove this line when YDBOcto#516 is fixed
 	. for i=1:1:limit do
 	. . set entryList=entryList_$select(1<i:", ",1:"")
 	. . set entryList=entryList_$select(("COUNT"=isAggrFuncColumn):$$chooseCount,1:$$chooseEntry(table,chosenColumn))

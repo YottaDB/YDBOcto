@@ -609,7 +609,7 @@ run_query_in_octo_and_postgres_and_crosscheck() {
 	sed 's/^\.\([0-9]*\)/0.\1/;' $fname.log4 > $fname.log5
 	# Check if query has ORDER BY that is not inside a subquery OR if "--sort-needed-check" is present. If so, do not sort.
 	# Otherwise sort as order is not guaranteed to match between Octo and Postgres.
-	orderbyexists=$(sed 's/(.*)//g' $queryfile | grep -ci "ORDER BY") || true	# grep -c can return non-zero status in case of no match hence the need for "|| true"
+	orderbyexists=$(yottadb -r removeInnerQueries $queryfile | grep -ci "ORDER BY") || true	# grep -c can return non-zero status in case of no match hence the need for "|| true"
 	sortneededcheck=$(grep -c "sort-needed-check" $queryfile) || true	# grep -c can return non-zero status in case of no match hence the need for "|| true"
 	if [[ $orderbyexists -eq 0 ]] || [[ $sortneededcheck -ne 0 ]]; then
 		# ORDER BY does not exist in the query. So sort the outputs.

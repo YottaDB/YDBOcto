@@ -15,7 +15,7 @@ removeInnerQueries;
 	; For example "select 1 from names where 1 != (select 2 from names LIMIT 1) ORDER BY 1"
 	; Would be transformed to "select 1 from names where 1 != ORDER BY 1".
 	; This is used by the caller to determine if ORDER BY exists in the outer most query or not.
-	new len,i,state,result,queryfile,query,quit
+	new len,i,state,result,queryfile,query
 	set queryfile=$zcmdline
 	open queryfile:(readonly)
 	use queryfile
@@ -25,16 +25,25 @@ removeInnerQueries;
 	for i=1:1:len do
 	. new ch
 	. set ch=$zextract(query,i)
-	. ; state = -1 implies we are inside a single-quoted string
+	. ; state = 0 implies we are in the outermost query
 	. ; state > 0 implies we are inside an inner query
 	. if "'"=ch do
-	. . if state=0 set state=-1
-	. . else  if state=-1 set state=0
-	. if (-1'=state) do  quit:quit
-	. . set quit=0
-	. . if "("=ch set state=state+1,quit=1
-	. . if ")"=ch set state=state-1,quit=1
-	. quit:state>0
-	. set result=result_ch
+	. . new endReached,j
+	. . set endReached=0
+	. . ; Saw a single-quote. Determine the end of this single-quoted string.
+	. . ; Treat 2 consecutive single-quotes as a single quote within the string.
+	. . for j=i+1:1:len do  quit:endReached
+	. . . set ch=$zextract(query,j)
+	. . . if ("'"=ch) do  quit:endReached
+	. . . . if $increment(j)
+	. . . . if (j<=len) do
+	. . . . . if ("'"=$zextract(query,j))
+	. . . . . else  set endReached=1
+	. . if state=0 set result=result_$zextract(query,i,j-1)
+	. . ; else: We are already in a sub-query. Ignore this single-quote surrounded string literal completely
+	. . set i=j-1
+	. else  if "("=ch set state=state+1
+	. else  if ")"=ch set state=state-1
+	. else  set:state=0 result=result_ch
 	write result,!
 	quit

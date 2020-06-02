@@ -357,6 +357,12 @@ run_java() {
 	else
 		query=""
 	fi
+	psql_jar="@PROJECT_BINARY_DIR@/postgresql-$JDBC_VERSION.jar"
+	if ! [[ -v JDBC_VERSION ]]; then
+		echo "error: \$JDBC_VERSION was required but not set. Consult the Octo README for more information."
+	elif ! [[ -e "$psql_jar" ]]; then
+		echo "error: $psql_jar does not exist. Cannot continue."
+	fi
 	# Run the $1.java file now that the $1.class file has been compiled/created.
 	# Ensure both the postgresql-$JDBC_VERSION.jar file and the $1.class file will be found in the -classpath specification below
 	java -classpath @PROJECT_BINARY_DIR@/postgresql-$JDBC_VERSION.jar:@PROJECT_BINARY_DIR@ $1 $2 "$query" $4

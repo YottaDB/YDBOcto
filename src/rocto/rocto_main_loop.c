@@ -40,6 +40,7 @@ int rocto_main_loop(RoctoSession *session) {
 	ydb_long_t	cursorId = -1;		// Initialize cursorId to -1 to signal there is no cursor in reuse
 	boolean_t	send_ready_for_query = TRUE;
 	boolean_t	extended_query_error = FALSE;
+	boolean_t	terminated = FALSE;
 
 	TRACE(ERR_ENTERING_FUNCTION, "rocto_main_loop");
 	// Send an initial ready
@@ -51,7 +52,7 @@ int rocto_main_loop(RoctoSession *session) {
 	memset(&select_timeout, 0, sizeof(struct timeval));
 	select_timeout.tv_usec = 1;
 
-	while (TRUE) {
+	while (!terminated) {
 		// Send ready if there is not a pending message
 		do {
 			FD_ZERO(&rfds);
@@ -164,26 +165,27 @@ int rocto_main_loop(RoctoSession *session) {
 			// flush = read_flush(message);
 			break;
 		case PSQL_Terminate:
-			// Gracefully terminate the connection
-			if (session->ssl_active) {
-#				if YDB_TLS_AVAILABLE
-				gtm_tls_session_close(&session->tls_socket);
-#				else
-				assert(FALSE);
-#				endif
-			} else {
-				shutdown(session->connection_fd, SHUT_RDWR);
-				close(session->connection_fd);
-			}
 			LOG_LOCAL_ONLY(INFO, ERR_ROCTO_CLEAN_DISCONNECT, "");
-			rocto_session.sending_message = TRUE;
-			return 0;
+			terminated = TRUE;
+			break;
 		default:
 			TRACE(ERR_UNKNOWN_MESSAGE_TYPE, message->type);
 			break;
 		};
 	}
+	// Gracefully terminate the connection
+	if (session->ssl_active) {
+#		if YDB_TLS_AVAILABLE
+		gtm_tls_session_close(&session->tls_socket);
+#		else
+		assert(FALSE);
+#		endif
+	} else {
+		shutdown(session->connection_fd, SHUT_RDWR);
+		close(session->connection_fd);
+	}
 	// Disable sending of messages while we shutdown
 	rocto_session.sending_message = TRUE;
+	cleanup_tables();
 	return 0;
 }

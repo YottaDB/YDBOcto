@@ -2,4 +2,4 @@
 -- TERR021 : OCTO !630 : Check error return codes from ydb_ci_tab_open
 -- Any query here should work, since octo will error immediately if the CI file doesn't exist.
 SELECT * FROM names LIMIT 1;
-[ERROR] PATH:LINENUM DATE TIME : YottaDB error: 150379602,(SimpleAPI),%YDB-E-CITABOPN, Unable to open call-in table: PATH,%YDB-E-SYSCALL, Error received from system call fopen -- called from module PATH at line LINENUM
+[ERROR] PATH:LINENUM DATE TIME : YottaDB error: 150379602,(SimpleAPI),%YDB-E-CITABOPN, Unable to open call-in table: SRCDIR/build/src/ydbocto.ci,%YDB-E-SYSCALL, Error received from system call fopen -- called from module sr_unix/exttab_parse.c at line LINE,%SYSTEM-E-ENO2, No such file or directory

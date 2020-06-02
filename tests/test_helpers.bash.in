@@ -431,6 +431,10 @@ verify_output() {
 	# Convert symbolic links into absolute paths
 	cd -P $PWD
 	sed -i 's,'$PWD',$PWD,g' clean_output.txt
+	# Convert PROJECT_SOURCE_DIR references to generic one
+	sed -i 's,'@PROJECT_SOURCE_DIR@',SRCDIR,g' clean_output.txt
+	# Convert YDB C source file/line references to generic one
+	sed -i 's,\(called from module\) .*/\(sr_.*\) at line [0-9]*,\1 \2 at line LINE,' clean_output.txt
 	# Filter version number
 	sed -i 's/Octo version [0-9]\.[0-9]\.[0-9]/Octo version x\.x\.x/' clean_output.txt
 	sed -i 's/Rocto version [0-9]\.[0-9]\.[0-9]/Rocto version x\.x\.x/' clean_output.txt

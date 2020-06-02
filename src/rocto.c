@@ -116,14 +116,20 @@ int main(int argc, char **argv) {
 	// Initialize SIGUSR1 handler in YDB
 	status = ydb_init();		// YDB init needed for signal handler setup and gtm_tls_init call below */
 	YDB_ERROR_CHECK(status);
-	if (YDB_OK != status)
+	if (YDB_OK != status) {
+		config_destroy(config->config_file);
+		free(config->config_file);
 		return 1;
+	}
 	YDB_LITERAL_TO_BUFFER("$ZINTERRUPT", &z_interrupt);
 	YDB_LITERAL_TO_BUFFER("ZGOTO 1:run^%ydboctoCleanup", &z_interrupt_handler);
 	status = ydb_set_s(&z_interrupt, 0, NULL, &z_interrupt_handler);
 	YDB_ERROR_CHECK(status);
-	if (YDB_OK != status)
+	if (YDB_OK != status) {
+		config_destroy(config->config_file);
+		free(config->config_file);
 		return 1;
+	}
 
 	rocto_session.session_ending = FALSE;
 
@@ -255,6 +261,8 @@ int main(int argc, char **argv) {
 		}
 		if (0 != result) {
 			ERROR(ERR_SYSCALL, "getnameinfo", errno, strerror(errno));
+			config_destroy(config->config_file);
+			free(config->config_file);
 			return 1;
 		}
 		rocto_session.ip = host_buf;
@@ -264,6 +272,8 @@ int main(int argc, char **argv) {
 		status = ydb_init();		// YDB init needed by gtm_tls_init call below */
 		YDB_ERROR_CHECK(status);
 		if (YDB_OK != status) {
+			config_destroy(config->config_file);
+			free(config->config_file);
 			return 1;
 		}
 		// Establish the connection first
@@ -422,6 +432,8 @@ int main(int argc, char **argv) {
 		YDB_ERROR_CHECK(status);
 		if (YDB_OK != status) {
 			YDB_FREE_BUFFER(session_id_buffer);
+			config_destroy(config->config_file);
+			free(config->config_file);
 			return 1;
 		}
 		rocto_session.session_id = session_id_buffer;
@@ -495,6 +507,8 @@ int main(int argc, char **argv) {
 			LOG_LOCAL_ONLY(INFO, INFO_ROCTO_PARAMETER_STATUS_SENT, message_parm.name, message_parm.value);
 			free(parameter_status);
 			if (result) {
+				config_destroy(config->config_file);
+				free(config->config_file);
 				return 0;
 			}
 		} while (TRUE);
@@ -503,6 +517,8 @@ int main(int argc, char **argv) {
 			YDB_FREE_BUFFER(session_id_buffer);
 			YDB_FREE_BUFFER(&var_defaults[2]);
 			YDB_FREE_BUFFER(&var_value);
+			config_destroy(config->config_file);
+			free(config->config_file);
 			return 1;
 		}
 
@@ -512,6 +528,8 @@ int main(int argc, char **argv) {
 		result = send_message(&rocto_session, (BaseMessage*)(&backend_key_data->type));
 		free(backend_key_data);
 		if (result) {
+			config_destroy(config->config_file);
+			free(config->config_file);
 			return 0;
 		}
 

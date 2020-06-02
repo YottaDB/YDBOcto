@@ -154,6 +154,8 @@ int merge_config_file(const char *path, config_t **config_file, enum config_kind
 			error_file = config_error_file(new_config_file);
 			error_line = config_error_line(new_config_file);
 			ERROR(ERR_PARSING_CONFIG, error_file, error_line, error_message);
+			config_destroy(new_config_file);
+			free(new_config_file);
 			return 1;
 		}
 	} else {
@@ -167,6 +169,8 @@ int merge_config_file(const char *path, config_t **config_file, enum config_kind
 			error_file = "default";
 			error_line = config_error_line(new_config_file);
 			ERROR(ERR_PARSING_CONFIG, error_file, error_line, error_message);
+			config_destroy(new_config_file);
+			free(new_config_file);
 			return 1;
 		}
 		path = "default";	// Use literal in place of file path when issuing errors in parse_config_file_settings
@@ -566,151 +570,169 @@ int octo_init(int argc, char **argv) {
 	// Search for config file octo.conf (OCTO_CONF_FILE_NAME) in directories ".", "~", and "$ydb_dist/plugin/octo" in that order
 	config_init(config_file);
 
-	// This should always be 1
-	setenv("ydb_lvnullsubs", "1", 1);
-	status = ydb_init();
-	if (YDB_OK != status) {
-		ydb_zstatus(zstatus_message, sizeof(zstatus_message));
-		ERROR(ERR_YOTTADB, zstatus_message);
-		return 1;
-	}
-
-
-	// Load config file
-	ydb_dist = getenv("ydb_dist");
-	if (NULL == config_file_name) {
-		if (NULL == getcwd(cwd, sizeof(cwd))) {
-			ERROR(ERR_SYSCALL, "getcwd", errno, strerror(errno));
-			return 1;
+	for (;;) {
+		// This should always be 1
+		setenv("ydb_lvnullsubs", "1", 1);
+		status = ydb_init();
+		if (YDB_OK != status) {
+			ydb_zstatus(zstatus_message, sizeof(zstatus_message));
+			ERROR(ERR_YOTTADB, zstatus_message);
+			status = 1;
+			break;
 		}
-		MERGE_CONFIG_PATH_AND_RETURN_ON_ERROR("%s/%s", cwd, config_file, config_file_list, cwd_file_name);
-		homedir = getenv("HOME");
-		if (NULL != homedir) {
-			MERGE_CONFIG_PATH_AND_RETURN_ON_ERROR("%s/%s", homedir, config_file, config_file_list, homedir_file_name);
-		}
-		if (NULL != ydb_dist) {
-			MERGE_CONFIG_PATH_AND_RETURN_ON_ERROR("%s/plugin/octo/%s", ydb_dist, config_file, config_file_list, plugin_file_name);
-		}
-	} else {
-		status = merge_config_file(config_file_name, &config_file, CONFIG_EXPLICIT);
-		if (0 != status) {
-			return 1;
-		}
-		config_file_list.filenames[config_file_list.num_files++] = config_file_name;
-		assert(MAX_CONFIG_FILES >= config_file_list.num_files);
-	}
-	// Load the default config to populate any empty fields with default values
-	status = merge_config_file(NULL, &config_file, CONFIG_DEFAULT);
-	if (0 != status) {
-		return 1;
-	}
-	status = parse_config_file_settings(config_file_list.filenames[config_file_list.num_files-1], config_file);
-	if (status) {
-		return status;
-	}
 
-	// Apply startup flags from initial parse to overwrite values from config files
-	if (verbosity_set) {	// Only overwrite if initialized
-		config->verbosity_level = temp_config.verbosity_level;
-	}
-	if (-1 != temp_config.rocto_config.port) {	// Only overwrite if initialized
-		config->rocto_config.port = temp_config.rocto_config.port;
-	}
-	// Issue INFO messages for loaded configuration files now that verbosity level is finalized
-	for (i = 0; i < config_file_list.num_files; i++) {
-		assert(NULL != config_file_list.filenames[i]);
-		INFO(INFO_LOADED_CONFIG, config_file_list.filenames[i]);
-	}
 
-	// Verify that the directory exists, or issue an error
-	dir = opendir(config->tmp_dir);
-	if (NULL == dir) {
-		ERROR(ERR_SYSCALL_WITH_ARG, "opendir (config.tmp_dir)", errno, strerror(errno), config->tmp_dir);
-		return 1;
-	}
-	free(dir);
-
-	config->page_size = sysconf(_SC_PAGESIZE);
-	status = populate_global_names();
-	if (0 != status) {
-		return status;
-	}
-	init_crypto();
-
-	definedTables = NULL;
-	// Leave space for null terminator
-	// `read` takes the number of bytes to read _excluding_ the null terminator,
-	// and we pass cur_input_max directly into read in `readline_get_more`.
-	cur_input_max = MAX_STR_CONST - 1;
-	input_buffer_combined = malloc(MAX_STR_CONST);
-	memset(input_buffer_combined, 0, MAX_STR_CONST);
-	old_input_index = 0;
-	cur_input_index = 0;
-	cur_input_more = &no_more;
-	eof_hit = 0;
-
-	if (INFO >= config->verbosity_level) {	// Record pertinent ydb_* env vars if -vv or higher verbosity is specified
-		char		*ptr;
-		char		*envvar_array[] = { "ydb_dist", "ydb_gbldir", "ydb_routines", "ydb_xc_ydbposix" };
-		unsigned int	i;
-
-		INFO(CUSTOM_ERROR, "# Recording pertinent ydb_* env var values at process startup");
-		for (i = 0; i < (sizeof(envvar_array) / sizeof(envvar_array[0])); i++)
-		{
-			ptr = getenv(envvar_array[i]);
-			if (NULL == ptr)
-				ptr = "";
-			INFO(CUSTOM_ERROR, "# %s=\"%s\"", envvar_array[i], ptr);
-		}
-	}
-	// NOTE: this uses hard-coded paths, not $ydb_ci
-	if (!DISABLE_INSTALL) {
-		if (NULL != ydb_dist)  {
-			status = snprintf(ci_path, sizeof(ci_path), "%s/plugin/octo/ydbocto.ci", ydb_dist);
-			if ((int)sizeof(ci_path) <= status) {
-				ERROR(ERR_BUFFER_TOO_SMALL, "Octo call-in table path");
-				return 1;
+		// Load config file
+		ydb_dist = getenv("ydb_dist");
+		if (NULL == config_file_name) {
+			if (NULL == getcwd(cwd, sizeof(cwd))) {
+				ERROR(ERR_SYSCALL, "getcwd", errno, strerror(errno));
+				status = 1;
+				break;
+			}
+			MERGE_CONFIG_PATH_AND_RETURN_ON_ERROR("%s/%s", cwd, config_file, config_file_list, cwd_file_name);
+			homedir = getenv("HOME");
+			if (NULL != homedir) {
+				MERGE_CONFIG_PATH_AND_RETURN_ON_ERROR("%s/%s", homedir, config_file, config_file_list, homedir_file_name);
+			}
+			if (NULL != ydb_dist) {
+				MERGE_CONFIG_PATH_AND_RETURN_ON_ERROR("%s/plugin/octo/%s", ydb_dist, config_file, config_file_list, plugin_file_name);
 			}
 		} else {
-			ERROR(ERR_FAILED_TO_RETRIEVE_ENVIRONMENT_VARIABLE, "ydb_dist");
-			return 1;
+			status = merge_config_file(config_file_name, &config_file, CONFIG_EXPLICIT);
+			if (0 != status) {
+				status = 1;
+				break;
+			}
+			config_file_list.filenames[config_file_list.num_files++] = config_file_name;
+			assert(MAX_CONFIG_FILES >= config_file_list.num_files);
 		}
-	} else {
-		exe_path_len = readlink("/proc/self/exe", exe_path, OCTO_PATH_MAX);
-		if ((-1 != exe_path_len) && (OCTO_PATH_MAX > exe_path_len)) {
-			exe_path[exe_path_len] = '\0';		// readlink() doesn't add a null terminator per man page
-			src_path = dirname(exe_path);
-			if (NULL != src_path) {
-				status = snprintf(ci_path, sizeof(ci_path), "%s/ydbocto.ci", src_path);
+		// Load the default config to populate any empty fields with default values
+		status = merge_config_file(NULL, &config_file, CONFIG_DEFAULT);
+		if (0 != status) {
+			status = 1;
+			break;
+		}
+		status = parse_config_file_settings(config_file_list.filenames[config_file_list.num_files-1], config_file);
+		if (status) {
+			break;
+		}
+
+		// Apply startup flags from initial parse to overwrite values from config files
+		if (verbosity_set) {	// Only overwrite if initialized
+			config->verbosity_level = temp_config.verbosity_level;
+		}
+		if (-1 != temp_config.rocto_config.port) {	// Only overwrite if initialized
+			config->rocto_config.port = temp_config.rocto_config.port;
+		}
+		// Issue INFO messages for loaded configuration files now that verbosity level is finalized
+		for (i = 0; i < config_file_list.num_files; i++) {
+			assert(NULL != config_file_list.filenames[i]);
+			INFO(INFO_LOADED_CONFIG, config_file_list.filenames[i]);
+		}
+
+		// Verify that the directory exists, or issue an error
+		dir = opendir(config->tmp_dir);
+		if (NULL == dir) {
+			ERROR(ERR_SYSCALL_WITH_ARG, "opendir (config.tmp_dir)", errno, strerror(errno), config->tmp_dir);
+			status = 1;
+			break;
+		}
+		free(dir);
+
+		config->page_size = sysconf(_SC_PAGESIZE);
+		status = populate_global_names();
+		if (0 != status) {
+			break;
+		}
+		init_crypto();
+
+		definedTables = NULL;
+		// Leave space for null terminator
+		// `read` takes the number of bytes to read _excluding_ the null terminator,
+		// and we pass cur_input_max directly into read in `readline_get_more`.
+		cur_input_max = MAX_STR_CONST - 1;
+		input_buffer_combined = malloc(MAX_STR_CONST);
+		memset(input_buffer_combined, 0, MAX_STR_CONST);
+		old_input_index = 0;
+		cur_input_index = 0;
+		cur_input_more = &no_more;
+		eof_hit = 0;
+
+		if (INFO >= config->verbosity_level) {	// Record pertinent ydb_* env vars if -vv or higher verbosity is specified
+			char		*ptr;
+			char		*envvar_array[] = { "ydb_dist", "ydb_gbldir", "ydb_routines", "ydb_xc_ydbposix" };
+			unsigned int	i;
+
+			INFO(CUSTOM_ERROR, "# Recording pertinent ydb_* env var values at process startup");
+			for (i = 0; i < (sizeof(envvar_array) / sizeof(envvar_array[0])); i++)
+			{
+				ptr = getenv(envvar_array[i]);
+				if (NULL == ptr)
+					ptr = "";
+				INFO(CUSTOM_ERROR, "# %s=\"%s\"", envvar_array[i], ptr);
+			}
+		}
+		// NOTE: this uses hard-coded paths, not $ydb_ci
+		if (!DISABLE_INSTALL) {
+			if (NULL != ydb_dist)  {
+				status = snprintf(ci_path, sizeof(ci_path), "%s/plugin/octo/ydbocto.ci", ydb_dist);
 				if ((int)sizeof(ci_path) <= status) {
 					ERROR(ERR_BUFFER_TOO_SMALL, "Octo call-in table path");
-					return 1;
+					status = 1;
+					break;
 				}
 			} else {
-				ERROR(ERR_LIBCALL_WITH_ARG, "dirname", exe_path);
-				return 1;
+				ERROR(ERR_FAILED_TO_RETRIEVE_ENVIRONMENT_VARIABLE, "ydb_dist");
+				status = 1;
+				break;
 			}
 		} else {
-			ERROR(ERR_LIBCALL_WITH_ARG, "readlink", "/proc/self/exe");
-			return 1;
+			exe_path_len = readlink("/proc/self/exe", exe_path, OCTO_PATH_MAX);
+			if ((-1 != exe_path_len) && (OCTO_PATH_MAX > exe_path_len)) {
+				exe_path[exe_path_len] = '\0';		// readlink() doesn't add a null terminator per man page
+				src_path = dirname(exe_path);
+				if (NULL != src_path) {
+					status = snprintf(ci_path, sizeof(ci_path), "%s/ydbocto.ci", src_path);
+					if ((int)sizeof(ci_path) <= status) {
+						ERROR(ERR_BUFFER_TOO_SMALL, "Octo call-in table path");
+						status = 1;
+						break;
+					}
+				} else {
+					ERROR(ERR_LIBCALL_WITH_ARG, "dirname", exe_path);
+					status = 1;
+					break;
+				}
+			} else {
+				ERROR(ERR_LIBCALL_WITH_ARG, "readlink", "/proc/self/exe");
+				status = 1;
+				break;
+			}
 		}
+		status = ydb_ci_tab_open(ci_path, &ci_tab_handle_new);
+		if (YDB_OK == status) {
+			status = ydb_ci_tab_switch(ci_tab_handle_new, &ci_tab_handle_old);
+		}
+		if (YDB_OK == status) {
+			status = ydb_ci("_ydboctoInit", &ci_return, (ydb_int_t)config->verbosity_level);
+		}
+		YDB_ERROR_CHECK(status);
+		if (YDB_OK != status) {
+			status = 1;
+			break;
+		} else if (0 != ci_return) {
+			ERROR(ERR_NULL_SUBS_DISABLED, "");
+			status = 1;
+			break;
+		}
+		/* readlines setup */
+		rl_bind_key ('\t', rl_insert); // display the tab_completion of '\t' and just insert it as a character
+		config->config_file = (config_t *)malloc(sizeof(config_t));
+		memcpy(config->config_file, config_file, sizeof(config_t));
+		return 0;
 	}
-	status = ydb_ci_tab_open(ci_path, &ci_tab_handle_new);
-	if (YDB_OK == status) {
-		status = ydb_ci_tab_switch(ci_tab_handle_new, &ci_tab_handle_old);
-	}
-	if (YDB_OK == status) {
-		status = ydb_ci("_ydboctoInit", &ci_return, (ydb_int_t)config->verbosity_level);
-	}
-	YDB_ERROR_CHECK(status);
-	if (YDB_OK != status) {
-		return 1;
-	} else if (0 != ci_return) {
-		ERROR(ERR_NULL_SUBS_DISABLED, "");
-		return 1;
-	}
-	/* readlines setup */
-	rl_bind_key ('\t', rl_insert); // display the tab_completion of '\t' and just insert it as a character
-	config->config_file = config_file;
-	return 0;
+	// cleanup
+	config_destroy(config_file);
+	return status;
 }

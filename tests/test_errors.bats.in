@@ -236,6 +236,8 @@ OCTO
 @test "TERR021 : error when CI file does not exist" {
 	if [[ @DISABLE_INSTALL@ == "OFF" ]]; then
 		skip 'Skipping test as we cannot move ydbocto.ci from installed location under $ydb_dist'
+	elif ! [[ -v CI_PIPELINE_ID ]]; then
+		skip 'Skipping test as it will cause other parallel tests to fail'
 	fi
 	# Now that we know ydbocto.ci is installed under "src" subdirectory, make it disappear temporarily.
 	mv ../src/ydbocto.ci call-in.bak

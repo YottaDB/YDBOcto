@@ -47,21 +47,6 @@ void handle_sigint(int sig, siginfo_t *info, void *context) {
 #include "ydb_tls_interface.h"
 #endif
 
-// NOTE: `CONFIG` is evaluated twice
-#define CLEANUP_CONFIG(CONFIG) { \
-	config_destroy(CONFIG->config_file); \
-	free(CONFIG->config_file); \
-}
-
-// NOTE: `STATUS` is evaluated twice
-#define CLEANUP_AND_RETURN_ON_YDB_ERROR(STATUS, CONFIG) { \
-	YDB_ERROR_CHECK(STATUS); \
-	if (YDB_OK != STATUS) { \
-		CLEANUP_CONFIG(CONFIG); \
-		return STATUS; \
-	} \
-}
-
 int main(int argc, char **argv) {
 	AuthenticationMD5Password	*md5auth;
 	AuthenticationOk		*authok;
@@ -102,7 +87,7 @@ int main(int argc, char **argv) {
 	if (0 != status)
 		return status;
 
-	sfd = cfd = opt = addrlen = status = 0;
+	sfd = cfd = opt = addrlen = 0;
 
 	// Create buffers for managing secret keys for CancelRequests
 	ydb_buffer_t secret_key_list_buffer, secret_key_buffer;
@@ -130,11 +115,19 @@ int main(int argc, char **argv) {
 
 	// Initialize SIGUSR1 handler in YDB
 	status = ydb_init();		// YDB init needed for signal handler setup and gtm_tls_init call below */
-	CLEANUP_AND_RETURN_ON_YDB_ERROR(status, config);
+	YDB_ERROR_CHECK(status);
+	if (YDB_OK != status) {
+		CLEANUP_CONFIG(config->config_file);
+		return status;
+	}
 	YDB_LITERAL_TO_BUFFER("$ZINTERRUPT", &z_interrupt);
 	YDB_LITERAL_TO_BUFFER("ZGOTO 1:run^%ydboctoCleanup", &z_interrupt_handler);
 	status = ydb_set_s(&z_interrupt, 0, NULL, &z_interrupt_handler);
-	CLEANUP_AND_RETURN_ON_YDB_ERROR(status, config);
+	YDB_ERROR_CHECK(status);
+	if (YDB_OK != status) {
+		CLEANUP_CONFIG(config->config_file);
+		return status;
+	}
 
 	rocto_session.session_ending = FALSE;
 
@@ -266,15 +259,17 @@ int main(int argc, char **argv) {
 		}
 		if (0 != status) {
 			ERROR(ERR_SYSCALL, "getnameinfo", errno, strerror(errno));
-			CLEANUP_CONFIG(config);
-			return 1;
+			break;
 		}
 		rocto_session.ip = host_buf;
 		rocto_session.port = serv_buf;
 		LOG_LOCAL_ONLY(INFO, ERR_CLIENT_CONNECTED, NULL);
 
 		status = ydb_init();		// YDB init needed by gtm_tls_init call below */
-		CLEANUP_AND_RETURN_ON_YDB_ERROR(status, config);
+		YDB_ERROR_CHECK(status);
+		if (YDB_OK != status) {
+			break;
+		}
 		// Establish the connection first
 		rocto_session.session_id = NULL;
 		read_bytes(&rocto_session, buffer, MAX_STR_CONST, sizeof(int) * 2);
@@ -431,8 +426,7 @@ int main(int argc, char **argv) {
 		YDB_ERROR_CHECK(status);
 		if (YDB_OK != status) {
 			YDB_FREE_BUFFER(session_id_buffer);
-			CLEANUP_CONFIG(config);
-			return 1;
+			break;
 		}
 		rocto_session.session_id = session_id_buffer;
 		rocto_session.session_id->buf_addr[rocto_session.session_id->len_used] = '\0';
@@ -460,7 +454,10 @@ int main(int argc, char **argv) {
 			if (0 != status)
 				break;
 		} while (TRUE);
-		CLEANUP_AND_RETURN_ON_YDB_ERROR(status, config);
+		YDB_ERROR_CHECK(status);
+		if (YDB_OK != status) {
+			break;
+		}
 		// Set parameters
 		for (cur_parm = 0; cur_parm < startup_message->num_parameters; cur_parm++) {
 			ydb_buffer_t	varname, subs_array[3], value;
@@ -499,17 +496,16 @@ int main(int argc, char **argv) {
 			LOG_LOCAL_ONLY(INFO, INFO_ROCTO_PARAMETER_STATUS_SENT, message_parm.name, message_parm.value);
 			free(parameter_status);
 			if (status) {
-				CLEANUP_CONFIG(config);
-				return 0;
+				break;
 			}
 		} while (TRUE);
 		// Clean up after any errors from the above loop
+		assert(0 == YDB_OK); // or else if `status` evaluated to true in the above loop, we would try to send another message on error
 		if (YDB_OK != status) {
 			YDB_FREE_BUFFER(session_id_buffer);
 			YDB_FREE_BUFFER(&var_defaults[2]);
 			YDB_FREE_BUFFER(&var_value);
-			CLEANUP_CONFIG(config);
-			return 1;
+			break;
 		}
 
 
@@ -518,8 +514,7 @@ int main(int argc, char **argv) {
 		status = send_message(&rocto_session, (BaseMessage*)(&backend_key_data->type));
 		free(backend_key_data);
 		if (status) {
-			CLEANUP_CONFIG(config);
-			return 0;
+			break;
 		}
 
 		// Free temporary buffers
@@ -562,6 +557,6 @@ int main(int argc, char **argv) {
 		YDB_ERROR_CHECK(status);
 	}
 
-	CLEANUP_CONFIG(config);
-	return 0;
+	CLEANUP_CONFIG(config->config_file);
+	return status;
 }

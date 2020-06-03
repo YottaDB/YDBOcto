@@ -207,6 +207,12 @@
 	BUFFER.len_alloc = sizeof(STRING);				\
 }
 
+// Free all resources associated with the Octo config file.
+#define CLEANUP_CONFIG(CONFIG) {	\
+	config_destroy(CONFIG);		\
+	free(CONFIG);			\
+}
+
 /* Below are special values used as part of the `aggregate_depth` parameter passed to `qualify_statement()`
  * to indicate we are qualifying a FROM clause, WHERE clause, GROUP BY clause etc.. These need to be negative as 0 is the
  * first valid depth used in the normal case (e.g. when qualifying the SELECT column list i.e. select->select_list) etc.

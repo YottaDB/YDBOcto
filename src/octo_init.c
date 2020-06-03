@@ -145,8 +145,7 @@ int merge_config_file(const char *path, config_t **config_file, enum config_kind
 				// This file was explicitly requested, so give an error if it's not found
 				ERROR(ERR_FILE_NOT_FOUND, path);
 			}
-			config_destroy(new_config_file);
-			free(new_config_file);
+			CLEANUP_CONFIG(new_config_file);
 			return 2;
 		}
 		if (CONFIG_FALSE == config_read_file(new_config_file, path)) {
@@ -154,8 +153,7 @@ int merge_config_file(const char *path, config_t **config_file, enum config_kind
 			error_file = config_error_file(new_config_file);
 			error_line = config_error_line(new_config_file);
 			ERROR(ERR_PARSING_CONFIG, error_file, error_line, error_message);
-			config_destroy(new_config_file);
-			free(new_config_file);
+			CLEANUP_CONFIG(new_config_file);
 			return 1;
 		}
 	} else {
@@ -169,8 +167,7 @@ int merge_config_file(const char *path, config_t **config_file, enum config_kind
 			error_file = "default";
 			error_line = config_error_line(new_config_file);
 			ERROR(ERR_PARSING_CONFIG, error_file, error_line, error_message);
-			config_destroy(new_config_file);
-			free(new_config_file);
+			CLEANUP_CONFIG(new_config_file);
 			return 1;
 		}
 		path = "default";	// Use literal in place of file path when issuing errors in parse_config_file_settings
@@ -178,8 +175,7 @@ int merge_config_file(const char *path, config_t **config_file, enum config_kind
 	a_root = config_root_setting(*config_file);
 	b_root = config_root_setting(new_config_file);
 	merge_config_file_helper(b_root, a_root);
-	config_destroy(*config_file);
-	free(*config_file);
+	CLEANUP_CONFIG(*config_file);
 	*config_file = new_config_file;
 	status = parse_config_file_settings(path, *config_file);
 	return status;
@@ -728,11 +724,9 @@ int octo_init(int argc, char **argv) {
 		}
 		/* readlines setup */
 		rl_bind_key ('\t', rl_insert); // display the tab_completion of '\t' and just insert it as a character
-		config->config_file = (config_t *)malloc(sizeof(config_t));
-		memcpy(config->config_file, config_file, sizeof(config_t));
+		config->config_file = config_file;
 		return 0;
 	}
-	// cleanup
-	config_destroy(config_file);
+	CLEANUP_CONFIG(config_file);
 	return status;
 }

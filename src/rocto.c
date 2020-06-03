@@ -76,7 +76,7 @@ int main(int argc, char **argv) {
 	char				buffer[MAX_STR_CONST];
 	char				host_buf[NI_MAXHOST], serv_buf[NI_MAXSERV];
 	int				cur_parm = 0;
-	int				sfd, cfd, opt, result, status = 0;
+	int				sfd, cfd, opt, status = 0;
 	int64_t				mem_usage;
 	pid_t				child_id = 0;
 	struct sigaction		ctrlc_action;
@@ -102,7 +102,7 @@ int main(int argc, char **argv) {
 	if (0 != status)
 		return status;
 
-	sfd = cfd = opt = addrlen = result = status = 0;
+	sfd = cfd = opt = addrlen = status = 0;
 
 	// Create buffers for managing secret keys for CancelRequests
 	ydb_buffer_t secret_key_list_buffer, secret_key_buffer;
@@ -258,13 +258,13 @@ int main(int argc, char **argv) {
 		rocto_session.connection_fd = cfd;
 		rocto_session.ssl_active = FALSE;
 		if (config->rocto_config.use_dns) {
-			result = getnameinfo((const struct sockaddr *)&address, addrlen,
+			status = getnameinfo((const struct sockaddr *)&address, addrlen,
 					host_buf, NI_MAXHOST, serv_buf, NI_MAXSERV, 0);
 		} else {
-			result = getnameinfo((const struct sockaddr *)&address, addrlen,
+			status = getnameinfo((const struct sockaddr *)&address, addrlen,
 					host_buf, NI_MAXHOST, serv_buf, NI_MAXSERV, NI_NUMERICHOST | NI_NUMERICSERV );
 		}
-		if (0 != result) {
+		if (0 != status) {
 			ERROR(ERR_SYSCALL, "getnameinfo", errno, strerror(errno));
 			CLEANUP_CONFIG(config);
 			return 1;
@@ -286,8 +286,8 @@ int main(int argc, char **argv) {
 			int	tls_errno;
 
 			// gtm_tls_conn_info tls_connection;
-			result = send_bytes(&rocto_session, "S", sizeof(char));
-			if (0 != result) {
+			status = send_bytes(&rocto_session, "S", sizeof(char));
+			if (0 != status) {
 				ERROR(ERR_ROCTO_SEND_FAILED, "failed to send SSL confirmation byte");
 				break;
 			}
@@ -316,9 +316,9 @@ int main(int argc, char **argv) {
 			}
 			// Accept incoming TLS connections
 			do {
-				result = gtm_tls_accept(tls_socket);
-				if (0 != result) {
-					if (-1 == result) {
+				status = gtm_tls_accept(tls_socket);
+				if (0 != status) {
+					if (-1 == status) {
 						tls_errno = gtm_tls_errno();
 						if (-1 == tls_errno) {
 							ERROR(ERR_ROCTO_TLS_ACCEPT, gtm_tls_get_error());
@@ -326,23 +326,23 @@ int main(int argc, char **argv) {
 							ERROR(CUSTOM_ERROR, "unknown", tls_errno, strerror(tls_errno));
 						}
 						break;
-					} else if (GTMTLS_WANT_READ == result) {
+					} else if (GTMTLS_WANT_READ == status) {
 						ERROR(ERR_ROCTO_TLS_WANT_READ, NULL);
-					} else if (GTMTLS_WANT_WRITE == result) {
+					} else if (GTMTLS_WANT_WRITE == status) {
 						ERROR(ERR_ROCTO_TLS_WANT_WRITE, NULL);
 					} else {
 						ERROR(ERR_ROCTO_TLS_UNKNOWN, "failed to accept incoming connection(s)");
 						break;
 					}
 				}
-			} while ((GTMTLS_WANT_READ == result) || (GTMTLS_WANT_WRITE == result));
+			} while ((GTMTLS_WANT_READ == status) || (GTMTLS_WANT_WRITE == status));
 			rocto_session.tls_socket = tls_socket;
 			rocto_session.ssl_active = TRUE;
 			read_bytes(&rocto_session, buffer, MAX_STR_CONST, sizeof(int) * 2);
 #			endif
 		// Attempt unencrypted connection if SSL is disabled
 		} else if ((NULL != ssl_request) && !config->rocto_config.ssl_on) {
-			result = send_bytes(&rocto_session, "N", sizeof(char));
+			status = send_bytes(&rocto_session, "N", sizeof(char));
 			read_bytes(&rocto_session, buffer, MAX_STR_CONST, sizeof(int) * 2);
 		} else if ((NULL == ssl_request) && config->rocto_config.ssl_required) {
 			// Do not continue if TLS/SSL is required, but not requested by the client
@@ -379,8 +379,8 @@ int main(int argc, char **argv) {
 		// Require md5 authentication
 		char salt[4];
 		md5auth = make_authentication_md5_password(&rocto_session, salt);
-		result = send_message(&rocto_session, (BaseMessage*)(&md5auth->type));
-		if (result) {
+		status = send_message(&rocto_session, (BaseMessage*)(&md5auth->type));
+		if (status) {
 			ERROR(ERR_ROCTO_SEND_FAILED, "failed to send MD5 authentication required");
 			free(md5auth);
 			free(startup_message->parameters);
@@ -410,9 +410,9 @@ int main(int argc, char **argv) {
 		rocto_session.sending_message = FALSE;
 
 		// Validate user credentials
-		result = handle_password_message(password_message, startup_message, salt);
+		status = handle_password_message(password_message, startup_message, salt);
 		free(password_message);
-		if (0 != result) {
+		if (0 != status) {
 			free(startup_message->parameters);
 			free(startup_message);
 			break;
@@ -495,10 +495,10 @@ int main(int argc, char **argv) {
 			message_parm.name = var_sets[3].buf_addr;
 			message_parm.value = var_value.buf_addr;
 			parameter_status = make_parameter_status(&message_parm);
-			result = send_message(&rocto_session, (BaseMessage*)(&parameter_status->type));
+			status = send_message(&rocto_session, (BaseMessage*)(&parameter_status->type));
 			LOG_LOCAL_ONLY(INFO, INFO_ROCTO_PARAMETER_STATUS_SENT, message_parm.name, message_parm.value);
 			free(parameter_status);
-			if (result) {
+			if (status) {
 				CLEANUP_CONFIG(config);
 				return 0;
 			}
@@ -515,9 +515,9 @@ int main(int argc, char **argv) {
 
 		// Send secret key info to client
 		backend_key_data = make_backend_key_data(secret_key, child_id);
-		result = send_message(&rocto_session, (BaseMessage*)(&backend_key_data->type));
+		status = send_message(&rocto_session, (BaseMessage*)(&backend_key_data->type));
 		free(backend_key_data);
-		if (result) {
+		if (status) {
 			CLEANUP_CONFIG(config);
 			return 0;
 		}

@@ -1,0 +1,69 @@
+
+-- TWI11 : OCTO515 : 'Unknown state reached' error when IN has a malformed comma separated list of values
+
+SELECT * FROM names WHERE id IN ();
+SELECT * FROM names WHERE id IN (1,);
+SELECT * FROM names WHERE id IN (1,2,);
+SELECT * FROM names WHERE id IN (,);
+SELECT * FROM names WHERE id IN (,1,);
+SELECT * FROM names WHERE id IN (,,);
+SELECT * FROM names WHERE id IN (,,1);
+SELECT * FROM names WHERE id IN (1,,2,);
+
+Error with syntax near (line 1, column 34):
+
+SELECT * FROM names WHERE id IN ();
+                                 ^
+syntax error, unexpected RIGHT_PAREN
+
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT * FROM names WHERE id IN ();
+Error with syntax near (line 1, column 36):
+
+SELECT * FROM names WHERE id IN (1,);
+                                   ^
+syntax error, unexpected RIGHT_PAREN
+
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT * FROM names WHERE id IN (1,);
+Error with syntax near (line 1, column 38):
+
+SELECT * FROM names WHERE id IN (1,2,);
+                                     ^
+syntax error, unexpected RIGHT_PAREN
+
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT * FROM names WHERE id IN (1,2,);
+Error with syntax near (line 1, column 34):
+
+SELECT * FROM names WHERE id IN (,);
+                                 ^
+syntax error, unexpected COMMA
+
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT * FROM names WHERE id IN (,);
+Error with syntax near (line 1, column 34):
+
+SELECT * FROM names WHERE id IN (,1,);
+                                 ^
+syntax error, unexpected COMMA
+
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT * FROM names WHERE id IN (,1,);
+Error with syntax near (line 1, column 34):
+
+SELECT * FROM names WHERE id IN (,,);
+                                 ^
+syntax error, unexpected COMMA
+
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT * FROM names WHERE id IN (,,);
+Error with syntax near (line 1, column 34):
+
+SELECT * FROM names WHERE id IN (,,1);
+                                 ^
+syntax error, unexpected COMMA
+
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT * FROM names WHERE id IN (,,1);
+Error with syntax near (line 1, column 36):
+
+SELECT * FROM names WHERE id IN (1,,2,);
+                                   ^
+syntax error, unexpected COMMA
+
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT * FROM names WHERE id IN (1,,2,);
+

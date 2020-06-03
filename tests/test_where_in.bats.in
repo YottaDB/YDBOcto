@@ -89,3 +89,10 @@ setup() {
   load_fixture northwind.zwr
   run_query_in_octo_and_postgres_and_crosscheck_multiple_queries northwind TWI10.sql "remove_empty_line_at_head"
 }
+
+@test "TWI11 : OCTO515 : 'Unknown state reached' error when IN has a malformed comma separated list of values" {
+  # Note: Cannot use "run_query_in_octo_and_postgres_and_crosscheck_multiple_queries" because below queries error out
+  # and error messages of Octo and Postgres cannot be compared.
+  load_fixture TWI11.sql subtest novv
+  verify_output TWI11 output.txt
+}

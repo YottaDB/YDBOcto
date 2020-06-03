@@ -507,14 +507,14 @@ in_predicate
 /// TODO: these require additional structures in octo_types.h
 in_predicate_value
   : table_subquery { $$ = $table_subquery; }
-  | LEFT_PAREN in_value_list RIGHT_PAREN { $$ = $in_value_list; }
+  | LEFT_PAREN in_value_list_nonempty RIGHT_PAREN { $$ = $in_value_list_nonempty; }
   ;
 
 table_subquery
   : subquery { $$ = $subquery; }
   ;
 
-in_value_list
+in_value_list_allow_empty
   : /* Empty */ {
       SQL_STATEMENT($$, column_list_STATEMENT);
       MALLOC_STATEMENT($$, column_list, SqlColumnList);
@@ -522,7 +522,13 @@ in_value_list
       UNPACK_SQL_STATEMENT(column_list, $$, column_list);
       dqinit(column_list);
     }
-  | truth_value in_value_list_tail {
+  | in_value_list_nonempty {
+      $$ = $in_value_list_nonempty;
+    }
+  ;
+
+in_value_list_nonempty
+  : truth_value in_value_list_tail {
       SQL_STATEMENT($$, column_list_STATEMENT);
       MALLOC_STATEMENT($$, column_list, SqlColumnList);
       SqlColumnList *column_list, *cl_tail;
@@ -550,7 +556,7 @@ in_value_list
 
 in_value_list_tail
   : /* Empty */ { $$ = NULL; }
-  | COMMA in_value_list { $$ = $in_value_list; }
+  | COMMA in_value_list_nonempty { $$ = $in_value_list_nonempty; }
   ;
 
 null_predicate
@@ -945,7 +951,7 @@ set_function_type
   ;
 
 generic_function_call
-  : column_name LEFT_PAREN in_value_list RIGHT_PAREN {
+  : column_name LEFT_PAREN in_value_list_allow_empty RIGHT_PAREN {
       SQL_STATEMENT($$, value_STATEMENT);
       MALLOC_STATEMENT($$, value, SqlValue);
       SqlStatement *fc_statement;
@@ -958,7 +964,7 @@ generic_function_call
       MALLOC_STATEMENT(fc_statement, function_call, SqlFunctionCall);
       UNPACK_SQL_STATEMENT(fc, fc_statement, function_call);
       fc->function_name = $column_name;
-      fc->parameters = $in_value_list;
+      fc->parameters = $in_value_list_allow_empty;
       value->v.calculated = fc_statement;
 
       // Change the value to be a string literal rather than column reference

@@ -44,8 +44,6 @@
 	set initDone("tf")=0
 	set initDone("aas")=0
 	set GLOBALtotalTables=0
-	set orderByExists="FALSE"
-	set limitExists="FALSE"
 	set existsInHavingExists="FALSE"
 	set caseFunctionExists="FALSE"
 
@@ -75,14 +73,32 @@
 	; result rows that are gigabytes long and take a long time to run (greater than 10 minutes)
 	; so restrict max joins to 1 in that case.
 	set:(sqlFile["northwind")&(1<joinCount) joinCount=1
-	zwrite sqlFile,joinCount
+	; Randomly choose if subqueries will be tested or not (50% yes, 50% no).
+	set enableSubQuery=$random(2)
+	; Randomly choose if WHERE clause will be present in outermost query or not (87.5% yes, 12.5% no).
+	set enableWhereClause=$random(8)
+	; Randomly choose if WHERE clause will be present in subquery or not (50% yes, 50% no).
+	set enableInnerWhereClause=$random(2)
+	; Randomly choose if ORDER BY clause will be present (in outermost query and subquery) or not (50% yes, 50% no).
+	set enableOrderByClause=$random(2)
+	; Randomly choose if GROUP BY and HAVING clause will be present (in outermost query and subquery) or not (50% yes, 50% no).
+	set enableGroupByHavingClause=$random(2)
+	; Randomly choose if LIMIT clause will be present (in outermost query and subquery) or not (50% yes, 50% no).
+	set enableLimitClause=$select('$random(8):1,1:0)
+	zwrite sqlFile,joinCount,enableSubQuery,enableWhereClause,enableInnerWhereClause
+	zwrite enableOrderByClause,enableGroupByHavingClause,enableLimitClause
 	;Main Loop
 	new i,savecolumns
+	merge savecolumns=columns
 	for i=1:1:runCount do
 	. new tableAlias	; refresh the mapping of table names to alias names for each query
-	. kill savecolumns merge savecolumns=columns
 	. set aliasNum=0
 	. set fromNum=1
+	. ; The following variables need to be reset to their default values for each, seperate query.
+	. set orderByExists=0,limitExists=0
+	. set existsInHavingExists="FALSE"  set caseFunctionExists="FALSE"
+	. kill columns			; refresh columns array for next query (remove any temporary tables created in prior query)
+	. merge columns=savecolumns
 	.
 	. ; About 1/5 of queries generated will contain GROUP BY and will also
 	. ; match the requirements for having a GROUP BY in the query
@@ -98,17 +114,12 @@
 	. ; Add a line to generated query file given LIMIT exists, and ORDER BY does not in the query
 	. ; This forces the crosscheck function to only count lines as having a LIMIT clause without an
 	. ; ORDER BY clause can cause different results to be returned by the database
-	. if ((limitExists="TRUE")&(orderByExists="FALSE"))  write "-- rowcount-only-check",!
+	. if (limitExists&('orderByExists))  write "-- rowcount-only-check",!
 	. write query,!
 	. close file
 	. ; The following LVNs exist for each individual query,
 	. ; thus they need to be KILLED after each query is created
 	. kill tableColumn,selectListLVN,subQuerySelectedTables,innerQuerySLLVN
-	. ; The following variables need to be reset to their default values for each, seperate query.
-	. set orderByExists="FALSE"  set limitExists="FALSE"
-	. set existsInHavingExists="FALSE"  set caseFunctionExists="FALSE"
-	. kill columns
-	. merge columns=savecolumns	; refresh columns array for next query (remove any temporary tables created in prior query)
 
 	quit
 
@@ -259,15 +270,28 @@ setQuantifier(curDepth)
 ; This value is continously lowered until it reaches 0, thus ending the recursive loop.
 ; It stores every value added into the SELECT LIST into a LVN called selectListLVN.
 selectList(queryDepth,curDepth)
-	new randInt,result,toBeAdded
+	new randInt,result,toBeAdded,okToSelectStar
 	;This function serves the same purpose as select sublist in the grammar rules for SQL.
 
-	set result=""
-	; Choose DerivedColumn or Qualifier
-	set randInt=""
+	; Choose "*" in the select column list 12.5% of the time AND if no other columns have been already added to it.
+	; Cannot add other columns to the select column list after a "*" is added because of #385 and #386. Hence the quit below.
+	; Also, until YDBOcto#246 is fixed, cannot use * if SELECT DISTINCT has been chosen already and joinCount is > 1
+	; as the sum of the number of columns of the tables involved in the FROM and JOIN clauses could end up greater than 31
+	; and cause MAXNRSUBSCRIPTS error. Disable "*" selection in that case.
+	set okToSelectStar=((quantifierLVN("alias"_queryDepth)'="DISTINCT ")!(2>joinCount))
+	if (okToSelectStar&('$data(selectListLVN(queryDepth)))&('$random(8))) do  quit toBeAdded
+	. set toBeAdded="*"
+	. set selectListLVN(queryDepth,toBeAdded)="star"
+	. ; Disallow GROUP BY and HAVING if * is in select column list as it gets complicated
+	. set allowGBH("alias"_queryDepth)="FALSE"
 
-	; #FUTURE_TODO: Increase below to 9 when $$returnCaseFunction infinite loop and malformed query issues are resolved
-	set randInt=$random(6)	; #FUTURE_TODO: Increase to 10 when issues #385 and #386 are resolved
+	; Choose DerivedColumn or Qualifier
+	set randInt=$random(100)
+	; #FUTURE_TODO: Allow randInt=2 possibility when $$returnCaseFunction infinite-loop/malformed-query issues are resolved
+	; #FUTURE_TODO: Allow randInt=3 possibility when issues #385 and #386 are resolved
+	; For now, choose randInt=0 80% of time, randInt=1 20% of time
+	; If enableSubQuery is FALSE, do not choose randInt=1
+	set randInt=$select(('enableSubQuery!(80>randInt)):0,1:1)
 
 	; To avoid ambiquity warnings, this is commented out
 	; Regular column notation is to be used
@@ -277,27 +301,27 @@ selectList(queryDepth,curDepth)
 	if (GLOBALtotalTables=1) set randInt=0
 
 	; Qualifier notation (table.column) is to be used
-	if ((randInt=0)!(randInt=1)!(randInt=2))  do
+	if (randInt=0) do
 	. set table=$$chooseTableFromTableColumn()
 	. set toBeAdded=table_"."_$$chooseColumn(table)
 	. set selectListLVN(queryDepth,toBeAdded)="table.column"
 
-	if ((randInt=3)!(randInt=4)!(randInt=5))  do
+	if (randInt=1) do
 	. set aliasNum1More=aliasNum+1
 	. set alias="alias"_aliasNum1More
 	. set toBeAdded="("_$$generateSubQuery(queryDepth,"limited","")_") AS "_alias
 	. set selectListLVN(queryDepth,alias)="subquery"
 
-	if ((randInt=6)!(randInt=7)!(randInt=8))  do
+	if (randInt=2) do
 	. set toCompare=$random(4)+1
 	. set toBeAdded=$$returnCaseFunction("SELECT LIST","randomNumbers","numbers","FALSE",toCompare)
 	. set selectListLVN(queryDepth,"alias"_aliasNum)="case_statement"
 
-	if (randInt=9)  do
+	if (randInt=3)  do
 	. set toBeAdded="*"
 	. set selectListLVN(queryDepth,toBeAdded)="star"
 
-	if (allowGBH("alias"_"0")="TRUE")  do
+	if (enableGroupByHavingClause&(allowGBH("alias"_queryDepth)="TRUE"))  do
 	. new table,chosenColumn,agg,chosenColumn2,tc
 	. ; #FUTURE_TODO: Remove following line when issues (both in Octo and in test_helpers)
 	. ;               pertaining to aggregate functions are resolved
@@ -315,7 +339,7 @@ selectList(queryDepth,curDepth)
 	. set toBeAdded=toBeAdded_", "_agg_$select(""'=tc:", "_tc,1:"")
 	. set:(""'=tc) selectListLVN(queryDepth,tc)="table.column"
 
-	set result=result_toBeAdded
+	set result=toBeAdded
 
 	if curDepth>0 do
 	. if $increment(curDepth,-1) ; to drop down a "level" in depth
@@ -332,12 +356,20 @@ tableExpression(queryDepth)
 	; allow for proper column(s) to be chosen
 	set result=""
 
-	set:$random(2) result=result_$$whereClause(queryDepth)
-	if (allowGBH("alias"_"0")="TRUE")  do
+	set:enableWhereClause result=result_$$whereClause(queryDepth)
+	if (enableGroupByHavingClause&(allowGBH("alias"_queryDepth)="TRUE"))  do
 	. set result=result_$$groupbyClause(queryDepth)
 	. set result=result_$$havingClause(queryDepth,"query")
-	set:$random(2) result=result_$$orderbyClause(queryDepth,0,"QUERY"),orderByExists="TRUE"
-	set:'($random(8)) result=result_$$limitClause,limitExists="TRUE"
+	if enableOrderByClause do
+	. new orderByClause
+	. set orderByClause=$$orderbyClause(queryDepth,0,"QUERY")
+	. set result=result_orderByClause
+	. set:""'=orderByClause orderByExists=1
+	if enableLimitClause do
+	. new limitClause
+	. set limitClause=$$limitClause
+	. set result=result_limitClause
+	. set:""'=limitClause limitExists=1
 
 	quit result
 
@@ -390,6 +422,7 @@ fromClause()
 ; https://ronsavage.github.io/SQL/sql-92.bnf.html#where%20clause
 ; This function returns the WHERE clause, which contains the WHERE statement as well as a randomly selected condition type.
 whereClause(queryDepth)
+	do assert(enableWhereClause)
 	new result,randInt,i,x
 	set result=" WHERE "
 	; #FUTURE_TODO: Increase below to 12 when $$returnCaseFunction infinite loop and malformed query issues are resolved
@@ -410,6 +443,10 @@ whereClause(queryDepth)
 	. . set x=$query(@x)
 	. . set type=$qsubscript(x,4)
 	. . if ($qsubscript(x,1)'=table)  set randInt=0
+
+	; If enableSubQuery is FALSE, randInt=5 and randInt=9 cannot be allowed as they invoke "generateSubQuery"
+	; So in those cases, set randInt=0 instead.
+	set:('enableSubQuery)&((randInt=5)!(randInt=9)) randInt=0
 
 	; The comparison for randInt is set to 999 as to allow for new cases in the
 	; WHERE clause to be added in numerical order, when reenabled change the 999
@@ -646,6 +683,7 @@ whereClause(queryDepth)
 ; https://ronsavage.github.io/SQL/sql-92.bnf.html#group%20by%20clause
 ; This function returns the GROUP BY clause. It pulls the necessary values from the selectListLVN.
 groupbyClause(queryDepth)
+	do assert(enableGroupByHavingClause)
 	new result,randInt,i,holder,firstholder
 	set result=""
 	zwrite tableAlias,tableColumn,selectListLVN
@@ -687,6 +725,11 @@ havingClause(queryDepth,clauseType)
 	do assert(0<count)
 	; #FUTURE_TODO: Increase below to 8 when $$returnCaseFunction infinite loop and malformed query issues are resolved
 	set randInt=$random(6) ; 0-5
+
+	; If enableSubQuery is FALSE, randInt=1 and randInt=5 cannot be allowed as they invoke "generateSubQuery"
+	; So in those cases, set randInt=0 instead.
+	set:('enableSubQuery)&((randInt=1)!(randInt=5)) randInt=0
+
 	write "havingClause() : randInt = ",randInt,!
 
 	if (randInt=0) do
@@ -783,7 +826,10 @@ havingClause(queryDepth,clauseType)
 	. . set tblcol=$$havingGetTblCol(isAggrFuncColumn,table,chosenColumn)
 	. . write "havingClause() : tblcol = ",tblcol,!
 	. . set result=result_tblcol_" LIKE '"_string_"'"
-	. else  set randInt=5
+	. else  do
+	. . ; We try the next random option (i.e. randInt=5). But if enableSubQuery is 0, then try randInt=6 instead
+	. . ; as randInt=5 has a call to "generateSubQuery" which should be avoided if enableSubQuery is 0.
+	. . set randInt=$select(enableSubQuery:5,1:6)
 
 	if (randInt=5) do
 	. new randInt,word,leftSide,rightSide,chosenColumn,entryList,limit,rightType,i,holder,aliasNum1More
@@ -855,9 +901,9 @@ havingGetTblCol(isAggrFuncColumn,table,chosenColumn)
 ; If the ORDER BY Clause is to appear in the parent query run with "QUERY"
 ; If the ORDER BY Clause is to appear within a subquery run with "SUBQUERY"
 orderbyClause(queryDepth,aNum,location)
+	do assert(queryDepth!enableOrderByClause)
 	new result,holder
-	set result=" ORDER BY "
-
+	set result=""
 	; Following if statement checks for DISTINCT in the parent query as the
 	; presence of a DISTINCT qualifier requires the ORDER BY to contain only
 	; things that also occur in the SELECT LIST
@@ -886,11 +932,11 @@ orderbyClause(queryDepth,aNum,location)
 	. . . set toCompare="alias"_aNum_"."_$$chooseColumn(subqueryTable)
 	. . . set result=result_$$returnCaseFunction("ORDER BY","randomNumbers","columns","TRUE",toCompare)
 	else  set result=""
-
-	quit result
+	quit $select(""=result:"",1:" ORDER BY "_result)
 
 ; This function returns a LIMIT Clause, with a number between 0 and 31
 limitClause()
+	do assert(enableLimitClause)
 	new result
 	set result=" LIMIT "
 	set result=result_($random(2**$random(8)))
@@ -918,6 +964,11 @@ joinClause(queryDepth,joinCount)
 	set asPiece=" AS alias"_aliasNum1More
 
 	set randInt=$random(2)
+
+	; If enableSubQuery is FALSE, randInt=1 cannot be allowed as it invokes "generateSubQuery"
+	; So in that case, set randInt=0 instead.
+	set:('enableSubQuery)&(randInt=1) randInt=0
+
 	write "joinClause() : randInt = ",randInt,!
 	if (randInt=0)  do
 	. new i,limiter,typematch
@@ -989,6 +1040,11 @@ joinClause(queryDepth,joinCount)
 	. . else  set leftSide=chosenEntry1
 	. .
 	. . set rightRand=$random(3) ; 0-2
+	. . ;
+	. . ; If enableSubQuery is FALSE, rightRand=2 cannot be allowed as it invokes "generateSubQuery"
+	. . ; So in that case, set rightRand=0 instead.
+	. . set:('enableSubQuery)&(rightRand=2) rightRand=0
+	. . ;
 	. . write "joinClause() : rightRand = ",rightRand," : chosenEntry2 = ",chosenEntry2,!
 	. . if ((rightRand=0)!(chosenEntry2="")) do
 	. . . set alias=""
@@ -1479,6 +1535,7 @@ generateQuery(queryDepth,joinCount)
 ; Passing "limited" returns a query that contains clauses that limit the
 ; query to only return a single row, and single column
 generateSubQuery(queryDepth,subQueryType,joinType)
+	do assert(enableSubQuery)
 	new innerFC,alias,innerQuery
 	new tableColumnSave,selectListLVNSave,tableAliasSave
 	if $increment(aliasNum)
@@ -1528,13 +1585,12 @@ generateSubQuery(queryDepth,subQueryType,joinType)
 ; https://ronsavage.github.io/SQL/sql-92.bnf.html#select%20list
 ; This function returns an select list that matches requirements and utilizes the variables of subqueries.
 innerSelectList(queryDepth,subQueryType,curDepth,alias)
-	new randInt,result,toBeAdded,aliastable,i
+	new result,toBeAdded,aliastable,i
 	;This function serves the same purpose as select sublist in the grammar rules for SQL.
 
 	do assert(0'=+queryDepth)
 	set result=""
 
-	set toBeAdded=""
 	set aliastable=$piece(innerFC," ",2)
 	; Qualifier notation (table.column), with the value of the alias variable instead of a table
 	set toBeAdded=alias_"."_$$chooseColumn(aliastable)
@@ -1560,21 +1616,21 @@ innerSelectList(queryDepth,subQueryType,curDepth,alias)
 	.
 	. set table="alias"_aliasNum
 	. set chosenColumn=$$chooseColumn(table)
-	. set agg=$$returnAggregateFunction(queryDepth,table,chosenColumn)
-	. set selectListLVN(queryDepth,agg)="aggregate_function"
-	. set innerQuerySLLVN(table,chosenColumn)=$piece(innerFC," ",2)
-	. if $increment(innerQuerySLLVN)
+	. if enableGroupByHavingClause do
+	. . set agg=$$returnAggregateFunction(queryDepth,table,chosenColumn)
+	. . set selectListLVN(queryDepth,agg)="aggregate_function"
+	. . set innerQuerySLLVN(table,chosenColumn)=$piece(innerFC," ",2)
+	. . if $increment(innerQuerySLLVN)
+	. . set toBeAdded=agg_" as "_chosenColumn_", "
+	. . set result=result_toBeAdded
 	.
 	. for i=1:1 do  quit:(chosenColumn'=chosenColumn2)  do assert(i<16)
 	. . set chosenColumn2=$$chooseColumn(table)
 	. set tc=table_"."_chosenColumn2
+	. set selectListLVN(queryDepth,tc)="table.column"
 	. set innerQuerySLLVN($piece(tc,"."),$piece(tc,".",2))=$piece(innerFC," ",2)
 	. if $increment(innerQuerySLLVN)
-	.
-	. set toBeAdded=agg_" as "_chosenColumn_", "_tc
-	. set selectListLVN(queryDepth,tc)="table.column"
-	.
-	. set result=result_toBeAdded
+	. set result=result_tc
 
 	if (subQueryType="limited")  do
 	. set selectListLVN(queryDepth,toBeAdded)="table.column"
@@ -1605,13 +1661,20 @@ innerTableExpression(queryDepth,subQueryType)
 	; allow for proper column(s) to be chosen
 	set innerResult=""
 	set aliasNumSave=aliasNum	; save aliasNum before it gets potentially modified by $$innerWhereClause call below
-	if ($random(2))  set innerResult=innerResult_$$innerWhereClause(queryDepth)
-	if ((allowGBH("alias"_aliasNumSave)="TRUE")&(subQueryType="full")) do
+	set:enableInnerWhereClause innerResult=innerResult_$$innerWhereClause(queryDepth)
+	if (enableGroupByHavingClause&(allowGBH("alias"_aliasNumSave)="TRUE")&(subQueryType="full")) do
 	. set innerResult=innerResult_$$groupbyClause(queryDepth)
 	. set innerResult=innerResult_$$havingClause(queryDepth,"subquery")
-	if (('$random(8))&(subQueryType="full")) do
-	. set innerResult=innerResult_$$orderbyClause(queryDepth,aliasNumSave,"SUBQUERY")_$$limitClause
+	if (subQueryType="full") do
+	. ; We have to use ORDER BY in any inner query that also has LIMIT clause used (or else different rows would get returned
+	. ; as part of this subquery which would affect the final output of the outer query) . Hence the below "orderbyClause"
+	. ; invocation is based on "enableLimitClause" instead of on "enableOrderByClause".
+	. set:(enableOrderByClause!enableLimitClause) innerResult=innerResult_$$orderbyClause(queryDepth,aliasNumSave,"SUBQUERY")
+	. set:enableLimitClause innerResult=innerResult_$$limitClause
 	if (subQueryType="limited") do
+	. ; We have to unconditionally use ORDER BY and LIMIT clause in below query (or else we would get errors in query
+	. ; as this is an inner level query which should return a scalar).
+	. ; Hence the lack of use of 'enableOrderByClause' and 'enableLimitClause' variables.
 	. set innerResult=innerResult_$$orderbyClause(queryDepth,aliasNumSave,"SUBQUERY")_" LIMIT 1"
 
 	quit innerResult
@@ -1621,13 +1684,19 @@ innerTableExpression(queryDepth,subQueryType)
 ; This is due to the fact that the WHERE clause in a subquery needed a lot more logic to properly run,
 ; and select/use proper elements within.
 innerWhereClause(queryDepth)
+	do assert(enableInnerWhereClause)
 	new result,randInt,i,x,innerTable
 	set result=" WHERE "
 	; #FUTURE_TODO: Increase below to 12 when $$returnCaseFunction infinite loop and malformed query issues are resolved
 	set randInt=$random(10) ; 0-9 ; Increase this range as new versions of WHERE clauses are added
+	;
 	; With the Northwind data set, we have seen at least one query with EXISTS in the inner WHERE clause take a long time
 	; in Postgres (takes 20 minutes to run while Octo takes 1 second to run). So avoid subquery generation in that case.
 	set:(sqlFile["northwind")&((randInt=5)!(randInt=9)) randInt=0
+
+	; If enableSubQuery is FALSE, randInt=5 and randInt=9 cannot be allowed as they invoke "generateSubQuery"
+	; So in those cases, set randInt=0 instead.
+	set:('enableSubQuery)&((randInt=5)!(randInt=9)) randInt=0
 
 	set innerTable=$piece(innerFC," ",2)
 

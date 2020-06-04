@@ -138,6 +138,13 @@ void hash_canonical_query(hash128_state_t *state, SqlStatement *stmt, int *statu
 	{
 		switch(stmt->type) {
 			case table_STATEMENT:
+				ADD_INT_HASH(state, table_STATEMENT);
+				UNPACK_SQL_STATEMENT(table, stmt, table);
+				// On a revisit, just hash the table name and return without retraversing.
+				assert(value_STATEMENT == table->tableName->type);
+				hash_canonical_query(state, table->tableName, status);
+				return;
+				break;
 			case keyword_STATEMENT:
 				// On a revisit, no need to hash anything. Just return without retraversing.
 				return;

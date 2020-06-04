@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -80,6 +80,12 @@ select o1.order_id,o2.order_id from orders o1 inner join orders o2 on o1.custome
 select o2.order_id,o1.order_id from orders o1 inner join orders o2 on o1.customer_id < o2.customer_id;
 OCTO
   verify_output THQ04 output.txt noinfo nodebug
+  [[ $(ls -l _ydboctoP*.m | wc -l) -eq 2 ]]
+}
+
+@test "THQ05 : OCTO513 : Two different CROSS JOIN queries incorrectly hash to the same plan resulting in incorrect output" {
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries customers THQ05.sql "remove_empty_line_at_tail"
+  # Verify that each of the above queries generates a unique plan by checking for 2 plans below
   [[ $(ls -l _ydboctoP*.m | wc -l) -eq 2 ]]
 }
 

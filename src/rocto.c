@@ -499,29 +499,29 @@ int main(int argc, char **argv) {
 				break;
 			}
 		} while (TRUE);
-		// Clean up after any errors from the above loop
-		assert(0 == YDB_OK); // or else if `status` evaluated to true in the above loop, we would try to send another message on error
-		if (YDB_OK != status) {
-			YDB_FREE_BUFFER(session_id_buffer);
-			YDB_FREE_BUFFER(&var_defaults[2]);
-			YDB_FREE_BUFFER(&var_value);
-			break;
-		}
-
-
-		// Send secret key info to client
-		backend_key_data = make_backend_key_data(secret_key, child_id);
-		status = send_message(&rocto_session, (BaseMessage*)(&backend_key_data->type));
-		free(backend_key_data);
-		if (status) {
-			break;
-		}
 
 		// Free temporary buffers
 		YDB_FREE_BUFFER(&var_defaults[2]);
 		YDB_FREE_BUFFER(&var_value);
 		free(var_defaults);
 		free(var_sets);
+
+		// Clean up after any errors from the above loop
+		assert(0 == YDB_OK); // or else if `status` evaluated to true in the above loop, we would try to send another message on error
+		if (YDB_OK != status) {
+			YDB_FREE_BUFFER(session_id_buffer);
+			break;
+		}
+
+		// Send secret key info to client
+		backend_key_data = make_backend_key_data(secret_key, child_id);
+		status = send_message(&rocto_session, (BaseMessage*)(&backend_key_data->type));
+		free(backend_key_data);
+		if (status) {
+			YDB_FREE_BUFFER(session_id_buffer);
+			break;
+		}
+
 		rocto_main_loop(&rocto_session);
 		YDB_FREE_BUFFER(session_id_buffer);
 		break;

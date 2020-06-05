@@ -20,9 +20,10 @@ setup() {
 @test "select1 test cases from https://github.com/shivarajugowda/jdbcSQLTest" {
 	load_fixture sqllogic1.sql
 	load_fixture sqllogic1.zwr
-	cp @PROJECT_SOURCE_DIR@/tests/fixtures/sqllogic/select1/test*.sql .
+	@PROJECT_SOURCE_DIR@/tests/fixtures/sqllogic/filter.py 1 .25 >/dev/null
 	for file in test*.sql
 	do
+		echo "testing $file"
 		run_query_in_octo_and_postgres_and_crosscheck sqllogic1 $file "remove_empty_line_at_tail"
 	done
 }

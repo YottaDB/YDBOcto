@@ -137,7 +137,7 @@ SELECT
 -----------
 
 .. parsed-literal::
-   SELECT [ALL | DISTINCT] ASTERISK | column[...,column] FROM table_name [WHERE search_condition] [GROUP BY column[,..column]] [HAVING search_condition] [ORDER BY sort_specification] [LIMIT number];
+   SELECT [ALL | DISTINCT] ASTERISK | column [AS] [alias_name][...,column [AS] [alias_name]] FROM table_name [AS] [alias_name] [WHERE search_condition] [GROUP BY column[,..column]] [HAVING search_condition] [ORDER BY sort_specification] [LIMIT number];
 
 The SELECT statement is used to select rows from the database by specifying a query, and optionally sorting the resulting rows.
 
@@ -353,6 +353,124 @@ The comparative operators in Octo are:
 * GREATER THAN >
 * LESS THAN OR EQUALS <=
 * GREATER THAN OR EQUALS >=
+
+------------------------
+Alias
+------------------------
+
+Double quotes, single quotes and non quoted identifiers can be used to represent alias names.
+
+++++++++++++++
+Column Alias
+++++++++++++++
+
+.. parsed-literal::
+   column [AS] aliasname
+
+Examples:
+
+.. parsed-literal::
+   OCTO> select firstname as "quoted" from names limit 1;
+   Zero
+
+   OCTO> select firstname as 'quoted' from names limit 1;
+   Zero
+
+   OCTO> select firstname as ida from names limit 1;
+   Zero
+
+   OCTO> select ida from (select 8 as "ida") n1;
+   8
+
+   OCTO> select ida from (select 8 as 'ida') n1;
+   8
+
+   OCTO> select ida from (select 8 as ida) n1;
+   8
+
+   OCTO> select ida from (select 8 as ida) as n1;
+   8
+
+Column aliases are supported in short form i.e without AS keyword
+
+.. parsed-literal::
+   OCTO> select ida from (select 8 ida) n1;
+   8
+
++++++++++++++++
+Table Alias
++++++++++++++++
+
+Usage:
+
+.. parsed-literal::
+   [table_name | subquery] [AS] aliasname
+
+Examples:
+
+.. parsed-literal::
+   OCTO> select n1.firstname from names as "n1" limit 1;
+   Zero
+
+   OCTO> select n1.firstname from names as 'n1' limit 1;
+   Zero
+
+   OCTO> select n1.firstname from names as n1 limit 1;
+   Zero
+
+   OCTO> select 1 from names as n1 inner join (select n2.id from names as n2 LIMIT 3) as alias2 ON (n1.id = alias2.id );
+   1
+   1
+   1
+
+Table aliases are supported in short form i.e without AS
+
+.. parsed-literal::
+   OCTO> select n1.firstname from names "n1" limit 1;
+   Zero
+
+.. note::
+   * If single quotes or double quotes are used, keywords like NULL, AS etc can be used as alias name
+
+   * Aliasing with quoted multi words, containing spaces, are supported. But their usage as a reference (column or table) is not yet supported
+
+     For example:
+
+             Supported:
+
+                 select id **as "id a"** from names;
+
+                 select id from names **as "n one"**;
+
+                 select id **"id a"** from names;
+
+                 select id from names **"n one"**;
+
+             Not Supported:
+
+                 select **"id a"** from (select 8 as "id a") n1; -> **(column name with spaces)**
+
+                 select 1 from names as n1 inner join (select n2.id from names as n2 LIMIT 3) as "alias two" ON (n1.id = **"alias two".id**); -> **(table name with spaces)**
+
+   * Multi word aliases i.e with spaces can only be formed with single or double quotes
+
+     For example:
+
+             Supported:
+
+                 column **[AS] "word word"**
+
+                 column **[AS] 'word word'**
+
+                 [table_name | subquery] **[AS] "word word"**
+
+                 [table_name | subquery] **[AS] 'word word'**
+
+             Not supported:
+
+                 column **[AS] word word**
+
+                 [table_name | subquery] **[AS] word word**
 
 ------------------------
 Pattern Processing

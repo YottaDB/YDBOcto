@@ -49,3 +49,10 @@ setup() {
   verify_output TAK05 output.txt
   [[ $(ls -l _ydboctoP*.m | wc -l) -eq 1 ]]
 }
+
+@test "TAK06 : OCTO520 : Avoid multiple plan generation when the query only differs by identifier name" {
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TAK06.sql "remove_empty_line_at_tail"
+  # Verify all queries in TAK06.sql hash only to 2 plans (file has 2 sections of queries each of which should hash to ONE plan)
+  [[ $(ls -l _ydboctoP*.m | wc -l) -eq 2 ]]
+}
+

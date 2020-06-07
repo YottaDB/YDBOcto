@@ -445,7 +445,7 @@ octoPlan1(cursorId)
     . . NEW %ydboctog,%ydboctop
     . . SET %ydboctog=$$str2mval^%ydboctoplanhelpers($PIECE($GET(^names(%ydboctocursor(cursorId,"keys",2,"NAMES","ID"))),"|",1))
     . . SET %ydboctocursor(cursorId,"keys",5,"","","GroupBy",%ydboctog)=""
-    . . SET %ydboctop=((%ydboctocursor(cursorId,"keys",2,"NAMES","ID")#(+$GET(%ydboctocursor(cursorId,"parameters",3))))+(+$GET(%ydboctocursor(cursorId,"parameters",4))))
+    . . SET %ydboctop=((%ydboctocursor(cursorId,"keys",2,"NAMES","ID")#(+$GET(%ydboctocursor(cursorId,"parameters",4))))+(+$GET(%ydboctocursor(cursorId,"parameters",5))))
     . . DO Max^%ydboctoplanhelpers(5,%ydboctog,1,%ydboctop,0)
     NEW %ydboctog SET %ydboctog=""
     FOR  DO:$DATA(%ydboctocursor(cursorId,"keys",5,"","","GroupBy",%ydboctog))  SET %ydboctog=$ORDER(%ydboctocursor(cursorId,"keys",5,"","","GroupBy",%ydboctog)) QUIT:(""=%ydboctog)

@@ -188,6 +188,7 @@ add_library(libocto OBJECT
   parse_line.c
   parse_startup_flags.c
   parser/aggregate_function.c
+  parser/as_name.c
   parser/between_predicate.c
   parser/cast_specification.c
   parser/derived_column.c

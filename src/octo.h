@@ -308,6 +308,7 @@ int delete_table_from_pg_class(ydb_buffer_t *table_name_buffer);
 void cleanup_tables();
 
 /* Parse related functions invoked from the .y files (parser.y, select.y etc.) */
+int as_name(SqlStatement *as_name, ParseContext *parse_context);
 SqlStatement *aggregate_function(SqlAggregateType aggregate_type, OptionalKeyword set_quantifier, SqlStatement *value_expression);
 SqlStatement *between_predicate(SqlStatement *row_value_constructor, SqlStatement *from, SqlStatement *to, boolean_t not_specified);
 SqlStatement *cast_specification(SqlStatement *cast_specification, SqlStatement *source);

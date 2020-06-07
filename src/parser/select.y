@@ -356,7 +356,17 @@ optional_as
   ;
 
 as_name
-  : IDENTIFIER_ALONE { $$ = $IDENTIFIER_ALONE; ($$)->loc = yyloc; }
+  : IDENTIFIER_ALONE {
+  	SqlStatement	*ret;
+	int		status;
+
+	ret = $IDENTIFIER_ALONE;
+	ret->loc = yyloc;
+	status = as_name(ret, parse_context);
+	if (0 != status)
+		YYABORT;
+	$$ = ret;
+      }
   | LITERAL {
 	SqlStatement *ret;
 
@@ -366,22 +376,11 @@ as_name
 		yyerror(&yyloc, NULL, NULL, NULL, NULL, NULL);
 		YYERROR;
 	} else {
-		char *c;
+		int	status;
 
-		assert(value_STATEMENT == ret->type);
-		/* Sqlvalue type of ret is set to STRING_LITERAL in order
-		 * to prevent multiple plan generation for queries differing
-		 * only by LITERAL value.
-		 */
-		ret->v.value->type = STRING_LITERAL;
-		c = ret->v.value->v.string_literal;
-		while('\0' != *c) {
-			*c = toupper(*c);
-			c++;
-		}
-		INVOKE_PARSE_LITERAL_TO_PARAMETER(parse_context, ret->v.value, FALSE);
-		$$ = ret;
-		($$)->loc = yyloc;
+		status = as_name(ret, parse_context);
+		if (0 != status)
+			YYABORT;
 	}
     }
   ;

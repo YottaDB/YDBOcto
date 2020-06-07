@@ -41,7 +41,7 @@ octoPlan2(cursorId)
     SET %ydboctocursor(cursorId,"keys",2,"NAMES","ID")=""
     FOR  SET %ydboctocursor(cursorId,"keys",2,"NAMES","ID")=$ORDER(^names(%ydboctocursor(cursorId,"keys",2,"NAMES","ID"))) QUIT:(%ydboctocursor(cursorId,"keys",2,"NAMES","ID")="")  DO
     . NEW %ydboctobool SET %ydboctobool=1
-    . SET %ydboctobool=($PIECE($GET(^names(%ydboctocursor(cursorId,"keys",1,"NAMES","ID"))),"|",1)=$GET(%ydboctocursor(cursorId,"parameters",1)))
+    . SET %ydboctobool=($PIECE($GET(^names(%ydboctocursor(cursorId,"keys",1,"NAMES","ID"))),"|",1)=$GET(%ydboctocursor(cursorId,"parameters",3)))
     . IF %ydboctobool DO
     . . IF $INCREMENT(%ydboctocursor(cursorId,"keys",5,"","",$PIECE($GET(^names(%ydboctocursor(cursorId,"keys",2,"NAMES","ID"))),"|",1)))
     QUIT

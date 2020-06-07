@@ -1,0 +1,115 @@
+#!/usr/local/bin/tcsh -f
+#
+#################################################################
+#                                                               #
+# Copyright (c) 2020 YottaDB LLC and/or its subsidiaries.       #
+# All rights reserved.                                          #
+#                                                               #
+#       This source code contains the intellectual property     #
+#       of its copyright holder(s), and is made available       #
+#       under a license.  If you do not know the terms of       #
+#       the license, please stop and do not read further.       #
+#                                                               #
+#################################################################
+#
+# -----------------------------------------------------------------
+# Pre-commit hook that
+#	1) Enforces YottaDB Copyright in changed modules
+#
+set nocopyright_extensions = "ref rst png zwr html ci"	# List of extensions that cannot have copyrights.
+	# .rst  -> file used to generate documentation. Since final documentation has
+	#		copyrights, this one does not require it.
+	# .png  -> these are images (i.e. binary files) used in the documentation.
+	#		Same reason as .rst for not requiring a copyright.
+	# .ref  -> reference files used by the test cases (e.g. tests/outref/T0001.ref).
+	#		Those have a fixed format and should not go through copyright changes.
+	# .zwr  -> zwrite format extract file (does not currently allow a comment character).
+	# .html -> there are a couple of files currently under doc/templates which don't need copyrights.
+	# .ci   -> e.g. calltab.ci stores the call-in table which does not currently have a provision for comment characters.
+
+set filelist = `git diff --name-only HEAD`
+set fixlist = ""
+set curyear = `date +%Y`
+@ exitstatus = 0
+foreach file ($filelist)
+	if (! -e $file) then
+		# If file is being deleted as part of this commit, skip copyright check on it
+		continue
+	endif
+	set skip = 0
+	if ("" != "$nocopyright_extensions") then
+		set extension = $file:e
+		foreach ext ($nocopyright_extensions)
+			if ($ext == $extension) then
+				set skip = 1
+				break
+			endif
+		end
+	endif
+	if (0 == $skip) then
+		# Below is a list of specific files that do not have a copyright so ignore them
+		set skiplist = "COPYING README.md LICENSE"
+		set skip = 0
+		foreach skipfile ($skiplist)
+			if ($file == $skipfile) then
+				set skip = 1
+				break
+			endif
+		end
+	endif
+	if ($skip) then
+		continue
+	endif
+	grep 'Copyright (c) .*'$curyear' YottaDB LLC' $file >& /dev/null
+	if ($status != 0) then
+		set fixlist = "$fixlist $file"
+	endif
+end
+if ("" != "$fixlist") then
+	echo "  --> Hook $0 returned non-zero status"
+	echo "  --> Below files are missing YottaDB Copyright notice and/or current year $curyear. Fix and retry commit"
+	foreach file ($fixlist)
+		echo "	$file"
+	end
+	@ exitstatus = 1
+endif
+
+# -----------------------------------------------------------------
+# 2) Removes trailing white space
+# -----------------------------------------------------------------
+set nowhitespace_extensions = "ref"	# List of extensions that cannot have trailing white space removed.
+	# .ref -> reference files used by the test cases (e.g. tests/outref/T0001.ref).
+	#		Those have a fixed format and should not go through any white-space changes.
+
+set filelist = `git diff --name-only HEAD`	# recompute "filelist" in case Step (1) had regenerated new files
+foreach file ($filelist)
+	if (! -e $file) then
+		# If file is being deleted as part of this commit, skip whitespace conversion on it
+		continue
+	endif
+	if ("" != "$nowhitespace_extensions") then
+		set extension = $file:e
+		set skip = 0
+		foreach ext ($nowhitespace_extensions)
+			if ($ext == $extension) then
+				set skip = 1
+				break
+			endif
+		end
+		if ($skip) then
+			continue
+		endif
+	endif
+	grep -q '[ 	][ 	]*$' $file
+	if ! ($status) then
+		echo $file
+		sed -i 's/[ 	][ 	]*$//' $file
+		git add $file
+		if ($status) then
+			@ exitstatus = 1
+			echo "GITADD-E-FAIL : Command failed after removing trailing whitespace : git add $file"
+		endif
+	endif
+end
+
+exit $exitstatus

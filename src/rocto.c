@@ -69,7 +69,7 @@ int main(int argc, char **argv) {
 	struct sockaddr_in		*address = NULL;
 	struct sockaddr_in6		addressv6;
 	ydb_buffer_t			ydb_buffers[2], *var_defaults, *var_sets, var_value;
-	ydb_buffer_t			*session_buffer = &(ydb_buffers[0]), *session_id_buffer = &(ydb_buffers[1]);
+	ydb_buffer_t			*session_buffer = &(ydb_buffers[0]), *session_id_buffer;
 	ydb_buffer_t			z_interrupt, z_interrupt_handler;
 	ydb_buffer_t			pid_subs[2], timestamp_buffer;
 	ydb_buffer_t			*pid_buffer = &pid_subs[0];
@@ -88,7 +88,7 @@ int main(int argc, char **argv) {
 	if (0 != status)
 		return status;
 
-	sfd = cfd = opt = addrlen = 0;
+	opt = addrlen = 0;
 
 	// Create buffers for managing secret keys for CancelRequests
 	ydb_buffer_t secret_key_list_buffer, secret_key_buffer;
@@ -463,6 +463,11 @@ int main(int argc, char **argv) {
 		} while (TRUE);
 		YDB_ERROR_CHECK(status);
 		if (YDB_OK != status) {
+			YDB_FREE_BUFFER(&var_defaults[2]);
+			YDB_FREE_BUFFER(&var_value);
+			YDB_FREE_BUFFER(session_id_buffer);
+			free(var_defaults);
+			free(var_sets);
 			break;
 		}
 		// Set parameters

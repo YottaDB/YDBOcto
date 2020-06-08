@@ -455,13 +455,13 @@ int run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_descrip
 		YDB_STRING_TO_BUFFER(config->global_names.octo, &octo_global);
 		YDB_STRING_TO_BUFFER("functions", &function_name_buffers[0]);
 		status = ydb_delete_s(&octo_global, 2, function_name_buffers, YDB_DEL_TREE);
-		CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, memory_chunks, buffer, table_sub_buffer, table_buffer, query_lock);
+		CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, memory_chunks, buffer, function_sub_buffer, function_buffer, query_lock);
 
 		// Drop the function from the local cache
 		status = drop_schema_from_local_cache(function_name_buffer, FunctionSchema);
 		if (YDB_OK != status) {
 			// YDB_ERROR_CHECK would already have been done inside "drop_schema_from_local_cache()"
-			CLEANUP_AND_RETURN(memory_chunks, buffer, table_sub_buffer, table_buffer, query_lock);
+			CLEANUP_AND_RETURN(memory_chunks, buffer, function_sub_buffer, function_buffer, query_lock);
 		}
 
 		if (create_function_STATEMENT == result->type) {

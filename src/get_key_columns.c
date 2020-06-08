@@ -20,7 +20,8 @@
 
 /**
  * Returns the maximum KEY NUM set (>= 0).
- * If key_columns is not null, populates key_columns[i] with a pointer to the column for that key
+ * Populates key_columns[i] with a pointer to the column for that key.
+ * key_columns must not be NULL.
  *
  * If there are no keys defined in table, returns -1
  * Other errors return -2
@@ -31,11 +32,12 @@ int get_key_columns(SqlTable *table, SqlColumn **key_columns) {
 	SqlOptionalKeyword	*keyword;
 	SqlValue		*value;
 
+	assert(NULL != key_columns);
 	UNPACK_SQL_STATEMENT(start_column, table->columns, column);
 	cur_column = start_column;
 	do {
 		keyword = get_keyword(cur_column, PRIMARY_KEY);
-		if ((NULL != keyword) && (NULL != key_columns)) {
+		if (NULL != keyword) {
 			if (NULL != key_columns[0]) {
 				UNPACK_SQL_STATEMENT(value, table->tableName, value);
 				ERROR(ERR_MULTIPLE_ZERO_KEYS, 0, value->v.reference);
@@ -48,20 +50,18 @@ int get_key_columns(SqlTable *table, SqlColumn **key_columns) {
 		if (NULL != keyword) {
 			UNPACK_SQL_STATEMENT(value, keyword->v, value);
 			key_num = atoi(value->v.string_literal);
-			if ((NULL != key_columns) && (NULL != key_columns[key_num])) {
+			assert(MAX_KEY_COUNT > key_num);
+			if (NULL != key_columns[key_num]) {
 				UNPACK_SQL_STATEMENT(value, table->tableName, value);
 				ERROR(ERR_MULTIPLE_ZERO_KEYS, key_num, value->v.reference);
 				return -2;
 			}
-			if (NULL != key_columns) {
-				key_columns[key_num] = cur_column;
-			}
+			key_columns[key_num] = cur_column;
 			if (key_num > max_key) {
 				max_key = key_num;
 			}
 		}
 		cur_column = cur_column->next;
-		assert(MAX_KEY_COUNT > max_key);
 	} while (start_column != cur_column);
 	// check that all keys <= max_key have been initialized
 	for (key_num = 0; key_num <= max_key; key_num++) {

@@ -123,7 +123,6 @@ int send_result_rows(int32_t cursor_id, void *_parms, char *plan_name) {
 	status = ydb_get_s(&cursor_subs[0], 5, &cursor_subs[1], &total_rows_buffer);
 	if (YDB_ERR_LVUNDEF == status) {
 		total_rows = 0;
-		status = YDB_OK;
 	} else {
 		YDB_ERROR_CHECK(status);
 		if (YDB_OK != status) {
@@ -220,6 +219,7 @@ int send_result_rows(int32_t cursor_id, void *_parms, char *plan_name) {
 					YDB_STRING_TO_BUFFER("data_type", &plan_meta[5]);
 					status = get_column_type_oid(plan_meta, &value_buffer, &col_data_types[cur_column]);
 					if (0 != status) {
+						free(col_data_types);
 						return 1;
 					}
 				}
@@ -244,6 +244,8 @@ int send_result_rows(int32_t cursor_id, void *_parms, char *plan_name) {
 				status = ydb_get_s(&portal_subs[0], 5, &portal_subs[1], &value_buffer);
 				YDB_ERROR_CHECK(status);
 				if (YDB_OK != status) {
+					free(col_data_types);
+					free(col_format_codes);
 					return 1;
 				}
 				value_buffer.buf_addr[value_buffer.len_used] = '\0';
@@ -254,12 +256,16 @@ int send_result_rows(int32_t cursor_id, void *_parms, char *plan_name) {
 					col_format_codes[cur_column] = (int16_t)tmp_long;
 				} else {
 					ERROR(ERR_LIBCALL, "strtol");
+					free(col_data_types);
+					free(col_format_codes);
 					return 1;
 				}
 				// Retrieve the type OID for each column, as this is needed to convert some types to binary format
 				YDB_STRING_TO_BUFFER("data_type", &plan_meta[5]);
 				status = get_column_type_oid(plan_meta, &value_buffer, &col_data_types[cur_column]);
 				if (0 != status) {
+					free(col_data_types);
+					free(col_format_codes);
 					return 1;
 				}
 			}
@@ -275,6 +281,8 @@ int send_result_rows(int32_t cursor_id, void *_parms, char *plan_name) {
 		} else {
 			YDB_ERROR_CHECK(status);
 			if (YDB_OK != status) {
+				free(col_data_types);
+				free(col_format_codes);
 				return 1;
 			}
 			value_buffer.buf_addr[value_buffer.len_used] = '\0';
@@ -285,6 +293,8 @@ int send_result_rows(int32_t cursor_id, void *_parms, char *plan_name) {
 				rows_remaining = (int32_t)tmp_long;
 			} else {
 				ERROR(ERR_LIBCALL, "strtol");
+				free(col_data_types);
+				free(col_format_codes);
 				return 1;
 			}
 			assert(total_rows >= rows_remaining);
@@ -322,6 +332,8 @@ int send_result_rows(int32_t cursor_id, void *_parms, char *plan_name) {
 		if (YDB_OK != status) {
 			YDB_FREE_BUFFER(&row_value_buffer);
 			free(data_row_parms);
+			free(col_data_types);
+			free(col_format_codes);
 			return 1;
 		}
 		assert(0 < data_row_parms_alloc_len);
@@ -377,6 +389,8 @@ int send_result_rows(int32_t cursor_id, void *_parms, char *plan_name) {
 	}
 	rows_remaining -= parms->rows_sent;
 	free(data_row_parms);
+	free(col_data_types);
+	free(col_format_codes);
 
 	// Cleanup tables
 	if (0 == rows_remaining) {

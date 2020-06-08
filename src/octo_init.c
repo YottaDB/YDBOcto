@@ -103,10 +103,10 @@
 /* Contains a list of names for configuration files and the total number of such files.
  * Used for outputting a list of all configuration files loaded.
  */
-struct config_file_list {
+typedef struct config_file_list {
 	char *filenames[MAX_CONFIG_FILES];
 	int num_files;
-} config_file_list;
+} ConfigFileList;
 
 /* Holds the kind of config we are parsing.
  * Used for customizing the behavior of `merge_config_file`.
@@ -530,9 +530,10 @@ int octo_init(int argc, char **argv) {
 	char			ci_path[OCTO_PATH_MAX], exe_path[OCTO_PATH_MAX], cwd[OCTO_PATH_MAX];
 	char			cwd_file_name[OCTO_PATH_MAX], homedir_file_name[OCTO_PATH_MAX], plugin_file_name[OCTO_PATH_MAX];
 	char			zstatus_message[YDB_MAX_ERRORMSG];
-	char			*homedir, *ydb_dist, *config_file_name = NULL;
+	char			*homedir, *ydb_dist, *most_recent_filename, *config_file_name = NULL;
 	int			status, i;
 	DIR			*dir;
+	ConfigFileList		config_file_list;
 
 	config = (OctoConfig *)malloc(sizeof(OctoConfig));
 	memset(config, 0, sizeof(OctoConfig));
@@ -569,6 +570,7 @@ int octo_init(int argc, char **argv) {
 	// Search for config file octo.conf (OCTO_CONF_FILE_NAME) in directories ".", "~", and "$ydb_dist/plugin/octo" in that order
 	config_init(config_file);
 
+	// This loop is only ever executed once
 	for (;;) {
 		// This should always be 1
 		setenv("ydb_lvnullsubs", "1", 1);
@@ -582,6 +584,7 @@ int octo_init(int argc, char **argv) {
 
 
 		// Load config file
+		config_file_list.num_files = 0;
 		ydb_dist = getenv("ydb_dist");
 		if (NULL == config_file_name) {
 			if (NULL == getcwd(cwd, sizeof(cwd))) {
@@ -612,7 +615,12 @@ int octo_init(int argc, char **argv) {
 			status = 1;
 			break;
 		}
-		status = parse_config_file_settings(config_file_list.filenames[config_file_list.num_files-1], config_file);
+		if (0 == config_file_list.num_files) {
+			most_recent_filename = "default";
+		} else {
+			most_recent_filename = config_file_list.filenames[config_file_list.num_files-1];
+		}
+		status = parse_config_file_settings(most_recent_filename, config_file);
 		if (status) {
 			break;
 		}

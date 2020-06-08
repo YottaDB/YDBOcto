@@ -76,7 +76,6 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt) {
 	join_right = NULL;
 	UNPACK_SQL_STATEMENT(start_join, select_stmt->table_list, join);
 	cur_join = start_join;
-	cur_join_type = NO_JOIN;
 	start_join_condition = NULL;
 	do {
 		SqlStatement	*sql_stmt;

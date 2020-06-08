@@ -123,11 +123,9 @@ void ydb_error_check(int status, char *file, int line)
 		switch (severity) {
 			case YDB_SEVERITY_SUCCESS:
 				octo_log(line, file, TRACE, TRACE_Severity, ERR_YOTTADB, ret_value.buf_addr);
-				status = YDB_OK;
 				break;
 			case YDB_SEVERITY_INFORMATIONAL:
 				octo_log(line, file, INFO, INFO_Severity, ERR_YOTTADB, ret_value.buf_addr);
-				status = YDB_OK;
 				break;
 			case YDB_SEVERITY_WARNING:
 				octo_log(line, file, INFO, WARNING_Severity, ERR_YOTTADB, ret_value.buf_addr);
@@ -139,7 +137,6 @@ void ydb_error_check(int status, char *file, int line)
 				octo_log(line, file, ERROR, FATAL_Severity, ERR_YOTTADB, ret_value.buf_addr);
 				break;
 			default:
-				status = YDB_OK;
 				break;
 		}
 	}

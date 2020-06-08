@@ -132,8 +132,8 @@ int store_table_in_pg_class(SqlTable *table, ydb_buffer_t *table_name_buffer) {
 				atttypid = 1700;
 				break;
 			default:
-				status = 1;
 				assert(FALSE);
+				status = 1;
 				ERROR(ERR_UNKNOWN_KEYWORD_STATE, "");
 				break;
 		}

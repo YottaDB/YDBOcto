@@ -27,9 +27,11 @@
 // Details linked in message_formats.h
 #define FIRST_FORMAT_CODE 0
 
-#define INVOKE_YDB_DELETE_S()								\
+#define CLEANUP_FROM_BIND()								\
 	status = ydb_delete_s(&portal_subs[0], 3, &portal_subs[1], YDB_DEL_TREE);	\
 	YDB_ERROR_CHECK(status);							\
+	free(parse_context.types);							\
+	free(parse_context_array);							\
 
 // Args:
 //	Bind *bind: A PostgreSQL Bind message
@@ -127,6 +129,7 @@ int handle_bind(Bind *bind, RoctoSession *session) {
 	YDB_ERROR_CHECK(status);
 	if (YDB_OK != status) {
 		status = ydb_delete_s(&portal_subs[0], 3, &portal_subs[1], YDB_DEL_TREE);
+		YDB_ERROR_CHECK(status);
 		return 1;
 	}
 
@@ -344,14 +347,14 @@ int handle_bind(Bind *bind, RoctoSession *session) {
 		status = ydb_data_s(&all_statement_parms_subs[0], 6, &all_statement_parms_subs[1], &data_ret);
 		YDB_ERROR_CHECK(status);
 		if (YDB_OK != status) {
-			INVOKE_YDB_DELETE_S();
+			CLEANUP_FROM_BIND();
 			return 1;
 		}
 		if (1 == data_ret) {
 			status = ydb_get_s(&all_statement_parms_subs[0], 6, &all_statement_parms_subs[1], &parm_value_buf);
 			YDB_ERROR_CHECK(status);
 			if (YDB_OK != status) {
-				INVOKE_YDB_DELETE_S();
+				CLEANUP_FROM_BIND();
 				return 1;
 			}
 		} else {
@@ -363,7 +366,7 @@ int handle_bind(Bind *bind, RoctoSession *session) {
 			status = ydb_get_s(&statement_subs[0], 6, &statement_subs[1], &offset_buffer);
 			YDB_ERROR_CHECK(status);
 			if (YDB_OK != status) {
-				INVOKE_YDB_DELETE_S();
+				CLEANUP_FROM_BIND();
 				return 1;
 			}
 			offset_buffer.buf_addr[offset_buffer.len_used] = '\0';
@@ -372,14 +375,14 @@ int handle_bind(Bind *bind, RoctoSession *session) {
 				parse_context.parm_start[cur_bind_parm] = (int16_t)offset_long;
 			} else {
 				ERROR(ERR_LIBCALL, "strtol")
-				INVOKE_YDB_DELETE_S();
+				CLEANUP_FROM_BIND();
 				return 1;
 			}
 			YDB_STRING_TO_BUFFER("end", &statement_subs[6]);
 			status = ydb_get_s(&statement_subs[0], 6, &statement_subs[1], &offset_buffer);
 			YDB_ERROR_CHECK(status);
 			if (YDB_OK != status) {
-				INVOKE_YDB_DELETE_S();
+				CLEANUP_FROM_BIND();
 				return 1;
 			}
 			offset_buffer.buf_addr[offset_buffer.len_used] = '\0';
@@ -388,7 +391,7 @@ int handle_bind(Bind *bind, RoctoSession *session) {
 				parse_context.parm_end[cur_bind_parm] = (int16_t)offset_long;
 			} else {
 				ERROR(ERR_LIBCALL, "strtol")
-				INVOKE_YDB_DELETE_S();
+				CLEANUP_FROM_BIND();
 				return 1;
 			}
 			// Retrieve parameter type from database
@@ -396,7 +399,7 @@ int handle_bind(Bind *bind, RoctoSession *session) {
 			status = ydb_get_s(&statement_subs[0], 6, &statement_subs[1], &parm_type_buf);
 			YDB_ERROR_CHECK(status);
 			if (YDB_OK != status) {
-				INVOKE_YDB_DELETE_S();
+				CLEANUP_FROM_BIND();
 				return 1;
 			}
 			parm_type_buf.buf_addr[parm_type_buf.len_used] = '\0';
@@ -405,7 +408,7 @@ int handle_bind(Bind *bind, RoctoSession *session) {
 				parse_context.types[cur_bind_parm] = (int16_t)type_long;
 			} else {
 				ERROR(ERR_LIBCALL, "strtol")
-				INVOKE_YDB_DELETE_S();
+				CLEANUP_FROM_BIND();
 				return 1;
 			}
 			// Get bind parameter value if it is a binary parameter and update the parm_value_buf accordingly
@@ -418,14 +421,14 @@ int handle_bind(Bind *bind, RoctoSession *session) {
 					YDB_COPY_STRING_TO_BUFFER(binary_parm_buffer, &parm_value_buf, done);
 					if (!done) {
 						ERROR(ERR_YOTTADB, "YDB_COPY_STRING_TO_BUFFER failed");
-						INVOKE_YDB_DELETE_S();
+						CLEANUP_FROM_BIND();
 						return 1;
 					}
 				} else {							// Text
 					YDB_COPY_STRING_TO_BUFFER(bind->parms[cur_bind_parm].value, &parm_value_buf, done);
 					if (!done) {
 						ERROR(ERR_YOTTADB, "YDB_COPY_STRING_TO_BUFFER failed");
-						INVOKE_YDB_DELETE_S();
+						CLEANUP_FROM_BIND();
 						return 1;
 					}
 				}
@@ -435,14 +438,14 @@ int handle_bind(Bind *bind, RoctoSession *session) {
 					YDB_COPY_STRING_TO_BUFFER(binary_parm_buffer, &parm_value_buf, done);
 					if (!done) {
 						ERROR(ERR_YOTTADB, "YDB_COPY_STRING_TO_BUFFER failed");
-						INVOKE_YDB_DELETE_S();
+						CLEANUP_FROM_BIND();
 						return 1;
 					}
 				} else {							// Text
 					YDB_COPY_STRING_TO_BUFFER(bind->parms[cur_bind_parm].value, &parm_value_buf, done);
 					if (!done) {
 						ERROR(ERR_YOTTADB, "YDB_COPY_STRING_TO_BUFFER failed");
-						INVOKE_YDB_DELETE_S();
+						CLEANUP_FROM_BIND();
 						return 1;
 					}
 				}
@@ -450,7 +453,7 @@ int handle_bind(Bind *bind, RoctoSession *session) {
 				YDB_COPY_STRING_TO_BUFFER(bind->parms[cur_bind_parm].value, &parm_value_buf, done);
 				if (!done) {
 					ERROR(ERR_YOTTADB, "YDB_COPY_STRING_TO_BUFFER failed");
-					INVOKE_YDB_DELETE_S();
+					CLEANUP_FROM_BIND();
 					return 1;
 				}
 			}
@@ -461,7 +464,7 @@ int handle_bind(Bind *bind, RoctoSession *session) {
 		status = ydb_set_s(&all_portal_parms_subs[0], 6, &all_portal_parms_subs[1], &parm_value_buf);
 		YDB_ERROR_CHECK(status);
 		if (YDB_OK != status) {
-			INVOKE_YDB_DELETE_S();
+			CLEANUP_FROM_BIND();
 			return 1;
 		}
 	}

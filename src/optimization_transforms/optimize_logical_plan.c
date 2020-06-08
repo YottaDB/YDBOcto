@@ -30,9 +30,10 @@ LogicalPlan *join_tables(LogicalPlan *root, LogicalPlan *plan) {
 	int		max_key, cur_key, unique_id;
 	LogicalPlan	*set_plans;
 
-	if ((LP_TABLE_JOIN != plan->type) || (NULL == plan->v.lp_default.operand[0])) {
+	if ((LP_TABLE_JOIN != plan->type)) {
 		return plan;
 	}
+	assert (NULL != plan->v.lp_default.operand[0]);
 	oper0 = plan->v.lp_default.operand[0];
 	switch (oper0->type) {
 	case LP_SET_OPERATION:

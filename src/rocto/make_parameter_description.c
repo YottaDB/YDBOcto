@@ -29,7 +29,7 @@ ParameterDescription *make_parameter_description(char *statement, RoctoSession *
 	int16_t			num_parms = 0, cur_parm_type = 0, cur_parm_type_temp;
 	long int		test_type = 0, num_parms_from_str = 0;
 	ydb_buffer_t		*src_subs;
-	ydb_buffer_t		num_parms_buf, cur_parm_buf, parm_type_buf;
+	ydb_buffer_t		num_parms_buf, parm_type_buf;
 
 	YDB_MALLOC_BUFFER(&num_parms_buf, INT16_TO_STRING_MAX);
 	src_subs = make_buffers(config->global_names.session, 6, session->session_id->buf_addr, "prepared", statement,
@@ -68,7 +68,6 @@ ParameterDescription *make_parameter_description(char *statement, RoctoSession *
 	// Loop over each parameter using ydb_subscript_next to retrieve type values and add to ParameterDescription
 	parm_data_types = (int32_t *)malloc(num_parms * sizeof(int32_t));
 	YDB_MALLOC_BUFFER(&parm_type_buf, INT16_TO_STRING_MAX);
-	YDB_MALLOC_BUFFER(&cur_parm_buf, INT16_TO_STRING_MAX);
 	YDB_MALLOC_BUFFER(&src_subs[5], INT16_TO_STRING_MAX);
 	for (cur_parm_type = 0; cur_parm_type < num_parms; cur_parm_type++) {
 		cur_parm_type_temp = cur_parm_type + 1;		// Convert from 0-indexed to 1-indexed

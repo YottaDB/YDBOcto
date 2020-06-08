@@ -49,7 +49,6 @@ int emit_physical_plan(PhysicalPlan *pplan, char *plan_filename) {
 	while (NULL != cur_plan->prev) {
 		cur_plan = cur_plan->prev;
 	}
-	first_plan = cur_plan;
 
 	// Reorder the plans in the order (1) Cross reference plans (2) Non-deferred plans and (3) Deferred plans
 	// as this is the order in which they are eventually emitted. Preserve the ordering otherwise amongst multiple

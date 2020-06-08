@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -104,6 +104,11 @@ StartupMessage *read_startup_message(RoctoSession *session, char *data, int32_t 
 	}
 
 	// Allocate parameter spots, reset c, scan through and populate data
+	if (0 == num_parms) {
+		ret->parameters = NULL;
+		ret->num_parameters = 0;
+		return ret;
+	}
 	ret->parameters = (StartupMessageParm*)malloc(sizeof(StartupMessageParm) * num_parms);
 	c = ret->data;
 	cur_parm = 0;

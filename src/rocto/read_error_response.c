@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -46,6 +46,10 @@ ErrorResponse *read_error_response(BaseMessage *message) {
 		num_args++;
 	}
 
+	if (0 == num_args) {
+		ret->args = NULL;
+		return ret;
+	}
 	ret->args = (ErrorResponseArg*)malloc(num_args * sizeof(ErrorResponseArg));
 
 	// Populate args with type info and pointers into data section

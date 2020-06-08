@@ -316,12 +316,14 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_
 			cur_parm_type_list = start_parm_type_list = function->parameter_type_list->v.parameter_type_list;
 		} else {
 			cur_parm_type_list = NULL;
+			assert(0 == function->num_args);
 		}
 		cur_column_list = start_column_list = function_call->parameters->v.column_list;
 		if (NULL != cur_column_list->value) {		// Only iterate over parameters if there are any
 			do {
 				if (num_function_args < function->num_args) {
 					result |= populate_data_type(cur_column_list->value, &child_type1, parse_context);
+					assert(NULL != cur_parm_type_list);
 					child_type2 = get_sqlvaluetype_from_sqldatatype(cur_parm_type_list->data_type->v.data_type);
 					CAST_AMBIGUOUS_TYPES(child_type1, child_type2);
 					if (child_type1 != child_type2) {

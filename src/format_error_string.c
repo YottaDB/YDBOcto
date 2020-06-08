@@ -24,7 +24,6 @@
 // Creates a formatted string from variable argument input for use in error messages
 const char *format_error_string(struct ErrorBuffer *err_buff, enum ERROR error, ...) {
 	va_list args;
-	va_start(args, error);
 	int length = 0;
 	unsigned int max_length = 0;
 	char *ret = NULL;
@@ -32,7 +31,9 @@ const char *format_error_string(struct ErrorBuffer *err_buff, enum ERROR error, 
 	// Prevent overflow
 	max_length = MAX_STR_CONST - err_buff->offset;
 	ret = &err_buff->buffer[err_buff->offset];
+	va_start(args, error);
 	length = vsnprintf(ret, max_length, err_format_str[error], args);
+	va_end(args);
 
 	// Prevent subsequent overflow
 	if (length + err_buff->offset >= MAX_STR_CONST) {
@@ -41,6 +42,5 @@ const char *format_error_string(struct ErrorBuffer *err_buff, enum ERROR error, 
 	}
 
 	err_buff->offset += length;
-	va_end(args);
 	return ret;
 }

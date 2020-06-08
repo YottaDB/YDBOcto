@@ -30,6 +30,7 @@ void *compress_statement_helper(SqlStatement *stmt, char *out, int *out_length);
 void compress_statement(SqlStatement *stmt, char **out, int *out_length) {
 	*out_length = 0;
 	compress_statement_helper(stmt, NULL, out_length);
+	assert(0 != *out_length);
 	*out = malloc(*out_length);
 	*out_length = 0;
 	compress_statement_helper(stmt, *out, out_length);
@@ -53,6 +54,7 @@ void *compress_statement_helper(SqlStatement *stmt, char *out, int *out_length) 
 
 	if ((NULL == stmt) || (NULL == stmt->v.value))
 		return NULL;
+
 	if (NULL != out) {
 		new_stmt = ((void*)&out[*out_length]);
 		memcpy(new_stmt, stmt, sizeof(SqlStatement));

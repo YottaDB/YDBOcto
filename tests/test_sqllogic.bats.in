@@ -17,13 +17,53 @@ setup() {
 	createdb
 }
 
-@test "select1 test cases from https://github.com/shivarajugowda/jdbcSQLTest" {
-	load_fixture sqllogic1.sql
-	load_fixture sqllogic1.zwr
-	@PROJECT_SOURCE_DIR@/tests/fixtures/sqllogic/filter.py 1 .25 >/dev/null
+sqllogic_test() {
+	num=$1
+	fraction=$2
+	skipped_files="$3"
+
+	if [ "$fraction" = "" ]; then
+		fraction=1
+	fi
+
+	load_fixture sqllogic$num.sql
+	load_fixture sqllogic$num.zwr
+	@PROJECT_SOURCE_DIR@/tests/fixtures/sqllogic/filter.py $num $fraction >/dev/null
 	for file in test*.sql
 	do
+		skip=false
+		# The following files use more than 2 GB of memory and cause the pipeline to time out.
+		# Skip them for now. These can be re-enabled once Octo uses fewer resources for many-table JOINs.
+		for too_big in $skipped_files; do
+			if [ test$num.sql = $too_big ]; then
+				skip=true
+				break
+			fi
+		done
+		if [ $skip = true ]; then
+			echo "skipping $file because it uses too much memory"
+			continue
+		fi
 		echo "testing $file"
-		run_query_in_octo_and_postgres_and_crosscheck sqllogic1 $file "remove_empty_line_at_tail"
+		run_query_in_octo_and_postgres_and_crosscheck sqllogic$num $file "remove_empty_line_at_tail"
 	done
+}
+
+@test "TS01: select1 test cases from https://github.com/shivarajugowda/jdbcSQLTest/blob/master/resources/sqllogictest/select1.test" {
+	sqllogic_test 1 .1
+}
+
+# These tests require NULL values stored in the database
+# and so need https://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/320 to be fixed before we can run them.
+# NOTE: these tests do not yet have .zwr and .sql files generated.
+# NOTE: those files will need to be generated before these will pass.
+#@test "TS02: select2 test cases from https://github.com/shivarajugowda/jdbcSQLTest/blob/master/resources/sqllogictest/select2.test" {
+	#sqllogic_test 2
+#}
+#@test "TS03: select3 test cases from https://github.com/shivarajugowda/jdbcSQLTest/blob/master/resources/sqllogictest/select3.test" {
+	#sqllogic_test 3
+#}
+
+@test "TS04: select4 test cases from https://github.com/shivarajugowda/jdbcSQLTest/blob/master/resources/sqllogictest/select4.test" {
+	sqllogic_test 4 .03
 }

@@ -35,9 +35,24 @@ func main() {
   }
 
   firstname := "Zero"
+  // Bind parameter is the only parameter
+  rows, err := db.Query("SELECT * FROM names WHERE firstName = $1", firstname)
+  if err != nil {
+    panic(err)
+  }
+  for rows.Next() {
+    var id, firstName, lastName string
+    err = rows.Scan(&id, &firstName, &lastName)
+    if err != nil {
+      panic(err)
+    }
+    fmt.Printf("%v|%v|%v\n", id, firstName, lastName)
+  }
+  fmt.Println("---")
+
   lastname := "Cool"
   // All literals parameterized, only outside subquery
-  rows, err := db.Query("SELECT * FROM (SELECT * FROM names) n1 WHERE firstName = $1 AND lastname = $2", firstname, lastname)
+  rows, err = db.Query("SELECT * FROM (SELECT * FROM names) n1 WHERE firstName = $1 AND lastname = $2", firstname, lastname)
   if err != nil {
     panic(err)
   }

@@ -317,8 +317,15 @@ int handle_bind(Bind *bind, RoctoSession *session) {
 		parse_context_array = NULL;
 		parse_context.types = NULL;
 	}
-	// Retrieve ParseContext info from prepared statement local variable
 
+	/* Retrieve ParseContext info from prepared statement local variable, which was previously populated in handle_parse.c.
+	 * Note that the number of Bind parameters may or may not equal the total number of parameters. This is because the set of
+	 * Bind parameters is a subset of the total number of parameters.
+	 * Also note that Bind parameters may be mixed in with regular, literal parameters in an arbitrary order. This means that
+	 * we must count the current Bind parameter number independently of the current general parameter number.
+	 * For examples/combinations, please see the various test cases in test_psql_go_connection.bats.in.
+	 */
+	assert(num_bind_parms <= num_parms);
 	OCTO_SET_BUFFER(cur_parm_buf, cur_parm_str);
 	OCTO_SET_BUFFER(cur_bind_parm_buf, cur_bind_parm_str);
 	OCTO_SET_BUFFER(parm_value_buf, parm_value_str);
@@ -347,7 +354,8 @@ int handle_bind(Bind *bind, RoctoSession *session) {
 				INVOKE_YDB_DELETE_S();
 				return 1;
 			}
-		} else if (cur_bind_parm < num_bind_parms) {
+		} else {
+			assert(cur_bind_parm < num_bind_parms);
 			assert(NULL != parse_context_array);
 			// This is a bind parameter, as no value was stored during the initial parse
 			// Retrieve parameter offsets from database
@@ -456,8 +464,8 @@ int handle_bind(Bind *bind, RoctoSession *session) {
 			INVOKE_YDB_DELETE_S();
 			return 1;
 		}
-
 	}
+	assert(cur_bind_parm == num_bind_parms);
 
 	// Get size of final query string
 	// Bind format rules at https://www.postgresql.org/docs/11/protocol-message-formats.html

@@ -14,6 +14,7 @@
 source /opt/yottadb/current/ydb_env_set
 
 start_dir=$(pwd)
+set -e
 
 # CMake commands are different between CentOS and Ubuntu
 # disambiguate them here and make it a varible
@@ -205,7 +206,7 @@ if [[ 0 == $exit_status ]]; then
 		cp $ydb_dist/plugin/o/utf8/_ydbposix.so plugin/o/utf8
 		echo "# Copy Octo-specific dependencies for later access by install.sh"
 		cp ../src/aux/*.m plugin/r
-		cp ../tests/fixtures/postgres-seed.* plugin/octo
+		cp ../tests/fixtures/octo-seed.* plugin/octo
 		cp ../tests/fixtures/northwind.* plugin/octo
 		cp ../src/aux/octo.conf.default plugin/octo/octo.conf
 	fi

@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -19,21 +19,26 @@ LogicalPlan *lp_copy_plan(LogicalPlan *plan) {
 
 	if (NULL == plan)
 		return NULL;
-	OCTO_CMALLOC_STRUCT(new_plan, LogicalPlan);
-	*new_plan = *plan;
-	switch(plan->type) {
-	case LP_KEY:
-		/* Copy SqlStatements which is definitely needed for keys (as these are modified later
-		 * and need to be maintained separately for the source and target plans).
-		 */
-		new_plan->v.lp_key.key = lp_copy_key(plan->v.lp_key.key);
-		break;
+	switch (plan->type) {
 	case LP_VALUE:
 	case LP_TABLE:
 	case LP_COLUMN_ALIAS:
 	case LP_COLUMN_LIST_ALIAS:
 	case LP_KEYWORDS:
 	case LP_PIECE_NUMBER:
+		return plan;
+		break;
+	default:
+		break;
+	}
+	OCTO_CMALLOC_STRUCT(new_plan, LogicalPlan);
+	*new_plan = *plan;
+	switch (plan->type) {
+	case LP_KEY:
+		/* Copy SqlStatements which is definitely needed for keys (as these are modified later
+		 * and need to be maintained separately for the source and target plans).
+		 */
+		new_plan->v.lp_key.key = lp_copy_key(plan->v.lp_key.key);
 		break;
 	default:
 		new_plan->v.lp_default.operand[0] = lp_copy_plan(plan->v.lp_default.operand[0]);

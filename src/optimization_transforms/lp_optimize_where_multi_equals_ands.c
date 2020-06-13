@@ -53,10 +53,6 @@ void lp_optimize_where_multi_equal_ands(LogicalPlan *plan, LogicalPlan *where,
 		cur = cur->v.lp_default.operand[1];
 		i++;
 	}
-	/* The assert of (NULL == where->v.lp_default.operand[1]) below is relied upon
-	 * in "lp_optimize_where_multi_equal_ands_helper()".
-	 */
-	assert((LP_WHERE == where->type) && (NULL == where->v.lp_default.operand[1]));
 	lp_optimize_where_multi_equal_ands_helper(plan, where, key_unique_id_array, right_table_alias, num_outer_joins);
 }
 
@@ -319,10 +315,10 @@ LogicalPlan *lp_optimize_where_multi_equal_ands_helper(LogicalPlan *plan, Logica
 				 * altogether from the WHERE clause as that is relied upon in "generate_physical_plan()". Keep it
 				 * in an alternate list (where->v.lp_default.operand[1]), use it in "generate_physical_plan()" (in
 				 * order to ensure deferred plans get identified properly) and then switch back to
-				 * where->v.lp_default.operand[0] for generating the plan M code which has this redundant check of
-				 * a fixed key eliminated from the IF condition. This way the generated M code is optimized (in
-				 * terms of not having a redundant equality check) even for plans with references to parent
-				 queries. It is okay to use where->v.lp_default.operand[1] for the alternate list because it is
+				 * "where->v.lp_default.operand[0]" for generating the plan M code which has this redundant check
+				 * of a fixed key eliminated from the IF condition. This way the generated M code is optimized
+				 * (in terms of not having a redundant equality check) even for plans with references to parent
+				 * queries. It is okay to use where->v.lp_default.operand[1] for the alternate list because it is
 				 * guaranteed to be NULL (asserted in caller function "lp_optimize_where_multi_equal_ands()").
 				 */
 				LogicalPlan	*where2, *opr1, *lp;

@@ -197,9 +197,24 @@ LogicalPlan *optimize_logical_plan(LogicalPlan *plan) {
 	// Expand the plan, if needed
 	cur = where->v.lp_default.operand[0];
 	if (NULL != cur) {
-		LogicalPlan	*new_plan;
+		LogicalPlan	*new_plan, *where_operand1;
 
 		new_plan = plan;	/* new_plan will change if DNF expansion happens below */
+		if (LP_BOOLEAN_OR == cur->type) {
+			/* In case there are N LP_BOOLEAN_OR conditions in the LP_WHERE plan, we are going to invoke
+			 * "lp_copy_plan" on it N times and each of them will end up copying the LP_WHERE plan but later
+			 * we are going to overwrite it with just 1 out of the N LP_BOOLEAN_OR conditions. So instead of
+			 * memory allocated for 1 LP_BOOLEAN_OR condition in each of the N DNF plans, we will end up with
+			 * N LP_BOOLEAN_OR conditions allocated for each of the N DNF plans but N-1 of those conditions
+			 * unused resulting O(N*N) memory wasted (total memory wasted could be in the order of Gigabytes
+			 * if N is in the order of thousands). Avoid this by clearing the LP_WHERE before the DNF expansion.
+			 * But save operand[1] if it is non-NULL (this is the alternate list that is maintained by
+			 * "lp_optimize_where_multi_equals_ands()"; see comment there for details) and restore it in each
+			 * of the DNF plans.
+			 */
+			where->v.lp_default.operand[0] = NULL;
+			where_operand1 = where->v.lp_default.operand[1];
+		}
 		while (LP_BOOLEAN_OR == cur->type) {
 			SqlOptionalKeyword	*keywords, *new_keyword;
 			LogicalPlan		*p;
@@ -218,6 +233,9 @@ LogicalPlan *optimize_logical_plan(LogicalPlan *plan) {
 			child_where = lp_get_select_where(p);
 			/* Below sets the LHS of the LP_BOOLEAN_OR condition as the WHERE clause of one of the DNF plans */
 			child_where->v.lp_default.operand[0] = cur->v.lp_default.operand[0];
+			/* Below sets the "alternate list" in the DNF plan in case it was non-NULL in plan before DNF expansion */
+			child_where->v.lp_default.operand[1] = where_operand1;
+			/* Create LP_SET_OPERATION plan to do the DNF operation on each of the individual plans */
 			MALLOC_LP_2ARGS(set_operation, LP_SET_OPERATION);
 			MALLOC_LP(set_option, set_operation->v.lp_default.operand[0], LP_SET_OPTION);
 			MALLOC_LP_2ARGS(set_option->v.lp_default.operand[0], LP_SET_DNF);

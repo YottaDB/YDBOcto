@@ -96,3 +96,8 @@ setup() {
   load_fixture TWI11.sql subtest novv
   verify_output TWI11 output.txt
 }
+
+@test "TWI12 : OCTO523 : Reduce Octo memory usage during logical plan phase by an order of magnitude for lots of IN usage" {
+  run_query_in_octo_and_postgres_and_crosscheck names TWI12.sql "remove_empty_line_at_tail"
+}
+

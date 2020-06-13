@@ -253,7 +253,6 @@ LogicalPlan *lp_generate_where(SqlStatement *stmt, int *plan_id, SqlStatement *p
 				yyerror(NULL, NULL, &stmt, NULL, NULL, NULL);
 				ret = NULL;
 			} else {
-				// TODO: should this be moved to the optimize phase for this plan?
 				ret = optimize_logical_plan(ret);
 			}
 		}

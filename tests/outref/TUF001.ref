@@ -3,6 +3,6 @@ OCTO> SELECT * FROM names WHERE firstName IN ('Zero', 'Acid');
 0|Zero|Cool
 5|Zero|Cool
 OCTO> SELECT * FROM names WHERE id IN (0, 1);
-1|Acid|Burn
 0|Zero|Cool
+1|Acid|Burn
 OCTO> 

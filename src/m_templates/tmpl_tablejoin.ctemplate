@@ -37,10 +37,60 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *plan, LogicalPlan *tablejoin, unsigned in
 	this_join_is_left_join = ((LEFT_JOIN == this_join_type) || ((FULL_JOIN == this_join_type) && !right_join_second_half));
 	key_start = cur_key;
 	assert(((RIGHT_JOIN != this_join_type) && (FULL_JOIN != this_join_type)) || cur_key);
+	if (plan->tablejoin == tablejoin) {
+		unsigned int	save_cur_key;
+		int		in_value_list_id;
+
+		save_cur_key = cur_key;
+		in_value_list_id = 1;	/* assign local variable name to use to store list of values (under a subtree)
+					 * corresponding to fixed keys (e.g. %ydboctoin1, %ydboctoin2 etc.).
+					 */
+		/* This is the outermost "tmpl_tablejoin" invocation. See if there are any IN operator usages which have
+		 * a key on the LHS that is fixed to a list of values on the RHS. If so, generate M local variables to store
+		 * that list before any of the FOR loops for scanning any key begins. This way we do this M local variable
+		 * initialization only once.
+		 */
+		for ( ; cur_key < total_keys; cur_key++) {
+			LogicalPlan	*list;
+
+			key = plan->iterKeys[cur_key];
+			assert(0 == key->in_value_list_id);
+			assert(in_value_list_id != key->in_value_list_id);	/* hence "in_value_list_id" start at 1 above */
+			list = key->fixed_to_value;
+			if (NULL == list) {
+				continue;
+			}
+			if (LP_COLUMN_LIST != list->type) {
+				continue;
+			}
+			TMPL(tmpl_print_dots, dot_count);
+			%{}NEW %%ydboctoin{{ in_value_list_id|%d }}{}%
+			%{}`n{{ PLAN_LINE_START }}{}%
+			key->in_value_list_id = in_value_list_id;
+			do {
+				LogicalPlan	*value;
+
+				/* Below assert is ensured by "lp_optimize_where_multi_equal_ands_helper()".
+				 * Or else it would not have decided to fix the key.
+				 */
+				value = list->v.lp_default.operand[0];
+				assert(LP_VALUE == value->type);
+				TMPL(tmpl_print_dots, dot_count);
+				%{}SET %%ydboctoin{{ in_value_list_id|%d }}({}%
+				TMPL(tmpl_print_expression, value, plan, 0, 0);
+				%{})=""{}%
+				%{}`n{{ PLAN_LINE_START }}{}%
+				list = list->v.lp_default.operand[1];
+			} while (NULL != list);
+			in_value_list_id++;
+		}
+		cur_key = save_cur_key;
+	}
 	for ( ; cur_key < total_keys; cur_key++) {
 		// For each key, output the key start, a FOR loop, QUIT, and increment
 		key = plan->iterKeys[cur_key];
-		if (key->unique_id != left_table_id) {	// we are done with all key columns in this table; recurse to move on to next table/key
+		if (key->unique_id != left_table_id) {
+			/* We are done with all key columns in this table; recurse to move on to next table/key */
 			nested_call = TRUE;
 			break;
 		}
@@ -62,11 +112,33 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *plan, LogicalPlan *tablejoin, unsigned in
 
 			fixed_to_value = key->fixed_to_value;
 			if ((LP_VALUE != fixed_to_value->type) || (NUL_VALUE != fixed_to_value->v.lp_value.value->type)) {
+				int	in_value_list_id;
+
+				/* Key is fixed to a value (= operator) or list of values (IN operator) */
+				assert((LP_COLUMN_LIST != fixed_to_value->type) || (0 < key->in_value_list_id));
+				assert((LP_COLUMN_LIST == fixed_to_value->type) || (0 == key->in_value_list_id));
+				in_value_list_id = key->in_value_list_id;
+				assert(0 <= in_value_list_id);
+				if (0 < in_value_list_id) {
+					/* This is a list of values on the right hand side of an IN operator */
+					TMPL(tmpl_print_dots, dot_count);
+					%{}SET %%ydboctoin{{ in_value_list_id|%d }}="" FOR  {}%
+					%{}DO:$DATA(%%ydboctoin{{ in_value_list_id|%d }}(%%ydboctoin{{ in_value_list_id|%d }}))  {}%
+					%{}SET %%ydboctoin{{ in_value_list_id|%d }}={}%
+					%{}$ORDER(%%ydboctoin{{ in_value_list_id|%d }}(%%ydboctoin{{ in_value_list_id|%d }})) {}%
+					%{}QUIT:""=%%ydboctoin{{ in_value_list_id|%d }}{}%
+					%{}`n{{ PLAN_LINE_START }}{}%
+					dot_count++;
+				}
 				TMPL(tmpl_print_dots, dot_count);
 				%{}SET {}%
 				TMPL(tmpl_key, key);
 				%{}={}%
-				TMPL(tmpl_print_expression, fixed_to_value, plan, 0, 0);
+				if (0 == in_value_list_id) {
+					TMPL(tmpl_print_expression, fixed_to_value, plan, 0, 0);
+				} else {
+					%{}%%ydboctoin{{ in_value_list_id|%d }}{}%
+				}
 				/* The "tmpl_key_source" function call below would result in an M gvn. If the `fixed_to_value`
 				 * is `$ZYSQLNULL`, we have to skip doing the gvn reference with `$ZYSQLNULL` as a subscript
 				 * (as it causes a ZYSQLNULLNOTVALID error currently). Hence the need for a `$ZYISSQLNULL` check.
@@ -78,9 +150,9 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *plan, LogicalPlan *tablejoin, unsigned in
 				%{}){}%
 				if (NULL != limit_keyword) {
 					TMPL(tmpl_limit_check, limit_keyword, "&", ">%ydboctozlimit");
-					(*buffer_index)--;	/* Remove the trailing ")" from `tmpl_limit_check` call */
+					(*buffer_index)--;	/* Remove the trailing ")" from "tmpl_limit_check" call above */
 					%{}({{ plan->outputKey->unique_id|%d }}){}%	/* Add subscript based on output key */
-					%{}){}%	/* Add back the trailing ")" from `tmpl_limit_check` call above */
+					%{}){}%	/* Add back the trailing ")" from "tmpl_limit_check" call above */
 				}
 			} else {
 				/* If fixed_to_value is NULL, then there is no output from this key fix.
@@ -261,6 +333,8 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *plan, LogicalPlan *tablejoin, unsigned in
 				}
 				assert(cur_key);
 				%{}`n{{ PLAN_LINE_START }}{}%
+				/* Assert that this is not the outermost "tmpl_tablejoin" invocation */
+				assert(this_table_join != plan->tablejoin);
 				TMPL(tmpl_tablejoin, plan, this_table_join, cur_key, TRUE, dot_count, tableName, columnName);
 				num_tables = 1;	// include this table as first one for next round of RIGHT JOIN key nullification
 			} else

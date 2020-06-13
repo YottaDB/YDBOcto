@@ -68,8 +68,10 @@ LogicalPlan *lp_optimize_where_multi_equal_ands_helper(LogicalPlan *plan, Logica
 	SqlTableAlias		*table_alias;
 	SqlKey			*key;
 	int			left_id, right_id;
+	LogicalPlan		*new_left, *new_right, *list;
+	LPActionType		type;
 
-	if (where->type == LP_WHERE) {
+	if (LP_WHERE == where->type) {
 		cur = where->v.lp_default.operand[0];
 	} else {
 		cur = where;
@@ -77,14 +79,14 @@ LogicalPlan *lp_optimize_where_multi_equal_ands_helper(LogicalPlan *plan, Logica
 	if (NULL == cur) {
 		return where;
 	}
-	if (LP_BOOLEAN_OR == cur->type)	/* OR is currently not optimized (only AND and EQUALS are) */ {
+	type = cur->type;
+	if (LP_BOOLEAN_OR == type)	/* OR is currently not optimized (only AND and EQUALS/IN are) */ {
 		return where;
 	}
 	left = cur->v.lp_default.operand[0];
 	right = cur->v.lp_default.operand[1];
-	if (LP_BOOLEAN_AND == cur->type) {
-		LogicalPlan	*new_left, *new_right;
-
+	switch (type) {
+	case LP_BOOLEAN_AND:
 		new_left = lp_optimize_where_multi_equal_ands_helper(plan, left, key_unique_id_array,
 										right_table_alias, num_outer_joins);
 		cur->v.lp_default.operand[0] = new_left;
@@ -96,17 +98,43 @@ LogicalPlan *lp_optimize_where_multi_equal_ands_helper(LogicalPlan *plan, Logica
 				where->v.lp_default.operand[0] = new_right;
 			}
 			return new_right;
+			break;
 		}
 		if (NULL == new_right) {
 			if (LP_WHERE == where->type) {
 				where->v.lp_default.operand[0] = new_left;
 			}
 			return new_left;
+			break;
 		}
 		return where;
-	}
-	if (LP_BOOLEAN_EQUALS != cur->type) {
-		return where; // The only things we currently optimize are AND and EQUALS
+		break;
+	case LP_BOOLEAN_EQUALS:
+		break;
+	case LP_BOOLEAN_IN:
+		/* Check if left side of IN is a LP_COLUMN_ALIAS. If not, we cannot do key fixing. */
+		if (LP_COLUMN_ALIAS != left->type) {
+			return where;
+			break;
+		}
+		/* Check if right side of IN is a list of values (LP_VALUE). If not, we cannot do key fixing. */
+		list = right;
+		if (LP_COLUMN_LIST != list->type) {
+			return where;
+			break;
+		}
+		do {
+			assert(LP_COLUMN_LIST == list->type);
+			if (LP_VALUE != list->v.lp_default.operand[0]->type) {
+				return where;
+				break;
+			}
+			list = list->v.lp_default.operand[1];
+		} while (NULL != list);
+		break;
+	default:
+		return where;	/* The only things we currently optimize are the above "case" blocks */
+		break;
 	}
 	/* Go through and fix keys as best as we can.
 	 *  1. At least one of the values is a column
@@ -145,6 +173,10 @@ LogicalPlan *lp_optimize_where_multi_equal_ands_helper(LogicalPlan *plan, Logica
 		return where; /* Currently derived columns cannot be fixed. Remove this line when YDBOcto#355 is fixed */
 		GET_LP(lp_key, right, 0, LP_KEY);
 		right_id = lp_key->v.lp_key.key->unique_id;
+		break;
+	case LP_COLUMN_LIST:
+		assert(LP_BOOLEAN_IN == type);
+		right_id = 0;	/* Treat list of values as one value for key fixing purposes */
 		break;
 	default:
 		return where;

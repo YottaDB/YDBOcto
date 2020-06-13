@@ -97,7 +97,10 @@ setup() {
   verify_output TWI11 output.txt
 }
 
-@test "TWI12 : OCTO523 : Reduce Octo memory usage during logical plan phase by an order of magnitude for lots of IN usage" {
-  run_query_in_octo_and_postgres_and_crosscheck names TWI12.sql "remove_empty_line_at_tail"
+@test "TWI12 : OCTO523 : Queries with lots of IN usages in WHERE or ON clause causes Octo to use too much memory and terminate abnormally" {
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TWI12.sql "remove_empty_line_at_tail"
+  echo "# Verify key fixing optimization and number of generated physical plans by looking at generated M code" >> output.txt
+  grep -E "SELECT|ydboctoX|SET|octoPlan|FOR" _ydboctoP*.m >> output.txt
+  verify_output TWI12 output.txt
 }
 

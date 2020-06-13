@@ -27,7 +27,7 @@ SELECT (SELECT n3.firstname FROM names n3 LEFT JOIN names n4 ON n4.id = n1.id GR
 SELECT (SELECT DISTINCT n3.firstname FROM names n3 LEFT JOIN names n4 ON n4.id = n1.id GROUP BY n3.firstname ORDER BY n3.firstname limit 1) from names n1;
 
 -- Below queries are enhanced versions of the first query in this file.
--- They test for conditions where the WHERE clause in the sub-query has an OR conditions causing DNF expansion
+-- They test for conditions where the WHERE clause in the sub-query has an OR condition causing DNF expansion
 -- and at the same time maintaining the "alternate list" (see "lp_optimize_where_multi_equal_ands.c" for details)
 -- due to references to parent query columns in the sub-query WHERE clause.
 -- These were encountered as part of fixing OCTO523.

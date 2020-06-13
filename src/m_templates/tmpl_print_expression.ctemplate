@@ -293,12 +293,15 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 		TMPL(tmpl_print_expression, second_operand, pplan, 0, 0);
 		if ((LP_BOOLEAN_REGEX_SENSITIVE_LIKE == plan_type) || (LP_BOOLEAN_REGEX_INSENSITIVE_LIKE == plan_type)) {
 			%{},{{ PP_LIKE|%d }}{}%
-		} else if ((LP_BOOLEAN_REGEX_SENSITIVE_SIMILARTO == plan_type)||(LP_BOOLEAN_REGEX_INSENSITIVE_SIMILARTO == plan_type)) {
+		} else if ((LP_BOOLEAN_REGEX_SENSITIVE_SIMILARTO == plan_type)
+				|| (LP_BOOLEAN_REGEX_INSENSITIVE_SIMILARTO == plan_type)) {
 			%{},{{ PP_SIMILAR_TO|%d }}{}%
 		} else {
 			%{},{{ PP_TILDE|%d }}{}%
 		}
-		if ((LP_BOOLEAN_REGEX_INSENSITIVE == plan_type) || (LP_BOOLEAN_REGEX_INSENSITIVE_LIKE == plan_type) || (LP_BOOLEAN_REGEX_INSENSITIVE_SIMILARTO == plan_type)) {
+		if ((LP_BOOLEAN_REGEX_INSENSITIVE == plan_type)
+				|| (LP_BOOLEAN_REGEX_INSENSITIVE_LIKE == plan_type)
+				|| (LP_BOOLEAN_REGEX_INSENSITIVE_SIMILARTO == plan_type)) {
 			// The extra ',3' below marks this as case insensitive
 			%{},3{}%
 		}
@@ -310,16 +313,23 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 			/* This is IN or NOT IN used with a sub-query on the right hand side.
 			 *
 			 * Note that there is a NULL related subtlety that needs to be handled here.
-			 * For LP_BOOLEAN_IN, if the left-hand expression yields null, or if there are no equal right-hand values and
-			 * at least one right-hand expression yields null, the result of the IN construct will be null, not false.
-			 * For LP_BOOLEAN_NOT_IN, if the left-hand expression yields null, or if there are no equal right-hand values and
-			 * at least one right-hand expression yields null, the result of the NOT IN construct will be null, not true.
+			 *
+			 * For LP_BOOLEAN_IN, if the left-hand expression yields null, or if there are no equal right-hand values
+			 * and at least one right-hand expression yields null, the result of the IN construct will be null, not
+			 * false.
+			 *
+			 * For LP_BOOLEAN_NOT_IN, if the left-hand expression yields null, or if there are no equal right-hand
+			 * values and at least one right-hand expression yields null, the result of the NOT IN construct will be
+			 * null, not true.
 			 */
 			cur_lp_key = lp_get_output_key(second_operand);
 			%{}$SELECT({}%
 			/* If RHS did not return any row, then result of NOT IN is TRUE */
 			if (LP_BOOLEAN_NOT_IN == plan_type) {
-				%{}(1>=$DATA(%%ydboctocursor(cursorId,"keys",{{ cur_lp_key->v.lp_key.key->unique_id|%d }},"",""))):1,{}%
+				int	unique_id;
+
+				unique_id = cur_lp_key->v.lp_key.key->unique_id;
+				%{}(1>=$DATA(%%ydboctocursor(cursorId,"keys",{{ unique_id|%d }},"",""))):1,{}%
 			}
 			/* If LHS is NULL, the result is NULL */
 			%{}$ZYISSQLNULL({}%
@@ -391,7 +401,7 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 					%{}'={}%
 				}
 				value = plan->v.lp_default.operand[0];
-				assert(LP_VALUE == value->type);
+				assert(LP_COLUMN_LIST != value->type);
 				TMPL(tmpl_print_expression, value, pplan, dot_count, depth);
 				%{}){}%
 				plan = plan->v.lp_default.operand[1];

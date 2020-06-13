@@ -200,13 +200,13 @@ typedef struct SqlKey {
 	int			unique_id;
 	// If this key is fixed, this is the value
 	LogicalPlan		*fixed_to_value;
-	// The only relevant types are KEY_FIXED, KEY_ADVANCE
-	LPActionType		type;
 	// Table that owns this key; used to extract key from plan
 	//  when generating an extract for a given column
 	// If this key is part of a UNION, this is the LP_INSERT
 	//  plan which outputs this key
 	LogicalPlan		*owner;
+	// The only relevant types are KEY_FIXED, KEY_ADVANCE
+	LPActionType		type;
 	// If true, this is an output key for a cross reference
 	int			is_cross_reference_key;
 	// If this is a cross reference key which is not an output key, this will point to the
@@ -220,6 +220,7 @@ typedef struct SqlKey {
 	boolean_t		skip_column_reference_optimization;	/* TRUE => an optimization in "tmpl_column_reference"
 									 * will be skipped. Used by the second half of RIGHT JOIN.
 									 */
+	int			in_value_list_id;	/* id used during physical plan phase to store value list of IN operator */
 } SqlKey;
 
 // Helper functions

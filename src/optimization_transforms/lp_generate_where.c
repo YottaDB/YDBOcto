@@ -54,59 +54,28 @@ LogicalPlan *lp_generate_where(SqlStatement *stmt, int *plan_id, SqlStatement *p
 		break;
 	case binary_STATEMENT:
 		UNPACK_SQL_STATEMENT(binary, stmt, binary);
-		/// WARNING: we simply add the enum offset to find the type
+		/// WARNING: We simply add the enum offset to find the type
 		type = binary->operation + LP_ADDITION;
 		/* Special case: Check for IN usage against a list of values */
 		if (((LP_BOOLEAN_IN == type) || (LP_BOOLEAN_NOT_IN == type))
 						&& (column_list_STATEMENT == binary->operands[1]->type)) {
-			boolean_t	expand;
 			LogicalPlan	*t, *prev;
 
-			/* Check if this is a LP_BOOLEAN_IN where the left side is a LP_COLUMN_ALIAS and the right side is a list
-			 * of values. If so, expand them to a sequence of LP_BOOLEAN_EQUALS operations that are merged by a
-			 * LP_BOOLEAN_OR. This might later help with key fixing in  "optimize_logical_plan()" and
-			 * "lp_optimize_where_multi_equal_ands()". Else construct a LP_COLUMN_LIST sequence for right side list.
-			 */
-			expand = ((LP_BOOLEAN_IN == type) && (column_alias_STATEMENT == binary->operands[0]->type));
-			/* Walk through the column list, expanding/converting each right side value as appropriate. */
+			/* Walk through the column list, converting each right side value as appropriate. */
 			UNPACK_SQL_STATEMENT(start_cl, binary->operands[1], column_list);
 			LP_GENERATE_WHERE(binary->operands[0], plan_id, stmt, t, error_encountered);
 			cur_cl = start_cl;
 			do {
-				if (expand) {
-					if (LP_BOOLEAN_IN == type) {
-						MALLOC_LP_2ARGS(next, LP_BOOLEAN_EQUALS);
-					} else {
-						MALLOC_LP_2ARGS(next, LP_BOOLEAN_NOT_EQUALS);
-					}
-					next->v.lp_default.operand[0] = t;
-					LP_GENERATE_WHERE(cur_cl->value, plan_id, stmt,					\
-								next->v.lp_default.operand[1], error_encountered);
-					if (NULL == ret) {
-						ret = next;
-					} else {
-						prev = ret;
-						if (LP_BOOLEAN_IN == type) {
-							MALLOC_LP_2ARGS(ret, LP_BOOLEAN_OR);
-						} else {
-							MALLOC_LP_2ARGS(ret, LP_BOOLEAN_AND);
-						}
-						ret->v.lp_default.operand[0] = next;
-						ret->v.lp_default.operand[1] = prev;
-					}
+				MALLOC_LP_2ARGS(next, LP_COLUMN_LIST);
+				LP_GENERATE_WHERE(cur_cl->value, plan_id, stmt, next->v.lp_default.operand[0], error_encountered);
+				if (NULL == ret) {
+					MALLOC_LP_2ARGS(ret, type);
+					ret->v.lp_default.operand[0] = t;
+					ret->v.lp_default.operand[1] = next;
 				} else {
-					MALLOC_LP_2ARGS(next, LP_COLUMN_LIST);
-					LP_GENERATE_WHERE(cur_cl->value, plan_id, stmt,					\
-								next->v.lp_default.operand[0], error_encountered);
-					if (NULL == ret) {
-						MALLOC_LP_2ARGS(ret, type);
-						ret->v.lp_default.operand[0] = t;
-						ret->v.lp_default.operand[1] = next;
-					} else {
-						prev->v.lp_default.operand[1] = next;
-					}
-					prev = next;
+					prev->v.lp_default.operand[1] = next;
 				}
+				prev = next;
 				cur_cl = cur_cl->next;
 			} while(start_cl != cur_cl);
 		} else {
@@ -117,7 +86,7 @@ LogicalPlan *lp_generate_where(SqlStatement *stmt, int *plan_id, SqlStatement *p
 		break;
 	case unary_STATEMENT:
 		UNPACK_SQL_STATEMENT(unary, stmt, unary);
-		// WARNING: we simply add the enum offset to find the type
+		// WARNING: We simply add the enum offset to find the type
 		type = unary->operation + LP_FORCE_NUM;
 		MALLOC_LP_2ARGS(ret, type);
 		LP_GENERATE_WHERE(unary->operand, plan_id, stmt, ret->v.lp_default.operand[0], error_encountered);

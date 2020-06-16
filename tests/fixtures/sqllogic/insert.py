@@ -48,21 +48,57 @@ with open(input_filename) as insert_file:
 # First write the parsed SQL statements to disk
 format = lambda query: ''.join(query).rstrip() + ';\n'
 
+# {table_name: has_primary_key}
+tables = {}
+
 unique_id = 0
 def add_unique_id(stmt):
-    # Add a unique ID to the statement for Octo
     if "CREATE TABLE" in stmt[0]:
-        table_name = stmt[0].split()[2].replace('(', '')
-        stmt[0] = stmt[0] + "  id INTEGER PRIMARY KEY,\n"
+        # CREATE TABLE table_name(...)
+        table_name = stmt[0].split()[2]
+        paren = table_name.index('(')
+        if paren != -1:
+            table_name = table_name[:paren]
+        assert table_name not in tables.keys(), "saw CREATE TABLE for table that has already been created"
+        # Find the primary key for the table, if one exists
+        primary_key = next((line for line in stmt if " PRIMARY KEY" in line), None)
+        # Store this so we know whether to generate an id for INSERT statements
+        tables[table_name] = primary_key is not None
+        # Add our own primary key if one does not already exist.
+        # This prevents catastrophically slow joins when there are many columns in a table.
+        if primary_key is None:
+            # CREATE TABLE table_name(id, ...)
+            if len(stmt) == 1:
+                assert(stmt[0].count('(') == 1), "don't know how to handle nested parentheses"
+                stmt[0] = stmt[0].replace('(', "(id INTEGER PRIMARY KEY, ")
+            # CREATE TABLE table_name(
+            # id,
+            # ...
+            # )
+            else:
+                stmt[0] = stmt[0] + "  id INTEGER PRIMARY KEY,\n"
+            primary_key = "id"
+        else:
+            # x INTEGER PRIMARY KEY -> x
+            words = primary_key.split()
+            primary_key = words[words.index("PRIMARY") - 2]
         # This is not a very smart script.
-        spaceless = stmt[-1].replace(' ', '').replace('\n', '')
-        assert spaceless == ')', \
-            "Don't know how to handle CREATE TABLE statements not ending with ')' (got {})".format(spaceless)
-        stmt[-1] = ') GLOBAL "^{}(keys(""id""))"'.format(table_name)
+        assert stmt[-1].rstrip()[-1] == ')', \
+           "Don't know how to handle CREATE TABLE statements not ending with ')' (got {})".format(stmt[-1])
+        stmt[-1] = ') GLOBAL "^{}(keys(""{}""))"'.format(table_name, primary_key)
     elif "INSERT INTO" in stmt[0]:
-        global unique_id
-        stmt[0] = stmt[0].replace("VALUES(", "VALUES({}, ".format(unique_id))
-        unique_id += 1
+        # INSERT INTO table_name(...)
+        words = stmt[0].split()
+        table_name = words[words.index("INTO") + 1]
+        paren = table_name.find('(')
+        if paren != -1:
+            table_name = table_name[:paren].strip()
+        # Add our own primary key if there wasn't one in the table already
+        if not tables[table_name]:
+            global unique_id
+            # INSERT INTO table_name(id, ...)
+            stmt[0] = stmt[0].replace("VALUES(", "VALUES({}, ".format(unique_id))
+            unique_id += 1
     return stmt
 
 with open("sqllogic{}.sql".format(file_num), 'w') as sql_file:
@@ -90,7 +126,7 @@ with open("sqllogic{}.zwr".format(file_num), 'w') as zwr_file:
         # Allow spaces inside the VALUES list
         table, rest = stmt[0][len("INSERT INTO "):].split(' ', 1)
         # e.g. INSERT INTO table(b, a) VALUES (b, a)
-        assert '(' not in table, "named inserts are not supported"
+        assert '(' not in table, "named inserts are not supported (for insert statement {})".format(stmt[0])
         # NOTE: does not handle escaping at all
         values = list(map(lambda s: s.strip().replace("'", ''), rest.split(',')))
         values[0] = values[0].replace('VALUES(', '').lstrip()

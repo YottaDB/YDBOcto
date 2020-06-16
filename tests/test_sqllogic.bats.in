@@ -26,9 +26,19 @@ sqllogic_test() {
 		fraction=1
 	fi
 
+	fixtures=@PROJECT_SOURCE_DIR@/tests/fixtures
+	$fixtures/sqllogic/filter.py $num $fraction >/dev/null
+	if ! [ -e $fixtures/postgres-sqllogic$num.sql ]; then
+		$fixtures/sqllogic/insert.py $num >/dev/null
+		# Remove GLOBAL subexpressions from CREATE TABLE statements, since postgres does not understand them.
+		sed 's/) GLOBAL .*;$/);/' sqllogic.sql > $fixtures/postgres-sqllogic$num.sql
+		# Remove CREATE INDEX, INSERT INTO, and DROP TABLE statements, since Octo does not understand them.
+		sed '/^INSERT INTO\|CREATE INDEX\|DROP TABLE/d' sqllogic$num.sql > $fixtures/sqllogic$num.sql
+		cp sqllogic$num.zwr $fixtures
+	fi
 	load_fixture sqllogic$num.sql
 	load_fixture sqllogic$num.zwr
-	@PROJECT_SOURCE_DIR@/tests/fixtures/sqllogic/filter.py $num $fraction >/dev/null
+
 	for file in test*.sql
 	do
 		skip=false
@@ -49,6 +59,12 @@ sqllogic_test() {
 	done
 }
 
+# To keep the test times reasonable, only a random sample of tests are run.
+# The percentage of tests is chosen so that tests take approximately the same amount of time to run.
+# The tests take the following time at time of writing:
+# TS01: 17s
+# TS04: 15s
+# TS05: 23s
 @test "TS01: select1 test cases from https://github.com/shivarajugowda/jdbcSQLTest/blob/master/resources/sqllogictest/select1.test" {
 	sqllogic_test 1 .1
 }
@@ -66,4 +82,8 @@ sqllogic_test() {
 
 @test "TS04: select4 test cases from https://github.com/shivarajugowda/jdbcSQLTest/blob/master/resources/sqllogictest/select4.test" {
 	sqllogic_test 4 .03
+}
+
+@test "TS05: select5 test cases from https://github.com/shivarajugowda/jdbcSQLTest/blob/master/resources/sqllogictest/select5.test" {
+	sqllogic_test 5 .1
 }

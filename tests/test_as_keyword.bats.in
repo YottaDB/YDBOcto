@@ -56,3 +56,7 @@ setup() {
   [[ $(ls -l _ydboctoP*.m | wc -l) -eq 2 ]]
 }
 
+@test "TAK07 : OCTO496 : Support column aliases in SELECT column list without AS keyword" {
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TAK07.sql "remove_empty_line_at_tail"
+}
+

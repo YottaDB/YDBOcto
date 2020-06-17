@@ -22,3 +22,5 @@ SELECT EXISTS (SELECT * FROM (SELECT * FROM names UNION SELECT * FROM names) n1)
 -- Below query used to return incorrect results before the YDBOcto#496 code fix
 SELECT * FROM (SELECT * FROM names UNION SELECT * FROM names) n1 WHERE firstname = 'Zero';
 
+-- Below query used to fail before YDBOcto#497 code fix
+SELECT EXISTS (SELECT * FROM (SELECT * FROM names UNION SELECT * FROM names) n1) n2;

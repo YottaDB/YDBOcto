@@ -29,6 +29,7 @@ void cleanup_tables() {
 	YDB_STRING_TO_BUFFER(config->global_names.loadedschemas, &loaded_schemas_b[0]);
 	YDB_STRING_TO_BUFFER("tables", &loaded_schemas_b[1]);
 	loaded_schemas_b[2].buf_addr = table_name;
+	loaded_schemas_b[2].len_used = 0;
 	loaded_schemas_b[2].len_alloc = sizeof(table_name);
 	YDB_STRING_TO_BUFFER("chunk", &loaded_schemas_b[3]);
 

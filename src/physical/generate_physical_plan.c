@@ -245,9 +245,9 @@ PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlanOptions *opt
 	where = lp_get_select_where(plan);
 	out->where = sub_query_check_and_generate_physical_plan(&plan_options, where, NULL);
 	/* Note: If where->v.lp_default.operand[1] is non-NULL, this is the alternate list that
-	 * "lp_optimize_where_multi_equal_ands_helper()" built that needs to be checked too for deferred plans which
+	 * "lp_optimize_where_multi_equals_ands_helper()" built that needs to be checked too for deferred plans which
 	 * would have been missed out in case the keys for those had been fixed to keys from parent queries (see
-	 * comment above "lp_get_select_where()" function call in "lp_optimize_where_multi_equal_ands_helper()").
+	 * comment above "lp_get_select_where()" function call in "lp_optimize_where_multi_equals_ands_helper()").
 	 * One would be tempted to discard that alternate list now that its purpose is served above. But it is possible
 	 * the same logical plan is pointed to by multiple physical plans in which case it is still needed. As we have
 	 * no easy way of knowing that here, we continue to keep "where->v.lp_default.opreand[1]" set to a non-NULL value.
@@ -354,7 +354,7 @@ LogicalPlan *sub_query_check_and_generate_physical_plan(PhysicalPlanOptions *opt
 			oper1 = stmt->v.lp_default.operand[1];
 			if ((NULL != oper1) && (LP_COLUMN_LIST_ALIAS != oper1->type)) {
 				/* Note that it is possible we have `operand[1]` set to a non-NULL value for a LP_WHERE.
-				 * In this case, this is the alternate list that "lp_optimize_where_multi_equal_ands_helper()"
+				 * In this case, this is the alternate list that "lp_optimize_where_multi_equals_ands_helper()"
 				 * built that needs to also be checked for sub-queries.
 				 */
 				stmt->v.lp_default.operand[1]

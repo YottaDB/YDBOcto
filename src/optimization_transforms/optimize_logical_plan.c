@@ -36,31 +36,26 @@ LogicalPlan *join_tables(LogicalPlan *root, LogicalPlan *plan) {
 		return plan;
 	}
 	sub = plan->v.lp_default.operand[0];
-	if (LP_INSERT == plan->v.lp_default.operand[0]->type) {
-		// This plan needs to be inserted as a physical plan
-		// Leave it alone here, and let the physical planner grab it
-		plan->counter = root->counter;
-		plan->v.lp_default.operand[0] = sub = optimize_logical_plan(plan->v.lp_default.operand[0]);
-		if (NULL == sub)
-			return NULL;
-		assert(plan->counter == root->counter);
-	}
-	switch(sub->type) {
+	switch (sub->type) {
 	case LP_SET_OPERATION:
-		GET_LP(set_plans, sub, 1, LP_PLANS);
-		set_plans->v.lp_default.operand[0] = optimize_logical_plan(set_plans->v.lp_default.operand[0]);
-		if (NULL == set_plans->v.lp_default.operand[0])
-			return NULL;
-		set_plans->v.lp_default.operand[1] = optimize_logical_plan(set_plans->v.lp_default.operand[1]);
-		if (NULL == set_plans->v.lp_default.operand[1])
-			return NULL;
-		cur_lp_key = lp_get_output_key(sub);
-		lp_insert_key(root, cur_lp_key);
-		break;
 	case LP_INSERT:
-		// Append that plans output keys to my list of keys
-		GET_LP(cur_lp_key, sub, 1, LP_OUTPUT);
-		GET_LP(cur_lp_key, cur_lp_key, 0, LP_KEY);
+		if (LP_SET_OPERATION == sub->type) {
+			int	i;
+
+			GET_LP(set_plans, sub, 1, LP_PLANS);
+			for (i = 0; i < 2; i++) {
+				set_plans->v.lp_default.operand[i] = optimize_logical_plan(set_plans->v.lp_default.operand[i]);
+				if (NULL == set_plans->v.lp_default.operand[i]) {
+					return NULL;
+				}
+			}
+		} else {
+			plan->v.lp_default.operand[0] = sub = optimize_logical_plan(plan->v.lp_default.operand[0]);
+			if (NULL == sub) {
+				return NULL;
+			}
+		}
+		cur_lp_key = lp_get_output_key(sub);
 		lp_insert_key(root, cur_lp_key);
 		break;
 	default:
@@ -99,7 +94,7 @@ LogicalPlan *join_tables(LogicalPlan *root, LogicalPlan *plan) {
 				}
 			}
 		} else if (LP_INSERT == table_plan->type) {
-			// Else, we read from the output of the previous statement statement as a key
+			// Else, we read from the output of the previous statement as a key
 			GET_LP(cur_lp_key, table_plan, 1, LP_KEY);
 			keys->v.lp_default.operand[0] = lp_copy_plan(cur_lp_key);
 		} else {
@@ -122,7 +117,9 @@ LogicalPlan *join_tables(LogicalPlan *root, LogicalPlan *plan) {
 LogicalPlan *optimize_logical_plan(LogicalPlan *plan) {
 	LogicalPlan	*select, *table_join, *where;
 	LogicalPlan	*cur;
+#	ifndef NDEBUG
 	LogicalPlan	*keys;
+#	endif
 
 	if (NULL == plan)
 		return NULL;
@@ -140,56 +137,7 @@ LogicalPlan *optimize_logical_plan(LogicalPlan *plan) {
 		}
 		return plan;
 	}
-	// First, "join" all the tables; we should do a search here to find the
-	//  optimal join order
-	select = lp_get_select(plan);
-	GET_LP(table_join, select, 0, LP_TABLE_JOIN);
-	// We can end coming here with a already populated set of keys if the plan was split for optimization
-	// If so, don't add the keys again
-	keys = lp_get_keys(plan);
-	if (NULL == keys->v.lp_default.operand[0]) {
-		if (NULL == join_tables(plan, table_join)) {
-			return NULL;
-		}
-	}
-	/* Perform optimizations of the ON condition in JOINs if any exists. Do this before moving on to the WHERE clause. */
-	do {
-		assert(LP_TABLE_JOIN == table_join->type);
-		if (NULL != table_join->extra_detail.lp_table_join.join_on_condition) {
-			LogicalPlan	*insert, *operand0;
-			SqlTableAlias	*right_table_alias;
-
-			/* Note that even an INNER JOIN will have a non-NULL join_on_condition if it is preceded by
-			 * an OUTER JOIN.
-			 */
-			operand0 = table_join->v.lp_default.operand[0];
-			switch(operand0->type) {
-			case LP_INSERT:
-			case LP_SET_OPERATION:
-				insert = operand0;
-				if (LP_SET_OPERATION == operand0->type) {
-					insert = lp_drill_to_insert(insert);
-					assert(LP_INSERT == insert->type);
-				}
-				right_table_alias = insert->extra_detail.lp_insert.root_table_alias;
-				break;
-			default:
-				assert(LP_TABLE == operand0->type);
-				right_table_alias = operand0->v.lp_table.table_alias;
-				break;
-			}
-			/* 3rd parameter below ("right_table_alias") is non-NULL and so last parameter ("num_outer_joins")
-			 * can be arbitrary (see comment before "lp_optimize_where_multi_equal_ands()" function definition
-			 * for details). Hence the choice of the 4th parameter as 0 even though it might not correctly
-			 * reflect the actual number of outer joins in the query.
-			 */
-			lp_optimize_where_multi_equal_ands(plan,
-							table_join->extra_detail.lp_table_join.join_on_condition,
-							right_table_alias, 0);
-		}
-		table_join = table_join->v.lp_default.operand[1];
-	} while (NULL != table_join);
-	/* Now focus on the WHERE clause. Before any key fixing can be done, expand the WHERE clause into disjunctive normal form
+	/* First focus on the WHERE clause. Before any key fixing can be done, expand the WHERE clause into disjunctive normal form
 	 * (DNF expansion) as that is what enables key fixing.
 	 */
 	where = lp_get_select_where(plan);
@@ -197,7 +145,7 @@ LogicalPlan *optimize_logical_plan(LogicalPlan *plan) {
 	// Expand the plan, if needed
 	cur = where->v.lp_default.operand[0];
 	if (NULL != cur) {
-		LogicalPlan	*new_plan, *where_operand1;
+		LogicalPlan	*new_plan;
 
 		new_plan = plan;	/* new_plan will change if DNF expansion happens below */
 		if (LP_BOOLEAN_OR == cur->type) {
@@ -208,12 +156,9 @@ LogicalPlan *optimize_logical_plan(LogicalPlan *plan) {
 			 * N LP_BOOLEAN_OR conditions allocated for each of the N DNF plans but N-1 of those conditions
 			 * unused resulting O(N*N) memory wasted (total memory wasted could be in the order of Gigabytes
 			 * if N is in the order of thousands). Avoid this by clearing the LP_WHERE before the DNF expansion.
-			 * But save operand[1] if it is non-NULL (this is the alternate list that is maintained by
-			 * "lp_optimize_where_multi_equals_ands()"; see comment there for details) and restore it in each
-			 * of the DNF plans.
 			 */
 			where->v.lp_default.operand[0] = NULL;
-			where_operand1 = where->v.lp_default.operand[1];
+			assert(NULL == where->v.lp_default.operand[1]);
 		}
 		while (LP_BOOLEAN_OR == cur->type) {
 			SqlOptionalKeyword	*keywords, *new_keyword;
@@ -233,8 +178,7 @@ LogicalPlan *optimize_logical_plan(LogicalPlan *plan) {
 			child_where = lp_get_select_where(p);
 			/* Below sets the LHS of the LP_BOOLEAN_OR condition as the WHERE clause of one of the DNF plans */
 			child_where->v.lp_default.operand[0] = cur->v.lp_default.operand[0];
-			/* Below sets the "alternate list" in the DNF plan in case it was non-NULL in plan before DNF expansion */
-			child_where->v.lp_default.operand[1] = where_operand1;
+			assert(NULL == child_where->v.lp_default.operand[1]);
 			/* Create LP_SET_OPERATION plan to do the DNF operation on each of the individual plans */
 			MALLOC_LP_2ARGS(set_operation, LP_SET_OPERATION);
 			MALLOC_LP(set_option, set_operation->v.lp_default.operand[0], LP_SET_OPTION);
@@ -251,10 +195,62 @@ LogicalPlan *optimize_logical_plan(LogicalPlan *plan) {
 			where->v.lp_default.operand[0] = cur;
 			return optimize_logical_plan(new_plan);
 		}
-		/* Now that DNF expansion has occurred, fix any key values if possible using the WHERE clause. */
-		assert(where == lp_get_select_where(plan));
-		/* Pass 3rd parameter as FALSE below to indicate this is not an OUTER JOIN ON CLAUSE */
-		lp_optimize_where_multi_equal_ands(plan, where, NULL, where->extra_detail.lp_where.num_outer_joins);
 	}
+	/* Next, determine the optimal join order by looking at the ON and/or WHERE clauses. Pick that join order which
+	 * maximizes the number of key fixing optimizations that can happen.
+	 */
+	/* Now that optimal join order has been determined, "join" all the tables to generate keys for the physical plan.
+	 * This will be needed by the key fixing optimization which is invoked next.
+	 */
+	select = lp_get_select(plan);
+	GET_LP(table_join, select, 0, LP_TABLE_JOIN);
+#	ifndef NDEBUG
+	keys = lp_get_keys(plan);
+	assert(NULL == keys->v.lp_default.operand[0]);
+#	endif
+	if (NULL == join_tables(plan, table_join)) {
+		return NULL;
+	}
+	/* Now that DNF expansion has occurred, fix any key values if possible using the ON and/or WHERE clauses */
+	/* Perform optimizations of the ON condition in JOINs if any exists. Do this before moving on to the WHERE clause. */
+	do {
+		assert(LP_TABLE_JOIN == table_join->type);
+		if (NULL != table_join->extra_detail.lp_table_join.join_on_condition) {
+			LogicalPlan	*insert, *operand0;
+			SqlTableAlias	*right_table_alias;
+
+			/* Note that even an INNER JOIN will have a non-NULL join_on_condition if it is preceded by
+			 * an OUTER JOIN.
+			 */
+			operand0 = table_join->v.lp_default.operand[0];
+			switch (operand0->type) {
+			case LP_INSERT:
+			case LP_SET_OPERATION:
+				insert = operand0;
+				if (LP_SET_OPERATION == operand0->type) {
+					insert = lp_drill_to_insert(insert);
+					assert(LP_INSERT == insert->type);
+				}
+				right_table_alias = insert->extra_detail.lp_insert.root_table_alias;
+				break;
+			default:
+				assert(LP_TABLE == operand0->type);
+				right_table_alias = operand0->v.lp_table.table_alias;
+				break;
+			}
+			/* 3rd parameter below ("right_table_alias") is non-NULL and so last parameter ("num_outer_joins")
+			 * can be arbitrary (see comment before "lp_optimize_where_multi_equals_ands()" function definition
+			 * for details). Hence the choice of the 4th parameter as 0 even though it might not correctly
+			 * reflect the actual number of outer joins in the query.
+			 */
+			lp_optimize_where_multi_equals_ands(plan,
+							table_join->extra_detail.lp_table_join.join_on_condition,
+							right_table_alias, 0);
+		}
+		table_join = table_join->v.lp_default.operand[1];
+	} while (NULL != table_join);
+	/* Pass 3rd parameter as FALSE below to indicate this is not an OUTER JOIN ON CLAUSE */
+	assert(where == lp_get_select_where(plan));
+	lp_optimize_where_multi_equals_ands(plan, where, NULL, where->extra_detail.lp_where.num_outer_joins);
 	return plan;
 }

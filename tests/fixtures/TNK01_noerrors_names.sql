@@ -340,3 +340,6 @@ select distinct * from ((select NULL::integer as id) union (select 1) union (sel
 ---- Test MAX using EXCEPT on a table that holds one NULL and two non-NULL values
 (select distinct * from ((select NULL::integer as id) union (select 1) union (select 2)) n1) except (select n2.id FROM ((select NULL::integer as id) union (select 1) union (select 2)) n2, ((select NULL::integer as id) union (select 1) union (select 2)) n3 where n2.id < n3.id OR n2.id is NULL);
 
+-- Below query was encountered while fixing OCTO523
+select * from (select 1 as id union select 2 union select NULL union select 3) n1 where id in (1,NULL,3);
+

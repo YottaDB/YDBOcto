@@ -98,3 +98,15 @@ setup() {
   verify_output TOJ07 output.txt
 }
 
+@test "TOJ08 : OCTO534 : customers schema : Incorrect query results when LEFT/RIGHT/FULL JOIN is used with OR in WHERE clause" {
+  load_fixture customers.sql
+  load_fixture customers.zwr
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries customers TOJ08.sql "remove_empty_line_at_tail"
+}
+
+@test "TOJ09 : OCTO534 : northwind schema : Incorrect query results when LEFT/RIGHT/FULL JOIN is used with OR in WHERE clause" {
+  load_fixture northwind.sql
+  load_fixture northwind.zwr
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries northwind TOJ09.sql "remove_empty_line_at_tail"
+}
+

@@ -48,7 +48,7 @@
 /* Set OCTO_PATH_MAX to be the same as the system PATH_MAX (should be defined by limits.h or sys/param.h)
  * but in case it is not available, set it to a value of 1024 just like is done in YDB.
  */
-#ifdef PATH_MAX
+#ifndef PATH_MAX
 # define OCTO_PATH_MAX 1024
 #else
 # define OCTO_PATH_MAX PATH_MAX

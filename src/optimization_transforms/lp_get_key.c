@@ -96,7 +96,7 @@ SqlKey *lp_get_key(LogicalPlan *plan, LogicalPlan *lp_column_alias) {
 	if (NULL != primary_key) {
 		/* If primary key is already fixed, then no point trying to generate xref key for the
 		 * same table. Return non-NULL value (corresponding to the primary key for this table)
-		 * so we skip xref generation in caller function "lp_optimize_where_multi_equal_ands_helper()".
+		 * so we skip xref generation in caller function "lp_optimize_where_multi_equals_ands_helper()".
 		 * In case this table has a composite key, we pick the first of those keys and return it.
 		 */
 		return primary_key;

@@ -125,6 +125,18 @@ _ydboctoP*.m:    . . SET %ydboctobool=%ydboctobool!((%ydboctocursor(cursorId,"ke
 _ydboctoP*.m:    . . SET %ydboctobool=%ydboctobool(1)&%ydboctobool
 _ydboctoP*.m:    . . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",4,"","")) %ydboctoz=42
 _ydboctoP*.m:    . . . SET %ydboctocursor(cursorId,"keys",4,"","",%ydboctocursor(cursorId,"keys",4,"",""))=$$str2mval^%ydboctoplanhelpers(%ydboctocursor(cursorId,"keys",2,"NAMES","ID"))_$$str2mval^%ydboctoplanhelpers(%ydboctocursor(cursorId,"keys",1,"NAMES","ID"))
+_ydboctoP*.m:;  SELECT * FROM names WHERE id IN (1,NULL,2);
+_ydboctoP*.m:octoPlan0(cursorId)
+_ydboctoP*.m:    DO octoPlan1(cursorId)
+_ydboctoP*.m:octoPlan1(cursorId)
+_ydboctoP*.m:    SET %ydboctoin1((+$GET(%ydboctocursor(cursorId,"parameters",1))))=""
+_ydboctoP*.m:    SET %ydboctoin1($ZYSQLNULL)=""
+_ydboctoP*.m:    SET %ydboctoin1((+$GET(%ydboctocursor(cursorId,"parameters",2))))=""
+_ydboctoP*.m:    SET %ydboctoin1="" FOR  DO:$DATA(%ydboctoin1(%ydboctoin1))  SET %ydboctoin1=$ORDER(%ydboctoin1(%ydboctoin1)) QUIT:""=%ydboctoin1
+_ydboctoP*.m:    . SET %ydboctocursor(cursorId,"keys",1,"NAMES","ID")=%ydboctoin1 IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",1,"NAMES","ID")) IF $DATA(^names(%ydboctocursor(cursorId,"keys",1,"NAMES","ID"))) DO
+_ydboctoP*.m:    . . NEW %ydboctobool SET %ydboctobool=1
+_ydboctoP*.m:    . . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42
+_ydboctoP*.m:    . . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=$$str2mval^%ydboctoplanhelpers(%ydboctocursor(cursorId,"keys",1,"NAMES","ID"))_$$str2mval^%ydboctoplanhelpers($PIECE($GET(^names(%ydboctocursor(cursorId,"keys",1,"NAMES","ID"))),"|",1))_$$str2mval^%ydboctoplanhelpers($PIECE($GET(^names(%ydboctocursor(cursorId,"keys",1,"NAMES","ID"))),"|",2))
 _ydboctoP*.m:;  SELECT * FROM names n1 WHERE n1.firstname IN ('Zero', 'Lord');
 _ydboctoP*.m:octoPlan0(cursorId)
 _ydboctoP*.m:    DO octoPlan1(cursorId)

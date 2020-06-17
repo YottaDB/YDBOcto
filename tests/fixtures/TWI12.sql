@@ -24,3 +24,6 @@ SELECT n1.id,n2.id FROM names n1, names n2 WHERE n1.id IN (1,5) AND n2.id IN (3,
 -- Below query tests IN where left and right side are expressions
 SELECT n1.id,n2.id FROM names n1, names n2 WHERE n1.id+1 IN (2,4) AND n2.id-1 IN (NULL+1,3-1,n1.id-1,2);
 
+-- Below query tests key fixing optimization works with NULL in the list of values on the right side of IN
+SELECT * FROM names WHERE id IN (1,NULL,2);
+

@@ -21,13 +21,13 @@
 
 // Below is a helper function that should be invoked only from this file hence the prototype is defined in the .c file
 // and not in the .h file like is the usual case.
-LogicalPlan *lp_optimize_where_multi_equal_ands_helper(LogicalPlan *plan, LogicalPlan *where, int *key_unique_id_array,
+LogicalPlan *lp_optimize_where_multi_equals_ands_helper(LogicalPlan *plan, LogicalPlan *where, int *key_unique_id_array,
 								SqlTableAlias *right_table_alias, boolean_t num_outer_joins);
 
 /* Note: "num_outer_joins" is used by this function (and the function it calls) only if "right_table_alias" is NULL.
  * So it is okay if "num_outer_joins" is set to an arbitrary value in case "right_table_alias" is non-NULL.
  */
-void lp_optimize_where_multi_equal_ands(LogicalPlan *plan, LogicalPlan *where,
+void lp_optimize_where_multi_equals_ands(LogicalPlan *plan, LogicalPlan *where,
 					SqlTableAlias *right_table_alias, boolean_t num_outer_joins) {
 	int		*key_unique_id_array;	// keys_unique_id_ordering[unique_id] = index in the ordered list
 	int		max_unique_id;		// 1 more than maximum possible table_id/unique_id
@@ -43,7 +43,7 @@ void lp_optimize_where_multi_equal_ands(LogicalPlan *plan, LogicalPlan *where,
 	cur = lp_get_keys(plan);
 	i = 1;	// start at non-zero value since 0 is a special value indicating key is not known to the current query/sub-query
 		// (e.g. comes in from parent query). Treat 0 as the highest possible unique_id in the function
-		// "lp_optimize_where_multi_equal_ands_helper".
+		// "lp_optimize_where_multi_equals_ands_helper".
 	while (NULL != cur) {
 		GET_LP(lp_key, cur, 0, LP_KEY);
 		key = lp_key->v.lp_key.key;
@@ -53,10 +53,10 @@ void lp_optimize_where_multi_equal_ands(LogicalPlan *plan, LogicalPlan *where,
 		cur = cur->v.lp_default.operand[1];
 		i++;
 	}
-	lp_optimize_where_multi_equal_ands_helper(plan, where, key_unique_id_array, right_table_alias, num_outer_joins);
+	lp_optimize_where_multi_equals_ands_helper(plan, where, key_unique_id_array, right_table_alias, num_outer_joins);
 }
 
-LogicalPlan *lp_optimize_where_multi_equal_ands_helper(LogicalPlan *plan, LogicalPlan *where, int *key_unique_id_array,
+LogicalPlan *lp_optimize_where_multi_equals_ands_helper(LogicalPlan *plan, LogicalPlan *where, int *key_unique_id_array,
 							SqlTableAlias *right_table_alias, boolean_t num_outer_joins) {
 	LogicalPlan		*cur, *left, *right, *t, *keys;
 	LogicalPlan		*first_key, *before_first_key, *last_key, *before_last_key, *xref_keys;
@@ -80,17 +80,14 @@ LogicalPlan *lp_optimize_where_multi_equal_ands_helper(LogicalPlan *plan, Logica
 		return where;
 	}
 	type = cur->type;
-	if (LP_BOOLEAN_OR == type)	/* OR is currently not optimized (only AND and EQUALS/IN are) */ {
-		return where;
-	}
 	left = cur->v.lp_default.operand[0];
 	right = cur->v.lp_default.operand[1];
 	switch (type) {
 	case LP_BOOLEAN_AND:
-		new_left = lp_optimize_where_multi_equal_ands_helper(plan, left, key_unique_id_array,
+		new_left = lp_optimize_where_multi_equals_ands_helper(plan, left, key_unique_id_array,
 										right_table_alias, num_outer_joins);
 		cur->v.lp_default.operand[0] = new_left;
-		new_right = lp_optimize_where_multi_equal_ands_helper(plan, right, key_unique_id_array,
+		new_right = lp_optimize_where_multi_equals_ands_helper(plan, right, key_unique_id_array,
 										right_table_alias, num_outer_joins);
 		cur->v.lp_default.operand[1] = new_right;
 		if (NULL == new_left) {
@@ -196,7 +193,7 @@ LogicalPlan *lp_optimize_where_multi_equal_ands_helper(LogicalPlan *plan, Logica
 		// If key_unique_id_array[right_id] == 0, that means the right column comes in from a parent query.
 		// In that case we want to fix the left column to the right column so no swapping needed. Hence the
 		// "0 != " check below (i.e. treats 0 as the highest possible unique_id; see comment in the function
-		// "lp_optimize_where_multi_equal_ands()" for more details on this).
+		// "lp_optimize_where_multi_equals_ands()" for more details on this).
 		if ((0 != key_unique_id_array[right_id]) && (key_unique_id_array[left_id] < key_unique_id_array[right_id])) {
 			t = left;
 			left = right;
@@ -337,7 +334,7 @@ LogicalPlan *lp_optimize_where_multi_equal_ands_helper(LogicalPlan *plan, Logica
 		 * from the WHERE expression as it will otherwise result in a redundant IF check in the generated M code.
 		 * We cannot do this removal in case this is the WHERE clause and OUTER JOINs exist (it is okay to do this if it
 		 * is the ON condition and OUTER JOINs exist) as we need == check for this WHERE clause to be generated in the
-		 * M code for correctness of query results. If we can safely remove it safely, there is still a subtlety involved
+		 * M code for correctness of query results. If we can remove it safely, there is still a subtlety involved
 		 * with keys from parent queries which is handled below.
 		 */
 		remove_lp_boolean_equals = ((NULL != right_table_alias) || (0 == num_outer_joins));
@@ -351,7 +348,7 @@ LogicalPlan *lp_optimize_where_multi_equal_ands_helper(LogicalPlan *plan, Logica
 				 * of a fixed key eliminated from the IF condition. This way the generated M code is optimized
 				 * (in terms of not having a redundant equality check) even for plans with references to parent
 				 * queries. It is okay to use where->v.lp_default.operand[1] for the alternate list because it is
-				 * guaranteed to be NULL (asserted in caller function "lp_optimize_where_multi_equal_ands()").
+				 * guaranteed to be NULL (asserted in caller function "lp_optimize_where_multi_equals_ands()").
 				 */
 				LogicalPlan	*where2, *opr1, *lp;
 

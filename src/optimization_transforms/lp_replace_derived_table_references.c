@@ -113,7 +113,7 @@ LogicalPlan *lp_replace_helper(LogicalPlan *plan, SqlTableAlias *table_alias, Sq
 		oper1 = plan->v.lp_default.operand[1];
 		if ((NULL != oper1) && (LP_COLUMN_LIST_ALIAS != oper1->type)) {
 			/* Note that it is possible we have `operand[1]` set to a non-NULL value for a LP_WHERE.
-			 * In this case, this is the alternate list that "lp_optimize_where_multi_equal_ands_helper()"
+			 * In this case, this is the alternate list that "lp_optimize_where_multi_equals_ands_helper()"
 			 * built that needs to also be checked for derived table references.
 			 */
 			ret->v.lp_default.operand[1] = lp_replace_helper(plan->v.lp_default.operand[1], table_alias, key);

@@ -70,7 +70,7 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *plan, LogicalPlan *tablejoin, unsigned in
 			do {
 				LogicalPlan	*value;
 
-				/* Below assert is ensured by "lp_optimize_where_multi_equal_ands_helper()".
+				/* Below assert is ensured by "lp_optimize_where_multi_equals_ands_helper()".
 				 * Or else it would not have decided to fix the key.
 				 */
 				value = list->v.lp_default.operand[0];

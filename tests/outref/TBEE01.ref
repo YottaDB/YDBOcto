@@ -16,4 +16,3 @@ WHERE    (n1.id = 1) OR (n1.id = 2) OR (n1.id = 3) OR (n1.id = 4) OR (n1.id = 5)
 3|Lord|Nikon|3|Lord|Nikon|3|Lord|Nikon|3|Lord|Nikon
 4|Joey||4|Joey||4|Joey||4|Joey|
 5|Zero|Cool|5|Zero|Cool|5|Zero|Cool|5|Zero|Cool
-

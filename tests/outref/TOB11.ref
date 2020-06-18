@@ -11,4 +11,3 @@ select * from (select * from names union select 6::integer,'Joey','Abcd' union s
 7|Joey|Zzzz
 2|Cereal|Killer
 1|Acid|Burn
-

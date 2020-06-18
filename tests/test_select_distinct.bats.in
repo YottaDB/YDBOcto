@@ -20,15 +20,15 @@ setup() {
 }
 
 @test "TSD01 : where select with distinct" {
-  run_query_in_octo_and_postgres_and_crosscheck names TSD01.sql "remove_empty_line_at_tail"
+  run_query_in_octo_and_postgres_and_crosscheck names TSD01.sql
 }
 
 @test "TSD02 : OCTO396 : LVUNDEF error when SELECT DISTINCT used in sub-query in EXISTS operator" {
-  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TSD02.sql "remove_empty_line_at_tail"
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TSD02.sql
 }
 
 @test "TSD03 : OCTO434 : DISTINCT in sub-query and outer-query returns duplicate rows if outer query WHERE clause has OR conditions that match the same row" {
-  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TSD03.sql "remove_empty_line_at_tail"
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TSD03.sql
 }
 
 @test "TSD04 : SELECT DISTINCT should issue error if ORDER BY expression does not appear in SELECT column list" {
@@ -39,6 +39,6 @@ setup() {
   mv clean_output.txt errors_clean_output.txt
   # TSD04_noerrors.sql can be used with `run_query_in_octo_and_postgres_and_crosscheck_multiple_queries` because all queries
   # generate valid output (i.e. no errors at all). No reference file needed for this.
-  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TSD04_noerrors.sql "remove_empty_line_at_tail"
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TSD04_noerrors.sql
 }
 

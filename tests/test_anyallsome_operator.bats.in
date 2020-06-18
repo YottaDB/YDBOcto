@@ -23,7 +23,7 @@ setup() {
   yottadb -run TAO01 # this generates query files of the form TAO01_01.sql, TAO01_02.sql ...
   for file in TAO01_*.sql
   do
-    run_query_in_octo_and_postgres_and_crosscheck names $file "remove_empty_line_at_tail"
+    run_query_in_octo_and_postgres_and_crosscheck names $file
   done
 }
 
@@ -33,10 +33,10 @@ setup() {
 }
 
 @test "TAO03 : OCTO447 : QUITARGREQD error when < is used with ALL/ANY/SOME operator" {
-  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TAO03.sql "remove_empty_line_at_tail"
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TAO03.sql
 }
 
 @test "TAO04 : OCTO448 : Incorrect results from ALL/ANY when empty string is in the list" {
-  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TAO04.sql "remove_empty_line_at_tail"
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TAO04.sql
 }
 

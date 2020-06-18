@@ -20,16 +20,16 @@ setup() {
 }
 
 @test "TAF01 : OCTO455 : AVG/MIN/MAX/SUM on empty table should return the NULL value if GROUP BY clause is absent" {
-  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TAF01.sql "remove_empty_line_at_tail"
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TAF01.sql
 }
 
 @test "TAF02 : OCTO311 : Test aggregate function handling of NULL" {
   load_fixture customers.sql
   load_fixture customers.zwr
-  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries customers TAF02.sql "remove_empty_line_at_tail" "trim_trailing_zeroes"
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries customers TAF02.sql "trim_trailing_zeroes"
 }
 
 @test "TAF03 : OCTO517 : HAVING clause with COUNT() function usage returns incorrect results in some cases" {
-  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TAF03.sql "remove_empty_line_at_tail" "trim_trailing_zeroes"
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TAF03.sql "trim_trailing_zeroes"
 }
 

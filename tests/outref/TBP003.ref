@@ -36,4 +36,3 @@ syntax error, unexpected SELECT, expecting DEFAULT or LEFT_PAREN
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: INSERT INTO myTable2
 SELECT * from myTable3;
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: INSERT INTO theTable DEFAULT VALUES;
-

@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -21,28 +21,28 @@ setup() {
   load_fixture names.zwr
 }
 
-@test "long query line: inner join pastas order by pasta id ascending" {
+@test "TLL01 : long query line: inner join pastas order by pasta id ascending" {
   octo <<OCTO &> output.txt
 select pastas.id, firstName, lastName, pastaName from names4 inner join pastas on pastas.pastaName = names4.favoritePasta order by pastas.id;
 OCTO
-  verify_output TL000 output.txt
+  verify_output TLL01 output.txt
 }
 
-@test "long query line: inner join pastas order by pasta id ascending explicit" {
+@test "TLL02 : long query line: inner join pastas order by pasta id ascending explicit" {
   octo <<OCTO &> output.txt
 select pastas.id, firstName, lastName, pastaName from names4 inner join pastas on pastas.pastaName = names4.favoritePasta order by pastas.id asc;
 OCTO
-  verify_output TL001 output.txt
+  verify_output TLL02 output.txt
 }
 
-@test "long query line: inner join pastas order by pasta id descending" {
+@test "TLL03 : long query line: inner join pastas order by pasta id descending" {
   octo <<OCTO &> output.txt
 select pastas.id, firstName, lastName, pastaName from names4 inner join pastas on pastas.pastaName = names4.favoritePasta order by pastas.id desc;
 OCTO
-  verify_output TL002 output.txt
+  verify_output TLL03 output.txt
 }
 
-@test "octo -f on query greater than 32k characters in one query" {
+@test "TLL04 : octo -f on query greater than 32k characters in one query" {
   export COLUMNS=35000 # increase column limit to avoid control characters
   yottadb -run gt32k^genlargequery
   octo -f in.sql &> output.txt
@@ -52,10 +52,10 @@ OCTO
     -e 's/b\(1234567890\)\{1638\}1234/COLUMN_B/ig'\
     -e 's/^\^\{16385\}/COLUMN_A_ERROR/g'\
     -e 's/^ \^\{16385\}/COLUMN_B_ERROR/g' output.txt > filteredOut.txt
-  verify_output TL003 filteredOut.txt
+  verify_output TLL04 filteredOut.txt
 }
 
-@test "octo -f on series of queries greater than 32k characters" {
+@test "TLL05 : octo -f on series of queries greater than 32k characters" {
   export COLUMNS=35000 # increase column limit to avoid control characters
   yottadb -run almost32k^genlargequery
   octo -f in.sql &> output.txt
@@ -65,10 +65,10 @@ OCTO
     -e 's/b\(1234567890\)\{1637\}/COLUMN_B/ig'\
     -e 's/^\^\{16371\}/COLUMN_A_ERROR/g'\
     -e 's/^ \^\{16371\}/COLUMN_B_ERROR/g' output.txt > filteredOut.txt
-  verify_output TL004 filteredOut.txt
+  verify_output TLL05 filteredOut.txt
 }
 
-@test "octo query greater than 32k characters in one query" {
+@test "TLL06 : octo query greater than 32k characters in one query" {
   # This test fails on CentOS due to line limit
   if [[ $( grep -i "centos" /etc/*-release ) ]]; then
     skip "Skipping test as it does not work on CentOS"
@@ -82,10 +82,10 @@ OCTO
     -e 's/b\(1234567890\)\{1638\}1234$/COLUMN_B/ig'\
     -e 's/^\^\{16385\}$/COLUMN_A_ERROR/g'\
     -e 's/^ \^\{16385\}$/COLUMN_B_ERROR/g' output.txt > filteredOut.txt
-  verify_output TL005 filteredOut.txt
+  verify_output TLL06 filteredOut.txt
 }
 
-@test "octo series of queries greater than 32k characters" {
+@test "TLL07 : octo series of queries greater than 32k characters" {
   # This test fails on CentOS due to line limit
   if [[ $( grep -i "centos" /etc/*-release ) ]]; then
     skip "Skipping test as it does not work on CentOS"
@@ -99,10 +99,10 @@ OCTO
     -e 's/b\(1234567890\)\{1637\}$/COLUMN_B/ig'\
     -e 's/^\^\{16371\}$/COLUMN_A_ERROR/g'\
     -e 's/^ \^\{16371\}$/COLUMN_B_ERROR/g' output.txt > filteredOut.txt
-  verify_output TL006 filteredOut.txt
+  verify_output TLL07 filteredOut.txt
 }
 
-@test "octo -f on query that overlaps with itself when shifting the input buffer" {
+@test "TLL08 : octo -f on query that overlaps with itself when shifting the input buffer" {
   # This test fails on CentOS due to line limit
   if [[ $( grep -i "centos" /etc/*-release ) ]]; then
     skip "Skipping test as it does not work on CentOS"
@@ -120,10 +120,10 @@ OCTO
     -e 's/b\(1234567890\)\{1638\}1234$/COLUMN_B2/ig'\
     -e 's/^\^\{16385\}$/COLUMN_A2_ERROR/g'\
     -e 's/^ \^\{16385\}$/COLUMN_B2_ERROR/g' output.txt > filteredOut.txt
-  verify_output TL007 filteredOut.txt
+  verify_output TLL08 filteredOut.txt
 }
 
-@test "octo on query that overlaps with itself when shifting the input buffer" {
+@test "TLL09 : octo on query that overlaps with itself when shifting the input buffer" {
   # This test fails on CentOS due to line limit
   if [[ $( grep -i "centos" /etc/*-release ) ]]; then
     skip "Skipping test as it does not work on CentOS"
@@ -141,5 +141,5 @@ OCTO
     -e 's/b\(1234567890\)\{1638\}1234$/COLUMN_B2/ig'\
     -e 's/^\^\{16385\}$/COLUMN_A2_ERROR/g'\
     -e 's/^ \^\{16385\}$/COLUMN_B2_ERROR/g' output.txt > filteredOut.txt
-  verify_output TL008 filteredOut.txt
+  verify_output TLL09 filteredOut.txt
 }

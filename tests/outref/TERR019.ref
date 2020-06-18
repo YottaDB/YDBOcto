@@ -92,4 +92,3 @@ SELECT n1.id,n2.id,n3.id FROM names n1 NATURAL JOIN names n2 FULL  JOIN names n3
 4|4|5
 5|5|
 ||0
-

@@ -9,5 +9,4 @@ WHERE  t.typnamespace = n.oid
 64
 
 ----- OCTO -----
-
 64

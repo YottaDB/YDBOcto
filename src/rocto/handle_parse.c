@@ -95,7 +95,7 @@ int handle_parse(Parse *parse, RoctoSession *session) {
 	// Store query in input buffer
 	query_length = sql_expression.len_used;
 	memcpy(input_buffer_combined, sql_expression.buf_addr, query_length);
-	eof_hit = FALSE;
+	eof_hit = EOF_NONE;
 	input_buffer_combined[query_length] = '\0';
 	cur_input_index = 0;
 	cur_input_more = &no_more;

@@ -29,4 +29,3 @@ SELECT * FROM names n1 FULL  JOIN names n2 ON n2.id NOT IN (1, 1, 1, 1, 1, 1, 1,
 |||1|Acid|Burn
 |||2|Cereal|Killer
 |||4|Joey|
-

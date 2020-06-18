@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -24,7 +24,7 @@ setup() {
   yottadb -run genqueryfiles TBO01.sql	# this generates query files of the form TBO01_01.sql, TBO01_02.sql ...
   for file in TBO01_*.sql
   do
-    run_query_in_octo_and_postgres_and_crosscheck names $file "remove_empty_line_at_tail"
+    run_query_in_octo_and_postgres_and_crosscheck names $file
   done
 }
 

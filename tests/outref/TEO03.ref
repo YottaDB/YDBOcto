@@ -76,7 +76,6 @@ SELECT DISTINCT Categories.CategoryID, (SELECT alias1.ShipperID FROM Shippers al
 6|1|Meat/Poultry
 7|1|Produce
 8|1|Seafood
-
 ;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
 ;; ---------------------------------------------------------
 ;  SELECT n1.id FROM names n1 INNER JOIN names n2 ON ((n1.firstname > n2.firstname) OR NOT (1 < 2)) WHERE NOT EXISTS (SELECT 1 FROM names WHERE NOT EXISTS (SELECT 1 FROM names));

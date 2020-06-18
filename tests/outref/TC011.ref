@@ -269,4 +269,3 @@ CREATE TABLE names (id NUMERIC(abcd,efgh) PRIMARY KEY, firstName VARCHAR(30), la
 syntax error, unexpected IDENTIFIER_ALONE, expecting LITERAL
 
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: CREATE TABLE names (id NUMERIC(abcd,efgh) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))";
-

@@ -234,4 +234,3 @@ ORDER  BY data_type,
 [ INFO] PATH:LINENUM DATE TIME : Generating helper cross reference M file [./_ydboctoX*.m] for table [PG_TYPE] and column [OID]
 [ INFO] PATH:LINENUM DATE TIME : Generating helper cross reference M file [./_ydboctoX*.m] for table [PG_CATALOG.PG_TYPE] and column [TYPTYPE]
 [ INFO] PATH:LINENUM DATE TIME : print_temporary_table()
-

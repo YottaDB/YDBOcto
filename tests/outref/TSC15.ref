@@ -15,4 +15,3 @@ select c,b from (select 1 as a, 2 as b);
        ^
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select c,b from (select 1 as a, 2 as b);
 
-

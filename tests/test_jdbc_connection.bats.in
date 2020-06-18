@@ -38,7 +38,7 @@ teardown() {
   # Run using psql and Octo against each of the generated queries
   for file in jointest*.sql
   do
-    run_query_in_octo_and_postgres_and_crosscheck customers $file "" "" usejdbc useextended
+    run_query_in_octo_and_postgres_and_crosscheck customers $file "" usejdbc useextended
   done
 }
 
@@ -61,19 +61,19 @@ teardown() {
 }
 
 @test "TJC004 : Test Query Generator against customers database" {
-  run_query_generator customers TJC04- "" "" usejdbc
+  run_query_generator customers TJC04- usejdbc
 }
 
 @test "TJC005 : Test Query Generator against pastas database" {
-  run_query_generator pastas TJC05- "" "" usejdbc
+  run_query_generator pastas TJC05- usejdbc
 }
 
 @test "TJC006 : Test Query Generator against names database" {
-  run_query_generator names TJC06- "" "" usejdbc
+  run_query_generator names TJC06- usejdbc
 }
 
 @test "TJC007 : Test Query Generator against northwind database" {
-  run_query_generator northwind TJC07- "" "" usejdbc
+  run_query_generator northwind TJC07- usejdbc
 }
 
 @test "TJC008 : Validate usage of Simple vs. Extended Query protocol using PrepareThreshold" {
@@ -94,7 +94,7 @@ teardown() {
   load_fixture names.sql
   load_fixture names.zwr
   testname="TJC009"
-  run_query_in_octo_and_postgres_and_crosscheck names $testname.sql "" "" usejdbc
+  run_query_in_octo_and_postgres_and_crosscheck names $testname.sql "" usejdbc
   grep "Sending message of type T" rocto.log &> output.txt
   verify_output $testname output.txt psql
 }

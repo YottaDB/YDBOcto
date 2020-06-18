@@ -66,4 +66,3 @@ SELECT * FROM names WHERE id IN (1,,2,);
 syntax error, unexpected COMMA
 
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT * FROM names WHERE id IN (1,,2,);
-

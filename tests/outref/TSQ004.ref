@@ -432,7 +432,6 @@ LP_INSERT:
 [ INFO] PATH:LINENUM DATE TIME : Generating helper cross reference M file [./_ydboctoX*.m] for table [PG_CATALOG.PG_DESCRIPTION] and column [OBJOID]
 [ INFO] PATH:LINENUM DATE TIME : Generating helper cross reference M file [./_ydboctoX*.m] for table [PG_CATALOG.PG_PROC] and column [PRONAMESPACE]
 [ INFO] PATH:LINENUM DATE TIME : print_temporary_table()
-
 |pg_catalog|ABS|||||2|ABS_170
 |pg_catalog|CURRENT_SCHEMA|||||2|CURRENT_SCHEMA_174
 |pg_catalog|CURRENT_SCHEMAS|||||2|CURRENT_SCHEMAS_318

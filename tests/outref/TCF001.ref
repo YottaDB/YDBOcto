@@ -9,4 +9,3 @@ select ABS(-id)+2 as absid from names;
 5
 6
 7
-

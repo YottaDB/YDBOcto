@@ -25,7 +25,6 @@ select * from nonexistanttable;
 4|Joey|
 5|Zero|Cool
 
-
 ------------------------------
 Using config verbosity level: INFO
 ------------------------------
@@ -59,7 +58,6 @@ select * from nonexistanttable;
 4|Joey|
 5|Zero|Cool
 [ INFO] PATH:LINENUM DATE TIME : Parsing done for SQL command []
-
 
 ------------------------------
 Using config verbosity level: DEBUG
@@ -179,7 +177,6 @@ LP_INSERT:
 4|Joey|
 5|Zero|Cool
 [ INFO] PATH:LINENUM DATE TIME : Parsing done for SQL command []
-
 
 ------------------------------
 Using config verbosity level: TRACE
@@ -638,4 +635,3 @@ Reducing stack by rule rrr (line lll):
    $1 = nterm semicolon_or_eof (: )
 Stack now sss ...
 [ INFO] PATH:LINENUM DATE TIME : Parsing done for SQL command []
-

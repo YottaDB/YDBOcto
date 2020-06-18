@@ -17,6 +17,5 @@ Error with syntax near (line 1, column 8):
 SELECT ABS(-1) FROM names;
        ^^^
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT ABS(-1) FROM names;
-
 Successfully cleared ^%ydboctoocto("functions","ABS")
 Successfully deleted function "ABS" from pg_catalog.pg_proc

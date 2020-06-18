@@ -8,7 +8,6 @@ WHERE n1.firstName IN (SELECT n2.firstName
   WHERE n1.firstName = n1.lastName
 );
 
-
 ;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
 ;; ---------------------------------------------------------
 ;  SELECT *

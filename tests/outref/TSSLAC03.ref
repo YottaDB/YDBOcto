@@ -15,7 +15,6 @@ ORDER BY nspname,
          relname desc,
 	 attnum
 
-
 public|USERS|10
 public|PG_TYPE|12
 public|PG_PROC|15

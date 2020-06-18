@@ -33,4 +33,3 @@ Error with syntax near (line 1, column 29):
 SELECT LENGTH(LENGTH(LENGTH(1, 2))) FROM names;
                             ^
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT LENGTH(LENGTH(LENGTH(1, 2))) FROM names;
-

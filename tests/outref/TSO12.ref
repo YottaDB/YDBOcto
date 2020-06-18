@@ -1501,4 +1501,3 @@ UNION ALL
   INNER JOIN names n2
   ON n1.id = n2.id
 );
-

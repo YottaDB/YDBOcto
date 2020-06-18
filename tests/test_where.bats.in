@@ -236,7 +236,7 @@ OCTO
 }
 
 @test "TW22 : OCTO416 : YDB-E-RPARENMISSING error when NOT IN operator has hundreds of choices" {
-  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TW22.sql "remove_empty_line_at_tail"
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TW22.sql
 }
 
 @test "TW23 : OCTO416 : YDB-E-RPARENMISSING error when NOT IN operator in FULL JOIN ON clause has hundreds of choices" {

@@ -59,7 +59,7 @@ CAT
   yottadb -run genfixedsetqueries^gensetqueries # this generates queries of the form setquery01.sql, setquery02.sql ...
   for file in setquery*.sql
   do
-    run_query_in_octo_and_postgres_and_crosscheck names $file "remove_empty_line_at_tail"
+    run_query_in_octo_and_postgres_and_crosscheck names $file
   done
 }
 
@@ -69,17 +69,17 @@ CAT
 }
 
 @test "TL06 : OCTO433 : LIMIT in sub-query causes LIMIT in outer query with OR/IN operator in WHERE clause to return more rows than expected" {
-  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TL06.sql "remove_empty_line_at_tail"
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TL06.sql
 }
 
 @test "TL07 : LIMIT tests checking the handling of Numeric values" {
-  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TL07.sql "remove_empty_line_at_tail"
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TL07.sql
   # Verify that TL07.sql queries generates only 1 plan as they only differ by limit value
   [[ $(ls -l _ydboctoP*.m | wc -l) -eq 1 ]]
 }
 
 @test "TL08 : Generate two plans from two queries having same limit value but different select columns" {
-  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TL08.sql "remove_empty_line_at_tail"
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TL08.sql
   [[ $(ls -l _ydboctoP*.m | wc -l) -eq 2 ]]
 }
 

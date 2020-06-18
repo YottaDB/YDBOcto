@@ -253,14 +253,14 @@ sql_statement
   | exit_command {
       parse_context->is_select = FALSE;
       SQL_STATEMENT(*out, no_data_STATEMENT);
-      eof_hit = TRUE;
+      eof_hit = EOF_EXIT;
       YYACCEPT;
   }
   ;
 
 semicolon_or_eof
   : SEMICOLON { if ('\0' != input_buffer_combined[cur_input_index]) cur_input_index--; } // The lexer will read one past the SEMICOLON if there is a character there so back up one character
-  | ENDOFFILE { assert(TRUE == eof_hit); } // The lexer should have set eof_hit at this point and this should always be true
+  | ENDOFFILE { assert(EOF_CTRLD == eof_hit); } // The lexer should have set eof_hit at this point and this should always be true
   ;
 
 exit_command

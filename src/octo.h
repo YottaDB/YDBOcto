@@ -54,6 +54,11 @@
 # define OCTO_PATH_MAX PATH_MAX
 #endif
 
+/* The below macros capture the different states of the "eof_hit" global variable */
+#define	EOF_NONE	0	/* EOF has not yet been signaled */
+#define	EOF_CTRLD	1	/* Ctrl-D signaled the Octo process to terminate */
+#define	EOF_EXIT	2	/* EXIT or QUIT commands signaled the Octo process to terminate */
+
 // Allows us to leave parameters in place even if they are unused and avoid warning from the
 // compiler.
 #define UNUSED(x) (void)(x)

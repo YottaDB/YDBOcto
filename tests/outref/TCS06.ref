@@ -11,4 +11,3 @@ SELECT case when id=1 then 'id_is_1' when id=2 then 1 when id=3 then 'id_is_3' e
                                                     ^
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT case when id=1 then 'id_is_1' when id=2 then 1 when id=3 then 'id_is_3' end as caseid FROM names;
 
-

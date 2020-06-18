@@ -24,7 +24,7 @@ setup() {
   yottadb -run genqueryfiles TEO01.sql	# this generates query files of the form TEO01_01.sql, TEO01_02.sql ...
   for file in TEO01_*.sql
   do
-    run_query_in_octo_and_postgres_and_crosscheck names $file "remove_empty_line_at_tail"
+    run_query_in_octo_and_postgres_and_crosscheck names $file
   done
 }
 
@@ -36,7 +36,7 @@ setup() {
   mv clean_output.txt errors_clean_output.txt
   # TEO02_noerrors.sql can be used with `run_query_in_octo_and_postgres_and_crosscheck_multiple_queries` because all queries
   # generate valid output (i.e. no errors at all). No reference file needed for this.
-  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TEO02_noerrors.sql "remove_empty_line_at_tail"
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TEO02_noerrors.sql
 }
 
 @test "TEO03 : Test generated M code has no duplication if query has multiple physical plans mapping to the same logical plan " {

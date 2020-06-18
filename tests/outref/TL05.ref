@@ -48,4 +48,3 @@ syntax error, unexpected MINUS, expecting LITERAL
 
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select * from names limit -3;
 
-

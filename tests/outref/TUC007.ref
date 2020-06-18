@@ -39,4 +39,3 @@ from names c
 inner join names o
 on c.invalidE = o.invalidF
 
-

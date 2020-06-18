@@ -15,6 +15,7 @@ LP_INSERT:
         LP_COLUMN_ALIAS: NAMES(1).ID
         LP_COLUMN_LIST_ALIAS: 
 # tail -20 of full_output.txt follows
+        LP_SELECT_OPTIONS: 
           LP_WHERE: 
           LP_SELECT_MORE_OPTIONS: 
             LP_KEYWORDS: 
@@ -34,4 +35,3 @@ LP_INSERT:
 4|Joey|
 5|Zero|Cool
 [ INFO] PATH:LINENUM DATE TIME : Parsing done for SQL command []
-

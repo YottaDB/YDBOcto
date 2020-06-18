@@ -19,4 +19,3 @@ SELECT * from names where id = ABS(ABS(ABS(-1)+2)-1);
 8
 3|Lord|Nikon
 2|Cereal|Killer
-

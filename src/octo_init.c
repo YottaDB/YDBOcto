@@ -653,7 +653,7 @@ int octo_init(int argc, char **argv) {
 		old_input_index = 0;
 		cur_input_index = 0;
 		cur_input_more = &no_more;
-		eof_hit = 0;
+		eof_hit = EOF_NONE;
 
 		if (INFO >= config->verbosity_level) {	// Record pertinent ydb_* env vars if -vv or higher verbosity is specified
 			char		*ptr;

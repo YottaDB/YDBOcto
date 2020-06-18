@@ -20,4 +20,3 @@ select REPLACE('balloons', 12, 'hot air') as badarg from names;
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select REPLACE('balloons', 12, 'hot air') as badarg from names;
 [ERROR] PATH:LINENUM DATE TIME : Parameter type mismatch in function 'PG_CATALOG.PG_GET_EXPR': expected INTEGER, got BOOLEAN
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select PG_CATALOG.PG_GET_EXPR('balloons', true) as badarg from names;
-

@@ -45,7 +45,7 @@ sqllogic_test() {
 			continue
 		fi
 		echo "testing $file"
-		run_query_in_octo_and_postgres_and_crosscheck sqllogic$num $file "remove_empty_line_at_tail"
+		run_query_in_octo_and_postgres_and_crosscheck sqllogic$num $file
 	done
 }
 

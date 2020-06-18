@@ -30,4 +30,3 @@ select * from easynames where id = 1 or id = 2 or id = 10 order by name limit 4;
 10|Name0
 1|Name1
 2|Name2
-

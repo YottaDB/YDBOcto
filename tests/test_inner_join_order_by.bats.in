@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -19,110 +19,110 @@ setup() {
   load_fixture pastas.zwr
 }
 
-@test "inner join pastas order by pasta id ascending" {
+@test "TIJOB01 : inner join pastas order by pasta id ascending" {
   octo <<OCTO &> output.txt
 select pastas.id, firstName, lastName, pastaName from names4
 inner join pastas on pastas.pastaName = names4.favoritePasta
 order by pastas.id;
 OCTO
-  verify_output T2000 output.txt noinfo nodebug
+  verify_output TIJOB01 output.txt noinfo nodebug
 }
 
-@test "inner join pastas order by pasta id ascending explicit" {
+@test "TIJOB02 : inner join pastas order by pasta id ascending explicit" {
   octo <<OCTO &> output.txt
 select pastas.id, firstName, lastName, pastaName from names4
 inner join pastas on pastas.pastaName = names4.favoritePasta
 order by pastas.id asc;
 OCTO
-  verify_output T2001 output.txt noinfo nodebug
+  verify_output TIJOB02 output.txt noinfo nodebug
 }
 
-@test "inner join pastas order by pasta id descending" {
+@test "TIJOB03 : inner join pastas order by pasta id descending" {
   octo <<OCTO &> output.txt
 select pastas.id, firstName, lastName, pastaName from names4
 inner join pastas on pastas.pastaName = names4.favoritePasta
 order by pastas.id desc;
 OCTO
-  verify_output T2002 output.txt noinfo nodebug
+  verify_output TIJOB03 output.txt noinfo nodebug
 }
 
-@test "inner join pastas order by lastName ascending" {
+@test "TIJOB04 : inner join pastas order by lastName ascending" {
   octo <<OCTO &> output.txt
 select pastas.id, firstName, lastName, pastaName from names4
 inner join pastas on pastas.pastaName = names4.favoritePasta
 order by lastName;
 OCTO
-  verify_output T2003 output.txt noinfo nodebug
+  verify_output TIJOB04 output.txt noinfo nodebug
 }
 
-@test "inner join pastas order by lastName ascending explicit" {
+@test "TIJOB05 : inner join pastas order by lastName ascending explicit" {
   octo <<OCTO &> output.txt
 select pastas.id, firstName, lastName, pastaName from names4
 inner join pastas on pastas.pastaName = names4.favoritePasta
 order by lastName asc;
 OCTO
-  verify_output T2004 output.txt noinfo nodebug
+  verify_output TIJOB05 output.txt noinfo nodebug
 }
 
-@test "inner join pastas order by lastName descending" {
+@test "TIJOB06 : inner join pastas order by lastName descending" {
   octo <<OCTO &> output.txt
 select pastas.id, firstName, lastName, pastaName from names4
 inner join pastas on pastas.pastaName = names4.favoritePasta
 order by lastName desc;
 OCTO
-  verify_output T2005 output.txt noinfo nodebug
+  verify_output TIJOB06 output.txt noinfo nodebug
 }
 
-@test "inner join pastas order by firstName ascending" {
+@test "TIJOB07 : inner join pastas order by firstName ascending" {
   octo <<OCTO &> output.txt
 select pastas.id, firstName, lastName, pastaName from names4
 inner join pastas on pastas.pastaName = names4.favoritePasta
 order by firstName;
 OCTO
-  verify_output T2006 output.txt noinfo nodebug
+  verify_output TIJOB07 output.txt noinfo nodebug
 }
 
-@test "inner join pastas order by firstName ascending explicit" {
+@test "TIJOB08 : inner join pastas order by firstName ascending explicit" {
   octo <<OCTO &> output.txt
 select pastas.id, firstName, lastName, pastaName from names4
 inner join pastas on pastas.pastaName = names4.favoritePasta
 order by firstName asc;
 OCTO
-  verify_output T2007 output.txt noinfo nodebug
+  verify_output TIJOB08 output.txt noinfo nodebug
 }
 
-@test "inner join pastas order by firstName descending" {
+@test "TIJOB09 : inner join pastas order by firstName descending" {
   octo <<OCTO &> output.txt
 select pastas.id, firstName, lastName, pastaName from names4
 inner join pastas on pastas.pastaName = names4.favoritePasta
 order by firstName desc;
 OCTO
-  verify_output T2008 output.txt noinfo nodebug
+  verify_output TIJOB09 output.txt noinfo nodebug
 }
 
-@test "inner join pastas order by pastaName ascending" {
+@test "TIJOB10 : inner join pastas order by pastaName ascending" {
   octo <<OCTO &> output.txt
 select pastas.id, firstName, lastName, pastaName from names4
 inner join pastas on pastas.pastaName = names4.favoritePasta
 order by pastaName;
 OCTO
-  verify_output T2009 output.txt noinfo nodebug
+  verify_output TIJOB10 output.txt noinfo nodebug
 }
 
-@test "inner join pastas order by pastaName ascending explicit" {
+@test "TIJOB11 : inner join pastas order by pastaName ascending explicit" {
   octo <<OCTO &> output.txt
 select pastas.id, firstName, lastName, pastaName from names4
 inner join pastas on pastas.pastaName = names4.favoritePasta
 order by pastaName asc;
 OCTO
-  verify_output T2010 output.txt noinfo nodebug
+  verify_output TIJOB11 output.txt noinfo nodebug
 }
 
-@test "inner join pastas order by pastaName descending" {
+@test "TIJOB12 : inner join pastas order by pastaName descending" {
   octo <<OCTO &> output.txt
 select pastas.id, firstName, lastName, pastaName from names4
 inner join pastas on pastas.pastaName = names4.favoritePasta
 order by pastaName desc;
 OCTO
-  verify_output T2011 output.txt noinfo nodebug
+  verify_output TIJOB12 output.txt noinfo nodebug
 }

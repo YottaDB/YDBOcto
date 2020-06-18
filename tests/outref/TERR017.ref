@@ -226,4 +226,3 @@ Error with syntax near (line 1, column 23):
 SELECT * FROM (SELECT n3.id) n3;
                       ^^^^^
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT * FROM (SELECT n3.id) n3;
-

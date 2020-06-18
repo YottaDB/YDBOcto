@@ -134,4 +134,3 @@ Error with syntax near (line 1, column 53):
 SELECT a.lastname FROM names a LEFT JOIN names b ON id = 3;
                                                     ^^
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT a.lastname FROM names a LEFT JOIN names b ON id = 3;
-

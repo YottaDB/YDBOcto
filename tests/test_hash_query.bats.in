@@ -84,7 +84,7 @@ OCTO
 }
 
 @test "THQ05 : OCTO513 : Two different CROSS JOIN queries incorrectly hash to the same plan resulting in incorrect output" {
-  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries customers THQ05.sql "remove_empty_line_at_tail"
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries customers THQ05.sql
   # Verify that each of the above queries generates a unique plan by checking for 2 plans below
   [[ $(ls -l _ydboctoP*.m | wc -l) -eq 2 ]]
 }

@@ -7,4 +7,3 @@ select firstName, lastName from names where firstName = "Zero";
 
 Zero|Cool
 Zero|Cool
-

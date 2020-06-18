@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -19,7 +19,7 @@ setup() {
   load_fixture largecolnames.zwr
 }
 
-@test "octo on query larger than 10MiB" {
+@test "TLQ01 : octo on query larger than 10MiB" {
   # This test fails on CentOS due to line limit
   if [[ -v CI_PIPELINE_ID ]]; then
     skip "Skipping test as it randomly fails in pipelines"
@@ -40,7 +40,7 @@ setup() {
   diff output.ref clean_output.txt
 }
 
-@test "octo -f on query larger than 10MiB" {
+@test "TLQ02 : octo -f on query larger than 10MiB" {
   yottadb -run gt10mb^genlargequery
   octo -f in.sql 2>&1 | tee output.txt
   if (( 10485760 >= $(stat --printf="%s\n" _ydboctoP*.m) )); then

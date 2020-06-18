@@ -107,7 +107,7 @@ SELECT * FROM names AS t1
 CROSS JOIN names AS t2
 WHERE t1.id = t2.id
   AND t1.firstName <> 'Charles'
-  AND t2.firstName <> 'Charles'
+  AND t2.firstName <> 'Charles';
 OCTO
   # Include generated M code in reference file to verify all optimizations there
   cat _ydboctoP*.m >> output.txt
@@ -120,7 +120,7 @@ SELECT * FROM names AS t1
 CROSS JOIN names AS t2
 WHERE t1.firstName <> 'Charles'
   AND t2.firstName <> 'Charles'
-  AND t1.id = t2.id
+  AND t1.id = t2.id;
 OCTO
   # Include generated M code in reference file to verify all optimizations there
   cat _ydboctoP*.m >> output.txt
@@ -147,7 +147,7 @@ OCTO
   octo -vv <<OCTO > output.txt 2> plan.txt
 SELECT *
 FROM names
-WHERE firstName = 'Zero' OR lastName = 'Cool'
+WHERE firstName = 'Zero' OR lastName = 'Cool';
 OCTO
   [[ $(grep -c "LP_KEY_FIX" plan.txt) -eq 2 ]]
   # Include generated M code in reference file to verify all optimizations there
@@ -159,7 +159,7 @@ OCTO
   octo -vv <<OCTO > output.txt 2> plan.txt
 SELECT *
 FROM names
-WHERE (id = 0 OR id = 5) AND (firstName = 'Zero' OR lastName = 'Cool')
+WHERE (id = 0 OR id = 5) AND (firstName = 'Zero' OR lastName = 'Cool');
 OCTO
   [[ $(grep -c "LP_KEY_FIX" plan.txt) -eq 4 ]]
   # Include generated M code in reference file to verify all optimizations there
@@ -172,7 +172,7 @@ OCTO
 SELECT *
 FROM names
 WHERE ((id = 0 AND firstName = 'Zero') OR id = 5)
-  AND ((lastName = 'Cool' AND firstName = 'Zero') OR lastName = 'Cool')
+  AND ((lastName = 'Cool' AND firstName = 'Zero') OR lastName = 'Cool');
 OCTO
   [[ $(grep -c "LP_KEY_FIX" plan.txt) -eq 4 ]]
   # Include generated M code in reference file to verify all optimizations there

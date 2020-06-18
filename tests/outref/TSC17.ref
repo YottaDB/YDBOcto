@@ -23,4 +23,3 @@ select (1+id)*2%5 from names;
 3
 0
 2
-

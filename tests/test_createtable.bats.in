@@ -70,7 +70,7 @@ OCTO
   load_fixture names4.zwr
   octo <<OCTO 2>&1 | tee output.txt
 create table names4 (id int, First char(20), Last char(30));
-select * from names4
+select * from names4;
 OCTO
   verify_output TC003 output.txt noinfo nodebug
 }

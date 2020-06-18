@@ -9,4 +9,3 @@ SELECT (SELECT 1 FROM names n2 INNER JOIN names n3 ON n3.id = n1.id LIMIT 1) fro
 1
 1
 1
-

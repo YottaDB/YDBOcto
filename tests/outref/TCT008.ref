@@ -8,7 +8,6 @@ select DOLLARREV(id)::integer from names limit 1;
 
 0
 0
-
 Listing of M files, should see 2
 _ydboctoP*.m
 _ydboctoP*.m

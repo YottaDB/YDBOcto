@@ -9,4 +9,3 @@ SELECT *;
        ^
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT *;
 
-

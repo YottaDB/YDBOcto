@@ -12,4 +12,3 @@ SELECT (SELECT firstname FROM (SELECT n3.id,firstname FROM names n1) n2) FROM na
 [ERROR] PATH:LINENUM DATE TIME : More than one row returned by a subquery used as an expression
 [ERROR] PATH:LINENUM DATE TIME : More than one row returned by a subquery used as an expression
 [ERROR] PATH:LINENUM DATE TIME : More than one row returned by a subquery used as an expression
-

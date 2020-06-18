@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -185,10 +185,10 @@ OCTO
   load_fixture customers.sql
   load_fixture customers.zwr
   load_fixture TOB12.sql subtest
-  run_query_in_octo_and_postgres_and_crosscheck customers TOB12.sql "remove_empty_line_at_tail"
+  run_query_in_octo_and_postgres_and_crosscheck customers TOB12.sql
 }
 
 @test "TOB13 : OCTO412 : ORDER BY COLUMN NUM does not work if COLUMN NUM in select column list has a sub-query" {
-  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TOB13.sql "remove_empty_line_at_tail"
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TOB13.sql
 }
 

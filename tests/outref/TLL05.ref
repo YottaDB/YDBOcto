@@ -18,9 +18,8 @@ from names;
 [ERROR] PATH:LINENUM DATE TIME : Unknown column: NOTATHING
 Error with syntax near (line 1, column 8):
 
-from names; select notathing from names; select firstname from names limit 1;
-                   ^^^^^^^^^
+select notathing from names; select firstname from names limit 1;
+       ^^^^^^^^^
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select notathing from names;
 Zero
 Cool
-

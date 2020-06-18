@@ -385,7 +385,6 @@ Lord|1
 Cereal|1
 Zero|2
 [ INFO] PATH:LINENUM DATE TIME : Parsing done for SQL command []
-
 ;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
 ;; ---------------------------------------------------------
 ;  SELECT DISTINCT 1 + COUNT(n1.id * 2),n1.firstname from names n1 where n1.id IN (SELECT DISTINCT MAX((n2.id % 3) + 4) from names n2 GROUP BY n2.firstname) GROUP BY n1.firstname ORDER BY 2, 1;

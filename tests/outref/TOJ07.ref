@@ -19,7 +19,6 @@ WHERE
    AND E.CURRENT_MOVEMENT>0
 );
 
-
 # Verify cross reference plans did get generated
 _ydboctoX*.m
 # Verify key fixing optimization happened by looking at the FOR loops in the generated M code

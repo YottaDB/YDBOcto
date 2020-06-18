@@ -451,4 +451,3 @@ Reducing stack by rule rrr (line lll):
    $1 = nterm semicolon_or_eof (: )
 Stack now sss ...
 [ INFO] PATH:LINENUM DATE TIME : Parsing done for SQL command []
-

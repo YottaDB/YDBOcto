@@ -95,4 +95,3 @@ ORDER  BY 1,
           2;]
 [ INFO] PATH:LINENUM DATE TIME : Returning failure from run_query
 [ INFO] PATH:LINENUM DATE TIME : Parsing done for SQL command []
-

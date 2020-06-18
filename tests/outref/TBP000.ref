@@ -16,4 +16,3 @@ syntax error, unexpected CURSOR, expecting SEMICOLON or ENDOFFILE
   DELIM "|"
 ) CURSOR "$$CURSE" DELIM "|"
 END "keys(0)" GLOBAL "someGLobal";
-

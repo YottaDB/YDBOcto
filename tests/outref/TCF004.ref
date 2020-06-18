@@ -9,4 +9,3 @@ select DOLLARZWRITE(firstname) from names;
 "Lord"
 "Joey"
 "Zero"
-

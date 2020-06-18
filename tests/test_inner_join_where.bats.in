@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -19,52 +19,52 @@ setup() {
   load_fixture pastas.zwr
 }
 
-@test "inner join pastas where lastName = Buttons" {
+@test "TIJW01 : inner join pastas where lastName = Buttons" {
   octo <<OCTO &> output.txt
 select pastas.id, firstName, lastName, pastaName from names4
 inner join pastas on pastas.pastaName = names4.favoritePasta
 where lastName = "Buttons";
 OCTO
-  verify_output T3000 output.txt noinfo nodebug
+  verify_output TIJW01 output.txt noinfo nodebug
 }
 
-@test "inner join pastas where firstName = Zero" {
+@test "TIJW02 : inner join pastas where firstName = Zero" {
   octo <<OCTO &> output.txt
 select pastas.id, firstName, lastName, pastaName from names4
 inner join pastas on pastas.pastaName = names4.favoritePasta
 where firstName = "Zero";
 OCTO
-  verify_output T3001 output.txt noinfo nodebug
+  verify_output TIJW02 output.txt noinfo nodebug
 }
 
-@test "inner join pastas firstName = Zero and favoritePasta = Lasagna" {
+@test "TIJW03 : inner join pastas firstName = Zero and favoritePasta = Lasagna" {
   octo <<OCTO &> output.txt
 select pastas.id, firstName, lastName, pastaName from names4
 inner join pastas on pastas.pastaName = names4.favoritePasta
 where firstName = "Zero" and names4.favoritePasta = "Lasagna";
 OCTO
-  verify_output T3002 output.txt noinfo nodebug
+  verify_output TIJW03 output.txt noinfo nodebug
 }
 
-@test "inner join pastas where favoritePasta = Penne" {
+@test "TIJW04 : inner join pastas where favoritePasta = Penne" {
   octo <<OCTO &> output.txt
 select pastas.id, firstName, lastName, pastaName from names4
 inner join pastas on pastas.pastaName = names4.favoritePasta
 where names4.favoritePasta = "Penne";
 OCTO
-  verify_output T3003 output.txt noinfo nodebug
+  verify_output TIJW04 output.txt noinfo nodebug
 }
 
-@test "inner join pastas where favoritePasta = Spaghetti" {
+@test "TIJW05 : inner join pastas where favoritePasta = Spaghetti" {
   octo <<OCTO &> output.txt
 select pastas.id, firstName, lastName, pastaName from names4
 inner join pastas on pastas.pastaName = names4.favoritePasta
 where names4.favoritePasta = "Spaghetti";
 OCTO
-  verify_output T3004 output.txt noinfo nodebug
+  verify_output TIJW05 output.txt noinfo nodebug
 }
 
-@test "inner join pastas favoritePasta = Cavatelli and lastName = Buttons and firstName = Bobby" {
+@test "TIJW06 : inner join pastas favoritePasta = Cavatelli and lastName = Buttons and firstName = Bobby" {
   octo <<OCTO &> output.txt
 select pastas.id, firstName, lastName, pastaName from names4
 inner join pastas on pastas.pastaName = names4.favoritePasta
@@ -72,14 +72,14 @@ where names4.favoritePasta = "Cavatelli"
 and lastName = "Buttons"
 and firstName = "Bobby";
 OCTO
-  verify_output T3005 output.txt noinfo nodebug
+  verify_output TIJW06 output.txt noinfo nodebug
 }
 
-@test "inner join pastas distinct where favoritePasta = Cavatelli" {
+@test "TIJW07 : inner join pastas distinct where favoritePasta = Cavatelli" {
   octo <<OCTO &> output.txt
 select distinct pastas.id, favoritePasta from names4
 inner join pastas on pastas.pastaName = names4.favoritePasta
 where names4.favoritePasta = "Cavatelli";
 OCTO
-  verify_output T3006 output.txt noinfo nodebug
+  verify_output TIJW07 output.txt noinfo nodebug
 }

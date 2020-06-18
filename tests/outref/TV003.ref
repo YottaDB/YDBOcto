@@ -27,4 +27,3 @@ select * from nonexistanttable;
 4|Joey|
 5|Zero|Cool
 [ INFO] PATH:LINENUM DATE TIME : Parsing done for SQL command []
-

@@ -161,7 +161,6 @@ ORDER  BY table_type,
 [ INFO] PATH:LINENUM DATE TIME : Generating helper cross reference M file [./_ydboctoX*.m] for table [PG_CATALOG.PG_CLASS] and column [RELNAMESPACE]
 [ INFO] PATH:LINENUM DATE TIME : Generating helper cross reference M file [./_ydboctoX*.m] for table [PG_CATALOG.PG_NAMESPACE] and column [NSPNAME]
 [ INFO] PATH:LINENUM DATE TIME : print_temporary_table()
-
 |public|INFORMATION_SCHEMA.TABLES|TABLE||||||
 |public|NAMES|TABLE||||||
 |public|NAMESWITHAGES|TABLE||||||

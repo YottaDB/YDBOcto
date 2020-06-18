@@ -1,4 +1,3 @@
 
 INDEX fake_index "^notaglobal(""fake_index"",fields(""name""),fields(""age""),keys(""id""))"
 [ WARN] PATH:LINENUM DATE TIME : Feature not implemented: INDEX statements
-

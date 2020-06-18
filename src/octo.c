@@ -65,7 +65,7 @@ int main(int argc, char **argv)
 			 * cur_input_index+1 is the location of \0 in the buffer.
 			 * After this reset the buffer.
 			 */
-			if(input_buffer_combined[cur_input_index+1] == '\0'){
+			if ('\0' == input_buffer_combined[cur_input_index+1]) {
 				cur_input_index = 0;
 				input_buffer_combined[cur_input_index] = '\0';
 			}
@@ -76,9 +76,10 @@ int main(int argc, char **argv)
 		// so it can safely be discarded.
 		memset(&parse_context, 0, sizeof(parse_context));
 		run_query(&print_temporary_table, NULL, FALSE, &parse_context);
-		if(eof_hit)
+		if (EOF_NONE != eof_hit) {
 			break;
-	} while(!feof(inputFile));
+		}
+	} while (!feof(inputFile));
 
 	cleanup_tables();
 	CLEANUP_CONFIG(config->config_file);

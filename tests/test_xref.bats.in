@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -19,7 +19,7 @@ setup() {
   load_fixture names.zwr
 }
 
-@test "xref top level count is maintained correctly if mapped global nodes are deleted" {
+@test "TXREF01 : xref top level count is maintained correctly if mapped global nodes are deleted" {
   # Run SQL query that generates xref
   octo <<OCTO 2>&1 | tee output.txt
 SELECT * FROM names WHERE firstName = "Zero";

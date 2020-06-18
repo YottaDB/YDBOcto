@@ -572,4 +572,3 @@ LP_INSERT:
 [ INFO] PATH:LINENUM DATE TIME : Generating helper cross reference M file [./_ydboctoX*.m] for table [PG_CATALOG.PG_TYPE] and column [OID]
 [ INFO] PATH:LINENUM DATE TIME : Generating helper cross reference M file [./_ydboctoX*.m] for table [PG_CATALOG.PG_ATTRIBUTE] and column [ATTRELID]
 [ INFO] PATH:LINENUM DATE TIME : print_temporary_table()
-

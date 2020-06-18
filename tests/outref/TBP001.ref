@@ -6,4 +6,3 @@
 
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: DELETE FROM thing where mixedCase = 1;
 
-

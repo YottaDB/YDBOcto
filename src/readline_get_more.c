@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -25,7 +25,7 @@
 
 int get_input(char *buf, int size) {
 	UNUSED(size);
-	if(eof_hit)
+	if (EOF_NONE != eof_hit)
 		return YY_NULL;
 	if(input_buffer_combined[cur_input_index] == '\0') {
 		if(cur_input_more() == 0) {
@@ -44,7 +44,7 @@ int readline_get_more() {
 		line = readline("OCTO> ");
 		if (NULL == line) {
 			// Detecting the EOF is handled by the lexer and this should never be true at this stage
-			assert(FALSE == eof_hit);
+			assert(EOF_NONE == eof_hit);
 			return 0;
 		}
 		line_length = strlen(line);
@@ -113,7 +113,7 @@ int readline_get_more() {
 		}
 
 		// Detecting the EOF is handled by the lexer and this should never be true at this stage
-		assert(FALSE == eof_hit);
+		assert(EOF_NONE == eof_hit);
 		if(data_read == -1) {
 			ERROR(ERR_SYSCALL, "read", errno, strerror(errno));
 			return 0;

@@ -13,4 +13,3 @@ SELECT id as A_id, NULL AS B_id FROM names a WHERE a.firstName NOT IN (SELECT b.
 4|4
 5|0
 5|5
-

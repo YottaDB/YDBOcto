@@ -16,7 +16,6 @@ select 1.5::integer+2.5::numeric+"1abcd"::integer from names;
 4.5
 4.5
 4.5
-
 ;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
 ;; ---------------------------------------------------------
 ;  select 1.5::integer+2.5::numeric+"1abcd"::numeric from names;

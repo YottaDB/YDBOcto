@@ -31,4 +31,3 @@ Error with syntax near (line 1, column 58):
 
 select * from names n1 where n1.firstname =  ALL (select * from names n2 where n1.id > n2.id + 3);
                                                          ^
-

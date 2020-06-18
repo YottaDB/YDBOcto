@@ -96,4 +96,3 @@ SELECT DISTINCT id,(SELECT n1.lastname FROM names n1 LIMIT 1),firstname FROM nam
 3|Cool|Lord
 4|Cool|Joey
 5|Cool|Zero
-

@@ -27,4 +27,3 @@ select id from names as 'klm';
 3
 4
 5
-

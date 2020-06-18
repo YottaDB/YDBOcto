@@ -9,4 +9,3 @@ select id::boolean,(ABS(2)::boolean || id::text) from names;
 1|true3
 1|true4
 1|true5
-

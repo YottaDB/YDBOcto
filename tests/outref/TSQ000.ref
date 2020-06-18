@@ -99,5 +99,4 @@ LP_INSERT:
     - uses_xref_key: false
 
 [ INFO] PATH:LINENUM DATE TIME : print_temporary_table()
-
 64

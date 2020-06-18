@@ -9,4 +9,3 @@ Error with syntax near (line 1, column 8):
 select * asdfasdfsdf;
        ^
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select * asdfasdfsdf;
-

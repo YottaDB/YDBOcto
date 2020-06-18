@@ -25,4 +25,3 @@ SELECT * FROM delimnamesp WHERE firstname = 'Zero';
 5|Zero|Cool|B|25
 0|Zero|Cool|B|25
 5|Zero|Cool|B|25
-

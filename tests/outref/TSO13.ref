@@ -269,4 +269,3 @@ Error with syntax near (line 1, column 20):
 SELECT ProductID + ProductName FROM Products LIMIT 1;
                    ^^^^^^^^^^^
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT ProductID + ProductName FROM Products LIMIT 1;
-

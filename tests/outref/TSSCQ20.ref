@@ -14,7 +14,6 @@ SELECT NULL AS PROCEDURE_CAT, n.nspname AS PROCEDURE_SCHEM, p.proname AS PROCEDU
 |pg_catalog|VERSION|||||2|VERSION_173
 
 ----- OCTO -----
-
 |pg_catalog|ABS|||||2|ABS_170
 |pg_catalog|CURRENT_SCHEMA|||||2|CURRENT_SCHEMA_174
 |pg_catalog|CURRENT_SCHEMAS|||||2|CURRENT_SCHEMAS_318

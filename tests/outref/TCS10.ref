@@ -7,4 +7,3 @@ SELECT case when id=1 then 'id_is_1' when id=2 then case when id=1 then 1 else 2
                                    ^
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT case when id=1 then 'id_is_1' when id=2 then case when id=1 then 1 else 2 end else NULL end as caseid FROM names;
 
-

@@ -4,4 +4,3 @@
 select * from names where 1::integer = 1::numeric limit 1;
 
 0|Zero|Cool
-

@@ -94,4 +94,3 @@ select 1+id*2 as a from (select id from names) order by 1+a;
                                                           ^
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select 1+id*2 as a from (select id from names) order by 1+a;
 
-

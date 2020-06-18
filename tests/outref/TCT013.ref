@@ -651,4 +651,3 @@ Joey
 Zero
 [ERROR] PATH:LINENUM DATE TIME : Type INVALID does not exist
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT firstname::invalid FROM names;
-

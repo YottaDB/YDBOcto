@@ -383,7 +383,7 @@ int copied_so_far;
 <COMMENT_CSTYLE>"*/" { BEGIN(INITIAL); }
 <COMMENT_CSTYLE>. { /* Ignore comments */ }
 
-<<EOF>> { printf("\n"); eof_hit = TRUE; return ENDOFFILE; }
+<<EOF>> { eof_hit = EOF_CTRLD; return ENDOFFILE; }
 
 
 . { return INVALID_TOKEN; }

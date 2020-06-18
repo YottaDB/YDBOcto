@@ -121,4 +121,3 @@ select * from names where firstname = 'Zero' || -lastname;
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select * from names where firstname = 'Zero' or 'abcd'::integer;
 [ERROR] PATH:LINENUM DATE TIME : Type INTEGER not compatible for boolean operations
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select * from names where firstname = 'Zero' or ''::integer;
-

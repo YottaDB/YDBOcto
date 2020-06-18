@@ -29,4 +29,3 @@ select dollarZWRITE(firstname) from names;
 "Lord"
 "Joey"
 "Zero"
-

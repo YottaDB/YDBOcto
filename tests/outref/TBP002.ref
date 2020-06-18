@@ -95,4 +95,3 @@ SELECT 5+5/5 FROM A;
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: -- Some examples using UNION should be added after it is supported
 SELECT 5+5/5 FROM A;
 
-

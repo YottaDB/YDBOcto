@@ -108,13 +108,13 @@ verifycatalog(mjofile,line,nlines)
 	. quit:""=line(i)
 	. if line(i)'["Running : octo -f catalog.sql" write "Verify failed",! zshow "*" halt
 	. if line($increment(i))'="LOTSOFCOLS|ID" write "Verify failed",! zshow "*" halt
-	. ; Verify that output is of the form "LOTSOFCOLS|COLx" where x ranges from 1 thru 2**n followed by a blank line
-	. for j=i+1:1  quit:""=line(j)  do
+	. ; Verify that output is of the form "LOTSOFCOLS|COLx" where x ranges from 1 thru 2**n
+	. for j=i+1:1  quit:('$data(line(j)))!(line(j)'["LOTSOFCOLS")  do
 	. . if line(j)'=("LOTSOFCOLS|COL"_(j-i)) write "Verify failed",! zshow "*" halt
 	. set match=0
 	. for k=1:1:logncols set match=((2**k)=(j-1-i)) quit:match
 	. if match=0 write "Verify failed",! zshow "*" halt
-	. set i=j
+	. set i=j-1
 	quit
 
 verifyselect(mjofile,line,nlines)

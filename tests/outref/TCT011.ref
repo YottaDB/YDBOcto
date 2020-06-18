@@ -111,7 +111,6 @@ select * from names where firstname::boolean = id;
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select id-2*(id/2::bool) from names;
 [ERROR] PATH:LINENUM DATE TIME : Type BOOLEAN not compatible for arithmetic operations
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select id-2*((id/2)::boolean) from names;
-
 ;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
 ;; ---------------------------------------------------------
 ;  select id::text || id::text,ABS(2)::numeric * id from names;

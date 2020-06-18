@@ -5,5 +5,4 @@ select "hello"::numeric from names limit 1;
 select * from names where "hello"::numeric = names.id
 
 0
-
 0|Zero|Cool

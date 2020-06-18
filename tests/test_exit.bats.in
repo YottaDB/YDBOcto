@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -19,42 +19,42 @@ setup() {
   load_fixture names.zwr
 }
 
-@test "close octo with 'quit'" {
+@test "TE000 :  close octo with 'quit'" {
   octo >& output.txt <<OCTO
 quit
 OCTO
   verify_output TE000 output.txt noinfo nodebug
 }
 
-@test "close octo with 'QUIT'" {
+@test "TE001 :  close octo with 'QUIT'" {
   octo >& output.txt <<OCTO
 QUIT
 OCTO
   verify_output TE001 output.txt noinfo nodebug
 }
 
-@test "close octo with 'exit'" {
+@test "TE002 :  close octo with 'exit'" {
   octo >& output.txt <<OCTO
 exit
 OCTO
   verify_output TE002 output.txt noinfo nodebug
 }
 
-@test "close octo with 'EXIT'" {
+@test "TE003 :  close octo with 'EXIT'" {
   octo >& output.txt <<OCTO
 EXIT
 OCTO
   verify_output TE003 output.txt noinfo nodebug
 }
 
-@test "close octo with '\q'" {
+@test "TE004 :  close octo with '\q'" {
   octo >& output.txt <<OCTO
 \q
 OCTO
   verify_output TE004 output.txt noinfo nodebug
 }
 
-@test "close octo with '\q' after SELECT command" {
+@test "TE005 :  close octo with '\q' after SELECT command" {
   octo >& output.txt <<OCTO
 select * from names;
 \q
@@ -62,14 +62,14 @@ OCTO
   verify_output TE005 output.txt noinfo nodebug
 }
 
-@test "attempt quit command using octo -f" {
+@test "TE006 :  attempt quit command using octo -f" {
   echo "select * from names;" > quit.sql
   echo "quit" >> quit.sql
   octo -f quit.sql >& output.txt
   verify_output TE006 output.txt noinfo nodebug
 }
 
-@test "attempt query after quit command using octo -f" {
+@test "TE006 :  attempt query after quit command using octo -f" {
   echo "select * from names;" > quit.sql
   echo "quit" >> quit.sql
   echo "select * from names;" >> quit.sql
@@ -78,20 +78,20 @@ OCTO
   verify_output TE006 output.txt noinfo nodebug
 }
 
-@test "close octo with EOF" {
+@test "TE007 :  close octo with EOF" {
   octo >& output.txt <<OCTO
 OCTO
   verify_output TE007 output.txt noinfo nodebug
 }
 
-@test "attempt to terminate a query with EOF" {
+@test "TE008 :  attempt to terminate a query with EOF" {
   octo >& output.txt <<OCTO
 select * from names
 OCTO
   verify_output TE008 output.txt noinfo nodebug
 }
 
-@test "check prompt remains active after sending leading ';'" {
+@test "TE009 :  check prompt remains active after sending leading ';'" {
   octo >& output.txt <<OCTO
 ;
 select * from names;
@@ -99,7 +99,7 @@ OCTO
   verify_output TE009 output.txt noinfo nodebug
 }
 
-@test "attempt to terminate a query with EOF after parsing query terminated with ';'" {
+@test "TE010 :  attempt to terminate a query with EOF after parsing query terminated with ';'" {
   octo >& output.txt <<OCTO
 select * from names;
 select * from names

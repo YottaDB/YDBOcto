@@ -1,8 +1,7 @@
 OCTO> SELECT c1.name FROM composite c1
 OCTO> INNER JOIN composite c2 ON c2.name = c1.name
 OCTO> INNER JOIN composite c3 ON c3.name = c1.name
-OCTO> WHERE (c1.name LIKE "Name%") OR (c1.id1 < 10)
-OCTO> 
+OCTO> WHERE (c1.name LIKE "Name%") OR (c1.id1 < 10);
 Name1
 Name2
 Name3
@@ -13,12 +12,13 @@ Name7
 Name8
 Name9
 Name10
+OCTO> 
 ;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
 ;; ---------------------------------------------------------
 ;  SELECT c1.name FROM composite c1
 ;  INNER JOIN composite c2 ON c2.name = c1.name
 ;  INNER JOIN composite c3 ON c3.name = c1.name
-;  WHERE (c1.name LIKE "Name%") OR (c1.id1 < 10)
+;  WHERE (c1.name LIKE "Name%") OR (c1.id1 < 10);
 ;; ---------------------------------------------------------
 
 octoPlan0(cursorId)

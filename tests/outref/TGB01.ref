@@ -428,4 +428,3 @@ Error with syntax near (line 1, column 65):
 SELECT (SELECT n3.id FROM names n3 WHERE n3.id = n1.id),(SELECT n2.id FROM names n2 ORDER BY COUNT(n1.id)) FROM names n1 GROUP BY n1.id;
                                                                 ^^^^^
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT (SELECT n3.id FROM names n3 WHERE n3.id = n1.id),(SELECT n2.id FROM names n2 ORDER BY COUNT(n1.id)) FROM names n1 GROUP BY n1.id;
-

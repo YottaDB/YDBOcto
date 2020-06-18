@@ -147,4 +147,3 @@ Error with syntax near (line 1, column 34):
 select * from names order by 1,2,-12345678901234567890;
                                  ^^^^^^^^^^^^^^^^^^^^^
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select * from names order by 1,2,-12345678901234567890;
-

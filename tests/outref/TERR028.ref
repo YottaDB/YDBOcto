@@ -77,4 +77,3 @@ Error with syntax near (line 1, column 41):
 SELECT id FROM names GROUP BY id HAVING $$a(id);
                                         ^^^
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT id FROM names GROUP BY id HAVING $$a(id);
-

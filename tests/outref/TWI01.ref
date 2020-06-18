@@ -5,7 +5,6 @@ select * from names where firstName in (select firstName from names where firstN
 
 0|Zero|Cool
 5|Zero|Cool
-
 ;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
 ;; ---------------------------------------------------------
 ;  select * from names where firstName in (select firstName from names where firstName="zero" or firstName="Zero");

@@ -24,7 +24,7 @@ setup() {
   yottadb -run genqueryfiles TOJ01.sql	# this generates query files of the form TOJ01_01.sql, TOJ01_02.sql ...
   for file in TOJ01_*.sql
   do
-    run_query_in_octo_and_postgres_and_crosscheck names $file "remove_empty_line_at_tail"
+    run_query_in_octo_and_postgres_and_crosscheck names $file
   done
 }
 
@@ -41,7 +41,7 @@ setup() {
   # Run using psql and Octo against each of the generated queries
   for file in jointest*.sql
   do
-    run_query_in_octo_and_postgres_and_crosscheck pastas $file "remove_empty_line_at_tail"
+    run_query_in_octo_and_postgres_and_crosscheck pastas $file
   done
 }
 
@@ -53,7 +53,7 @@ setup() {
   # Run using psql and Octo against each of the generated queries
   for file in jointest*.sql
   do
-    run_query_in_octo_and_postgres_and_crosscheck customers $file "remove_empty_line_at_tail"
+    run_query_in_octo_and_postgres_and_crosscheck customers $file
   done
 }
 
@@ -101,12 +101,12 @@ setup() {
 @test "TOJ08 : OCTO534 : customers schema : Incorrect query results when LEFT/RIGHT/FULL JOIN is used with OR in WHERE clause" {
   load_fixture customers.sql
   load_fixture customers.zwr
-  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries customers TOJ08.sql "remove_empty_line_at_tail"
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries customers TOJ08.sql
 }
 
 @test "TOJ09 : OCTO534 : northwind schema : Incorrect query results when LEFT/RIGHT/FULL JOIN is used with OR in WHERE clause" {
   load_fixture northwind.sql
   load_fixture northwind.zwr
-  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries northwind TOJ09.sql "remove_empty_line_at_tail"
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries northwind TOJ09.sql
 }
 

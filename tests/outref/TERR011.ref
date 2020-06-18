@@ -72,4 +72,3 @@ select * from names n1 left join nameswithages names on n1.id = names.id;
 3|Lord|Nikon|3|Lord|Nikon||DATE TIME
 4|Joey||4|Joey|||DATE TIME
 5|Zero|Cool|5|Zero|Cool||DATE TIME
-

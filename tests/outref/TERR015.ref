@@ -5,4 +5,3 @@ Error with syntax near (line 1, column 8):
 	       ^^
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select $1 from names;
 
-

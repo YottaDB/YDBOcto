@@ -541,13 +541,12 @@ run_query_in_octo_and_postgres_and_crosscheck_multiple_queries() {
 	if [[ ! -f $queryfile ]]; then
 		cp @PROJECT_SOURCE_DIR@/tests/fixtures/$queryfile .
 	fi
-	remove="$3"
-	trimzeroes="$4"
+	trimzeroes="$3"
 	$ydb_dist/mumps -run splitqueries $queryfile
 	fname=`echo $queryfile | sed 's/\..*//g'`
 	for splitfile in $fname-*.sql
 	do
-		run_query_in_octo_and_postgres_and_crosscheck $database $splitfile $remove $trimzeroes
+		run_query_in_octo_and_postgres_and_crosscheck $database $splitfile $trimzeroes
 	done
 	return
 }
@@ -558,10 +557,9 @@ run_query_in_octo_and_postgres_and_crosscheck() {
 	if [[ ! -f $queryfile ]]; then
 		cp @PROJECT_SOURCE_DIR@/tests/fixtures/$queryfile .
 	fi
-	remove="$3"
-	trimzeroes="$4"
-	usejdbc="$5"
-	jdbcprotocol="$6"
+	trimzeroes="$3"
+	usejdbc="$4"
+	jdbcprotocol="$5"
 	fname=`echo $queryfile | sed 's/\..*//g'`
 	grep -v '^#' $queryfile > $queryfile.inp # Filter out '#' comment lines, if any, as that is not valid in Postgres
 	psql --no-align $database -f $queryfile.inp >& $fname.psql.out
@@ -573,31 +571,7 @@ run_query_in_octo_and_postgres_and_crosscheck() {
 		octo -f $queryfile >& $fname.octo.out
 	fi
 	sed -i '/^.*\[ INFO\].* \/.*\/octo.conf/d' $fname.octo.out
-	# Remove at most 1 trailing and leading empty/blank line if "$remove" specifies so.
-	# The parser/lexer in Octo produces an empty line at the end when run with `octo -f`. Most likely due to an empty query
-	#   at the end of the query file. It is not yet clear if that is easily fixable so we account for that by passing a
-	#   "remove_empty_line_at_tail" option which will remove that empty line.
-	# Not yet sure why octo produces an empty line at the start for some queries. Specifying "remove_empty_line_at_head"
-	#   removes this line.
-	if [[ $remove == "remove_empty_line_at_head" ]]; then
-		firstline=`head -n 1 $fname.octo.out`
-		if [[ "$firstline" = "" ]]; then # Remove line
-			tail -n +2 $fname.octo.out >& $fname.log
-		else # Just create .log file
-			cat $fname.octo.out >& $fname.log
-		fi
-		shift
-	elif [[ $remove == "remove_empty_line_at_tail" ]]; then
-		lastline=`tail -n 1 $fname.octo.out`
-		if [ "$lastline" = "" ]; then # Remove line
-			head -n -1 $fname.octo.out >& $fname.log
-		else # Just create .log file
-			cat $fname.octo.out >& $fname.log
-		fi
-		shift
-	else
-		cat $fname.octo.out >& $fname.log
-	fi
+	cat $fname.octo.out >& $fname.log
 	if [[ $trimzeroes == "trim_trailing_zeroes" ]]; then
 		# Remove floating point numbers with extraneous 0s at the end
 		# Postgres creates these floating point numbers if an AVG aggregate function is invoked whereas Octo does not.
@@ -662,7 +636,7 @@ run_query_generator() {
   prefix="$2"
   usejdbc="$3"
   useextended="$4"
-  numQueries=100	# For now generate 100 queries by default (good balance of test runtime vs test coverage)
+  numQueries=100	# For now generate 100 queries by default (good balance of test run time vs test coverage)
 
   cp @PROJECT_SOURCE_DIR@/tests/fixtures/QueryGenerator.m .
   load_fixture "$databaseName.sql"
@@ -675,7 +649,7 @@ run_query_generator() {
   do
     queryfile=$prefix$count
     queryfile+=".sql"
-    run_query_in_octo_and_postgres_and_crosscheck $databaseName $queryfile "remove_empty_line_at_tail" "trim_trailing_zeroes" $usejdbc $useextended
+    run_query_in_octo_and_postgres_and_crosscheck $databaseName $queryfile "trim_trailing_zeroes" $usejdbc $useextended
     count=`expr $count + 1`
   done
 }

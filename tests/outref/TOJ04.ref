@@ -7,4 +7,3 @@ syntax error, unexpected SEMICOLON
 
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT * FROM names n1 LEFT JOIN (SELECT * FROM names WHERE firstName < 'Zero') n2;
 
-

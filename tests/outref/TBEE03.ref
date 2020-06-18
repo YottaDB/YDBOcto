@@ -16,4 +16,3 @@ SELECT orders.order_id FROM orders LEFT OUTER JOIN customers ON (orders.order_am
 4
 5
 6
-

@@ -30,11 +30,11 @@ setup() {
   verify_output TSS01_errors_lp lp_output.txt
   # TSS01_noerrors.sql can be used with `run_query_in_octo_and_postgres_and_crosscheck_multiple_queries` because all queries
   # generate valid output (i.e. no errors at all). No reference file needed for this.
-  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TSS01_noerrors.sql "remove_empty_line_at_tail"
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TSS01_noerrors.sql
 }
 
 @test "TSS02 : OCTO348 : Sub-query that uses column value from parent query and generates cross-reference plan" {
-  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TSS02.sql "remove_empty_line_at_tail"
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TSS02.sql
 }
 
 @test "TSS03 : OCTO192 : Using sub-query in a WHERE clause produces <Plan produced by optimizer appears incorrect> warning" {
@@ -45,81 +45,81 @@ setup() {
   mv clean_output.txt errors_clean_output.txt
   # TSS03_noerrors.sql can be used with `run_query_in_octo_and_postgres_and_crosscheck_multiple_queries` because all queries
   # generate valid output (i.e. no errors at all). No reference file needed for this.
-  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TSS03_noerrors.sql "remove_empty_line_at_tail"
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TSS03_noerrors.sql
 }
 
 @test "TSS04 : OCTO361 : OUTER JOIN with sub-query in the ON condition expression does not work correctly" {
-  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TSS04.sql "remove_empty_line_at_tail"
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TSS04.sql
 }
 
 @test "TSS05 : OCTO404 : Assert failure when referencing inherited sub-query columns in parent query WHERE clause" {
-  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TSS05.sql "remove_empty_line_at_tail"
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TSS05.sql
 }
 
 @test "TSS06 : OCTO405 : Incorrect results when sub-queries are used in the FROM clause and OR is used in the WHERE clause" {
-  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TSS06.sql "remove_empty_line_at_tail"
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TSS06.sql
 }
 
 @test "TSS07 : OCTO352 : Incorrect results when sub-query is used in SELECT or ORDER BY column list" {
-  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TSS07.sql "remove_empty_line_at_tail"
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TSS07.sql
 }
 
 @test "TSS08 : OCTO413 : Sub query in SELECT column list issues incorrect <More than one row returned by a subquery> error" {
-  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TSS08.sql "remove_empty_line_at_tail"
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TSS08.sql
 }
 
 @test "TSS09 : OCTO428 : Assert failure when sub-queries and SET operations are used in same query" {
-  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TSS09.sql "remove_empty_line_at_tail"
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TSS09.sql
 }
 
 @test "TSS10 : OCTO429 : Incorrect results when sub-queries with OR operators are used in WHERE clause of outer query with OR operators" {
-  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TSS10.sql "remove_empty_line_at_tail"
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TSS10.sql
 }
 
 @test "TSS11 : OCTO430 : <Problem resolving owner for deferred plan; undefined behavior> error when inherited sub-query column is used in another sub-query" {
-  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TSS11.sql "remove_empty_line_at_tail"
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TSS11.sql
 }
 
 @test "TSS12 : OCTO431 : SIG-11 when inherited sub-query column is used in another sub-query that contains an OR operator" {
-  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TSS12.sql "remove_empty_line_at_tail"
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TSS12.sql
 }
 
 @test "TSS13 : OCTO353 : Sub-query with a SELECT column list that is of BOOLEAN type does not work as a boolean operand in the parent query" {
-  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TSS13.sql "remove_empty_line_at_tail"
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TSS13.sql
 }
 
 @test "TSS14 : OCTO473 : Incorrect results when ON clause of a JOIN uses column references from a sub-query" {
   load_fixture northwind.sql
   load_fixture northwind.zwr
-  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries northwind TSS14.sql "remove_empty_line_at_tail"
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries northwind TSS14.sql
 }
 
 @test "TSS15 : OCTO444 : <Problem resolving owner for deferred plan; undefined behavior> error with sub-queries, IN clause and multiple joins" {
-  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TSS15.sql "remove_empty_line_at_tail"
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TSS15.sql
 }
 
 @test "TSS16 : OCTO445 : Assertion failed in generate_physical_plan.c with sub-queries and multiple INNER JOINs" {
-  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TSS16.sql "remove_empty_line_at_tail"
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TSS16.sql
 }
 
 @test "TSS17 : OCTO474 : Incorrect results when a column from a sub-query (that selects more than 1 column) is used in the ON clause of a JOIN" {
   load_fixture northwind.sql
   load_fixture northwind.zwr
-  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries northwind TSS17.sql "remove_empty_line_at_tail"
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries northwind TSS17.sql
 }
 
 @test "TSS18 : OCTO458 : Incorrect <Unknown column> error when column is inherited from a grandparent (not a parent) query" {
-  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TSS18.sql "remove_empty_line_at_tail"
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TSS18.sql
 }
 
 @test "TSS19 : OCTO489 : Identical column names in tables at different query levels should not cause Ambiguous column name error" {
   load_fixture customers.sql
   load_fixture customers.zwr
-  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries customers TSS19.sql "remove_empty_line_at_tail"
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries customers TSS19.sql
 }
 
 @test "TSS20 : OCTO482 : Test valid queries that should not issue <Misc FROM-clause entry> error" {
-  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TSS20.sql "remove_empty_line_at_tail"
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TSS20.sql
 }
 
 @test "TSS21 : OCTO492 : SIG-11 from a query that also issues a <Subquery must return only one column> error" {
@@ -139,15 +139,15 @@ setup() {
 }
 
 @test "TSS23 : OCTO505 : Incorrect results when sub-query used as an expression inherits rows from another sub-query" {
-  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TSS23.sql "remove_empty_line_at_tail"
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TSS23.sql
 }
 
 @test "TSS24 : OCTO368 : Using alias names for sub-query in select column list or FROM clause list fails with syntax error" {
-  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TSS24.sql "remove_empty_line_at_tail"
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TSS24.sql
 }
 
 @test "TSS25 : OCTO510 : LVUNDEF error when both sub query and parent query use parent query column with = operator in WHERE clause" {
-  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TSS25.sql "remove_empty_line_at_tail"
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TSS25.sql
 }
 
 

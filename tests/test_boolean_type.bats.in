@@ -23,16 +23,16 @@ setup() {
   load_fixture northwind.zwr
 }
 
-@test "TBT01: Test of BOOLEAN type across various valid queries in `boolean` database" {
-  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries boolean TBT01.sql "remove_empty_line_at_tail"
+@test "TBT01 : Test of BOOLEAN type across various valid queries in `boolean` database" {
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries boolean TBT01.sql
 }
 
-@test "TBT02: Test of BOOLEAN type across various valid queries in `names` database" {
+@test "TBT02 : Test of BOOLEAN type across various valid queries in `names` database" {
   $ydb_dist/mumps -run %XCMD 'set ^%ydboctoocto("functions","DOLLARZWRITE")="$ZWRITE"'  # Needed by one query in TBT02.sql
-  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TBT02.sql "remove_empty_line_at_tail" "trim_trailing_zeroes"
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TBT02.sql "trim_trailing_zeroes"
 }
 
-@test "TBT03: Test of BOOLEAN type across various queries with errors OR different output between Octo & Postgres" {
+@test "TBT03 : Test of BOOLEAN type across various queries with errors OR different output between Octo & Postgres" {
   load_fixture TBT03.sql subtest novv
   verify_output TBT03 output.txt
 }

@@ -119,4 +119,3 @@ Error with syntax near (line 1, column 8):
 select id+2;
        ^^
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select id+2;
-

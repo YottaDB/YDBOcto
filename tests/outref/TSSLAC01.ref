@@ -57,4 +57,3 @@ AND      attname LIKE '%'
 ORDER BY nspname,
          c.relname,
          attnum
-

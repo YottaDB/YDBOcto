@@ -4,5 +4,4 @@ select current_schema()
 DEFAULT
 
 ----- OCTO -----
-
 DEFAULT

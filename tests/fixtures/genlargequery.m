@@ -1,6 +1,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;								;
-; Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	;
+; Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	;
 ; All rights reserved.						;
 ;								;
 ;	This source code contains the intellectual property	;
@@ -110,5 +110,5 @@ gt10mbOutB ;
 	set o="" for i=1:1:4096 for k=1:1:21 set o=o_"10|11|12|"
 	set o=o_"10|11|12" write o,!
 	set o="" for i=1:1:4096 for k=1:1:21 set o=o_"13|14|15|"
-	set o=o_"13|14|15" write o,!,!
+	set o=o_"13|14|15" write o,!
 	quit

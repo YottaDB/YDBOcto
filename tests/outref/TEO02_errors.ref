@@ -11,4 +11,3 @@ Error with syntax near (line 1, column 25):
 SELECT EXISTS (SELECT 1,2 UNION SELECT 3);
                         ^
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT EXISTS (SELECT 1,2 UNION SELECT 3);
-

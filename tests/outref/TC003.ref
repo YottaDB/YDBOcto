@@ -1,8 +1,8 @@
 OCTO> create table names4 (id int, First char(20), Last char(30));
-OCTO> select * from names4
-OCTO> 
+OCTO> select * from names4;
 0|Zero|Cool
 1|Acid|Burn
 2|Cereal|Killer
 3|Lord|Nikon
 5|Zero|Cool
+OCTO> 

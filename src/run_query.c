@@ -156,6 +156,14 @@ int run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_descrip
 
 	/* add the current query to the readlines history */
 	if (config->is_tty) {
+		if (EOF_CTRLD == eof_hit) {
+			/* If Octo was started without an input file (i.e. sitting at the "OCTO>" prompt) and
+			 * Ctrl-D was pressed by the user, then print a newline to cleanly terminate the current line
+			 * before exiting. No need to do this in case EXIT or QUIT commands were used as we will not
+			 * be sitting at the "OCTO>" prompt in that case.
+			 */
+			printf("\n");
+		}
 		placeholder = input_buffer_combined[cur_input_index];
 		input_buffer_combined[cur_input_index] = '\0';
 		/* get the last item added to the history

@@ -24,7 +24,7 @@
 
 
 int no_more() {
-	eof_hit = 1;
+	eof_hit = EOF_CTRLD;
 	return 0;
 }
 
@@ -47,7 +47,6 @@ int handle_query(Query *query, RoctoSession *session) {
 		free(empty_query_response);
 		return 1;
 	}
-	eof_hit = 0;
 	// If the query is bigger than the buffer, we would need to copy data from
 	//  the query to the buffer after each block is consumed, but right now
 	//  this buffer is large enough that this won't happen
@@ -58,14 +57,14 @@ int handle_query(Query *query, RoctoSession *session) {
 	}
 	memcpy(input_buffer_combined, query->query, query_length);
 	input_buffer_combined[query_length] = '\0';
-	eof_hit = FALSE;
+	eof_hit = EOF_NONE;
 	cur_input_index = 0;
 	cur_input_more = &no_more;
 
 	run_query_result = run_query(&handle_query_response, (void*)&parms, TRUE, &parse_context);
 	if (-1 == run_query_result) {
 		// Exit loop if query was interrupted
-		eof_hit = TRUE;
+		eof_hit = EOF_CTRLD;
 		return -1;
 	} else if (0 != run_query_result) {
 		return 1;

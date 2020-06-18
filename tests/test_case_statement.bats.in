@@ -20,11 +20,11 @@ setup() {
 }
 
 @test "TCS01 : #285 : Test that ELSE keyword in CASE statements works (used to return empty line for else case)" {
-  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TCS01.sql "remove_empty_line_at_tail"
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TCS01.sql
 }
 
 @test "TCS02 : #285 : Test that ELSE keyword in CASE statements works (used to return id column for else case)" {
-  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TCS02.sql "remove_empty_line_at_tail"
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TCS02.sql
 }
 
 @test "TCS03 : #451 : Ensure consistent typing across WHEN and ELSE in CASE statements" {
@@ -53,7 +53,7 @@ setup() {
 }
 
 @test "TCS08 : #451 : Ensure NULL values are accepted with other types in CASE branches (compatibility with SquirrelSQL)" {
-  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TCS08.sql "remove_empty_line_at_tail" "trim_trailing_zeroes"
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TCS08.sql "trim_trailing_zeroes"
 }
 
 @test "TCS09 : #451 : Ensure type errors still issued when NULL values are accepted in CASE branches" {
@@ -67,10 +67,10 @@ setup() {
 }
 
 @test "TCS11 : OCTO450 : Missing ELSE in CASE causes Assertion FALSE failure when octo/rocto is started with -vv" {
-  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TCS11.sql "remove_empty_line_at_tail"
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TCS11.sql
 }
 
 @test "TCS12 : OCTO460 : CASE in SELECT column list causes assertion failed in lp_replace_derived_table_references.c" {
-  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TCS12.sql "remove_empty_line_at_tail"
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TCS12.sql
 }
 

@@ -4,5 +4,4 @@
 select 1.1::integer from names limit 1;
 select * from names where 1.1::integer = names.id
 1
-
 1|Acid|Burn

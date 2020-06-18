@@ -87,7 +87,7 @@ setup() {
 @test "TWI10 : OCTO424 : Floating point numeric literals greater than 10 get incorrectly treated as Table References" {
   load_fixture northwind.sql
   load_fixture northwind.zwr
-  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries northwind TWI10.sql "remove_empty_line_at_head"
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries northwind TWI10.sql
 }
 
 @test "TWI11 : OCTO515 : 'Unknown state reached' error when IN has a malformed comma separated list of values" {
@@ -98,7 +98,7 @@ setup() {
 }
 
 @test "TWI12 : OCTO523 : Queries with lots of IN usages in WHERE or ON clause causes Octo to use too much memory and terminate abnormally" {
-  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TWI12.sql "remove_empty_line_at_tail"
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TWI12.sql
   echo "# Verify key fixing optimization and number of generated physical plans by looking at generated M code" >> output.txt
   grep -E "SELECT|ydboctoX|SET|octoPlan|FOR" _ydboctoP*.m >> output.txt
   verify_output TWI12 output.txt

@@ -18,4 +18,3 @@ SELECT ABS(-2) FROM names;
 2
 2
 2
-

@@ -21,7 +21,6 @@ WHERE a.firstName IN (
 3|Lord|Nikon
 4|Joey|
 5|Zero|Cool
-
 ;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
 ;; ---------------------------------------------------------
 ;  SELECT *

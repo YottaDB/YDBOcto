@@ -203,14 +203,14 @@ OCTO
   [[ $(grep -c "%ydboctocursor(1" output2.txt) -eq 0 ]]
 }
 
-@test "TSC01 cast a string to an integer" {
+@test "TSC01 : cast a string to an integer" {
   octo <<OCTO 2>&1 | tee output.txt
 SELECT firstName :: integer + 5 FROM names;
 OCTO
   verify_output TSC01 output.txt noinfo nodebug
 }
 
-@test "TSC02 select an alias with a shorter name" {
+@test "TSC02 : select an alias with a shorter name" {
   octo <<OCTO 2>&1 | tee output.txt
 SELECT t.lastName
 FROM (
@@ -222,35 +222,35 @@ OCTO
   verify_output TSC02 output.txt noinfo nodebug
 }
 
-@test "TSC03 SELECT of column name with alias with ORDER BY using alias name" {
+@test "TSC03 : SELECT of column name with alias with ORDER BY using alias name" {
   octo <<OCTO &> output.txt
 SELECT firstname as alias from names order by alias
 OCTO
   verify_output TSC03 output.txt noinfo nodebug
 }
 
-@test "TSC04 SELECT of invalid column name in user-defined table" {
+@test "TSC04 : SELECT of invalid column name in user-defined table" {
   octo <<OCTO &> output.txt
 SELECT invalid FROM names;
 OCTO
   verify_output TSC04 output.txt noinfo nodebug
 }
 
-@test "TSC05 SELECT of invalid column name in derived table from a level-1 sub-query" {
+@test "TSC05 : SELECT of invalid column name in derived table from a level-1 sub-query" {
   octo <<OCTO &> output.txt
 SELECT invalid from (SELECT invalid from names);
 OCTO
   verify_output TSC05 output.txt noinfo nodebug
 }
 
-@test "TSC06 SELECT of invalid column name in derived table from a level-2 sub-query" {
+@test "TSC06 : SELECT of invalid column name in derived table from a level-2 sub-query" {
   octo <<OCTO &> output.txt
 SELECT invalid from (SELECT invalid from (SELECT invalid from names));
 OCTO
   verify_output TSC06 output.txt noinfo nodebug
 }
 
-@test "TSC07 Miscellaneous SELECT using valid and/or invalid column names and a level-1 sub-query" {
+@test "TSC07 : Miscellaneous SELECT using valid and/or invalid column names and a level-1 sub-query" {
   inputfile="TSC07.sql"
   cp @PROJECT_SOURCE_DIR@/tests/fixtures/$inputfile ${inputfile}.orig
   grep -vE '^-- |^#|^$' ${inputfile}.orig > $inputfile # Filter out comment lines as they otherwise clutter the parse error output
@@ -268,7 +268,7 @@ OCTO
   verify_output TSC07 output.txt
 }
 
-@test "TSC08 Select unknown column with 2 inner joins" {
+@test "TSC08 : Select unknown column with 2 inner joins" {
   octo <<OCTO 2>&1 | tee output.txt
 CREATE TABLE ORDER1(
  order1_id INTEGER PRIMARY KEY,
@@ -407,7 +407,6 @@ CAT_EOF
   sed -i '/^.*\[ INFO\].* \/.*\/octo.conf/d' octo_output.txt
   # Generate the final reference file (it is two copies of what has been generated in TSC20.half_ref)
   cat TSC20.half_ref TSC20.half_ref > TSC20.ref
-  echo "" >> TSC20.ref	# octo produces this line at the end (due maybe to its use of readline) so do the same here
   cmp TSC20.ref octo_output.txt
   # Test Rocto with same set of queries
   create_user ydb tester
@@ -416,7 +415,6 @@ CAT_EOF
   stop_rocto
   delete_users ydb
   grep -vwE "ID|VALUE|rows" rocto_orig_output.txt > rocto_output.txt
-  echo "" >> rocto_output.txt	# Add empty line at end to match with reference file created for octo purposes
   # Filter global octo.conf (any not in the local directory)
   sed -i '/^.*\[ INFO\].* \/.*\/octo.conf/d' rocto_output.txt
   cmp TSC20.ref rocto_output.txt

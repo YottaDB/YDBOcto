@@ -18,6 +18,5 @@ Error with syntax near (line 1, column 8):
 select DOLLARZWRITE(firstname) from names;
        ^^^^^^^^^^^^
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select DOLLARZWRITE(firstname) from names;
-
 Successfully cleared ^%ydboctoocto("functions","DOLLARZWRITE")
 Successfully deleted function "DOLLARZWRITE" from pg_catalog.pg_proc

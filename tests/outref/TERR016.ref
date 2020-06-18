@@ -16,4 +16,3 @@ Error with syntax near (line 1, column 41):
 SELECT (SELECT * FROM names n1, (SELECT n1.id) n2);
                                         ^^^^^
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT (SELECT * FROM names n1, (SELECT n1.id) n2);
-

@@ -91,4 +91,3 @@ Error with syntax near (line 1, column 77):
 SELECT * FROM names n1 WHERE n1.id = (SELECT 1 FROM names n2 GROUP BY n1.id,unknowncolumn,n2.id);
                                                                             ^^^^^^^^^^^^^
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT * FROM names n1 WHERE n1.id = (SELECT 1 FROM names n2 GROUP BY n1.id,unknowncolumn,n2.id);
-

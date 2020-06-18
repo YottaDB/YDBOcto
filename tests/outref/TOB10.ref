@@ -152,4 +152,3 @@ Error with syntax near (line 1, column 169):
 SELECT * FROM (SELECT * FROM (SELECT id, MODULO(id,2) AS newid1, firstname FROM names UNION ALL SELECT id, MODULO(id,3) AS newid2, lastname FROM names) n1) n2 ORDER BY newid2;
                                                                                                                                                                         ^^^^^^
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT * FROM (SELECT * FROM (SELECT id, MODULO(id,2) AS newid1, firstname FROM names UNION ALL SELECT id, MODULO(id,3) AS newid2, lastname FROM names) n1) n2 ORDER BY newid2;
-

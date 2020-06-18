@@ -25,4 +25,3 @@ Error with syntax near (line 1, column 39):
 
 SELECT 1 FROM names WHERE 1 = (SELECT 1,2);
                                       ^
-

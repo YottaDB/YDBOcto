@@ -12,4 +12,3 @@ SELECT * FROM names n1 WHERE n1.firstName IN (SELECT n2.firstname FROM names n2 
 3|Lord|Nikon
 4|Joey|
 5|Zero|Cool
-

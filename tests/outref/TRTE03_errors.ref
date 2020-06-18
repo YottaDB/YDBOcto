@@ -16,4 +16,3 @@ select firstname from (select 8 as id,'ey' as firstname, '\' as lastname)n1 wher
 [ERROR] PATH:LINENUM DATE TIME : Cannot end pattern with escape character: \
 [ERROR] PATH:LINENUM DATE TIME : Cannot end pattern with escape character: \
 [ERROR] PATH:LINENUM DATE TIME : Cannot end pattern with escape character: \
-

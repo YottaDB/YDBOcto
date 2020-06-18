@@ -51,4 +51,3 @@ select VERSION('should', 'be', 'no', 'args', 'here') as extraargs from names;
                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select VERSION('should', 'be', 'no', 'args', 'here') as extraargs from names;
 
-

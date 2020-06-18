@@ -337,4 +337,3 @@ select idb from (select 8 ida);
        ^^^
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select idb from (select 8 ida);
 
-

@@ -24,7 +24,8 @@ A SELECT statement is used to select and view data from the database.
 CREATE TABLE
 ---------------
 
-.. parsed-literal::
+.. code-block:: MySQL
+
    CREATE TABLE table_name (column_name data_type [constraints][, ... column_name data_type [constraints]]) [optional_keyword];
 
 The CREATE TABLE statement is used to create tables in the database. The keywords CREATE TABLE are used followed by the name of the table to be created.
@@ -33,16 +34,18 @@ The names of columns to be created in the database and their datatypes are then 
 
 Example:
 
-.. parsed-literal::
+.. code-block:: MySQL
+
    CREATE TABLE Employee (ID int PRIMARY KEY, FirstName char(20), LastName char(30));
 
    CREATE TABLE Employee (ID int, FirstName char(20), LastName char(30));
-   /* is equivalent to \*/
+   /* is equivalent to */
    CREATE TABLE (ID int KEY NUM 0, FirstName char(20) KEY NUM 1, LastName char(30) KEY NUM 2);
 
 Note that CREATE TABLE statements can also accept a list of ASCII integer values for use in the DELIM qualifier, for example:
 
-.. parsed-literal::
+.. code-block:: MySQL
+
    CREATE TABLE DELIMNAMES (id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName VARCHAR(30), middleInitial VARCHAR(1), age INTEGER) DELIM (9, 9) GLOBAL "^delimnames(keys(""id""))";
 
 Here, two TAB characters (ASCII value 9) act as the internal delimiter of an Octo table. Note, however, that these delimiters are not applied to Octo output, which retains the default pipe :code:`|` delimiter. The reason for this is that tables may be joined that have different delimiters, so one common delimiter needs to be chosen anyway. Thus, the default is used.
@@ -85,7 +88,8 @@ Mapping to existing YottaDB global variables
 
 If mapping to existing YottaDB global variables, an optional_keyword can be added to further enhance the CREATE statement:
 
-.. parsed-literal::
+.. code-block:: none
+
    [ADVANCE | CURSOR | DELIM | END | EXTRACT | GLOBAL | KEY NUM | PIECE LITERAL]
 
 The keywords denoted above are M expressions and literals. They are explained in the following table:
@@ -125,7 +129,8 @@ In the table above:
 CREATE FUNCTION
 ---------------
 
-.. parsed-literal::
+.. code-block:: MySQL
+
    CREATE FUNCTION function_name([data_type[, data_type[, ...]]]) RETURNS data_type AS extrinsic_function_name;
 
 The CREATE FUNCTION statement is used to create SQL functions that map to extrinsic M functions and store these mappings in the database. The keywords CREATE FUNCTION are followed by the name of the SQL function to be created, the data types of its parameters, its return type, and the fully-qualified extrinsic M function name.
@@ -134,24 +139,28 @@ The SQL function's parameter data types are specified in a list, while the data 
 
 When a function is created from a CREATE FUNCTION statement, an entry is added to Octo's internal PostgreSQL catalog. In other words, a row is added to the :code:`pg_catalog.pg_proc` system table. To view a list of created functions, their argument number and type(s), and return argument type, you can run:
 
-.. parsed-literal::
+.. code-block:: MySQL
+
    select proname,pronargs,prorettype,proargtypes from pg_proc;
 
 Type information for each function parameter and return type will be returned as an OID. This OID can be used to look up type information, including type name, from the :code:`pg_catalog.pg_type` system table. For example, to retrieve the human-readable return type name for all existing functions:
 
-.. parsed-literal::
+.. code-block:: MySQL
+
    select proname,typname from pg_catalog.pg_proc inner join pg_catalog.pg_type on pg_catalog.pg_proc.prorettype = pg_catalog.pg_type.oid;
 
 However, function parameter types are currently stored as a list in a VARCHAR string, rather than in a SQL array as the latter isn't yet supported by Octo. In the meantime, users can lookup the type name corresponding to a given type OID by using the following query:
 
-.. parsed-literal::
+.. code-block:: MySQL
+
    select oid,typname from pg_catalog.pg_type;
 
 Note that CREATE FUNCTION is the preferred method for creating new SQL functions and manually creating these functions through direct database modifications is not advised.
 
 Example:
 
-.. parsed-literal::
+.. code-block:: none
+
    CREATE FUNCTION ADD(int, int) RETURNS int AS $$ADD^myextrinsicfunction;
 
    CREATE FUNCTION APPEND(varchar, varchar) RETURNS varchar AS $$APPEND;
@@ -192,7 +201,8 @@ NUMERIC, DECIMAL and DEC can optionally be followed by a precision value in pare
 DROP TABLE
 -----------------
 
-.. parsed-literal::
+.. code-block:: MySQL
+
    DROP TABLE table_name [CASCADE | RESTRICT];
 
 The DROP TABLE statement is used to remove tables from the database. The keywords DROP TABLE are followed by the name of the table desired to be dropped. Optional parameters include CASCADE and RESTRICT.
@@ -203,14 +213,16 @@ The RESTRICT parameter is used to specify that the table referred to by table_na
 
 Example:
 
-.. parsed-literal::
+.. code-block:: MySQL
+
    DROP TABLE Employee CASCADE;
 
 -----------------
 DROP FUNCTION
 -----------------
 
-.. parsed-literal::
+.. code-block:: MySQL
+
    DROP FUNCTION function_name;
 
 The DROP FUNCTION statement is used to remove functions from the database. The keywords DROP FUNCTION are followed by the name of the function desired to be dropped. Note that the function name provided should be the name of the user-defined SQL function name, not the M label or routine name.
@@ -219,14 +231,16 @@ A function deleted using the DROP FUNCTION statement will also be removed from O
 
 Example:
 
-.. parsed-literal::
+.. code-block:: MySQL
+
    DROP FUNCTION userfunc;
 
 -----------
 SELECT
 -----------
 
-.. parsed-literal::
+.. code-block:: MySQL
+
    SELECT [ALL | DISTINCT] ASTERISK | column [AS] [alias_name][...,column [AS] [alias_name]] FROM table_name [AS] [alias_name] [WHERE search_condition] [GROUP BY column[,..column]] [HAVING search_condition] [ORDER BY sort_specification] [LIMIT number];
 
 The SELECT statement is used to select rows from the database by specifying a query, and optionally sorting the resulting rows.
@@ -244,14 +258,16 @@ The HAVING clause works to filter the rows that result from the GROUP BY clause.
 
 Example:
 
-.. parsed-literal::
+.. code-block:: MySQL
+
    SELECT ID, FirstName, LastName FROM Employee WHERE ID > 100 GROUP BY LastName;
 
 The LIMIT clause allows the user to specify the number of rows they want to retrieve from the results of the query.
 
 Example:
 
-.. parsed-literal::
+.. code-block:: MySQL
+
    SELECT * FROM Employee LIMIT 5;
 
 The above example returns no more than 5 rows.
@@ -264,7 +280,8 @@ ORDER BY lets you sort the order of the rows returned after the query.
 
 To sort rows or columns in the database, you need to have the following sort_specification.
 
-.. parsed-literal::
+.. code-block:: MySQL
+
    sort_key [COLLATE collation_name] [ASC | DESC];
 
 The sort_key is either a column_reference or a literal.
@@ -280,7 +297,8 @@ The ordering specification lets you further choose to order the returned columns
 
 Example:
 
-.. parsed-literal::
+.. code-block:: MySQL
+
    SELECT ID, FirstName, LastName FROM Employee WHERE ID > 100 ORDER BY ID DESC;
 
 ++++++
@@ -289,7 +307,8 @@ Joins
 
 Joins can be made by appending a join table to a SELECT statement:
 
-.. parsed-literal::
+.. code-block:: MySQL
+
    [CROSS | [NATURAL | INNER | [LEFT][RIGHT][FULL] OUTER]] JOIN ON joined_table;
 
 A cross join between two tables provides the number of rows in the first table multiplied by the number of rows in the second table.
@@ -311,7 +330,8 @@ For two tables, Table A and Table B,
 
 Example:
 
-.. parsed-literal::
+.. code-block:: MySQL
+
    SELECT FirstName, LastName, Address FROM Employee INNER JOIN Addresses ON Employee.ID = Addresses.EID;
 
 --------------
@@ -320,14 +340,16 @@ INSERT
 
 *(Currently not supported.)*
 
-.. parsed-literal::
+.. code-block:: MySQL
+
    INSERT INTO table_name ( column name [, column name ...]) [ VALUES ... | (SELECT ...)];
 
 The INSERT statement allows you to insert values into a table. These can either be provided values or values specified as a result of a SELECT statement.
 
 Example:
 
-.. parsed-literal::
+.. code-block:: MySQL
+
    INSERT INTO Employee (ID , FirstName, LastName) [220, "Jon", "Doe"];
 
 --------------
@@ -336,14 +358,16 @@ UPDATE
 
 *(Currently not supported.)*
 
-.. parsed-literal::
+.. code-block:: MySQL
+
    UPDATE table_name SET object_column EQUALS update_source [WHERE search_condition];
 
 The UPDATE statement begins with the keyword UPDATE. The table_name to be updated and the keyword SET is followed by a list of comma-separated statements that are used to update existing columns, where object_column is a particular column and update_source is set to either NULL or a specific value expression. The optional WHERE condition allows you to update columns based on a certain condition you specify.
 
 Example:
 
-.. parsed-literal::
+.. code-block:: MySQL
+
    UPDATE Employee SET FirstName = "John" WHERE ID = 220;
 
 ------------
@@ -352,7 +376,8 @@ DELETE
 
 *(Currently not supported.)*
 
-.. parsed-literal::
+.. code-block:: MySQL
+
    DELETE FROM table_name [WHERE search_condition];
 
 The DELETE statement consists of the keywords DELETE FROM followed by the name of the table and possibly a search condition.
@@ -361,7 +386,8 @@ The search condition eventually yields a boolean true or false value, and may co
 
 Example:
 
-.. parsed-literal::
+.. code-block:: MySQL
+
    DELETE FROM Employee WHERE ID = 220;
 
 -------------------
@@ -379,7 +405,8 @@ The conditions are:
 UNION
 +++++++++++++++++
 
-.. parsed-literal::
+.. code-block:: MySQL
+
    SELECT [.....] FROM table_name[...]  UNION [ALL] SELECT [.....] FROM table_name2[...]....;
 
 The UNION operation consists of two or more queries joined together with the word UNION.  It combines the results of two individual queries into a single set of results.
@@ -388,42 +415,48 @@ The keyword ALL ensures that duplicate rows of results are not removed during th
 
 Example:
 
-.. parsed-literal::
+.. code-block:: MySQL
+
    SELECT FirstName FROM Employee UNION SELECT FirstName FROM AddressBook;
 
 ++++++++++++++++
 INTERSECT
 ++++++++++++++++
 
-.. parsed-literal::
+.. code-block:: MySQL
+
    SELECT [.....] FROM table_name[......] INTERSECT [ALL] SELECT [.....] FROM table_name2[....]......;
 
 The INTERSECT operation consists of two or more queries joined together with the word INTERSECT. It returns distinct non-duplicate results that are returned by both queries on either side of the operation.
 
 The keyword ALL ensures that duplicate rows of results returned by both queries are not eliminated during the INTERSECT.
 
-.. parsed-literal::
+.. code-block:: MySQL
+
    SELECT ID FROM Employee INTERSECT SELECT ID FROM AddressBook;
 
 ++++++++++++++
 EXCEPT
 ++++++++++++++
 
-.. parsed-literal::
+.. code-block:: MySQL
+
    SELECT [.....] FROM table_name[.....] EXCEPT [ALL] SELECT [.....] FROM table_name2[......].......;
 
 The EXCEPT operation consists of two or more queries joined together with the word EXCEPT. It returns (non-duplicate) results from the query on the left side except those that are also part of the results from the query on the right side.
 
 The keyword ALL affects the resulting rows such that duplicate results are allowed but rows in the first table are eliminated if there is a corresponding row in the second table.
 
-.. parsed-literal::
+.. code-block:: MySQL
+
    SELECT LastName FROM Employee EXCEPT SELECT LastName FROM AddressBook;
 
 --------------
 CASE
 --------------
 
-.. parsed-literal::
+.. code-block:: MySQL
+
    CASE WHEN condition_expression THEN result
    [WHEN .... ]
    [ELSE result]
@@ -454,12 +487,14 @@ Double quotes, single quotes and non quoted identifiers can be used to represent
 Column Alias
 ++++++++++++++
 
-.. parsed-literal::
+.. code-block:: MySQL
+
    column [AS] aliasname
 
 Examples:
 
-.. parsed-literal::
+.. code-block:: MySQL
+
    OCTO> select firstname as "quoted" from names limit 1;
    Zero
 
@@ -483,7 +518,8 @@ Examples:
 
 Column aliases are supported in short form i.e without AS keyword
 
-.. parsed-literal::
+.. code-block:: MySQL
+
    OCTO> select ida from (select 8 ida) n1;
    8
 
@@ -493,12 +529,14 @@ Table Alias
 
 Usage:
 
-.. parsed-literal::
+.. code-block:: MySQL
+
    [table_name | subquery] [AS] aliasname
 
 Examples:
 
-.. parsed-literal::
+.. code-block:: MySQL
+
    OCTO> select n1.firstname from names as "n1" limit 1;
    Zero
 
@@ -515,7 +553,8 @@ Examples:
 
 Table aliases are supported in short form i.e without AS
 
-.. parsed-literal::
+.. code-block:: bash
+
    OCTO> select n1.firstname from names "n1" limit 1;
    Zero
 
@@ -570,21 +609,24 @@ Pattern Processing
 LIKE
 +++++++++++
 
-.. parsed-literal::
+.. code-block:: MySQL
+
    string LIKE pattern
 
 If the pattern matches the string, LIKE operation returns true.
 
 Pattern is expected to match the entire string i.e.
 
-.. parsed-literal::
+.. code-block:: MySQL
+
    'a'  LIKE 'a' -> TRUE
    'ab' LIKE 'a' -> FALSE
 
 :code:`%` and :code:`_` have a special meaning.
 :code:`%` matches any string of zero or more characters and :code:`_` matches any single chracter.
 
-.. parsed-literal::
+.. code-block:: MySQL
+
    'abcd' LIKE '%'    -> TRUE
    'abcd' LIKE 'ab%'  -> TRUE
    'cdcd' LIKE 'ab%'  -> FALSE
@@ -593,22 +635,25 @@ Pattern is expected to match the entire string i.e.
 
 Escaping :code:`%` or :code:`_` will take away its special meaning, and, it will just match :code:`%` and :code:`_` in its literal form.
 
-.. parsed-literal::
-   'ab%ab' LIKE 'ab\\%ab' -> TRUE
-   'abab'  LIKE 'ab\\%ab' -> FALSE
-   'ab_ab' LIKE 'ab\\_ab' -> TRUE
-   'abab'  LIKE 'ab\\_ab' -> FALSE
+.. code-block:: MySQL
+
+   'ab%ab' LIKE 'ab\%ab' -> TRUE
+   'abab'  LIKE 'ab\%ab' -> FALSE
+   'ab_ab' LIKE 'ab\_ab' -> TRUE
+   'abab'  LIKE 'ab\_ab' -> FALSE
 
 To match an escape as itself additional escape is required. Any other character if escaped has no special meaning. It will match its literal self.
 
-.. parsed-literal::
-   'ab\\ab' LIKE 'ab\\\\ab' -> TRUE
-   'ab\\ab' LIKE 'ab\\ab'  -> FALSE
-   'abab'  LIKE 'ab\\ab'  -> TRUE
+.. code-block:: MySQL
+
+   'ab\ab' LIKE 'ab\\ab' -> TRUE
+   'ab\ab' LIKE 'ab\ab'  -> FALSE
+   'abab'  LIKE 'ab\ab'  -> TRUE
 
 Any other character is matched without any special meaning.
 
-.. parsed-literal::
+.. code-block:: MySQL
+
    'ab*&$#' LIKE 'ab*&$#' -> TRUE
    'ab*&$#' LIKE 'ab*'    -> FALSE
 
@@ -620,7 +665,8 @@ Variations of LIKE
 
 #. :code:`ILIKE` : Case insensitive version of LIKE
 
-   .. parsed-literal::
+   .. code-block:: MySQL
+
       'abc' ILIKE 'Abc' -> TRUE
       'abc' LIKE  'Abc' -> FALSE
 
@@ -628,7 +674,8 @@ Variations of LIKE
 
 #. :code:`NOT LIKE` : Negated version of LIKE
 
-   .. parsed-literal::
+   .. code-block:: MySQL
+
      'abc' LIKE 'abc'      -> TRUE
      'abc' LIKE 'cba'      -> FALSE
      'abc' LIKE '%'        -> TRUE
@@ -647,25 +694,28 @@ Error Case
 ~~~~~~~~~~~~~
 LIKE pattern cannot end with an escape character. This results in an error.
 
-.. parsed-literal::
-   'abc' LIKE 'abc\\'
-   [ERROR] PATH:LINENUM DATE TIME : Cannot end pattern with escape character: abc\\
+.. code-block:: bash
 
-   'abc\\' LIKE 'abc\\\\' -> TRUE
+   'abc' LIKE 'abc\'
+   [ERROR] PATH:LINENUM DATE TIME : Cannot end pattern with escape character: abc\
+
+   'abc\' LIKE 'abc\\' -> TRUE
 
 
 +++++++++++++++++++
 SIMILAR TO
 +++++++++++++++++++
 
-.. parsed-literal::
+.. code-block:: MySQL
+
    string SIMILAR TO pattern
 
 If the pattern matches the string, SIMILAR TO operation returns true.
 
 Pattern is expected to match the entire string i.e.
 
-.. parsed-literal::
+.. code-block:: MySQL
+
    'a'  SIMILAR TO 'a' -> TRUE
    'ab' SIMILAR TO 'a' -> FALSE
 
@@ -680,13 +730,15 @@ Additionally, the following characters also having special meaning:
 
 * :code:`|` : The whole string should match a unit on either side of :code:`|`
 
-  .. parsed-literal::
+  .. code-block:: MySQL
+
      'abd' SIMILAR TO 'abc|d'       -> TRUE ( Here along with other characters, the right side of | which is 'd' is matched )
      'dba' SIMILAR TO '(abc)|(dba)' -> TRUE ( Here the right side of | which is (dba) is matched )
 
 * :code:`*` : Match a sequence of zero or more units
 
-  .. parsed-literal::
+  .. code-block:: MySQL
+
      'wow'         SIMILAR TO 'woo*w'    -> TRUE
      'wooow'       SIMILAR TO 'woo*w'    -> TRUE
      'dabcabcabcd' SIMILAR TO 'd(abc)*d' -> TRUE
@@ -694,7 +746,8 @@ Additionally, the following characters also having special meaning:
 
 * :code:`+` : Match a sequence of one or more units
 
-  .. parsed-literal::
+  .. code-block:: MySQL
+
      'dabcabcd' SIMILAR TO 'd(abc)+d'  -> TRUE
      'dd'       SIMILAR TO 'd(abc)+d'  -> FALSE
 
@@ -702,7 +755,8 @@ Additionally, the following characters also having special meaning:
 
 * :code:`[ ]` : Matches any one of the characters mentioned inside the brackets
 
-  .. parsed-literal::
+  .. code-block:: MySQL
+
      'a' SIMILAR TO '[abc]' -> TRUE
      'c' SIMILAR TO '[abc]' -> TRUE
      'd' SIMILAR TO '[abc]' -> FALSE
@@ -711,13 +765,15 @@ Additionally, the following characters also having special meaning:
 
   * :code:`{m}` : Match a sequence of exactly *m* units
 
-    .. parsed-literal::
+    .. code-block:: MySQL
+
        'aaaa' SIMILAR TO 'a{4}' -> TRUE
        'aaa'  SIMILAR TO 'a{4}' -> FALSE
 
   * :code:`{m,}` : Match a sequence of *m* or more units
 
-    .. parsed-literal::
+    .. code-block:: MySQL
+
        'aaaaa'  SIMILAR TO 'a{2,}'      -> TRUE
        'a'      SIMILAR TO 'a{2,}'      -> FALSE
        'ababab' SIMILAR TO '(ab){2,}'   -> TRUE
@@ -725,13 +781,15 @@ Additionally, the following characters also having special meaning:
 
   * :code:`{m,n}` : Match a sequence of exactly *m* through *n* (inclusive) units
 
-    .. parsed-literal::
+    .. code-block:: MySQL
+
        'aaa' SIMILAR TO 'a{1,3}'   -> TRUE
        'aa'  SIMILAR TO 'a{1,3}'   -> FALSE
 
 * :code:`?` : Match zero or one unit
 
-  .. parsed-literal::
+  .. code-block:: MySQL
+
      'abc'  SIMILAR TO 'ab?c'    -> TRUE
      'ac'   SIMILAR TO 'ab?c'    -> TRUE
      'abbc' SIMILAR TO 'ab?c'    -> FALSE
@@ -757,7 +815,8 @@ Variation of SIMILAR TO
 
 #. :code:`NOT SIMILAR TO` : Negated version of SIMILAR TO
 
-   .. parsed-literal::
+   .. code-block:: MySQL
+
       'abc' SIMILAR TO     'abc'   -> TRUE
       'abc' NOT SIMILAR TO 'abc'   -> FALSE
 
@@ -765,14 +824,16 @@ Variation of SIMILAR TO
  TILDE ~
 +++++++++++++++++++++
 
-.. parsed-literal::
+.. code-block:: MySQL
+
    string ~ pattern
 
 If the pattern matches the string, ~ operation returns true.
 
 Partial match of the pattern is valid, i.e.
 
-.. parsed-literal::
+.. code-block:: MySQL
+
    'a'  ~ 'a'          -> TRUE
    'ab' ~ 'a'          -> TRUE  (Partial match is valid)
    'ab' SIMILAR TO 'a' -> FALSE (Partial match is not valid)
@@ -786,25 +847,29 @@ The following characters have special meaning:
 
 * :code:`.` : Matches any single character
 
-  .. parsed-literal::
+  .. code-block:: MySQL
+
      'abc' ~ '...' -> TRUE
 
 * :code:`*` : Match a sequence of zero or more units
 
-  .. parsed-literal::
+  .. code-block:: MySQL
+
      'aab' ~ 'a*'  -> TRUE
      'baa' ~ 'a*'  -> TRUE
 
 * :code:`|` : Match a unit on either side of :code:`|`
 
-  .. parsed-literal::
-     'abd' LIKE       'abc|d'       -> FALSE ( | doesn't have special meaning for LIKE operation )
+  .. code-block:: MySQL
+
+     'abd' LIKE       'abc|d'       -> FALSE ( | does not have special meaning for LIKE operation )
      'abd' SIMILAR TO 'abc|d'       -> FALSE ( | expects 'abd' to match either 'abc' or 'd' . But, as 'abd' is not either of those, the result is FALSE )
      'abd' ~          'abc|d'       -> TRUE  ( | expects 'abd' to match either 'abc' or 'abd'. Hence the result is TRUE )
 
 * :code:`+` : Match a sequence of one or more units
 
-  .. parsed-literal::
+  .. code-block:: MySQL
+
      'dabcabcd' ~ '(abc)+'  -> TRUE
      'dd'       ~ '(xyz)+'  -> FALSE
      'dd'       ~ 'd+'      -> TRUE
@@ -814,7 +879,8 @@ The following characters have special meaning:
 
 * :code:`[ ]` : Matches any one of the characters mentioned inside the brackets
 
-  .. parsed-literal::
+  .. code-block:: MySQL
+
      'a'   ~ '[abc]' -> TRUE
      'zay' ~ '[abc]' -> TRUE
      'zy'  ~ '[abc]' -> FALSE
@@ -823,13 +889,15 @@ The following characters have special meaning:
 
   * :code:`{m}` : Match a sequence of exactly *m* units
 
-    .. parsed-literal::
+    .. code-block:: MySQL
+
        'yyaaaabcc' ~ 'a{4}' -> TRUE
        'yyaaabcc'  ~ 'a{4}' -> FALSE
 
   * :code:`{m,}` : Match a sequence of *m* or more units
 
-    .. parsed-literal::
+    .. code-block:: MySQL
+
        'yyaaabcc'     ~ 'a{2,}'      -> TRUE
        'yyabcc'       ~ 'a{2,}'      -> FALSE
        'yyabaaababcc' ~ '(ab){2,}'   -> TRUE
@@ -837,13 +905,15 @@ The following characters have special meaning:
 
   * :code:`{m,n}` : Match a sequence of exactly *m* through *n* (inclusive) units
 
-    .. parsed-literal::
+    .. code-block:: MySQL
+
        'aaa' ~ 'a{1,3}'   -> TRUE
        'aa'  ~ 'a{1,3}'   -> FALSE
 
 * :code:`?` : Match zero or one unit
 
-  .. parsed-literal::
+  .. code-block:: MySQL
+
      'abcd'  ~ 'ab?c'    -> TRUE
      'acd'   ~ 'ab?c'    -> TRUE
      'abbcd' ~ 'ab?c'    -> FALSE
@@ -872,12 +942,14 @@ Technical Notes
 
 The following rule for a row_value_constructor is currently a deviation from BNF due to a Reduce-Reduce conflict in the grammar:
 
-.. parsed-literal::
+.. code-block:: none
+
    row_value_constructor : [(][value_expression | null_specification | default_specification] [, ....][)];
 
 A primary value expression is denoted as follows:
 
-.. parsed-literal::
+.. code-block:: none
+
    value_expression: unsigned_value_specification | column_reference | COUNT (\*|[set_quantifier] value_expression) | general_set_function | scalar_subquery | (value_expression);
 
 The value expression can contain an unsigned value, a column reference, a set function or a subquery.
@@ -886,7 +958,8 @@ general_set_function refers to functions on sets like AVG, SUM, MIN, MAX etc. A 
 
 A query expression can be a joined table or a non joined query expression.
 
-.. parsed-literal::
+.. code-block:: none
+
    query_expression: non_join_query_expression | joined_table;
 
 The non_join_query_expression includes simple tables and column lists.
@@ -897,55 +970,56 @@ DDL Example
 
 The following is a sample of a DDL for an existing large M application (a healthcare information system) which was generated automatically from the application schema.
 
-.. parsed-literal::
-   CREATE TABLE \`ORDER_ORDER_ACTIONS\`(
-    \`ORDER1_ID\` INTEGER PRIMARY KEY START 0 END "'(keys(""ORDER1_ID""))!(keys(""ORDER1_ID"")="""")",
-    \`ORDER_ORDER_ACTIONS_ID\` INTEGER KEY NUM 1 START 0 END "'(keys(""ORDER_ORDER_ACTIONS_ID""))!(keys(""ORDER_ORDER_ACTIONS_ID"")="""")",
-    \`DATE_TIME_ORDERED\` INTEGER NOT NULL GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),0)" PIECE 1,
-    \`REASON_FOR_ACTION_REJECT\` CHARACTER(240) GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),1)" PIECE 1,
-    \`ACTION\` CHARACTER(12) GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),0)" PIECE 2,
-    \`PROVIDER\` INTEGER GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),0)" PIECE 3,
-    \`SIGNATURE_STATUS\` CHARACTER(34) GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),0)" PIECE 4,
-    \`SIGNED_BY\` INTEGER GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),0)" PIECE 5,
-    \`DATE_TIME_SIGNED\` INTEGER GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),0)" PIECE 6,
-    \`SIGNED_ON_CHART\` INTEGER GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),0)" PIECE 7,
-    \`VERIFYING_NURSE\` INTEGER GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),0)" PIECE 8,
-    \`DATE_TIME_NURSE_VERIFIED\` INTEGER GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),0)" PIECE 9,
-    \`VERIFYING_CLERK\` INTEGER GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),0)" PIECE 10,
-    \`DATE_TIME_CLERK_VERIFIED\` INTEGER GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),0)" PIECE 11,
-    \`NATURE_OF_ORDER\` INTEGER GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),0)" PIECE 12,
-    \`ENTERED_BY\` INTEGER GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),0)" PIECE 13,
-    \`TEXT_REFERENCE\` INTEGER GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),0)" PIECE 14,
-    \`RELEASE_STATUS\` CHARACTER(11) GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),0)" PIECE 15,
-    \`RELEASE_DATE_TIME\` INTEGER GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),0)" PIECE 16,
-    \`RELEASING_PERSON\` INTEGER GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),0)" PIECE 17,
-    \`CHART_REVIEWED_BY\` INTEGER GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),0)" PIECE 18,
-    \`DATE_TIME_CHART_REVIEWED\` INTEGER GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),0)" PIECE 19,
-    \`DC_HOLD_UNTIL\` INTEGER GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),2)" PIECE 1,
-    \`DC_HOLD_RELEASED_BY\` INTEGER GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),2)" PIECE 2,
-    \`DIGITAL_SIGNATURE\` CHARACTER(100) GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),2)" PIECE 3,
-    \`DRUG_SCHEDULE\` CHARACTER(3) GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),2)" PIECE 4,
-    \`DIGITAL_SIGNATURE_REQUIRED\` CHARACTER(3) GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),2)" PIECE 5,
-    \`FLAGGED\` CHARACTER(3) GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),3)" PIECE 1,
-    \`BULLETIN\` INTEGER GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),3)" PIECE 2,
-    \`DATE_TIME_FLAGGED\` INTEGER GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),3)" PIECE 3,
-    \`FLAGGED_BY\` INTEGER GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),3)" PIECE 4,
-    \`REASON_FOR_FLAG\` CHARACTER(80) GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),3)" PIECE 5,
-    \`DATE_TIME_UNFLAGGED\` INTEGER GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),3)" PIECE 6,
-    \`UNFLAGGED_BY\` INTEGER GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),3)" PIECE 7,
-    \`REASON_FOR_UNFLAG\` CHARACTER(80) GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),3)" PIECE 8,
-    \`ALERTED_PROVIDER\` INTEGER GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),3)" PIECE 9,
-    \`DISPOSITION_BY\` INTEGER GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),4)" PIECE 1,
-    \`DISPOSITION_DATE_TIME\` INTEGER GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),4)" PIECE 2,
-    \`CHART_COPY_PRINTED\` CHARACTER(3) GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),7)" PIECE 1,
-    \`CHART_COPY_PRINTED_WHEN\` INTEGER GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),7)" PIECE 2,
-    \`CHART_COPY_PRINTED_BY\` INTEGER GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),7)" PIECE 3,
-    \`CHART_COPY_PRINTER\` CHARACTER(50) GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),7)" PIECE 4
+.. code-block:: MySQL
+
+   CREATE TABLE `ORDER_ORDER_ACTIONS`(
+    `ORDER1_ID` INTEGER PRIMARY KEY START 0 END "'(keys(""ORDER1_ID""))!(keys(""ORDER1_ID"")="""")",
+    `ORDER_ORDER_ACTIONS_ID` INTEGER KEY NUM 1 START 0 END "'(keys(""ORDER_ORDER_ACTIONS_ID""))!(keys(""ORDER_ORDER_ACTIONS_ID"")="""")",
+    `DATE_TIME_ORDERED` INTEGER NOT NULL GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),0)" PIECE 1,
+    `REASON_FOR_ACTION_REJECT` CHARACTER(240) GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),1)" PIECE 1,
+    `ACTION` CHARACTER(12) GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),0)" PIECE 2,
+    `PROVIDER` INTEGER GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),0)" PIECE 3,
+    `SIGNATURE_STATUS` CHARACTER(34) GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),0)" PIECE 4,
+    `SIGNED_BY` INTEGER GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),0)" PIECE 5,
+    `DATE_TIME_SIGNED` INTEGER GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),0)" PIECE 6,
+    `SIGNED_ON_CHART` INTEGER GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),0)" PIECE 7,
+    `VERIFYING_NURSE` INTEGER GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),0)" PIECE 8,
+    `DATE_TIME_NURSE_VERIFIED` INTEGER GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),0)" PIECE 9,
+    `VERIFYING_CLERK` INTEGER GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),0)" PIECE 10,
+    `DATE_TIME_CLERK_VERIFIED` INTEGER GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),0)" PIECE 11,
+    `NATURE_OF_ORDER` INTEGER GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),0)" PIECE 12,
+    `ENTERED_BY` INTEGER GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),0)" PIECE 13,
+    `TEXT_REFERENCE` INTEGER GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),0)" PIECE 14,
+    `RELEASE_STATUS` CHARACTER(11) GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),0)" PIECE 15,
+    `RELEASE_DATE_TIME` INTEGER GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),0)" PIECE 16,
+    `RELEASING_PERSON` INTEGER GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),0)" PIECE 17,
+    `CHART_REVIEWED_BY` INTEGER GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),0)" PIECE 18,
+    `DATE_TIME_CHART_REVIEWED` INTEGER GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),0)" PIECE 19,
+    `DC_HOLD_UNTIL` INTEGER GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),2)" PIECE 1,
+    `DC_HOLD_RELEASED_BY` INTEGER GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),2)" PIECE 2,
+    `DIGITAL_SIGNATURE` CHARACTER(100) GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),2)" PIECE 3,
+    `DRUG_SCHEDULE` CHARACTER(3) GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),2)" PIECE 4,
+    `DIGITAL_SIGNATURE_REQUIRED` CHARACTER(3) GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),2)" PIECE 5,
+    `FLAGGED` CHARACTER(3) GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),3)" PIECE 1,
+    `BULLETIN` INTEGER GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),3)" PIECE 2,
+    `DATE_TIME_FLAGGED` INTEGER GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),3)" PIECE 3,
+    `FLAGGED_BY` INTEGER GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),3)" PIECE 4,
+    `REASON_FOR_FLAG` CHARACTER(80) GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),3)" PIECE 5,
+    `DATE_TIME_UNFLAGGED` INTEGER GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),3)" PIECE 6,
+    `UNFLAGGED_BY` INTEGER GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),3)" PIECE 7,
+    `REASON_FOR_UNFLAG` CHARACTER(80) GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),3)" PIECE 8,
+    `ALERTED_PROVIDER` INTEGER GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),3)" PIECE 9,
+    `DISPOSITION_BY` INTEGER GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),4)" PIECE 1,
+    `DISPOSITION_DATE_TIME` INTEGER GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),4)" PIECE 2,
+    `CHART_COPY_PRINTED` CHARACTER(3) GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),7)" PIECE 1,
+    `CHART_COPY_PRINTED_WHEN` INTEGER GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),7)" PIECE 2,
+    `CHART_COPY_PRINTED_BY` INTEGER GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),7)" PIECE 3,
+    `CHART_COPY_PRINTER` CHARACTER(50) GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),7)" PIECE 4
    )
    GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""))"
    DELIM "^";
 
-* The backtick character (\`) is used to enclose words so that any possible reserved words that may be used in column or table names are correctly escaped.
+* The backtick character (`) is used to enclose words so that any possible reserved words that may be used in column or table names are correctly escaped.
 
 * START indicates where to start a $ORDER loop in the underlying data storage - this is the number BEFORE which actual data needs to be returned.
 

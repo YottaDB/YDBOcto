@@ -60,13 +60,13 @@ Install Prerequisites
 
   The YottaDB POSIX plugin can be installed easily by adding the :code:`--posix` option when installing YottaDB with the :code:`ydbinstall` script:
 
-   .. parsed-literal::
+   .. code-block:: bash
 
       ./ydbinstall --posix
 
   Alternatively, users can build the POSIX plugin from source:
 
-   .. parsed-literal::
+   .. code-block:: bash
 
       curl -fSsLO https://gitlab.com/YottaDB/Util/YDBPosix/-/archive/master/YDBPosix-master.tar.gz
       tar xzf YDBPosix-master.tar.gz
@@ -74,7 +74,7 @@ Install Prerequisites
       mkdir build && cd build
       # Make sure that you have YottaDB environment variables in your shell before continuing
       cmake ..
-      make -j \`grep -c ^processor /proc/cpuinfo\` && sudo make install
+      make -j `grep -c ^processor /proc/cpuinfo` && sudo make install
 
   More detailed instructions are on the `YottaDB POSIX plugin page <https://gitlab.com/YottaDB/Util/YDBPosix/blob/master/README.md/>`_.
 
@@ -86,18 +86,18 @@ Install Prerequisites
 
   The YottDB encryption plugin can be installed by adding the :code:`--encplugin` option when installing YottaDB with the :code:`ydbinstall` script:
 
-  .. parsed-literal::
+  .. code-block:: bash
 
      ./ydbinstall --encplugin
 
   Alternatively, users can build the encryption plugin from source:
 
-  .. parsed-literal::
+  .. code-block:: bash
 
      # In a temporary directory perform the following commands
      sudo tar -xf $ydb_dist/plugin/gtmcrypt/source.tar
      # Make sure that you have YottaDB environment variables in your shell before continuing
-     sudo ydb_dist=$ydb_dist make -j \`grep -c ^processor /proc/cpuinfo\`
+     sudo ydb_dist=$ydb_dist make -j `grep -c ^processor /proc/cpuinfo`
      sudo ydb_dist=$ydb_dist make install
 
 ~~~~~~~~~~~~
@@ -112,17 +112,17 @@ Install Octo
 ^^^^^^^^^^^^^^^
   #. Decompress the Octo binary package
 
-     .. parsed-literal::
+     .. code-block:: bash
 
-	tar xzf YDBOcto-\*-Linux.tar.gz
+	tar xzf YDBOcto-*-Linux.tar.gz
 
   #. Install Octo
 
      This will install Octo to your :code:`$ydb_dist/plugin` directory.
 
-     .. parsed-literal::
+     .. code-block:: bash
 
-	cd YDBOcto-\*-Linux
+	cd YDBOcto-*-Linux
 	./install.sh
 
 ^^^^^^^^^^^^^^^
@@ -137,7 +137,7 @@ Install Octo
      Install Prerequisite Packages
 """"""""""""""""""""""""""""""""""
 
-     .. parsed-literal::
+     .. code-block:: bash
 
         # Ubuntu Linux OR Raspbian Linux OR Beagleboard Debian
         sudo apt-get install build-essential cmake bison flex xxd libreadline-dev libssl-dev
@@ -153,7 +153,7 @@ Install Octo
 
      Octo uses BATS for automated integration and regression testing. To use BATS to run tests on Octo, BATS version 1.1+ must be installed:
 
-     .. parsed-literal::
+     .. code-block:: bash
 
 	git clone https://github.com/bats-core/bats-core.git
 	cd bats-core
@@ -170,7 +170,7 @@ Install Octo
 
      Octo uses cmocka for automated unit testing. To build and run Octo's unit tests, cmocka must be installed:
 
-     .. parsed-literal::
+     .. code-block:: bash
 
 	# Ubuntu Linux OR Raspbian Linux OR Beagleboard Debian
 	sudo apt-get install libcmocka-dev
@@ -184,7 +184,7 @@ Install Octo
 
      Octo uses the psql PostgreSQL for some integration/regression tests. To build and run these tests, psql must be installed:
 
-     .. parsed-literal::
+     .. code-block:: bash
 
 	# Ubuntu Linux OR Raspbian Linux OR Beagleboard Debian
 	sudo apt-get install postgresql-client
@@ -198,7 +198,7 @@ Install Octo
 
      Octo uses the PostgreSQL server for some integration/regression tests. To build and run these tests, PostgreSQL must be installed:
 
-     .. parsed-literal::
+     .. code-block:: bash
 
 	# Ubuntu Linux OR Raspbian Linux OR Beagleboard Debian
 	sudo apt-get install postgresql
@@ -208,7 +208,7 @@ Install Octo
 
      Additionally, PostgreSQL must be set up for the user who will be running the tests:
 
-     .. parsed-literal::
+     .. code-block:: bash
 
 	sudo -u postgres createuser [username]
 	sudo -u postgres psql <<PSQL
@@ -219,7 +219,7 @@ Install Octo
      Download Octo Source Code
 """"""""""""""""""""""""""""""
 
-      .. parsed-literal::
+      .. code-block:: bash
 
          # In a temporary directory perform the following commands
          curl -fSsLO https://gitlab.com/YottaDB/DBMS/YDBOcto/-/archive/master/YDBOcto-master.tar.gz
@@ -230,13 +230,13 @@ Install Octo
      Compile Octo
 """""""""""""""""
 
-      .. parsed-literal::
+      .. code-block:: bash
 
          mkdir build
          cd build
          # For VistA the String Buffer Length needs to be larger (described below) add "-DSTRING_BUFFER_LENGTH=300000" to the cmake command below
          cmake -DCMAKE_INSTALL_PREFIX=$ydb_dist/plugin .. # for CentOS/RedHat use cmake3 instead
-         make -j \`grep -c ^processor /proc/cpuinfo\`
+         make -j `grep -c ^processor /proc/cpuinfo`
 
       To generate a Debug build instead of a Release build (the default), add :code:`-DCMAKE_BUILD_TYPE=Debug` to the CMake line above.
 
@@ -259,7 +259,7 @@ Install Octo
 
       Example usage of the above parameters:
 
-      .. parsed-literal::
+      .. code-block:: bash
 
          cmake -DSTRING_BUFFER_LENGTH=600000 -DCMAKE_INSTALL_PREFIX=$ydb_dist/plugin ..
 
@@ -269,13 +269,13 @@ Install Octo
 
       Install Octo:
 
-      .. parsed-literal::
+      .. code-block:: bash
 
          sudo -E make install
 
       Redefine environment variables to include newly installed files:
 
-      .. parsed-literal::
+      .. code-block:: bash
 
    	 $ydb_dist/ydb_env_unset
  	 source $(pkg-config --variable=prefix yottadb)/ydb_env_set
@@ -303,7 +303,7 @@ Configure Octo
 
   Example setting of the environment variables (assuming default paths):
 
-  .. parsed-literal::
+  .. code-block:: bash
 
      source /usr/local/lib/yottadb/r1.28/ydb_env_set
      export ydb_routines="$ydb_dist/plugin/octo/o/_ydbocto.so $ydb_routines"
@@ -317,13 +317,13 @@ Configure Octo
 
   Please see the following example for creating a database from scratch with the recommended settings. For more information on setting up a database in YottaDB, refer to the `Administration and Operations Guide <https://docs.yottadb.com/AdminOpsGuide/index.html>`__.
 
-  .. parsed-literal::
+  .. code-block:: bash
 
      $ cd build
-     $ export ydb_gbldir=\*path to build directory\*/octo.gld
+     $ export ydb_gbldir=*path to build directory*/octo.gld
      $ $ydb_dist/mumps -r GDE
-     GDE> add -segment OCTO -access_method=bg -file_name=\*path to build directory\*/octo.dat
-     GDE> add -region OCTO -dynamic=octo -journal=(before,file="\*path to build directory\*/octo.mjl") -null_subscripts=always -key_size=1019 -record_size=300000
+     GDE> add -segment OCTO -access_method=bg -file_name=*path to build directory*/octo.dat
+     GDE> add -region OCTO -dynamic=octo -journal=(before,file="*path to build directory*/octo.mjl") -null_subscripts=always -key_size=1019 -record_size=300000
      GDE> add -name %ydboctoschema -region=octo
      GDE> add -name %ydboctoxref -region=octo
      GDE> add -name %ydboctoocto -region=octo
@@ -335,7 +335,7 @@ Configure Octo
   Install PostgreSQL seed data
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-  .. parsed-literal::
+  .. code-block:: bash
 
      $ydb_dist/mupip load $ydb_dist/plugin/octo/octo-seed.zwr
      $ydb_dist/plugin/bin/octo -f $ydb_dist/plugin/octo/octo-seed.sql
@@ -355,7 +355,7 @@ Configure Octo
 
   Download :code:`northwind.zwr` and :code:`northwind.sql`:
 
-  .. parsed-literal::
+  .. code-block:: bash
 
      # Create a new directory within Octo
      mkdir tests && cd tests
@@ -367,7 +367,7 @@ Configure Octo
 
   In a shell with no :code:`ydb*` environment variables defined other than :code:`ydb_dir`, do the following:
 
-  .. parsed-literal::
+  .. code-block:: bash
 
      export ydb_chset="UTF-8"
      source $(pkg-config --variable=prefix yottadb)/ydb_env_set
@@ -376,13 +376,13 @@ Configure Octo
 
   For example:
 
-  .. parsed-literal::
+  .. code-block:: bash
 
      export ydb_dir=/tmp/octodemo
 
   Now, load the northwind data set:
 
-  .. parsed-literal::
+  .. code-block:: bash
 
      # In the /tests/fixtures directory
 
@@ -399,7 +399,7 @@ Given below are some sample queries that can be run in Octo once the :code:`nort
 
   The following query selects only the DISTINCT values from the 'Country' column in the 'Suppliers' table.
 
-  .. parsed-literal::
+  .. code-block:: MySQL
 
      OCTO> SELECT DISTINCT Country FROM Suppliers;
      UK
@@ -422,32 +422,32 @@ Given below are some sample queries that can be run in Octo once the :code:`nort
 
   The following query selects the first five records from the 'Customers' table where the country is 'France'.
 
-  .. parsed-literal::
+  .. code-block:: PSQL
 
      OCTO> SELECT * FROM Customers
      OCTO> WHERE Country='France'
      OCTO> LIMIT 5;
-     7\|Blondel père et fils\|Frédérique Citeaux\|24, place Kléber\|Strasbourg\|67000\|France
-     9\|Bon app'\|Laurence Lebihans\|12, rue des Bouchers\|Marseille\|13008\|France
-     18\|Du monde entier\|Janine Labrune\|67, rue des Cinquante Otages\|Nantes\|44000\|France
-     23\|Folies gourmandes\|Martine Rancé\|184, chaussée de Tournai\|Lille\|59000\|France
-     26\|France restauration\|Carine Schmitt\|54, rue Royale\|Nantes\|44000\|France
+     7|Blondel père et fils|Frédérique Citeaux|24, place Kléber|Strasbourg|67000|France
+     9|Bon app'|Laurence Lebihans|12, rue des Bouchers|Marseille|13008|France
+     18|Du monde entier|Janine Labrune|67, rue des Cinquante Otages|Nantes|44000|France
+     23|Folies gourmandes|Martine Rancé|184, chaussée de Tournai|Lille|59000|France
+     26|France restauration|Carine Schmitt|54, rue Royale|Nantes|44000|France
 
   The following query selects all products from the 'Products' table with a ProductName that starts with 'L'.
 
-  .. parsed-literal::
+  .. code-block:: PSQL
 
      OCTO> SELECT * FROM Products
      OCTO> WHERE ProductName LIKE 'L%';
-     65\|Louisiana Fiery Hot Pepper Sauce\|2\|2\|32 - 8 oz bottles\|21.05
-     66\|Louisiana Hot Spiced Okra\|2\|2\|24 - 8 oz jars\|17
-     67\|Laughing Lumberjack Lager\|16\|1\|24 - 12 oz bottles\|14
-     74\|Longlife Tofu\|4\|7\|5 kg pkg.\|10
-     76\|Lakkalikööri\|23\|1\|500 ml \|18
+     65|Louisiana Fiery Hot Pepper Sauce|2|2|32 - 8 oz bottles|21.05
+     66|Louisiana Hot Spiced Okra|2|2|24 - 8 oz jars|17
+     67|Laughing Lumberjack Lager|16|1|24 - 12 oz bottles|14
+     74|Longlife Tofu|4|7|5 kg pkg.|10
+     76|Lakkalikööri|23|1|500 ml |18
 
   The following query displays the average price of Products per Category.
 
-  .. parsed-literal::
+  .. code-block:: PSQL
 
      OCTO> SELECT AVG(Price), CategoryID
      OCTO> FROM Products
@@ -463,7 +463,7 @@ Given below are some sample queries that can be run in Octo once the :code:`nort
 
   The following query displays each Product with its Category and Supplier in ascending order of the 'SupplierName'.
 
-  .. parsed-literal::
+  .. code-block:: PSQL
 
      OCTO> SELECT Products.ProductName, Categories.CategoryName, Suppliers.SupplierName
      OCTO> FROM ((Products
@@ -558,21 +558,21 @@ Test with dummy data using Rocto
 
   For example:
 
-  .. parsed-literal::
+  .. code-block:: bash
 
      jdbc:postgresql://localhost:1337/
 
   A username and password should also be added to the alias.
   This username and password combination must first be added to Octo using the ydboctoAdmin utility:
 
-  .. parsed-literal::
+  .. code-block:: bash
 
      yottadb -r %ydboctoAdmin add user <username>
 
 
   For example:
 
-  .. parsed-literal::
+  .. code-block:: bash
 
      $ydb_dist/yottadb -r %ydboctoAdmin add user myusername
      Enter password for user myusername:
@@ -582,7 +582,7 @@ Test with dummy data using Rocto
 
   In a shell with YottaDB and Octo environment variables set, start Rocto using the following command:
 
-  .. parsed-literal::
+  .. code-block:: bash
 
      rocto
 
@@ -615,13 +615,13 @@ Octo has a few options that can be specified when it is launched.
 
 The verbose option specifies the amount of additional information that is provided to the user when commands are run in Octo.
 
- .. parsed-literal::
+ .. code-block:: bash
 
     --verbose={number}
 
 or equivalently,
 
- .. parsed-literal::
+ .. code-block:: bash
 
     -v{v{v}}
 
@@ -651,12 +651,14 @@ A single :code:`-v` in the command line puts the verbose level at 3, :code:`-vv`
 
 Example:
 
-.. parsed-literal::
+.. code-block:: bash
+
    octo --verbose=4
 
 Example:
 
-.. parsed-literal::
+.. code-block:: bash
+
    OCTO> YDBOcto-master/build $ ./src/octo -vvv
    [TRACE] YDBOcto-master/src/octo.c:50 2019-04-10 10:17:57 : Octo started
    [ INFO] YDBOcto-master/src/run_query.c:79 2019-04-10 10:17:57 : Generating SQL for cursor 45
@@ -678,17 +680,20 @@ Example:
 
 The dry-run option runs the parser, and performs checks and verifications on data types and syntax, but does not execute the SQL statements. The database is not altered when Octo is run with the :code:`--dry-run` option.
 
-.. parsed-literal::
+.. code-block:: bash
+
    --dry-run
 
 or equivalently,
 
-.. parsed-literal::
+.. code-block:: bash
+
    -d
 
 Example:
 
-.. parsed-literal::
+.. code-block:: bash
+
    octo --dry-run
 
 ^^^^^^^^^^^^^^
@@ -697,16 +702,19 @@ Example:
 
 The input-file option takes a file as input to Octo, that commands are then read from.
 
-.. parsed-literal::
+.. code-block:: bash
+
    --input-file=<path to input file>
 
 or equivalently,
 
-.. parsed-literal::
+.. code-block:: bash
+
    -f <input file>
 
 Example:
 
-.. parsed-literal::
+.. code-block:: bash
+
    octo --input-file=files/commands.txt
 

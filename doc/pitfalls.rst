@@ -14,12 +14,14 @@ Currently, in YottaDB globals there is no distinction between an empty (zero len
 
 For example,
 
-.. parsed-literal::
+.. code-block:: PSQL
+
    SELECT * FROM Employee WHERE FirstName IS NULL;
 
 and
 
-.. parsed-literal::
+.. code-block:: PSQL
+
    SELECT * FROM Employee WHERE FirstName = "";
 
 return the same results.

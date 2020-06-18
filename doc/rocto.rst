@@ -29,7 +29,8 @@ Put in the path to your JAR file (e.g. :code:`~/user/postgresql-42.2.6-SNAPSHOT.
 * Create an alias for your Rocto server, including the server IP address and port number. These can be configured for Rocto in the `config file <config.html#config-files>`_.
   For example,
 
-  .. parsed-literal::
+  .. code-block:: bash
+
      jdbc:postgresql://localhost:1337/example
 
 Rocto requires the creation of a user name and password.
@@ -49,12 +50,14 @@ For example:
 
 Suppose there is a table "names" with records in it:
 
-.. parsed-literal::
+.. code-block:: MySQL
+
    CREATE TABLE names (id INTEGER PRIMARY KEY, firstName VARCHAR, lastName VARCHAR);
 
 A simple query in SQuirreL SQL could be:
 
-.. parsed-literal::
+.. code-block:: MySQL
+
    SELECT * FROM names;
 
 .. figure:: query.png

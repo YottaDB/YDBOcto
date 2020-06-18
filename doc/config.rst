@@ -45,7 +45,8 @@ The environment variables `ydb_dist`, `ydb_gbldir`, and `ydb_routines` can initi
 
 Example setting of the environment variables (assuming default paths):
 
- .. parsed-literal::
+ .. code-block:: bash
+
     source /usr/local/lib/yottadb/r1.28/ydb_env_set
     export ydb_routines=". $ydb_routines"
     export ydb_xc_ydbposix=$ydb_dist/plugin/ydbposix.xc
@@ -113,7 +114,7 @@ Enabling TLS/SSL requires several additional steps beyond installing the YottaDB
 Generate CA key and certificate
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
- .. parsed-literal::
+ .. code-block:: bash
 
     # In a directory in which you want to store all the certificates for Octo
     # Be sure to create a strong passphrase for the CA
@@ -125,7 +126,7 @@ Generate CA key and certificate
 Create server key and certificate request
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
- .. parsed-literal::
+ .. code-block:: bash
 
     # This creates a 2048 bit private key
     openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:2048 -out server.key
@@ -136,7 +137,7 @@ Create server key and certificate request
 Sign certificate based on request and local CA
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
- .. parsed-literal::
+ .. code-block:: bash
 
     # Asks the CA to sign the certificate with a 1 Year validity time
     openssl x509 -req -in server.csr -CA CA.crt -CAkey CA.key -CAcreateserial -out server.crt -days 365

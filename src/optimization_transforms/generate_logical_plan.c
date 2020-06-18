@@ -22,7 +22,7 @@
  * Generates a LP for the given column list, with a root element of
  *  LP_COLUMN_LIST and child elements of LP_WHERE and LP_COLUMN_LIST
  */
-LogicalPlan *generate_logical_plan(SqlStatement *stmt, int *plan_id) {
+LogicalPlan *generate_logical_plan(SqlStatement *stmt) {
 	SqlSelectStatement	*select_stmt;
 	SqlTableAlias		*table_alias;
 	LogicalPlan		*insert, *project, *select, *dst, *dst_key;
@@ -39,7 +39,7 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt, int *plan_id) {
 
 	// Set operations should be handled in a different function
 	if (set_operation_STATEMENT == stmt->type) {
-		return lp_generate_set_logical_plan(stmt, plan_id);
+		return lp_generate_set_logical_plan(stmt);
 	}
 
 	UNPACK_SQL_STATEMENT(table_alias, stmt, table_alias);
@@ -63,13 +63,12 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt, int *plan_id) {
 	MALLOC_LP_2ARGS(criteria->v.lp_default.operand[0], LP_KEYS);
 	MALLOC_LP(select_options, criteria->v.lp_default.operand[1], LP_SELECT_OPTIONS);
 	MALLOC_LP(where, select_options->v.lp_default.operand[0], LP_WHERE);
-	LP_GENERATE_WHERE(select_stmt->where_expression, plan_id, stmt, where->v.lp_default.operand[0], error_encountered);
-	insert->counter = plan_id;
+	LP_GENERATE_WHERE(select_stmt->where_expression, stmt, where->v.lp_default.operand[0], error_encountered);
 	MALLOC_LP(dst, insert->v.lp_default.operand[1], LP_OUTPUT);
 	MALLOC_LP(dst_key, dst->v.lp_default.operand[0], LP_KEY);
 	OCTO_CMALLOC_STRUCT(dst_key->v.lp_key.key, SqlKey);
 	memset(dst_key->v.lp_key.key, 0, sizeof(SqlKey));
-	dst_key->v.lp_key.key->unique_id = get_plan_unique_number(insert);
+	dst_key->v.lp_key.key->unique_id = get_new_plan_unique_id();
 	insert->extra_detail.lp_insert.root_table_alias = table_alias;
 	/// TODO: we should look at the columns to decide which values
 	//   are keys, and if none, create a rowId as part of the advance
@@ -99,7 +98,7 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt, int *plan_id) {
 			join_left->v.lp_table.table_alias = sql_stmt->v.table_alias;
 		} else
 		{
-			join_left = generate_logical_plan(sql_stmt, plan_id);
+			join_left = generate_logical_plan(sql_stmt);
 			if (NULL == join_left)
 				return NULL;
 			join_right->v.lp_default.operand[0] = join_left;
@@ -110,8 +109,7 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt, int *plan_id) {
 		if (cur_join->condition)
 		{
 			MALLOC_LP_2ARGS(t_join_condition, LP_WHERE);
-			LP_GENERATE_WHERE(cur_join->condition, plan_id, stmt,					\
-						t_join_condition->v.lp_default.operand[0], error_encountered);
+			LP_GENERATE_WHERE(cur_join->condition, stmt, t_join_condition->v.lp_default.operand[0], error_encountered);
 			if (num_outer_joins)
 				join_right->extra_detail.lp_table_join.join_on_condition = t_join_condition;
 			else
@@ -127,7 +125,7 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt, int *plan_id) {
 	// Add SELECT column list to logical plan
 	assert(NULL != select_stmt->select_list->v.column_list);
 	UNPACK_SQL_STATEMENT(list, select_stmt->select_list, column_list_alias);
-	temp = lp_column_list_to_lp(list, plan_id, &error_encountered);
+	temp = lp_column_list_to_lp(list, &error_encountered);
 	project->v.lp_default.operand[0] = temp;
 
 	/* Now that SELECT column list is done, add ORDER BY column list to logical plan.
@@ -166,7 +164,7 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt, int *plan_id) {
 				cur_cla->next = cur_cla; /* set "next" to self so below call processes only one column instead of
 							  * multiple columns in table corresponding to the desired column.
 							  */
-				order_by->v.lp_default.operand[0] = lp_column_list_to_lp(cur_cla, plan_id, &error_encountered);
+				order_by->v.lp_default.operand[0] = lp_column_list_to_lp(cur_cla, &error_encountered);
 				cur_cla->next = save_next;
 				order_by->extra_detail.lp_order_by.order_by_column_num = FALSE;
 			}
@@ -206,15 +204,14 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt, int *plan_id) {
 
 			MALLOC_LP(group_by, aggregate_options->v.lp_default.operand[0], LP_GROUP_BY);
 			UNPACK_SQL_STATEMENT(list, select_stmt->group_by_expression, column_list_alias);
-			group_by->v.lp_default.operand[0] = lp_column_list_to_lp(list, plan_id, &error_encountered);
+			group_by->v.lp_default.operand[0] = lp_column_list_to_lp(list, &error_encountered);
 		}
 		if (NULL != select_stmt->having_expression) {
 			LogicalPlan	*having;
 
 			MALLOC_LP(having, aggregate_options->v.lp_default.operand[1], LP_HAVING);
 			MALLOC_LP(where, having->v.lp_default.operand[0], LP_WHERE);
-			LP_GENERATE_WHERE(select_stmt->having_expression, plan_id, stmt,
-						where->v.lp_default.operand[0], error_encountered);
+			LP_GENERATE_WHERE(select_stmt->having_expression, stmt, where->v.lp_default.operand[0], error_encountered);
 		}
 	}
 	// Handle factoring in derived columns

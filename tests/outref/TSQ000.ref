@@ -17,9 +17,9 @@ LP_INSERT:
         - type: INTEGER_LITERAL
         - alias: TYPLEN
     LP_SELECT: 
-      LP_TABLE_JOIN: CROSS_JOIN: 
+      LP_TABLE_JOIN: 
         LP_TABLE: T
-        LP_TABLE_JOIN: 
+        LP_TABLE_JOIN: CROSS_JOIN: 
           LP_TABLE: N
       LP_CRITERIA: 
         LP_KEYS: 
@@ -57,9 +57,9 @@ LP_INSERT:
         - type: INTEGER_LITERAL
         - alias: TYPLEN
     LP_SELECT: 
-      LP_TABLE_JOIN: CROSS_JOIN: 
+      LP_TABLE_JOIN: 
         LP_TABLE: T
-        LP_TABLE_JOIN: 
+        LP_TABLE_JOIN: CROSS_JOIN: 
           LP_TABLE: N
       LP_CRITERIA: 
         LP_KEYS: 

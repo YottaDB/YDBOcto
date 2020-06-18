@@ -21,9 +21,9 @@ LP_INSERT:
           - type: INTEGER_LITERAL
           - alias: OID
     LP_SELECT: 
-      LP_TABLE_JOIN: CROSS_JOIN: 
+      LP_TABLE_JOIN: 
         LP_TABLE: N
-        LP_TABLE_JOIN: 
+        LP_TABLE_JOIN: CROSS_JOIN: 
           LP_TABLE: C
       LP_CRITERIA: 
         LP_KEYS: 
@@ -59,9 +59,9 @@ LP_INSERT:
           - type: INTEGER_LITERAL
           - alias: OID
     LP_SELECT: 
-      LP_TABLE_JOIN: CROSS_JOIN: 
+      LP_TABLE_JOIN: 
         LP_TABLE: N
-        LP_TABLE_JOIN: 
+        LP_TABLE_JOIN: CROSS_JOIN: 
           LP_INSERT: 
             LP_PROJECT: 
               LP_COLUMN_LIST: 

@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -50,7 +50,7 @@ LogicalPlan *lp_generate_xref_keys(LogicalPlan *plan, SqlTable *table, SqlColumn
 	} while (table_join != NULL);
 	if (NULL == table_join)
 		return NULL;
-	table_join->v.lp_default.operand[0] = lp_generate_xref_plan(plan, table, column, unique_id);
+	table_join->v.lp_default.operand[0] = lp_generate_xref_plan(table, column, unique_id);
 	if (NULL == table_join->v.lp_default.operand[0])
 		return NULL;
 	lp_output_key = lp_get_output_key(table_join->v.lp_default.operand[0]);

@@ -18,16 +18,17 @@
 #include "octo_types.h"
 #include "logical_plan.h"
 
-LogicalPlan *lp_generate_xref_plan(LogicalPlan *plan, SqlTable *table, SqlColumn *column, int unique_id) {
-	LogicalPlan *root, *project, *output, *column_list, *select, *cur, *lp_cla;
-	LogicalPlan *table_join, *criteria, *lp_output_key, *lp_table, *select_options, *select_more_options, *lp_keywords;
-	SqlColumnAlias *cla;
-	SqlTableAlias *table_alias;
-	SqlStatement *table_alias_statement;
-	SqlColumn *key_columns[MAX_KEY_COUNT];
-	SqlOptionalKeyword *keywords;
-	SqlKey *output_key;
-	int cur_key, max_key;
+LogicalPlan *lp_generate_xref_plan(SqlTable *table, SqlColumn *column, int unique_id) {
+	LogicalPlan		*root, *project, *output, *column_list, *select, *cur, *lp_cla;
+	LogicalPlan		*table_join, *criteria, *lp_output_key, *lp_table;
+	LogicalPlan		*select_options, *select_more_options, *lp_keywords;
+	SqlColumnAlias		*cla;
+	SqlTableAlias		*table_alias;
+	SqlStatement		*table_alias_statement;
+	SqlColumn		*key_columns[MAX_KEY_COUNT];
+	SqlOptionalKeyword	*keywords;
+	SqlKey			*output_key;
+	int			cur_key, max_key;
 
 	// Setup the output key
 	OCTO_CMALLOC_STRUCT(output_key, SqlKey);
@@ -38,7 +39,6 @@ LogicalPlan *lp_generate_xref_plan(LogicalPlan *plan, SqlTable *table, SqlColumn
 	output_key->is_cross_reference_key = TRUE;
 
 	MALLOC_LP_2ARGS(root, LP_INSERT);
-	root->counter = plan->counter;
 	MALLOC_LP(project, root->v.lp_default.operand[0], LP_PROJECT);
 	MALLOC_LP(output, root->v.lp_default.operand[1], LP_OUTPUT);
 	MALLOC_LP(column_list, project->v.lp_default.operand[0], LP_COLUMN_LIST);
@@ -50,7 +50,7 @@ LogicalPlan *lp_generate_xref_plan(LogicalPlan *plan, SqlTable *table, SqlColumn
 	UNPACK_SQL_STATEMENT(table_alias, table_alias_statement, table_alias);
 	/// TODO: copy table so we can more easily clean? Fill out other fields?
 	PACK_SQL_STATEMENT(table_alias->table, table, create_table);
-	table_alias->unique_id = get_plan_unique_number(plan);
+	table_alias->unique_id = get_new_plan_unique_id();
 	table_alias->alias = table->tableName;
 
 	// Populate column list with a the column, followed by all the keys for this table

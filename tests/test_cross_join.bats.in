@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -21,7 +21,7 @@ setup() {
   load_fixture names2.sql
 }
 
-@test "cross join" {
+@test "TCJ01 : cross join" {
   octo <<OCTO 2>&1 | tee output.txt
 select * from names cross join names2;
 OCTO
@@ -29,7 +29,7 @@ OCTO
   [[ "$output" =~ "0|Zero|Cool|0|Zero|Cool" ]]
 }
 
-@test "cross join with where statement in table 1" {
+@test "TCJ02 : cross join with where statement in table 1" {
   octo -vvv <<OCTO 2>&1 | tee output.txt
 select * from names cross join names2 where names.firstName = "Zero";
 OCTO
@@ -38,7 +38,7 @@ OCTO
   ! [[ "$output" =~ "1|Acid|Burn|0|ZeroCool" ]]
 }
 
-@test "cross join with where statement in table 2" {
+@test "TCJ03 : cross join with where statement in table 2" {
   octo -vvv <<OCTO 2>&1 | tee output.txt
 select * from names cross join names2 where names2.firstName = "Zero";
 OCTO
@@ -47,7 +47,7 @@ OCTO
   ! [[ "$output" =~ "0|Zero|Cool|1|Acid|Burn" ]]
 }
 
-@test "cross join with where statement in table 1 and table 2" {
+@test "TCJ04 : cross join with where statement in table 1 and table 2" {
   octo -vvv <<OCTO 2>&1 | tee output.txt
 select * from names cross join names2 where names.firstName = "Zero" AND names2.firstName = "Acid";
 OCTO
@@ -56,7 +56,7 @@ OCTO
   [[ "$output" =~ "0|Zero|Cool|1|Acid|Burn" ]]
 }
 
-@test "join of temporary table with real table" {
+@test "TCJ05 : join of temporary table with real table" {
   octo <<OCTO 2>&1 | tee output.txt
 select *
 FROM (
@@ -73,7 +73,7 @@ OCTO
   [[ "$(grep -c 'Acid|Burn'  output.txt)" == "1" ]]
 }
 
-@test "cross join many matches with comma" {
+@test "TCJ06 : cross join many matches with comma" {
   octo <<OCTO 2>&1 | tee output.txt
 SELECT *
 FROM names n1, names n2;
@@ -81,7 +81,7 @@ OCTO
   [[ "$(grep -c "|" output.txt)" == "36" ]]
 }
 
-@test "cross join many matches with comma with many tables" {
+@test "TCJ07 : cross join many matches with comma with many tables" {
   octo <<OCTO 2>&1 | tee output.txt
 SELECT *
 FROM names n1, names n2, names n3, names n4;
@@ -89,11 +89,15 @@ OCTO
   [[ "$(grep -c "|" output.txt)" == "1296" ]]
 }
 
-@test "cross join many matches with comma with additional criteria" {
+@test "TCJ08 : cross join many matches with comma with additional criteria" {
   octo <<OCTO 2>&1 | tee output.txt
 SELECT *
 FROM names n1, names n2
 WHERE n1.firstName = "Zero";
 OCTO
   [[ "$(grep -c "|" output.txt)" == "12" ]]
+}
+
+@test "TCJ09 : OCTO529 :  Query with lots of CROSS JOIN runs for ever if WHERE clause contains lots of AND and = operators" {
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TCJ09.sql
 }

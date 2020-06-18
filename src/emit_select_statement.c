@@ -73,7 +73,7 @@ PhysicalPlan *emit_select_statement(SqlStatement *stmt, char *plan_filename) {
 	memset(output_key, 0, INT32_TO_STRING_MAX);
 
 	assert(stmt && ((table_alias_STATEMENT == stmt->type) || (set_operation_STATEMENT == stmt->type)));
-	plan = generate_logical_plan(stmt, &config->plan_id);
+	plan = generate_logical_plan(stmt);
 	if (NULL == plan) {
 		return NULL;
 	}

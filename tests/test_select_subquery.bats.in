@@ -150,4 +150,3 @@ setup() {
   run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TSS25.sql
 }
 
-

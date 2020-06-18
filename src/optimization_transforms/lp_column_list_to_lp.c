@@ -18,7 +18,7 @@
 #include "octo_types.h"
 #include "logical_plan.h"
 
-LogicalPlan *lp_column_list_to_lp(SqlColumnListAlias *list, int *plan_id, boolean_t *caller_error_encountered) {
+LogicalPlan *lp_column_list_to_lp(SqlColumnListAlias *list, boolean_t *caller_error_encountered) {
 	LogicalPlan		*column_list, *ret_column_list = NULL;
 	LogicalPlan		*column_list_alias;
 	LogicalPlan		*where;
@@ -35,7 +35,7 @@ LogicalPlan *lp_column_list_to_lp(SqlColumnListAlias *list, int *plan_id, boolea
 		MALLOC_LP(where, column_list->v.lp_default.operand[0], LP_WHERE);
 		column_stmt = cur_cla->column_list;
 		UNPACK_SQL_STATEMENT(t_column_list, column_stmt, column_list);
-		LP_GENERATE_WHERE(t_column_list->value, plan_id, column_stmt, where->v.lp_default.operand[0], error_encountered);
+		LP_GENERATE_WHERE(t_column_list->value, column_stmt, where->v.lp_default.operand[0], error_encountered);
 		MALLOC_LP(column_list_alias, where->v.lp_default.operand[1], LP_COLUMN_LIST_ALIAS);
 		column_list_alias->v.lp_column_list_alias.column_list_alias = cur_cla;
 		cur_cla = cur_cla->next;

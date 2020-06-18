@@ -16,16 +16,14 @@
 #include <string.h>
 
 #include "octo.h"
-#include "octo_types.h"
 #include "logical_plan.h"
 
 /**
  * plan should be a LP_TABLE_JOIN
  */
 LogicalPlan *join_tables(LogicalPlan *root, LogicalPlan *plan) {
-	LogicalPlan	*table_plan;
 	LogicalPlan	*keys, *select, *criteria, *cur_lp_key;
-	LogicalPlan	*sub;
+	LogicalPlan	*oper0;
 	SqlTable	*table;
 	SqlTableAlias	*table_alias;
 	SqlColumn	*key_columns[MAX_KEY_COUNT];
@@ -35,14 +33,14 @@ LogicalPlan *join_tables(LogicalPlan *root, LogicalPlan *plan) {
 	if ((LP_TABLE_JOIN != plan->type) || (NULL == plan->v.lp_default.operand[0])) {
 		return plan;
 	}
-	sub = plan->v.lp_default.operand[0];
-	switch (sub->type) {
+	oper0 = plan->v.lp_default.operand[0];
+	switch (oper0->type) {
 	case LP_SET_OPERATION:
 	case LP_INSERT:
-		if (LP_SET_OPERATION == sub->type) {
+		if (LP_SET_OPERATION == oper0->type) {
 			int	i;
 
-			GET_LP(set_plans, sub, 1, LP_PLANS);
+			GET_LP(set_plans, oper0, 1, LP_PLANS);
 			for (i = 0; i < 2; i++) {
 				set_plans->v.lp_default.operand[i] = optimize_logical_plan(set_plans->v.lp_default.operand[i]);
 				if (NULL == set_plans->v.lp_default.operand[i]) {
@@ -50,16 +48,16 @@ LogicalPlan *join_tables(LogicalPlan *root, LogicalPlan *plan) {
 				}
 			}
 		} else {
-			plan->v.lp_default.operand[0] = sub = optimize_logical_plan(plan->v.lp_default.operand[0]);
-			if (NULL == sub) {
+			plan->v.lp_default.operand[0] = oper0 = optimize_logical_plan(plan->v.lp_default.operand[0]);
+			if (NULL == oper0) {
 				return NULL;
 			}
 		}
-		cur_lp_key = lp_get_output_key(sub);
+		cur_lp_key = lp_get_output_key(oper0);
 		lp_insert_key(root, cur_lp_key);
 		break;
 	default:
-		GET_LP(table_plan, plan, 0, LP_TABLE);
+		assert(LP_TABLE == oper0->type);
 		select = lp_get_select(root);
 		GET_LP(criteria, select, 1, LP_CRITERIA);
 		GET_LP(keys, criteria, 0, LP_KEYS);
@@ -72,33 +70,25 @@ LogicalPlan *join_tables(LogicalPlan *root, LogicalPlan *plan) {
 			MALLOC_LP_2ARGS(keys->v.lp_default.operand[1], LP_KEYS);
 			keys = keys->v.lp_default.operand[1];
 		}
-		if (LP_TABLE == table_plan->type) {
-			table_alias = table_plan->v.lp_table.table_alias;
-			UNPACK_SQL_STATEMENT(table, table_alias->table, create_table);
-			unique_id = table_alias->unique_id;
-			memset(key_columns, 0, MAX_KEY_COUNT * sizeof(SqlColumn*));
-			max_key = get_key_columns(table, key_columns);
-			for (cur_key = 0; cur_key <= max_key; cur_key++) {
-				MALLOC_LP(cur_lp_key, keys->v.lp_default.operand[0], LP_KEY);
-				OCTO_CMALLOC_STRUCT(cur_lp_key->v.lp_key.key, SqlKey);
-				memset(cur_lp_key->v.lp_key.key, 0, sizeof(SqlKey));
-				cur_lp_key->v.lp_key.key->column = key_columns[cur_key];
-				cur_lp_key->v.lp_key.key->key_num = cur_key;
-				cur_lp_key->v.lp_key.key->unique_id = unique_id;
-				cur_lp_key->v.lp_key.key->table = table;
-				cur_lp_key->v.lp_key.key->type = LP_KEY_ADVANCE;
-				cur_lp_key->v.lp_key.key->owner = table_plan;
-				if (cur_key != max_key) {
-					MALLOC_LP_2ARGS(keys->v.lp_default.operand[1], LP_KEYS);
-					keys = keys->v.lp_default.operand[1];
-				}
+		table_alias = oper0->v.lp_table.table_alias;
+		UNPACK_SQL_STATEMENT(table, table_alias->table, create_table);
+		unique_id = table_alias->unique_id;
+		memset(key_columns, 0, MAX_KEY_COUNT * sizeof(SqlColumn*));
+		max_key = get_key_columns(table, key_columns);
+		for (cur_key = 0; cur_key <= max_key; cur_key++) {
+			MALLOC_LP(cur_lp_key, keys->v.lp_default.operand[0], LP_KEY);
+			OCTO_CMALLOC_STRUCT(cur_lp_key->v.lp_key.key, SqlKey);
+			memset(cur_lp_key->v.lp_key.key, 0, sizeof(SqlKey));
+			cur_lp_key->v.lp_key.key->column = key_columns[cur_key];
+			cur_lp_key->v.lp_key.key->key_num = cur_key;
+			cur_lp_key->v.lp_key.key->unique_id = unique_id;
+			cur_lp_key->v.lp_key.key->table = table;
+			cur_lp_key->v.lp_key.key->type = LP_KEY_ADVANCE;
+			cur_lp_key->v.lp_key.key->owner = oper0;
+			if (cur_key != max_key) {
+				MALLOC_LP_2ARGS(keys->v.lp_default.operand[1], LP_KEYS);
+				keys = keys->v.lp_default.operand[1];
 			}
-		} else if (LP_INSERT == table_plan->type) {
-			// Else, we read from the output of the previous statement as a key
-			GET_LP(cur_lp_key, table_plan, 1, LP_KEY);
-			keys->v.lp_default.operand[0] = lp_copy_plan(cur_lp_key);
-		} else {
-			assert(FALSE);
 		}
 		break;
 	}
@@ -196,14 +186,13 @@ LogicalPlan *optimize_logical_plan(LogicalPlan *plan) {
 			return optimize_logical_plan(new_plan);
 		}
 	}
-	/* Next, determine the optimal join order by looking at the ON and/or WHERE clauses. Pick that join order which
-	 * maximizes the number of key fixing optimizations that can happen.
-	 */
+	select = lp_get_select(plan);
+	assert(where == lp_get_select_where(plan));
+	GET_LP(table_join, select, 0, LP_TABLE_JOIN);
+	lp_optimize_cross_join(plan, table_join, where);	/* Optimize CROSS JOINs in plan (if any) */
 	/* Now that optimal join order has been determined, "join" all the tables to generate keys for the physical plan.
 	 * This will be needed by the key fixing optimization which is invoked next.
 	 */
-	select = lp_get_select(plan);
-	GET_LP(table_join, select, 0, LP_TABLE_JOIN);
 #	ifndef NDEBUG
 	keys = lp_get_keys(plan);
 	assert(NULL == keys->v.lp_default.operand[0]);
@@ -211,6 +200,10 @@ LogicalPlan *optimize_logical_plan(LogicalPlan *plan) {
 	if (NULL == join_tables(plan, table_join)) {
 		return NULL;
 	}
+	/* Assert that the first table in the LP_TABLE_JOIN list always has NO_JOIN as the join type.
+	 * Only the right side table in a join should store the corresponding join type. This is true of all join types.
+	 */
+	assert(NO_JOIN == table_join->extra_detail.lp_table_join.cur_join_type);
 	/* Now that DNF expansion has occurred, fix any key values if possible using the ON and/or WHERE clauses */
 	/* Perform optimizations of the ON condition in JOINs if any exists. Do this before moving on to the WHERE clause. */
 	do {

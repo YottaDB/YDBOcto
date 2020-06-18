@@ -115,9 +115,9 @@ LP_INSERT:
                         - type: STRING_LITERAL
                         - alias: SPECIFIC_NAME
     LP_SELECT: 
-      LP_TABLE_JOIN: CROSS_JOIN: 
+      LP_TABLE_JOIN: 
         LP_TABLE: N
-        LP_TABLE_JOIN: 
+        LP_TABLE_JOIN: CROSS_JOIN: 
           LP_TABLE: P
           LP_TABLE_JOIN: LEFT_JOIN: 
             LP_WHERE: 
@@ -246,9 +246,9 @@ LP_INSERT:
                         - type: STRING_LITERAL
                         - alias: SPECIFIC_NAME
     LP_SELECT: 
-      LP_TABLE_JOIN: CROSS_JOIN: 
+      LP_TABLE_JOIN: 
         LP_TABLE: N
-        LP_TABLE_JOIN: 
+        LP_TABLE_JOIN: CROSS_JOIN: 
           LP_INSERT: 
             LP_PROJECT: 
               LP_COLUMN_LIST: 

@@ -48,7 +48,7 @@ SqlStatement *table_reference(SqlStatement *column_name, SqlStatement *correlati
 	dqinit(join);
 	if (NULL != table_reference_tail) {
 		UNPACK_SQL_STATEMENT(join_tail, table_reference_tail, join);
-		join->type = CROSS_JOIN;
+		join_tail->type = CROSS_JOIN;
 		dqappend(join, join_tail);
 	}
 	return ret;

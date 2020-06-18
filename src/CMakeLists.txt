@@ -155,7 +155,7 @@ add_library(libocto OBJECT
   memory_chunk.c
   octo_init.c
   optimization_transforms/generate_logical_plan.c
-  optimization_transforms/get_plan_unique_number.c
+  optimization_transforms/get_new_plan_unique_id.c
   optimization_transforms/logical_plan.c
   optimization_transforms/lp_column_list_to_lp.c
   optimization_transforms/lp_copy_key.c
@@ -179,11 +179,13 @@ add_library(libocto OBJECT
   optimization_transforms/lp_get_select_keywords.c
   optimization_transforms/lp_get_select_where.c
   optimization_transforms/lp_get_table_join.c
+  optimization_transforms/lp_get_tablejoin_unique_id.c
   optimization_transforms/lp_insert_key.c
   optimization_transforms/lp_is_bool_operand_type_string.c
   optimization_transforms/lp_join_where.c
   optimization_transforms/lp_make_key.c
   optimization_transforms/lp_make_normal_disjunctive_form.c
+  optimization_transforms/lp_optimize_cross_join.c
   optimization_transforms/lp_optimize_where_multi_equals_ands.c
   optimization_transforms/lp_replace_derived_table_references.c
   optimization_transforms/lp_verify_structure.c

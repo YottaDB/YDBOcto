@@ -46,14 +46,14 @@
  * and go deep). This is so outermost caller knows to issue an error at logical plan stage and not proceed with physical plan
  * even if one error is seen anywhere in a recursive function call.
  */
-#define	LP_GENERATE_WHERE(STMT, PLAN_ID, PARENT, RET, ERROR_ENCOUNTERED)	{	\
-	if (NULL != STMT) {								\
-		RET = lp_generate_where(STMT, PLAN_ID, PARENT);				\
-		if (NULL == RET)							\
-			ERROR_ENCOUNTERED = TRUE;					\
-	} else {									\
-		RET = NULL;								\
-	}										\
+#define	LP_GENERATE_WHERE(STMT, PARENT, RET, ERROR_ENCOUNTERED)	{		\
+	if (NULL != STMT) {							\
+		RET = lp_generate_where(STMT, PARENT);				\
+		if (NULL == RET)						\
+			ERROR_ENCOUNTERED = TRUE;				\
+	} else {								\
+		RET = NULL;							\
+	}									\
 }
 
 // Forward declarations
@@ -167,7 +167,6 @@ typedef struct LpExtraCoerceType {
  */
 typedef struct LogicalPlan {
 	LPActionType	type;
-	int		*counter;
 	union {
 		/* If any changes to the below union layout happen (new members are added etc.), then code in
 		 * `lp_is_bool_operand_type_string.c` will need to be adjusted (search for LOGICAL_PLAN_KEEP_IN_SYNC).
@@ -226,11 +225,11 @@ typedef struct SqlKey {
 // Helper functions
 
 // Generates a base plan given a SELECT statement
-LogicalPlan *generate_logical_plan(SqlStatement *stmt, int *plan_id);
+LogicalPlan *generate_logical_plan(SqlStatement *stmt);
 LogicalPlan *optimize_logical_plan(LogicalPlan *plan);
 
 // Generate a logical plan for a SET operation
-LogicalPlan *lp_generate_set_logical_plan(SqlStatement *stmt, int *plan_id);
+LogicalPlan *lp_generate_set_logical_plan(SqlStatement *stmt);
 
 // Provides a copy of the plan
 LogicalPlan *lp_copy_plan(LogicalPlan *plan);
@@ -256,6 +255,10 @@ LogicalPlan *lp_get_select(LogicalPlan *plan);
 LogicalPlan *lp_get_select_key(LogicalPlan *plan, SqlKey *key);
 // Returns the TABLE_JOIN statement for the given LP
 LogicalPlan *lp_get_table_join(LogicalPlan *plan);
+
+/* Returns the unique_id corresponding to the LP_TABLE/LP_INSERT/LP_SET_OPERATION plan inside a LP_TABLE_JOIN */
+int lp_get_tablejoin_unique_id(LogicalPlan *plan);
+
 // Returns the WHERE statement for the given LP
 LogicalPlan *lp_get_select_where(LogicalPlan *plan);
 // Returns the LP_KEYWORDS for the given LP
@@ -284,9 +287,9 @@ boolean_t lp_is_bool_operand_type_string(LogicalPlan *plan);
 // Returns LP_WHERE with an AND of the two wheres
 LogicalPlan *lp_join_where(LogicalPlan *where1, LogicalPlan *where2);
 // Returns a new logical plan representing the boolean structure from stmt
-LogicalPlan *lp_generate_where(SqlStatement *stmt, int *plan_id, SqlStatement *parent);
+LogicalPlan *lp_generate_where(SqlStatement *stmt, SqlStatement *parent);
 // Given a column and a table, generates a cross reference plan and returns it
-LogicalPlan *lp_generate_xref_plan(LogicalPlan *plan, SqlTable *table, SqlColumn *column, int unique_id);
+LogicalPlan *lp_generate_xref_plan(SqlTable *table, SqlColumn *column, int unique_id);
 /**
  * Returns the keys corresponding to the cross reference for column in table, and updates
  * the LP_TABLE_JOIN of plan to include the plan which needs to be execute to generate the cross
@@ -294,7 +297,7 @@ LogicalPlan *lp_generate_xref_plan(LogicalPlan *plan, SqlTable *table, SqlColumn
  */
 LogicalPlan *lp_generate_xref_keys(LogicalPlan *plan, SqlTable *table, SqlColumnAlias *column_alias, SqlTableAlias *table_alias);
 // Returns a logical plan representing the provided ColumnListAlias
-LogicalPlan *lp_column_list_to_lp(SqlColumnListAlias *list, int *plan_id, boolean_t *caller_error_encountered);
+LogicalPlan *lp_column_list_to_lp(SqlColumnListAlias *list, boolean_t *caller_error_encountered);
 LogicalPlan *lp_replace_derived_table_references(LogicalPlan *root, SqlTableAlias *table_alias, SqlKey *key);
 // Given a SET operation, drills down until it encounters the first LP_INSERT statement
 LogicalPlan *lp_drill_to_insert(LogicalPlan *plan);
@@ -326,6 +329,10 @@ LogicalPlan *lp_make_key(SqlColumnAlias *column_alias);
 //  These return 1 if the optimization succeeded, 0 otherwise
 /// Attempts to replace this EQUALS statement with a xref IN
 int lp_optimize_where_replace_non_key_equal(LogicalPlan *plan, LogicalPlan *where);
+
+/* Attempts to optimize any CROSS JOINs in the query */
+void lp_optimize_cross_join(LogicalPlan *plan, LogicalPlan *table_join, LogicalPlan *where);
+
 /**
  * Attempts to optimize there WHERE statement which contains nothing but items like
  *   "X = Y AND Y = Z AND Z = A"
@@ -333,8 +340,10 @@ int lp_optimize_where_replace_non_key_equal(LogicalPlan *plan, LogicalPlan *wher
 void lp_optimize_where_multi_equals_ands(LogicalPlan *plan, LogicalPlan *where,
 					SqlTableAlias *right_table_alias, boolean_t num_outer_joins);
 
-// Returns a unique number within the context of this plan;
-//  maybe not be unique in terms of global numbers
-int get_plan_unique_number(LogicalPlan *plan);
+LogicalPlan *lp_optimize_where_multi_equals_ands_helper(LogicalPlan *plan, LogicalPlan *where, int *key_unique_id_array,
+							void *ptr, boolean_t num_outer_joins);
+
+// Creates and returns a new/unique plan id
+int get_new_plan_unique_id();
 
 #endif

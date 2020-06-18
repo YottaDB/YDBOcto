@@ -397,7 +397,7 @@ cross_join
       $$ = $1;
       UNPACK_SQL_STATEMENT(left, $$, join);
       UNPACK_SQL_STATEMENT(right, $4, join);
-      left->type = CROSS_JOIN;
+      right->type = CROSS_JOIN;
       dqappend(left, right);
     }
   ;

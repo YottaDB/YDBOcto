@@ -84,6 +84,7 @@ typedef void *yyscan_t;
 /* store absolute pointer Y in X as a relative pointer */
 #define A2R(X, Y) ((X) = (void*)(((unsigned char*)(Y)) - ((unsigned char*) &(X))))
 
+#define	IS_OUTER_JOIN(JOIN_TYPE)	((LEFT_JOIN == JOIN_TYPE) || (RIGHT_JOIN == JOIN_TYPE) || (FULL_JOIN == JOIN_TYPE))
 
 typedef long long unsigned int uint8;
 

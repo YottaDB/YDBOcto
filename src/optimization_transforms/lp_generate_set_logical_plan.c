@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -21,7 +21,7 @@
 /**
  * Generates a meta-plan for doing a KEY_<set operation>
  */
-LogicalPlan *lp_generate_set_logical_plan(SqlStatement *stmt, int *plan_id) {
+LogicalPlan *lp_generate_set_logical_plan(SqlStatement *stmt) {
 	SqlStatement	*set_operation_stmt;
 	LogicalPlan	*options, *set_operation, *plans, *key, *set_plans[2];
 	LogicalPlan	*dst, *dst_key;
@@ -31,10 +31,10 @@ LogicalPlan *lp_generate_set_logical_plan(SqlStatement *stmt, int *plan_id) {
 	set_operation_stmt = stmt;
 	UNPACK_SQL_STATEMENT(set_operation_sql, set_operation_stmt, set_operation);
 
-	set_plans[0] = generate_logical_plan(set_operation_sql->operand[0], plan_id);
+	set_plans[0] = generate_logical_plan(set_operation_sql->operand[0]);
 	if (NULL == set_plans[0])
 		return NULL;
-	set_plans[1] = generate_logical_plan(set_operation_sql->operand[1], plan_id);
+	set_plans[1] = generate_logical_plan(set_operation_sql->operand[1]);
 	if (NULL == set_plans[1])
 		return NULL;
 
@@ -71,8 +71,7 @@ LogicalPlan *lp_generate_set_logical_plan(SqlStatement *stmt, int *plan_id) {
 	MALLOC_LP(dst_key, dst->v.lp_default.operand[0], LP_KEY);
 	OCTO_CMALLOC_STRUCT(dst_key->v.lp_key.key, SqlKey);
 	memset(dst_key->v.lp_key.key, 0, sizeof(SqlKey));
-	dst_key->counter = plan_id;
-	dst_key->v.lp_key.key->unique_id = get_plan_unique_number(dst_key);
+	dst_key->v.lp_key.key->unique_id = get_new_plan_unique_id();
 	dst_key->v.lp_key.key->type = LP_KEY_ADVANCE;
 	// Restore set_operation for cleanup
 	return set_operation;

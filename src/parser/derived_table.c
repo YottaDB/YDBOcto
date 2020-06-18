@@ -39,7 +39,7 @@ SqlStatement *derived_table(SqlStatement *table_subquery, SqlStatement *correlat
 		SqlJoin		*join_tail;
 
 		UNPACK_SQL_STATEMENT(join_tail, table_reference_tail, join);
-		join->type = CROSS_JOIN;
+		join_tail->type = CROSS_JOIN;
 		dqappend(join, join_tail);
 	}
 	return ret;

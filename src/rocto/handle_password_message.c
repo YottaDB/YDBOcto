@@ -28,22 +28,28 @@
 
 int handle_password_message(PasswordMessage *password_message, StartupMessage *startup_message, char *salt) {
 	char		md5_hex[MD5_HEX_LEN];
+	char		username[MAX_STR_CONST+1];		// Null terminator
+	int 		cur_parm;
+	int32_t		result;
 
 	// Check the type of password message, for now just md5 is accepted
-	int32_t result = strncmp(password_message->password, "md5", 3);
+	result = strncmp(password_message->password, "md5", 3);
 	if (result != 0) {
 		FATAL(ERR_ROCTO_PASSWORD_TYPE, "handle_password_message", "md5");
 		return 1;
 	}
 
 	// Retrieve username from StartupMessage
-	char username[MAX_STR_CONST+1];		// Null terminator
-	for(int cur_parm = 0; cur_parm < startup_message->num_parameters; cur_parm++) {
+	for (cur_parm = 0; cur_parm < startup_message->num_parameters; cur_parm++) {
 		result = strcmp(startup_message->parameters[cur_parm].name, "user");
 		if (0 == result) {
 			strncpy(username, startup_message->parameters[cur_parm].value, MAX_STR_CONST);
 			break;
 		}
+	}
+	if (cur_parm == startup_message->num_parameters) {
+		ERROR(ERR_ROCTO_MISSING_USERNAME, "handle_password_message");
+		return 1;
 	}
 
 	// Retrieve user info from database

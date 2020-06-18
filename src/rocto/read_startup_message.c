@@ -97,18 +97,20 @@ StartupMessage *read_startup_message(RoctoSession *session, char *data, int32_t 
 
 	// If there are trailing characters, note it
 	//  Right now, we will abort the startup, but it's possible to continue in this case
-	if(c != message_end) {
+	if (c != message_end) {
 		ERROR(ERR_ROCTO_TRAILING_CHARS, "StartupMessage");
 		free(ret);
 		return NULL;
 	}
 
-	// Allocate parameter spots, reset c, scan through and populate data
+	// The username is always required: https://www.postgresql.org/docs/11/protocol-message-formats.html
 	if (0 == num_parms) {
-		ret->parameters = NULL;
-		ret->num_parameters = 0;
-		return ret;
+		ERROR(ERR_ROCTO_MISSING_USERNAME, "read_startup_message");
+		free(ret);
+		return NULL;
 	}
+
+	// Allocate parameter spots, reset c, scan through and populate data
 	ret->parameters = (StartupMessageParm*)malloc(sizeof(StartupMessageParm) * num_parms);
 	c = ret->data;
 	cur_parm = 0;

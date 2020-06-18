@@ -145,7 +145,6 @@ compare() {
 		exit 1
 	fi
 }
-
 compare $reference
 
 # `clang-tidy` is not available on CentOS 7, and YDB tests on 7 to ensure backwards-compatibility.

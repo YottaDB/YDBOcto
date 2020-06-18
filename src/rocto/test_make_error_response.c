@@ -26,9 +26,9 @@
 #include "message_formats.h"
 
 static ErrorResponse *read_error_response(BaseMessage *message) {
-	ErrorResponse *ret = NULL;
-	char *cur_pointer = NULL, *last_byte = NULL;
-	uint32_t remaining_length = 0, num_args = 0, i = 0;
+	ErrorResponse	*ret;
+	char		*cur_pointer, *last_byte;
+	uint32_t	remaining_length, num_args, i;
 
 	remaining_length = ntohl(message->length);
 	ret = (ErrorResponse*)malloc(remaining_length + sizeof(ErrorResponse) - sizeof(uint32_t));
@@ -41,6 +41,7 @@ static ErrorResponse *read_error_response(BaseMessage *message) {
 	last_byte = ret->data + remaining_length;
 
 	// Count number of arguments
+	num_args = 0;
 	while (cur_pointer < last_byte) {
 		cur_pointer++;		// skip type indicator
 		while (cur_pointer != last_byte && '\0' != *cur_pointer) {

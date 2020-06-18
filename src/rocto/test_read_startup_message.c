@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -34,7 +34,7 @@ int __wrap_read_bytes(RoctoSession *session, char *buffer, int32_t buffer_size, 
 	return 0;
 }
 
-static void test_valid_input_no_parms(void **state) {
+static void test_no_parms(void **state) {
 	// Test a single startup message
 	uint32_t message_length = 0;
 	message_length += sizeof(uint32_t);
@@ -56,13 +56,10 @@ static void test_valid_input_no_parms(void **state) {
 	// The actual test
 	StartupMessage *startup = read_startup_message(NULL, (char*)(&test_data->length), message_length);
 
-	// Standard checks
-	assert_non_null(startup);
-	assert_int_equal(0, startup->num_parameters);
+	// Octo should catch missing username
+	assert_null(startup);
 
 	free(test_data);
-	free(startup->parameters);
-	free(startup);
 }
 
 static void test_valid_input_one_parm(void **state) {
@@ -620,7 +617,7 @@ static void test_message_has_trailing_chars(void **state) {
 int main(void) {
 	octo_init(0, NULL);
 	const struct CMUnitTest tests[] = {
-			cmocka_unit_test(test_valid_input_no_parms),
+			cmocka_unit_test(test_no_parms),
 			cmocka_unit_test(test_valid_input_one_parm),
 			cmocka_unit_test(test_valid_input_multi_parm),
 			cmocka_unit_test(test_no_parms_without_null),

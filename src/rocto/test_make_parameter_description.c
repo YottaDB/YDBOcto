@@ -68,7 +68,7 @@ int __wrap_ydb_subscript_next_s(ydb_buffer_t *varname, int subs_used, ydb_buffer
 	return mock_type(int);
 }
 
-static void test_valid_input_no_parms(void **state) {
+static void test_no_parms(void **state) {
 	RoctoSession		session;
 	ParameterDescription	*description;
 	char			*query = "select * from names;";
@@ -391,7 +391,7 @@ static void test_parm_type_ydb_get_s_failure(void **state) {
 int main(void) {
 	octo_init(0, NULL);
 	const struct CMUnitTest tests[] = {
-		cmocka_unit_test(test_valid_input_no_parms),
+		cmocka_unit_test(test_no_parms),
 		cmocka_unit_test(test_valid_input_one_parm_no_types),
 		cmocka_unit_test(test_valid_input_two_parms_no_types),
 		cmocka_unit_test(test_valid_input_three_parms_no_types),

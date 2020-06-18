@@ -179,16 +179,11 @@ CloseComplete *read_close_complete(BaseMessage *message);
 CommandComplete *read_command_complete(BaseMessage *message);
 DataRow *read_data_row(BaseMessage *message);
 EmptyQueryResponse *read_empty_query_response(BaseMessage *message);
-ErrorResponse *read_error_response(BaseMessage *message);
 ParameterStatus *read_parameter_status(BaseMessage *message);
 ParseComplete *read_parse_complete(BaseMessage *message);
 PortalSuspended *read_portal_suspended(BaseMessage *message);
 ReadyForQuery *read_ready_for_query(BaseMessage *message);
 RowDescription *read_row_description(BaseMessage *message);
-
-// Make functions to simulate client transmission of certain make_* messages. Used for testing.
-PasswordMessage *make_password_message(char *user, char *password, char *salt);
-StartupMessage *make_startup_message(char *username);
 
 // Globals
 extern RoctoSession rocto_session;

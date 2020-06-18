@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -24,6 +24,52 @@
 
 #include "rocto.h"
 #include "message_formats.h"
+
+static ErrorResponse *read_error_response(BaseMessage *message) {
+	ErrorResponse *ret = NULL;
+	char *cur_pointer = NULL, *last_byte = NULL;
+	uint32_t remaining_length = 0, num_args = 0, i = 0;
+
+	remaining_length = ntohl(message->length);
+	ret = (ErrorResponse*)malloc(remaining_length + sizeof(ErrorResponse) - sizeof(uint32_t));
+
+	ret->type = message->type;
+	ret->length = remaining_length;
+	remaining_length -= sizeof(uint32_t);
+	memcpy(ret->data, message->data, remaining_length);
+	cur_pointer = ret->data;
+	last_byte = ret->data + remaining_length;
+
+	// Count number of arguments
+	while (cur_pointer < last_byte) {
+		cur_pointer++;		// skip type indicator
+		while (cur_pointer != last_byte && '\0' != *cur_pointer) {
+			cur_pointer++;
+		}
+		cur_pointer++;		// skip null terminator
+		num_args++;
+	}
+
+	if (0 == num_args) {
+		ret->args = NULL;
+		return ret;
+	}
+	ret->args = (ErrorResponseArg*)malloc(num_args * sizeof(ErrorResponseArg));
+
+	// Populate args with type info and pointers into data section
+	cur_pointer = ret->data;
+	for (i = 0; i < num_args; i++) {
+		ret->args[i].type = *cur_pointer;
+		cur_pointer++;
+		ret->args[i].value = cur_pointer;
+		while (cur_pointer != last_byte && '\0' != *cur_pointer) {
+			cur_pointer++;
+		}
+		cur_pointer++;		// skip null terminator
+	}
+
+	return ret;
+}
 
 static void test_error_with_one_parm(void **state) {
 	ErrorResponse *received_response = NULL;

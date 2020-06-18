@@ -78,7 +78,6 @@ if("${FULL_TEST_SUITE}" MATCHES "ON")
 	ADD_UNIT_TEST_WITH_OPTIONS(test_deserialize src/rocto/test_deserialize "")
 	ADD_UNIT_TEST_WITH_OPTIONS(test_read_ssl_request src/rocto/test_read_ssl_request "")
 	ADD_UNIT_TEST_WITH_OPTIONS(test_get_user_column_value src/rocto/test_get_user_column_value "")
-	ADD_UNIT_TEST_WITH_OPTIONS(test_make_password_message src/rocto/test_make_password_message "")
 	# This unit test is disabled due to its reliance on a now-fixed bug in octo_init.c.
 	# Specifically, this test relied on merge_config_file being unable to find a configuration file in $ydb_dist/plugin/etc,
 	# as this location is incorrect. Now it finds a config file in the correct location $ydb_dist/plugin/octo, which causes

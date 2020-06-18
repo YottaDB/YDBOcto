@@ -81,6 +81,113 @@ int32_t __wrap_octo_log(int line, char *file, enum VERBOSITY_LEVEL level, enum S
 	return mock_type(int32_t);
 }
 
+// Creates a basic StartupMessage with only the "user" parameter set for testing purposes.
+static StartupMessage *make_startup_message(char *username) {
+	StartupMessage *ret;
+	char *user = "user";
+	uint32_t data_len = 0;
+	uint32_t user_len = 0;
+	uint32_t username_len = 0;
+
+	// Get length of parameter name and value
+	user_len = strlen(user) + 1;
+	username_len += strlen(username) + 1;
+	data_len = user_len + username_len;
+
+	ret = (StartupMessage*)malloc(sizeof(StartupMessage) + data_len);
+
+	// Set length and protocol version
+	ret->length = sizeof(uint32_t) + sizeof(int) + data_len;
+	ret->protocol_version = 0x00030000;
+	ret->num_parameters = 1;
+	// Populate data section
+	char *c;
+	c = ret->data;
+	memcpy(c, user, user_len);
+	c += user_len;
+	memcpy(c, username, username_len);
+
+	// Populate parameter(s)
+	ret->parameters = (StartupMessageParm*)malloc(sizeof(StartupMessageParm) * ret->num_parameters);
+	ret->parameters[0].name = user;
+	ret->parameters[0].value = username;
+
+	return ret;
+}
+
+// Make function to simulate client transmission of password_message.
+static PasswordMessage *make_password_message(char *user, char *password, char *salt) {
+	PasswordMessage *ret;
+	int32_t length = 0;
+
+	// Rather than have special logic for the NULL, just use an empty string
+	if(password == NULL) {
+		password = "";
+	}
+
+	// Concatenate password and user
+	unsigned char hash_buf[MAX_STR_CONST];
+	int32_t result = sprintf((char*)hash_buf, "%s%s", password, user);
+	if (0 > result) {
+		return NULL;
+	}
+	// Hash password and user
+	MD5(hash_buf, strlen((char*)hash_buf), hash_buf);
+	// Convert hash to hex string
+	uint32_t hex_hash_len = MD5_DIGEST_LENGTH * 2 + 1;		// count null
+	char hex_hash[hex_hash_len];
+	result = md5_to_hex(hash_buf, hex_hash, hex_hash_len);
+	if (0 != result) {
+		return NULL;
+	}
+
+	// Concatenate password/user hash with salt
+	result = snprintf((char*)hash_buf, hex_hash_len + 4, "%s%s", hex_hash, salt);	// Exclude "md5" prefix
+	if (0 > result) {
+		return NULL;
+	}
+	// Hash password/user hash with salt
+	MD5(hash_buf, strlen((char*)hash_buf), hash_buf);
+	// Convert hash to hex string
+	result = md5_to_hex(hash_buf, hex_hash, hex_hash_len);
+	if (0 != result) {
+		return NULL;
+	}
+
+	// Add "md5" prefix to hex hash for transmission
+	uint32_t md5_password_len = hex_hash_len + 3;
+	char md5_password[md5_password_len];
+	result = snprintf(md5_password, md5_password_len, "%s%s", "md5", hex_hash);
+	if (0 > result) {
+		return NULL;
+	}
+
+	length += sizeof(uint32_t);
+	length += md5_password_len;
+	ret = (PasswordMessage*)malloc(length + sizeof(PasswordMessage) - sizeof(uint32_t));
+	memset(ret, 0, length + sizeof(PasswordMessage) - sizeof(uint32_t));
+
+	ret->type = PSQL_PasswordMessage;
+	ret->length = htonl(length);
+	memcpy(ret->data, md5_password, md5_password_len);
+	ret->password = ret->data;
+
+	return ret;
+}
+
+static void test_valid_password_message(void **state) {
+	PasswordMessage *password_message;
+	char *user = "user";
+	char *password = "password";
+	char *salt = "salt";
+
+	password_message = make_password_message(user, password, salt);
+	assert_non_null(password_message);
+	// MD5 of "passworduser" == 4d45974e13472b5a0be3533de4666414
+	// MD5 of "4d45974e13472b5a0be3533de4666414salt" == 8e998aaa66bd302e5592df3642c16f78
+	assert_string_equal(password_message->password, "md58e998aaa66bd302e5592df3642c16f78");
+}
+
 static void test_valid_input(void **state) {
 	PasswordMessage *password_message;
 	RoctoSession session;
@@ -336,9 +443,36 @@ static void test_error_bad_password(void **state) {
 	free(startup_message);
 }
 
+static void test_missing_username() {
+	PasswordMessage *password_message;
+	RoctoSession session;
+	ydb_buffer_t session_id;
+
+	YDB_LITERAL_TO_BUFFER("0", &session_id);
+	session.session_id = &session_id;
+
+	char *username = "user";
+	StartupMessage *startup_message = make_startup_message(username);
+	char *password = "password";
+	char *salt = "salt";
+
+	// Wrap calls in make_password_message
+	will_return(__wrap_md5_to_hex, "4d45974e13472b5a0be3533de4666414");
+	will_return(__wrap_md5_to_hex, 0);
+	will_return(__wrap_md5_to_hex, "8e998aaa66bd302e5592df3642c16f78");
+	will_return(__wrap_md5_to_hex, 0);
+	will_return(__wrap_octo_log, 0);
+
+	password_message = make_password_message(username, password, salt);
+	password_message->password = "password";
+
+	int32_t result = handle_password_message(password_message, startup_message, salt);
+}
+
 int main(void) {
 	octo_init(0, NULL);
 	const struct CMUnitTest tests[] = {
+		   cmocka_unit_test(test_valid_password_message),
 		   cmocka_unit_test(test_valid_input),
 		   cmocka_unit_test(test_error_not_md5),
 		   cmocka_unit_test(test_error_user_info_lookup),

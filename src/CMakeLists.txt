@@ -286,8 +286,6 @@ add_library(librocto OBJECT
   rocto/make_portal_suspended.c
   rocto/make_no_data.c
   rocto/make_parameter_description.c
-  rocto/make_password_message.c
-  rocto/make_startup_message.c
   rocto/send_message.c
   rocto/read_message.c
   rocto/read_bytes.c
@@ -308,7 +306,6 @@ add_library(librocto OBJECT
   rocto/read_command_complete.c
   rocto/read_data_row.c
   rocto/read_empty_query_response.c
-  rocto/read_error_response.c
   rocto/read_parameter_status.c
   rocto/read_parse_complete.c
   rocto/read_password_message.c

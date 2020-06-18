@@ -50,13 +50,13 @@ For example:
 
 Suppose there is a table "names" with records in it:
 
-.. code-block:: MySQL
+.. code-block:: SQL
 
    CREATE TABLE names (id INTEGER PRIMARY KEY, firstName VARCHAR, lastName VARCHAR);
 
 A simple query in SQuirreL SQL could be:
 
-.. code-block:: MySQL
+.. code-block:: SQL
 
    SELECT * FROM names;
 

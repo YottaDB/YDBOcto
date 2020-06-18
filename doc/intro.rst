@@ -399,7 +399,7 @@ Given below are some sample queries that can be run in Octo once the :code:`nort
 
   The following query selects only the DISTINCT values from the 'Country' column in the 'Suppliers' table.
 
-  .. code-block:: MySQL
+  .. code-block:: SQL
 
      OCTO> SELECT DISTINCT Country FROM Suppliers;
      UK
@@ -435,7 +435,7 @@ Given below are some sample queries that can be run in Octo once the :code:`nort
 
   The following query selects all products from the 'Products' table with a ProductName that starts with 'L'.
 
-  .. code-block:: PSQL
+  .. code-block:: SQL
 
      OCTO> SELECT * FROM Products
      OCTO> WHERE ProductName LIKE 'L%';
@@ -447,7 +447,7 @@ Given below are some sample queries that can be run in Octo once the :code:`nort
 
   The following query displays the average price of Products per Category.
 
-  .. code-block:: PSQL
+  .. code-block:: SQL
 
      OCTO> SELECT AVG(Price), CategoryID
      OCTO> FROM Products

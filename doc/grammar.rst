@@ -24,7 +24,7 @@ A SELECT statement is used to select and view data from the database.
 CREATE TABLE
 ---------------
 
-.. code-block:: MySQL
+.. code-block:: SQL
 
    CREATE TABLE table_name (column_name data_type [constraints][, ... column_name data_type [constraints]]) [optional_keyword];
 
@@ -34,7 +34,7 @@ The names of columns to be created in the database and their datatypes are then 
 
 Example:
 
-.. code-block:: MySQL
+.. code-block:: SQL
 
    CREATE TABLE Employee (ID int PRIMARY KEY, FirstName char(20), LastName char(30));
 
@@ -44,7 +44,7 @@ Example:
 
 Note that CREATE TABLE statements can also accept a list of ASCII integer values for use in the DELIM qualifier, for example:
 
-.. code-block:: MySQL
+.. code-block:: SQL
 
    CREATE TABLE DELIMNAMES (id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName VARCHAR(30), middleInitial VARCHAR(1), age INTEGER) DELIM (9, 9) GLOBAL "^delimnames(keys(""id""))";
 
@@ -129,7 +129,7 @@ In the table above:
 CREATE FUNCTION
 ---------------
 
-.. code-block:: MySQL
+.. code-block:: SQL
 
    CREATE FUNCTION function_name([data_type[, data_type[, ...]]]) RETURNS data_type AS extrinsic_function_name;
 
@@ -139,19 +139,19 @@ The SQL function's parameter data types are specified in a list, while the data 
 
 When a function is created from a CREATE FUNCTION statement, an entry is added to Octo's internal PostgreSQL catalog. In other words, a row is added to the :code:`pg_catalog.pg_proc` system table. To view a list of created functions, their argument number and type(s), and return argument type, you can run:
 
-.. code-block:: MySQL
+.. code-block:: SQL
 
    select proname,pronargs,prorettype,proargtypes from pg_proc;
 
 Type information for each function parameter and return type will be returned as an OID. This OID can be used to look up type information, including type name, from the :code:`pg_catalog.pg_type` system table. For example, to retrieve the human-readable return type name for all existing functions:
 
-.. code-block:: MySQL
+.. code-block:: SQL
 
    select proname,typname from pg_catalog.pg_proc inner join pg_catalog.pg_type on pg_catalog.pg_proc.prorettype = pg_catalog.pg_type.oid;
 
 However, function parameter types are currently stored as a list in a VARCHAR string, rather than in a SQL array as the latter isn't yet supported by Octo. In the meantime, users can lookup the type name corresponding to a given type OID by using the following query:
 
-.. code-block:: MySQL
+.. code-block:: SQL
 
    select oid,typname from pg_catalog.pg_type;
 
@@ -201,7 +201,7 @@ NUMERIC, DECIMAL and DEC can optionally be followed by a precision value in pare
 DROP TABLE
 -----------------
 
-.. code-block:: MySQL
+.. code-block:: SQL
 
    DROP TABLE table_name [CASCADE | RESTRICT];
 
@@ -213,7 +213,7 @@ The RESTRICT parameter is used to specify that the table referred to by table_na
 
 Example:
 
-.. code-block:: MySQL
+.. code-block:: SQL
 
    DROP TABLE Employee CASCADE;
 
@@ -221,7 +221,7 @@ Example:
 DROP FUNCTION
 -----------------
 
-.. code-block:: MySQL
+.. code-block:: SQL
 
    DROP FUNCTION function_name;
 
@@ -231,7 +231,7 @@ A function deleted using the DROP FUNCTION statement will also be removed from O
 
 Example:
 
-.. code-block:: MySQL
+.. code-block:: SQL
 
    DROP FUNCTION userfunc;
 
@@ -239,7 +239,7 @@ Example:
 SELECT
 -----------
 
-.. code-block:: MySQL
+.. code-block:: SQL
 
    SELECT [ALL | DISTINCT] ASTERISK | column [AS] [alias_name][...,column [AS] [alias_name]] FROM table_name [AS] [alias_name] [WHERE search_condition] [GROUP BY column[,..column]] [HAVING search_condition] [ORDER BY sort_specification] [LIMIT number];
 
@@ -258,7 +258,7 @@ The HAVING clause works to filter the rows that result from the GROUP BY clause.
 
 Example:
 
-.. code-block:: MySQL
+.. code-block:: SQL
 
    SELECT ID, FirstName, LastName FROM Employee WHERE ID > 100 GROUP BY LastName;
 
@@ -266,7 +266,7 @@ The LIMIT clause allows the user to specify the number of rows they want to retr
 
 Example:
 
-.. code-block:: MySQL
+.. code-block:: SQL
 
    SELECT * FROM Employee LIMIT 5;
 
@@ -280,7 +280,7 @@ ORDER BY lets you sort the order of the rows returned after the query.
 
 To sort rows or columns in the database, you need to have the following sort_specification.
 
-.. code-block:: MySQL
+.. code-block:: SQL
 
    sort_key [COLLATE collation_name] [ASC | DESC];
 
@@ -297,7 +297,7 @@ The ordering specification lets you further choose to order the returned columns
 
 Example:
 
-.. code-block:: MySQL
+.. code-block:: SQL
 
    SELECT ID, FirstName, LastName FROM Employee WHERE ID > 100 ORDER BY ID DESC;
 
@@ -307,7 +307,7 @@ Joins
 
 Joins can be made by appending a join table to a SELECT statement:
 
-.. code-block:: MySQL
+.. code-block:: SQL
 
    [CROSS | [NATURAL | INNER | [LEFT][RIGHT][FULL] OUTER]] JOIN ON joined_table;
 
@@ -330,7 +330,7 @@ For two tables, Table A and Table B,
 
 Example:
 
-.. code-block:: MySQL
+.. code-block:: SQL
 
    SELECT FirstName, LastName, Address FROM Employee INNER JOIN Addresses ON Employee.ID = Addresses.EID;
 
@@ -340,7 +340,7 @@ INSERT
 
 *(Currently not supported.)*
 
-.. code-block:: MySQL
+.. code-block:: SQL
 
    INSERT INTO table_name ( column name [, column name ...]) [ VALUES ... | (SELECT ...)];
 
@@ -348,7 +348,7 @@ The INSERT statement allows you to insert values into a table. These can either 
 
 Example:
 
-.. code-block:: MySQL
+.. code-block:: SQL
 
    INSERT INTO Employee (ID , FirstName, LastName) [220, "Jon", "Doe"];
 
@@ -358,7 +358,7 @@ UPDATE
 
 *(Currently not supported.)*
 
-.. code-block:: MySQL
+.. code-block:: SQL
 
    UPDATE table_name SET object_column EQUALS update_source [WHERE search_condition];
 
@@ -366,7 +366,7 @@ The UPDATE statement begins with the keyword UPDATE. The table_name to be update
 
 Example:
 
-.. code-block:: MySQL
+.. code-block:: SQL
 
    UPDATE Employee SET FirstName = "John" WHERE ID = 220;
 
@@ -376,7 +376,7 @@ DELETE
 
 *(Currently not supported.)*
 
-.. code-block:: MySQL
+.. code-block:: SQL
 
    DELETE FROM table_name [WHERE search_condition];
 
@@ -386,7 +386,7 @@ The search condition eventually yields a boolean true or false value, and may co
 
 Example:
 
-.. code-block:: MySQL
+.. code-block:: SQL
 
    DELETE FROM Employee WHERE ID = 220;
 
@@ -405,7 +405,7 @@ The conditions are:
 UNION
 +++++++++++++++++
 
-.. code-block:: MySQL
+.. code-block:: SQL
 
    SELECT [.....] FROM table_name[...]  UNION [ALL] SELECT [.....] FROM table_name2[...]....;
 
@@ -415,7 +415,7 @@ The keyword ALL ensures that duplicate rows of results are not removed during th
 
 Example:
 
-.. code-block:: MySQL
+.. code-block:: SQL
 
    SELECT FirstName FROM Employee UNION SELECT FirstName FROM AddressBook;
 
@@ -423,7 +423,7 @@ Example:
 INTERSECT
 ++++++++++++++++
 
-.. code-block:: MySQL
+.. code-block:: SQL
 
    SELECT [.....] FROM table_name[......] INTERSECT [ALL] SELECT [.....] FROM table_name2[....]......;
 
@@ -431,7 +431,7 @@ The INTERSECT operation consists of two or more queries joined together with the
 
 The keyword ALL ensures that duplicate rows of results returned by both queries are not eliminated during the INTERSECT.
 
-.. code-block:: MySQL
+.. code-block:: SQL
 
    SELECT ID FROM Employee INTERSECT SELECT ID FROM AddressBook;
 
@@ -439,7 +439,7 @@ The keyword ALL ensures that duplicate rows of results returned by both queries 
 EXCEPT
 ++++++++++++++
 
-.. code-block:: MySQL
+.. code-block:: SQL
 
    SELECT [.....] FROM table_name[.....] EXCEPT [ALL] SELECT [.....] FROM table_name2[......].......;
 
@@ -447,7 +447,7 @@ The EXCEPT operation consists of two or more queries joined together with the wo
 
 The keyword ALL affects the resulting rows such that duplicate results are allowed but rows in the first table are eliminated if there is a corresponding row in the second table.
 
-.. code-block:: MySQL
+.. code-block:: SQL
 
    SELECT LastName FROM Employee EXCEPT SELECT LastName FROM AddressBook;
 
@@ -455,7 +455,7 @@ The keyword ALL affects the resulting rows such that duplicate results are allow
 CASE
 --------------
 
-.. code-block:: MySQL
+.. code-block:: SQL
 
    CASE WHEN condition_expression THEN result
    [WHEN .... ]
@@ -487,13 +487,13 @@ Double quotes, single quotes and non quoted identifiers can be used to represent
 Column Alias
 ++++++++++++++
 
-.. code-block:: MySQL
+.. code-block:: SQL
 
    column [AS] aliasname
 
 Examples:
 
-.. code-block:: MySQL
+.. code-block:: SQL
 
    OCTO> select firstname as "quoted" from names limit 1;
    Zero
@@ -518,7 +518,7 @@ Examples:
 
 Column aliases are supported in short form i.e without AS keyword
 
-.. code-block:: MySQL
+.. code-block:: SQL
 
    OCTO> select ida from (select 8 ida) n1;
    8
@@ -529,13 +529,13 @@ Table Alias
 
 Usage:
 
-.. code-block:: MySQL
+.. code-block:: SQL
 
    [table_name | subquery] [AS] aliasname
 
 Examples:
 
-.. code-block:: MySQL
+.. code-block:: SQL
 
    OCTO> select n1.firstname from names as "n1" limit 1;
    Zero
@@ -609,7 +609,7 @@ Pattern Processing
 LIKE
 +++++++++++
 
-.. code-block:: MySQL
+.. code-block:: SQL
 
    string LIKE pattern
 
@@ -617,7 +617,7 @@ If the pattern matches the string, LIKE operation returns true.
 
 Pattern is expected to match the entire string i.e.
 
-.. code-block:: MySQL
+.. code-block:: SQL
 
    'a'  LIKE 'a' -> TRUE
    'ab' LIKE 'a' -> FALSE
@@ -625,7 +625,7 @@ Pattern is expected to match the entire string i.e.
 :code:`%` and :code:`_` have a special meaning.
 :code:`%` matches any string of zero or more characters and :code:`_` matches any single chracter.
 
-.. code-block:: MySQL
+.. code-block:: SQL
 
    'abcd' LIKE '%'    -> TRUE
    'abcd' LIKE 'ab%'  -> TRUE
@@ -635,7 +635,7 @@ Pattern is expected to match the entire string i.e.
 
 Escaping :code:`%` or :code:`_` will take away its special meaning, and, it will just match :code:`%` and :code:`_` in its literal form.
 
-.. code-block:: MySQL
+.. code-block:: SQL
 
    'ab%ab' LIKE 'ab\%ab' -> TRUE
    'abab'  LIKE 'ab\%ab' -> FALSE
@@ -644,7 +644,7 @@ Escaping :code:`%` or :code:`_` will take away its special meaning, and, it will
 
 To match an escape as itself additional escape is required. Any other character if escaped has no special meaning. It will match its literal self.
 
-.. code-block:: MySQL
+.. code-block:: SQL
 
    'ab\ab' LIKE 'ab\\ab' -> TRUE
    'ab\ab' LIKE 'ab\ab'  -> FALSE
@@ -652,7 +652,7 @@ To match an escape as itself additional escape is required. Any other character 
 
 Any other character is matched without any special meaning.
 
-.. code-block:: MySQL
+.. code-block:: SQL
 
    'ab*&$#' LIKE 'ab*&$#' -> TRUE
    'ab*&$#' LIKE 'ab*'    -> FALSE
@@ -665,7 +665,7 @@ Variations of LIKE
 
 #. :code:`ILIKE` : Case insensitive version of LIKE
 
-   .. code-block:: MySQL
+   .. code-block:: SQL
 
       'abc' ILIKE 'Abc' -> TRUE
       'abc' LIKE  'Abc' -> FALSE
@@ -674,7 +674,7 @@ Variations of LIKE
 
 #. :code:`NOT LIKE` : Negated version of LIKE
 
-   .. code-block:: MySQL
+   .. code-block:: SQL
 
      'abc' LIKE 'abc'      -> TRUE
      'abc' LIKE 'cba'      -> FALSE
@@ -706,7 +706,7 @@ LIKE pattern cannot end with an escape character. This results in an error.
 SIMILAR TO
 +++++++++++++++++++
 
-.. code-block:: MySQL
+.. code-block:: SQL
 
    string SIMILAR TO pattern
 
@@ -714,7 +714,7 @@ If the pattern matches the string, SIMILAR TO operation returns true.
 
 Pattern is expected to match the entire string i.e.
 
-.. code-block:: MySQL
+.. code-block:: SQL
 
    'a'  SIMILAR TO 'a' -> TRUE
    'ab' SIMILAR TO 'a' -> FALSE
@@ -730,14 +730,14 @@ Additionally, the following characters also having special meaning:
 
 * :code:`|` : The whole string should match a unit on either side of :code:`|`
 
-  .. code-block:: MySQL
+  .. code-block:: SQL
 
      'abd' SIMILAR TO 'abc|d'       -> TRUE ( Here along with other characters, the right side of | which is 'd' is matched )
      'dba' SIMILAR TO '(abc)|(dba)' -> TRUE ( Here the right side of | which is (dba) is matched )
 
 * :code:`*` : Match a sequence of zero or more units
 
-  .. code-block:: MySQL
+  .. code-block:: SQL
 
      'wow'         SIMILAR TO 'woo*w'    -> TRUE
      'wooow'       SIMILAR TO 'woo*w'    -> TRUE
@@ -746,7 +746,7 @@ Additionally, the following characters also having special meaning:
 
 * :code:`+` : Match a sequence of one or more units
 
-  .. code-block:: MySQL
+  .. code-block:: SQL
 
      'dabcabcd' SIMILAR TO 'd(abc)+d'  -> TRUE
      'dd'       SIMILAR TO 'd(abc)+d'  -> FALSE
@@ -755,7 +755,7 @@ Additionally, the following characters also having special meaning:
 
 * :code:`[ ]` : Matches any one of the characters mentioned inside the brackets
 
-  .. code-block:: MySQL
+  .. code-block:: SQL
 
      'a' SIMILAR TO '[abc]' -> TRUE
      'c' SIMILAR TO '[abc]' -> TRUE
@@ -765,14 +765,14 @@ Additionally, the following characters also having special meaning:
 
   * :code:`{m}` : Match a sequence of exactly *m* units
 
-    .. code-block:: MySQL
+    .. code-block:: SQL
 
        'aaaa' SIMILAR TO 'a{4}' -> TRUE
        'aaa'  SIMILAR TO 'a{4}' -> FALSE
 
   * :code:`{m,}` : Match a sequence of *m* or more units
 
-    .. code-block:: MySQL
+    .. code-block:: SQL
 
        'aaaaa'  SIMILAR TO 'a{2,}'      -> TRUE
        'a'      SIMILAR TO 'a{2,}'      -> FALSE
@@ -781,14 +781,14 @@ Additionally, the following characters also having special meaning:
 
   * :code:`{m,n}` : Match a sequence of exactly *m* through *n* (inclusive) units
 
-    .. code-block:: MySQL
+    .. code-block:: SQL
 
        'aaa' SIMILAR TO 'a{1,3}'   -> TRUE
        'aa'  SIMILAR TO 'a{1,3}'   -> FALSE
 
 * :code:`?` : Match zero or one unit
 
-  .. code-block:: MySQL
+  .. code-block:: SQL
 
      'abc'  SIMILAR TO 'ab?c'    -> TRUE
      'ac'   SIMILAR TO 'ab?c'    -> TRUE
@@ -815,7 +815,7 @@ Variation of SIMILAR TO
 
 #. :code:`NOT SIMILAR TO` : Negated version of SIMILAR TO
 
-   .. code-block:: MySQL
+   .. code-block:: SQL
 
       'abc' SIMILAR TO     'abc'   -> TRUE
       'abc' NOT SIMILAR TO 'abc'   -> FALSE
@@ -824,7 +824,7 @@ Variation of SIMILAR TO
  TILDE ~
 +++++++++++++++++++++
 
-.. code-block:: MySQL
+.. code-block:: SQL
 
    string ~ pattern
 
@@ -832,7 +832,7 @@ If the pattern matches the string, ~ operation returns true.
 
 Partial match of the pattern is valid, i.e.
 
-.. code-block:: MySQL
+.. code-block:: SQL
 
    'a'  ~ 'a'          -> TRUE
    'ab' ~ 'a'          -> TRUE  (Partial match is valid)
@@ -847,20 +847,20 @@ The following characters have special meaning:
 
 * :code:`.` : Matches any single character
 
-  .. code-block:: MySQL
+  .. code-block:: SQL
 
      'abc' ~ '...' -> TRUE
 
 * :code:`*` : Match a sequence of zero or more units
 
-  .. code-block:: MySQL
+  .. code-block:: SQL
 
      'aab' ~ 'a*'  -> TRUE
      'baa' ~ 'a*'  -> TRUE
 
 * :code:`|` : Match a unit on either side of :code:`|`
 
-  .. code-block:: MySQL
+  .. code-block:: SQL
 
      'abd' LIKE       'abc|d'       -> FALSE ( | does not have special meaning for LIKE operation )
      'abd' SIMILAR TO 'abc|d'       -> FALSE ( | expects 'abd' to match either 'abc' or 'd' . But, as 'abd' is not either of those, the result is FALSE )
@@ -868,7 +868,7 @@ The following characters have special meaning:
 
 * :code:`+` : Match a sequence of one or more units
 
-  .. code-block:: MySQL
+  .. code-block:: SQL
 
      'dabcabcd' ~ '(abc)+'  -> TRUE
      'dd'       ~ '(xyz)+'  -> FALSE
@@ -879,7 +879,7 @@ The following characters have special meaning:
 
 * :code:`[ ]` : Matches any one of the characters mentioned inside the brackets
 
-  .. code-block:: MySQL
+  .. code-block:: SQL
 
      'a'   ~ '[abc]' -> TRUE
      'zay' ~ '[abc]' -> TRUE
@@ -889,14 +889,14 @@ The following characters have special meaning:
 
   * :code:`{m}` : Match a sequence of exactly *m* units
 
-    .. code-block:: MySQL
+    .. code-block:: SQL
 
        'yyaaaabcc' ~ 'a{4}' -> TRUE
        'yyaaabcc'  ~ 'a{4}' -> FALSE
 
   * :code:`{m,}` : Match a sequence of *m* or more units
 
-    .. code-block:: MySQL
+    .. code-block:: SQL
 
        'yyaaabcc'     ~ 'a{2,}'      -> TRUE
        'yyabcc'       ~ 'a{2,}'      -> FALSE
@@ -905,14 +905,14 @@ The following characters have special meaning:
 
   * :code:`{m,n}` : Match a sequence of exactly *m* through *n* (inclusive) units
 
-    .. code-block:: MySQL
+    .. code-block:: SQL
 
        'aaa' ~ 'a{1,3}'   -> TRUE
        'aa'  ~ 'a{1,3}'   -> FALSE
 
 * :code:`?` : Match zero or one unit
 
-  .. code-block:: MySQL
+  .. code-block:: SQL
 
      'abcd'  ~ 'ab?c'    -> TRUE
      'acd'   ~ 'ab?c'    -> TRUE
@@ -970,7 +970,7 @@ DDL Example
 
 The following is a sample of a DDL for an existing large M application (a healthcare information system) which was generated automatically from the application schema.
 
-.. code-block:: MySQL
+.. code-block:: SQL
 
    CREATE TABLE `ORDER_ORDER_ACTIONS`(
     `ORDER1_ID` INTEGER PRIMARY KEY START 0 END "'(keys(""ORDER1_ID""))!(keys(""ORDER1_ID"")="""")",

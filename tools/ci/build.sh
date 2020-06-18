@@ -14,6 +14,7 @@
 source /opt/yottadb/current/ydb_env_set
 
 start_dir=$(pwd)
+# Below ensures any errors in this script cause it to exit with a non-zero status right away
 set -e
 
 # CMake commands are different between CentOS and Ubuntu
@@ -182,9 +183,14 @@ $ydb_dist/mupip load ../../tests/fixtures/names.zwr
 popd
 
 echo "# Run the tests"
+# We do not want any failures in "ctest" to exit the script (need to do some cleanup so the artifacts
+# are not that huge etc.). So disable the "set -e" setting temporarily for this step.
+set +e
 ${ctestCommand} -j `grep -c ^processor /proc/cpuinfo`
 exit_status=$?
 echo " -> exit_status from ${ctestCommand} = $exit_status"
+# Re-enable "set -e" now that ctest is done.
+set -e
 
 if [[ 0 == $exit_status ]]; then
 	if [[ $build_type != "RelWithDebInfo" ]]; then

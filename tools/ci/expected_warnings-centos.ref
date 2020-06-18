@@ -3,7 +3,6 @@ lexer.c:In function ‘yy_fatal_error’:
 lexer.c:In function ‘yyfree’:
 lexer.c:In function ‘yy_get_next_buffer’:
 lexer.c:In function ‘yyrealloc’:
-lexer.c:note: in expansion of macro ‘YY_INPUT’
 lexer.c:warning: unused parameter ‘yyscanner’ [-Wunused-parameter]
 lexer.c:warning: unused parameter ‘yyscanner’ [-Wunused-parameter]
 lexer.c:warning: unused parameter ‘yyscanner’ [-Wunused-parameter]

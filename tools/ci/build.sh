@@ -115,33 +115,50 @@ echo "# Compile Octo"
 make -j `grep -c ^processor /proc/cpuinfo` 2> make_warnings.txt
 
 echo "# Check for unexpected warnings and error/exit if unexpected errors are found"
-../tools/ci/sort_warnings.sh
-echo " -> Checking for unexpected warning(s)... "
-# We do not want any failures in "diff" command below to exit the script (we want to see the actual diff a few steps later).
-# So disable the "set -e" setting temporarily for this step.
-set +e
+../tools/ci/sort_warnings.sh make_warnings.txt
+echo " -> Checking for unexpected warning(s) while compiling ... "
 if [ -x "$(command -v yum)" ]; then
 	if [[ $build_type == "Debug" ]]; then
-		diff ../tools/ci/expected_warnings-centos.ref sorted_warnings.txt &> differences.txt
+		reference=../tools/ci/expected_warnings-centos.ref
 	else
-		diff ../tools/ci/expected_warnings-centos_release.ref sorted_warnings.txt &> differences.txt
+		reference=../tools/ci/expected_warnings-centos_release.ref
 	fi
 else
 	if [[ $build_type == "Debug" ]]; then
-		diff ../tools/ci/expected_warnings.ref sorted_warnings.txt &> differences.txt
+		reference=../tools/ci/expected_warnings.ref
 	else
-		diff ../tools/ci/expected_warnings-release.ref sorted_warnings.txt &> differences.txt
+		reference=../tools/ci/expected_warnings-release.ref
 	fi
 fi
 
-# Re-enable "set -e" now that "diff" is done.
-set -e
+compare() {
+	expected="$1"
+	actual="$2"
+	# We do not want any failures in "diff" command below to exit the script (we want to see the actual diff a few steps later).
+	# So never count this step as failing even if the output does not match.
+	diff "$expected" sorted_warnings.txt &> differences.txt || true
 
-if [ $(wc -l differences.txt | awk '{print $1}') -gt 0 ]; then
-  echo " -> Expected warnings differ from actual warnings! diff output follows"
-  echo " -> note: '<' indicates an expected warning, '>' indicates an actual warning"
-  cat differences.txt
-  exit 1
+	if [ $(wc -l differences.txt | awk '{print $1}') -gt 0 ]; then
+		echo " -> Expected warnings differ from actual warnings! diff output follows"
+		echo " -> note: '<' indicates an expected warning, '>' indicates an actual warning"
+		cat differences.txt
+		exit 1
+	fi
+}
+
+compare $reference
+
+# `clang-tidy` is not available on CentOS 7, and YDB tests on 7 to ensure backwards-compatibility.
+if ! [ -x "$(command -v yum)" ]; then
+	echo "# Check for unexpected warning(s) from clang-tidy ..."
+	../tools/ci/clang-tidy-all.sh > clang_tidy_warnings.txt 2>/dev/null
+	../tools/ci/sort_warnings.sh clang_tidy_warnings.txt
+	# In release mode, `assert`s are compiled out and clang-tidy will emit false positives.
+	if [ "$build_type" = Debug ]; then
+		compare ../tools/ci/clang_tidy_warnings.ref
+	else
+		compare ../tools/ci/clang_tidy_warnings-release.ref
+	fi
 fi
 
 echo "# make install"

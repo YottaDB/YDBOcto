@@ -23,6 +23,7 @@
 #include <netdb.h>
 #include <pthread.h>
 #include <signal.h>
+#include <netinet/tcp.h>
 
 #include "octo.h"
 #include "rocto/rocto.h"
@@ -171,6 +172,12 @@ int main(int argc, char **argv) {
 	opt = 1;
 	if (-1 == setsockopt(sfd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &opt, sizeof(opt))) {
 		FATAL(ERR_SYSCALL, "setsockopt", errno, strerror(errno));
+	}
+
+	if (!config->rocto_config.tcp_delay) {
+		if (-1 == setsockopt(sfd, IPPROTO_TCP, TCP_NODELAY, &opt, sizeof(opt))) {
+			FATAL(ERR_SYSCALL, "setsockopt", errno, strerror(errno));
+		}
 	}
 
 	if (bind(sfd, (struct sockaddr *)&addressv6, sizeof(addressv6)) < 0) {

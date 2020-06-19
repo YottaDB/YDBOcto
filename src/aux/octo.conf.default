@@ -27,6 +27,9 @@ rocto = {
   port = 1337
   // Set to use DNS to resolve numeric IP addresses
   use_dns = false
+  // Set to true to enable usage of the Nagle algorithm on TCP connections and disable the TCP_NODELAY socket option.
+  // Default is false (i.e. no delay) as it speeds up rocto response times
+  tcp_delay = false
   // Authentication methods; supported options are "md5"
   authentication_method = "md5"
   // Set to 'true' to enable SSL/TLS session encryption for remote connections when clients requests it,

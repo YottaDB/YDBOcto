@@ -270,6 +270,9 @@ int parse_config_file_settings(const char *config_file_name, config_t *config_fi
 	if (CONFIG_FALSE == config_lookup_bool(config_file, "rocto.use_dns", &config->rocto_config.use_dns)) {
 		CONFIG_ERROR_CHECK(config_file, "rocto.use_dns", status);
 	}
+	if (CONFIG_FALSE == config_lookup_bool(config_file, "rocto.tcp_delay", &config->rocto_config.tcp_delay)) {
+		CONFIG_ERROR_CHECK(config_file, "rocto.tcp_delay", status);
+	}
 #	if YDB_TLS_AVAILABLE
 	if (CONFIG_FALSE == config_lookup_string(config_file, "tls.OCTOSERVER.cert", &config->rocto_config.ssl_cert_file)) {
 		CONFIG_ERROR_CHECK(config_file, "tls.OCTOSERVER.cert", status);

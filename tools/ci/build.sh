@@ -1,4 +1,4 @@
-#!/bin/bash -v
+#!/bin/bash
 #################################################################
 #								#
 # Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	#
@@ -10,6 +10,10 @@
 #	the license, please stop and do not read further.	#
 #								#
 #################################################################
+
+# Set verbose mode so we see each command as it gets executed
+set -v
+set -x
 
 source /opt/yottadb/current/ydb_env_set
 
@@ -113,6 +117,9 @@ make -j `grep -c ^processor /proc/cpuinfo` 2> make_warnings.txt
 echo "# Check for unexpected warnings and error/exit if unexpected errors are found"
 ../tools/ci/sort_warnings.sh
 echo " -> Checking for unexpected warning(s)... "
+# We do not want any failures in "diff" command below to exit the script (we want to see the actual diff a few steps later).
+# So disable the "set -e" setting temporarily for this step.
+set +e
 if [ -x "$(command -v yum)" ]; then
 	if [[ $build_type == "Debug" ]]; then
 		diff ../tools/ci/expected_warnings-centos.ref sorted_warnings.txt &> differences.txt
@@ -126,6 +133,9 @@ else
 		diff ../tools/ci/expected_warnings-release.ref sorted_warnings.txt &> differences.txt
 	fi
 fi
+
+# Re-enable "set -e" now that "diff" is done.
+set -e
 
 if [ $(wc -l differences.txt | awk '{print $1}') -gt 0 ]; then
   echo " -> Expected warnings differ from actual warnings! diff output follows"
@@ -230,4 +240,16 @@ rm -f *.cmake
 rm -f src/test_*	# these are the unit test case executables (should not be needed otherwise)
 
 echo " -> exit $exit_status"
+# Unset verbose mode before printing summary of failure results if any
+set +x
+set +v
+
+if [[ 0 != $exit_status ]]; then
+	echo "# ----------------------------------------------------------"
+	echo "# List of failed tests/subtests and their output directories"
+	echo "# ----------------------------------------------------------"
+	grep -A 6 -E "not ok|Test: " Testing/Temporary/LastTest.log | grep -E "not ok|# Temporary|Test: " | grep -C 1 "not ok" | sed "s/^not/  &/;s/^#/  &/"
+	echo "# -----------------------------"
+fi
+
 exit $exit_status

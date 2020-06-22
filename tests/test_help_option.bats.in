@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -19,72 +19,82 @@ setup() {
   load_fixture names.zwr
 }
 
-@test "call octo with -h" {
+replace_release() {
+  sed -i 's/r[0-9]\.[0-9][0-9]/RELEASE/' output.txt
+}
+
+@test "TH000 : call octo with -h" {
   octo -h >& output.txt
   verify_output TH000 output.txt noinfo nodebug
 }
 
-@test "call octo with --help" {
+@test "TH001 : call octo with --help" {
   octo --help >& output.txt
   verify_output TH001 output.txt noinfo nodebug
 }
 
-@test "call octo with invalid option" {
+@test "TH002 : call octo with invalid option" {
   octo -g >& output.txt || true
   verify_output TH002 output.txt noinfo nodebug
 }
 
-@test "call rocto with -h" {
+@test "TH003 : call rocto with -h" {
   rocto -h >& output.txt
   verify_output TH003 output.txt noinfo nodebug
 }
 
-@test "call rocto with --help" {
+@test "TH004 : call rocto with --help" {
   rocto --help >& output.txt
   verify_output TH004 output.txt noinfo nodebug
 }
 
-@test "call rocto with invalid option" {
+@test "TH005 : call rocto with invalid option" {
   rocto -g >& output.txt || true
   verify_output TH005 output.txt noinfo nodebug
 }
 
-@test "call rocto with -f option (invalid)" {
+@test "TH006 : call rocto with -f option (invalid)" {
   rocto -f >& output.txt || true
   verify_output TH006 output.txt noinfo nodebug
 }
 
-@test "call rocto with -d option (invalid)" {
+@test "TH007 : call rocto with -d option (invalid)" {
   rocto -d >& output.txt || true
   verify_output TH007 output.txt noinfo nodebug
 }
 
-@test "call octo with -r option" {
+@test "TH008 : call octo with -r option" {
   octo -r >& output.txt
+  replace_release
   verify_output TH008 output.txt noinfo nodebug
 }
 
-@test "call octo with --version option" {
+@test "TH009 : call octo with --version option" {
   octo --version >& output.txt
+  replace_release
   verify_output TH008 output.txt noinfo nodebug
 }
 
-@test "call octo with --release option" {
+@test "TH010 : call octo with --release option" {
   octo --release >& output.txt
+  replace_release
   verify_output TH008 output.txt noinfo nodebug
 }
 
-@test "call rocto with -r option" {
+@test "TH011 : call rocto with -r option" {
   rocto -r >& output.txt
+  replace_release
   verify_output TH009 output.txt noinfo nodebug
 }
 
-@test "call rocto with --version option" {
+@test "TH012 : call rocto with --version option" {
   rocto --version >& output.txt
+  replace_release
   verify_output TH009 output.txt noinfo nodebug
 }
 
-@test "call rocto with --release option" {
+@test "TH013 : call rocto with --release option" {
   rocto --release >& output.txt
+  replace_release
   verify_output TH009 output.txt noinfo nodebug
 }

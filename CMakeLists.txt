@@ -24,6 +24,20 @@ else()
 	message(FATAL_ERROR "The $ydb_dist environment variable is not set. Please set $ydb_dist before building and installing Octo")
 endif()
 
+set(MIN_YDB_RELEASE "1.29")
+execute_process(
+	COMMAND ${PROJECT_SOURCE_DIR}/tests/fixtures/get_ydb_release.sh ${MIN_YDB_RELEASE}
+	OUTPUT_VARIABLE YDB_RELEASE_STRING
+	RESULT_VARIABLE version_accepted
+	WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/tests/fixtures
+)
+
+if(NOT version_accepted)
+	message(STATUS "YottaDB version: r${YDB_RELEASE_STRING}")
+else()
+	message(FATAL_ERROR "YottaDB version r${YDB_RELEASE_STRING} not supported. Minimum supported version: ${MIN_YDB_RELEASE}")
+endif()
+
 if(NOT CMAKE_BUILD_TYPE)
 	set(CMAKE_BUILD_TYPE RelWithDebInfo)
 endif()

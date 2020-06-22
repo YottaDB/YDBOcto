@@ -39,11 +39,6 @@ macro(ADD_UNIT_TEST_WITH_OPTIONS TEST_NAME TEST_FILE WRAP_FUNCTION)
   add_test(${TEST_NAME} ${TEST_NAME})
 endmacro(ADD_UNIT_TEST_WITH_OPTIONS)
 
-#ADD_UNIT_TEST_WITH_OPTIONS(test_emit_create_table "")
-#ADD_UNIT_TEST_WITH_OPTIONS(test_parser_negatives "")
-#ADD_UNIT_TEST_WITH_OPTIONS(test_emit_select_statement "")
-#ADD_UNIT_TEST_WITH_OPTIONS(test_generate_cursor "")
-
 if("${FULL_TEST_SUITE}" MATCHES "ON")
 	ADD_UNIT_TEST_WITH_OPTIONS(test_read_bind src/rocto/test_read_bind "")
 	set(functions_to_wrap read_bytes)

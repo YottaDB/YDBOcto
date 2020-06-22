@@ -87,19 +87,28 @@ Note: there are no binary releases during the beta period
 
 #### From Tarball
 
-1. Decompress the Octo binary package
+1. Retrieve a YDBOcto binary package for your platform from GitLab (links will be provided when Octo 1.0 is released).
+
+2. Decompress the Octo binary package, e.g.
 
 ```sh
-tar xzf Octo-*-Linux.tar.gz
+tar xzf yottadb_octo_1.0.0_ubuntu18.04_x8664_pro.tar.gz
 ```
 
-2. Install Octo
+3. Install Octo
 
-This will install Octo to your `$ydb_dist/plugin` directory.
+This will install Octo to your `$ydb_dist/plugin` directory. If you are not running as root, you may need to prefix the install script with `sudo -E`
 
 ```sh
-cd Octo-*-Linux
-./install.sh
+cd yottadb_octo_1.0.0_ubuntu18.04_x8664_pro
+./octoinstall.sh
+```
+
+4. Redefine environment variables to include newly installed files:
+
+```sh
+$ydb_dist/ydb_env_unset
+source $(pkg-config --variable=prefix yottadb)/ydb_env_set
 ```
 
 #### From source
@@ -413,13 +422,25 @@ A docker container is available in this repository and on [docker hub](https://h
 
 ### Starting the docker container
 
-The `docker run` command should be run in the directory where the above directory structure is defined as it is mounted as a volume within the docker container.
+To start the Docker container and make rocto available on the host's network on the default port of 1337 (unless octo.conf within the container is configured otherwise):
 
 ```sh
-docker run -it -v `pwd`:/data -p 1337:1337 yottadb/octo:latest-master
+docker run -it --network=host yottadb/octo:latest-master
 ```
 
-This will then display the rocto log file on stdout. If you'd prefer to run the container as a daemon use the `-d` command line parameter to run the container as a daemon. For example:
+To login with the default `ydb` user use `psql` and enter `ydbrocks` when prompted for a password:
+
+```sh
+psql -U ydb -h localhost -p 1337
+```
+
+If you'd like to use YDB data in an existing local directory structure, then issue the `docker run` command from a directory where the above directory structure is defined. This is needed to mount it as a volume within the Docker container.
+
+```sh
+docker run -it -v `pwd`:/data yottadb/octo:latest-master
+```
+
+This will then display the rocto log file on stdout. If you'd prefer to run the container as a daemon use the `-d` command line parameter to run the container as a daemon. Also, if you'd like to publish the container on specific ports, specify this with the `-p` option. For example:
 
 ```sh
 docker run -itd -v `pwd`:/data -p 1337:1337 yottadb/octo:latest-master

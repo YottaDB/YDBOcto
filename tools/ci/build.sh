@@ -173,8 +173,58 @@ if ! [ -x "$(command -v yum)" ]; then
 	fi
 fi
 
-echo "# make install"
-make install
+echo "# prepare binary tarball"
+# Declare the tarball generation logic as a function in case we need to rebuild in release mode for Docker image creation
+create_tarball() {
+	# Gather elements of tarball name format: yottadb_octo_<octo_version>_<os_id><os_version>_<platform_arch>_pro.tar.gz
+	octo_version="$(src/octo --version | grep "Octo version" | cut -f 3 -d ' ')"
+	os_id="$(cat /etc/os-release | grep "^ID=" | cut -f 2 -d '=' | sed 's/"//g')"
+	os_version="$(cat /etc/os-release | grep "VERSION_ID" | cut -f 2 -d '=' | sed 's/"//g')"
+	platform_arch="$(lscpu | grep Architecture | sed 's/ //g' | sed 's/_//g' | cut -f 2 -d ':')"
+	if [[ -f $ydb_dist/plugin/libgtmtls.so ]]; then
+		tls_support="tls_"
+	fi
+	tarball_name="yottadb_octo_${octo_version}_${tls_support}${os_id}${os_version}_${platform_arch}_pro"
+
+	# Transfer requisite files into tarball directory and compress
+	echo "# Create plugin directory structure for later reference by [octo]install.sh"
+	mkdir -p $tarball_name/plugin/r $tarball_name/plugin/o/utf8 $tarball_name/plugin/octo/bin
+	echo "# Copy YDBPosix into build directory for later access by [octo]install.sh"
+	cp $ydb_dist/plugin/libydbposix.so $tarball_name/plugin
+	cp $ydb_dist/plugin/ydbposix.xc $tarball_name/plugin
+	cp $ydb_dist/plugin/o/_ydbposix.so $tarball_name/plugin/o
+	cp $ydb_dist/plugin/o/utf8/_ydbposix.so $tarball_name/plugin/o/utf8
+	echo "# Copy Octo-specific dependencies for later access by [octo]install.sh"
+	cp octoinstall.sh $tarball_name
+	cp ../tests/fixtures/get_ydb_release.sh $tarball_name
+	cp ../src/aux/*.m $tarball_name/plugin/r
+	cp src/ydbocto.ci $tarball_name/plugin/octo
+	cp ../tests/fixtures/octo-seed.* $tarball_name/plugin/octo
+	cp ../src/aux/octo.conf.default $tarball_name/plugin/octo/octo.conf
+	echo "# Copy Octo binaries and libraries for later access by [octo]install.sh"
+	cp src/octo src/rocto $tarball_name/plugin/octo/bin
+	cp src/_ydbocto.so $tarball_name/plugin/o
+	cp src/utf8/_ydbocto.so $tarball_name/plugin/o/utf8
+	echo "# Copy .dbg files for debugging RelWithDebInfo builds"
+	if [[ -f src/octo.dbg && -f src/rocto.dbg ]]; then
+		cp src/*.dbg $tarball_name/plugin/octo
+	fi
+
+	echo "# Build binary package"
+	tar -czvf $tarball_name.tar.gz $tarball_name
+}
+create_tarball
+
+echo "# Randomly choose to install from tarball or via make install"
+if [[ $(( $RANDOM % 2)) -eq 0 ]]; then
+	echo "# install from tarball"
+	cd $tarball_name
+	./octoinstall.sh
+	cd ..
+else
+	echo "# make install"
+	make install
+fi
 
 if [ -z $USER ]; then
   echo " -> export USER=root"
@@ -246,32 +296,19 @@ echo " -> exit_status from ${ctestCommand} = $exit_status"
 set -e
 
 if [[ 0 == $exit_status ]]; then
-	if [[ $build_type != "RelWithDebInfo" ]]; then
-		echo "# Rebuild Octo for packaging as it wasn't a RelWithDebInfo build"
-		${cmakeCommand} -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_INSTALL_PREFIX=${ydb_dist}/plugin ..
+	if [[ $build_type != "RelWithDebInfo" || $disable_install != "OFF" ]]; then
+		echo "# Rebuild Octo for packaging as it wasn't a RelWithDebInfo build or was built with installation disabled"
+		${cmakeCommand} -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_INSTALL_PREFIX=${ydb_dist}/plugin -DCMAKE_BUILD_TYPE=RelWithDebInfo -DDISABLE_INSTALL=OFF ..
 		make -j `grep -c ^processor /proc/cpuinfo`
+		create_tarball
 	fi
 
 	if [[ $cmakeCommand == "cmake" ]]; then
-		echo "# Ubuntu pipelines only: Copy installation files for use in Docker image construction"
-		echo " -> Copying installation files for Docker image generation... "
-		cp ../tools/ci/install.sh .
-		echo "# Create plugin directory structure for later reference by install.sh"
-		mkdir -p plugin/r plugin/o/utf8 plugin/octo/
-		echo "# Copy YDBPosix into build directory for later access by install.sh"
-		cp $ydb_dist/plugin/libydbposix.so plugin
-		cp $ydb_dist/plugin/ydbposix.xc plugin
-		cp $ydb_dist/plugin/o/_ydbposix.so plugin/o
-		cp $ydb_dist/plugin/o/utf8/_ydbposix.so plugin/o/utf8
-		echo "# Copy Octo-specific dependencies for later access by install.sh"
-		cp ../src/aux/*.m plugin/r
-		cp ../tests/fixtures/octo-seed.* plugin/octo
-		cp ../tests/fixtures/northwind.* plugin/octo
-		cp ../src/aux/octo.conf.default plugin/octo/octo.conf
+		echo "# Ubuntu pipelines only: Copy installation script into tarball directory for use in Docker image construction"
+		cp ../tools/ci/docker-install.sh $tarball_name
+		echo "# Copy dummy data for use in Docker image. No other fixtures are needed as Northwind tests full functionality"
+		cp ../tests/fixtures/northwind.* $tarball_name
 	fi
-
-	echo "# Build binary package"
-	make package
 fi
 
 echo "# Cleanup files and directories that don't need to be included in the pipeline artifacts"

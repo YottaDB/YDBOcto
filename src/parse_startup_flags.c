@@ -159,6 +159,7 @@ int parse_startup_flags(int argc, char **argv, char **config_file_name) {
 			config->allow_schema_changes = TRUE;
 			break;
 		case 'r':
+			printf("YottaDB version: r%s\n", YDB_RELEASE_STRING);
 			if (config->is_rocto) {
 				printf("Rocto");
 

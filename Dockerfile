@@ -23,9 +23,11 @@ RUN apt-get update && \
         libconfig-dev \
 		cmake
 
-ADD ./build /tmp/build
+# Copy requisite files from testing environment into Docker build environment
+ADD ./build/yottadb_octo* /tmp/build/
 ADD ./tools/entrypoint.sh /
-RUN cd /tmp/build/ && . /opt/yottadb/current/ydb_env_set && ./install.sh
+# Install from tarball, then use Docker-specific script to include YDBPosix and setup dummy database
+RUN cd /tmp/build/ && . /opt/yottadb/current/ydb_env_set && ./octoinstall.sh && ./docker-install.sh
 RUN cd /tmp && rm -r build
 
 ENTRYPOINT "/entrypoint.sh"

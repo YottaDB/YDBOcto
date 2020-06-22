@@ -57,6 +57,31 @@ configure_file (
   "${PROJECT_SOURCE_DIR}/src/constants.h.in"
   "${PROJECT_BINARY_DIR}/constants.h")
 
+execute_process(
+	COMMAND ${PROJECT_SOURCE_DIR}/tests/fixtures/get_platform_name.sh
+	OUTPUT_VARIABLE PLATFORM_NAME
+	RESULT_VARIABLE platform_name_identified
+	WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/tests/fixtures
+)
+execute_process(
+	COMMAND ${PROJECT_SOURCE_DIR}/tests/fixtures/get_platform_version.sh
+	OUTPUT_VARIABLE PLATFORM_VERSION
+	RESULT_VARIABLE platform_version_identified
+	WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/tests/fixtures
+)
+execute_process(
+	COMMAND ${PROJECT_SOURCE_DIR}/tests/fixtures/get_platform_arch.sh
+	OUTPUT_VARIABLE PLATFORM_ARCH
+	RESULT_VARIABLE platform_arch_identified
+	WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/tests/fixtures
+)
+message(STATUS "Platform name: ${PLATFORM_NAME}")
+message(STATUS "Platform version: ${PLATFORM_VERSION}")
+message(STATUS "Platform architecture: ${PLATFORM_ARCH}")
+configure_file (
+  "${PROJECT_SOURCE_DIR}/tools/ci/octoinstall.sh.in"
+  "${PROJECT_BINARY_DIR}/octoinstall.sh")
+
 # Generate the physical-parser
 BISON_TARGET(PhysicalParser ${PROJECT_SOURCE_DIR}/src/physical/physical-parser.y
   ${PROJECT_BINARY_DIR}/physical-parser.c)

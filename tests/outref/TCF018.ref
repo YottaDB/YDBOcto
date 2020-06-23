@@ -7,8 +7,6 @@ SELECT * FROM names WHERE firstname > lastname;
 SELECT * FROM names WHERE SAMESTR(firstname) > SAMESTR(lastname);
 
 0|Zero|Cool
-4|Joey|
 5|Zero|Cool
 0|Zero|Cool
-4|Joey|
 5|Zero|Cool

@@ -19,7 +19,7 @@ import java.sql.Statement;
 public class TJC011 {
 	public static void main( String args[] ) {
 		Properties props = new Properties();
-		props.setProperty("user","ydb");
+		props.setProperty("user",System.getProperty("user.name"));
 		props.setProperty("password","ydbrocks");
 		props.setProperty("ssl","false");
 		props.setProperty("sslmode","disable");

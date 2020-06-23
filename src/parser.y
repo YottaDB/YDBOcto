@@ -1333,7 +1333,7 @@ delim_char_list
 
 	delim_int = strtol(str_lit, &end_ptr, 10);
 	if ((ERANGE == errno) || (0 > delim_int) || (DELIM_MAX < delim_int)) {
-		ERROR(ERR_INVALID_DELIM_CHAR, delim_int);
+		ERROR(ERR_INVALID_KEYWORD_CHAR, delim_int, "delimiter");
 		yyerror(&yyloc, NULL, NULL, NULL, NULL, NULL);
 		YYERROR;
 	}

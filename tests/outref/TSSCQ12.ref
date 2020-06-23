@@ -11,9 +11,9 @@ AND      (
 ORDER BY table_schem
 
 ----- ROCTO/JDBC -----
-information_schema|
-pg_catalog|
-public|
+information_schema|null
+pg_catalog|null
+public|null
 [SOCKET] [ WARN] PATH:LINENUM DATE TIME : Feature not implemented: arrays
 [SOCKET] [ WARN] PATH:LINENUM DATE TIME : Feature not implemented: arrays
 

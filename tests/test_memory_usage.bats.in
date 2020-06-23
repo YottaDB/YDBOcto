@@ -18,6 +18,7 @@ setup() {
   load_fixture names.sql
   load_fixture names.zwr
   load_fixture default_user.zwr
+  create_user $USER "ydbrocks"
 }
 
 @test "TMU01 : memory usage remains constant across subsequent query executions" {
@@ -82,5 +83,6 @@ setup() {
   #	3. TimeZone information
   #	4. rocto.log itself
   grep "\%ydbocto" rocto.log | grep -Ev "loadedschemas|SecretKeyList|TimeZone|Binary file rocto.log" | sort &> node_usage.log
+  sed -i 's/%ydboctosession(1,"variables","user")=".*"/%ydboctosession(1,"variables","user")="USER"/' node_usage.log
   verify_output TMU02 node_usage.log
 }

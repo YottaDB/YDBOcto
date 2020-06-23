@@ -19,8 +19,10 @@ import java.util.Random;
 
 public class run_query {
 	public static void main( String args[] ) {
+		String database_name = new String("");
+		String psql_default_port = new String("5432");
 		Properties props = new Properties();
-		props.setProperty("user","ydb");
+		props.setProperty("user",System.getProperty("user.name"));
 		props.setProperty("password","ydbrocks");
 		props.setProperty("ssl","false");
 		props.setProperty("sslmode","disable");
@@ -32,11 +34,16 @@ public class run_query {
 				use_extended = true;
 			} else if (args[2].equals("usesimple")) {
 				use_extended = false;
+			} else {
+				database_name = args[2];
 			}
 		} else {
 			// Randomize use of extended query
 			Random rand = new Random();
 			use_extended = rand.nextBoolean();
+		}
+		if (4 == args.length) {
+			database_name = args[3];
 		}
 		if (use_extended) {
 			props.setProperty("preferQueryMode","extended");
@@ -44,7 +51,7 @@ public class run_query {
 			props.setProperty("preferQueryMode","simple");
 		}
 
-		String connectionString = "jdbc:postgresql://localhost:" + args[0] + "/";
+		String connectionString = "jdbc:postgresql://localhost:" + args[0] + "/" + database_name;
 		try (Connection conn = DriverManager.getConnection(connectionString, props)) {
 				if (conn != null) {
 					String queryString;

@@ -1,0 +1,14 @@
+YottaDB MUPIP EXTRACT
+09-JUN-2020  14:55:45 ZWR
+^nullnames(0)="Zero|Cool|25000.01|1|10"
+^nullnames(1)="Acid|Burn|62530.56||5"
+^nullnames(2)="Cereal|Killer||0|"
+^nullnames(3)="Lord|Nikon|2000567.49|1|2"
+^nullnames(4)="Joey||||"
+^nullnames(5)="Zero|Cool|25000.01|1|10"
+^nullnamesb(0)="Zero|Cool|25000.01|0|20"
+^nullnamesb(1)="Acid|Burn|62530.56||5"
+^nullnamesb(2)="Cereal|Killer||1|"
+^nullnamesb(3)="Lord|Nikon|2000567.49|0|2"
+^nullnamesb(4)="Joey||||"
+^nullnamesb(5)="Zero|Cool|25000.01|0|20"

@@ -92,8 +92,6 @@ init_tls() {
 	# Sign certificate based on request and local CA
 	openssl x509 -req -in $test_temp/server.csr -CA $test_temp/CA.crt -CAkey $test_temp/CA.key -CAcreateserial \
 		-out server.crt -days 365
-	# Set $USER to prevent docker ENV problems
-	export USER=root
 	# Pass private key password to environment variable
 	echo tester | $ydb_dist/plugin/gtmcrypt/maskpass | cut -f 3 -d " " >> env.log
 	export ydb_tls_passwd_OCTOSERVER=$(echo tester | $ydb_dist/plugin/gtmcrypt/maskpass | cut -f 3 -d " ")
@@ -153,11 +151,21 @@ load_fixture() {
 }
 
 create_postgres_database() {
-	psql postgres <<PSQL
+	psql postgres <<PSQL &> $1.setup.out
 	-- Need to use LC_COLLATE='C' to ensure string comparison of 'Z' < 'a' returns TRUE (default is en_US.UTF8)
 	-- Need template=template0 to avoid the following error
-	-- `new collation (C) is incompatible with the collation of the template database (en_US.UTF-8)`
+	-- "new collation (C) is incompatible with the collation of the template database (en_US.UTF-8)"
 	create database $1 LC_COLLATE='C' template=template0;
+PSQL
+	# Create a PostgreSQL role for the user running the tests and grant that user sufficient PostgreSQL permissions to
+	# log in to the specified database and access all the tables there. Note that ALTER is used for the case when the user
+	# already exists in PostgreSQL, but doesn't have the required settings.
+	psql $1 <<PSQL 2>&1 | tee -a $1.setup.out
+	CREATE ROLE $USER;
+	ALTER ROLE $USER LOGIN;
+	ALTER ROLE $USER PASSWORD 'ydbrocks';
+	GRANT CONNECT ON DATABASE $1 TO $USER;
+	GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO $USER;
 PSQL
 }
 
@@ -165,7 +173,7 @@ load_postgres_fixture() {
 	# If the table already exists, the psql command will return with a non-zero exit status due to the
 	# `\set ON_ERROR_STOP on` usage in the .sql script. But that is not a real error and so we use the `run` command
 	# below to avoid bats from treating this as an error.
-	run psql $1 -f @PROJECT_SOURCE_DIR@/tests/fixtures/$2
+	psql $1 -f @PROJECT_SOURCE_DIR@/tests/fixtures/$2 &> $1.psql.load || true
 }
 
 # Load a large amount of dummy data for tests requiring slow queries
@@ -373,7 +381,7 @@ run_java() {
 	fi
 	# Run the $1.java file now that the $1.class file has been compiled/created.
 	# Ensure both the postgresql-$JDBC_VERSION.jar file and the $1.class file will be found in the -classpath specification below
-	java -classpath @PROJECT_BINARY_DIR@/postgresql-$JDBC_VERSION.jar:@PROJECT_BINARY_DIR@ $1 $2 "$query" $4
+	java -classpath @PROJECT_BINARY_DIR@/postgresql-$JDBC_VERSION.jar:@PROJECT_BINARY_DIR@ $1 $2 "$query" $4 $5
 }
 
 strip_psql_header() {
@@ -564,6 +572,7 @@ run_query_in_octo_and_postgres_and_crosscheck() {
 	trimzeroes="$3"
 	usejdbc="$4"
 	jdbcprotocol="$5"
+	psql_port="5432"
 	fname=`echo $queryfile | sed 's/\..*//g'`
 	grep -v '^#' $queryfile > $queryfile.inp # Filter out '#' comment lines, if any, as that is not valid in Postgres
 	# psql errors will never have the same output as octo errors, so they cannot be used in crosscheck.
@@ -577,12 +586,17 @@ run_query_in_octo_and_postgres_and_crosscheck() {
 	else
 		psql_cmd="psql -v ON_ERROR_STOP=1"
 	fi
-	$psql_cmd --no-align $database -f $queryfile.inp >& $fname.psql.out
+	# $psql_cmd --no-align $database -f $queryfile.inp >& $fname.psql.out
 	# Postgres displays boolean values as t and f whereas Octo displays them as 1 and 0 so fix that before the diff.
-	tail -n +2 $fname.psql.out | head -n -1 | sed 's/\<t\>/1/g;s/\<f\>/0/g;' >& $fname.ref
+	# tail -n +2 $fname.psql.out | head -n -1 | sed 's/\<t\>/1/g;s/\<f\>/0/g;' >& $fname.ref
 	if [[ $usejdbc == "usejdbc" ]]; then
+		run_java run_query $psql_port $queryfile $jdbcprotocol $database &> $fname.psql.out
+		cat $fname.psql.out | sed 's/\<t\>/1/g;s/\<f\>/0/g;' >& $fname.ref
 		run_java run_query $test_port $queryfile $jdbcprotocol &> $fname.octo.out
 	else
+		$psql_cmd --no-align $database -f $queryfile.inp >& $fname.psql.out
+		# Postgres displays boolean values as t and f whereas Octo displays them as 1 and 0 so fix that before the diff.
+		tail -n +2 $fname.psql.out | head -n -1 | sed 's/\<t\>/1/g;s/\<f\>/0/g;' >& $fname.ref
 		octo -f $queryfile >& $fname.octo.out
 	fi
 	sed -i '/^.*\[ INFO\].* \/.*\/octo.conf/d' $fname.octo.out

@@ -80,12 +80,20 @@ func main() {
   }
   for rows.Next() {
     var id_a, id_b int
-    var firstName, lastName string
+    var firstName, lastName sql.NullString
     err = rows.Scan(&id_a, &id_b, &lastName, &firstName)
     if err != nil {
       panic(err)
     }
-    fmt.Printf("%v|%v|%v|%v\n", id_a, id_b, lastName, firstName)
+    fmt.Printf("%v|%v|", id_a, id_b)
+	if (lastName.Valid) {
+		fmt.Printf("%v", lastName.String)
+	}
+    fmt.Printf("|")
+	if (firstName.Valid) {
+		fmt.Printf("%v", firstName.String)
+	}
+    fmt.Printf("\n")
   }
   fmt.Println("---")
 }

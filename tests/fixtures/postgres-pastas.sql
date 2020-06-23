@@ -20,13 +20,13 @@ INSERT INTO names4 VALUES (0,'Zero','Cool','Pappardelle');
 INSERT INTO names4 VALUES (1,'Acid','Burn','Cavatelli');
 INSERT INTO names4 VALUES (2,'Cereal','Killer','Penne');
 INSERT INTO names4 VALUES (3,'Lord','Nikon','Rotini');
-INSERT INTO names4 VALUES (4,'Joey','','Pappardelle');
+INSERT INTO names4 VALUES (4,'Joey',NULL,'Pappardelle');
 INSERT INTO names4 VALUES (5,'Zero','Lame','Lasagna');
 INSERT INTO names4 VALUES (6,'Bobby','Buttons','Cavatelli');
 INSERT INTO names4 VALUES (7,'Acid','House','Orechiette');
 INSERT INTO names4 VALUES (8,'Zero','Day','Rotini');
 INSERT INTO names4 VALUES (9,'Betty','Buttons','Cavatelli');
-INSERT INTO names4 VALUES (10,'Carol','','');
+INSERT INTO names4 VALUES (10,'Carol',NULL,NULL);
 
 INSERT INTO pastas VALUES (0,'Fettucine');
 INSERT INTO pastas VALUES (1,'Cavatelli');

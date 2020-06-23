@@ -20,109 +20,49 @@ setup() {
 }
 
 @test "TIJOB01 : inner join pastas order by pasta id ascending" {
-  octo <<OCTO &> output.txt
-select pastas.id, firstName, lastName, pastaName from names4
-inner join pastas on pastas.pastaName = names4.favoritePasta
-order by pastas.id;
-OCTO
-  verify_output TIJOB01 output.txt noinfo nodebug
+	run_query_in_octo_and_postgres_and_crosscheck pastas TIJOB01.sql "trim_trailing_zeroes"
 }
 
 @test "TIJOB02 : inner join pastas order by pasta id ascending explicit" {
-  octo <<OCTO &> output.txt
-select pastas.id, firstName, lastName, pastaName from names4
-inner join pastas on pastas.pastaName = names4.favoritePasta
-order by pastas.id asc;
-OCTO
-  verify_output TIJOB02 output.txt noinfo nodebug
+	run_query_in_octo_and_postgres_and_crosscheck pastas TIJOB02.sql "trim_trailing_zeroes"
 }
 
 @test "TIJOB03 : inner join pastas order by pasta id descending" {
-  octo <<OCTO &> output.txt
-select pastas.id, firstName, lastName, pastaName from names4
-inner join pastas on pastas.pastaName = names4.favoritePasta
-order by pastas.id desc;
-OCTO
-  verify_output TIJOB03 output.txt noinfo nodebug
+	run_query_in_octo_and_postgres_and_crosscheck pastas TIJOB03.sql "trim_trailing_zeroes"
 }
 
 @test "TIJOB04 : inner join pastas order by lastName ascending" {
-  octo <<OCTO &> output.txt
-select pastas.id, firstName, lastName, pastaName from names4
-inner join pastas on pastas.pastaName = names4.favoritePasta
-order by lastName;
-OCTO
-  verify_output TIJOB04 output.txt noinfo nodebug
+	run_query_in_octo_and_postgres_and_crosscheck pastas TIJOB04.sql "trim_trailing_zeroes"
 }
 
 @test "TIJOB05 : inner join pastas order by lastName ascending explicit" {
-  octo <<OCTO &> output.txt
-select pastas.id, firstName, lastName, pastaName from names4
-inner join pastas on pastas.pastaName = names4.favoritePasta
-order by lastName asc;
-OCTO
-  verify_output TIJOB05 output.txt noinfo nodebug
+	run_query_in_octo_and_postgres_and_crosscheck pastas TIJOB05.sql "trim_trailing_zeroes"
 }
 
 @test "TIJOB06 : inner join pastas order by lastName descending" {
-  octo <<OCTO &> output.txt
-select pastas.id, firstName, lastName, pastaName from names4
-inner join pastas on pastas.pastaName = names4.favoritePasta
-order by lastName desc;
-OCTO
-  verify_output TIJOB06 output.txt noinfo nodebug
+	run_query_in_octo_and_postgres_and_crosscheck pastas TIJOB06.sql "trim_trailing_zeroes"
 }
 
 @test "TIJOB07 : inner join pastas order by firstName ascending" {
-  octo <<OCTO &> output.txt
-select pastas.id, firstName, lastName, pastaName from names4
-inner join pastas on pastas.pastaName = names4.favoritePasta
-order by firstName;
-OCTO
-  verify_output TIJOB07 output.txt noinfo nodebug
+	run_query_in_octo_and_postgres_and_crosscheck pastas TIJOB07.sql "trim_trailing_zeroes"
 }
 
 @test "TIJOB08 : inner join pastas order by firstName ascending explicit" {
-  octo <<OCTO &> output.txt
-select pastas.id, firstName, lastName, pastaName from names4
-inner join pastas on pastas.pastaName = names4.favoritePasta
-order by firstName asc;
-OCTO
-  verify_output TIJOB08 output.txt noinfo nodebug
+	run_query_in_octo_and_postgres_and_crosscheck pastas TIJOB08.sql "trim_trailing_zeroes"
 }
 
 @test "TIJOB09 : inner join pastas order by firstName descending" {
-  octo <<OCTO &> output.txt
-select pastas.id, firstName, lastName, pastaName from names4
-inner join pastas on pastas.pastaName = names4.favoritePasta
-order by firstName desc;
-OCTO
-  verify_output TIJOB09 output.txt noinfo nodebug
+	run_query_in_octo_and_postgres_and_crosscheck pastas TIJOB09.sql "trim_trailing_zeroes"
 }
 
 @test "TIJOB10 : inner join pastas order by pastaName ascending" {
-  octo <<OCTO &> output.txt
-select pastas.id, firstName, lastName, pastaName from names4
-inner join pastas on pastas.pastaName = names4.favoritePasta
-order by pastaName;
-OCTO
-  verify_output TIJOB10 output.txt noinfo nodebug
+	run_query_in_octo_and_postgres_and_crosscheck pastas TIJOB10.sql "trim_trailing_zeroes"
 }
 
 @test "TIJOB11 : inner join pastas order by pastaName ascending explicit" {
-  octo <<OCTO &> output.txt
-select pastas.id, firstName, lastName, pastaName from names4
-inner join pastas on pastas.pastaName = names4.favoritePasta
-order by pastaName asc;
-OCTO
-  verify_output TIJOB11 output.txt noinfo nodebug
+	run_query_in_octo_and_postgres_and_crosscheck pastas TIJOB11.sql "trim_trailing_zeroes"
 }
 
 @test "TIJOB12 : inner join pastas order by pastaName descending" {
-  octo <<OCTO &> output.txt
-select pastas.id, firstName, lastName, pastaName from names4
-inner join pastas on pastas.pastaName = names4.favoritePasta
-order by pastaName desc;
-OCTO
-  verify_output TIJOB12 output.txt noinfo nodebug
+	run_query_in_octo_and_postgres_and_crosscheck pastas TIJOB12.sql "trim_trailing_zeroes"
 }

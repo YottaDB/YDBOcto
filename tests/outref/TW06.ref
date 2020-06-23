@@ -1,0 +1,12 @@
+
+-- TW06 : WHERE clause checking if a column IS NULL/IS NOT NULL
+
+SELECT * FROM names WHERE lastName IS NULL;
+SELECT * FROM names WHERE lastName IS NOT NULL;
+
+4|Joey|
+0|Zero|Cool
+1|Acid|Burn
+2|Cereal|Killer
+3|Lord|Nikon
+5|Zero|Cool

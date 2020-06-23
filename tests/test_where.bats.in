@@ -75,12 +75,9 @@ OCTO
   # Success on this test is just it not getting a sig11
 }
 
-@test "TW06 :where IS NULL" {
-  octo <<OCTO 2>&1 | tee output.txt
-select * from names where lastName IS NULL;
-OCTO
-  # We should NOT find Joey as it has a lastName of "" which is different from NULL
-  [[ "$(grep -c "|" output.txt)" == "0" ]]
+@test "TW06 : WHERE clause checking if a column IS NULL/IS NOT NULL" {
+  load_fixture TW06.sql subtest novv
+  verify_output TW06 output.txt
 }
 
 @test "TW07 :where with subquery and SELECT" {

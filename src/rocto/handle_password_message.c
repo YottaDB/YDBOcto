@@ -58,8 +58,8 @@ int handle_password_message(PasswordMessage *password_message, StartupMessage *s
 	ydb_buffer_t *user_subs = make_buffers(config->global_names.octo, 2, "users", username);
 	result = ydb_get_s(&user_subs[0], 2, &user_subs[1], &user_info_subs);
 	free(user_subs);
-	if (YDB_ERR_GVUNDEF == result || YDB_ERR_LVUNDEF == result) {
-		FATAL(ERR_ROCTO_DB_LOOKUP, "handle_password_message", "user info");
+	if (YDB_ERR_GVUNDEF == result) {
+		ERROR(ERR_ROCTO_USER_LOOKUP, "handle_password_message", "user info", username);
 		YDB_FREE_BUFFER(&user_info_subs);
 		return 1;
 	}

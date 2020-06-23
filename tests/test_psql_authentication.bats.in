@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -24,7 +24,7 @@ teardown() {
   stop_rocto
 }
 
-@test "test psql authentication with bad password" {
+@test "TPA00 : test psql authentication with bad password" {
   create_user jon tester
   run run_psql_auth jon tested $test_port <<OCTO
 SELECT * FROM names;
@@ -35,18 +35,18 @@ OCTO
   delete_users jon
 }
 
-@test "test psql authentication with non-existent user" {
+@test "TPA01 : test psql authentication with non-existent user" {
   create_user jon tester
   run run_psql_auth bobby cereal $test_port <<OCTO
 SELECT * FROM names;
 OCTO
   echo $output 2>&1 | tee output.txt
   [[ "$status" -eq 2 ]]
-  [[ "$output" =~ "failed to retrieve user info from database" ]]
+  [[ "$output" =~ "failed to retrieve user info for user bobby from database" ]]
   delete_users jon
 }
 
-@test "test psql authentication with one user" {
+@test "TPA02 : test psql authentication with one user" {
   create_user jon tester
   run_psql_auth jon tester $test_port <<OCTO 2>&1 | tee output.txt
 SELECT * FROM names;
@@ -55,7 +55,7 @@ OCTO
   [[ "$(grep -c -E "Zero.\+|Cool" output.txt)" == "2" ]]
 }
 
-@test "test psql authentication with two users" {
+@test "TPA03 : test psql authentication with two users" {
   create_user jon tester
   run_psql_auth jon tester $test_port <<OCTO 2>&1 | tee output.txt
 SELECT * FROM names;
@@ -70,7 +70,7 @@ OCTO
   [[ "$(grep -c -E "Zero.\+|Cool" output.txt)" == "2" ]]
 }
 
-@test "test psql authentication with three users" {
+@test "TPA04 : test psql authentication with three users" {
   create_user jon tester
   run_psql_auth jon tester $test_port <<OCTO 2>&1 | tee output.txt
 SELECT * FROM names;

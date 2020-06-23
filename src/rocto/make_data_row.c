@@ -24,12 +24,23 @@
 #include "message_formats.h"
 #include "rocto.h"
 
-#define COPY_TEXT_PARM(DATA_PTR, PARM)                        \
-	{                                                     \
-		*((uint32_t *)DATA_PTR) = htonl(PARM.length); \
-		DATA_PTR += sizeof(uint32_t);                 \
-		memcpy(c, PARM.value, PARM.length);           \
-		DATA_PTR += PARM.length;                      \
+/* The PostgreSQL wire protocol specifies that SQL NULL values are signaled to the client by returning a row length of -1.
+ * See the `DataRow` entry at: https://www.postgresql.org/docs/11/protocol-message-formats.html
+ */
+#define PSQL_NULL -1
+
+#define COPY_TEXT_PARM(DATA_PTR, PARM)                                       \
+	{                                                                    \
+		if (0 == PARM.length) {                                      \
+			/* This is an empty string, i.e. a SQL NULL value */ \
+			*((uint32_t *)DATA_PTR) = htonl(PSQL_NULL);          \
+			DATA_PTR += sizeof(uint32_t);                        \
+		} else {                                                     \
+			*((uint32_t *)DATA_PTR) = htonl(PARM.length);        \
+			DATA_PTR += sizeof(uint32_t);                        \
+			memcpy(c, PARM.value, PARM.length);                  \
+			DATA_PTR += PARM.length;                             \
+		}                                                            \
 	}
 
 DataRow *make_data_row(DataRowParm *parms, int16_t num_parms, int32_t *col_data_types) {
@@ -78,21 +89,28 @@ DataRow *make_data_row(DataRowParm *parms, int16_t num_parms, int32_t *col_data_
 				assert(NULL != col_data_types);
 				switch (col_data_types[i]) {
 				case PSQL_TypeOid_int4:
-					*((uint32_t *)c) = htonl(PSQL_TypeSize_int4);
-					c += sizeof(uint32_t);
-					// Convert parameter value to null-terminated string for conversion into an integer
-					memcpy(int_buffer, parms[i].value, parms[i].length);
-					int_buffer[parms[i].length] = '\0';
-					int4_value = strtol(int_buffer, NULL, 10);
-					// PostgreSQL protocol specifies a 16-bit integer to store the total number of columns
-					// Details linked in message_formats.h
-					if ((ERANGE != errno) && (INT32_MIN <= int4_value) && (INT32_MAX >= int4_value)) {
-						*((int32_t *)c) = htonl((int32_t)int4_value);
-						c += sizeof(int32_t);
+					if (0 == parms[i].length) {
+						// This is an empty string, i.e. a SQL NULL value
+						*((uint32_t *)c) = htonl(PSQL_NULL);
+						c += sizeof(uint32_t);
 					} else {
-						ERROR(ERR_LIBCALL_WITH_ARG, "strtol", int_buffer);
-						free(ret);
-						return NULL;
+						*((uint32_t *)c) = htonl(PSQL_TypeSize_int4);
+						c += sizeof(uint32_t);
+						// Convert parameter value to null-terminated string for conversion into an integer
+						memcpy(int_buffer, parms[i].value, parms[i].length);
+						int_buffer[parms[i].length] = '\0';
+						int4_value = strtol(int_buffer, NULL, 10);
+						/* PostgreSQL protocol specifies a 16-bit integer to store the total
+						 * number of columns. Details linked in message_formats.h.
+						 */
+						if ((ERANGE != errno) && (INT32_MIN <= int4_value) && (INT32_MAX >= int4_value)) {
+							*((int32_t *)c) = htonl((int32_t)int4_value);
+							c += sizeof(int32_t);
+						} else {
+							ERROR(ERR_LIBCALL_WITH_ARG, "strtol", int_buffer);
+							free(ret);
+							return NULL;
+						}
 					}
 					break;
 				case PSQL_TypeOid_numeric:

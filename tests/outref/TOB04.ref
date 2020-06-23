@@ -29,7 +29,6 @@ SELECT 1+id*2 as computed_id from (select * from names UNION ALL select * from n
 4|Joey|
 5|Zero|Cool
 5|Zero|Cool
-
 Acid
 Burn
 Cereal
@@ -53,6 +52,7 @@ Lord
 Nikon
 Zero
 Zero
+
 1|Acid|Burn
 1|Acid|Burn
 2|Cereal|Killer

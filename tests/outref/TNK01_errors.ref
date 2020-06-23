@@ -139,4 +139,3 @@ SELECT * FROM names WHERE 'abcd' AND NOT 1=1;
 
 [ERROR] PATH:LINENUM DATE TIME : More than one row returned by a subquery used as an expression
 [ERROR] PATH:LINENUM DATE TIME : More than one row returned by a subquery used as an expression
-[ERROR] PATH:LINENUM DATE TIME : More than one row returned by a subquery used as an expression

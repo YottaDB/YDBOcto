@@ -403,7 +403,7 @@ octoPlan1(cursorId)
     . NEW %ydboctobool SET %ydboctobool=1
     . IF %ydboctobool DO
     . . NEW %ydboctog,%ydboctop
-    . . SET %ydboctog=$$str2mval^%ydboctoplanhelpers($PIECE($GET(^names(%ydboctocursor(cursorId,"keys",1,"NAMES","ID"))),"|",1))
+    . . SET %ydboctog=$$str2mval^%ydboctoplanhelpers($$empty2null^%ydboctoplanhelpers(0,"VARCHAR",$PIECE($GET(^names(%ydboctocursor(cursorId,"keys",1,"NAMES","ID"))),"|",1)))
     . . SET %ydboctocursor(cursorId,"keys",3,"","","GroupBy",%ydboctog)=""
     . . SET %ydboctop=%ydboctocursor(cursorId,"keys",1,"NAMES","ID")
     . . DO Count^%ydboctoplanhelpers(3,%ydboctog,2,%ydboctop)
@@ -442,7 +442,7 @@ octoPlan1(cursorId)
     . NEW %ydboctobool SET %ydboctobool=1
     . IF %ydboctobool DO
     . . NEW %ydboctog,%ydboctop
-    . . SET %ydboctog=$$str2mval^%ydboctoplanhelpers($PIECE($GET(^names(%ydboctocursor(cursorId,"keys",2,"NAMES","ID"))),"|",1))
+    . . SET %ydboctog=$$str2mval^%ydboctoplanhelpers($$empty2null^%ydboctoplanhelpers(0,"VARCHAR",$PIECE($GET(^names(%ydboctocursor(cursorId,"keys",2,"NAMES","ID"))),"|",1)))
     . . SET %ydboctocursor(cursorId,"keys",5,"","","GroupBy",%ydboctog)=""
     . . SET %ydboctop=((%ydboctocursor(cursorId,"keys",2,"NAMES","ID")#(+$GET(%ydboctocursor(cursorId,"parameters",4))))+(+$GET(%ydboctocursor(cursorId,"parameters",5))))
     . . DO Max^%ydboctoplanhelpers(5,%ydboctog,1,%ydboctop,0)
@@ -465,7 +465,7 @@ octoPlan2(cursorId)
     . SET %ydboctobool=$SELECT($ZYISSQLNULL(%ydboctocursor(cursorId,"keys",1,"NAMES","ID")):$ZYSQLNULL,$DATA(%ydboctocursor(cursorId,"keys",5,"","",%ydboctocursor(cursorId,"keys",1,"NAMES","ID"))):1,$DATA(%ydboctocursor(cursorId,"keys",5,"","",$ZYSQLNULL)):$ZYSQLNULL,1:0)
     . IF %ydboctobool DO
     . . NEW %ydboctog,%ydboctop
-    . . SET %ydboctog=$$str2mval^%ydboctoplanhelpers($PIECE($GET(^names(%ydboctocursor(cursorId,"keys",1,"NAMES","ID"))),"|",1))
+    . . SET %ydboctog=$$str2mval^%ydboctoplanhelpers($$empty2null^%ydboctoplanhelpers(0,"VARCHAR",$PIECE($GET(^names(%ydboctocursor(cursorId,"keys",1,"NAMES","ID"))),"|",1)))
     . . SET %ydboctocursor(cursorId,"keys",6,"","","GroupBy",%ydboctog)=""
     . . SET %ydboctop=(%ydboctocursor(cursorId,"keys",1,"NAMES","ID")*(+$GET(%ydboctocursor(cursorId,"parameters",2))))
     . . DO Count^%ydboctoplanhelpers(6,%ydboctog,1,%ydboctop)

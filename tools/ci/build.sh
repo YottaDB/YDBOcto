@@ -221,6 +221,20 @@ echo "# Load the data required for tests"
 $ydb_dist/mupip load ../../tests/fixtures/names.zwr
 popd
 
+# Force password authentication for PSQL by revising and reloading the config file. This is needed to prevent authentication
+# failures of the form "FATAL: Ident authentication failed for user ..." when attempting to connect to the PostgreSQL server.
+if [[ $cmakeCommand == "cmake" ]]; then
+	# Ubuntu
+	psql_conf=$(find /etc/postgresql -name "pg_hba.conf")
+else
+	# CentOS
+	psql_conf=$(find /var/lib/pgsql -name "pg_hba.conf")
+fi
+sed -i "s/ident/md5/" $psql_conf
+psql postgres <<PSQL
+SELECT pg_reload_conf();
+PSQL
+
 echo "# Run the tests"
 # We do not want any failures in "ctest" to exit the script (need to do some cleanup so the artifacts
 # are not that huge etc.). So disable the "set -e" setting temporarily for this step.

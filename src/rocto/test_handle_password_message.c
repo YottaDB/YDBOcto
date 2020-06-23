@@ -266,7 +266,7 @@ static void test_error_user_info_lookup(void **state) {
 	int   done = 0;
 	YDB_COPY_STRING_TO_BUFFER(user_info, &user_info_subs, done);
 	will_return(__wrap_ydb_get_s, &user_info_subs);
-	will_return(__wrap_ydb_get_s, YDB_ERR_LVUNDEF);
+	will_return(__wrap_ydb_get_s, YDB_ERR_GVUNDEF);
 
 	char *salt = "salt";
 	char *password = "password";

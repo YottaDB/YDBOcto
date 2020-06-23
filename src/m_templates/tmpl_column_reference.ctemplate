@@ -31,8 +31,9 @@ TEMPLATE(tmpl_column_reference, PhysicalPlan *pplan, SqlColumnAlias *column_alia
 	char				*table_name, *table_delim;
 	char				*piece = NULL, *source;
 	unsigned int			i;
-	boolean_t			skip_dollar_piece, is_dollar_char;
+	boolean_t			skip_dollar_piece, is_dollar_char, is_xref, not_null;
 	PhysicalPlan			*cur_plan;
+	SqlValueType			column_type;
 
 	// First check for EXTRACT, then GLOBAL & PIECE, and lastly assemble it ourselves based on table_alias->source
 	if (column_list_alias_STATEMENT == column_alias->column->type) {
@@ -133,8 +134,28 @@ TEMPLATE(tmpl_column_reference, PhysicalPlan *pplan, SqlColumnAlias *column_alia
 	}
 	UNPACK_SQL_STATEMENT(value, keyword->v, value);
 	source = value->v.string_literal;
+	keyword = get_keyword(column, NOT_NULL);
+	if (NULL == keyword) {
+		not_null = FALSE;
+	} else {
+		not_null = TRUE;
+	}
+	keyword = get_keyword(column, PRIMARY_KEY);	// Primary keys cannot be null, so assume NOT NULL was specified
+	if (NULL != keyword) {
+		not_null = TRUE;
+	}
+	keyword = get_keyword(column, OPTIONAL_XREF_INDEX);
+	if (pplan->outputKey->is_cross_reference_key) {
+		is_xref = TRUE;
+	} else {
+		is_xref = FALSE;
+	}
 
+	column_type = get_sqlvaluetype_from_sqldatatype(column->type);
 	if (!skip_dollar_piece) {
+		if (FALSE == is_xref) {
+			%{}$$empty2null^%%ydboctoplanhelpers({{ not_null|%d }},"{{ get_user_visible_type_string(column_type) }}",{}%
+		}
 		%{}$PIECE($GET({}%
 	}
 	TMPL(tmpl_emit_source, source, table_name, table_alias->unique_id, MAX_KEY_COUNT,	\
@@ -145,6 +166,9 @@ TEMPLATE(tmpl_column_reference, PhysicalPlan *pplan, SqlColumnAlias *column_alia
 				%{}),{{ table_delim }},{{ piece }}){}%
 			} else {
 				%{}),"{{ table_delim }}",{{ piece }}){}%
+			}
+			if (FALSE == is_xref) {
+				%{}){}%
 			}
 		}
 	} else {

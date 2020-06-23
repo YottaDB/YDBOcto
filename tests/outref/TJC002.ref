@@ -18,4 +18,4 @@ ERROR: Type mismatch: left INTEGER, right VARCHAR
  --> Running query : select * from names where id = 2 OR firstname = 'Joey' <--
 -------------------------------------------------------------------------
 2|Cereal|Killer
-4|Joey|
+4|Joey|null

@@ -13,10 +13,18 @@
 load test_helpers
 
 setup() {
-  init_test
-  createdb
-  load_fixture names.sql
-  load_fixture names.zwr
+	init_test
+	createdb
+	load_fixture names.sql
+	load_fixture names.zwr
+	# Start and stop rocto for all tests. This is needed because `stop_rocto` will not run when it is included in a test case
+	# but that test case fails before reaching this call. Automatically doing it with `teardown` avoids this issue.
+	test_port=$(start_rocto 1400 --allowschemachanges)
+	create_user $USER "ydbrocks"
+}
+
+teardown() {
+	stop_rocto
 }
 
 @test "TC001 : create a table so large it can't fit in the buffer" {
@@ -229,16 +237,42 @@ OCTO
 	verify_output TC019 output.txt
 }
 
-@test " TC020 : OCTO483 : CREATE TABLE works with multiple characters as DELIM qualifier, including non-printable characters" {
+@test "TC020 : OCTO483 : CREATE TABLE works with multiple characters as DELIM qualifier, including non-printable characters" {
 	# Load fixture with rows delimited by multiple regular and non-printable characters
 	load_fixture TC020.zwr
 	load_fixture TC020.sql subtest novv
 	verify_output TC020 output.txt
 }
 
-@test " TC021 : OCTO483 : CREATE TABLE works with more characters in the DELIM qualifier than is initially allocated (8)" {
+@test "TC021 : OCTO483 : CREATE TABLE works with more characters in the DELIM qualifier than is initially allocated (8)" {
 	# Load fixture with rows delimited by multiple regular and non-printable characters
 	load_fixture TC021.zwr
 	load_fixture TC021.sql subtest novv
 	verify_output TC021 output.txt
+}
+
+@test "TC022 : OCTO320 : Octo converts empty column values based on type when NOT NULL is specified in the DDL" {
+	load_fixture nullnames.zwr
+	load_fixture nullnames.sql
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries nullnames TC022.sql "trim_trailing_zeroes"
+}
+
+@test "TC023 : OCTO320 : Octo treats empty column values as NULL when NOT NULL is not specified in the DDL" {
+	load_fixture nullnames.zwr
+	load_fixture nullnames.sql
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries nullnames TC023.sql "trim_trailing_zeroes"
+}
+
+@test "TC024 : OCTO320 : Rocto converts empty column values based on type when NOT NULL is specified in the DDL" {
+	load_fixture nullnames.zwr
+	load_fixture nullnames.sql
+	# No need for new fixture, just testing same functionality in Rocto
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries nullnames TC022.sql "trim_trailing_zeroes" "usejdbc"
+}
+
+@test "TC025 : OCTO320 : Rocto treats empty column values as NULL when NOT NULL is not specified in the DDL" {
+	load_fixture nullnames.zwr
+	load_fixture nullnames.sql
+	# No need for new fixture, just testing same functionality in Rocto
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries nullnames TC023.sql "trim_trailing_zeroes" "usejdbc"
 }

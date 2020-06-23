@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////
 //								//
-// Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	//
+// Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	//
 // All rights reserved.						//
 //								//
 //	This source code contains the intellectual property	//
@@ -40,11 +40,22 @@ func main() {
     panic(err)
   }
   for rows.Next() {
-    var id, firstName, lastName string
+    var id, firstName, lastName sql.NullString
     err = rows.Scan(&id, &firstName, &lastName)
     if err != nil {
       panic(err)
     }
-    fmt.Printf("%v|%v|%v\n", id, firstName, lastName)
+	if (id.Valid) {
+		fmt.Printf("%v", id.String)
+	}
+    fmt.Printf("|")
+	if (firstName.Valid) {
+		fmt.Printf("%v", firstName.String)
+	}
+    fmt.Printf("|")
+	if (lastName.Valid) {
+		fmt.Printf("%v", lastName.String)
+	}
+    fmt.Printf("\n")
   }
 }

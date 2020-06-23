@@ -54,11 +54,23 @@ func main() {
     panic(err)
   }
   for rows.Next() {
-    var id, firstName, lastName string
+    var id, firstName, lastName sql.NullString
     err = rows.Scan(&id, &firstName, &lastName)
     if err != nil {
-      panic(err)
+      fmt.Println(err)
+	  continue
     }
-    fmt.Printf("%v|%v|%v\n", id, firstName, lastName)
+	if (id.Valid) {
+		fmt.Printf("%v", id.String)
+	}
+    fmt.Printf("|")
+	if (firstName.Valid) {
+		fmt.Printf("%v", firstName.String)
+	}
+    fmt.Printf("|")
+	if (lastName.Valid) {
+		fmt.Printf("%v", lastName.String)
+	}
+    fmt.Printf("\n")
   }
 }

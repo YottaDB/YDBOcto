@@ -54,7 +54,7 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 	depth++;
 	plan_type = plan->type;
 	m_operator = NULL;
-	switch(plan_type) {
+	switch (plan_type) {
 	case LP_WHERE:
 		TMPL(tmpl_print_expression, first_operand, pplan, dot_count, depth);
 		TEMPLATE_END();

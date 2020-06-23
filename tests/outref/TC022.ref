@@ -1,0 +1,89 @@
+
+-- TC022 : OCTO320 : Octo converts empty column values based on type when NOT NULL is specified in the DDL
+
+SELECT * FROM nullnames;
+
+SELECT * FROM nullnames n1 LEFT JOIN nullnamesb n2 ON n1.exempt = n2.exempt;
+
+SELECT * FROM nullnames WHERE id > 0;
+SELECT * FROM nullnames WHERE id <> 0;
+
+SELECT * FROM nullnames WHERE id > 3;
+SELECT * FROM nullnames WHERE id <> 3;
+
+SELECT * FROM nullnames WHERE yearstenured > 0;
+SELECT * FROM nullnames WHERE yearstenured <> 0;
+SELECT * FROM nullnames WHERE yearstenured > 3;
+SELECT * FROM nullnames WHERE yearstenured <> 3;
+
+SELECT * FROM nullnamesb WHERE yearstenured > 0;
+SELECT * FROM nullnamesb WHERE yearstenured <> 0;
+SELECT * FROM nullnamesb WHERE yearstenured > 3;
+SELECT * FROM nullnamesb WHERE yearstenured <> 3;
+0|Zero|Cool|25000.01|1|10
+1|Acid|Burn|62530.56|0|5
+2|Cereal|Killer|0|0|
+3|Lord|Nikon|2000567.49|1|2
+4|Joey||0|0|
+5|Zero|Cool|25000.01|1|10
+0|Zero|Cool|25000.01|1|10|0|Zero|Cool|25000.01|1|10
+0|Zero|Cool|25000.01|1|10|3|Lord|Nikon|2000567.49|1|2
+0|Zero|Cool|25000.01|1|10|5|Zero|Cool|25000.01|1|10
+1|Acid|Burn|62530.56|0|5|2|Cereal|Killer|0|0|0
+2|Cereal|Killer|0|0||2|Cereal|Killer|0|0|0
+3|Lord|Nikon|2000567.49|1|2|0|Zero|Cool|25000.01|1|10
+3|Lord|Nikon|2000567.49|1|2|3|Lord|Nikon|2000567.49|1|2
+3|Lord|Nikon|2000567.49|1|2|5|Zero|Cool|25000.01|1|10
+4|Joey||0|0||2|Cereal|Killer|0|0|0
+5|Zero|Cool|25000.01|1|10|0|Zero|Cool|25000.01|1|10
+5|Zero|Cool|25000.01|1|10|3|Lord|Nikon|2000567.49|1|2
+5|Zero|Cool|25000.01|1|10|5|Zero|Cool|25000.01|1|10
+1|Acid|Burn|62530.56|0|5
+2|Cereal|Killer|0|0|
+3|Lord|Nikon|2000567.49|1|2
+4|Joey||0|0|
+5|Zero|Cool|25000.01|1|10
+1|Acid|Burn|62530.56|0|5
+2|Cereal|Killer|0|0|
+3|Lord|Nikon|2000567.49|1|2
+4|Joey||0|0|
+5|Zero|Cool|25000.01|1|10
+4|Joey||0|0|
+5|Zero|Cool|25000.01|1|10
+0|Zero|Cool|25000.01|1|10
+1|Acid|Burn|62530.56|0|5
+2|Cereal|Killer|0|0|
+4|Joey||0|0|
+5|Zero|Cool|25000.01|1|10
+0|Zero|Cool|25000.01|1|10
+1|Acid|Burn|62530.56|0|5
+3|Lord|Nikon|2000567.49|1|2
+5|Zero|Cool|25000.01|1|10
+0|Zero|Cool|25000.01|1|10
+1|Acid|Burn|62530.56|0|5
+3|Lord|Nikon|2000567.49|1|2
+5|Zero|Cool|25000.01|1|10
+0|Zero|Cool|25000.01|1|10
+1|Acid|Burn|62530.56|0|5
+5|Zero|Cool|25000.01|1|10
+0|Zero|Cool|25000.01|1|10
+1|Acid|Burn|62530.56|0|5
+3|Lord|Nikon|2000567.49|1|2
+5|Zero|Cool|25000.01|1|10
+0|Zero|Cool|25000.01|1|10
+1|Acid|Burn|62530.56|0|5
+3|Lord|Nikon|2000567.49|1|2
+5|Zero|Cool|25000.01|1|10
+0|Zero|Cool|25000.01|1|10
+1|Acid|Burn|62530.56|0|5
+3|Lord|Nikon|2000567.49|1|2
+5|Zero|Cool|25000.01|1|10
+0|Zero|Cool|25000.01|1|10
+1|Acid|Burn|62530.56|0|5
+5|Zero|Cool|25000.01|1|10
+0|Zero|Cool|25000.01|1|10
+1|Acid|Burn|62530.56|0|5
+2|Cereal|Killer|0|0|0
+3|Lord|Nikon|2000567.49|1|2
+4|Joey||0|0|0
+5|Zero|Cool|25000.01|1|10

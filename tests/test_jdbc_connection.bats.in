@@ -22,7 +22,7 @@ setup() {
   load_fixture names.zwr
   load_fixture pastas.sql
   load_fixture pastas.zwr
-  load_fixture default_user.zwr
+  create_user $USER "ydbrocks"
   test_port=$(start_rocto 1344)
 }
 
@@ -119,4 +119,10 @@ teardown() {
   load_fixture customers.zwr
   run_java TJC011 $test_port &> output.txt
   verify_output TJC011 output.txt
+}
+
+@test "TJC012 : Pipeline failure from TJC007" {
+	load_fixture northwind.sql
+	load_fixture northwind.zwr
+	run_query_in_octo_and_postgres_and_crosscheck northwind TJC012.sql "" "usejdbc"
 }

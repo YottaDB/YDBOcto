@@ -15,7 +15,7 @@
 #include "logical_plan.h"
 
 LogicalPlan *lp_join_where(LogicalPlan *where1, LogicalPlan *where2) {
-	LogicalPlan *new_plan, *w;
+	LogicalPlan *new_plan;
 	if (where1 == NULL)
 		return where2;
 	if (where2 == NULL)
@@ -27,9 +27,8 @@ LogicalPlan *lp_join_where(LogicalPlan *where1, LogicalPlan *where2) {
 	OCTO_CMALLOC_STRUCT(new_plan, LogicalPlan);
 	new_plan->type = LP_BOOLEAN_AND;
 	assert(where1->type == LP_WHERE);
-	w = where1->v.lp_default.operand[0];
 	assert(where2->type == LP_WHERE);
-	new_plan->v.lp_default.operand[0] = w;
+	new_plan->v.lp_default.operand[0] = where1->v.lp_default.operand[0];
 	new_plan->v.lp_default.operand[1] = where2->v.lp_default.operand[0];
 	where1->v.lp_default.operand[0] = new_plan;
 	return where1;

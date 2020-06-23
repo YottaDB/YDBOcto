@@ -123,11 +123,7 @@ OCTO
 }
 
 @test "TOB05 : OCTO334 : ORDER BY on a column with empty string values does not work correctly" {
-  inputfile="TOB05.sql"
-  cp @PROJECT_SOURCE_DIR@/tests/fixtures/$inputfile .
-  grep -v '^#' $inputfile > output.txt	# Filter out copyright from output
-  octo -f $inputfile >> output.txt 2>&1
-  verify_output TOB05 output.txt
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TOB05.sql "trim_trailing_zeroes"
 }
 
 @test "TOB06 : OCTO228 : Support ORDER BY with more than one column" {

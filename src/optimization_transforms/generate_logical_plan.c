@@ -96,8 +96,9 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt) {
 			join_left->v.lp_table.table_alias = sql_stmt->v.table_alias;
 		} else {
 			join_left = generate_logical_plan(sql_stmt);
-			if (NULL == join_left)
+			if (NULL == join_left) {
 				return NULL;
+			}
 			join_right->v.lp_default.operand[0] = join_left;
 		}
 		assert(NULL == join_right->extra_detail.lp_table_join.join_on_condition);
@@ -106,11 +107,11 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt) {
 		if (cur_join->condition) {
 			MALLOC_LP_2ARGS(t_join_condition, LP_WHERE);
 			LP_GENERATE_WHERE(cur_join->condition, stmt, t_join_condition->v.lp_default.operand[0], error_encountered);
-			if (num_outer_joins)
+			if (num_outer_joins) {
 				join_right->extra_detail.lp_table_join.join_on_condition = t_join_condition;
-			else { /* No OUTER JOINs. We can safely add the ON clause in the join condition to the
-				* WHERE clause without risk of correctness issues.
-				*/
+			} else { /* No OUTER JOINs. We can safely add the ON clause in the join condition to the
+				  * WHERE clause without risk of correctness issues.
+				  */
 				start_join_condition = lp_join_where(start_join_condition, t_join_condition);
 			}
 		}

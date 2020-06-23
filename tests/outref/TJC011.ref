@@ -11,7 +11,7 @@
 1|Acid|Burn
 2|Cereal|Killer
 3|Lord|Nikon
-4|Joey|
+4|Joey|null
 5|Zero|Cool
 -------------------------------------------------------------------------
  --> Running query (row limit: 1): select * from names where firstname = 'Zero'; <--

@@ -477,6 +477,18 @@ The comparative operators in Octo are:
 * LESS THAN OR EQUALS <=
 * GREATER THAN OR EQUALS >=
 
+The logical operators in Octo are:
+
+* AND : The record will be displayed if all the conditions are TRUE
+* OR  : The record will be displayed if any of the conditions is TRUE
+* NOT : The record will be displayed if the condition(s) is NOT TRUE
+
+Other operators in Octo:
+
+* BETWEEN  : This operator selects values within a given range, begin and end values included.
+* EXISTS   : The result is TRUE if the evaluated subquery returns at least one row. It is FALSE if the evaluated subquery returns no rows.
+* ANY/SOME : The result is TRUE if any true result is obtained when the expression is evaluated and compared to each row of the subquery result. It is FALSE if no true result is found or if the subquery returns no rows.
+
 ------------------------
 Alias
 ------------------------

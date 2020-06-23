@@ -31,6 +31,7 @@ before_script:
   artifacts:
     paths:
       - build/
+    expire_in: 1 month
     when: always
 
 .ubuntu:
@@ -137,4 +138,5 @@ pages:
   artifacts:
     paths:
       - public
+    expire_in: 1 month
     when: always

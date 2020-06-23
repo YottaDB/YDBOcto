@@ -249,13 +249,12 @@ typedef enum SqlSetOperationType {
 
 typedef enum SqlJoinType {
 	NO_JOIN,
-	TABLE_SPEC,
+	NATURAL_JOIN,
 	CROSS_JOIN,
 	INNER_JOIN,
 	RIGHT_JOIN,
 	LEFT_JOIN,
-	FULL_JOIN,
-	NATURAL_JOIN
+	FULL_JOIN
 } SqlJoinType;
 
 /* Note: Order of the below enums should be kept in sync with order of `LP_AGGREGATE_FUNCTION_*` types in `lp_action_type.hd` */

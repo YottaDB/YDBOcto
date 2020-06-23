@@ -15,6 +15,11 @@
 #include "octo.h"
 #include "logical_plan.h"
 
+/* Currently the only join types that are compatible with CROSS_JOIN reordering is NATURAL_JOIN.
+ * INNER and OUTER JOINs have issues (see TC09.sql and TC10.sql) that may be addressed at a later point in time.
+ */
+#define	IS_CROSS_JOIN_COMPATIBLE(JOIN_TYPE)	((CROSS_JOIN == JOIN_TYPE) || (NATURAL_JOIN == JOIN_TYPE))
+
 /* This function reorders CROSS JOINs in the FROM/JOIN list so as to maximize the number of key fixing optimizations (#529).
  *
  * "table_join" is the start of the list of tables/joins in this query.
@@ -39,10 +44,10 @@ void lp_optimize_cross_join(LogicalPlan *plan, LogicalPlan *table_join, LogicalP
 	assert(LP_TABLE_JOIN == table_join->type);
 	/* Allocate an array of table joins (instead of the linked list that we come in with) as it helps do things faster.
 	 * Towards that, first find number of CROSS JOINs that can potentially be moved to the front of the FROM/JOIN list.
-	 * Note that CROSS JOINs can be safely reordered without correctness issues as long as there is no outer join that
-	 * we reorder past (see outer join example query at `tests/fixtures/TC09.sql`). Moving them to the front helps us
-	 * later do reordering within them for query optimization. Also note that the order of non-CROSS-JOINs in the
-	 * table join list has to be preserved as is (or else we would have correctness issues).
+	 * Note that CROSS JOINs can be safely reordered without correctness issues as long as there is no inner or outer join
+	 * in the query (see outer join example query at `TC09.sql` and inner join example query at `TC10.sql`). Moving them
+	 * to the front helps us later do reordering within them for query optimization. Also note that the order of
+	 * non-CROSS-JOINs in the table join list has to be preserved as is (or else we would have correctness issues).
 	 */
 	left = table_join;
 	/* Find first tablejoin that is followed by a non-CROSS-JOIN. After this is the point where a CROSS JOIN
@@ -56,6 +61,9 @@ void lp_optimize_cross_join(LogicalPlan *plan, LogicalPlan *table_join, LogicalP
 			break;
 		}
 		next_join_type = next_left->extra_detail.lp_table_join.cur_join_type;
+		if (!IS_CROSS_JOIN_COMPATIBLE(next_join_type)) {
+			return;	/* Found at least one incompatible JOIN type. No optimization possible currently */
+		}
 		if (CROSS_JOIN != next_join_type) {
 			break;
 		}
@@ -63,7 +71,7 @@ void lp_optimize_cross_join(LogicalPlan *plan, LogicalPlan *table_join, LogicalP
 		left = next_left;
 	} while (NULL != left);
 	right = start_right = next_left;
-	if ((NULL != right) && !IS_OUTER_JOIN(next_join_type)) {
+	if (NULL != right) {
 		for ( ; ; ) {
 			/* Find first tablejoin after "right" that precedes a CROSS JOIN. This CROSS JOIN will be moved from here
 			 * and inserted after "left" noted down above.
@@ -74,11 +82,14 @@ void lp_optimize_cross_join(LogicalPlan *plan, LogicalPlan *table_join, LogicalP
 					break;
 				}
 				next_join_type = next_right->extra_detail.lp_table_join.cur_join_type;
+				if (!IS_CROSS_JOIN_COMPATIBLE(next_join_type)) {
+					return;	/* Found at least one incompatible JOIN type. No optimization possible currently */
+				}
 				if (CROSS_JOIN == next_join_type) {
 					break;
 				}
 			}
-			if ((NULL == next_right) || IS_OUTER_JOIN(next_join_type)) {
+			if (NULL == next_right) {
 				break;	/* No more CROSS JOIN moves possible */
 			}
 			/* Move "next_right" in between "left" and "next_left" */
@@ -89,8 +100,8 @@ void lp_optimize_cross_join(LogicalPlan *plan, LogicalPlan *table_join, LogicalP
 			num_cross_joins++;
 		}
 	}
-	if (1 >= num_cross_joins) {
-		return;	/* We need at least 2 CROSS JOINs for reordering to be possible */
+	if (0 == num_cross_joins) {
+		return;	/* We need at least 1 CROSS JOIN for reordering to be possible */
 	}
 	/* Now that all CROSS JOINs possible are placed at the beginning of the tablejoin linked list (it is still possible that
 	 * some CROSS JOINs after OUTER JOINs are not placed at the beginning of the tablejoin linked list), next determine the

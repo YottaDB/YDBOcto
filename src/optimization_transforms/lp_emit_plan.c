@@ -61,9 +61,6 @@
 		case NATURAL_JOIN:							\
 			str = "NATURAL_JOIN";						\
 			break;								\
-		case TABLE_SPEC:							\
-			str = "TABLE_SPEC";						\
-			break;								\
 		default:								\
 			assert(FALSE);							\
 			str = "INVALID_JOIN";						\

@@ -98,6 +98,20 @@ OCTO
   [[ "$(grep -c "|" output.txt)" == "12" ]]
 }
 
-@test "TCJ09 : OCTO529 :  Query with lots of CROSS JOIN runs for ever if WHERE clause contains lots of AND and = operators" {
+@test "TCJ09 : OCTO529 : Test CROSS JOIN mixed with OUTER JOIN cannot be freely reordered" {
   run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TCJ09.sql
 }
+
+@test "TCJ10 : OCTO529 : Test CROSS JOIN mixed with INNER JOIN cannot be freely reordered" {
+  load_fixture pastas.sql
+  load_fixture pastas.zwr
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries pastas TCJ10.sql
+}
+
+@test "TCJ11 : OCTO529 : Test query with only ONE CROSS JOIN is also reordered/optimized" {
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TCJ11.sql
+  echo "# Verify key fixing optimization by looking at generated M code" >> output.txt
+  grep -E "SELECT|ydboctoX|SET|octoPlan|FOR" _ydboctoP*.m >> output.txt
+  verify_output TCJ11 output.txt
+}
+

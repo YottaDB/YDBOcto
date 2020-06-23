@@ -637,6 +637,9 @@ run_query_generator() {
   usejdbc="$3"
   useextended="$4"
   numQueries=100	# For now generate 100 queries by default (good balance of test run time vs test coverage)
+  if [[ "" != $usejdbc ]]; then
+	numQueries=$(( $numQueries / 4 ))	# Generate 25% of queries to save time in the pipeline for JDBC tests
+  fi
 
   cp @PROJECT_SOURCE_DIR@/tests/fixtures/QueryGenerator.m .
   load_fixture "$databaseName.sql"

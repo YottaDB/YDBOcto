@@ -201,8 +201,11 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *plan, LogicalPlan *tablejoin, unsigned in
 		dot_count++;
 	}
 	deferred_plans_emitted = FALSE;
-	// If there is an INNER/OUTER JOIN with an ON condition, generate an IF statement in M for doing the check
-	if (INNER_JOIN == this_join_type) {
+	/* If this is a JOIN with an ON condition, generate an IF statement in M for doing the check */
+	if (!IS_OUTER_JOIN(this_join_type)) {
+		/* This is not an OUTER JOIN. In that case, generate the IF condition for the ON clause (if one exists).
+		 * For an OUTER JOIN, we have later code that generates this if certain conditions are satisfied.
+		 */
 		TMPL(tmpl_tablejoin_on_condition, tablejoin, plan, &dot_count, &deferred_plans_emitted);
 	}
 	if (this_join_is_left_join && !plan->treat_key_as_null[left_table_id]) {

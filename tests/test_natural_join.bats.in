@@ -54,3 +54,7 @@ setup() {
   run_query_in_octo_and_postgres_and_crosscheck_multiple_queries northwind TNJ07.sql
 }
 
+@test "TNJ08 : OCTO537 : Incorrect results when NATURAL JOIN is used with OUTER JOIN in same query" {
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TNJ08.sql
+}
+

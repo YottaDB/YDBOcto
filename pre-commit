@@ -27,6 +27,7 @@ set nocopyright_extensions = "ref rst png zwr html ci"	# List of extensions that
 	# .html -> there are a couple of files currently under doc/templates which don't need copyrights.
 	# .ci   -> e.g. calltab.ci stores the call-in table which does not currently have a provision for comment characters.
 
+cd `git rev-parse --show-toplevel`
 set filelist = `git diff --name-only HEAD`
 set fixlist = ""
 set curyear = `date +%Y`
@@ -109,6 +110,35 @@ foreach file ($filelist)
 			@ exitstatus = 1
 			echo "GITADD-E-FAIL : Command failed after removing trailing whitespace : git add $file"
 		endif
+	endif
+end
+
+# ---------------------------------------------------------------------------
+# 3) Runs clang-format on all files and make sure there were no differences.
+# ---------------------------------------------------------------------------
+if (! `clang-format --version | cut -d ' ' -f 3 | cut -d '.' -f 1` >= 9 ) then
+	echo "warning: missing a recent version of clang-format, not running format checks"
+	exit $exitstatus
+endif
+
+foreach file ($filelist)
+	if (! -e $file) then
+		continue
+	endif
+	set extension = $file:e
+	set fixlist = ""
+	if ( "c" == "$extension" || "h" == "$extension" ) then
+		clang-format $file | diff - $file
+		if ($status) then
+			echo "Formatting differences found for $file!"
+			set fixlist = "$fixlist $file"
+		endif
+	endif
+	if ("" != "$fixlist") then
+		echo "  --> Hook $0 returned non-zero status"
+		echo "  --> Below files are not formatted according to clang-format. Fix and retry commit."
+		echo "$fixlist"
+		@ exitstatus = 1
 	endif
 end
 

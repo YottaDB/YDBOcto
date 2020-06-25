@@ -1,6 +1,7 @@
+#!/bin/sh
 #################################################################
 #								#
-# Copyright (c) 2020 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -9,15 +10,9 @@
 #	the license, please stop and do not read further.	#
 #								#
 #################################################################
-
-UseTab: Always
-IndentWidth: 8
-IndentCaseLabels: false
-ColumnLimit: 132
-AlignEscapedNewlines: Left
-AlignConsecutiveDeclarations: true
-AlignConsecutiveMacros: true
-SortIncludes: false
-BreakBeforeBinaryOperators: All
-# TODO: uncomment this when clang-format-11 is widely available
-#AllowEnumsOnASingleLine: false
+find ../src -name '*.c' -o -name '*.h' | xargs clang-format -i
+if ! [ $(git diff --stat | wc -l) = 0 ]; then
+  echo " -> Formatting differences found!"
+  git diff
+  exit 1
+fi

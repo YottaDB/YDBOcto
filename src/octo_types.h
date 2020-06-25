@@ -596,7 +596,7 @@ typedef struct SqlColumnListAlias {
 							 * table in the join list with the same name as this column.
 							 */
 	SqlColumnAlias *outer_query_column_alias;	// the ColumnAlias structure corresponding to this
-						  // ColumnListAlias if/when referenced in outer query
+							// ColumnListAlias if/when referenced in outer query
 	dqcreate(SqlColumnListAlias);
 } SqlColumnListAlias;
 

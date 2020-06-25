@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -22,11 +22,11 @@
 
 PasswordMessage *read_password_message(BaseMessage *message) {
 	PasswordMessage *ret;
-	uint32_t length;
-	char *c, *message_end;
+	uint32_t	 length;
+	char *		 c, *message_end;
 
 	length = ntohl(message->length);
-	ret = (PasswordMessage*)malloc(sizeof(PasswordMessage) + length - sizeof(uint32_t));
+	ret = (PasswordMessage *)malloc(sizeof(PasswordMessage) + length - sizeof(uint32_t));
 	ret->type = message->type;
 	ret->length = length;
 	memcpy(ret->data, message->data, length - sizeof(uint32_t));
@@ -34,18 +34,18 @@ PasswordMessage *read_password_message(BaseMessage *message) {
 	message_end = c + length - sizeof(uint32_t);
 
 	// Ensure that message has correct type
-	if(ret->type != PSQL_PasswordMessage) {
+	if (ret->type != PSQL_PasswordMessage) {
 		ERROR(ERR_ROCTO_INVALID_TYPE, "PasswordMessage", ret->type, PSQL_PasswordMessage);
 		free(ret);
 		return NULL;
 	}
 	// Find end of password string
-	while(c < message_end && *c != '\0') {
+	while (c < message_end && *c != '\0') {
 		c++;
 	}
-	if(c == message_end) {
+	if (c == message_end) {
 		// Ensure a password string is included
-		if(length == sizeof(uint32_t)) {
+		if (length == sizeof(uint32_t)) {
 			ERROR(ERR_ROCTO_MISSING_DATA, "PasswordMessage", "password");
 			free(ret);
 			return NULL;
@@ -54,8 +54,7 @@ PasswordMessage *read_password_message(BaseMessage *message) {
 		ERROR(ERR_ROCTO_MISSING_NULL, "PasswordMessage", "password");
 		free(ret);
 		return NULL;
-	}
-	else if(c < message_end - 1) {
+	} else if (c < message_end - 1) {
 		ERROR(ERR_ROCTO_TRAILING_CHARS, "PasswordMessage");
 		free(ret);
 		return NULL;

@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -10,8 +10,9 @@
  *								*
  ****************************************************************/
 
-#define TEMPLATE_SELECT_BASIC "NEW rowId,t %s SET junkVar=$I(rowId) FOR  %s SET junkVar=$I(rowId) USE:%s $PRINCIPAL KILL:%s rowId,t Q:%s  "
-#define TEMPLATE_CREATE_TABLE_START "CREATE TABLE %s (rowIdSpecialKey INTEGER PRIMARY KEY"
+#define TEMPLATE_SELECT_BASIC \
+	"NEW rowId,t %s SET junkVar=$I(rowId) FOR  %s SET junkVar=$I(rowId) USE:%s $PRINCIPAL KILL:%s rowId,t Q:%s  "
+#define TEMPLATE_CREATE_TABLE_START  "CREATE TABLE %s (rowIdSpecialKey INTEGER PRIMARY KEY"
 #define TEMPLATE_CREATE_TABLE_COLUMN ", clmn%d VARCHAR(30)"
 
 // INPUTS: table_name
@@ -22,8 +23,8 @@
 #define TEMPLATE_TABLE_DEFAULT_PACK "SET storeKey=$$STOREKEY(\"\"%%s\"\",.keys),@storeKey"
 // INPUTS: cursor_name
 #define TEMPLATE_TABLE_DEFAULT_UNPACK "SET cursor=\"\"%%s\"\",keys(0)=$PIECE($GET(@cursor),\"\"|\"\",1)"
-#define TEMPLATE_TABLE_DEFAULT_END "(\"\"\"\"=keys(0))"
-#define TEMPLATE_TABLE_DEFAULT_DELIM "|"
+#define TEMPLATE_TABLE_DEFAULT_END    "(\"\"\"\"=keys(0))"
+#define TEMPLATE_TABLE_DEFAULT_DELIM  "|"
 
 #define TEMPLATE_INSERT_VALUES "TEMPLATE_SELECT_BASIC "
 

@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -23,10 +23,10 @@
 
 EmptyQueryResponse *read_empty_query_response(BaseMessage *message) {
 	EmptyQueryResponse *ret;
-	uint32_t remaining_length = 0;
+	uint32_t	    remaining_length = 0;
 
 	remaining_length = ntohl(message->length);
-	ret = (EmptyQueryResponse*)malloc(sizeof(EmptyQueryResponse));
+	ret = (EmptyQueryResponse *)malloc(sizeof(EmptyQueryResponse));
 
 	ret->type = message->type;
 	ret->length = remaining_length;

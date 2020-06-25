@@ -24,22 +24,22 @@
 #include "helpers.h"
 
 int32_t handle_execute(Execute *execute, RoctoSession *session, ydb_long_t *cursorId) {
-	CommandComplete		*command_complete;
-	PortalSuspended		*portal_suspended;
-	QueryResponseParms	parms;
-	EmptyQueryResponse	*empty;
-	SqlStatement		stmt;
-	ydb_buffer_t		*portal_subs, *cursor_subs;
-	ydb_buffer_t		routine_buffer, tag_buf, num_parms_buf, parm_buf;
-	ydb_buffer_t		schema_global, cursor_buffer;
-	ydb_string_t		ci_filename, ci_routine;
-	ydb_long_t		result;
-	boolean_t		canceled = FALSE;
-	long int		temp_long;
-	int32_t			status, done, tmp_status;
-	int16_t			num_parms, cur_parm, cur_parm_temp;
-	char			filename[OCTO_PATH_MAX];
-	SqlStatementType	command_tag;
+	CommandComplete *   command_complete;
+	PortalSuspended *   portal_suspended;
+	QueryResponseParms  parms;
+	EmptyQueryResponse *empty;
+	SqlStatement	    stmt;
+	ydb_buffer_t *	    portal_subs, *cursor_subs;
+	ydb_buffer_t	    routine_buffer, tag_buf, num_parms_buf, parm_buf;
+	ydb_buffer_t	    schema_global, cursor_buffer;
+	ydb_string_t	    ci_filename, ci_routine;
+	ydb_long_t	    result;
+	boolean_t	    canceled = FALSE;
+	long int	    temp_long;
+	int32_t		    status, done, tmp_status;
+	int16_t		    num_parms, cur_parm, cur_parm_temp;
+	char		    filename[OCTO_PATH_MAX];
+	SqlStatementType    command_tag;
 
 	TRACE(ERR_ENTERING_FUNCTION, "handle_execute");
 
@@ -50,9 +50,10 @@ int32_t handle_execute(Execute *execute, RoctoSession *session, ydb_long_t *curs
 	parms.max_data_to_send = execute->rows_to_return;
 
 	// Set subscripts to access routine on portal: ^session(id, "bound", <name>, "routine"
-	portal_subs = make_buffers(config->global_names.session, 4, session->session_id->buf_addr, "bound", execute->source, "routine");
+	portal_subs
+	    = make_buffers(config->global_names.session, 4, session->session_id->buf_addr, "bound", execute->source, "routine");
 	// Retrieve routine from portal
-	YDB_MALLOC_BUFFER(&routine_buffer, MAX_ROUTINE_LEN + 1);	// Null terminator
+	YDB_MALLOC_BUFFER(&routine_buffer, MAX_ROUTINE_LEN + 1); // Null terminator
 	status = ydb_get_s(&portal_subs[0], 4, &portal_subs[1], &routine_buffer);
 	YDB_ERROR_CHECK(status);
 	if (YDB_OK != status) {
@@ -60,7 +61,7 @@ int32_t handle_execute(Execute *execute, RoctoSession *session, ydb_long_t *curs
 		return 1;
 	}
 	routine_buffer.buf_addr[routine_buffer.len_used] = '\0';
-	GET_FULL_PATH_OF_GENERATED_M_FILE(filename, &routine_buffer.buf_addr[1]);	// Updates "filename" to be full path
+	GET_FULL_PATH_OF_GENERATED_M_FILE(filename, &routine_buffer.buf_addr[1]); // Updates "filename" to be full path
 
 	// Retrieve command tag from portal
 	YDB_MALLOC_BUFFER(&portal_subs[4], MAX_TAG_LEN);
@@ -98,7 +99,7 @@ int32_t handle_execute(Execute *execute, RoctoSession *session, ydb_long_t *curs
 		// Fetch number of parameters
 		free(portal_subs);
 		portal_subs = make_buffers(config->global_names.session, 6, session->session_id->buf_addr, "bound", execute->source,
-				"parameters", "all", "");
+					   "parameters", "all", "");
 		YDB_MALLOC_BUFFER(&num_parms_buf, INT16_TO_STRING_MAX);
 		status = ydb_get_s(&portal_subs[0], 5, &portal_subs[1], &num_parms_buf);
 		YDB_ERROR_CHECK(status);
@@ -132,7 +133,7 @@ int32_t handle_execute(Execute *execute, RoctoSession *session, ydb_long_t *curs
 		for (cur_parm = 0; cur_parm < num_parms; cur_parm++) {
 			// Get parameter value
 			cur_parm_temp = cur_parm + 1;
-			OCTO_INT16_TO_BUFFER(cur_parm_temp, &portal_subs[6]);	// Convert from 0-indexed to 1-indexed
+			OCTO_INT16_TO_BUFFER(cur_parm_temp, &portal_subs[6]); // Convert from 0-indexed to 1-indexed
 			status = ydb_get_s(&portal_subs[0], 6, &portal_subs[1], &parm_buf);
 			YDB_ERROR_CHECK(status);
 			if (YDB_OK != status) {
@@ -150,7 +151,7 @@ int32_t handle_execute(Execute *execute, RoctoSession *session, ydb_long_t *curs
 			}
 			parm_buf.buf_addr[parm_buf.len_used] = '\0';
 			// Store parameter value on cursor
-			OCTO_INT16_TO_BUFFER(cur_parm_temp, &cursor_subs[3]);	// Convert from 0-indexed to 1-indexed
+			OCTO_INT16_TO_BUFFER(cur_parm_temp, &cursor_subs[3]); // Convert from 0-indexed to 1-indexed
 			status = ydb_set_s(&cursor_subs[0], 3, &cursor_subs[1], &parm_buf);
 			YDB_ERROR_CHECK(status);
 			if (YDB_OK != status) {
@@ -172,7 +173,8 @@ int32_t handle_execute(Execute *execute, RoctoSession *session, ydb_long_t *curs
 		free(portal_subs);
 
 		// Prepare call-in interface to execute query
-		stmt.type = select_STATEMENT;		// Only need this for the type to let the callee know we are running a SELECT statement
+		stmt.type
+		    = select_STATEMENT; // Only need this for the type to let the callee know we are running a SELECT statement
 		ci_filename.address = filename;
 		ci_filename.length = strlen(filename);
 		ci_routine.address = routine_buffer.buf_addr;
@@ -193,7 +195,7 @@ int32_t handle_execute(Execute *execute, RoctoSession *session, ydb_long_t *curs
 		}
 		// Check for cancel requests
 		if (config->is_rocto) {
-			canceled = is_query_canceled(&handle_query_response, *cursorId, (void*)&parms, filename, TRUE);
+			canceled = is_query_canceled(&handle_query_response, *cursorId, (void *)&parms, filename, TRUE);
 			if (canceled) {
 				// Cleanup cursor parameters
 				status = ydb_delete_s(&cursor_subs[0], 1, &cursor_subs[1], YDB_DEL_TREE);
@@ -204,10 +206,12 @@ int32_t handle_execute(Execute *execute, RoctoSession *session, ydb_long_t *curs
 				return -1;
 			}
 		}
-		// Send back data rows, but pass FALSE to omit row descriptions as they are not expected in response to Execute messages
-		status = handle_query_response(&stmt, *cursorId, (void*)&parms, filename, FALSE);
-		tmp_status = status;	// Store status so it doesn't get overwritten by result of ydb_delete_s
-		if (PORTAL_SUSPENDED != status) {	// Don't need to retain the cursor for later Execute messages (PortalSuspended case)
+		// Send back data rows, but pass FALSE to omit row descriptions as they are not expected in response to Execute
+		// messages
+		status = handle_query_response(&stmt, *cursorId, (void *)&parms, filename, FALSE);
+		tmp_status = status; // Store status so it doesn't get overwritten by result of ydb_delete_s
+		if (PORTAL_SUSPENDED
+		    != status) { // Don't need to retain the cursor for later Execute messages (PortalSuspended case)
 			// Cleanup cursor parameters
 			status = ydb_delete_s(&cursor_subs[0], 1, &cursor_subs[1], YDB_DEL_TREE);
 			YDB_ERROR_CHECK(status);
@@ -228,26 +232,26 @@ int32_t handle_execute(Execute *execute, RoctoSession *session, ydb_long_t *curs
 		free(portal_subs);
 	}
 
-	if (0 == status) {		// No errors, all rows sent
+	if (0 == status) { // No errors, all rows sent
 		command_complete = make_command_complete(command_tag, parms.rows_sent);
 		if (NULL != command_complete) {
-			send_message(session, (BaseMessage*)(&command_complete->type));
+			send_message(session, (BaseMessage *)(&command_complete->type));
 			free(command_complete);
 		}
-		*cursorId = -1;		// Reset the cursor
-	} else if (PORTAL_SUSPENDED == status) {	// Not all rows sent, save cursor and issue PortalSuspended
+		*cursorId = -1;			 // Reset the cursor
+	} else if (PORTAL_SUSPENDED == status) { // Not all rows sent, save cursor and issue PortalSuspended
 		portal_suspended = make_portal_suspended();
 		assert(NULL != portal_suspended);
-		send_message(session, (BaseMessage*)(&portal_suspended->type));
+		send_message(session, (BaseMessage *)(&portal_suspended->type));
 		free(portal_suspended);
-	} else {			// Error occurred
-		*cursorId = -1;		// Reset the cursor
+	} else {		// Error occurred
+		*cursorId = -1; // Reset the cursor
 		return 1;
 	}
 
 	if (!parms.data_sent) {
 		empty = make_empty_query_response();
-		send_message(session, (BaseMessage*)(&empty->type));
+		send_message(session, (BaseMessage *)(&empty->type));
 		free(empty);
 	}
 

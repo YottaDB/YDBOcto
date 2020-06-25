@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -16,10 +16,10 @@
 #include "octo_types.h"
 #include "logical_plan.h"
 
-char	*lp_get_aggregate_plan_helper_func_name(LPActionType type) {
-	char	*m_func;
+char *lp_get_aggregate_plan_helper_func_name(LPActionType type) {
+	char *m_func;
 
-	switch(type) {
+	switch (type) {
 	case LP_AGGREGATE_FUNCTION_COUNT_ASTERISK:
 		m_func = "CountAsterisk";
 		break;

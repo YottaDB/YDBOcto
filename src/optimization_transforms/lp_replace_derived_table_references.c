@@ -24,11 +24,10 @@ LogicalPlan *lp_replace_helper(LogicalPlan *where, SqlTableAlias *table_alias, S
  * and replaces LP_COLUMN_ALIAS references to the input parameter `table_alias` (that corresponds to a sub-query)
  * with a LP_DERIVED_COLUMN and a LP_PIECE_NUMBER/LP_KEY combination.
  */
-LogicalPlan *lp_replace_derived_table_references(LogicalPlan *root, SqlTableAlias *table_alias, SqlKey *key)
-{
-	LogicalPlan	*t;
-	LogicalPlan	*table_join;
-	LogicalPlan	*select, *criteria, *select_options, *select_more_options, *aggregate_options;
+LogicalPlan *lp_replace_derived_table_references(LogicalPlan *root, SqlTableAlias *table_alias, SqlKey *key) {
+	LogicalPlan *t;
+	LogicalPlan *table_join;
+	LogicalPlan *select, *criteria, *select_options, *select_more_options, *aggregate_options;
 
 	assert(LP_INSERT == root->type);
 	select = lp_get_select(root);
@@ -60,20 +59,20 @@ LogicalPlan *lp_replace_derived_table_references(LogicalPlan *root, SqlTableAlia
 		if (NULL != select_more_options->v.lp_default.operand[0]) {
 			GET_LP(aggregate_options, select_more_options, 0, LP_AGGREGATE_OPTIONS);
 			if (NULL != aggregate_options->v.lp_default.operand[0]) {
-				LogicalPlan	*group_by;
+				LogicalPlan *group_by;
 
 				// Update derived column references in GROUP BY
 				GET_LP(group_by, aggregate_options, 0, LP_GROUP_BY);
 				group_by->v.lp_default.operand[0]
-					= lp_replace_helper(group_by->v.lp_default.operand[0], table_alias, key);
+				    = lp_replace_helper(group_by->v.lp_default.operand[0], table_alias, key);
 			}
 			if (NULL != aggregate_options->v.lp_default.operand[1]) {
-				LogicalPlan	*having;
+				LogicalPlan *having;
 
 				// Update derived column references in HAVING
 				GET_LP(having, aggregate_options, 1, LP_HAVING);
 				having->v.lp_default.operand[0]
-					= lp_replace_helper(having->v.lp_default.operand[0], table_alias, key);
+				    = lp_replace_helper(having->v.lp_default.operand[0], table_alias, key);
 			}
 		}
 	}
@@ -81,9 +80,9 @@ LogicalPlan *lp_replace_derived_table_references(LogicalPlan *root, SqlTableAlia
 }
 
 LogicalPlan *lp_replace_helper(LogicalPlan *plan, SqlTableAlias *table_alias, SqlKey *key) {
-	SqlColumnAlias	*alias;
-	LogicalPlan	*ret, *oper1;
-	LogicalPlan	*set_plans;
+	SqlColumnAlias *alias;
+	LogicalPlan *	ret, *oper1;
+	LogicalPlan *	set_plans;
 
 	if (NULL == plan)
 		return NULL;
@@ -92,7 +91,7 @@ LogicalPlan *lp_replace_helper(LogicalPlan *plan, SqlTableAlias *table_alias, Sq
 	case LP_COLUMN_ALIAS:
 		alias = plan->v.lp_column_alias.column_alias;
 		if (alias->table_alias_stmt->v.table_alias->unique_id == table_alias->unique_id) {
-			int	part;
+			int part;
 
 			MALLOC_LP_2ARGS(ret, LP_DERIVED_COLUMN);
 			MALLOC_LP_2ARGS(ret->v.lp_default.operand[0], LP_KEY);

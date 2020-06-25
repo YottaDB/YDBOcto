@@ -24,13 +24,13 @@
 #include "rocto.h"
 #include "helpers.h"
 
-#define	MD5_HEX_LEN	((MD5_DIGEST_LENGTH * 2) + 1)
+#define MD5_HEX_LEN ((MD5_DIGEST_LENGTH * 2) + 1)
 
 int handle_password_message(PasswordMessage *password_message, StartupMessage *startup_message, char *salt) {
-	char		md5_hex[MD5_HEX_LEN];
-	char		username[MAX_STR_CONST+1];		// Null terminator
-	int 		cur_parm;
-	int32_t		result;
+	char	md5_hex[MD5_HEX_LEN];
+	char	username[MAX_STR_CONST + 1]; // Null terminator
+	int	cur_parm;
+	int32_t result;
 
 	// Check the type of password message, for now just md5 is accepted
 	result = strncmp(password_message->password, "md5", 3);
@@ -70,9 +70,9 @@ int handle_password_message(PasswordMessage *password_message, StartupMessage *s
 	}
 
 	// Extract password hash
-	char buffer[MAX_STR_CONST];
+	char	 buffer[MAX_STR_CONST];
 	uint32_t buf_len = get_user_column_value(buffer, MAX_STR_CONST, user_info_subs.buf_addr, user_info_subs.len_used,
-			UserColumn_ROLPASSWORD);
+						 UserColumn_ROLPASSWORD);
 	YDB_FREE_BUFFER(&user_info_subs);
 	if (0 == buf_len) {
 		FATAL(ERR_ROCTO_COLUMN_VALUE, "handle_password_message", "rolpassword (hashed password)");
@@ -81,11 +81,11 @@ int handle_password_message(PasswordMessage *password_message, StartupMessage *s
 
 	// Concatenate stored hash with temporary 4-byte salt
 	unsigned char hash_buf[MAX_STR_CONST];
-	memcpy(hash_buf, &buffer[3], buf_len-3);	// Exclude "md5" from stored password (-3),
-	memcpy(&hash_buf[buf_len-3], salt, 4);
+	memcpy(hash_buf, &buffer[3], buf_len - 3); // Exclude "md5" from stored password (-3),
+	memcpy(&hash_buf[buf_len - 3], salt, 4);
 
 	// Hash password hash with temporary 4-byte salt
-	MD5(hash_buf, buf_len-3+4, hash_buf);
+	MD5(hash_buf, buf_len - 3 + 4, hash_buf);
 
 	// Convert raw md5 hash to hex string
 	result = md5_to_hex(hash_buf, md5_hex, MD5_HEX_LEN);
@@ -94,7 +94,7 @@ int handle_password_message(PasswordMessage *password_message, StartupMessage *s
 		return 1;
 	}
 	// Compare final hash of stored password against hash sent by client
-	result = strncmp(md5_hex, &password_message->password[3], MD5_HEX_LEN);	// Exclude "md5" prefix
+	result = strncmp(md5_hex, &password_message->password[3], MD5_HEX_LEN); // Exclude "md5" prefix
 	if (0 != result) {
 		FATAL(ERR_ROCTO_BAD_PASSWORD, "handle_password_message");
 		return 1;

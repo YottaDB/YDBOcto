@@ -19,29 +19,29 @@
 #include "template_strings.h"
 
 #define SOURCE (1 << 0)
-#define DELIM (1 << 4)
+#define DELIM  (1 << 4)
 
 /* 0 return value implies table create was successful
  * non-zero return value implies error while creating table
  */
 int create_table_defaults(SqlStatement *table_statement, SqlStatement *keywords_statement) {
-	SqlTable		*table;
-	SqlOptionalKeyword	*keyword, *cur_keyword, *start_keyword, *t_keyword;
-	SqlColumn		*key_columns[MAX_KEY_COUNT], *cur_column, *start_column;
-	SqlStatement		*statement;
-	SqlValue		*value;
-	char			buffer[MAX_STR_CONST], buffer2[MAX_STR_CONST], *out_buffer;
-	char			*buff_ptr;
-	size_t			str_len;
-	int			max_key = 0, i, len;
-	unsigned int		options = 0;
+	SqlTable *	    table;
+	SqlOptionalKeyword *keyword, *cur_keyword, *start_keyword, *t_keyword;
+	SqlColumn *	    key_columns[MAX_KEY_COUNT], *cur_column, *start_column;
+	SqlStatement *	    statement;
+	SqlValue *	    value;
+	char		    buffer[MAX_STR_CONST], buffer2[MAX_STR_CONST], *out_buffer;
+	char *		    buff_ptr;
+	size_t		    str_len;
+	int		    max_key = 0, i, len;
+	unsigned int	    options = 0;
 
 	assert(NULL != keywords_statement);
 
 	UNPACK_SQL_STATEMENT(start_keyword, keywords_statement, keyword);
 	UNPACK_SQL_STATEMENT(table, table_statement, create_table);
 
-	memset(key_columns, 0, MAX_KEY_COUNT * sizeof(SqlColumn*));
+	memset(key_columns, 0, MAX_KEY_COUNT * sizeof(SqlColumn *));
 	max_key = get_key_columns(table, key_columns);
 	/* max_key >= 0 is the number of key columns found
 	 * -1 indicates no keys found to make all columns keys
@@ -60,8 +60,8 @@ int create_table_defaults(SqlStatement *table_statement, SqlStatement *keywords_
 			// key num value is index of key in table
 			snprintf(buffer, sizeof(buffer), "%d", i);
 			len = strlen(buffer);
-			out_buffer = octo_cmalloc(memory_chunks, len+1);
-			strncpy(out_buffer, buffer, len+1);
+			out_buffer = octo_cmalloc(memory_chunks, len + 1);
+			strncpy(out_buffer, buffer, len + 1);
 			SQL_STATEMENT(keyword->v, value_STATEMENT);
 			MALLOC_STATEMENT(keyword->v, value, SqlValue);
 			keyword->v->v.value->type = NUMERIC_LITERAL;
@@ -82,7 +82,7 @@ int create_table_defaults(SqlStatement *table_statement, SqlStatement *keywords_
 	}
 	cur_keyword = start_keyword;
 	do {
-		switch(cur_keyword->keyword) {
+		switch (cur_keyword->keyword) {
 		case OPTIONAL_SOURCE:
 			assert(0 == (options & SOURCE));
 			options |= SOURCE;
@@ -111,9 +111,8 @@ int create_table_defaults(SqlStatement *table_statement, SqlStatement *keywords_
 	if (!(options & SOURCE)) {
 		UNPACK_SQL_STATEMENT(value, table->tableName, value);
 		buff_ptr = buffer;
-		buff_ptr += snprintf(buff_ptr, MAX_STR_CONST - (buff_ptr - buffer), "^%s(",
-				     value->v.reference);
-		for(i = 0; i <= max_key; i++) {
+		buff_ptr += snprintf(buff_ptr, MAX_STR_CONST - (buff_ptr - buffer), "^%s(", value->v.reference);
+		for (i = 0; i <= max_key; i++) {
 			generate_key_name(buffer2, MAX_STR_CONST, i, table, key_columns);
 			if (0 != i)
 				buff_ptr += snprintf(buff_ptr, MAX_STR_CONST - (buff_ptr - buffer), ",");
@@ -134,12 +133,12 @@ int create_table_defaults(SqlStatement *table_statement, SqlStatement *keywords_
 		dqappend(start_keyword, keyword);
 	}
 	if (!(options & DELIM)) {
-		assert(2 == sizeof(COLUMN_DELIMITER));			// 2 includes null terminator
-		str_len = sizeof(COLUMN_DELIMITER) + 1;			// +1 for "is_dollar_char" flag
+		assert(2 == sizeof(COLUMN_DELIMITER));	// 2 includes null terminator
+		str_len = sizeof(COLUMN_DELIMITER) + 1; // +1 for "is_dollar_char" flag
 		out_buffer = octo_cmalloc(memory_chunks, str_len);
 		out_buffer[0] = DELIM_IS_LITERAL;
 		MEMCPY_LIT(&out_buffer[1], COLUMN_DELIMITER);
-		out_buffer[str_len-1] = '\0';
+		out_buffer[str_len - 1] = '\0';
 		OCTO_CMALLOC_STRUCT((keyword), SqlOptionalKeyword);
 		(keyword)->keyword = OPTIONAL_DELIM;
 		SQL_STATEMENT(keyword->v, value_STATEMENT);
@@ -151,7 +150,7 @@ int create_table_defaults(SqlStatement *table_statement, SqlStatement *keywords_
 	}
 	cur_keyword = start_keyword;
 	do {
-		switch(cur_keyword->keyword) {
+		switch (cur_keyword->keyword) {
 		case OPTIONAL_SOURCE:
 			if ((NULL != table->source) && (table->source->v.keyword == cur_keyword)) {
 				break;

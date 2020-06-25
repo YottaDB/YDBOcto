@@ -20,7 +20,7 @@
 #include "logical_plan.h"
 
 int get_new_plan_unique_id() {
-	int	ret;
+	int ret;
 
 	ret = config->plan_id;
 	config->plan_id++;

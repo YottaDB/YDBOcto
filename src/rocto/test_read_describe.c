@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -28,14 +28,14 @@
 static void test_valid_input(void **state) {
 	// Test a single startup message
 	uint32_t message_length = 0;
-	message_length += sizeof(uint32_t);		// count length
-	message_length += 1;				// count item
+	message_length += sizeof(uint32_t); // count length
+	message_length += 1;		    // count item
 	char *message = "SELECT * FROM names;";
-	message_length += strlen(message) + 1;		// count null
+	message_length += strlen(message) + 1; // count null
 	char *c = NULL;
 
 	// Populate base message
-        BaseMessage *test_data = (BaseMessage*)malloc(message_length + sizeof(BaseMessage) - sizeof(uint32_t));
+	BaseMessage *test_data = (BaseMessage *)malloc(message_length + sizeof(BaseMessage) - sizeof(uint32_t));
 	test_data->type = PSQL_Describe;
 	test_data->length = htonl(message_length);
 	// Set item field
@@ -58,14 +58,14 @@ static void test_valid_input(void **state) {
 static void test_non_terminated_input(void **state) {
 	// Test a single startup message
 	uint32_t message_length = 0;
-	message_length += sizeof(uint32_t);		// count length
-	message_length += 1;				// count item
+	message_length += sizeof(uint32_t); // count length
+	message_length += 1;		    // count item
 	char *message = "SELECT * FROM names;";
-	message_length += strlen(message);		// exclude null
+	message_length += strlen(message); // exclude null
 	char *c = NULL;
 
 	// Populate base message
-        BaseMessage *test_data = (BaseMessage*)malloc(message_length + sizeof(BaseMessage) - sizeof(uint32_t));
+	BaseMessage *test_data = (BaseMessage *)malloc(message_length + sizeof(BaseMessage) - sizeof(uint32_t));
 	test_data->type = PSQL_Describe;
 	test_data->length = htonl(message_length - 2);
 	// Set item field
@@ -87,14 +87,14 @@ static void test_non_terminated_input(void **state) {
 static void test_invalid_type(void **state) {
 	// Test a single startup message
 	uint32_t message_length = 0;
-	message_length += sizeof(uint32_t);		// count length
-	message_length += 1;				// count item
+	message_length += sizeof(uint32_t); // count length
+	message_length += 1;		    // count item
 	char *message = "SELECT * FROM names;";
-	message_length += strlen(message) + 1;		// count null
+	message_length += strlen(message) + 1; // count null
 	char *c = NULL;
 
 	// Populate base message
-        BaseMessage *test_data = (BaseMessage*)malloc(message_length + sizeof(BaseMessage) - sizeof(uint32_t));
+	BaseMessage *test_data = (BaseMessage *)malloc(message_length + sizeof(BaseMessage) - sizeof(uint32_t));
 	test_data->type = 'X';
 	test_data->length = htonl(message_length);
 	// Set bad item field
@@ -116,14 +116,14 @@ static void test_invalid_type(void **state) {
 static void test_invalid_item(void **state) {
 	// Test a single startup message
 	uint32_t message_length = 0;
-	message_length += sizeof(uint32_t);		// count length
-	message_length += 1;				// count item
+	message_length += sizeof(uint32_t); // count length
+	message_length += 1;		    // count item
 	char *message = "SELECT * FROM names;";
-	message_length += strlen(message) + 1;		// count null
+	message_length += strlen(message) + 1; // count null
 	char *c = NULL;
 
 	// Populate base message
-        BaseMessage *test_data = (BaseMessage*)malloc(message_length + sizeof(BaseMessage) - sizeof(uint32_t));
+	BaseMessage *test_data = (BaseMessage *)malloc(message_length + sizeof(BaseMessage) - sizeof(uint32_t));
 	test_data->type = PSQL_Describe;
 	test_data->length = htonl(message_length);
 	// Set bad item field
@@ -145,14 +145,14 @@ static void test_invalid_item(void **state) {
 static void test_unexpectedly_terminated_input(void **state) {
 	// Test a single startup message
 	uint32_t message_length = 0;
-	message_length += sizeof(uint32_t);		// count length
-	message_length += 1;				// count item
+	message_length += sizeof(uint32_t); // count length
+	message_length += 1;		    // count item
 	char *message = "SELECT * FROM names\0;";
-	message_length += strlen(message) + 2;		// expecting extra character after null
+	message_length += strlen(message) + 2; // expecting extra character after null
 	char *c = NULL;
 
 	// Populate base message
-        BaseMessage *test_data = (BaseMessage*)malloc(message_length + sizeof(BaseMessage) - sizeof(uint32_t));
+	BaseMessage *test_data = (BaseMessage *)malloc(message_length + sizeof(BaseMessage) - sizeof(uint32_t));
 	test_data->type = PSQL_Describe;
 	test_data->length = htonl(message_length);
 	// Set item field
@@ -174,11 +174,11 @@ static void test_unexpectedly_terminated_input(void **state) {
 int main(void) {
 	octo_init(0, NULL);
 	const struct CMUnitTest tests[] = {
-		   cmocka_unit_test(test_valid_input),
-		   cmocka_unit_test(test_non_terminated_input),
-		   cmocka_unit_test(test_invalid_type),
-		   cmocka_unit_test(test_invalid_item),
-		   cmocka_unit_test(test_unexpectedly_terminated_input),
+	    cmocka_unit_test(test_valid_input),
+	    cmocka_unit_test(test_non_terminated_input),
+	    cmocka_unit_test(test_invalid_type),
+	    cmocka_unit_test(test_invalid_item),
+	    cmocka_unit_test(test_unexpectedly_terminated_input),
 	};
 	return cmocka_run_group_tests(tests, NULL, NULL);
 }

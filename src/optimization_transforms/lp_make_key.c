@@ -19,10 +19,10 @@
 #include "logical_plan.h"
 
 LogicalPlan *lp_make_key(SqlColumnAlias *column_alias) {
-	LogicalPlan	*ret;
-	SqlColumn	*column;
-	SqlTable	*table;
-	SqlTableAlias	*table_alias;
+	LogicalPlan *  ret;
+	SqlColumn *    column;
+	SqlTable *     table;
+	SqlTableAlias *table_alias;
 
 	UNPACK_SQL_STATEMENT(column, column_alias->column, column);
 	UNPACK_SQL_STATEMENT(table_alias, column_alias->table_alias_stmt, table_alias);

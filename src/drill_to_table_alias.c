@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -15,10 +15,8 @@
 #include "octo.h"
 #include "octo_types.h"
 
-SqlStatement *drill_to_table_alias(SqlStatement *sqlStmt)
-{
-	for ( ; table_alias_STATEMENT != sqlStmt->type; )
-	{
+SqlStatement *drill_to_table_alias(SqlStatement *sqlStmt) {
+	for (; table_alias_STATEMENT != sqlStmt->type;) {
 		assert(set_operation_STATEMENT == sqlStmt->type);
 		// Fetch operand[0] to determine the list of column names of the final set operation
 		sqlStmt = sqlStmt->v.set_operation[0].operand[0];

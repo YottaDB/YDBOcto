@@ -19,17 +19,17 @@
 #include "logical_plan.h"
 
 LogicalPlan *lp_generate_where(SqlStatement *stmt, SqlStatement *parent) {
-	LogicalPlan		*ret = NULL, *next, *cur_lp;
+	LogicalPlan *		ret = NULL, *next, *cur_lp;
 	LPActionType		type;
-	SqlValue		*value;
-	SqlUnaryOperation	*unary;
-	SqlBinaryOperation	*binary;
-	SqlFunctionCall		*function_call;
-	SqlAggregateFunction	*aggregate_function;
-	SqlColumnList		*cur_cl, *start_cl;
-	SqlCaseStatement	*cas;
-	SqlCaseBranchStatement	*cas_branch, *cur_branch;
-	SqlStatement		*ret_type, *sql_function_name;
+	SqlValue *		value;
+	SqlUnaryOperation *	unary;
+	SqlBinaryOperation *	binary;
+	SqlFunctionCall *	function_call;
+	SqlAggregateFunction *	aggregate_function;
+	SqlColumnList *		cur_cl, *start_cl;
+	SqlCaseStatement *	cas;
+	SqlCaseBranchStatement *cas_branch, *cur_branch;
+	SqlStatement *		ret_type, *sql_function_name;
 	boolean_t		error_encountered = FALSE;
 
 	assert(NULL != stmt);
@@ -58,8 +58,8 @@ LogicalPlan *lp_generate_where(SqlStatement *stmt, SqlStatement *parent) {
 		type = binary->operation + LP_ADDITION;
 		/* Special case: Check for IN usage against a list of values */
 		if (((LP_BOOLEAN_IN == type) || (LP_BOOLEAN_NOT_IN == type))
-						&& (column_list_STATEMENT == binary->operands[1]->type)) {
-			LogicalPlan	*t, *prev;
+		    && (column_list_STATEMENT == binary->operands[1]->type)) {
+			LogicalPlan *t, *prev;
 
 			/* Walk through the column list, converting each right side value as appropriate. */
 			UNPACK_SQL_STATEMENT(start_cl, binary->operands[1], column_list);
@@ -77,7 +77,7 @@ LogicalPlan *lp_generate_where(SqlStatement *stmt, SqlStatement *parent) {
 				}
 				prev = next;
 				cur_cl = cur_cl->next;
-			} while(start_cl != cur_cl);
+			} while (start_cl != cur_cl);
 		} else {
 			MALLOC_LP_2ARGS(ret, type);
 			LP_GENERATE_WHERE(binary->operands[0], stmt, ret->v.lp_default.operand[0], error_encountered);
@@ -101,23 +101,23 @@ LogicalPlan *lp_generate_where(SqlStatement *stmt, SqlStatement *parent) {
 		SQL_STATEMENT(sql_function_name, value_STATEMENT);
 		MALLOC_STATEMENT(sql_function_name, value, SqlValue);
 		sql_function_name->v.value->type = STRING_LITERAL;
-		sql_function_name->v.value->v.string_literal =
-			function_call->function_schema->v.create_function->function_name->v.value->v.string_literal;
+		sql_function_name->v.value->v.string_literal
+		    = function_call->function_schema->v.create_function->function_name->v.value->v.string_literal;
 		LP_GENERATE_WHERE(sql_function_name, stmt, ret->v.lp_default.operand[0], error_encountered);
 
 		// Use an LP_COLUMN_LIST to store the LP_VALUEs used for the function's return type and its extrinsic function name
 		MALLOC_LP_2ARGS(ret->v.lp_default.operand[1], LP_COLUMN_LIST);
 		cur_lp = ret->v.lp_default.operand[1];
 		// Add the function's extrinsic function name to the plan
-		LP_GENERATE_WHERE(function_call->function_schema->v.create_function->extrinsic_function,
-				stmt, cur_lp->v.lp_default.operand[0], error_encountered);
+		LP_GENERATE_WHERE(function_call->function_schema->v.create_function->extrinsic_function, stmt,
+				  cur_lp->v.lp_default.operand[0], error_encountered);
 		// Add the function's return type to the plan
 		MALLOC_LP_2ARGS(cur_lp->v.lp_default.operand[1], LP_COLUMN_LIST);
 		cur_lp = cur_lp->v.lp_default.operand[1];
 		SQL_STATEMENT(ret_type, value_STATEMENT);
 		MALLOC_STATEMENT(ret_type, value, SqlValue);
 		ret_type->v.value->type = get_sqlvaluetype_from_sqldatatype(
-				function_call->function_schema->v.create_function->return_type->v.data_type);
+		    function_call->function_schema->v.create_function->return_type->v.data_type);
 		ret_type->v.value->v.string_literal = get_user_visible_type_string(ret_type->v.value->type);
 		LP_GENERATE_WHERE(ret_type, stmt, cur_lp->v.lp_default.operand[0], error_encountered);
 
@@ -131,28 +131,27 @@ LogicalPlan *lp_generate_where(SqlStatement *stmt, SqlStatement *parent) {
 				cur_lp->v.lp_default.operand[0] = next;
 			}
 			cur_cl = cur_cl->next;
-		} while(cur_cl != start_cl);
+		} while (cur_cl != start_cl);
 		break;
 	case aggregate_function_STATEMENT:
 		UNPACK_SQL_STATEMENT(aggregate_function, stmt, aggregate_function);
 		assert((COUNT_AGGREGATE - COUNT_ASTERISK_AGGREGATE)
-			== (LP_AGGREGATE_FUNCTION_COUNT - LP_AGGREGATE_FUNCTION_COUNT_ASTERISK));
+		       == (LP_AGGREGATE_FUNCTION_COUNT - LP_AGGREGATE_FUNCTION_COUNT_ASTERISK));
 		assert((SUM_AGGREGATE - COUNT_ASTERISK_AGGREGATE)
-			== (LP_AGGREGATE_FUNCTION_SUM - LP_AGGREGATE_FUNCTION_COUNT_ASTERISK));
+		       == (LP_AGGREGATE_FUNCTION_SUM - LP_AGGREGATE_FUNCTION_COUNT_ASTERISK));
 		assert((AVG_AGGREGATE - COUNT_ASTERISK_AGGREGATE)
-			== (LP_AGGREGATE_FUNCTION_AVG - LP_AGGREGATE_FUNCTION_COUNT_ASTERISK));
+		       == (LP_AGGREGATE_FUNCTION_AVG - LP_AGGREGATE_FUNCTION_COUNT_ASTERISK));
 		assert((MIN_AGGREGATE - COUNT_ASTERISK_AGGREGATE)
-			== (LP_AGGREGATE_FUNCTION_MIN - LP_AGGREGATE_FUNCTION_COUNT_ASTERISK));
+		       == (LP_AGGREGATE_FUNCTION_MIN - LP_AGGREGATE_FUNCTION_COUNT_ASTERISK));
 		assert((MAX_AGGREGATE - COUNT_ASTERISK_AGGREGATE)
-			== (LP_AGGREGATE_FUNCTION_MAX - LP_AGGREGATE_FUNCTION_COUNT_ASTERISK));
+		       == (LP_AGGREGATE_FUNCTION_MAX - LP_AGGREGATE_FUNCTION_COUNT_ASTERISK));
 		assert((COUNT_AGGREGATE_DISTINCT - COUNT_ASTERISK_AGGREGATE)
-			== (LP_AGGREGATE_FUNCTION_COUNT_DISTINCT - LP_AGGREGATE_FUNCTION_COUNT_ASTERISK));
+		       == (LP_AGGREGATE_FUNCTION_COUNT_DISTINCT - LP_AGGREGATE_FUNCTION_COUNT_ASTERISK));
 		assert((AVG_AGGREGATE_DISTINCT - COUNT_ASTERISK_AGGREGATE)
-			== (LP_AGGREGATE_FUNCTION_AVG_DISTINCT - LP_AGGREGATE_FUNCTION_COUNT_ASTERISK));
+		       == (LP_AGGREGATE_FUNCTION_AVG_DISTINCT - LP_AGGREGATE_FUNCTION_COUNT_ASTERISK));
 		assert((SUM_AGGREGATE_DISTINCT - COUNT_ASTERISK_AGGREGATE)
-			== (LP_AGGREGATE_FUNCTION_SUM_DISTINCT - LP_AGGREGATE_FUNCTION_COUNT_ASTERISK));
-		assert((AGGREGATE_LAST - COUNT_ASTERISK_AGGREGATE)
-			== (LP_AGGREGATE_LAST - LP_AGGREGATE_FUNCTION_COUNT_ASTERISK));
+		       == (LP_AGGREGATE_FUNCTION_SUM_DISTINCT - LP_AGGREGATE_FUNCTION_COUNT_ASTERISK));
+		assert((AGGREGATE_LAST - COUNT_ASTERISK_AGGREGATE) == (LP_AGGREGATE_LAST - LP_AGGREGATE_FUNCTION_COUNT_ASTERISK));
 		assert(COUNT_ASTERISK_AGGREGATE <= aggregate_function->type);
 		assert(AGGREGATE_LAST > aggregate_function->type);
 		type = LP_AGGREGATE_FUNCTION_COUNT_ASTERISK + (aggregate_function->type - COUNT_ASTERISK_AGGREGATE);
@@ -188,7 +187,7 @@ LogicalPlan *lp_generate_where(SqlStatement *stmt, SqlStatement *parent) {
 		cur_branch = cas_branch;
 		MALLOC_LP(cur_lp, ret->v.lp_default.operand[1], LP_CASE_BRANCH);
 		do {
-			LogicalPlan	*t;
+			LogicalPlan *t;
 
 			MALLOC_LP(t, cur_lp->v.lp_default.operand[0], LP_CASE_BRANCH_STATEMENT);
 			LP_GENERATE_WHERE(cur_branch->condition, stmt, t->v.lp_default.operand[0], error_encountered);
@@ -198,17 +197,16 @@ LogicalPlan *lp_generate_where(SqlStatement *stmt, SqlStatement *parent) {
 				MALLOC_LP_2ARGS(cur_lp->v.lp_default.operand[1], LP_CASE_BRANCH);
 				cur_lp = cur_lp->v.lp_default.operand[1];
 			}
-		} while(cur_branch != cas_branch);
+		} while (cur_branch != cas_branch);
 		break;
 	case set_operation_STATEMENT:
 	case table_alias_STATEMENT:
 		ret = generate_logical_plan(stmt);
-		if (NULL != ret)
-		{	/* A sub-query inside of a WHERE expression can return only one column in most cases.
-			 * The only exception to it is if the parent is an EXISTS operator. Check accordingly.
-			 */
-			boolean_t	do_num_cols_check;
-			int		num_cols;
+		if (NULL != ret) { /* A sub-query inside of a WHERE expression can return only one column in most cases.
+				    * The only exception to it is if the parent is an EXISTS operator. Check accordingly.
+				    */
+			boolean_t do_num_cols_check;
+			int	  num_cols;
 
 			do_num_cols_check = ((unary_STATEMENT != parent->type) || (BOOLEAN_EXISTS != parent->v.unary->operation));
 			if (do_num_cols_check) {

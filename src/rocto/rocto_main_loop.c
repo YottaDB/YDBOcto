@@ -26,29 +26,29 @@
 #include "message_formats.h"
 
 int rocto_main_loop(RoctoSession *session) {
-	BaseMessage	*message = NULL;
-	Bind		*bind;
-	Describe	*describe;
-	Execute		*execute;
-	Parse		*parse;
-	Query		*query;
-	ReadyForQuery	*ready_for_query;
-	fd_set		rfds;
-	struct timeval	select_timeout;
-	char		buffer[MAX_STR_CONST];
-	int32_t		result;
-	ydb_long_t	cursorId = -1;		// Initialize cursorId to -1 to signal there is no cursor in reuse
-	boolean_t	send_ready_for_query = TRUE;
-	boolean_t	extended_query_error = FALSE;
-	boolean_t	terminated = FALSE;
+	BaseMessage *  message = NULL;
+	Bind *	       bind;
+	Describe *     describe;
+	Execute *      execute;
+	Parse *	       parse;
+	Query *	       query;
+	ReadyForQuery *ready_for_query;
+	fd_set	       rfds;
+	struct timeval select_timeout;
+	char	       buffer[MAX_STR_CONST];
+	int32_t	       result;
+	ydb_long_t     cursorId = -1; // Initialize cursorId to -1 to signal there is no cursor in reuse
+	boolean_t      send_ready_for_query = TRUE;
+	boolean_t      extended_query_error = FALSE;
+	boolean_t      terminated = FALSE;
 
 	TRACE(ERR_ENTERING_FUNCTION, "rocto_main_loop");
 	// Send an initial ready
-	//ready_for_query = make_ready_for_query(PSQL_TransactionStatus_IDLE);
-	//result = send_message(session, (BaseMessage*)(&ready_for_query->type));
-	//if(result)
+	// ready_for_query = make_ready_for_query(PSQL_TransactionStatus_IDLE);
+	// result = send_message(session, (BaseMessage*)(&ready_for_query->type));
+	// if(result)
 	//	return 0;
-	//free(ready_for_query);
+	// free(ready_for_query);
 	memset(&select_timeout, 0, sizeof(struct timeval));
 	select_timeout.tv_usec = 1;
 
@@ -57,8 +57,8 @@ int rocto_main_loop(RoctoSession *session) {
 		do {
 			FD_ZERO(&rfds);
 			FD_SET(session->connection_fd, &rfds);
-			result = select(session->connection_fd+1, &rfds, NULL, NULL, &select_timeout);
-		} while(-1 == result && EINTR == errno);
+			result = select(session->connection_fd + 1, &rfds, NULL, NULL, &select_timeout);
+		} while (-1 == result && EINTR == errno);
 
 		if (-1 == result) {
 			ERROR(ERR_SYSCALL, "select", errno, strerror(errno));
@@ -66,8 +66,8 @@ int rocto_main_loop(RoctoSession *session) {
 		}
 		if ((0 == result) && send_ready_for_query) {
 			ready_for_query = make_ready_for_query(PSQL_TransactionStatus_IDLE);
-			result = send_message(session, (BaseMessage*)(&ready_for_query->type));
-			if(result)
+			result = send_message(session, (BaseMessage *)(&ready_for_query->type));
+			if (result)
 				break;
 			free(ready_for_query);
 		}
@@ -83,11 +83,11 @@ int rocto_main_loop(RoctoSession *session) {
 		switch (message->type) {
 		case PSQL_Query:
 			query = read_query(message);
-			if(NULL == query)
+			if (NULL == query)
 				break;
 			result = handle_query(query, session);
 			free(query);
-			if(0 != result) {
+			if (0 != result) {
 				break;
 			}
 			break;
@@ -128,7 +128,7 @@ int rocto_main_loop(RoctoSession *session) {
 			}
 			result = handle_describe(describe, session);
 			free(describe);
-			if (1 == result ) {
+			if (1 == result) {
 				extended_query_error = TRUE;
 				break;
 			}
@@ -144,7 +144,7 @@ int rocto_main_loop(RoctoSession *session) {
 			// result rows remain to be sent.
 			result = handle_execute(execute, session, &cursorId);
 			free(execute);
-			if (1 == result) {	// Catch failure from send_message, if any
+			if (1 == result) { // Catch failure from send_message, if any
 				extended_query_error = TRUE;
 				break;
 			}
@@ -175,11 +175,11 @@ int rocto_main_loop(RoctoSession *session) {
 	}
 	// Gracefully terminate the connection
 	if (session->ssl_active) {
-#		if YDB_TLS_AVAILABLE
+#if YDB_TLS_AVAILABLE
 		gtm_tls_session_close(&session->tls_socket);
-#		else
+#else
 		assert(FALSE);
-#		endif
+#endif
 	} else {
 		shutdown(session->connection_fd, SHUT_RDWR);
 		close(session->connection_fd);

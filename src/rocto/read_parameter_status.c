@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -23,14 +23,14 @@
 
 ParameterStatus *read_parameter_status(BaseMessage *message) {
 	ParameterStatus *ret;
-	uint32_t remaining_length = 0;
+	uint32_t	 remaining_length = 0;
 
 	if (NULL == message) {
 		return NULL;
 	}
 
 	remaining_length = ntohl(message->length);
-	ret = (ParameterStatus*)malloc(remaining_length + sizeof(ParameterStatus) - sizeof(uint32_t));
+	ret = (ParameterStatus *)malloc(remaining_length + sizeof(ParameterStatus) - sizeof(uint32_t));
 
 	ret->type = message->type;
 	ret->length = remaining_length;

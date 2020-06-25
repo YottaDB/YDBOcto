@@ -35,14 +35,14 @@
 int __wrap_ydb_get_s(ydb_buffer_t *varname, int32_t subs_used, ydb_buffer_t *subsarray, ydb_buffer_t *ret_value) {
 	if (0 == strncmp(varname->buf_addr, "$ZGBLDIR", varname->len_used)) {
 		return 0;
-	} else if (0 == strncmp(varname->buf_addr, "$zroutines", varname->len_used)){
-		char *ydb_chset, *ydb_routines, *src_path;
-		char exe_path[OCTO_PATH_MAX];
+	} else if (0 == strncmp(varname->buf_addr, "$zroutines", varname->len_used)) {
+		char *	ydb_chset, *ydb_routines, *src_path;
+		char	exe_path[OCTO_PATH_MAX];
 		ssize_t exe_path_len;
 
 		exe_path_len = readlink("/proc/self/exe", exe_path, OCTO_PATH_MAX);
 		if ((-1 != exe_path_len) && (OCTO_PATH_MAX > exe_path_len)) {
-			exe_path[exe_path_len] = '\0';		// readlink() doesn't add a null terminator per man page
+			exe_path[exe_path_len] = '\0'; // readlink() doesn't add a null terminator per man page
 			src_path = dirname(exe_path);
 		}
 		ydb_chset = getenv("ydb_chset");
@@ -61,14 +61,14 @@ int __wrap_ydb_get_s(ydb_buffer_t *varname, int32_t subs_used, ydb_buffer_t *sub
 		return 0;
 	}
 
-	ydb_buffer_t *t = mock_ptr_type(ydb_buffer_t*);
+	ydb_buffer_t *t = mock_ptr_type(ydb_buffer_t *);
 	*ret_value = *t;
 	return mock_type(int);
 }
 
 uint32_t __wrap_get_user_column_value(char *buffer, const uint32_t buf_len, const char *row, const uint32_t row_len,
-		enum UserColumns column) {
-	strncpy(buffer, mock_type(char*), buf_len);
+				      enum UserColumns column) {
+	strncpy(buffer, mock_type(char *), buf_len);
 	return mock_type(uint32_t);
 }
 
@@ -78,18 +78,18 @@ int32_t __wrap_octo_log(int line, char *file, enum VERBOSITY_LEVEL level, enum S
 
 // Creates a basic StartupMessage with only a single parameter set for testing purposes.
 static StartupMessage *make_startup_message(char *parm_name, char *parm_value) {
-	StartupMessage	*ret;
+	StartupMessage *ret;
 	uint32_t	data_len = 0;
 	uint32_t	name_len;
 	uint32_t	value_len = 0;
-	char		*c;
+	char *		c;
 
 	// Get length of parameter name and value
 	name_len = strlen(parm_name) + 1;
 	value_len += strlen(parm_value) + 1;
 	data_len = name_len + value_len;
 
-	ret = (StartupMessage*)malloc(sizeof(StartupMessage) + data_len);
+	ret = (StartupMessage *)malloc(sizeof(StartupMessage) + data_len);
 
 	// Set length and protocol version
 	ret->length = sizeof(uint32_t) + sizeof(int) + data_len;
@@ -102,7 +102,7 @@ static StartupMessage *make_startup_message(char *parm_name, char *parm_value) {
 	memcpy(c, parm_value, value_len);
 
 	// Populate parameter(s)
-	ret->parameters = (StartupMessageParm*)malloc(sizeof(StartupMessageParm) * ret->num_parameters);
+	ret->parameters = (StartupMessageParm *)malloc(sizeof(StartupMessageParm) * ret->num_parameters);
 	ret->parameters[0].name = parm_name;
 	ret->parameters[0].value = parm_value;
 
@@ -111,13 +111,13 @@ static StartupMessage *make_startup_message(char *parm_name, char *parm_value) {
 
 // Make function to simulate client transmission of password_message.
 static PasswordMessage *make_password_message(char *user, char *password, char *salt) {
-	#define HEX_HASH_LEN MD5_DIGEST_LENGTH * 2 + 1	/* count null */
-	#define MD5_PASSWORD_LEN HEX_HASH_LEN + 3	/* Add "md5" prefix to hex hash */
+#define HEX_HASH_LEN	 MD5_DIGEST_LENGTH * 2 + 1 /* count null */
+#define MD5_PASSWORD_LEN HEX_HASH_LEN + 3	   /* Add "md5" prefix to hex hash */
 
 	PasswordMessage *ret;
-	int32_t length = 0, result;
-	unsigned char hash_buf[MAX_STR_CONST];
-	char hex_hash[HEX_HASH_LEN];
+	int32_t		 length = 0, result;
+	unsigned char	 hash_buf[MAX_STR_CONST];
+	char		 hex_hash[HEX_HASH_LEN];
 
 	// Rather than have special logic for the NULL, just use an empty string
 	if (password == NULL) {
@@ -125,12 +125,12 @@ static PasswordMessage *make_password_message(char *user, char *password, char *
 	}
 
 	// Concatenate password and user
-	result = sprintf((char*)hash_buf, "%s%s", password, user);
+	result = sprintf((char *)hash_buf, "%s%s", password, user);
 	if (0 > result) {
 		return NULL;
 	}
 	// Hash password and user
-	MD5(hash_buf, strlen((char*)hash_buf), hash_buf);
+	MD5(hash_buf, strlen((char *)hash_buf), hash_buf);
 	// Convert hash to hex string
 	result = md5_to_hex(hash_buf, hex_hash, HEX_HASH_LEN);
 	if (0 != result) {
@@ -138,12 +138,12 @@ static PasswordMessage *make_password_message(char *user, char *password, char *
 	}
 
 	// Concatenate password/user hash with salt
-	result = snprintf((char*)hash_buf, HEX_HASH_LEN + 4, "%s%s", hex_hash, salt);	// Exclude "md5" prefix
+	result = snprintf((char *)hash_buf, HEX_HASH_LEN + 4, "%s%s", hex_hash, salt); // Exclude "md5" prefix
 	if (0 > result) {
 		return NULL;
 	}
 	// Hash password/user hash with salt
-	MD5(hash_buf, strlen((char*)hash_buf), hash_buf);
+	MD5(hash_buf, strlen((char *)hash_buf), hash_buf);
 
 	// Convert hash to hex string
 	result = md5_to_hex(hash_buf, hex_hash, HEX_HASH_LEN);
@@ -160,7 +160,7 @@ static PasswordMessage *make_password_message(char *user, char *password, char *
 
 	length += sizeof(uint32_t);
 	length += MD5_PASSWORD_LEN;
-	ret = (PasswordMessage*)malloc(length + sizeof(PasswordMessage) - sizeof(uint32_t));
+	ret = (PasswordMessage *)malloc(length + sizeof(PasswordMessage) - sizeof(uint32_t));
 	memset(ret, 0, length + sizeof(PasswordMessage) - sizeof(uint32_t));
 
 	ret->type = PSQL_PasswordMessage;
@@ -172,10 +172,10 @@ static PasswordMessage *make_password_message(char *user, char *password, char *
 }
 
 static void test_valid_password_message(void **state) {
-	PasswordMessage	*password_message;
-	char		*user = "user";
-	char		*password = "password";
-	char		*salt = "salt";
+	PasswordMessage *password_message;
+	char *		 user = "user";
+	char *		 password = "password";
+	char *		 salt = "salt";
 
 	password_message = make_password_message(user, password, salt);
 	assert_non_null(password_message);
@@ -186,21 +186,21 @@ static void test_valid_password_message(void **state) {
 
 static void test_valid_input(void **state) {
 	PasswordMessage *password_message;
-	RoctoSession session;
-	ydb_buffer_t session_id;
+	RoctoSession	 session;
+	ydb_buffer_t	 session_id;
 
 	YDB_LITERAL_TO_BUFFER("0", &session_id);
 	session.session_id = &session_id;
 
 	// Prepare startup message with username
-	char *username = "user";
+	char *		username = "user";
 	StartupMessage *startup_message = make_startup_message("user", username);
 
 	ydb_buffer_t user_info_subs;
 	YDB_MALLOC_BUFFER(&user_info_subs, MAX_STR_CONST);
 	// md5 hash of passworduser: 4d45974e13472b5a0be3533de4666414
 	char *user_info = "1|user|super|inh|crer|cred|canl|repl|bypassrl|conn|md54d45974e13472b5a0be3533de4666414|valid";
-	int done = 0;
+	int   done = 0;
 	YDB_COPY_STRING_TO_BUFFER(user_info, &user_info_subs, done);
 	will_return(__wrap_ydb_get_s, &user_info_subs);
 	will_return(__wrap_ydb_get_s, YDB_OK);
@@ -223,16 +223,16 @@ static void test_valid_input(void **state) {
 
 static void test_error_not_md5(void **state) {
 	PasswordMessage *password_message;
-	RoctoSession session;
-	ydb_buffer_t session_id;
+	RoctoSession	 session;
+	ydb_buffer_t	 session_id;
 
 	YDB_LITERAL_TO_BUFFER("0", &session_id);
 	session.session_id = &session_id;
 
-	char *username = "user";
+	char *		username = "user";
 	StartupMessage *startup_message = make_startup_message("user", username);
-	char *password = "password";
-	char *salt = "salt";
+	char *		password = "password";
+	char *		salt = "salt";
 
 	// Wrap calls in make_password_message
 	will_return(__wrap_octo_log, 0);
@@ -250,20 +250,20 @@ static void test_error_not_md5(void **state) {
 
 static void test_error_user_info_lookup(void **state) {
 	PasswordMessage *password_message;
-	RoctoSession session;
-	ydb_buffer_t session_id;
+	RoctoSession	 session;
+	ydb_buffer_t	 session_id;
 
 	YDB_LITERAL_TO_BUFFER("0", &session_id);
 	session.session_id = &session_id;
 
-	char *username = "user";
+	char *		username = "user";
 	StartupMessage *startup_message = make_startup_message("user", username);
 
 	ydb_buffer_t user_info_subs;
 	YDB_MALLOC_BUFFER(&user_info_subs, MAX_STR_CONST);
 	// md5 hash of passworduser: 4d45974e13472b5a0be3533de4666414
 	char *user_info = "1|user|super|inh|crer|cred|canl|repl|bypassrl|conn|md54d45974e13472b5a0be3533de4666414|valid";
-	int done = 0;
+	int   done = 0;
 	YDB_COPY_STRING_TO_BUFFER(user_info, &user_info_subs, done);
 	will_return(__wrap_ydb_get_s, &user_info_subs);
 	will_return(__wrap_ydb_get_s, YDB_ERR_LVUNDEF);
@@ -286,20 +286,20 @@ static void test_error_user_info_lookup(void **state) {
 
 static void test_error_hash_lookup(void **state) {
 	PasswordMessage *password_message;
-	RoctoSession session;
-	ydb_buffer_t session_id;
+	RoctoSession	 session;
+	ydb_buffer_t	 session_id;
 
 	YDB_LITERAL_TO_BUFFER("0", &session_id);
 	session.session_id = &session_id;
 
-	char *username = "user";
+	char *		username = "user";
 	StartupMessage *startup_message = make_startup_message("user", username);
 
 	ydb_buffer_t user_info_subs;
 	YDB_MALLOC_BUFFER(&user_info_subs, MAX_STR_CONST);
 	// md5 hash of passworduser: 4d45974e13472b5a0be3533de4666414
 	char *user_info = "1|user|super|inh|crer|cred|canl|repl|bypassrl|conn|md54d45974e13472b5a0be3533de4666414|valid";
-	int done = 0;
+	int   done = 0;
 	YDB_COPY_STRING_TO_BUFFER(user_info, &user_info_subs, done);
 	will_return(__wrap_ydb_get_s, &user_info_subs);
 	will_return(__wrap_ydb_get_s, YDB_OK);
@@ -325,20 +325,20 @@ static void test_error_hash_lookup(void **state) {
 
 static void test_error_hash_conversion(void **state) {
 	PasswordMessage *password_message;
-	RoctoSession session;
-	ydb_buffer_t session_id;
+	RoctoSession	 session;
+	ydb_buffer_t	 session_id;
 
 	YDB_LITERAL_TO_BUFFER("0", &session_id);
 	session.session_id = &session_id;
 
-	char *username = "user";
+	char *		username = "user";
 	StartupMessage *startup_message = make_startup_message("user", username);
 
 	ydb_buffer_t user_info_subs;
 	YDB_MALLOC_BUFFER(&user_info_subs, MAX_STR_CONST);
 	// md5 hash of passworduser: 4d45974e13472b5a0be3533de4666414
 	char *user_info = "1|user|super|inh|crer|cred|canl|repl|bypassrl|conn|md54d45974e13472b5a0be3533de4666414|valid";
-	int done = 0;
+	int   done = 0;
 	YDB_COPY_STRING_TO_BUFFER(user_info, &user_info_subs, done);
 	will_return(__wrap_ydb_get_s, &user_info_subs);
 	will_return(__wrap_ydb_get_s, YDB_OK);
@@ -364,20 +364,20 @@ static void test_error_hash_conversion(void **state) {
 
 static void test_error_bad_password(void **state) {
 	PasswordMessage *password_message;
-	RoctoSession session;
-	ydb_buffer_t session_id;
+	RoctoSession	 session;
+	ydb_buffer_t	 session_id;
 
 	YDB_LITERAL_TO_BUFFER("0", &session_id);
 	session.session_id = &session_id;
 
-	char *username = "user";
+	char *		username = "user";
 	StartupMessage *startup_message = make_startup_message("user", username);
 
 	ydb_buffer_t user_info_subs;
 	YDB_MALLOC_BUFFER(&user_info_subs, MAX_STR_CONST);
 	// md5 hash of passworduser: 4d45974e13472b5a0be3533de4666414
 	char *user_info = "1|user|super|inh|crer|cred|canl|repl|bypassrl|conn|md54d45974e13472b5a0be3533de4666414|valid";
-	int done = 0;
+	int   done = 0;
 	YDB_COPY_STRING_TO_BUFFER(user_info, &user_info_subs, done);
 	will_return(__wrap_ydb_get_s, &user_info_subs);
 	will_return(__wrap_ydb_get_s, YDB_OK);
@@ -402,11 +402,11 @@ static void test_error_bad_password(void **state) {
 }
 
 static void test_error_missing_username() {
-	PasswordMessage	*password_message;
-	StartupMessage	*startup_message;
-	RoctoSession	session;
-	ydb_buffer_t	session_id;
-	char *password = "password", *salt = "salt";
+	PasswordMessage *password_message;
+	StartupMessage * startup_message;
+	RoctoSession	 session;
+	ydb_buffer_t	 session_id;
+	char *		 password = "password", *salt = "salt";
 
 	YDB_LITERAL_TO_BUFFER("0", &session_id);
 	session.session_id = &session_id;
@@ -425,14 +425,10 @@ static void test_error_missing_username() {
 int main(void) {
 	octo_init(0, NULL);
 	const struct CMUnitTest tests[] = {
-		   cmocka_unit_test(test_valid_password_message),
-		   cmocka_unit_test(test_valid_input),
-		   cmocka_unit_test(test_error_not_md5),
-		   cmocka_unit_test(test_error_user_info_lookup),
-		   cmocka_unit_test(test_error_hash_lookup),
-		   cmocka_unit_test(test_error_hash_conversion),
-		   cmocka_unit_test(test_error_bad_password),
-		   cmocka_unit_test(test_error_missing_username),
+	    cmocka_unit_test(test_valid_password_message), cmocka_unit_test(test_valid_input),
+	    cmocka_unit_test(test_error_not_md5),	   cmocka_unit_test(test_error_user_info_lookup),
+	    cmocka_unit_test(test_error_hash_lookup),	   cmocka_unit_test(test_error_hash_conversion),
+	    cmocka_unit_test(test_error_bad_password),	   cmocka_unit_test(test_error_missing_username),
 	};
 	return cmocka_run_group_tests(tests, NULL, NULL);
 }

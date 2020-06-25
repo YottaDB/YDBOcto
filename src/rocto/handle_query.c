@@ -22,18 +22,17 @@
 #include "rocto.h"
 #include "physical_plan.h"
 
-
 int no_more() {
 	eof_hit = EOF_CTRLD;
 	return 0;
 }
 
 int handle_query(Query *query, RoctoSession *session) {
-	ParseContext		parse_context;
-	QueryResponseParms	parms;
-	EmptyQueryResponse	*empty_query_response;
-	CommandComplete		*response;
-	int32_t			query_length = 0, run_query_result = 0;
+	ParseContext	    parse_context;
+	QueryResponseParms  parms;
+	EmptyQueryResponse *empty_query_response;
+	CommandComplete *   response;
+	int32_t		    query_length = 0, run_query_result = 0;
 
 	TRACE(ERR_ENTERING_FUNCTION, "handle_query");
 
@@ -43,7 +42,7 @@ int handle_query(Query *query, RoctoSession *session) {
 	query_length = query->length - sizeof(unsigned int);
 	if (query_length == 0) {
 		empty_query_response = make_empty_query_response();
-		send_message(session, (BaseMessage*)(&empty_query_response->type));
+		send_message(session, (BaseMessage *)(&empty_query_response->type));
 		free(empty_query_response);
 		return 1;
 	}
@@ -61,7 +60,7 @@ int handle_query(Query *query, RoctoSession *session) {
 	cur_input_index = 0;
 	cur_input_more = &no_more;
 
-	run_query_result = run_query(&handle_query_response, (void*)&parms, TRUE, &parse_context);
+	run_query_result = run_query(&handle_query_response, (void *)&parms, TRUE, &parse_context);
 	if (-1 == run_query_result) {
 		// Exit loop if query was interrupted
 		eof_hit = EOF_CTRLD;
@@ -72,7 +71,7 @@ int handle_query(Query *query, RoctoSession *session) {
 
 	response = make_command_complete(parse_context.command_tag, parms.rows_sent);
 	if (NULL != response) {
-		send_message(session, (BaseMessage*)(&response->type));
+		send_message(session, (BaseMessage *)(&response->type));
 		free(response);
 	}
 

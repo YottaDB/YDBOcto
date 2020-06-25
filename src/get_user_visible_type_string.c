@@ -16,7 +16,7 @@
 #include "octo_types.h"
 
 char *get_user_visible_type_string(SqlValueType type) {
-	switch(type) {
+	switch (type) {
 	case BOOLEAN_VALUE:
 		return "BOOLEAN";
 	case NUMERIC_LITERAL:
@@ -24,7 +24,7 @@ char *get_user_visible_type_string(SqlValueType type) {
 	case INTEGER_LITERAL:
 		return "INTEGER";
 	case STRING_LITERAL:
-		return "VARCHAR";	/* VARCHAR (not STRING) is the externally visible type name in SQL */
+		return "VARCHAR"; /* VARCHAR (not STRING) is the externally visible type name in SQL */
 	case PARAMETER_VALUE:
 		return "PARAMETER";
 	case NUL_VALUE:

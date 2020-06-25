@@ -24,12 +24,12 @@
 #include "physical_plan.h"
 #include "helpers.h"
 
-#define	DATA_ROW_PARMS_ARRAY_INIT_ALLOC		16
-#define	NO_GLOBAL_COLUMN_FORMAT			-1
+#define DATA_ROW_PARMS_ARRAY_INIT_ALLOC 16
+#define NO_GLOBAL_COLUMN_FORMAT		-1
 
 int get_column_type_oid(ydb_buffer_t *plan_meta, ydb_buffer_t *value_buffer, int32_t *col_data_type) {
 	int	status;
-	int64_t	tmp_long;
+	int64_t tmp_long;
 
 	// Retrieve the type OID for a single column, as this is needed to convert some types to binary format
 	status = ydb_get_s(&plan_meta[0], 5, &plan_meta[1], value_buffer);
@@ -50,28 +50,28 @@ int get_column_type_oid(ydb_buffer_t *plan_meta, ydb_buffer_t *value_buffer, int
 }
 
 int send_result_rows(int32_t cursor_id, void *_parms, char *plan_name) {
-	QueryResponseParms	*parms = (QueryResponseParms*)_parms;
-	RoctoSession		*session = parms->session;
+	QueryResponseParms *parms = (QueryResponseParms *)_parms;
+	RoctoSession *	    session = parms->session;
 
-	ydb_buffer_t		cursor_subs[7], plan_meta[6], portal_subs[6];
-	ydb_buffer_t		value_buffer, row_value_buffer, total_rows_buffer;
+	ydb_buffer_t cursor_subs[7], plan_meta[6], portal_subs[6];
+	ydb_buffer_t value_buffer, row_value_buffer, total_rows_buffer;
 
-	char			cursor_id_str[INT64_TO_STRING_MAX];
-	char			value_str[MAX_STR_CONST];
-	char			output_key_str[INT32_TO_STRING_MAX];
-	char			total_rows_str[INT32_TO_STRING_MAX];
-	char			cur_column_str[INT16_TO_STRING_MAX];
-	char			cur_row_str[INT32_TO_STRING_MAX];
+	char cursor_id_str[INT64_TO_STRING_MAX];
+	char value_str[MAX_STR_CONST];
+	char output_key_str[INT32_TO_STRING_MAX];
+	char total_rows_str[INT32_TO_STRING_MAX];
+	char cur_column_str[INT16_TO_STRING_MAX];
+	char cur_row_str[INT32_TO_STRING_MAX];
 
-	int			status;
-	DataRow			*data_row;
-	DataRowParm		*data_row_parms, *cur_row_parms;
-	int16_t			*col_format_codes = NULL;
-	int32_t			*col_data_types = NULL;
-	int16_t			num_columns, cur_column, num_format_codes, global_column_format;
-	int32_t			data_row_parms_alloc_len = 0;
-	int32_t			total_rows, cur_row, last_row, rows_remaining;
-	int64_t			tmp_long;
+	int	     status;
+	DataRow *    data_row;
+	DataRowParm *data_row_parms, *cur_row_parms;
+	int16_t *    col_format_codes = NULL;
+	int32_t *    col_data_types = NULL;
+	int16_t	     num_columns, cur_column, num_format_codes, global_column_format;
+	int32_t	     data_row_parms_alloc_len = 0;
+	int32_t	     total_rows, cur_row, last_row, rows_remaining;
+	int64_t	     tmp_long;
 
 	OCTO_SET_BUFFER(value_buffer, value_str);
 	// Go through and make rows for each row in the output plan
@@ -91,7 +91,7 @@ int send_result_rows(int32_t cursor_id, void *_parms, char *plan_name) {
 	YDB_STRING_TO_BUFFER("output_key", &plan_meta[3]);
 
 	// Retrieve output key ID for result rows
-	OCTO_SET_BUFFER(cursor_subs[3], output_key_str);	// Output key ID
+	OCTO_SET_BUFFER(cursor_subs[3], output_key_str); // Output key ID
 	status = ydb_get_s(&plan_meta[0], 3, &plan_meta[1], &cursor_subs[3]);
 	YDB_ERROR_CHECK(status);
 	if (YDB_OK != status) {
@@ -157,8 +157,8 @@ int send_result_rows(int32_t cursor_id, void *_parms, char *plan_name) {
 		rows_remaining = total_rows;
 		last_row = rows_remaining;
 		cur_row = 1;
-		UNUSED(portal_subs);		// Avoid unused variable compiler warning
-		global_column_format = 0;	// Avoid uninitialized variable compiler warning
+		UNUSED(portal_subs);	  // Avoid unused variable compiler warning
+		global_column_format = 0; // Avoid uninitialized variable compiler warning
 	} else {
 		// Create buffers to retrieve the number of row formats specified for this portal
 		YDB_STRING_TO_BUFFER(config->global_names.session, &portal_subs[0]);
@@ -207,7 +207,7 @@ int send_result_rows(int32_t cursor_id, void *_parms, char *plan_name) {
 				ERROR(ERR_LIBCALL, "strtol");
 				return 1;
 			}
-			if (1 == global_column_format) {	// Client requested binary format, so we need the column data types
+			if (1 == global_column_format) { // Client requested binary format, so we need the column data types
 				OCTO_SET_BUFFER(portal_subs[5], cur_column_str);
 				OCTO_SET_BUFFER(plan_meta[4], cur_column_str);
 				col_data_types = calloc(num_columns, sizeof(int32_t));
@@ -229,7 +229,7 @@ int send_result_rows(int32_t cursor_id, void *_parms, char *plan_name) {
 			// The client should specify a format code for each column when not using the same format for all columns
 			if (num_format_codes != num_columns) {
 				ERROR(ERR_ROCTO_INVALID_NUMBER_COLUMN_FORMAT_CODES, "send_result_rows", parms->portal_name,
-						num_columns, num_format_codes);
+				      num_columns, num_format_codes);
 				return 1;
 			}
 			// Unique format codes were specified for all result for all columns, retrieve them
@@ -238,7 +238,7 @@ int send_result_rows(int32_t cursor_id, void *_parms, char *plan_name) {
 			col_data_types = calloc(num_columns, sizeof(int32_t));
 			col_format_codes = (int16_t *)calloc(num_format_codes, sizeof(int16_t));
 			for (cur_column = 0; cur_column < num_columns; cur_column++) {
-				OCTO_INT16_TO_BUFFER((int16_t)(cur_column + 1), &portal_subs[5]);	// Columns indexed from 1
+				OCTO_INT16_TO_BUFFER((int16_t)(cur_column + 1), &portal_subs[5]); // Columns indexed from 1
 				// Using same underlying string for both buffers, so update len_used to match
 				plan_meta[4].len_used = portal_subs[5].len_used;
 				status = ydb_get_s(&portal_subs[0], 5, &portal_subs[1], &value_buffer);
@@ -303,7 +303,7 @@ int send_result_rows(int32_t cursor_id, void *_parms, char *plan_name) {
 		if (rows_remaining <= parms->max_data_to_send)
 			last_row = total_rows;
 		else
-			last_row = cur_row + parms->max_data_to_send - 1;	// Offset the initial cur_row value of 1
+			last_row = cur_row + parms->max_data_to_send - 1; // Offset the initial cur_row value of 1
 		assert(last_row <= total_rows);
 	}
 
@@ -314,14 +314,14 @@ int send_result_rows(int32_t cursor_id, void *_parms, char *plan_name) {
 	assert(0 == parms->rows_sent);
 	YDB_MALLOC_BUFFER(&row_value_buffer, MAX_STR_CONST);
 	while (cur_row <= last_row) {
-		int		cur_column;
-		unsigned char	*buff, *buff_top;
+		int	       cur_column;
+		unsigned char *buff, *buff_top;
 
 		OCTO_INT32_TO_BUFFER(cur_row, &cursor_subs[6]);
 		status = ydb_get_s(&cursor_subs[0], 6, &cursor_subs[1], &row_value_buffer);
 		// Expand row_value_buffer allocation until it's large enough to store the retrieved row value
 		if (YDB_ERR_INVSTRLEN == status) {
-			int	newsize = row_value_buffer.len_used;
+			int newsize = row_value_buffer.len_used;
 
 			YDB_FREE_BUFFER(&row_value_buffer);
 			YDB_MALLOC_BUFFER(&row_value_buffer, newsize);
@@ -340,14 +340,14 @@ int send_result_rows(int32_t cursor_id, void *_parms, char *plan_name) {
 		buff = (unsigned char *)row_value_buffer.buf_addr;
 		buff_top = buff + row_value_buffer.len_used;
 		// Loop over row columns to build up DataRowParms for transmission to client
-		for (cur_column = 0, cur_row_parms = data_row_parms; ; cur_row_parms++) {
-			int		hdr_len, data_len;
+		for (cur_column = 0, cur_row_parms = data_row_parms;; cur_row_parms++) {
+			int hdr_len, data_len;
 
 			// Assign column format code for the current column
 			if (NO_GLOBAL_COLUMN_FORMAT == global_column_format) {
-				assert(NULL != col_format_codes);	/* We should only be here if
-									 * the client specified column formats
-									 */
+				assert(NULL != col_format_codes); /* We should only be here if
+								   * the client specified column formats
+								   */
 				cur_row_parms->format = col_format_codes[cur_column];
 			} else {
 				cur_row_parms->format = global_column_format;
@@ -368,12 +368,12 @@ int send_result_rows(int32_t cursor_id, void *_parms, char *plan_name) {
 			}
 			// Current allocation is not enough. Expand to twice current size.
 			if (cur_column >= data_row_parms_alloc_len) {
-				DataRowParm	*tmp;
+				DataRowParm *tmp;
 
-				tmp = (DataRowParm*)malloc(data_row_parms_alloc_len * 2 * sizeof(DataRowParm));
+				tmp = (DataRowParm *)malloc(data_row_parms_alloc_len * 2 * sizeof(DataRowParm));
 				memcpy(tmp, data_row_parms, (data_row_parms_alloc_len * sizeof(DataRowParm)));
 				free(data_row_parms);
-				cur_row_parms = tmp + (cur_row_parms - data_row_parms);	/* Fix `cur_row_parms` to new base */
+				cur_row_parms = tmp + (cur_row_parms - data_row_parms); /* Fix `cur_row_parms` to new base */
 				data_row_parms = tmp;
 				data_row_parms_alloc_len = data_row_parms_alloc_len * 2;
 			}
@@ -381,7 +381,7 @@ int send_result_rows(int32_t cursor_id, void *_parms, char *plan_name) {
 		}
 		// Send row data to client
 		data_row = make_data_row(data_row_parms, cur_column, col_data_types);
-		send_message(parms->session, (BaseMessage*)(&data_row->type));
+		send_message(parms->session, (BaseMessage *)(&data_row->type));
 		free(data_row);
 		// Move to the next index
 		cur_row++;
@@ -406,7 +406,7 @@ int send_result_rows(int32_t cursor_id, void *_parms, char *plan_name) {
 		YDB_ERROR_CHECK(status);
 		if (YDB_OK != status)
 			return 1;
-		return PORTAL_SUSPENDED;	// Signal there are rows remaining to be sent.
+		return PORTAL_SUSPENDED; // Signal there are rows remaining to be sent.
 	}
 	return 0;
 }

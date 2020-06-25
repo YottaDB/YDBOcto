@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -20,22 +20,21 @@
 
 #include "message_formats.h"
 
-
 RowDescription *make_row_description(RowDescriptionParm *parms, int16_t num_parms) {
 	RowDescription *ret;
-	uint32_t length = 0, cur_str_length;
-	char *c;
-	int32_t i;
+	uint32_t	length = 0, cur_str_length;
+	char *		c;
+	int32_t		i;
 
 	// Get a count of the needed length
-	for(i = 0; i < num_parms; i++) {
+	for (i = 0; i < num_parms; i++) {
 		// Name and null
 		length += strlen(parms[i].name) + 1;
 		// The other elements
-		length += sizeof(RowDescriptionParm) - sizeof(char*);
+		length += sizeof(RowDescriptionParm) - sizeof(char *);
 	}
 
-	ret = (RowDescription*)malloc(sizeof(RowDescription) + length);
+	ret = (RowDescription *)malloc(sizeof(RowDescription) + length);
 	memset(ret, 0, sizeof(RowDescription) + length);
 	// Count the length field as part of the length
 	length += sizeof(uint32_t);
@@ -49,7 +48,7 @@ RowDescription *make_row_description(RowDescriptionParm *parms, int16_t num_parm
 
 	// Copy in each parm
 	c = ret->data;
-	for(i = 0; i < num_parms; i++) {
+	for (i = 0; i < num_parms; i++) {
 		// Copy string
 		cur_str_length = strlen(parms[i].name);
 		memcpy(c, parms[i].name, cur_str_length);
@@ -57,17 +56,17 @@ RowDescription *make_row_description(RowDescriptionParm *parms, int16_t num_parm
 		*c++ = '\0';
 
 		// Copy values, converting them to network endianess
-		*((int*)c) = htonl(parms[i].table_id);
+		*((int *)c) = htonl(parms[i].table_id);
 		c += sizeof(int);
-		*((int16_t*)c) = htons(parms[i].column_id);
+		*((int16_t *)c) = htons(parms[i].column_id);
 		c += sizeof(int16_t);
-		*((int*)c) = htonl(parms[i].data_type);
+		*((int *)c) = htonl(parms[i].data_type);
 		c += sizeof(int);
-		*((int16_t*)c) = htons(parms[i].data_type_size);
+		*((int16_t *)c) = htons(parms[i].data_type_size);
 		c += sizeof(int16_t);
-		*((int*)c) = htonl(parms[i].type_modifier);
+		*((int *)c) = htonl(parms[i].type_modifier);
 		c += sizeof(int);
-		*((int16_t*)c) = htons(parms[i].format_code);
+		*((int16_t *)c) = htons(parms[i].format_code);
 		c += sizeof(int16_t);
 	}
 

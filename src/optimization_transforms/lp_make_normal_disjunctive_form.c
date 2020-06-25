@@ -25,21 +25,16 @@
  * < to be >=, > to be <=, = to be <>, and <> to be =
  */
 LogicalPlan *lp_apply_not(LogicalPlan *root, int count) {
-	LPActionType	type;
+	LPActionType type;
 
 	if (LP_BOOLEAN_NOT == root->type) {
 		type = root->v.lp_default.operand[0]->type;
 		// Don't recurse for stuff that we cannot apply the NOT operation.
 		// (e.g. regex calls, or anything like a function call or columns ref)
-		if ((LP_BOOLEAN_REGEX_SENSITIVE == type)
-				|| (LP_BOOLEAN_REGEX_INSENSITIVE == type)
-				|| (LP_BOOLEAN_REGEX_SENSITIVE_LIKE == type)
-				|| (LP_BOOLEAN_REGEX_INSENSITIVE_LIKE == type)
-				|| (LP_BOOLEAN_REGEX_SENSITIVE_SIMILARTO == type)
-				|| (LP_BOOLEAN_REGEX_INSENSITIVE_SIMILARTO == type)
-				|| (LP_COERCE_TYPE == type)
-				|| (LP_BOOLEAN_IS == type)
-				|| (LP_ADDITION > type)) {
+		if ((LP_BOOLEAN_REGEX_SENSITIVE == type) || (LP_BOOLEAN_REGEX_INSENSITIVE == type)
+		    || (LP_BOOLEAN_REGEX_SENSITIVE_LIKE == type) || (LP_BOOLEAN_REGEX_INSENSITIVE_LIKE == type)
+		    || (LP_BOOLEAN_REGEX_SENSITIVE_SIMILARTO == type) || (LP_BOOLEAN_REGEX_INSENSITIVE_SIMILARTO == type)
+		    || (LP_COERCE_TYPE == type) || (LP_BOOLEAN_IS == type) || (LP_ADDITION > type)) {
 			return root;
 		}
 		count++;
@@ -47,101 +42,101 @@ LogicalPlan *lp_apply_not(LogicalPlan *root, int count) {
 		return lp_apply_not(root->v.lp_default.operand[0], count);
 	}
 	if (count % 2) {
-		switch(root->type) {
-			case LP_BOOLEAN_OR:
-				root->type = LP_BOOLEAN_AND;
-				root->v.lp_default.operand[0] = lp_apply_not(root->v.lp_default.operand[0], count);
-				root->v.lp_default.operand[1] = lp_apply_not(root->v.lp_default.operand[1], count);
-				break;
-			case LP_BOOLEAN_AND:
-				root->type = LP_BOOLEAN_OR;
-				root->v.lp_default.operand[0] = lp_apply_not(root->v.lp_default.operand[0], count);
-				root->v.lp_default.operand[1] = lp_apply_not(root->v.lp_default.operand[1], count);
-				break;
-			case LP_BOOLEAN_EQUALS:
-				root->type = LP_BOOLEAN_NOT_EQUALS;
-				break;
-			case LP_BOOLEAN_NOT_EQUALS:
-				root->type = LP_BOOLEAN_EQUALS;
-				break;
-			case LP_BOOLEAN_LESS_THAN:
-				root->type = LP_BOOLEAN_GREATER_THAN_OR_EQUALS;
-				break;
-			case LP_BOOLEAN_GREATER_THAN:
-				root->type = LP_BOOLEAN_LESS_THAN_OR_EQUALS;
-				break;
-			case LP_BOOLEAN_LESS_THAN_OR_EQUALS:
-				root->type = LP_BOOLEAN_GREATER_THAN;
-				break;
-			case LP_BOOLEAN_GREATER_THAN_OR_EQUALS:
-				root->type = LP_BOOLEAN_LESS_THAN;
-				break;
-			case LP_BOOLEAN_IN:
-				root->type = LP_BOOLEAN_NOT_IN;
-				break;
-			case LP_BOOLEAN_NOT_IN:
-				root->type = LP_BOOLEAN_IN;
-				break;
-			case LP_BOOLEAN_ANY_EQUALS:
-				root->type = LP_BOOLEAN_ALL_NOT_EQUALS;
-				break;
-			case LP_BOOLEAN_ANY_NOT_EQUALS:
-				root->type = LP_BOOLEAN_ALL_EQUALS;
-				break;
-			case LP_BOOLEAN_ANY_LESS_THAN:
-				root->type = LP_BOOLEAN_ALL_GREATER_THAN_OR_EQUALS;
-				break;
-			case LP_BOOLEAN_ANY_GREATER_THAN:
-				root->type = LP_BOOLEAN_ALL_LESS_THAN_OR_EQUALS;
-				break;
-			case LP_BOOLEAN_ANY_LESS_THAN_OR_EQUALS:
-				root->type = LP_BOOLEAN_ALL_GREATER_THAN;
-				break;
-			case LP_BOOLEAN_ANY_GREATER_THAN_OR_EQUALS:
-				root->type = LP_BOOLEAN_ALL_LESS_THAN;
-				break;
-			case LP_BOOLEAN_ALL_EQUALS:
-				root->type = LP_BOOLEAN_ANY_NOT_EQUALS;
-				break;
-			case LP_BOOLEAN_ALL_NOT_EQUALS:
-				root->type = LP_BOOLEAN_ANY_EQUALS;
-				break;
-			case LP_BOOLEAN_ALL_LESS_THAN:
-				root->type = LP_BOOLEAN_ANY_GREATER_THAN_OR_EQUALS;
-				break;
-			case LP_BOOLEAN_ALL_GREATER_THAN:
-				root->type = LP_BOOLEAN_ANY_LESS_THAN_OR_EQUALS;
-				break;
-			case LP_BOOLEAN_ALL_LESS_THAN_OR_EQUALS:
-				root->type = LP_BOOLEAN_ANY_GREATER_THAN;
-				break;
-			case LP_BOOLEAN_ALL_GREATER_THAN_OR_EQUALS:
-				root->type = LP_BOOLEAN_ANY_LESS_THAN;
-				break;
-			case LP_BOOLEAN_EXISTS:
-				root->type = LP_BOOLEAN_NOT_EXISTS;
-				break;
-			case LP_BOOLEAN_NOT_EXISTS:
-				/* This case is not possible because the parser only generates BOOLEAN_EXISTS.
-				 * Never a BOOLEAN_NOT_EXISTS. And we come here in the logical plan before any optimizations occur.
-				 * So the logical plan too can only have LP_BOOLEAN_EXISTS at this point. Never a
-				 * LP_BOOLEAN_NOT_EXISTS. But in case this assumption is no longer true in a future point of time,
-				 * we want to handle this case (as it is easy to do so) and so do it here. But also add an
-				 * assert so we are alerted if/when this happens.
-				 */
-				assert(FALSE);
-				root->type = LP_BOOLEAN_EXISTS;
-				break;
-			case LP_BOOLEAN_IS_NULL:
-				root->type = LP_BOOLEAN_IS_NOT_NULL;
-				break;
-			case LP_BOOLEAN_IS_NOT_NULL:
-				root->type = LP_BOOLEAN_IS_NULL;
-				break;
-			default:
-				// We should never recurse into anything except boolean values
-				assert(FALSE);
-				break;
+		switch (root->type) {
+		case LP_BOOLEAN_OR:
+			root->type = LP_BOOLEAN_AND;
+			root->v.lp_default.operand[0] = lp_apply_not(root->v.lp_default.operand[0], count);
+			root->v.lp_default.operand[1] = lp_apply_not(root->v.lp_default.operand[1], count);
+			break;
+		case LP_BOOLEAN_AND:
+			root->type = LP_BOOLEAN_OR;
+			root->v.lp_default.operand[0] = lp_apply_not(root->v.lp_default.operand[0], count);
+			root->v.lp_default.operand[1] = lp_apply_not(root->v.lp_default.operand[1], count);
+			break;
+		case LP_BOOLEAN_EQUALS:
+			root->type = LP_BOOLEAN_NOT_EQUALS;
+			break;
+		case LP_BOOLEAN_NOT_EQUALS:
+			root->type = LP_BOOLEAN_EQUALS;
+			break;
+		case LP_BOOLEAN_LESS_THAN:
+			root->type = LP_BOOLEAN_GREATER_THAN_OR_EQUALS;
+			break;
+		case LP_BOOLEAN_GREATER_THAN:
+			root->type = LP_BOOLEAN_LESS_THAN_OR_EQUALS;
+			break;
+		case LP_BOOLEAN_LESS_THAN_OR_EQUALS:
+			root->type = LP_BOOLEAN_GREATER_THAN;
+			break;
+		case LP_BOOLEAN_GREATER_THAN_OR_EQUALS:
+			root->type = LP_BOOLEAN_LESS_THAN;
+			break;
+		case LP_BOOLEAN_IN:
+			root->type = LP_BOOLEAN_NOT_IN;
+			break;
+		case LP_BOOLEAN_NOT_IN:
+			root->type = LP_BOOLEAN_IN;
+			break;
+		case LP_BOOLEAN_ANY_EQUALS:
+			root->type = LP_BOOLEAN_ALL_NOT_EQUALS;
+			break;
+		case LP_BOOLEAN_ANY_NOT_EQUALS:
+			root->type = LP_BOOLEAN_ALL_EQUALS;
+			break;
+		case LP_BOOLEAN_ANY_LESS_THAN:
+			root->type = LP_BOOLEAN_ALL_GREATER_THAN_OR_EQUALS;
+			break;
+		case LP_BOOLEAN_ANY_GREATER_THAN:
+			root->type = LP_BOOLEAN_ALL_LESS_THAN_OR_EQUALS;
+			break;
+		case LP_BOOLEAN_ANY_LESS_THAN_OR_EQUALS:
+			root->type = LP_BOOLEAN_ALL_GREATER_THAN;
+			break;
+		case LP_BOOLEAN_ANY_GREATER_THAN_OR_EQUALS:
+			root->type = LP_BOOLEAN_ALL_LESS_THAN;
+			break;
+		case LP_BOOLEAN_ALL_EQUALS:
+			root->type = LP_BOOLEAN_ANY_NOT_EQUALS;
+			break;
+		case LP_BOOLEAN_ALL_NOT_EQUALS:
+			root->type = LP_BOOLEAN_ANY_EQUALS;
+			break;
+		case LP_BOOLEAN_ALL_LESS_THAN:
+			root->type = LP_BOOLEAN_ANY_GREATER_THAN_OR_EQUALS;
+			break;
+		case LP_BOOLEAN_ALL_GREATER_THAN:
+			root->type = LP_BOOLEAN_ANY_LESS_THAN_OR_EQUALS;
+			break;
+		case LP_BOOLEAN_ALL_LESS_THAN_OR_EQUALS:
+			root->type = LP_BOOLEAN_ANY_GREATER_THAN;
+			break;
+		case LP_BOOLEAN_ALL_GREATER_THAN_OR_EQUALS:
+			root->type = LP_BOOLEAN_ANY_LESS_THAN;
+			break;
+		case LP_BOOLEAN_EXISTS:
+			root->type = LP_BOOLEAN_NOT_EXISTS;
+			break;
+		case LP_BOOLEAN_NOT_EXISTS:
+			/* This case is not possible because the parser only generates BOOLEAN_EXISTS.
+			 * Never a BOOLEAN_NOT_EXISTS. And we come here in the logical plan before any optimizations occur.
+			 * So the logical plan too can only have LP_BOOLEAN_EXISTS at this point. Never a
+			 * LP_BOOLEAN_NOT_EXISTS. But in case this assumption is no longer true in a future point of time,
+			 * we want to handle this case (as it is easy to do so) and so do it here. But also add an
+			 * assert so we are alerted if/when this happens.
+			 */
+			assert(FALSE);
+			root->type = LP_BOOLEAN_EXISTS;
+			break;
+		case LP_BOOLEAN_IS_NULL:
+			root->type = LP_BOOLEAN_IS_NOT_NULL;
+			break;
+		case LP_BOOLEAN_IS_NOT_NULL:
+			root->type = LP_BOOLEAN_IS_NULL;
+			break;
+		default:
+			// We should never recurse into anything except boolean values
+			assert(FALSE);
+			break;
 		}
 	}
 	return root;
@@ -221,7 +216,7 @@ LogicalPlan *lp_make_normal_disjunctive_form(LogicalPlan *root) {
 	if ((NULL == ret->v.lp_default.operand[1]) || (NULL == ret->v.lp_default.operand[1]->v.lp_default.operand[0])) {
 		ret = ret->v.lp_default.operand[0];
 	} else {
-		LogicalPlan	*prev;
+		LogicalPlan *prev;
 
 		prev = ret;
 		cur = ret->v.lp_default.operand[1];

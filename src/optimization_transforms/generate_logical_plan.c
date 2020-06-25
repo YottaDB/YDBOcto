@@ -23,19 +23,19 @@
  *  LP_COLUMN_LIST and child elements of LP_WHERE and LP_COLUMN_LIST
  */
 LogicalPlan *generate_logical_plan(SqlStatement *stmt) {
-	SqlSelectStatement	*select_stmt;
-	SqlTableAlias		*table_alias;
-	LogicalPlan		*insert, *project, *select, *dst, *dst_key;
-	LogicalPlan		*criteria, *where, *order_by;
-	LogicalPlan		*select_options, *select_more_options, *aggregate_options;
-	LogicalPlan		*join_left, *join_right, *temp;
-	LogicalPlan		*start_join_condition, *t_join_condition;
-	LogicalPlan		*keywords, *left;
-	SqlJoin			*cur_join, *start_join;
-	SqlColumnListAlias	*list;
-	int			num_outer_joins;
-	enum SqlJoinType 	cur_join_type;
-	boolean_t		error_encountered = FALSE;
+	SqlSelectStatement *select_stmt;
+	SqlTableAlias *	    table_alias;
+	LogicalPlan *	    insert, *project, *select, *dst, *dst_key;
+	LogicalPlan *	    criteria, *where, *order_by;
+	LogicalPlan *	    select_options, *select_more_options, *aggregate_options;
+	LogicalPlan *	    join_left, *join_right, *temp;
+	LogicalPlan *	    start_join_condition, *t_join_condition;
+	LogicalPlan *	    keywords, *left;
+	SqlJoin *	    cur_join, *start_join;
+	SqlColumnListAlias *list;
+	int		    num_outer_joins;
+	enum SqlJoinType    cur_join_type;
+	boolean_t	    error_encountered = FALSE;
 
 	// Set operations should be handled in a different function
 	if (set_operation_STATEMENT == stmt->type) {
@@ -78,25 +78,23 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt) {
 	cur_join = start_join;
 	start_join_condition = NULL;
 	do {
-		SqlStatement	*sql_stmt;
+		SqlStatement *sql_stmt;
 
-		assert((NO_JOIN == cur_join->type) || (INNER_JOIN == cur_join->type)
-			|| (LEFT_JOIN == cur_join->type) || (RIGHT_JOIN == cur_join->type) || (FULL_JOIN == cur_join->type)
-			|| (CROSS_JOIN == cur_join->type) || (NATURAL_JOIN == cur_join->type));
+		assert((NO_JOIN == cur_join->type) || (INNER_JOIN == cur_join->type) || (LEFT_JOIN == cur_join->type)
+		       || (RIGHT_JOIN == cur_join->type) || (FULL_JOIN == cur_join->type) || (CROSS_JOIN == cur_join->type)
+		       || (NATURAL_JOIN == cur_join->type));
 		if (NULL == join_right) {
 			MALLOC_LP(join_right, select->v.lp_default.operand[0], LP_TABLE_JOIN);
 		} else {
 			MALLOC_LP_2ARGS(join_right->v.lp_default.operand[1], LP_TABLE_JOIN);
 			join_right = join_right->v.lp_default.operand[1];
 		}
-		assert(set_operation_STATEMENT != stmt->type);	/* else would have returned at beginning of this function */
+		assert(set_operation_STATEMENT != stmt->type); /* else would have returned at beginning of this function */
 		sql_stmt = cur_join->value;
-		if ((table_alias_STATEMENT == sql_stmt->type) && (create_table_STATEMENT == sql_stmt->v.table_alias->table->type))
-		{
+		if ((table_alias_STATEMENT == sql_stmt->type) && (create_table_STATEMENT == sql_stmt->v.table_alias->table->type)) {
 			MALLOC_LP(join_left, join_right->v.lp_default.operand[0], LP_TABLE);
 			join_left->v.lp_table.table_alias = sql_stmt->v.table_alias;
-		} else
-		{
+		} else {
 			join_left = generate_logical_plan(sql_stmt);
 			if (NULL == join_left)
 				return NULL;
@@ -105,16 +103,14 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt) {
 		assert(NULL == join_right->extra_detail.lp_table_join.join_on_condition);
 		cur_join_type = cur_join->type;
 		join_right->extra_detail.lp_table_join.cur_join_type = cur_join_type;
-		if (cur_join->condition)
-		{
+		if (cur_join->condition) {
 			MALLOC_LP_2ARGS(t_join_condition, LP_WHERE);
 			LP_GENERATE_WHERE(cur_join->condition, stmt, t_join_condition->v.lp_default.operand[0], error_encountered);
 			if (num_outer_joins)
 				join_right->extra_detail.lp_table_join.join_on_condition = t_join_condition;
-			else
-			{	/* No OUTER JOINs. We can safely add the ON clause in the join condition to the
-				 * WHERE clause without risk of correctness issues.
-				 */
+			else { /* No OUTER JOINs. We can safely add the ON clause in the join condition to the
+				* WHERE clause without risk of correctness issues.
+				*/
 				start_join_condition = lp_join_where(start_join_condition, t_join_condition);
 			}
 		}
@@ -135,17 +131,17 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt) {
 	 * reference which would cause incorrect results).
 	 */
 	if (NULL != select_stmt->order_by_expression) {
-		SqlColumnListAlias	*cur_cla, *start_cla;
+		SqlColumnListAlias *cur_cla, *start_cla;
 
 		MALLOC_LP(order_by, dst->v.lp_default.operand[1], LP_ORDER_BY);
 		UNPACK_SQL_STATEMENT(list, select_stmt->order_by_expression, column_list_alias);
 		cur_cla = start_cla = list;
 		do {
-			SqlColumnListAlias	*save_next;
-			SqlOptionalKeyword	*keyword;
+			SqlColumnListAlias *save_next;
+			SqlOptionalKeyword *keyword;
 
 			if (cur_cla->tbl_and_col_id.unique_id) {
-				LogicalPlan	*column_list, *select_column_list;
+				LogicalPlan *column_list, *select_column_list;
 
 				/* This is an ORDER BY COLUMN NUM usage. Get the Nth LP_COLUMN_LIST from the SELECT column list
 				 * and connect that to this LP_ORDER_BY plan.
@@ -153,7 +149,7 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt) {
 				MALLOC_LP_2ARGS(column_list, LP_COLUMN_LIST);
 				assert(cur_cla->tbl_and_col_id.column_number);
 				select_column_list
-					= lp_get_col_num_n_in_select_column_list(temp, cur_cla->tbl_and_col_id.column_number);
+				    = lp_get_col_num_n_in_select_column_list(temp, cur_cla->tbl_and_col_id.column_number);
 				assert(LP_COLUMN_LIST == select_column_list->type);
 				column_list->v.lp_default.operand[0] = select_column_list->v.lp_default.operand[0];
 				order_by->v.lp_default.operand[0] = column_list;
@@ -167,15 +163,14 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt) {
 				cur_cla->next = save_next;
 				order_by->extra_detail.lp_order_by.order_by_column_num = FALSE;
 			}
-			if (NULL != cur_cla->keywords)
-			{
+			if (NULL != cur_cla->keywords) {
 				UNPACK_SQL_STATEMENT(keyword, cur_cla->keywords, keyword);
 				assert(keyword->next == keyword);
 				assert(keyword->prev == keyword);
 			} else
 				keyword = NULL;
 			order_by->extra_detail.lp_order_by.direction = (NULL != keyword) ? keyword->keyword : OPTIONAL_ASC;
-					/* ASCENDING order is default direction for ORDER BY */
+			/* ASCENDING order is default direction for ORDER BY */
 			cur_cla = cur_cla->next;
 			if (cur_cla != start_cla) {
 				MALLOC_LP_2ARGS(order_by->v.lp_default.operand[1], LP_ORDER_BY);
@@ -186,27 +181,26 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt) {
 
 	// Ensure that any added conditions as a result of a join are added to the WHERE
 	// before we go through and replace derived table references
-	if (NULL != start_join_condition)
-	{
+	if (NULL != start_join_condition) {
 		where = lp_join_where(start_join_condition, where);
 		select_options->v.lp_default.operand[0] = where;
 	}
 	where->v.lp_default.operand[1] = NULL;
-	where->extra_detail.lp_where.num_outer_joins = num_outer_joins;	/* used later in "optimize_logical_plan" */
+	where->extra_detail.lp_where.num_outer_joins = num_outer_joins; /* used later in "optimize_logical_plan" */
 
 	// Add GROUP BY and HAVING to logical plan
 	MALLOC_LP(select_more_options, select_options->v.lp_default.operand[1], LP_SELECT_MORE_OPTIONS);
 	if ((NULL != select_stmt->group_by_expression) || (NULL != select_stmt->having_expression)) {
 		MALLOC_LP(aggregate_options, select_more_options->v.lp_default.operand[0], LP_AGGREGATE_OPTIONS);
 		if (NULL != select_stmt->group_by_expression) {
-			LogicalPlan	*group_by;
+			LogicalPlan *group_by;
 
 			MALLOC_LP(group_by, aggregate_options->v.lp_default.operand[0], LP_GROUP_BY);
 			UNPACK_SQL_STATEMENT(list, select_stmt->group_by_expression, column_list_alias);
 			group_by->v.lp_default.operand[0] = lp_column_list_to_lp(list, &error_encountered);
 		}
 		if (NULL != select_stmt->having_expression) {
-			LogicalPlan	*having;
+			LogicalPlan *having;
 
 			MALLOC_LP(having, aggregate_options->v.lp_default.operand[1], LP_HAVING);
 			MALLOC_LP(where, having->v.lp_default.operand[0], LP_WHERE);
@@ -217,14 +211,13 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt) {
 	left = select->v.lp_default.operand[0];
 	cur_join = start_join;
 	while (NULL != left) {
-		LogicalPlan	*new_plan;
+		LogicalPlan *new_plan;
 
 		new_plan = left->v.lp_default.operand[0];
 		assert((LP_INSERT == new_plan->type) || (LP_SET_OPERATION == new_plan->type) || (LP_TABLE == new_plan->type));
-		if (LP_TABLE != new_plan->type)
-		{
-			SqlStatement	*sql_stmt;
-			LogicalPlan	*cur_lp_key;
+		if (LP_TABLE != new_plan->type) {
+			SqlStatement *sql_stmt;
+			LogicalPlan * cur_lp_key;
 
 			sql_stmt = cur_join->value;
 			sql_stmt = drill_to_table_alias(sql_stmt);

@@ -15,7 +15,7 @@
 #include "logical_plan.h"
 
 LogicalPlan *lp_copy_plan(LogicalPlan *plan) {
-	LogicalPlan	*new_plan;
+	LogicalPlan *new_plan;
 
 	if (NULL == plan)
 		return NULL;
@@ -45,7 +45,7 @@ LogicalPlan *lp_copy_plan(LogicalPlan *plan) {
 		new_plan->v.lp_default.operand[1] = lp_copy_plan(plan->v.lp_default.operand[1]);
 		if (LP_TABLE_JOIN == plan->type) {
 			new_plan->extra_detail.lp_table_join.join_on_condition
-				= lp_copy_plan(plan->extra_detail.lp_table_join.join_on_condition);
+			    = lp_copy_plan(plan->extra_detail.lp_table_join.join_on_condition);
 		}
 		break;
 	}

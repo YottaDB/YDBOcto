@@ -33,7 +33,7 @@ int __wrap_recv(int *socfd, void *buf, size_t len, int32_t flags) {
 	return expected_return;
 }
 
-int __wrap_gtm_tls_recv(gtm_tls_socket_t  *tls_socket, void *buf, size_t len) {
+int __wrap_gtm_tls_recv(gtm_tls_socket_t *tls_socket, void *buf, size_t len) {
 	int32_t expected_return = mock_type(int);
 	errno = mock_type(int);
 	return expected_return;
@@ -50,26 +50,26 @@ unsigned long __wrap_gtm_tls_errno() {
 }
 
 void __wrap_octo_log(int line, char *file, enum VERBOSITY_LEVEL level, enum SEVERITY_LEVEL severity, enum ERROR error, ...) {
-	char *error_string = NULL;
+	char *	error_string = NULL;
 	va_list args;
 	va_start(args, error);
 	int32_t expected_level = mock_type(int);
 	int32_t expected_error = mock_type(int);
-	char *expected_error_string = mock_type(char *);
+	char *	expected_error_string = mock_type(char *);
 
 	assert_int_equal(level, expected_level);
 	assert_int_equal(error, expected_error);
 	if (NULL != expected_error_string) {
-		error_string = va_arg(args, char*);
+		error_string = va_arg(args, char *);
 		assert_string_equal(error_string, expected_error_string);
 	}
 	va_end(args);
 }
 
 static void test_valid_input_no_SSL(void **state) {
-	char *buffer;
-	int32_t buffer_size = 0, bytes_to_read = 0;
-	int32_t rt = 1;
+	char *	     buffer;
+	int32_t	     buffer_size = 0, bytes_to_read = 0;
+	int32_t	     rt = 1;
 	RoctoSession session;
 	session.ssl_active = FALSE;
 
@@ -82,8 +82,8 @@ static void test_valid_input_no_SSL(void **state) {
 	memset(buffer, 'X', buffer_size);
 	session.connection_fd = 0;
 
-	will_return(__wrap_recv, 10);	// All bytes read
-	will_return(__wrap_recv, 0);	// No error
+	will_return(__wrap_recv, 10); // All bytes read
+	will_return(__wrap_recv, 0);  // No error
 
 	rt = read_bytes(&session, buffer, buffer_size, bytes_to_read);
 
@@ -93,8 +93,8 @@ static void test_valid_input_no_SSL(void **state) {
 }
 
 static void test_read_too_large(void **state) {
-	int32_t buffer_size = 0, bytes_to_read = 0;
-	int32_t rt = 1;
+	int32_t	     buffer_size = 0, bytes_to_read = 0;
+	int32_t	     rt = 1;
 	RoctoSession session;
 	session.ssl_active = FALSE;
 
@@ -102,9 +102,9 @@ static void test_read_too_large(void **state) {
 	buffer_size = 10;
 	bytes_to_read = 100;
 
-	will_return(__wrap_octo_log, WARNING);			// Expected error severity
-	will_return(__wrap_octo_log, ERR_READ_TOO_LARGE);	// Expected error code
-	will_return(__wrap_octo_log, NULL);			// Not expecting a string, so indicate with NULL
+	will_return(__wrap_octo_log, WARNING);		  // Expected error severity
+	will_return(__wrap_octo_log, ERR_READ_TOO_LARGE); // Expected error code
+	will_return(__wrap_octo_log, NULL);		  // Not expecting a string, so indicate with NULL
 
 	rt = read_bytes(&session, NULL, buffer_size, bytes_to_read);
 
@@ -112,8 +112,8 @@ static void test_read_too_large(void **state) {
 }
 
 static void test_invalid_read_size(void **state) {
-	int32_t buffer_size = 0, bytes_to_read = 0;
-	int32_t rt = 1;
+	int32_t	     buffer_size = 0, bytes_to_read = 0;
+	int32_t	     rt = 1;
 	RoctoSession session;
 	session.ssl_active = FALSE;
 
@@ -121,9 +121,9 @@ static void test_invalid_read_size(void **state) {
 	buffer_size = 10;
 	bytes_to_read = -1;
 
-	will_return(__wrap_octo_log, WARNING);			// Expected error severity
-	will_return(__wrap_octo_log, ERR_INVALID_READ_SIZE);	// Expected error code
-	will_return(__wrap_octo_log, NULL);			// Not expecting a string, so indicate with NULL
+	will_return(__wrap_octo_log, WARNING);		     // Expected error severity
+	will_return(__wrap_octo_log, ERR_INVALID_READ_SIZE); // Expected error code
+	will_return(__wrap_octo_log, NULL);		     // Not expecting a string, so indicate with NULL
 
 	rt = read_bytes(&session, NULL, buffer_size, bytes_to_read);
 
@@ -131,9 +131,9 @@ static void test_invalid_read_size(void **state) {
 }
 
 static void test_recv_interrupted(void **state) {
-	char *buffer;
-	int32_t buffer_size = 0, bytes_to_read = 0;
-	int32_t rt = 1;
+	char *	     buffer;
+	int32_t	     buffer_size = 0, bytes_to_read = 0;
+	int32_t	     rt = 1;
 	RoctoSession session;
 	session.ssl_active = FALSE;
 
@@ -146,11 +146,11 @@ static void test_recv_interrupted(void **state) {
 	memset(buffer, 0, buffer_size);
 	session.connection_fd = 0;
 
-	will_return(__wrap_recv, -1);		// recv failed
-	will_return(__wrap_recv, EINTR);	// received interrupt
+	will_return(__wrap_recv, -1);	 // recv failed
+	will_return(__wrap_recv, EINTR); // received interrupt
 
-	will_return(__wrap_recv, 10);	// continued to read all bytes
-	will_return(__wrap_recv, 0);	// no error
+	will_return(__wrap_recv, 10); // continued to read all bytes
+	will_return(__wrap_recv, 0);  // no error
 
 	rt = read_bytes(&session, buffer, buffer_size, bytes_to_read);
 
@@ -160,9 +160,9 @@ static void test_recv_interrupted(void **state) {
 }
 
 static void test_recv_connection_reset(void **state) {
-	char *buffer;
-	int32_t buffer_size = 0, bytes_to_read = 0;
-	int32_t rt = 1;
+	char *	     buffer;
+	int32_t	     buffer_size = 0, bytes_to_read = 0;
+	int32_t	     rt = 1;
 	RoctoSession session;
 	session.ssl_active = FALSE;
 
@@ -175,12 +175,12 @@ static void test_recv_connection_reset(void **state) {
 	memset(buffer, 0, buffer_size);
 	session.connection_fd = 0;
 
-	will_return(__wrap_recv, -1);		// recv failed
-	will_return(__wrap_recv, ECONNRESET);	// connection lost
+	will_return(__wrap_recv, -1);	      // recv failed
+	will_return(__wrap_recv, ECONNRESET); // connection lost
 
-	will_return(__wrap_octo_log, WARNING);			// Expected error severity
-	will_return(__wrap_octo_log, ERR_SYSCALL);		// Expected error code
-	will_return(__wrap_octo_log, "read");			// Expected first va_arg
+	will_return(__wrap_octo_log, WARNING);	   // Expected error severity
+	will_return(__wrap_octo_log, ERR_SYSCALL); // Expected error code
+	will_return(__wrap_octo_log, "read");	   // Expected first va_arg
 
 	rt = read_bytes(&session, buffer, buffer_size, bytes_to_read);
 
@@ -190,9 +190,9 @@ static void test_recv_connection_reset(void **state) {
 }
 
 static void test_recv_broken_pipe(void **state) {
-	char *buffer;
-	int32_t buffer_size = 0, bytes_to_read = 0;
-	int32_t rt = 1;
+	char *	     buffer;
+	int32_t	     buffer_size = 0, bytes_to_read = 0;
+	int32_t	     rt = 1;
 	RoctoSession session;
 	session.ssl_active = FALSE;
 
@@ -205,12 +205,12 @@ static void test_recv_broken_pipe(void **state) {
 	memset(buffer, 0, buffer_size);
 	session.connection_fd = 0;
 
-	will_return(__wrap_recv, -1);		// recv failed
-	will_return(__wrap_recv, EPIPE);	// pipe receiver lost
+	will_return(__wrap_recv, -1);	 // recv failed
+	will_return(__wrap_recv, EPIPE); // pipe receiver lost
 
-	will_return(__wrap_octo_log, WARNING);			// Expected error severity
-	will_return(__wrap_octo_log, ERR_SYSCALL);		// Expected error code
-	will_return(__wrap_octo_log, "read");			// Expected first va_arg
+	will_return(__wrap_octo_log, WARNING);	   // Expected error severity
+	will_return(__wrap_octo_log, ERR_SYSCALL); // Expected error code
+	will_return(__wrap_octo_log, "read");	   // Expected first va_arg
 
 	rt = read_bytes(&session, buffer, buffer_size, bytes_to_read);
 
@@ -220,9 +220,9 @@ static void test_recv_broken_pipe(void **state) {
 }
 
 static void test_recv_timed_out(void **state) {
-	char *buffer;
-	int32_t buffer_size = 0, bytes_to_read = 0;
-	int32_t rt = 1;
+	char *	     buffer;
+	int32_t	     buffer_size = 0, bytes_to_read = 0;
+	int32_t	     rt = 1;
 	RoctoSession session;
 	session.ssl_active = FALSE;
 
@@ -235,12 +235,12 @@ static void test_recv_timed_out(void **state) {
 	memset(buffer, 0, buffer_size);
 	session.connection_fd = 0;
 
-	will_return(__wrap_recv, -1);		// recv failed
-	will_return(__wrap_recv, ETIMEDOUT);	// connection timed out
+	will_return(__wrap_recv, -1);	     // recv failed
+	will_return(__wrap_recv, ETIMEDOUT); // connection timed out
 
-	will_return(__wrap_octo_log, WARNING);			// Expected error severity
-	will_return(__wrap_octo_log, ERR_SYSCALL);		// Expected error code
-	will_return(__wrap_octo_log, "read");			// Expected first va_arg
+	will_return(__wrap_octo_log, WARNING);	   // Expected error severity
+	will_return(__wrap_octo_log, ERR_SYSCALL); // Expected error code
+	will_return(__wrap_octo_log, "read");	   // Expected first va_arg
 
 	rt = read_bytes(&session, buffer, buffer_size, bytes_to_read);
 
@@ -249,9 +249,9 @@ static void test_recv_timed_out(void **state) {
 	free(buffer);
 }
 static void test_socket_closed(void **state) {
-	char *buffer;
-	int32_t buffer_size = 0, bytes_to_read = 0;
-	int32_t rt = 1;
+	char *	     buffer;
+	int32_t	     buffer_size = 0, bytes_to_read = 0;
+	int32_t	     rt = 1;
 	RoctoSession session;
 	session.ssl_active = FALSE;
 
@@ -264,8 +264,8 @@ static void test_socket_closed(void **state) {
 	memset(buffer, 0, buffer_size);
 	session.connection_fd = 0;
 
-	will_return(__wrap_recv, 0);	// No bytes read
-	will_return(__wrap_recv, 0);	// No error - socket cleanly closed
+	will_return(__wrap_recv, 0); // No bytes read
+	will_return(__wrap_recv, 0); // No error - socket cleanly closed
 
 	rt = read_bytes(&session, buffer, buffer_size, bytes_to_read);
 
@@ -276,9 +276,9 @@ static void test_socket_closed(void **state) {
 }
 
 static void test_valid_input_with_SSL(void **state) {
-	char *buffer;
-	int32_t buffer_size = 0, bytes_to_read = 0;
-	int32_t rt = 1;
+	char *	     buffer;
+	int32_t	     buffer_size = 0, bytes_to_read = 0;
+	int32_t	     rt = 1;
 	RoctoSession session;
 	session.ssl_active = TRUE;
 
@@ -291,8 +291,8 @@ static void test_valid_input_with_SSL(void **state) {
 	memset(buffer, 'X', buffer_size);
 	session.connection_fd = 0;
 
-	will_return(__wrap_SSL_read, 10);	// Successful result
-	will_return(__wrap_SSL_read, 0);	// No error
+	will_return(__wrap_SSL_read, 10); // Successful result
+	will_return(__wrap_SSL_read, 0);  // No error
 
 	rt = read_bytes(&session, buffer, buffer_size, bytes_to_read);
 
@@ -302,9 +302,9 @@ static void test_valid_input_with_SSL(void **state) {
 }
 
 static void test_SSL_read_interrupted(void **state) {
-	char *buffer;
-	int32_t buffer_size = 0, bytes_to_read = 0;
-	int32_t rt = 1;
+	char *	     buffer;
+	int32_t	     buffer_size = 0, bytes_to_read = 0;
+	int32_t	     rt = 1;
 	RoctoSession session;
 	session.ssl_active = TRUE;
 
@@ -317,13 +317,13 @@ static void test_SSL_read_interrupted(void **state) {
 	memset(buffer, 0, buffer_size);
 	session.connection_fd = 0;
 
-	will_return(__wrap_SSL_read, -1);	// SSL_read failed
-	will_return(__wrap_SSL_read, EINTR);	// received interrupt
+	will_return(__wrap_SSL_read, -1);    // SSL_read failed
+	will_return(__wrap_SSL_read, EINTR); // received interrupt
 
 	will_return(__wrap_SSL_get_error, SSL_ERROR_WANT_READ);
 
-	will_return(__wrap_SSL_read, 10);	// continued to read all bytes
-	will_return(__wrap_SSL_read, 0);	// no error
+	will_return(__wrap_SSL_read, 10); // continued to read all bytes
+	will_return(__wrap_SSL_read, 0);  // no error
 
 	rt = read_bytes(&session, buffer, buffer_size, bytes_to_read);
 
@@ -333,9 +333,9 @@ static void test_SSL_read_interrupted(void **state) {
 }
 
 static void test_SSL_ERROR_ZERO_RETURN(void **state) {
-	char *buffer;
-	int32_t buffer_size = 0, bytes_to_read = 0;
-	int32_t rt = 1;
+	char *	     buffer;
+	int32_t	     buffer_size = 0, bytes_to_read = 0;
+	int32_t	     rt = 1;
 	RoctoSession session;
 	session.ssl_active = TRUE;
 
@@ -348,18 +348,18 @@ static void test_SSL_ERROR_ZERO_RETURN(void **state) {
 	memset(buffer, 0, buffer_size);
 	session.connection_fd = 0;
 
-	will_return(__wrap_SSL_read, -1);	// SSL_read failed
-	will_return(__wrap_SSL_read, EIO);	// Arbitrary error code
+	will_return(__wrap_SSL_read, -1);  // SSL_read failed
+	will_return(__wrap_SSL_read, EIO); // Arbitrary error code
 
 	will_return(__wrap_SSL_get_error, SSL_ERROR_ZERO_RETURN);
-	will_return(__wrap_ERR_peek_last_error, SSL_ERROR_ZERO_RETURN);		// Arbitrary - may not be reflected in integration
+	will_return(__wrap_ERR_peek_last_error, SSL_ERROR_ZERO_RETURN); // Arbitrary - may not be reflected in integration
 
-	will_return(__wrap_ERR_error_string, SSL_ERROR_ZERO_RETURN);		// Arbitrary - may not be reflected in integration
+	will_return(__wrap_ERR_error_string, SSL_ERROR_ZERO_RETURN); // Arbitrary - may not be reflected in integration
 	will_return(__wrap_ERR_error_string, "SSL_ERROR_ZERO_RETURN");
 
-	will_return(__wrap_octo_log, WARNING);			// Expected error severity
-	will_return(__wrap_octo_log, ERR_ROCTO_OSSL_READ_FAILED);	// Expected error code
-	will_return(__wrap_octo_log, "SSL_ERROR_ZERO_RETURN");		// Dummy error message
+	will_return(__wrap_octo_log, WARNING);			  // Expected error severity
+	will_return(__wrap_octo_log, ERR_ROCTO_OSSL_READ_FAILED); // Expected error code
+	will_return(__wrap_octo_log, "SSL_ERROR_ZERO_RETURN");	  // Dummy error message
 
 	rt = read_bytes(&session, buffer, buffer_size, bytes_to_read);
 
@@ -369,9 +369,9 @@ static void test_SSL_ERROR_ZERO_RETURN(void **state) {
 }
 
 static void test_SSL_ERROR_WANT_READ(void **state) {
-	char *buffer;
-	int32_t buffer_size = 0, bytes_to_read = 0;
-	int32_t rt = 1;
+	char *	     buffer;
+	int32_t	     buffer_size = 0, bytes_to_read = 0;
+	int32_t	     rt = 1;
 	RoctoSession session;
 	session.ssl_active = TRUE;
 
@@ -384,18 +384,18 @@ static void test_SSL_ERROR_WANT_READ(void **state) {
 	memset(buffer, 0, buffer_size);
 	session.connection_fd = 0;
 
-	will_return(__wrap_SSL_read, -1);	// SSL_read failed
-	will_return(__wrap_SSL_read, EIO);	// Arbitrary error code
+	will_return(__wrap_SSL_read, -1);  // SSL_read failed
+	will_return(__wrap_SSL_read, EIO); // Arbitrary error code
 
 	will_return(__wrap_SSL_get_error, SSL_ERROR_WANT_READ);
-	will_return(__wrap_ERR_peek_last_error, SSL_ERROR_WANT_READ);		// Arbitrary - may not be reflected in integration
+	will_return(__wrap_ERR_peek_last_error, SSL_ERROR_WANT_READ); // Arbitrary - may not be reflected in integration
 
-	will_return(__wrap_ERR_error_string, SSL_ERROR_WANT_READ);		// Arbitrary - may not be reflected in integration
+	will_return(__wrap_ERR_error_string, SSL_ERROR_WANT_READ); // Arbitrary - may not be reflected in integration
 	will_return(__wrap_ERR_error_string, "SSL_ERROR_WANT_READ");
 
-	will_return(__wrap_octo_log, WARNING);			// Expected error severity
-	will_return(__wrap_octo_log, ERR_ROCTO_OSSL_READ_FAILED);	// Expected error code
-	will_return(__wrap_octo_log, "SSL_ERROR_WANT_READ");		// Dummy error message
+	will_return(__wrap_octo_log, WARNING);			  // Expected error severity
+	will_return(__wrap_octo_log, ERR_ROCTO_OSSL_READ_FAILED); // Expected error code
+	will_return(__wrap_octo_log, "SSL_ERROR_WANT_READ");	  // Dummy error message
 
 	rt = read_bytes(&session, buffer, buffer_size, bytes_to_read);
 
@@ -405,9 +405,9 @@ static void test_SSL_ERROR_WANT_READ(void **state) {
 }
 
 static void test_SSL_ERROR_SYSCALL(void **state) {
-	char *buffer;
-	int32_t buffer_size = 0, bytes_to_read = 0;
-	int32_t rt = 1;
+	char *	     buffer;
+	int32_t	     buffer_size = 0, bytes_to_read = 0;
+	int32_t	     rt = 1;
 	RoctoSession session;
 	session.ssl_active = TRUE;
 
@@ -420,18 +420,18 @@ static void test_SSL_ERROR_SYSCALL(void **state) {
 	memset(buffer, 0, buffer_size);
 	session.connection_fd = 0;
 
-	will_return(__wrap_SSL_read, -1);	// SSL_read failed
-	will_return(__wrap_SSL_read, EIO);	// Arbitrary error code
+	will_return(__wrap_SSL_read, -1);  // SSL_read failed
+	will_return(__wrap_SSL_read, EIO); // Arbitrary error code
 
 	will_return(__wrap_SSL_get_error, SSL_ERROR_SYSCALL);
-	will_return(__wrap_ERR_peek_last_error, SSL_ERROR_SYSCALL);	// Arbitrary - may not be reflected in integration
+	will_return(__wrap_ERR_peek_last_error, SSL_ERROR_SYSCALL); // Arbitrary - may not be reflected in integration
 
-	will_return(__wrap_ERR_error_string, SSL_ERROR_SYSCALL);	// Arbitrary - may not be reflected in integration
-	will_return(__wrap_ERR_error_string, "unknown (OpenSSL)");	// Arbitrary - not read in this test
+	will_return(__wrap_ERR_error_string, SSL_ERROR_SYSCALL);   // Arbitrary - may not be reflected in integration
+	will_return(__wrap_ERR_error_string, "unknown (OpenSSL)"); // Arbitrary - not read in this test
 
-	will_return(__wrap_octo_log, FATAL);			// Expected error severity
-	will_return(__wrap_octo_log, ERR_SYSCALL);		// Expected error code
-	will_return(__wrap_octo_log, "unknown (OpenSSL)");	// First va_arg to FATAL()
+	will_return(__wrap_octo_log, FATAL);		   // Expected error severity
+	will_return(__wrap_octo_log, ERR_SYSCALL);	   // Expected error code
+	will_return(__wrap_octo_log, "unknown (OpenSSL)"); // First va_arg to FATAL()
 
 	rt = read_bytes(&session, buffer, buffer_size, bytes_to_read);
 
@@ -441,9 +441,9 @@ static void test_SSL_ERROR_SYSCALL(void **state) {
 }
 
 static void test_SSL_ERROR_SSL(void **state) {
-	char *buffer;
-	int32_t buffer_size = 0, bytes_to_read = 0;
-	int32_t rt = 1;
+	char *	     buffer;
+	int32_t	     buffer_size = 0, bytes_to_read = 0;
+	int32_t	     rt = 1;
 	RoctoSession session;
 	session.ssl_active = TRUE;
 
@@ -456,18 +456,18 @@ static void test_SSL_ERROR_SSL(void **state) {
 	memset(buffer, 0, buffer_size);
 	session.connection_fd = 0;
 
-	will_return(__wrap_SSL_read, -1);	// SSL_read failed
-	will_return(__wrap_SSL_read, EIO);	// Arbitrary error code
+	will_return(__wrap_SSL_read, -1);  // SSL_read failed
+	will_return(__wrap_SSL_read, EIO); // Arbitrary error code
 
 	will_return(__wrap_SSL_get_error, SSL_ERROR_SSL);
-	will_return(__wrap_ERR_peek_last_error, SSL_ERROR_SSL);		// Arbitrary - may not be reflected in integration
+	will_return(__wrap_ERR_peek_last_error, SSL_ERROR_SSL); // Arbitrary - may not be reflected in integration
 
-	will_return(__wrap_ERR_error_string, SSL_ERROR_SSL);		// Arbitrary - may not be reflected in integration
+	will_return(__wrap_ERR_error_string, SSL_ERROR_SSL); // Arbitrary - may not be reflected in integration
 	will_return(__wrap_ERR_error_string, "SSL_ERROR_SSL");
 
-	will_return(__wrap_octo_log, FATAL);			// Expected error severity
-	will_return(__wrap_octo_log, ERR_ROCTO_OSSL_READ_FAILED);	// Expected error code
-	will_return(__wrap_octo_log, "SSL_ERROR_SSL");		// Dummy error message
+	will_return(__wrap_octo_log, FATAL);			  // Expected error severity
+	will_return(__wrap_octo_log, ERR_ROCTO_OSSL_READ_FAILED); // Expected error code
+	will_return(__wrap_octo_log, "SSL_ERROR_SSL");		  // Dummy error message
 
 	rt = read_bytes(&session, buffer, buffer_size, bytes_to_read);
 
@@ -479,20 +479,13 @@ static void test_SSL_ERROR_SSL(void **state) {
 int main(void) {
 	octo_init(0, NULL);
 	const struct CMUnitTest tests[] = {
-		cmocka_unit_test(test_valid_input_no_SSL),
-		cmocka_unit_test(test_read_too_large),
-		cmocka_unit_test(test_invalid_read_size),
-		cmocka_unit_test(test_recv_interrupted),
-		cmocka_unit_test(test_recv_connection_reset),
-		cmocka_unit_test(test_recv_broken_pipe),
-		cmocka_unit_test(test_recv_timed_out),
-		cmocka_unit_test(test_socket_closed),
-		cmocka_unit_test(test_valid_input_with_SSL),
-		cmocka_unit_test(test_SSL_read_interrupted),
-		cmocka_unit_test(test_SSL_ERROR_ZERO_RETURN),
-		cmocka_unit_test(test_SSL_ERROR_WANT_READ),
-		cmocka_unit_test(test_SSL_ERROR_SYSCALL),
-		cmocka_unit_test(test_SSL_ERROR_SSL),
+	    cmocka_unit_test(test_valid_input_no_SSL),	  cmocka_unit_test(test_read_too_large),
+	    cmocka_unit_test(test_invalid_read_size),	  cmocka_unit_test(test_recv_interrupted),
+	    cmocka_unit_test(test_recv_connection_reset), cmocka_unit_test(test_recv_broken_pipe),
+	    cmocka_unit_test(test_recv_timed_out),	  cmocka_unit_test(test_socket_closed),
+	    cmocka_unit_test(test_valid_input_with_SSL),  cmocka_unit_test(test_SSL_read_interrupted),
+	    cmocka_unit_test(test_SSL_ERROR_ZERO_RETURN), cmocka_unit_test(test_SSL_ERROR_WANT_READ),
+	    cmocka_unit_test(test_SSL_ERROR_SYSCALL),	  cmocka_unit_test(test_SSL_ERROR_SSL),
 	};
 	return cmocka_run_group_tests(tests, NULL, NULL);
 }

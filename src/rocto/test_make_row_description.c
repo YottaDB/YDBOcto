@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -33,7 +33,7 @@ static void test_null_input(void **state) {
 	int32_t expected_length = sizeof(uint32_t) + sizeof(int16_t);
 
 	response = make_row_description(NULL, 0);
-	received_response = read_row_description((BaseMessage*)&response->type);
+	received_response = read_row_description((BaseMessage *)&response->type);
 
 	// Standard checks
 	assert_non_null(received_response);
@@ -45,9 +45,9 @@ static void test_null_input(void **state) {
 }
 
 static void test_one_parms(void **state) {
-	RowDescription *response = NULL;
-	RowDescription *received_response = NULL;
-	int32_t num_parms = 1;
+	RowDescription *   response = NULL;
+	RowDescription *   received_response = NULL;
+	int32_t		   num_parms = 1;
 	RowDescriptionParm parms[num_parms];
 
 	memset(parms, 0, sizeof(RowDescriptionParm) * num_parms);
@@ -60,11 +60,11 @@ static void test_one_parms(void **state) {
 	parms[0].format_code = 6;
 
 	// RowDescription + RowDescriptionParms + string in each parm + null char
-	int32_t expected_length = sizeof(uint32_t) + sizeof(int16_t) + (sizeof(RowDescriptionParm) - sizeof(char*)) * num_parms
-		+ strlen(parms[0].name) + sizeof(char);
+	int32_t expected_length = sizeof(uint32_t) + sizeof(int16_t) + (sizeof(RowDescriptionParm) - sizeof(char *)) * num_parms
+				  + strlen(parms[0].name) + sizeof(char);
 
 	response = make_row_description(parms, num_parms);
-	received_response = read_row_description((BaseMessage*)&response->type);
+	received_response = read_row_description((BaseMessage *)&response->type);
 
 	// Standard checks
 	assert_non_null(response);
@@ -84,9 +84,9 @@ static void test_one_parms(void **state) {
 }
 
 static void test_multi_parms(void **state) {
-	RowDescription *response = NULL;
-	RowDescription *received_response = NULL;
-	int32_t num_parms = 2;
+	RowDescription *   response = NULL;
+	RowDescription *   received_response = NULL;
+	int32_t		   num_parms = 2;
 	RowDescriptionParm parms[num_parms];
 
 	memset(parms, 0, sizeof(RowDescriptionParm) * num_parms);
@@ -106,11 +106,11 @@ static void test_multi_parms(void **state) {
 	parms[1].format_code = 16;
 
 	// RowDescription + RowDescriptionParms + string in each parm + null chars
-	int32_t expected_length = sizeof(uint32_t) + sizeof(int16_t) + (sizeof(RowDescriptionParm) - sizeof(char*)) * num_parms
-		+ strlen(parms[0].name) + sizeof(char) + strlen(parms[1].name) + sizeof(char);
+	int32_t expected_length = sizeof(uint32_t) + sizeof(int16_t) + (sizeof(RowDescriptionParm) - sizeof(char *)) * num_parms
+				  + strlen(parms[0].name) + sizeof(char) + strlen(parms[1].name) + sizeof(char);
 
 	response = make_row_description(parms, num_parms);
-	received_response = read_row_description((BaseMessage*)&response->type);
+	received_response = read_row_description((BaseMessage *)&response->type);
 
 	// Standard checks
 	assert_non_null(response);
@@ -132,9 +132,9 @@ static void test_multi_parms(void **state) {
 
 int main(void) {
 	const struct CMUnitTest tests[] = {
-		cmocka_unit_test(test_null_input),
-		cmocka_unit_test(test_one_parms),
-		cmocka_unit_test(test_multi_parms),
+	    cmocka_unit_test(test_null_input),
+	    cmocka_unit_test(test_one_parms),
+	    cmocka_unit_test(test_multi_parms),
 	};
 	return cmocka_run_group_tests(tests, NULL, NULL);
 }

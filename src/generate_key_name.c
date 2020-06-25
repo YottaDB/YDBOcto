@@ -24,10 +24,10 @@
  * @returns the number of characters written
  */
 int generate_key_name(char *buffer, int buffer_size, int target_key_num, SqlTable *table, SqlColumn **key_columns) {
-	char			*buffer_ptr, *columnName, *temp;
-	int			written;
-	SqlValue		*value;
-	SqlOptionalKeyword	*keyword;
+	char *		    buffer_ptr, *columnName, *temp;
+	int		    written;
+	SqlValue *	    value;
+	SqlOptionalKeyword *keyword;
 
 	UNUSED(table); // we may eventually need this, and it's already in the code
 

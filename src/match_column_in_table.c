@@ -23,10 +23,9 @@
 /* Note: ambiguous is an output parameter. `*ambiguous` is set to TRUE if multiple columns in the input
  * `table_alias` match the input `column_name`.
  */
-SqlColumnListAlias *match_column_in_table(SqlTableAlias *table_alias, char *column_name, int column_name_len,
-						boolean_t *ambiguous, boolean_t issue_error)
-{
-	SqlColumnListAlias	*cur_column_list, *start_column_list, *ret;
+SqlColumnListAlias *match_column_in_table(SqlTableAlias *table_alias, char *column_name, int column_name_len, boolean_t *ambiguous,
+					  boolean_t issue_error) {
+	SqlColumnListAlias *cur_column_list, *start_column_list, *ret;
 
 	// If there is no column list for this table alias, we won't match anything
 	if (NULL == table_alias->column_list)
@@ -37,19 +36,18 @@ SqlColumnListAlias *match_column_in_table(SqlTableAlias *table_alias, char *colu
 	*ambiguous = FALSE;
 	do {
 		if (NULL != cur_column_list->alias) {
-			int		value_len;
-			SqlValue	*value;
-#			ifndef NDEBUG
-			SqlColumnList	*column_list;
+			int	  value_len;
+			SqlValue *value;
+#ifndef NDEBUG
+			SqlColumnList *column_list;
 
 			UNPACK_SQL_STATEMENT(column_list, cur_column_list->column_list, column_list);
 			assert(column_list == column_list->next);
 			assert(column_list == column_list->prev);
-#			endif
+#endif
 			UNPACK_SQL_STATEMENT(value, cur_column_list->alias, value);
 			value_len = strlen(value->v.string_literal);
-			if ((value_len == column_name_len)
-					&& memcmp(value->v.string_literal, column_name, column_name_len) == 0) {
+			if ((value_len == column_name_len) && memcmp(value->v.string_literal, column_name, column_name_len) == 0) {
 				if (NULL != ret) {
 					/* We found at least 2 matching columns. Signal ambiguous reference
 					 * so caller can issue error. We can break out of the loop now.

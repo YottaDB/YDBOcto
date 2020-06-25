@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -18,8 +18,8 @@
 
 /* Finds the number of columns in the SELECT column list for a given plan */
 int lp_get_num_cols_in_select_column_list(LogicalPlan *plan) {
-	int		num_cols;
-	LogicalPlan	*column_list;
+	int	     num_cols;
+	LogicalPlan *column_list;
 
 	assert((LP_INSERT == plan->type) || (LP_SET_OPERATION == plan->type));
 	if (LP_SET_OPERATION == plan->type) {

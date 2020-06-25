@@ -18,64 +18,66 @@
 #include "octo.h"
 #include "octo_types.h"
 
-#define	ISSUE_TYPE_COMPATIBILITY_ERROR(CHILD_TYPE, OPERATION, OPERAND, RESULT)	{		\
-	ERROR(ERR_TYPE_NOT_COMPATIBLE, get_user_visible_type_string(CHILD_TYPE), OPERATION);	\
-	yyerror(NULL, NULL, OPERAND, NULL, NULL, NULL);						\
-	RESULT = 1;										\
-}
+#define ISSUE_TYPE_COMPATIBILITY_ERROR(CHILD_TYPE, OPERATION, OPERAND, RESULT)                       \
+	{                                                                                            \
+		ERROR(ERR_TYPE_NOT_COMPATIBLE, get_user_visible_type_string(CHILD_TYPE), OPERATION); \
+		yyerror(NULL, NULL, OPERAND, NULL, NULL, NULL);                                      \
+		RESULT = 1;                                                                          \
+	}
 
-#define MAP_TYPE_TO_PARAMETER_VALUE(TYPE_1, TYPE_2)										\
-{																\
-	/* Map the column's type to the prepared statement parameter for ParameterDescriptions and Bind handling */		\
-	if (parse_context->is_extended_query && (PARAMETER_VALUE == TYPE_1)) {							\
-		if (NULL != parse_context->types) {										\
-			if (parse_context->cur_type < parse_context->num_bind_parm_types) {					\
-				/* If type specified in Parse message, use that */						\
-				TYPE_1 = get_sqlvaluetype_from_psql_type(parse_context->types[parse_context->cur_type]);	\
-				parse_context->cur_type++;									\
-			} else {												\
-				/* If not, use the one assigned by the parser from the DDL */					\
-				if ((PARAMETER_VALUE == TYPE_2) || (NUL_VALUE == TYPE_2)){					\
-					ERROR(ERR_FEATURE_NOT_IMPLEMENTED,							\
-							"comparison between literal parameters, e.g. $1 = $2");			\
-					result = 1;										\
-				} else {											\
-					if (parse_context->cur_type >= parse_context->types_size) {				\
-						if (parse_context->cur_type > (2 * parse_context->types_size)) {		\
-							/* Sync types to cur_type */						\
-							EXPAND_ARRAY_ALLOCATION(parse_context->types,				\
-								parse_context->types_size, parse_context->cur_type,		\
-								PSQL_TypeOid);							\
-							TRACE(ERR_MEM_REALLOCATION, "expanded", "parse_context->types");	\
-						}										\
-						DOUBLE_ARRAY_ALLOCATION(parse_context->types,					\
-								parse_context->types_size, PSQL_TypeOid);			\
-						TRACE(ERR_MEM_REALLOCATION, "doubled", "parse_context->types");			\
-					}											\
-					parse_context->types[parse_context->cur_type] = get_psql_type_from_sqlvaluetype(TYPE_2);\
-					parse_context->cur_type++;								\
-					TYPE_1 = TYPE_2;									\
-				}												\
-			}													\
-		}														\
-	} else {														\
-		TYPE_1 = TYPE_2;												\
-	}															\
-}
+#define MAP_TYPE_TO_PARAMETER_VALUE(TYPE_1, TYPE_2)                                                                              \
+	{                                                                                                                        \
+		/* Map the column's type to the prepared statement parameter for ParameterDescriptions and Bind handling */      \
+		if (parse_context->is_extended_query && (PARAMETER_VALUE == TYPE_1)) {                                           \
+			if (NULL != parse_context->types) {                                                                      \
+				if (parse_context->cur_type < parse_context->num_bind_parm_types) {                              \
+					/* If type specified in Parse message, use that */                                       \
+					TYPE_1 = get_sqlvaluetype_from_psql_type(parse_context->types[parse_context->cur_type]); \
+					parse_context->cur_type++;                                                               \
+				} else {                                                                                         \
+					/* If not, use the one assigned by the parser from the DDL */                            \
+					if ((PARAMETER_VALUE == TYPE_2) || (NUL_VALUE == TYPE_2)) {                              \
+						ERROR(ERR_FEATURE_NOT_IMPLEMENTED,                                               \
+						      "comparison between literal parameters, e.g. $1 = $2");                    \
+						result = 1;                                                                      \
+					} else {                                                                                 \
+						if (parse_context->cur_type >= parse_context->types_size) {                      \
+							if (parse_context->cur_type > (2 * parse_context->types_size)) {         \
+								/* Sync types to cur_type */                                     \
+								EXPAND_ARRAY_ALLOCATION(parse_context->types,                    \
+											parse_context->types_size,               \
+											parse_context->cur_type, PSQL_TypeOid);  \
+								TRACE(ERR_MEM_REALLOCATION, "expanded", "parse_context->types"); \
+							}                                                                        \
+							DOUBLE_ARRAY_ALLOCATION(parse_context->types, parse_context->types_size, \
+										PSQL_TypeOid);                                   \
+							TRACE(ERR_MEM_REALLOCATION, "doubled", "parse_context->types");          \
+						}                                                                                \
+						parse_context->types[parse_context->cur_type]                                    \
+						    = get_psql_type_from_sqlvaluetype(TYPE_2);                                   \
+						parse_context->cur_type++;                                                       \
+						TYPE_1 = TYPE_2;                                                                 \
+					}                                                                                        \
+				}                                                                                                \
+			}                                                                                                        \
+		} else {                                                                                                         \
+			TYPE_1 = TYPE_2;                                                                                         \
+		}                                                                                                                \
+	}
 
 // Coverts ambiguous SqlValueTypes to determinate types.
 // Specifically:
 //	1. Uses DDL-specified types for prepared statement parameter types if not specified by client
 //	2. Converts INTEGER_LITERALs to NUMERIC_LITERALs, as they are equivalent internally within Octo
-#define CAST_AMBIGUOUS_TYPES(TYPE1, TYPE2)									\
-	if ((PARAMETER_VALUE == TYPE1) || (NUL_VALUE == TYPE1)) {						\
-		MAP_TYPE_TO_PARAMETER_VALUE(TYPE1, TYPE2);							\
-	} else if ((PARAMETER_VALUE == TYPE2) || (NUL_VALUE == TYPE2)) {					\
-		MAP_TYPE_TO_PARAMETER_VALUE(TYPE2, TYPE1);							\
-	} else if ((INTEGER_LITERAL == TYPE1) && (NUMERIC_LITERAL == TYPE2)){					\
-		TYPE1 = TYPE2;											\
-	} else if ((INTEGER_LITERAL == TYPE2) && (NUMERIC_LITERAL == TYPE1)){					\
-		TYPE2 = TYPE1;											\
+#define CAST_AMBIGUOUS_TYPES(TYPE1, TYPE2)                                     \
+	if ((PARAMETER_VALUE == TYPE1) || (NUL_VALUE == TYPE1)) {              \
+		MAP_TYPE_TO_PARAMETER_VALUE(TYPE1, TYPE2);                     \
+	} else if ((PARAMETER_VALUE == TYPE2) || (NUL_VALUE == TYPE2)) {       \
+		MAP_TYPE_TO_PARAMETER_VALUE(TYPE2, TYPE1);                     \
+	} else if ((INTEGER_LITERAL == TYPE1) && (NUMERIC_LITERAL == TYPE2)) { \
+		TYPE1 = TYPE2;                                                 \
+	} else if ((INTEGER_LITERAL == TYPE2) && (NUMERIC_LITERAL == TYPE1)) { \
+		TYPE2 = TYPE1;                                                 \
 	}
 
 SqlValueType get_sqlvaluetype_from_sqldatatype(SqlDataType type) {
@@ -101,7 +103,7 @@ SqlValueType get_sqlvaluetype_from_sqldatatype(SqlDataType type) {
 }
 
 SqlValueType get_sqlvaluetype_from_psql_type(PSQL_TypeOid type) {
-	switch(type) {
+	switch (type) {
 	case PSQL_TypeOid_int4:
 		return INTEGER_LITERAL;
 		break;
@@ -121,7 +123,7 @@ SqlValueType get_sqlvaluetype_from_psql_type(PSQL_TypeOid type) {
 }
 
 PSQL_TypeOid get_psql_type_from_sqlvaluetype(SqlValueType type) {
-	switch(type) {
+	switch (type) {
 	case BOOLEAN_VALUE:
 		return PSQL_TypeOid_bool;
 		break;
@@ -149,13 +151,12 @@ PSQL_TypeOid get_psql_type_from_sqlvaluetype(SqlValueType type) {
 // Caller passes "do_loop" variable set to TRUE  if they want us to traverse the linked list.
 //                              and set to FALSE if they want us to traverse only the first element in the linked list.
 int populate_data_type_column_list_alias(SqlStatement *v, SqlValueType *type, boolean_t do_loop, ParseContext *parse_context) {
-	SqlColumnListAlias	*column_list_alias, *cur_column_list_alias;
-	SqlValueType		child_type1;
-	int			result = 0;
+	SqlColumnListAlias *column_list_alias, *cur_column_list_alias;
+	SqlValueType	    child_type1;
+	int		    result = 0;
 
 	*type = UNKNOWN_SqlValueType;
-	if ((NULL != v) && (NULL != v->v.select))
-	{
+	if ((NULL != v) && (NULL != v->v.select)) {
 		// SqlColumnListAlias
 		UNPACK_SQL_STATEMENT(column_list_alias, v, column_list_alias);
 		cur_column_list_alias = column_list_alias;
@@ -183,12 +184,11 @@ int populate_data_type_column_list_alias(SqlStatement *v, SqlValueType *type, bo
 // Caller passes "do_loop" variable set to TRUE  if they want us to traverse the linked list.
 //                              and set to FALSE if they want us to traverse only the first element in the linked list.
 int populate_data_type_column_list(SqlStatement *v, SqlValueType *type, boolean_t do_loop, ParseContext *parse_context) {
-	SqlColumnList	*column_list, *cur_column_list;
-	int		result = 0;
+	SqlColumnList *column_list, *cur_column_list;
+	int	       result = 0;
 
 	*type = UNKNOWN_SqlValueType;
-	if ((NULL != v) && (NULL != v->v.select))
-	{
+	if ((NULL != v) && (NULL != v->v.select)) {
 		// SqlColumnList
 		UNPACK_SQL_STATEMENT(column_list, v, column_list);
 		cur_column_list = column_list;
@@ -202,23 +202,23 @@ int populate_data_type_column_list(SqlStatement *v, SqlValueType *type, boolean_
 }
 
 int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_context) {
-	SqlBinaryOperation	*binary = NULL;
-	SqlCaseBranchStatement	*cas_branch, *cur_branch;
-	SqlCaseStatement	*cas;
-	SqlColumn		*column = NULL;
-	SqlColumnList		*cur_column_list, *start_column_list;
-	SqlFunctionCall		*function_call;
-	SqlFunction		*function;
-	SqlParameterTypeList	*cur_parm_type_list, *start_parm_type_list;
-	SqlAggregateFunction	*aggregate_function;
-	SqlJoin			*start_join, *cur_join;
-	SqlSetOperation		*set_operation;
-	SqlTableAlias		*table_alias;
-	SqlUnaryOperation	*unary = NULL;
-	SqlValue		*value = NULL;
+	SqlBinaryOperation *	binary = NULL;
+	SqlCaseBranchStatement *cas_branch, *cur_branch;
+	SqlCaseStatement *	cas;
+	SqlColumn *		column = NULL;
+	SqlColumnList *		cur_column_list, *start_column_list;
+	SqlFunctionCall *	function_call;
+	SqlFunction *		function;
+	SqlParameterTypeList *	cur_parm_type_list, *start_parm_type_list;
+	SqlAggregateFunction *	aggregate_function;
+	SqlJoin *		start_join, *cur_join;
+	SqlSetOperation *	set_operation;
+	SqlTableAlias *		table_alias;
+	SqlUnaryOperation *	unary = NULL;
+	SqlValue *		value = NULL;
 	SqlValueType		child_type1, child_type2;
 	YYLTYPE			location;
-	SqlSelectStatement	*select;
+	SqlSelectStatement *	select;
 	int			result = 0, num_function_args;
 
 	*type = UNKNOWN_SqlValueType;
@@ -226,19 +226,19 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_
 		return 0;
 	// Note: The below switch statement and the flow mirrors that in hash_canonical_query.c.
 	//       Any change here or there needs to also be done in the other module.
-	switch(v->type) {
+	switch (v->type) {
 	case cas_STATEMENT:
 		UNPACK_SQL_STATEMENT(cas, v, cas);
 		// We expect type to get overriden here; only the last type matters
 		result |= populate_data_type(cas->value, type, parse_context);
 		result |= populate_data_type(cas->branches, &child_type1, parse_context);
-		if (NULL != cas->optional_else)	{	// No need to validate types if ELSE not present
+		if (NULL != cas->optional_else) { // No need to validate types if ELSE not present
 			result |= populate_data_type(cas->optional_else, &child_type2, parse_context);
 			CAST_AMBIGUOUS_TYPES(child_type1, child_type2);
 			// SQL NULL values are acceptable in CASE branches
 			if (child_type1 != child_type2) {
 				ERROR(ERR_CASE_BRANCH_TYPE_MISMATCH, get_user_visible_type_string(child_type1),
-								get_user_visible_type_string(child_type2));
+				      get_user_visible_type_string(child_type2));
 				yyerror(NULL, NULL, &cas->branches->v.cas_branch->value, NULL, NULL, NULL);
 				yyerror(NULL, NULL, &cas->optional_else, NULL, NULL, NULL);
 				result = 1;
@@ -258,7 +258,7 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_
 				CAST_AMBIGUOUS_TYPES(child_type1, child_type2);
 				if (child_type1 != child_type2) {
 					ERROR(ERR_CASE_BRANCH_TYPE_MISMATCH, get_user_visible_type_string(child_type1),
-									get_user_visible_type_string(child_type2));
+					      get_user_visible_type_string(child_type2));
 					yyerror(NULL, NULL, &cur_branch->value, NULL, NULL, NULL);
 					yyerror(NULL, NULL, &cur_branch->next->value, NULL, NULL, NULL);
 					result = 1;
@@ -281,8 +281,8 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_
 		if (NULL != select->where_expression) {
 			result |= populate_data_type(select->where_expression, &child_type1, parse_context);
 			if (!result && (BOOLEAN_VALUE != child_type1) && (NUL_VALUE != child_type1)) {
-				ISSUE_TYPE_COMPATIBILITY_ERROR(child_type1, "boolean operations",		\
-									&select->where_expression, result);
+				ISSUE_TYPE_COMPATIBILITY_ERROR(child_type1, "boolean operations", &select->where_expression,
+							       result);
 			}
 		}
 		// SqlColumnListAlias that is a linked list
@@ -291,8 +291,8 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_
 		if (NULL != select->having_expression) {
 			result |= populate_data_type(select->having_expression, &child_type1, parse_context);
 			if (!result && (BOOLEAN_VALUE != child_type1) && (NUL_VALUE != child_type1)) {
-				ISSUE_TYPE_COMPATIBILITY_ERROR(child_type1, "boolean operations",		\
-									&select->having_expression, result);
+				ISSUE_TYPE_COMPATIBILITY_ERROR(child_type1, "boolean operations", &select->having_expression,
+							       result);
 			}
 		}
 		// SqlColumnListAlias that is a linked list
@@ -319,7 +319,7 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_
 			assert(0 == function->num_args);
 		}
 		cur_column_list = start_column_list = function_call->parameters->v.column_list;
-		if (NULL != cur_column_list->value) {		// Only iterate over parameters if there are any
+		if (NULL != cur_column_list->value) { // Only iterate over parameters if there are any
 			do {
 				if (num_function_args < function->num_args) {
 					result |= populate_data_type(cur_column_list->value, &child_type1, parse_context);
@@ -328,9 +328,9 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_
 					CAST_AMBIGUOUS_TYPES(child_type1, child_type2);
 					if (child_type1 != child_type2) {
 						ERROR(ERR_FUNCTION_PARAMETER_TYPE_MISMATCH,
-								function_call->function_name->v.value->v.string_literal,
-								get_user_visible_type_string(child_type2),
-								get_user_visible_type_string(child_type1));
+						      function_call->function_name->v.value->v.string_literal,
+						      get_user_visible_type_string(child_type2),
+						      get_user_visible_type_string(child_type1));
 						yyerror(NULL, NULL, &cur_column_list->value, NULL, NULL, NULL);
 						result = 1;
 						break;
@@ -346,8 +346,7 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_
 		// The number of arguments will be incorrect if there was a type error above, so skip this check in that case.
 		if ((0 == result) && (num_function_args != function->num_args)) {
 			ERROR(ERR_INVALID_NUMBER_FUNCTION_ARGUMENTS, function_call->function_name->v.value->v.string_literal,
-					function->num_args,
-					num_function_args);
+			      function->num_args, num_function_args);
 			yyerror(NULL, NULL, &function_call->parameters, NULL, NULL, NULL);
 			result = 1;
 			break;
@@ -360,7 +359,7 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_
 		result |= populate_data_type_column_list(aggregate_function->parameter, type, FALSE, parse_context);
 		// Note that COUNT(...) is always an INTEGER type even though ... might be a string type column.
 		// Hence the if check below.
-		switch(aggregate_function->type) {
+		switch (aggregate_function->type) {
 		case COUNT_ASTERISK_AGGREGATE:
 		case COUNT_AGGREGATE:
 		case COUNT_AGGREGATE_DISTINCT:
@@ -375,7 +374,7 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_
 				 * an error in that case.
 				 */
 				ERROR(ERR_MISTYPED_FUNCTION, get_aggregate_func_name(aggregate_function->type),
-								get_user_visible_type_string(*type));
+				      get_user_visible_type_string(*type));
 				yyerror(NULL, NULL, &aggregate_function->parameter, NULL, NULL, NULL);
 				result = 1;
 			}
@@ -385,7 +384,7 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_
 			if (BOOLEAN_VALUE == *type) {
 				/* BOOLEAN type cannot be input for the MIN or MAX function so signal an error in that case. */
 				ERROR(ERR_MISTYPED_FUNCTION, get_aggregate_func_name(aggregate_function->type),
-								get_user_visible_type_string(*type));
+				      get_user_visible_type_string(*type));
 				yyerror(NULL, NULL, &aggregate_function->parameter, NULL, NULL, NULL);
 				result = 1;
 				break;
@@ -407,11 +406,11 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_
 			result |= populate_data_type(cur_join->value, type, parse_context);
 			result |= populate_data_type(cur_join->condition, type, parse_context);
 			cur_join = cur_join->next;
-		} while(cur_join != start_join);
+		} while (cur_join != start_join);
 		break;
 	case value_STATEMENT:
 		UNPACK_SQL_STATEMENT(value, v, value);
-		switch(value->type) {
+		switch (value->type) {
 		case CALCULATED_VALUE:
 			result |= populate_data_type(value->v.calculated, &child_type1, parse_context);
 			*type = child_type1;
@@ -458,7 +457,7 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_
 			result |= populate_data_type(v->v.column_alias->column, type, parse_context);
 		} else {
 			UNPACK_SQL_STATEMENT(column, v->v.column_alias->column, column);
-			switch(column->type) {
+			switch (column->type) {
 			case BOOLEAN_TYPE:
 				*type = BOOLEAN_VALUE;
 				break;
@@ -477,7 +476,7 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_
 				// all columns so we should be able to find out the column type at this point. Fix it now.
 				assert(NULL != column->pre_qualified_cla);
 				result |= populate_data_type(column->pre_qualified_cla->column_list, type, parse_context);
-				switch(*type) {
+				switch (*type) {
 				case BOOLEAN_VALUE:
 					column->type = BOOLEAN_TYPE;
 					break;
@@ -525,7 +524,7 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_
 		UNPACK_SQL_STATEMENT(table_alias, v, table_alias);
 		result |= populate_data_type(table_alias->table, type, parse_context);
 		assert((select_STATEMENT != table_alias->table->type)
-			|| (table_alias->table->v.select->select_list == table_alias->column_list));
+		       || (table_alias->table->v.select->select_list == table_alias->column_list));
 		if (select_STATEMENT != table_alias->table->type)
 			result |= populate_data_type(table_alias->column_list, &child_type1, parse_context);
 		break;
@@ -533,35 +532,34 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_
 		UNPACK_SQL_STATEMENT(binary, v, binary);
 		result |= populate_data_type(binary->operands[0], &child_type1, parse_context);
 		if (((BOOLEAN_IN == binary->operation) || (BOOLEAN_NOT_IN == binary->operation))
-			&& (column_list_STATEMENT == binary->operands[1]->type))
-		{	// SqlColumnList
+		    && (column_list_STATEMENT == binary->operands[1]->type)) { // SqlColumnList
 			result |= populate_data_type_column_list(binary->operands[1], &child_type2, TRUE, parse_context);
 		} else {
 			// SqlStatement (?)
 			result |= populate_data_type(binary->operands[1], &child_type2, parse_context);
 		}
 		CAST_AMBIGUOUS_TYPES(child_type1, child_type2);
-		switch(binary->operation) {
+		switch (binary->operation) {
 		case ADDITION:
 		case SUBTRACTION:
 		case DIVISION:
 		case MULTIPLICATION:
 		case MODULO:
 			if (!result) {
-				int		i;
-				SqlValueType	child_type;
+				int	     i;
+				SqlValueType child_type;
 
 				for (i = 0; i < 2; i++) {
 					child_type = ((0 == i) ? child_type1 : child_type2);
-					switch(child_type) {
+					switch (child_type) {
 					case INTEGER_LITERAL:
 					case NUMERIC_LITERAL:
 					case NUL_VALUE:
 						/* These types are acceptable for arithmetic operations */
 						break;
 					default:
-						ISSUE_TYPE_COMPATIBILITY_ERROR(child_type, "arithmetic operations",	\
-											&binary->operands[i], result);
+						ISSUE_TYPE_COMPATIBILITY_ERROR(child_type, "arithmetic operations",
+									       &binary->operands[i], result);
 					}
 				}
 			}
@@ -571,21 +569,21 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_
 			/* Postgres allows || operator as long as at least one operand is STRING type or both operands are NULLs.
 			 * Otherwise it issues an error. Do the same in Octo for compatibility.
 			 */
-			if ((STRING_LITERAL != child_type1) && (NUL_VALUE != child_type1)
-					&& (STRING_LITERAL != child_type2) && (NUL_VALUE != child_type2)) {
+			if ((STRING_LITERAL != child_type1) && (NUL_VALUE != child_type1) && (STRING_LITERAL != child_type2)
+			    && (NUL_VALUE != child_type2)) {
 				if (!result) {
-					int		i;
-					SqlValueType	child_type;
+					int	     i;
+					SqlValueType child_type;
 
 					for (i = 0; i < 2; i++) {
 						child_type = ((0 == i) ? child_type1 : child_type2);
-						ISSUE_TYPE_COMPATIBILITY_ERROR(child_type, "|| operator",	\
-										&binary->operands[i], result);
+						ISSUE_TYPE_COMPATIBILITY_ERROR(child_type, "|| operator", &binary->operands[i],
+									       result);
 					}
 				}
 			} else {
-				SqlStatement	**target;
-				SqlValueType	child_type;
+				SqlStatement **target;
+				SqlValueType   child_type;
 
 				/* If one operand is BOOLEAN_VALUE, add type cast operator (::string) to it.
 				 * Not needed for INTEGER_LITERAL or NUMERIC_LITERAL as M handles this fine.
@@ -602,7 +600,7 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_
 					target = NULL;
 				}
 				if (NULL != target) {
-					SqlStatement	*sql_stmt;
+					SqlStatement *sql_stmt;
 
 					SQL_STATEMENT(sql_stmt, value_STATEMENT);
 					MALLOC_STATEMENT(sql_stmt, value, SqlValue);
@@ -619,14 +617,14 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_
 		case BOOLEAN_OR:
 		case BOOLEAN_AND:
 			if (!result) {
-				int		i;
-				SqlValueType	child_type;
+				int	     i;
+				SqlValueType child_type;
 
 				for (i = 0; i < 2; i++) {
 					child_type = ((0 == i) ? child_type1 : child_type2);
 					if ((BOOLEAN_VALUE != child_type) && (NUL_VALUE != child_type)) {
-						ISSUE_TYPE_COMPATIBILITY_ERROR(child_type, "boolean operations",	\
-										&binary->operands[i], result);
+						ISSUE_TYPE_COMPATIBILITY_ERROR(child_type, "boolean operations",
+									       &binary->operands[i], result);
 					}
 				}
 			}
@@ -637,10 +635,10 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_
 			break;
 		}
 		if (!result && (child_type1 != child_type2)) {
-			int	i;
+			int i;
 
 			ERROR(ERR_TYPE_MISMATCH, get_user_visible_type_string(child_type1),
-							get_user_visible_type_string(child_type2));
+			      get_user_visible_type_string(child_type2));
 			for (i = 0; i < 2; i++) {
 				yyerror(NULL, NULL, &binary->operands[i], NULL, NULL, NULL);
 			}
@@ -656,14 +654,14 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_
 		 * whether the # and types of columns on both operands match. If not issue error.
 		 */
 		{
-			SqlTableAlias		*table_alias[2];
-			SqlColumnListAlias	*cur_cla[2], *start_cla[2];
-			SqlStatement		*sql_stmt;
-			boolean_t		terminate_loop[2] = {FALSE, FALSE};
-			SqlColumnListAlias	*type_mismatch_cla[2] = {NULL, NULL};
-			SqlColumnListAlias	*cur_set_cla, *start_set_cla;
-			SqlSetOperation		*set_operand;
-			int			i;
+			SqlTableAlias *	    table_alias[2];
+			SqlColumnListAlias *cur_cla[2], *start_cla[2];
+			SqlStatement *	    sql_stmt;
+			boolean_t	    terminate_loop[2] = {FALSE, FALSE};
+			SqlColumnListAlias *type_mismatch_cla[2] = {NULL, NULL};
+			SqlColumnListAlias *cur_set_cla, *start_set_cla;
+			SqlSetOperation *   set_operand;
+			int		    i;
 
 			for (i = 0; i < 2; i++) {
 				sql_stmt = set_operation->operand[i];
@@ -682,8 +680,8 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_
 			assert(NULL == set_operation->col_type_list);
 			start_set_cla = NULL;
 			do {
-				SqlValueType	left_type, right_type;
-				boolean_t	is_type_mismatch;
+				SqlValueType left_type, right_type;
+				boolean_t    is_type_mismatch;
 
 				left_type = cur_cla[0]->type;
 				right_type = cur_cla[1]->type;
@@ -691,11 +689,11 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_
 				 * that determine the value of `is_type_mismatch`.
 				 */
 				assert((BOOLEAN_VALUE == left_type) || (INTEGER_LITERAL == left_type)
-					|| (NUMERIC_LITERAL == left_type) || (STRING_LITERAL == left_type)
-					|| (NUL_VALUE == left_type));
+				       || (NUMERIC_LITERAL == left_type) || (STRING_LITERAL == left_type)
+				       || (NUL_VALUE == left_type));
 				assert((BOOLEAN_VALUE == right_type) || (INTEGER_LITERAL == right_type)
-					|| (NUMERIC_LITERAL == right_type) || (STRING_LITERAL == right_type)
-					|| (NUL_VALUE == right_type));
+				       || (NUMERIC_LITERAL == right_type) || (STRING_LITERAL == right_type)
+				       || (NUL_VALUE == right_type));
 				/* If not yet found any type mismatch, check for one. If already found one, keep just that.
 				 * In general, all types are compatible with only themselves.
 				 * Exception is that
@@ -703,14 +701,14 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_
 				 *	b) NULL is compatible with any type.
 				 */
 				if (NULL == type_mismatch_cla[0]) {
-					switch(left_type) {
+					switch (left_type) {
 					case BOOLEAN_VALUE:
 						is_type_mismatch = ((NUL_VALUE != right_type) && (BOOLEAN_VALUE != right_type));
 						break;
 					case INTEGER_LITERAL:
 					case NUMERIC_LITERAL:
 						is_type_mismatch = ((NUL_VALUE != right_type) && (INTEGER_LITERAL != right_type)
-									&& (NUMERIC_LITERAL != right_type));
+								    && (NUMERIC_LITERAL != right_type));
 						break;
 					case STRING_LITERAL:
 						is_type_mismatch = ((NUL_VALUE != right_type) && (STRING_LITERAL != right_type));
@@ -763,9 +761,9 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_
 				result = 1;
 			} else if (NULL != type_mismatch_cla[0]) {
 				// The type of one column in the two operands (of the SET operation) do not match. Issue error.
-				ERROR(ERR_SETOPER_TYPE_MISMATCH, get_set_operation_string(set_operation->type),		\
-					get_user_visible_type_string(type_mismatch_cla[0]->type),			\
-					get_user_visible_type_string(type_mismatch_cla[1]->type));
+				ERROR(ERR_SETOPER_TYPE_MISMATCH, get_set_operation_string(set_operation->type),
+				      get_user_visible_type_string(type_mismatch_cla[0]->type),
+				      get_user_visible_type_string(type_mismatch_cla[1]->type));
 				location = type_mismatch_cla[0]->column_list->loc;
 				yyerror(&location, NULL, NULL, NULL, NULL, NULL);
 				location = type_mismatch_cla[1]->column_list->loc;
@@ -781,7 +779,7 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_
 		result |= populate_data_type(unary->operand, &child_type1, parse_context);
 		/* Check for type mismatches */
 		if (((FORCE_NUM == unary->operation) || (NEGATIVE == unary->operation))
-				&& ((INTEGER_LITERAL != child_type1) && (NUMERIC_LITERAL != child_type1))) {
+		    && ((INTEGER_LITERAL != child_type1) && (NUMERIC_LITERAL != child_type1))) {
 			/* Unary + and - operators cannot be used on non-numeric or non-integer types */
 			ERROR(ERR_INVALID_INPUT_SYNTAX, get_user_visible_type_string(child_type1));
 			yyerror(NULL, NULL, &unary->operand, NULL, NULL, NULL);
@@ -792,7 +790,7 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_
 		 * not to the type inherited from the sub-query passed to EXISTS.
 		 */
 		assert(BOOLEAN_NOT_EXISTS != unary->operation);
-		switch(unary->operation) {
+		switch (unary->operation) {
 		case BOOLEAN_EXISTS:
 		case BOOLEAN_IS_NULL:
 		case BOOLEAN_IS_NOT_NULL:
@@ -802,8 +800,8 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_
 			*type = child_type1;
 			break;
 		}
-		assert((BOOLEAN_NOT != unary->operation) || (BOOLEAN_VALUE == *type)
-			|| (NUL_VALUE == *type) || (NUMERIC_LITERAL == *type) || (STRING_LITERAL == *type));
+		assert((BOOLEAN_NOT != unary->operation) || (BOOLEAN_VALUE == *type) || (NUL_VALUE == *type)
+		       || (NUMERIC_LITERAL == *type) || (STRING_LITERAL == *type));
 		break;
 	default:
 		assert(FALSE);

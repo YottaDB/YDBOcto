@@ -15,18 +15,18 @@
 #include "octo.h"
 #include "octo_types.h"
 
-#define CALL_DECOMPRESS_HELPER(value, out, out_length)			\
-{									\
-	if (value != NULL) {						\
-		value = R2A(value);					\
-		decompress_statement_helper(value, out, out_length);	\
-	}								\
-}
+#define CALL_DECOMPRESS_HELPER(value, out, out_length)                       \
+	{                                                                    \
+		if (value != NULL) {                                         \
+			value = R2A(value);                                  \
+			decompress_statement_helper(value, out, out_length); \
+		}                                                            \
+	}
 
 void *decompress_statement_helper(SqlStatement *stmt, char *out, int out_length);
 
 SqlStatement *decompress_statement(char *buffer, int out_length) {
-	return (SqlStatement*)decompress_statement_helper((SqlStatement*)buffer, buffer, out_length);
+	return (SqlStatement *)decompress_statement_helper((SqlStatement *)buffer, buffer, out_length);
 }
 
 /*
@@ -35,14 +35,14 @@ SqlStatement *decompress_statement(char *buffer, int out_length) {
  * If the out buffer is NULL, doesn't copy the statement, but just counts size
  */
 void *decompress_statement_helper(SqlStatement *stmt, char *out, int out_length) {
-	SqlTable			*table;
-	SqlColumn			*cur_column, *start_column;
-	SqlValue			*value;
-	SqlOptionalKeyword		*start_keyword, *cur_keyword;
-	SqlFunction			*function;
-	SqlParameterTypeList		*cur_parameter_type_list, *start_parameter_type_list;
+	SqlTable *	      table;
+	SqlColumn *	      cur_column, *start_column;
+	SqlValue *	      value;
+	SqlOptionalKeyword *  start_keyword, *cur_keyword;
+	SqlFunction *	      function;
+	SqlParameterTypeList *cur_parameter_type_list, *start_parameter_type_list;
 
-	assert(((char*)stmt) < out + out_length);
+	assert(((char *)stmt) < out + out_length);
 	if (NULL == stmt) {
 		return NULL;
 	}

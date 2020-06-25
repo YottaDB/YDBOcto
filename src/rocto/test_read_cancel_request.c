@@ -40,7 +40,7 @@ static void test_valid_input(void **state) {
 	unsigned int message_length = sizeof(CancelRequest);
 
 	// Length + extra stuff - already counted (length, protocol version)
-	CancelRequest *test_data = (CancelRequest*)malloc(sizeof(CancelRequest));
+	CancelRequest *test_data = (CancelRequest *)malloc(sizeof(CancelRequest));
 	test_data->length = htonl(message_length);
 	test_data->request_code = htonl(request_code);
 	// The pid and secret_key values are arbitrary as they're not checked in read_cancel_request
@@ -50,7 +50,7 @@ static void test_valid_input(void **state) {
 	// The actual test
 	will_return(__wrap_read_bytes, test_data->pid);
 	will_return(__wrap_read_bytes, test_data->secret_key);
-	CancelRequest *cancel = read_cancel_request(NULL, (char*)(&test_data->length));
+	CancelRequest *cancel = read_cancel_request(NULL, (char *)(&test_data->length));
 
 	// Standard checks
 	assert_non_null(cancel);
@@ -70,7 +70,7 @@ static void test_invalid_length(void **state) {
 	unsigned int message_length = 17;
 
 	// Length + extra stuff - already counted (length, protocol version)
-	CancelRequest *test_data = (CancelRequest*)malloc(sizeof(CancelRequest));
+	CancelRequest *test_data = (CancelRequest *)malloc(sizeof(CancelRequest));
 	test_data->length = htonl(message_length);
 	test_data->request_code = htonl(request_code);
 	// The pid and secret_key values are arbitrary as they're not checked in read_cancel_request
@@ -78,7 +78,7 @@ static void test_invalid_length(void **state) {
 	test_data->secret_key = htonl(8888);
 
 	// The actual test
-	CancelRequest *cancel = read_cancel_request(NULL, (char*)(&test_data->length));
+	CancelRequest *cancel = read_cancel_request(NULL, (char *)(&test_data->length));
 
 	// Standard checks
 	assert_null(cancel);
@@ -93,7 +93,7 @@ static void test_invalid_request_code(void **state) {
 	unsigned int message_length = sizeof(CancelRequest);
 
 	// Length + extra stuff - already counted (length, protocol version)
-	CancelRequest *test_data = (CancelRequest*)malloc(sizeof(CancelRequest));
+	CancelRequest *test_data = (CancelRequest *)malloc(sizeof(CancelRequest));
 	test_data->length = htonl(message_length);
 	test_data->request_code = htonl(request_code);
 	// The pid and secret_key values are arbitrary as they're not checked in read_cancel_request
@@ -101,7 +101,7 @@ static void test_invalid_request_code(void **state) {
 	test_data->secret_key = htonl(8888);
 
 	// The actual test
-	CancelRequest *cancel = read_cancel_request(NULL, (char*)(&test_data->length));
+	CancelRequest *cancel = read_cancel_request(NULL, (char *)(&test_data->length));
 
 	// Standard checks
 	assert_null(cancel);
@@ -111,9 +111,9 @@ static void test_invalid_request_code(void **state) {
 int main(void) {
 	octo_init(0, NULL);
 	const struct CMUnitTest tests[] = {
-			cmocka_unit_test(test_valid_input),
-			cmocka_unit_test(test_invalid_length),
-			cmocka_unit_test(test_invalid_request_code),
+	    cmocka_unit_test(test_valid_input),
+	    cmocka_unit_test(test_invalid_length),
+	    cmocka_unit_test(test_invalid_request_code),
 	};
 	return cmocka_run_group_tests(tests, NULL, NULL);
 }

@@ -27,10 +27,10 @@
  * Other errors return -2
  */
 int get_key_columns(SqlTable *table, SqlColumn **key_columns) {
-	int			key_num, max_key = -1, error = 0;
-	SqlColumn		*start_column, *cur_column;
-	SqlOptionalKeyword	*keyword;
-	SqlValue		*value;
+	int		    key_num, max_key = -1, error = 0;
+	SqlColumn *	    start_column, *cur_column;
+	SqlOptionalKeyword *keyword;
+	SqlValue *	    value;
 
 	assert(NULL != key_columns);
 	UNPACK_SQL_STATEMENT(start_column, table->columns, column);

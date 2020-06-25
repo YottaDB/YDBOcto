@@ -16,8 +16,8 @@
 #include "logical_plan.h"
 
 int lp_get_tablejoin_unique_id(LogicalPlan *plan) {
-	LogicalPlan	*oper0, *cur_lp_key;
-	int		unique_id;
+	LogicalPlan *oper0, *cur_lp_key;
+	int	     unique_id;
 
 	assert(LP_TABLE_JOIN == plan->type);
 	oper0 = plan->v.lp_default.operand[0];

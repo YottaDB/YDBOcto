@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -23,42 +23,42 @@
 
 RowDescription *read_row_description(BaseMessage *message) {
 	RowDescription *ret;
-	char *cur_pointer;
-	uint32_t remaining_length = 0;
+	char *		cur_pointer;
+	uint32_t	remaining_length = 0;
 
 	remaining_length = ntohl(message->length);
-	ret = (RowDescription*)malloc(remaining_length + sizeof(RowDescription) - sizeof(uint32_t) - sizeof(int16_t));
+	ret = (RowDescription *)malloc(remaining_length + sizeof(RowDescription) - sizeof(uint32_t) - sizeof(int16_t));
 
 	ret->type = message->type;
 	ret->length = remaining_length;
 	remaining_length -= sizeof(uint32_t);
 	cur_pointer = message->data;
 
-	ret->num_parms = ntohs(*(int16_t*)cur_pointer);
+	ret->num_parms = ntohs(*(int16_t *)cur_pointer);
 	remaining_length -= sizeof(int16_t);
 	cur_pointer += sizeof(int16_t);
 
 	memcpy(ret->data, cur_pointer, remaining_length);
 	cur_pointer = ret->data;
 
-	ret->parms = (RowDescriptionParm*)malloc(ret->num_parms * sizeof(RowDescriptionParm));
-	for(int16_t i = 0; i < ret->num_parms; i++) {
+	ret->parms = (RowDescriptionParm *)malloc(ret->num_parms * sizeof(RowDescriptionParm));
+	for (int16_t i = 0; i < ret->num_parms; i++) {
 		ret->parms[i].name = cur_pointer;
 		cur_pointer += strlen(ret->parms[i].name);
-		cur_pointer += sizeof(char);	// skip null
+		cur_pointer += sizeof(char); // skip null
 
 		// Copy values, converting them to host endianess
-		ret->parms[i].table_id = ntohl(*((int*)cur_pointer));
+		ret->parms[i].table_id = ntohl(*((int *)cur_pointer));
 		cur_pointer += sizeof(int);
-		ret->parms[i].column_id = ntohs(*((int16_t*)cur_pointer));
+		ret->parms[i].column_id = ntohs(*((int16_t *)cur_pointer));
 		cur_pointer += sizeof(int16_t);
-		ret->parms[i].data_type	= ntohl(*((int*)cur_pointer));
+		ret->parms[i].data_type = ntohl(*((int *)cur_pointer));
 		cur_pointer += sizeof(int);
-		ret->parms[i].data_type_size = ntohs(*((int16_t*)cur_pointer));
+		ret->parms[i].data_type_size = ntohs(*((int16_t *)cur_pointer));
 		cur_pointer += sizeof(int16_t);
-		ret->parms[i].type_modifier = ntohl(*((int*)cur_pointer));
+		ret->parms[i].type_modifier = ntohl(*((int *)cur_pointer));
 		cur_pointer += sizeof(int);
-		ret->parms[i].format_code = ntohs(*((int16_t*)cur_pointer));
+		ret->parms[i].format_code = ntohs(*((int16_t *)cur_pointer));
 		cur_pointer += sizeof(int16_t);
 	}
 

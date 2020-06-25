@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -18,8 +18,8 @@
 // Returns the column number of the input cla in the input table_alias
 // Searches for the cla in the table_alias SELECT column list (linked list)
 int get_column_number_from_column_list_alias(SqlColumnListAlias *input_cla, SqlTableAlias *table_alias) {
-	SqlColumnListAlias	*start_cla, *cur_cla;
-	int			column_number;
+	SqlColumnListAlias *start_cla, *cur_cla;
+	int		    column_number;
 
 	column_number = 1;
 	UNPACK_SQL_STATEMENT(start_cla, table_alias->column_list, column_list_alias);

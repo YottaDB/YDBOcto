@@ -20,23 +20,23 @@
 
 /* Note: This function is very similar to "match_sql_statement.c". Any changes there might need to be reflected here too. */
 SqlStatement *copy_sql_statement(SqlStatement *stmt) {
-	SqlTableAlias		*table_alias, *new_table_alias;
-	SqlColumnList		*cur_column_list, *start_column_list, *new_column_list;
-	SqlJoin			*cur_join, *start_join, *new_join;
-	SqlInsertStatement	*insert;
-	SqlStatement		*ret;
-	SqlSelectStatement	*select;
-	SqlDropTableStatement	*drop_table;
-	SqlValue		*value;
-	SqlBinaryOperation	*binary;
-	SqlUnaryOperation	*unary;
-	SqlOptionalKeyword	*cur_keyword, *start_keyword, *new_keyword;
-	SqlColumnListAlias	*new_cl_alias, *cur_cl_alias, *start_cl_alias;
-	SqlColumnAlias		*column_alias;
-	SqlCaseStatement	*cas;
-	SqlCaseBranchStatement	*cur_cas_branch, *start_cas_branch, *new_cas_branch;
-	SqlFunctionCall		*function_call;
-	SqlAggregateFunction	*aggregate_function;
+	SqlTableAlias *		table_alias, *new_table_alias;
+	SqlColumnList *		cur_column_list, *start_column_list, *new_column_list;
+	SqlJoin *		cur_join, *start_join, *new_join;
+	SqlInsertStatement *	insert;
+	SqlStatement *		ret;
+	SqlSelectStatement *	select;
+	SqlDropTableStatement * drop_table;
+	SqlValue *		value;
+	SqlBinaryOperation *	binary;
+	SqlUnaryOperation *	unary;
+	SqlOptionalKeyword *	cur_keyword, *start_keyword, *new_keyword;
+	SqlColumnListAlias *	new_cl_alias, *cur_cl_alias, *start_cl_alias;
+	SqlColumnAlias *	column_alias;
+	SqlCaseStatement *	cas;
+	SqlCaseBranchStatement *cur_cas_branch, *start_cas_branch, *new_cas_branch;
+	SqlFunctionCall *	function_call;
+	SqlAggregateFunction *	aggregate_function;
 	int			len;
 
 	if (NULL == stmt)
@@ -45,7 +45,7 @@ SqlStatement *copy_sql_statement(SqlStatement *stmt) {
 	if ((create_table_STATEMENT == stmt->type) || (column_STATEMENT == stmt->type))
 		return stmt;
 	SQL_STATEMENT(ret, stmt->type);
-	switch(stmt->type) {
+	switch (stmt->type) {
 	case create_table_STATEMENT:
 		assert(FALSE);
 		break;
@@ -57,7 +57,7 @@ SqlStatement *copy_sql_statement(SqlStatement *stmt) {
 		new_table_alias->alias = copy_sql_statement(table_alias->alias);
 		new_table_alias->unique_id = table_alias->unique_id;
 		// the column list has a reference to this table, so don't copy it
-		//new_table_alias->column_list = copy_sql_statement(table_alias->column_list);
+		// new_table_alias->column_list = copy_sql_statement(table_alias->column_list);
 		new_table_alias->column_list = table_alias->column_list;
 		break;
 	case select_STATEMENT:
@@ -74,7 +74,7 @@ SqlStatement *copy_sql_statement(SqlStatement *stmt) {
 		// a pointer to this statement, which results in a loop that causes a stack overflow
 		/// TODO: update the pointers to match the new items in the select_list which has already
 		// been copied by looking at the aliases for each column below
-		//ret->v.select->order_by_expression = copy_sql_statement(select->order_by_expression);
+		// ret->v.select->order_by_expression = copy_sql_statement(select->order_by_expression);
 		break;
 	case drop_table_STATEMENT:
 		drop_table = stmt->v.drop_table;
@@ -116,7 +116,7 @@ SqlStatement *copy_sql_statement(SqlStatement *stmt) {
 		break;
 	case column_list_STATEMENT:
 		UNPACK_SQL_STATEMENT(start_column_list, stmt, column_list);
-		//MALLOC_STATEMENT(ret, column_list, SqlColumnList);
+		// MALLOC_STATEMENT(ret, column_list, SqlColumnList);
 		if (start_column_list) {
 			cur_column_list = start_column_list;
 			do {
@@ -155,7 +155,7 @@ SqlStatement *copy_sql_statement(SqlStatement *stmt) {
 		break;
 	case join_STATEMENT:
 		UNPACK_SQL_STATEMENT(start_join, stmt, join);
-		//MALLOC_STATEMENT(ret, join, SqlJoin);
+		// MALLOC_STATEMENT(ret, join, SqlJoin);
 		cur_join = start_join;
 		do {
 			OCTO_CMALLOC_STRUCT(new_join, SqlJoin);

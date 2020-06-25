@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -40,7 +40,7 @@ static void test_valid_input(void **state) {
 	will_return(__wrap_read_bytes, 0);
 
 	int32_t rocto_err = 0;
-	result = read_message(NULL, (char*)buffer, 0, &rocto_err);
+	result = read_message(NULL, (char *)buffer, 0, &rocto_err);
 
 	assert_non_null(result);
 	assert_int_equal(rocto_err, 0);
@@ -57,7 +57,7 @@ static void test_failed_first_read(void **state) {
 	will_return(__wrap_read_bytes, -1);
 
 	int32_t rocto_err = 0;
-	result = read_message(NULL, (char*)buffer, 0, &rocto_err);
+	result = read_message(NULL, (char *)buffer, 0, &rocto_err);
 
 	assert_null(result);
 	assert_int_equal(rocto_err, -1);
@@ -75,7 +75,7 @@ static void test_failed_second_read(void **state) {
 	will_return(__wrap_read_bytes, -1);
 
 	int32_t rocto_err = 0;
-	result = read_message(NULL, (char*)buffer, 0, &rocto_err);
+	result = read_message(NULL, (char *)buffer, 0, &rocto_err);
 
 	assert_null(result);
 	assert_int_equal(rocto_err, -1);
@@ -92,7 +92,7 @@ static void test_connection_reset_first_read(void **state) {
 	will_return(__wrap_read_bytes, -2);
 
 	int32_t rocto_err = 0;
-	result = read_message(NULL, (char*)buffer, 0, &rocto_err);
+	result = read_message(NULL, (char *)buffer, 0, &rocto_err);
 
 	assert_null(result);
 	assert_int_equal(rocto_err, -2);
@@ -110,7 +110,7 @@ static void test_connection_reset_second_read(void **state) {
 	will_return(__wrap_read_bytes, -2);
 
 	int32_t rocto_err = 0;
-	result = read_message(NULL, (char*)buffer, 0, &rocto_err);
+	result = read_message(NULL, (char *)buffer, 0, &rocto_err);
 
 	assert_null(result);
 	assert_int_equal(rocto_err, -2);
@@ -121,11 +121,11 @@ static void test_connection_reset_second_read(void **state) {
 int main(void) {
 	octo_init(0, NULL);
 	const struct CMUnitTest tests[] = {
-		cmocka_unit_test(test_valid_input),
-		cmocka_unit_test(test_failed_first_read),
-		cmocka_unit_test(test_failed_second_read),
-		cmocka_unit_test(test_connection_reset_second_read),
-		cmocka_unit_test(test_connection_reset_first_read),
+	    cmocka_unit_test(test_valid_input),
+	    cmocka_unit_test(test_failed_first_read),
+	    cmocka_unit_test(test_failed_second_read),
+	    cmocka_unit_test(test_connection_reset_second_read),
+	    cmocka_unit_test(test_connection_reset_first_read),
 	};
 	return cmocka_run_group_tests(tests, NULL, NULL);
 }

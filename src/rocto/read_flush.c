@@ -22,19 +22,19 @@
 #include "message_formats.h"
 
 Flush *read_flush(BaseMessage *message) {
-	Flush *ret;
+	Flush *	 ret;
 	uint32_t expected_length = sizeof(uint32_t);
 
-	if(message->type != PSQL_Flush) {
+	if (message->type != PSQL_Flush) {
 		ERROR(ERR_ROCTO_INVALID_TYPE, "Flush", message->type, PSQL_Flush);
 		return NULL;
 	}
 
-	ret = (Flush*)malloc(sizeof(Flush));
+	ret = (Flush *)malloc(sizeof(Flush));
 	ret->type = PSQL_Flush;
 	ret->length = ntohl(message->length);
 	// Length must be 4 (one int)
-	if(ret->length != expected_length) {
+	if (ret->length != expected_length) {
 		ERROR(ERR_ROCTO_INVALID_INT_VALUE, "Flush", "length", ret->length, expected_length);
 		free(ret);
 		return NULL;

@@ -19,16 +19,16 @@
 #include "logical_plan.h"
 
 LogicalPlan *lp_generate_xref_plan(SqlTable *table, SqlColumn *column, int unique_id) {
-	LogicalPlan		*root, *project, *output, *column_list, *select, *cur, *lp_cla;
-	LogicalPlan		*table_join, *criteria, *lp_output_key, *lp_table;
-	LogicalPlan		*select_options, *select_more_options, *lp_keywords;
-	SqlColumnAlias		*cla;
-	SqlTableAlias		*table_alias;
-	SqlStatement		*table_alias_statement;
-	SqlColumn		*key_columns[MAX_KEY_COUNT];
-	SqlOptionalKeyword	*keywords;
-	SqlKey			*output_key;
-	int			cur_key, max_key;
+	LogicalPlan *	    root, *project, *output, *column_list, *select, *cur, *lp_cla;
+	LogicalPlan *	    table_join, *criteria, *lp_output_key, *lp_table;
+	LogicalPlan *	    select_options, *select_more_options, *lp_keywords;
+	SqlColumnAlias *    cla;
+	SqlTableAlias *	    table_alias;
+	SqlStatement *	    table_alias_statement;
+	SqlColumn *	    key_columns[MAX_KEY_COUNT];
+	SqlOptionalKeyword *keywords;
+	SqlKey *	    output_key;
+	int		    cur_key, max_key;
 
 	// Setup the output key
 	OCTO_CMALLOC_STRUCT(output_key, SqlKey);
@@ -58,7 +58,7 @@ LogicalPlan *lp_generate_xref_plan(SqlTable *table, SqlColumn *column, int uniqu
 	MALLOC_LP(lp_cla, cur->v.lp_default.operand[0], LP_COLUMN_ALIAS);
 	// This is used to pass information about types to the functions which output the final result
 	// to the user; this table should never get there, so leave it out
-	//MALLOC_LP_2ARGS(cur->v.lp_default.operand[1], LP_COLUMN_LIST_ALIAS);
+	// MALLOC_LP_2ARGS(cur->v.lp_default.operand[1], LP_COLUMN_LIST_ALIAS);
 	OCTO_CMALLOC_STRUCT(lp_cla->v.lp_column_alias.column_alias, SqlColumnAlias);
 	memset(lp_cla->v.lp_column_alias.column_alias, 0, sizeof(SqlColumnAlias));
 	cla = lp_cla->v.lp_column_alias.column_alias;
@@ -66,16 +66,16 @@ LogicalPlan *lp_generate_xref_plan(SqlTable *table, SqlColumn *column, int uniqu
 	PACK_SQL_STATEMENT(cla->column, column, column);
 	cla->table_alias_stmt = table_alias_statement;
 	// Get a list of key columns
-	memset(key_columns, 0, MAX_KEY_COUNT * sizeof(SqlColumn*));
+	memset(key_columns, 0, MAX_KEY_COUNT * sizeof(SqlColumn *));
 	max_key = get_key_columns(table, key_columns);
-	for(cur_key = 0; cur_key <= max_key; cur_key++) {
+	for (cur_key = 0; cur_key <= max_key; cur_key++) {
 		MALLOC_LP_2ARGS(column_list->v.lp_default.operand[1], LP_COLUMN_LIST);
 		column_list = column_list->v.lp_default.operand[1];
 		MALLOC_LP(cur, column_list->v.lp_default.operand[0], LP_WHERE);
 		MALLOC_LP(lp_cla, cur->v.lp_default.operand[0], LP_COLUMN_ALIAS);
 		// This is used to pass information about types to the functions which output the final result
 		// to the user; this table should never get there, so leave it out
-		//MALLOC_LP_2ARGS(cur->v.lp_default.operand[1], LP_COLUMN_LIST_ALIAS);
+		// MALLOC_LP_2ARGS(cur->v.lp_default.operand[1], LP_COLUMN_LIST_ALIAS);
 		OCTO_CMALLOC_STRUCT(lp_cla->v.lp_column_alias.column_alias, SqlColumnAlias);
 		memset(lp_cla->v.lp_column_alias.column_alias, 0, sizeof(SqlColumnAlias));
 		cla = lp_cla->v.lp_column_alias.column_alias;

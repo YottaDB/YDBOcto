@@ -22,28 +22,29 @@
 #include "physical_plan.h"
 
 #include "template_helpers.h"
-#include "mmrhash.h"		// YottaDB hash functions
+#include "mmrhash.h" // YottaDB hash functions
 
 /* 0 OR negative values of "*status" are considered normal. Positive values are considered abnormal. */
-#define	HASH_LITERAL_VALUES	-1
-#define	ABNORMAL_STATUS		1
+#define HASH_LITERAL_VALUES -1
+#define ABNORMAL_STATUS	    1
 
 // Helper macro: adds integer values (statement type values, unique_id, column_number etc.) to hash digest
 // This is kept as a macro as that way we can assert that the size of FIELD is the same as the size of an "int".
 // If that assert fails, it is time to use "long" or some other type based on the size of the input.
-#define	ADD_INT_HASH(STATE, FIELD)	{							\
-	int	lclInt;	/* needed in case FIELD is a constant (cannot take & on constant) */	\
-												\
-	assert(sizeof(FIELD) == sizeof(int));							\
-	lclInt = FIELD;										\
-	ydb_mmrhash_128_ingest(STATE, (void*)&lclInt, sizeof(lclInt));				\
-}
+#define ADD_INT_HASH(STATE, FIELD)                                                               \
+	{                                                                                        \
+		int lclInt; /* needed in case FIELD is a constant (cannot take & on constant) */ \
+                                                                                                 \
+		assert(sizeof(FIELD) == sizeof(int));                                            \
+		lclInt = FIELD;                                                                  \
+		ydb_mmrhash_128_ingest(STATE, (void *)&lclInt, sizeof(lclInt));                  \
+	}
 
 // Helper function that is invoked when we have to traverse a "column_list_alias_STATEMENT".
 // Caller passes "do_loop" variable set to TRUE  if they want us to traverse the linked list.
 //                              and set to FALSE if they want us to traverse only the first element in the linked list.
 void hash_canonical_query_column_list_alias(hash128_state_t *state, SqlStatement *stmt, int *status, boolean_t do_loop) {
-	SqlColumnListAlias	*start_cla, *cur_cla;
+	SqlColumnListAlias *start_cla, *cur_cla;
 
 	/* Note: 0 OR negative values of "*status" are considered normal. Positive values are considered abnormal. */
 	if ((NULL == stmt) || (0 < *status))
@@ -65,7 +66,7 @@ void hash_canonical_query_column_list_alias(hash128_state_t *state, SqlStatement
 		ADD_INT_HASH(state, cur_cla->user_specified_alias);
 		// SqlTableIdColumnId
 		assert((!cur_cla->tbl_and_col_id.unique_id && !cur_cla->tbl_and_col_id.column_number)
-			|| (cur_cla->tbl_and_col_id.unique_id && cur_cla->tbl_and_col_id.column_number));
+		       || (cur_cla->tbl_and_col_id.unique_id && cur_cla->tbl_and_col_id.column_number));
 		if (cur_cla->tbl_and_col_id.unique_id) {
 			ADD_INT_HASH(state, cur_cla->tbl_and_col_id.unique_id);
 		}
@@ -81,7 +82,7 @@ void hash_canonical_query_column_list_alias(hash128_state_t *state, SqlStatement
 // Caller passes "do_loop" variable set to TRUE  if they want us to traverse the linked list.
 //                              and set to FALSE if they want us to traverse only the first element in the linked list.
 void hash_canonical_query_column_list(hash128_state_t *state, SqlStatement *stmt, int *status, boolean_t do_loop) {
-	SqlColumnList	*column_list, *cur_column_list;
+	SqlColumnList *column_list, *cur_column_list;
 
 	/* Note: 0 OR negative values of "*status" are considered normal. Positive values are considered abnormal. */
 	if ((NULL == stmt) || (0 < *status))
@@ -103,75 +104,75 @@ void hash_canonical_query(hash128_state_t *state, SqlStatement *stmt, int *statu
 	// Assumes state initialized by caller (using HASH128_STATE_INIT macro)
 
 	// Statements
-	SqlCaseStatement	*cas;
-	SqlCaseBranchStatement	*cas_branch;
-	SqlSelectStatement	*select;
+	SqlCaseStatement *	cas;
+	SqlCaseBranchStatement *cas_branch;
+	SqlSelectStatement *	select;
 
-	SqlFunctionCall		*function_call;
-	SqlAggregateFunction	*aggregate_function;
-	SqlJoin			*join;
-	SqlValue		*value;
+	SqlFunctionCall *     function_call;
+	SqlAggregateFunction *aggregate_function;
+	SqlJoin *	      join;
+	SqlValue *	      value;
 
 	// Columns and tables
-	SqlColumn		*column; // Note singular versus plural
-	SqlColumnAlias		*column_alias;
-	SqlTable		*table;
-	SqlTableAlias		*table_alias;
+	SqlColumn *	column; // Note singular versus plural
+	SqlColumnAlias *column_alias;
+	SqlTable *	table;
+	SqlTableAlias * table_alias;
 
 	// Operations and keywords
-	SqlBinaryOperation		*binary;
-	SqlSetOperation			*set_operation;
-	SqlUnaryOperation		*unary;
-	SqlOptionalKeyword		*keyword;
+	SqlBinaryOperation *binary;
+	SqlSetOperation *   set_operation;
+	SqlUnaryOperation * unary;
+	SqlOptionalKeyword *keyword;
 
 	// Iteration pointers for doubly-linked list traversal
-	SqlCaseBranchStatement		*cur_cas_branch;
-	SqlJoin				*cur_join;
-	SqlOptionalKeyword		*cur_keyword;
+	SqlCaseBranchStatement *cur_cas_branch;
+	SqlJoin *		cur_join;
+	SqlOptionalKeyword *	cur_keyword;
 
-	BinaryOperations	binary_operation;
+	BinaryOperations binary_operation;
 
 	/* Note: 0 OR negative values of "*status" are considered normal. Positive values are considered abnormal. */
 	if ((NULL == stmt) || (0 < *status))
 		return;
 	if (stmt->hash_canonical_query_cycle == hash_canonical_query_cycle) {
 		switch (stmt->type) {
-			case create_table_STATEMENT:
-				ADD_INT_HASH(state, create_table_STATEMENT);
-				UNPACK_SQL_STATEMENT(table, stmt, create_table);
-				// On a revisit, just hash the table name and return without retraversing.
-				assert(value_STATEMENT == table->tableName->type);
-				hash_canonical_query(state, table->tableName, status);
-				return;
-				break;
-			case keyword_STATEMENT:
-				// On a revisit, no need to hash anything. Just return without retraversing.
-				return;
-				break;
-			case column_STATEMENT:
-				ADD_INT_HASH(state, column_STATEMENT);
-				UNPACK_SQL_STATEMENT(column, stmt, column);
-				// On a revisit, just hash the column piece # and return without retraversing
-				assert(column->column_number);
-				ADD_INT_HASH(state, column->column_number);
-				return;
-				break;
-			case table_alias_STATEMENT:
-				ADD_INT_HASH(state, table_alias_STATEMENT);
-				// On a revisit, just hash the table alias unique_id # and return without retraversing
-				// Since unique_id is an int, we can treat it as if it were a type enum
-				UNPACK_SQL_STATEMENT(table_alias, stmt, table_alias);
-				ADD_INT_HASH(state, table_alias->unique_id);
-				return;
-				break;
-			default:
-				break;
+		case create_table_STATEMENT:
+			ADD_INT_HASH(state, create_table_STATEMENT);
+			UNPACK_SQL_STATEMENT(table, stmt, create_table);
+			// On a revisit, just hash the table name and return without retraversing.
+			assert(value_STATEMENT == table->tableName->type);
+			hash_canonical_query(state, table->tableName, status);
+			return;
+			break;
+		case keyword_STATEMENT:
+			// On a revisit, no need to hash anything. Just return without retraversing.
+			return;
+			break;
+		case column_STATEMENT:
+			ADD_INT_HASH(state, column_STATEMENT);
+			UNPACK_SQL_STATEMENT(column, stmt, column);
+			// On a revisit, just hash the column piece # and return without retraversing
+			assert(column->column_number);
+			ADD_INT_HASH(state, column->column_number);
+			return;
+			break;
+		case table_alias_STATEMENT:
+			ADD_INT_HASH(state, table_alias_STATEMENT);
+			// On a revisit, just hash the table alias unique_id # and return without retraversing
+			// Since unique_id is an int, we can treat it as if it were a type enum
+			UNPACK_SQL_STATEMENT(table_alias, stmt, table_alias);
+			ADD_INT_HASH(state, table_alias->unique_id);
+			return;
+			break;
+		default:
+			break;
 		}
 	}
-	stmt->hash_canonical_query_cycle = hash_canonical_query_cycle;	/* Note down this node as being visited. This avoids
-									 * multiple visits down this same node in the same
-									 * outermost call of "hash_canonical_query".
-									 */
+	stmt->hash_canonical_query_cycle = hash_canonical_query_cycle; /* Note down this node as being visited. This avoids
+									* multiple visits down this same node in the same
+									* outermost call of "hash_canonical_query".
+									*/
 	assert(stmt->type < invalid_STATEMENT);
 	// Note: The below switch statement and the flow mirrors that in populate_data_type.c.
 	//       Any change here or there needs to also be done in the other module.
@@ -222,9 +223,7 @@ void hash_canonical_query(hash128_state_t *state, SqlStatement *stmt, int *statu
 		// SqlValue
 		hash_canonical_query(state, function_call->function_name, status);
 		// SqlValue
-		hash_canonical_query(state,
-				function_call->function_schema->v.create_function->extrinsic_function,
-				status);
+		hash_canonical_query(state, function_call->function_schema->v.create_function->extrinsic_function, status);
 		// SqlColumnList
 		hash_canonical_query_column_list(state, function_call->parameters, status, TRUE);
 		break;
@@ -255,7 +254,7 @@ void hash_canonical_query(hash128_state_t *state, SqlStatement *stmt, int *statu
 		ADD_INT_HASH(state, value_STATEMENT);
 		// SqlValueType
 		ADD_INT_HASH(state, value->type);
-		switch(value->type) {
+		switch (value->type) {
 		case CALCULATED_VALUE:
 			hash_canonical_query(state, value->v.calculated, status);
 			break;
@@ -277,16 +276,16 @@ void hash_canonical_query(hash128_state_t *state, SqlStatement *stmt, int *statu
 			/* fall through */
 		case FUNCTION_NAME:
 		case COLUMN_REFERENCE:
-			ydb_mmrhash_128_ingest(state, (void*)value->v.reference, strlen(value->v.reference));
+			ydb_mmrhash_128_ingest(state, (void *)value->v.reference, strlen(value->v.reference));
 			break;
 		case COERCE_TYPE:
 			assert((BOOLEAN_VALUE == value->coerced_type) || (NUMERIC_LITERAL == value->coerced_type)
-				|| (INTEGER_LITERAL == value->coerced_type) || (STRING_LITERAL == value->coerced_type)
-				|| (NUL_VALUE == value->coerced_type));
+			       || (INTEGER_LITERAL == value->coerced_type) || (STRING_LITERAL == value->coerced_type)
+			       || (NUL_VALUE == value->coerced_type));
 			ADD_INT_HASH(state, value->coerced_type);
 			assert((BOOLEAN_VALUE == value->pre_coerced_type) || (NUMERIC_LITERAL == value->pre_coerced_type)
-				|| (INTEGER_LITERAL == value->pre_coerced_type) || (STRING_LITERAL == value->pre_coerced_type)
-				|| (NUL_VALUE == value->pre_coerced_type));
+			       || (INTEGER_LITERAL == value->pre_coerced_type) || (STRING_LITERAL == value->pre_coerced_type)
+			       || (NUL_VALUE == value->pre_coerced_type));
 			ADD_INT_HASH(state, value->pre_coerced_type);
 			hash_canonical_query(state, value->v.coerce_target, status);
 			break;
@@ -304,10 +303,10 @@ void hash_canonical_query(hash128_state_t *state, SqlStatement *stmt, int *statu
 		hash_canonical_query(state, column_alias->table_alias_stmt, status);
 		break;
 	case column_list_STATEMENT:
-		hash_canonical_query_column_list(state, stmt, status, FALSE);	// FALSE so we do not loop
+		hash_canonical_query_column_list(state, stmt, status, FALSE); // FALSE so we do not loop
 		break;
 	case column_list_alias_STATEMENT:
-		hash_canonical_query_column_list_alias(state, stmt, status, FALSE);	// FALSE so we do not loop
+		hash_canonical_query_column_list_alias(state, stmt, status, FALSE); // FALSE so we do not loop
 		break;
 	case create_table_STATEMENT:
 		UNPACK_SQL_STATEMENT(table, stmt, create_table);
@@ -337,7 +336,7 @@ void hash_canonical_query(hash128_state_t *state, SqlStatement *stmt, int *statu
 		// "table_alias->column_list" as part of "hash_canonical_query". This is asserted below.
 		assert((select_STATEMENT == table_alias->table->type) || (create_table_STATEMENT == table_alias->table->type));
 		assert((select_STATEMENT != table_alias->table->type)
-			|| (table_alias->table->v.select->select_list == table_alias->column_list));
+		       || (table_alias->table->v.select->select_list == table_alias->column_list));
 		// hash_canonical_query(state, table_alias->column_list, status);
 		break;
 	case binary_STATEMENT:
@@ -349,11 +348,9 @@ void hash_canonical_query(hash128_state_t *state, SqlStatement *stmt, int *statu
 		// SqlStatement (?)
 		hash_canonical_query(state, binary->operands[0], status);
 		if (((BOOLEAN_IN == binary_operation) || (BOOLEAN_NOT_IN == binary_operation))
-			&& (column_list_STATEMENT == binary->operands[1]->type))
-		{	// SqlColumnList
+		    && (column_list_STATEMENT == binary->operands[1]->type)) { // SqlColumnList
 			hash_canonical_query_column_list(state, binary->operands[1], status, TRUE);
-		} else
-		{	// SqlStatement (?)
+		} else { // SqlStatement (?)
 			hash_canonical_query(state, binary->operands[1], status);
 		}
 		break;
@@ -375,11 +372,11 @@ void hash_canonical_query(hash128_state_t *state, SqlStatement *stmt, int *statu
 		// SqlStatement (?)
 		hash_canonical_query(state, unary->operand, status);
 		break;
-	case keyword_STATEMENT:	// This is a valid case in "hash_canonical_query" but is not a case in "populate_data_type"
+	case keyword_STATEMENT: // This is a valid case in "hash_canonical_query" but is not a case in "populate_data_type"
 		UNPACK_SQL_STATEMENT(keyword, stmt, keyword);
 		cur_keyword = keyword;
 		do {
-			int	save_status;
+			int save_status;
 
 			/* Skip hashing NO_KEYWORD (as it creates different physical plans for otherwise identical queries) */
 			if (NO_KEYWORD != cur_keyword->keyword) {
@@ -409,7 +406,7 @@ void hash_canonical_query(hash128_state_t *state, SqlStatement *stmt, int *statu
 			cur_keyword = cur_keyword->next;
 		} while (cur_keyword != keyword);
 		break;
-	case column_STATEMENT:	// This is a valid case in "hash_canonical_query" but is not a case in "populate_data_type"
+	case column_STATEMENT: // This is a valid case in "hash_canonical_query" but is not a case in "populate_data_type"
 		UNPACK_SQL_STATEMENT(column, stmt, column);
 		ADD_INT_HASH(state, column_STATEMENT);
 		hash_canonical_query(state, column->columnName, status);

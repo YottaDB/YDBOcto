@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -23,9 +23,9 @@ SqlOptionalKeyword *get_keyword_from_keywords(SqlOptionalKeyword *start_keyword,
 
 	cur_keyword = start_keyword;
 	do {
-		if(cur_keyword->keyword == keyword)
+		if (cur_keyword->keyword == keyword)
 			return cur_keyword;
 		cur_keyword = cur_keyword->next;
-	} while(cur_keyword != start_keyword);
+	} while (cur_keyword != start_keyword);
 	return NULL;
 }

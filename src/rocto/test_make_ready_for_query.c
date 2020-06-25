@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -28,12 +28,12 @@
 static void test_valid_input(void **state) {
 	ReadyForQuery *response;
 	ReadyForQuery *received_response;
-	char status = PSQL_TransactionStatus_TRANSACTION;
+	char	       status = PSQL_TransactionStatus_TRANSACTION;
 
 	// Expect the length field and status field
 	int32_t expected_length = sizeof(uint32_t) + sizeof(char);
 	response = make_ready_for_query(status);
-	received_response = read_ready_for_query((BaseMessage*)&response->type);
+	received_response = read_ready_for_query((BaseMessage *)&response->type);
 
 	// Standard checks
 	assert_non_null(received_response);
@@ -46,8 +46,6 @@ static void test_valid_input(void **state) {
 }
 
 int main(void) {
-	const struct CMUnitTest tests[] = {
-		cmocka_unit_test(test_valid_input)
-	};
+	const struct CMUnitTest tests[] = {cmocka_unit_test(test_valid_input)};
 	return cmocka_run_group_tests(tests, NULL, NULL);
 }

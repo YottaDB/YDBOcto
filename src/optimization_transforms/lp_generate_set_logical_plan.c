@@ -22,10 +22,10 @@
  * Generates a meta-plan for doing a KEY_<set operation>
  */
 LogicalPlan *lp_generate_set_logical_plan(SqlStatement *stmt) {
-	SqlStatement	*set_operation_stmt;
-	LogicalPlan	*options, *set_operation, *plans, *key, *set_plans[2];
-	LogicalPlan	*dst, *dst_key;
-	SqlSetOperation	*set_operation_sql;
+	SqlStatement *	 set_operation_stmt;
+	LogicalPlan *	 options, *set_operation, *plans, *key, *set_plans[2];
+	LogicalPlan *	 dst, *dst_key;
+	SqlSetOperation *set_operation_sql;
 
 	// Get plans for each of the sub plans
 	set_operation_stmt = stmt;
@@ -47,7 +47,7 @@ LogicalPlan *lp_generate_set_logical_plan(SqlStatement *stmt) {
 	MALLOC_LP(key, options->v.lp_default.operand[0], LP_SET_UNION);
 
 	// Setup the keys to be a set operation
-	switch(set_operation_sql->type) {
+	switch (set_operation_sql->type) {
 	case SET_UNION:
 		key->type = LP_SET_UNION;
 		break;

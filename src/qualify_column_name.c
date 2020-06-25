@@ -34,16 +34,15 @@
  * Note that it is possible we return NULL as the function return value and "*ret_cla" is also set to NULL. In this case
  *	though, an ERR_UNKNOWN_COLUMN_NAME error would have been issued in this function and caller knows to handle that.
  */
-SqlColumnAlias *qualify_column_name(SqlValue *column_value, SqlJoin *tables, SqlStatement *table_alias_stmt,
-									int depth, SqlColumnListAlias **ret_cla)
-{
-	SqlColumnListAlias	*start_cla, *cur_cla, *col_cla, *t_col_cla;
-	SqlJoin			*cur_join, *start_join;
-	SqlTableAlias		*cur_alias;
-	SqlStatement		*matching_alias_stmt;
-	SqlValue		*value;
-	char			*table_name, *column_name, *c;
-	int			table_name_len, column_name_len;
+SqlColumnAlias *qualify_column_name(SqlValue *column_value, SqlJoin *tables, SqlStatement *table_alias_stmt, int depth,
+				    SqlColumnListAlias **ret_cla) {
+	SqlColumnListAlias *start_cla, *cur_cla, *col_cla, *t_col_cla;
+	SqlJoin *	    cur_join, *start_join;
+	SqlTableAlias *	    cur_alias;
+	SqlStatement *	    matching_alias_stmt;
+	SqlValue *	    value;
+	char *		    table_name, *column_name, *c;
+	int		    table_name_len, column_name_len;
 
 	matching_alias_stmt = NULL;
 	// If the value is not a column_reference, we should not be here
@@ -57,7 +56,7 @@ SqlColumnAlias *qualify_column_name(SqlValue *column_value, SqlJoin *tables, Sql
 	if ('.' == *c) {
 		table_name = column_value->v.reference;
 		table_name_len = c - table_name;
-		column_name = c+1;
+		column_name = c + 1;
 		column_name_len = strlen(column_name);
 	} else {
 		column_name = column_value->v.reference;
@@ -74,23 +73,23 @@ SqlColumnAlias *qualify_column_name(SqlValue *column_value, SqlJoin *tables, Sql
 	 * name specified. If it does, then we cannot match it against the SELECT column list so skip this "if" block.
 	 */
 	if ((NULL != ret_cla) && (NULL == table_name)) {
-		SqlTableAlias	*table_alias;
+		SqlTableAlias *table_alias;
 
 		UNPACK_SQL_STATEMENT(table_alias, table_alias_stmt, table_alias);
 		UNPACK_SQL_STATEMENT(start_cla, table_alias->column_list, column_list_alias);
 		cur_cla = start_cla;
 		do {
 			if ((NULL != cur_cla->alias) && cur_cla->user_specified_alias) {
-#				ifndef NDEBUG
-				SqlColumnList	*column_list;
+#ifndef NDEBUG
+				SqlColumnList *column_list;
 
 				UNPACK_SQL_STATEMENT(column_list, cur_cla->column_list, column_list);
 				assert(column_list == column_list->next);
 				assert(column_list == column_list->prev);
-#				endif
+#endif
 				UNPACK_SQL_STATEMENT(value, cur_cla->alias, value);
 				if (((int)strlen(value->v.reference) == column_name_len)
-						&& (0 == memcmp(value->v.reference, column_name, column_name_len))) {
+				    && (0 == memcmp(value->v.reference, column_name, column_name_len))) {
 					if (NULL != col_cla) {
 						ERROR(ERR_AMBIGUOUS_COLUMN_NAME, column_name);
 						return NULL;
@@ -135,8 +134,8 @@ SqlColumnAlias *qualify_column_name(SqlValue *column_value, SqlJoin *tables, Sql
 	if (NULL == col_cla) {
 		cur_join = start_join = tables;
 		do {
-			SqlStatement	*sql_stmt;
-			boolean_t	ambiguous;
+			SqlStatement *sql_stmt;
+			boolean_t     ambiguous;
 
 			sql_stmt = drill_to_table_alias(cur_join->value);
 			// If we need to match a table, ensure this table is the correct one before calling the helper
@@ -148,10 +147,10 @@ SqlColumnAlias *qualify_column_name(SqlValue *column_value, SqlJoin *tables, Sql
 					UNPACK_SQL_STATEMENT(value, cur_alias->alias, value);
 					table_name_len2 = strlen(value->v.reference);
 					if ((table_name_len == table_name_len2)
-							&& (0 == memcmp(value->v.reference, table_name, table_name_len))) {
+					    && (0 == memcmp(value->v.reference, table_name, table_name_len))) {
 						matching_alias_stmt = sql_stmt;
-						col_cla = match_column_in_table(cur_alias,
-										column_name, column_name_len, &ambiguous, TRUE);
+						col_cla = match_column_in_table(cur_alias, column_name, column_name_len, &ambiguous,
+										TRUE);
 						if ((NULL != col_cla) && ambiguous) {
 							/* There are multiple column matches within one table in the FROM list.
 							 * An error has already been issued inside "match_column_in_table".
@@ -182,7 +181,7 @@ SqlColumnAlias *qualify_column_name(SqlValue *column_value, SqlJoin *tables, Sql
 						 * same level or a different level. Issue an error in the former case. Do not
 						 * issue an error in the latter case (consider closest level table as matching).
 						 */
-						SqlTableAlias	*matching_table_alias;
+						SqlTableAlias *matching_table_alias;
 
 						UNPACK_SQL_STATEMENT(matching_table_alias, matching_alias_stmt, table_alias);
 						assert(NULL != cur_alias->parent_table_alias);
@@ -200,7 +199,6 @@ SqlColumnAlias *qualify_column_name(SqlValue *column_value, SqlJoin *tables, Sql
 					matching_alias_stmt = sql_stmt;
 					col_cla = t_col_cla;
 				}
-
 			}
 			cur_join = cur_join->next;
 		} while (cur_join != start_join);

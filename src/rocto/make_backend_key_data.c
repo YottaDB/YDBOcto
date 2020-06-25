@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -25,7 +25,7 @@
 BackendKeyData *make_backend_key_data(int secret_key, pid_t pid) {
 	BackendKeyData *ret;
 
-	ret = (BackendKeyData*)malloc(sizeof(BackendKeyData));
+	ret = (BackendKeyData *)malloc(sizeof(BackendKeyData));
 	memset(ret, 0, sizeof(BackendKeyData));
 
 	// Populate message fields

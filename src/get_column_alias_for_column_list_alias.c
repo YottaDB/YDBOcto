@@ -19,11 +19,10 @@
  * Checks if a SqlColumnAlias already exists for a SqlColumnListAlias structure. If so returns that.
  * If not allocates a SqlColumnAlias and returns that.
  */
-SqlColumnAlias *get_column_alias_for_column_list_alias(SqlColumnListAlias *col_cla, SqlStatement *matching_alias_stmt)
-{
-	SqlColumnList		*col_list;
-	SqlColumnAlias		*ret;
-	SqlTableAlias		*table_alias, *matching_alias;
+SqlColumnAlias *get_column_alias_for_column_list_alias(SqlColumnListAlias *col_cla, SqlStatement *matching_alias_stmt) {
+	SqlColumnList * col_list;
+	SqlColumnAlias *ret;
+	SqlTableAlias * table_alias, *matching_alias;
 
 	UNPACK_SQL_STATEMENT(matching_alias, matching_alias_stmt, table_alias);
 	/* Check if "col_cla" already points to a SqlColumnAlias that we can return.
@@ -32,7 +31,7 @@ SqlColumnAlias *get_column_alias_for_column_list_alias(SqlColumnListAlias *col_c
 	if (NULL != col_cla->outer_query_column_alias) {
 		/* We already allocated a column_alias for this column_list_alias. Return that. */
 		assert((table_alias_STATEMENT == col_cla->outer_query_column_alias->table_alias_stmt->type)
-			&& (matching_alias == col_cla->outer_query_column_alias->table_alias_stmt->v.table_alias));
+		       && (matching_alias == col_cla->outer_query_column_alias->table_alias_stmt->v.table_alias));
 		return col_cla->outer_query_column_alias;
 	}
 	UNPACK_SQL_STATEMENT(col_list, col_cla->column_list, column_list);

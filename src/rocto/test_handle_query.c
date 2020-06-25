@@ -42,13 +42,13 @@ int __wrap_run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_
 }
 
 static void test_valid_input(void **state) {
-	Query *query;
+	Query *	     query;
 	RoctoSession session;
-	char *query_text = "SELECT * FROM names WHERE firstName = \"Acid\";";
-	int query_length = strlen(query_text);
-	int32_t result;
+	char *	     query_text = "SELECT * FROM names WHERE firstName = \"Acid\";";
+	int	     query_length = strlen(query_text);
+	int32_t	     result;
 
-	query = (Query*)malloc(sizeof(Query) + query_length + 1);
+	query = (Query *)malloc(sizeof(Query) + query_length + 1);
 	query->type = PSQL_Query;
 	query->length = sizeof(unsigned int) + query_length + 1;
 	strncpy(query->data, query_text, query_length);
@@ -63,13 +63,13 @@ static void test_valid_input(void **state) {
 }
 
 static void test_query_length_equals_zero(void **state) {
-	Query *query;
+	Query *	     query;
 	RoctoSession session;
-	char *query_text = "";
-	int query_length = strlen(query_text);
-	int32_t result;
+	char *	     query_text = "";
+	int	     query_length = strlen(query_text);
+	int32_t	     result;
 
-	query = (Query*)malloc(sizeof(Query) + query_length);
+	query = (Query *)malloc(sizeof(Query) + query_length);
 	query->type = PSQL_Query;
 	query->length = sizeof(unsigned int) + query_length;
 	strncpy(query->data, query_text, query_length);
@@ -83,16 +83,16 @@ static void test_query_length_equals_zero(void **state) {
 }
 
 static void test_query_length_greater_than_max(void **state) {
-	//change global variable's value to a small number for testing
+	// change global variable's value to a small number for testing
 	cur_input_max = 2;
 
-	Query *query;
+	Query *	     query;
 	RoctoSession session;
-	char *query_text = "SELECT * FROM names WHERE firstName = \"Acid\";";
-	int query_length = strlen(query_text);
-	int32_t result;
+	char *	     query_text = "SELECT * FROM names WHERE firstName = \"Acid\";";
+	int	     query_length = strlen(query_text);
+	int32_t	     result;
 
-	query = (Query*)malloc(sizeof(Query) + query_length + 1);
+	query = (Query *)malloc(sizeof(Query) + query_length + 1);
 	query->type = PSQL_Query;
 	query->length = sizeof(unsigned int) + query_length + 1;
 	strncpy(query->data, query_text, query_length);
@@ -103,19 +103,19 @@ static void test_query_length_greater_than_max(void **state) {
 
 	result = handle_query(query, &session);
 
-	//change global variable's value back to what it should be
+	// change global variable's value back to what it should be
 	cur_input_max = MAX_STR_CONST;
 	assert_int_equal(result, 1);
 }
 
 static void test_run_query_result_equals_negative_one(void **state) {
-	Query *query;
+	Query *	     query;
 	RoctoSession session;
-	char *query_text = "SELECT * FROM names WHERE firstName = \"Acid\";";
-	int query_length = strlen(query_text);
-	int32_t result;
+	char *	     query_text = "SELECT * FROM names WHERE firstName = \"Acid\";";
+	int	     query_length = strlen(query_text);
+	int32_t	     result;
 
-	query = (Query*)malloc(sizeof(Query) + query_length + 1);
+	query = (Query *)malloc(sizeof(Query) + query_length + 1);
 	query->type = PSQL_Query;
 	query->length = sizeof(unsigned int) + query_length + 1;
 	strncpy(query->data, query_text, query_length);
@@ -128,15 +128,15 @@ static void test_run_query_result_equals_negative_one(void **state) {
 	assert_int_equal(result, -1);
 }
 
-//Also cannot equal -1, as that would trigger the same thing as the test above
+// Also cannot equal -1, as that would trigger the same thing as the test above
 static void test_run_query_result_does_not_equal_zero(void **state) {
-	Query *query;
+	Query *	     query;
 	RoctoSession session;
-	char *query_text = "SELECT * FROM names WHERE firstName = \"Acid\";";
-	int query_length = strlen(query_text);
-	int32_t result;
+	char *	     query_text = "SELECT * FROM names WHERE firstName = \"Acid\";";
+	int	     query_length = strlen(query_text);
+	int32_t	     result;
 
-	query = (Query*)malloc(sizeof(Query) + query_length + 1);
+	query = (Query *)malloc(sizeof(Query) + query_length + 1);
 	query->type = PSQL_Query;
 	query->length = sizeof(unsigned int) + query_length + 1;
 	strncpy(query->data, query_text, query_length);
@@ -152,11 +152,11 @@ static void test_run_query_result_does_not_equal_zero(void **state) {
 int main(void) {
 	octo_init(0, NULL);
 	const struct CMUnitTest tests[] = {
-			cmocka_unit_test(test_valid_input),
-			cmocka_unit_test(test_query_length_equals_zero),
-			cmocka_unit_test(test_query_length_greater_than_max),
-			cmocka_unit_test(test_run_query_result_equals_negative_one),
-			cmocka_unit_test(test_run_query_result_does_not_equal_zero),
+	    cmocka_unit_test(test_valid_input),
+	    cmocka_unit_test(test_query_length_equals_zero),
+	    cmocka_unit_test(test_query_length_greater_than_max),
+	    cmocka_unit_test(test_run_query_result_equals_negative_one),
+	    cmocka_unit_test(test_run_query_result_does_not_equal_zero),
 	};
 	return cmocka_run_group_tests(tests, NULL, NULL);
 }

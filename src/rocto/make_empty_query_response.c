@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -20,11 +20,10 @@
 
 #include "message_formats.h"
 
-
 EmptyQueryResponse *make_empty_query_response() {
 	EmptyQueryResponse *ret;
 
-	ret = (EmptyQueryResponse*)malloc(sizeof(EmptyQueryResponse));
+	ret = (EmptyQueryResponse *)malloc(sizeof(EmptyQueryResponse));
 	memset(ret, 0, sizeof(EmptyQueryResponse));
 
 	ret->type = PSQL_EmptyQueryResponse;

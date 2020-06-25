@@ -23,15 +23,14 @@
 #include "message_formats.h"
 #include "helpers.h"
 
-
 RowDescription *get_plan_row_description(ydb_buffer_t *plan_filename) {
-	RowDescriptionParm	*parms;
-	RowDescription		*ret;
-	ydb_buffer_t		*plan_meta, value_buffer;
-	int64_t			tmp_long, i;
-	int32_t			status;
-	int16_t			num_columns, cur_column;
-	char			*column_name = NULL;
+	RowDescriptionParm *parms;
+	RowDescription *    ret;
+	ydb_buffer_t *	    plan_meta, value_buffer;
+	int64_t		    tmp_long, i;
+	int32_t		    status;
+	int16_t		    num_columns, cur_column;
+	char *		    column_name = NULL;
 
 	plan_meta = make_buffers(config->global_names.octo, 5, "plan_metadata", "", "output_columns", "", "");
 	plan_meta[2] = *plan_filename;
@@ -61,7 +60,7 @@ RowDescription *get_plan_row_description(ydb_buffer_t *plan_filename) {
 	YDB_MALLOC_BUFFER(&plan_meta[4], MAX_STR_CONST);
 	parms = calloc(num_columns, sizeof(RowDescriptionParm));
 	for (cur_column = 0; cur_column < num_columns; cur_column++) {
-		OCTO_INT16_TO_BUFFER((int16_t)(cur_column + 1), &plan_meta[4]);	// Columns are indexed from 1, not 0
+		OCTO_INT16_TO_BUFFER((int16_t)(cur_column + 1), &plan_meta[4]); // Columns are indexed from 1, not 0
 
 		YDB_LITERAL_TO_BUFFER("name", &plan_meta[5]);
 		status = ydb_get_s(plan_meta, 5, &plan_meta[1], &value_buffer);

@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -21,12 +21,12 @@
 #include "message_formats.h"
 
 Query *read_query(BaseMessage *message) {
-	Query *ret;
+	Query *	 ret;
 	uint32_t length;
-	char *c, *message_end;
+	char *	 c, *message_end;
 
 	length = ntohl(message->length);
-	ret = (Query*)malloc(sizeof(Query) + length - sizeof(uint32_t));
+	ret = (Query *)malloc(sizeof(Query) + length - sizeof(uint32_t));
 	ret->type = message->type;
 	ret->length = length;
 	memcpy(ret->data, message->data, length - sizeof(uint32_t));
@@ -34,18 +34,18 @@ Query *read_query(BaseMessage *message) {
 	message_end = c + length - sizeof(uint32_t);
 
 	// Ensure that message has correct type
-	if(ret->type != PSQL_Query) {
+	if (ret->type != PSQL_Query) {
 		ERROR(ERR_ROCTO_INVALID_TYPE, "Query", ret->type, PSQL_Query);
 		free(ret);
 		return NULL;
 	}
 	// Find end of query string
-	while(c < message_end && *c != '\0') {
+	while (c < message_end && *c != '\0') {
 		c++;
 	}
-	if(c == message_end) {
+	if (c == message_end) {
 		// Ensure a query string is included
-		if(length == sizeof(uint32_t)) {
+		if (length == sizeof(uint32_t)) {
 			ERROR(ERR_ROCTO_MISSING_DATA, "Query", "query");
 			free(ret);
 			return NULL;
@@ -54,8 +54,7 @@ Query *read_query(BaseMessage *message) {
 		ERROR(ERR_ROCTO_MISSING_NULL, "Query", "query");
 		free(ret);
 		return NULL;
-	}
-	else if(c < message_end - 1) {
+	} else if (c < message_end - 1) {
 		ERROR(ERR_ROCTO_TRAILING_CHARS, "Query");
 		free(ret);
 		return NULL;

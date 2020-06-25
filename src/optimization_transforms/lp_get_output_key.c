@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -22,17 +22,15 @@ LogicalPlan *lp_get_output_key(LogicalPlan *plan) {
 	LogicalPlan *t;
 
 	assert((LP_INSERT == plan->type) || (LP_SET_OPERATION == plan->type));
-	if (LP_SET_OPERATION == plan->type)
-	{
-		LogicalPlan	*set_option;
-		LPActionType	set_oper_type;
+	if (LP_SET_OPERATION == plan->type) {
+		LogicalPlan *set_option;
+		LPActionType set_oper_type;
 
 		GET_LP(set_option, plan, 0, LP_SET_OPTION);
 		set_oper_type = set_option->v.lp_default.operand[0]->type;
-		assert((LP_SET_UNION == set_oper_type) || (LP_SET_UNION_ALL == set_oper_type)
-			|| (LP_SET_DNF == set_oper_type)
-			|| (LP_SET_EXCEPT == set_oper_type) || (LP_SET_EXCEPT_ALL == set_oper_type)
-			|| (LP_SET_INTERSECT == set_oper_type) || (LP_SET_INTERSECT_ALL == set_oper_type));
+		assert((LP_SET_UNION == set_oper_type) || (LP_SET_UNION_ALL == set_oper_type) || (LP_SET_DNF == set_oper_type)
+		       || (LP_SET_EXCEPT == set_oper_type) || (LP_SET_EXCEPT_ALL == set_oper_type)
+		       || (LP_SET_INTERSECT == set_oper_type) || (LP_SET_INTERSECT_ALL == set_oper_type));
 		// For LP_SET_DNF, each of the sub plans should have the same output key, so we can grab from either
 		// For all other set operations, we should grab the output key from under the LP_SET_OPTION plan.
 		if (LP_SET_DNF == set_oper_type)

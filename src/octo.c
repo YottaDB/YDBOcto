@@ -28,14 +28,11 @@
 
 extern int yydebug;
 
-int no_more() {
-	return 0;
-}
+int no_more() { return 0; }
 
-int main(int argc, char **argv)
-{
-	ParseContext	parse_context;
-	int		status;
+int main(int argc, char **argv) {
+	ParseContext parse_context;
+	int	     status;
 
 	inputFile = NULL;
 	status = octo_init(argc, argv);
@@ -56,16 +53,15 @@ int main(int argc, char **argv)
 	cur_input_index = 0;
 	memset(input_buffer_combined, 0, MAX_STR_CONST);
 	do {
-		if (config->is_tty)
-		{	/* Clear previously read query from input buffer before starting to read new query.
-			 * This lets octo -vv dump the current query that is being parsed instead of dumping
-			 * all queries that have been keyed in till now.
-			 */
+		if (config->is_tty) { /* Clear previously read query from input buffer before starting to read new query.
+				       * This lets octo -vv dump the current query that is being parsed instead of dumping
+				       * all queries that have been keyed in till now.
+				       */
 			/* All current queries in the buffer will have been read when
 			 * cur_input_index+1 is the location of \0 in the buffer.
 			 * After this reset the buffer.
 			 */
-			if ('\0' == input_buffer_combined[cur_input_index+1]) {
+			if ('\0' == input_buffer_combined[cur_input_index + 1]) {
 				cur_input_index = 0;
 				input_buffer_combined[cur_input_index] = '\0';
 			}

@@ -15,11 +15,11 @@
 #include "octo.h"
 
 int drop_schema_from_local_cache(ydb_buffer_t *name_buffer, SqlSchemaType schema_type) {
-	ydb_buffer_t	schema_local, subs_array[3], ret;
-	int		status;
-	MemoryChunk	*save_chunk;
-	void		*value;
-	char		retbuff[sizeof(void *)];
+	ydb_buffer_t schema_local, subs_array[3], ret;
+	int	     status;
+	MemoryChunk *save_chunk;
+	void *	     value;
+	char	     retbuff[sizeof(void *)];
 
 	YDB_STRING_TO_BUFFER(config->global_names.loadedschemas, &schema_local);
 	/* Free up memory chunk noted down at the end of "src/find_function.c" or "src/find_table.c"
@@ -27,8 +27,8 @@ int drop_schema_from_local_cache(ydb_buffer_t *name_buffer, SqlSchemaType schema
 	 *	%ydboctoloadedschemas("functions",FUNCTIONNAME)
 	 *	%ydboctoloadedschemas("functions",FUNCTIONNAME,"chunk")
 	 * OR
- 	 *	%ydboctoloadedschemas(TABLENAME)
- 	 *	%ydboctoloadedschemas(TABLENAME,"chunk")
+	 *	%ydboctoloadedschemas(TABLENAME)
+	 *	%ydboctoloadedschemas(TABLENAME,"chunk")
 	 */
 	if (TableSchema == schema_type) {
 		YDB_STRING_TO_BUFFER("tables", &subs_array[0]);

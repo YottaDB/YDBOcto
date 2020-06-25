@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -23,10 +23,10 @@
 
 // Creates a formatted string from variable argument input for use in error messages
 const char *format_error_string(struct ErrorBuffer *err_buff, enum ERROR error, ...) {
-	va_list args;
-	int length = 0;
+	va_list	     args;
+	int	     length = 0;
 	unsigned int max_length = 0;
-	char *ret = NULL;
+	char *	     ret = NULL;
 
 	// Prevent overflow
 	max_length = MAX_STR_CONST - err_buff->offset;

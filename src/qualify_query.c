@@ -23,17 +23,17 @@
  *	1 if query had errors during qualification.
  */
 int qualify_query(SqlStatement *table_alias_stmt, SqlJoin *parent_join, SqlTableAlias *parent_table_alias) {
-	SqlColumnListAlias	*ret_cla;
-	SqlJoin			*join;
-	SqlJoin			*prev_start, *prev_end;
-	SqlJoin			*start_join, *cur_join;
-	SqlSelectStatement	*select;
-	SqlTableAlias		*table_alias;
-	SqlStatement		*group_by_expression;
-	int			result = 0;
+	SqlColumnListAlias *ret_cla;
+	SqlJoin *	    join;
+	SqlJoin *	    prev_start, *prev_end;
+	SqlJoin *	    start_join, *cur_join;
+	SqlSelectStatement *select;
+	SqlTableAlias *	    table_alias;
+	SqlStatement *	    group_by_expression;
+	int		    result = 0;
 
 	if (set_operation_STATEMENT == table_alias_stmt->type) {
-		SqlSetOperation		*set_opr;
+		SqlSetOperation *set_opr;
 
 		UNPACK_SQL_STATEMENT(set_opr, table_alias_stmt, set_operation);
 		result |= qualify_query(set_opr->operand[0], parent_join, parent_table_alias);
@@ -56,7 +56,7 @@ int qualify_query(SqlStatement *table_alias_stmt, SqlJoin *parent_join, SqlTable
 	/* Ensure strict column name qualification checks (i.e. all column name references have to be a valid column
 	 * name in a valid existing table) by using NULL as the last parameter in various `qualify_statement()` calls below.
 	 */
-	table_alias->do_group_by_checks = FALSE;	/* need to set this before invoking "qualify_statement()" */
+	table_alias->do_group_by_checks = FALSE; /* need to set this before invoking "qualify_statement()" */
 	start_join = cur_join = join;
 	/* Qualify FROM clause first. For this qualification, only use tables from the parent query FROM list.
 	 * Do not use any tables from the current query level FROM list for this qualification.
@@ -81,24 +81,24 @@ int qualify_query(SqlStatement *table_alias_stmt, SqlJoin *parent_join, SqlTable
 	}
 	cur_join = join;
 	do {
-		SqlJoin		*next_join;
+		SqlJoin *next_join;
 
 		/* Make sure any table.column references in the ON condition of the JOIN (cur_join->condition) are qualified
 		 * until the current table in the join list (i.e. forward references should not be allowed). Hence the set of
 		 * "cur_join->next" below (to "start_join" effectively hiding the remaining tables to the right).
 		 * See YDBOcto#291 for example query that demonstrates why this is needed.
 		 */
-		next_join = cur_join->next;	/* save join list before tampering with it */
+		next_join = cur_join->next; /* save join list before tampering with it */
 		/* Note that if "parent_join" is non-NULL, we need to include that even though it comes
 		 * after all the tables in the join list at the current level. This is so any references
 		 * to columns in parent queries are still considered as valid. Hence the parent_join check below.
 		 */
-		cur_join->next = ((NULL != parent_join) ? parent_join : start_join);	/* stop join list at
-											 * current join.
-											 */
+		cur_join->next = ((NULL != parent_join) ? parent_join : start_join); /* stop join list at
+										      * current join.
+										      */
 		table_alias->aggregate_depth = AGGREGATE_DEPTH_FROM_CLAUSE;
 		result |= qualify_statement(cur_join->condition, start_join, table_alias_stmt, 0, NULL);
-		cur_join->next = next_join;     /* restore join list to original */
+		cur_join->next = next_join; /* restore join list to original */
 		cur_join = next_join;
 	} while ((cur_join != start_join) && (cur_join != parent_join));
 	// Qualify WHERE clause next
@@ -114,10 +114,10 @@ int qualify_query(SqlStatement *table_alias_stmt, SqlJoin *parent_join, SqlTable
 	 * second time. Hence the `&& !table_alias->aggregate_function_or_group_by_specified)` in the `if` check below.
 	 */
 	if ((NULL != group_by_expression) && !table_alias->aggregate_function_or_group_by_specified) {
-		SqlColumnListAlias	*start_cla, *cur_cla;
-		SqlTableAlias		*group_by_table_alias;
-		SqlColumnList		*col_list;
-		int			group_by_column_count;
+		SqlColumnListAlias *start_cla, *cur_cla;
+		SqlTableAlias *	    group_by_table_alias;
+		SqlColumnList *	    col_list;
+		int		    group_by_column_count;
 
 		table_alias->aggregate_depth = AGGREGATE_DEPTH_GROUP_BY_CLAUSE;
 		assert(0 == table_alias->group_by_column_count);
@@ -136,13 +136,13 @@ int qualify_query(SqlStatement *table_alias_stmt, SqlJoin *parent_join, SqlTable
 		do {
 			UNPACK_SQL_STATEMENT(col_list, cur_cla->column_list, column_list);
 			if (column_alias_STATEMENT == col_list->value->type) {
-				SqlColumnAlias		*column_alias;
+				SqlColumnAlias *column_alias;
 
 				UNPACK_SQL_STATEMENT(column_alias, col_list->value, column_alias);
 				UNPACK_SQL_STATEMENT(group_by_table_alias, column_alias->table_alias_stmt, table_alias);
 				if (group_by_table_alias->parent_table_alias != table_alias) {
 					/* Column belongs to an outer query. Discard it from the GROUP BY list. */
-					SqlColumnListAlias	*prev, *next;
+					SqlColumnListAlias *prev, *next;
 
 					prev = cur_cla->prev;
 					next = cur_cla->next;
@@ -165,7 +165,7 @@ int qualify_query(SqlStatement *table_alias_stmt, SqlJoin *parent_join, SqlTable
 				 */
 				assert(result);
 				assert((value_STATEMENT == col_list->value->type)
-						&& (COLUMN_REFERENCE == col_list->value->v.value->type));
+				       && (COLUMN_REFERENCE == col_list->value->v.value->type));
 			}
 			cur_cla = cur_cla->next;
 			if (cur_cla == start_cla) {
@@ -183,7 +183,7 @@ int qualify_query(SqlStatement *table_alias_stmt, SqlJoin *parent_join, SqlTable
 	}
 	ret_cla = NULL;
 	table_alias->aggregate_depth = 0;
-	for ( ; ; ) {
+	for (;;) {
 		assert(0 == table_alias->aggregate_depth);
 		// Qualify HAVING clause
 		result |= qualify_statement(select->having_expression, start_join, table_alias_stmt, 0, NULL);

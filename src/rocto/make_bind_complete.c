@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -20,11 +20,10 @@
 
 #include "message_formats.h"
 
-
 BindComplete *make_bind_complete() {
 	BindComplete *ret;
 
-	ret = (BindComplete*)malloc(sizeof(BindComplete));
+	ret = (BindComplete *)malloc(sizeof(BindComplete));
 	memset(ret, 0, sizeof(BindComplete));
 
 	ret->type = PSQL_BindComplete;

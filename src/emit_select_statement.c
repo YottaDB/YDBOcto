@@ -56,18 +56,18 @@ PSQL_TypeSize get_type_size_from_psql_type(PSQL_TypeOid type) {
  *  values
  */
 PhysicalPlan *emit_select_statement(SqlStatement *stmt, char *plan_filename) {
-	LPActionType		set_oper_type;
-	LogicalPlan		*plan, *cur_plan, *column_alias;
-	PhysicalPlan		*pplan;
-	SqlValue		*value;
-	char			output_key[INT32_TO_STRING_MAX], valbuff[INT32_TO_STRING_MAX];
-	int32_t			output_key_id, status = 0;
-	int16_t			num_columns = 0;
-	ydb_buffer_t		*plan_meta, value_buffer;
-	SetOperType		*set_oper;
-	PhysicalPlanOptions	options;
-	PSQL_TypeOid		column_type;
-	PSQL_TypeSize		type_size;
+	LPActionType	    set_oper_type;
+	LogicalPlan *	    plan, *cur_plan, *column_alias;
+	PhysicalPlan *	    pplan;
+	SqlValue *	    value;
+	char		    output_key[INT32_TO_STRING_MAX], valbuff[INT32_TO_STRING_MAX];
+	int32_t		    output_key_id, status = 0;
+	int16_t		    num_columns = 0;
+	ydb_buffer_t *	    plan_meta, value_buffer;
+	SetOperType *	    set_oper;
+	PhysicalPlanOptions options;
+	PSQL_TypeOid	    column_type;
+	PSQL_TypeSize	    type_size;
 
 	TRACE(ERR_ENTERING_FUNCTION, "emit_select_statement");
 	memset(output_key, 0, INT32_TO_STRING_MAX);
@@ -103,14 +103,13 @@ PhysicalPlan *emit_select_statement(SqlStatement *stmt, char *plan_filename) {
 
 	set_oper = pplan->set_oper_list;
 	set_oper_type = ((NULL == set_oper) ? LP_INVALID_ACTION : set_oper->set_oper_type);
-	assert(((LP_INVALID_ACTION == set_oper_type) && !set_oper_type)
-		|| (LP_SET_UNION == set_oper_type) || (LP_SET_UNION_ALL == set_oper_type) || (LP_SET_DNF == set_oper_type)
-		|| (LP_SET_EXCEPT == set_oper_type) || (LP_SET_EXCEPT_ALL == set_oper_type)
-		|| (LP_SET_INTERSECT == set_oper_type) || (LP_SET_INTERSECT_ALL == set_oper_type));
+	assert(((LP_INVALID_ACTION == set_oper_type) && !set_oper_type) || (LP_SET_UNION == set_oper_type)
+	       || (LP_SET_UNION_ALL == set_oper_type) || (LP_SET_DNF == set_oper_type) || (LP_SET_EXCEPT == set_oper_type)
+	       || (LP_SET_EXCEPT_ALL == set_oper_type) || (LP_SET_INTERSECT == set_oper_type)
+	       || (LP_SET_INTERSECT_ALL == set_oper_type));
 	output_key_id = (set_oper_type ? set_oper->output_id : pplan->outputKey->unique_id);
 	// Prepare metadata buffers
-	plan_meta = make_buffers(config->global_names.octo, 5, "plan_metadata", plan_filename,
-			"output_key", "", "");
+	plan_meta = make_buffers(config->global_names.octo, 5, "plan_metadata", plan_filename, "output_key", "", "");
 	YDB_MALLOC_BUFFER(&value_buffer, INT32_TO_STRING_MAX);
 	OCTO_INT32_TO_BUFFER(output_key_id, &value_buffer);
 	// Store output key for the given plan
@@ -121,7 +120,7 @@ PhysicalPlan *emit_select_statement(SqlStatement *stmt, char *plan_filename) {
 		return NULL;
 	}
 	YDB_LITERAL_TO_BUFFER("output_columns", &plan_meta[3]);
-	YDB_MALLOC_BUFFER(&plan_meta[4], INT16_TO_STRING_MAX);		// Column ID
+	YDB_MALLOC_BUFFER(&plan_meta[4], INT16_TO_STRING_MAX); // Column ID
 
 	// Note down column data types
 	cur_plan = pplan->projection;

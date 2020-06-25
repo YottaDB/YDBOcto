@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -22,7 +22,7 @@ int tables_equal(SqlTable *a, SqlTable *b) {
 	SqlValue *valA, *valB;
 	UNPACK_SQL_STATEMENT(valA, a->tableName, value);
 	UNPACK_SQL_STATEMENT(valB, b->tableName, value);
-	if(values_equal(valA, valB) == FALSE)
+	if (values_equal(valA, valB) == FALSE)
 		return FALSE;
 	// But we won't test columns, as that would be somewhat expensive
 	return TRUE;

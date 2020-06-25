@@ -24,12 +24,12 @@
 // Returns:
 //	0 for success, 1 for error
 int emit_create_table(FILE *output, struct SqlStatement *stmt) {
-	int				status = 0;
-	SqlColumn			*start_column, *cur_column;
-	SqlTable			*table;
-	SqlValue			*value;
-	SqlOptionalKeyword		*keyword;
-	char				buffer[MAX_STR_CONST];
+	int		    status = 0;
+	SqlColumn *	    start_column, *cur_column;
+	SqlTable *	    table;
+	SqlValue *	    value;
+	SqlOptionalKeyword *keyword;
+	char		    buffer[MAX_STR_CONST];
 
 	if (NULL == stmt) {
 		return 0;

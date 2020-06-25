@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -16,13 +16,13 @@
 
 LogicalPlan *lp_join_where(LogicalPlan *where1, LogicalPlan *where2) {
 	LogicalPlan *new_plan, *w;
-	if(where1 == NULL)
+	if (where1 == NULL)
 		return where2;
-	if(where2 == NULL)
+	if (where2 == NULL)
 		return where1;
-	if(where1->v.lp_default.operand[0] == NULL)
+	if (where1->v.lp_default.operand[0] == NULL)
 		return where2;
-	if(where2->v.lp_default.operand[0] == NULL)
+	if (where2->v.lp_default.operand[0] == NULL)
 		return where1;
 	OCTO_CMALLOC_STRUCT(new_plan, LogicalPlan);
 	new_plan->type = LP_BOOLEAN_AND;

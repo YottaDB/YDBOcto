@@ -23,13 +23,14 @@
 
 int parse_literal_to_parameter(ParseContext *parse_context, SqlValue *value, boolean_t update_existing) {
 	// Increment local variable to track query literals for "prepared statement" optimization
-	ydb_buffer_t	parm_count, literal_buf;
-	ydb_buffer_t	*parm_count_subs;
-	int		status = 0;
+	ydb_buffer_t  parm_count, literal_buf;
+	ydb_buffer_t *parm_count_subs;
+	int	      status = 0;
 
 	if (update_existing) {
 		// Prepare parameter count subscripts to store literal in database
-		parm_count_subs = make_buffers(config->global_names.cursor, 3, parse_context->cursorIdString, "parameters", value->parameter_index);
+		parm_count_subs = make_buffers(config->global_names.cursor, 3, parse_context->cursorIdString, "parameters",
+					       value->parameter_index);
 	} else {
 		// ROCTO ONLY: Track total number of parameters, both literals and PARAMETER_VALUES
 		if (config->is_rocto) {
@@ -50,18 +51,19 @@ int parse_literal_to_parameter(ParseContext *parse_context, SqlValue *value, boo
 		parm_count.len_used += 1;
 
 		// Store current parameter count as index for later lookup by physical plan
-		value->parameter_index = octo_cmalloc(memory_chunks, parm_count.len_used);    // null terminator
+		value->parameter_index = octo_cmalloc(memory_chunks, parm_count.len_used); // null terminator
 		memcpy(value->parameter_index, parm_count.buf_addr, parm_count.len_used);
 
 		// Prepare parameter count subscripts to store literal in database
 		free(parm_count_subs);
-		parm_count_subs = make_buffers(config->global_names.cursor, 3, parse_context->cursorIdString, "parameters", parm_count.buf_addr);
+		parm_count_subs = make_buffers(config->global_names.cursor, 3, parse_context->cursorIdString, "parameters",
+					       parm_count.buf_addr);
 	}
 	// Store literal value in database (mapped to above index) for later lookup by physical plan
 	if (PARAMETER_VALUE == value->type) {
-		YDB_STRING_TO_BUFFER("", &literal_buf);		// If an extended query parameter, e.g. $1, we have no value to
-								// store here. Use an empty string for now and populate in
-								// handle_execute
+		YDB_STRING_TO_BUFFER("", &literal_buf); // If an extended query parameter, e.g. $1, we have no value to
+							// store here. Use an empty string for now and populate in
+							// handle_execute
 	} else {
 		YDB_STRING_TO_BUFFER(value->v.string_literal, &literal_buf);
 	}

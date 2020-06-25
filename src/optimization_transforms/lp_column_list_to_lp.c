@@ -19,13 +19,13 @@
 #include "logical_plan.h"
 
 LogicalPlan *lp_column_list_to_lp(SqlColumnListAlias *list, boolean_t *caller_error_encountered) {
-	LogicalPlan		*column_list, *ret_column_list = NULL;
-	LogicalPlan		*column_list_alias;
-	LogicalPlan		*where;
-	SqlColumnList		*t_column_list;
-	SqlColumnListAlias	*cur_cla, *start_cla;
-	SqlStatement		*column_stmt;
-	boolean_t		error_encountered = FALSE;
+	LogicalPlan *	    column_list, *ret_column_list = NULL;
+	LogicalPlan *	    column_list_alias;
+	LogicalPlan *	    where;
+	SqlColumnList *	    t_column_list;
+	SqlColumnListAlias *cur_cla, *start_cla;
+	SqlStatement *	    column_stmt;
+	boolean_t	    error_encountered = FALSE;
 
 	assert(NULL != list);
 	MALLOC_LP_2ARGS(column_list, LP_COLUMN_LIST);

@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -25,14 +25,14 @@ BaseMessage *read_message(RoctoSession *session, char *buffer, int32_t buffer_si
 	BaseMessage *message;
 
 	// Read BaseMessage fields (type, length)
-	message = (void*)buffer;
-	*rocto_err = read_bytes(session, (char*)message, buffer_size, sizeof(char) + sizeof(uint32_t));
-	if(0 != *rocto_err)
+	message = (void *)buffer;
+	*rocto_err = read_bytes(session, (char *)message, buffer_size, sizeof(char) + sizeof(uint32_t));
+	if (0 != *rocto_err)
 		return NULL;
 
 	// Read the rest of the message
-	*rocto_err = read_bytes(session, (char*)(&message->data), buffer_size, ntohl(message->length) - sizeof(uint32_t));
-	if(0 != *rocto_err)
+	*rocto_err = read_bytes(session, (char *)(&message->data), buffer_size, ntohl(message->length) - sizeof(uint32_t));
+	if (0 != *rocto_err)
 		return NULL;
 
 	return message;

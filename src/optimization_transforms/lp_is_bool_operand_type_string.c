@@ -18,26 +18,18 @@
 
 boolean_t lp_is_bool_operand_type_string(LogicalPlan *plan) {
 	boolean_t	ret, loop_done;
-	LogicalPlan	*cur_plan, *ret_type_plan;
-	SqlColumnAlias	*column_alias;
+	LogicalPlan *	cur_plan, *ret_type_plan;
+	SqlColumnAlias *column_alias;
 	SqlValueType	return_type;
 
-	assert((LP_BOOLEAN_LESS_THAN == plan->type)
-		|| (LP_BOOLEAN_GREATER_THAN == plan->type)
-		|| (LP_BOOLEAN_LESS_THAN_OR_EQUALS == plan->type)
-		|| (LP_BOOLEAN_GREATER_THAN_OR_EQUALS == plan->type)
-		|| (LP_BOOLEAN_ANY_LESS_THAN == plan->type)
-		|| (LP_BOOLEAN_ANY_GREATER_THAN == plan->type)
-		|| (LP_BOOLEAN_ANY_LESS_THAN_OR_EQUALS == plan->type)
-		|| (LP_BOOLEAN_ANY_GREATER_THAN_OR_EQUALS == plan->type)
-		|| (LP_BOOLEAN_ANY_EQUALS == plan->type)
-		|| (LP_BOOLEAN_ANY_NOT_EQUALS == plan->type)
-		|| (LP_BOOLEAN_ALL_LESS_THAN == plan->type)
-		|| (LP_BOOLEAN_ALL_GREATER_THAN == plan->type)
-		|| (LP_BOOLEAN_ALL_LESS_THAN_OR_EQUALS == plan->type)
-		|| (LP_BOOLEAN_ALL_GREATER_THAN_OR_EQUALS == plan->type)
-		|| (LP_BOOLEAN_ALL_EQUALS == plan->type)
-		|| (LP_BOOLEAN_ALL_NOT_EQUALS == plan->type));
+	assert((LP_BOOLEAN_LESS_THAN == plan->type) || (LP_BOOLEAN_GREATER_THAN == plan->type)
+	       || (LP_BOOLEAN_LESS_THAN_OR_EQUALS == plan->type) || (LP_BOOLEAN_GREATER_THAN_OR_EQUALS == plan->type)
+	       || (LP_BOOLEAN_ANY_LESS_THAN == plan->type) || (LP_BOOLEAN_ANY_GREATER_THAN == plan->type)
+	       || (LP_BOOLEAN_ANY_LESS_THAN_OR_EQUALS == plan->type) || (LP_BOOLEAN_ANY_GREATER_THAN_OR_EQUALS == plan->type)
+	       || (LP_BOOLEAN_ANY_EQUALS == plan->type) || (LP_BOOLEAN_ANY_NOT_EQUALS == plan->type)
+	       || (LP_BOOLEAN_ALL_LESS_THAN == plan->type) || (LP_BOOLEAN_ALL_GREATER_THAN == plan->type)
+	       || (LP_BOOLEAN_ALL_LESS_THAN_OR_EQUALS == plan->type) || (LP_BOOLEAN_ALL_GREATER_THAN_OR_EQUALS == plan->type)
+	       || (LP_BOOLEAN_ALL_EQUALS == plan->type) || (LP_BOOLEAN_ALL_NOT_EQUALS == plan->type));
 	/* We assume all values in this expression have the same type, which should be true due to the matching of types
 	 * further up the stack (in `populate_data_type`). Traverse down the left side of the logical plan tree until we get
 	 * to a plan node which has only a left child (right hand child is NULL) OR stop traversing if we end up with
@@ -45,7 +37,7 @@ boolean_t lp_is_bool_operand_type_string(LogicalPlan *plan) {
 	 */
 	cur_plan = plan;
 	ret = FALSE;
-	for ( loop_done = FALSE; !loop_done; ) {
+	for (loop_done = FALSE; !loop_done;) {
 		switch (cur_plan->type) {
 		case LP_VALUE:
 			if (STRING_LITERAL == cur_plan->v.lp_value.value->type) {
@@ -62,8 +54,8 @@ boolean_t lp_is_bool_operand_type_string(LogicalPlan *plan) {
 		case LP_COLUMN_ALIAS:
 		case LP_DERIVED_COLUMN:
 			column_alias = ((LP_COLUMN_ALIAS == cur_plan->type)
-						? cur_plan->v.lp_column_alias.column_alias
-						: cur_plan->extra_detail.lp_derived_column.subquery_column_alias);
+					    ? cur_plan->v.lp_column_alias.column_alias
+					    : cur_plan->extra_detail.lp_derived_column.subquery_column_alias);
 			if (column_alias->column->type == column_STATEMENT) {
 				if (STRING_TYPE == column_alias->column->v.column->type) {
 					ret = TRUE;

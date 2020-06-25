@@ -32,13 +32,13 @@
  *	1 in case of errors (duplicate common columns etc.) so caller can take appropriate action.
  */
 int natural_join_condition(SqlJoin *start, SqlJoin *r_join) {
-	SqlStatement		*ret;
-	SqlJoin			*l_join;
-	SqlStatement		*r_sql_stmt;
-	SqlTableAlias		*r_table_alias;
-	char			*r_table_name;
-	size_t			r_table_name_len;
-	SqlValue		*value;
+	SqlStatement * ret;
+	SqlJoin *      l_join;
+	SqlStatement * r_sql_stmt;
+	SqlTableAlias *r_table_alias;
+	char *	       r_table_name;
+	size_t	       r_table_name_len;
+	SqlValue *     value;
 
 	assert(NULL != start);
 	assert(NULL != r_join);
@@ -52,11 +52,11 @@ int natural_join_condition(SqlJoin *start, SqlJoin *r_join) {
 	ret = NULL;
 	/* Loop through each table on left side of NATURAL JOIN */
 	for (l_join = start; l_join != r_join; l_join = l_join->next) {
-		SqlStatement		*l_sql_stmt;
-		SqlTableAlias		*l_table_alias;
-		SqlColumnListAlias	*l_cl_start, *l_cl_cur;
-		char			*l_table_name;
-		size_t			l_table_name_len;
+		SqlStatement *	    l_sql_stmt;
+		SqlTableAlias *	    l_table_alias;
+		SqlColumnListAlias *l_cl_start, *l_cl_cur;
+		char *		    l_table_name;
+		size_t		    l_table_name_len;
 
 		l_sql_stmt = drill_to_table_alias(l_join->value);
 		UNPACK_SQL_STATEMENT(l_table_alias, l_sql_stmt, table_alias);
@@ -65,27 +65,27 @@ int natural_join_condition(SqlJoin *start, SqlJoin *r_join) {
 		l_table_name = value->v.string_literal;
 		l_table_name_len = strlen(l_table_name);
 		l_cl_cur = l_cl_start;
-		do {	/* Loop through each column on left side table of the NATURAL JOIN */
+		do { /* Loop through each column on left side table of the NATURAL JOIN */
 			if (NULL == l_cl_cur->duplicate_of_column) {
-				char			*l_column_name;
-				size_t			l_column_name_len;
-				SqlColumnListAlias	*r_matched_column;
-				boolean_t		ambiguous;
+				char *		    l_column_name;
+				size_t		    l_column_name_len;
+				SqlColumnListAlias *r_matched_column;
+				boolean_t	    ambiguous;
 
 				UNPACK_SQL_STATEMENT(value, l_cl_cur->alias, value);
 				assert(CALCULATED_VALUE != value->type);
 				l_column_name = value->v.string_literal;
 				l_column_name_len = strlen(l_column_name);
-				r_matched_column = match_column_in_table(r_table_alias,
-								l_column_name, l_column_name_len, &ambiguous, FALSE);
-							/* FALSE for last parameter so no error is issued in "match_column_in_table"
-							 * if multiple columns are found on right table with the same name. This is
-							 * because we will issue the more accurate ERR_COMMON_COLUMN error below.
-							 */
+				r_matched_column
+				    = match_column_in_table(r_table_alias, l_column_name, l_column_name_len, &ambiguous, FALSE);
+				/* FALSE for last parameter so no error is issued in "match_column_in_table"
+				 * if multiple columns are found on right table with the same name. This is
+				 * because we will issue the more accurate ERR_COMMON_COLUMN error below.
+				 */
 				if (NULL != r_matched_column) {
-					SqlStatement		*l_qual_col_name, *r_qual_col_name;
-					SqlStatement		*cur_condition;
-					SqlBinaryOperation	*binary;
+					SqlStatement *	    l_qual_col_name, *r_qual_col_name;
+					SqlStatement *	    cur_condition;
+					SqlBinaryOperation *binary;
 
 					if (NULL != r_matched_column->duplicate_of_column) {
 						ERROR(ERR_COMMON_COLUMN, l_column_name, "left");
@@ -103,8 +103,8 @@ int natural_join_condition(SqlJoin *start, SqlJoin *r_join) {
 					MALLOC_STATEMENT(l_qual_col_name, value, SqlValue);
 					UNPACK_SQL_STATEMENT(value, l_qual_col_name, value);
 					value->type = COLUMN_REFERENCE;
-					value->v.string_literal = octo_cmalloc(memory_chunks,
-							l_table_name_len + l_column_name_len + 2);
+					value->v.string_literal
+					    = octo_cmalloc(memory_chunks, l_table_name_len + l_column_name_len + 2);
 					sprintf(value->v.string_literal, "%s.%s", l_table_name, l_column_name);
 					//
 					// Create a value for the right item
@@ -112,8 +112,8 @@ int natural_join_condition(SqlJoin *start, SqlJoin *r_join) {
 					MALLOC_STATEMENT(r_qual_col_name, value, SqlValue);
 					UNPACK_SQL_STATEMENT(value, r_qual_col_name, value);
 					value->type = COLUMN_REFERENCE;
-					value->v.string_literal = octo_cmalloc(memory_chunks,
-							r_table_name_len + l_column_name_len + 2);
+					value->v.string_literal
+					    = octo_cmalloc(memory_chunks, r_table_name_len + l_column_name_len + 2);
 					sprintf(value->v.string_literal, "%s.%s", r_table_name, l_column_name);
 
 					// Put both in a binary statement
@@ -126,7 +126,7 @@ int natural_join_condition(SqlJoin *start, SqlJoin *r_join) {
 					if (NULL == ret) {
 						ret = cur_condition;
 					} else {
-						SqlStatement	*t_condition;
+						SqlStatement *t_condition;
 
 						SQL_STATEMENT(t_condition, binary_STATEMENT);
 						MALLOC_STATEMENT(t_condition, binary, SqlBinaryOperation);

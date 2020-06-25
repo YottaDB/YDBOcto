@@ -22,24 +22,24 @@
  * plan should be a LP_TABLE_JOIN
  */
 LogicalPlan *join_tables(LogicalPlan *root, LogicalPlan *plan) {
-	LogicalPlan	*keys, *select, *criteria, *cur_lp_key;
-	LogicalPlan	*oper0;
-	SqlTable	*table;
-	SqlTableAlias	*table_alias;
-	SqlColumn	*key_columns[MAX_KEY_COUNT];
-	int		max_key, cur_key, unique_id;
-	LogicalPlan	*set_plans;
+	LogicalPlan *  keys, *select, *criteria, *cur_lp_key;
+	LogicalPlan *  oper0;
+	SqlTable *     table;
+	SqlTableAlias *table_alias;
+	SqlColumn *    key_columns[MAX_KEY_COUNT];
+	int	       max_key, cur_key, unique_id;
+	LogicalPlan *  set_plans;
 
 	if ((LP_TABLE_JOIN != plan->type)) {
 		return plan;
 	}
-	assert (NULL != plan->v.lp_default.operand[0]);
+	assert(NULL != plan->v.lp_default.operand[0]);
 	oper0 = plan->v.lp_default.operand[0];
 	switch (oper0->type) {
 	case LP_SET_OPERATION:
 	case LP_INSERT:
 		if (LP_SET_OPERATION == oper0->type) {
-			int	i;
+			int i;
 
 			GET_LP(set_plans, oper0, 1, LP_PLANS);
 			for (i = 0; i < 2; i++) {
@@ -74,7 +74,7 @@ LogicalPlan *join_tables(LogicalPlan *root, LogicalPlan *plan) {
 		table_alias = oper0->v.lp_table.table_alias;
 		UNPACK_SQL_STATEMENT(table, table_alias->table, create_table);
 		unique_id = table_alias->unique_id;
-		memset(key_columns, 0, MAX_KEY_COUNT * sizeof(SqlColumn*));
+		memset(key_columns, 0, MAX_KEY_COUNT * sizeof(SqlColumn *));
 		max_key = get_key_columns(table, key_columns);
 		for (cur_key = 0; cur_key <= max_key; cur_key++) {
 			MALLOC_LP(cur_lp_key, keys->v.lp_default.operand[0], LP_KEY);
@@ -95,7 +95,7 @@ LogicalPlan *join_tables(LogicalPlan *root, LogicalPlan *plan) {
 	}
 	/* See if there are other tables in the JOIN list. If so add keys from those too. */
 	if (NULL != plan->v.lp_default.operand[1]) {
-		LogicalPlan	*next;
+		LogicalPlan *next;
 
 		GET_LP(next, plan, 1, LP_TABLE_JOIN);
 		if (NULL == join_tables(root, next)) {
@@ -106,23 +106,23 @@ LogicalPlan *join_tables(LogicalPlan *root, LogicalPlan *plan) {
 }
 
 LogicalPlan *optimize_logical_plan(LogicalPlan *plan) {
-	LogicalPlan	*select, *table_join, *where;
-	LogicalPlan	*cur;
-#	ifndef NDEBUG
-	LogicalPlan	*keys;
-#	endif
+	LogicalPlan *select, *table_join, *where;
+	LogicalPlan *cur;
+#ifndef NDEBUG
+	LogicalPlan *keys;
+#endif
 
 	if (NULL == plan)
 		return NULL;
 
 	if (LP_SET_OPERATION == plan->type) {
 		plan->v.lp_default.operand[1]->v.lp_default.operand[0]
-				= optimize_logical_plan(plan->v.lp_default.operand[1]->v.lp_default.operand[0]);
+		    = optimize_logical_plan(plan->v.lp_default.operand[1]->v.lp_default.operand[0]);
 		if (NULL == plan->v.lp_default.operand[1]->v.lp_default.operand[0]) {
 			return NULL;
 		}
 		plan->v.lp_default.operand[1]->v.lp_default.operand[1]
-				= optimize_logical_plan(plan->v.lp_default.operand[1]->v.lp_default.operand[1]);
+		    = optimize_logical_plan(plan->v.lp_default.operand[1]->v.lp_default.operand[1]);
 		if (NULL == plan->v.lp_default.operand[1]->v.lp_default.operand[1]) {
 			return NULL;
 		}
@@ -136,9 +136,9 @@ LogicalPlan *optimize_logical_plan(LogicalPlan *plan) {
 	// Expand the plan, if needed
 	cur = where->v.lp_default.operand[0];
 	if (NULL != cur) {
-		LogicalPlan	*new_plan;
+		LogicalPlan *new_plan;
 
-		new_plan = plan;	/* new_plan will change if DNF expansion happens below */
+		new_plan = plan; /* new_plan will change if DNF expansion happens below */
 		if (LP_BOOLEAN_OR == cur->type) {
 			/* In case there are N LP_BOOLEAN_OR conditions in the LP_WHERE plan, we are going to invoke
 			 * "lp_copy_plan" on it N times and each of them will end up copying the LP_WHERE plan but later
@@ -152,10 +152,10 @@ LogicalPlan *optimize_logical_plan(LogicalPlan *plan) {
 			assert(NULL == where->v.lp_default.operand[1]);
 		}
 		while (LP_BOOLEAN_OR == cur->type) {
-			SqlOptionalKeyword	*keywords, *new_keyword;
-			LogicalPlan		*p;
-			LogicalPlan		*child_where;
-			LogicalPlan		*set_operation, *set_option, *set_plans;
+			SqlOptionalKeyword *keywords, *new_keyword;
+			LogicalPlan *	    p;
+			LogicalPlan *	    child_where;
+			LogicalPlan *	    set_operation, *set_option, *set_plans;
 
 			keywords = lp_get_select_keywords(plan)->v.lp_keywords.keywords;
 			new_keyword = get_keyword_from_keywords(keywords, OPTIONAL_BOOLEAN_EXPANSION);
@@ -175,8 +175,8 @@ LogicalPlan *optimize_logical_plan(LogicalPlan *plan) {
 			MALLOC_LP(set_option, set_operation->v.lp_default.operand[0], LP_SET_OPTION);
 			MALLOC_LP_2ARGS(set_option->v.lp_default.operand[0], LP_SET_DNF);
 			MALLOC_LP(set_plans, set_operation->v.lp_default.operand[1], LP_PLANS);
-			set_plans->v.lp_default.operand[0] = p;		/* This stores left side of the LP_BOOLEAN_OR condition */
-			set_plans->v.lp_default.operand[1] = new_plan;	/* This stores right side of the LP_BOOLEAN_OR condition */
+			set_plans->v.lp_default.operand[0] = p;	       /* This stores left side of the LP_BOOLEAN_OR condition */
+			set_plans->v.lp_default.operand[1] = new_plan; /* This stores right side of the LP_BOOLEAN_OR condition */
 			new_plan = set_operation;
 			cur = cur->v.lp_default.operand[1];
 		}
@@ -190,14 +190,14 @@ LogicalPlan *optimize_logical_plan(LogicalPlan *plan) {
 	select = lp_get_select(plan);
 	assert(where == lp_get_select_where(plan));
 	GET_LP(table_join, select, 0, LP_TABLE_JOIN);
-	lp_optimize_cross_join(plan, table_join, where);	/* Optimize CROSS JOINs in plan (if any) */
+	lp_optimize_cross_join(plan, table_join, where); /* Optimize CROSS JOINs in plan (if any) */
 	/* Now that optimal join order has been determined, "join" all the tables to generate keys for the physical plan.
 	 * This will be needed by the key fixing optimization which is invoked next.
 	 */
-#	ifndef NDEBUG
+#ifndef NDEBUG
 	keys = lp_get_keys(plan);
 	assert(NULL == keys->v.lp_default.operand[0]);
-#	endif
+#endif
 	if (NULL == join_tables(plan, table_join)) {
 		return NULL;
 	}
@@ -210,8 +210,8 @@ LogicalPlan *optimize_logical_plan(LogicalPlan *plan) {
 	do {
 		assert(LP_TABLE_JOIN == table_join->type);
 		if (NULL != table_join->extra_detail.lp_table_join.join_on_condition) {
-			LogicalPlan	*insert, *operand0;
-			SqlTableAlias	*right_table_alias;
+			LogicalPlan *  insert, *operand0;
+			SqlTableAlias *right_table_alias;
 
 			/* Note that even an INNER JOIN will have a non-NULL join_on_condition if it is preceded by
 			 * an OUTER JOIN.
@@ -237,9 +237,8 @@ LogicalPlan *optimize_logical_plan(LogicalPlan *plan) {
 			 * for details). Hence the choice of the 4th parameter as 0 even though it might not correctly
 			 * reflect the actual number of outer joins in the query.
 			 */
-			lp_optimize_where_multi_equals_ands(plan,
-							table_join->extra_detail.lp_table_join.join_on_condition,
-							right_table_alias, 0);
+			lp_optimize_where_multi_equals_ands(plan, table_join->extra_detail.lp_table_join.join_on_condition,
+							    right_table_alias, 0);
 		}
 		table_join = table_join->v.lp_default.operand[1];
 	} while (NULL != table_join);

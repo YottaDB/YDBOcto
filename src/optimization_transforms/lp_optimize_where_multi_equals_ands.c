@@ -22,23 +22,23 @@
 /* Note: "num_outer_joins" is used by this function (and the function it calls) only if "right_table_alias" is NULL.
  * So it is okay if "num_outer_joins" is set to an arbitrary value in case "right_table_alias" is non-NULL.
  */
-void lp_optimize_where_multi_equals_ands(LogicalPlan *plan, LogicalPlan *where,
-					SqlTableAlias *right_table_alias, boolean_t num_outer_joins) {
-	int		*key_unique_id_array;	// keys_unique_id_ordering[unique_id] = index in the ordered list
-	int		max_unique_id;		// 1 more than maximum possible table_id/unique_id
-	int		i;
-	LogicalPlan	*cur, *lp_key;
-	SqlKey		*key;
+void lp_optimize_where_multi_equals_ands(LogicalPlan *plan, LogicalPlan *where, SqlTableAlias *right_table_alias,
+					 boolean_t num_outer_joins) {
+	int *	     key_unique_id_array; // keys_unique_id_ordering[unique_id] = index in the ordered list
+	int	     max_unique_id;	  // 1 more than maximum possible table_id/unique_id
+	int	     i;
+	LogicalPlan *cur, *lp_key;
+	SqlKey *     key;
 
-	max_unique_id = config->plan_id;	/* similar logic exists in "lp_optimize_cross_join()" */
-	key_unique_id_array = octo_cmalloc(memory_chunks, sizeof(int) * max_unique_id);	// guarantees 0-initialized memory */
+	max_unique_id = config->plan_id; /* similar logic exists in "lp_optimize_cross_join()" */
+	key_unique_id_array = octo_cmalloc(memory_chunks, sizeof(int) * max_unique_id); // guarantees 0-initialized memory */
 	// Look at the sorting of the keys in the plan ordering.
 	// When selecting which to fix, always pick the key with the higher unique_id.
 	// This should ensure that we will always have the right sequence.
 	cur = lp_get_keys(plan);
-	i = 1;	// start at non-zero value since 0 is a special value indicating key is not known to the current query/sub-query
-		// (e.g. comes in from parent query). Treat 0 as the highest possible unique_id in the function
-		// "lp_optimize_where_multi_equals_ands_helper".
+	i = 1; // start at non-zero value since 0 is a special value indicating key is not known to the current query/sub-query
+	       // (e.g. comes in from parent query). Treat 0 as the highest possible unique_id in the function
+	       // "lp_optimize_where_multi_equals_ands_helper".
 	while (NULL != cur) {
 		GET_LP(lp_key, cur, 0, LP_KEY);
 		key = lp_key->v.lp_key.key;
@@ -61,21 +61,21 @@ void lp_optimize_where_multi_equals_ands(LogicalPlan *plan, LogicalPlan *where,
  *	In this case, "ptr" parameter points to a 2-dimensional "boolean_t" typed array.
  *	In this case, "num_outer_joins" parameter points to the array size of "ptr" (same size in both dimensions)
  */
-LogicalPlan *lp_optimize_where_multi_equals_ands_helper(LogicalPlan *plan, LogicalPlan *where, int *key_unique_id_array,
-							void *ptr, boolean_t num_outer_joins) {
-	LogicalPlan		*cur, *left, *right, *t, *keys;
-	LogicalPlan		*first_key, *before_first_key, *last_key, *before_last_key, *xref_keys;
-	LogicalPlan		*generated_xref_keys, *lp_key;
-	SqlColumnList		*column_list;
-	SqlColumnListAlias	*column_list_alias;
-	SqlColumnAlias		*column_alias;
-	SqlTable		*table;
-	SqlTableAlias		*table_alias;
-	SqlKey			*key;
-	int			left_id, right_id;
-	LogicalPlan		*new_left, *new_right, *list;
-	LPActionType		type;
-	SqlTableAlias		*right_table_alias;
+LogicalPlan *lp_optimize_where_multi_equals_ands_helper(LogicalPlan *plan, LogicalPlan *where, int *key_unique_id_array, void *ptr,
+							boolean_t num_outer_joins) {
+	LogicalPlan *	    cur, *left, *right, *t, *keys;
+	LogicalPlan *	    first_key, *before_first_key, *last_key, *before_last_key, *xref_keys;
+	LogicalPlan *	    generated_xref_keys, *lp_key;
+	SqlColumnList *	    column_list;
+	SqlColumnListAlias *column_list_alias;
+	SqlColumnAlias *    column_alias;
+	SqlTable *	    table;
+	SqlTableAlias *	    table_alias;
+	SqlKey *	    key;
+	int		    left_id, right_id;
+	LogicalPlan *	    new_left, *new_right, *list;
+	LPActionType	    type;
+	SqlTableAlias *	    right_table_alias;
 
 	if (LP_WHERE == where->type) {
 		cur = where->v.lp_default.operand[0];
@@ -90,11 +90,9 @@ LogicalPlan *lp_optimize_where_multi_equals_ands_helper(LogicalPlan *plan, Logic
 	right = cur->v.lp_default.operand[1];
 	switch (type) {
 	case LP_BOOLEAN_AND:
-		new_left = lp_optimize_where_multi_equals_ands_helper(plan, left, key_unique_id_array,
-										ptr, num_outer_joins);
+		new_left = lp_optimize_where_multi_equals_ands_helper(plan, left, key_unique_id_array, ptr, num_outer_joins);
 		cur->v.lp_default.operand[0] = new_left;
-		new_right = lp_optimize_where_multi_equals_ands_helper(plan, right, key_unique_id_array,
-										ptr, num_outer_joins);
+		new_right = lp_optimize_where_multi_equals_ands_helper(plan, right, key_unique_id_array, ptr, num_outer_joins);
 		cur->v.lp_default.operand[1] = new_right;
 		if (NULL == new_left) {
 			if (LP_WHERE == where->type) {
@@ -136,7 +134,7 @@ LogicalPlan *lp_optimize_where_multi_equals_ands_helper(LogicalPlan *plan, Logic
 		} while (NULL != list);
 		break;
 	default:
-		return where;	/* The only things we currently optimize are the above "case" blocks */
+		return where; /* The only things we currently optimize are the above "case" blocks */
 		break;
 	}
 	/* Go through and fix keys as best as we can.
@@ -179,7 +177,7 @@ LogicalPlan *lp_optimize_where_multi_equals_ands_helper(LogicalPlan *plan, Logic
 		break;
 	case LP_COLUMN_LIST:
 		assert(LP_BOOLEAN_IN == type);
-		right_id = 0;	/* Treat list of values as one value for key fixing purposes */
+		right_id = 0; /* Treat list of values as one value for key fixing purposes */
 		break;
 	default:
 		return where;
@@ -187,8 +185,8 @@ LogicalPlan *lp_optimize_where_multi_equals_ands_helper(LogicalPlan *plan, Logic
 	}
 	if (NULL == key_unique_id_array) {
 		/* Caller is "lp_optimize_cross_join()" */
-		boolean_t	*equals_id1_id2;
-		int		max_unique_id;
+		boolean_t *equals_id1_id2;
+		int	   max_unique_id;
 
 		max_unique_id = num_outer_joins;
 		assert(max_unique_id == config->plan_id);
@@ -256,8 +254,8 @@ LogicalPlan *lp_optimize_where_multi_equals_ands_helper(LogicalPlan *plan, Logic
 	 */
 	right_table_alias = (SqlTableAlias *)ptr;
 	if ((NULL != right_table_alias) && (LP_COLUMN_ALIAS == left->type)) {
-		SqlColumnAlias	*column_alias;
-		SqlTableAlias	*column_table_alias;
+		SqlColumnAlias *column_alias;
+		SqlTableAlias * column_table_alias;
 
 		column_alias = left->v.lp_column_alias.column_alias;
 		UNPACK_SQL_STATEMENT(column_table_alias, column_alias->table_alias_stmt, table_alias);
@@ -337,7 +335,7 @@ LogicalPlan *lp_optimize_where_multi_equals_ands_helper(LogicalPlan *plan, Logic
 		 * we need to scan down the xref_keys list (through v.operand[1]) until we hit the end, i.e. we
 		 * cannot assume there is only one column comprising the primary key. Hence the for loop below.
 		 */
-		for ( ; NULL != xref_keys->v.lp_default.operand[1]; xref_keys = xref_keys->v.lp_default.operand[1])
+		for (; NULL != xref_keys->v.lp_default.operand[1]; xref_keys = xref_keys->v.lp_default.operand[1])
 			;
 		if (NULL != before_last_key->v.lp_default.operand[1]) {
 			xref_keys->v.lp_default.operand[1] = before_last_key->v.lp_default.operand[1];
@@ -347,7 +345,7 @@ LogicalPlan *lp_optimize_where_multi_equals_ands_helper(LogicalPlan *plan, Logic
 	 * or keys that are part of a cross reference iteration. Hence the `if` check below.
 	 */
 	if ((LP_KEY_ADVANCE == key->type) && (NULL == key->cross_reference_output_key)) {
-		boolean_t	remove_lp_boolean_equals;
+		boolean_t remove_lp_boolean_equals;
 
 		key->fixed_to_value = right;
 		key->type = LP_KEY_FIX;
@@ -371,7 +369,7 @@ LogicalPlan *lp_optimize_where_multi_equals_ands_helper(LogicalPlan *plan, Logic
 				 * queries. It is okay to use where->v.lp_default.operand[1] for the alternate list because it is
 				 * guaranteed to be NULL (asserted in caller function "lp_optimize_where_multi_equals_ands()").
 				 */
-				LogicalPlan	*where2, *opr1, *lp;
+				LogicalPlan *where2, *opr1, *lp;
 
 				where2 = lp_get_select_where(plan);
 				opr1 = where2->v.lp_default.operand[1];

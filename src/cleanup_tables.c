@@ -20,11 +20,11 @@
 #include "helpers.h"
 
 void cleanup_tables() {
-	int		status;
-	char		buffer[MAX_STR_CONST];
-	char		table_name[MAX_STR_CONST];
-	ydb_buffer_t	loaded_schemas_b[4];
-	ydb_buffer_t	result_b;
+	int	     status;
+	char	     buffer[MAX_STR_CONST];
+	char	     table_name[MAX_STR_CONST];
+	ydb_buffer_t loaded_schemas_b[4];
+	ydb_buffer_t result_b;
 
 	YDB_STRING_TO_BUFFER(config->global_names.loadedschemas, &loaded_schemas_b[0]);
 	YDB_STRING_TO_BUFFER("tables", &loaded_schemas_b[1]);
@@ -47,6 +47,6 @@ void cleanup_tables() {
 		YDB_ERROR_CHECK(status);
 		if (YDB_OK != status)
 			break;
-		OCTO_CFREE(*((MemoryChunk**)result_b.buf_addr));
+		OCTO_CFREE(*((MemoryChunk **)result_b.buf_addr));
 	}
 }

@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -34,28 +34,28 @@ int __wrap_send_bytes(RoctoSession *session, char *message, size_t length) {
 }
 
 static void test_valid_input(void **state) {
-	int32_t rt = 1;
-	BaseMessage message;
+	int32_t	     rt = 1;
+	BaseMessage  message;
 	RoctoSession session;
 
 	// Initialize relevant variables
 	message.type = 'S';
 	message.length = sizeof(uint32_t);
 
-	will_return(__wrap_send_bytes, 0);	// Success
+	will_return(__wrap_send_bytes, 0); // Success
 
-	rt = send_message(&session, &message);	// Count type indicator
+	rt = send_message(&session, &message); // Count type indicator
 
 	assert_int_equal(rt, 0);
 }
 
 static void test_send_bytes_failed(void **state) {
-	int32_t rt = 1;
-	uint32_t length = sizeof(BaseMessage);
-	BaseMessage message;
+	int32_t	     rt = 1;
+	uint32_t     length = sizeof(BaseMessage);
+	BaseMessage  message;
 	RoctoSession session;
 
-	will_return(__wrap_send_bytes, 1);		// Failure
+	will_return(__wrap_send_bytes, 1); // Failure
 
 	rt = send_message(&session, &message);
 
@@ -65,8 +65,8 @@ static void test_send_bytes_failed(void **state) {
 int main(void) {
 	octo_init(0, NULL, FALSE);
 	const struct CMUnitTest tests[] = {
-		cmocka_unit_test(test_valid_input),
-		cmocka_unit_test(test_send_bytes_failed),
+	    cmocka_unit_test(test_valid_input),
+	    cmocka_unit_test(test_send_bytes_failed),
 	};
 	return cmocka_run_group_tests(tests, NULL, NULL);
 }

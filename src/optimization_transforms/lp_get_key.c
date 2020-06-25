@@ -19,16 +19,16 @@
 #include "logical_plan.h"
 
 SqlKey *lp_get_key(LogicalPlan *plan, LogicalPlan *lp_column_alias) {
-	SqlColumnAlias		*column_alias;
-	SqlColumn		*column;
-	SqlValue		*key_table_name, *search_table_name, *key_column_name, *search_column_name;
-	SqlTableAlias		*table_alias;
-	SqlTable		*table;
-	SqlColumnListAlias	*cl_alias;
-	SqlKey			*key, *primary_key;
-	int			key_id, search_id, join_table_id, join_table_num;
-	LogicalPlan		*cur_key, *lp_key;
-	boolean_t		first_matching_key;
+	SqlColumnAlias *    column_alias;
+	SqlColumn *	    column;
+	SqlValue *	    key_table_name, *search_table_name, *key_column_name, *search_column_name;
+	SqlTableAlias *	    table_alias;
+	SqlTable *	    table;
+	SqlColumnListAlias *cl_alias;
+	SqlKey *	    key, *primary_key;
+	int		    key_id, search_id, join_table_id, join_table_num;
+	LogicalPlan *	    cur_key, *lp_key;
+	boolean_t	    first_matching_key;
 
 	column_alias = lp_column_alias->v.lp_column_alias.column_alias;
 	UNPACK_SQL_STATEMENT(table_alias, column_alias->table_alias_stmt, table_alias);
@@ -54,8 +54,7 @@ SqlKey *lp_get_key(LogicalPlan *plan, LogicalPlan *lp_column_alias) {
 		GET_LP(lp_key, cur_key, 0, LP_KEY);
 		key = lp_key->v.lp_key.key;
 		key_id = key->unique_id;
-		if (join_table_id != key_id)
-		{
+		if (join_table_id != key_id) {
 			join_table_id = key_id;
 			join_table_num++;
 		}

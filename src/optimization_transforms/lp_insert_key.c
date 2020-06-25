@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -25,8 +25,8 @@ void lp_insert_key(LogicalPlan *plan, LogicalPlan *key) {
 	cur_keys = lp_get_keys(plan);
 
 	// Drill down to the last item
-	if(cur_keys->v.lp_default.operand[0] != NULL) {
-		while(cur_keys->v.lp_default.operand[1] != NULL) {
+	if (cur_keys->v.lp_default.operand[0] != NULL) {
+		while (cur_keys->v.lp_default.operand[1] != NULL) {
 			cur_keys = cur_keys->v.lp_default.operand[1];
 		}
 		MALLOC_LP(t, cur_keys->v.lp_default.operand[1], LP_KEYS);

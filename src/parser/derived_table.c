@@ -17,9 +17,9 @@
 
 // Function invoked by the rule named "derived_table" in src/parser/select.y
 SqlStatement *derived_table(SqlStatement *table_subquery, SqlStatement *correlation_specification,
-									SqlStatement *table_reference_tail) {
-	SqlStatement	*sql_stmt, *ret;
-	SqlJoin		*join;
+			    SqlStatement *table_reference_tail) {
+	SqlStatement *sql_stmt, *ret;
+	SqlJoin *     join;
 
 	SQL_STATEMENT(ret, join_STATEMENT);
 	MALLOC_STATEMENT(ret, join, SqlJoin);
@@ -27,7 +27,7 @@ SqlStatement *derived_table(SqlStatement *table_subquery, SqlStatement *correlat
 	sql_stmt = table_subquery;
 	join->value = sql_stmt;
 	if (NULL != correlation_specification) {
-		SqlTableAlias	*table_alias;
+		SqlTableAlias *table_alias;
 
 		// Setup the alias
 		sql_stmt = drill_to_table_alias(sql_stmt);
@@ -36,7 +36,7 @@ SqlStatement *derived_table(SqlStatement *table_subquery, SqlStatement *correlat
 	}
 	dqinit(join);
 	if (NULL != table_reference_tail) {
-		SqlJoin		*join_tail;
+		SqlJoin *join_tail;
 
 		UNPACK_SQL_STATEMENT(join_tail, table_reference_tail, join);
 		join_tail->type = CROSS_JOIN;

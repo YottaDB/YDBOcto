@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -20,12 +20,11 @@
 
 #include "message_formats.h"
 
-
 ParameterStatus *make_parameter_status(StartupMessageParm *parm) {
-	uint32_t length;
+	uint32_t	 length;
 	ParameterStatus *ret;
-	char *c;
-	int32_t name_len, value_len;
+	char *		 c;
+	int32_t		 name_len, value_len;
 
 	if (NULL == parm) {
 		return NULL;
@@ -39,7 +38,7 @@ ParameterStatus *make_parameter_status(StartupMessageParm *parm) {
 	length += value_len + 1;
 
 	// malloc space for everything, but don't count length field twice
-	ret = (ParameterStatus*)malloc(length + sizeof(ParameterStatus) - sizeof(uint32_t));
+	ret = (ParameterStatus *)malloc(length + sizeof(ParameterStatus) - sizeof(uint32_t));
 	memset(ret, 0, sizeof(ParseComplete));
 
 	ret->type = PSQL_ParameterStatus;

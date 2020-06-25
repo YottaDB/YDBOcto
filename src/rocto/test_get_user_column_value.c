@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -28,8 +28,8 @@
 #include "helpers.h"
 
 static void test_valid_input_all_fields_populated(void **state) {
-	char buffer[MAX_STR_CONST];
-	char *row = "1|jon|super|inh|crer|cred|canl|repl|bypassrl|conn|password|valid";
+	char	 buffer[MAX_STR_CONST];
+	char *	 row = "1|jon|super|inh|crer|cred|canl|repl|bypassrl|conn|password|valid";
 	uint32_t buf_len = MAX_STR_CONST, row_len = 0, pw_len = 0;
 
 	row_len = strnlen(row, MAX_STR_CONST);
@@ -40,8 +40,8 @@ static void test_valid_input_all_fields_populated(void **state) {
 }
 
 static void test_valid_input_one_field_populated(void **state) {
-	char buffer[MAX_STR_CONST];
-	char *row = "||||||||||password|";
+	char	 buffer[MAX_STR_CONST];
+	char *	 row = "||||||||||password|";
 	uint32_t buf_len = MAX_STR_CONST, row_len = 0, pw_len = 0;
 
 	row_len = strnlen(row, MAX_STR_CONST);
@@ -52,8 +52,8 @@ static void test_valid_input_one_field_populated(void **state) {
 }
 
 static void test_valid_input_buffer_too_small(void **state) {
-	char buffer[5];
-	char *row = "1|jon|super|inh|crer|cred|canl|repl|bypassrl|conn|password|valid";
+	char	 buffer[5];
+	char *	 row = "1|jon|super|inh|crer|cred|canl|repl|bypassrl|conn|password|valid";
 	uint32_t buf_len = 5, row_len = 0, pw_len = 0;
 
 	row_len = strnlen(row, MAX_STR_CONST);
@@ -62,8 +62,8 @@ static void test_valid_input_buffer_too_small(void **state) {
 }
 
 static void test_invalid_input_null_pointers(void **state) {
-	char buffer[MAX_STR_CONST];
-	char *row = "||||||||||password|";
+	char	 buffer[MAX_STR_CONST];
+	char *	 row = "||||||||||password|";
 	uint32_t buf_len = MAX_STR_CONST, row_len = 0, pw_len = 0;
 	row_len = strnlen(row, MAX_STR_CONST);
 
@@ -77,8 +77,8 @@ static void test_invalid_input_null_pointers(void **state) {
 }
 
 static void test_invalid_input_enum_too_large(void **state) {
-	char buffer[MAX_STR_CONST];
-	char *row = "||||||||||password|";
+	char	 buffer[MAX_STR_CONST];
+	char *	 row = "||||||||||password|";
 	uint32_t buf_len = MAX_STR_CONST, row_len = 0, pw_len = 0;
 	row_len = strnlen(row, MAX_STR_CONST);
 
@@ -87,8 +87,8 @@ static void test_invalid_input_enum_too_large(void **state) {
 }
 
 static void test_invalid_input_zero_lengths(void **state) {
-	char buffer[MAX_STR_CONST];
-	char *row = "||||||||||password|";
+	char	 buffer[MAX_STR_CONST];
+	char *	 row = "||||||||||password|";
 	uint32_t buf_len = MAX_STR_CONST, row_len = 0, pw_len = 0;
 	row_len = strnlen(row, MAX_STR_CONST);
 
@@ -101,12 +101,9 @@ static void test_invalid_input_zero_lengths(void **state) {
 
 int main(void) {
 	const struct CMUnitTest tests[] = {
-		   cmocka_unit_test(test_valid_input_all_fields_populated),
-		   cmocka_unit_test(test_valid_input_one_field_populated),
-		   cmocka_unit_test(test_valid_input_buffer_too_small),
-		   cmocka_unit_test(test_invalid_input_null_pointers),
-		   cmocka_unit_test(test_invalid_input_enum_too_large),
-		   cmocka_unit_test(test_invalid_input_zero_lengths),
+	    cmocka_unit_test(test_valid_input_all_fields_populated), cmocka_unit_test(test_valid_input_one_field_populated),
+	    cmocka_unit_test(test_valid_input_buffer_too_small),     cmocka_unit_test(test_invalid_input_null_pointers),
+	    cmocka_unit_test(test_invalid_input_enum_too_large),     cmocka_unit_test(test_invalid_input_zero_lengths),
 	};
 	return cmocka_run_group_tests(tests, NULL, NULL);
 }

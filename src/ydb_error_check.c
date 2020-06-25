@@ -15,15 +15,14 @@
 #include "octo.h"
 #include "errors.h"
 
-void ydb_error_check(int status, char *file, int line)
-{
-	ydb_buffer_t	varname, ret_value;
-	int		severity = 0, ydboctoerrcodemin, ydboctoerrcodemax, ydboctoerrcode;
-	unsigned int	ydb_data_ret_value;
-	boolean_t	is_octo_internal_error;
+void ydb_error_check(int status, char *file, int line) {
+	ydb_buffer_t varname, ret_value;
+	int	     severity = 0, ydboctoerrcodemin, ydboctoerrcodemax, ydboctoerrcode;
+	unsigned int ydb_data_ret_value;
+	boolean_t    is_octo_internal_error;
 
 	/* First check for known YDB error codes that do not populate $ZSTATUS */
-	switch(status) {
+	switch (status) {
 	case YDB_OK:
 		return;
 	case YDB_TP_RESTART:
@@ -33,8 +32,9 @@ void ydb_error_check(int status, char *file, int line)
 		return;
 		break;
 	case YDB_LOCK_TIMEOUT:
-		octo_log(line, file, ERROR, ERROR_Severity, ERR_YOTTADB, "ydb_lock_s()/ydb_lock_incr_s() call timed out. "
-				"Another process with schema change rights, or a long-running query, is active.");
+		octo_log(line, file, ERROR, ERROR_Severity, ERR_YOTTADB,
+			 "ydb_lock_s()/ydb_lock_incr_s() call timed out. "
+			 "Another process with schema change rights, or a long-running query, is active.");
 		return;
 	default:
 		/* It is an Octo internal error code or a YDB error code that populates $ZSTATUS (i.e. YDB_ERR_*).
@@ -82,7 +82,7 @@ void ydb_error_check(int status, char *file, int line)
 		/* Check if %ydboctoerror("INVALIDINPUTSYNTAXBOOL")	*/
 		ydboctoerrcode++;
 		if (status == ydboctoerrcode) {
-			ydb_buffer_t	subs[2];
+			ydb_buffer_t subs[2];
 
 			/* M code would have passed the actual string involved in an M node. Get that before printing error. */
 			YDB_LITERAL_TO_BUFFER("%ydboctoerror", &varname);
@@ -96,7 +96,7 @@ void ydb_error_check(int status, char *file, int line)
 		}
 		ydboctoerrcode++;
 		if (status == ydboctoerrcode) {
-			ydb_buffer_t    subs[2];
+			ydb_buffer_t subs[2];
 
 			/* M code would have passed the actual string involved in an M node. Get that before printing error. */
 			YDB_LITERAL_TO_BUFFER("%ydboctoerror", &varname);
@@ -114,30 +114,30 @@ void ydb_error_check(int status, char *file, int line)
 		 * Otherwise "ydb_etrap" would be invoked at a later point in time.
 		 */
 		YDB_LITERAL_TO_BUFFER("$ECODE", &varname);
-		ydb_set_s(&varname, 0, NULL, NULL);	/* M equivalent is : SET $ECODE="" */
+		ydb_set_s(&varname, 0, NULL, NULL); /* M equivalent is : SET $ECODE="" */
 	} else {
 		YDB_LITERAL_TO_BUFFER("$ZSTATUS", &varname);
 		ydb_get_s(&varname, 0, NULL, &ret_value);
 		ret_value.buf_addr[ret_value.len_used] = '\0';
 		YDB_SEVERITY(status, severity);
 		switch (severity) {
-			case YDB_SEVERITY_SUCCESS:
-				octo_log(line, file, TRACE, TRACE_Severity, ERR_YOTTADB, ret_value.buf_addr);
-				break;
-			case YDB_SEVERITY_INFORMATIONAL:
-				octo_log(line, file, INFO, INFO_Severity, ERR_YOTTADB, ret_value.buf_addr);
-				break;
-			case YDB_SEVERITY_WARNING:
-				octo_log(line, file, INFO, WARNING_Severity, ERR_YOTTADB, ret_value.buf_addr);
-				break;
-			case YDB_SEVERITY_ERROR:
-				octo_log(line, file, ERROR, ERROR_Severity, ERR_YOTTADB, ret_value.buf_addr);
-				break;
-			case YDB_SEVERITY_FATAL:
-				octo_log(line, file, ERROR, FATAL_Severity, ERR_YOTTADB, ret_value.buf_addr);
-				break;
-			default:
-				break;
+		case YDB_SEVERITY_SUCCESS:
+			octo_log(line, file, TRACE, TRACE_Severity, ERR_YOTTADB, ret_value.buf_addr);
+			break;
+		case YDB_SEVERITY_INFORMATIONAL:
+			octo_log(line, file, INFO, INFO_Severity, ERR_YOTTADB, ret_value.buf_addr);
+			break;
+		case YDB_SEVERITY_WARNING:
+			octo_log(line, file, INFO, WARNING_Severity, ERR_YOTTADB, ret_value.buf_addr);
+			break;
+		case YDB_SEVERITY_ERROR:
+			octo_log(line, file, ERROR, ERROR_Severity, ERR_YOTTADB, ret_value.buf_addr);
+			break;
+		case YDB_SEVERITY_FATAL:
+			octo_log(line, file, ERROR, FATAL_Severity, ERR_YOTTADB, ret_value.buf_addr);
+			break;
+		default:
+			break;
 		}
 	}
 	YDB_FREE_BUFFER(&ret_value);

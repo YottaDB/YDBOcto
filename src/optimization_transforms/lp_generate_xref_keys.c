@@ -25,9 +25,9 @@
  */
 LogicalPlan *lp_generate_xref_keys(LogicalPlan *plan, SqlTable *table, SqlColumnAlias *column_alias, SqlTableAlias *table_alias) {
 	LogicalPlan *root, *keys, *cur_lp_key, *table_join, *lp_table_alias, *lp_output_key;
-	int cur_key, max_key, unique_id;
-	SqlColumn *key_columns[MAX_KEY_COUNT], *column;
-	SqlKey *output_key;
+	int	     cur_key, max_key, unique_id;
+	SqlColumn *  key_columns[MAX_KEY_COUNT], *column;
+	SqlKey *     output_key;
 
 	unique_id = table_alias->unique_id;
 	UNPACK_SQL_STATEMENT(column, column_alias->column, column);
@@ -57,11 +57,10 @@ LogicalPlan *lp_generate_xref_keys(LogicalPlan *plan, SqlTable *table, SqlColumn
 	output_key = lp_output_key->v.lp_key.key;
 	output_key->cross_reference_column_alias = column_alias;
 
-
 	MALLOC_LP(keys, root, LP_KEYS);
-	memset(key_columns, 0, MAX_KEY_COUNT * sizeof(SqlColumn*));
+	memset(key_columns, 0, MAX_KEY_COUNT * sizeof(SqlColumn *));
 	max_key = get_key_columns(table, key_columns);
-	for(cur_key = 0; cur_key <= max_key; cur_key++) {
+	for (cur_key = 0; cur_key <= max_key; cur_key++) {
 		MALLOC_LP(cur_lp_key, keys->v.lp_default.operand[0], LP_KEY);
 		OCTO_CMALLOC_STRUCT(cur_lp_key->v.lp_key.key, SqlKey);
 		cur_lp_key->v.lp_key.key->column = key_columns[cur_key];
@@ -76,6 +75,6 @@ LogicalPlan *lp_generate_xref_keys(LogicalPlan *plan, SqlTable *table, SqlColumn
 		}
 	}
 	// Replace references in the original plan
-	//lp_replace_derived_table_references(plan, plan, table_alias);
+	// lp_replace_derived_table_references(plan, plan, table_alias);
 	return root;
 }

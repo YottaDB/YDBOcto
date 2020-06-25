@@ -19,13 +19,11 @@
 #include <assert.h>
 #include <string.h>
 
-static void test_no_asserts_in_release_builds(void **state) {
-	assert(0);
-}
+static void test_no_asserts_in_release_builds(void **state) { assert(0); }
 
 int main(void) {
 	const struct CMUnitTest tests[] = {
-			cmocka_unit_test(test_no_asserts_in_release_builds),
+	    cmocka_unit_test(test_no_asserts_in_release_builds),
 	};
 	return cmocka_run_group_tests(tests, NULL, NULL);
 }

@@ -10,22 +10,21 @@
  *								*
  ****************************************************************/
 
-
 #include <assert.h>
 
 #include "octo.h"
 #include "octo_types.h"
 
-#define CREATE_BINARY_STATEMENT(STMT)					\
-{									\
-	SQL_STATEMENT(STMT, binary_STATEMENT);				\
-	MALLOC_STATEMENT(STMT, binary, SqlBinaryOperation);		\
-}
+#define CREATE_BINARY_STATEMENT(STMT)                               \
+	{                                                           \
+		SQL_STATEMENT(STMT, binary_STATEMENT);              \
+		MALLOC_STATEMENT(STMT, binary, SqlBinaryOperation); \
+	}
 
 int regex_specification(SqlStatement **stmt, SqlStatement *op0, SqlStatement *op1, int is_regex_like_or_similar, int is_sensitive,
-		int is_not, ParseContext *parse_context){
-	SqlStatement 	*regex;
-	int		status;
+			int is_not, ParseContext *parse_context) {
+	SqlStatement *regex;
+	int	      status;
 
 	if (is_not) {
 		SQL_STATEMENT(*stmt, unary_STATEMENT);
@@ -62,14 +61,14 @@ int regex_specification(SqlStatement **stmt, SqlStatement *op0, SqlStatement *op
 	status = 0;
 	if (0 == is_regex_like_or_similar) {
 		if ((value_STATEMENT == op1->type) && (STRING_LITERAL == op1->v.value->type)) {
-			SqlValue	*value;
+			SqlValue *value;
 
 			UNPACK_SQL_STATEMENT(value, op1, value);
 			status = parse_literal_to_parameter(parse_context, value, TRUE);
 		}
 	} else if (value_STATEMENT == op1->type) {
 		/* LIKE and SIMILAR TO OPERATOR */
-		SqlValue	*value;
+		SqlValue *value;
 
 		UNPACK_SQL_STATEMENT(value, op1, value);
 		if (STRING_LITERAL == value->type) {

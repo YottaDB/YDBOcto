@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -40,9 +40,9 @@ static void test_valid_input(void **state) {
 	YDB_STRING_TO_BUFFER("0", &session_id);
 	session.session_id = &session_id;
 
-	int expected_length = sizeof(unsigned int) + sizeof(pid_t) + sizeof(int);
+	int   expected_length = sizeof(unsigned int) + sizeof(pid_t) + sizeof(int);
 	pid_t pid = 1111;
-	int secret_key = 42;
+	int   secret_key = 42;
 
 	BackendKeyData *backend_key_data = make_backend_key_data(secret_key, pid);
 
@@ -57,7 +57,7 @@ static void test_valid_input(void **state) {
 int main(void) {
 	octo_init(0, NULL);
 	const struct CMUnitTest tests[] = {
-		cmocka_unit_test(test_valid_input),
+	    cmocka_unit_test(test_valid_input),
 	};
 	return cmocka_run_group_tests(tests, NULL, NULL);
 }

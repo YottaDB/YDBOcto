@@ -20,19 +20,21 @@
 #include "helpers.h"
 
 // Only store type information for parameters up to the max number supported for M calls.
-#define	ARGUMENT_TYPE_LIST_MAX_LEN	(YDB_MAX_PARMS*INT32_TO_STRING_MAX)
+#define ARGUMENT_TYPE_LIST_MAX_LEN (YDB_MAX_PARMS * INT32_TO_STRING_MAX)
 
-#define	CLEANUP_AND_RETURN(PG_PROC, OID_BUFFER) {		\
-	YDB_FREE_BUFFER(&PG_PROC[4]);				\
-	return 1;						\
-}
+#define CLEANUP_AND_RETURN(PG_PROC, OID_BUFFER) \
+	{                                       \
+		YDB_FREE_BUFFER(&PG_PROC[4]);   \
+		return 1;                       \
+	}
 
-#define	CLEANUP_AND_RETURN_IF_NOT_YDB_OK(STATUS, PG_PROC, OID_BUFFER) {	\
-	YDB_ERROR_CHECK(STATUS);						\
-	if (YDB_OK != STATUS) {							\
-		CLEANUP_AND_RETURN(PG_PROC, OID_BUFFER);			\
-	}									\
-}
+#define CLEANUP_AND_RETURN_IF_NOT_YDB_OK(STATUS, PG_PROC, OID_BUFFER) \
+	{                                                             \
+		YDB_ERROR_CHECK(STATUS);                              \
+		if (YDB_OK != STATUS) {                               \
+			CLEANUP_AND_RETURN(PG_PROC, OID_BUFFER);      \
+		}                                                     \
+	}
 
 PSQL_TypeOid get_psql_type_from_sqldatatype(SqlDataType type) {
 	switch (type) {
@@ -59,22 +61,22 @@ PSQL_TypeOid get_psql_type_from_sqldatatype(SqlDataType type) {
  * Note that this function is similar to store_table_in_pg_class.
  */
 int store_function_in_pg_proc(SqlFunction *function) {
-	SqlParameterTypeList	*start_parameter_type;
-	SqlParameterTypeList	*cur_parameter_type;
-	SqlValue		*value;
-	ydb_buffer_t		oid_buffer[2];
-	ydb_buffer_t		pg_proc[5];
-	ydb_buffer_t		octo_functions[4];
-	ydb_buffer_t		row_buffer;
-	long long		proc_oid;
-	int			status, result;
-	int32_t			arg_type_list_len;
-	char			*function_name;
-	char			row_str[MAX_STR_CONST];
-	char			arg_type_list[ARGUMENT_TYPE_LIST_MAX_LEN];
-	char			proc_oid_str[INT32_TO_STRING_MAX];	/* OIDs are stored as 4-byte unsigned integers:
-									 * https://www.postgresql.org/docs/current/datatype-oid.html
-									 */
+	SqlParameterTypeList *start_parameter_type;
+	SqlParameterTypeList *cur_parameter_type;
+	SqlValue *	      value;
+	ydb_buffer_t	      oid_buffer[2];
+	ydb_buffer_t	      pg_proc[5];
+	ydb_buffer_t	      octo_functions[4];
+	ydb_buffer_t	      row_buffer;
+	long long	      proc_oid;
+	int		      status, result;
+	int32_t		      arg_type_list_len;
+	char *		      function_name;
+	char		      row_str[MAX_STR_CONST];
+	char		      arg_type_list[ARGUMENT_TYPE_LIST_MAX_LEN];
+	char		      proc_oid_str[INT32_TO_STRING_MAX]; /* OIDs are stored as 4-byte unsigned integers:
+								  * https://www.postgresql.org/docs/current/datatype-oid.html
+								  */
 
 	// Setup pg_proc table node buffers
 	YDB_STRING_TO_BUFFER(config->global_names.octo, &pg_proc[0]);
@@ -107,7 +109,7 @@ int store_function_in_pg_proc(SqlFunction *function) {
 	 */
 	function->num_args = 0;
 	arg_type_list_len = 0;
-	if (NULL == function->parameter_type_list) {	// The parameter type list was empty, so just use the empty string
+	if (NULL == function->parameter_type_list) { // The parameter type list was empty, so just use the empty string
 		arg_type_list[0] = '\0';
 	} else {
 		UNPACK_SQL_STATEMENT(start_parameter_type, function->parameter_type_list, parameter_type_list);
@@ -121,9 +123,9 @@ int store_function_in_pg_proc(SqlFunction *function) {
 			/* Note that size/precision modifiers are discarded for CREATE FUNCTION statements,
 			 * per https://www.postgresql.org/docs/current/sql-createfunction.html
 			 */
-			result = snprintf(&arg_type_list[arg_type_list_len], ARGUMENT_TYPE_LIST_MAX_LEN - arg_type_list_len,
-					"%d%s", get_psql_type_from_sqldatatype(cur_parameter_type->data_type->v.data_type),
-					((start_parameter_type == cur_parameter_type->next) ? "" : " "));
+			result = snprintf(&arg_type_list[arg_type_list_len], ARGUMENT_TYPE_LIST_MAX_LEN - arg_type_list_len, "%d%s",
+					  get_psql_type_from_sqldatatype(cur_parameter_type->data_type->v.data_type),
+					  ((start_parameter_type == cur_parameter_type->next) ? "" : " "));
 			assert(result < (ARGUMENT_TYPE_LIST_MAX_LEN - arg_type_list_len));
 			arg_type_list_len += result;
 			cur_parameter_type = cur_parameter_type->next;
@@ -142,10 +144,9 @@ int store_function_in_pg_proc(SqlFunction *function) {
 	 * Columns of `pg_catalog.pg_proc` table in `tests/fixtures/octo-seed.sql`.
 	 * Any changes to that table definition will require changes here too.
 	 */
-	snprintf(row_str, sizeof(row_str),
-		"%s|11|10|12|1|0|0|-|f|f|f|f|f|i|s|%d|0|%d|%s||||||%s|||",
-		function_name, function->num_args, get_psql_type_from_sqldatatype(function->return_type->v.data_type),
-		arg_type_list, function->extrinsic_function->v.value->v.string_literal);
+	snprintf(row_str, sizeof(row_str), "%s|11|10|12|1|0|0|-|f|f|f|f|f|i|s|%d|0|%d|%s||||||%s|||", function_name,
+		 function->num_args, get_psql_type_from_sqldatatype(function->return_type->v.data_type), arg_type_list,
+		 function->extrinsic_function->v.value->v.string_literal);
 	row_buffer.len_alloc = row_buffer.len_used = strlen(row_str);
 	row_buffer.buf_addr = row_str;
 	/* Set the function name passed in as having an oid FUNCTIONOID in the pg_catalog.
@@ -172,13 +173,13 @@ int store_function_in_pg_proc(SqlFunction *function) {
 		return 1;
 	}
 
-	proc_oid = strtoll(pg_proc[4].buf_addr, NULL, 10);	/* copy over class OID before we start changing it for column OID */
+	proc_oid = strtoll(pg_proc[4].buf_addr, NULL, 10); /* copy over class OID before we start changing it for column OID */
 	if ((LLONG_MIN == proc_oid) || (LLONG_MAX == proc_oid)) {
 		ERROR(ERR_LIBCALL, "strtoll");
 		return 1;
 	}
-	function->oid = proc_oid;	/* Initialize OID in SqlFunction. Caller later invokes "compress_statement()" that stores
-					 * this as part of the binary function definition in the database.
-					 */
+	function->oid = proc_oid; /* Initialize OID in SqlFunction. Caller later invokes "compress_statement()" that stores
+				   * this as part of the binary function definition in the database.
+				   */
 	return 0;
 }

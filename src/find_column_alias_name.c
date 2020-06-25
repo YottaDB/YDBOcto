@@ -21,25 +21,25 @@
 #include "logical_plan.h"
 
 SqlStatement *find_column_alias_name(SqlStatement *stmt) {
-	SqlColumn		*column;
-	SqlColumnAlias		*column_alias;
-	SqlColumnListAlias	*column_list_alias;
-	SqlBinaryOperation	*binary;
-	SqlUnaryOperation	*unary;
-	SqlFunctionCall		*function_call;
-	SqlValue		*value;
-	SqlAggregateFunction	*aggregate_function;
-	SqlStatement		*ret;
-	SqlCaseStatement	*cas;
-	char			*c;
+	SqlColumn *	      column;
+	SqlColumnAlias *      column_alias;
+	SqlColumnListAlias *  column_list_alias;
+	SqlBinaryOperation *  binary;
+	SqlUnaryOperation *   unary;
+	SqlFunctionCall *     function_call;
+	SqlValue *	      value;
+	SqlAggregateFunction *aggregate_function;
+	SqlStatement *	      ret;
+	SqlCaseStatement *    cas;
+	char *		      c;
 
 	ret = NULL;
 	if (NULL == stmt)
 		return ret;
-	switch(stmt->type) {
+	switch (stmt->type) {
 	case value_STATEMENT:
 		UNPACK_SQL_STATEMENT(value, stmt, value);
-		switch(value->type) {
+		switch (value->type) {
 		case COLUMN_REFERENCE:
 			ret = copy_sql_statement(stmt);
 			c = ret->v.value->v.string_literal;

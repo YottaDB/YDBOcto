@@ -34,34 +34,39 @@ void handle_invalid_option(char *executable_name, char short_option) {
 }
 
 int parse_startup_flags(int argc, char **argv, char **config_file_name) {
-	enum VERBOSITY_LEVEL	prev_error_level = ERROR;	// ERROR is the default level
-	char			*octo_usage = "Usage: octo [OPTION]...\n"
-		"Start the Octo SQL server.\n\n"
-		"Mandatory arguments for long options are also mandatory for short options.\n"
-		"  -c, --config-file=<filepath>		Use specified configuration file instead of the default.\n"
-		"  -d, --dry-run				Run the parser in read-only mode and performs basic checks without executing any passed SQL statements.\n"
-		"  -f, --input-file=<filepath>		Read commands from specified file instead of opening interactive prompt.\n"
-		"  -h, --help				Display this help message and exit.\n"
-		"  -v, --verbose=<number>		Specify amount of information to output when running commands by adding 'v' characters. The mapping of 'v's to severity levels is as follows:\n"
-		"	-v: include INFO and WARNING messages\n"
-		"	-vv: include DEBUG messages\n"
-		"	-vvv: include TRACE messages\n"
-		"  -r, --version				Display version information and exit.\n"
-		"  -r, --release				Display release information and exit.\n";
-	char			*rocto_usage = "Usage: rocto [OPTION]...\n"
-		"Start the Rocto remote SQL server.\n\n"
-		"Mandatory arguments for long options are also mandatory for short options.\n"
-		"  -a, --allowschemachanges		Allows rocto to make changes to the schema (CREATE TABLE and DROP TABLE)\n"
-		"  -c, --config-file=<filepath>		Use specified configuration file instead of the default.\n"
-		"  -h, --help				Display this help message and exit.\n"
-		"  -p, --port=<number>			Listen on the specified port.\n"
-		"  -v, --verbose=<number>		Specify amount of information to output when running commands by adding 'v' characters. The mapping of 'v's to severity levels is as follows:\n"
-		"	-v: include INFO and WARNING messages\n"
-		"	-vv: include DEBUG messages\n"
-		"	-vvv: include TRACE messages\n"
-		"  -r, --release				Display release information and exit.\n";
-	int			c;
-	boolean_t		verbosity_unset = TRUE, port_unset = TRUE;
+	enum VERBOSITY_LEVEL prev_error_level = ERROR; // ERROR is the default level
+	char *		     octo_usage
+	    = "Usage: octo [OPTION]...\n"
+	      "Start the Octo SQL server.\n\n"
+	      "Mandatory arguments for long options are also mandatory for short options.\n"
+	      "  -c, --config-file=<filepath>		Use specified configuration file instead of the default.\n"
+	      "  -d, --dry-run				Run the parser in read-only mode and performs basic checks without "
+	      "executing any passed SQL statements.\n"
+	      "  -f, --input-file=<filepath>		Read commands from specified file instead of opening interactive prompt.\n"
+	      "  -h, --help				Display this help message and exit.\n"
+	      "  -v, --verbose=<number>		Specify amount of information to output when running commands by adding 'v' "
+	      "characters. The mapping of 'v's to severity levels is as follows:\n"
+	      "	-v: include INFO and WARNING messages\n"
+	      "	-vv: include DEBUG messages\n"
+	      "	-vvv: include TRACE messages\n"
+	      "  -r, --version				Display version information and exit.\n"
+	      "  -r, --release				Display release information and exit.\n";
+	char *rocto_usage
+	    = "Usage: rocto [OPTION]...\n"
+	      "Start the Rocto remote SQL server.\n\n"
+	      "Mandatory arguments for long options are also mandatory for short options.\n"
+	      "  -a, --allowschemachanges		Allows rocto to make changes to the schema (CREATE TABLE and DROP TABLE)\n"
+	      "  -c, --config-file=<filepath>		Use specified configuration file instead of the default.\n"
+	      "  -h, --help				Display this help message and exit.\n"
+	      "  -p, --port=<number>			Listen on the specified port.\n"
+	      "  -v, --verbose=<number>		Specify amount of information to output when running commands by adding 'v' "
+	      "characters. The mapping of 'v's to severity levels is as follows:\n"
+	      "	-v: include INFO and WARNING messages\n"
+	      "	-vv: include DEBUG messages\n"
+	      "	-vvv: include TRACE messages\n"
+	      "  -r, --release				Display release information and exit.\n";
+	int	  c;
+	boolean_t verbosity_unset = TRUE, port_unset = TRUE;
 
 	if ((0 < argc) && (NULL != strstr(argv[0], "rocto"))) {
 		config->is_rocto = TRUE;
@@ -77,31 +82,25 @@ int parse_startup_flags(int argc, char **argv, char **config_file_name) {
 	/* Parse input parameters */
 	while (1) {
 		// List of valid Octo long options
-		static struct option octo_long_options[] =
-		{
-			{"verbose", optional_argument, NULL, 'v'},
-			{"dry-run", no_argument, NULL, 'd'},
-			{"input-file", required_argument, NULL, 'f'},
-			{"config-file", required_argument, NULL, 'c'},
-			{"help", no_argument, NULL, 'h'},
-			{"version", no_argument, NULL, 'r'},
-			{"release", no_argument, NULL, 'r'},
-			{0, 0, 0, 0}
-		};
+		static struct option octo_long_options[] = {{"verbose", optional_argument, NULL, 'v'},
+							    {"dry-run", no_argument, NULL, 'd'},
+							    {"input-file", required_argument, NULL, 'f'},
+							    {"config-file", required_argument, NULL, 'c'},
+							    {"help", no_argument, NULL, 'h'},
+							    {"version", no_argument, NULL, 'r'},
+							    {"release", no_argument, NULL, 'r'},
+							    {0, 0, 0, 0}};
 
 		// List of valid Rocto long options
-		static struct option rocto_long_options[] =
-		{
-			{"verbose", optional_argument, NULL, 'v'},
-			{"config-file", required_argument, NULL, 'c'},
-			{"port", required_argument, NULL, 'p'},
-			{"help", no_argument, NULL, 'h'},
-			{"allowschemachanges", no_argument, NULL, 'a'},
-			{"version", no_argument, NULL, 'r'},
-			{"release", no_argument, NULL, 'r'},
-			{0, 0, 0, 0}
-		};
-		int option_index = 0;
+		static struct option rocto_long_options[] = {{"verbose", optional_argument, NULL, 'v'},
+							     {"config-file", required_argument, NULL, 'c'},
+							     {"port", required_argument, NULL, 'p'},
+							     {"help", no_argument, NULL, 'h'},
+							     {"allowschemachanges", no_argument, NULL, 'a'},
+							     {"version", no_argument, NULL, 'r'},
+							     {"release", no_argument, NULL, 'r'},
+							     {0, 0, 0, 0}};
+		int		     option_index = 0;
 
 		if (config->is_rocto) {
 			c = getopt_long(argc, argv, "vhc:p:ar", rocto_long_options, &option_index);
@@ -111,7 +110,7 @@ int parse_startup_flags(int argc, char **argv, char **config_file_name) {
 		if (-1 == c)
 			break;
 
-		switch(c) {
+		switch (c) {
 		case 0:
 			break;
 		case 'v':
@@ -166,7 +165,7 @@ int parse_startup_flags(int argc, char **argv, char **config_file_name) {
 			} else {
 				printf("Octo");
 			}
-			printf(" version %d.%d.%d\n",YDBOCTO_MAJOR_VERSION, YDBOCTO_MINOR_VERSION, YDBOCTO_PATCH_VERSION);
+			printf(" version %d.%d.%d\n", YDBOCTO_MAJOR_VERSION, YDBOCTO_MINOR_VERSION, YDBOCTO_PATCH_VERSION);
 			printf("Git commit: %s\n", YDBOCTO_GIT_COMMIT_VERSION);
 			printf("Uncommitted changes: %s\n", YDBOCTO_GIT_IS_DIRTY);
 			exit(0);
@@ -184,7 +183,7 @@ int parse_startup_flags(int argc, char **argv, char **config_file_name) {
 	 * technically a valid port number.
 	 */
 	if (verbosity_unset) {
-		config->verbosity_level = ERROR + 1;		// Cannot use negative numbers for enum, so use an invalid value
+		config->verbosity_level = ERROR + 1; // Cannot use negative numbers for enum, so use an invalid value
 	}
 	if (port_unset) {
 		config->rocto_config.port = -1;

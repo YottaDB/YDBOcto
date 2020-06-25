@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -27,7 +27,7 @@
 
 static void test_valid_input(void **state) {
 	// Populate base message
-        BaseMessage *test_data = (BaseMessage*)malloc(sizeof(BaseMessage));
+	BaseMessage *test_data = (BaseMessage *)malloc(sizeof(BaseMessage));
 	test_data->type = PSQL_Sync;
 	test_data->length = htonl(sizeof(uint32_t));
 
@@ -43,7 +43,7 @@ static void test_valid_input(void **state) {
 
 static void test_invalid_type(void **state) {
 	// Populate base message
-        BaseMessage *test_data = (BaseMessage*)malloc(sizeof(BaseMessage));
+	BaseMessage *test_data = (BaseMessage *)malloc(sizeof(BaseMessage));
 	test_data->type = 'X';
 	test_data->length = htonl(sizeof(uint32_t));
 
@@ -58,7 +58,7 @@ static void test_invalid_type(void **state) {
 
 static void test_invalid_length(void **state) {
 	// Populate base message
-        BaseMessage *test_data = (BaseMessage*)malloc(sizeof(BaseMessage));
+	BaseMessage *test_data = (BaseMessage *)malloc(sizeof(BaseMessage));
 	test_data->type = PSQL_Sync;
 	test_data->length = htonl(12);
 
@@ -74,9 +74,9 @@ static void test_invalid_length(void **state) {
 int main(void) {
 	octo_init(0, NULL);
 	const struct CMUnitTest tests[] = {
-		   cmocka_unit_test(test_valid_input),
-		   cmocka_unit_test(test_invalid_type),
-		   cmocka_unit_test(test_invalid_length),
+	    cmocka_unit_test(test_valid_input),
+	    cmocka_unit_test(test_invalid_type),
+	    cmocka_unit_test(test_invalid_length),
 	};
 	return cmocka_run_group_tests(tests, NULL, NULL);
 }

@@ -17,13 +17,12 @@
 
 // Function invoked by the rule named "table_reference" in src/parser/select.y
 SqlStatement *table_reference(SqlStatement *column_name, SqlStatement *correlation_specification,
-							SqlStatement *table_reference_tail, int *plan_id)
-{
-	SqlStatement	*ret;
-	SqlJoin		*join, *join_tail;
-	SqlTable	*table;
-	SqlColumn	*column;
-	SqlTableAlias	*alias;
+			      SqlStatement *table_reference_tail, int *plan_id) {
+	SqlStatement * ret;
+	SqlJoin *      join, *join_tail;
+	SqlTable *     table;
+	SqlColumn *    column;
+	SqlTableAlias *alias;
 
 	table = find_table(column_name->v.value->v.reference);
 	if (NULL == table) {

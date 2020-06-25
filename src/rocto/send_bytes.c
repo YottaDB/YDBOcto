@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -24,7 +24,7 @@
 
 int send_bytes(RoctoSession *session, char *message, size_t length) {
 #if YDB_TLS_AVAILABLE
-	int32_t result = 0, tls_errno = 0;
+	int32_t	    result = 0, tls_errno = 0;
 	const char *err_str = NULL;
 #endif
 	int32_t written_so_far = 0, written_now = 0, to_write = length;
@@ -32,16 +32,15 @@ int send_bytes(RoctoSession *session, char *message, size_t length) {
 	if (session->ssl_active) {
 #if YDB_TLS_AVAILABLE
 		result = gtm_tls_send(session->tls_socket, message, length);
-		if (result <= 0 ) {
+		if (result <= 0) {
 			if (-1 == result) {
 				tls_errno = gtm_tls_errno();
-				if(ECONNRESET == tls_errno || EPIPE == tls_errno) {
+				if (ECONNRESET == tls_errno || EPIPE == tls_errno) {
 					return 1;
 				} else if (-1 == tls_errno) {
 					err_str = gtm_tls_get_error();
 					ERROR(ERR_ROCTO_TLS_WRITE_FAILED, err_str);
-				}
-				else {
+				} else {
 					ERROR(ERR_SYSCALL, "unknown", tls_errno, strerror(tls_errno));
 				}
 			}
@@ -49,15 +48,15 @@ int send_bytes(RoctoSession *session, char *message, size_t length) {
 		}
 #endif
 	} else {
-		while(written_so_far < to_write) {
-			written_now = send(session->connection_fd, &((char*)message)[written_so_far],
-					to_write - written_so_far, 0);
-			if(written_now < 0) {
-				if(errno == EINTR)
+		while (written_so_far < to_write) {
+			written_now
+			    = send(session->connection_fd, &((char *)message)[written_so_far], to_write - written_so_far, 0);
+			if (written_now < 0) {
+				if (errno == EINTR)
 					continue;
-				if(errno == ECONNRESET)
+				if (errno == ECONNRESET)
 					return 1;
-				if(errno == EPIPE)
+				if (errno == EPIPE)
 					return 1;
 				ERROR(ERR_SYSCALL, "send", errno, strerror(errno));
 				return 1;

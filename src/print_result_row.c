@@ -18,8 +18,8 @@
 #include "octo.h"
 
 void print_result_row(ydb_buffer_t *row) {
-	int		i, hdr_len, data_len;
-	unsigned char	*buff_start, *buff, *buff_top, *tail;
+	int	       i, hdr_len, data_len;
+	unsigned char *buff_start, *buff, *buff_top, *tail;
 
 	buff = (unsigned char *)row->buf_addr;
 	buff_top = buff + row->len_used;
@@ -28,7 +28,7 @@ void print_result_row(ydb_buffer_t *row) {
 	/* `buff` is a concatenated sequence of <len,str> pairs. But we want only <str> for printing out.
 	 * Below logic extracts out the `len` (which could be 1-byte, 2-bytes or 3-bytes long).
 	 */
-	for (i = 0; ; i++) {
+	for (i = 0;; i++) {
 		hdr_len = get_mval_len(buff, &data_len);
 		if (0 == i) {
 			buff_start = buff + hdr_len;
@@ -39,7 +39,7 @@ void print_result_row(ydb_buffer_t *row) {
 			/* Replace last byte in header with '|' (column/piece separator) and move if needed */
 			buff += hdr_len - 1;
 			*buff = '|';
-			data_len++;	/* to include '|' column/piece separator */
+			data_len++; /* to include '|' column/piece separator */
 			if (tail != buff) {
 				memmove(tail, buff, data_len);
 			}
@@ -51,7 +51,7 @@ void print_result_row(ydb_buffer_t *row) {
 			break;
 		}
 	}
-	assert(tail <= buff_top);	/* caller `print_temporary_table()` ensures there is space for a '\0' terminator */
+	assert(tail <= buff_top); /* caller `print_temporary_table()` ensures there is space for a '\0' terminator */
 	*tail = '\0';
 	fprintf(stdout, "%s\n", buff_start);
 }

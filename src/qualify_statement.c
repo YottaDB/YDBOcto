@@ -22,25 +22,25 @@
  *	0 if query is successfully qualified.
  *	1 if query had errors during qualification.
  */
-int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_alias_stmt,
-							int depth, SqlColumnListAlias **ret_cla) {
-	SqlAggregateFunction	*af;
-	SqlBinaryOperation	*binary;
-	SqlCaseBranchStatement	*cas_branch, *cur_branch;
-	SqlCaseStatement	*cas;
-	SqlColumnAlias		*new_column_alias;
-	SqlColumnList		*start_cl, *cur_cl;
-	SqlColumnListAlias	*start_cla, *cur_cla;
-	SqlFunctionCall		*fc;
-	SqlUnaryOperation	*unary;
-	SqlValue		*value;
+int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_alias_stmt, int depth,
+		      SqlColumnListAlias **ret_cla) {
+	SqlAggregateFunction *	af;
+	SqlBinaryOperation *	binary;
+	SqlCaseBranchStatement *cas_branch, *cur_branch;
+	SqlCaseStatement *	cas;
+	SqlColumnAlias *	new_column_alias;
+	SqlColumnList *		start_cl, *cur_cl;
+	SqlColumnListAlias *	start_cla, *cur_cla;
+	SqlFunctionCall *	fc;
+	SqlUnaryOperation *	unary;
+	SqlValue *		value;
 	int			result;
-	SqlTableAlias		*column_table_alias, *parent_table_alias, *table_alias;
+	SqlTableAlias *		column_table_alias, *parent_table_alias, *table_alias;
 
 	result = 0;
 	if (NULL == stmt)
 		return result;
-	switch(stmt->type) {
+	switch (stmt->type) {
 	case select_STATEMENT:
 		assert(FALSE);
 		break;
@@ -55,10 +55,9 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 		UNPACK_SQL_STATEMENT(column_table_alias, new_column_alias->table_alias_stmt, table_alias);
 		parent_table_alias = column_table_alias->parent_table_alias;
 		if (parent_table_alias->do_group_by_checks && (0 == parent_table_alias->aggregate_depth)
-				&& parent_table_alias->aggregate_function_or_group_by_specified
-				&& !new_column_alias->group_by_column_number) {
-			SqlStatement	*column_name;
-			SqlValue	*value;
+		    && parent_table_alias->aggregate_function_or_group_by_specified && !new_column_alias->group_by_column_number) {
+			SqlStatement *column_name;
+			SqlValue *    value;
 
 			column_name = find_column_alias_name(stmt);
 			UNPACK_SQL_STATEMENT(value, column_name, value);
@@ -69,7 +68,7 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 		break;
 	case value_STATEMENT:
 		UNPACK_SQL_STATEMENT(value, stmt, value);
-		switch(value->type) {
+		switch (value->type) {
 		case COLUMN_REFERENCE:
 			UNPACK_SQL_STATEMENT(table_alias, table_alias_stmt, table_alias);
 			if (table_alias->do_group_by_checks) {
@@ -93,14 +92,16 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 							parent_table_alias->aggregate_function_or_group_by_specified = TRUE;
 						} else if (AGGREGATE_DEPTH_GROUP_BY_CLAUSE == parent_table_alias->aggregate_depth) {
 							new_column_alias->group_by_column_number
-									= ++parent_table_alias->group_by_column_count;
+							    = ++parent_table_alias->group_by_column_count;
 						} else if (0 != parent_table_alias->aggregate_depth) {
 							assert((AGGREGATE_DEPTH_WHERE_CLAUSE == parent_table_alias->aggregate_depth)
-								|| (AGGREGATE_DEPTH_FROM_CLAUSE == parent_table_alias->aggregate_depth));
-							/* AGGREGATE_DEPTH_WHERE_CLAUSE case is inside a WHERE clause where aggregate
-							 * function use is disallowed so do not record anything in that case as that
-							 * will otherwise confuse non-aggregated use of the same column in say a
-							 * SELECT column list. Same reasoning for AGGREGATE_DEPTH_FROM_CLAUSE.
+							       || (AGGREGATE_DEPTH_FROM_CLAUSE
+								   == parent_table_alias->aggregate_depth));
+							/* AGGREGATE_DEPTH_WHERE_CLAUSE case is inside a WHERE clause where
+							 * aggregate function use is disallowed so do not record anything in that
+							 * case as that will otherwise confuse non-aggregated use of the same column
+							 * in say a SELECT column list. Same reasoning for
+							 * AGGREGATE_DEPTH_FROM_CLAUSE.
 							 */
 						}
 					}
@@ -218,13 +219,14 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 		UNPACK_SQL_STATEMENT(table_alias, table_alias_stmt, table_alias);
 		cur_cla = start_cla;
 		do {
-			assert(depth || (NULL == ret_cla) || (NULL == *ret_cla));/* assert that caller has initialized "*ret_cla" */
+			assert(depth || (NULL == ret_cla)
+			       || (NULL == *ret_cla)); /* assert that caller has initialized "*ret_cla" */
 			result |= qualify_statement(cur_cla->column_list, tables, table_alias_stmt, depth + 1, ret_cla);
 			if ((NULL != ret_cla) && (0 == depth)) {
-				SqlColumnListAlias	*qualified_cla;
-				int			column_number;
-				char			*str;
-				boolean_t		order_by_alias;
+				SqlColumnListAlias *qualified_cla;
+				int		    column_number;
+				char *		    str;
+				boolean_t	    order_by_alias;
 
 				/* "ret_cla" is non-NULL implies this call is for an ORDER BY column list.
 				 * "depth" == 0 implies "cur_cla" is one of the ORDER BY columns
@@ -242,31 +244,31 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 					 * cla to mirror the already qualified cla.
 					 */
 					qualified_cla = *ret_cla;
-					*ret_cla = NULL;	/* initialize for next call to "qualify_statement" */
+					*ret_cla = NULL; /* initialize for next call to "qualify_statement" */
 				} else {
 					/* Case (2) : If "*ret_cla" is NULL, check if this is a case of ORDER BY column-number.
 					 * If so, point "cur_cla" to corresponding cla from the SELECT column list.
 					 */
-					SqlColumnList	*col_list;
-					boolean_t	error_encountered = FALSE;
-					boolean_t	is_positive_numeric_literal, is_negative_numeric_literal;
+					SqlColumnList *col_list;
+					boolean_t      error_encountered = FALSE;
+					boolean_t      is_positive_numeric_literal, is_negative_numeric_literal;
 
 					order_by_alias = FALSE;
 					UNPACK_SQL_STATEMENT(col_list, cur_cla->column_list, column_list);
 					/* Check for positive numeric literal */
 					is_positive_numeric_literal = ((value_STATEMENT == col_list->value->type)
-									&& (NUMERIC_LITERAL == col_list->value->v.value->type));
+								       && (NUMERIC_LITERAL == col_list->value->v.value->type));
 					/* Check for negative numeric literal next */
 					is_negative_numeric_literal = FALSE;
 					if (!is_positive_numeric_literal) {
 						if (unary_STATEMENT == col_list->value->type) {
-							SqlUnaryOperation	*unary;
+							SqlUnaryOperation *unary;
 
 							UNPACK_SQL_STATEMENT(unary, col_list->value, unary);
-							is_negative_numeric_literal =
-								((NEGATIVE == unary->operation)
-									&& (value_STATEMENT == unary->operand->type)
-									&& (NUMERIC_LITERAL == unary->operand->v.value->type));
+							is_negative_numeric_literal
+							    = ((NEGATIVE == unary->operation)
+							       && (value_STATEMENT == unary->operand->type)
+							       && (NUMERIC_LITERAL == unary->operand->v.value->type));
 							if (is_negative_numeric_literal) {
 								str = unary->operand->v.value->v.string_literal;
 							}
@@ -280,13 +282,13 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 						 * optionally a '.'. Check if the '.' is present. If so issue error
 						 * as decimal column numbers are disallowed in ORDER BY.
 						 */
-						char		*ptr, *ptr_top;
-						long int	ret;
+						char *	 ptr, *ptr_top;
+						long int ret;
 
 						for (ptr = str, ptr_top = str + strlen(str); ptr < ptr_top; ptr++) {
 							if ('.' == *ptr) {
 								ERROR(ERR_ORDER_BY_POSITION_NOT_INTEGER,
-									is_negative_numeric_literal ? "-" : "", str);
+								      is_negative_numeric_literal ? "-" : "", str);
 								yyerror(NULL, NULL, &cur_cla->column_list, NULL, NULL, NULL);
 								error_encountered = 1;
 								break;
@@ -300,7 +302,7 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 							ret = strtol(str, NULL, 10);
 							if ((LONG_MIN == ret) || (LONG_MAX == ret)) {
 								ERROR(ERR_ORDER_BY_POSITION_NOT_INTEGER,
-									is_negative_numeric_literal ? "-" : "", str);
+								      is_negative_numeric_literal ? "-" : "", str);
 								yyerror(NULL, NULL, &cur_cla->column_list, NULL, NULL, NULL);
 								error_encountered = 1;
 							}
@@ -316,13 +318,13 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 							if (!is_negative_numeric_literal) {
 								column_number = (int)ret;
 								qualified_cla = get_column_list_alias_n_from_table_alias(
-												table_alias, column_number);
+								    table_alias, column_number);
 							} else {
 								qualified_cla = NULL;
 							}
 							if (NULL == qualified_cla) {
 								ERROR(ERR_ORDER_BY_POSITION_INVALID,
-									is_negative_numeric_literal ? "-" : "", str);
+								      is_negative_numeric_literal ? "-" : "", str);
 								yyerror(NULL, NULL, &cur_cla->column_list, NULL, NULL, NULL);
 								error_encountered = 1;
 							}
@@ -352,8 +354,8 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 					assert(cur_cla->tbl_and_col_id.unique_id);
 					if (order_by_alias) {
 						/* Find the column number from the matched cla */
-						cur_cla->tbl_and_col_id.column_number =
-							get_column_number_from_column_list_alias(qualified_cla, table_alias);
+						cur_cla->tbl_and_col_id.column_number
+						    = get_column_number_from_column_list_alias(qualified_cla, table_alias);
 					} else {
 						/* The column number was already specified. So use that as is. */
 						cur_cla->tbl_and_col_id.column_number = column_number;
@@ -361,8 +363,8 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 					assert(cur_cla->tbl_and_col_id.column_number);
 				} else {
 					/* Case (3) : Case of ORDER BY column expression */
-					SqlSelectStatement	*select;
-					SqlOptionalKeyword	*keywords, *keyword;
+					SqlSelectStatement *select;
+					SqlOptionalKeyword *keywords, *keyword;
 
 					/* Check if SELECT DISTINCT was specified */
 					UNPACK_SQL_STATEMENT(select, table_alias->table, select);

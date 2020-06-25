@@ -14,16 +14,16 @@
 #include "octo.h"
 #include "octo_types.h"
 
-#define CALL_COMPRESS_HELPER(temp, value, new_value, out, out_length)		\
-{										\
-	(temp) = compress_statement_helper((value), (out), (out_length));	\
-	if (NULL != (out)) {							\
-		(new_value) = (temp);						\
-		if (NULL != new_value) {					\
-			A2R((new_value), temp);					\
-		}								\
-	}									\
-}
+#define CALL_COMPRESS_HELPER(temp, value, new_value, out, out_length)             \
+	{                                                                         \
+		(temp) = compress_statement_helper((value), (out), (out_length)); \
+		if (NULL != (out)) {                                              \
+			(new_value) = (temp);                                     \
+			if (NULL != new_value) {                                  \
+				A2R((new_value), temp);                           \
+			}                                                         \
+		}                                                                 \
+	}
 
 void *compress_statement_helper(SqlStatement *stmt, char *out, int *out_length);
 
@@ -42,21 +42,21 @@ void compress_statement(SqlStatement *stmt, char **out, int *out_length) {
  * If the out buffer is NULL, doesn't copy the statement, but just counts size
  */
 void *compress_statement_helper(SqlStatement *stmt, char *out, int *out_length) {
-	SqlColumn			*cur_column, *start_column, *new_column;
-	SqlOptionalKeyword		*start_keyword, *cur_keyword, *new_keyword;
-	SqlStatement			*new_stmt;
-	SqlTable			*table, *new_table;
-	SqlFunction			*function, *new_function;
-	SqlParameterTypeList		*new_parameter_type_list, *cur_parameter_type_list, *start_parameter_type_list;
-	SqlValue			*value, *new_value;
-	int				len;
-	void				*r, *ret;
+	SqlColumn *	      cur_column, *start_column, *new_column;
+	SqlOptionalKeyword *  start_keyword, *cur_keyword, *new_keyword;
+	SqlStatement *	      new_stmt;
+	SqlTable *	      table, *new_table;
+	SqlFunction *	      function, *new_function;
+	SqlParameterTypeList *new_parameter_type_list, *cur_parameter_type_list, *start_parameter_type_list;
+	SqlValue *	      value, *new_value;
+	int		      len;
+	void *		      r, *ret;
 
 	if ((NULL == stmt) || (NULL == stmt->v.value))
 		return NULL;
 
 	if (NULL != out) {
-		new_stmt = ((void*)&out[*out_length]);
+		new_stmt = ((void *)&out[*out_length]);
 		memcpy(new_stmt, stmt, sizeof(SqlStatement));
 		ret = new_stmt;
 	} else {
@@ -71,14 +71,14 @@ void *compress_statement_helper(SqlStatement *stmt, char *out, int *out_length) 
 			 */
 			return ret;
 		}
-		new_stmt->v.value = ((void*)&out[*out_length]);
+		new_stmt->v.value = ((void *)&out[*out_length]);
 		A2R(new_stmt->v.value, new_stmt->v.value);
 	}
 	switch (stmt->type) {
 	case create_table_STATEMENT:
 		UNPACK_SQL_STATEMENT(table, stmt, create_table);
 		if (NULL != out) {
-			new_table = ((void*)&out[*out_length]);
+			new_table = ((void *)&out[*out_length]);
 			memcpy(new_table, table, sizeof(SqlTable));
 		}
 		*out_length += sizeof(SqlTable);
@@ -92,7 +92,7 @@ void *compress_statement_helper(SqlStatement *stmt, char *out, int *out_length) 
 	case create_function_STATEMENT:
 		UNPACK_SQL_STATEMENT(function, stmt, create_function);
 		if (NULL != out) {
-			new_function = ((void*)&out[*out_length]);
+			new_function = ((void *)&out[*out_length]);
 			memcpy(new_function, function, sizeof(SqlFunction));
 		}
 		*out_length += sizeof(SqlFunction);
@@ -110,17 +110,17 @@ void *compress_statement_helper(SqlStatement *stmt, char *out, int *out_length) 
 		start_parameter_type_list = cur_parameter_type_list;
 		do {
 			if (NULL != out) {
-				new_parameter_type_list = ((void*)&out[*out_length]);
+				new_parameter_type_list = ((void *)&out[*out_length]);
 				memcpy(new_parameter_type_list, cur_parameter_type_list, sizeof(SqlParameterTypeList));
 				new_parameter_type_list->next = new_parameter_type_list->prev = NULL;
 			}
 			*out_length += sizeof(SqlParameterTypeList);
 
-			CALL_COMPRESS_HELPER(r, cur_parameter_type_list->data_type, new_parameter_type_list->data_type,
-					out, out_length);
+			CALL_COMPRESS_HELPER(r, cur_parameter_type_list->data_type, new_parameter_type_list->data_type, out,
+					     out_length);
 			cur_parameter_type_list = cur_parameter_type_list->next;
 			if ((NULL != out) && (cur_parameter_type_list != start_parameter_type_list)) {
-				new_parameter_type_list->next = ((void*)&out[*out_length]);
+				new_parameter_type_list->next = ((void *)&out[*out_length]);
 				A2R(new_parameter_type_list->next, new_parameter_type_list->next);
 			}
 		} while (cur_parameter_type_list != start_parameter_type_list);
@@ -132,7 +132,7 @@ void *compress_statement_helper(SqlStatement *stmt, char *out, int *out_length) 
 	case value_STATEMENT:
 		UNPACK_SQL_STATEMENT(value, stmt, value);
 		if (NULL != out) {
-			new_value = ((void*)&out[*out_length]);
+			new_value = ((void *)&out[*out_length]);
 			memcpy(new_value, value, sizeof(SqlValue));
 		}
 		*out_length += sizeof(SqlValue);
@@ -153,19 +153,19 @@ void *compress_statement_helper(SqlStatement *stmt, char *out, int *out_length) 
 		start_column = cur_column;
 		do {
 			if (NULL != out) {
-				new_column = ((void*)&out[*out_length]);
+				new_column = ((void *)&out[*out_length]);
 				memcpy(new_column, cur_column, sizeof(SqlColumn));
 				new_column->next = new_column->prev = NULL;
-				new_column->table = (void *)0;	/* offset 0 : table is first element in compressed structure
-								 *            which means a relative offset of 0.
-								 */
+				new_column->table = (void *)0; /* offset 0 : table is first element in compressed structure
+								*            which means a relative offset of 0.
+								*/
 			}
 			*out_length += sizeof(SqlColumn);
 			CALL_COMPRESS_HELPER(r, cur_column->columnName, new_column->columnName, out, out_length);
 			CALL_COMPRESS_HELPER(r, cur_column->keywords, new_column->keywords, out, out_length);
 			cur_column = cur_column->next;
 			if ((NULL != out) && (cur_column != start_column)) {
-				new_column->next = ((void*)&out[*out_length]);
+				new_column->next = ((void *)&out[*out_length]);
 				A2R(new_column->next, new_column->next);
 			}
 		} while (cur_column != start_column);
@@ -175,7 +175,7 @@ void *compress_statement_helper(SqlStatement *stmt, char *out, int *out_length) 
 		cur_keyword = start_keyword;
 		do {
 			if (NULL != out) {
-				new_keyword = ((void*)&out[*out_length]);
+				new_keyword = ((void *)&out[*out_length]);
 				memcpy(new_keyword, cur_keyword, sizeof(SqlOptionalKeyword));
 				new_keyword->next = new_keyword->prev = NULL;
 			}
@@ -183,7 +183,7 @@ void *compress_statement_helper(SqlStatement *stmt, char *out, int *out_length) 
 			CALL_COMPRESS_HELPER(r, cur_keyword->v, new_keyword->v, out, out_length);
 			cur_keyword = cur_keyword->next;
 			if ((NULL != out) && (cur_keyword != start_keyword)) {
-				new_keyword->next = ((void*)&out[*out_length]);
+				new_keyword->next = ((void *)&out[*out_length]);
 				A2R(new_keyword->next, new_keyword->next);
 			}
 		} while (cur_keyword != start_keyword);

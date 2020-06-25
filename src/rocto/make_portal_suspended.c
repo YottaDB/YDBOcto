@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -20,11 +20,10 @@
 
 #include "message_formats.h"
 
-
 PortalSuspended *make_portal_suspended() {
 	PortalSuspended *ret;
 
-	ret = (PortalSuspended*)malloc(sizeof(PortalSuspended));
+	ret = (PortalSuspended *)malloc(sizeof(PortalSuspended));
 	memset(ret, 0, sizeof(PortalSuspended));
 
 	ret->type = PSQL_PortalSuspended;

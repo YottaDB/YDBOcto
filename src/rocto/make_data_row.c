@@ -24,33 +24,33 @@
 #include "message_formats.h"
 #include "rocto.h"
 
-#define COPY_TEXT_PARM(DATA_PTR, PARM)					\
-{									\
-	*((uint32_t*)DATA_PTR) = htonl(PARM.length);			\
-	DATA_PTR += sizeof(uint32_t);					\
-	memcpy(c, PARM.value, PARM.length);				\
-	DATA_PTR += PARM.length;					\
-}
+#define COPY_TEXT_PARM(DATA_PTR, PARM)                        \
+	{                                                     \
+		*((uint32_t *)DATA_PTR) = htonl(PARM.length); \
+		DATA_PTR += sizeof(uint32_t);                 \
+		memcpy(c, PARM.value, PARM.length);           \
+		DATA_PTR += PARM.length;                      \
+	}
 
 DataRow *make_data_row(DataRowParm *parms, int16_t num_parms, int32_t *col_data_types) {
-	PSQL_TypeSize	type_size;
-	uint32_t	length;
-	int32_t		i;
-	DataRow		*ret;
-	long		int4_value;
-	char		*c;
-	char		int_buffer[INT32_TO_STRING_MAX];
+	PSQL_TypeSize type_size;
+	uint32_t      length;
+	int32_t	      i;
+	DataRow *     ret;
+	long	      int4_value;
+	char *	      c;
+	char	      int_buffer[INT32_TO_STRING_MAX];
 
 	// Get the length we need to malloc
 	length = 0;
 	for (i = 0; i < num_parms; i++) {
 		// Assign column length for the current column based on column format
-		if (0 == parms[i].format) {		// Text format
+		if (0 == parms[i].format) { // Text format
 			length += parms[i].length;
-		} else {					// Binary format
+		} else { // Binary format
 			assert(NULL != col_data_types);
 			type_size = get_type_size_from_psql_type(col_data_types[i]);
-			if (0 > type_size)		// This means a variable type size, so don't convert to fixed size
+			if (0 > type_size) // This means a variable type size, so don't convert to fixed size
 				length += parms[i].length;
 			else
 				length += type_size;
@@ -58,7 +58,7 @@ DataRow *make_data_row(DataRowParm *parms, int16_t num_parms, int32_t *col_data_
 		length += sizeof(uint32_t);
 	}
 
-	ret = (DataRow*)malloc(sizeof(DataRow) + length);
+	ret = (DataRow *)malloc(sizeof(DataRow) + length);
 	// Include the length of the length field
 	length += sizeof(uint32_t);
 	// Include the length of the num_parms field
@@ -69,16 +69,16 @@ DataRow *make_data_row(DataRowParm *parms, int16_t num_parms, int32_t *col_data_
 
 	c = ret->data;
 	if (num_parms == 0 || parms == NULL) {
-		*((uint32_t*)c) = htonl(0);
+		*((uint32_t *)c) = htonl(0);
 	} else {
-		for(i = 0; i < num_parms; i++) {
-			if (TEXT_FORMAT == parms[i].format) {	// Text format
+		for (i = 0; i < num_parms; i++) {
+			if (TEXT_FORMAT == parms[i].format) { // Text format
 				COPY_TEXT_PARM(c, parms[i]);
-			} else {			// Binary format
+			} else { // Binary format
 				assert(NULL != col_data_types);
 				switch (col_data_types[i]) {
 				case PSQL_TypeOid_int4:
-					*((uint32_t*)c) = htonl(PSQL_TypeSize_int4);
+					*((uint32_t *)c) = htonl(PSQL_TypeSize_int4);
 					c += sizeof(uint32_t);
 					// Convert parameter value to null-terminated string for conversion into an integer
 					memcpy(int_buffer, parms[i].value, parms[i].length);
@@ -87,7 +87,7 @@ DataRow *make_data_row(DataRowParm *parms, int16_t num_parms, int32_t *col_data_
 					// PostgreSQL protocol specifies a 16-bit integer to store the total number of columns
 					// Details linked in message_formats.h
 					if ((ERANGE != errno) && (INT32_MIN <= int4_value) && (INT32_MAX >= int4_value)) {
-						*((int32_t*)c) = htonl((int32_t)int4_value);
+						*((int32_t *)c) = htonl((int32_t)int4_value);
 						c += sizeof(int32_t);
 					} else {
 						ERROR(ERR_LIBCALL_WITH_ARG, "strtol", int_buffer);

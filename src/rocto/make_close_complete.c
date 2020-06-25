@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -21,13 +21,12 @@
 #include "octo.h"
 #include "message_formats.h"
 
-
 CloseComplete *make_close_complete(char *command_tag) {
 	CloseComplete *ret;
 
 	UNUSED(command_tag);
 
-	ret = (CloseComplete*)malloc(sizeof(CloseComplete));
+	ret = (CloseComplete *)malloc(sizeof(CloseComplete));
 	memset(ret, 0, sizeof(CloseComplete));
 
 	ret->type = PSQL_CloseComplete;

@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -28,12 +28,12 @@
 static void test_valid_input(void **state) {
 	AuthenticationOk *response = NULL;
 	AuthenticationOk *received_response = NULL;
-	int32_t expected_type = 'R';
-	uint32_t expected_length = sizeof(uint32_t) + sizeof(int);
-	int32_t expected_result = 0;
+	int32_t		  expected_type = 'R';
+	uint32_t	  expected_length = sizeof(uint32_t) + sizeof(int);
+	int32_t		  expected_result = 0;
 
 	response = make_authentication_ok();
-	received_response = read_authentication_ok((BaseMessage*)response);
+	received_response = read_authentication_ok((BaseMessage *)response);
 
 	// Standard checks
 	assert_non_null(received_response);
@@ -46,8 +46,6 @@ static void test_valid_input(void **state) {
 }
 
 int main(void) {
-	const struct CMUnitTest tests[] = {
-		cmocka_unit_test(test_valid_input)
-	};
+	const struct CMUnitTest tests[] = {cmocka_unit_test(test_valid_input)};
 	return cmocka_run_group_tests(tests, NULL, NULL);
 }

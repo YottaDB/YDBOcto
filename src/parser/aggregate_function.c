@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -16,12 +16,11 @@
 #include "octo_types.h"
 
 // Function invoked by the rule named "set_function_specification" and "general_set_function" in src/parser.y
-SqlStatement *aggregate_function(SqlAggregateType aggregate_type, OptionalKeyword set_quantifier, SqlStatement *value_expression)
-{
-	SqlStatement		*ret, *aggregate_stmt, *parameter_stmt;
-	SqlAggregateFunction	*af;
-	SqlValue		*value;
-	SqlColumnList		*column_list;
+SqlStatement *aggregate_function(SqlAggregateType aggregate_type, OptionalKeyword set_quantifier, SqlStatement *value_expression) {
+	SqlStatement *	      ret, *aggregate_stmt, *parameter_stmt;
+	SqlAggregateFunction *af;
+	SqlValue *	      value;
+	SqlColumnList *	      column_list;
 
 	SQL_STATEMENT(ret, value_STATEMENT);
 	MALLOC_STATEMENT(ret, value, SqlValue);
@@ -53,9 +52,9 @@ SqlStatement *aggregate_function(SqlAggregateType aggregate_type, OptionalKeywor
 	column_list->value = value_expression;
 	dqinit(column_list);
 	if (NULL != value_expression) {
-		parameter_stmt->loc = value_expression->loc;	/* Cannot use "yyloc" here so passing it from parser
-								 * through value_expression->loc.
-								 */
+		parameter_stmt->loc = value_expression->loc; /* Cannot use "yyloc" here so passing it from parser
+							      * through value_expression->loc.
+							      */
 	}
 	af->parameter = parameter_stmt;
 	value->v.calculated = aggregate_stmt;

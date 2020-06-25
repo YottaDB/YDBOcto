@@ -19,25 +19,25 @@
 #include "constants.h"
 #include "double_list.h"
 
-#define OCTO_CFREE(MEMORY_CHUNKS)		\
-{						\
-	if (NULL != MEMORY_CHUNKS) {		\
-		octo_cfree(MEMORY_CHUNKS);	\
-		MEMORY_CHUNKS = NULL;		\
-	}					\
-}
+#define OCTO_CFREE(MEMORY_CHUNKS)                  \
+	{                                          \
+		if (NULL != MEMORY_CHUNKS) {       \
+			octo_cfree(MEMORY_CHUNKS); \
+			MEMORY_CHUNKS = NULL;      \
+		}                                  \
+	}
 
 typedef struct MemoryChunk {
 	dqcreate(MemoryChunk);
 	size_t offset, max_size;
-	char *value;
+	char * value;
 } MemoryChunk;
 
 MemoryChunk *alloc_chunk(size_t size);
-void *octo_cmalloc(MemoryChunk *root, size_t size);
-void octo_cfree(MemoryChunk *root);
+void *	     octo_cmalloc(MemoryChunk *root, size_t size);
+void	     octo_cfree(MemoryChunk *root);
 
 // GLOBAL
-extern	MemoryChunk *memory_chunks;
+extern MemoryChunk *memory_chunks;
 
 #endif

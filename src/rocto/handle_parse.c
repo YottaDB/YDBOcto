@@ -22,33 +22,33 @@
 #include "helpers.h"
 #include "rocto.h"
 
-#define FREE_HANDLE_PARSE_POINTERS()								\
-	status = ydb_delete_s(&statement_subs[0], 3, &statement_subs[1], YDB_DEL_TREE);		\
-	YDB_ERROR_CHECK(status);								\
-	free(parse_context.is_bind_parm);							\
-	free(parse_context.types);								\
-	free(parse_context_array);								\
-	status = ydb_delete_s(&cursor_subs[0], 1, &cursor_subs[1], YDB_DEL_TREE);		\
-	YDB_ERROR_CHECK(status);								\
+#define FREE_HANDLE_PARSE_POINTERS()                                                    \
+	status = ydb_delete_s(&statement_subs[0], 3, &statement_subs[1], YDB_DEL_TREE); \
+	YDB_ERROR_CHECK(status);                                                        \
+	free(parse_context.is_bind_parm);                                               \
+	free(parse_context.types);                                                      \
+	free(parse_context_array);                                                      \
+	status = ydb_delete_s(&cursor_subs[0], 1, &cursor_subs[1], YDB_DEL_TREE);       \
+	YDB_ERROR_CHECK(status);
 
 int handle_parse(Parse *parse, RoctoSession *session) {
-	QueryResponseParms	response_parms;
-	ParseComplete		*response;
-	ParseContext		parse_context;
-	ydb_buffer_t		statement_subs[7], all_parms_subs[7], cursor_subs[4];
-	ydb_buffer_t		sql_expression, routine_buffer, tag_buffer, offset_buffer, num_parms_buffer;
-	ydb_buffer_t		parm_type_buffer, cur_parm_value_buffer;
-	uint32_t		data_ret;
-	int32_t			status, cur_type;
-	int16_t			cur_parm, cur_parm_temp, cur_bind_parm, cur_bind_parm_temp;
-	int16_t			*parse_context_array;
-	size_t			query_length = 0;
-	char			cursor_str[INT64_TO_STRING_MAX], cur_parm_str[INT16_TO_STRING_MAX];
-	char			parm_type_str[INT32_TO_STRING_MAX], parm_attr_str[INT32_TO_STRING_MAX];
-	char			tag_str[INT32_TO_STRING_MAX], routine_str[MAX_ROUTINE_LEN];
-	char			num_parms_str[INT16_TO_STRING_MAX], offset_str[INT16_TO_STRING_MAX];
-	char			cur_bind_parm_str[INT16_TO_STRING_MAX];
-	char			cur_parm_value_str[MAX_STR_CONST];
+	QueryResponseParms response_parms;
+	ParseComplete *	   response;
+	ParseContext	   parse_context;
+	ydb_buffer_t	   statement_subs[7], all_parms_subs[7], cursor_subs[4];
+	ydb_buffer_t	   sql_expression, routine_buffer, tag_buffer, offset_buffer, num_parms_buffer;
+	ydb_buffer_t	   parm_type_buffer, cur_parm_value_buffer;
+	uint32_t	   data_ret;
+	int32_t		   status, cur_type;
+	int16_t		   cur_parm, cur_parm_temp, cur_bind_parm, cur_bind_parm_temp;
+	int16_t *	   parse_context_array;
+	size_t		   query_length = 0;
+	char		   cursor_str[INT64_TO_STRING_MAX], cur_parm_str[INT16_TO_STRING_MAX];
+	char		   parm_type_str[INT32_TO_STRING_MAX], parm_attr_str[INT32_TO_STRING_MAX];
+	char		   tag_str[INT32_TO_STRING_MAX], routine_str[MAX_ROUTINE_LEN];
+	char		   num_parms_str[INT16_TO_STRING_MAX], offset_str[INT16_TO_STRING_MAX];
+	char		   cur_bind_parm_str[INT16_TO_STRING_MAX];
+	char		   cur_parm_value_str[MAX_STR_CONST];
 
 	TRACE(ERR_ENTERING_FUNCTION, "handle_parse");
 
@@ -101,7 +101,7 @@ int handle_parse(Parse *parse, RoctoSession *session) {
 	cur_input_more = &no_more;
 
 	// Prepare parameter offset array; the number of parameters isn't known yet, so just use the max
-	parse_context_array = (int16_t*)calloc((INT16_MAX * 2), sizeof(int16_t));
+	parse_context_array = (int16_t *)calloc((INT16_MAX * 2), sizeof(int16_t));
 
 	// Prepare ParseContext to store parameter information
 	memset(&parse_context, 0, sizeof(ParseContext));
@@ -113,20 +113,21 @@ int handle_parse(Parse *parse, RoctoSession *session) {
 		parse_context.types_size = parse->num_parm_data_types;
 	else
 		parse_context.types_size = 8;
-	parse_context.types = (PSQL_TypeOid*)calloc(parse_context.types_size, sizeof(PSQL_TypeOid));
+	parse_context.types = (PSQL_TypeOid *)calloc(parse_context.types_size, sizeof(PSQL_TypeOid));
 	parse_context.num_bind_parm_types = parse->num_parm_data_types;
 	for (cur_type = 0; cur_type < parse->num_parm_data_types; cur_type++) {
 		parse_context.types[cur_type] = parse->parm_data_types[cur_type];
 	}
 	parse_context.is_bind_parm_size = 8;
-	parse_context.is_bind_parm = (boolean_t*)calloc(parse_context.is_bind_parm_size, sizeof(boolean_t));		// Start with 8 booleans and expand on demand
+	parse_context.is_bind_parm
+	    = (boolean_t *)calloc(parse_context.is_bind_parm_size, sizeof(boolean_t)); // Start with 8 booleans and expand on demand
 	// Defer cursor cleanup until the end of the function since we need to copy the parameters from there to the
 	// prepared statement for later use by handle_bind and handle_execute
 	parse_context.skip_cursor_cleanup = TRUE;
 
 	// Parse query to get parameter count, types, and generate plan
 	response_parms.session = session;
-	status = run_query(&handle_query_response, (void*)&response_parms, FALSE, &parse_context);
+	status = run_query(&handle_query_response, (void *)&response_parms, FALSE, &parse_context);
 	if (0 != status) {
 		free(parse_context.is_bind_parm);
 		free(parse_context.types);
@@ -208,7 +209,7 @@ int handle_parse(Parse *parse, RoctoSession *session) {
 	// SET or SHOW statements don't have plans to execute, so just return
 	if (!parse_context.is_select) {
 		response = make_parse_complete();
-		send_message(session, (BaseMessage*)(&response->type));
+		send_message(session, (BaseMessage *)(&response->type));
 		free(response);
 		// The cursor is no longer needed as there are no parameters to extract for later binding
 		status = ydb_delete_s(&cursor_subs[0], 1, &cursor_subs[1], YDB_DEL_TREE);
@@ -250,7 +251,7 @@ int handle_parse(Parse *parse, RoctoSession *session) {
 				}
 			}
 			// Update parameter number subscript
-			cur_bind_parm_temp = cur_bind_parm + 1;		// Convert from 0-indexing to 1-indexing
+			cur_bind_parm_temp = cur_bind_parm + 1; // Convert from 0-indexing to 1-indexing
 			OCTO_INT16_TO_BUFFER(cur_bind_parm_temp, &statement_subs[5]);
 			// Store parameter type
 			YDB_STRING_TO_BUFFER("type", &statement_subs[6]);
@@ -309,7 +310,7 @@ int handle_parse(Parse *parse, RoctoSession *session) {
 
 	YDB_ERROR_CHECK(status);
 	response = make_parse_complete();
-	send_message(session, (BaseMessage*)(&response->type));
+	send_message(session, (BaseMessage *)(&response->type));
 	free(response);
 
 	return 0;

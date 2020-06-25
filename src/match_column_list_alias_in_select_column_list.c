@@ -15,10 +15,9 @@
 #include "octo.h"
 #include "octo_types.h"
 
-boolean_t match_column_list_alias_in_select_column_list(SqlColumnListAlias *match_cla, SqlStatement *cla_stmt)
-{
-	SqlColumnListAlias	*start_cla, *cur_cla;
-	boolean_t		match;
+boolean_t match_column_list_alias_in_select_column_list(SqlColumnListAlias *match_cla, SqlStatement *cla_stmt) {
+	SqlColumnListAlias *start_cla, *cur_cla;
+	boolean_t	    match;
 
 	UNPACK_SQL_STATEMENT(start_cla, cla_stmt, column_list_alias);
 	cur_cla = start_cla;

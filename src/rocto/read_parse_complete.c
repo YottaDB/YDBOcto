@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -23,10 +23,10 @@
 
 ParseComplete *read_parse_complete(BaseMessage *message) {
 	ParseComplete *ret;
-	uint32_t remaining_length = 0;
+	uint32_t       remaining_length = 0;
 
 	remaining_length = ntohl(message->length);
-	ret = (ParseComplete*)malloc(sizeof(ParseComplete));
+	ret = (ParseComplete *)malloc(sizeof(ParseComplete));
 
 	ret->type = message->type;
 	ret->length = remaining_length;

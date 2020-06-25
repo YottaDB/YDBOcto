@@ -20,9 +20,8 @@
  * See `mvalPiece` entryref in `src/aux/_ydboctoplanhelpers.m` for details.
  * Any changes there most likely need to be reflected here too.
  */
-int get_mval_len(unsigned char *buff, int *data_len)
-{
-	int	byte1, len, hdr_len;
+int get_mval_len(unsigned char *buff, int *data_len) {
+	int byte1, len, hdr_len;
 
 	byte1 = *buff;
 	if (0 == byte1) {
@@ -43,6 +42,6 @@ int get_mval_len(unsigned char *buff, int *data_len)
 		len = (byte1 - 192) * 65536 + ((unsigned int)buff[1] * 256) + (unsigned int)buff[2];
 	}
 	assert(len >= hdr_len);
-	*data_len = len - hdr_len;	/* take away header length */
+	*data_len = len - hdr_len; /* take away header length */
 	return hdr_len;
 }

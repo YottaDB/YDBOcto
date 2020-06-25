@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -16,16 +16,15 @@
 #include "octo_types.h"
 
 // Function invoked by the rules named "non_join_query_expression" and "non_join_query_term" in src/parser.y
-SqlStatement *set_operation(enum SqlSetOperationType setoper_type, SqlStatement *left_operand, SqlStatement *right_operand)
-{
-        SqlSetOperation *set_oper;
-	SqlStatement	*ret;
+SqlStatement *set_operation(enum SqlSetOperationType setoper_type, SqlStatement *left_operand, SqlStatement *right_operand) {
+	SqlSetOperation *set_oper;
+	SqlStatement *	 ret;
 
-        SQL_STATEMENT(ret, set_operation_STATEMENT);
-        MALLOC_STATEMENT(ret, set_operation, SqlSetOperation);
-        UNPACK_SQL_STATEMENT(set_oper, ret, set_operation);
-        set_oper->type = setoper_type;
-        set_oper->operand[0] = left_operand;
-        set_oper->operand[1] = right_operand;
+	SQL_STATEMENT(ret, set_operation_STATEMENT);
+	MALLOC_STATEMENT(ret, set_operation, SqlSetOperation);
+	UNPACK_SQL_STATEMENT(set_oper, ret, set_operation);
+	set_oper->type = setoper_type;
+	set_oper->operand[0] = left_operand;
+	set_oper->operand[1] = right_operand;
 	return ret;
 }

@@ -27,8 +27,8 @@ int get_input(char *buf, int size) {
 	UNUSED(size);
 	if (EOF_NONE != eof_hit)
 		return YY_NULL;
-	if(input_buffer_combined[cur_input_index] == '\0') {
-		if(cur_input_more() == 0) {
+	if (input_buffer_combined[cur_input_index] == '\0') {
+		if (cur_input_more() == 0) {
 			return YY_NULL;
 		}
 		return -1;
@@ -38,7 +38,7 @@ int get_input(char *buf, int size) {
 }
 
 int readline_get_more() {
-	int line_length, data_read;
+	int   line_length, data_read;
 	char *line;
 	if (config->is_tty) {
 		line = readline("OCTO> ");
@@ -53,16 +53,16 @@ int readline_get_more() {
 		int is_white_space = TRUE;
 		while (is_white_space && (0 < line_length)) {
 			switch (line[line_length - 1]) {
-				case ' ':
-					line_length--;
-					break;
-				case '\t':
-					line_length--;
-					break;
-				default:
-					line[line_length] = '\0';
-					is_white_space = FALSE;
-					break;
+			case ' ':
+				line_length--;
+				break;
+			case '\t':
+				line_length--;
+				break;
+			default:
+				line[line_length] = '\0';
+				is_white_space = FALSE;
+				break;
 			}
 		}
 		if (0 == line_length) {
@@ -75,8 +75,8 @@ int readline_get_more() {
 		/* if input line is too long resize buffer
 		 * by min(cur_input_max * 2, line_length) + 2 (for the \n\0)
 		 */
-		if(line_length >= cur_input_max - cur_input_index - 2) {
-			int resize_amt = line_length > (cur_input_max * 2) ? line_length : (cur_input_max * 2);
+		if (line_length >= cur_input_max - cur_input_index - 2) {
+			int   resize_amt = line_length > (cur_input_max * 2) ? line_length : (cur_input_max * 2);
 			char *tmp = malloc(resize_amt + 2);
 			memcpy(tmp, input_buffer_combined, cur_input_index);
 			free(input_buffer_combined);
@@ -85,7 +85,7 @@ int readline_get_more() {
 		}
 		memcpy(&input_buffer_combined[cur_input_index], line, line_length);
 		input_buffer_combined[cur_input_index + line_length] = '\n';
-		input_buffer_combined[cur_input_index + line_length+1] = '\0';
+		input_buffer_combined[cur_input_index + line_length + 1] = '\0';
 		free(line);
 		return line_length;
 	} else {
@@ -99,22 +99,23 @@ int readline_get_more() {
 			input_buffer_combined = tmp;
 			data_read = read(fileno(inputFile), input_buffer_combined + cur_input_max, cur_input_max);
 			cur_input_max *= 2;
-		/* if just the cur_input_index is the max then we probably have a dangling query
-		 * copy everything from the old index to the end to the start of the buffer
-		 * shift the index over and read more
-		 */
-		} else if(cur_input_index == cur_input_max) {
+			/* if just the cur_input_index is the max then we probably have a dangling query
+			 * copy everything from the old index to the end to the start of the buffer
+			 * shift the index over and read more
+			 */
+		} else if (cur_input_index == cur_input_max) {
 			memcpy(input_buffer_combined, input_buffer_combined + old_input_index, cur_input_index - old_input_index);
 			cur_input_index -= old_input_index;
 			old_input_index = 0;
-			data_read = read(fileno(inputFile), input_buffer_combined + cur_input_index, cur_input_max - cur_input_index);
+			data_read
+			    = read(fileno(inputFile), input_buffer_combined + cur_input_index, cur_input_max - cur_input_index);
 		} else {
 			data_read = read(fileno(inputFile), input_buffer_combined, cur_input_max);
 		}
 
 		// Detecting the EOF is handled by the lexer and this should never be true at this stage
 		assert(EOF_NONE == eof_hit);
-		if(data_read == -1) {
+		if (data_read == -1) {
 			ERROR(ERR_SYSCALL, "read", errno, strerror(errno));
 			return 0;
 		}

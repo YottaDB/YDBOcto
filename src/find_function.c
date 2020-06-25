@@ -22,21 +22,21 @@
 
 // Note that this function is very similar to find_table.c, so changes there may need to be reflected here also.
 SqlFunction *find_function(const char *function_name) {
-	SqlFunction	*function;
-	SqlStatement	*stmt;
-	ydb_buffer_t	save_value;
-	ydb_buffer_t	value_buffer;
-	char		value_str[MAX_STR_CONST];
-	char		*buff, *cur_buff;
-	int		status;
-	int32_t		length;
-	long		length_long;
-	MemoryChunk	*old_chunk;
-	ydb_buffer_t	loaded_schemas, octo_global, function_subs[4], ret;
-	char		retbuff[sizeof(void *)];
-	char		oid_buff[INT32_TO_STRING_MAX], len_str[INT32_TO_STRING_MAX];
-	boolean_t	drop_cache;
-	uint64_t	db_oid;
+	SqlFunction * function;
+	SqlStatement *stmt;
+	ydb_buffer_t  save_value;
+	ydb_buffer_t  value_buffer;
+	char	      value_str[MAX_STR_CONST];
+	char *	      buff, *cur_buff;
+	int	      status;
+	int32_t	      length;
+	long	      length_long;
+	MemoryChunk * old_chunk;
+	ydb_buffer_t  loaded_schemas, octo_global, function_subs[4], ret;
+	char	      retbuff[sizeof(void *)];
+	char	      oid_buff[INT32_TO_STRING_MAX], len_str[INT32_TO_STRING_MAX];
+	boolean_t     drop_cache;
+	uint64_t      db_oid;
 
 	TRACE(CUSTOM_ERROR, "Searching for function %s", function_name);
 	YDB_STRING_TO_BUFFER(config->global_names.octo, &octo_global);
@@ -60,7 +60,7 @@ SqlFunction *find_function(const char *function_name) {
 		/* We have the function definition already stored in process local memory. Use that as long as the
 		 * function definition has not changed in the database.
 		 */
-		stmt = *((SqlStatement**)ret.buf_addr);
+		stmt = *((SqlStatement **)ret.buf_addr);
 		UNPACK_SQL_STATEMENT(function, stmt, create_function);
 		/* Check if function has not changed in the database since we cached it
 		 *	^%ydboctoocto("functions",FUNCTIONNAME)
@@ -71,7 +71,7 @@ SqlFunction *find_function(const char *function_name) {
 		status = ydb_get_s(&octo_global, 3, &function_subs[0], &ret);
 		switch (status) {
 		case YDB_OK:
-			assert(ret.len_alloc > ret.len_used);	// ensure space for null terminator
+			assert(ret.len_alloc > ret.len_used); // ensure space for null terminator
 			ret.buf_addr[ret.len_used] = '\0';
 			db_oid = (uint64_t)strtoll(ret.buf_addr, NULL, 10);
 			drop_cache = (db_oid != function->oid);
@@ -112,7 +112,7 @@ SqlFunction *find_function(const char *function_name) {
 	}
 
 	// Get the length in bytes of the binary function definition
-	YDB_STRING_TO_BUFFER("l", &function_subs[2]);		// "l" for "length"
+	YDB_STRING_TO_BUFFER("l", &function_subs[2]); // "l" for "length"
 	function_subs[3].buf_addr = len_str;
 	function_subs[3].len_alloc = sizeof(len_str);
 	status = ydb_get_s(&octo_global, 3, &function_subs[0], &function_subs[3]);
@@ -177,16 +177,16 @@ SqlFunction *find_function(const char *function_name) {
 	}
 	assert(length == (cur_buff - buff));
 
-	stmt = (void*)buff;
-	decompress_statement((char*)stmt, length);
+	stmt = (void *)buff;
+	decompress_statement((char *)stmt, length);
 	if (NULL == stmt) {
 		memory_chunks = old_chunk;
 		return NULL;
 	}
 
 	// Note the pointer to the loaded parse tree root
-	save_value.buf_addr = (char*)&stmt;
-	save_value.len_used = save_value.len_alloc = sizeof(void*);
+	save_value.buf_addr = (char *)&stmt;
+	save_value.len_used = save_value.len_alloc = sizeof(void *);
 	status = ydb_set_s(&loaded_schemas, 2, &function_subs[0], &save_value);
 	YDB_ERROR_CHECK(status);
 	if (YDB_OK != status) {
@@ -195,8 +195,8 @@ SqlFunction *find_function(const char *function_name) {
 	}
 	// Note down the memory chunk so we can free it later
 	YDB_STRING_TO_BUFFER("chunk", &function_subs[2]);
-	save_value.buf_addr = (char*)&memory_chunks;
-	save_value.len_used = save_value.len_alloc = sizeof(void*);
+	save_value.buf_addr = (char *)&memory_chunks;
+	save_value.len_used = save_value.len_alloc = sizeof(void *);
 	status = ydb_set_s(&loaded_schemas, 3, &function_subs[0], &save_value);
 	YDB_ERROR_CHECK(status);
 	if (YDB_OK != status) {

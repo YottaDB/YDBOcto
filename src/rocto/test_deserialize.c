@@ -55,115 +55,115 @@ static void test_byte_to_hex(void **state) {
 
 static void test_bin_to_bool(void **state) {
 	int64_t result = FALSE;
-	char bin = TRUE;
-	result = bin_to_bool((char*)&bin);
+	char	bin = TRUE;
+	result = bin_to_bool((char *)&bin);
 	assert_int_equal(result, bin);
 
 	result = TRUE, bin = FALSE;
-	result = bin_to_bool((char*)&bin);
+	result = bin_to_bool((char *)&bin);
 	assert_int_equal(result, bin);
 }
 
 static void test_bin_to_char(void **state) {
 	int64_t result = '\0';
-	char bin = 'A';
-	result = bin_to_char((char*)&bin);
+	char	bin = 'A';
+	result = bin_to_char((char *)&bin);
 	assert_int_equal(result, bin);
 
 	result = '\0', bin = '7';
-	result = bin_to_char((char*)&bin);
+	result = bin_to_char((char *)&bin);
 	assert_int_equal(result, bin);
 }
 
 static void test_bin_to_int16(void **state) {
 	int64_t result = 0;
-	char bin[2];
-	*(int16_t*)bin = htons(12);
+	char	bin[2];
+	*(int16_t *)bin = htons(12);
 	result = bin_to_int16(bin);
-	assert_int_equal(result, ntohs(*(int16_t*)bin));
+	assert_int_equal(result, ntohs(*(int16_t *)bin));
 
 	result = 0;
-	*(int16_t*)bin = htons(256);
+	*(int16_t *)bin = htons(256);
 	result = bin_to_int16(bin);
-	assert_int_equal(result, ntohs(*(int16_t*)bin));
+	assert_int_equal(result, ntohs(*(int16_t *)bin));
 
 	result = 0;
-	*(int16_t*)bin = htons(INT16_MAX);
+	*(int16_t *)bin = htons(INT16_MAX);
 	result = bin_to_int16(bin);
-	assert_int_equal(result, ntohs(*(int16_t*)bin));
+	assert_int_equal(result, ntohs(*(int16_t *)bin));
 
 	result = -1;
-	*(int16_t*)bin = htons(0);
+	*(int16_t *)bin = htons(0);
 	result = bin_to_int16(bin);
-	assert_int_equal(result, ntohs(*(int16_t*)bin));
+	assert_int_equal(result, ntohs(*(int16_t *)bin));
 }
 
 static void test_bin_to_int32(void **state) {
 	int64_t result = 0;
-	char bin[4];
-	*(int32_t*)bin = htonl(12);
+	char	bin[4];
+	*(int32_t *)bin = htonl(12);
 	result = bin_to_int32(bin);
-	assert_int_equal(result, ntohl(*(int32_t*)bin));
+	assert_int_equal(result, ntohl(*(int32_t *)bin));
 
 	result = 0;
-	*(int32_t*)bin = htonl(256);
+	*(int32_t *)bin = htonl(256);
 	result = bin_to_int32(bin);
-	assert_int_equal(result, ntohl(*(int32_t*)bin));
+	assert_int_equal(result, ntohl(*(int32_t *)bin));
 
 	result = 0;
-	*(int32_t*)bin = htonl(INT32_MAX);
+	*(int32_t *)bin = htonl(INT32_MAX);
 	result = bin_to_int32(bin);
-	assert_int_equal(result, ntohl(*(int32_t*)bin));
+	assert_int_equal(result, ntohl(*(int32_t *)bin));
 
 	result = -1;
-	*(int32_t*)bin = htonl(0);
+	*(int32_t *)bin = htonl(0);
 	result = bin_to_int32(bin);
-	assert_int_equal(result, ntohl(*(int32_t*)bin));
+	assert_int_equal(result, ntohl(*(int32_t *)bin));
 }
 
 static void test_bin_to_int64(void **state) {
 	int64_t result = 0;
-	char bin[8];
-	*(int64_t*)bin = (int64_t)htobe64(12);
+	char	bin[8];
+	*(int64_t *)bin = (int64_t)htobe64(12);
 	result = bin_to_int64(bin);
-	assert_int_equal(result, (int64_t)be64toh(*(uint64_t*)bin));
+	assert_int_equal(result, (int64_t)be64toh(*(uint64_t *)bin));
 
 	result = 0;
-	*(int64_t*)bin = (int64_t)htobe64(256);
+	*(int64_t *)bin = (int64_t)htobe64(256);
 	result = bin_to_int64(bin);
-	assert_int_equal(result, (int64_t)be64toh(*(uint64_t*)bin));
+	assert_int_equal(result, (int64_t)be64toh(*(uint64_t *)bin));
 	result = 0;
-	*(int64_t*)bin = (int64_t)htobe64(INT64_MAX);
+	*(int64_t *)bin = (int64_t)htobe64(INT64_MAX);
 	result = bin_to_int64(bin);
-	assert_int_equal(result, (int64_t)be64toh(*(uint64_t*)bin));
+	assert_int_equal(result, (int64_t)be64toh(*(uint64_t *)bin));
 
 	result = -1;
-	*(int64_t*)bin = (int64_t)htobe64(0);
+	*(int64_t *)bin = (int64_t)htobe64(0);
 	result = bin_to_int64(bin);
-	assert_int_equal(result, (int64_t)be64toh(*(uint64_t*)bin));
+	assert_int_equal(result, (int64_t)be64toh(*(uint64_t *)bin));
 }
 
 static void test_bin_to_oid(void **state) {
 	int64_t result = 0;
-	char bin[4];
-	*(int32_t*)bin = htonl(12);
+	char	bin[4];
+	*(int32_t *)bin = htonl(12);
 	result = bin_to_oid(bin);
-	assert_int_equal(result, ntohl(*(int32_t*)bin));
+	assert_int_equal(result, ntohl(*(int32_t *)bin));
 
 	result = 0;
-	*(int32_t*)bin = htonl(256);
+	*(int32_t *)bin = htonl(256);
 	result = bin_to_oid(bin);
-	assert_int_equal(result, ntohl(*(int32_t*)bin));
+	assert_int_equal(result, ntohl(*(int32_t *)bin));
 
 	result = 0;
-	*(int32_t*)bin = htonl(INT32_MAX);
+	*(int32_t *)bin = htonl(INT32_MAX);
 	result = bin_to_oid(bin);
-	assert_int_equal(result, ntohl(*(int32_t*)bin));
+	assert_int_equal(result, ntohl(*(int32_t *)bin));
 
 	result = -1;
-	*(int32_t*)bin = htonl(0);
+	*(int32_t *)bin = htonl(0);
 	result = bin_to_oid(bin);
-	assert_int_equal(result, ntohl(*(int32_t*)bin));
+	assert_int_equal(result, ntohl(*(int32_t *)bin));
 }
 
 static void test_bin_to_bytea(void **state) {
@@ -175,8 +175,8 @@ static void test_bin_to_bytea(void **state) {
 
 static void test_bin_to_uuid(void **state) {
 	int32_t buf_len = UUID_CHARACTER_LENGTH;
-	char bin[16];
-	char buffer[buf_len];
+	char	bin[16];
+	char	buffer[buf_len];
 	int32_t i = 0;
 	for (i = 0; i < 16; i++) {
 		bin[i] = i;
@@ -187,9 +187,9 @@ static void test_bin_to_uuid(void **state) {
 
 static void test_md5_to_hex(void **state) {
 	const uint32_t md5_len = 33;
-	char hex_buf[md5_len];
-	char *message = "bluemonday";			// md5 hash: 1865f47f47b0ccc5c69178ecbbcbf645
-	unsigned char digest[MD5_DIGEST_LENGTH + 1];	// count null
+	char	       hex_buf[md5_len];
+	char *	       message = "bluemonday";	      // md5 hash: 1865f47f47b0ccc5c69178ecbbcbf645
+	unsigned char  digest[MD5_DIGEST_LENGTH + 1]; // count null
 
 	MD5((const unsigned char *)message, strlen(message), digest);
 	digest[MD5_DIGEST_LENGTH] = '\0';
@@ -207,15 +207,9 @@ static void test_md5_to_hex(void **state) {
 int main(void) {
 	octo_init(0, NULL);
 	const struct CMUnitTest tests[] = {
-		   cmocka_unit_test(test_byte_to_hex),
-		   cmocka_unit_test(test_bin_to_bool),
-		   cmocka_unit_test(test_bin_to_char),
-		   cmocka_unit_test(test_bin_to_int16),
-		   cmocka_unit_test(test_bin_to_int32),
-		   cmocka_unit_test(test_bin_to_int64),
-		   cmocka_unit_test(test_bin_to_oid),
-		   cmocka_unit_test(test_bin_to_uuid),
-		   cmocka_unit_test(test_md5_to_hex),
+	    cmocka_unit_test(test_byte_to_hex),	 cmocka_unit_test(test_bin_to_bool),  cmocka_unit_test(test_bin_to_char),
+	    cmocka_unit_test(test_bin_to_int16), cmocka_unit_test(test_bin_to_int32), cmocka_unit_test(test_bin_to_int64),
+	    cmocka_unit_test(test_bin_to_oid),	 cmocka_unit_test(test_bin_to_uuid),  cmocka_unit_test(test_md5_to_hex),
 	};
 	return cmocka_run_group_tests(tests, NULL, NULL);
 }

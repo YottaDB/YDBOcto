@@ -16,13 +16,12 @@
 #include "octo_types.h"
 
 // Function invoked by the rule named "query_specification" in src/parser/select.y
-SqlStatement *query_specification(OptionalKeyword set_quantifier, SqlStatement *select_list,
-					SqlStatement *table_expression, SqlStatement *sort_specification_list, int *plan_id)
-{
-	SqlStatement		*ret, *quantifier;
-	SqlTableAlias		*this_table_alias;
-	SqlValue		*value;
-	SqlSelectStatement	*select;
+SqlStatement *query_specification(OptionalKeyword set_quantifier, SqlStatement *select_list, SqlStatement *table_expression,
+				  SqlStatement *sort_specification_list, int *plan_id) {
+	SqlStatement *	    ret, *quantifier;
+	SqlTableAlias *	    this_table_alias;
+	SqlValue *	    value;
+	SqlSelectStatement *select;
 
 	SQL_STATEMENT(ret, table_alias_STATEMENT);
 	MALLOC_STATEMENT(ret, table_alias, SqlTableAlias);
@@ -47,11 +46,11 @@ SqlStatement *query_specification(OptionalKeyword set_quantifier, SqlStatement *
 	 *	3) Every remaining non-common column from the right table in the order it appears in that table.
 	 */
 	if (NULL == select_list->v.column_list_alias) {
-		SqlStatement		*sql_stmt;
-		SqlColumnListAlias	*cla_alias, *cla_common, *t_cla_alias;
-		SqlJoin			*join, *cur_join, *start_join;
-		SqlTableAlias		*table_alias;
-		int			tablejoin_num;
+		SqlStatement *	    sql_stmt;
+		SqlColumnListAlias *cla_alias, *cla_common, *t_cla_alias;
+		SqlJoin *	    join, *cur_join, *start_join;
+		SqlTableAlias *	    table_alias;
+		int		    tablejoin_num;
 
 		UNPACK_SQL_STATEMENT(join, select->table_list, join);
 		cla_alias = NULL;
@@ -62,20 +61,20 @@ SqlStatement *query_specification(OptionalKeyword set_quantifier, SqlStatement *
 			sql_stmt = drill_to_table_alias(sql_stmt);
 			UNPACK_SQL_STATEMENT(table_alias, sql_stmt, table_alias);
 			if (NULL != table_alias->column_list) {
-				SqlColumnListAlias	*cla_start, *cla_cur;
-				SqlColumnAlias		*column_alias;
-				boolean_t		common_column_seen;
+				SqlColumnListAlias *cla_start, *cla_cur;
+				SqlColumnAlias *    column_alias;
+				boolean_t	    common_column_seen;
 
 				UNPACK_SQL_STATEMENT(cla_start, table_alias->column_list, column_list_alias);
 				common_column_seen = FALSE;
 				cla_cur = cla_start;
 				do {
-					SqlColumnListAlias	*cla_primary;
-					SqlColumnListAlias	*cla_new;
+					SqlColumnListAlias *cla_primary;
+					SqlColumnListAlias *cla_new;
 
 					cla_primary = cla_cur->duplicate_of_column;
 					if (NULL == cla_primary) {
-						SqlColumnList		*cur;
+						SqlColumnList *cur;
 
 						OCTO_CMALLOC_STRUCT(cla_new, SqlColumnListAlias);
 						cla_new->alias = cla_cur->alias;
@@ -119,7 +118,7 @@ SqlStatement *query_specification(OptionalKeyword set_quantifier, SqlStatement *
 					cla_cur = cla_cur->next;
 				} while (cla_start != cla_cur);
 				if (common_column_seen) {
-					SqlColumnListAlias	*cla_end;
+					SqlColumnListAlias *cla_end;
 
 					cla_common = NULL;
 					/* Now that at least one common column has been seen, rearrange all columns
@@ -129,7 +128,7 @@ SqlStatement *query_specification(OptionalKeyword set_quantifier, SqlStatement *
 					cla_end = cla_alias->prev;
 					cla_cur = cla_alias;
 					do {
-						SqlColumnListAlias	*cla_next;
+						SqlColumnListAlias *cla_next;
 
 						cla_next = cla_cur->next;
 						if ((void *)(intptr_t)tablejoin_num == cla_cur->duplicate_of_column) {
@@ -149,7 +148,7 @@ SqlStatement *query_specification(OptionalKeyword set_quantifier, SqlStatement *
 									cla_alias = NULL;
 								}
 							}
-							dqdel(cla_cur);	/* Remove "cla_cur" from its current position */
+							dqdel(cla_cur); /* Remove "cla_cur" from its current position */
 							/* Now move "cla_cur" to the tail of the "cla_common" doubly linked list */
 							if (NULL == cla_common) {
 								cla_common = cla_cur;
@@ -173,7 +172,7 @@ SqlStatement *query_specification(OptionalKeyword set_quantifier, SqlStatement *
 			}
 			cur_join = cur_join->next;
 			tablejoin_num++;
-		} while(cur_join != start_join);
+		} while (cur_join != start_join);
 		/* Copy location of ASTERISK (noted down in ASTERISK rule in "src/parser/select.y")
 		 * for potential error reporting (with line/column context) in "populate_data_type.c".
 		 * Do this in all the created column list aliases.

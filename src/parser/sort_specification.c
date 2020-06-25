@@ -17,11 +17,10 @@
 
 // Function invoked by the rule named "sort_specification" in src/parser/parser.y
 // When supported collate clause SqlStatement may be passed here.
-SqlStatement *sort_specification(SqlStatement *sort_key, SqlStatement *ordering_specification)
-{
-	SqlStatement		*ret, *order_spec;
-	SqlColumnListAlias	*alias;
-	SqlColumnList		*column_list;
+SqlStatement *sort_specification(SqlStatement *sort_key, SqlStatement *ordering_specification) {
+	SqlStatement *	    ret, *order_spec;
+	SqlColumnListAlias *alias;
+	SqlColumnList *	    column_list;
 
 	SQL_STATEMENT(ret, column_list_alias_STATEMENT);
 	MALLOC_STATEMENT(ret, column_list_alias, SqlColumnListAlias);
@@ -32,14 +31,13 @@ SqlStatement *sort_specification(SqlStatement *sort_key, SqlStatement *ordering_
 	UNPACK_SQL_STATEMENT(column_list, alias->column_list, column_list);
 	dqinit(column_list);
 	column_list->value = sort_key;
-	alias->column_list->loc = sort_key->loc;	// Cannot use "yyloc" here so passing it from parser through sort_key->loc
+	alias->column_list->loc = sort_key->loc; // Cannot use "yyloc" here so passing it from parser through sort_key->loc
 	// Add a keyword for ASC or DESC. Default to ASC if not explicitly specified.
 	SQL_STATEMENT(order_spec, keyword_STATEMENT);
 	OCTO_CMALLOC_STRUCT(order_spec->v.keyword, SqlOptionalKeyword);
-	order_spec->v.keyword->keyword = ((NULL == ordering_specification)
-							|| ((SqlStatement *)OPTIONAL_ASC == ordering_specification))
-						? OPTIONAL_ASC
-						: OPTIONAL_DESC;
+	order_spec->v.keyword->keyword
+	    = ((NULL == ordering_specification) || ((SqlStatement *)OPTIONAL_ASC == ordering_specification)) ? OPTIONAL_ASC
+													     : OPTIONAL_DESC;
 	order_spec->v.keyword->v = NULL;
 	dqinit(order_spec->v.keyword);
 	alias->keywords = order_spec;

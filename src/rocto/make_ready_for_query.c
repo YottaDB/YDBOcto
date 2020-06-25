@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -20,11 +20,10 @@
 
 #include "message_formats.h"
 
-
 ReadyForQuery *make_ready_for_query(PSQL_TransactionStatus status) {
 	ReadyForQuery *ret;
 
-	ret = (ReadyForQuery*)malloc(sizeof(ReadyForQuery));
+	ret = (ReadyForQuery *)malloc(sizeof(ReadyForQuery));
 	memset(ret, 0, sizeof(ReadyForQuery));
 
 	ret->type = PSQL_ReadyForQuery;

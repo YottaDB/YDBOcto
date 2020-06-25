@@ -19,10 +19,10 @@
  * Undoes what was done by "store_function_in_pg_proc.c".
  */
 int delete_function_from_pg_proc(ydb_buffer_t *function_name_buffer) {
-	int		status;
-	ydb_buffer_t	pg_proc[5];
-	ydb_buffer_t	octo_functions[4];
-	char		oid_str[INT64_TO_STRING_MAX];
+	int	     status;
+	ydb_buffer_t pg_proc[5];
+	ydb_buffer_t octo_functions[4];
+	char	     oid_str[INT64_TO_STRING_MAX];
 
 	YDB_STRING_TO_BUFFER(config->global_names.octo, &pg_proc[0]);
 	YDB_STRING_TO_BUFFER("tables", &pg_proc[1]);

@@ -16,10 +16,11 @@
 
 #include "octo.h"
 
-boolean_t is_query_canceled(callback_fnptr_t callback, int32_t cursorId, void *parms, char *plan_name, boolean_t send_row_description) {
-	ydb_buffer_t	ydboctoCancel;
-	unsigned int	cancel_result = 0;
-	int		status = 0;
+boolean_t is_query_canceled(callback_fnptr_t callback, int32_t cursorId, void *parms, char *plan_name,
+			    boolean_t send_row_description) {
+	ydb_buffer_t ydboctoCancel;
+	unsigned int cancel_result = 0;
+	int	     status = 0;
 
 	// Check if execution was interrupted by a CancelRequest by checking local variable
 	YDB_LITERAL_TO_BUFFER("%ydboctoCancel", &ydboctoCancel);

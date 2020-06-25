@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -18,11 +18,11 @@
 #include "octo_types.h"
 
 int m_escape_string2(char *buffer, int buffer_len, char *string) {
-	int i=0;
+	int   i = 0;
 	char *c = string;
 	char *b = buffer;
-	while(*c != '\0' && i < buffer_len) {
-		switch(*c) {
+	while (*c != '\0' && i < buffer_len) {
+		switch (*c) {
 		case '"':
 			*b++ = '"';
 			*b++ = '"';

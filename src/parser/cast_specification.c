@@ -16,16 +16,15 @@
 #include "octo_types.h"
 
 // Function invoked by the rule named "table_reference" in src/parser/select.y
-SqlStatement *cast_specification(SqlStatement *cast_specification, SqlStatement *source)
-{
-	SqlValueType	type;
-	SqlStatement	*ret;
+SqlStatement *cast_specification(SqlStatement *cast_specification, SqlStatement *source) {
+	SqlValueType  type;
+	SqlStatement *ret;
 
 	type = (SqlValueType)cast_specification;
 	if (INVALID_SqlValueType == type) {
 		ret = NULL;
 	} else {
-		SqlValue	*value;
+		SqlValue *value;
 
 		SQL_STATEMENT(ret, value_STATEMENT);
 		MALLOC_STATEMENT(ret, value, SqlValue);

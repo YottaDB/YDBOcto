@@ -18,10 +18,10 @@
 #include "octo_types.h"
 
 int emit_column_specification(char *buffer, int buffer_size, SqlColumn *cur_column) {
-	SqlValue *value;
+	SqlValue *	    value;
 	SqlOptionalKeyword *cur_keyword, *start_keyword;
-	char *buff_ptr = buffer;
-	char buffer2[MAX_STR_CONST];
+	char *		    buff_ptr = buffer;
+	char		    buffer2[MAX_STR_CONST];
 	UNPACK_SQL_STATEMENT(value, cur_column->columnName, value);
 	buff_ptr += snprintf(buff_ptr, buffer_size - (buff_ptr - buffer), "`%s`", value->v.reference);
 	switch (cur_column->type) {

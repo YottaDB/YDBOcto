@@ -29,11 +29,11 @@ static void test_select_statement(void **state) {
 	CommandComplete *response = NULL;
 	CommandComplete *received_response = NULL;
 
-	char *message = "SELECT 5";
+	char *	message = "SELECT 5";
 	int32_t expected_length = sizeof(uint32_t) + strlen(message) + 1;
 
 	response = make_command_complete(select_STATEMENT, 5);
-	received_response = read_command_complete((BaseMessage*)&response->type);
+	received_response = read_command_complete((BaseMessage *)&response->type);
 
 	// Standard checks
 	assert_non_null(received_response);
@@ -48,11 +48,11 @@ static void test_set_statement(void **state) {
 	CommandComplete *response = NULL;
 	CommandComplete *received_response = NULL;
 
-	char *message = "SET";
+	char *	message = "SET";
 	int32_t expected_length = sizeof(uint32_t) + strlen(message) + 1;
 
 	response = make_command_complete(set_STATEMENT, 0);
-	received_response = read_command_complete((BaseMessage*)&response->type);
+	received_response = read_command_complete((BaseMessage *)&response->type);
 
 	// Standard checks
 	assert_non_null(received_response);
@@ -67,11 +67,11 @@ static void test_show_statement(void **state) {
 	CommandComplete *response = NULL;
 	CommandComplete *received_response = NULL;
 
-	char *message = "SHOW";
+	char *	message = "SHOW";
 	int32_t expected_length = sizeof(uint32_t) + strlen(message) + 1;
 
 	response = make_command_complete(show_STATEMENT, 0);
-	received_response = read_command_complete((BaseMessage*)&response->type);
+	received_response = read_command_complete((BaseMessage *)&response->type);
 
 	// Standard checks
 	assert_non_null(received_response);
@@ -92,10 +92,10 @@ static void test_no_command_tag_statement(void **state) {
 
 int main(void) {
 	const struct CMUnitTest tests[] = {
-		cmocka_unit_test(test_select_statement),
-		cmocka_unit_test(test_set_statement),
-		cmocka_unit_test(test_show_statement),
-		cmocka_unit_test(test_no_command_tag_statement),
+	    cmocka_unit_test(test_select_statement),
+	    cmocka_unit_test(test_set_statement),
+	    cmocka_unit_test(test_show_statement),
+	    cmocka_unit_test(test_no_command_tag_statement),
 	};
 	return cmocka_run_group_tests(tests, NULL, NULL);
 }

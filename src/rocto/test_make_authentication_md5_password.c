@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -25,9 +25,9 @@
 #include "rocto.h"
 #include "message_formats.h"
 
-long int __wrap_syscall(long int sysno, void* buf, size_t buflen, unsigned int flags) {
+long int __wrap_syscall(long int sysno, void *buf, size_t buflen, unsigned int flags) {
 	int is_error = mock_type(int);
-	if(is_error == 1) {
+	if (is_error == 1) {
 		return -1;
 	}
 	return 25;
@@ -39,8 +39,8 @@ static void test_valid_input(void **state) {
 	YDB_STRING_TO_BUFFER("0", &session_id);
 	session.session_id = &session_id;
 	int32_t expected_length = 12;
-	char salt1[4];
-	char salt2[4];
+	char	salt1[4];
+	char	salt2[4];
 
 	will_return(__wrap_syscall, 0);
 	AuthenticationMD5Password *response = make_authentication_md5_password(&session, salt1);
@@ -61,7 +61,7 @@ static void test_valid_input(void **state) {
 }
 
 static void test_invalid_input_null_salt(void **state) {
-	int32_t expected_length = 12;
+	int32_t	     expected_length = 12;
 	RoctoSession session;
 
 	AuthenticationMD5Password *response = make_authentication_md5_password(&session, NULL);
@@ -70,16 +70,16 @@ static void test_invalid_input_null_salt(void **state) {
 
 static void test_invalid_input_null_pointer(void **state) {
 	int32_t expected_length = 12;
-	char salt[4];
+	char	salt[4];
 
 	AuthenticationMD5Password *response = make_authentication_md5_password(NULL, salt);
 	assert_null(response);
 }
 
 static void test_error_getrandom(void **state) {
-	int32_t expected_length = 12;
+	int32_t	     expected_length = 12;
 	RoctoSession session;
-	char salt[4];
+	char	     salt[4];
 	will_return(__wrap_syscall, 1);
 	AuthenticationMD5Password *response = make_authentication_md5_password(&session, salt);
 	assert_null(response);
@@ -87,11 +87,7 @@ static void test_error_getrandom(void **state) {
 
 int main(void) {
 	octo_init(0, NULL);
-	const struct CMUnitTest tests[] = {
-		cmocka_unit_test(test_valid_input),
-		cmocka_unit_test(test_invalid_input_null_pointer),
-		cmocka_unit_test(test_invalid_input_null_salt),
-		cmocka_unit_test(test_error_getrandom)
-	};
+	const struct CMUnitTest tests[] = {cmocka_unit_test(test_valid_input), cmocka_unit_test(test_invalid_input_null_pointer),
+					   cmocka_unit_test(test_invalid_input_null_salt), cmocka_unit_test(test_error_getrandom)};
 	return cmocka_run_group_tests(tests, NULL, NULL);
 }

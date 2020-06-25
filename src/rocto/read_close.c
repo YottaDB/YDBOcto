@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -21,20 +21,20 @@
 #include "message_formats.h"
 
 Close *read_close(BaseMessage *message) {
-	Close *ret;
-	char *cur_pointer, *last_byte;
+	Close *	 ret;
+	char *	 cur_pointer, *last_byte;
 	uint32_t remaining_length;
 
 	// Create Close struct and initialize ALL bytes to prevent leaks
 	remaining_length = ntohl(message->length);
-	ret = (Close*)malloc(remaining_length + sizeof(char));
+	ret = (Close *)malloc(remaining_length + sizeof(char));
 	memset(ret, 0, remaining_length + sizeof(char));
 
 	// Copy entire message, including byte for the type field
 	memcpy(&ret->type, message, remaining_length + sizeof(char));
 	// The data section doesn't include the length or format code
-	remaining_length -= sizeof(uint32_t);	// Exclude length
-	remaining_length -= sizeof(char);		// Exclude item format
+	remaining_length -= sizeof(uint32_t); // Exclude length
+	remaining_length -= sizeof(char);     // Exclude item format
 
 	// Ensure valid value for type field
 	if (ret->type != PSQL_Close) {
@@ -43,7 +43,7 @@ Close *read_close(BaseMessage *message) {
 		return NULL;
 	}
 	// Ensure valid value for item field
-	if ('S' != ret->item && 'P' != ret->item ) {
+	if ('S' != ret->item && 'P' != ret->item) {
 		ERROR(ERR_ROCTO_INVALID_CHAR_VALUE, "Close", "item", ret->item, "'S' or 'P'");
 		free(ret);
 		return NULL;
@@ -52,7 +52,7 @@ Close *read_close(BaseMessage *message) {
 	// Ensure we use the entire message
 	cur_pointer = ret->data;
 	last_byte = cur_pointer + remaining_length;
-	while(cur_pointer < last_byte && '\0' != *cur_pointer)
+	while (cur_pointer < last_byte && '\0' != *cur_pointer)
 		cur_pointer++;
 	cur_pointer++;
 	// Check for missing null terminator
@@ -62,7 +62,7 @@ Close *read_close(BaseMessage *message) {
 		return NULL;
 	}
 	// Check for premature null terminator
-	if(cur_pointer < last_byte) {
+	if (cur_pointer < last_byte) {
 		ERROR(ERR_ROCTO_TRAILING_CHARS, "Close");
 		free(ret);
 		return NULL;

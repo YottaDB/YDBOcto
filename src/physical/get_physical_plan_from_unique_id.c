@@ -17,15 +17,15 @@
  * The input parameter `pplan` is used to find the first physical plan in the linked list and traverse through it.
  */
 PhysicalPlan *get_physical_plan_from_unique_id(PhysicalPlan *pplan, int unique_id) {
-	PhysicalPlan	*cur_plan;
-	int		output_id;
+	PhysicalPlan *cur_plan;
+	int	      output_id;
 
 	cur_plan = pplan;
 	// Walk the plans back to the first
 	while (NULL != cur_plan->prev) {
 		cur_plan = cur_plan->prev;
 	}
-	for ( ; NULL != cur_plan; cur_plan = cur_plan->next) {
+	for (; NULL != cur_plan; cur_plan = cur_plan->next) {
 		if (NULL != cur_plan->set_oper_list) {
 			/* The physical plan has SET operations. In that case, the output key is stored in the SET oper list */
 			output_id = cur_plan->set_oper_list->output_id;

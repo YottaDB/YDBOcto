@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -21,8 +21,7 @@
 LogicalPlan *lp_drill_to_insert(LogicalPlan *plan) {
 	LogicalPlan *cur_plan = plan;
 
-	while (LP_INSERT != cur_plan->type)
-	{
+	while (LP_INSERT != cur_plan->type) {
 		assert(cur_plan->type == LP_SET_OPERATION);
 		// Fetch one of the output plans from this set
 		assert(LP_SET_OPTION == cur_plan->v.lp_default.operand[0]->type);

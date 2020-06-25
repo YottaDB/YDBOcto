@@ -17,9 +17,9 @@
 
 // Function invoked by the rule named "derived_column" in src/parser/select.y
 SqlStatement *derived_column(SqlStatement *derived_column_expression, SqlStatement *column_name, struct YYLTYPE *yloc) {
-	SqlColumnListAlias	*alias;
-	SqlStatement		*ret;
-	SqlColumnList		*column_list;
+	SqlColumnListAlias *alias;
+	SqlStatement *	    ret;
+	SqlColumnList *	    column_list;
 
 	SQL_STATEMENT(ret, column_list_alias_STATEMENT);
 	MALLOC_STATEMENT(ret, column_list_alias, SqlColumnListAlias);

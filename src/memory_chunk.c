@@ -20,10 +20,10 @@
 #include "memory_chunk.h"
 
 MemoryChunk *alloc_chunk(size_t size) {
-	MemoryChunk	*ret;
-	void		*v;
+	MemoryChunk *ret;
+	void *	     v;
 
-	ret = (MemoryChunk*)malloc(sizeof(MemoryChunk));
+	ret = (MemoryChunk *)malloc(sizeof(MemoryChunk));
 	memset(ret, 0, sizeof(MemoryChunk));
 	dqinit(ret);
 	v = calloc(size, 1);
@@ -33,9 +33,9 @@ MemoryChunk *alloc_chunk(size_t size) {
 }
 
 void *octo_cmalloc(MemoryChunk *root, size_t size) {
-	MemoryChunk	*cur, *new;
-	void		*ret;
-	size_t		alloc_size;
+	MemoryChunk *cur, *new;
+	void *	     ret;
+	size_t	     alloc_size;
 
 	assert(NULL != root);
 	cur = root->prev;
@@ -53,7 +53,7 @@ void *octo_cmalloc(MemoryChunk *root, size_t size) {
 }
 
 void octo_cfree(MemoryChunk *root) {
-	MemoryChunk	*cur;
+	MemoryChunk *cur;
 
 	assert(NULL != root);
 	cur = root;

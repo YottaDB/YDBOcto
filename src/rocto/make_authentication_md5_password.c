@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -32,14 +32,14 @@ AuthenticationMD5Password *make_authentication_md5_password(RoctoSession *sessio
 	}
 	AuthenticationMD5Password *ret;
 
-	ret = (AuthenticationMD5Password*)malloc(sizeof(AuthenticationMD5Password));
+	ret = (AuthenticationMD5Password *)malloc(sizeof(AuthenticationMD5Password));
 	memset(ret, 0, sizeof(AuthenticationMD5Password));
 
 	ret->type = PSQL_AuthenticationMD5Password;
 	ret->length = htonl(sizeof(int) + sizeof(int) + sizeof(char) * 4);
 	ret->md5_required = htonl(5);
 	// Generate 4-byte random salt with call to getrandom syscall (#318)
-	if(-1 == syscall(SYS_getrandom, salt, 4, 0)) {
+	if (-1 == syscall(SYS_getrandom, salt, 4, 0)) {
 		ERROR(ERR_SYSCALL, "getrandom", errno, strerror(errno));
 		free(ret);
 		return NULL;

@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -20,11 +20,10 @@
 
 #include "message_formats.h"
 
-
 NoData *make_no_data() {
 	NoData *ret;
 
-	ret = (NoData*)malloc(sizeof(NoData));
+	ret = (NoData *)malloc(sizeof(NoData));
 	memset(ret, 0, sizeof(NoData));
 
 	ret->type = PSQL_NoData;

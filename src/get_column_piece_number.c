@@ -19,8 +19,8 @@
 #include "octo_types.h"
 
 int get_column_piece_number(SqlColumnAlias *column_alias, SqlTableAlias *table_alias) {
-	SqlColumnListAlias	*cur_cl_alias, *start_cl_alias;
-	int			piece_number;
+	SqlColumnListAlias *cur_cl_alias, *start_cl_alias;
+	int		    piece_number;
 
 	assert(column_STATEMENT != column_alias->column->type);
 	UNPACK_SQL_STATEMENT(start_cl_alias, table_alias->column_list, column_list_alias);

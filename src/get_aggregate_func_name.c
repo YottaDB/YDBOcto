@@ -15,8 +15,8 @@
 #include "octo.h"
 #include "octo_types.h"
 
-char	*get_aggregate_func_name(SqlAggregateType type) {
-	switch(type) {
+char *get_aggregate_func_name(SqlAggregateType type) {
+	switch (type) {
 	case COUNT_ASTERISK_AGGREGATE:
 		return "COUNT(*)";
 		break;

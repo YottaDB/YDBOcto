@@ -29,24 +29,24 @@
 
 // Expects buffer to contain output of /proc/[pid]/stat
 int get_field_start(char *buffer, int num_spaces) {
-  int i = 0, space_count = 0;
+	int i = 0, space_count = 0;
 
-  for(i = 0; buffer[i]; i++) {
-    if(buffer[i] == ' ') {
-      space_count++;
-      if(space_count >= num_spaces) {
-        return i+1;     // Increment from last space before target field to the first char of that field
-      }
-    }
-  }
-  return -1;
+	for (i = 0; buffer[i]; i++) {
+		if (buffer[i] == ' ') {
+			space_count++;
+			if (space_count >= num_spaces) {
+				return i + 1; // Increment from last space before target field to the first char of that field
+			}
+		}
+	}
+	return -1;
 }
 
 // Retrieves the start time of process with specified PID relative to time of system boot
 unsigned long long get_pid_start_time(pid_t pid) {
-	int field_start, stat_fd, result;
-	int stat_buf_size = 8192;
-	char file_path[80], stat_buf[stat_buf_size];	// Default buffer sizes should handle normal cases
+	int		   field_start, stat_fd, result;
+	int		   stat_buf_size = 8192;
+	char		   file_path[80], stat_buf[stat_buf_size]; // Default buffer sizes should handle normal cases
 	unsigned long long start_time;
 
 	if (0 >= pid) {
@@ -78,7 +78,7 @@ unsigned long long get_pid_start_time(pid_t pid) {
 		return 0;
 	}
 	// Terminate the string at the next space
-	stat_buf[get_field_start(stat_buf, 22)-1] = '\0';
+	stat_buf[get_field_start(stat_buf, 22) - 1] = '\0';
 	// Extract the time value
 	sscanf(stat_buf + field_start, "%llu", &start_time);
 	close(stat_fd);

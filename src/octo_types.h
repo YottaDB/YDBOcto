@@ -13,7 +13,7 @@
 #ifndef OCTO_TYPES_H
 #define OCTO_TYPES_H
 
-#include <stdint.h>	/* needed for uint64_t */
+#include <stdint.h> /* needed for uint64_t */
 
 typedef void *yyscan_t;
 
@@ -31,60 +31,57 @@ typedef void *yyscan_t;
 
 // Per https://www.postgresql.org/docs/11/catalog-pg-type.html, for type length values of -1 and -2:
 //	"-1 indicates a 'varlena' type (one that has a length word), -2 indicates a null-terminated C string."
-#define TYPLEN_VARLENA		-1
-#define TYPLEN_CSTRING		-2
+#define TYPLEN_VARLENA -1
+#define TYPLEN_CSTRING -2
 
 // Allocates ONE structure of type TYPE
-#define	OCTO_CMALLOC_STRUCT(RET, TYPE)								\
-{												\
-	RET = (TYPE *)octo_cmalloc(memory_chunks, sizeof(TYPE));				\
-}
+#define OCTO_CMALLOC_STRUCT(RET, TYPE) \
+	{ RET = (TYPE *)octo_cmalloc(memory_chunks, sizeof(TYPE)); }
 
-#define SQL_STATEMENT(VAR, TYPE)			      					\
-{												\
-	OCTO_CMALLOC_STRUCT(VAR, SqlStatement);							\
-	(VAR)->type = TYPE;									\
-}
+#define SQL_STATEMENT(VAR, TYPE)                        \
+	{                                               \
+		OCTO_CMALLOC_STRUCT(VAR, SqlStatement); \
+		(VAR)->type = TYPE;                     \
+	}
 
-#define MALLOC_STATEMENT(VAR, NAME, TYPE)							\
-{												\
-	OCTO_CMALLOC_STRUCT((VAR)->v.NAME, TYPE);						\
-}
+#define MALLOC_STATEMENT(VAR, NAME, TYPE) \
+	{ OCTO_CMALLOC_STRUCT((VAR)->v.NAME, TYPE); }
 
-#define UNPACK_SQL_STATEMENT(result, item, StatementType)					\
-{												\
-	assert((item)->type == StatementType ## _STATEMENT);					\
-	(result) = (item)->v.StatementType;							\
-}
+#define UNPACK_SQL_STATEMENT(result, item, StatementType)          \
+	{                                                          \
+		assert((item)->type == StatementType##_STATEMENT); \
+		(result) = (item)->v.StatementType;                \
+	}
 
-#define PACK_SQL_STATEMENT(out, item, StatementType)						\
-{												\
-	SQL_STATEMENT(out, StatementType ## _STATEMENT);					\
-	(out)->v.StatementType = item;								\
-}
+#define PACK_SQL_STATEMENT(out, item, StatementType)           \
+	{                                                      \
+		SQL_STATEMENT(out, StatementType##_STATEMENT); \
+		(out)->v.StatementType = item;                 \
+	}
 
-#define SHALLOW_COPY_SQL_STATEMENT(dst, src, NAME, TYPE) do {					\
-	SQL_STATEMENT((dst), src->type);							\
-	MALLOC_STATEMENT((dst), NAME, TYPE);							\
-	*(dst)->v.NAME = *(src)->v.NAME;							\
-} while (0);
+#define SHALLOW_COPY_SQL_STATEMENT(dst, src, NAME, TYPE) \
+	do {                                             \
+		SQL_STATEMENT((dst), src->type);         \
+		MALLOC_STATEMENT((dst), NAME, TYPE);     \
+		*(dst)->v.NAME = *(src)->v.NAME;         \
+	} while (0);
 
 /* Determines the corresponding (SqlStatement *) structures that points to a (SqlTable *) structure */
-#define	SQL_STATEMENT_FROM_TABLE_STATEMENT(RET, TABLE)			\
-{									\
-	RET = (SqlStatement *)((char *)TABLE - sizeof(SqlStatement));	\
-	assert(create_table_STATEMENT == RET->type);			\
-	assert(RET->v.create_table == TABLE);				\
-}
+#define SQL_STATEMENT_FROM_TABLE_STATEMENT(RET, TABLE)                        \
+	{                                                                     \
+		RET = (SqlStatement *)((char *)TABLE - sizeof(SqlStatement)); \
+		assert(create_table_STATEMENT == RET->type);                  \
+		assert(RET->v.create_table == TABLE);                         \
+	}
 
 /* Shamelessly stolen from mlkdef.h in YottaDB */
 /* convert relative pointer to absolute pointer */
-#define R2A(X) (void*)(((unsigned char*) &(X)) + ((size_t)X))
+#define R2A(X) (void *)(((unsigned char *)&(X)) + ((size_t)X))
 
 /* store absolute pointer Y in X as a relative pointer */
-#define A2R(X, Y) ((X) = (void*)(((unsigned char*)(Y)) - ((unsigned char*) &(X))))
+#define A2R(X, Y) ((X) = (void *)(((unsigned char *)(Y)) - ((unsigned char *)&(X))))
 
-#define	IS_OUTER_JOIN(JOIN_TYPE)	((LEFT_JOIN == JOIN_TYPE) || (RIGHT_JOIN == JOIN_TYPE) || (FULL_JOIN == JOIN_TYPE))
+#define IS_OUTER_JOIN(JOIN_TYPE) ((LEFT_JOIN == JOIN_TYPE) || (RIGHT_JOIN == JOIN_TYPE) || (FULL_JOIN == JOIN_TYPE))
 
 typedef long long unsigned int uint8;
 
@@ -140,7 +137,7 @@ typedef enum UnaryOperations {
 	NEGATIVE,
 	BOOLEAN_NOT,
 	BOOLEAN_EXISTS,
-	BOOLEAN_NOT_EXISTS,	// Not used but needed to be in sync with LP_BOOLEAN_NOT_EXISTS in `lp_action_type.hd`
+	BOOLEAN_NOT_EXISTS, // Not used but needed to be in sync with LP_BOOLEAN_NOT_EXISTS in `lp_action_type.hd`
 	BOOLEAN_IS_NULL,
 	BOOLEAN_IS_NOT_NULL,
 } UnaryOperations;
@@ -201,13 +198,7 @@ typedef enum SqlValueType {
 	INVALID_SqlValueType
 } SqlValueType;
 
-typedef enum SqlDataType {
-	UNKNOWN_SqlDataType,
-	BOOLEAN_TYPE,
-	INTEGER_TYPE,
-	NUMERIC_TYPE,
-	STRING_TYPE
-} SqlDataType;
+typedef enum SqlDataType { UNKNOWN_SqlDataType, BOOLEAN_TYPE, INTEGER_TYPE, NUMERIC_TYPE, STRING_TYPE } SqlDataType;
 
 /* Note: Additions of keywords in the middle of the table can cause SIG-11s because the actual binary value
  *       of these enums (e.g. PRIMARY_KEY) is stored in the ^%ydboctoschema(<tablename>,"b",*) global nodes
@@ -232,8 +223,8 @@ typedef enum OptionalKeyword {
 	OPTIONAL_ADVANCE,
 	OPTIONAL_LIMIT,
 	OPTIONAL_DISTINCT,
-	OPTIONAL_XREF_INDEX,		// not sure if this should be here; gets populated through LP
-	OPTIONAL_BOOLEAN_EXPANSION,	// indicates that this statement is part of an OR boolean expression expansion to BNF form
+	OPTIONAL_XREF_INDEX,	    // not sure if this should be here; gets populated through LP
+	OPTIONAL_BOOLEAN_EXPANSION, // indicates that this statement is part of an OR boolean expression expansion to BNF form
 	OPTIONAL_ASC,
 	OPTIONAL_DESC,
 } OptionalKeyword;
@@ -247,15 +238,7 @@ typedef enum SqlSetOperationType {
 	SET_INTERSECT_ALL
 } SqlSetOperationType;
 
-typedef enum SqlJoinType {
-	NO_JOIN,
-	NATURAL_JOIN,
-	CROSS_JOIN,
-	INNER_JOIN,
-	RIGHT_JOIN,
-	LEFT_JOIN,
-	FULL_JOIN
-} SqlJoinType;
+typedef enum SqlJoinType { NO_JOIN, NATURAL_JOIN, CROSS_JOIN, INNER_JOIN, RIGHT_JOIN, LEFT_JOIN, FULL_JOIN } SqlJoinType;
 
 /* Note: Order of the below enums should be kept in sync with order of `LP_AGGREGATE_FUNCTION_*` types in `lp_action_type.hd` */
 typedef enum SqlAggregateType {
@@ -308,8 +291,7 @@ typedef enum {
 #define YYLTYPE yyltype
 
 typedef struct YYLTYPE YYLTYPE;
-struct YYLTYPE
-{
+struct YYLTYPE {
 	int first_line;
 	int first_column;
 	int last_line;
@@ -319,30 +301,30 @@ struct YYLTYPE
 // Used to maintain various parse related information primarily for use in Extended Query protocol modules
 typedef struct {
 	// General purpose parser fields
-	ydb_long_t		cursorId;
-	char			*cursorIdString;
-	boolean_t		abort;				// Used to defer YYABORT in certain error cases
+	ydb_long_t cursorId;
+	char *	   cursorIdString;
+	boolean_t  abort; // Used to defer YYABORT in certain error cases
 	// Extended Query specific fields
-	PSQL_TypeOid		*types;
-	SqlStatementType	command_tag;
-	int16_t			types_size;
-	int16_t			*parm_start;
-	int16_t			*parm_end;
-	int16_t			cur_type;
-	int16_t			num_bind_parms;
-	int16_t			num_bind_parm_types;
-	int16_t			total_parms;
-	boolean_t		is_select;
-	boolean_t		is_extended_query;
-	boolean_t		skip_cursor_cleanup;
-	boolean_t		*is_bind_parm;			// Used to track which literal parameters are bind parameters
-	int16_t			is_bind_parm_size;
-	char			routine[MAX_ROUTINE_LEN];
+	PSQL_TypeOid *	 types;
+	SqlStatementType command_tag;
+	int16_t		 types_size;
+	int16_t *	 parm_start;
+	int16_t *	 parm_end;
+	int16_t		 cur_type;
+	int16_t		 num_bind_parms;
+	int16_t		 num_bind_parm_types;
+	int16_t		 total_parms;
+	boolean_t	 is_select;
+	boolean_t	 is_extended_query;
+	boolean_t	 skip_cursor_cleanup;
+	boolean_t *	 is_bind_parm; // Used to track which literal parameters are bind parameters
+	int16_t		 is_bind_parm_size;
+	char		 routine[MAX_ROUTINE_LEN];
 } ParseContext;
 
 struct SqlColumn;
 struct SqlColumnAlias;
-//struct SqlConstraint;
+// struct SqlConstraint;
 struct SqlSelectStatement;
 struct SqlInsertStatement;
 struct SqlDropTableStatement;
@@ -373,13 +355,12 @@ struct SqlNoDataStatement;
  * WARNING: in some cases, SqlColumnList is used instead of the linked list, namely when
  *  we are dealing with a SELECT column list because the column may be a calculated column
  */
-typedef struct SqlColumn
-{
-	struct SqlStatement		*columnName;
-	enum SqlDataType		type;
-	int				column_number;
-	struct SqlStatement		*table;
-	struct SqlStatement		*keywords;
+typedef struct SqlColumn {
+	struct SqlStatement *columnName;
+	enum SqlDataType     type;
+	int		     column_number;
+	struct SqlStatement *table;
+	struct SqlStatement *keywords;
 	/* Below field ("pre_qualified_cla") is initialized/usable only if "type" field above is UNKNOWN_SqlDataType.
 	 * It is needed after parsing starts to handle a column that came in from a sub-query before when the sub-query
 	 * column name was qualified (in "qualify_statement()"). Once the column names have been qualified,
@@ -387,66 +368,62 @@ typedef struct SqlColumn
 	 * (i.e. outer-query column name) based on the type that was determined for "pre_qualified_cla"
 	 * (i.e. the sub-query column) in "qualify_statement()".
 	 */
-	struct SqlColumnListAlias	*pre_qualified_cla; /* initialized/usable only if "type" field is UNKNOWN_SqlDataType */
+	struct SqlColumnListAlias *pre_qualified_cla; /* initialized/usable only if "type" field is UNKNOWN_SqlDataType */
 	dqcreate(SqlColumn);
 } SqlColumn;
 
-typedef struct SqlColumnAlias
-{
+typedef struct SqlColumnAlias {
 	// SqlColumn or SqlColumnListAlias
-	struct SqlStatement	*column;
+	struct SqlStatement *column;
 	// SqlTableAlias
-	struct SqlStatement	*table_alias_stmt;
-	int			group_by_column_number;		/* 0 if this column name was not specified in a GROUP BY.
-								 * Holds a non-zero index # if column name was specified in GROUP BY
-								 * (e.g. in query `SELECT 1+id FROM names GROUP BY id,firstname`,
-								 *  this field would be 1 for the SqlColumnAlias corresponding to
-								 *  `id` and 2 for the SqlColumnAlias corresponding to `firstname`
-								 *  and 0 for the SqlColumnAlias corresponding to `lastname`).
-								 */
+	struct SqlStatement *table_alias_stmt;
+	int		     group_by_column_number; /* 0 if this column name was not specified in a GROUP BY.
+						      * Holds a non-zero index # if column name was specified in GROUP BY
+						      * (e.g. in query `SELECT 1+id FROM names GROUP BY id,firstname`,
+						      *  this field would be 1 for the SqlColumnAlias corresponding to
+						      *  `id` and 2 for the SqlColumnAlias corresponding to `firstname`
+						      *  and 0 for the SqlColumnAlias corresponding to `lastname`).
+						      */
 } SqlColumnAlias;
 
 /**
  * Represents a SQL table
  */
-typedef struct SqlTable
-{
-	struct SqlStatement	*tableName;
-	struct SqlStatement	*source;
-	struct SqlStatement	*columns;
-	struct SqlStatement	*delim;
-	uint64_t		oid;		/* TABLEOID; compared against ^%ydboctoschema(TABLENAME,"pg_class") */
+typedef struct SqlTable {
+	struct SqlStatement *tableName;
+	struct SqlStatement *source;
+	struct SqlStatement *columns;
+	struct SqlStatement *delim;
+	uint64_t	     oid; /* TABLEOID; compared against ^%ydboctoschema(TABLENAME,"pg_class") */
 } SqlTable;
 
-typedef struct SqlTableAlias
-{
+typedef struct SqlTableAlias {
 	// SqlTable or SqlSelectStatement
-	struct SqlStatement		*table;
+	struct SqlStatement *table;
 	// SqlValue
-	struct SqlStatement		*alias;
-	int				unique_id;
+	struct SqlStatement *alias;
+	int		     unique_id;
 	// Below fields are used for GROUP BY validation and/or to track Aggregate function use
-	int				group_by_column_count;
-	int				aggregate_depth;
-	boolean_t			aggregate_function_or_group_by_specified;
-	boolean_t			do_group_by_checks;	/* TRUE for the time we are in "qualify_statement()" while doing
-								 * GROUP BY related checks in the SELECT column list and ORDER BY
-								 * list. Note that "qualify_statement()" is invoked twice on these
-								 * lists. The first time, this flag is FALSE. The second time it is
-								 * TRUE. This is used to issue GROUP BY related errors (which
-								 * requires us to have scanned the entire SELECT column list at
-								 * least once) and also to avoid issuing duplicate errors related
-								 * to Unknown column name etc.
-								 */
-	struct SqlTableAlias		*parent_table_alias;
+	int	  group_by_column_count;
+	int	  aggregate_depth;
+	boolean_t aggregate_function_or_group_by_specified;
+	boolean_t do_group_by_checks; /* TRUE for the time we are in "qualify_statement()" while doing
+				       * GROUP BY related checks in the SELECT column list and ORDER BY
+				       * list. Note that "qualify_statement()" is invoked twice on these
+				       * lists. The first time, this flag is FALSE. The second time it is
+				       * TRUE. This is used to issue GROUP BY related errors (which
+				       * requires us to have scanned the entire SELECT column list at
+				       * least once) and also to avoid issuing duplicate errors related
+				       * to Unknown column name etc.
+				       */
+	struct SqlTableAlias *parent_table_alias;
 	// SqlColumnListAlias list of available columns
-	struct SqlStatement		*column_list;
+	struct SqlStatement *column_list;
 } SqlTableAlias;
 
 /**
  * Represents an optional KEYWORD which has a value associated with it */
-typedef struct SqlOptionalKeyword
-{
+typedef struct SqlOptionalKeyword {
 	enum OptionalKeyword keyword;
 	// Keyword value (SqlValue) or UNION statement (SqlSelectStatement)
 	struct SqlStatement *v;
@@ -454,22 +431,20 @@ typedef struct SqlOptionalKeyword
 } SqlOptionalKeyword;
 
 // Stores custom index information specified in INDEX statements.
-typedef struct SqlIndex
-{
+typedef struct SqlIndex {
 	struct SqlStatement *indexName;
 } SqlIndex;
 
 typedef struct SqlDelimiterCharacterList {
 	// struct SqlStatement	*character;	// SqlValue
-	int	character;
+	int character;
 	dqcreate(SqlDelimiterCharacterList);
 } SqlDelimiterCharacterList;
 
 /**
  * Effectively provides a list of tables that may or may not be joined
  */
-typedef struct SqlJoin
-{
+typedef struct SqlJoin {
 	// SqlTableAlias
 	//  -> was SqlTable, should be changed everywhere
 	struct SqlStatement *value;
@@ -482,33 +457,30 @@ typedef struct SqlJoin
 /**
  * Represents a SQL SELECT statement
  */
-typedef struct SqlSelectStatement
-{
+typedef struct SqlSelectStatement {
 	// SqlColumnListAlias
-	struct SqlStatement	*select_list;
+	struct SqlStatement *select_list;
 	// SqlJoin
-	struct SqlStatement	*table_list;
+	struct SqlStatement *table_list;
 	// SqlValue (?)
-	struct SqlStatement	*where_expression;
+	struct SqlStatement *where_expression;
 	// SqlColumnListAlias
-	struct SqlStatement	*group_by_expression;
+	struct SqlStatement *group_by_expression;
 	// SqlValue (?)
-	struct SqlStatement	*having_expression;
+	struct SqlStatement *having_expression;
 	// SqlValue (?)
-	struct SqlStatement	*order_by_expression;
+	struct SqlStatement *order_by_expression;
 	// SqlOptionalKeyword
-	struct SqlStatement	*optional_words;
+	struct SqlStatement *optional_words;
 } SqlSelectStatement;
 
-typedef struct SqlInsertStatement
-{
-	SqlTable *destination;
+typedef struct SqlInsertStatement {
+	SqlTable *	     destination;
 	struct SqlStatement *source;
 	struct SqlStatement *columns;
 } SqlInsertStatement;
 
-typedef struct SqlDropTableStatement
-{
+typedef struct SqlDropTableStatement {
 	// SqlValue
 	struct SqlStatement *table_name;
 	// SqlOptionalKeyword
@@ -518,8 +490,7 @@ typedef struct SqlDropTableStatement
 /*
  * Represents an binary operation
  */
-typedef struct SqlUnaryOperation
-{
+typedef struct SqlUnaryOperation {
 	enum UnaryOperations operation; // '+', '-'
 	struct SqlStatement *operand;
 } SqlUnaryOperation;
@@ -527,56 +498,55 @@ typedef struct SqlUnaryOperation
 /*
  * Represents an arithmetic operation
  */
-typedef struct SqlBinaryOperation
-{
+typedef struct SqlBinaryOperation {
 	enum BinaryOperations operation; // '+', '-', '*', '/'
-	struct SqlStatement *operands[2];
+	struct SqlStatement * operands[2];
 } SqlBinaryOperation;
 
 typedef struct SqlAggregateFunction {
-	SqlAggregateType	type;			// COUNT_ASTERISK, AVG, SUM, MIN, MAX
-	SqlValueType		param_type;		/* Data type (STRING_LITERAL, NUMERIC_LITERAL etc.) of function parameter.
-							 * Initialized/Needed only if `type` is MIN_AGGREGATE or MAX_AGGREGATE.
-							 */
+	SqlAggregateType type;	     // COUNT_ASTERISK, AVG, SUM, MIN, MAX
+	SqlValueType	 param_type; /* Data type (STRING_LITERAL, NUMERIC_LITERAL etc.) of function parameter.
+				      * Initialized/Needed only if `type` is MIN_AGGREGATE or MAX_AGGREGATE.
+				      */
 	// SqlColumnList
-	struct SqlStatement	*parameter;
+	struct SqlStatement *parameter;
 } SqlAggregateFunction;
 
 typedef struct SqlFunctionCall {
 	// SqlValue
-	struct SqlStatement	*function_name;
+	struct SqlStatement *function_name;
 	// SqlFunction
-	struct SqlStatement	*function_schema;
+	struct SqlStatement *function_schema;
 	// SqlColumnList
-	struct SqlStatement	*parameters;
+	struct SqlStatement *parameters;
 } SqlFunctionCall;
 
 /**
  * Represents a SQL function
  */
 typedef struct SqlFunction {
-	struct SqlStatement	*function_name;			// SqlValue
-	struct SqlStatement	*parameter_type_list;		// SqlParameterTypeList
-	struct SqlStatement	*return_type;			// SqlDataType
-	struct SqlStatement	*extrinsic_function;		// SqlValue
-	int32_t			num_args;
-	uint64_t		oid;
+	struct SqlStatement *function_name;	  // SqlValue
+	struct SqlStatement *parameter_type_list; // SqlParameterTypeList
+	struct SqlStatement *return_type;	  // SqlDataType
+	struct SqlStatement *extrinsic_function;  // SqlValue
+	int32_t		     num_args;
+	uint64_t	     oid;
 } SqlFunction;
 
 typedef struct SqlDropFunctionStatement {
-	struct SqlStatement	*function_name;			// SqlValue
+	struct SqlStatement *function_name; // SqlValue
 } SqlDropFunctionStatement;
 
 typedef struct SqlParameterTypeList {
-	struct SqlStatement	*data_type;
+	struct SqlStatement *data_type;
 	dqcreate(SqlParameterTypeList);
 } SqlParameterTypeList;
 
 typedef struct SqlValue {
-	enum SqlValueType	type;
-	enum SqlValueType	coerced_type;		/* initialized/usable only if `type` is COERCE_TYPE */
-	enum SqlValueType	pre_coerced_type;	/* initialized/usable only if `type` is COERCE_TYPE */
-	char			*parameter_index;
+	enum SqlValueType type;
+	enum SqlValueType coerced_type;	    /* initialized/usable only if `type` is COERCE_TYPE */
+	enum SqlValueType pre_coerced_type; /* initialized/usable only if `type` is COERCE_TYPE */
+	char *		  parameter_index;
 	union {
 		char *string_literal;
 		char *reference;
@@ -603,30 +573,30 @@ typedef struct SqlColumnList {
 // Structure to hold a table unique_id and a column number. Used in SqlColumnListAlias for ORDER BY columns
 // that match an alias name of a column in the SELECT column list.
 typedef struct SqlTableIdColumnId {
-	int	unique_id;
-	int	column_number;
+	int unique_id;
+	int column_number;
 } SqlTableIdColumnId;
 
 typedef struct SqlColumnListAlias {
 	// SqlColumnList
-	struct SqlStatement		*column_list;
+	struct SqlStatement *column_list;
 	// SqlValue
-	struct SqlStatement		*alias;
+	struct SqlStatement *alias;
 	// Keywords used for the SORT column
-	struct SqlStatement		*keywords;
-	SqlValueType			type;
-	boolean_t			user_specified_alias;
+	struct SqlStatement *keywords;
+	SqlValueType	     type;
+	boolean_t	     user_specified_alias;
 	/* The below field is needed to store the unique_id of the table and column number of the column in the
 	 * SELECT column list of that table if this cla was matched to an ALIAS NAME from another cla
 	 * (see "QUALIFY_COLUMN_REFERENCE" in qualify_statement.c).
 	 */
-	SqlTableIdColumnId		tbl_and_col_id;
-	struct SqlColumnListAlias	*duplicate_of_column;	/* NULL mostly. If non-NULL (possible only in case of a
-								 * NATURAL JOIN), this points to the column from a preceding
-								 * table in the join list with the same name as this column.
-								 */
-	SqlColumnAlias			*outer_query_column_alias;	// the ColumnAlias structure corresponding to this
-									// ColumnListAlias if/when referenced in outer query
+	SqlTableIdColumnId	   tbl_and_col_id;
+	struct SqlColumnListAlias *duplicate_of_column; /* NULL mostly. If non-NULL (possible only in case of a
+							 * NATURAL JOIN), this points to the column from a preceding
+							 * table in the join list with the same name as this column.
+							 */
+	SqlColumnAlias *outer_query_column_alias;	// the ColumnAlias structure corresponding to this
+						  // ColumnListAlias if/when referenced in outer query
 	dqcreate(SqlColumnListAlias);
 } SqlColumnListAlias;
 
@@ -638,17 +608,17 @@ typedef struct SqlColumnListAlias {
  *  we should consider merging it
  */
 typedef struct SqlSetOperation {
-	SqlSetOperationType	type;
-	struct SqlStatement	*operand[2];
-	SqlColumnListAlias	*col_type_list;	/* List of available columns with type information indicating the union of
-						 * the types of the two operands of the SET operation. For example if this is
-						 * an INTERSECT SET operation and the left operand has a column of type
-						 * NUL_VALUE and the right operand has the same column of type INTEGER_LITERAL,
-						 * then the SET operation would store INTEGER_LITERAL as the type (since NUL_VALUE
-						 * can be matched with any other type, the other type should be inherited as the
-						 * type of this column as the result of this SET operation). Used only by
-						 * `populate_data_type` for type check of columns involved in the SET operation.
-						 */
+	SqlSetOperationType  type;
+	struct SqlStatement *operand[2];
+	SqlColumnListAlias * col_type_list; /* List of available columns with type information indicating the union of
+					     * the types of the two operands of the SET operation. For example if this is
+					     * an INTERSECT SET operation and the left operand has a column of type
+					     * NUL_VALUE and the right operand has the same column of type INTEGER_LITERAL,
+					     * then the SET operation would store INTEGER_LITERAL as the type (since NUL_VALUE
+					     * can be matched with any other type, the other type should be inherited as the
+					     * type of this column as the result of this SET operation). Used only by
+					     * `populate_data_type` for type check of columns involved in the SET operation.
+					     */
 } SqlSetOperation;
 
 typedef struct SqlBeginStatement {
@@ -681,8 +651,8 @@ typedef struct SqlCaseBranchStatement {
 } SqlCaseBranchStatement;
 
 typedef struct SqlSetStatement {
-	struct SqlStatement	*variable;
-	struct SqlStatement	*value;
+	struct SqlStatement *variable;
+	struct SqlStatement *value;
 } SqlSetStatement;
 
 typedef struct SqlShowStatement {
@@ -695,45 +665,45 @@ typedef struct SqlNoDataStatement {
 	char b;
 } SqlNoDataStatement;
 
-typedef struct SqlStatement{
-	enum SqlStatementType	type;
-	struct YYLTYPE loc;
+typedef struct SqlStatement {
+	enum SqlStatementType type;
+	struct YYLTYPE	      loc;
 	union {
-		struct SqlBeginStatement *begin;
-		struct SqlCommitStatement *commit;
-		struct SqlSelectStatement *select;
-		struct SqlInsertStatement *insert;
-		struct SqlDropTableStatement *drop_table;
-		struct SqlValue *value;
-		struct SqlFunctionCall *function_call;
-		struct SqlAggregateFunction *aggregate_function;
-		struct SqlBinaryOperation *binary;
-		struct SqlUnaryOperation *unary;
-		struct SqlColumnList *column_list;
-		struct SqlColumn *column; // Note singular versus plural
-		struct SqlJoin *join;
-		struct SqlTable *create_table;
-		struct SqlFunction *create_function;
-		struct SqlDropFunctionStatement *drop_function;
-		struct SqlParameterTypeList *parameter_type_list;
-		struct SqlIndex *index;
-		struct SqlOptionalKeyword *constraint;
-		struct SqlOptionalKeyword *keyword;
-		struct SqlColumnListAlias *column_list_alias;
-		struct SqlColumnAlias *column_alias;
-		struct SqlTableAlias *table_alias;
-		struct SqlSetOperation *set_operation;
-		struct SqlCaseStatement *cas;
-		struct SqlCaseBranchStatement *cas_branch;
-		struct SqlSetStatement *set;
-		struct SqlShowStatement *show;
-		struct SqlNoDataStatement *no_data;
+		struct SqlBeginStatement *	  begin;
+		struct SqlCommitStatement *	  commit;
+		struct SqlSelectStatement *	  select;
+		struct SqlInsertStatement *	  insert;
+		struct SqlDropTableStatement *	  drop_table;
+		struct SqlValue *		  value;
+		struct SqlFunctionCall *	  function_call;
+		struct SqlAggregateFunction *	  aggregate_function;
+		struct SqlBinaryOperation *	  binary;
+		struct SqlUnaryOperation *	  unary;
+		struct SqlColumnList *		  column_list;
+		struct SqlColumn *		  column; // Note singular versus plural
+		struct SqlJoin *		  join;
+		struct SqlTable *		  create_table;
+		struct SqlFunction *		  create_function;
+		struct SqlDropFunctionStatement * drop_function;
+		struct SqlParameterTypeList *	  parameter_type_list;
+		struct SqlIndex *		  index;
+		struct SqlOptionalKeyword *	  constraint;
+		struct SqlOptionalKeyword *	  keyword;
+		struct SqlColumnListAlias *	  column_list_alias;
+		struct SqlColumnAlias *		  column_alias;
+		struct SqlTableAlias *		  table_alias;
+		struct SqlSetOperation *	  set_operation;
+		struct SqlCaseStatement *	  cas;
+		struct SqlCaseBranchStatement *	  cas_branch;
+		struct SqlSetStatement *	  set;
+		struct SqlShowStatement *	  show;
+		struct SqlNoDataStatement *	  no_data;
 		struct SqlDelimiterCharacterList *delim_char_list;
-		enum SqlDataType data_type;
-		enum SqlJoinType join_type;
+		enum SqlDataType		  data_type;
+		enum SqlJoinType		  join_type;
 	} v;
-	uint64_t		hash_canonical_query_cycle;	// used during "hash_canonical_query" to avoid
-								// multiple traversals of same node.
+	uint64_t hash_canonical_query_cycle; // used during "hash_canonical_query" to avoid
+					     // multiple traversals of same node.
 } SqlStatement;
 
 #endif

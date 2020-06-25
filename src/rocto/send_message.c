@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -32,7 +32,7 @@ int send_message(RoctoSession *session, BaseMessage *message) {
 	TRACE(ERR_SEND_MESSAGE, message->type, ntohl(message->length));
 
 	// +1 for message type indicator
-	result = send_bytes(session, (char*)message, ntohl(message->length) + 1);
+	result = send_bytes(session, (char *)message, ntohl(message->length) + 1);
 	if (0 != result)
 		ERROR(ERR_ROCTO_SEND_MESSAGE, message->type);
 	return result;

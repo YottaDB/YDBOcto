@@ -21,11 +21,10 @@
 
 #include "message_formats.h"
 
-
 CommandComplete *make_command_complete(SqlStatementType type, int32_t rows_sent) {
 	CommandComplete *ret;
-	int32_t length = 0, command_tag_length = 0;
-	char command_tag[MAX_TAG_LEN];
+	int32_t		 length = 0, command_tag_length = 0;
+	char		 command_tag[MAX_TAG_LEN];
 
 	// Include row count for SELECT statements, omit for SET and SHOW
 	// If not SELECT, SET, or SHOW omit command tag entirely to prevent tags from erroneously appearing in client output.
@@ -42,9 +41,9 @@ CommandComplete *make_command_complete(SqlStatementType type, int32_t rows_sent)
 	}
 
 	length += sizeof(uint32_t);
-	command_tag_length = strlen(command_tag) + 1;	// count null
+	command_tag_length = strlen(command_tag) + 1; // count null
 	length += command_tag_length;
-	ret = (CommandComplete*)malloc(length + sizeof(CommandComplete) - sizeof(uint32_t));
+	ret = (CommandComplete *)malloc(length + sizeof(CommandComplete) - sizeof(uint32_t));
 	memset(ret, 0, length + sizeof(CommandComplete) - sizeof(uint32_t));
 
 	ret->type = PSQL_CommandComplete;

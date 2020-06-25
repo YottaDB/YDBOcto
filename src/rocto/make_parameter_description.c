@@ -24,16 +24,16 @@
 #include "helpers.h"
 
 ParameterDescription *make_parameter_description(char *statement, RoctoSession *session) {
-	ParameterDescription	*ret;
-	int32_t			status = 0, *parm_data_types;
-	int16_t			num_parms = 0, cur_parm_type = 0, cur_parm_type_temp;
-	long int		test_type = 0, num_parms_from_str = 0;
-	ydb_buffer_t		*src_subs;
-	ydb_buffer_t		num_parms_buf, parm_type_buf;
+	ParameterDescription *ret;
+	int32_t		      status = 0, *parm_data_types;
+	int16_t		      num_parms = 0, cur_parm_type = 0, cur_parm_type_temp;
+	long int	      test_type = 0, num_parms_from_str = 0;
+	ydb_buffer_t *	      src_subs;
+	ydb_buffer_t	      num_parms_buf, parm_type_buf;
 
 	YDB_MALLOC_BUFFER(&num_parms_buf, INT16_TO_STRING_MAX);
-	src_subs = make_buffers(config->global_names.session, 6, session->session_id->buf_addr, "prepared", statement,
-			"parameters", "", "type");
+	src_subs = make_buffers(config->global_names.session, 6, session->session_id->buf_addr, "prepared", statement, "parameters",
+				"", "type");
 	status = ydb_get_s(&src_subs[0], 4, &src_subs[1], &num_parms_buf);
 	if (YDB_OK != status) {
 		ERROR(ERR_ROCTO_DB_LOOKUP, "make_parameter_description", "number of prepared statement parameters");
@@ -70,7 +70,7 @@ ParameterDescription *make_parameter_description(char *statement, RoctoSession *
 	YDB_MALLOC_BUFFER(&parm_type_buf, INT16_TO_STRING_MAX);
 	YDB_MALLOC_BUFFER(&src_subs[5], INT16_TO_STRING_MAX);
 	for (cur_parm_type = 0; cur_parm_type < num_parms; cur_parm_type++) {
-		cur_parm_type_temp = cur_parm_type + 1;		// Convert from 0-indexed to 1-indexed
+		cur_parm_type_temp = cur_parm_type + 1; // Convert from 0-indexed to 1-indexed
 		OCTO_INT16_TO_BUFFER(cur_parm_type_temp, &src_subs[5]);
 		status = ydb_get_s(&src_subs[0], 6, &src_subs[1], &parm_type_buf);
 		if (YDB_OK != status) {
@@ -84,7 +84,7 @@ ParameterDescription *make_parameter_description(char *statement, RoctoSession *
 		parm_type_buf.buf_addr[parm_type_buf.len_used] = '\0';
 		num_parms_from_str = strtol(parm_type_buf.buf_addr, NULL, 10);
 		if ((ERANGE != errno) && (0 <= num_parms_from_str) && (INT32_MAX >= num_parms_from_str)) {
-			((int32_t*)ret->data)[cur_parm_type] = htonl((int32_t)(num_parms_from_str));
+			((int32_t *)ret->data)[cur_parm_type] = htonl((int32_t)(num_parms_from_str));
 		} else {
 			ERROR(ERR_LIBCALL, "strtol")
 			YDB_FREE_BUFFER(&parm_type_buf);

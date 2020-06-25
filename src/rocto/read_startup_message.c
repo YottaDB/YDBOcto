@@ -22,13 +22,13 @@
 
 StartupMessage *read_startup_message(RoctoSession *session, char *data, int32_t data_length) {
 	StartupMessage *ret = NULL;
-	int32_t num_parms = 0, cur_parm = 0;
-	char *c, *message_end;
+	int32_t		num_parms = 0, cur_parm = 0;
+	char *		c, *message_end;
 	// Length plus protocol version
 	uint32_t hard_coded_ints = sizeof(uint32_t) + sizeof(int);
 
 	// First read length and protocol type, then we will reallocate things
-	ret = (StartupMessage*)malloc(sizeof(StartupMessage));
+	ret = (StartupMessage *)malloc(sizeof(StartupMessage));
 	memcpy(&ret->length, data, hard_coded_ints);
 	ret->length = ntohl(ret->length);
 	ret->protocol_version = ntohl(ret->protocol_version);
@@ -36,14 +36,14 @@ StartupMessage *read_startup_message(RoctoSession *session, char *data, int32_t 
 	// Protocol version number format:
 	// 	most significant 16 bits:  major version #, i.e. 3
 	// 	least significant 16 bits: minor version #, i.e. 0
-	if(ret->protocol_version != 0x00030000) {
+	if (ret->protocol_version != 0x00030000) {
 		ERROR(ERR_ROCTO_INVALID_VERSION, "StartupMessage", ret->protocol_version, 0x00030000);
 		free(ret);
 		return NULL;
 	}
 
 	// No parameters send
-	if(ret->length == hard_coded_ints) {
+	if (ret->length == hard_coded_ints) {
 		ERROR(ERR_ROCTO_MISSING_NULL, "StartupMessage", "parameter list");
 		free(ret);
 		return NULL;
@@ -55,30 +55,30 @@ StartupMessage *read_startup_message(RoctoSession *session, char *data, int32_t 
 
 	// Size is length in packet + other stuff in the struct, minus the hard-coded
 	//  elements in the struct (two int4's)
-	ret = (StartupMessage*)malloc(sizeof(StartupMessage) + data_length - hard_coded_ints);
+	ret = (StartupMessage *)malloc(sizeof(StartupMessage) + data_length - hard_coded_ints);
 	memcpy(&ret->length, data, hard_coded_ints);
-	read_bytes(session, (char*)&ret->data, data_length - hard_coded_ints, data_length - hard_coded_ints);
+	read_bytes(session, (char *)&ret->data, data_length - hard_coded_ints, data_length - hard_coded_ints);
 
 	c = ret->data;
-	message_end = (char*)(&ret->length) + data_length;
+	message_end = (char *)(&ret->length) + data_length;
 
 	// Fill out the list of messages; first, count them
-	while(c < message_end && *c != '\0') {
+	while (c < message_end && *c != '\0') {
 		// Read parameter name
-		for(; c < message_end && *c != '\0'; c++) {
+		for (; c < message_end && *c != '\0'; c++) {
 			// Left blank
 		}
-		if(c == message_end || *c != '\0') {
+		if (c == message_end || *c != '\0') {
 			ERROR(ERR_ROCTO_MISSING_DATA, "StartupMessage", "parameter name");
 			free(ret);
 			return NULL;
 		}
 		c++;
 		// Read parameter value
-		for(; c < message_end && *c != '\0'; c++) {
+		for (; c < message_end && *c != '\0'; c++) {
 			// Left blank
 		}
-		if(c == message_end || *c != '\0') {
+		if (c == message_end || *c != '\0') {
 			ERROR(ERR_ROCTO_MISSING_NULL, "StartupMessage", "name or value");
 			free(ret);
 			return NULL;
@@ -111,14 +111,14 @@ StartupMessage *read_startup_message(RoctoSession *session, char *data, int32_t 
 	}
 
 	// Allocate parameter spots, reset c, scan through and populate data
-	ret->parameters = (StartupMessageParm*)malloc(sizeof(StartupMessageParm) * num_parms);
+	ret->parameters = (StartupMessageParm *)malloc(sizeof(StartupMessageParm) * num_parms);
 	c = ret->data;
 	cur_parm = 0;
 
-	while(c < message_end && *c != '\0') {
+	while (c < message_end && *c != '\0') {
 		// Read parameter name
 		ret->parameters[cur_parm].name = c;
-		for(; c < message_end && *c != '\0'; c++) {
+		for (; c < message_end && *c != '\0'; c++) {
 			// Left blank
 		}
 		// We already checked this message, so don't expect an error case
@@ -126,7 +126,7 @@ StartupMessage *read_startup_message(RoctoSession *session, char *data, int32_t 
 		c++;
 		ret->parameters[cur_parm].value = c;
 		// Read parameter value
-		for(; c < message_end && *c != '\0'; c++) {
+		for (; c < message_end && *c != '\0'; c++) {
 			// Left blank
 		}
 		assert(*c == '\0');

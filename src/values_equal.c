@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -19,9 +19,9 @@
 #include "octo_types.h"
 
 int values_equal(SqlValue *a, SqlValue *b) {
-	if(a->type != b->type)
+	if (a->type != b->type)
 		return FALSE;
-	if(strcmp(a->v.string_literal, b->v.string_literal) == 0)
+	if (strcmp(a->v.string_literal, b->v.string_literal) == 0)
 		return TRUE;
 	return FALSE;
 }

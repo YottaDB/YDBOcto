@@ -42,9 +42,9 @@ char *get_type_string_from_sql_data_type(SqlDataType type) {
 // Returns:
 //	0 for success, 1 for error
 int emit_create_function(FILE *output, struct SqlStatement *stmt) {
-	SqlFunction *function;
+	SqlFunction *	      function;
 	SqlParameterTypeList *start_parameter_type, *cur_parameter_type;
-	SqlValue *function_name;
+	SqlValue *	      function_name;
 
 	if (stmt == NULL)
 		return 0;
@@ -53,7 +53,7 @@ int emit_create_function(FILE *output, struct SqlStatement *stmt) {
 	// assert(function->parameter_type_list);
 	UNPACK_SQL_STATEMENT(function_name, function->function_name, value);
 	fprintf(output, "CREATE FUNCTION `%s`(", function_name->v.string_literal);
-	if (NULL != function->parameter_type_list) {	// Skip parameter types if none were specified
+	if (NULL != function->parameter_type_list) { // Skip parameter types if none were specified
 		UNPACK_SQL_STATEMENT(start_parameter_type, function->parameter_type_list, parameter_type_list);
 		cur_parameter_type = start_parameter_type;
 		do {

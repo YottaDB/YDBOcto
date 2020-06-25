@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -23,7 +23,7 @@
 AuthenticationOk *read_authentication_ok(BaseMessage *message) {
 	AuthenticationOk *ret = NULL;
 
-	ret = (AuthenticationOk*)malloc(sizeof(AuthenticationOk));
+	ret = (AuthenticationOk *)malloc(sizeof(AuthenticationOk));
 
 	ret->type = message->type;
 	ret->length = message->length;

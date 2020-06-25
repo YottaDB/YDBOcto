@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -32,7 +32,7 @@ static void test_valid_input(void **state) {
 	int32_t expected_length = sizeof(uint32_t);
 
 	response = make_close_complete();
-	received_response = read_close_complete((BaseMessage*)&response->type);
+	received_response = read_close_complete((BaseMessage *)&response->type);
 
 	// Standard checks
 	assert_non_null(received_response);
@@ -45,7 +45,7 @@ static void test_valid_input(void **state) {
 
 int main(void) {
 	const struct CMUnitTest tests[] = {
-		cmocka_unit_test(test_valid_input),
+	    cmocka_unit_test(test_valid_input),
 	};
 	return cmocka_run_group_tests(tests, NULL, NULL);
 }

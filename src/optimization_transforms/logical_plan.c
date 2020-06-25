@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -12,9 +12,8 @@
 
 #include "logical_plan.h"
 
-
 #define LP_ACTION_TYPE(name) #name,
 const char *lp_action_type_str[] = {
-  #include "lp_action_type.hd"
+#include "lp_action_type.hd"
 };
 #undef LP_ACTION_TYPE

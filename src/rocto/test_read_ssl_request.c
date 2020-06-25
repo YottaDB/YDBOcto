@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -32,12 +32,12 @@ static void test_valid_input(void **state) {
 	uint32_t message_length = sizeof(SSLRequest);
 
 	// Length + extra stuff - already counted (length, protocol version)
-	SSLRequest *test_data = (SSLRequest*)malloc(sizeof(SSLRequest));
+	SSLRequest *test_data = (SSLRequest *)malloc(sizeof(SSLRequest));
 	test_data->length = htonl(message_length);
 	test_data->request_code = htonl(request_code);
 
 	// The actual test
-	SSLRequest *ssl = read_ssl_request(NULL, (char*)(&test_data->length), message_length);
+	SSLRequest *ssl = read_ssl_request(NULL, (char *)(&test_data->length), message_length);
 
 	// Standard checks
 	assert_non_null(ssl);
@@ -55,12 +55,12 @@ static void test_invalid_length(void **state) {
 	uint32_t message_length = 9;
 
 	// Length + extra stuff - already counted (length, protocol version)
-	SSLRequest *test_data = (SSLRequest*)malloc(sizeof(SSLRequest));
+	SSLRequest *test_data = (SSLRequest *)malloc(sizeof(SSLRequest));
 	test_data->length = htonl(message_length);
 	test_data->request_code = htonl(request_code);
 
 	// The actual test
-	SSLRequest *ssl = read_ssl_request(NULL, (char*)(&test_data->length), message_length);
+	SSLRequest *ssl = read_ssl_request(NULL, (char *)(&test_data->length), message_length);
 
 	// Standard checks
 	assert_null(ssl);
@@ -75,12 +75,12 @@ static void test_invalid_request_code(void **state) {
 	uint32_t message_length = sizeof(SSLRequest);
 
 	// Length + extra stuff - already counted (length, protocol version)
-	SSLRequest *test_data = (SSLRequest*)malloc(sizeof(SSLRequest));
+	SSLRequest *test_data = (SSLRequest *)malloc(sizeof(SSLRequest));
 	test_data->length = htonl(message_length);
 	test_data->request_code = htonl(request_code);
 
 	// The actual test
-	SSLRequest *ssl = read_ssl_request(NULL, (char*)(&test_data->length), message_length);
+	SSLRequest *ssl = read_ssl_request(NULL, (char *)(&test_data->length), message_length);
 
 	// Standard checks
 	assert_null(ssl);
@@ -90,9 +90,9 @@ static void test_invalid_request_code(void **state) {
 int main(void) {
 	octo_init(0, NULL);
 	const struct CMUnitTest tests[] = {
-			cmocka_unit_test(test_valid_input),
-			cmocka_unit_test(test_invalid_length),
-			cmocka_unit_test(test_invalid_request_code),
+	    cmocka_unit_test(test_valid_input),
+	    cmocka_unit_test(test_invalid_length),
+	    cmocka_unit_test(test_invalid_request_code),
 	};
 	return cmocka_run_group_tests(tests, NULL, NULL);
 }

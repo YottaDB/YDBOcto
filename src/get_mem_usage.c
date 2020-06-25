@@ -20,11 +20,11 @@
 
 // Returns the amount of memory used by the current process
 int64_t get_mem_usage() {
-	FILE *fp;
-	char command[MAX_STR_CONST];
-	char mem_used[INT64_TO_STRING_MAX];
+	FILE *	fp;
+	char	command[MAX_STR_CONST];
+	char	mem_used[INT64_TO_STRING_MAX];
 	int64_t ret;
-	char *status;
+	char *	status;
 
 	snprintf(command, MAX_STR_CONST, "ps -p %d -o vsize | cut -d ' ' -f 2 | tr -d '\\n'", getpid());
 

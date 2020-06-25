@@ -22,8 +22,7 @@ int lp_verify_structure_helper(LogicalPlan *plan, LogicalPlan **aggregate, LPAct
 
 /* Verifies the given LP has a good structure; return TRUE if it is all good and FALSE otherwise */
 int lp_verify_structure(LogicalPlan *plan, LogicalPlan **aggregate) {
-	if ((LP_INSERT != plan->type) && (LP_SET_OPERATION != plan->type))
-	{
+	if ((LP_INSERT != plan->type) && (LP_SET_OPERATION != plan->type)) {
 		assert(FALSE);
 		return FALSE;
 	}
@@ -31,7 +30,7 @@ int lp_verify_structure(LogicalPlan *plan, LogicalPlan **aggregate) {
 }
 
 int lp_verify_structure_helper(LogicalPlan *plan, LogicalPlan **aggregate, LPActionType expected) {
-	int		i, ret = TRUE;
+	int i, ret = TRUE;
 
 	// Cases where NULL is not allowed is enforced in the switch below
 	if (NULL == plan)
@@ -61,12 +60,12 @@ int lp_verify_structure_helper(LogicalPlan *plan, LogicalPlan **aggregate, LPAct
 		break;
 	case LP_SET_OPTION:
 		ret &= lp_verify_structure_helper(plan->v.lp_default.operand[0], aggregate, LP_SET_UNION)
-			| lp_verify_structure_helper(plan->v.lp_default.operand[0], aggregate, LP_SET_UNION_ALL)
-			| lp_verify_structure_helper(plan->v.lp_default.operand[0], aggregate, LP_SET_EXCEPT)
-			| lp_verify_structure_helper(plan->v.lp_default.operand[0], aggregate, LP_SET_EXCEPT_ALL)
-			| lp_verify_structure_helper(plan->v.lp_default.operand[0], aggregate, LP_SET_INTERSECT)
-			| lp_verify_structure_helper(plan->v.lp_default.operand[0], aggregate, LP_SET_INTERSECT_ALL)
-			| lp_verify_structure_helper(plan->v.lp_default.operand[0], aggregate, LP_SET_DNF);
+		       | lp_verify_structure_helper(plan->v.lp_default.operand[0], aggregate, LP_SET_UNION_ALL)
+		       | lp_verify_structure_helper(plan->v.lp_default.operand[0], aggregate, LP_SET_EXCEPT)
+		       | lp_verify_structure_helper(plan->v.lp_default.operand[0], aggregate, LP_SET_EXCEPT_ALL)
+		       | lp_verify_structure_helper(plan->v.lp_default.operand[0], aggregate, LP_SET_INTERSECT)
+		       | lp_verify_structure_helper(plan->v.lp_default.operand[0], aggregate, LP_SET_INTERSECT_ALL)
+		       | lp_verify_structure_helper(plan->v.lp_default.operand[0], aggregate, LP_SET_DNF);
 		assert((LP_SET_DNF != plan->v.lp_default.operand[0]->type) || (NULL == plan->v.lp_default.operand[1]));
 		assert((LP_SET_DNF == plan->v.lp_default.operand[0]->type) || (NULL != plan->v.lp_default.operand[1]));
 		if (NULL != plan->v.lp_default.operand[1]) {
@@ -75,9 +74,9 @@ int lp_verify_structure_helper(LogicalPlan *plan, LogicalPlan **aggregate, LPAct
 		break;
 	case LP_PLANS:
 		ret &= lp_verify_structure_helper(plan->v.lp_default.operand[0], aggregate, LP_INSERT)
-			| lp_verify_structure_helper(plan->v.lp_default.operand[0], aggregate, LP_SET_OPERATION);
+		       | lp_verify_structure_helper(plan->v.lp_default.operand[0], aggregate, LP_SET_OPERATION);
 		ret &= lp_verify_structure_helper(plan->v.lp_default.operand[1], aggregate, LP_INSERT)
-			| lp_verify_structure_helper(plan->v.lp_default.operand[1], aggregate, LP_SET_OPERATION);
+		       | lp_verify_structure_helper(plan->v.lp_default.operand[1], aggregate, LP_SET_OPERATION);
 		break;
 	case LP_TABLE:
 		break;
@@ -86,8 +85,7 @@ int lp_verify_structure_helper(LogicalPlan *plan, LogicalPlan **aggregate, LPAct
 		ret &= lp_verify_structure_helper(plan->v.lp_default.operand[1], aggregate, LP_SELECT);
 		break;
 	case LP_SELECT:
-		if ((NULL == plan->v.lp_default.operand[0]) || (NULL == plan->v.lp_default.operand[1]))
-		{
+		if ((NULL == plan->v.lp_default.operand[0]) || (NULL == plan->v.lp_default.operand[1])) {
 			ret = FALSE;
 			break;
 		}
@@ -97,12 +95,12 @@ int lp_verify_structure_helper(LogicalPlan *plan, LogicalPlan **aggregate, LPAct
 	case LP_TABLE_JOIN:
 		if (NULL != plan->v.lp_default.operand[0]) {
 			ret &= lp_verify_structure_helper(plan->v.lp_default.operand[0], aggregate, LP_TABLE)
-				| lp_verify_structure_helper(plan->v.lp_default.operand[0], aggregate, LP_INSERT)
-				| lp_verify_structure_helper(plan->v.lp_default.operand[0], aggregate, LP_SET_OPERATION);
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[0], aggregate, LP_INSERT)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[0], aggregate, LP_SET_OPERATION);
 			ret &= lp_verify_structure_helper(plan->v.lp_default.operand[1], aggregate, LP_TABLE_JOIN);
 			ret &= lp_verify_structure_helper(plan->extra_detail.lp_table_join.join_on_condition, aggregate, LP_WHERE);
 		} else {
-			ret &= (NULL == plan->v.lp_default.operand[1]) ;
+			ret &= (NULL == plan->v.lp_default.operand[1]);
 		}
 		break;
 	case LP_CRITERIA:
@@ -123,14 +121,14 @@ int lp_verify_structure_helper(LogicalPlan *plan, LogicalPlan **aggregate, LPAct
 		break;
 	case LP_KEY_FIX:
 		ret = !((NULL == plan->v.lp_default.operand[0]) || (NULL != plan->v.lp_default.operand[1])
-				|| (NULL == plan->v.lp_default.operand[0]->v.lp_key.key)
-				|| (NULL == plan->v.lp_default.operand[0]->v.lp_key.key->fixed_to_value));
+			|| (NULL == plan->v.lp_default.operand[0]->v.lp_key.key)
+			|| (NULL == plan->v.lp_default.operand[0]->v.lp_key.key->fixed_to_value));
 		break;
 	case LP_KEY_ADVANCE:
 		ret = !((NULL == plan->v.lp_default.operand[0]) || (NULL != plan->v.lp_default.operand[1])
-				|| (NULL == plan->v.lp_default.operand[0]->v.lp_key.key)
-				|| (NULL != plan->v.lp_default.operand[0]->v.lp_key.key->fixed_to_value)
-				|| (NULL == plan->v.lp_default.operand[0]->v.lp_key.key->column));
+			|| (NULL == plan->v.lp_default.operand[0]->v.lp_key.key)
+			|| (NULL != plan->v.lp_default.operand[0]->v.lp_key.key->fixed_to_value)
+			|| (NULL == plan->v.lp_default.operand[0]->v.lp_key.key->column));
 		break;
 	case LP_SELECT_OPTIONS:
 		ret &= lp_verify_structure_helper(plan->v.lp_default.operand[0], aggregate, LP_WHERE);
@@ -178,67 +176,67 @@ int lp_verify_structure_helper(LogicalPlan *plan, LogicalPlan **aggregate, LPAct
 				break;
 			}
 			ret &= lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_ADDITION)
-				| lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_SUBTRACTION)
-				| lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_DIVISION)
-				| lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_MULTIPLICATION)
-				| lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_MODULO)
-				| lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_NEGATIVE)
-				| lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_FORCE_NUM)
-				| lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_CASE)
-				| lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_COLUMN_ALIAS)
-				| lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_FUNCTION_CALL)
-				| lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate,
-									LP_AGGREGATE_FUNCTION_COUNT_ASTERISK)
-				| lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_AGGREGATE_FUNCTION_COUNT)
-				| lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_AGGREGATE_FUNCTION_AVG)
-				| lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_AGGREGATE_FUNCTION_MIN)
-				| lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_AGGREGATE_FUNCTION_MAX)
-				| lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_AGGREGATE_FUNCTION_SUM)
-				| lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate,
-									LP_AGGREGATE_FUNCTION_COUNT_DISTINCT)
-				| lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate,
-									LP_AGGREGATE_FUNCTION_AVG_DISTINCT)
-				| lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate,
-									LP_AGGREGATE_FUNCTION_SUM_DISTINCT)
-				| lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_DERIVED_COLUMN)
-				| lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_VALUE)
-				| lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_COERCE_TYPE)
-				// LP_INSERT/LP_SET_OPERATIONs usually show up as operand[1] only for the IN boolean expression.
-				// But they can show up wherever a scalar is expected (e.g. arithmetic operations etc.)
-				// and hence have to be allowed in a lot more cases.
-				| lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_INSERT)
-				| lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_SET_OPERATION);
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_SUBTRACTION)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_DIVISION)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_MULTIPLICATION)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_MODULO)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_NEGATIVE)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_FORCE_NUM)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_CASE)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_COLUMN_ALIAS)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_FUNCTION_CALL)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate,
+							    LP_AGGREGATE_FUNCTION_COUNT_ASTERISK)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_AGGREGATE_FUNCTION_COUNT)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_AGGREGATE_FUNCTION_AVG)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_AGGREGATE_FUNCTION_MIN)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_AGGREGATE_FUNCTION_MAX)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_AGGREGATE_FUNCTION_SUM)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate,
+							    LP_AGGREGATE_FUNCTION_COUNT_DISTINCT)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate,
+							    LP_AGGREGATE_FUNCTION_AVG_DISTINCT)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate,
+							    LP_AGGREGATE_FUNCTION_SUM_DISTINCT)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_DERIVED_COLUMN)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_VALUE)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_COERCE_TYPE)
+			       // LP_INSERT/LP_SET_OPERATIONs usually show up as operand[1] only for the IN boolean expression.
+			       // But they can show up wherever a scalar is expected (e.g. arithmetic operations etc.)
+			       // and hence have to be allowed in a lot more cases.
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_INSERT)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_SET_OPERATION);
 		}
 		break;
 	case LP_CONCAT:
 		for (i = 0; i < 2; i++) {
 			ret &= lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_CASE)
-				| lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_COLUMN_ALIAS)
-				| lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_FUNCTION_CALL)
-				| lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate,
-									LP_AGGREGATE_FUNCTION_COUNT_ASTERISK)
-				| lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_AGGREGATE_FUNCTION_COUNT)
-				| lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_AGGREGATE_FUNCTION_AVG)
-				| lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_AGGREGATE_FUNCTION_MIN)
-				| lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_AGGREGATE_FUNCTION_MAX)
-				| lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_AGGREGATE_FUNCTION_SUM)
-				| lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate,
-									LP_AGGREGATE_FUNCTION_COUNT_DISTINCT)
-				| lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate,
-									LP_AGGREGATE_FUNCTION_AVG_DISTINCT)
-				| lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate,
-									LP_AGGREGATE_FUNCTION_SUM_DISTINCT)
-				| lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_DERIVED_COLUMN)
-				| lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_VALUE)
-				| lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_COERCE_TYPE)
-				| lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_CONCAT)
-				| lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_NEGATIVE)
-				| lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_FORCE_NUM)
-				// LP_INSERT/LP_SET_OPERATIONs usually show up as operand[1] only for the IN boolean expression.
-				// But they can show up wherever a scalar is expected (e.g. string concatenation operations etc.)
-				// and hence have to be allowed in a lot more cases.
-				| lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_INSERT)
-				| lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_SET_OPERATION);
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_COLUMN_ALIAS)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_FUNCTION_CALL)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate,
+							    LP_AGGREGATE_FUNCTION_COUNT_ASTERISK)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_AGGREGATE_FUNCTION_COUNT)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_AGGREGATE_FUNCTION_AVG)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_AGGREGATE_FUNCTION_MIN)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_AGGREGATE_FUNCTION_MAX)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_AGGREGATE_FUNCTION_SUM)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate,
+							    LP_AGGREGATE_FUNCTION_COUNT_DISTINCT)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate,
+							    LP_AGGREGATE_FUNCTION_AVG_DISTINCT)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate,
+							    LP_AGGREGATE_FUNCTION_SUM_DISTINCT)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_DERIVED_COLUMN)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_VALUE)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_COERCE_TYPE)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_CONCAT)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_NEGATIVE)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_FORCE_NUM)
+			       // LP_INSERT/LP_SET_OPERATIONs usually show up as operand[1] only for the IN boolean expression.
+			       // But they can show up wherever a scalar is expected (e.g. string concatenation operations etc.)
+			       // and hence have to be allowed in a lot more cases.
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_INSERT)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_SET_OPERATION);
 		}
 		break;
 	case LP_BOOLEAN_OR:
@@ -279,100 +277,99 @@ int lp_verify_structure_helper(LogicalPlan *plan, LogicalPlan **aggregate, LPAct
 	case LP_BOOLEAN_IS_NOT_NULL:
 	case LP_WHERE:
 		for (i = 0; i < 2; i++) {
-			boolean_t	is_where, is_bool_in;
+			boolean_t is_where, is_bool_in;
 
-			if ((1 == i) && ((LP_BOOLEAN_NOT == expected) || (LP_BOOLEAN_EXISTS == expected)
-					|| (LP_BOOLEAN_NOT_EXISTS == expected)
-					|| (LP_BOOLEAN_IS_NULL == expected) || (LP_BOOLEAN_IS_NOT_NULL == expected))) {
+			if ((1 == i)
+			    && ((LP_BOOLEAN_NOT == expected) || (LP_BOOLEAN_EXISTS == expected)
+				|| (LP_BOOLEAN_NOT_EXISTS == expected) || (LP_BOOLEAN_IS_NULL == expected)
+				|| (LP_BOOLEAN_IS_NOT_NULL == expected))) {
 				ret &= (NULL == plan->v.lp_default.operand[1]);
 				break;
 			}
 			is_where = ((1 == i) && (LP_WHERE == expected));
 			is_bool_in = ((1 == i) && ((LP_BOOLEAN_IN == expected) || (LP_BOOLEAN_NOT_IN == expected)));
 			ret &= lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_ADDITION)
-				| lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_SUBTRACTION)
-				| lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_DIVISION)
-				| lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_MULTIPLICATION)
-				| lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_MODULO)
-				| lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_NEGATIVE)
-				| lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_FORCE_NUM)
-				| lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_CASE)
-				| lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_CONCAT)
-				| lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_COLUMN_ALIAS)
-				| lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_FUNCTION_CALL)
-				| lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate,
-									LP_AGGREGATE_FUNCTION_COUNT_ASTERISK)
-				| lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_AGGREGATE_FUNCTION_COUNT)
-				| lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_AGGREGATE_FUNCTION_AVG)
-				| lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_AGGREGATE_FUNCTION_MIN)
-				| lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_AGGREGATE_FUNCTION_MAX)
-				| lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_AGGREGATE_FUNCTION_SUM)
-				| lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate,
-									LP_AGGREGATE_FUNCTION_COUNT_DISTINCT)
-				| lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate,
-									LP_AGGREGATE_FUNCTION_AVG_DISTINCT)
-				| lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate,
-									LP_AGGREGATE_FUNCTION_SUM_DISTINCT)
-				| lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_DERIVED_COLUMN)
-				| lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_VALUE)
-				| lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_COERCE_TYPE)
-				| lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_BOOLEAN_OR)
-				| lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_BOOLEAN_AND)
-				| lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_BOOLEAN_IS)
-				| lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_BOOLEAN_EQUALS)
-				| lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_BOOLEAN_NOT_EQUALS)
-				| lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_BOOLEAN_LESS_THAN)
-				| lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_BOOLEAN_GREATER_THAN)
-				| lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate,
-									LP_BOOLEAN_LESS_THAN_OR_EQUALS)
-				| lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate,
-									LP_BOOLEAN_GREATER_THAN_OR_EQUALS)
-				| lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate,
-									LP_BOOLEAN_REGEX_SENSITIVE)
-				| lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate,
-									LP_BOOLEAN_REGEX_INSENSITIVE)
-				| lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate,
-									LP_BOOLEAN_REGEX_SENSITIVE_LIKE)
-				| lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate,
-									LP_BOOLEAN_REGEX_SENSITIVE_SIMILARTO)
-				| lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate,
-									LP_BOOLEAN_REGEX_INSENSITIVE_LIKE)
-				| lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate,
-									LP_BOOLEAN_REGEX_INSENSITIVE_SIMILARTO)
-				| lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_BOOLEAN_IN)
-				| lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_BOOLEAN_NOT_IN)
-				| lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_BOOLEAN_NOT)
-				| lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_BOOLEAN_ANY_EQUALS)
-				| lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_BOOLEAN_ANY_NOT_EQUALS)
-				| lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_BOOLEAN_ANY_LESS_THAN)
-				| lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_BOOLEAN_ANY_GREATER_THAN)
-				| lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate,
-									LP_BOOLEAN_ANY_LESS_THAN_OR_EQUALS)
-				| lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate,
-									LP_BOOLEAN_ANY_GREATER_THAN_OR_EQUALS)
-				| lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_BOOLEAN_ALL_EQUALS)
-				| lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_BOOLEAN_ALL_NOT_EQUALS)
-				| lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_BOOLEAN_ALL_LESS_THAN)
-				| lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_BOOLEAN_ALL_GREATER_THAN)
-				| lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate,
-									LP_BOOLEAN_ALL_LESS_THAN_OR_EQUALS)
-				| lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate,
-									LP_BOOLEAN_ALL_GREATER_THAN_OR_EQUALS)
-				| lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_BOOLEAN_EXISTS)
-				| lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_BOOLEAN_NOT_EXISTS)
-				| lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_BOOLEAN_IS_NULL)
-				| lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_BOOLEAN_IS_NOT_NULL)
-				/* LP_BOOLEAN_IN and LP_BOOLEAN_NOT_IN can have a LP_COLUMN_LIST as operand 1 */
-				| (is_bool_in && lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate,
-									LP_COLUMN_LIST))
-				// LP_INSERT/LP_SET_OPERATIONs usually show up as operand[1] only for the IN boolean expression.
-				// But they can show up wherever a scalar is expected (e.g. arithmetic operations etc.)
-				// and hence have to be allowed in a lot more cases.
-				| lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_INSERT)
-				| lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_SET_OPERATION)
-				// LP_COLUMN_LIST_ALIAS is possible as operand[1] only for LP_WHERE. Check that.
-				| (is_where && lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate,
-									LP_COLUMN_LIST_ALIAS));
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_SUBTRACTION)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_DIVISION)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_MULTIPLICATION)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_MODULO)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_NEGATIVE)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_FORCE_NUM)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_CASE)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_CONCAT)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_COLUMN_ALIAS)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_FUNCTION_CALL)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate,
+							    LP_AGGREGATE_FUNCTION_COUNT_ASTERISK)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_AGGREGATE_FUNCTION_COUNT)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_AGGREGATE_FUNCTION_AVG)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_AGGREGATE_FUNCTION_MIN)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_AGGREGATE_FUNCTION_MAX)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_AGGREGATE_FUNCTION_SUM)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate,
+							    LP_AGGREGATE_FUNCTION_COUNT_DISTINCT)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate,
+							    LP_AGGREGATE_FUNCTION_AVG_DISTINCT)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate,
+							    LP_AGGREGATE_FUNCTION_SUM_DISTINCT)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_DERIVED_COLUMN)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_VALUE)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_COERCE_TYPE)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_BOOLEAN_OR)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_BOOLEAN_AND)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_BOOLEAN_IS)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_BOOLEAN_EQUALS)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_BOOLEAN_NOT_EQUALS)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_BOOLEAN_LESS_THAN)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_BOOLEAN_GREATER_THAN)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate,
+							    LP_BOOLEAN_LESS_THAN_OR_EQUALS)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate,
+							    LP_BOOLEAN_GREATER_THAN_OR_EQUALS)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_BOOLEAN_REGEX_SENSITIVE)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_BOOLEAN_REGEX_INSENSITIVE)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate,
+							    LP_BOOLEAN_REGEX_SENSITIVE_LIKE)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate,
+							    LP_BOOLEAN_REGEX_SENSITIVE_SIMILARTO)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate,
+							    LP_BOOLEAN_REGEX_INSENSITIVE_LIKE)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate,
+							    LP_BOOLEAN_REGEX_INSENSITIVE_SIMILARTO)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_BOOLEAN_IN)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_BOOLEAN_NOT_IN)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_BOOLEAN_NOT)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_BOOLEAN_ANY_EQUALS)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_BOOLEAN_ANY_NOT_EQUALS)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_BOOLEAN_ANY_LESS_THAN)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_BOOLEAN_ANY_GREATER_THAN)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate,
+							    LP_BOOLEAN_ANY_LESS_THAN_OR_EQUALS)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate,
+							    LP_BOOLEAN_ANY_GREATER_THAN_OR_EQUALS)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_BOOLEAN_ALL_EQUALS)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_BOOLEAN_ALL_NOT_EQUALS)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_BOOLEAN_ALL_LESS_THAN)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_BOOLEAN_ALL_GREATER_THAN)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate,
+							    LP_BOOLEAN_ALL_LESS_THAN_OR_EQUALS)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate,
+							    LP_BOOLEAN_ALL_GREATER_THAN_OR_EQUALS)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_BOOLEAN_EXISTS)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_BOOLEAN_NOT_EXISTS)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_BOOLEAN_IS_NULL)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_BOOLEAN_IS_NOT_NULL)
+			       /* LP_BOOLEAN_IN and LP_BOOLEAN_NOT_IN can have a LP_COLUMN_LIST as operand 1 */
+			       | (is_bool_in
+				  && lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_COLUMN_LIST))
+			       // LP_INSERT/LP_SET_OPERATIONs usually show up as operand[1] only for the IN boolean expression.
+			       // But they can show up wherever a scalar is expected (e.g. arithmetic operations etc.)
+			       // and hence have to be allowed in a lot more cases.
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_INSERT)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_SET_OPERATION)
+			       // LP_COLUMN_LIST_ALIAS is possible as operand[1] only for LP_WHERE. Check that.
+			       | (is_where
+				  && lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_COLUMN_LIST_ALIAS));
 		}
 		break;
 	case LP_COLUMN_LIST:
@@ -380,38 +377,37 @@ int lp_verify_structure_helper(LogicalPlan *plan, LogicalPlan **aggregate, LPAct
 		while (NULL != plan) {
 			assert(LP_COLUMN_LIST == plan->type);
 			ret &= lp_verify_structure_helper(plan->v.lp_default.operand[0], aggregate, LP_WHERE)
-				| lp_verify_structure_helper(plan->v.lp_default.operand[0], aggregate, LP_ADDITION)
-				| lp_verify_structure_helper(plan->v.lp_default.operand[0], aggregate, LP_SUBTRACTION)
-				| lp_verify_structure_helper(plan->v.lp_default.operand[0], aggregate, LP_MULTIPLICATION)
-				| lp_verify_structure_helper(plan->v.lp_default.operand[0], aggregate, LP_DIVISION)
-				| lp_verify_structure_helper(plan->v.lp_default.operand[0], aggregate, LP_MODULO)
-				| lp_verify_structure_helper(plan->v.lp_default.operand[0], aggregate, LP_NEGATIVE)
-				| lp_verify_structure_helper(plan->v.lp_default.operand[0], aggregate, LP_FORCE_NUM)
-				| lp_verify_structure_helper(plan->v.lp_default.operand[0], aggregate, LP_CONCAT)
-				| lp_verify_structure_helper(plan->v.lp_default.operand[0], aggregate, LP_COLUMN_ALIAS)
-				| lp_verify_structure_helper(plan->v.lp_default.operand[0], aggregate, LP_FUNCTION_CALL)
-				| lp_verify_structure_helper(plan->v.lp_default.operand[0], aggregate,
-									LP_AGGREGATE_FUNCTION_COUNT_ASTERISK)
-				| lp_verify_structure_helper(plan->v.lp_default.operand[0], aggregate,
-									LP_AGGREGATE_FUNCTION_COUNT)
-				| lp_verify_structure_helper(plan->v.lp_default.operand[0], aggregate, LP_AGGREGATE_FUNCTION_AVG)
-				| lp_verify_structure_helper(plan->v.lp_default.operand[0], aggregate, LP_AGGREGATE_FUNCTION_MIN)
-				| lp_verify_structure_helper(plan->v.lp_default.operand[0], aggregate, LP_AGGREGATE_FUNCTION_MAX)
-				| lp_verify_structure_helper(plan->v.lp_default.operand[0], aggregate, LP_AGGREGATE_FUNCTION_SUM)
-				| lp_verify_structure_helper(plan->v.lp_default.operand[0], aggregate,
-									LP_AGGREGATE_FUNCTION_COUNT_DISTINCT)
-				| lp_verify_structure_helper(plan->v.lp_default.operand[0], aggregate,
-									LP_AGGREGATE_FUNCTION_AVG_DISTINCT)
-				| lp_verify_structure_helper(plan->v.lp_default.operand[0], aggregate,
-									LP_AGGREGATE_FUNCTION_SUM_DISTINCT)
-				| lp_verify_structure_helper(plan->v.lp_default.operand[0], aggregate, LP_DERIVED_COLUMN)
-				| lp_verify_structure_helper(plan->v.lp_default.operand[0], aggregate, LP_VALUE)
-				| lp_verify_structure_helper(plan->v.lp_default.operand[0], aggregate, LP_COERCE_TYPE)
-				// LP_INSERT/LP_SET_OPERATIONs usually show up as operand[1] only for the IN boolean expression.
-				// But they can show up wherever a scalar is expected (e.g. select column list etc.)
-				// and hence have to be allowed in a lot more cases.
-				| lp_verify_structure_helper(plan->v.lp_default.operand[0], aggregate, LP_INSERT)
-				| lp_verify_structure_helper(plan->v.lp_default.operand[0], aggregate, LP_SET_OPERATION);
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[0], aggregate, LP_ADDITION)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[0], aggregate, LP_SUBTRACTION)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[0], aggregate, LP_MULTIPLICATION)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[0], aggregate, LP_DIVISION)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[0], aggregate, LP_MODULO)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[0], aggregate, LP_NEGATIVE)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[0], aggregate, LP_FORCE_NUM)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[0], aggregate, LP_CONCAT)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[0], aggregate, LP_COLUMN_ALIAS)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[0], aggregate, LP_FUNCTION_CALL)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[0], aggregate,
+							    LP_AGGREGATE_FUNCTION_COUNT_ASTERISK)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[0], aggregate, LP_AGGREGATE_FUNCTION_COUNT)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[0], aggregate, LP_AGGREGATE_FUNCTION_AVG)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[0], aggregate, LP_AGGREGATE_FUNCTION_MIN)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[0], aggregate, LP_AGGREGATE_FUNCTION_MAX)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[0], aggregate, LP_AGGREGATE_FUNCTION_SUM)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[0], aggregate,
+							    LP_AGGREGATE_FUNCTION_COUNT_DISTINCT)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[0], aggregate,
+							    LP_AGGREGATE_FUNCTION_AVG_DISTINCT)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[0], aggregate,
+							    LP_AGGREGATE_FUNCTION_SUM_DISTINCT)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[0], aggregate, LP_DERIVED_COLUMN)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[0], aggregate, LP_VALUE)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[0], aggregate, LP_COERCE_TYPE)
+			       // LP_INSERT/LP_SET_OPERATIONs usually show up as operand[1] only for the IN boolean expression.
+			       // But they can show up wherever a scalar is expected (e.g. select column list etc.)
+			       // and hence have to be allowed in a lot more cases.
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[0], aggregate, LP_INSERT)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[0], aggregate, LP_SET_OPERATION);
 			assert(ret);
 			plan = plan->v.lp_default.operand[1];
 		}
@@ -456,17 +452,16 @@ int lp_verify_structure_helper(LogicalPlan *plan, LogicalPlan **aggregate, LPAct
 	case LP_AGGREGATE_FUNCTION_AVG_DISTINCT:
 	case LP_AGGREGATE_FUNCTION_SUM_DISTINCT:
 		if (NULL != aggregate) {
-			int		prev_aggregate_cnt;
-			LogicalPlan	*prev_aggregate;
+			int	     prev_aggregate_cnt;
+			LogicalPlan *prev_aggregate;
 
 			prev_aggregate = *aggregate;
-			assert(prev_aggregate != plan);	/* otherwise we would end up in an infinite loop later during
+			assert(prev_aggregate != plan); /* otherwise we would end up in an infinite loop later during
 							 * template file generation (see YDBOcto#456 for example).
 							 */
 			plan->extra_detail.lp_aggregate_function.next_aggregate = prev_aggregate;
-			prev_aggregate_cnt = ((NULL == prev_aggregate)
-						? 0
-						: prev_aggregate->extra_detail.lp_aggregate_function.aggregate_cnt);
+			prev_aggregate_cnt
+			    = ((NULL == prev_aggregate) ? 0 : prev_aggregate->extra_detail.lp_aggregate_function.aggregate_cnt);
 			plan->extra_detail.lp_aggregate_function.aggregate_cnt = prev_aggregate_cnt + 1;
 			*aggregate = plan;
 		}

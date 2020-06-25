@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -26,18 +26,18 @@ ErrorResponse *make_error_response(PSQL_ErrorSeverity severity, PSQL_SQLSTATECod
 	assert(NULL != message);
 	assert(PSQL_Error_UnknownSeverity >= severity);
 
-	uint32_t new_length;
-	int32_t cur_arg;
-	va_list args;
+	uint32_t	  new_length;
+	int32_t		  cur_arg;
+	va_list		  args;
 	ErrorResponseArg *arg;
-	ErrorResponse *ret;
-	char *ptr;
+	ErrorResponse *	  ret;
+	char *		  ptr;
 
 	// Go through all the args and count their size
 	new_length = 0;
 	va_start(args, num_args);
-	for(size_t i = 0; i < num_args; i++) {
-		arg = va_arg(args, ErrorResponseArg*);
+	for (size_t i = 0; i < num_args; i++) {
+		arg = va_arg(args, ErrorResponseArg *);
 		// type argument
 		new_length += 1;
 		// string value; null terminated
@@ -54,18 +54,18 @@ ErrorResponse *make_error_response(PSQL_ErrorSeverity severity, PSQL_SQLSTATECod
 
 	// Allocate struct + trailing array + null terminating byte
 	new_length += 1;
-	ret = (ErrorResponse*)malloc(sizeof(ErrorResponse) + new_length);
+	ret = (ErrorResponse *)malloc(sizeof(ErrorResponse) + new_length);
 	memset(ret, 0, sizeof(ErrorResponse) + new_length);
 
 	// This is mostly for testing; eventually, we should
 	//  check whether this is a debug build, and if so, not do this maloc
 	//  or the sets
-	ret->args = (ErrorResponseArg*)malloc(sizeof(ErrorResponseArg) * (num_args+3));
+	ret->args = (ErrorResponseArg *)malloc(sizeof(ErrorResponseArg) * (num_args + 3));
 	cur_arg = 0;
 
 	// Add length field
 	// Depending on severity, select ErrorResponse or NoticeResponse
-	switch(severity) {
+	switch (severity) {
 	case PSQL_Error_LOG:
 	case PSQL_Error_INFO:
 	case PSQL_Error_DEBUG:
@@ -112,8 +112,8 @@ ErrorResponse *make_error_response(PSQL_ErrorSeverity severity, PSQL_SQLSTATECod
 
 	// Copy optional arguments into argument array
 	va_start(args, num_args);
-	for(size_t i = 0; i < num_args; i++) {
-		arg = va_arg(args, ErrorResponseArg*);
+	for (size_t i = 0; i < num_args; i++) {
+		arg = va_arg(args, ErrorResponseArg *);
 		*ptr++ = arg->type;
 		ret->args[cur_arg].type = arg->type;
 		ret->args[cur_arg].value = ptr;

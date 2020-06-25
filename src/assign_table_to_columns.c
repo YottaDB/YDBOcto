@@ -19,10 +19,10 @@
 #include "octo_types.h"
 
 void assign_table_to_columns(SqlStatement *table_statement) {
-	SqlColumn		*cur_column, *start_column;
-	SqlOptionalKeyword	*keyword, *column_keywords;
-	SqlTable		*table;
-	int			column_number, piece_number;
+	SqlColumn *	    cur_column, *start_column;
+	SqlOptionalKeyword *keyword, *column_keywords;
+	SqlTable *	    table;
+	int		    column_number, piece_number;
 
 	UNPACK_SQL_STATEMENT(table, table_statement, create_table);
 	UNPACK_SQL_STATEMENT(start_column, table->columns, column);
@@ -39,7 +39,7 @@ void assign_table_to_columns(SqlStatement *table_statement) {
 		if ((NULL == get_keyword(cur_column, PRIMARY_KEY)) && (NULL == get_keyword(cur_column, OPTIONAL_KEY_NUM))) {
 			keyword = get_keyword(cur_column, OPTIONAL_PIECE);
 			if (NULL == keyword) {
-				keyword	= add_optional_piece_keyword_to_sql_column(piece_number++);
+				keyword = add_optional_piece_keyword_to_sql_column(piece_number++);
 				UNPACK_SQL_STATEMENT(column_keywords, cur_column->keywords, keyword);
 				dqappend(column_keywords, keyword);
 			}

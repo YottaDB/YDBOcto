@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -16,8 +16,8 @@
 #include "octo_types.h"
 
 // Function invoked by the rule named "between_predicate" in src/parser.y
-SqlStatement *between_predicate(SqlStatement *row_value_constructor, SqlStatement *from, SqlStatement *to, boolean_t not_specified)
-{
+SqlStatement *between_predicate(SqlStatement *row_value_constructor, SqlStatement *from, SqlStatement *to,
+				boolean_t not_specified) {
 	SqlStatement *left, *right, *ret;
 
 	// Implement the BETWEEN operator which is just `(x >= from) AND (x <= to)`

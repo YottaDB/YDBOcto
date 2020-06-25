@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -26,15 +26,15 @@
 #include "message_formats.h"
 
 static void test_valid_input(void **state) {
-	ParameterStatus *response = NULL;
-	ParameterStatus *received_response = NULL;
-	StartupMessageParm parm = {"user","Alice"};
+	ParameterStatus *  response = NULL;
+	ParameterStatus *  received_response = NULL;
+	StartupMessageParm parm = {"user", "Alice"};
 
 	// Expected length is length field + parameter strings, including null terminators
 	int32_t expected_length = sizeof(uint32_t) + strlen(parm.name) + sizeof(char) + strlen(parm.value) + sizeof(char);
 
 	response = make_parameter_status(&parm);
-	received_response = read_parameter_status((BaseMessage*)&response->type);
+	received_response = read_parameter_status((BaseMessage *)&response->type);
 
 	// Standard checks
 	assert_non_null(received_response);
@@ -50,15 +50,15 @@ static void test_valid_input(void **state) {
 }
 
 static void test_null_input(void **state) {
-	ParameterStatus *response = NULL;
-	ParameterStatus *received_response = NULL;
+	ParameterStatus *   response = NULL;
+	ParameterStatus *   received_response = NULL;
 	StartupMessageParm *parm = NULL;
 
 	// Expected length is length field, since no parameter is passed
 	int32_t expected_length = sizeof(uint32_t);
 
 	response = make_parameter_status(parm);
-	received_response = read_parameter_status((BaseMessage*)&response->type);
+	received_response = read_parameter_status((BaseMessage *)&response->type);
 
 	// Standard checks
 	assert_null(response);
@@ -67,8 +67,8 @@ static void test_null_input(void **state) {
 
 int main(void) {
 	const struct CMUnitTest tests[] = {
-		cmocka_unit_test(test_valid_input),
-		cmocka_unit_test(test_null_input),
+	    cmocka_unit_test(test_valid_input),
+	    cmocka_unit_test(test_null_input),
 	};
 	return cmocka_run_group_tests(tests, NULL, NULL);
 }

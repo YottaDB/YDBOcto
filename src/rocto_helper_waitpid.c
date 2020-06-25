@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -35,19 +35,16 @@
  * requests if they arrive, etc. etc.
  */
 void *rocto_helper_waitpid(void *args) {
-	RoctoSession *session = (RoctoSession*)args;
-	while(!session->session_ending) {
+	RoctoSession *session = (RoctoSession *)args;
+	while (!session->session_ending) {
 		// Wait for PID's
-		int wstatus = 0;
+		int   wstatus = 0;
 		pid_t result = wait(&wstatus);
-		if(result < 0) {
+		if (result < 0) {
 			// If there are no children active, just continue
-			if(errno == ECHILD) {
+			if (errno == ECHILD) {
 				// Sleep for a brief time if there were no children
-				struct timespec sleep = {
-					1,
-					0
-				};
+				struct timespec sleep = {1, 0};
 				nanosleep(&sleep, NULL);
 				continue;
 			}

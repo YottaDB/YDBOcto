@@ -16,11 +16,11 @@
 #include "octo_types.h"
 
 SqlColumnListAlias *columns_to_column_list_alias(SqlColumn *column, SqlStatement *table_alias_stmt) {
-	SqlColumn		*cur_column, *start_column;
-	SqlColumnAlias		*alias;
-	SqlColumnList		*cur;
-	SqlColumnListAlias	*ret = NULL, *cur_column_list_alias;
-	SqlStatement		*stmt;
+	SqlColumn *	    cur_column, *start_column;
+	SqlColumnAlias *    alias;
+	SqlColumnList *	    cur;
+	SqlColumnListAlias *ret = NULL, *cur_column_list_alias;
+	SqlStatement *	    stmt;
 
 	if (NULL == column)
 		return NULL;
@@ -39,8 +39,7 @@ SqlColumnListAlias *columns_to_column_list_alias(SqlColumn *column, SqlStatement
 
 		OCTO_CMALLOC_STRUCT(cur_column_list_alias, SqlColumnListAlias);
 		cur_column_list_alias->alias = cur_column->columnName;
-		switch(cur_column->type)
-		{
+		switch (cur_column->type) {
 		case UNKNOWN_SqlDataType:
 			cur_column_list_alias->type = UNKNOWN_SqlValueType;
 			break;
@@ -69,7 +68,7 @@ SqlColumnListAlias *columns_to_column_list_alias(SqlColumn *column, SqlStatement
 			dqappend(ret, cur_column_list_alias);
 		}
 		cur_column = cur_column->next;
-	} while(cur_column != start_column);
+	} while (cur_column != start_column);
 	assert(NULL != ret);
 	return ret;
 }

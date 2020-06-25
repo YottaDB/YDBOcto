@@ -15,8 +15,8 @@
 #include "octo.h"
 #include "octo_types.h"
 
-char	*get_set_operation_string(SqlSetOperationType type) {
-	switch(type) {
+char *get_set_operation_string(SqlSetOperationType type) {
+	switch (type) {
 	case SET_UNION:
 		return "UNION";
 		break;

@@ -23,15 +23,15 @@
 #include "helpers.h"
 
 int handle_describe(Describe *describe, RoctoSession *session) {
-	ParameterDescription	*parm_description;
-	RowDescription		*description;
-	NoData			*no_data;
-	ydb_buffer_t		routine_buf, filename_buf;
-	ydb_buffer_t		describe_subs[5];
-	uint32_t		found = 0;
-	int32_t			status;
-	char			filename[OCTO_PATH_MAX];
-	char			routine_str[MAX_ROUTINE_LEN + 1];		// Null terminator
+	ParameterDescription *parm_description;
+	RowDescription *      description;
+	NoData *	      no_data;
+	ydb_buffer_t	      routine_buf, filename_buf;
+	ydb_buffer_t	      describe_subs[5];
+	uint32_t	      found = 0;
+	int32_t		      status;
+	char		      filename[OCTO_PATH_MAX];
+	char		      routine_str[MAX_ROUTINE_LEN + 1]; // Null terminator
 
 	// Fetch the named SQL query from the session, either "prepared" or "bound" depending on Describe message type:
 	// ^session(id, "prepared", <name>) or ^session(id, "bound", <name>)
@@ -45,7 +45,7 @@ int handle_describe(Describe *describe, RoctoSession *session) {
 		parm_description = make_parameter_description(describe->name, session);
 		if (NULL == parm_description)
 			return 1;
-		send_message(session, (BaseMessage*)(&parm_description->type));
+		send_message(session, (BaseMessage *)(&parm_description->type));
 		free(parm_description);
 		YDB_STRING_TO_BUFFER("prepared", &describe_subs[2])
 	} else {
@@ -71,14 +71,14 @@ int handle_describe(Describe *describe, RoctoSession *session) {
 	status = strncmp("none", routine_buf.buf_addr, MAX_ROUTINE_LEN);
 	if (0 == status) {
 		no_data = make_no_data();
-		send_message(session, (BaseMessage*)(&no_data->type));
+		send_message(session, (BaseMessage *)(&no_data->type));
 		free(no_data);
 	} else {
-		GET_FULL_PATH_OF_GENERATED_M_FILE(filename, &routine_buf.buf_addr[1]);	/* updates "filename" to be full path */
+		GET_FULL_PATH_OF_GENERATED_M_FILE(filename, &routine_buf.buf_addr[1]); /* updates "filename" to be full path */
 		YDB_STRING_TO_BUFFER(filename, &filename_buf);
 		description = get_plan_row_description(&filename_buf);
 		if (NULL != description) {
-			send_message(session, (BaseMessage*)(&description->type));
+			send_message(session, (BaseMessage *)(&description->type));
 			if ('S' == describe->item) {
 				TRACE(INFO_ROCTO_ROW_DESCRIPTION_SENT, "prepared statement", describe->name);
 			} else {

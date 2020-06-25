@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -24,7 +24,7 @@
 CloseComplete *read_close_complete(BaseMessage *message) {
 	CloseComplete *ret;
 
-	ret = (CloseComplete*)malloc(sizeof(CloseComplete));
+	ret = (CloseComplete *)malloc(sizeof(CloseComplete));
 
 	ret->type = message->type;
 	ret->length = ntohl(message->length);

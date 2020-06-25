@@ -22,48 +22,47 @@
  * which will log the error locally as well as propagate it
  * to the client. Otherwise print via stderr.
  */
-#define PRINT_YYERROR(...) 							\
-	if (config->is_rocto) {							\
-		ERROR(CUSTOM_ERROR, ##__VA_ARGS__);				\
-	} else {								\
-		fprintf(stderr, ##__VA_ARGS__);					\
-		fprintf(stderr, "\n"); /* formatting */				\
+#define PRINT_YYERROR(...)                              \
+	if (config->is_rocto) {                         \
+		ERROR(CUSTOM_ERROR, ##__VA_ARGS__);     \
+	} else {                                        \
+		fprintf(stderr, ##__VA_ARGS__);         \
+		fprintf(stderr, "\n"); /* formatting */ \
 	}
 
-#define SNPRINTF_ERR_BUFF(...)										\
-	do {												\
-		written = snprintf(err_ptr, err_out_len - (err_ptr - err_out), ##__VA_ARGS__);		\
-		if (written < (err_out_len - (err_ptr - err_out))) {					\
-			err_ptr += written;								\
-			break;										\
-		} else {										\
-			err_out_len *= 2;								\
-			char *tmp = malloc(err_out_len);						\
-			memcpy(tmp, err_out, err_ptr - err_out);					\
-			err_ptr = tmp + (err_ptr - err_out);						\
-			free(err_out);									\
-			err_out = tmp;									\
-		}											\
+#define SNPRINTF_ERR_BUFF(...)                                                                 \
+	do {                                                                                   \
+		written = snprintf(err_ptr, err_out_len - (err_ptr - err_out), ##__VA_ARGS__); \
+		if (written < (err_out_len - (err_ptr - err_out))) {                           \
+			err_ptr += written;                                                    \
+			break;                                                                 \
+		} else {                                                                       \
+			err_out_len *= 2;                                                      \
+			char *tmp = malloc(err_out_len);                                       \
+			memcpy(tmp, err_out, err_ptr - err_out);                               \
+			err_ptr = tmp + (err_ptr - err_out);                                   \
+			free(err_out);                                                         \
+			err_out = tmp;                                                         \
+		}                                                                              \
 	} while (TRUE);
 
-void print_yyloc(YYLTYPE *llocp);	/* A helper function internal to this file */
+void print_yyloc(YYLTYPE *llocp); /* A helper function internal to this file */
 
-void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, int *plan_id, ParseContext *parse_context, char const *s)
-{
+void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, int *plan_id, ParseContext *parse_context, char const *s) {
 	UNUSED(plan_id);
 	UNUSED(parse_context);
 	if ((NULL == scan) && (NULL != out)) {
 		/* This is a "yyerror" call from outside the parser (e.g. "populate_data_type.c").
 		 * In this case, compute "llocp" from "out".
 		 */
-		SqlColumnListAlias	*cur_cla;
-		SqlSetOperation		*set_operation;
-		SqlStatement		*sql_stmt, *stmt;
-		SqlTableAlias		*table_alias;
+		SqlColumnListAlias *cur_cla;
+		SqlSetOperation *   set_operation;
+		SqlStatement *	    sql_stmt, *stmt;
+		SqlTableAlias *	    table_alias;
 
 		assert(NULL == llocp);
 		stmt = *out;
-		switch(stmt->type) {
+		switch (stmt->type) {
 		case set_operation_STATEMENT:
 		case table_alias_STATEMENT:
 			/* In this case, use the location of the first select column_list operand */
@@ -85,8 +84,8 @@ void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, int *plan_id, Pa
 	}
 	if (llocp->first_line || llocp->first_column || llocp->last_column) {
 		if (0 == llocp->first_line) {
-			PRINT_YYERROR("Error with syntax near (line %d, column %d):", llocp->first_line + 1,		\
-										llocp->first_column + leading_spaces);
+			PRINT_YYERROR("Error with syntax near (line %d, column %d):", llocp->first_line + 1,
+				      llocp->first_column + leading_spaces);
 		} else {
 			PRINT_YYERROR("Error with syntax near (line %d, column %d):", llocp->first_line + 1, llocp->first_column);
 		}
@@ -101,7 +100,7 @@ void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, int *plan_id, Pa
 
 void print_yyloc(YYLTYPE *llocp) {
 	// llocp is 0 based
-	int cur_line = 0, cur_column = 0, offset = old_input_index, err_out_len = MAX_STR_CONST, written;
+	int   cur_line = 0, cur_column = 0, offset = old_input_index, err_out_len = MAX_STR_CONST, written;
 	char *c, *line_begin = input_buffer_combined, *line_end, *issue_line, old_terminator;
 	char *err_out, *err_ptr;
 
@@ -165,7 +164,7 @@ void print_yyloc(YYLTYPE *llocp) {
 	for (; ('\0' != *c) && (cur_column < offset + llocp->first_column); c++, cur_column++) {
 
 		if ('\t' == *c) {
-		       	SNPRINTF_ERR_BUFF("\t");
+			SNPRINTF_ERR_BUFF("\t");
 		} else {
 			SNPRINTF_ERR_BUFF(" ");
 		}

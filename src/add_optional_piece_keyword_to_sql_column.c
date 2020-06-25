@@ -18,13 +18,12 @@
 #include "octo.h"
 #include "octo_types.h"
 
-SqlOptionalKeyword *add_optional_piece_keyword_to_sql_column(int column_number)
-{
-	SqlOptionalKeyword	*keyword;
-	SqlStatement		*stmt;
-	char			*malloc_space;
-	char			buffer[32];	// 32 bytes as it is more than enough to store string form of an integer
-	int			len;
+SqlOptionalKeyword *add_optional_piece_keyword_to_sql_column(int column_number) {
+	SqlOptionalKeyword *keyword;
+	SqlStatement *	    stmt;
+	char *		    malloc_space;
+	char		    buffer[32]; // 32 bytes as it is more than enough to store string form of an integer
+	int		    len;
 
 	SQL_STATEMENT(stmt, keyword_STATEMENT);
 	MALLOC_STATEMENT(stmt, keyword, SqlOptionalKeyword);
@@ -32,8 +31,8 @@ SqlOptionalKeyword *add_optional_piece_keyword_to_sql_column(int column_number)
 	keyword->keyword = OPTIONAL_PIECE;
 	snprintf(buffer, sizeof(buffer), "%d", column_number);
 	len = strlen(buffer);
-	malloc_space = octo_cmalloc(memory_chunks, len+1);
-	strncpy(malloc_space, buffer, len+1);
+	malloc_space = octo_cmalloc(memory_chunks, len + 1);
+	strncpy(malloc_space, buffer, len + 1);
 	SQL_STATEMENT(keyword->v, value_STATEMENT);
 	MALLOC_STATEMENT(keyword->v, value, SqlValue);
 	keyword->v->v.value->type = NUMERIC_LITERAL;

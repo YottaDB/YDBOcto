@@ -28,17 +28,17 @@
 
 int emit_physical_plan(PhysicalPlan *pplan, char *plan_filename) {
 	int		plan_id, len, fd, buffer_len, buffer_index, status;
-	PhysicalPlan	*cur_plan = pplan, *first_plan, xrefplan, nondeferredplan, deferredplan, *tmp_plan;
-	PhysicalPlan	*prev_plan, *next_plan;
-	char		*buffer, plan_name_buffer[MAX_STR_CONST];
+	PhysicalPlan *	cur_plan = pplan, *first_plan, xrefplan, nondeferredplan, deferredplan, *tmp_plan;
+	PhysicalPlan *	prev_plan, *next_plan;
+	char *		buffer, plan_name_buffer[MAX_STR_CONST];
 	char		filename[OCTO_PATH_MAX], *routine_name, *trigger_name, *tableName, *columnName;
-	char		*tmp_plan_filename = NULL;
+	char *		tmp_plan_filename = NULL;
 	unsigned int	routine_name_len = MAX_ROUTINE_LEN, plan_filename_len;
-	SqlValue	*value;
-	SqlKey		*key;
-	FILE		*output_file;
-	char		*hyphenline = "---------------------------------------------------------", *linestart, *lineend;
-	hash128_state_t	state;
+	SqlValue *	value;
+	SqlKey *	key;
+	FILE *		output_file;
+	char *		hyphenline = "---------------------------------------------------------", *linestart, *lineend;
+	hash128_state_t state;
 
 	assert(NULL != cur_plan);
 	buffer_len = INIT_M_ROUTINE_LENGTH;
@@ -59,13 +59,13 @@ int emit_physical_plan(PhysicalPlan *pplan, char *plan_filename) {
 	nondeferredplan.next = NULL;
 	deferredplan.prev = NULL;
 	deferredplan.next = NULL;
-	for ( ; NULL != cur_plan; ) {
+	for (; NULL != cur_plan;) {
 		if (cur_plan->outputKey && cur_plan->outputKey->is_cross_reference_key)
-			tmp_plan = &xrefplan;		// Use cross-reference plan linked list
+			tmp_plan = &xrefplan; // Use cross-reference plan linked list
 		else if (NULL != cur_plan->deferred_parent_plan)
-			tmp_plan = &deferredplan;	// Use deferred plan linked list
+			tmp_plan = &deferredplan; // Use deferred plan linked list
 		else
-			tmp_plan = &nondeferredplan;	// Use non-deferred plan linked list
+			tmp_plan = &nondeferredplan; // Use non-deferred plan linked list
 		// Remove cur_plan from current linked list
 		if (NULL != cur_plan->prev)
 			cur_plan->prev->next = cur_plan->next;
@@ -84,16 +84,15 @@ int emit_physical_plan(PhysicalPlan *pplan, char *plan_filename) {
 	assert(((NULL == xrefplan.next) && (NULL == xrefplan.prev)) || ((NULL != xrefplan.next) && (NULL != xrefplan.prev)));
 	assert((NULL != nondeferredplan.next) && (NULL != nondeferredplan.prev));
 	assert(((NULL == deferredplan.next) && (NULL == deferredplan.prev))
-			|| ((NULL != deferredplan.next) && (NULL != deferredplan.prev)));
+	       || ((NULL != deferredplan.next) && (NULL != deferredplan.prev)));
 	// We keep the (1) Cross reference plans in a separate linked list AND
 	// combine (2) Non-deferred plans and (3) Deferred plans into one linked list.
-	first_plan =  nondeferredplan.next;
+	first_plan = nondeferredplan.next;
 	first_plan->prev = NULL;
 	prev_plan = nondeferredplan.prev;
 	next_plan = deferredplan.next;
 	prev_plan->next = next_plan;
-	if (NULL != next_plan)
-	{
+	if (NULL != next_plan) {
 		next_plan->prev = prev_plan;
 		deferredplan.prev->next = NULL;
 	}
@@ -110,17 +109,17 @@ int emit_physical_plan(PhysicalPlan *pplan, char *plan_filename) {
 		key = cur_plan->outputKey;
 		UNPACK_SQL_STATEMENT(value, key->table->tableName, value);
 		tableName = value->v.reference;
-		UNPACK_SQL_STATEMENT (value, key->column->columnName, value);
+		UNPACK_SQL_STATEMENT(value, key->column->columnName, value);
 		columnName = value->v.reference;
 		len = snprintf(plan_name_buffer, MAX_STR_CONST, "xrefPlan%d", plan_id);
-		cur_plan->plan_name = octo_cmalloc(memory_chunks, len+1);
+		cur_plan->plan_name = octo_cmalloc(memory_chunks, len + 1);
 		memcpy(cur_plan->plan_name, plan_name_buffer, len);
 		cur_plan->plan_name[len] = '\0';
 
 		HASH128_STATE_INIT(state, 0);
-		ydb_mmrhash_128_ingest(&state, (void*)tableName, strlen(tableName));
-		ydb_mmrhash_128_ingest(&state, (void*)columnName, strlen(columnName));
-		routine_name = octo_cmalloc(memory_chunks, MAX_ROUTINE_LEN + 1);	// + 1 needed for null terminator
+		ydb_mmrhash_128_ingest(&state, (void *)tableName, strlen(tableName));
+		ydb_mmrhash_128_ingest(&state, (void *)columnName, strlen(columnName));
+		routine_name = octo_cmalloc(memory_chunks, MAX_ROUTINE_LEN + 1); // + 1 needed for null terminator
 		status = generate_routine_name(&state, routine_name, routine_name_len, CrossReference);
 		// copy routine name (starts with %)
 		if (1 == status) {
@@ -129,7 +128,7 @@ int emit_physical_plan(PhysicalPlan *pplan, char *plan_filename) {
 			free(buffer);
 			return 1;
 		}
-		trigger_name = octo_cmalloc(memory_chunks, MAX_TRIGGER_LEN + 1);	// + 1 needed for null terminator
+		trigger_name = octo_cmalloc(memory_chunks, MAX_TRIGGER_LEN + 1); // + 1 needed for null terminator
 		status = generate_routine_name(&state, trigger_name, MAX_TRIGGER_LEN, YDBTrigger);
 		if (1 == status) {
 			ERROR(ERR_PLAN_HASH_FAILED, "");
@@ -139,12 +138,12 @@ int emit_physical_plan(PhysicalPlan *pplan, char *plan_filename) {
 		}
 		// Convert '%' to '_'
 		key->cross_reference_filename = routine_name;
-		GET_FULL_PATH_OF_GENERATED_M_FILE(filename, &routine_name[1]);	/* updates "filename" to be full path */
-		if (access(filename, F_OK) == -1) {	// file doesn't exist
-			INFO(CUSTOM_ERROR, "Generating helper cross reference M file [%s] for table [%s] and column [%s]",
-				filename, tableName, columnName);
+		GET_FULL_PATH_OF_GENERATED_M_FILE(filename, &routine_name[1]); /* updates "filename" to be full path */
+		if (access(filename, F_OK) == -1) {			       // file doesn't exist
+			INFO(CUSTOM_ERROR, "Generating helper cross reference M file [%s] for table [%s] and column [%s]", filename,
+			     tableName, columnName);
 			output_file = fopen(filename, "w");
-			if(output_file == NULL) {
+			if (output_file == NULL) {
 				ERROR(ERR_SYSCALL, "fopen", errno, strerror(errno));
 				/* cleanup the buffer */
 				free(buffer);
@@ -172,7 +171,7 @@ int emit_physical_plan(PhysicalPlan *pplan, char *plan_filename) {
 		 */
 		if (PRIMARY_PHYSICAL_PLAN(cur_plan) == cur_plan) {
 			len = snprintf(plan_name_buffer, MAX_STR_CONST, "octoPlan%d", plan_id);
-			cur_plan->plan_name = octo_cmalloc(memory_chunks, len+1);
+			cur_plan->plan_name = octo_cmalloc(memory_chunks, len + 1);
 			memcpy(cur_plan->plan_name, plan_name_buffer, len);
 			cur_plan->plan_name[len] = '\0';
 			plan_id++;
@@ -180,22 +179,22 @@ int emit_physical_plan(PhysicalPlan *pplan, char *plan_filename) {
 	}
 
 	plan_filename_len = strlen(plan_filename);
-	tmp_plan_filename = (char*)octo_cmalloc(memory_chunks, plan_filename_len + sizeof(char));
+	tmp_plan_filename = (char *)octo_cmalloc(memory_chunks, plan_filename_len + sizeof(char));
 	strncpy(tmp_plan_filename, plan_filename, plan_filename_len + sizeof(char));
-	tmp_plan_filename[plan_filename_len-1] = 't';
+	tmp_plan_filename[plan_filename_len - 1] = 't';
 	output_file = fopen(tmp_plan_filename, "w");
-	if(output_file == NULL) {
+	if (output_file == NULL) {
 		ERROR(ERR_SYSCALL, "fopen", errno, strerror(errno));
 		/* cleanup the buffer */
 		free(buffer);
 		return 1;
 	}
 
-	fprintf(output_file,
-		";; This is a generated file; do not modify. Generated M code corresponds to below SQL query\n;; %s\n",
+	fprintf(output_file, ";; This is a generated file; do not modify. Generated M code corresponds to below SQL query\n;; %s\n",
 		hyphenline);
-	// input_buffer_combined would contain '\n'; Ensure after every newline, an M comment is printed for the next line of the SQL query
-	for (linestart = input_buffer_combined + old_input_index; ; ) {
+	// input_buffer_combined would contain '\n'; Ensure after every newline, an M comment is printed for the next line of the
+	// SQL query
+	for (linestart = input_buffer_combined + old_input_index;;) {
 		lineend = strchr(linestart, '\n');
 		/* cur_input_index marks the start of the next query do not print past it
 		 * if it is null then there is no \n in the rest of the string so also set lineend to cur_input_index
@@ -204,7 +203,7 @@ int emit_physical_plan(PhysicalPlan *pplan, char *plan_filename) {
 			lineend = input_buffer_combined + cur_input_index;
 		assert(NULL != lineend);
 		fprintf(output_file, ";  %.*s\n", (int)(lineend - linestart), linestart);
-		linestart = lineend + 1;	/* + 1 to skip past matching '\n' to go to next line to print */
+		linestart = lineend + 1; /* + 1 to skip past matching '\n' to go to next line to print */
 		/* if we hit cur_input_index stop looping */
 		if (lineend == (input_buffer_combined + cur_input_index))
 			break;
@@ -214,7 +213,7 @@ int emit_physical_plan(PhysicalPlan *pplan, char *plan_filename) {
 	fprintf(output_file, "\noctoPlan0(cursorId)\n");
 	for (cur_plan = first_plan; NULL != cur_plan; cur_plan = cur_plan->next) {
 		if (NULL != cur_plan->deferred_parent_plan)
-			break;		// if we see a Deferred plan, it means we are done with the Non-Deferred plans
+			break; // if we see a Deferred plan, it means we are done with the Non-Deferred plans
 		/* Note that it is possible we encounter multiple physical plans that map to the same logical plan.
 		 * In that case, only the first of those physical plans would have had a name generated. So use that for
 		 * all the physical plans we go through.
@@ -226,7 +225,7 @@ int emit_physical_plan(PhysicalPlan *pplan, char *plan_filename) {
 	// Emit Non-Deferred and Deferred plans in that order
 	for (cur_plan = first_plan; NULL != cur_plan; cur_plan = cur_plan->next) {
 		if (cur_plan == cur_plan->lp_insert->extra_detail.lp_insert.physical_plan) {
-			cur_plan->filename = NULL;	// filename needed only for cross reference plans
+			cur_plan->filename = NULL; // filename needed only for cross reference plans
 			buffer_index = 0;
 			tmpl_physical_plan(&buffer, &buffer_len, &buffer_index, cur_plan);
 			fprintf(output_file, "%s\n", buffer);

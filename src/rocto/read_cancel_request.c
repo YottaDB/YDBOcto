@@ -22,15 +22,15 @@
 
 CancelRequest *read_cancel_request(RoctoSession *session, char *data) {
 	CancelRequest *ret = NULL;
-	uint32_t expected_length = sizeof(CancelRequest);
-	uint32_t data_length = sizeof(pid_t) + sizeof(uint32_t);	// pid and secret key
+	uint32_t       expected_length = sizeof(CancelRequest);
+	uint32_t       data_length = sizeof(pid_t) + sizeof(uint32_t); // pid and secret key
 	// Request code format:
 	// 	decimal value of most significant 16 bits:  1234
 	// 	decimal value of least significant 16 bits: 5678
 	int32_t expected_request_code = 80877102;
 
 	// Read all message parameters into return struct
-	ret = (CancelRequest*)malloc(sizeof(CancelRequest));
+	ret = (CancelRequest *)malloc(sizeof(CancelRequest));
 	memset(&ret->length, 0, expected_length);
 	memcpy(&ret->length, data, expected_length);
 
@@ -52,7 +52,7 @@ CancelRequest *read_cancel_request(RoctoSession *session, char *data) {
 	}
 
 	// Retrieve remaining fields from cancel request message
-	read_bytes(session, (char*)&ret->pid, expected_length - data_length, expected_length - data_length);
+	read_bytes(session, (char *)&ret->pid, expected_length - data_length, expected_length - data_length);
 	ret->pid = ntohl(ret->pid);
 	ret->secret_key = ntohl(ret->secret_key);
 

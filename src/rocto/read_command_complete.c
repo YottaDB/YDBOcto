@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -23,10 +23,10 @@
 
 CommandComplete *read_command_complete(BaseMessage *message) {
 	CommandComplete *ret;
-	uint32_t remaining_length = 0;
+	uint32_t	 remaining_length = 0;
 
 	remaining_length = ntohl(message->length);
-	ret = (CommandComplete*)malloc(remaining_length + sizeof(CommandComplete) - sizeof(uint32_t));
+	ret = (CommandComplete *)malloc(remaining_length + sizeof(CommandComplete) - sizeof(uint32_t));
 
 	ret->type = message->type;
 	ret->length = remaining_length;

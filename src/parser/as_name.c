@@ -11,16 +11,15 @@
  ****************************************************************/
 
 #include <assert.h>
-#include <ctype.h>	/* needed for "toupper" */
+#include <ctype.h> /* needed for "toupper" */
 
 #include "octo.h"
 #include "octo_types.h"
 
 // Function invoked by the rule named "as_name" in src/parser/select.y
-int as_name(SqlStatement *as_name, ParseContext *parse_context)
-{
-	char	*c;
-	int	status;
+int as_name(SqlStatement *as_name, ParseContext *parse_context) {
+	char *c;
+	int   status;
 
 	/* SqlValue type of "as_name" is set to "STRING_LITERAL" in order to prevent multiple plan generation
 	 * for queries differing only by alias name or LITERAL value.
@@ -28,7 +27,7 @@ int as_name(SqlStatement *as_name, ParseContext *parse_context)
 	assert(value_STATEMENT == as_name->type);
 	as_name->v.value->type = STRING_LITERAL;
 	c = as_name->v.value->v.string_literal;
-	while('\0' != *c) {
+	while ('\0' != *c) {
 		*c = toupper(*c);
 		c++;
 	}

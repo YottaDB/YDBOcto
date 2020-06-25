@@ -19,37 +19,39 @@
 #include "octo_types.h"
 #include "helpers.h"
 
-#define	CLEANUP_AND_RETURN(PG_CLASS, OID_BUFFER) {		\
-	YDB_FREE_BUFFER(&PG_CLASS[4]);				\
-	free(PG_CLASS);						\
-	free(OID_BUFFER);					\
-	return 1;						\
-}
+#define CLEANUP_AND_RETURN(PG_CLASS, OID_BUFFER) \
+	{                                        \
+		YDB_FREE_BUFFER(&PG_CLASS[4]);   \
+		free(PG_CLASS);                  \
+		free(OID_BUFFER);                \
+		return 1;                        \
+	}
 
-#define	CLEANUP_AND_RETURN_IF_NOT_YDB_OK(STATUS, PG_CLASS, OID_BUFFER) {	\
-	YDB_ERROR_CHECK(STATUS);						\
-	if (YDB_OK != STATUS) {							\
-		CLEANUP_AND_RETURN(PG_CLASS, OID_BUFFER);			\
-	}									\
-}
+#define CLEANUP_AND_RETURN_IF_NOT_YDB_OK(STATUS, PG_CLASS, OID_BUFFER) \
+	{                                                              \
+		YDB_ERROR_CHECK(STATUS);                               \
+		if (YDB_OK != STATUS) {                                \
+			CLEANUP_AND_RETURN(PG_CLASS, OID_BUFFER);      \
+		}                                                      \
+	}
 
- /* Attempts to store a row in pg_catalog.pg_class for this table.
-  * Note that this function is similar to store_function_in_pg_proc.
-  */
+/* Attempts to store a row in pg_catalog.pg_class for this table.
+ * Note that this function is similar to store_function_in_pg_proc.
+ */
 int store_table_in_pg_class(SqlTable *table, ydb_buffer_t *table_name_buffer) {
-	int		status;
-	SqlValue	*value;
-	SqlColumn	*start_column;
-	SqlColumn	*cur_column;
-	ydb_buffer_t	*oid_buffer;
-	ydb_buffer_t	*pg_class;
-	ydb_buffer_t	*pg_attribute;
-	ydb_buffer_t	buffer_b;
-	ydb_buffer_t	schema_global;
-	ydb_buffer_t	pg_class_schema[2], pg_attribute_schema[3];
-	char		*table_name;
-	char		buffer[MAX_STR_CONST];
-	long long	class_oid;
+	int	      status;
+	SqlValue *    value;
+	SqlColumn *   start_column;
+	SqlColumn *   cur_column;
+	ydb_buffer_t *oid_buffer;
+	ydb_buffer_t *pg_class;
+	ydb_buffer_t *pg_attribute;
+	ydb_buffer_t  buffer_b;
+	ydb_buffer_t  schema_global;
+	ydb_buffer_t  pg_class_schema[2], pg_attribute_schema[3];
+	char *	      table_name;
+	char	      buffer[MAX_STR_CONST];
+	long long     class_oid;
 
 	// Prepare buffers
 	pg_class = make_buffers(config->global_names.octo, 4, "tables", "pg_catalog", "pg_class", "");
@@ -75,9 +77,8 @@ int store_table_in_pg_class(SqlTable *table, ydb_buffer_t *table_name_buffer) {
 	 * Columns of `pg_catalog.pg_class` table in `tests/fixtures/postgres.sql`.
 	 * Any changes to that table definition will require changes here too.
 	 */
-	snprintf(buffer, sizeof(buffer),
-		"%s|2200|16388|0|16385|0|16386|0|0|0|0|16389|1|0|p|r|3|0|0|1|0|0|0|0|0|1|d|0|571|1||||%s",
-		table_name, pg_class[4].buf_addr);
+	snprintf(buffer, sizeof(buffer), "%s|2200|16388|0|16385|0|16386|0|0|0|0|16389|1|0|p|r|3|0|0|1|0|0|0|0|0|1|d|0|571|1||||%s",
+		 table_name, pg_class[4].buf_addr);
 	buffer_b.len_alloc = buffer_b.len_used = strlen(buffer);
 	buffer_b.buf_addr = buffer;
 	/* Set the table name passed in as having an oid of TABLEOID in the pg_catalog.
@@ -96,46 +97,46 @@ int store_table_in_pg_class(SqlTable *table, ydb_buffer_t *table_name_buffer) {
 	status = ydb_set_s(&schema_global, 2, pg_class_schema, &pg_class[4]);
 	CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, pg_class, oid_buffer);
 
-	class_oid = strtoll(pg_class[4].buf_addr, NULL, 10);	/* copy over class OID before we start changing it for column OID */
+	class_oid = strtoll(pg_class[4].buf_addr, NULL, 10); /* copy over class OID before we start changing it for column OID */
 	if ((LLONG_MIN == class_oid) || (LLONG_MAX == class_oid)) {
 		ERROR(ERR_LIBCALL, "strtoll");
 		CLEANUP_AND_RETURN(pg_class, oid_buffer);
 	}
-	table->oid = class_oid;	/* Initialize oid in SqlTable. Caller later invokes "compress_statement()" that stores this as
+	table->oid = class_oid; /* Initialize oid in SqlTable. Caller later invokes "compress_statement()" that stores this as
 				 * part of the binary table definition in the database.
 				 */
 	// We should also store the column definitions in the pg_attribute table
 	pg_attribute = make_buffers(config->global_names.octo, 4, "tables", "pg_catalog", "pg_attribute", "");
-	pg_attribute[4] = pg_class[4];	/* Inherit ydb_buffer used for OID */
+	pg_attribute[4] = pg_class[4]; /* Inherit ydb_buffer used for OID */
 	pg_attribute_schema[0] = *table_name_buffer;
 	pg_attribute_schema[1] = pg_attribute[3];
 	UNPACK_SQL_STATEMENT(start_column, table->columns, column);
 	cur_column = start_column;
 	do {
-		int	atttypid;
-		char	*column_name;
+		int   atttypid;
+		char *column_name;
 
-		switch(cur_column->type) {
-			/* Below atttypid values were obtained from Postgres using the below query.
-			 *	`select typname,oid from pg_type where typname in ('numeric','int4','varchar','bool');`
-			 */
-			case BOOLEAN_TYPE:
-				atttypid = 16;
-				break;
-			case INTEGER_TYPE:
-				atttypid = 23;
-				break;
-			case STRING_TYPE:
-				atttypid = 1043;
-				break;
-			case NUMERIC_TYPE:
-				atttypid = 1700;
-				break;
-			default:
-				assert(FALSE);
-				status = 1;
-				ERROR(ERR_UNKNOWN_KEYWORD_STATE, "");
-				break;
+		switch (cur_column->type) {
+		/* Below atttypid values were obtained from Postgres using the below query.
+		 *	`select typname,oid from pg_type where typname in ('numeric','int4','varchar','bool');`
+		 */
+		case BOOLEAN_TYPE:
+			atttypid = 16;
+			break;
+		case INTEGER_TYPE:
+			atttypid = 23;
+			break;
+		case STRING_TYPE:
+			atttypid = 1043;
+			break;
+		case NUMERIC_TYPE:
+			atttypid = 1700;
+			break;
+		default:
+			assert(FALSE);
+			status = 1;
+			ERROR(ERR_UNKNOWN_KEYWORD_STATE, "");
+			break;
 		}
 		if (YDB_OK != status) {
 			break;
@@ -153,8 +154,8 @@ int store_table_in_pg_class(SqlTable *table, ydb_buffer_t *table_name_buffer) {
 		 * Columns of `pg_catalog.pg_attribute` table in `tests/fixtures/postgres.sql`.
 		 * Any changes to that table definition will require changes here too.
 		 */
-		snprintf(buffer, sizeof(buffer), "%lld|%s|%d|-1|-1|2|0|-1|-1|0|x|i|0|0|0|\"\"|0|1|0|100||||",
-				class_oid, column_name, atttypid);
+		snprintf(buffer, sizeof(buffer), "%lld|%s|%d|-1|-1|2|0|-1|-1|0|x|i|0|0|0|\"\"|0|1|0|100||||", class_oid,
+			 column_name, atttypid);
 		/* Get a unique oid COLUMNOID for each column in the table.
 		 * 	i.e. $INCREMENT(^%ydboctoocto("oid"))
 		 */

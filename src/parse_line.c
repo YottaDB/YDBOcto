@@ -26,15 +26,15 @@
  */
 SqlStatement *parse_line(ParseContext *parse_context) {
 	SqlStatement *result = 0;
-	yyscan_t scanner;
+	yyscan_t      scanner;
 
 	if (yylex_init(&scanner)) {
 		ERROR(ERR_INIT_SCANNER, "");
 		return NULL;
 	}
-	config->plan_id = 1;	/* Start valid unique_id for tables at 1 (relied upon by "hash_canonical_query"
-				 * when referencing "tbl_and_col_id" field in SqlColumnListAlias)
-				 */
+	config->plan_id = 1; /* Start valid unique_id for tables at 1 (relied upon by "hash_canonical_query"
+			      * when referencing "tbl_and_col_id" field in SqlColumnListAlias)
+			      */
 	int status = yyparse(scanner, &result, &config->plan_id, parse_context);
 	yylex_destroy(scanner);
 	if (status) {

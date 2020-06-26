@@ -15,6 +15,25 @@ YottaDB r1.28 or greater is required for successful installation of Octo. Instal
 
 *NOTE: the environment variable `$ydb_dist` is required to be defined - `$gtm_dist` is not a valid subsitute*
 
+## Contributing
+
+To contribute or help with further development, [fork the repository](https://docs.gitlab.com/ee/gitlab-basics/fork-project.html), clone your fork to a local copy and begin contributing! Please also set up the pre-commit script to automatically enforce some coding conventions. Assuming you are in the top-level directory, the following will work:
+
+```sh
+ln -s ../../pre-commit .git/hooks
+```
+
+Note that this script will require `tcsh` and `clang-format-9` or a later release.
+
+```sh
+# Ubuntu 20.04
+sudo apt install clang-format-9
+# Any Debian-like distro; see also https://apt.llvm.org/
+bash -c "$(wget -O - https://apt.llvm.org/llvm.sh)"
+# CentOS 8
+sudo yum install clang-tools-extra
+```
+
 ## Quickstart
 
 ### Install prerequisites

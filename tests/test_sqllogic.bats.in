@@ -73,9 +73,9 @@ sqllogic_test() {
 # and so need https://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/320 to be fixed before we can run them.
 # NOTE: these tests do not yet have .zwr and .sql files generated.
 # NOTE: those files will need to be generated before these will pass.
-#@test "TS02: select2 test cases from https://github.com/shivarajugowda/jdbcSQLTest/blob/master/resources/sqllogictest/select2.test" {
-	#sqllogic_test 2
-#}
+@test "TS02: select2 test cases from https://github.com/shivarajugowda/jdbcSQLTest/blob/master/resources/sqllogictest/select2.test" {
+	sqllogic_test 2
+}
 #@test "TS03: select3 test cases from https://github.com/shivarajugowda/jdbcSQLTest/blob/master/resources/sqllogictest/select3.test" {
 	#sqllogic_test 3
 #}

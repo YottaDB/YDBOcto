@@ -43,7 +43,7 @@ before_script:
     - ln -fs /usr/share/zoneinfo/US/Eastern /etc/localtime
     - apt-get update -qq && apt-get install -y tzdata
     - dpkg-reconfigure --frontend noninteractive tzdata
-    - apt-get install -y -qq build-essential clang clang-tidy cmake bison flex libcmocka-dev python-pip libreadline-dev git libconfig-dev libssl-dev postgresql-client postgresql xxd wget libgcrypt20-dev libgpgme-dev expect default-jdk
+    - apt-get install -y -qq build-essential clang clang-tidy clang-format-9 cmake bison flex libcmocka-dev python-pip libreadline-dev git libconfig-dev libssl-dev postgresql-client postgresql xxd wget libgcrypt20-dev libgpgme-dev expect default-jdk
     - pip install sphinxcontrib-fulltoc sphinx sphinx_rtd_theme
     - export PATH=/usr/local/go/bin:$PATH
     - wget -O go.tgz -q https://golang.org/dl/go${GOLANG_VERSION}.linux-amd64.tar.gz

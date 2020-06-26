@@ -28,7 +28,7 @@ set nocopyright_extensions = "ref rst png zwr html ci"	# List of extensions that
 	# .ci   -> e.g. calltab.ci stores the call-in table which does not currently have a provision for comment characters.
 
 cd `git rev-parse --show-toplevel`
-set filelist = `git diff --name-only HEAD`
+set filelist = `git diff --name-only --cached HEAD`
 set fixlist = ""
 set curyear = `date +%Y`
 @ exitstatus = 0
@@ -82,8 +82,9 @@ set nowhitespace_extensions = "ref"	# List of extensions that cannot have traili
 	# .ref -> reference files used by the test cases (e.g. tests/outref/T0001.ref).
 	#		Those have a fixed format and should not go through any white-space changes.
 
-set filelist = `git diff --name-only HEAD`	# recompute "filelist" in case Step (1) had regenerated new files
+set filelist = `git diff --name-only --cached HEAD`	# recompute "filelist" in case Step (1) had regenerated new files
 foreach file ($filelist)
+
 	if (! -e $file) then
 		# If file is being deleted as part of this commit, skip whitespace conversion on it
 		continue
@@ -116,7 +117,8 @@ end
 # ---------------------------------------------------------------------------
 # 3) Runs clang-format on all files and make sure there were no differences.
 # ---------------------------------------------------------------------------
-if (! `clang-format --version | cut -d ' ' -f 3 | cut -d '.' -f 1` >= 9 ) then
+set CLANG_FORMAT="`tools/ci/find-clang-format.sh`"
+if ($status) then
 	echo "warning: missing a recent version of clang-format, not running format checks"
 	exit $exitstatus
 endif
@@ -128,17 +130,17 @@ foreach file ($filelist)
 	set extension = $file:e
 	set fixlist = ""
 	if ( "c" == "$extension" || "h" == "$extension" ) then
-		clang-format $file | diff - $file
+		clang-format -i "$file"
+		# Check if there a changes that are unstaged (as opposed to staged and uncommitted)
+		git diff-files --exit-code --name-only -- "$file" >/dev/null
 		if ($status) then
-			echo "Formatting differences found for $file!"
+			git add "$file"
 			set fixlist = "$fixlist $file"
 		endif
 	endif
 	if ("" != "$fixlist") then
-		echo "  --> Hook $0 returned non-zero status"
-		echo "  --> Below files are not formatted according to clang-format. Fix and retry commit."
+		echo "note: automatically commiting clang-format changes for the following files:"
 		echo "$fixlist"
-		@ exitstatus = 1
 	endif
 end
 

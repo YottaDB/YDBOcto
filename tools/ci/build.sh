@@ -81,12 +81,17 @@ if [ "$unused_tests" != "" ]; then
 fi
 popd
 
-# CentOS 7 has an outdated version of clang-format
-# We require at least clang-format-9 (for `AlignConsecutiveMacros`)
-if [ "$(clang-format --version | cut -d ' ' -f 3 | cut -d '.' -f 1)" -ge 9 ]; then
+# If we found a recent enough version, run clang-format
+if CLANG_FORMAT="$(../tools/ci/find-clang-format.sh)"; then
 	echo "# Check code style using clang-format"
 	# This modifies the files in place so no need to record the output.
-	../tools/ci/clang-format-all.sh
+	../tools/ci/clang-format-all.sh $CLANG_FORMAT
+# RHEL/CentOS 7 has an outdated version of clang-format, but we run it in pipelines.
+# Ignore failures only on this platform.
+elif [ -x "$(which rpm)" ] && ! grep 'VERSION_ID=.*7' /etc/os-release; then
+	# Otherwise, fail the pipeline.
+	echo " -> A recent enough version of clang-format was not found!"
+	exit 1
 fi
 
 echo "# Randomly choose to test Debug or Release build"

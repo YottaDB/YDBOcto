@@ -10,7 +10,12 @@
 #	the license, please stop and do not read further.	#
 #								#
 #################################################################
-find ../src -name '*.c' -o -name '*.h' | xargs clang-format -i
+if [ -x "$(which "$1")" ]; then
+	CLANG_FORMAT="$1"
+else
+	CLANG_FORMAT=clang-format
+fi
+find ../src -name '*.c' -o -name '*.h' | xargs "$CLANG_FORMAT" -i
 if ! [ $(git diff --stat | wc -l) = 0 ]; then
   echo " -> Formatting differences found!"
   git diff

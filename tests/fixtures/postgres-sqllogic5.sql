@@ -14,7 +14,7 @@
 fixtures=$(git rev-parse --show-toplevel)/tests/fixtures
 $fixtures/sqllogic/insert.py $num
 # Remove GLOBAL subexpressions from CREATE TABLE statements, since postgres does not understand them.
-sed 's/) GLOBAL .*;$/);/' $schema.sql > $fixtures/postgres-$schema.sql
+sed 's/ GLOBAL .*;$/;/' $schema.sql > $fixtures/postgres-$schema.sql
 */
 
 -- Below is to skip the INSERT commands if the table already exists (CREATE TABLE will cause an error and script will exit)

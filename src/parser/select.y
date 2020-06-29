@@ -172,7 +172,7 @@ query_specification
       dqinit(join);
       table = find_table("OCTOONEROWTABLE");
       if (NULL == table) {
-        ERROR(ERR_UNKNOWN_TABLE, "octoOneRowTable");
+        ERROR(ERR_UNKNOWN_TABLE, "octoOneRowTable: did you load the octo-seed.sql data?");
         yyerror(NULL, NULL, &select_list, NULL, NULL, NULL);
         YYERROR;
       }

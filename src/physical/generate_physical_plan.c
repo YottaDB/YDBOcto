@@ -456,6 +456,11 @@ LogicalPlan *sub_query_check_and_generate_physical_plan(PhysicalPlanOptions *opt
 				return NULL;
 			}
 			break;
+		case LP_COALESCE_CALL:
+			assert(LP_COLUMN_LIST == stmt->v.lp_default.operand[0]->type);
+			stmt->v.lp_default.operand[0]
+			    = sub_query_check_and_generate_physical_plan(options, stmt->v.lp_default.operand[0], stmt);
+			break;
 		case LP_FUNCTION_CALL:
 			assert(LP_VALUE == stmt->v.lp_default.operand[0]->type);
 			stmt->v.lp_default.operand[0]

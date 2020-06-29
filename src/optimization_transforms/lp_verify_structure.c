@@ -185,6 +185,7 @@ int lp_verify_structure_helper(LogicalPlan *plan, LogicalPlan **aggregate, LPAct
 			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_CASE)
 			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_COLUMN_ALIAS)
 			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_FUNCTION_CALL)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_COALESCE_CALL)
 			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate,
 							    LP_AGGREGATE_FUNCTION_COUNT_ASTERISK)
 			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_AGGREGATE_FUNCTION_COUNT)
@@ -213,6 +214,7 @@ int lp_verify_structure_helper(LogicalPlan *plan, LogicalPlan **aggregate, LPAct
 			ret &= lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_CASE)
 			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_COLUMN_ALIAS)
 			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_FUNCTION_CALL)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_COALESCE_CALL)
 			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate,
 							    LP_AGGREGATE_FUNCTION_COUNT_ASTERISK)
 			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_AGGREGATE_FUNCTION_COUNT)
@@ -299,6 +301,7 @@ int lp_verify_structure_helper(LogicalPlan *plan, LogicalPlan **aggregate, LPAct
 			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_CONCAT)
 			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_COLUMN_ALIAS)
 			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_FUNCTION_CALL)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_COALESCE_CALL)
 			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate,
 							    LP_AGGREGATE_FUNCTION_COUNT_ASTERISK)
 			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], aggregate, LP_AGGREGATE_FUNCTION_COUNT)
@@ -387,6 +390,7 @@ int lp_verify_structure_helper(LogicalPlan *plan, LogicalPlan **aggregate, LPAct
 			       | lp_verify_structure_helper(plan->v.lp_default.operand[0], aggregate, LP_CONCAT)
 			       | lp_verify_structure_helper(plan->v.lp_default.operand[0], aggregate, LP_COLUMN_ALIAS)
 			       | lp_verify_structure_helper(plan->v.lp_default.operand[0], aggregate, LP_FUNCTION_CALL)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[0], aggregate, LP_COALESCE_CALL)
 			       | lp_verify_structure_helper(plan->v.lp_default.operand[0], aggregate,
 							    LP_AGGREGATE_FUNCTION_COUNT_ASTERISK)
 			       | lp_verify_structure_helper(plan->v.lp_default.operand[0], aggregate, LP_AGGREGATE_FUNCTION_COUNT)
@@ -424,6 +428,10 @@ int lp_verify_structure_helper(LogicalPlan *plan, LogicalPlan **aggregate, LPAct
 		ret &= lp_verify_structure_helper(plan->v.lp_default.operand[0], aggregate, LP_VALUE);
 		assert(LP_COLUMN_LIST == plan->v.lp_default.operand[1]->type);
 		ret &= lp_verify_structure_helper(plan->v.lp_default.operand[1], aggregate, LP_COLUMN_LIST);
+		break;
+	case LP_COALESCE_CALL:
+		assert(LP_COLUMN_LIST == plan->v.lp_default.operand[0]->type);
+		ret &= lp_verify_structure_helper(plan->v.lp_default.operand[0], aggregate, LP_COLUMN_LIST);
 		break;
 	case LP_ORDER_BY:
 		/* to avoid a large recursion stack walk the column list iteratively */

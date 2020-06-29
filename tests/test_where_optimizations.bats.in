@@ -163,6 +163,8 @@ WHERE (id = 0 OR id = 5) AND (firstName = 'Zero' OR lastName = 'Cool');
 OCTO
   [[ $(grep -c "LP_KEY_FIX" plan.txt) -eq 4 ]]
   # Include generated M code in reference file to verify all optimizations there
+  # NOTE: the outref for this file may need to be updated when
+  # `hash_canonical_query` is modified.
   cat _ydboctoP*.m >> output.txt
   verify_output TWO12 output.txt
 }

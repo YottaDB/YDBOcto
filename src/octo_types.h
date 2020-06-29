@@ -102,6 +102,7 @@ typedef enum SqlStatementType {
 	drop_function_STATEMENT,
 	value_STATEMENT,
 	function_call_STATEMENT,
+	coalesce_STATEMENT,
 	aggregate_function_STATEMENT,
 	binary_STATEMENT,
 	unary_STATEMENT,
@@ -521,6 +522,11 @@ typedef struct SqlFunctionCall {
 	struct SqlStatement *parameters;
 } SqlFunctionCall;
 
+typedef struct SqlCoalesceCall {
+	// SqlColumnList
+	struct SqlStatement *arguments;
+} SqlCoalesceCall;
+
 /**
  * Represents a SQL function
  */
@@ -676,6 +682,7 @@ typedef struct SqlStatement {
 		struct SqlDropTableStatement *	  drop_table;
 		struct SqlValue *		  value;
 		struct SqlFunctionCall *	  function_call;
+		struct SqlCoalesceCall *	  coalesce;
 		struct SqlAggregateFunction *	  aggregate_function;
 		struct SqlBinaryOperation *	  binary;
 		struct SqlUnaryOperation *	  unary;

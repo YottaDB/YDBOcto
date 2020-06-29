@@ -109,6 +109,7 @@ void hash_canonical_query(hash128_state_t *state, SqlStatement *stmt, int *statu
 	SqlSelectStatement *	select;
 
 	SqlFunctionCall *     function_call;
+	SqlCoalesceCall *     coalesce_call;
 	SqlAggregateFunction *aggregate_function;
 	SqlJoin *	      join;
 	SqlValue *	      value;
@@ -216,6 +217,12 @@ void hash_canonical_query(hash128_state_t *state, SqlStatement *stmt, int *statu
 		hash_canonical_query_column_list_alias(state, select->order_by_expression, status, TRUE);
 		// SqlOptionalKeyword
 		hash_canonical_query(state, select->optional_words, status);
+		break;
+	case coalesce_STATEMENT:
+		UNPACK_SQL_STATEMENT(coalesce_call, stmt, coalesce);
+		ADD_INT_HASH(state, coalesce_STATEMENT);
+		// SqlColumnList
+		hash_canonical_query_column_list(state, coalesce_call->arguments, status, TRUE);
 		break;
 	case function_call_STATEMENT:
 		UNPACK_SQL_STATEMENT(function_call, stmt, function_call);

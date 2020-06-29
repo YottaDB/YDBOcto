@@ -107,6 +107,12 @@ SqlStatement *find_column_alias_name(SqlStatement *stmt) {
 		UNPACK_SQL_STATEMENT(function_call, stmt, function_call);
 		ret = find_column_alias_name(function_call->function_name);
 		break;
+	case coalesce_STATEMENT:
+		SQL_STATEMENT(ret, value_STATEMENT);
+		OCTO_CMALLOC_STRUCT(ret->v.value, SqlValue);
+		ret->v.value->type = STRING_LITERAL;
+		ret->v.value->v.string_literal = "COALESCE";
+		break;
 	case aggregate_function_STATEMENT:
 		UNPACK_SQL_STATEMENT(aggregate_function, stmt, aggregate_function);
 		SQL_STATEMENT(ret, value_STATEMENT);

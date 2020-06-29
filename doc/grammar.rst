@@ -464,6 +464,26 @@ CASE
 
 CASE tests a condition_expression. If the condition_expression following any of the WHEN keywords is TRUE, then the value is the "result" following THEN. If none of the conditions are matched, the value is the "result" following ELSE. The result is NULL if ELSE is omitted and none of the conditions are matched.
 
+
+-----------------
+COALESCE
+-----------------
+
+.. code-block:: SQL
+
+   SELECT COALESCE(value_expression [, value_expression...]) ...
+
+The built-in COALESCE function returns the first of its arguments that is not NULL.
+If all arguments are NULL, NULL is returned.
+COALESCE must have at least one argument.
+
+Note that unlike other RDBMSs, the values passed to COALESCE are not required to all have the same type.
+For example, the following query is valid and returns the value 1:
+
+.. code-block:: SQL
+
+   SELECT COALESCE(1, 'a', 1.0);
+
 -----------------
 Operators
 -----------------

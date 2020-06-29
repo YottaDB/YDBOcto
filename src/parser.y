@@ -72,6 +72,7 @@ extern void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, int *plan
 %token CASE
 %token CHAR
 %token CHARACTER
+%token COALESCE
 %token COLLATE
 %token COMMAND
 %token COMMIT
@@ -494,6 +495,27 @@ between_predicate
   ;
 
 
+// COALESCE() is variadic, but must have at least one argument.
+coalesce
+  : COALESCE LEFT_PAREN in_value_list_nonempty RIGHT_PAREN {
+
+      SqlStatement    *coalesce_stmt;
+      SqlCoalesceCall *call;
+      SqlValue        *value;
+
+      SQL_STATEMENT($$, value_STATEMENT);
+      MALLOC_STATEMENT($$, value, SqlValue);
+      UNPACK_SQL_STATEMENT(value, $$, value);
+
+      value->type = CALCULATED_VALUE;
+      SQL_STATEMENT(coalesce_stmt, coalesce_STATEMENT);
+      MALLOC_STATEMENT(coalesce_stmt, coalesce, SqlCoalesceCall);
+      UNPACK_SQL_STATEMENT(call, coalesce_stmt, coalesce);
+      call->arguments = $in_value_list_nonempty;
+      value->v.calculated = coalesce_stmt;
+    }
+  ;
+
 in_predicate
   : row_value_constructor IN in_predicate_value {
       SQL_STATEMENT($$, binary_STATEMENT);
@@ -805,12 +827,17 @@ numeric_primary
 value_expression_primary
   : literal_value { $$ = $literal_value; }
   | column_reference { $$ = $column_reference; }
+  | conditional_expression { $$ = $conditional_expression; }
   | set_function_specification { $$ = $set_function_specification; }
   | scalar_subquery { $$ = $scalar_subquery; }
-  | case_expression { $$ = $case_expression; }
   | LEFT_PAREN value_expression RIGHT_PAREN { $$ = $value_expression; }
   | null_specification { $$ = $null_specification; }
 //  | cast_specification
+  ;
+
+conditional_expression
+  : coalesce { $$ = $coalesce; }
+  | case_expression { $$ = $case_expression; }
   ;
 
 optional_cast_specification

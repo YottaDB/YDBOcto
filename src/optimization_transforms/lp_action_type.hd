@@ -121,6 +121,7 @@ LP_ACTION_TYPE(LP_UNARY_LAST)	/* Marks the end of unary operations. Any new unar
  * by an assert (`assert(LP_ADDITION <= where->type)`) in `src/optimization_transforms/lp_replace_derived_table_references.c`.
  */
 LP_ACTION_TYPE(LP_COLUMN_LIST)
+LP_ACTION_TYPE(LP_COALESCE_CALL)
 LP_ACTION_TYPE(LP_FUNCTION_CALL)
 LP_ACTION_TYPE(LP_ORDER_BY)
 LP_ACTION_TYPE(LP_CASE)

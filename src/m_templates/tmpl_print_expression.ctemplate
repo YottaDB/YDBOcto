@@ -514,6 +514,26 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 		TMPL(tmpl_print_expression, first_operand, pplan, 0, 0);
 		%{}){}%
 		break;
+	case LP_COALESCE_CALL:
+		/* first_operand is a LP_COLUMN_LIST, but we want to get the first LP_COLUMN_VALUE */
+		cur_plan = first_operand->v.lp_default.operand[1];
+		/* TODO: this might break the `if` after the switch, we should use a new variable instead */
+		first_operand = first_operand->v.lp_default.operand[0];
+		%{}$SELECT('$ZYISSQLNULL({}%
+		TMPL(tmpl_print_expression, first_operand, pplan, 0, 0);
+		%{}):{}%
+		TMPL(tmpl_print_expression, first_operand, pplan, 0, 0);
+		%{},{}%
+		while (NULL != cur_plan) {
+			%{}'$ZYISSQLNULL({}%
+			TMPL(tmpl_print_expression, cur_plan->v.lp_default.operand[0], pplan, 0, 0);
+			%{}):{}%
+			TMPL(tmpl_print_expression, cur_plan->v.lp_default.operand[0], pplan, 0, 0);
+			%{},{}%
+			cur_plan = cur_plan->v.lp_default.operand[1];
+		}
+		%{}1:$ZYSQLNULL){}%
+		break;
 	case LP_FUNCTION_CALL:
 		/* As noted in lp_generate_where.c, the first_operand here is the SQL function name, which is not needed during
 		 * physical planning. Hence, we skip ignore that node in the tree and use only second_operand, which is the node

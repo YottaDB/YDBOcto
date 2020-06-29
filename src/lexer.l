@@ -88,6 +88,7 @@ int copied_so_far;
 (?i:CASE) { return CASE; }
 (?i:CHAR) { return CHAR; }
 (?i:CHARACTER) { return CHARACTER; }
+(?i:COALESCE) { return COALESCE; }
 (?i:COLLATE) { return COLLATE; }
 (?i:COMMAND) { return COMMAND; }
 (?i:COMMIT) { return COMMIT; }

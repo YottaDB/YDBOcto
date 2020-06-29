@@ -32,6 +32,7 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 	SqlColumnList *		start_cl, *cur_cl;
 	SqlColumnListAlias *	start_cla, *cur_cla;
 	SqlFunctionCall *	fc;
+	SqlCoalesceCall *	coalesce_call;
 	SqlUnaryOperation *	unary;
 	SqlValue *		value;
 	int			result;
@@ -144,6 +145,10 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 		UNPACK_SQL_STATEMENT(fc, stmt, function_call);
 		result |= qualify_statement(fc->function_name, tables, table_alias_stmt, depth + 1, ret_cla);
 		result |= qualify_statement(fc->parameters, tables, table_alias_stmt, depth + 1, ret_cla);
+		break;
+	case coalesce_STATEMENT:
+		UNPACK_SQL_STATEMENT(coalesce_call, stmt, coalesce);
+		result |= qualify_statement(coalesce_call->arguments, tables, table_alias_stmt, depth + 1, ret_cla);
 		break;
 	case aggregate_function_STATEMENT:
 		UNPACK_SQL_STATEMENT(af, stmt, aggregate_function);

@@ -209,6 +209,7 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_
 	SqlColumnList *		cur_column_list, *start_column_list;
 	SqlFunctionCall *	function_call;
 	SqlFunction *		function;
+	SqlCoalesceCall *	coalesce_call;
 	SqlParameterTypeList *	cur_parm_type_list, *start_parm_type_list;
 	SqlAggregateFunction *	aggregate_function;
 	SqlJoin *		start_join, *cur_join;
@@ -352,6 +353,13 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_
 			break;
 		}
 		*type = get_sqlvaluetype_from_sqldatatype(function->return_type->v.data_type);
+		break;
+	case coalesce_STATEMENT:
+		UNPACK_SQL_STATEMENT(coalesce_call, v, coalesce);
+		// SqlColumnList
+		result |= populate_data_type_column_list(coalesce_call->arguments, type, TRUE, parse_context);
+		// NOTE: if the types of the parameters do not match, no error is issued.
+		// This matches the behavior of sqlite but not that of Postgres and Oracle DB.
 		break;
 	case aggregate_function_STATEMENT:
 		UNPACK_SQL_STATEMENT(aggregate_function, v, aggregate_function);

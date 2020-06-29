@@ -1,0 +1,32 @@
+
+#################################################################
+#								#
+# Copyright (c) 2020 YottaDB LLC and/or its subsidiaries.	#
+# All rights reserved.						#
+#								#
+#	This source code contains the intellectual property	#
+#	of its copyright holder(s), and is made available	#
+#	under a license.  If you do not know the terms of	#
+#	the license, please stop and do not read further.	#
+#								#
+#################################################################
+
+load test_helpers
+
+setup() {
+  init_test
+  createdb
+  load_fixture names.sql
+  load_fixture names.zwr
+}
+
+@test "TCEF01 : OCTO539 : COALESCE" {
+  # Errors cannot be used with `run_query_in_octo_and_postgres_and_crosscheck_multiple_queries` because of error
+  # returns from queries (Postgres and Octo issue different error outputs). Need a reference file.
+  load_fixture TCEF01_errors.sql subtest
+  verify_output TCEF01_errors output.txt noinfo nodebug
+  mv clean_output.txt errors_clean_output.txt
+  # This can be used with `run_query_in_octo_and_postgres_and_crosscheck_multiple_queries` because all queries
+  # generate valid output (i.e. no errors at all). No reference file needed for this.
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TCEF01_noerrors_names.sql "trim_trailing_zeroes"
+}

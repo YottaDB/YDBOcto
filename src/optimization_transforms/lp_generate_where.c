@@ -24,6 +24,7 @@ LogicalPlan *lp_generate_where(SqlStatement *stmt, SqlStatement *parent) {
 	SqlValue *		value;
 	SqlUnaryOperation *	unary;
 	SqlBinaryOperation *	binary;
+	SqlCoalesceCall *	coalesce_call;
 	SqlFunctionCall *	function_call;
 	SqlAggregateFunction *	aggregate_function;
 	SqlColumnList *		cur_cl, *start_cl;
@@ -91,6 +92,37 @@ LogicalPlan *lp_generate_where(SqlStatement *stmt, SqlStatement *parent) {
 		MALLOC_LP_2ARGS(ret, type);
 		LP_GENERATE_WHERE(unary->operand, stmt, ret->v.lp_default.operand[0], error_encountered);
 		break;
+	case coalesce_STATEMENT: {
+		LogicalPlan *prev;
+
+		UNPACK_SQL_STATEMENT(coalesce_call, stmt, coalesce);
+		type = LP_COALESCE_CALL;
+		MALLOC_LP_2ARGS(ret, type);
+		// TODO: This was mostly copied from binary_STATEMENT, it should be turned into its own function
+		/* Walk through the column list, converting each right side value as appropriate. */
+		UNPACK_SQL_STATEMENT(start_cl, coalesce_call->arguments, column_list);
+		cur_cl = start_cl;
+
+		// Use an LP_COLUMN_LIST to store the LP_VALUEs used for the function's return type and its extrinsic function name
+		MALLOC_LP_2ARGS(ret->v.lp_default.operand[0], LP_COLUMN_LIST);
+		next = ret->v.lp_default.operand[0];
+
+		// COALESCE must have at least one argument
+		// lp_default.operand == [ value, next ]
+		do {
+			assert(NULL != next);
+			LP_GENERATE_WHERE(cur_cl->value, stmt, next->v.lp_default.operand[0], error_encountered);
+			prev = next;
+			cur_cl = cur_cl->next;
+			MALLOC_LP_2ARGS(next, LP_COLUMN_LIST);
+			prev->v.lp_default.operand[1] = next;
+		} while (start_cl != cur_cl);
+		// We allocated an extra column at the end.
+		// TODO: free gives 'invalid pointer' here??
+		// free(prev->v.lp_default.operand[1]);
+		prev->v.lp_default.operand[1] = NULL;
+		break;
+	}
 	case function_call_STATEMENT:
 		UNPACK_SQL_STATEMENT(function_call, stmt, function_call);
 		type = LP_FUNCTION_CALL;

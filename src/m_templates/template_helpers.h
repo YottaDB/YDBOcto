@@ -46,7 +46,13 @@
  */
 #define ORDER_BY_SUBSCRIPT "\"OrderBy\""
 #define GROUP_BY_SUBSCRIPT "\"GroupBy\""
+#define XREF_COLUMN	   "xrefCol"
+#define KEY_COLUMN	   "keyCol"
 #define PLAN_LINE_START	   "    " /* 4 spaces start an M line in the generated plan */
+
+#define IS_COLUMN_NOT_NULL(COLUMN)                                                                     \
+	((NULL != get_keyword(column, PRIMARY_KEY)) || (NULL != get_keyword(column, OPTIONAL_KEY_NUM)) \
+	 || (NULL != get_keyword(column, NOT_NULL)))
 
 /* Pattern string in a regex operation requires operation specific formatting,
  * following macro helps to convey the operation type information to m code from tmpl_*.ctemplate functions.
@@ -87,5 +93,6 @@ TEMPLATE(tmpl_order_by_key, int num_cols);
 TEMPLATE(tmpl_populate_output_key, PhysicalPlan *plan, int dot_count);
 TEMPLATE(tmpl_limit_check, SqlOptionalKeyword *limit_keyword, char *prefix, char *suffix);
 TEMPLATE(tmpl_where_or_having_or_on, LogicalPlan *plan, PhysicalPlan *pplan, int dot_count);
+TEMPLATE(tmpl_xref_key_columns, int num_key_cols);
 
 #endif

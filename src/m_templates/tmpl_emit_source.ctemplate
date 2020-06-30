@@ -1,7 +1,7 @@
 {}%
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -39,11 +39,11 @@ TEMPLATE(tmpl_emit_source, char *source, char *table_name, int unique_id, int nu
 	char	*source_ptr;
 	char	column[MAX_STR_CONST];
 	int	t, matched_vars = 0;
-	int	sub_count;
+	int	key_count;
 	int	paren_count = 0;
 
 	source_ptr = source;
-	sub_count = 0;
+	key_count = 0;
 	/// TODO: how does this handle globals that have things like "abc"_keys("id")?
 	while (('\0' != *source_ptr) && (matched_vars < num_vars_to_match)) {
 		t = match_expression(source_ptr, column, MAX_STR_CONST);
@@ -57,8 +57,9 @@ TEMPLATE(tmpl_emit_source, char *source, char *table_name, int unique_id, int nu
 				%{}(cursorId,"keys",{{ unique_id|%d }},"{{ table_name }}",{{ column }}){}%
 				break;
 			case EmitSourceForm_Trigger:
-				%{}sub{{ sub_count|%d }}=:{}%
-				sub_count++;
+				%{}{{ KEY_COLUMN }}{}%
+				%{}{{ key_count|%d }}=:{}%
+				key_count++;
 				break;
 			default:
 				FATAL(ERR_UNKNOWN_KEYWORD_STATE, "");
@@ -81,12 +82,10 @@ TEMPLATE(tmpl_emit_source, char *source, char *table_name, int unique_id, int nu
 			source_ptr++;
 		}
 	}
-
-	while(paren_count > 0) {
+	while (paren_count > 0) {
 		paren_count--;
 		%{}){}%
 	}
-
 	TEMPLATE_END();
 }
 

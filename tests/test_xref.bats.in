@@ -19,7 +19,7 @@ setup() {
   load_fixture names.zwr
 }
 
-@test "TXREF01 : xref top level count is maintained correctly if mapped global nodes are deleted" {
+@test "TX01 : xref top level count is maintained correctly if mapped global nodes are deleted" {
   # Run SQL query that generates xref
   octo <<OCTO 2>&1 | tee output.txt
 SELECT * FROM names WHERE firstName = "Zero";
@@ -32,5 +32,24 @@ OCTO
   yottadb -run %XCMD 'kill ^names(0) zwrite ^%ydboctoxref' 2>&1 | tee -a output.txt
   echo " --> KILL ^names(5)  ZWRITE ^%ydboctoxref" >> output.txt
   yottadb -run %XCMD 'kill ^names(5) zwrite ^%ydboctoxref' 2>&1 | tee -a output.txt
-  verify_output TXREF01 output.txt noinfo nodebug
+  verify_output TX01 output.txt noinfo nodebug
 }
+
+@test "TX02 : OCTO540 : Incorrect results if WHERE clause has COLUMN = '' usage and M global nodes change after xrefs were built" {
+  load_fixture northwind.sql
+  load_fixture northwind.zwr
+  cp @PROJECT_SOURCE_DIR@/tests/fixtures/TX02.sql .
+  echo "# cat TX02.sql" > output.txt
+  grep SELECT TX02.sql >> output.txt
+  echo "# Running : octo -f TX02.sql : Expect 1 row of output" >> output.txt
+  octo -f TX02.sql 2>&1 | tee -a output.txt
+  echo "# Running : zwrite ^Customers(37)" >> output.txt
+  yottadb -run %XCMD 'zwrite ^Customers(37)' 2>&1 | tee -a output.txt
+  echo "# Running : set ^Customers(37) : Changing PostalCode from '' to 'NullCode'" >> output.txt
+  yottadb -run %XCMD 'set ^Customers(37)="Hungry Owl All-Night Grocers|Patricia McKenna|8 Johnstown Road|Cork|NullCode|Ireland"' 2>&1 | tee -a output.txt
+  echo "# Re-Running : octo -f TX02.sql : Expect NO output" >> output.txt
+  octo -f TX02.sql 2>&1 | tee -a output.txt
+  echo "#" >> output.txt
+  verify_output TX02 output.txt
+}
+

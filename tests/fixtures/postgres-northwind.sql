@@ -58,7 +58,7 @@ INSERT INTO Customers VALUES (33,'GROSELLA-Restaurante','Manuel Pereira','5Ș Av
 INSERT INTO Customers VALUES (34,'Hanari Carnes','Mario Pontes','Rua do Paço, 67','Rio de Janeiro','05454-876','Brazil');
 INSERT INTO Customers VALUES (35,'HILARIÓN-Abastos','Carlos Hernández','Carrera 22 con Ave. Carlos Soublette #8-35','San Cristóbal','5022','Venezuela');
 INSERT INTO Customers VALUES (36,'Hungry Coyote Import Store','Yoshi Latimer','City Center Plaza 516 Main St.','Elgin','97827','USA');
-INSERT INTO Customers VALUES (37,'Hungry Owl All-Night Grocers','Patricia McKenna','8 Johnstown Road','Cork',NULL,'Ireland');
+INSERT INTO Customers VALUES (37,'Hungry Owl All-Night Grocers','Patricia McKenna','8 Johnstown Road','Cork','','Ireland');
 INSERT INTO Customers VALUES (38,'Island Trading','Helen Bennett','Garden House Crowther Way','Cowes','PO31 7PJ','UK');
 INSERT INTO Customers VALUES (39,'Königlich Essen','Philip Cramer','Maubelstr. 90','Brandenburg','14776','Germany');
 INSERT INTO Customers VALUES (40,'La corne d''abondance','Daniel Tonini','67, avenue de l''Europe','Versailles','78000','France');

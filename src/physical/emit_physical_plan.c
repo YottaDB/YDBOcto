@@ -151,6 +151,10 @@ int emit_physical_plan(PhysicalPlan *pplan, char *plan_filename) {
 			}
 			cur_plan->filename = key->cross_reference_filename;
 			cur_plan->trigger_name = trigger_name;
+			fprintf(output_file,
+				";; This is a generated file; do not modify.\n"
+				";; %s\n;; Generated M code maintains cross reference for %s column in %s table\n;; %s\n",
+				hyphenline, columnName, tableName, hyphenline);
 			buffer_index = 0;
 			tmpl_physical_plan(&buffer, &buffer_len, &buffer_index, cur_plan);
 			assert(output_file != NULL);

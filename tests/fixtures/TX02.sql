@@ -10,10 +10,7 @@
 #								#
 #################################################################
 
--- TC023 : OCTO320 : Octo treats empty column values as NULL when NOT NULL is not specified in the DDL
+-- TX02 : OCTO540 : Incorrect results if WHERE clause has COLUMN = '' usage and M global nodes change after xrefs were built
 
-SELECT * FROM nullnames;
-
--- Confirm correct use of NULLs in NATURAL JOIN between tables with heterogeneous columns
-SELECT * FROM nullnames n1 NATURAL JOIN nullnames n2;
+SELECT * FROM customers WHERE Postalcode = '';
 

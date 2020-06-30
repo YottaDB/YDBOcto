@@ -12,12 +12,15 @@
 
 run
   ; Cleanup global variables and relevant triggers when CancelRequest received during cross reference generation
+  ; Note: _ydboctoX*.m has the corresponding sets of %ydboctoCancel lvn which are used here.
   NEW tableName,columnName
   SET tableName="",columnName=""
   FOR  SET tableName=$ORDER(%ydboctoCancel(tableName)) QUIT:""=tableName  DO
   . FOR  SET columnName=$ORDER(%ydboctoCancel(tableName,columnName)) QUIT:""=columnName  DO
-  . . IF $$dollarZTRIGGER^%ydboctoplanhelpers("item",%ydboctoCancel(tableName,columnName,"Trigger"))
-  . . KILL @%ydboctoCancel(tableName,columnName,"Node")
+  . . IF $DATA(%ydboctoCancel(tableName,columnName,"Trigger")) DO
+  . . . IF $$dollarZTRIGGER^%ydboctoplanhelpers("item",%ydboctoCancel(tableName,columnName,"Trigger"))
+  . . KILL:$DATA(%ydboctoCancel(tableName,columnName,"Node1")) @%ydboctoCancel(tableName,columnName,"Node1")
+  . . KILL:$DATA(%ydboctoCancel(tableName,columnName,"Node2")) @%ydboctoCancel(tableName,columnName,"Node2")
   KILL %ydboctoCancel
   ; Set to let run_query know the query was canceled
   SET %ydboctoCancel=1

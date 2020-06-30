@@ -75,7 +75,6 @@ TEMPLATE(tmpl_column_reference, PhysicalPlan *pplan, SqlColumnAlias *column_alia
 	UNPACK_SQL_STATEMENT(table, table_alias->table, create_table);
 	UNPACK_SQL_STATEMENT(value, column->columnName, value);
 	// Find the columns in the table so we can look at the correct keywords
-	column = find_column(value->v.string_literal, table);
 	UNPACK_SQL_STATEMENT(value, table->tableName, value);
 	table_name = value->v.string_literal;
 	is_dollar_char = FALSE;
@@ -134,22 +133,9 @@ TEMPLATE(tmpl_column_reference, PhysicalPlan *pplan, SqlColumnAlias *column_alia
 	}
 	UNPACK_SQL_STATEMENT(value, keyword->v, value);
 	source = value->v.string_literal;
-	keyword = get_keyword(column, NOT_NULL);
-	if (NULL == keyword) {
-		not_null = FALSE;
-	} else {
-		not_null = TRUE;
-	}
-	keyword = get_keyword(column, PRIMARY_KEY);	// Primary keys cannot be null, so assume NOT NULL was specified
-	if (NULL != keyword) {
-		not_null = TRUE;
-	}
-	keyword = get_keyword(column, OPTIONAL_XREF_INDEX);
-	if (pplan->outputKey->is_cross_reference_key) {
-		is_xref = TRUE;
-	} else {
-		is_xref = FALSE;
-	}
+	// Primary keys cannot be null, so assume NOT NULL was specified
+	not_null = IS_COLUMN_NOT_NULL(column);
+	is_xref = pplan->outputKey->is_cross_reference_key;
 
 	column_type = get_sqlvaluetype_from_sqldatatype(column->type);
 	if (!skip_dollar_piece) {
@@ -174,9 +160,9 @@ TEMPLATE(tmpl_column_reference, PhysicalPlan *pplan, SqlColumnAlias *column_alia
 	} else {
 		if (NULL != table_delim) {
 			if (is_dollar_char) {
-				%{}-delim={{ table_delim }} -pieces=""{{ piece }}""{}%
+				%{} -delim={{ table_delim }} -pieces=""{{ piece }}""{}%
 			} else {
-				%{}-delim=""{{ table_delim }}"" -pieces=""{{ piece }}""{}%
+				%{} -delim=""{{ table_delim }}"" -pieces=""{{ piece }}""{}%
 			}
 		}
 	}

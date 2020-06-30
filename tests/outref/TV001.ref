@@ -611,9 +611,6 @@ LP_INSERT:
     - xref_key: false
     - uses_xref_key: false
 
-[TRACE] PATH:LINENUM DATE TIME : Searching for column ID in table NAMES
-[TRACE] PATH:LINENUM DATE TIME : Searching for column FIRSTNAME in table NAMES
-[TRACE] PATH:LINENUM DATE TIME : Searching for column LASTNAME in table NAMES
 [ INFO] PATH:LINENUM DATE TIME : print_temporary_table()
 0|Zero|Cool
 1|Acid|Burn

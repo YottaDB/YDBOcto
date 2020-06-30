@@ -34,5 +34,5 @@ octoPlan1(cursorId)
     . . . NEW %ydboctobool SET %ydboctobool=1
     . . . IF %ydboctobool DO
     . . . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",5,"","")) %ydboctoz=42
-    . . . . SET %ydboctocursor(cursorId,"keys",5,"","",%ydboctocursor(cursorId,"keys",5,"",""))=$$str2mval^%ydboctoplanhelpers($$empty2null^%ydboctoplanhelpers(0,"VARCHAR",$PIECE($GET(^names(%ydboctocursor(cursorId,"keys",1,"NAMES","ID"))),"|",1)))_$$str2mval^%ydboctoplanhelpers($$empty2null^%ydboctoplanhelpers(0,"VARCHAR",$PIECE($GET(^names(%ydboctocursor(cursorId,"keys",2,"NAMES","ID"))),"|",1)))_$$str2mval^%ydboctoplanhelpers($$empty2null^%ydboctoplanhelpers(0,"VARCHAR",$PIECE($GET(^names(%ydboctocursor(cursorId,"keys",3,"NAMES","ID"))),"|",1)))
+    . . . . SET %ydboctocursor(cursorId,"keys",5,"","",%ydboctocursor(cursorId,"keys",5,"",""))=$$str2mval^%ydboctoplanhelpers($$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^names(%ydboctocursor(cursorId,"keys",1,"NAMES","ID"))),"|",1)))_$$str2mval^%ydboctoplanhelpers($$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^names(%ydboctocursor(cursorId,"keys",2,"NAMES","ID"))),"|",1)))_$$str2mval^%ydboctoplanhelpers($$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^names(%ydboctocursor(cursorId,"keys",3,"NAMES","ID"))),"|",1)))
     QUIT

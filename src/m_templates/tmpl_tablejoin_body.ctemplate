@@ -26,6 +26,10 @@ TEMPLATE(tmpl_tablejoin_body, PhysicalPlan *plan, int dot_count, char *tableName
 		SqlColumn	*column;
 		boolean_t	not_null;
 		SqlValueType	column_type;
+		SqlTable	*table;
+		SqlValue	*value;
+		SqlOptionalKeyword	*keyword;
+		char		*nullchar, *not_nullchar = "-1";
 
 		assert(NULL == plan->where->v.lp_default.operand[0]);
 		assert(!plan->distinct_values);
@@ -45,12 +49,21 @@ TEMPLATE(tmpl_tablejoin_body, PhysicalPlan *plan, int dot_count, char *tableName
 		column = plan->outputKey->column;
 		not_null = IS_COLUMN_NOT_NULL(column);
 		column_type = get_sqlvaluetype_from_sqldatatype(column->type);
-		%{}$$empty2null^%%ydboctoplanhelpers({{ not_null|%d }},"{{ get_user_visible_type_string(column_type) }}",{}%
+		UNPACK_SQL_STATEMENT(table, column->table, create_table);
+		if (table->nullchar) {
+			UNPACK_SQL_STATEMENT(keyword, table->nullchar, keyword);
+			UNPACK_SQL_STATEMENT(value, keyword->v, value);
+			nullchar = value->v.string_literal;
+		} else {
+			nullchar = NULL;
+		}
+		// This function is also called in tmpl_column_reference.ctemplate: any changes there must also be reflected here
+		%{}$$empty2null^%%ydboctoplanhelpers({{ not_null|%d }},{{ ((NULL != nullchar) ? nullchar : not_nullchar) }},"{{ get_user_visible_type_string(column_type) }}",{}%
 		TMPL(tmpl_column_list_combine, col1, plan, ",", FALSE, 0, 0, 0);
 		%{}){}%
 		%{}`n{{ PLAN_LINE_START }}{}%
 		TMPL(tmpl_print_dots, dot_count);
-		if (!not_null) {
+		if ((!not_null) && (NULL == nullchar)) {
 			%{}SET:""={{ PP_XREF_COLUMN }} {{ PP_XREF_COLUMN }}=$ZYSQLNULL{}%
 			%{}	; note: this line is NOT generated for NOT NULL columns{}%
 			%{}`n{{ PLAN_LINE_START }}{}%

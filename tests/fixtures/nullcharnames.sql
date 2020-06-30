@@ -10,6 +10,4 @@
 #								#
 #################################################################
 
--- TC030 : OCTO527 : Correct handling ASCII null-byte when neither NULLCHAR nor NOT NULL are specified
-
-select * from names where lastname is NULL;
+CREATE TABLE nullcharnames (id INTEGER PRIMARY KEY, firstName VARCHAR(30) NOT NULL, lastName TEXT(30)) NULLCHAR (127) GLOBAL "^nullcharnames(keys(""id""))";

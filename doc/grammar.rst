@@ -105,6 +105,14 @@ Note that CREATE TABLE statements can also accept a list of ASCII integer values
 
 Here, two TAB characters (ASCII value 9) act as the internal delimiter of an Octo table. Note, however, that these delimiters are not applied to Octo output, which retains the default pipe :code:`|` delimiter. The reason for this is that tables may be joined that have different delimiters, so one common delimiter needs to be chosen anyway. Thus, the default is used.
 
+Similarly, CREATE TABLE statements can also accept an ASCII integer value to specify a character to interpret as a SQL NULL value:
+
+.. code-block:: SQL
+
+   CREATE TABLE nullcharnames (id INTEGER PRIMARY KEY, firstName VARCHAR(30) NOT NULL, lastName TEXT(30)) NULLCHAR (127) GLOBAL "^nullcharnames(keys(""id""))";
+
+Here, the ASCII value for DEL[ETE] is designated to be interpreted as a SQL NULL value.
+
 +++++++++++++++++++++++++++++++++++++++++++++
 Mapping to existing YottaDB global variables
 +++++++++++++++++++++++++++++++++++++++++++++
@@ -113,7 +121,7 @@ If mapping to existing YottaDB global variables, an optional_keyword can be adde
 
 .. code-block:: none
 
-   [ADVANCE | CURSOR | DELIM | END | EXTRACT | GLOBAL | KEY NUM | PIECE LITERAL]
+   [ADVANCE | CURSOR | DELIM | END | EXTRACT | GLOBAL | KEY NUM | NULLCHAR | PIECE LITERAL]
 
 The keywords denoted above are M expressions and literals. They are explained in the following table:
 
@@ -135,6 +143,10 @@ The keywords denoted above are M expressions and literals. They are explained in
 | GLOBAL                         | Literal                       | Table, Column          | Represents the "source" location for a table                                   | table/default GLOBAL setting | table_name(keys(0))          |
 +--------------------------------+-------------------------------+------------------------+--------------------------------------------------------------------------------+------------------------------+------------------------------+
 | KEY NUM                        | Literal                       | Column                 | Specifies that the column maps to keys(<number>)                               | \-                           | \-                           |
++--------------------------------+-------------------------------+------------------------+--------------------------------------------------------------------------------+------------------------------+------------------------------+
+| NULLCHAR                       | Literal                       | Table, Column          | Specifies a custom character to be interpreted as a SQL NULL value. Characters | default interpretation of    | \"\"                         |
+|                                |                               |                        | are specified as an integer ASCII value from 0-127 to be used in a call to     | empty strings as NULL values |                              |
+|                                |                               |                        | `$CHAR <https://docs.yottadb.com/ProgrammersGuide/functions.html#char>`_       |                              |                              |
 +--------------------------------+-------------------------------+------------------------+--------------------------------------------------------------------------------+------------------------------+------------------------------+
 | PIECE                          | Literal                       | Column                 | Represents the                                                                 | default (column number,      | \-                           |
 |                                |                               |                        | `$PIECE <https://docs.yottadb.com/ProgrammersGuide/functions.html#piece>`_     | starting at 1)               |                              |

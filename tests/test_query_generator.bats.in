@@ -30,8 +30,15 @@ teardown() {
 	run_query_generator pastas TQG02-
 }
 
-@test "TQG03 : Test Query Generator against names database" {
-	run_query_generator names TQG03-
+@test "TQG03 : Test Query Generator against names OR nullcharnames database" {
+	if [[ $(( $RANDOM % 2)) -eq 0 ]]; then
+		database="names"
+	else
+		database="nullcharnames"
+		load_fixture nullcharnames.sql
+		load_fixture nullcharnames.zwr
+	fi
+	run_query_generator $database TQG03-
 }
 
 @test "TQG04 : Test Query Generator against northwind database" {

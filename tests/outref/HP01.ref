@@ -1207,3 +1207,16 @@ id|firstname|lastname|salary|exempt|yearstenured
 4|Joey||0|f|0
 5|Zero|Cool|25000.01|f|20
 (6 rows)
+#######################################################################
+# Listing first 3 lines and last 3 lines of [SCHEMA : nullcharnames] [TABLE : nullcharnames]
+#######################################################################
+id|firstname|lastname
+0|Zero|Cool
+1|Acid|Burn
+2|Cereal|Killer
+...
+...
+6||
+7||
+8|Suzy|
+(9 rows)

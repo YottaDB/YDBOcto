@@ -146,6 +146,7 @@ int copied_so_far;
 (?i:MIN) { return MIN; }
 (?i:NATURAL) { return NATURAL; }
 (?i:NOT) { return NOT; }
+(?i:NULLCHAR) { return NULLCHAR; }
 (?i:NUM) { return NUM; }
 (?i:NULLIF) { return NULLIF; }
 (?i:NUMERIC) { return NUMERIC; }

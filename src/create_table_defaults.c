@@ -18,8 +18,9 @@
 #include "octo_types.h"
 #include "template_strings.h"
 
-#define SOURCE (1 << 0)
-#define DELIM  (1 << 4)
+#define SOURCE	 (1 << 0)
+#define DELIM	 (1 << 1)
+#define NULLCHAR (1 << 2)
 
 /* 0 return value implies table create was successful
  * non-zero return value implies error while creating table
@@ -97,6 +98,13 @@ int create_table_defaults(SqlStatement *table_statement, SqlStatement *keywords_
 			statement->v.keyword = cur_keyword;
 			table->delim = statement;
 			break;
+		case OPTIONAL_NULLCHAR:
+			assert(0 == (options & NULLCHAR));
+			options |= NULLCHAR;
+			SQL_STATEMENT(statement, keyword_STATEMENT);
+			statement->v.keyword = cur_keyword;
+			table->nullchar = statement;
+			break;
 		case NO_KEYWORD:
 			break;
 		default:
@@ -168,6 +176,15 @@ int create_table_defaults(SqlStatement *table_statement, SqlStatement *keywords_
 			SQL_STATEMENT(statement, keyword_STATEMENT);
 			statement->v.keyword = cur_keyword;
 			table->delim = statement;
+			break;
+		case OPTIONAL_NULLCHAR:
+			if ((NULL != table->nullchar) && (table->nullchar->v.keyword == cur_keyword)) {
+				break;
+			}
+			assert(NULL == table->nullchar);
+			SQL_STATEMENT(statement, keyword_STATEMENT);
+			statement->v.keyword = cur_keyword;
+			table->nullchar = statement;
 			break;
 		case NO_KEYWORD:
 			break;

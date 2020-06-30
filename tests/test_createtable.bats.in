@@ -277,6 +277,20 @@ OCTO
 	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries nullnames TC023.sql "trim_trailing_zeroes" "usejdbc"
 }
 
+@test "TC026 : OCTO527 : Correct handling ASCII null-byte when neither NULLCHAR nor NOT NULL are specified" {
+	$ydb_dist/yottadb -run %XCMD 'set ^names(6)="First|"_$char(0)'
+	load_fixture TC026.sql subtest novv
+	verify_output TC026 output.txt
+}
+
+@test "TC027 : OCTO527 : CREATE TABLE accepts user-defined NULL character and enforces correct precedence when used with NOT NULL" {
+	# Load fixture with user-defined NULL character in DDL and NOT NULL column
+	testname="TC027"
+	load_fixture nullcharnames.sql
+	load_fixture nullcharnames.zwr
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries nullcharnames $testname.sql
+}
+
 @test "TC029 : OCTO320 : Select a combination of populated and NULL/empty fields" {
 	run_java run_query $test_port TC029 useextended &> output.txt
 	verify_output TC029 output.txt

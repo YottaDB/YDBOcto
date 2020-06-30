@@ -28,7 +28,8 @@ TEMPLATE(tmpl_column_reference, PhysicalPlan *pplan, SqlColumnAlias *column_alia
 	SqlColumnList			*column_list;
 	SqlOptionalKeyword		*keyword;
 	SqlKey				*key;
-	char				*table_name, *table_delim;
+	char				*table_name, *table_delim, *nullchar;
+	char				*not_nullchar = "-1";
 	char				*piece = NULL, *source;
 	unsigned int			i;
 	boolean_t			skip_dollar_piece, is_dollar_char, is_xref, not_null;
@@ -66,8 +67,7 @@ TEMPLATE(tmpl_column_reference, PhysicalPlan *pplan, SqlColumnAlias *column_alia
 		%{}){}%
 		TEMPLATE_END();
 	}
-	if (pplan->treat_key_as_null[table_alias->unique_id])
-	{	/* Treat all columns in the table as NULL (used for OUTER JOINs) */
+	if (pplan->treat_key_as_null[table_alias->unique_id]) {	/* Treat all columns in the table as NULL (used for OUTER JOINs) */
 		%{}$ZYSQLNULL{}%
 		TEMPLATE_END();
 	}
@@ -136,11 +136,19 @@ TEMPLATE(tmpl_column_reference, PhysicalPlan *pplan, SqlColumnAlias *column_alia
 	// Primary keys cannot be null, so assume NOT NULL was specified
 	not_null = IS_COLUMN_NOT_NULL(column);
 	is_xref = pplan->outputKey->is_cross_reference_key;
+	if (table->nullchar) {
+		UNPACK_SQL_STATEMENT(keyword, table->nullchar, keyword);
+		UNPACK_SQL_STATEMENT(value, keyword->v, value);
+		nullchar = value->v.string_literal;
+	} else {
+		nullchar = NULL;
+	}
 
 	column_type = get_sqlvaluetype_from_sqldatatype(column->type);
 	if (!skip_dollar_piece) {
 		if (FALSE == is_xref) {
-			%{}$$empty2null^%%ydboctoplanhelpers({{ not_null|%d }},"{{ get_user_visible_type_string(column_type) }}",{}%
+			// This function is also called in tmpl_tablejoin_body.ctemplate: changes there must also be reflected here
+			%{}$$empty2null^%%ydboctoplanhelpers({{ not_null|%d }},{{ ((NULL != nullchar) ? nullchar : not_nullchar) }},"{{ get_user_visible_type_string(column_type) }}",{}%
 		}
 		%{}$PIECE($GET({}%
 	}

@@ -10,6 +10,12 @@
 #								#
 #################################################################
 
--- TC030 : OCTO527 : Correct handling ASCII null-byte when neither NULLCHAR nor NOT NULL are specified
+-- TC028 : OCTO527 : Correct precedence of NULLCHAR and NOT NULL column specifications
 
-select * from names where lastname is NULL;
+SELECT * FROM nullcharnames n1 LEFT JOIN nullcharnames n2 ON n1.lastname = n2.lastname;
+
+SELECT * FROM nullcharnames WHERE firstname = '' OR lastname IS NULL;	-- rowcount-only-check
+
+SELECT * FROM nullcharnames n1 NATURAL JOIN nullcharnames n2;
+
+SELECT * FROM nullcharnames n1 LEFT JOIN nullcharnames n2 ON n1.firstname = n2.firstname;

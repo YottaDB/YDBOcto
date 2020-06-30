@@ -69,6 +69,7 @@ void *decompress_statement_helper(SqlStatement *stmt, char *out, int out_length)
 		CALL_DECOMPRESS_HELPER(table->source, out, out_length);
 		CALL_DECOMPRESS_HELPER(table->columns, out, out_length);
 		CALL_DECOMPRESS_HELPER(table->delim, out, out_length);
+		CALL_DECOMPRESS_HELPER(table->nullchar, out, out_length);
 		/* table->oid is not a pointer value so no need to call CALL_DECOMPRESS_HELPER on this member */
 		break;
 	case create_function_STATEMENT:

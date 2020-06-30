@@ -675,18 +675,17 @@ get3bytedatalen(byte1,mval,offset)
 	; `offset` indicates how many bytes to go past before extracting the 2nd/3rd byte
 	QUIT (byte1-192)*65536+($ZASCII($ZEXTRACT(mval,offset+2))*256)+$ZASCII($ZEXTRACT(mval,offset+3))-3
 
-empty2null(isnotnull,type,piece)
-	; Conditionally converts an empty string value returned by $PIECE to $ZYSQLNULL if NOT NULL is not specified
-	NEW result
-	SET result=piece
-	IF ""=piece DO
-	. IF isnotnull DO
-	. . IF ("NUMERIC"=type)!("INTEGER"=type)!("BOOLEAN"=type) DO
-	. . . SET result="0"
-	. . ; No action needed for VARCHAR case, since ""=piece already
-	. ELSE  DO
-	. . SET result=$ZYSQLNULL
-	QUIT result
+empty2null(isnotnull,charnum,type,piece)
+	; Conditionally converts an empty string or NULLCHAR value returned by $PIECE to $ZYSQLNULL if NOT NULL is not specified
+	; First handle case where custom NULLCHAR is specified
+	QUIT:(-1'=charnum) $SELECT(($CHAR(charnum)=piece):$ZYSQLNULL,1:piece)
+	; Now that we know no custom NULLCHAR is specified, check if piece value is not empty. If so, return that right away.
+	QUIT:(""'=piece) piece
+	; Now that we know no custom NULLCHAR is specified and "piece" is "", if NOT NULL is not specified, return NULL
+	QUIT:'isnotnull $ZYSQLNULL
+	; Now that we know NOT NULL is specified for this column, return default value based on the column type
+	; For VARCHAR it is "". For other types it is 0.
+	QUIT $SELECT((("NUMERIC"=type)!("INTEGER"=type)!("BOOLEAN"=type)):0,1:"")
 
 trimdotstar(resstr)
 	; Removes consequent .*'s present in resstr

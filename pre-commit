@@ -130,7 +130,7 @@ foreach file ($filelist)
 	set extension = $file:e
 	set fixlist = ""
 	if ( "c" == "$extension" || "h" == "$extension" ) then
-		clang-format -i "$file"
+		"$CLANG_FORMAT" -i "$file"
 		# Check if there a changes that are unstaged (as opposed to staged and uncommitted)
 		git diff-files --exit-code --name-only -- "$file" >/dev/null
 		if ($status) then

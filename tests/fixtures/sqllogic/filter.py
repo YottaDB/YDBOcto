@@ -22,14 +22,17 @@ import os
 import random
 from os import path
 
-def parse_queries(file, is_start, is_end):
+def parse_queries(file, line_info):
     """
     Parse the queries in a file.
     Parameters:
     - a `file` which iterates over lines
-    - a function `is_start` that tells whether a line is the start of a query
-    - a function `is_end` that tells whether a line is the end of a query
-    Note that neither the start nor end lines are added to the query.
+    - a function `line_info` returning (`start`, `end`, `inclusive`), where
+        + `start` indicates the line is the start of a query
+        + `end` indicates the line is the end of a query
+        + `inclusive` indicates the line should be included in the query.
+        It is a logic error to for a line to be inclusive but not a start or end.
+        If a line is both a start and an end, it will only be included once.
     Returns a list of queries, where each query is a list of lines.
     """
     current_query = []
@@ -38,23 +41,31 @@ def parse_queries(file, is_start, is_end):
     # but have `current_query` be empty if we just saw the start line.
     # Instead we have an explicit in_query variable.
     in_query = False
-    for i, line in enumerate(file):
+    for line in file:
+        start, end, inclusive = line_info(line)
+        if inclusive:
+            assert start or end, "it is a logic error for a line to be included if it is not the start or end of a query"
+
+        # Just because this _could_ be the start of the query doesn't mean it is.
+        if in_query:
+            start = False
+        # Start of a new query
+        if start:
+            in_query = True
+            if inclusive:
+                current_query.append(line)
         # End of an ongoing query
-        if is_end(line):
+        if end:
+            # Avoid adding the same line twice
+            if inclusive and not start:
+                current_query.append(line)
             # Ignore empty queries
             if current_query:
                 queries.append(current_query)
                 current_query = []
                 in_query = False
-        # Start of a new query
-        elif is_start(line):
-            assert not in_query, (
-                "saw the start of a new query, but the old one didn't finish" +
-                " (on line {}: {})".format(i + 1, line),
-            )
-            in_query = True
         # Existing query
-        elif in_query:
+        elif in_query and not start:
             current_query.append(line)
         else:
             # probably a blank line or something
@@ -104,25 +115,22 @@ if __name__ == '__main__':
     descriptions = []
     description = ''
 
-    def is_start(line):
+    def line_info(line):
         global description
         line = line.strip()
-        yes = line.startswith("query")
-        if yes:
+        start = line.startswith("query")
+        if start:
             description = line[len("query"):]
             assert description, "queries should have a description"
-        return yes
-
-    def is_end(line):
-        global description
-        yes = "----" in line
-        if yes:
+        end = "----" in line
+        if end:
+            assert not start, "sqllogic tests cannot both start and end on the same line"
             descriptions.append(description)
             description = ''
-        return yes
+        return start, end, False
 
     with open(input_filename) as query_file:
-        queries = parse_queries(query_file, is_start, is_end)
+        queries = parse_queries(query_file, line_info)
 
     format = lambda i, query: template.format(descriptions[i], ''.join(query))
     num_generated = write_random_sample(queries, format, percentage)

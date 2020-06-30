@@ -12,5 +12,4 @@
 
 -- TWI10 : OCTO424 : Floating point numeric literals greater than 10 get incorrectly treated as Table References
 
-SELECT * FROM Products WHERE Products.Price IN (19, 15, 32, 7.75, 19.45, 32, 16.25)
-
+SELECT * FROM Products WHERE Products.Price IN (19, 15, 32, 7.75, 19.45, 32, 16.25);

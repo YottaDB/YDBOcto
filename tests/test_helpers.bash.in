@@ -542,7 +542,7 @@ run_query_in_octo_and_postgres_and_crosscheck_multiple_queries() {
 		cp @PROJECT_SOURCE_DIR@/tests/fixtures/$queryfile .
 	fi
 	trimzeroes="$3"
-	$ydb_dist/mumps -run splitqueries $queryfile
+	@PROJECT_SOURCE_DIR@/tests/fixtures/sqllogic/split_queries.py $queryfile
 	fname=`echo $queryfile | sed 's/\..*//g'`
 	for splitfile in $fname-*.sql
 	do

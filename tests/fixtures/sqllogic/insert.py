@@ -39,11 +39,13 @@ statement ok
 Note the blank line at the end.
 """
 
-is_start = lambda line: line.strip() == "statement ok"
-is_end = lambda line: not line.strip()
+def line_info(line):
+    start = line.strip() == "statement ok"
+    end = not line.strip()
+    return start, end, False
 
 with open(input_filename) as insert_file:
-    statements = parse_queries(insert_file, is_start, is_end)
+    statements = parse_queries(insert_file, line_info)
 
 # First write the parsed SQL statements to disk
 format = lambda query: ''.join(query).rstrip() + ';\n'

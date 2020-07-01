@@ -241,7 +241,7 @@ SELECT
 
 .. code-block:: SQL
 
-   SELECT [ALL | DISTINCT] ASTERISK | column [AS] [alias_name][...,column [AS] [alias_name]] FROM table_name [AS] [alias_name] [WHERE search_condition] [GROUP BY column[,..column]] [HAVING search_condition] [ORDER BY sort_specification] [LIMIT number];
+   SELECT [ALL | DISTINCT] ASTERISK | column [[AS] alias_name][...,column [[AS] alias_name]] | value_expression [FROM table_name [[AS] alias_name]] [WHERE search_condition] [GROUP BY column[,..column]] [HAVING search_condition] [ORDER BY sort_specification] [LIMIT number];
 
 The SELECT statement is used to select rows from the database by specifying a query, and optionally sorting the resulting rows.
 
@@ -255,6 +255,8 @@ The WHERE clause represents a condition under which columns are selected.
 The GROUP BY clause ensures that the resulting rows are grouped together by certain characteristics.
 
 The HAVING clause works to filter the rows that result from the GROUP BY clause.
+
+See :ref:`Technical Notes <technical-notes>` for details on value expressions.
 
 Example:
 
@@ -333,6 +335,21 @@ Example:
 .. code-block:: SQL
 
    SELECT FirstName, LastName, Address FROM Employee INNER JOIN Addresses ON Employee.ID = Addresses.EID;
+
++++++++++++++++++++++
+Queries without rows
++++++++++++++++++++++
+
+SELECT can also be used to calculate values, without needing to select from a table.
+
+Example:
+
+.. code-block:: SQL
+
+   SELECT (1 * 2) + 3;
+
+Note that WHERE is not currently supported for SELECT statements without a FROM clause.
+This is known issue tracked at `YDB#500 <https://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/500>`_.
 
 --------------
 INSERT
@@ -967,6 +984,8 @@ Variations of ~
 #. :code:`~*` : Case insensitive version of ~
 
 #. :code:`!~*` : Negated version of case insensitive ~
+
+.. _technical-notes:
 
 ---------------------
 Technical Notes

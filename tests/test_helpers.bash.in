@@ -566,7 +566,18 @@ run_query_in_octo_and_postgres_and_crosscheck() {
 	jdbcprotocol="$5"
 	fname=`echo $queryfile | sed 's/\..*//g'`
 	grep -v '^#' $queryfile > $queryfile.inp # Filter out '#' comment lines, if any, as that is not valid in Postgres
-	psql --no-align $database -f $queryfile.inp >& $fname.psql.out
+	# psql errors will never have the same output as octo errors, so they cannot be used in crosscheck.
+	# Therefore any error should fail the test.
+	# However, on CentOS 7 there are many spurious failures due to postgres not being able to infer the type of NULL.
+	# Ignore these failures because they do not affect the correctness of Octo.
+	postgres_version="$(psql --command='show server_version;' --no-align --tuples-only postgres)"
+	local psql_cmd
+	if [ "$(echo "$postgres_version" | cut -d . -f 1)" -lt 10 ]; then
+		psql_cmd=psql
+	else
+		psql_cmd="psql -v ON_ERROR_STOP=1"
+	fi
+	$psql_cmd --no-align $database -f $queryfile.inp >& $fname.psql.out
 	# Postgres displays boolean values as t and f whereas Octo displays them as 1 and 0 so fix that before the diff.
 	tail -n +2 $fname.psql.out | head -n -1 | sed 's/\<t\>/1/g;s/\<f\>/0/g;' >& $fname.ref
 	if [[ $usejdbc == "usejdbc" ]]; then

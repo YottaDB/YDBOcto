@@ -276,17 +276,20 @@ Octo uses several internal global variables to map a SQL schema/DDL to a YottaDB
 
 Please see the following example for creating a database from scratch with the recommended settings. For more information on setting up a database in YottaDB, refer to the [Administration and Operations Guide](https://docs.yottadb.com/AdminOpsGuide/index.html).
 
+The below commands create an Octo database in the `build` directory. The build directory may be empty; all relevant files will be created.
+
 ```sh
 $ cd build
-$ export ydb_gbldir=*path to build directory*/octo.gld
-$ $ydb_dist/mumps -r GDE
-GDE> add -segment OCTO -access_method=bg -file_name=*path to build directory*/octo.dat
-GDE> add -region OCTO -dynamic=octo -journal=(before,file="*path to build directory*/octo.mjl") -null_subscripts=always -key_size=1019 -record_size=300000
-GDE> add -name %ydboctoschema -region=octo
-GDE> add -name %ydboctoxref -region=octo
-GDE> add -name %ydboctoocto -region=octo
-GDE> verify
-GDE> exit
+$ export ydb_gbldir="$(pwd -P)/octo.gld"
+$ echo >gde.cmd "\
+add -segment OCTO -access_method=bg -file_name=$(pwd -P)/octo.dat
+add -region OCTO -dynamic=octo -journal=(before,file=\"$(pwd -P)/octo.mjl\") -null_subscripts=always -key_size=1019 -record_size=300000
+add -name %ydboctoschema -region=octo
+add -name %ydboctoxref -region=octo
+add -name %ydboctoocto -region=octo
+verify
+exit"
+$ $ydb_dist/mumps -r GDE @gde.cmd
 $ mupip create
 ```
 

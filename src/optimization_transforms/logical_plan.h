@@ -163,6 +163,18 @@ typedef struct LpExtraCoerceType {
 	SqlValueType pre_coerce_type; /* The type of the operand before the typecast/coercion operator */
 } LpExtraCoerceType;
 
+/* When adding a LP_FUNCTION_CALL we need to know if a LP_FUNCTION_CALL plan is already part of the linked list.
+ * Since we maintain a singly linked list of these plans, an easy way to know this is if a plan has a non-NULL "next_function" link.
+ * But if a plan is the last member of the linked list, it would have a "next_function" link of NULL but is still part
+ * of the linked list so we need a special value (that is not NULL and is also not a valid pointer) to denote the end of the
+ * linked list. Hence the special choice of -1 in the below macro.
+ */
+#define LP_FUNCTION_CALL_LIST_END ((LogicalPlan *)-1)
+
+typedef struct LpExtraFunctionCall {
+	struct LogicalPlan *next_function; /* maintains linked list of LP_FUNCTION_CALL plans in entire query */
+} LpExtraFunctionCall;
+
 /* We use yet another triple type here so we can easily traverse the tree to replace tables and WHEREs.
  * Specifically, the WHERE can have complete trees under it, and it would be awkward to overload void pointers.
  */
@@ -190,6 +202,7 @@ typedef struct LogicalPlan {
 		LpExtraDerivedColumn	 lp_derived_column;	// To be used if type == LP_DERIVED_COLUMN
 		LpExtraAggregateFunction lp_aggregate_function; // To be used if type == LP_AGGREGATE_*
 		LpExtraCoerceType	 lp_coerce_type;	// To be used if type == LP_COERCE_TYPE
+		LpExtraFunctionCall	 lp_function_call;	// To be used if type == LP_FUNCTION_CALL
 	} extra_detail;
 } LogicalPlan;
 
@@ -236,17 +249,6 @@ LogicalPlan *lp_generate_set_logical_plan(SqlStatement *stmt);
 LogicalPlan *lp_copy_plan(LogicalPlan *plan);
 // Copies the SqlKey into a new key
 SqlKey *lp_copy_key(SqlKey *key);
-
-// Verifies that we have a good structure
-//  Rules: root is INSERT, has TABLE and PROJECT as parameters
-//   PROJECT has COLUMN_LIST and SELECT as parameters
-//     SELECT has TABLE and CRITERIA as parameters
-//       CRITERIA has KEYS and WHERE as criteria
-//  OR: root is SET_OPERATION, and has SET_OPTIONS and PLANS as parameters
-//    SET_OPTION has <set type>
-//    PLANS has <INSERT|SET_OPERATION> as both operands
-// As a side effect, this also fills in the linked list of aggregate function (`aggregate` parameter).
-int lp_verify_structure(LogicalPlan *plan, LogicalPlan **aggregate);
 
 // Returns the projection triple
 LogicalPlan *lp_get_project(LogicalPlan *plan);

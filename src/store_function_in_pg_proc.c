@@ -80,17 +80,17 @@ int store_function_in_pg_proc(SqlFunction *function) {
 
 	// Setup pg_proc table node buffers
 	YDB_STRING_TO_BUFFER(config->global_names.octo, &pg_proc[0]);
-	YDB_STRING_TO_BUFFER("tables", &pg_proc[1]);
-	YDB_STRING_TO_BUFFER("pg_catalog", &pg_proc[2]);
+	YDB_STRING_TO_BUFFER(OCTOLIT_TABLES, &pg_proc[1]);
+	YDB_STRING_TO_BUFFER(OCTOLIT_PG_CATALOG, &pg_proc[2]);
 	YDB_STRING_TO_BUFFER("pg_proc", &pg_proc[3]);
 	pg_proc[4].buf_addr = proc_oid_str;
 	pg_proc[4].len_alloc = sizeof(proc_oid_str);
 	// Setup global OID node buffers
 	YDB_STRING_TO_BUFFER(config->global_names.octo, &oid_buffer[0]);
-	YDB_STRING_TO_BUFFER("oid", &oid_buffer[1]);
+	YDB_STRING_TO_BUFFER(OCTOLIT_OID, &oid_buffer[1]);
 
 	/* Get a unique OID for the passed in function.
-	 * 	i.e. $INCREMENT(^%ydboctoocto("oid"))
+	 * 	i.e. $INCREMENT(^%ydboctoocto(OCTOLIT_OID))
 	 */
 	status = ydb_incr_s(&oid_buffer[0], 1, &oid_buffer[1], NULL, &pg_proc[4]);
 	YDB_ERROR_CHECK(status);
@@ -150,7 +150,7 @@ int store_function_in_pg_proc(SqlFunction *function) {
 	row_buffer.len_alloc = row_buffer.len_used = strlen(row_str);
 	row_buffer.buf_addr = row_str;
 	/* Set the function name passed in as having an oid FUNCTIONOID in the pg_catalog.
-	 * 	i.e. SET ^%ydboctoocto("tables","pg_catalog","pg_proc",FUNCTIONOID)=...
+	 * 	i.e. SET ^%ydboctoocto(OCTOLIT_TABLES,OCTOLIT_PG_CATALOG,"pg_proc",FUNCTIONOID)=...
 	 */
 	status = ydb_set_s(&pg_proc[0], 4, &pg_proc[1], &row_buffer);
 	YDB_ERROR_CHECK(status);
@@ -158,15 +158,15 @@ int store_function_in_pg_proc(SqlFunction *function) {
 		return 1;
 	}
 
-	/* Store a cross reference of the FUNCTIONOID in ^%ydboctoocto("functions").
-	 *	i.e. SET ^%ydboctoocto("functions",function_name,"oid")=FUNCTIONOID
+	/* Store a cross reference of the FUNCTIONOID in ^%ydboctoocto(OCTOLIT_FUNCTIONS).
+	 *	i.e. SET ^%ydboctoocto(OCTOLIT_FUNCTIONS,function_name,OCTOLIT_OID)=FUNCTIONOID
 	 * That way a later DROP FUNCTION or CREATE FUNCTION `function_name` can clean all ^%ydboctoocto
 	 * nodes created during the previous CREATE FUNCTION `function_name`
 	 */
 	YDB_STRING_TO_BUFFER(config->global_names.octo, &octo_functions[0]);
-	YDB_STRING_TO_BUFFER("functions", &octo_functions[1]);
+	YDB_STRING_TO_BUFFER(OCTOLIT_FUNCTIONS, &octo_functions[1]);
 	YDB_STRING_TO_BUFFER(function_name, &octo_functions[2]);
-	YDB_STRING_TO_BUFFER("oid", &octo_functions[3]);
+	YDB_STRING_TO_BUFFER(OCTOLIT_OID, &octo_functions[3]);
 	status = ydb_set_s(&octo_functions[0], 3, &octo_functions[1], &pg_proc[4]);
 	YDB_ERROR_CHECK(status);
 	if (YDB_OK != status) {

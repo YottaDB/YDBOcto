@@ -49,7 +49,7 @@ SqlTable *find_table(const char *table_name) {
 	 * again from the database and release the process local memory that was housing the previous table definition.
 	 */
 	YDB_STRING_TO_BUFFER(config->global_names.loadedschemas, &varname);
-	YDB_STRING_TO_BUFFER("tables", &subs_array[0]);
+	YDB_STRING_TO_BUFFER(OCTOLIT_TABLES, &subs_array[0]);
 	YDB_STRING_TO_BUFFER((char *)table_name, &subs_array[1]);
 	ret.buf_addr = &retbuff[0];
 	ret.len_alloc = sizeof(retbuff);
@@ -64,7 +64,7 @@ SqlTable *find_table(const char *table_name) {
 		/* Check if table has not changed in the database since we cached it */
 		YDB_STRING_TO_BUFFER(config->global_names.schema, &varname);
 		YDB_STRING_TO_BUFFER((char *)table_name, &subs_array[0]);
-		YDB_STRING_TO_BUFFER("pg_class", &subs_array[1]);
+		YDB_STRING_TO_BUFFER(OCTOLIT_PG_CLASS, &subs_array[1]);
 		ret.buf_addr = &oid_buff[0];
 		ret.len_alloc = sizeof(oid_buff);
 		status = ydb_get_s(&varname, 2, &subs_array[0], &ret);
@@ -112,8 +112,8 @@ SqlTable *find_table(const char *table_name) {
 	/* Find space (in bytes) used up by table definition from a global variable node */
 	table_binary_b = make_buffers(config->global_names.schema, 3, table_name, "", "");
 	YDB_MALLOC_BUFFER(&table_binary_b[3], INT32_TO_STRING_MAX + 1); /* + 1 for null terminator */
-	/* Set gvn 2nd subscript to "l" to get the length in bytes of the binary table definition */
-	YDB_LITERAL_TO_BUFFER("l", &table_binary_b[2]);
+	/* Set gvn 2nd subscript to OCTOLIT_LENGTH to get the length in bytes of the binary table definition */
+	YDB_LITERAL_TO_BUFFER(OCTOLIT_LENGTH, &table_binary_b[2]);
 	status = ydb_get_s(table_binary_b, 2, &table_binary_b[1], &table_binary_b[3]);
 	switch (status) {
 	case YDB_OK:
@@ -146,8 +146,8 @@ SqlTable *find_table(const char *table_name) {
 	}
 	table_binary_b[3].buf_addr[table_binary_b[3].len_used] = '\0'; /* null terminate string before invoking "atoi" */
 	length = atoi(table_binary_b[3].buf_addr);
-	/* Switch gvn 2nd subscript from "l" back to "b" to get the binary table definition */
-	YDB_LITERAL_TO_BUFFER("b", &table_binary_b[2]);
+	/* Switch gvn 2nd subscript from OCTOLIT_LENGTH back to OCTOLIT_BINARY to get the binary table definition */
+	YDB_LITERAL_TO_BUFFER(OCTOLIT_BINARY, &table_binary_b[2]);
 
 	/* Allocate a buffer to hold the full table.
 	 * Note that we create a new memory chunk here (different from the memory chunk used to store octo structures
@@ -213,7 +213,7 @@ SqlTable *find_table(const char *table_name) {
 		return NULL;
 	}
 	// Note down the memory chunk so we can free it later
-	YDB_STRING_TO_BUFFER("chunk", &subs_array[2]);
+	YDB_STRING_TO_BUFFER(OCTOLIT_CHUNK, &subs_array[2]);
 	save_value.buf_addr = (char *)&memory_chunks;
 	save_value.len_used = save_value.len_alloc = sizeof(void *);
 	status = ydb_set_s(&varname, 3, &subs_array[0], &save_value);

@@ -164,7 +164,7 @@ int send_result_rows(int32_t cursor_id, void *_parms, char *plan_name) {
 		// Create buffers to retrieve the number of row formats specified for this portal
 		YDB_STRING_TO_BUFFER(config->global_names.session, &portal_subs[0]);
 		YDB_STRING_TO_BUFFER(session->session_id->buf_addr, &portal_subs[1]);
-		YDB_STRING_TO_BUFFER("bound", &portal_subs[2]);
+		YDB_STRING_TO_BUFFER(OCTOLIT_BOUND, &portal_subs[2]);
 		YDB_STRING_TO_BUFFER(parms->portal_name, &portal_subs[3]);
 		YDB_STRING_TO_BUFFER("col_formats", &portal_subs[4]);
 
@@ -217,7 +217,7 @@ int send_result_rows(int32_t cursor_id, void *_parms, char *plan_name) {
 					// Using same underlying string for both buffers, so update len_used to match
 					plan_meta[4].len_used = portal_subs[5].len_used;
 					// Retrieve the type OID for each column: needed to convert some types to binary format
-					YDB_STRING_TO_BUFFER("data_type", &plan_meta[5]);
+					YDB_STRING_TO_BUFFER(OCTOLIT_DATA_TYPE, &plan_meta[5]);
 					status = get_column_type_oid(plan_meta, &value_buffer, &col_data_types[cur_column]);
 					if (0 != status) {
 						free(col_data_types);
@@ -262,7 +262,7 @@ int send_result_rows(int32_t cursor_id, void *_parms, char *plan_name) {
 					return 1;
 				}
 				// Retrieve the type OID for each column, as this is needed to convert some types to binary format
-				YDB_STRING_TO_BUFFER("data_type", &plan_meta[5]);
+				YDB_STRING_TO_BUFFER(OCTOLIT_DATA_TYPE, &plan_meta[5]);
 				status = get_column_type_oid(plan_meta, &value_buffer, &col_data_types[cur_column]);
 				if (0 != status) {
 					free(col_data_types);

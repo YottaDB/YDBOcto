@@ -35,23 +35,25 @@
 #define TIMEOUT_1_SEC  ((unsigned long long)1000000000)
 #define TIMEOUT_10_SEC (10 * TIMEOUT_1_SEC)
 
-#define CLEANUP_AND_RETURN(MEMORY_CHUNKS, BUFFER, TABLE_SUB_BUFFER, TABLE_BUFFER, QUERY_LOCK)           \
-	{                                                                                               \
-		if (NULL != BUFFER) {                                                                   \
-			free(BUFFER);                                                                   \
-		}                                                                                       \
-		if (NULL != TABLE_SUB_BUFFER) {                                                         \
-			YDB_FREE_BUFFER(TABLE_SUB_BUFFER);                                              \
-		}                                                                                       \
-		if (NULL != TABLE_BUFFER) {                                                             \
-			free(TABLE_BUFFER);                                                             \
-		}                                                                                       \
-		if (NULL != QUERY_LOCK) {                                                               \
-			ydb_lock_decr_s((ydb_buffer_t *)QUERY_LOCK, 1, (ydb_buffer_t *)QUERY_LOCK + 1); \
-			/* cannot do much if call returns != YDB_OK */                                  \
-		}                                                                                       \
-		OCTO_CFREE(MEMORY_CHUNKS);                                                              \
-		return 1;                                                                               \
+#define CLEANUP_AND_RETURN(MEMORY_CHUNKS, BUFFER, TABLE_SUB_BUFFER, TABLE_BUFFER, QUERY_LOCK)                       \
+	{                                                                                                           \
+		if (NULL != BUFFER) {                                                                               \
+			free(BUFFER);                                                                               \
+		}                                                                                                   \
+		if (NULL != TABLE_SUB_BUFFER) {                                                                     \
+			YDB_FREE_BUFFER(TABLE_SUB_BUFFER);                                                          \
+		}                                                                                                   \
+		if (NULL != TABLE_BUFFER) {                                                                         \
+			free(TABLE_BUFFER);                                                                         \
+		}                                                                                                   \
+		if (NULL != QUERY_LOCK) {                                                                           \
+			int lclStatus;                                                                              \
+                                                                                                                    \
+			lclStatus = ydb_lock_decr_s((ydb_buffer_t *)QUERY_LOCK, 1, (ydb_buffer_t *)QUERY_LOCK + 1); \
+			YDB_ERROR_CHECK(lclStatus);                                                                 \
+		}                                                                                                   \
+		OCTO_CFREE(MEMORY_CHUNKS);                                                                          \
+		return 1;                                                                                           \
 	}
 
 #define CLEANUP_AND_RETURN_IF_NOT_YDB_OK(STATUS, MEMORY_CHUNKS, BUFFER, TABLE_SUB_BUFFER, TABLE_BUFFER, QUERY_LOCK) \
@@ -62,14 +64,27 @@
 		}                                                                                                   \
 	}
 
-#define CHECK_IF_DB_NODE_EXISTS(PLAN_FILENAME, DB_NODE_FOUND, STATUS)         \
+#define SETUP_PLAN_METADATA_DB_NODE(PLAN_FILENAME, VARNAME, SUBS_ARRAY)       \
 	{                                                                     \
-		ydb_buffer_t varname, subs_array[2];                          \
-                                                                              \
-		YDB_STRING_TO_BUFFER(config->global_names.octo, &varname);    \
-		YDB_LITERAL_TO_BUFFER(OCTOLIT_PLAN_METADATA, &subs_array[0]); \
-		YDB_STRING_TO_BUFFER(PLAN_FILENAME, &subs_array[1]);          \
-		STATUS = ydb_data_s(&varname, 2, subs_array, &DB_NODE_FOUND); \
+		YDB_STRING_TO_BUFFER(config->global_names.octo, &VARNAME);    \
+		YDB_LITERAL_TO_BUFFER(OCTOLIT_PLAN_METADATA, &SUBS_ARRAY[0]); \
+		YDB_STRING_TO_BUFFER(PLAN_FILENAME, &SUBS_ARRAY[1]);          \
+	}
+
+#define GET_PLAN_METADATA_DB_NODE(PLAN_FILENAME, DB_NODE_FOUND, STATUS)          \
+	{                                                                        \
+		ydb_buffer_t varname, subs_array[2];                             \
+                                                                                 \
+		SETUP_PLAN_METADATA_DB_NODE(PLAN_FILENAME, varname, subs_array); \
+		STATUS = ydb_data_s(&varname, 2, subs_array, &DB_NODE_FOUND);    \
+	}
+
+#define DELETE_PLAN_METADATA_DB_NODE(PLAN_FILENAME, STATUS)                      \
+	{                                                                        \
+		ydb_buffer_t varname, subs_array[2];                             \
+                                                                                 \
+		SETUP_PLAN_METADATA_DB_NODE(PLAN_FILENAME, varname, subs_array); \
+		STATUS = ydb_delete_s(&varname, 2, subs_array, YDB_DEL_TREE);    \
 	}
 
 #define CLEANUP_FILENAME_LOCK(I, FILENAME_LOCK, STATUS)                                                   \
@@ -79,16 +94,20 @@
 			 * Cannot do much if call fails. Hence no check of return status.                 \
 			 */                                                                               \
 			STATUS = ydb_lock_decr_s(&FILENAME_LOCK[0], 2, &FILENAME_LOCK[1]);                \
+			YDB_ERROR_CHECK(STATUS);                                                          \
 		}                                                                                         \
 		if (NULL != FILENAME_LOCK) {                                                              \
 			free(FILENAME_LOCK);                                                              \
 		}                                                                                         \
 	}
 
-#define CLEANUP_QUERY_LOCK_AND_MEMORY_CHUNKS(QUERY_LOCK, MEMORY_CHUNKS)                                \
-	{                                                                                              \
-		ydb_lock_decr_s(&QUERY_LOCK[0], 2, &QUERY_LOCK[1]); /* cannot do much if call fails */ \
-		OCTO_CFREE(MEMORY_CHUNKS);                                                             \
+#define CLEANUP_QUERY_LOCK_AND_MEMORY_CHUNKS(QUERY_LOCK, MEMORY_CHUNKS)         \
+	{                                                                       \
+		int lclStatus;                                                  \
+                                                                                \
+		lclStatus = ydb_lock_decr_s(&QUERY_LOCK[0], 2, &QUERY_LOCK[1]); \
+		YDB_ERROR_CHECK(lclStatus);                                     \
+		OCTO_CFREE(MEMORY_CHUNKS);                                      \
 	}
 
 #define CLEANUP_FROM_PLAN_GENERATION(I, FILENAME_LOCK, QUERY_LOCK, MEMORY_CHUNKS)                       \
@@ -96,10 +115,18 @@
 		int lclStatus;                                                                          \
                                                                                                         \
 		CLEANUP_FILENAME_LOCK(I, FILENAME_LOCK, lclStatus); /* lclStatus is set but not used */ \
-		UNUSED(lclStatus);                                                                      \
+		/* No need to use lclStatus to return a non-zero value since the caller of this macro   \
+		 * is already in a code path that returns a non-zero value to signify an error.         \
+		 */                                                                                     \
 		CLEANUP_QUERY_LOCK_AND_MEMORY_CHUNKS(QUERY_LOCK, MEMORY_CHUNKS);                        \
 	}
 
+/* Runs a query that has already been read and parsed. Creates a logical and physical plan if necessary. And executes it.
+ * Returns
+ *	 0 for normal
+ *	 1 for error
+ *	-1 if query has been canceled.
+ */
 int run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_description, ParseContext *parse_context) {
 	FILE *		out;
 	PhysicalPlan *	pplan;
@@ -164,15 +191,15 @@ int run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_descrip
 	 *
 	 * This is to ensure DDL changes do not happen while we are reading M globals as part of parsing the query.
 	 *
-	 * 1) is implemented by each read-only query getting a lock on ^%ydboctoocto("ddl",<pid>) before parsing the query
+	 * 1) is implemented by each read-only query getting a lock on ^%ydboctoocto(OCTOLIT_DDL,<pid>) before parsing the query
 	 *    and releasing it after parsing and execution of the query (at the end of "run_query.c").
-	 * 2) is implemented by getting a lock on ^%ydboctoocto("ddl",<pid>) before parsing the query. Once the parse is done
-	 *    and the query is going to be executed, we release this lock and instead get a lock on ^%ydboctoocto("ddl")
-	 *    which will be obtainable only if all other shared queries are done releasing ^%ydboctoocto("ddl",<pid>)
+	 * 2) is implemented by getting a lock on ^%ydboctoocto(OCTOLIT_DDL,<pid>) before parsing the query. Once the parse is done
+	 *    and the query is going to be executed, we release this lock and instead get a lock on ^%ydboctoocto(OCTOLIT_DDL)
+	 *    which will be obtainable only if all other shared queries are done releasing ^%ydboctoocto(OCTOLIT_DDL,<pid>)
 	 *   (i.e. no other read-only query is in the parsing or execution phase).
 	 */
 	YDB_STRING_TO_BUFFER(config->global_names.octo, &query_lock[0]);
-	YDB_LITERAL_TO_BUFFER("ddl", &query_lock[1]);
+	YDB_LITERAL_TO_BUFFER(OCTOLIT_DDL, &query_lock[1]);
 	/* We have allocated INT64_TO_STRING_MAX bytes which can store at most an 8-byte quantity hence the 8 in assert below */
 	assert((INT64_TO_STRING_MAX == sizeof(pid_buffer)) && (8 >= sizeof(pid_t)));
 	query_lock[2].buf_addr = pid_buffer;
@@ -222,14 +249,16 @@ int run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_descrip
 	     input_buffer_combined + old_input_index);
 	if (NULL == result) {
 		INFO(CUSTOM_ERROR, "Returning failure from run_query");
-		ydb_lock_decr_s(&query_lock[0], 2, &query_lock[1]); /* cannot do much if call returns != YDB_OK */
+		status = ydb_lock_decr_s(&query_lock[0], 2, &query_lock[1]);
+		YDB_ERROR_CHECK(status);
 		OCTO_CFREE(memory_chunks);
 		return 1;
 	}
 	if (config->dry_run || (no_data_STATEMENT == result->type)) {
-		ydb_lock_decr_s(&query_lock[0], 2, &query_lock[1]); /* cannot do much if call returns != YDB_OK */
+		status = ydb_lock_decr_s(&query_lock[0], 2, &query_lock[1]);
+		YDB_ERROR_CHECK(status);
 		OCTO_CFREE(memory_chunks);
-		return 0;
+		return (YDB_OK != status);
 	}
 	INFO(CUSTOM_ERROR, "Generating SQL for cursor %s", cursor_ydb_buff.buf_addr);
 	free_memory_chunks = true; // By default run "octo_cfree(memory_chunks)" at the end
@@ -255,14 +284,16 @@ int run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_descrip
 		TRACE(ERR_ENTERING_FUNCTION, "hash_canonical_query");
 		INVOKE_HASH_CANONICAL_QUERY(state, result, status); /* "state" holds final hash */
 		if (0 != status) {
-			ydb_lock_decr_s(&query_lock[0], 2, &query_lock[1]); /* cannot do much if call returns != YDB_OK */
+			status = ydb_lock_decr_s(&query_lock[0], 2, &query_lock[1]);
+			YDB_ERROR_CHECK(status);
 			OCTO_CFREE(memory_chunks);
 			return 1;
 		}
 		status = generate_routine_name(&state, routine_name, routine_len, OutputPlan);
 		if (1 == status) {
 			ERROR(ERR_PLAN_HASH_FAILED, "");
-			ydb_lock_decr_s(&query_lock[0], 2, &query_lock[1]); /* cannot do much if call returns != YDB_OK */
+			status = ydb_lock_decr_s(&query_lock[0], 2, &query_lock[1]);
+			YDB_ERROR_CHECK(status);
 			OCTO_CFREE(memory_chunks);
 			return 1;
 		}
@@ -270,7 +301,8 @@ int run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_descrip
 		status = get_full_path_of_generated_m_file(filename, sizeof(filename), &routine_name[1]);
 		if (status) {
 			ERROR(ERR_PLAN_HASH_FAILED, "");
-			ydb_lock_decr_s(&query_lock[0], 2, &query_lock[1]); /* cannot do much if call returns != YDB_OK */
+			status = ydb_lock_decr_s(&query_lock[0], 2, &query_lock[1]);
+			YDB_ERROR_CHECK(status);
 			OCTO_CFREE(memory_chunks);
 			return 1;
 		}
@@ -291,7 +323,7 @@ int run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_descrip
 				 */
 				unsigned int db_node_found;
 
-				CHECK_IF_DB_NODE_EXISTS(filename, db_node_found, status); /* sets "db_node_found" and "status" */
+				GET_PLAN_METADATA_DB_NODE(filename, db_node_found, status); /* sets "db_node_found" and "status" */
 				YDB_ERROR_CHECK(status);
 				if (YDB_OK != status) {
 					CLEANUP_FROM_PLAN_GENERATION(i, filename_lock, query_lock, memory_chunks);
@@ -305,7 +337,7 @@ int run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_descrip
 			if (generate_plan) {
 				if (0 == i) {
 					/* Get the M lock and redo the check of whether the plan is still not generated */
-					filename_lock = make_buffers(config->global_names.octo, 2, "files", filename);
+					filename_lock = make_buffers(config->global_names.octo, 2, OCTOLIT_FILES, filename);
 					/* Wait for 5 seconds in case another process is writing to same filename */
 					status = ydb_lock_incr_s(5 * TIMEOUT_1_SEC, &filename_lock[0], 2, &filename_lock[1]);
 					YDB_ERROR_CHECK(status);
@@ -334,7 +366,7 @@ int run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_descrip
 				}
 			}
 			assert(1 == i);
-			CLEANUP_FILENAME_LOCK(i, filename_lock, status); /* lclStatus is set but not used */
+			CLEANUP_FILENAME_LOCK(i, filename_lock, status);
 			if (YDB_OK != status) {
 				CLEANUP_QUERY_LOCK_AND_MEMORY_CHUNKS(query_lock, memory_chunks);
 				return 1;
@@ -342,9 +374,10 @@ int run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_descrip
 		}
 		if (parse_context->is_extended_query) {
 			memcpy(parse_context->routine, routine_name, routine_len);
-			ydb_lock_decr_s(&query_lock[0], 2, &query_lock[1]); /* cannot do much if call fails */
+			status = ydb_lock_decr_s(&query_lock[0], 2, &query_lock[1]);
+			YDB_ERROR_CHECK(status);
 			OCTO_CFREE(memory_chunks);
-			return 0;
+			return (YDB_OK != status);
 		}
 		cursorId = atol(cursor_ydb_buff.buf_addr);
 		ci_filename.address = filename;
@@ -356,7 +389,8 @@ int run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_descrip
 		status = ydb_ci("_ydboctoselect", cursorId, &ci_filename, &ci_routine);
 		YDB_ERROR_CHECK(status);
 		if (YDB_OK != status) {
-			ydb_lock_decr_s(&query_lock[0], 2, &query_lock[1]); /* cannot do much if call fails */
+			status = ydb_lock_decr_s(&query_lock[0], 2, &query_lock[1]);
+			YDB_ERROR_CHECK(status);
 			OCTO_CFREE(memory_chunks);
 			return 1;
 		}
@@ -364,7 +398,8 @@ int run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_descrip
 		if (config->is_rocto) {
 			canceled = is_query_canceled(callback, cursorId, parms, filename, send_row_description);
 			if (canceled) {
-				ydb_lock_decr_s(&query_lock[0], 2, &query_lock[1]); /* cannot do much if call fails */
+				status = ydb_lock_decr_s(&query_lock[0], 2, &query_lock[1]);
+				YDB_ERROR_CHECK(status);
 				OCTO_CFREE(memory_chunks);
 				return -1;
 			}
@@ -372,7 +407,8 @@ int run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_descrip
 		assert(!config->is_rocto || (NULL != parms));
 		status = (*callback)(result, cursorId, parms, filename, send_row_description);
 		if (0 != status) {
-			ydb_lock_decr_s(&query_lock[0], 2, &query_lock[1]); /* cannot do much if call fails */
+			status = ydb_lock_decr_s(&query_lock[0], 2, &query_lock[1]);
+			YDB_ERROR_CHECK(status);
 			// May be freed in the callback function, must check before freeing
 			if (NULL != memory_chunks) {
 				OCTO_CFREE(memory_chunks);
@@ -398,7 +434,8 @@ int run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_descrip
 		table_sub_buffer = NULL;
 		table_buffer = NULL;
 		/* Now release the shared query lock and get an exclusive query lock to do DDL changes */
-		ydb_lock_decr_s(&query_lock[0], 2, &query_lock[1]); /* cannot do much if call fails */
+		status = ydb_lock_decr_s(&query_lock[0], 2, &query_lock[1]);
+		CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, memory_chunks, buffer, table_sub_buffer, table_buffer, NULL);
 		/* Wait 10 seconds for the exclusive DDL change lock */
 		status = ydb_lock_incr_s(TIMEOUT_10_SEC, &query_lock[0], 1, &query_lock[1]);
 		CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, memory_chunks, buffer, table_sub_buffer, table_buffer, NULL);
@@ -419,7 +456,7 @@ int run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_descrip
 		 * If so, delete those nodes from the catalog now that this table is going away.
 		 */
 		status = delete_table_from_pg_class(table_name_buffer);
-		if (YDB_OK != status) {
+		if (0 != status) {
 			CLEANUP_AND_RETURN(memory_chunks, buffer, table_sub_buffer, table_buffer, query_lock);
 		}
 		/* Now that OIDs have been cleaned up, dropping the table is a simple : KILL ^%ydboctoschema(TABLENAME) */
@@ -462,7 +499,7 @@ int run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_descrip
 			compress_statement(result, &table_buffer, &length);
 			assert(NULL != table_buffer);
 			table_binary_buffer.len_alloc = MAX_STR_CONST;
-			YDB_STRING_TO_BUFFER("b", &table_name_buffers[1]);
+			YDB_STRING_TO_BUFFER(OCTOLIT_BINARY, &table_name_buffers[1]);
 			table_sub_buffer = &table_name_buffers[2];
 			YDB_MALLOC_BUFFER(table_sub_buffer, MAX_STR_CONST);
 			i = 0;
@@ -482,7 +519,7 @@ int run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_descrip
 				cur_length += MAX_STR_CONST;
 				i++;
 			}
-			YDB_STRING_TO_BUFFER("l", &table_name_buffers[1]);
+			YDB_STRING_TO_BUFFER(OCTOLIT_LENGTH, &table_name_buffers[1]);
 			// Use table_sub_buffer as a temporary buffer below
 			table_sub_buffer->len_used
 			    = snprintf(table_sub_buffer->buf_addr, table_sub_buffer->len_alloc, "%d", length);
@@ -491,7 +528,16 @@ int run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_descrip
 			free(table_buffer);
 			YDB_FREE_BUFFER(table_sub_buffer);
 		}
-		ydb_lock_decr_s(&query_lock[0], 1, &query_lock[1]); /* Release exclusive query lock */
+		status = ydb_lock_decr_s(&query_lock[0], 1, &query_lock[1]); /* Release exclusive query lock */
+		if (YDB_OK != status) {
+			/* Signal an error using the standard macro but reset few variables to NULL as those parts of the
+			 * cleanup should not be done in this part of the code.
+			 */
+			assert(NULL == buffer);
+			table_sub_buffer = NULL;
+			table_buffer = NULL;
+			CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, memory_chunks, buffer, table_sub_buffer, table_buffer, NULL);
+		}
 		release_query_lock = FALSE; /* Set variable to FALSE so we do not try releasing same lock later */
 		break;			    /* OCTO_CFREE(memory_chunks) will be done after the "break" */
 	case drop_function_STATEMENT:	    /* DROP FUNCTION */
@@ -510,7 +556,8 @@ int run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_descrip
 		function_sub_buffer = NULL;
 		function_buffer = NULL;
 		// Now release the shared query lock and get an exclusive query lock to do DDL changes
-		ydb_lock_decr_s(&query_lock[0], 2, &query_lock[1]); // Cannot do much if call fails
+		status = ydb_lock_decr_s(&query_lock[0], 2, &query_lock[1]);
+		CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, memory_chunks, buffer, function_sub_buffer, function_buffer, NULL);
 		// Wait 10 seconds for the exclusive DDL change lock
 		status = ydb_lock_incr_s(TIMEOUT_10_SEC, &query_lock[0], 1, &query_lock[1]);
 		CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, memory_chunks, buffer, function_sub_buffer, function_buffer, NULL);
@@ -530,10 +577,33 @@ int run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_descrip
 
 		// Delete the function from the catalog
 		status = delete_function_from_pg_proc(function_name_buffer);
-
-		// Drop the function: KILL ^%ydboctoocto("functions",FUNCTIONNAME)
+		if (0 != status) {
+			CLEANUP_AND_RETURN(memory_chunks, buffer, function_sub_buffer, function_buffer, query_lock);
+		}
+		/* Ensure all _ydboctoP*.m plans that rely on this function are recreated by deleting those database nodes
+		 * that correspond to the plan metadata of these plans. We do not delete the _ydboctoP*.m files since
+		 * the _ydboctoP*.o files would anyways exist and also need to be removed but it is not straightforward (since
+		 * we need to find the first obj directory in the zroutines list). Just deleting the database nodes is enough
+		 * since that is checked every time using the GET_PLAN_METADATA_DB_NODE macro before using a pre-existing plan.
+		 */
 		YDB_STRING_TO_BUFFER(config->global_names.octo, &octo_global);
-		YDB_STRING_TO_BUFFER("functions", &function_name_buffers[0]);
+		YDB_STRING_TO_BUFFER(OCTOLIT_FUNCTIONS, &function_name_buffers[0]);
+		YDB_STRING_TO_BUFFER(OCTOLIT_PLAN_METADATA, &function_name_buffers[2]);
+		function_name_buffers[3].buf_addr = filename;
+		function_name_buffers[3].len_used = 0;
+		function_name_buffers[3].len_alloc = sizeof(filename);
+		while (TRUE) {
+			status = ydb_subscript_next_s(&octo_global, 4, &function_name_buffers[0], &function_name_buffers[3]);
+			if (YDB_ERR_NODEEND == status) {
+				break;
+			}
+			CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, memory_chunks, buffer, function_sub_buffer, function_buffer,
+							 query_lock);
+			DELETE_PLAN_METADATA_DB_NODE(filename, status);
+			CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, memory_chunks, buffer, function_sub_buffer, function_buffer,
+							 query_lock);
+		}
+		// Drop the function: KILL ^%ydboctoocto(OCTOLIT_FUNCTIONS,FUNCTIONNAME)
 		status = ydb_delete_s(&octo_global, 2, function_name_buffers, YDB_DEL_TREE);
 		CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, memory_chunks, buffer, function_sub_buffer, function_buffer, query_lock);
 
@@ -561,7 +631,7 @@ int run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_descrip
 			YDB_STRING_TO_BUFFER(buffer, &function_create_buffer);
 			YDB_STRING_TO_BUFFER("t", &function_name_buffers[2]); // 't' for "text" representation
 			/* Store the text representation of the CREATE FUNCTION statement:
-			 *	^ydboctoocto("functions",function_name,"t")
+			 *	^ydboctoocto(OCTOLIT_FUNCTIONS,function_name,"t")
 			 */
 			status = ydb_set_s(&octo_global, 3, function_name_buffers, &function_create_buffer);
 			CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, memory_chunks, buffer, function_sub_buffer, function_buffer,
@@ -571,7 +641,7 @@ int run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_descrip
 			buffer = NULL; // So CLEANUP_AND_RETURN* macro calls below do not try "free(buffer)"
 
 			/* Store the extrinsic function label from the CREATE FUNCTION statement:
-			 *	^ydboctoocto("functions",function_name)=$EXTRINSIC_FUNCTION
+			 *	^ydboctoocto(OCTOLIT_FUNCTIONS,function_name)=$EXTRINSIC_FUNCTION
 			 */
 			YDB_STRING_TO_BUFFER(function->extrinsic_function->v.value->v.string_literal, &function_name_buffers[2]);
 			status = ydb_set_s(&octo_global, 2, &function_name_buffers[0], &function_name_buffers[2]);
@@ -589,7 +659,7 @@ int run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_descrip
 			compress_statement(result, &function_buffer, &length);
 			assert(NULL != function_buffer);
 			function_binary_buffer.len_alloc = MAX_STR_CONST;
-			YDB_STRING_TO_BUFFER("b", &function_name_buffers[2]);
+			YDB_STRING_TO_BUFFER(OCTOLIT_BINARY, &function_name_buffers[2]);
 			function_sub_buffer = &function_name_buffers[3];
 			YDB_MALLOC_BUFFER(function_sub_buffer, MAX_STR_CONST);
 			i = 0;
@@ -609,7 +679,7 @@ int run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_descrip
 				cur_length += MAX_STR_CONST;
 				i++;
 			}
-			YDB_STRING_TO_BUFFER("l", &function_name_buffers[2]); // 'l' for "length"
+			YDB_STRING_TO_BUFFER(OCTOLIT_LENGTH, &function_name_buffers[2]);
 			// Use function_sub_buffer as a temporary buffer below
 			function_sub_buffer->len_used
 			    = snprintf(function_sub_buffer->buf_addr, function_sub_buffer->len_alloc, "%d", length);
@@ -619,7 +689,16 @@ int run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_descrip
 			free(function_buffer);
 			YDB_FREE_BUFFER(function_sub_buffer);
 		}
-		ydb_lock_decr_s(&query_lock[0], 1, &query_lock[1]); /* Release exclusive query lock */
+		status = ydb_lock_decr_s(&query_lock[0], 1, &query_lock[1]); /* Release exclusive query lock */
+		if (YDB_OK != status) {
+			/* Signal an error using the standard macro but reset few variables to NULL as those parts of the
+			 * cleanup should not be done in this part of the code.
+			 */
+			assert(NULL == buffer);
+			function_sub_buffer = NULL;
+			function_buffer = NULL;
+			CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, memory_chunks, buffer, function_sub_buffer, function_buffer, NULL);
+		}
 		release_query_lock = FALSE; /* Set variable to FALSE so we do not try releasing same lock later */
 		break;
 	case insert_STATEMENT:
@@ -656,7 +735,10 @@ int run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_descrip
 		}
 	}
 	if (release_query_lock) {
-		ydb_lock_decr_s(&query_lock[0], 2, &query_lock[1]); /* cannot do much if call fails */
+		status = ydb_lock_decr_s(&query_lock[0], 2, &query_lock[1]);
+		if (YDB_OK != status) {
+			YDB_ERROR_CHECK(status);
+		}
 	}
 	if (free_memory_chunks) {
 		OCTO_CFREE(memory_chunks);

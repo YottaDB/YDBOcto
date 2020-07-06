@@ -55,8 +55,8 @@ int handle_query_response(SqlStatement *stmt, int32_t cursor_id, void *_parms, c
 			UNPACK_SQL_STATEMENT(set_stmt, stmt, set);
 			UNPACK_SQL_STATEMENT(runtime_value, set_stmt->value, value);
 			UNPACK_SQL_STATEMENT(runtime_variable, set_stmt->variable, value);
-			session_buffers = make_buffers(config->global_names.session, 3, session->session_id->buf_addr, "variables",
-						       runtime_variable->v.string_literal);
+			session_buffers = make_buffers(config->global_names.session, 3, session->session_id->buf_addr,
+						       OCTOLIT_VARIABLES, runtime_variable->v.string_literal);
 			YDB_COPY_STRING_TO_BUFFER(runtime_value->v.string_literal, &value_buffer, done);
 			if (!done) {
 				ERROR(ERR_YOTTADB, "YDB_COPY_STRING_TO_BUFFER failed");
@@ -79,13 +79,13 @@ int handle_query_response(SqlStatement *stmt, int32_t cursor_id, void *_parms, c
 			// Attempt to GET the value of the specified runtime variable from the appropriate session LVN
 			UNPACK_SQL_STATEMENT(show_stmt, stmt, show);
 			UNPACK_SQL_STATEMENT(runtime_variable, show_stmt->variable, value);
-			session_buffers = make_buffers(config->global_names.session, 3, session->session_id->buf_addr, "variables",
-						       runtime_variable->v.string_literal);
+			session_buffers = make_buffers(config->global_names.session, 3, session->session_id->buf_addr,
+						       OCTOLIT_VARIABLES, runtime_variable->v.string_literal);
 			status = ydb_get_s(&session_buffers[0], 3, &session_buffers[1], &value_buffer);
 			// If the variable isn't defined for the session, attempt to pull the value from the Octo GVN
 			if (YDB_OK != status) {
-				octo_buffers
-				    = make_buffers(config->global_names.octo, 2, "variables", runtime_variable->v.string_literal);
+				octo_buffers = make_buffers(config->global_names.octo, 2, OCTOLIT_VARIABLES,
+							    runtime_variable->v.string_literal);
 				status = ydb_get_s(&octo_buffers[0], 2, &octo_buffers[1], &value_buffer);
 				// If the variable isn't defined on the Octo GVN, the variable isn't defined at all.
 				// In this case we will return an empty string.

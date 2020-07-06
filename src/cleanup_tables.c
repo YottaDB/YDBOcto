@@ -27,11 +27,11 @@ void cleanup_tables() {
 	ydb_buffer_t result_b;
 
 	YDB_STRING_TO_BUFFER(config->global_names.loadedschemas, &loaded_schemas_b[0]);
-	YDB_STRING_TO_BUFFER("tables", &loaded_schemas_b[1]);
+	YDB_STRING_TO_BUFFER(OCTOLIT_TABLES, &loaded_schemas_b[1]);
 	loaded_schemas_b[2].buf_addr = table_name;
 	loaded_schemas_b[2].len_used = 0;
 	loaded_schemas_b[2].len_alloc = sizeof(table_name);
-	YDB_STRING_TO_BUFFER("chunk", &loaded_schemas_b[3]);
+	YDB_STRING_TO_BUFFER(OCTOLIT_CHUNK, &loaded_schemas_b[3]);
 
 	result_b.buf_addr = buffer;
 	result_b.len_alloc = result_b.len_used = sizeof(buffer);

@@ -37,7 +37,7 @@ int handle_cancel_request(CancelRequest *cancel_request) {
 	secret_key = cancel_request->secret_key;
 
 	// Populate buffers
-	YDB_LITERAL_TO_BUFFER("%ydboctoSecretKeyList", &secret_key_list_buffer);
+	YDB_LITERAL_TO_BUFFER(OCTOLIT_YDBOCTOSECRETKEYLIST, &secret_key_list_buffer);
 	snprintf(pid_str, INT32_TO_STRING_MAX, "%u", cancel_request->pid); // pid
 	YDB_STRING_TO_BUFFER(pid_str, pid_buffer);
 
@@ -56,7 +56,7 @@ int handle_cancel_request(CancelRequest *cancel_request) {
 	char	     timestamp_result_str[INT64_TO_STRING_MAX];
 	timestamp_result.buf_addr = timestamp_result_str;
 	timestamp_result.len_alloc = INT64_TO_STRING_MAX;
-	YDB_LITERAL_TO_BUFFER("timestamp", &pid_subs[1]);
+	YDB_LITERAL_TO_BUFFER(OCTOLIT_TIMESTAMP, &pid_subs[1]);
 
 	// Retrieve timestamp for given PID
 	status = ydb_get_s(&secret_key_list_buffer, 2, &pid_subs[0], &timestamp_result);

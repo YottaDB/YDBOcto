@@ -62,7 +62,7 @@ RowDescription *get_plan_row_description(ydb_buffer_t *plan_filename) {
 	for (cur_column = 0; cur_column < num_columns; cur_column++) {
 		OCTO_INT16_TO_BUFFER((int16_t)(cur_column + 1), &plan_meta[4]); // Columns are indexed from 1, not 0
 
-		YDB_LITERAL_TO_BUFFER("name", &plan_meta[5]);
+		YDB_LITERAL_TO_BUFFER(OCTOLIT_NAME, &plan_meta[5]);
 		status = ydb_get_s(plan_meta, 5, &plan_meta[1], &value_buffer);
 		YDB_ERROR_CHECK(status);
 		if (YDB_OK != status)
@@ -72,7 +72,7 @@ RowDescription *get_plan_row_description(ydb_buffer_t *plan_filename) {
 		column_name[value_buffer.len_used] = '\0';
 		parms[cur_column].name = column_name;
 
-		YDB_LITERAL_TO_BUFFER("table_id", &plan_meta[5]);
+		YDB_LITERAL_TO_BUFFER(OCTOLIT_TABLE_ID, &plan_meta[5]);
 		status = ydb_get_s(plan_meta, 5, &plan_meta[1], &value_buffer);
 		YDB_ERROR_CHECK(status);
 		if (YDB_OK != status)
@@ -88,7 +88,7 @@ RowDescription *get_plan_row_description(ydb_buffer_t *plan_filename) {
 			break;
 		}
 
-		YDB_LITERAL_TO_BUFFER("column_id", &plan_meta[5]);
+		YDB_LITERAL_TO_BUFFER(OCTOLIT_COLUMN_ID, &plan_meta[5]);
 		status = ydb_get_s(plan_meta, 5, &plan_meta[1], &value_buffer);
 		YDB_ERROR_CHECK(status);
 		if (YDB_OK != status)
@@ -104,7 +104,7 @@ RowDescription *get_plan_row_description(ydb_buffer_t *plan_filename) {
 			break;
 		}
 
-		YDB_LITERAL_TO_BUFFER("data_type", &plan_meta[5]);
+		YDB_LITERAL_TO_BUFFER(OCTOLIT_DATA_TYPE, &plan_meta[5]);
 		status = ydb_get_s(plan_meta, 5, &plan_meta[1], &value_buffer);
 		YDB_ERROR_CHECK(status);
 		if (YDB_OK != status)
@@ -121,7 +121,7 @@ RowDescription *get_plan_row_description(ydb_buffer_t *plan_filename) {
 			break;
 		}
 
-		YDB_LITERAL_TO_BUFFER("data_type_size", &plan_meta[5]);
+		YDB_LITERAL_TO_BUFFER(OCTOLIT_DATA_TYPE_SIZE, &plan_meta[5]);
 		status = ydb_get_s(plan_meta, 5, &plan_meta[1], &value_buffer);
 		YDB_ERROR_CHECK(status);
 		if (YDB_OK != status)
@@ -138,7 +138,7 @@ RowDescription *get_plan_row_description(ydb_buffer_t *plan_filename) {
 			break;
 		}
 
-		YDB_LITERAL_TO_BUFFER("type_modifier", &plan_meta[5]);
+		YDB_LITERAL_TO_BUFFER(OCTOLIT_TYPE_MODIFIER, &plan_meta[5]);
 		status = ydb_get_s(plan_meta, 5, &plan_meta[1], &value_buffer);
 		YDB_ERROR_CHECK(status);
 		if (YDB_OK != status)
@@ -155,7 +155,7 @@ RowDescription *get_plan_row_description(ydb_buffer_t *plan_filename) {
 			break;
 		}
 
-		YDB_LITERAL_TO_BUFFER("format_code", &plan_meta[5]);
+		YDB_LITERAL_TO_BUFFER(OCTOLIT_FORMAT_CODE, &plan_meta[5]);
 		status = ydb_get_s(plan_meta, 5, &plan_meta[1], &value_buffer);
 		YDB_ERROR_CHECK(status);
 		if (YDB_OK != status)

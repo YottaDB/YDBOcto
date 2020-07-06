@@ -202,7 +202,7 @@ typedef enum SqlValueType {
 typedef enum SqlDataType { UNKNOWN_SqlDataType, BOOLEAN_TYPE, INTEGER_TYPE, NUMERIC_TYPE, STRING_TYPE } SqlDataType;
 
 /* Note: Additions of keywords in the middle of the table can cause SIG-11s because the actual binary value
- *       of these enums (e.g. PRIMARY_KEY) is stored in the ^%ydboctoschema(<tablename>,"b",*) global nodes
+ *       of these enums (e.g. PRIMARY_KEY) is stored in the ^%ydboctoschema(<tablename>,OCTOLIT_BINARY,*) global nodes
  *       and using a newer build of Octo without killing ^%ydboctoschema could load a table definition that
  *       is out of date with respect to the newer build.
  * Note: Any additions/deletions to this list might need to be correspondingly changed in "lp_emit_plan.c".
@@ -395,7 +395,7 @@ typedef struct SqlTable {
 	struct SqlStatement *source;
 	struct SqlStatement *columns;
 	struct SqlStatement *delim;
-	uint64_t	     oid; /* TABLEOID; compared against ^%ydboctoschema(TABLENAME,"pg_class") */
+	uint64_t	     oid; /* TABLEOID; compared against ^%ydboctoschema(TABLENAME,OCTOLIT_PG_CLASS) */
 } SqlTable;
 
 typedef struct SqlTableAlias {

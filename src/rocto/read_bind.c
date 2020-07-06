@@ -104,7 +104,7 @@ Bind *read_bind(BaseMessage *message) {
 	// Set number of parameters and ensure valid value
 	ret->num_parms = ntohs(*((int16_t *)cur_pointer));
 	if (ret->num_parms < 0) {
-		ERROR(ERR_INVALID_NUMBER, "Bind", "parameters", ret->num_parms, 0, INT16_MAX);
+		ERROR(ERR_INVALID_NUMBER, "Bind", OCTOLIT_PARAMETERS, ret->num_parms, 0, INT16_MAX);
 		free(ret);
 		return NULL;
 	}
@@ -124,7 +124,7 @@ Bind *read_bind(BaseMessage *message) {
 	}
 	// Ensure parameters are present
 	if (cur_pointer > last_byte) {
-		ERROR(ERR_ROCTO_MISSING_DATA, "Bind", "parameters");
+		ERROR(ERR_ROCTO_MISSING_DATA, "Bind", OCTOLIT_PARAMETERS);
 		free(ret->parms);
 		free(ret);
 		return NULL;
@@ -139,7 +139,7 @@ Bind *read_bind(BaseMessage *message) {
 			length_ptr = cur_pointer;
 			cur_pointer += sizeof(uint32_t);
 			if (cur_pointer > last_byte) {
-				ERROR(ERR_ROCTO_MISSING_DATA, "Bind", "parameters");
+				ERROR(ERR_ROCTO_MISSING_DATA, "Bind", OCTOLIT_PARAMETERS);
 				free(ret->parms);
 				free(ret);
 				return NULL;
@@ -148,7 +148,7 @@ Bind *read_bind(BaseMessage *message) {
 			ret->parms[i].value = cur_pointer;
 			cur_pointer += ret->parms[i].length;
 			if (cur_pointer > last_byte) {
-				ERROR(ERR_ROCTO_MISSING_DATA, "Bind", "parameters");
+				ERROR(ERR_ROCTO_MISSING_DATA, "Bind", OCTOLIT_PARAMETERS);
 				free(ret->parms);
 				free(ret);
 				return NULL;

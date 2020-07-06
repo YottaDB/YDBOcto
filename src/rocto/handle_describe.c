@@ -33,12 +33,12 @@ int handle_describe(Describe *describe, RoctoSession *session) {
 	char		      filename[OCTO_PATH_MAX];
 	char		      routine_str[MAX_ROUTINE_LEN + 1]; // Null terminator
 
-	// Fetch the named SQL query from the session, either "prepared" or "bound" depending on Describe message type:
-	// ^session(id, "prepared", <name>) or ^session(id, "bound", <name>)
+	// Fetch the named SQL query from the session, either OCTOLIT_PREPARED or OCTOLIT_BOUND depending on Describe message type:
+	// ^session(id, OCTOLIT_PREPARED, <name>) or ^session(id, OCTOLIT_BOUND, <name>)
 	YDB_STRING_TO_BUFFER(config->global_names.session, &describe_subs[0])
 	YDB_STRING_TO_BUFFER(session->session_id->buf_addr, &describe_subs[1])
 	YDB_STRING_TO_BUFFER(describe->name, &describe_subs[3])
-	YDB_STRING_TO_BUFFER("routine", &describe_subs[4])
+	YDB_STRING_TO_BUFFER(OCTOLIT_ROUTINE, &describe_subs[4])
 	if ('S' == describe->item) {
 		// Client is seeking a ParameterDescription, make and send one
 		LOG_LOCAL_ONLY(TRACE, INFO_ROCTO_PARAMETER_DESCRIPTION_SENT, describe->name);
@@ -47,9 +47,9 @@ int handle_describe(Describe *describe, RoctoSession *session) {
 			return 1;
 		send_message(session, (BaseMessage *)(&parm_description->type));
 		free(parm_description);
-		YDB_STRING_TO_BUFFER("prepared", &describe_subs[2])
+		YDB_STRING_TO_BUFFER(OCTOLIT_PREPARED, &describe_subs[2])
 	} else {
-		YDB_STRING_TO_BUFFER("bound", &describe_subs[2])
+		YDB_STRING_TO_BUFFER(OCTOLIT_BOUND, &describe_subs[2])
 	}
 
 	// Check if portal exists

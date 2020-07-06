@@ -16,3 +16,7 @@ query_specification.c:warning: Access to field 'prev' results in a dereference o
 query_specification.c:warning: Access to field 'prev' results in a dereference of a null pointer (loaded from variable 'cla_common') [clang-analyzer-core.NullDereference]
 run_query.c:warning: performing pointer arithmetic on a null pointer has undefined behavior [clang-diagnostic-null-pointer-arithmetic]
 run_query.c:warning: performing pointer arithmetic on a null pointer has undefined behavior [clang-diagnostic-null-pointer-arithmetic]
+run_query.c:warning: performing pointer arithmetic on a null pointer has undefined behavior [clang-diagnostic-null-pointer-arithmetic]
+run_query.c:warning: performing pointer arithmetic on a null pointer has undefined behavior [clang-diagnostic-null-pointer-arithmetic]
+run_query.c:warning: performing pointer arithmetic on a null pointer has undefined behavior [clang-diagnostic-null-pointer-arithmetic]
+run_query.c:warning: performing pointer arithmetic on a null pointer has undefined behavior [clang-diagnostic-null-pointer-arithmetic]

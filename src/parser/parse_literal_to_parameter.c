@@ -29,7 +29,7 @@ int parse_literal_to_parameter(ParseContext *parse_context, SqlValue *value, boo
 
 	if (update_existing) {
 		// Prepare parameter count subscripts to store literal in database
-		parm_count_subs = make_buffers(config->global_names.cursor, 3, parse_context->cursorIdString, "parameters",
+		parm_count_subs = make_buffers(config->global_names.cursor, 3, parse_context->cursorIdString, OCTOLIT_PARAMETERS,
 					       value->parameter_index);
 	} else {
 		// ROCTO ONLY: Track total number of parameters, both literals and PARAMETER_VALUES
@@ -37,7 +37,7 @@ int parse_literal_to_parameter(ParseContext *parse_context, SqlValue *value, boo
 			assert(0 <= parse_context->total_parms);
 			parse_context->total_parms++;
 		}
-		parm_count_subs = make_buffers(config->global_names.cursor, 2, parse_context->cursorIdString, "parameters");
+		parm_count_subs = make_buffers(config->global_names.cursor, 2, parse_context->cursorIdString, OCTOLIT_PARAMETERS);
 		YDB_MALLOC_BUFFER(&parm_count, INT64_TO_STRING_MAX);
 		status = ydb_incr_s(&parm_count_subs[0], 2, &parm_count_subs[1], NULL, &parm_count);
 		YDB_ERROR_CHECK(status);
@@ -56,7 +56,7 @@ int parse_literal_to_parameter(ParseContext *parse_context, SqlValue *value, boo
 
 		// Prepare parameter count subscripts to store literal in database
 		free(parm_count_subs);
-		parm_count_subs = make_buffers(config->global_names.cursor, 3, parse_context->cursorIdString, "parameters",
+		parm_count_subs = make_buffers(config->global_names.cursor, 3, parse_context->cursorIdString, OCTOLIT_PARAMETERS,
 					       parm_count.buf_addr);
 	}
 	// Store literal value in database (mapped to above index) for later lookup by physical plan

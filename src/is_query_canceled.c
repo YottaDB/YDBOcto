@@ -23,7 +23,7 @@ boolean_t is_query_canceled(callback_fnptr_t callback, int32_t cursorId, void *p
 	int	     status = 0;
 
 	// Check if execution was interrupted by a CancelRequest by checking local variable
-	YDB_LITERAL_TO_BUFFER("%ydboctoCancel", &ydboctoCancel);
+	YDB_LITERAL_TO_BUFFER(OCTOLIT_YDBOCTOCANCEL, &ydboctoCancel);
 	status = ydb_data_s(&ydboctoCancel, 0, NULL, &cancel_result);
 	YDB_ERROR_CHECK(status);
 	if (0 != cancel_result) {

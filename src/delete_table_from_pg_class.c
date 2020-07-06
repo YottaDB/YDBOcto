@@ -41,6 +41,9 @@
 
 /* Deletes all references to a tablename and its columns from the catalog.
  * Undoes what was done by "store_table_in_pg_class.c".
+ * Returns
+ *	0 for normal
+ *	1 for error
  */
 int delete_table_from_pg_class(ydb_buffer_t *table_name_buffer) {
 	int	      status;
@@ -50,11 +53,11 @@ int delete_table_from_pg_class(ydb_buffer_t *table_name_buffer) {
 	ydb_buffer_t  schema_global;
 	ydb_buffer_t  oid_buffer;
 
-	pg_class = make_buffers(config->global_names.octo, 4, "tables", "pg_catalog", "pg_class", "");
-	pg_attribute = make_buffers(config->global_names.octo, 4, "tables", "pg_catalog", "pg_attribute", "");
+	pg_class = make_buffers(config->global_names.octo, 4, OCTOLIT_TABLES, OCTOLIT_PG_CATALOG, OCTOLIT_PG_CLASS, "");
+	pg_attribute = make_buffers(config->global_names.octo, 4, OCTOLIT_TABLES, OCTOLIT_PG_CATALOG, OCTOLIT_PG_ATTRIBUTE, "");
 	YDB_MALLOC_BUFFER(&oid_buffer, INT64_TO_STRING_MAX);
 	YDB_MALLOC_BUFFER(&pg_attribute_schema[2], MAX_STR_CONST);
-	/* Check OID for tablename (usually stored as ^%ydboctoschema(TABLENAME,"pg_class")=TABLEOID) */
+	/* Check OID for tablename (usually stored as ^%ydboctoschema(TABLENAME,OCTOLIT_PG_CLASS)=TABLEOID) */
 	YDB_STRING_TO_BUFFER(config->global_names.schema, &schema_global);
 	pg_class_schema[0] = *table_name_buffer;
 	pg_class_schema[1] = pg_class[3];
@@ -62,18 +65,19 @@ int delete_table_from_pg_class(ydb_buffer_t *table_name_buffer) {
 	if (YDB_ERR_GVUNDEF != status) {
 		CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, pg_class, pg_attribute, pg_attribute_schema, oid_buffer);
 		pg_class[4] = oid_buffer;
-		/* Delete table OID node : i.e. KILL ^%ydboctoocto("tables","pg_catalog","pg_class",TABLEOID) */
+		/* Delete table OID node : i.e. KILL ^%ydboctoocto(OCTOLIT_TABLES,OCTOLIT_PG_CATALOG,OCTOLIT_PG_CLASS,TABLEOID) */
 		status = ydb_delete_s(&pg_class[0], 4, &pg_class[1], YDB_DEL_NODE);
 		CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, pg_class, pg_attribute, pg_attribute_schema, oid_buffer);
 	} else {
 		/* OID for table does not exist. Move on to next step. */
 	}
-	/* Check OID for each column in table (usually stored as ^%ydboctoschema(TABLENAME,"pg_attribute",COLUMNNAME)=COLUMNOID) */
+	/* Check OID for each column in table (usually stored as
+	 * ^%ydboctoschema(TABLENAME,OCTOLIT_PG_ATTRIBUTE,COLUMNNAME)=COLUMNOID) */
 	pg_attribute_schema[0] = *table_name_buffer;
 	pg_attribute_schema[1] = pg_attribute[3];
 	assert(0 == pg_attribute_schema[2].len_used); /* should have been set by YDB_MALLOC_BUFFER above */
 	do {
-		/* Find COLUMNNAME such that ^%ydboctoschema(TABLENAME,"pg_attribute",COLUMNNAME) exists */
+		/* Find COLUMNNAME such that ^%ydboctoschema(TABLENAME,OCTOLIT_PG_ATTRIBUTE,COLUMNNAME) exists */
 		status = ydb_subscript_next_s(&schema_global, 3, pg_attribute_schema, &pg_attribute_schema[2]);
 		if (YDB_ERR_NODEEND == status) {
 			break;
@@ -82,7 +86,8 @@ int delete_table_from_pg_class(ydb_buffer_t *table_name_buffer) {
 		/* Get COLUMNOID corresponding to COLUMNNAME */
 		status = ydb_get_s(&schema_global, 3, pg_attribute_schema, &oid_buffer);
 		CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, pg_class, pg_attribute, pg_attribute_schema, oid_buffer);
-		/* Delete column OID node : i.e. KILL ^%ydboctoocto("tables","pg_catalog","pg_attribute",COLUMNOID) */
+		/* Delete column OID node : i.e. KILL
+		 * ^%ydboctoocto(OCTOLIT_TABLES,OCTOLIT_PG_CATALOG,OCTOLIT_PG_ATTRIBUTE,COLUMNOID) */
 		pg_attribute[4] = oid_buffer;
 		status = ydb_delete_s(&pg_attribute[0], 4, &pg_attribute[1], YDB_DEL_NODE);
 		CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, pg_class, pg_attribute, pg_attribute_schema, oid_buffer);

@@ -55,19 +55,20 @@ int handle_parse(Parse *parse, RoctoSession *session) {
 	// Create separate buffer arrays for tracking all literal parameters and just user-specified ("bind") parameters
 	// We track these separately as all literal parameters need to be accessible to the physical plan, while handle_bind needs
 	// to perform operations using the user-specified parameters only.
-	// Set the subscripts to store routine name: session(id, "prepared", <name>, "routine"
+	// Set the subscripts to store routine name: session(id, OCTOLIT_PREPARED, <name>, OCTOLIT_ROUTINE
 	YDB_STRING_TO_BUFFER(config->global_names.session, &statement_subs[0]);
 	YDB_STRING_TO_BUFFER(session->session_id->buf_addr, &statement_subs[1]);
-	YDB_STRING_TO_BUFFER("prepared", &statement_subs[2]);
+	YDB_STRING_TO_BUFFER(OCTOLIT_PREPARED, &statement_subs[2]);
 	YDB_STRING_TO_BUFFER(parse->dest, &statement_subs[3]);
-	YDB_STRING_TO_BUFFER("routine", &statement_subs[4]);
+	YDB_STRING_TO_BUFFER(OCTOLIT_ROUTINE, &statement_subs[4]);
 
-	// Set the subscripts for all prepared statement parameters: session(id, "prepared", <name>, "parameters", "all", ...)
+	// Set the subscripts for all prepared statement parameters: session(id, OCTOLIT_PREPARED, <name>, OCTOLIT_PARAMETERS,
+	// "all", ...)
 	YDB_STRING_TO_BUFFER(config->global_names.session, &all_parms_subs[0]);
 	YDB_STRING_TO_BUFFER(session->session_id->buf_addr, &all_parms_subs[1]);
-	YDB_STRING_TO_BUFFER("prepared", &all_parms_subs[2]);
+	YDB_STRING_TO_BUFFER(OCTOLIT_PREPARED, &all_parms_subs[2]);
 	YDB_STRING_TO_BUFFER(parse->dest, &all_parms_subs[3]);
-	YDB_STRING_TO_BUFFER("parameters", &all_parms_subs[4]);
+	YDB_STRING_TO_BUFFER(OCTOLIT_PARAMETERS, &all_parms_subs[4]);
 	YDB_STRING_TO_BUFFER("all", &all_parms_subs[5]);
 
 	// Check if a prepared statement by the same name already exists and, if so, delete it before reusing the name for a new one
@@ -139,7 +140,7 @@ int handle_parse(Parse *parse, RoctoSession *session) {
 	snprintf(cursor_str, INT64_TO_STRING_MAX, "%ld", parse_context.cursorId);
 	YDB_STRING_TO_BUFFER(config->global_names.cursor, &cursor_subs[0]);
 	YDB_STRING_TO_BUFFER(cursor_str, &cursor_subs[1]);
-	YDB_STRING_TO_BUFFER("parameters", &cursor_subs[2]);
+	YDB_STRING_TO_BUFFER(OCTOLIT_PARAMETERS, &cursor_subs[2]);
 	// Store routine name
 	routine_buffer.buf_addr = routine_str;
 	routine_buffer.len_alloc = sizeof(routine_str);
@@ -174,9 +175,9 @@ int handle_parse(Parse *parse, RoctoSession *session) {
 		return 1;
 	}
 
-	// Set the subscripts for all prepared statement parameters: session(id, "prepared", <name>, "parameters", ...)
-	YDB_STRING_TO_BUFFER("parameters", &statement_subs[4]);
-	// Store number of extended query (bind) parameters: session(id, "prepared", <name>, "parameters")
+	// Set the subscripts for all prepared statement parameters: session(id, OCTOLIT_PREPARED, <name>, OCTOLIT_PARAMETERS, ...)
+	YDB_STRING_TO_BUFFER(OCTOLIT_PARAMETERS, &statement_subs[4]);
+	// Store number of extended query (bind) parameters: session(id, OCTOLIT_PREPARED, <name>, OCTOLIT_PARAMETERS)
 	num_parms_buffer.buf_addr = num_parms_str;
 	num_parms_buffer.len_alloc = sizeof(num_parms_str);
 	OCTO_INT16_TO_BUFFER(parse_context.num_bind_parms, &num_parms_buffer);
@@ -192,7 +193,7 @@ int handle_parse(Parse *parse, RoctoSession *session) {
 		free(parse_context_array);
 		return 1;
 	}
-	// Store total number of parameters: session(id, "prepared", <name>, "parameters", "all")
+	// Store total number of parameters: session(id, OCTOLIT_PREPARED, <name>, OCTOLIT_PARAMETERS, "all")
 	OCTO_INT16_TO_BUFFER(parse_context.total_parms, &num_parms_buffer);
 	status = ydb_set_s(&all_parms_subs[0], 5, &all_parms_subs[1], &num_parms_buffer);
 	YDB_ERROR_CHECK(status);

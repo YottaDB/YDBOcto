@@ -51,7 +51,9 @@
  */
 #define PP_ORDER_BY	"\"OrderBy\""
 #define PP_GROUP_BY	"\"GroupBy\""
-#define PP_KEYS		"\"keys\"" /* Note: This has to be maintained in sync with OCTOLIT_KEYS */
+#define PP_KEYS		"\"keys\""	 /* Note: This has to be maintained in sync with OCTOLIT_KEYS */
+#define PP_PARAMETERS	"\"parameters\"" /* Note: This has to be maintained in sync with OCTOLIT_PARAMETERS */
+#define PP_VARIABLES	"\"variables\""	 /* Note: This has to be maintained in sync with OCTOLIT_VARIABLES */
 #define PP_XREF_COLUMN	"xrefCol"
 #define PP_KEY_COLUMN	"keyCol"
 #define PLAN_LINE_START "    " /* 4 spaces start an M line in the generated plan */

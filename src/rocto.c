@@ -94,7 +94,7 @@ int main(int argc, char **argv) {
 	ydb_buffer_t secret_key_list_buffer, secret_key_buffer;
 	char	     pid_str[INT32_TO_STRING_MAX], secret_key_str[INT32_TO_STRING_MAX], timestamp_str[INT64_TO_STRING_MAX];
 	int	     secret_key = 0;
-	YDB_LITERAL_TO_BUFFER("%ydboctoSecretKeyList", &secret_key_list_buffer);
+	YDB_LITERAL_TO_BUFFER(OCTOLIT_YDBOCTOSECRETKEYLIST, &secret_key_list_buffer);
 
 	// Initialize a handler to respond to ctrl + c
 	memset(&ctrlc_action, 0, sizeof(ctrlc_action));
@@ -241,7 +241,7 @@ int main(int argc, char **argv) {
 				break;
 			}
 			// Populate pid/timestamp buffers
-			YDB_LITERAL_TO_BUFFER("timestamp", &pid_subs[1]);
+			YDB_LITERAL_TO_BUFFER(OCTOLIT_TIMESTAMP, &pid_subs[1]);
 			snprintf(timestamp_str, INT64_TO_STRING_MAX, "%zu", timestamp);
 			YDB_STRING_TO_BUFFER(timestamp_str, &timestamp_buffer);
 			// Add timestamp under PID key
@@ -439,10 +439,10 @@ int main(int argc, char **argv) {
 		rocto_session.session_id->buf_addr[rocto_session.session_id->len_used] = '\0';
 
 		// Populate default parameters
-		var_defaults = make_buffers(config->global_names.octo, 2, "variables", "");
+		var_defaults = make_buffers(config->global_names.octo, 2, OCTOLIT_VARIABLES, "");
 		YDB_MALLOC_BUFFER(&var_defaults[2], MAX_STR_CONST);
 		YDB_MALLOC_BUFFER(&var_value, MAX_STR_CONST);
-		var_sets = make_buffers(config->global_names.session, 3, rocto_session.session_id->buf_addr, "variables", "");
+		var_sets = make_buffers(config->global_names.session, 3, rocto_session.session_id->buf_addr, OCTOLIT_VARIABLES, "");
 		var_sets[3] = var_defaults[2];
 		do {
 			status = ydb_subscript_next_s(&var_defaults[0], 2, &var_defaults[1], &var_defaults[2]);
@@ -475,7 +475,7 @@ int main(int argc, char **argv) {
 
 			YDB_STRING_TO_BUFFER(config->global_names.session, &varname);
 			YDB_STRING_TO_BUFFER(rocto_session.session_id->buf_addr, &subs_array[0]);
-			YDB_LITERAL_TO_BUFFER("variables", &subs_array[1]);
+			YDB_LITERAL_TO_BUFFER(OCTOLIT_VARIABLES, &subs_array[1]);
 			YDB_STRING_TO_BUFFER(startup_message->parameters[cur_parm].name, &subs_array[2]);
 			YDB_STRING_TO_BUFFER(startup_message->parameters[cur_parm].value, &value);
 			status = ydb_set_s(&varname, 3, subs_array, &value);

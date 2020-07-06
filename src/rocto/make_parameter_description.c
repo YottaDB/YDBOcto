@@ -32,8 +32,8 @@ ParameterDescription *make_parameter_description(char *statement, RoctoSession *
 	ydb_buffer_t	      num_parms_buf, parm_type_buf;
 
 	YDB_MALLOC_BUFFER(&num_parms_buf, INT16_TO_STRING_MAX);
-	src_subs = make_buffers(config->global_names.session, 6, session->session_id->buf_addr, "prepared", statement, "parameters",
-				"", "type");
+	src_subs = make_buffers(config->global_names.session, 6, session->session_id->buf_addr, OCTOLIT_PREPARED, statement,
+				OCTOLIT_PARAMETERS, "", "type");
 	status = ydb_get_s(&src_subs[0], 4, &src_subs[1], &num_parms_buf);
 	if (YDB_OK != status) {
 		ERROR(ERR_ROCTO_DB_LOOKUP, "make_parameter_description", "number of prepared statement parameters");

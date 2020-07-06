@@ -49,9 +49,9 @@ int32_t handle_execute(Execute *execute, RoctoSession *session, ydb_long_t *curs
 	parms.portal_name = execute->source;
 	parms.max_data_to_send = execute->rows_to_return;
 
-	// Set subscripts to access routine on portal: ^session(id, "bound", <name>, "routine"
-	portal_subs
-	    = make_buffers(config->global_names.session, 4, session->session_id->buf_addr, "bound", execute->source, "routine");
+	// Set subscripts to access routine on portal: ^session(id, OCTOLIT_BOUND, <name>, OCTOLIT_ROUTINE
+	portal_subs = make_buffers(config->global_names.session, 4, session->session_id->buf_addr, OCTOLIT_BOUND, execute->source,
+				   OCTOLIT_ROUTINE);
 	// Retrieve routine from portal
 	YDB_MALLOC_BUFFER(&routine_buffer, MAX_ROUTINE_LEN + 1); // Null terminator
 	status = ydb_get_s(&portal_subs[0], 4, &portal_subs[1], &routine_buffer);
@@ -103,8 +103,8 @@ int32_t handle_execute(Execute *execute, RoctoSession *session, ydb_long_t *curs
 	if ((0 != strncmp(routine_buffer.buf_addr, "none", MAX_ROUTINE_LEN)) && (0 > *cursorId)) {
 		// Fetch number of parameters
 		free(portal_subs);
-		portal_subs = make_buffers(config->global_names.session, 6, session->session_id->buf_addr, "bound", execute->source,
-					   "parameters", "all", "");
+		portal_subs = make_buffers(config->global_names.session, 6, session->session_id->buf_addr, OCTOLIT_BOUND,
+					   execute->source, OCTOLIT_PARAMETERS, "all", "");
 		YDB_MALLOC_BUFFER(&num_parms_buf, INT16_TO_STRING_MAX);
 		status = ydb_get_s(&portal_subs[0], 5, &portal_subs[1], &num_parms_buf);
 		YDB_ERROR_CHECK(status);
@@ -131,7 +131,7 @@ int32_t handle_execute(Execute *execute, RoctoSession *session, ydb_long_t *curs
 		YDB_STRING_TO_BUFFER(config->global_names.schema, &schema_global);
 		*cursorId = create_cursor(&schema_global, &cursor_buffer);
 
-		cursor_subs = make_buffers(config->global_names.cursor, 3, cursor_buffer.buf_addr, "parameters", "");
+		cursor_subs = make_buffers(config->global_names.cursor, 3, cursor_buffer.buf_addr, OCTOLIT_PARAMETERS, "");
 		YDB_MALLOC_BUFFER(&cursor_subs[3], INT16_TO_STRING_MAX);
 		YDB_MALLOC_BUFFER(&portal_subs[6], INT16_TO_STRING_MAX);
 		YDB_MALLOC_BUFFER(&parm_buf, MAX_STR_CONST);

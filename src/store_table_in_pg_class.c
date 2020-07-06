@@ -54,11 +54,11 @@ int store_table_in_pg_class(SqlTable *table, ydb_buffer_t *table_name_buffer) {
 	long long     class_oid;
 
 	// Prepare buffers
-	pg_class = make_buffers(config->global_names.octo, 4, "tables", "pg_catalog", "pg_class", "");
-	oid_buffer = make_buffers(config->global_names.octo, 1, "oid");
+	pg_class = make_buffers(config->global_names.octo, 4, OCTOLIT_TABLES, OCTOLIT_PG_CATALOG, OCTOLIT_PG_CLASS, "");
+	oid_buffer = make_buffers(config->global_names.octo, 1, OCTOLIT_OID);
 	YDB_MALLOC_BUFFER(&pg_class[4], INT64_TO_STRING_MAX);
 	/* Get a unique oid TABLEOID for the passed in table.
-	 * 	i.e. $INCREMENT(^%ydboctoocto("oid"))
+	 * 	i.e. $INCREMENT(^%ydboctoocto(OCTOLIT_OID))
 	 */
 	status = ydb_incr_s(&oid_buffer[0], 1, &oid_buffer[1], NULL, &pg_class[4]);
 	CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, pg_class, oid_buffer);
@@ -82,12 +82,12 @@ int store_table_in_pg_class(SqlTable *table, ydb_buffer_t *table_name_buffer) {
 	buffer_b.len_alloc = buffer_b.len_used = strlen(buffer);
 	buffer_b.buf_addr = buffer;
 	/* Set the table name passed in as having an oid of TABLEOID in the pg_catalog.
-	 * 	i.e. SET ^%ydboctoocto("tables","pg_catalog","pg_class",TABLEOID)=...
+	 * 	i.e. SET ^%ydboctoocto(OCTOLIT_TABLES,OCTOLIT_PG_CATALOG,OCTOLIT_PG_CLASS,TABLEOID)=...
 	 */
 	status = ydb_set_s(&pg_class[0], 4, &pg_class[1], &buffer_b);
 	CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, pg_class, oid_buffer);
 	/* Store a cross reference of the TABLEOID in ^%ydboctoschema.
-	 *	i.e. SET^ %ydboctoschema("NAMES","pg_class")=TABLEOID
+	 *	i.e. SET^ %ydboctoschema("NAMES",OCTOLIT_PG_CLASS)=TABLEOID
 	 * That way a later DROP TABLE or CREATE TABLE NAMES can clean all ^%ydboctoocto and ^%ydboctoschema
 	 * nodes created during the previous CREATE TABLE NAMES.
 	 */
@@ -106,7 +106,7 @@ int store_table_in_pg_class(SqlTable *table, ydb_buffer_t *table_name_buffer) {
 				 * part of the binary table definition in the database.
 				 */
 	// We should also store the column definitions in the pg_attribute table
-	pg_attribute = make_buffers(config->global_names.octo, 4, "tables", "pg_catalog", "pg_attribute", "");
+	pg_attribute = make_buffers(config->global_names.octo, 4, OCTOLIT_TABLES, OCTOLIT_PG_CATALOG, OCTOLIT_PG_ATTRIBUTE, "");
 	pg_attribute[4] = pg_class[4]; /* Inherit ydb_buffer used for OID */
 	pg_attribute_schema[0] = *table_name_buffer;
 	pg_attribute_schema[1] = pg_attribute[3];
@@ -157,7 +157,7 @@ int store_table_in_pg_class(SqlTable *table, ydb_buffer_t *table_name_buffer) {
 		snprintf(buffer, sizeof(buffer), "%lld|%s|%d|-1|-1|2|0|-1|-1|0|x|i|0|0|0|\"\"|0|1|0|100||||", class_oid,
 			 column_name, atttypid);
 		/* Get a unique oid COLUMNOID for each column in the table.
-		 * 	i.e. $INCREMENT(^%ydboctoocto("oid"))
+		 * 	i.e. $INCREMENT(^%ydboctoocto(OCTOLIT_OID))
 		 */
 		status = ydb_incr_s(&oid_buffer[0], 1, &oid_buffer[1], NULL, &pg_attribute[4]);
 		YDB_ERROR_CHECK(status);
@@ -165,7 +165,7 @@ int store_table_in_pg_class(SqlTable *table, ydb_buffer_t *table_name_buffer) {
 			break;
 		}
 		/* Set the column name as having an oid of COLUMNOID in the pg_catalog.
-		 * 	i.e. SET ^%ydboctoocto("tables","pg_catalog","pg_attribute",COLUMNOID)=...
+		 * 	i.e. SET ^%ydboctoocto(OCTOLIT_TABLES,OCTOLIT_PG_CATALOG,OCTOLIT_PG_ATTRIBUTE,COLUMNOID)=...
 		 */
 		status = ydb_set_s(&pg_attribute[0], 4, &pg_attribute[1], &buffer_b);
 		YDB_ERROR_CHECK(status);
@@ -173,7 +173,7 @@ int store_table_in_pg_class(SqlTable *table, ydb_buffer_t *table_name_buffer) {
 			break;
 		}
 		/* Store a cross reference of the COLUMNOID in ^%ydboctoschema.
-		 *	i.e. SET^ %ydboctoschema(TABLENAME,"pg_attribute",COLUMNNAME)=COLUMNOID
+		 *	i.e. SET^ %ydboctoschema(TABLENAME,OCTOLIT_PG_ATTRIBUTE,COLUMNNAME)=COLUMNOID
 		 */
 		YDB_STRING_TO_BUFFER(column_name, &pg_attribute_schema[2]);
 		status = ydb_set_s(&schema_global, 3, &pg_attribute_schema[0], &pg_attribute[4]);

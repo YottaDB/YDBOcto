@@ -1,7 +1,7 @@
 {}%
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -21,7 +21,7 @@ TEMPLATE(tmpl_limit_check, SqlOptionalKeyword *limit_keyword, char *prefix, char
 
 	UNPACK_SQL_STATEMENT(limit, limit_keyword->v, value);
 	%{}{{ prefix }}{}%
-	%{}($GET({{ config->global_names.cursor }}(cursorId,"parameters",{{ limit->parameter_index }})){}%
+	%{}($GET({{ config->global_names.cursor }}(cursorId,{{ PP_PARAMETERS }},{{ limit->parameter_index }})){}%
 	%{}{{ suffix }}){}%
 	TEMPLATE_END();
 }

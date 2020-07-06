@@ -24,16 +24,16 @@ int drop_schema_from_local_cache(ydb_buffer_t *name_buffer, SqlSchemaType schema
 	YDB_STRING_TO_BUFFER(config->global_names.loadedschemas, &schema_local);
 	/* Free up memory chunk noted down at the end of "src/find_function.c" or "src/find_table.c"
 	 * Those would be stored in one of the below 2 node pairs:
-	 *	%ydboctoloadedschemas("functions",FUNCTIONNAME)
-	 *	%ydboctoloadedschemas("functions",FUNCTIONNAME,"chunk")
+	 *	%ydboctoloadedschemas(OCTOLIT_FUNCTIONS,FUNCTIONNAME)
+	 *	%ydboctoloadedschemas(OCTOLIT_FUNCTIONS,FUNCTIONNAME,OCTOLIT_CHUNK)
 	 * OR
 	 *	%ydboctoloadedschemas(TABLENAME)
-	 *	%ydboctoloadedschemas(TABLENAME,"chunk")
+	 *	%ydboctoloadedschemas(TABLENAME,OCTOLIT_CHUNK)
 	 */
 	if (TableSchema == schema_type) {
-		YDB_STRING_TO_BUFFER("tables", &subs_array[0]);
+		YDB_STRING_TO_BUFFER(OCTOLIT_TABLES, &subs_array[0]);
 	} else if (FunctionSchema == schema_type) {
-		YDB_STRING_TO_BUFFER("functions", &subs_array[0]);
+		YDB_STRING_TO_BUFFER(OCTOLIT_FUNCTIONS, &subs_array[0]);
 	} else {
 		assert(FALSE);
 	}
@@ -52,7 +52,7 @@ int drop_schema_from_local_cache(ydb_buffer_t *name_buffer, SqlSchemaType schema
 		YDB_ERROR_CHECK(status);
 		return status;
 	}
-	YDB_LITERAL_TO_BUFFER("chunk", &subs_array[2]);
+	YDB_LITERAL_TO_BUFFER(OCTOLIT_CHUNK, &subs_array[2]);
 	status = ydb_get_s(&schema_local, 3, &subs_array[0], &ret);
 	if (YDB_OK == status) {
 		assert(sizeof(void *) == ret.len_used);
@@ -64,5 +64,6 @@ int drop_schema_from_local_cache(ydb_buffer_t *name_buffer, SqlSchemaType schema
 	}
 	/* Now that memory has been freed, delete those nodes */
 	status = ydb_delete_s(&schema_local, 1, &subs_array[0], YDB_DEL_TREE);
+	YDB_ERROR_CHECK(status);
 	return status;
 }

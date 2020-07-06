@@ -50,7 +50,7 @@ SqlFunction *find_function(const char *function_name) {
 	 * again from the database and release the process local memory that was housing the previous function definition.
 	 */
 	YDB_STRING_TO_BUFFER(config->global_names.loadedschemas, &loaded_schemas);
-	YDB_STRING_TO_BUFFER("functions", &function_subs[0]);
+	YDB_STRING_TO_BUFFER(OCTOLIT_FUNCTIONS, &function_subs[0]);
 	YDB_STRING_TO_BUFFER((char *)function_name, &function_subs[1]);
 	ret.buf_addr = &retbuff[0];
 	ret.len_alloc = sizeof(retbuff);
@@ -63,9 +63,9 @@ SqlFunction *find_function(const char *function_name) {
 		stmt = *((SqlStatement **)ret.buf_addr);
 		UNPACK_SQL_STATEMENT(function, stmt, create_function);
 		/* Check if function has not changed in the database since we cached it
-		 *	^%ydboctoocto("functions",FUNCTIONNAME)
+		 *	^%ydboctoocto(OCTOLIT_FUNCTIONS,FUNCTIONNAME)
 		 */
-		YDB_STRING_TO_BUFFER("oid", &function_subs[2]);
+		YDB_STRING_TO_BUFFER(OCTOLIT_OID, &function_subs[2]);
 		ret.buf_addr = &oid_buff[0];
 		ret.len_alloc = sizeof(oid_buff);
 		status = ydb_get_s(&octo_global, 3, &function_subs[0], &ret);
@@ -112,7 +112,7 @@ SqlFunction *find_function(const char *function_name) {
 	}
 
 	// Get the length in bytes of the binary function definition
-	YDB_STRING_TO_BUFFER("l", &function_subs[2]); // "l" for "length"
+	YDB_STRING_TO_BUFFER(OCTOLIT_LENGTH, &function_subs[2]);
 	function_subs[3].buf_addr = len_str;
 	function_subs[3].len_alloc = sizeof(len_str);
 	status = ydb_get_s(&octo_global, 3, &function_subs[0], &function_subs[3]);
@@ -133,8 +133,8 @@ SqlFunction *find_function(const char *function_name) {
 		ERROR(ERR_LIBCALL, "strtol");
 		return NULL;
 	}
-	// Switch subscript from "l" back to "b" to get the binary function definition
-	YDB_STRING_TO_BUFFER("b", &function_subs[2]);
+	// Switch subscript from OCTOLIT_LENGTH back to OCTOLIT_BINARY to get the binary function definition
+	YDB_STRING_TO_BUFFER(OCTOLIT_BINARY, &function_subs[2]);
 
 	/* Allocate a buffer to hold the full function.
 	 * Note that we create a new memory chunk here (different from the memory chunk used to store octo structures
@@ -194,7 +194,7 @@ SqlFunction *find_function(const char *function_name) {
 		return NULL;
 	}
 	// Note down the memory chunk so we can free it later
-	YDB_STRING_TO_BUFFER("chunk", &function_subs[2]);
+	YDB_STRING_TO_BUFFER(OCTOLIT_CHUNK, &function_subs[2]);
 	save_value.buf_addr = (char *)&memory_chunks;
 	save_value.len_used = save_value.len_alloc = sizeof(void *);
 	status = ydb_set_s(&loaded_schemas, 3, &function_subs[0], &save_value);

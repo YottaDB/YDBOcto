@@ -50,8 +50,8 @@ int print_temporary_table(SqlStatement *stmt, int cursor_id, void *parms, char *
 			YDB_FREE_BUFFER(&value_buffer);
 			return 1;
 		}
-		session_buffers
-		    = make_buffers(config->global_names.session, 3, "0", "variables", runtime_variable->v.string_literal);
+		session_buffers = make_buffers(config->global_names.session, 3, OCTOLIT_0, OCTOLIT_VARIABLES,
+					       runtime_variable->v.string_literal);
 		status = ydb_set_s(&session_buffers[0], 3, &session_buffers[1], &value_buffer);
 		free(session_buffers);
 		YDB_FREE_BUFFER(&value_buffer);
@@ -64,12 +64,13 @@ int print_temporary_table(SqlStatement *stmt, int cursor_id, void *parms, char *
 		// Attempt to GET the value of the specified runtime variable from the appropriate session LVN
 		UNPACK_SQL_STATEMENT(show_stmt, stmt, show);
 		UNPACK_SQL_STATEMENT(runtime_variable, show_stmt->variable, value);
-		session_buffers
-		    = make_buffers(config->global_names.session, 3, "0", "variables", runtime_variable->v.string_literal);
+		session_buffers = make_buffers(config->global_names.session, 3, OCTOLIT_0, OCTOLIT_VARIABLES,
+					       runtime_variable->v.string_literal);
 		status = ydb_get_s(&session_buffers[0], 3, &session_buffers[1], &value_buffer);
 		// If the variable isn't defined for the session, attempt to pull the value from the Octo GVN
 		if (YDB_OK != status) {
-			octo_buffers = make_buffers(config->global_names.octo, 2, "variables", runtime_variable->v.string_literal);
+			octo_buffers
+			    = make_buffers(config->global_names.octo, 2, OCTOLIT_VARIABLES, runtime_variable->v.string_literal);
 			status = ydb_get_s(&octo_buffers[0], 2, &octo_buffers[1], &value_buffer);
 			// If the variable isn't defined on the Octo GVN, the variable isn't defined at all.
 			// In this case we will return an empty string.

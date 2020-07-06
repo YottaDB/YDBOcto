@@ -1,6 +1,5 @@
 YottaDB MUPIP EXTRACT
 01-JUL-2019  00:29:12 ZWR
-^%ydboctoocto="1"
 ^%ydboctoocto("tables","octoOneRow",1)="1"
 ^%ydboctoocto("tables","pg_catalog","pg_namespace",11)="pg_catalog|10|""{postgres=UC/postgres|=U/postgres}"""
 ^%ydboctoocto("tables","pg_catalog","pg_namespace",99)="pg_toast|10|"

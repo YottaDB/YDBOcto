@@ -72,19 +72,19 @@ int handle_bind(Bind *bind, RoctoSession *session) {
 
 	TRACE(ERR_ENTERING_FUNCTION, "handle_bind");
 
-	// Create buffers to get routine name from prepared statement: ^session(id, "prepared", <name>, "routine")
+	// Create buffers to get routine name from prepared statement: ^session(id, OCTOLIT_PREPARED, <name>, OCTOLIT_ROUTINE)
 	YDB_STRING_TO_BUFFER(config->global_names.session, &statement_subs[0]);
 	YDB_STRING_TO_BUFFER(session->session_id->buf_addr, &statement_subs[1]);
-	YDB_STRING_TO_BUFFER("prepared", &statement_subs[2]);
+	YDB_STRING_TO_BUFFER(OCTOLIT_PREPARED, &statement_subs[2]);
 	YDB_STRING_TO_BUFFER(bind->source, &statement_subs[3]);
-	YDB_STRING_TO_BUFFER("routine", &statement_subs[4]);
+	YDB_STRING_TO_BUFFER(OCTOLIT_ROUTINE, &statement_subs[4]);
 
-	// Create buffers to store routine name on portal: ^session(id, "bound", <name>, "routine")
+	// Create buffers to store routine name on portal: ^session(id, OCTOLIT_BOUND, <name>, OCTOLIT_ROUTINE)
 	YDB_STRING_TO_BUFFER(config->global_names.session, &portal_subs[0]);
 	YDB_STRING_TO_BUFFER(session->session_id->buf_addr, &portal_subs[1]);
-	YDB_STRING_TO_BUFFER("bound", &portal_subs[2]);
+	YDB_STRING_TO_BUFFER(OCTOLIT_BOUND, &portal_subs[2]);
 	YDB_STRING_TO_BUFFER(bind->dest, &portal_subs[3]);
-	YDB_STRING_TO_BUFFER("routine", &portal_subs[4]);
+	YDB_STRING_TO_BUFFER(OCTOLIT_ROUTINE, &portal_subs[4]);
 
 	// Check if a portal by the same name already exists and, if so, delete it before reusing the name for a new one
 	status = ydb_data_s(&portal_subs[0], 3, &portal_subs[1], &data_ret);
@@ -133,12 +133,12 @@ int handle_bind(Bind *bind, RoctoSession *session) {
 		return 1;
 	}
 
-	// Reassign buffers to access prepared statement info: ^session(id, "prepared", <name>, ...)
-	YDB_STRING_TO_BUFFER("parameters", &statement_subs[4]);
+	// Reassign buffers to access prepared statement info: ^session(id, OCTOLIT_PREPARED, <name>, ...)
+	YDB_STRING_TO_BUFFER(OCTOLIT_PARAMETERS, &statement_subs[4]);
 	YDB_STRING_TO_BUFFER("all", &statement_subs[5]);
 
-	// Reassign buffer for storing portal ("bound statement") info: ^session(id, "bound", <name>, ...)
-	YDB_STRING_TO_BUFFER("parameters", &portal_subs[4]);
+	// Reassign buffer for storing portal ("bound statement") info: ^session(id, OCTOLIT_BOUND, <name>, ...)
+	YDB_STRING_TO_BUFFER(OCTOLIT_PARAMETERS, &portal_subs[4]);
 
 	// Retrieve the number of bind parameters on the prepared statement
 	OCTO_SET_BUFFER(num_parms_buf, num_parms_str);
@@ -176,12 +176,13 @@ int handle_bind(Bind *bind, RoctoSession *session) {
 	}
 
 	// Retrieve the total number of parameters on the prepared statement (can discard old value after it's converted and stored)
-	// Set the subscripts for all prepared statement parameters: session(id, "prepared", <name>, "parameters", "all", ...)
+	// Set the subscripts for all prepared statement parameters: session(id, OCTOLIT_PREPARED, <name>, OCTOLIT_PARAMETERS,
+	// "all", ...)
 	YDB_STRING_TO_BUFFER(config->global_names.session, &all_statement_parms_subs[0]);
 	YDB_STRING_TO_BUFFER(session->session_id->buf_addr, &all_statement_parms_subs[1]);
-	YDB_STRING_TO_BUFFER("prepared", &all_statement_parms_subs[2]);
+	YDB_STRING_TO_BUFFER(OCTOLIT_PREPARED, &all_statement_parms_subs[2]);
 	YDB_STRING_TO_BUFFER(bind->source, &all_statement_parms_subs[3]);
-	YDB_STRING_TO_BUFFER("parameters", &all_statement_parms_subs[4]);
+	YDB_STRING_TO_BUFFER(OCTOLIT_PARAMETERS, &all_statement_parms_subs[4]);
 	YDB_STRING_TO_BUFFER("all", &all_statement_parms_subs[5]);
 	status = ydb_get_s(&all_statement_parms_subs[0], 5, &all_statement_parms_subs[1], &num_parms_buf);
 	YDB_ERROR_CHECK(status);
@@ -193,12 +194,13 @@ int handle_bind(Bind *bind, RoctoSession *session) {
 	num_parms_buf.buf_addr[num_parms_buf.len_used] = '\0';
 
 	// Store the total number of parameters for use in handle_execute
-	// Set the subscripts for all prepared statement parameters: session(id, "prepared", <name>, "parameters", "all", ...)
+	// Set the subscripts for all prepared statement parameters: session(id, OCTOLIT_PREPARED, <name>, OCTOLIT_PARAMETERS,
+	// "all", ...)
 	YDB_STRING_TO_BUFFER(config->global_names.session, &all_portal_parms_subs[0]);
 	YDB_STRING_TO_BUFFER(session->session_id->buf_addr, &all_portal_parms_subs[1]);
-	YDB_STRING_TO_BUFFER("bound", &all_portal_parms_subs[2]);
+	YDB_STRING_TO_BUFFER(OCTOLIT_BOUND, &all_portal_parms_subs[2]);
 	YDB_STRING_TO_BUFFER(bind->dest, &all_portal_parms_subs[3]);
-	YDB_STRING_TO_BUFFER("parameters", &all_portal_parms_subs[4]);
+	YDB_STRING_TO_BUFFER(OCTOLIT_PARAMETERS, &all_portal_parms_subs[4]);
 	YDB_STRING_TO_BUFFER("all", &all_portal_parms_subs[5]);
 	status = ydb_set_s(&all_portal_parms_subs[0], 5, &all_portal_parms_subs[1], &num_parms_buf);
 	YDB_ERROR_CHECK(status);

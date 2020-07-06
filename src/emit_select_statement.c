@@ -21,6 +21,7 @@
 #include "template_strings.h"
 #include "logical_plan.h"
 #include "physical_plan.h"
+#include "lp_verify_structure.h"
 #include "helpers.h"
 
 PSQL_TypeSize get_type_size_from_psql_type(PSQL_TypeOid type) {
@@ -57,7 +58,7 @@ PSQL_TypeSize get_type_size_from_psql_type(PSQL_TypeOid type) {
  */
 PhysicalPlan *emit_select_statement(SqlStatement *stmt, char *plan_filename) {
 	LPActionType	    set_oper_type;
-	LogicalPlan *	    plan, *cur_plan, *column_alias;
+	LogicalPlan *	    plan, *cur_plan, *column_alias, *function;
 	PhysicalPlan *	    pplan;
 	SqlValue *	    value;
 	char		    output_key[INT32_TO_STRING_MAX], valbuff[INT32_TO_STRING_MAX];
@@ -91,6 +92,11 @@ PhysicalPlan *emit_select_statement(SqlStatement *stmt, char *plan_filename) {
 	memset(&options, 0, sizeof(PhysicalPlanOptions));
 	pplan = NULL;
 	options.last_plan = &pplan;
+	function = NULL;
+	options.function = &function; /* Store pointer to "function" in options.function. "generate_physical_plan" call below
+				       * will update "function" to point to start of the linked list of LP_FUNCTION_CALL usages
+				       * (if any) in the entire query.
+				       */
 	pplan = generate_physical_plan(plan, &options);
 	if (NULL == pplan) {
 		ERROR(ERR_PLAN_NOT_GENERATED, "physical");
@@ -125,6 +131,37 @@ PhysicalPlan *emit_select_statement(SqlStatement *stmt, char *plan_filename) {
 		free(plan_meta);
 		return NULL;
 	}
+	if (NULL != function) {
+		/* "function" points to the start of the linked list of LP_FUNCTION_CALL usages in entire query.
+		 * Store link between plan and all function calls that plan uses so a later CREATE/DROP FUNCTION
+		 * of any of the functions in this plan knows to delete this stale plan.
+		 */
+		ydb_buffer_t func_buff[4];
+
+		YDB_LITERAL_TO_BUFFER(OCTOLIT_FUNCTIONS, &func_buff[0]);
+		func_buff[2] = plan_meta[1];
+		func_buff[3] = plan_meta[2];
+		do {
+			LogicalPlan *function_name;
+
+			/* Store function name in "func_buff[1]" */
+			GET_LP(function_name, function, 0, LP_VALUE);
+			value = function_name->v.lp_value.value;
+			assert(STRING_LITERAL == value->type);
+			YDB_STRING_TO_BUFFER(value->v.string_literal, &func_buff[1]);
+			/* Store gvn that links plan and this function */
+			status = ydb_set_s(&plan_meta[0], 4, func_buff, NULL);
+			YDB_ERROR_CHECK(status);
+			if (YDB_OK != status) {
+				break;
+			}
+			function = function->extra_detail.lp_function_call.next_function;
+		} while (LP_FUNCTION_CALL_LIST_END != function);
+		if (YDB_OK != status) {
+			free(plan_meta);
+			return NULL;
+		}
+	}
 	YDB_LITERAL_TO_BUFFER(OCTOLIT_OUTPUT_COLUMNS, &plan_meta[3]);
 	YDB_MALLOC_BUFFER(&plan_meta[4], INT16_TO_STRING_MAX); // Column ID
 
@@ -140,7 +177,7 @@ PhysicalPlan *emit_select_statement(SqlStatement *stmt, char *plan_filename) {
 		num_columns++;
 		OCTO_INT16_TO_BUFFER(num_columns, &plan_meta[4]);
 
-		YDB_LITERAL_TO_BUFFER("name", &plan_meta[5]);
+		YDB_LITERAL_TO_BUFFER(OCTOLIT_NAME, &plan_meta[5]);
 		value_buffer.buf_addr = value->v.string_literal;
 		value_buffer.len_used = value_buffer.len_alloc = strlen(value_buffer.buf_addr);
 		status = ydb_set_s(plan_meta, 5, &plan_meta[1], &value_buffer);
@@ -148,7 +185,7 @@ PhysicalPlan *emit_select_statement(SqlStatement *stmt, char *plan_filename) {
 		if (YDB_OK != status)
 			break;
 
-		YDB_LITERAL_TO_BUFFER("table_id", &plan_meta[5]);
+		YDB_LITERAL_TO_BUFFER(OCTOLIT_TABLE_ID, &plan_meta[5]);
 		value_buffer.buf_addr = "0";
 		value_buffer.len_used = value_buffer.len_alloc = strlen(value_buffer.buf_addr);
 		status = ydb_set_s(plan_meta, 5, &plan_meta[1], &value_buffer);
@@ -156,7 +193,7 @@ PhysicalPlan *emit_select_statement(SqlStatement *stmt, char *plan_filename) {
 		if (YDB_OK != status)
 			break;
 
-		YDB_LITERAL_TO_BUFFER("column_id", &plan_meta[5]);
+		YDB_LITERAL_TO_BUFFER(OCTOLIT_COLUMN_ID, &plan_meta[5]);
 		value_buffer.buf_addr = "0";
 		value_buffer.len_used = value_buffer.len_alloc = strlen(value_buffer.buf_addr);
 		status = ydb_set_s(plan_meta, 5, &plan_meta[1], &value_buffer);
@@ -164,7 +201,7 @@ PhysicalPlan *emit_select_statement(SqlStatement *stmt, char *plan_filename) {
 		if (YDB_OK != status)
 			break;
 
-		YDB_LITERAL_TO_BUFFER("data_type", &plan_meta[5]);
+		YDB_LITERAL_TO_BUFFER(OCTOLIT_DATA_TYPE, &plan_meta[5]);
 		value_buffer.buf_addr = valbuff;
 		value_buffer.len_alloc = INT32_TO_STRING_MAX;
 		column_type = get_psql_type_from_sqlvaluetype(column_alias->v.lp_column_list_alias.column_list_alias->type);
@@ -174,7 +211,7 @@ PhysicalPlan *emit_select_statement(SqlStatement *stmt, char *plan_filename) {
 		if (YDB_OK != status)
 			break;
 
-		YDB_LITERAL_TO_BUFFER("data_type_size", &plan_meta[5]);
+		YDB_LITERAL_TO_BUFFER(OCTOLIT_DATA_TYPE_SIZE, &plan_meta[5]);
 		value_buffer.len_alloc = INT16_TO_STRING_MAX;
 		type_size = get_type_size_from_psql_type(column_type);
 		// PostgreSQL protocol specifies a 16-bit integer to store each data type size
@@ -185,7 +222,7 @@ PhysicalPlan *emit_select_statement(SqlStatement *stmt, char *plan_filename) {
 		if (YDB_OK != status)
 			break;
 
-		YDB_LITERAL_TO_BUFFER("type_modifier", &plan_meta[5]);
+		YDB_LITERAL_TO_BUFFER(OCTOLIT_TYPE_MODIFIER, &plan_meta[5]);
 		value_buffer.buf_addr = "-1";
 		value_buffer.len_used = value_buffer.len_alloc = strlen(value_buffer.buf_addr);
 		status = ydb_set_s(plan_meta, 5, &plan_meta[1], &value_buffer);
@@ -193,7 +230,7 @@ PhysicalPlan *emit_select_statement(SqlStatement *stmt, char *plan_filename) {
 		if (YDB_OK != status)
 			break;
 
-		YDB_LITERAL_TO_BUFFER("format_code", &plan_meta[5]);
+		YDB_LITERAL_TO_BUFFER(OCTOLIT_FORMAT_CODE, &plan_meta[5]);
 		value_buffer.buf_addr = "0";
 		value_buffer.len_used = value_buffer.len_alloc = strlen(value_buffer.buf_addr);
 		status = ydb_set_s(plan_meta, 5, &plan_meta[1], &value_buffer);

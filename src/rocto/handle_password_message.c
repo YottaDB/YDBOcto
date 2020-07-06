@@ -55,7 +55,7 @@ int handle_password_message(PasswordMessage *password_message, StartupMessage *s
 	// Retrieve user info from database
 	ydb_buffer_t user_info_subs;
 	YDB_MALLOC_BUFFER(&user_info_subs, MAX_STR_CONST);
-	ydb_buffer_t *user_subs = make_buffers(config->global_names.octo, 2, "users", username);
+	ydb_buffer_t *user_subs = make_buffers(config->global_names.octo, 2, OCTOLIT_USERS, username);
 	result = ydb_get_s(&user_subs[0], 2, &user_subs[1], &user_info_subs);
 	free(user_subs);
 	if (YDB_ERR_GVUNDEF == result) {

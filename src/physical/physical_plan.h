@@ -104,11 +104,15 @@ typedef struct PhysicalPlan {
 
 // This provides a convenient way to pass options to subplans
 // which need to be aware of a request from a higher level
-typedef struct {
+typedef struct PhysicalPlanOptions {
 	struct PhysicalPlan * parent;
 	struct PhysicalPlan **last_plan;
 	struct PhysicalPlan * dnf_plan_next;
 	boolean_t	      stash_columns_in_keys;
+	LogicalPlan **	      aggregate; /* Helps maintain a linked list of LP_AGGREGATE_FUNC* plans in each query.
+					  * Subqueries inside the query maintain their own linked list.
+					  */
+	LogicalPlan **function;		 /* Helps maintain a linked list of LP_FUNCTION_CALL plans across entire query */
 } PhysicalPlanOptions;
 
 PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlanOptions *options);

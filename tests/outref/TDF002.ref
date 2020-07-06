@@ -1,0 +1,33 @@
+# Run 8 queries from TCF023.sql that use ABS and REPLACE functions
+# Verify 8 _ydboctoP*.m plans have been generated
+# Verify ALL 8 queries created new plans
+[ INFO] PATH:LINENUM DATE TIME : Generating M file [$PWD/_ydboctoP*.m] (to execute SQL query)
+[ INFO] PATH:LINENUM DATE TIME : Generating M file [$PWD/_ydboctoP*.m] (to execute SQL query)
+[ INFO] PATH:LINENUM DATE TIME : Generating M file [$PWD/_ydboctoP*.m] (to execute SQL query)
+[ INFO] PATH:LINENUM DATE TIME : Generating M file [$PWD/_ydboctoP*.m] (to execute SQL query)
+[ INFO] PATH:LINENUM DATE TIME : Generating M file [$PWD/_ydboctoP*.m] (to execute SQL query)
+[ INFO] PATH:LINENUM DATE TIME : Generating M file [$PWD/_ydboctoP*.m] (to execute SQL query)
+[ INFO] PATH:LINENUM DATE TIME : Generating M file [$PWD/_ydboctoP*.m] (to execute SQL query)
+[ INFO] PATH:LINENUM DATE TIME : Generating M file [$PWD/_ydboctoP*.m] (to execute SQL query)
+# Verify db nodes correctly represent ABS and REPLACE functions and plans that rely on them
+^%ydboctoocto("functions","ABS","plan_metadata","$PWD/_ydboctoP*.m")=""
+^%ydboctoocto("functions","ABS","plan_metadata","$PWD/_ydboctoP*.m")=""
+^%ydboctoocto("functions","ABS","plan_metadata","$PWD/_ydboctoP*.m")=""
+^%ydboctoocto("functions","ABS","plan_metadata","$PWD/_ydboctoP*.m")=""
+^%ydboctoocto("functions","ABS","plan_metadata","$PWD/_ydboctoP*.m")=""
+^%ydboctoocto("functions","ABS","plan_metadata","$PWD/_ydboctoP*.m")=""
+^%ydboctoocto("functions","REPLACE","plan_metadata","$PWD/_ydboctoP*.m")=""
+^%ydboctoocto("functions","REPLACE","plan_metadata","$PWD/_ydboctoP*.m")=""
+^%ydboctoocto("functions","REPLACE","plan_metadata","$PWD/_ydboctoP*.m")=""
+^%ydboctoocto("functions","REPLACE","plan_metadata","$PWD/_ydboctoP*.m")=""
+^%ydboctoocto("functions","REPLACE","plan_metadata","$PWD/_ydboctoP*.m")=""
+^%ydboctoocto("functions","REPLACE","plan_metadata","$PWD/_ydboctoP*.m")=""
+# Run DROP FUNCTION of REPLACE
+# Verify 8 _ydboctoP*.m plans still remain
+# Verify db nodes corresponding to REPLACE function have been deleted
+^%ydboctoocto("functions","ABS","plan_metadata","$PWD/_ydboctoP*.m")=""
+^%ydboctoocto("functions","ABS","plan_metadata","$PWD/_ydboctoP*.m")=""
+^%ydboctoocto("functions","ABS","plan_metadata","$PWD/_ydboctoP*.m")=""
+^%ydboctoocto("functions","ABS","plan_metadata","$PWD/_ydboctoP*.m")=""
+^%ydboctoocto("functions","ABS","plan_metadata","$PWD/_ydboctoP*.m")=""
+^%ydboctoocto("functions","ABS","plan_metadata","$PWD/_ydboctoP*.m")=""

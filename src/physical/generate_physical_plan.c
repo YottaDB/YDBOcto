@@ -18,6 +18,7 @@
 #include "octo.h"
 #include "octo_types.h"
 #include "physical_plan.h"
+#include "lp_verify_structure.h"
 
 #include "template_helpers.h"
 
@@ -111,7 +112,7 @@ PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlanOptions *opt
 	 * the same logical plan.
 	 *
 	 * We have to generate the physical plan though as that is how we ensure the corresponding M code gets called twice.
-	 * So we cannot easily avoid the physical plan duplication. But note the fact that this is a duplicate that way we
+	 * So we cannot easily avoid the physical plan duplication. But we note the fact that this is a duplicate that way we
 	 * skip code generation for duplicate plans and ensure the M code that gets emitted does not have duplicate code.
 	 */
 	out_from_lp = plan->extra_detail.lp_insert.physical_plan;
@@ -119,7 +120,8 @@ PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlanOptions *opt
 	if (NULL == out_from_lp) {
 		// Make sure the plan is in good shape. Overload this plan verify phase to also fix aggregate function counts.
 		assert(NULL == plan->extra_detail.lp_insert.first_aggregate);
-		if (FALSE == lp_verify_structure(plan, &plan->extra_detail.lp_insert.first_aggregate)) {
+		plan_options.aggregate = &plan->extra_detail.lp_insert.first_aggregate;
+		if (FALSE == lp_verify_structure(plan, &plan_options)) {
 			assert(FALSE);
 			ERROR(ERR_PLAN_NOT_WELL_FORMED, "");
 			return NULL;

@@ -78,10 +78,39 @@
  * Each macro is prefixed with a OCTOLIT_.
  * A similar piece of code exists in template_helpers.h where PP_* macros are defined.
  */
-#define OCTOLIT_KEYS	       "keys" /* keep this in sync with PP_KEYS in "template_helpers.h" */
-#define OCTOLIT_PLAN_METADATA  "plan_metadata"
-#define OCTOLIT_OUTPUT_COLUMNS "output_columns"
-#define OCTOLIT_OUTPUT_KEY     "output_key"
+#define OCTOLIT_KEYS	   "keys"	/* keep this in sync with PP_KEYS in "template_helpers.h" */
+#define OCTOLIT_PARAMETERS "parameters" /* keep this in sync with PP_PARAMETERS in "template_helpers.h" */
+#define OCTOLIT_VARIABLES  "variables"	/* keep this in sync with PP_VARIABLES in "template_helpers.h" */
+
+#define OCTOLIT_0		     "0"
+#define OCTOLIT_BINARY		     "binary"
+#define OCTOLIT_BOUND		     "bound"
+#define OCTOLIT_CHUNK		     "chunk"
+#define OCTOLIT_COLUMN_ID	     "column_id"
+#define OCTOLIT_DATA_TYPE	     "data_type"
+#define OCTOLIT_DATA_TYPE_SIZE	     "data_type_size"
+#define OCTOLIT_DDL		     "ddl"
+#define OCTOLIT_FILES		     "files"
+#define OCTOLIT_FUNCTIONS	     "functions"
+#define OCTOLIT_FORMAT_CODE	     "format_code"
+#define OCTOLIT_LENGTH		     "length"
+#define OCTOLIT_NAME		     "name"
+#define OCTOLIT_OID		     "oid"
+#define OCTOLIT_OUTPUT_COLUMNS	     "output_columns"
+#define OCTOLIT_OUTPUT_KEY	     "output_key"
+#define OCTOLIT_PG_ATTRIBUTE	     "pg_attribute"
+#define OCTOLIT_PG_CATALOG	     "pg_catalog"
+#define OCTOLIT_PG_CLASS	     "pg_class"
+#define OCTOLIT_PLAN_METADATA	     "plan_metadata"
+#define OCTOLIT_PREPARED	     "prepared"
+#define OCTOLIT_ROUTINE		     "routine"
+#define OCTOLIT_TABLES		     "tables"
+#define OCTOLIT_TABLE_ID	     "table_id"
+#define OCTOLIT_TIMESTAMP	     "timestamp"
+#define OCTOLIT_TYPE_MODIFIER	     "type_modifier"
+#define OCTOLIT_USERS		     "users"
+#define OCTOLIT_YDBOCTOCANCEL	     "%ydboctoCancel"
+#define OCTOLIT_YDBOCTOSECRETKEYLIST "%ydboctoSecretKeyList"
 
 // Default buffer allocated for $zroutines
 #define ZRO_INIT_ALLOC 512

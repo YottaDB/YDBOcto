@@ -74,6 +74,10 @@ init_test() {
 	# It is also needed to avoid sort order changing (and reference file issues) based on LC_CTYPE being "C" or "en_US.UTF8".
 	# Fixing LC_ALL to a particular value ensures caller environment does not affect test results.
 	export LC_ALL=en_US.UTF8
+	# Avoid generating .pyc files during tests, which clutter up the source directory
+	# All the python scripts take a very small fraction of the test time,
+	# so this does not impact pipeline times in any significant way.
+	export PYTHONDONTWRITEBYTECODE=1
 }
 
 init_tls() {

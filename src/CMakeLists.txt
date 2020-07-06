@@ -188,6 +188,7 @@ add_library(libocto OBJECT
   optimization_transforms/lp_optimize_cross_join.c
   optimization_transforms/lp_optimize_where_multi_equals_ands.c
   optimization_transforms/lp_replace_derived_table_references.c
+  optimization_transforms/lp_generate_column_list.c
   optimization_transforms/lp_verify_structure.c
   optimization_transforms/optimize_logical_plan.c
   parse_line.c

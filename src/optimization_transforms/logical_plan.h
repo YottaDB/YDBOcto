@@ -344,6 +344,14 @@ void lp_optimize_where_multi_equals_ands(LogicalPlan *plan, LogicalPlan *where, 
 LogicalPlan *lp_optimize_where_multi_equals_ands_helper(LogicalPlan *plan, LogicalPlan *where, int *key_unique_id_array, void *ptr,
 							boolean_t num_outer_joins);
 
+/**
+ * Walk through the column list, converting each right side value as appropriate.
+ * Sets `*ret` to the first column.
+ * Returns whether an error was encountered.
+ * This function can only be used for column lists with at least one column.
+ */
+boolean_t lp_generate_column_list(LogicalPlan **ret, SqlStatement *stmt, SqlColumnList *start_columns);
+
 // Creates and returns a new/unique plan id
 int get_new_plan_unique_id();
 

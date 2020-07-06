@@ -60,25 +60,14 @@ LogicalPlan *lp_generate_where(SqlStatement *stmt, SqlStatement *parent) {
 		/* Special case: Check for IN usage against a list of values */
 		if (((LP_BOOLEAN_IN == type) || (LP_BOOLEAN_NOT_IN == type))
 		    && (column_list_STATEMENT == binary->operands[1]->type)) {
-			LogicalPlan *t, *prev;
+			LogicalPlan *t;
 
 			/* Walk through the column list, converting each right side value as appropriate. */
 			UNPACK_SQL_STATEMENT(start_cl, binary->operands[1], column_list);
 			LP_GENERATE_WHERE(binary->operands[0], stmt, t, error_encountered);
-			cur_cl = start_cl;
-			do {
-				MALLOC_LP_2ARGS(next, LP_COLUMN_LIST);
-				LP_GENERATE_WHERE(cur_cl->value, stmt, next->v.lp_default.operand[0], error_encountered);
-				if (NULL == ret) {
-					MALLOC_LP_2ARGS(ret, type);
-					ret->v.lp_default.operand[0] = t;
-					ret->v.lp_default.operand[1] = next;
-				} else {
-					prev->v.lp_default.operand[1] = next;
-				}
-				prev = next;
-				cur_cl = cur_cl->next;
-			} while (start_cl != cur_cl);
+			MALLOC_LP_2ARGS(ret, type);
+			ret->v.lp_default.operand[0] = t;
+			error_encountered |= lp_generate_column_list(&ret->v.lp_default.operand[1], stmt, start_cl);
 		} else {
 			MALLOC_LP_2ARGS(ret, type);
 			LP_GENERATE_WHERE(binary->operands[0], stmt, ret->v.lp_default.operand[0], error_encountered);
@@ -93,34 +82,11 @@ LogicalPlan *lp_generate_where(SqlStatement *stmt, SqlStatement *parent) {
 		LP_GENERATE_WHERE(unary->operand, stmt, ret->v.lp_default.operand[0], error_encountered);
 		break;
 	case coalesce_STATEMENT: {
-		LogicalPlan *prev;
-
 		UNPACK_SQL_STATEMENT(coalesce_call, stmt, coalesce);
-		type = LP_COALESCE_CALL;
-		MALLOC_LP_2ARGS(ret, type);
-		// TODO: This was mostly copied from binary_STATEMENT, it should be turned into its own function
-		/* Walk through the column list, converting each right side value as appropriate. */
 		UNPACK_SQL_STATEMENT(start_cl, coalesce_call->arguments, column_list);
-		cur_cl = start_cl;
-
-		// Use an LP_COLUMN_LIST to store the LP_VALUEs used for the function's return type and its extrinsic function name
-		MALLOC_LP_2ARGS(ret->v.lp_default.operand[0], LP_COLUMN_LIST);
-		next = ret->v.lp_default.operand[0];
-
-		// COALESCE must have at least one argument
-		// lp_default.operand == [ value, next ]
-		do {
-			assert(NULL != next);
-			LP_GENERATE_WHERE(cur_cl->value, stmt, next->v.lp_default.operand[0], error_encountered);
-			prev = next;
-			cur_cl = cur_cl->next;
-			MALLOC_LP_2ARGS(next, LP_COLUMN_LIST);
-			prev->v.lp_default.operand[1] = next;
-		} while (start_cl != cur_cl);
-		// We allocated an extra column at the end.
-		// TODO: free gives 'invalid pointer' here??
-		// free(prev->v.lp_default.operand[1]);
-		prev->v.lp_default.operand[1] = NULL;
+		MALLOC_LP_2ARGS(ret, LP_COALESCE_CALL);
+		/* Walk through the column list, converting each right side value as appropriate. */
+		error_encountered |= lp_generate_column_list(&ret->v.lp_default.operand[0], stmt, start_cl);
 		break;
 	}
 	case function_call_STATEMENT:
@@ -154,16 +120,10 @@ LogicalPlan *lp_generate_where(SqlStatement *stmt, SqlStatement *parent) {
 		LP_GENERATE_WHERE(ret_type, stmt, cur_lp->v.lp_default.operand[0], error_encountered);
 
 		UNPACK_SQL_STATEMENT(start_cl, function_call->parameters, column_list);
-		cur_cl = start_cl;
-		do {
-			LP_GENERATE_WHERE(cur_cl->value, stmt, next, error_encountered);
-			if (NULL != next) {
-				MALLOC_LP_2ARGS(cur_lp->v.lp_default.operand[1], LP_COLUMN_LIST);
-				cur_lp = cur_lp->v.lp_default.operand[1];
-				cur_lp->v.lp_default.operand[0] = next;
-			}
-			cur_cl = cur_cl->next;
-		} while (cur_cl != start_cl);
+		// if there are no parameters, no need to walk the list
+		if (NULL != start_cl->value) {
+			error_encountered |= lp_generate_column_list(&cur_lp->v.lp_default.operand[1], stmt, start_cl);
+		}
 		break;
 	case aggregate_function_STATEMENT:
 		UNPACK_SQL_STATEMENT(aggregate_function, stmt, aggregate_function);

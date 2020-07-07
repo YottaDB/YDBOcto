@@ -25,7 +25,6 @@
 body {
 	background-color: #3b1a68;
 	width: 150%;
-	font-family: "Raleway Medium",Tahoma,sans-serif;
 }
 .cse .gsc-search-button input.gsc-search-button-v2,
 input.gsc-search-button-v2 {
@@ -47,16 +46,4 @@ input.gsc-search-button-v2 {
 
 pre,code,.rst-content tt,.rst-content code,kbd,samp {
 	font-family: Inconsolata,"Courier New",monospace;
-}
-
-.btn mark {
-	font-family: Lora,Georgia,serif;
-}
-
-.admonition-todo{
-	background:#3b1a68;
-}
-
-.admonition-title{
-	background:#3b1a68
 }

@@ -16,23 +16,23 @@ echo '# In files docs.yottadb.com/*/_static/css/theme.css, make the following re
 echo '#'
 set filelist = `ls -1 _build/html/_static/css/theme.css`
 
-echo '# "courier new",monospace -> Inconsolata,"Courier New",monospace'
-set from = '"courier new",monospace'
+echo '# monospace,serif -> Inconsolata,"Courier New",monospace'
+set from = 'monospace,serif'
 set to   = 'Inconsolata,"Courier New",monospace'
 perl -p -i -e "s/$from/$to/g" $filelist
 
-echo '# "Lato","proxima-nova","Helvetica Neue",Arial,sans-serif -> "Raleway Medium",Tahoma,sans-serif'
-set from = '"Lato","proxima-nova","Helvetica Neue",Arial,sans-serif'
-set to   = '"Raleway Medium",Tahoma,sans-serif'
+echo '# Lato,proxima-nova,Helvetica Neue,Arial,sans-serif -> Raleway,Tahoma,sans-serif'
+set from = 'Lato,proxima-nova,Helvetica Neue,Arial,sans-serif'
+set to   = 'Raleway,Tahoma,sans-serif'
 perl -p -i -e "s/$from/$to/g" $filelist
 
-echo '# "Roboto Slab","ff-tisa-web-pro","Georgia",Arial,sans-serif -> Lora,Georgia,serif'
-set from = '"Roboto Slab","ff-tisa-web-pro","Georgia",Arial,sans-serif'
+echo '# Roboto Slab,ff-tisa-web-pro,Georgia,Arial,sans-serif -> Lora,Georgia,serif'
+set from = 'Roboto Slab,ff-tisa-web-pro,Georgia,Arial,sans-serif'
 set to   = 'Lora,Georgia,serif'
 perl -p -i -e "s/$from/$to/g" $filelist
 
-echo '# Consolas,"Andale Mono WT","Andale Mono","Lucida Console","Lucida Sans Typewriter","DejaVu Sans Mono","Bitstream Vera Sans Mono","Liberation Mono","Nimbus Mono L",Monaco,"Courier New",Courier,monospace -> Inconsolata,Consolas,monospace'
-set from = 'Consolas,"Andale Mono WT","Andale Mono","Lucida Console","Lucida Sans Typewriter","DejaVu Sans Mono","Bitstream Vera Sans Mono","Liberation Mono","Nimbus Mono L",Monaco,"Courier New",Courier,monospace'
+echo '# SFMono-Regular,Menlo,Monaco,Consolas,Liberation Mono,Courier New,Courier,monospace -> Inconsolata,Consolas,monospace'
+set from = 'SFMono-Regular,Menlo,Monaco,Consolas,Liberation Mono,Courier New,Courier,monospace'
 set to   = 'Inconsolata,Consolas,monospace'
 perl -p -i -e "s/$from/$to/g" $filelist
 echo ""
@@ -43,15 +43,15 @@ echo '# Step 2 : Make the following changes to the html files under docs.yottadb
 echo '#'
 echo '# Before the line that contains: <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />'
 echo '# Add the lines:'
-echo '# <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Raleway" />'
-echo '# <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lora" />'
-echo '# <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inconsolata" />'
+echo '# <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Raleway:ital,wght@0,500;1,500&display=swap" />'
+echo '# <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lora&display=swap" />'
+echo '# <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inconsolata&display=swap" />'
 
 set filelist = `ls -1 _build/html/*.html`
 set from = '<link rel="stylesheet" href="_static\/css\/theme.css" type="text\/css" \/>'
-set to1  = '<link rel="stylesheet" href="https:\/\/fonts.googleapis.com\/css?family=Raleway" \/>'
-set to2  = '<link rel="stylesheet" href="https:\/\/fonts.googleapis.com\/css?family=Lora" \/>'
-set to3  = '<link rel="stylesheet" href="https:\/\/fonts.googleapis.com\/css?family=Inconsolata" \/>'
+set to1  = '<link rel="stylesheet" href="https:\/\/fonts.googleapis.com\/css2?family=Raleway:ital,wght\@0,500;1,500&display=swap" \/>'
+set to2  = '<link rel="stylesheet" href="https:\/\/fonts.googleapis.com\/css2?family=Lora&display=swap" \/>'
+set to3  = '<link rel="stylesheet" href="https:\/\/fonts.googleapis.com\/css2?family=Inconsolata&display=swap" \/>'
 set to   = "${to1}${to2}${to3}$from"
 perl -p -i -e "s/$from/$to/g" $filelist
 
@@ -64,15 +64,12 @@ echo '#'
 echo '# Change the colors on the admonition and fonts '
 
 set filelist = `ls -1 _build/html/_static/css/theme.css`
-set from1 = '.admonition-todo\{background:#e7f2fa\}'
-set to1 = '.admonition-todo\{background:#3b1a68\}'
-perl -p -i -e "s/$from/$to1/g" $filelist
-set from2 = '.admonition-title\{background:#6ab0de\}'
-set to2 = '.admonition-title\{background:#3b1a68\}'
+set from1 = 'background:#6ab0de'
+set to1 = 'background:#3b1a68'
+perl -p -i -e "s/$from1/$to1/g" $filelist
+set from2 = 'e7f2fa'
+set to2 = 'e0d1f3'
 perl -p -i -e "s/$from2/$to2/g" $filelist
-set from3 = 'e7f2fa'
-set to3 = 'e0d1f3'
-perl -p -i -e "s/$from3/$to3/g" $filelist
 
 echo ""
 echo "--> Step 3 complete"

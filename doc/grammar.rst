@@ -20,6 +20,53 @@ A SELECT statement is used to select and view data from the database.
 .. note::
    Comments can be placed within SQL statements using :code:`--`, :code:`#` or the :code:`/*...*/` symbols.
 
+---------------------
+Accepted Data Types
+---------------------
+
++++++++++++++++++++++
+Character Data Types
++++++++++++++++++++++
+
+* CHARACTER
+* CHAR
+* CHARACTER VARYING
+* CHAR VARYING
+* VARCHAR
+
+Octo does not differentiate between these data types. They can be used to represent character values, and can optionally be followed by a precision value in parentheses. Example: char(20).
+
+++++++++++++++++++++
+Numeric Data Types
+++++++++++++++++++++
+
+* NUMERIC
+* DECIMAL
+* DEC
+* INTEGER
+* INT
+* SMALLINT
+
+NUMERIC, DECIMAL and DEC can optionally be followed by a precision value in parentheses. Example: dec(10).
+
+.. note::
+   The specified precision values are ignored when queries are executed.
+
+++++++++++++++++++++
+Boolean Data Type
+++++++++++++++++++++
+
+Octo uses :code:`0` and :code:`1` internally to represent boolean :code:`false` and :code:`true` respectively. However :code:`true` and :code:`false` can be used in Octo queries in the following manner:
+
+.. code-block:: SQL
+		   
+   SELECT * FROM names WHERE true;
+
+.. note::
+
+   Octo doesn't support :code:`t/f` like PostgreSQL does.
+   
+
 ---------------
 CREATE TABLE
 ---------------
@@ -49,38 +96,6 @@ Note that CREATE TABLE statements can also accept a list of ASCII integer values
    CREATE TABLE DELIMNAMES (id INTEGER PRIMARY KEY, firstName VARCHAR(30), lastName VARCHAR(30), middleInitial VARCHAR(1), age INTEGER) DELIM (9, 9) GLOBAL "^delimnames(keys(""id""))";
 
 Here, two TAB characters (ASCII value 9) act as the internal delimiter of an Octo table. Note, however, that these delimiters are not applied to Octo output, which retains the default pipe :code:`|` delimiter. The reason for this is that tables may be joined that have different delimiters, so one common delimiter needs to be chosen anyway. Thus, the default is used.
-
-++++++++++++++++++++
-Accepted Data Types
-++++++++++++++++++++
-
-~~~~~~~~~~~~~~~~~~~~~
-Character Data Types
-~~~~~~~~~~~~~~~~~~~~~
-
-* CHARACTER
-* CHAR
-* CHARACTER VARYING
-* CHAR VARYING
-* VARCHAR
-
-Octo does not differentiate between these data types. They can be used to represent character values, and can optionally be followed by a precision value in parentheses. Example: char(20).
-
-~~~~~~~~~~~~~~~~~~~
-Numeric Data Types
-~~~~~~~~~~~~~~~~~~~
-
-* NUMERIC
-* DECIMAL
-* DEC
-* INTEGER
-* INT
-* SMALLINT
-
-NUMERIC, DECIMAL and DEC can optionally be followed by a precision value in parentheses. Example: dec(10).
-
-.. note::
-   The specified precision values are ignored when queries are executed.
 
 +++++++++++++++++++++++++++++++++++++++++++++
 Mapping to existing YottaDB global variables
@@ -125,6 +140,13 @@ In the table above:
 * table_name and cursor_name are variables representing the names of the table and the cursor being used.
 * keys is a special variable in Octo that contains all of the columns that are identified as keys in the DDL (either via the "PRIMARY KEY" or "KEY NUM X" set of keywords).
 
++++++++++++++
+Error Case
++++++++++++++
+
+.. note::
+   A CREATE TABLE waits for all other concurrently running queries(SELECT or CREATE TABLE or DROP TABLE) to finish so it can safely make DDL changes. It waits for an exclusive lock with a timeout of 10 seconds. If it fails due to a timeout, the user needs to stop all concurrently running queries and reattempt the CREATE TABLE statement.
+
 ---------------
 CREATE FUNCTION
 ---------------
@@ -165,37 +187,12 @@ Example:
 
    CREATE FUNCTION APPEND(varchar, varchar) RETURNS varchar AS $$APPEND;
 
-++++++++++++++++++++
-Accepted Data Types
-++++++++++++++++++++
-
-~~~~~~~~~~~~~~~~~~~~~
-Character Data Types
-~~~~~~~~~~~~~~~~~~~~~
-
-* CHARACTER
-* CHAR
-* CHARACTER VARYING
-* CHAR VARYING
-* VARCHAR
-
-Octo does not differentiate between these data types. They can be used to represent character values, and can optionally be followed by a precision value in parentheses. Example: char(20).
-
-~~~~~~~~~~~~~~~~~~~
-Numeric Data Types
-~~~~~~~~~~~~~~~~~~~
-
-* NUMERIC
-* DECIMAL
-* DEC
-* INTEGER
-* INT
-* SMALLINT
-
-NUMERIC, DECIMAL and DEC can optionally be followed by a precision value in parentheses. Example: dec(10).
++++++++++++++
+Error Case
++++++++++++++
 
 .. note::
-   The specified precision values are ignored when queries are executed.
+   A CREATE FUNCTION waits for all other concurrently running queries(SELECT or CREATE TABLE or DROP TABLE) to finish so it can safely make DDL changes. It waits for an exclusive lock with a timeout of 10 seconds. If it fails due to a timeout, the user needs to stop all concurrently running queries and reattempt the CREATE FUNCTION statement.
 
 -----------------
 DROP TABLE
@@ -217,6 +214,13 @@ Example:
 
    DROP TABLE Employee CASCADE;
 
++++++++++++++
+Error Case
++++++++++++++
+
+.. note::
+   A DROP TABLE waits for all other concurrently running queries(SELECT or CREATE TABLE or DROP TABLE) to finish so it can safely make DDL changes. It waits for an exclusive lock with a timeout of 10 seconds. If it fails due to a timeout, the user needs to stop all concurrently running queries and reattempt the DROP TABLE statement.
+
 -----------------
 DROP FUNCTION
 -----------------
@@ -235,26 +239,108 @@ Example:
 
    DROP FUNCTION userfunc;
 
++++++++++++++
+Error Case
++++++++++++++
+
+.. note::
+   A DROP FUNCTION waits for all other concurrently running queries(SELECT or CREATE TABLE or DROP TABLE) to finish so it can safely make DDL changes. It waits for an exclusive lock with a timeout of 10 seconds. If it fails due to a timeout, the user needs to stop all concurrently running queries and reattempt the DROP FUNCTION statement.
+
 -----------
 SELECT
 -----------
 
-.. code-block:: SQL
-
-   SELECT [ALL | DISTINCT] ASTERISK | column [[AS] alias_name][...,column [[AS] alias_name]] | value_expression [FROM table_name [[AS] alias_name]] [WHERE search_condition] [GROUP BY column[,..column]] [HAVING search_condition] [ORDER BY sort_specification] [LIMIT number];
-
 The SELECT statement is used to select rows from the database by specifying a query, and optionally sorting the resulting rows.
 
-- ALL : returns all values
-- DISTINCT: returns on different (non-duplicate) values
+.. code-block:: PSQL
 
-FROM denotes the table from which the columns are selected.
+   SELECT [ALL | DISTINCT]
+   [ * | expression [[AS] alias_name] [, ...]]
+   [FROM from_item [, ...]]
+   [WHERE search_condition]
+   [GROUP BY grouping_column [, ...]]
+   [HAVING search_condition]
+   [{UNION | INTERSECT | EXCEPT} select]
+   [ORDER BY sort_specification]
+   [LIMIT number];
 
-The WHERE clause represents a condition under which columns are selected.
++++++
+ALL
++++++
 
-The GROUP BY clause ensures that the resulting rows are grouped together by certain characteristics.
+The use of this clause returns all rows, which is the default behavior.
 
-The HAVING clause works to filter the rows that result from the GROUP BY clause.
+++++++++++
+DISTINCT
+++++++++++
+
+The use of this clause returns only non-duplicate rows (keeping one each from the set of duplicates). 
+
+++++++
+FROM
+++++++
+
+This clause specifies the table(s) from which the columns are selected.
+
+**from_item** can be any of the following:
+
+    - A table name
+    - An alias
+    - A SELECT subquery, which must be surrounded by parentheses.
+    - A join
+
+~~~~~~~
+JOINS
+~~~~~~~
+
+Joins can be made by appending a join type and table name to a SELECT statement:
+
+.. code-block:: SQL
+
+   [CROSS | [NATURAL | INNER | [LEFT][RIGHT][FULL] OUTER]] JOIN ON joined_table;
+
+A **CROSS JOIN** between two tables provides the number of rows in the first table multiplied by the number of rows in the second table.
+
+A **QUALIFIED JOIN** is a join between two tables that specifies a join condition.
+
+A **NATURAL JOIN** is a join operation that combines tables based on columns with the same name and type. The resultant table does not contain repeated columns.
+
+**Types of Joins**:
+
+For two tables, Table A and Table B,
+
+- **Inner Join** : Only the common rows between Table A and Table B are returned.
+- **Outer Join**
+
+  - **Left Outer Join** : All rows from Table A are returned, along with matching rows from Table B.
+  - **Right Outer Join** : Matching rows from Table A are returned, along with all rows from Table B.
+  - **Full Outer Join** : All matching rows from Table A and Table B are returned, followed by rows from Table A that have no match and rows from Table B that have no match.
+
+Example:
+
+.. code-block:: SQL
+
+   SELECT FirstName, LastName, Address
+   FROM Employee INNER JOIN Addresses
+   ON Employee.ID = Addresses.EID;
+
+++++++++
+WHERE
+++++++++
+
+This clause represents a condition under which columns are selected. If the **search_condition** evaluates to true, that row is part of the output otherwise it is excluded.
+
++++++++++++
+GROUP BY
++++++++++++
+
+The GROUP BY clause ensures that the resulting rows are grouped together based on the specified **grouping_column**.
+
+++++++++++
+HAVING
+++++++++++
+
+The HAVING clause works to filter the rows that result from the GROUP BY clause. The rows are filtered based on the boolean value returned by the **search_condition**.
 
 See :ref:`Technical Notes <technical-notes>` for details on value expressions.
 
@@ -264,29 +350,19 @@ Example:
 
    SELECT ID, FirstName, LastName FROM Employee WHERE ID > 100 GROUP BY LastName;
 
-The LIMIT clause allows the user to specify the number of rows they want to retrieve from the results of the query.
-
-Example:
-
-.. code-block:: SQL
-
-   SELECT * FROM Employee LIMIT 5;
-
-The above example returns no more than 5 rows.
-
-++++++++
-Sorting
-++++++++
+++++++++++
+ORDER BY
+++++++++++
 
 ORDER BY lets you sort the order of the rows returned after the query.
 
-To sort rows or columns in the database, you need to have the following sort_specification.
+To sort rows or columns in the database, you need to have one of the following **sort_specifications**.
 
 .. code-block:: SQL
 
    sort_key [COLLATE collation_name] [ASC | DESC];
 
-The sort_key is either a column_reference or a literal.
+The **sort_key** is either a column reference or a literal.
 
 The sort key can be followed by a collate clause, ordering specification or both.
 
@@ -295,7 +371,7 @@ The sort key can be followed by a collate clause, ordering specification or both
 
 The collate clause consists of the word COLLATE and the relevant collation name.
 
-The ordering specification lets you further choose to order the returned columns in either ascending (ASC) or descending (DESC) order.
+The ordering specification lets you further choose whether to order the returned columns in ascending (ASC) or descending (DESC) order.
 
 Example:
 
@@ -303,38 +379,19 @@ Example:
 
    SELECT ID, FirstName, LastName FROM Employee WHERE ID > 100 ORDER BY ID DESC;
 
-++++++
-Joins
-++++++
++++++++
+LIMIT
++++++++
 
-Joins can be made by appending a join table to a SELECT statement:
-
-.. code-block:: SQL
-
-   [CROSS | [NATURAL | INNER | [LEFT][RIGHT][FULL] OUTER]] JOIN ON joined_table;
-
-A cross join between two tables provides the number of rows in the first table multiplied by the number of rows in the second table.
-
-A qualified join is a join between two tables that specifies a join condition.
-
-A NATURAL JOIN is a JOIN operation that creates an implicit join clause for you based on the common columns in the two tables being joined.
-
-**Types of Joins**:
-
-For two tables, Table A and Table B,
-
-- Inner Join : Only the common rows between Table A and Table B are returned.
-- Outer Join
-
-  - Left Outer Join : All rows from Table A are returned, along with matching rows from Table B.
-  - Right Outer Join: Matching rows from Table A are returned, along with all rows from Table B.
-  - Full Outer Join: All matching rows from Table A and Table B are returned, followed by rows from Table A that have no match and rows from Table B that have no match.
+This clause allows the user to specify the number of rows they want to retrieve from the results of the query.
 
 Example:
 
 .. code-block:: SQL
 
-   SELECT FirstName, LastName, Address FROM Employee INNER JOIN Addresses ON Employee.ID = Addresses.EID;
+   SELECT * FROM Employee LIMIT 5;
+
+The above example returns no more than 5 rows.
 
 +++++++++++++++++++++
 Queries without rows
@@ -348,8 +405,10 @@ Example:
 
    SELECT (1 * 2) + 3;
 
-Note that WHERE is not currently supported for SELECT statements without a FROM clause.
-This is known issue tracked at `YDB#500 <https://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/500>`_.
+.. note::
+
+   WHERE is currently not supported for SELECT statements without a FROM clause.
+   This is known issue tracked at `YDBOcto#500 <https://gitlab.com/YottaDB/DBMS/YDBOcto/-/issues/500>`_.
 
 --------------
 INSERT
@@ -472,14 +531,28 @@ The keyword ALL affects the resulting rows such that duplicate results are allow
 CASE
 --------------
 
+Octo supports two different formats of the CASE statement.
+
 .. code-block:: SQL
 
-   CASE WHEN condition_expression THEN result
-   [WHEN .... ]
-   [ELSE result]
+   CASE value_expression
+   WHEN value_1 THEN result_1
+   WHEN value_2 THEN result_2
+   [WHEN ... ]
+   [ELSE result_n]
    END
 
-CASE tests a condition_expression. If the condition_expression following any of the WHEN keywords is TRUE, then the value is the "result" following THEN. If none of the conditions are matched, the value is the "result" following ELSE. The result is NULL if ELSE is omitted and none of the conditions are matched.
+This form of the CASE statement evaluates the value_expression and sequentially compares that to each of the values following WHEN. Upon finding a match it returns the corresponding "result" following THEN. If no match is found then the "result" following ELSE is returned, or NULL is returned if ELSE has been omitted.
+
+.. code-block:: SQL
+
+   CASE WHEN condition_expression_1 THEN result_1
+	WHEN condition_expression_2 THEN result_2
+	[WHEN ... ]
+	[ELSE result_n]
+   END
+
+The second form of the CASE statement sequentially tests each condition_expression. If a condition_expression evaluates to TRUE, the "result" following THEN is returned. If all conditions evaluate to FALSE the "result" following ELSE is returned, or NULL is returned if ELSE has been omitted.
 
 
 -----------------

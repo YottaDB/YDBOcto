@@ -30,7 +30,6 @@ SqlStatement *find_column_alias_name(SqlStatement *stmt) {
 	SqlValue *	      value;
 	SqlAggregateFunction *aggregate_function;
 	SqlStatement *	      ret;
-	SqlCaseStatement *    cas;
 	char *		      c;
 
 	ret = NULL;
@@ -121,15 +120,10 @@ SqlStatement *find_column_alias_name(SqlStatement *stmt) {
 		ret->v.value->v.string_literal = get_aggregate_func_name(aggregate_function->type);
 		break;
 	case cas_STATEMENT:
-		UNPACK_SQL_STATEMENT(cas, stmt, cas);
-		if (NULL != cas->value) {
-			ret = find_column_alias_name(cas->value);
-		} else {
-			SQL_STATEMENT(ret, value_STATEMENT);
-			OCTO_CMALLOC_STRUCT(ret->v.value, SqlValue);
-			ret->v.value->type = STRING_LITERAL;
-			ret->v.value->v.string_literal = "CASE";
-		}
+		SQL_STATEMENT(ret, value_STATEMENT);
+		OCTO_CMALLOC_STRUCT(ret->v.value, SqlValue);
+		ret->v.value->type = STRING_LITERAL;
+		ret->v.value->v.string_literal = "CASE";
 		break;
 	case table_alias_STATEMENT:
 	case set_operation_STATEMENT:

@@ -80,3 +80,10 @@ setup() {
   load_fixture TCS13-errors.sql subtest novv
   verify_output TCS13-errors output.txt
 }
+
+@test "TCS14 : OCTO544 : Assertion failure and Errors when IN is used in SELECT column list" {
+  # Note: See comment in TCS13 for why the crosscheck needs to be done BEFORE the load_fixture
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TCS14.sql
+  load_fixture TCS14_errors.sql subtest novv
+  verify_output TCS14_errors output.txt
+}

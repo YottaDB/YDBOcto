@@ -105,7 +105,7 @@ LP_INSERT:
                                         LP_COLUMN_ALIAS: T(4).TYPBASETYPE
                                   LP_COLUMN_LIST_ALIAS: 
                                   - type: NUMERIC_LITERAL
-                                  - alias: TYPTYPE
+                                  - alias: CASE
                                 LP_COLUMN_LIST: 
                                   LP_WHERE: 
                                     LP_COLUMN_ALIAS: T(4).TYPTYPMOD
@@ -313,7 +313,7 @@ LP_INSERT:
                                         LP_COLUMN_ALIAS: T(4).TYPBASETYPE
                                   LP_COLUMN_LIST_ALIAS: 
                                   - type: NUMERIC_LITERAL
-                                  - alias: TYPTYPE
+                                  - alias: CASE
                                 LP_COLUMN_LIST: 
                                   LP_WHERE: 
                                     LP_COLUMN_ALIAS: T(4).TYPTYPMOD

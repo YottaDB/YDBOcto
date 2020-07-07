@@ -74,3 +74,9 @@ setup() {
   run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TCS12.sql
 }
 
+@test "TCS13 : OCTO546 : CASE does not return NULL if ELSE is omitted and no comparison operation evaluates to TRUE" {
+  # N.B. the order matters here, if you try and run errors first psql will run those as well.
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TCS13.sql
+  load_fixture TCS13-errors.sql subtest novv
+  verify_output TCS13-errors output.txt
+}

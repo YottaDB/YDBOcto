@@ -662,7 +662,7 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 			TMPL(tmpl_print_expression, default_value, pplan, 0, 0);
 			%{}){}%
 		} else {
-			%{}1:""){}%
+			%{}1:$ZYSQLNULL){}%
 		}
 		break;
 	default:

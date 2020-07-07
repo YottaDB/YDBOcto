@@ -22,7 +22,7 @@ TEMPLATE(tmpl_xref_key_columns, int num_cols) {
 	int	i;
 
 	for (i = 0; i < num_cols; i++) {
-		%{},{{ KEY_COLUMN }}{{ i|%d }}{}%
+		%{},{{ PP_KEY_COLUMN }}{{ i|%d }}{}%
 	}
 	TEMPLATE_END();
 }

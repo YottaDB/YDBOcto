@@ -7,7 +7,7 @@ OCTO> limit 1;
 [ INFO] PATH:LINENUM DATE TIME : Parsing done for SQL command [select firstname from names
 limit 1;]
 [ INFO] PATH:LINENUM DATE TIME : Generating SQL for CURSOR_NUM
-[ INFO] PATH:LINENUM DATE TIME : Generating M file [./_ydboctoP*.m] (to execute SQL query)
+[ INFO] PATH:LINENUM DATE TIME : Generating M file [$PWD/_ydboctoP*.m] (to execute SQL query)
 [ INFO] PATH:LINENUM DATE TIME : print_temporary_table()
 Zero
 OCTO> [ INFO] PATH:LINENUM DATE TIME : Parsing done for SQL command []

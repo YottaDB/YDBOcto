@@ -49,7 +49,7 @@ TEMPLATE(tmpl_tablejoin_body_group_by, PhysicalPlan *plan, int dot_count) {
 	%{}SET {}%
 	TMPL(tmpl_key, plan->outputKey);
 	(*buffer_index)--;
-	%{},{{ GROUP_BY_SUBSCRIPT }},%%ydboctog)=""{}%
+	%{},{{ PP_GROUP_BY }},%%ydboctog)=""{}%
 	assert(LP_INSERT == plan->lp_insert->type);
 	first_aggregate = plan->lp_insert->extra_detail.lp_insert.first_aggregate;
 	for (af = first_aggregate; NULL != af; af = af->extra_detail.lp_aggregate_function.next_aggregate) {

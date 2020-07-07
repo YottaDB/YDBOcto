@@ -1,0 +1,5 @@
+# Run TPP01.sql that generates M plan and stores corresponding plan related global variables in database
+3|Lord|Nikon
+# Remove M plan but keep plan related gvn intact to create out-of-sync situation
+# Run TPP01.sql again. Should NOT error out (but instead re-generate M plan and corresponding gvns)
+3|Lord|Nikon

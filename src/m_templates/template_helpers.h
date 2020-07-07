@@ -40,15 +40,21 @@
 		*buffer_index += written;                                                                       \
 	} while (retry);
 
+/* Define PP_* (stands for Physical Plan) macros which correspond to literals (numerics/strings) that are used in
+ * various parts of the "*.ctemplate" files in Octo code (all deal with physical plans).
+ * Using the macros avoids duplication of the literal.
+ */
+
 /* Note: The below macros contain double-quotes within the string literal (hence the use of \") as they are used
  *       inside the tmpl_*.ctemplate functions. Not having that will cause generated M code to contain just OrderBy
  *       instead of "OrderBy" as the subscript in an lvn.
  */
-#define ORDER_BY_SUBSCRIPT "\"OrderBy\""
-#define GROUP_BY_SUBSCRIPT "\"GroupBy\""
-#define XREF_COLUMN	   "xrefCol"
-#define KEY_COLUMN	   "keyCol"
-#define PLAN_LINE_START	   "    " /* 4 spaces start an M line in the generated plan */
+#define PP_ORDER_BY	"\"OrderBy\""
+#define PP_GROUP_BY	"\"GroupBy\""
+#define PP_KEYS		"\"keys\"" /* Note: This has to be maintained in sync with OCTOLIT_KEYS */
+#define PP_XREF_COLUMN	"xrefCol"
+#define PP_KEY_COLUMN	"keyCol"
+#define PLAN_LINE_START "    " /* 4 spaces start an M line in the generated plan */
 
 #define IS_COLUMN_NOT_NULL(COLUMN)                                                                     \
 	((NULL != get_keyword(column, PRIMARY_KEY)) || (NULL != get_keyword(column, OPTIONAL_KEY_NUM)) \
@@ -78,7 +84,7 @@ TEMPLATE(tmpl_tablejoin_on_condition, LogicalPlan *tablejoin, PhysicalPlan *plan
 TEMPLATE(tmpl_group_by, PhysicalPlan *plan, int dot_count);
 TEMPLATE(tmpl_key_start, SqlKey *key);
 TEMPLATE(tmpl_key_end, SqlKey *key);
-// Outputs: '%ydboctocursor(cursorId,"keys",key->unique_id,tableName,columnName)'
+// Outputs: '%ydboctocursor(cursorId,PP_KEYS,key->unique_id,tableName,columnName)'
 TEMPLATE(tmpl_key, SqlKey *key);
 TEMPLATE(tmpl_key_advance, PhysicalPlan *pplan, SqlKey *key);
 TEMPLATE(tmpl_key_source, PhysicalPlan *pplan, SqlKey *key);

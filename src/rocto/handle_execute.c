@@ -61,8 +61,13 @@ int32_t handle_execute(Execute *execute, RoctoSession *session, ydb_long_t *curs
 		return 1;
 	}
 	routine_buffer.buf_addr[routine_buffer.len_used] = '\0';
-	GET_FULL_PATH_OF_GENERATED_M_FILE(filename, &routine_buffer.buf_addr[1]); // Updates "filename" to be full path
-
+	/* The below call updates "filename" to be the full path including "routine_name" at the end */
+	status = get_full_path_of_generated_m_file(filename, sizeof(filename), &routine_buffer.buf_addr[1]);
+	if (status) {
+		/* Error message would have already been issued in above function call. Just return non-zero status. */
+		YDB_FREE_BUFFER(&routine_buffer);
+		return 1;
+	}
 	// Retrieve command tag from portal
 	YDB_MALLOC_BUFFER(&portal_subs[4], MAX_TAG_LEN);
 	YDB_COPY_STRING_TO_BUFFER("tag", &portal_subs[4], done);

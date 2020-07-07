@@ -109,6 +109,7 @@ if("${FULL_TEST_SUITE}" MATCHES "ON")
 	ADD_BATS_TEST(test_as_keyword)
 	ADD_BATS_TEST(test_drop_function)
 	ADD_BATS_TEST(test_full_join)
+	ADD_BATS_TEST(test_physical_plans)
 
 	if(psql)
 		ADD_BATS_TEST(test_psql_connection)

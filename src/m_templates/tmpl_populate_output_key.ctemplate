@@ -25,7 +25,7 @@ TEMPLATE(tmpl_populate_output_key, PhysicalPlan *plan, int dot_count) {
 	%{}`n{{ PLAN_LINE_START }}{}%
 	dot_count++;
 	TMPL(tmpl_print_dots, dot_count);
-	/* If the plan has an ORDER BY, then we need to fill in the ORDER_BY_SUBSCRIPT node even if the plan is part of
+	/* If the plan has an ORDER BY, then we need to fill in the PP_ORDER_BY node even if the plan is part of
 	 * a sub-query (i.e. plan->stash_columns_in_keys is TRUE) hence the "&&" check below. In this case, the actual stashing
 	 * of the columns in keys will happen as part of the final ORDER BY processing in "tmpl_physical_plan".
 	 */
@@ -120,7 +120,7 @@ TEMPLATE(tmpl_populate_output_key, PhysicalPlan *plan, int dot_count) {
 		TMPL(tmpl_key, plan->outputKey);
 		(*buffer_index)--;
 		if (NULL != plan->order_by) {
-			%{},{{ ORDER_BY_SUBSCRIPT }},{}%
+			%{},{{ PP_ORDER_BY }},{}%
 			TMPL(tmpl_column_list_combine, plan->order_by, plan, ",", FALSE, 0, 0, 0);
 			%{},{}%
 			TMPL(tmpl_key, plan->outputKey);

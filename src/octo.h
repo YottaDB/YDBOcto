@@ -17,6 +17,7 @@
 #include <limits.h>    /* needed for PATH_MAX */
 #include <sys/param.h> /* needed for PATH_MAX */
 #include <stdint.h>    /* needed for uint64_t */
+#include <errno.h>     /* for errno */
 
 #include <libyottadb.h>
 
@@ -72,6 +73,15 @@
 
 // Specify character for delimiting column values in Octo
 #define COLUMN_DELIMITER "|"
+
+/* Define various string literals used as gvn subscripts and/or in physical plans (generated M code).
+ * Each macro is prefixed with a OCTOLIT_.
+ * A similar piece of code exists in template_helpers.h where PP_* macros are defined.
+ */
+#define OCTOLIT_KEYS	       "keys" /* keep this in sync with PP_KEYS in "template_helpers.h" */
+#define OCTOLIT_PLAN_METADATA  "plan_metadata"
+#define OCTOLIT_OUTPUT_COLUMNS "output_columns"
+#define OCTOLIT_OUTPUT_KEY     "output_key"
 
 // Default buffer allocated for $zroutines
 #define ZRO_INIT_ALLOC 512
@@ -154,28 +164,6 @@
 		assert((BUFFERP)->len_alloc >= (BUFFERP)->len_used);                                            \
 		assert(INT64_TO_STRING_MAX >= (BUFFERP)->len_used); /* The result should never be truncated. */ \
 		(BUFFERP)->buf_addr[(BUFFERP)->len_used] = '\0';    /* Often reuse this string, so add null. */ \
-	}
-
-#define GET_FULL_PATH_OF_GENERATED_M_FILE(FILENAME, ROUTINE_NAME)                                                \
-	{                                                                                                        \
-		unsigned int want_to_write;                                                                      \
-		int	     len;                                                                                \
-		const char * tmp_dir;                                                                            \
-                                                                                                                 \
-		tmp_dir = config->tmp_dir;                                                                       \
-		assert(NULL != tmp_dir);                                                                         \
-		len = strlen(tmp_dir);                                                                           \
-		assert(len);                                                                                     \
-		if ('/' == tmp_dir[len - 1]) {                                                                   \
-			/* tmp_dir already has a trailing '/' so no need to add a '/' before the file name */    \
-			want_to_write = snprintf(FILENAME, sizeof(FILENAME), "%s_%s.m", tmp_dir, ROUTINE_NAME);  \
-		} else {                                                                                         \
-			/* tmp_dir does not have a trailing '/' so need to add a '/' before the file name */     \
-			want_to_write = snprintf(FILENAME, sizeof(FILENAME), "%s/_%s.m", tmp_dir, ROUTINE_NAME); \
-		}                                                                                                \
-		if (want_to_write >= (int)sizeof(FILENAME)) {                                                    \
-			FATAL(ERR_BUFFER_TOO_SMALL, "output plan");                                              \
-		}                                                                                                \
 	}
 
 #define INVOKE_HASH_CANONICAL_QUERY(STATE, RESULT, STATUS)     \
@@ -364,6 +352,8 @@ int no_more();
 
 int  get_input(char *buf, int size);
 void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, int *plan_id, ParseContext *parse_context, char const *s);
+
+int get_full_path_of_generated_m_file(char *filename, int filename_len, char *m_routine_name);
 
 /* Globals */
 extern SqlTable *definedTables;

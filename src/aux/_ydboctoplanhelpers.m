@@ -387,7 +387,7 @@ CountAsterisk(keyId,groupBySubs,aggrIndex,curValue)
 	;	aggrIndex   : N if we are processing the Nth aggregate function specified in the query
 	;	curValue    : the value that should be aggregated into `aggrIndex` (unused)
 	; Assumes "%ydboctocursor" and "cursorId" are appropriately set by caller.
-	; Ideally we should be using GROUP_BY_SUBSCRIPT instead of "GroupBy" below but we need some preprocessor in M for that
+	; Ideally we should be using PP_GROUP_BY instead of "GroupBy" below but we need some preprocessor in M for that
 	; So we use the hardcoded string instead here.
 	; Since COUNT(*) does not examine values for NULL, no need to use `curValue` in this case.
 	IF $INCREMENT(%ydboctocursor(cursorId,"keys",keyId,"","","GroupBy",groupBySubs,aggrIndex))
@@ -401,7 +401,7 @@ Count(keyId,groupBySubs,aggrIndex,curValue)
 	;	aggrIndex   : N if we are processing the Nth aggregate function specified in the query
 	;	curValue    : the value that should be aggregated into `aggrIndex`
 	; Assumes "%ydboctocursor" and "cursorId" are appropriately set by caller.
-	; Ideally we should be using GROUP_BY_SUBSCRIPT instead of "GroupBy" below but we need some preprocessor in M for that
+	; Ideally we should be using PP_GROUP_BY instead of "GroupBy" below but we need some preprocessor in M for that
 	; So we use the hardcoded string instead here.
 	QUIT:$ZYISSQLNULL(curValue)
 	IF $INCREMENT(%ydboctocursor(cursorId,"keys",keyId,"","","GroupBy",groupBySubs,aggrIndex))
@@ -416,7 +416,7 @@ Min(keyId,groupBySubs,aggrIndex,curValue,isString)
 	;	curValue    : the value that should be aggregated into `aggrIndex`
 	;	isString    : 1 if curValue is of string type, 0 if curValue is of numeric type
 	; Assumes "%ydboctocursor" and "cursorId" are appropriately set by caller.
-	; Ideally we should be using GROUP_BY_SUBSCRIPT instead of "GroupBy" below but we need some preprocessor in M for that
+	; Ideally we should be using PP_GROUP_BY instead of "GroupBy" below but we need some preprocessor in M for that
 	; So we use the hardcoded string instead here.
 	NEW curMin
 	QUIT:$ZYISSQLNULL(curValue)
@@ -439,7 +439,7 @@ Max(keyId,groupBySubs,aggrIndex,curValue,isString)
 	;	curValue    : the value that should be aggregated into `aggrIndex`
 	;	isString    : 1 if curValue is of string type, 0 if curValue is of numeric type
 	; Assumes "%ydboctocursor" and "cursorId" are appropriately set by caller.
-	; Ideally we should be using GROUP_BY_SUBSCRIPT instead of "GroupBy" below but we need some preprocessor in M for that
+	; Ideally we should be using PP_GROUP_BY instead of "GroupBy" below but we need some preprocessor in M for that
 	; So we use the hardcoded string instead here.
 	NEW curMax
 	QUIT:$ZYISSQLNULL(curValue)
@@ -461,7 +461,7 @@ Sum(keyId,groupBySubs,aggrIndex,curValue)
 	;	aggrIndex   : N if we are processing the Nth aggregate function specified in the query
 	;	curValue    : the value that should be aggregated into `aggrIndex`
 	; Assumes "%ydboctocursor" and "cursorId" are appropriately set by caller.
-	; Ideally we should be using GROUP_BY_SUBSCRIPT instead of "GroupBy" below but we need some preprocessor in M for that
+	; Ideally we should be using PP_GROUP_BY instead of "GroupBy" below but we need some preprocessor in M for that
 	; So we use the hardcoded string instead here.
 	QUIT:$ZYISSQLNULL(curValue)
 	IF $INCREMENT(%ydboctocursor(cursorId,"keys",keyId,"","","GroupBy",groupBySubs,aggrIndex),curValue)
@@ -475,7 +475,7 @@ Avg(keyId,groupBySubs,aggrIndex,curValue)
 	;	aggrIndex   : N if we are processing the Nth aggregate function specified in the query
 	;	curValue    : the value that should be aggregated into `aggrIndex`
 	; Assumes "%ydboctocursor" and "cursorId" are appropriately set by caller.
-	; Ideally we should be using GROUP_BY_SUBSCRIPT instead of "GroupBy" below but we need some preprocessor in M for that
+	; Ideally we should be using PP_GROUP_BY instead of "GroupBy" below but we need some preprocessor in M for that
 	; So we use the hardcoded string instead here.
 	; Note: We store the cumulative sum and the cumulative count here. Actual average will be taken in generated M code
 	;	(code generation happens in `src/m_templates/tmpl_print_expression.ctemplate` in the LP_AGGREGATE_FUNCTION_AVG
@@ -497,7 +497,7 @@ CountDistinct(keyId,groupBySubs,aggrIndex,curValue)
 	;	aggrIndex   : N if we are processing the Nth aggregate function specified in the query
 	;	curValue    : the value that should be aggregated into `aggrIndex`
 	; Assumes "%ydboctocursor" and "cursorId" are appropriately set by caller.
-	; Ideally we should be using GROUP_BY_SUBSCRIPT instead of "GroupBy" below but we need some preprocessor in M for that
+	; Ideally we should be using PP_GROUP_BY instead of "GroupBy" below but we need some preprocessor in M for that
 	; So we use the hardcoded string instead here.
 	QUIT:$ZYISSQLNULL(curValue)
 	QUIT:$DATA(%ydboctocursor(cursorId,"keys",keyId,"","","GroupBy",groupBySubs,aggrIndex,curValue))
@@ -513,7 +513,7 @@ SumDistinct(keyId,groupBySubs,aggrIndex,curValue)
 	;	aggrIndex   : N if we are processing the Nth aggregate function specified in the query
 	;	curValue    : the value that should be aggregated into `aggrIndex`
 	; Assumes "%ydboctocursor" and "cursorId" are appropriately set by caller.
-	; Ideally we should be using GROUP_BY_SUBSCRIPT instead of "GroupBy" below but we need some preprocessor in M for that
+	; Ideally we should be using PP_GROUP_BY instead of "GroupBy" below but we need some preprocessor in M for that
 	; So we use the hardcoded string instead here.
 	QUIT:$ZYISSQLNULL(curValue)
 	QUIT:$DATA(%ydboctocursor(cursorId,"keys",keyId,"","","GroupBy",groupBySubs,aggrIndex,curValue))
@@ -529,7 +529,7 @@ AvgDistinct(keyId,groupBySubs,aggrIndex,curValue)
 	;	aggrIndex   : N if we are processing the Nth aggregate function specified in the query
 	;	curValue    : the value that should be aggregated into `aggrIndex`
 	; Assumes "%ydboctocursor" and "cursorId" are appropriately set by caller.
-	; Ideally we should be using GROUP_BY_SUBSCRIPT instead of "GroupBy" below but we need some preprocessor in M for that
+	; Ideally we should be using PP_GROUP_BY instead of "GroupBy" below but we need some preprocessor in M for that
 	; So we use the hardcoded string instead here.
 	QUIT:$ZYISSQLNULL(curValue)
 	QUIT:$DATA(%ydboctocursor(cursorId,"keys",keyId,"","","GroupBy",groupBySubs,aggrIndex,curValue))

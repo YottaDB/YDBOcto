@@ -26,4 +26,4 @@
 [SOCKET] [ INFO] PATH:LINENUM DATE TIME : sent ParameterStatus with parameter 'user' set to 'ydb'
 [SOCKET] [ INFO] PATH:LINENUM DATE TIME : Parsing done for SQL command [SELECT * FROM names]
 [SOCKET] [ INFO] PATH:LINENUM DATE TIME : Generating SQL for CURSOR_NUM
-[SOCKET] [ INFO] PATH:LINENUM DATE TIME : Generating M file [./_ydboctoP*.m] (to execute SQL query)
+[SOCKET] [ INFO] PATH:LINENUM DATE TIME : Generating M file [$PWD/_ydboctoP*.m] (to execute SQL query)

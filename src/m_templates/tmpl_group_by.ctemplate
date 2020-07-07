@@ -51,7 +51,7 @@ TEMPLATE(tmpl_group_by, PhysicalPlan *plan, int dot_count) {
 			%{}SET:'$DATA({}%
 			TMPL(tmpl_key, plan->outputKey);
 			(*buffer_index)--;
-			%{},{{ GROUP_BY_SUBSCRIPT }},%%ydboctog,{}%
+			%{},{{ PP_GROUP_BY }},%%ydboctog,{}%
 			aggregate_cnt = af->extra_detail.lp_aggregate_function.aggregate_cnt;
 			if (is_avg) {
 				/* In case of AVG function, the SUM and COUNT are stored separately so use that to find the AVG.
@@ -66,7 +66,7 @@ TEMPLATE(tmpl_group_by, PhysicalPlan *plan, int dot_count) {
 			%{})) {}%
 			TMPL(tmpl_key, plan->outputKey);
 			(*buffer_index)--;
-			%{},{{ GROUP_BY_SUBSCRIPT }},%%ydboctog,{}%
+			%{},{{ PP_GROUP_BY }},%%ydboctog,{}%
 			%{}{{ aggregate_cnt|%d }}{}%
 			if (is_avg) {
 				%{},"SUM"{}%
@@ -107,9 +107,9 @@ TEMPLATE(tmpl_group_by, PhysicalPlan *plan, int dot_count) {
 	}
 	%{}DO:$DATA({}%
 	TMPL(tmpl_key, plan->outputKey); (*buffer_index)--;
-	%{},{{ GROUP_BY_SUBSCRIPT }},%%ydboctog))  SET %%ydboctog=$ORDER({}%
+	%{},{{ PP_GROUP_BY }},%%ydboctog))  SET %%ydboctog=$ORDER({}%
 	TMPL(tmpl_key, plan->outputKey); (*buffer_index)--;
-	%{},{{ GROUP_BY_SUBSCRIPT }},%%ydboctog)) QUIT:(""=%%ydboctog){}%
+	%{},{{ PP_GROUP_BY }},%%ydboctog)) QUIT:(""=%%ydboctog){}%
 	// Apply the conditions for this statement
 	%{}`n{{ PLAN_LINE_START }}{}%
 	dot_count++;

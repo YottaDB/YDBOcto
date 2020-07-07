@@ -1,7 +1,7 @@
 {}%
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -34,7 +34,7 @@ TEMPLATE(tmpl_key, SqlKey *key) {
 		UNPACK_SQL_STATEMENT (value, key->column->columnName, value);
 		columnName = value->v.reference;
 	}
-	%{}{{ config->global_names.cursor }}(cursorId,"keys",{{ key->unique_id|%d }},"{{ tableName }}","{{ columnName }}"){}%
+	%{}{{ config->global_names.cursor }}(cursorId,{{ PP_KEYS }},{{ key->unique_id|%d }},"{{ tableName }}","{{ columnName }}"){}%
 	TEMPLATE_END();
 }
 %{}

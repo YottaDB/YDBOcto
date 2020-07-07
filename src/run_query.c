@@ -62,6 +62,44 @@
 		}                                                                                                   \
 	}
 
+#define CHECK_IF_DB_NODE_EXISTS(PLAN_FILENAME, DB_NODE_FOUND, STATUS)         \
+	{                                                                     \
+		ydb_buffer_t varname, subs_array[2];                          \
+                                                                              \
+		YDB_STRING_TO_BUFFER(config->global_names.octo, &varname);    \
+		YDB_LITERAL_TO_BUFFER(OCTOLIT_PLAN_METADATA, &subs_array[0]); \
+		YDB_STRING_TO_BUFFER(PLAN_FILENAME, &subs_array[1]);          \
+		STATUS = ydb_data_s(&varname, 2, subs_array, &DB_NODE_FOUND); \
+	}
+
+#define CLEANUP_FILENAME_LOCK(I, FILENAME_LOCK, STATUS)                                                   \
+	{                                                                                                 \
+		if (1 == I) {                                                                             \
+			/* If this is the second iteration, release the lock obtained in first iteration. \
+			 * Cannot do much if call fails. Hence no check of return status.                 \
+			 */                                                                               \
+			STATUS = ydb_lock_decr_s(&FILENAME_LOCK[0], 2, &FILENAME_LOCK[1]);                \
+		}                                                                                         \
+		if (NULL != FILENAME_LOCK) {                                                              \
+			free(FILENAME_LOCK);                                                              \
+		}                                                                                         \
+	}
+
+#define CLEANUP_QUERY_LOCK_AND_MEMORY_CHUNKS(QUERY_LOCK, MEMORY_CHUNKS)                                \
+	{                                                                                              \
+		ydb_lock_decr_s(&QUERY_LOCK[0], 2, &QUERY_LOCK[1]); /* cannot do much if call fails */ \
+		OCTO_CFREE(MEMORY_CHUNKS);                                                             \
+	}
+
+#define CLEANUP_FROM_PLAN_GENERATION(I, FILENAME_LOCK, QUERY_LOCK, MEMORY_CHUNKS)                       \
+	{                                                                                               \
+		int lclStatus;                                                                          \
+                                                                                                        \
+		CLEANUP_FILENAME_LOCK(I, FILENAME_LOCK, lclStatus); /* lclStatus is set but not used */ \
+		UNUSED(lclStatus);                                                                      \
+		CLEANUP_QUERY_LOCK_AND_MEMORY_CHUNKS(QUERY_LOCK, MEMORY_CHUNKS);                        \
+	}
+
 int run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_description, ParseContext *parse_context) {
 	FILE *		out;
 	PhysicalPlan *	pplan;
@@ -189,7 +227,6 @@ int run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_descrip
 		return 1;
 	}
 	if (config->dry_run || (no_data_STATEMENT == result->type)) {
-		result = NULL;
 		ydb_lock_decr_s(&query_lock[0], 2, &query_lock[1]); /* cannot do much if call returns != YDB_OK */
 		OCTO_CFREE(memory_chunks);
 		return 0;
@@ -229,40 +266,79 @@ int run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_descrip
 			OCTO_CFREE(memory_chunks);
 			return 1;
 		}
-		GET_FULL_PATH_OF_GENERATED_M_FILE(filename, &routine_name[1]); /* updates "filename" to be full path */
-		if (-1 == access(filename, F_OK)) {			       // file doesn't exist
-			INFO(CUSTOM_ERROR, "Generating M file [%s] (to execute SQL query)", filename);
-			filename_lock = make_buffers(config->global_names.octo, 2, "files", filename);
-			/* Wait for 5 seconds in case another process is writing to same filename */
-			status = ydb_lock_incr_s(5 * TIMEOUT_1_SEC, &filename_lock[0], 2, &filename_lock[1]);
-			YDB_ERROR_CHECK(status);
-			if (YDB_OK != status) {
-				free(filename_lock);
-				ydb_lock_decr_s(&query_lock[0], 2, &query_lock[1]); /* cannot do much if call fails */
-				OCTO_CFREE(memory_chunks);
-				return 1;
-			}
-			if (-1 == access(filename, F_OK)) {
-				pplan = emit_select_statement(result, filename);
-				if (NULL == pplan) {
-					ydb_lock_decr_s(&filename_lock[0], 2, &filename_lock[1]); /* cannot do much if call fails */
-					free(filename_lock);
-					result = NULL;
-					ydb_lock_decr_s(&query_lock[0], 2, &query_lock[1]); /* cannot do much if call fails */
-					OCTO_CFREE(memory_chunks);
+		/* The below call updates "filename" to be the full path including "routine_name" at the end */
+		status = get_full_path_of_generated_m_file(filename, sizeof(filename), &routine_name[1]);
+		if (status) {
+			ERROR(ERR_PLAN_HASH_FAILED, "");
+			ydb_lock_decr_s(&query_lock[0], 2, &query_lock[1]); /* cannot do much if call returns != YDB_OK */
+			OCTO_CFREE(memory_chunks);
+			return 1;
+		}
+		filename_lock = NULL; /* used by CLEANUP_FROM_PLAN_GENERATION macro to know whether to invoke free() or not */
+		for (i = 0; i < 2; i++) {
+			/* i = 0 is the iteration BEFORE we get the M lock (to generate the plan).
+			 * i = 1 is the iteration AFTER  we get the M lock (to generate the plan).
+			 *
+			 * The code to do checks is mostly common for both iterations hence this for loop to avoid code duplication.
+			 */
+			boolean_t generate_plan;
+
+			generate_plan = (-1 == access(filename, F_OK));
+			if (!generate_plan) {
+				/* The plan exists (i.e. has already been generated). But check if the corresponding nodes
+				 * in the database are in sync as well. If not, regenerate the plan. This way we will avoid
+				 * an ERR_DATABASE_FILES_OOS error later.
+				 */
+				unsigned int db_node_found;
+
+				CHECK_IF_DB_NODE_EXISTS(filename, db_node_found, status); /* sets "db_node_found" and "status" */
+				YDB_ERROR_CHECK(status);
+				if (YDB_OK != status) {
+					CLEANUP_FROM_PLAN_GENERATION(i, filename_lock, query_lock, memory_chunks);
 					return 1;
 				}
-				assert(pplan != NULL);
+				if (0 == db_node_found) {
+					/* Plan exists but no corresponding db node was found. Regenerate plan. */
+					generate_plan = TRUE;
+				}
 			}
-			status = ydb_lock_decr_s(&filename_lock[0], 2, &filename_lock[1]); /* cannot do much if call fails */
-			free(filename_lock);
+			if (generate_plan) {
+				if (0 == i) {
+					/* Get the M lock and redo the check of whether the plan is still not generated */
+					filename_lock = make_buffers(config->global_names.octo, 2, "files", filename);
+					/* Wait for 5 seconds in case another process is writing to same filename */
+					status = ydb_lock_incr_s(5 * TIMEOUT_1_SEC, &filename_lock[0], 2, &filename_lock[1]);
+					YDB_ERROR_CHECK(status);
+					if (YDB_OK != status) {
+						CLEANUP_FROM_PLAN_GENERATION(i, filename_lock, query_lock, memory_chunks);
+						return 1;
+					}
+					continue; /* So we redo the check of whether plan exists or not after getting lock */
+				} else {
+					/* We got the lock and the plan still does not exist. Generate the plan this time around. */
+					INFO(CUSTOM_ERROR, "Generating M file [%s] (to execute SQL query)", filename);
+					pplan = emit_select_statement(result, filename);
+					if (NULL == pplan) {
+						CLEANUP_FROM_PLAN_GENERATION(i, filename_lock, query_lock, memory_chunks);
+						return 1;
+					}
+				}
+			} else {
+				/* Plan was found to already exist. So reuse it. */
+				INFO(CUSTOM_ERROR, "Using already generated M file [%s] (to execute SQL query)", filename);
+				/* If this is the first iteration, then we can break out of the loop but if the second
+				 * iteration, then we need to release the locks obtained in the first iteration.
+				 */
+				if (0 == i) {
+					break;
+				}
+			}
+			assert(1 == i);
+			CLEANUP_FILENAME_LOCK(i, filename_lock, status); /* lclStatus is set but not used */
 			if (YDB_OK != status) {
-				ydb_lock_decr_s(&query_lock[0], 2, &query_lock[1]); /* cannot do much if call fails */
-				OCTO_CFREE(memory_chunks);
+				CLEANUP_QUERY_LOCK_AND_MEMORY_CHUNKS(query_lock, memory_chunks);
 				return 1;
 			}
-		} else {
-			INFO(CUSTOM_ERROR, "Using already generated M file [%s] (to execute SQL query)", filename);
 		}
 		if (parse_context->is_extended_query) {
 			memcpy(parse_context->routine, routine_name, routine_len);
@@ -303,8 +379,8 @@ int run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_descrip
 			}
 			return 1;
 		}
-		// Deciding to free the select_STATEMENT must be done by the caller, as they may want to rerun it or send row
-		// descriptions hence the decision to not free the memory_chunk below.
+		// Deciding to free the select_STATEMENT must be done by the caller, as they may want to rerun it or send
+		// row descriptions hence the decision to not free the memory_chunk below.
 		free_memory_chunks = false;
 		break;
 	case drop_table_STATEMENT:   /* DROP TABLE */
@@ -362,7 +438,8 @@ int run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_descrip
 			status = emit_create_table(out, result);
 			fclose(out); // at this point "buffer" and "buffer_size" are usable
 			if (0 != status) {
-				// Error messages for the non-zero status would already have been issued in "emit_create_table"
+				// Error messages for the non-zero status would already have been issued in
+				// "emit_create_table"
 				CLEANUP_AND_RETURN(memory_chunks, buffer, table_sub_buffer, table_buffer, query_lock);
 			}
 			INFO(CUSTOM_ERROR, "%s", buffer); /* print the converted text representation of the CREATE TABLE command */
@@ -371,11 +448,12 @@ int run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_descrip
 			YDB_STRING_TO_BUFFER("t", &table_name_buffers[1]);
 			status = ydb_set_s(&schema_global, 2, table_name_buffers, &table_create_buffer);
 			CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, memory_chunks, buffer, table_sub_buffer, table_buffer, query_lock);
-			free(buffer);  // Note: "table_create_buffer" (whose "buf_addr" points to "buffer") is also no longer usable
+			free(buffer);
+			/* Note: "table_create_buffer" (whose "buf_addr" points to "buffer") is also no longer usable */
 			buffer = NULL; /* So CLEANUP_AND_RETURN* macro calls below do not try "free(buffer)" */
 			/* First store table name in catalog. As we need that OID to store in the binary table definition.
-			 * The below call also sets table->oid which is needed before the call to "compress_statement" as that way
-			 * the oid also gets stored in the binary table definition.
+			 * The below call also sets table->oid which is needed before the call to "compress_statement" as
+			 * that way the oid also gets stored in the binary table definition.
 			 */
 			status = store_table_in_pg_class(table, table_name_buffer);
 			if (YDB_OK != status) {
@@ -421,7 +499,8 @@ int run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_descrip
 		/* Note that CREATE/DROP FUNCTION is very similar to CREATE/DROP TABLE, and changes to either may need to be
 		 * reflected in the other.
 		 *
-		 * A CREATE FUNCTION should do a DROP FUNCTION followed by a CREATE FUNCTION hence merging the two cases above
+		 * A CREATE FUNCTION should do a DROP FUNCTION followed by a CREATE FUNCTION hence merging the two cases
+		 * above
 		 */
 		function_name_buffer = &function_name_buffers[1];
 		/* Initialize a few variables to NULL at the start. They are really used much later but any calls to
@@ -472,7 +551,8 @@ int run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_descrip
 			status = emit_create_function(out, result);
 			fclose(out); // at this point "buffer" and "buffer_size" are usable
 			if (0 != status) {
-				/* Error messages for the non-zero status would already have been issued in "emit_create_function"
+				/* Error messages for the non-zero status would already have been issued in
+				 * "emit_create_function"
 				 */
 				CLEANUP_AND_RETURN(memory_chunks, buffer, function_sub_buffer, function_buffer, query_lock);
 			}
@@ -486,7 +566,8 @@ int run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_descrip
 			status = ydb_set_s(&octo_global, 3, function_name_buffers, &function_create_buffer);
 			CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, memory_chunks, buffer, function_sub_buffer, function_buffer,
 							 query_lock);
-			free(buffer); // Note: `function_create_buffer.buf_addr` no longer points to `buffer`, which is now unusable
+			free(buffer);
+			/* Note: "function_create_buffer" (whose "buf_addr" points to "buffer") is also no longer unusable */
 			buffer = NULL; // So CLEANUP_AND_RETURN* macro calls below do not try "free(buffer)"
 
 			/* Store the extrinsic function label from the CREATE FUNCTION statement:
@@ -497,9 +578,9 @@ int run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_descrip
 			CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, memory_chunks, buffer, function_sub_buffer, function_buffer,
 							 query_lock);
 
-			/* First store function name in catalog. As we need that OID to store in the binary table definition.
-			 * The below call also sets table->oid which is needed before the call to "compress_statement" as that way
-			 * the oid also gets stored in the binary table definition.
+			/* First store function name in catalog. As we need that OID to store in the binary table
+			 * definition. The below call also sets table->oid which is needed before the call to
+			 * "compress_statement" as that way the oid also gets stored in the binary table definition.
 			 */
 			status = store_function_in_pg_proc(function);
 			CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, memory_chunks, buffer, function_sub_buffer, function_buffer,
@@ -580,6 +661,5 @@ int run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_descrip
 	if (free_memory_chunks) {
 		OCTO_CFREE(memory_chunks);
 	}
-	result = NULL;
 	return 0;
 }

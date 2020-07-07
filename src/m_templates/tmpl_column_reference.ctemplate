@@ -59,7 +59,7 @@ TEMPLATE(tmpl_column_reference, PhysicalPlan *pplan, SqlColumnAlias *column_alia
 	if (pplan->tablejoin_body_group_by_done && column_alias->group_by_column_number) {
 		/* This column reference was specified in the GROUP BY clause and GROUP BY related processing already
 		 * happened and wrote the records (based on the FROM/WHERE clauses) into the lvn subtree under
-		 * GROUP_BY_SUBSCRIPT. Retrieve the column reference from there.
+		 * PP_GROUP_BY. Retrieve the column reference from there.
 		 */
 		%{}$$mval2str^%%ydboctoplanhelpers({}%
 		%{}$$mvalPiece^%%ydboctoplanhelpers(%%ydboctog,{{ column_alias->group_by_column_number|%d }}){}%

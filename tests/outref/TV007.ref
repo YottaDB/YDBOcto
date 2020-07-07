@@ -340,7 +340,7 @@ Stack now sss ...
 [ INFO] PATH:LINENUM DATE TIME : Parsing done for SQL command [select * from names;]
 [ INFO] PATH:LINENUM DATE TIME : Generating SQL for CURSOR_NUM
 [TRACE] PATH:LINENUM DATE TIME : Entering hash_canonical_query
-[ INFO] PATH:LINENUM DATE TIME : Generating M file [./_ydboctoP*.m] (to execute SQL query)
+[ INFO] PATH:LINENUM DATE TIME : Generating M file [$PWD/_ydboctoP*.m] (to execute SQL query)
 [TRACE] PATH:LINENUM DATE TIME : Entering emit_select_statement
 [DEBUG] PATH:LINENUM DATE TIME : LOGICAL_PLAN BEFORE optimize_logical_plan() follows
 LP_INSERT: 

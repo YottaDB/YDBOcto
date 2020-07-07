@@ -61,7 +61,7 @@ PhysicalPlan *emit_select_statement(SqlStatement *stmt, char *plan_filename) {
 	PhysicalPlan *	    pplan;
 	SqlValue *	    value;
 	char		    output_key[INT32_TO_STRING_MAX], valbuff[INT32_TO_STRING_MAX];
-	int32_t		    output_key_id, status = 0;
+	int32_t		    output_key_id, status;
 	int16_t		    num_columns = 0;
 	ydb_buffer_t *	    plan_meta, value_buffer;
 	SetOperType *	    set_oper;
@@ -109,9 +109,15 @@ PhysicalPlan *emit_select_statement(SqlStatement *stmt, char *plan_filename) {
 	       || (LP_SET_INTERSECT_ALL == set_oper_type));
 	output_key_id = (set_oper_type ? set_oper->output_id : pplan->outputKey->unique_id);
 	// Prepare metadata buffers
-	plan_meta = make_buffers(config->global_names.octo, 5, "plan_metadata", plan_filename, "output_key", "", "");
+	plan_meta = make_buffers(config->global_names.octo, 5, OCTOLIT_PLAN_METADATA, plan_filename, OCTOLIT_OUTPUT_KEY, "", "");
 	YDB_MALLOC_BUFFER(&value_buffer, INT32_TO_STRING_MAX);
 	OCTO_INT32_TO_BUFFER(output_key_id, &value_buffer);
+	/* Kill any prior data for this given plan (in the rare case it exists).
+	 * This will fix any out-of-sync situation between the plan and corresponding db nodes.
+	 */
+	status = ydb_delete_s(&plan_meta[0], 2, &plan_meta[1], YDB_DEL_TREE);
+	/* Ignore any non-zero return value from "ydb_delete_s". Just proceed with "ydb_set_s". */
+	UNUSED(status); /* UNUSED macro needed to avoid unused-variable warning from clang-analyzer */
 	// Store output key for the given plan
 	status = ydb_set_s(&plan_meta[0], 3, &plan_meta[1], &value_buffer);
 	YDB_FREE_BUFFER(&value_buffer);
@@ -119,7 +125,7 @@ PhysicalPlan *emit_select_statement(SqlStatement *stmt, char *plan_filename) {
 		free(plan_meta);
 		return NULL;
 	}
-	YDB_LITERAL_TO_BUFFER("output_columns", &plan_meta[3]);
+	YDB_LITERAL_TO_BUFFER(OCTOLIT_OUTPUT_COLUMNS, &plan_meta[3]);
 	YDB_MALLOC_BUFFER(&plan_meta[4], INT16_TO_STRING_MAX); // Column ID
 
 	// Note down column data types

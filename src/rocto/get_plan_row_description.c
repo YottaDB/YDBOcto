@@ -32,7 +32,7 @@ RowDescription *get_plan_row_description(ydb_buffer_t *plan_filename) {
 	int16_t		    num_columns, cur_column;
 	char *		    column_name = NULL;
 
-	plan_meta = make_buffers(config->global_names.octo, 5, "plan_metadata", "", "output_columns", "", "");
+	plan_meta = make_buffers(config->global_names.octo, 5, OCTOLIT_PLAN_METADATA, "", OCTOLIT_OUTPUT_COLUMNS, "", "");
 	plan_meta[2] = *plan_filename;
 	YDB_MALLOC_BUFFER(&value_buffer, MAX_STR_CONST);
 

@@ -77,8 +77,10 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
 		%{}LOCK -^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}")`n{{ PLAN_LINE_START }}{}%
 		%{}QUIT`n`n{}%
 		// Generate the populateXref entryref here
-		%{}populateXref`n{{ PLAN_LINE_START }}{}%
+		%{}`n`npopulateXref`n{{ PLAN_LINE_START }}{}%
 		%{}; Build cross reference for {{ columnName }} column in {{ tableName }} table`n{{ PLAN_LINE_START }}{}%
+		%{}KILL ^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}"){}%
+		%{}  ; Remove prior cross reference data (if any still exists)`n{{ PLAN_LINE_START }}{}%
 		cur_key = 0;
 		dot_count = 0;
 		TMPL(tmpl_tablejoin, plan, plan->tablejoin, cur_key, FALSE, dot_count, tableName, columnName);
@@ -109,7 +111,7 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
 		%{})`n{{ PLAN_LINE_START }}{}%
 		%{}. DO delXrefEntry(oldValue)`n{{ PLAN_LINE_START }}{}%
 		%{}QUIT`n`n{}%
-		%{}addXrefEntry(val)	; {{ KEY_COLUMN }}0, {{ KEY_COLUMN }}1 etc. are not passed as parameters{}%
+		%{}addXrefEntry(val)	; {{ PP_KEY_COLUMN }}0, {{ PP_KEY_COLUMN }}1 etc. are not passed as parameters{}%
 		%{} but inherited from caller scope{}%
 		%{}`n{{ PLAN_LINE_START }}{}%
 		not_null = IS_COLUMN_NOT_NULL(column);
@@ -144,7 +146,7 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
 		%{}`n{{ PLAN_LINE_START }}{}%
 		%{}QUIT{}%
 		%{}`n`n{}%
-		%{}delXrefEntry(val)	; {{ KEY_COLUMN }}0, {{ KEY_COLUMN }}1 etc. are not passed as parameters{}%
+		%{}delXrefEntry(val)	; {{ PP_KEY_COLUMN }}0, {{ PP_KEY_COLUMN }}1 etc. are not passed as parameters{}%
 		%{} but inherited from caller scope{}%
 		%{}`n{{ PLAN_LINE_START }}{}%
 		if (!not_null) {
@@ -223,7 +225,7 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
 		%{}`n{{ PLAN_LINE_START }}{}%
 		%{}KILL {}%
 		TMPL(tmpl_key, plan->outputKey); (*buffer_index)--;
-		%{},{{ GROUP_BY_SUBSCRIPT }}){}%
+		%{},{{ PP_GROUP_BY }}){}%
 	}
 	// If this expression had an order by, we now need to go back and make the ordering uniform
 	// If we have a lot of plans each of which have the same output key and order by, then do this step
@@ -310,7 +312,7 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
 		%{}`n{{ PLAN_LINE_START }}{}%
 		%{}KILL {}%
 		TMPL(tmpl_key, plan->outputKey); (*buffer_index)--;
-		%{},{{ ORDER_BY_SUBSCRIPT }}){}%
+		%{},{{ PP_ORDER_BY }}){}%
 		%{}`n{{ PLAN_LINE_START }}SET {}%
 		TMPL(tmpl_key, plan->outputKey); (*buffer_index)--;
 		%{})=%%ydboctoi(0)-1{}%

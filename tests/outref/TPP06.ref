@@ -1,0 +1,18 @@
+# Run TPP01.sql that generates M xref plan and stores corresponding xref plan related gvn in database
+3|Lord|Nikon
+# KILL ^%ydboctoocto(xref_status) but keep _ydboctoX*.{m,o} intact to create out-of-sync situation
+# Run TPP01.sql again. Should return correct results and automatically rebuild ^%ydboctoxref
+3|Lord|Nikon
+# Verify ^%ydboctoxref was correctly rebuilt : Running [ZWRITE ^%ydboctoxref]. Output below
+^%ydboctoxref("NAMES","","LASTNAME")=2
+^%ydboctoxref("NAMES","","LASTNAME",4)=""
+^%ydboctoxref("NAMES","LASTNAME")=6
+^%ydboctoxref("NAMES","LASTNAME","Burn")=1
+^%ydboctoxref("NAMES","LASTNAME","Burn",1)=""
+^%ydboctoxref("NAMES","LASTNAME","Cool")=2
+^%ydboctoxref("NAMES","LASTNAME","Cool",0)=""
+^%ydboctoxref("NAMES","LASTNAME","Cool",5)=""
+^%ydboctoxref("NAMES","LASTNAME","Killer")=1
+^%ydboctoxref("NAMES","LASTNAME","Killer",2)=""
+^%ydboctoxref("NAMES","LASTNAME","Nikon")=1
+^%ydboctoxref("NAMES","LASTNAME","Nikon",3)=""

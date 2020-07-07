@@ -74,7 +74,12 @@ int handle_describe(Describe *describe, RoctoSession *session) {
 		send_message(session, (BaseMessage *)(&no_data->type));
 		free(no_data);
 	} else {
-		GET_FULL_PATH_OF_GENERATED_M_FILE(filename, &routine_buf.buf_addr[1]); /* updates "filename" to be full path */
+		/* The below call updates "filename" to be the full path including "routine_name" at the end */
+		status = get_full_path_of_generated_m_file(filename, sizeof(filename), &routine_buf.buf_addr[1]);
+		if (status) {
+			/* Error message would have already been issued in above function call. Just return non-zero status. */
+			return 1;
+		}
 		YDB_STRING_TO_BUFFER(filename, &filename_buf);
 		description = get_plan_row_description(&filename_buf);
 		if (NULL != description) {

@@ -15,7 +15,7 @@ WHERE n.nspname  != 'pg_toast'
   AND (t.typrelid = 0 OR
     (SELECT c.relkind = 'c' FROM pg_catalog.pg_class c WHERE c.oid = t.typrelid));]
 [ INFO] PATH:LINENUM DATE TIME : Generating SQL for CURSOR_NUM
-[ INFO] PATH:LINENUM DATE TIME : Generating M file [./_ydboctoP*.m] (to execute SQL query)
+[ INFO] PATH:LINENUM DATE TIME : Generating M file [$PWD/_ydboctoP*.m] (to execute SQL query)
 [DEBUG] PATH:LINENUM DATE TIME : LOGICAL_PLAN BEFORE optimize_logical_plan() follows
 LP_INSERT: 
   LP_PROJECT: 
@@ -295,7 +295,7 @@ LP_SET_OPERATION:
         - xref_key: false
         - uses_xref_key: false
 
-[ INFO] PATH:LINENUM DATE TIME : Generating helper cross reference M file [./_ydboctoX*.m] for table [PG_CATALOG.PG_TYPE] and column [TYPRELID]
+[ INFO] PATH:LINENUM DATE TIME : Generating helper cross reference M file [$PWD/_ydboctoX*.m] for table [PG_CATALOG.PG_TYPE] and column [TYPRELID]
 [ INFO] PATH:LINENUM DATE TIME : print_temporary_table()
 bool|16
 int4|23

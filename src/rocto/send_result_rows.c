@@ -23,6 +23,7 @@
 #include "rocto.h"
 #include "physical_plan.h"
 #include "helpers.h"
+#include "template_helpers.h"
 
 #define DATA_ROW_PARMS_ARRAY_INIT_ALLOC 16
 #define NO_GLOBAL_COLUMN_FORMAT		-1
@@ -81,14 +82,14 @@ int send_result_rows(int32_t cursor_id, void *_parms, char *plan_name) {
 	snprintf(cursor_id_str, INT64_TO_STRING_MAX, "%d", cursor_id);
 	YDB_STRING_TO_BUFFER(config->global_names.cursor, &cursor_subs[0]);
 	YDB_STRING_TO_BUFFER(cursor_id_str, &cursor_subs[1]);
-	YDB_STRING_TO_BUFFER("keys", &cursor_subs[2]);
+	YDB_STRING_TO_BUFFER(OCTOLIT_KEYS, &cursor_subs[2]);
 	YDB_STRING_TO_BUFFER("", &cursor_subs[4]);
 	YDB_STRING_TO_BUFFER("", &cursor_subs[5]);
 
 	YDB_STRING_TO_BUFFER(config->global_names.octo, &plan_meta[0]);
-	YDB_STRING_TO_BUFFER("plan_metadata", &plan_meta[1]);
+	YDB_STRING_TO_BUFFER(OCTOLIT_PLAN_METADATA, &plan_meta[1]);
 	YDB_STRING_TO_BUFFER(plan_name, &plan_meta[2]);
-	YDB_STRING_TO_BUFFER("output_key", &plan_meta[3]);
+	YDB_STRING_TO_BUFFER(OCTOLIT_OUTPUT_KEY, &plan_meta[3]);
 
 	// Retrieve output key ID for result rows
 	OCTO_SET_BUFFER(cursor_subs[3], output_key_str); // Output key ID
@@ -101,7 +102,7 @@ int send_result_rows(int32_t cursor_id, void *_parms, char *plan_name) {
 	cursor_subs[3].buf_addr[cursor_subs[3].len_used] = '\0';
 
 	// Retrieve the total number of columns for the given output key.
-	YDB_STRING_TO_BUFFER("output_columns", &plan_meta[3]);
+	YDB_STRING_TO_BUFFER(OCTOLIT_OUTPUT_COLUMNS, &plan_meta[3]);
 	status = ydb_get_s(&plan_meta[0], 3, &plan_meta[1], &value_buffer);
 	YDB_ERROR_CHECK(status);
 	if (YDB_OK != status) {

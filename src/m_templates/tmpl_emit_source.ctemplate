@@ -19,7 +19,7 @@
 #include "template_helpers.h"
 
 // If we are given something like ^myTable(keys("id")), we should
-//  transform this to ^myTable({{ config->global_names.cursor }}(cursorId,"keys",###,"myTable","id"))
+//  transform this to ^myTable({{ config->global_names.cursor }}(cursorId,PP_KEYS,###,"myTable","id"))
 
 /**
  * Returns n > 0 if this start marks the beginning of a keys(..) expression
@@ -54,10 +54,10 @@ TEMPLATE(tmpl_emit_source, char *source, char *table_name, int unique_id, int nu
 			switch(form) {
 			case EmitSourceForm_Value:
 				%{}{{ config->global_names.cursor }}{}%
-				%{}(cursorId,"keys",{{ unique_id|%d }},"{{ table_name }}",{{ column }}){}%
+				%{}(cursorId,{{ PP_KEYS }},{{ unique_id|%d }},"{{ table_name }}",{{ column }}){}%
 				break;
 			case EmitSourceForm_Trigger:
-				%{}{{ KEY_COLUMN }}{}%
+				%{}{{ PP_KEY_COLUMN }}{}%
 				%{}{{ key_count|%d }}=:{}%
 				key_count++;
 				break;

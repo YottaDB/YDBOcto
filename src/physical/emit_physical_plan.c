@@ -138,8 +138,15 @@ int emit_physical_plan(PhysicalPlan *pplan, char *plan_filename) {
 		}
 		// Convert '%' to '_'
 		key->cross_reference_filename = routine_name;
-		GET_FULL_PATH_OF_GENERATED_M_FILE(filename, &routine_name[1]); /* updates "filename" to be full path */
-		if (access(filename, F_OK) == -1) {			       // file doesn't exist
+		/* The below call updates "filename" to be the full path including "routine_name" at the end */
+		status = get_full_path_of_generated_m_file(filename, sizeof(filename), &routine_name[1]);
+		if (status) {
+			ERROR(ERR_PLAN_HASH_FAILED, "");
+			/* cleanup the buffer */
+			free(buffer);
+			return 1;
+		}
+		if (access(filename, F_OK) == -1) { // file doesn't exist
 			INFO(CUSTOM_ERROR, "Generating helper cross reference M file [%s] for table [%s] and column [%s]", filename,
 			     tableName, columnName);
 			output_file = fopen(filename, "w");

@@ -230,7 +230,7 @@ ORDER  BY data_type,
           type_name
 ]
 [ INFO] PATH:LINENUM DATE TIME : Generating SQL for CURSOR_NUM
-[ INFO] PATH:LINENUM DATE TIME : Generating M file [./_ydboctoP*.m] (to execute SQL query)
-[ INFO] PATH:LINENUM DATE TIME : Generating helper cross reference M file [./_ydboctoX*.m] for table [PG_TYPE] and column [OID]
-[ INFO] PATH:LINENUM DATE TIME : Generating helper cross reference M file [./_ydboctoX*.m] for table [PG_CATALOG.PG_TYPE] and column [TYPTYPE]
+[ INFO] PATH:LINENUM DATE TIME : Generating M file [$PWD/_ydboctoP*.m] (to execute SQL query)
+[ INFO] PATH:LINENUM DATE TIME : Generating helper cross reference M file [$PWD/_ydboctoX*.m] for table [PG_TYPE] and column [OID]
+[ INFO] PATH:LINENUM DATE TIME : Generating helper cross reference M file [$PWD/_ydboctoX*.m] for table [PG_CATALOG.PG_TYPE] and column [TYPTYPE]
 [ INFO] PATH:LINENUM DATE TIME : print_temporary_table()

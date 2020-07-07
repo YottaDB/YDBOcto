@@ -33,9 +33,9 @@ TEMPLATE(tmpl_tablejoin_body, PhysicalPlan *plan, int dot_count, char *tableName
 		assert(NULL == plan->order_by);
 		assert(NULL == plan->aggregate_options);
 		TMPL(tmpl_print_dots, dot_count);
-		%{}NEW {{ XREF_COLUMN }}`n{{ PLAN_LINE_START }}{}%
+		%{}NEW {{ PP_XREF_COLUMN }}`n{{ PLAN_LINE_START }}{}%
 		TMPL(tmpl_print_dots, dot_count);
-		%{}SET {{ XREF_COLUMN }}={}%
+		%{}SET {{ PP_XREF_COLUMN }}={}%
 		/* We want only the first column in the column list for the "tmpl_column_list_combine" call below so
 		 * temporarily make the 2nd column onwards invisible.
 		 */
@@ -51,23 +51,23 @@ TEMPLATE(tmpl_tablejoin_body, PhysicalPlan *plan, int dot_count, char *tableName
 		%{}`n{{ PLAN_LINE_START }}{}%
 		TMPL(tmpl_print_dots, dot_count);
 		if (!not_null) {
-			%{}SET:""={{ XREF_COLUMN }} {{ XREF_COLUMN }}=$ZYSQLNULL{}%
+			%{}SET:""={{ PP_XREF_COLUMN }} {{ PP_XREF_COLUMN }}=$ZYSQLNULL{}%
 			%{}	; note: this line is NOT generated for NOT NULL columns{}%
 			%{}`n{{ PLAN_LINE_START }}{}%
 			TMPL(tmpl_print_dots, dot_count);
 		}
-		%{}IF '$ZYISSQLNULL({{ XREF_COLUMN }}) DO`n{{ PLAN_LINE_START }}{}%
+		%{}IF '$ZYISSQLNULL({{ PP_XREF_COLUMN }}) DO`n{{ PLAN_LINE_START }}{}%
 		dot_count++;
 		TMPL(tmpl_print_dots, dot_count);
 		%{}; non-NULL {{ columnName }}; Can be safely stored as a subscript in ^%%ydboctoxref global{}%
 		%{}`n{{ PLAN_LINE_START }}{}%
 		TMPL(tmpl_print_dots, dot_count);
 		%{}SET{}%
-		%{} ^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}",{{ XREF_COLUMN }},{}%
+		%{} ^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}",{{ PP_XREF_COLUMN }},{}%
 		TMPL(tmpl_column_list_combine, col2_onwards, plan, ",", FALSE, 0, 0, 0);
 		%{})=""`n{{ PLAN_LINE_START }}{}%
 		TMPL(tmpl_print_dots, dot_count);
-		%{}IF $INCREMENT(^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}",{{ XREF_COLUMN }})){}%
+		%{}IF $INCREMENT(^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}",{{ PP_XREF_COLUMN }})){}%
 		%{}`n{{ PLAN_LINE_START }}{}%
 		dot_count--;
 		TMPL(tmpl_print_dots, dot_count);

@@ -74,7 +74,7 @@ LogicalPlan *lp_optimize_where_multi_equals_ands_helper(LogicalPlan *plan, Logic
 	SqlKey *	    key;
 	int		    left_id, right_id;
 	LogicalPlan *	    new_left, *new_right, *list;
-	LPActionType	    type;
+	LPActionType	    right_type, type;
 	SqlTableAlias *	    right_table_alias;
 
 	if (LP_WHERE == where->type) {
@@ -111,6 +111,8 @@ LogicalPlan *lp_optimize_where_multi_equals_ands_helper(LogicalPlan *plan, Logic
 		return where;
 		break;
 	case LP_BOOLEAN_EQUALS:
+		break;
+	case LP_BOOLEAN_IS_NOT_NULL:
 		break;
 	case LP_BOOLEAN_IN:
 		/* Check if left side of IN is a LP_COLUMN_ALIAS. If not, we cannot do key fixing. */
@@ -161,7 +163,9 @@ LogicalPlan *lp_optimize_where_multi_equals_ands_helper(LogicalPlan *plan, Logic
 		return where;
 		break;
 	}
-	switch (right->type) {
+
+	right_type = (LP_BOOLEAN_IS_NOT_NULL == type ? LP_VALUE : right->type);
+	switch (right_type) {
 	case LP_VALUE:
 		right_id = 0;
 		break;
@@ -267,6 +271,19 @@ LogicalPlan *lp_optimize_where_multi_equals_ands_helper(LogicalPlan *plan, Logic
 		}
 	}
 	key = lp_get_key(plan, left);
+	if (LP_BOOLEAN_IS_NOT_NULL == type) {
+		if (NULL != key) {
+			// This is of the form `WHERE primary_key IS NOT NULL`.
+			// Therefore it is always true, so no need to do a full table scan.
+			if (LP_WHERE == where->type) {
+				where->v.lp_default.operand[0] = NULL;
+			}
+			return NULL;
+		} else {
+			// IS NOT NULL on a non-primary column. Cannot be fixed to a constant value.
+			return where;
+		}
+	}
 	// If the left isn't a key, generate a cross reference
 	if (NULL == key) {
 		// Get the table alias and column for left

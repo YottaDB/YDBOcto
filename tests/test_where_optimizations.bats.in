@@ -215,3 +215,10 @@ CAT
   octo -f input.sql >> output.txt 2>&1
   verify_output TWO16 output.txt
 }
+
+@test "TWO17 : WHERE primary_key IS NOT NULL" {
+  load_fixture TWO17.sql subtest
+  # Make sure that there is no ZYSQLNULL check present
+  grep ZYSQLNULL *.m >> output.txt || true
+  verify_output TWO17 output.txt noinfo
+}

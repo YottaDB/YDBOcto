@@ -847,7 +847,7 @@ havingClause(queryDepth,clauseType)
 	. set rightTable=$piece(rightSide," ",i+1)
 	. set rightType=$$returnColumnType(rightTable,rightColumn)
 	.
-	. for i=1:1:15  do  quit:(leftType=rightType)&(("COUNT"'=isAggrFuncColumn)!("VARCHAR"'=leftType))
+	. for i=1:1:15  do  quit:(leftType=rightType)&(("COUNT"'=isAggrFuncColumn)!(("VARCHAR"'=leftType)&("BOOLEAN"'=leftType)))
 	. . set leftSide=$$havingChooseColumn(queryDepth,.table,.isAggrFuncColumn,count)
 	. . set leftType=$$returnColumnType(table,leftSide)
 	. . set tblcol=$$havingGetTblCol(isAggrFuncColumn,table,leftSide)
@@ -1176,6 +1176,10 @@ initAggrFunc()
 	set aggFunctionInt($increment(aggFunctionInt))="SUM"
 	if $increment(aggFunctionInt)
 
+	set aggFunctionBool=-1
+	set aggFunctionBool($increment(aggFunctionBool))="COUNT"
+	if $increment(aggFunctionBool)
+
 	set aggFunction=-1
 	set aggFunction($increment(aggFunction))="MIN"
 	set aggFunction($increment(aggFunction))="MAX"
@@ -1217,6 +1221,9 @@ havingChooseColumn(queryDepth,table,isAggrFuncColumn,count)
 	. . set i=i-1
 	; Remove any aggregate function usage (i.e. COUNT(x.y) should yield x.y; COUNT(ALL x.y) should yield x.y)
 	if $find(holder,"(") do
+	. if $find(holder,">") do
+	. . ; Account for BOOLEAN type coercion on result of COUNT done in returnAggregateFunction for BOOLEAN column types
+	. . set holder=$piece(holder," >",1)
 	. set holderMinusAggrFunc=$piece($piece(holder,"(",2),")",1)
 	. if $find(holderMinusAggrFunc," ") do
 	. . set holderMinusAggrFunc=$piece(holderMinusAggrFunc," ",2)
@@ -1270,10 +1277,15 @@ chooseEntry(tableName,columnName)
 	. . set entry=firstPart_"''"_secondPart
 	. . set position=$find(entry,"'",position+2)
 
-	; If selected entry is not of "INTEGER" or "NUMERIC" type, pre/append a single quote (')
+	; If selected entry is not of "INTEGER", "NUMERIC", or "BOOLEAN" type, pre/append a single quote (')
 	; This is done to match PSQL format rules, Octo does not care
-	; Depending on how Booleans are to be specified, this might need to be changed
-	if (($find(type,"INTEGER")=0)&($find(type,"NUMERIC")=0)) set entry="'"_entry_"'"
+	if (($find(type,"INTEGER")=0)&($find(type,"NUMERIC")=0)&($find(type,"BOOLEAN")=0)) set entry="'"_entry_"'"
+
+	; Convert empty field to default value based on type.
+	; No action needed for VARCHAR case as this is incidentally handled by the single-quote wrapping done above.
+	; In the case of BOOLEAN, append typecast for compatibility between Octo's 0/1 booleans and Postgres' true/false
+	set:(""=entry) entry="0"
+	set:("BOOLEAN"=type) entry=entry_"::boolean"
 
 	quit entry
 
@@ -1398,17 +1410,23 @@ anyAllSome()
 ;               this when outer joins are reimplemented
 ;               http://www.sqlsnippets.com/en/topic-12656.html
 returnAggregateFunction(queryDepth,table,column)
-	new result,function
-	if ($$returnColumnType(table,column)'="VARCHAR") do
-	. set function=aggFunctionInt($random(aggFunctionInt))
-	. write "$$returnAggregateFunction() : table = ",table," : column = ",column," : type is NOT VARCHAR : function = ",function,!
-	else  do
+	new result,function,type
+	set type=$$returnColumnType(table,column)
+	if (type="VARCHAR") do
 	. ; This is a VARCHAR type. If inner query do not use COUNT aggregate function as it will pose problems if this
 	. ; gets inherited from a subquery select column list into an outer query (because COUNT(col) will be an integer
 	. ; whereas col would be of VARCHAR type and those two cannot be compared in higher level query generation clauses).
 	. for  set function=aggFunction($random(aggFunction))  quit:('queryDepth)!("COUNT"'=function)
 	. write "$$returnAggregateFunction() : table = ",table," : column = ",column," : type is VARCHAR : function = ",function,!
+	else  if (type'="BOOLEAN") do
+	. set function=aggFunctionInt($random(aggFunctionInt))
+	. write "$$returnAggregateFunction() : table = ",table," : column = ",column," : type is NOT VARCHAR : function = ",function,!
+	else  do
+	. set function=aggFunctionBool($random(aggFunctionBool))
+	. write "$$returnAggregateFunction() : table = ",table," : column = ",column," : type is NOT VARCHAR : function = ",function,!
 	set result=function_"("_aggModifier($random(aggModifier))_table_"."_column_")"
+	; Coerce result of COUNT to BOOLEAN when the specified column is of BOOLEAN type
+	set:"BOOLEAN"=type result=result_" > 0"
 	quit result
 
 returnSimilarAggregateFunction(isAggrFuncColumn,table,column)

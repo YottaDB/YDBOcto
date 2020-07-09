@@ -21,6 +21,8 @@ setup() {
   load_fixture boolean.zwr
   load_fixture northwind.sql
   load_fixture northwind.zwr
+  load_fixture nullnames.sql
+  load_fixture nullnames.zwr
 }
 
 @test "TBT01 : Test of BOOLEAN type across various valid queries in `boolean` database" {
@@ -37,3 +39,6 @@ setup() {
   verify_output TBT03 output.txt
 }
 
+@test "TBT04 : Test NOT with boolean comparison as operand from failed QueryGenerator case" {
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries nullnames TBT04.sql "trim_trailing_zeroes"
+}

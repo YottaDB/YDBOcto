@@ -24,28 +24,19 @@
 #include "message_formats.h"
 #include "rocto.h"
 
-/* The PostgreSQL wire protocol specifies that SQL NULL values are signaled to the client by returning a row length of -1.
- * See the `DataRow` entry at: https://www.postgresql.org/docs/11/protocol-message-formats.html
- */
-#define PSQL_NULL -1
-
-#define COPY_TEXT_PARM(DATA_PTR, PARM)                                       \
-	{                                                                    \
-		if (0 == PARM.length) {                                      \
-			/* This is an empty string, i.e. a SQL NULL value */ \
-			*((uint32_t *)DATA_PTR) = htonl(PSQL_NULL);          \
-			DATA_PTR += sizeof(uint32_t);                        \
-		} else {                                                     \
-			*((uint32_t *)DATA_PTR) = htonl(PARM.length);        \
-			DATA_PTR += sizeof(uint32_t);                        \
-			memcpy(c, PARM.value, PARM.length);                  \
-			DATA_PTR += PARM.length;                             \
-		}                                                            \
+#define COPY_TEXT_PARM(DATA_PTR, PARM)                       \
+	{                                                    \
+		*((int32_t *)DATA_PTR) = htonl(PARM.length); \
+		DATA_PTR += sizeof(int32_t);                 \
+		if (PSQL_NULL != PARM.length) {              \
+			memcpy(c, PARM.value, PARM.length);  \
+			DATA_PTR += PARM.length;             \
+		}                                            \
 	}
 
 DataRow *make_data_row(DataRowParm *parms, int16_t num_parms, int32_t *col_data_types) {
 	PSQL_TypeSize type_size;
-	uint32_t      length;
+	int32_t	      length;
 	int32_t	      i;
 	DataRow *     ret;
 	long	      int4_value;
@@ -57,21 +48,24 @@ DataRow *make_data_row(DataRowParm *parms, int16_t num_parms, int32_t *col_data_
 	for (i = 0; i < num_parms; i++) {
 		// Assign column length for the current column based on column format
 		if (0 == parms[i].format) { // Text format
-			length += parms[i].length;
+			// -1 == PSQL_NULL, so convert to 0 to prevent erroneously reducing length to malloc
+			length += ((PSQL_NULL == parms[i].length) ? 0 : parms[i].length);
 		} else { // Binary format
 			assert(NULL != col_data_types);
 			type_size = get_type_size_from_psql_type(col_data_types[i]);
-			if (0 > type_size) // This means a variable type size, so don't convert to fixed size
-				length += parms[i].length;
-			else
+			if (0 > type_size) { // This means a variable type size, so don't convert to fixed size
+				// -1 == PSQL_NULL, so convert to 0 to prevent erroneously reducing length to malloc
+				length += ((PSQL_NULL == parms[i].length) ? 0 : parms[i].length);
+			} else {
 				length += type_size;
+			}
 		}
-		length += sizeof(uint32_t);
+		length += sizeof(int32_t);
 	}
 
 	ret = (DataRow *)malloc(sizeof(DataRow) + length);
 	// Include the length of the length field
-	length += sizeof(uint32_t);
+	length += sizeof(int32_t);
 	// Include the length of the num_parms field
 	length += sizeof(int16_t);
 	ret->type = PSQL_DataRow;
@@ -80,7 +74,7 @@ DataRow *make_data_row(DataRowParm *parms, int16_t num_parms, int32_t *col_data_
 
 	c = ret->data;
 	if (num_parms == 0 || parms == NULL) {
-		*((uint32_t *)c) = htonl(0);
+		*((int32_t *)c) = htonl(0);
 	} else {
 		for (i = 0; i < num_parms; i++) {
 			if (TEXT_FORMAT == parms[i].format) { // Text format
@@ -89,13 +83,12 @@ DataRow *make_data_row(DataRowParm *parms, int16_t num_parms, int32_t *col_data_
 				assert(NULL != col_data_types);
 				switch (col_data_types[i]) {
 				case PSQL_TypeOid_int4:
-					if (0 == parms[i].length) {
-						// This is an empty string, i.e. a SQL NULL value
-						*((uint32_t *)c) = htonl(PSQL_NULL);
-						c += sizeof(uint32_t);
+					if (PSQL_NULL == parms[i].length) {
+						*((int32_t *)c) = htonl(PSQL_NULL);
+						c += sizeof(int32_t);
 					} else {
-						*((uint32_t *)c) = htonl(PSQL_TypeSize_int4);
-						c += sizeof(uint32_t);
+						*((int32_t *)c) = htonl(PSQL_TypeSize_int4);
+						c += sizeof(int32_t);
 						// Convert parameter value to null-terminated string for conversion into an integer
 						memcpy(int_buffer, parms[i].value, parms[i].length);
 						int_buffer[parms[i].length] = '\0';

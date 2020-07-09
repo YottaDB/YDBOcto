@@ -10,7 +10,6 @@
 #								#
 #################################################################
 
--- TJC012 : OCTO320 : Pipeline failures from TJC007
+-- TBT04 : Test NOT with boolean comparison as operand from failed QueryGenerator case
 
-SELECT DISTINCT * FROM Customers LEFT JOIN Categories AS alias1 ON ((Customers.CustomerName > alias1.CategoryName)) WHERE ((Customers.Country != 'Canada') AND (Customers.City >= Customers.City));
-
+SELECT DISTINCT nullnames.id, nullnames.exempt FROM nullnames  CROSS JOIN nullnames AS alias1 WHERE (NOT ('Acid' > 'Lord') OR (NOT (nullnames.salary < 25000.01)) OR (NOT (false < false))) ORDER BY nullnames.exempt, nullnames.id;

@@ -356,7 +356,11 @@ int send_result_rows(int32_t cursor_id, void *_parms, char *plan_name) {
 
 			hdr_len = get_mval_len(buff, &data_len);
 			// Store length of the M value for constructing a DataRow in make_data_row
-			cur_row_parms->length = data_len;
+			if (0 == buff[0]) { // This mval was $ZYSQLNULL per comment on str2mval in aux/_ydboctoplanhelpers.m
+				cur_row_parms->length = PSQL_NULL;
+			} else {
+				cur_row_parms->length = data_len;
+			}
 			buff += hdr_len;
 			cur_row_parms->value = (char *)buff;
 			buff += data_len;

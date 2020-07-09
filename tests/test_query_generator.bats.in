@@ -13,27 +13,31 @@
 load test_helpers
 
 setup() {
-  init_test
-  createdb
+	init_test
+	createdb
 }
 
 @test "TQG01 : Test Query Generator against customers database" {
-  run_query_generator customers TQG01-
+	run_query_generator customers TQG01-
 }
 
 @test "TQG02 : Test Query Generator against pastas database" {
-  run_query_generator pastas TQG02-
+	run_query_generator pastas TQG02-
 }
 
 @test "TQG03 : Test Query Generator against names database" {
-  run_query_generator names TQG03-
+	run_query_generator names TQG03-
 }
 
 @test "TQG04 : Test Query Generator against northwind database" {
-  run_query_generator northwind TQG04-
+	run_query_generator northwind TQG04-
 }
 
 @test "TQG05 : Test Query Generator against boolean database" {
-  skip #Skipped until issue 346 is resolved
-  run_query_generator boolean TQG05-
+	skip #Skipped until issue 346 is resolved
+	run_query_generator boolean TQG05-
+}
+
+@test "TQG06 : Test Query Generator against nullnames database" {
+	run_query_generator nullnames TQG06-
 }

@@ -26,6 +26,11 @@
 #include "ydb_tls_interface.h"
 #endif
 
+/* The PostgreSQL wire protocol specifies that SQL NULL values are signaled to the client by returning a row length of -1.
+ * See the `DataRow` entry at: https://www.postgresql.org/docs/11/protocol-message-formats.html
+ */
+#define PSQL_NULL -1
+
 #define PORTAL_SUSPENDED -2
 
 // Define column format codes for use when returning row data.

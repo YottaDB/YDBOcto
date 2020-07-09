@@ -10,7 +10,6 @@
 #								#
 #################################################################
 
--- TJC012 : OCTO320 : Pipeline failures from TJC007
+-- TC029 : OCTO320 : Select a combination of populated and NULL/empty fields
 
-SELECT DISTINCT * FROM Customers LEFT JOIN Categories AS alias1 ON ((Customers.CustomerName > alias1.CategoryName)) WHERE ((Customers.Country != 'Canada') AND (Customers.City >= Customers.City));
-
+SELECT proname,pronargs,prorettype,proargtypes,proargmodes,protrftypes,probin FROM pg_proc;

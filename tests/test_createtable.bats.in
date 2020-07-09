@@ -276,3 +276,8 @@ OCTO
 	# No need for new fixture, just testing same functionality in Rocto
 	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries nullnames TC023.sql "trim_trailing_zeroes" "usejdbc"
 }
+
+@test "TC029 : OCTO320 : Select a combination of populated and NULL/empty fields" {
+	run_java run_query $test_port TC029 useextended &> output.txt
+	verify_output TC029 output.txt
+}

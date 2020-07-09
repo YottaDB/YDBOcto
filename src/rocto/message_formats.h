@@ -164,10 +164,10 @@ typedef struct __attribute__((packed)) {
 } CommandComplete;
 
 typedef struct {
-	uint32_t length;
-	char *	 value;
-	int16_t	 format;
-	int32_t	 column_type;
+	int32_t length;
+	char *	value;
+	int16_t format;
+	int32_t column_type;
 } DataRowParm;
 
 // B

@@ -30,3 +30,15 @@ setup() {
   # generate valid output (i.e. no errors at all). No reference file needed for this.
   run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TCEF01_noerrors_names.sql "trim_trailing_zeroes"
 }
+
+@test "TCEF02 : OCTO549 : NULLIF" {
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TCEF02_noerrors_names.sql "trim_trailing_zeroes"
+  load_fixture TCEF02_type_mismatch.sql subtest novv
+  verify_output TCEF02_type_mismatch output.txt
+}
+
+@test "TCEF03 : OCTO549 : GREATEST/LEAST" {
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TCEF03_noerrors_names.sql "trim_trailing_zeroes"
+  load_fixture TCEF03_type_mismatch.sql subtest novv
+  verify_output TCEF03_type_mismatch output.txt
+}

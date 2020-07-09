@@ -251,7 +251,7 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 	case LP_BOOLEAN_LESS_THAN_OR_EQUALS:
 	case LP_BOOLEAN_GREATER_THAN_OR_EQUALS:
 		// If the arguments are strings, we need to use the M follows operator ']' as appropriate.
-		use_string_comparison = lp_is_bool_operand_type_string(plan);
+		use_string_comparison = lp_is_operand_type_string(plan);
 		if (use_string_comparison) {
 			// String type. Need to use "]" or "']" operator and swap operands as needed.
 			if (LP_BOOLEAN_GREATER_THAN == plan_type) {
@@ -487,7 +487,7 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 			sql_operator = "ALL";
 			break;
 		}
-		use_string_comparison = lp_is_bool_operand_type_string(plan);
+		use_string_comparison = lp_is_operand_type_string(plan);
 		%{}$${{ sql_operator }}^%%ydboctoplanhelpers({}%
 		TMPL(tmpl_print_expression, first_operand, pplan, 0, 0);
 		%{},{{ key->v.lp_key.key->unique_id|%d }},"{{ compare_operator }}",{{ use_string_comparison|%d }}){}%
@@ -524,6 +524,7 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 		%{}){}%
 		break;
 	case LP_COALESCE_CALL:
+		/* COALESCE(a, b, ...) -> $SELECT('$ZYISSQLNULL(a):a,'$ZYISSQLNULL(b):b,...,1:$ZYSQLNULL) */
 		/* first_operand is a LP_COLUMN_LIST, but we want to get the first LP_COLUMN_VALUE */
 		cur_plan = first_operand->v.lp_default.operand[1];
 		/* TODO: this might break the `if` after the switch, we should use a new variable instead */
@@ -542,6 +543,54 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 			cur_plan = cur_plan->v.lp_default.operand[1];
 		}
 		%{}1:$ZYSQLNULL){}%
+		break;
+	case LP_GREATEST:
+	case LP_LEAST: {
+		/* GREATEST(a) or LEAST(a) -> a
+		 * GREATEST(a, b, c) -> max(a,max(b,c))
+		 * LEAST(a, b, c)    -> min(a,min(b,c)) */
+		/* keep track of how many values were in the argument list
+		 * NOTE: does not include the first value, since we don't emit MAX/MIN for the last one */
+		int		depth;
+		boolean_t	use_string_comparison;
+
+		cur_plan = first_operand;
+		depth = 0;
+		assert((NULL != cur_plan) && "fatal error: GREATEST/LEAST should have at least one value");
+		// If the arguments are strings, we need to use the M follows operator ']' as appropriate.
+		use_string_comparison = lp_is_operand_type_string(plan);
+
+		/* If there is more than one argument, emit a $$max/$$min() call */
+		while (NULL != cur_plan->v.lp_default.operand[1]) {
+			if (LP_GREATEST == plan_type) {
+				%{}$$max{}%
+			} else {
+				%{}$$min{}%
+			}
+			%{}^%%ydboctoplanhelpers({{ use_string_comparison|%d }},{}%
+			TMPL(tmpl_print_expression, cur_plan->v.lp_default.operand[0], pplan, 0, 0);
+			%{},{}%
+			cur_plan = cur_plan->v.lp_default.operand[1];
+			depth += 1;
+		}
+		/* This is the last value, emit it on its own */
+		TMPL(tmpl_print_expression, cur_plan->v.lp_default.operand[0], pplan, 0, 0);
+		/* close all the parentheses */
+		while (0 != depth) {
+			%{}){}%
+			depth -= 1;
+		}
+		break;
+	}
+	case LP_NULL_IF:
+		/* NULLIF(a,b) -> $select(a=b:$ZYSQLNULL,1:a) */
+		%{}$SELECT({}%
+		TMPL(tmpl_print_expression, first_operand, pplan, 0, 0);
+		%{}={}%
+		TMPL(tmpl_print_expression, second_operand, pplan, 0, 0);
+		%{}:$ZYSQLNULL,1:{}%
+		TMPL(tmpl_print_expression, first_operand, pplan, 0, 0);
+		%{}){}%
 		break;
 	case LP_FUNCTION_CALL:
 		/* As noted in lp_generate_where.c, the first_operand here is the SQL function name, which is not needed during

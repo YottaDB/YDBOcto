@@ -183,8 +183,12 @@ int populate_data_type_column_list_alias(SqlStatement *v, SqlValueType *type, bo
 // Helper function that is invoked when we have to traverse a "column_list_STATEMENT".
 // Caller passes "do_loop" variable set to TRUE  if they want us to traverse the linked list.
 //                              and set to FALSE if they want us to traverse only the first element in the linked list.
-int populate_data_type_column_list(SqlStatement *v, SqlValueType *type, boolean_t do_loop, ParseContext *parse_context) {
+// If `do_loop` is set and `callback` is not NULL, it will be called for each type in the list.
+typedef int (*DataTypeCallback)(SqlValueType *existing, SqlValueType *new, SqlStatement *stmt, ParseContext *parse_context);
+int populate_data_type_column_list(SqlStatement *v, SqlValueType *type, boolean_t do_loop, DataTypeCallback callback,
+				   ParseContext *parse_context) {
 	SqlColumnList *column_list, *cur_column_list;
+	SqlValueType   current_type;
 	int	       result = 0;
 
 	*type = UNKNOWN_SqlValueType;
@@ -194,9 +198,25 @@ int populate_data_type_column_list(SqlStatement *v, SqlValueType *type, boolean_
 		cur_column_list = column_list;
 		do {
 			// SqlValue or SqlColumnAlias
-			result |= populate_data_type(cur_column_list->value, type, parse_context);
+			result |= populate_data_type(cur_column_list->value, &current_type, parse_context);
+			if ((NULL != callback) && (UNKNOWN_SqlValueType != *type)) {
+				result |= callback(type, &current_type, cur_column_list->value, parse_context);
+			}
 			cur_column_list = cur_column_list->next;
+			*type = current_type;
 		} while (do_loop && (cur_column_list != column_list));
+	}
+	return result;
+}
+
+// NOTE: might also perform type promotion on both types inside the CAST_AMBIGUOUS_TYPES macro.
+int ensure_same_type(SqlValueType *existing, SqlValueType *new, SqlStatement *stmt, ParseContext *parse_context) {
+	int result = 0;
+	CAST_AMBIGUOUS_TYPES(*existing, *new);
+	if (*existing != *new) {
+		ERROR(ERR_TYPE_MISMATCH, get_user_visible_type_string(*existing), get_user_visible_type_string(*new));
+		yyerror(NULL, NULL, &stmt, NULL, parse_context, NULL);
+		result = 1;
 	}
 	return result;
 }
@@ -210,6 +230,9 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_
 	SqlFunctionCall *	function_call;
 	SqlFunction *		function;
 	SqlCoalesceCall *	coalesce_call;
+	SqlGreatest *		greatest_call;
+	SqlLeast *		least_call;
+	SqlNullIf *		null_if;
 	SqlParameterTypeList *	cur_parm_type_list, *start_parm_type_list;
 	SqlAggregateFunction *	aggregate_function;
 	SqlJoin *		start_join, *cur_join;
@@ -302,7 +325,7 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_
 	case function_call_STATEMENT:
 		UNPACK_SQL_STATEMENT(function_call, v, function_call);
 		// SqlColumnList
-		result |= populate_data_type_column_list(function_call->parameters, type, TRUE, parse_context);
+		result |= populate_data_type_column_list(function_call->parameters, type, TRUE, NULL, parse_context);
 		if (0 != result) {
 			break;
 		}
@@ -357,14 +380,34 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_
 	case coalesce_STATEMENT:
 		UNPACK_SQL_STATEMENT(coalesce_call, v, coalesce);
 		// SqlColumnList
-		result |= populate_data_type_column_list(coalesce_call->arguments, type, TRUE, parse_context);
+		result |= populate_data_type_column_list(coalesce_call->arguments, type, TRUE, ensure_same_type, parse_context);
 		// NOTE: if the types of the parameters do not match, no error is issued.
 		// This matches the behavior of sqlite but not that of Postgres and Oracle DB.
 		break;
+	case greatest_STATEMENT:
+		UNPACK_SQL_STATEMENT(greatest_call, v, greatest);
+		// SqlColumnList
+		result |= populate_data_type_column_list(greatest_call->arguments, type, TRUE, ensure_same_type, parse_context);
+		break;
+	case least_STATEMENT:
+		UNPACK_SQL_STATEMENT(least_call, v, least);
+		// SqlColumnList
+		result |= populate_data_type_column_list(least_call->arguments, type, TRUE, ensure_same_type, parse_context);
+		break;
+	case null_if_STATEMENT: {
+		SqlValueType tmp;
+
+		UNPACK_SQL_STATEMENT(null_if, v, null_if);
+		// SqlColumnList
+		result |= populate_data_type(null_if->left, type, parse_context);
+		result |= populate_data_type(null_if->right, &tmp, parse_context);
+		ensure_same_type(type, &tmp, null_if->right, parse_context);
+		break;
+	}
 	case aggregate_function_STATEMENT:
 		UNPACK_SQL_STATEMENT(aggregate_function, v, aggregate_function);
 		// SqlColumnList : We have only one parameter to aggregate functions so no loop needed hence FALSE used below.
-		result |= populate_data_type_column_list(aggregate_function->parameter, type, FALSE, parse_context);
+		result |= populate_data_type_column_list(aggregate_function->parameter, type, FALSE, NULL, parse_context);
 		// Note that COUNT(...) is always an INTEGER type even though ... might be a string type column.
 		// Hence the if check below.
 		switch (aggregate_function->type) {
@@ -519,7 +562,7 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_
 		break;
 	case column_list_STATEMENT:
 		// Note: We do not loop through the list (just like is done in "hash_canonical_query")
-		result |= populate_data_type_column_list(v, type, FALSE, parse_context);
+		result |= populate_data_type_column_list(v, type, FALSE, NULL, parse_context);
 		break;
 	case column_list_alias_STATEMENT:
 		// Note: We do not loop through the list (just like is done in "hash_canonical_query")
@@ -541,7 +584,7 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_
 		result |= populate_data_type(binary->operands[0], &child_type1, parse_context);
 		if (((BOOLEAN_IN == binary->operation) || (BOOLEAN_NOT_IN == binary->operation))
 		    && (column_list_STATEMENT == binary->operands[1]->type)) { // SqlColumnList
-			result |= populate_data_type_column_list(binary->operands[1], &child_type2, TRUE, parse_context);
+			result |= populate_data_type_column_list(binary->operands[1], &child_type2, TRUE, NULL, parse_context);
 		} else {
 			// SqlStatement (?)
 			result |= populate_data_type(binary->operands[1], &child_type2, parse_context);

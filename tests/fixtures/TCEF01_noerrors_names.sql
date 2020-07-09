@@ -19,6 +19,11 @@ SELECT COALESCE(1);
 SELECT COALESCE(NULL, 1, 2);
 SELECT COALESCE(NULL, 1, NULL);
 
+-- literals which require type promotion
+SELECT COALESCE(1, 1.2);
+SELECT COALESCE(1.2, 1);
+SELECT COALESCE(1, 2, 3, 1.2);
+
 -- SELECT tables
 SELECT COALESCE(1) FROM names; -- should output 1 for each row
 SELECT COALESCE(1) FROM names WHERE 1 = 0; -- should have no results

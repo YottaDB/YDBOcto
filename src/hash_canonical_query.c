@@ -108,8 +108,12 @@ void hash_canonical_query(hash128_state_t *state, SqlStatement *stmt, int *statu
 	SqlCaseBranchStatement *cas_branch;
 	SqlSelectStatement *	select;
 
-	SqlFunctionCall *     function_call;
-	SqlCoalesceCall *     coalesce_call;
+	SqlFunctionCall *function_call;
+	SqlCoalesceCall *coalesce_call;
+	SqlGreatest *	 greatest_call;
+	SqlLeast *	 least_call;
+	SqlNullIf *	 null_if;
+
 	SqlAggregateFunction *aggregate_function;
 	SqlJoin *	      join;
 	SqlValue *	      value;
@@ -223,6 +227,25 @@ void hash_canonical_query(hash128_state_t *state, SqlStatement *stmt, int *statu
 		ADD_INT_HASH(state, coalesce_STATEMENT);
 		// SqlColumnList
 		hash_canonical_query_column_list(state, coalesce_call->arguments, status, TRUE);
+		break;
+	case greatest_STATEMENT:
+		UNPACK_SQL_STATEMENT(greatest_call, stmt, greatest);
+		ADD_INT_HASH(state, greatest_STATEMENT);
+		// SqlColumnList
+		hash_canonical_query_column_list(state, greatest_call->arguments, status, TRUE);
+		break;
+	case least_STATEMENT:
+		UNPACK_SQL_STATEMENT(least_call, stmt, least);
+		ADD_INT_HASH(state, least_STATEMENT);
+		// SqlColumnList
+		hash_canonical_query_column_list(state, least_call->arguments, status, TRUE);
+		break;
+	case null_if_STATEMENT:
+		UNPACK_SQL_STATEMENT(null_if, stmt, null_if);
+		ADD_INT_HASH(state, null_if_STATEMENT);
+		// SqlColumnList
+		hash_canonical_query(state, null_if->left, status);
+		hash_canonical_query(state, null_if->right, status);
 		break;
 	case function_call_STATEMENT:
 		UNPACK_SQL_STATEMENT(function_call, stmt, function_call);

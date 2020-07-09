@@ -115,6 +115,7 @@ int copied_so_far;
 (?i:FULL) { return FULL; }
 (?i:FUNCTION) { return FUNCTION; }
 (?i:GLOBAL) { return GLOBAL; }
+(?i:GREATEST) { return GREATEST; }
 (?i:GROUP) { return GROUP; }
 (?i:HAVING) { return HAVING; }
 (?i:IDENTIFIER_ALONE) { return IDENTIFIER_ALONE; }
@@ -132,6 +133,7 @@ int copied_so_far;
 (?i:IS) { return IS; }
 (?i:JOIN) { return JOIN; }
 (?i:KEY) { return KEY; }
+(?i:LEAST) { return LEAST; }
 (?i:LEFT) { return LEFT; }
 (?i:LIKE) { return LIKE; }
 (?i:LIMIT) { return LIMIT; }
@@ -140,6 +142,7 @@ int copied_so_far;
 (?i:NATURAL) { return NATURAL; }
 (?i:NOT) { return NOT; }
 (?i:NUM) { return NUM; }
+(?i:NULLIF) { return NULLIF; }
 (?i:NUMERIC) { return NUMERIC; }
 (?i:ON) { return ON; }
 (?i:OR) { return OR; }

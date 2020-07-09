@@ -459,9 +459,17 @@ LogicalPlan *sub_query_check_and_generate_physical_plan(PhysicalPlanOptions *opt
 			}
 			break;
 		case LP_COALESCE_CALL:
+		case LP_GREATEST:
+		case LP_LEAST:
 			assert(LP_COLUMN_LIST == stmt->v.lp_default.operand[0]->type);
 			stmt->v.lp_default.operand[0]
 			    = sub_query_check_and_generate_physical_plan(options, stmt->v.lp_default.operand[0], stmt);
+			break;
+		case LP_NULL_IF:
+			stmt->v.lp_default.operand[0]
+			    = sub_query_check_and_generate_physical_plan(options, stmt->v.lp_default.operand[0], stmt);
+			stmt->v.lp_default.operand[1]
+			    = sub_query_check_and_generate_physical_plan(options, stmt->v.lp_default.operand[1], stmt);
 			break;
 		case LP_FUNCTION_CALL:
 			assert(LP_VALUE == stmt->v.lp_default.operand[0]->type);

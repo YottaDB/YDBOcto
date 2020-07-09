@@ -20,6 +20,8 @@
 
 #include "logical_plan.h"
 
+static SqlStatement *string_literal(char *name);
+
 SqlStatement *find_column_alias_name(SqlStatement *stmt) {
 	SqlColumn *	      column;
 	SqlColumnAlias *      column_alias;
@@ -107,23 +109,18 @@ SqlStatement *find_column_alias_name(SqlStatement *stmt) {
 		ret = find_column_alias_name(function_call->function_name);
 		break;
 	case coalesce_STATEMENT:
-		SQL_STATEMENT(ret, value_STATEMENT);
-		OCTO_CMALLOC_STRUCT(ret->v.value, SqlValue);
-		ret->v.value->type = STRING_LITERAL;
-		ret->v.value->v.string_literal = "COALESCE";
-		break;
+		return string_literal("COALESCE");
+	case greatest_STATEMENT:
+		return string_literal("GREATEST");
+	case least_STATEMENT:
+		return string_literal("LEAST");
+	case null_if_STATEMENT:
+		return string_literal("NULLIF");
 	case aggregate_function_STATEMENT:
 		UNPACK_SQL_STATEMENT(aggregate_function, stmt, aggregate_function);
-		SQL_STATEMENT(ret, value_STATEMENT);
-		OCTO_CMALLOC_STRUCT(ret->v.value, SqlValue);
-		ret->v.value->type = STRING_LITERAL;
-		ret->v.value->v.string_literal = get_aggregate_func_name(aggregate_function->type);
-		break;
+		return string_literal(get_aggregate_func_name(aggregate_function->type));
 	case cas_STATEMENT:
-		SQL_STATEMENT(ret, value_STATEMENT);
-		OCTO_CMALLOC_STRUCT(ret->v.value, SqlValue);
-		ret->v.value->type = STRING_LITERAL;
-		ret->v.value->v.string_literal = "CASE";
+		return string_literal("CASE");
 		break;
 	case column_list_STATEMENT: // this is something like `SELECT 1 IN (...)`
 	case table_alias_STATEMENT:
@@ -134,5 +131,15 @@ SqlStatement *find_column_alias_name(SqlStatement *stmt) {
 		assert(FALSE);
 		break;
 	}
+	return ret;
+}
+
+SqlStatement *string_literal(char *name) {
+	SqlStatement *ret;
+
+	SQL_STATEMENT(ret, value_STATEMENT);
+	OCTO_CMALLOC_STRUCT(ret->v.value, SqlValue);
+	ret->v.value->type = STRING_LITERAL;
+	ret->v.value->v.string_literal = name;
 	return ret;
 }

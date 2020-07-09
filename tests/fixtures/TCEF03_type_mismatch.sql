@@ -1,3 +1,4 @@
+
 #################################################################
 #								#
 # Copyright (c) 2020 YottaDB LLC and/or its subsidiaries.	#
@@ -9,16 +10,16 @@
 #	the license, please stop and do not read further.	#
 #								#
 #################################################################
--- TCEF01 : OCTO539 : COALESCE
+-- TCEF03 : OCTO553 : type coercions should be consistent
+-- type mismatches are errors
+SELECT GREATEST(1, '2');
+SELECT GREATEST(10, '2');
+SELECT GREATEST('10', 2);
+SELECT GREATEST(1, NULL, '2');
+SELECT GREATEST(1, NULL, '2', 2.4);
 
--- The queries in this query file are either invalid queries
--- or do not have the same behavior as postgres.
-
--- Passing no arguments is an error
-SELECT COALESCE();
--- Invalid column name
-SELECT COALESCE(invalid_column) FROM names;
--- Different types are errors
-SELECT COALESCE(NULL, 'a', 1.2);
-SELECT COALESCE('a', 1.2, 1);
-SELECT COALESCE(NULL, 1, 'a');
+SELECT LEAST(1, '2');
+SELECT LEAST(10, '2');
+SELECT LEAST('10', 2);
+SELECT LEAST(1, NULL, '2');
+SELECT LEAST(1, NULL, '2', 2.4);

@@ -33,6 +33,9 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 	SqlColumnListAlias *	start_cla, *cur_cla;
 	SqlFunctionCall *	fc;
 	SqlCoalesceCall *	coalesce_call;
+	SqlGreatest *		greatest_call;
+	SqlLeast *		least_call;
+	SqlNullIf *		null_if;
 	SqlUnaryOperation *	unary;
 	SqlValue *		value;
 	int			result;
@@ -150,6 +153,19 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 	case coalesce_STATEMENT:
 		UNPACK_SQL_STATEMENT(coalesce_call, stmt, coalesce);
 		result |= qualify_statement(coalesce_call->arguments, tables, table_alias_stmt, depth + 1, ret_cla);
+		break;
+	case greatest_STATEMENT:
+		UNPACK_SQL_STATEMENT(greatest_call, stmt, greatest);
+		result |= qualify_statement(greatest_call->arguments, tables, table_alias_stmt, depth + 1, ret_cla);
+		break;
+	case least_STATEMENT:
+		UNPACK_SQL_STATEMENT(least_call, stmt, least);
+		result |= qualify_statement(least_call->arguments, tables, table_alias_stmt, depth + 1, ret_cla);
+		break;
+	case null_if_STATEMENT:
+		UNPACK_SQL_STATEMENT(null_if, stmt, null_if);
+		result |= qualify_statement(null_if->left, tables, table_alias_stmt, depth + 1, ret_cla);
+		result |= qualify_statement(null_if->right, tables, table_alias_stmt, depth + 1, ret_cla);
 		break;
 	case aggregate_function_STATEMENT:
 		UNPACK_SQL_STATEMENT(af, stmt, aggregate_function);

@@ -501,6 +501,31 @@ For example, the following query is valid and returns the value 1:
 
    SELECT COALESCE(1, 'a', 1.0);
 
+-------
+NULLIF
+-------
+
+.. code-block:: SQL
+
+   SELECT NULLIF(value_expression, value_expression) ...
+
+The built-in NULLIF function returns NULL if both arguments are equal, or the first argument otherwise.
+The arguments must have the same type.
+
+-------------------
+GREATEST and LEAST
+-------------------
+
+.. code-block:: SQL
+
+   SELECT GREATEST(value_expression [, value_expression...]) ...
+   SELECT LEAST(value_expression [, value_expression...]) ...
+
+The built-in GREATEST function returns the largest value from a list of expressions.
+Similarly, LEAST returns the smallest value.
+NULL values are ignored, unless all values are NULL, in which case the return value is NULL.
+All arguments must have the same type.
+
 -----------------
 Operators
 -----------------

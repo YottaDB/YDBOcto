@@ -9,16 +9,4 @@
 #	the license, please stop and do not read further.	#
 #								#
 #################################################################
--- TCEF01 : OCTO539 : COALESCE
-
--- The queries in this query file are either invalid queries
--- or do not have the same behavior as postgres.
-
--- Passing no arguments is an error
-SELECT COALESCE();
--- Invalid column name
-SELECT COALESCE(invalid_column) FROM names;
--- Different types are errors
-SELECT COALESCE(NULL, 'a', 1.2);
-SELECT COALESCE('a', 1.2, 1);
-SELECT COALESCE(NULL, 1, 'a');
+SELECT NULLIF(1, '1');

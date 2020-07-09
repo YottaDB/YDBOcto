@@ -16,7 +16,10 @@
 #include "octo_types.h"
 #include "logical_plan.h"
 
-boolean_t lp_is_bool_operand_type_string(LogicalPlan *plan) {
+/* This can only be used for expressions where operand[0] is non-NULL.
+ * Additionally, if operand[1] is non-null, it must have the same type as operand[0].
+ */
+boolean_t lp_is_operand_type_string(LogicalPlan *plan) {
 	boolean_t	ret, loop_done;
 	LogicalPlan *	cur_plan, *ret_type_plan;
 	SqlColumnAlias *column_alias;
@@ -29,7 +32,8 @@ boolean_t lp_is_bool_operand_type_string(LogicalPlan *plan) {
 	       || (LP_BOOLEAN_ANY_EQUALS == plan->type) || (LP_BOOLEAN_ANY_NOT_EQUALS == plan->type)
 	       || (LP_BOOLEAN_ALL_LESS_THAN == plan->type) || (LP_BOOLEAN_ALL_GREATER_THAN == plan->type)
 	       || (LP_BOOLEAN_ALL_LESS_THAN_OR_EQUALS == plan->type) || (LP_BOOLEAN_ALL_GREATER_THAN_OR_EQUALS == plan->type)
-	       || (LP_BOOLEAN_ALL_EQUALS == plan->type) || (LP_BOOLEAN_ALL_NOT_EQUALS == plan->type));
+	       || (LP_BOOLEAN_ALL_EQUALS == plan->type) || (LP_BOOLEAN_ALL_NOT_EQUALS == plan->type)
+	       || (LP_GREATEST == plan->type) | (LP_LEAST == plan->type));
 	/* We assume all values in this expression have the same type, which should be true due to the matching of types
 	 * further up the stack (in `populate_data_type`). Traverse down the left side of the logical plan tree until we get
 	 * to a plan node which has only a left child (right hand child is NULL) OR stop traversing if we end up with

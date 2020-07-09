@@ -17,6 +17,18 @@
 %ydboctoplanhelpers	;
 	QUIT
 
+max(isString,a,b)
+	; return the greatest of a and b
+	; uses lexicographical sorting if `isString` is true; otherwise uses numerical sorting
+	; if `a` is NULL, returns `b` (even if b is NULL)
+	; invoked by GREATEST
+	QUIT $SELECT($ZYISSQLNULL(a):b,$ZYISSQLNULL(b):a,isString:$SELECT(a]b:a,1:b),1:$SELECT(a>b:a,1:b))
+
+min(isString,a,b)
+	; return the least of a and b (see `max` for details)
+	; invoked by LEAST
+	QUIT $SELECT($ZYISSQLNULL(a):b,$ZYISSQLNULL(b):a,isString:$SELECT(a]b:b,1:a),1:$SELECT(a>b:b,1:a))
+
 dollarZTRIGGER(arg1,arg2);
 	; Helper M function invoked by generated M code whenever it needs to do a $ZTRIGGER call.
 	; $ZTRIGGER invocation can cause output like the following.

@@ -188,6 +188,9 @@ int lp_verify_structure_helper(LogicalPlan *plan, PhysicalPlanOptions *options, 
 			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], options, LP_COLUMN_ALIAS)
 			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], options, LP_FUNCTION_CALL)
 			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], options, LP_COALESCE_CALL)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], options, LP_GREATEST)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], options, LP_LEAST)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], options, LP_NULL_IF)
 			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], options,
 							    LP_AGGREGATE_FUNCTION_COUNT_ASTERISK)
 			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], options, LP_AGGREGATE_FUNCTION_COUNT)
@@ -217,6 +220,9 @@ int lp_verify_structure_helper(LogicalPlan *plan, PhysicalPlanOptions *options, 
 			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], options, LP_COLUMN_ALIAS)
 			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], options, LP_FUNCTION_CALL)
 			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], options, LP_COALESCE_CALL)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], options, LP_GREATEST)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], options, LP_LEAST)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], options, LP_NULL_IF)
 			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], options,
 							    LP_AGGREGATE_FUNCTION_COUNT_ASTERISK)
 			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], options, LP_AGGREGATE_FUNCTION_COUNT)
@@ -304,6 +310,9 @@ int lp_verify_structure_helper(LogicalPlan *plan, PhysicalPlanOptions *options, 
 			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], options, LP_COLUMN_ALIAS)
 			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], options, LP_FUNCTION_CALL)
 			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], options, LP_COALESCE_CALL)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], options, LP_GREATEST)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], options, LP_LEAST)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], options, LP_NULL_IF)
 			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], options,
 							    LP_AGGREGATE_FUNCTION_COUNT_ASTERISK)
 			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], options, LP_AGGREGATE_FUNCTION_COUNT)
@@ -390,6 +399,9 @@ int lp_verify_structure_helper(LogicalPlan *plan, PhysicalPlanOptions *options, 
 			       | lp_verify_structure_helper(plan->v.lp_default.operand[0], options, LP_COLUMN_ALIAS)
 			       | lp_verify_structure_helper(plan->v.lp_default.operand[0], options, LP_FUNCTION_CALL)
 			       | lp_verify_structure_helper(plan->v.lp_default.operand[0], options, LP_COALESCE_CALL)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[0], options, LP_GREATEST)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[0], options, LP_LEAST)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[0], options, LP_NULL_IF)
 			       | lp_verify_structure_helper(plan->v.lp_default.operand[0], options,
 							    LP_AGGREGATE_FUNCTION_COUNT_ASTERISK)
 			       | lp_verify_structure_helper(plan->v.lp_default.operand[0], options, LP_AGGREGATE_FUNCTION_COUNT)
@@ -457,6 +469,18 @@ int lp_verify_structure_helper(LogicalPlan *plan, PhysicalPlanOptions *options, 
 	case LP_COALESCE_CALL:
 		assert(LP_COLUMN_LIST == plan->v.lp_default.operand[0]->type);
 		ret &= lp_verify_structure_helper(plan->v.lp_default.operand[0], options, LP_COLUMN_LIST);
+		break;
+	case LP_GREATEST:
+		assert(LP_COLUMN_LIST == plan->v.lp_default.operand[0]->type);
+		ret &= lp_verify_structure_helper(plan->v.lp_default.operand[0], options, LP_COLUMN_LIST);
+		break;
+	case LP_LEAST:
+		assert(LP_COLUMN_LIST == plan->v.lp_default.operand[0]->type);
+		ret &= lp_verify_structure_helper(plan->v.lp_default.operand[0], options, LP_COLUMN_LIST);
+		break;
+	case LP_NULL_IF:
+		ret &= lp_verify_structure_helper(plan->v.lp_default.operand[0], options, plan->v.lp_default.operand[0]->type);
+		ret &= lp_verify_structure_helper(plan->v.lp_default.operand[1], options, plan->v.lp_default.operand[1]->type);
 		break;
 	case LP_ORDER_BY:
 		/* to avoid a large recursion stack walk the column list iteratively */

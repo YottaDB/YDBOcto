@@ -45,6 +45,21 @@ typedef void* yyscan_t;
  */
 #define YYMAXDEPTH 10000000
 
+#define CONDITIONAL_LIST_STMT(ret, unpacked, kind, SqlType) { \
+      SqlStatement    *stmt;                        \
+      SqlValue        *value;                       \
+                                                    \
+      SQL_STATEMENT(ret, value_STATEMENT);          \
+      MALLOC_STATEMENT(ret, value, SqlValue);       \
+      UNPACK_SQL_STATEMENT(value, ret, value);      \
+                                                    \
+      value->type = CALCULATED_VALUE;               \
+      SQL_STATEMENT(stmt, kind##_STATEMENT);        \
+      MALLOC_STATEMENT(stmt, kind, SqlType);        \
+      UNPACK_SQL_STATEMENT(unpacked, stmt, kind);   \
+      value->v.calculated = stmt;                   \
+}
+
 extern int yylex(YYSTYPE * yylval_param, YYLTYPE *llocp, yyscan_t yyscanner);
 extern int yyparse(yyscan_t scan, SqlStatement **out, int *plan_id, ParseContext *parse_context);
 extern void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, int *plan_id, ParseContext *parse_context, char const *s);
@@ -101,6 +116,7 @@ extern void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, int *plan
 %token FULL
 %token FUNCTION
 %token GLOBAL
+%token GREATEST
 %token GROUP
 %token HAVING
 %token IDENTIFIER_ALONE
@@ -118,6 +134,7 @@ extern void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, int *plan
 %token IS
 %token JOIN
 %token KEY
+%token LEAST
 %token LEFT
 %token LIKE
 %token LIMIT
@@ -125,6 +142,7 @@ extern void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, int *plan
 %token MIN
 %token NATURAL
 %token NOT
+%token NULLIF
 %token NUM
 %token NUMERIC
 %token ON
@@ -498,21 +516,34 @@ between_predicate
 // COALESCE() is variadic, but must have at least one argument.
 coalesce
   : COALESCE LEFT_PAREN in_value_list_nonempty RIGHT_PAREN {
-
-      SqlStatement    *coalesce_stmt;
       SqlCoalesceCall *call;
-      SqlValue        *value;
-
-      SQL_STATEMENT($$, value_STATEMENT);
-      MALLOC_STATEMENT($$, value, SqlValue);
-      UNPACK_SQL_STATEMENT(value, $$, value);
-
-      value->type = CALCULATED_VALUE;
-      SQL_STATEMENT(coalesce_stmt, coalesce_STATEMENT);
-      MALLOC_STATEMENT(coalesce_stmt, coalesce, SqlCoalesceCall);
-      UNPACK_SQL_STATEMENT(call, coalesce_stmt, coalesce);
+      CONDITIONAL_LIST_STMT($$, call, coalesce, SqlCoalesceCall);
       call->arguments = $in_value_list_nonempty;
-      value->v.calculated = coalesce_stmt;
+    }
+  ;
+
+greatest
+  : GREATEST LEFT_PAREN in_value_list_nonempty RIGHT_PAREN {
+      SqlGreatest *call;
+      CONDITIONAL_LIST_STMT($$, call, greatest, SqlGreatest);
+      call->arguments = $in_value_list_nonempty;
+    }
+  ;
+
+least
+  : LEAST LEFT_PAREN in_value_list_nonempty RIGHT_PAREN {
+      SqlLeast *call;
+      CONDITIONAL_LIST_STMT($$, call, least, SqlLeast);
+      call->arguments = $in_value_list_nonempty;
+    }
+  ;
+
+nullif
+  : NULLIF LEFT_PAREN value_expression[left] COMMA value_expression[right] RIGHT_PAREN {
+      SqlNullIf *call;
+      CONDITIONAL_LIST_STMT($$, call, null_if, SqlNullIf);
+      call->left = $left;
+      call->right = $right;
     }
   ;
 
@@ -837,6 +868,9 @@ value_expression_primary
 
 conditional_expression
   : coalesce { $$ = $coalesce; }
+  | nullif { $$ = $nullif; }
+  | greatest { $$ = $greatest; }
+  | least { $$ = $least; }
   | case_expression { $$ = $case_expression; }
   ;
 

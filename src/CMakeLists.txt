@@ -182,7 +182,7 @@ add_library(libocto OBJECT
   optimization_transforms/lp_get_table_join.c
   optimization_transforms/lp_get_tablejoin_unique_id.c
   optimization_transforms/lp_insert_key.c
-  optimization_transforms/lp_is_bool_operand_type_string.c
+  optimization_transforms/lp_is_operand_type_string.c
   optimization_transforms/lp_join_where.c
   optimization_transforms/lp_make_key.c
   optimization_transforms/lp_make_normal_disjunctive_form.c

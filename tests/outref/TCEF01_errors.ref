@@ -7,7 +7,7 @@
 SELECT COALESCE();
 -- Invalid column name
 SELECT COALESCE(invalid_column) FROM names;
--- Unlike in postgres, different types are allowed.
+-- Different types are errors
 SELECT COALESCE(NULL, 'a', 1.2);
 SELECT COALESCE('a', 1.2, 1);
 SELECT COALESCE(NULL, 1, 'a');
@@ -24,6 +24,22 @@ Error with syntax near (line 1, column 17):
 SELECT COALESCE(invalid_column) FROM names;
                 ^^^^^^^^^^^^^^
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT COALESCE(invalid_column) FROM names;
-a
-a
-1
+[ERROR] PATH:LINENUM DATE TIME : Type mismatch: left VARCHAR, right NUMERIC
+Error with syntax near (line 1, column 28):
+
+SELECT COALESCE(NULL, 'a', 1.2);
+                           ^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT COALESCE(NULL, 'a', 1.2);
+[ERROR] PATH:LINENUM DATE TIME : Type mismatch: left VARCHAR, right NUMERIC
+Error with syntax near (line 1, column 22):
+
+SELECT COALESCE('a', 1.2, 1);
+                     ^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT COALESCE('a', 1.2, 1);
+[ERROR] PATH:LINENUM DATE TIME : Type mismatch: left NUMERIC, right VARCHAR
+Error with syntax near (line 1, column 28):
+
+SELECT COALESCE(NULL, 1, 'a');
+                           ^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT COALESCE(NULL, 1, 'a');
+

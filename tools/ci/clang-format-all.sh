@@ -15,6 +15,7 @@ if [ -x "$(which "$1")" ]; then
 else
 	CLANG_FORMAT=clang-format
 fi
+# NOTE: does not format .ctemplate files, because clang-format will change `%{}` to `% {}`, breaking the preprocessor.
 find ../src -name '*.c' -o -name '*.h' | xargs "$CLANG_FORMAT" -i
 if ! [ $(git diff --stat | wc -l) = 0 ]; then
   echo " -> Formatting differences found!"

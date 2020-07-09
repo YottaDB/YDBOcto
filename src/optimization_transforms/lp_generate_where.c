@@ -25,6 +25,9 @@ LogicalPlan *lp_generate_where(SqlStatement *stmt, SqlStatement *parent) {
 	SqlUnaryOperation *	unary;
 	SqlBinaryOperation *	binary;
 	SqlCoalesceCall *	coalesce_call;
+	SqlGreatest *		greatest_call;
+	SqlLeast *		least_call;
+	SqlNullIf *		null_if;
 	SqlFunctionCall *	function_call;
 	SqlAggregateFunction *	aggregate_function;
 	SqlColumnList *		cur_cl, *start_cl;
@@ -81,14 +84,33 @@ LogicalPlan *lp_generate_where(SqlStatement *stmt, SqlStatement *parent) {
 		MALLOC_LP_2ARGS(ret, type);
 		LP_GENERATE_WHERE(unary->operand, stmt, ret->v.lp_default.operand[0], error_encountered);
 		break;
-	case coalesce_STATEMENT: {
+	case coalesce_STATEMENT:
 		UNPACK_SQL_STATEMENT(coalesce_call, stmt, coalesce);
 		UNPACK_SQL_STATEMENT(start_cl, coalesce_call->arguments, column_list);
 		MALLOC_LP_2ARGS(ret, LP_COALESCE_CALL);
 		/* Walk through the column list, converting each right side value as appropriate. */
 		error_encountered |= lp_generate_column_list(&ret->v.lp_default.operand[0], stmt, start_cl);
 		break;
-	}
+	case greatest_STATEMENT:
+		UNPACK_SQL_STATEMENT(greatest_call, stmt, greatest);
+		UNPACK_SQL_STATEMENT(start_cl, greatest_call->arguments, column_list);
+		MALLOC_LP_2ARGS(ret, LP_GREATEST);
+		/* Walk through the column list, converting each right side value as appropriate. */
+		error_encountered |= lp_generate_column_list(&ret->v.lp_default.operand[0], stmt, start_cl);
+		break;
+	case least_STATEMENT:
+		UNPACK_SQL_STATEMENT(least_call, stmt, least);
+		UNPACK_SQL_STATEMENT(start_cl, least_call->arguments, column_list);
+		MALLOC_LP_2ARGS(ret, LP_LEAST);
+		/* Walk through the column list, converting each right side value as appropriate. */
+		error_encountered |= lp_generate_column_list(&ret->v.lp_default.operand[0], stmt, start_cl);
+		break;
+	case null_if_STATEMENT:
+		UNPACK_SQL_STATEMENT(null_if, stmt, null_if);
+		MALLOC_LP_2ARGS(ret, LP_NULL_IF);
+		LP_GENERATE_WHERE(null_if->left, stmt, ret->v.lp_default.operand[0], error_encountered);
+		LP_GENERATE_WHERE(null_if->right, stmt, ret->v.lp_default.operand[1], error_encountered);
+		break;
 	case function_call_STATEMENT:
 		UNPACK_SQL_STATEMENT(function_call, stmt, function_call);
 		type = LP_FUNCTION_CALL;

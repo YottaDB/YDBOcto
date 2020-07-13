@@ -125,6 +125,7 @@ SqlStatement *find_column_alias_name(SqlStatement *stmt) {
 		ret->v.value->type = STRING_LITERAL;
 		ret->v.value->v.string_literal = "CASE";
 		break;
+	case column_list_STATEMENT: // this is something like `SELECT 1 IN (...)`
 	case table_alias_STATEMENT:
 	case set_operation_STATEMENT:
 		/* We do not do anything for now */

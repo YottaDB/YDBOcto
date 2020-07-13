@@ -27,3 +27,8 @@ setup() {
   run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TSCP01.sql
 }
 
+@test "TSCP02 : OCTO544 : Assertion failure and Errors when IN is used in SELECT column list" {
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TSCP02.sql
+  load_fixture TSCP02_errors.sql subtest novv
+  verify_output TSCP02_errors output.txt
+}

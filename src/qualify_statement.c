@@ -61,6 +61,7 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 			SqlValue *    value;
 
 			column_name = find_column_alias_name(stmt);
+			assert(NULL != column_name);
 			UNPACK_SQL_STATEMENT(value, column_name, value);
 			ERROR(ERR_GROUP_BY_OR_AGGREGATE_FUNCTION, value->v.string_literal);
 			yyerror(NULL, NULL, &stmt, NULL, NULL, NULL);

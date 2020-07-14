@@ -68,7 +68,7 @@
 	{                                                                     \
 		YDB_STRING_TO_BUFFER(config->global_names.octo, &VARNAME);    \
 		YDB_LITERAL_TO_BUFFER(OCTOLIT_PLAN_METADATA, &SUBS_ARRAY[0]); \
-		YDB_STRING_TO_BUFFER(PLAN_FILENAME, &SUBS_ARRAY[1]);          \
+		SUBS_ARRAY[1] = PLAN_FILENAME;                                \
 	}
 
 #define GET_PLAN_METADATA_DB_NODE(PLAN_FILENAME, DB_NODE_FOUND, STATUS)          \
@@ -322,8 +322,11 @@ int run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_descrip
 				 * an ERR_DATABASE_FILES_OOS error later.
 				 */
 				unsigned int db_node_found;
+				ydb_buffer_t filename_buffer;
 
-				GET_PLAN_METADATA_DB_NODE(filename, db_node_found, status); /* sets "db_node_found" and "status" */
+				YDB_STRING_TO_BUFFER(filename, &filename_buffer);
+				GET_PLAN_METADATA_DB_NODE(filename_buffer, db_node_found,
+							  status); /* sets "db_node_found" and "status" */
 				YDB_ERROR_CHECK(status);
 				if (YDB_OK != status) {
 					CLEANUP_FROM_PLAN_GENERATION(i, filename_lock, query_lock, memory_chunks);
@@ -599,7 +602,7 @@ int run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_descrip
 			}
 			CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, memory_chunks, buffer, function_sub_buffer, function_buffer,
 							 query_lock);
-			DELETE_PLAN_METADATA_DB_NODE(filename, status);
+			DELETE_PLAN_METADATA_DB_NODE(function_name_buffers[3], status);
 			CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, memory_chunks, buffer, function_sub_buffer, function_buffer,
 							 query_lock);
 		}

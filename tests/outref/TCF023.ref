@@ -22,6 +22,15 @@
 ^%ydboctoocto("functions","REPLACE","plan_metadata","$PWD/_ydboctoP*.m")=""
 ^%ydboctoocto("functions","REPLACE","plan_metadata","$PWD/_ydboctoP*.m")=""
 ^%ydboctoocto("functions","REPLACE","plan_metadata","$PWD/_ydboctoP*.m")=""
+# Verify db nodes correctly represent 8 plans that are reusable (i.e. do not need to be regenerated)
+^%ydboctoocto("plan_metadata","$PWD/_ydboctoP*.m","output_key")="3"
+^%ydboctoocto("plan_metadata","$PWD/_ydboctoP*.m","output_key")="3"
+^%ydboctoocto("plan_metadata","$PWD/_ydboctoP*.m","output_key")="3"
+^%ydboctoocto("plan_metadata","$PWD/_ydboctoP*.m","output_key")="3"
+^%ydboctoocto("plan_metadata","$PWD/_ydboctoP*.m","output_key")="3"
+^%ydboctoocto("plan_metadata","$PWD/_ydboctoP*.m","output_key")="3"
+^%ydboctoocto("plan_metadata","$PWD/_ydboctoP*.m","output_key")="3"
+^%ydboctoocto("plan_metadata","$PWD/_ydboctoP*.m","output_key")="3"
 # Rerun CREATE FUNCTION of REPLACE
 # Verify 8 _ydboctoP*.m plans still remain
 # Verify db nodes corresponding to REPLACE function have been deleted
@@ -31,6 +40,9 @@
 ^%ydboctoocto("functions","ABS","plan_metadata","$PWD/_ydboctoP*.m")=""
 ^%ydboctoocto("functions","ABS","plan_metadata","$PWD/_ydboctoP*.m")=""
 ^%ydboctoocto("functions","ABS","plan_metadata","$PWD/_ydboctoP*.m")=""
+# Verify db nodes correctly represent 2 plans that are reusable (i.e. do not need to be regenerated)
+^%ydboctoocto("plan_metadata","$PWD/_ydboctoP*.m","output_key")="3"
+^%ydboctoocto("plan_metadata","$PWD/_ydboctoP*.m","output_key")="3"
 # Rerun 8 queries from TCF023.sql that use ABS and REPLACE functions
 # Verify 6 queries that used REPLACE function created new plans while rest reused existing plans
 [ INFO] PATH:LINENUM DATE TIME : Generating M file [$PWD/_ydboctoP*.m] (to execute SQL query)

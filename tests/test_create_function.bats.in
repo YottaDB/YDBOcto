@@ -162,6 +162,8 @@ setup() {
 	echo "# Verify db nodes correctly represent ABS and REPLACE functions and plans that rely on them" >> output.txt
 	mupip extract run1.ext
 	grep plan_metadata run1.ext | grep functions >> output.txt
+	echo "# Verify db nodes correctly represent 8 plans that are reusable (i.e. do not need to be regenerated)" >> output.txt
+	grep plan_met run1.ext | grep output_key >> output.txt
 	echo "# Rerun CREATE FUNCTION of REPLACE" >> output.txt
 	octo -f TCF023b.sql >> output.txt 2>&1
 	echo '# Verify 8 _ydboctoP*.m plans still remain' >> output.txt
@@ -169,6 +171,8 @@ setup() {
 	echo "# Verify db nodes corresponding to REPLACE function have been deleted" >> output.txt
 	mupip extract run2.ext
 	grep plan_metadata run2.ext | grep functions >> output.txt
+	echo "# Verify db nodes correctly represent 2 plans that are reusable (i.e. do not need to be regenerated)" >> output.txt
+	grep plan_met run2.ext | grep output_key >> output.txt
 	echo "# Rerun 8 queries from TCF023.sql that use ABS and REPLACE functions" >> output.txt
 	octo -vv -f TCF023.sql > run2.txt 2>&1
 	echo "# Verify 6 queries that used REPLACE function created new plans while rest reused existing plans" >> output.txt

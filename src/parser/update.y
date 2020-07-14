@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -25,14 +25,9 @@ set_clause_tail
   ;
 
 set_clause
-  : object_column EQUALS update_source
+  : object_column EQUALS row_value_constructor_element
   ;
 
 object_column
   : column_name
-  ;
-
-update_source
-  : value_expression
-  | DEFAULT
   ;

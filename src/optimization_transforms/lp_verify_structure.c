@@ -298,6 +298,7 @@ int lp_verify_structure_helper(LogicalPlan *plan, PhysicalPlanOptions *options, 
 			}
 			is_where = ((1 == i) && (LP_WHERE == expected));
 			is_bool_in = ((1 == i) && ((LP_BOOLEAN_IN == expected) || (LP_BOOLEAN_NOT_IN == expected)));
+			// TODO: almost all of this code is duplicated for `case LP_COLUMN_LIST`
 			ret &= lp_verify_structure_helper(plan->v.lp_default.operand[i], options, LP_ADDITION)
 			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], options, LP_SUBTRACTION)
 			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], options, LP_DIVISION)
@@ -418,6 +419,23 @@ int lp_verify_structure_helper(LogicalPlan *plan, PhysicalPlanOptions *options, 
 			       | lp_verify_structure_helper(plan->v.lp_default.operand[0], options, LP_DERIVED_COLUMN)
 			       | lp_verify_structure_helper(plan->v.lp_default.operand[0], options, LP_VALUE)
 			       | lp_verify_structure_helper(plan->v.lp_default.operand[0], options, LP_COERCE_TYPE)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[0], options, LP_BOOLEAN_IN)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[0], options, LP_BOOLEAN_NOT_IN)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[0], options, LP_BOOLEAN_NOT)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[0], options, LP_BOOLEAN_OR)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[0], options, LP_BOOLEAN_AND)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[0], options, LP_BOOLEAN_IS)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[0], options, LP_BOOLEAN_EQUALS)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[0], options, LP_BOOLEAN_NOT_EQUALS)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[0], options, LP_BOOLEAN_LESS_THAN)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[0], options, LP_BOOLEAN_GREATER_THAN)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[0], options, LP_BOOLEAN_LESS_THAN_OR_EQUALS)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[0], options,
+							    LP_BOOLEAN_GREATER_THAN_OR_EQUALS)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[0], options, LP_BOOLEAN_EXISTS)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[0], options, LP_BOOLEAN_NOT_EXISTS)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[0], options, LP_BOOLEAN_IS_NULL)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[0], options, LP_BOOLEAN_IS_NOT_NULL)
 			       // LP_INSERT/LP_SET_OPERATIONs usually show up as operand[1] only for the IN boolean expression.
 			       // But they can show up wherever a scalar is expected (e.g. select column list etc.)
 			       // and hence have to be allowed in a lot more cases.

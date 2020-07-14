@@ -252,7 +252,7 @@ derived_column
   ;
 
 derived_column_expression
-  : search_condition { $$ = $search_condition; }
+  : value_expression { $$ = $value_expression; }
   ;
 
 from_clause

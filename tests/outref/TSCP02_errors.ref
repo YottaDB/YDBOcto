@@ -7,12 +7,15 @@ Error with syntax near (line 1, column 7):
 
 SELECT 1 IN (true) FROM names;
        ^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT 1 IN (true) FROM names;
 Error with syntax near (line 1, column 13):
 
-SELECT true IN (1) FROM names;
-            ^^
-syntax error, unexpected IN, expecting EXCEPT or UNION or SEMICOLON or ENDOFFILE
+SELECT 1 IN (true) FROM names;
+             ^^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT 1 IN (true) FROM names;
+[ERROR] PATH:LINENUM DATE TIME : Type mismatch: left BOOLEAN, right NUMERIC
+Error with syntax near (line 1, column 17):
 
+SELECT true IN (1) FROM names;
+                ^
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT true IN (1) FROM names;
 

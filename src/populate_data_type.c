@@ -830,7 +830,7 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_
 			break;
 		}
 		assert((BOOLEAN_NOT != unary->operation) || (BOOLEAN_VALUE == *type) || (NUL_VALUE == *type)
-		       || (NUMERIC_LITERAL == *type) || (STRING_LITERAL == *type));
+		       || (INTEGER_LITERAL == *type) || (NUMERIC_LITERAL == *type) || (STRING_LITERAL == *type));
 		break;
 	default:
 		assert(FALSE);

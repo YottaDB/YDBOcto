@@ -353,30 +353,27 @@ boolean_factor
   ;
 
 boolean_test
-  : boolean_primary boolean_test_tail {
-      if (NULL != $boolean_test_tail) {
-        SQL_STATEMENT($$, binary_STATEMENT);
-        MALLOC_STATEMENT($$, binary, SqlBinaryOperation);
-        ($$)->v.binary->operation = BOOLEAN_IS;
-        ($$)->v.binary->operands[0] = ($boolean_primary);
-        ($$)->v.binary->operands[1] = ($boolean_test_tail);
-      } else {
-        $$ = $boolean_primary;
-      }
+  : predicate { $$ = $predicate; }
+  | predicate IS NULL_TOKEN {
+      SQL_STATEMENT($$, unary_STATEMENT);
+      MALLOC_STATEMENT($$, unary, SqlUnaryOperation);
+      // TODO: refactor this so that this is BOOLEAN_IS with a value of NULL (#498)
+      // that way, we could use the same code for both NULL, NOT NULL, TRUE, and FALSE.
+      ($$)->v.unary->operation = BOOLEAN_IS_NULL;
+      ($$)->v.unary->operand = ($predicate);
     }
+  | predicate IS NOT NULL_TOKEN {
+      SQL_STATEMENT($$, unary_STATEMENT);
+      MALLOC_STATEMENT($$, unary, SqlUnaryOperation);
+      ($$)->v.unary->operation = BOOLEAN_IS_NOT_NULL;
+      ($$)->v.unary->operand = ($predicate);
+    }
+  | predicate IS boolean_primary { WARNING(ERR_FEATURE_NOT_IMPLEMENTED, "boolean_test_tail: IS boolean_primary"); YYABORT; }
+  | predicate IS NOT boolean_primary { WARNING(ERR_FEATURE_NOT_IMPLEMENTED, "boolean_test_tail: IS NOT boolean_primary"); YYABORT; }
+  // TODO: IS DISTINCT FROM(#557)
   ;
 
-boolean_test_tail
-  : /* Empty */ { $$ = NULL; }
-  | IS boolean_test_tail_tail { WARNING(ERR_FEATURE_NOT_IMPLEMENTED, "boolean_test_tail: IS boolean_test_tail_tail"); YYABORT; }
-  ;
-
-boolean_test_tail_tail
-  : truth_value { WARNING(ERR_FEATURE_NOT_IMPLEMENTED, "boolean_test_tail_tail: truth_value"); YYABORT; }
-  | NOT truth_value { WARNING(ERR_FEATURE_NOT_IMPLEMENTED, "boolean_test_tail_tail: NOT truth_value"); YYABORT; }
-  ;
-
-truth_value
+boolean_primary
   : TRUE_TOKEN {
       SQL_STATEMENT($$, value_STATEMENT);
       MALLOC_STATEMENT($$, value, SqlValue);
@@ -391,42 +388,22 @@ truth_value
       ($$)->v.value->v.string_literal = "0";
       INVOKE_PARSE_LITERAL_TO_PARAMETER(parse_context, ($$)->v.value, FALSE);
     }
-  | UNKNOWN { WARNING(ERR_FEATURE_NOT_IMPLEMENTED, "truth_value: UNKNOWN"); YYABORT; }
-  ;
-
-boolean_primary
-  : predicate { $$ = $predicate; }
-  | truth_value optional_cast_specification {
-	if (NULL != $optional_cast_specification) {
-		SqlStatement	*ret;
-
-		ret = cast_specification($optional_cast_specification, $truth_value);
-		if (NULL == ret) {
-			YYERROR;
-		}
-		$$ = ret;
-	} else {
-		$$ = $truth_value;
-	}
-    }
-  | LEFT_PAREN search_condition RIGHT_PAREN { $$ = $search_condition; }
-  | row_value_constructor { $$ = $row_value_constructor; }
+  | UNKNOWN { WARNING(ERR_FEATURE_NOT_IMPLEMENTED, "boolean_primary: UNKNOWN"); YYABORT; }
   ;
 
 predicate
-  : comparison_predicate { $$ = $comparison_predicate; }
-  | between_predicate { $$ = $between_predicate; }
+  : between_predicate { $$ = $between_predicate; }
   | in_predicate { $$ = $in_predicate; }
 //  | like_predicate
-  | null_predicate { $$ = $null_predicate; }
   | quantified_comparison_predicate
-  | exists_predicate
+  | comparison_predicate
 //  | match_predicate
 //  | overlaps_predicate
   ;
 
 comparison_predicate
-  : row_value_constructor comp_op row_value_constructor {
+  : row_value_constructor
+  | row_value_constructor comp_op row_value_constructor {
       SQL_STATEMENT($$, binary_STATEMENT);
       MALLOC_STATEMENT($$, binary, SqlBinaryOperation);
       ($$)->v.binary->operation = (BinaryOperations)$comp_op;	/* Note: "comp_op" rule returns "BinaryOperations" type */
@@ -505,10 +482,10 @@ not_insensitive_like_predicate
 
 
 between_predicate
-  : row_value_constructor BETWEEN value_expression AND value_expression {
+  : row_value_constructor BETWEEN comparison_predicate AND comparison_predicate {
 	$$ = between_predicate($row_value_constructor, $3, $5, FALSE);
     }
-  | row_value_constructor NOT BETWEEN value_expression AND value_expression {
+  | row_value_constructor NOT BETWEEN comparison_predicate AND comparison_predicate {
 	$$ = between_predicate($row_value_constructor, $4, $6, TRUE);
     }
   ;
@@ -589,20 +566,7 @@ in_value_list_allow_empty
   ;
 
 in_value_list_nonempty
-  : truth_value in_value_list_tail {
-      SqlColumnList *column_list, *cl_tail;
-
-      SQL_STATEMENT($$, column_list_STATEMENT);
-      MALLOC_STATEMENT($$, column_list, SqlColumnList);
-      UNPACK_SQL_STATEMENT(column_list, $$, column_list);
-      column_list->value = $truth_value;
-      dqinit(column_list);
-      if (NULL != $in_value_list_tail) {
-        UNPACK_SQL_STATEMENT(cl_tail, $in_value_list_tail, column_list);
-        dqappend(column_list, cl_tail);
-      }
-    }
-  | value_expression in_value_list_tail {
+  : value_expression in_value_list_tail {
       SqlColumnList *column_list, *cl_tail;
 
       SQL_STATEMENT($$, column_list_STATEMENT);
@@ -622,21 +586,6 @@ in_value_list_nonempty
 in_value_list_tail
   : /* Empty */ { $$ = NULL; }
   | COMMA in_value_list_nonempty { $$ = $in_value_list_nonempty; }
-  ;
-
-null_predicate
-  : row_value_constructor IS NULL_TOKEN {
-      SQL_STATEMENT($$, unary_STATEMENT);
-      MALLOC_STATEMENT($$, unary, SqlUnaryOperation);
-      ($$)->v.unary->operation = BOOLEAN_IS_NULL;
-      ($$)->v.unary->operand = ($row_value_constructor);
-    }
-  | row_value_constructor IS NOT NULL_TOKEN {
-      SQL_STATEMENT($$, unary_STATEMENT);
-      MALLOC_STATEMENT($$, unary, SqlUnaryOperation);
-      ($$)->v.unary->operation = BOOLEAN_IS_NOT_NULL;
-      ($$)->v.unary->operand = ($row_value_constructor);
-    }
   ;
 
 quantified_comparison_predicate
@@ -690,10 +639,9 @@ exists_predicate
   ;
 
 row_value_constructor
-  : LEFT_PAREN row_value_constructor_element RIGHT_PAREN { $$ = $row_value_constructor_element; }
   // Remove previous line and uncomment below line when `row_value_constructor_list` rule is uncommented.
   // : LEFT_PAREN row_value_constructor_list RIGHT_PAREN { $$ = $row_value_constructor_list; }
-  | row_value_constructor_element { $$ = $row_value_constructor_element; }
+  : row_value_constructor_element { $$ = $row_value_constructor_element; }
   ;
 
 // ----------------------------------------------------------------------------------------------
@@ -715,18 +663,28 @@ row_value_constructor
 // ----------------------------------------------------------------------------------------------
 
 row_value_constructor_element
-  : value_expression { $$ = $value_expression; }
+  : numeric_value_expression { $$ = $numeric_value_expression; }
   | default_specification { $$ = $default_specification; }
   ;
 
 /* The runtime system is responsible for ensuring
     types, as we need knowledge of column types
+
+  This is the entry-point for expressions; most rules which want 'an expression'
+  should use this. Use other rules only if you need them to enforce precedence.
+  Octo tries to match the operator precedence of Postgres wherever possible:
+  https://www.postgresql.org/docs/current/sql-syntax-lexical.html#SQL-PRECEDENCE-TABLE
 */
 value_expression
-  : numeric_value_expression { $$ = $numeric_value_expression; }
-  // WARNING: if this is enabled, we have to revisit the boolean logic to seperate
-  // terms into UNION ALL terms
-//  | boolean_term { $$ = $boolean_term; }
+  : search_condition { $$ = $search_condition; }
+/* WARNING: this is probably not the correct precedence for these expressions
+ * interval_expression is a primary: https://ronsavage.github.io/SQL/sql-92.bnf.html#xref-interval%20literal
+ * but this is the grammar rule with the _lowest_ precedence.
+ * For example it will not allow in `1 + INTERVAL ...`; instead `1 + (INTERVAL ...)` will be required.
+ * This should go near value_expression_primary instead.
+ * The same holds for datetime_value_expression.
+ */
+// datetime_value_expression
 //  | datetime_value_expression
 //  | interval_expression
   ;
@@ -805,6 +763,7 @@ concatenation_operator
   : PIPE PIPE { /* Left blank on purpose */ }
   ;
 
+// TODO: exponentiation operator (with a separate precedence) (#558)
 /// TODO: collate_clause is thoroughly ignored below
 factor
   : PLUS numeric_primary factor_tail {
@@ -852,19 +811,17 @@ numeric_primary
 //  | numeric_value_function
   ;
 
-/* There is a reduce/reduce conflict here caused by
- *  not knowing if the columns in question are numeric
- *  or strings; the expansion ends up being pretty similar
- */
 value_expression_primary
   : literal_value { $$ = $literal_value; }
   | column_reference { $$ = $column_reference; }
   | conditional_expression { $$ = $conditional_expression; }
   | set_function_specification { $$ = $set_function_specification; }
-  | scalar_subquery { $$ = $scalar_subquery; }
+  | table_subquery { $$ = $table_subquery; }
   | LEFT_PAREN value_expression RIGHT_PAREN { $$ = $value_expression; }
   | null_specification { $$ = $null_specification; }
   | cast_expression { $$ = $cast_expression; }
+  | boolean_primary { $$ = $boolean_primary; }
+  | exists_predicate
   ;
 
 cast_expression
@@ -878,7 +835,7 @@ cast_expression
       $$ = ret;
     }
   ;
-
+  
 conditional_expression
   : coalesce { $$ = $coalesce; }
   | nullif { $$ = $nullif; }
@@ -936,15 +893,6 @@ simple_case
       cas->branches = $simple_when_clause;
       cas->optional_else = $optional_else_clause;
     }
-  | CASE search_condition simple_when_clause optional_else_clause END {
-      SQL_STATEMENT($$, cas_STATEMENT);
-      MALLOC_STATEMENT($$, cas, SqlCaseStatement);
-      SqlCaseStatement *cas;
-      UNPACK_SQL_STATEMENT(cas, $$, cas);
-      cas->value = $search_condition;
-      cas->branches = $simple_when_clause;
-      cas->optional_else = $optional_else_clause;
-    }
   ;
 
 simple_when_clause
@@ -954,19 +902,6 @@ simple_when_clause
       SqlCaseBranchStatement *cas_branch, *tail_cas_branch;
       UNPACK_SQL_STATEMENT(cas_branch, $$, cas_branch);
       cas_branch->condition = $value_expression;
-      cas_branch->value = $result;
-      dqinit(cas_branch);
-      if (NULL != $simple_when_clause_tail) {
-        UNPACK_SQL_STATEMENT(tail_cas_branch, $simple_when_clause_tail, cas_branch);
-        dqappend(cas_branch, tail_cas_branch);
-      }
-    }
-  | WHEN search_condition THEN result simple_when_clause_tail {
-      SQL_STATEMENT($$, cas_branch_STATEMENT);
-      MALLOC_STATEMENT($$, cas_branch, SqlCaseBranchStatement);
-      SqlCaseBranchStatement *cas_branch, *tail_cas_branch;
-      UNPACK_SQL_STATEMENT(cas_branch, $$, cas_branch);
-      cas_branch->condition = $search_condition;
       cas_branch->value = $result;
       dqinit(cas_branch);
       if (NULL != $simple_when_clause_tail) {
@@ -1086,10 +1021,6 @@ column_reference
 
 qualifier
   : column_name { $$ = $column_name; }
-  ;
-
-scalar_subquery
-  : subquery { $$ = $subquery; }
   ;
 
 subquery

@@ -217,8 +217,17 @@ CAT
 }
 
 @test "TWO17 : WHERE primary_key IS NOT NULL" {
+  # Make sure no-misoptimization happens
+  echo loading fixture
+  load_fixture customers.sql
+  load_fixture customers.zwr
+  echo running crosscheck
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries customers TWO17-customers.sql
+  # Get rid of any generate M files so they don't interfere with the next check
+  rm *.m
   load_fixture TWO17.sql subtest
-  # Make sure that there is no ZYSQLNULL check present
+  echo "# Make sure that there is no ZYSQLNULL check present" >> output.txt
   grep ZYSQLNULL *.m >> output.txt || true
+  echo verifying output
   verify_output TWO17 output.txt noinfo
 }

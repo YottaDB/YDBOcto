@@ -1,3 +1,4 @@
+-- TWO17 : WHERE primary_key IS NOT NULL
 SELECT id FROM names WHERE id IS NOT NULL;
 [DEBUG] PATH:LINENUM DATE TIME : LOGICAL_PLAN BEFORE optimize_logical_plan() follows
 LP_INSERT: 
@@ -68,3 +69,4 @@ LP_INSERT:
 3
 4
 5
+# Make sure that there is no ZYSQLNULL check present

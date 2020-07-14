@@ -9,5 +9,9 @@
 #	the license, please stop and do not read further.	#
 #								#
 #################################################################
--- TWO17 : WHERE primary_key IS NOT NULL
-SELECT id FROM names WHERE id IS NOT NULL;
+SELECT c.customer_id
+	FROM orders o RIGHT JOIN customers c ON '1' = c.zipcode
+	WHERE o.order_id IS NOT NULL;
+SELECT o1.order_id,c2.customer_id
+	FROM orders o1 LEFT JOIN customers c2 ON c2.customer_id = o1.customer_id
+	WHERE (c2.first_name IS NOT NULL);

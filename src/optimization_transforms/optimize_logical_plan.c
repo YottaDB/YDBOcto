@@ -232,13 +232,8 @@ LogicalPlan *optimize_logical_plan(LogicalPlan *plan) {
 				right_table_alias = operand0->v.lp_table.table_alias;
 				break;
 			}
-			/* 3rd parameter below ("right_table_alias") is non-NULL and so last parameter ("num_outer_joins")
-			 * can be arbitrary (see comment before "lp_optimize_where_multi_equals_ands()" function definition
-			 * for details). Hence the choice of the 4th parameter as 0 even though it might not correctly
-			 * reflect the actual number of outer joins in the query.
-			 */
 			lp_optimize_where_multi_equals_ands(plan, table_join->extra_detail.lp_table_join.join_on_condition,
-							    right_table_alias, 0);
+							    right_table_alias, where->extra_detail.lp_where.num_outer_joins);
 		}
 		table_join = table_join->v.lp_default.operand[1];
 	} while (NULL != table_join);

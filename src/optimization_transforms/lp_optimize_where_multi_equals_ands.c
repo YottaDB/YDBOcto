@@ -19,9 +19,6 @@
 #include "octo_types.h"
 #include "logical_plan.h"
 
-/* Note: "num_outer_joins" is used by this function (and the function it calls) only if "right_table_alias" is NULL.
- * So it is okay if "num_outer_joins" is set to an arbitrary value in case "right_table_alias" is non-NULL.
- */
 void lp_optimize_where_multi_equals_ands(LogicalPlan *plan, LogicalPlan *where, SqlTableAlias *right_table_alias,
 					 boolean_t num_outer_joins) {
 	int *	     key_unique_id_array; // keys_unique_id_ordering[unique_id] = index in the ordered list
@@ -164,7 +161,7 @@ LogicalPlan *lp_optimize_where_multi_equals_ands_helper(LogicalPlan *plan, Logic
 		break;
 	}
 
-	right_type = (LP_BOOLEAN_IS_NOT_NULL == type ? LP_VALUE : right->type);
+	right_type = ((LP_BOOLEAN_IS_NOT_NULL == type) ? LP_VALUE : right->type);
 	switch (right_type) {
 	case LP_VALUE:
 		right_id = 0;
@@ -272,9 +269,14 @@ LogicalPlan *lp_optimize_where_multi_equals_ands_helper(LogicalPlan *plan, Logic
 	}
 	key = lp_get_key(plan, left);
 	if (LP_BOOLEAN_IS_NOT_NULL == type) {
-		if (NULL != key) {
+		// Recall that right_table_alias is NULL if this is a WHERE and non-null if this is an ON clause in a join
+		if (NULL != key && NULL == right_table_alias && 0 == num_outer_joins) {
 			// This is of the form `WHERE primary_key IS NOT NULL`.
-			// Therefore it is always true, so no need to do a full table scan.
+			// Since there are no outer joins (they are the only
+			// joins that can cause NULL values even for primary
+			// keys), we are guaranteed the primary key can never be NULL.
+			// Therefore the condition is always true, so no need to check it for each row.
+			// Therefore remove the `LP_BOOLEAN_IS_NOT_NULL` from the WHERE clause.
 			if (LP_WHERE == where->type) {
 				where->v.lp_default.operand[0] = NULL;
 			}

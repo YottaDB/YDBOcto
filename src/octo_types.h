@@ -326,37 +326,6 @@ typedef struct {
 	char		 routine[MAX_ROUTINE_LEN];
 } ParseContext;
 
-struct SqlColumn;
-struct SqlColumnAlias;
-// struct SqlConstraint;
-struct SqlSelectStatement;
-struct SqlInsertStatement;
-struct SqlDropTableStatement;
-struct SqlUnaryOperation;
-struct SqlBinaryOperation;
-struct SqlFunctionCall;
-struct SqlValue;
-struct SqlColumnList;
-struct SqlTable;
-struct SqlFunction;
-struct SqlCoalesce;
-struct SqlGreatest;
-struct SqlLeast;
-struct SqlNullIf;
-struct SqlDropFunctionStatement;
-struct SqlTableAlias;
-struct SqlJoin;
-struct SqlColumnListAlias;
-struct SqlStatement;
-struct SqlSetOperation;
-struct SqlBeginStatement;
-struct SqlCommitStatement;
-struct SqlCaseStatement;
-struct SqlCaseBranchStatement;
-struct SqlSetStatement;
-struct SqlShowStatement;
-struct SqlNoDataStatement;
-
 /**
  * Represents a SQL column; doubly linked list
  *

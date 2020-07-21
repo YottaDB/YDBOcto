@@ -145,6 +145,7 @@ add_library(libocto OBJECT
   get_mem_usage.c
   get_mval_len.c
   get_set_operation_string.c
+  get_sqlvaluetype_from_sqldatatype.c
   get_user_visible_type_string.c
   hash_canonical_query.c
   is_query_canceled.c

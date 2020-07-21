@@ -80,28 +80,6 @@
 		TYPE2 = TYPE1;                                                 \
 	}
 
-SqlValueType get_sqlvaluetype_from_sqldatatype(SqlDataType type) {
-	switch (type) {
-	case BOOLEAN_TYPE:
-		return BOOLEAN_VALUE;
-		break;
-	case INTEGER_TYPE:
-		return INTEGER_LITERAL;
-		break;
-	case NUMERIC_TYPE:
-		return NUMERIC_LITERAL;
-		break;
-	case STRING_TYPE:
-		return STRING_LITERAL;
-		break;
-	default:
-		assert(FALSE);
-		ERROR(ERR_UNKNOWN_KEYWORD_STATE, "");
-		return UNKNOWN_SqlValueType;
-		break;
-	}
-}
-
 SqlValueType get_sqlvaluetype_from_psql_type(PSQL_TypeOid type) {
 	switch (type) {
 	case PSQL_TypeOid_int4:

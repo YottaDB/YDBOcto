@@ -85,6 +85,7 @@ extern void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, int *plan
 %token BY
 %token CASCADE
 %token CASE
+%token CAST
 %token CHAR
 %token CHARACTER
 %token COALESCE
@@ -863,7 +864,19 @@ value_expression_primary
   | scalar_subquery { $$ = $scalar_subquery; }
   | LEFT_PAREN value_expression RIGHT_PAREN { $$ = $value_expression; }
   | null_specification { $$ = $null_specification; }
-//  | cast_specification
+  | cast_expression { $$ = $cast_expression; }
+  ;
+
+cast_expression
+  : CAST LEFT_PAREN search_condition AS literal_type RIGHT_PAREN {
+      SqlStatement	*ret;
+
+      ret = cast_specification($literal_type, $search_condition);
+      if (NULL == ret) {
+        YYERROR;
+      }
+      $$ = ret;
+    }
   ;
 
 conditional_expression
@@ -876,31 +889,21 @@ conditional_expression
 
 optional_cast_specification
   : /* Empty */ { $$ = NULL; }
-  // For now, we support a subset of types. More shall be added as needed
-  | COLON COLON BOOLEAN {
-	$$ = (SqlStatement *)BOOLEAN_VALUE;
-    }
-  | COLON COLON INTEGER {
-	$$ = (SqlStatement *)INTEGER_LITERAL;
-    }
-  | COLON COLON NUMERIC {
-	$$ = (SqlStatement *)NUMERIC_LITERAL;
-    }
-  | COLON COLON VARCHAR {
-	$$ = (SqlStatement *)STRING_LITERAL;
-    }
-  | COLON COLON DATE {
-	$$ = (SqlStatement *)STRING_LITERAL;
-    }
-  | COLON COLON TIME {
-	$$ = (SqlStatement *)STRING_LITERAL;
+  | COLON COLON literal_type {
+      $$ = (SqlStatement *)$literal_type;
     }
   | COLON COLON identifier {
-	SqlValue	*value;
+      SqlValue	*value;
 
-	UNPACK_SQL_STATEMENT(value, $identifier, value);
-	ERROR(ERR_INVALID_TYPE, value->v.string_literal);
-	$$ = (SqlStatement *)INVALID_SqlValueType;
+      UNPACK_SQL_STATEMENT(value, $identifier, value);
+      ERROR(ERR_INVALID_TYPE, value->v.string_literal);
+      $$ = (SqlStatement *)INVALID_SqlValueType;
+    }
+  ;
+
+literal_type
+  : data_type {
+      $$ = (SqlStatement *)get_sqlvaluetype_from_sqldatatype((SqlDataType)$data_type);
     }
   ;
 
@@ -1432,8 +1435,7 @@ column_definition
       MALLOC_STATEMENT($$, column, SqlColumn);
       dqinit(($$)->v.column);
       ($$)->v.column->columnName = $column_name;
-      assert($data_type->type == data_type_STATEMENT);
-      ($$)->v.column->type = $data_type->v.data_type;
+      ($$)->v.column->type = (SqlDataType)$data_type;
       ($$)->v.column->keywords = $column_definition_tail;
     }
 //  | more stuff
@@ -1681,28 +1683,26 @@ IDENTIFIER_START
 
 data_type
   : character_string_type {
-	SQL_STATEMENT($$, data_type_STATEMENT);
-	($$)->v.data_type = STRING_TYPE;
+      $$ = (SqlStatement *)STRING_TYPE;
     }
 //  | character_string_type CHARACTER SET character_set_specification
 //  | national_character_string_type
 //  | bit_string_type
   | numeric_type {
-	SQL_STATEMENT($$, data_type_STATEMENT);
-	($$)->v.data_type = NUMERIC_TYPE;
+      $$ = (SqlStatement *)NUMERIC_TYPE;
     }
   | integer_type {
 	SQL_STATEMENT($$, data_type_STATEMENT);
-	($$)->v.data_type = INTEGER_TYPE;
+      $$ = (SqlStatement *)INTEGER_TYPE;
     }
   | boolean_type {
 	SQL_STATEMENT($$, data_type_STATEMENT);
-	($$)->v.data_type = BOOLEAN_TYPE;
+      $$ = (SqlStatement *)BOOLEAN_TYPE;
     }
   | datetime_type {
 	/* For now treat DATE or TIME types as equivalent to the STRING/VARCHAR type */
-	SQL_STATEMENT($$, data_type_STATEMENT);
-	($$)->v.data_type = STRING_TYPE;
+      SQL_STATEMENT($$, data_type_STATEMENT);
+      $$ = (SqlStatement *)STRING_TYPE;
     }
 //  | interval_type
   ;
@@ -1845,13 +1845,17 @@ optional_order_by
 
 function_definition
   : CREATE FUNCTION IDENTIFIER_START LEFT_PAREN function_parameter_type_list RIGHT_PAREN RETURNS data_type AS m_function {
-        SQL_STATEMENT($$, create_function_STATEMENT);
-        MALLOC_STATEMENT($$, create_function, SqlFunction);
-        memset(($$)->v.create_function, 0, sizeof(SqlFunction));
+	SqlStatement *type;
+
+	SQL_STATEMENT($$, create_function_STATEMENT);
+	MALLOC_STATEMENT($$, create_function, SqlFunction);
+	memset(($$)->v.create_function, 0, sizeof(SqlFunction));
 
 	($$)->v.create_function->function_name = $IDENTIFIER_START;
 	($$)->v.create_function->parameter_type_list = $function_parameter_type_list;
-	($$)->v.create_function->return_type = $data_type;
+	SQL_STATEMENT(type, data_type_STATEMENT);
+	type->v.data_type = (SqlDataType)$data_type;
+	($$)->v.create_function->return_type = type;
 	($$)->v.create_function->extrinsic_function = $m_function;
 	($$)->v.create_function->extrinsic_function->v.value->type = FUNCTION_NAME;
       }
@@ -1861,12 +1865,14 @@ function_parameter_type_list
   : /* Empty */ { $$ = 0; }
   |  data_type function_parameter_type_list_tail  {
 	SqlParameterTypeList *parameter_type_list;
-        SQL_STATEMENT($$, parameter_type_list_STATEMENT);
-        MALLOC_STATEMENT($$, parameter_type_list, SqlParameterTypeList);
+	SqlStatement *type;
+	SQL_STATEMENT($$, parameter_type_list_STATEMENT);
+	MALLOC_STATEMENT($$, parameter_type_list, SqlParameterTypeList);
 	UNPACK_SQL_STATEMENT(parameter_type_list, $$, parameter_type_list);
 
-	assert(data_type_STATEMENT == ($data_type)->type);
-	parameter_type_list->data_type = $data_type;
+	SQL_STATEMENT(type, data_type_STATEMENT);
+	type->v.data_type = (SqlDataType)$data_type;
+	parameter_type_list->data_type = type;
 	dqinit(parameter_type_list);
 	if ($function_parameter_type_list_tail) {
 		assert(parameter_type_list_STATEMENT == $function_parameter_type_list_tail->type);

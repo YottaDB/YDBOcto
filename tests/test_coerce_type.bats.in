@@ -100,3 +100,6 @@ setup() {
   verify_output TCT013 output.txt
 }
 
+@test "TCT014 : OCTO556 : Implement CAST built-in function" {
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TCT014.sql
+}

@@ -20,7 +20,8 @@
 #include "physical_plan.h"
 #include "lp_verify_structure.h"
 
-int lp_verify_structure_helper(LogicalPlan *plan, PhysicalPlanOptions *options, LPActionType expected);
+static int	 lp_verify_structure_helper(LogicalPlan *plan, PhysicalPlanOptions *options, LPActionType expected);
+static boolean_t lp_verify_value(LogicalPlan *plan, PhysicalPlanOptions *options);
 
 /* Verifies the given LP has a good structure; return TRUE if it is all good and FALSE otherwise */
 int lp_verify_structure(LogicalPlan *plan, PhysicalPlanOptions *options) {
@@ -177,41 +178,7 @@ int lp_verify_structure_helper(LogicalPlan *plan, PhysicalPlanOptions *options, 
 				ret &= (NULL == plan->v.lp_default.operand[1]);
 				break;
 			}
-			ret &= lp_verify_structure_helper(plan->v.lp_default.operand[i], options, LP_ADDITION)
-			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], options, LP_SUBTRACTION)
-			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], options, LP_DIVISION)
-			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], options, LP_MULTIPLICATION)
-			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], options, LP_MODULO)
-			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], options, LP_NEGATIVE)
-			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], options, LP_FORCE_NUM)
-			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], options, LP_CASE)
-			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], options, LP_COLUMN_ALIAS)
-			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], options, LP_FUNCTION_CALL)
-			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], options, LP_COALESCE_CALL)
-			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], options, LP_GREATEST)
-			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], options, LP_LEAST)
-			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], options, LP_NULL_IF)
-			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], options,
-							    LP_AGGREGATE_FUNCTION_COUNT_ASTERISK)
-			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], options, LP_AGGREGATE_FUNCTION_COUNT)
-			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], options, LP_AGGREGATE_FUNCTION_AVG)
-			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], options, LP_AGGREGATE_FUNCTION_MIN)
-			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], options, LP_AGGREGATE_FUNCTION_MAX)
-			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], options, LP_AGGREGATE_FUNCTION_SUM)
-			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], options,
-							    LP_AGGREGATE_FUNCTION_COUNT_DISTINCT)
-			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], options,
-							    LP_AGGREGATE_FUNCTION_AVG_DISTINCT)
-			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], options,
-							    LP_AGGREGATE_FUNCTION_SUM_DISTINCT)
-			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], options, LP_DERIVED_COLUMN)
-			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], options, LP_VALUE)
-			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], options, LP_COERCE_TYPE)
-			       // LP_INSERT/LP_SET_OPERATIONs usually show up as operand[1] only for the IN boolean expression.
-			       // But they can show up wherever a scalar is expected (e.g. arithmetic operations etc.)
-			       // and hence have to be allowed in a lot more cases.
-			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], options, LP_INSERT)
-			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], options, LP_SET_OPERATION);
+			ret &= lp_verify_value(plan->v.lp_default.operand[i], options);
 		}
 		break;
 	case LP_CONCAT:
@@ -388,59 +355,7 @@ int lp_verify_structure_helper(LogicalPlan *plan, PhysicalPlanOptions *options, 
 		/* To avoid a large recursion stack in case of thousands of columns, walk the column list iteratively */
 		while (NULL != plan) {
 			assert(LP_COLUMN_LIST == plan->type);
-			ret &= lp_verify_structure_helper(plan->v.lp_default.operand[0], options, LP_WHERE)
-			       | lp_verify_structure_helper(plan->v.lp_default.operand[0], options, LP_ADDITION)
-			       | lp_verify_structure_helper(plan->v.lp_default.operand[0], options, LP_SUBTRACTION)
-			       | lp_verify_structure_helper(plan->v.lp_default.operand[0], options, LP_MULTIPLICATION)
-			       | lp_verify_structure_helper(plan->v.lp_default.operand[0], options, LP_DIVISION)
-			       | lp_verify_structure_helper(plan->v.lp_default.operand[0], options, LP_MODULO)
-			       | lp_verify_structure_helper(plan->v.lp_default.operand[0], options, LP_NEGATIVE)
-			       | lp_verify_structure_helper(plan->v.lp_default.operand[0], options, LP_FORCE_NUM)
-			       | lp_verify_structure_helper(plan->v.lp_default.operand[0], options, LP_CONCAT)
-			       | lp_verify_structure_helper(plan->v.lp_default.operand[0], options, LP_COLUMN_ALIAS)
-			       | lp_verify_structure_helper(plan->v.lp_default.operand[0], options, LP_FUNCTION_CALL)
-			       | lp_verify_structure_helper(plan->v.lp_default.operand[0], options, LP_COALESCE_CALL)
-			       | lp_verify_structure_helper(plan->v.lp_default.operand[0], options, LP_GREATEST)
-			       | lp_verify_structure_helper(plan->v.lp_default.operand[0], options, LP_LEAST)
-			       | lp_verify_structure_helper(plan->v.lp_default.operand[0], options, LP_NULL_IF)
-			       | lp_verify_structure_helper(plan->v.lp_default.operand[0], options,
-							    LP_AGGREGATE_FUNCTION_COUNT_ASTERISK)
-			       | lp_verify_structure_helper(plan->v.lp_default.operand[0], options, LP_AGGREGATE_FUNCTION_COUNT)
-			       | lp_verify_structure_helper(plan->v.lp_default.operand[0], options, LP_AGGREGATE_FUNCTION_AVG)
-			       | lp_verify_structure_helper(plan->v.lp_default.operand[0], options, LP_AGGREGATE_FUNCTION_MIN)
-			       | lp_verify_structure_helper(plan->v.lp_default.operand[0], options, LP_AGGREGATE_FUNCTION_MAX)
-			       | lp_verify_structure_helper(plan->v.lp_default.operand[0], options, LP_AGGREGATE_FUNCTION_SUM)
-			       | lp_verify_structure_helper(plan->v.lp_default.operand[0], options,
-							    LP_AGGREGATE_FUNCTION_COUNT_DISTINCT)
-			       | lp_verify_structure_helper(plan->v.lp_default.operand[0], options,
-							    LP_AGGREGATE_FUNCTION_AVG_DISTINCT)
-			       | lp_verify_structure_helper(plan->v.lp_default.operand[0], options,
-							    LP_AGGREGATE_FUNCTION_SUM_DISTINCT)
-			       | lp_verify_structure_helper(plan->v.lp_default.operand[0], options, LP_DERIVED_COLUMN)
-			       | lp_verify_structure_helper(plan->v.lp_default.operand[0], options, LP_VALUE)
-			       | lp_verify_structure_helper(plan->v.lp_default.operand[0], options, LP_COERCE_TYPE)
-			       | lp_verify_structure_helper(plan->v.lp_default.operand[0], options, LP_BOOLEAN_IN)
-			       | lp_verify_structure_helper(plan->v.lp_default.operand[0], options, LP_BOOLEAN_NOT_IN)
-			       | lp_verify_structure_helper(plan->v.lp_default.operand[0], options, LP_BOOLEAN_NOT)
-			       | lp_verify_structure_helper(plan->v.lp_default.operand[0], options, LP_BOOLEAN_OR)
-			       | lp_verify_structure_helper(plan->v.lp_default.operand[0], options, LP_BOOLEAN_AND)
-			       | lp_verify_structure_helper(plan->v.lp_default.operand[0], options, LP_BOOLEAN_IS)
-			       | lp_verify_structure_helper(plan->v.lp_default.operand[0], options, LP_BOOLEAN_EQUALS)
-			       | lp_verify_structure_helper(plan->v.lp_default.operand[0], options, LP_BOOLEAN_NOT_EQUALS)
-			       | lp_verify_structure_helper(plan->v.lp_default.operand[0], options, LP_BOOLEAN_LESS_THAN)
-			       | lp_verify_structure_helper(plan->v.lp_default.operand[0], options, LP_BOOLEAN_GREATER_THAN)
-			       | lp_verify_structure_helper(plan->v.lp_default.operand[0], options, LP_BOOLEAN_LESS_THAN_OR_EQUALS)
-			       | lp_verify_structure_helper(plan->v.lp_default.operand[0], options,
-							    LP_BOOLEAN_GREATER_THAN_OR_EQUALS)
-			       | lp_verify_structure_helper(plan->v.lp_default.operand[0], options, LP_BOOLEAN_EXISTS)
-			       | lp_verify_structure_helper(plan->v.lp_default.operand[0], options, LP_BOOLEAN_NOT_EXISTS)
-			       | lp_verify_structure_helper(plan->v.lp_default.operand[0], options, LP_BOOLEAN_IS_NULL)
-			       | lp_verify_structure_helper(plan->v.lp_default.operand[0], options, LP_BOOLEAN_IS_NOT_NULL)
-			       // LP_INSERT/LP_SET_OPERATIONs usually show up as operand[1] only for the IN boolean expression.
-			       // But they can show up wherever a scalar is expected (e.g. select column list etc.)
-			       // and hence have to be allowed in a lot more cases.
-			       | lp_verify_structure_helper(plan->v.lp_default.operand[0], options, LP_INSERT)
-			       | lp_verify_structure_helper(plan->v.lp_default.operand[0], options, LP_SET_OPERATION);
+			ret &= lp_verify_value(plan->v.lp_default.operand[0], options);
 			assert(ret);
 			plan = plan->v.lp_default.operand[1];
 		}
@@ -559,4 +474,48 @@ int lp_verify_structure_helper(LogicalPlan *plan, PhysicalPlanOptions *options, 
 	}
 	assert(ret);
 	return ret;
+}
+
+boolean_t lp_verify_value(LogicalPlan *plan, PhysicalPlanOptions *options) {
+	return lp_verify_structure_helper(plan, options, LP_WHERE) | lp_verify_structure_helper(plan, options, LP_ADDITION)
+	       | lp_verify_structure_helper(plan, options, LP_SUBTRACTION)
+	       | lp_verify_structure_helper(plan, options, LP_MULTIPLICATION)
+	       | lp_verify_structure_helper(plan, options, LP_DIVISION) | lp_verify_structure_helper(plan, options, LP_MODULO)
+	       | lp_verify_structure_helper(plan, options, LP_NEGATIVE) | lp_verify_structure_helper(plan, options, LP_FORCE_NUM)
+	       | lp_verify_structure_helper(plan, options, LP_CONCAT) | lp_verify_structure_helper(plan, options, LP_COLUMN_ALIAS)
+	       | lp_verify_structure_helper(plan, options, LP_CASE) | lp_verify_structure_helper(plan, options, LP_FUNCTION_CALL)
+	       | lp_verify_structure_helper(plan, options, LP_COALESCE_CALL)
+	       | lp_verify_structure_helper(plan, options, LP_GREATEST) | lp_verify_structure_helper(plan, options, LP_LEAST)
+	       | lp_verify_structure_helper(plan, options, LP_NULL_IF)
+	       | lp_verify_structure_helper(plan, options, LP_AGGREGATE_FUNCTION_COUNT_ASTERISK)
+	       | lp_verify_structure_helper(plan, options, LP_AGGREGATE_FUNCTION_COUNT)
+	       | lp_verify_structure_helper(plan, options, LP_AGGREGATE_FUNCTION_AVG)
+	       | lp_verify_structure_helper(plan, options, LP_AGGREGATE_FUNCTION_MIN)
+	       | lp_verify_structure_helper(plan, options, LP_AGGREGATE_FUNCTION_MAX)
+	       | lp_verify_structure_helper(plan, options, LP_AGGREGATE_FUNCTION_SUM)
+	       | lp_verify_structure_helper(plan, options, LP_AGGREGATE_FUNCTION_COUNT_DISTINCT)
+	       | lp_verify_structure_helper(plan, options, LP_AGGREGATE_FUNCTION_AVG_DISTINCT)
+	       | lp_verify_structure_helper(plan, options, LP_AGGREGATE_FUNCTION_SUM_DISTINCT)
+	       | lp_verify_structure_helper(plan, options, LP_DERIVED_COLUMN) | lp_verify_structure_helper(plan, options, LP_VALUE)
+	       | lp_verify_structure_helper(plan, options, LP_COERCE_TYPE)
+	       | lp_verify_structure_helper(plan, options, LP_BOOLEAN_IN)
+	       | lp_verify_structure_helper(plan, options, LP_BOOLEAN_NOT_IN)
+	       | lp_verify_structure_helper(plan, options, LP_BOOLEAN_NOT)
+	       | lp_verify_structure_helper(plan, options, LP_BOOLEAN_OR)
+	       | lp_verify_structure_helper(plan, options, LP_BOOLEAN_AND)
+	       | lp_verify_structure_helper(plan, options, LP_BOOLEAN_IS)
+	       | lp_verify_structure_helper(plan, options, LP_BOOLEAN_EQUALS)
+	       | lp_verify_structure_helper(plan, options, LP_BOOLEAN_NOT_EQUALS)
+	       | lp_verify_structure_helper(plan, options, LP_BOOLEAN_LESS_THAN)
+	       | lp_verify_structure_helper(plan, options, LP_BOOLEAN_GREATER_THAN)
+	       | lp_verify_structure_helper(plan, options, LP_BOOLEAN_LESS_THAN_OR_EQUALS)
+	       | lp_verify_structure_helper(plan, options, LP_BOOLEAN_GREATER_THAN_OR_EQUALS)
+	       | lp_verify_structure_helper(plan, options, LP_BOOLEAN_EXISTS)
+	       | lp_verify_structure_helper(plan, options, LP_BOOLEAN_NOT_EXISTS)
+	       | lp_verify_structure_helper(plan, options, LP_BOOLEAN_IS_NULL)
+	       | lp_verify_structure_helper(plan, options, LP_BOOLEAN_IS_NOT_NULL)
+	       // LP_INSERT/LP_SET_OPERATIONs usually show up as operand[1] only for the IN boolean expression.
+	       // But they can show up wherever a scalar is expected (e.g. select column list etc.)
+	       // and hence have to be allowed in a lot more cases.
+	       | lp_verify_structure_helper(plan, options, LP_INSERT) | lp_verify_structure_helper(plan, options, LP_SET_OPERATION);
 }

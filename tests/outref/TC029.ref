@@ -1,4 +1,6 @@
 ABS|1|1700|1700|null|null|null
+ROUND|2|1700|1700 23|null|null|null
+TRUNC|2|1700|1700 23|null|null|null
 REPLACE|3|1043|1043 1043 1043|null|null|null
 ROW_NUMBER|0|23|null|null|null|null
 VERSION|0|1043|null|null|null|null

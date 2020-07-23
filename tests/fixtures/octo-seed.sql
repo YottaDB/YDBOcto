@@ -220,6 +220,11 @@ CREATE TABLE users (
  * as Octo doesn't implement them (yet).
  */
 CREATE FUNCTION ABS(NUMERIC) RETURNS NUMERIC AS $$ABS^%ydboctosqlfunctions;
+/* This only implements the 2-argument version of ROUND, since Octo doesn't support function overloading. */
+CREATE FUNCTION ROUND(NUMERIC, INTEGER) RETURNS NUMERIC AS $$ROUND^%ydboctosqlfunctions;
+/* This only implements the 2-argument version of TRUNC, since Octo doesn't support function overloading. */
+CREATE FUNCTION TRUNC(NUMERIC, INTEGER) RETURNS NUMERIC AS $$TRUNC^%ydboctosqlfunctions;
+
 /* REPLACE is used by SquirrelSQL during connection intialize and so is included here.
  * Note that REPLACE is not currently implemented and the matching M routine is an empty placeholder that
  * simply returns the first argument passed to it.

@@ -44,3 +44,15 @@ setup() {
   load_fixture TSCP03_errors.sql subtest novv
   verify_output TSCP03_errors output.txt
 }
+
+@test "TSCP04 : OCTO561 : Support ROUND() function" {
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TSCP04.sql
+  load_fixture TSCP04_errors.sql subtest novv
+  verify_output TSCP04_errors output.txt
+}
+
+@test "TSCP05 : OCTO560 : Support TRUNC() function" {
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TSCP05.sql
+  load_fixture TSCP05_errors.sql subtest novv
+  verify_output TSCP05_errors output.txt
+}

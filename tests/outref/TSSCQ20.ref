@@ -2,26 +2,30 @@ SELECT NULL AS PROCEDURE_CAT, n.nspname AS PROCEDURE_SCHEM, p.proname AS PROCEDU
 
 ----- ROCTO/JDBC -----
 null|pg_catalog|ABS|null|null|null|null|2|ABS_170
-null|pg_catalog|CURRENT_SCHEMA|null|null|null|null|2|CURRENT_SCHEMA_174
-null|pg_catalog|CURRENT_SCHEMAS|null|null|null|null|2|CURRENT_SCHEMAS_318
-null|pg_catalog|OBJ_DESCRIPTION|null|null|null|null|2|OBJ_DESCRIPTION_319
-null|pg_catalog|PG_CATALOG.CURRENT_SCHEMAS|null|null|null|null|2|PG_CATALOG.CURRENT_SCHEMAS_175
-null|pg_catalog|PG_CATALOG.OBJ_DESCRIPTION|null|null|null|null|2|PG_CATALOG.OBJ_DESCRIPTION_176
-null|pg_catalog|PG_CATALOG.PG_GET_EXPR|null|null|null|null|2|PG_CATALOG.PG_GET_EXPR_177
-null|pg_catalog|PG_GET_EXPR|null|null|null|null|2|PG_GET_EXPR_320
-null|pg_catalog|REPLACE|null|null|null|null|2|REPLACE_171
-null|pg_catalog|ROW_NUMBER|null|null|null|null|2|ROW_NUMBER_172
-null|pg_catalog|VERSION|null|null|null|null|2|VERSION_173
+null|pg_catalog|CURRENT_SCHEMA|null|null|null|null|2|CURRENT_SCHEMA_176
+null|pg_catalog|CURRENT_SCHEMAS|null|null|null|null|2|CURRENT_SCHEMAS_320
+null|pg_catalog|OBJ_DESCRIPTION|null|null|null|null|2|OBJ_DESCRIPTION_321
+null|pg_catalog|PG_CATALOG.CURRENT_SCHEMAS|null|null|null|null|2|PG_CATALOG.CURRENT_SCHEMAS_177
+null|pg_catalog|PG_CATALOG.OBJ_DESCRIPTION|null|null|null|null|2|PG_CATALOG.OBJ_DESCRIPTION_178
+null|pg_catalog|PG_CATALOG.PG_GET_EXPR|null|null|null|null|2|PG_CATALOG.PG_GET_EXPR_179
+null|pg_catalog|PG_GET_EXPR|null|null|null|null|2|PG_GET_EXPR_322
+null|pg_catalog|REPLACE|null|null|null|null|2|REPLACE_173
+null|pg_catalog|ROUND|null|null|null|null|2|ROUND_171
+null|pg_catalog|ROW_NUMBER|null|null|null|null|2|ROW_NUMBER_174
+null|pg_catalog|TRUNC|null|null|null|null|2|TRUNC_172
+null|pg_catalog|VERSION|null|null|null|null|2|VERSION_175
 
 ----- OCTO -----
 |pg_catalog|ABS|||||2|ABS_170
-|pg_catalog|CURRENT_SCHEMA|||||2|CURRENT_SCHEMA_174
-|pg_catalog|CURRENT_SCHEMAS|||||2|CURRENT_SCHEMAS_318
-|pg_catalog|OBJ_DESCRIPTION|||||2|OBJ_DESCRIPTION_319
-|pg_catalog|PG_CATALOG.CURRENT_SCHEMAS|||||2|PG_CATALOG.CURRENT_SCHEMAS_175
-|pg_catalog|PG_CATALOG.OBJ_DESCRIPTION|||||2|PG_CATALOG.OBJ_DESCRIPTION_176
-|pg_catalog|PG_CATALOG.PG_GET_EXPR|||||2|PG_CATALOG.PG_GET_EXPR_177
-|pg_catalog|PG_GET_EXPR|||||2|PG_GET_EXPR_320
-|pg_catalog|REPLACE|||||2|REPLACE_171
-|pg_catalog|ROW_NUMBER|||||2|ROW_NUMBER_172
-|pg_catalog|VERSION|||||2|VERSION_173
+|pg_catalog|CURRENT_SCHEMA|||||2|CURRENT_SCHEMA_176
+|pg_catalog|CURRENT_SCHEMAS|||||2|CURRENT_SCHEMAS_320
+|pg_catalog|OBJ_DESCRIPTION|||||2|OBJ_DESCRIPTION_321
+|pg_catalog|PG_CATALOG.CURRENT_SCHEMAS|||||2|PG_CATALOG.CURRENT_SCHEMAS_177
+|pg_catalog|PG_CATALOG.OBJ_DESCRIPTION|||||2|PG_CATALOG.OBJ_DESCRIPTION_178
+|pg_catalog|PG_CATALOG.PG_GET_EXPR|||||2|PG_CATALOG.PG_GET_EXPR_179
+|pg_catalog|PG_GET_EXPR|||||2|PG_GET_EXPR_322
+|pg_catalog|REPLACE|||||2|REPLACE_173
+|pg_catalog|ROUND|||||2|ROUND_171
+|pg_catalog|ROW_NUMBER|||||2|ROW_NUMBER_174
+|pg_catalog|TRUNC|||||2|TRUNC_172
+|pg_catalog|VERSION|||||2|VERSION_175

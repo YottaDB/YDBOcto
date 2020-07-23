@@ -133,7 +133,7 @@ load_fixture() {
 		if [[ $2 == "subtest" ]]; then
 			cp @PROJECT_SOURCE_DIR@/tests/fixtures/$fixture_name $fixture_name
 			grep -v '^#' $fixture_name 2>&1 | tee -a output.txt	   # Filter out copyright from output
-			grep -vE '^-- |^#' $fixture_name > input.sql # Filter out comment lines as they otherwise clutter the parse error output (if any)
+			grep -vE '^-- |^#' $fixture_name > input.sql || [ $? = 1 ] # Filter out comment lines as they otherwise clutter the parse error output (if any)
 			if [[ $3 == "novv" ]]; then
 				octoflags=""
 			elif [[ $3 =~ "v" ]]; then	# Allow verbosity level to be passed directly
@@ -146,6 +146,7 @@ load_fixture() {
 			octo -f @PROJECT_SOURCE_DIR@/tests/fixtures/$fixture_name
 		fi
 	else
+		echo "Unrecognized file extension: $fixture_name"
 		exit 1
 	fi
 }
@@ -550,6 +551,7 @@ run_query_in_octo_and_postgres_and_crosscheck_multiple_queries() {
 	# Needed as otherwise Postgres and Octo output cannot be easily compared.
 	database="$1"
 	queryfile="$2"
+	echo "Running crosscheck on multiple queries in $queryfile"
 	if [[ ! -f $queryfile ]]; then
 		cp @PROJECT_SOURCE_DIR@/tests/fixtures/$queryfile .
 	fi
@@ -566,6 +568,7 @@ run_query_in_octo_and_postgres_and_crosscheck_multiple_queries() {
 run_query_in_octo_and_postgres_and_crosscheck() {
 	database="$1"
 	queryfile="$2"
+	echo "Running crosscheck on single query in $queryfile"
 	if [[ ! -f $queryfile ]]; then
 		cp @PROJECT_SOURCE_DIR@/tests/fixtures/$queryfile .
 	fi

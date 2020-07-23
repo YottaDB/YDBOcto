@@ -552,6 +552,7 @@ foreach(ydb_chset ${ydb_chsets})
 			  -D args=${infile}
 			  -P ${CMAKE_SOURCE_DIR}/cmake/mumps.cmake
 			  WORKING_DIRECTORY ${WORKING_DIR}
+			DEPENDS ${infile}
 			VERBATIM
 			)
 		if(ydb_chset MATCHES "UTF-8")
@@ -641,6 +642,7 @@ endif()
 # Copy CREATE TABLE statements for PostgreSQL catalog tables without "pg_catalog" or "information_schema" prefixes
 add_custom_command(OUTPUT ${PROJECT_BINARY_DIR}/octo-seed.sql
 	COMMAND ${PROJECT_SOURCE_DIR}/tests/fixtures/convert_catalog_sql.sh ${PROJECT_BINARY_DIR}
+	DEPENDS ${PROJECT_SOURCE_DIR}/tests/fixtures/octo-seed.sql ${PROJECT_SOURCE_DIR}/tests/fixtures/convert_catalog_sql.sh
 	WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/tests/fixtures
 )
 

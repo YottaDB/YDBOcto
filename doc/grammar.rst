@@ -607,6 +607,50 @@ Similarly, LEAST returns the smallest value.
 NULL values are ignored, unless all values are NULL, in which case the return value is NULL.
 All arguments must have the same type.
 
+----------
+Functions
+----------
+
+Octo supports the following pre-defined functions.
+
+----
+ABS
+----
+
+.. code-block:: SQL
+
+   SELECT ABS(NUMERIC) ...
+
+ABS returns the absolute value of a number.
+
+------
+ROUND
+------
+
+.. code-block:: SQL
+
+   SELECT ROUND(NUMERIC, INTEGER) ...
+
+ROUND returns the first argument rounded to the precision specified by the second argument.
+If the precision is greater than 0, the number will be rounded to that number of decimal places.
+If the precision is 0, it will be rounded to the nearest integer.
+If the precision is less than 0, all fractional digits will be truncated and the number will be rounded to `10^precision`.
+The precision must be no less than -46.
+
+------
+TRUNC
+------
+
+.. code-block:: SQL
+
+   SELECT ROUND(NUMERIC, INTEGER) ...
+
+TRUNC returns the first argument truncated to the precision specified by the second argument.
+If the precision is greater than 0, the number will be truncated to that number of decimal places.
+If the precision is 0, this behaves the same as the mathematical `floor` function.
+If the precision is less than 0, all fractional digits will be truncated and the number will be truncated to `10^precision`.
+The precision must be no less than -43.
+
 -----------------
 Operators
 -----------------

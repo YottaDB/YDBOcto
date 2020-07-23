@@ -1442,7 +1442,14 @@ returnSimilarAggregateFunction(isAggrFuncColumn,table,column)
 	. new rand
 	. set rand=$random(2)
 	. set function=$select(0=rand:"MIN",1:"MAX")
+	; Fix rare query failure where `AVG()` would return a different number of precision digits in postgres
+	; even for the same values by rounding to the same number of digits.
+	; See https://gitlab.com/YottaDB/DBMS/YDBOcto/-/merge_requests/716#note_386868357
+	if "AVG"=function do
+	. set function="ROUND("_function
 	set result=function_"("_aggModifier($random(aggModifier))_table_"."_column_")"
+	if "ROUND(AVG"=function do
+	. set result=result_"), 11)"
 	quit result
 
 ; #FUTURE_TODO: Eventually increase the depth that CASEs can occur, currently a single CASE can be nested inside of a single CASE

@@ -1,0 +1,9 @@
+-- TCT015 : OCTO475 : Multiple usages of the :: (typecast) operator should be accepted
+-- This change also allowed multiple array indexes
+-- However, Octo doesn't yet implement arrays, so this only checks that it parses, not that it does anything.
+select 1[1];
+select 1[1][1];
+select (1[1])[1];
+1
+1
+1

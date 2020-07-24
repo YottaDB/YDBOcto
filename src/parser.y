@@ -795,18 +795,19 @@ collation_name
   ;
 
 numeric_primary
-  : value_expression_primary optional_subscript optional_cast_specification {
-	if (NULL != $optional_cast_specification) {
-		SqlStatement	*ret;
-
-		ret = cast_specification($optional_cast_specification, $value_expression_primary);
-		if (NULL == ret) {
-			YYERROR;
-		}
-		$$ = ret;
-	} else {
-		$$ = $value_expression_primary;
-	}
+  : value_expression_primary {
+    $$ = $value_expression_primary;
+  }
+  // We don't abort below because we want this to pass for fetching schema information
+  | numeric_primary LEFT_BRACKET literal_value RIGHT_BRACKET {
+      WARNING(ERR_FEATURE_NOT_IMPLEMENTED, "arrays");
+      $$ = $1;
+    }
+  | numeric_primary cast_specification {
+      $$ = cast_specification($cast_specification, $1);
+      if (NULL == $$) {
+        YYERROR;
+      }
     }
 //  | numeric_value_function
   ;
@@ -835,7 +836,7 @@ cast_expression
       $$ = ret;
     }
   ;
-  
+
 conditional_expression
   : coalesce { $$ = $coalesce; }
   | nullif { $$ = $nullif; }
@@ -844,9 +845,8 @@ conditional_expression
   | case_expression { $$ = $case_expression; }
   ;
 
-optional_cast_specification
-  : /* Empty */ { $$ = NULL; }
-  | COLON COLON literal_type {
+cast_specification
+  : COLON COLON literal_type {
       $$ = (SqlStatement *)$literal_type;
     }
   | COLON COLON identifier {
@@ -989,11 +989,6 @@ generic_function_call
     }
   ;
 
-// We don't abort below because we want this to pass for fetching schema information
-optional_subscript
-  : /* Empty */ { $$ = NULL; }
-  | LEFT_BRACKET literal_value RIGHT_BRACKET { WARNING(ERR_FEATURE_NOT_IMPLEMENTED, "arrays"); }
-  ;
 
 column_reference
   : qualifier PERIOD column_name {

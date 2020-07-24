@@ -103,3 +103,9 @@ setup() {
 @test "TCT014 : OCTO556 : Implement CAST built-in function" {
   run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TCT014.sql
 }
+
+@test "TCT015 : OCTO475 : Multiple usages of the :: (typecast) operator should be accepted" {
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TCT015.sql
+  load_fixture TCT015_errors.sql subtest novv
+  verify_output TCT015_errors output.txt
+}

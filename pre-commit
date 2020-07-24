@@ -120,6 +120,7 @@ end
 set CLANG_FORMAT="`tools/ci/find-clang-format.sh`"
 if ($status) then
 	echo "warning: missing a recent version of clang-format, not running format checks"
+	echo "note: this could happen either if clang-format is not installed or if it's not a recent enough version"
 	exit $exitstatus
 endif
 

@@ -621,7 +621,10 @@ if (DISABLE_INSTALL MATCHES "OFF")
 	# Add tests to make install target, if tests are supported. Only the limited test suite should be run at
 	# install time so skip this rule for when the full test suite is requested.
 	if(BATS_FOUND AND "${FULL_TEST_SUITE}" MATCHES "OFF")
-		install(CODE "execute_process(COMMAND make test WORKING_DIRECTORY ${PROJECT_BINARY_DIR})")
+		install(CODE "execute_process(COMMAND make test WORKING_DIRECTORY ${PROJECT_BINARY_DIR} RESULT_VARIABLE retcode)
+			if(NOT \${retcode} EQUAL \"0\")
+				MESSAGE( FATAL_ERROR \"Limited test suite failed with error code \${retcode}\")
+			endif()")
 	endif()
 
 	# This line can be used when all supported platforms use CMake version 3.12 or above

@@ -81,6 +81,7 @@ int copied_so_far;
 (?i:AVG) { return AVG; }
 (?i:BEG) { return BEG; }
 (?i:BETWEEN) { return BETWEEN; }
+(?i:BIGINT) { return BIGINT; }
 (?i:BOOL) { return BOOLEAN; }
 (?i:BOOLEAN) { return BOOLEAN; }
 (?i:BY) { return BY; }
@@ -128,6 +129,9 @@ int copied_so_far;
 (?i:INNER) { return INNER; }
 (?i:INSERT) { return INSERT; }
 (?i:INT) { return INT; }
+(?i:INT2) { return INT2; }
+(?i:INT4) { return INT4; }
+(?i:INT8) { return INT8; }
 (?i:INTEGER) { return INTEGER; }
 (?i:INTERSECT) { return INTERSECT; }
 (?i:INTO) { return INTO; }

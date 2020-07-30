@@ -81,6 +81,7 @@ extern void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, int *plan
 %token AVG
 %token BEG
 %token BETWEEN
+%token BIGINT
 %token BOOLEAN
 %token BY
 %token CASCADE
@@ -129,6 +130,9 @@ extern void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, int *plan
 %token INNER
 %token INSERT
 %token INT
+%token INT2
+%token INT4
+%token INT8
 %token INTEGER
 %token INTERSECT
 %token INTO
@@ -1665,7 +1669,11 @@ exact_numeric_type
 integer_type
   : INTEGER integer_type_tail { $$ = NULL; }
   | INT integer_type_tail { $$ = NULL; }
+  | INT2 integer_type_tail { $$ = NULL; }
+  | INT4 integer_type_tail { $$ = NULL; }
+  | INT8 integer_type_tail { $$ = NULL; }
   | SMALLINT integer_type_tail { $$ = NULL; }
+  | BIGINT integer_type_tail { $$ = NULL; }
   ;
 
 boolean_type

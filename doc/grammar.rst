@@ -45,7 +45,15 @@ Numeric Data Types
 * DEC
 * INTEGER
 * INT
+* INT2
+* INT4
+* INT8
 * SMALLINT
+* BIGINT
+
+Note that Octo does not differentiate between the various integer types listed above, internally treating them all as a single integer type. Similarly, Octo treats NUMERIC and various decimal types interchangably under a single numeric type.
+
+Details about the range and accuracy of both DECIMAL/NUMERIC and INTEGER types can be found in the YottaDB `M Programmer's Guide <https://docs.yottadb.com/ProgrammersGuide/langfeat.html#numeric-accuracy>`_.
 
 NUMERIC, DECIMAL and DEC can optionally be followed by a precision value in parentheses. Example: dec(10).
 
@@ -59,13 +67,13 @@ Boolean Data Type
 Octo uses :code:`0` and :code:`1` internally to represent boolean :code:`false` and :code:`true` respectively. However :code:`true` and :code:`false` can be used in Octo queries in the following manner:
 
 .. code-block:: SQL
-		   
+
    SELECT * FROM names WHERE true;
 
 .. note::
 
    Octo doesn't support :code:`t/f` like PostgreSQL does.
-   
+
 
 ---------------
 CREATE TABLE
@@ -274,7 +282,7 @@ The use of this clause returns all rows, which is the default behavior.
 DISTINCT
 ++++++++++
 
-The use of this clause returns only non-duplicate rows (keeping one each from the set of duplicates). 
+The use of this clause returns only non-duplicate rows (keeping one each from the set of duplicates).
 
 ++++++
 FROM

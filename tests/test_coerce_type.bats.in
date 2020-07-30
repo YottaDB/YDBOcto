@@ -109,3 +109,7 @@ setup() {
   load_fixture TCT015_errors.sql subtest novv
   verify_output TCT015_errors output.txt
 }
+
+@test "TCT016 : OCTO568 : Accept non-standard integer types" {
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TCT016.sql
+}

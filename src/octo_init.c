@@ -666,8 +666,11 @@ int octo_init(int argc, char **argv) {
 		eof_hit = EOF_NONE;
 
 		if (INFO >= config->verbosity_level) { // Record pertinent ydb_* env vars if -vv or higher verbosity is specified
-			char *	     ptr;
-			char *	     envvar_array[] = {"ydb_dist", "ydb_gbldir", "ydb_routines", "ydb_xc_ydbposix"};
+			char *ptr;
+			char *envvar_array[]
+			    = {"ydb_boolean",  "ydb_chset",	  "ydb_crypt_config", "ydb_dir",	   "ydb_dist",
+			       "ydb_gbldir",   "ydb_lct_stdnull", "ydb_rel",	      "ydb_repl_instance", "ydb_repl_instname",
+			       "ydb_routines", "ydb_xc_ydbposix", "ydb_side_effects"};
 			unsigned int i;
 
 			INFO(CUSTOM_ERROR, "# Recording pertinent ydb_* env var values at process startup");

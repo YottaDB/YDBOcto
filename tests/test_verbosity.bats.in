@@ -193,7 +193,9 @@ OCTO
   # Note that "Loaded config" message could be variable (one could see octo.conf from $ydb_dist being loaded or not
   # depending on whether @DISABLE_INSTALL@ is ON or OFF). Therefore filter it out before capturing first 20 and last 20 lines
   # or else the reference file cannot be deterministic.
-  grep -v 'Loaded config' full_output.txt | head -20 >> output.txt
+  # Similarly, note that -vv will yield information for many ydb_* environment variables, which is not relevant for this test.
+  # Accordingly, these lines are stripped out.
+  grep -v 'Loaded config' full_output.txt | grep -v ydb_ | head -20 >> output.txt
   echo "# tail -20 of full_output.txt follows" >> output.txt
   grep -v 'Loaded config' full_output.txt | tail -20 >> output.txt
   verify_output TV012 output.txt
@@ -205,4 +207,13 @@ OCTO
 	octo -v -c tmp/octo.conf <<< exit > full_output.txt 2>&1
 	grep 'Loaded config' full_output.txt > output.txt
 	verify_output TV013 output.txt
+}
+
+@test "TV014: OCTO490 : octo -vv outputs all pertinent YDB environment variables" {
+	octo -vv <<OCTO &> output.txt
+\q
+OCTO
+	for ydbvar in ydb_{boolean,chset,crypt_config,dir,dist,gbldir,lct_stdnull,rel,repl_instance,repl_instname,routines,xc_ydbposix,side_effects}; do
+		grep $ydbvar output.txt
+	done
 }

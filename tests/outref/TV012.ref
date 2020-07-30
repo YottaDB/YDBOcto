@@ -14,6 +14,11 @@ LP_INSERT:
       LP_WHERE: 
         LP_COLUMN_ALIAS: NAMES(1).ID
         LP_COLUMN_LIST_ALIAS: 
+        - type: INTEGER_LITERAL
+        - alias: ID
+      LP_COLUMN_LIST: 
+        LP_WHERE: 
+          LP_COLUMN_ALIAS: NAMES(1).FIRSTNAME
 # tail -20 of full_output.txt follows
         LP_SELECT_OPTIONS: 
           LP_WHERE: 

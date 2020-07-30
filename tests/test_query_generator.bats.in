@@ -15,6 +15,11 @@ load test_helpers
 setup() {
 	init_test
 	createdb
+	test_port=$(start_rocto 1344)
+}
+
+teardown() {
+	stop_rocto
 }
 
 @test "TQG01 : Test Query Generator against customers database" {

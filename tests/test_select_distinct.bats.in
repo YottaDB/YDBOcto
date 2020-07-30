@@ -20,7 +20,7 @@ setup() {
 }
 
 @test "TSD01 : where select with distinct" {
-  run_query_in_octo_and_postgres_and_crosscheck names TSD01.sql
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TSD01.sql
 }
 
 @test "TSD02 : OCTO396 : LVUNDEF error when SELECT DISTINCT used in sub-query in EXISTS operator" {

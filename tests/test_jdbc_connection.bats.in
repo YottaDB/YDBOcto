@@ -38,7 +38,7 @@ teardown() {
   # Run using psql and Octo against each of the generated queries
   for file in jointest*.sql
   do
-    run_query_in_octo_and_postgres_and_crosscheck customers $file "" usejdbc useextended
+    run_query_in_octo_and_postgres_and_crosscheck_multiple_queries customers $file "" usejdbc useextended
   done
 }
 
@@ -94,7 +94,7 @@ teardown() {
   load_fixture names.sql
   load_fixture names.zwr
   testname="TJC009"
-  run_query_in_octo_and_postgres_and_crosscheck names $testname.sql "" usejdbc
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names $testname.sql "" usejdbc
   grep "Sending message of type T" rocto.log &> output.txt
   verify_output $testname output.txt psql
 }
@@ -124,5 +124,5 @@ teardown() {
 @test "TJC012 : OCTO320 : Pipeline failures from TJC007" {
   load_fixture northwind.sql
   load_fixture northwind.zwr
-  run_query_in_octo_and_postgres_and_crosscheck northwind TJC012.sql "" "usejdbc"
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries northwind TJC012.sql "" "usejdbc"
 }

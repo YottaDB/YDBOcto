@@ -65,7 +65,7 @@ gensetqueries	;
 	. . kill row(row)  if $incr(row,-1)
 	. set file="settest"_$translate($justify(q,2)," ","0")_".sql"
 	. open file:(newversion)  use file
-	. write sqlquery,!
+	. write sqlquery,";",!
 	. close file
 	quit
 

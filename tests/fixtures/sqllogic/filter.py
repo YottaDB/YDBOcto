@@ -87,10 +87,9 @@ def write_random_sample(queries, format=lambda i, line: line, percentage=1.0):
 
     # Keep the original index of the query even though we're only taking a subset
     outputs = random.sample(list(enumerate(queries)), num_to_output)
+    filename = "tests.sql"
     for query_num, query in outputs:
-        # Pad filename to 4 zeros
-        filename = "test{0:04d}.sql".format(query_num)
-        with open(filename, 'w') as fd:
+        with open(filename, 'a') as fd:
             content = format(query_num, query)
             fd.write(content)
 

@@ -12,4 +12,4 @@
 
 -- TIJOB05 : inner join pastas order by lastName ascending explicit
 
-select pastas.id, firstName, lastName, pastaName from names4 inner join pastas on pastas.pastaName = names4.favoritePasta order by lastName asc;
+select pastas.id, firstName, lastName, pastaName from names4 inner join pastas on pastas.pastaName = names4.favoritePasta order by lastName asc; -- sort-needed-check

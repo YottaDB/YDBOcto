@@ -15,12 +15,16 @@ load test_helpers
 setup() {
 	init_test
 	createdb
+	test_port=$(start_rocto 1344)
+}
+
+teardown() {
+	stop_rocto
 }
 
 sqllogic_test() {
 	num=$1
 	fraction=$2
-	skipped_files="$3"
 
 	if [ "$fraction" = "" ]; then
 		fraction=1
@@ -38,25 +42,22 @@ sqllogic_test() {
 	fi
 	load_fixture sqllogic$num.sql
 	load_fixture sqllogic$num.zwr
-
-	for file in test*.sql
-	do
-		skip=false
-		# The following files use more than 2 GB of memory and cause the pipeline to time out.
-		# Skip them for now. These can be re-enabled once Octo uses fewer resources for many-table JOINs.
-		for too_big in $skipped_files; do
-			if [ test$num.sql = $too_big ]; then
-				skip=true
-				break
-			fi
-		done
-		if [ $skip = true ]; then
-			echo "skipping $file because it uses too much memory"
-			continue
+	file=tests.sql
+	skip=false
+	# The following files use more than 2 GB of memory and cause the pipeline to time out.
+	# TODO:Skip them for now. These can be re-enabled once Octo uses fewer resources for many-table JOINs.
+	for too_big in $skipped_files; do
+		if [ test$num.sql = $too_big ]; then
+			skip=true
+			break
 		fi
-		echo "testing $file"
-		run_query_in_octo_and_postgres_and_crosscheck sqllogic$num $file
 	done
+	if [ $skip = true ]; then
+		echo "skipping $file because it uses too much memory"
+		continue
+	fi
+	echo "testing $file"
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries sqllogic$num $file
 }
 
 # To keep the test times reasonable, only a random sample of tests are run.

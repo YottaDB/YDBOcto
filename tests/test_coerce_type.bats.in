@@ -17,6 +17,11 @@ setup() {
   createdb
   load_fixture names.sql
   load_fixture names.zwr
+  test_port=$(start_rocto 1400 --allowschemachanges)
+}
+
+teardown() {
+  stop_rocto
 }
 
 @test "TCT000: coerce string to INTEGER" {
@@ -111,5 +116,5 @@ setup() {
 }
 
 @test "TCT016 : OCTO568 : Accept non-standard integer types" {
-  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TCT016.sql
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TCT016.sql useocto
 }

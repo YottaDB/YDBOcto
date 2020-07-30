@@ -181,7 +181,7 @@ OCTO
   load_fixture customers.sql
   load_fixture customers.zwr
   load_fixture TOB12.sql subtest
-  run_query_in_octo_and_postgres_and_crosscheck customers TOB12.sql
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries customers TOB12.sql
 }
 
 @test "TOB13 : OCTO412 : ORDER BY COLUMN NUM does not work if COLUMN NUM in select column list has a sub-query" {

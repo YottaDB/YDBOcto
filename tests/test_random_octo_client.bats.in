@@ -1,0 +1,56 @@
+#################################################################
+#								#
+# Copyright (c) 2020 YottaDB LLC and/or its subsidiaries.	#
+# All rights reserved.						#
+#								#
+#	This source code contains the intellectual property	#
+#	of its copyright holder(s), and is made available	#
+#	under a license.  If you do not know the terms of	#
+#	the license, please stop and do not read further.	#
+#								#
+#################################################################
+
+load test_helpers
+
+setup() {
+  init_test
+  createdb
+  load_fixture names.sql
+  load_fixture names.zwr
+}
+
+@test "TROC01: Verifies that when usejdbc argument is passed to cross check function, JDBC client is used and rocto is started" {
+  test_port=$(start_rocto 1344)
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TROC01.sql usejdbc
+  stop_rocto
+  local JDBCdriverused=$(grep "randclient: usejdbc:usejdbc" env.out)
+  if [[ -z $JDBCdriverused ]]; then
+    echo "Test Failed: Test not executed using JDBC driver even though usejdbc is passed as argument"
+    exit 1
+  fi
+  if [[ ! -f rocto.log ]]; then
+    echo "Test Failed: rocto.log file is absent indicating that rocto was not started"
+    exit 1
+  fi
+}
+
+@test "TROC02: Verifies that when useocto argument is passed to cross check function, randomization doesn't happen and Octo is used for query execution and rocto is not started" {
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TROC02.sql useocto
+  local OCTOused=$(grep "randclient:OCTO" env.out)
+  if [[ -z $OCTOused ]]; then
+    echo "Test Failed: OCTO not found"
+    exit 1
+  fi
+  if [[ -f rocto.log ]]; then
+    echo "Test Failed: rocto.log but not expected when passing useocto to the cross check function"
+    exit 1
+  fi
+}
+
+@test "TROC03: Verifies that commented instructions (like -- rowcount-only-check) are processed correctly" {
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TROC03.sql "trim_trailing_zeroes"
+}
+
+@test "TROC04: Verifies presence of commented code and instructions don't affect octo postgres cross check" {
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TROC04.sql "trim_trailing_zeroes"
+}

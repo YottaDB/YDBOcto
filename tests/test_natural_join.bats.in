@@ -21,23 +21,23 @@ setup() {
 
 @test "TNJ00 : natural join no matches" {
   # If there are no matches in a natural join, it is effectively a cross join
-  run_query_in_octo_and_postgres_and_crosscheck names TNJ00.sql
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TNJ00.sql
 }
 
 @test "TNJ01 : natural join many matches" {
-  run_query_in_octo_and_postgres_and_crosscheck names TNJ01.sql
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TNJ01.sql
 }
 
 @test "TNJ02 : natural join many matches with many tables" {
-  run_query_in_octo_and_postgres_and_crosscheck names TNJ02.sql
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TNJ02.sql
 }
 
 @test "TNJ03 : natural join with no alias on right table" {
-  run_query_in_octo_and_postgres_and_crosscheck names TNJ03.sql
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TNJ03.sql
 }
 
 @test "TNJ04 : natural join with right alias longer then the left" {
-  run_query_in_octo_and_postgres_and_crosscheck names TNJ04.sql
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TNJ04.sql
 }
 
 @test "TNJ05 : OCTO295 : names schema : Columns with same name should appear only once in NATURAL JOIN output" {

@@ -72,7 +72,7 @@ setup() {
   # Run using Octo against each of the generated queries
   for file in settest*.sql
   do
-    run_query_in_octo_and_postgres_and_crosscheck easynames $file
+    run_query_in_octo_and_postgres_and_crosscheck_multiple_queries easynames $file
   done
 }
 

@@ -20,49 +20,49 @@ setup() {
 }
 
 @test "TIJOB01 : inner join pastas order by pasta id ascending" {
-	run_query_in_octo_and_postgres_and_crosscheck pastas TIJOB01.sql "trim_trailing_zeroes"
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries pastas TIJOB01.sql "trim_trailing_zeroes"
 }
 
 @test "TIJOB02 : inner join pastas order by pasta id ascending explicit" {
-	run_query_in_octo_and_postgres_and_crosscheck pastas TIJOB02.sql "trim_trailing_zeroes"
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries pastas TIJOB02.sql "trim_trailing_zeroes"
 }
 
 @test "TIJOB03 : inner join pastas order by pasta id descending" {
-	run_query_in_octo_and_postgres_and_crosscheck pastas TIJOB03.sql "trim_trailing_zeroes"
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries pastas TIJOB03.sql "trim_trailing_zeroes"
 }
 
 @test "TIJOB04 : inner join pastas order by lastName ascending" {
-	run_query_in_octo_and_postgres_and_crosscheck pastas TIJOB04.sql "trim_trailing_zeroes"
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries pastas TIJOB04.sql "trim_trailing_zeroes"
 }
 
 @test "TIJOB05 : inner join pastas order by lastName ascending explicit" {
-	run_query_in_octo_and_postgres_and_crosscheck pastas TIJOB05.sql "trim_trailing_zeroes"
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries pastas TIJOB05.sql "trim_trailing_zeroes"
 }
 
 @test "TIJOB06 : inner join pastas order by lastName descending" {
-	run_query_in_octo_and_postgres_and_crosscheck pastas TIJOB06.sql "trim_trailing_zeroes"
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries pastas TIJOB06.sql "trim_trailing_zeroes"
 }
 
 @test "TIJOB07 : inner join pastas order by firstName ascending" {
-	run_query_in_octo_and_postgres_and_crosscheck pastas TIJOB07.sql "trim_trailing_zeroes"
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries pastas TIJOB07.sql "trim_trailing_zeroes"
 }
 
 @test "TIJOB08 : inner join pastas order by firstName ascending explicit" {
-	run_query_in_octo_and_postgres_and_crosscheck pastas TIJOB08.sql "trim_trailing_zeroes"
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries pastas TIJOB08.sql "trim_trailing_zeroes"
 }
 
 @test "TIJOB09 : inner join pastas order by firstName descending" {
-	run_query_in_octo_and_postgres_and_crosscheck pastas TIJOB09.sql "trim_trailing_zeroes"
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries pastas TIJOB09.sql "trim_trailing_zeroes"
 }
 
 @test "TIJOB10 : inner join pastas order by pastaName ascending" {
-	run_query_in_octo_and_postgres_and_crosscheck pastas TIJOB10.sql "trim_trailing_zeroes"
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries pastas TIJOB10.sql "trim_trailing_zeroes"
 }
 
 @test "TIJOB11 : inner join pastas order by pastaName ascending explicit" {
-	run_query_in_octo_and_postgres_and_crosscheck pastas TIJOB11.sql "trim_trailing_zeroes"
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries pastas TIJOB11.sql "trim_trailing_zeroes"
 }
 
 @test "TIJOB12 : inner join pastas order by pastaName descending" {
-	run_query_in_octo_and_postgres_and_crosscheck pastas TIJOB12.sql "trim_trailing_zeroes"
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries pastas TIJOB12.sql "trim_trailing_zeroes"
 }

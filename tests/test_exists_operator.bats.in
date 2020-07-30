@@ -24,7 +24,7 @@ setup() {
   yottadb -run genqueryfiles TEO01.sql	# this generates query files of the form TEO01_01.sql, TEO01_02.sql ...
   for file in TEO01_*.sql
   do
-    run_query_in_octo_and_postgres_and_crosscheck names $file
+    run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names $file
   done
 }
 

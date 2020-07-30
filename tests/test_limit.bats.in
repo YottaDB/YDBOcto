@@ -59,7 +59,7 @@ CAT
   yottadb -run genfixedsetqueries^gensetqueries # this generates queries of the form setquery01.sql, setquery02.sql ...
   for file in setquery*.sql
   do
-    run_query_in_octo_and_postgres_and_crosscheck names $file
+    run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names $file
   done
 }
 

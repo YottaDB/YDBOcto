@@ -154,8 +154,9 @@ genrandomqueries	;
 	. quit:fulljoinchosen&notequalchosen
 	. set file="jointest"_$translate($justify($increment(q),2)," ","0")_".sql"
 	. open file:(newversion)  use file
-	. write:'outputsorted $select('nolimit:"-- rowcount-only-check",1:"-- sort-needed-check"),!
-	. write sqlquery,!
+	. write sqlquery
+	. write:'outputsorted " ",$select('nolimit:"-- rowcount-only-check",1:"-- sort-needed-check")
+	. write !
 	. close file
 	quit
 	;

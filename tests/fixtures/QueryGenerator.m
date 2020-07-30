@@ -87,6 +87,7 @@
 	;Main Loop
 	new i,savecolumns
 	merge savecolumns=columns
+	set file=prefix_0_".sql"
 	for i=1:1:runCount do
 	. new tableAlias	; refresh the mapping of table names to alias names for each query
 	. set aliasNum=0
@@ -105,14 +106,13 @@
 	. set query=$$generateQuery(queryDepth,joinCount)
 	. write query,!
 	.
-	. set file=prefix_i_".sql"
-	. open file:(newversion)
+	. open file:(append)
 	. use file
 	. ; Add a line to generated query file given LIMIT exists, and ORDER BY does not in the query
 	. ; This forces the crosscheck function to only count lines as having a LIMIT clause without an
 	. ; ORDER BY clause can cause different results to be returned by the database
-	. if (limitExists&('orderByExists))  write "-- rowcount-only-check",!
-	. write query,!
+	. if (limitExists&('orderByExists))  write query," ","-- rowcount-only-check",!
+	. else  write query,!
 	. close file
 	. ; The following LVNs exist for each individual query,
 	. ; thus they need to be KILLED after each query is created

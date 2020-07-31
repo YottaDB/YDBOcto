@@ -36,7 +36,7 @@ fi
 
 # Confirm installation is for correct platform (OS/distro, version, architecture)
 expected_platform_name=@PLATFORM_NAME@
-actual_platform_name=$(cat /etc/os-release | grep "^ID=" | cut -f 2 -d '=' | sed 's/"//g')
+actual_platform_name=$(./get_platform_name.sh)
 # Treat CentOS and RHEL interchangably
 if [[ "rhel" = $actual_platform_name  || "centos" = $actual_platform_name ]]; then
 	actual_platform_name="CentOS/RHEL"
@@ -47,13 +47,14 @@ fi
 if [[ $actual_platform_name != $expected_platform_name ]]; then
 	error_exit "Tarball built for $expected_platform_name, but current platform is $actual_platform_name."
 fi
+# Only check the major version and ignore minor version differences for compatibility
 expected_platform_version=$(echo @PLATFORM_VERSION@ | cut -f 1 -d '.')
-actual_platform_version=$(cat /etc/os-release | grep "VERSION_ID" | cut -f 2 -d '=' | sed 's/"//g' | cut -f 1 -d '.')
+actual_platform_version=$(./get_platform_version.sh | cut -f 1 -d '.')
 if [[ $actual_platform_version != $expected_platform_version ]]; then
 	error_exit "Tarball built for $expected_platform_name version $expected_platform_version, but current platform version is $actual_platform_version."
 fi
 expected_platform_arch=@PLATFORM_ARCH@
-actual_platform_arch=$(lscpu | grep Architecture | sed 's/ //g' | sed 's/_//g' | cut -f 2 -d ':')
+actual_platform_arch=$(./get_platform_arch.sh)
 if [[ $actual_platform_architecture != $expected_platform_architecture ]]; then
 	error_exit "Tarball built for $expected_platform_name on $expected_platform_architecture architecture, but current platform architecture is $actual_platform_architecture."
 fi

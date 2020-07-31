@@ -58,22 +58,22 @@ configure_file (
   "${PROJECT_BINARY_DIR}/constants.h")
 
 execute_process(
-	COMMAND ${PROJECT_SOURCE_DIR}/tests/fixtures/get_platform_name.sh
+	COMMAND ${PROJECT_SOURCE_DIR}/tools/get_platform_name.sh
 	OUTPUT_VARIABLE PLATFORM_NAME
 	RESULT_VARIABLE platform_name_identified
-	WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/tests/fixtures
+	WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/tools
 )
 execute_process(
-	COMMAND ${PROJECT_SOURCE_DIR}/tests/fixtures/get_platform_version.sh
+	COMMAND ${PROJECT_SOURCE_DIR}/tools/get_platform_version.sh
 	OUTPUT_VARIABLE PLATFORM_VERSION
 	RESULT_VARIABLE platform_version_identified
-	WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/tests/fixtures
+	WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/tools
 )
 execute_process(
-	COMMAND ${PROJECT_SOURCE_DIR}/tests/fixtures/get_platform_arch.sh
+	COMMAND ${PROJECT_SOURCE_DIR}/tools/get_platform_arch.sh
 	OUTPUT_VARIABLE PLATFORM_ARCH
 	RESULT_VARIABLE platform_arch_identified
-	WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/tests/fixtures
+	WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/tools
 )
 message(STATUS "Platform name: ${PLATFORM_NAME}")
 message(STATUS "Platform version: ${PLATFORM_VERSION}")

@@ -26,7 +26,7 @@ endif()
 
 set(MIN_YDB_RELEASE "1.29")
 execute_process(
-	COMMAND ${PROJECT_SOURCE_DIR}/tests/fixtures/get_ydb_release.sh ${MIN_YDB_RELEASE}
+	COMMAND ${PROJECT_SOURCE_DIR}/tools/get_ydb_release.sh ${MIN_YDB_RELEASE}
 	OUTPUT_VARIABLE YDB_RELEASE_STRING
 	RESULT_VARIABLE version_accepted
 	WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/tests/fixtures

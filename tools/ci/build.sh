@@ -178,9 +178,9 @@ echo "# prepare binary tarball"
 create_tarball() {
 	# Gather elements of tarball name format: yottadb_octo_<octo_version>_<os_id><os_version>_<platform_arch>_pro.tar.gz
 	octo_version="$(src/octo --version | grep "Octo version" | cut -f 3 -d ' ')"
-	os_id="$(cat /etc/os-release | grep "^ID=" | cut -f 2 -d '=' | sed 's/"//g')"
-	os_version="$(cat /etc/os-release | grep "VERSION_ID" | cut -f 2 -d '=' | sed 's/"//g')"
-	platform_arch="$(lscpu | grep Architecture | sed 's/ //g' | sed 's/_//g' | cut -f 2 -d ':')"
+	os_id="$(../tools/get_platform_name.sh)"
+	os_version="$(../tools/get_platform_version.sh)"
+	platform_arch="$(../tools/get_platform_arch.sh)"
 	if [[ -f $ydb_dist/plugin/libgtmtls.so ]]; then
 		tls_support="tls_"
 	fi
@@ -196,7 +196,10 @@ create_tarball() {
 	cp $ydb_dist/plugin/o/utf8/_ydbposix.so $tarball_name/plugin/o/utf8
 	echo "# Copy Octo-specific dependencies for later access by [octo]install.sh"
 	cp octoinstall.sh $tarball_name
-	cp ../tests/fixtures/get_ydb_release.sh $tarball_name
+	cp ../tools/get_ydb_release.sh $tarball_name
+	cp ../tools/get_platform_name.sh $tarball_name
+	cp ../tools/get_platform_version.sh $tarball_name
+	cp ../tools/get_platform_arch.sh $tarball_name
 	cp ../src/aux/*.m $tarball_name/plugin/r
 	cp src/ydbocto.ci $tarball_name/plugin/octo
 	cp ../tests/fixtures/octo-seed.* $tarball_name/plugin/octo

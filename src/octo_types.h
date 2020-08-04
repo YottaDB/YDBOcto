@@ -91,6 +91,7 @@ typedef enum FileType {
 	CrossReference,
 	OutputPlan,
 	YDBTrigger,
+	FunctionHash,
 } FileType;
 
 typedef enum SqlStatementType {
@@ -196,6 +197,7 @@ typedef enum SqlValueType {
 	CALCULATED_VALUE,
 	FUNCTION_NAME,
 	EXTRINSIC_FUNCTION_NAME,
+	FUNCTION_HASH,
 	PARAMETER_VALUE,
 	NUL_VALUE,
 	COERCE_TYPE,
@@ -528,12 +530,14 @@ typedef struct SqlFunction {
 	struct SqlStatement *parameter_type_list; // SqlParameterTypeList
 	struct SqlStatement *return_type;	  // SqlDataType
 	struct SqlStatement *extrinsic_function;  // SqlValue
+	struct SqlStatement *function_hash;	  // SqlValue
 	int32_t		     num_args;
 	uint64_t	     oid;
 } SqlFunction;
 
 typedef struct SqlDropFunctionStatement {
-	struct SqlStatement *function_name; // SqlValue
+	struct SqlStatement *function_name;	  // SqlValue
+	struct SqlStatement *parameter_type_list; // SqlParameterTypeList
 } SqlDropFunctionStatement;
 
 typedef struct SqlParameterTypeList {
@@ -546,6 +550,7 @@ typedef struct SqlValue {
 	enum SqlValueType coerced_type;	    /* initialized/usable only if `type` is COERCE_TYPE */
 	enum SqlValueType pre_coerced_type; /* initialized/usable only if `type` is COERCE_TYPE */
 	char *		  parameter_index;
+	boolean_t	  is_int; // Marks NUMERIC_LITERALs as INTEGER types for type inference in SQL function parms
 	union {
 		char *string_literal;
 		char *reference;

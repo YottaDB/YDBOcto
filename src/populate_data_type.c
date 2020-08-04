@@ -211,7 +211,6 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_
 	SqlGreatest *		greatest_call;
 	SqlLeast *		least_call;
 	SqlNullIf *		null_if;
-	SqlParameterTypeList *	cur_parm_type_list, *start_parm_type_list;
 	SqlAggregateFunction *	aggregate_function;
 	SqlJoin *		start_join, *cur_join;
 	SqlSetOperation *	set_operation;
@@ -221,7 +220,9 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_
 	SqlValueType		child_type1, child_type2;
 	YYLTYPE			location;
 	SqlSelectStatement *	select;
-	int			result = 0, num_function_args;
+	int			written, result = 0, function_parm_types_len = 0, status = 0, function_hash_len = MAX_ROUTINE_LEN;
+	char *			c, function_hash[MAX_ROUTINE_LEN], function_parm_types[MAX_STR_CONST];
+	hash128_state_t		state;
 
 	*type = UNKNOWN_SqlValueType;
 	if (v == NULL || v->v.select == NULL)
@@ -307,49 +308,90 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_
 		if (0 != result) {
 			break;
 		}
-		function = function_call->function_schema->v.create_function;
 
-		/* Check arguments to function for type correctness as well as total number.
-		 * If there are more arguments than expected, continue counting them so that we can tell the user exactly how many
-		 * arguments they passed vs. the expected value. In this case, skip the type check, as the parameter won't exist.
+		/* Hash the function name and parameters to determine which version of the given function is desired. This behavior
+		 * replaces the previous, explicit parameter type and number checks as the hash lookup process does this implicitly.
+		 *
+		 * Note that this hashing code mirrors that for create_function_STATEMENTs in hash_canonical_query.c,
+		 * so any changes there will also need to be reflected here.
 		 */
-		num_function_args = 0;
-		if (NULL != function->parameter_type_list) {
-			cur_parm_type_list = start_parm_type_list = function->parameter_type_list->v.parameter_type_list;
-		} else {
-			cur_parm_type_list = NULL;
-			assert(0 == function->num_args);
-		}
+		HASH128_STATE_INIT(state, 0);
+		assert(value_STATEMENT == function_call->function_name->type);
+		ADD_INT_HASH(&state, function_call->function_name->type);
+		value = function_call->function_name->v.value;
+		ADD_INT_HASH(&state, value->type);
+		ydb_mmrhash_128_ingest(&state, (void *)value->v.reference, strlen(value->v.reference));
+		c = function_parm_types;
+		// Identify the type of each function parameter and add it to the hash
 		cur_column_list = start_column_list = function_call->parameters->v.column_list;
 		if (NULL != cur_column_list->value) { // Only iterate over parameters if there are any
 			do {
-				if (num_function_args < function->num_args) {
-					result |= populate_data_type(cur_column_list->value, &child_type1, parse_context);
-					assert(NULL != cur_parm_type_list);
-					child_type2 = get_sqlvaluetype_from_sqldatatype(cur_parm_type_list->data_type->v.data_type);
-					CAST_AMBIGUOUS_TYPES(child_type1, child_type2);
-					if (child_type1 != child_type2) {
-						ERROR(ERR_FUNCTION_PARAMETER_TYPE_MISMATCH,
-						      function_call->function_name->v.value->v.string_literal,
-						      get_user_visible_type_string(child_type2),
-						      get_user_visible_type_string(child_type1));
-						yyerror(NULL, NULL, &cur_column_list->value, NULL, NULL, NULL);
-						result = 1;
-						break;
+				result |= populate_data_type(cur_column_list->value, &child_type1, parse_context);
+				if (value_STATEMENT == cur_column_list->value->type) {
+					value = cur_column_list->value->v.value;
+					*type = ((TRUE == value->is_int) ? INTEGER_LITERAL : child_type1);
+				} else if (column_alias_STATEMENT == cur_column_list->value->type) {
+					assert((column_STATEMENT == cur_column_list->value->v.column_alias->column->type)
+					       || (column_list_alias_STATEMENT
+						   == cur_column_list->value->v.column_alias->column->type));
+
+					if (column_STATEMENT == cur_column_list->value->v.column_alias->column->type) {
+						*type = get_sqlvaluetype_from_sqldatatype(
+						    cur_column_list->value->v.column_alias->column->v.column->type);
+					} else {
+						*type = cur_column_list->value->v.column_alias->column->v.column_list_alias->type;
 					}
+				} else {
+					value = cur_column_list->value->v.unary->operand->v.value;
+					*type = ((TRUE == value->is_int) ? INTEGER_LITERAL : child_type1);
+				}
+				ADD_INT_HASH(&state, *type);
+				written = snprintf(c, MAX_STR_CONST - function_parm_types_len, "%s",
+						   get_user_visible_type_string(*type));
+				if ((MAX_STR_CONST - function_parm_types_len) <= written) {
+					ERROR(ERR_BUFFER_TOO_SMALL, "Function parameter type");
+					result = 1;
+					break;
+				} else {
+					c += written;
+					function_parm_types_len += written;
 				}
 				cur_column_list = cur_column_list->next;
-				if (NULL != cur_parm_type_list) {
-					cur_parm_type_list = cur_parm_type_list->next;
+				if (cur_column_list != start_column_list) {
+					written = snprintf(c, MAX_STR_CONST - function_parm_types_len, ", ");
+					if ((MAX_STR_CONST - function_parm_types_len) <= written) {
+						ERROR(ERR_BUFFER_TOO_SMALL, "Function parameter type");
+						result = 1;
+						break;
+					} else {
+						c += written;
+					}
 				}
-				num_function_args++;
 			} while (cur_column_list != start_column_list);
+		} else {
+			snprintf(c, MAX_STR_CONST, "none");
 		}
-		// The number of arguments will be incorrect if there was a type error above, so skip this check in that case.
-		if ((0 == result) && (num_function_args != function->num_args)) {
-			ERROR(ERR_INVALID_NUMBER_FUNCTION_ARGUMENTS, function_call->function_name->v.value->v.string_literal,
-			      function->num_args, num_function_args);
-			yyerror(NULL, NULL, &function_call->parameters, NULL, NULL, NULL);
+		status = generate_routine_name(&state, function_hash, function_hash_len, FunctionHash);
+		if (1 == status) {
+			result = 1;
+			break;
+		}
+		// Retrieve the DDL for the given function
+		SQL_STATEMENT(function_call->function_schema, create_function_STATEMENT);
+		/* Note that find_table() is called from the parser as every table name in the query is encountered but
+		 * find_function() is not called whenever a function name is encountered in the parser. It is instead called
+		 * much later from populate_data_type() after the entire query has been parsed and qualified. The reason for this is
+		 * that find_function() needs type information of the actual function parameters to determine which one of the
+		 * potentially many function definitions matches the current usage. And this type information is not available until
+		 * all column references in the query are qualified (which only happens in qualify_query() after the entire query
+		 * has been parsed and just before populate_data_type() is called).
+		 */
+		function = function_call->function_schema->v.create_function
+		    = find_function(function_call->function_name->v.value->v.string_literal, function_hash);
+		// Issue syntax error and abort if function doesn't exist. UNKNOWN_FUNCTION error will be issued by find_function.
+		if (NULL == function) {
+			ERROR(ERR_UNKNOWN_FUNCTION, function_call->function_name->v.value->v.string_literal, function_parm_types);
+			yyerror(&(function_call->function_name->loc), NULL, NULL, NULL, NULL, NULL);
 			result = 1;
 			break;
 		}

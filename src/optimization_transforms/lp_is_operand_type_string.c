@@ -75,7 +75,10 @@ boolean_t lp_is_operand_type_string(LogicalPlan *plan) {
 			loop_done = TRUE;
 			break;
 		case LP_FUNCTION_CALL:
-			ret_type_plan = cur_plan->v.lp_default.operand[1]->v.lp_default.operand[1];
+			/* Per plan generation in lp_generate_where and comment in LP_FUNCTION_CALL branch of tmpl_print_expression,
+			 * skip over the first two nodes of this plan (function name and function hash) to access the return type.
+			 */
+			ret_type_plan = cur_plan->v.lp_default.operand[1]->v.lp_default.operand[1]->v.lp_default.operand[1];
 			return_type = ret_type_plan->v.lp_default.operand[0]->v.lp_value.value->type;
 			if (STRING_LITERAL == return_type) {
 				ret = TRUE;

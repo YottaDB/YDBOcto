@@ -2,7 +2,7 @@
 -- TDF000 : OCTO345 : DROP FUNCTION works with existing functions (ABS)
 
 SELECT ABS(-1) FROM names;
-DROP FUNCTION ABS;
+DROP FUNCTION ABS (INTEGER);
 SELECT ABS(-1) FROM names;
 
 1
@@ -11,11 +11,12 @@ SELECT ABS(-1) FROM names;
 1
 1
 1
-[ERROR] PATH:LINENUM DATE TIME : Unknown function: ABS
+[ERROR] PATH:LINENUM DATE TIME : No function 'ABS' defined with given parameter types (INTEGER)
 Error with syntax near (line 1, column 8):
 
 SELECT ABS(-1) FROM names;
        ^^^
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT ABS(-1) FROM names;
-Successfully cleared ^%ydboctoocto("functions","ABS")
+Remaining function definitions (hashes):
+--> Found: ^%ydboctoocto("functions","ABS","%ydboctoF0BXSKYtCkTUXzFwpivpB68")
 Successfully deleted function "ABS" from pg_catalog.pg_proc

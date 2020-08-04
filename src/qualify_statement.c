@@ -124,7 +124,10 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 			result |= qualify_statement(value->v.calculated, tables, table_alias_stmt, depth + 1, ret_cla);
 			break;
 		case FUNCTION_NAME:
-			// The function name lookup is done in the parser by a call to find_function, and so nothing is needed here.
+			/* The function name lookup is done in populate_data_type by a call to find_function,
+			 * so no action is needed here.
+			 *
+			 */
 			break;
 		case COERCE_TYPE:
 			result |= qualify_statement(value->v.coerce_target, tables, table_alias_stmt, depth + 1, ret_cla);

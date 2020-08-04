@@ -1,4 +1,3 @@
-compress_statement.c:warning: Call to 'malloc' has an allocation size of 0 bytes [clang-analyzer-unix.API]
 errors.c:warning: Function 'vfprintf' is called with an uninitialized va_list argument [clang-analyzer-valist.Uninitialized]
 errors.c:warning: Function 'vfprintf' is called with an uninitialized va_list argument [clang-analyzer-valist.Uninitialized]
 errors.c:warning: va_arg() is called on an uninitialized va_list [clang-analyzer-valist.Uninitialized]

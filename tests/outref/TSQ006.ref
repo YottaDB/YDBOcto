@@ -11,9 +11,11 @@ LP_INSERT:
         LP_FUNCTION_CALL: 
           LP_VALUE: 'VERSION'
           LP_COLUMN_LIST: 
-            LP_VALUE: '$$^%ydboctoversion'
+            LP_VALUE: '%ydboctoFvUsCzPUyvXXbs0y5Mx1mA5'
             LP_COLUMN_LIST: 
-              LP_VALUE: 'VARCHAR'
+              LP_VALUE: '$$^%ydboctoversion'
+              LP_COLUMN_LIST: 
+                LP_VALUE: 'VARCHAR'
         LP_COLUMN_LIST_ALIAS: 
         - type: STRING_LITERAL
         - alias: VERSION
@@ -43,9 +45,11 @@ LP_INSERT:
         LP_FUNCTION_CALL: 
           LP_VALUE: 'VERSION'
           LP_COLUMN_LIST: 
-            LP_VALUE: '$$^%ydboctoversion'
+            LP_VALUE: '%ydboctoFvUsCzPUyvXXbs0y5Mx1mA5'
             LP_COLUMN_LIST: 
-              LP_VALUE: 'VARCHAR'
+              LP_VALUE: '$$^%ydboctoversion'
+              LP_COLUMN_LIST: 
+                LP_VALUE: 'VARCHAR'
         LP_COLUMN_LIST_ALIAS: 
         - type: STRING_LITERAL
         - alias: VERSION

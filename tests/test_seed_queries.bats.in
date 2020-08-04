@@ -74,3 +74,10 @@ setup() {
   load_fixture TSQ010.sql subtest novv
   verify_output TSQ010 output.txt
 }
+
+@test "TSQ011 : function lookup query succeeds without error" {
+
+  load_fixture TSQ011.sql subtest novv
+  verify_output TSQ011 output.txt
+}
+

@@ -617,11 +617,13 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 		%{}){}%
 		break;
 	case LP_FUNCTION_CALL:
-		/* As noted in lp_generate_where.c, the first_operand here is the SQL function name, which is not needed during
-		 * physical planning. Hence, we skip ignore that node in the tree and use only second_operand, which is the node
-		 * containing the relevant extrinsic function call.
+		/* As noted in lp_generate_where.c, the first_operand here is the SQL function name and the second is the function
+		 * hash used to determine which function interface should be used for the call, neither of which is not needed during
+		 * physical planning. Hence, we skip both of these nodes in the tree and use the node after second_operand,
+		 * which is the node containing the relevant extrinsic function call.
 		 */
-		assert(NULL != second_operand);
+		assert(NULL != second_operand->v.lp_default.operand[1]);
+		second_operand = second_operand->v.lp_default.operand[1];
 		/* The SqlFunctionCall argument list begins after the return type, which occurs after the extrinsic function node.
 		 * Accordingly, initialize cur_plan for iteration starting from the return type node instead of the parent extrinsic
 		 * function node, using t_operand to store this for convenience.

@@ -41,7 +41,7 @@ SqlColumnAlias *qualify_column_name(SqlValue *column_value, SqlJoin *tables, Sql
 	SqlTableAlias *	    cur_alias;
 	SqlStatement *	    matching_alias_stmt;
 	SqlValue *	    value;
-	char *		    table_name, *column_name, *c;
+	char *		    table_name, *column_name, *c, *first_delim;
 	int		    table_name_len, column_name_len;
 
 	matching_alias_stmt = NULL;
@@ -54,10 +54,27 @@ SqlColumnAlias *qualify_column_name(SqlValue *column_value, SqlJoin *tables, Sql
 		// Pass
 	}
 	if ('.' == *c) {
+		first_delim = c;
+		/* Until issue #139 is resolved, i.e. databases are supported, there are two possibilities here:
+		 *	1. There is a table name and a column name, e.g. table_name.column_name
+		 *	2. There is a database name before the table name and column name, e.g. database_name.table_name.column_name
+		 * Accordingly, here we check to see if there is a database name specified by continuing past the initial '.'
+		 * delimiter to see if another '.' is present. If so, that means a database name is included and, until #139 is
+		 * resolved, should be treated as part of the table name.
+		 */
+		for (c++; ('\0' != *c) && ('.' != *c); c++) {
+			// Pass
+		}
 		table_name = column_value->v.reference;
-		table_name_len = c - table_name;
-		column_name = c + 1;
-		column_name_len = strlen(column_name);
+		if ('.' == *c) {
+			table_name_len = c - table_name;
+			column_name = c + 1;
+			column_name_len = strlen(column_name);
+		} else {
+			table_name_len = first_delim - table_name;
+			column_name = first_delim + 1;
+			column_name_len = strlen(column_name);
+		}
 	} else {
 		column_name = column_value->v.reference;
 		column_name_len = c - column_name;

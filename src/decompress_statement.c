@@ -78,6 +78,7 @@ void *decompress_statement_helper(SqlStatement *stmt, char *out, int out_length)
 		CALL_DECOMPRESS_HELPER(function->parameter_type_list, out, out_length);
 		CALL_DECOMPRESS_HELPER(function->return_type, out, out_length);
 		CALL_DECOMPRESS_HELPER(function->extrinsic_function, out, out_length);
+		CALL_DECOMPRESS_HELPER(function->function_hash, out, out_length);
 		break;
 	case parameter_type_list_STATEMENT:
 		UNPACK_SQL_STATEMENT(cur_parameter_type_list, stmt, parameter_type_list);

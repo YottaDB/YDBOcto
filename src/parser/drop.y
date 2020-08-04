@@ -24,6 +24,15 @@ drop_function_statement
       SQL_STATEMENT($$, drop_function_STATEMENT);
       OCTO_CMALLOC_STRUCT(($$)->v.drop_function, SqlDropFunctionStatement);
       ($$)->v.drop_function->function_name = $IDENTIFIER_START;
+      ($$)->v.drop_function->function_name->v.value->type = FUNCTION_NAME;
+      ($$)->v.drop_function->parameter_type_list = NULL;
+    }
+  | DROP FUNCTION IDENTIFIER_START LEFT_PAREN function_parameter_type_list RIGHT_PAREN {
+      SQL_STATEMENT($$, drop_function_STATEMENT);
+      OCTO_CMALLOC_STRUCT(($$)->v.drop_function, SqlDropFunctionStatement);
+      ($$)->v.drop_function->function_name = $IDENTIFIER_START;
+      ($$)->v.drop_function->function_name->v.value->type = FUNCTION_NAME;
+      ($$)->v.drop_function->parameter_type_list = $function_parameter_type_list;
     }
   ;
 

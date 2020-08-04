@@ -33,7 +33,7 @@ LogicalPlan *lp_generate_where(SqlStatement *stmt, SqlStatement *parent) {
 	SqlColumnList *		cur_cl, *start_cl;
 	SqlCaseStatement *	cas;
 	SqlCaseBranchStatement *cas_branch, *cur_branch;
-	SqlStatement *		ret_type, *sql_function_name;
+	SqlStatement *		ret_type, *sql_function_name, *sql_function_hash;
 	boolean_t		error_encountered = FALSE;
 
 	assert(NULL != stmt);
@@ -125,9 +125,21 @@ LogicalPlan *lp_generate_where(SqlStatement *stmt, SqlStatement *parent) {
 		    = function_call->function_schema->v.create_function->function_name->v.value->v.string_literal;
 		LP_GENERATE_WHERE(sql_function_name, stmt, ret->v.lp_default.operand[0], error_encountered);
 
-		// Use an LP_COLUMN_LIST to store the LP_VALUEs used for the function's return type and its extrinsic function name
+		/* Use an LP_COLUMN_LIST to store the LP_VALUEs used for the function's return type, extrinsic function name, and
+		 * identifying hash.
+		 */
 		MALLOC_LP_2ARGS(ret->v.lp_default.operand[1], LP_COLUMN_LIST);
 		cur_lp = ret->v.lp_default.operand[1];
+		SQL_STATEMENT(sql_function_hash, value_STATEMENT);
+		MALLOC_STATEMENT(sql_function_hash, value, SqlValue);
+		sql_function_hash->v.value->type = STRING_LITERAL;
+		sql_function_hash->v.value->v.string_literal
+		    = function_call->function_schema->v.create_function->function_hash->v.value->v.string_literal;
+		// Add the function's hash identified to the plan
+		LP_GENERATE_WHERE(function_call->function_schema->v.create_function->function_hash, stmt,
+				  cur_lp->v.lp_default.operand[0], error_encountered);
+		MALLOC_LP_2ARGS(cur_lp->v.lp_default.operand[1], LP_COLUMN_LIST);
+		cur_lp = cur_lp->v.lp_default.operand[1];
 		// Add the function's extrinsic function name to the plan
 		LP_GENERATE_WHERE(function_call->function_schema->v.create_function->extrinsic_function, stmt,
 				  cur_lp->v.lp_default.operand[0], error_encountered);

@@ -20,7 +20,6 @@ setup() {
 	# Start and stop rocto for all tests. This is needed because `stop_rocto` will not run when it is included in a test case
 	# but that test case fails before reaching this call. Automatically doing it with `teardown` avoids this issue.
 	test_port=$(start_rocto 1400 --allowschemachanges)
-	create_user $USER "ydbrocks"
 }
 
 teardown() {

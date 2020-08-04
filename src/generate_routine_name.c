@@ -30,6 +30,7 @@ int generate_routine_name(hash128_state_t *state, char *routine_name, int routin
 	char *	     xref_prefix = "%ydboctoX";
 	char *	     output_plan_prefix = "%ydboctoP";
 	char *	     ydb_trigger_prefix = "%ydboctoT";
+	char *	     function_hash = "%ydboctoF";
 	char *	     c = NULL;
 	unsigned int hash_len = 0;
 	ydb_uint16   hash;
@@ -48,6 +49,10 @@ int generate_routine_name(hash128_state_t *state, char *routine_name, int routin
 	case YDBTrigger:
 		assert(ROUTINE_PREFIX_LEN == strlen(ydb_trigger_prefix));
 		memcpy(routine_name, ydb_trigger_prefix, ROUTINE_PREFIX_LEN);
+		break;
+	case FunctionHash:
+		assert(ROUTINE_PREFIX_LEN == strlen(function_hash));
+		memcpy(routine_name, function_hash, ROUTINE_PREFIX_LEN);
 		break;
 	default:
 		return 1;

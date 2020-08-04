@@ -10,9 +10,12 @@
 #								#
 #################################################################
 
--- This is invoked from Stage 2 of the TDF002 subtest
+-- TDF005 : OCTO562 : DROP FUNCTION on overloaded function only deletes targeted definition
 
--- TDF002 : OCTO90 : DROP FUNCTION should delete db nodes for plans that relied on the dropped function
+-- Attempt to DROP a definition that doesn't exist for a function that DOES exist
+DROP FUNCTION ABS (VARCHAR);
 
-DROP FUNCTION REPLACE (VARCHAR, VARCHAR, VARCHAR);
+-- DROP only one definition, i.e. ABS (INTEGER), of an overloaded function.
+-- One definition, i.e. ABS (NUMERIC),  should remain afterward, per CREATE FUNCTION calls in octo-seed.sql.
+DROP FUNCTION ABS (INTEGER);
 

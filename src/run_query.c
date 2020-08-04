@@ -133,11 +133,11 @@ int run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_descrip
 	SqlStatement *	result;
 	SqlValue *	value;
 	bool		free_memory_chunks;
-	char *		buffer, filename[OCTO_PATH_MAX], routine_name[MAX_ROUTINE_LEN];
+	char *		buffer, filename[OCTO_PATH_MAX], routine_name[MAX_ROUTINE_LEN], function_hash[MAX_ROUTINE_LEN];
 	char		placeholder;
 	ydb_long_t	cursorId;
 	hash128_state_t state;
-	int		done, routine_len = MAX_ROUTINE_LEN;
+	int		done, routine_len = MAX_ROUTINE_LEN, function_hash_len = MAX_ROUTINE_LEN;
 	int		status;
 	size_t		buffer_size = 0;
 	ydb_buffer_t *	filename_lock, query_lock[3], *null_query_lock;
@@ -151,6 +151,7 @@ int run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_descrip
 	int		length;
 	int		cur_length;
 	int		i;
+	unsigned int	ret_value;
 
 	SqlTable *    table;
 	char *	      tablename;
@@ -162,8 +163,8 @@ int run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_descrip
 
 	SqlFunction * function;
 	char *	      function_name;
-	ydb_buffer_t  function_name_buffers[4];
-	ydb_buffer_t *function_name_buffer;
+	ydb_buffer_t  function_name_buffers[5];
+	ydb_buffer_t *function_name_buffer, *function_hash_buffer;
 	ydb_buffer_t  function_binary_buffer, function_create_buffer;
 	char	      cursor_buffer[INT64_TO_STRING_MAX];
 	char	      pid_buffer[INT64_TO_STRING_MAX]; /* assume max pid is 64 bits even though it is a 4-byte quantity */
@@ -506,7 +507,7 @@ int run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_descrip
 		status = ydb_delete_s(&schema_global, 1, table_name_buffer, YDB_DEL_TREE);
 		CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, memory_chunks, buffer, sub_buffer, spcfc_buffer, query_lock);
 		/* Drop the table from the local cache */
-		status = drop_schema_from_local_cache(table_name_buffer, TableSchema);
+		status = drop_schema_from_local_cache(table_name_buffer, TableSchema, NULL);
 		if (YDB_OK != status) {
 			/* YDB_ERROR_CHECK would already have been done inside "drop_schema_from_local_cache()" */
 			CLEANUP_AND_RETURN(memory_chunks, buffer, sub_buffer, spcfc_buffer, query_lock);
@@ -612,55 +613,83 @@ int run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_descrip
 		/* Note: Last parameter is NULL above as we do not have any query lock to release
 		 * at this point since query lock grab failed.
 		 */
-		// First get a ydb_buffer_t of the function name into "function_name_buffer"
-		if (drop_function_STATEMENT == result->type) {
-			function_name = result->v.drop_function->function_name->v.value->v.reference;
-			function = NULL;
-		} else {
+
+		// First, get a ydb_buffer_t of the function name into "function_name_buffer"
+		if (create_function_STATEMENT == result->type) {
 			UNPACK_SQL_STATEMENT(function, result, create_function);
 			UNPACK_SQL_STATEMENT(value, function->function_name, value);
 			function_name = value->v.reference;
+		} else {
+			function = NULL;
+			function_name = result->v.drop_function->function_name->v.value->v.reference;
 		}
-		YDB_STRING_TO_BUFFER(function_name, function_name_buffer);
-
-		// Delete the function from the catalog
-		status = delete_function_from_pg_proc(function_name_buffer);
+		// Then hash the function parameters to determine which function definition is to be CREATEd or DROPed
+		INVOKE_HASH_CANONICAL_QUERY(state, result, status); /* "state" holds final hash */
 		if (0 != status) {
 			CLEANUP_AND_RETURN(memory_chunks, buffer, sub_buffer, spcfc_buffer, query_lock);
 		}
-		/* Ensure all _ydboctoP*.m plans that rely on this function are recreated by deleting those database nodes
-		 * that correspond to the plan metadata of these plans. We do not delete the _ydboctoP*.m files since
-		 * the _ydboctoP*.o files would anyways exist and also need to be removed but it is not straightforward (since
-		 * we need to find the first obj directory in the zroutines list). Just deleting the database nodes is enough
-		 * since that is checked every time using the GET_PLAN_METADATA_DB_NODE macro before using a pre-existing plan.
-		 */
+		status = generate_routine_name(&state, function_hash, function_hash_len, FunctionHash);
+		if (1 == status) {
+			CLEANUP_AND_RETURN(memory_chunks, buffer, sub_buffer, spcfc_buffer, query_lock);
+		}
+		function_hash_buffer = &function_name_buffers[2];
+		YDB_STRING_TO_BUFFER(function_hash, function_hash_buffer);
+		// Add function hash to parse tree for later addition to logical plan
+		if ((NULL != function) && (create_function_STATEMENT == result->type)) {
+			SQL_STATEMENT(function->function_hash, value_STATEMENT);
+			MALLOC_STATEMENT(function->function_hash, value, SqlValue);
+			UNPACK_SQL_STATEMENT(value, function->function_hash, value);
+			value->v.string_literal = octo_cmalloc(memory_chunks, function_hash_buffer->len_used);
+			strncpy(value->v.string_literal, function_hash, function_hash_buffer->len_used);
+			value->type = FUNCTION_HASH;
+		}
+		YDB_STRING_TO_BUFFER(function_name, function_name_buffer);
+
+		// Initialize buffers for accessing relevant function GVNs
 		YDB_STRING_TO_BUFFER(config->global_names.octo, &octo_global);
 		YDB_STRING_TO_BUFFER(OCTOLIT_FUNCTIONS, &function_name_buffers[0]);
-		YDB_STRING_TO_BUFFER(OCTOLIT_PLAN_METADATA, &function_name_buffers[2]);
-		function_name_buffers[3].buf_addr = filename;
-		function_name_buffers[3].len_used = 0;
-		function_name_buffers[3].len_alloc = sizeof(filename);
+		function_name_buffers[4].buf_addr = filename;
+		function_name_buffers[4].len_used = 0;
+		function_name_buffers[4].len_alloc = sizeof(filename);
+
+		if (drop_function_STATEMENT == result->type) {
+			status = ydb_data_s(&octo_global, 3, &function_name_buffers[0], &ret_value);
+			CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, memory_chunks, buffer, sub_buffer, spcfc_buffer, query_lock);
+			if (0 == ret_value) {
+				ERROR(ERR_CANNOT_DROP_FUNCTION, function_name);
+				CLEANUP_AND_RETURN(memory_chunks, buffer, sub_buffer, spcfc_buffer, query_lock);
+			}
+		}
+		/* Always drop the function in question, if it exists, either because explicitly requested via DROP or implicitly
+		 * when CREATEing or redefining a function.
+		 */
+		status = delete_function_from_pg_proc(function_name_buffer, function_hash_buffer);
+		if (0 != status) {
+			CLEANUP_AND_RETURN(memory_chunks, buffer, sub_buffer, spcfc_buffer, query_lock);
+		}
+		YDB_STRING_TO_BUFFER(OCTOLIT_PLAN_METADATA, &function_name_buffers[3]);
 		while (TRUE) {
-			status = ydb_subscript_next_s(&octo_global, 4, &function_name_buffers[0], &function_name_buffers[3]);
+			status = ydb_subscript_next_s(&octo_global, 5, &function_name_buffers[0], &function_name_buffers[4]);
 			if (YDB_ERR_NODEEND == status) {
 				break;
 			}
 			CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, memory_chunks, buffer, sub_buffer, spcfc_buffer, query_lock);
-			DELETE_PLAN_METADATA_DB_NODE(function_name_buffers[3], status);
+			DELETE_PLAN_METADATA_DB_NODE(function_name_buffers[4], status);
 			CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, memory_chunks, buffer, sub_buffer, spcfc_buffer, query_lock);
 		}
-		// Drop the function: KILL ^%ydboctoocto(OCTOLIT_FUNCTIONS,FUNCTIONNAME)
-		status = ydb_delete_s(&octo_global, 2, function_name_buffers, YDB_DEL_TREE);
+		// Drop the function: KILL ^%ydboctoocto(OCTOLIT_FUNCTIONS,FUNCTIONNAME,FUNCTIONHASH)
+		YDB_STRING_TO_BUFFER(function_hash, function_hash_buffer);
+		status = ydb_delete_s(&octo_global, 3, function_name_buffers, YDB_DEL_TREE);
 		CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, memory_chunks, buffer, sub_buffer, spcfc_buffer, query_lock);
 
 		// Drop the function from the local cache
-		status = drop_schema_from_local_cache(function_name_buffer, FunctionSchema);
+		status = drop_schema_from_local_cache(function_name_buffer, FunctionSchema, function_hash_buffer);
 		if (YDB_OK != status) {
 			// YDB_ERROR_CHECK would already have been done inside "drop_schema_from_local_cache()"
 			CLEANUP_AND_RETURN(memory_chunks, buffer, sub_buffer, spcfc_buffer, query_lock);
 		}
 
-		if (create_function_STATEMENT == result->type) {
+		if ((NULL != function) && (create_function_STATEMENT == result->type)) {
 			// CREATE FUNCTION case. More processing needed.
 			out = open_memstream(&buffer, &buffer_size);
 			assert(out);
@@ -675,11 +704,11 @@ int run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_descrip
 			INFO(CUSTOM_ERROR, "%s", buffer); /* print the converted text representation of the CREATE TABLE command */
 
 			YDB_STRING_TO_BUFFER(buffer, &function_create_buffer);
-			YDB_STRING_TO_BUFFER("t", &function_name_buffers[2]); // 't' for "text" representation
+			YDB_STRING_TO_BUFFER("t", &function_name_buffers[3]); // 't' for "text" representation
 			/* Store the text representation of the CREATE FUNCTION statement:
-			 *	^ydboctoocto(OCTOLIT_FUNCTIONS,function_name,"t")
+			 *	^ydboctoocto(OCTOLIT_FUNCTIONS,function_name,function_hash,"t")
 			 */
-			status = ydb_set_s(&octo_global, 3, function_name_buffers, &function_create_buffer);
+			status = ydb_set_s(&octo_global, 4, function_name_buffers, &function_create_buffer);
 			CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, memory_chunks, buffer, sub_buffer, spcfc_buffer, query_lock);
 			free(buffer);
 			/* Note: "function_create_buffer" (whose "buf_addr" points to "buffer") is also no longer unusable */
@@ -688,15 +717,15 @@ int run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_descrip
 			/* Store the extrinsic function label from the CREATE FUNCTION statement:
 			 *	^ydboctoocto(OCTOLIT_FUNCTIONS,function_name)=$EXTRINSIC_FUNCTION
 			 */
-			YDB_STRING_TO_BUFFER(function->extrinsic_function->v.value->v.string_literal, &function_name_buffers[2]);
-			status = ydb_set_s(&octo_global, 2, &function_name_buffers[0], &function_name_buffers[2]);
+			YDB_STRING_TO_BUFFER(function->extrinsic_function->v.value->v.string_literal, &function_name_buffers[3]);
+			status = ydb_set_s(&octo_global, 2, &function_name_buffers[0], &function_name_buffers[3]);
 			CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, memory_chunks, buffer, sub_buffer, spcfc_buffer, query_lock);
 
 			/* First store function name in catalog. As we need that OID to store in the binary table
 			 * definition. The below call also sets table->oid which is needed before the call to
 			 * "compress_statement" as that way the oid also gets stored in the binary table definition.
 			 */
-			status = store_function_in_pg_proc(function);
+			status = store_function_in_pg_proc(function, function_hash);
 			/* Cannot use CLEANUP_AND_RETURN_IF_NOT_YDB_OK macro here because the above function could set
 			 * status to 1 to indicate an error (not necessarily a valid YDB_ERR_* code). In case it is a
 			 * YDB error code, the YDB_ERROR_CHECK call would have already been done inside "store_function_in_pg_proc"
@@ -709,8 +738,8 @@ int run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_descrip
 			compress_statement(result, &spcfc_buffer, &length);
 			assert(NULL != spcfc_buffer);
 			function_binary_buffer.len_alloc = MAX_STR_CONST;
-			YDB_STRING_TO_BUFFER(OCTOLIT_BINARY, &function_name_buffers[2]);
-			sub_buffer = &function_name_buffers[3];
+			YDB_STRING_TO_BUFFER(OCTOLIT_BINARY, &function_name_buffers[3]);
+			sub_buffer = &function_name_buffers[4];
 			YDB_MALLOC_BUFFER(sub_buffer, MAX_STR_CONST);
 			i = 0;
 			cur_length = 0;
@@ -722,16 +751,16 @@ int run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_descrip
 				} else {
 					function_binary_buffer.len_used = length - cur_length;
 				}
-				status = ydb_set_s(&octo_global, 4, function_name_buffers, &function_binary_buffer);
+				status = ydb_set_s(&octo_global, 5, function_name_buffers, &function_binary_buffer);
 				CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, memory_chunks, buffer, sub_buffer, spcfc_buffer,
 								 query_lock);
 				cur_length += MAX_STR_CONST;
 				i++;
 			}
-			YDB_STRING_TO_BUFFER(OCTOLIT_LENGTH, &function_name_buffers[2]);
+			YDB_STRING_TO_BUFFER(OCTOLIT_LENGTH, &function_name_buffers[3]);
 			// Use sub_buffer as a temporary buffer below
 			sub_buffer->len_used = snprintf(sub_buffer->buf_addr, sub_buffer->len_alloc, "%d", length);
-			status = ydb_set_s(&octo_global, 3, function_name_buffers, sub_buffer);
+			status = ydb_set_s(&octo_global, 4, function_name_buffers, sub_buffer);
 			CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, memory_chunks, buffer, sub_buffer, spcfc_buffer, query_lock);
 			free(spcfc_buffer);
 			YDB_FREE_BUFFER(sub_buffer);

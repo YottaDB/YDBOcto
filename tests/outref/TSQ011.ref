@@ -1,0 +1,24 @@
+
+-- TSQ011 : function lookup query succeeds without error
+
+select proname,typname from pg_catalog.pg_proc inner join pg_catalog.pg_type on pg_catalog.pg_proc.prorettype = pg_catalog.pg_type.oid;
+ABS|numeric
+ABS|numeric
+ROUND|numeric
+ROUND|numeric
+ROUND|numeric
+ROUND|numeric
+TRUNC|numeric
+TRUNC|numeric
+TRUNC|numeric
+TRUNC|numeric
+REPLACE|varchar
+ROW_NUMBER|int4
+VERSION|varchar
+CURRENT_SCHEMA|varchar
+PG_CATALOG.CURRENT_SCHEMAS|varchar
+PG_CATALOG.OBJ_DESCRIPTION|varchar
+PG_CATALOG.PG_GET_EXPR|varchar
+CURRENT_SCHEMAS|varchar
+OBJ_DESCRIPTION|varchar
+PG_GET_EXPR|varchar

@@ -6,17 +6,21 @@ select REPLACE('balloons', 12, 'hot air') as badarg from names;
 
 select PG_CATALOG.PG_GET_EXPR('balloons', true) as badarg from names;
 
-[ERROR] PATH:LINENUM DATE TIME : Parameter type mismatch in function 'ABS': expected NUMERIC, got VARCHAR
-Error with syntax near (line 1, column 21):
+[ERROR] PATH:LINENUM DATE TIME : No function 'ABS' defined with given parameter types (VARCHAR)
+Error with syntax near (line 1, column 8):
 
 select ABS('balloons') as badarg from names;
-                    ^
+       ^^^
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select ABS('balloons') as badarg from names;
-[ERROR] PATH:LINENUM DATE TIME : Parameter type mismatch in function 'REPLACE': expected VARCHAR, got NUMERIC
-Error with syntax near (line 1, column 28):
+[ERROR] PATH:LINENUM DATE TIME : No function 'REPLACE' defined with given parameter types (VARCHAR, INTEGER, VARCHAR)
+Error with syntax near (line 1, column 8):
 
 select REPLACE('balloons', 12, 'hot air') as badarg from names;
-                           ^^
+       ^^^^^^^
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select REPLACE('balloons', 12, 'hot air') as badarg from names;
-[ERROR] PATH:LINENUM DATE TIME : Parameter type mismatch in function 'PG_CATALOG.PG_GET_EXPR': expected INTEGER, got BOOLEAN
+[ERROR] PATH:LINENUM DATE TIME : No function 'PG_CATALOG.PG_GET_EXPR' defined with given parameter types (VARCHAR, BOOLEAN)
+Error with syntax near (line 1, column 8):
+
+select PG_CATALOG.PG_GET_EXPR('balloons', true) as badarg from names;
+       ^^^^^^^^^^^^^^^^^^^^^^
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select PG_CATALOG.PG_GET_EXPR('balloons', true) as badarg from names;

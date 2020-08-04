@@ -22,7 +22,8 @@ setup() {
 @test "TCF000 : CREATE FUNCTION works with existing functions (ABS)" {
 	load_fixture TCF000.sql subtest novv
 	# Confirm that a unique OID is generated for each CREATE FUNCTION statement for the same function name
-	[[ "$(grep "OID|" output.txt | cut -d'|' -f 2 | uniq | wc -l)" == "2" ]]
+	# We expect 3 unique OID lines: 1. Stock
+	[[ "$(grep "OID|" output.txt | cut -d'|' -f 2 | uniq | wc -l)" == "3" ]]
 	# Strip OIDs and compare to ensure they are different between CREATE FUNCTION statements
 	grep -v "OID|" output.txt &> nooid_output.txt
 	verify_output TCF000 nooid_output.txt noinfo nodebug
@@ -180,3 +181,12 @@ setup() {
 	verify_output TCF023 output.txt
 }
 
+@test "TCF024 : OCTO562 : CREATE FUNCTION supports function overloading" {
+	load_fixture TCF024.sql subtest novv
+	verify_output TCF024 output.txt noinfo nodebug
+}
+
+@test "TCF025 : OCTO562 : CREATE FUNCTION supports type coercion with function overloading" {
+	load_fixture TCF025.sql subtest novv
+	verify_output TCF025 output.txt noinfo nodebug
+}

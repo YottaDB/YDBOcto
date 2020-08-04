@@ -11,10 +11,11 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 CHECKFUNCDELETE
-	new funcname
+	new funcname,funchash
 	set funcname=$zcmdline
-	IF $DATA(^%ydboctoocto("functions",funcname))=0 DO
-	. WRITE "Successfully cleared ^%ydboctoocto(""functions"","""_funcname_""")",!
+	WRITE "Remaining function definitions (hashes):",!
+	SET funchash="" FOR  SET funchash=$order(^%ydboctoocto("functions",funcname,funchash)) QUIT:funchash=""  DO
+	. WRITE "--> Found: ^%ydboctoocto(""functions"","""_funcname_""","""_funchash_""")",!
 	IF $DATA(^%ydboctoocto("tables","pg_catalog","pg_proc",$GET(^%ydboctoocto("functions",funcname,"oid"))))=0 DO
 	. WRITE "Successfully deleted function """_funcname_""" from pg_catalog.pg_proc",!
 	quit

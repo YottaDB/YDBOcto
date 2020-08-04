@@ -22,7 +22,6 @@ setup() {
   load_fixture names.zwr
   load_fixture pastas.sql
   load_fixture pastas.zwr
-  create_user $USER "ydbrocks"
   test_port=$(start_rocto 1344)
 }
 

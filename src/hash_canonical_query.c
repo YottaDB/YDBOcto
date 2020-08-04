@@ -28,18 +28,6 @@
 #define HASH_LITERAL_VALUES -1
 #define ABNORMAL_STATUS	    1
 
-// Helper macro: adds integer values (statement type values, unique_id, column_number etc.) to hash digest
-// This is kept as a macro as that way we can assert that the size of FIELD is the same as the size of an "int".
-// If that assert fails, it is time to use "long" or some other type based on the size of the input.
-#define ADD_INT_HASH(STATE, FIELD)                                                               \
-	{                                                                                        \
-		int lclInt; /* needed in case FIELD is a constant (cannot take & on constant) */ \
-                                                                                                 \
-		assert(sizeof(FIELD) == sizeof(int));                                            \
-		lclInt = FIELD;                                                                  \
-		ydb_mmrhash_128_ingest(STATE, (void *)&lclInt, sizeof(lclInt));                  \
-	}
-
 // Helper function that is invoked when we have to traverse a "column_list_alias_STATEMENT".
 // Caller passes "do_loop" variable set to TRUE  if they want us to traverse the linked list.
 //                              and set to FALSE if they want us to traverse only the first element in the linked list.
@@ -124,6 +112,10 @@ void hash_canonical_query(hash128_state_t *state, SqlStatement *stmt, int *statu
 	SqlTable *	table;
 	SqlTableAlias * table_alias;
 
+	SqlFunction *		  function;
+	SqlDropFunctionStatement *drop_function;
+	SqlParameterTypeList *	  parameter_type_list;
+
 	// Operations and keywords
 	SqlBinaryOperation *binary;
 	SqlSetOperation *   set_operation;
@@ -134,6 +126,7 @@ void hash_canonical_query(hash128_state_t *state, SqlStatement *stmt, int *statu
 	SqlCaseBranchStatement *cur_cas_branch;
 	SqlJoin *		cur_join;
 	SqlOptionalKeyword *	cur_keyword;
+	SqlParameterTypeList *	cur_parameter_type_list;
 
 	BinaryOperations binary_operation;
 
@@ -283,7 +276,8 @@ void hash_canonical_query(hash128_state_t *state, SqlStatement *stmt, int *statu
 		UNPACK_SQL_STATEMENT(value, stmt, value);
 		ADD_INT_HASH(state, value_STATEMENT);
 		// SqlValueType
-		ADD_INT_HASH(state, value->type);
+		ADD_INT_HASH(state, ((INTEGER_LITERAL == value->type) ? NUMERIC_LITERAL : value->type));
+		// ADD_INT_HASH(state, value->type);
 		switch (value->type) {
 		case CALCULATED_VALUE:
 			hash_canonical_query(state, value->v.calculated, status);
@@ -345,6 +339,35 @@ void hash_canonical_query(hash128_state_t *state, SqlStatement *stmt, int *statu
 		hash_canonical_query(state, table->tableName, status);
 		hash_canonical_query(state, table->source, status);
 		hash_canonical_query(state, table->delim, status);
+		break;
+	case drop_function_STATEMENT:
+		/* DROP FUNCTION statements are only hashed for the purpose of looking up the function version targeted for
+		 * deletion. Accordingly, we use the statement type used at the time of creation, i.e. create_function_STATEMENT.
+		 */
+		UNPACK_SQL_STATEMENT(drop_function, stmt, drop_function);
+		assert(drop_function->function_name->type == value_STATEMENT);
+		hash_canonical_query(state, drop_function->function_name, status);
+		hash_canonical_query(state, drop_function->parameter_type_list, status);
+		break;
+	case create_function_STATEMENT:
+		UNPACK_SQL_STATEMENT(function, stmt, create_function);
+		assert(function->function_name->type == value_STATEMENT);
+		hash_canonical_query(state, function->function_name, status);
+		hash_canonical_query(state, function->parameter_type_list, status);
+		break;
+	case parameter_type_list_STATEMENT:
+		UNPACK_SQL_STATEMENT(parameter_type_list, stmt, parameter_type_list);
+		cur_parameter_type_list = parameter_type_list;
+		do {
+			assert(data_type_STATEMENT == cur_parameter_type_list->data_type->type);
+			/* Convert the SQL data type to internal SqlValueType for compatibility with function call parameter types
+			 * inferred in populate_data_type. This conversion is acceptable here since the only purpose of hashing
+			 * these values at all is for matching function calls to previously CREATEd functions which may have
+			 * overloaded function names.
+			 */
+			ADD_INT_HASH(state, get_sqlvaluetype_from_sqldatatype(cur_parameter_type_list->data_type->v.data_type));
+			cur_parameter_type_list = cur_parameter_type_list->next;
+		} while (cur_parameter_type_list != parameter_type_list);
 		break;
 	case table_alias_STATEMENT:
 		UNPACK_SQL_STATEMENT(table_alias, stmt, table_alias);

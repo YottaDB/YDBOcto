@@ -10,9 +10,8 @@
 #								#
 #################################################################
 
--- This is invoked from Stage 2 of the TDF002 subtest
+-- TDF004 : OCTO562 : DROP FUNCTION issues an error when the specified function doesn't exist
 
--- TDF002 : OCTO90 : DROP FUNCTION should delete db nodes for plans that relied on the dropped function
-
-DROP FUNCTION REPLACE (VARCHAR, VARCHAR, VARCHAR);
+DROP FUNCTION PARMLESSFUNC ();
+DROP FUNCTION PARMFULLFUNC (VARCHAR, INTEGER, NUMERIC);
 

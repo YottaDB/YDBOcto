@@ -83,13 +83,15 @@ LP_INSERT:
                                 LP_FUNCTION_CALL: 
                                   LP_VALUE: 'PG_GET_EXPR'
                                   LP_COLUMN_LIST: 
-                                    LP_VALUE: '$$^%ydboctopgGetExpr'
+                                    LP_VALUE: '%ydboctoFl3mV1wpIFh5CyoJU5R6I2C'
                                     LP_COLUMN_LIST: 
-                                      LP_VALUE: 'VARCHAR'
+                                      LP_VALUE: '$$^%ydboctopgGetExpr'
                                       LP_COLUMN_LIST: 
-                                        LP_COLUMN_ALIAS: D(5).ADBIN
+                                        LP_VALUE: 'VARCHAR'
                                         LP_COLUMN_LIST: 
-                                          LP_COLUMN_ALIAS: D(5).ADRELID
+                                          LP_COLUMN_ALIAS: D(5).ADBIN
+                                          LP_COLUMN_LIST: 
+                                            LP_COLUMN_ALIAS: D(5).ADRELID
                                 LP_COLUMN_LIST_ALIAS: 
                                 - type: STRING_LITERAL
                                 - alias: PG_GET_EXPR
@@ -291,13 +293,15 @@ LP_INSERT:
                                 LP_FUNCTION_CALL: 
                                   LP_VALUE: 'PG_GET_EXPR'
                                   LP_COLUMN_LIST: 
-                                    LP_VALUE: '$$^%ydboctopgGetExpr'
+                                    LP_VALUE: '%ydboctoFl3mV1wpIFh5CyoJU5R6I2C'
                                     LP_COLUMN_LIST: 
-                                      LP_VALUE: 'VARCHAR'
+                                      LP_VALUE: '$$^%ydboctopgGetExpr'
                                       LP_COLUMN_LIST: 
-                                        LP_COLUMN_ALIAS: D(5).ADBIN
+                                        LP_VALUE: 'VARCHAR'
                                         LP_COLUMN_LIST: 
-                                          LP_COLUMN_ALIAS: D(5).ADRELID
+                                          LP_COLUMN_ALIAS: D(5).ADBIN
+                                          LP_COLUMN_LIST: 
+                                            LP_COLUMN_ALIAS: D(5).ADRELID
                                 LP_COLUMN_LIST_ALIAS: 
                                 - type: STRING_LITERAL
                                 - alias: PG_GET_EXPR

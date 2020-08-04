@@ -13,6 +13,6 @@
 -- TDF000 : OCTO345 : DROP FUNCTION works with existing functions (ABS)
 
 SELECT ABS(-1) FROM names;
-DROP FUNCTION ABS;
+DROP FUNCTION ABS (INTEGER);
 SELECT ABS(-1) FROM names;
 

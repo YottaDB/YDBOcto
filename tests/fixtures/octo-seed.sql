@@ -218,12 +218,21 @@ CREATE TABLE users (
 /* Add standard SQL functions and internal Octo functions to the database and catalog
  * Note that some catalog functions do NOT use the types specified for them in PostgreSQL,
  * as Octo doesn't implement them (yet).
+ * Note also that some functions are overloaded to account for various valid combinations of
+ * parameter types, e.g. accept both `NUMERIC` and `INTEGER` types for the `ABS` function.
  */
 CREATE FUNCTION ABS(NUMERIC) RETURNS NUMERIC AS $$ABS^%ydboctosqlfunctions;
+CREATE FUNCTION ABS(INTEGER) RETURNS NUMERIC AS $$ABS^%ydboctosqlfunctions;
 /* This only implements the 2-argument version of ROUND, since Octo doesn't support function overloading. */
 CREATE FUNCTION ROUND(NUMERIC, INTEGER) RETURNS NUMERIC AS $$ROUND^%ydboctosqlfunctions;
+CREATE FUNCTION ROUND(INTEGER, NUMERIC) RETURNS NUMERIC AS $$ROUND^%ydboctosqlfunctions;
+CREATE FUNCTION ROUND(NUMERIC, NUMERIC) RETURNS NUMERIC AS $$ROUND^%ydboctosqlfunctions;
+CREATE FUNCTION ROUND(INTEGER, INTEGER) RETURNS NUMERIC AS $$ROUND^%ydboctosqlfunctions;
 /* This only implements the 2-argument version of TRUNC, since Octo doesn't support function overloading. */
 CREATE FUNCTION TRUNC(NUMERIC, INTEGER) RETURNS NUMERIC AS $$TRUNC^%ydboctosqlfunctions;
+CREATE FUNCTION TRUNC(INTEGER, NUMERIC) RETURNS NUMERIC AS $$TRUNC^%ydboctosqlfunctions;
+CREATE FUNCTION TRUNC(NUMERIC, NUMERIC) RETURNS NUMERIC AS $$TRUNC^%ydboctosqlfunctions;
+CREATE FUNCTION TRUNC(INTEGER, INTEGER) RETURNS NUMERIC AS $$TRUNC^%ydboctosqlfunctions;
 
 /* REPLACE is used by SquirrelSQL during connection intialize and so is included here.
  * Note that REPLACE is not currently implemented and the matching M routine is an empty placeholder that

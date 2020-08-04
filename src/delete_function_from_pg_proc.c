@@ -21,10 +21,10 @@
  *	0 for normal
  *	1 for error
  */
-int delete_function_from_pg_proc(ydb_buffer_t *function_name_buffer) {
+int delete_function_from_pg_proc(ydb_buffer_t *function_name_buffer, ydb_buffer_t *function_hash_buffer) {
 	int	     status;
 	ydb_buffer_t pg_proc[5];
-	ydb_buffer_t octo_functions[4];
+	ydb_buffer_t octo_functions[5];
 	char	     oid_str[INT64_TO_STRING_MAX];
 
 	YDB_STRING_TO_BUFFER(config->global_names.octo, &pg_proc[0]);
@@ -34,12 +34,14 @@ int delete_function_from_pg_proc(ydb_buffer_t *function_name_buffer) {
 	pg_proc[4].buf_addr = oid_str;
 	pg_proc[4].len_alloc = sizeof(oid_str);
 
-	// Check OID for FUNCTIONNAME (usually stored as ^%ydboctoocto(OCTOLIT_FUNCTIONS,FUNCTIONNAME,OCTOLIT_OID)=FUNCTIONOID)
+	// Check OID for FUNCTIONNAME (usually stored as
+	// ^%ydboctoocto(OCTOLIT_FUNCTIONS,FUNCTIONNAME,FUNCTIONHASH,OCTOLIT_OID)=FUNCTIONOID)
 	YDB_STRING_TO_BUFFER(config->global_names.octo, &octo_functions[0]);
 	YDB_STRING_TO_BUFFER(OCTOLIT_FUNCTIONS, &octo_functions[1]);
 	octo_functions[2] = *function_name_buffer;
-	YDB_STRING_TO_BUFFER(OCTOLIT_OID, &octo_functions[3]);
-	status = ydb_get_s(&octo_functions[0], 3, &octo_functions[1], &pg_proc[4]);
+	octo_functions[3] = *function_hash_buffer;
+	YDB_STRING_TO_BUFFER(OCTOLIT_OID, &octo_functions[4]);
+	status = ydb_get_s(&octo_functions[0], 4, &octo_functions[1], &pg_proc[4]);
 	if (YDB_ERR_GVUNDEF != status) {
 		YDB_ERROR_CHECK(status);
 		if (YDB_OK != status) {

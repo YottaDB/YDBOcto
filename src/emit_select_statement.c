@@ -141,21 +141,26 @@ PhysicalPlan *emit_select_statement(SqlStatement *stmt, char *plan_filename) {
 		 * Store link between plan and all function calls that plan uses so a later CREATE/DROP FUNCTION
 		 * of any of the functions in this plan knows to delete this stale plan.
 		 */
-		ydb_buffer_t func_buff[4];
+		ydb_buffer_t func_buff[5];
 
 		YDB_LITERAL_TO_BUFFER(OCTOLIT_FUNCTIONS, &func_buff[0]);
-		func_buff[2] = plan_meta[1];
-		func_buff[3] = plan_meta[2];
+		func_buff[3] = plan_meta[1];
+		func_buff[4] = plan_meta[2];
 		do {
 			LogicalPlan *function_name;
+			LogicalPlan *function_hash;
 
 			/* Store function name in "func_buff[1]" */
 			GET_LP(function_name, function, 0, LP_VALUE);
 			value = function_name->v.lp_value.value;
 			assert(STRING_LITERAL == value->type);
 			YDB_STRING_TO_BUFFER(value->v.string_literal, &func_buff[1]);
+			GET_LP(function_hash, function->v.lp_default.operand[1], 0, LP_VALUE);
+			value = function_hash->v.lp_value.value;
+			assert(FUNCTION_HASH == value->type);
+			YDB_STRING_TO_BUFFER(value->v.string_literal, &func_buff[2]);
 			/* Store gvn that links plan and this function */
-			status = ydb_set_s(&plan_meta[0], 4, func_buff, NULL);
+			status = ydb_set_s(&plan_meta[0], 5, func_buff, NULL);
 			YDB_ERROR_CHECK(status);
 			if (YDB_OK != status) {
 				break;

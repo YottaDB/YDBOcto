@@ -55,3 +55,20 @@ setup() {
 	verify_output TDF002 output.txt
 }
 
+@test "TDF003 : OCTO562 : DROP FUNCTION works with parameterless functions" {
+	load_fixture TDF003.sql subtest novv
+	yottadb -r CHECKFUNCDELETE PARMLESSFUNC 2>&1 | tee -a output.txt	# Confirm the relevant database nodes for the function were deleted
+	verify_output TDF003 output.txt noinfo nodebug
+}
+
+@test "TDF004 : OCTO562 : DROP FUNCTION issues an error when the specified function doesn't exist" {
+	load_fixture TDF004.sql subtest novv
+	verify_output TDF004 output.txt noinfo nodebug
+}
+
+@test "TDF005 : OCTO562 : DROP FUNCTION on overloaded function only deletes targeted definition" {
+	load_fixture TDF005.sql subtest novv
+	yottadb -r CHECKFUNCDELETE ABS 2>&1 | tee -a output.txt	# Confirm the relevant database nodes for the function were deleted
+	# There should be one remaining ABS function definition
+	verify_output TDF005 output.txt noinfo nodebug
+}

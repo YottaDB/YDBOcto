@@ -987,12 +987,6 @@ generic_function_call
       // Change the function name value to be a string literal rather than column reference
       UNPACK_SQL_STATEMENT(value, $column_name, value);
       value->type = FUNCTION_NAME;
-      SQL_STATEMENT(fc->function_schema, create_function_STATEMENT);
-      fc->function_schema->v.create_function = find_function(value->v.string_literal);	// Retrieve the DDL for the given function
-      if (NULL == fc->function_schema->v.create_function) {	// Issue syntax error and abort if function doesn't exist
-        yyerror(&(fc->function_name->loc), NULL, NULL, NULL, NULL, NULL);
-	YYERROR;
-      }
     }
   ;
 
@@ -1829,6 +1823,7 @@ function_definition
 	memset(($$)->v.create_function, 0, sizeof(SqlFunction));
 
 	($$)->v.create_function->function_name = $IDENTIFIER_START;
+	($$)->v.create_function->function_name->v.value->type = FUNCTION_NAME;
 	($$)->v.create_function->parameter_type_list = $function_parameter_type_list;
 	SQL_STATEMENT(type, data_type_STATEMENT);
 	type->v.data_type = (SqlDataType)$data_type;
@@ -1839,7 +1834,7 @@ function_definition
   ;
 
 function_parameter_type_list
-  : /* Empty */ { $$ = 0; }
+  : /* Empty */ { $$ = NULL; }
   |  data_type function_parameter_type_list_tail  {
 	SqlParameterTypeList *parameter_type_list;
 	SqlStatement *type;
@@ -1859,7 +1854,7 @@ function_parameter_type_list
   ;
 
 function_parameter_type_list_tail
-  : /* Empty */ { $$ = 0; }
+  : /* Empty */ { $$ = NULL; }
   | COMMA function_parameter_type_list { $$ = $function_parameter_type_list; }
   ;
 

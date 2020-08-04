@@ -9,27 +9,27 @@ SELECT ABS(ABS(ABS(1, 2))) FROM names;
 SELECT LENGTH(LENGTH(1, 2)) FROM names;
 SELECT LENGTH(LENGTH(LENGTH(1, 2))) FROM names;
 
-[ERROR] PATH:LINENUM DATE TIME : Invalid number of arguments to function ABS: expected 1 got 2)
-Error with syntax near (line 1, column 16):
+[ERROR] PATH:LINENUM DATE TIME : No function 'ABS' defined with given parameter types (INTEGER, INTEGER)
+Error with syntax near (line 1, column 12):
 
 SELECT ABS(ABS(1, 2)) FROM names;
-               ^^^^
+           ^^^
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT ABS(ABS(1, 2)) FROM names;
-[ERROR] PATH:LINENUM DATE TIME : Invalid number of arguments to function ABS: expected 1 got 2)
-Error with syntax near (line 1, column 20):
+[ERROR] PATH:LINENUM DATE TIME : No function 'ABS' defined with given parameter types (INTEGER, INTEGER)
+Error with syntax near (line 1, column 16):
 
 SELECT ABS(ABS(ABS(1, 2))) FROM names;
-                   ^^^^
+               ^^^
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT ABS(ABS(ABS(1, 2))) FROM names;
-[ERROR] PATH:LINENUM DATE TIME : Parameter type mismatch in function 'LENGTH': expected VARCHAR, got NUMERIC
-Error with syntax near (line 1, column 22):
+[ERROR] PATH:LINENUM DATE TIME : No function 'LENGTH' defined with given parameter types (INTEGER, INTEGER)
+Error with syntax near (line 1, column 15):
 
 SELECT LENGTH(LENGTH(1, 2)) FROM names;
-                     ^
+              ^^^^^^
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT LENGTH(LENGTH(1, 2)) FROM names;
-[ERROR] PATH:LINENUM DATE TIME : Parameter type mismatch in function 'LENGTH': expected VARCHAR, got NUMERIC
-Error with syntax near (line 1, column 29):
+[ERROR] PATH:LINENUM DATE TIME : No function 'LENGTH' defined with given parameter types (INTEGER, INTEGER)
+Error with syntax near (line 1, column 22):
 
 SELECT LENGTH(LENGTH(LENGTH(1, 2))) FROM names;
-                            ^
+                     ^^^^^^
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT LENGTH(LENGTH(LENGTH(1, 2))) FROM names;

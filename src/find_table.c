@@ -94,7 +94,7 @@ SqlTable *find_table(const char *table_name) {
 			 * local cache, it is used almost always except for rare cases when we go reload from the database.
 			 */
 			assert(NULL != getenv("octo_dbg_drop_cache_expected"));
-			status = drop_schema_from_local_cache(&subs_array[0], TableSchema);
+			status = drop_schema_from_local_cache(&subs_array[0], TableSchema, NULL);
 			if (YDB_OK != status) {
 				/* YDB_ERROR_CHECK would already have been done inside "drop_schema_from_local_cache()" */
 				return NULL;

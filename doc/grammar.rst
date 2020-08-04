@@ -177,6 +177,10 @@ CREATE FUNCTION
 
 The CREATE FUNCTION statement is used to create SQL functions that map to extrinsic M functions and store these mappings in the database. The keywords CREATE FUNCTION are followed by the name of the SQL function to be created, the data types of its parameters, its return type, and the fully-qualified extrinsic M function name.
 
+CREATE FUNCTION can be used to define multiple functions with the same name, provided the number of parameters and/or the types of the parameters are different. In other words, CREATE FUNCTION supports function overloading.
+
+However, functions cannot be overloaded based on their return type. For example, if two CREATE FUNCTION calls are made with the same name and parameter types, but a different return type, the return type of the last executed statement will be retained and the first discarded. Accordingly, care should be used when overloading functions, particularly when specifying varied return types for a single function.
+
 The SQL function's parameter data types are specified in a list, while the data type of the return value must be a single value (only one object can be returned from a function). The extrinsic function name must be of the form detailed in the `M Programmer's Guide <https://docs.yottadb.com/ProgrammersGuide/langfeat.html#id8>`__.
 
 When a function is created from a CREATE FUNCTION statement, an entry is added to Octo's internal PostgreSQL catalog. In other words, a row is added to the :code:`pg_catalog.pg_proc` system table. To view a list of created functions, their argument number and type(s), and return argument type, you can run:
@@ -185,7 +189,7 @@ When a function is created from a CREATE FUNCTION statement, an entry is added t
 
    select proname,pronargs,prorettype,proargtypes from pg_proc;
 
-Type information for each function parameter and return type will be returned as an OID. This OID can be used to look up type information, including type name, from the :code:`pg_catalog.pg_type` system table. For example, to retrieve the human-readable return type name for all existing functions:
+Type information for each function parameter and return type will be returned as an OID. This OID can be used to look up type information, including type name, from the :code:`pg_catalog.pg_type` system table. For example, to retrieve the human-readable return type and function name of all existing functions:
 
 .. code-block:: SQL
 
@@ -206,6 +210,14 @@ Example:
    CREATE FUNCTION ADD(int, int) RETURNS int AS $$ADD^myextrinsicfunction;
 
    CREATE FUNCTION APPEND(varchar, varchar) RETURNS varchar AS $$APPEND;
+
+To create a parameterless function, the parameter type list may be omitted by leaving the parentheses blank:
+
+Example:
+
+.. code-block:: none
+
+   CREATE FUNCTION userfunc() RETURNS int AS $$userfunc^myextrinsicfunction;
 
 +++++++++++++
 Error Case
@@ -247,17 +259,26 @@ DROP FUNCTION
 
 .. code-block:: SQL
 
-   DROP FUNCTION function_name;
+   DROP FUNCTION function_name [(arg_type [, ...])];
 
-The DROP FUNCTION statement is used to remove functions from the database. The keywords DROP FUNCTION are followed by the name of the function desired to be dropped. Note that the function name provided should be the name of the user-defined SQL function name, not the M label or routine name.
+The DROP FUNCTION statement is used to remove functions from the database. The keywords DROP FUNCTION are followed by the name of the function desired to be dropped and a list of the parameter types expected by the function. These types, if any, must be included as multiple functions may exist with the same name, but must have different parameter type lists.
+
+Note also that the function name provided should be the name of the user-defined SQL function name, not the M label or routine name.
 
 A function deleted using the DROP FUNCTION statement will also be removed from Octo's internal PostgreSQL catalog. In other words, the function will be removed from the :code:`pg_catalog.pg_proc` system table.
 
-Example:
+The following example demonstrates two ways of dropping a function that has no parameters:
 
 .. code-block:: SQL
 
    DROP FUNCTION userfunc;
+   DROP FUNCTION userfunc();
+
+This example demonstrates dropping a function with parameters of types VARCHAR and INTEGER:
+
+.. code-block:: SQL
+
+   DROP FUNCTION userfuncwithargs (VARCHAR, INTEGER);
 
 +++++++++++++
 Error Case

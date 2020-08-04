@@ -12,9 +12,11 @@ LP_INSERT:
         LP_FUNCTION_CALL: 
           LP_VALUE: 'CURRENT_SCHEMA'
           LP_COLUMN_LIST: 
-            LP_VALUE: '$$^%ydboctocurrentSchema'
+            LP_VALUE: '%ydboctoF7yBPpHADmM4I1Qc1HDQe5K'
             LP_COLUMN_LIST: 
-              LP_VALUE: 'VARCHAR'
+              LP_VALUE: '$$^%ydboctocurrentSchema'
+              LP_COLUMN_LIST: 
+                LP_VALUE: 'VARCHAR'
         LP_COLUMN_LIST_ALIAS: 
         - type: STRING_LITERAL
         - alias: CURRENT_SCHEMA
@@ -44,9 +46,11 @@ LP_INSERT:
         LP_FUNCTION_CALL: 
           LP_VALUE: 'CURRENT_SCHEMA'
           LP_COLUMN_LIST: 
-            LP_VALUE: '$$^%ydboctocurrentSchema'
+            LP_VALUE: '%ydboctoF7yBPpHADmM4I1Qc1HDQe5K'
             LP_COLUMN_LIST: 
-              LP_VALUE: 'VARCHAR'
+              LP_VALUE: '$$^%ydboctocurrentSchema'
+              LP_COLUMN_LIST: 
+                LP_VALUE: 'VARCHAR'
         LP_COLUMN_LIST_ALIAS: 
         - type: STRING_LITERAL
         - alias: CURRENT_SCHEMA
@@ -84,14 +88,16 @@ LP_INSERT:
         LP_FUNCTION_CALL: 
           LP_VALUE: 'ABS'
           LP_COLUMN_LIST: 
-            LP_VALUE: '$$ABS^%ydboctosqlfunctions'
+            LP_VALUE: '%ydboctoF0BXSKYtCkTUXzFwpivpB68'
             LP_COLUMN_LIST: 
-              LP_VALUE: 'NUMERIC'
+              LP_VALUE: '$$ABS^%ydboctosqlfunctions'
               LP_COLUMN_LIST: 
-                LP_MULTIPLICATION: 
-                  LP_NEGATIVE: 
-                    LP_VALUE: '2'
-                  LP_COLUMN_ALIAS: NAMES(1).ID
+                LP_VALUE: 'NUMERIC'
+                LP_COLUMN_LIST: 
+                  LP_MULTIPLICATION: 
+                    LP_NEGATIVE: 
+                      LP_VALUE: '2'
+                    LP_COLUMN_ALIAS: NAMES(1).ID
         LP_COLUMN_LIST_ALIAS: 
         - type: NUMERIC_LITERAL
         - alias: ABS
@@ -121,14 +127,16 @@ LP_INSERT:
         LP_FUNCTION_CALL: 
           LP_VALUE: 'ABS'
           LP_COLUMN_LIST: 
-            LP_VALUE: '$$ABS^%ydboctosqlfunctions'
+            LP_VALUE: '%ydboctoF0BXSKYtCkTUXzFwpivpB68'
             LP_COLUMN_LIST: 
-              LP_VALUE: 'NUMERIC'
+              LP_VALUE: '$$ABS^%ydboctosqlfunctions'
               LP_COLUMN_LIST: 
-                LP_MULTIPLICATION: 
-                  LP_NEGATIVE: 
-                    LP_VALUE: '2'
-                  LP_COLUMN_ALIAS: NAMES(1).ID
+                LP_VALUE: 'NUMERIC'
+                LP_COLUMN_LIST: 
+                  LP_MULTIPLICATION: 
+                    LP_NEGATIVE: 
+                      LP_VALUE: '2'
+                    LP_COLUMN_ALIAS: NAMES(1).ID
         LP_COLUMN_LIST_ALIAS: 
         - type: NUMERIC_LITERAL
         - alias: ABS
@@ -171,17 +179,19 @@ LP_INSERT:
         LP_FUNCTION_CALL: 
           LP_VALUE: 'REPLACE'
           LP_COLUMN_LIST: 
-            LP_VALUE: '$$^%ydboctoreplace'
+            LP_VALUE: '%ydboctoFrvGFWZceNJDlLJu4e6S5I1'
             LP_COLUMN_LIST: 
-              LP_VALUE: 'VARCHAR'
+              LP_VALUE: '$$^%ydboctoreplace'
               LP_COLUMN_LIST: 
-                LP_CONCAT: 
-                  LP_VALUE: 'abcd'
-                  LP_VALUE: 'efgh'
+                LP_VALUE: 'VARCHAR'
                 LP_COLUMN_LIST: 
-                  LP_VALUE: 'efgh'
-                  LP_COLUMN_LIST: 
+                  LP_CONCAT: 
                     LP_VALUE: 'abcd'
+                    LP_VALUE: 'efgh'
+                  LP_COLUMN_LIST: 
+                    LP_VALUE: 'efgh'
+                    LP_COLUMN_LIST: 
+                      LP_VALUE: 'abcd'
         LP_COLUMN_LIST_ALIAS: 
         - type: STRING_LITERAL
         - alias: REPLACE
@@ -211,17 +221,19 @@ LP_INSERT:
         LP_FUNCTION_CALL: 
           LP_VALUE: 'REPLACE'
           LP_COLUMN_LIST: 
-            LP_VALUE: '$$^%ydboctoreplace'
+            LP_VALUE: '%ydboctoFrvGFWZceNJDlLJu4e6S5I1'
             LP_COLUMN_LIST: 
-              LP_VALUE: 'VARCHAR'
+              LP_VALUE: '$$^%ydboctoreplace'
               LP_COLUMN_LIST: 
-                LP_CONCAT: 
-                  LP_VALUE: 'abcd'
-                  LP_VALUE: 'efgh'
+                LP_VALUE: 'VARCHAR'
                 LP_COLUMN_LIST: 
-                  LP_VALUE: 'efgh'
-                  LP_COLUMN_LIST: 
+                  LP_CONCAT: 
                     LP_VALUE: 'abcd'
+                    LP_VALUE: 'efgh'
+                  LP_COLUMN_LIST: 
+                    LP_VALUE: 'efgh'
+                    LP_COLUMN_LIST: 
+                      LP_VALUE: 'abcd'
         LP_COLUMN_LIST_ALIAS: 
         - type: STRING_LITERAL
         - alias: REPLACE

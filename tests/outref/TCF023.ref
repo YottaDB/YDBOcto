@@ -10,18 +10,18 @@
 [ INFO] PATH:LINENUM DATE TIME : Generating M file [$PWD/_ydboctoP*.m] (to execute SQL query)
 [ INFO] PATH:LINENUM DATE TIME : Generating M file [$PWD/_ydboctoP*.m] (to execute SQL query)
 # Verify db nodes correctly represent ABS and REPLACE functions and plans that rely on them
-^%ydboctoocto("functions","ABS","plan_metadata","$PWD/_ydboctoP*.m")=""
-^%ydboctoocto("functions","ABS","plan_metadata","$PWD/_ydboctoP*.m")=""
-^%ydboctoocto("functions","ABS","plan_metadata","$PWD/_ydboctoP*.m")=""
-^%ydboctoocto("functions","ABS","plan_metadata","$PWD/_ydboctoP*.m")=""
-^%ydboctoocto("functions","ABS","plan_metadata","$PWD/_ydboctoP*.m")=""
-^%ydboctoocto("functions","ABS","plan_metadata","$PWD/_ydboctoP*.m")=""
-^%ydboctoocto("functions","REPLACE","plan_metadata","$PWD/_ydboctoP*.m")=""
-^%ydboctoocto("functions","REPLACE","plan_metadata","$PWD/_ydboctoP*.m")=""
-^%ydboctoocto("functions","REPLACE","plan_metadata","$PWD/_ydboctoP*.m")=""
-^%ydboctoocto("functions","REPLACE","plan_metadata","$PWD/_ydboctoP*.m")=""
-^%ydboctoocto("functions","REPLACE","plan_metadata","$PWD/_ydboctoP*.m")=""
-^%ydboctoocto("functions","REPLACE","plan_metadata","$PWD/_ydboctoP*.m")=""
+^%ydboctoocto("functions","ABS","%ydboctoFXjpLNKLu1sElo0JiZVgdDG","plan_metadata","$PWD/_ydboctoP*.m")=""
+^%ydboctoocto("functions","ABS","%ydboctoFXjpLNKLu1sElo0JiZVgdDG","plan_metadata","$PWD/_ydboctoP*.m")=""
+^%ydboctoocto("functions","ABS","%ydboctoFXjpLNKLu1sElo0JiZVgdDG","plan_metadata","$PWD/_ydboctoP*.m")=""
+^%ydboctoocto("functions","ABS","%ydboctoFXjpLNKLu1sElo0JiZVgdDG","plan_metadata","$PWD/_ydboctoP*.m")=""
+^%ydboctoocto("functions","ABS","%ydboctoFXjpLNKLu1sElo0JiZVgdDG","plan_metadata","$PWD/_ydboctoP*.m")=""
+^%ydboctoocto("functions","ABS","%ydboctoFXjpLNKLu1sElo0JiZVgdDG","plan_metadata","$PWD/_ydboctoP*.m")=""
+^%ydboctoocto("functions","REPLACE","%ydboctoFrvGFWZceNJDlLJu4e6S5I1","plan_metadata","$PWD/_ydboctoP*.m")=""
+^%ydboctoocto("functions","REPLACE","%ydboctoFrvGFWZceNJDlLJu4e6S5I1","plan_metadata","$PWD/_ydboctoP*.m")=""
+^%ydboctoocto("functions","REPLACE","%ydboctoFrvGFWZceNJDlLJu4e6S5I1","plan_metadata","$PWD/_ydboctoP*.m")=""
+^%ydboctoocto("functions","REPLACE","%ydboctoFrvGFWZceNJDlLJu4e6S5I1","plan_metadata","$PWD/_ydboctoP*.m")=""
+^%ydboctoocto("functions","REPLACE","%ydboctoFrvGFWZceNJDlLJu4e6S5I1","plan_metadata","$PWD/_ydboctoP*.m")=""
+^%ydboctoocto("functions","REPLACE","%ydboctoFrvGFWZceNJDlLJu4e6S5I1","plan_metadata","$PWD/_ydboctoP*.m")=""
 # Verify db nodes correctly represent 8 plans that are reusable (i.e. do not need to be regenerated)
 ^%ydboctoocto("plan_metadata","$PWD/_ydboctoP*.m","output_key")="3"
 ^%ydboctoocto("plan_metadata","$PWD/_ydboctoP*.m","output_key")="3"
@@ -34,12 +34,12 @@
 # Rerun CREATE FUNCTION of REPLACE
 # Verify 8 _ydboctoP*.m plans still remain
 # Verify db nodes corresponding to REPLACE function have been deleted
-^%ydboctoocto("functions","ABS","plan_metadata","$PWD/_ydboctoP*.m")=""
-^%ydboctoocto("functions","ABS","plan_metadata","$PWD/_ydboctoP*.m")=""
-^%ydboctoocto("functions","ABS","plan_metadata","$PWD/_ydboctoP*.m")=""
-^%ydboctoocto("functions","ABS","plan_metadata","$PWD/_ydboctoP*.m")=""
-^%ydboctoocto("functions","ABS","plan_metadata","$PWD/_ydboctoP*.m")=""
-^%ydboctoocto("functions","ABS","plan_metadata","$PWD/_ydboctoP*.m")=""
+^%ydboctoocto("functions","ABS","%ydboctoFXjpLNKLu1sElo0JiZVgdDG","plan_metadata","$PWD/_ydboctoP*.m")=""
+^%ydboctoocto("functions","ABS","%ydboctoFXjpLNKLu1sElo0JiZVgdDG","plan_metadata","$PWD/_ydboctoP*.m")=""
+^%ydboctoocto("functions","ABS","%ydboctoFXjpLNKLu1sElo0JiZVgdDG","plan_metadata","$PWD/_ydboctoP*.m")=""
+^%ydboctoocto("functions","ABS","%ydboctoFXjpLNKLu1sElo0JiZVgdDG","plan_metadata","$PWD/_ydboctoP*.m")=""
+^%ydboctoocto("functions","ABS","%ydboctoFXjpLNKLu1sElo0JiZVgdDG","plan_metadata","$PWD/_ydboctoP*.m")=""
+^%ydboctoocto("functions","ABS","%ydboctoFXjpLNKLu1sElo0JiZVgdDG","plan_metadata","$PWD/_ydboctoP*.m")=""
 # Verify db nodes correctly represent 2 plans that are reusable (i.e. do not need to be regenerated)
 ^%ydboctoocto("plan_metadata","$PWD/_ydboctoP*.m","output_key")="3"
 ^%ydboctoocto("plan_metadata","$PWD/_ydboctoP*.m","output_key")="3"

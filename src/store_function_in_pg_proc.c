@@ -60,13 +60,13 @@ PSQL_TypeOid get_psql_type_from_sqldatatype(SqlDataType type) {
 /* Attempt to store a row in pg_catalog.pg_proc for this function.
  * Note that this function is similar to store_table_in_pg_class.
  */
-int store_function_in_pg_proc(SqlFunction *function) {
+int store_function_in_pg_proc(SqlFunction *function, char *function_hash) {
 	SqlParameterTypeList *start_parameter_type;
 	SqlParameterTypeList *cur_parameter_type;
 	SqlValue *	      value;
 	ydb_buffer_t	      oid_buffer[2];
 	ydb_buffer_t	      pg_proc[5];
-	ydb_buffer_t	      octo_functions[4];
+	ydb_buffer_t	      octo_functions[5];
 	ydb_buffer_t	      row_buffer;
 	long long	      proc_oid;
 	int		      status, result;
@@ -166,8 +166,9 @@ int store_function_in_pg_proc(SqlFunction *function) {
 	YDB_STRING_TO_BUFFER(config->global_names.octo, &octo_functions[0]);
 	YDB_STRING_TO_BUFFER(OCTOLIT_FUNCTIONS, &octo_functions[1]);
 	YDB_STRING_TO_BUFFER(function_name, &octo_functions[2]);
-	YDB_STRING_TO_BUFFER(OCTOLIT_OID, &octo_functions[3]);
-	status = ydb_set_s(&octo_functions[0], 3, &octo_functions[1], &pg_proc[4]);
+	YDB_STRING_TO_BUFFER(function_hash, &octo_functions[3]);
+	YDB_STRING_TO_BUFFER(OCTOLIT_OID, &octo_functions[4]);
+	status = ydb_set_s(&octo_functions[0], 4, &octo_functions[1], &pg_proc[4]);
 	YDB_ERROR_CHECK(status);
 	if (YDB_OK != status) {
 		return 1;

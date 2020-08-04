@@ -101,6 +101,7 @@ void *compress_statement_helper(SqlStatement *stmt, char *out, int *out_length) 
 		CALL_COMPRESS_HELPER(r, function->parameter_type_list, new_function->parameter_type_list, out, out_length);
 		CALL_COMPRESS_HELPER(r, function->return_type, new_function->return_type, out, out_length);
 		CALL_COMPRESS_HELPER(r, function->extrinsic_function, new_function->extrinsic_function, out, out_length);
+		CALL_COMPRESS_HELPER(r, function->function_hash, new_function->function_hash, out, out_length);
 		break;
 	case parameter_type_list_STATEMENT:
 		UNPACK_SQL_STATEMENT(cur_parameter_type_list, stmt, parameter_type_list);

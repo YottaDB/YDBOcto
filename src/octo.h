@@ -196,6 +196,18 @@
 		(BUFFERP)->buf_addr[(BUFFERP)->len_used] = '\0';    /* Often reuse this string, so add null. */ \
 	}
 
+// Helper macro: adds integer values (statement type values, unique_id, column_number etc.) to hash digest
+// This is kept as a macro as that way we can assert that the size of FIELD is the same as the size of an "int".
+// If that assert fails, it is time to use "long" or some other type based on the size of the input.
+#define ADD_INT_HASH(STATE, FIELD)                                                               \
+	{                                                                                        \
+		int lclInt; /* needed in case FIELD is a constant (cannot take & on constant) */ \
+                                                                                                 \
+		assert(sizeof(FIELD) == sizeof(int));                                            \
+		lclInt = FIELD;                                                                  \
+		ydb_mmrhash_128_ingest(STATE, (void *)&lclInt, sizeof(lclInt));                  \
+	}
+
 #define INVOKE_HASH_CANONICAL_QUERY(STATE, RESULT, STATUS)     \
 	{                                                      \
 		STATUS = 0;                                    \
@@ -284,9 +296,9 @@ SqlValueType  get_sqlvaluetype_from_psql_type(PSQL_TypeOid type);
 PSQL_TypeOid  get_psql_type_from_sqlvaluetype(SqlValueType type);
 PSQL_TypeSize get_type_size_from_psql_type(PSQL_TypeOid type);
 SqlTable *    find_table(const char *table_name);
-SqlFunction * find_function(const char *function_name);
-int	      drop_schema_from_local_cache(ydb_buffer_t *name_buffer, SqlSchemaType schema_type);
-SqlColumn *   find_column(char *column_name, SqlTable *table);
+SqlFunction * find_function(const char *function_name, const char *function_hash);
+int	   drop_schema_from_local_cache(ydb_buffer_t *name_buffer, SqlSchemaType schema_type, ydb_buffer_t *function_hash_buffer);
+SqlColumn *find_column(char *column_name, SqlTable *table);
 SqlStatement *find_column_alias_name(SqlStatement *stmt);
 int	      qualify_query(SqlStatement *table_alias_stmt, SqlJoin *parent_join, SqlTableAlias *parent_table_alias);
 int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_alias_stmt, int depth, SqlColumnListAlias **ret_cla);
@@ -340,8 +352,8 @@ SqlStatement *decompress_statement(char *buffer, int out_length);
 int	      store_table_in_pg_class(SqlTable *table, ydb_buffer_t *table_name_buffer);
 int	      delete_table_from_pg_class(ydb_buffer_t *table_name_buffer);
 void	      cleanup_tables();
-int	      store_function_in_pg_proc(SqlFunction *function);
-int	      delete_function_from_pg_proc(ydb_buffer_t *function_name_buffer);
+int	      store_function_in_pg_proc(SqlFunction *function, char *function_hash);
+int	      delete_function_from_pg_proc(ydb_buffer_t *function_name_buffer, ydb_buffer_t *function_hash_buffer);
 
 /* Parse related functions invoked from the .y files (parser.y, select.y etc.) */
 int	      as_name(SqlStatement *as_name, ParseContext *parse_context);

@@ -10,9 +10,6 @@
 #								#
 #################################################################
 
--- This is invoked from Stage 2 of the TDF002 subtest
+-- TSQ011 : function lookup query succeeds without error
 
--- TDF002 : OCTO90 : DROP FUNCTION should delete db nodes for plans that relied on the dropped function
-
-DROP FUNCTION REPLACE (VARCHAR, VARCHAR, VARCHAR);
-
+select proname,typname from pg_catalog.pg_proc inner join pg_catalog.pg_type on pg_catalog.pg_proc.prorettype = pg_catalog.pg_type.oid;

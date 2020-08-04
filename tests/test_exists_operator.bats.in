@@ -13,10 +13,10 @@
 load test_helpers
 
 setup() {
-  init_test
-  createdb
-  load_fixture names.sql
-  load_fixture names.zwr
+	init_test
+	createdb
+	load_fixture names.sql
+	load_fixture names.zwr
 }
 
 @test "TEO01 : OCTO199 : Test EXISTS operator" {

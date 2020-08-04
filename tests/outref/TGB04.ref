@@ -387,46 +387,6 @@ Zero|2
 [ INFO] PATH:LINENUM DATE TIME : Parsing done for SQL command []
 ;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
 ;; ---------------------------------------------------------
-;  --	and COUNT(id) in the ORDER BY column list is treated as a 2nd aggregate function use so we expect to see
-;  --	2 aggregate function counts generated in the physical plan. When #414 is fixed, we will see only 1 aggregate function count.
-;  SELECT firstname,COUNT(id) FROM names GROUP BY firstname ORDER BY 2,COUNT(id);
-;; ---------------------------------------------------------
-
-octoPlan0(cursorId)
-    DO octoPlan1(cursorId)
-    QUIT
-
-octoPlan1(cursorId)
-    NEW %ydboctoz KILL %ydboctocursor(cursorId,"keys",3,"","")
-    SET %ydboctocursor(cursorId,"keys",1,"NAMES","ID")=""
-    FOR  SET %ydboctocursor(cursorId,"keys",1,"NAMES","ID")=$ORDER(^names(%ydboctocursor(cursorId,"keys",1,"NAMES","ID"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"NAMES","ID")="")  DO
-    . NEW %ydboctobool SET %ydboctobool=1
-    . IF %ydboctobool DO
-    . . NEW %ydboctog,%ydboctop
-    . . SET %ydboctog=$$str2mval^%ydboctoplanhelpers($$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^names(%ydboctocursor(cursorId,"keys",1,"NAMES","ID"))),"|",1)))
-    . . SET %ydboctocursor(cursorId,"keys",3,"","","GroupBy",%ydboctog)=""
-    . . SET %ydboctop=%ydboctocursor(cursorId,"keys",1,"NAMES","ID")
-    . . DO Count^%ydboctoplanhelpers(3,%ydboctog,2,%ydboctop)
-    . . SET %ydboctop=%ydboctocursor(cursorId,"keys",1,"NAMES","ID")
-    . . DO Count^%ydboctoplanhelpers(3,%ydboctog,1,%ydboctop)
-    NEW %ydboctog SET %ydboctog=""
-    FOR  DO:$DATA(%ydboctocursor(cursorId,"keys",3,"","","GroupBy",%ydboctog))  SET %ydboctog=$ORDER(%ydboctocursor(cursorId,"keys",3,"","","GroupBy",%ydboctog)) QUIT:(""=%ydboctog)
-    . NEW %ydboctobool SET %ydboctobool=1
-    . IF %ydboctobool DO
-    . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42
-    . . SET %ydboctocursor(cursorId,"keys",3,"","","OrderBy",$GET(%ydboctocursor(cursorId,"keys",3,"","","GroupBy",%ydboctog,1),0),$GET(%ydboctocursor(cursorId,"keys",3,"","","GroupBy",%ydboctog,2),0),%ydboctocursor(cursorId,"keys",3,"",""))=$$str2mval^%ydboctoplanhelpers($$mval2str^%ydboctoplanhelpers($$mvalPiece^%ydboctoplanhelpers(%ydboctog,1)))_$$str2mval^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"keys",3,"","","GroupBy",%ydboctog,1),0))
-    KILL %ydboctocursor(cursorId,"keys",3,"","","GroupBy")
-    NEW %ydboctoi  SET %ydboctoi(0)=1
-    SET %ydboctoi(1)="" FOR  DO:$DATA(%ydboctocursor(cursorId,"keys",3,"","","OrderBy",%ydboctoi(1)))  SET %ydboctoi(1)=$ORDER(%ydboctocursor(cursorId,"keys",3,"","","OrderBy",%ydboctoi(1)),1)  QUIT:(%ydboctoi(1)="")
-    . SET %ydboctoi(2)="" FOR  DO:$DATA(%ydboctocursor(cursorId,"keys",3,"","","OrderBy",%ydboctoi(1),%ydboctoi(2)))  SET %ydboctoi(2)=$ORDER(%ydboctocursor(cursorId,"keys",3,"","","OrderBy",%ydboctoi(1),%ydboctoi(2)),1)  QUIT:(%ydboctoi(2)="")
-    . . SET %ydboctoi(3)="" FOR  SET %ydboctoi(3)=$ORDER(%ydboctocursor(cursorId,"keys",3,"","","OrderBy",%ydboctoi(1),%ydboctoi(2),%ydboctoi(3))) QUIT:(%ydboctoi(3)="")  DO
-    . . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctoi(0))=%ydboctocursor(cursorId,"keys",3,"","","OrderBy",%ydboctoi(1),%ydboctoi(2),%ydboctoi(3))
-    . . . IF $INCREMENT(%ydboctoi(0))
-    KILL %ydboctocursor(cursorId,"keys",3,"","","OrderBy")
-    SET %ydboctocursor(cursorId,"keys",3,"","")=%ydboctoi(0)-1
-    QUIT
-;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
-;; ---------------------------------------------------------
 ;  SELECT DISTINCT 1 + COUNT(n1.id * 2),n1.firstname from names n1 where n1.id IN (SELECT DISTINCT MAX((n2.id % 3) + 4) from names n2 GROUP BY n2.firstname) GROUP BY n1.firstname ORDER BY 2, 1;
 ;; ---------------------------------------------------------
 
@@ -487,4 +447,44 @@ octoPlan2(cursorId)
     KILL %ydboctocursor(cursorId,"keys",6,"","","OrderBy")
     SET %ydboctocursor(cursorId,"keys",6,"","")=%ydboctoi(0)-1
     KILL %ydboctozdistinct(6)
+    QUIT
+;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
+;; ---------------------------------------------------------
+;  --	and COUNT(id) in the ORDER BY column list is treated as a 2nd aggregate function use so we expect to see
+;  --	2 aggregate function counts generated in the physical plan. When #414 is fixed, we will see only 1 aggregate function count.
+;  SELECT firstname,COUNT(id) FROM names GROUP BY firstname ORDER BY 2,COUNT(id);
+;; ---------------------------------------------------------
+
+octoPlan0(cursorId)
+    DO octoPlan1(cursorId)
+    QUIT
+
+octoPlan1(cursorId)
+    NEW %ydboctoz KILL %ydboctocursor(cursorId,"keys",3,"","")
+    SET %ydboctocursor(cursorId,"keys",1,"NAMES","ID")=""
+    FOR  SET %ydboctocursor(cursorId,"keys",1,"NAMES","ID")=$ORDER(^names(%ydboctocursor(cursorId,"keys",1,"NAMES","ID"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"NAMES","ID")="")  DO
+    . NEW %ydboctobool SET %ydboctobool=1
+    . IF %ydboctobool DO
+    . . NEW %ydboctog,%ydboctop
+    . . SET %ydboctog=$$str2mval^%ydboctoplanhelpers($$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^names(%ydboctocursor(cursorId,"keys",1,"NAMES","ID"))),"|",1)))
+    . . SET %ydboctocursor(cursorId,"keys",3,"","","GroupBy",%ydboctog)=""
+    . . SET %ydboctop=%ydboctocursor(cursorId,"keys",1,"NAMES","ID")
+    . . DO Count^%ydboctoplanhelpers(3,%ydboctog,2,%ydboctop)
+    . . SET %ydboctop=%ydboctocursor(cursorId,"keys",1,"NAMES","ID")
+    . . DO Count^%ydboctoplanhelpers(3,%ydboctog,1,%ydboctop)
+    NEW %ydboctog SET %ydboctog=""
+    FOR  DO:$DATA(%ydboctocursor(cursorId,"keys",3,"","","GroupBy",%ydboctog))  SET %ydboctog=$ORDER(%ydboctocursor(cursorId,"keys",3,"","","GroupBy",%ydboctog)) QUIT:(""=%ydboctog)
+    . NEW %ydboctobool SET %ydboctobool=1
+    . IF %ydboctobool DO
+    . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",3,"","")) %ydboctoz=42
+    . . SET %ydboctocursor(cursorId,"keys",3,"","","OrderBy",$GET(%ydboctocursor(cursorId,"keys",3,"","","GroupBy",%ydboctog,1),0),$GET(%ydboctocursor(cursorId,"keys",3,"","","GroupBy",%ydboctog,2),0),%ydboctocursor(cursorId,"keys",3,"",""))=$$str2mval^%ydboctoplanhelpers($$mval2str^%ydboctoplanhelpers($$mvalPiece^%ydboctoplanhelpers(%ydboctog,1)))_$$str2mval^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"keys",3,"","","GroupBy",%ydboctog,1),0))
+    KILL %ydboctocursor(cursorId,"keys",3,"","","GroupBy")
+    NEW %ydboctoi  SET %ydboctoi(0)=1
+    SET %ydboctoi(1)="" FOR  DO:$DATA(%ydboctocursor(cursorId,"keys",3,"","","OrderBy",%ydboctoi(1)))  SET %ydboctoi(1)=$ORDER(%ydboctocursor(cursorId,"keys",3,"","","OrderBy",%ydboctoi(1)),1)  QUIT:(%ydboctoi(1)="")
+    . SET %ydboctoi(2)="" FOR  DO:$DATA(%ydboctocursor(cursorId,"keys",3,"","","OrderBy",%ydboctoi(1),%ydboctoi(2)))  SET %ydboctoi(2)=$ORDER(%ydboctocursor(cursorId,"keys",3,"","","OrderBy",%ydboctoi(1),%ydboctoi(2)),1)  QUIT:(%ydboctoi(2)="")
+    . . SET %ydboctoi(3)="" FOR  SET %ydboctoi(3)=$ORDER(%ydboctocursor(cursorId,"keys",3,"","","OrderBy",%ydboctoi(1),%ydboctoi(2),%ydboctoi(3))) QUIT:(%ydboctoi(3)="")  DO
+    . . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctoi(0))=%ydboctocursor(cursorId,"keys",3,"","","OrderBy",%ydboctoi(1),%ydboctoi(2),%ydboctoi(3))
+    . . . IF $INCREMENT(%ydboctoi(0))
+    KILL %ydboctocursor(cursorId,"keys",3,"","","OrderBy")
+    SET %ydboctocursor(cursorId,"keys",3,"","")=%ydboctoi(0)-1
     QUIT

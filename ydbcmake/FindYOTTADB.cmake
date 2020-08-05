@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -41,7 +41,7 @@
 
 find_package(PkgConfig QUIET)
 if(PKG_CONFIG_FOUND)
-    # See comment in ydbcmake/CMakeDetermineMUMPSCompiler.cmake for why the below two set commands are needed.
+    # See comment in ydbcmake/CMakeDetermineMCompiler.cmake for why the below two set commands are needed.
     set(CMAKE_FIND_LIBRARY_PREFIXES "lib")
     set(CMAKE_FIND_LIBRARY_SUFFIXES ".so;.a;.dylib")
     pkg_check_modules(PC_YOTTADB QUIET yottadb)

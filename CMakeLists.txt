@@ -14,7 +14,7 @@ cmake_minimum_required (VERSION 3.0)
 
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/;${CMAKE_SOURCE_DIR}/ydbcmake/")
 
-project(YDBOcto C MUMPS)
+project(YDBOcto C M)
 set(YDBOCTO_MAJOR_VERSION 0)
 set(YDBOCTO_MINOR_VERSION 2)
 set(YDBOCTO_PATCH_VERSION 0)

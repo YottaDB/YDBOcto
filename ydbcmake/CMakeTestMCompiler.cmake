@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -35,31 +35,4 @@
 #
 # For more information, please refer to <http://unlicense.org/>
 
-set(CMAKE_MUMPS_CREATE_SHARED_LIBRARY "<CMAKE_C_COMPILER> -shared -o <TARGET> <OBJECTS>")
-set(CMAKE_MUMPS_CREATE_SHARED_MODULE "<CMAKE_C_COMPILER> <CMAKE_SHARED_LIBRARY_C_FLAGS> -o <TARGET> <OBJECTS>")
-set(CMAKE_MUMPS_CREATE_STATIC_LIBRARY "")
-
-# Option to suppress mumps compiler warnings
-option(MUMPS_NOWARNING "Disable warnings and ignore status code from MUMPS compiler")
-option(MUMPS_EMBED_SOURCE "Embed source code in generated shared object" ON)
-option(MUMPS_DYNAMIC_LITERALS "Enable dynamic loading of source code literals" OFF)
-
-set(CMAKE_MUMPS_COMPILE_OBJECT "LC_ALL=\"${LC_ALL}\" ydb_chset=\"${ydb_chset}\" ydb_icu_version=\"${icu_version}\" <CMAKE_MUMPS_COMPILER> -object=<OBJECT>")
-
-if(MUMPS_EMBED_SOURCE)
-  set(CMAKE_MUMPS_COMPILE_OBJECT "${CMAKE_MUMPS_COMPILE_OBJECT} -embed_source")
-endif()
-
-if(MUMPS_DYNAMIC_LITERALS)
-  set(CMAKE_MUMPS_COMPILE_OBJECT "${CMAKE_MUMPS_COMPILE_OBJECT} -dynamic_literals")
-endif()
-
-if(MUMPS_NOWARNING)
-  set(CMAKE_MUMPS_COMPILE_OBJECT "${CMAKE_MUMPS_COMPILE_OBJECT} -nowarning <SOURCE> || true")
-else()
-  set(CMAKE_MUMPS_COMPILE_OBJECT "${CMAKE_MUMPS_COMPILE_OBJECT} <SOURCE>")
-endif()
-
-set(CMAKE_MUMPS_LINK_EXECUTABLE "")
-
-set(CMAKE_MUMPS_OUTPUT_EXTENSION .o)
+set(CMAKE_M_COMPILER_WORKS 1 CACHE INTERNAL "")

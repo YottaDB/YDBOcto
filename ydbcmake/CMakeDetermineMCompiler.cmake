@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -37,7 +37,7 @@
 
 
 # Sets the following variables:
-#  CMAKE_MUMPS_COMPILER
+#  CMAKE_M_COMPILER
 
 find_package(PkgConfig QUIET)
 if(PKG_CONFIG_FOUND)
@@ -62,7 +62,7 @@ endif()
 find_path(mumps_dir NAMES mumps
 	HINTS $ENV{ydb_dist} $ENV{gtm_dist} ${PC_YOTTADB_INCLUDEDIR} )
 
-if(MUMPS_UTF8_MODE)
+if(M_UTF8_MODE)
   find_program(PKGCONFIG NAMES pkg-config)
   if(PKGCONFIG)
     execute_process(
@@ -103,20 +103,20 @@ if(MUMPS_UTF8_MODE)
       endif()
     endforeach(lc)
     if("${LC_ALL}" STREQUAL "")
-      message("Locale undefined. Expect to see NONUTF8LOCALE during MUMPS routine compilation: ${locale_list}\n")
+      message("Locale undefined. Expect to see NONUTF8LOCALE during M routine compilation: ${locale_list}\n")
     endif()
   else()
     message(FATAL_ERROR "Unable to find 'locale'.  Set LOCALECFG in CMake cache.")
   endif()
-  set(CMAKE_MUMPS_COMPILER ${mumps_dir}/utf8/mumps)
+  set(CMAKE_M_COMPILER ${mumps_dir}/utf8/mumps)
   set(ydb_chset "UTF-8")
 else()
-  set(CMAKE_MUMPS_COMPILER ${mumps_dir}/mumps)
+  set(CMAKE_M_COMPILER ${mumps_dir}/mumps)
 endif()
 
 
-configure_file(${CMAKE_CURRENT_LIST_DIR}/CMakeMUMPSCompiler.cmake.in
-  ${CMAKE_PLATFORM_INFO_DIR}/CMakeMUMPSCompiler.cmake
+configure_file(${CMAKE_CURRENT_LIST_DIR}/CMakeMCompiler.cmake.in
+  ${CMAKE_PLATFORM_INFO_DIR}/CMakeMCompiler.cmake
   )
 
-set(CMAKE_MUMPS_COMPILER_ENV_VAR "mumps")
+set(CMAKE_M_COMPILER_ENV_VAR "mumps")

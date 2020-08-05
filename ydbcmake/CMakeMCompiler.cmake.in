@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -35,5 +35,5 @@
 #
 # For more information, please refer to <http://unlicense.org/>
 
-set(CMAKE_MUMPS_COMPILER "@CMAKE_MUMPS_COMPILER@")
-set(CMAKE_MUMPS_SOURCE_FILE_EXTENSIONS m)
+set(CMAKE_M_COMPILER "@CMAKE_M_COMPILER@")
+set(CMAKE_M_SOURCE_FILE_EXTENSIONS m)

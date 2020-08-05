@@ -1449,7 +1449,7 @@ returnSimilarAggregateFunction(isAggrFuncColumn,table,column)
 	. set function="ROUND("_function
 	set result=function_"("_aggModifier($random(aggModifier))_table_"."_column_")"
 	if "ROUND(AVG"=function do
-	. set result=result_"), 11)"
+	. set result=result_", 11)"
 	quit result
 
 ; #FUTURE_TODO: Eventually increase the depth that CASEs can occur, currently a single CASE can be nested inside of a single CASE

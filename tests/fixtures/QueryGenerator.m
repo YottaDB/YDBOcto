@@ -22,9 +22,6 @@
 	; #FUTURE_TODO: Add TRUE and FALSE into any place that has expressions (WHERE, ON, HAVING, ...)
 	;               Started with version 9 of WHERE clause
 	;               WHERE ((id = 1) = TRUE)
-	; #FUTURE_TODO: Boolean is now a supported type, test with boolean.sql and boolean.zwr
-	;               EX: WHERE (NOT) booleanColumn
-	;               Currently disabled until issue 346 is resolved
 	; #FUTURE_TODO: Expand aggregate functions
 	;               SUM(column) -> SUM(column1 + column2 ... + 1 * 100)
 	; #FUTURE_TODO: Put aggregate functions into other places in the query
@@ -425,8 +422,8 @@ whereClause(queryDepth)
 	do assert(enableWhereClause)
 	new result,randInt,i,x
 	set result=" WHERE "
-	; #FUTURE_TODO: Increase below to 12 when $$returnCaseFunction infinite loop and malformed query issues are resolved
-	set randInt=$random(10) ; 0-9 ; Increase this range as new versions of WHERE clauses are added
+	; #FUTURE_TODO: Increase below to 17 when $$returnCaseFunction infinite loop and malformed query issues are resolved
+	set randInt=$random(15) ; 0-14 ; Increase this range as new versions of WHERE clauses are added
 
 	set table=$piece(fc," ",2)
 
@@ -439,30 +436,27 @@ whereClause(queryDepth)
 	; WHERE clause type 8 is LIKE with wildcards, this comparison can only occur on VARCHARs, not numeric/integer/boolean
 	if ((randInt=2)!(randInt=8))  do
 	. set x="sqlInfo("""_table_""")"
-	. for i=1:1  do  quit:($find(type,"VARCHAR")'=0)  do assert(i<16)
-	. . set x=$query(@x)
+	. set x=$query(@x)
+	. for i=1:1  do  quit:(($find(type,"VARCHAR")'=0)!(x=""))  do assert(i<16)
 	. . set type=$qsubscript(x,4)
 	. . if ($qsubscript(x,1)'=table)  set randInt=0
+	. . set x=$query(@x)
+	. set:x="" randInt=0
+
+	; Don't use a random generator that requires a BOOLEAN type column if it's not present
+	; WHERE clause type 10 is boolean-type-column
+	; WHERE clause type 11-14 are boolean operations
+	if ((10<=randInt)&(randInt<=14)) do
+	. set x="sqlInfo("""_table_""")"
+	. for i=1:1:15  do  quit:(($find(type,"BOOLEAN")'=0)!(x=""))
+	. . set x=$query(@x)
+	. . if (x'="")  set type=$qsubscript(x,4)
+	. . if ((x'="")&($qsubscript(x,1)'=table))  set randInt=0
+	. set:((i=15)!(x="")) randInt=0
 
 	; If enableSubQuery is FALSE, randInt=5 and randInt=9 cannot be allowed as they invoke "generateSubQuery"
 	; So in those cases, set randInt=0 instead.
 	set:('enableSubQuery)&((randInt=5)!(randInt=9)) randInt=0
-
-	; The comparison for randInt is set to 999 as to allow for new cases in the
-	; WHERE clause to be added in numerical order, when reenabled change the 999
-	; to whatever the next integer value would be in the series
-	; When randInt=999 a BOOLEAN type column is necessary in the selected table,
-	; this code block ensures that this requirement is satisfied, and if it isn't
-	; then set randInt to a different value.
-	; WHERE clause type 999 is just "WHERE boolean-type-column"
-	; Currently commented out until issue 346 is resolved
-	;if (randInt=999)  do
-	;. set x="sqlInfo("""_table_""")"
-	;. for i=1:1:15  do  quit:(($find(type,"BOOLEAN")'=0)!(x=""))
-	;. . set x=$query(@x)
-	;. . if (x'="")  set type=$qsubscript(x,4)
-	;. . if ((x'="")&($qsubscript(x,1)'=table))  set randInt=0
-	;. if ((i=15)!(x=""))  set randInt=0
 
 	if (randInt=0) do
 	. new loopCount,i,leftSide,rightSide,notString,chosenColumn,opened
@@ -621,12 +615,44 @@ whereClause(queryDepth)
 	. . set result=result_leftSide_" "_$$comparisonOperators_" "_word_" "_rightSide
 	. else  set result=""
 
-	if (randInt=10) do
+	; When randInt=10 a BOOLEAN type column is necessary in the selected table,
+	; this code block ensures that this requirement is satisfied, and if it isn't
+	; then set randInt to a different value.
+	; WHERE clause type 10 is just "WHERE boolean-type-column"
+	if (randInt=10)  do
+	. set x="sqlInfo("""_table_""")"
+	. set result=result_table_"."_$$getColumnOfType(table,"BOOLEAN")
+
+	if ((11<=randInt)&(randInt<=13)) do
+	. set x="sqlInfo("""_table_""")"
+	. set chosenColumn=table_"."_$$getColumnOfType(table,"BOOLEAN")
+	. set:11=randInt result=result_"NOT "_chosenColumn
+	. set:12=randInt result=result_chosenColumn_" = TRUE"
+	. set:13=randInt result=result_chosenColumn_" = FALSE"
+
+	; Boolean expressions can be combined to create more complex Booleans
+	; Example: ((id = 1) OR (firstname = 'Zero')) AND (lastname '= 'Cool')
+	; #FUTURE_TODO: Maybe combine this with WHERE clause version #0 (randInt=0)
+	if (randInt=14) do
+	. new operator,leftSide,rightSide
+	. set operator=$$comparisonOperators
+	. set chosenColumn=$$chooseColumn(table)
+	. set leftSide=""
+	. set rightSide=""
+	. if ($random(2))  set leftSide=table_"."_chosenColumn
+	. else  set leftSide=$$chooseEntry(table,chosenColumn)
+	. if ($random(2))  set rightSide=table_"."_chosenColumn
+	. else  set rightSide=$$chooseEntry(table,chosenColumn)
+	. set result=result_"(("_leftSide_" "_operator_" "_rightSide_") = "_$$tf_")"
+
+	; #FUTURE_TODO: This sometimes generates invalid queries. Skip it for now.
+	if (randInt=999) do
 	. new toCompare
 	. set toCompare=$random(4)+1
 	. set result=result_toCompare_" = "_$$returnCaseFunction("WHERE","randomNumbers","numbers","FALSE",toCompare)
 
-	if (randInt=11) do
+	; #FUTURE_TODO: This sometimes generates invalid queries. Skip it for now.
+	if (randInt=999) do
 	. new leftCaseArg,rightCaseArg,i,toCompare
 	. set leftColumn=$$chooseColumn(table)
 	.
@@ -647,36 +673,6 @@ whereClause(queryDepth)
 	. . set toCompare=table_"."_$$chooseColumn(table)
 	. . set result=result_toCompare_" = "_$$returnCaseFunction("WHERE","lrComparison","columns","FALSE",toCompare)
 	. else  set result=""
-
-	; #FUTURE_TODO: Add more complexity here (boolean operators mostly)
-	;               WHERE NOT booleanColumn, WHERE booleanColumn=TRUE/FALSE
-	; Currently disabled until issue 346 is resolved
-	; The comparison for randInt is set to 999 as to allow for new cases in the
-	; WHERE clause to be added in numerical order, when reenabled change the 999
-	; to whatever the next integer value would be in the series
-	if (randInt=999) do
-	. new i
-	. set chosenColumn=$$getColumnOfType(table,"BOOLEAN")
-	. set result=result_chosenColumn
-
-	; #FUTURE_TODO: Boolean expressions can be combined to create more complex Booleans
-	;               Example: ((id = 1) OR (firstname = 'Zero')) AND (lastname '= 'Cool')
-	; #FUTURE_TODO: Maybe combine this with WHERE clause version #0 (randInt=0)
-	; Disabled until issues 346,353 are resolved, also isn't yet finished
-	; The comparison for randInt is set to 999 as to allow for new cases in the
-	; WHERE clause to be added in numerical order, when reenabled change the 999
-	; to whatever the next integer value would be in the series
-	if (randInt=999) do
-	. new operator,leftSide,rightSide
-	. set operator=$$comparisonOperators
-	. set chosenColumn=$$chooseColumn(table)
-	. set leftSide=""
-	. set rightSide=""
-	. if ($random(2))  set leftSide=chosenColumn
-	. else  set leftSide=$$chooseEntry(table,chosenColumn)
-	. if ($random(2))  set rightSide=chosenColumn
-	. else  set rightSide=$$chooseEntry(table,chosenColumn)
-	. set result=result_"(("_leftSide_" "_operator_" "_rightSide_") = "_$$tf_")"
 
 	quit result
 
@@ -1734,26 +1730,23 @@ innerWhereClause(queryDepth)
 	; WHERE clause type 8 is LIKE with wildcards, this comparison can only occur on VARCHARs, not numeric/integer
 	if ((randInt=2)!(randInt=8))  do
 	. set x="sqlInfo("""_innerTable_""")"
-	. for i=1:1  do  quit:($find(type,"VARCHAR")'=0)  do assert(i<16)
-	. . set x=$query(@x)
+	. set x=$query(@x)
+	. for i=1:1  do  quit:(($find(type,"VARCHAR")'=0)!(x=""))  do assert(i<16)
 	. . set type=$qsubscript(x,4)
 	. . if ($qsubscript(x,1)'=innerTable)  set randInt=0
+	. . set x=$query(@x)
+	. set:x="" randInt=0
 
-	; The comparison for randInt is set to 999 as to allow for new cases in the
-	; WHERE clause to be added in numerical order, when reenabled change the 999
-	; to whatever the next integer value would be in the series
-	; When randInt=999 a BOOLEAN type column is necessary in the selected table,
-	; this code block ensures that this requirement is satisfied, and if it isn't
-	; then set randInt to a different value.
-	; WHERE clause type 999 is just "WHERE boolean-type-column"
-	; Currently commented out until issue 346 is resolved
-	;if (randInt=999)  do
-	;. set x="sqlInfo("""_innerTable_""")"
-	;. for i=1:1:15  do  quit:(($find(type,"BOOLEAN")'=0)!(x=""))
-	;. . set x=$query(@x)
-	;. . if (x'="")  set type=$qsubscript(x,4)
-	;. . if ((x'="")&($qsubscript(x,1)'=innerTable))  set randInt=0
-	;. if ((i=15)!(x=""))  set randInt=0
+	; Don't use a random generator that requires a BOOLEAN type column if it's not present
+	; WHERE clause type 12 is boolean-type-column
+	; WHERE clause type 13-16 are boolean operations
+	if ((12<=randInt)&(randInt<=16)) do
+	. set x="sqlInfo("""_table_""")"
+	. for i=1:1:15  do  quit:(($find(type,"BOOLEAN")'=0)!(x=""))
+	. . set x=$query(@x)
+	. . if (x'="")  set type=$qsubscript(x,4)
+	. . if ((x'="")&($qsubscript(x,1)'=table))  set randInt=0
+	. set:((i=15)!(x="")) randInt=0
 
 	if (randInt=0) do
 	. new loopCount,i,leftSide,rightSide,notString,chosenColumn,opened
@@ -1943,33 +1936,34 @@ innerWhereClause(queryDepth)
 	. . set result=result_toCompare_" = "_$$returnCaseFunction("WHERE","lrComparison","columns","TRUE",toCompare)
 	. else  set result=""
 
-	; #FUTURE_TODO: Add more complexity here (boolean operators mostly)
-	;               WHERE NOT booleanColumn, WHERE booleanColumn=TRUE/FALSE
-	; Currently disabled until issue 346 is resolved
-	; The comparison for randInt is set to 999 as to allow for new cases in the
-	; WHERE clause to be added in numerical order, when reenabled change the 999
-	; to whatever the next integer value would be in the series
-	if (randInt=999) do
-	. new i
-	. set chosenColumn=$$getColumnOfType(innerTable,"BOOLEAN")
-	. set result=result_chosenColumn
+	; When randInt=12 a BOOLEAN type column is necessary in the selected table,
+	; this code block ensures that this requirement is satisfied, and if it isn't
+	; then set randInt to a different value.
+	; WHERE clause type 999 is just "WHERE boolean-type-column"
+	if (randInt=12)  do
+	. set result=result_table_"."_$$getColumnOfType(table,"BOOLEAN")
 
-	; #FUTURE_TODO: Boolean expressions can be combined to create more complex Booleans
-	;               Example: ((id = 1) OR (firstname = 'Zero')) AND (lastname '= 'Cool')
+	; WHERE NOT booleanColumn, WHERE booleanColumn=TRUE/FALSE
+	if ((13<=randInt)&(randInt<=15)) do
+	. new i
+	. set result=result_table_"."_$$getColumnOfType(table,"BOOLEAN")
+	. set chosenColumn=table_"."_$$getColumnOfType(innerTable,"BOOLEAN")
+	. set:13=randInt result=result_"NOT "_chosenColumn
+        . set:14=randInt result=result_chosenColumn_" = TRUE"
+        . set:15=randInt result=result_chosenColumn_" = FALSE"
+
+	; Boolean expressions can be combined to create more complex Booleans
+	; Example: ((id = 1) OR (firstname = 'Zero')) AND (lastname '= 'Cool')
 	; #FUTURE_TODO: Maybe combine this with WHERE clause version #0 (randInt=0)
-	; Disabled until issues 346 are resolved, also isn't yet finished
-	; The comparison for randInt is set to 999 as to allow for new cases in the
-	; WHERE clause to be added in numerical order, when reenabled change the 999
-	; to whatever the next integer value would be in the series
-	if (randInt=999) do
+	if (randInt=16) do
 	. new operator,leftSide,rightSide
 	. set operator=$$comparisonOperators
 	. set chosenColumn=$$chooseColumn(innerTable)
 	. set leftSide=""
 	. set rightSide=""
-	. if ($random(2))  set leftSide=chosenColumn
+	. if ($random(2))  set leftSide=table_"."_chosenColumn
 	. else  set leftSide=$$chooseEntry(innerTable,chosenColumn)
-	. if ($random(2))  set rightSide=chosenColumn
+	. if ($random(2))  set rightSide=table_"."_chosenColumn
 	. else  set rightSide=$$chooseEntry(innerTable,chosenColumn)
 	. set result=result_"(("_leftSide_" "_operator_" "_rightSide_") = "_$$tf_")"
 
@@ -1987,7 +1981,8 @@ getColumnOfType(table,neededType)
 getColumnType(table,column)
 	new maxcols,col
 	set maxcols=tableColumnCounts(table)
-	for i=1:1:maxcols set col=$order(columns(table,i,"")) quit:col=column
+	for i=1:1:maxcols set col=$order(columns(table,i,"")) quit:col=column  do
+	. set col=$select(col="INT":"INTEGER",1:col)
 	do assert(i<maxcols)
 	quit columns(table,i,col)
 
@@ -1995,6 +1990,7 @@ getType(typestr)
 	new type
 	set type=$piece(typestr,"(",1)	; e.g. VARCHAR(32) -> VARCHAR
 	set:"TEXT"=type type="VARCHAR"	; convert TEXT -> VARCHAR
+	set:"INT"=type type="INTEGER"	; convert INT -> INTEGER
 	quit type
 
 getRealTable(table,column)

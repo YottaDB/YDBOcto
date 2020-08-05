@@ -34,7 +34,6 @@ setup() {
 }
 
 @test "TQG05 : Test Query Generator against boolean database" {
-	skip #Skipped until issue 346 is resolved
 	run_query_generator boolean TQG05-
 }
 

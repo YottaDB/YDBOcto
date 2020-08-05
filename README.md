@@ -34,6 +34,16 @@ bash -c "$(wget -O - https://apt.llvm.org/llvm.sh)"
 sudo yum install clang-tools-extra
 ```
 
+### YDBCMake
+
+Octo uses the upstream [YDBCMake] repository for building using YottaDB as the M compiler. Any changes to `ydbcmake/` should first be upstreamed to that repository.
+Once the changes are upstreamed, you can merge them into Octo using
+```
+git pull --no-rebase git@gitlab.com:YottaDB/Tools/YDBCMake.git
+```
+
+[YDBCMake]: https://gitlab.com/YottaDB/Tools/YDBCMake
+
 ## Quickstart
 
 ### Install prerequisites

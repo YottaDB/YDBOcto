@@ -596,7 +596,6 @@ if (DISABLE_INSTALL MATCHES "OFF")
 	install(FILES ${aux_files}
 			DESTINATION r)
 
-
 	if(utf8_installed)
 		install(FILES ${PROJECT_BINARY_DIR}/src/utf8/_ydbocto.so
 			DESTINATION ${CMAKE_INSTALL_PREFIX}/o/utf8)
@@ -621,7 +620,7 @@ if (DISABLE_INSTALL MATCHES "OFF")
 
 	# Add tests to make install target, if tests are supported. Only the limited test suite should be run at
 	# install time so skip this rule for when the full test suite is requested.
-	if(BATS_FOUND AND "${FULL_TEST_SUITE}" MATCHES "OFF")
+	if(BATS_FOUND AND "${FULL_TEST_SUITE}" MATCHES "OFF" AND "${ENABLE_INSTALL_TESTS}" MATCHES "ON")
 		install(CODE "execute_process(COMMAND make test WORKING_DIRECTORY ${PROJECT_BINARY_DIR} RESULT_VARIABLE retcode)
 			if(NOT \${retcode} EQUAL \"0\")
 				MESSAGE( FATAL_ERROR \"Limited test suite failed with error code \${retcode}\")

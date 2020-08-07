@@ -26,7 +26,7 @@ ${1} ..
 make
 make install
 cd ../build_utf8
-${1} -DMUMPS_UTF8_MODE=1 ..
+${1} -DM_UTF8_MODE=1 ..
 make
 make install
 popd

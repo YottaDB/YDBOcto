@@ -36,7 +36,14 @@ int64_t get_mem_usage() {
 
 	do {
 		status = fgets(mem_used, INT64_TO_STRING_MAX, fp);
-	} while ((NULL == status) && (EINTR == errno));
+		if (NULL != status)
+			break;
+		if (EINTR != errno)
+			break;
+		ydb_eintr_handler(); /* Needed to invoke YDB signal handler (for signal that caused
+				      * EINTR) in a deferred but timely fashion.
+				      */
+	} while (TRUE);
 	pclose(fp);
 	if (NULL == status) {
 		ERROR(ERR_SYSCALL, "fgets", errno, strerror(errno))

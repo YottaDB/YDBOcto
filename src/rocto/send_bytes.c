@@ -52,8 +52,12 @@ int send_bytes(RoctoSession *session, char *message, size_t length) {
 			written_now
 			    = send(session->connection_fd, &((char *)message)[written_so_far], to_write - written_so_far, 0);
 			if (written_now < 0) {
-				if (errno == EINTR)
+				if (EINTR == errno) {
+					ydb_eintr_handler(); /* Needed to invoke YDB signal handler (for signal that caused
+							      * EINTR) in a deferred but timely fashion.
+							      */
 					continue;
+				}
 				if (errno == ECONNRESET)
 					return 1;
 				if (errno == EPIPE)

@@ -58,7 +58,14 @@ int rocto_main_loop(RoctoSession *session) {
 			FD_ZERO(&rfds);
 			FD_SET(session->connection_fd, &rfds);
 			result = select(session->connection_fd + 1, &rfds, NULL, NULL, &select_timeout);
-		} while (-1 == result && EINTR == errno);
+			if (-1 != result)
+				break;
+			if (EINTR != errno)
+				break;
+			ydb_eintr_handler(); /* Needed to invoke YDB signal handler (for signal that caused
+					      * EINTR) in a deferred but timely fashion.
+					      */
+		} while (TRUE);
 
 		if (-1 == result) {
 			ERROR(ERR_SYSCALL, "select", errno, strerror(errno));

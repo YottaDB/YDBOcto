@@ -203,6 +203,9 @@ int main(int argc, char **argv) {
 				break;
 			}
 			if (EINTR == errno) {
+				ydb_eintr_handler(); /* Needed to invoke YDB signal handler (for signal that caused
+						      * EINTR) in a deferred but timely fashion.
+						      */
 				continue;
 			}
 			ERROR(ERR_SYSCALL, "accept", errno, strerror(errno));

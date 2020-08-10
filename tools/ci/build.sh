@@ -125,7 +125,18 @@ if [[ $? -ne 0 ]]; then
 fi
 
 echo "# Compile Octo"
+# We do not want any failures in "make" to exit the script (need to print the build errors into stdout)
+# So disable the "set -e" setting temporarily for this step.
+set +e
 make -j `grep -c ^processor /proc/cpuinfo` 2> make_warnings.txt
+exit_status=$?
+if [[ 0 != $exit_status ]]; then
+	echo "# make failed with exit status [$exit_status]. make output follows below"
+	cat make_warnings.txt
+	exit $exit_status
+fi
+# Re-enable "set -e" now that "make" is done.
+set -e
 
 echo "# Check for unexpected warnings and error/exit if unexpected errors are found"
 ../tools/ci/sort_warnings.sh make_warnings.txt

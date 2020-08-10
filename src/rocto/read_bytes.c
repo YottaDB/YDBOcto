@@ -54,7 +54,10 @@ int read_bytes(RoctoSession *session, char *buffer, int32_t buffer_size, int32_t
 			if (read_now < 0) {
 				tls_errno = gtm_tls_errno();
 				err_str = gtm_tls_get_error();
-				if (tls_errno == EINTR) {
+				if (EINTR == tls_errno) {
+					ydb_eintr_handler(); /* Needed to invoke YDB signal handler (for signal that caused
+							      * EINTR) in a deferred but timely fashion.
+							      */
 					continue;
 				} else if (tls_errno == ECONNRESET) {
 					errno = ECONNRESET;
@@ -72,8 +75,12 @@ int read_bytes(RoctoSession *session, char *buffer, int32_t buffer_size, int32_t
 		while (read_so_far < bytes_to_read) {
 			read_now = recv(session->connection_fd, &buffer[read_so_far], bytes_to_read - read_so_far, 0);
 			if (read_now < 0) {
-				if (errno == EINTR)
+				if (EINTR == errno) {
+					ydb_eintr_handler(); /* Needed to invoke YDB signal handler (for signal that caused
+							      * EINTR) in a deferred but timely fashion.
+							      */
 					continue;
+				}
 				ERROR(ERR_SYSCALL, "read", errno, strerror(errno));
 				return -1;
 			} else if (read_now == 0) {

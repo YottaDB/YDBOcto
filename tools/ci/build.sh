@@ -119,6 +119,7 @@ fi
 echo " -> disable_install = $disable_install"
 
 echo "# Configure the build system for Octo"
+export CTEST_OUTPUT_ON_FAILURE=TRUE
 ${cmakeCommand} -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_INSTALL_PREFIX=${ydb_dist}/plugin -DCMAKE_BUILD_TYPE=$build_type -DFULL_TEST_SUITE=$full_test -DDISABLE_INSTALL=$disable_install ..
 if [[ $? -ne 0 ]]; then
 	exit 1

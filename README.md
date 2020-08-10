@@ -239,6 +239,8 @@ To additionally disable the generation of installation rules for `make install`,
 
 To build the full test suite rather than a subset of it, the `FULL_TEST_SUITE` option needs to be set to `ON`, e.g. `cmake -D FULL_TEST_SUITE=ON ..`.
 
+To show the output of failed tests, export the environment variable `CTEST_OUTPUT_ON_FAILURE=TRUE`. Alternatively, you can show output for only a single run by passing the argument to make: `make CTEST_OUTPUT_ON_FAILURE=TRUE test`.
+
 **NOTE**: Octo uses some CMake parameters to control generation of fixed-size buffer allocations. These are:
 
 * `STRING_BUFFER_LENGTH` -- the maximum length of a string within the system; this supersedes any VARCHAR definitions.

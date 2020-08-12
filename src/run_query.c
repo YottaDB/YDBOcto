@@ -496,6 +496,11 @@ int run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_descrip
 			 * that way the oid also gets stored in the binary table definition.
 			 */
 			status = store_table_in_pg_class(table, table_name_buffer);
+			/* Cannot use CLEANUP_AND_RETURN_IF_NOT_YDB_OK macro here because the above function could set
+			 * status to 1 to indicate an error (not necessarily a valid YDB_ERR_* code). In case it is a
+			 * YDB error code, the YDB_ERROR_CHECK call would have already been done inside "store_table_in_pg_class"
+			 * so all we need to do here is check if status is not 0 (aka YDB_OK) and if so invoke CLEANUP_AND_RETURN.
+			 */
 			if (YDB_OK != status) {
 				CLEANUP_AND_RETURN(memory_chunks, buffer, table_sub_buffer, table_buffer, query_lock);
 			}
@@ -656,8 +661,14 @@ int run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_descrip
 			 * "compress_statement" as that way the oid also gets stored in the binary table definition.
 			 */
 			status = store_function_in_pg_proc(function);
-			CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, memory_chunks, buffer, function_sub_buffer, function_buffer,
-							 query_lock);
+			/* Cannot use CLEANUP_AND_RETURN_IF_NOT_YDB_OK macro here because the above function could set
+			 * status to 1 to indicate an error (not necessarily a valid YDB_ERR_* code). In case it is a
+			 * YDB error code, the YDB_ERROR_CHECK call would have already been done inside "store_function_in_pg_proc"
+			 * so all we need to do here is check if status is not 0 (aka YDB_OK) and if so invoke CLEANUP_AND_RETURN.
+			 */
+			if (YDB_OK != status) {
+				CLEANUP_AND_RETURN(memory_chunks, buffer, function_sub_buffer, function_buffer, query_lock);
+			}
 
 			compress_statement(result, &function_buffer, &length);
 			assert(NULL != function_buffer);

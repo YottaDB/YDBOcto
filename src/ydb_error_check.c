@@ -17,7 +17,7 @@
 
 void ydb_error_check(int status, char *file, int line) {
 	ydb_buffer_t varname, ret_value;
-	int	     severity = 0, ydboctoerrcodemin, ydboctoerrcodemax, ydboctoerrcode;
+	int	     severity = 0, ydboctoerrcodemin, ydboctoerrcodemax, ydboctoerrcode, positive_status;
 	unsigned int ydb_data_ret_value;
 	boolean_t    is_octo_internal_error;
 
@@ -42,6 +42,11 @@ void ydb_error_check(int status, char *file, int line) {
 		 */
 		break;
 	}
+	/* "ydb_ci()"/"ydb_cip()" would return a negated error code. So turn it back to a positive error code before
+	 * comparing it against known error codes.
+	 */
+	assert(0 > status);
+	positive_status = -status;
 	/* Check if the error code returned is an Octo-internal error code.
 	 *	(i.e. %ydboctoerrcodemin < error-code < %ydboctoerrcodemax).
 	 * If so handle that separately. Else treat it as a YDB error code.
@@ -63,7 +68,7 @@ void ydb_error_check(int status, char *file, int line) {
 		ydb_get_s(&varname, 0, NULL, &ret_value);
 		ret_value.buf_addr[ret_value.len_used] = '\0';
 		ydboctoerrcodemax = atoi(ret_value.buf_addr);
-		is_octo_internal_error = ((ydboctoerrcodemin < status) && (status < ydboctoerrcodemax));
+		is_octo_internal_error = ((ydboctoerrcodemin < positive_status) && (positive_status < ydboctoerrcodemax));
 	} else {
 		/* Treat this as a case of a YDB error */
 		is_octo_internal_error = FALSE;
@@ -76,12 +81,12 @@ void ydb_error_check(int status, char *file, int line) {
 		ydboctoerrcode = ydboctoerrcodemin;
 		/* Check if %ydboctoerror("SUBQUERYMULTIPLEROWS")	*/
 		ydboctoerrcode++;
-		if (status == ydboctoerrcode) {
+		if (positive_status == ydboctoerrcode) {
 			octo_log(line, file, ERROR, ERROR_Severity, ERR_SUBQUERY_MULTIPLE_ROWS, NULL);
 		}
 		/* Check if %ydboctoerror("INVALIDINPUTSYNTAXBOOL")	*/
 		ydboctoerrcode++;
-		if (status == ydboctoerrcode) {
+		if (positive_status == ydboctoerrcode) {
 			ydb_buffer_t subs[2];
 
 			/* M code would have passed the actual string involved in an M node. Get that before printing error. */
@@ -95,7 +100,7 @@ void ydb_error_check(int status, char *file, int line) {
 			ydb_delete_s(&varname, 2, subs, YDB_DEL_NODE);
 		}
 		ydboctoerrcode++;
-		if (status == ydboctoerrcode) {
+		if (positive_status == ydboctoerrcode) {
 			ydb_buffer_t subs[2];
 
 			/* M code would have passed the actual string involved in an M node. Get that before printing error. */
@@ -119,7 +124,7 @@ void ydb_error_check(int status, char *file, int line) {
 		YDB_LITERAL_TO_BUFFER("$ZSTATUS", &varname);
 		ydb_get_s(&varname, 0, NULL, &ret_value);
 		ret_value.buf_addr[ret_value.len_used] = '\0';
-		YDB_SEVERITY(status, severity);
+		YDB_SEVERITY(positive_status, severity);
 		switch (severity) {
 		case YDB_SEVERITY_SUCCESS:
 			octo_log(line, file, TRACE, TRACE_Severity, ERR_YOTTADB, ret_value.buf_addr);

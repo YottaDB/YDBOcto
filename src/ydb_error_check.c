@@ -121,6 +121,9 @@ void ydb_error_check(int status, char *file, int line) {
 		YDB_LITERAL_TO_BUFFER("$ECODE", &varname);
 		ydb_set_s(&varname, 0, NULL, NULL); /* M equivalent is : SET $ECODE="" */
 	} else {
+		/* Assert that the error code falls in the range of a valid YDB error code */
+		assert(YDB_MIN_YDBERR <= positive_status);
+		assert(YDB_MAX_YDBERR > positive_status);
 		YDB_LITERAL_TO_BUFFER("$ZSTATUS", &varname);
 		ydb_get_s(&varname, 0, NULL, &ret_value);
 		ret_value.buf_addr[ret_value.len_used] = '\0';

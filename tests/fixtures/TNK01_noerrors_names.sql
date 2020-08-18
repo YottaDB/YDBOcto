@@ -343,3 +343,6 @@ select distinct * from ((select NULL::integer as id) union (select 1) union (sel
 -- Below query was encountered while fixing OCTO523
 select * from (select 1 as id union select 2 union select NULL union select 3) n1 where id in (1,NULL,3);
 
+-- Below query was encountered while fixing OCTO574
+select * from names where (select NULL) = (select NULL);
+

@@ -33,7 +33,9 @@ boolean_t lp_is_operand_type_string(LogicalPlan *plan) {
 	       || (LP_BOOLEAN_ALL_LESS_THAN == plan->type) || (LP_BOOLEAN_ALL_GREATER_THAN == plan->type)
 	       || (LP_BOOLEAN_ALL_LESS_THAN_OR_EQUALS == plan->type) || (LP_BOOLEAN_ALL_GREATER_THAN_OR_EQUALS == plan->type)
 	       || (LP_BOOLEAN_ALL_EQUALS == plan->type) || (LP_BOOLEAN_ALL_NOT_EQUALS == plan->type)
-	       || (LP_GREATEST == plan->type) | (LP_LEAST == plan->type));
+	       || (LP_GREATEST == plan->type) | (LP_LEAST == plan->type) || (LP_NULL_IF == plan->type)
+	       || (LP_BOOLEAN_IN == plan->type) || (LP_BOOLEAN_NOT_IN == plan->type) || (LP_BOOLEAN_EQUALS == plan->type)
+	       || (LP_BOOLEAN_NOT_EQUALS == plan->type));
 	/* We assume all values in this expression have the same type, which should be true due to the matching of types
 	 * further up the stack (in `populate_data_type`). Traverse down the left side of the logical plan tree until we get
 	 * to a plan node which has only a left child (right hand child is NULL) OR stop traversing if we end up with

@@ -167,14 +167,14 @@ _ydboctoP*.m:    . SET %ydboctocursor(cursorId,"keys",1,"NAMES","ID")=""
 _ydboctoP*.m:    . FOR  SET %ydboctocursor(cursorId,"keys",1,"NAMES","ID")=$ORDER(^names(%ydboctocursor(cursorId,"keys",1,"NAMES","ID"))) QUIT:(%ydboctocursor(cursorId,"keys",1,"NAMES","ID")="")  DO
 _ydboctoP*.m:    . . NEW %ydboctobool SET %ydboctobool=1
 _ydboctoP*.m:    . . SET %ydboctobool=0
-_ydboctoP*.m:    . . SET %ydboctobool=%ydboctobool!((%ydboctocursor(cursorId,"keys",2,"NAMES","ID")+$GET(%ydboctocursor(cursorId,"parameters",3)))=$GET(%ydboctocursor(cursorId,"parameters",4)))
-_ydboctoP*.m:    . . SET %ydboctobool=%ydboctobool!((%ydboctocursor(cursorId,"keys",2,"NAMES","ID")+$GET(%ydboctocursor(cursorId,"parameters",3)))=$GET(%ydboctocursor(cursorId,"parameters",5)))
+_ydboctoP*.m:    . . SET %ydboctobool=%ydboctobool!($$ForceNumeric^%ydboctoplanhelpers((%ydboctocursor(cursorId,"keys",2,"NAMES","ID")+$GET(%ydboctocursor(cursorId,"parameters",3))))=$$ForceNumeric^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",4))))
+_ydboctoP*.m:    . . SET %ydboctobool=%ydboctobool!($$ForceNumeric^%ydboctoplanhelpers((%ydboctocursor(cursorId,"keys",2,"NAMES","ID")+$GET(%ydboctocursor(cursorId,"parameters",3))))=$$ForceNumeric^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",5))))
 _ydboctoP*.m:    . . SET %ydboctobool(1)=%ydboctobool
 _ydboctoP*.m:    . . SET %ydboctobool=0
-_ydboctoP*.m:    . . SET %ydboctobool=%ydboctobool!((%ydboctocursor(cursorId,"keys",1,"NAMES","ID")-$GET(%ydboctocursor(cursorId,"parameters",6)))=($ZYSQLNULL+$GET(%ydboctocursor(cursorId,"parameters",7))))
-_ydboctoP*.m:    . . SET %ydboctobool=%ydboctobool!((%ydboctocursor(cursorId,"keys",1,"NAMES","ID")-$GET(%ydboctocursor(cursorId,"parameters",6)))=($GET(%ydboctocursor(cursorId,"parameters",8))-$GET(%ydboctocursor(cursorId,"parameters",9))))
-_ydboctoP*.m:    . . SET %ydboctobool=%ydboctobool!((%ydboctocursor(cursorId,"keys",1,"NAMES","ID")-$GET(%ydboctocursor(cursorId,"parameters",6)))=(%ydboctocursor(cursorId,"keys",2,"NAMES","ID")-$GET(%ydboctocursor(cursorId,"parameters",10))))
-_ydboctoP*.m:    . . SET %ydboctobool=%ydboctobool!((%ydboctocursor(cursorId,"keys",1,"NAMES","ID")-$GET(%ydboctocursor(cursorId,"parameters",6)))=$GET(%ydboctocursor(cursorId,"parameters",11)))
+_ydboctoP*.m:    . . SET %ydboctobool=%ydboctobool!($$ForceNumeric^%ydboctoplanhelpers((%ydboctocursor(cursorId,"keys",1,"NAMES","ID")-$GET(%ydboctocursor(cursorId,"parameters",6))))=$$ForceNumeric^%ydboctoplanhelpers(($ZYSQLNULL+$GET(%ydboctocursor(cursorId,"parameters",7)))))
+_ydboctoP*.m:    . . SET %ydboctobool=%ydboctobool!($$ForceNumeric^%ydboctoplanhelpers((%ydboctocursor(cursorId,"keys",1,"NAMES","ID")-$GET(%ydboctocursor(cursorId,"parameters",6))))=$$ForceNumeric^%ydboctoplanhelpers(($GET(%ydboctocursor(cursorId,"parameters",8))-$GET(%ydboctocursor(cursorId,"parameters",9)))))
+_ydboctoP*.m:    . . SET %ydboctobool=%ydboctobool!($$ForceNumeric^%ydboctoplanhelpers((%ydboctocursor(cursorId,"keys",1,"NAMES","ID")-$GET(%ydboctocursor(cursorId,"parameters",6))))=$$ForceNumeric^%ydboctoplanhelpers((%ydboctocursor(cursorId,"keys",2,"NAMES","ID")-$GET(%ydboctocursor(cursorId,"parameters",10)))))
+_ydboctoP*.m:    . . SET %ydboctobool=%ydboctobool!($$ForceNumeric^%ydboctoplanhelpers((%ydboctocursor(cursorId,"keys",1,"NAMES","ID")-$GET(%ydboctocursor(cursorId,"parameters",6))))=$$ForceNumeric^%ydboctoplanhelpers($GET(%ydboctocursor(cursorId,"parameters",11))))
 _ydboctoP*.m:    . . SET %ydboctobool=%ydboctobool(1)&%ydboctobool
 _ydboctoP*.m:    . . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",4,"","")) %ydboctoz=42
 _ydboctoP*.m:    . . . SET %ydboctocursor(cursorId,"keys",4,"","",%ydboctocursor(cursorId,"keys",4,"",""))=$$str2mval^%ydboctoplanhelpers(%ydboctocursor(cursorId,"keys",2,"NAMES","ID"))_$$str2mval^%ydboctoplanhelpers(%ydboctocursor(cursorId,"keys",1,"NAMES","ID"))

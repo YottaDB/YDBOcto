@@ -23,3 +23,6 @@ select cast(id as int4),(cast(ABS(2) as text) || cast(id as text)) from names;
 select cast(id as int8),(cast(ABS(2) as int4) + id) from names;
 select cast(id as bigint),(cast(ABS(2) as int2) + id) from names;
 
+DROP TABLE dummyA;
+DROP TABLE dummyB;
+

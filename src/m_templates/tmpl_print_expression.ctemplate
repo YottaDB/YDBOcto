@@ -27,7 +27,7 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 	TEMPLATE_INIT();
 
 	char		*m_operator, *sql_operator, *compare_operator;
-	boolean_t	use_string_comparison;
+	boolean_t	use_string_comparison, coerce_to_numeric;
 	SqlValue	*value;
 	SqlColumnAlias	*subquery_column_alias;
 	LogicalPlan	*key, *piece_num, *cur_plan, *branch_value, *cas_value, *condition;
@@ -54,6 +54,7 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 	depth++;
 	plan_type = plan->type;
 	m_operator = NULL;
+	coerce_to_numeric = FALSE;
 	switch (plan_type) {
 	case LP_WHERE:
 		TMPL(tmpl_print_expression, first_operand, pplan, dot_count, depth);
@@ -230,14 +231,18 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 		m_operator = "&";
 		split_m_line = (0 != dot_count);
 		break;
-	case LP_BOOLEAN_IS:
-		m_operator = "=";
-		break;
 	case LP_BOOLEAN_EQUALS:
+		/* Since M "=" and "!=" operators have issues dealing with numeric equality comparisons
+		 * (e.g. `"3.0"=3` returns 0 in M whereas Octo expects that to return 1) so we need to force a numeric coercion
+		 * (i.e. generate M code that does `+"3.0"=+3` which will return the expected 1) in case the operands we are
+		 * dealing with are NUMERIC. Hence the need for the "coerce_to_numeric" variable (see YDBOcto#574 for more details).
+		 */
 		m_operator = "=";
+		coerce_to_numeric = !lp_is_operand_type_string(plan);
 		break;
 	case LP_BOOLEAN_NOT_EQUALS:
 		m_operator = "'=";
+		coerce_to_numeric = !lp_is_operand_type_string(plan);
 		break;
 	case LP_BOOLEAN_LESS_THAN:
 	case LP_BOOLEAN_GREATER_THAN:
@@ -355,7 +360,7 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 		} else {
 			/* This is IN or NOT IN used with a list of values on the right hand side. */
 
-			LogicalPlan	*plan, *value;
+			LogicalPlan	*plan2, *value;
 			boolean_t	first_iteration;
 
 			/* x IN (1,2) can be written equivalently as (x == 1) OR (x == 2)
@@ -365,7 +370,8 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 			 */
 			split_m_line = (0 != dot_count);
 			assert(LP_COLUMN_LIST == second_operand->type);
-			plan = second_operand;
+			coerce_to_numeric = !lp_is_operand_type_string(plan);
+			plan2 = second_operand;
 			if (!split_m_line) {
 				/* Note: "split_m_line" could be FALSE in case IN usage is in the SELECT column list */
 				%{}({}%
@@ -396,19 +402,31 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 					}
 				}
 				%{}({}%
+				if (coerce_to_numeric) {
+					%{}$$ForceNumeric^%%ydboctoplanhelpers({}%
+				}
 				TMPL(tmpl_print_expression, first_operand, pplan, dot_count, depth);
+				if (coerce_to_numeric) {
+					%{}){}%
+				}
 				if (LP_BOOLEAN_IN == plan_type) {
 					%{}={}%
 				} else {
 					%{}'={}%
 				}
-				value = plan->v.lp_default.operand[0];
+				value = plan2->v.lp_default.operand[0];
 				assert(LP_COLUMN_LIST != value->type);
+				if (coerce_to_numeric) {
+					%{}$$ForceNumeric^%%ydboctoplanhelpers({}%
+				}
 				TMPL(tmpl_print_expression, value, pplan, dot_count, depth);
+				if (coerce_to_numeric) {
+					%{}){}%
+				}
 				%{}){}%
-				plan = plan->v.lp_default.operand[1];
+				plan2 = plan2->v.lp_default.operand[1];
 				first_iteration = FALSE;
-			} while (NULL != plan);
+			} while (NULL != plan2);
 			if (!split_m_line) {
 				%{}){}%
 			}
@@ -577,10 +595,23 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 	}
 	case LP_NULL_IF:
 		/* NULLIF(a,b) -> $select(a=b:$ZYSQLNULL,1:a) */
+		coerce_to_numeric = !lp_is_operand_type_string(plan);
 		%{}$SELECT({}%
+		if (coerce_to_numeric) {
+			%{}$$ForceNumeric^%%ydboctoplanhelpers({}%
+		}
 		TMPL(tmpl_print_expression, first_operand, pplan, 0, 0);
+		if (coerce_to_numeric) {
+			%{}){}%
+		}
 		%{}={}%
+		if (coerce_to_numeric) {
+			%{}$$ForceNumeric^%%ydboctoplanhelpers({}%
+		}
 		TMPL(tmpl_print_expression, second_operand, pplan, 0, 0);
+		if (coerce_to_numeric) {
+			%{}){}%
+		}
 		%{}:$ZYSQLNULL,1:{}%
 		TMPL(tmpl_print_expression, first_operand, pplan, 0, 0);
 		%{}){}%
@@ -722,6 +753,7 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 	}
 	if (m_operator) {
 		if (split_m_line) {
+			assert(!coerce_to_numeric);
 			/* Evaluate left hand side of boolean AND or OR */
 			TMPL(tmpl_print_expression, first_operand, pplan, dot_count, depth);
 			%{}`n{{ PLAN_LINE_START }}{}%
@@ -741,9 +773,21 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 			%{}SET %%ydboctobool=%%ydboctobool({{ depth|%d }}){{ m_operator }}%%ydboctobool{}%
 		} else {
 			%{}({}%
+			if (coerce_to_numeric) {
+				%{}$$ForceNumeric^%%ydboctoplanhelpers({}%
+			}
 			TMPL(tmpl_print_expression, first_operand, pplan, 0, 0);
+			if (coerce_to_numeric) {
+				%{}){}%
+			}
 			%{}{{ m_operator }}{}%
+			if (coerce_to_numeric) {
+				%{}$$ForceNumeric^%%ydboctoplanhelpers({}%
+			}
 			TMPL(tmpl_print_expression, second_operand, pplan, 0, 0);
+			if (coerce_to_numeric) {
+				%{}){}%
+			}
 			%{}){}%
 		}
 	}

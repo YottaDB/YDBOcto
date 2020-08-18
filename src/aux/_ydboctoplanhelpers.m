@@ -376,8 +376,10 @@ ALL(inputValue,keyId,compOp,isString)
 Compare(value1,compOp,value2,isString)
 	; Helper M function used by $$ANY and $$ALL to perform comparison
 	NEW ret
-	QUIT:("="=compOp) value1=value2
-	QUIT:("'="=compOp) value1'=value2
+	; If value is a STRING type, then simple M "=" or "'=" operators are okay. Otherwise, numeric comparison needs a
+	; coercion of the operand to a number hence the use of "+" on the operands before doing the "=" or "'=" below (YDBOcto#574).
+	QUIT:("="=compOp) $SELECT(isString:value1=value2,1:$$ForceNumeric(value1)=$$ForceNumeric(value2))
+	QUIT:("'="=compOp) $SELECT(isString:value1'=value2,1:$$ForceNumeric(value1)'=$$ForceNumeric(value2))
 	IF 'isString  DO  QUIT ret
 	. SET:("<"=compOp) ret=(value1<value2)
 	. SET:("<="=compOp) ret=(value1<=value2)
@@ -390,6 +392,11 @@ Compare(value1,compOp,value2,isString)
 	QUIT:(">="=compOp) value2']value1
 	QUIT:("<"=compOp) value2]value1
 	QUIT  ; We do not expect to reach here. Hence the QUIT without any value (will generate a runtime error).
+
+ForceNumeric(value)
+	; Check for $ZYSQLNULL first as `+` operator on that does not work in all cases (YDB#629)
+	QUIT:$ZYISSQLNULL(value) $ZYSQLNULL	; This line can be removed when YDB#629 is fixed.
+	QUIT +value
 
 CountAsterisk(keyId,groupBySubs,aggrIndex,curValue)
 	; Helper M function to implement the COUNT(*) aggregate function in SQL.

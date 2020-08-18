@@ -1,0 +1,30 @@
+#################################################################
+#								#
+# Copyright (c) 2020 YottaDB LLC and/or its subsidiaries.	#
+# All rights reserved.						#
+#								#
+#	This source code contains the intellectual property	#
+#	of its copyright holder(s), and is made available	#
+#	under a license.  If you do not know the terms of	#
+#	the license, please stop and do not read further.	#
+#								#
+#################################################################
+
+load test_helpers
+
+setup() {
+  init_test
+  createdb
+}
+
+@test "TMF01 : OCTO574 : names schema : Using ROUND() on AVG() aggregate function in HAVING clause returns incorrect results" {
+	load_fixture names.sql
+	load_fixture names.zwr
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TMF01.sql "trim_trailing_zeroes"
+}
+
+@test "TMF02 : OCTO574 : pastas schema : Using ROUND() on AVG() aggregate function in HAVING clause returns incorrect results" {
+	load_fixture pastas.sql
+	load_fixture pastas.zwr
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries pastas TMF02.sql "trim_trailing_zeroes"
+}

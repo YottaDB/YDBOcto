@@ -1023,10 +1023,10 @@ joinClause(queryDepth,joinCount)
 
 	; #FUTURE_TODO: Implement CASE statements into ON clause like in below example
 	;               EXAMPLE:https://dev.to/gschro/conditional-column-join-in-sql-5g03
-	new i
+	new i,j,resetOnClause
 	set onClause=""
 	set loopCount=$random(3)+1
-	set opened="FALSE"
+	set opened="FALSE",resetOnClause=0
 	if ((result'="")&(joinType'="CROSS")&(joinType'="NATURAL"))  do
 	. for i=1:1:loopCount  do
 	. . new rightRand
@@ -1070,9 +1070,10 @@ joinClause(queryDepth,joinCount)
 	. . . . set rightType=$$returnColumnType(tableInResult,columnModified)
 	. . .
 	. . . set leftType=""
-	. . . for i=1:1:15  do  quit:(leftType=rightType)
+	. . . for j=1:1:15  do  quit:(leftType=rightType)
 	. . . . set leftSide=$$chooseColumn(chosenTable1)
 	. . . . set leftType=$$returnColumnType(chosenTable1,leftSide)
+	. . . set:j=15 resetOnClause=1	; we could not find a column with a compatible type so reset ON clause
 	. . .
 	. . . set leftSide=chosenTable1_"."_leftSide
 	. . if ((rightRand=1)&(chosenEntry2'=""))  set rightSide=chosenEntry2
@@ -1082,8 +1083,9 @@ joinClause(queryDepth,joinCount)
 	. . . set rightSide=$$anyAllSome_" ("_$$generateSubQuery(queryDepth,"limited","")_")"
 	. . .
 	. . . set aliasDotColumn=""
-	. . . for i=1:1:20  do  quit:($find(aliasDotColumn,"alias"_aliasNum2More)'=0)
-	. . . . set aliasDotColumn=$piece(rightSide," ",i)
+	. . . for j=1:1:20  do  quit:($find(aliasDotColumn,"alias"_aliasNum2More)'=0)
+	. . . . set aliasDotColumn=$piece(rightSide," ",j)
+	. . . do assert(20>j)
 	. . . set rightColumn=$piece($piece(aliasDotColumn,".",2),",",1)
 	. . .
 	. . . new rightI
@@ -1094,9 +1096,10 @@ joinClause(queryDepth,joinCount)
 	. . . set rightType=$$returnColumnType(rightTable,rightColumn)
 	. . .
 	. . . set leftType=""
-	. . . for i=1:1:15  do  quit:(leftType=rightType)
+	. . . for j=1:1:15  do  quit:(leftType=rightType)
 	. . . . set leftSide=$$chooseColumn(chosenTable1)
 	. . . . set leftType=$$returnColumnType(chosenTable1,leftSide)
+	. . . set:j=15 resetOnClause=1	; we could not find a column with a compatible type so reset ON clause
 	. . .
 	. . . set leftSide=chosenTable1_"."_leftSide
 	. .
@@ -1111,10 +1114,9 @@ joinClause(queryDepth,joinCount)
 	. . . set onClause=onClause_")"
 	. . . set opened="FALSE"
 	. . if (i<loopCount)  set onClause=onClause_" "_$$booleanOperator_notString_" "
-	. ;set onClause=" ON ("_$extract(onClause,1,$length(onClause))_")" ;remove before MR if not needed
 	. set onClause=" ON ("_onClause_")"
 	. if (opened="TRUE")  set onClause=onClause_")"  set opened="FALSE"
-	. set:(i=15) onClause="",result=""
+	. set:resetOnClause onClause="",result=""
 	if (""'=result) do
 	. set tableColumn("alias"_aliasNum1More)=""
 	. set tableAlias("alias"_aliasNum1More)=chosenTable2

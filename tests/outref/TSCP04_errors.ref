@@ -10,4 +10,4 @@ SELECT ROUND(155, -47);
 1.01234567890123456000
 155.00
 200
-[ERROR] PATH:LINENUM DATE TIME : YottaDB error: 150373506,ROUND+6^%ydboctosqlfunctions,%YDB-E-NUMOFLOW, Numeric overflow
+[ERROR] PATH:LINENUM DATE TIME : YottaDB error: 150373506,ROUND+7^%ydboctosqlfunctions,%YDB-E-NUMOFLOW, Numeric overflow

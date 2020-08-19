@@ -62,17 +62,10 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 	case LP_VALUE:
 		value = plan->v.lp_value.value;
 		switch(value->type) {
-		case BOOLEAN_VALUE:
-			%{}$GET({{ config->global_names.cursor }}(cursorId,{{ PP_PARAMETERS }},{{ value->parameter_index }})){}%
-			break;
-		case INTEGER_LITERAL:
-			%{}($GET({{ config->global_names.cursor }}(cursorId,{{ PP_PARAMETERS }},{{ value->parameter_index }}))\1){}%
-			break;
-		case NUMERIC_LITERAL:
-			%{}(+$GET({{ config->global_names.cursor }}(cursorId,{{ PP_PARAMETERS }},{{ value->parameter_index }}))){}%
-			break;
 		case PARAMETER_VALUE:
-			// Fallthrough as we don't know the actual type of a PARAMETER_VALUE
+		case BOOLEAN_VALUE:
+		case INTEGER_LITERAL:
+		case NUMERIC_LITERAL:
 		case STRING_LITERAL:
 			%{}$GET({{ config->global_names.cursor }}(cursorId,{{ PP_PARAMETERS }},{{ value->parameter_index }})){}%
 			break;

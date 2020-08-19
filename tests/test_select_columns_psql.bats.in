@@ -83,3 +83,7 @@ setup() {
   sed -i '/^.*\[ INFO\].* \/.*\/octo.conf/d' rocto_output.txt
   cmp TSC20.ref rocto_output.txt
 }
+
+@test "TSCP07 : OCTO576 : Numeric literals in SELECT column list should be displayed as is" {
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TSCP07.sql
+}

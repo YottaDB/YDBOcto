@@ -2,7 +2,7 @@
 octoPlan0(cursorId)
     DO octoPlan1(cursorId)
 octoPlan1(cursorId)
-    SET %ydboctocursor(cursorId,"keys",2,"NAMES","ID")=(+$GET(%ydboctocursor(cursorId,"parameters",3))) IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",2,"NAMES","ID")) IF $DATA(^names(%ydboctocursor(cursorId,"keys",2,"NAMES","ID"))) DO
+    SET %ydboctocursor(cursorId,"keys",2,"NAMES","ID")=$GET(%ydboctocursor(cursorId,"parameters",3)) IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",2,"NAMES","ID")) IF $DATA(^names(%ydboctocursor(cursorId,"keys",2,"NAMES","ID"))) DO
     . SET %ydboctocursor(cursorId,"keys",1,"NAMES","ID")=%ydboctocursor(cursorId,"keys",2,"NAMES","ID") IF '$ZYISSQLNULL(%ydboctocursor(cursorId,"keys",1,"NAMES","ID")) IF $DATA(^names(%ydboctocursor(cursorId,"keys",1,"NAMES","ID"))) DO
     . . NEW %ydboctobool SET %ydboctobool=1
     . . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",4,"","")) %ydboctoz=42

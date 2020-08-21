@@ -105,6 +105,7 @@
 #define OCTOLIT_PREPARED	     "prepared"
 #define OCTOLIT_ROUTINE		     "routine"
 #define OCTOLIT_TABLES		     "tables"
+#define OCTOLIT_TABLEPLANS	     "tableplans"
 #define OCTOLIT_TABLE_ID	     "table_id"
 #define OCTOLIT_TIMESTAMP	     "timestamp"
 #define OCTOLIT_TYPE_MODIFIER	     "type_modifier"

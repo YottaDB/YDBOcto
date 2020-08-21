@@ -58,7 +58,7 @@ PSQL_TypeSize get_type_size_from_psql_type(PSQL_TypeOid type) {
  */
 PhysicalPlan *emit_select_statement(SqlStatement *stmt, char *plan_filename) {
 	LPActionType	    set_oper_type;
-	LogicalPlan *	    plan, *cur_plan, *column_alias, *function;
+	LogicalPlan *	    plan, *cur_plan, *column_alias, *function, *table;
 	PhysicalPlan *	    pplan;
 	SqlValue *	    value;
 	char		    output_key[INT32_TO_STRING_MAX], valbuff[INT32_TO_STRING_MAX];
@@ -93,9 +93,14 @@ PhysicalPlan *emit_select_statement(SqlStatement *stmt, char *plan_filename) {
 	pplan = NULL;
 	options.last_plan = &pplan;
 	function = NULL;
+	table = NULL;
 	options.function = &function; /* Store pointer to "function" in options.function. "generate_physical_plan" call below
-				       * will update "function" to point to start of the linked list of LP_FUNCTION_CALL usages
-				       * (if any) in the entire query.
+				       * will update "function" to point to the start of the linked list of LP_FUNCTION_CALL
+				       * usages (if any) in the the entire query.
+				       */
+	options.table = &table;	      /* Store pointer to "table" in options.function. "generate_physical_plan" call below
+				       * will update "table" to point to the start of the linked list of LP_TABLE usages
+				       * (if any) in the the entire query.
 				       */
 	pplan = generate_physical_plan(plan, &options);
 	if (NULL == pplan) {
@@ -156,7 +161,40 @@ PhysicalPlan *emit_select_statement(SqlStatement *stmt, char *plan_filename) {
 				break;
 			}
 			function = function->extra_detail.lp_function_call.next_function;
-		} while (LP_FUNCTION_CALL_LIST_END != function);
+		} while (LP_LIST_END != function);
+		if (YDB_OK != status) {
+			free(plan_meta);
+			return NULL;
+		}
+	}
+	if (NULL != table) {
+		/* "table" points to the start of the linked list of LP_TABLE usages in entire query.
+		 * Store link between plan and all tables that plan uses so a later CREATE/DROP TABLE
+		 * of any of the tables in this plan knows to delete this stale plan.
+		 */
+		ydb_buffer_t table_buff[3];
+
+		YDB_LITERAL_TO_BUFFER(OCTOLIT_TABLEPLANS, &table_buff[0]);
+		table_buff[2] = plan_meta[2];
+		do {
+			SqlStatement *table_stmt, *tableName;
+			SqlTable *    sql_table;
+
+			/* Store table name in "table_buff[1]" */
+			table_stmt = table->v.lp_table.table_alias->table;
+			UNPACK_SQL_STATEMENT(sql_table, table_stmt, create_table);
+			tableName = sql_table->tableName;
+			UNPACK_SQL_STATEMENT(value, tableName, value);
+			assert(COLUMN_REFERENCE == value->type); /* That is the type the lexer uses to store table names */
+			YDB_STRING_TO_BUFFER(value->v.string_literal, &table_buff[1]);
+			/* Store gvn that links plan and this table */
+			status = ydb_set_s(&plan_meta[0], 3, table_buff, NULL);
+			YDB_ERROR_CHECK(status);
+			if (YDB_OK != status) {
+				break;
+			}
+			table = table->extra_detail.lp_table.next_table;
+		} while (LP_LIST_END != table);
 		if (YDB_OK != status) {
 			free(plan_meta);
 			return NULL;

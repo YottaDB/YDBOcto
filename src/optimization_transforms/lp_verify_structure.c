@@ -82,6 +82,23 @@ int lp_verify_structure_helper(LogicalPlan *plan, PhysicalPlanOptions *options, 
 		       | lp_verify_structure_helper(plan->v.lp_default.operand[1], options, LP_SET_OPERATION);
 		break;
 	case LP_TABLE:
+		/* The below logic is very similar to the logic in the LP_FUNCTION_CALL case when "options" is non-NULL.
+		 * See comments there for more details.
+		 */
+		if ((NULL != options) && (NULL == plan->extra_detail.lp_table.next_table)) {
+			LogicalPlan *prev_table;
+
+			prev_table = *options->table;
+			assert(prev_table != plan); /* Otherwise we would end up in an infinite loop later during
+						     * template file generation.
+						     */
+			if (NULL == prev_table) {
+				/* See comment where LP_LIST_END macro is defined for details on this special value */
+				prev_table = LP_LIST_END;
+			}
+			plan->extra_detail.lp_table.next_table = prev_table;
+			*options->table = plan;
+		}
 		break;
 	case LP_PROJECT:
 		ret &= lp_verify_structure_helper(plan->v.lp_default.operand[0], options, LP_COLUMN_LIST);
@@ -388,8 +405,8 @@ int lp_verify_structure_helper(LogicalPlan *plan, PhysicalPlanOptions *options, 
 							* template file generation.
 							*/
 			if (NULL == prev_function) {
-				/* See comment where LP_FUNCTION_CALL_LIST_END macro is defined for details on this special value */
-				prev_function = LP_FUNCTION_CALL_LIST_END;
+				/* See comment where LP_LIST_END macro is defined for details on this special value */
+				prev_function = LP_LIST_END;
 			}
 			plan->extra_detail.lp_function_call.next_function = prev_function;
 			*options->function = plan;

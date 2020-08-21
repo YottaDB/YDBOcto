@@ -141,7 +141,7 @@ int run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_descrip
 	int		status;
 	size_t		buffer_size = 0;
 	ydb_buffer_t *	filename_lock, query_lock[3];
-	ydb_string_t	ci_filename, ci_routine;
+	ydb_string_t	ci_filename, ci_routine, ci_tablename;
 	HIST_ENTRY *	cur_hist;
 	ydb_buffer_t	cursor_local;
 	ydb_buffer_t	cursor_ydb_buff;
@@ -388,7 +388,6 @@ int run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_descrip
 		ci_routine.address = routine_name;
 		ci_routine.length = routine_len;
 		// Call the select routine
-		// cursorId is typecast here since the YottaDB call-in interface does not yet support 64-bit parameters
 		status = ydb_ci("_ydboctoselect", cursorId, &ci_filename, &ci_routine);
 		YDB_ERROR_CHECK(status);
 		if (YDB_OK != status) {
@@ -429,7 +428,7 @@ int run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_descrip
 		 *
 		 * A CREATE TABLE should do a DROP TABLE followed by a CREATE TABLE hence merging the two cases above
 		 */
-		table_name_buffer = &table_name_buffers[0];
+		table_name_buffer = &table_name_buffers[1];
 		/* Initialize a few variables to NULL at the start. They are really used much later but any calls to
 		 * CLEANUP_AND_RETURN and CLEANUP_AND_RETURN_IF_NOT_YDB_OK before then need this so they skip freeing this.
 		 */
@@ -462,7 +461,41 @@ int run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_descrip
 		if (0 != status) {
 			CLEANUP_AND_RETURN(memory_chunks, buffer, table_sub_buffer, table_buffer, query_lock);
 		}
-		/* Now that OIDs have been cleaned up, dropping the table is a simple : KILL ^%ydboctoschema(TABLENAME) */
+		/* Ensure all _ydboctoP*.m plans that rely on this table are recreated by deleting those database nodes
+		 * that correspond to the plan metadata of these plans. We do not delete the _ydboctoP*.m files since
+		 * the _ydboctoP*.o files would anyways exist and also need to be removed but it is not straightforward (since
+		 * we need to find the first obj directory in the zroutines list). Just deleting the database nodes is enough
+		 * since that is checked every time using the GET_PLAN_METADATA_DB_NODE macro before using a pre-existing plan.
+		 */
+		YDB_STRING_TO_BUFFER(config->global_names.octo, &octo_global);
+		YDB_STRING_TO_BUFFER(OCTOLIT_TABLEPLANS, &table_name_buffers[0]);
+		table_name_buffers[2].buf_addr = filename;
+		table_name_buffers[2].len_used = 0;
+		table_name_buffers[2].len_alloc = sizeof(filename);
+		while (TRUE) {
+			status = ydb_subscript_next_s(&octo_global, 3, &table_name_buffers[0], &table_name_buffers[2]);
+			if (YDB_ERR_NODEEND == status) {
+				break;
+			}
+			CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, memory_chunks, buffer, table_sub_buffer, table_buffer, query_lock);
+			DELETE_PLAN_METADATA_DB_NODE(table_name_buffers[2], status);
+			CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, memory_chunks, buffer, table_sub_buffer, table_buffer, query_lock);
+		}
+		/* Drop the table : KILL ^%ydboctoocto(OCTOLIT_TABLEPLANS,TABLENAME) */
+		status = ydb_delete_s(&octo_global, 2, table_name_buffers, YDB_DEL_TREE);
+		CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, memory_chunks, buffer, table_sub_buffer, table_buffer, query_lock);
+		/* Call an M routine to do the following cleanup. Cannot use SimpleAPI because it requires deleting a trigger.
+		 *	1) Delete all generated cross references associated with columns in the table being created/deleted.
+		 *	2) Delete all generated triggers associated with columns in the table being created/deleted.
+		 *	3) Delete all M global nodes in ^%ydboctoocto/^%ydboctoschema that point to the above deleted objects.
+		 */
+		ci_tablename.address = table_name_buffer->buf_addr;
+		ci_tablename.length = table_name_buffer->len_used;
+		status = ydb_ci("_ydboctoDropTable", &ci_tablename);
+		CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, memory_chunks, buffer, table_sub_buffer, table_buffer, query_lock);
+		/* Now that OIDs and plan nodes have been cleaned up, dropping the table is a simple
+		 *	KILL ^%ydboctoschema(TABLENAME)
+		 */
 		status = ydb_delete_s(&schema_global, 1, table_name_buffer, YDB_DEL_TREE);
 		CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, memory_chunks, buffer, table_sub_buffer, table_buffer, query_lock);
 		/* Drop the table from the local cache */
@@ -483,6 +516,12 @@ int run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_descrip
 				CLEANUP_AND_RETURN(memory_chunks, buffer, table_sub_buffer, table_buffer, query_lock);
 			}
 			INFO(CUSTOM_ERROR, "%s", buffer); /* print the converted text representation of the CREATE TABLE command */
+
+			/* Copy table name (which was in table_name_buffers[1] till now) into table_name_buffers[0]
+			 * as below logic needs that.
+			 */
+			table_name_buffer = &table_name_buffers[0];
+			YDB_STRING_TO_BUFFER(tablename, table_name_buffer);
 
 			YDB_STRING_TO_BUFFER(buffer, &table_create_buffer);
 			YDB_STRING_TO_BUFFER("t", &table_name_buffers[1]);

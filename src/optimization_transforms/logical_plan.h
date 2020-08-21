@@ -167,13 +167,17 @@ typedef struct LpExtraCoerceType {
  * Since we maintain a singly linked list of these plans, an easy way to know this is if a plan has a non-NULL "next_function" link.
  * But if a plan is the last member of the linked list, it would have a "next_function" link of NULL but is still part
  * of the linked list so we need a special value (that is not NULL and is also not a valid pointer) to denote the end of the
- * linked list. Hence the special choice of -1 in the below macro.
+ * linked list. The same issue exists with the LP_TABLE linked list too. Hence the special choice of -1 in the below macro.
  */
-#define LP_FUNCTION_CALL_LIST_END ((LogicalPlan *)-1)
+#define LP_LIST_END ((LogicalPlan *)-1)
 
 typedef struct LpExtraFunctionCall {
 	struct LogicalPlan *next_function; /* maintains linked list of LP_FUNCTION_CALL plans in entire query */
 } LpExtraFunctionCall;
+
+typedef struct LpExtraTable {
+	struct LogicalPlan *next_table; /* maintains linked list of LP_TABLE plans in entire query */
+} LpExtraTable;
 
 /* We use yet another triple type here so we can easily traverse the tree to replace tables and WHEREs.
  * Specifically, the WHERE can have complete trees under it, and it would be awkward to overload void pointers.
@@ -203,6 +207,7 @@ typedef struct LogicalPlan {
 		LpExtraAggregateFunction lp_aggregate_function; // To be used if type == LP_AGGREGATE_*
 		LpExtraCoerceType	 lp_coerce_type;	// To be used if type == LP_COERCE_TYPE
 		LpExtraFunctionCall	 lp_function_call;	// To be used if type == LP_FUNCTION_CALL
+		LpExtraTable		 lp_table;		// To be used if type == LP_TABLE
 	} extra_detail;
 } LogicalPlan;
 

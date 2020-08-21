@@ -1,0 +1,172 @@
+# Load customers DDL and ZWR data
+
+# Stage 1 : Run 6 queries from TCF030.sql that use CUSTOMERS and ORDERS tables
+# Verify 6 _ydboctoP*.m plans have been generated
+# Verify ALL 6 queries created new plans
+[ INFO] PATH:LINENUM DATE TIME : Generating M file [$PWD/_ydboctoP*.m] (to execute SQL query)
+[ INFO] PATH:LINENUM DATE TIME : Generating M file [$PWD/_ydboctoP*.m] (to execute SQL query)
+[ INFO] PATH:LINENUM DATE TIME : Generating M file [$PWD/_ydboctoP*.m] (to execute SQL query)
+[ INFO] PATH:LINENUM DATE TIME : Generating M file [$PWD/_ydboctoP*.m] (to execute SQL query)
+[ INFO] PATH:LINENUM DATE TIME : Generating M file [$PWD/_ydboctoP*.m] (to execute SQL query)
+[ INFO] PATH:LINENUM DATE TIME : Generating M file [$PWD/_ydboctoP*.m] (to execute SQL query)
+# Verify db nodes correctly represent CUSTOMERS and ORDERS tables and plans that rely on them
+^%ydboctoocto("tableplans","CUSTOMERS","$PWD/_ydboctoP*.m")=""
+^%ydboctoocto("tableplans","CUSTOMERS","$PWD/_ydboctoP*.m")=""
+^%ydboctoocto("tableplans","CUSTOMERS","$PWD/_ydboctoP*.m")=""
+^%ydboctoocto("tableplans","ORDERS","$PWD/_ydboctoP*.m")=""
+^%ydboctoocto("tableplans","ORDERS","$PWD/_ydboctoP*.m")=""
+^%ydboctoocto("tableplans","ORDERS","$PWD/_ydboctoP*.m")=""
+^%ydboctoocto("tableplans","ORDERS","$PWD/_ydboctoP*.m")=""
+# Verify db nodes correctly represent 6 plans that are reusable (i.e. do not need to be regenerated)
+^%ydboctoocto("plan_metadata","$PWD/_ydboctoP*.m","output_key")="3"
+^%ydboctoocto("plan_metadata","$PWD/_ydboctoP*.m","output_key")="3"
+^%ydboctoocto("plan_metadata","$PWD/_ydboctoP*.m","output_key")="3"
+^%ydboctoocto("plan_metadata","$PWD/_ydboctoP*.m","output_key")="3"
+^%ydboctoocto("plan_metadata","$PWD/_ydboctoP*.m","output_key")="4"
+^%ydboctoocto("plan_metadata","$PWD/_ydboctoP*.m","output_key")="3"
+# Verify db nodes correctly represent cross-references
+^%ydboctoocto("xref_status","CUSTOMERS","FIRST_NAME")="%ydboctoTlGFZzU7b74ygU5grJjV"
+^%ydboctoocto("xref_status","ORDERS","ORDER_AMOUNT")="%ydboctoT2rbmGQx4OtlbPfepALF"
+^%ydboctoocto("xref_status","ORDERS","ORDER_DATE")="%ydboctoTNVqZ6Mt1cVtAS2KtqVe"
+^%ydboctoxref("CUSTOMERS","FIRST_NAME")="5"
+^%ydboctoxref("CUSTOMERS","FIRST_NAME","George")="1"
+^%ydboctoxref("CUSTOMERS","FIRST_NAME","George",1)=""
+^%ydboctoxref("CUSTOMERS","FIRST_NAME","James")="2"
+^%ydboctoxref("CUSTOMERS","FIRST_NAME","James",4)=""
+^%ydboctoxref("CUSTOMERS","FIRST_NAME","James",5)=""
+^%ydboctoxref("CUSTOMERS","FIRST_NAME","John")="1"
+^%ydboctoxref("CUSTOMERS","FIRST_NAME","John",2)=""
+^%ydboctoxref("CUSTOMERS","FIRST_NAME","Thomas")="1"
+^%ydboctoxref("CUSTOMERS","FIRST_NAME","Thomas",3)=""
+^%ydboctoxref("ORDERS","ORDER_AMOUNT")="6"
+^%ydboctoxref("ORDERS","ORDER_AMOUNT","$124.00")="1"
+^%ydboctoxref("ORDERS","ORDER_AMOUNT","$124.00",3)=""
+^%ydboctoxref("ORDERS","ORDER_AMOUNT","$14.40")="1"
+^%ydboctoxref("ORDERS","ORDER_AMOUNT","$14.40",6)=""
+^%ydboctoxref("ORDERS","ORDER_AMOUNT","$234.56")="1"
+^%ydboctoxref("ORDERS","ORDER_AMOUNT","$234.56",1)=""
+^%ydboctoxref("ORDERS","ORDER_AMOUNT","$25.50")="1"
+^%ydboctoxref("ORDERS","ORDER_AMOUNT","$25.50",5)=""
+^%ydboctoxref("ORDERS","ORDER_AMOUNT","$65.50")="1"
+^%ydboctoxref("ORDERS","ORDER_AMOUNT","$65.50",4)=""
+^%ydboctoxref("ORDERS","ORDER_AMOUNT","$78.50")="1"
+^%ydboctoxref("ORDERS","ORDER_AMOUNT","$78.50",2)=""
+^%ydboctoxref("ORDERS","ORDER_DATE")="6"
+^%ydboctoxref("ORDERS","ORDER_DATE","03/14/1760")="1"
+^%ydboctoxref("ORDERS","ORDER_DATE","03/14/1760",2)=""
+^%ydboctoxref("ORDERS","ORDER_DATE","05/23/1784")="1"
+^%ydboctoxref("ORDERS","ORDER_DATE","05/23/1784",3)=""
+^%ydboctoxref("ORDERS","ORDER_DATE","07/04/1776")="1"
+^%ydboctoxref("ORDERS","ORDER_DATE","07/04/1776",1)=""
+^%ydboctoxref("ORDERS","ORDER_DATE","07/21/1795")="1"
+^%ydboctoxref("ORDERS","ORDER_DATE","07/21/1795",5)=""
+^%ydboctoxref("ORDERS","ORDER_DATE","09/03/1790")="1"
+^%ydboctoxref("ORDERS","ORDER_DATE","09/03/1790",4)=""
+^%ydboctoxref("ORDERS","ORDER_DATE","11/27/1787")="1"
+^%ydboctoxref("ORDERS","ORDER_DATE","11/27/1787",6)=""
+# Verify currently installed triggers (expect 3 triggers, 1 for CUSTOMERS, 2 for ORDERS)
+Output File: 
+;trigger name: %ydboctoTlGFZzU7b74ygU5grJjV (region DEFAULT)  cycle: 1
++^customers(keyCol0=*) -name=%ydboctoTlGFZzU7b74ygU5grJjV -commands=S,K,ZK -delim="|" -pieces=1 -xecute="DO handleSetKill^%ydboctoXlGFZzU7b74ygU5grJjVC5A"
+;trigger name: %ydboctoTNVqZ6Mt1cVtAS2KtqVe (region DEFAULT)  cycle: 2
++^orders(keyCol0=*) -name=%ydboctoTNVqZ6Mt1cVtAS2KtqVe -commands=S,K,ZK -delim="|" -pieces=1 -xecute="DO handleSetKill^%ydboctoXNVqZ6Mt1cVtAS2KtqVe53C"
+;trigger name: %ydboctoT2rbmGQx4OtlbPfepALF (region DEFAULT)  cycle: 2
++^orders(keyCol0=*) -name=%ydboctoT2rbmGQx4OtlbPfepALF -commands=S,K,ZK -delim="|" -pieces=2 -xecute="DO handleSetKill^%ydboctoX2rbmGQx4OtlbPfepALF2EA"
+
+# Stage 2 : Rerun CREATE TABLE of ORDERS
+# Verify 6 _ydboctoP*.m plans still remain
+# Verify db nodes corresponding to ORDERS table have been deleted
+^%ydboctoocto("tableplans","CUSTOMERS","$PWD/_ydboctoP*.m")=""
+^%ydboctoocto("tableplans","CUSTOMERS","$PWD/_ydboctoP*.m")=""
+^%ydboctoocto("tableplans","CUSTOMERS","$PWD/_ydboctoP*.m")=""
+# Verify db nodes correctly represent 2 plans that are reusable (i.e. do not need to be regenerated)
+^%ydboctoocto("plan_metadata","$PWD/_ydboctoP*.m","output_key")="3"
+^%ydboctoocto("plan_metadata","$PWD/_ydboctoP*.m","output_key")="3"
+# Verify db nodes correctly represent cross-references
+^%ydboctoocto("xref_status","CUSTOMERS","FIRST_NAME")="%ydboctoTlGFZzU7b74ygU5grJjV"
+^%ydboctoxref("CUSTOMERS","FIRST_NAME")="5"
+^%ydboctoxref("CUSTOMERS","FIRST_NAME","George")="1"
+^%ydboctoxref("CUSTOMERS","FIRST_NAME","George",1)=""
+^%ydboctoxref("CUSTOMERS","FIRST_NAME","James")="2"
+^%ydboctoxref("CUSTOMERS","FIRST_NAME","James",4)=""
+^%ydboctoxref("CUSTOMERS","FIRST_NAME","James",5)=""
+^%ydboctoxref("CUSTOMERS","FIRST_NAME","John")="1"
+^%ydboctoxref("CUSTOMERS","FIRST_NAME","John",2)=""
+^%ydboctoxref("CUSTOMERS","FIRST_NAME","Thomas")="1"
+^%ydboctoxref("CUSTOMERS","FIRST_NAME","Thomas",3)=""
+# Verify currently installed triggers (expect 1 trigger for CUSTOMERS, 0 for ORDERS)
+Output File: 
+;trigger name: %ydboctoTlGFZzU7b74ygU5grJjV (region DEFAULT)  cycle: 1
++^customers(keyCol0=*) -name=%ydboctoTlGFZzU7b74ygU5grJjV -commands=S,K,ZK -delim="|" -pieces=1 -xecute="DO handleSetKill^%ydboctoXlGFZzU7b74ygU5grJjVC5A"
+
+# Stage 3 : Rerun 6 queries from TC030.sql that use CUSTOMERS and ORDERS tables
+# Verify 4 queries that used ORDERS table created new plans while rest reused existing plans
+[ INFO] PATH:LINENUM DATE TIME : Generating M file [$PWD/_ydboctoP*.m] (to execute SQL query)
+[ INFO] PATH:LINENUM DATE TIME : Generating M file [$PWD/_ydboctoP*.m] (to execute SQL query)
+[ INFO] PATH:LINENUM DATE TIME : Generating M file [$PWD/_ydboctoP*.m] (to execute SQL query)
+[ INFO] PATH:LINENUM DATE TIME : Generating M file [$PWD/_ydboctoP*.m] (to execute SQL query)
+[ INFO] PATH:LINENUM DATE TIME : Using already generated M file [$PWD/_ydboctoP*.m] (to execute SQL query)
+[ INFO] PATH:LINENUM DATE TIME : Using already generated M file [$PWD/_ydboctoP*.m] (to execute SQL query)
+# Verify db nodes correctly represent CUSTOMERS and ORDERS tables and plans that rely on them
+^%ydboctoocto("tableplans","CUSTOMERS","$PWD/_ydboctoP*.m")=""
+^%ydboctoocto("tableplans","CUSTOMERS","$PWD/_ydboctoP*.m")=""
+^%ydboctoocto("tableplans","CUSTOMERS","$PWD/_ydboctoP*.m")=""
+^%ydboctoocto("tableplans","ORDERS","$PWD/_ydboctoP*.m")=""
+^%ydboctoocto("tableplans","ORDERS","$PWD/_ydboctoP*.m")=""
+^%ydboctoocto("tableplans","ORDERS","$PWD/_ydboctoP*.m")=""
+^%ydboctoocto("tableplans","ORDERS","$PWD/_ydboctoP*.m")=""
+# Verify db nodes correctly represent 6 plans that are reusable (i.e. do not need to be regenerated)
+^%ydboctoocto("plan_metadata","$PWD/_ydboctoP*.m","output_key")="3"
+^%ydboctoocto("plan_metadata","$PWD/_ydboctoP*.m","output_key")="3"
+^%ydboctoocto("plan_metadata","$PWD/_ydboctoP*.m","output_key")="3"
+^%ydboctoocto("plan_metadata","$PWD/_ydboctoP*.m","output_key")="3"
+^%ydboctoocto("plan_metadata","$PWD/_ydboctoP*.m","output_key")="4"
+^%ydboctoocto("plan_metadata","$PWD/_ydboctoP*.m","output_key")="3"
+# Verify db nodes correctly represent cross-references
+^%ydboctoocto("xref_status","CUSTOMERS","FIRST_NAME")="%ydboctoTlGFZzU7b74ygU5grJjV"
+^%ydboctoocto("xref_status","ORDERS","ORDER_AMOUNT")="%ydboctoT2rbmGQx4OtlbPfepALF"
+^%ydboctoocto("xref_status","ORDERS","ORDER_DATE")="%ydboctoTNVqZ6Mt1cVtAS2KtqVe"
+^%ydboctoxref("CUSTOMERS","FIRST_NAME")="5"
+^%ydboctoxref("CUSTOMERS","FIRST_NAME","George")="1"
+^%ydboctoxref("CUSTOMERS","FIRST_NAME","George",1)=""
+^%ydboctoxref("CUSTOMERS","FIRST_NAME","James")="2"
+^%ydboctoxref("CUSTOMERS","FIRST_NAME","James",4)=""
+^%ydboctoxref("CUSTOMERS","FIRST_NAME","James",5)=""
+^%ydboctoxref("CUSTOMERS","FIRST_NAME","John")="1"
+^%ydboctoxref("CUSTOMERS","FIRST_NAME","John",2)=""
+^%ydboctoxref("CUSTOMERS","FIRST_NAME","Thomas")="1"
+^%ydboctoxref("CUSTOMERS","FIRST_NAME","Thomas",3)=""
+^%ydboctoxref("ORDERS","ORDER_AMOUNT")="6"
+^%ydboctoxref("ORDERS","ORDER_AMOUNT","$124.00")="1"
+^%ydboctoxref("ORDERS","ORDER_AMOUNT","$124.00",3)=""
+^%ydboctoxref("ORDERS","ORDER_AMOUNT","$14.40")="1"
+^%ydboctoxref("ORDERS","ORDER_AMOUNT","$14.40",6)=""
+^%ydboctoxref("ORDERS","ORDER_AMOUNT","$234.56")="1"
+^%ydboctoxref("ORDERS","ORDER_AMOUNT","$234.56",1)=""
+^%ydboctoxref("ORDERS","ORDER_AMOUNT","$25.50")="1"
+^%ydboctoxref("ORDERS","ORDER_AMOUNT","$25.50",5)=""
+^%ydboctoxref("ORDERS","ORDER_AMOUNT","$65.50")="1"
+^%ydboctoxref("ORDERS","ORDER_AMOUNT","$65.50",4)=""
+^%ydboctoxref("ORDERS","ORDER_AMOUNT","$78.50")="1"
+^%ydboctoxref("ORDERS","ORDER_AMOUNT","$78.50",2)=""
+^%ydboctoxref("ORDERS","ORDER_DATE")="6"
+^%ydboctoxref("ORDERS","ORDER_DATE","03/14/1760")="1"
+^%ydboctoxref("ORDERS","ORDER_DATE","03/14/1760",2)=""
+^%ydboctoxref("ORDERS","ORDER_DATE","05/23/1784")="1"
+^%ydboctoxref("ORDERS","ORDER_DATE","05/23/1784",3)=""
+^%ydboctoxref("ORDERS","ORDER_DATE","07/04/1776")="1"
+^%ydboctoxref("ORDERS","ORDER_DATE","07/04/1776",1)=""
+^%ydboctoxref("ORDERS","ORDER_DATE","07/21/1795")="1"
+^%ydboctoxref("ORDERS","ORDER_DATE","07/21/1795",5)=""
+^%ydboctoxref("ORDERS","ORDER_DATE","09/03/1790")="1"
+^%ydboctoxref("ORDERS","ORDER_DATE","09/03/1790",4)=""
+^%ydboctoxref("ORDERS","ORDER_DATE","11/27/1787")="1"
+^%ydboctoxref("ORDERS","ORDER_DATE","11/27/1787",6)=""
+# Verify currently installed triggers (expect 3 triggers, 1 for CUSTOMERS, 2 for ORDERS)
+Output File: 
+;trigger name: %ydboctoTlGFZzU7b74ygU5grJjV (region DEFAULT)  cycle: 1
++^customers(keyCol0=*) -name=%ydboctoTlGFZzU7b74ygU5grJjV -commands=S,K,ZK -delim="|" -pieces=1 -xecute="DO handleSetKill^%ydboctoXlGFZzU7b74ygU5grJjVC5A"
+;trigger name: %ydboctoTNVqZ6Mt1cVtAS2KtqVe (region DEFAULT)  cycle: 6
++^orders(keyCol0=*) -name=%ydboctoTNVqZ6Mt1cVtAS2KtqVe -commands=S,K,ZK -delim="|" -pieces=1 -xecute="DO handleSetKill^%ydboctoXNVqZ6Mt1cVtAS2KtqVe53C"
+;trigger name: %ydboctoT2rbmGQx4OtlbPfepALF (region DEFAULT)  cycle: 6
++^orders(keyCol0=*) -name=%ydboctoT2rbmGQx4OtlbPfepALF -commands=S,K,ZK -delim="|" -pieces=2 -xecute="DO handleSetKill^%ydboctoX2rbmGQx4OtlbPfepALF2EA"

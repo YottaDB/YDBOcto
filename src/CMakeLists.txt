@@ -408,6 +408,7 @@ endforeach()
 set(aux_files
   aux/_ydboctoAdmin.m
   aux/_ydboctoCleanup.m
+  aux/_ydboctoDropTable.m
   aux/_ydboctoInit.m
   aux/_ydboctoUtils.m
   aux/_ydboctocurrentSchema.m

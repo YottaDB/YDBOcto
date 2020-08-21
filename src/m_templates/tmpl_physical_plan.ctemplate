@@ -52,7 +52,7 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
 		GET_LP(lp_temp, lp_temp, 0, LP_COLUMN_ALIAS);
 		column_alias = lp_temp->v.lp_column_alias.column_alias;
 		%{}LOCK +^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}"):10`n{{ PLAN_LINE_START }}{}%
-		%{}IF $GET(^{{ config->global_names.raw_octo }}("xref_status","{{ tableName }}","{{ columnName }}"))="done" {}%
+		%{}IF $DATA(^{{ config->global_names.raw_octo }}("xref_status","{{ tableName }}","{{ columnName }}")) {}%
 		// If this a plan for a cross reference, put safeguards in place (i.e. QUIT) to prevent building twice.
 		%{}LOCK -^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}") QUIT`n{{ PLAN_LINE_START }}{}%
 		%{}IF '$$dollarZTRIGGER^%%ydboctoplanhelpers("ITEM","+{}%
@@ -70,7 +70,8 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
 		%{}{{ tableName }}"","""",""{{ columnName }}"")" ; stores NULL values of {{ columnName }}`n{{ PLAN_LINE_START }}{}%
 		%{}; Populate cross reference`n{{ PLAN_LINE_START }}{}%
 		%{}DO populateXref`n{{ PLAN_LINE_START }}{}%
-		%{}SET ^{{ config->global_names.raw_octo }}("xref_status","{{ tableName }}","{{ columnName }}")="done"{}%
+		%{}SET ^{{ config->global_names.raw_octo }}("xref_status","{{ tableName }}","{{ columnName }}")={}%
+		%{}"{{ plan->trigger_name }}"{}%
 		%{}`n{{ PLAN_LINE_START }}{}%
 		%{}; Now that xref building is complete, cleanup saved cancel related state information`n{{ PLAN_LINE_START }}{}%
 		%{}KILL %%ydboctoCancel`n{{ PLAN_LINE_START }}{}%

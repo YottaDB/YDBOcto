@@ -70,3 +70,47 @@ OCTO
   verify_output TDT03 output.txt noinfo nodebug
 }
 
+@test "TDT04 : OCTO90 : DROP TABLE should delete db nodes for plans that relied on the dropped table" {
+	# Note this test is mostly the same as the "test_createtable/TC030" subtest.
+	# Change to one might need to be done in both places.
+	echo "# Load customers DDL" > output.txt
+	load_fixture customers.sql
+	load_fixture customers.zwr
+	echo "" >> output.txt
+
+	echo "# Stage 1 : Run 6 queries from TCF030.sql that use CUSTOMERS and ORDERS tables" >> output.txt
+	cp @PROJECT_SOURCE_DIR@/tests/fixtures/TC030.sql .
+	octo -vv -f TC030.sql > run1.txt 2>&1
+	echo '# Verify 6 _ydboctoP*.m plans have been generated' >> output.txt
+	[[ $(ls -l _ydboctoP*.m | wc -l) -eq 6 ]]
+	echo "# Verify ALL 6 queries created new plans" >> output.txt
+	grep "execute SQL query" run1.txt >> output.txt
+	mupip extract run1.ext
+	echo "# Verify db nodes correctly represent CUSTOMERS and ORDERS tables and plans that rely on them" >> output.txt
+	grep -w "tableplans" run1.ext | grep -vw output_columns >> output.txt
+	echo "# Verify db nodes correctly represent 6 plans that are reusable (i.e. do not need to be regenerated)" >> output.txt
+	grep "plan_metadata.*output_key" run1.ext >> output.txt
+	echo "# Verify db nodes correctly represent cross-references" >> output.txt
+	grep -E "xref_status|ydboctoxref" run1.ext >> output.txt
+	echo "# Verify currently installed triggers (expect 3 triggers, 1 for CUSTOMERS, 2 for ORDERS)" >> output.txt
+	mupip trigger -select < /dev/null >> output.txt
+	echo "" >>output.txt
+
+	echo "# Stage 2 : Rerun DROP TABLE of ORDERS" >> output.txt
+	cp @PROJECT_SOURCE_DIR@/tests/fixtures/TDT04.sql .
+	octo -f TDT04.sql >> output.txt 2>&1
+	echo '# Verify 6 _ydboctoP*.m plans still remain' >> output.txt
+	[[ $(ls -l _ydboctoP*.m | wc -l) -eq 6 ]]
+	echo "# Verify db nodes corresponding to ORDERS table have been deleted" >> output.txt
+	mupip extract run2.ext
+	grep -w "tableplans" run2.ext | grep -vw output_columns >> output.txt
+	echo "# Verify db nodes correctly represent 2 plans that are reusable (i.e. do not need to be regenerated)" >> output.txt
+	grep "plan_metadata.*output_key" run2.ext >> output.txt
+	echo "# Verify db nodes correctly represent cross-references" >> output.txt
+	grep -E "xref_status|ydboctoxref" run2.ext >> output.txt
+	echo "# Verify currently installed triggers (expect 1 trigger for CUSTOMERS, 0 for ORDERS)" >> output.txt
+	mupip trigger -select < /dev/null >> output.txt
+	echo "" >>output.txt
+	verify_output TDT04 output.txt
+}
+

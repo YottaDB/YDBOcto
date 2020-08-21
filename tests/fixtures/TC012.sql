@@ -26,7 +26,7 @@ CREATE TABLE SIMPLE1 (id integer primary key, firstname varchar);
  -- SIMPLE1 QUERY02
 SELECT * from SIMPLE1;
 CREATE TABLE SIMPLE1 (id integer primary key, firstname varchar PIECE 1);
- -- SIMPLE1 QUERY03 (should not show up because it is same as QUERY02)
+ -- SIMPLE1 QUERY03
 SELECT * from SIMPLE1;
 CREATE TABLE SIMPLE1 (id integer primary key, firstname varchar PIECE 2);
  -- SIMPLE1 QUERY04
@@ -46,7 +46,7 @@ CREATE TABLE SIMPLE2 (id integer primary key, firstname varchar, lastname varcha
  -- SIMPLE2 QUERY08
 SELECT * from SIMPLE2;
 CREATE TABLE SIMPLE2 (id integer primary key, firstname varchar, lastname varchar PIECE 2);
- -- SIMPLE2 QUERY09 (should not show up because it is same as QUERY06)
+ -- SIMPLE2 QUERY09
 SELECT * from SIMPLE2;
 CREATE TABLE SIMPLE2 (id integer primary key, firstname varchar, lastname varchar PIECE 3);
  -- SIMPLE2 QUERY10
@@ -58,7 +58,7 @@ CREATE TABLE SIMPLE2 (id integer primary key, firstname varchar PIECE 0, lastnam
  -- SIMPLE2 QUERY12
 SELECT * from SIMPLE2;
 CREATE TABLE SIMPLE2 (id integer primary key, firstname varchar PIECE 0, lastname varchar PIECE 1);
- -- SIMPLE2 QUERY13 (should not show up because it is same as QUERY11)
+ -- SIMPLE2 QUERY13
 SELECT * from SIMPLE2;
 CREATE TABLE SIMPLE2 (id integer primary key, firstname varchar PIECE 0, lastname varchar PIECE 2);
  -- SIMPLE2 QUERY14
@@ -67,19 +67,19 @@ CREATE TABLE SIMPLE2 (id integer primary key, firstname varchar PIECE 0, lastnam
  -- SIMPLE2 QUERY15
 SELECT * from SIMPLE2;
 CREATE TABLE SIMPLE2 (id integer primary key, firstname varchar PIECE 1, lastname varchar);
- -- SIMPLE2 QUERY16 (should not show up because it is same as QUERY06)
+ -- SIMPLE2 QUERY16
 SELECT * from SIMPLE2;
 CREATE TABLE SIMPLE2 (id integer primary key, firstname varchar PIECE 1, lastname varchar PIECE 0);
- -- SIMPLE2 QUERY17 (should not show up because it is same as QUERY07)
+ -- SIMPLE2 QUERY17
 SELECT * from SIMPLE2;
 CREATE TABLE SIMPLE2 (id integer primary key, firstname varchar PIECE 1, lastname varchar PIECE 1);
- -- SIMPLE2 QUERY18 (should not show up because it is same as QUERY08)
+ -- SIMPLE2 QUERY18
 SELECT * from SIMPLE2;
 CREATE TABLE SIMPLE2 (id integer primary key, firstname varchar PIECE 1, lastname varchar PIECE 2);
- -- SIMPLE2 QUERY19 (should not show up because it is same as QUERY09)
+ -- SIMPLE2 QUERY19
 SELECT * from SIMPLE2;
 CREATE TABLE SIMPLE2 (id integer primary key, firstname varchar PIECE 1, lastname varchar PIECE 3);
- -- SIMPLE2 QUERY20 (should not show up because it is same as QUERY10)
+ -- SIMPLE2 QUERY20
 SELECT * from SIMPLE2;
 CREATE TABLE SIMPLE2 (id integer primary key, firstname varchar PIECE 2, lastname varchar);
  -- SIMPLE2 QUERY21
@@ -88,7 +88,7 @@ CREATE TABLE SIMPLE2 (id integer primary key, firstname varchar PIECE 2, lastnam
  -- SIMPLE2 QUERY22
 SELECT * from SIMPLE2;
 CREATE TABLE SIMPLE2 (id integer primary key, firstname varchar PIECE 2, lastname varchar PIECE 1);
- -- SIMPLE2 QUERY23 (should not show up because it is same as QUERY21)
+ -- SIMPLE2 QUERY23
 SELECT * from SIMPLE2;
 CREATE TABLE SIMPLE2 (id integer primary key, firstname varchar PIECE 2, lastname varchar PIECE 2);
  -- SIMPLE2 QUERY24
@@ -103,7 +103,7 @@ CREATE TABLE SIMPLE2 (id integer primary key, firstname varchar PIECE 3, lastnam
  -- SIMPLE2 QUERY27
 SELECT * from SIMPLE2;
 CREATE TABLE SIMPLE2 (id integer primary key, firstname varchar PIECE 3, lastname varchar PIECE 1);
- -- SIMPLE2 QUERY28 (should not show up because it is same as QUERY26)
+ -- SIMPLE2 QUERY2
 SELECT * from SIMPLE2;
 CREATE TABLE SIMPLE2 (id integer primary key, firstname varchar PIECE 3, lastname varchar PIECE 2);
  -- SIMPLE2 QUERY29

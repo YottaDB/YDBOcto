@@ -1,6 +1,6 @@
 # Load customers DDL and ZWR data
 
-# Stage 1 : Run 6 queries from TCF030.sql that use CUSTOMERS and ORDERS tables
+# Stage 1 : Run 6 queries from TC030.sql that use CUSTOMERS and ORDERS tables
 # Verify 6 _ydboctoP*.m plans have been generated
 # Verify ALL 6 queries created new plans
 [ INFO] PATH:LINENUM DATE TIME : Generating M file [$PWD/_ydboctoP*.m] (to execute SQL query)

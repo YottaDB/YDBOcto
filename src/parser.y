@@ -105,6 +105,7 @@ extern void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, int *plan
 %token DELETE
 %token DELIM
 %token DESC
+%token DISCARD
 %token DISTINCT
 %token DROP
 %token ELSE
@@ -297,6 +298,7 @@ exit_command
 %include "parser/insert.y"
 %include "parser/update.y"
 %include "parser/drop.y"
+%include "parser/discard.y"
 %include "parser/set.y"
 
 sql_data_statement
@@ -1137,6 +1139,7 @@ sql_schema_statement
 sql_schema_manipulation_statement
   : drop_table_statement { $$ = $drop_table_statement; parse_context->command_tag = drop_table_STATEMENT; }
   | drop_function_statement { $$ = $drop_function_statement; parse_context->command_tag = drop_function_STATEMENT; }
+  | discard_all_statement { $$ = $discard_all_statement; parse_context->command_tag = discard_all_STATEMENT; }
   ;
 
 sql_schema_definition_statement

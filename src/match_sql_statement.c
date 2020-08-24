@@ -96,6 +96,9 @@ boolean_t match_sql_statement(SqlStatement *stmt, SqlStatement *match_stmt) {
 		if (!ret)
 			break;
 		break;
+	case discard_all_STATEMENT:
+		ret = TRUE;
+		break;
 	case drop_table_STATEMENT:
 		UNPACK_SQL_STATEMENT(drop_table, stmt, drop_table);
 		UNPACK_SQL_STATEMENT(match_drop_table, match_stmt, drop_table);

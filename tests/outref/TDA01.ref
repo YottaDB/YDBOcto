@@ -1,15 +1,15 @@
 # Load customers DDL
 
 # Stage 1 : Run 6 queries from TC030.sql that use CUSTOMERS and ORDERS tables
-# Verify 6 _ydboctoP*.m plans have been generated
-# Verify ALL 6 queries created new plans
+# Verify (from ls output of current directory) that 6 _ydboctoP*.m plans have been generated
+# Verify (from octo output) that each of the 6 queries created new plans
 [ INFO] PATH:LINENUM DATE TIME : Generating M file [$PWD/_ydboctoP*.m] (to execute SQL query)
 [ INFO] PATH:LINENUM DATE TIME : Generating M file [$PWD/_ydboctoP*.m] (to execute SQL query)
 [ INFO] PATH:LINENUM DATE TIME : Generating M file [$PWD/_ydboctoP*.m] (to execute SQL query)
 [ INFO] PATH:LINENUM DATE TIME : Generating M file [$PWD/_ydboctoP*.m] (to execute SQL query)
 [ INFO] PATH:LINENUM DATE TIME : Generating M file [$PWD/_ydboctoP*.m] (to execute SQL query)
 [ INFO] PATH:LINENUM DATE TIME : Generating M file [$PWD/_ydboctoP*.m] (to execute SQL query)
-# Verify db nodes correctly represent CUSTOMERS and ORDERS tables and plans that rely on them
+# Verify db nodes correctly represent 3 plans relying on CUSTOMERS table and 4 plans relying on ORDERS tables
 ^%ydboctoocto("tableplans","CUSTOMERS","$PWD/_ydboctoP*.m")=""
 ^%ydboctoocto("tableplans","CUSTOMERS","$PWD/_ydboctoP*.m")=""
 ^%ydboctoocto("tableplans","CUSTOMERS","$PWD/_ydboctoP*.m")=""
@@ -73,29 +73,17 @@ Output File:
 ;trigger name: %ydboctoT2rbmGQx4OtlbPfepALF (region DEFAULT)  cycle: 2
 +^orders(keyCol0=*) -name=%ydboctoT2rbmGQx4OtlbPfepALF -commands=S,K,ZK -delim="|" -pieces=2 -xecute="DO handleSetKill^%ydboctoX2rbmGQx4OtlbPfepALF2EA"
 
-# Stage 2 : Run DROP TABLE of ORDERS
-# Verify 6 _ydboctoP*.m plans still remain
-# Verify db nodes of above 6 plans corresponding to ORDERS table have been deleted
-^%ydboctoocto("tableplans","CUSTOMERS","$PWD/_ydboctoP*.m")=""
-^%ydboctoocto("tableplans","CUSTOMERS","$PWD/_ydboctoP*.m")=""
-^%ydboctoocto("tableplans","CUSTOMERS","$PWD/_ydboctoP*.m")=""
-# Verify db nodes correctly represent 2 plans that are reusable (i.e. do not need to be regenerated)
-^%ydboctoocto("plan_metadata","$PWD/_ydboctoP*.m","output_key")="3"
-^%ydboctoocto("plan_metadata","$PWD/_ydboctoP*.m","output_key")="3"
-# Verify cross-references for ORDERS table are gone and only those for CUSTOMERS table exist
-^%ydboctoocto("xref_status","CUSTOMERS","FIRST_NAME")="%ydboctoTlGFZzU7b74ygU5grJjV"
-^%ydboctoxref("CUSTOMERS","FIRST_NAME")="5"
-^%ydboctoxref("CUSTOMERS","FIRST_NAME","George")="1"
-^%ydboctoxref("CUSTOMERS","FIRST_NAME","George",1)=""
-^%ydboctoxref("CUSTOMERS","FIRST_NAME","James")="2"
-^%ydboctoxref("CUSTOMERS","FIRST_NAME","James",4)=""
-^%ydboctoxref("CUSTOMERS","FIRST_NAME","James",5)=""
-^%ydboctoxref("CUSTOMERS","FIRST_NAME","John")="1"
-^%ydboctoxref("CUSTOMERS","FIRST_NAME","John",2)=""
-^%ydboctoxref("CUSTOMERS","FIRST_NAME","Thomas")="1"
-^%ydboctoxref("CUSTOMERS","FIRST_NAME","Thomas",3)=""
-# Verify currently installed triggers (expect 1 trigger for CUSTOMERS, 0 for ORDERS)
+# Stage 2 : Run DISCARD ALL
+# Verify 6 _ydboctoP*.m plan files still remain
+_ydboctoP*.m
+_ydboctoP*.m
+_ydboctoP*.m
+_ydboctoP*.m
+_ydboctoP*.m
+_ydboctoP*.m
+# Verify db nodes of above 6 plans corresponding to both CUSTOMERS and ORDERS table have been deleted
+# Verify db nodes correctly represent 0 plans that are reusable (i.e. do not need to be regenerated)
+# Verify NO cross-references exist
+# Verify NO currently installed triggers (expect 0 trigger for CUSTOMERS, 0 for ORDERS)
 Output File: 
-;trigger name: %ydboctoTlGFZzU7b74ygU5grJjV (region DEFAULT)  cycle: 1
-+^customers(keyCol0=*) -name=%ydboctoTlGFZzU7b74ygU5grJjV -commands=S,K,ZK -delim="|" -pieces=1 -xecute="DO handleSetKill^%ydboctoXlGFZzU7b74ygU5grJjVC5A"
 

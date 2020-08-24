@@ -106,6 +106,7 @@ int copied_so_far;
 (?i:DELETE) { return DELETE; }
 (?i:DELIM) { return DELIM; }
 (?i:DESC) { return DESC; }
+(?i:DISCARD) { return DISCARD; }
 (?i:DISTINCT) { return DISTINCT; }
 (?i:DROP) { return DROP; }
 (?i:ELSE) { return ELSE; }

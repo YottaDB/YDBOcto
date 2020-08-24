@@ -76,6 +76,8 @@ SqlStatement *copy_sql_statement(SqlStatement *stmt) {
 		// been copied by looking at the aliases for each column below
 		// ret->v.select->order_by_expression = copy_sql_statement(select->order_by_expression);
 		break;
+	case discard_all_STATEMENT:
+		break;
 	case drop_table_STATEMENT:
 		drop_table = stmt->v.drop_table;
 		MALLOC_STATEMENT(ret, drop_table, SqlDropTableStatement);

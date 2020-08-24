@@ -93,6 +93,7 @@ add_custom_command(OUTPUT ${PROJECT_BINARY_DIR}/parser.y
   DEPENDS parser.y
           parser/select.y parser/insert.y parser/update.y
           parser/drop.y
+          parser/discard.y
           parser/set.y
   COMMAND awk -v path=${PROJECT_SOURCE_DIR}/src/
     -f ${PROJECT_SOURCE_DIR}/tools/combine-grammar.awk
@@ -408,7 +409,7 @@ endforeach()
 set(aux_files
   aux/_ydboctoAdmin.m
   aux/_ydboctoCleanup.m
-  aux/_ydboctoDropTable.m
+  aux/_ydboctoDiscard.m
   aux/_ydboctoInit.m
   aux/_ydboctoUtils.m
   aux/_ydboctocurrentSchema.m

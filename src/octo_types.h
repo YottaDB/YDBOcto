@@ -132,6 +132,7 @@ typedef enum SqlStatementType {
 	sort_spec_list_STATEMENT,
 	delim_char_list_STATEMENT,
 	index_STATEMENT,
+	discard_all_STATEMENT,
 	invalid_STATEMENT,
 } SqlStatementType;
 

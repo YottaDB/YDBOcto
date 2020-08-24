@@ -304,7 +304,7 @@ OCTO
 	load_fixture customers.zwr
 	echo "" >> output.txt
 
-	echo "# Stage 1 : Run 6 queries from TCF030.sql that use CUSTOMERS and ORDERS tables" >> output.txt
+	echo "# Stage 1 : Run 6 queries from TC030.sql that use CUSTOMERS and ORDERS tables" >> output.txt
 	cp @PROJECT_SOURCE_DIR@/tests/fixtures/TC030.sql .
 	octo -vv -f TC030.sql > run1.txt 2>&1
 	echo '# Verify 6 _ydboctoP*.m plans have been generated' >> output.txt

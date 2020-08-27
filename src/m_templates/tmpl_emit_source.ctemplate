@@ -62,6 +62,7 @@ TEMPLATE(tmpl_emit_source, char *source, char *table_name, int unique_id, int nu
 				key_count++;
 				break;
 			default:
+				assert(FALSE);
 				FATAL(ERR_UNKNOWN_KEYWORD_STATE, "");
 				break;
 			}

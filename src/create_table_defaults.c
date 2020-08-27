@@ -22,6 +22,16 @@
 #define DELIM	 (1 << 1)
 #define NULLCHAR (1 << 2)
 
+#define DQDEL_AND_CONTINUE(CUR_KEYWORD, START_KEYWORD, NEXT_KEYWORD) \
+	{                                                            \
+		dqdel(CUR_KEYWORD);                                  \
+		if (START_KEYWORD == CUR_KEYWORD) {                  \
+			START_KEYWORD = NEXT_KEYWORD;                \
+		}                                                    \
+		CUR_KEYWORD = NEXT_KEYWORD;                          \
+		continue;                                            \
+	}
+
 /* 0 return value implies table create was successful
  * non-zero return value implies error while creating table
  */
@@ -46,7 +56,7 @@ int create_table_defaults(SqlStatement *table_statement, SqlStatement *keywords_
 	max_key = get_key_columns(table, key_columns);
 	/* max_key >= 0 is the number of key columns found
 	 * -1 indicates no keys found to make all columns keys
-	 * -2 inidicates there was some error in the key columns
+	 * -2 indicates there was some error in the key columns
 	 */
 	if (max_key == -1) {
 		UNPACK_SQL_STATEMENT(start_column, table->columns, column);
@@ -83,6 +93,9 @@ int create_table_defaults(SqlStatement *table_statement, SqlStatement *keywords_
 	}
 	cur_keyword = start_keyword;
 	do {
+		SqlOptionalKeyword *next_keyword;
+
+		next_keyword = cur_keyword->next;
 		switch (cur_keyword->keyword) {
 		case OPTIONAL_SOURCE:
 			assert(0 == (options & SOURCE));
@@ -90,6 +103,7 @@ int create_table_defaults(SqlStatement *table_statement, SqlStatement *keywords_
 			SQL_STATEMENT(statement, keyword_STATEMENT);
 			statement->v.keyword = cur_keyword;
 			table->source = statement;
+			DQDEL_AND_CONTINUE(cur_keyword, start_keyword, next_keyword);
 			break;
 		case OPTIONAL_DELIM:
 			assert(0 == (options & DELIM));
@@ -97,6 +111,7 @@ int create_table_defaults(SqlStatement *table_statement, SqlStatement *keywords_
 			SQL_STATEMENT(statement, keyword_STATEMENT);
 			statement->v.keyword = cur_keyword;
 			table->delim = statement;
+			DQDEL_AND_CONTINUE(cur_keyword, start_keyword, next_keyword);
 			break;
 		case OPTIONAL_NULLCHAR:
 			assert(0 == (options & NULLCHAR));
@@ -104,16 +119,21 @@ int create_table_defaults(SqlStatement *table_statement, SqlStatement *keywords_
 			SQL_STATEMENT(statement, keyword_STATEMENT);
 			statement->v.keyword = cur_keyword;
 			table->nullchar = statement;
+			DQDEL_AND_CONTINUE(cur_keyword, start_keyword, next_keyword);
 			break;
 		case NO_KEYWORD:
 			break;
 		default:
 			ERROR(ERR_UNKNOWN_KEYWORD_STATE, "");
+			assert(FALSE);
 			return 1;
 			break;
 		}
-		cur_keyword = cur_keyword->next;
-	} while (cur_keyword != start_keyword);
+		cur_keyword = next_keyword;
+		if (cur_keyword == start_keyword) {
+			break;
+		}
+	} while (TRUE);
 	if ((SOURCE | DELIM) == options)
 		return 0;
 	if (!(options & SOURCE)) {
@@ -158,6 +178,9 @@ int create_table_defaults(SqlStatement *table_statement, SqlStatement *keywords_
 	}
 	cur_keyword = start_keyword;
 	do {
+		SqlOptionalKeyword *next_keyword;
+
+		next_keyword = cur_keyword->next;
 		switch (cur_keyword->keyword) {
 		case OPTIONAL_SOURCE:
 			if ((NULL != table->source) && (table->source->v.keyword == cur_keyword)) {
@@ -167,6 +190,7 @@ int create_table_defaults(SqlStatement *table_statement, SqlStatement *keywords_
 			SQL_STATEMENT(statement, keyword_STATEMENT);
 			statement->v.keyword = cur_keyword;
 			table->source = statement;
+			DQDEL_AND_CONTINUE(cur_keyword, start_keyword, next_keyword);
 			break;
 		case OPTIONAL_DELIM:
 			if ((NULL != table->delim) && (table->delim->v.keyword == cur_keyword)) {
@@ -176,24 +200,20 @@ int create_table_defaults(SqlStatement *table_statement, SqlStatement *keywords_
 			SQL_STATEMENT(statement, keyword_STATEMENT);
 			statement->v.keyword = cur_keyword;
 			table->delim = statement;
-			break;
-		case OPTIONAL_NULLCHAR:
-			if ((NULL != table->nullchar) && (table->nullchar->v.keyword == cur_keyword)) {
-				break;
-			}
-			assert(NULL == table->nullchar);
-			SQL_STATEMENT(statement, keyword_STATEMENT);
-			statement->v.keyword = cur_keyword;
-			table->nullchar = statement;
+			DQDEL_AND_CONTINUE(cur_keyword, start_keyword, next_keyword);
 			break;
 		case NO_KEYWORD:
 			break;
 		default:
 			ERROR(ERR_UNKNOWN_KEYWORD_STATE, "");
+			assert(FALSE);
 			return 1;
 			break;
 		}
-		cur_keyword = cur_keyword->next;
-	} while (cur_keyword != start_keyword);
+		cur_keyword = next_keyword;
+		if (cur_keyword == start_keyword) {
+			break;
+		}
+	} while (TRUE);
 	return 0;
 }

@@ -41,7 +41,10 @@
 int auto_upgrade_binary_definition_if_needed(void) {
 	ydb_buffer_t octo_global, subs, fmt;
 	char	     fmt_buff[INT32_TO_STRING_MAX];
-	int	     binary_definition_fmt, status;
+	int	     status;
+#ifndef FORCE_BINARY_DEFINITION_AUTO_UPGRADE
+	int binary_definition_fmt;
+#endif
 	boolean_t    auto_upgrade_needed, release_ddl_lock;
 	ydb_buffer_t locksub;
 	boolean_t    save_allow_schema_changes;
@@ -69,8 +72,8 @@ int auto_upgrade_binary_definition_if_needed(void) {
 		case YDB_OK:
 			assert(fmt.len_used < sizeof(fmt_buff));
 			fmt.buf_addr[fmt.len_used] = '\0';
+#ifndef FORCE_BINARY_DEFINITION_AUTO_UPGRADE
 			binary_definition_fmt = atoi(fmt.buf_addr);
-#ifdef FORCE_BINARY_DEFINITION_AUTO_UPGRADE
 			auto_upgrade_needed = (FMT_BINARY_DEFINITION != binary_definition_fmt);
 #else
 			auto_upgrade_needed = TRUE;

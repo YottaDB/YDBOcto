@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -10,4 +10,4 @@
 #								#
 #################################################################
 
-create table names2 (id integer primary key, firstName varchar key num "1", lastName varchar) global "^names2(keys(""id""),keys(""firstName""))";
+create table names2 (id integer primary key, firstName varchar key num 1, lastName varchar) global "^names2(keys(""id""),keys(""firstName""))";

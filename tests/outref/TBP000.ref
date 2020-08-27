@@ -1,15 +1,20 @@
-Error with syntax near (line 7, column 1):
+Error with syntax near (line 1, column 56):
+
+CREATE TABLE abc (id INTEGER PRIMARY KEY PIECE "keys(0)");
+                                                       ^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: CREATE TABLE abc (id INTEGER PRIMARY KEY PIECE "keys(0)");
+Error with syntax near (line 1, column 56):
+
+CREATE TABLE abc (id INTEGER PRIMARY KEY PIECE "keys(0)" GLOBAL "^aDifferentVar(keys(0))");
+                                                       ^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: CREATE TABLE abc (id INTEGER PRIMARY KEY PIECE "keys(0)" GLOBAL "^aDifferentVar(keys(0))");
+Error with syntax near (line 4, column 11):
 
 CREATE TABLE abc (
   id INTEGER PRIMARY KEY EXTRACT "abc"
   GLOBAL "someGLobal"
   PIECE "0"
-  DELIM "|"
-) DELIM "|"
-END "keys(0)" GLOBAL "someGLobal";
-^^^
-syntax error, unexpected END, expecting SEMICOLON or ENDOFFILE
-
+          ^
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: CREATE TABLE abc (
   id INTEGER PRIMARY KEY EXTRACT "abc"
   GLOBAL "someGLobal"

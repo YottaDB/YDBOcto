@@ -51,7 +51,7 @@ int main(int argc, char **argv) {
 		config->is_tty = TRUE;
 	}
 	cur_input_index = 0;
-	memset(input_buffer_combined, 0, MAX_STR_CONST);
+	input_buffer_combined[cur_input_index] = '\0';
 	do {
 		if (config->is_tty) { /* Clear previously read query from input buffer before starting to read new query.
 				       * This lets octo -vv dump the current query that is being parsed instead of dumping

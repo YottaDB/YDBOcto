@@ -68,14 +68,14 @@ make-ubuntu:
     - .make
     - .ubuntu
   script:
-    - ./tools/ci/build.sh
+    - ./tools/ci/build.sh "make-ubuntu"
 
 make-centos:
   image: yottadb/yottadb-centos-base:latest-master
   extends:
     - .make
     - .centos
-  script: ./tools/ci/build.sh
+  script: ./tools/ci/build.sh "make-centos"
 
 make-tls-ubuntu:
   image: yottadb/yottadb-base:latest-master
@@ -84,7 +84,7 @@ make-tls-ubuntu:
     - .ubuntu
   script:
     - ./tools/ci/install-tls.sh
-    - ./tools/ci/build.sh
+    - ./tools/ci/build.sh "make-tls-ubuntu"
 
 make-tls-centos:
   image: yottadb/yottadb-centos-base:latest-master
@@ -93,7 +93,34 @@ make-tls-centos:
     - .centos
   script:
     - ./tools/ci/install-tls.sh
-    - ./tools/ci/build.sh
+    - ./tools/ci/build.sh "make-tls-centos"
+
+test-auto-upgrade-force:
+  # This job tests auto upgrade functionality of binary table/function definitions by forcing an auto upgrade
+  image: yottadb/yottadb-base:latest-master
+  extends:
+    - .make
+    - .ubuntu
+  script:
+    - ./tools/ci/build.sh "test-auto-upgrade" "force"
+
+.test-auto-upgrade-binary:
+  # This job tests auto upgrade functionality of binary table/function definitions relative to a random older commit
+  image: yottadb/yottadb-base:latest-master
+  extends:
+    - .make
+    - .ubuntu
+  script:
+    - ./tools/ci/build.sh "test-auto-upgrade" "binary"
+
+.test-auto-upgrade-plan:
+  # This job tests auto upgrade functionality of plan definitions (physical plans, xref plans, triggers etc.)
+  image: yottadb/yottadb-base:latest-master
+  extends:
+    - .make
+    - .ubuntu
+  script:
+    - ./tools/ci/build.sh "test-auto-upgrade" "plan"
 
 octo:
   image: docker:latest

@@ -15,6 +15,9 @@
 set -v
 set -x
 
+jobname=$1	# could be "make-centos", "make-ubuntu", "make-tls-centos", "make-tls-centos" or "test-auto-upgrade"
+subtaskname=$2	# could be "force", "binary" or "plan" in case jobname is "test-auto-upgrade"
+
 source /opt/yottadb/current/ydb_env_set
 
 start_dir=$(pwd)
@@ -71,61 +74,64 @@ if [ "$unused_outrefs" != "" ]; then
 fi
 popd
 
-echo "# Check repo for unused test files"
-pushd ../cmake
-unused_tests=$(../tools/ci/find_unused_tests.sh)
-if [ "$unused_tests" != "" ]; then
-  echo " -> Unused test files found!"
-  echo "$unused_tests"
-  exit 1
-fi
-popd
+# If this is the "test-auto-upgrade" job, skip steps that are covered by other jobs (e.g. "make-ubuntu" etc.)
+if [[ "test-auto-upgrade" != $jobname ]]; then
+	echo "# Check repo for unused test files"
+	pushd ../cmake
+	unused_tests=$(../tools/ci/find_unused_tests.sh)
+	if [ "$unused_tests" != "" ]; then
+	  echo " -> Unused test files found!"
+	  echo "$unused_tests"
+	  exit 1
+	fi
+	popd
 
-echo "# Check for a commit that was not gpg-signed"
-# If you need to add a new key ID, add it to the below list.
-# The key will also have to be on a public key server.
-# If you have never published it before, you can do so with
-# `gpg --keyserver hkps://keyserver.ubuntu.com --send-keys KEY_ID`.
-# You can find your key ID with `gpg -K`;
-# upload all keys that you will use to sign commits.
-GPG_KEYS=(
-    # Joshua Nelson
-    "A7AC371F484CB10A0EC1CAE1964534138B7FB42E"
-    # Jon Badiali
-    "58FE3050D9F48C46FC506C68C5C2A5A682CB4DDF"
-    # Brad Westhafer
-    "FC859B0401A6C5F92BF1C1061E46090B0FD0A34E"
-    # Jaahanavee Sikri
-    "192D7DD0968178F057B2105DE5E6FCCE1994F0DD"
-    # Narayanan Iyer
-    "0CE9E4C2C6E642FE14C1BB9B3892ED765A912982"
-    # Ganesh Mahesh
-    "74774D6D0DB17665AB75A18211A87E9521F6FB86"
-    # K S Bhaskar
-    "D3CFECF187AECEAA67054719DCF03D8B30F73415"
-    # Steven Estess
-    "CC9A13F429C7F9231E4DFB2832655C57E597CF83"
-)
-gpg --keyserver hkps://keyserver.ubuntu.com --recv-keys "${GPG_KEYS[@]}"
-# verify-commit was only introduced in 2.5: https://stackoverflow.com/a/32038784/7669110
-# If git is not recent enough for the check, just skip it
-MAJOR_GIT_VERSION="$(git --version | cut -d ' ' -f 3 | cut -d '.' -f 1)"
-if [ $MAJOR_GIT_VERSION -ge 2 ] && ! git verify-commit HEAD; then
-    echo " -> The commit was not signed with a known GPG key!"
-    exit 1
-fi
+	echo "# Check for a commit that was not gpg-signed"
+	# If you need to add a new key ID, add it to the below list.
+	# The key will also have to be on a public key server.
+	# If you have never published it before, you can do so with
+	# `gpg --keyserver hkps://keyserver.ubuntu.com --send-keys KEY_ID`.
+	# You can find your key ID with `gpg -K`;
+	# upload all keys that you will use to sign commits.
+	GPG_KEYS=(
+	    # Joshua Nelson
+	    "A7AC371F484CB10A0EC1CAE1964534138B7FB42E"
+	    # Jon Badiali
+	    "58FE3050D9F48C46FC506C68C5C2A5A682CB4DDF"
+	    # Brad Westhafer
+	    "FC859B0401A6C5F92BF1C1061E46090B0FD0A34E"
+	    # Jaahanavee Sikri
+	    "192D7DD0968178F057B2105DE5E6FCCE1994F0DD"
+	    # Narayanan Iyer
+	    "0CE9E4C2C6E642FE14C1BB9B3892ED765A912982"
+	    # Ganesh Mahesh
+	    "74774D6D0DB17665AB75A18211A87E9521F6FB86"
+	    # K S Bhaskar
+	    "D3CFECF187AECEAA67054719DCF03D8B30F73415"
+	    # Steven Estess
+	    "CC9A13F429C7F9231E4DFB2832655C57E597CF83"
+	)
+	gpg --keyserver hkps://keyserver.ubuntu.com --recv-keys "${GPG_KEYS[@]}"
+	# verify-commit was only introduced in 2.5: https://stackoverflow.com/a/32038784/7669110
+	# If git is not recent enough for the check, just skip it
+	MAJOR_GIT_VERSION="$(git --version | cut -d ' ' -f 3 | cut -d '.' -f 1)"
+	if [ $MAJOR_GIT_VERSION -ge 2 ] && ! git verify-commit HEAD; then
+	    echo " -> The commit was not signed with a known GPG key!"
+	    exit 1
+	fi
 
-# If we found a recent enough version, run clang-format
-if CLANG_FORMAT="$(../tools/ci/find-clang-format.sh)"; then
-	echo "# Check code style using clang-format"
-	# This modifies the files in place so no need to record the output.
-	../tools/ci/clang-format-all.sh $CLANG_FORMAT
-# RHEL/CentOS 7 has an outdated version of clang-format, but we run it in pipelines.
-# Ignore failures only on this platform.
-elif [ -x "$(which rpm)" ] && ! grep 'VERSION_ID=.*7' /etc/os-release; then
-	# Otherwise, fail the pipeline.
-	echo " -> A recent enough version of clang-format was not found!"
-	exit 1
+	# If we found a recent enough version, run clang-format
+	if CLANG_FORMAT="$(../tools/ci/find-clang-format.sh)"; then
+		echo "# Check code style using clang-format"
+		# This modifies the files in place so no need to record the output.
+		../tools/ci/clang-format-all.sh $CLANG_FORMAT
+	# RHEL/CentOS 7 has an outdated version of clang-format, but we run it in pipelines.
+	# Ignore failures only on this platform.
+	elif [ -x "$(which rpm)" ] && ! grep 'VERSION_ID=.*7' /etc/os-release; then
+		# Otherwise, fail the pipeline.
+		echo " -> A recent enough version of clang-format was not found!"
+		exit 1
+	fi
 fi
 
 echo "# Randomly choose to test Debug or Release build"
@@ -136,24 +142,91 @@ else
 fi
 echo " -> build_type = $build_type"
 
-echo "# Randomly choose whether to use the full test suite or its limited version (prefer full version 3/4 times)"
-if [[ $(( $RANDOM % 4)) -eq 0 ]]; then
-	full_test="OFF"
+if [[ "test-auto-upgrade" != $jobname ]]; then
+	echo "# Randomly choose whether to use the full test suite or its limited version (prefer full version 3/4 times)"
+	if [[ $(( $RANDOM % 4)) -eq 0 ]]; then
+		full_test="OFF"
+	else
+		full_test="ON"
+	fi
+	echo "# Randomly choose whether to test from installed directory OR from build directory (prefer install 3/4 times)"
+	if [[ $(( $RANDOM % 4)) -eq 0 ]]; then
+		disable_install="ON"
+	else
+		disable_install="OFF"
+	fi
 else
+	# Always run the full test suite in case of "test-auto-upgrade" job.
+	# That will give us maximum coverage for auto-upgrade testing.
 	full_test="ON"
+	# Disable installs for "test-auto-upgrade" as we need to run tests with 2 Octo builds and so need to keep those
+	# two builds in separate subdirectories and cannot install both into $ydb_dist.
+	disable_install="ON"
 fi
 echo " -> full_test = $full_test"
-
-echo "# Randomly choose whether to use to test installation or in build directory (prefer installation 3/4 times)"
-if [[ $(( $RANDOM % 4)) -eq 0 ]]; then
-	disable_install="ON"
-else
-	disable_install="OFF"
-fi
 echo " -> disable_install = $disable_install"
 
+if [[ ("test-auto-upgrade" == $jobname) && ("force" != $subtaskname) ]]; then
+	# Checkout a random commit (anywhere from 0 to 39 commits older than master branch) to test if
+	# auto-upgrade of plans/xrefs/triggers/binary-table-definitions etc. from that commit to the
+	# current/latest commit works fine in Octo. The number 39 is chosen since it was found that the
+	# 40th commit older than the master branch has other issues which causes the table name to be unrecognized.
+	commitnumber=`shuf -i 1-40 -n 1`
+	commitnumber=40	# FUTURE_TODO: Remove this
+	echo $commitnumber > commitnumber_picked.txt
+	echo "# Random older commit number = $commitnumber"
+	git checkout -B $CI_COMMIT_BRANCH HEAD
+	git log --graph --oneline --all --pretty=format:'%h%d; %ai; %an; %s' > gitlogall.txt
+	# At this point, "$commitnumber" can have any value in the range 1 to 40 (both inclusive)
+	# "$commitnumber" == 1 implies we pick the commit corresponding to the master branch.
+	# "$commitnumber" == 40 implies we pick the commit that is 39 commits older than the master branch.
+	# Find the commit that is "$commitnumber - 1" commits older than master
+	# Note: The awk usage below is needed to only skip commits that branch off an otherwise linear commit history.
+	git log --graph --oneline origin/master > gitlogmaster.txt
+	awk '($1 == "*") && ($2 != "|") {print $0;}' gitlogmaster.txt > commit_history.txt
+	commitsha=`head -$commitnumber commit_history.txt | tail -1 | awk '{print $2}'`
+	echo $commitsha > commit_picked.txt
+	echo "# Random older commit picked = $commitsha"
+	echo "# Checkout the older commit"
+	git checkout -B tmp $commitsha
+	# ------------------------------------------------------------
+	echo '# Make some code changes to reduce the number of failures'
+	# ------------------------------------------------------------
+	# 1) MUPIP STOP on the rocto process will not work unless the below commit is present.
+	#	9ffe5e0b; [YottaDB/DB/YDB#560] Fix rocto to terminate in case a SIGTERM/SIG-15/MUPIP STOP was sent to it
+	#    Since the random commit choice could pick a commit before this, work around the case by using "kill -9" on rocto.
+	# ------------------------------------------------------------
+	sed -i 's/$ydb_dist\/mupip stop $listener_pid/kill -9 $listener_pid/g' ../tests/test_helpers.bash.in
+	# ------------------------------------------------------------
+	# 2) ydb_ci() of newer YDB (relative to the older Octo commit) would return a negative error code but
+	#	ydb_error_check() in older Octo commits does not know to handle this. So fix Octo to handle
+	#	negative return codes from ydb_ci().
+	# ------------------------------------------------------------
+	filelist="../src/rocto/handle_execute.c ../src/rocto.c ../src/octo_init.c ../src/run_query.c"
+	sed -i 's/status = ydb_ci(.*);/& if (0 > status) status = -status;/;' $filelist
+	# FUTURE_TODO: Temporarily disable all bats tests except for "test_select_columns"
+	# FUTURE_TODO: Remove the below block of code
+	# FUTURE_TODO: BEGIN block
+	sed -i 's/ADD_BATS_TEST(test_basic_parsing)/TST1/;' ../cmake/bats-tests.cmake
+	sed -i 's/ADD_BATS_TEST(hello_bats)/TST2/;' ../cmake/bats-tests.cmake
+	sed -i 's/ADD_BATS_TEST(test_select_columns)/TST3/;' ../cmake/bats-tests.cmake
+	grep -v "ADD_BATS_TEST(" ../cmake/bats-tests.cmake > bats-tests.cmake
+	sed -i 's/TST1/ADD_BATS_TEST(test_basic_parsing)/;' bats-tests.cmake
+	sed -i 's/TST2/ADD_BATS_TEST(hello_bats)/;' bats-tests.cmake
+	sed -i 's/TST3/ADD_BATS_TEST(test_select_columns)/;' bats-tests.cmake
+	cp bats-tests.cmake ../cmake/bats-tests.cmake
+	oldcommit=1
+	# FUTURE_TODO: END block
+else
+	oldcommit=0
+fi
+
 echo "# Configure the build system for Octo"
-export CTEST_OUTPUT_ON_FAILURE=TRUE
+# If a "test-auto-upgrade" job and an old commit was chosen, we could see rare failures. Don't want that to pollute the output.
+# Hence the below CTEST_OUTPUT_ON_FAILURE=TRUE setting is done only in other jobs.
+if [[ $oldcommit == 0 ]]; then
+	export CTEST_OUTPUT_ON_FAILURE=TRUE
+fi
 ${cmakeCommand} -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_INSTALL_PREFIX=${ydb_dist}/plugin -DCMAKE_BUILD_TYPE=$build_type -DFULL_TEST_SUITE=$full_test -DDISABLE_INSTALL=$disable_install ..
 if [[ $? -ne 0 ]]; then
 	exit 1
@@ -173,136 +246,142 @@ fi
 # Re-enable "set -e" now that "make" is done.
 set -e
 
-echo "# Check for unexpected warnings and error/exit if unexpected errors are found"
-../tools/ci/sort_warnings.sh make_warnings.txt
-echo " -> Checking for unexpected warning(s) while compiling ... "
-if [ -x "$(command -v yum)" ]; then
-	if [[ $build_type == "Debug" ]]; then
-		reference=../tools/ci/expected_warnings-centos.ref
+# If this is the "test-auto-upgrade" job, skip steps that are covered by other jobs (e.g. "make-ubuntu" etc.)
+if [[ "test-auto-upgrade" != $jobname ]]; then
+	echo "# Check for unexpected warnings and error/exit if unexpected errors are found"
+	../tools/ci/sort_warnings.sh make_warnings.txt
+	echo " -> Checking for unexpected warning(s) while compiling ... "
+	if [ -x "$(command -v yum)" ]; then
+		if [[ $build_type == "Debug" ]]; then
+			reference=../tools/ci/expected_warnings-centos.ref
+		else
+			reference=../tools/ci/expected_warnings-centos_release.ref
+		fi
 	else
-		reference=../tools/ci/expected_warnings-centos_release.ref
+		if [[ $build_type == "Debug" ]]; then
+			reference=../tools/ci/expected_warnings.ref
+		else
+			reference=../tools/ci/expected_warnings-release.ref
+		fi
 	fi
-else
-	if [[ $build_type == "Debug" ]]; then
-		reference=../tools/ci/expected_warnings.ref
+
+	compare() {
+		expected="$1"
+		actual="$2"
+		# We do not want any failures in "diff" command below to exit the script (we want to see the actual diff a few steps later).
+		# So never count this step as failing even if the output does not match.
+		diff "$expected" sorted_warnings.txt &> differences.txt || true
+
+		if [ $(wc -l differences.txt | awk '{print $1}') -gt 0 ]; then
+			echo " -> Expected warnings differ from actual warnings! diff output follows"
+			echo " -> note: '<' indicates an expected warning, '>' indicates an actual warning"
+			cat differences.txt
+			exit 1
+		fi
+	}
+	compare $reference
+
+	# `clang-tidy` is not available on CentOS 7, and YDB tests on 7 to ensure backwards-compatibility.
+	if ! [ -x "$(command -v yum)" ]; then
+		echo "# Check for unexpected warning(s) from clang-tidy ..."
+		../tools/ci/clang-tidy-all.sh > clang_tidy_warnings.txt 2>/dev/null
+		../tools/ci/sort_warnings.sh clang_tidy_warnings.txt
+		# In release mode, `assert`s are compiled out and clang-tidy will emit false positives.
+		if [ "$build_type" = Debug ]; then
+			compare ../tools/ci/clang_tidy_warnings.ref
+		else
+			compare ../tools/ci/clang_tidy_warnings-release.ref
+		fi
+	fi
+
+	echo "# prepare binary tarball"
+	# Declare the tarball generation logic as a function in case we need to rebuild in release mode for Docker image creation
+	create_tarball() {
+		# Gather elements of tarball name format: yottadb_octo_<octo_version>_<os_id><os_version>_<platform_arch>_pro.tar.gz
+		octo_version="$(src/octo --version | grep "Octo version" | cut -f 3 -d ' ')"
+		os_id="$(../tools/get_platform_name.sh)"
+		os_version="$(../tools/get_platform_version.sh)"
+		platform_arch="$(../tools/get_platform_arch.sh)"
+		if [[ -f $ydb_dist/plugin/libgtmtls.so ]]; then
+			tls_support="tls_"
+		fi
+		tarball_name="yottadb_octo_${octo_version}_${tls_support}${os_id}${os_version}_${platform_arch}_pro"
+
+		# Transfer requisite files into tarball directory and compress
+		echo "# Create plugin directory structure for later reference by [octo]install.sh"
+		mkdir -p $tarball_name/plugin/r $tarball_name/plugin/o/utf8 $tarball_name/plugin/octo/bin
+		echo "# Copy YDBPosix into build directory for later access by [octo]install.sh"
+		cp $ydb_dist/plugin/libydbposix.so $tarball_name/plugin
+		cp $ydb_dist/plugin/ydbposix.xc $tarball_name/plugin
+		cp $ydb_dist/plugin/o/_ydbposix.so $tarball_name/plugin/o
+		cp $ydb_dist/plugin/o/utf8/_ydbposix.so $tarball_name/plugin/o/utf8
+		echo "# Copy Octo-specific dependencies for later access by [octo]install.sh"
+		cp octoinstall.sh $tarball_name
+		cp ../tools/get_ydb_release.sh $tarball_name
+		cp ../tools/get_platform_name.sh $tarball_name
+		cp ../tools/get_platform_version.sh $tarball_name
+		cp ../tools/get_platform_arch.sh $tarball_name
+		cp ../src/aux/*.m $tarball_name/plugin/r
+		cp src/ydbocto.ci $tarball_name/plugin/octo
+		cp ../tests/fixtures/octo-seed.* $tarball_name/plugin/octo
+		cp ../src/aux/octo.conf.default $tarball_name/plugin/octo/octo.conf
+		echo "# Copy Octo binaries and libraries for later access by [octo]install.sh"
+		cp src/octo src/rocto $tarball_name/plugin/octo/bin
+		cp src/_ydbocto.so $tarball_name/plugin/o
+		cp src/utf8/_ydbocto.so $tarball_name/plugin/o/utf8
+		echo "# Copy .dbg files for debugging RelWithDebInfo builds"
+		if [[ -f src/octo.dbg && -f src/rocto.dbg ]]; then
+			cp src/*.dbg $tarball_name/plugin/octo
+		fi
+
+		echo "# Build binary package"
+		tar -czvf $tarball_name.tar.gz $tarball_name
+	}
+	create_tarball
+
+	echo "# Randomly choose to install from tarball or via make install"
+	if [[ $(( $RANDOM % 2)) -eq 0 ]]; then
+		echo "# install from tarball"
+		cd $tarball_name
+		./octoinstall.sh
+		cd ..
 	else
-		reference=../tools/ci/expected_warnings-release.ref
+		echo "# make install"
+		make install
 	fi
 fi
 
-compare() {
-	expected="$1"
-	actual="$2"
-	# We do not want any failures in "diff" command below to exit the script (we want to see the actual diff a few steps later).
-	# So never count this step as failing even if the output does not match.
-	diff "$expected" sorted_warnings.txt &> differences.txt || true
-
-	if [ $(wc -l differences.txt | awk '{print $1}') -gt 0 ]; then
-		echo " -> Expected warnings differ from actual warnings! diff output follows"
-		echo " -> note: '<' indicates an expected warning, '>' indicates an actual warning"
-		cat differences.txt
-		exit 1
+# Skip Postgres setup for the forced auto upgrade job as it does not use psql. All the other jobs use it.
+if [[ ("test-auto-upgrade" != $jobname) || ("force" != $subtaskname) ]]; then
+	if [ -z $USER ]; then
+	  echo " -> export USER=root"
+	  export USER=root
 	fi
-}
-compare $reference
 
-# `clang-tidy` is not available on CentOS 7, and YDB tests on 7 to ensure backwards-compatibility.
-if ! [ -x "$(command -v yum)" ]; then
-	echo "# Check for unexpected warning(s) from clang-tidy ..."
-	../tools/ci/clang-tidy-all.sh > clang_tidy_warnings.txt 2>/dev/null
-	../tools/ci/sort_warnings.sh clang_tidy_warnings.txt
-	# In release mode, `assert`s are compiled out and clang-tidy will emit false positives.
-	if [ "$build_type" = Debug ]; then
-		compare ../tools/ci/clang_tidy_warnings.ref
+	echo "# Start PostgreSQL Server"
+	if [ -f /etc/init.d/postgresql ]; then
+	  /etc/init.d/postgresql start
 	else
-		compare ../tools/ci/clang_tidy_warnings-release.ref
-	fi
-fi
-
-echo "# prepare binary tarball"
-# Declare the tarball generation logic as a function in case we need to rebuild in release mode for Docker image creation
-create_tarball() {
-	# Gather elements of tarball name format: yottadb_octo_<octo_version>_<os_id><os_version>_<platform_arch>_pro.tar.gz
-	octo_version="$(src/octo --version | grep "Octo version" | cut -f 3 -d ' ')"
-	os_id="$(../tools/get_platform_name.sh)"
-	os_version="$(../tools/get_platform_version.sh)"
-	platform_arch="$(../tools/get_platform_arch.sh)"
-	if [[ -f $ydb_dist/plugin/libgtmtls.so ]]; then
-		tls_support="tls_"
-	fi
-	tarball_name="yottadb_octo_${octo_version}_${tls_support}${os_id}${os_version}_${platform_arch}_pro"
-
-	# Transfer requisite files into tarball directory and compress
-	echo "# Create plugin directory structure for later reference by [octo]install.sh"
-	mkdir -p $tarball_name/plugin/r $tarball_name/plugin/o/utf8 $tarball_name/plugin/octo/bin
-	echo "# Copy YDBPosix into build directory for later access by [octo]install.sh"
-	cp $ydb_dist/plugin/libydbposix.so $tarball_name/plugin
-	cp $ydb_dist/plugin/ydbposix.xc $tarball_name/plugin
-	cp $ydb_dist/plugin/o/_ydbposix.so $tarball_name/plugin/o
-	cp $ydb_dist/plugin/o/utf8/_ydbposix.so $tarball_name/plugin/o/utf8
-	echo "# Copy Octo-specific dependencies for later access by [octo]install.sh"
-	cp octoinstall.sh $tarball_name
-	cp ../tools/get_ydb_release.sh $tarball_name
-	cp ../tools/get_platform_name.sh $tarball_name
-	cp ../tools/get_platform_version.sh $tarball_name
-	cp ../tools/get_platform_arch.sh $tarball_name
-	cp ../src/aux/*.m $tarball_name/plugin/r
-	cp src/ydbocto.ci $tarball_name/plugin/octo
-	cp ../tests/fixtures/octo-seed.* $tarball_name/plugin/octo
-	cp ../src/aux/octo.conf.default $tarball_name/plugin/octo/octo.conf
-	echo "# Copy Octo binaries and libraries for later access by [octo]install.sh"
-	cp src/octo src/rocto $tarball_name/plugin/octo/bin
-	cp src/_ydbocto.so $tarball_name/plugin/o
-	cp src/utf8/_ydbocto.so $tarball_name/plugin/o/utf8
-	echo "# Copy .dbg files for debugging RelWithDebInfo builds"
-	if [[ -f src/octo.dbg && -f src/rocto.dbg ]]; then
-		cp src/*.dbg $tarball_name/plugin/octo
+	  # Blindly assuming we are CentOS
+	  cp ../tools/ci/postgres-centos/postgresql-setup /usr/bin/postgresql-setup
+	  chmod +x /usr/bin/postgresql-setup
+	  postgresql-setup initdb
+	  mv ../tools/ci/postgres-centos/postgresql.conf /var/lib/pgsql/data/postgresql.conf
+	  chown -v postgres.postgres /var/lib/pgsql/data/postgresql.conf
+	  su postgres -c "/usr/bin/postgres -D /var/lib/pgsql/data -p 5432" &
+	  sleep 2
 	fi
 
-	echo "# Build binary package"
-	tar -czvf $tarball_name.tar.gz $tarball_name
-}
-create_tarball
-
-echo "# Randomly choose to install from tarball or via make install"
-if [[ $(( $RANDOM % 2)) -eq 0 ]]; then
-	echo "# install from tarball"
-	cd $tarball_name
-	./octoinstall.sh
-	cd ..
-else
-	echo "# make install"
-	make install
-fi
-
-if [ -z $USER ]; then
-  echo " -> export USER=root"
-  export USER=root
-fi
-
-echo "# Start PostgreSQL Server"
-if [ -f /etc/init.d/postgresql ]; then
-  /etc/init.d/postgresql start
-else
-  # Blindly assuming we are CentOS
-  cp ../tools/ci/postgres-centos/postgresql-setup /usr/bin/postgresql-setup
-  chmod +x /usr/bin/postgresql-setup
-  postgresql-setup initdb
-  mv ../tools/ci/postgres-centos/postgresql.conf /var/lib/pgsql/data/postgresql.conf
-  chown -v postgres.postgres /var/lib/pgsql/data/postgresql.conf
-  su postgres -c "/usr/bin/postgres -D /var/lib/pgsql/data -p 5432" &
-  sleep 2
-fi
-
-echo "# Make the current user a superuser"
-su - postgres -c psql <<PSQL
-create user $USER;
-alter user $USER SUPERUSER;
+	echo "# Make the current user a superuser"
+	su - postgres -c psql <<PSQL
+	create user $USER;
+	alter user $USER SUPERUSER;
 PSQL
+fi
 
 echo "# Setup for tests"
 pushd src
-$ydb_dist/mupip set -n=true -reg '*'
+$ydb_dist/mupip set -null_subscripts=always -reg '*'
 
 echo "# Source ydb_env_set after building and installing Octo"
 if [[ $disable_install == "OFF" ]]; then
@@ -320,44 +399,270 @@ echo "# Load the data required for tests"
 $ydb_dist/mupip load ../../tests/fixtures/names.zwr
 popd
 
-# Force password authentication for PSQL by revising and reloading the config file. This is needed to prevent authentication
-# failures of the form "FATAL: Ident authentication failed for user ..." when attempting to connect to the PostgreSQL server.
-if [[ $cmakeCommand == "cmake" ]]; then
-	# Ubuntu
-	psql_conf=$(find /etc/postgresql -name "pg_hba.conf")
-else
-	# CentOS
-	psql_conf=$(find /var/lib/pgsql -name "pg_hba.conf")
-fi
-sed -i "s/ident/md5/" $psql_conf
-psql postgres <<PSQL
-SELECT pg_reload_conf();
+if [[ ("test-auto-upgrade" != $jobname) || ("force" != $subtaskname) ]]; then
+	# Force password authentication for PSQL by revising and reloading the config file. This is needed to prevent authentication
+	# failures of the form "FATAL: Ident authentication failed for user ..." when attempting to connect to the PostgreSQL server.
+	if [[ $cmakeCommand == "cmake" ]]; then
+		# Ubuntu
+		psql_conf=$(find /etc/postgresql -name "pg_hba.conf")
+	else
+		# CentOS
+		psql_conf=$(find /var/lib/pgsql -name "pg_hba.conf")
+	fi
+	sed -i "s/ident/md5/" $psql_conf
+	psql postgres <<PSQL
+	SELECT pg_reload_conf();
 PSQL
 
-echo "# Run the tests"
-# We do not want any failures in "ctest" to exit the script (need to do some cleanup so the artifacts
-# are not that huge etc.). So disable the "set -e" setting temporarily for this step.
-set +e
-${ctestCommand} -j `grep -c ^processor /proc/cpuinfo`
-exit_status=$?
-echo " -> exit_status from ${ctestCommand} = $exit_status"
-# Re-enable "set -e" now that ctest is done.
-set -e
+	echo "# Run the tests"
+	# We do not want any failures in "ctest" to exit the script (need to do some cleanup so the artifacts
+	# are not that huge etc.). So disable the "set -e" setting temporarily for this step.
+	set +e
+	${ctestCommand} -j `grep -c ^processor /proc/cpuinfo`
+	exit_status=$?
+	echo " -> exit_status from ${ctestCommand} = $exit_status"
+	# Re-enable "set -e" now that ctest is done.
+	set -e
+fi
 
-if [[ 0 == $exit_status ]]; then
-	if [[ $build_type != "RelWithDebInfo" || $disable_install != "OFF" ]]; then
-		echo "# Rebuild Octo for packaging as it wasn't a RelWithDebInfo build or was built with installation disabled"
-		${cmakeCommand} -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_INSTALL_PREFIX=${ydb_dist}/plugin -DCMAKE_BUILD_TYPE=RelWithDebInfo -DDISABLE_INSTALL=OFF ..
-		make -j `grep -c ^processor /proc/cpuinfo`
-		create_tarball
+if [[ "test-auto-upgrade" != $jobname ]]; then
+	if [[ 0 == $exit_status ]]; then
+		if [[ $build_type != "RelWithDebInfo" || $disable_install != "OFF" ]]; then
+			echo "# Rebuild Octo for packaging as it wasn't a RelWithDebInfo build or was built with installation disabled"
+			${cmakeCommand} -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_INSTALL_PREFIX=${ydb_dist}/plugin -DCMAKE_BUILD_TYPE=RelWithDebInfo -DDISABLE_INSTALL=OFF ..
+			make -j `grep -c ^processor /proc/cpuinfo`
+			create_tarball
+		fi
+
+		if [[ $cmakeCommand == "cmake" ]]; then
+			echo "# Ubuntu pipelines only: Copy installation script into tarball directory for use in Docker image construction"
+			cp ../tools/ci/docker-install.sh $tarball_name
+			echo "# Copy dummy data for use in Docker image. No other fixtures are needed as Northwind tests full functionality"
+			cp ../tests/fixtures/northwind.* $tarball_name
+		fi
+	fi
+else
+	# If this is the "test-auto-upgrade" job, ignore errors in ctest (possible some tests fail because we are running
+	# tests using an older Octo commit that had a bug which was fixed afterwards). We will test auto-upgrade on the
+	# passing subtests only.
+	exit_status=0
+	echo "# Cleanup unit test case executables from oldsrc directory"
+	rm -rf src/CMakeFiles
+	rm -f src/test_*	# these are the unit test case executables (should not be needed otherwise)
+	echo '# Move old commit build of Octo to [oldsrc] directory'
+	mv src oldsrc
+	echo '# Delete cmake/make artifacts of older Octo build to make way for newer Octo build'
+	rm -rf CMakeCache.txt CMakeFiles
+	if [[ "force" != $subtaskname ]]; then
+		echo '# Reset git repo to latest commit branch'
+		git reset --hard $CI_COMMIT_BRANCH
+		echo '# Rebuild Octo using the latest commit branch for the auto-upgrade test'
+		cmakeflags="-DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_INSTALL_PREFIX=${ydb_dist}/plugin"
+	else
+		cmakeflags="-DFORCE_BINARY_DEFINITION_AUTO_UPGRADE=ON"	# Force auto upgrade
+	fi
+	cmakeflags="$cmakeflags -DCMAKE_BUILD_TYPE=$build_type -DFULL_TEST_SUITE=$full_test"
+	cmakeflags="$cmakeflags -DDISABLE_INSTALL=$disable_install"
+	# The default value of STRING_BUFFER_LENGTH (aka MAX_STR_CONST inside Octo) is 32KiB. So bump it to a high value
+	# to see if auto upgrade from a Octo environment that ran with 32KiB works fine with the high value.
+	cmakeflags="$cmakeflags -DSTRING_BUFFER_LENGTH=600000"
+	${cmakeCommand} $cmakeflags ..
+	if [[ $? -ne 0 ]]; then
+		exit 1
 	fi
 
-	if [[ $cmakeCommand == "cmake" ]]; then
-		echo "# Ubuntu pipelines only: Copy installation script into tarball directory for use in Docker image construction"
-		cp ../tools/ci/docker-install.sh $tarball_name
-		echo "# Copy dummy data for use in Docker image. No other fixtures are needed as Northwind tests full functionality"
-		cp ../tests/fixtures/northwind.* $tarball_name
+	echo "# Compile Octo"
+	# We do not want any failures in "make" to exit the script (need to print the build errors into stdout)
+	# So disable the "set -e" setting temporarily for this step.
+	set +e
+	make -j `grep -c ^processor /proc/cpuinfo` 2> make_warnings.txt
+	exit_status=$?
+	if [[ 0 != $exit_status ]]; then
+		echo "# make failed with exit status [$exit_status]. make output follows below"
+		cat make_warnings.txt
+		exit $exit_status
 	fi
+	# Re-enable "set -e" now that "make" is done.
+	set -e
+	echo "# Cleanup unit test case executables from newsrc directory"
+	rm -rf src/CMakeFiles
+	rm -f src/test_*	# these are the unit test case executables (should not be needed otherwise)
+	echo '# Move new commit build of Octo to [newsrc] directory'
+	mv src newsrc
+	echo '# Delete cmake/make artifacts of newer Octo build'
+	rm -rf CMakeCache.txt CMakeFiles
+	# Unset verbose mode as the below for loop can print thousands of lines and pollute the pipeline console output
+	set +x
+	set +v
+	if [[ "force" != $subtaskname ]]; then
+		echo '# Remove "bats-test*" directories corresponding to failed subtests (if any)'
+		failedbatsdirs=`grep "Temporary files in" Testing/Temporary/LastTest.log | awk '{print $NF}'`
+		echo $failedbatsdirs > failedbatsdirs.txt
+		rm -rf $failedbatsdirs
+		env > env.out
+		echo '# Do auto-upgrade tests on the leftover "bats-test*" directories.'
+		gldfile="mumps.gld"
+		export ydb_gbldir=$gldfile
+		export ydb_routines=". $ydb_routines"
+		defaultdat="mumps.dat"
+		octodat="octo.dat"
+		touch skip_bats_test.txt gde_change_segment.txt
+		for tstdir in bats-test.*
+		do
+			cd $tstdir
+			if [[ ! -e $gldfile || ! -e $defaultdat || ! -e $octodat ]]; then
+				# This test directory does not contain a 2-region octo setup. auto-upgrade cannot be tested here. Skip.
+				cd ..
+				rm -rf $tstdir
+				echo "$tstdir : Does not contain $gldfile or $defaultdat or $octodat" >> skip_bats_test.txt
+				continue
+			fi
+			if ! ls *.sql 1> /dev/null 2>&1; then
+				# This test directory does not contain any "*.sql" files. Skip auto-upgrade test.
+				cd ..
+				rm -rf $tstdir
+				echo "$tstdir : Does not contain *.sql files" >> skip_bats_test.txt
+				continue
+			fi
+			echo "$tstdir" >> include_bats_test.txt
+			# Change absolute path names of database files to relative path names for ease of later debugging (if needed)
+			$ydb_dist/yottadb -run GDE >> ../gde_change_segment.txt 2>&1 << FILE
+			change -segment DEFAULT -file_name=$defaultdat
+			change -segment OCTOSEG -file_name=$octodat
+FILE
+			# FUTURE_TODO: Check if M or UTF-8 mode and switch accordingly
+			echo "# Running *.sql files in $tstdir"
+			for sqlfile in *.sql
+			do
+				# FUTURE_TODO: Remove the below line later
+				set +e
+				# Point src to newsrc
+				rm -f ../src || true; ln -s newsrc ../src
+				../src/octo -f $sqlfile > autoupgrade.$sqlfile.log 2>&1
+				ret_status=$?
+				# FUTURE_TODO: Remove the below line later
+				set -e
+				if [[ 0 != $ret_status ]]; then
+					echo " --> [src/octo -f $tstdir/$sqlfile] > autoupgrade.$sqlfile.log : Exit status = $ret_status"
+					exit_status=1
+				fi
+			done
+			cd ..
+		done
+	else
+		# Find out all "CREATE TABLE" queries in tests/fixtures/*.sql. Generate one query file for each.
+		# Filter out lines like "\set ON_ERROR_STOP on" that are in tests/fixtures/postgres-*.sql files
+		# as they confuse split_queries.py. Also filter out queries with errors that are in TERR*.sql files.
+		cat `grep -l "CREATE TABLE" ../tests/fixtures/*.sql | grep -v TERR` | grep -v ON_ERROR_STOP > create_table.sql
+		../tests/fixtures/sqllogic/split_queries.py create_table.sql "CREATE TABLE"
+		# Create *.gld and *.dat files
+		rm -f *.gld *.dat || true
+		# Point src to newsrc so GDE works fine or else ZROSYNTAX error would be issued.
+		rm -f src || true; ln -s newsrc src
+		export ydb_gbldir="mumps.gld"
+		$ydb_dist/yottadb -run ^GDE <<FILE
+		change -region DEFAULT -null_subscripts=true -record_size=1048576
+		change -segment DEFAULT -file_name=mumps.dat
+		add -name %ydbocto* -region=OCTOREG
+		add -region OCTOREG -dyn=OCTOSEG
+		add -segment OCTOSEG -file=octo.dat
+		change -region OCTOREG -null_subscripts=true -key_size=1019 -record_size=1048576
+		exit
+FILE
+		rm *.dat || true
+		$ydb_dist/mupip create
+		touch errors.log
+		filediff() {
+			local filename1="$1"
+			local filename2="$2"
+			local filename=""
+			for dir in oldsrc newsrc
+			do
+				if [[ "oldsrc" == $dir ]]; then
+					filename=$filename1
+				else
+					filename=$filename2
+				fi
+				# Replace variable parts of output (e.g. date/time/full-path-of-directory etc.)
+				sed -i 's/[0-9]\{4\}-[0-9]\{2\}-[0-9]\{2\}/DATE/g' ../$dir/$filename
+				sed -i 's/[0-9]\{2\}:[0-9]\{2\}:[0-9]\{2\}/TIME/g' ../$dir/$filename
+				sed -i 's/'$dir'/##SRCDIR##/g' ../$dir/$filename
+				# Delete DBFILEXT messages as they contain pid and other variable output
+				sed -i '/DBFILEXT/d' ../$dir/$filename
+			done
+			diff ../oldsrc/$filename1 ../newsrc/$filename2 > $filename2.diff || true
+			if [[ -s $filename2.diff ]]; then
+				echo "ERROR : [diff oldsrc/$filename1 newsrc/$filename2] returned non-zero diff" | tee -a ../errors.log
+				echo "[cat $filename2.diff] output follows" | tee -a ../errors.log
+				cat $filename2.diff | tee -a ../errors.log
+				exit_status=1
+			fi
+		}
+		run_octo() {
+			local queryfile=$1
+			local dir=$2
+			# We do not want any failures in the "octo" invocation below to exit the script.
+			# So disable the "set -e" setting temporarily for this step.
+			set +e
+			if [[ $3 == "vv" ]]; then
+				./octo -vv -f $queryfile >& $queryfile.vv.out	# Need -vv to figure out generated M plan name
+				if [[ $? -ne 0 ]]; then
+					echo "ERROR : [octo -f $dir/$queryfile] returned non-zero exit status : $?" | tee -a ../errors.log
+					exit_status=1
+				fi
+				plan_name=`grep _ydboctoP $queryfile.vv.out | sed 's/.*_ydboctoP/_ydboctoP/;s/].*//'`
+			fi
+			./octo -f $queryfile >& $queryfile.out	# Run without -vv to get actual output (minus INFO/LP_ etc. output)
+								# This will be used for filediff as it is deterministic.
+			# Re-enable "set -e" now that "octo" invocation is done.
+			set -e
+		}
+		cd oldsrc
+		export ydb_routines=". _ydbocto.so $ydb_routines $ydb_dist/libyottadbutil.so"
+		cp ../*.gld ../{mumps,octo}.dat ../create_table-*.sql .
+		echo "Populating seed data"
+		./octo -f ../octo-seed.sql
+		cp *.gld {mumps,octo}.dat create_table-*.sql ../newsrc
+		for queryfile in create_table-*.sql
+		do
+			echo " --> Processing $queryfile"
+			# Run the "CREATE TABLE" query in oldsrc directory to create the binary table definition
+			cd ../oldsrc; rm -f ../src || true; ln -s oldsrc ../src
+			run_octo $queryfile oldsrc
+			# Determine table name and generate a query that selects all columns from that table
+			tablename=`grep -n "CREATE TABLE" $queryfile | grep -v "^--" | sed 's/.*CREATE TABLE //;s/(.*//;' | awk '{print $1}'`
+			echo "select * from $tablename;" > $queryfile.2
+			# Copy over database files from oldsrc to newsrc
+			cp {mumps,octo}.dat $queryfile.2 ../newsrc
+			# Run the SELECT query in oldsrc directory
+			run_octo $queryfile.2 oldsrc vv	# sets "plan_name" variable due to "vv"
+			old_plan_name=$plan_name
+			# Run an empty query file in the newsrc directory to force an auto upgrade of the binary table definitions
+			cd ../newsrc; rm -f ../src || true; ln -s newsrc ../src
+			echo "" > $queryfile.null
+			run_octo $queryfile.null newsrc
+			# Run the SELECT query in newsrc directory
+			run_octo $queryfile.2 newsrc vv	# sets "plan_name" variable due to "vv"
+			new_plan_name=$plan_name
+			# Compare SELECT query output between oldsrc and newsrc. Should be none.
+			# Allow for "[ERROR]" in $queryfile.2.out
+			# But we also expect the exact same output with auto upgrade forced.
+			filediff $queryfile.2.out $queryfile.2.out
+			if [[ $old_plan_name != $new_plan_name ]]; then
+				echo "ERROR : $queryfile : Plan name in oldsrc [$old_plan_name] differs from newsrc [$new_plan_name]" | tee -a ../errors.log
+				exit_status=1
+			fi
+			if [[ ("" != $new_plan_name) && ("" != old_plan_name) ]]; then
+				# "$new_plan_name" can be "" for example if "CREATE TABLE" occurs in a comment in the query
+				# file and the actual query is something else like a "DROP TABLE". In that case, skip this check.
+				filediff $old_plan_name $new_plan_name
+			fi
+		done
+		cd ..
+	fi
+	# Set verbose mode back now that for loop is over (so we see each command as it gets executed)
+	set -v
+	set -x
 fi
 
 echo "# Cleanup files and directories that don't need to be included in the pipeline artifacts"
@@ -367,6 +672,7 @@ rm -rf bats-test.*/go
 rm -f postgresql*.jar
 rm -f *.cmake
 rm -f src/test_*	# these are the unit test case executables (should not be needed otherwise)
+rm -rf src/CMakeFiles
 
 echo " -> exit $exit_status"
 # Unset verbose mode before printing summary of failure results if any
@@ -374,11 +680,21 @@ set +x
 set +v
 
 if [[ 0 != $exit_status ]]; then
-	echo "# ----------------------------------------------------------"
-	echo "# List of failed tests/subtests and their output directories"
-	echo "# ----------------------------------------------------------"
-	grep -A 6 -E "not ok|Test: " Testing/Temporary/LastTest.log | grep -E "not ok|# Temporary|Test: " | grep -C 1 "not ok" | sed "s/^not/  &/;s/^#/  &/"
-	echo "# -----------------------------"
+	if [[ "test-auto-upgrade" != $jobname ]]; then
+		echo "# ----------------------------------------------------------"
+		echo "# List of failed tests/subtests and their output directories"
+		echo "# ----------------------------------------------------------"
+		grep -A 6 -E "not ok|Test: " Testing/Temporary/LastTest.log | grep -E "not ok|# Temporary|Test: " | grep -C 1 "not ok" | sed "s/^not/  &/;s/^#/  &/"
+		echo "# -----------------------------"
+	elif [[ "force" == $subtaskname ]]; then
+		echo "# ----------------------------------------------------------"
+		echo "# List of errors (cat errors.log)"
+		echo "# ----------------------------------------------------------"
+		cat errors.log
+	else
+		# FUTURE_TODO: Fill this section up for task-auto-upgrade-binary and task-auto-upgrade-plan jobs later
+		echo "FUTURE_TODO"
+	fi
 fi
 
 exit $exit_status

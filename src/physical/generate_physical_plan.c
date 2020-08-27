@@ -217,8 +217,6 @@ PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlanOptions *opt
 	}
 	// Iterate through the key substructures and fill out the source keys
 	keys = lp_get_keys(plan);
-	// All tables should have at least one key
-	assert(NULL != keys);
 	// Either we have some keys already, or we have a list of keys
 	assert((0 < out->total_iter_keys) || (NULL != keys->v.lp_default.operand[0]));
 	if (keys->v.lp_default.operand[0]) {

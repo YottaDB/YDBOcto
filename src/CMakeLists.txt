@@ -583,7 +583,7 @@ set(LC_ALL ${LC_ALL_TEMP})
 
 # Caution: The below cmake compile time flag is used by the `test-auto-upgrade` pipeline job to force an auto upgrade
 # every time Octo is built. This flag should be only enabled for those test builds and not for regular builds of Octo.
-if (FORCE_BINARY_DEFINITION_AUTO_UPGRADE MATCHES "ON")
+if (DEFINED FORCE_BINARY_DEFINITION_AUTO_UPGRADE)
 	# This line can be used when all supported platforms use CMake version 3.12 or above
 	# add_compile_definitions(FORCE_BINARY_DEFINITION_AUTO_UPGRADE)
 	add_definitions(-DFORCE_BINARY_DEFINITION_AUTO_UPGRADE)

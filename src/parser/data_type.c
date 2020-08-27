@@ -27,7 +27,7 @@ SqlStatement *data_type(SqlDataType data_type, SqlStatement *size_or_precision, 
 		ret->v.data_type_struct.size_or_precision = SIZE_OR_PRECISION_UNSPECIFIED;
 	} else {
 		/* Even though "atoi()" does not do error checking like "strtol()", it is fine here as most error
-		 * checking is already done by the "ddl_literal_value" rule in "src/parser.y" (asserted below).
+		 * checking is already done by the "ddl_int_literal_value" rule in "src/parser.y" (asserted below).
 		 */
 		assert((value_STATEMENT == size_or_precision->type) && (NUMERIC_LITERAL == size_or_precision->v.value->type)
 		       && size_or_precision->v.value->is_int);

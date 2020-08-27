@@ -38,6 +38,18 @@ with open(filename) as fd:
 
 root, ext = path.splitext(filename)
 digits = len(str(len(queries)))
-for i, query in enumerate(queries):
-    with open("{}-{}{}".format(root, str(i).zfill(digits), ext), 'w') as output:
+cnt = 0
+if len(sys.argv) > 2:
+    query_filter = sys.argv[2]
+else:
+    query_filter = ""
+for query in queries:
+    # Check if argv[2] was provided. If yes it is a string such that only queries that contain this search string
+    # are included in the final split query files. An example search string is "CREATE TABLE" or "SELECT".
+    if query_filter != "":
+        skip = not any(query_filter in s for s in query)
+        if skip:
+            continue
+    with open("{}-{}{}".format(root, str(cnt).zfill(digits), ext), 'w') as output:
         output.write(''.join(query))
+    cnt += 1

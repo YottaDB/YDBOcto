@@ -339,6 +339,7 @@ void hash_canonical_query(hash128_state_t *state, SqlStatement *stmt, int *statu
 		hash_canonical_query(state, table->tableName, status);
 		hash_canonical_query(state, table->source, status);
 		hash_canonical_query(state, table->delim, status);
+		hash_canonical_query(state, table->nullchar, status);
 		break;
 	case drop_function_STATEMENT:
 		/* DROP FUNCTION statements are only hashed for the purpose of looking up the function version targeted for

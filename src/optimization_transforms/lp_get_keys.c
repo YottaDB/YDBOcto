@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -25,5 +25,6 @@ LogicalPlan *lp_get_keys(LogicalPlan *plan) {
 	GET_LP(select, select, 1, LP_SELECT);
 	GET_LP(select, select, 1, LP_CRITERIA);
 	GET_LP(select, select, 0, LP_KEYS);
+	assert(NULL != select); // All tables should have at least one key
 	return select;
 }

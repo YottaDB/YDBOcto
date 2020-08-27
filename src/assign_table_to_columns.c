@@ -36,13 +36,29 @@ void assign_table_to_columns(SqlStatement *table_statement) {
 		 * PRIMARY KEY columns (those that have a PRIMARY_KEY or OPTIONAL_KEY_NUM specified) are not
 		 * counted towards the default piece #.
 		 */
+		keyword = get_keyword(cur_column, OPTIONAL_PIECE);
 		if ((NULL == get_keyword(cur_column, PRIMARY_KEY)) && (NULL == get_keyword(cur_column, OPTIONAL_KEY_NUM))) {
-			keyword = get_keyword(cur_column, OPTIONAL_PIECE);
 			if (NULL == keyword) {
 				keyword = add_optional_piece_keyword_to_sql_column(piece_number++);
 				UNPACK_SQL_STATEMENT(column_keywords, cur_column->keywords, keyword);
 				dqappend(column_keywords, keyword);
 			}
+		} else if (NULL != keyword) {
+			/* PIECE numbers (if specified) are not applicable for primary key columns so remove it */
+			SqlOptionalKeyword *next;
+
+			next = keyword->next; /* Note down next before "dqdel" */
+			dqdel(keyword);
+			if (keyword == cur_column->keywords->v.keyword) {
+				/* We removed the first element in the keyword list. Update column keyword list head pointer */
+				cur_column->keywords->v.keyword = next;
+			}
+		}
+		keyword = get_keyword(cur_column, OPTIONAL_DELIM);
+		if (NULL != keyword) {
+			cur_column->delim = keyword->v;
+		} else {
+			assert(NULL == cur_column->delim);
 		}
 		cur_column->column_number = column_number;
 		cur_column = cur_column->next;

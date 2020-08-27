@@ -416,6 +416,7 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 		break;
 	default:
 		ERROR(ERR_UNKNOWN_KEYWORD_STATE, "");
+		assert(FALSE);
 		result = 1;
 		break;
 	}

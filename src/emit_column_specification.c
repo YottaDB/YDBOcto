@@ -77,6 +77,7 @@ int emit_column_specification(char *buffer, int buffer_size, SqlColumn *cur_colu
 		break;
 	default:
 		ERROR(ERR_UNKNOWN_KEYWORD_STATE, "");
+		assert(FALSE);
 		return -1;
 		break;
 	}
@@ -122,7 +123,6 @@ int emit_column_specification(char *buffer, int buffer_size, SqlColumn *cur_colu
 				delim += sizeof("$CHAR") - 1;	      /* Skip "$CHAR" */
 				buff_ptr += snprintf(buff_ptr, buffer_size - (buff_ptr - buffer), " DELIM %s", delim);
 			}
-			cur_column->delim = cur_keyword->v;
 			break;
 		case OPTIONAL_KEY_NUM:
 			UNPACK_SQL_STATEMENT(value, cur_keyword->v, value);
@@ -148,6 +148,7 @@ int emit_column_specification(char *buffer, int buffer_size, SqlColumn *cur_colu
 			break;
 		default:
 			ERROR(ERR_UNKNOWN_KEYWORD_STATE, "");
+			assert(FALSE);
 			return -1;
 			break;
 		}

@@ -1151,10 +1151,10 @@ table_definition
           && $column_name->v.value->type == COLUMN_REFERENCE);
         ($$)->v.create_table->tableName = $column_name;
         ($$)->v.create_table->columns = $table_element_list;
-        assign_table_to_columns($$);
         if (create_table_defaults($$, $table_definition_tail)) {
           YYABORT;
         }
+        assign_table_to_columns($$);
       }
   ;
 
@@ -1450,80 +1450,80 @@ column_definition_tail
        MALLOC_STATEMENT($$, keyword, SqlOptionalKeyword);
        dqinit(($$)->v.keyword);
     }
-  | EXTRACT literal_value column_definition_tail {
+  | EXTRACT ddl_str_literal_value column_definition_tail {
        SQL_STATEMENT($$, keyword_STATEMENT);
        MALLOC_STATEMENT($$, keyword, SqlOptionalKeyword);
        ($$)->v.keyword->keyword = OPTIONAL_EXTRACT;
-       ($$)->v.keyword->v = $literal_value;
+       ($$)->v.keyword->v = $ddl_str_literal_value;
        dqinit(($$)->v.keyword);
 
        SqlOptionalKeyword *keyword;
        UNPACK_SQL_STATEMENT(keyword, $3, keyword);
        dqappend(keyword, ($$)->v.keyword);
     }
-  | PIECE literal_value column_definition_tail {
+  | PIECE ddl_int_literal_value column_definition_tail {
        SqlOptionalKeyword *keyword;
 
        SQL_STATEMENT($$, keyword_STATEMENT);
        MALLOC_STATEMENT($$, keyword, SqlOptionalKeyword);
        keyword = $$->v.keyword;
        keyword->keyword = OPTIONAL_PIECE;
-       keyword->v = $literal_value;
+       keyword->v = $ddl_int_literal_value;
        dqinit(($$)->v.keyword);
 
        UNPACK_SQL_STATEMENT(keyword, $3, keyword);
        dqappend(keyword, ($$)->v.keyword);
     }
   | delim_specification column_definition_tail { $$ = $delim_specification; }
-  | GLOBAL literal_value column_definition_tail {
+  | GLOBAL ddl_str_literal_value column_definition_tail {
        SQL_STATEMENT($$, keyword_STATEMENT);
        MALLOC_STATEMENT($$, keyword, SqlOptionalKeyword);
        ($$)->v.keyword->keyword = OPTIONAL_SOURCE;
-       ($$)->v.keyword->v = $literal_value;
+       ($$)->v.keyword->v = $ddl_str_literal_value;
        dqinit(($$)->v.keyword);
 
        SqlOptionalKeyword *keyword;
        UNPACK_SQL_STATEMENT(keyword, $3, keyword);
        dqappend(keyword, ($$)->v.keyword);
     }
-  | KEY NUM literal_value column_definition_tail {
+  | KEY NUM ddl_int_literal_value column_definition_tail {
        SQL_STATEMENT($$, keyword_STATEMENT);
        MALLOC_STATEMENT($$, keyword, SqlOptionalKeyword);
        ($$)->v.keyword->keyword = OPTIONAL_KEY_NUM;
-       ($$)->v.keyword->v = $literal_value;
+       ($$)->v.keyword->v = $ddl_int_literal_value;
        dqinit(($$)->v.keyword);
 
        SqlOptionalKeyword *keyword;
        UNPACK_SQL_STATEMENT(keyword, $4, keyword);
        dqappend(keyword, ($$)->v.keyword);
     }
-  | ADVANCE literal_value column_definition_tail {
+  | ADVANCE ddl_str_literal_value column_definition_tail {
        SQL_STATEMENT($$, keyword_STATEMENT);
        MALLOC_STATEMENT($$, keyword, SqlOptionalKeyword);
        ($$)->v.keyword->keyword = OPTIONAL_ADVANCE;
-       ($$)->v.keyword->v = $literal_value;
+       ($$)->v.keyword->v = $ddl_str_literal_value;
        dqinit(($$)->v.keyword);
 
        SqlOptionalKeyword *keyword;
        UNPACK_SQL_STATEMENT(keyword, $3, keyword);
        dqappend(keyword, ($$)->v.keyword);
     }
-  | START literal_value column_definition_tail {
+  | START ddl_str_literal_value column_definition_tail {
        SQL_STATEMENT($$, keyword_STATEMENT);
        MALLOC_STATEMENT($$, keyword, SqlOptionalKeyword);
        ($$)->v.keyword->keyword = OPTIONAL_START;
-       ($$)->v.keyword->v = $literal_value;
+       ($$)->v.keyword->v = $ddl_str_literal_value;
        dqinit(($$)->v.keyword);
 
        SqlOptionalKeyword *keyword;
        UNPACK_SQL_STATEMENT(keyword, $3, keyword);
        dqappend(keyword, ($$)->v.keyword);
     }
-  | END literal_value column_definition_tail {
+  | END ddl_str_literal_value column_definition_tail {
        SQL_STATEMENT($$, keyword_STATEMENT);
        MALLOC_STATEMENT($$, keyword, SqlOptionalKeyword);
        ($$)->v.keyword->keyword = OPTIONAL_END;
-       ($$)->v.keyword->v = $literal_value;
+       ($$)->v.keyword->v = $ddl_str_literal_value;
        dqinit(($$)->v.keyword);
 
        SqlOptionalKeyword *keyword;
@@ -1738,11 +1738,11 @@ integer_type_tail
     }
 
 precision
-  : ddl_literal_value { $$ = $ddl_literal_value; }
+  : ddl_int_literal_value { $$ = $ddl_int_literal_value; }
   ;
 
 scale
-  : ddl_literal_value { $$ = $ddl_literal_value; }
+  : ddl_int_literal_value { $$ = $ddl_int_literal_value; }
   ;
 
 literal_value
@@ -1793,17 +1793,38 @@ literal_value
 	$$ = ret;
     }
 
-/* A "ddl_literal_value" rule is different from the "literal_value" rule in that we do not want to do the
+/* A "ddl_int_literal_value" rule is different from the "literal_value" rule in that we do not want to do the
  * INVOKE_PARSE_LITERAL_TO_PARAMETER call. This is because the actual value of the literal matters in DDL statements
  * (unlike in SELECT queries where they don't). For example, a column with a type of VARCHAR(30) should be treated
  * differently than a column of type VARCHAR(20).
+ * AND we expect the literal to be of type NUMERIC_LITERAL.
  */
-ddl_literal_value
+ddl_int_literal_value
   : LITERAL {
 	SqlStatement *ret = $LITERAL;
 	ret->loc = yyloc;
 	/* Currently ALL DDL literal values are expected to be integers so check that and issue error otherwise. */
 	if ((value_STATEMENT != ret->type) || (NUMERIC_LITERAL != ret->v.value->type) || !ret->v.value->is_int) {
+		yyerror(&yyloc, NULL, NULL, NULL, NULL, NULL);
+		YYERROR;
+	}
+	$$ = ret;
+    }
+
+/* A "ddl_str_literal_value" rule is similar to "ddl_int_literal_value" except that we expect a STRING_LITERAL type */
+ddl_str_literal_value
+  : LITERAL {
+	SqlStatement *ret = $LITERAL;
+	ret->loc = yyloc;
+	/* Currently ALL DDL literal values are expected to be double-quoted strings so check that and issue error otherwise. */
+	if (value_STATEMENT != ret->type) {
+		yyerror(&yyloc, NULL, NULL, NULL, NULL, NULL);
+		YYERROR;
+	}
+	if (NUMERIC_LITERAL == ret->v.value->type) {
+		/* Convert NUMERIC_LITERAL into STRING_LITERAL type as that is what is expected here */
+	      ret->v.value->type = STRING_LITERAL;
+	} else if (STRING_LITERAL != ret->v.value->type) {
 		yyerror(&yyloc, NULL, NULL, NULL, NULL, NULL);
 		YYERROR;
 	}

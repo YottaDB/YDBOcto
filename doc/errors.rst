@@ -62,6 +62,16 @@ AMBIGUOUS_COLUMN_NAME
 This error is generated when two or more columns from different tables of the same name are given in a single query without qualifying them with their respective table names. PSQL Error Code: 42702
 
 +++++++++++++++++++++
+AUTO_UPGRADE
++++++++++++++++++++++
+
+Whenever a newer build of Octo is installed in an environment, any internal Octo artifacts that are incompatible with the
+newer build are automatically regenerated. This includes the binary representation of table definitions (CREATE TABLE queries)
+and function definitions (CREATE FUNCTION queries), If the previous Octo build in use is prior to r1.0.0, this automatic
+regeneration is not possible. The AUTO_UPGRADE error is issued in that case. The manual workaround is to drop/recreate all
+tables and functions (using CREATE TABLE, CREATE FUNCTION, DROP TABLE and/or DROP FUNCTION commands) in the environment.
+
++++++++++++++++++++++
 BAD_ADDRESS
 +++++++++++++++++++++
 

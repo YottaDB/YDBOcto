@@ -43,11 +43,14 @@ setup() {
 }
 
 @test "TMU02 : memory usage remains constant across subsequent query executions using extended query protocol (JDBC)" {
+  export disable_auto_upgrade=1	# Disable forced auto upgrade of binary definitions in case Octo was built with
+  				# -DFORCE_BINARY_DEFINITION_AUTO_UPGRADE (happens in the `test-auto-upgrade` pipeline job).
+				# This is because otherwise the test fails due to reference file issues.
+				# It is okay to skip auto upgrade testing in this particular test.
   load_fixture northwind.sql
   load_fixture northwind.zwr
   test_port=$(start_rocto 1444 verbose)
   cp @PROJECT_SOURCE_DIR@/tests/fixtures/TMU0*.sql .
-
   for queryfile in $(ls TMU0*.sql); do
     run_java run_multi_query $test_port "${queryfile%.*}" &> output.txt
   done

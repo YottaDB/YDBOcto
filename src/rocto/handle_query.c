@@ -46,19 +46,7 @@ int handle_query(Query *query, RoctoSession *session) {
 		free(empty_query_response);
 		return 1;
 	}
-	// If the query is bigger than the buffer, we would need to copy data from
-	//  the query to the buffer after each block is consumed, but right now
-	//  this buffer is large enough that this won't happen
-	// Enforced by this check
-	if (query_length > cur_input_max) {
-		ERROR(ERR_ROCTO_QUERY_TOO_LONG, "");
-		return 1;
-	}
-	memcpy(input_buffer_combined, query->query, query_length);
-	input_buffer_combined[query_length] = '\0';
-	eof_hit = EOF_NONE;
-	cur_input_index = 0;
-	cur_input_more = &no_more;
+	COPY_QUERY_TO_INPUT_BUFFER(query->query, query_length, NEWLINE_NEEDED_FALSE);
 
 	run_query_result = run_query(&handle_query_response, (void *)&parms, TRUE, &parse_context);
 	if (-1 == run_query_result) {

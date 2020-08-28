@@ -73,6 +73,10 @@ SqlTable *find_table(const char *table_name) {
 			assert(ret.len_alloc > ret.len_used); /* ensure space for null terminator */
 			ret.buf_addr[ret.len_used] = '\0';    /* null terminate string before invoking "atoi" */
 			db_oid = (uint64_t)strtoll(ret.buf_addr, NULL, 10);
+			if ((LLONG_MIN == (long long)db_oid) || (LLONG_MAX == (long long)db_oid)) {
+				ERROR(ERR_SYSCALL_WITH_ARG, "strtoll()", errno, strerror(errno), ret.buf_addr);
+				return NULL;
+			}
 			drop_cache = (db_oid != table->oid);
 			break;
 		case YDB_ERR_GVUNDEF:

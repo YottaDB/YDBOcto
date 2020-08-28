@@ -716,19 +716,7 @@ int octo_init(int argc, char **argv) {
 			break;
 		}
 		init_crypto();
-
-		definedTables = NULL;
-		// Leave space for null terminator
-		// `read` takes the number of bytes to read _excluding_ the null terminator,
-		// and we pass cur_input_max directly into read in `readline_get_more`.
-		cur_input_max = MAX_STR_CONST - 1;
-		input_buffer_combined = malloc(MAX_STR_CONST);
-		memset(input_buffer_combined, 0, MAX_STR_CONST);
-		old_input_index = 0;
-		cur_input_index = 0;
-		cur_input_more = &no_more;
-		eof_hit = EOF_NONE;
-
+		INIT_INPUT_BUFFER;
 		if (INFO >= config->verbosity_level) { // Record pertinent ydb_* env vars if -vv or higher verbosity is specified
 			char *ptr;
 			char *envvar_array[]
@@ -801,6 +789,22 @@ int octo_init(int argc, char **argv) {
 		/* readlines setup */
 		rl_bind_key('\t', rl_insert); // display the tab_completion of '\t' and just insert it as a character
 		config->config_file = config_file;
+		/* "argc" can be 0 in case of cmocka unit tests. Do not attempt auto upgrade in that case. */
+		if (argc) {
+			/* Check if plan-definitions (of tables or functions) need to be auto upgraded (due to format changes).  *
+			 * If so discard them (they will be regenerated as needed).  */
+			status = auto_upgrade_plan_definition_if_needed();
+			if (YDB_OK != status) {
+				/* Error message would have been printed already inside the above function call */
+				break;
+			}
+			/* Check if binary-definitions (of tables or functions) need to be auto upgraded. If so upgrade them. */
+			status = auto_upgrade_binary_definition_if_needed();
+			if (YDB_OK != status) {
+				/* Error message would have been printed already inside the above function call */
+				break;
+			}
+		}
 		return 0;
 	}
 	CLEANUP_CONFIG(config_file);

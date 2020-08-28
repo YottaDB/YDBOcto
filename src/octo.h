@@ -103,11 +103,13 @@
 #define OCTOLIT_PG_CATALOG	     "pg_catalog"
 #define OCTOLIT_PG_CLASS	     "pg_class"
 #define OCTOLIT_PLANDIRS	     "plandirs"
+#define OCTOLIT_PLANFMT		     "planfmt"
 #define OCTOLIT_PLAN_METADATA	     "plan_metadata"
 #define OCTOLIT_PREPARED	     "prepared"
 #define OCTOLIT_ROUTINE		     "routine"
-#define OCTOLIT_TABLES		     "tables"
+#define OCTOLIT_T		     "t"
 #define OCTOLIT_TABLEPLANS	     "tableplans"
+#define OCTOLIT_TABLES		     "tables"
 #define OCTOLIT_TABLE_ID	     "table_id"
 #define OCTOLIT_TEXT		     "text"
 #define OCTOLIT_TIMESTAMP	     "timestamp"
@@ -121,6 +123,27 @@
 
 /* Maximum size of each fragment a table or function binary definition is split into in M nodes */
 #define MAX_BINARY_DEFINITION_FRAGMENT_SIZE 32768
+
+#define YDB_MAX_KEY_SZ 1023 /* 1023 can be replaced by MAX_STR_LEN (from YDB repo) if it is exposed in libyottadb.h */
+
+/* Size of query buffer initially allocated. Gets expanded as need arises. */
+#define INIT_QUERY_SIZE 32768
+
+/* The below macro needs to be manually bumped if binary table OR function definition format changes due to
+ * dependent structure layout changes (e.g. SqlStatement structure etc.).
+ * The "test-auto-upgrade" pipeline job (that automatically runs) will alert us if it detects the need for the bump.
+ * And that is considered good enough for now (i.e. no manual review of code necessary to detect the need for a bump).
+ */
+#define FMT_BINARY_DEFINITION 1
+
+/* The below macro needs to be manually bumped if at least one of the following changes.
+ *	1) Generated physical plan (_ydboctoP*.m) file name OR contents
+ *	2) Generated cross-reference/xref plan (_ydboctoX*.m) file name OR contents (if any)
+ *	3) Generated trigger (associated with a cross-reference/xref plan) name OR contents (if any)
+ * The "test-auto-upgrade" pipeline job (that automatically runs) will alert us if it detects the need for the bump.
+ * And that is considered good enough for now (i.e. no manual review of code necessary to detect the need for a bump).
+ */
+#define FMT_PLAN_DEFINITION 1
 
 // Below are a few utility macros that are similar to those defined in sr_port/gtm_common_defs.h.
 // But we do not use those as that is outside the control of Octo's source code repository
@@ -273,6 +296,66 @@
 #define AGGREGATE_DEPTH_WHERE_CLAUSE	-2
 #define AGGREGATE_DEPTH_GROUP_BY_CLAUSE -3
 
+/* Timeouts used in various ydb_lock_incr_s() function calls */
+#define TIMEOUT_1_SEC		  ((unsigned long long)1000000000)
+#define TIMEOUT_5_SEC		  (5 * TIMEOUT_1_SEC)
+#define TIMEOUT_DDL_EXCLUSIVELOCK (10 * TIMEOUT_1_SEC)
+
+#define NEWLINE_NEEDED_FALSE FALSE
+#define NEWLINE_NEEDED_TRUE  TRUE
+
+/* Below macro initialize the query input buffer ("input_buffer_combined") */
+#define INIT_INPUT_BUFFER                                                                    \
+	{                                                                                    \
+		/* Leave space for null terminator                                           \
+		 * `read` takes the number of bytes to read _excluding_ the null terminator, \
+		 * and we pass cur_input_max directly into read in `readline_get_more`.      \
+		 */                                                                          \
+		cur_input_max = INIT_QUERY_SIZE - 1;                                         \
+		input_buffer_combined = calloc(1, INIT_QUERY_SIZE);                          \
+		old_input_index = 0;                                                         \
+		cur_input_index = 0;                                                         \
+		cur_input_more = &no_more;                                                   \
+		eof_hit = EOF_NONE;                                                          \
+	}
+
+/* Below macro copies a query QUERY with length QUERY_LENGTH into the query input buffer ("input_buffer_combined").
+ * If NEWLINE_NEEDED is TRUE, then a '\n' and '\0' is added at end of buffer.
+ * If NEWLINE_NEEDED is FALSE, then only a '\0' is added at end of buffer.
+ */
+#define COPY_QUERY_TO_INPUT_BUFFER(QUERY, QUERY_LENGTH, NEWLINE_NEEDED)                                            \
+	{                                                                                                          \
+		int padding;                                                                                       \
+                                                                                                                   \
+		assert((FALSE == NEWLINE_NEEDED) || (TRUE == NEWLINE_NEEDED));                                     \
+		padding = NEWLINE_NEEDED + 1; /* 1 byte for '\n' if NEWLINE_NEEDED is TRUE and 1 byte for '\0'; */ \
+		if (!NEWLINE_NEEDED) {                                                                             \
+			cur_input_index = 0;                                                                       \
+		}                                                                                                  \
+		/* if query is too long to fit in the current buffer, resize buffer                                \
+		 * by min(cur_input_max * 2, QUERY_LENGTH) + padding (for the \n\0)                                \
+		 */                                                                                                \
+		if (QUERY_LENGTH >= (cur_input_max - cur_input_index - padding)) {                                 \
+			int   resize_amt;                                                                          \
+			char *tmp;                                                                                 \
+                                                                                                                   \
+			resize_amt = ((QUERY_LENGTH > (cur_input_max * 2)) ? QUERY_LENGTH : (cur_input_max * 2));  \
+			tmp = malloc(resize_amt + NEWLINE_NEEDED + 1);                                             \
+			memcpy(tmp, input_buffer_combined, cur_input_index);                                       \
+			free(input_buffer_combined);                                                               \
+			input_buffer_combined = tmp;                                                               \
+			cur_input_max = resize_amt;                                                                \
+		}                                                                                                  \
+		memcpy(&input_buffer_combined[cur_input_index], QUERY, QUERY_LENGTH);                              \
+		if (NEWLINE_NEEDED) {                                                                              \
+			input_buffer_combined[cur_input_index + QUERY_LENGTH] = '\n';                              \
+		} else {                                                                                           \
+			eof_hit = EOF_NONE;                                                                        \
+			cur_input_more = &no_more;                                                                 \
+		}                                                                                                  \
+		input_buffer_combined[cur_input_index + QUERY_LENGTH + NEWLINE_NEEDED] = '\0';                     \
+	}
+
 // Convenience type definition for run_query callback function
 typedef int (*callback_fnptr_t)(SqlStatement *, int, void *, char *, boolean_t);
 
@@ -355,11 +438,15 @@ boolean_t     match_sql_statement(SqlStatement *stmt, SqlStatement *match_stmt);
 
 void	      compress_statement(SqlStatement *stmt, char **out, int *out_length);
 SqlStatement *decompress_statement(char *buffer, int out_length);
-int	      store_table_in_pg_class(SqlTable *table, ydb_buffer_t *table_name_buffer);
-int	      delete_table_from_pg_class(ydb_buffer_t *table_name_buffer);
-void	      cleanup_tables();
-int	      store_function_in_pg_proc(SqlFunction *function, char *function_hash);
-int	      delete_function_from_pg_proc(ydb_buffer_t *function_name_buffer, ydb_buffer_t *function_hash_buffer);
+
+int store_binary_table_definition(ydb_buffer_t *table_name_buff, char *binary_table_defn, int binary_table_defn_length);
+int store_binary_function_definition(ydb_buffer_t *function_name_buff, char *binary_function_defn, int binary_function_defn_length);
+
+int  store_table_in_pg_class(SqlTable *table, ydb_buffer_t *table_name_buffer);
+int  delete_table_from_pg_class(ydb_buffer_t *table_name_buffer);
+void cleanup_tables();
+int  store_function_in_pg_proc(SqlFunction *function, char *function_hash);
+int  delete_function_from_pg_proc(ydb_buffer_t *function_name_buffer, ydb_buffer_t *function_hash_buffer);
 
 /* Parse related functions invoked from the .y files (parser.y, select.y etc.) */
 int	      as_name(SqlStatement *as_name, ParseContext *parse_context);
@@ -404,18 +491,21 @@ void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, int *plan_id, Pa
 int get_full_path_of_generated_m_file(char *filename, int filename_len, char *m_routine_name);
 int get_full_path_of_generated_o_file(char *filename, int filename_len, char *o_routine_name);
 
+int auto_upgrade_plan_definition_if_needed(void);
+int auto_upgrade_binary_definition_if_needed(void);
+int auto_upgrade_binary_function_definition(void);
+int auto_upgrade_binary_table_definition(void);
+
 /* Globals */
-extern SqlTable *definedTables;
-extern uint64_t	 hash_canonical_query_cycle; // incremented before every outermost call to "hash_canonical_query"
-extern int	 cur_input_index;	     // Current index of input_buffer_combined the parser should read from,
-					     // and readlines should write to. Effectively marks the end of the
-					     // current query.
-extern int old_input_index;		     // The previous value of cur_input_index before the parser modifies it.
-					     // Effectively marks the start of the current query.
-extern int leading_spaces;		     // leading spaces in the current query it needs to be stored somewhere
-					     // accessible but should be ignored, except by the lexer and yyerror
+extern uint64_t hash_canonical_query_cycle; // incremented before every outermost call to "hash_canonical_query"
+extern int	cur_input_index;	    // Current index of input_buffer_combined the parser should read from,
+					    // and readlines should write to. Effectively marks the end of the
+					    // current query.
+extern int old_input_index;		    // The previous value of cur_input_index before the parser modifies it.
+					    // Effectively marks the start of the current query.
+extern int leading_spaces;		    // leading spaces in the current query it needs to be stored somewhere
+					    // accessible but should be ignored, except by the lexer and yyerror
 extern int   cur_input_max;
-extern int   cancel_received;
 extern int   eof_hit;
 extern FILE *inputFile;
 extern char *input_buffer_combined; // The input buffer for octo. Contains the query strings.

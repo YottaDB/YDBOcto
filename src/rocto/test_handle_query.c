@@ -101,11 +101,12 @@ static void test_query_length_greater_than_max(void **state) {
 
 	assert(query->length > cur_input_max);
 
+	will_return(__wrap_run_query, 0);
 	result = handle_query(query, &session);
 
 	// change global variable's value back to what it should be
-	cur_input_max = MAX_STR_CONST;
-	assert_int_equal(result, 1);
+	cur_input_max = INIT_QUERY_SIZE;
+	assert_int_equal(result, 0);
 }
 
 static void test_run_query_result_equals_negative_one(void **state) {

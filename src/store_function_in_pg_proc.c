@@ -160,9 +160,8 @@ int store_function_in_pg_proc(SqlFunction *function, char *function_hash) {
 	if (YDB_OK != status) {
 		return 1;
 	}
-
 	/* Store a cross reference of the FUNCTIONOID in ^%ydboctoocto(OCTOLIT_FUNCTIONS).
-	 *	i.e. SET ^%ydboctoocto(OCTOLIT_FUNCTIONS,function_name,OCTOLIT_OID)=FUNCTIONOID
+	 *	i.e. SET ^%ydboctoocto(OCTOLIT_FUNCTIONS,function_name,function_hash,OCTOLIT_OID)=FUNCTIONOID
 	 * That way a later DROP FUNCTION or CREATE FUNCTION `function_name` can clean all ^%ydboctoocto
 	 * nodes created during the previous CREATE FUNCTION `function_name`
 	 */
@@ -179,7 +178,7 @@ int store_function_in_pg_proc(SqlFunction *function, char *function_hash) {
 
 	proc_oid = strtoll(pg_proc[4].buf_addr, NULL, 10); /* copy over class OID before we start changing it for column OID */
 	if ((LLONG_MIN == proc_oid) || (LLONG_MAX == proc_oid)) {
-		ERROR(ERR_LIBCALL, "strtoll");
+		ERROR(ERR_SYSCALL_WITH_ARG, "strtoll()", errno, strerror(errno), pg_proc[4].buf_addr);
 		return 1;
 	}
 	function->oid = proc_oid; /* Initialize OID in SqlFunction. Caller later invokes "compress_statement()" that stores

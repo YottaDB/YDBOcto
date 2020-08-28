@@ -14,5 +14,7 @@
 
 CREATE TABLE DELIMNAMES (id INTEGER PRIMARY KEY, firstName VARCHAR(30) DELIM (9), lastName VARCHAR(30), middleInitial VARCHAR(1), age INTEGER) GLOBAL "^delimnames(keys(""id""))";
 
+SELECT * FROM delimnames;
 SELECT * FROM delimnames WHERE firstname = 'Zero';
+SELECT * FROM delimnames WHERE firstname != 'Zero';
 

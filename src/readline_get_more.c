@@ -72,20 +72,7 @@ int readline_get_more() {
 			free(line);
 			return 1;
 		}
-		/* if input line is too long resize buffer
-		 * by min(cur_input_max * 2, line_length) + 2 (for the \n\0)
-		 */
-		if (line_length >= cur_input_max - cur_input_index - 2) {
-			int   resize_amt = line_length > (cur_input_max * 2) ? line_length : (cur_input_max * 2);
-			char *tmp = malloc(resize_amt + 2);
-			memcpy(tmp, input_buffer_combined, cur_input_index);
-			free(input_buffer_combined);
-			input_buffer_combined = tmp;
-			cur_input_max = resize_amt;
-		}
-		memcpy(&input_buffer_combined[cur_input_index], line, line_length);
-		input_buffer_combined[cur_input_index + line_length] = '\n';
-		input_buffer_combined[cur_input_index + line_length + 1] = '\0';
+		COPY_QUERY_TO_INPUT_BUFFER(line, line_length, NEWLINE_NEEDED_TRUE); /* will resize as needed */
 		free(line);
 		return line_length;
 	} else {

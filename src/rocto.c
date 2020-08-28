@@ -41,7 +41,6 @@ void handle_sigint(int sig, siginfo_t *info, void *context) {
 // NOTE: This code has been disabled due to the lack of signal forwarding support for SIGUSR1 to YDB
 // void handle_sigusr1(int sig) {
 // INFO(CUSTOM_ERROR, "SIGUSR1 RECEIVED");
-// cancel_received = TRUE;
 // }
 
 #if YDB_TLS_AVAILABLE

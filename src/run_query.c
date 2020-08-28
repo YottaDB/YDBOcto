@@ -32,16 +32,10 @@
 #include "lexer.h"
 #include "helpers.h"
 
-#define TIMEOUT_1_SEC  ((unsigned long long)1000000000)
-#define TIMEOUT_10_SEC (10 * TIMEOUT_1_SEC)
-
-#define CLEANUP_AND_RETURN(MEMORY_CHUNKS, BUFFER, TABLE_SUB_BUFFER, TABLE_BUFFER, QUERY_LOCK)                       \
+#define CLEANUP_AND_RETURN(MEMORY_CHUNKS, BUFFER, TABLE_BUFFER, QUERY_LOCK)                                         \
 	{                                                                                                           \
 		if (NULL != BUFFER) {                                                                               \
 			free(BUFFER);                                                                               \
-		}                                                                                                   \
-		if (NULL != TABLE_SUB_BUFFER) {                                                                     \
-			YDB_FREE_BUFFER(TABLE_SUB_BUFFER);                                                          \
 		}                                                                                                   \
 		if (NULL != TABLE_BUFFER) {                                                                         \
 			free(TABLE_BUFFER);                                                                         \
@@ -56,12 +50,12 @@
 		return 1;                                                                                           \
 	}
 
-#define CLEANUP_AND_RETURN_IF_NOT_YDB_OK(STATUS, MEMORY_CHUNKS, BUFFER, TABLE_SUB_BUFFER, TABLE_BUFFER, QUERY_LOCK) \
-	{                                                                                                           \
-		YDB_ERROR_CHECK(STATUS);                                                                            \
-		if (YDB_OK != STATUS) {                                                                             \
-			CLEANUP_AND_RETURN(MEMORY_CHUNKS, BUFFER, TABLE_SUB_BUFFER, TABLE_BUFFER, QUERY_LOCK);      \
-		}                                                                                                   \
+#define CLEANUP_AND_RETURN_IF_NOT_YDB_OK(STATUS, MEMORY_CHUNKS, BUFFER, TABLE_BUFFER, QUERY_LOCK) \
+	{                                                                                         \
+		YDB_ERROR_CHECK(STATUS);                                                          \
+		if (YDB_OK != STATUS) {                                                           \
+			CLEANUP_AND_RETURN(MEMORY_CHUNKS, BUFFER, TABLE_BUFFER, QUERY_LOCK);      \
+		}                                                                                 \
 	}
 
 #define SETUP_PLAN_METADATA_DB_NODE(PLAN_FILENAME, VARNAME, SUBS_ARRAY)       \
@@ -141,26 +135,22 @@ int run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_descrip
 	ydb_buffer_t	octo_global;
 	boolean_t	canceled = FALSE, cursor_used;
 	int		length;
-	int		cur_length;
 	int		i;
 	unsigned int	ret_value;
-
-	SqlTable *    table;
-	char *	      tablename;
-	char *	      spcfc_buffer; /* specific buffer (i.e. function-specific or table-specific etc.) */
-	ydb_buffer_t  table_name_buffers[3];
-	ydb_buffer_t *table_name_buffer;
-	ydb_buffer_t *sub_buffer;
-	ydb_buffer_t  table_binary_buffer, table_create_buffer;
-
-	SqlFunction * function;
-	char *	      function_name;
-	ydb_buffer_t  function_name_buffers[5];
-	ydb_buffer_t *function_name_buffer, *function_hash_buffer;
-	ydb_buffer_t  function_binary_buffer, function_create_buffer;
-	char	      cursor_buffer[INT64_TO_STRING_MAX];
-	char	      pid_buffer[INT64_TO_STRING_MAX]; /* assume max pid is 64 bits even though it is a 4-byte quantity */
-	boolean_t     release_query_lock;
+	SqlTable *	table;
+	char *		tablename;
+	char *		spcfc_buffer; /* specific buffer (i.e. function-specific or table-specific etc.) */
+	ydb_buffer_t	table_name_buffers[3];
+	ydb_buffer_t *	table_name_buffer;
+	ydb_buffer_t	table_create_buffer;
+	SqlFunction *	function;
+	char *		function_name;
+	ydb_buffer_t	function_name_buffers[5];
+	ydb_buffer_t *	function_name_buffer, *function_hash_buffer;
+	ydb_buffer_t	function_create_buffer;
+	char		cursor_buffer[INT64_TO_STRING_MAX];
+	char		pid_buffer[INT64_TO_STRING_MAX]; /* assume max pid is 64 bits even though it is a 4-byte quantity */
+	boolean_t	release_query_lock;
 
 	memory_chunks = alloc_chunk(MEMORY_CHUNK_SIZE);
 	// Assign cursor prior to parsing to allow tracking and storage of literal parameters under the cursor local variable
@@ -200,7 +190,7 @@ int run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_descrip
 	query_lock[2].len_used = snprintf(query_lock[2].buf_addr, query_lock[2].len_alloc, "%lld", (long long)config->process_id);
 	assert(query_lock[2].len_used < query_lock[2].len_alloc);
 	/* Wait 10 seconds for the shared query lock */
-	status = ydb_lock_incr_s(TIMEOUT_10_SEC, &query_lock[0], 2, &query_lock[1]);
+	status = ydb_lock_incr_s(TIMEOUT_DDL_EXCLUSIVELOCK, &query_lock[0], 2, &query_lock[1]);
 	YDB_ERROR_CHECK(status);
 	if (YDB_OK != status) {
 		OCTO_CFREE(memory_chunks);
@@ -323,7 +313,7 @@ int run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_descrip
 					/* Get the M lock and redo the check of whether the plan is still not generated */
 					filename_lock = make_buffers(config->global_names.octo, 2, OCTOLIT_FILES, filename);
 					/* Wait for 5 seconds in case another process is writing to same filename */
-					status = ydb_lock_incr_s(5 * TIMEOUT_1_SEC, &filename_lock[0], 2, &filename_lock[1]);
+					status = ydb_lock_incr_s(TIMEOUT_5_SEC, &filename_lock[0], 2, &filename_lock[1]);
 					YDB_ERROR_CHECK(status);
 					if (YDB_OK != status) {
 						CLEANUP_FROM_PLAN_GENERATION(i, filename_lock, query_lock, memory_chunks);
@@ -407,30 +397,28 @@ int run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_descrip
 		 * CLEANUP_AND_RETURN_IF_NOT_YDB_OK macro as parameters (we cannot use NULL literal there due to compile errors).
 		 */
 		buffer = NULL;
-		sub_buffer = NULL;
 		spcfc_buffer = NULL;
 		null_query_lock = NULL;
 		/* Now release the shared query lock and get an exclusive query lock to do changes to plans/xrefs/triggers */
 		status = ydb_lock_decr_s(&query_lock[0], 2, &query_lock[1]);
-		CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, memory_chunks, buffer, sub_buffer, spcfc_buffer, null_query_lock);
+		CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, memory_chunks, buffer, spcfc_buffer, null_query_lock);
 		/* Wait 10 seconds for the exclusive DDL change lock */
-		status = ydb_lock_incr_s(TIMEOUT_10_SEC, &query_lock[0], 1, &query_lock[1]);
-		CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, memory_chunks, buffer, sub_buffer, spcfc_buffer, null_query_lock);
+		status = ydb_lock_incr_s(TIMEOUT_DDL_EXCLUSIVELOCK, &query_lock[0], 1, &query_lock[1]);
+		CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, memory_chunks, buffer, spcfc_buffer, null_query_lock);
 		/* Call an M routine to discard all plans, xrefs and triggers associated with all tables in Octo.
 		 * Cannot use SimpleAPI for at least one step (deleting the triggers). Hence using M for all the steps.
 		 */
 		status = ydb_ci("_ydboctoDiscardAll");
-		CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, memory_chunks, buffer, sub_buffer, spcfc_buffer, query_lock);
+		CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, memory_chunks, buffer, spcfc_buffer, query_lock);
 		status = ydb_lock_decr_s(&query_lock[0], 1, &query_lock[1]); /* Release exclusive query lock */
 		if (YDB_OK != status) {
 			/* Signal an error using the standard macro but reset a few variables to NULL as those
 			 * parts of the cleanup should not be done in this part of the code.
 			 */
 			assert(NULL == buffer);
-			assert(NULL == sub_buffer);
 			assert(NULL == spcfc_buffer);
 			assert(NULL == null_query_lock);
-			CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, memory_chunks, buffer, sub_buffer, spcfc_buffer, null_query_lock);
+			CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, memory_chunks, buffer, spcfc_buffer, null_query_lock);
 		}
 		release_query_lock = FALSE; /* Set variable to FALSE so we do not try releasing same lock later */
 		break;
@@ -446,15 +434,14 @@ int run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_descrip
 		 * CLEANUP_AND_RETURN and CLEANUP_AND_RETURN_IF_NOT_YDB_OK before then need this so they skip freeing this.
 		 */
 		buffer = NULL;
-		sub_buffer = NULL;
 		spcfc_buffer = NULL;
 		null_query_lock = NULL;
 		/* Now release the shared query lock and get an exclusive query lock to do DDL changes */
 		status = ydb_lock_decr_s(&query_lock[0], 2, &query_lock[1]);
-		CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, memory_chunks, buffer, sub_buffer, spcfc_buffer, null_query_lock);
+		CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, memory_chunks, buffer, spcfc_buffer, null_query_lock);
 		/* Wait 10 seconds for the exclusive DDL change lock */
-		status = ydb_lock_incr_s(TIMEOUT_10_SEC, &query_lock[0], 1, &query_lock[1]);
-		CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, memory_chunks, buffer, sub_buffer, spcfc_buffer, null_query_lock);
+		status = ydb_lock_incr_s(TIMEOUT_DDL_EXCLUSIVELOCK, &query_lock[0], 1, &query_lock[1]);
+		CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, memory_chunks, buffer, spcfc_buffer, null_query_lock);
 		/* Note: Last parameter is NULL above as we do not have any query lock to release
 		 * at this point since query lock grab failed.
 		 */
@@ -473,7 +460,7 @@ int run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_descrip
 		 */
 		status = delete_table_from_pg_class(table_name_buffer);
 		if (0 != status) {
-			CLEANUP_AND_RETURN(memory_chunks, buffer, sub_buffer, spcfc_buffer, query_lock);
+			CLEANUP_AND_RETURN(memory_chunks, buffer, spcfc_buffer, query_lock);
 		}
 		/* Call an M routine to discard all plans, xrefs and triggers associated with the table being created/dropped.
 		 * Cannot use SimpleAPI for at least one step (deleting the triggers). Hence using M for all the steps.
@@ -481,17 +468,17 @@ int run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_descrip
 		ci_param1.address = table_name_buffer->buf_addr;
 		ci_param1.length = table_name_buffer->len_used;
 		status = ydb_ci("_ydboctoDiscardTable", &ci_param1);
-		CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, memory_chunks, buffer, sub_buffer, spcfc_buffer, query_lock);
+		CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, memory_chunks, buffer, spcfc_buffer, query_lock);
 		/* Now that OIDs and plan nodes have been cleaned up, dropping the table is a simple
 		 *	KILL ^%ydboctoschema(TABLENAME)
 		 */
 		status = ydb_delete_s(&schema_global, 1, table_name_buffer, YDB_DEL_TREE);
-		CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, memory_chunks, buffer, sub_buffer, spcfc_buffer, query_lock);
+		CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, memory_chunks, buffer, spcfc_buffer, query_lock);
 		/* Drop the table from the local cache */
 		status = drop_schema_from_local_cache(table_name_buffer, TableSchema, NULL);
 		if (YDB_OK != status) {
 			/* YDB_ERROR_CHECK would already have been done inside "drop_schema_from_local_cache()" */
-			CLEANUP_AND_RETURN(memory_chunks, buffer, sub_buffer, spcfc_buffer, query_lock);
+			CLEANUP_AND_RETURN(memory_chunks, buffer, spcfc_buffer, query_lock);
 		}
 		if (create_table_STATEMENT == result->type) {
 			/* CREATE TABLE case. More processing needed. */
@@ -502,7 +489,7 @@ int run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_descrip
 			if (0 != status) {
 				// Error messages for the non-zero status would already have been issued in
 				// "emit_create_table"
-				CLEANUP_AND_RETURN(memory_chunks, buffer, sub_buffer, spcfc_buffer, query_lock);
+				CLEANUP_AND_RETURN(memory_chunks, buffer, spcfc_buffer, query_lock);
 			}
 			INFO(CUSTOM_ERROR, "%s", buffer); /* print the converted text representation of the CREATE TABLE command */
 
@@ -512,7 +499,7 @@ int run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_descrip
 			 */
 			YDB_STRING_TO_BUFFER(OCTOLIT_TEXT, &table_name_buffers[1]);
 			status = ydb_set_s(&schema_global, 2, table_name_buffers, &table_create_buffer);
-			CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, memory_chunks, buffer, sub_buffer, spcfc_buffer, query_lock);
+			CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, memory_chunks, buffer, spcfc_buffer, query_lock);
 			free(buffer);
 			/* Note: "table_create_buffer" (whose "buf_addr" points to "buffer") is also no longer usable */
 			buffer = NULL; /* So CLEANUP_AND_RETURN* macro calls below do not try "free(buffer)" */
@@ -527,40 +514,14 @@ int run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_descrip
 			 * so all we need to do here is check if status is not 0 (aka YDB_OK) and if so invoke CLEANUP_AND_RETURN.
 			 */
 			if (YDB_OK != status) {
-				CLEANUP_AND_RETURN(memory_chunks, buffer, sub_buffer, spcfc_buffer, query_lock);
+				CLEANUP_AND_RETURN(memory_chunks, buffer, spcfc_buffer, query_lock);
 			}
-			compress_statement(result, &spcfc_buffer, &length);
+			compress_statement(result, &spcfc_buffer, &length); /* Sets "spcfc_buffer" to "malloc"ed storage */
 			assert(NULL != spcfc_buffer);
-			/* Store the binary representation of the CREATE TABLE statement:
-			 *	^%ydboctoschema(table_name,OCTOLIT_BINARY)
-			 */
-			table_binary_buffer.len_alloc = MAX_BINARY_DEFINITION_FRAGMENT_SIZE;
-			YDB_STRING_TO_BUFFER(OCTOLIT_BINARY, &table_name_buffers[1]);
-			sub_buffer = &table_name_buffers[2];
-			YDB_MALLOC_BUFFER(sub_buffer, MAX_BINARY_DEFINITION_FRAGMENT_SIZE);
-			i = 0;
-			cur_length = 0;
-			while (cur_length < length) {
-				sub_buffer->len_used = snprintf(sub_buffer->buf_addr, sub_buffer->len_alloc, "%d", i);
-				table_binary_buffer.buf_addr = &spcfc_buffer[cur_length];
-				if (MAX_BINARY_DEFINITION_FRAGMENT_SIZE < (length - cur_length)) {
-					table_binary_buffer.len_used = MAX_BINARY_DEFINITION_FRAGMENT_SIZE;
-				} else {
-					table_binary_buffer.len_used = length - cur_length;
-				}
-				status = ydb_set_s(&schema_global, 3, table_name_buffers, &table_binary_buffer);
-				CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, memory_chunks, buffer, sub_buffer, spcfc_buffer,
-								 query_lock);
-				cur_length += MAX_BINARY_DEFINITION_FRAGMENT_SIZE;
-				i++;
-			}
-			YDB_STRING_TO_BUFFER(OCTOLIT_LENGTH, &table_name_buffers[1]);
-			// Use sub_buffer as a temporary buffer below
-			sub_buffer->len_used = snprintf(sub_buffer->buf_addr, sub_buffer->len_alloc, "%d", length);
-			status = ydb_set_s(&schema_global, 2, table_name_buffers, sub_buffer);
-			CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, memory_chunks, buffer, sub_buffer, spcfc_buffer, query_lock);
-			free(spcfc_buffer);
-			YDB_FREE_BUFFER(sub_buffer);
+			status = store_binary_table_definition(table_name_buffers, spcfc_buffer, length);
+			free(spcfc_buffer);  /* free buffer that was "malloc"ed in "compress_statement" */
+			spcfc_buffer = NULL; /* Now that we did a "free", reset it to NULL */
+			CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, memory_chunks, buffer, spcfc_buffer, query_lock);
 		}
 		status = ydb_lock_decr_s(&query_lock[0], 1, &query_lock[1]); /* Release exclusive query lock */
 		if (YDB_OK != status) {
@@ -568,10 +529,9 @@ int run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_descrip
 			 * cleanup should not be done in this part of the code.
 			 */
 			assert(NULL == buffer);
-			sub_buffer = NULL;
 			spcfc_buffer = NULL;
 			assert(NULL == null_query_lock);
-			CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, memory_chunks, buffer, sub_buffer, spcfc_buffer, null_query_lock);
+			CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, memory_chunks, buffer, spcfc_buffer, null_query_lock);
 		}
 		release_query_lock = FALSE; /* Set variable to FALSE so we do not try releasing same lock later */
 		break;			    /* OCTO_CFREE(memory_chunks) will be done after the "break" */
@@ -588,15 +548,14 @@ int run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_descrip
 		 * CLEANUP_AND_RETURN and CLEANUP_AND_RETURN_IF_NOT_YDB_OK before then need this so they skip freeing this.
 		 */
 		buffer = NULL;
-		sub_buffer = NULL;
 		spcfc_buffer = NULL;
 		null_query_lock = NULL;
 		// Now release the shared query lock and get an exclusive query lock to do DDL changes
 		status = ydb_lock_decr_s(&query_lock[0], 2, &query_lock[1]);
-		CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, memory_chunks, buffer, sub_buffer, spcfc_buffer, null_query_lock);
+		CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, memory_chunks, buffer, spcfc_buffer, null_query_lock);
 		// Wait 10 seconds for the exclusive DDL change lock
-		status = ydb_lock_incr_s(TIMEOUT_10_SEC, &query_lock[0], 1, &query_lock[1]);
-		CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, memory_chunks, buffer, sub_buffer, spcfc_buffer, null_query_lock);
+		status = ydb_lock_incr_s(TIMEOUT_DDL_EXCLUSIVELOCK, &query_lock[0], 1, &query_lock[1]);
+		CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, memory_chunks, buffer, spcfc_buffer, null_query_lock);
 		/* Note: Last parameter is NULL above as we do not have any query lock to release
 		 * at this point since query lock grab failed.
 		 */
@@ -613,11 +572,11 @@ int run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_descrip
 		// Then hash the function parameters to determine which function definition is to be CREATEd or DROPed
 		INVOKE_HASH_CANONICAL_QUERY(state, result, status); /* "state" holds final hash */
 		if (0 != status) {
-			CLEANUP_AND_RETURN(memory_chunks, buffer, sub_buffer, spcfc_buffer, query_lock);
+			CLEANUP_AND_RETURN(memory_chunks, buffer, spcfc_buffer, query_lock);
 		}
 		status = generate_routine_name(&state, function_hash, function_hash_len, FunctionHash);
 		if (1 == status) {
-			CLEANUP_AND_RETURN(memory_chunks, buffer, sub_buffer, spcfc_buffer, query_lock);
+			CLEANUP_AND_RETURN(memory_chunks, buffer, spcfc_buffer, query_lock);
 		}
 		function_hash_buffer = &function_name_buffers[2];
 		YDB_STRING_TO_BUFFER(function_hash, function_hash_buffer);
@@ -626,8 +585,9 @@ int run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_descrip
 			SQL_STATEMENT(function->function_hash, value_STATEMENT);
 			MALLOC_STATEMENT(function->function_hash, value, SqlValue);
 			UNPACK_SQL_STATEMENT(value, function->function_hash, value);
-			value->v.string_literal = octo_cmalloc(memory_chunks, function_hash_buffer->len_used);
-			strncpy(value->v.string_literal, function_hash, function_hash_buffer->len_used);
+			value->v.string_literal = octo_cmalloc(memory_chunks, function_hash_buffer->len_used + 1);
+			memcpy(value->v.string_literal, function_hash, function_hash_buffer->len_used);
+			value->v.string_literal[function_hash_buffer->len_used] = '\0'; /* null terminate */
 			value->type = FUNCTION_HASH;
 		}
 		YDB_STRING_TO_BUFFER(function_name, function_name_buffer);
@@ -641,10 +601,10 @@ int run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_descrip
 
 		if (drop_function_STATEMENT == result->type) {
 			status = ydb_data_s(&octo_global, 3, &function_name_buffers[0], &ret_value);
-			CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, memory_chunks, buffer, sub_buffer, spcfc_buffer, query_lock);
+			CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, memory_chunks, buffer, spcfc_buffer, query_lock);
 			if (0 == ret_value) {
 				ERROR(ERR_CANNOT_DROP_FUNCTION, function_name);
-				CLEANUP_AND_RETURN(memory_chunks, buffer, sub_buffer, spcfc_buffer, query_lock);
+				CLEANUP_AND_RETURN(memory_chunks, buffer, spcfc_buffer, query_lock);
 			}
 		}
 		/* Always drop the function in question, if it exists, either because explicitly requested via DROP or implicitly
@@ -652,7 +612,7 @@ int run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_descrip
 		 */
 		status = delete_function_from_pg_proc(function_name_buffer, function_hash_buffer);
 		if (0 != status) {
-			CLEANUP_AND_RETURN(memory_chunks, buffer, sub_buffer, spcfc_buffer, query_lock);
+			CLEANUP_AND_RETURN(memory_chunks, buffer, spcfc_buffer, query_lock);
 		}
 		/* Call an M routine to discard all plans associated with the function being created/dropped */
 		ci_param1.address = function_name_buffer->buf_addr;
@@ -660,13 +620,13 @@ int run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_descrip
 		ci_param2.address = function_hash_buffer->buf_addr;
 		ci_param2.length = function_hash_buffer->len_used;
 		status = ydb_ci("_ydboctoDiscardFunction", &ci_param1, &ci_param2);
-		CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, memory_chunks, buffer, sub_buffer, spcfc_buffer, query_lock);
+		CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, memory_chunks, buffer, spcfc_buffer, query_lock);
 
 		// Drop the function from the local cache
 		status = drop_schema_from_local_cache(function_name_buffer, FunctionSchema, function_hash_buffer);
 		if (YDB_OK != status) {
 			// YDB_ERROR_CHECK would already have been done inside "drop_schema_from_local_cache()"
-			CLEANUP_AND_RETURN(memory_chunks, buffer, sub_buffer, spcfc_buffer, query_lock);
+			CLEANUP_AND_RETURN(memory_chunks, buffer, spcfc_buffer, query_lock);
 		}
 
 		if ((NULL != function) && (create_function_STATEMENT == result->type)) {
@@ -679,7 +639,7 @@ int run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_descrip
 				/* Error messages for the non-zero status would already have been issued in
 				 * "emit_create_function"
 				 */
-				CLEANUP_AND_RETURN(memory_chunks, buffer, sub_buffer, spcfc_buffer, query_lock);
+				CLEANUP_AND_RETURN(memory_chunks, buffer, spcfc_buffer, query_lock);
 			}
 			INFO(CUSTOM_ERROR, "%s", buffer); /* print the converted text representation of the CREATE TABLE command */
 
@@ -696,7 +656,7 @@ int run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_descrip
 			 * so all we need to do here is check if status is not 0 (aka YDB_OK) and if so invoke CLEANUP_AND_RETURN.
 			 */
 			if (YDB_OK != status) {
-				CLEANUP_AND_RETURN(memory_chunks, buffer, sub_buffer, spcfc_buffer, query_lock);
+				CLEANUP_AND_RETURN(memory_chunks, buffer, spcfc_buffer, query_lock);
 			}
 
 			/* Now that we know there are no too-many-parameter errors in ths function, we can safely go ahead
@@ -708,43 +668,17 @@ int run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_descrip
 			 */
 			YDB_STRING_TO_BUFFER(OCTOLIT_TEXT, &function_name_buffers[3]);
 			status = ydb_set_s(&octo_global, 4, function_name_buffers, &function_create_buffer);
-			CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, memory_chunks, buffer, sub_buffer, spcfc_buffer, query_lock);
+			CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, memory_chunks, buffer, spcfc_buffer, query_lock);
 			free(buffer);
 			/* Note: "function_create_buffer" (whose "buf_addr" points to "buffer") is also no longer unusable */
 			buffer = NULL; // So CLEANUP_AND_RETURN* macro calls below do not try "free(buffer)"
 
-			compress_statement(result, &spcfc_buffer, &length);
+			compress_statement(result, &spcfc_buffer, &length); /* Sets "spcfc_buffer" to "malloc"ed storage */
 			assert(NULL != spcfc_buffer);
-			function_binary_buffer.len_alloc = MAX_BINARY_DEFINITION_FRAGMENT_SIZE;
-			/* Store the binary representation of the CREATE FUNCTION statement:
-			 *	^%ydboctoocto(OCTOLIT_FUNCTIONS,function_name,function_hash,OCTOLIT_BINARY)
-			 */
-			YDB_STRING_TO_BUFFER(OCTOLIT_BINARY, &function_name_buffers[3]);
-			sub_buffer = &function_name_buffers[4];
-			YDB_MALLOC_BUFFER(sub_buffer, MAX_BINARY_DEFINITION_FRAGMENT_SIZE);
-			i = 0;
-			cur_length = 0;
-			while (cur_length < length) {
-				sub_buffer->len_used = snprintf(sub_buffer->buf_addr, sub_buffer->len_alloc, "%d", i);
-				function_binary_buffer.buf_addr = &spcfc_buffer[cur_length];
-				if (MAX_BINARY_DEFINITION_FRAGMENT_SIZE < (length - cur_length)) {
-					function_binary_buffer.len_used = MAX_BINARY_DEFINITION_FRAGMENT_SIZE;
-				} else {
-					function_binary_buffer.len_used = length - cur_length;
-				}
-				status = ydb_set_s(&octo_global, 5, function_name_buffers, &function_binary_buffer);
-				CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, memory_chunks, buffer, sub_buffer, spcfc_buffer,
-								 query_lock);
-				cur_length += MAX_BINARY_DEFINITION_FRAGMENT_SIZE;
-				i++;
-			}
-			YDB_STRING_TO_BUFFER(OCTOLIT_LENGTH, &function_name_buffers[3]);
-			// Use sub_buffer as a temporary buffer below
-			sub_buffer->len_used = snprintf(sub_buffer->buf_addr, sub_buffer->len_alloc, "%d", length);
-			status = ydb_set_s(&octo_global, 4, function_name_buffers, sub_buffer);
-			CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, memory_chunks, buffer, sub_buffer, spcfc_buffer, query_lock);
-			free(spcfc_buffer);
-			YDB_FREE_BUFFER(sub_buffer);
+			status = store_binary_function_definition(function_name_buffers, spcfc_buffer, length);
+			free(spcfc_buffer);  /* free buffer that was "malloc"ed in "compress_statement" */
+			spcfc_buffer = NULL; /* Now that we did a "free", reset it to NULL */
+			CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, memory_chunks, buffer, spcfc_buffer, query_lock);
 		}
 		status = ydb_lock_decr_s(&query_lock[0], 1, &query_lock[1]); /* Release exclusive query lock */
 		if (YDB_OK != status) {
@@ -752,10 +686,9 @@ int run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_descrip
 			 * cleanup should not be done in this part of the code.
 			 */
 			assert(NULL == buffer);
-			sub_buffer = NULL;
 			spcfc_buffer = NULL;
 			assert(NULL == null_query_lock);
-			CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, memory_chunks, buffer, sub_buffer, spcfc_buffer, null_query_lock);
+			CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, memory_chunks, buffer, spcfc_buffer, null_query_lock);
 		}
 		release_query_lock = FALSE; /* Set variable to FALSE so we do not try releasing same lock later */
 		break;

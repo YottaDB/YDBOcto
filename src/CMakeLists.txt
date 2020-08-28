@@ -135,6 +135,10 @@ ADD_CUSTOM_COMMAND(
 add_library(libocto OBJECT
   add_optional_piece_keyword_to_sql_column.c
   assign_table_to_columns.c
+  auto_upgrade_binary_definition_if_needed.c
+  auto_upgrade_binary_function_definition.c
+  auto_upgrade_binary_table_definition.c
+  auto_upgrade_plan_definition_if_needed.c
   cleanup_tables.c
   columns_equal.c
   columns_to_column_list_alias.c
@@ -250,6 +254,8 @@ add_library(libocto OBJECT
   quoting.c
   readline_get_more.c
   run_query.c
+  store_binary_function_definition.c
+  store_binary_table_definition.c
   store_table_in_pg_class.c
   store_function_in_pg_proc.c
   tables_equal.c
@@ -574,6 +580,14 @@ if(utf8_installed)
 		WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/src/utf8)
 endif()
 set(LC_ALL ${LC_ALL_TEMP})
+
+# Caution: The below cmake compile time flag is used by the `test-auto-upgrade` pipeline job to force an auto upgrade
+# every time Octo is built. This flag should be only enabled for those test builds and not for regular builds of Octo.
+if (FORCE_BINARY_DEFINITION_AUTO_UPGRADE MATCHES "ON")
+	# This line can be used when all supported platforms use CMake version 3.12 or above
+	# add_compile_definitions(FORCE_BINARY_DEFINITION_AUTO_UPGRADE)
+	add_definitions(-DFORCE_BINARY_DEFINITION_AUTO_UPGRADE)
+endif()
 
 # Files to be installed
 #

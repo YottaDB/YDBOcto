@@ -75,6 +75,10 @@ SqlFunction *find_function(const char *function_name, const char *function_hash)
 			assert(ret.len_alloc > ret.len_used); // ensure space for null terminator
 			ret.buf_addr[ret.len_used] = '\0';
 			db_oid = (uint64_t)strtoll(ret.buf_addr, NULL, 10);
+			if ((LLONG_MIN == (long long)db_oid) || (LLONG_MAX == (long long)db_oid)) {
+				ERROR(ERR_SYSCALL_WITH_ARG, "strtoll()", errno, strerror(errno), ret.buf_addr);
+				return NULL;
+			}
 			drop_cache = (db_oid != function->oid);
 			break;
 		case YDB_ERR_GVUNDEF:

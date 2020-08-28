@@ -11,6 +11,7 @@
  ****************************************************************/
 
 #include <errno.h>
+#include <assert.h>
 
 #include <libyottadb.h>
 
@@ -23,6 +24,7 @@ ydb_long_t create_cursor(ydb_buffer_t *schema_global, ydb_buffer_t *cursor_buffe
 	status = ydb_incr_s(schema_global, 0, NULL, NULL, cursor_buffer);
 	YDB_ERROR_CHECK(status);
 	if (YDB_OK != status) {
+		assert(FALSE);
 		return -1;
 	}
 	cursor_buffer->buf_addr[cursor_buffer->len_used] = '\0';

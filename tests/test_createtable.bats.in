@@ -375,3 +375,80 @@ OCTO
 	load_fixture $testname.sql subtest novv
 	verify_output $testname output.txt
 }
+
+@test "TC036 : OCTO90 : Simple tests of auto upgrade of binary table/function/plan definitions/artifacts" {
+	# This test cannot run with rocto in the background as enabling journaling requires standalone access. So stop it.
+	stop_rocto
+	echo "" > empty_query.sql
+	echo "------------------------------------------------------------------------------------------------" >> output.txt
+	echo "# Test that if FMT_BINARY_DEFINITION is different between current commit and random prior commit," >> output.txt
+	echo '# the global node ^%ydboctoocto("binfmt")= gets set to the current FMT_BINARY_DEFINITION value' >> output.txt
+	echo "------------------------------------------------------------------------------------------------" >> output.txt
+	echo "# Run [mupip extract run1.ext]" >> output.txt
+	$ydb_dist/mupip extract run1.ext
+	echo '# Determine current binary definition format number (FMT_BINARY_DEFINITION) from run1.ext' >> output.txt
+	curbinfmt=`grep -w "binfmt" run1.ext | sed 's/.*="//;s/"//;'`
+	oldbinfmt=$[$curbinfmt - 1]
+	echo "# Simulate random prior commit by setting binary definition format number to a smaller value" >> output.txt
+	yottadb -run %XCMD "set ^%ydboctoocto(\"binfmt\")=$oldbinfmt"
+	echo "# Turn on journaling to find out what database nodes get set during auto upgrade" >> output.txt
+	$ydb_dist/mupip set -journal="enable,on,nobefore" -reg OCTOREG >& jnlon1.log
+	echo "# Run [octo -f empty_query.sql] so auto upgrade of binary table/function definitions happens" >> output.txt
+	octo -f empty_query.sql >> output.txt 2>&1
+	echo "# Turn off journaling (no longer needed for this stage of the test)" >> output.txt
+	$ydb_dist/mupip set -journal=off -reg OCTOREG >& jnloff1.log
+	echo '# Verify that ^%ydboctoocto("binfmt") gets set to current FMT_BINARY_DEFINITION' >> output.txt
+	$ydb_dist/mupip journal -extract -detail -forward octo.mjl >& jnlext1.log
+	[[ $(grep "SET.*binfmt" octo.mjf | grep "=\"$curbinfmt\"" | wc -l) -eq 1 ]]
+
+	echo "------------------------------------------------------------------------------------------------" >> output.txt
+	echo "# Test that if FMT_BINARY_DEFINITION is same between current commit and random prior commit," >> output.txt
+	echo "the global node ^%ydboctoocto(\"binfmt\")= is untouched and auto-upgrade is skipped." >> output.txt
+	echo "------------------------------------------------------------------------------------------------" >> output.txt
+	echo "# Turn on journaling to find out what database nodes get set during auto upgrade" >> output.txt
+	$ydb_dist/mupip set -journal="enable,on,nobefore" -reg OCTOREG >& jnlon2.log
+	echo "# Run [octo -f empty_query.sql] to verify no auto upgrade of binary table/function definitions happens" >> output.txt
+	octo -f empty_query.sql >> output.txt 2>&1
+	echo "# Turn off journaling (no longer needed for this stage of the test)" >> output.txt
+	$ydb_dist/mupip set -journal=off -reg OCTOREG >& jnloff2.log
+	echo '# Verify that ^%ydboctoocto("binfmt") gets set to current FMT_BINARY_DEFINITION' >> output.txt
+	$ydb_dist/mupip journal -extract -detail -forward octo.mjl >& jnlext2.log
+	[[ $(grep "SET.*binfmt" octo.mjf | wc -l) -eq 0 ]]
+
+	echo "------------------------------------------------------------------------------------------------" >> output.txt
+	echo "# Test that if FMT_PLAN_DEFINITION is different between current commit and random prior commit," >> output.txt
+	echo "# 1) the global node ^%ydboctoocto(\"planfmt\")= gets set to the current FMT_PLAN_DEFINITION value AND" >> output.txt
+	echo "# 2) all plans/artifacts get deleted." >> output.txt
+	echo "------------------------------------------------------------------------------------------------" >> output.txt
+	echo "# Run [mupip extract run3.ext]" >> output.txt
+	$ydb_dist/mupip extract run3.ext
+	echo '# Determine current plan definition format number (FMT_PLAN_DEFINITION) from run3.ext' >> output.txt
+	curplanfmt=`grep -w "planfmt" run3.ext | sed 's/.*="//;s/"//;'`
+	oldplanfmt=$[$curplanfmt - 1]
+	echo "# Simulate random prior commit by setting plan definition format number to a smaller value" >> output.txt
+	yottadb -run %XCMD "set ^%ydboctoocto(\"planfmt\")=$oldplanfmt"
+	echo "# Turn on journaling to find out what database nodes get set during auto upgrade" >> output.txt
+	$ydb_dist/mupip set -journal="enable,on,nobefore" -reg OCTOREG >& jnlon3.log
+	echo "# Run [octo -f empty_query.sql] so auto upgrade of plan definitions happens" >> output.txt
+	octo -f empty_query.sql >> output.txt 2>&1
+	echo "# Turn off journaling (no longer needed for this stage of the test)" >> output.txt
+	$ydb_dist/mupip set -journal=off -reg OCTOREG >& jnloff3.log
+	echo '# Verify that ^%ydboctoocto("planfmt") gets set to current FMT_PLAN_DEFINITION' >> output.txt
+	$ydb_dist/mupip journal -extract -detail -forward octo.mjl >& jnlext3.log
+	[[ $(grep "SET.*planfmt" octo.mjf | grep "=\"$curplanfmt\"" | wc -l) -eq 1 ]]
+
+	echo "------------------------------------------------------------------------------------------------" >> output.txt
+	echo "# Test that if FMT_PLAN_DEFINITION is same between current commit and random prior commit," >> output.txt
+	echo "# the global node ^%ydboctoocto(\"planfmt\")= is untouched and auto-upgrade is skipped." >> output.txt
+	echo "------------------------------------------------------------------------------------------------" >> output.txt
+	echo "# Turn on journaling to find out what database nodes get set during auto upgrade" >> output.txt
+	$ydb_dist/mupip set -journal="enable,on,nobefore" -reg OCTOREG >& jnlon4.log
+	echo "# Run [octo -f empty_query.sql] to verify no auto upgrade of plan definitions happens" >> output.txt
+	octo -f empty_query.sql >> output.txt 2>&1
+	echo "# Turn off journaling (no longer needed for this stage of the test)" >> output.txt
+	$ydb_dist/mupip set -journal=off -reg OCTOREG >& jnloff4.log
+	echo '# Verify that ^%ydboctoocto("planfmt") gets set to current FMT_PLAN_DEFINITION' >> output.txt
+	$ydb_dist/mupip journal -extract -detail -forward octo.mjl >& jnlext4.log
+	[[ $(grep "SET.*planfmt" octo.mjf | wc -l) -eq 0 ]]
+}
+

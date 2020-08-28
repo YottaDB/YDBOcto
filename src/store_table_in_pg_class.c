@@ -87,7 +87,7 @@ int store_table_in_pg_class(SqlTable *table, ydb_buffer_t *table_name_buffer) {
 	status = ydb_set_s(&pg_class[0], 4, &pg_class[1], &buffer_b);
 	CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, pg_class, oid_buffer);
 	/* Store a cross reference of the TABLEOID in ^%ydboctoschema.
-	 *	i.e. SET^ %ydboctoschema("NAMES",OCTOLIT_PG_CLASS)=TABLEOID
+	 *	i.e. SET ^%ydboctoschema("NAMES",OCTOLIT_PG_CLASS)=TABLEOID
 	 * That way a later DROP TABLE or CREATE TABLE NAMES can clean all ^%ydboctoocto and ^%ydboctoschema
 	 * nodes created during the previous CREATE TABLE NAMES.
 	 */
@@ -99,7 +99,7 @@ int store_table_in_pg_class(SqlTable *table, ydb_buffer_t *table_name_buffer) {
 
 	class_oid = strtoll(pg_class[4].buf_addr, NULL, 10); /* copy over class OID before we start changing it for column OID */
 	if ((LLONG_MIN == class_oid) || (LLONG_MAX == class_oid)) {
-		ERROR(ERR_LIBCALL, "strtoll");
+		ERROR(ERR_SYSCALL_WITH_ARG, "strtoll()", errno, strerror(errno), pg_class[4].buf_addr);
 		CLEANUP_AND_RETURN(pg_class, oid_buffer);
 	}
 	table->oid = class_oid; /* Initialize oid in SqlTable. Caller later invokes "compress_statement()" that stores this as

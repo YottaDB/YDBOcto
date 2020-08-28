@@ -138,6 +138,11 @@ ERROR_DEF(ERR_BAD_ZROUTINES, "Error no valid source directory found in octo_zrou
 ERROR_DEF(ERR_FAILED_TO_RETRIEVE_ENVIRONMENT_VARIABLE, "Failed to retrieve value of environment variable: \"%s\"", PSQL_Code_Config_File_Error)
 // ROCTO //
 
+/*** Upgrade errors ***/
+// OCTO //
+// ROCTO //
+ERROR_DEF(ERR_AUTO_UPGRADE, "Cannot auto upgrade binary table/function definitions. Please manually upgrade.", PSQL_Code_Config_File_Error)
+
 /*** Connection errors ***/
 // OCTO //
 ERROR_DEF(ERR_BAD_ADDRESS, "Bad listen address: %s", PSQL_Code_Connection_Exception)

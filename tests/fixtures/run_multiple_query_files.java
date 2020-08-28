@@ -44,7 +44,7 @@ public class run_multiple_query_files {
 		props.setProperty("password","ydbrocks");
 		props.setProperty("ssl","false");
 		props.setProperty("sslmode","disable");
-		if ("useextended" == args[2])
+		if (args[2].equals("useextended"))
 			props.setProperty("preferQueryMode","extended");
 		else
 			props.setProperty("preferQueryMode","simple");

@@ -98,7 +98,6 @@ int copied_so_far;
 (?i:COUNT) { return COUNT; }
 (?i:CREATE) { return CREATE; }
 (?i:CROSS) { return CROSS; }
-(?i:CURSOR) { return CURSOR; }
 (?i:DATE) { return DATE; }
 (?i:DEC) { return DEC; }
 (?i:DECIMAL) { return DECIMAL; }

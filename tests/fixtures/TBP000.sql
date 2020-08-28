@@ -29,6 +29,6 @@ CREATE TABLE abc (
   GLOBAL "someGLobal"
   PIECE "0"
   DELIM "|"
-) CURSOR "$$CURSE" DELIM "|"
+) DELIM "|"
 END "keys(0)" GLOBAL "someGLobal";
 create table abc (id integer primary key, oid integer key num 1, name varchar(30), oid2 integer key num 2);

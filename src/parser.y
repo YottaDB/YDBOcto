@@ -97,7 +97,6 @@ extern void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, int *plan
 %token COUNT
 %token CREATE
 %token CROSS
-%token CURSOR
 %token DATE
 %token DEC
 %token DECIMAL

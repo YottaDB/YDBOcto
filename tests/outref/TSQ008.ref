@@ -10,13 +10,13 @@ LP_INSERT:
   LP_PROJECT: 
     LP_COLUMN_LIST: 
       LP_WHERE: 
-        LP_COLUMN_ALIAS: C(1).RELNAMESPACE
+        LP_COLUMN_ALIAS: C(2).RELNAMESPACE
         LP_COLUMN_LIST_ALIAS: 
         - type: INTEGER_LITERAL
         - alias: RELNAMESPACE
       LP_COLUMN_LIST: 
         LP_WHERE: 
-          LP_COLUMN_ALIAS: N(2).OID
+          LP_COLUMN_ALIAS: N(1).OID
           LP_COLUMN_LIST_ALIAS: 
           - type: INTEGER_LITERAL
           - alias: OID
@@ -30,8 +30,8 @@ LP_INSERT:
         LP_SELECT_OPTIONS: 
           LP_WHERE: 
             LP_BOOLEAN_EQUALS: 
-              LP_COLUMN_ALIAS: N(2).OID
-              LP_COLUMN_ALIAS: C(1).RELNAMESPACE
+              LP_COLUMN_ALIAS: N(1).OID
+              LP_COLUMN_ALIAS: C(2).RELNAMESPACE
           LP_SELECT_MORE_OPTIONS: 
             LP_KEYWORDS: 
   LP_OUTPUT: 
@@ -48,13 +48,13 @@ LP_INSERT:
   LP_PROJECT: 
     LP_COLUMN_LIST: 
       LP_WHERE: 
-        LP_COLUMN_ALIAS: C(1).RELNAMESPACE
+        LP_COLUMN_ALIAS: C(2).RELNAMESPACE
         LP_COLUMN_LIST_ALIAS: 
         - type: INTEGER_LITERAL
         - alias: RELNAMESPACE
       LP_COLUMN_LIST: 
         LP_WHERE: 
-          LP_COLUMN_ALIAS: N(2).OID
+          LP_COLUMN_ALIAS: N(1).OID
           LP_COLUMN_LIST_ALIAS: 
           - type: INTEGER_LITERAL
           - alias: OID
@@ -90,7 +90,7 @@ LP_INSERT:
               LP_KEY: 
               - table_name: PG_CATALOG.PG_CLASS
               - column_name: RELNAMESPACE
-              - unique_id: 1
+              - unique_id: 2
               - method: LP_INVALID_ACTION
               - xref_key: true
               - uses_xref_key: false
@@ -99,7 +99,7 @@ LP_INSERT:
           LP_KEY: 
           - table_name: PG_CATALOG.PG_NAMESPACE
           - column_name: OID
-          - unique_id: 2
+          - unique_id: 1
           - method: LP_KEY_ADVANCE
           - xref_key: false
           - uses_xref_key: false
@@ -107,17 +107,17 @@ LP_INSERT:
             LP_KEY: 
             - table_name: PG_CATALOG.PG_CLASS
             - column_name: RELNAMESPACE
-            - unique_id: 1
+            - unique_id: 2
             - method: LP_KEY_FIX
             - xref_key: true
             - uses_xref_key: false
             - value:
-                LP_COLUMN_ALIAS: N(2).OID
+                LP_COLUMN_ALIAS: N(1).OID
             LP_KEYS: 
               LP_KEY: 
               - table_name: PG_CATALOG.PG_CLASS
               - column_name: OID
-              - unique_id: 1
+              - unique_id: 2
               - method: LP_KEY_ADVANCE
               - xref_key: false
               - uses_xref_key: true

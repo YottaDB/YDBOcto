@@ -16,10 +16,9 @@
 #include "octo_types.h"
 
 // Function invoked by the rule named "table_reference" in src/parser/select.y
-SqlStatement *table_reference(SqlStatement *column_name, SqlStatement *correlation_specification,
-			      SqlStatement *table_reference_tail, int *plan_id) {
+SqlStatement *table_reference(SqlStatement *column_name, SqlStatement *correlation_specification, int *plan_id) {
 	SqlStatement * ret;
-	SqlJoin *      join, *join_tail;
+	SqlJoin *      join;
 	SqlTable *     table;
 	SqlColumn *    column;
 	SqlTableAlias *alias;
@@ -45,10 +44,5 @@ SqlStatement *table_reference(SqlStatement *column_name, SqlStatement *correlati
 	UNPACK_SQL_STATEMENT(column, table->columns, column);
 	PACK_SQL_STATEMENT(alias->column_list, columns_to_column_list_alias(column, join->value), column_list_alias);
 	dqinit(join);
-	if (NULL != table_reference_tail) {
-		UNPACK_SQL_STATEMENT(join_tail, table_reference_tail, join);
-		join_tail->type = CROSS_JOIN;
-		dqappend(join, join_tail);
-	}
 	return ret;
 }

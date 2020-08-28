@@ -104,3 +104,6 @@ setup() {
   verify_output TWI12 output.txt
 }
 
+@test "TWI13 : OCTO526 : Verify IN with first option as column_reference and other options as column_reference and literal doesn't result in parser error" {
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TWI13.sql
+}

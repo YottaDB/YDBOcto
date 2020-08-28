@@ -256,10 +256,12 @@ derived_column_expression
   ;
 
 from_clause
-  : FROM table_reference {
+  : FROM table_reference_list {
 	SqlJoin		*start_join, *cmp_join;
 
-	$$ = $table_reference;
+
+	$$ = $table_reference_list;
+
 	/* Traverse the all tables in the join list and ensure that each table has a unique alias. Else issue an error.
 	 * Also use this opportunity to finish setting up the NATURAL JOIN condition (deferred in a "qualified_join" rule).
 	 */
@@ -303,16 +305,30 @@ from_clause
    }
   ;
 
+table_reference_list
+  : table_reference table_reference_list_tail {
+	SqlJoin  *join_tail, *join;
+	if (NULL != $table_reference_list_tail) {
+		join = ($table_reference)->v.join;
+		// No need for dqinit(join) here as
+		// already taken care by table_reference rule
+		UNPACK_SQL_STATEMENT(join_tail, $table_reference_list_tail, join);
+		join_tail->type = CROSS_JOIN;
+		dqappend(join, join_tail);
+	}
+	$$ = $table_reference;
+  }
+  ;
 // Just consider these a list of values for all intents and purposes
 table_reference
-  : column_name table_reference_tail {
-	$$ = table_reference($column_name, NULL, $table_reference_tail, plan_id);
+  : column_name {
+	$$ = table_reference($column_name, NULL, plan_id);
 	if (NULL == $$) {
 		YYERROR;
 	}
     }
-  | column_name correlation_specification table_reference_tail {
-	$$ = table_reference($column_name, $correlation_specification, $table_reference_tail, plan_id);
+  | column_name correlation_specification {
+	$$ = table_reference($column_name, $correlation_specification, plan_id);
 	if (NULL == $$) {
 		YYERROR;
 	}
@@ -324,17 +340,17 @@ table_reference
   ;
 
 derived_table
-  : table_subquery table_reference_tail {
-	$$ = derived_table($table_subquery, NULL, $table_reference_tail);
+  : table_subquery {
+	$$ = derived_table($table_subquery, NULL);
     }
-  | table_subquery correlation_specification table_reference_tail {
-	$$ = derived_table($table_subquery, $correlation_specification, $table_reference_tail);
+  | table_subquery correlation_specification {
+	$$ = derived_table($table_subquery, $correlation_specification);
     }
   ;
 
-table_reference_tail
+table_reference_list_tail
   : /* Empty */ { $$ = NULL; }
-  | COMMA table_reference { $$ = $table_reference; }
+  | COMMA table_reference_list { $$ = $table_reference_list; }
   ;
 
 correlation_specification

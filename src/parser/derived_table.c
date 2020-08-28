@@ -16,8 +16,7 @@
 #include "octo_types.h"
 
 // Function invoked by the rule named "derived_table" in src/parser/select.y
-SqlStatement *derived_table(SqlStatement *table_subquery, SqlStatement *correlation_specification,
-			    SqlStatement *table_reference_tail) {
+SqlStatement *derived_table(SqlStatement *table_subquery, SqlStatement *correlation_specification) {
 	SqlStatement *sql_stmt, *ret;
 	SqlJoin *     join;
 
@@ -35,12 +34,5 @@ SqlStatement *derived_table(SqlStatement *table_subquery, SqlStatement *correlat
 		table_alias->alias = correlation_specification;
 	}
 	dqinit(join);
-	if (NULL != table_reference_tail) {
-		SqlJoin *join_tail;
-
-		UNPACK_SQL_STATEMENT(join_tail, table_reference_tail, join);
-		join_tail->type = CROSS_JOIN;
-		dqappend(join, join_tail);
-	}
 	return ret;
 }

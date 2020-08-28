@@ -12,7 +12,7 @@ LP_INSERT:
   LP_PROJECT: 
     LP_COLUMN_LIST: 
       LP_WHERE: 
-        LP_COLUMN_ALIAS: T(2).TYPLEN
+        LP_COLUMN_ALIAS: T(1).TYPLEN
         LP_COLUMN_LIST_ALIAS: 
         - type: INTEGER_LITERAL
         - alias: TYPLEN
@@ -28,13 +28,13 @@ LP_INSERT:
             LP_BOOLEAN_AND: 
               LP_BOOLEAN_AND: 
                 LP_BOOLEAN_EQUALS: 
-                  LP_COLUMN_ALIAS: T(2).TYPNAMESPACE
-                  LP_COLUMN_ALIAS: N(1).OID
+                  LP_COLUMN_ALIAS: T(1).TYPNAMESPACE
+                  LP_COLUMN_ALIAS: N(2).OID
                 LP_BOOLEAN_EQUALS: 
-                  LP_COLUMN_ALIAS: T(2).TYPNAME
+                  LP_COLUMN_ALIAS: T(1).TYPNAME
                   LP_VALUE: 'name'
               LP_BOOLEAN_EQUALS: 
-                LP_COLUMN_ALIAS: N(1).NSPNAME
+                LP_COLUMN_ALIAS: N(2).NSPNAME
                 LP_VALUE: 'pg_catalog'
           LP_SELECT_MORE_OPTIONS: 
             LP_KEYWORDS: 
@@ -52,119 +52,41 @@ LP_INSERT:
   LP_PROJECT: 
     LP_COLUMN_LIST: 
       LP_WHERE: 
-        LP_COLUMN_ALIAS: T(2).TYPLEN
+        LP_COLUMN_ALIAS: T(1).TYPLEN
         LP_COLUMN_LIST_ALIAS: 
         - type: INTEGER_LITERAL
         - alias: TYPLEN
     LP_SELECT: 
       LP_TABLE_JOIN: 
-        LP_INSERT: 
-          LP_PROJECT: 
-            LP_COLUMN_LIST: 
-              LP_WHERE: 
-                LP_COLUMN_ALIAS: PG_CATALOG.PG_NAMESPACE(6).NSPNAME
-              LP_COLUMN_LIST: 
-                LP_WHERE: 
-                  LP_COLUMN_ALIAS: PG_CATALOG.PG_NAMESPACE(6).OID
-            LP_SELECT: 
-              LP_TABLE_JOIN: 
-                LP_TABLE: PG_CATALOG.PG_NAMESPACE
-              LP_CRITERIA: 
-                LP_KEYS: 
-                  LP_KEY: 
-                  - table_name: PG_CATALOG.PG_NAMESPACE
-                  - column_name: OID
-                  - unique_id: 6
-                  - method: LP_KEY_ADVANCE
-                  - xref_key: false
-                  - uses_xref_key: false
-                LP_SELECT_OPTIONS: 
-                  LP_WHERE: 
-                  LP_SELECT_MORE_OPTIONS: 
-                    LP_KEYWORDS:  XREF_INDEX;
-          LP_OUTPUT: 
-            LP_KEY: 
-            - table_name: PG_CATALOG.PG_NAMESPACE
-            - column_name: NSPNAME
-            - unique_id: 1
-            - method: LP_INVALID_ACTION
-            - xref_key: true
-            - uses_xref_key: false
+        LP_TABLE: T
         LP_TABLE_JOIN: CROSS_JOIN: 
-          LP_INSERT: 
-            LP_PROJECT: 
-              LP_COLUMN_LIST: 
-                LP_WHERE: 
-                  LP_COLUMN_ALIAS: PG_CATALOG.PG_TYPE(5).TYPNAMESPACE
-                LP_COLUMN_LIST: 
-                  LP_WHERE: 
-                    LP_COLUMN_ALIAS: PG_CATALOG.PG_TYPE(5).TYPNAME
-              LP_SELECT: 
-                LP_TABLE_JOIN: 
-                  LP_TABLE: PG_CATALOG.PG_TYPE
-                LP_CRITERIA: 
-                  LP_KEYS: 
-                    LP_KEY: 
-                    - table_name: PG_CATALOG.PG_TYPE
-                    - column_name: TYPNAME
-                    - unique_id: 5
-                    - method: LP_KEY_ADVANCE
-                    - xref_key: false
-                    - uses_xref_key: false
-                  LP_SELECT_OPTIONS: 
-                    LP_WHERE: 
-                    LP_SELECT_MORE_OPTIONS: 
-                      LP_KEYWORDS:  XREF_INDEX;
-            LP_OUTPUT: 
-              LP_KEY: 
-              - table_name: PG_CATALOG.PG_TYPE
-              - column_name: TYPNAMESPACE
-              - unique_id: 2
-              - method: LP_INVALID_ACTION
-              - xref_key: true
-              - uses_xref_key: false
+          LP_TABLE: N
       LP_CRITERIA: 
         LP_KEYS: 
           LP_KEY: 
-          - table_name: PG_CATALOG.PG_NAMESPACE
-          - column_name: NSPNAME
+          - table_name: PG_CATALOG.PG_TYPE
+          - column_name: TYPNAME
           - unique_id: 1
           - method: LP_KEY_FIX
-          - xref_key: true
+          - xref_key: false
           - uses_xref_key: false
           - value:
-              LP_VALUE: 'pg_catalog'
+              LP_VALUE: 'name'
           LP_KEYS: 
             LP_KEY: 
             - table_name: PG_CATALOG.PG_NAMESPACE
             - column_name: OID
-            - unique_id: 1
-            - method: LP_KEY_ADVANCE
+            - unique_id: 2
+            - method: LP_KEY_FIX
             - xref_key: false
-            - uses_xref_key: true
-            LP_KEYS: 
-              LP_KEY: 
-              - table_name: PG_CATALOG.PG_TYPE
-              - column_name: TYPNAMESPACE
-              - unique_id: 2
-              - method: LP_KEY_FIX
-              - xref_key: true
-              - uses_xref_key: false
-              - value:
-                  LP_COLUMN_ALIAS: N(1).OID
-              LP_KEYS: 
-                LP_KEY: 
-                - table_name: PG_CATALOG.PG_TYPE
-                - column_name: TYPNAME
-                - unique_id: 2
-                - method: LP_KEY_ADVANCE
-                - xref_key: false
-                - uses_xref_key: true
+            - uses_xref_key: false
+            - value:
+                LP_COLUMN_ALIAS: T(1).TYPNAMESPACE
         LP_SELECT_OPTIONS: 
           LP_WHERE: 
             LP_BOOLEAN_EQUALS: 
-              LP_COLUMN_ALIAS: T(2).TYPNAME
-              LP_VALUE: 'name'
+              LP_COLUMN_ALIAS: N(2).NSPNAME
+              LP_VALUE: 'pg_catalog'
           LP_SELECT_MORE_OPTIONS: 
             LP_KEYWORDS: 
   LP_OUTPUT: 
@@ -176,7 +98,5 @@ LP_INSERT:
     - xref_key: false
     - uses_xref_key: false
 
-[ INFO] PATH:LINENUM DATE TIME : Generating helper cross reference M file [$PWD/_ydboctoX*.m] for table [PG_CATALOG.PG_TYPE] and column [TYPNAMESPACE]
-[ INFO] PATH:LINENUM DATE TIME : Generating helper cross reference M file [$PWD/_ydboctoX*.m] for table [PG_CATALOG.PG_NAMESPACE] and column [NSPNAME]
 [ INFO] PATH:LINENUM DATE TIME : print_temporary_table()
 64

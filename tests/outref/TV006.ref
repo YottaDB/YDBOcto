@@ -62,12 +62,7 @@ Stack now sss ...
 Entering state sss
 Reading a token: Next token is token SEMICOLON (: )
 Reducing stack by rule rrr (line lll):
--> $$ = nterm table_reference_tail (: )
-Stack now sss ...
-Entering state sss
-Reducing stack by rule rrr (line lll):
    $1 = nterm column_name (: )
-   $2 = nterm table_reference_tail (: )
 [TRACE] PATH:LINENUM DATE TIME : Searching for table NONEXISTANTTABLE
 [ERROR] PATH:LINENUM DATE TIME : Unknown table: NONEXISTANTTABLE
 Error with syntax near (line 1, column 15):
@@ -239,20 +234,25 @@ Stack now sss ...
 Entering state sss
 Reading a token: Next token is token SEMICOLON (: )
 Reducing stack by rule rrr (line lll):
--> $$ = nterm table_reference_tail (: )
-Stack now sss ...
-Entering state sss
-Reducing stack by rule rrr (line lll):
    $1 = nterm column_name (: )
-   $2 = nterm table_reference_tail (: )
 [TRACE] PATH:LINENUM DATE TIME : Searching for table NAMES
 -> $$ = nterm table_reference (: )
 Stack now sss ...
 Entering state sss
 Next token is token SEMICOLON (: )
 Reducing stack by rule rrr (line lll):
+-> $$ = nterm table_reference_list_tail (: )
+Stack now sss ...
+Entering state sss
+Reducing stack by rule rrr (line lll):
+   $1 = nterm table_reference (: )
+   $2 = nterm table_reference_list_tail (: )
+-> $$ = nterm table_reference_list (: )
+Stack now sss ...
+Entering state sss
+Reducing stack by rule rrr (line lll):
    $1 = token FROM (: )
-   $2 = nterm table_reference (: )
+   $2 = nterm table_reference_list (: )
 -> $$ = nterm from_clause (: )
 Stack now sss ...
 Entering state sss

@@ -113,6 +113,8 @@ Similarly, CREATE TABLE statements can also accept an ASCII integer value to spe
 
 Here, the ASCII value for DEL[ETE] is designated to be interpreted as a SQL NULL value.
 
+.. _mapexisting:
+
 +++++++++++++++++++++++++++++++++++++++++++++
 Mapping to existing YottaDB global variables
 +++++++++++++++++++++++++++++++++++++++++++++
@@ -125,35 +127,37 @@ If mapping to existing YottaDB global variables, an optional_keyword can be adde
 
 The keywords denoted above are M expressions and literals. They are explained in the following table:
 
-+--------------------------------+-------------------------------+------------------------+--------------------------------------------------------------------------------+------------------------------+------------------------------+
-| Keyword                        | Type                          | Range                  | Purpose                                                                        | Overrides                    | Default Value                |
-+================================+===============================+========================+================================================================================+==============================+==============================+
-| ADVANCE                        | Command expression            | Column                 | Indicates how to advance the key by one value                                  | \-                           | $O(^<tableName>(keys(0),...))|
-+--------------------------------+-------------------------------+------------------------+--------------------------------------------------------------------------------+------------------------------+------------------------------+
-| CURSOR                         | Command expression            | Table                  | Increment the cursor by one element                                            | \-                           | SET keys(0)=$0(table_name(   |
-|                                |                               |                        |                                                                                |                              | keys(0)))                    |
-+--------------------------------+-------------------------------+------------------------+--------------------------------------------------------------------------------+------------------------------+------------------------------+
-| DELIM                          | Literal                       | Table, Column          | Represents the "PIECE" string to be used in                                    | table/default DELIM setting  | \|                           |
-|                                |                               |                        | `$PIECE <https://docs.yottadb.com/ProgrammersGuide/functions.html#piece>`_     |                              |                              |
-+--------------------------------+-------------------------------+------------------------+--------------------------------------------------------------------------------+------------------------------+------------------------------+
-| END                            | Boolean expression            | Table                  | Indicates that the cursor has hit the last record in the table                 | \-                           | \"\"=keys(0)                 |
-+--------------------------------+-------------------------------+------------------------+--------------------------------------------------------------------------------+------------------------------+------------------------------+
-| EXTRACT                        | Expression                    | Column                 | Extracts the value of the column from the database                             | PIECE, GLOBAL                | \-                           |
-+--------------------------------+-------------------------------+------------------------+--------------------------------------------------------------------------------+------------------------------+------------------------------+
-| GLOBAL                         | Literal                       | Table, Column          | Represents the "source" location for a table                                   | table/default GLOBAL setting | table_name(keys(0))          |
-+--------------------------------+-------------------------------+------------------------+--------------------------------------------------------------------------------+------------------------------+------------------------------+
-| KEY NUM                        | Literal                       | Column                 | Specifies that the column maps to keys(<number>)                               | \-                           | \-                           |
-+--------------------------------+-------------------------------+------------------------+--------------------------------------------------------------------------------+------------------------------+------------------------------+
-| NULLCHAR                       | Literal                       | Table, Column          | Specifies a custom character to be interpreted as a SQL NULL value. Characters | default interpretation of    | \"\"                         |
-|                                |                               |                        | are specified as an integer ASCII value from 0-127 to be used in a call to     | empty strings as NULL values |                              |
-|                                |                               |                        | `$CHAR <https://docs.yottadb.com/ProgrammersGuide/functions.html#char>`_       |                              |                              |
-+--------------------------------+-------------------------------+------------------------+--------------------------------------------------------------------------------+------------------------------+------------------------------+
-| PIECE                          | Literal                       | Column                 | Represents the                                                                 | default (column number,      | \-                           |
-|                                |                               |                        | `$PIECE <https://docs.yottadb.com/ProgrammersGuide/functions.html#piece>`_     | starting at 1)               |                              |
-|                                |                               |                        | number of the row this column refers to                                        |                              |                              |
-+--------------------------------+-------------------------------+------------------------+--------------------------------------------------------------------------------+------------------------------+------------------------------+
-| START                          | Command expression            | Column                 | Indicates where to start a $ORDER loop in the underlying data storage          | \-                           | ""                           |
-+--------------------------------+-------------------------------+------------------------+--------------------------------------------------------------------------------+------------------------------+------------------------------+
++--------------------------------+-------------------------------+------------------------+--------------------------------------------------------------------------------+------------------------------+-----------------------------------------------+
+| Keyword                        | Type                          | Range                  | Purpose                                                                        | Overrides                    | Default Value                                 |
++================================+===============================+========================+================================================================================+==============================+===============================================+
+| ADVANCE                        | Command expression            | Column                 | Indicates how to advance the key by one value                                  | Not applicable               | :code:`$O(^<tableName>(keys(0),...))`         |
++--------------------------------+-------------------------------+------------------------+--------------------------------------------------------------------------------+------------------------------+-----------------------------------------------+
+| CURSOR                         | Command expression            | Table                  | Increment the cursor by one element                                            | Not applicable               | :code:`SET keys(0)=$0(<table_name>(keys(0)))` |
+|                                |                               |                        |                                                                                |                              |                                               |
++--------------------------------+-------------------------------+------------------------+--------------------------------------------------------------------------------+------------------------------+-----------------------------------------------+
+| DELIM                          | Literal                       | Table, Column          | Represents the "PIECE" string to be used in                                    | table/default DELIM setting  | :code:`"|"`                                   |
+|                                |                               |                        | `$PIECE() <https://docs.yottadb.com/ProgrammersGuide/functions.html#piece>`_   |                              |                                               |
++--------------------------------+-------------------------------+------------------------+--------------------------------------------------------------------------------+------------------------------+-----------------------------------------------+
+| END                            | Boolean expression            | Table                  | Indicates that the cursor has hit the last record in the table                 | Not applicable               | :code:`""=keys(0)`                            |
++--------------------------------+-------------------------------+------------------------+--------------------------------------------------------------------------------+------------------------------+-----------------------------------------------+
+| EXTRACT                        | Expression                    | Column                 | Extracts the value of the column from the database                             | PIECE, GLOBAL                | Not applicable                                |
++--------------------------------+-------------------------------+------------------------+--------------------------------------------------------------------------------+------------------------------+-----------------------------------------------+
+| GLOBAL                         | Literal                       | Table, Column          | Represents the "source" location for a table                                   | table/default GLOBAL setting | :code:`<table_name>(keys(0))`                 |
++--------------------------------+-------------------------------+------------------------+--------------------------------------------------------------------------------+------------------------------+-----------------------------------------------+
+| KEY NUM                        | Literal                       | Column                 | Specifies that the column maps to keys(<number>)                               | Not applicable               | Not applicable                                |
++--------------------------------+-------------------------------+------------------------+--------------------------------------------------------------------------------+------------------------------+-----------------------------------------------+
+| NULLCHAR                       | Literal                       | Table, Column          | Specifies a custom character to be interpreted as a SQL NULL value. Characters | default interpretation of    | See discussion under                          |
+|                                |                               |                        | are specified as an integer ASCII value from 0-127 to be used in a call to     | empty strings as NULL values | `SQL NULL Values <./pitfalls.html#sqlnull>`_  |
+|                                |                               |                        | `$CHAR() <https://docs.yottadb.com/ProgrammersGuide/functions.html#char>`_     |                              |                                               |
++--------------------------------+-------------------------------+------------------------+--------------------------------------------------------------------------------+------------------------------+-----------------------------------------------+
+| PIECE                          | Literal                       | Column                 | Represents the                                                                 | default (column number,      | Not applicable                                |
+|                                |                               |                        | `$PIECE() <https://docs.yottadb.com/ProgrammersGuide/functions.html#piece>`_   | starting at 1)               |                                               |
+|                                |                               |                        | number of the row this column refers to                                        |                              |                                               |
++--------------------------------+-------------------------------+------------------------+--------------------------------------------------------------------------------+------------------------------+-----------------------------------------------+
+| START                          | Command expression            | Column                 | Indicates where to start a                                                     | Not applicable               | :code:`""`                                    |
+|                                |                               |                        | `$ORDER() <https://docs.yottadb.com/ProgrammersGuide/functions.html#piece>`_   |                              |                                               |
+|                                |                               |                        | loop in the underlying data storage                                            |                              |                                               |
++--------------------------------+-------------------------------+------------------------+--------------------------------------------------------------------------------+------------------------------+-----------------------------------------------+
 
 In the table above:
 
@@ -225,6 +229,18 @@ Error Case
 
 .. note::
    A CREATE FUNCTION waits for all other concurrently running queries(SELECT or CREATE TABLE or DROP TABLE) to finish so it can safely make DDL changes. It waits for an exclusive lock with a timeout of 10 seconds. If it fails due to a timeout, the user needs to stop all concurrently running queries and reattempt the CREATE FUNCTION statement.
+
+---------------
+DISCARD ALL
+---------------
+
+.. code-block:: SQL
+
+   DISCARD ALL;
+
+As needed, Octo automatically creates physical plans, cross references, database triggers, and other internal artifacts that allow it to execute queries correctly and quickly. The DISCARD ALL command deletes these internal artifacts. Octo also automatically discards artifacts when appropriate, for example when the schema changes or after Octo upgrades.
+
+The DISCARD ALL command is safe to run at any time. As running a DISCARD command will cause subsequent commands to run slowly as Octo recreates required artifacts, use it when you need to minimize the size of an Octo environment, for example, to distribute it or archive it.
 
 -----------------
 DROP TABLE
@@ -1199,71 +1215,95 @@ A query expression can be a joined table or a non joined query expression.
 The non_join_query_expression includes simple tables and column lists.
 
 ---------------------
-DDL Example
+Northwind DDL Example
 ---------------------
 
-The following is a sample of a DDL for an existing large M application (a healthcare information system) which was generated automatically from the application schema.
+The following is a CREATE TABLE statement from the `Northwind database adapted for Octo <https://gitlab.com/YottaDB/DBMS/YDBOcto/-/blob/master/tests/fixtures/northwind.sql>`_.
 
 .. code-block:: SQL
 
-   CREATE TABLE `ORDER_ORDER_ACTIONS`(
-    `ORDER1_ID` INTEGER PRIMARY KEY START 0 END "'(keys(""ORDER1_ID""))!(keys(""ORDER1_ID"")="""")",
-    `ORDER_ORDER_ACTIONS_ID` INTEGER KEY NUM 1 START 0 END "'(keys(""ORDER_ORDER_ACTIONS_ID""))!(keys(""ORDER_ORDER_ACTIONS_ID"")="""")",
-    `DATE_TIME_ORDERED` INTEGER NOT NULL GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),0)" PIECE 1,
-    `REASON_FOR_ACTION_REJECT` CHARACTER(240) GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),1)" PIECE 1,
-    `ACTION` CHARACTER(12) GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),0)" PIECE 2,
-    `PROVIDER` INTEGER GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),0)" PIECE 3,
-    `SIGNATURE_STATUS` CHARACTER(34) GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),0)" PIECE 4,
-    `SIGNED_BY` INTEGER GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),0)" PIECE 5,
-    `DATE_TIME_SIGNED` INTEGER GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),0)" PIECE 6,
-    `SIGNED_ON_CHART` INTEGER GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),0)" PIECE 7,
-    `VERIFYING_NURSE` INTEGER GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),0)" PIECE 8,
-    `DATE_TIME_NURSE_VERIFIED` INTEGER GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),0)" PIECE 9,
-    `VERIFYING_CLERK` INTEGER GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),0)" PIECE 10,
-    `DATE_TIME_CLERK_VERIFIED` INTEGER GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),0)" PIECE 11,
-    `NATURE_OF_ORDER` INTEGER GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),0)" PIECE 12,
-    `ENTERED_BY` INTEGER GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),0)" PIECE 13,
-    `TEXT_REFERENCE` INTEGER GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),0)" PIECE 14,
-    `RELEASE_STATUS` CHARACTER(11) GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),0)" PIECE 15,
-    `RELEASE_DATE_TIME` INTEGER GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),0)" PIECE 16,
-    `RELEASING_PERSON` INTEGER GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),0)" PIECE 17,
-    `CHART_REVIEWED_BY` INTEGER GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),0)" PIECE 18,
-    `DATE_TIME_CHART_REVIEWED` INTEGER GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),0)" PIECE 19,
-    `DC_HOLD_UNTIL` INTEGER GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),2)" PIECE 1,
-    `DC_HOLD_RELEASED_BY` INTEGER GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),2)" PIECE 2,
-    `DIGITAL_SIGNATURE` CHARACTER(100) GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),2)" PIECE 3,
-    `DRUG_SCHEDULE` CHARACTER(3) GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),2)" PIECE 4,
-    `DIGITAL_SIGNATURE_REQUIRED` CHARACTER(3) GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),2)" PIECE 5,
-    `FLAGGED` CHARACTER(3) GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),3)" PIECE 1,
-    `BULLETIN` INTEGER GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),3)" PIECE 2,
-    `DATE_TIME_FLAGGED` INTEGER GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),3)" PIECE 3,
-    `FLAGGED_BY` INTEGER GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),3)" PIECE 4,
-    `REASON_FOR_FLAG` CHARACTER(80) GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),3)" PIECE 5,
-    `DATE_TIME_UNFLAGGED` INTEGER GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),3)" PIECE 6,
-    `UNFLAGGED_BY` INTEGER GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),3)" PIECE 7,
-    `REASON_FOR_UNFLAG` CHARACTER(80) GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),3)" PIECE 8,
-    `ALERTED_PROVIDER` INTEGER GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),3)" PIECE 9,
-    `DISPOSITION_BY` INTEGER GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),4)" PIECE 1,
-    `DISPOSITION_DATE_TIME` INTEGER GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),4)" PIECE 2,
-    `CHART_COPY_PRINTED` CHARACTER(3) GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),7)" PIECE 1,
-    `CHART_COPY_PRINTED_WHEN` INTEGER GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),7)" PIECE 2,
-    `CHART_COPY_PRINTED_BY` INTEGER GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),7)" PIECE 3,
-    `CHART_COPY_PRINTER` CHARACTER(50) GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""),7)" PIECE 4
+   CREATE TABLE Customers(
+     CustomerID INTEGER PRIMARY KEY,
+     CustomerName VARCHAR(48),
+     ContactName VARCHAR(32),
+     Address VARCHAR(64),
+     City VARCHAR(32),
+     PostalCode VARCHAR(16) NOT NULL,
+     Country VARCHAR(32)
    )
-   GLOBAL "^OR(100,keys(""ORDER1_ID""),8,keys(""ORDER_ORDER_ACTIONS_ID""))"
+   GLOBAL "^Customers(keys(""CustomerID""))";
+
+In the above, the :code:`Customers` table is stored in the global variable :code:`^Customers`. The columns of the primary key of the table are all subscripts of a global variable node (all columns in the primary key are global variable subscripts; all global variable subscripts are not necessarily columns, as shown by the next example). The :code:`^Customers` global variable has one subscript, an integer mapping to the column :code:`CustomerID`.
+
+Columns such as :code:`CustomerName` are pieces of the node, using the default :code:`"|"` as the piece separator, in the order listed. If PIECE is not specified, Octo maps columns in the order in which they appear in the CREATE TABLE statement to consecutive pieces of the global node value.
+
+As Octo 1.0 is a read-only SQL engine, it ignores the VARCHAR() size limits and reports the actual data in the global variable nodes. They will be used when Octo supports read-write access to databases.
+
+SQL allows columns other than key columns to be NULL. When a column is a piece of a global variable node, there is no way to distinguish from the data whether or not an empty string (:code:`""`) should be treated as a NULL. Octo's default behavior is to treat empty strings as NULL, which is the SQL default. The :code:`NOT NULL` for the :code:`PostalCode` column tells Octo that empty strings in the fifth piece of :code:`^Customers` global variable nodes should be treated as empty strings, rather than NULLs.
+
+---------------------
+VistA DDL Example 1
+---------------------
+
+The following is a CREATE TABLE for the :code:`INDEX_DESCRIPTION` table of a `VistA <https://en.wikipedia.org/wiki/VistA>`_ environment. This illustrates how part of a global variable tree is mapped to a table, i.e., different parts of a different global variable tree can potentially be mapped to different tables.
+
+.. code-block:: SQL
+
+   CREATE TABLE `INDEX_DESCRIPTION`(
+    `INDEX_ID` NUMERIC PRIMARY KEY START 0 END "'(keys(""INDEX_ID""))!(keys(""INDEX_ID"")="""")",
+    `INDEX_DESCRIPTION_ID` NUMERIC KEY NUM 1 START 0 END "'(keys(""INDEX_DESCRIPTION_ID""))!(keys(""INDEX_DESCRIPTION_ID"")="""")",
+    `DESCRIPTION` VARCHAR GLOBAL "^DD(""IX"",keys(""INDEX_ID""),.1,keys(""INDEX_DESCRIPTION_ID""),0)"
+       EXTRACT "$G(^DD(""IX"",keys(""INDEX_ID""),.1,keys(""INDEX_DESCRIPTION_ID""),0))"
+   )
+   GLOBAL "^DD(""IX"",keys(""INDEX_ID""),.1,keys(""INDEX_DESCRIPTION_ID""))";
+
+The table has a numeric primary key. :code:`INDEX_ID`. :code:`START 0` means that a :code:`$ORDER()` loop to find the next subscript starts with :code:`0` and :code:`END "'(keys(""INDEX_DESCRIPTION_ID""))!(keys(""INDEX_DESCRIPTION_ID"")="""")"` means that the loop ends when the result of that :code:`$ORDER()` is :code:`0` or the empty string (:code:`""`), indicating the end of breadth first traversal of that level of the tree.
+
+:code:`GLOBAL "^DD(""IX"",keys(""INDEX_ID""),.1,keys(""INDEX_DESCRIPTION_ID""))"` means that the table is in multiple :code:`^DD("IX",…,.1,…)` subtrees of :code:`^DD` with the primary key :code:`INDEX_ID` in the second subscript, and the :code:`INDEX_DESCRIPTION_ID` column in the fourth subscript, with :code:`.1` as the third subscript. GLOBAL can also be applied at the COLUMN level to allow a table to incorporate columns from different global variables, with the restriction that KEY columns of a table must all be subscripts of the same global variable.
+
+The :code:`DESCRIPTION` column is a text field, whose value is the entire global variable node. Unlike the previous example, the global variable node is not piece separated columns. EXTRACT in a column specification overrides any implicit or explicit PIECE specification for that column.
+
+The backtick character (:code:`"\`"`) is used to enclose words so that any possible reserved words that may be used in column or table names are correctly escaped. [Note, the backslash works around a limitation of the publishing software; it is not part of the backtick character.]
+
+---------------------
+VistA DDL Example 2
+---------------------
+
+The following is another example from a VistA environment, automatically generated by the `VistA Fileman to Octo DDL mapping tool <https://gitlab.com/YottaDB/DBMS/YDBOctoVistA>`_.
+
+.. code-block:: SQL
+
+   CREATE TABLE `LINE_PORT_ADDRESS`(
+    `LINE_PORT_ADDRESS_ID` NUMERIC PRIMARY KEY START 0 END "'(keys(""LINE_PORT_ADDRESS_ID""))!(keys(""LINE_PORT_ADDRESS_ID"")="""")",
+    `NAME` CHARACTER(30) NOT NULL GLOBAL "^%ZIS(3.23,keys(""LINE_PORT_ADDRESS_ID""),0)" PIECE 1,
+    `LOCATION` CHARACTER(30) GLOBAL "^%ZIS(3.23,keys(""LINE_PORT_ADDRESS_ID""),0)" PIECE 2,
+    `DEVICE` INTEGER GLOBAL "^%ZIS(3.23,keys(""LINE_PORT_ADDRESS_ID""),0)" PIECE 3,
+    `SUBTYPE` INTEGER GLOBAL "^%ZIS(3.23,keys(""LINE_PORT_ADDRESS_ID""),0)" PIECE 4
+   )
+   GLOBAL "^%ZIS(3.23,keys(""LINE_PORT_ADDRESS_ID""))"
    DELIM "^";
 
-* The backtick character (`) is used to enclose words so that any possible reserved words that may be used in column or table names are correctly escaped.
+:code:`DELIM "^"` specifies to Octo that :code:`"^"` is the piece separator to use when mapping values of global variable nodes into columns.
 
-* START indicates where to start a $ORDER loop in the underlying data storage - this is the number BEFORE which actual data needs to be returned.
+As with the :code:`PostalCode` column from the `Northwind DDL Example`_ above, the NOT NULL for the :code:`NAME` column means that an empty string for the first piece of :code:`^%ZIS(3.23,…)` global variable nodes will be treated as an empty string rather than a NULL. In contrast, had the INTEGER :code:`DEVICE` column been declared NOT NULL, an empty string for the third piece of global variable nodes would have been reported as a zero rather than a NULL.
 
-* END is an M condition that indicates when the $ORDER loop should stop looking for data. When END is used in the third line of the above example, for instance, it is looking for two different conditions: if keys("ORDER1_ID") is false OR if keys(ORDER1_ID) is the empty string.
+---------------------
+Explicit NULL Example
+---------------------
 
-* The NUM keyword identifies the order in which multiple KEYS are ordered. This also indicates that this column is derived from subscripts of the M global reference (key) vs data contained within the subscript (value).
+NULLCHAR() can be used to designate a specific character as representing a SQL NULL.
 
-* The PIECE keyword indicates which M piece the data resides in.
+.. code-block:: SQL
 
-* The DELIM keyword defines the delimiter for data stored within a global node (value) and used in conjunction with the PIECE keyword to access data specified in the column definitions.
+   CREATE TABLE names (
+    id INTEGER PRIMARY KEY,
+    firstName VARCHAR(30),
+    lastName TEXT(30)
+   )
+   NULLCHAR (127)
+   GLOBAL "^names(keys(""id""))";
+
+In the example, NULLCHAR(127) means that if first piece of a :code:`^names(…)` node has the ASCII value 127 (DEL), Octo is to treat the corresponding :code:`firstName` as NULL, and :code:`lastName` as NULL if the second piece is an ASCII 127. NULLCHAR() accepts the entire ASCII range of characters, 0 through 127.
 
 .. note::
    When parsed, if a table and a column have the same name, a query will give preference to the table name over the derived column name.

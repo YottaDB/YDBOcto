@@ -1,0 +1,2 @@
+# Run [yottadb -run TC031] to generate input.sql
+# Run [octo -f input.sql] and verify no SIG-11 etc.

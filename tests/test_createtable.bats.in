@@ -353,3 +353,11 @@ OCTO
 	verify_output TC030 output.txt
 }
 
+@test "TC031 : OCTO587 : SIG-11 when executing a lot of CREATE TABLE queries" {
+	echo "# Run [yottadb -run TC031] to generate input.sql" > output.txt
+	$ydb_dist/yottadb -run TC031 > input.sql
+	echo "# Run [octo -f input.sql] and verify no SIG-11 etc." >> output.txt
+	octo -f input.sql >> output.txt 2>&1
+	verify_output TC031 output.txt
+}
+

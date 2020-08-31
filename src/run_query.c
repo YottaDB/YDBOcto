@@ -263,19 +263,7 @@ int run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_descrip
 	INFO(CUSTOM_ERROR, "Generating SQL for cursor %s", cursor_ydb_buff.buf_addr);
 	free_memory_chunks = true; // By default run "octo_cfree(memory_chunks)" at the end
 
-	switch (result->type) {
-	case set_operation_STATEMENT:
-	case table_alias_STATEMENT:
-	case show_STATEMENT:
-	case set_STATEMENT:
-		cursor_used = TRUE;
-		break;
-	default:
-		// Other statement types don't require the cursor, so just free it now
-		cursor_used = FALSE;
-		break;
-	}
-
+	cursor_used = TRUE; /* By default, assume a cursor was used to execute the query */
 	switch (result->type) {
 	// This effectively means select_STATEMENT, but we have to assign ID's inside this function
 	// and so need to propagate them out
@@ -780,10 +768,12 @@ int run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_descrip
 		break;
 	case insert_STATEMENT:
 		WARNING(ERR_FEATURE_NOT_IMPLEMENTED, "table inserts");
+		cursor_used = FALSE; /* Remove this line once this feature gets implemented */
 		break;
 	case begin_STATEMENT:
 	case commit_STATEMENT:
 		WARNING(ERR_FEATURE_NOT_IMPLEMENTED, "transactions");
+		cursor_used = FALSE; /* Remove this line once this feature gets implemented */
 		break;
 	case set_STATEMENT:
 	case show_STATEMENT:
@@ -791,9 +781,11 @@ int run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_descrip
 		(*callback)(result, cursorId, parms, NULL, send_row_description);
 		break;
 	case index_STATEMENT:
+		cursor_used = FALSE; /* Remove this line once this feature gets implemented */
 		break;
 	default:
 		WARNING(ERR_FEATURE_NOT_IMPLEMENTED, input_buffer_combined);
+		cursor_used = FALSE; /* Remove this line once this feature gets implemented */
 		break;
 	}
 	// Must free the cursor buffer now if it was used for a statement type that required it

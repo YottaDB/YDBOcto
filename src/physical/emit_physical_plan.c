@@ -31,13 +31,16 @@ int emit_physical_plan(PhysicalPlan *pplan, char *plan_filename) {
 	PhysicalPlan *	cur_plan = pplan, *first_plan, xrefplan, nondeferredplan, deferredplan, *tmp_plan;
 	PhysicalPlan *	prev_plan, *next_plan;
 	char *		buffer, plan_name_buffer[MAX_STR_CONST];
-	char		filename[OCTO_PATH_MAX], *routine_name, *trigger_name, *tableName, *columnName;
+	char		filename[OCTO_PATH_MAX], objfilename[OCTO_PATH_MAX];
+	char		rtnname[MAX_ROUTINE_LEN + 1];
+	char *		trigger_name, *tableName, *columnName;
 	char *		tmp_plan_filename = NULL;
-	unsigned int	routine_name_len = MAX_ROUTINE_LEN, plan_filename_len;
+	unsigned int	plan_filename_len;
 	SqlValue *	value;
 	SqlKey *	key;
 	FILE *		output_file;
 	char *		hyphenline = "---------------------------------------------------------", *linestart, *lineend;
+	ydb_buffer_t	plandirs_buff[4];
 	hash128_state_t state;
 
 	assert(NULL != cur_plan);
@@ -101,6 +104,8 @@ int emit_physical_plan(PhysicalPlan *pplan, char *plan_filename) {
 		xrefplan.prev->next = NULL;
 	plan_id = 0;
 	for (cur_plan = xrefplan.next; NULL != cur_plan; cur_plan = cur_plan->next, plan_id++) {
+		char *routine_name;
+
 		/* Assert that the logical plan corresponding to the xref physical plan points back to this physical plan.
 		 * This is because duplicate xref plans are avoided in "generate_physical_plan.c".
 		 */
@@ -120,11 +125,10 @@ int emit_physical_plan(PhysicalPlan *pplan, char *plan_filename) {
 		ydb_mmrhash_128_ingest(&state, (void *)tableName, strlen(tableName));
 		ydb_mmrhash_128_ingest(&state, (void *)columnName, strlen(columnName));
 		routine_name = octo_cmalloc(memory_chunks, MAX_ROUTINE_LEN + 1); // + 1 needed for null terminator
-		status = generate_routine_name(&state, routine_name, routine_name_len, CrossReference);
+		status = generate_routine_name(&state, routine_name, MAX_ROUTINE_LEN, CrossReference);
 		// copy routine name (starts with %)
 		if (1 == status) {
 			ERROR(ERR_PLAN_HASH_FAILED, "");
-			/* cleanup the buffer */
 			free(buffer);
 			return 1;
 		}
@@ -132,7 +136,6 @@ int emit_physical_plan(PhysicalPlan *pplan, char *plan_filename) {
 		status = generate_routine_name(&state, trigger_name, MAX_TRIGGER_LEN, YDBTrigger);
 		if (1 == status) {
 			ERROR(ERR_PLAN_HASH_FAILED, "");
-			/* cleanup the buffer */
 			free(buffer);
 			return 1;
 		}
@@ -141,18 +144,17 @@ int emit_physical_plan(PhysicalPlan *pplan, char *plan_filename) {
 		/* The below call updates "filename" to be the full path including "routine_name" at the end */
 		status = get_full_path_of_generated_m_file(filename, sizeof(filename), &routine_name[1]);
 		if (status) {
-			ERROR(ERR_PLAN_HASH_FAILED, "");
-			/* cleanup the buffer */
 			free(buffer);
 			return 1;
 		}
 		if (access(filename, F_OK) == -1) { // file doesn't exist
+			ydb_buffer_t table_buff[4];
+
 			INFO(CUSTOM_ERROR, "Generating helper cross reference M file [%s] for table [%s] and column [%s]", filename,
 			     tableName, columnName);
 			output_file = fopen(filename, "w");
 			if (output_file == NULL) {
-				ERROR(ERR_SYSCALL, "fopen", errno, strerror(errno));
-				/* cleanup the buffer */
+				ERROR(ERR_SYSCALL_WITH_ARG, "fopen()", errno, strerror(errno), filename);
 				free(buffer);
 				return 1;
 			}
@@ -169,6 +171,40 @@ int emit_physical_plan(PhysicalPlan *pplan, char *plan_filename) {
 			fd = fileno(output_file);
 			fsync(fd);
 			fclose(output_file);
+			/* Record the fact that an xref plan got generated for this TABLE so we will know to delete this plan
+			 * when a DROP TABLE or CREATE TABLE or DISCARD ALL is done.
+			 */
+			YDB_STRING_TO_BUFFER(config->global_names.octo, &table_buff[0]);
+			YDB_LITERAL_TO_BUFFER(OCTOLIT_TABLEPLANS, &table_buff[1]);
+			YDB_STRING_TO_BUFFER(tableName, &table_buff[2]);
+			YDB_STRING_TO_BUFFER(filename, &table_buff[3]);
+			/* Store gvn that links plan and this table */
+			status = ydb_set_s(&table_buff[0], 3, &table_buff[1], NULL);
+			YDB_ERROR_CHECK(status);
+			if (YDB_OK != status) {
+				free(buffer);
+				return 1;
+			}
+			/* Record the full path of the plan srcdir and plan objdir so a later DROP TABLE or CREATE TABLE
+			 * or DISCARD ALL can delete the .o file too when it deletes the .m file.
+			 */
+			YDB_STRING_TO_BUFFER(config->global_names.octo, &plandirs_buff[0]);
+			YDB_LITERAL_TO_BUFFER(OCTOLIT_PLANDIRS, &plandirs_buff[1]);
+			YDB_STRING_TO_BUFFER(filename, &plandirs_buff[2]);
+			/* The below call updates "objfilename" to be the full path including "routine_name" at the end */
+			status = get_full_path_of_generated_o_file(objfilename, sizeof(objfilename), &routine_name[1]);
+			if (status) {
+				free(buffer);
+				return 1;
+			}
+			YDB_STRING_TO_BUFFER(objfilename, &plandirs_buff[3]);
+			/* Store gvn that links srcdir and objdir of the generated plan */
+			status = ydb_set_s(&plandirs_buff[0], 3, &plandirs_buff[1], NULL);
+			YDB_ERROR_CHECK(status);
+			if (YDB_OK != status) {
+				free(buffer);
+				return 1;
+			}
 		}
 		// else : File already exists. i.e. cross reference for this tablename and columnname was already generated
 		//        as part of this query in a previous plan. No need to regenerate it.
@@ -195,8 +231,7 @@ int emit_physical_plan(PhysicalPlan *pplan, char *plan_filename) {
 	tmp_plan_filename[plan_filename_len - 1] = 't';
 	output_file = fopen(tmp_plan_filename, "w");
 	if (output_file == NULL) {
-		ERROR(ERR_SYSCALL, "fopen", errno, strerror(errno));
-		/* cleanup the buffer */
+		ERROR(ERR_SYSCALL_WITH_ARG, "fopen()", errno, strerror(errno), tmp_plan_filename);
 		free(buffer);
 		return 1;
 	}
@@ -246,11 +281,34 @@ int emit_physical_plan(PhysicalPlan *pplan, char *plan_filename) {
 		 */
 	}
 
-	// Close out the file
 	free(buffer);
+	// Close out the file
 	fd = fileno(output_file);
 	fsync(fd);
 	fclose(output_file);
 	rename(tmp_plan_filename, plan_filename);
+	/* Record the full path of the plan srcdir and plan objdir so a later DISCARD ALL can delete the .o file
+	 * too when it deletes the .m file.
+	 */
+	YDB_STRING_TO_BUFFER(config->global_names.octo, &plandirs_buff[0]);
+	YDB_LITERAL_TO_BUFFER(OCTOLIT_PLANDIRS, &plandirs_buff[1]);
+	YDB_STRING_TO_BUFFER(plan_filename, &plandirs_buff[2]);
+	/* Derive the routine name (for the .o file name) from the tail of the .m file name (i.e. "plan_filename") */
+	assert((MAX_ROUTINE_LEN + 1) == sizeof(rtnname));
+	memcpy(rtnname, plan_filename + plandirs_buff[2].len_used - MAX_ROUTINE_LEN - 2,
+	       MAX_ROUTINE_LEN);	 /* - 2 to skip ".m" extension at end */
+	rtnname[MAX_ROUTINE_LEN] = '\0'; /* NULL terminate as below call relies on that */
+	/* The below call updates "objfilename" to be the full path including "rtnname" at the end */
+	status = get_full_path_of_generated_o_file(objfilename, sizeof(objfilename), &rtnname[1]);
+	if (status) {
+		return 1;
+	}
+	YDB_STRING_TO_BUFFER(objfilename, &plandirs_buff[3]);
+	/* Store gvn that links srcdir and objdir of generated plan */
+	status = ydb_set_s(&plandirs_buff[0], 3, &plandirs_buff[1], NULL);
+	YDB_ERROR_CHECK(status);
+	if (YDB_OK != status) {
+		return 1;
+	}
 	return YDB_OK;
 }

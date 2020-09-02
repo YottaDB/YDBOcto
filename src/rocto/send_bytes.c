@@ -41,7 +41,7 @@ int send_bytes(RoctoSession *session, char *message, size_t length) {
 					err_str = gtm_tls_get_error();
 					ERROR(ERR_ROCTO_TLS_WRITE_FAILED, err_str);
 				} else {
-					ERROR(ERR_SYSCALL, "unknown", tls_errno, strerror(tls_errno));
+					ERROR(ERR_SYSCALL, "ydb_tls_send()", tls_errno, strerror(tls_errno));
 				}
 			}
 			return 1;

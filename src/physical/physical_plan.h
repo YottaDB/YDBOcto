@@ -117,7 +117,7 @@ typedef struct PhysicalPlanOptions {
 } PhysicalPlanOptions;
 
 PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlanOptions *options);
-// Outputs physical plans to temporary files located in config.tmp_dir
+// Outputs physical plans to temporary files located in config.plan_src_dir
 //  Names are like ppplanXXXX, where XXXX is a unique number
 // Returns TRUE on success
 int emit_physical_plan(PhysicalPlan *pplan, char *plan_filename);

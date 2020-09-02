@@ -310,7 +310,7 @@ add -name %ydboctoxref -region=octo
 add -name %ydboctoocto -region=octo
 verify
 exit"
-$ $ydb_dist/mumps -r GDE @gde.cmd
+$ $ydb_dist/yottadb -run GDE @gde.cmd
 $ mupip create
 ```
 

@@ -18,7 +18,7 @@ setup() {
   load_fixture names.sql
   load_fixture names.zwr
   # below is used by various subtests so keep it here
-  $ydb_dist/mumps -run ^%XCMD 'set ^%ydboctoocto("functions","MODULO")="$$^MODULO"'
+  $ydb_dist/yottadb -run ^%XCMD 'set ^%ydboctoocto("functions","MODULO")="$$^MODULO"'
 }
 
 @test "order by firstName ascending" {

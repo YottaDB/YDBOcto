@@ -84,6 +84,7 @@
 
 #define OCTOLIT_0		     "0"
 #define OCTOLIT_BINARY		     "binary"
+#define OCTOLIT_BINFMT		     "binfmt"
 #define OCTOLIT_BOUND		     "bound"
 #define OCTOLIT_CHUNK		     "chunk"
 #define OCTOLIT_COLUMN_ID	     "column_id"
@@ -101,12 +102,14 @@
 #define OCTOLIT_PG_ATTRIBUTE	     "pg_attribute"
 #define OCTOLIT_PG_CATALOG	     "pg_catalog"
 #define OCTOLIT_PG_CLASS	     "pg_class"
+#define OCTOLIT_PLANDIRS	     "plandirs"
 #define OCTOLIT_PLAN_METADATA	     "plan_metadata"
 #define OCTOLIT_PREPARED	     "prepared"
 #define OCTOLIT_ROUTINE		     "routine"
 #define OCTOLIT_TABLES		     "tables"
 #define OCTOLIT_TABLEPLANS	     "tableplans"
 #define OCTOLIT_TABLE_ID	     "table_id"
+#define OCTOLIT_TEXT		     "text"
 #define OCTOLIT_TIMESTAMP	     "timestamp"
 #define OCTOLIT_TYPE_MODIFIER	     "type_modifier"
 #define OCTOLIT_USERS		     "users"
@@ -115,6 +118,9 @@
 
 // Default buffer allocated for $zroutines
 #define ZRO_INIT_ALLOC 512
+
+/* Maximum size of each fragment a table or function binary definition is split into in M nodes */
+#define MAX_BINARY_DEFINITION_FRAGMENT_SIZE 32768
 
 // Below are a few utility macros that are similar to those defined in sr_port/gtm_common_defs.h.
 // But we do not use those as that is outside the control of Octo's source code repository
@@ -394,6 +400,7 @@ int  get_input(char *buf, int size);
 void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, int *plan_id, ParseContext *parse_context, char const *s);
 
 int get_full_path_of_generated_m_file(char *filename, int filename_len, char *m_routine_name);
+int get_full_path_of_generated_o_file(char *filename, int filename_len, char *o_routine_name);
 
 /* Globals */
 extern SqlTable *definedTables;

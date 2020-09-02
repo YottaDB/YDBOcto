@@ -53,7 +53,7 @@ init_test() {
 	else
 		# Add the UTF-8 path, if set, as this is not done by build.sh in the pipeline
 		ydbroutines=".(. @PROJECT_SOURCE_DIR@/tests/fixtures)"
-		ydbroutines="$ydbroutines .(. @YOTTADB_INCLUDE_DIRS@/plugin/r/) @PROJECT_BINARY_DIR@"
+		ydbroutines="$ydbroutines @PROJECT_BINARY_DIR@"
 	fi
 	export ydb_routines="$ydbroutines $ydb_routines"
 	# Log env vars, shell vars, locale info in files for later analysis (if needed). Mask any sensitive env vars out.
@@ -179,10 +179,10 @@ load_postgres_fixture() {
 
 # Load a large amount of dummy data for tests requiring slow queries
 load_big_data() {
-	$ydb_dist/mumps -run ^%XCMD 'for i=1:4:1000000 s ^names(i+5)=(i+5)_"|A|B"'
-	$ydb_dist/mumps -run ^%XCMD 'for i=2:4:1000000 s ^names(i+5)=(i+5)_"|C|B"'
-	$ydb_dist/mumps -run ^%XCMD 'for i=3:4:1000000 s ^names(i+5)=(i+5)_"|A|C"'
-	$ydb_dist/mumps -run ^%XCMD 'for i=4:4:1000000 s ^names(i+5)=(i+5)_"|B|A"'
+	$ydb_dist/yottadb -run ^%XCMD 'for i=1:4:1000000 s ^names(i+5)=(i+5)_"|A|B"'
+	$ydb_dist/yottadb -run ^%XCMD 'for i=2:4:1000000 s ^names(i+5)=(i+5)_"|C|B"'
+	$ydb_dist/yottadb -run ^%XCMD 'for i=3:4:1000000 s ^names(i+5)=(i+5)_"|A|C"'
+	$ydb_dist/yottadb -run ^%XCMD 'for i=4:4:1000000 s ^names(i+5)=(i+5)_"|B|A"'
 }
 
 createdb() {
@@ -191,14 +191,14 @@ createdb() {
 	# Create two regions by default. One to hold application/user data. One to hold Octo internal data (%ydbocto* namespace)
 	# But if user specified number of regions explicitly (only allowed value currently is 1) then create 1 region only.
 	if [[ $1 == "1" ]]; then
-		$ydb_dist/mumps -r ^GDE <<FILE
+		$ydb_dist/yottadb -run ^GDE <<FILE
 		change -r DEFAULT -key_size=1019 -record_size=1048576
 		change -segment DEFAULT -file_name=$test_temp/mumps.dat
 		change -r DEFAULT -NULL_SUBSCRIPTS=true
 		exit
 FILE
 	else
-		$ydb_dist/mumps -r ^GDE <<FILE
+		$ydb_dist/yottadb -run ^GDE <<FILE
 change -region DEFAULT -null_subscripts=true -record_size=1048576
 change -segment DEFAULT -file_name=$test_temp/mumps.dat
 add -name %ydbocto* -region=OCTOREG
@@ -220,7 +220,7 @@ FILE
 }
 
 gde_add_region() {
-	$ydb_dist/mumps -r ^GDE <<FILE
+	$ydb_dist/yottadb -run GDE <<FILE
 add -name $2 -region=$1
 add -region $1 -dynamic=$1 -key_size=1019 -record_size=1048576
 add -segment $1 -file_name=$test_temp/$1.dat
@@ -231,7 +231,7 @@ FILE
 
 gde_add_name() {
 	echo "NAME: $1"
-	$ydb_dist/mumps -r ^GDE <<FILE
+	$ydb_dist/yottadb -run GDE <<FILE
 add -name $1 -region=$2
 exit
 FILE
@@ -414,6 +414,35 @@ strip_sql_comments() {
 	fi
 }
 
+verify_plans_xrefs_gvns_triggers() {
+	queryoutputfile=$1
+	referencefile=$2
+	mupipextractfile=$3
+	# Note that since this framework function is called from various tests (with different scenarios),
+	# it is possible that some steps below have NO output. In that case we do not want the bats to fail.
+	# Hence the "|| true" usage below.
+	echo '# Verify generated _ydbocto*.m and _ydbocto*.o plan files' >> $referencefile
+	ls -1 _ydbocto*.{m,o} >> $referencefile || true
+	echo "# Verify how many queries created new plans" >> $referencefile
+	grep "execute SQL query" $queryoutputfile >> $referencefile || true
+	$ydb_dist/mupip extract $mupipextractfile
+	echo "# Verify db nodes correctly represent tables and plans (including xref plans) that rely on them" >> $referencefile
+	grep -w "tableplans" $mupipextractfile | grep -vw output_columns >> $referencefile || true
+	echo "# Verify db nodes correctly represent functions and plans that rely on them" >> $referencefile
+	grep -w "plan_metadata" $mupipextractfile | grep -w "functions" >> $referencefile || true
+	echo "# Verify db nodes for plans that are reusable (i.e. do not need to be regenerated)" >> $referencefile
+	grep -w "plan_metadata.*output_key" $mupipextractfile >> $referencefile || true
+	echo "# Verify db nodes correctly represent cross-references" >> $referencefile
+	grep -E "xref_status|ydboctoxref" $mupipextractfile >> $referencefile || true
+	echo "# Verify db nodes correctly represent src/obj dirs of generated plans (including xref plans)" >> $referencefile
+	grep "plandirs" $mupipextractfile >> $referencefile || true
+	echo "# Verify currently installed triggers" >> $referencefile
+	# MUPIP TRIGGER -SELECT currently has an additional output line containing "Output File:" before the actual
+	# list of triggers (if any are installed). This can be confusing in reference files so remove this.
+	mupip trigger -select < /dev/null | grep -v "Output File:" >> $referencefile || true
+	echo "" >> $referencefile
+}
+
 verify_output() {
 	echo "Comparing outref/$1 $2"
 	copy_test_files outref/$1.ref
@@ -437,12 +466,13 @@ verify_output() {
 	sed -i "/\/.*\/plugin\/octo\/octo.conf/d" clean_output.txt
 	sed -i "s,$HOME\/octo.conf,\$HOME\/octo.conf," clean_output.txt
 	# Filter M routine name
-	sed -i 's/_ydboctoP.*\.m/_ydboctoP*.m/' clean_output.txt
-	sed -i 's/_ydboctoX.*\.m/_ydboctoX*.m/' clean_output.txt
+	sed -i 's/_ydboctoP[A-Za-z0-9]*\.m/_ydboctoP*.m/g' clean_output.txt
+	sed -i 's/_ydboctoX[A-Za-z0-9]*\.m/_ydboctoX*.m/g' clean_output.txt
 	# Filter M routine name with %
 	sed -i 's/\%ydboctoP[a-zA-Z0-9]*,/%ydboctoP*,/' clean_output.txt
 	# Filter OBJ file name
-	sed -i 's/_ydboctoP.*\.o/_ydboctoP*.o/' clean_output.txt
+	sed -i 's/_ydboctoP[A-Za-z0-9]*\.o/_ydboctoP*.o/g' clean_output.txt
+	sed -i 's/_ydboctoX[A-Za-z0-9]*\.o/_ydboctoX*.o/g' clean_output.txt
 	# Filter cursor number
 	sed -i 's/cursor [0-9]*/CURSOR_NUM/' clean_output.txt
 	# Filter ydb_* environment variables
@@ -801,7 +831,7 @@ run_query_generator() {
   load_fixture "$databaseName.sql"
   load_fixture "$databaseName.zwr"
 
-  $ydb_dist/mumps -run QueryGenerator "$databaseName.sql" "$databaseName.zwr" "$numQueries" "$prefix"
+  $ydb_dist/yottadb -run QueryGenerator "$databaseName.sql" "$databaseName.zwr" "$numQueries" "$prefix"
 
   count=0
   queryfile=$prefix$count

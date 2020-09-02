@@ -151,33 +151,22 @@ setup() {
 }
 
 @test "TCF023 : OCTO90 : Rerunning query after CREATE FUNCTION should recreate plans that relied on the recreated function" {
-	# Note this test is mostly the same as the "test_drop_function/TDF002" subtest
+	# Note this test is mostly the same as the "test_drop_function/TDF002" subtest.
 	# Change to one will need to be done in both places.
 	echo "# Run 8 queries from TCF023.sql that use ABS and REPLACE functions" > output.txt
 	cp @PROJECT_SOURCE_DIR@/tests/fixtures/TCF023{,b}.sql .
-	octo -vv -f TCF023.sql > run1.txt 2>&1
-	echo '# Verify 8 _ydboctoP*.m plans have been generated' >> output.txt
-	[[ $(ls -l _ydboctoP*.m | wc -l) -eq 8 ]]
-	echo "# Verify ALL 8 queries created new plans" >> output.txt
-	grep "execute SQL query" run1.txt >> output.txt
-	echo "# Verify db nodes correctly represent ABS and REPLACE functions and plans that rely on them" >> output.txt
-	mupip extract run1.ext
-	grep plan_metadata run1.ext | grep functions >> output.txt
-	echo "# Verify db nodes correctly represent 8 plans that are reusable (i.e. do not need to be regenerated)" >> output.txt
-	grep plan_met run1.ext | grep output_key >> output.txt
+	octo -vv -f TCF023.sql > run1.out 2>&1
+	verify_plans_xrefs_gvns_triggers run1.out output.txt run1.ext
+
 	echo "# Rerun CREATE FUNCTION of REPLACE" >> output.txt
-	octo -f TCF023b.sql >> output.txt 2>&1
-	echo '# Verify 8 _ydboctoP*.m plans still remain' >> output.txt
-	[[ $(ls -l _ydboctoP*.m | wc -l) -eq 8 ]]
-	echo "# Verify db nodes corresponding to REPLACE function have been deleted" >> output.txt
-	mupip extract run2.ext
-	grep plan_metadata run2.ext | grep functions >> output.txt
-	echo "# Verify db nodes correctly represent 2 plans that are reusable (i.e. do not need to be regenerated)" >> output.txt
-	grep plan_met run2.ext | grep output_key >> output.txt
+	octo -f TCF023b.sql > run2.out 2>&1
+	cat run2.out >> output.txt
+	verify_plans_xrefs_gvns_triggers run2.out output.txt run2.ext
+
 	echo "# Rerun 8 queries from TCF023.sql that use ABS and REPLACE functions" >> output.txt
-	octo -vv -f TCF023.sql > run2.txt 2>&1
-	echo "# Verify 6 queries that used REPLACE function created new plans while rest reused existing plans" >> output.txt
-	grep "execute SQL query" run2.txt >> output.txt
+	octo -vv -f TCF023.sql > run3.out 2>&1
+	verify_plans_xrefs_gvns_triggers run3.out output.txt run3.ext
+
 	verify_output TCF023 output.txt
 }
 

@@ -102,7 +102,7 @@ int main(int argc, char **argv) {
 	ctrlc_action.sa_sigaction = handle_sigint;
 	status = sigaction(SIGINT, &ctrlc_action, NULL);
 	if (0 != status)
-		FATAL(ERR_SYSCALL, "sigaction", errno, strerror(errno));
+		FATAL(ERR_SYSCALL, "sigaction(SIGINT)", errno, strerror(errno));
 
 	// NOTE: This code has been disabled due to the lack of signal forwarding support for SIGUSR1 to YDB
 	// Initialize handler for SIGUSR1 in rocto C code
@@ -301,7 +301,7 @@ int main(int argc, char **argv) {
 			if (INVALID_TLS_CONTEXT == tls_context) {
 				tls_errno = gtm_tls_errno();
 				if (0 < tls_errno) {
-					ERROR(ERR_SYSCALL, "", tls_errno, strerror(tls_errno));
+					ERROR(ERR_SYSCALL, "gtm_tls_errno()", tls_errno, strerror(tls_errno));
 				} else {
 					ERROR(ERR_ROCTO_TLS_INIT, gtm_tls_get_error());
 				}
@@ -547,7 +547,7 @@ int main(int argc, char **argv) {
 		close(sfd);
 		status = pthread_join(thread_id, NULL);
 		if (0 != status) {
-			ERROR(ERR_SYSCALL, "failed to join helper_waitpid", status, strerror(status));
+			ERROR(ERR_SYSCALL, "pthread_join()", status, strerror(status));
 		}
 	}
 	// Since each iteration of the loop spawns a child process, each of which calls `gtm_tls_init`,

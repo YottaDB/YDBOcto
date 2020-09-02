@@ -16,7 +16,7 @@ stages:
   - docs
 
 variables:
-  GOLANG_VERSION: 1.11.2
+  GOLANG_VERSION: 1.13.1
 
 before_script:
   - export PATH=/usr/local/go/bin:$PATH

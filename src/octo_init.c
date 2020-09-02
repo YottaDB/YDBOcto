@@ -239,7 +239,9 @@ int parse_config_file_settings(const char *config_file_name, config_t *config_fi
 	unsigned int	  offset, zroutines_from_file_len, zroutines_len = ZRO_INIT_ALLOC;
 	const char *	  item_name, *item_value, *verbosity;
 	char *		  zroutines_buf_start, *zroutines_from_file;
-	int		  status, done, i, verbosity_int;
+	int		  status, done, i, verbosity_int, plan_src_dir_len, plan_obj_dir_len;
+	char		  plan_src_dir[OCTO_PATH_MAX], plan_obj_dir[OCTO_PATH_MAX], *obj_dir;
+	struct stat	  statbuf;
 
 	if (CONFIG_TRUE == config_lookup_string(config_file, "verbosity", &verbosity)) {
 		if (strcmp(verbosity, "TRACE") == 0) {
@@ -320,7 +322,7 @@ int parse_config_file_settings(const char *config_file_name, config_t *config_fi
 	}
 
 	// $ZROUTINES has already been set, just return now
-	if (NULL != config->tmp_dir) {
+	if (NULL != config->plan_src_dir) {
 		return 0;
 	}
 	YDB_MALLOC_BUFFER(&zroutines_buffer, ZRO_INIT_ALLOC);
@@ -432,9 +434,9 @@ int parse_config_file_settings(const char *config_file_name, config_t *config_fi
 	zroutines_buffer.buf_addr[zroutines_buffer.len_used + 1] = '\0';
 	zroutines_buffer.len_used += 2;
 
-	// Extract the leading path and store in config->tmp_dir
+	// Extract the leading path and store in config->plan_src_dir
 	offset = 0;
-	struct stat statbuf;
+	obj_dir = NULL;
 	while ('\0' != zroutines_buffer.buf_addr[offset]) {
 		switch (zroutines_buffer.buf_addr[offset]) {
 		// White space characters and right parenthesis are delimiters
@@ -469,14 +471,60 @@ int parse_config_file_settings(const char *config_file_name, config_t *config_fi
 				offset = 0;
 				break;
 			}
-			// +1 for null terminator
-			config->tmp_dir = malloc(offset + 1);
-			// cast to char* to avoid strcpy warning this is safe to do here
-			strncpy((char *)config->tmp_dir, zroutines_buffer.buf_addr, offset + 1);
+			/* Store the absolute directory path of source directory (where M plans will be generated) as that
+			 * is later needed by "get_full_path_of_generated_m_file()".
+			 */
+			assert(PATH_MAX <= sizeof(plan_src_dir)); /* needed by "realpath()" call below */
+			if (NULL == realpath(zroutines_buffer.buf_addr, plan_src_dir)) {
+				status = errno;
+				ERROR(ERR_SYSCALL_WITH_ARG, "realpath(srcdir)", status, strerror(status),
+				      zroutines_buffer.buf_addr);
+				zroutines_buffer.buf_addr = zroutines_buf_start;
+				YDB_FREE_BUFFER(&zroutines_buffer);
+				return 1;
+			}
+			plan_src_dir_len = strlen(plan_src_dir);
+			config->plan_src_dir = malloc(plan_src_dir_len + 1); /* + 1 for null terminator */
+			/* cast to char* to avoid memcpy warning (since config->plan_src_dir is const pointer) */
+			memcpy((char *)config->plan_src_dir, plan_src_dir, plan_src_dir_len + 1);
+			if (NULL != obj_dir) {
+				/* Now that we have figured out the source directory where M plans are going to be generated,
+				 * store the absolute directory path of corresponding object directory (where .o files
+				 * corresponding to M plans will be generated). This is so when we need to delete the .m files
+				 * (e.g. DISCARD ALL etc.), we also know where to find the .o files and delete them too.
+				 */
+				assert(PATH_MAX <= sizeof(plan_obj_dir)); /* needed by "realpath()" call below */
+				if (NULL == realpath(obj_dir, plan_obj_dir)) {
+					status = errno;
+					ERROR(ERR_SYSCALL_WITH_ARG, "realpath(objdir)", status, strerror(status), obj_dir);
+					zroutines_buffer.buf_addr = zroutines_buf_start;
+					YDB_FREE_BUFFER(&zroutines_buffer);
+					return 1;
+				}
+				plan_obj_dir_len = strlen(plan_obj_dir);
+				config->plan_obj_dir = malloc(plan_obj_dir_len + 1); /* + 1 for null terminator */
+				/* cast to char* to avoid memcpy warning (since config->plan_obj_dir is const pointer) */
+				memcpy((char *)config->plan_obj_dir, plan_obj_dir, plan_obj_dir_len + 1);
+			} else {
+				/* In this case, the object directory is the same as the source directory.
+				 * (e.g. set $zroutines="dir" implies "dir" is the object and source directory).
+				 */
+				config->plan_obj_dir = config->plan_src_dir;
+			}
 			break;
 		case '(':
-			// If a '(' is found shift start of string
+			/* If a '(' is found, we parsed past the object directory. Now comes the list of source directories.
+			 * Shift start of string. But before that, take a note of this in case we find our source directory here.
+			 */
+			obj_dir = zroutines_buffer.buf_addr;
 			zroutines_buffer.buf_addr += (offset + 1);
+			if ((1 < offset) && ('*' == obj_dir[offset - 1])) {
+				/* If this object directory has auto relink specified ('*' would be last character),
+				 * then ignore that for objdir name purposes.
+				 */
+				offset--;
+			}
+			obj_dir[offset] = '\0'; /* NULL terminate the object directory for later use */
 			offset = 0;
 			break;
 		default:
@@ -486,7 +534,7 @@ int parse_config_file_settings(const char *config_file_name, config_t *config_fi
 	}
 	zroutines_buffer.buf_addr = zroutines_buf_start;
 	YDB_FREE_BUFFER(&zroutines_buffer);
-	if (!config->tmp_dir) {
+	if (NULL == config->plan_src_dir) {
 		ERROR(ERR_BAD_ZROUTINES, NULL);
 		return 1;
 	}
@@ -638,9 +686,9 @@ int octo_init(int argc, char **argv) {
 		}
 
 		// Verify that the directory exists, or issue an error
-		dir = opendir(config->tmp_dir);
+		dir = opendir(config->plan_src_dir);
 		if (NULL == dir) {
-			ERROR(ERR_SYSCALL_WITH_ARG, "opendir (config.tmp_dir)", errno, strerror(errno), config->tmp_dir);
+			ERROR(ERR_SYSCALL_WITH_ARG, "opendir(config.plan_src_dir)", errno, strerror(errno), config->plan_src_dir);
 			status = 1;
 			break;
 		}

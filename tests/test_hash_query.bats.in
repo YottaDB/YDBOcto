@@ -40,7 +40,7 @@ OCTO
 }
 
 @test "THQ03 : OCTO329 : Test queries with different SELECT COLUMN LISTs do not hash to same plan name" {
-  $ydb_dist/mumps -run ^%XCMD 'set ^T1(0,1,2)="0|1|2"'
+  $ydb_dist/yottadb -run ^%XCMD 'set ^T1(0,1,2)="0|1|2"'
   cat <<CAT_EOF > input.sql
 CREATE TABLE t1(a INTEGER, b INTEGER, c INTEGER);
 SELECT a+b+c+a from t1;

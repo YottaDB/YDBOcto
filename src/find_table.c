@@ -26,7 +26,7 @@ SqlTable *find_table(const char *table_name) {
 	ydb_buffer_t  save_value;
 	ydb_buffer_t *table_binary_b;
 	ydb_buffer_t  value_b;
-	char	      value_b_buffer[MAX_STR_CONST];
+	char	      value_b_buffer[MAX_BINARY_DEFINITION_FRAGMENT_SIZE];
 	char *	      buff, *cur_buff;
 	const char *  c;
 	int	      status;
@@ -177,7 +177,7 @@ SqlTable *find_table(const char *table_name) {
 			break;
 		memcpy(cur_buff, value_b.buf_addr, value_b.len_used);
 		cur_buff += value_b.len_used;
-		assert(MAX_STR_CONST >= value_b.len_used);
+		assert(MAX_BINARY_DEFINITION_FRAGMENT_SIZE >= value_b.len_used);
 		if (length == (cur_buff - buff)) {
 			break;
 		}
@@ -194,6 +194,7 @@ SqlTable *find_table(const char *table_name) {
 	stmt = (void *)buff;
 	decompress_statement((char *)stmt, length);
 	if (NULL == stmt) {
+		OCTO_CFREE(memory_chunks);
 		memory_chunks = old_chunk;
 		YDB_FREE_BUFFER(&table_binary_b[3]);
 		free(table_binary_b);
@@ -207,6 +208,7 @@ SqlTable *find_table(const char *table_name) {
 	status = ydb_set_s(&varname, 2, &subs_array[0], &save_value);
 	YDB_ERROR_CHECK(status);
 	if (YDB_OK != status) {
+		OCTO_CFREE(memory_chunks);
 		memory_chunks = old_chunk;
 		YDB_FREE_BUFFER(&table_binary_b[3]);
 		free(table_binary_b);
@@ -219,6 +221,7 @@ SqlTable *find_table(const char *table_name) {
 	status = ydb_set_s(&varname, 3, &subs_array[0], &save_value);
 	YDB_ERROR_CHECK(status);
 	if (YDB_OK != status) {
+		OCTO_CFREE(memory_chunks);
 		memory_chunks = old_chunk;
 		YDB_FREE_BUFFER(&table_binary_b[3]);
 		free(table_binary_b);

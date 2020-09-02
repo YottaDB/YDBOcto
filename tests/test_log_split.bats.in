@@ -55,7 +55,7 @@ OCTO
   done
   # Wait for psql processes to die
   for pid in $(cat psql_pids.log); do
-    $ydb_dist/mumps -run ^%XCMD "do ^waitforproctodie($pid)"
+    $ydb_dist/yottadb -run ^%XCMD "do ^waitforproctodie($pid)"
     echo $pid >> deadpids.log
   done
 
@@ -67,7 +67,7 @@ OCTO
   # Wait for server processes to die
   grep "with pid" rocto.log | sed 's/^.*rocto server process forked with pid \([0-9]*\)/\1/' | while read pid; do
     echo "$pid" >> server_pids.log
-    $ydb_dist/mumps -run ^%XCMD "do ^waitforproctodie($pid)"
+    $ydb_dist/yottadb -run ^%XCMD "do ^waitforproctodie($pid)"
     echo $pid >> deadpids.log
   done
   verify_output TLS01 rocto.log nodebug nosenderror noconnclose psql noport sort

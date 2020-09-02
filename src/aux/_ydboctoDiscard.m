@@ -29,7 +29,9 @@ discardALL	;
 	; At this point all derived data should have been removed but it is possible some still remain
 	; in case of application integrity error situation (e.g. for some tableName say TABLE, ^%ydboctoschema(TABLE)
 	; does not exist but ^%ydboctoocto("xref_status",TABLE,*) does exist. Since we know we have to discard
-	; everything, we just KILL all such possible out-of-sync global nodes.
+	; everything, we just KILL all such possible out-of-sync global nodes and delete all known plans etc.
+	NEW srcPlan
+	SET srcPlan="" FOR  SET srcPlan=$ORDER(^%ydboctoocto("plandirs",srcPlan))  QUIT:""=srcPlan  DO discardPlan(srcPlan)
 	KILL ^%ydboctoocto("plan_metadata")
 	KILL ^%ydboctoocto("tableplans")
 	KILL ^%ydboctoocto("xref_status")
@@ -58,7 +60,7 @@ discardTable(tableName)	;
 	;
 	NEW planName
 	SET planName="" FOR  SET planName=$ORDER(^%ydboctoocto("tableplans",tableName,planName))  QUIT:""=planName  DO
-	.  KILL ^%ydboctoocto("plan_metadata",planName)
+	.  DO discardPlan(planName)
 	KILL ^%ydboctoocto("tableplans",tableName)
 	; Delete all generated cross references associated with columns in "tableName".
 	KILL ^%ydboctoxref(tableName)
@@ -71,5 +73,51 @@ discardTable(tableName)	;
 	.  ; Delete the trigger named `trigname` now that the cross reference is gone
 	.  IF '$$dollarZTRIGGER^%ydboctoplanhelpers("ITEM","-"_trigname)  WRITE $ZSTATUS,!
 	.  KILL ^%ydboctoocto("xref_status",tableName,column)
+	QUIT
+
+discardFunction(functionName,functionHash)	;
+	; --------------------------------------------------------------------------------------------------
+	; Discards all generated plans associated with a function whose name and hash are provided as input.
+	; --------------------------------------------------------------------------------------------------
+	NEW planName
+	SET planName="" FOR  DO  QUIT:""=planName  DO discardPlan(planName)
+	.  SET planName=$ORDER(^%ydboctoocto("functions",functionName,functionHash,"plan_metadata",planName))
+	KILL ^%ydboctoocto("functions",functionName,functionHash);
+	QUIT
+
+discardPlan(srcPlan)
+	; ---------------------------------------------------------------------------------------------------------------
+	; Internal helper function used by $$discardTable() and $$discardFunction()
+	; Given a plan name (corresponding to an M file), it
+	;   1) Deletes the .m file.
+	;   2) Deletes the corresponding .o file.
+	;   3) Deletes the M nodes corresponding to the plan.
+	; Thereby ensuring all plan artifacts are erased and recreated the next time a need arises.
+	; ---------------------------------------------------------------------------------------------------------------
+	;
+	; 1) Delete the .m file.
+	DO deleteFile(srcPlan)
+	;
+	; 2) Delete the corresponding .o file (possible more than one .o file across multiple directories)
+	NEW objPlan
+	SET objPlan="" FOR  SET objPlan=$order(^%ydboctoocto("plandirs",srcPlan,objPlan)) QUIT:""=objPlan  DO
+	. DO deleteFile(objPlan)
+	KILL ^%ydboctoocto("plandirs",srcPlan)
+	;
+	; 3) Delete the M nodes corresponding to the plan
+	KILL ^%ydboctoocto("plan_metadata",srcPlan)
+	QUIT
+
+deleteFile(fileName)
+	; Deletes the input file.
+	; If fileName does not exist, this function will create a file first (in the OPEN command below)
+	; and then delete it (in the CLOSE command below). If there are errors in any of the commands,
+	; we will skip error handling and return.
+	; It is possible we do not have permissions to delete the file. In that
+	;    case, skip this and move on to the next step. Hence the "exception" string.
+	;    Set $ECODE to empty string in case of an exception just in case it causes error rethrow at caller M frame.
+	OPEN fileName:(exception="set $ecode="""" goto deleteFileDone")
+	CLOSE fileName:delete
+deleteFileDone
 	QUIT
 

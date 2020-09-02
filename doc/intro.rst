@@ -321,7 +321,7 @@ Configure Octo
 
      $ cd build
      $ export ydb_gbldir=*path to build directory*/octo.gld
-     $ $ydb_dist/mumps -r GDE
+     $ $ydb_dist/yottadb -run GDE
      GDE> add -segment OCTO -access_method=bg -file_name=*path to build directory*/octo.dat
      GDE> add -region OCTO -dynamic=octo -journal=(before,file="*path to build directory*/octo.mjl") -null_subscripts=always -key_size=1019 -record_size=300000
      GDE> add -name %ydboctoschema -region=octo

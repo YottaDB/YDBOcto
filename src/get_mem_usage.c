@@ -24,13 +24,14 @@ int64_t get_mem_usage() {
 	char	command[MAX_STR_CONST];
 	char	mem_used[INT64_TO_STRING_MAX];
 	int64_t ret;
+	int	save_errno;
 	char *	status;
 
 	snprintf(command, MAX_STR_CONST, "ps -p %d -o vsize | cut -d ' ' -f 2 | tr -d '\\n'", getpid());
 
 	fp = popen(command, "r");
 	if (fp == NULL) {
-		ERROR(ERR_SYSCALL, "popen", errno, strerror(errno));
+		ERROR(ERR_SYSCALL_WITH_ARG, "popen()", errno, strerror(errno), command);
 		return -1;
 	}
 
@@ -44,9 +45,10 @@ int64_t get_mem_usage() {
 				      * EINTR) in a deferred but timely fashion.
 				      */
 	} while (TRUE);
+	save_errno = errno;
 	pclose(fp);
 	if (NULL == status) {
-		ERROR(ERR_SYSCALL, "fgets", errno, strerror(errno))
+		ERROR(ERR_SYSCALL, "fgets", save_errno, strerror(save_errno))
 		return -1;
 	}
 

@@ -102,7 +102,7 @@ int handle_cancel_request(CancelRequest *cancel_request) {
 	// Send cancel signal (SIGUSR1) to target rocto session
 	status = kill(pid, SIGUSR1);
 	if (0 != status) {
-		ERROR(ERR_SYSCALL, "kill", errno, strerror(errno));
+		ERROR(ERR_SYSCALL, "kill()", errno, strerror(errno));
 		return -1;
 	}
 

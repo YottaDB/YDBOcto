@@ -1,23 +1,45 @@
 # Load customers DDL
 
 # Stage 1 : Run 6 queries from TC030.sql that use CUSTOMERS and ORDERS tables
-# Verify (from ls output of current directory) that 6 _ydboctoP*.m plans have been generated
-# Verify (from octo output) that each of the 6 queries created new plans
+# Verify generated _ydbocto*.m and _ydbocto*.o plan files
+_ydboctoP*.m
+_ydboctoP*.o
+_ydboctoP*.m
+_ydboctoP*.o
+_ydboctoP*.m
+_ydboctoP*.o
+_ydboctoP*.m
+_ydboctoP*.o
+_ydboctoP*.m
+_ydboctoP*.o
+_ydboctoP*.m
+_ydboctoP*.o
+_ydboctoX*.m
+_ydboctoX*.o
+_ydboctoX*.m
+_ydboctoX*.o
+_ydboctoX*.m
+_ydboctoX*.o
+# Verify how many queries created new plans
 [ INFO] PATH:LINENUM DATE TIME : Generating M file [$PWD/_ydboctoP*.m] (to execute SQL query)
 [ INFO] PATH:LINENUM DATE TIME : Generating M file [$PWD/_ydboctoP*.m] (to execute SQL query)
 [ INFO] PATH:LINENUM DATE TIME : Generating M file [$PWD/_ydboctoP*.m] (to execute SQL query)
 [ INFO] PATH:LINENUM DATE TIME : Generating M file [$PWD/_ydboctoP*.m] (to execute SQL query)
 [ INFO] PATH:LINENUM DATE TIME : Generating M file [$PWD/_ydboctoP*.m] (to execute SQL query)
 [ INFO] PATH:LINENUM DATE TIME : Generating M file [$PWD/_ydboctoP*.m] (to execute SQL query)
-# Verify db nodes correctly represent 3 plans relying on CUSTOMERS table and 4 plans relying on ORDERS tables
+# Verify db nodes correctly represent tables and plans (including xref plans) that rely on them
 ^%ydboctoocto("tableplans","CUSTOMERS","$PWD/_ydboctoP*.m")=""
 ^%ydboctoocto("tableplans","CUSTOMERS","$PWD/_ydboctoP*.m")=""
 ^%ydboctoocto("tableplans","CUSTOMERS","$PWD/_ydboctoP*.m")=""
+^%ydboctoocto("tableplans","CUSTOMERS","$PWD/_ydboctoX*.m")=""
 ^%ydboctoocto("tableplans","ORDERS","$PWD/_ydboctoP*.m")=""
 ^%ydboctoocto("tableplans","ORDERS","$PWD/_ydboctoP*.m")=""
 ^%ydboctoocto("tableplans","ORDERS","$PWD/_ydboctoP*.m")=""
 ^%ydboctoocto("tableplans","ORDERS","$PWD/_ydboctoP*.m")=""
-# Verify db nodes correctly represent 6 plans that are reusable (i.e. do not need to be regenerated)
+^%ydboctoocto("tableplans","ORDERS","$PWD/_ydboctoX*.m")=""
+^%ydboctoocto("tableplans","ORDERS","$PWD/_ydboctoX*.m")=""
+# Verify db nodes correctly represent functions and plans that rely on them
+# Verify db nodes for plans that are reusable (i.e. do not need to be regenerated)
 ^%ydboctoocto("plan_metadata","$PWD/_ydboctoP*.m","output_key")="3"
 ^%ydboctoocto("plan_metadata","$PWD/_ydboctoP*.m","output_key")="3"
 ^%ydboctoocto("plan_metadata","$PWD/_ydboctoP*.m","output_key")="3"
@@ -64,8 +86,17 @@
 ^%ydboctoxref("ORDERS","ORDER_DATE","09/03/1790",4)=""
 ^%ydboctoxref("ORDERS","ORDER_DATE","11/27/1787")="1"
 ^%ydboctoxref("ORDERS","ORDER_DATE","11/27/1787",6)=""
-# Verify currently installed triggers (expect 3 triggers, 1 for CUSTOMERS, 2 for ORDERS)
-Output File: 
+# Verify db nodes correctly represent src/obj dirs of generated plans (including xref plans)
+^%ydboctoocto("plandirs","$PWD/_ydboctoP*.m","$PWD/_ydboctoP*.o")=""
+^%ydboctoocto("plandirs","$PWD/_ydboctoP*.m","$PWD/_ydboctoP*.o")=""
+^%ydboctoocto("plandirs","$PWD/_ydboctoP*.m","$PWD/_ydboctoP*.o")=""
+^%ydboctoocto("plandirs","$PWD/_ydboctoP*.m","$PWD/_ydboctoP*.o")=""
+^%ydboctoocto("plandirs","$PWD/_ydboctoP*.m","$PWD/_ydboctoP*.o")=""
+^%ydboctoocto("plandirs","$PWD/_ydboctoP*.m","$PWD/_ydboctoP*.o")=""
+^%ydboctoocto("plandirs","$PWD/_ydboctoX*.m","$PWD/_ydboctoX*.o")=""
+^%ydboctoocto("plandirs","$PWD/_ydboctoX*.m","$PWD/_ydboctoX*.o")=""
+^%ydboctoocto("plandirs","$PWD/_ydboctoX*.m","$PWD/_ydboctoX*.o")=""
+# Verify currently installed triggers
 ;trigger name: %ydboctoTlGFZzU7b74ygU5grJjV (region DEFAULT)  cycle: 1
 +^customers(keyCol0=*) -name=%ydboctoTlGFZzU7b74ygU5grJjV -commands=S,K,ZK -delim="|" -pieces=1 -xecute="DO handleSetKill^%ydboctoXlGFZzU7b74ygU5grJjVC5A"
 ;trigger name: %ydboctoTNVqZ6Mt1cVtAS2KtqVe (region DEFAULT)  cycle: 2
@@ -74,16 +105,12 @@ Output File:
 +^orders(keyCol0=*) -name=%ydboctoT2rbmGQx4OtlbPfepALF -commands=S,K,ZK -delim="|" -pieces=2 -xecute="DO handleSetKill^%ydboctoX2rbmGQx4OtlbPfepALF2EA"
 
 # Stage 2 : Run DISCARD ALL
-# Verify 6 _ydboctoP*.m plan files still remain
-_ydboctoP*.m
-_ydboctoP*.m
-_ydboctoP*.m
-_ydboctoP*.m
-_ydboctoP*.m
-_ydboctoP*.m
-# Verify db nodes of above 6 plans corresponding to both CUSTOMERS and ORDERS table have been deleted
-# Verify db nodes correctly represent 0 plans that are reusable (i.e. do not need to be regenerated)
-# Verify NO cross-references exist
-# Verify NO currently installed triggers (expect 0 trigger for CUSTOMERS, 0 for ORDERS)
-Output File: 
+# Verify generated _ydbocto*.m and _ydbocto*.o plan files
+# Verify how many queries created new plans
+# Verify db nodes correctly represent tables and plans (including xref plans) that rely on them
+# Verify db nodes correctly represent functions and plans that rely on them
+# Verify db nodes for plans that are reusable (i.e. do not need to be regenerated)
+# Verify db nodes correctly represent cross-references
+# Verify db nodes correctly represent src/obj dirs of generated plans (including xref plans)
+# Verify currently installed triggers
 

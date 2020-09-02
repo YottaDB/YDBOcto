@@ -79,14 +79,6 @@
 		STATUS = ydb_data_s(&varname, 2, subs_array, &DB_NODE_FOUND);    \
 	}
 
-#define DELETE_PLAN_METADATA_DB_NODE(PLAN_FILENAME, STATUS)                      \
-	{                                                                        \
-		ydb_buffer_t varname, subs_array[2];                             \
-                                                                                 \
-		SETUP_PLAN_METADATA_DB_NODE(PLAN_FILENAME, varname, subs_array); \
-		STATUS = ydb_delete_s(&varname, 2, subs_array, YDB_DEL_TREE);    \
-	}
-
 #define CLEANUP_FILENAME_LOCK(I, FILENAME_LOCK, STATUS)                                                   \
 	{                                                                                                 \
 		if (1 == I) {                                                                             \
@@ -141,7 +133,7 @@ int run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_descrip
 	int		status;
 	size_t		buffer_size = 0;
 	ydb_buffer_t *	filename_lock, query_lock[3], *null_query_lock;
-	ydb_string_t	ci_filename, ci_routine, ci_tablename;
+	ydb_string_t	ci_param1, ci_param2;
 	HIST_ENTRY *	cur_hist;
 	ydb_buffer_t	cursor_local;
 	ydb_buffer_t	cursor_ydb_buff;
@@ -371,12 +363,12 @@ int run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_descrip
 			return (YDB_OK != status);
 		}
 		cursorId = atol(cursor_ydb_buff.buf_addr);
-		ci_filename.address = filename;
-		ci_filename.length = strlen(filename);
-		ci_routine.address = routine_name;
-		ci_routine.length = routine_len;
+		ci_param1.address = filename;
+		ci_param1.length = strlen(filename);
+		ci_param2.address = routine_name;
+		ci_param2.length = routine_len;
 		// Call the select routine
-		status = ydb_ci("_ydboctoselect", cursorId, &ci_filename, &ci_routine);
+		status = ydb_ci("_ydboctoselect", cursorId, &ci_param1, &ci_param2);
 		YDB_ERROR_CHECK(status);
 		if (YDB_OK != status) {
 			status = ydb_lock_decr_s(&query_lock[0], 2, &query_lock[1]);
@@ -485,9 +477,9 @@ int run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_descrip
 		/* Call an M routine to discard all plans, xrefs and triggers associated with the table being created/dropped.
 		 * Cannot use SimpleAPI for at least one step (deleting the triggers). Hence using M for all the steps.
 		 */
-		ci_tablename.address = table_name_buffer->buf_addr;
-		ci_tablename.length = table_name_buffer->len_used;
-		status = ydb_ci("_ydboctoDiscardTable", &ci_tablename);
+		ci_param1.address = table_name_buffer->buf_addr;
+		ci_param1.length = table_name_buffer->len_used;
+		status = ydb_ci("_ydboctoDiscardTable", &ci_param1);
 		CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, memory_chunks, buffer, sub_buffer, spcfc_buffer, query_lock);
 		/* Now that OIDs and plan nodes have been cleaned up, dropping the table is a simple
 		 *	KILL ^%ydboctoschema(TABLENAME)
@@ -514,7 +506,10 @@ int run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_descrip
 			INFO(CUSTOM_ERROR, "%s", buffer); /* print the converted text representation of the CREATE TABLE command */
 
 			YDB_STRING_TO_BUFFER(buffer, &table_create_buffer);
-			YDB_STRING_TO_BUFFER("t", &table_name_buffers[1]);
+			/* Store the text representation of the CREATE TABLE statement:
+			 *	^%ydboctoschema(table_name,OCTOLIT_TEXT)
+			 */
+			YDB_STRING_TO_BUFFER(OCTOLIT_TEXT, &table_name_buffers[1]);
 			status = ydb_set_s(&schema_global, 2, table_name_buffers, &table_create_buffer);
 			CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, memory_chunks, buffer, sub_buffer, spcfc_buffer, query_lock);
 			free(buffer);
@@ -535,24 +530,27 @@ int run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_descrip
 			}
 			compress_statement(result, &spcfc_buffer, &length);
 			assert(NULL != spcfc_buffer);
-			table_binary_buffer.len_alloc = MAX_STR_CONST;
+			/* Store the binary representation of the CREATE TABLE statement:
+			 *	^%ydboctoschema(table_name,OCTOLIT_BINARY)
+			 */
+			table_binary_buffer.len_alloc = MAX_BINARY_DEFINITION_FRAGMENT_SIZE;
 			YDB_STRING_TO_BUFFER(OCTOLIT_BINARY, &table_name_buffers[1]);
 			sub_buffer = &table_name_buffers[2];
-			YDB_MALLOC_BUFFER(sub_buffer, MAX_STR_CONST);
+			YDB_MALLOC_BUFFER(sub_buffer, MAX_BINARY_DEFINITION_FRAGMENT_SIZE);
 			i = 0;
 			cur_length = 0;
 			while (cur_length < length) {
 				sub_buffer->len_used = snprintf(sub_buffer->buf_addr, sub_buffer->len_alloc, "%d", i);
 				table_binary_buffer.buf_addr = &spcfc_buffer[cur_length];
-				if (MAX_STR_CONST < (length - cur_length)) {
-					table_binary_buffer.len_used = MAX_STR_CONST;
+				if (MAX_BINARY_DEFINITION_FRAGMENT_SIZE < (length - cur_length)) {
+					table_binary_buffer.len_used = MAX_BINARY_DEFINITION_FRAGMENT_SIZE;
 				} else {
 					table_binary_buffer.len_used = length - cur_length;
 				}
 				status = ydb_set_s(&schema_global, 3, table_name_buffers, &table_binary_buffer);
 				CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, memory_chunks, buffer, sub_buffer, spcfc_buffer,
 								 query_lock);
-				cur_length += MAX_STR_CONST;
+				cur_length += MAX_BINARY_DEFINITION_FRAGMENT_SIZE;
 				i++;
 			}
 			YDB_STRING_TO_BUFFER(OCTOLIT_LENGTH, &table_name_buffers[1]);
@@ -655,19 +653,12 @@ int run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_descrip
 		if (0 != status) {
 			CLEANUP_AND_RETURN(memory_chunks, buffer, sub_buffer, spcfc_buffer, query_lock);
 		}
-		YDB_STRING_TO_BUFFER(OCTOLIT_PLAN_METADATA, &function_name_buffers[3]);
-		while (TRUE) {
-			status = ydb_subscript_next_s(&octo_global, 5, &function_name_buffers[0], &function_name_buffers[4]);
-			if (YDB_ERR_NODEEND == status) {
-				break;
-			}
-			CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, memory_chunks, buffer, sub_buffer, spcfc_buffer, query_lock);
-			DELETE_PLAN_METADATA_DB_NODE(function_name_buffers[4], status);
-			CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, memory_chunks, buffer, sub_buffer, spcfc_buffer, query_lock);
-		}
-		// Drop the function: KILL ^%ydboctoocto(OCTOLIT_FUNCTIONS,FUNCTIONNAME,FUNCTIONHASH)
-		YDB_STRING_TO_BUFFER(function_hash, function_hash_buffer);
-		status = ydb_delete_s(&octo_global, 3, function_name_buffers, YDB_DEL_TREE);
+		/* Call an M routine to discard all plans associated with the function being created/dropped */
+		ci_param1.address = function_name_buffer->buf_addr;
+		ci_param1.length = function_name_buffer->len_used;
+		ci_param2.address = function_hash_buffer->buf_addr;
+		ci_param2.length = function_hash_buffer->len_used;
+		status = ydb_ci("_ydboctoDiscardFunction", &ci_param1, &ci_param2);
 		CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, memory_chunks, buffer, sub_buffer, spcfc_buffer, query_lock);
 
 		// Drop the function from the local cache
@@ -692,22 +683,15 @@ int run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_descrip
 			INFO(CUSTOM_ERROR, "%s", buffer); /* print the converted text representation of the CREATE TABLE command */
 
 			YDB_STRING_TO_BUFFER(buffer, &function_create_buffer);
-			YDB_STRING_TO_BUFFER("t", &function_name_buffers[3]); // 't' for "text" representation
 			/* Store the text representation of the CREATE FUNCTION statement:
-			 *	^ydboctoocto(OCTOLIT_FUNCTIONS,function_name,function_hash,"t")
+			 *	^%ydboctoocto(OCTOLIT_FUNCTIONS,function_name,function_hash,OCTOLIT_TEXT)
 			 */
+			YDB_STRING_TO_BUFFER(OCTOLIT_TEXT, &function_name_buffers[3]);
 			status = ydb_set_s(&octo_global, 4, function_name_buffers, &function_create_buffer);
 			CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, memory_chunks, buffer, sub_buffer, spcfc_buffer, query_lock);
 			free(buffer);
 			/* Note: "function_create_buffer" (whose "buf_addr" points to "buffer") is also no longer unusable */
 			buffer = NULL; // So CLEANUP_AND_RETURN* macro calls below do not try "free(buffer)"
-
-			/* Store the extrinsic function label from the CREATE FUNCTION statement:
-			 *	^ydboctoocto(OCTOLIT_FUNCTIONS,function_name)=$EXTRINSIC_FUNCTION
-			 */
-			YDB_STRING_TO_BUFFER(function->extrinsic_function->v.value->v.string_literal, &function_name_buffers[3]);
-			status = ydb_set_s(&octo_global, 2, &function_name_buffers[0], &function_name_buffers[3]);
-			CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, memory_chunks, buffer, sub_buffer, spcfc_buffer, query_lock);
 
 			/* First store function name in catalog. As we need that OID to store in the binary table
 			 * definition. The below call also sets table->oid which is needed before the call to
@@ -725,24 +709,27 @@ int run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_descrip
 
 			compress_statement(result, &spcfc_buffer, &length);
 			assert(NULL != spcfc_buffer);
-			function_binary_buffer.len_alloc = MAX_STR_CONST;
+			function_binary_buffer.len_alloc = MAX_BINARY_DEFINITION_FRAGMENT_SIZE;
+			/* Store the binary representation of the CREATE FUNCTION statement:
+			 *	^%ydboctoocto(OCTOLIT_FUNCTIONS,function_name,function_hash,OCTOLIT_BINARY)
+			 */
 			YDB_STRING_TO_BUFFER(OCTOLIT_BINARY, &function_name_buffers[3]);
 			sub_buffer = &function_name_buffers[4];
-			YDB_MALLOC_BUFFER(sub_buffer, MAX_STR_CONST);
+			YDB_MALLOC_BUFFER(sub_buffer, MAX_BINARY_DEFINITION_FRAGMENT_SIZE);
 			i = 0;
 			cur_length = 0;
 			while (cur_length < length) {
 				sub_buffer->len_used = snprintf(sub_buffer->buf_addr, sub_buffer->len_alloc, "%d", i);
 				function_binary_buffer.buf_addr = &spcfc_buffer[cur_length];
-				if (MAX_STR_CONST < (length - cur_length)) {
-					function_binary_buffer.len_used = MAX_STR_CONST;
+				if (MAX_BINARY_DEFINITION_FRAGMENT_SIZE < (length - cur_length)) {
+					function_binary_buffer.len_used = MAX_BINARY_DEFINITION_FRAGMENT_SIZE;
 				} else {
 					function_binary_buffer.len_used = length - cur_length;
 				}
 				status = ydb_set_s(&octo_global, 5, function_name_buffers, &function_binary_buffer);
 				CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, memory_chunks, buffer, sub_buffer, spcfc_buffer,
 								 query_lock);
-				cur_length += MAX_STR_CONST;
+				cur_length += MAX_BINARY_DEFINITION_FRAGMENT_SIZE;
 				i++;
 			}
 			YDB_STRING_TO_BUFFER(OCTOLIT_LENGTH, &function_name_buffers[3]);

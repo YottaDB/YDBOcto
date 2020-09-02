@@ -51,7 +51,8 @@ typedef struct OctoConfig {
 	enum VERBOSITY_LEVEL verbosity_level;
 	RoctoConfig	     rocto_config;
 	GlobalNames	     global_names;
-	const char *	     tmp_dir;
+	const char *	     plan_src_dir; /* the directory where _ydbocto*.m plans are generated */
+	const char *	     plan_obj_dir; /* the directory where _ydbocto*.o object files are generated */
 	boolean_t	     is_tty, is_rocto;
 	config_t *	     config_file;
 	pid_t		     process_id;

@@ -27,37 +27,15 @@ setup() {
 
 	echo "# Stage 1 : Run 6 queries from TC030.sql that use CUSTOMERS and ORDERS tables" >> output.txt
 	cp @PROJECT_SOURCE_DIR@/tests/fixtures/TC030.sql .
-	octo -vv -f TC030.sql > run1.txt 2>&1
-	echo '# Verify (from ls output of current directory) that 6 _ydboctoP*.m plans have been generated' >> output.txt
-	[[ $(ls -l _ydboctoP*.m | wc -l) -eq 6 ]]
-	echo "# Verify (from octo output) that each of the 6 queries created new plans" >> output.txt
-	grep "execute SQL query" run1.txt >> output.txt
-	mupip extract run1.ext
-	echo "# Verify db nodes correctly represent 3 plans relying on CUSTOMERS table and 4 plans relying on ORDERS tables" >> output.txt
-	grep -w "tableplans" run1.ext | grep -vw output_columns >> output.txt
-	echo "# Verify db nodes correctly represent 6 plans that are reusable (i.e. do not need to be regenerated)" >> output.txt
-	grep "plan_metadata.*output_key" run1.ext >> output.txt
-	echo "# Verify db nodes correctly represent cross-references" >> output.txt
-	grep -E "xref_status|ydboctoxref" run1.ext >> output.txt
-	echo "# Verify currently installed triggers (expect 3 triggers, 1 for CUSTOMERS, 2 for ORDERS)" >> output.txt
-	mupip trigger -select < /dev/null >> output.txt
-	echo "" >> output.txt
+	octo -vv -f TC030.sql > run1.out 2>&1
+	verify_plans_xrefs_gvns_triggers run1.out output.txt run1.ext
 
 	echo "# Stage 2 : Run DISCARD ALL" >> output.txt
 	cp @PROJECT_SOURCE_DIR@/tests/fixtures/TDA01.sql .
-	octo -f TDA01.sql >> output.txt 2>&1
-	echo '# Verify 6 _ydboctoP*.m plan files still remain' >> output.txt
-	ls -1 _ydboctoP*.m >> output.txt
-	echo "# Verify db nodes of above 6 plans corresponding to both CUSTOMERS and ORDERS table have been deleted" >> output.txt
-	mupip extract run2.ext
-	grep -w "tableplans" run2.ext | grep -vw output_columns >> output.txt || true
-	echo "# Verify db nodes correctly represent 0 plans that are reusable (i.e. do not need to be regenerated)" >> output.txt
-	grep "plan_metadata.*output_key" run2.ext >> output.txt || true
-	echo "# Verify NO cross-references exist" >> output.txt
-	grep -E "xref_status|ydboctoxref" run2.ext >> output.txt || true
-	echo "# Verify NO currently installed triggers (expect 0 trigger for CUSTOMERS, 0 for ORDERS)" >> output.txt
-	mupip trigger -select < /dev/null >> output.txt
-	echo "" >> output.txt
+	octo -f TDA01.sql >> run2.out 2>&1
+	cat run2.out >> output.txt
+	verify_plans_xrefs_gvns_triggers run2.out output.txt run2.ext
+
 	verify_output TDA01 output.txt
 }
 

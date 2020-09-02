@@ -20,7 +20,7 @@ setup() {
 }
 
 @test "TCC01 : Ensure cross-references are not computed for computed columns" {
-  curtime=`$ydb_dist/mumps -run %XCMD 'write $HOROLOG'`
+  curtime=`$ydb_dist/yottadb -run %XCMD 'write $HOROLOG'`
   sleep 1	# sleep so we are guaranteed the "time = $curtime" check below will not match any records
   		# (since "time" below will reflect the current time then and hence will be at least one second after $curtime
   echo "select datetime from namesWithAges where datetime = \"$curtime\"" > query.sql

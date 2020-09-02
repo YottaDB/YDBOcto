@@ -60,7 +60,7 @@ unsigned long long get_pid_start_time(pid_t pid) {
 	result = read(stat_fd, stat_buf, stat_buf_size);
 	// Handle errors
 	if (result < 0) {
-		ERROR(ERR_SYSCALL, "read", errno, strerror(errno));
+		ERROR(ERR_SYSCALL, "read()", errno, strerror(errno));
 		close(stat_fd);
 		return 0;
 	}

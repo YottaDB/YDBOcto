@@ -329,6 +329,19 @@ OCTO
 	verify_output TC031 output.txt
 }
 
+@test "TC032 : OCTO527/OCTO320 : DDLs using EXTRACT wrap \$E[XTRACT] calls with empty2null" {
+	testname="TC032"
+	load_fixture $testname.zwr
+	cp @PROJECT_SOURCE_DIR@/tests/fixtures/$testname.sql .
+	@PROJECT_SOURCE_DIR@/tests/fixtures/sqllogic/split_queries.py "$testname".sql
+	for queryfile in $(ls TC032-*.sql); do
+		run_java run_query $test_port $queryfile useextended >> output.txt 2>&1
+	done
+	echo -e "\n# Confirm empty2null call included in generated plan:\n" >> output.txt
+	cat _ydboctoP*.m >> output.txt
+	verify_output $testname output.txt
+}
+
 @test "TC033 : OCTO524 :  Maintain text based table definition of each column in sync with CREATE TABLE specification" {
 	cp @PROJECT_SOURCE_DIR@/tests/fixtures/TC033.sql .
 	echo "# Run [octo -f TC033.sql] to run lots of CREATE TABLE queries" > output.txt
@@ -342,3 +355,15 @@ OCTO
 	verify_output TC033 output.txt
 }
 
+@test "TC034 : OCTO527/OCTO320 : DDLs using NULLCHAR and EXTRACT wrap \$E[XTRACT] calls with empty2null" {
+	testname="TC034"
+	load_fixture $testname.zwr
+	cp @PROJECT_SOURCE_DIR@/tests/fixtures/$testname.sql .
+	@PROJECT_SOURCE_DIR@/tests/fixtures/sqllogic/split_queries.py "$testname".sql
+	for queryfile in $(ls $testname-*.sql); do
+		run_java run_query $test_port $queryfile useextended >> output.txt 2>&1
+	done
+	echo -e "\n# Confirm empty2null call included in generated plan:\n" >> output.txt
+	cat _ydboctoP*.m >> output.txt
+	verify_output $testname output.txt
+}

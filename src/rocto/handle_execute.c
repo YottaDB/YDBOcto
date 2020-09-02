@@ -98,7 +98,7 @@ int32_t handle_execute(Execute *execute, RoctoSession *session, ydb_long_t *curs
 		return 1;
 	}
 
-	// Skip plan execution for SET and SHOW statements,
+	// Skip plan execution for SET, SHOW, and CREATE statements,
 	// OR when the portal is suspended (rows remain to return on an existing cursor)
 	if ((0 != strncmp(routine_buffer.buf_addr, "none", MAX_ROUTINE_LEN)) && (0 > *cursorId)) {
 		// Fetch number of parameters

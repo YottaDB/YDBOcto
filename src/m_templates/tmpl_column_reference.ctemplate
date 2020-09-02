@@ -145,13 +145,14 @@ TEMPLATE(tmpl_column_reference, PhysicalPlan *pplan, SqlColumnAlias *column_alia
 	}
 
 	column_type = get_sqlvaluetype_from_sqldatatype(column->data_type_struct.data_type);
+	if ((!skip_dollar_piece && (FALSE == is_xref)) || (skip_dollar_piece && !is_trigger)) {
+		// This function is also called in tmpl_tablejoin_body.ctemplate: changes there must also be reflected here
+		%{}$$empty2null^%%ydboctoplanhelpers({{ not_null|%d }},{}%
+		%{}{{ ((NULL != nullchar) ? nullchar : not_nullchar) }},{}%
+		%{}"{{ get_user_visible_type_string(column_type) }}",{}%
+	}
+
 	if (!skip_dollar_piece) {
-		if (FALSE == is_xref) {
-			// This function is also called in tmpl_tablejoin_body.ctemplate: changes there must also be reflected here
-			%{}$$empty2null^%%ydboctoplanhelpers({{ not_null|%d }},{}%
-			%{}{{ ((NULL != nullchar) ? nullchar : not_nullchar) }},{}%
-			%{}"{{ get_user_visible_type_string(column_type) }}",{}%
-		}
 		%{}$PIECE($GET({}%
 	}
 	TMPL(tmpl_emit_source, source, table_name, table_alias->unique_id, MAX_KEY_COUNT,	\
@@ -163,9 +164,9 @@ TEMPLATE(tmpl_column_reference, PhysicalPlan *pplan, SqlColumnAlias *column_alia
 			} else {
 				%{}),"{{ table_delim }}",{{ piece }}){}%
 			}
-			if (FALSE == is_xref) {
-				%{}){}%
-			}
+		}
+		if ((skip_dollar_piece) || (FALSE == is_xref)) {
+			%{}){}%
 		}
 	} else {
 		if (NULL != table_delim) {

@@ -207,7 +207,7 @@ int handle_parse(Parse *parse, RoctoSession *session) {
 		free(parse_context_array);
 		return 1;
 	}
-	// SET or SHOW statements don't have plans to execute, so just return
+	// SET, SHOW, and CREATE statements don't have plans to execute, so just return
 	if (!parse_context.is_select) {
 		response = make_parse_complete();
 		send_message(session, (BaseMessage *)(&response->type));

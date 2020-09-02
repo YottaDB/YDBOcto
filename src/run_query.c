@@ -174,6 +174,7 @@ int run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_descrip
 	}
 	parse_context->cursorId = cursorId;
 	parse_context->cursorIdString = cursor_ydb_buff.buf_addr;
+	STRCPY_LIT(parse_context->routine, "none", MAX_ROUTINE_LEN);
 
 	/* Hold a shared lock before parsing ANY query.
 	 *

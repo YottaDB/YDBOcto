@@ -1,0 +1,6 @@
+YottaDB MUPIP EXTRACT
+21-SEP-2018  14:55:45 ZWR
+^DD("IX",1,.1,1000,0)="description1"
+^DD("IX",2,.1,1000,0)=""
+^DD("IX",3,.1,1000,0)=""
+^DD("IX",4,.1,1000,0)="description4"

@@ -267,7 +267,6 @@ sql_statement
       parse_context->is_select = FALSE;
       *out = $sql_set_statement;
       // No routine will be generated for SET statements, so indicate that for extended query
-      STRCPY_LIT(parse_context->routine, "none", MAX_ROUTINE_LEN);
       YYACCEPT;
     }
   | semicolon_or_eof {

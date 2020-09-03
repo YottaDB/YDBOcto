@@ -101,6 +101,10 @@ GPG_KEYS=(
     "0CE9E4C2C6E642FE14C1BB9B3892ED765A912982"
     # Ganesh Mahesh
     "74774D6D0DB17665AB75A18211A87E9521F6FB86"
+    # K S Bhaskar
+    "D3CFECF187AECEAA67054719DCF03D8B30F73415"
+    # Steven Estess
+    "CC9A13F429C7F9231E4DFB2832655C57E597CF83"
 )
 gpg --keyserver hkps://keyserver.ubuntu.com --recv-keys "${GPG_KEYS[@]}"
 # verify-commit was only introduced in 2.5: https://stackoverflow.com/a/32038784/7669110

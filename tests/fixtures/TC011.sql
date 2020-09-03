@@ -42,7 +42,7 @@ SELECT id::text FROM names;
 SELECT id::date FROM names;
 SELECT id::time FROM names;
 
--- Test that various precision and scale values work with INTEGER and NUMERIC
+-- Test various precision and scale values with INTEGER and NUMERIC (some work, some issue error)
 CREATE TABLE names (id INTEGER(4) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))";
 CREATE TABLE names (id INTEGER(8) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))";
 CREATE TABLE names (id INTEGER(16) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))";

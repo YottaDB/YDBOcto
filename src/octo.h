@@ -366,6 +366,7 @@ int	      as_name(SqlStatement *as_name, ParseContext *parse_context);
 SqlStatement *aggregate_function(SqlAggregateType aggregate_type, OptionalKeyword set_quantifier, SqlStatement *value_expression);
 SqlStatement *between_predicate(SqlStatement *row_value_constructor, SqlStatement *from, SqlStatement *to, boolean_t not_specified);
 SqlStatement *cast_specification(SqlStatement *cast_specification, SqlStatement *source);
+SqlStatement *data_type(SqlDataType data_type, SqlStatement *size_or_precision, SqlStatement *scale);
 SqlStatement *derived_column(SqlStatement *derived_column_expression, SqlStatement *column_name, struct YYLTYPE *yloc);
 SqlStatement *derived_table(SqlStatement *table_subquery, SqlStatement *correlation_specification);
 SqlStatement *grouping_column_reference(SqlStatement *derived_column_expression, SqlStatement *collate_clause);

@@ -866,7 +866,8 @@ cast_specification
 
 literal_type
   : data_type {
-      $$ = (SqlStatement *)get_sqlvaluetype_from_sqldatatype((SqlDataType)$data_type);
+	/* Get just the data type (no size information needed). Hence the logic below. */
+	$$ = (SqlStatement *)get_sqlvaluetype_from_sqldatatype($data_type->v.data_type_struct.data_type);
     }
   ;
 
@@ -1397,12 +1398,12 @@ table_element
 /// TODO: not complete
 column_definition
   : column_name data_type column_definition_tail {
-      SQL_STATEMENT($$, column_STATEMENT);
-      MALLOC_STATEMENT($$, column, SqlColumn);
-      dqinit(($$)->v.column);
-      ($$)->v.column->columnName = $column_name;
-      ($$)->v.column->type = (SqlDataType)$data_type;
-      ($$)->v.column->keywords = $column_definition_tail;
+	SQL_STATEMENT($$, column_STATEMENT);
+	MALLOC_STATEMENT($$, column, SqlColumn);
+	dqinit(($$)->v.column);
+	($$)->v.column->columnName = $column_name;
+	($$)->v.column->data_type_struct = $data_type->v.data_type_struct;
+	($$)->v.column->keywords = $column_definition_tail;
     }
 //  | more stuff
   ;
@@ -1649,26 +1650,22 @@ IDENTIFIER_START
 
 data_type
   : character_string_type {
-      $$ = (SqlStatement *)STRING_TYPE;
+  	$$ = data_type(STRING_TYPE, $character_string_type, NULL);
     }
 //  | character_string_type CHARACTER SET character_set_specification
 //  | national_character_string_type
 //  | bit_string_type
   | numeric_type {
-      $$ = (SqlStatement *)NUMERIC_TYPE;
+  	$$ = $numeric_type;
     }
   | integer_type {
-	SQL_STATEMENT($$, data_type_STATEMENT);
-      $$ = (SqlStatement *)INTEGER_TYPE;
+      $$ = data_type(INTEGER_TYPE, $integer_type, NULL);
     }
   | boolean_type {
-	SQL_STATEMENT($$, data_type_STATEMENT);
-      $$ = (SqlStatement *)BOOLEAN_TYPE;
+      $$ = data_type(BOOLEAN_TYPE, NULL, NULL);
     }
   | datetime_type {
-	/* For now treat DATE or TIME types as equivalent to the STRING/VARCHAR type */
-      SQL_STATEMENT($$, data_type_STATEMENT);
-      $$ = (SqlStatement *)STRING_TYPE;
+	$$ = $datetime_type;
     }
 //  | interval_type
   ;
@@ -1703,13 +1700,13 @@ exact_numeric_type
   ;
 
 integer_type
-  : INTEGER integer_type_tail { $$ = NULL; }
-  | INT integer_type_tail { $$ = NULL; }
-  | INT2 integer_type_tail { $$ = NULL; }
-  | INT4 integer_type_tail { $$ = NULL; }
-  | INT8 integer_type_tail { $$ = NULL; }
-  | SMALLINT integer_type_tail { $$ = NULL; }
-  | BIGINT integer_type_tail { $$ = NULL; }
+  : INTEGER integer_type_tail { $$ = $integer_type_tail; }
+  | INT integer_type_tail { $$ = $integer_type_tail; }
+  | INT2 integer_type_tail { $$ = $integer_type_tail; }
+  | INT4 integer_type_tail { $$ = $integer_type_tail; }
+  | INT8 integer_type_tail { $$ = $integer_type_tail; }
+  | SMALLINT integer_type_tail { $$ = $integer_type_tail; }
+  | BIGINT integer_type_tail { $$ = $integer_type_tail; }
   ;
 
 boolean_type
@@ -1717,8 +1714,9 @@ boolean_type
   ;
 
 datetime_type
-  : DATE { $$ = NULL; }
-  | TIME time_type_tail { $$ = $time_type_tail; }
+  /* For now treat DATE or TIME types as equivalent to the STRING/VARCHAR type */
+  : DATE { $$ = data_type(STRING_TYPE, NULL, NULL); }
+  | TIME time_type_tail { $$ = data_type(STRING_TYPE, $time_type_tail, NULL); }
   ;
 
 time_type_tail
@@ -1727,11 +1725,10 @@ time_type_tail
       $$ = $precision;
     }
 
-/// TODO: we should have a triple for this type of numeric which includes scale
 exact_numeric_type_tail
-  : /* Empty */ { $$ = NULL; }
+  : /* Empty */ { $$ = data_type(NUMERIC_TYPE, NULL, NULL); }
   | LEFT_PAREN precision exact_numeric_type_tail_tail RIGHT_PAREN {
-      $$ = $precision;
+      $$ = data_type(NUMERIC_TYPE, $precision, $exact_numeric_type_tail_tail);
     }
   ;
 
@@ -1747,11 +1744,11 @@ integer_type_tail
     }
 
 precision
-  : literal_value { $$ = $literal_value; }
+  : ddl_literal_value { $$ = $ddl_literal_value; }
   ;
 
 scale
-  : literal_value { $$ = $literal_value; }
+  : ddl_literal_value { $$ = $ddl_literal_value; }
   ;
 
 literal_value
@@ -1800,7 +1797,24 @@ literal_value
 		}
 	}
 	$$ = ret;
+    }
+
+/* A "ddl_literal_value" rule is different from the "literal_value" rule in that we do not want to do the
+ * INVOKE_PARSE_LITERAL_TO_PARAMETER call. This is because the actual value of the literal matters in DDL statements
+ * (unlike in SELECT queries where they don't). For example, a column with a type of VARCHAR(30) should be treated
+ * differently than a column of type VARCHAR(20).
+ */
+ddl_literal_value
+  : LITERAL {
+	SqlStatement *ret = $LITERAL;
+	ret->loc = yyloc;
+	/* Currently ALL DDL literal values are expected to be integers so check that and issue error otherwise. */
+	if ((value_STATEMENT != ret->type) || (NUMERIC_LITERAL != ret->v.value->type) || !ret->v.value->is_int) {
+		yyerror(&yyloc, NULL, NULL, NULL, NULL, NULL);
+		YYERROR;
 	}
+	$$ = ret;
+    }
 
 partition_by_clause
   : LEFT_PAREN PARTITION BY column_reference optional_order_by RIGHT_PAREN {
@@ -1815,20 +1829,22 @@ optional_order_by
 
 function_definition
   : CREATE FUNCTION IDENTIFIER_START LEFT_PAREN function_parameter_type_list RIGHT_PAREN RETURNS data_type AS m_function {
-	SqlStatement *type;
+  	SqlStatement	*ret;
 
-	SQL_STATEMENT($$, create_function_STATEMENT);
-	MALLOC_STATEMENT($$, create_function, SqlFunction);
-	memset(($$)->v.create_function, 0, sizeof(SqlFunction));
+	SQL_STATEMENT(ret, create_function_STATEMENT);
+	MALLOC_STATEMENT(ret, create_function, SqlFunction);
+	memset(ret->v.create_function, 0, sizeof(SqlFunction));
 
-	($$)->v.create_function->function_name = $IDENTIFIER_START;
-	($$)->v.create_function->function_name->v.value->type = FUNCTION_NAME;
-	($$)->v.create_function->parameter_type_list = $function_parameter_type_list;
-	SQL_STATEMENT(type, data_type_STATEMENT);
-	type->v.data_type = (SqlDataType)$data_type;
-	($$)->v.create_function->return_type = type;
-	($$)->v.create_function->extrinsic_function = $m_function;
-	($$)->v.create_function->extrinsic_function->v.value->type = FUNCTION_NAME;
+	ret->v.create_function->function_name = $IDENTIFIER_START;
+	ret->v.create_function->function_name->v.value->type = FUNCTION_NAME;
+	ret->v.create_function->parameter_type_list = $function_parameter_type_list;
+	/* For FUNCTION return type, ignore any size specifications (i.e. if VARCHAR(30) is specified, ignore the 30).
+	 * Hence only the "data_type" member is copied over below. "size" member is not copied over.
+	 */
+	ret->v.create_function->return_type = $data_type;
+	ret->v.create_function->extrinsic_function = $m_function;
+	ret->v.create_function->extrinsic_function->v.value->type = FUNCTION_NAME;
+	$$ = ret;
       }
   ;
 
@@ -1836,14 +1852,14 @@ function_parameter_type_list
   : /* Empty */ { $$ = NULL; }
   |  data_type function_parameter_type_list_tail  {
 	SqlParameterTypeList *parameter_type_list;
-	SqlStatement *type;
+
 	SQL_STATEMENT($$, parameter_type_list_STATEMENT);
 	MALLOC_STATEMENT($$, parameter_type_list, SqlParameterTypeList);
 	UNPACK_SQL_STATEMENT(parameter_type_list, $$, parameter_type_list);
-
-	SQL_STATEMENT(type, data_type_STATEMENT);
-	type->v.data_type = (SqlDataType)$data_type;
-	parameter_type_list->data_type = type;
+	/* For FUNCTION return type, ignore any size specifications (i.e. if VARCHAR(30) is specified, ignore the 30).
+	 * Hence only the "data_type" member is copied over below. "size" member is not copied over.
+	 */
+	parameter_type_list->data_type_struct = $data_type;
 	dqinit(parameter_type_list);
 	if ($function_parameter_type_list_tail) {
 		assert(parameter_type_list_STATEMENT == $function_parameter_type_list_tail->type);

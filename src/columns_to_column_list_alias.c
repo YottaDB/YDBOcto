@@ -39,7 +39,7 @@ SqlColumnListAlias *columns_to_column_list_alias(SqlColumn *column, SqlStatement
 
 		OCTO_CMALLOC_STRUCT(cur_column_list_alias, SqlColumnListAlias);
 		cur_column_list_alias->alias = cur_column->columnName;
-		switch (cur_column->type) {
+		switch (cur_column->data_type_struct.data_type) {
 		case UNKNOWN_SqlDataType:
 			cur_column_list_alias->type = UNKNOWN_SqlValueType;
 			break;

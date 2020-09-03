@@ -94,6 +94,9 @@ typedef enum FileType {
 	FunctionHash,
 } FileType;
 
+/* Note: The order of the statement types listed below is the same as the order of fields listed under
+ * the union inside "typedef struct SqlStatement" in a different section of this same file ("octo_types.h").
+ */
 typedef enum SqlStatementType {
 	create_table_STATEMENT,
 	create_function_STATEMENT,
@@ -113,15 +116,12 @@ typedef enum SqlStatementType {
 	column_list_STATEMENT,
 	column_STATEMENT,
 	join_STATEMENT,
-	data_type_STATEMENT,
 	parameter_type_list_STATEMENT,
 	constraint_STATEMENT,
-	constraint_type_STATEMENT,
 	keyword_STATEMENT,
 	column_list_alias_STATEMENT,
 	column_alias_STATEMENT,
 	table_alias_STATEMENT,
-	join_type_STATEMENT,
 	set_operation_STATEMENT,
 	begin_STATEMENT,
 	commit_STATEMENT,
@@ -130,9 +130,10 @@ typedef enum SqlStatementType {
 	set_STATEMENT,
 	show_STATEMENT,
 	no_data_STATEMENT,
-	sort_spec_list_STATEMENT,
 	delim_char_list_STATEMENT,
 	index_STATEMENT,
+	data_type_struct_STATEMENT,
+	join_type_STATEMENT,
 	discard_all_STATEMENT,
 	invalid_STATEMENT,
 } SqlStatementType;
@@ -204,6 +205,12 @@ typedef enum SqlValueType {
 	DELIM_VALUE,
 	INVALID_SqlValueType
 } SqlValueType;
+
+/* Store the fact that SIZE, PRECISION, SCALE for column types were not specified in the CREATE TABLE
+ * using a negative value (i.e. very large positive value).
+ */
+#define SIZE_OR_PRECISION_UNSPECIFIED -1
+#define SCALE_UNSPECIFIED	      SIZE_OR_PRECISION_UNSPECIFIED
 
 typedef enum SqlDataType { UNKNOWN_SqlDataType, BOOLEAN_TYPE, INTEGER_TYPE, NUMERIC_TYPE, STRING_TYPE } SqlDataType;
 
@@ -330,6 +337,19 @@ typedef struct {
 	char		 routine[MAX_ROUTINE_LEN];
 } ParseContext;
 
+typedef struct SqlDataTypeStruct {
+	enum SqlDataType data_type;
+	int		 size_or_precision;
+	/* Is applicable only in case "data_type" is the following types.
+	 *	INTEGER_TYPE : stores the precision specified (e.g. INT(4))
+	 *	NUMERIC_TYPE : stores the precision specified (e.g. 4 in NUMERIC(4,5))
+	 *	STRING_TYPE  : stores the size specified      (e.g. 30 in VARCHAR(30))
+	 */
+	int scale; /* Is applicable only in case "data_type" is the following type(s).
+		    *	NUMERIC_TYPE : stores the scale specified (e.g. 5 in NUMERIC(4,5))
+		    */
+} SqlDataTypeStruct;
+
 /**
  * Represents a SQL column; doubly linked list
  *
@@ -337,11 +357,11 @@ typedef struct {
  *  we are dealing with a SELECT column list because the column may be a calculated column
  */
 typedef struct SqlColumn {
-	struct SqlStatement *columnName;
-	enum SqlDataType     type;
-	int		     column_number;
-	struct SqlStatement *table;
-	struct SqlStatement *keywords;
+	struct SqlStatement *	 columnName;
+	struct SqlDataTypeStruct data_type_struct;
+	int			 column_number;
+	struct SqlStatement *	 table;
+	struct SqlStatement *	 keywords;
 	/* Below field ("pre_qualified_cla") is initialized/usable only if "type" field above is UNKNOWN_SqlDataType.
 	 * It is needed after parsing starts to handle a column that came in from a sub-query before when the sub-query
 	 * column name was qualified (in "qualify_statement()"). Once the column names have been qualified,
@@ -528,7 +548,7 @@ typedef struct SqlNullIf {
 typedef struct SqlFunction {
 	struct SqlStatement *function_name;	  // SqlValue
 	struct SqlStatement *parameter_type_list; // SqlParameterTypeList
-	struct SqlStatement *return_type;	  // SqlDataType
+	struct SqlStatement *return_type;	  // SqlDataTypeStruct
 	struct SqlStatement *extrinsic_function;  // SqlValue
 	struct SqlStatement *function_hash;	  // SqlValue
 	int32_t		     num_args;
@@ -541,7 +561,7 @@ typedef struct SqlDropFunctionStatement {
 } SqlDropFunctionStatement;
 
 typedef struct SqlParameterTypeList {
-	struct SqlStatement *data_type;
+	struct SqlStatement *data_type_struct; // SqlDataTypeStruct
 	dqcreate(SqlParameterTypeList);
 } SqlParameterTypeList;
 
@@ -673,11 +693,15 @@ typedef struct SqlStatement {
 	enum SqlStatementType type;
 	struct YYLTYPE	      loc;
 	union {
-		struct SqlBeginStatement *	  begin;
-		struct SqlCommitStatement *	  commit;
+		/* Note: The order of the fields listed below is the same as the order of statement types listed in
+		 * "typedef enum SqlStatementType" in a different section of this same file ("octo_types.h").
+		 */
+		struct SqlTable *		  create_table;
+		struct SqlFunction *		  create_function;
 		struct SqlSelectStatement *	  select;
 		struct SqlInsertStatement *	  insert;
 		struct SqlDropTableStatement *	  drop_table;
+		struct SqlDropFunctionStatement * drop_function;
 		struct SqlValue *		  value;
 		struct SqlFunctionCall *	  function_call;
 		struct SqlCoalesceCall *	  coalesce;
@@ -690,25 +714,28 @@ typedef struct SqlStatement {
 		struct SqlColumnList *		  column_list;
 		struct SqlColumn *		  column; // Note singular versus plural
 		struct SqlJoin *		  join;
-		struct SqlTable *		  create_table;
-		struct SqlFunction *		  create_function;
-		struct SqlDropFunctionStatement * drop_function;
 		struct SqlParameterTypeList *	  parameter_type_list;
-		struct SqlIndex *		  index;
 		struct SqlOptionalKeyword *	  constraint;
 		struct SqlOptionalKeyword *	  keyword;
 		struct SqlColumnListAlias *	  column_list_alias;
 		struct SqlColumnAlias *		  column_alias;
 		struct SqlTableAlias *		  table_alias;
 		struct SqlSetOperation *	  set_operation;
+		struct SqlBeginStatement *	  begin;
+		struct SqlCommitStatement *	  commit;
 		struct SqlCaseStatement *	  cas;
 		struct SqlCaseBranchStatement *	  cas_branch;
 		struct SqlSetStatement *	  set;
 		struct SqlShowStatement *	  show;
 		struct SqlNoDataStatement *	  no_data;
 		struct SqlDelimiterCharacterList *delim_char_list;
-		enum SqlDataType		  data_type;
+		struct SqlIndex *		  index;
+		struct SqlDataTypeStruct	  data_type_struct;
 		enum SqlJoinType		  join_type;
+		/* Below SqlStatementType types do not have any parameters so they do not have corresponding members here.
+		 *	discard_all_STATEMENT
+		 *	invalid_STATEMENT
+		 */
 	} v;
 	uint64_t hash_canonical_query_cycle; // used during "hash_canonical_query" to avoid
 					     // multiple traversals of same node.

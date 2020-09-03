@@ -144,11 +144,13 @@ TEMPLATE(tmpl_column_reference, PhysicalPlan *pplan, SqlColumnAlias *column_alia
 		nullchar = NULL;
 	}
 
-	column_type = get_sqlvaluetype_from_sqldatatype(column->type);
+	column_type = get_sqlvaluetype_from_sqldatatype(column->data_type_struct.data_type);
 	if (!skip_dollar_piece) {
 		if (FALSE == is_xref) {
 			// This function is also called in tmpl_tablejoin_body.ctemplate: changes there must also be reflected here
-			%{}$$empty2null^%%ydboctoplanhelpers({{ not_null|%d }},{{ ((NULL != nullchar) ? nullchar : not_nullchar) }},"{{ get_user_visible_type_string(column_type) }}",{}%
+			%{}$$empty2null^%%ydboctoplanhelpers({{ not_null|%d }},{}%
+			%{}{{ ((NULL != nullchar) ? nullchar : not_nullchar) }},{}%
+			%{}"{{ get_user_visible_type_string(column_type) }}",{}%
 		}
 		%{}$PIECE($GET({}%
 	}

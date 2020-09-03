@@ -55,8 +55,8 @@ void *decompress_statement_helper(SqlStatement *stmt, char *out, int out_length)
 	if (NULL == stmt->v.value) {
 		return NULL;
 	}
-	if (data_type_STATEMENT == stmt->type) {
-		/* Relevant data is the SqlDataType enum in the `stmt` union member, which is NOT a pointer.
+	if (data_type_struct_STATEMENT == stmt->type) {
+		/* Relevant data is the SqlDataTypeStruct member in the `stmt` union member, which is NOT a pointer.
 		 * So, do not do R2A conversion and just return as-is. See similar note in compress_statement.c.
 		 */
 		return stmt;
@@ -93,13 +93,10 @@ void *decompress_statement_helper(SqlStatement *stmt, char *out, int out_length)
 			} else {
 				cur_parameter_type_list->next = R2A(cur_parameter_type_list->next);
 			}
-			CALL_DECOMPRESS_HELPER(cur_parameter_type_list->data_type, out, out_length);
+			CALL_DECOMPRESS_HELPER(cur_parameter_type_list->data_type_struct, out, out_length);
 			cur_parameter_type_list->next->prev = cur_parameter_type_list;
 			cur_parameter_type_list = cur_parameter_type_list->next;
 		} while (cur_parameter_type_list != start_parameter_type_list);
-		break;
-	case data_type_STATEMENT:
-		// No pointers to restore, so just break here
 		break;
 	case value_STATEMENT:
 		UNPACK_SQL_STATEMENT(value, stmt, value);

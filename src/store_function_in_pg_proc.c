@@ -77,6 +77,7 @@ int store_function_in_pg_proc(SqlFunction *function, char *function_hash) {
 	char		      proc_oid_str[INT32_TO_STRING_MAX]; /* OIDs are stored as 4-byte unsigned integers:
 								  * https://www.postgresql.org/docs/current/datatype-oid.html
 								  */
+	SqlDataType data_type;
 
 	// Setup pg_proc table node buffers
 	YDB_STRING_TO_BUFFER(config->global_names.octo, &pg_proc[0]);
@@ -123,8 +124,9 @@ int store_function_in_pg_proc(SqlFunction *function, char *function_hash) {
 			/* Note that size/precision modifiers are discarded for CREATE FUNCTION statements,
 			 * per https://www.postgresql.org/docs/current/sql-createfunction.html
 			 */
+			data_type = cur_parameter_type->data_type_struct->v.data_type_struct.data_type;
 			result = snprintf(&arg_type_list[arg_type_list_len], ARGUMENT_TYPE_LIST_MAX_LEN - arg_type_list_len, "%d%s",
-					  get_psql_type_from_sqldatatype(cur_parameter_type->data_type->v.data_type),
+					  get_psql_type_from_sqldatatype(data_type),
 					  ((start_parameter_type == cur_parameter_type->next) ? "" : " "));
 			assert(result < (ARGUMENT_TYPE_LIST_MAX_LEN - arg_type_list_len));
 			arg_type_list_len += result;
@@ -144,8 +146,9 @@ int store_function_in_pg_proc(SqlFunction *function, char *function_hash) {
 	 * Columns of `pg_catalog.pg_proc` table in `tests/fixtures/octo-seed.sql`.
 	 * Any changes to that table definition will require changes here too.
 	 */
+	data_type = function->return_type->v.data_type_struct.data_type;
 	snprintf(row_str, sizeof(row_str), "%s|11|10|12|1|0|0|-|f|f|f|f|f|i|s|%d|0|%d|%s||||||%s|||", function_name,
-		 function->num_args, get_psql_type_from_sqldatatype(function->return_type->v.data_type), arg_type_list,
+		 function->num_args, get_psql_type_from_sqldatatype(data_type), arg_type_list,
 		 function->extrinsic_function->v.value->v.string_literal);
 	row_buffer.len_alloc = row_buffer.len_used = strlen(row_str);
 	row_buffer.buf_addr = row_str;

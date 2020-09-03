@@ -64,8 +64,8 @@ void *compress_statement_helper(SqlStatement *stmt, char *out, int *out_length) 
 	}
 	*out_length += sizeof(SqlStatement);
 	if (NULL != out) {
-		if (data_type_STATEMENT == new_stmt->type) {
-			/* In this case, the relevant data is the SqlDataType enum from the union member of `stmt`,
+		if (data_type_struct_STATEMENT == new_stmt->type) {
+			/* In this case, the relevant data is the SqlDataTypeStruct member from the union member of `stmt`,
 			 * i.e. NOT a pointer. So, do not perform the A2R conversion and just return as is.
 			 * See similar note in decompress_statement.c.
 			 */
@@ -118,8 +118,8 @@ void *compress_statement_helper(SqlStatement *stmt, char *out, int *out_length) 
 			}
 			*out_length += sizeof(SqlParameterTypeList);
 
-			CALL_COMPRESS_HELPER(r, cur_parameter_type_list->data_type, new_parameter_type_list->data_type, out,
-					     out_length);
+			CALL_COMPRESS_HELPER(r, cur_parameter_type_list->data_type_struct,
+					     new_parameter_type_list->data_type_struct, out, out_length);
 			cur_parameter_type_list = cur_parameter_type_list->next;
 			if ((NULL != out) && (cur_parameter_type_list != start_parameter_type_list)) {
 				new_parameter_type_list->next = ((void *)&out[*out_length]);
@@ -127,8 +127,10 @@ void *compress_statement_helper(SqlStatement *stmt, char *out, int *out_length) 
 			}
 		} while (cur_parameter_type_list != start_parameter_type_list);
 		break;
-	case data_type_STATEMENT:
-		// Hit this case only for the initial length count, i.e. (NULL == out). See note on data_type_STATEMENTs above.
+	case data_type_struct_STATEMENT:
+		/* Hit this case only for the initial length count, i.e. (NULL == out).
+		 * See note on "data_type_struct_STATEMENT" above.
+		 */
 		assert(NULL == out);
 		break;
 	case value_STATEMENT:

@@ -203,7 +203,7 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_
 	SqlBinaryOperation *	binary = NULL;
 	SqlCaseBranchStatement *cas_branch, *cur_branch;
 	SqlCaseStatement *	cas;
-	SqlColumn *		column = NULL;
+	SqlColumn *		column;
 	SqlColumnList *		cur_column_list, *start_column_list;
 	SqlFunctionCall *	function_call;
 	SqlFunction *		function;
@@ -223,6 +223,7 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_
 	int			written, result = 0, function_parm_types_len = 0, status = 0, function_hash_len = MAX_ROUTINE_LEN;
 	char *			c, function_hash[MAX_ROUTINE_LEN], function_parm_types[MAX_STR_CONST];
 	hash128_state_t		state;
+	SqlDataType		data_type;
 
 	*type = UNKNOWN_SqlValueType;
 	if (v == NULL || v->v.select == NULL)
@@ -331,15 +332,16 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_
 					value = cur_column_list->value->v.value;
 					*type = ((TRUE == value->is_int) ? INTEGER_LITERAL : child_type1);
 				} else if (column_alias_STATEMENT == cur_column_list->value->type) {
-					assert((column_STATEMENT == cur_column_list->value->v.column_alias->column->type)
-					       || (column_list_alias_STATEMENT
-						   == cur_column_list->value->v.column_alias->column->type));
+					SqlStatement *column_stmt;
 
-					if (column_STATEMENT == cur_column_list->value->v.column_alias->column->type) {
-						*type = get_sqlvaluetype_from_sqldatatype(
-						    cur_column_list->value->v.column_alias->column->v.column->type);
+					column_stmt = cur_column_list->value->v.column_alias->column;
+					assert((column_STATEMENT == column_stmt->type)
+					       || (column_list_alias_STATEMENT == column_stmt->type));
+					if (column_STATEMENT == column_stmt->type) {
+						data_type = column_stmt->v.column->data_type_struct.data_type;
+						*type = get_sqlvaluetype_from_sqldatatype(data_type);
 					} else {
-						*type = cur_column_list->value->v.column_alias->column->v.column_list_alias->type;
+						*type = column_stmt->v.column_list_alias->type;
 					}
 				} else {
 					value = cur_column_list->value->v.unary->operand->v.value;
@@ -395,7 +397,8 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_
 			result = 1;
 			break;
 		}
-		*type = get_sqlvaluetype_from_sqldatatype(function->return_type->v.data_type);
+		data_type = function->return_type->v.data_type_struct.data_type;
+		*type = get_sqlvaluetype_from_sqldatatype(data_type);
 		break;
 	case coalesce_STATEMENT:
 		UNPACK_SQL_STATEMENT(coalesce_call, v, coalesce);
@@ -528,7 +531,7 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_
 			result |= populate_data_type(v->v.column_alias->column, type, parse_context);
 		} else {
 			UNPACK_SQL_STATEMENT(column, v->v.column_alias->column, column);
-			switch (column->type) {
+			switch (column->data_type_struct.data_type) {
 			case BOOLEAN_TYPE:
 				*type = BOOLEAN_VALUE;
 				break;
@@ -547,25 +550,30 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_
 				// all columns so we should be able to find out the column type at this point. Fix it now.
 				assert(NULL != column->pre_qualified_cla);
 				result |= populate_data_type(column->pre_qualified_cla->column_list, type, parse_context);
+				/* This is a column that is formed in the middle of the query.
+				 * So consider size/precision/scale as unspecified in this case.
+				 */
+				column->data_type_struct.size_or_precision = SIZE_OR_PRECISION_UNSPECIFIED;
+				column->data_type_struct.scale = SCALE_UNSPECIFIED;
 				switch (*type) {
 				case BOOLEAN_VALUE:
-					column->type = BOOLEAN_TYPE;
+					column->data_type_struct.data_type = BOOLEAN_TYPE;
 					break;
 				case INTEGER_LITERAL:
-					column->type = INTEGER_TYPE;
+					column->data_type_struct.data_type = INTEGER_TYPE;
 					break;
 				case NUMERIC_LITERAL:
-					column->type = NUMERIC_TYPE;
+					column->data_type_struct.data_type = NUMERIC_TYPE;
 					break;
 				case STRING_LITERAL:
-					column->type = STRING_TYPE;
+					column->data_type_struct.data_type = STRING_TYPE;
 					break;
 				case NUL_VALUE:
 					/* NULL values need to be treated as some known type. We choose STRING_TYPE
 					 * as this corresponds to the TEXT type of postgres to be compatible with it.
 					 * See https://doxygen.postgresql.org/parse__coerce_8c.html#l01373 for more details.
 					 */
-					column->type = STRING_TYPE;
+					column->data_type_struct.data_type = STRING_TYPE;
 					break;
 				default:
 					assert(FALSE);

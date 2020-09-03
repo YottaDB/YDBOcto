@@ -21,7 +21,8 @@
 int columns_equal(SqlColumn *a, SqlColumn *b) {
 	SqlValue *valA, *valB;
 	SqlTable *tableA, *tableB;
-	if (a->type != b->type)
+
+	if (memcmp(&a->data_type_struct, &b->data_type_struct, sizeof(a->data_type_struct)))
 		return FALSE;
 	UNPACK_SQL_STATEMENT(valA, a->columnName, value);
 	UNPACK_SQL_STATEMENT(valB, b->columnName, value);

@@ -60,11 +60,29 @@ int emit_create_table(FILE *output, struct SqlStatement *stmt) {
 		fprintf(output, " GLOBAL \"%s\"", buffer);
 	}
 	if (table->delim) {
+		char ch, *delim;
+
 		fprintf(output, " DELIM ");
 		UNPACK_SQL_STATEMENT(keyword, table->delim, keyword);
 		UNPACK_SQL_STATEMENT(value, keyword->v, value);
-		m_escape_string2(buffer, MAX_STR_CONST, value->v.reference);
-		fprintf(output, "\"%s\"", buffer);
+		delim = value->v.reference;
+		ch = *delim;
+		delim++; /* Skip first byte to get actual delimiter */
+		assert((DELIM_IS_DOLLAR_CHAR == ch) || (DELIM_IS_LITERAL == ch));
+		if (DELIM_IS_LITERAL == ch) {
+			m_escape_string2(buffer, MAX_STR_CONST, delim);
+			fprintf(output, "\"%s\"", buffer);
+		} else {
+			assert(!MEMCMP_LIT(delim, "$CHAR(")); /* this is added in parser.y */
+			delim += sizeof("$CHAR") - 1;	      /* Skip "$CHAR" */
+			fprintf(output, "%s", delim);
+		}
+	}
+	if (table->nullchar) {
+		fprintf(output, " NULLCHAR (");
+		UNPACK_SQL_STATEMENT(keyword, table->nullchar, keyword);
+		UNPACK_SQL_STATEMENT(value, keyword->v, value);
+		fprintf(output, "%s)", value->v.reference);
 	}
 	fprintf(output, ";");
 	return 0;

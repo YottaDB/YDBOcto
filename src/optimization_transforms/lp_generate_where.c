@@ -35,6 +35,7 @@ LogicalPlan *lp_generate_where(SqlStatement *stmt, SqlStatement *parent) {
 	SqlCaseBranchStatement *cas_branch, *cur_branch;
 	SqlStatement *		ret_type, *sql_function_name, *sql_function_hash;
 	boolean_t		error_encountered = FALSE;
+	SqlDataType		data_type;
 
 	assert(NULL != stmt);
 	switch (stmt->type) {
@@ -148,8 +149,8 @@ LogicalPlan *lp_generate_where(SqlStatement *stmt, SqlStatement *parent) {
 		cur_lp = cur_lp->v.lp_default.operand[1];
 		SQL_STATEMENT(ret_type, value_STATEMENT);
 		MALLOC_STATEMENT(ret_type, value, SqlValue);
-		ret_type->v.value->type = get_sqlvaluetype_from_sqldatatype(
-		    function_call->function_schema->v.create_function->return_type->v.data_type);
+		data_type = function_call->function_schema->v.create_function->return_type->v.data_type_struct.data_type;
+		ret_type->v.value->type = get_sqlvaluetype_from_sqldatatype(data_type);
 		ret_type->v.value->v.string_literal = get_user_visible_type_string(ret_type->v.value->type);
 		LP_GENERATE_WHERE(ret_type, stmt, cur_lp->v.lp_default.operand[0], error_encountered);
 

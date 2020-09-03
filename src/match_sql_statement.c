@@ -11,6 +11,7 @@
  ****************************************************************/
 
 #include <assert.h>
+#include <string.h>
 
 #include "octo.h"
 #include "octo_types.h"
@@ -247,8 +248,8 @@ boolean_t match_sql_statement(SqlStatement *stmt, SqlStatement *match_stmt) {
 		if (!ret)
 			break;
 		break;
-	case data_type_STATEMENT:
-		ret = (stmt->v.data_type == match_stmt->v.data_type);
+	case data_type_struct_STATEMENT:
+		ret = !memcmp(&stmt->v.data_type_struct, &match_stmt->v.data_type_struct, sizeof(stmt->v.data_type_struct));
 		if (!ret)
 			break;
 		break;

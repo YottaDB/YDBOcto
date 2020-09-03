@@ -31,7 +31,7 @@ SELECT id::text FROM names;
 SELECT id::date FROM names;
 SELECT id::time FROM names;
 
--- Test that various precision and scale values work with INTEGER and NUMERIC
+-- Test various precision and scale values with INTEGER and NUMERIC (some work, some issue error)
 CREATE TABLE names (id INTEGER(4) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))";
 CREATE TABLE names (id INTEGER(8) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))";
 CREATE TABLE names (id INTEGER(16) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))";
@@ -215,6 +215,16 @@ syntax error, unexpected MINUS, expecting LITERAL
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: CREATE TABLE names (id INTEGER(-1.5) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))";
 Error with syntax near (line 1, column 32):
 
+CREATE TABLE names (id INTEGER(15.5) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))";
+                               ^^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: CREATE TABLE names (id INTEGER(15.5) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))";
+Error with syntax near (line 1, column 37):
+
+CREATE TABLE names (id INTEGER('abcd') PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))";
+                                    ^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: CREATE TABLE names (id INTEGER('abcd') PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))";
+Error with syntax near (line 1, column 32):
+
 CREATE TABLE names (id INTEGER(abcd) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))";
                                ^^^^
 syntax error, unexpected IDENTIFIER_ALONE, expecting LITERAL
@@ -236,11 +246,31 @@ syntax error, unexpected MINUS, expecting LITERAL
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: CREATE TABLE names (id NUMERIC(-1.5) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))";
 Error with syntax near (line 1, column 32):
 
+CREATE TABLE names (id NUMERIC(15.5) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))";
+                               ^^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: CREATE TABLE names (id NUMERIC(15.5) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))";
+Error with syntax near (line 1, column 37):
+
+CREATE TABLE names (id NUMERIC('abcd') PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))";
+                                    ^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: CREATE TABLE names (id NUMERIC('abcd') PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))";
+Error with syntax near (line 1, column 32):
+
 CREATE TABLE names (id NUMERIC(abcd) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))";
                                ^^^^
 syntax error, unexpected IDENTIFIER_ALONE, expecting LITERAL
 
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: CREATE TABLE names (id NUMERIC(abcd) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))";
+Error with syntax near (line 1, column 36):
+
+CREATE TABLE names (id NUMERIC(127,85.5) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))";
+                                   ^^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: CREATE TABLE names (id NUMERIC(127,85.5) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))";
+Error with syntax near (line 1, column 34):
+
+CREATE TABLE names (id NUMERIC(0,100.87) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))";
+                                 ^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: CREATE TABLE names (id NUMERIC(0,100.87) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))";
 Error with syntax near (line 1, column 32):
 
 CREATE TABLE names (id NUMERIC(-1,20) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))";
@@ -255,6 +285,21 @@ CREATE TABLE names (id NUMERIC(-1.5,-2.5) PRIMARY KEY, firstName VARCHAR(30), la
 syntax error, unexpected MINUS, expecting LITERAL
 
 [ERROR] PATH:LINENUM DATE TIME : Error parsing statement: CREATE TABLE names (id NUMERIC(-1.5,-2.5) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))";
+Error with syntax near (line 1, column 32):
+
+CREATE TABLE names (id NUMERIC(15.5,20.835) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))";
+                               ^^^^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: CREATE TABLE names (id NUMERIC(15.5,20.835) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))";
+Error with syntax near (line 1, column 37):
+
+CREATE TABLE names (id NUMERIC('abcd',20.835) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))";
+                                    ^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: CREATE TABLE names (id NUMERIC('abcd',20.835) PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))";
+Error with syntax near (line 1, column 37):
+
+CREATE TABLE names (id NUMERIC('abcd','efgh') PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))";
+                                    ^
+[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: CREATE TABLE names (id NUMERIC('abcd','efgh') PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))";
 Error with syntax near (line 1, column 32):
 
 CREATE TABLE names (id NUMERIC(abcd,'efgh') PRIMARY KEY, firstName VARCHAR(30), lastName TEXT(30)) GLOBAL "^names(keys(""id""))";

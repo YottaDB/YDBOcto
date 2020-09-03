@@ -45,6 +45,7 @@ int emit_create_function(FILE *output, struct SqlStatement *stmt) {
 	SqlFunction *	      function;
 	SqlParameterTypeList *start_parameter_type, *cur_parameter_type;
 	SqlValue *	      function_name;
+	SqlDataType	      data_type;
 
 	if (stmt == NULL)
 		return 0;
@@ -60,14 +61,16 @@ int emit_create_function(FILE *output, struct SqlStatement *stmt) {
 			/* Note that size/precision modifiers are discarded for CREATE FUNCTION statements,
 			 * per https://www.postgresql.org/docs/current/sql-createfunction.html
 			 */
-			fprintf(output, " %s", get_type_string_from_sql_data_type(cur_parameter_type->data_type->v.data_type));
+			data_type = cur_parameter_type->data_type_struct->v.data_type_struct.data_type;
+			fprintf(output, " %s", get_type_string_from_sql_data_type(data_type));
 			cur_parameter_type = cur_parameter_type->next;
 			if (start_parameter_type != cur_parameter_type)
 				fprintf(output, ", ");
 		} while (start_parameter_type != cur_parameter_type);
 	}
 	fprintf(output, ") RETURNS ");
-	fprintf(output, "%s", get_type_string_from_sql_data_type(function->return_type->v.data_type));
+	data_type = function->return_type->v.data_type_struct.data_type;
+	fprintf(output, "%s", get_type_string_from_sql_data_type(data_type));
 	fprintf(output, " AS `%s`", function->extrinsic_function->v.value->v.string_literal);
 
 	fprintf(output, ";");

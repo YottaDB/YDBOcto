@@ -116,7 +116,7 @@ int store_table_in_pg_class(SqlTable *table, ydb_buffer_t *table_name_buffer) {
 		int   atttypid;
 		char *column_name;
 
-		switch (cur_column->type) {
+		switch (cur_column->data_type_struct.data_type) {
 		/* Below atttypid values were obtained from Postgres using the below query.
 		 *	`select typname,oid from pg_type where typname in ('numeric','int4','varchar','bool');`
 		 */

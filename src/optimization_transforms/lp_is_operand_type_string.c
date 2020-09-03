@@ -63,7 +63,7 @@ boolean_t lp_is_operand_type_string(LogicalPlan *plan) {
 					    ? cur_plan->v.lp_column_alias.column_alias
 					    : cur_plan->extra_detail.lp_derived_column.subquery_column_alias);
 			if (column_alias->column->type == column_STATEMENT) {
-				if (STRING_TYPE == column_alias->column->v.column->type) {
+				if (STRING_TYPE == column_alias->column->v.column->data_type_struct.data_type) {
 					ret = TRUE;
 				}
 			} else {

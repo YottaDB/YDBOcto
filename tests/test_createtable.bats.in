@@ -329,3 +329,16 @@ OCTO
 	verify_output TC031 output.txt
 }
 
+@test "TC033 : OCTO524 :  Maintain text based table definition of each column in sync with CREATE TABLE specification" {
+	cp @PROJECT_SOURCE_DIR@/tests/fixtures/TC033.sql .
+	echo "# Run [octo -f TC033.sql] to run lots of CREATE TABLE queries" > output.txt
+	octo -f TC033.sql >> output.txt 2>&1
+	echo "" >> output.txt
+	echo "# Run [mupip extract run.ext]" >> output.txt
+	$ydb_dist/mupip extract run.ext
+	echo "" >> output.txt
+	echo "# Verify text based table definition for all CREATE TABLE queries in TC033.sql" >> output.txt
+	grep -w "text" run.ext >> output.txt
+	verify_output TC033 output.txt
+}
+

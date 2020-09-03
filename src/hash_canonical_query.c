@@ -359,13 +359,16 @@ void hash_canonical_query(hash128_state_t *state, SqlStatement *stmt, int *statu
 		UNPACK_SQL_STATEMENT(parameter_type_list, stmt, parameter_type_list);
 		cur_parameter_type_list = parameter_type_list;
 		do {
-			assert(data_type_STATEMENT == cur_parameter_type_list->data_type->type);
+			SqlDataType data_type;
+
+			assert(data_type_struct_STATEMENT == cur_parameter_type_list->data_type_struct->type);
 			/* Convert the SQL data type to internal SqlValueType for compatibility with function call parameter types
 			 * inferred in populate_data_type. This conversion is acceptable here since the only purpose of hashing
 			 * these values at all is for matching function calls to previously CREATEd functions which may have
 			 * overloaded function names.
 			 */
-			ADD_INT_HASH(state, get_sqlvaluetype_from_sqldatatype(cur_parameter_type_list->data_type->v.data_type));
+			data_type = cur_parameter_type_list->data_type_struct->v.data_type_struct.data_type;
+			ADD_INT_HASH(state, get_sqlvaluetype_from_sqldatatype(data_type));
 			cur_parameter_type_list = cur_parameter_type_list->next;
 		} while (cur_parameter_type_list != parameter_type_list);
 		break;
@@ -464,7 +467,7 @@ void hash_canonical_query(hash128_state_t *state, SqlStatement *stmt, int *statu
 		ADD_INT_HASH(state, column_STATEMENT);
 		hash_canonical_query(state, column->columnName, status);
 		// SqlDataType
-		ADD_INT_HASH(state, column->type);
+		ADD_INT_HASH(state, column->data_type_struct.data_type);
 		hash_canonical_query(state, column->table, status);
 		hash_canonical_query(state, column->keywords, status);
 		break;

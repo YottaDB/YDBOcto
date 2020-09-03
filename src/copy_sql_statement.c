@@ -179,7 +179,7 @@ SqlStatement *copy_sql_statement(SqlStatement *stmt) {
 		ret->v.column_alias->column = copy_sql_statement(column_alias->column);
 		ret->v.column_alias->table_alias_stmt = copy_sql_statement(column_alias->table_alias_stmt);
 		break;
-	case data_type_STATEMENT:
+	case data_type_struct_STATEMENT:
 		*ret = *stmt;
 		break;
 	case keyword_STATEMENT:

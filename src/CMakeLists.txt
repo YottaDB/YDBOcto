@@ -226,6 +226,7 @@ add_library(libocto OBJECT
   parser/as_name.c
   parser/between_predicate.c
   parser/cast_specification.c
+  parser/data_type.c
   parser/derived_column.c
   parser/derived_table.c
   parser/grouping_column_reference.c

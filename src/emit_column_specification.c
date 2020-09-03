@@ -24,19 +24,55 @@ int emit_column_specification(char *buffer, int buffer_size, SqlColumn *cur_colu
 	char		    buffer2[MAX_STR_CONST];
 	UNPACK_SQL_STATEMENT(value, cur_column->columnName, value);
 	buff_ptr += snprintf(buff_ptr, buffer_size - (buff_ptr - buffer), "`%s`", value->v.reference);
-	switch (cur_column->type) {
+	switch (cur_column->data_type_struct.data_type) {
 	case BOOLEAN_TYPE:
+		/* For BOOLEAN, neither PRECISION nor SCALE apply. Assert that. */
+		assert(SIZE_OR_PRECISION_UNSPECIFIED == cur_column->data_type_struct.size_or_precision);
+		assert(SCALE_UNSPECIFIED == cur_column->data_type_struct.scale);
 		buff_ptr += snprintf(buff_ptr, buffer_size - (buff_ptr - buffer), " BOOLEAN");
 		break;
 	case INTEGER_TYPE:
+		/* For INTEGER, only PRECISION may apply. Assert that. */
+		assert(SCALE_UNSPECIFIED == cur_column->data_type_struct.scale);
 		buff_ptr += snprintf(buff_ptr, buffer_size - (buff_ptr - buffer), " INTEGER");
+		if (SIZE_OR_PRECISION_UNSPECIFIED != cur_column->data_type_struct.size_or_precision) {
+			/* SIZE was specified (e.g. INTEGER(8)). In that case, write out the "8" here */
+			buff_ptr += snprintf(buff_ptr, buffer_size - (buff_ptr - buffer), "(%d)",
+					     cur_column->data_type_struct.size_or_precision);
+		}
 		break;
 	case NUMERIC_TYPE:
+		/* For NUMERIC, both PRECISION and SCALE may apply. Check both. */
 		buff_ptr += snprintf(buff_ptr, buffer_size - (buff_ptr - buffer), " NUMERIC");
+		if (SIZE_OR_PRECISION_UNSPECIFIED != cur_column->data_type_struct.size_or_precision) {
+			if (SCALE_UNSPECIFIED != cur_column->data_type_struct.scale) {
+				/* PRECISION and SCALE were both specified (e.g. NUMERIC(8,4)).
+				 * In that case, write out the "(8,4)" here.
+				 */
+				buff_ptr
+				    += snprintf(buff_ptr, buffer_size - (buff_ptr - buffer), "(%d,%d)",
+						cur_column->data_type_struct.size_or_precision, cur_column->data_type_struct.scale);
+			} else {
+				/* Only PRECISION was specified (e.g. NUMERIC(8)).
+				 * In that case, write out the "(8)" here.
+				 */
+				buff_ptr += snprintf(buff_ptr, buffer_size - (buff_ptr - buffer), "(%d)",
+						     cur_column->data_type_struct.size_or_precision);
+			}
+		} else {
+			assert(SCALE_UNSPECIFIED == cur_column->data_type_struct.scale);
+			/* Neither PRECISION nor SCALE were specified. No need to write anything more. */
+		}
 		break;
 	case STRING_TYPE:
-		// We should determine the actual size based on the constraint
-		buff_ptr += snprintf(buff_ptr, buffer_size - (buff_ptr - buffer), " VARCHAR(%d)", PSQL_TypeOid_varchar);
+		/* For STRING, only SIZE may apply. Assert that. */
+		assert(SCALE_UNSPECIFIED == cur_column->data_type_struct.scale);
+		buff_ptr += snprintf(buff_ptr, buffer_size - (buff_ptr - buffer), " VARCHAR");
+		if (SIZE_OR_PRECISION_UNSPECIFIED != cur_column->data_type_struct.size_or_precision) {
+			/* SIZE was specified (e.g. VARCHAR(30)). In that case, write out the "30" here */
+			buff_ptr += snprintf(buff_ptr, buffer_size - (buff_ptr - buffer), "(%d)",
+					     cur_column->data_type_struct.size_or_precision);
+		}
 		break;
 	default:
 		ERROR(ERR_UNKNOWN_KEYWORD_STATE, "");
@@ -74,7 +110,7 @@ int emit_column_specification(char *buffer, int buffer_size, SqlColumn *cur_colu
 		case OPTIONAL_DELIM:
 			UNPACK_SQL_STATEMENT(value, cur_keyword->v, value);
 			m_escape_string2(buffer2, MAX_STR_CONST, value->v.reference);
-			buff_ptr += snprintf(buff_ptr, buffer_size - (buff_ptr - buffer), " GLOBAL \"%s\"", buffer2);
+			buff_ptr += snprintf(buff_ptr, buffer_size - (buff_ptr - buffer), " DELIM \"%s\"", buffer2);
 			break;
 		case OPTIONAL_KEY_NUM:
 			UNPACK_SQL_STATEMENT(value, cur_keyword->v, value);

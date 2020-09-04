@@ -109,6 +109,7 @@ void *decompress_statement_helper(SqlStatement *stmt, char *out, int out_length)
 			CALL_DECOMPRESS_HELPER(cur_column->columnName, out, out_length);
 			// Don't copy table
 			CALL_DECOMPRESS_HELPER(cur_column->keywords, out, out_length);
+			CALL_DECOMPRESS_HELPER(cur_column->delim, out, out_length);
 			if (0 == cur_column->next) {
 				cur_column->next = start_column;
 			} else {

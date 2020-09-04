@@ -20,6 +20,7 @@
 int emit_column_specification(char *buffer, int buffer_size, SqlColumn *cur_column) {
 	SqlValue *	    value;
 	SqlOptionalKeyword *cur_keyword, *start_keyword;
+	char		    ch, *delim;
 	char *		    buff_ptr = buffer;
 	char		    buffer2[MAX_STR_CONST];
 	UNPACK_SQL_STATEMENT(value, cur_column->columnName, value);
@@ -109,8 +110,19 @@ int emit_column_specification(char *buffer, int buffer_size, SqlColumn *cur_colu
 			break;
 		case OPTIONAL_DELIM:
 			UNPACK_SQL_STATEMENT(value, cur_keyword->v, value);
-			m_escape_string2(buffer2, MAX_STR_CONST, value->v.reference);
-			buff_ptr += snprintf(buff_ptr, buffer_size - (buff_ptr - buffer), " DELIM \"%s\"", buffer2);
+			delim = value->v.reference;
+			ch = *delim;
+			delim++; /* Skip first byte to get actual delimiter */
+			assert((DELIM_IS_DOLLAR_CHAR == ch) || (DELIM_IS_LITERAL == ch));
+			if (DELIM_IS_LITERAL == ch) {
+				m_escape_string2(buffer2, MAX_STR_CONST, delim);
+				buff_ptr += snprintf(buff_ptr, buffer_size - (buff_ptr - buffer), " DELIM \"%s\"", buffer2);
+			} else {
+				assert(!MEMCMP_LIT(delim, "$CHAR(")); /* this is added in parser.y */
+				delim += sizeof("$CHAR") - 1;	      /* Skip "$CHAR" */
+				buff_ptr += snprintf(buff_ptr, buffer_size - (buff_ptr - buffer), " DELIM %s", delim);
+			}
+			cur_column->delim = cur_keyword->v;
 			break;
 		case OPTIONAL_KEY_NUM:
 			UNPACK_SQL_STATEMENT(value, cur_keyword->v, value);

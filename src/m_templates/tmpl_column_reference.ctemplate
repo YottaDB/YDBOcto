@@ -28,7 +28,7 @@ TEMPLATE(tmpl_column_reference, PhysicalPlan *pplan, SqlColumnAlias *column_alia
 	SqlColumnList			*column_list;
 	SqlOptionalKeyword		*keyword;
 	SqlKey				*key;
-	char				*table_name, *table_delim, *nullchar;
+	char				*table_name, *delim, *nullchar;
 	char				*not_nullchar = "-1";
 	char				*piece = NULL, *source;
 	unsigned int			i;
@@ -78,14 +78,19 @@ TEMPLATE(tmpl_column_reference, PhysicalPlan *pplan, SqlColumnAlias *column_alia
 	UNPACK_SQL_STATEMENT(value, table->tableName, value);
 	table_name = value->v.string_literal;
 	is_dollar_char = FALSE;
-	if (table->delim) {
+	if (column->delim) {
+		UNPACK_SQL_STATEMENT(value, column->delim, value);
+		delim = value->v.string_literal;
+		is_dollar_char = (DELIM_IS_DOLLAR_CHAR == delim[0] ? TRUE : FALSE);
+		delim = &value->v.string_literal[1];
+	} else if (table->delim) {
 		UNPACK_SQL_STATEMENT(keyword, table->delim, keyword);
 		UNPACK_SQL_STATEMENT(value, keyword->v, value);
-		table_delim = value->v.string_literal;
-		is_dollar_char = (DELIM_IS_DOLLAR_CHAR == table_delim[0] ? TRUE : FALSE);
-		table_delim = &value->v.string_literal[1];
+		delim = value->v.string_literal;
+		is_dollar_char = (DELIM_IS_DOLLAR_CHAR == delim[0] ? TRUE : FALSE);
+		delim = &value->v.string_literal[1];
 	} else {
-		table_delim = (is_trigger ? NULL : COLUMN_DELIMITER);
+		delim = (is_trigger ? NULL : COLUMN_DELIMITER);
 	}
 	/* Optimization : If the column is a key column, use key rather than column value when possible.
 	 * Update: It turns out that this is not just an optimization but a necessity since key columns
@@ -160,20 +165,20 @@ TEMPLATE(tmpl_column_reference, PhysicalPlan *pplan, SqlColumnAlias *column_alia
 	if (!is_trigger) {
 		if (!skip_dollar_piece) {
 			if (is_dollar_char) {
-				%{}),{{ table_delim }},{{ piece }}){}%
+				%{}),{{ delim }},{{ piece }}){}%
 			} else {
-				%{}),"{{ table_delim }}",{{ piece }}){}%
+				%{}),"{{ delim }}",{{ piece }}){}%
 			}
 		}
 		if ((skip_dollar_piece) || (FALSE == is_xref)) {
 			%{}){}%
 		}
 	} else {
-		if (NULL != table_delim) {
+		if (NULL != delim) {
 			if (is_dollar_char) {
-				%{} -delim={{ table_delim }} -pieces=""{{ piece }}""{}%
+				%{} -delim={{ delim }} -pieces=""{{ piece }}""{}%
 			} else {
-				%{} -delim=""{{ table_delim }}"" -pieces=""{{ piece }}""{}%
+				%{} -delim=""{{ delim }}"" -pieces=""{{ piece }}""{}%
 			}
 		}
 	}

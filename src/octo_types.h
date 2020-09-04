@@ -361,6 +361,7 @@ typedef struct SqlColumn {
 	struct SqlDataTypeStruct data_type_struct;
 	int			 column_number;
 	struct SqlStatement *	 table;
+	struct SqlStatement *	 delim;
 	struct SqlStatement *	 keywords;
 	/* Below field ("pre_qualified_cla") is initialized/usable only if "type" field above is UNKNOWN_SqlDataType.
 	 * It is needed after parsing starts to handle a column that came in from a sub-query before when the sub-query

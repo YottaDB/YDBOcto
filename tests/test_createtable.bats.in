@@ -367,3 +367,11 @@ OCTO
 	cat _ydboctoP*.m >> output.txt
 	verify_output $testname output.txt
 }
+
+@test "TC035 : OCTO483 : CREATE TABLE allows column-level DELIM qualifier" {
+	# Load fixture with rows delimited by non-printable characters (TAB)
+	testname="TC035"
+	load_fixture $testname.zwr
+	load_fixture $testname.sql subtest novv
+	verify_output $testname output.txt
+}

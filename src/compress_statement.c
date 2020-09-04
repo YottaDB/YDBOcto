@@ -167,6 +167,7 @@ void *compress_statement_helper(SqlStatement *stmt, char *out, int *out_length) 
 			*out_length += sizeof(SqlColumn);
 			CALL_COMPRESS_HELPER(r, cur_column->columnName, new_column->columnName, out, out_length);
 			CALL_COMPRESS_HELPER(r, cur_column->keywords, new_column->keywords, out, out_length);
+			CALL_COMPRESS_HELPER(r, cur_column->delim, new_column->delim, out, out_length);
 			cur_column = cur_column->next;
 			if ((NULL != out) && (cur_column != start_column)) {
 				new_column->next = ((void *)&out[*out_length]);

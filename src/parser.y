@@ -1186,7 +1186,50 @@ optional_keyword_element
       ($$)->v.keyword->v = $literal_value;
       dqinit(($$)->v.keyword);
     }
-  | DELIM literal_value {
+  | delim_specification { $$ = $delim_specification; }
+  | NULLCHAR LEFT_PAREN literal_value RIGHT_PAREN {
+	SqlStatement		*literal;
+	SqlValueType		type;
+	long			nullchar_int;
+	char			*str_lit, *end_ptr;
+
+	literal = $literal_value;
+	type = literal->v.value->type;
+	str_lit = literal->v.value->v.string_literal;
+	/* We should only accept integer arguments for subsequent call to $CHAR, however
+	 * the lexer returns NUMERICs even if an integer is passed. To account for this,
+	 * we confirm NUMERIC here, then check the result of strtol below to confirm that
+	 * the value was in fact an integer.
+	 */
+	if (NUMERIC_LITERAL != type) {
+		ERROR(ERR_TYPE_NOT_COMPATIBLE, get_user_visible_type_string(type), "column DELIM specification");
+		yyerror(&yyloc, NULL, NULL, NULL, NULL, NULL);
+		YYERROR;
+	}
+	nullchar_int = strtol(str_lit, &end_ptr, 10);
+	// Reuse DELIM_MAX as NULLCHAR is also restricted to 7-bit ASCII characters
+	if ((ERANGE == errno) || (0 > nullchar_int) || (DELIM_MAX < nullchar_int)) {
+		ERROR(ERR_INVALID_KEYWORD_CHAR, nullchar_int, "NULLCHAR");
+		yyerror(&yyloc, NULL, NULL, NULL, NULL, NULL);
+		YYERROR;
+	}
+	// Confirm that the value passed was in fact an INTEGER and not NUMERIC. Check based off of `man strtol`.
+	if (!(('\0' != str_lit[0]) && ('\0' == *end_ptr))) {
+		ERROR(ERR_TYPE_NOT_COMPATIBLE, "NUMERIC", "NULLCHAR specification");
+		yyerror(&yyloc, NULL, NULL, NULL, NULL, NULL);
+		YYERROR;
+	}
+
+	SQL_STATEMENT($$, keyword_STATEMENT);
+        MALLOC_STATEMENT($$, keyword, SqlOptionalKeyword);
+	($$)->v.keyword->keyword = OPTIONAL_NULLCHAR;
+	($$)->v.keyword->v = literal;
+	dqinit(($$)->v.keyword);
+  }
+  ;
+
+delim_specification
+  : DELIM literal_value {
 	char	*with_flag_byte, *str_lit;
 	size_t	length;
 
@@ -1263,45 +1306,6 @@ optional_keyword_element
 	($$)->v.keyword->v = char_list_literal;
 	dqinit(($$)->v.keyword);
     }
-  | NULLCHAR LEFT_PAREN literal_value RIGHT_PAREN {
-	SqlStatement		*literal;
-	SqlValueType		type;
-	long			nullchar_int;
-	char			*str_lit, *end_ptr;
-
-	literal = $literal_value;
-	type = literal->v.value->type;
-	str_lit = literal->v.value->v.string_literal;
-	/* We should only accept integer arguments for subsequent call to $CHAR, however
-	 * the lexer returns NUMERICs even if an integer is passed. To account for this,
-	 * we confirm NUMERIC here, then check the result of strtol below to confirm that
-	 * the value was in fact an integer.
-	 */
-	if (NUMERIC_LITERAL != type) {
-		ERROR(ERR_TYPE_NOT_COMPATIBLE, get_user_visible_type_string(type), "column DELIM specification");
-		yyerror(&yyloc, NULL, NULL, NULL, NULL, NULL);
-		YYERROR;
-	}
-	nullchar_int = strtol(str_lit, &end_ptr, 10);
-	// Reuse DELIM_MAX as NULLCHAR is also restricted to 7-bit ASCII characters
-	if ((ERANGE == errno) || (0 > nullchar_int) || (DELIM_MAX < nullchar_int)) {
-		ERROR(ERR_INVALID_KEYWORD_CHAR, nullchar_int, "NULLCHAR");
-		yyerror(&yyloc, NULL, NULL, NULL, NULL, NULL);
-		YYERROR;
-	}
-	// Confirm that the value passed was in fact an INTEGER and not NUMERIC. Check based off of `man strtol`.
-	if (!(('\0' != str_lit[0]) && ('\0' == *end_ptr))) {
-		ERROR(ERR_TYPE_NOT_COMPATIBLE, "NUMERIC", "NULLCHAR specification");
-		yyerror(&yyloc, NULL, NULL, NULL, NULL, NULL);
-		YYERROR;
-	}
-
-	SQL_STATEMENT($$, keyword_STATEMENT);
-        MALLOC_STATEMENT($$, keyword, SqlOptionalKeyword);
-	($$)->v.keyword->keyword = OPTIONAL_NULLCHAR;
-	($$)->v.keyword->v = literal;
-	dqinit(($$)->v.keyword);
-  }
   ;
 
 delim_char_list
@@ -1403,6 +1407,7 @@ column_definition
 	($$)->v.column->columnName = $column_name;
 	($$)->v.column->data_type_struct = $data_type->v.data_type_struct;
 	($$)->v.column->keywords = $column_definition_tail;
+	($$)->v.column->delim = NULL;
     }
 //  | more stuff
   ;
@@ -1469,17 +1474,7 @@ column_definition_tail
        UNPACK_SQL_STATEMENT(keyword, $3, keyword);
        dqappend(keyword, ($$)->v.keyword);
     }
-  | DELIM literal_value column_definition_tail {
-       SQL_STATEMENT($$, keyword_STATEMENT);
-       MALLOC_STATEMENT($$, keyword, SqlOptionalKeyword);
-       ($$)->v.keyword->keyword = OPTIONAL_DELIM;
-       ($$)->v.keyword->v = $literal_value;
-       dqinit(($$)->v.keyword);
-
-       SqlOptionalKeyword *keyword;
-       UNPACK_SQL_STATEMENT(keyword, $3, keyword);
-       dqappend(keyword, ($$)->v.keyword);
-     }
+  | delim_specification column_definition_tail { $$ = $delim_specification; }
   | GLOBAL literal_value column_definition_tail {
        SQL_STATEMENT($$, keyword_STATEMENT);
        MALLOC_STATEMENT($$, keyword, SqlOptionalKeyword);

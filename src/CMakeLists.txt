@@ -432,18 +432,10 @@ set(aux_files
   aux/_ydboctoDiscard.m
   aux/_ydboctoInit.m
   aux/_ydboctoUtils.m
-  aux/_ydboctocurrentSchema.m
-  aux/_ydboctopgCurrentSchemas.m
-  aux/_ydboctopgGetExpr.m
-  aux/_ydboctopgObjDescription.m
-  aux/_ydboctopgRowNumber.m
+  aux/_ydboctopgfunctions.m
   aux/_ydboctoplanhelpers.m
-  aux/_ydboctoreplace.m
   aux/_ydboctoselect.m
   aux/_ydboctosqlfunctions.m
-  aux/_ydboctoversion.m
-  aux/_ydboctopgTableIsVisible.m
-  aux/_ydboctopgGetUserbyid.m
 )
 add_library(_ydbocto SHARED ${aux_files})
 set_target_properties(_ydbocto PROPERTIES PREFIX "")

@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -200,6 +200,85 @@ CREATE TABLE pg_catalog.pg_attrdef (
  oid INTEGER primary key
 ) GLOBAL "^%ydboctoocto(""tables"",""pg_catalog"",""pg_attrdef"",keys(""oid"")";
 
+/* Stores information on run-time parameters. Acts as an alternative interface for SET and SHOW commands
+ * Derived from https://www.postgresql.org/docs/11/view-pg-settings.html
+ *
+ * Note that this table definition is just a stub, principally for preventing syntax errors, and so remains
+ * to be fully implemented/supported (#597).
+ */
+CREATE TABLE pg_catalog.pg_settings (
+ name VARCHAR primary key,
+ setting VARCHAR,
+ unit VARCHAR,
+ category VARCHAR,
+ short_desc VARCHAR,
+ extra_desc VARCHAR,
+ context VARCHAR,
+ vartype VARCHAR,
+ source VARCHAR,
+ min_val VARCHAR,
+ enumvals VARCHAR,
+ boot_val VARCHAR,
+ reset_val VARCHAR,
+ sourcefile VARCHAR,
+ sourceline INTEGER,
+ pending_restart BOOLEAN
+) GLOBAL "^%ydboctoocto(""tables"",""pg_catalog"",""pg_settings"",keys(""name"")";
+
+/* Note that this table definition is just a stub, principally for preventing syntax errors, and so remains
+ * to be fully implemented/supported (YDBOcto#588).
+ */
+CREATE TABLE pg_catalog.pg_database (
+ datname VARCHAR,
+ datdba INTEGER,
+ encoding INTEGER,
+ datcollate VARCHAR,
+ datctype VARCHAR,
+ datistemplate BOOLEAN,
+ datallowconn BOOLEAN,
+ datconnlimit INTEGER,
+ datlastsysoid INTEGER,
+ datfrozenxid INTEGER,
+ datminmxid INTEGER,
+ dattablespace INTEGER,
+ datacl INTEGER,
+ oid INTEGER primary key
+) GLOBAL "^%ydboctoocto(""tables"",""pg_catalog"",""pg_database"",keys(""oid"")";
+
+/* TODO: This table definition is just a stub, principally for preventing syntax errors, and so remains
+ * to be fully implemented/supported per YDBOcto#661.
+ */
+CREATE TABLE pg_catalog.pg_roles (
+	rolname VARCHAR,
+	rolsuper BOOLEAN,
+	rolinherit BOOLEAN,
+	rolcreaterole BOOLEAN,
+	rolcreatedb BOOLEAN,
+	rolcanlogin BOOLEAN,
+	rolreplication BOOLEAN,
+	rolconnlimit INTEGER,
+	rolpassword VARCHAR,
+	rolvaliduntil VARCHAR,
+	rolbypassrls BOOLEAN,
+	rolconfig VARCHAR,
+	oid INTEGER PRIMARY KEY
+) GLOBAL "^%ydboctoocto(""tables"",""pg_catalog"",""pg_roles"",keys(""oid"")";
+
+/* TODO: This table definition is just a stub, principally for preventing syntax errors, and so remains
+ * to be fully implemented/supported per YDBOcto#662.
+ */
+CREATE TABLE pg_catalog.pg_user (
+	usename VARCHAR,
+	usersysid INTEGER PRIMARY KEY,
+	usecreatedb BOOLEAN,
+	usesuper BOOLEAN,
+	userepl BOOLEAN,
+	usebypassrls BOOLEAN,
+	passwd VARCHAR,
+	valuntil VARCHAR,
+	userconfig VARCHAR
+) GLOBAL "^%ydboctoocto(""tables"",""pg_catalog"",""pg_user"",keys(""usersysid"")";
+
 CREATE TABLE users (
   oid INTEGER,
   rolname VARCHAR KEY NUM 0,
@@ -223,6 +302,11 @@ CREATE TABLE users (
  */
 CREATE FUNCTION ABS(NUMERIC) RETURNS NUMERIC AS $$ABS^%ydboctosqlfunctions;
 CREATE FUNCTION ABS(INTEGER) RETURNS NUMERIC AS $$ABS^%ydboctosqlfunctions;
+/* Note that PostgreSQL CONCAT accepts a variable number of arguments. Since Octo doesn't support this,
+ * just use the number currently required by clients (i.e. BeeKeeper).
+ */
+CREATE FUNCTION CONCAT(VARCHAR, VARCHAR) RETURNS VARCHAR AS $$CONCAT^%ydboctosqlfunctions;
+CREATE FUNCTION CONCAT(VARCHAR, VARCHAR, VARCHAR) RETURNS VARCHAR AS $$CONCAT^%ydboctosqlfunctions;
 /* This only implements the 2-argument version of ROUND, since Octo doesn't support function overloading. */
 CREATE FUNCTION ROUND(NUMERIC, INTEGER) RETURNS NUMERIC AS $$ROUND^%ydboctosqlfunctions;
 CREATE FUNCTION ROUND(INTEGER, INTEGER) RETURNS NUMERIC AS $$ROUND^%ydboctosqlfunctions;
@@ -236,13 +320,41 @@ CREATE FUNCTION TRUNC(INTEGER, INTEGER) RETURNS NUMERIC AS $$TRUNC^%ydboctosqlfu
  * Note that REPLACE is not currently implemented and the matching M routine is an empty placeholder that
  * simply returns the first argument passed to it.
  */
-CREATE FUNCTION REPLACE(VARCHAR, VARCHAR, VARCHAR) RETURNS VARCHAR AS $$^%ydboctoreplace;
-CREATE FUNCTION ROW_NUMBER() RETURNS INTEGER AS $$^%ydboctopgRowNumber;
-CREATE FUNCTION VERSION() RETURNS VARCHAR AS $$^%ydboctoversion;
+CREATE FUNCTION REPLACE(VARCHAR, VARCHAR, VARCHAR) RETURNS VARCHAR AS $$REPLACE^%ydboctosqlfunctions;
+CREATE FUNCTION ROW_NUMBER() RETURNS INTEGER AS $$pgRowNumber^%ydboctopgfunctions;
+/* Set a runtime variable to the specified value*/
+CREATE FUNCTION SET_CONFIG(VARCHAR, VARCHAR, BOOLEAN) RETURNS VARCHAR AS $$setConfig^%ydboctopgfunctions;
+CREATE FUNCTION VERSION() RETURNS VARCHAR AS $$VERSION^%ydboctosqlfunctions;
 
-CREATE FUNCTION CURRENT_SCHEMA() RETURNS VARCHAR AS $$^%ydboctocurrentSchema;
-CREATE FUNCTION PG_CATALOG.CURRENT_SCHEMAS(BOOLEAN) RETURNS VARCHAR AS $$^%ydboctopgCurrentSchemas;
-CREATE FUNCTION PG_CATALOG.OBJ_DESCRIPTION(INTEGER, VARCHAR) RETURNS VARCHAR AS $$^%ydboctopgObjDescription;
-CREATE FUNCTION PG_CATALOG.PG_GET_EXPR(VARCHAR, INTEGER) RETURNS VARCHAR AS $$^%ydboctopgGetExpr;
-CREATE FUNCTION PG_CATALOG.PG_TABLE_IS_VISIBLE(INTEGER) RETURNS BOOLEAN AS $$^%ydboctopgTableIsVisible;
-CREATE FUNCTION PG_CATALOG.PG_GET_USERBYID(INTEGER) RETURNS VARCHAR AS $$^%ydboctopgGetUserbyid;
+CREATE FUNCTION PG_CATALOG.PG_TABLE_IS_VISIBLE(INTEGER) RETURNS BOOLEAN AS $$pgTableIsVisible^%ydboctopgfunctions;
+CREATE FUNCTION PG_CATALOG.PG_GET_USERBYID(INTEGER) RETURNS VARCHAR AS $$pgGetUserById^%ydboctopgfunctions;
+
+CREATE FUNCTION CURRENT_SCHEMA() RETURNS VARCHAR AS $$pgCurrentSchema^%ydboctopgfunctions;
+CREATE FUNCTION CURRENT_DATABASE() RETURNS VARCHAR AS $$pgCurrentDatabase^%ydboctopgfunctions;
+CREATE FUNCTION CURRENT_CATALOG() RETURNS VARCHAR AS $$pgCurrentCatalog^%ydboctopgfunctions;
+/* Octo does not currently distinguish between various types of users,
+ * nor does it distinguish between roles. Accordingly, the same extrinsic
+ * function is used for the below cases.
+ */
+CREATE FUNCTION CURRENT_ROLE() RETURNS VARCHAR AS $$pgUser^%ydboctopgfunctions;
+CREATE FUNCTION CURRENT_USER() RETURNS VARCHAR AS $$pgUser^%ydboctopgfunctions;
+CREATE FUNCTION SESSION_USER() RETURNS VARCHAR AS $$pgUser^%ydboctopgfunctions;
+CREATE FUNCTION USER() RETURNS VARCHAR AS $$pgUser^%ydboctopgfunctions;
+CREATE FUNCTION PG_CATALOG.CURRENT_SCHEMAS(BOOLEAN) RETURNS VARCHAR AS $$pgCurrentSchemas^%ydboctopgfunctions;
+CREATE FUNCTION PG_CATALOG.OBJ_DESCRIPTION(INTEGER, VARCHAR) RETURNS VARCHAR AS $$pgObjDescription^%ydboctopgfunctions;
+CREATE FUNCTION PG_CATALOG.PG_BACKEND_PID() RETURNS VARCHAR AS $$pgBackendPid^%ydboctopgfunctions;
+CREATE FUNCTION PG_CATALOG.PG_GET_EXPR(VARCHAR, INTEGER) RETURNS VARCHAR AS $$pgGetExpr^%ydboctopgfunctions;
+/* Until pg_database is fully implemented (#417) this will always return "SQL_ASCII" */
+CREATE FUNCTION PG_ENCODING_TO_CHAR(INTEGER) RETURNS VARCHAR AS $$pgEncodingToChar^%ydboctopgfunctions;
+/* Return true if database is currently recovering from a backup.
+ * Since this feature is not implemented in Octo, this function will always return false.
+ */
+CREATE FUNCTION PG_IS_IN_RECOVERY() RETURNS BOOLEAN AS $$pgIsInRecover^%ydboctopgfunctions;
+/* Return true if database recovery is currently paused.
+ * Since this feature is not implemented in Octo, this function will always return false.
+ */
+CREATE FUNCTION PG_IS_XLOG_REPLAY_PAUSED() RETURNS BOOLEAN AS $$pgIsXlogReplayPaused^%ydboctopgfunctions;
+/* Until pg_database is fully implemented (#417) this will always return "SQL_ASCII" */
+/* Since Octo currently does not implement privileges, the following always return TRUE */
+CREATE FUNCTION HAS_DATABASE_PRIVILEGE(INTEGER, VARCHAR) RETURNS BOOLEAN AS $$pgHasDatabasePrivilege^%ydboctopgfunctions;
+CREATE FUNCTION HAS_DATABASE_PRIVILEGE(VARCHAR, VARCHAR, VARCHAR) RETURNS BOOLEAN AS $$pgHasDatabasePrivilege^%ydboctopgfunctions;

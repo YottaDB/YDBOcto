@@ -13,7 +13,7 @@ LP_SELECT_QUERY:
           LP_VALUE: 'CURRENT_SCHEMA'
           LP_COLUMN_LIST: 
             LP_VALUE: '%ydboctoF7yBPpHADmM4I1Qc1HDQe5K'
-            LP_VALUE: '$$^%ydboctocurrentSchema'
+            LP_VALUE: '$$pgCurrentSchema^%ydboctopgfunctions'
             LP_VALUE: 'VARCHAR'
         LP_COLUMN_LIST_ALIAS: 
         - type: STRING_LITERAL
@@ -45,7 +45,7 @@ LP_SELECT_QUERY:
           LP_VALUE: 'CURRENT_SCHEMA'
           LP_COLUMN_LIST: 
             LP_VALUE: '%ydboctoF7yBPpHADmM4I1Qc1HDQe5K'
-            LP_VALUE: '$$^%ydboctocurrentSchema'
+            LP_VALUE: '$$pgCurrentSchema^%ydboctopgfunctions'
             LP_VALUE: 'VARCHAR'
         LP_COLUMN_LIST_ALIAS: 
         - type: STRING_LITERAL
@@ -174,7 +174,7 @@ LP_SELECT_QUERY:
           LP_VALUE: 'REPLACE'
           LP_COLUMN_LIST: 
             LP_VALUE: '%ydboctoFrvGFWZceNJDlLJu4e6S5I1'
-            LP_VALUE: '$$^%ydboctoreplace'
+            LP_VALUE: '$$REPLACE^%ydboctosqlfunctions'
             LP_VALUE: 'VARCHAR'
             LP_CONCAT: 
               LP_VALUE: 'abcd'
@@ -211,7 +211,7 @@ LP_SELECT_QUERY:
           LP_VALUE: 'REPLACE'
           LP_COLUMN_LIST: 
             LP_VALUE: '%ydboctoFrvGFWZceNJDlLJu4e6S5I1'
-            LP_VALUE: '$$^%ydboctoreplace'
+            LP_VALUE: '$$REPLACE^%ydboctosqlfunctions'
             LP_VALUE: 'VARCHAR'
             LP_CONCAT: 
               LP_VALUE: 'abcd'

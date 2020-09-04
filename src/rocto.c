@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -432,6 +432,13 @@ int main(int argc, char **argv) {
 		session_id_buffer = &(ydb_buffers[1]);
 		YDB_STRING_TO_BUFFER(config->global_names.session, session_buffer);
 		YDB_MALLOC_BUFFER(session_id_buffer, INT64_TO_STRING_MAX);
+		/* Currently, the session_id will always be 1, since this incrementation is performed by each rocto server process
+		 * *after* it is spawned from the parent "listener" process. This is acceptable as Octo currently has no
+		 * session-specific functionality. However, PostgreSQL does have such functionality (see
+		 * https://www.postgresql.org/docs/11/functions-info.html), so Octo may need to support
+		 * this in the future. Accordingly, this code is retained in the hope that it will be useful if session-specific
+		 * functionality ever becomes necessary.
+		 */
 		status = ydb_incr_s(session_buffer, 0, NULL, NULL, session_id_buffer);
 		YDB_ERROR_CHECK(status);
 		if (YDB_OK != status) {

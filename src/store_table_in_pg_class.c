@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -70,11 +70,8 @@ int store_table_in_pg_class(SqlTable *table, ydb_buffer_t *table_name_buffer) {
 	// Extract the table name
 	UNPACK_SQL_STATEMENT(value, table->tableName, value);
 	table_name = value->v.string_literal;
-	// Convert table name fo uppercase
-	while ('\0' != *table_name) {
-		*table_name = toupper(*table_name);
-		table_name++;
-	}
+	// Convert table name to uppercase
+	TOUPPER_STR(table_name);
 	table_name = value->v.string_literal;
 	/* These are hard-coded magic values related to the Postgres catalog.
 	 * Columns of `pg_catalog.pg_class` table in `tests/fixtures/postgres.sql`.
@@ -150,10 +147,7 @@ int store_table_in_pg_class(SqlTable *table, ydb_buffer_t *table_name_buffer) {
 		UNPACK_SQL_STATEMENT(value, cur_column->columnName, value);
 		column_name = value->v.string_literal;
 		// Convert name to upper case
-		while ('\0' != *column_name) {
-			*column_name = toupper(*column_name);
-			column_name++;
-		}
+		TOUPPER_STR(column_name);
 		column_name = value->v.string_literal;
 		/* Store table oid, column name, type,
 		 * These are hard-coded magic values related to the Postgres catalog
@@ -183,6 +177,10 @@ int store_table_in_pg_class(SqlTable *table, ydb_buffer_t *table_name_buffer) {
 		/* Store a cross reference of the COLUMNOID in ^%ydboctoschema.
 		 *	i.e. SET^ %ydboctoschema(TABLENAME,OCTOLIT_PG_ATTRIBUTE,COLUMNNAME)=COLUMNOID
 		 */
+		column_name = value->v.string_literal;
+		// Convert name to upper case
+		TOUPPER_STR(column_name);
+		column_name = value->v.string_literal;
 		YDB_STRING_TO_BUFFER(column_name, &pg_attribute_schema[2]);
 		status = ydb_set_s(&schema_global, 3, &pg_attribute_schema[0], &pg_attribute[4]);
 		YDB_ERROR_CHECK(status);

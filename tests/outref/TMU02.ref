@@ -22,6 +22,9 @@
 %ydboctoexpr=101
 %ydboctoexpr=3
 %ydboctoexpr=3
+%ydboctosession("user")="USER"
+%ydboctosession("user")="USER"
+%ydboctosession("user")="USER"
 %ydboctosession(1,"bound","")="SELECT * FROM OrderDetails WHERE OrderDetailID = 101"
 %ydboctosession(1,"bound","")="SELECT * FROM OrderDetails WHERE OrderDetailID = 3"
 %ydboctosession(1,"bound","")="SELECT * FROM Shippers WHERE ShipperID = 3"
@@ -94,9 +97,9 @@
 %ydboctosession(1,"variables","is_superuser")="on"
 %ydboctosession(1,"variables","is_superuser")="on"
 %ydboctosession(1,"variables","is_superuser")="on"
-%ydboctosession(1,"variables","server_encoding")="UTF8"
-%ydboctosession(1,"variables","server_encoding")="UTF8"
-%ydboctosession(1,"variables","server_encoding")="UTF8"
+%ydboctosession(1,"variables","server_encoding")="SQL_ASCII"
+%ydboctosession(1,"variables","server_encoding")="SQL_ASCII"
+%ydboctosession(1,"variables","server_encoding")="SQL_ASCII"
 %ydboctosession(1,"variables","server_version")="9.6.5"
 %ydboctosession(1,"variables","server_version")="9.6.5"
 %ydboctosession(1,"variables","server_version")="9.6.5"

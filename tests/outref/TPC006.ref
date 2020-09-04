@@ -1,5 +1,5 @@
 select * from names where id = 7;
- ID | FIRSTNAME | LASTNAME 
+ id | firstname | lastname 
 ----+-----------+----------
 (0 rows)
 

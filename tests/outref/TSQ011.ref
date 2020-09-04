@@ -5,6 +5,8 @@ select proname,typname from pg_catalog.pg_proc inner join pg_catalog.pg_type on 
 PRONAME|TYPNAME
 ABS|numeric
 ABS|numeric
+CONCAT|varchar
+CONCAT|varchar
 ROUND|numeric
 ROUND|numeric
 TRUNC|numeric
@@ -13,16 +15,30 @@ TRUNC|numeric
 TRUNC|numeric
 REPLACE|varchar
 ROW_NUMBER|int4
+SET_CONFIG|varchar
 VERSION|varchar
-CURRENT_SCHEMA|varchar
-PG_CATALOG.CURRENT_SCHEMAS|varchar
-PG_CATALOG.OBJ_DESCRIPTION|varchar
-PG_CATALOG.PG_GET_EXPR|varchar
 PG_CATALOG.PG_TABLE_IS_VISIBLE|bool
 PG_CATALOG.PG_GET_USERBYID|varchar
-CURRENT_SCHEMAS|varchar
-OBJ_DESCRIPTION|varchar
-PG_GET_EXPR|varchar
+CURRENT_SCHEMA|varchar
+CURRENT_DATABASE|varchar
+CURRENT_CATALOG|varchar
+CURRENT_ROLE|varchar
+CURRENT_USER|varchar
+SESSION_USER|varchar
+USER|varchar
+PG_CATALOG.CURRENT_SCHEMAS|varchar
+PG_CATALOG.OBJ_DESCRIPTION|varchar
+PG_CATALOG.PG_BACKEND_PID|varchar
+PG_CATALOG.PG_GET_EXPR|varchar
 PG_TABLE_IS_VISIBLE|bool
 PG_GET_USERBYID|varchar
-(22 rows)
+CURRENT_SCHEMAS|varchar
+OBJ_DESCRIPTION|varchar
+PG_BACKEND_PID|varchar
+PG_GET_EXPR|varchar
+PG_ENCODING_TO_CHAR|varchar
+PG_IS_IN_RECOVERY|bool
+PG_IS_XLOG_REPLAY_PAUSED|bool
+HAS_DATABASE_PRIVILEGE|bool
+HAS_DATABASE_PRIVILEGE|bool
+(38 rows)

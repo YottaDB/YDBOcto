@@ -67,6 +67,13 @@ int __wrap_ydb_get_s(ydb_buffer_t *varname, int32_t subs_used, ydb_buffer_t *sub
 	return mock_type(int);
 }
 
+int __wrap_ydb_set_s(ydb_buffer_t *varname, int subs_used, ydb_buffer_t *subsarray, ydb_buffer_t *value) {
+	if (0 == strncmp(varname->buf_addr, "$ZGBLDIR", varname->len_used)) {
+		return 0;
+	}
+	return mock_type(int);
+}
+
 uint32_t __wrap_get_user_column_value(char *buffer, const uint32_t buf_len, const char *row, const uint32_t row_len,
 				      enum UserColumns column) {
 	strncpy(buffer, mock_type(char *), buf_len);
@@ -285,6 +292,7 @@ static void test_error_user_info_lookup(void **state) {
 	int32_t result = handle_password_message(password_message, startup_message, salt);
 	assert_int_equal(result, 1);
 
+	YDB_FREE_BUFFER(&user_info_subs);
 	free(password_message);
 	free(startup_message->parameters);
 	free(startup_message);

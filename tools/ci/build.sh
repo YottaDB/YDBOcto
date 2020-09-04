@@ -73,6 +73,7 @@ fi
 if [[ "test-auto-upgrade" != $jobname ]]; then
   # Enable valgrind when running tests. This has less than a 30 second slowdown out of a 35 minute build.
   ctestCommand="$ctestCommand -T memcheck"
+  use_valgrind=1
 fi
 echo " -> ctestCommand = $ctestCommand"
 
@@ -881,7 +882,11 @@ if [[ 0 != $exit_status ]]; then
 		echo "# ----------------------------------------------------------"
 		echo "# List of failed tests/subtests and their output directories"
 		echo "# ----------------------------------------------------------"
-		grep -A 6 -E "not ok|Test: " Testing/Temporary/LastTest.log | grep -E "not ok|# Temporary|Test: " | grep -C 1 "not ok" | sed "s/^not/  &/;s/^#/  &/"
+		if [[ -z Testing/Temporary/LastTest.log ]]; then
+			grep -A 6 -E "not ok|Test: " Testing/Temporary/LastTest.log | grep -E "not ok|# Temporary|Test: " | grep -C 1 "not ok" | sed "s/^not/  &/;s/^#/  &/"
+		else
+			echo "# Detected script failure prior to BATS test execution. Please review script output to determine source."
+		fi
 		echo "# -----------------------------"
 	else
 		echo "# ----------------------------------------------------------"

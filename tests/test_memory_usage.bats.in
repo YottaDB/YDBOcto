@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -86,5 +86,6 @@ setup() {
   #	4. rocto.log itself
   grep "\%ydbocto" rocto.log | grep -Ev "loadedschemas|SecretKeyList|TimeZone|Binary file rocto.log" | sort_LC_ALL_C &> node_usage.log
   sed -i 's/%ydboctosession(1,"variables","user")=".*"/%ydboctosession(1,"variables","user")="USER"/' node_usage.log
+  sed -i 's/%ydboctosession("user")=".*"/%ydboctosession("user")="USER"/' node_usage.log
   verify_output TMU02 node_usage.log
 }

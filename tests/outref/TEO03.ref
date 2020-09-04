@@ -671,13 +671,13 @@ octoPlan5(cursorId)
     . . . SET %ydboctoexpr=%ydboctoexpr(1)!%ydboctoexpr
     . . . IF %ydboctoexpr DO
     . . . . NEW %ydboctoexpr SET %ydboctoexpr=1
-    . . . . SET %ydboctoexpr=%ydboctoexpr&('$DATA(%ydboctozdistinct(12,%ydboctocursor(cursorId,"keys",3,"CATEGORIES","CATEGORYID"),$$GetScalar^%ydboctoplanhelpers(16),$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^Categories(%ydboctocursor(cursorId,"keys",3,"CATEGORIES","CATEGORYID"))),"|",1),0,-1,"VARCHAR"))))
+    . . . . SET %ydboctoexpr=%ydboctoexpr&('$DATA(%ydboctozdistinct(12,%ydboctocursor(cursorId,"keys",3,"CATEGORIES","CATEGORYID"),$$GetScalarOrArray^%ydboctoplanhelpers(16,0),$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^Categories(%ydboctocursor(cursorId,"keys",3,"CATEGORIES","CATEGORYID"))),"|",1),0,-1,"VARCHAR"))))
     . . . . IF %ydboctoexpr DO
     . . . . . SET:1&$INCREMENT(%ydboctocursor(cursorId,"keys",12,"","")) %ydboctoz=42
     . . . . . SET %ydboctoexpr=%ydboctocursor(cursorId,"keys",3,"CATEGORIES","CATEGORYID")
     . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . SET %ydboctoexpr(0)=%ydboctoexpr
-    . . . . . SET %ydboctoexpr=$$GetScalar^%ydboctoplanhelpers(16)
+    . . . . . SET %ydboctoexpr=$$GetScalarOrArray^%ydboctoplanhelpers(16,0)
     . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
     . . . . . SET %ydboctoexpr(0)=%ydboctoexpr
@@ -685,7 +685,7 @@ octoPlan5(cursorId)
     . . . . . SET %ydboctoexpr=$$str2mval^%ydboctoplanhelpers(%ydboctoexpr)
     . . . . . SET %ydboctoexpr=%ydboctoexpr(0)_%ydboctoexpr
     . . . . . SET %ydboctocursor(cursorId,"keys",12,"","",%ydboctocursor(cursorId,"keys",12,"",""))=%ydboctoexpr
-    . . . . . SET:1 %ydboctozdistinct(12,%ydboctocursor(cursorId,"keys",3,"CATEGORIES","CATEGORYID"),$$GetScalar^%ydboctoplanhelpers(16),$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^Categories(%ydboctocursor(cursorId,"keys",3,"CATEGORIES","CATEGORYID"))),"|",1),0,-1,"VARCHAR"))=""
+    . . . . . SET:1 %ydboctozdistinct(12,%ydboctocursor(cursorId,"keys",3,"CATEGORIES","CATEGORYID"),$$GetScalarOrArray^%ydboctoplanhelpers(16,0),$$colvalue2null^%ydboctoplanhelpers($PIECE($GET(^Categories(%ydboctocursor(cursorId,"keys",3,"CATEGORIES","CATEGORYID"))),"|",1),0,-1,"VARCHAR"))=""
     KILL %ydboctozdistinct(12)
     QUIT
 ;; This is a generated file; do not modify. Generated M code corresponds to below SQL query

@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -84,7 +84,7 @@ int readline_get_more() {
 		/* if query spans the entire buffer then our query is larger than the current buffer
 		 * so double it (plus 1 for \0) and read in to the new space
 		 */
-		if (old_input_index == 0 && cur_input_index == cur_input_max) {
+		if ((0 == old_input_index) && (cur_input_index == cur_input_max)) {
 			char *tmp = malloc(cur_input_max * 2 + 1);
 			memmove(tmp, input_buffer_combined, cur_input_max);
 			free(input_buffer_combined);

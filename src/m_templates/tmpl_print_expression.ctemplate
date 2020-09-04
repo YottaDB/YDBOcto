@@ -1,7 +1,7 @@
 {}%
 /****************************************************************
  *								*
- * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -54,6 +54,9 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 	case LP_WHERE:
 		TMPL(tmpl_print_expression, first_operand, pplan, dot_count, depth);
 		return;
+		break;
+	case LP_ARRAY:
+		TMPL(tmpl_print_expression, first_operand, pplan, dot_count, depth);
 		break;
 	case LP_VALUE:
 		if (dot_count) {
@@ -1006,7 +1009,11 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 		}
 		// Fetch the first value from the output key of this query/table
 		key = lp_get_output_key(plan);
-		%{}$$GetScalar^%%ydboctoplanhelpers({{ key->v.lp_key.key->unique_id|%d }}){}%
+		if ((LP_SELECT_QUERY == plan_type) && (plan->extra_detail.lp_select_query.to_array)) {
+			%{}$$GetScalarOrArray^%%ydboctoplanhelpers({{ key->v.lp_key.key->unique_id|%d }},{{ 1|%d }}){}%
+		} else {
+			%{}$$GetScalarOrArray^%%ydboctoplanhelpers({{ key->v.lp_key.key->unique_id|%d }},{{ 0|%d }}){}%
+		}
 		if (dot_count) {
 			%{}`n{{ PLAN_LINE_START }}{}%
 		}

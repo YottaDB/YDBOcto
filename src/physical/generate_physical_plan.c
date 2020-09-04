@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -472,13 +472,20 @@ LogicalPlan *sub_query_check_and_generate_physical_plan(PhysicalPlanOptions *opt
 				/* Otherwise, we are guaranteed only 1 column in sub-query so stash it in a key (due to the
 				 * check done in "src/optimization_transforms/lp_generate_where.c" (search for BOOLEAN_EXISTS).
 				 */
-				assert(1 == lp_get_num_cols_in_select_column_list(stmt));
-				plan_options.stash_columns_in_keys = TRUE;
+				if ((LP_SET_OPERATION == stmt->type) || (!stmt->extra_detail.lp_select_query.to_array)) {
+					assert(1 == lp_get_num_cols_in_select_column_list(stmt));
+					plan_options.stash_columns_in_keys = TRUE;
+				}
 			}
 			new_plan = generate_physical_plan(stmt, &plan_options);
 			if (NULL == new_plan) {
 				return NULL;
 			}
+			break;
+		case LP_ARRAY:
+			assert(LP_SELECT_QUERY == stmt->v.lp_default.operand[0]->type);
+			stmt->v.lp_default.operand[0]
+			    = sub_query_check_and_generate_physical_plan(options, stmt->v.lp_default.operand[0], stmt);
 			break;
 		case LP_COALESCE_CALL:
 		case LP_GREATEST:

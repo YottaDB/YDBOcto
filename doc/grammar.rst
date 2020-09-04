@@ -724,6 +724,19 @@ For example, the following query is valid and returns the value 1:
 
    SELECT COALESCE(1, 'a', 1.0);
 
+++++++++++
+CONCAT
+++++++++++
+
+.. code-block:: SQL
+   SELECT CONCAT(VARCHAR, VARCHAR)
+
+The built-in CONCAT function returns the concatenation of its arguments as a VARCHAR value. This function may be used with 2 or 3 VARCHAR arguments to be concatenated.
+
+.. code-block:: SQL
+   SELECT CONCAT('string1', 'string2')
+   SELECT CONCAT('string1', 'string2', 'string3')
+
 ++++++++++++++++++++
 GREATEST and LEAST
 ++++++++++++++++++++
@@ -776,6 +789,23 @@ If the precision is greater than 0, the number will be truncated to that number 
 If the precision is 0, this behaves the same as the mathematical `floor` function.
 If the precision is less than 0, all fractional digits will be truncated and the number will be truncated to `10^precision`.
 The precision must be no less than -43.
+
+----------
+Constructors
+----------
+
+-----
+ARRAY
+-----
+
+.. code-block:: SQL
+
+   SELECT ARRAY(single_column_subquery) ...
+
+The ARRAY constructor can be used to generate a single-dimensional array from the results of a subquery, with each result row value occupying one element of the array. The subquery must return only one column.
+
+.. note::
+   The array data type is not currently supported and the constructed array is in fact treated as a string in Octo. As a result, multi-dimensional arrays cannot be constructed using this syntax. Similarly, syntax and functions that rely on the array data type are also unsupported.
 
 -----------------
 Operators

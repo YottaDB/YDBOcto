@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -36,6 +36,7 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 	SqlLeast *		least_call;
 	SqlNullIf *		null_if;
 	SqlUnaryOperation *	unary;
+	SqlArray *		array;
 	SqlValue *		value;
 	int			result;
 	SqlTableAlias *		column_table_alias, *parent_table_alias, *table_alias;
@@ -171,6 +172,10 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 	case unary_STATEMENT:
 		UNPACK_SQL_STATEMENT(unary, stmt, unary);
 		result |= qualify_statement(unary->operand, tables, table_alias_stmt, depth + 1, ret);
+		break;
+	case array_STATEMENT:
+		UNPACK_SQL_STATEMENT(array, stmt, array);
+		result |= qualify_statement(array->argument, tables, table_alias_stmt, depth + 1, ret);
 		break;
 	case function_call_STATEMENT:
 		UNPACK_SQL_STATEMENT(fc, stmt, function_call);

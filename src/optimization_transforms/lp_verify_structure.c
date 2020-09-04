@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -287,6 +287,7 @@ int lp_verify_structure_helper(LogicalPlan *plan, PhysicalPlanOptions *options, 
 			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], options, LP_CONCAT)
 			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], options, LP_COLUMN_ALIAS)
 			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], options, LP_FUNCTION_CALL)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], options, LP_ARRAY)
 			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], options, LP_COALESCE_CALL)
 			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], options, LP_GREATEST)
 			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], options, LP_LEAST)
@@ -414,6 +415,10 @@ int lp_verify_structure_helper(LogicalPlan *plan, PhysicalPlanOptions *options, 
 		assert(LP_COLUMN_LIST == plan->v.lp_default.operand[1]->type);
 		ret &= lp_verify_structure_helper(plan->v.lp_default.operand[1], options, LP_COLUMN_LIST);
 		break;
+	case LP_ARRAY:
+		assert(LP_SELECT_QUERY == plan->v.lp_default.operand[0]->type);
+		ret &= lp_verify_structure_helper(plan->v.lp_default.operand[0], options, LP_SELECT_QUERY);
+		break;
 	case LP_COALESCE_CALL:
 		assert(LP_COLUMN_LIST == plan->v.lp_default.operand[0]->type);
 		ret &= lp_verify_structure_helper(plan->v.lp_default.operand[0], options, LP_COLUMN_LIST);
@@ -499,7 +504,7 @@ boolean_t lp_verify_value(LogicalPlan *plan, PhysicalPlanOptions *options) {
 	       | lp_verify_structure_helper(plan, options, LP_NEGATIVE) | lp_verify_structure_helper(plan, options, LP_FORCE_NUM)
 	       | lp_verify_structure_helper(plan, options, LP_CONCAT) | lp_verify_structure_helper(plan, options, LP_COLUMN_ALIAS)
 	       | lp_verify_structure_helper(plan, options, LP_CASE) | lp_verify_structure_helper(plan, options, LP_FUNCTION_CALL)
-	       | lp_verify_structure_helper(plan, options, LP_COALESCE_CALL)
+	       | lp_verify_structure_helper(plan, options, LP_ARRAY) | lp_verify_structure_helper(plan, options, LP_COALESCE_CALL)
 	       | lp_verify_structure_helper(plan, options, LP_GREATEST) | lp_verify_structure_helper(plan, options, LP_LEAST)
 	       | lp_verify_structure_helper(plan, options, LP_NULL_IF)
 	       | lp_verify_structure_helper(plan, options, LP_AGGREGATE_FUNCTION_COUNT_ASTERISK)

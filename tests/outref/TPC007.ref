@@ -1,5 +1,5 @@
 FATAL:  Server requires all connections to be TLS encrypted. Please re-connect using a client with TLS/SSL enabled.
- ID | FIRSTNAME | LASTNAME 
+ id | firstname | lastname 
 ----+-----------+----------
   0 | Zero      | Cool
   1 | Acid      | Burn

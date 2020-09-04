@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -80,7 +80,7 @@ setup() {
   run_psql_auth ydb tester $test_port < $inputfile > rocto_orig_output.txt
   stop_rocto
   delete_users ydb
-  grep -vwE "ID|VALUE|rows" rocto_orig_output.txt > rocto_output.txt
+  grep -vwE "id|value|rows" rocto_orig_output.txt > rocto_output.txt
   # Filter global octo.conf (any not in the local directory)
   sed -i '/^.*\[ INFO\].* \/.*\/octo.conf/d' rocto_output.txt
   cmp TSC20.ref rocto_output.txt

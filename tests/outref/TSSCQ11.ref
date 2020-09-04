@@ -83,15 +83,23 @@ null|public|PG_ATTRIBUTE|TABLE|null|||||
 null|public|PG_CATALOG.PG_ATTRDEF|TABLE|null|||||
 null|public|PG_CATALOG.PG_ATTRIBUTE|TABLE|null|||||
 null|public|PG_CATALOG.PG_CLASS|TABLE|null|||||
+null|public|PG_CATALOG.PG_DATABASE|TABLE|null|||||
 null|public|PG_CATALOG.PG_DESCRIPTION|TABLE|null|||||
 null|public|PG_CATALOG.PG_NAMESPACE|TABLE|null|||||
 null|public|PG_CATALOG.PG_PROC|TABLE|null|||||
+null|public|PG_CATALOG.PG_ROLES|TABLE|null|||||
+null|public|PG_CATALOG.PG_SETTINGS|TABLE|null|||||
 null|public|PG_CATALOG.PG_TYPE|TABLE|null|||||
+null|public|PG_CATALOG.PG_USER|TABLE|null|||||
 null|public|PG_CLASS|TABLE|null|||||
+null|public|PG_DATABASE|TABLE|null|||||
 null|public|PG_DESCRIPTION|TABLE|null|||||
 null|public|PG_NAMESPACE|TABLE|null|||||
 null|public|PG_PROC|TABLE|null|||||
+null|public|PG_ROLES|TABLE|null|||||
+null|public|PG_SETTINGS|TABLE|null|||||
 null|public|PG_TYPE|TABLE|null|||||
+null|public|PG_USER|TABLE|null|||||
 null|public|USERS|TABLE|null|||||
 
 ----- OCTO -----
@@ -105,14 +113,22 @@ TABLE_CAT|TABLE_SCHEM|TABLE_NAME|TABLE_TYPE|REMARKS|TYPE_CAT|TYPE_SCHEM|TYPE_NAM
 |public|PG_CATALOG.PG_ATTRDEF|TABLE||||||
 |public|PG_CATALOG.PG_ATTRIBUTE|TABLE||||||
 |public|PG_CATALOG.PG_CLASS|TABLE||||||
+|public|PG_CATALOG.PG_DATABASE|TABLE||||||
 |public|PG_CATALOG.PG_DESCRIPTION|TABLE||||||
 |public|PG_CATALOG.PG_NAMESPACE|TABLE||||||
 |public|PG_CATALOG.PG_PROC|TABLE||||||
+|public|PG_CATALOG.PG_ROLES|TABLE||||||
+|public|PG_CATALOG.PG_SETTINGS|TABLE||||||
 |public|PG_CATALOG.PG_TYPE|TABLE||||||
+|public|PG_CATALOG.PG_USER|TABLE||||||
 |public|PG_CLASS|TABLE||||||
+|public|PG_DATABASE|TABLE||||||
 |public|PG_DESCRIPTION|TABLE||||||
 |public|PG_NAMESPACE|TABLE||||||
 |public|PG_PROC|TABLE||||||
+|public|PG_ROLES|TABLE||||||
+|public|PG_SETTINGS|TABLE||||||
 |public|PG_TYPE|TABLE||||||
+|public|PG_USER|TABLE||||||
 |public|USERS|TABLE||||||
-(19 rows)
+(27 rows)

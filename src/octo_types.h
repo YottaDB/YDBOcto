@@ -160,6 +160,7 @@ typedef enum SqlStatementType {
 	discard_all_STATEMENT,
 	row_value_STATEMENT,
 	table_value_STATEMENT,
+	array_STATEMENT,
 	invalid_STATEMENT,
 } SqlStatementType;
 
@@ -555,6 +556,10 @@ typedef struct SqlDropTableStatement {
 	struct SqlStatement *optional_keyword;
 } SqlDropTableStatement;
 
+typedef struct SqlArray {
+	struct SqlStatement *argument;
+} SqlArray;
+
 /*
  * Represents a unary operation
  */
@@ -766,6 +771,7 @@ typedef struct SqlStatement {
 		struct SqlInsertStatement *	  insert;
 		struct SqlDropTableStatement *	  drop_table;
 		struct SqlDropFunctionStatement * drop_function;
+		struct SqlArray *		  array;
 		struct SqlValue *		  value;
 		struct SqlFunctionCall *	  function_call;
 		struct SqlCoalesceCall *	  coalesce;

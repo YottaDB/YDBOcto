@@ -1,0 +1,39 @@
+#################################################################
+#								#
+# Copyright (c) 2021 YottaDB LLC and/or its subsidiaries.	#
+# All rights reserved.						#
+#								#
+#	This source code contains the intellectual property	#
+#	of its copyright holder(s), and is made available	#
+#	under a license.  If you do not know the terms of	#
+#	the license, please stop and do not read further.	#
+#								#
+#################################################################
+
+load test_helpers
+
+setup() {
+  init_test
+  createdb
+  load_fixture names.sql
+  load_fixture names.zwr
+}
+
+@test "TAS00 : ARRAY constructor subquery syntax" {
+  # This test fails on CentOS due to PostgreSQL version < 10.
+  if [[ $(psql --version | cut -f 3 -d " " | cut -f 1 -d ".") -lt 10 ]]; then
+    skip "Skipping test as it does not work on with PostgreSQL versions < 10"
+  fi
+  load_fixture TAS00.sql subtest novv
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TAS00.sql
+}
+
+@test "TAS01 : Issue syntax error for empty ARRAY constructor" {
+  load_fixture TAS01.sql subtest novv
+  verify_output TAS01 output.txt
+}
+
+@test "TAS02 : Issue error for ARRAY constructor with subquery returning more than one row" {
+  load_fixture TAS02.sql subtest novv
+  verify_output TAS02 output.txt
+}

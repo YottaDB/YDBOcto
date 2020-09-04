@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -138,6 +138,7 @@ typedef struct LpExtraInsert {
 					       * multiple physical plans corresponding to the same logical plan
 					       * (i.e. many physical plans to 1 logical plan relationship).
 					       */
+	boolean_t to_array;		      // Indicates the result of this LP_INSERT should be converted to a SQL array
 } LpExtraInsert;
 
 /* Extra fields needed by LP_COLUMN_ALIAS */

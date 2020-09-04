@@ -1,5 +1,7 @@
 ABS|1|1700|1700|null|null|null
 ABS|1|1700|23|null|null|null
+CONCAT|2|1043|1043 1043|null|null|null
+CONCAT|3|1043|1043 1043 1043|null|null|null
 ROUND|2|1700|1700 23|null|null|null
 ROUND|2|1700|23 23|null|null|null
 TRUNC|2|1700|1700 23|null|null|null
@@ -8,15 +10,29 @@ TRUNC|2|1700|1700 1700|null|null|null
 TRUNC|2|1700|23 23|null|null|null
 REPLACE|3|1043|1043 1043 1043|null|null|null
 ROW_NUMBER|0|23|null|null|null|null
+SET_CONFIG|3|1043|1043 1043 16|null|null|null
 VERSION|0|1043|null|null|null|null
-CURRENT_SCHEMA|0|1043|null|null|null|null
-PG_CATALOG.CURRENT_SCHEMAS|1|1043|16|null|null|null
-PG_CATALOG.OBJ_DESCRIPTION|2|1043|23 1043|null|null|null
-PG_CATALOG.PG_GET_EXPR|2|1043|1043 23|null|null|null
 PG_CATALOG.PG_TABLE_IS_VISIBLE|1|16|23|null|null|null
 PG_CATALOG.PG_GET_USERBYID|1|1043|23|null|null|null
-CURRENT_SCHEMAS|1|1043|16|null|null|null
-OBJ_DESCRIPTION|2|1043|23 1043|null|null|null
-PG_GET_EXPR|2|1043|1043 23|null|null|null
+CURRENT_SCHEMA|0|1043|null|null|null|null
+CURRENT_DATABASE|0|1043|null|null|null|null
+CURRENT_CATALOG|0|1043|null|null|null|null
+CURRENT_ROLE|0|1043|null|null|null|null
+CURRENT_USER|0|1043|null|null|null|null
+SESSION_USER|0|1043|null|null|null|null
+USER|0|1043|null|null|null|null
+PG_CATALOG.CURRENT_SCHEMAS|1|1043|16|null|null|null
+PG_CATALOG.OBJ_DESCRIPTION|2|1043|23 1043|null|null|null
+PG_CATALOG.PG_BACKEND_PID|0|1043|null|null|null|null
+PG_CATALOG.PG_GET_EXPR|2|1043|1043 23|null|null|null
 PG_TABLE_IS_VISIBLE|1|16|23|null|null|null
 PG_GET_USERBYID|1|1043|23|null|null|null
+CURRENT_SCHEMAS|1|1043|16|null|null|null
+OBJ_DESCRIPTION|2|1043|23 1043|null|null|null
+PG_BACKEND_PID|0|1043|null|null|null|null
+PG_GET_EXPR|2|1043|1043 23|null|null|null
+PG_ENCODING_TO_CHAR|1|1043|23|null|null|null
+PG_IS_IN_RECOVERY|0|16|null|null|null|null
+PG_IS_XLOG_REPLAY_PAUSED|0|16|null|null|null|null
+HAS_DATABASE_PRIVILEGE|2|16|23 1043|null|null|null
+HAS_DATABASE_PRIVILEGE|3|16|1043 1043 1043|null|null|null

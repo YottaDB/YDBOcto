@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2020-2021 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -26,8 +26,5 @@ void as_name(SqlStatement *as_name) {
 	assert(value_STATEMENT == as_name->type);
 	as_name->v.value->type = STRING_LITERAL;
 	c = as_name->v.value->v.string_literal;
-	while ('\0' != *c) {
-		*c = toupper(*c);
-		c++;
-	}
+	TOUPPER_STR(c);
 }

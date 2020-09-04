@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -21,6 +21,7 @@
 LogicalPlan *lp_generate_where(SqlStatement *stmt, SqlStatement *parent_stmt) {
 	LogicalPlan *		ret = NULL, *next, *cur_lp;
 	LPActionType		type;
+	SqlArray *		array;
 	SqlValue *		value;
 	SqlUnaryOperation *	unary;
 	SqlBinaryOperation *	binary;
@@ -84,6 +85,21 @@ LogicalPlan *lp_generate_where(SqlStatement *stmt, SqlStatement *parent_stmt) {
 		type = unary->operation + LP_FORCE_NUM;
 		MALLOC_LP_2ARGS(ret, type);
 		LP_GENERATE_WHERE(unary->operand, stmt, ret->v.lp_default.operand[0], error_encountered);
+		break;
+	case array_STATEMENT:
+		UNPACK_SQL_STATEMENT(array, stmt, array);
+		MALLOC_LP_2ARGS(ret, LP_ARRAY);
+		assert(NULL != array->argument);
+		LP_GENERATE_WHERE(array->argument, stmt, ret->v.lp_default.operand[0], error_encountered);
+		/* Note: the if check is needed in case of an error code path (e.g. ERR_SUBQUERY_ONE_COLUMN) */
+		if (NULL != ret->v.lp_default.operand[0]) {
+			/* ARRAY() syntax is used to convert single column'd return rows from a subquery to a SQL array.
+			 * Accordingly, child plans of an array_STATEMENT/LP_ARRAY should always be LP_SELECT_QUERY.
+			 */
+			assert(LP_SELECT_QUERY == ret->v.lp_default.operand[0]->type);
+			// Note that this LP_SELECT_QUERY must be converted to a SQL array.
+			ret->v.lp_default.operand[0]->extra_detail.lp_select_query.to_array = TRUE;
+		}
 		break;
 	case coalesce_STATEMENT:
 		UNPACK_SQL_STATEMENT(coalesce_call, stmt, coalesce);

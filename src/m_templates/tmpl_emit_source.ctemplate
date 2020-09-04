@@ -1,7 +1,7 @@
 {}%
 /****************************************************************
  *								*
- * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -151,11 +151,7 @@ int match_expression(char *start, char *column, int column_size) {
 			return -1;
 		char *d = column;
 		char *c2 = column_start;
-		while(c2 < c) {
-		  *d++ = toupper(*c2);
-		  c2++;
-		}
-		column[c - column_start] = '\0';
+		TOUPPER(d, &column[column_size], c2, c);
 		assert(!(column[0] == '"' && column[1] == '"'));
 		return c - start + 1;
 	}

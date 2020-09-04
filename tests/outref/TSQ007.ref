@@ -115,7 +115,7 @@ LP_SELECT_QUERY:
           LP_VALUE: 'PG_CATALOG.PG_GET_USERBYID'
           LP_COLUMN_LIST: 
             LP_VALUE: '%ydboctoFwYGPSTRCKG67stgdEjL8D7'
-            LP_VALUE: '$$^%ydboctopgGetUserbyid'
+            LP_VALUE: '$$pgGetUserById^%ydboctopgfunctions'
             LP_VALUE: 'VARCHAR'
             LP_COLUMN_ALIAS: C(1).RELOWNER
         LP_COLUMN_LIST_ALIAS: 
@@ -139,7 +139,7 @@ LP_SELECT_QUERY:
               LP_VALUE: 'PG_CATALOG.PG_TABLE_IS_VISIBLE'
               LP_COLUMN_LIST: 
                 LP_VALUE: '%ydboctoFZPxVOipyvcmjbTa20TTWJD'
-                LP_VALUE: '$$^%ydboctopgTableIsVisible'
+                LP_VALUE: '$$pgTableIsVisible^%ydboctopgfunctions'
                 LP_VALUE: 'BOOLEAN'
                 LP_COLUMN_ALIAS: C(1).OID
         LP_TABLE: C
@@ -181,7 +181,7 @@ LP_SELECT_QUERY:
                 LP_VALUE: 'PG_CATALOG.PG_TABLE_IS_VISIBLE'
                 LP_COLUMN_LIST: 
                   LP_VALUE: '%ydboctoFZPxVOipyvcmjbTa20TTWJD'
-                  LP_VALUE: '$$^%ydboctopgTableIsVisible'
+                  LP_VALUE: '$$pgTableIsVisible^%ydboctopgfunctions'
                   LP_VALUE: 'BOOLEAN'
                   LP_COLUMN_ALIAS: C(1).OID
           LP_SELECT_MORE_OPTIONS: 
@@ -271,7 +271,7 @@ LP_SELECT_QUERY:
           LP_VALUE: 'PG_CATALOG.PG_GET_USERBYID'
           LP_COLUMN_LIST: 
             LP_VALUE: '%ydboctoFwYGPSTRCKG67stgdEjL8D7'
-            LP_VALUE: '$$^%ydboctopgGetUserbyid'
+            LP_VALUE: '$$pgGetUserById^%ydboctopgfunctions'
             LP_VALUE: 'VARCHAR'
             LP_COLUMN_ALIAS: C(1).RELOWNER
         LP_COLUMN_LIST_ALIAS: 
@@ -284,7 +284,7 @@ LP_SELECT_QUERY:
             LP_VALUE: 'PG_CATALOG.PG_TABLE_IS_VISIBLE'
             LP_COLUMN_LIST: 
               LP_VALUE: '%ydboctoFZPxVOipyvcmjbTa20TTWJD'
-              LP_VALUE: '$$^%ydboctopgTableIsVisible'
+              LP_VALUE: '$$pgTableIsVisible^%ydboctopgfunctions'
               LP_VALUE: 'BOOLEAN'
               LP_COLUMN_ALIAS: C(1).OID
         LP_SELECT_QUERY: 
@@ -387,7 +387,7 @@ LP_SELECT_QUERY:
                 LP_VALUE: 'PG_CATALOG.PG_TABLE_IS_VISIBLE'
                 LP_COLUMN_LIST: 
                   LP_VALUE: '%ydboctoFZPxVOipyvcmjbTa20TTWJD'
-                  LP_VALUE: '$$^%ydboctopgTableIsVisible'
+                  LP_VALUE: '$$pgTableIsVisible^%ydboctopgfunctions'
                   LP_VALUE: 'BOOLEAN'
                   LP_COLUMN_ALIAS: C(1).OID
           LP_SELECT_MORE_OPTIONS: 
@@ -427,15 +427,23 @@ public|PG_ATTRIBUTE|table|octo
 public|PG_CATALOG.PG_ATTRDEF|table|octo
 public|PG_CATALOG.PG_ATTRIBUTE|table|octo
 public|PG_CATALOG.PG_CLASS|table|octo
+public|PG_CATALOG.PG_DATABASE|table|octo
 public|PG_CATALOG.PG_DESCRIPTION|table|octo
 public|PG_CATALOG.PG_NAMESPACE|table|octo
 public|PG_CATALOG.PG_PROC|table|octo
+public|PG_CATALOG.PG_ROLES|table|octo
+public|PG_CATALOG.PG_SETTINGS|table|octo
 public|PG_CATALOG.PG_TYPE|table|octo
+public|PG_CATALOG.PG_USER|table|octo
 public|PG_CLASS|table|octo
+public|PG_DATABASE|table|octo
 public|PG_DESCRIPTION|table|octo
 public|PG_NAMESPACE|table|octo
 public|PG_PROC|table|octo
+public|PG_ROLES|table|octo
+public|PG_SETTINGS|table|octo
 public|PG_TYPE|table|octo
+public|PG_USER|table|octo
 public|USERS|table|octo
-(19 rows)
+(27 rows)
 [ INFO] PATH:LINENUM DATE TIME : INFO_PARSING_DONE : Parsing done for SQL command []

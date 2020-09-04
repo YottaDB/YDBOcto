@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -14,15 +14,17 @@
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
+#include <ctype.h>
 
 // Used to convert between network and host endian
 #include <arpa/inet.h>
 
+#include "octo.h"
 #include "message_formats.h"
 
 RowDescription *make_row_description(RowDescriptionParm *parms, int16_t num_parms) {
 	RowDescription *ret;
-	uint32_t	length = 0, cur_str_length;
+	uint32_t	length = 0, data_length, cur_str_length;
 	char *		c;
 	int32_t		i;
 
@@ -33,6 +35,8 @@ RowDescription *make_row_description(RowDescriptionParm *parms, int16_t num_parm
 		// The other elements
 		length += sizeof(RowDescriptionParm) - sizeof(char *);
 	}
+	data_length = length;
+	UNUSED(data_length); // Needed for the case where 0 == num_parms
 
 	ret = (RowDescription *)malloc(sizeof(RowDescription) + length);
 	memset(ret, 0, sizeof(RowDescription) + length);
@@ -51,9 +55,8 @@ RowDescription *make_row_description(RowDescriptionParm *parms, int16_t num_parm
 	for (i = 0; i < num_parms; i++) {
 		// Copy string
 		cur_str_length = strlen(parms[i].name);
-		memcpy(c, parms[i].name, cur_str_length);
-		c += cur_str_length;
-		*c++ = '\0';
+		// Convert to lowercase to match PostgreSQL client expectations (PostgreSQL stores identifiers as lowercase)
+		TOLOWER(c, &ret->data[data_length], parms[i].name, &parms[i].name[cur_str_length]);
 
 		// Copy values, converting them to network endianess
 		*((int *)c) = htonl(parms[i].table_id);

@@ -1,6 +1,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;								;
-; Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	;
+; Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	;
 ; All rights reserved.						;
 ;								;
 ;	This source code contains the intellectual property	;
@@ -21,6 +21,19 @@ ABS(num)
 	; Implements the SQL ABS function (returns absolute value of an input number)
 	quit $select(num<0:-num,1:+num)
 
+CONCAT(str1,str2,str3)
+	; Implements the SQL CONCAT function (concatenates passed strings)
+	; Additional checks are used for overloading the SQL function definition.
+	new result
+	set result=str1
+	set:(0'=$DATA(str2)) result=result_str2
+	set:(0'=$DATA(str3)) result=result_str3
+
+	quit result
+
+REPLACE(src,from,to) ; TODO this is just a placeholder
+	QUIT src
+
 ROUND(num,precision)
 	; Implements the SQL ROUND function (rounds to a set number of digits)
 	; To round to the nearest integer, use a precision of 0.
@@ -39,3 +52,6 @@ TRUNC(num,precision)
 	quit:$ZYISSQLNULL(num) $ZYSQLNULL
 	new t  set precision=$fnumber(precision,"",0),t=(num*(10**precision)\1)/(10**precision)
 	quit $select(precision<0:t,1:$fnumber(t,"",precision))
+
+VERSION()
+	quit "PostgreSQL 9.6.5 on x86_64-pc-linux-gnu, compiled by gcc (GCC) 7.1.1 20170630, 64-bit"

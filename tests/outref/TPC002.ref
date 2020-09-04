@@ -8,7 +8,7 @@ ERROR:  Error with syntax near (line 1, column 14):
 ERROR:  select * from t1;
 ERROR:                ^^
 ERROR:  Error parsing statement: select * from t1;
-  A   |  B   
+  a   |  b   
 ------+------
     1 |    2
    42 | 9001

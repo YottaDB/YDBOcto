@@ -230,6 +230,7 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_
 	SqlFunctionCall *	function_call;
 	SqlFunction *		function;
 	SqlCoalesceCall *	coalesce_call;
+	SqlArray *		array;
 	SqlGreatest *		greatest_call;
 	SqlLeast *		least_call;
 	SqlNullIf *		null_if;
@@ -437,6 +438,10 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_
 		}
 		data_type = function->return_type->v.data_type_struct.data_type;
 		*type = get_sqlvaluetype_from_sqldatatype(data_type, FALSE);
+		break;
+	case array_STATEMENT:
+		UNPACK_SQL_STATEMENT(array, v, array);
+		result |= populate_data_type(array->argument, type, parse_context);
 		break;
 	case coalesce_STATEMENT:
 		UNPACK_SQL_STATEMENT(coalesce_call, v, coalesce);

@@ -76,6 +76,7 @@ extern void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, int *plan
 %token ALL
 %token AND
 %token ANY
+%token ARRAY
 %token AS
 %token ASC
 %token AVG
@@ -157,6 +158,7 @@ extern void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, int *plan
 %token OUTER
 %token OVER
 %token PACK
+%token PARENLESS_FUNCTION
 %token PARTITION
 %token PIECE
 %token PRIMARY
@@ -785,6 +787,15 @@ collation_name
   : qualified_name { $$ = $qualified_name; }
   ;
 
+array_constructor
+  : ARRAY table_subquery {
+      // table_subquery includes the left and right parentheses needed for the ARRAY() syntax, so no need to state explicitly here.
+      SQL_STATEMENT($$, array_STATEMENT);
+      MALLOC_STATEMENT($$, array, SqlArray);
+      ($$)->v.array->argument = $table_subquery;
+  }
+  ;
+
 numeric_primary
   : value_expression_primary {
     $$ = $value_expression_primary;
@@ -808,6 +819,7 @@ value_expression_primary
   | column_reference { $$ = $column_reference; }
   | conditional_expression { $$ = $conditional_expression; }
   | set_function_specification { $$ = $set_function_specification; }
+  | array_constructor { $$ = $array_constructor; }
   | table_subquery { $$ = $table_subquery; }
   | LEFT_PAREN value_expression RIGHT_PAREN { $$ = $value_expression; }
   | null_specification { $$ = $null_specification; }
@@ -910,7 +922,6 @@ result
   : value_expression { $$ = $value_expression; }
   ;
 
-
 set_function_specification
   : COUNT LEFT_PAREN ASTERISK RIGHT_PAREN {
 	$$ = aggregate_function(COUNT_ASTERISK_AGGREGATE, NO_KEYWORD, NULL);
@@ -966,8 +977,41 @@ generic_function_call
       UNPACK_SQL_STATEMENT(value, $column_name, value);
       value->type = FUNCTION_NAME;
     }
+  | parenless_function { $$ = $parenless_function; }
   ;
 
+parenless_function
+  : PARENLESS_FUNCTION parenless_function_tail {
+      SQL_STATEMENT($$, value_STATEMENT);
+      MALLOC_STATEMENT($$, value, SqlValue);
+      SqlStatement *fc_statement, *cl_statement;
+      SqlFunctionCall *fc;
+      SqlValue *value;
+      UNPACK_SQL_STATEMENT(value, $$, value);
+
+      value->type = CALCULATED_VALUE;
+      SQL_STATEMENT(fc_statement, function_call_STATEMENT);
+      MALLOC_STATEMENT(fc_statement, function_call, SqlFunctionCall);
+      UNPACK_SQL_STATEMENT(fc, fc_statement, function_call);
+      fc->function_name = $PARENLESS_FUNCTION;
+      value->v.calculated = fc_statement;
+
+      SQL_STATEMENT(cl_statement, column_list_STATEMENT);
+      MALLOC_STATEMENT(cl_statement, column_list, SqlColumnList);
+      SqlColumnList *column_list;
+      UNPACK_SQL_STATEMENT(column_list, cl_statement, column_list);
+      dqinit(column_list);
+      fc->parameters = cl_statement;
+
+      // Change the function name value to be a string literal rather than column reference
+      UNPACK_SQL_STATEMENT(value, $PARENLESS_FUNCTION, value);
+      value->type = FUNCTION_NAME;
+  }
+
+parenless_function_tail
+  : /* Empty */ { $$ = NULL; }
+  | LEFT_PAREN RIGHT_PAREN { $$ = NULL; }
+  ;
 
 column_reference
   : qualifier PERIOD column_name {
@@ -1493,16 +1537,12 @@ column_name
       SQL_VALUE_STATEMENT($$, COLUMN_REFERENCE, c);
       d = table_name->v.string_literal;
       // Convert to caps as we copy
-      while(*d != '\0') {
-        *c++ = toupper(*d++);
-      }
+      TOUPPER(c, &c[table_name_len+1], d, &d[strlen(d)]);
+      c--; // Back pointer up before the null terminator added by TOUPPER for this special case
       *c = '.';
       c++;
       d = column_name->v.string_literal;
-      while(*d != '\0') {
-        *c++ = toupper(*d++);
-      }
-      *c = '\0';
+      TOUPPER(c, &c[column_name_len+1], d, &d[strlen(d)]);
     }
   ;
 

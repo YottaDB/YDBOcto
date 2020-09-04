@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -36,6 +36,7 @@ LP_ACTION_TYPE(LP_AGGREGATE_OPTIONS)
 LP_ACTION_TYPE(LP_GROUP_BY)
 LP_ACTION_TYPE(LP_HAVING)
 LP_ACTION_TYPE(LP_KEYWORDS)
+LP_ACTION_TYPE(LP_ARRAY)
 // Start of the where subtree
 LP_ACTION_TYPE(LP_WHERE)
 LP_ACTION_TYPE(LP_CRITERIA)

@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -136,6 +136,8 @@ void hash_canonical_query(hash128_state_t *state, SqlStatement *stmt, int *statu
 	SqlFunction *		  function;
 	SqlDropFunctionStatement *drop_function;
 	SqlParameterTypeList *	  parameter_type_list;
+
+	SqlArray *array;
 
 	// Operations and keywords
 	SqlBinaryOperation *binary;
@@ -528,6 +530,11 @@ void hash_canonical_query(hash128_state_t *state, SqlStatement *stmt, int *statu
 		ADD_INT_HASH(state, unary->operation);
 		// SqlStatement (?)
 		hash_canonical_query(state, unary->operand, status);
+		break;
+	case array_STATEMENT:
+		UNPACK_SQL_STATEMENT(array, stmt, array);
+		ADD_INT_HASH(state, array_STATEMENT);
+		hash_canonical_query(state, array->argument, status);
 		break;
 	case keyword_STATEMENT: // This is a valid case in "hash_canonical_query" but is not a case in "populate_data_type"
 		UNPACK_SQL_STATEMENT(keyword, stmt, keyword);

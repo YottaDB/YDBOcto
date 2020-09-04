@@ -36,9 +36,6 @@ int handle_query(Query *query, RoctoSession *session) {
 
 	TRACE(INFO_ENTERING_FUNCTION, "handle_query");
 
-	memset(&parse_context, 0, sizeof(ParseContext));
-	memset(&parms, 0, sizeof(QueryResponseParms));
-	parms.session = session;
 	query_length = query->length - sizeof(unsigned int);
 	if (0 == query_length) {
 		empty_query_response = make_empty_query_response();
@@ -51,25 +48,25 @@ int handle_query(Query *query, RoctoSession *session) {
 	}
 	COPY_QUERY_TO_INPUT_BUFFER(query->query, query_length, NEWLINE_NEEDED_FALSE);
 
-	run_query_result = run_query(&handle_query_response, (void *)&parms, TRUE, &parse_context);
-	if (-1 == run_query_result) {
-		// Exit loop if query was interrupted
-		eof_hit = EOF_CTRLD;
-		return -1;
-	} else if (0 != run_query_result) {
-		return 1;
-	}
+	do {
+		memset(&parse_context, 0, sizeof(ParseContext));
+		memset(&parms, 0, sizeof(QueryResponseParms));
+		parms.session = session;
+		run_query_result = run_query(&handle_query_response, (void *)&parms, TRUE, &parse_context);
+		if (-1 == run_query_result) {
+			// Exit loop if query was interrupted
+			eof_hit = EOF_CTRLD;
+			return -1;
+		} else if (0 != run_query_result) {
+			return 1;
+		}
 
-	response = make_command_complete(parse_context.command_tag, parms.row_count);
-	if (NULL != response) {
-		send_message(session, (BaseMessage *)(&response->type));
-		free(response);
-	}
+		response = make_command_complete(parse_context.command_tag, parms.row_count);
+		if (NULL != response) {
+			send_message(session, (BaseMessage *)(&response->type));
+			free(response);
+		}
+	} while (EOF_NONE == eof_hit);
 
-	// If no data was sent (CREATE, DELETE, INSERT statement), send something back
-	if (!parms.data_sent) {
-	} else {
-		// All done!
-	}
 	return 0;
 }

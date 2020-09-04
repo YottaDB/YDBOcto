@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -99,6 +99,7 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt) {
 	OCTO_CMALLOC_STRUCT(dst_key->v.lp_key.key, SqlKey);
 	dst_key->v.lp_key.key->unique_id = get_new_plan_unique_id();
 	select_query->extra_detail.lp_select_query.root_table_alias = table_alias;
+	select_query->extra_detail.lp_select_query.to_array = FALSE;
 	/// TODO: we should look at the columns to decide which values
 	//   are keys, and if none, create a rowId as part of the advance
 	dst_key->v.lp_key.key->type = LP_KEY_ADVANCE;

@@ -18,6 +18,7 @@
 #include <sys/param.h> /* needed for PATH_MAX */
 #include <stdint.h>    /* needed for uint64_t */
 #include <errno.h>     /* for errno */
+#include <ctype.h>     /* for tolower/toupper */
 
 #include <libyottadb.h>
 
@@ -130,6 +131,7 @@
 #define OCTOLIT_NAME		     "name"
 #define OCTOLIT_NONE		     "none"
 #define OCTOLIT_OID		     "oid"
+#define OCTOLIT_OCTOONEROWTABLE	     "OCTOONEROWTABLE"
 #define OCTOLIT_OUTPUT_COLUMNS	     "output_columns"
 #define OCTOLIT_OUTPUT_KEY	     "output_key"
 #define OCTOLIT_PG_ATTRIBUTE	     "pg_attribute"
@@ -149,6 +151,7 @@
 #define OCTOLIT_TEXT		     "text"
 #define OCTOLIT_TIMESTAMP	     "timestamp"
 #define OCTOLIT_TYPE_MODIFIER	     "type_modifier"
+#define OCTOLIT_USER		     "user"
 #define OCTOLIT_USERS		     "users"
 #define OCTOLIT_YDBOCTOCANCEL	     "%ydboctoCancel"
 #define OCTOLIT_YDBOCTOSECRETKEYLIST "%ydboctoSecretKeyList"
@@ -230,6 +233,66 @@
 	{                                           \
 		assert(MAX_LEN >= strlen(LITERAL)); \
 		strcpy(TARGET, LITERAL);            \
+	}
+
+/* Convert a string to uppercase and store in provided destination.
+ * Note that DEST and START may or may not be the same. This macro handles both cases.
+ */
+#define TOUPPER(DEST, DEST_END, START, END)                                                 \
+	{                                                                                   \
+		char *start;                                                                \
+                                                                                            \
+		start = (START);                                                            \
+		while (start < END) {                                                       \
+			(*DEST) = toupper(*start);                                          \
+			(DEST)++;                                                           \
+			start++;                                                            \
+		}                                                                           \
+		(*DEST) = '\0';                                                             \
+		(DEST)++;                                                                   \
+		/* Check for buffer overflow. It is okay if DEST < DEST_END as there are */ \
+		/* cases where this macro is applied piecemeal to a single buffer. */       \
+		assert(DEST <= DEST_END);                                                   \
+	}
+
+/* Convert a string to lowercase and store in provided destination
+ * Note that DEST and START may or may not be the same. This macro handles both cases.
+ */
+#define TOLOWER(DEST, DEST_END, START, END)        \
+	{                                          \
+		char *start;                       \
+                                                   \
+		start = (START);                   \
+		while (start < END) {              \
+			(*DEST) = tolower(*start); \
+			(DEST)++;                  \
+			start++;                   \
+		}                                  \
+		(*DEST) = '\0';                    \
+		(DEST)++;                          \
+		assert(DEST <= DEST_END);          \
+	}
+
+// Convert a string to uppercase in place
+#define TOUPPER_STR(STR)                         \
+	{                                        \
+		size_t len;                      \
+		char * end;                      \
+                                                 \
+		len = strlen(STR);               \
+		end = STR + len;                 \
+		TOUPPER(STR, end + 1, STR, end); \
+	}
+
+// Convert a string to lowercase in place
+#define TOLOWER_STR(STR)                         \
+	{                                        \
+		size_t len;                      \
+		char * end;                      \
+                                                 \
+		len = strlen(STR);               \
+		end = STR + len;                 \
+		TOLOWER(STR, end + 1, STR, end); \
 	}
 
 // Increase the amount of memory allocated for a give array by the size specified by NEW_SIZE,

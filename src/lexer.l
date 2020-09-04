@@ -1,7 +1,7 @@
 %{
 /****************************************************************
  *								*
- * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -13,10 +13,12 @@
 
 #include <stdio.h>
 #include <ctype.h>
+#include <assert.h>
 
 #include "octo.h"
 #include "octo_types.h"
 #include "parser.h"
+#include "memory_chunk.h"
 #include "memory_chunk.h"
 
 #define YY_INPUT(buf, result, max_size) while((result = get_input(buf, max_size)) == -1 && result != YY_NULL) { };
@@ -103,6 +105,7 @@ int copied_so_far;
 (?i:ALL) { return ALL; }
 (?i:AND) { return AND; }
 (?i:ANY) { return ANY; }
+(?i:ARRAY) { return ARRAY; }
 (?i:AS) { return AS; }
 (?i:ASC) { return ASC; }
 (?i:AVG) { return AVG; }
@@ -183,6 +186,7 @@ int copied_so_far;
 (?i:OUTER) { return OUTER; }
 (?i:OVER) { return OVER; }
 (?i:PACK) { return PACK; }
+(?i:PARENLESS_FUNCTION) { return PARENLESS_FUNCTION; }
 (?i:PARTITION) { return PARTITION; }
 (?i:PIECE) { return PIECE; }
 (?i:PRIMARY) { return PRIMARY; }
@@ -308,11 +312,7 @@ int copied_so_far;
                 (*yylval_param)->v.value->type = PARAMETER_VALUE;
                 (*yylval_param)->v.value->v.string_literal = (char*)octo_cmalloc(memory_chunks, copied_so_far+1);
                 char *d = (*yylval_param)->v.value->v.string_literal;
-                char *c = lex_buffer.buf_addr;
-                while ('\0' != *c) {
-                  *d++ = toupper(*c++);
-                }
-                *d = '\0';
+		TOUPPER(d, d+copied_so_far+1, lex_buffer.buf_addr, &lex_buffer.buf_addr[lex_buffer.len_used]);
 		RESET_BUFFER(lex_buffer);
                 return LITERAL;
               }
@@ -325,13 +325,27 @@ int copied_so_far;
                 (*yylval_param)->v.value->type = COLUMN_REFERENCE;
                 (*yylval_param)->v.value->v.string_literal = (char*)octo_cmalloc(memory_chunks, copied_so_far+1);
                 char *d = (*yylval_param)->v.value->v.string_literal;
-                char *c = lex_buffer.buf_addr;
-                while ('\0' != *c) {
-			*d++ = toupper(*c++);
-                }
-                *d = '\0';
+		TOUPPER(d, d+copied_so_far+1, lex_buffer.buf_addr, &lex_buffer.buf_addr[lex_buffer.len_used]);
 		RESET_BUFFER(lex_buffer);
                 return INTRINSIC_FUNCTION;
+              }
+(current_(catalog|role|user|schema))|((session_)?user) {
+		/* The following SQL functions are syntactically exceptional
+		* in that they must be called without parentheses:
+		* current_catalog, current_role, current_user, current_schema, session_user, user.
+		* See the note at https://www.postgresql.org/docs/11/functions-info.html for details.
+		*/
+                copied_so_far = 0;
+                char *yptr = yytext;
+                COPY_STRING((&lex_buffer), yptr, copied_so_far);
+                SQL_STATEMENT(*yylval_param, value_STATEMENT);
+                OCTO_CMALLOC_STRUCT((*yylval_param)->v.value, SqlValue);
+                (*yylval_param)->v.value->type = COLUMN_REFERENCE;
+                (*yylval_param)->v.value->v.string_literal = (char*)octo_cmalloc(memory_chunks, copied_so_far+1);
+                char *d = (*yylval_param)->v.value->v.string_literal;
+		TOUPPER(d, d+copied_so_far+1, lex_buffer.buf_addr, &lex_buffer.buf_addr[lex_buffer.len_used]);
+		RESET_BUFFER(lex_buffer);
+                return PARENLESS_FUNCTION;
               }
 [a-zA-Z][a-zA-Z0-9_$^]* {
                 copied_so_far = 0;
@@ -342,11 +356,7 @@ int copied_so_far;
                 (*yylval_param)->v.value->type = COLUMN_REFERENCE;
                 (*yylval_param)->v.value->v.string_literal = (char*)octo_cmalloc(memory_chunks, copied_so_far+1);
                 char *d = (*yylval_param)->v.value->v.string_literal;
-                char *c = lex_buffer.buf_addr;
-                while (*c != '\0') {
-			*d++ = toupper(*c++);
-                }
-                *d = '\0';
+		TOUPPER(d, d+copied_so_far+1, lex_buffer.buf_addr, &lex_buffer.buf_addr[lex_buffer.len_used]);
 		RESET_BUFFER(lex_buffer);
                 return IDENTIFIER_ALONE;
               }
@@ -359,11 +369,7 @@ int copied_so_far;
                 (*yylval_param)->v.value->type = COLUMN_REFERENCE;
                 (*yylval_param)->v.value->v.string_literal = (char*)octo_cmalloc(memory_chunks, copied_so_far+1);
                 char *d = (*yylval_param)->v.value->v.string_literal;
-                char *c = lex_buffer.buf_addr;
-                while(*c != '\0') {
-			*d++ = toupper(*c++);
-                }
-                *d = '\0';
+		TOUPPER(d, d+copied_so_far+1, lex_buffer.buf_addr, &lex_buffer.buf_addr[lex_buffer.len_used]);
 		RESET_BUFFER(lex_buffer);
                 return IDENTIFIER_PERIOD_IDENTIFIER;
               }
@@ -412,11 +418,7 @@ int copied_so_far;
                 (*yylval_param)->v.value->type = COLUMN_REFERENCE;
                 (*yylval_param)->v.value->v.string_literal = (char*)octo_cmalloc(memory_chunks, copied_so_far+1);
                 char *d = (*yylval_param)->v.value->v.string_literal;
-                char *c = lex_buffer.buf_addr;
-                while(*c != '\0') {
-			*d++ = toupper(*c++);
-                }
-                *d = '\0';
+		TOUPPER(d, d+copied_so_far+1, lex_buffer.buf_addr, &lex_buffer.buf_addr[lex_buffer.len_used]);
                 BEGIN(INITIAL);
 		RESET_BUFFER(lex_buffer);
                 return IDENTIFIER_BACK_TICK;

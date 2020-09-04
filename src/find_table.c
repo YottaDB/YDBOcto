@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -51,8 +51,7 @@ SqlTable *find_table(const char *table_name) {
 	YDB_STRING_TO_BUFFER(config->global_names.loadedschemas, &varname);
 	YDB_STRING_TO_BUFFER(OCTOLIT_TABLES, &subs_array[0]);
 	YDB_STRING_TO_BUFFER((char *)table_name, &subs_array[1]);
-	ret.buf_addr = &retbuff[0];
-	ret.len_alloc = sizeof(retbuff);
+	OCTO_SET_BUFFER(ret, retbuff);
 	status = ydb_get_s(&varname, 2, &subs_array[0], &ret);
 	switch (status) {
 	case YDB_OK:
@@ -65,8 +64,7 @@ SqlTable *find_table(const char *table_name) {
 		YDB_STRING_TO_BUFFER(config->global_names.schema, &varname);
 		YDB_STRING_TO_BUFFER((char *)table_name, &subs_array[0]);
 		YDB_STRING_TO_BUFFER(OCTOLIT_PG_CLASS, &subs_array[1]);
-		ret.buf_addr = &oid_buff[0];
-		ret.len_alloc = sizeof(oid_buff);
+		OCTO_SET_NULL_TERMINATED_BUFFER(ret, &oid_buff[0]);
 		status = ydb_get_s(&varname, 2, &subs_array[0], &ret);
 		switch (status) {
 		case YDB_OK:

@@ -1,6 +1,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;								;
-; Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	;
+; Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	;
 ; All rights reserved.						;
 ;								;
 ;	This source code contains the intellectual property	;
@@ -303,27 +303,45 @@ columnkeyEXCEPT(inputId1,inputId2,outputId)
 	. SET %ydboctocursor(cursorId,"keys",outputId,"","",subs)=1
 	QUIT
 
-GetScalar(keyId)
-	; Helper M function that given an output key # (keyId) checks if the output key at most one row (guaranteed
-	; to have only one column at parse time). If so it returns that as the value. If not, it issues an error.
-	; Used by generated plans where a sub-query is used in place of a scalar value (e.g. arithmetic expression etc.)
-	; Assumes "%ydboctocursor" and "cursorId" are appropriately set by caller.
+GetScalarOrArray(keyId,toArray)
+	; Helper M function for processing scalar values and single-row arrays. The toArray parameter indicates whether or not to
+	; produce a scalar value or compose an array based on the provided output key # (keyId). In either case, the return is a
+	; single value. In the array case, this return value is a string in PostgreSQL array format, i.e. {elem1,elem2,...}. In the
+	; scalar case, this routine checks if the output key has at most one row (guaranteed to have only one column at parse time).
+	; If so it returns that as the value. If not, it issues an error.
 	;
-	NEW firstsub,secondsub,morethanonesub
+	; Note that the array case permits multiple rows to be returned, per the PostgreSQL specification for ARRAY constructors
+	; using subqueries at https://www.postgresql.org/docs/11/sql-expressions.html#SQL-SYNTAX-ARRAY-CONSTRUCTORS.
+	;
+	; This routine is used by generated plans where a sub-query is used in place of a scalar value (e.g. arithmetic expression
+	; etc.). Assumes "%ydboctocursor" and "cursorId" are appropriately set by caller.
+	NEW firstsub,secondsub,morethanonesub,curvalue,result
 	; Check if there are no rows in subquery output. If so we should return NULL per SQL standard.
 	QUIT:(1>=$DATA(%ydboctocursor(cursorId,"keys",keyId,"",""))) $ZYSQLNULL
 	SET firstsub=$SELECT($DATA(%ydboctocursor(cursorId,"keys",keyId,"","","")):"",1:$ORDER(%ydboctocursor(cursorId,"keys",keyId,"","","")))
 	; Find out if the output key has more than one row. If so issue an error
 	; Note that it is possible the same row gets duplicated more than once. In that case though
 	; the node value would be greater than 1. So check that too (in addition to checking $ORDER returns "").
-	SET secondsub=$ORDER(%ydboctocursor(cursorId,"keys",keyId,"","",firstsub))
 	; It is possible firstsub and secondsub are both "" in which case there is only one sub. Check for that.
 	; Note that if firstsub is $ZYSQLNULL, then we are guaranteed there is no second subscript (since
-	; $ZYSQLNULL is last subscript in $ORDER sequence).
-	SET morethanonesub=$SELECT($ZYISSQLNULL(firstsub):0,$ZYISSQLNULL(secondsub):1,'$DATA(%ydboctocursor(cursorId,"keys",keyId,"","",secondsub)):0,1:(firstsub'=secondsub))
-	SET:'morethanonesub morethanonesub=(1<%ydboctocursor(cursorId,"keys",keyId,"","",firstsub))
-	ZMESSAGE:morethanonesub %ydboctoerror("SUBQUERYMULTIPLEROWS")
-	QUIT firstsub ; Return scalar in only column and only row of keyId
+	IF (toArray) DO
+	. SET result="{"
+	. SET %ydboctocursor(cursorId,"keys",keyId,"","")=""
+	. FOR  SET %ydboctocursor(cursorId,"keys",keyId,"","")=$ORDER(%ydboctocursor(cursorId,"keys",keyId,"","",%ydboctocursor(cursorId,"keys",keyId,"",""))) QUIT:(%ydboctocursor(cursorId,"keys",keyId,"","")="")  DO
+	. . IF ($ZYISSQLNULL($$mval2str^%ydboctoplanhelpers(%ydboctocursor(cursorId,"keys",keyId,"","",%ydboctocursor(cursorId,"keys",keyId,"",""))))) DO
+	. . . SET result=result_"NULL,"
+	. . ELSE  IF (""=$$mval2str^%ydboctoplanhelpers(%ydboctocursor(cursorId,"keys",keyId,"","",%ydboctocursor(cursorId,"keys",keyId,"","")))) DO
+	. . . SET result=result_""""","
+	. . ELSE  DO
+	. . . SET result=result_$$mval2str^%ydboctoplanhelpers(%ydboctocursor(cursorId,"keys",keyId,"","",%ydboctocursor(cursorId,"keys",keyId,"","")))_","
+	. SET result=$EXTRACT(result,1,$LENGTH(result)-1)_"}"
+	ELSE  DO
+	. SET result=firstsub
+	. SET secondsub=$ORDER(%ydboctocursor(cursorId,"keys",keyId,"","",firstsub))
+	. SET morethanonesub=$SELECT($ZYISSQLNULL(firstsub):0,$ZYISSQLNULL(secondsub):1,'$DATA(%ydboctocursor(cursorId,"keys",keyId,"","",secondsub)):0,1:(firstsub'=secondsub))
+	. SET:'morethanonesub morethanonesub=(1<%ydboctocursor(cursorId,"keys",keyId,"","",firstsub))
+	. ZMESSAGE:morethanonesub %ydboctoerror("SUBQUERYMULTIPLEROWS")
+	QUIT result ; Return scalar in only column and only row of keyId
 
 EXISTS(keyId)
 	; Helper M function that given an output key # (keyId) checks if the output key has at least one row

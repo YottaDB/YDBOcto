@@ -117,6 +117,8 @@ if("${FULL_TEST_SUITE}" MATCHES "ON")
 	ADD_BATS_TEST(test_values_clause)
 	ADD_BATS_TEST(test_buffer_resize)
 	ADD_BATS_TEST(test_framework)
+	ADD_BATS_TEST(test_pgadmin)
+	ADD_BATS_TEST(test_array_syntax)
 
 	if(psql)
 		ADD_BATS_TEST(test_psql_connection)

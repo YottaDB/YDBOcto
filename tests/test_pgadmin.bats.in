@@ -1,0 +1,28 @@
+#################################################################
+#								#
+# Copyright (c) 2021 YottaDB LLC and/or its subsidiaries.	#
+# All rights reserved.						#
+#								#
+#	This source code contains the intellectual property	#
+#	of its copyright holder(s), and is made available	#
+#	under a license.  If you do not know the terms of	#
+#	the license, please stop and do not read further.	#
+#								#
+#################################################################
+
+load test_helpers
+
+setup() {
+	init_test
+	createdb
+}
+
+@test "TPGA000 : Database hierarchy retrieval query" {
+	load_fixture TPGA000.sql subtest novv
+	mv output.txt temp.txt
+	echo "# Note that this query does not run correctly as of this writing since more commits are needed" &> output.txt
+	echo "# to implement all of the syntax contained therein. Accordingly this output is expected to change" >> output.txt
+	echo "# when all such functionality is implemented." >> output.txt
+	cat temp.txt >> output.txt
+	verify_output TPGA000 output.txt
+}

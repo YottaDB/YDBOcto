@@ -189,6 +189,8 @@ OCTO
   while [[ $(echo "$ydb_routines" | wc -c) -lt 512 ]]; do
 	export ydb_routines="$ydb_routines .()"
   done
+  # Save computed ydb_routines env var in file in case it is needed later for reproducing/analyzing a failure
+  echo $ydb_routines > ydbroutines.txt
   octo <<OCTO 2>&1 | tee output.txt
 select * from names limit 1;
 OCTO

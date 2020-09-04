@@ -354,9 +354,10 @@ int parse_config_file_settings(const char *config_file_name, config_t *config_fi
 			status = ydb_get_s(&dollar_zroutines_buffer, 0, NULL, &zroutines_buffer);
 			if (YDB_ERR_INVSTRLEN == status) {
 				/* If the buffer isn't large enough allocate more and call ydb_get_s() again
-				 * +2 for null terminator and space
+				 * + 1 for space after the zroutines read from the octo.conf file.
+				 * + 2 for space and null terminator after the zroutines read from ydb_routines env var.
 				 */
-				zroutines_len = zroutines_buffer.len_used + zroutines_from_file_len + 2;
+				zroutines_len = zroutines_buffer.len_used + 1 + zroutines_from_file_len + 2;
 				zroutines_buffer.buf_addr = zroutines_buf_start;
 				YDB_FREE_BUFFER(&zroutines_buffer);
 				YDB_MALLOC_BUFFER(&zroutines_buffer, zroutines_len);
@@ -433,6 +434,7 @@ int parse_config_file_settings(const char *config_file_name, config_t *config_fi
 	zroutines_buffer.buf_addr[zroutines_buffer.len_used] = ' ';
 	zroutines_buffer.buf_addr[zroutines_buffer.len_used + 1] = '\0';
 	zroutines_buffer.len_used += 2;
+	assert(zroutines_buffer.len_used <= zroutines_buffer.len_alloc);
 
 	// Extract the leading path and store in config->plan_src_dir
 	offset = 0;

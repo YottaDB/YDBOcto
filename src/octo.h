@@ -363,6 +363,7 @@ int	      delete_function_from_pg_proc(ydb_buffer_t *function_name_buffer, ydb_b
 
 /* Parse related functions invoked from the .y files (parser.y, select.y etc.) */
 int	      as_name(SqlStatement *as_name, ParseContext *parse_context);
+SqlStatement *sql_set_statement(SqlStatement *variable, SqlStatement *value, ParseContext *parse_context);
 SqlStatement *aggregate_function(SqlAggregateType aggregate_type, OptionalKeyword set_quantifier, SqlStatement *value_expression);
 SqlStatement *between_predicate(SqlStatement *row_value_constructor, SqlStatement *from, SqlStatement *to, boolean_t not_specified);
 SqlStatement *cast_specification(SqlStatement *cast_specification, SqlStatement *source);

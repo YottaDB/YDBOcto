@@ -132,3 +132,9 @@ teardown() {
   load_fixture northwind.zwr
   run_query_in_octo_and_postgres_and_crosscheck_multiple_queries northwind TJC012.sql "" "usejdbc"
 }
+
+@test "TJC013 : OCTO435 : Identifiers accepted in SET statements" {
+	testname="TJC013"
+	load_fixture $testname.sql subtest novv
+	verify_output $testname output.txt
+}

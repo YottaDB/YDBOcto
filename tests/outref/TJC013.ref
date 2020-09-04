@@ -1,0 +1,19 @@
+
+-- TJC013 : OCTO435 : Identifiers accepted in SET statements
+
+SET DateStyle TO PostgreSQL;
+SHOW DateStyle;
+
+SET DateStyle=ISO;
+SHOW DateStyle;
+
+SET DateStyle TO 'PostgreSQL';
+SHOW DateStyle;
+
+SET DateStyle='ISO';
+SHOW DateStyle;
+
+POSTGRESQL
+ISO
+PostgreSQL
+ISO

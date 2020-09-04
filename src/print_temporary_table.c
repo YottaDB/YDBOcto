@@ -39,6 +39,7 @@ int print_temporary_table(SqlStatement *stmt, int cursor_id, void *parms, char *
 	INFO(CUSTOM_ERROR, "%s", "print_temporary_table()");
 
 	YDB_MALLOC_BUFFER(&value_buffer, MAX_STR_CONST);
+	value_buffer.len_alloc--; // Leave room for null terminator
 	if (set_STATEMENT == stmt->type) {
 		// SET a runtime variable to a specified value by updating the appropriate session LVN
 		UNPACK_SQL_STATEMENT(set_stmt, stmt, set);
@@ -80,6 +81,7 @@ int print_temporary_table(SqlStatement *stmt, int cursor_id, void *parms, char *
 			}
 			free(octo_buffers);
 		}
+		value_buffer.buf_addr[value_buffer.len_used] = '\0';
 		fprintf(stdout, "%s\n", value_buffer.buf_addr);
 		YDB_FREE_BUFFER(&value_buffer);
 		free(session_buffers);
@@ -120,7 +122,6 @@ int print_temporary_table(SqlStatement *stmt, int cursor_id, void *parms, char *
 	}
 	YDB_ERROR_CHECK(status);
 	if (YDB_OK == status) {
-		value_buffer.len_alloc--; /* Allocate space for '\0' terminator by reducing allocated length */
 		while (0 != strncmp("", cursor_buffers[6].buf_addr, MAX_STR_CONST)) {
 			status = ydb_get_s(&cursor_buffers[0], 6, &cursor_buffers[1], &value_buffer);
 			// Expand value_buffer allocation until it's large enough to store the retrieved row value

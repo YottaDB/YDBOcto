@@ -12,26 +12,16 @@
 
 sql_set_statement
   : SET identifier EQUALS literal_value {
-      if (TRUE == parse_context->is_extended_query) {
-	parse_context->command_tag = set_STATEMENT;
-      }
-      SqlSetStatement *set;
-      SQL_STATEMENT($$, set_STATEMENT);
-      MALLOC_STATEMENT($$, set, SqlSetStatement);
-      UNPACK_SQL_STATEMENT(set, $$, set);
-      set->variable = $identifier;
-      set->value = $literal_value;
+      $$ = sql_set_statement($identifier, $literal_value, parse_context);
     }
   | SET identifier TO literal_value {
-      if (TRUE == parse_context->is_extended_query) {
-	parse_context->command_tag = set_STATEMENT;
-      }
-      SqlSetStatement *set;
-      SQL_STATEMENT($$, set_STATEMENT);
-      MALLOC_STATEMENT($$, set, SqlSetStatement);
-      UNPACK_SQL_STATEMENT(set, $$, set);
-      set->variable = $identifier;
-      set->value = $literal_value;
+      $$ = sql_set_statement($identifier, $literal_value, parse_context);
+    }
+  | SET identifier EQUALS identifier {
+      $$ = sql_set_statement($2, $4, parse_context);
+    }
+  | SET identifier TO identifier {
+      $$ = sql_set_statement($2, $4, parse_context);
     }
   | SHOW identifier {
       if (TRUE == parse_context->is_extended_query) {

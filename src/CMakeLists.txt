@@ -222,6 +222,7 @@ add_library(libocto OBJECT
   optimization_transforms/optimize_logical_plan.c
   parse_line.c
   parse_startup_flags.c
+  parser/sql_set_statement.c
   parser/aggregate_function.c
   parser/as_name.c
   parser/between_predicate.c

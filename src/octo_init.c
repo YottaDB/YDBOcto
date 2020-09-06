@@ -236,7 +236,7 @@ void merge_config_file_helper(config_setting_t *a, config_setting_t *b) {
 int parse_config_file_settings(const char *config_file_name, config_t *config_file) {
 	config_setting_t *ydb_settings, *cur_ydb_setting;
 	ydb_buffer_t	  zroutines_buffer, dollar_zroutines_buffer;
-	unsigned int	  offset, zroutines_from_file_len, zroutines_len = ZRO_INIT_ALLOC;
+	unsigned int	  offset, zroutines_from_file_len, zroutines_len;
 	const char *	  item_name, *item_value, *verbosity;
 	char *		  zroutines_buf_start, *zroutines_from_file;
 	int		  status, done, i, verbosity_int, plan_src_dir_len, plan_obj_dir_len;
@@ -325,7 +325,12 @@ int parse_config_file_settings(const char *config_file_name, config_t *config_fi
 	if (NULL != config->plan_src_dir) {
 		return 0;
 	}
-	YDB_MALLOC_BUFFER(&zroutines_buffer, ZRO_INIT_ALLOC);
+	zroutines_len = ZRO_INIT_ALLOC;
+	YDB_MALLOC_BUFFER(&zroutines_buffer, zroutines_len);
+	/* We need space at the end of "zroutines_buffer" to store a ' ' and '\0' (as this is needed by the "while" loop
+	 * that is invoked later in this function to set "config->plan_src_dir". Hence reduce len_alloc by 2 bytes.
+	 */
+	zroutines_buffer.len_alloc -= 2;
 	YDB_LITERAL_TO_BUFFER("$zroutines", &dollar_zroutines_buffer);
 	// Prepend zroutines path from configuration file to the start of $zroutines, if specified.
 	if (CONFIG_TRUE == config_lookup_string(config_file, "octo_zroutines", (const char **)&zroutines_from_file)) {
@@ -334,7 +339,7 @@ int parse_config_file_settings(const char *config_file_name, config_t *config_fi
 		// Double size if ZRO_INIT_ALLOC is too small to avoid potential resize later.
 		if (!done) {
 			YDB_FREE_BUFFER(&zroutines_buffer);
-			zroutines_len = (zroutines_from_file_len + 1) * 2; // ' ' + '\0'
+			zroutines_len = (zroutines_from_file_len * 2) + 2; /* "* 2" to double size, "+ 2" for ' ' and '\0' at end */
 			YDB_MALLOC_BUFFER(&zroutines_buffer, zroutines_len);
 			YDB_COPY_STRING_TO_BUFFER(zroutines_from_file, &zroutines_buffer, done);
 			if (!done) {
@@ -348,6 +353,7 @@ int parse_config_file_settings(const char *config_file_name, config_t *config_fi
 			zroutines_buf_start = zroutines_buffer.buf_addr;
 			zroutines_buffer.buf_addr[zroutines_from_file_len] = ' ';
 			zroutines_buffer.buf_addr = zroutines_buf_start + zroutines_from_file_len + 1;
+			assert(zroutines_len >= (zroutines_from_file_len + 2));
 			zroutines_buffer.len_alloc = zroutines_len - zroutines_from_file_len - 2; // ' ' + '\0'
 			zroutines_buffer.len_used = 0;
 			// Retrieve value of $zroutines
@@ -382,9 +388,12 @@ int parse_config_file_settings(const char *config_file_name, config_t *config_fi
 		zroutines_buffer.buf_addr = zroutines_buf_start;
 		zroutines_buffer.len_used += zroutines_from_file_len + 1; // Space character ' '
 		zroutines_buffer.len_alloc = zroutines_len;
-
+		assert(zroutines_buffer.len_used < zroutines_buffer.len_alloc); /* "<" guaranteed (no need of "<=") since we
+										 * reserved space for '\0' at end.
+										 */
 		status = ydb_set_s(&dollar_zroutines_buffer, 0, NULL, &zroutines_buffer);
 		if (YDB_ERR_ZROSYNTAX == status || YDB_ERR_DLLNOOPEN == status) {
+			YDB_ERROR_CHECK(status);
 			ERROR(ERR_BAD_CONFIG, config_file_name, "octo_zroutines");
 			YDB_FREE_BUFFER(&zroutines_buffer);
 			return 1;
@@ -406,6 +415,11 @@ int parse_config_file_settings(const char *config_file_name, config_t *config_fi
 			YDB_FREE_BUFFER(&zroutines_buffer);
 			YDB_MALLOC_BUFFER(&zroutines_buffer, zroutines_len);
 			status = ydb_get_s(&dollar_zroutines_buffer, 0, NULL, &zroutines_buffer);
+		} else {
+			/* Restore "len_alloc" to what it originally was (i.e. undo "-= 2" done in a prior step).
+			 * This is relied upon by a later "assert(zroutines_buffer.len_used <= zroutines_buffer.len_alloc);".
+			 */
+			zroutines_buffer.len_alloc += 2;
 		}
 		YDB_ERROR_CHECK(status);
 		if (YDB_OK != status) {

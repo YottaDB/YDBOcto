@@ -118,6 +118,7 @@ OCTO
   cat >>octo.conf <<OCTO
 octo_zroutines = "$(pwd)/dirA"
 OCTO
+  export ydb_routines="."
   octo <<OCTO 2>&1 | tee output.txt
 select * from names limit 1;
 OCTO
@@ -225,3 +226,26 @@ select * from names limit 1;
 OCTO
 	verify_output TOZ014 output.txt
 }
+
+@test "TOZ015 : OCTO240 : ydb_routines with length == 512 bytes" {
+	export ydb_routines=`$ydb_dist/yottadb -run %XCMD 'for i=1:1:256 write $select(i=256:"..",1:". ")'`
+	echo 'export ydb_routines="'$ydb_routines'"' > ydbroutines.txt
+	octo <<OCTO 2>&1 | tee output.txt
+select * from names limit 1;
+OCTO
+	verify_output TOZ015 output.txt
+}
+
+@test "TOZ016 : OCTO240 : octo_zroutines (in octo.conf) with length == 512 bytes" {
+	octozroutines=`$ydb_dist/yottadb -run %XCMD 'for i=1:1:512 write "x"'`
+	cat >>octo.conf <<OCTO
+octo_zroutines = "$octozroutines"
+OCTO
+	export ydb_routines=`$ydb_dist/yottadb -run %XCMD 'for i=1:1:128 write $select(i=128:"..()",1:".() ")'`
+	echo 'export ydb_routines="'$ydb_routines'"' > ydbroutines.txt
+	octo <<OCTO 2>&1 | tee output.txt
+select * from names limit 1;
+OCTO
+	verify_output TOZ016 output.txt
+}
+

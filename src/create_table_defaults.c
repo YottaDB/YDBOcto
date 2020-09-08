@@ -135,7 +135,7 @@ int create_table_defaults(SqlStatement *table_statement, SqlStatement *keywords_
 		(keyword)->keyword = OPTIONAL_SOURCE;
 		SQL_STATEMENT(keyword->v, value_STATEMENT);
 		OCTO_CMALLOC_STRUCT(keyword->v->v.value, SqlValue);
-		keyword->v->v.value->type = COLUMN_REFERENCE;
+		keyword->v->v.value->type = STRING_LITERAL;
 		keyword->v->v.value->v.reference = out_buffer;
 		dqinit(keyword);
 		dqappend(start_keyword, keyword);

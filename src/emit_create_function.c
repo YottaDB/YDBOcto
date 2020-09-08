@@ -71,7 +71,7 @@ int emit_create_function(FILE *output, struct SqlStatement *stmt) {
 	fprintf(output, ") RETURNS ");
 	data_type = function->return_type->v.data_type_struct.data_type;
 	fprintf(output, "%s", get_type_string_from_sql_data_type(data_type));
-	fprintf(output, " AS `%s`", function->extrinsic_function->v.value->v.string_literal);
+	fprintf(output, " AS %s", function->extrinsic_function->v.value->v.string_literal);
 
 	fprintf(output, ";");
 	return 0;

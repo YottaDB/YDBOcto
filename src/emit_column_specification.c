@@ -101,7 +101,7 @@ int emit_column_specification(char *buffer, int buffer_size, SqlColumn *cur_colu
 		case OPTIONAL_PIECE:
 			UNPACK_SQL_STATEMENT(value, cur_keyword->v, value);
 			m_escape_string2(buffer2, MAX_STR_CONST, value->v.reference);
-			buff_ptr += snprintf(buff_ptr, buffer_size - (buff_ptr - buffer), " PIECE \"%s\"", buffer2);
+			buff_ptr += snprintf(buff_ptr, buffer_size - (buff_ptr - buffer), " PIECE %s", buffer2);
 			break;
 		case OPTIONAL_SOURCE:
 			UNPACK_SQL_STATEMENT(value, cur_keyword->v, value);
@@ -127,7 +127,7 @@ int emit_column_specification(char *buffer, int buffer_size, SqlColumn *cur_colu
 		case OPTIONAL_KEY_NUM:
 			UNPACK_SQL_STATEMENT(value, cur_keyword->v, value);
 			m_escape_string2(buffer2, MAX_STR_CONST, value->v.reference);
-			buff_ptr += snprintf(buff_ptr, buffer_size - (buff_ptr - buffer), " KEY NUM \"%s\"", buffer2);
+			buff_ptr += snprintf(buff_ptr, buffer_size - (buff_ptr - buffer), " KEY NUM %s", buffer2);
 			break;
 		case OPTIONAL_ADVANCE:
 			UNPACK_SQL_STATEMENT(value, cur_keyword->v, value);

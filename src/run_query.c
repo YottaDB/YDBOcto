@@ -683,20 +683,11 @@ int run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_descrip
 			}
 			INFO(CUSTOM_ERROR, "%s", buffer); /* print the converted text representation of the CREATE TABLE command */
 
-			YDB_STRING_TO_BUFFER(buffer, &function_create_buffer);
-			/* Store the text representation of the CREATE FUNCTION statement:
-			 *	^%ydboctoocto(OCTOLIT_FUNCTIONS,function_name,function_hash,OCTOLIT_TEXT)
-			 */
-			YDB_STRING_TO_BUFFER(OCTOLIT_TEXT, &function_name_buffers[3]);
-			status = ydb_set_s(&octo_global, 4, function_name_buffers, &function_create_buffer);
-			CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, memory_chunks, buffer, sub_buffer, spcfc_buffer, query_lock);
-			free(buffer);
-			/* Note: "function_create_buffer" (whose "buf_addr" points to "buffer") is also no longer unusable */
-			buffer = NULL; // So CLEANUP_AND_RETURN* macro calls below do not try "free(buffer)"
-
 			/* First store function name in catalog. As we need that OID to store in the binary table
 			 * definition. The below call also sets table->oid which is needed before the call to
 			 * "compress_statement" as that way the oid also gets stored in the binary table definition.
+			 * It also checks if there are too many parameters and if so issues an error. Therefore it is best
+			 * that we do this step first.
 			 */
 			status = store_function_in_pg_proc(function, function_hash);
 			/* Cannot use CLEANUP_AND_RETURN_IF_NOT_YDB_OK macro here because the above function could set
@@ -707,6 +698,20 @@ int run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_descrip
 			if (YDB_OK != status) {
 				CLEANUP_AND_RETURN(memory_chunks, buffer, sub_buffer, spcfc_buffer, query_lock);
 			}
+
+			/* Now that we know there are no too-many-parameter errors in ths function, we can safely go ahead
+			 * with setting the function related gvn in the database.
+			 */
+			YDB_STRING_TO_BUFFER(buffer, &function_create_buffer);
+			/* Store the text representation of the CREATE FUNCTION statement:
+			 *	^%ydboctoocto(OCTOLIT_FUNCTIONS,function_name,function_hash,OCTOLIT_TEXT)
+			 */
+			YDB_STRING_TO_BUFFER(OCTOLIT_TEXT, &function_name_buffers[3]);
+			status = ydb_set_s(&octo_global, 4, function_name_buffers, &function_create_buffer);
+			CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, memory_chunks, buffer, sub_buffer, spcfc_buffer, query_lock);
+			free(buffer);
+			/* Note: "function_create_buffer" (whose "buf_addr" points to "buffer") is also no longer unusable */
+			buffer = NULL; // So CLEANUP_AND_RETURN* macro calls below do not try "free(buffer)"
 
 			compress_statement(result, &spcfc_buffer, &length);
 			assert(NULL != spcfc_buffer);

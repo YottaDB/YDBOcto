@@ -48,5 +48,6 @@ setup() {
 		tail -4 $outputfile >> output.txt 2>&1
 	done
   done
+  export disable_escape_sequence_sanitize=1
   verify_output HP01 output.txt
 }

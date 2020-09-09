@@ -37,6 +37,7 @@ setup() {
   # check that the full query is printed in the header of the generated M code
   awk 'BEGIN {p = 0} /^;; -*$/ {p = 0} NR == 3 {p = 1} p {print substr($0, 4)}' _ydboctoP* > query.cmp
   diff in.sql query.cmp
+  escape_sequence_sanitize
   diff output.ref clean_output.txt
 }
 

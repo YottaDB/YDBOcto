@@ -552,9 +552,11 @@ verify_output() {
 		fi
 		# The sort argument should be passed last to allow sorting of final output file
 		if [[ $i == "sort" ]]; then
-			cat clean_output.txt | sort -o clean_output.txt
+			mv clean_output.txt clean_output.txt.nosort
+			cat clean_output.txt.nosort | sort -o clean_output.txt
 		fi
 	done
+	escape_sequence_sanitize
 	# test_where_in.bats TWI12 when executed with JDBC driver fails without the following code.
 	# This is because the semicolon at the end of a query is left out of the physical plan in this case.
 	# To avoid such failure we remove all occurrences of semicolons before the comparison.
@@ -565,6 +567,18 @@ verify_output() {
 	fi
 	diff outref/$1.ref clean_output.txt
 	return
+}
+
+escape_sequence_sanitize() {
+	# On RHEL7 and CentOS7, the OCTO> prompt has some escape sequences before it (due likely to an older version of readline()).
+	# Need that trimmed out as it will cause reference file issues.
+	if [ ! -x "$(which rpm)" ] || ! grep -q 'VERSION_ID="7' /etc/os-release; then
+		export disable_escape_sequence_sanitize=1
+	fi
+	if [[ -z "$disable_escape_sequence_sanitize" ]]; then
+		mv clean_output.txt clean_output.txt.nosanitize
+		perl @PROJECT_SOURCE_DIR@/tests/fixtures/escape_sequence_sanitize.pl clean_output.txt.nosanitize > clean_output.txt
+	fi
 }
 
 count_for_loops() {

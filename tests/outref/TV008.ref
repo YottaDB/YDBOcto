@@ -1,1 +1,1 @@
-[ERROR] PATH:LINENUM DATE TIME : Error parsing config ($PWD/octo.conf): line 3: syntax error
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_CONFIG : Error parsing config ($PWD/octo.conf): line 3: syntax error

@@ -1,6 +1,6 @@
 
 SELECT case when id=1 then 'id_is_1' when id=2 then 2 else 1 end as caseid FROM names;
-[ERROR] PATH:LINENUM DATE TIME : CASE branch type mismatch: left VARCHAR, right NUMERIC
+[ERROR] PATH:LINENUM DATE TIME : ERR_CASE_BRANCH_TYPE_MISMATCH : CASE branch type mismatch: left VARCHAR, right NUMERIC
 Error with syntax near (line 1, column 36):
 
 SELECT case when id=1 then 'id_is_1' when id=2 then 2 else 1 end as caseid FROM names;
@@ -9,7 +9,7 @@ Error with syntax near (line 1, column 53):
 
 SELECT case when id=1 then 'id_is_1' when id=2 then 2 else 1 end as caseid FROM names;
                                                     ^
-[ERROR] PATH:LINENUM DATE TIME : CASE branch type mismatch: left VARCHAR, right NUMERIC
+[ERROR] PATH:LINENUM DATE TIME : ERR_CASE_BRANCH_TYPE_MISMATCH : CASE branch type mismatch: left VARCHAR, right NUMERIC
 Error with syntax near (line 1, column 36):
 
 SELECT case when id=1 then 'id_is_1' when id=2 then 2 else 1 end as caseid FROM names;
@@ -18,5 +18,5 @@ Error with syntax near (line 1, column 60):
 
 SELECT case when id=1 then 'id_is_1' when id=2 then 2 else 1 end as caseid FROM names;
                                                            ^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT case when id=1 then 'id_is_1' when id=2 then 2 else 1 end as caseid FROM names;
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT case when id=1 then 'id_is_1' when id=2 then 2 else 1 end as caseid FROM names;
 

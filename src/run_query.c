@@ -228,10 +228,9 @@ int run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_descrip
 		input_buffer_combined[cur_input_index] = placeholder;
 	}
 
-	INFO(CUSTOM_ERROR, "Parsing done for SQL command [%.*s]", cur_input_index - old_input_index,
-	     input_buffer_combined + old_input_index);
+	INFO(INFO_PARSING_DONE, cur_input_index - old_input_index, input_buffer_combined + old_input_index);
 	if (NULL == result) {
-		INFO(CUSTOM_ERROR, "Returning failure from run_query");
+		INFO(INFO_RETURNING_FAILURE, "run_query");
 		status = ydb_lock_decr_s(&query_lock[0], 2, &query_lock[1]);
 		YDB_ERROR_CHECK(status);
 		OCTO_CFREE(memory_chunks);
@@ -243,7 +242,7 @@ int run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_descrip
 		OCTO_CFREE(memory_chunks);
 		return (YDB_OK != status);
 	}
-	INFO(CUSTOM_ERROR, "Generating SQL for cursor %s", cursor_ydb_buff.buf_addr);
+	INFO(INFO_CURSOR, cursor_ydb_buff.buf_addr);
 	free_memory_chunks = true; // By default run "octo_cfree(memory_chunks)" at the end
 
 	cursor_used = TRUE; /* By default, assume a cursor was used to execute the query */
@@ -252,7 +251,7 @@ int run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_descrip
 	// and so need to propagate them out
 	case table_alias_STATEMENT:
 	case set_operation_STATEMENT:
-		TRACE(ERR_ENTERING_FUNCTION, "hash_canonical_query");
+		TRACE(INFO_ENTERING_FUNCTION, "hash_canonical_query");
 		INVOKE_HASH_CANONICAL_QUERY(state, result, status); /* "state" holds final hash */
 		if (0 != status) {
 			status = ydb_lock_decr_s(&query_lock[0], 2, &query_lock[1]);
@@ -322,7 +321,7 @@ int run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_descrip
 					continue; /* So we redo the check of whether plan exists or not after getting lock */
 				} else {
 					/* We got the lock and the plan still does not exist. Generate the plan this time around. */
-					INFO(CUSTOM_ERROR, "Generating M file [%s] (to execute SQL query)", filename);
+					INFO(INFO_M_PLAN, filename);
 					pplan = emit_select_statement(result, filename);
 					if (NULL == pplan) {
 						CLEANUP_FROM_PLAN_GENERATION(i, filename_lock, query_lock, memory_chunks);
@@ -331,7 +330,7 @@ int run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_descrip
 				}
 			} else {
 				/* Plan was found to already exist. So reuse it. */
-				INFO(CUSTOM_ERROR, "Using already generated M file [%s] (to execute SQL query)", filename);
+				INFO(INFO_REUSE_M_PLAN, filename);
 				/* If this is the first iteration, then we can break out of the loop but if the second
 				 * iteration, then we need to release the locks obtained in the first iteration.
 				 */
@@ -491,7 +490,8 @@ int run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_descrip
 				// "emit_create_table"
 				CLEANUP_AND_RETURN(memory_chunks, buffer, spcfc_buffer, query_lock);
 			}
-			INFO(CUSTOM_ERROR, "%s", buffer); /* print the converted text representation of the CREATE TABLE command */
+			INFO(INFO_TEXT_REPRESENTATION,
+			     buffer); /* print the converted text representation of the CREATE TABLE command */
 
 			YDB_STRING_TO_BUFFER(buffer, &table_create_buffer);
 			/* Store the text representation of the CREATE TABLE statement:
@@ -641,7 +641,8 @@ int run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_descrip
 				 */
 				CLEANUP_AND_RETURN(memory_chunks, buffer, spcfc_buffer, query_lock);
 			}
-			INFO(CUSTOM_ERROR, "%s", buffer); /* print the converted text representation of the CREATE TABLE command */
+			INFO(INFO_TEXT_REPRESENTATION,
+			     buffer); /* print the converted text representation of the CREATE TABLE command */
 
 			/* First store function name in catalog. As we need that OID to store in the binary table
 			 * definition. The below call also sets table->oid which is needed before the call to

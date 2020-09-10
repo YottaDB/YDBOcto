@@ -38,7 +38,7 @@ Close *read_close(BaseMessage *message) {
 
 	// Ensure valid value for type field
 	if (ret->type != PSQL_Close) {
-		ERROR(ERR_ROCTO_INVALID_TYPE, "", ret->type, PSQL_Close);
+		ERROR(ERR_ROCTO_INVALID_MESSAGE_TYPE, "", ret->type, PSQL_Close);
 		free(ret);
 		return NULL;
 	}

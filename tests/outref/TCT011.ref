@@ -79,19 +79,19 @@ select id-2*((id/2)::boolean) from names;
 3
 4
 5
-[ERROR] PATH:LINENUM DATE TIME : Type BOOLEAN not compatible for || operator
-[ERROR] PATH:LINENUM DATE TIME : Type BOOLEAN not compatible for || operator
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select id::boolean,(ABS(2)::boolean || id::bool) from names;
-[ERROR] PATH:LINENUM DATE TIME : Type BOOLEAN not compatible for arithmetic operations
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select id::boolean,(ABS(2)::bool + id) from names;
-[ERROR] PATH:LINENUM DATE TIME : Type BOOLEAN not compatible for || operator
-[ERROR] PATH:LINENUM DATE TIME : Type BOOLEAN not compatible for || operator
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select id::boolean || id::boolean,ABS(2)::numeric * id from names;
-[ERROR] PATH:LINENUM DATE TIME : Type BOOLEAN not compatible for || operator
-[ERROR] PATH:LINENUM DATE TIME : Type BOOLEAN not compatible for || operator
-[ERROR] PATH:LINENUM DATE TIME : Type BOOLEAN not compatible for arithmetic operations
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select id::boolean || id::boolean,ABS(2)::boolean * id from names;
-[ERROR] PATH:LINENUM DATE TIME : UNION types INTEGER and BOOLEAN cannot be matched
+[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type BOOLEAN not compatible for || operator
+[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type BOOLEAN not compatible for || operator
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select id::boolean,(ABS(2)::boolean || id::bool) from names;
+[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type BOOLEAN not compatible for arithmetic operations
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select id::boolean,(ABS(2)::bool + id) from names;
+[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type BOOLEAN not compatible for || operator
+[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type BOOLEAN not compatible for || operator
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select id::boolean || id::boolean,ABS(2)::numeric * id from names;
+[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type BOOLEAN not compatible for || operator
+[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type BOOLEAN not compatible for || operator
+[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type BOOLEAN not compatible for arithmetic operations
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select id::boolean || id::boolean,ABS(2)::boolean * id from names;
+[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_TYPE_MISMATCH : UNION types INTEGER and BOOLEAN cannot be matched
 Error with syntax near (line 1, column 24):
 
 select id from (select * from names UNION select 6.5::bool,'A','B');
@@ -100,17 +100,17 @@ Error with syntax near (line 1, column 50):
 
 select id from (select * from names UNION select 6.5::bool,'A','B');
                                                  ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select id from (select * from names UNION select 6.5::bool,'A','B');
-[ERROR] PATH:LINENUM DATE TIME : Type mismatch: left BOOLEAN, right INTEGER
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select id from (select * from names UNION select 6.5::bool,'A','B');
+[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left BOOLEAN, right INTEGER
 Error with syntax near (line 1, column 48):
 
 select * from names where firstname::boolean = id;
                                                ^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select * from names where firstname::boolean = id;
-[ERROR] PATH:LINENUM DATE TIME : Type BOOLEAN not compatible for arithmetic operations
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select id-2*(id/2::bool) from names;
-[ERROR] PATH:LINENUM DATE TIME : Type BOOLEAN not compatible for arithmetic operations
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select id-2*((id/2)::boolean) from names;
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select * from names where firstname::boolean = id;
+[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type BOOLEAN not compatible for arithmetic operations
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select id-2*(id/2::bool) from names;
+[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type BOOLEAN not compatible for arithmetic operations
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select id-2*((id/2)::boolean) from names;
 ;; This is a generated file; do not modify. Generated M code corresponds to below SQL query
 ;; ---------------------------------------------------------
 ;  select id::integer,(ABS(2)::text || id::text) from names;

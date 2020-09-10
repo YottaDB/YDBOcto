@@ -1,2 +1,2 @@
 [ERROR] Null subscripts must be enabled for database file [$PWD/OCTO2.dat] : region [OCTO2] (global ^%ydboctoxref maps to this region)
-[IP_UNSET:PORT_UNSET] [ERROR] PATH:LINENUM DATE TIME : Null subscripts must be enabled for proper operation. Please set '-null_subscripts=always' for all regions containing Octo global variables.
+[IP_UNSET:PORT_UNSET] [ERROR] PATH:LINENUM DATE TIME : ERR_NULL_SUBS_DISABLED : Null subscripts must be enabled for proper operation. Please set '-null_subscripts=always' for all regions containing Octo global variables.

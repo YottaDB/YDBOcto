@@ -1,6 +1,6 @@
 -- TWO17 : WHERE primary_key IS NOT NULL
 SELECT id FROM names WHERE id IS NOT NULL;
-[DEBUG] PATH:LINENUM DATE TIME : LOGICAL_PLAN BEFORE optimize_logical_plan() follows
+[DEBUG] PATH:LINENUM DATE TIME : INFO_CURPLAN : LOGICAL_PLAN BEFORE optimize_logical_plan() follows 
 LP_INSERT: 
   LP_PROJECT: 
     LP_COLUMN_LIST: 
@@ -29,7 +29,7 @@ LP_INSERT:
     - xref_key: false
     - uses_xref_key: false
 
-[DEBUG] PATH:LINENUM DATE TIME : LOGICAL_PLAN AFTER optimize_logical_plan() follows
+[DEBUG] PATH:LINENUM DATE TIME : INFO_CURPLAN : LOGICAL_PLAN AFTER optimize_logical_plan() follows 
 LP_INSERT: 
   LP_PROJECT: 
     LP_COLUMN_LIST: 

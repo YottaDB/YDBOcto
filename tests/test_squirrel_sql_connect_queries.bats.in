@@ -36,7 +36,7 @@ teardown() {
   echo -e "\n----- ROCTO/JDBC -----" &> output.txt
   run_java run_query $test_port $testname 2>&1 output.txt
   # Confirm no errors
-  [[ $(grep -c "ERROR" rocto.log) -eq 0 ]]
+  [[ $(grep -v "CUSTOM_ERROR" rocto.log | grep -c "ERROR") -eq 0 ]]
   # Confirm command was parsed
   grep "SET extra_float_digits = 3" rocto.log >> output.txt
   echo -e "\n----- OCTO -----" >> output.txt
@@ -51,7 +51,7 @@ teardown() {
   echo -en "\n----- ROCTO/JDBC -----" &> output.txt
   run_java run_query $test_port $testname 2>&1 output.txt
   # Confirm no errors
-  [[ $(grep -c "ERROR" rocto.log) -eq 0 ]]
+  [[ $(grep -v "CUSTOM_ERROR" rocto.log | grep -c "ERROR") -eq 0 ]]
   # Newline for outref readability
   echo >> output.txt
   # Confirm command was parsed
@@ -70,7 +70,7 @@ teardown() {
   echo -e "\n----- ROCTO/JDBC -----" &> output.txt
   run_java run_query $test_port $testname >> output.txt 2>&1
   # Confirm no errors
-  [[ $(grep -c "ERROR" rocto.log) -eq 0 ]]
+  [[ $(grep -v "CUSTOM_ERROR" rocto.log | grep -c "ERROR") -eq 0 ]]
   echo -e "\n----- OCTO -----" >> output.txt
   octo -f $testname.sql >> output.txt 2>&1
   # Prepend query executed

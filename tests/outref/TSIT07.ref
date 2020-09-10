@@ -11,7 +11,7 @@ OCTO>             FROM names n3
 OCTO>             WHERE n1.id = n3.id
 OCTO>            ) as n4
 OCTO> ON n4.id = n1.id;
-[ERROR] PATH:LINENUM DATE TIME : Missing FROM-clause entry for table : N1
+[ERROR] PATH:LINENUM DATE TIME : ERR_MISSING_FROM_ENTRY : Missing FROM-clause entry for table : N1
 Error with syntax near (line 5, column 19):
 
 SELECT *
@@ -20,7 +20,7 @@ INNER JOIN (SELECT *
             FROM names n2
             WHERE n1.id = n2.id
                   ^^^^^
-[ERROR] PATH:LINENUM DATE TIME : Missing FROM-clause entry for table : N1
+[ERROR] PATH:LINENUM DATE TIME : ERR_MISSING_FROM_ENTRY : Missing FROM-clause entry for table : N1
 Error with syntax near (line 9, column 19):
 
 SELECT *
@@ -33,7 +33,7 @@ INNER JOIN (SELECT *
             FROM names n3
             WHERE n1.id = n3.id
                   ^^^^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT *
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT *
 FROM names n1
 INNER JOIN (SELECT *
             FROM names n2

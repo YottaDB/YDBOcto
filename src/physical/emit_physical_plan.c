@@ -150,8 +150,7 @@ int emit_physical_plan(PhysicalPlan *pplan, char *plan_filename) {
 		if (access(filename, F_OK) == -1) { // file doesn't exist
 			ydb_buffer_t table_buff[4];
 
-			INFO(CUSTOM_ERROR, "Generating helper cross reference M file [%s] for table [%s] and column [%s]", filename,
-			     tableName, columnName);
+			INFO(INFO_GENERATING_XREF, filename, tableName, columnName);
 			output_file = fopen(filename, "w");
 			if (output_file == NULL) {
 				ERROR(ERR_SYSCALL_WITH_ARG, "fopen()", errno, strerror(errno), filename);

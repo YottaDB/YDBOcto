@@ -22,7 +22,7 @@ SqlColumn *find_column(char *column_name, SqlTable *table) {
 	SqlColumn *cur_column = NULL, *start_column = NULL;
 	SqlValue * value = NULL;
 
-	TRACE(CUSTOM_ERROR, "Searching for column %s in table %s", column_name, table->tableName->v.value->v.reference);
+	TRACE(INFO_COLUMN_SEARCH, column_name, table->tableName->v.value->v.reference);
 
 	UNPACK_SQL_STATEMENT(start_column, table->columns, column);
 	cur_column = start_column;

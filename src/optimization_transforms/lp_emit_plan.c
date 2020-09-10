@@ -168,7 +168,7 @@ void lp_emit_plan(LogicalPlan *plan, char *stage) {
 #else
 	UNUSED(actual_len); /* in Release builds, this avoids a [-Wunused-but-set-variable] warning */
 #endif
-	DEBUG(ERR_CURPLAN, stage, buffer);
+	DEBUG(INFO_CURPLAN, stage, buffer);
 	free(buffer);
 	return;
 }

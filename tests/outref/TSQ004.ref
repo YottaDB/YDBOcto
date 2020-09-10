@@ -25,7 +25,8 @@ ORDER  BY procedure_schem,
           procedure_name,
           p.oid :: text
 
-[ INFO] PATH:LINENUM DATE TIME : Parsing done for SQL command [SELECT NULL          AS PROCEDURE_CAT,
+[ INFO] PATH:LINENUM DATE TIME : INFO_RECORDING_ENV_VARS : # Recording pertinent ydb_* env var values at process startup
+[ INFO] PATH:LINENUM DATE TIME : INFO_PARSING_DONE : Parsing done for SQL command [SELECT NULL          AS PROCEDURE_CAT,
        n.nspname     AS PROCEDURE_SCHEM,
        p.proname     AS PROCEDURE_NAME,
        NULL,
@@ -51,9 +52,9 @@ ORDER  BY procedure_schem,
           procedure_name,
           p.oid :: text
 ]
-[ INFO] PATH:LINENUM DATE TIME : Generating SQL for CURSOR_NUM
-[ INFO] PATH:LINENUM DATE TIME : Generating M file [$PWD/_ydboctoP*.m] (to execute SQL query)
-[DEBUG] PATH:LINENUM DATE TIME : LOGICAL_PLAN BEFORE optimize_logical_plan() follows
+[ INFO] PATH:LINENUM DATE TIME : INFO_CURSOR : Generating SQL for CURSOR_NUM
+[ INFO] PATH:LINENUM DATE TIME : INFO_M_PLAN : Generating M file [$PWD/_ydboctoP*.m] (to execute SQL query)
+[DEBUG] PATH:LINENUM DATE TIME : INFO_CURPLAN : LOGICAL_PLAN BEFORE optimize_logical_plan() follows 
 LP_INSERT: 
   LP_PROJECT: 
     LP_COLUMN_LIST: 
@@ -184,7 +185,7 @@ LP_INSERT:
               LP_COLUMN_LIST_ALIAS: 
               - type: STRING_LITERAL
 
-[DEBUG] PATH:LINENUM DATE TIME : LOGICAL_PLAN AFTER optimize_logical_plan() follows
+[DEBUG] PATH:LINENUM DATE TIME : INFO_CURPLAN : LOGICAL_PLAN AFTER optimize_logical_plan() follows 
 LP_INSERT: 
   LP_PROJECT: 
     LP_COLUMN_LIST: 
@@ -429,9 +430,9 @@ LP_INSERT:
               LP_COLUMN_LIST_ALIAS: 
               - type: STRING_LITERAL
 
-[ INFO] PATH:LINENUM DATE TIME : Generating helper cross reference M file [$PWD/_ydboctoX*.m] for table [PG_CATALOG.PG_DESCRIPTION] and column [OBJOID]
-[ INFO] PATH:LINENUM DATE TIME : Generating helper cross reference M file [$PWD/_ydboctoX*.m] for table [PG_CATALOG.PG_PROC] and column [PRONAMESPACE]
-[ INFO] PATH:LINENUM DATE TIME : print_temporary_table()
+[ INFO] PATH:LINENUM DATE TIME : INFO_GENERATING_XREF : Generating helper cross reference M file [$PWD/_ydboctoX*.m] for table [PG_CATALOG.PG_DESCRIPTION] and column [OBJOID]
+[ INFO] PATH:LINENUM DATE TIME : INFO_GENERATING_XREF : Generating helper cross reference M file [$PWD/_ydboctoX*.m] for table [PG_CATALOG.PG_PROC] and column [PRONAMESPACE]
+[ INFO] PATH:LINENUM DATE TIME : INFO_ENTERING_FUNCTION : Entering print_temporary_table
 |pg_catalog|ABS|||||2|ABS_170
 |pg_catalog|ABS|||||2|ABS_171
 |pg_catalog|CURRENT_SCHEMA|||||2|CURRENT_SCHEMA_183

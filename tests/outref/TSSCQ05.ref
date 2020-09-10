@@ -7,12 +7,12 @@ SQL State: 42P01
 ERROR: Unknown table: PG_CATALOG.PG_SETTINGS
 
 ----- OCTO -----
-[ERROR] PATH:LINENUM DATE TIME : Unknown table: PG_CATALOG.PG_SETTINGS
+[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_TABLE : Unknown table: PG_CATALOG.PG_SETTINGS
 Error with syntax near (line 2, column 8):
 
 SELECT setting
 FROM   pg_catalog.pg_settings
        ^^^^^^^^^^^^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT setting
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT setting
 FROM   pg_catalog.pg_settings
 WHERE  NAME = 'max_index_keys'

@@ -117,7 +117,7 @@ int parse_startup_flags(int argc, char **argv, char **config_file_name) {
 			if (optarg) {
 				c = atoi(optarg);
 				if (ERROR < c || TRACE > c) {
-					ERROR(CUSTOM_ERROR, "Invalid value specified for --verbose");
+					ERROR(ERR_INVALID_CLI_OPTION, "--verbose");
 					return 1;
 				}
 				config->verbosity_level = ERROR - c;

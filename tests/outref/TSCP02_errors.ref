@@ -2,7 +2,7 @@
 SELECT 1 IN (true) FROM names;
 -- TODO: this should give a type error, but currently gives an parse error (#552)
 SELECT true IN (1) FROM names;
-[ERROR] PATH:LINENUM DATE TIME : Type mismatch: left NUMERIC, right BOOLEAN
+[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left NUMERIC, right BOOLEAN
 Error with syntax near (line 1, column 7):
 
 SELECT 1 IN (true) FROM names;
@@ -11,11 +11,11 @@ Error with syntax near (line 1, column 13):
 
 SELECT 1 IN (true) FROM names;
              ^^^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT 1 IN (true) FROM names;
-[ERROR] PATH:LINENUM DATE TIME : Type mismatch: left BOOLEAN, right NUMERIC
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT 1 IN (true) FROM names;
+[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left BOOLEAN, right NUMERIC
 Error with syntax near (line 1, column 17):
 
 SELECT true IN (1) FROM names;
                 ^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT true IN (1) FROM names;
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT true IN (1) FROM names;
 

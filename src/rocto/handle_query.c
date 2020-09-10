@@ -34,7 +34,7 @@ int handle_query(Query *query, RoctoSession *session) {
 	CommandComplete *   response;
 	int32_t		    query_length = 0, run_query_result = 0;
 
-	TRACE(ERR_ENTERING_FUNCTION, "handle_query");
+	TRACE(INFO_ENTERING_FUNCTION, "handle_query");
 
 	memset(&parse_context, 0, sizeof(ParseContext));
 	memset(&parms, 0, sizeof(QueryResponseParms));

@@ -1,2 +1,2 @@
-[ERROR] PATH:LINENUM DATE TIME : Error no valid source directory found in octo_zroutines config or $zroutines ISV
-[ERROR] PATH:LINENUM DATE TIME : YottaDB error: 150373978,(Call-In),%YDB-E-ZLINKFILE, Error while zlinking "%ydboctoInit",%YDB-E-FILENOTFND, File %ydboctoInit not found
+[ERROR] PATH:LINENUM DATE TIME : ERR_BAD_ZROUTINES : Error no valid source directory found in octo_zroutines config or $zroutines ISV
+[ERROR] PATH:LINENUM DATE TIME : ERR_YOTTADB : YottaDB error: 150373978,(Call-In),%YDB-E-ZLINKFILE, Error while zlinking "%ydboctoInit",%YDB-E-FILENOTFND, File %ydboctoInit not found

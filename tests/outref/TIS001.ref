@@ -2,4 +2,4 @@
 CREATE TABLE Customers (CustomerID INTEGER PRIMARY KEY);
 INDEX fake_index "^notaglobal(""fake_index"",fields(""name""),fields(""age""),keys(""id""))";
 CREATE TABLE Orders (OrderID INTEGER PRIMARY KEY);
-[ WARN] PATH:LINENUM DATE TIME : Feature not implemented: INDEX statements
+[ WARN] PATH:LINENUM DATE TIME : ERR_FEATURE_NOT_IMPLEMENTED : Feature not implemented: INDEX statements

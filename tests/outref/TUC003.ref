@@ -1,9 +1,9 @@
 OCTO> select * from names where notathing = 0; select * from names limit 1;
-[ERROR] PATH:LINENUM DATE TIME : Unknown column: NOTATHING
+[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_COLUMN_NAME : Unknown column: NOTATHING
 Error with syntax near (line 1, column 26):
 
 select * from names where notathing = 0; select * from names limit 1;
                           ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select * from names where notathing = 0;
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select * from names where notathing = 0;
 0|Zero|Cool
 OCTO> 

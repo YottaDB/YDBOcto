@@ -24,7 +24,7 @@ setup() {
 }
 
 # TODO: Remove when INDEX statements are fully implemented.
-@test "TIS000 : run valid CREATE statements while ignoring INDEX statement" {
+@test "TIS001 : run valid CREATE statements while ignoring INDEX statement" {
   load_fixture TIS001.sql subtest
   verify_output TIS001 output.txt noinfo
 }

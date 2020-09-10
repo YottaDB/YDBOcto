@@ -38,7 +38,7 @@ Describe *read_describe(BaseMessage *message) {
 
 	// Ensure valid value for type field
 	if (ret->type != 'D') {
-		ERROR(ERR_ROCTO_INVALID_TYPE, "Describe", ret->type, PSQL_Describe);
+		ERROR(ERR_ROCTO_INVALID_MESSAGE_TYPE, "Describe", ret->type, PSQL_Describe);
 		free(ret);
 		return NULL;
 	}

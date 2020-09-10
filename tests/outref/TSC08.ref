@@ -21,12 +21,12 @@ OCTO>                ON A.current_action = B.order_order_actions_id
 OCTO>        inner join orderstatus C
 OCTO>                ON A.status = C.order_status_id
 OCTO> WHERE  B.action = "NW";
-[ERROR] PATH:LINENUM DATE TIME : Unknown column: ORDER1
+[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_COLUMN_NAME : Unknown column: ORDER1
 Error with syntax near (line 1, column 7):
 
 SELECT order1
        ^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT order1
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT order1
 FROM   order1 A
        inner join orderorderactions B
                ON A.current_action = B.order_order_actions_id

@@ -397,7 +397,7 @@ LogicalPlan *sub_query_check_and_generate_physical_plan(PhysicalPlanOptions *opt
 			}
 			if (NULL == cur) {
 				assert(FALSE);
-				ERROR(CUSTOM_ERROR, "Problem resolving owner for deferred plan; undefined behavior");
+				ERROR(ERR_PLAN_OWNER, "");
 			}
 			if (set_deferred_plan) {
 				do {

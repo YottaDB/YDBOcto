@@ -39,7 +39,7 @@ Execute *read_execute(BaseMessage *message) {
 
 	// Ensure message has correct type
 	if (ret->type != PSQL_Execute) {
-		ERROR(ERR_ROCTO_INVALID_TYPE, "Execute", ret->type, PSQL_Execute);
+		ERROR(ERR_ROCTO_INVALID_MESSAGE_TYPE, "Execute", ret->type, PSQL_Execute);
 		free(ret);
 		return NULL;
 	}

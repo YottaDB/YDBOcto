@@ -40,7 +40,7 @@ int main(int argc, char **argv) {
 		return status;
 	}
 
-	TRACE(CUSTOM_ERROR, "Octo started");
+	TRACE(INFO_OCTO_STARTED, "");
 
 	/* Load the existing tables */
 

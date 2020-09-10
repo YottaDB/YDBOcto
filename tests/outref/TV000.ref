@@ -4,12 +4,12 @@ select * from nonexistanttable;
 INDEX fake_index "^notaglobal(""fake_index"",fields(""name""),fields(""age""),keys(""id""))";
 
 select * from names;
-[ERROR] PATH:LINENUM DATE TIME : Unknown table: NONEXISTANTTABLE
+[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_TABLE : Unknown table: NONEXISTANTTABLE
 Error with syntax near (line 1, column 15):
 
 select * from nonexistanttable;
               ^^^^^^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select * from nonexistanttable;
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select * from nonexistanttable;
 0|Zero|Cool
 1|Acid|Burn
 2|Cereal|Killer

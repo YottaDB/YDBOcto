@@ -35,7 +35,7 @@ Query *read_query(BaseMessage *message) {
 
 	// Ensure that message has correct type
 	if (ret->type != PSQL_Query) {
-		ERROR(ERR_ROCTO_INVALID_TYPE, "Query", ret->type, PSQL_Query);
+		ERROR(ERR_ROCTO_INVALID_MESSAGE_TYPE, "Query", ret->type, PSQL_Query);
 		free(ret);
 		return NULL;
 	}

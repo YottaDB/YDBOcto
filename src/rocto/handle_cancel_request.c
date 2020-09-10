@@ -26,7 +26,7 @@
 #include "helpers.h"
 
 int handle_cancel_request(CancelRequest *cancel_request) {
-	TRACE(ERR_ENTERING_FUNCTION, "handle_cancel_request");
+	TRACE(INFO_ENTERING_FUNCTION, "handle_cancel_request");
 	ydb_buffer_t  secret_key_list_buffer, pid_subs[2];
 	ydb_buffer_t *pid_buffer = &pid_subs[0];
 	char	      pid_str[INT32_TO_STRING_MAX], secret_key_str[INT32_TO_STRING_MAX];

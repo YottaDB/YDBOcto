@@ -145,4 +145,13 @@ foreach file ($filelist)
 	endif
 end
 
+# ---------------------------------------------------------------------------
+# 4) Verify all error mnemonics and error message text included in errors.rst
+# ---------------------------------------------------------------------------
+
+tools/ci/doc_error_update.sh
+if ($status) then
+	@ exitstatus = 1
+endif
+
 exit $exitstatus

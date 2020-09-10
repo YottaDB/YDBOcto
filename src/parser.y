@@ -1767,11 +1767,11 @@ literal_value
 							EXPAND_ARRAY_ALLOCATION(parse_context->is_bind_parm,
 								parse_context->is_bind_parm_size, parse_context->total_parms,
 								boolean_t);
-							TRACE(ERR_MEM_REALLOCATION, "expanded", "parse_context->is_bind_parm");
+							TRACE(INFO_MEM_REALLOCATION, "expanded", "parse_context->is_bind_parm");
 						}
 						DOUBLE_ARRAY_ALLOCATION(parse_context->is_bind_parm,
 							parse_context->is_bind_parm_size, boolean_t);
-						TRACE(ERR_MEM_REALLOCATION, "doubled", "parse_context->is_bind_parm");
+						TRACE(INFO_MEM_REALLOCATION, "doubled", "parse_context->is_bind_parm");
 					}
 					parse_context->is_bind_parm[parse_context->total_parms] = TRUE;
 				}

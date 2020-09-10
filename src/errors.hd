@@ -20,12 +20,14 @@ ERROR_DEF(ERR_LIBSSL_ERROR, "Error in libssl/libcrypt", PSQL_Code_Internal_Error
 ERROR_DEF(ERR_PARSING_COMMAND, "Error parsing statement: %.*s", PSQL_Code_Internal_Error)
 ERROR_DEF(ERR_PLAN_NOT_GENERATED, "Failed to generate %s plan", PSQL_Code_Internal_Error)
 ERROR_DEF(ERR_PLAN_HASH_FAILED, "Failed to generate plan filename hash", PSQL_Code_Internal_Error)
+ERROR_DEF(ERR_PLAN_OWNER, "Problem resolving owner for deferred plan; undefined behavior", PSQL_Code_Internal_Error)
 ERROR_DEF(ERR_PLAN_NOT_WELL_FORMED, "Plan produced by optimizer appears incorrect", PSQL_Code_Internal_Error)
 ERROR_DEF(ERR_FAILED_TO_OPTIMIZE_PLAN, "Failed to optimize logical plan", PSQL_Code_Internal_Error)
 ERROR_DEF(ERR_UNKNOWN_KEYWORD_STATE, "Unknown state reached; please contact your Octo support channel", PSQL_Code_Internal_Error)
 ERROR_DEF(ERR_YOTTADB, "YottaDB error: %s", PSQL_Code_Internal_Error)
 // ROCTO //
 ERROR_DEF(ERR_ROCTO_TLS_ACCEPT, "ydb_tls_accept: %s", PSQL_Code_Internal_Error)
+ERROR_DEF(ERR_ROCTO_TLS_UNNAMED, "Unnamed failure in ydb_tls_accept: %s (tls_errno: %d)", PSQL_Code_Internal_Error)
 ERROR_DEF(ERR_ROCTO_TLS_CONNECTION, "ydb_tls_get_conn_info: %s", PSQL_Code_Internal_Error)
 ERROR_DEF(ERR_ROCTO_TLS_INIT, "ydb_tls_init: %s", PSQL_Code_Internal_Error)
 ERROR_DEF(ERR_ROCTO_TLS_READ_FAILED, "ydbcrypt: read failed: %s", PSQL_Code_Internal_Error)
@@ -36,7 +38,7 @@ ERROR_DEF(ERR_ROCTO_TLS_WANT_WRITE, "ydbcrypt: unprocessed write data", PSQL_Cod
 ERROR_DEF(ERR_ROCTO_TLS_WRITE_FAILED, "ydbcrypt: write failed: %s", PSQL_Code_Internal_Error)
 ERROR_DEF(ERR_ROCTO_SESSION_LOOKUP, "%s: failed to retrieve %s from session info", PSQL_Code_Internal_Error)
 ERROR_DEF(ERR_ROCTO_DB_LOOKUP, "%s: failed to retrieve %s from database", PSQL_Code_Internal_Error)
-ERROR_DEF(ERR_ROCTO_USER_LOOKUP, "%s: failed to retrieve %s for user %s from database", PSQL_Code_Internal_Error)
+ERROR_DEF(ERR_ROCTO_USER_LOOKUP, "%s: failed to retrieve %s for user %s from database", PSQL_Code_Invalid_Authorization_Specification)
 ERROR_DEF(ERR_ROCTO_COLUMN_VALUE, "%s: failed to extract column value %s from row", PSQL_Code_Internal_Error)
 ERROR_DEF(ERR_ROCTO_HASH_CONVERSION, "%s: failed convert %s hash to %s", PSQL_Code_Internal_Error)
 ERROR_DEF(ERR_ROCTO_NO_SCHEMA, "Rocto is not allowed to make schema changes without startup flag --allowschemachanges", PSQL_Code_Internal_Error)
@@ -51,7 +53,8 @@ ERROR_DEF(ERR_FEATURE_NOT_IMPLEMENTED, "Feature not implemented: %s", PSQL_Code_
 
 /*** Syntax Errors ***/
 // OCTO //
-ERROR_DEF(ERR_PRIMARY_KEY_NOT_FOUND, "No primary key specified when creating table \"%s\". Please consult the documentation for more information.", PSQL_Code_Syntax_Error)
+ERROR_DEF(ERR_INVALID_CLI_OPTION, "Invalid value specified for option %s", PSQL_Code_Syntax_Error)
+ERROR_DEF(ERR_PRIMARY_KEY_NOT_FOUND, "No primary key specified when creating table '%s'. Please consult the documentation for more information.", PSQL_Code_Syntax_Error)
 ERROR_DEF(ERR_MULTIPLE_VALUES_PROVIDED, "Multiple values provided for %s; undefined behavior", PSQL_Code_Ambiguous_Parameter)
 ERROR_DEF(ERR_UNKNOWN_TABLE, "Unknown table: %s", PSQL_Code_Undefined_Table)
 ERROR_DEF(ERR_MISSING_FROM_ENTRY, "Missing FROM-clause entry for table : %.*s", PSQL_Code_Undefined_Table)
@@ -66,7 +69,7 @@ ERROR_DEF(ERR_AGGREGATE_FUNCTION_WHERE, "Aggregate functions are not allowed in 
 ERROR_DEF(ERR_AGGREGATE_FUNCTION_JOIN, "Aggregate functions are not allowed in JOIN conditions", PSQL_Code_Grouping_Error)
 ERROR_DEF(ERR_GROUP_BY_OR_AGGREGATE_FUNCTION, "Column %s must appear in the GROUP BY clause or be used in an aggregate function", PSQL_Code_Grouping_Error)
 ERROR_DEF(ERR_MISTYPED_FUNCTION, "Function %s cannot be invoked with a parameter of type %s", PSQL_Code_Undefined_Function)
-ERROR_DEF(ERR_AMBIGUOUS_COLUMN_NAME, "Ambiguous column name \"%s\": qualify name for safe execution", PSQL_Code_Ambiguous_Column)
+ERROR_DEF(ERR_AMBIGUOUS_COLUMN_NAME, "Ambiguous column name '%s': qualify name for safe execution", PSQL_Code_Ambiguous_Column)
 ERROR_DEF(ERR_MULTIPLE_ZERO_KEYS, "Multiple %d keys found for table %s", PSQL_Code_Ambiguous_Parameter)
 ERROR_DEF(ERR_MISSING_KEY, "Missing key %d in table %s; max key was %d", PSQL_Code_Undefined_Object)
 ERROR_DEF(ERR_INVALID_TYPE, "Type %s does not exist", PSQL_Code_Undefined_Object)
@@ -78,13 +81,13 @@ ERROR_DEF(ERR_SETOPER_TYPE_MISMATCH, "%s types %s and %s cannot be matched", PSQ
 ERROR_DEF(ERR_INVALID_INPUT_SYNTAX, "Invalid input syntax : Expecting type NUMERIC or INTEGER : Actual type %s", PSQL_Invalid_Text_Representation)
 ERROR_DEF(ERR_INVALID_INPUT_SYNTAX_BOOL, "Invalid input syntax for type boolean: '%s' is not a valid boolean value", PSQL_Invalid_Text_Representation)
 ERROR_DEF(ERR_SUBQUERY_ONE_COLUMN, "Subquery must return only one column", PSQL_Code_Syntax_Error)
-ERROR_DEF(ERR_JOIN_ALIAS_DUPLICATE, "table name \"%s\" specified more than once", PSQL_Code_Duplicate_Alias)
+ERROR_DEF(ERR_JOIN_ALIAS_DUPLICATE, "table name '%s' specified more than once", PSQL_Code_Duplicate_Alias)
 ERROR_DEF(ERR_ORDER_BY_POSITION_INVALID, "ORDER BY position %s%s is not in select list", PSQL_Code_Invalid_Column_Reference)
 ERROR_DEF(ERR_ORDER_BY_SELECT_DISTINCT, "For SELECT DISTINCT, ORDER BY expressions must appear in select list", PSQL_Code_Invalid_Column_Reference)
 ERROR_DEF(ERR_ORDER_BY_POSITION_NOT_INTEGER, "Non integer constant %s%s in ORDER BY", PSQL_Code_Syntax_Error)
 ERROR_DEF(ERR_DOLLAR_SYNTAX, "Prepared statement dollar syntax (e.g. $1, $2, etc.) only supported in Rocto using the Extended Query Protocol", PSQL_Code_Syntax_Error)
 ERROR_DEF(ERR_INVALID_ESCAPE_PATTERN, "Cannot end pattern with escape character: %s", PSQL_Invalid_Escape_Sequence)
-ERROR_DEF(ERR_COMMON_COLUMN, "Common column name \"%s\" appears more than once in %s side of NATURAL JOIN", PSQL_Code_Ambiguous_Column)
+ERROR_DEF(ERR_COMMON_COLUMN, "Common column name '%s' appears more than once in %s side of NATURAL JOIN", PSQL_Code_Ambiguous_Column)
 ERROR_DEF(ERR_SELECT_STAR_NO_TABLES, "SELECT * with no tables specified is not valid", PSQL_Code_Syntax_Error)
 ERROR_DEF(ERR_INVALID_AS_SYNTAX, "Invalid AS value type: %s", PSQL_Code_Syntax_Error)
 ERROR_DEF(ERR_M_CALL, "Inline M function calls are disallowed. Use CREATE FUNCTION instead to map it to an SQL function.", PSQL_Code_Syntax_Error)
@@ -96,19 +99,32 @@ ERROR_DEF(ERR_ROCTO_BIND_PARAMETER_DECODE_FAILURE, "Failed to decode binary bind
 
 /*** Trace messages ***/
 // OCTO //
+ERROR_DEF(INFO_GENERATING_XREF, "Generating helper cross reference M file [%s] for table [%s] and column [%s]", PSQL_Code_Success)
+ERROR_DEF(INFO_OCTO_STARTED, "Octo started", PSQL_Code_Success)
 ERROR_DEF(INFO_LOADED_CONFIG, "Loaded config from %s", PSQL_Code_Success)
-ERROR_DEF(ERR_ENTERING_FUNCTION, "Entering %s", PSQL_Code_Success)
-ERROR_DEF(ERR_LEAVING_FUNCTION, "LEAVING %s", PSQL_Code_Success)
-ERROR_DEF(ERR_CURPLAN, "LOGICAL_PLAN %s follows%s", PSQL_Code_Success)
-ERROR_DEF(ERR_CLIENT_CONNECTED, "Client connected", PSQL_Code_Success)
-ERROR_DEF(ERR_READ_MESSAGE, "Read message of type %c and length %d", PSQL_Code_Success)
-ERROR_DEF(ERR_SEND_MESSAGE, "Sending message of type %c and length %d", PSQL_Code_Success)
-ERROR_DEF(ERR_PROCESSING_MESSAGE_TYPE, "Processing message type %c", PSQL_Code_Success)
-ERROR_DEF(ERR_CALLING_M_ROUTINE, "Calling M routine: %s", PSQL_Code_Success)
-ERROR_DEF(ERR_MEM_REALLOCATION, "Memory %s for variable %s", PSQL_Code_Success)
+ERROR_DEF(INFO_RECORDING_ENV_VARS, "# Recording pertinent ydb_* env var values at process startup", PSQL_Code_Success)
+ERROR_DEF(INFO_ENV_VAR, "# %s='%s'", PSQL_Code_Success)
+ERROR_DEF(INFO_ENTERING_FUNCTION, "Entering %s", PSQL_Code_Success)
+ERROR_DEF(INFO_LEAVING_FUNCTION, "LEAVING %s", PSQL_Code_Success)
+ERROR_DEF(INFO_CURPLAN, "LOGICAL_PLAN %s follows %s", PSQL_Code_Success)
+ERROR_DEF(INFO_M_PLAN, "Generating M file [%s] (to execute SQL query)", PSQL_Code_Success)
+ERROR_DEF(INFO_REUSE_M_PLAN, "Using already generated M file [%s] (to execute SQL query)", PSQL_Code_Success)
+ERROR_DEF(INFO_CURSOR, "Generating SQL for cursor %s", PSQL_Code_Success)
+ERROR_DEF(INFO_PARSING_DONE, "Parsing done for SQL command [%.*s]", PSQL_Code_Success)
+ERROR_DEF(INFO_CLIENT_CONNECTED, "Client connected", PSQL_Code_Success)
+ERROR_DEF(INFO_TEXT_REPRESENTATION, "%s", PSQL_Code_Success)
+ERROR_DEF(INFO_COLUMN_SEARCH, "Searching for column %s in table %s", PSQL_Code_Success)
+ERROR_DEF(INFO_TABLE_SEARCH, "Searching for table %s", PSQL_Code_Success)
+ERROR_DEF(INFO_FUNCTION_SEARCH, "Searching for function %s", PSQL_Code_Success)
+ERROR_DEF(INFO_RETURNING_FAILURE, "Returning failure from %s", PSQL_Code_Success)
+ERROR_DEF(INFO_READ_MESSAGE, "Read message of type %c and length %d", PSQL_Code_Success)
+ERROR_DEF(INFO_SEND_MESSAGE, "Sending message of type %c and length %d", PSQL_Code_Success)
+ERROR_DEF(INFO_PROCESSING_MESSAGE_TYPE, "Processing message type %c", PSQL_Code_Success)
+ERROR_DEF(INFO_CALLING_M_ROUTINE, "Calling M routine: %s", PSQL_Code_Success)
+ERROR_DEF(INFO_MEM_REALLOCATION, "Memory %s for variable %s", PSQL_Code_Success)
 // ROCTO //
-ERROR_DEF(ERR_ROCTO_CHILD_STATE_UPDATED, "Process %d switched to state %d", PSQL_Code_Success)
-ERROR_DEF(ERR_ROCTO_CLEAN_DISCONNECT, "connection closed cleanly", PSQL_Code_Success)
+ERROR_DEF(INFO_ROCTO_CHILD_STATE_UPDATED, "Process %d switched to state %d", PSQL_Code_Success)
+ERROR_DEF(INFO_ROCTO_CLEAN_DISCONNECT, "connection closed cleanly", PSQL_Code_Success)
 ERROR_DEF(INFO_AUTH_SUCCESS, "%s: user successfully authenticated", PSQL_Code_Success)
 ERROR_DEF(INFO_ROCTO_STARTED, "rocto started on port %d", PSQL_Code_Success)
 ERROR_DEF(INFO_ROCTO_SERVER_FORKED, "rocto server process forked with pid %d", PSQL_Code_Success)
@@ -133,10 +149,10 @@ ERROR_DEF(ERR_MEMORY_USAGE, "Failed to retrieve memory usage at process exit", P
 // OCTO //
 ERROR_DEF(ERR_BAD_CONFIG, "Bad config setting in %s: %s", PSQL_Code_Config_File_Error)
 ERROR_DEF(ERR_PARSING_CONFIG, "Error parsing config (%s): line %d: %s", PSQL_Code_Config_File_Error)
-ERROR_DEF(ERR_CONFIG_IO_FAILURE, "File I/O error reading config setting \"%s\" in config: %s", PSQL_Code_Config_File_Error)
+ERROR_DEF(ERR_CONFIG_IO_FAILURE, "File I/O error reading config setting '%s' in config: %s", PSQL_Code_Config_File_Error)
 ERROR_DEF(ERR_NULL_SUBS_DISABLED, "Null subscripts must be enabled for proper operation. Please set '-null_subscripts=always' for all regions containing Octo global variables.", PSQL_Code_Config_File_Error)
 ERROR_DEF(ERR_BAD_ZROUTINES, "Error no valid source directory found in octo_zroutines config or $zroutines ISV", PSQL_Code_Config_File_Error)
-ERROR_DEF(ERR_FAILED_TO_RETRIEVE_ENVIRONMENT_VARIABLE, "Failed to retrieve value of environment variable: \"%s\"", PSQL_Code_Config_File_Error)
+ERROR_DEF(ERR_FAILED_TO_RETRIEVE_ENVIRONMENT_VARIABLE, "Failed to retrieve value of environment variable: '%s'", PSQL_Code_Config_File_Error)
 // ROCTO //
 
 /*** Upgrade errors ***/
@@ -146,15 +162,14 @@ ERROR_DEF(ERR_AUTO_UPGRADE, "Cannot auto upgrade binary table/function definitio
 
 /*** Connection errors ***/
 // OCTO //
-ERROR_DEF(ERR_BAD_ADDRESS, "Bad listen address: %s", PSQL_Code_Connection_Exception)
+ERROR_DEF(ERR_ROCTO_BAD_ADDRESS, "Bad listen address: %s", PSQL_Code_Connection_Exception)
 ERROR_DEF(ERR_UNKNOWN_MESSAGE_TYPE, "Unknown message type from frontend: %c", PSQL_Code_Protocol_Violation)
 // ROCTO //
 ERROR_DEF(ERR_ROCTO_TLS_REQUIRED, "Server requires all connections to be TLS encrypted. Please re-connect using a client with TLS/SSL enabled.", PSQL_Code_Protocol_Violation)
-ERROR_DEF(ERR_ROCTO_INVALID_TYPE, "%s: invalid type '%c': must be '%c'", PSQL_Code_Protocol_Violation)
+ERROR_DEF(ERR_ROCTO_INVALID_MESSAGE_TYPE, "%s: invalid type '%c': must be '%c'", PSQL_Code_Protocol_Violation)
 ERROR_DEF(ERR_ROCTO_INVALID_VERSION, "%s: invalid version %x: must be %x", PSQL_Code_Protocol_Violation)
 ERROR_DEF(ERR_ROCTO_READ_FAILED, "read failure: %s", PSQL_Code_Connection_Exception)
-ERROR_DEF(ERR_ROCTO_SEND_FAILED, "send failure: %s", PSQL_Code_Connection_Exception)
-ERROR_DEF(ERR_ROCTO_SEND_MESSAGE, "failed to send message of type '%c'", PSQL_Code_Connection_Exception)
+ERROR_DEF(ERR_ROCTO_SEND_FAILED, "failed to send message of type '%c'", PSQL_Code_Connection_Exception)
 ERROR_DEF(ERR_ROCTO_TRAILING_CHARS, "%s: message has trailing characters", PSQL_Code_Protocol_Violation)
 
 /*** Authentication errors ***/
@@ -174,7 +189,6 @@ ERROR_DEF(ERR_SUBQUERY_MULTIPLE_ROWS, "More than one row returned by a subquery 
 /*** Data exceptions ***/
 // OCTO //
 ERROR_DEF(ERR_LINE_TOO_LONG, "Input line too long", PSQL_Code_String_Data_Length_Mismatch)
-ERROR_DEF(ERR_READ_TOO_LARGE, "Read size %d greater than buffer size %d", PSQL_Code_Data_Exception)
 ERROR_DEF(ERR_BUFFER_TOO_SMALL, "%s buffer too small", PSQL_Code_Data_Exception)
 ERROR_DEF(ERR_INVALID_READ_SIZE, "Read size %d out of range", PSQL_Code_Numeric_Value_Out_Of_Range)
 ERROR_DEF(ERR_INVALID_WRITE_SIZE, "Write size %d out of range", PSQL_Code_Numeric_Value_Out_Of_Range)
@@ -193,6 +207,7 @@ ERROR_DEF(ERR_ROCTO_QUERY_TOO_LONG, "Query length exceeded maximum size", PSQL_C
 ERROR_DEF(ERR_ROCTO_BIND_TO_UNKNOWN_QUERY, "Bind to unknown query attempted", PSQL_Code_Protocol_Violation)
 ERROR_DEF(ERR_ROCTO_INVALID_NUMBER_BIND_PARAMETERS, "%s: invalid number of parameters: expected %d got %d)", PSQL_Code_Numeric_Value_Out_Of_Range)
 ERROR_DEF(ERR_ROCTO_INVALID_NUMBER_COLUMN_FORMAT_CODES, "%s: invalid number of column format codes specified for portal %s: expected %d got %d)", PSQL_Code_Protocol_Violation)
+ERROR_DEF(ERR_ROCTO_READ_TOO_LARGE, "Read size %d greater than buffer size %d", PSQL_Code_Data_Exception)
 
 // End of errors
 ERROR_END(CUSTOM_ERROR, "Error not found", PSQL_Code_Internal_Error)

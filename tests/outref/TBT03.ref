@@ -26,10 +26,10 @@ select id=2 from names union select id from names;
 select id=2 from names union select firstname from names;
 select Price=2.5 from Products union select Price from Products;
 
-[ERROR] PATH:LINENUM DATE TIME : Invalid input syntax : Expecting type NUMERIC or INTEGER : Actual type BOOLEAN
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select +id::boolean from names;
-[ERROR] PATH:LINENUM DATE TIME : Invalid input syntax : Expecting type NUMERIC or INTEGER : Actual type BOOLEAN
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select -id::boolean from names;
+[ERROR] PATH:LINENUM DATE TIME : ERR_INVALID_INPUT_SYNTAX : Invalid input syntax : Expecting type NUMERIC or INTEGER : Actual type BOOLEAN
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select +id::boolean from names;
+[ERROR] PATH:LINENUM DATE TIME : ERR_INVALID_INPUT_SYNTAX : Invalid input syntax : Expecting type NUMERIC or INTEGER : Actual type BOOLEAN
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select -id::boolean from names;
 1
 1
 1
@@ -107,33 +107,33 @@ select Price=2.5 from Products union select Price from Products;
 1
 1
 1
-[ERROR] PATH:LINENUM DATE TIME : Invalid input syntax for type boolean: 'Zero' is not a valid boolean value
-[ERROR] PATH:LINENUM DATE TIME : Invalid input syntax for type boolean: '2' is not a valid boolean value
-[ERROR] PATH:LINENUM DATE TIME : Function MIN cannot be invoked with a parameter of type BOOLEAN
+[ERROR] PATH:LINENUM DATE TIME : ERR_INVALID_INPUT_SYNTAX_BOOL : Invalid input syntax for type boolean: 'Zero' is not a valid boolean value
+[ERROR] PATH:LINENUM DATE TIME : ERR_INVALID_INPUT_SYNTAX_BOOL : Invalid input syntax for type boolean: '2' is not a valid boolean value
+[ERROR] PATH:LINENUM DATE TIME : ERR_MISTYPED_FUNCTION : Function MIN cannot be invoked with a parameter of type BOOLEAN
 Error with syntax near (line 1, column 8):
 
 select min(mybool) from (select id=2 as mybool from names) n1;
        ^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select min(mybool) from (select id=2 as mybool from names) n1;
-[ERROR] PATH:LINENUM DATE TIME : Function MAX cannot be invoked with a parameter of type BOOLEAN
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select min(mybool) from (select id=2 as mybool from names) n1;
+[ERROR] PATH:LINENUM DATE TIME : ERR_MISTYPED_FUNCTION : Function MAX cannot be invoked with a parameter of type BOOLEAN
 Error with syntax near (line 1, column 8):
 
 select max(mybool) from (select id=2 as mybool from names) n1;
        ^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select max(mybool) from (select id=2 as mybool from names) n1;
-[ERROR] PATH:LINENUM DATE TIME : Function SUM cannot be invoked with a parameter of type BOOLEAN
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select max(mybool) from (select id=2 as mybool from names) n1;
+[ERROR] PATH:LINENUM DATE TIME : ERR_MISTYPED_FUNCTION : Function SUM cannot be invoked with a parameter of type BOOLEAN
 Error with syntax near (line 1, column 8):
 
 select sum(mybool) from (select id=2 as mybool from names) n1;
        ^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select sum(mybool) from (select id=2 as mybool from names) n1;
-[ERROR] PATH:LINENUM DATE TIME : Function AVG cannot be invoked with a parameter of type BOOLEAN
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select sum(mybool) from (select id=2 as mybool from names) n1;
+[ERROR] PATH:LINENUM DATE TIME : ERR_MISTYPED_FUNCTION : Function AVG cannot be invoked with a parameter of type BOOLEAN
 Error with syntax near (line 1, column 8):
 
 select avg(mybool) from (select id=2 as mybool from names) n1;
        ^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select avg(mybool) from (select id=2 as mybool from names) n1;
-[ERROR] PATH:LINENUM DATE TIME : UNION types BOOLEAN and INTEGER cannot be matched
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select avg(mybool) from (select id=2 as mybool from names) n1;
+[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_TYPE_MISMATCH : UNION types BOOLEAN and INTEGER cannot be matched
 Error with syntax near (line 1, column 8):
 
 select id=2 from names union select id from names;
@@ -142,8 +142,8 @@ Error with syntax near (line 1, column 37):
 
 select id=2 from names union select id from names;
                                     ^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select id=2 from names union select id from names;
-[ERROR] PATH:LINENUM DATE TIME : UNION types BOOLEAN and VARCHAR cannot be matched
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select id=2 from names union select id from names;
+[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_TYPE_MISMATCH : UNION types BOOLEAN and VARCHAR cannot be matched
 Error with syntax near (line 1, column 8):
 
 select id=2 from names union select firstname from names;
@@ -152,8 +152,8 @@ Error with syntax near (line 1, column 37):
 
 select id=2 from names union select firstname from names;
                                     ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select id=2 from names union select firstname from names;
-[ERROR] PATH:LINENUM DATE TIME : UNION types BOOLEAN and NUMERIC cannot be matched
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select id=2 from names union select firstname from names;
+[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_TYPE_MISMATCH : UNION types BOOLEAN and NUMERIC cannot be matched
 Error with syntax near (line 1, column 8):
 
 select Price=2.5 from Products union select Price from Products;
@@ -162,4 +162,4 @@ Error with syntax near (line 1, column 45):
 
 select Price=2.5 from Products union select Price from Products;
                                             ^^^^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select Price=2.5 from Products union select Price from Products;
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select Price=2.5 from Products union select Price from Products;

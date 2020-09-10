@@ -58,9 +58,9 @@ setup() {
   stop_rocto
   grep "Memory usage" rocto.log > mem_messages.log
 
-  set1_mem=$(sed -n '1p' < mem_messages.log | cut -d' ' -f 12)
-  set2_mem=$(sed -n '2p' < mem_messages.log | cut -d' ' -f 12)
-  set3_mem=$(sed -n '3p' < mem_messages.log | cut -d' ' -f 12)
+  set1_mem=$(sed -n '1p' < mem_messages.log | cut -d' ' -f 14)
+  set2_mem=$(sed -n '2p' < mem_messages.log | cut -d' ' -f 14)
+  set3_mem=$(sed -n '3p' < mem_messages.log | cut -d' ' -f 14)
   average=$(( ($set1_mem + $set2_mem) / 2))
   set1_diff=$(( $average - $set1_mem ))
   set2_diff=$(( $average - $set2_mem ))

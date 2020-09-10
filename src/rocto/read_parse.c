@@ -33,7 +33,7 @@ Parse *read_parse(BaseMessage *message) {
 
 	// Ensure correct message type
 	if (ret->type != PSQL_Parse) {
-		ERROR(ERR_ROCTO_INVALID_TYPE, "Parse", ret->type, PSQL_Parse);
+		ERROR(ERR_ROCTO_INVALID_MESSAGE_TYPE, "Parse", ret->type, PSQL_Parse);
 		free(ret);
 		return NULL;
 	}

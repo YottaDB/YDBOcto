@@ -21,24 +21,24 @@ SELECT * from (SELECT id from names) n1 NATURAL JOIN (SELECT firstname AS id FRO
 SELECT * FROM names n1 NATURAL JOIN names n2 FULL  JOIN names n3 ON n1.id = n2.id;
 SELECT n1.id,n2.id,n3.id FROM names n1 NATURAL JOIN names n2 FULL  JOIN names n3 ON n2.id < n3.id;
 
-[ERROR] PATH:LINENUM DATE TIME : Common column name "ID" appears more than once in left side of NATURAL JOIN
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT * FROM names AS n1 join names AS n2 ON n1.id = n2.id NATURAL JOIN names AS n3;
-[ERROR] PATH:LINENUM DATE TIME : Common column name "ID" appears more than once in right side of NATURAL JOIN
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT * FROM names AS n1 NATURAL JOIN (SELECT * FROM names n2 INNER JOIN names n3 ON n2.id = n3.id) n4;
-[ERROR] PATH:LINENUM DATE TIME : Common column name "ID" appears more than once in left side of NATURAL JOIN
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT * FROM names AS n1 NATURAL JOIN names AS n2 JOIN names AS n3 ON n2.id = n3.id NATURAL JOIN names AS n4;
-[ERROR] PATH:LINENUM DATE TIME : Common column name "ID" appears more than once in left side of NATURAL JOIN
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT * FROM (SELECT * FROM names n1, names n2) n3 NATURAL JOIN names n4;
-[ERROR] PATH:LINENUM DATE TIME : Common column name "ID" appears more than once in left side of NATURAL JOIN
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT * FROM (SELECT * FROM names n1, names n2) n3 NATURAL JOIN names n4 WHERE n4.firstName = 'Zero';
-[ERROR] PATH:LINENUM DATE TIME : Common column name "ID" appears more than once in right side of NATURAL JOIN
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT * FROM names n3 NATURAL JOIN (SELECT * FROM names n1, names n2) n4;
-[ERROR] PATH:LINENUM DATE TIME : Common column name "ID" appears more than once in right side of NATURAL JOIN
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT * FROM names n3 NATURAL JOIN (SELECT * FROM names n1, names n2) n4 WHERE n3.firstName = 'Zero';
-[ERROR] PATH:LINENUM DATE TIME : Common column name "CUSTOMER_ID" appears more than once in left side of NATURAL JOIN
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT c1.customer_id,o2.order_id,c3.customer_id FROM customers c1 LEFT JOIN orders o2 ON c1.customer_id = o2.customer_id NATURAL JOIN customers c3;
-[ERROR] PATH:LINENUM DATE TIME : Type mismatch: left INTEGER, right VARCHAR
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT * from (SELECT id from names) n1 NATURAL JOIN (SELECT firstname AS id FROM names) n2;
+[ERROR] PATH:LINENUM DATE TIME : ERR_COMMON_COLUMN : Common column name 'ID' appears more than once in left side of NATURAL JOIN
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT * FROM names AS n1 join names AS n2 ON n1.id = n2.id NATURAL JOIN names AS n3;
+[ERROR] PATH:LINENUM DATE TIME : ERR_COMMON_COLUMN : Common column name 'ID' appears more than once in right side of NATURAL JOIN
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT * FROM names AS n1 NATURAL JOIN (SELECT * FROM names n2 INNER JOIN names n3 ON n2.id = n3.id) n4;
+[ERROR] PATH:LINENUM DATE TIME : ERR_COMMON_COLUMN : Common column name 'ID' appears more than once in left side of NATURAL JOIN
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT * FROM names AS n1 NATURAL JOIN names AS n2 JOIN names AS n3 ON n2.id = n3.id NATURAL JOIN names AS n4;
+[ERROR] PATH:LINENUM DATE TIME : ERR_COMMON_COLUMN : Common column name 'ID' appears more than once in left side of NATURAL JOIN
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT * FROM (SELECT * FROM names n1, names n2) n3 NATURAL JOIN names n4;
+[ERROR] PATH:LINENUM DATE TIME : ERR_COMMON_COLUMN : Common column name 'ID' appears more than once in left side of NATURAL JOIN
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT * FROM (SELECT * FROM names n1, names n2) n3 NATURAL JOIN names n4 WHERE n4.firstName = 'Zero';
+[ERROR] PATH:LINENUM DATE TIME : ERR_COMMON_COLUMN : Common column name 'ID' appears more than once in right side of NATURAL JOIN
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT * FROM names n3 NATURAL JOIN (SELECT * FROM names n1, names n2) n4;
+[ERROR] PATH:LINENUM DATE TIME : ERR_COMMON_COLUMN : Common column name 'ID' appears more than once in right side of NATURAL JOIN
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT * FROM names n3 NATURAL JOIN (SELECT * FROM names n1, names n2) n4 WHERE n3.firstName = 'Zero';
+[ERROR] PATH:LINENUM DATE TIME : ERR_COMMON_COLUMN : Common column name 'CUSTOMER_ID' appears more than once in left side of NATURAL JOIN
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT c1.customer_id,o2.order_id,c3.customer_id FROM customers c1 LEFT JOIN orders o2 ON c1.customer_id = o2.customer_id NATURAL JOIN customers c3;
+[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left INTEGER, right VARCHAR
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT * from (SELECT id from names) n1 NATURAL JOIN (SELECT firstname AS id FROM names) n2;
 0|Zero|Cool|0|Zero|Cool
 0|Zero|Cool|1|Acid|Burn
 0|Zero|Cool|2|Cereal|Killer

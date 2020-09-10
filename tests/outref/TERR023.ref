@@ -3,9 +3,9 @@
 
 select ABS(-id)+(select firstname from names limit 1) as absid from names;
 
-[ERROR] PATH:LINENUM DATE TIME : Type VARCHAR not compatible for arithmetic operations
+[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type VARCHAR not compatible for arithmetic operations
 Error with syntax near (line 1, column 25):
 
 select ABS(-id)+(select firstname from names limit 1) as absid from names;
                         ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select ABS(-id)+(select firstname from names limit 1) as absid from names;
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select ABS(-id)+(select firstname from names limit 1) as absid from names;

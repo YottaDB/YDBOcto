@@ -25,39 +25,39 @@ teardown() {
 }
 
 @test "TPA00 : test psql authentication with bad password" {
-  create_user jon tester
-  run run_psql_auth jon tested $test_port <<OCTO
+  create_user leibniz tester
+  run run_psql_auth leibniz tested $test_port <<OCTO
 SELECT * FROM names;
 OCTO
   [[ "$status" -eq 2 ]]
   echo $output 2>&1 | tee output.txt
   [[ "$output" =~ "password doesn't match stored value" ]]
-  delete_users jon
+  delete_users leibniz
 }
 
 @test "TPA01 : test psql authentication with non-existent user" {
-  create_user jon tester
+  create_user leibniz tester
   run run_psql_auth bobby cereal $test_port <<OCTO
 SELECT * FROM names;
 OCTO
   echo $output 2>&1 | tee output.txt
   [[ "$status" -eq 2 ]]
   [[ "$output" =~ "failed to retrieve user info for user bobby from database" ]]
-  delete_users jon
+  delete_users leibniz
 }
 
 @test "TPA02 : test psql authentication with one user" {
-  create_user jon tester
-  run_psql_auth jon tester $test_port <<OCTO 2>&1 | tee output.txt
+  create_user leibniz tester
+  run_psql_auth leibniz tester $test_port <<OCTO 2>&1 | tee output.txt
 SELECT * FROM names;
 OCTO
-  delete_users jon
+  delete_users leibniz
   [[ "$(grep -c -E "Zero.\+|Cool" output.txt)" == "2" ]]
 }
 
 @test "TPA03 : test psql authentication with two users" {
-  create_user jon tester
-  run_psql_auth jon tester $test_port <<OCTO 2>&1 | tee output.txt
+  create_user leibniz tester
+  run_psql_auth leibniz tester $test_port <<OCTO 2>&1 | tee output.txt
 SELECT * FROM names;
 OCTO
   [[ "$(grep -c -E "Zero.\+|Cool" output.txt)" == "2" ]]
@@ -66,13 +66,13 @@ OCTO
   run_psql_auth bobby bilco $test_port <<OCTO 2>&1 | tee output.txt
 SELECT * FROM names;
 OCTO
-  delete_users jon bobby
+  delete_users leibniz bobby
   [[ "$(grep -c -E "Zero.\+|Cool" output.txt)" == "2" ]]
 }
 
 @test "TPA04 : test psql authentication with three users" {
-  create_user jon tester
-  run_psql_auth jon tester $test_port <<OCTO 2>&1 | tee output.txt
+  create_user leibniz tester
+  run_psql_auth leibniz tester $test_port <<OCTO 2>&1 | tee output.txt
 SELECT * FROM names;
 OCTO
   [[ "$(grep -c -E "Zero.\+|Cool" output.txt)" == "2" ]]
@@ -87,6 +87,6 @@ OCTO
   run_psql_auth bobby bilco $test_port <<OCTO 2>&1 | tee output.txt
 SELECT * FROM names;
 OCTO
-  delete_users jon bobby suzy
+  delete_users leibniz bobby suzy
   [[ "$(grep -c -E "Zero.\+|Cool" output.txt)" == "2" ]]
 }

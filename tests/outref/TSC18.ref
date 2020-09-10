@@ -1,14 +1,15 @@
+[ INFO] PATH:LINENUM DATE TIME : INFO_RECORDING_ENV_VARS : # Recording pertinent ydb_* env var values at process startup
 OCTO>           select
 OCTO>           *               from
 OCTO>   names
 OCTO>                           ;
-[ INFO] PATH:LINENUM DATE TIME : Parsing done for SQL command [select
+[ INFO] PATH:LINENUM DATE TIME : INFO_PARSING_DONE : Parsing done for SQL command [select
 		*		from
 	names
 				;]
-[ INFO] PATH:LINENUM DATE TIME : Generating SQL for CURSOR_NUM
-[ INFO] PATH:LINENUM DATE TIME : Generating M file [$PWD/_ydboctoP*.m] (to execute SQL query)
-[DEBUG] PATH:LINENUM DATE TIME : LOGICAL_PLAN BEFORE optimize_logical_plan() follows
+[ INFO] PATH:LINENUM DATE TIME : INFO_CURSOR : Generating SQL for CURSOR_NUM
+[ INFO] PATH:LINENUM DATE TIME : INFO_M_PLAN : Generating M file [$PWD/_ydboctoP*.m] (to execute SQL query)
+[DEBUG] PATH:LINENUM DATE TIME : INFO_CURPLAN : LOGICAL_PLAN BEFORE optimize_logical_plan() follows 
 LP_INSERT: 
   LP_PROJECT: 
     LP_COLUMN_LIST: 
@@ -47,7 +48,7 @@ LP_INSERT:
     - xref_key: false
     - uses_xref_key: false
 
-[DEBUG] PATH:LINENUM DATE TIME : LOGICAL_PLAN AFTER optimize_logical_plan() follows
+[DEBUG] PATH:LINENUM DATE TIME : INFO_CURPLAN : LOGICAL_PLAN AFTER optimize_logical_plan() follows 
 LP_INSERT: 
   LP_PROJECT: 
     LP_COLUMN_LIST: 
@@ -93,12 +94,12 @@ LP_INSERT:
     - xref_key: false
     - uses_xref_key: false
 
-[ INFO] PATH:LINENUM DATE TIME : print_temporary_table()
+[ INFO] PATH:LINENUM DATE TIME : INFO_ENTERING_FUNCTION : Entering print_temporary_table
 0|Zero|Cool
 1|Acid|Burn
 2|Cereal|Killer
 3|Lord|Nikon
 4|Joey|
 5|Zero|Cool
-OCTO> [ INFO] PATH:LINENUM DATE TIME : Parsing done for SQL command []
+OCTO> [ INFO] PATH:LINENUM DATE TIME : INFO_PARSING_DONE : Parsing done for SQL command []
 

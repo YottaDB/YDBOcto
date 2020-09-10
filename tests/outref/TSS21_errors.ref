@@ -10,17 +10,17 @@ SELECT 1 FROM names ORDER BY (SELECT 1,2);
 -- Below are queries that did not SIG-11 previously but are very similar to the above queries that did SIG-11 so are included here
 SELECT 1 FROM names WHERE 1 = (SELECT 1,2);
 
-[ERROR] PATH:LINENUM DATE TIME : Subquery must return only one column
+[ERROR] PATH:LINENUM DATE TIME : ERR_SUBQUERY_ONE_COLUMN : Subquery must return only one column
 Error with syntax near (line 1, column 16):
 
 SELECT (SELECT 1,2);
                ^
-[ERROR] PATH:LINENUM DATE TIME : Subquery must return only one column
+[ERROR] PATH:LINENUM DATE TIME : ERR_SUBQUERY_ONE_COLUMN : Subquery must return only one column
 Error with syntax near (line 1, column 38):
 
 SELECT 1 FROM names ORDER BY (SELECT 1,2);
                                      ^
-[ERROR] PATH:LINENUM DATE TIME : Subquery must return only one column
+[ERROR] PATH:LINENUM DATE TIME : ERR_SUBQUERY_ONE_COLUMN : Subquery must return only one column
 Error with syntax near (line 1, column 39):
 
 SELECT 1 FROM names WHERE 1 = (SELECT 1,2);

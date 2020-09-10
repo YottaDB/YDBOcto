@@ -79,71 +79,71 @@ select * from names order by 1,2,-12345678901234567890;
 3|Lord|Nikon
 4|Joey|
 5|Zero|Cool
-[ERROR] PATH:LINENUM DATE TIME : ORDER BY position 4 is not in select list
+[ERROR] PATH:LINENUM DATE TIME : ERR_ORDER_BY_POSITION_INVALID : ORDER BY position 4 is not in select list
 Error with syntax near (line 2, column 30):
 
 -- Test with column number that is out of valid range
 select * from names order by 4;
                              ^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: -- Test with column number that is out of valid range
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- Test with column number that is out of valid range
 select * from names order by 4;
-[ERROR] PATH:LINENUM DATE TIME : ORDER BY position 0 is not in select list
+[ERROR] PATH:LINENUM DATE TIME : ERR_ORDER_BY_POSITION_INVALID : ORDER BY position 0 is not in select list
 Error with syntax near (line 1, column 30):
 
 select * from names order by 0;
                              ^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select * from names order by 0;
-[ERROR] PATH:LINENUM DATE TIME : ORDER BY position -1 is not in select list
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select * from names order by 0;
+[ERROR] PATH:LINENUM DATE TIME : ERR_ORDER_BY_POSITION_INVALID : ORDER BY position -1 is not in select list
 Error with syntax near (line 1, column 30):
 
 select * from names order by -1;
                              ^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select * from names order by -1;
-[ERROR] PATH:LINENUM DATE TIME : Non integer constant 1.234 in ORDER BY
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select * from names order by -1;
+[ERROR] PATH:LINENUM DATE TIME : ERR_ORDER_BY_POSITION_NOT_INTEGER : Non integer constant 1.234 in ORDER BY
 Error with syntax near (line 2, column 30):
 
 -- Test with fractional column numbers
 select * from names order by 1.234;
                              ^^^^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: -- Test with fractional column numbers
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- Test with fractional column numbers
 select * from names order by 1.234;
-[ERROR] PATH:LINENUM DATE TIME : Non integer constant -1.234 in ORDER BY
+[ERROR] PATH:LINENUM DATE TIME : ERR_ORDER_BY_POSITION_NOT_INTEGER : Non integer constant -1.234 in ORDER BY
 Error with syntax near (line 1, column 30):
 
 select * from names order by -1.234;
                              ^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select * from names order by -1.234;
-[ERROR] PATH:LINENUM DATE TIME : Non integer constant 12345678901234567890 in ORDER BY
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select * from names order by -1.234;
+[ERROR] PATH:LINENUM DATE TIME : ERR_ORDER_BY_POSITION_NOT_INTEGER : Non integer constant 12345678901234567890 in ORDER BY
 Error with syntax near (line 2, column 30):
 
 -- Test with huge column numbers
 select * from names order by 12345678901234567890;
                              ^^^^^^^^^^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: -- Test with huge column numbers
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- Test with huge column numbers
 select * from names order by 12345678901234567890;
-[ERROR] PATH:LINENUM DATE TIME : Non integer constant -12345678901234567890 in ORDER BY
+[ERROR] PATH:LINENUM DATE TIME : ERR_ORDER_BY_POSITION_NOT_INTEGER : Non integer constant -12345678901234567890 in ORDER BY
 Error with syntax near (line 1, column 30):
 
 select * from names order by -12345678901234567890;
                              ^^^^^^^^^^^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select * from names order by -12345678901234567890;
-[ERROR] PATH:LINENUM DATE TIME : Non integer constant 1.235 in ORDER BY
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select * from names order by -12345678901234567890;
+[ERROR] PATH:LINENUM DATE TIME : ERR_ORDER_BY_POSITION_NOT_INTEGER : Non integer constant 1.235 in ORDER BY
 Error with syntax near (line 2, column 30):
 
 -- Test with multiple column numbers with errors
 select * from names order by 1.235,-12345678901234567890;
                              ^^^^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: -- Test with multiple column numbers with errors
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: -- Test with multiple column numbers with errors
 select * from names order by 1.235,-12345678901234567890;
-[ERROR] PATH:LINENUM DATE TIME : Non integer constant -1.235 in ORDER BY
+[ERROR] PATH:LINENUM DATE TIME : ERR_ORDER_BY_POSITION_NOT_INTEGER : Non integer constant -1.235 in ORDER BY
 Error with syntax near (line 1, column 30):
 
 select * from names order by -1.235,12345678901234567890;
                              ^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select * from names order by -1.235,12345678901234567890;
-[ERROR] PATH:LINENUM DATE TIME : Non integer constant -12345678901234567890 in ORDER BY
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select * from names order by -1.235,12345678901234567890;
+[ERROR] PATH:LINENUM DATE TIME : ERR_ORDER_BY_POSITION_NOT_INTEGER : Non integer constant -12345678901234567890 in ORDER BY
 Error with syntax near (line 1, column 34):
 
 select * from names order by 1,2,-12345678901234567890;
                                  ^^^^^^^^^^^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select * from names order by 1,2,-12345678901234567890;
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select * from names order by 1,2,-12345678901234567890;

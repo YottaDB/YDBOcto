@@ -38,7 +38,7 @@ SqlFunction *find_function(const char *function_name, const char *function_hash)
 	boolean_t     drop_cache;
 	uint64_t      db_oid;
 
-	TRACE(CUSTOM_ERROR, "Searching for function %s", function_name);
+	TRACE(INFO_FUNCTION_SEARCH, function_name);
 	YDB_STRING_TO_BUFFER(config->global_names.octo, &octo_global);
 
 	/* We look to see if the function has already been loaded, and if so we get the pointer to process-local memory

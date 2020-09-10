@@ -70,7 +70,7 @@ int handle_bind(Bind *bind, RoctoSession *session) {
 	BindComplete *response;
 	ParseContext  parse_context;
 
-	TRACE(ERR_ENTERING_FUNCTION, "handle_bind");
+	TRACE(INFO_ENTERING_FUNCTION, "handle_bind");
 
 	// Create buffers to get routine name from prepared statement: ^session(id, OCTOLIT_PREPARED, <name>, OCTOLIT_ROUTINE)
 	YDB_STRING_TO_BUFFER(config->global_names.session, &statement_subs[0]);

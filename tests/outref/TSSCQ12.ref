@@ -14,8 +14,8 @@ ORDER BY table_schem
 information_schema|null
 pg_catalog|null
 public|null
-[SOCKET] [ WARN] PATH:LINENUM DATE TIME : Feature not implemented: arrays
-[SOCKET] [ WARN] PATH:LINENUM DATE TIME : Feature not implemented: arrays
+[SOCKET] [ WARN] PATH:LINENUM DATE TIME : ERR_FEATURE_NOT_IMPLEMENTED : Feature not implemented: arrays
+[SOCKET] [ WARN] PATH:LINENUM DATE TIME : ERR_FEATURE_NOT_IMPLEMENTED : Feature not implemented: arrays
 
 ----- OCTO -----
 information_schema|

@@ -42,7 +42,7 @@ int rocto_main_loop(RoctoSession *session) {
 	boolean_t      extended_query_error = FALSE;
 	boolean_t      terminated = FALSE;
 
-	TRACE(ERR_ENTERING_FUNCTION, "rocto_main_loop");
+	TRACE(INFO_ENTERING_FUNCTION, "rocto_main_loop");
 	// Send an initial ready
 	// ready_for_query = make_ready_for_query(PSQL_TransactionStatus_IDLE);
 	// result = send_message(session, (BaseMessage*)(&ready_for_query->type));
@@ -83,7 +83,7 @@ int rocto_main_loop(RoctoSession *session) {
 		if (NULL == message) {
 			break;
 		}
-		TRACE(ERR_READ_MESSAGE, message->type, ntohl(message->length));
+		TRACE(INFO_READ_MESSAGE, message->type, ntohl(message->length));
 		// Discard any messages received after an error in an extended query exchange until hitting a Sync message
 		if (extended_query_error && (PSQL_Sync != message->type))
 			continue;
@@ -172,7 +172,7 @@ int rocto_main_loop(RoctoSession *session) {
 			// flush = read_flush(message);
 			break;
 		case PSQL_Terminate:
-			LOG_LOCAL_ONLY(INFO, ERR_ROCTO_CLEAN_DISCONNECT, "");
+			LOG_LOCAL_ONLY(INFO, INFO_ROCTO_CLEAN_DISCONNECT, "");
 			terminated = TRUE;
 			break;
 		default:

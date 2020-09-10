@@ -134,6 +134,12 @@ if [[ "test-auto-upgrade" != $jobname ]]; then
 	fi
 fi
 
+# Confirm all error message mnemonics and text are included in the documentation
+../tools/ci/doc_error_check.sh
+if [[ $? -ne 0 ]]; then
+	exit 1
+fi
+
 echo "# Randomly choose to test Debug or Release build"
 if [[ $(( $RANDOM % 2)) -eq 0 ]]; then
 	build_type="Debug"

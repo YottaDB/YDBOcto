@@ -125,11 +125,10 @@ int auto_upgrade_binary_table_definition(void) {
 		old_input_index = cur_input_index;
 		result = parse_line(&parse_context);
 #ifndef FORCE_BINARY_DEFINITION_AUTO_UPGRADE
-		INFO(CUSTOM_ERROR, "Parsing done for SQL command [%.*s]", cur_input_index - old_input_index,
-		     input_buffer_combined + old_input_index);
+		INFO(INFO_PARSING_DONE, cur_input_index - old_input_index, input_buffer_combined + old_input_index);
 #endif
 		if (NULL == result) {
-			INFO(CUSTOM_ERROR, "Returning failure from parse_line()");
+			INFO(INFO_RETURNING_FAILURE, "parse_line");
 			CLEANUP_AND_RETURN(1, table_buff, TRUE);
 		}
 		/* Get OID of the table name (from below gvn) as we need that OID to store in the binary table definition.

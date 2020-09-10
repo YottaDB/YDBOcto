@@ -4,5 +4,5 @@ Error with syntax near (line 1, column 2):
   ^
 syntax error, unexpected EXCLAMATION
 
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: !;
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: !;
 

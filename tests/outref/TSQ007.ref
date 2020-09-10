@@ -25,7 +25,8 @@ WHERE  c.relkind IN ( 'r', 'p', 'v', 'm',
 ORDER  BY 1,
           2;
 
-[ERROR] PATH:LINENUM DATE TIME : No function 'PG_CATALOG.PG_GET_USERBYID' defined with given parameter types (INTEGER)
+[ INFO] PATH:LINENUM DATE TIME : INFO_RECORDING_ENV_VARS : # Recording pertinent ydb_* env var values at process startup
+[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_FUNCTION : No function 'PG_CATALOG.PG_GET_USERBYID' defined with given parameter types (INTEGER)
 Error with syntax near (line 14, column 8):
 
 SELECT n.nspname                              AS "Schema",
@@ -43,7 +44,7 @@ SELECT n.nspname                              AS "Schema",
        end                                    AS "Type",
        pg_catalog.Pg_get_userbyid(c.relowner) AS "Owner"
        ^^^^^^^^^^^^^^^^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : No function 'PG_CATALOG.PG_TABLE_IS_VISIBLE' defined with given parameter types (INTEGER)
+[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_FUNCTION : No function 'PG_CATALOG.PG_TABLE_IS_VISIBLE' defined with given parameter types (INTEGER)
 Error with syntax near (line 23, column 12):
 
 SELECT n.nspname                              AS "Schema",
@@ -70,7 +71,7 @@ WHERE  c.relkind IN ( 'r', 'p', 'v', 'm',
        AND n.nspname !~ '^pg_toast'
        AND pg_catalog.Pg_table_is_visible(c.oid)
            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT n.nspname                              AS "Schema",
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT n.nspname                              AS "Schema",
        c.relname                              AS "Name",
        CASE c.relkind
          WHEN 'r' THEN 'table'
@@ -95,7 +96,7 @@ WHERE  c.relkind IN ( 'r', 'p', 'v', 'm',
        AND pg_catalog.Pg_table_is_visible(c.oid)
 ORDER  BY 1,
           2;
-[ INFO] PATH:LINENUM DATE TIME : Parsing done for SQL command [SELECT n.nspname                              AS "Schema",
+[ INFO] PATH:LINENUM DATE TIME : INFO_PARSING_DONE : Parsing done for SQL command [SELECT n.nspname                              AS "Schema",
        c.relname                              AS "Name",
        CASE c.relkind
          WHEN 'r' THEN 'table'
@@ -120,5 +121,5 @@ WHERE  c.relkind IN ( 'r', 'p', 'v', 'm',
        AND pg_catalog.Pg_table_is_visible(c.oid)
 ORDER  BY 1,
           2;]
-[ INFO] PATH:LINENUM DATE TIME : Returning failure from run_query
-[ INFO] PATH:LINENUM DATE TIME : Parsing done for SQL command []
+[ INFO] PATH:LINENUM DATE TIME : INFO_RETURNING_FAILURE : Returning failure from run_query
+[ INFO] PATH:LINENUM DATE TIME : INFO_PARSING_DONE : Parsing done for SQL command []

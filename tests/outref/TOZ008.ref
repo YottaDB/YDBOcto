@@ -1,2 +1,2 @@
-[ERROR] PATH:LINENUM DATE TIME : YottaDB error: 150379250,(SimpleAPI),%YDB-E-DLLNOOPEN, Failed to load external dynamic library $PWD/fileA,%YDB-I-TEXT, $PWD/fileA: file too short
-[ERROR] PATH:LINENUM DATE TIME : Bad config setting in $PWD/octo.conf: octo_zroutines
+[ERROR] PATH:LINENUM DATE TIME : ERR_YOTTADB : YottaDB error: 150379250,(SimpleAPI),%YDB-E-DLLNOOPEN, Failed to load external dynamic library $PWD/fileA,%YDB-I-TEXT, $PWD/fileA: file too short
+[ERROR] PATH:LINENUM DATE TIME : ERR_BAD_CONFIG : Bad config setting in $PWD/octo.conf: octo_zroutines

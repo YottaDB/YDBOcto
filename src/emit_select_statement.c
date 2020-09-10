@@ -70,7 +70,7 @@ PhysicalPlan *emit_select_statement(SqlStatement *stmt, char *plan_filename) {
 	PSQL_TypeOid	    column_type;
 	PSQL_TypeSize	    type_size;
 
-	TRACE(ERR_ENTERING_FUNCTION, "emit_select_statement");
+	TRACE(INFO_ENTERING_FUNCTION, "emit_select_statement");
 	memset(output_key, 0, INT32_TO_STRING_MAX);
 
 	assert(stmt && ((table_alias_STATEMENT == stmt->type) || (set_operation_STATEMENT == stmt->type)));

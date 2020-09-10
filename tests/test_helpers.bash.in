@@ -476,7 +476,7 @@ verify_output() {
 	# Filter cursor number
 	sed -i 's/cursor [0-9]*/CURSOR_NUM/' clean_output.txt
 	# Filter ydb_* environment variables
-	sed -i '/^.*\[ INFO\] PATH:LINENUM DATE TIME : # .*$/d' clean_output.txt
+	sed -i '/^.*\[ INFO\] PATH:LINENUM DATE TIME : INFO_ENV_VAR : # .*$/d' clean_output.txt
 	# Convert non-deterministic $PWD into a deterministic one
 	# Convert symbolic links into absolute paths
 	cd -P $PWD

@@ -28,12 +28,12 @@
 int send_message(RoctoSession *session, BaseMessage *message) {
 	int32_t result = 0;
 
-	TRACE(ERR_ENTERING_FUNCTION, "send_message");
-	TRACE(ERR_SEND_MESSAGE, message->type, ntohl(message->length));
+	TRACE(INFO_ENTERING_FUNCTION, "send_message");
+	TRACE(INFO_SEND_MESSAGE, message->type, ntohl(message->length));
 
 	// +1 for message type indicator
 	result = send_bytes(session, (char *)message, ntohl(message->length) + 1);
 	if (0 != result)
-		ERROR(ERR_ROCTO_SEND_MESSAGE, message->type);
+		ERROR(ERR_ROCTO_SEND_FAILED, message->type);
 	return result;
 }

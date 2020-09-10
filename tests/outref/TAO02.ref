@@ -6,7 +6,7 @@ select * from names n1 where n1.id =  ALL (select * from names n2 where n1.id > 
 -- Test more than 1 column in sub-query of ALL/ANY/SOME. Should issue error.
 select * from names n1 where n1.firstname =  ALL (select * from names n2 where n1.id > n2.id + 3);
 
-[ERROR] PATH:LINENUM DATE TIME : Type mismatch: left VARCHAR, right INTEGER
+[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left VARCHAR, right INTEGER
 Error with syntax near (line 1, column 30):
 
 select * from names n1 where n1.firstname =  ALL (select n2.id from names n2 where n1.id > n2.id + 3);
@@ -15,8 +15,8 @@ Error with syntax near (line 1, column 58):
 
 select * from names n1 where n1.firstname =  ALL (select n2.id from names n2 where n1.id > n2.id + 3);
                                                          ^^^^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select * from names n1 where n1.firstname =  ALL (select n2.id from names n2 where n1.id > n2.id + 3);
-[ERROR] PATH:LINENUM DATE TIME : Type mismatch: left INTEGER, right VARCHAR
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select * from names n1 where n1.firstname =  ALL (select n2.id from names n2 where n1.id > n2.id + 3);
+[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left INTEGER, right VARCHAR
 Error with syntax near (line 1, column 30):
 
 select * from names n1 where n1.id =  ALL (select * from names n2 where n1.id > n2.id + 3);
@@ -25,8 +25,8 @@ Error with syntax near (line 1, column 51):
 
 select * from names n1 where n1.id =  ALL (select * from names n2 where n1.id > n2.id + 3);
                                                   ^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select * from names n1 where n1.id =  ALL (select * from names n2 where n1.id > n2.id + 3);
-[ERROR] PATH:LINENUM DATE TIME : Subquery must return only one column
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select * from names n1 where n1.id =  ALL (select * from names n2 where n1.id > n2.id + 3);
+[ERROR] PATH:LINENUM DATE TIME : ERR_SUBQUERY_ONE_COLUMN : Subquery must return only one column
 Error with syntax near (line 1, column 58):
 
 select * from names n1 where n1.firstname =  ALL (select * from names n2 where n1.id > n2.id + 3);

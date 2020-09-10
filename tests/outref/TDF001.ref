@@ -12,11 +12,11 @@ select DOLLARZWRITE(firstname) from names;
 "Lord"
 "Joey"
 "Zero"
-[ERROR] PATH:LINENUM DATE TIME : No function 'DOLLARZWRITE' defined with given parameter types (VARCHAR)
+[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_FUNCTION : No function 'DOLLARZWRITE' defined with given parameter types (VARCHAR)
 Error with syntax near (line 1, column 8):
 
 select DOLLARZWRITE(firstname) from names;
        ^^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select DOLLARZWRITE(firstname) from names;
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select DOLLARZWRITE(firstname) from names;
 Remaining function definitions (hashes):
 Successfully deleted function "DOLLARZWRITE" from pg_catalog.pg_proc

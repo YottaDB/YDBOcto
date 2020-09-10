@@ -3,9 +3,9 @@
 
 select * asdfasdfsdf;
 
-[ERROR] PATH:LINENUM DATE TIME : SELECT * with no tables specified is not valid
+[ERROR] PATH:LINENUM DATE TIME : ERR_SELECT_STAR_NO_TABLES : SELECT * with no tables specified is not valid
 Error with syntax near (line 1, column 8):
 
 select * asdfasdfsdf;
        ^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select * asdfasdfsdf;
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select * asdfasdfsdf;

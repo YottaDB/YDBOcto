@@ -6,7 +6,7 @@
 # Set expect timeout to a high value (60 seconds) as CREATE/DROP TABLE will take 10 seconds or more to return
 # Try CREATE TABLE or DROP TABLE (randomly) in process OCTO2. Should error/time out due to process OCTO1 in OCTO> prompt
 # Verify the command timed out
-[ERROR] PATH:LINENUM DATE TIME : YottaDB error: ydb_lock_s()/ydb_lock_incr_s() call timed out. Another process with schema change rights, or a long-running query, is active.
+[ERROR] PATH:LINENUM DATE TIME : ERR_YOTTADB : YottaDB error: ydb_lock_s()/ydb_lock_incr_s() call timed out. Another process with schema change rights, or a long-running query, is active.
 # Exit from process OCTO2
 # Go back to process OCTO1
 # Exit from process OCTO1

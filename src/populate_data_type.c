@@ -32,44 +32,44 @@
 		RESULT = 1;                                                                          \
 	}
 
-#define MAP_TYPE_TO_PARAMETER_VALUE(TYPE_1, TYPE_2)                                                                              \
-	{                                                                                                                        \
-		/* Map the column's type to the prepared statement parameter for ParameterDescriptions and Bind handling */      \
-		if (parse_context->is_extended_query && (PARAMETER_VALUE == TYPE_1)) {                                           \
-			if (NULL != parse_context->types) {                                                                      \
-				if (parse_context->cur_type < parse_context->num_bind_parm_types) {                              \
-					/* If type specified in Parse message, use that */                                       \
-					TYPE_1 = get_sqlvaluetype_from_psql_type(parse_context->types[parse_context->cur_type]); \
-					parse_context->cur_type++;                                                               \
-				} else {                                                                                         \
-					/* If not, use the one assigned by the parser from the DDL */                            \
-					if ((PARAMETER_VALUE == TYPE_2) || (NUL_VALUE == TYPE_2)) {                              \
-						ERROR(ERR_FEATURE_NOT_IMPLEMENTED,                                               \
-						      "comparison between literal parameters, e.g. $1 = $2");                    \
-						result = 1;                                                                      \
-					} else {                                                                                 \
-						if (parse_context->cur_type >= parse_context->types_size) {                      \
-							if (parse_context->cur_type > (2 * parse_context->types_size)) {         \
-								/* Sync types to cur_type */                                     \
-								EXPAND_ARRAY_ALLOCATION(parse_context->types,                    \
-											parse_context->types_size,               \
-											parse_context->cur_type, PSQL_TypeOid);  \
-								TRACE(ERR_MEM_REALLOCATION, "expanded", "parse_context->types"); \
-							}                                                                        \
-							DOUBLE_ARRAY_ALLOCATION(parse_context->types, parse_context->types_size, \
-										PSQL_TypeOid);                                   \
-							TRACE(ERR_MEM_REALLOCATION, "doubled", "parse_context->types");          \
-						}                                                                                \
-						parse_context->types[parse_context->cur_type]                                    \
-						    = get_psql_type_from_sqlvaluetype(TYPE_2);                                   \
-						parse_context->cur_type++;                                                       \
-						TYPE_1 = TYPE_2;                                                                 \
-					}                                                                                        \
-				}                                                                                                \
-			}                                                                                                        \
-		} else {                                                                                                         \
-			TYPE_1 = TYPE_2;                                                                                         \
-		}                                                                                                                \
+#define MAP_TYPE_TO_PARAMETER_VALUE(TYPE_1, TYPE_2)                                                                               \
+	{                                                                                                                         \
+		/* Map the column's type to the prepared statement parameter for ParameterDescriptions and Bind handling */       \
+		if (parse_context->is_extended_query && (PARAMETER_VALUE == TYPE_1)) {                                            \
+			if (NULL != parse_context->types) {                                                                       \
+				if (parse_context->cur_type < parse_context->num_bind_parm_types) {                               \
+					/* If type specified in Parse message, use that */                                        \
+					TYPE_1 = get_sqlvaluetype_from_psql_type(parse_context->types[parse_context->cur_type]);  \
+					parse_context->cur_type++;                                                                \
+				} else {                                                                                          \
+					/* If not, use the one assigned by the parser from the DDL */                             \
+					if ((PARAMETER_VALUE == TYPE_2) || (NUL_VALUE == TYPE_2)) {                               \
+						ERROR(ERR_FEATURE_NOT_IMPLEMENTED,                                                \
+						      "comparison between literal parameters, e.g. $1 = $2");                     \
+						result = 1;                                                                       \
+					} else {                                                                                  \
+						if (parse_context->cur_type >= parse_context->types_size) {                       \
+							if (parse_context->cur_type > (2 * parse_context->types_size)) {          \
+								/* Sync types to cur_type */                                      \
+								EXPAND_ARRAY_ALLOCATION(parse_context->types,                     \
+											parse_context->types_size,                \
+											parse_context->cur_type, PSQL_TypeOid);   \
+								TRACE(INFO_MEM_REALLOCATION, "expanded", "parse_context->types"); \
+							}                                                                         \
+							DOUBLE_ARRAY_ALLOCATION(parse_context->types, parse_context->types_size,  \
+										PSQL_TypeOid);                                    \
+							TRACE(INFO_MEM_REALLOCATION, "doubled", "parse_context->types");          \
+						}                                                                                 \
+						parse_context->types[parse_context->cur_type]                                     \
+						    = get_psql_type_from_sqlvaluetype(TYPE_2);                                    \
+						parse_context->cur_type++;                                                        \
+						TYPE_1 = TYPE_2;                                                                  \
+					}                                                                                         \
+				}                                                                                                 \
+			}                                                                                                         \
+		} else {                                                                                                          \
+			TYPE_1 = TYPE_2;                                                                                          \
+		}                                                                                                                 \
 	}
 
 // Coverts ambiguous SqlValueTypes to determinate types.

@@ -41,7 +41,7 @@ int32_t handle_execute(Execute *execute, RoctoSession *session, ydb_long_t *curs
 	char		    filename[OCTO_PATH_MAX];
 	SqlStatementType    command_tag;
 
-	TRACE(ERR_ENTERING_FUNCTION, "handle_execute");
+	TRACE(INFO_ENTERING_FUNCTION, "handle_execute");
 
 	// Prepare callback parameters
 	memset(&parms, 0, sizeof(QueryResponseParms));

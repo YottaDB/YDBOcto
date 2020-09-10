@@ -1,10 +1,10 @@
 OCTO> drop table t1;
 OCTO> select * from t1;
-[ERROR] PATH:LINENUM DATE TIME : Unknown table: T1
+[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_TABLE : Unknown table: T1
 Error with syntax near (line 1, column 14):
 
 select * from t1;
               ^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select * from t1;
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select * from t1;
 
 OCTO> 

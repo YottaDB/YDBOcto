@@ -5,9 +5,9 @@
 
 SELECT EXISTS (SELECT 1,2 UNION SELECT 3);
 
-[ERROR] PATH:LINENUM DATE TIME : Each UNION query must have same number of columns
+[ERROR] PATH:LINENUM DATE TIME : ERR_SETOPER_NUMCOLS_MISMATCH : Each UNION query must have same number of columns
 Error with syntax near (line 1, column 25):
 
 SELECT EXISTS (SELECT 1,2 UNION SELECT 3);
                         ^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT EXISTS (SELECT 1,2 UNION SELECT 3);
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT EXISTS (SELECT 1,2 UNION SELECT 3);

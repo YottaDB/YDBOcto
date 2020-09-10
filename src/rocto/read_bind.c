@@ -36,7 +36,7 @@ Bind *read_bind(BaseMessage *message) {
 
 	// Ensure message has correct type
 	if (ret->type != PSQL_Bind) {
-		ERROR(ERR_ROCTO_INVALID_TYPE, "Bind", ret->type, PSQL_Bind);
+		ERROR(ERR_ROCTO_INVALID_MESSAGE_TYPE, "Bind", ret->type, PSQL_Bind);
 		free(ret);
 		return NULL;
 	}

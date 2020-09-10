@@ -38,7 +38,7 @@ SqlTable *find_table(const char *table_name) {
 	boolean_t     drop_cache;
 	uint64_t      db_oid;
 
-	TRACE(CUSTOM_ERROR, "Searching for table %s", table_name);
+	TRACE(INFO_TABLE_SEARCH, table_name);
 
 	/* We look to see if the table has already been loaded, and if so we get the pointer to process-local memory
 	 * from the YDB local variable, then setup the stmt pointer. Else, we load the binary from the database

@@ -2,4 +2,4 @@
 3|Lord|Nikon
 # KILL ^%ydboctoocto(xref_status) and also remove _ydboctoX*.{m,o} to xref rebuild
 # Run TPP01.sql again. Should issue ZLINKFILE error because _ydboctoX*.m (which rebuilds xref) has been deleted
-[ERROR] PATH:LINENUM DATE TIME : YottaDB error: 150373978,octoPlan1+1^%ydboctoP*,%YDB-E-ZLINKFILE, Error while zlinking "_ydboctoXOMMMsQ8ks3NI1C42wS8F05",%YDB-E-FILENOTFND, File _ydboctoXOMMMsQ8ks3NI1C42wS8F05 not found
+[ERROR] PATH:LINENUM DATE TIME : ERR_YOTTADB : YottaDB error: 150373978,octoPlan1+1^%ydboctoP*,%YDB-E-ZLINKFILE, Error while zlinking "_ydboctoXOMMMsQ8ks3NI1C42wS8F05",%YDB-E-FILENOTFND, File _ydboctoXOMMMsQ8ks3NI1C42wS8F05 not found

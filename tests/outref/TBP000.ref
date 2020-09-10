@@ -1,16 +1,16 @@
-[ERROR] PATH:LINENUM DATE TIME : Invalid literal in DDL specification: only integer literals accepted for this keyword.
+[ERROR] PATH:LINENUM DATE TIME : ERR_DDL_LITERAL : Invalid literal in DDL specification: only integer literals accepted for this keyword.
 Error with syntax near (line 1, column 56):
 
 CREATE TABLE abc (id INTEGER PRIMARY KEY PIECE "keys(0)");
                                                        ^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: CREATE TABLE abc (id INTEGER PRIMARY KEY PIECE "keys(0)");
-[ERROR] PATH:LINENUM DATE TIME : Invalid literal in DDL specification: only integer literals accepted for this keyword.
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: CREATE TABLE abc (id INTEGER PRIMARY KEY PIECE "keys(0)");
+[ERROR] PATH:LINENUM DATE TIME : ERR_DDL_LITERAL : Invalid literal in DDL specification: only integer literals accepted for this keyword.
 Error with syntax near (line 1, column 56):
 
 CREATE TABLE abc (id INTEGER PRIMARY KEY PIECE "keys(0)" GLOBAL "^aDifferentVar(keys(0))");
                                                        ^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: CREATE TABLE abc (id INTEGER PRIMARY KEY PIECE "keys(0)" GLOBAL "^aDifferentVar(keys(0))");
-[ERROR] PATH:LINENUM DATE TIME : Invalid literal in DDL specification: only integer literals accepted for this keyword.
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: CREATE TABLE abc (id INTEGER PRIMARY KEY PIECE "keys(0)" GLOBAL "^aDifferentVar(keys(0))");
+[ERROR] PATH:LINENUM DATE TIME : ERR_DDL_LITERAL : Invalid literal in DDL specification: only integer literals accepted for this keyword.
 Error with syntax near (line 4, column 11):
 
 CREATE TABLE abc (
@@ -18,7 +18,7 @@ CREATE TABLE abc (
   GLOBAL "someGLobal"
   PIECE "0"
           ^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: CREATE TABLE abc (
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: CREATE TABLE abc (
   id INTEGER PRIMARY KEY EXTRACT "abc"
   GLOBAL "someGLobal"
   PIECE "0"

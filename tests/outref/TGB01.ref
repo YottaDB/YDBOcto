@@ -100,78 +100,78 @@ SELECT (SELECT n3.id FROM names n3 ORDER BY COUNT(n1.id)),(SELECT n2.id FROM nam
 SELECT (SELECT n3.id FROM names n3 WHERE n3.id = n1.id),(SELECT n2.id FROM names n2 ORDER BY COUNT(n1.id)) FROM names n1;
 SELECT (SELECT n3.id FROM names n3 WHERE n3.id = n1.id),(SELECT n2.id FROM names n2 ORDER BY COUNT(n1.id)) FROM names n1 GROUP BY n1.id;
 
-[ERROR] PATH:LINENUM DATE TIME : Only column names are valid in GROUP BY (not expressions or constants)
+[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_ONLY_COLUMN_NAME : Only column names are valid in GROUP BY (not expressions or constants)
 Error with syntax near (line 2, column 30):
 
 --> Below queries should error out because GROUP BY is supported only with columns (not with constants or expressions)
 SELECT * FROM names GROUP BY 1;
                              ^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: --> Below queries should error out because GROUP BY is supported only with columns (not with constants or expressions)
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: --> Below queries should error out because GROUP BY is supported only with columns (not with constants or expressions)
 SELECT * FROM names GROUP BY 1;
-[ERROR] PATH:LINENUM DATE TIME : Only column names are valid in GROUP BY (not expressions or constants)
+[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_ONLY_COLUMN_NAME : Only column names are valid in GROUP BY (not expressions or constants)
 Error with syntax near (line 1, column 43):
 
 SELECT * FROM names GROUP BY id,firstname,1+id;
                                           ^^^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT * FROM names GROUP BY id,firstname,1+id;
-[ERROR] PATH:LINENUM DATE TIME : Only column names are valid in GROUP BY (not expressions or constants)
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT * FROM names GROUP BY id,firstname,1+id;
+[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_ONLY_COLUMN_NAME : Only column names are valid in GROUP BY (not expressions or constants)
 Error with syntax near (line 2, column 66):
 
 --> Below query should error out because aggregate functions are not allowed in GROUP BY
 SELECT COUNT(CustomerID),Country FROM Customers GROUP BY Country,COUNT(CustomerID);
                                                                  ^^^^^^^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: --> Below query should error out because aggregate functions are not allowed in GROUP BY
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: --> Below query should error out because aggregate functions are not allowed in GROUP BY
 SELECT COUNT(CustomerID),Country FROM Customers GROUP BY Country,COUNT(CustomerID);
-[ERROR] PATH:LINENUM DATE TIME : Function SUM cannot be invoked with a parameter of type VARCHAR
+[ERROR] PATH:LINENUM DATE TIME : ERR_MISTYPED_FUNCTION : Function SUM cannot be invoked with a parameter of type VARCHAR
 Error with syntax near (line 2, column 8):
 
 --> Below should error out because AVG and SUM cannot operate on VARCHAR type (i.e. string literals), only on INTEGER/NUMERIC
 SELECT SUM(firstname) FROM names;
        ^^^^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: --> Below should error out because AVG and SUM cannot operate on VARCHAR type (i.e. string literals), only on INTEGER/NUMERIC
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: --> Below should error out because AVG and SUM cannot operate on VARCHAR type (i.e. string literals), only on INTEGER/NUMERIC
 SELECT SUM(firstname) FROM names;
-[ERROR] PATH:LINENUM DATE TIME : Function AVG cannot be invoked with a parameter of type VARCHAR
+[ERROR] PATH:LINENUM DATE TIME : ERR_MISTYPED_FUNCTION : Function AVG cannot be invoked with a parameter of type VARCHAR
 Error with syntax near (line 1, column 8):
 
 SELECT AVG(firstname) FROM names;
        ^^^^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT AVG(firstname) FROM names;
-[ERROR] PATH:LINENUM DATE TIME : Function SUM cannot be invoked with a parameter of type VARCHAR
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT AVG(firstname) FROM names;
+[ERROR] PATH:LINENUM DATE TIME : ERR_MISTYPED_FUNCTION : Function SUM cannot be invoked with a parameter of type VARCHAR
 Error with syntax near (line 1, column 8):
 
 SELECT SUM(firstname || 'abcd') FROM names;
        ^^^^^^^^^^^^^^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT SUM(firstname || 'abcd') FROM names;
-[ERROR] PATH:LINENUM DATE TIME : Function AVG cannot be invoked with a parameter of type VARCHAR
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT SUM(firstname || 'abcd') FROM names;
+[ERROR] PATH:LINENUM DATE TIME : ERR_MISTYPED_FUNCTION : Function AVG cannot be invoked with a parameter of type VARCHAR
 Error with syntax near (line 1, column 8):
 
 SELECT AVG(firstname || 'abcd') FROM names;
        ^^^^^^^^^^^^^^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT AVG(firstname || 'abcd') FROM names;
-[ERROR] PATH:LINENUM DATE TIME : Function SUM cannot be invoked with a parameter of type VARCHAR
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT AVG(firstname || 'abcd') FROM names;
+[ERROR] PATH:LINENUM DATE TIME : ERR_MISTYPED_FUNCTION : Function SUM cannot be invoked with a parameter of type VARCHAR
 Error with syntax near (line 1, column 8):
 
 SELECT SUM('abcd' || firstname) FROM names;
        ^^^^^^^^^^^^^^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT SUM('abcd' || firstname) FROM names;
-[ERROR] PATH:LINENUM DATE TIME : Function AVG cannot be invoked with a parameter of type VARCHAR
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT SUM('abcd' || firstname) FROM names;
+[ERROR] PATH:LINENUM DATE TIME : ERR_MISTYPED_FUNCTION : Function AVG cannot be invoked with a parameter of type VARCHAR
 Error with syntax near (line 1, column 8):
 
 SELECT AVG('abcd' || firstname) FROM names;
        ^^^^^^^^^^^^^^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT AVG('abcd' || firstname) FROM names;
-[ERROR] PATH:LINENUM DATE TIME : Function SUM cannot be invoked with a parameter of type VARCHAR
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT AVG('abcd' || firstname) FROM names;
+[ERROR] PATH:LINENUM DATE TIME : ERR_MISTYPED_FUNCTION : Function SUM cannot be invoked with a parameter of type VARCHAR
 Error with syntax near (line 1, column 8):
 
 SELECT SUM(Country) FROM Customers;
        ^^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT SUM(Country) FROM Customers;
-[ERROR] PATH:LINENUM DATE TIME : Function AVG cannot be invoked with a parameter of type VARCHAR
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT SUM(Country) FROM Customers;
+[ERROR] PATH:LINENUM DATE TIME : ERR_MISTYPED_FUNCTION : Function AVG cannot be invoked with a parameter of type VARCHAR
 Error with syntax near (line 1, column 8):
 
 SELECT AVG(Country) FROM Customers;
        ^^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT AVG(Country) FROM Customers;
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT AVG(Country) FROM Customers;
 Error with syntax near (line 2, column 23):
 
 --> Below should issue error since COUNT(DISTINCT *) is not a valid usage
@@ -179,87 +179,87 @@ SELECT COUNT(DISTINCT *) FROM Customers c LEFT JOIN Orders o ON c.CustomerID = o
                       ^
 syntax error, unexpected ASTERISK
 
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: --> Below should issue error since COUNT(DISTINCT *) is not a valid usage
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: --> Below should issue error since COUNT(DISTINCT *) is not a valid usage
 SELECT COUNT(DISTINCT *) FROM Customers c LEFT JOIN Orders o ON c.CustomerID = o.CustomerID;
-[ERROR] PATH:LINENUM DATE TIME : Unknown column: ABCD
+[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_COLUMN_NAME : Unknown column: ABCD
 Error with syntax near (line 2, column 14):
 
 --> Below should error out because "abcd" is an invalid column name
 SELECT COUNT(abcd) FROM names;
              ^^^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: --> Below should error out because "abcd" is an invalid column name
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: --> Below should error out because "abcd" is an invalid column name
 SELECT COUNT(abcd) FROM names;
-[ERROR] PATH:LINENUM DATE TIME : Aggregate function calls cannot be nested
+[ERROR] PATH:LINENUM DATE TIME : ERR_AGGREGATE_FUNCTION_NESTED : Aggregate function calls cannot be nested
 Error with syntax near (line 2, column 16):
 
 --> Below should error out because aggregate function calls cannot be nested
 SELECT 1+2*AVG(AVG(id)) FROM names;
                ^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: --> Below should error out because aggregate function calls cannot be nested
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: --> Below should error out because aggregate function calls cannot be nested
 SELECT 1+2*AVG(AVG(id)) FROM names;
-[ERROR] PATH:LINENUM DATE TIME : Aggregate function calls cannot be nested
+[ERROR] PATH:LINENUM DATE TIME : ERR_AGGREGATE_FUNCTION_NESTED : Aggregate function calls cannot be nested
 Error with syntax near (line 1, column 18):
 
 SELECT 1+COUNT(1+COUNT(id)) FROM names;
                  ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT 1+COUNT(1+COUNT(id)) FROM names;
-[ERROR] PATH:LINENUM DATE TIME : Aggregate functions are not allowed in WHERE
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT 1+COUNT(1+COUNT(id)) FROM names;
+[ERROR] PATH:LINENUM DATE TIME : ERR_AGGREGATE_FUNCTION_WHERE : Aggregate functions are not allowed in WHERE
 Error with syntax near (line 2, column 52):
 
 --> Below should error out because aggregate functions are not allowed in WHERE
 SELECT COUNT(OrderID),CustomerID FROM Orders WHERE COUNT(OrderID)>10 GROUP BY CustomerID ORDER BY COUNT(OrderID) DESC, CustomerID;
                                                    ^^^^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: --> Below should error out because aggregate functions are not allowed in WHERE
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: --> Below should error out because aggregate functions are not allowed in WHERE
 SELECT COUNT(OrderID),CustomerID FROM Orders WHERE COUNT(OrderID)>10 GROUP BY CustomerID ORDER BY COUNT(OrderID) DESC, CustomerID;
-[ERROR] PATH:LINENUM DATE TIME : Aggregate functions are not allowed in WHERE
+[ERROR] PATH:LINENUM DATE TIME : ERR_AGGREGATE_FUNCTION_WHERE : Aggregate functions are not allowed in WHERE
 Error with syntax near (line 2, column 102):
 
 --> Below should error out because aggregate functions are not allowed in WHERE clause even in a sub-query
 SELECT * FROM names n1 WHERE n1.firstName IN (SELECT n2.firstname FROM names n2 where n2.firstname = MAX(n2.lastname));
                                                                                                      ^^^^^^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: --> Below should error out because aggregate functions are not allowed in WHERE clause even in a sub-query
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: --> Below should error out because aggregate functions are not allowed in WHERE clause even in a sub-query
 SELECT * FROM names n1 WHERE n1.firstName IN (SELECT n2.firstname FROM names n2 where n2.firstname = MAX(n2.lastname));
-[ERROR] PATH:LINENUM DATE TIME : Column COUNTRY must appear in the GROUP BY clause or be used in an aggregate function
+[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column COUNTRY must appear in the GROUP BY clause or be used in an aggregate function
 Error with syntax near (line 2, column 26):
 
 --> Below should error out because GROUP BY is needed for Country due to prior use of aggregate function COUNT(CustomerID)
 SELECT COUNT(CustomerID),Country FROM Customers;
                          ^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: --> Below should error out because GROUP BY is needed for Country due to prior use of aggregate function COUNT(CustomerID)
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: --> Below should error out because GROUP BY is needed for Country due to prior use of aggregate function COUNT(CustomerID)
 SELECT COUNT(CustomerID),Country FROM Customers;
-[ERROR] PATH:LINENUM DATE TIME : Column COUNTRY must appear in the GROUP BY clause or be used in an aggregate function
+[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column COUNTRY must appear in the GROUP BY clause or be used in an aggregate function
 Error with syntax near (line 2, column 8):
 
 --> Below should error out because GROUP BY is needed for Country due to later use of aggregate function COUNT(CustomerID)
 SELECT Country,COUNT(CustomerID) FROM Customers;
        ^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: --> Below should error out because GROUP BY is needed for Country due to later use of aggregate function COUNT(CustomerID)
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: --> Below should error out because GROUP BY is needed for Country due to later use of aggregate function COUNT(CustomerID)
 SELECT Country,COUNT(CustomerID) FROM Customers;
-[ERROR] PATH:LINENUM DATE TIME : Column ORDERID must appear in the GROUP BY clause or be used in an aggregate function
+[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column ORDERID must appear in the GROUP BY clause or be used in an aggregate function
 Error with syntax near (line 2, column 75):
 
 --> Below should error out because OrderID used in ORDER BY should be used with an aggregate function.
 SELECT COUNT(OrderID),CustomerID FROM Orders GROUP BY CustomerID ORDER BY OrderID DESC, CustomerID;
                                                                           ^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: --> Below should error out because OrderID used in ORDER BY should be used with an aggregate function.
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: --> Below should error out because OrderID used in ORDER BY should be used with an aggregate function.
 SELECT COUNT(OrderID),CustomerID FROM Orders GROUP BY CustomerID ORDER BY OrderID DESC, CustomerID;
-[ERROR] PATH:LINENUM DATE TIME : Column EMPLOYEEID must appear in the GROUP BY clause or be used in an aggregate function
+[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column EMPLOYEEID must appear in the GROUP BY clause or be used in an aggregate function
 Error with syntax near (line 2, column 34):
 
 --> Below should error out because GROUP BY is needed for EmployeeID
 SELECT COUNT(OrderID),CustomerID,EmployeeID FROM Orders GROUP BY CustomerID ORDER BY COUNT(OrderID) desc, CustomerID;
                                  ^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: --> Below should error out because GROUP BY is needed for EmployeeID
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: --> Below should error out because GROUP BY is needed for EmployeeID
 SELECT COUNT(OrderID),CustomerID,EmployeeID FROM Orders GROUP BY CustomerID ORDER BY COUNT(OrderID) desc, CustomerID;
-[ERROR] PATH:LINENUM DATE TIME : Column ORDERID must appear in the GROUP BY clause or be used in an aggregate function
+[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column ORDERID must appear in the GROUP BY clause or be used in an aggregate function
 Error with syntax near (line 2, column 21):
 
 --> Below should error out because o.OrderID should appear in GROUP BY or used in an aggregate function
 SELECT c.CustomerID,o.OrderID FROM Customers c LEFT JOIN Orders o ON c.CustomerID = o.CustomerID GROUP BY c.CustomerID;
                     ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: --> Below should error out because o.OrderID should appear in GROUP BY or used in an aggregate function
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: --> Below should error out because o.OrderID should appear in GROUP BY or used in an aggregate function
 SELECT c.CustomerID,o.OrderID FROM Customers c LEFT JOIN Orders o ON c.CustomerID = o.CustomerID GROUP BY c.CustomerID;
-[ERROR] PATH:LINENUM DATE TIME : Aggregate functions are not allowed in JOIN conditions
+[ERROR] PATH:LINENUM DATE TIME : ERR_AGGREGATE_FUNCTION_JOIN : Aggregate functions are not allowed in JOIN conditions
 Error with syntax near (line 4, column 70):
 
 --> Below should error out because of two errors.
@@ -267,7 +267,7 @@ Error with syntax near (line 4, column 70):
 -->	b) o.OrderID should appear in GROUP BY or used in an aggregate function
 SELECT c.CustomerID,o.OrderID FROM Customers c LEFT JOIN Orders o ON COUNT(c.CustomerID) = o.CustomerID GROUP BY c.CustomerID;
                                                                      ^^^^^^^^^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : Column ORDERID must appear in the GROUP BY clause or be used in an aggregate function
+[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column ORDERID must appear in the GROUP BY clause or be used in an aggregate function
 Error with syntax near (line 4, column 21):
 
 --> Below should error out because of two errors.
@@ -275,156 +275,156 @@ Error with syntax near (line 4, column 21):
 -->	b) o.OrderID should appear in GROUP BY or used in an aggregate function
 SELECT c.CustomerID,o.OrderID FROM Customers c LEFT JOIN Orders o ON COUNT(c.CustomerID) = o.CustomerID GROUP BY c.CustomerID;
                     ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: --> Below should error out because of two errors.
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: --> Below should error out because of two errors.
 -->	a) aggregate function (COUNT(c.CustomerID) above) cannot be inside JOIN conditions
 -->	b) o.OrderID should appear in GROUP BY or used in an aggregate function
 SELECT c.CustomerID,o.OrderID FROM Customers c LEFT JOIN Orders o ON COUNT(c.CustomerID) = o.CustomerID GROUP BY c.CustomerID;
-[ERROR] PATH:LINENUM DATE TIME : Column CUSTOMERID must appear in the GROUP BY clause or be used in an aggregate function
+[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column CUSTOMERID must appear in the GROUP BY clause or be used in an aggregate function
 Error with syntax near (line 2, column 26):
 
 --> Below should error out because the same column cannot be used inside and outside an aggregate function without a GROUP by.
 SELECT COUNT(CustomerID),CustomerID FROM Customers;
                          ^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: --> Below should error out because the same column cannot be used inside and outside an aggregate function without a GROUP by.
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: --> Below should error out because the same column cannot be used inside and outside an aggregate function without a GROUP by.
 SELECT COUNT(CustomerID),CustomerID FROM Customers;
-[ERROR] PATH:LINENUM DATE TIME : Column ID must appear in the GROUP BY clause or be used in an aggregate function
+[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column ID must appear in the GROUP BY clause or be used in an aggregate function
 Error with syntax near (line 2, column 60):
 
 --> Below should error out because sub-query uses ungrouped column from outer query
 SELECT COUNT(id),(SELECT n2.id FROM names n2 WHERE n2.id = n1.id) FROM names n1;
                                                            ^^^^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: --> Below should error out because sub-query uses ungrouped column from outer query
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: --> Below should error out because sub-query uses ungrouped column from outer query
 SELECT COUNT(id),(SELECT n2.id FROM names n2 WHERE n2.id = n1.id) FROM names n1;
-[ERROR] PATH:LINENUM DATE TIME : Column ID must appear in the GROUP BY clause or be used in an aggregate function
+[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column ID must appear in the GROUP BY clause or be used in an aggregate function
 Error with syntax near (line 1, column 39):
 
 SELECT (SELECT id FROM names n1 WHERE n2.id = 2),COUNT(n2.id) FROM names n2;
                                       ^^^^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT (SELECT id FROM names n1 WHERE n2.id = 2),COUNT(n2.id) FROM names n2;
-[ERROR] PATH:LINENUM DATE TIME : Column ID must appear in the GROUP BY clause or be used in an aggregate function
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT (SELECT id FROM names n1 WHERE n2.id = 2),COUNT(n2.id) FROM names n2;
+[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column ID must appear in the GROUP BY clause or be used in an aggregate function
 Error with syntax near (line 1, column 66):
 
 SELECT (SELECT n3.id FROM names n3 LEFT JOIN names n4 ON n4.id = n1.id ORDER BY n1.id),COUNT(n1.id) FROM names n1;
                                                                  ^^^^^
-[ERROR] PATH:LINENUM DATE TIME : Column ID must appear in the GROUP BY clause or be used in an aggregate function
+[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column ID must appear in the GROUP BY clause or be used in an aggregate function
 Error with syntax near (line 1, column 81):
 
 SELECT (SELECT n3.id FROM names n3 LEFT JOIN names n4 ON n4.id = n1.id ORDER BY n1.id),COUNT(n1.id) FROM names n1;
                                                                                 ^^^^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT (SELECT n3.id FROM names n3 LEFT JOIN names n4 ON n4.id = n1.id ORDER BY n1.id),COUNT(n1.id) FROM names n1;
-[ERROR] PATH:LINENUM DATE TIME : Column ID must appear in the GROUP BY clause or be used in an aggregate function
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT (SELECT n3.id FROM names n3 LEFT JOIN names n4 ON n4.id = n1.id ORDER BY n1.id),COUNT(n1.id) FROM names n1;
+[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column ID must appear in the GROUP BY clause or be used in an aggregate function
 Error with syntax near (line 1, column 66):
 
 SELECT (SELECT n3.id FROM names n3 LEFT JOIN names n4 ON n4.id = n1.id ORDER BY n1.id),COUNT(n1.id),(SELECT n2.id FROM names n2 WHERE n2.id = n1.id) FROM names n1;
                                                                  ^^^^^
-[ERROR] PATH:LINENUM DATE TIME : Column ID must appear in the GROUP BY clause or be used in an aggregate function
+[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column ID must appear in the GROUP BY clause or be used in an aggregate function
 Error with syntax near (line 1, column 81):
 
 SELECT (SELECT n3.id FROM names n3 LEFT JOIN names n4 ON n4.id = n1.id ORDER BY n1.id),COUNT(n1.id),(SELECT n2.id FROM names n2 WHERE n2.id = n1.id) FROM names n1;
                                                                                 ^^^^^
-[ERROR] PATH:LINENUM DATE TIME : Column ID must appear in the GROUP BY clause or be used in an aggregate function
+[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column ID must appear in the GROUP BY clause or be used in an aggregate function
 Error with syntax near (line 1, column 143):
 
 SELECT (SELECT n3.id FROM names n3 LEFT JOIN names n4 ON n4.id = n1.id ORDER BY n1.id),COUNT(n1.id),(SELECT n2.id FROM names n2 WHERE n2.id = n1.id) FROM names n1;
                                                                                                                                               ^^^^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT (SELECT n3.id FROM names n3 LEFT JOIN names n4 ON n4.id = n1.id ORDER BY n1.id),COUNT(n1.id),(SELECT n2.id FROM names n2 WHERE n2.id = n1.id) FROM names n1;
-[ERROR] PATH:LINENUM DATE TIME : Column ID must appear in the GROUP BY clause or be used in an aggregate function
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT (SELECT n3.id FROM names n3 LEFT JOIN names n4 ON n4.id = n1.id ORDER BY n1.id),COUNT(n1.id),(SELECT n2.id FROM names n2 WHERE n2.id = n1.id) FROM names n1;
+[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column ID must appear in the GROUP BY clause or be used in an aggregate function
 Error with syntax near (line 1, column 75):
 
 SELECT COUNT(id),(SELECT * from (select n2.id FROM names n2 WHERE n2.id = n1.id) n3) FROM names n1;
                                                                           ^^^^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT COUNT(id),(SELECT * from (select n2.id FROM names n2 WHERE n2.id = n1.id) n3) FROM names n1;
-[ERROR] PATH:LINENUM DATE TIME : Column ID must appear in the GROUP BY clause or be used in an aggregate function
-[ERROR] PATH:LINENUM DATE TIME : Column LASTNAME must appear in the GROUP BY clause or be used in an aggregate function
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: --> Below should error out because GROUP BY is done on firstname but * usage in SELECT implies columns other than country
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT COUNT(id),(SELECT * from (select n2.id FROM names n2 WHERE n2.id = n1.id) n3) FROM names n1;
+[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column ID must appear in the GROUP BY clause or be used in an aggregate function
+[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column LASTNAME must appear in the GROUP BY clause or be used in an aggregate function
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: --> Below should error out because GROUP BY is done on firstname but * usage in SELECT implies columns other than country
 --> (e.g. lastname) are selected without any GROUP BY or AGGREGATE function use. And should be disallowed.
 SELECT * FROM names GROUP BY firstname;
-[ERROR] PATH:LINENUM DATE TIME : Column ID must appear in the GROUP BY clause or be used in an aggregate function
-[ERROR] PATH:LINENUM DATE TIME : Column LASTNAME must appear in the GROUP BY clause or be used in an aggregate function
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT * FROM (SELECT * FROM names) GROUP BY firstname;
-[ERROR] PATH:LINENUM DATE TIME : Column FIRSTNAME must appear in the GROUP BY clause or be used in an aggregate function
-[ERROR] PATH:LINENUM DATE TIME : Column LASTNAME must appear in the GROUP BY clause or be used in an aggregate function
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: --> Below should error out even though GROUP BY column is the primary key. The first of the 2 queries below works fine in
+[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column ID must appear in the GROUP BY clause or be used in an aggregate function
+[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column LASTNAME must appear in the GROUP BY clause or be used in an aggregate function
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT * FROM (SELECT * FROM names) GROUP BY firstname;
+[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column FIRSTNAME must appear in the GROUP BY clause or be used in an aggregate function
+[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column LASTNAME must appear in the GROUP BY clause or be used in an aggregate function
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: --> Below should error out even though GROUP BY column is the primary key. The first of the 2 queries below works fine in
 --> Postgres whereas the second one does not. I suspect this is because in the 1st query, we know for sure that the GROUP BY
 --> column is a primary key column and hence the GROUP by can be ignored. Whereas in the 2nd query, the output comes from
 --> a sub-query where we are not guaranteed the primary key assumption. In any case, Octo issues error for both cases at least now.
 SELECT * FROM names GROUP BY id;
-[ERROR] PATH:LINENUM DATE TIME : Column FIRSTNAME must appear in the GROUP BY clause or be used in an aggregate function
-[ERROR] PATH:LINENUM DATE TIME : Column LASTNAME must appear in the GROUP BY clause or be used in an aggregate function
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT * FROM (SELECT * FROM names ) n1 GROUP BY id;
-[ERROR] PATH:LINENUM DATE TIME : More than one row returned by a subquery used as an expression
-[ERROR] PATH:LINENUM DATE TIME : More than one row returned by a subquery used as an expression
-[ERROR] PATH:LINENUM DATE TIME : More than one row returned by a subquery used as an expression
-[ERROR] PATH:LINENUM DATE TIME : Column COUNTRY must appear in the GROUP BY clause or be used in an aggregate function
+[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column FIRSTNAME must appear in the GROUP BY clause or be used in an aggregate function
+[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column LASTNAME must appear in the GROUP BY clause or be used in an aggregate function
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT * FROM (SELECT * FROM names ) n1 GROUP BY id;
+[ERROR] PATH:LINENUM DATE TIME : ERR_SUBQUERY_MULTIPLE_ROWS : More than one row returned by a subquery used as an expression
+[ERROR] PATH:LINENUM DATE TIME : ERR_SUBQUERY_MULTIPLE_ROWS : More than one row returned by a subquery used as an expression
+[ERROR] PATH:LINENUM DATE TIME : ERR_SUBQUERY_MULTIPLE_ROWS : More than one row returned by a subquery used as an expression
+[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column COUNTRY must appear in the GROUP BY clause or be used in an aggregate function
 Error with syntax near (line 3, column 8):
 
 --> Below should error out because GROUP BY is needed for Country in SELECT column list
 --> due to use of aggregate function COUNT(CustomerID) in HAVING clause
 SELECT Country FROM Customers WHERE Country = 'Abcd' HAVING COUNT(CustomerID) = 1;
        ^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: --> Below should error out because GROUP BY is needed for Country in SELECT column list
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: --> Below should error out because GROUP BY is needed for Country in SELECT column list
 --> due to use of aggregate function COUNT(CustomerID) in HAVING clause
 SELECT Country FROM Customers WHERE Country = 'Abcd' HAVING COUNT(CustomerID) = 1;
-[ERROR] PATH:LINENUM DATE TIME : Unknown column: MAXO
+[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_COLUMN_NAME : Unknown column: MAXO
 Error with syntax near (line 2, column 196):
 
 --> Below should error out because HAVING clause cannot use column aliases defined in the SELECT column list
 SELECT COUNT(OrderID),MAX(OrderID) as maxo,MIN(OrderID) as mino,MAX(CustomerID) as maxc,MIN(CustomerID) as minc,EmployeeID FROM Orders WHERE EmployeeID BETWEEN 0 AND 7 GROUP BY EmployeeID HAVING maxo > 10400 AND mino < 10275;
                                                                                                                                                                                                    ^^^^
-[ERROR] PATH:LINENUM DATE TIME : Unknown column: MINO
+[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_COLUMN_NAME : Unknown column: MINO
 Error with syntax near (line 2, column 213):
 
 --> Below should error out because HAVING clause cannot use column aliases defined in the SELECT column list
 SELECT COUNT(OrderID),MAX(OrderID) as maxo,MIN(OrderID) as mino,MAX(CustomerID) as maxc,MIN(CustomerID) as minc,EmployeeID FROM Orders WHERE EmployeeID BETWEEN 0 AND 7 GROUP BY EmployeeID HAVING maxo > 10400 AND mino < 10275;
                                                                                                                                                                                                                     ^^^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: --> Below should error out because HAVING clause cannot use column aliases defined in the SELECT column list
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: --> Below should error out because HAVING clause cannot use column aliases defined in the SELECT column list
 SELECT COUNT(OrderID),MAX(OrderID) as maxo,MIN(OrderID) as mino,MAX(CustomerID) as maxc,MIN(CustomerID) as minc,EmployeeID FROM Orders WHERE EmployeeID BETWEEN 0 AND 7 GROUP BY EmployeeID HAVING maxo > 10400 AND mino < 10275;
-[ERROR] PATH:LINENUM DATE TIME : Column EMPLOYEEID must appear in the GROUP BY clause or be used in an aggregate function
+[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column EMPLOYEEID must appear in the GROUP BY clause or be used in an aggregate function
 Error with syntax near (line 2, column 108):
 
 --> Below should error out because GROUP BY is needed for EmployeeID if used in the HAVING clause without aggregate function
 SELECT COUNT(OrderID),CustomerID FROM Orders GROUP BY CustomerID HAVING COUNT(OrderID) BETWEEN 3 AND 6 AND EmployeeID BETWEEN 2 and 5 ORDER BY COUNT(OrderID) desc, CustomerID;
                                                                                                            ^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : Column EMPLOYEEID must appear in the GROUP BY clause or be used in an aggregate function
+[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column EMPLOYEEID must appear in the GROUP BY clause or be used in an aggregate function
 Error with syntax near (line 2, column 108):
 
 --> Below should error out because GROUP BY is needed for EmployeeID if used in the HAVING clause without aggregate function
 SELECT COUNT(OrderID),CustomerID FROM Orders GROUP BY CustomerID HAVING COUNT(OrderID) BETWEEN 3 AND 6 AND EmployeeID BETWEEN 2 and 5 ORDER BY COUNT(OrderID) desc, CustomerID;
                                                                                                            ^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: --> Below should error out because GROUP BY is needed for EmployeeID if used in the HAVING clause without aggregate function
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: --> Below should error out because GROUP BY is needed for EmployeeID if used in the HAVING clause without aggregate function
 SELECT COUNT(OrderID),CustomerID FROM Orders GROUP BY CustomerID HAVING COUNT(OrderID) BETWEEN 3 AND 6 AND EmployeeID BETWEEN 2 and 5 ORDER BY COUNT(OrderID) desc, CustomerID;
-[ERROR] PATH:LINENUM DATE TIME : Column EMPLOYEEID must appear in the GROUP BY clause or be used in an aggregate function
+[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column EMPLOYEEID must appear in the GROUP BY clause or be used in an aggregate function
 Error with syntax near (line 3, column 75):
 
 --> Below is an example of using HAVING without GROUP BY.
 --> This should error out because EmployeeID should be used inside aggregate function or in a GROUP BY
 SELECT 1 FROM Orders HAVING MAX(OrderID) BETWEEN 10250 AND 10500 ORDER BY EmployeeID desc;
                                                                           ^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: --> Below is an example of using HAVING without GROUP BY.
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: --> Below is an example of using HAVING without GROUP BY.
 --> This should error out because EmployeeID should be used inside aggregate function or in a GROUP BY
 SELECT 1 FROM Orders HAVING MAX(OrderID) BETWEEN 10250 AND 10500 ORDER BY EmployeeID desc;
-[ERROR] PATH:LINENUM DATE TIME : Column ID must appear in the GROUP BY clause or be used in an aggregate function
+[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column ID must appear in the GROUP BY clause or be used in an aggregate function
 Error with syntax near (line 2, column 16):
 
 --> Below should error out n2.id and n2.id need to be used with aggregate functions inside the sub-queries
 SELECT (SELECT n3.id FROM names n3 ORDER BY COUNT(n1.id)),(SELECT n2.id FROM names n2 WHERE n2.id = n1.id) FROM names n1;
                ^^^^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: --> Below should error out n2.id and n2.id need to be used with aggregate functions inside the sub-queries
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: --> Below should error out n2.id and n2.id need to be used with aggregate functions inside the sub-queries
 SELECT (SELECT n3.id FROM names n3 ORDER BY COUNT(n1.id)),(SELECT n2.id FROM names n2 WHERE n2.id = n1.id) FROM names n1;
-[ERROR] PATH:LINENUM DATE TIME : Column ID must appear in the GROUP BY clause or be used in an aggregate function
+[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column ID must appear in the GROUP BY clause or be used in an aggregate function
 Error with syntax near (line 1, column 65):
 
 SELECT (SELECT n3.id FROM names n3 WHERE n3.id = n1.id),(SELECT n2.id FROM names n2 ORDER BY COUNT(n1.id)) FROM names n1;
                                                                 ^^^^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT (SELECT n3.id FROM names n3 WHERE n3.id = n1.id),(SELECT n2.id FROM names n2 ORDER BY COUNT(n1.id)) FROM names n1;
-[ERROR] PATH:LINENUM DATE TIME : Column ID must appear in the GROUP BY clause or be used in an aggregate function
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT (SELECT n3.id FROM names n3 WHERE n3.id = n1.id),(SELECT n2.id FROM names n2 ORDER BY COUNT(n1.id)) FROM names n1;
+[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column ID must appear in the GROUP BY clause or be used in an aggregate function
 Error with syntax near (line 1, column 65):
 
 SELECT (SELECT n3.id FROM names n3 WHERE n3.id = n1.id),(SELECT n2.id FROM names n2 ORDER BY COUNT(n1.id)) FROM names n1 GROUP BY n1.id;
                                                                 ^^^^^
-[ERROR] PATH:LINENUM DATE TIME : Column ID must appear in the GROUP BY clause or be used in an aggregate function
+[ERROR] PATH:LINENUM DATE TIME : ERR_GROUP_BY_OR_AGGREGATE_FUNCTION : Column ID must appear in the GROUP BY clause or be used in an aggregate function
 Error with syntax near (line 1, column 65):
 
 SELECT (SELECT n3.id FROM names n3 WHERE n3.id = n1.id),(SELECT n2.id FROM names n2 ORDER BY COUNT(n1.id)) FROM names n1 GROUP BY n1.id;
                                                                 ^^^^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT (SELECT n3.id FROM names n3 WHERE n3.id = n1.id),(SELECT n2.id FROM names n2 ORDER BY COUNT(n1.id)) FROM names n1 GROUP BY n1.id;
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT (SELECT n3.id FROM names n3 WHERE n3.id = n1.id),(SELECT n2.id FROM names n2 ORDER BY COUNT(n1.id)) FROM names n1 GROUP BY n1.id;

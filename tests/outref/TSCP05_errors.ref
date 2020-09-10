@@ -9,7 +9,7 @@ SELECT TRUNC(155, 1.5);
 SELECT TRUNC(155, -1.5);
 SELECT TRUNC(155, 45);
 1.01234567890123456000
-[ERROR] PATH:LINENUM DATE TIME : YottaDB error: 150373210,TRUNC+7^%ydboctosqlfunctions,%YDB-E-DIVZERO, Attempt to divide by zero
+[ERROR] PATH:LINENUM DATE TIME : ERR_YOTTADB : YottaDB error: 150373210,TRUNC+7^%ydboctosqlfunctions,%YDB-E-DIVZERO, Attempt to divide by zero
 155.00
 100
-[ERROR] PATH:LINENUM DATE TIME : YottaDB error: 150373506,TRUNC+7^%ydboctosqlfunctions,%YDB-E-NUMOFLOW, Numeric overflow
+[ERROR] PATH:LINENUM DATE TIME : ERR_YOTTADB : YottaDB error: 150373506,TRUNC+7^%ydboctosqlfunctions,%YDB-E-NUMOFLOW, Numeric overflow

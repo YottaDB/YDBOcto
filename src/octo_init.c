@@ -725,12 +725,12 @@ int octo_init(int argc, char **argv) {
 			       "ydb_routines", "ydb_xc_ydbposix", "ydb_side_effects"};
 			unsigned int i;
 
-			INFO(CUSTOM_ERROR, "# Recording pertinent ydb_* env var values at process startup");
+			INFO(INFO_RECORDING_ENV_VARS, "");
 			for (i = 0; i < (sizeof(envvar_array) / sizeof(envvar_array[0])); i++) {
 				ptr = getenv(envvar_array[i]);
 				if (NULL == ptr)
 					ptr = "";
-				INFO(CUSTOM_ERROR, "# %s=\"%s\"", envvar_array[i], ptr);
+				INFO(INFO_ENV_VAR, envvar_array[i], ptr);
 			}
 		}
 		// NOTE: this uses hard-coded paths, not $ydb_ci

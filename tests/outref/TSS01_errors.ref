@@ -20,7 +20,7 @@ select (firstname::boolean AND id::boolean) from names;
 
 -- The below query issues an error in Postgres but works fine in Octo hence is not included in TSS01_noerrors.sql
 select (n1.col1::integer = 0) from (select NULL as col1 from names) n1;
-[ERROR] PATH:LINENUM DATE TIME : Type mismatch: left INTEGER, right VARCHAR
+[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left INTEGER, right VARCHAR
 Error with syntax near (line 1, column 27):
 
 select * from names where id != firstname;
@@ -29,8 +29,8 @@ Error with syntax near (line 1, column 33):
 
 select * from names where id != firstname;
                                 ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select * from names where id != firstname;
-[ERROR] PATH:LINENUM DATE TIME : Type mismatch: left INTEGER, right VARCHAR
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select * from names where id != firstname;
+[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left INTEGER, right VARCHAR
 Error with syntax near (line 1, column 46):
 
 select * from (select * from names) n1 where id != firstname;
@@ -39,65 +39,65 @@ Error with syntax near (line 1, column 52):
 
 select * from (select * from names) n1 where id != firstname;
                                                    ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select * from (select * from names) n1 where id != firstname;
-[ERROR] PATH:LINENUM DATE TIME : Type INTEGER not compatible for boolean operations
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select * from (select * from names) n1 where id != firstname;
+[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type INTEGER not compatible for boolean operations
 Error with syntax near (line 1, column 29):
 
 select (firstname = 'd' AND id) from names;
                             ^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select (firstname = 'd' AND id) from names;
-[ERROR] PATH:LINENUM DATE TIME : Type NUMERIC not compatible for boolean operations
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select (firstname = 'd' AND id) from names;
+[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type NUMERIC not compatible for boolean operations
 Error with syntax near (line 1, column 9):
 
 select (1 AND id) from names;
         ^
-[ERROR] PATH:LINENUM DATE TIME : Type NUMERIC not compatible for boolean operations
+[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type NUMERIC not compatible for boolean operations
 Error with syntax near (line 1, column 15):
 
 select (1 AND id) from names;
               ^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select (1 AND id) from names;
-[ERROR] PATH:LINENUM DATE TIME : Type VARCHAR not compatible for boolean operations
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select (1 AND id) from names;
+[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type VARCHAR not compatible for boolean operations
 Error with syntax near (line 1, column 9):
 
 select (firstname AND id) from names;
         ^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : Type INTEGER not compatible for boolean operations
+[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type INTEGER not compatible for boolean operations
 Error with syntax near (line 1, column 23):
 
 select (firstname AND id) from names;
                       ^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select (firstname AND id) from names;
-[ERROR] PATH:LINENUM DATE TIME : Type INTEGER not compatible for boolean operations
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select (firstname AND id) from names;
+[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type INTEGER not compatible for boolean operations
 Error with syntax near (line 1, column 8):
 
 select id and 0 = 1 from names;
        ^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select id and 0 = 1 from names;
-[ERROR] PATH:LINENUM DATE TIME : Type INTEGER not compatible for boolean operations
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select id and 0 = 1 from names;
+[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type INTEGER not compatible for boolean operations
 Error with syntax near (line 1, column 8):
 
 select id and (0 = 1) from names;
        ^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select id and (0 = 1) from names;
-[ERROR] PATH:LINENUM DATE TIME : Type INTEGER not compatible for boolean operations
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select id and (0 = 1) from names;
+[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type INTEGER not compatible for boolean operations
 Error with syntax near (line 1, column 20):
 
 select (0 = 1) and id from names;
                    ^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select (0 = 1) and id from names;
-[ERROR] PATH:LINENUM DATE TIME : Type INTEGER not compatible for boolean operations
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select (0 = 1) and id from names;
+[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type INTEGER not compatible for boolean operations
 Error with syntax near (line 1, column 8):
 
 select id and id from names;
        ^^
-[ERROR] PATH:LINENUM DATE TIME : Type INTEGER not compatible for boolean operations
+[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type INTEGER not compatible for boolean operations
 Error with syntax near (line 1, column 15):
 
 select id and id from names;
               ^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select id and id from names;
-[ERROR] PATH:LINENUM DATE TIME : Invalid input syntax for type boolean: 'Zero' is not a valid boolean value
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select id and id from names;
+[ERROR] PATH:LINENUM DATE TIME : ERR_INVALID_INPUT_SYNTAX_BOOL : Invalid input syntax for type boolean: 'Zero' is not a valid boolean value
 
 
 

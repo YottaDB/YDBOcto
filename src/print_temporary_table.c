@@ -36,7 +36,7 @@ int print_temporary_table(SqlStatement *stmt, int cursor_id, void *parms, char *
 
 	UNUSED(parms);
 	UNUSED(send_row_description);
-	INFO(CUSTOM_ERROR, "%s", "print_temporary_table()");
+	INFO(INFO_ENTERING_FUNCTION, "print_temporary_table");
 
 	YDB_MALLOC_BUFFER(&value_buffer, MAX_STR_CONST);
 	value_buffer.len_alloc--; // Leave room for null terminator

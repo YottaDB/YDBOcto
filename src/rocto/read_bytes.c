@@ -36,7 +36,7 @@ int read_bytes(RoctoSession *session, char *buffer, int32_t buffer_size, int32_t
 	int32_t read_so_far = 0, read_now = 0;
 
 	if (bytes_to_read > buffer_size) {
-		ERROR(ERR_READ_TOO_LARGE, bytes_to_read, buffer_size);
+		ERROR(ERR_ROCTO_READ_TOO_LARGE, bytes_to_read, buffer_size);
 		return -1;
 	} else if (bytes_to_read < 0) {
 		ERROR(ERR_INVALID_READ_SIZE, bytes_to_read);
@@ -61,7 +61,7 @@ int read_bytes(RoctoSession *session, char *buffer, int32_t buffer_size, int32_t
 					continue;
 				} else if (tls_errno == ECONNRESET) {
 					errno = ECONNRESET;
-					INFO(ERR_ROCTO_CLEAN_DISCONNECT, "");
+					INFO(INFO_ROCTO_CLEAN_DISCONNECT, "");
 					return -2;
 				} else {
 					ERROR(ERR_ROCTO_TLS_READ_FAILED, err_str);
@@ -85,7 +85,7 @@ int read_bytes(RoctoSession *session, char *buffer, int32_t buffer_size, int32_t
 				return -1;
 			} else if (read_now == 0) {
 				// This means the socket was cleanly closed
-				INFO(ERR_ROCTO_CLEAN_DISCONNECT, "");
+				INFO(INFO_ROCTO_CLEAN_DISCONNECT, "");
 				return -2;
 			}
 			read_so_far += read_now;

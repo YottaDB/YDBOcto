@@ -50,7 +50,7 @@ int handle_parse(Parse *parse, RoctoSession *session) {
 	char		   cur_bind_parm_str[INT16_TO_STRING_MAX];
 	char		   cur_parm_value_str[MAX_STR_CONST];
 
-	TRACE(ERR_ENTERING_FUNCTION, "handle_parse");
+	TRACE(INFO_ENTERING_FUNCTION, "handle_parse");
 
 	// Create separate buffer arrays for tracking all literal parameters and just user-specified ("bind") parameters
 	// We track these separately as all literal parameters need to be accessible to the physical plan, while handle_bind needs

@@ -40,7 +40,6 @@ void handle_sigint(int sig, siginfo_t *info, void *context) {
 // Currently unused. May need to be used for CancelRequest handling in the future.
 // NOTE: This code has been disabled due to the lack of signal forwarding support for SIGUSR1 to YDB
 // void handle_sigusr1(int sig) {
-// INFO(CUSTOM_ERROR, "SIGUSR1 RECEIVED");
 // }
 
 #if YDB_TLS_AVAILABLE
@@ -148,7 +147,7 @@ int main(int argc, char **argv) {
 		status = inet_pton(AF_INET6, config->rocto_config.address, &addressv6.sin6_addr);
 		switch (status) {
 		case 0:
-			FATAL(ERR_BAD_ADDRESS, config->rocto_config.address);
+			FATAL(ERR_ROCTO_BAD_ADDRESS, config->rocto_config.address);
 			break;
 		case 1:
 			break;
@@ -272,7 +271,7 @@ int main(int argc, char **argv) {
 		}
 		rocto_session.ip = host_buf;
 		rocto_session.port = serv_buf;
-		LOG_LOCAL_ONLY(INFO, ERR_CLIENT_CONNECTED, NULL);
+		LOG_LOCAL_ONLY(INFO, INFO_CLIENT_CONNECTED, NULL);
 
 		status = ydb_init(); // YDB init needed by gtm_tls_init call below */
 		YDB_ERROR_CHECK(status);
@@ -327,7 +326,7 @@ int main(int argc, char **argv) {
 						if (-1 == tls_errno) {
 							ERROR(ERR_ROCTO_TLS_ACCEPT, gtm_tls_get_error());
 						} else {
-							ERROR(CUSTOM_ERROR, "unknown", tls_errno, strerror(tls_errno));
+							ERROR(ERR_ROCTO_TLS_UNNAMED, tls_errno, strerror(tls_errno));
 						}
 						break;
 					} else if (GTMTLS_WANT_READ == status) {

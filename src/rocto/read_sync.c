@@ -26,7 +26,7 @@ Sync *read_sync(BaseMessage *message) {
 	uint32_t expected_length = sizeof(uint32_t);
 
 	if (message->type != PSQL_Sync) {
-		ERROR(ERR_ROCTO_INVALID_TYPE, "Sync", message->type, PSQL_Sync);
+		ERROR(ERR_ROCTO_INVALID_MESSAGE_TYPE, "Sync", message->type, PSQL_Sync);
 		return NULL;
 	}
 

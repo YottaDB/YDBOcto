@@ -1,4 +1,4 @@
-[ERROR] PATH:LINENUM DATE TIME : Missing FROM-clause entry for table : C
+[ERROR] PATH:LINENUM DATE TIME : ERR_MISSING_FROM_ENTRY : Missing FROM-clause entry for table : C
 Error with syntax near (line 4, column 4):
 
 select invalidA, invalidB, invalidC, invalidD
@@ -6,7 +6,7 @@ from names c
 inner join names o
 on c.invalidE = o.invalidF
    ^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : Missing FROM-clause entry for table : O
+[ERROR] PATH:LINENUM DATE TIME : ERR_MISSING_FROM_ENTRY : Missing FROM-clause entry for table : O
 Error with syntax near (line 4, column 17):
 
 select invalidA, invalidB, invalidC, invalidD
@@ -14,27 +14,27 @@ from names c
 inner join names o
 on c.invalidE = o.invalidF
                 ^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : Unknown column: INVALIDA
+[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_COLUMN_NAME : Unknown column: INVALIDA
 Error with syntax near (line 1, column 7):
 
 select invalidA, invalidB, invalidC, invalidD
        ^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : Unknown column: INVALIDB
+[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_COLUMN_NAME : Unknown column: INVALIDB
 Error with syntax near (line 1, column 17):
 
 select invalidA, invalidB, invalidC, invalidD
                  ^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : Unknown column: INVALIDC
+[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_COLUMN_NAME : Unknown column: INVALIDC
 Error with syntax near (line 1, column 27):
 
 select invalidA, invalidB, invalidC, invalidD
                            ^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : Unknown column: INVALIDD
+[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_COLUMN_NAME : Unknown column: INVALIDD
 Error with syntax near (line 1, column 37):
 
 select invalidA, invalidB, invalidC, invalidD
                                      ^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select invalidA, invalidB, invalidC, invalidD
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select invalidA, invalidB, invalidC, invalidD
 from names c
 inner join names o
 on c.invalidE = o.invalidF

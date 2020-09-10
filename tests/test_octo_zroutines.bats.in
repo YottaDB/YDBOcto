@@ -86,7 +86,7 @@ OCTO
 	# Verify actual output
 	verify_output TOZ004 output.txt noinfo nodebug
 	# Verify ydb_routines is properly set
-	grep ydb_routines output.txt | sed 's/.*ydb_routines="//g;s/"$//g' > actual_ydb_routines.txt
+	grep ydb_routines output.txt | sed "s/.*ydb_routines='//g;s/'$//g" > actual_ydb_routines.txt
 	diff expected_ydb_routines.txt actual_ydb_routines.txt
 }
 

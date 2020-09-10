@@ -5,5 +5,5 @@ SELECT * FROM names n1 LEFT JOIN (SELECT * FROM names WHERE firstName < 'Zero') 
                                                                                   ^
 syntax error, unexpected SEMICOLON
 
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: SELECT * FROM names n1 LEFT JOIN (SELECT * FROM names WHERE firstName < 'Zero') n2;
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT * FROM names n1 LEFT JOIN (SELECT * FROM names WHERE firstName < 'Zero') n2;
 

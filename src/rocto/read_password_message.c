@@ -35,7 +35,7 @@ PasswordMessage *read_password_message(BaseMessage *message) {
 
 	// Ensure that message has correct type
 	if (ret->type != PSQL_PasswordMessage) {
-		ERROR(ERR_ROCTO_INVALID_TYPE, "PasswordMessage", ret->type, PSQL_PasswordMessage);
+		ERROR(ERR_ROCTO_INVALID_MESSAGE_TYPE, "PasswordMessage", ret->type, PSQL_PasswordMessage);
 		free(ret);
 		return NULL;
 	}

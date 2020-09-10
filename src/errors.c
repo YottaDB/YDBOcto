@@ -46,6 +46,15 @@ const char *psql_sqlstate_codes_str[] = {
 #undef ERROR_DEF
 #undef ERROR_END
 
+// Define the mnemonic error names we expect for each error message
+#define ERROR_DEF(name, format_string, psql_error_code) #name,
+#define ERROR_END(name, format_string, psql_error_code) #name
+const char *err_name_str[] = {
+#include "errors.hd"
+};
+#undef ERROR_DEF
+#undef ERROR_END
+
 // Define the strings we expect for constants
 #define ERROR_DEF(name, format_string, psql_error_code) format_string,
 #define ERROR_END(name, format_string, psql_error_code) format_string
@@ -87,8 +96,8 @@ OctoConfig *config;
 RoctoSession rocto_session;
 #endif
 
-const char *log_prefix = "[%5s] %s:%d %04d-%02d-%02d %02d:%02d:%02d : ";
-const char *rocto_log_prefix = "[%s:%s] [%5s] %s:%d %04d-%02d-%02d %02d:%02d:%02d : ";
+const char *log_prefix = "[%5s] %s:%d %04d-%02d-%02d %02d:%02d:%02d : %s : ";
+const char *rocto_log_prefix = "[%s:%s] [%5s] %s:%d %04d-%02d-%02d %02d:%02d:%02d : %s : ";
 
 /* ---------------- END   : ALL Global variables in Octo ------------------ */
 
@@ -141,7 +150,7 @@ void octo_log(int line, char *file, enum VERBOSITY_LEVEL level, enum SEVERITY_LE
 	ErrorResponse *err;
 	snprintf(err_prefix, MAX_STR_CONST, rocto_log_prefix, rocto_session.ip, rocto_session.port, type, file, line,
 		 local_time.tm_year + 1900, local_time.tm_mon + 1, local_time.tm_mday, local_time.tm_hour, local_time.tm_min,
-		 local_time.tm_sec);
+		 local_time.tm_sec, err_name_str[error]);
 	if (CUSTOM_ERROR == error) {
 		// Combine populated prefix with given error format string into new format string
 		copied = vsnprintf(full_err_format_str, MAX_STR_CONST, va_arg(args, const char *), args);
@@ -204,7 +213,7 @@ void octo_log(int line, char *file, enum VERBOSITY_LEVEL level, enum SEVERITY_LE
 	}
 #else
 	snprintf(err_prefix, MAX_STR_CONST, log_prefix, type, file, line, local_time.tm_year + 1900, local_time.tm_mon + 1,
-		 local_time.tm_mday, local_time.tm_hour, local_time.tm_min, local_time.tm_sec);
+		 local_time.tm_mday, local_time.tm_hour, local_time.tm_min, local_time.tm_sec, err_name_str[error]);
 	if (error == CUSTOM_ERROR) {
 		// Combine populated prefix with given error format string into new format string
 		copied = snprintf(full_err_format_str, MAX_STR_CONST, "%s%s\n", err_prefix, va_arg(args, const char *));

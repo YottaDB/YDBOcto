@@ -7,16 +7,17 @@ WHERE n.nspname  != 'pg_toast'
   AND (t.typrelid = 0 OR
     (SELECT c.relkind = 'c' FROM pg_catalog.pg_class c WHERE c.oid = t.typrelid));
 
-[ INFO] PATH:LINENUM DATE TIME : Parsing done for SQL command [SELECT t.typname,t.oid
+[ INFO] PATH:LINENUM DATE TIME : INFO_RECORDING_ENV_VARS : # Recording pertinent ydb_* env var values at process startup
+[ INFO] PATH:LINENUM DATE TIME : INFO_PARSING_DONE : Parsing done for SQL command [SELECT t.typname,t.oid
 FROM pg_catalog.pg_type t
   JOIN pg_catalog.pg_namespace n
   ON (t.typnamespace = n.oid)
 WHERE n.nspname  != 'pg_toast'
   AND (t.typrelid = 0 OR
     (SELECT c.relkind = 'c' FROM pg_catalog.pg_class c WHERE c.oid = t.typrelid));]
-[ INFO] PATH:LINENUM DATE TIME : Generating SQL for CURSOR_NUM
-[ INFO] PATH:LINENUM DATE TIME : Generating M file [$PWD/_ydboctoP*.m] (to execute SQL query)
-[DEBUG] PATH:LINENUM DATE TIME : LOGICAL_PLAN BEFORE optimize_logical_plan() follows
+[ INFO] PATH:LINENUM DATE TIME : INFO_CURSOR : Generating SQL for CURSOR_NUM
+[ INFO] PATH:LINENUM DATE TIME : INFO_M_PLAN : Generating M file [$PWD/_ydboctoP*.m] (to execute SQL query)
+[DEBUG] PATH:LINENUM DATE TIME : INFO_CURPLAN : LOGICAL_PLAN BEFORE optimize_logical_plan() follows 
 LP_INSERT: 
   LP_PROJECT: 
     LP_COLUMN_LIST: 
@@ -102,7 +103,7 @@ LP_INSERT:
     - xref_key: false
     - uses_xref_key: false
 
-[DEBUG] PATH:LINENUM DATE TIME : LOGICAL_PLAN AFTER optimize_logical_plan() follows
+[DEBUG] PATH:LINENUM DATE TIME : INFO_CURPLAN : LOGICAL_PLAN AFTER optimize_logical_plan() follows 
 LP_SET_OPERATION: 
   LP_SET_OPTION: 
     LP_SET_DNF: 
@@ -295,12 +296,12 @@ LP_SET_OPERATION:
         - xref_key: false
         - uses_xref_key: false
 
-[ INFO] PATH:LINENUM DATE TIME : Generating helper cross reference M file [$PWD/_ydboctoX*.m] for table [PG_CATALOG.PG_TYPE] and column [TYPRELID]
-[ INFO] PATH:LINENUM DATE TIME : print_temporary_table()
+[ INFO] PATH:LINENUM DATE TIME : INFO_GENERATING_XREF : Generating helper cross reference M file [$PWD/_ydboctoX*.m] for table [PG_CATALOG.PG_TYPE] and column [TYPRELID]
+[ INFO] PATH:LINENUM DATE TIME : INFO_ENTERING_FUNCTION : Entering print_temporary_table
 bool|16
 int4|23
 name|19
 numeric|1700
 unknown|705
 varchar|1043
-[ INFO] PATH:LINENUM DATE TIME : Parsing done for SQL command []
+[ INFO] PATH:LINENUM DATE TIME : INFO_PARSING_DONE : Parsing done for SQL command []

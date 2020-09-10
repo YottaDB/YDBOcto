@@ -6,21 +6,21 @@ select REPLACE('balloons', 12, 'hot air') as badarg from names;
 
 select PG_CATALOG.PG_GET_EXPR('balloons', true) as badarg from names;
 
-[ERROR] PATH:LINENUM DATE TIME : No function 'ABS' defined with given parameter types (VARCHAR)
+[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_FUNCTION : No function 'ABS' defined with given parameter types (VARCHAR)
 Error with syntax near (line 1, column 8):
 
 select ABS('balloons') as badarg from names;
        ^^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select ABS('balloons') as badarg from names;
-[ERROR] PATH:LINENUM DATE TIME : No function 'REPLACE' defined with given parameter types (VARCHAR, INTEGER, VARCHAR)
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select ABS('balloons') as badarg from names;
+[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_FUNCTION : No function 'REPLACE' defined with given parameter types (VARCHAR, INTEGER, VARCHAR)
 Error with syntax near (line 1, column 8):
 
 select REPLACE('balloons', 12, 'hot air') as badarg from names;
        ^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select REPLACE('balloons', 12, 'hot air') as badarg from names;
-[ERROR] PATH:LINENUM DATE TIME : No function 'PG_CATALOG.PG_GET_EXPR' defined with given parameter types (VARCHAR, BOOLEAN)
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select REPLACE('balloons', 12, 'hot air') as badarg from names;
+[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_FUNCTION : No function 'PG_CATALOG.PG_GET_EXPR' defined with given parameter types (VARCHAR, BOOLEAN)
 Error with syntax near (line 1, column 8):
 
 select PG_CATALOG.PG_GET_EXPR('balloons', true) as badarg from names;
        ^^^^^^^^^^^^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : Error parsing statement: select PG_CATALOG.PG_GET_EXPR('balloons', true) as badarg from names;
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select PG_CATALOG.PG_GET_EXPR('balloons', true) as badarg from names;

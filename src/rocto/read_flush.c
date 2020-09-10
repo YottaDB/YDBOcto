@@ -26,7 +26,7 @@ Flush *read_flush(BaseMessage *message) {
 	uint32_t expected_length = sizeof(uint32_t);
 
 	if (message->type != PSQL_Flush) {
-		ERROR(ERR_ROCTO_INVALID_TYPE, "Flush", message->type, PSQL_Flush);
+		ERROR(ERR_ROCTO_INVALID_MESSAGE_TYPE, "Flush", message->type, PSQL_Flush);
 		return NULL;
 	}
 

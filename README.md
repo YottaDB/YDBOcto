@@ -214,7 +214,18 @@ alter user [username] createdb;
 PSQL
 ```
 
-6. Download Octo Source Code
+6. (Optional - CentOS/RHEL7 only) Install Perl
+
+On CentOS 7 and RHEL7, Octo test queries sometimes produce output with superfluous escape sequences. These escape sequences are removed by a Perl script, making Perl a dependency for Octo testing on these platforms.
+
+To install Perl on CentOS 7 or RHEL7:
+
+```sh
+# CentOS Linux OR RedHat Linux
+sudo yum install perl
+```
+
+7. Download Octo Source Code
 
 ```sh
 # In a temporary directory perform the following commands
@@ -223,7 +234,7 @@ tar xzf YDBOcto-master.tar.gz
 cd YDBOcto-master
 ```
 
-7. Compile Octo
+8. Compile Octo
 
 ```sh
 mkdir build
@@ -254,7 +265,7 @@ Example usage of above parameters:
 cmake -DSTRING_BUFFER_LENGTH=600000 -DCMAKE_INSTALL_PREFIX=$ydb_dist/plugin ..
 ```
 
-8. Install Octo
+9. Install Octo
 
 Install Octo:
 

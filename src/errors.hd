@@ -89,6 +89,7 @@ ERROR_DEF(ERR_SELECT_STAR_NO_TABLES, "SELECT * with no tables specified is not v
 ERROR_DEF(ERR_INVALID_AS_SYNTAX, "Invalid AS value type: %s", PSQL_Code_Syntax_Error)
 ERROR_DEF(ERR_M_CALL, "Inline M function calls are disallowed. Use CREATE FUNCTION instead to map it to an SQL function.", PSQL_Code_Syntax_Error)
 ERROR_DEF(ERR_PERCENT_IN_EXTRINSIC_FUNCTION_NAME, "'%%' is only allowed at the beginning of an M label or routine name.", PSQL_Code_Syntax_Error)
+ERROR_DEF(ERR_DDL_LITERAL, "Invalid literal in DDL specification: only %s literals accepted for this keyword.", PSQL_Code_Syntax_Error)
 // ROCTO //
 ERROR_DEF(ERR_ROCTO_UNSUPPORTED_BIND_PARAMETER, "Unsupported bind parameter type received", PSQL_Code_Internal_Error)
 ERROR_DEF(ERR_ROCTO_BIND_PARAMETER_DECODE_FAILURE, "Failed to decode binary bind parameter", PSQL_Code_Internal_Error)

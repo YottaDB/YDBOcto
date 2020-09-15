@@ -125,6 +125,14 @@ DATABASE_FILES_OOS
 
 This error indicates that the generated routines and the database are not synchronized. PSQL Error Code: XX000
 
+++++++++++++++++++++++
+DDL_LITERAL
+++++++++++++++++++++++
+
+"Invalid literal in DDL specification: only xxx literals accepted for this keyword."
+
+This error is emitted when a literal of an invalid type is used in a DDL keyword specification. PSQL Error Code: 42601
+
 ++++++++++++++++++++++++
 DOLLAR_SYNTAX
 ++++++++++++++++++++++++

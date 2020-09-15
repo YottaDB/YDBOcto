@@ -1805,6 +1805,7 @@ ddl_int_literal_value
 	ret->loc = yyloc;
 	/* Currently ALL DDL literal values are expected to be integers so check that and issue error otherwise. */
 	if ((value_STATEMENT != ret->type) || (NUMERIC_LITERAL != ret->v.value->type) || !ret->v.value->is_int) {
+		ERROR(ERR_DDL_LITERAL, "integer");
 		yyerror(&yyloc, NULL, NULL, NULL, NULL, NULL);
 		YYERROR;
 	}
@@ -1818,6 +1819,7 @@ ddl_str_literal_value
 	ret->loc = yyloc;
 	/* Currently ALL DDL literal values are expected to be double-quoted strings so check that and issue error otherwise. */
 	if (value_STATEMENT != ret->type) {
+		assert(FALSE);
 		yyerror(&yyloc, NULL, NULL, NULL, NULL, NULL);
 		YYERROR;
 	}
@@ -1825,6 +1827,7 @@ ddl_str_literal_value
 		/* Convert NUMERIC_LITERAL into STRING_LITERAL type as that is what is expected here */
 	      ret->v.value->type = STRING_LITERAL;
 	} else if (STRING_LITERAL != ret->v.value->type) {
+		ERROR(ERR_DDL_LITERAL, "string");
 		yyerror(&yyloc, NULL, NULL, NULL, NULL, NULL);
 		YYERROR;
 	}

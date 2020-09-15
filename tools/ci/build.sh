@@ -16,7 +16,7 @@ set -v
 set -x
 
 jobname=$1	# could be "make-centos", "make-ubuntu", "make-tls-centos", "make-tls-centos" or "test-auto-upgrade"
-subtaskname=$2	# could be "force", "binary" or "plan" in case jobname is "test-auto-upgrade"
+subtaskname=$2	# could be "force" or "" in case jobname is "test-auto-upgrade"
 
 source /opt/yottadb/current/ydb_env_set
 
@@ -167,66 +167,41 @@ echo " -> full_test = $full_test"
 echo " -> disable_install = $disable_install"
 
 if [[ ("test-auto-upgrade" == $jobname) && ("force" != $subtaskname) ]]; then
-	# Checkout a random commit (anywhere from 0 to 39 commits older than master branch) to test if
-	# auto-upgrade of plans/xrefs/triggers/binary-table-definitions etc. from that commit to the
-	# current/latest commit works fine in Octo. The number 39 is chosen since it was found that the
-	# 40th commit older than the master branch has other issues which causes the table name to be unrecognized.
-	commitnumber=`shuf -i 1-40 -n 1`
-	commitnumber=40	# FUTURE_TODO: Remove this
-	echo $commitnumber > commitnumber_picked.txt
-	echo "# Random older commit number = $commitnumber"
+	# Record git log --all output in a file just in case it helps later. Not used by this script.
+	git log --graph --all --oneline --pretty=format:'%h%d; %ai; %an; %s' > gitlogall.txt
+	# Checkout a random prior commit to test if auto-upgrade of plans/xrefs/triggers/binary-table-definitions etc.
+	# from that commit to the current/latest commit works fine in Octo.
+	# Do not go prior to commit SHA e2a016b21a1f7d9f2dc55b0655942ab7b8cdd92e as an AUTO_UPGRADE error is issued otherwise.
 	git checkout -B $CI_COMMIT_BRANCH HEAD
-	git log --graph --oneline --all --pretty=format:'%h%d; %ai; %an; %s' > gitlogall.txt
-	# At this point, "$commitnumber" can have any value in the range 1 to 40 (both inclusive)
-	# "$commitnumber" == 1 implies we pick the commit corresponding to the master branch.
-	# "$commitnumber" == 40 implies we pick the commit that is 39 commits older than the master branch.
-	# Find the commit that is "$commitnumber - 1" commits older than master
+	# Copy M program that is needed for later before we switch to an older git branch.
+	cp ../tools/ci/testAutoUpgrade.m .
 	# Note: The awk usage below is needed to only skip commits that branch off an otherwise linear commit history.
-	git log --graph --oneline origin/master > gitlogmaster.txt
+	git log --graph --oneline e2a016b21a1f7d9f2dc55b0655942ab7b8cdd92e~1..origin/master > gitlogmaster.txt
 	awk '($1 == "*") && ($2 != "|") {print $0;}' gitlogmaster.txt > commit_history.txt
+	numcommits=`wc -l commit_history.txt | awk '{print $1}'`
+	commitnumber=`shuf -i 1-$numcommits -n 1`
 	commitsha=`head -$commitnumber commit_history.txt | tail -1 | awk '{print $2}'`
 	echo $commitsha > commit_picked.txt
 	echo "# Random older commit picked = $commitsha"
 	echo "# Checkout the older commit"
 	git checkout -B tmp $commitsha
-	# ------------------------------------------------------------
-	echo '# Make some code changes to reduce the number of failures'
-	# ------------------------------------------------------------
-	# 1) MUPIP STOP on the rocto process will not work unless the below commit is present.
-	#	9ffe5e0b; [YottaDB/DB/YDB#560] Fix rocto to terminate in case a SIGTERM/SIG-15/MUPIP STOP was sent to it
-	#    Since the random commit choice could pick a commit before this, work around the case by using "kill -9" on rocto.
-	# ------------------------------------------------------------
-	sed -i 's/$ydb_dist\/mupip stop $listener_pid/kill -9 $listener_pid/g' ../tests/test_helpers.bash.in
-	# ------------------------------------------------------------
-	# 2) ydb_ci() of newer YDB (relative to the older Octo commit) would return a negative error code but
-	#	ydb_error_check() in older Octo commits does not know to handle this. So fix Octo to handle
-	#	negative return codes from ydb_ci().
-	# ------------------------------------------------------------
-	filelist="../src/rocto/handle_execute.c ../src/rocto.c ../src/octo_init.c ../src/run_query.c"
-	sed -i 's/status = ydb_ci(.*);/& if (0 > status) status = -status;/;' $filelist
-	# FUTURE_TODO: Temporarily disable all bats tests except for "test_select_columns"
-	# FUTURE_TODO: Remove the below block of code
-	# FUTURE_TODO: BEGIN block
-	sed -i 's/ADD_BATS_TEST(test_basic_parsing)/TST1/;' ../cmake/bats-tests.cmake
-	sed -i 's/ADD_BATS_TEST(hello_bats)/TST2/;' ../cmake/bats-tests.cmake
-	sed -i 's/ADD_BATS_TEST(test_select_columns)/TST3/;' ../cmake/bats-tests.cmake
-	grep -v "ADD_BATS_TEST(" ../cmake/bats-tests.cmake > bats-tests.cmake
-	sed -i 's/TST1/ADD_BATS_TEST(test_basic_parsing)/;' bats-tests.cmake
-	sed -i 's/TST2/ADD_BATS_TEST(hello_bats)/;' bats-tests.cmake
-	sed -i 's/TST3/ADD_BATS_TEST(test_select_columns)/;' bats-tests.cmake
-	cp bats-tests.cmake ../cmake/bats-tests.cmake
-	oldcommit=1
-	# FUTURE_TODO: END block
+	# Run only a random fraction of the bats tests as we will be running an auto upgrade test on the same queries
+	# once more a little later.
+	cp ../cmake/bats-tests.cmake bats-tests.cmake.orig
+	# Temporarily switch ydb_routines for running M program (testAutoUpgrade.m)
+	saveydbroutines="$ydb_routines"
+	export ydb_routines="."	# so testAutoUpgrade.o gets created in current directory
+	cat bats-tests.cmake.orig | $ydb_dist/yottadb -run batsTestsChooseRandom^testAutoUpgrade > bats-tests.cmake.new
+	export ydb_routines="$saveydbroutines"	# Switch back to original ydb_routines
+	cp bats-tests.cmake.new ../cmake/bats-tests.cmake
 else
-	oldcommit=0
+	# If a "test-auto-upgrade" job and an old commit was chosen, we could see rare failures.
+	# Don't want that to pollute the output.
+	# Hence the below CTEST_OUTPUT_ON_FAILURE=TRUE setting is done only in other jobs.
+	export CTEST_OUTPUT_ON_FAILURE=TRUE
 fi
 
 echo "# Configure the build system for Octo"
-# If a "test-auto-upgrade" job and an old commit was chosen, we could see rare failures. Don't want that to pollute the output.
-# Hence the below CTEST_OUTPUT_ON_FAILURE=TRUE setting is done only in other jobs.
-if [[ $oldcommit == 0 ]]; then
-	export CTEST_OUTPUT_ON_FAILURE=TRUE
-fi
 ${cmakeCommand} -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_INSTALL_PREFIX=${ydb_dist}/plugin -DCMAKE_BUILD_TYPE=$build_type -DFULL_TEST_SUITE=$full_test -DDISABLE_INSTALL=$disable_install ..
 if [[ $? -ne 0 ]]; then
 	exit 1
@@ -503,48 +478,99 @@ else
 		echo '# Do auto-upgrade tests on the leftover "bats-test*" directories.'
 		gldfile="mumps.gld"
 		export ydb_gbldir=$gldfile
-		export ydb_routines=". $ydb_routines"
 		defaultdat="mumps.dat"
 		octodat="octo.dat"
 		touch skip_bats_test.txt gde_change_segment.txt
+		export ydb_icu_version=`pkg-config --modversion icu-io`	# needed for UTF-8 chset in for loop below
+		# Point src to newsrc
+		ln -s newsrc src
 		for tstdir in bats-test.*
 		do
 			cd $tstdir
 			if [[ ! -e $gldfile || ! -e $defaultdat || ! -e $octodat ]]; then
 				# This test directory does not contain a 2-region octo setup. auto-upgrade cannot be tested here. Skip.
+				echo "SKIPPED : $tstdir : Does not contain $gldfile or $defaultdat or $octodat" >> ../bats_test.txt
 				cd ..
 				rm -rf $tstdir
-				echo "$tstdir : Does not contain $gldfile or $defaultdat or $octodat" >> skip_bats_test.txt
 				continue
 			fi
 			if ! ls *.sql 1> /dev/null 2>&1; then
 				# This test directory does not contain any "*.sql" files. Skip auto-upgrade test.
+				echo "SKIPPED : $tstdir : Does not contain *.sql files" >> ../bats_test.txt
 				cd ..
 				rm -rf $tstdir
-				echo "$tstdir : Does not contain *.sql files" >> skip_bats_test.txt
 				continue
 			fi
-			echo "$tstdir" >> include_bats_test.txt
+			subtest=`sed 's/.*subtest \[//;s/].*//;' bats_test.out`
+			echo "# Running *.sql files in $tstdir : [subtest : $subtest]" | tee -a ../errors.log
+			echo "INCLUDE : $tstdir" >> ../include_bats_test.txt
+			# Check if subtest ran in M or UTF-8 mode and switch ydb_chset and ydb_routines accordingly
+			is_utf8=`grep "ydb_chset=UTF-8" env.out | wc -l` || true
+			if [[ $is_utf8 == 0 ]]; then
+				export ydb_chset=M
+				utf8_path="."
+			else
+				export ydb_chset=UTF-8
+				utf8_path="utf8"
+			fi
+			export ydb_routines=". ../newsrc/$utf8_path/_ydbocto.so $ydb_dist/plugin/o/$utf8_path/_ydbposix.so $ydb_dist/$utf8_path/libyottadbutil.so"
 			# Change absolute path names of database files to relative path names for ease of later debugging (if needed)
-			$ydb_dist/yottadb -run GDE >> ../gde_change_segment.txt 2>&1 << FILE
+			$ydb_dist/yottadb -run GDE >> gde_change_segment.txt 2>&1 << FILE
 			change -segment DEFAULT -file_name=$defaultdat
 			change -segment OCTOSEG -file_name=$octodat
 FILE
-			# FUTURE_TODO: Check if M or UTF-8 mode and switch accordingly
-			echo "# Running *.sql files in $tstdir"
+			# TEST1 and TEST2 below together test that Octo automatically recreates any
+			# binary-definitions/plans/xrefs/triggers as needed thereby testing YDBOcto#90.
 			for sqlfile in *.sql
 			do
-				# FUTURE_TODO: Remove the below line later
+				# TEST1
+				# We do not want any failures in the "octo" invocation below to exit the script.
+				# So disable the "set -e" setting temporarily for this step.
 				set +e
-				# Point src to newsrc
-				rm -f ../src || true; ln -s newsrc ../src
-				../src/octo -f $sqlfile > autoupgrade.$sqlfile.log 2>&1
+				outfile="autoupgrade.$sqlfile.out"
+				../newsrc/octo -f $sqlfile > $outfile 2>&1
 				ret_status=$?
-				# FUTURE_TODO: Remove the below line later
+				# Re-enable "set -e" now that "octo" invocation is done.
 				set -e
 				if [[ 0 != $ret_status ]]; then
-					echo " --> [src/octo -f $tstdir/$sqlfile] > autoupgrade.$sqlfile.log : Exit status = $ret_status"
+					# Invoking newer build of Octo on environment set up by older Octo resulted in a
+					# non-zero exit status. This most likely means a fatal error like a SIG-11 or
+					# Assert failure etc. (Octo does not exit with a non-zero status for "ERROR" severity
+					# in queries). Record this error.
+					echo " --> [newsrc/octo -f $tstdir/$sqlfile] > autoupgrade.$sqlfile.out : Exit status = $ret_status" | tee -a ../errors.log
+					echo " --> It is likely that bumping up FMT_BINARY_DEFINITION would fix such failures" | tee -a ../errors.log
 					exit_status=1
+				fi
+				# If this is a test output directory for the "test_query_generator" test, then do additional
+				# testing of actual output. We expect the output to be identical between the older commit and
+				# the current commit even though the current commit reused binary table/function defnitions and
+				# plans/triggers/xrefs generated by the older commit. We can do actual output verification of the
+				# "test_query_generator" test because we know this test validates Octo's output against Postgres
+				# and we do not expect any errors in the output of Octo using either the older or newer commit.
+				if [[ ($subtest =~ ^"TQG") && (-e $sqlfile.octo.out) ]]; then
+					# TEST2
+					# $sqlfile.log is Octo's output for the same query using the older commit build
+					# It could contain "null" references if it was run through the JDBC driver.
+					# Replace that with the empty string for the below diff since we did not use the JDBC
+					# driver for the newer Octo build output.
+					reffile="autoupgrade.$sqlfile.ref"
+					sed 's/^null$//;s/^null|/|/;s/|null$/|/;s/|null|/||/g;' $sqlfile.octo.out > $reffile
+					# Check if the output required sorting. We deduce this from presence of *unsorted* files.
+					logfile="autoupgrade.$sqlfile.log"
+					if compgen -G "$sqlfile.unsorted.**" > /dev/null; then
+						mv $reffile $reffile.unsorted
+						sort $reffile.unsorted > $reffile
+						sort $outfile > $logfile
+					else
+						cp $outfile $logfile
+					fi
+					difffile="autoupgrade.$sqlfile.diff"
+					diff $reffile $logfile > $difffile || true
+					if [[ -s $difffile ]]; then
+						echo "ERROR : [diff $reffile $logfile] returned non-zero diff. See $difffile for details" | tee -a ../errors.log
+						echo " --> It is likely that bumping up FMT_PLAN_DEFINITION would fix such failures" | tee -a ../errors.log
+						exit_status=1
+					fi
 				fi
 			done
 			cd ..
@@ -686,14 +712,11 @@ if [[ 0 != $exit_status ]]; then
 		echo "# ----------------------------------------------------------"
 		grep -A 6 -E "not ok|Test: " Testing/Temporary/LastTest.log | grep -E "not ok|# Temporary|Test: " | grep -C 1 "not ok" | sed "s/^not/  &/;s/^#/  &/"
 		echo "# -----------------------------"
-	elif [[ "force" == $subtaskname ]]; then
+	else
 		echo "# ----------------------------------------------------------"
 		echo "# List of errors (cat errors.log)"
 		echo "# ----------------------------------------------------------"
 		cat errors.log
-	else
-		# FUTURE_TODO: Fill this section up for task-auto-upgrade-binary and task-auto-upgrade-plan jobs later
-		echo "FUTURE_TODO"
 	fi
 fi
 

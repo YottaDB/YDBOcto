@@ -18,6 +18,13 @@
 #include "octo.h"
 #include "octo_types.h"
 
+/* Below is the maximum length of the string consisting of type names for each of an SQL function's parameters.
+ * The type name can be "INTEGER", "NUMERIC", "VARCHAR" etc. so we use 16 as an upper bound for this.
+ * The maximum number of parameters for a SQL function is YDB_MAX_PARMS (checked in "src/store_function_in_pg_proc.c").
+ * Therefore the below provides a good maximum.
+ */
+#define MAX_FUNC_TYPES_LEN (YDB_MAX_PARMS * 16)
+
 #define ISSUE_TYPE_COMPATIBILITY_ERROR(CHILD_TYPE, OPERATION, OPERAND, RESULT)                       \
 	{                                                                                            \
 		ERROR(ERR_TYPE_NOT_COMPATIBLE, get_user_visible_type_string(CHILD_TYPE), OPERATION); \
@@ -221,7 +228,7 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_
 	YYLTYPE			location;
 	SqlSelectStatement *	select;
 	int			written, result = 0, function_parm_types_len = 0, status = 0, function_hash_len = MAX_ROUTINE_LEN;
-	char *			c, function_hash[MAX_ROUTINE_LEN], function_parm_types[MAX_STR_CONST];
+	char *			c, function_hash[MAX_ROUTINE_LEN], function_parm_types[MAX_FUNC_TYPES_LEN];
 	hash128_state_t		state;
 	SqlDataType		data_type;
 
@@ -348,9 +355,9 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_
 					*type = ((TRUE == value->is_int) ? INTEGER_LITERAL : child_type1);
 				}
 				ADD_INT_HASH(&state, *type);
-				written = snprintf(c, MAX_STR_CONST - function_parm_types_len, "%s",
+				written = snprintf(c, MAX_FUNC_TYPES_LEN - function_parm_types_len, "%s",
 						   get_user_visible_type_string(*type));
-				if ((MAX_STR_CONST - function_parm_types_len) <= written) {
+				if ((MAX_FUNC_TYPES_LEN - function_parm_types_len) <= written) {
 					ERROR(ERR_BUFFER_TOO_SMALL, "Function parameter type");
 					result = 1;
 					break;
@@ -360,8 +367,8 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_
 				}
 				cur_column_list = cur_column_list->next;
 				if (cur_column_list != start_column_list) {
-					written = snprintf(c, MAX_STR_CONST - function_parm_types_len, ", ");
-					if ((MAX_STR_CONST - function_parm_types_len) <= written) {
+					written = snprintf(c, MAX_FUNC_TYPES_LEN - function_parm_types_len, ", ");
+					if ((MAX_FUNC_TYPES_LEN - function_parm_types_len) <= written) {
 						ERROR(ERR_BUFFER_TOO_SMALL, "Function parameter type");
 						result = 1;
 						break;
@@ -371,7 +378,7 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_
 				}
 			} while (cur_column_list != start_column_list);
 		} else {
-			snprintf(c, MAX_STR_CONST, "none");
+			snprintf(c, MAX_FUNC_TYPES_LEN, "none");
 		}
 		status = generate_routine_name(&state, function_hash, function_hash_len, FunctionHash);
 		if (1 == status) {

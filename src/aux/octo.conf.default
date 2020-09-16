@@ -47,7 +47,7 @@ rocto = {
  * Defined environment variables will take precedence
  */
 /*yottadb = {
-  ydb_gbldir = "mumps.gld"
+  ydb_gbldir = "yottadb.gld"
   ydb_ci = "calltab.ci"
   ydb_routines = "."
 }*/

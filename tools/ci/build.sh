@@ -486,7 +486,7 @@ else
 		rm -rf `cat failed_bats_dirs.txt`
 		env > env.out
 		echo '# Do auto-upgrade tests on the leftover "bats-test*" directories.'
-		gldfile="mumps.gld"
+		gldfile="yottadb.gld"
 		export ydb_gbldir=$gldfile
 		defaultdat="mumps.dat"
 		octodat="octo.dat"
@@ -595,7 +595,7 @@ FILE
 		rm -f *.gld *.dat || true
 		# Point src to newsrc so GDE works fine or else ZROSYNTAX error would be issued.
 		rm -f src || true; ln -s newsrc src
-		export ydb_gbldir="mumps.gld"
+		export ydb_gbldir="yottadb.gld"
 		$ydb_dist/yottadb -run ^GDE <<FILE
 		change -region DEFAULT -null_subscripts=true -record_size=1048576
 		change -segment DEFAULT -file_name=mumps.dat

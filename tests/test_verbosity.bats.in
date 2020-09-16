@@ -160,7 +160,7 @@ OCTO
 }
 
 @test "TV011 : verbosity is propagated to _ydboctoInit.m" {
-	rm mumps.*
+	rm *.dat *.gld
 	createdb 1
 
 	echo -e "Verbosity set to ERROR:" >> output.txt

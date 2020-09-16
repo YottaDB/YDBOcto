@@ -398,9 +398,21 @@ PSQL
 	echo " -> exit_status from ${ctestCommand} = $exit_status"
 	# Re-enable "set -e" now that ctest is done.
 	set -e
+	# Find out list of passed bats dirs. Need to sort for later use by "join"
+	ls -1d bats-test.*// | sed 's,/.*,,g' | sort > all_bats_dirs.txt
+	# Find out list of failed bats dirs. Need to sort for later use by "join"
+	grep "Temporary files in" Testing/Temporary/LastTest.log | awk '{print $NF}' | sed 's,.*/,,g' | sort > failed_bats_dirs.txt
+	# Find out list of passed bats dirs using "join" (all - fail = pass).
+	join -a 1 -v 2 all_bats_dirs.txt failed_bats_dirs.txt > passed_bats_dirs.txt
+	# Note down list of bats test directory names and corresponding subtest name in one file
+	cat */bats_test.out > all_bats_test.out
 fi
 
 if [[ "test-auto-upgrade" != $jobname ]]; then
+	if [[ -s passed_bats_dirs.txt ]]; then
+		echo '# Remove "bats-test*" directories corresponding to passed subtests (reduces pipeline artifact size)'
+		rm -rf `cat passed_bats_dirs.txt`
+	fi
 	if [[ 0 == $exit_status ]]; then
 		if [[ $build_type != "RelWithDebInfo" || $disable_install != "OFF" ]]; then
 			echo "# Rebuild Octo for packaging as it wasn't a RelWithDebInfo build or was built with installation disabled"
@@ -471,9 +483,7 @@ else
 	set +v
 	if [[ "force" != $subtaskname ]]; then
 		echo '# Remove "bats-test*" directories corresponding to failed subtests (if any)'
-		failedbatsdirs=`grep "Temporary files in" Testing/Temporary/LastTest.log | awk '{print $NF}'`
-		echo $failedbatsdirs > failedbatsdirs.txt
-		rm -rf $failedbatsdirs
+		rm -rf `cat failed_bats_dirs.txt`
 		env > env.out
 		echo '# Do auto-upgrade tests on the leftover "bats-test*" directories.'
 		gldfile="mumps.gld"
@@ -537,8 +547,8 @@ FILE
 					# non-zero exit status. This most likely means a fatal error like a SIG-11 or
 					# Assert failure etc. (Octo does not exit with a non-zero status for "ERROR" severity
 					# in queries). Record this error.
-					echo " --> [newsrc/octo -f $tstdir/$sqlfile] > autoupgrade.$sqlfile.out : Exit status = $ret_status" | tee -a ../errors.log
-					echo " --> It is likely that bumping up FMT_BINARY_DEFINITION would fix such failures" | tee -a ../errors.log
+					echo " ERROR : [newsrc/octo -f $tstdir/$sqlfile] > autoupgrade.$sqlfile.out : Exit status = $ret_status" | tee -a ../errors.log
+					echo " ERROR :   --> It is likely that bumping up FMT_BINARY_DEFINITION would fix such failures" | tee -a ../errors.log
 					exit_status=1
 				fi
 				# If this is a test output directory for the "test_query_generator" test, then do additional
@@ -554,7 +564,7 @@ FILE
 					# Replace that with the empty string for the below diff since we did not use the JDBC
 					# driver for the newer Octo build output.
 					reffile="autoupgrade.$sqlfile.ref"
-					sed 's/^null$//;s/^null|/|/;s/|null$/|/;s/|null|/||/g;' $sqlfile.octo.out > $reffile
+					sed 's/^null$//;s/^null|/|/;s/|\<null\>/|/g' $sqlfile.octo.out > $reffile
 					# Check if the output required sorting. We deduce this from presence of *unsorted* files.
 					logfile="autoupgrade.$sqlfile.log"
 					if compgen -G "$sqlfile.unsorted.**" > /dev/null; then
@@ -568,7 +578,7 @@ FILE
 					diff $reffile $logfile > $difffile || true
 					if [[ -s $difffile ]]; then
 						echo "ERROR : [diff $reffile $logfile] returned non-zero diff. See $difffile for details" | tee -a ../errors.log
-						echo " --> It is likely that bumping up FMT_PLAN_DEFINITION would fix such failures" | tee -a ../errors.log
+						echo "ERROR :   --> It is likely that bumping up FMT_PLAN_DEFINITION would fix such failures" | tee -a ../errors.log
 						exit_status=1
 					fi
 				fi
@@ -716,7 +726,7 @@ if [[ 0 != $exit_status ]]; then
 		echo "# ----------------------------------------------------------"
 		echo "# List of errors (cat errors.log)"
 		echo "# ----------------------------------------------------------"
-		cat errors.log
+		grep ERROR errors.log
 	fi
 fi
 

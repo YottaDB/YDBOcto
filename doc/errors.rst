@@ -45,9 +45,9 @@ Text: Aggregate functions are not allowed in JOIN conditions
 
 Description/Action: This error is generated when aggregate functions are used in JOIN conditions, which is not allowed. PSQL Error Code: 42803
 
-++++++++++++++++++++++++++++
+++++++++++++++++++++++++++++++
 ERR_AGGREGATE_FUNCTION_NESTED
-++++++++++++++++++++++++++++
+++++++++++++++++++++++++++++++
 
 Text: Aggregate function calls cannot be nested
 
@@ -105,25 +105,25 @@ Text: xxx buffer too small
 
 Description/Action: This error indicates that the buffer used to store output plans is too small for the query. PSQL Error Code: 22000
 
-++++++++++++++++++++++
++++++++++++++++++++++++
 INFO_CALLING_M_ROUTINE
-++++++++++++++++++++++
++++++++++++++++++++++++
 
 Text: Calling M routine: xxx
 
 Description/Action: This message is generated when M routines are called. PSQL Error Code: 00000
 
-++++++++++++++++++++++
++++++++++++++++++++++++++
 ERR_CANNOT_DROP_FUNCTION
-++++++++++++++++++++++
++++++++++++++++++++++++++
 
 Text: Cannot DROP function 'xxx': no function defined with given name and parameter types
 
 Description/Action: This error indicates an attempt to drop a non-existent function. PSQL Error Code: 42883
 
-+++++++++++++++++++++++++++
+++++++++++++++++++++++++++++++
 ERR_CASE_BRANCH_TYPE_MISMATCH
-+++++++++++++++++++++++++++
+++++++++++++++++++++++++++++++
 
 Text: CASE branch type mismatch: left xxx, right xxx
 
@@ -145,17 +145,17 @@ Text: Searching for column xxx in table xxx
 
 Description/Action: This message lets the user know that Octo is looking up the given column from the given table. PSQL Error Code: 00000
 
-+++++++++++++++++
+++++++++++++++++++
 ERR_COMMON_COLUMN
-+++++++++++++++++
+++++++++++++++++++
 
 Text: Common column name 'xxx' appears more than once in xxx side of NATURAL JOIN
 
 Description/Action: This message is emitted when a user attempts a :code:`NATURAL JOIN` using a table containing multiple columns of the same name, introducing an ambiguity into the join. PSQL Error Code: 42702
 
-+++++++++++++++++
+++++++++++++++++++++++
 ERR_CONFIG_IO_FAILURE
-+++++++++++++++++
+++++++++++++++++++++++
 
 Text: File I/O error reading config setting 'xxx' in config: xxx
 
@@ -217,25 +217,25 @@ Text: # xxx='xxx'
 
 Description/Action: This message reports the current value of a YottaDB environment variable. PSQL Error Code: 00000
 
-++++++++++++++++++++++++++
+++++++++++++++++++++++++++++
 ERR_FAILED_TO_OPTIMIZE_PLAN
-++++++++++++++++++++++++++
+++++++++++++++++++++++++++++
 
 Text: Failed to optimize logical plan
 
 Description/Action: This error is generated when Octo fails to optimize a logical plan for a given SQL query. PSQL Error Code: XX000
 
-++++++++++++++++++++++
++++++++++++++++++++++++++++
 ERR_FAILED_TO_PARSE_SCHEMA
-++++++++++++++++++++++
++++++++++++++++++++++++++++
 
 Text: Failed to parse schema from table xxx
 
 Description/Action: This error is generated when a table fails to parse a schema. PSQL Error Code: XX000
 
-+++++++++++++++++++++++++++++++++++++++++
++++++++++++++++++++++++++++++++++++++++++++++
 ERR_FAILED_TO_RETRIEVE_ENVIRONMENT_VARIABLE
-+++++++++++++++++++++++++++++++++++++++++
++++++++++++++++++++++++++++++++++++++++++++++
 
 Text: Failed to retrieve value of environment variable: 'xxx'
 
@@ -265,9 +265,9 @@ Text: Searching for function xxx
 
 Description/Action: This message lets the user know that Octo is looking up the given function. PSQL Error Code: 00000
 
-++++++++++++++++++++++++++++
++++++++++++++++++++++++++++++++
 ERR_GENERATING_TEMPORARY_TABLE
-++++++++++++++++++++++++++++
++++++++++++++++++++++++++++++++
 
 Text: Generating temporary table: xxx
 
@@ -281,9 +281,9 @@ Text: Generating helper cross reference M file [xxx] for table [xxx] and column 
 
 Description/Action: This message indicates that a cross reference is being generated for the given table and column as an optimization. PSQL Error Code: XX000
 
-++++++++++++++++++++++++++++
+++++++++++++++++++++++++++++++
 ERR_GROUP_BY_ONLY_COLUMN_NAME
-++++++++++++++++++++++++++++
+++++++++++++++++++++++++++++++
 
 Text: Only column names are valid in GROUP BY (not expressions or constants)
 
@@ -321,33 +321,33 @@ Text: Invalid value specified for option xxx
 
 Description/Action: This error is issued when a user attempts to use an unacceptable command line option value. PSQL Error Code: 22P02
 
-++++++++++++++++++++++
++++++++++++++++++++++++++++
 ERR_INVALID_ESCAPE_PATTERN
-++++++++++++++++++++++
++++++++++++++++++++++++++++
 
 Text: Cannot end pattern with escape character: xxx
 
 Description/Action: This error is issued when a user attempts to use an invalid escape pattern in a regular expression. PSQL Error Code: 22025
 
-+++++++++++++++++++++
++++++++++++++++++++++++++
 ERR_INVALID_INPUT_SYNTAX
-+++++++++++++++++++++
++++++++++++++++++++++++++
 
 Text: Invalid input syntax : Expecting type NUMERIC or INTEGER : Actual type xxx
 
 Description/Action: This error is issued when a user attempts to use a unary '+' or '-' on a field of non-numeric type. PSQL Error Code: 22P02
 
-+++++++++++++++++++++++++++
+++++++++++++++++++++++++++++++
 ERR_INVALID_INPUT_SYNTAX_BOOL
-+++++++++++++++++++++++++++
+++++++++++++++++++++++++++++++
 
 Text: Invalid input syntax for type boolean: 'xxx' is not a valid boolean value
 
 Description/Action: This error is generated when the user attempts to assign a non-boolean value to a boolean variable. PSQL Error Code: 22P02
 
-++++++++++++++++++++
++++++++++++++++++++++++++
 ERR_INVALID_KEYWORD_CHAR
-++++++++++++++++++++
++++++++++++++++++++++++++
 
 Text: Integer value xxx given for xxx character is not a valid ASCII (0-127) character
 
@@ -385,17 +385,17 @@ Text: Write size xxx out of range
 
 Description/Action: This error indicates an internal code attempt to write beyond a buffer's allocated range. Please contact your YottaDB support channel. PSQL Error Code: 22003
 
-+++++++++++++++++++++++
++++++++++++++++++++++++++
 ERR_JOIN_ALIAS_DUPLICATE
-+++++++++++++++++++++++
++++++++++++++++++++++++++
 
 Text: table name 'xxx' specified more than once
 
 Description/Action: This error is generated when a table name has been specified more than once. PSQL Error Code: 42712
 
-++++++++++++++++++
+++++++++++++++++++++++
 INFO_LEAVING_FUNCTION
-++++++++++++++++++
+++++++++++++++++++++++
 
 Text: LEAVING xxx
 
@@ -449,9 +449,9 @@ Text: Generating M file [xxx] (to execute SQL query)
 
 Description/Action: This message notifies the user that an M plan is being generated for the given cursor. PSQL Error Code: 00000
 
-++++++++++++++++++++
+++++++++++++++++++++++
 INFO_MEM_REALLOCATION
-++++++++++++++++++++
+++++++++++++++++++++++
 
 Text: Memory xxx for variable xxx
 
@@ -481,9 +481,9 @@ Text: Length xxx too large for M identifier (max length xxx)
 
 Description/Action: This error indicates that the length for an M identifier has been exceeded. PSQL Error Code: 22003
 
-++++++++++++++++++++
++++++++++++++++++++++++
 ERR_MISSING_FROM_ENTRY
-++++++++++++++++++++
++++++++++++++++++++++++
 
 Text: Missing FROM-clause entry for table : xxx
 
@@ -497,9 +497,9 @@ Text: Missing key xxx in table xxx; max key was xxx
 
 Description/Action: This error indicates that the schema for the table lacks the correct number of keys, and that it needs to be corrected.  PSQL Error Code: 42704
 
-++++++++++++++++++++
+++++++++++++++++++++++
 ERR_MISTYPED_FUNCTION
-++++++++++++++++++++
+++++++++++++++++++++++
 
 Text: Function xxx cannot be invoked with a parameter of type xxx
 
@@ -529,17 +529,17 @@ Text: Null subscripts must be enabled for proper operation. Please set '-null_su
 
 Description/Action: This error indicates that Null Subscripts have been turned off. However, they must be enabled for proper operation. Set '-null_subscripts=always' for all regions containing Octo global variables. PSQL Error Code: F0000
 
-++++++++++++++++++++++++++++
+++++++++++++++++++++++++++++++
 ERR_ORDER_BY_POSITION_INVALID
-++++++++++++++++++++++++++++
+++++++++++++++++++++++++++++++
 
 Text: ORDER BY position xxxxxx is not in select list
 
 Description/Action: This error is generated when an ORDER BY clause is incorrectly placed within a SQL query. PSQL Error Code: 42P10
 
-++++++++++++++++++++++++++++++++
+++++++++++++++++++++++++++++++++++
 ERR_ORDER_BY_POSITION_NOT_INTEGER
-++++++++++++++++++++++++++++++++
+++++++++++++++++++++++++++++++++++
 
 Text: Non integer constant xxxxxx in ORDER BY
 
@@ -585,9 +585,9 @@ Text: Parsing done for SQL command [xxx]
 
 Description/Action: This message indicates that parsing is complete for the given SQL statement or command. PSQL Error Code: 00000
 
-++++++++++++++++++++++++++++++++++
+++++++++++++++++++++++++++++++++++++++++
 ERR_PERCENT_IN_EXTRINSIC_FUNCTION_NAME
-++++++++++++++++++++++++++++++++++
+++++++++++++++++++++++++++++++++++++++++
 
 Text: '%%' is only allowed at the beginning of an M label or routine name.
 
@@ -609,9 +609,9 @@ Text: Failed to generate xxx plan
 
 This error is generated when Octo fails to generate the plan for the given SQL query or command. PSQL Code: XX000
 
-++++++++++++++++++++++
++++++++++++++++++++++++++
 ERR_PLAN_NOT_WELL_FORMED
-++++++++++++++++++++++
++++++++++++++++++++++++++
 
 Text: Plan produced by optimizer appears incorrect
 
@@ -625,17 +625,17 @@ Text: Problem resolving owner for deferred plan; undefined behavior
 
 Description/Action: This error is indicates an internal error in resolving query subplans. Please contact your YottaDB support channel. PSQL Error Code: XX000
 
-++++++++++++++++++++++
+++++++++++++++++++++++++++
 ERR_PRIMARY_KEY_NOT_FOUND
-++++++++++++++++++++++
+++++++++++++++++++++++++++
 
 Text: No primary key specified when creating table 'xxx'. Please consult the documentation for more information.
 
 Description/Action: This error is generated when a table was created without specifying a primary key. PSQL Error Code: 42601
 
-++++++++++++++++++++++++
++++++++++++++++++++++++++++++
 INFO_PROCESSING_MESSAGE_TYPE
-++++++++++++++++++++++++
++++++++++++++++++++++++++++++
 
 Text: Processing message type xxx
 
@@ -657,9 +657,9 @@ Text: # Recording pertinent ydb_* env var values at process startup
 
 Description/Action: This message notes that various YDB environment variable values are being recorded at startup . PSQL Error Code: 00000
 
-++++++++++++++++++++
++++++++++++++++++++++++
 INFO_RETURNING_FAILURE
-++++++++++++++++++++
++++++++++++++++++++++++
 
 Text: Returning failure from xxx
 
@@ -689,9 +689,9 @@ Text: Sending message of type xxx and length xxx
 
 Description/Action: This debug message indicates that a PostgreSQL wire protocol message of the specified format was written to the wire. PSQL Error Code: 00000
 
-++++++++++++++++++++++++++
++++++++++++++++++++++++++++++
 ERR_SETOPER_NUMCOLS_MISMATCH
-++++++++++++++++++++++++++
++++++++++++++++++++++++++++++
 
 Text: Each xxx query must have same number of columns
 
@@ -737,9 +737,9 @@ Text: System call failed: xxx, return xxx (xxx): args: xxx
 
 Description/Action: This error is generated when a system call fails, and provides additional information about the arguments passed to it. PSQL Error Code: 58000
 
-++++++++++++++++++++++++++
+++++++++++++++++++++++++++++++
 ERR_TABLE_DEFINITION_TOO_LONG
-++++++++++++++++++++++++++
+++++++++++++++++++++++++++++++
 
 Text: Table definition for xxx too long; max size is xxx, table length is xxx
 
@@ -753,17 +753,17 @@ Text: Searching for table xxx
 
 Description/Action: This message lets the user know that Octo is looking up the given table. PSQL Error Code: 00000
 
-++++++++++++++++++++++
++++++++++++++++++++++++++
 INFO_TEXT_REPRESENTATION
-++++++++++++++++++++++
++++++++++++++++++++++++++
 
 Text: xxx
 
 Description/Action: This message prints the text representation of a DDL specification. PSQL Error Code: 00000
 
-+++++++++++++++++++++++++++
+++++++++++++++++++++++++++++++++
 ERR_TOO_MANY_FUNCTION_ARGUMENTS
-+++++++++++++++++++++++++++
+++++++++++++++++++++++++++++++++
 
 Text: Too many arguments passed for function xxx (max: xxx)
 
@@ -777,9 +777,9 @@ Text: Type mismatch: left xxx, right xxx
 
 Description/Action: This error is generated when there is a type mismatch between parameters. PSQL Error Code: 42804
 
-++++++++++++++++++++++
+++++++++++++++++++++++++
 ERR_TYPE_NOT_COMPATIBLE
-++++++++++++++++++++++
+++++++++++++++++++++++++
 
 Text: Type xxx not compatible for xxx
 
@@ -843,9 +843,9 @@ Errors in Rocto are of the form :code:`ERR_ROCTO_<error>` or :code:`INFO_ROCTO_<
    :local:
 
 
-++++++++++++++
+++++++++++++++++++
 INFO_AUTH_SUCCESS
-++++++++++++++
+++++++++++++++++++
 
 Text: xxx: user successfully authenticated
 
@@ -875,33 +875,33 @@ Text: handle_cancel_request: PID timestamp doesn't match stored value
 
 Description/Action: This message indicates that a Cancel Request was attempted using a timestamp that doesn't match that of the target PID. Timestamps are checked to ensure that only the client who spawned a Rocto process can cancel queries running in that process. This error is not disclosed to the client to prevent information leakage about active Rocto processes. PSQL Error Code: 28000
 
-+++++++++++++++++++++++++++++++++++
+++++++++++++++++++++++++++++++++++++++++
 ERR_ROCTO_BIND_PARAMETER_DECODE_FAILURE
-+++++++++++++++++++++++++++++++++++
+++++++++++++++++++++++++++++++++++++++++
 
 Text: Failed to decode binary bind parameter
 
 Description/Action: This error indicates that Rocto failed to decode a bind parameter from a binary format. PSQL Error Code: XX000
 
-+++++++++++++++++++++++++
+++++++++++++++++++++++++++++++++
 ERR_ROCTO_BIND_TO_UNKNOWN_QUERY
-+++++++++++++++++++++++++
+++++++++++++++++++++++++++++++++
 
 Text: Bind to unknown query attempted
 
 Description/Action: This error indicates that the user has attempted to bind parameter values to a non-existent prepared statement. PSQL Error Code: 08P01
 
-++++++++++++++++++++++++
++++++++++++++++++++++++++++++++
 INFO_ROCTO_CHILD_STATE_UPDATED
-++++++++++++++++++++++++
++++++++++++++++++++++++++++++++
 
 Text: Process xxx switched to state xxx
 
 Description/Action: This message indicates that the Rocto child process state has been updated. PSQL Error Code: 00000
 
-+++++++++++++++++++++++
+++++++++++++++++++++++++++++
 INFO_ROCTO_CLEAN_DISCONNECT
-+++++++++++++++++++++++
+++++++++++++++++++++++++++++
 
 Text: connection closed cleanly
 
@@ -931,9 +931,9 @@ Text: xxx: failed to retrieve xxx from database
 
 Description/Action: This error is generated when Rocto has failed to retrieve the data from the database. PSQL Error Code: XX000
 
-+++++++++++++++++++++++++
+++++++++++++++++++++++++++
 ERR_ROCTO_HASH_CONVERSION
-+++++++++++++++++++++++++
+++++++++++++++++++++++++++
 
 Text: xxx: failed convert xxx hash to xxx
 
@@ -987,9 +987,9 @@ Text: Bind: invalid xxx format code xxx: must be 0 (text) or 1 (binary)
 
 Description/Action: This error indicates multiple invalid integer values were provided via a PostgreSQL wire protocol message. PSQL Error Code: 22003
 
-+++++++++++++++++++++
+++++++++++++++++++++++++++
 ERR_ROCTO_INVALID_VERSION
-+++++++++++++++++++++
+++++++++++++++++++++++++++
 
 Text: xxx: invalid version xxx: must be xxx
 
@@ -1011,17 +1011,17 @@ Text: xxx: missing xxx
 
 Description/Action: This error indicates that there is missing data. PSQL Error Code: 22000
 
-++++++++++++++++++
++++++++++++++++++++++++
 ERR_ROCTO_MISSING_NULL
-++++++++++++++++++
++++++++++++++++++++++++
 
 Text: xxx: xxx missing null terminator
 
 Description/Action: This error indicates that a value within a wire protocol message sent by a remote client is missing a null terminator. PSQL Error Code: 22024
 
-++++++++++++++++++
++++++++++++++++++++++++++++
 ERR_ROCTO_MISSING_USERNAME
-++++++++++++++++++
++++++++++++++++++++++++++++
 
 Text: xxx: startup message missing username
 
@@ -1045,9 +1045,9 @@ Description/Action: This error indicates that Rocto is not allowed to make schem
 
 .. note:: Rocto is yet to implement certain features with respect to Data Manipulation Language (DML) and queries such as INSERT INTO, UPDATE, and DELETE could cause this error to be generated.
 
-++++++++++++++++++++++++
+++++++++++++++++++++++++++
 ERR_ROCTO_PARAMETER_COUNT
-++++++++++++++++++++++++
+++++++++++++++++++++++++++
 
 Text: Failed to count number of parameters in prepared statement
 
@@ -1085,17 +1085,17 @@ Text: read failure: xxx
 
 Description/Action: This error is generated when Rocto fails to read data from a remote connection. PSQL Error Code: 08000
 
-++++++++++++++++++++
++++++++++++++++++++++++++
 ERR_ROCTO_READ_TOO_LARGE
-++++++++++++++++++++
++++++++++++++++++++++++++
 
 Text: Read size xxx greater than buffer size xxx
 
 Description/Action: This error indicates that a PostgreSQL wire protocol message exceeded the maximum size of messages which can be read by Rocto. Please contact your YottaDB support channel. PSQL Error Code: 22000
 
-+++++++++++++++++++++++++++++++++++
+++++++++++++++++++++++++++++++++++++++
 INFO_ROCTO_PARAMETER_DESCRIPTION_SENT
-+++++++++++++++++++++++++++++++++++
+++++++++++++++++++++++++++++++++++++++
 
 Text: sent ParameterDescription for prepared statement 'xxx'
 
@@ -1117,9 +1117,9 @@ Text: sent RowDescription for xxx: 'xxx'
 
 Description/Action: This message indicates that a Rocto RowDescription message has been sent. PSQL Error Code: 00000
 
-+++++++++++++++++++++++
++++++++++++++++++++++++++
 INFO_ROCTO_SERVER_FORKED
-+++++++++++++++++++++++
++++++++++++++++++++++++++
 
 Text: rocto server process forked with pid xxx
 
@@ -1149,9 +1149,9 @@ Text: failed to send message of type 'xxx'
 
 Description/Action: This error indicates that Rocto failed to send a message of a specific type to a remote client. PSQL Error Code: 08000
 
-+++++++++++++++++++++
++++++++++++++++++++++++++
 ERR_ROCTO_SESSION_LOOKUP
-+++++++++++++++++++++
++++++++++++++++++++++++++
 
 Text: xxx: failed to retrieve xxx from session info
 
@@ -1165,9 +1165,9 @@ Text: ydb_tls_accept: xxx
 
 Description/Action: This error indicates that there is an issue with TLS acceptance. PSQL Error Code: XX000
 
-++++++++++++++++++++
++++++++++++++++++++++++++
 ERR_ROCTO_TLS_CONNECTION
-++++++++++++++++++++
++++++++++++++++++++++++++
 
 Text: ydb_tls_get_conn_info: xxx
 
@@ -1181,17 +1181,17 @@ Text: ydb_tls_init: xxx
 
 Description/Action: This error indicates that there is an issue with TLS initialization. PSQL Error Code: XX000
 
-++++++++++++++++++++
+++++++++++++++++++++++++++
 ERR_ROCTO_TLS_READ_FAILED
-++++++++++++++++++++
+++++++++++++++++++++++++++
 
 Text: ydbcrypt: read failed: xxx
 
 Description/Action: This error indicates that an attempt to read from a TLS socket has failed. PSQL Error Code: XX000
 
-++++++++++++++++++++
++++++++++++++++++++++++
 ERR_ROCTO_TLS_REQUIRED
-++++++++++++++++++++
++++++++++++++++++++++++
 
 Text: Server requires all connections to be TLS encrypted. Please re-connect using a client with TLS/SSL enabled.
 
@@ -1205,57 +1205,57 @@ Text: ydb_tls_socket: xxx
 
 Description/Action: This error indicates that there is an issue with the TLS socket. PSQL Error Code: XX000
 
-++++++++++++++++++++
+++++++++++++++++++++++
 ERR_ROCTO_TLS_UNKNOWN
-++++++++++++++++++++
+++++++++++++++++++++++
 
 Text: ydbcrypt: unknown error: xxx
 
 Description/Action: This error indicates that an unknown TLS error has taken place. PSQL Error Code: XX000
 
-++++++++++++++++++++
+++++++++++++++++++++++
 ERR_ROCTO_TLS_UNNAMED
-++++++++++++++++++++
+++++++++++++++++++++++
 
 Text: Unnamed failure in ydb_tls_accept: xxx (tls_errno: xxx)
 
 Description/Action: This error indicates that an unnamed TLS error has occurred in the TLS initialization process (accepting a new connection). PSQL Error Code: XX000
 
-++++++++++++++++++++
+++++++++++++++++++++++++
 ERR_ROCTO_TLS_WANT_READ
-++++++++++++++++++++
+++++++++++++++++++++++++
 
 Text: ydbcrypt: unprocessed read data
 
 Description/Action: This error indicates that there is data remaining to be read from a TLS socket. PSQL Error Code: XX000
 
-++++++++++++++++++++
++++++++++++++++++++++++++
 ERR_ROCTO_TLS_WANT_WRITE
-++++++++++++++++++++
++++++++++++++++++++++++++
 
 Text: ydbcrypt: unprocessed write data
 
 Description/Action: This error indicates that there is data remaining to be written to a TLS socket. PSQL Error Code: XX000
 
-++++++++++++++++++++
++++++++++++++++++++++++++++
 ERR_ROCTO_TLS_WRITE_FAILED
-++++++++++++++++++++
++++++++++++++++++++++++++++
 
 Text: ydbcrypt: write failed: xxx
 
 Description/Action: This error indicates that an attempt to write to a TLS socket has failed. PSQL Error Code: XX000
 
-++++++++++++++++++++
++++++++++++++++++++++++++
 ERR_ROCTO_TOO_FEW_VALUES
-++++++++++++++++++++
++++++++++++++++++++++++++
 
 Text: xxx: too few xxx
 
 Description/Action: This error indicates that a PostgreSQL wire protocol message is missing one or more fields. PSQL Error Code: 22003
 
-+++++++++++++++++
+++++++++++++++++++++++++++
 ERR_ROCTO_TOO_MANY_VALUES
-+++++++++++++++++
+++++++++++++++++++++++++++
 
 Text: xxx: too many xxx
 
@@ -1269,9 +1269,9 @@ Text: xxx: message has trailing characters
 
 Description/Action: The error indicates that a PostgreSQL wire protocol message has trailing characters. PSQL Error Code: 08P01
 
-++++++++++++++++++++++++++++
++++++++++++++++++++++++++++++++++++++
 ERR_ROCTO_UNSUPPORTED_BIND_PARAMETER
-++++++++++++++++++++++++++++
++++++++++++++++++++++++++++++++++++++
 
 Text: Unsupported bind parameter type received
 

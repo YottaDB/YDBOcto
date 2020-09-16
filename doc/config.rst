@@ -55,10 +55,12 @@ Example setting of the environment variables (assuming default paths):
 Routines
 ~~~~~~~~~~~~~~
 
-The optional configuration :code:`octo_zroutines` in :code:`octo.conf` can be used to set :code:`$zroutines` (in addition to :code:`$ydb_routines`). :code:`octo_zroutines` will be prepended to :code:`$ydb_routines`.
+Octo requires that :code:`$ydb_dist/plugin/o/_ydbocto.so` and :code:`$ydb_dist/plugin/o/_ydbposix.so` (:code:`$ydb_dist/plugin/o/utf8/_ydbocto.so` and :code:`$ydb_dist/plugin/o/utf8/_ydbposix.so` when using Octo in YottaDB's UTF-8 mode) be included in :code:`$ydb_routines`. This is necessary not only for running the :code:`octo` and :code:`rocto` executables, but also for correctly updating and maintaining the YottaDB triggers that are used to maintain cross references for Octo. Accordingly these paths should exist in the :code:`ydb_routines` in your normal environment setup scripts.
 
-Octo requires that :code:`$ydb_dist/plugin/o/_ydbocto.so` be in $zroutines, and for at least one valid source directory to exist. The first source directory found in :code:`$zroutines` (after prepending :code:`octo_zroutines` if it is defined in :code:`octo.conf`) will be where generated code is placed.
+.. note::
 
+   The :code:`source $(pkg-config --variable=prefix yottadb)/ydb_env_set` command sets these up automatically for environments with the default structure under :code:`$ydb_dir` (defaulting to :code:`$HOME/.yottadb`). For UTF-8, set the environment variable :code:`ydb_chset` to :code:`UTF-8`, e.g., :code:`export ydb_chset=UTF-8` before sourcing :code:`ydb_env_set`.
+   
 ~~~~~~~~~~~~~
 Logging
 ~~~~~~~~~~~~~
@@ -73,7 +75,7 @@ A config file can include instructions specifying verbosity for logging:
 * FATAL: A FATAL message terminates the program
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Locations and Global Variables
+Global Variables
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 All Octo related globals are prefixed with :code:`^%ydbocto`. Using normal global mapping procedures for an existing application global directory (where you want to run Octo), map the global variable namespace :code:`^%ydbocto*` to a separate region (and its associated database file) that meets the below requirements (the below example commands assume the separate region is named :code:`OCTO`).
@@ -119,7 +121,7 @@ Generate CA key and certificate
     # In a directory in which you want to store all the certificates for Octo
     # Be sure to create a strong passphrase for the CA
     openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:2048 -out CA.key
-    # This creates a CA valid for 1 year and interactively prompts for additional information
+    # This creates a CA valid for 1-year and interactively prompts for additional information
     openssl req -new -nodes -key CA.key -days 365 -x509 -out CA.crt
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -139,7 +141,7 @@ Sign certificate based on request and local CA
 
  .. code-block:: bash
 
-    # Asks the CA to sign the certificate with a 1 Year validity time
+    # Asks the CA to sign the certificate with a 1-Year validity time
     openssl x509 -req -in server.csr -CA CA.crt -CAkey CA.key -CAcreateserial -out server.crt -days 365
     # Mask the password for the certificate in a way YottaDB understands
     $ydb_dist/plugin/gtmcrypt/maskpass
@@ -151,9 +153,11 @@ Sign certificate based on request and local CA
 Update Octo configuration file
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The $ydb_dist/plugin/octo/octo.conf contains an outline of the minimum configuration options needed to enable TLS/SSL. The key items are:
+$ydb_dist/plugin/octo/octo.conf contains an outline of the minimum configuration options.
 
-1. In the "rocto" section, "ssl_on" must be set to "true" (no quotes needed in the conf).
+For TLS/SSL a configuration file is required, based on the changes below.
+
+1. In the "rocto" section, "ssl_on" must be set to "true" (no quotes needed in the configuration file).
 2. A "tls" section must be present and generally conform to the requirements specified for the `TLS plugin itself <https://docs.yottadb.com/AdminOpsGuide/tls.html>`_. Other notes:
 
       * Octo doesn't use any of the "dh*" settings, so those can be omitted.
@@ -163,12 +167,14 @@ The $ydb_dist/plugin/octo/octo.conf contains an outline of the minimum configura
 
 3. The :code:`ydb_tls_passwd_OCTOSERVER` and :code:`ydb_crypt_config` environment variables must be set correctly.
 
+If you source :code:`$(pkg-config --variable=prefix yottadb)/ydb_env_set` it provides reasonable default values of environment variables. Review the :code:`$ydb_dist/plugin/octo/octo.conf` file to configure your own environment.
+
 ----------------------------
 Usage
 ----------------------------
 
-Before running Octo/Rocto make sure that the required YottaDB variables are set either by creating your own script or run :code:`source $ydb_dist/ydb_env_set`.
+Before running Octo/Rocto make sure that the required YottaDB variables are set either by creating your own script or run :code:`source $(pkg-config --variable=prefix yottadb)/ydb_env_set`.
 
 To use the command-line SQL interpreter run: :code:`$ydb_dist/plugin/bin/octo`.
 
-To use the PostgreSQL protocol compatible server run: :code:`$ydb_dist/plugin/bin/rocto`.
+To use rocto, the PostgreSQL protocol compatible server, run: :code:`$ydb_dist/plugin/bin/rocto -p XXXX` where :code:`-p XXXX` optionally specifies a TCP port at which rocto is to listen for connections. The default port number is 1337.

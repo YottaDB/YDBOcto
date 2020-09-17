@@ -171,12 +171,29 @@ if [[ ("test-auto-upgrade" == $jobname) && ("force" != $subtaskname) ]]; then
 	git log --graph --all --oneline --pretty=format:'%h%d; %ai; %an; %s' > gitlogall.txt
 	# Checkout a random prior commit to test if auto-upgrade of plans/xrefs/triggers/binary-table-definitions etc.
 	# from that commit to the current/latest commit works fine in Octo.
-	# Do not go prior to commit SHA e2a016b21a1f7d9f2dc55b0655942ab7b8cdd92e as an AUTO_UPGRADE error is issued otherwise.
 	git checkout -B $CI_COMMIT_BRANCH HEAD
 	# Copy M program that is needed for later before we switch to an older git branch.
 	cp ../tools/ci/testAutoUpgrade.m .
+	# Do not go prior to the hard stop commit (SHA pasted below) as an AUTO_UPGRADE error is issued otherwise.
+	hardstopcommit=e2a016b21a1f7d9f2dc55b0655942ab7b8cdd92e
+	#############################################################################################
+	# First verify requirements for this test to succeed. If any of those are not met, just return success right away
+	# as the auto upgrade test is not possible.
+	#############################################################################################
+	# Find common ancestor of origin/master and HEAD. That is where we stop the search for a random commit
+	stopcommit=`git merge-base HEAD origin/master`
+	# Find common ancestor of $hardstopcommit and $stopcommit. Verify it is $hardstopcommit. If not, we cannot test.
+	startcommit=`git merge-base $hardstopcommit $stopcommit`
+	if [[ "$startcommit" != "$hardstopcommit" ]]; then
+		echo "INFO : Ancestor commit of $hardstopcommit and $stopcommit was not the former but instead is [$startcommit]"
+		echo "INFO : Cannot run the test-auto-upgrade test in this case. Exiting"
+		exit 0
+	fi
+	#############################################################################################
+	# Now that we verified that requirements for this test are met, go ahead with the actual test.
+	#############################################################################################
+	git log --graph --oneline $startcommit~1..$stopcommit > gitlogmaster.txt
 	# Note: The awk usage below is needed to only skip commits that branch off an otherwise linear commit history.
-	git log --graph --oneline e2a016b21a1f7d9f2dc55b0655942ab7b8cdd92e~1..origin/master > gitlogmaster.txt
 	awk '($1 == "*") && ($2 != "|") {print $0;}' gitlogmaster.txt > commit_history.txt
 	numcommits=`wc -l commit_history.txt | awk '{print $1}'`
 	commitnumber=`shuf -i 1-$numcommits -n 1`

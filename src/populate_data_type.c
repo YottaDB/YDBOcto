@@ -57,7 +57,7 @@
 								TRACE(INFO_MEM_REALLOCATION, "expanded", "parse_context->types"); \
 							}                                                                         \
 							DOUBLE_ARRAY_ALLOCATION(parse_context->types, parse_context->types_size,  \
-										PSQL_TypeOid);                                    \
+										PSQL_TypeOid, INT16_MAX);                         \
 							TRACE(INFO_MEM_REALLOCATION, "doubled", "parse_context->types");          \
 						}                                                                                 \
 						parse_context->types[parse_context->cur_type]                                     \
@@ -133,6 +133,14 @@ PSQL_TypeOid get_psql_type_from_sqlvaluetype(SqlValueType type) {
 		break;
 	case STRING_LITERAL:
 		return PSQL_TypeOid_varchar;
+		break;
+	case PARAMETER_VALUE:
+		/* Needed for extended query case where we generate a plan without knowing the type of one or more literal
+		 * parameters. Since these are inferred at Bind time rather than at Parse time (when the plan is generated), we
+		 * cannot specify a concrete type. However, we also don't want plan generation to fail for this reason, so simply
+		 * specify that the type is unknown until it is latter inferred from concrete values.
+		 */
+		return PSQL_TypeOid_unknown;
 		break;
 	case NUL_VALUE:
 		return PSQL_TypeOid_unknown;

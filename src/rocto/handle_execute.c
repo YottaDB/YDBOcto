@@ -29,16 +29,18 @@ int32_t handle_execute(Execute *execute, RoctoSession *session, ydb_long_t *curs
 	QueryResponseParms  parms;
 	EmptyQueryResponse *empty;
 	SqlStatement	    stmt;
-	ydb_buffer_t *	    portal_subs, *cursor_subs;
+	ydb_buffer_t	    portal_subs[8], cursor_subs[5];
 	ydb_buffer_t	    routine_buffer, tag_buf, num_parms_buf, parm_buf;
 	ydb_buffer_t	    schema_global, cursor_buffer;
 	ydb_string_t	    ci_filename, ci_routine;
 	ydb_long_t	    result;
 	boolean_t	    canceled = FALSE;
 	long int	    temp_long;
-	int32_t		    status, done, tmp_status;
+	int32_t		    status, tmp_status;
 	int16_t		    num_parms, cur_parm, cur_parm_temp;
-	char		    filename[OCTO_PATH_MAX];
+	char		    filename[OCTO_PATH_MAX], routine_str[MAX_ROUTINE_LEN + 1]; // Null terminator
+	char		    tag_str[INT32_TO_STRING_MAX], num_parms_str[INT16_TO_STRING_MAX];
+	char		    cur_parm_str[INT16_TO_STRING_MAX], cursor_str[YDB_MAX_IDENT + 1]; // Null terminator
 	SqlStatementType    command_tag;
 
 	TRACE(INFO_ENTERING_FUNCTION, "handle_execute");
@@ -50,14 +52,16 @@ int32_t handle_execute(Execute *execute, RoctoSession *session, ydb_long_t *curs
 	parms.max_data_to_send = execute->rows_to_return;
 
 	// Set subscripts to access routine on portal: ^session(id, OCTOLIT_BOUND, <name>, OCTOLIT_ROUTINE
-	portal_subs = make_buffers(config->global_names.session, 4, session->session_id->buf_addr, OCTOLIT_BOUND, execute->source,
-				   OCTOLIT_ROUTINE);
+	YDB_STRING_TO_BUFFER(config->global_names.session, &portal_subs[0]);
+	YDB_STRING_TO_BUFFER(session->session_id->buf_addr, &portal_subs[1]);
+	YDB_STRING_TO_BUFFER(OCTOLIT_BOUND, &portal_subs[2]);
+	YDB_STRING_TO_BUFFER(execute->source, &portal_subs[3]);
+	YDB_STRING_TO_BUFFER(OCTOLIT_ROUTINE, &portal_subs[4]);
 	// Retrieve routine from portal
-	YDB_MALLOC_BUFFER(&routine_buffer, MAX_ROUTINE_LEN + 1); // Null terminator
+	OCTO_SET_BUFFER(routine_buffer, routine_str);
 	status = ydb_get_s(&portal_subs[0], 4, &portal_subs[1], &routine_buffer);
 	YDB_ERROR_CHECK(status);
 	if (YDB_OK != status) {
-		YDB_FREE_BUFFER(&routine_buffer);
 		return 1;
 	}
 	routine_buffer.buf_addr[routine_buffer.len_used] = '\0';
@@ -65,36 +69,21 @@ int32_t handle_execute(Execute *execute, RoctoSession *session, ydb_long_t *curs
 	status = get_full_path_of_generated_m_file(filename, sizeof(filename), &routine_buffer.buf_addr[1]);
 	if (status) {
 		/* Error message would have already been issued in above function call. Just return non-zero status. */
-		YDB_FREE_BUFFER(&routine_buffer);
 		return 1;
 	}
 	// Retrieve command tag from portal
-	YDB_MALLOC_BUFFER(&portal_subs[4], MAX_TAG_LEN);
-	YDB_COPY_STRING_TO_BUFFER("tag", &portal_subs[4], done);
-	if (!done) {
-		YDB_FREE_BUFFER(&routine_buffer);
-		YDB_FREE_BUFFER(&portal_subs[4]);
-		free(portal_subs);
-		return 1;
-	}
-	YDB_MALLOC_BUFFER(&tag_buf, INT32_TO_STRING_MAX);
+	YDB_LITERAL_TO_BUFFER(OCTOLIT_TAG, &portal_subs[4]);
+	OCTO_SET_BUFFER(tag_buf, tag_str);
 	status = ydb_get_s(&portal_subs[0], 4, &portal_subs[1], &tag_buf);
-	YDB_FREE_BUFFER(&portal_subs[4]);
 	YDB_ERROR_CHECK(status);
 	if (YDB_OK != status) {
-		YDB_FREE_BUFFER(&tag_buf);
-		YDB_FREE_BUFFER(&routine_buffer);
-		free(portal_subs);
 		return 1;
 	}
 	tag_buf.buf_addr[tag_buf.len_used] = '\0';
 	temp_long = strtol(tag_buf.buf_addr, NULL, 10);
-	YDB_FREE_BUFFER(&tag_buf);
 	if ((ERANGE != errno) && (0 <= temp_long) && (INT32_MAX >= temp_long) && (invalid_STATEMENT >= temp_long)) {
 		command_tag = (int32_t)temp_long;
 	} else {
-		YDB_FREE_BUFFER(&routine_buffer);
-		free(portal_subs);
 		return 1;
 	}
 
@@ -102,44 +91,47 @@ int32_t handle_execute(Execute *execute, RoctoSession *session, ydb_long_t *curs
 	// OR when the portal is suspended (rows remain to return on an existing cursor)
 	if ((0 != strncmp(routine_buffer.buf_addr, "none", MAX_ROUTINE_LEN)) && (0 > *cursorId)) {
 		// Fetch number of parameters
-		free(portal_subs);
-		portal_subs = make_buffers(config->global_names.session, 6, session->session_id->buf_addr, OCTOLIT_BOUND,
-					   execute->source, OCTOLIT_PARAMETERS, "all", "");
-		YDB_MALLOC_BUFFER(&num_parms_buf, INT16_TO_STRING_MAX);
+		YDB_STRING_TO_BUFFER(OCTOLIT_PARAMETERS, &portal_subs[4]);
+		YDB_STRING_TO_BUFFER(OCTOLIT_ALL, &portal_subs[5]);
+		OCTO_SET_BUFFER(num_parms_buf, num_parms_str);
 		status = ydb_get_s(&portal_subs[0], 5, &portal_subs[1], &num_parms_buf);
 		YDB_ERROR_CHECK(status);
 		if (YDB_OK != status) {
-			YDB_FREE_BUFFER(&routine_buffer);
-			YDB_FREE_BUFFER(&num_parms_buf);
-			free(portal_subs);
 			return 1;
 		}
 		num_parms_buf.buf_addr[num_parms_buf.len_used] = '\0';
 		result = strtol(num_parms_buf.buf_addr, NULL, 10);
-		YDB_FREE_BUFFER(&num_parms_buf);
 		if ((ERANGE != errno) && (0 <= result) && (INT16_MAX >= result)) {
 			num_parms = (int16_t)result;
 		} else {
 			ERROR(ERR_LIBCALL, "strtol")
-			YDB_FREE_BUFFER(&routine_buffer);
-			free(portal_subs);
 			return 1;
 		}
 
 		// Create a new cursor
-		YDB_MALLOC_BUFFER(&cursor_buffer, MAX_STR_CONST);
+		OCTO_SET_BUFFER(cursor_buffer, cursor_str);
 		YDB_STRING_TO_BUFFER(config->global_names.schema, &schema_global);
 		*cursorId = create_cursor(&schema_global, &cursor_buffer);
 
-		cursor_subs = make_buffers(config->global_names.cursor, 3, cursor_buffer.buf_addr, OCTOLIT_PARAMETERS, "");
-		YDB_MALLOC_BUFFER(&cursor_subs[3], INT16_TO_STRING_MAX);
-		YDB_MALLOC_BUFFER(&portal_subs[6], INT16_TO_STRING_MAX);
-		YDB_MALLOC_BUFFER(&parm_buf, MAX_STR_CONST);
+		YDB_STRING_TO_BUFFER(config->global_names.cursor, &cursor_subs[0]);
+		YDB_STRING_TO_BUFFER(cursor_buffer.buf_addr, &cursor_subs[1]);
+		YDB_STRING_TO_BUFFER(OCTOLIT_PARAMETERS, &cursor_subs[2]);
+		YDB_STRING_TO_BUFFER(OCTOLIT_PARAMETERS, &portal_subs[4]);
+		YDB_STRING_TO_BUFFER(OCTOLIT_ALL, &portal_subs[5]);
+		OCTO_SET_BUFFER(cursor_subs[3], cur_parm_str);
+		OCTO_SET_BUFFER(portal_subs[6], cur_parm_str);
+		YDB_MALLOC_BUFFER(&parm_buf, OCTO_INIT_BUFFER_LEN);
 		for (cur_parm = 0; cur_parm < num_parms; cur_parm++) {
 			// Get parameter value
 			cur_parm_temp = cur_parm + 1;
+			// This takes care of cursor_subs[3] as well as these buffers share the same buf_addr
 			OCTO_INT16_TO_BUFFER(cur_parm_temp, &portal_subs[6]); // Convert from 0-indexed to 1-indexed
 			status = ydb_get_s(&portal_subs[0], 6, &portal_subs[1], &parm_buf);
+			if (YDB_ERR_INVSTRLEN == status) {
+				EXPAND_YDB_BUFFER_T_ALLOCATION(parm_buf);
+				status = ydb_get_s(&portal_subs[0], 6, &portal_subs[1], &parm_buf);
+				assert(YDB_ERR_INVSTRLEN != status);
+			}
 			YDB_ERROR_CHECK(status);
 			if (YDB_OK != status) {
 				// Only cleanup tree after one or more parameters is set
@@ -147,11 +139,7 @@ int32_t handle_execute(Execute *execute, RoctoSession *session, ydb_long_t *curs
 					status = ydb_delete_s(&cursor_subs[0], 1, &cursor_subs[1], YDB_DEL_TREE);
 					YDB_ERROR_CHECK(status);
 				}
-				YDB_FREE_BUFFER(&portal_subs[6]);
-				YDB_FREE_BUFFER(&cursor_subs[3]);
 				YDB_FREE_BUFFER(&parm_buf);
-				free(portal_subs);
-				free(cursor_subs);
 				return 1;
 			}
 			parm_buf.buf_addr[parm_buf.len_used] = '\0';
@@ -165,17 +153,11 @@ int32_t handle_execute(Execute *execute, RoctoSession *session, ydb_long_t *curs
 					status = ydb_delete_s(&cursor_subs[0], 1, &cursor_subs[1], YDB_DEL_TREE);
 					YDB_ERROR_CHECK(status);
 				}
-				YDB_FREE_BUFFER(&portal_subs[6]);
-				YDB_FREE_BUFFER(&cursor_subs[3]);
 				YDB_FREE_BUFFER(&parm_buf);
-				free(portal_subs);
-				free(cursor_subs);
 				return 1;
 			}
 		}
-		YDB_FREE_BUFFER(&portal_subs[6]);
 		YDB_FREE_BUFFER(&parm_buf);
-		free(portal_subs);
 
 		// Prepare call-in interface to execute query
 		stmt.type
@@ -187,15 +169,11 @@ int32_t handle_execute(Execute *execute, RoctoSession *session, ydb_long_t *curs
 		// Run the target routine
 		// cursorId is typecast here since the YottaDB call-in interface does not yet support 64-bit parameters
 		status = ydb_ci("_ydboctoselect", *cursorId, &ci_filename, &ci_routine);
-		YDB_FREE_BUFFER(&routine_buffer);
 		YDB_ERROR_CHECK(status);
 		if (YDB_OK != status) {
 			// Cleanup cursor parameters
 			status = ydb_delete_s(&cursor_subs[0], 1, &cursor_subs[1], YDB_DEL_TREE);
 			YDB_ERROR_CHECK(status);
-			YDB_FREE_BUFFER(&cursor_subs[3]);
-			YDB_FREE_BUFFER(&cursor_buffer);
-			free(cursor_subs);
 			return 1;
 		}
 		// Check for cancel requests
@@ -205,9 +183,6 @@ int32_t handle_execute(Execute *execute, RoctoSession *session, ydb_long_t *curs
 				// Cleanup cursor parameters
 				status = ydb_delete_s(&cursor_subs[0], 1, &cursor_subs[1], YDB_DEL_TREE);
 				YDB_ERROR_CHECK(status);
-				YDB_FREE_BUFFER(&cursor_subs[3]);
-				YDB_FREE_BUFFER(&cursor_buffer);
-				free(cursor_subs);
 				return -1;
 			}
 		}
@@ -220,9 +195,6 @@ int32_t handle_execute(Execute *execute, RoctoSession *session, ydb_long_t *curs
 			// Cleanup cursor parameters
 			status = ydb_delete_s(&cursor_subs[0], 1, &cursor_subs[1], YDB_DEL_TREE);
 			YDB_ERROR_CHECK(status);
-			YDB_FREE_BUFFER(&cursor_subs[3]);
-			YDB_FREE_BUFFER(&cursor_buffer);
-			free(cursor_subs);
 			if (YDB_OK != status)
 				return 1;
 			else
@@ -234,7 +206,6 @@ int32_t handle_execute(Execute *execute, RoctoSession *session, ydb_long_t *curs
 		status = send_result_rows(*cursorId, &parms, filename);
 	} else {
 		parms.data_sent = FALSE;
-		free(portal_subs);
 	}
 
 	if (0 == status) { // No errors, all rows sent

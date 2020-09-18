@@ -57,10 +57,11 @@ int main(int argc, char **argv) {
 	SSLRequest *		   ssl_request;
 	StartupMessage *	   startup_message;
 	StartupMessageParm	   message_parm;
-	char			   buffer[MAX_STR_CONST];
+	char *			   buffer;
 	char			   host_buf[NI_MAXHOST], serv_buf[NI_MAXSERV];
-	int			   cur_parm = 0;
-	int			   sfd, cfd, opt, status = 0;
+	int32_t			   buffer_size = OCTO_INIT_BUFFER_LEN;
+	int32_t			   cur_parm = 0;
+	int32_t			   sfd, cfd, opt, status = 0;
 	int64_t			   mem_usage;
 	pid_t			   child_id = 0;
 	struct sigaction	   ctrlc_action;
@@ -195,6 +196,7 @@ int main(int argc, char **argv) {
 	tls_context = INVALID_TLS_CONTEXT;
 #endif
 	ssl_request = NULL;
+	buffer = (char *)malloc(sizeof(char) * buffer_size);
 	while (!rocto_session.session_ending) {
 		if ((cfd = accept(sfd, (struct sockaddr *)&address, &addrlen)) < 0) {
 			if (rocto_session.session_ending) {
@@ -280,7 +282,7 @@ int main(int argc, char **argv) {
 		}
 		// Establish the connection first
 		rocto_session.session_id = NULL;
-		read_bytes(&rocto_session, buffer, MAX_STR_CONST, sizeof(int) * 2);
+		read_bytes(&rocto_session, &buffer, &buffer_size, sizeof(int) * 2, TRUE);
 
 		// Attempt TLS connection, if configured
 		ssl_request = read_ssl_request(&rocto_session, buffer, sizeof(int) * 2);
@@ -341,12 +343,12 @@ int main(int argc, char **argv) {
 			} while ((GTMTLS_WANT_READ == status) || (GTMTLS_WANT_WRITE == status));
 			rocto_session.tls_socket = tls_socket;
 			rocto_session.ssl_active = TRUE;
-			read_bytes(&rocto_session, buffer, MAX_STR_CONST, sizeof(int) * 2);
+			read_bytes(&rocto_session, &buffer, &buffer_size, sizeof(int) * 2, TRUE);
 #endif
 			// Attempt unencrypted connection if SSL is disabled
 		} else if ((NULL != ssl_request) && !config->rocto_config.ssl_on) {
 			status = send_bytes(&rocto_session, "N", sizeof(char));
-			read_bytes(&rocto_session, buffer, MAX_STR_CONST, sizeof(int) * 2);
+			read_bytes(&rocto_session, &buffer, &buffer_size, sizeof(int) * 2, TRUE);
 		} else if ((NULL == ssl_request) && config->rocto_config.ssl_required) {
 			// Do not continue if TLS/SSL is required, but not requested by the client
 			rocto_session.sending_message = FALSE; // Must enable message sending for client to be notified
@@ -355,7 +357,7 @@ int main(int argc, char **argv) {
 		}
 
 		// Check for CancelRequest and handle if so
-		cancel_request = read_cancel_request(&rocto_session, buffer);
+		cancel_request = read_cancel_request(&rocto_session, buffer, buffer_size);
 		if (NULL != cancel_request) {
 			LOG_LOCAL_ONLY(INFO, ERR_ROCTO_QUERY_CANCELED, "");
 			handle_cancel_request(cancel_request);
@@ -375,7 +377,7 @@ int main(int argc, char **argv) {
 		status = ydb_set_s(&secret_key_list_buffer, 1, pid_buffer, &secret_key_buffer);
 		YDB_ERROR_CHECK(status);
 
-		startup_message = read_startup_message(&rocto_session, buffer, sizeof(int) * 2);
+		startup_message = read_startup_message(&rocto_session, &buffer, &buffer_size);
 		if (NULL == startup_message) {
 			break;
 		}
@@ -394,7 +396,7 @@ int main(int argc, char **argv) {
 
 		// This next message is the user sending the password
 		int rocto_err = 0;
-		base_message = read_message(&rocto_session, buffer, MAX_STR_CONST, &rocto_err);
+		base_message = read_message(&rocto_session, &buffer, &buffer_size, &rocto_err);
 		if (NULL == base_message) {
 			if (-2 != rocto_err) {
 				ERROR(ERR_ROCTO_READ_FAILED, "failed to read MD5 password");
@@ -429,7 +431,7 @@ int main(int argc, char **argv) {
 		// Enter the main loop
 		session_id_buffer = &(ydb_buffers[1]);
 		YDB_STRING_TO_BUFFER(config->global_names.session, session_buffer);
-		YDB_MALLOC_BUFFER(session_id_buffer, MAX_STR_CONST);
+		YDB_MALLOC_BUFFER(session_id_buffer, INT64_TO_STRING_MAX);
 		status = ydb_incr_s(session_buffer, 0, NULL, NULL, session_id_buffer);
 		YDB_ERROR_CHECK(status);
 		if (YDB_OK != status) {
@@ -441,12 +443,18 @@ int main(int argc, char **argv) {
 
 		// Populate default parameters
 		var_defaults = make_buffers(config->global_names.octo, 2, OCTOLIT_VARIABLES, "");
-		YDB_MALLOC_BUFFER(&var_defaults[2], MAX_STR_CONST);
-		YDB_MALLOC_BUFFER(&var_value, MAX_STR_CONST);
+		YDB_MALLOC_BUFFER(&var_defaults[2], OCTO_INIT_BUFFER_LEN);
+		YDB_MALLOC_BUFFER(&var_value, OCTO_INIT_BUFFER_LEN);
 		var_sets = make_buffers(config->global_names.session, 3, rocto_session.session_id->buf_addr, OCTOLIT_VARIABLES, "");
 		var_sets[3] = var_defaults[2];
 		do {
 			status = ydb_subscript_next_s(&var_defaults[0], 2, &var_defaults[1], &var_defaults[2]);
+			if (YDB_ERR_INVSTRLEN == status) {
+				EXPAND_YDB_BUFFER_T_ALLOCATION(var_defaults[2]);
+				status = ydb_subscript_next_s(&var_defaults[0], 2, &var_defaults[1], &var_defaults[2]);
+				assert(YDB_ERR_INVSTRLEN != status);
+				var_sets[3] = var_defaults[2]; // Update var_sets subscript buffer with new allocation
+			}
 			if (YDB_ERR_NODEEND == status) {
 				status = YDB_OK;
 				break;
@@ -454,6 +462,11 @@ int main(int argc, char **argv) {
 			if (0 != status)
 				break;
 			status = ydb_get_s(&var_defaults[0], 2, &var_defaults[1], &var_value);
+			if (YDB_ERR_INVSTRLEN == status) {
+				EXPAND_YDB_BUFFER_T_ALLOCATION(var_value);
+				status = ydb_get_s(&var_defaults[0], 2, &var_defaults[1], &var_value);
+				assert(YDB_ERR_INVSTRLEN != status);
+			}
 			if (0 != status)
 				break;
 			var_sets[3] = var_defaults[2];
@@ -488,6 +501,12 @@ int main(int argc, char **argv) {
 		var_sets[3].len_used = 0;
 		do {
 			status = ydb_subscript_next_s(&var_sets[0], 3, &var_sets[1], &var_sets[3]);
+			if (YDB_ERR_INVSTRLEN == status) {
+				EXPAND_YDB_BUFFER_T_ALLOCATION(var_sets[3]);
+				status = ydb_subscript_next_s(&var_sets[0], 3, &var_sets[1], &var_sets[3]);
+				assert(YDB_ERR_INVSTRLEN != status);
+				var_defaults[2] = var_sets[3]; // Update var_defaults subscript buffer with new allocation
+			}
 			if (YDB_ERR_NODEEND == status) {
 				status = YDB_OK;
 				break;
@@ -497,6 +516,11 @@ int main(int argc, char **argv) {
 				break;
 			var_sets[3].buf_addr[var_sets[3].len_used] = '\0';
 			status = ydb_get_s(&var_sets[0], 3, &var_sets[1], &var_value);
+			if (YDB_ERR_INVSTRLEN == status) {
+				EXPAND_YDB_BUFFER_T_ALLOCATION(var_value);
+				status = ydb_get_s(&var_sets[0], 3, &var_sets[1], &var_value);
+				assert(YDB_ERR_INVSTRLEN != status);
+			}
 			YDB_ERROR_CHECK(status);
 			if (0 != status)
 				break;
@@ -571,5 +595,6 @@ int main(int argc, char **argv) {
 	}
 
 	CLEANUP_CONFIG(config->config_file);
+	free(buffer);
 	return status;
 }

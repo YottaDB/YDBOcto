@@ -30,9 +30,9 @@ int emit_physical_plan(PhysicalPlan *pplan, char *plan_filename) {
 	int		plan_id, len, fd, buffer_len, buffer_index, status;
 	PhysicalPlan *	cur_plan = pplan, *first_plan, xrefplan, nondeferredplan, deferredplan, *tmp_plan;
 	PhysicalPlan *	prev_plan, *next_plan;
-	char *		buffer, plan_name_buffer[MAX_STR_CONST];
+	char *		buffer, plan_name_buffer[MAX_PLAN_NAME_LEN];
 	char		filename[OCTO_PATH_MAX], objfilename[OCTO_PATH_MAX];
-	char		rtnname[MAX_ROUTINE_LEN + 1];
+	char		rtnname[MAX_ROUTINE_LEN + 1]; // Null terminator
 	char *		trigger_name, *tableName, *columnName;
 	char *		tmp_plan_filename = NULL;
 	unsigned int	plan_filename_len;
@@ -116,7 +116,7 @@ int emit_physical_plan(PhysicalPlan *pplan, char *plan_filename) {
 		tableName = value->v.reference;
 		UNPACK_SQL_STATEMENT(value, key->column->columnName, value);
 		columnName = value->v.reference;
-		len = snprintf(plan_name_buffer, MAX_STR_CONST, "xrefPlan%d", plan_id);
+		len = snprintf(plan_name_buffer, MAX_PLAN_NAME_LEN, "%s%d", XREFPLAN_LIT, plan_id);
 		cur_plan->plan_name = octo_cmalloc(memory_chunks, len + 1);
 		memcpy(cur_plan->plan_name, plan_name_buffer, len);
 		cur_plan->plan_name[len] = '\0';
@@ -216,7 +216,7 @@ int emit_physical_plan(PhysicalPlan *pplan, char *plan_filename) {
 		 * we will emit only one physical plan. So generate plan name only for the first of the duplicates.
 		 */
 		if (PRIMARY_PHYSICAL_PLAN(cur_plan) == cur_plan) {
-			len = snprintf(plan_name_buffer, MAX_STR_CONST, "octoPlan%d", plan_id);
+			len = snprintf(plan_name_buffer, MAX_PLAN_NAME_LEN, "%s%d", OCTOPLAN_LIT, plan_id);
 			cur_plan->plan_name = octo_cmalloc(memory_chunks, len + 1);
 			memcpy(cur_plan->plan_name, plan_name_buffer, len);
 			cur_plan->plan_name[len] = '\0';
@@ -240,14 +240,30 @@ int emit_physical_plan(PhysicalPlan *pplan, char *plan_filename) {
 	// input_buffer_combined would contain '\n'; Ensure after every newline, an M comment is printed for the next line of the
 	// SQL query
 	for (linestart = input_buffer_combined + old_input_index;;) {
+		int linelen;
+
 		lineend = strchr(linestart, '\n');
+		if ((NULL == lineend) && config->is_rocto) {
+			// Clients, notably the JDBC driver, may omit newlines, so look for a null terminator instead
+			lineend = strchr(linestart, '\0');
+		}
 		/* cur_input_index marks the start of the next query do not print past it
 		 * if it is null then there is no \n in the rest of the string so also set lineend to cur_input_index
 		 */
 		if ((NULL == lineend) || (lineend > (input_buffer_combined + cur_input_index)))
 			lineend = input_buffer_combined + cur_input_index;
 		assert(NULL != lineend);
-		fprintf(output_file, ";  %.*s\n", (int)(lineend - linestart), linestart);
+		linelen = lineend - linestart;
+		if (M_LINE_MAX < linelen) {
+			/* Truncate the query string if it exceeds the maximum M line length and insert ellipsis to indicate
+			 * truncation has occurred. Include room for comment syntax, spaces, and ellipsis, so subtract 7 from the
+			 * length of the format argument to be printed:
+			 *	";  " (3) + "..." (3) + "\n" (2) = 7 characters
+			 */
+			fprintf(output_file, ";  %.*s\n", (int)(M_LINE_MAX - 7), linestart);
+		} else {
+			fprintf(output_file, ";  %.*s\n", (int)(linelen), linestart);
+		}
 		linestart = lineend + 1; /* + 1 to skip past matching '\n' to go to next line to print */
 		/* if we hit cur_input_index stop looping */
 		if (lineend == (input_buffer_combined + cur_input_index))

@@ -1,0 +1,10 @@
+protocol: useextended
+-------------------------------------------------------------------------
+ --> Running query : SELECT id, 0, 1, 2, ..., 32765 FROM names WHERE firstname = firstname ...; <--
+-------------------------------------------------------------------------
+SQL State: 08P01
+ERROR: Query length 1048577 exceeded maximum size (1048576)
+protocol: useextended
+-------------------------------------------------------------------------
+ --> Running query : SELECT id, 0, 1, 2, ..., 31775 FROM names WHERE firstname = firstname ...; <--
+-------------------------------------------------------------------------

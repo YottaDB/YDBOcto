@@ -59,11 +59,11 @@ char *byte_to_hex(char c, char *hex) {
 
 // Convert raw MD5 hash to hex string
 int32_t md5_to_hex(const unsigned char *md5_hash, char *hex, uint32_t hex_len) {
-	if (hex_len < 33) { // Length of 16-byte md5 in hex, plus null terminator
+	if (hex_len < MD5_HEX_LEN) {
 		return 1;
 	}
 	int32_t i, j;
-	for (i = 0, j = 0; i < 16; i++, j += 2) { // MD5 hash length == 16
+	for (i = 0, j = 0; i < MD5_DIGEST_LENGTH; i++, j += 2) { // MD5 digest length == 16
 		byte_to_hex(md5_hash[i], &hex[j]);
 	}
 	hex[j] = '\0';

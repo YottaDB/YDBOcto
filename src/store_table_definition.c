@@ -20,45 +20,58 @@
 		}                                            \
 	}
 
-/* Store the binary representation of the CREATE TABLE statement in one or more of the following nodes
+/* Store the binary or text representation of the CREATE TABLE statement in one or more of the following nodes
  *	^%ydboctoschema(table_name,OCTOLIT_BINARY,0)
  *	^%ydboctoschema(table_name,OCTOLIT_BINARY,1)
  *	^%ydboctoschema(table_name,OCTOLIT_BINARY,2)
  *	...
- * Each node can store up to MAX_BINARY_DEFINITION_FRAGMENT_SIZE bytes.
+ * OR:
+ *	^%ydboctoschema(table_name,OCTOLIT_TEXT,0)
+ *	^%ydboctoschema(table_name,OCTOLIT_TEXT,1)
+ *	^%ydboctoschema(table_name,OCTOLIT_TEXT,2)
+ *	...
+ * Each node can store up to MAX_DEFINITION_FRAGMENT_SIZE bytes.
  * Returns
  *	YDB_OK on success.
  *	YDB_ERR_* on failure.
  * Note: The below logic is very similar to "src/store_binary_function_definition.c".
  */
-int store_binary_table_definition(ydb_buffer_t *table_name_buff, char *binary_table_defn, int binary_table_defn_length) {
-	ydb_buffer_t table_binary_buffer, schema_global, table_name_buffers[3], *sub_buffer;
+int store_table_definition(ydb_buffer_t *table_name_buff, char *table_defn, int table_defn_length, boolean_t is_text) {
+	ydb_buffer_t table_buffer, schema_global, table_name_buffers[3], *sub_buffer;
 	int	     i, cur_length, status;
 
 	YDB_STRING_TO_BUFFER(config->global_names.schema, &schema_global);
-	table_binary_buffer.len_alloc = MAX_BINARY_DEFINITION_FRAGMENT_SIZE;
+	table_buffer.len_alloc = MAX_DEFINITION_FRAGMENT_SIZE;
 	table_name_buffers[0] = *table_name_buff;
-	YDB_STRING_TO_BUFFER(OCTOLIT_BINARY, &table_name_buffers[1]);
+	if (is_text) {
+		YDB_STRING_TO_BUFFER(OCTOLIT_TEXT, &table_name_buffers[1]);
+	} else {
+		YDB_STRING_TO_BUFFER(OCTOLIT_BINARY, &table_name_buffers[1]);
+	}
 	sub_buffer = &table_name_buffers[2];
-	YDB_MALLOC_BUFFER(sub_buffer, MAX_BINARY_DEFINITION_FRAGMENT_SIZE);
+	YDB_MALLOC_BUFFER(sub_buffer, MAX_DEFINITION_FRAGMENT_SIZE);
 	i = 0;
 	cur_length = 0;
-	while (cur_length < binary_table_defn_length) {
+	while (cur_length < table_defn_length) {
 		sub_buffer->len_used = snprintf(sub_buffer->buf_addr, sub_buffer->len_alloc, "%d", i);
-		table_binary_buffer.buf_addr = &binary_table_defn[cur_length];
-		if (MAX_BINARY_DEFINITION_FRAGMENT_SIZE < (binary_table_defn_length - cur_length)) {
-			table_binary_buffer.len_used = MAX_BINARY_DEFINITION_FRAGMENT_SIZE;
+		table_buffer.buf_addr = &table_defn[cur_length];
+		if (MAX_DEFINITION_FRAGMENT_SIZE < (table_defn_length - cur_length)) {
+			table_buffer.len_used = MAX_DEFINITION_FRAGMENT_SIZE;
 		} else {
-			table_binary_buffer.len_used = binary_table_defn_length - cur_length;
+			table_buffer.len_used = table_defn_length - cur_length;
 		}
-		status = ydb_set_s(&schema_global, 3, table_name_buffers, &table_binary_buffer);
+		status = ydb_set_s(&schema_global, 3, table_name_buffers, &table_buffer);
 		CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, sub_buffer);
-		cur_length += MAX_BINARY_DEFINITION_FRAGMENT_SIZE;
+		cur_length += MAX_DEFINITION_FRAGMENT_SIZE;
 		i++;
 	}
-	YDB_STRING_TO_BUFFER(OCTOLIT_LENGTH, &table_name_buffers[1]);
+	if (is_text) {
+		YDB_STRING_TO_BUFFER(OCTOLIT_TEXT_LENGTH, &table_name_buffers[1]);
+	} else {
+		YDB_STRING_TO_BUFFER(OCTOLIT_LENGTH, &table_name_buffers[1]);
+	}
 	// Use sub_buffer as a temporary buffer below
-	sub_buffer->len_used = snprintf(sub_buffer->buf_addr, sub_buffer->len_alloc, "%d", binary_table_defn_length);
+	sub_buffer->len_used = snprintf(sub_buffer->buf_addr, sub_buffer->len_alloc, "%d", table_defn_length);
 	status = ydb_set_s(&schema_global, 2, table_name_buffers, sub_buffer);
 	CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, sub_buffer);
 	YDB_FREE_BUFFER(sub_buffer);

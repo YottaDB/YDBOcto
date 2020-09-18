@@ -30,21 +30,27 @@
 		fprintf(stderr, "\n"); /* formatting */ \
 	}
 
-#define SNPRINTF_ERR_BUFF(...)                                                                 \
-	do {                                                                                   \
-		written = snprintf(err_ptr, err_out_len - (err_ptr - err_out), ##__VA_ARGS__); \
-		if (written < (err_out_len - (err_ptr - err_out))) {                           \
-			err_ptr += written;                                                    \
-			break;                                                                 \
-		} else {                                                                       \
-			err_out_len *= 2;                                                      \
-			char *tmp = malloc(err_out_len);                                       \
-			memcpy(tmp, err_out, err_ptr - err_out);                               \
-			err_ptr = tmp + (err_ptr - err_out);                                   \
-			free(err_out);                                                         \
-			err_out = tmp;                                                         \
-		}                                                                              \
-	} while (TRUE);
+#define SNPRINTF_ERR_BUFF(ERR_PTR, ERR_OUT_LEN, ERR_OUT, ...)                                          \
+	{                                                                                              \
+		int written;                                                                           \
+                                                                                                       \
+		do {                                                                                   \
+			written = snprintf(ERR_PTR, ERR_OUT_LEN - (ERR_PTR - ERR_OUT), ##__VA_ARGS__); \
+			if (written < (ERR_OUT_LEN - (ERR_PTR - ERR_OUT))) {                           \
+				ERR_PTR += written;                                                    \
+				break;                                                                 \
+			} else {                                                                       \
+				char *tmp;                                                             \
+                                                                                                       \
+				ERR_OUT_LEN *= 2;                                                      \
+				tmp = (char *)malloc(sizeof(char) * ERR_OUT_LEN);                      \
+				memcpy(tmp, ERR_OUT, ERR_PTR - ERR_OUT);                               \
+				ERR_PTR = tmp + (ERR_PTR - ERR_OUT);                                   \
+				free(ERR_OUT);                                                         \
+				ERR_OUT = tmp;                                                         \
+			}                                                                              \
+		} while (TRUE);                                                                        \
+	}
 
 void print_yyloc(YYLTYPE *llocp); /* A helper function internal to this file */
 
@@ -100,7 +106,7 @@ void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, int *plan_id, Pa
 
 void print_yyloc(YYLTYPE *llocp) {
 	// llocp is 0 based
-	int   cur_line = 0, cur_column = 0, offset = old_input_index, err_out_len = MAX_STR_CONST, written;
+	int   cur_line = 0, cur_column = 0, offset = old_input_index, err_out_len = YDB_MAX_ERRORMSG + 1;
 	char *c, *line_begin = input_buffer_combined, *line_end, *issue_line, old_terminator;
 	char *err_out, *err_ptr;
 
@@ -164,13 +170,13 @@ void print_yyloc(YYLTYPE *llocp) {
 	for (; ('\0' != *c) && (cur_column < offset + llocp->first_column); c++, cur_column++) {
 
 		if ('\t' == *c) {
-			SNPRINTF_ERR_BUFF("\t");
+			SNPRINTF_ERR_BUFF(err_ptr, err_out_len, err_out, "\t");
 		} else {
-			SNPRINTF_ERR_BUFF(" ");
+			SNPRINTF_ERR_BUFF(err_ptr, err_out_len, err_out, " ");
 		}
 	}
 	for (; ('\0' != *c) && (cur_column < offset + llocp->last_column); c++, cur_column++) {
-		SNPRINTF_ERR_BUFF("^");
+		SNPRINTF_ERR_BUFF(err_ptr, err_out_len, err_out, "^");
 	}
 	PRINT_YYERROR("%s", err_out);
 	free(err_out);

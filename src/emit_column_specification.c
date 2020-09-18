@@ -17,51 +17,77 @@
 #include "octo.h"
 #include "octo_types.h"
 
-int emit_column_specification(char *buffer, int buffer_size, SqlColumn *cur_column) {
+#define INVOKE_SNPRINTF_AND_EXPAND_BUFFER_IF_NEEDED(BUFFER, BUFFER_SIZE, BUFF_PTR, ...)                           \
+	{                                                                                                         \
+		int index;                                                                                        \
+                                                                                                                  \
+		index = BUFF_PTR - *BUFFER; /* Save current index into buffer to apply after resize, if needed */ \
+		assert((0 <= index) && (*BUFFER_SIZE >= index));                                                  \
+		/* Attempt to print value into buffer. If it won't fit, expand buffer and try again */            \
+		BUFF_PTR += snprintf(BUFF_PTR, *BUFFER_SIZE - index, ##__VA_ARGS__);                              \
+		while (0 >= (*BUFFER_SIZE - (BUFF_PTR - *BUFFER))) {                                              \
+			char *tmp;                                                                                \
+			int   new_size;                                                                           \
+                                                                                                                  \
+			new_size = *BUFFER_SIZE * 2;                                                              \
+			tmp = (char *)malloc(sizeof(char) * new_size);                                            \
+			memcpy(tmp, *BUFFER, *BUFFER_SIZE);                                                       \
+			free(*BUFFER);                                                                            \
+			*BUFFER = tmp;                                                                            \
+			*BUFFER_SIZE = new_size;                                                                  \
+			assert((0 <= index) && (*BUFFER_SIZE >= index));                                          \
+			BUFF_PTR = *BUFFER + index;                                                               \
+			BUFF_PTR += snprintf(BUFF_PTR, *BUFFER_SIZE - index, ##__VA_ARGS__);                      \
+		}                                                                                                 \
+	}
+
+int emit_column_specification(char **buffer, int *buffer_size, SqlColumn *cur_column) {
 	SqlValue *	    value;
 	SqlOptionalKeyword *cur_keyword, *start_keyword;
 	char		    ch, *delim;
-	char *		    buff_ptr = buffer;
-	char		    buffer2[MAX_STR_CONST];
+	char *		    buff_ptr = *buffer;
+	char *		    buffer2;
+	int		    buffer2_size;
+
 	DEBUG_ONLY(boolean_t piece_seen = FALSE);
 	DEBUG_ONLY(boolean_t empty_delim_seen = FALSE);
 
 	UNPACK_SQL_STATEMENT(value, cur_column->columnName, value);
-	buff_ptr += snprintf(buff_ptr, buffer_size - (buff_ptr - buffer), "`%s`", value->v.reference);
+	INVOKE_SNPRINTF_AND_EXPAND_BUFFER_IF_NEEDED(buffer, buffer_size, buff_ptr, "`%s`", value->v.reference);
 	switch (cur_column->data_type_struct.data_type) {
 	case BOOLEAN_TYPE:
 		/* For BOOLEAN, neither PRECISION nor SCALE apply. Assert that. */
 		assert(SIZE_OR_PRECISION_UNSPECIFIED == cur_column->data_type_struct.size_or_precision);
 		assert(SCALE_UNSPECIFIED == cur_column->data_type_struct.scale);
-		buff_ptr += snprintf(buff_ptr, buffer_size - (buff_ptr - buffer), " BOOLEAN");
+		INVOKE_SNPRINTF_AND_EXPAND_BUFFER_IF_NEEDED(buffer, buffer_size, buff_ptr, " BOOLEAN");
 		break;
 	case INTEGER_TYPE:
 		/* For INTEGER, only PRECISION may apply. Assert that. */
 		assert(SCALE_UNSPECIFIED == cur_column->data_type_struct.scale);
-		buff_ptr += snprintf(buff_ptr, buffer_size - (buff_ptr - buffer), " INTEGER");
+		INVOKE_SNPRINTF_AND_EXPAND_BUFFER_IF_NEEDED(buffer, buffer_size, buff_ptr, " INTEGER");
 		if (SIZE_OR_PRECISION_UNSPECIFIED != cur_column->data_type_struct.size_or_precision) {
 			/* SIZE was specified (e.g. INTEGER(8)). In that case, write out the "8" here */
-			buff_ptr += snprintf(buff_ptr, buffer_size - (buff_ptr - buffer), "(%d)",
-					     cur_column->data_type_struct.size_or_precision);
+			INVOKE_SNPRINTF_AND_EXPAND_BUFFER_IF_NEEDED(buffer, buffer_size, buff_ptr, "(%d)",
+								    cur_column->data_type_struct.size_or_precision);
 		}
 		break;
 	case NUMERIC_TYPE:
 		/* For NUMERIC, both PRECISION and SCALE may apply. Check both. */
-		buff_ptr += snprintf(buff_ptr, buffer_size - (buff_ptr - buffer), " NUMERIC");
+		INVOKE_SNPRINTF_AND_EXPAND_BUFFER_IF_NEEDED(buffer, buffer_size, buff_ptr, " NUMERIC");
 		if (SIZE_OR_PRECISION_UNSPECIFIED != cur_column->data_type_struct.size_or_precision) {
 			if (SCALE_UNSPECIFIED != cur_column->data_type_struct.scale) {
 				/* PRECISION and SCALE were both specified (e.g. NUMERIC(8,4)).
 				 * In that case, write out the "(8,4)" here.
 				 */
-				buff_ptr
-				    += snprintf(buff_ptr, buffer_size - (buff_ptr - buffer), "(%d,%d)",
-						cur_column->data_type_struct.size_or_precision, cur_column->data_type_struct.scale);
+				INVOKE_SNPRINTF_AND_EXPAND_BUFFER_IF_NEEDED(buffer, buffer_size, buff_ptr, "(%d,%d)",
+									    cur_column->data_type_struct.size_or_precision,
+									    cur_column->data_type_struct.scale);
 			} else {
 				/* Only PRECISION was specified (e.g. NUMERIC(8)).
 				 * In that case, write out the "(8)" here.
 				 */
-				buff_ptr += snprintf(buff_ptr, buffer_size - (buff_ptr - buffer), "(%d)",
-						     cur_column->data_type_struct.size_or_precision);
+				INVOKE_SNPRINTF_AND_EXPAND_BUFFER_IF_NEEDED(buffer, buffer_size, buff_ptr, "(%d)",
+									    cur_column->data_type_struct.size_or_precision);
 			}
 		} else {
 			assert(SCALE_UNSPECIFIED == cur_column->data_type_struct.scale);
@@ -71,11 +97,11 @@ int emit_column_specification(char *buffer, int buffer_size, SqlColumn *cur_colu
 	case STRING_TYPE:
 		/* For STRING, only SIZE may apply. Assert that. */
 		assert(SCALE_UNSPECIFIED == cur_column->data_type_struct.scale);
-		buff_ptr += snprintf(buff_ptr, buffer_size - (buff_ptr - buffer), " VARCHAR");
+		INVOKE_SNPRINTF_AND_EXPAND_BUFFER_IF_NEEDED(buffer, buffer_size, buff_ptr, " VARCHAR");
 		if (SIZE_OR_PRECISION_UNSPECIFIED != cur_column->data_type_struct.size_or_precision) {
 			/* SIZE was specified (e.g. VARCHAR(30)). In that case, write out the "30" here */
-			buff_ptr += snprintf(buff_ptr, buffer_size - (buff_ptr - buffer), "(%d)",
-					     cur_column->data_type_struct.size_or_precision);
+			INVOKE_SNPRINTF_AND_EXPAND_BUFFER_IF_NEEDED(buffer, buffer_size, buff_ptr, "(%d)",
+								    cur_column->data_type_struct.size_or_precision);
 		}
 		break;
 	default:
@@ -86,33 +112,35 @@ int emit_column_specification(char *buffer, int buffer_size, SqlColumn *cur_colu
 	}
 	UNPACK_SQL_STATEMENT(start_keyword, cur_column->keywords, keyword);
 	cur_keyword = start_keyword;
+	buffer2_size = OCTO_INIT_BUFFER_LEN;
+	buffer2 = (char *)malloc(sizeof(char) * buffer2_size);
 	do {
 		switch (cur_keyword->keyword) {
 		case PRIMARY_KEY:
-			buff_ptr += snprintf(buff_ptr, buffer_size - (buff_ptr - buffer), " PRIMARY KEY");
+			INVOKE_SNPRINTF_AND_EXPAND_BUFFER_IF_NEEDED(buffer, buffer_size, buff_ptr, " PRIMARY KEY");
 			break;
 		case NOT_NULL:
-			buff_ptr += snprintf(buff_ptr, buffer_size - (buff_ptr - buffer), " NOT NULL");
+			INVOKE_SNPRINTF_AND_EXPAND_BUFFER_IF_NEEDED(buffer, buffer_size, buff_ptr, " NOT NULL");
 			break;
 		case UNIQUE_CONSTRAINT:
-			buff_ptr += snprintf(buff_ptr, buffer_size - (buff_ptr - buffer), " UNIQUE");
+			INVOKE_SNPRINTF_AND_EXPAND_BUFFER_IF_NEEDED(buffer, buffer_size, buff_ptr, " UNIQUE");
 			break;
 		case OPTIONAL_EXTRACT:
 			UNPACK_SQL_STATEMENT(value, cur_keyword->v, value);
-			m_escape_string2(buffer2, MAX_STR_CONST, value->v.reference);
-			buff_ptr += snprintf(buff_ptr, buffer_size - (buff_ptr - buffer), " EXTRACT \"%s\"", buffer2);
+			m_escape_string2(&buffer2, &buffer2_size, value->v.reference);
+			INVOKE_SNPRINTF_AND_EXPAND_BUFFER_IF_NEEDED(buffer, buffer_size, buff_ptr, " EXTRACT \"%s\"", buffer2);
 			break;
 		case OPTIONAL_PIECE:
 			DEBUG_ONLY(assert(!empty_delim_seen));
 			DEBUG_ONLY(piece_seen = TRUE);
 			UNPACK_SQL_STATEMENT(value, cur_keyword->v, value);
-			m_escape_string2(buffer2, MAX_STR_CONST, value->v.reference);
-			buff_ptr += snprintf(buff_ptr, buffer_size - (buff_ptr - buffer), " PIECE %s", buffer2);
+			m_escape_string2(&buffer2, &buffer2_size, value->v.reference);
+			INVOKE_SNPRINTF_AND_EXPAND_BUFFER_IF_NEEDED(buffer, buffer_size, buff_ptr, " PIECE %s", buffer2);
 			break;
 		case OPTIONAL_SOURCE:
 			UNPACK_SQL_STATEMENT(value, cur_keyword->v, value);
-			m_escape_string2(buffer2, MAX_STR_CONST, value->v.reference);
-			buff_ptr += snprintf(buff_ptr, buffer_size - (buff_ptr - buffer), " GLOBAL \"%s\"", buffer2);
+			m_escape_string2(&buffer2, &buffer2_size, value->v.reference);
+			INVOKE_SNPRINTF_AND_EXPAND_BUFFER_IF_NEEDED(buffer, buffer_size, buff_ptr, " GLOBAL \"%s\"", buffer2);
 			break;
 		case OPTIONAL_DELIM:
 			UNPACK_SQL_STATEMENT(value, cur_keyword->v, value);
@@ -123,44 +151,47 @@ int emit_column_specification(char *buffer, int buffer_size, SqlColumn *cur_colu
 			if (DELIM_IS_LITERAL == ch) {
 				DEBUG_ONLY(empty_delim_seen = ('\0' == *delim));
 				DEBUG_ONLY(assert(!empty_delim_seen || !piece_seen));
-				m_escape_string2(buffer2, MAX_STR_CONST, delim);
-				buff_ptr += snprintf(buff_ptr, buffer_size - (buff_ptr - buffer), " DELIM \"%s\"", buffer2);
+				m_escape_string2(&buffer2, &buffer2_size, delim);
+				INVOKE_SNPRINTF_AND_EXPAND_BUFFER_IF_NEEDED(buffer, buffer_size, buff_ptr, " DELIM \"%s\"",
+									    buffer2);
 			} else {
 				assert(!MEMCMP_LIT(delim, "$CHAR(")); /* this is added in parser.y */
 				delim += sizeof("$CHAR") - 1;	      /* Skip "$CHAR" */
-				buff_ptr += snprintf(buff_ptr, buffer_size - (buff_ptr - buffer), " DELIM %s", delim);
+				INVOKE_SNPRINTF_AND_EXPAND_BUFFER_IF_NEEDED(buffer, buffer_size, buff_ptr, " DELIM %s", delim);
 			}
 			break;
 		case OPTIONAL_KEY_NUM:
 			UNPACK_SQL_STATEMENT(value, cur_keyword->v, value);
-			m_escape_string2(buffer2, MAX_STR_CONST, value->v.reference);
-			buff_ptr += snprintf(buff_ptr, buffer_size - (buff_ptr - buffer), " KEY NUM %s", buffer2);
+			m_escape_string2(&buffer2, &buffer2_size, value->v.reference);
+			INVOKE_SNPRINTF_AND_EXPAND_BUFFER_IF_NEEDED(buffer, buffer_size, buff_ptr, " KEY NUM %s", buffer2);
 			break;
 		case NO_KEYWORD:
 			break;
 		case OPTIONAL_START:
 			UNPACK_SQL_STATEMENT(value, cur_keyword->v, value);
-			m_escape_string2(buffer2, MAX_STR_CONST, value->v.reference);
-			buff_ptr += snprintf(buff_ptr, buffer_size - (buff_ptr - buffer), " START \"%s\"", buffer2);
+			m_escape_string2(&buffer2, &buffer2_size, value->v.reference);
+			INVOKE_SNPRINTF_AND_EXPAND_BUFFER_IF_NEEDED(buffer, buffer_size, buff_ptr, " START \"%s\"", buffer2);
 			break;
 		case OPTIONAL_STARTINCLUDE:
-			buff_ptr += snprintf(buff_ptr, buffer_size - (buff_ptr - buffer), " STARTINCLUDE");
+			INVOKE_SNPRINTF_AND_EXPAND_BUFFER_IF_NEEDED(buffer, buffer_size, buff_ptr, " STARTINCLUDE");
 			break;
 		case OPTIONAL_END:
 			UNPACK_SQL_STATEMENT(value, cur_keyword->v, value);
-			m_escape_string2(buffer2, MAX_STR_CONST, value->v.reference);
-			buff_ptr += snprintf(buff_ptr, buffer_size - (buff_ptr - buffer), " END \"%s\"", buffer2);
+			m_escape_string2(&buffer2, &buffer2_size, value->v.reference);
+			INVOKE_SNPRINTF_AND_EXPAND_BUFFER_IF_NEEDED(buffer, buffer_size, buff_ptr, " END \"%s\"", buffer2);
 			break;
 		default:
 			ERROR(ERR_UNKNOWN_KEYWORD_STATE, "");
 			assert(FALSE);
+			free(buffer2);
 			return -1;
 			break;
 		}
 		cur_keyword = cur_keyword->next;
 	} while (cur_keyword != start_keyword);
-	assert(buff_ptr - buffer < buffer_size);
+	assert(buff_ptr - *buffer < *buffer_size);
 	*buff_ptr = '\0';
 	// We don't count the null character we added for ease of use
-	return buff_ptr - buffer;
+	free(buffer2);
+	return buff_ptr - *buffer;
 }

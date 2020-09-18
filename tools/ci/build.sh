@@ -513,9 +513,9 @@ else
 	fi
 	cmakeflags="$cmakeflags -DCMAKE_BUILD_TYPE=$build_type -DFULL_TEST_SUITE=$full_test"
 	cmakeflags="$cmakeflags -DDISABLE_INSTALL=$disable_install"
-	# The default value of STRING_BUFFER_LENGTH (aka MAX_STR_CONST inside Octo) is 32KiB. So bump it to a high value
-	# to see if auto upgrade from a Octo environment that ran with 32KiB works fine with the high value.
-	cmakeflags="$cmakeflags -DSTRING_BUFFER_LENGTH=600000"
+	# Randomly select a power of two to use for altering the size of OCTO_INIT_BUFFER_LEN to test for regressions
+	new_buffer_size=$(( 2 ** ($RANDOM % 11) ))
+	sed -i "s/OCTO_INIT_BUFFER_LEN [0-9]*/OCTO_INIT_BUFFER_LEN $new_buffer_size/" ../src/octo.h
 	${cmakeCommand} $cmakeflags ..
 	if [[ $? -ne 0 ]]; then
 		cleanup_before_exit

@@ -1304,7 +1304,7 @@ delim_specification
 	SqlStatement			*char_list_literal;
 	SqlDelimiterCharacterList	*start_delim_char_list, *cur_delim_char_list;
 	char				*c, *temp, *str_lit;
-	int				copied, len_used, len_alloc;
+	int				copied, len_used, len_alloc, num_args;
 
 	SQL_STATEMENT($$, keyword_STATEMENT);
         MALLOC_STATEMENT($$, keyword, SqlOptionalKeyword);
@@ -1324,6 +1324,7 @@ delim_specification
 	len_used += copied;
 	assert(INT16_TO_STRING_MAX > copied);
 	c += copied;
+	num_args = 0;
 	do {
 		/* Expand allocation if there's not enough space for another value.
 		 * Note that it is acceptable here to do a new allocation without freeing the previous one
@@ -1348,7 +1349,13 @@ delim_specification
 			c += copied;
 			len_used += copied;
 		}
+		num_args++;
 	} while (cur_delim_char_list != start_delim_char_list);
+	if (DOLLAR_CHAR_MAX_ARGS < num_args) {
+		ERROR(ERR_TOO_MANY_DELIM_CHARS, num_args, DOLLAR_CHAR_MAX_ARGS);
+		yyerror(&yyloc, NULL, NULL, NULL, NULL, NULL);
+		YYERROR;
+	}
 	copied = snprintf(c, 2, ")");
 	assert(2 > copied);
 	c += copied;
@@ -1464,7 +1471,17 @@ column_definition
   ;
 
 column_name
-  : identifier { $$ = $identifier; }
+  : identifier {
+	size_t ident_len;
+
+	$$ = $identifier;
+	ident_len = strlen(($$)->v.value->v.string_literal);
+	if (OCTO_MAX_IDENT < ident_len) {
+		ERROR(ERR_IDENT_LENGTH, "Identifier", ident_len, OCTO_MAX_IDENT);
+		yyerror(&yyloc, NULL, NULL, NULL, NULL, NULL);
+		YYERROR;
+	}
+  }
   | LITERAL PERIOD LITERAL {
       char	*c, *d;
       SqlValue	*table_name, *column_name;
@@ -1473,7 +1490,17 @@ column_name
       UNPACK_SQL_STATEMENT(table_name, $1, value);
       UNPACK_SQL_STATEMENT(column_name, $3, value);
       table_name_len = strlen(table_name->v.string_literal);
+      if (OCTO_MAX_IDENT < table_name_len) {
+          ERROR(ERR_IDENT_LENGTH, "Table name", table_name_len, OCTO_MAX_IDENT);
+          yyerror(&yyloc, NULL, NULL, NULL, NULL, NULL);
+          YYERROR;
+      }
       column_name_len = strlen(column_name->v.string_literal);
+      if (OCTO_MAX_IDENT < column_name_len) {
+          ERROR(ERR_IDENT_LENGTH, "Column name", column_name_len, OCTO_MAX_IDENT);
+          yyerror(&yyloc, NULL, NULL, NULL, NULL, NULL);
+          YYERROR;
+      }
       // table + column + period + null
       len = table_name_len + column_name_len + 2;
       c = octo_cmalloc(memory_chunks, len);
@@ -1839,7 +1866,7 @@ literal_value
 							TRACE(INFO_MEM_REALLOCATION, "expanded", "parse_context->is_bind_parm");
 						}
 						DOUBLE_ARRAY_ALLOCATION(parse_context->is_bind_parm,
-							parse_context->is_bind_parm_size, boolean_t);
+							parse_context->is_bind_parm_size, boolean_t, INT16_MAX);
 						TRACE(INFO_MEM_REALLOCATION, "doubled", "parse_context->is_bind_parm");
 					}
 					parse_context->is_bind_parm[parse_context->total_parms] = TRUE;

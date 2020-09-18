@@ -296,4 +296,3 @@ OCTO
   load_fixture TERR031.sql subtest novv
   verify_output TERR031 output.txt
 }
-

@@ -18,6 +18,7 @@
 
 #include "config.h"
 #include "memory_chunk.h"
+#include "octo.h"
 
 MemoryChunk *alloc_chunk(size_t size) {
 	MemoryChunk *ret;

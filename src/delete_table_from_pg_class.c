@@ -56,7 +56,7 @@ int delete_table_from_pg_class(ydb_buffer_t *table_name_buffer) {
 	pg_class = make_buffers(config->global_names.octo, 4, OCTOLIT_TABLES, OCTOLIT_PG_CATALOG, OCTOLIT_PG_CLASS, "");
 	pg_attribute = make_buffers(config->global_names.octo, 4, OCTOLIT_TABLES, OCTOLIT_PG_CATALOG, OCTOLIT_PG_ATTRIBUTE, "");
 	YDB_MALLOC_BUFFER(&oid_buffer, INT64_TO_STRING_MAX);
-	YDB_MALLOC_BUFFER(&pg_attribute_schema[2], MAX_STR_CONST);
+	YDB_MALLOC_BUFFER(&pg_attribute_schema[2], OCTO_MAX_IDENT);
 	/* Check OID for tablename (usually stored as ^%ydboctoschema(TABLENAME,OCTOLIT_PG_CLASS)=TABLEOID) */
 	YDB_STRING_TO_BUFFER(config->global_names.schema, &schema_global);
 	pg_class_schema[0] = *table_name_buffer;

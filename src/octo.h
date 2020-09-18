@@ -43,10 +43,38 @@
 // Number of characters needed for a UUID, including null terminator. See https://www.postgresql.org/docs/11/datatype-uuid.html
 #define UUID_CHARACTER_LENGTH 37
 // Max ASCII value to accept for $CHAR arguments in delimiter
-#define DELIM_MAX 127
+#define DELIM_MAX	     127
+#define DOLLAR_CHAR_MAX_ARGS 255
 // Distinguish between the cases of a DELIM being either a literal or a $CHAR call
 #define DELIM_IS_LITERAL     1
 #define DELIM_IS_DOLLAR_CHAR 2
+
+/* Default buffer length to use when creating new buffers. Such buffers will be expanded as needed, so a comparatively small number
+ * can be used initially.
+ */
+#define OCTO_INIT_BUFFER_LEN 1024
+
+// Initial size to allocate for M routine buffers (1 MiB)
+#define INIT_M_ROUTINE_LENGTH (1 * 1024 * 1024)
+// Initial size to allocate for memory chunks (1 MiB)
+#define MEMORY_CHUNK_SIZE (1 * 1024 * 1024)
+// Maximum number of key columns
+#define MAX_KEY_COUNT 255
+
+/* Maximum query string length for all Octo queries. Currently set to YDB_MAX_STR (the maximum size of a GVN/LVN value) since query
+ * strings are stored in LVNs during processing and so are constrained the size limit for LVN values. Should users require a greater
+ * maximum query length, this limit will need to be revised and a method devised for storing strings that exceed YDB_MAX_STR.
+ */
+#define OCTO_MAX_QUERY_LEN YDB_MAX_STR
+/* Maximum table or column name length, mirroring the PostgreSQL default of 63 (64 - null terminator):
+ * https://www.postgresql.org/docs/current/sql-syntax-lexical.html#SQL-SYNTAX-IDENTIFIERS
+ */
+#define OCTO_MAX_IDENT 63
+
+// Maximum size for a fragment of an extended query or literal parameter value stored in the database
+#define MAX_PARM_VALUE_FRAGMENT_SIZE 32768
+// Maximum length of an M line
+#define M_LINE_MAX 32768
 
 /* Set OCTO_PATH_MAX to be the same as the system PATH_MAX (should be defined by limits.h or sys/param.h)
  * but in case it is not available, set it to a value of 1024 just like is done in YDB.
@@ -85,6 +113,7 @@
 #define OCTOLIT_VARIABLES  "variables"	/* keep this in sync with PP_VARIABLES in "template_helpers.h" */
 
 #define OCTOLIT_0		     "0"
+#define OCTOLIT_ALL		     "all"
 #define OCTOLIT_BINARY		     "binary"
 #define OCTOLIT_BINFMT		     "binfmt"
 #define OCTOLIT_BOUND		     "bound"
@@ -97,6 +126,7 @@
 #define OCTOLIT_FUNCTIONS	     "functions"
 #define OCTOLIT_FORMAT_CODE	     "format_code"
 #define OCTOLIT_LENGTH		     "length"
+#define OCTOLIT_TEXT_LENGTH	     "text_length"
 #define OCTOLIT_NAME		     "name"
 #define OCTOLIT_OID		     "oid"
 #define OCTOLIT_OUTPUT_COLUMNS	     "output_columns"
@@ -113,6 +143,7 @@
 #define OCTOLIT_TABLEPLANS	     "tableplans"
 #define OCTOLIT_TABLES		     "tables"
 #define OCTOLIT_TABLE_ID	     "table_id"
+#define OCTOLIT_TAG		     "tag"
 #define OCTOLIT_TEXT		     "text"
 #define OCTOLIT_TIMESTAMP	     "timestamp"
 #define OCTOLIT_TYPE_MODIFIER	     "type_modifier"
@@ -120,11 +151,16 @@
 #define OCTOLIT_YDBOCTOCANCEL	     "%ydboctoCancel"
 #define OCTOLIT_YDBOCTOSECRETKEYLIST "%ydboctoSecretKeyList"
 
+// Macros for plan size allocation in physical plan generation
+#define OCTOPLAN_LIT	  "octoPlan"
+#define XREFPLAN_LIT	  "xrefPlan"
+#define MAX_PLAN_NAME_LEN sizeof(OCTOPLAN_LIT) + INT32_TO_STRING_MAX
+
 // Default buffer allocated for $zroutines
 #define ZRO_INIT_ALLOC 512
 
-/* Maximum size of each fragment a table or function binary definition is split into in M nodes */
-#define MAX_BINARY_DEFINITION_FRAGMENT_SIZE 32768
+/* Maximum size of each fragment a table or function binary or text definition is split into in M nodes */
+#define MAX_DEFINITION_FRAGMENT_SIZE 32768
 
 #define YDB_MAX_KEY_SZ 1023 /* 1023 can be replaced by MAX_STR_LEN (from YDB repo) if it is exposed in libyottadb.h */
 
@@ -186,15 +222,33 @@
 
 // Double the amount of memory allocated for a given array and copy in values from previous allocation
 // and zero-initialize remaining memory
-#define DOUBLE_ARRAY_ALLOCATION(ARRAY, SIZE, TYPE)                   \
+#define DOUBLE_ARRAY_ALLOCATION(ARRAY, SIZE, TYPE, MAX)              \
 	{                                                            \
+		int new_size;                                        \
+                                                                     \
+		new_size = SIZE * 2;                                 \
+		if ((0 < MAX) && (MAX < new_size)) {                 \
+			new_size = MAX;                              \
+		}                                                    \
 		TYPE *new_array;                                     \
-		new_array = (TYPE *)malloc(SIZE * 2 * sizeof(TYPE)); \
+		new_array = (TYPE *)malloc(new_size * sizeof(TYPE)); \
 		memcpy(new_array, ARRAY, SIZE * sizeof(TYPE));       \
 		memset(&new_array[SIZE], 0, SIZE * sizeof(TYPE));    \
 		free(ARRAY);                                         \
 		ARRAY = new_array;                                   \
-		SIZE = SIZE * 2;                                     \
+		SIZE = new_size;                                     \
+	}
+
+/* Increase allocated size of a ydb_buffer_t. Assumes len_used is set to the desired new size as is done
+ * when YDB_ERR_INVSTRLEN is encountered.
+ */
+#define EXPAND_YDB_BUFFER_T_ALLOCATION(BUFFER)                           \
+	{                                                                \
+		int newsize = BUFFER.len_used;                           \
+                                                                         \
+		YDB_FREE_BUFFER(&BUFFER);                                \
+		YDB_MALLOC_BUFFER(&BUFFER, newsize + 1);                 \
+		BUFFER.len_alloc--; /* Leave room for null terminator */ \
 	}
 
 // Convert a 16-bit integer to a string and store in a ydb_buffer_t
@@ -296,10 +350,11 @@ typedef enum RegexType {
 	 || (STRING_LITERAL == VALUE_TYPE))
 
 // Initialize a stack-allocated ydb_buffer_t from a stack-allocated string (char *)
-#define OCTO_SET_BUFFER(BUFFER, STRING)            \
-	{                                          \
-		BUFFER.buf_addr = STRING;          \
-		BUFFER.len_alloc = sizeof(STRING); \
+#define OCTO_SET_BUFFER(BUFFER, STRING)                                                                                     \
+	{                                                                                                                   \
+		BUFFER.buf_addr = STRING;                                                                                   \
+		BUFFER.len_alloc = sizeof(STRING);                                                                          \
+		BUFFER.len_used = 0; /* 0-initialize to indicate the buffer is empty in case an empty string is assigned */ \
 	}
 
 // Free all resources associated with the Octo config file.
@@ -391,7 +446,7 @@ typedef enum RegexType {
 // Convenience type definition for run_query callback function
 typedef int (*callback_fnptr_t)(SqlStatement *, int, void *, char *, boolean_t);
 
-int emit_column_specification(char *buffer, int buffer_size, SqlColumn *column);
+int emit_column_specification(char **buffer, int *buffer_size, SqlColumn *cur_column);
 int emit_create_table(FILE *output, struct SqlStatement *stmt);
 int emit_create_function(FILE *output, struct SqlStatement *stmt);
 // Recursively copies all of stmt, including making copies of strings
@@ -405,7 +460,7 @@ int emit_create_function(FILE *output, struct SqlStatement *stmt);
 int create_table_defaults(SqlStatement *table_statement, SqlStatement *keywords_statement);
 
 char *m_escape_string(const char *string);
-int   m_escape_string2(char *buffer, int buffer_len, char *string);
+int   m_escape_string2(char **buffer, int *buffer_len, char *string);
 char *m_unescape_string(const char *string);
 
 int	      readline_get_more();
@@ -437,7 +492,7 @@ boolean_t	    match_column_list_alias_in_select_column_list(SqlColumnListAlias *
 SqlOptionalKeyword *get_keyword(SqlColumn *column, enum OptionalKeyword keyword);
 SqlOptionalKeyword *get_keyword_from_keywords(SqlOptionalKeyword *start_keyword, enum OptionalKeyword keyword);
 int		    get_key_columns(SqlTable *table, SqlColumn **key_columns);
-int		    generate_key_name(char *buffer, int buffer_size, int target_key_num, SqlTable *table, SqlColumn **key_columns);
+int  generate_key_name(char **buffer, int *buffer_size, int target_key_num, SqlTable *table, SqlColumn **key_columns);
 int  print_temporary_table(SqlStatement *, int cursor_id, void *parms, char *plan_name, boolean_t send_row_description);
 void print_result_row(ydb_buffer_t *row);
 int  get_mval_len(unsigned char *buff, int *data_len);
@@ -478,8 +533,9 @@ boolean_t	    match_sql_statement(SqlStatement *stmt, SqlStatement *match_stmt);
 void	      compress_statement(SqlStatement *stmt, char **out, int *out_length);
 SqlStatement *decompress_statement(char *buffer, int out_length);
 
-int store_binary_table_definition(ydb_buffer_t *table_name_buff, char *binary_table_defn, int binary_table_defn_length);
-int store_binary_function_definition(ydb_buffer_t *function_name_buff, char *binary_function_defn, int binary_function_defn_length);
+int store_table_definition(ydb_buffer_t *table_name_buff, char *table_defn, int table_defn_length, boolean_t is_text);
+int store_function_definition(ydb_buffer_t *function_name_buffers, char *function_defn, int function_defn_length,
+			      boolean_t is_text);
 
 int  store_table_in_pg_class(SqlTable *table, ydb_buffer_t *table_name_buffer);
 int  delete_table_from_pg_class(ydb_buffer_t *table_name_buffer);
@@ -556,6 +612,7 @@ extern int   eof_hit;
 extern FILE *inputFile;
 extern char *input_buffer_combined; // The input buffer for octo. Contains the query strings.
 extern int (*cur_input_more)();
-extern OctoConfig *config;
+extern OctoConfig * config;
+extern ydb_buffer_t lex_buffer; // String buffer for use in lexer.l
 
 #endif

@@ -40,10 +40,13 @@ int handle_query(Query *query, RoctoSession *session) {
 	memset(&parms, 0, sizeof(QueryResponseParms));
 	parms.session = session;
 	query_length = query->length - sizeof(unsigned int);
-	if (query_length == 0) {
+	if (0 == query_length) {
 		empty_query_response = make_empty_query_response();
 		send_message(session, (BaseMessage *)(&empty_query_response->type));
 		free(empty_query_response);
+		return 1;
+	} else if (OCTO_MAX_QUERY_LEN < query_length) {
+		ERROR(ERR_ROCTO_QUERY_TOO_LONG, query_length, OCTO_MAX_QUERY_LEN);
 		return 1;
 	}
 	COPY_QUERY_TO_INPUT_BUFFER(query->query, query_length, NEWLINE_NEEDED_FALSE);

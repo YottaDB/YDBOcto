@@ -139,12 +139,10 @@ int run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_descrip
 	char *		spcfc_buffer; /* specific buffer (i.e. function-specific or table-specific etc.) */
 	ydb_buffer_t	table_name_buffers[3];
 	ydb_buffer_t *	table_name_buffer;
-	ydb_buffer_t	table_create_buffer;
 	SqlFunction *	function;
 	char *		function_name;
 	ydb_buffer_t	function_name_buffers[5];
 	ydb_buffer_t *	function_name_buffer, *function_hash_buffer;
-	ydb_buffer_t	function_create_buffer;
 	char		cursor_buffer[INT64_TO_STRING_MAX];
 	char		pid_buffer[INT64_TO_STRING_MAX]; /* assume max pid is 64 bits even though it is a 4-byte quantity */
 	boolean_t	release_query_lock;
@@ -457,28 +455,27 @@ int run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_descrip
 			CLEANUP_AND_RETURN(memory_chunks, buffer, spcfc_buffer, query_lock);
 		}
 		if (create_table_STATEMENT == result->type) {
+			int text_table_defn_length;
+
 			/* CREATE TABLE case. More processing needed. */
 			out = open_memstream(&buffer, &buffer_size);
 			assert(out);
-			status = emit_create_table(out, result);
+			text_table_defn_length = emit_create_table(out, result);
 			fclose(out); // at this point "buffer" and "buffer_size" are usable
-			if (0 != status) {
-				// Error messages for the non-zero status would already have been issued in
+			if (0 > text_table_defn_length) {
+				// Error messages for the negative status would already have been issued in
 				// "emit_create_table"
 				CLEANUP_AND_RETURN(memory_chunks, buffer, spcfc_buffer, query_lock);
 			}
 			INFO(INFO_TEXT_REPRESENTATION,
 			     buffer); /* print the converted text representation of the CREATE TABLE command */
 
-			YDB_STRING_TO_BUFFER(buffer, &table_create_buffer);
 			/* Store the text representation of the CREATE TABLE statement:
 			 *	^%ydboctoschema(table_name,OCTOLIT_TEXT)
 			 */
-			YDB_STRING_TO_BUFFER(OCTOLIT_TEXT, &table_name_buffers[1]);
-			status = ydb_set_s(&schema_global, 2, table_name_buffers, &table_create_buffer);
+			status = store_table_definition(table_name_buffers, buffer, text_table_defn_length, TRUE);
 			CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, memory_chunks, buffer, spcfc_buffer, query_lock);
 			free(buffer);
-			/* Note: "table_create_buffer" (whose "buf_addr" points to "buffer") is also no longer usable */
 			buffer = NULL; /* So CLEANUP_AND_RETURN* macro calls below do not try "free(buffer)" */
 			/* First store table name in catalog. As we need that OID to store in the binary table definition.
 			 * The below call also sets table->oid which is needed before the call to "compress_statement" as
@@ -495,7 +492,7 @@ int run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_descrip
 			}
 			compress_statement(result, &spcfc_buffer, &length); /* Sets "spcfc_buffer" to "malloc"ed storage */
 			assert(NULL != spcfc_buffer);
-			status = store_binary_table_definition(table_name_buffers, spcfc_buffer, length);
+			status = store_table_definition(table_name_buffers, spcfc_buffer, length, FALSE);
 			free(spcfc_buffer);  /* free buffer that was "malloc"ed in "compress_statement" */
 			spcfc_buffer = NULL; /* Now that we did a "free", reset it to NULL */
 			CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, memory_chunks, buffer, spcfc_buffer, query_lock);
@@ -607,19 +604,27 @@ int run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_descrip
 		}
 
 		if ((NULL != function) && (create_function_STATEMENT == result->type)) {
+			int text_function_defn_length;
+
 			// CREATE FUNCTION case. More processing needed.
 			out = open_memstream(&buffer, &buffer_size);
 			assert(out);
-			status = emit_create_function(out, result);
+			text_function_defn_length = emit_create_function(out, result);
 			fclose(out); // at this point "buffer" and "buffer_size" are usable
-			if (0 != status) {
+			if (0 > text_function_defn_length) {
 				/* Error messages for the non-zero status would already have been issued in
 				 * "emit_create_function"
 				 */
 				CLEANUP_AND_RETURN(memory_chunks, buffer, spcfc_buffer, query_lock);
 			}
-			INFO(INFO_TEXT_REPRESENTATION,
-			     buffer); /* print the converted text representation of the CREATE TABLE command */
+			/* Print the converted text representation of the CREATE TABLE command */
+			INFO(INFO_TEXT_REPRESENTATION, buffer);
+			/* Store the text representation of the CREATE FUNCTION statement:
+			 *	^%ydboctoocto(OCTOLIT_FUNCTIONS,function_name,function_hash,OCTOLIT_TEXT)
+			 */
+			status = store_function_definition(function_name_buffers, buffer, text_function_defn_length, TRUE);
+			free(buffer);
+			buffer = NULL; // So CLEANUP_AND_RETURN* macro calls below do not try "free(buffer)"
 
 			/* First store function name in catalog. As we need that OID to store in the binary table
 			 * definition. The below call also sets table->oid which is needed before the call to
@@ -640,20 +645,9 @@ int run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_descrip
 			/* Now that we know there are no too-many-parameter errors in ths function, we can safely go ahead
 			 * with setting the function related gvn in the database.
 			 */
-			YDB_STRING_TO_BUFFER(buffer, &function_create_buffer);
-			/* Store the text representation of the CREATE FUNCTION statement:
-			 *	^%ydboctoocto(OCTOLIT_FUNCTIONS,function_name,function_hash,OCTOLIT_TEXT)
-			 */
-			YDB_STRING_TO_BUFFER(OCTOLIT_TEXT, &function_name_buffers[3]);
-			status = ydb_set_s(&octo_global, 4, function_name_buffers, &function_create_buffer);
-			CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, memory_chunks, buffer, spcfc_buffer, query_lock);
-			free(buffer);
-			/* Note: "function_create_buffer" (whose "buf_addr" points to "buffer") is also no longer unusable */
-			buffer = NULL; // So CLEANUP_AND_RETURN* macro calls below do not try "free(buffer)"
-
 			compress_statement(result, &spcfc_buffer, &length); /* Sets "spcfc_buffer" to "malloc"ed storage */
 			assert(NULL != spcfc_buffer);
-			status = store_binary_function_definition(function_name_buffers, spcfc_buffer, length);
+			status = store_function_definition(function_name_buffers, spcfc_buffer, length, FALSE);
 			free(spcfc_buffer);  /* free buffer that was "malloc"ed in "compress_statement" */
 			spcfc_buffer = NULL; /* Now that we did a "free", reset it to NULL */
 			CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, memory_chunks, buffer, spcfc_buffer, query_lock);

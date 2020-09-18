@@ -314,6 +314,14 @@ Text: Column xxx must appear in the GROUP BY clause or be used in an aggregate f
 Description/Action: This error is generated when a column is :code:`SELECT` ed, but does not appear in a :code:`GROUP BY` clause or isn't used in an aggregate function. PSQL Error Code: 42803
 
 +++++++++++++++++
+ERR_IDENT_LENGTH
++++++++++++++++++
+
+Text: xxx length xxx exceeds max (xxx)
+
+Description/Action: This error indicates that a query attempted to use an identifier (such as a table name) that is longer than the maximum allowed. PSQL Error Code: 22P02
+
++++++++++++++++++
 ERR_INIT_SCANNER
 +++++++++++++++++
 
@@ -834,6 +842,14 @@ Text: Column 'xxx' of table 'xxx' does not exist
 Description/Action: This error is generated when the specified column name is not a valid column in the specified table. PSQL Error Code: 42703
 
 ++++++++++++++++++++++++++++++++
+ERR_TOO_MANY_DELIM_CHARS
+++++++++++++++++++++++++++++++++
+
+Text: Too many characters specified for DELIM specification (got: xxx, max: xxx)
+
+Description/Action: This message indicates an attempt to specify more characters in a DELIM specification than is supported within an Octo DDL. PSQL Error Code: 22003
+
+++++++++++++++++++++++++++++++++
 ERR_TOO_MANY_FUNCTION_ARGUMENTS
 ++++++++++++++++++++++++++++++++
 
@@ -1153,9 +1169,9 @@ Description/Action: This error indicates a query was successfully cancelled via 
 ERR_ROCTO_QUERY_TOO_LONG
 ++++++++++++++++++++++++++++
 
-Text: Query length exceeded maximum size
+Text: Query length xxx exceeded maximum size (xxx)
 
-Description/Action: This error indicates that the query length exceeded maximum size set by :code:`STRING_BUFFER_LENGTH` in the CMake parameters during configuration. PSQL Error Code: 08P01
+Description/Action: This error indicates that the query length exceeded maximum size. PSQL Error Code: 08P01
 
 ++++++++++++++++++++++++
 ERR_ROCTO_READ_FAILED

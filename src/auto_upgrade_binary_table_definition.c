@@ -22,23 +22,26 @@
 		YDB_FREE_BUFFER(&TABLE_BUFF[2]); \
 	}
 
-#define CLEANUP_AND_RETURN(STATUS, TABLE_BUFF, FREE_MEMORY_CHUNK) \
-	{                                                         \
-		if (NULL != TABLE_BUFF) {                         \
-			CLEANUP_TABLE_BUFF(TABLE_BUFF);           \
-		}                                                 \
-		if (FREE_MEMORY_CHUNK) {                          \
-			OCTO_CFREE(memory_chunks);                \
-		}                                                 \
-		return STATUS;                                    \
+#define CLEANUP_AND_RETURN(STATUS, TABLE_BUFF, TEXT_DEFN, FREE_MEMORY_CHUNK) \
+	{                                                                    \
+		if (NULL != TABLE_BUFF) {                                    \
+			CLEANUP_TABLE_BUFF(TABLE_BUFF);                      \
+		}                                                            \
+		if (NULL != TEXT_DEFN) {                                     \
+			free(TEXT_DEFN);                                     \
+		}                                                            \
+		if (FREE_MEMORY_CHUNK) {                                     \
+			OCTO_CFREE(memory_chunks);                           \
+		}                                                            \
+		return STATUS;                                               \
 	}
 
-#define CLEANUP_AND_RETURN_IF_NOT_YDB_OK(STATUS, TABLE_BUFF, FREE_MEMORY_CHUNK)    \
-	{                                                                          \
-		if (YDB_OK != STATUS) {                                            \
-			YDB_ERROR_CHECK(STATUS);                                   \
-			CLEANUP_AND_RETURN(STATUS, TABLE_BUFF, FREE_MEMORY_CHUNK); \
-		}                                                                  \
+#define CLEANUP_AND_RETURN_IF_NOT_YDB_OK(STATUS, TABLE_BUFF, TEXT_DEFN, FREE_MEMORY_CHUNK)    \
+	{                                                                                     \
+		if (YDB_OK != STATUS) {                                                       \
+			YDB_ERROR_CHECK(STATUS);                                              \
+			CLEANUP_AND_RETURN(STATUS, TABLE_BUFF, TEXT_DEFN, FREE_MEMORY_CHUNK); \
+		}                                                                             \
 	}
 
 /* Automatically upgrade all binary table definitions.
@@ -55,13 +58,19 @@ int auto_upgrade_binary_table_definition(void) {
 	YDB_STRING_TO_BUFFER(config->global_names.schema, &schema_global);
 	/* $order through ^%ydboctoschema(table_name) and for each table_name, get CREATE TABLE statement from
 	 *	^%ydboctoschema(table_name,OCTOLIT_TEXT)
-	 * and set the following nodes
+	 * OR
+	 *	^%ydboctoschema(table_name,OCTOLIT_TEXT,0)
+	 *	^%ydboctoschema(table_name,OCTOLIT_TEXT,1)
+	 * AND set the following nodes
 	 *	^%ydboctoschema(table_name,OCTOLIT_BINARY,...)
 	 *	^%ydboctoschema(table_name,OCTOLIT_LENGTH).
+	 * Note: We need to account for multiple node configurations for text nodes as the changes for YDBOcto#590 introduced text
+	 * definition fragmentation to allow for arbitrarily long DDL definitions. However, earlier versions of Octo do not have
+	 * this layout, and so we must handle both cases for backward compatibility.
 	 */
 	YDB_MALLOC_BUFFER(&table_subs[0], YDB_MAX_KEY_SZ); /* to store the table name */
 	table_subs[0].len_used = 0;
-	YDB_MALLOC_BUFFER(&table_subs[2], YDB_MAX_STR); /* to store the return */
+	YDB_MALLOC_BUFFER(&table_subs[2], MAX_DEFINITION_FRAGMENT_SIZE); /* to store the return */
 	table_buff = &table_subs[0]; /* Note down that this buffer needs to be freed in case of error code path */
 	while (TRUE) {
 		char *	     binary_table_defn; /* pointer to the binary table definition */
@@ -70,6 +79,7 @@ int auto_upgrade_binary_table_definition(void) {
 		ydb_long_t   cursorId;
 		char	     cursor_buffer[INT64_TO_STRING_MAX];
 		long long    table_oid;
+		unsigned int data_ret;
 		SqlTable *   table;
 
 		status = ydb_subscript_next_s(&schema_global, 1, &table_subs[0], &table_subs[0]);
@@ -77,32 +87,86 @@ int auto_upgrade_binary_table_definition(void) {
 			break;
 		}
 		assert(YDB_ERR_INVSTRLEN != status); /* because we allocated YDB_MAX_KEY_SZ above */
-		CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, table_buff, FALSE);
+		CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, table_buff, NULL, FALSE);
 		/* Get the "CREATE TABLE" query corresponding to "table_buff" and recompute binary definition.
 		 *	^%ydboctoschema(table_name,OCTOLIT_TEXT)
 		 */
 		YDB_STRING_TO_BUFFER(OCTOLIT_TEXT, &table_subs[1]);
-		status = ydb_get_s(&schema_global, 2, &table_subs[0], &table_subs[2]);
-		assert(YDB_ERR_INVSTRLEN != status); /* because we allocated YDB_MAX_STR above */
-		if (YDB_ERR_GVUNDEF == status) {
+		status = ydb_data_s(&schema_global, 2, &table_subs[0], &data_ret);
+		CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, table_buff, NULL, FALSE);
+		/* We expect a subtree except for older commits that pre-date text definition fragmentation, so check for value-only
+		 * and absent nodes, i.e. ydb_data_s returns 0 (no node or subtree) or 1 (value but no subtree).
+		 */
+		if (1 >= data_ret) {
 			/* For some prior Octo commits, the text definition was stored in a subscript "t" (instead of "text").
-			 * So check that too.
+			 * So check that too. Note that even if a definition is stored in this manner, it cannot safely be used to
+			 * auto-upgrade since it indicates a pre-r1.0.0 version of Octo and the auto-upgrade process is
+			 * backward-incompatible with pre-r1.0.0 versions of Octo.
 			 */
-			YDB_STRING_TO_BUFFER(OCTOLIT_T, &table_subs[1]);
+			if (0 == data_ret) {
+				YDB_STRING_TO_BUFFER(OCTOLIT_T, &table_subs[1]);
+			}
 			status = ydb_get_s(&schema_global, 2, &table_subs[0], &table_subs[2]);
-			assert(YDB_ERR_INVSTRLEN != status); /* because we allocated YDB_MAX_STR above */
-			if (YDB_OK == status) {
+			// Expand buffer if value between 32KiB (current buffer initial size) and 1MiB (buffer size in prior
+			// commits)
+			if (YDB_ERR_INVSTRLEN == status) {
+				EXPAND_YDB_BUFFER_T_ALLOCATION(table_subs[2]);
+				status = ydb_get_s(&schema_global, 2, &table_subs[0], &table_subs[2]);
+				assert(YDB_ERR_INVSTRLEN != status);
+			}
+			if ((0 == data_ret) && (YDB_OK == status)) {
 				/* There are other issues because of which auto upgrade is not possible.
 				 * For example, the DDL had "$C(1)" in the DELIM (table level) for the CREATE TABLE.
 				 * It is not considered necessary to try and auto upgrade such text definitions for now.
 				 * So issue an error that asks the user to run a manual upgrade.
 				 */
-				ERROR(ERR_AUTO_UPGRADE, NULL);
-				CLEANUP_AND_RETURN(1, table_buff, FALSE);
+				ERROR(ERR_AUTO_UPGRADE, "");
+				CLEANUP_AND_RETURN(1, table_buff, NULL, FALSE);
 			}
+			CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, table_buff, NULL, FALSE);
+			COPY_QUERY_TO_INPUT_BUFFER(table_subs[2].buf_addr, (int)table_subs[2].len_used, NEWLINE_NEEDED_FALSE);
+		} else {
+			ydb_buffer_t text_defn_buff;
+			char	     text_defn_str[MAX_DEFINITION_FRAGMENT_SIZE];
+			char *	     text_defn = NULL;
+			long	     text_defn_len, cur_len;
+
+			text_defn_buff.buf_addr = text_defn_str;
+			text_defn_buff.len_alloc = sizeof(text_defn_str);
+			text_defn_buff.len_used = 0;
+			// Get the length of the full text table definition
+			YDB_STRING_TO_BUFFER(OCTOLIT_TEXT_LENGTH, &table_subs[1]);
+			status = ydb_get_s(&schema_global, 2, &table_subs[0], &text_defn_buff);
+			assert(YDB_ERR_INVSTRLEN != status); /* because we allocated MAX_DEFINITION_FRAGMENT_SIZE above */
+			CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, table_buff, NULL, FALSE);
+
+			text_defn_len = strtoll(text_defn_buff.buf_addr, NULL, 10);
+			if ((LLONG_MIN == text_defn_len) || (LLONG_MAX == text_defn_len)) {
+				ERROR(ERR_SYSCALL_WITH_ARG, "strtoll()", errno, strerror(errno), text_defn_buff.buf_addr);
+				CLEANUP_AND_RETURN(1, table_buff, NULL, FALSE);
+			}
+			YDB_STRING_TO_BUFFER(OCTOLIT_TEXT, &table_subs[1]); // Reset subscript
+			cur_len = 0;
+			text_defn = (char *)malloc(sizeof(char) * text_defn_len);
+			table_subs[2].len_used = 0; // Reset subscript for ydb_subscript_next_s
+			do {
+				status = ydb_subscript_next_s(&schema_global, 3, &table_subs[0], &table_subs[2]);
+				table_subs[2].buf_addr[table_subs[2].len_used] = '\0';
+				if (YDB_ERR_NODEEND == status) {
+					status = YDB_OK;
+					break;
+				}
+				CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, table_buff, text_defn, FALSE);
+				status = ydb_get_s(&schema_global, 3, &table_subs[0], &text_defn_buff);
+				assert(YDB_ERR_INVSTRLEN != status); /* because we allocated MAX_DEFINITION_FRAGMENT_SIZE above */
+				CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, table_buff, text_defn, FALSE);
+				memcpy(&text_defn[cur_len], text_defn_buff.buf_addr, text_defn_buff.len_used);
+				cur_len += text_defn_buff.len_used;
+			} while (cur_len <= text_defn_len);
+			CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, table_buff, text_defn, FALSE);
+			COPY_QUERY_TO_INPUT_BUFFER(text_defn, text_defn_len, NEWLINE_NEEDED_FALSE);
+			free(text_defn);
 		}
-		CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, table_buff, FALSE);
-		COPY_QUERY_TO_INPUT_BUFFER(table_subs[2].buf_addr, (int)table_subs[2].len_used, NEWLINE_NEEDED_FALSE);
 
 		/* Note: Following code is similar to that in octo.c and run_query.c */
 		memset(&parse_context, 0, sizeof(parse_context));
@@ -114,7 +178,7 @@ int auto_upgrade_binary_table_definition(void) {
 		cursor_ydb_buff.len_alloc = sizeof(cursor_buffer);
 		cursorId = create_cursor(&schema_global, &cursor_ydb_buff);
 		if (0 > cursorId) {
-			CLEANUP_AND_RETURN(1, table_buff, TRUE);
+			CLEANUP_AND_RETURN(1, table_buff, NULL, TRUE);
 		}
 		parse_context.cursorId = cursorId;
 		parse_context.cursorIdString = cursor_ydb_buff.buf_addr;
@@ -129,20 +193,20 @@ int auto_upgrade_binary_table_definition(void) {
 #endif
 		if (NULL == result) {
 			INFO(INFO_RETURNING_FAILURE, "parse_line");
-			CLEANUP_AND_RETURN(1, table_buff, TRUE);
+			CLEANUP_AND_RETURN(1, table_buff, NULL, TRUE);
 		}
 		/* Get OID of the table name (from below gvn) as we need that OID to store in the binary table definition.
 		 *	^%ydboctoschema(table_name,OCTOLIT_PG_CLASS)=TABLEOID
 		 */
 		YDB_STRING_TO_BUFFER(OCTOLIT_PG_CLASS, &table_subs[1]);
 		status = ydb_get_s(&schema_global, 2, &table_subs[0], &table_subs[2]);
-		CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, table_buff, TRUE);
+		CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, table_buff, NULL, TRUE);
 		assert(table_subs[2].len_used < table_subs[2].len_alloc);
 		table_subs[2].buf_addr[table_subs[2].len_used] = '\0'; /* null terminate for "strtoll" */
 		table_oid = strtoll(table_subs[2].buf_addr, NULL, 10);
 		if ((LLONG_MIN == table_oid) || (LLONG_MAX == table_oid)) {
 			ERROR(ERR_SYSCALL_WITH_ARG, "strtoll()", errno, strerror(errno), table_subs[2].buf_addr);
-			CLEANUP_AND_RETURN(1, table_buff, TRUE);
+			CLEANUP_AND_RETURN(1, table_buff, NULL, TRUE);
 		}
 		assert(create_table_STATEMENT == result->type);
 		UNPACK_SQL_STATEMENT(table, result, create_table);
@@ -153,9 +217,9 @@ int auto_upgrade_binary_table_definition(void) {
 		compress_statement(result, &binary_table_defn,
 				   &binary_table_defn_length); /* sets "binary_table_defn" to "malloc"ed storage */
 		assert(NULL != binary_table_defn);
-		status = store_binary_table_definition(&table_subs[0], binary_table_defn, binary_table_defn_length);
+		status = store_table_definition(&table_subs[0], binary_table_defn, binary_table_defn_length, FALSE);
 		free(binary_table_defn); /* free buffer that was "malloc"ed in "compress_statement" */
-		CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, table_buff, TRUE);
+		CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, table_buff, NULL, TRUE);
 	}
 	CLEANUP_TABLE_BUFF(table_buff);
 	return YDB_OK;

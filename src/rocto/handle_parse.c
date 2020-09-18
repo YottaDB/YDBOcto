@@ -25,6 +25,7 @@
 #define FREE_HANDLE_PARSE_POINTERS()                                                    \
 	status = ydb_delete_s(&statement_subs[0], 3, &statement_subs[1], YDB_DEL_TREE); \
 	YDB_ERROR_CHECK(status);                                                        \
+	YDB_FREE_BUFFER(&cur_parm_value_buffer);                                        \
 	free(parse_context.is_bind_parm);                                               \
 	free(parse_context.types);                                                      \
 	free(parse_context_array);                                                      \
@@ -40,15 +41,13 @@ int handle_parse(Parse *parse, RoctoSession *session) {
 	ydb_buffer_t	   parm_type_buffer, cur_parm_value_buffer;
 	uint32_t	   data_ret;
 	int32_t		   status, cur_type;
+	int32_t *	   parse_context_array;
 	int16_t		   cur_parm, cur_parm_temp, cur_bind_parm, cur_bind_parm_temp;
-	int16_t *	   parse_context_array;
-	size_t		   query_length = 0;
 	char		   cursor_str[INT64_TO_STRING_MAX], cur_parm_str[INT16_TO_STRING_MAX];
 	char		   parm_type_str[INT32_TO_STRING_MAX], parm_attr_str[INT32_TO_STRING_MAX];
 	char		   tag_str[INT32_TO_STRING_MAX], routine_str[MAX_ROUTINE_LEN];
 	char		   num_parms_str[INT16_TO_STRING_MAX], offset_str[INT16_TO_STRING_MAX];
 	char		   cur_bind_parm_str[INT16_TO_STRING_MAX];
-	char		   cur_parm_value_str[MAX_STR_CONST];
 
 	TRACE(INFO_ENTERING_FUNCTION, "handle_parse");
 
@@ -63,13 +62,13 @@ int handle_parse(Parse *parse, RoctoSession *session) {
 	YDB_STRING_TO_BUFFER(OCTOLIT_ROUTINE, &statement_subs[4]);
 
 	// Set the subscripts for all prepared statement parameters: session(id, OCTOLIT_PREPARED, <name>, OCTOLIT_PARAMETERS,
-	// "all", ...)
+	// OCTOLIT_ALL, ...)
 	YDB_STRING_TO_BUFFER(config->global_names.session, &all_parms_subs[0]);
 	YDB_STRING_TO_BUFFER(session->session_id->buf_addr, &all_parms_subs[1]);
 	YDB_STRING_TO_BUFFER(OCTOLIT_PREPARED, &all_parms_subs[2]);
 	YDB_STRING_TO_BUFFER(parse->dest, &all_parms_subs[3]);
 	YDB_STRING_TO_BUFFER(OCTOLIT_PARAMETERS, &all_parms_subs[4]);
-	YDB_STRING_TO_BUFFER("all", &all_parms_subs[5]);
+	YDB_STRING_TO_BUFFER(OCTOLIT_ALL, &all_parms_subs[5]);
 
 	// Check if a prepared statement by the same name already exists and, if so, delete it before reusing the name for a new one
 	status = ydb_data_s(&statement_subs[0], 3, &statement_subs[1], &data_ret);
@@ -94,15 +93,10 @@ int handle_parse(Parse *parse, RoctoSession *session) {
 	}
 
 	// Store query in input buffer
-	query_length = sql_expression.len_used;
-	memcpy(input_buffer_combined, sql_expression.buf_addr, query_length);
-	eof_hit = EOF_NONE;
-	input_buffer_combined[query_length] = '\0';
-	cur_input_index = 0;
-	cur_input_more = &no_more;
-
-	// Prepare parameter offset array; the number of parameters isn't known yet, so just use the max
-	parse_context_array = (int16_t *)calloc((INT16_MAX * 2), sizeof(int16_t));
+	COPY_QUERY_TO_INPUT_BUFFER(sql_expression.buf_addr, (int)sql_expression.len_used, NEWLINE_NEEDED_FALSE);
+	/* Prepare parameter offset array; the number of parameters isn't known yet, so just use the max
+	 */
+	parse_context_array = (int32_t *)calloc((INT16_MAX * 2), sizeof(int32_t));
 
 	// Prepare ParseContext to store parameter information
 	memset(&parse_context, 0, sizeof(ParseContext));
@@ -162,7 +156,7 @@ int handle_parse(Parse *parse, RoctoSession *session) {
 	tag_buffer.buf_addr = tag_str;
 	tag_buffer.len_alloc = sizeof(tag_str);
 	OCTO_INT32_TO_BUFFER(parse_context.command_tag, &tag_buffer);
-	YDB_STRING_TO_BUFFER("tag", &statement_subs[4]);
+	YDB_STRING_TO_BUFFER(OCTOLIT_TAG, &statement_subs[4]);
 	status = ydb_set_s(&statement_subs[0], 4, &statement_subs[1], &tag_buffer);
 	if (YDB_OK != status) {
 		status = ydb_delete_s(&statement_subs[0], 3, &statement_subs[1], YDB_DEL_TREE);
@@ -193,7 +187,7 @@ int handle_parse(Parse *parse, RoctoSession *session) {
 		free(parse_context_array);
 		return 1;
 	}
-	// Store total number of parameters: session(id, OCTOLIT_PREPARED, <name>, OCTOLIT_PARAMETERS, "all")
+	// Store total number of parameters: session(id, OCTOLIT_PREPARED, <name>, OCTOLIT_PARAMETERS, OCTOLIT_ALL)
 	OCTO_INT16_TO_BUFFER(parse_context.total_parms, &num_parms_buffer);
 	status = ydb_set_s(&all_parms_subs[0], 5, &all_parms_subs[1], &num_parms_buffer);
 	YDB_ERROR_CHECK(status);
@@ -230,8 +224,7 @@ int handle_parse(Parse *parse, RoctoSession *session) {
 	// In the loop below, we copy a value from a cursor LVN to a query parameter LVN, so only one string needed for this node.
 	all_parms_subs[6].buf_addr = cursor_subs[3].buf_addr = cur_parm_str;
 	all_parms_subs[6].len_alloc = cursor_subs[3].len_alloc = sizeof(cur_parm_str);
-	cur_parm_value_buffer.buf_addr = cur_parm_value_str;
-	cur_parm_value_buffer.len_alloc = sizeof(cur_parm_value_str);
+	YDB_MALLOC_BUFFER(&cur_parm_value_buffer, OCTO_INIT_BUFFER_LEN);
 	parm_type_buffer.buf_addr = parm_type_str;
 	parm_type_buffer.len_alloc = sizeof(parm_type_str);
 	offset_buffer.buf_addr = offset_str;
@@ -263,7 +256,7 @@ int handle_parse(Parse *parse, RoctoSession *session) {
 				return 1;
 			}
 			// Store parameter start offset
-			OCTO_INT16_TO_BUFFER(parse_context.parm_start[cur_bind_parm], &offset_buffer);
+			OCTO_INT32_TO_BUFFER(parse_context.parm_start[cur_bind_parm], &offset_buffer);
 			YDB_STRING_TO_BUFFER("start", &statement_subs[6]);
 			status = ydb_set_s(&statement_subs[0], 6, &statement_subs[1], &offset_buffer);
 			YDB_ERROR_CHECK(status);
@@ -272,7 +265,7 @@ int handle_parse(Parse *parse, RoctoSession *session) {
 				return 1;
 			}
 			// Store parameter end offset
-			OCTO_INT16_TO_BUFFER(parse_context.parm_end[cur_bind_parm], &offset_buffer);
+			OCTO_INT32_TO_BUFFER(parse_context.parm_end[cur_bind_parm], &offset_buffer);
 			YDB_STRING_TO_BUFFER("end", &statement_subs[6]);
 			status = ydb_set_s(&statement_subs[0], 6, &statement_subs[1], &offset_buffer);
 			YDB_ERROR_CHECK(status);
@@ -288,6 +281,11 @@ int handle_parse(Parse *parse, RoctoSession *session) {
 			all_parms_subs[6].len_used = cursor_subs[3].len_used;
 			// Copy literal parameter value from cursor to prepared statement for later retrieval by handle_execute
 			status = ydb_get_s(&cursor_subs[0], 3, &cursor_subs[1], &cur_parm_value_buffer);
+			if (YDB_ERR_INVSTRLEN == status) {
+				EXPAND_YDB_BUFFER_T_ALLOCATION(cur_parm_value_buffer);
+				status = ydb_get_s(&cursor_subs[0], 3, &cursor_subs[1], &cur_parm_value_buffer);
+				assert(YDB_ERR_INVSTRLEN != status);
+			}
 			YDB_ERROR_CHECK(status);
 			if (YDB_OK != status) {
 				FREE_HANDLE_PARSE_POINTERS();
@@ -301,6 +299,7 @@ int handle_parse(Parse *parse, RoctoSession *session) {
 			}
 		}
 	}
+	YDB_FREE_BUFFER(&cur_parm_value_buffer);
 	free(parse_context.is_bind_parm);
 	free(parse_context.types);
 	free(parse_context_array);

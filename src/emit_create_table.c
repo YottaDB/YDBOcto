@@ -24,45 +24,48 @@
 // Returns:
 //	0 for success, 1 for error
 int emit_create_table(FILE *output, struct SqlStatement *stmt) {
-	int		    status = 0;
+	int		    status = 0, buffer_size, defn_len = 0;
 	SqlColumn *	    start_column, *cur_column;
 	SqlTable *	    table;
 	SqlValue *	    value;
 	SqlOptionalKeyword *keyword;
-	char		    buffer[MAX_STR_CONST];
+	char *		    buffer;
 
 	if (NULL == stmt) {
 		return 0;
 	}
+	buffer_size = OCTO_INIT_BUFFER_LEN;
+	buffer = (char *)malloc(sizeof(char) * buffer_size);
 	table = stmt->v.create_table;
 	assert(table->tableName);
 	assert(table->columns);
 	UNPACK_SQL_STATEMENT(value, table->tableName, value);
-	fprintf(output, "CREATE TABLE `%s` (", value->v.reference);
+	defn_len += fprintf(output, "CREATE TABLE `%s` (", value->v.reference);
 	UNPACK_SQL_STATEMENT(start_column, table->columns, column);
 	cur_column = start_column;
 	do {
-		status = emit_column_specification(buffer, MAX_STR_CONST, cur_column);
+		status = emit_column_specification(&buffer, &buffer_size, cur_column);
 		if (0 > status) {
-			return 1;
+			free(buffer);
+			return -1;
 		}
-		fprintf(output, "%s", buffer);
+		defn_len += fprintf(output, "%s", buffer);
 		cur_column = cur_column->next;
 		if (start_column != cur_column) {
-			fprintf(output, ", ");
+			defn_len += fprintf(output, ", ");
 		}
 	} while (start_column != cur_column);
-	fprintf(output, ")");
+	defn_len += fprintf(output, ")");
 	if (table->source) {
 		UNPACK_SQL_STATEMENT(keyword, table->source, keyword);
 		UNPACK_SQL_STATEMENT(value, keyword->v, value);
-		m_escape_string2(buffer, MAX_STR_CONST, value->v.reference);
-		fprintf(output, " GLOBAL \"%s\"", buffer);
+		m_escape_string2(&buffer, &buffer_size, value->v.reference);
+		defn_len += fprintf(output, " GLOBAL \"%s\"", buffer);
 	}
 	if (table->delim) {
 		char ch, *delim;
 
-		fprintf(output, " DELIM ");
+		defn_len += fprintf(output, " DELIM ");
 		UNPACK_SQL_STATEMENT(keyword, table->delim, keyword);
 		UNPACK_SQL_STATEMENT(value, keyword->v, value);
 		delim = value->v.reference;
@@ -70,20 +73,21 @@ int emit_create_table(FILE *output, struct SqlStatement *stmt) {
 		delim++; /* Skip first byte to get actual delimiter */
 		assert((DELIM_IS_DOLLAR_CHAR == ch) || (DELIM_IS_LITERAL == ch));
 		if (DELIM_IS_LITERAL == ch) {
-			m_escape_string2(buffer, MAX_STR_CONST, delim);
-			fprintf(output, "\"%s\"", buffer);
+			m_escape_string2(&buffer, &buffer_size, delim);
+			defn_len += fprintf(output, "\"%s\"", buffer);
 		} else {
 			assert(!MEMCMP_LIT(delim, "$CHAR(")); /* this is added in parser.y */
 			delim += sizeof("$CHAR") - 1;	      /* Skip "$CHAR" */
-			fprintf(output, "%s", delim);
+			defn_len += fprintf(output, "%s", delim);
 		}
 	}
 	if (table->nullchar) {
-		fprintf(output, " NULLCHAR (");
+		defn_len += fprintf(output, " NULLCHAR (");
 		UNPACK_SQL_STATEMENT(keyword, table->nullchar, keyword);
 		UNPACK_SQL_STATEMENT(value, keyword->v, value);
-		fprintf(output, "%s)", value->v.reference);
+		defn_len += fprintf(output, "%s)", value->v.reference);
 	}
-	fprintf(output, ";");
-	return 0;
+	defn_len += fprintf(output, ";");
+	free(buffer);
+	return defn_len;
 }

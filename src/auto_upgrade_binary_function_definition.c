@@ -20,7 +20,9 @@
 	{                                              \
 		YDB_FREE_BUFFER(&FUNCTION_BUFF[1]);    \
 		YDB_FREE_BUFFER(&FUNCTION_BUFF[2]);    \
-		YDB_FREE_BUFFER(&RET_BUFF);            \
+		if (NULL != RET_BUFF.buf_addr) {       \
+			YDB_FREE_BUFFER(&RET_BUFF);    \
+		}                                      \
 	}
 
 #define CLEANUP_AND_RETURN(STATUS, FUNCTION_BUFF, RET_BUFF, FREE_MEMORY_CHUNK) \
@@ -50,13 +52,16 @@ int auto_upgrade_binary_function_definition(void) {
 	SqlStatement *result;
 	ParseContext  parse_context;
 
+	ret_buff.buf_addr = NULL; // Allow macros to verify if cleanup is needed and prevent clang compiler warnings
 	YDB_STRING_TO_BUFFER(config->global_names.octo, &octo_global);
 	YDB_STRING_TO_BUFFER(config->global_names.schema, &schema_global);
 	/* $order through ^%ydboctoocto(OCTOLIT_FUNCTIONS,function_name) and for each function_name,
 	 * $order through ^%ydboctoocto(OCTOLIT_FUNCTIONS,function_name,function_hash) and for each function_hash,
 	 * get CREATE FUNCTION statement from
 	 *	^%ydboctoocto(OCTOLIT_FUNCTIONS,function_name,function_hash,OCTOLIT_TEXT)
-	 * and set the following nodes
+	 * OR
+	 *	^%ydboctoocto(OCTOLIT_FUNCTIONS,function_name,function_hash,OCTOLIT_TEXT,...)
+	 * AND set the following nodes
 	 *	^%ydboctoocto(OCTOLIT_FUNCTIONS,function_name,function_hash,OCTOLIT_BINARY,...)
 	 *	^%ydboctoocto(OCTOLIT_FUNCTIONS,function_name,function_hash,OCTOLIT_LENGTH)
 	 */
@@ -64,8 +69,7 @@ int auto_upgrade_binary_function_definition(void) {
 	YDB_MALLOC_BUFFER(&function_subs[1], YDB_MAX_KEY_SZ); /* to store the function name */
 	YDB_MALLOC_BUFFER(&function_subs[2], YDB_MAX_KEY_SZ); /* to store the function hash */
 	function_subs[1].len_used = 0;
-	YDB_MALLOC_BUFFER(&ret_buff, YDB_MAX_STR); /* to store the return */
-	function_buff = &function_subs[0];	   /* Note down that this buffer needs to be freed in case of error code path */
+	function_buff = &function_subs[0]; /* Note down that this buffer needs to be freed in case of error code path */
 	while (TRUE) {
 		status = ydb_subscript_next_s(&octo_global, 2, &function_subs[0], &function_subs[1]);
 		if (YDB_ERR_NODEEND == status) {
@@ -80,14 +84,19 @@ int auto_upgrade_binary_function_definition(void) {
 		while (TRUE) {
 			char *	     binary_function_defn; /* pointer to the binary function definition */
 			int	     binary_function_defn_length;
+			char	     text_defn_str[MAX_DEFINITION_FRAGMENT_SIZE];
+			long	     text_defn_len;
+			ydb_buffer_t text_defn_buff;
 			ydb_buffer_t cursor_ydb_buff;
 			ydb_long_t   cursorId;
 			char	     cursor_buffer[INT64_TO_STRING_MAX];
+			char	     cur_frag_str[INT64_TO_STRING_MAX];
 			SqlFunction *function;
 			SqlValue *   value;
 			long long    function_oid;
 			char *	     as_with_spaces = " AS ", *curstr, *prevstr;
 			size_t	     as_len;
+			unsigned int data_ret;
 
 			status = ydb_subscript_next_s(&octo_global, 3, &function_subs[0], &function_subs[2]);
 			if (YDB_ERR_NODEEND == status) {
@@ -95,18 +104,83 @@ int auto_upgrade_binary_function_definition(void) {
 			}
 			assert(YDB_ERR_INVSTRLEN != status); /* because we allocated YDB_MAX_KEY_SZ above */
 			CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, function_buff, ret_buff, FALSE);
-			/* Get the "CREATE FUNCTION" query corresponding to "function_subs[1]" (function name)
-			 * and "function_subs[2]" (function hash) and recompute binary definition.
-			 */
-			YDB_STRING_TO_BUFFER(OCTOLIT_TEXT, &function_subs[3]);
-			status = ydb_get_s(&octo_global, 4, &function_subs[0], &ret_buff);
-			assert(YDB_ERR_INVSTRLEN != status); /* because we allocated YDB_MAX_STR above */
+
+			YDB_STRING_TO_BUFFER(OCTOLIT_TEXT_LENGTH, &function_subs[3]);
+			status = ydb_data_s(&octo_global, 4, &function_subs[0], &data_ret);
 			CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, function_buff, ret_buff, FALSE);
-			assert(ret_buff.len_used < ret_buff.len_alloc);
-			ret_buff.buf_addr[ret_buff.len_used] = '\0'; /* null terminate so we can use "strstr()" */
+			/* We expect a subtree except for older commits that pre-date text definition fragmentation, so check for
+			 * for the presence of OCTOLIT_TEXT_LENGTH, as this node is only created during text definition
+			 * fragmentation. Hence, it will not be present on older commits. In that case, we expect an absent node,
+			 * i.e. ydb_data_s returns 0 (no node or subtree).
+			 */
+			if (0 == data_ret) {
+				/* Retrieve text definition using pre-fragmentation layout:
+				 *	^%ydboctoocto(OCTOLIT_FUNCTIONS,function_name,function_hash,OCTOLIT_TEXT)
+				 */
+				YDB_STRING_TO_BUFFER(OCTOLIT_TEXT, &function_subs[3]);
+				YDB_MALLOC_BUFFER(&ret_buff, OCTO_INIT_BUFFER_LEN);
+				status = ydb_get_s(&octo_global, 4, &function_subs[0], &ret_buff);
+				if (YDB_ERR_INVSTRLEN == status) {
+					EXPAND_YDB_BUFFER_T_ALLOCATION(ret_buff);
+					status = ydb_get_s(&octo_global, 4, &function_subs[0], &ret_buff);
+					assert(YDB_ERR_INVSTRLEN != status);
+				}
+				/* The function definition in question doesn't exist in the old or new format, and so cannot be
+				 * automatically upgraded.
+				 */
+				if (YDB_OK != status) {
+					ERROR(ERR_AUTO_UPGRADE, "");
+				}
+				CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, function_buff, ret_buff, FALSE);
+			} else {
+				// Get the length of the full text table definition
+				OCTO_SET_BUFFER(text_defn_buff, text_defn_str);
+				OCTO_SET_BUFFER(function_subs[4], cur_frag_str);
+				YDB_STRING_TO_BUFFER(OCTOLIT_TEXT_LENGTH, &function_subs[3]);
+				status = ydb_get_s(&octo_global, 4, &function_subs[0], &text_defn_buff);
+				/* Assert since we allocated MAX_DEFINITION_FRAGMENT_SIZE above and
+				 * MAX_DEFINITION_FRAGMENT_SIZE > INT64_TO_STRING_MAX (INT64_TO_STRING_MAX is the size of the buffer
+				 * originally stored in store_binary_function_definition.c)
+				 */
+				assert(YDB_ERR_INVSTRLEN != status);
+				CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, function_buff, ret_buff, FALSE);
+
+				text_defn_len = strtoll(text_defn_buff.buf_addr, NULL, 10);
+				if ((LLONG_MIN == text_defn_len) || (LLONG_MAX == text_defn_len)) {
+					ERROR(ERR_SYSCALL_WITH_ARG, "strtoll()", errno, strerror(errno), text_defn_buff.buf_addr);
+					CLEANUP_AND_RETURN(1, function_buff, ret_buff, TRUE);
+				}
+				YDB_STRING_TO_BUFFER(OCTOLIT_TEXT, &function_subs[3]); // Reset subscript
+				YDB_MALLOC_BUFFER(&ret_buff, text_defn_len + 1);       /* to store the return */
+				ret_buff.len_used = 0;
+				// Retrieve each text definition fragment containing up to MAX_DEFINITION_FRAGMENT_SIZE characters
+				// each
+				do {
+					status = ydb_subscript_next_s(&octo_global, 5, &function_subs[0], &function_subs[4]);
+					assert(YDB_ERR_INVSTRLEN != status); // Since MAX_DEFINITION_FRAGMENT_SIZE allocated above
+					function_subs[4].buf_addr[function_subs[4].len_used] = '\0';
+					if (YDB_ERR_NODEEND == status) {
+						break;
+					}
+					CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, function_buff, ret_buff, FALSE);
+					status = ydb_get_s(&octo_global, 5, &function_subs[0], &text_defn_buff);
+					assert(YDB_ERR_INVSTRLEN
+					       != status); /* because we allocated MAX_DEFINITION_FRAGMENT_SIZE above */
+					CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, function_buff, ret_buff, FALSE);
+					/* Because we allocated text_defn_len above. More than this shouldn't have been stored by
+					 * store_function_definition.
+					 */
+					assert(ret_buff.len_alloc >= (ret_buff.len_used + text_defn_buff.len_used + 1));
+					memcpy(&ret_buff.buf_addr[ret_buff.len_used], text_defn_buff.buf_addr,
+					       text_defn_buff.len_used);
+					ret_buff.len_used += text_defn_buff.len_used;
+				} while (ret_buff.len_used <= text_defn_len);
+			}
+
 			/* Check if back-quotes surround the M extrinsic (a bug that is fixed in later commits). If so remove it.
 			 * Find last occurrence of " AS " in string first.
 			 */
+			ret_buff.buf_addr[ret_buff.len_used] = '\0';
 			curstr = ret_buff.buf_addr;
 			as_len = strlen(as_with_spaces);
 			for (;;) {
@@ -205,8 +279,8 @@ int auto_upgrade_binary_function_definition(void) {
 					   &binary_function_defn_length); /* sets "binary_function_defn" to "malloc"ed storage */
 			assert(NULL != binary_function_defn);
 			/* Note: function_subs[4] initialized and used in the function call below */
-			status = store_binary_function_definition(&function_subs[0], binary_function_defn,
-								  binary_function_defn_length);
+			status = store_function_definition(&function_subs[0], binary_function_defn, binary_function_defn_length,
+							   FALSE);
 			free(binary_function_defn); /* free buffer that was "malloc"ed in "compress_statement" */
 			CLEANUP_AND_RETURN_IF_NOT_YDB_OK(status, function_buff, ret_buff, TRUE);
 		}

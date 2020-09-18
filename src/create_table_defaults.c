@@ -22,6 +22,21 @@
 #define DELIM	 (1 << 1)
 #define NULLCHAR (1 << 2)
 
+#define EXPAND_BUFFER_IF_NEEDED(FMT_STR, ARG)                                                 \
+	while ((buffer_size - (buff_ptr - buffer)) <= (total_copied + copied)) {              \
+		char *tmp;                                                                    \
+		int   new_buffer_size;                                                        \
+                                                                                              \
+		new_buffer_size = buffer_size * 2;                                            \
+		tmp = (char *)malloc(sizeof(char) * new_buffer_size);                         \
+		memcpy(tmp, buffer, total_copied);                                            \
+		free(buffer);                                                                 \
+		buffer = tmp;                                                                 \
+		buffer_size = new_buffer_size;                                                \
+		buff_ptr = buffer + total_copied;                                             \
+		copied = snprintf(buff_ptr, buffer_size - (buff_ptr - buffer), FMT_STR, ARG); \
+	}
+
 #define DQDEL_AND_CONTINUE(CUR_KEYWORD, START_KEYWORD, NEXT_KEYWORD) \
 	{                                                            \
 		dqdel(CUR_KEYWORD);                                  \
@@ -41,10 +56,9 @@ int create_table_defaults(SqlStatement *table_statement, SqlStatement *keywords_
 	SqlColumn *	    key_columns[MAX_KEY_COUNT], *cur_column, *start_column;
 	SqlStatement *	    statement;
 	SqlValue *	    value;
-	char		    buffer[MAX_STR_CONST], buffer2[MAX_STR_CONST], *out_buffer;
-	char *		    buff_ptr;
+	char *		    out_buffer;
 	size_t		    str_len;
-	int		    max_key = 0, i, len;
+	int		    max_key = 0, copied, i, len;
 	unsigned int	    options = 0;
 
 	assert(NULL != keywords_statement);
@@ -76,6 +90,8 @@ int create_table_defaults(SqlStatement *table_statement, SqlStatement *keywords_
 	 * -2 indicates there was some error in the key columns
 	 */
 	if (max_key == -1) {
+		char key_num_buffer[INT32_TO_STRING_MAX];
+
 		cur_column = start_column;
 		i = 0;
 		do {
@@ -85,10 +101,12 @@ int create_table_defaults(SqlStatement *table_statement, SqlStatement *keywords_
 			keyword = statement->v.keyword;
 			keyword->keyword = OPTIONAL_KEY_NUM;
 			// key num value is index of key in table
-			snprintf(buffer, sizeof(buffer), "%d", i);
-			len = strlen(buffer);
+			copied = snprintf(key_num_buffer, INT32_TO_STRING_MAX, "%d", i);
+			assert(INT32_TO_STRING_MAX > copied);
+			UNUSED(copied); // Only used for asserts, so use macro to prevent compiler warnings in RelWithDebInfo builds
+			len = strlen(key_num_buffer);
 			out_buffer = octo_cmalloc(memory_chunks, len + 1);
-			strncpy(out_buffer, buffer, len + 1);
+			strncpy(out_buffer, key_num_buffer, len + 1);
 			SQL_VALUE_STATEMENT(keyword->v, INTEGER_LITERAL, out_buffer);
 			// Insert statement into column keyword list
 			dqinit(keyword);
@@ -147,19 +165,46 @@ int create_table_defaults(SqlStatement *table_statement, SqlStatement *keywords_
 			break;
 		}
 	} while (TRUE);
-	if ((SOURCE | DELIM) == options)
+	if ((SOURCE | DELIM) == options) {
 		return 0;
+	}
 	if (!(options & SOURCE)) {
+		int   total_copied = 0;
+		int   buffer_size, buffer2_size;
+		char *buffer, *buffer2, *buff_ptr;
+
+		buffer_size = buffer2_size = OCTO_INIT_BUFFER_LEN;
+		buffer = (char *)malloc(sizeof(char) * buffer_size);
+		buffer2 = (char *)malloc(sizeof(char) * buffer2_size);
 		UNPACK_SQL_STATEMENT(value, table->tableName, value);
 		buff_ptr = buffer;
-		buff_ptr += snprintf(buff_ptr, MAX_STR_CONST - (buff_ptr - buffer), "^%s(", value->v.reference);
+		copied = snprintf(buff_ptr, buffer_size - (buff_ptr - buffer), "^%s(", value->v.reference);
+		EXPAND_BUFFER_IF_NEEDED("^%s(", value->v.reference);
+		buff_ptr += copied;
+		total_copied += copied;
+		assert(buffer_size > total_copied);
+		UNUSED(total_copied); // Only used for asserts, so use macro to prevent compiler warnings in RelWithDebInfo builds
 		for (i = 0; i <= max_key; i++) {
-			generate_key_name(buffer2, MAX_STR_CONST, i, table, key_columns);
-			if (0 != i)
-				buff_ptr += snprintf(buff_ptr, MAX_STR_CONST - (buff_ptr - buffer), ",");
-			buff_ptr += snprintf(buff_ptr, MAX_STR_CONST - (buff_ptr - buffer), "%s", buffer2);
+			generate_key_name(&buffer2, &buffer2_size, i, table, key_columns);
+			if (0 != i) {
+				copied = snprintf(buff_ptr, buffer_size - (buff_ptr - buffer), ",");
+				EXPAND_BUFFER_IF_NEEDED("%s", ",");
+				buff_ptr += copied;
+				total_copied += copied;
+				assert(buffer_size > total_copied);
+			}
+			copied = snprintf(buff_ptr, buffer_size - (buff_ptr - buffer), "%s", buffer2);
+			EXPAND_BUFFER_IF_NEEDED("%s", buffer2);
+			buff_ptr += copied;
+			total_copied += copied;
+			assert(buffer_size > total_copied);
 		}
-		buff_ptr += snprintf(buff_ptr, MAX_STR_CONST - (buff_ptr - buffer), ")");
+		copied = snprintf(buff_ptr, buffer_size - (buff_ptr - buffer), ")");
+		EXPAND_BUFFER_IF_NEEDED("%s", ")");
+		buff_ptr += copied;
+		total_copied += copied;
+		assert(buffer_size > total_copied);
+		UNUSED(total_copied); // Only used for asserts, so use macro to prevent compiler warnings in RelWithDebInfo builds
 		*buff_ptr++ = '\0';
 		len = buff_ptr - buffer;
 		out_buffer = octo_cmalloc(memory_chunks, len);
@@ -169,6 +214,8 @@ int create_table_defaults(SqlStatement *table_statement, SqlStatement *keywords_
 		SQL_VALUE_STATEMENT(keyword->v, STRING_LITERAL, out_buffer);
 		dqinit(keyword);
 		dqappend(start_keyword, keyword);
+		free(buffer);
+		free(buffer2);
 	}
 	if (!(options & DELIM)) {
 		assert(2 == sizeof(COLUMN_DELIMITER));	// 2 includes null terminator

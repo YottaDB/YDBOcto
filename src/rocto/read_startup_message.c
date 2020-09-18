@@ -20,47 +20,54 @@
 #include "rocto.h"
 #include "message_formats.h"
 
-StartupMessage *read_startup_message(RoctoSession *session, char *data, int32_t data_length) {
+StartupMessage *read_startup_message(RoctoSession *session, char **data, int32_t *data_length) {
 	StartupMessage *ret = NULL;
-	int32_t		num_parms = 0, cur_parm = 0;
-	char *		c, *message_end;
+	int32_t		num_parms = 0, cur_parm = 0, to_read, tmp_len;
+	char *		c, *message_end, *tmp;
 	// Length plus protocol version
 	uint32_t hard_coded_ints = sizeof(uint32_t) + sizeof(int);
 
 	// First read length and protocol type, then we will reallocate things
 	ret = (StartupMessage *)malloc(sizeof(StartupMessage));
-	memcpy(&ret->length, data, hard_coded_ints);
+	memcpy(&ret->length, *data, hard_coded_ints);
 	ret->length = ntohl(ret->length);
 	ret->protocol_version = ntohl(ret->protocol_version);
 
 	// Protocol version number format:
 	// 	most significant 16 bits:  major version #, i.e. 3
 	// 	least significant 16 bits: minor version #, i.e. 0
-	if (ret->protocol_version != 0x00030000) {
+	if (0x00030000 != ret->protocol_version) {
 		ERROR(ERR_ROCTO_INVALID_VERSION, "StartupMessage", ret->protocol_version, 0x00030000);
 		free(ret);
 		return NULL;
 	}
 
 	// No parameters send
-	if (ret->length == hard_coded_ints) {
+	if (hard_coded_ints == ret->length) {
 		ERROR(ERR_ROCTO_MISSING_NULL, "StartupMessage", "parameter list");
 		free(ret);
 		return NULL;
 	}
 
 	// Prepare to reallocate
-	data_length = ret->length;
+	to_read = ret->length;
 	free(ret);
+	if (to_read > *data_length) {
+		free(*data);
+		*data_length = to_read;
+		*data = (char *)malloc(sizeof(char) * (*data_length));
+	}
 
 	// Size is length in packet + other stuff in the struct, minus the hard-coded
 	//  elements in the struct (two int4's)
-	ret = (StartupMessage *)malloc(sizeof(StartupMessage) + data_length - hard_coded_ints);
+	ret = (StartupMessage *)malloc(sizeof(StartupMessage) + to_read - hard_coded_ints);
 	memcpy(&ret->length, data, hard_coded_ints);
-	read_bytes(session, (char *)&ret->data, data_length - hard_coded_ints, data_length - hard_coded_ints);
+	tmp = (char *)&ret->data;
+	tmp_len = to_read - hard_coded_ints;
+	read_bytes(session, &tmp, &tmp_len, to_read - hard_coded_ints, FALSE);
 
 	c = ret->data;
-	message_end = (char *)(&ret->length) + data_length;
+	message_end = (char *)(&ret->length) + to_read;
 
 	// Fill out the list of messages; first, count them
 	while (c < message_end && *c != '\0') {

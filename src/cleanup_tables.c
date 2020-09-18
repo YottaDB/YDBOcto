@@ -21,8 +21,8 @@
 
 void cleanup_tables() {
 	int	     status;
-	char	     buffer[MAX_STR_CONST];
-	char	     table_name[MAX_STR_CONST];
+	char	     buffer[sizeof(MemoryChunk **)];
+	char	     table_name[OCTO_MAX_IDENT + 1]; // Null terminator
 	ydb_buffer_t loaded_schemas_b[4];
 	ydb_buffer_t result_b;
 
@@ -41,12 +41,16 @@ void cleanup_tables() {
 			break;
 		}
 		YDB_ERROR_CHECK(status);
-		if (YDB_OK != status)
+		if (YDB_OK != status) {
+			assert(FALSE);
 			break;
+		}
 		status = ydb_get_s(&loaded_schemas_b[0], 3, &loaded_schemas_b[1], &result_b);
 		YDB_ERROR_CHECK(status);
-		if (YDB_OK != status)
+		if (YDB_OK != status) {
+			assert(FALSE);
 			break;
+		}
 		OCTO_CFREE(*((MemoryChunk **)result_b.buf_addr));
 	}
 }

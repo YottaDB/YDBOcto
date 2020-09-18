@@ -18,16 +18,22 @@
 
 #include "octo.h"
 
+/* The command string below is approximately 50 characters in length, so combine with INT64_TO_STRING_MAX to get total length of the
+ * command string.
+ */
+#define COMMAND_STRING "ps -p %d -o vsize | cut -d ' ' -f 2 | tr -d '\\n'"
+#define COMMAND_LEN    (sizeof(COMMAND_STRING) + INT64_TO_STRING_MAX)
+
 // Returns the amount of memory used by the current process
 int64_t get_mem_usage() {
 	FILE *	fp;
-	char	command[MAX_STR_CONST];
 	char	mem_used[INT64_TO_STRING_MAX];
 	int64_t ret;
 	int	save_errno;
 	char *	status;
+	char	command[COMMAND_LEN];
 
-	snprintf(command, MAX_STR_CONST, "ps -p %d -o vsize | cut -d ' ' -f 2 | tr -d '\\n'", getpid());
+	snprintf(command, sizeof(command), COMMAND_STRING, getpid());
 
 	fp = popen(command, "r");
 	if (fp == NULL) {

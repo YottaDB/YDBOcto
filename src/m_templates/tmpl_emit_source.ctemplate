@@ -35,7 +35,7 @@ int match_expression(char *start, char *column, int column_size);
  */
 TEMPLATE(tmpl_emit_source, SqlTable *table, char *source, char *table_name, int unique_id, int num_vars_to_match, enum EmitSourceForm form) {
 	char	*source_ptr;
-	char	column[MAX_STR_CONST];
+	char	column[OCTO_MAX_IDENT + 1]; // Null terminator
 	int	t, matched_vars = 0;
 	int	key_count;
 	int	paren_count = 0;
@@ -45,7 +45,7 @@ TEMPLATE(tmpl_emit_source, SqlTable *table, char *source, char *table_name, int 
 	assert(num_vars_to_match);
 	// TODO: how does this handle globals that have things like "abc"_keys("id")?
 	while (('\0' != *source_ptr) && (matched_vars < num_vars_to_match)) {
-		t = match_expression(source_ptr, column, MAX_STR_CONST);
+		t = match_expression(source_ptr, column, OCTO_MAX_IDENT);
 		assert(-1 != t);
 		if (0 < t) {
 			// Note that we don't add quotes to column in case the user uses an

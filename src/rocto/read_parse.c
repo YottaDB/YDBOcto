@@ -100,10 +100,14 @@ Parse *read_parse(BaseMessage *message) {
 	}
 	// Allocate a new array and use memcpy to prevent alignment issues from compiler optimizations
 	// caused by casting char * into uint32_t *.
-	ret->parm_data_types = (uint32_t *)calloc(ret->num_parm_data_types, sizeof(uint32_t));
-	memcpy(ret->parm_data_types, cur_pointer, ret->num_parm_data_types * sizeof(uint32_t));
-	for (int16_t i = 0; i < ret->num_parm_data_types; i++) {
-		ret->parm_data_types[i] = ntohl(*((int *)(&ret->parm_data_types[i])));
+	if (0 == ret->num_parm_data_types) {
+		ret->parm_data_types = NULL;
+	} else {
+		ret->parm_data_types = (uint32_t *)calloc(ret->num_parm_data_types, sizeof(uint32_t));
+		memcpy(ret->parm_data_types, cur_pointer, ret->num_parm_data_types * sizeof(uint32_t));
+		for (int16_t i = 0; i < ret->num_parm_data_types; i++) {
+			ret->parm_data_types[i] = ntohl(*((int *)(&ret->parm_data_types[i])));
+		}
 	}
 	return ret;
 }

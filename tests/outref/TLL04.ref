@@ -1,25 +1,14 @@
-[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_COLUMN_NAME : Unknown column: COLUMN_A
-Error with syntax near (line 2, column 1):
-
-select
-COLUMN_A
-COLUMN_A_ERROR
-[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_COLUMN_NAME : Unknown column: COLUMN_B
-Error with syntax near (line 3, column 2):
-
-select
-COLUMN_A
-,COLUMN_B
-COLUMN_B_ERROR
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select
-COLUMN_A
-,COLUMN_B
-from names;
+Zero|Cool
+Acid|Burn
+Cereal|Killer
+Lord|Nikon
+Joey|
+Zero|Cool
 [ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_COLUMN_NAME : Unknown column: NOTATHING
 Error with syntax near (line 1, column 8):
 
-from names; select notathing from names; select firstname from names limit 1;
-                   ^^^^^^^^^
+select notathing from names; select firstname from names limit 1;
+       ^^^^^^^^^
 [ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select notathing from names;
 Zero
 Cool

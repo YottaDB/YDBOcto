@@ -31,13 +31,20 @@ RowDescription *get_plan_row_description(ydb_buffer_t *plan_filename) {
 	int32_t		    status;
 	int16_t		    num_columns, cur_column;
 	char *		    column_name = NULL;
+	char		    cur_column_str[INT16_TO_STRING_MAX];
 
 	plan_meta = make_buffers(config->global_names.octo, 5, OCTOLIT_PLAN_METADATA, "", OCTOLIT_OUTPUT_COLUMNS, "", "");
 	plan_meta[2] = *plan_filename;
-	YDB_MALLOC_BUFFER(&value_buffer, MAX_STR_CONST);
+	YDB_MALLOC_BUFFER(&value_buffer, OCTO_INIT_BUFFER_LEN);
+	value_buffer.len_alloc--; // Leave room for null terminator
 
 	// Get total number of columns for the given plan
 	status = ydb_get_s(&plan_meta[0], 3, &plan_meta[1], &value_buffer);
+	if (YDB_ERR_INVSTRLEN == status) {
+		EXPAND_YDB_BUFFER_T_ALLOCATION(value_buffer);
+		status = ydb_get_s(&plan_meta[0], 3, &plan_meta[1], &value_buffer);
+		assert(YDB_ERR_INVSTRLEN != status);
+	}
 	YDB_ERROR_CHECK(status);
 	if (YDB_OK != status) {
 		YDB_FREE_BUFFER(&value_buffer);
@@ -50,30 +57,40 @@ RowDescription *get_plan_row_description(ydb_buffer_t *plan_filename) {
 	if ((ERANGE != errno) && (0 <= tmp_long) && (INT16_MAX >= tmp_long)) {
 		num_columns = (int16_t)tmp_long;
 	} else {
-		ERROR(ERR_LIBCALL_WITH_ARG, "strtol", value_buffer.buf_addr);
+		ERROR(ERR_INVALID_NUMBER, "get_plan_row_description", "number of select columns", tmp_long * -1, 0, INT16_MAX);
 		YDB_FREE_BUFFER(&value_buffer);
 		free(plan_meta);
 		return NULL;
 	}
 
 	// Populate RowDescriptionParms with data from plan, column by column
-	YDB_MALLOC_BUFFER(&plan_meta[4], MAX_STR_CONST);
+	OCTO_SET_BUFFER(plan_meta[4], cur_column_str);
 	parms = calloc(num_columns, sizeof(RowDescriptionParm));
 	for (cur_column = 0; cur_column < num_columns; cur_column++) {
 		OCTO_INT16_TO_BUFFER((int16_t)(cur_column + 1), &plan_meta[4]); // Columns are indexed from 1, not 0
 
 		YDB_LITERAL_TO_BUFFER(OCTOLIT_NAME, &plan_meta[5]);
 		status = ydb_get_s(plan_meta, 5, &plan_meta[1], &value_buffer);
+		if (YDB_ERR_INVSTRLEN == status) {
+			EXPAND_YDB_BUFFER_T_ALLOCATION(value_buffer);
+			status = ydb_get_s(plan_meta, 5, &plan_meta[1], &value_buffer);
+			assert(YDB_ERR_INVSTRLEN != status);
+		}
 		YDB_ERROR_CHECK(status);
 		if (YDB_OK != status)
 			break;
-		column_name = calloc(value_buffer.len_used + 1, sizeof(char));
+		column_name = (char *)malloc(sizeof(char) * (value_buffer.len_used + 1));
 		memcpy(column_name, value_buffer.buf_addr, value_buffer.len_used);
 		column_name[value_buffer.len_used] = '\0';
 		parms[cur_column].name = column_name;
 
 		YDB_LITERAL_TO_BUFFER(OCTOLIT_TABLE_ID, &plan_meta[5]);
 		status = ydb_get_s(plan_meta, 5, &plan_meta[1], &value_buffer);
+		if (YDB_ERR_INVSTRLEN == status) {
+			EXPAND_YDB_BUFFER_T_ALLOCATION(value_buffer);
+			status = ydb_get_s(plan_meta, 5, &plan_meta[1], &value_buffer);
+			assert(YDB_ERR_INVSTRLEN != status);
+		}
 		YDB_ERROR_CHECK(status);
 		if (YDB_OK != status)
 			break;
@@ -90,6 +107,11 @@ RowDescription *get_plan_row_description(ydb_buffer_t *plan_filename) {
 
 		YDB_LITERAL_TO_BUFFER(OCTOLIT_COLUMN_ID, &plan_meta[5]);
 		status = ydb_get_s(plan_meta, 5, &plan_meta[1], &value_buffer);
+		if (YDB_ERR_INVSTRLEN == status) {
+			EXPAND_YDB_BUFFER_T_ALLOCATION(value_buffer);
+			status = ydb_get_s(plan_meta, 5, &plan_meta[1], &value_buffer);
+			assert(YDB_ERR_INVSTRLEN != status);
+		}
 		YDB_ERROR_CHECK(status);
 		if (YDB_OK != status)
 			break;
@@ -106,6 +128,11 @@ RowDescription *get_plan_row_description(ydb_buffer_t *plan_filename) {
 
 		YDB_LITERAL_TO_BUFFER(OCTOLIT_DATA_TYPE, &plan_meta[5]);
 		status = ydb_get_s(plan_meta, 5, &plan_meta[1], &value_buffer);
+		if (YDB_ERR_INVSTRLEN == status) {
+			EXPAND_YDB_BUFFER_T_ALLOCATION(value_buffer);
+			status = ydb_get_s(plan_meta, 5, &plan_meta[1], &value_buffer);
+			assert(YDB_ERR_INVSTRLEN != status);
+		}
 		YDB_ERROR_CHECK(status);
 		if (YDB_OK != status)
 			break;
@@ -123,6 +150,11 @@ RowDescription *get_plan_row_description(ydb_buffer_t *plan_filename) {
 
 		YDB_LITERAL_TO_BUFFER(OCTOLIT_DATA_TYPE_SIZE, &plan_meta[5]);
 		status = ydb_get_s(plan_meta, 5, &plan_meta[1], &value_buffer);
+		if (YDB_ERR_INVSTRLEN == status) {
+			EXPAND_YDB_BUFFER_T_ALLOCATION(value_buffer);
+			status = ydb_get_s(plan_meta, 5, &plan_meta[1], &value_buffer);
+			assert(YDB_ERR_INVSTRLEN != status);
+		}
 		YDB_ERROR_CHECK(status);
 		if (YDB_OK != status)
 			break;
@@ -140,6 +172,11 @@ RowDescription *get_plan_row_description(ydb_buffer_t *plan_filename) {
 
 		YDB_LITERAL_TO_BUFFER(OCTOLIT_TYPE_MODIFIER, &plan_meta[5]);
 		status = ydb_get_s(plan_meta, 5, &plan_meta[1], &value_buffer);
+		if (YDB_ERR_INVSTRLEN == status) {
+			EXPAND_YDB_BUFFER_T_ALLOCATION(value_buffer);
+			status = ydb_get_s(plan_meta, 5, &plan_meta[1], &value_buffer);
+			assert(YDB_ERR_INVSTRLEN != status);
+		}
 		YDB_ERROR_CHECK(status);
 		if (YDB_OK != status)
 			break;
@@ -157,6 +194,11 @@ RowDescription *get_plan_row_description(ydb_buffer_t *plan_filename) {
 
 		YDB_LITERAL_TO_BUFFER(OCTOLIT_FORMAT_CODE, &plan_meta[5]);
 		status = ydb_get_s(plan_meta, 5, &plan_meta[1], &value_buffer);
+		if (YDB_ERR_INVSTRLEN == status) {
+			EXPAND_YDB_BUFFER_T_ALLOCATION(value_buffer);
+			status = ydb_get_s(plan_meta, 5, &plan_meta[1], &value_buffer);
+			assert(YDB_ERR_INVSTRLEN != status);
+		}
 		YDB_ERROR_CHECK(status);
 		if (YDB_OK != status)
 			break;
@@ -173,7 +215,6 @@ RowDescription *get_plan_row_description(ydb_buffer_t *plan_filename) {
 		}
 	}
 	YDB_FREE_BUFFER(&value_buffer);
-	YDB_FREE_BUFFER(&plan_meta[4]);
 	free(plan_meta);
 	if (YDB_OK == status) {
 		ret = make_row_description(parms, num_columns);

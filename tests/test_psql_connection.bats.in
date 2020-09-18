@@ -383,3 +383,40 @@ OCTO
 	run_psql $test_port TPC017.sql 2>&1 | tee output.txt
 	verify_output TPC017 output.txt noinfo nodebug
 }
+
+@test "TPC018 : OCTO590 : Rocto does not issue read size error for long queries" {
+	stop_rocto
+	test_portL=$(start_rocto $test_port quiet --allowschemachanges)
+	testname="TPC018"
+	cat <<OCTO &> $testname.sql
+CREATE TABLE table1 (
+  id INTEGER PRIMARY KEY
+  $(for i in $(seq 1 10000); do echo ", column$i VARCHAR"; done)
+);
+SELECT * from table1;
+select c.relname, a.attname
+from pg_catalog.pg_class as c
+    inner join pg_catalog.pg_attribute as a on a.attrelid = c.oid
+where c.relname = 'TABLE1' and c.relkind = 'r';
+OCTO
+	# Load the table schema into octo
+	run_psql $test_portL $testname.sql 2>&1 | tee output.txt
+	# Output for this test is large, so confirm no error without using outref
+	# This also covers the SELECT query above, since table1 should exist and no "Unknown table" error should be issued
+	[[ $(grep -c ERROR output.txt) -eq 0 ]]
+	# Count rows returned columns to ensure all accounted for
+	[[ $(grep -c "TABLE1  | COLUMN" output.txt) -eq 10000 ]]
+}
+
+@test " TPC019 : OCTO590 : Rocto issues error for query exceeding OCTO_MAX_QUERY_LEN" {
+	testname=TPC019
+	stop_rocto
+	test_portM=$(start_rocto $test_port quiet)
+	cat <<OCTO > $testname.sql
+SELECT * FROM names WHERE id = 0 OR id = 2
+$(for i in $(seq 1 32120); do echo " AND id = 10000000000001234512345"; done);
+OCTO
+	run_psql $test_portM $testname.sql 2>&1 | tee output.txt
+	verify_output $testname output.txt noinfo nodebug
+}
+

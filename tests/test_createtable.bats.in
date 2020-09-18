@@ -31,7 +31,7 @@ teardown() {
   cat <<OCTO > table1.sql
 CREATE TABLE table1 (
   id INTEGER PRIMARY KEY
-  $(for i in $(seq 1 1000); do echo ", column$i VARCHAR"; done)
+  $(for i in $(seq 1 2000); do echo ", column$i VARCHAR"; done)
 );
 OCTO
   # Load the table schema into octo
@@ -488,4 +488,53 @@ OCTO
 @test "TC038 : OCTO626 : CREATE TABLE should issue error if more than one column with the same name is specified" {
 	load_fixture TC038.sql subtest novv
 	verify_output TC038 output.txt
+}
+
+@test "TC039 : OCTO590 : Confirm table text definitions are correctly broken up across multiple GVNs by attempting to load them" {
+	# This test cannot run with rocto in the background as enabling journaling requires standalone access. So stop it.
+	stop_rocto
+	echo "# Run [yottadb -run TC039] to generate input.sql" > output.txt
+	$ydb_dist/yottadb -run TC039 &> input.sql
+	echo "# Run [octo -f input.sql] and verify no SIG-11 etc." >> output.txt
+	octo -f input.sql >> output.txt 2>&1
+
+	echo "------------------------------------------------------------------------------------------------" >> output.txt
+	echo "# Validate that long DDL definitions are correctly fragmented and retrieved" >> output.txt
+	echo "# Do this by causing a difference in FMT_PLAN_DEFINITION to force retrieval after initial storage" >> output.txt
+	echo "------------------------------------------------------------------------------------------------" >> output.txt
+	echo "# Run [mupip extract run3.ext]" >> output.txt
+	$ydb_dist/mupip extract run3.ext
+	echo '# Determine current plan definition format number (FMT_PLAN_DEFINITION) from run3.ext' >> output.txt
+	curplanfmt=`grep -w "planfmt" run3.ext | sed 's/.*="//;s/"//;'`
+	oldplanfmt=$[$curplanfmt - 1]
+	echo "# Simulate random prior commit by setting plan definition format number to a smaller value" >> output.txt
+	yottadb -run %XCMD "set ^%ydboctoocto(\"planfmt\")=$oldplanfmt"
+	echo "# Turn on journaling to find out what database nodes get set during auto upgrade" >> output.txt
+	$ydb_dist/mupip set -journal="enable,on,nobefore" -reg OCTOREG >& jnlon3.log
+	echo "# Run [octo -f empty_query.sql] so auto upgrade of plan definitions happens" >> output.txt
+	octo <<OCTO >> output.txt 2>&1
+	SELECT * FROM TC039;
+OCTO
+	echo "# Turn off journaling (no longer needed for this stage of the test)" >> output.txt
+	$ydb_dist/mupip set -journal=off -reg OCTOREG >& jnloff3.log
+	echo '# Verify that ^%ydboctoocto("planfmt") gets set to current FMT_PLAN_DEFINITION' >> output.txt
+	$ydb_dist/mupip journal -extract -detail -forward octo.mjl >& jnlext3.log
+	[[ $(grep "SET.*planfmt" octo.mjf | grep "=\"$curplanfmt\"" | wc -l) -eq 1 ]]
+	verify_output TC039 output.txt
+}
+
+@test "TC040 : OCTO590 : Confirm enforcement of table name length limits during table creation and cleanup" {
+	load_fixture TC040.sql subtest novv
+	verify_output TC040 output.txt
+}
+
+@test "TC041 : OCTO483 : Prohibit specification of more than 255 characters using DELIM, i.e. the max number of args for \$CHAR" {
+	echo "# Run [yottadb -run TC041] to generate input.sql with 256 characters" > output.txt
+	$ydb_dist/yottadb -run TC041 &> input-256char.sql
+	echo "# Run [octo -f input-256char.sql] and verify error message" >> output.txt
+	octo -f input-256char.sql >> output.txt 2>&1
+	cat input-256char.sql | sed 's/(1,/(/' &> input-255char.sql
+	echo "# Run [octo -f input-255char.sql] and verify no error message" >> output.txt
+	octo -f input-255char.sql >> output.txt 2>&1
+	verify_output TC041 output.txt
 }

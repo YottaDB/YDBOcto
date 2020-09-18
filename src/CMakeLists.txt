@@ -162,7 +162,6 @@ add_library(libocto OBJECT
   find_column_alias_name.c
   find_table.c
   find_function.c
-  format_error_string.c
   generate_key_name.c
   generate_routine_name.c
   get_aggregate_func_name.c
@@ -267,8 +266,8 @@ add_library(libocto OBJECT
   readline_get_more.c
   regex_has_no_special_characters.c
   run_query.c
-  store_binary_function_definition.c
-  store_binary_table_definition.c
+  store_function_definition.c
+  store_table_definition.c
   store_table_in_pg_class.c
   store_function_in_pg_proc.c
   tables_equal.c

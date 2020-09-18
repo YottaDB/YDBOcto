@@ -35,9 +35,10 @@ int rocto_main_loop(RoctoSession *session) {
 	ReadyForQuery *ready_for_query;
 	fd_set	       rfds;
 	struct timeval select_timeout;
-	char	       buffer[MAX_STR_CONST];
+	char *	       buffer;
 	int32_t	       result;
-	ydb_long_t     cursorId = -1; // Initialize cursorId to -1 to signal there is no cursor in reuse
+	int32_t	       buffer_size = OCTO_INIT_BUFFER_LEN; // Null terminator
+	ydb_long_t     cursorId = -1;			   // Initialize cursorId to -1 to signal there is no cursor in reuse
 	boolean_t      send_ready_for_query = TRUE;
 	boolean_t      extended_query_error = FALSE;
 	boolean_t      terminated = FALSE;
@@ -52,6 +53,7 @@ int rocto_main_loop(RoctoSession *session) {
 	memset(&select_timeout, 0, sizeof(struct timeval));
 	select_timeout.tv_usec = 1;
 
+	buffer = (char *)malloc(sizeof(char) * buffer_size);
 	while (!terminated) {
 		// Send ready if there is not a pending message
 		do {
@@ -79,7 +81,8 @@ int rocto_main_loop(RoctoSession *session) {
 			free(ready_for_query);
 		}
 		int32_t rocto_err = 0;
-		message = read_message(session, buffer, MAX_STR_CONST, &rocto_err);
+		// Note that read_message will automatically resize the buffer as needed and update buffer_size accordingly
+		message = read_message(session, &buffer, &buffer_size, &rocto_err);
 		if (NULL == message) {
 			break;
 		}
@@ -107,6 +110,9 @@ int rocto_main_loop(RoctoSession *session) {
 				break;
 			}
 			result = handle_parse(parse, session);
+			if (NULL != parse->parm_data_types) {
+				free(parse->parm_data_types);
+			}
 			free(parse);
 			if (1 == result) {
 				extended_query_error = TRUE;
@@ -194,5 +200,6 @@ int rocto_main_loop(RoctoSession *session) {
 	// Disable sending of messages while we shutdown
 	rocto_session.sending_message = TRUE;
 	cleanup_tables();
+	free(buffer);
 	return 0;
 }

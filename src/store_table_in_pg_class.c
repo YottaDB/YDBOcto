@@ -35,23 +35,26 @@
 		}                                                      \
 	}
 
+#define BUFFER_SIZE 1024
+
 /* Attempts to store a row in pg_catalog.pg_class for this table.
  * Note that this function is similar to store_function_in_pg_proc.
  */
 int store_table_in_pg_class(SqlTable *table, ydb_buffer_t *table_name_buffer) {
-	int	      status;
-	SqlValue *    value;
-	SqlColumn *   start_column;
-	SqlColumn *   cur_column;
-	ydb_buffer_t *oid_buffer;
-	ydb_buffer_t *pg_class;
-	ydb_buffer_t *pg_attribute;
-	ydb_buffer_t  buffer_b;
-	ydb_buffer_t  schema_global;
-	ydb_buffer_t  pg_class_schema[2], pg_attribute_schema[3];
-	char *	      table_name;
-	char	      buffer[MAX_STR_CONST];
-	long long     class_oid;
+	int		  status;
+	SqlValue *	  value;
+	SqlColumn *	  start_column;
+	SqlColumn *	  cur_column;
+	ydb_buffer_t *	  oid_buffer;
+	ydb_buffer_t *	  pg_class;
+	ydb_buffer_t *	  pg_attribute;
+	ydb_buffer_t	  buffer_b;
+	ydb_buffer_t	  schema_global;
+	ydb_buffer_t	  pg_class_schema[2], pg_attribute_schema[3];
+	char *		  table_name;
+	char		  buffer[BUFFER_SIZE];
+	long long	  class_oid;
+	long unsigned int copied;
 
 	// Prepare buffers
 	pg_class = make_buffers(config->global_names.octo, 4, OCTOLIT_TABLES, OCTOLIT_PG_CATALOG, OCTOLIT_PG_CLASS, "");
@@ -77,9 +80,12 @@ int store_table_in_pg_class(SqlTable *table, ydb_buffer_t *table_name_buffer) {
 	 * Columns of `pg_catalog.pg_class` table in `tests/fixtures/postgres.sql`.
 	 * Any changes to that table definition will require changes here too.
 	 */
-	snprintf(buffer, sizeof(buffer), "%s|2200|16388|0|16385|0|16386|0|0|0|0|16389|1|0|p|r|3|0|0|1|0|0|0|0|0|1|d|0|571|1||||%s",
-		 table_name, pg_class[4].buf_addr);
-	buffer_b.len_alloc = buffer_b.len_used = strlen(buffer);
+	copied = snprintf(buffer, sizeof(buffer),
+			  "%s|2200|16388|0|16385|0|16386|0|0|0|0|16389|1|0|p|r|3|0|0|1|0|0|0|0|0|1|d|0|571|1||||%s", table_name,
+			  pg_class[4].buf_addr);
+	assert(sizeof(buffer) > copied);
+	UNUSED(copied);
+	buffer_b.len_alloc = buffer_b.len_used = copied;
 	buffer_b.buf_addr = buffer;
 	/* Set the table name passed in as having an oid of TABLEOID in the pg_catalog.
 	 * 	i.e. SET ^%ydboctoocto(OCTOLIT_TABLES,OCTOLIT_PG_CATALOG,OCTOLIT_PG_CLASS,TABLEOID)=...
@@ -154,8 +160,10 @@ int store_table_in_pg_class(SqlTable *table, ydb_buffer_t *table_name_buffer) {
 		 * Columns of `pg_catalog.pg_attribute` table in `tests/fixtures/postgres.sql`.
 		 * Any changes to that table definition will require changes here too.
 		 */
-		snprintf(buffer, sizeof(buffer), "%lld|%s|%d|-1|-1|2|0|-1|-1|0|x|i|0|0|0|\"\"|0|1|0|100||||", class_oid,
-			 column_name, atttypid);
+		copied = snprintf(buffer, sizeof(buffer), "%lld|%s|%d|-1|-1|2|0|-1|-1|0|x|i|0|0|0|\"\"|0|1|0|100||||", class_oid,
+				  column_name, atttypid);
+		assert(sizeof(buffer) > copied);
+		UNUSED(copied);
 		/* Get a unique oid COLUMNOID for each column in the table.
 		 * 	i.e. $INCREMENT(^%ydboctoocto(OCTOLIT_OID))
 		 */

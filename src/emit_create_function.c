@@ -46,6 +46,7 @@ int emit_create_function(FILE *output, struct SqlStatement *stmt) {
 	SqlParameterTypeList *start_parameter_type, *cur_parameter_type;
 	SqlValue *	      function_name;
 	SqlDataType	      data_type;
+	int		      defn_len = 0;
 
 	if (stmt == NULL)
 		return 0;
@@ -53,7 +54,7 @@ int emit_create_function(FILE *output, struct SqlStatement *stmt) {
 	assert(function->function_name);
 	// assert(function->parameter_type_list);
 	UNPACK_SQL_STATEMENT(function_name, function->function_name, value);
-	fprintf(output, "CREATE FUNCTION `%s`(", function_name->v.string_literal);
+	defn_len += fprintf(output, "CREATE FUNCTION `%s`(", function_name->v.string_literal);
 	if (NULL != function->parameter_type_list) { // Skip parameter types if none were specified
 		UNPACK_SQL_STATEMENT(start_parameter_type, function->parameter_type_list, parameter_type_list);
 		cur_parameter_type = start_parameter_type;
@@ -62,17 +63,17 @@ int emit_create_function(FILE *output, struct SqlStatement *stmt) {
 			 * per https://www.postgresql.org/docs/current/sql-createfunction.html
 			 */
 			data_type = cur_parameter_type->data_type_struct->v.data_type_struct.data_type;
-			fprintf(output, " %s", get_type_string_from_sql_data_type(data_type));
+			defn_len += fprintf(output, " %s", get_type_string_from_sql_data_type(data_type));
 			cur_parameter_type = cur_parameter_type->next;
 			if (start_parameter_type != cur_parameter_type)
-				fprintf(output, ", ");
+				defn_len += fprintf(output, ", ");
 		} while (start_parameter_type != cur_parameter_type);
 	}
-	fprintf(output, ") RETURNS ");
+	defn_len += fprintf(output, ") RETURNS ");
 	data_type = function->return_type->v.data_type_struct.data_type;
-	fprintf(output, "%s", get_type_string_from_sql_data_type(data_type));
-	fprintf(output, " AS %s", function->extrinsic_function->v.value->v.string_literal);
+	defn_len += fprintf(output, "%s", get_type_string_from_sql_data_type(data_type));
+	defn_len += fprintf(output, " AS %s", function->extrinsic_function->v.value->v.string_literal);
 
-	fprintf(output, ";");
-	return 0;
+	defn_len += fprintf(output, ";");
+	return defn_len;
 }

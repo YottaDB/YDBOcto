@@ -165,14 +165,17 @@ TEMPLATE(tmpl_insert_into, PhysicalPlan *pplan) {
 					actual_delim = delim + 1; /* Skip first byte to get actual delimiter */
 					assert((DELIM_IS_DOLLAR_CHAR == ch) || (DELIM_IS_LITERAL == ch));
 					if (DELIM_IS_LITERAL == ch) {
-						char	buffer[4];	/* 4 bytes is more than enough space to hold
-									 * expanded space for 1-byte (maximum space needed
-									 * is 2 bytes in case delim is the double quote
-									 * character).
-									 */
+						char	*buffer;
+						int	 buffer_size = 4; /* 4 bytes is more than enough space to hold
+										 * expanded space for 1-byte (maximum space needed
+										 * is 2 bytes in case delim is the double quote
+										 * character).
+										 */
 
-						m_escape_string2(buffer, sizeof(buffer), actual_delim);
+						buffer = (char *)malloc(sizeof(char) * buffer_size);
+						m_escape_string2(&buffer, &buffer_size, actual_delim);
 						%{}"{{ buffer }}"{}%
+						free(buffer);
 					} else {
 						assert(!MEMCMP_LIT(actual_delim, "$CHAR(")); /* this is added in parser.y */
 						%{}{{ actual_delim }}{}%

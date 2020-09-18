@@ -17,6 +17,8 @@
 
 #define IS_ROCTO
 
+#include <openssl/md5.h>
+
 #include "errors.h"
 #include "physical_plan.h"
 #include "message_formats.h"
@@ -37,6 +39,16 @@
 // For the derivation of these values, see the `Bind` entry at https://www.postgresql.org/docs/11/protocol-message-formats.html
 #define TEXT_FORMAT   0
 #define BINARY_FORMAT 1
+
+/* Length required to store an MD5 hash digest as a hexidecimal string, including NULL terminator.
+ * This value should be 33 = (16 * 2) + 1, per the MD5 specification which stipulates a digest length of 128 bits (16 bytes).
+ */
+#define MD5_HEX_LEN ((MD5_DIGEST_LENGTH * 2) + 1)
+
+// The string 'md5', which is prefixed to password hashes per https://www.postgresql.org/docs/11/protocol-flow.html
+#define MD5_PREFIX "md5"
+// Length of the string 'md5', which is prefixed to password hashes per https://www.postgresql.org/docs/11/protocol-flow.html
+#define MD5_PREFIX_LEN sizeof(MD5_PREFIX) - 1
 
 typedef struct {
 	int32_t	      connection_fd;
@@ -81,8 +93,8 @@ typedef enum UserColumns {
 
 int32_t	     send_message(RoctoSession *session, BaseMessage *message);
 int32_t	     send_bytes(RoctoSession *session, char *message, size_t length);
-BaseMessage *read_message(RoctoSession *session, char *buffer, int32_t buffer_size, int32_t *rocto_err);
-int32_t	     read_bytes(RoctoSession *session, char *buffer, int32_t buffer_size, int32_t bytes_to_read);
+BaseMessage *read_message(RoctoSession *session, char **buffer, int32_t *buffer_size, int32_t *rocto_err);
+int32_t	     read_bytes(RoctoSession *session, char **buffer, int32_t *buffer_size, int32_t bytes_to_read, boolean_t allow_resize);
 int32_t	     rocto_main_loop(RoctoSession *session);
 void	     free_error_response(ErrorResponse *err);
 void	     free_data_row(DataRow *drow);
@@ -121,9 +133,9 @@ Sync *		 read_sync(BaseMessage *message);
 Describe *	 read_describe(BaseMessage *message);
 
 // This is a special case because it must read more from the buffer
-StartupMessage *read_startup_message(RoctoSession *session, char *data, int32_t data_length);
+StartupMessage *read_startup_message(RoctoSession *session, char **data, int32_t *data_length);
 SSLRequest *	read_ssl_request(RoctoSession *session, char *data, int32_t data_length);
-CancelRequest * read_cancel_request(RoctoSession *session, char *data);
+CancelRequest * read_cancel_request(RoctoSession *session, char *data, uint32_t data_size);
 
 // handle_* messages respond to a message of a given type, using send_message if needed
 //  and returns 0 if the exchange is a "success", or non-zero if there was a problem
@@ -161,8 +173,8 @@ char *bin_to_bytea(char *bin);
 void  bin_to_uuid(char *bin, char *buffer);
 
 // Utility functions for copying Bind parameters into query string
-int32_t copy_text_parameter(Bind *bind, const int32_t cur_parm, char *bound_query, int32_t bound_offset);
-int32_t copy_binary_parameter(Bind *bind, const int32_t cur_parm, char *bound_query, int32_t bound_offset);
+int32_t copy_text_parameter(Bind *bind, const int32_t cur_parm, ydb_buffer_t *bound_query);
+int32_t copy_binary_parameter(Bind *bind, const int32_t cur_parm, ydb_buffer_t *bound_query);
 int32_t get_binary_parameter_length(Bind *bind, const int32_t cur_parm);
 
 // Helper to extract column values from delimited row string

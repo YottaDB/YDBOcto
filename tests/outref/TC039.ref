@@ -1,0 +1,15 @@
+# Run [yottadb -run TC039] to generate input.sql
+# Run [octo -f input.sql] and verify no SIG-11 etc.
+------------------------------------------------------------------------------------------------
+# Validate that long DDL definitions are correctly fragmented and retrieved
+# Do this by causing a difference in FMT_PLAN_DEFINITION to force retrieval after initial storage
+------------------------------------------------------------------------------------------------
+# Run [mupip extract run3.ext]
+# Determine current plan definition format number (FMT_PLAN_DEFINITION) from run3.ext
+# Simulate random prior commit by setting plan definition format number to a smaller value
+# Turn on journaling to find out what database nodes get set during auto upgrade
+# Run [octo -f empty_query.sql] so auto upgrade of plan definitions happens
+OCTO>   SELECT * FROM TC039;
+OCTO> 
+# Turn off journaling (no longer needed for this stage of the test)
+# Verify that ^%ydboctoocto("planfmt") gets set to current FMT_PLAN_DEFINITION

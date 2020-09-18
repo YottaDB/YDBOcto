@@ -25,11 +25,11 @@
 #include "rocto.h"
 #include "message_formats.h"
 
-int __wrap_read_bytes(RoctoSession *session, char *buffer, int buffer_size, int bytes_to_read) {
+int __wrap_read_bytes(RoctoSession *session, char **buffer, int *buffer_size, int bytes_to_read) {
 	int pid = mock_type(int);
 	int secret_key = mock_type(int);
-	memcpy(buffer, &pid, bytes_to_read);
-	memcpy(&buffer[sizeof(int)], &secret_key, bytes_to_read);
+	memcpy(*buffer, &pid, bytes_to_read);
+	memcpy(&((*buffer)[sizeof(int)]), &secret_key, bytes_to_read);
 	return 0;
 }
 
@@ -50,7 +50,7 @@ static void test_valid_input(void **state) {
 	// The actual test
 	will_return(__wrap_read_bytes, test_data->pid);
 	will_return(__wrap_read_bytes, test_data->secret_key);
-	CancelRequest *cancel = read_cancel_request(NULL, (char *)(&test_data->length));
+	CancelRequest *cancel = read_cancel_request(NULL, (char *)(&test_data->length), sizeof(test_data));
 
 	// Standard checks
 	assert_non_null(cancel);
@@ -78,7 +78,7 @@ static void test_invalid_length(void **state) {
 	test_data->secret_key = htonl(8888);
 
 	// The actual test
-	CancelRequest *cancel = read_cancel_request(NULL, (char *)(&test_data->length));
+	CancelRequest *cancel = read_cancel_request(NULL, (char *)(&test_data->length), sizeof(test_data));
 
 	// Standard checks
 	assert_null(cancel);
@@ -101,7 +101,7 @@ static void test_invalid_request_code(void **state) {
 	test_data->secret_key = htonl(8888);
 
 	// The actual test
-	CancelRequest *cancel = read_cancel_request(NULL, (char *)(&test_data->length));
+	CancelRequest *cancel = read_cancel_request(NULL, (char *)(&test_data->length), sizeof(test_data));
 
 	// Standard checks
 	assert_null(cancel);

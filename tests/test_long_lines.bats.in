@@ -44,27 +44,18 @@ OCTO
 
 @test "TLL04 : octo -f on query greater than 32k characters in one query" {
   export COLUMNS=35000 # increase column limit to avoid control characters
+
   yottadb -run gt32k^genlargequery
   octo -f in.sql &> output.txt
-  # filter out large column and error messages
-  # these are exact counts so any change in output will show in outref
-  sed -e 's/a\(1234567890\)\{1638\}1234/COLUMN_A/ig'\
-    -e 's/b\(1234567890\)\{1638\}1234/COLUMN_B/ig'\
-    -e 's/^\^\{16385\}/COLUMN_A_ERROR/g'\
-    -e 's/^ \^\{16385\}/COLUMN_B_ERROR/g' output.txt > filteredOut.txt
-  verify_output TLL04 filteredOut.txt
+  # No need to filter out long error messages since there are none
+  verify_output TLL04 output.txt
 }
 
 @test "TLL05 : octo -f on series of queries greater than 32k characters" {
   export COLUMNS=35000 # increase column limit to avoid control characters
   yottadb -run almost32k^genlargequery
   octo -f in.sql &> output.txt
-  # filter out large column and error messages
-  # these are exact counts so any change in output will show in outref
-  sed -e 's/a\(1234567890\)\{1637\}/COLUMN_A/ig'\
-    -e 's/b\(1234567890\)\{1637\}/COLUMN_B/ig'\
-    -e 's/^\^\{16371\}/COLUMN_A_ERROR/g'\
-    -e 's/^ \^\{16371\}/COLUMN_B_ERROR/g' output.txt > filteredOut.txt
+  cat output.txt | sed 's/111.*0 = 0/CONDITIONS/ig' | sed 's/^.*\^\^\^/HIGHLIGHT/ig' &> filteredOut.txt
   verify_output TLL05 filteredOut.txt
 }
 
@@ -76,12 +67,7 @@ OCTO
   export COLUMNS=35000 # increase column limit to avoid control characters
   yottadb -run gt32k^genlargequery
   octo < in.sql &> output.txt
-  # filter out large column and error messages
-  # these are exact counts so any change in output will show in outref
-  sed -e 's/a\(1234567890\)\{1638\}1234$/COLUMN_A/ig'\
-    -e 's/b\(1234567890\)\{1638\}1234$/COLUMN_B/ig'\
-    -e 's/^\^\{16385\}$/COLUMN_A_ERROR/g'\
-    -e 's/^ \^\{16385\}$/COLUMN_B_ERROR/g' output.txt > filteredOut.txt
+  cat output.txt | sed 's/111.*$/CONDITIONS/ig' &> filteredOut.txt
   verify_output TLL06 filteredOut.txt
 }
 
@@ -93,12 +79,8 @@ OCTO
   export COLUMNS=35000 # increase column limit to avoid control characters
   yottadb -run almost32k^genlargequery
   octo < in.sql &> output.txt
-  # filter out large column and error messages
-  # these are exact counts so any change in output will show in outref
-  sed -e 's/a\(1234567890\)\{1637\}$/COLUMN_A/ig'\
-    -e 's/b\(1234567890\)\{1637\}$/COLUMN_B/ig'\
-    -e 's/^\^\{16371\}$/COLUMN_A_ERROR/g'\
-    -e 's/^ \^\{16371\}$/COLUMN_B_ERROR/g' output.txt > filteredOut.txt
+  cat output.txt | sed 's/111.*0 = 0/CONDITIONS/ig' | sed 's/^.*\^\^\^/HIGHLIGHT/ig' &> filteredOut.txt
+  # No need to filter out long error messages since there are none
   verify_output TLL07 filteredOut.txt
 }
 
@@ -110,16 +92,7 @@ OCTO
   export COLUMNS=35000 # increase column limit to avoid control characters
   yottadb -run bufoverlap^genlargequery
   octo -f in.sql &> output.txt
-  # filter out large column and error messages
-  # these are exact counts so any change in output will show in outref
-  sed -e 's/a\(1234567890\)\{500\}$/COLUMN_A1/ig'\
-    -e 's/b\(1234567890\)\{500\}$/COLUMN_B1/ig'\
-    -e 's/^\^\{5001\}$/COLUMN_A1_ERROR/g'\
-    -e 's/^ \^\{5001\}$/COLUMN_B1_ERROR/g'\
-    -e 's/a\(1234567890\)\{1638\}1234$/COLUMN_A2/ig'\
-    -e 's/b\(1234567890\)\{1638\}1234$/COLUMN_B2/ig'\
-    -e 's/^\^\{16385\}$/COLUMN_A2_ERROR/g'\
-    -e 's/^ \^\{16385\}$/COLUMN_B2_ERROR/g' output.txt > filteredOut.txt
+  cat output.txt | sed 's/111.*$/CONDITIONS/ig' &> filteredOut.txt
   verify_output TLL08 filteredOut.txt
 }
 
@@ -131,15 +104,6 @@ OCTO
   export COLUMNS=35000 # increase column limit to avoid control characters
   yottadb -run bufoverlap^genlargequery
   octo < in.sql &> output.txt
-  # filter out large column and error messages
-  # these are exact counts so any change in output will show in outref
-  sed -e 's/a\(1234567890\)\{500\}$/COLUMN_A1/ig'\
-    -e 's/b\(1234567890\)\{500\}$/COLUMN_B1/ig'\
-    -e 's/^\^\{5001\}$/COLUMN_A1_ERROR/g'\
-    -e 's/^ \^\{5001\}$/COLUMN_B1_ERROR/g'\
-    -e 's/a\(1234567890\)\{1638\}1234$/COLUMN_A2/ig'\
-    -e 's/b\(1234567890\)\{1638\}1234$/COLUMN_B2/ig'\
-    -e 's/^\^\{16385\}$/COLUMN_A2_ERROR/g'\
-    -e 's/^ \^\{16385\}$/COLUMN_B2_ERROR/g' output.txt > filteredOut.txt
+  cat output.txt | sed 's/111.*$/CONDITIONS/ig' &> filteredOut.txt
   verify_output TLL09 filteredOut.txt
 }

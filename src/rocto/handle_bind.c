@@ -31,7 +31,37 @@
 	status = ydb_delete_s(&portal_subs[0], 3, &portal_subs[1], YDB_DEL_TREE); \
 	YDB_ERROR_CHECK(status);                                                  \
 	free(parse_context.types);                                                \
-	free(parse_context_array);
+	free(parse_context_array);                                                \
+	YDB_FREE_BUFFER(&parm_value_buf);                                         \
+	YDB_FREE_BUFFER(&sql_expression);
+
+#define COPY_STRING_AND_EXPAND_BUFFER_IF_NEEDED(STRING, BUFFER)                        \
+	{                                                                              \
+		size_t str_len;                                                        \
+                                                                                       \
+		str_len = strlen(STRING);                                              \
+		if (str_len >= BUFFER.len_alloc) {                                     \
+			YDB_FREE_BUFFER(&BUFFER);                                      \
+			YDB_MALLOC_BUFFER(&BUFFER, str_len + 1); /* Null terminator */ \
+		}                                                                      \
+		YDB_COPY_STRING_TO_BUFFER(STRING, &BUFFER, done);                      \
+		if (!done) {                                                           \
+			ERROR(ERR_YOTTADB, "YDB_COPY_STRING_TO_BUFFER failed");        \
+			CLEANUP_FROM_BIND();                                           \
+			return 1;                                                      \
+		}                                                                      \
+	}
+
+#define CHECK_COPY_RESULT_AND_RETURN_IF_NEEDED(COPIED) \
+	{                                              \
+		if (0 <= COPIED) {                     \
+			bound_query.len_used = COPIED; \
+		} else {                               \
+			YDB_FREE_BUFFER(&bound_query); \
+			CLEANUP_FROM_BIND();           \
+			return 1;                      \
+		}                                      \
+	}
 
 // Args:
 //	Bind *bind: A PostgreSQL Bind message
@@ -42,31 +72,26 @@ int handle_bind(Bind *bind, RoctoSession *session) {
 	// At the moment, we don't have "bound function"
 	// This feature should be implemented before 1.0
 	ydb_buffer_t  num_parms_buf, cur_parm_buf, cur_bind_parm_buf, parm_type_buf, parm_value_buf;
-	ydb_buffer_t  sql_expression, routine_buf, tag_buf, offset_buffer, value_buffer;
+	ydb_buffer_t  sql_expression, routine_buf, tag_buf, offset_buffer, value_buffer, bound_query;
 	ydb_buffer_t  statement_subs[7];
 	ydb_buffer_t  portal_subs[6];
 	ydb_buffer_t  all_statement_parms_subs[7];
 	ydb_buffer_t  all_portal_parms_subs[7];
 	char	      value_str[INT16_TO_STRING_MAX];
-	char	      sql_expression_str[MAX_STR_CONST];
 	char	      num_parms_str[INT16_TO_STRING_MAX];
 	char	      tag_str[MAX_TAG_LEN];
 	char	      routine_str[MAX_ROUTINE_LEN + 1]; // Null terminator
-	char	      parm_value_str[MAX_STR_CONST];
 	char	      parm_type_str[INT16_TO_STRING_MAX];
 	char	      offset_str[INT16_TO_STRING_MAX];
 	char	      cur_format_str[INT16_TO_STRING_MAX];
 	char	      cur_parm_str[INT16_TO_STRING_MAX];
 	char	      cur_bind_parm_str[INT16_TO_STRING_MAX];
-	char	      binary_parm_buffer[MAX_STR_CONST];
-	char *	      bound_query;
 	uint32_t      data_ret;
-	int32_t	      status, bound_offset, prepared_offset, done;
-	int16_t *     parse_context_array;
+	int32_t	      status, prepared_offset, copied, done;
+	int32_t *     parse_context_array;
 	int16_t	      num_parms, num_bind_parms, cur_parm, cur_bind_parm, cur_parm_temp, cur_bind_parm_temp;
 	int16_t	      num_col_format_codes, cur_format_code;
 	long int      num_parms_long, offset_long, type_long;
-	size_t	      bound_query_size;
 	BindComplete *response;
 	ParseContext  parse_context;
 
@@ -117,14 +142,14 @@ int handle_bind(Bind *bind, RoctoSession *session) {
 
 	// Copy command tag to portal for later retrieval in handle_execute
 	OCTO_SET_BUFFER(tag_buf, tag_str);
-	YDB_STRING_TO_BUFFER("tag", &statement_subs[4]);
+	YDB_STRING_TO_BUFFER(OCTOLIT_TAG, &statement_subs[4]);
 	status = ydb_get_s(&statement_subs[0], 4, &statement_subs[1], &tag_buf);
 	YDB_ERROR_CHECK(status);
 	if (YDB_OK != status) {
 		ERROR(ERR_ROCTO_DB_LOOKUP, "handle_bind", "routine name of prepared statement");
 		return 1;
 	}
-	YDB_STRING_TO_BUFFER("tag", &portal_subs[4]);
+	YDB_STRING_TO_BUFFER(OCTOLIT_TAG, &portal_subs[4]);
 	status = ydb_set_s(&portal_subs[0], 4, &portal_subs[1], &tag_buf);
 	YDB_ERROR_CHECK(status);
 	if (YDB_OK != status) {
@@ -135,7 +160,7 @@ int handle_bind(Bind *bind, RoctoSession *session) {
 
 	// Reassign buffers to access prepared statement info: ^session(id, OCTOLIT_PREPARED, <name>, ...)
 	YDB_STRING_TO_BUFFER(OCTOLIT_PARAMETERS, &statement_subs[4]);
-	YDB_STRING_TO_BUFFER("all", &statement_subs[5]);
+	YDB_STRING_TO_BUFFER(OCTOLIT_ALL, &statement_subs[5]);
 
 	// Reassign buffer for storing portal ("bound statement") info: ^session(id, OCTOLIT_BOUND, <name>, ...)
 	YDB_STRING_TO_BUFFER(OCTOLIT_PARAMETERS, &portal_subs[4]);
@@ -177,13 +202,13 @@ int handle_bind(Bind *bind, RoctoSession *session) {
 
 	// Retrieve the total number of parameters on the prepared statement (can discard old value after it's converted and stored)
 	// Set the subscripts for all prepared statement parameters: session(id, OCTOLIT_PREPARED, <name>, OCTOLIT_PARAMETERS,
-	// "all", ...)
+	// OCTOLIT_ALL, ...)
 	YDB_STRING_TO_BUFFER(config->global_names.session, &all_statement_parms_subs[0]);
 	YDB_STRING_TO_BUFFER(session->session_id->buf_addr, &all_statement_parms_subs[1]);
 	YDB_STRING_TO_BUFFER(OCTOLIT_PREPARED, &all_statement_parms_subs[2]);
 	YDB_STRING_TO_BUFFER(bind->source, &all_statement_parms_subs[3]);
 	YDB_STRING_TO_BUFFER(OCTOLIT_PARAMETERS, &all_statement_parms_subs[4]);
-	YDB_STRING_TO_BUFFER("all", &all_statement_parms_subs[5]);
+	YDB_STRING_TO_BUFFER(OCTOLIT_ALL, &all_statement_parms_subs[5]);
 	status = ydb_get_s(&all_statement_parms_subs[0], 5, &all_statement_parms_subs[1], &num_parms_buf);
 	YDB_ERROR_CHECK(status);
 	if (YDB_OK != status) {
@@ -195,13 +220,13 @@ int handle_bind(Bind *bind, RoctoSession *session) {
 
 	// Store the total number of parameters for use in handle_execute
 	// Set the subscripts for all prepared statement parameters: session(id, OCTOLIT_PREPARED, <name>, OCTOLIT_PARAMETERS,
-	// "all", ...)
+	// OCTOLIT_ALL, ...)
 	YDB_STRING_TO_BUFFER(config->global_names.session, &all_portal_parms_subs[0]);
 	YDB_STRING_TO_BUFFER(session->session_id->buf_addr, &all_portal_parms_subs[1]);
 	YDB_STRING_TO_BUFFER(OCTOLIT_BOUND, &all_portal_parms_subs[2]);
 	YDB_STRING_TO_BUFFER(bind->dest, &all_portal_parms_subs[3]);
 	YDB_STRING_TO_BUFFER(OCTOLIT_PARAMETERS, &all_portal_parms_subs[4]);
-	YDB_STRING_TO_BUFFER("all", &all_portal_parms_subs[5]);
+	YDB_STRING_TO_BUFFER(OCTOLIT_ALL, &all_portal_parms_subs[5]);
 	status = ydb_set_s(&all_portal_parms_subs[0], 5, &all_portal_parms_subs[1], &num_parms_buf);
 	YDB_ERROR_CHECK(status);
 	if (YDB_OK != status) {
@@ -221,18 +246,22 @@ int handle_bind(Bind *bind, RoctoSession *session) {
 	}
 
 	// Retrieve the prepared statement query string
-	OCTO_SET_BUFFER(sql_expression, sql_expression_str);
+	YDB_MALLOC_BUFFER(&sql_expression, OCTO_MAX_QUERY_LEN);
+	sql_expression.len_alloc--; // Space for null terminator
 	status = ydb_get_s(&statement_subs[0], 3, &statement_subs[1], &sql_expression);
+	assert(YDB_ERR_INVSTRLEN != status); // OCTO_MAX_QUERY_LEN == YDB_MAX_STR so this should never happen
 	if (YDB_ERR_LVUNDEF == status) {
 		ERROR(ERR_ROCTO_BIND_TO_UNKNOWN_QUERY, "");
 		status = ydb_delete_s(&portal_subs[0], 3, &portal_subs[1], YDB_DEL_TREE);
 		YDB_ERROR_CHECK(status);
+		YDB_FREE_BUFFER(&sql_expression);
 		return 1;
 	}
 	YDB_ERROR_CHECK(status);
 	if (YDB_OK != status) {
 		status = ydb_delete_s(&portal_subs[0], 3, &portal_subs[1], YDB_DEL_TREE);
 		YDB_ERROR_CHECK(status);
+		YDB_FREE_BUFFER(&sql_expression);
 		return 1;
 	}
 	sql_expression.buf_addr[sql_expression.len_used] = '\0';
@@ -246,6 +275,7 @@ int handle_bind(Bind *bind, RoctoSession *session) {
 	status = ydb_set_s(&portal_subs[0], 4, &portal_subs[1], &value_buffer);
 	YDB_ERROR_CHECK(status);
 	if (YDB_OK != status) {
+		YDB_FREE_BUFFER(&sql_expression);
 		return 1;
 	}
 	// Store the format code for all columns:
@@ -266,6 +296,7 @@ int handle_bind(Bind *bind, RoctoSession *session) {
 		status = ydb_set_s(&portal_subs[0], 5, &portal_subs[1], &value_buffer);
 		YDB_ERROR_CHECK(status);
 		if (YDB_OK != status) {
+			YDB_FREE_BUFFER(&sql_expression);
 			return 1;
 		}
 	} else {
@@ -277,6 +308,7 @@ int handle_bind(Bind *bind, RoctoSession *session) {
 			status = ydb_set_s(&portal_subs[0], 5, &portal_subs[1], &value_buffer);
 			YDB_ERROR_CHECK(status);
 			if (YDB_OK != status) {
+				YDB_FREE_BUFFER(&sql_expression);
 				return 1;
 			}
 		}
@@ -289,6 +321,7 @@ int handle_bind(Bind *bind, RoctoSession *session) {
 	if ((0 == num_parms) || (0 == strncmp(routine_buf.buf_addr, "none", MAX_ROUTINE_LEN))) {
 		// Store the query for command tag generation in handle_execute
 		status = ydb_set_s(&portal_subs[0], 3, &portal_subs[1], &sql_expression);
+		YDB_FREE_BUFFER(&sql_expression);
 		YDB_ERROR_CHECK(status);
 		if (YDB_OK != status) {
 			status = ydb_delete_s(&portal_subs[0], 3, &portal_subs[1], YDB_DEL_TREE);
@@ -312,8 +345,8 @@ int handle_bind(Bind *bind, RoctoSession *session) {
 	// Use arrays to track start/end offsets of parameter substrings in prepared statement
 	// 2 * num_parms is the number of offsets that must be mapped: one pair of start/end offsets for each parameter
 	if (0 < num_bind_parms) {
-		parse_context_array = (int16_t *)malloc((sizeof(int16_t) * num_bind_parms) * 2);
-		memset(parse_context_array, 0, (sizeof(int16_t) * num_bind_parms) * 2);
+		parse_context_array = (int32_t *)malloc((sizeof(int32_t) * num_bind_parms) * 2);
+		memset(parse_context_array, 0, (sizeof(int32_t) * num_bind_parms) * 2);
 		memset(&parse_context, 0, sizeof(ParseContext));
 		parse_context.parm_start = &parse_context_array[0];
 		parse_context.parm_end = &parse_context_array[num_bind_parms];
@@ -333,7 +366,7 @@ int handle_bind(Bind *bind, RoctoSession *session) {
 	assert(num_bind_parms <= num_parms);
 	OCTO_SET_BUFFER(cur_parm_buf, cur_parm_str);
 	OCTO_SET_BUFFER(cur_bind_parm_buf, cur_bind_parm_str);
-	OCTO_SET_BUFFER(parm_value_buf, parm_value_str);
+	YDB_MALLOC_BUFFER(&parm_value_buf, OCTO_INIT_BUFFER_LEN);
 	OCTO_SET_BUFFER(parm_type_buf, parm_type_str);
 	OCTO_SET_BUFFER(offset_buffer, offset_str);
 	for (cur_parm = 0, cur_bind_parm = 0; cur_parm < num_parms; cur_parm++) {
@@ -354,6 +387,11 @@ int handle_bind(Bind *bind, RoctoSession *session) {
 		}
 		if (1 == data_ret) {
 			status = ydb_get_s(&all_statement_parms_subs[0], 6, &all_statement_parms_subs[1], &parm_value_buf);
+			if (YDB_ERR_INVSTRLEN == status) {
+				EXPAND_YDB_BUFFER_T_ALLOCATION(parm_value_buf);
+				status = ydb_get_s(&all_statement_parms_subs[0], 6, &all_statement_parms_subs[1], &parm_value_buf);
+				assert(YDB_ERR_INVSTRLEN != status);
+			}
 			YDB_ERROR_CHECK(status);
 			if (YDB_OK != status) {
 				CLEANUP_FROM_BIND();
@@ -373,8 +411,8 @@ int handle_bind(Bind *bind, RoctoSession *session) {
 			}
 			offset_buffer.buf_addr[offset_buffer.len_used] = '\0';
 			offset_long = strtol(offset_buffer.buf_addr, NULL, 10);
-			if ((ERANGE != errno) && (0 <= offset_long) && (INT16_MAX >= offset_long)) {
-				parse_context.parm_start[cur_bind_parm] = (int16_t)offset_long;
+			if ((ERANGE != errno) && (0 <= offset_long) && (INT32_MAX >= offset_long)) {
+				parse_context.parm_start[cur_bind_parm] = (int32_t)offset_long;
 			} else {
 				ERROR(ERR_LIBCALL, "strtol")
 				CLEANUP_FROM_BIND();
@@ -389,8 +427,8 @@ int handle_bind(Bind *bind, RoctoSession *session) {
 			}
 			offset_buffer.buf_addr[offset_buffer.len_used] = '\0';
 			offset_long = strtol(offset_buffer.buf_addr, NULL, 10);
-			if ((ERANGE != errno) && (0 <= offset_long) && (INT16_MAX >= offset_long)) {
-				parse_context.parm_end[cur_bind_parm] = (int16_t)offset_long;
+			if ((ERANGE != errno) && (0 <= offset_long) && (INT32_MAX >= offset_long)) {
+				parse_context.parm_end[cur_bind_parm] = (int32_t)offset_long;
 			} else {
 				ERROR(ERR_LIBCALL, "strtol")
 				CLEANUP_FROM_BIND();
@@ -419,45 +457,36 @@ int handle_bind(Bind *bind, RoctoSession *session) {
 			// at https://www.postgresql.org/docs/11/protocol-message-formats.html.
 			if (1 < bind->num_parm_format_codes) {
 				if (BINARY_FORMAT == bind->parm_format_codes[cur_parm]) { // Binary
-					copy_binary_parameter(bind, cur_bind_parm, binary_parm_buffer, 0);
-					YDB_COPY_STRING_TO_BUFFER(binary_parm_buffer, &parm_value_buf, done);
-					if (!done) {
-						ERROR(ERR_YOTTADB, "YDB_COPY_STRING_TO_BUFFER failed");
+					status = copy_binary_parameter(bind, cur_bind_parm, &parm_value_buf);
+					if (0 > status) {
 						CLEANUP_FROM_BIND();
 						return 1;
 					}
+					// parse_literal_to_parameter should have already enforced this limit, so confirm here
+					assert(YDB_MAX_STR >= parm_value_buf.len_used);
 				} else { // Text
-					YDB_COPY_STRING_TO_BUFFER(bind->parms[cur_bind_parm].value, &parm_value_buf, done);
-					if (!done) {
-						ERROR(ERR_YOTTADB, "YDB_COPY_STRING_TO_BUFFER failed");
-						CLEANUP_FROM_BIND();
-						return 1;
-					}
+					COPY_STRING_AND_EXPAND_BUFFER_IF_NEEDED(bind->parms[cur_bind_parm].value, parm_value_buf);
+					// parse_literal_to_parameter should have already enforced this limit, so confirm here
+					assert(YDB_MAX_STR >= parm_value_buf.len_used);
 				}
 			} else if (1 == bind->num_parm_format_codes) {
 				if (BINARY_FORMAT == bind->parm_format_codes[FIRST_FORMAT_CODE]) { // Binary
-					copy_binary_parameter(bind, cur_bind_parm, binary_parm_buffer, 0);
-					YDB_COPY_STRING_TO_BUFFER(binary_parm_buffer, &parm_value_buf, done);
-					if (!done) {
-						ERROR(ERR_YOTTADB, "YDB_COPY_STRING_TO_BUFFER failed");
+					status = copy_binary_parameter(bind, cur_bind_parm, &parm_value_buf);
+					if (0 > status) {
 						CLEANUP_FROM_BIND();
 						return 1;
 					}
+					// parse_literal_to_parameter should have already enforced this limit, so confirm here
+					assert(YDB_MAX_STR >= parm_value_buf.len_used);
 				} else { // Text
-					YDB_COPY_STRING_TO_BUFFER(bind->parms[cur_bind_parm].value, &parm_value_buf, done);
-					if (!done) {
-						ERROR(ERR_YOTTADB, "YDB_COPY_STRING_TO_BUFFER failed");
-						CLEANUP_FROM_BIND();
-						return 1;
-					}
+					COPY_STRING_AND_EXPAND_BUFFER_IF_NEEDED(bind->parms[cur_bind_parm].value, parm_value_buf);
+					// parse_literal_to_parameter should have already enforced this limit, so confirm here
+					assert(YDB_MAX_STR >= parm_value_buf.len_used);
 				}
 			} else { // Text
-				YDB_COPY_STRING_TO_BUFFER(bind->parms[cur_bind_parm].value, &parm_value_buf, done);
-				if (!done) {
-					ERROR(ERR_YOTTADB, "YDB_COPY_STRING_TO_BUFFER failed");
-					CLEANUP_FROM_BIND();
-					return 1;
-				}
+				COPY_STRING_AND_EXPAND_BUFFER_IF_NEEDED(bind->parms[cur_bind_parm].value, parm_value_buf);
+				// parse_literal_to_parameter should have already enforced this limit, so confirm here
+				assert(YDB_MAX_STR >= parm_value_buf.len_used);
 			}
 			cur_bind_parm++;
 		}
@@ -469,104 +498,117 @@ int handle_bind(Bind *bind, RoctoSession *session) {
 			CLEANUP_FROM_BIND();
 			return 1;
 		}
+		parm_value_buf.len_used = 0; // Reset to empty buffer before reuse on next parameter
 	}
 	assert(cur_bind_parm == num_bind_parms);
 
-	// Get size of final query string
 	// Bind format rules at https://www.postgresql.org/docs/11/protocol-message-formats.html
 	if (0 < num_bind_parms) {
-		bound_query_size = sql_expression.len_used + 1; // null terminator
-		for (cur_bind_parm = 0; cur_bind_parm < num_bind_parms; cur_bind_parm++) {
-			// Binary types will be converted to strings of various sizes, use converted sizes instead of listed length
-			if (1 < bind->num_parm_format_codes) {
-				if (BINARY_FORMAT == bind->parm_format_codes[cur_bind_parm]) {
-					bound_query_size += get_binary_parameter_length(bind, cur_bind_parm);
-				} else {
-					bound_query_size += bind->parms[cur_bind_parm].length;
-				}
-			} else if (1 == bind->num_parm_format_codes) {
-				if (BINARY_FORMAT == bind->parm_format_codes[0]) {
-					bound_query_size += get_binary_parameter_length(bind, cur_bind_parm);
-				} else {
-					bound_query_size += bind->parms[cur_bind_parm].length;
-				}
-			} else {
-				bound_query_size += bind->parms[cur_bind_parm].length;
-			}
-			if (PSQL_TypeOid_varchar == parse_context.types[cur_bind_parm]) {
-				bound_query_size += 2; // Add 2 for opening and closing single quotes on string parameters
-			}
-			// Don't count the dollar sign and parameter number as these will be replaced by a concrete parameter value
-			bound_query_size -= (parse_context.parm_end[cur_bind_parm] - parse_context.parm_start[cur_bind_parm]);
-		}
-		bound_query = (char *)calloc(bound_query_size, sizeof(char));
+		YDB_MALLOC_BUFFER(&bound_query, OCTO_MAX_QUERY_LEN);
+		bound_query.len_alloc--; // Null terminator
 		// Copy Bind parameters into bound query string
 		// Store ALL parameters on portal for retrieval by handle_execute, both bind parameters and literals
 		// Start with substring leading up to first parameter
-		bound_offset = prepared_offset = 0;
-		memcpy(&bound_query[bound_offset], &sql_expression.buf_addr[prepared_offset], parse_context.parm_start[0]);
-		bound_offset += parse_context.parm_start[0];
+		bound_query.len_used = prepared_offset = 0;
+		memcpy(&bound_query.buf_addr[bound_query.len_used], &sql_expression.buf_addr[prepared_offset],
+		       parse_context.parm_start[0]);
+		bound_query.len_used += parse_context.parm_start[0];
 		prepared_offset += parse_context.parm_start[0];
 		for (cur_bind_parm = 0; cur_bind_parm < num_bind_parms; cur_bind_parm++) {
 			// Insert quotes if parameter is a string
 			if (PSQL_TypeOid_varchar == parse_context.types[cur_bind_parm]) {
-				bound_query[bound_offset] = '\'';
-				bound_offset++;
+				bound_query.buf_addr[bound_query.len_used] = '\'';
+				bound_query.len_used++;
+				if (bound_query.len_used > bound_query.len_alloc) {
+					/* +1 so that the error message shows a value greated than OCTO_MAX_QUERY_LEN, which is
+					 * needed since the impending overrun was in fact prevented by the above check.
+					 */
+					ERROR(ERR_ROCTO_QUERY_TOO_LONG, bound_query.len_used + 1, OCTO_MAX_QUERY_LEN);
+					YDB_FREE_BUFFER(&bound_query);
+					CLEANUP_FROM_BIND();
+					return 1;
+				}
 			}
 			// Copy parameter value
 			if (1 < bind->num_parm_format_codes) {
 				if (TEXT_FORMAT == bind->parm_format_codes[cur_bind_parm]) {
-					bound_offset = copy_text_parameter(bind, cur_bind_parm, bound_query, bound_offset);
+					copied = copy_text_parameter(bind, cur_bind_parm, &bound_query);
+					CHECK_COPY_RESULT_AND_RETURN_IF_NEEDED(copied);
 				} else {
 					// Binary
-					bound_offset = copy_binary_parameter(bind, cur_bind_parm, bound_query, bound_offset);
+					copied = copy_binary_parameter(bind, cur_bind_parm, &bound_query);
+					CHECK_COPY_RESULT_AND_RETURN_IF_NEEDED(copied);
 				}
 			} else if (0 == bind->num_parm_format_codes) {
 				// All parameters are in text format
-				bound_offset = copy_text_parameter(bind, cur_bind_parm, bound_query, bound_offset);
+				bound_query.len_used = copy_text_parameter(bind, cur_bind_parm, &bound_query);
 			} else if (1 == bind->num_parm_format_codes) {
 				if (TEXT_FORMAT == bind->parm_format_codes[FIRST_FORMAT_CODE]) {
-					bound_offset = copy_text_parameter(bind, cur_bind_parm, bound_query, bound_offset);
+					copied = copy_text_parameter(bind, cur_bind_parm, &bound_query);
+					CHECK_COPY_RESULT_AND_RETURN_IF_NEEDED(copied);
 				} else {
 					// Binary
-					bound_offset = copy_binary_parameter(bind, cur_bind_parm, bound_query, bound_offset);
+					copied = copy_binary_parameter(bind, cur_bind_parm, &bound_query);
+					CHECK_COPY_RESULT_AND_RETURN_IF_NEEDED(copied);
 				}
 			}
 			// Insert quotes if parameter is a string
 			if (PSQL_TypeOid_varchar == parse_context.types[cur_bind_parm]) {
-				bound_query[bound_offset] = '\'';
-				bound_offset++;
+				bound_query.buf_addr[bound_query.len_used] = '\'';
+				bound_query.len_used++;
+				if (bound_query.len_used > bound_query.len_alloc) {
+					/* +1 so that the error message shows a value greated than OCTO_MAX_QUERY_LEN, which is
+					 * needed since the impending overrun was in fact prevented by the above check.
+					 */
+					ERROR(ERR_ROCTO_QUERY_TOO_LONG, bound_query.len_used + 1, OCTO_MAX_QUERY_LEN);
+					YDB_FREE_BUFFER(&bound_query);
+					CLEANUP_FROM_BIND();
+					return 1;
+				}
 			}
 			prepared_offset += parse_context.parm_end[cur_bind_parm] - parse_context.parm_start[cur_bind_parm];
 
 			// Copy portion of query string between two parameters
 			if ((cur_bind_parm + 1) == num_bind_parms) {
-				memcpy(&bound_query[bound_offset], &sql_expression.buf_addr[prepared_offset],
-				       sql_expression.len_used - parse_context.parm_end[cur_bind_parm]);
-				bound_offset += sql_expression.len_used - parse_context.parm_end[cur_bind_parm];
+				int to_copy = sql_expression.len_used - parse_context.parm_end[cur_bind_parm];
+
+				if ((bound_query.len_used + to_copy) > bound_query.len_alloc) {
+					ERROR(ERR_ROCTO_QUERY_TOO_LONG, bound_query.len_used + to_copy, OCTO_MAX_QUERY_LEN);
+					YDB_FREE_BUFFER(&bound_query);
+					CLEANUP_FROM_BIND();
+					return 1;
+				}
+				memcpy(&bound_query.buf_addr[bound_query.len_used], &sql_expression.buf_addr[prepared_offset],
+				       to_copy);
+				bound_query.len_used += to_copy;
 			} else {
-				memcpy(&bound_query[bound_offset], &sql_expression.buf_addr[prepared_offset],
-				       parse_context.parm_start[cur_bind_parm + 1] - parse_context.parm_end[cur_bind_parm]);
-				prepared_offset
-				    += parse_context.parm_start[cur_bind_parm + 1] - parse_context.parm_end[cur_bind_parm];
-				prepared_offset
-				    += parse_context.parm_start[cur_bind_parm + 1] - parse_context.parm_end[cur_bind_parm];
-				bound_offset += parse_context.parm_start[cur_bind_parm + 1] - parse_context.parm_end[cur_bind_parm];
+				int to_copy = parse_context.parm_start[cur_bind_parm + 1] - parse_context.parm_end[cur_bind_parm];
+
+				if ((bound_query.len_used + to_copy) > bound_query.len_alloc) {
+					ERROR(ERR_ROCTO_QUERY_TOO_LONG, bound_query.len_used + to_copy, OCTO_MAX_QUERY_LEN);
+					YDB_FREE_BUFFER(&bound_query);
+					CLEANUP_FROM_BIND();
+					return 1;
+				}
+				memcpy(&bound_query.buf_addr[bound_query.len_used], &sql_expression.buf_addr[prepared_offset],
+				       to_copy);
+				prepared_offset += to_copy;
+				prepared_offset += to_copy;
+				bound_query.len_used += to_copy;
 			}
 		}
-		bound_query[bound_offset] = '\0';
+		bound_query.buf_addr[bound_query.len_used] = '\0';
 		free(parse_context_array);
 		free(parse_context.types);
+		YDB_FREE_BUFFER(&sql_expression);
 
-		// Store the bound statement in a global for later reference, if needed
-		sql_expression.buf_addr = bound_query;
-		sql_expression.len_alloc = bound_query_size;
-		sql_expression.len_used = bound_query_size - 1; // exclude null terminator
-	}
-
-	status = ydb_set_s(&portal_subs[0], 3, &portal_subs[1], &sql_expression);
-	if (0 != num_bind_parms) {
-		free(bound_query); // This pointer is not allocated when there are no bind parameters
+		status = ydb_set_s(&portal_subs[0], 3, &portal_subs[1], &bound_query);
+		// These pointers are not allocated when there are no bind parameters
+		YDB_FREE_BUFFER(&parm_value_buf);
+		YDB_FREE_BUFFER(&bound_query);
+	} else {
+		status = ydb_set_s(&portal_subs[0], 3, &portal_subs[1], &sql_expression);
+		YDB_FREE_BUFFER(&sql_expression);
 	}
 	YDB_ERROR_CHECK(status);
 	if (YDB_OK != status) {

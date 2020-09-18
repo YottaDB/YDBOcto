@@ -1,47 +1,28 @@
 OCTO> select
-OCTO> COLUMN_A1
-OCTO> ,COLUMN_B1
-OCTO> from names;
-[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_COLUMN_NAME : Unknown column: COLUMN_A1
-Error with syntax near (line 2, column 1):
-
-select
-COLUMN_A1
-COLUMN_A1_ERROR
-[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_COLUMN_NAME : Unknown column: COLUMN_B1
-Error with syntax near (line 3, column 2):
-
-select
-COLUMN_A1
-,COLUMN_B1
-COLUMN_B1_ERROR
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select
-COLUMN_A1
-,COLUMN_B1
-from names;
-
+OCTO> firstname
+OCTO> ,lastname
+OCTO> from names where
+OCTO> CONDITIONS
+OCTO> 0 = 0;
+Zero|Cool
+Acid|Burn
+Cereal|Killer
+Lord|Nikon
+Joey|
+Zero|Cool
 OCTO> select
-OCTO> COLUMN_A2
-OCTO> ,COLUMN_B2
-OCTO> from names;
-[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_COLUMN_NAME : Unknown column: COLUMN_A2
-Error with syntax near (line 2, column 1):
-
-select
-COLUMN_A2
-COLUMN_A2_ERROR
-[ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_COLUMN_NAME : Unknown column: COLUMN_B2
-Error with syntax near (line 3, column 2):
-
-select
-COLUMN_A2
-,COLUMN_B2
-COLUMN_B2_ERROR
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select
-COLUMN_A2
-,COLUMN_B2
-from names;
-
+OCTO> firstname
+OCTO> ,lastname
+OCTO> from names where
+OCTO> CONDITIONS
+OCTO> CONDITIONS
+OCTO> 0 = 0;
+Zero|Cool
+Acid|Burn
+Cereal|Killer
+Lord|Nikon
+Joey|
+Zero|Cool
 OCTO> select * from names limit 1;
 0|Zero|Cool
 OCTO> 

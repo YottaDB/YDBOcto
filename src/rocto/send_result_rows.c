@@ -34,6 +34,7 @@ int get_column_type_oid(ydb_buffer_t *plan_meta, ydb_buffer_t *value_buffer, int
 
 	// Retrieve the type OID for a single column, as this is needed to convert some types to binary format
 	status = ydb_get_s(&plan_meta[0], 5, &plan_meta[1], value_buffer);
+	assert(YDB_ERR_INVSTRLEN != status); // INT64_TO_STRING_MAX is enough to store any format code
 	YDB_ERROR_CHECK(status);
 	if (YDB_OK != status)
 		return 1;
@@ -58,7 +59,7 @@ int send_result_rows(int32_t cursor_id, void *_parms, char *plan_name) {
 	ydb_buffer_t value_buffer, row_value_buffer, total_rows_buffer;
 
 	char cursor_id_str[INT64_TO_STRING_MAX];
-	char value_str[MAX_STR_CONST];
+	char value_str[INT64_TO_STRING_MAX];
 	char output_key_str[INT32_TO_STRING_MAX];
 	char total_rows_str[INT32_TO_STRING_MAX];
 	char cur_column_str[INT16_TO_STRING_MAX];
@@ -94,6 +95,7 @@ int send_result_rows(int32_t cursor_id, void *_parms, char *plan_name) {
 	// Retrieve output key ID for result rows
 	OCTO_SET_BUFFER(cursor_subs[3], output_key_str); // Output key ID
 	status = ydb_get_s(&plan_meta[0], 3, &plan_meta[1], &cursor_subs[3]);
+	assert(YDB_ERR_INVSTRLEN != status);
 	YDB_ERROR_CHECK(status);
 	if (YDB_OK != status) {
 		ERROR(ERR_DATABASE_FILES_OOS, "");
@@ -104,6 +106,7 @@ int send_result_rows(int32_t cursor_id, void *_parms, char *plan_name) {
 	// Retrieve the total number of columns for the given output key.
 	YDB_STRING_TO_BUFFER(OCTOLIT_OUTPUT_COLUMNS, &plan_meta[3]);
 	status = ydb_get_s(&plan_meta[0], 3, &plan_meta[1], &value_buffer);
+	assert(YDB_ERR_INVSTRLEN != status); // INT64_TO_STRING_MAX should be enough to store the total number of columns
 	YDB_ERROR_CHECK(status);
 	if (YDB_OK != status) {
 		ERROR(ERR_DATABASE_FILES_OOS, "");
@@ -122,6 +125,7 @@ int send_result_rows(int32_t cursor_id, void *_parms, char *plan_name) {
 	// Retrieve the total number of rows for the given output key.
 	OCTO_SET_BUFFER(total_rows_buffer, total_rows_str);
 	status = ydb_get_s(&cursor_subs[0], 5, &cursor_subs[1], &total_rows_buffer);
+	assert(YDB_ERR_INVSTRLEN != status);
 	if (YDB_ERR_LVUNDEF == status) {
 		total_rows = 0;
 	} else {
@@ -169,6 +173,7 @@ int send_result_rows(int32_t cursor_id, void *_parms, char *plan_name) {
 		YDB_STRING_TO_BUFFER("col_formats", &portal_subs[4]);
 
 		status = ydb_get_s(&portal_subs[0], 4, &portal_subs[1], &value_buffer);
+		assert(YDB_ERR_INVSTRLEN != status); // INT64_TO_STRING_MAX should be enough to store the number of row formats
 		YDB_ERROR_CHECK(status);
 		if (YDB_OK != status) {
 			return 1;
@@ -194,6 +199,7 @@ int send_result_rows(int32_t cursor_id, void *_parms, char *plan_name) {
 			// A particular format code was specified for all result columns - retrieve from under the first column
 			YDB_LITERAL_TO_BUFFER("1", &portal_subs[5]);
 			status = ydb_get_s(&portal_subs[0], 5, &portal_subs[1], &value_buffer);
+			assert(YDB_ERR_INVSTRLEN != status); // INT64_TO_STRING_MAX is enough to store any format code
 			YDB_ERROR_CHECK(status);
 			if (YDB_OK != status) {
 				return 1;
@@ -243,6 +249,7 @@ int send_result_rows(int32_t cursor_id, void *_parms, char *plan_name) {
 				// Using same underlying string for both buffers, so update len_used to match
 				plan_meta[4].len_used = portal_subs[5].len_used;
 				status = ydb_get_s(&portal_subs[0], 5, &portal_subs[1], &value_buffer);
+				assert(YDB_ERR_INVSTRLEN != status); // INT64_TO_STRING_MAX is enough to store any format code
 				YDB_ERROR_CHECK(status);
 				if (YDB_OK != status) {
 					free(col_data_types);
@@ -275,6 +282,7 @@ int send_result_rows(int32_t cursor_id, void *_parms, char *plan_name) {
 		// Retrieve the number of rows remaining for this portal
 		YDB_STRING_TO_BUFFER("rows_remaining", &portal_subs[4]);
 		status = ydb_get_s(&portal_subs[0], 4, &portal_subs[1], &value_buffer);
+		assert(YDB_ERR_INVSTRLEN != status); // INT64_TO_STRING_MAX is enough to store any row number total
 		if (YDB_ERR_LVUNDEF == status) {
 			// This is the first Execute request, so all rows are remaining.
 			rows_remaining = total_rows;
@@ -313,7 +321,7 @@ int send_result_rows(int32_t cursor_id, void *_parms, char *plan_name) {
 	data_row_parms_alloc_len = DATA_ROW_PARMS_ARRAY_INIT_ALLOC;
 	// Retrieve the value of each row
 	assert(0 == parms->rows_sent);
-	YDB_MALLOC_BUFFER(&row_value_buffer, MAX_STR_CONST);
+	YDB_MALLOC_BUFFER(&row_value_buffer, OCTO_INIT_BUFFER_LEN);
 	while (cur_row <= last_row) {
 		int	       cur_column;
 		unsigned char *buff, *buff_top;

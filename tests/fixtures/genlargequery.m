@@ -10,17 +10,19 @@
 ;								;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-; Generates a query that is 32k characters long
+; Generates a query that is > 32k characters long (33755 to be exact)
 ; and some regular queries at the end
 gt32k ;
 	open "in.sql":(stream:nowrap)
 	use "in.sql":nowrap
 	set o="select"
-	set o=o_$c(10)_"a"
-	for i=1:1:(32768/2) set o=o_(i#10)
-	set o=o_$c(10)_",b"
-	for i=1:1:(32768/2) set o=o_(i#10)
-	set o=o_$c(10)_"from names; select notathing from names; select firstname from names limit 1;"
+	set o=o_$c(10)_"firstname"
+	set o=o_$c(10)_",lastname"
+	set o=o_$c(10)_"from names where"_$c(10)
+	for i=1:1:(1200) set o=o_"1"_(i#10)_"1 = 1"_(i#10)_"1 AND "
+	set o=o_$c(10)
+	for i=1:1:(1200) set o=o_"1"_(i#10)_"1 = 1"_(i#10)_"1 AND "
+	set o=o_$c(10)_"0 = 0;"_$c(10)_"select notathing from names; select firstname from names limit 1;"
 	set o=o_$c(10)_"select lastname from names limit 1;"
 	write o,!
 	quit
@@ -31,11 +33,11 @@ almost32k ;
 	open "in.sql":(stream:nowrap)
 	use "in.sql":nowrap
 	set o="select"
-	set o=o_$c(10)_"a"
-	for i=1:1:(32740/2) set o=o_(i#10)
-	set o=o_$c(10)_",b"
-	for i=1:1:(32740/2) set o=o_(i#10)
-	set o=o_$c(10)_"from names; select notathing from names; select firstname from names limit 1;"
+	set o=o_$c(10)_"firstname"
+	set o=o_$c(10)_",lastname"
+	set o=o_$c(10)_"from names where"_$c(10)
+	for i=1:1:(2290) set o=o_"1"_(i#10)_"1 = 1"_(i#10)_"1 AND "
+	set o=o_"0 = 0; select notathing from names; select firstname from names limit 1;"
 	set o=o_$c(10)_"select lastname from names limit 1;"
 	write o,!
 	quit
@@ -48,18 +50,20 @@ bufoverlap ;
 	open "in.sql":(stream:nowrap)
 	use "in.sql":nowrap
 	set o="select"
-	set o=o_$c(10)_"a"
-	for i=1:1:(10000/2) set o=o_(i#10)
-	set o=o_$c(10)_",b"
-	for i=1:1:(10000/2) set o=o_(i#10)
-	set o=o_$c(10)_"from names;"
+	set o=o_$c(10)_"firstname"
+	set o=o_$c(10)_",lastname"
+	set o=o_$c(10)_"from names where"_$c(10)
+	for i=1:1:(1200) set o=o_"1"_(i#10)_"1 = 1"_(i#10)_"1 AND "
+	set o=o_$c(10)_"0 = 0;"
 	write o,!
 	set o="select"
-	set o=o_$c(10)_"a"
-	for i=1:1:(32768/2) set o=o_(i#10)
-	set o=o_$c(10)_",b"
-	for i=1:1:(32768/2) set o=o_(i#10)
-	set o=o_$c(10)_"from names;"
+	set o=o_$c(10)_"firstname"
+	set o=o_$c(10)_",lastname"
+	set o=o_$c(10)_"from names where"_$c(10)
+	for i=1:1:(1200) set o=o_"1"_(i#10)_"1 = 1"_(i#10)_"1 AND "
+	set o=o_$c(10)
+	for i=1:1:(1200) set o=o_"1"_(i#10)_"1 = 1"_(i#10)_"1 AND "
+	set o=o_$c(10)_"0 = 0;"
 	set o=o_$c(10)_"select * from names limit 1;"
 	write o,!
 	quit

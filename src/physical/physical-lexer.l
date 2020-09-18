@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -28,10 +28,27 @@
 
 #include "physical-parser.h"
 
-#define COPY_STRING(dst, src, copied, max) while((copied) < (max) && (*src)) {*dst++ = *src++; (copied)++; }
+#define COPY_STRING(dst, src, copied, max)                                                                  \
+	while ((copied) < (max) && (*src)) {                                                                    \
+		*dst++ = *src++;                                                                                    \
+		if (max > copied_so_far) {                                                                          \
+			(copied)++;                                                                                     \
+		} else {                                                                                            \
+			fprintf(stderr, "FATAL: physical-lexer.l: BUFFER_SIZE %d insufficient to lex template\n", max); \
+			exit(1);                                                                                        \
+		}                                                                                                   \
+	}
 
-#define MAX_STR_CONST 32768
-char string_buffer[MAX_STR_CONST];
+/* physical-lexer.l is used during compilation for generating C files from .ctemplate files and not at Octo runtime,
+ * so the string_buffer below will be released prior to Octo runtime. The upper bound for what can be stored in
+ * this buffer is fixed for a given commit of Octo and is equivalent to the largest M template file. So far, 32Kib
+ * has been sufficient for all current M templates and will likely be sufficient for the foreseeable future.
+ *
+ * Accordingly, it is acceptable to use a fixed size of 32KiB. If an M template exceeds this limit, then the size of
+ * this buffer will need to be increased.
+ */
+#define BUFFER_SIZE 32768
+char string_buffer[BUFFER_SIZE];
 char *str_buf_ptr;
 int copied_so_far;
 
@@ -67,7 +84,15 @@ int copied_so_far;
           yyless(0);
           return LITERAL;
 }
-<EXPR_STATE>. { *str_buf_ptr++ = *yytext; copied_so_far++; }
+<EXPR_STATE>. {
+	*str_buf_ptr++ = *yytext;
+	if (BUFFER_SIZE > copied_so_far) {
+		copied_so_far++;
+	} else {
+		fprintf(stderr, "FATAL: physical-lexer.l: BUFFER_SIZE %d insufficient to lex template\n", BUFFER_SIZE);
+		exit(1);
+	}
+}
 <EXPR_STATE>\n { *str_buf_ptr++ = *yytext; copied_so_far++; }
 
 <EXPR_STATE_END>"%{}" { BEGIN(INITIAL); return END_EXPR; }
@@ -78,7 +103,7 @@ int copied_so_far;
    copied_so_far = 0;
    str_buf_ptr = string_buffer;
    char *yptr = yytext;
-   COPY_STRING(str_buf_ptr, yptr, copied_so_far, MAX_STR_CONST);
+   COPY_STRING(str_buf_ptr, yptr, copied_so_far, BUFFER_SIZE);
    (*yylval_param) = (Expr*)malloc(sizeof(Expr));
    (*yylval_param)->type = VALUE_TYPE;
    (*yylval_param)->value = malloc(copied_so_far + 1);
@@ -91,7 +116,7 @@ int copied_so_far;
    copied_so_far = 0;
    str_buf_ptr = string_buffer;
    char *yptr = yytext;
-   COPY_STRING(str_buf_ptr, yptr, copied_so_far, MAX_STR_CONST);
+   COPY_STRING(str_buf_ptr, yptr, copied_so_far, BUFFER_SIZE);
    (*yylval_param) = (Expr*)malloc(sizeof(Expr));
    (*yylval_param)->type = LITERAL_TYPE;
    (*yylval_param)->value = malloc(copied_so_far + 1);

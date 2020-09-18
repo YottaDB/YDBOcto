@@ -23,7 +23,7 @@
  *
  * @returns the number of characters written
  */
-int generate_key_name(char *buffer, int buffer_size, int target_key_num, SqlTable *table, SqlColumn **key_columns) {
+int generate_key_name(char **buffer, int *buffer_size, int target_key_num, SqlTable *table, SqlColumn **key_columns) {
 	char *		    buffer_ptr, *columnName, *temp;
 	int		    written;
 	SqlValue *	    value;
@@ -38,16 +38,30 @@ int generate_key_name(char *buffer, int buffer_size, int target_key_num, SqlTabl
 	if (NULL != keyword) {
 		UNPACK_SQL_STATEMENT(value, keyword->v, value);
 		temp = m_unescape_string(value->v.string_literal);
-		written = snprintf(buffer, buffer_size, "%s", temp);
-		assert(written < buffer_size);
+		written = snprintf(*buffer, *buffer_size, "%s", temp);
+		if (written >= *buffer_size) {
+			*buffer_size = written + 1; // Null terminator
+			free(*buffer);
+			*buffer = (char *)malloc(sizeof(char) * *buffer_size);
+			written = snprintf(*buffer, *buffer_size, "%s", temp);
+		}
 		return written;
 	}
 	UNPACK_SQL_STATEMENT(value, key_columns[target_key_num]->columnName, value);
 	columnName = value->v.reference;
 
-	buffer_ptr = buffer;
-	buffer_ptr += snprintf(buffer_ptr, buffer_size - (buffer_ptr - buffer), "keys(\"%s\")", columnName);
+	buffer_ptr = *buffer;
+	written = snprintf(buffer_ptr, *buffer_size - (buffer_ptr - *buffer), "keys(\"%s\")", columnName);
+	if (written >= (*buffer_size - (buffer_ptr - *buffer))) {
+		free(*buffer);
+		*buffer_size = written + 1; // Null terminator
+		*buffer = (char *)malloc(sizeof(char) * (*buffer_size));
+		buffer_ptr = *buffer;
+		written = snprintf(buffer_ptr, *buffer_size - (buffer_ptr - *buffer), "keys(\"%s\")", columnName);
+	}
+	assert(written < (*buffer_size - (buffer_ptr - *buffer)));
+	buffer_ptr += written;
 	*buffer_ptr++ = '\0';
 
-	return buffer_ptr - buffer;
+	return buffer_ptr - *buffer;
 }

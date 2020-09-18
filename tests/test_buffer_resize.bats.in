@@ -1,0 +1,66 @@
+#################################################################
+#								#
+# Copyright (c) 2020 YottaDB LLC and/or its subsidiaries.	#
+# All rights reserved.						#
+#								#
+#	This source code contains the intellectual property	#
+#	of its copyright holder(s), and is made available	#
+#	under a license.  If you do not know the terms of	#
+#	the license, please stop and do not read further.	#
+#								#
+#################################################################
+
+load test_helpers
+
+setup() {
+  init_test
+  createdb
+  load_fixture names.sql
+  load_fixture names.zwr
+  load_fixture default_user.zwr
+}
+
+@test "TBR000 : lexer buffer resizes for tokens longer than OCTO_INIT_BUFFER_LEN in column name comparisons" {
+	# Test resize for single quote string literals > OCTO_INIT_BUFFER_LEN
+	echo "SELECT * from names where firstname = '$(for i in {1..3000}; do echo -n a; done)';" &> in.sql
+	# Test resize for double quote string literals > OCTO_INIT_BUFFER_LEN
+	echo "SELECT * from names where firstname = \"$(for i in {1..3000}; do echo -n a; done)\";" &> in.sql
+	# Test resize for integer literals > OCTO_INIT_BUFFER_LEN
+	echo "SELECT * from names where id = $(for i in {1..3000}; do echo -n 1; done);" >> in.sql
+	# Test resize for numeric literals > OCTO_INIT_BUFFER_LEN
+	echo "SELECT * from names where 0 < $(for i in {1..3000}; do echo -n 2; done).2;" >> in.sql
+	# Test resize for prepared statement parameters > OCTO_INIT_BUFFER_LEN
+	echo "SELECT * from names where \$$(for i in {1..3000}; do echo -n 1; done) = 1;" >> in.sql
+	# Test resize for intrinsic function names > OCTO_INIT_BUFFER_LEN
+	echo "CREATE FUNCTION nofunc () RETURNS VARCHAR AS \$$(for i in {1..3000}; do echo -n c; done);" >> in.sql
+	# Test resize for extrinsic function names > OCTO_INIT_BUFFER_LEN
+	echo "CREATE FUNCTION nofunc () RETURNS VARCHAR AS \$\$$(for i in {1..3000}; do echo -n c; done);" >> in.sql
+	octo -f in.sql &> output.txt
+	# TODO: Accept GVSUBOFLOW error until #607 is resolved
+	verify_output TBR000 output.txt
+}
+
+@test "TBR001 : lexer buffer resizes for tokens longer than OCTO_INIT_BUFFER_LEN in literal to literal equalities" {
+	longstring=$(for i in {1..3000}; do echo -n a; done)
+	# Test resize for single quote string literals > OCTO_INIT_BUFFER_LEN
+	echo "SELECT * from names where '$longstring' = '$longstring';" &> in.sql
+	# Test resize for double quote string literals > OCTO_INIT_BUFFER_LEN
+	echo "SELECT * from names where \"$longstring\" = \"$longstring\";" >> in.sql
+	octo -f in.sql &> output.txt
+	# Need outref since PostgreSQL doesn't support double-quote string literals but treats them as identifiers
+	verify_output TBR001 output.txt
+}
+
+@test "TBR002 : lexer buffer resizes for tokens longer than OCTO_INIT_BUFFER_LEN in literal to literal inequalities" {
+	longstring=$(for i in {1..3000}; do echo -n a; done)
+	# Test resize for single quote string literals > OCTO_INIT_BUFFER_LEN
+	echo "SELECT * from names where '$longstring' != '$longstring';" &> in.sql
+	echo "SELECT * from names where 'B$longstring' != '$longstring';" >> in.sql
+	# Test resize for double quote string literals > OCTO_INIT_BUFFER_LEN
+	echo "SELECT * from names where \"$longstring\" != \"$longstring\";" >> in.sql
+	echo "SELECT * from names where \"B$longstring\" != \"$longstring\";" >> in.sql
+	octo -f in.sql &> output.txt
+	# Need outref since PostgreSQL doesn't support double-quote string literals but treats them as identifiers
+	# May reuse TBR001.ref since only half of the above queries will return results, resulting in the same output for both tests
+	verify_output TBR001 output.txt
+}

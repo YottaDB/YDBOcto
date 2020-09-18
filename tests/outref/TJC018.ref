@@ -1,0 +1,6 @@
+protocol: usesimple
+-------------------------------------------------------------------------
+ --> Running query : SELECT id, 0, 1, 2, ..., 32765 FROM names WHERE firstname = firstname ...; <--
+-------------------------------------------------------------------------
+SQL State: 08P01
+ERROR: Query length 1441709 exceeded maximum size (1048576)

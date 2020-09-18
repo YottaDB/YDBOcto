@@ -22,7 +22,7 @@
 #define YY_INPUT(buf, result, max_size) while((result = get_input(buf, max_size)) == -1 && result != YY_NULL) { };
 
 #define YY_USER_ACTION 							\
-	yylloc->first_line = yylloc->last_line; 			\
+	yylloc->first_line = yylloc->last_line;				\
 	yylloc->first_column = yylloc->last_column;			\
 	for(int i = 0; yytext[i] != '\0'; i++) { 			\
 		if(yytext[i] == '\n') { 				\
@@ -44,12 +44,39 @@
 /* Copies from src to dst, incrementing both pointers as it goes
  * copied will be incremented by the number of characters copied
  */
-#define COPY_STRING(dst, src, copied, max) while((copied) < (max) && (*src)) {*dst++ = *src++; (copied)++; }
+#define COPY_STRING(dst, src, copied)						\
+	{									\
+		size_t total_len;						\
+		char * dst_str;							\
+										\
+		total_len = strlen(src);					\
+		if (dst->len_alloc <= (copied + total_len)) {				\
+			char *tmp;\
+			int len_used;\
+\
+			tmp = (char*)malloc(sizeof(char) * (copied + total_len + 1));			\
+			memcpy(tmp, dst->buf_addr, dst->len_used);\
+			len_used = dst->len_used;\
+			free(dst->buf_addr); \
+			dst->len_alloc = copied + total_len + 1; \
+			dst->buf_addr = tmp; \
+			dst->len_used = len_used; \
+		}								\
+		dst_str =  dst->buf_addr + dst->len_used;	\
+		while ((*src)) {							\
+			*dst_str++ = *src++;					\
+			(copied)++;						\
+			dst->len_used++;					\
+		}								\
+		*dst_str = '\0';						\
+	}
+
+#define RESET_BUFFER(BUFFER) \
+	BUFFER.len_used = 0; /* Reset the length of the buffer to indicate the value is no longer needed */ \
+	BUFFER.buf_addr[0] = '\0'; /* Reset the length of the buffer to indicate the value is no longer needed */
 
 #define YYSTYPE SqlStatement *
 
-char string_buffer[MAX_STR_CONST];
-char *str_buf_ptr;
 int copied_so_far;
 
 %}
@@ -229,122 +256,115 @@ int copied_so_far;
 
 [0-9]*(\.)[0-9]* {
                 copied_so_far = 0;
-                str_buf_ptr = string_buffer;
                 char *yptr = yytext;
-                COPY_STRING(str_buf_ptr, yptr, copied_so_far, MAX_STR_CONST);
-                *str_buf_ptr = '\0';
+                COPY_STRING((&lex_buffer), yptr, copied_so_far);
                 SQL_STATEMENT(*yylval_param, value_STATEMENT);
                 OCTO_CMALLOC_STRUCT((*yylval_param)->v.value, SqlValue);
                 (*yylval_param)->v.value->type = NUMERIC_LITERAL;
                 (*yylval_param)->v.value->v.string_literal = (char*)octo_cmalloc(memory_chunks, copied_so_far+1);
-                strncpy((*yylval_param)->v.value->v.string_literal, string_buffer, copied_so_far+1);
+                strncpy((*yylval_param)->v.value->v.string_literal, lex_buffer.buf_addr, copied_so_far+1);
+		RESET_BUFFER(lex_buffer);
                 return LITERAL;
               }
 [0-9]* {
                 copied_so_far = 0;
-                str_buf_ptr = string_buffer;
                 char *yptr = yytext;
-                COPY_STRING(str_buf_ptr, yptr, copied_so_far, MAX_STR_CONST);
-                *str_buf_ptr = '\0';
+                COPY_STRING((&lex_buffer), yptr, copied_so_far);
                 SQL_STATEMENT(*yylval_param, value_STATEMENT);
                 OCTO_CMALLOC_STRUCT((*yylval_param)->v.value, SqlValue);
                 (*yylval_param)->v.value->type = INTEGER_LITERAL;
                 (*yylval_param)->v.value->v.string_literal = (char*)octo_cmalloc(memory_chunks, copied_so_far+1);
-                strncpy((*yylval_param)->v.value->v.string_literal, string_buffer, copied_so_far+1);
+                strncpy((*yylval_param)->v.value->v.string_literal, lex_buffer.buf_addr, copied_so_far+1);
+		RESET_BUFFER(lex_buffer);
                 return LITERAL;
               }
 \$\$[%a-zA-Z0-9]?[a-zA-Z0-9]*\^?[%a-zA-Z][a-zA-Z0-9]* {	/* M labels and M routine-names can have % as leading character.
-														 * M labels can be all digits. M labels can be optional too. Hence this fancy regex rule.
-														 * Note that this rule does not account an extra '%' in the label name, e.g. $$BAD%FUNC.
-														 * This case is handled manually in the EXTRINSIC_FUNCTION rule in parser.y.
-														 */
+							 * M labels can be all digits. M labels can be optional too. Hence this fancy regex rule.
+							 * Note that this rule does not account an extra '%' in the label name, e.g. $$BAD%FUNC.
+							 * This case is handled manually in the EXTRINSIC_FUNCTION rule in parser.y.
+							 */
                 copied_so_far = 0;
-                str_buf_ptr = string_buffer;
                 char *yptr = yytext;
-                COPY_STRING(str_buf_ptr, yptr, copied_so_far, MAX_STR_CONST);
-                *str_buf_ptr = '\0';
+                COPY_STRING((&lex_buffer), yptr, copied_so_far);
                 SQL_STATEMENT(*yylval_param, value_STATEMENT);
                 OCTO_CMALLOC_STRUCT((*yylval_param)->v.value, SqlValue);
                 (*yylval_param)->v.value->type = COLUMN_REFERENCE;
                 (*yylval_param)->v.value->v.string_literal = (char*)octo_cmalloc(memory_chunks, copied_so_far+1);
                 char *d = (*yylval_param)->v.value->v.string_literal;
-                char *c = string_buffer;
+                char *c = lex_buffer.buf_addr;
                 while(*c != '\0') {
                   *d++ = *c++;
                 }
                 *d = '\0';
+		RESET_BUFFER(lex_buffer);
                 return EXTRINSIC_FUNCTION;
 	       }
 \$[0-9]+ {
                 copied_so_far = 0;
-                str_buf_ptr = string_buffer;
                 char *yptr = yytext;
-                COPY_STRING(str_buf_ptr, yptr, copied_so_far, MAX_STR_CONST);
-                *str_buf_ptr = '\0';
+                COPY_STRING((&lex_buffer), yptr, copied_so_far);
                 SQL_STATEMENT(*yylval_param, value_STATEMENT);
                 OCTO_CMALLOC_STRUCT((*yylval_param)->v.value, SqlValue);
                 (*yylval_param)->v.value->type = PARAMETER_VALUE;
                 (*yylval_param)->v.value->v.string_literal = (char*)octo_cmalloc(memory_chunks, copied_so_far+1);
                 char *d = (*yylval_param)->v.value->v.string_literal;
-                char *c = string_buffer;
+                char *c = lex_buffer.buf_addr;
                 while ('\0' != *c) {
                   *d++ = toupper(*c++);
                 }
                 *d = '\0';
+		RESET_BUFFER(lex_buffer);
                 return LITERAL;
               }
 \$[a-zA-Z]+ {
                 copied_so_far = 0;
-                str_buf_ptr = string_buffer;
                 char *yptr = yytext;
-                COPY_STRING(str_buf_ptr, yptr, copied_so_far, MAX_STR_CONST);
-                *str_buf_ptr = '\0';
+                COPY_STRING((&lex_buffer), yptr, copied_so_far);
                 SQL_STATEMENT(*yylval_param, value_STATEMENT);
                 OCTO_CMALLOC_STRUCT((*yylval_param)->v.value, SqlValue);
                 (*yylval_param)->v.value->type = COLUMN_REFERENCE;
                 (*yylval_param)->v.value->v.string_literal = (char*)octo_cmalloc(memory_chunks, copied_so_far+1);
                 char *d = (*yylval_param)->v.value->v.string_literal;
-                char *c = string_buffer;
+                char *c = lex_buffer.buf_addr;
                 while ('\0' != *c) {
-                  *d++ = toupper(*c++);
+			*d++ = toupper(*c++);
                 }
                 *d = '\0';
+		RESET_BUFFER(lex_buffer);
                 return INTRINSIC_FUNCTION;
               }
 [a-zA-Z][a-zA-Z0-9_$^]* {
                 copied_so_far = 0;
-                str_buf_ptr = string_buffer;
                 char *yptr = yytext;
-                COPY_STRING(str_buf_ptr, yptr, copied_so_far, MAX_STR_CONST);
-                *str_buf_ptr = '\0';
+                COPY_STRING((&lex_buffer), yptr, copied_so_far);
                 SQL_STATEMENT(*yylval_param, value_STATEMENT);
                 OCTO_CMALLOC_STRUCT((*yylval_param)->v.value, SqlValue);
                 (*yylval_param)->v.value->type = COLUMN_REFERENCE;
                 (*yylval_param)->v.value->v.string_literal = (char*)octo_cmalloc(memory_chunks, copied_so_far+1);
                 char *d = (*yylval_param)->v.value->v.string_literal;
-                char *c = string_buffer;
-                while(*c != '\0') {
-                  *d++ = toupper(*c++);
+                char *c = lex_buffer.buf_addr;
+                while (*c != '\0') {
+			*d++ = toupper(*c++);
                 }
                 *d = '\0';
+		RESET_BUFFER(lex_buffer);
                 return IDENTIFIER_ALONE;
               }
 [a-zA-Z][a-zA-Z0-9_]*\.[a-zA-Z][a-zA-Z0-9_]* {
                 copied_so_far = 0;
-                str_buf_ptr = string_buffer;
                 char *yptr = yytext;
-                COPY_STRING(str_buf_ptr, yptr, copied_so_far, MAX_STR_CONST);
-                *str_buf_ptr = '\0';
+                COPY_STRING((&lex_buffer), yptr, copied_so_far);
                 SQL_STATEMENT(*yylval_param, value_STATEMENT);
                 OCTO_CMALLOC_STRUCT((*yylval_param)->v.value, SqlValue);
                 (*yylval_param)->v.value->type = COLUMN_REFERENCE;
                 (*yylval_param)->v.value->v.string_literal = (char*)octo_cmalloc(memory_chunks, copied_so_far+1);
                 char *d = (*yylval_param)->v.value->v.string_literal;
-                char *c = string_buffer;
+                char *c = lex_buffer.buf_addr;
                 while(*c != '\0') {
-                  *d++ = toupper(*c++);
+			*d++ = toupper(*c++);
                 }
                 *d = '\0';
+		RESET_BUFFER(lex_buffer);
                 return IDENTIFIER_PERIOD_IDENTIFIER;
               }
 -- { BEGIN(COMMENT); }
@@ -353,51 +373,52 @@ int copied_so_far;
 
 [ \t\r\n]      ;  /* skip whitespace which is not part of a string */
 
-\' { copied_so_far = 0; str_buf_ptr = string_buffer; BEGIN(SINGLE_STRING); }
-<SINGLE_STRING>\'\' { char *yptr = yytext + 1; COPY_STRING(str_buf_ptr, yptr, copied_so_far, MAX_STR_CONST); }
-<SINGLE_STRING>[^\']* { char *yptr = yytext; COPY_STRING(str_buf_ptr, yptr, copied_so_far, MAX_STR_CONST); }
+\' { copied_so_far = 0; BEGIN(SINGLE_STRING); }
+<SINGLE_STRING>\'\' { char *yptr = yytext + 1; COPY_STRING((&lex_buffer), yptr, copied_so_far); }
+<SINGLE_STRING>[^\']* { char *yptr = yytext; COPY_STRING((&lex_buffer), yptr, copied_so_far); }
 <SINGLE_STRING>\' {
-              *str_buf_ptr = '\0';
-              SQL_STATEMENT(*yylval_param, value_STATEMENT);
-              OCTO_CMALLOC_STRUCT((*yylval_param)->v.value, SqlValue);
-              (*yylval_param)->v.value->type = STRING_LITERAL;
-              (*yylval_param)->v.value->v.string_literal = (char*)octo_cmalloc(memory_chunks, copied_so_far+1);
-              strncpy((*yylval_param)->v.value->v.string_literal, string_buffer, copied_so_far+1);
-              BEGIN(INITIAL);
-              return LITERAL;
+		SQL_STATEMENT(*yylval_param, value_STATEMENT);
+		OCTO_CMALLOC_STRUCT((*yylval_param)->v.value, SqlValue);
+		(*yylval_param)->v.value->type = STRING_LITERAL;
+		(*yylval_param)->v.value->v.string_literal = (char*)octo_cmalloc(memory_chunks, copied_so_far+1);
+		strncpy((*yylval_param)->v.value->v.string_literal, lex_buffer.buf_addr, copied_so_far+1);
+		RESET_BUFFER(lex_buffer);
+		BEGIN(INITIAL);
+		return LITERAL;
             }
 
 
-\" { copied_so_far = 0; str_buf_ptr = string_buffer; BEGIN(STRING); }
-<STRING>\"\" { char *yptr = yytext + 1; COPY_STRING(str_buf_ptr, yptr, copied_so_far, MAX_STR_CONST); }
-<STRING>[^\"]* { char *yptr = yytext; COPY_STRING(str_buf_ptr, yptr, copied_so_far, MAX_STR_CONST); }
+
+\" { copied_so_far = 0; BEGIN(STRING); }
+<STRING>\"\" { char *yptr = yytext + 1; COPY_STRING((&lex_buffer), yptr, copied_so_far); }
+<STRING>[^\"]* { char *yptr = yytext; COPY_STRING((&lex_buffer), yptr, copied_so_far); }
 <STRING>\" {
-              *str_buf_ptr = '\0';
-              SQL_STATEMENT(*yylval_param, value_STATEMENT);
-              OCTO_CMALLOC_STRUCT((*yylval_param)->v.value, SqlValue);
-              (*yylval_param)->v.value->type = STRING_LITERAL;
-              (*yylval_param)->v.value->v.string_literal = (char*)octo_cmalloc(memory_chunks, copied_so_far+1);
-              strncpy((*yylval_param)->v.value->v.string_literal, string_buffer, copied_so_far+1);
-              BEGIN(INITIAL);
-              return LITERAL;
+		SQL_STATEMENT(*yylval_param, value_STATEMENT);
+		OCTO_CMALLOC_STRUCT((*yylval_param)->v.value, SqlValue);
+		(*yylval_param)->v.value->type = STRING_LITERAL;
+		(*yylval_param)->v.value->v.string_literal = (char*)octo_cmalloc(memory_chunks, copied_so_far+1);
+		strncpy((*yylval_param)->v.value->v.string_literal, lex_buffer.buf_addr, copied_so_far+1);
+		RESET_BUFFER(lex_buffer);
+		BEGIN(INITIAL);
+		return LITERAL;
             }
 
-` { copied_so_far = 0; str_buf_ptr = string_buffer; BEGIN(IDENTIFIER); }
-<IDENTIFIER>[^(``)]* { char *yptr = yytext; COPY_STRING(str_buf_ptr, yptr, copied_so_far, MAX_STR_CONST); }
+` { copied_so_far = 0; BEGIN(IDENTIFIER); }
+<IDENTIFIER>[^(``)]* { char *yptr = yytext; COPY_STRING((&lex_buffer), yptr, copied_so_far); }
 <IDENTIFIER>` {
-                BEGIN(INITIAL);
-                *str_buf_ptr = '\0';
+		BEGIN(INITIAL);
                 SQL_STATEMENT(*yylval_param, value_STATEMENT);
                 OCTO_CMALLOC_STRUCT((*yylval_param)->v.value, SqlValue);
                 (*yylval_param)->v.value->type = COLUMN_REFERENCE;
                 (*yylval_param)->v.value->v.string_literal = (char*)octo_cmalloc(memory_chunks, copied_so_far+1);
                 char *d = (*yylval_param)->v.value->v.string_literal;
-                char *c = string_buffer;
+                char *c = lex_buffer.buf_addr;
                 while(*c != '\0') {
-                  *d++ = toupper(*c++);
+			*d++ = toupper(*c++);
                 }
                 *d = '\0';
                 BEGIN(INITIAL);
+		RESET_BUFFER(lex_buffer);
                 return IDENTIFIER_BACK_TICK;
               }
 

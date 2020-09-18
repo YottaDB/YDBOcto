@@ -1,0 +1,68 @@
+
+-- TC040 : OCTO590 : Confirm enforcement of table name length limits during table creation and cleanup
+
+-- 64-byte table name (exceeds 63-byte limit and so should fail)
+CREATE TABLE namesLongStringABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvw (
+        id INTEGER PRIMARY KEY,
+        firstName VARCHAR(30),
+        lastName TEXT(30)
+) GLOBAL "^names(keys(""id""))";
+
+SELECT * from namesLongStringABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvw;
+
+-- 63-byte table name (meets 63-byte limit and so should succeed)
+CREATE TABLE namesLongStringABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuv (
+        id INTEGER PRIMARY KEY,
+        firstName VARCHAR(30),
+        lastName TEXT(30)
+) GLOBAL "^names(keys(""id""))";
+
+SELECT * from namesLongStringABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuv;
+
+-- 64-byte table name using '.' to force 'LITERAL PERIOD LITERAL' parser code path (exceeds 63-byte limit and so should fail)
+CREATE TABLE namesLongString.ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvw (
+        id INTEGER PRIMARY KEY,
+        firstName VARCHAR(30),
+        lastName TEXT(30)
+) GLOBAL "^names(keys(""id""))";
+
+SELECT * from namesLongString.ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuv;
+
+[ERROR] PATH:LINENUM DATE TIME : ERR_IDENT_LENGTH : Identifier length 64 exceeds max (63)
+Error with syntax near (line 1, column 14):
+
+CREATE TABLE namesLongStringABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvw (
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: CREATE TABLE namesLongStringABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvw (
+        id INTEGER PRIMARY KEY,
+        firstName VARCHAR(30),
+        lastName TEXT(30)
+) GLOBAL "^names(keys(""id""))";
+[ERROR] PATH:LINENUM DATE TIME : ERR_IDENT_LENGTH : Identifier length 64 exceeds max (63)
+Error with syntax near (line 1, column 15):
+
+SELECT * from namesLongStringABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvw;
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT * from namesLongStringABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvw;
+0|Zero|Cool
+1|Acid|Burn
+2|Cereal|Killer
+3|Lord|Nikon
+4|Joey|
+5|Zero|Cool
+[ERROR] PATH:LINENUM DATE TIME : ERR_IDENT_LENGTH : Identifier length 65 exceeds max (63)
+Error with syntax near (line 1, column 14):
+
+CREATE TABLE namesLongString.ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvw (
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: CREATE TABLE namesLongString.ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvw (
+        id INTEGER PRIMARY KEY,
+        firstName VARCHAR(30),
+        lastName TEXT(30)
+) GLOBAL "^names(keys(""id""))";
+[ERROR] PATH:LINENUM DATE TIME : ERR_IDENT_LENGTH : Identifier length 64 exceeds max (63)
+Error with syntax near (line 1, column 15):
+
+SELECT * from namesLongString.ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuv;
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT * from namesLongString.ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuv;

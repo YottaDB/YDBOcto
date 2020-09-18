@@ -24,18 +24,17 @@
 int parse_literal_to_parameter(ParseContext *parse_context, SqlValue *value, boolean_t update_existing) {
 	// Increment local variable to track query literals for "prepared statement" optimization
 	ydb_buffer_t parm_count, literal_buf;
-	ydb_buffer_t parm_count_subs[4];
+	ydb_buffer_t parm_count_subs[5];
+	char	     parm_count_str[INT64_TO_STRING_MAX];
 	int	     status = 0;
-	char	     parm_count_buff[INT64_TO_STRING_MAX];
+	long	     parm_index_long;
 
 	YDB_STRING_TO_BUFFER(config->global_names.cursor, &parm_count_subs[0]);
 	YDB_STRING_TO_BUFFER(parse_context->cursorIdString, &parm_count_subs[1]);
 	YDB_STRING_TO_BUFFER(OCTOLIT_PARAMETERS, &parm_count_subs[2]);
-	parm_count.buf_addr = parm_count_buff;
-	parm_count.len_alloc = sizeof(parm_count_buff);
-	parm_count.len_used = 0;
+	OCTO_SET_BUFFER(parm_count, parm_count_str);
 	if (update_existing) {
-		parm_count.len_used = snprintf(parm_count.buf_addr, sizeof(parm_count_buff), "%d", value->parameter_index);
+		parm_count.len_used = snprintf(parm_count.buf_addr, sizeof(parm_count_str), "%d", value->parameter_index);
 		assert(parm_count.len_used < parm_count.len_alloc);
 		assert('\0' == parm_count.buf_addr[parm_count.len_used]);
 	} else {
@@ -43,6 +42,12 @@ int parse_literal_to_parameter(ParseContext *parse_context, SqlValue *value, boo
 		if (config->is_rocto) {
 			assert(0 <= parse_context->total_parms);
 			parse_context->total_parms++;
+			if (0 > parse_context->total_parms) {
+				ERROR(ERR_INVALID_NUMBER, "parse_literal_to_parameter", "prepared statement parameters",
+				      parse_context->total_parms, 0, INT16_MAX);
+				OCTO_CFREE(memory_chunks);
+				return 1;
+			}
 		}
 		status = ydb_incr_s(&parm_count_subs[0], 2, &parm_count_subs[1], NULL, &parm_count);
 		YDB_ERROR_CHECK(status);
@@ -51,11 +56,17 @@ int parse_literal_to_parameter(ParseContext *parse_context, SqlValue *value, boo
 			return 1;
 		}
 		parm_count.buf_addr[parm_count.len_used] = '\0';
+
 		// Store current parameter count as index for later lookup by physical plan
-		value->parameter_index = atoi(parm_count.buf_addr);
+		parm_index_long = strtol(parm_count.buf_addr, NULL, 10);
+		if ((ERANGE == errno) && ((0 > parm_index_long) || (INT_MAX < parm_index_long))) {
+			ERROR(ERR_LIBCALL_WITH_ARG, "strtol", parm_count.buf_addr);
+			OCTO_CFREE(memory_chunks);
+			return 1;
+		} else {
+			value->parameter_index = (int)parm_index_long;
+		}
 	}
-	// Prepare parameter count subscripts to store literal in database
-	parm_count_subs[3] = parm_count;
 	// Store literal value in database (mapped to above index) for later lookup by physical plan
 	if (PARAMETER_VALUE == value->type) {
 		YDB_STRING_TO_BUFFER("", &literal_buf); // If an extended query parameter, e.g. $1, we have no value to
@@ -63,7 +74,14 @@ int parse_literal_to_parameter(ParseContext *parse_context, SqlValue *value, boo
 							// handle_execute
 	} else {
 		YDB_STRING_TO_BUFFER(value->v.string_literal, &literal_buf);
+		if (YDB_MAX_STR < literal_buf.len_used) {
+			ERROR(ERR_LITERAL_MAX_LEN, YDB_MAX_STR);
+			OCTO_CFREE(memory_chunks);
+			return 1;
+		}
 	}
+	// Prepare parameter count subscripts to store literal in database
+	YDB_STRING_TO_BUFFER(parm_count.buf_addr, &parm_count_subs[3]);
 	status = ydb_set_s(&parm_count_subs[0], 3, &parm_count_subs[1], &literal_buf);
 	if (YDB_OK != status) {
 		OCTO_CFREE(memory_chunks);

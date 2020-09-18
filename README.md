@@ -183,7 +183,6 @@ The Octo plugin can be installed by using the `--octo` option when installing Yo
 
    ```sh
    mkdir build ; cd build
-   # For VistA the String Buffer Length needs to be larger. Add `-DSTRING_BUFFER_LENGTH=300000` to the cmake command below
    cmake -DCMAKE_INSTALL_PREFIX=$ydb_dist/plugin .. # for CentOS/RedHat use cmake3 instead
    make -j `grep -c ^processor /proc/cpuinfo`
    ```
@@ -197,19 +196,6 @@ The Octo plugin can be installed by using the `--octo` option when installing Yo
    To build the full test suite rather than a subset of it, the `FULL_TEST_SUITE` option needs to be set to `ON`, e.g. `cmake -D FULL_TEST_SUITE=ON ..`.
 
    To show the output of failed tests, export the environment variable `CTEST_OUTPUT_ON_FAILURE=TRUE`. Alternatively, you can show output for only a single run by passing the argument to make: `make CTEST_OUTPUT_ON_FAILURE=TRUE test`.
-
-   **NOTE**: Octo uses some CMake parameters to control generation of fixed-size buffer allocations. These are:
-
-   * `STRING_BUFFER_LENGTH` -- the maximum length of a string within the system; this supersedes any VARCHAR definitions.
-   * `INIT_M_ROUTINE_LENGTH` -- the initial length for the buffer of generated M routines. The default is 10MB.
-   * `MEMORY_CHUNK_SIZE` -- size of memory chunks to allocate; default is 32MB.
-   * `MEMORY_CHUNK_PROTECT` -- if non-zero, memory following chunks is protected to detect buffer overflows. If 2, data is placed closer to the protected region to increase the chances of detecting an error.
-
-   Example usage of above parameters:
-
-   ```sh
-   cmake -DSTRING_BUFFER_LENGTH=600000 -DCMAKE_INSTALL_PREFIX=$ydb_dist/plugin ..
-   ```
 
 1. Install Octo
 

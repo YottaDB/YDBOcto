@@ -28,7 +28,11 @@ SqlStatement *parse_line(ParseContext *parse_context) {
 	SqlStatement *result = 0;
 	yyscan_t      scanner;
 
+	YDB_MALLOC_BUFFER(&lex_buffer, OCTO_INIT_BUFFER_LEN);
+	lex_buffer.buf_addr[0] = '\0';
+	lex_buffer.len_used = 0;
 	if (yylex_init(&scanner)) {
+		YDB_FREE_BUFFER(&lex_buffer);
 		ERROR(ERR_INIT_SCANNER, "");
 		return NULL;
 	}
@@ -40,6 +44,7 @@ SqlStatement *parse_line(ParseContext *parse_context) {
 	if (status) {
 		ERROR(ERR_PARSING_COMMAND, cur_input_index - old_input_index, input_buffer_combined + old_input_index);
 	}
+	YDB_FREE_BUFFER(&lex_buffer);
 	/* Remove newline at end of query line if present.
 	 * It will be present for octo but not necessarily for rocto in case query comes in from a client.
 	 */

@@ -17,25 +17,48 @@
 #include "octo.h"
 #include "octo_types.h"
 
-int m_escape_string2(char *buffer, int buffer_len, char *string) {
+#define EXPAND_BUFFER_IF_NEEDED(NEXT_INDEX, BUFFER_LEN, BUFFER, CHAR)                                                   \
+	{                                                                                                               \
+		if (NEXT_INDEX >= *BUFFER_LEN) {                                                                        \
+			char *tmp;                                                                                      \
+			int   new_size;                                                                                 \
+                                                                                                                        \
+			new_size = ((NEXT_INDEX >= (*BUFFER_LEN * 2)) ? (NEXT_INDEX + 1) : (*BUFFER_LEN * 2));          \
+			tmp = (char *)malloc(sizeof(char) * new_size);                                                  \
+			/* Copy up to the current index, leaving space for the next to populated after the expansion */ \
+			memcpy(tmp, *BUFFER, NEXT_INDEX - 1);                                                           \
+			free(*BUFFER);                                                                                  \
+			*BUFFER = tmp;                                                                                  \
+			*BUFFER_LEN = new_size;                                                                         \
+			CHAR = *BUFFER + NEXT_INDEX - 1;                                                                \
+		}                                                                                                       \
+	}
+
+int m_escape_string2(char **buffer, int *buffer_len, char *string) {
 	int   i = 0;
 	char *c = string;
-	char *b = buffer;
-	while (*c != '\0' && i < buffer_len) {
+	char *b = *buffer;
+	while (*c != '\0') {
 		switch (*c) {
 		case '"':
+			i++;
+			EXPAND_BUFFER_IF_NEEDED(i, buffer_len, buffer, b);
 			*b++ = '"';
+			i++;
+			EXPAND_BUFFER_IF_NEEDED(i, buffer_len, buffer, b);
 			*b++ = '"';
-			i += 2;
 			break;
 		default:
-			*b++ = *c;
 			i++;
+			EXPAND_BUFFER_IF_NEEDED(i, buffer_len, buffer, b);
+			*b++ = *c;
 			break;
 		}
 		c++;
 	}
-	assert(b < (buffer + buffer_len));
+	i++;
+	EXPAND_BUFFER_IF_NEEDED(i, buffer_len, buffer, b);
+	assert(b < (*buffer + *buffer_len));
 	*b = '\0';
 	return i;
 }

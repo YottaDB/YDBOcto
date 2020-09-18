@@ -51,7 +51,8 @@ void ydb_error_check(int status, char *file, int line) {
 	 *	(i.e. %ydboctoerrcodemin < error-code < %ydboctoerrcodemax).
 	 * If so handle that separately. Else treat it as a YDB error code.
 	 */
-	YDB_MALLOC_BUFFER(&ret_value, MAX_STR_CONST);
+	YDB_MALLOC_BUFFER(&ret_value, YDB_MAX_ERRORMSG);
+	ret_value.len_alloc--; // Space for null terminator
 	YDB_LITERAL_TO_BUFFER("%ydboctoerrcodemin", &varname);
 	/* It is possible we got a ZLINKFILE error in the `ydb_ci()` call done in `octo_init.c` due to `ydb_routines`
 	 * not being properly set up. In that case, `%ydboctoerrcodemin` and `%ydboctoerrcodemax` will not be properly
@@ -61,11 +62,23 @@ void ydb_error_check(int status, char *file, int line) {
 	 */
 	ydb_data_s(&varname, 0, NULL, &ydb_data_ret_value);
 	if (ydb_data_ret_value) {
-		ydb_get_s(&varname, 0, NULL, &ret_value);
+		status = ydb_get_s(&varname, 0, NULL, &ret_value);
+		if (YDB_ERR_INVSTRLEN == status) {
+			EXPAND_YDB_BUFFER_T_ALLOCATION(ret_value);
+			status = ydb_get_s(&varname, 0, NULL, &ret_value);
+			assert(YDB_OK == status);
+			UNUSED(status); // Prevent 'value never read' compiler warning
+		}
 		ret_value.buf_addr[ret_value.len_used] = '\0';
 		ydboctoerrcodemin = atoi(ret_value.buf_addr);
 		YDB_LITERAL_TO_BUFFER("%ydboctoerrcodemax", &varname);
-		ydb_get_s(&varname, 0, NULL, &ret_value);
+		status = ydb_get_s(&varname, 0, NULL, &ret_value);
+		if (YDB_ERR_INVSTRLEN == status) {
+			EXPAND_YDB_BUFFER_T_ALLOCATION(ret_value);
+			status = ydb_get_s(&varname, 0, NULL, &ret_value);
+			assert(YDB_OK == status);
+			UNUSED(status); // Prevent 'value never read' compiler warning
+		}
 		ret_value.buf_addr[ret_value.len_used] = '\0';
 		ydboctoerrcodemax = atoi(ret_value.buf_addr);
 		is_octo_internal_error = ((ydboctoerrcodemin < positive_status) && (positive_status < ydboctoerrcodemax));
@@ -93,7 +106,13 @@ void ydb_error_check(int status, char *file, int line) {
 			YDB_LITERAL_TO_BUFFER("%ydboctoerror", &varname);
 			YDB_LITERAL_TO_BUFFER("INVALIDINPUTSYNTAXBOOL", &subs[0]);
 			YDB_LITERAL_TO_BUFFER("1", &subs[1]);
-			ydb_get_s(&varname, 2, subs, &ret_value);
+			status = ydb_get_s(&varname, 2, subs, &ret_value);
+			if (YDB_ERR_INVSTRLEN == status) {
+				EXPAND_YDB_BUFFER_T_ALLOCATION(ret_value);
+				status = ydb_get_s(&varname, 2, subs, &ret_value);
+				assert(YDB_OK == status);
+				UNUSED(status); // Prevent 'value never read' compiler warning
+			}
 			ret_value.buf_addr[ret_value.len_used] = '\0';
 			octo_log(line, file, ERROR, ERROR_Severity, ERR_INVALID_INPUT_SYNTAX_BOOL, ret_value.buf_addr);
 			/* Now that we have got the value, delete the M node */
@@ -108,7 +127,13 @@ void ydb_error_check(int status, char *file, int line) {
 			YDB_LITERAL_TO_BUFFER("%ydboctoerror", &varname);
 			YDB_LITERAL_TO_BUFFER("INVALIDESCAPEPATTERN", &subs[0]);
 			YDB_LITERAL_TO_BUFFER("1", &subs[1]);
-			ydb_get_s(&varname, 2, subs, &ret_value);
+			status = ydb_get_s(&varname, 2, subs, &ret_value);
+			if (YDB_ERR_INVSTRLEN == status) {
+				EXPAND_YDB_BUFFER_T_ALLOCATION(ret_value);
+				status = ydb_get_s(&varname, 2, subs, &ret_value);
+				assert(YDB_OK == status);
+				UNUSED(status); // Prevent 'value never read' compiler warning
+			}
 			ret_value.buf_addr[ret_value.len_used] = '\0';
 			octo_log(line, file, ERROR, ERROR_Severity, ERR_INVALID_ESCAPE_PATTERN, ret_value.buf_addr);
 			/* Now that we have got the value, delete the M node */
@@ -166,9 +191,16 @@ void ydb_error_check(int status, char *file, int line) {
 		/* Assert that the error code falls in the range of a valid YDB error code */
 		assert(YDB_MIN_YDBERR <= positive_status);
 		assert(YDB_MAX_YDBERR > positive_status);
-		YDB_LITERAL_TO_BUFFER("$ZSTATUS", &varname);
-		ydb_get_s(&varname, 0, NULL, &ret_value);
-		ret_value.buf_addr[ret_value.len_used] = '\0';
+		/* Use ydb_status instead of ydb_get_s to preserve the original error message in $ZSTATUS
+		 * in case the buffer needs to be resized, i.e. the call returns YDB_ERR_INVSTRLEN
+		 */
+		status = ydb_zstatus(ret_value.buf_addr, ret_value.len_alloc);
+		while (YDB_ERR_INVSTRLEN == status) {
+			ret_value.len_used = ret_value.len_alloc * 2; // Update len_used to specify new size for following macro
+			EXPAND_YDB_BUFFER_T_ALLOCATION(ret_value);
+			status = ydb_zstatus(ret_value.buf_addr, ret_value.len_alloc);
+		}
+		assert(YDB_OK == status);
 		YDB_SEVERITY(positive_status, severity);
 		switch (severity) {
 		case YDB_SEVERITY_SUCCESS:

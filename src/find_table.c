@@ -26,7 +26,7 @@ SqlTable *find_table(const char *table_name) {
 	ydb_buffer_t  save_value;
 	ydb_buffer_t *table_binary_b;
 	ydb_buffer_t  value_b;
-	char	      value_b_buffer[MAX_BINARY_DEFINITION_FRAGMENT_SIZE];
+	char	      value_b_buffer[MAX_DEFINITION_FRAGMENT_SIZE];
 	char *	      buff, *cur_buff;
 	const char *  c;
 	int	      status;
@@ -181,7 +181,7 @@ SqlTable *find_table(const char *table_name) {
 			break;
 		memcpy(cur_buff, value_b.buf_addr, value_b.len_used);
 		cur_buff += value_b.len_used;
-		assert(MAX_BINARY_DEFINITION_FRAGMENT_SIZE >= value_b.len_used);
+		assert(MAX_DEFINITION_FRAGMENT_SIZE >= value_b.len_used);
 		if (length == (cur_buff - buff)) {
 			break;
 		}

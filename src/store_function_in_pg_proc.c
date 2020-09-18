@@ -22,6 +22,9 @@
 // Only store type information for parameters up to the max number supported for M calls.
 #define ARGUMENT_TYPE_LIST_MAX_LEN (YDB_MAX_PARMS * INT32_TO_STRING_MAX)
 
+// Format string for the pg_proc row to be added to the catalog for the given function
+#define ROW_STRING "%s|11|10|12|1|0|0|-|f|f|f|f|f|i|s|%d|0|%d|%s||||||%s|||"
+
 #define CLEANUP_AND_RETURN(PG_PROC, OID_BUFFER) \
 	{                                       \
 		YDB_FREE_BUFFER(&PG_PROC[4]);   \
@@ -71,9 +74,10 @@ int store_function_in_pg_proc(SqlFunction *function, char *function_hash) {
 	ydb_buffer_t	      row_buffer;
 	long long	      proc_oid;
 	int		      status, result;
+	size_t		      literal_len;
+	long unsigned int     copied;
 	int32_t		      arg_type_list_len;
 	char *		      function_name;
-	char		      row_str[MAX_STR_CONST];
 	char		      arg_type_list[ARGUMENT_TYPE_LIST_MAX_LEN];
 	char		      proc_oid_str[INT32_TO_STRING_MAX]; /* OIDs are stored as 4-byte unsigned integers:
 								  * https://www.postgresql.org/docs/current/datatype-oid.html
@@ -148,15 +152,26 @@ int store_function_in_pg_proc(SqlFunction *function, char *function_hash) {
 	 * Any changes to that table definition will require changes here too.
 	 */
 	data_type = function->return_type->v.data_type_struct.data_type;
-	snprintf(row_str, sizeof(row_str), "%s|11|10|12|1|0|0|-|f|f|f|f|f|i|s|%d|0|%d|%s||||||%s|||", function_name,
-		 function->num_args, get_psql_type_from_sqldatatype(data_type), arg_type_list,
-		 function->extrinsic_function->v.value->v.string_literal);
-	row_buffer.len_alloc = row_buffer.len_used = strlen(row_str);
-	row_buffer.buf_addr = row_str;
+	// Initialize buffer to at least the size of the format string literal to prevent truncation warning from the compiler
+	literal_len = strlen(ROW_STRING);
+	YDB_MALLOC_BUFFER(&row_buffer, ((OCTO_INIT_BUFFER_LEN > literal_len) ? OCTO_INIT_BUFFER_LEN : literal_len));
+	copied = snprintf(row_buffer.buf_addr, row_buffer.len_alloc, ROW_STRING, function_name, function->num_args,
+			  get_psql_type_from_sqldatatype(data_type), arg_type_list,
+			  function->extrinsic_function->v.value->v.string_literal);
+	// Expand buffer to fit result string if needed
+	if (copied >= row_buffer.len_alloc) {
+		YDB_FREE_BUFFER(&row_buffer);
+		YDB_MALLOC_BUFFER(&row_buffer, copied + 1); // Null terminator
+		copied = snprintf(row_buffer.buf_addr, row_buffer.len_alloc, ROW_STRING, function_name, function->num_args,
+				  get_psql_type_from_sqldatatype(data_type), arg_type_list,
+				  function->extrinsic_function->v.value->v.string_literal);
+	}
+	row_buffer.len_used = copied;
 	/* Set the function name passed in as having an oid FUNCTIONOID in the pg_catalog.
 	 * 	i.e. SET ^%ydboctoocto(OCTOLIT_TABLES,OCTOLIT_PG_CATALOG,"pg_proc",FUNCTIONOID)=...
 	 */
 	status = ydb_set_s(&pg_proc[0], 4, &pg_proc[1], &row_buffer);
+	YDB_FREE_BUFFER(&row_buffer);
 	YDB_ERROR_CHECK(status);
 	if (YDB_OK != status) {
 		return 1;

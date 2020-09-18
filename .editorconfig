@@ -19,7 +19,7 @@ end_of_line = lf
 insert_final_newline = true
 charset = utf-8
 
-[{*.c,*.h,*.h.in,*.m,*.y,*.ctemplate,*.sh,*.bash.in,*.bats.in,*.java}]
+[{*.c,*.h,*.h.in,*.m,*.y,*.l,*.ctemplate,*.sh,*.bash.in,*.bats.in,*.java}]
 indent_style = tab
 indent_size = 8
 trim_trailing_whitespace = true

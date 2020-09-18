@@ -2,63 +2,46 @@
 
 [![pipeline status](https://gitlab.com/YottaDB/DBMS/YDBOcto/badges/master/pipeline.svg)](https://gitlab.com/YottaDB/DBMS/YDBOcto/commits/master)
 
-Octo® is a SQL database engine whose tables are stored in YottaDB global variables (i.e., YottaDB hierarchical key-value nodes). Octo is installed as a YottaDB plugin.
+Octo<sup>®</sup> is a SQL database engine whose tables are stored in YottaDB global variables (i.e., YottaDB hierarchical key-value nodes). Octo is installed as a YottaDB plugin.
 
 *NOTE: As Octo at this time supports read-only access to YottaDB databases, you must already have a YottaDB database with global variables to use Octo. It is not yet read-write SQL database.*
 
 Homepage: https://gitlab.com/YottaDB/DBMS/YDBOcto
 
-Documentation: https://docs.yottadb.com/Octo/index.html
+Documentation: https://docs.yottadb.com/Octo/
 
-## Setup
-
-YottaDB r1.30 or greater is required for successful installation of Octo. Installing and configuring YottaDB is described on its own [documentation page](https://docs.yottadb.com/AdminOpsGuide/installydb.html). With the `--octo` and `--posix` options of YottaDB's [ydbinstall.sh](https://gitlab.com/YottaDB/DB/YDB/-/blob/master/sr_unix/ydbinstall.sh) script, you can install YottaDB and Octo with one command.
+Octo requires [YottaDB](https://gitlab.com/YottaDB/DB/YDB) r1.30 or greater. Installing and configuring YottaDB is described on its [documentation page](https://docs.yottadb.com/AdminOpsGuide/installydb.html).
 
 *NOTE: Octo is a YottaDB application, not an application that runs on the upstream GT.M for which YottaDB is a drop-in upward-compatible replacement. Octo requires `ydb*` environment variables to be defined, and does not recognize the `gtm*` environnment variables. Specifically, it requires `ydb_dist` to be defined.*
 
-## Contributing
-
-To contribute or help with further development, [fork the repository](https://docs.gitlab.com/ee/gitlab-basics/fork-project.html), clone your fork to a local copy and begin contributing! Please also set up the pre-commit script to automatically enforce some coding conventions. Assuming you are in the top-level directory, the following will work:
-
-```sh
-ln -s ../../pre-commit .git/hooks
-```
-
-Note that this script will require `tcsh` and `clang-format-9` or a later release.
-
-```sh
-# Ubuntu 20.04
-sudo apt install clang-format-9
-# Any Debian-like distro; see also https://apt.llvm.org/
-bash -c "$(wget -O - https://apt.llvm.org/llvm.sh)"
-# CentOS 8
-sudo yum install clang-tools-extra
-```
-
-### YDBCMake
-
-Octo uses the upstream [YDBCMake] repository for building using YottaDB as the M compiler. Any changes to `ydbcmake/` should first be upstreamed to that repository.
-Once the changes are upstreamed, you can merge them into Octo using
-```
-git pull --no-rebase git@gitlab.com:YottaDB/Tools/YDBCMake.git
-```
-
-[YDBCMake]: https://gitlab.com/YottaDB/Tools/YDBCMake
-
 ## Quickstart
 
-### Install prerequisites
+Install YottaDB, Octo, and the required POSIX plugin all together.
+
+```sh
+mkdir /tmp/tmp ; wget -P /tmp/tmp https://gitlab.com/YottaDB/DB/YDB/raw/master/sr_unix/ydbinstall.sh
+cd /tmp/tmp ; chmod +x ydbinstall.sh
+sudo ./ydbinstall.sh --utf8 default --verbose --octo --posix
+```
+
+`./ydbinstall.sh --help` gives a full list of its numerous options.
+
+The [Quickstart section of the Octo user documentation](https://docs.yottadb.com/Octo/intro.html#quickstart) has more details.
+
+## Installation from Source
+
+### Prerequisites
 
 #### Install YottaDB POSIX plugin
 
-The YottaDB POSIX plugin can be installed using the `--posix` option  when installing YottaDB with the `ydbinstall` script Alternatively, you can build the POSIX plugin from source:
+If you do not install the YottaDB POSIX plugin when installing YottaDB using the `--posix` option of `ydbinstall`, build the POSIX plugin from source:
 
 ```sh
 # In a temporary directory perform the following commands
 git clone https://gitlab.com/YottaDB/Util/YDBPosix.git YDBPosix-master
 cd YDBPosix-master
 mkdir build && cd build
-# Make sure that you have YottaDB environment variables in your shell before continuing
+# Make sure that you have the ydb_dist environment variable defined in your shell before continuing
 cmake ..
 make -j `grep -c ^processor /proc/cpuinfo` && sudo make install
 ```
@@ -67,180 +50,183 @@ More detailed instructions are on the [YottaDB POSIX plugin page](https://gitlab
 
 #### (Optional) Install YottaDB encryption plugin
 
-Installing the YottaDB encryption plugin enables TLS support (Recommended for production installations). You will need to make sure TLS/SSL is enabled for the driver in the client software chosen.
+Installing the YottaDB encryption plugin enables TLS support, which is recommended for production installations. You will need to make sure TLS/SSL is enabled for the driver in the client software chosen.
 
-The YottaDB encryption plugin can be installed by using the `--encplugin` option when installing YottaDB with the `ydbinstall` script. Alternatively, you can build the encryption plugin from source:
+If you do not install the YottaDB encryption plugin when installing YottaDB using the `--encplugin` option of `ydbinstall`, build the encryption plugin from source:
 
 ```sh
 # In a temporary directory perform the following commands
 sudo tar -xf $ydb_dist/plugin/gtmcrypt/source.tar
-# Make sure that you have YottaDB environment variables in your shell before continuing
+# Make sure that you have the ydb_dist environment variable defined in your shell before continuing
 sudo ydb_dist=$ydb_dist make -j `grep -c ^processor /proc/cpuinfo`
 sudo ydb_dist=$ydb_dist make install
 ```
 
 ### Install Octo
 
-Octo is a continuously updated YottaDB plugin that is distributed as source code. A CI (Continuous Integration) pipeline runs a considerable number of unit and system tests before allowing any source code to be merged. This ensures that the master branch is always current with the latest production-ready source code. Octo can be installed by using the `--octo` option when installing YottaDB with the `ydbinstall` script. Alternatively, you can build it from source.
+Octo is a continuously updated YottaDB plugin that is distributed as source code. A CI (Continuous Integration) pipeline runs a considerable number of unit and system tests before allowing any source code to be merged. This ensures that the master branch is always current with the latest production-ready source code.
+
+The Octo plugin can be installed by using the `--octo` option when installing YottaDB with the `ydbinstall` script. Alternatively, you can build the Octo plugin from source:
+
 
 1. Install prerequisite packages
 
-```sh
-# Ubuntu Linux OR Raspbian Linux OR Beagleboard Debian
-sudo apt-get install build-essential cmake bison flex xxd libreadline-dev libconfig-dev libssl-dev
+   ```sh
+   # Ubuntu Linux OR Raspbian Linux OR Beagleboard Debian
+   sudo apt-get install build-essential cmake bison flex xxd libreadline-dev libconfig-dev libssl-dev
 
-# CentOS Linux OR RedHat Linux
-# Note: epel-release has to be installed before cmake3 is installed
-sudo yum install epel-release
-sudo yum install vim-common cmake3 bison flex readline-devel libconfig-devel openssl-devel
-```
+   # CentOS Linux OR RedHat Linux
+   # Note: epel-release has to be installed before cmake3 is installed
+   sudo yum install epel-release
+   sudo yum install vim-common cmake3 bison flex readline-devel libconfig-devel openssl-devel
+   ```
 
 1. (Optional) Prerequisites for Automated Regression Testing
 
-*NOTE: As we run the automated regression tests on every Octo source code update, install and run BATS only if you are an advanced user who wants to contribute to Octo or run on a Linux distribution on which YottaDB is Supportable but not Supported.*
+   *NOTE: As we run the automated regression tests on every Octo source code update, install and run BATS only if you are an advanced user who wants to contribute to Octo or run on a Linux distribution on which YottaDB is Supportable but not Supported.*
 
-   1. Octo uses BATS for automated integration and regression testing. To use BATS to run tests on Octo, BATS version 1.1+ must be installed:
+   - Octo uses BATS for automated integration and regression testing. To use BATS to run tests on Octo, BATS version 1.1+ must be installed:
 
-  ```sh
-  git clone https://github.com/bats-core/bats-core.git
-  cd bats-core
-  sudo ./install.sh /usr
-  ```
+	 ```sh
+	 git clone https://github.com/bats-core/bats-core.git
+	 cd bats-core
+	 sudo ./install.sh /usr
+	 ```
 
-  This will install BATS to /usr/bin. Note that installing to /usr may require root access or use of `sudo`. To specify an alternative path change the argument to your preferred location, e.g. "/usr/local" to install to /usr/local/bin.
+	 This will install BATS to /usr/bin. Note that installing to /usr may require root access or use of `sudo`. To specify an alternative path change the argument to your preferred location, e.g. "/usr/local" to install to /usr/local/bin.
 
-  Details available in the [BATS source repo](https://github.com/bats-core/bats-core).
+	 Details available in the [BATS source repo](https://github.com/bats-core/bats-core).
 
-  Some bats tests also require go, java and expect.
-  To run these, the appropriate libraries must installed:
+	 Some bats tests also require go, java and expect.
+	 To run these, the appropriate libraries must installed:
 
-  ```sh
-  # Ubuntu Linux OR Raspbian Linux OR Beagleboard Debian
-  sudo apt-get install default-jdk expect golang-go
+	 ```sh
+	 # Ubuntu Linux OR Raspbian Linux OR Beagleboard Debian
+	 sudo apt-get install default-jdk expect golang-go
 
-  # CentOS Linux OR RedHat Linux
-  sudo yum install java-latest-openjdk expect golang
-  ```
+	 # CentOS Linux OR RedHat Linux
+	 sudo yum install java-latest-openjdk expect golang
+	 ```
 
-  Additionally, some tests require a JDBC driver. The JDBC driver must be downloaded to the build directory and JDBC_VERSION must be set in the environment. Versions starting with 42.2.6 are tested, but earlier versions may work. For example, 42.2.12 is the latest release at time of writing:
+	 Additionally, some tests require a JDBC driver. The JDBC driver must be downloaded to the build directory and JDBC_VERSION must be set in the environment. Versions starting with 42.2.6 are tested, but earlier versions may work. For example, 42.2.12 is the latest release at time of writing:
 
-  ```sh
-  export JDBC_VERSION=42.2.12
-  wget https://jdbc.postgresql.org/download/postgresql-$JDBC_VERSION.jar
-  ```
+	 ```sh
+	 export JDBC_VERSION=42.2.12
+	 wget https://jdbc.postgresql.org/download/postgresql-$JDBC_VERSION.jar
+	 ```
 
-   1. (Optional) Install cmocka unit testing framework
+   - Install cmocka unit testing framework
 
-  Octo uses cmocka for automated unit testing. To build and run Octo's unit tests, cmocka must be installed:
+	 Octo uses cmocka for automated unit testing. To build and run Octo's unit tests, cmocka must be installed:
 
-  ```sh
-  # Ubuntu Linux OR Raspbian Linux OR Beagleboard Debian
-  sudo apt-get install libcmocka-dev
+	 ```sh
+	 # Ubuntu Linux OR Raspbian Linux OR Beagleboard Debian
+	 sudo apt-get install libcmocka-dev
 
-  # CentOS Linux OR RedHat Linux
-  sudo yum install libcmocka-devel
-  ```
+	 # CentOS Linux OR RedHat Linux
+	 sudo yum install libcmocka-devel
+	 ```
 
-   1. (Optional) Install PostgreSQL client (psql)
+   - Install PostgreSQL client (psql)
 
-  Octo uses the psql PostgreSQL for some integration/regression tests. To build and run these tests, psql must be installed:
+	 Octo uses the psql PostgreSQL for some integration/regression tests. To build and run these tests, psql must be installed:
 
-  ```sh
-  # Ubuntu Linux OR Raspbian Linux OR Beagleboard Debian
-  sudo apt-get install postgresql-client
+	 ```sh
+	 # Ubuntu Linux OR Raspbian Linux OR Beagleboard Debian
+	 sudo apt-get install postgresql-client
 
-  # CentOS Linux OR RedHat Linux
-  sudo yum install postgresql
-  ```
+	 # CentOS Linux OR RedHat Linux
+	 sudo yum install postgresql
+	 ```
 
-   1. (Optional) Install PostgreSQL server
+   - Install PostgreSQL server
 
-  Octo uses the PostgreSQL server for some integration/regression tests. To build and run these tests, PostgreSQL must be installed:
+	 Octo uses the PostgreSQL server for some integration/regression tests. To build and run these tests, PostgreSQL must be installed:
 
-  ```sh
-  # Ubuntu Linux OR Raspbian Linux OR Beagleboard Debian
-  sudo apt-get install postgresql
+	 ```sh
+	 # Ubuntu Linux OR Raspbian Linux OR Beagleboard Debian
+	 sudo apt-get install postgresql
 
-  # CentOS Linux OR RedHat Linux
-  sudo yum install postgresql
-  ```
+	 # CentOS Linux OR RedHat Linux
+	 sudo yum install postgresql
+	 ```
 
-  Additionally, PostgreSQL must be set up for the user who will be running the tests:
+	 Additionally, PostgreSQL must be set up for the user who will be running the tests:
 
-  ```sh
-  sudo -u postgres createuser [username]
-  sudo -u postgres psql <<PSQL
-  alter user [username] createdb;
-  PSQL
-  ```
+	 ```sh
+	 sudo -u postgres createuser [username]
+	 sudo -u postgres psql <<PSQL
+	 alter user [username] createdb;
+	 PSQL
+	 ```
 
-   1. (Optional - CentOS/RHEL7 only) Install Perl
+   - (CentOS/RHEL7 only) Install Perl
 
-  On CentOS 7 and RHEL7, Octo test queries sometimes produce output with superfluous escape sequences. These escape sequences are removed by a Perl script, making Perl a dependency for Octo testing on these platforms.
+	 On CentOS 7 and RHEL7, Octo test queries sometimes produce output with superfluous escape sequences. These escape sequences are removed by a Perl script, making Perl a dependency for Octo testing on these platforms.
 
-  To install Perl on CentOS 7 or RHEL7:
+	 To install Perl on CentOS 7 or RHEL7:
 
-  ```sh
-  # CentOS Linux OR RedHat Linux
-  sudo yum install perl
-  ```
+	 ```sh
+	 # CentOS Linux OR RedHat Linux
+	 sudo yum install perl
+	 ```
 
 1. Clone the Octo source code repository
 
-```sh
-# In a temporary directory perform the following commands
-git clone https://gitlab.com/YottaDB/DBMS/YDBOcto.git YDBOcto-master
-cd YDBOcto-master
-```
+   ```sh
+   # In a temporary directory perform the following commands
+   git clone https://gitlab.com/YottaDB/DBMS/YDBOcto.git YDBOcto-master
+   cd YDBOcto-master
+   ```
 
 1. Compile Octo
 
-```sh
-mkdir build ; cd build
-# For VistA the String Buffer Length needs to be larger. Add `-DSTRING_BUFFER_LENGTH=300000` to the cmake command below
-cmake -DCMAKE_INSTALL_PREFIX=$ydb_dist/plugin .. # for CentOS/RedHat use cmake3 instead
-make -j `grep -c ^processor /proc/cpuinfo`
-```
+   ```sh
+   mkdir build ; cd build
+   # For VistA the String Buffer Length needs to be larger. Add `-DSTRING_BUFFER_LENGTH=300000` to the cmake command below
+   cmake -DCMAKE_INSTALL_PREFIX=$ydb_dist/plugin .. # for CentOS/RedHat use cmake3 instead
+   make -j `grep -c ^processor /proc/cpuinfo`
+   ```
 
-Most users: proceed to the *Install Octo* step below. The instructions here are for those wishing to contribute to Octo, or building it on Supportable but not Supported platforms.
+   Most users: proceed to the *Install Octo* step below. The instructions here are for those wishing to contribute to Octo, or building it on Supportable but not Supported platforms.
 
-To generate a Debug build instead of a Release build (the default), add `-DCMAKE_BUILD_TYPE=Debug` to the CMake line above.
+   To generate a Debug build instead of a Release build (the default), add `-DCMAKE_BUILD_TYPE=Debug` to the CMake line above.
 
-To additionally disable the generation of installation rules for `make install`, add `-DDISABLE_INSTALL=ON`. This can be useful when doing testing in a temporary build directory only.
+   To additionally disable the generation of installation rules for `make install`, add `-DDISABLE_INSTALL=ON`. This can be useful when doing testing in a temporary build directory only.
 
-To build the full test suite rather than a subset of it, the `FULL_TEST_SUITE` option needs to be set to `ON`, e.g. `cmake -D FULL_TEST_SUITE=ON ..`.
+   To build the full test suite rather than a subset of it, the `FULL_TEST_SUITE` option needs to be set to `ON`, e.g. `cmake -D FULL_TEST_SUITE=ON ..`.
 
-To show the output of failed tests, export the environment variable `CTEST_OUTPUT_ON_FAILURE=TRUE`. Alternatively, you can show output for only a single run by passing the argument to make: `make CTEST_OUTPUT_ON_FAILURE=TRUE test`.
+   To show the output of failed tests, export the environment variable `CTEST_OUTPUT_ON_FAILURE=TRUE`. Alternatively, you can show output for only a single run by passing the argument to make: `make CTEST_OUTPUT_ON_FAILURE=TRUE test`.
 
-**NOTE**: Octo uses some CMake parameters to control generation of fixed-size buffer allocations. These are:
+   **NOTE**: Octo uses some CMake parameters to control generation of fixed-size buffer allocations. These are:
 
-* `STRING_BUFFER_LENGTH` -- the maximum length of a string within the system; this supersedes any VARCHAR definitions.
-* `INIT_M_ROUTINE_LENGTH` -- the initial length for the buffer of generated M routines. The default is 10MB.
-* `MEMORY_CHUNK_SIZE` -- size of memory chunks to allocate; default is 32MB.
-* `MEMORY_CHUNK_PROTECT` -- if non-zero, memory following chunks is protected to detect buffer overflows. If 2, data is placed closer to the protected region to increase the chances of detecting an error.
+   * `STRING_BUFFER_LENGTH` -- the maximum length of a string within the system; this supersedes any VARCHAR definitions.
+   * `INIT_M_ROUTINE_LENGTH` -- the initial length for the buffer of generated M routines. The default is 10MB.
+   * `MEMORY_CHUNK_SIZE` -- size of memory chunks to allocate; default is 32MB.
+   * `MEMORY_CHUNK_PROTECT` -- if non-zero, memory following chunks is protected to detect buffer overflows. If 2, data is placed closer to the protected region to increase the chances of detecting an error.
 
-Example usage of above parameters:
+   Example usage of above parameters:
 
-```sh
-cmake -DSTRING_BUFFER_LENGTH=600000 -DCMAKE_INSTALL_PREFIX=$ydb_dist/plugin ..
-```
+   ```sh
+   cmake -DSTRING_BUFFER_LENGTH=600000 -DCMAKE_INSTALL_PREFIX=$ydb_dist/plugin ..
+   ```
 
 1. Install Octo
 
-Install Octo:
+   Install Octo:
 
-```sh
-sudo -E make install
-```
+   ```sh
+   sudo -E make install
+   ```
 
-Redefine environment variables to include newly installed files:
+   Redefine environment variables to include newly installed files:
 
-```sh
-source $ydb_dist/ydb_env_unset
-source $(pkg-config --variable=prefix yottadb)/ydb_env_set
-```
+   ```sh
+   source $ydb_dist/ydb_env_unset
+   source $(pkg-config --variable=prefix yottadb)/ydb_env_set
+   ```
 
-Note: New Octo installations include a default `octo.conf` configuration file at `$ydb_dist/plugin/octo/octo.conf`, which may be modified post-install. Re-installing Octo will *not* overwrite an existing `octo.conf` in this location, so modifications to this file will be preserved across installations.
+   Note: New Octo installations include a default `octo.conf` configuration file at `$ydb_dist/plugin/octo/octo.conf`, which may be modified post-install. Re-installing Octo will *not* overwrite an existing `octo.conf` in this location, so modifications to this file will be preserved across installations.
 
 ### Configure Octo
 
@@ -473,4 +459,33 @@ You can use the `docker exec` command to get access to the container for more tr
 docker exec -it {nameOfContainer/IDOfContainer} /bin/bash
 ```
 
-*NOTE: Octo® is a registered trademark of YottaDB LLC.*
+## Contributing
+
+To contribute or help with further development, [fork the repository](https://docs.gitlab.com/ee/gitlab-basics/fork-project.html), clone your fork to a local copy and begin contributing! Please also set up the pre-commit script to automatically enforce some coding conventions. Assuming you are in the top-level directory, the following will work:
+
+```sh
+ln -s ../../pre-commit .git/hooks
+```
+
+Note that this script will require `tcsh` and `clang-format-9` or a later release.
+
+```sh
+# Ubuntu 20.04
+sudo apt install clang-format-9
+# Any Debian-like distro; see also https://apt.llvm.org/
+bash -c "$(wget -O - https://apt.llvm.org/llvm.sh)"
+# CentOS 8
+sudo yum install clang-tools-extra
+```
+
+### YDBCMake
+
+Octo uses the upstream [YDBCMake] repository to build using YottaDB as the M compiler. Any changes to `ydbcmake/` should first be upstreamed to that repository.
+Once the changes are upstreamed, you can merge them into Octo using
+```
+git pull --no-rebase git@gitlab.com:YottaDB/Tools/YDBCMake.git
+```
+
+[YDBCMake]: https://gitlab.com/YottaDB/Tools/YDBCMake
+
+*NOTE: Octo<sup>®</sup> is a registered trademark of YottaDB LLC.*

@@ -196,9 +196,9 @@ ERROR_DEF(ERR_MIDENT_LENGTH, "Length %d too large for M identifier (max length %
 ERROR_DEF(ERR_INVALID_NUMBER, "%s: invalid number of %s: %d is out of range (min: %d, max: %d)", PSQL_Code_Numeric_Value_Out_Of_Range)
 ERROR_DEF(ERR_TOO_MANY_FUNCTION_ARGUMENTS, "Too many arguments passed for function %s (max: %d)", PSQL_Code_Numeric_Value_Out_Of_Range)
 // ROCTO //
-ERROR_DEF(ERR_ROCTO_INVALID_CHAR_VALUE, "%s: invalid %s value %c: must be %s", PSQL_Code_Data_Exception)
+ERROR_DEF(ERR_ROCTO_INVALID_ITEM_VALUE, "%s: invalid item value %c: must be %s", PSQL_Code_Data_Exception)
 ERROR_DEF(ERR_ROCTO_INVALID_INT_VALUE, "%s: invalid %s value %d: must be %d", PSQL_Code_Numeric_Value_Out_Of_Range)
-ERROR_DEF(ERR_ROCTO_INVALID_INT_VALUE_MULTI, "%s: invalid %s value %d: must be %s", PSQL_Code_Numeric_Value_Out_Of_Range)
+ERROR_DEF(ERR_ROCTO_INVALID_FORMAT_CODE, "Bind: invalid %s format code %d: must be 0 (text) or 1 (binary)", PSQL_Code_Numeric_Value_Out_Of_Range)
 ERROR_DEF(ERR_ROCTO_MISSING_DATA, "%s: missing %s", PSQL_Code_Data_Exception)
 ERROR_DEF(ERR_ROCTO_MISSING_NULL, "%s: %s missing null terminator", PSQL_Code_Unterminated_C_String)
 ERROR_DEF(ERR_ROCTO_TOO_FEW_VALUES, "%s: too few %s", PSQL_Code_Numeric_Value_Out_Of_Range)

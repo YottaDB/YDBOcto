@@ -44,7 +44,7 @@ Close *read_close(BaseMessage *message) {
 	}
 	// Ensure valid value for item field
 	if ('S' != ret->item && 'P' != ret->item) {
-		ERROR(ERR_ROCTO_INVALID_CHAR_VALUE, "Close", "item", ret->item, "'S' or 'P'");
+		ERROR(ERR_ROCTO_INVALID_ITEM_VALUE, "Close", ret->item, "'S' or 'P'");
 		free(ret);
 		return NULL;
 	}

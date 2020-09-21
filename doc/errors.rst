@@ -931,53 +931,29 @@ Text: xxx: failed to retrieve xxx from database
 
 Description/Action: This error is generated when Rocto has failed to retrieve the data from the database. PSQL Error Code: XX000
 
-+++++++++++++++++++++++
++++++++++++++++++++++++++
 ERR_ROCTO_HASH_CONVERSION
-+++++++++++++++++++++++
++++++++++++++++++++++++++
 
 Text: xxx: failed convert xxx hash to xxx
 
 Description/Action: This error is generated when Rocto has failed to perform hash conversion. PSQL Error Code: XX000
 
-++++++++++++++++++++++++
-ERR_ROCTO_INVALID_CHAR_VALUE
-++++++++++++++++++++++++
-
-Text: xxx: invalid xxx value xxx: must be xxx
-
-Description/Action: This error indicates that Rocto received an invalid character value in a PostgreSQL wire protocol message. PSQL Error Code: 22000
-
-+++++++++++++++++++++++++
++++++++++++++++++++++++++++
 ERR_ROCTO_INVALID_INT_VALUE
-+++++++++++++++++++++++++
++++++++++++++++++++++++++++
 
 Text: xxx: invalid xxx value xxx: must be xxx
 
 Description/Action: This error indicates that Rocto received an invalid integer value in a PostgreSQL wire protocol message. PSQL Error Code: 22003
 
-+++++++++++++++++++++++++
-ERR_ROCTO_INVALID_INT_VALUE_MULTI
-+++++++++++++++++++++++++
+++++++++++++++++++++++++++++
+ERR_ROCTO_INVALID_ITEM_VALUE
+++++++++++++++++++++++++++++
 
-Text: xxx: invalid xxx value xxx: must be xxx
+Text: xxx: invalid item value xxx: must be xxx
 
-Description/Action: This error indicates multiple invalid integer values were provided via a PostgreSQL wire protocol message. PSQL Error Code: 22003
-
-++++++++++++++++++++++++++++++++++++
-ERR_ROCTO_INVALID_NUMBER_BIND_PARAMETERS
-++++++++++++++++++++++++++++++++++++
-
-Text: xxx: invalid number of parameters: expected xxx got xxx)
-
-Description/Action: This error indicates that an invalid number of parameters have been provided for a Bind message. PSQL Error Code: 22003
-
-++++++++++++++++++++++++++++++++++
-ERR_ROCTO_INVALID_NUMBER_COLUMN_FORMAT_CODES
-++++++++++++++++++++++++++++++++++
-
-Text: xxx: invalid number of column format codes specified for portal xxx: expected xxx got xxx)
-
-Description/Action: This error occurs when a client requests a different number of output column formats than the number of columns to be returned. PSQL Error Code: 22P02
+Description/Action: This error indicates that Rocto received an invalid value for the 'item' field of a message of the specified PostgreSQL wire protocol message type. PSQL Error Code: 22000
 
 ++++++++++++++++++++++++++++++
 ERR_ROCTO_INVALID_MESSAGE_TYPE
@@ -986,6 +962,30 @@ ERR_ROCTO_INVALID_MESSAGE_TYPE
 Text: xxx: invalid type 'xxx': must be 'xxx'
 
 Description/Action: This error indicates that an invalid PostgreSQL wire protocol message type was used. PSQL Error Code: 08P01
+
+++++++++++++++++++++++++++++++++++++++++
+ERR_ROCTO_INVALID_NUMBER_BIND_PARAMETERS
+++++++++++++++++++++++++++++++++++++++++
+
+Text: xxx: invalid number of parameters: expected xxx got xxx)
+
+Description/Action: This error indicates that an invalid number of parameters have been provided for a Bind message. PSQL Error Code: 22003
+
+++++++++++++++++++++++++++++++++++++++++++++
+ERR_ROCTO_INVALID_NUMBER_COLUMN_FORMAT_CODES
+++++++++++++++++++++++++++++++++++++++++++++
+
+Text: xxx: invalid number of column format codes specified for portal xxx: expected xxx got xxx)
+
+Description/Action: This error occurs when a client requests a different number of output column formats than the number of columns to be returned. PSQL Error Code: 22P02
+
+++++++++++++++++++++++++++++++++++
+ERR_ROCTO_INVALID_FORMAT_CODE
+++++++++++++++++++++++++++++++++++
+
+Text: Bind: invalid xxx format code xxx: must be 0 (text) or 1 (binary)
+
+Description/Action: This error indicates multiple invalid integer values were provided via a PostgreSQL wire protocol message. PSQL Error Code: 22003
 
 +++++++++++++++++++++
 ERR_ROCTO_INVALID_VERSION
@@ -1002,14 +1002,6 @@ ERR_M_CALL
 Text: Inline M function calls are disallowed. Use CREATE FUNCTION instead to map it to an SQL function.
 
 Description/Action: This error is issued when a user attempts to call an M extrinsic function via Rocto. PSQL Error Code: XX000
-
-++++++++++++++++++++
-INFO_MEMORY_USAGE
-++++++++++++++++++++
-
-Text: Memory usage at process exit: xxx Kb
-
-Description/Action: This message indicates the amount of memory that was used (in Kb), when a user exits Rocto. PSQL Error Code: 00000
 
 ++++++++++++++++++++
 ERR_ROCTO_MISSING_DATA

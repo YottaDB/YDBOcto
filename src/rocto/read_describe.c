@@ -44,7 +44,7 @@ Describe *read_describe(BaseMessage *message) {
 	}
 	// Ensure valid value for item field
 	if (ret->item != 'S' && ret->item != 'P') {
-		ERROR(ERR_ROCTO_INVALID_CHAR_VALUE, "Describe", "item", ret->item, "'S' or 'P'");
+		ERROR(ERR_ROCTO_INVALID_ITEM_VALUE, "Describe", ret->item, "'S' or 'P'");
 		free(ret);
 		return NULL;
 	}

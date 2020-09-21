@@ -63,6 +63,13 @@ init	;
 	quit
 
 job	;
+	; We have some times seen time outs on a loaded system with an error like the following
+	;	[ERROR] /builds/YottaDB/DBMS/YDBOcto/src/run_query.c:443 2020-09-19 05:09:31 :
+	;		ERR_YOTTADB : YottaDB error: ydb_lock_s()/ydb_lock_incr_s() call timed out.
+	;		Another process with schema change rights, or a long-running query, is active.
+	; The caller script handles these errors and retries the test.
+	; So we do not want the job framework to catch these. Hence the set of jnoerrchk to 1 below.
+	set jnoerrchk=1
 	do ^job("child^TC013",8,"""""")
 	quit
 

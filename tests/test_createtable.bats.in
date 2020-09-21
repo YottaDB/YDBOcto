@@ -185,7 +185,26 @@ OCTO
   echo "# Create LOTSOFCOLS table before starting concurrency test : octo -f ddl.sql" >> output.txt
   octo -f ddl.sql >& octo_ddl.out
   echo "# Run CREATE TABLE and SELECT commands concurrently : yottadb -run job^TC013" >> output.txt
-  yottadb -run job^TC013 >> output.txt
+  try=1
+  while [ $try -le 10 ];
+  do
+	yottadb -run job^TC013 >> output.txt
+	# We have seen that one or more of the 8 jobs occasionally produce the following error.
+	#	[ERROR] /builds/YottaDB/DBMS/YDBOcto/src/run_query.c:443 2020-09-19 05:09:31 :
+	#		ERR_YOTTADB : YottaDB error: ydb_lock_s()/ydb_lock_incr_s() call timed out.
+	#		Another process with schema change rights, or a long-running query, is active.
+	# Retry the test in this case. The hope is that the retry will not encounter this.
+	# Fail the test if we don't see at least one successful try even after 10 retries.
+	numerrs=`cat *.mje* | wc -l`
+	if [[ $numerrs == 0 ]]; then
+		break
+	else
+		# Move files from this iteration to make way for the next iteration
+		mkdir round$try
+		mv *.mje* *.mjo* round$try
+		try=$[$try + 1]
+	fi
+  done
   echo "# Verify that the .mjo files contain what we expect them to : yottadb -run verify^TC013" >> output.txt
   yottadb -run verify^TC013 >> output.txt
   echo "# Verify that the .mje files do not have any errors : cat *.mje*" >> output.txt

@@ -60,6 +60,11 @@ cd bats-core
 ./install.sh /usr/local
 cd ..
 
+# Note: The below 3 lines also exist in `tests/test_helpers.bash.in` so any change here might need to be made there too.
+# Log env vars, shell vars, locale info in files for later analysis (if needed). Mask any sensitive env vars out.
+env | grep -vE "HUB_USERNAME|HUB_PASSWORD|CI_JOB_TOKEN|CI_REGISTRY_PASSWORD|CI_BUILD_TOKEN|CI_REPOSITORY_URL" > env.out
+set | grep -vE "HUB_USERNAME|HUB_PASSWORD|CI_JOB_TOKEN|CI_REGISTRY_PASSWORD|CI_BUILD_TOKEN|CI_REPOSITORY_URL" > set.out
+
 echo "# Download PostgreSQL JDBC driver for testing"
 export JDBC_VERSION=42.2.12
 wget https://jdbc.postgresql.org/download/postgresql-$JDBC_VERSION.jar
@@ -173,6 +178,13 @@ echo " -> full_test = $full_test"
 echo " -> disable_install = $disable_install"
 
 if [[ ("test-auto-upgrade" == $jobname) && ("force" != $subtaskname) ]]; then
+	if [[ $CI_COMMIT_BRANCH == "" ]]; then
+		# This is possible if the pipeline runs for example when a new tag is created on a pre-existing commit.
+		# (for example when the r1.0.0 tag was created). In this case, treat this job as a success.
+		echo "INFO : CI_COMMIT_BRANCH env var is empty"
+		echo "INFO : Cannot run the test-auto-upgrade test in this case. Exiting with success."
+		exit 0
+	fi
 	# Record git log --all output in a file just in case it helps later. Not used by this script.
 	git log --graph --all --oneline --pretty=format:'%h%d; %ai; %an; %s' > gitlogall.txt
 	# Checkout a random prior commit to test if auto-upgrade of plans/xrefs/triggers/binary-table-definitions etc.
@@ -192,7 +204,7 @@ if [[ ("test-auto-upgrade" == $jobname) && ("force" != $subtaskname) ]]; then
 	startcommit=`git merge-base $hardstopcommit $stopcommit`
 	if [[ "$startcommit" != "$hardstopcommit" ]]; then
 		echo "INFO : Ancestor commit of $hardstopcommit and $stopcommit was not the former but instead is [$startcommit]"
-		echo "INFO : Cannot run the test-auto-upgrade test in this case. Exiting"
+		echo "INFO : Cannot run the test-auto-upgrade test in this case. Exiting with success."
 		exit 0
 	fi
 	#############################################################################################

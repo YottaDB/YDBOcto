@@ -56,6 +56,7 @@ init_test() {
 		ydbroutines="$ydbroutines @PROJECT_BINARY_DIR@"
 	fi
 	export ydb_routines="$ydbroutines $ydb_routines"
+	# Note: The below 3 lines also exist in `tools/ci/build.sh` so any change here might need to be made there too.
 	# Log env vars, shell vars, locale info in files for later analysis (if needed). Mask any sensitive env vars out.
 	echo " --> Running test [$BATS_TEST_FILENAME] : subtest [$BATS_TEST_DESCRIPTION] : in $PWD : build type @CMAKE_BUILD_TYPE@ " > bats_test.out
 	env | grep -vE "HUB_USERNAME|HUB_PASSWORD|CI_JOB_TOKEN|CI_REGISTRY_PASSWORD|CI_BUILD_TOKEN|CI_REPOSITORY_URL" > env.out
@@ -260,7 +261,6 @@ find_open_port() {
 start_rocto() {
 	create_user $USER "ydbrocks" &> /dev/null
 	echo "ROCTO START" >> env.log
-	env >> env.log
 	if [[ $2 == "quiet" ]]; then
 		verbosity="-v"
 		opt=$3

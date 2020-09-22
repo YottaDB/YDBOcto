@@ -181,6 +181,20 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *plan, LogicalPlan *tablejoin, unsigned in
 		TMPL(tmpl_key_start, key);
 		%{}`n{{ PLAN_LINE_START }}{}%
 		TMPL(tmpl_print_dots, dot_count);
+		/* If STARTINCLUDE was specified for this key column, include the starting value also in the FOR loop.
+		 * Do this only if there is a table associated with the key (nested queries correspond to temporary tables
+		 * and so should skip this).
+		 */
+		if (NULL != key->table) {
+			SqlOptionalKeyword	*keyword;
+
+			keyword = (key->column ? get_keyword(key->column, OPTIONAL_STARTINCLUDE) : NULL);
+			if (NULL != keyword) {
+				%{}DO:$DATA({}%
+				TMPL(tmpl_key_source, plan, key);
+				%{})  {}%
+			}
+		}
 		%{}FOR  SET {}%
 		TMPL(tmpl_key, key);
 		%{}=$ORDER({}%

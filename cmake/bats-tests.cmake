@@ -113,6 +113,7 @@ if("${FULL_TEST_SUITE}" MATCHES "ON")
 	ADD_BATS_TEST(test_random_octo_client)
 	ADD_BATS_TEST(test_math_functions)
 	ADD_BATS_TEST(test_discard_all)
+	ADD_BATS_TEST(test_primary_key)
 
 	if(psql)
 		ADD_BATS_TEST(test_psql_connection)

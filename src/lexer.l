@@ -169,6 +169,7 @@ int copied_so_far;
 (?i:SMALLINT) { return SMALLINT; }
 (?i:SOME) { return ANY; }			/* SOME is the same as ANY */
 (?i:START) { return START; }
+(?i:STARTINCLUDE) { return STARTINCLUDE; }
 (?i:SUM) { return SUM; }
 (?i:TABLE) { return TABLE; }
 (?i:TEXT) { return VARCHAR; }			/* TEXT is the same as VARCHAR */

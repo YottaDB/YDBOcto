@@ -44,6 +44,7 @@ TEMPLATE(tmpl_emit_source, char *source, char *table_name, int unique_id, int nu
 
 	source_ptr = source;
 	key_count = 0;
+	assert(num_vars_to_match);
 	/// TODO: how does this handle globals that have things like "abc"_keys("id")?
 	while (('\0' != *source_ptr) && (matched_vars < num_vars_to_match)) {
 		t = match_expression(source_ptr, column, MAX_STR_CONST);

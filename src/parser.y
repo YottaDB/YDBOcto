@@ -169,6 +169,7 @@ extern void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, int *plan
 %token SIMILAR
 %token SMALLINT
 %token START
+%token STARTINCLUDE
 %token SUM
 %token TABLE
 %token THEN
@@ -1498,6 +1499,10 @@ column_definition_tail
        dqappend(keyword, ($$)->v.keyword);
     }
   | ADVANCE ddl_str_literal_value column_definition_tail {
+       /* This code block is kept as is because it might be used as part of auto upgrading binary table definitions
+        * of older Octo builds (e.g. r1.0.0) that supported the now-obsoleted ADVANCE keyword.
+	* Note: ADVANCE keyword is otherwise ignored/unused in the current Octo builds.
+	*/
        SQL_STATEMENT($$, keyword_STATEMENT);
        MALLOC_STATEMENT($$, keyword, SqlOptionalKeyword);
        ($$)->v.keyword->keyword = OPTIONAL_ADVANCE;
@@ -1517,6 +1522,16 @@ column_definition_tail
 
        SqlOptionalKeyword *keyword;
        UNPACK_SQL_STATEMENT(keyword, $3, keyword);
+       dqappend(keyword, ($$)->v.keyword);
+    }
+  | STARTINCLUDE column_definition_tail {
+       SQL_STATEMENT($$, keyword_STATEMENT);
+       MALLOC_STATEMENT($$, keyword, SqlOptionalKeyword);
+       ($$)->v.keyword->keyword = OPTIONAL_STARTINCLUDE;
+       dqinit(($$)->v.keyword);
+
+       SqlOptionalKeyword *keyword;
+       UNPACK_SQL_STATEMENT(keyword, $2, keyword);
        dqappend(keyword, ($$)->v.keyword);
     }
   | END ddl_str_literal_value column_definition_tail {

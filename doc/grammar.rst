@@ -123,18 +123,13 @@ If mapping to existing YottaDB global variables, an optional_keyword can be adde
 
 .. code-block:: none
 
-   [ADVANCE | CURSOR | DELIM | END | EXTRACT | GLOBAL | KEY NUM | NULLCHAR | PIECE LITERAL]
+   [DELIM | END | EXTRACT | GLOBAL | KEY NUM | NULLCHAR | PIECE | START | STARTINCLUDE ]
 
 The keywords denoted above are M expressions and literals. They are explained in the following table:
 
 +--------------------------------+-------------------------------+------------------------+--------------------------------------------------------------------------------+------------------------------+-----------------------------------------------+
 | Keyword                        | Type                          | Range                  | Purpose                                                                        | Overrides                    | Default Value                                 |
 +================================+===============================+========================+================================================================================+==============================+===============================================+
-| ADVANCE                        | Command expression            | Column                 | Indicates how to advance the key by one value                                  | Not applicable               | :code:`$O(^<tableName>(keys(0),...))`         |
-+--------------------------------+-------------------------------+------------------------+--------------------------------------------------------------------------------+------------------------------+-----------------------------------------------+
-| CURSOR                         | Command expression            | Table                  | Increment the cursor by one element                                            | Not applicable               | :code:`SET keys(0)=$0(<table_name>(keys(0)))` |
-|                                |                               |                        |                                                                                |                              |                                               |
-+--------------------------------+-------------------------------+------------------------+--------------------------------------------------------------------------------+------------------------------+-----------------------------------------------+
 | DELIM                          | Literal                       | Table, Column          | Represents the "PIECE" string to be used in                                    | table/default DELIM setting  | :code:`"|"`                                   |
 |                                |                               |                        | `$PIECE() <https://docs.yottadb.com/ProgrammersGuide/functions.html#piece>`_   |                              |                                               |
 +--------------------------------+-------------------------------+------------------------+--------------------------------------------------------------------------------+------------------------------+-----------------------------------------------+
@@ -154,9 +149,15 @@ The keywords denoted above are M expressions and literals. They are explained in
 |                                |                               |                        | `$PIECE() <https://docs.yottadb.com/ProgrammersGuide/functions.html#piece>`_   | starting at 1)               |                                               |
 |                                |                               |                        | number of the row this column refers to                                        |                              |                                               |
 +--------------------------------+-------------------------------+------------------------+--------------------------------------------------------------------------------+------------------------------+-----------------------------------------------+
-| START                          | Command expression            | Column                 | Indicates where to start a                                                     | Not applicable               | :code:`""`                                    |
-|                                |                               |                        | `$ORDER() <https://docs.yottadb.com/ProgrammersGuide/functions.html#piece>`_   |                              |                                               |
-|                                |                               |                        | loop in the underlying data storage                                            |                              |                                               |
+| START                          | Command expression            | Column                 | Indicates where to start a FOR loop (using                                     | Not applicable               | :code:`""`                                    |
+|                                |                               |                        | `$ORDER() <https://docs.yottadb.com/ProgrammersGuide/functions.html#order>`_)  |                              |                                               |
+|                                |                               |                        | for a given key column in the table.                                           |                              |                                               |
++--------------------------------+-------------------------------+------------------------+--------------------------------------------------------------------------------+------------------------------+-----------------------------------------------+
+| STARTINCLUDE                   | Not applicable                | Column                 | If specified, the FOR loop (using $ORDER()) that is generated for every key    | Not applicable               | Not specified                                 |
+|                                |                               |                        | column in the physical plan processes includes the START value of the key      |                              |                                               |
+|                                |                               |                        | column as the first iteration of the loop. If not specified (the default),     |                              |                                               |
+|                                |                               |                        | the loop does a $ORDER() of the START value and uses that for the first        |                              |                                               |
+|                                |                               |                        | loop iteration.                                                                |                              |                                               |
 +--------------------------------+-------------------------------+------------------------+--------------------------------------------------------------------------------+------------------------------+-----------------------------------------------+
 
 In the table above:

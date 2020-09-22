@@ -129,17 +129,15 @@ int emit_column_specification(char *buffer, int buffer_size, SqlColumn *cur_colu
 			m_escape_string2(buffer2, MAX_STR_CONST, value->v.reference);
 			buff_ptr += snprintf(buff_ptr, buffer_size - (buff_ptr - buffer), " KEY NUM %s", buffer2);
 			break;
-		case OPTIONAL_ADVANCE:
-			UNPACK_SQL_STATEMENT(value, cur_keyword->v, value);
-			m_escape_string2(buffer2, MAX_STR_CONST, value->v.reference);
-			buff_ptr += snprintf(buff_ptr, buffer_size - (buff_ptr - buffer), " ADVANCE \"%s\"", buffer2);
-			break;
 		case NO_KEYWORD:
 			break;
 		case OPTIONAL_START:
 			UNPACK_SQL_STATEMENT(value, cur_keyword->v, value);
 			m_escape_string2(buffer2, MAX_STR_CONST, value->v.reference);
 			buff_ptr += snprintf(buff_ptr, buffer_size - (buff_ptr - buffer), " START \"%s\"", buffer2);
+			break;
+		case OPTIONAL_STARTINCLUDE:
+			buff_ptr += snprintf(buff_ptr, buffer_size - (buff_ptr - buffer), " STARTINCLUDE");
 			break;
 		case OPTIONAL_END:
 			UNPACK_SQL_STATEMENT(value, cur_keyword->v, value);

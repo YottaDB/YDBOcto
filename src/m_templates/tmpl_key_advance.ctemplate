@@ -17,7 +17,7 @@
 TEMPLATE(tmpl_key_advance, PhysicalPlan *pplan, SqlKey *key) {
 	TEMPLATE_INIT();
 
-	char			*key_fixed, *tableName;
+	char			*tableName;
 	SqlValue		*value;
 	SqlTable		*table;
 	SqlOptionalKeyword	*keyword = NULL;
@@ -37,7 +37,7 @@ TEMPLATE(tmpl_key_advance, PhysicalPlan *pplan, SqlKey *key) {
 	tableName = value->v.reference;
 
 	// We ignore the key value here, so we can check if there is data in this key in some cases
-	if(key->cross_reference_output_key) {
+	if (key->cross_reference_output_key) {
 		UNPACK_SQL_STATEMENT(value, key->cross_reference_output_key->column->columnName, value);
 		columnName = value->v.reference;
 		%{}^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}"{}%
@@ -59,7 +59,8 @@ TEMPLATE(tmpl_key_advance, PhysicalPlan *pplan, SqlKey *key) {
 				hit_key = TRUE;
 		}
 		%{}){}%
-	} else if(table->source) {
+	} else {
+		assert(NULL != table->source);
 		iter_key_index = 0;
 		while ((pplan->iterKeys[iter_key_index] != key) && (iter_key_index < pplan->total_iter_keys)) {
 			if (pplan->iterKeys[iter_key_index]->unique_id == key->unique_id)
@@ -70,26 +71,6 @@ TEMPLATE(tmpl_key_advance, PhysicalPlan *pplan, SqlKey *key) {
 		UNPACK_SQL_STATEMENT(keyword, table->source, keyword);
 		UNPACK_SQL_STATEMENT(value, keyword->v, value);
 		TMPL(tmpl_emit_source, value->v.string_literal, tableName, key->unique_id, keys_to_match, EmitSourceForm_Value);
-	} else {
-		// Check to see if the column has an advance keyword; if so, return it
-		if(key->column)
-			keyword = get_keyword(key->column, OPTIONAL_ADVANCE);
-		if(keyword) {
-			UNPACK_SQL_STATEMENT(value, keyword->v, value);
-			key_fixed = value->v.string_literal;
-			%{}{{ key_fixed }}{}%
-			TEMPLATE_END();
-		}
-		%{}^{{ tableName }}{}%
-		while ((pplan->iterKeys[iter_key_index] != key) && (iter_key_index < pplan->total_iter_keys)) {
-			if (pplan->iterKeys[iter_key_index]->unique_id == key->unique_id) {
-				TMPL(tmpl_key, pplan->iterKeys[iter_key_index]);
-				%{},{}%
-			}
-			iter_key_index++;
-		}
-		TMPL(tmpl_key, key);
-		%{})){}%
 	}
 	TEMPLATE_END();
 }

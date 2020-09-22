@@ -1,0 +1,35 @@
+#################################################################
+#								#
+# Copyright (c) 2020 YottaDB LLC and/or its subsidiaries.	#
+# All rights reserved.						#
+#								#
+#	This source code contains the intellectual property	#
+#	of its copyright holder(s), and is made available	#
+#	under a license.  If you do not know the terms of	#
+#	the license, please stop and do not read further.	#
+#								#
+#################################################################
+
+load test_helpers
+
+setup() {
+  init_test
+  createdb
+}
+
+@test "TPK01 : OCTO279 : Octo returns incorrect results if key column is the empty string" {
+  load_fixture TPK01_ddl.sql
+  load_fixture TPK01_ddl.zwr
+  load_fixture vista-mini.sql
+  load_fixture vista-mini.zwr
+  cp @PROJECT_SOURCE_DIR@/tests/fixtures/TPK01.sql .
+  cp @PROJECT_SOURCE_DIR@/tests/fixtures/vista-mini.sql .
+  # Create a verison of vista-mini.sql that has the STARTINCLUDE keyword specified in each column that already specifies START
+  sed 's/\(CREATE TABLE `\)\(.*\)/\1STARTINCLUDE_\2/;s/\<START\> /STARTINCLUDE &/;' vista-mini.sql > startinclude_vista-mini.sql
+  # Load this DDL into Octo as well (TPK01.sql uses this DDL to verify differences in behavior when STARTINCLUDE is included or not)
+  octo -f startinclude_vista-mini.sql > startinclude_vista-mini.out 2>&1
+  grep -vE '^-- |^#' TPK01.sql > input.sql
+  octo < input.sql > output.txt 2>&1
+  verify_output TPK01 output.txt
+}
+

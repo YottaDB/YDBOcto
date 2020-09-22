@@ -20,15 +20,14 @@
 TEMPLATE(tmpl_key_source, PhysicalPlan *pplan, SqlKey *key) {
 	TEMPLATE_INIT();
 
-	char			*key_fixed, *tableName;
+	char			*tableName;
 	SqlValue		*value;
 	SqlTable		*table;
 	SqlOptionalKeyword	*keyword = NULL;
 	unsigned int		iter_key_index = 0;
-	int			keys_to_match = 0;
 	char			*columnName = "";
 
-	assert(NULL != key->fixed_to_value);
+	assert((NULL != key->fixed_to_value) || (NULL != key->table));
 	table = key->table;
 	UNPACK_SQL_STATEMENT(value, table->tableName, value);
 	tableName = value->v.reference;
@@ -46,38 +45,32 @@ TEMPLATE(tmpl_key_source, PhysicalPlan *pplan, SqlKey *key) {
 		// We only look at the first subscript, since we don't want to look at actual values of the keys
 		TMPL(tmpl_key, pplan->iterKeys[iter_key_index]);
 		%{}){}%
-	} else if (table->source) {
+	} else {
+		SqlKey		*plan_key;
+		unsigned int	total_keys;
+		int		keys_to_match;
+
+		assert(NULL != table->source);
+		total_keys = pplan->total_iter_keys;
 		iter_key_index = 0;
-		while ((pplan->iterKeys[iter_key_index] != key) && (iter_key_index < pplan->total_iter_keys)) {
-			if (pplan->iterKeys[iter_key_index]->unique_id == key->unique_id)
+		keys_to_match = 0;
+		for ( ; ; ) {
+			plan_key = pplan->iterKeys[iter_key_index];
+			if ((plan_key->unique_id == key->unique_id) && !plan_key->is_cross_reference_key) {
 				keys_to_match++;
+			}
+			if (plan_key == key) {
+				break;
+			}
 			iter_key_index++;
+			if (iter_key_index >= total_keys) {
+				break;
+			}
 		}
-		keys_to_match++;
+		assert(keys_to_match);
 		UNPACK_SQL_STATEMENT(keyword, table->source, keyword);
 		UNPACK_SQL_STATEMENT(value, keyword->v, value);
 		TMPL(tmpl_emit_source, value->v.string_literal, tableName, key->unique_id, keys_to_match, EmitSourceForm_Value);
-	} else {
-		// Check to see if the column has an advance keyword; if so, return it
-		if (key->column)
-			keyword = get_keyword(key->column, OPTIONAL_ADVANCE);
-		if (keyword) {
-			UNPACK_SQL_STATEMENT(value, keyword->v, value);
-			key_fixed = value->v.string_literal;
-			%{}{{ key_fixed }}{}%
-			TEMPLATE_END();
-		}
-		%{}^{{ tableName }}{}%
-		while (pplan->iterKeys[iter_key_index] != key
-			&& iter_key_index < pplan->total_iter_keys) {
-			if (pplan->iterKeys[iter_key_index]->unique_id == key->unique_id) {
-				TMPL(tmpl_key, pplan->iterKeys[iter_key_index]);
-				%{},{}%
-			}
-			iter_key_index++;
-		}
-		TMPL(tmpl_key, key);
-		%{})){}%
 	}
 	TEMPLATE_END();
 }

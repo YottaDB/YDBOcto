@@ -235,13 +235,14 @@ typedef enum OptionalKeyword {
 	OPTIONAL_RESTRICT,
 	OPTIONAL_PIECE,
 	OPTIONAL_KEY_NUM,
-	OPTIONAL_ADVANCE,
+	OPTIONAL_ADVANCE, /* Corresponds to nixed ADVANCE keyword. Not deleted for backward compatibility just in case. */
 	OPTIONAL_LIMIT,
 	OPTIONAL_DISTINCT,
 	OPTIONAL_XREF_INDEX,	    // not sure if this should be here; gets populated through LP
 	OPTIONAL_BOOLEAN_EXPANSION, // indicates that this statement is part of an OR boolean expression expansion to BNF form
 	OPTIONAL_ASC,
 	OPTIONAL_DESC,
+	OPTIONAL_STARTINCLUDE,
 } OptionalKeyword;
 
 typedef enum SqlSetOperationType {

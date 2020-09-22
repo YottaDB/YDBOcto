@@ -96,6 +96,9 @@
 		case OPTIONAL_START:                                                                   \
 			str = "START";                                                                 \
 			break;                                                                         \
+		case OPTIONAL_STARTINCLUDE:                                                            \
+			str = "STARTINCLUDE";                                                          \
+			break;                                                                         \
 		case OPTIONAL_DELIM:                                                                   \
 			str = "DELIM";                                                                 \
 			break;                                                                         \

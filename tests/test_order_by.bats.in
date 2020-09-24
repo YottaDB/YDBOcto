@@ -21,7 +21,7 @@ setup() {
   $ydb_dist/yottadb -run ^%XCMD 'set ^%ydboctoocto("functions","MODULO")="$$^MODULO"'
 }
 
-@test "order by firstName ascending" {
+@test "TOB0A : order by firstName ascending" {
   octo >& output.txt <<OCTO
 select * from names order by firstName;
 OCTO
@@ -29,7 +29,7 @@ OCTO
   [[ "$output" =~ /1|Acid|Burn.*0|Zero|Cool/ ]]
 }
 
-@test "order by firstName ascending explicit" {
+@test "TOB0B : order by firstName ascending explicit" {
   octo >& output.txt <<OCTO
 select * from names order by firstName asc;
 OCTO
@@ -37,7 +37,7 @@ OCTO
   [[ "$output" =~ /1|Acid|Burn.*0|Zero|Cool/ ]]
 }
 
-@test "order by firstName descending" {
+@test "TOB0C : order by firstName descending" {
   octo >& output.txt <<OCTO
 select * from names order by firstName desc;
 OCTO
@@ -45,7 +45,7 @@ OCTO
   [[ "$output" =~ /0|Zero|Cool.*1|Acid|Burn/ ]]
 }
 
-@test "order by lastName ascending" {
+@test "TOB0D : order by lastName ascending" {
   octo >& output.txt <<OCTO
 select * from names order by lastName;
 OCTO
@@ -53,7 +53,7 @@ OCTO
   [[ "$output" =~ /1|Acid|Burn.*3|Lord|Nikon/ ]]
 }
 
-@test "order by lastName ascending explicit" {
+@test "TOB0E : order by lastName ascending explicit" {
   octo >& output.txt <<OCTO
 select * from names order by lastName asc;
 OCTO
@@ -61,7 +61,7 @@ OCTO
   [[ "$output" =~ /1|Acid|Burn.*3|Lord|Nikon/ ]]
 }
 
-@test "order by lastName descending" {
+@test "TOB0F : order by lastName descending" {
   octo >& output.txt <<OCTO
 select * from names order by lastName desc;
 OCTO
@@ -69,7 +69,7 @@ OCTO
   [[ "$output" =~ /3|Lord|Nikon.*1|Acid|Burn/ ]]
 }
 
-@test "order by id ascending" {
+@test "TOB0G : order by id ascending" {
   octo >& output.txt <<OCTO
 select * from names order by id;
 OCTO
@@ -77,7 +77,7 @@ OCTO
   [[ "$output" =~ /0|Zero|Cool.*5|Zero|Cool/ ]]
 }
 
-@test "order by id ascending explicit" {
+@test "TOB0H : order by id ascending explicit" {
   octo >& output.txt <<OCTO
 select * from names order by id asc;
 OCTO
@@ -85,7 +85,7 @@ OCTO
   [[ "$output" =~ /0|Zero|Cool.*5|Zero|Cool/ ]]
 }
 
-@test "order by id descending" {
+@test "TOB0I : order by id descending" {
   octo >& output.txt <<OCTO
 select * from names order by id desc;
 OCTO

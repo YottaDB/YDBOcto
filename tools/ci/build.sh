@@ -437,10 +437,37 @@ PSQL
 	ls -1d bats-test.*// | sed 's,/.*,,g' | sort > all_bats_dirs.txt
 	# Find out list of failed bats dirs. Need to sort for later use by "join"
 	grep "Temporary files in" Testing/Temporary/LastTest.log | awk '{print $NF}' | sed 's,.*/,,g' | sort > failed_bats_dirs.txt
-	# Find out list of passed bats dirs using "join" (all - fail = pass).
-	join -a 1 -v 2 all_bats_dirs.txt failed_bats_dirs.txt > passed_bats_dirs.txt
 	# Note down list of bats test directory names and corresponding subtest name in one file
 	cat */bats_test.out > all_bats_test.out
+	ls -lart */bats_test.out > lslart_bats_test.out	# this is to note down time stamp of the bats_test.out files
+	grep '^ok' Testing/Temporary/LastTest.log > passed_bats_subtests.txt || true
+	grep '^not ok' Testing/Temporary/LastTest.log > failed_bats_subtests.txt || true
+	touch summary_bats_dirs.txt passed_bats_dirs.txt
+	# Find out list of bats dirs corresponding to passed subtests.
+	for tstdir in bats-test.*
+	do
+		if [[ ! -d $tstdir || ! -e $tstdir/bats_test.out ]]; then
+			# $tstdir is not a directory OR it does not contain the file bats_test.out.
+			# Cannot determine if this is a failed or passed or timedout bats test.
+			echo "SUSPECT : $tstdir" >> summary_bats_dirs.txt
+			continue
+		fi
+		cd $tstdir
+		subtest=`sed 's/.*subtest \[//;s/].*//;' bats_test.out`
+		# Need -F below in case there are any special characters in the subtest name (e.g. '*')
+		# We do not want to treat those as regex in the grep.
+		if [[ $(grep -F -c "$subtest" ../passed_bats_subtests.txt) -eq 1 ]]; then
+			echo "PASSED  : $tstdir : $subtest" >> ../summary_bats_dirs.txt
+			echo $tstdir >> ../passed_bats_dirs.txt
+		elif [[ $(grep -F -c "$subtest" ../failed_bats_subtests.txt) -eq 1 ]]; then
+			echo "FAILED  : $tstdir : $subtest" >> ../summary_bats_dirs.txt
+		else
+			# It has to be a timed out test. It is also possible some passed/failed subtests show up here
+			# in case "$subtest" matched multiple lines. If so, treat that as a timedout directory for now.
+			echo "TIMEDOUT : $tstdir : $subtest" >> ../summary_bats_dirs.txt
+		fi
+		cd ..
+	done
 fi
 
 if [[ "test-auto-upgrade" != $jobname ]]; then

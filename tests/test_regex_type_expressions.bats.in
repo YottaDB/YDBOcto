@@ -48,3 +48,29 @@ setup() {
 @test "TRTE06 : Verifies that optimization doesn't break pattern processing when same pattern but different operation is used" {
   run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TRTE06.sql
 }
+
+@test "TRTE07 : Optimize LIKE (and SIMILAR TO) operator to EQUALS operator if no wildcards are used in pattern" {
+  cp @PROJECT_SOURCE_DIR@/tests/fixtures/TRTE07.sql .
+  # Construct list of queries using LIKE
+  grep " like " TRTE07.sql > like.sql
+  # Construct list of queries using NOT LIKE
+  sed 's/ like / not like /g' like.sql > notlike.sql
+  # Construct list of queries using SIMILAR TO
+  sed 's/ like / similar to /g' like.sql > similarto.sql
+  # Construct list of queries using NOT SIMILAR TO
+  sed 's/ like / not similar to /g' like.sql > notsimilarto.sql
+  # Construct list of queries using EQUAL TO
+  sed 's/ like / = /g' like.sql > equalto.sql
+  # Construct list of queries using NOT EQUAL TO
+  sed 's/ like / != /g' like.sql > notequalto.sql
+  # Construct consolidated list of queries
+  cat like.sql notlike.sql similarto.sql notsimilarto.sql equalto.sql notequalto.sql > input.sql
+  # Run octo -vv on queries to figure out which plans each query goes to
+  octo -vv -f input.sql > output.txt 2>&1
+  # Print list of generated M plans and which queries map to each generated plan.
+  grep -E "INFO_PARSING_DONE|INFO_M_PLAN|INFO_REUSE_M_PLAN" output.txt | sed 's/.* \[//;s/;]$//;s/] (to execute SQL query)//;' | awk 'NR % 2 == 1 { line = $0;} NR % 2 == 0 { printf "%s : %s;\n", $0, line; }' | sed 's,'`pwd`',$PWD,;' | sort > clean_output.txt
+  # Not using "verify_output" as that replaces _ydboctoPxxx with _ydboctoP*.m which is not desired as we want to see
+  # exactly which queries map to which plans.
+  cp ../../tests/outref/TRTE07.ref .
+  diff TRTE07.ref clean_output.txt
+}

@@ -785,7 +785,7 @@ regexmatch(str,regexstr,plantype,intval)
 	; need pattern strings passed as column reference also to be processed.
 	; Parameter:
 	;	intval -  if defined acts as the third argument for regex engine
-	; 	plantype -  represents operation : 1->PP_LIKE (LIKE) ,2->PP_SIMILARTO (SIMILAR TO) & 3->PP_TILDE (~)
+	; 	plantype -  represents operation : 1->REGEX_LIKE (LIKE) ,2->REGEX_SIMILARTO (SIMILAR TO) & 3->REGEX_TILDE (~)
 	; 	str - left operand of regex operation
 	;	regexstr - right operand of regex operation (pattern string)
 	; regexstr is processed using the following rules:

@@ -774,12 +774,8 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_
 				/* Assert all possible valid types. This is used to simplify the `if` checks below
 				 * that determine the value of `is_type_mismatch`.
 				 */
-				assert((BOOLEAN_VALUE == left_type) || (INTEGER_LITERAL == left_type)
-				       || (NUMERIC_LITERAL == left_type) || (STRING_LITERAL == left_type)
-				       || (NUL_VALUE == left_type));
-				assert((BOOLEAN_VALUE == right_type) || (INTEGER_LITERAL == right_type)
-				       || (NUMERIC_LITERAL == right_type) || (STRING_LITERAL == right_type)
-				       || (NUL_VALUE == right_type));
+				assert(IS_LITERAL_PARAMETER(left_type) || (NUL_VALUE == left_type));
+				assert(IS_LITERAL_PARAMETER(right_type) || (NUL_VALUE == right_type));
 				/* If not yet found any type mismatch, check for one. If already found one, keep just that.
 				 * In general, all types are compatible with only themselves.
 				 * Exception is that
@@ -886,8 +882,7 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_
 			*type = child_type1;
 			break;
 		}
-		assert((BOOLEAN_NOT != unary->operation) || (BOOLEAN_VALUE == *type) || (NUL_VALUE == *type)
-		       || (INTEGER_LITERAL == *type) || (NUMERIC_LITERAL == *type) || (STRING_LITERAL == *type));
+		assert((BOOLEAN_NOT != unary->operation) || (NUL_VALUE == *type) || IS_LITERAL_PARAMETER(*type));
 		break;
 	default:
 		assert(FALSE);

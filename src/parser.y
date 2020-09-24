@@ -424,34 +424,34 @@ comparison_predicate
        * operand 5 - case sensitivity: FALSE = insensitive; TRUE = sensitive
        * operand 6 - not operator: FALSE = no NOT; TRUE = NOT
        */
-      INVOKE_REGEX_SPECIFICATION(&($$), ($1), ($3), 0, TRUE, FALSE, parse_context);
+      INVOKE_REGEX_SPECIFICATION(&($$), ($1), ($3), REGEX_TILDE, TRUE, FALSE, parse_context);
     }
   | row_value_constructor TILDE ASTERISK row_value_constructor {
-      INVOKE_REGEX_SPECIFICATION(&($$), ($1), ($4), 0, FALSE, FALSE, parse_context);
+      INVOKE_REGEX_SPECIFICATION(&($$), ($1), ($4), REGEX_TILDE, FALSE, FALSE, parse_context);
     }
   | row_value_constructor EXCLAMATION TILDE row_value_constructor {
-      INVOKE_REGEX_SPECIFICATION(&($$), ($1), ($4), 0, TRUE, TRUE, parse_context);
+      INVOKE_REGEX_SPECIFICATION(&($$), ($1), ($4), REGEX_TILDE, TRUE, TRUE, parse_context);
     }
   | row_value_constructor EXCLAMATION TILDE ASTERISK row_value_constructor {
-      INVOKE_REGEX_SPECIFICATION(&($$), ($1), ($5), 0, FALSE, TRUE, parse_context);
+      INVOKE_REGEX_SPECIFICATION(&($$), ($1), ($5), REGEX_TILDE, FALSE, TRUE, parse_context);
     }
   | row_value_constructor like_predicate row_value_constructor {
-      INVOKE_REGEX_SPECIFICATION(&($$), ($1), ($3), 1, TRUE, FALSE, parse_context);
+      INVOKE_REGEX_SPECIFICATION(&($$), ($1), ($3), REGEX_LIKE, TRUE, FALSE, parse_context);
     }
   | row_value_constructor not_like_predicate row_value_constructor {
-      INVOKE_REGEX_SPECIFICATION(&($$), ($1), ($3), 1, TRUE, TRUE, parse_context);
+      INVOKE_REGEX_SPECIFICATION(&($$), ($1), ($3), REGEX_LIKE, TRUE, TRUE, parse_context);
     }
   | row_value_constructor insensitive_like_predicate row_value_constructor {
-      INVOKE_REGEX_SPECIFICATION(&($$), ($1), ($3), 1, FALSE, FALSE, parse_context);
+      INVOKE_REGEX_SPECIFICATION(&($$), ($1), ($3), REGEX_LIKE, FALSE, FALSE, parse_context);
     }
   | row_value_constructor not_insensitive_like_predicate row_value_constructor {
-      INVOKE_REGEX_SPECIFICATION(&($$), ($1), ($3), 1, FALSE, TRUE, parse_context);
+      INVOKE_REGEX_SPECIFICATION(&($$), ($1), ($3), REGEX_LIKE, FALSE, TRUE, parse_context);
     }
   | row_value_constructor SIMILAR TO row_value_constructor {
-      INVOKE_REGEX_SPECIFICATION(&($$), ($1), ($4), 2, TRUE, FALSE, parse_context);
+      INVOKE_REGEX_SPECIFICATION(&($$), ($1), ($4), REGEX_SIMILARTO, TRUE, FALSE, parse_context);
     }
   | row_value_constructor NOT SIMILAR TO row_value_constructor {
-      INVOKE_REGEX_SPECIFICATION(&($$), ($1), ($5), 2, TRUE, TRUE, parse_context);
+      INVOKE_REGEX_SPECIFICATION(&($$), ($1), ($5), REGEX_SIMILARTO, TRUE, TRUE, parse_context);
     }
   ;
 
@@ -1765,10 +1765,7 @@ literal_value
 	SqlStatement *ret = $LITERAL;
 	ret->loc = yyloc;
 	if (value_STATEMENT == ret->type) {
-		if ((NUMERIC_LITERAL == ret->v.value->type)
-			|| (INTEGER_LITERAL == ret->v.value->type)
-			|| (BOOLEAN_VALUE == ret->v.value->type)
-			|| (STRING_LITERAL == ret->v.value->type)) {
+		if (IS_LITERAL_PARAMETER(ret->v.value->type)) {
 			INVOKE_PARSE_LITERAL_TO_PARAMETER(parse_context, ret->v.value, FALSE);
 		} else if (PARAMETER_VALUE == ret->v.value->type) {
 			// ROCTO ONLY: Populate ParseContext to handle prepared statements in extended query protocol

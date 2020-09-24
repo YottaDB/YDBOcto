@@ -21,60 +21,77 @@
 		MALLOC_STATEMENT(STMT, binary, SqlBinaryOperation); \
 	}
 
-int regex_specification(SqlStatement **stmt, SqlStatement *op0, SqlStatement *op1, int is_regex_like_or_similar, int is_sensitive,
+/* Returns 0 on success. 1 on failure. */
+int regex_specification(SqlStatement **stmt, SqlStatement *op0, SqlStatement *op1, enum RegexType regex_type, int is_sensitive,
 			int is_not, ParseContext *parse_context) {
 	SqlStatement *regex;
-	int	      status;
 
-	if (is_not) {
-		SQL_STATEMENT(*stmt, unary_STATEMENT);
-		MALLOC_STATEMENT(*stmt, unary, SqlUnaryOperation);
-		CREATE_BINARY_STATEMENT(regex);
-		(*stmt)->v.unary->operation = BOOLEAN_NOT;
-		(*stmt)->v.unary->operand = regex;
-	} else {
-		CREATE_BINARY_STATEMENT(*stmt);
-		regex = *stmt;
-	}
-
+	CREATE_BINARY_STATEMENT(regex);
 	if (is_sensitive) {
-		if (1 == is_regex_like_or_similar) {
-			regex->v.binary->operation = BOOLEAN_REGEX_SENSITIVE_LIKE;
-		} else if (2 == is_regex_like_or_similar) {
-			regex->v.binary->operation = BOOLEAN_REGEX_SENSITIVE_SIMILARTO;
+		if (REGEX_LIKE == regex_type) {
+			/* If the pattern string has no special meaning characters, then case sensitive LIKE is the same as
+			 * the EQUALS operator since LIKE matches the entire string and this is a case-sensitive match.
+			 * The EQUALS operator has better chances of being optimized so use that instead of LIKE if possible.
+			 */
+			int status;
+
+			status = regex_has_no_special_characters(op1, regex_type, parse_context);
+			if (-1 == status) {
+				/* Error : Forward error to caller so it can do YYABORT. */
+				return 1;
+			}
+			assert((0 == status) || (1 == status));
+			regex->v.binary->operation = ((0 == status) ? BOOLEAN_REGEX_SENSITIVE_LIKE : BOOLEAN_EQUALS);
+		} else if (REGEX_SIMILARTO == regex_type) {
+			/* If the pattern string has no special meaning characters, then LIKE is same as EQUALS operator.
+			 * The latter has better chances of being optimized so check for that here.
+			 */
+			int status;
+
+			status = regex_has_no_special_characters(op1, regex_type, parse_context);
+			if (-1 == status) {
+				/* Error : Forward error to caller so it can do YYABORT. */
+				return 1;
+			}
+			assert((0 == status) || (1 == status));
+			regex->v.binary->operation = ((0 == status) ? BOOLEAN_REGEX_SENSITIVE_SIMILARTO : BOOLEAN_EQUALS);
 		} else {
+			assert(REGEX_TILDE == regex_type);
+			/* The regex match is not an entire string match (i.e. a substring match is also okay) so we cannot
+			 * convert this operator to EQUALS like we did the previous cases.
+			 */
 			regex->v.binary->operation = BOOLEAN_REGEX_SENSITIVE;
 		}
 	} else {
-		if (1 == is_regex_like_or_similar) {
+		/* The below matches are all case insensitive matches. And so cannot be converted
+		 * into an EQUALS operator like we did cases in the "if()" block above.
+		 */
+		if (REGEX_LIKE == regex_type) {
 			regex->v.binary->operation = BOOLEAN_REGEX_INSENSITIVE_LIKE;
-		} else if (2 == is_regex_like_or_similar) {
+		} else if (REGEX_SIMILARTO == regex_type) {
 			regex->v.binary->operation = BOOLEAN_REGEX_INSENSITIVE_SIMILARTO;
 		} else {
 			regex->v.binary->operation = BOOLEAN_REGEX_INSENSITIVE;
 		}
 	}
 	regex->v.binary->operands[0] = op0;
-	/* Parse literals to parameters only if input is of type STRING_LITERAL.
-	 * This avoids multiple plan generation for different pattern strings.
-	 */
-	status = 0;
-	if (0 == is_regex_like_or_similar) {
-		if ((value_STATEMENT == op1->type) && (STRING_LITERAL == op1->v.value->type)) {
-			SqlValue *value;
+	regex->v.binary->operands[1] = op1;
+	if (is_not) {
+		/* Negation specified */
+		if (BOOLEAN_EQUALS == regex->v.binary->operation) {
+			/* Convert EQUALS to NOT EQUALS */
+			regex->v.binary->operation = BOOLEAN_NOT_EQUALS;
+		} else {
+			SqlStatement *not_stmt;
 
-			UNPACK_SQL_STATEMENT(value, op1, value);
-			status = parse_literal_to_parameter(parse_context, value, TRUE);
-		}
-	} else if (value_STATEMENT == op1->type) {
-		/* LIKE and SIMILAR TO OPERATOR */
-		SqlValue *value;
-
-		UNPACK_SQL_STATEMENT(value, op1, value);
-		if (STRING_LITERAL == value->type) {
-			status = parse_literal_to_parameter(parse_context, value, TRUE);
+			/* Else: Surround the REGEX statement with a BOOLEAN_NOT statement */
+			SQL_STATEMENT(not_stmt, unary_STATEMENT);
+			MALLOC_STATEMENT(not_stmt, unary, SqlUnaryOperation);
+			(not_stmt)->v.unary->operation = BOOLEAN_NOT;
+			(not_stmt)->v.unary->operand = regex;
+			regex = not_stmt;
 		}
 	}
-	regex->v.binary->operands[1] = op1;
-	return ((0 != status) ? 1 : 0);
+	*stmt = regex;
+	return 0;
 }

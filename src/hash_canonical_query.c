@@ -303,13 +303,9 @@ void hash_canonical_query(hash128_state_t *state, SqlStatement *stmt, int *statu
 			ydb_mmrhash_128_ingest(state, (void *)value->v.reference, strlen(value->v.reference));
 			break;
 		case COERCE_TYPE:
-			assert((BOOLEAN_VALUE == value->coerced_type) || (NUMERIC_LITERAL == value->coerced_type)
-			       || (INTEGER_LITERAL == value->coerced_type) || (STRING_LITERAL == value->coerced_type)
-			       || (NUL_VALUE == value->coerced_type));
+			assert(IS_LITERAL_PARAMETER(value->coerced_type) || (NUL_VALUE == value->coerced_type));
 			ADD_INT_HASH(state, value->coerced_type);
-			assert((BOOLEAN_VALUE == value->pre_coerced_type) || (NUMERIC_LITERAL == value->pre_coerced_type)
-			       || (INTEGER_LITERAL == value->pre_coerced_type) || (STRING_LITERAL == value->pre_coerced_type)
-			       || (NUL_VALUE == value->pre_coerced_type));
+			assert(IS_LITERAL_PARAMETER(value->pre_coerced_type) || (NUL_VALUE == value->pre_coerced_type));
 			ADD_INT_HASH(state, value->pre_coerced_type);
 			hash_canonical_query(state, value->v.coerce_target, status);
 			break;

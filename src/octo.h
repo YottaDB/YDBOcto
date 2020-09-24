@@ -257,9 +257,17 @@
 		}                                                     \
 	}
 
+/* Below enum defines type of regex operation */
+typedef enum RegexType {
+	REGEX_LIKE = 1,
+	REGEX_SIMILARTO,
+	REGEX_TILDE,
+} RegexType;
+
 #define INVOKE_REGEX_SPECIFICATION(STMT, OP0, OP1, IS_REGEX_LIKE_OR_SIMILAR, IS_SENSITIVE, IS_NOT, PARSE_CONTEXT)            \
 	{                                                                                                                    \
 		int status;                                                                                                  \
+                                                                                                                             \
 		status = regex_specification(STMT, OP0, OP1, IS_REGEX_LIKE_OR_SIMILAR, IS_SENSITIVE, IS_NOT, PARSE_CONTEXT); \
 		if (0 != status)                                                                                             \
 			YYABORT;                                                                                             \
@@ -272,6 +280,11 @@
 		if (0 != status)                                                                 \
 			YYABORT;                                                                 \
 	}
+
+/* Below macro assumes VALUE_STMT->type is value_STATEMENT */
+#define IS_LITERAL_PARAMETER(VALUE_TYPE)                                                                     \
+	((NUMERIC_LITERAL == VALUE_TYPE) || (INTEGER_LITERAL == VALUE_TYPE) || (BOOLEAN_VALUE == VALUE_TYPE) \
+	 || (STRING_LITERAL == VALUE_TYPE))
 
 // Initialize a stack-allocated ydb_buffer_t from a stack-allocated string (char *)
 #define OCTO_SET_BUFFER(BUFFER, STRING)            \
@@ -447,6 +460,7 @@ int  delete_table_from_pg_class(ydb_buffer_t *table_name_buffer);
 void cleanup_tables();
 int  store_function_in_pg_proc(SqlFunction *function, char *function_hash);
 int  delete_function_from_pg_proc(ydb_buffer_t *function_name_buffer, ydb_buffer_t *function_hash_buffer);
+int  regex_has_no_special_characters(SqlStatement *op1, enum RegexType regex_type, ParseContext *parse_context);
 
 /* Parse related functions invoked from the .y files (parser.y, select.y etc.) */
 int	      as_name(SqlStatement *as_name, ParseContext *parse_context);
@@ -462,7 +476,7 @@ int	      natural_join_condition(SqlJoin *start, SqlJoin *r_join);
 int	      parse_literal_to_parameter(ParseContext *parse_context, SqlValue *value, boolean_t update_existing);
 SqlStatement *query_specification(OptionalKeyword set_quantifier, SqlStatement *select_list, SqlStatement *table_expression,
 				  SqlStatement *sort_specification_list, int *plan_id);
-int regex_specification(SqlStatement **stmt, SqlStatement *op0, SqlStatement *op1, int is_regex_like_or_similar, int is_sensitive,
+int regex_specification(SqlStatement **stmt, SqlStatement *op0, SqlStatement *op1, enum RegexType regex_type, int is_sensitive,
 			int is_not, ParseContext *parse_context);
 SqlStatement *set_operation(enum SqlSetOperationType setoper_type, SqlStatement *left_operand, SqlStatement *right_operand);
 SqlStatement *sort_specification(SqlStatement *sort_key, SqlStatement *ordering_specification);

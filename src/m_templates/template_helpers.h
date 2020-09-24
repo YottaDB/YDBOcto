@@ -62,13 +62,6 @@
 	((NULL != get_keyword(column, PRIMARY_KEY)) || (NULL != get_keyword(column, OPTIONAL_KEY_NUM)) \
 	 || (NULL != get_keyword(column, NOT_NULL)))
 
-/* Pattern string in a regex operation requires operation specific formatting,
- * following macro helps to convey the operation type information to m code from tmpl_*.ctemplate functions.
- */
-#define PP_LIKE	      1
-#define PP_SIMILAR_TO 2
-#define PP_TILDE      3
-
 enum EmitSourceForm { EmitSourceForm_Value, EmitSourceForm_Trigger };
 
 void resize_tmpl_buffer(char **global_buffer, int *buffer_len, int *buffer_index);

@@ -253,6 +253,7 @@ add_library(libocto OBJECT
   qualify_statement.c
   quoting.c
   readline_get_more.c
+  regex_has_no_special_characters.c
   run_query.c
   store_binary_function_definition.c
   store_binary_table_definition.c

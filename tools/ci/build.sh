@@ -202,9 +202,17 @@ else
 	export CTEST_OUTPUT_ON_FAILURE=TRUE
 fi
 
+cleanup_before_exit() {
+	echo "# Cleanup files and directories that don't need to be included in the pipeline artifacts"
+	rm -rf CMakeFiles _CPack_Packages bats-test.*/go src/CMakeFiles || true
+	rm -f postgresql*.jar *.cmake || true
+	rm -f src/test_* || true	# these are the unit test case executables (should not be needed otherwise)
+}
+
 echo "# Configure the build system for Octo"
 ${cmakeCommand} -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_INSTALL_PREFIX=${ydb_dist}/plugin -DCMAKE_BUILD_TYPE=$build_type -DFULL_TEST_SUITE=$full_test -DDISABLE_INSTALL=$disable_install ..
 if [[ $? -ne 0 ]]; then
+	cleanup_before_exit
 	exit 1
 fi
 
@@ -215,6 +223,7 @@ set +e
 make -j `grep -c ^processor /proc/cpuinfo` 2> make_warnings.txt
 exit_status=$?
 if [[ 0 != $exit_status ]]; then
+	cleanup_before_exit
 	echo "# make failed with exit status [$exit_status]. make output follows below"
 	cat make_warnings.txt
 	exit $exit_status
@@ -249,6 +258,7 @@ if [[ "test-auto-upgrade" != $jobname ]]; then
 		diff "$expected" sorted_warnings.txt &> differences.txt || true
 
 		if [ $(wc -l differences.txt | awk '{print $1}') -gt 0 ]; then
+			cleanup_before_exit
 			echo " -> Expected warnings differ from actual warnings! diff output follows"
 			echo " -> note: '<' indicates an expected warning, '>' indicates an actual warning"
 			cat differences.txt
@@ -462,8 +472,7 @@ else
 	# passing subtests only.
 	exit_status=0
 	echo "# Cleanup unit test case executables from oldsrc directory"
-	rm -rf src/CMakeFiles
-	rm -f src/test_*	# these are the unit test case executables (should not be needed otherwise)
+	cleanup_before_exit
 	echo '# Move old commit build of Octo to [oldsrc] directory'
 	mv src oldsrc
 	echo '# Delete cmake/make artifacts of older Octo build to make way for newer Octo build'
@@ -483,6 +492,7 @@ else
 	cmakeflags="$cmakeflags -DSTRING_BUFFER_LENGTH=600000"
 	${cmakeCommand} $cmakeflags ..
 	if [[ $? -ne 0 ]]; then
+		cleanup_before_exit
 		exit 1
 	fi
 
@@ -493,6 +503,7 @@ else
 	make -j `grep -c ^processor /proc/cpuinfo` 2> make_warnings.txt
 	exit_status=$?
 	if [[ 0 != $exit_status ]]; then
+		cleanup_before_exit
 		echo "# make failed with exit status [$exit_status]. make output follows below"
 		cat make_warnings.txt
 		exit $exit_status
@@ -631,7 +642,6 @@ FILE
 		add -region OCTOREG -dyn=OCTOSEG
 		add -segment OCTOSEG -file=octo.dat
 		change -region OCTOREG -null_subscripts=true -key_size=1019 -record_size=1048576
-		exit
 FILE
 		rm *.dat || true
 		$ydb_dist/mupip create
@@ -729,15 +739,7 @@ FILE
 	set -x
 fi
 
-echo "# Cleanup files and directories that don't need to be included in the pipeline artifacts"
-rm -rf CMakeFiles
-rm -rf _CPack_Packages
-rm -rf bats-test.*/go
-rm -f postgresql*.jar
-rm -f *.cmake
-rm -f src/test_*	# these are the unit test case executables (should not be needed otherwise)
-rm -rf src/CMakeFiles
-
+cleanup_before_exit
 echo " -> exit $exit_status"
 # Unset verbose mode before printing summary of failure results if any
 set +x

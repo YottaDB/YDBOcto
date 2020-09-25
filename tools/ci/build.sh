@@ -91,11 +91,6 @@ if [[ "test-auto-upgrade" != $jobname ]]; then
 	fi
 	popd
 
-	# Copy commit gpgkey verify script to build directory and execute
-	wget https://gitlab.com/YottaDB/DB/YDB/-/raw/master/ci/commit_gpgkey_verify.sh
-	chmod +x commit_gpgkey_verify.sh
-	./commit_gpgkey_verify.sh
-
 	# If we found a recent enough version, run clang-format
 	if CLANG_FORMAT="$(../tools/ci/find-clang-format.sh)"; then
 		echo "# Check code style using clang-format"

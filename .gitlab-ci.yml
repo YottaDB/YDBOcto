@@ -68,6 +68,10 @@ make-ubuntu:
     - .make
     - .ubuntu
   script:
+    # Copy commit gpgkey verify script to build directory and execute
+    - wget https://gitlab.com/YottaDB/DB/YDB/-/raw/master/ci/commit_gpgkey_verify.sh
+    - chmod +x commit_gpgkey_verify.sh
+    - ./commit_gpgkey_verify.sh
     - ./tools/ci/build.sh "make-ubuntu"
 
 make-centos:

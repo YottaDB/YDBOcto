@@ -40,8 +40,5 @@ OCTO> ORDER  BY A.order1_id;
 OCTO> 
 octoPlan0(cursorId)
     DO octoPlan1(cursorId)
-    DO octoPlan2(cursorId)
 octoPlan1(cursorId)
-    . . FOR  SET %ydboctocursor(cursorId,"keys",1,"ORDER1","ORDER1_ID")
-octoPlan2(cursorId)
     . . FOR  SET %ydboctocursor(cursorId,"keys",1,"ORDER1","ORDER1_ID")

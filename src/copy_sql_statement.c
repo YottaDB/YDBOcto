@@ -162,6 +162,7 @@ SqlStatement *copy_sql_statement(SqlStatement *stmt) {
 		do {
 			OCTO_CMALLOC_STRUCT(new_join, SqlJoin);
 			dqinit(new_join);
+			new_join->max_unique_id = cur_join->max_unique_id;
 			new_join->type = cur_join->type;
 			new_join->value = copy_sql_statement(cur_join->value);
 			new_join->condition = copy_sql_statement(cur_join->condition);

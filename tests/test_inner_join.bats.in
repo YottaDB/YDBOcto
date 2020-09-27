@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -19,7 +19,7 @@ setup() {
   load_fixture names.zwr
 }
 
-@test "inner join with simple ON condition" {
+@test "TIJ01 : inner join with simple ON condition" {
   octo >& output.txt <<OCTO
 select * from names as t1 inner join names as t2
 on (t1.id = t2.id);
@@ -29,7 +29,7 @@ OCTO
   ! [[ "$output" =~ "0|Zero|Cool|1|Acid|Burn" ]]
 }
 
-@test "inner join with a table against itself with no ON condition" {
+@test "TIJ02 : inner join with a table against itself with no ON condition" {
   octo <<OCTO 2>&1 | tee output.txt
 CREATE TABLE Orders (OrderID INTEGER PRIMARY KEY, CustomerID INTEGER, EmployeeID INTEGER, OrderDate VARCHAR(16), ShipperID INTEGER);
 select o.ShipperID from Orders
@@ -39,7 +39,7 @@ OCTO
   # no crash is a success for this test
 }
 
-@test "inner join with a table against itself with no alias on one of the names" {
+@test "TIJ03 : inner join with a table against itself with no alias on one of the names" {
   octo <<OCTO 2>&1 | tee output.txt
 CREATE TABLE Orders (OrderID INTEGER PRIMARY KEY, CustomerID INTEGER, EmployeeID INTEGER, OrderDate VARCHAR(16), ShipperID INTEGER);
 select o.ShipperID from Orders
@@ -49,7 +49,7 @@ OCTO
   # no crash is a success for this test
 }
 
-@test "inner join where ordered joined is inverse of the fix" {
+@test "TIJ04 : inner join where ordered joined is inverse of the fix" {
   octo <<OCTO 2>&1 | tee output.txt
 CREATE TABLE customers (customer_id INTEGER PRIMARY KEY, first_name VARCHAR(30), last_name VARCHAR(30), email VARCHAR(64), address VARCHAR(128), city VARCHAR(32), state VARCHAR(2), zipcode VARCHAR(10));
 CREATE TABLE orders (order_id INTEGER PRIMARY KEY, order_date VARCHAR(30), order_amount VARCHAR(30), customer_id INTEGER);
@@ -60,7 +60,7 @@ OCTO
   # no crash is a success for this test
 }
 
-@test "multiple inner joins across multiple tables that should optimize to ONE FOR loop across ONE table" {
+@test "TIJ05 : multiple inner joins across multiple tables that should optimize to ONE FOR loop across ONE table" {
   load_fixture vista-mini.sql
   octo <<OCTO 2>&1 | tee output.txt
 SELECT A.order1_id,
@@ -78,7 +78,7 @@ OCTO
   count_for_loops ./_ydboctoP*.m 1
 }
 
-@test "inner join where both tables are joined based on non-key column should still fix second column" {
+@test "TIJ06 : inner join where both tables are joined based on non-key column should still fix second column" {
   load_fixture customers.sql
   load_fixture customers.zwr
   octo -vv <<OCTO 2>&1 | tee output.txt
@@ -86,3 +86,11 @@ select o1.order_id from orders o1 inner join orders o2 on o1.customer_id = o2.cu
 OCTO
   count_num_occurrences "LP_KEY_FIX" output.txt 1	# check that there is 1 occurrence of LP_KEY_FIX in _ydboctoP*.m
 }
+
+@test "TIJ07 : Verify that ON clause is not moved to the WHERE clause even in case of NO OUTER JOINs" {
+  load_fixture TIJ07.sql subtest novv
+  echo "# Verify generated M plan has IF checks in between FOR loops instead of after ALL FOR loops" >> output.txt
+  grep -E "SET|octoPlan|FOR|IF" _ydboctoP*.m >> output.txt
+  verify_output TIJ07 output.txt
+}
+

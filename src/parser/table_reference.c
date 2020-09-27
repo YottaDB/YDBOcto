@@ -44,5 +44,6 @@ SqlStatement *table_reference(SqlStatement *column_name, SqlStatement *correlati
 	UNPACK_SQL_STATEMENT(column, table->columns, column);
 	PACK_SQL_STATEMENT(alias->column_list, columns_to_column_list_alias(column, join->value), column_list_alias);
 	dqinit(join);
+	join->max_unique_id = config->plan_id;
 	return ret;
 }

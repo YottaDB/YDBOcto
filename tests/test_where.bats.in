@@ -250,3 +250,11 @@ OCTO
   verify_output TW24 output.txt
 }
 
+@test "TW25 : OCTO601 : Reduce query runtime by moving parts of WHERE clause to ON clause" {
+  load_fixture TW25.sql subtest novv
+  echo "# ----------------------------------------------------------------------------" >> output.txt
+  echo "# Include generated M code in reference file to verify all optimizations there" >> output.txt
+  echo "# ----------------------------------------------------------------------------" >> output.txt
+  cat _ydboctoP*.m >> output.txt
+  verify_output TW25 output.txt
+}

@@ -36,62 +36,62 @@ LP_INSERT:
       LP_TABLE_JOIN: 
         LP_TABLE: T
         LP_TABLE_JOIN: INNER_JOIN: 
+          LP_WHERE: 
+            LP_BOOLEAN_EQUALS: 
+              LP_COLUMN_ALIAS: T(1).TYPNAMESPACE
+              LP_COLUMN_ALIAS: N(2).OID
           LP_TABLE: N
       LP_CRITERIA: 
         LP_KEYS: 
         LP_SELECT_OPTIONS: 
           LP_WHERE: 
             LP_BOOLEAN_AND: 
-              LP_BOOLEAN_EQUALS: 
-                LP_COLUMN_ALIAS: T(1).TYPNAMESPACE
-                LP_COLUMN_ALIAS: N(2).OID
-              LP_BOOLEAN_AND: 
-                LP_BOOLEAN_NOT_EQUALS: 
-                  LP_COLUMN_ALIAS: N(2).NSPNAME
-                  LP_VALUE: 'pg_toast'
-                LP_BOOLEAN_OR: 
-                  LP_BOOLEAN_EQUALS: 
-                    LP_COLUMN_ALIAS: T(1).TYPRELID
-                    LP_VALUE: '0'
-                  LP_INSERT: 
-                    LP_PROJECT: 
-                      LP_COLUMN_LIST: 
-                        LP_WHERE: 
-                          LP_BOOLEAN_EQUALS: 
-                            LP_COLUMN_ALIAS: C(3).RELKIND
-                            LP_VALUE: 'c'
-                          LP_COLUMN_LIST_ALIAS: 
-                          - type: BOOLEAN_VALUE
-                          - alias: RELKIND
-                      LP_SELECT: 
-                        LP_TABLE_JOIN: 
-                          LP_TABLE: C
-                        LP_CRITERIA: 
-                          LP_KEYS: 
-                            LP_KEY: 
-                            - table_name: PG_CATALOG.PG_CLASS
-                            - column_name: OID
-                            - unique_id: 3
-                            - method: LP_KEY_FIX
-                            - xref_key: false
-                            - uses_xref_key: false
-                            - value:
-                                LP_COLUMN_ALIAS: T(1).TYPRELID
-                          LP_SELECT_OPTIONS: 
-                            LP_WHERE: 
-                              LP_BOOLEAN_EQUALS: 
-                                LP_COLUMN_ALIAS: C(3).OID
-                                LP_COLUMN_ALIAS: T(1).TYPRELID
-                            LP_SELECT_MORE_OPTIONS: 
-                              LP_KEYWORDS: 
-                    LP_OUTPUT: 
-                      LP_KEY: 
-                      - table_name: 
-                      - column_name: 
-                      - unique_id: 6
-                      - method: LP_KEY_ADVANCE
-                      - xref_key: false
-                      - uses_xref_key: false
+              LP_BOOLEAN_NOT_EQUALS: 
+                LP_COLUMN_ALIAS: N(2).NSPNAME
+                LP_VALUE: 'pg_toast'
+              LP_BOOLEAN_OR: 
+                LP_BOOLEAN_EQUALS: 
+                  LP_COLUMN_ALIAS: T(1).TYPRELID
+                  LP_VALUE: '0'
+                LP_INSERT: 
+                  LP_PROJECT: 
+                    LP_COLUMN_LIST: 
+                      LP_WHERE: 
+                        LP_BOOLEAN_EQUALS: 
+                          LP_COLUMN_ALIAS: C(3).RELKIND
+                          LP_VALUE: 'c'
+                        LP_COLUMN_LIST_ALIAS: 
+                        - type: BOOLEAN_VALUE
+                        - alias: RELKIND
+                    LP_SELECT: 
+                      LP_TABLE_JOIN: 
+                        LP_TABLE: C
+                      LP_CRITERIA: 
+                        LP_KEYS: 
+                          LP_KEY: 
+                          - table_name: PG_CATALOG.PG_CLASS
+                          - column_name: OID
+                          - unique_id: 3
+                          - method: LP_KEY_FIX
+                          - xref_key: false
+                          - uses_xref_key: false
+                          - value:
+                              LP_COLUMN_ALIAS: T(1).TYPRELID
+                        LP_SELECT_OPTIONS: 
+                          LP_WHERE: 
+                            LP_BOOLEAN_EQUALS: 
+                              LP_COLUMN_ALIAS: C(3).OID
+                              LP_COLUMN_ALIAS: T(1).TYPRELID
+                          LP_SELECT_MORE_OPTIONS: 
+                            LP_KEYWORDS: 
+                  LP_OUTPUT: 
+                    LP_KEY: 
+                    - table_name: 
+                    - column_name: 
+                    - unique_id: 6
+                    - method: LP_KEY_ADVANCE
+                    - xref_key: false
+                    - uses_xref_key: false
           LP_SELECT_MORE_OPTIONS: 
             LP_KEYWORDS: 
   LP_OUTPUT: 
@@ -157,6 +157,7 @@ LP_SET_OPERATION:
                 - xref_key: true
                 - uses_xref_key: false
             LP_TABLE_JOIN: INNER_JOIN: 
+              LP_WHERE: 
               LP_TABLE: N
           LP_CRITERIA: 
             LP_KEYS: 
@@ -220,6 +221,7 @@ LP_SET_OPERATION:
           LP_TABLE_JOIN: 
             LP_TABLE: T
             LP_TABLE_JOIN: INNER_JOIN: 
+              LP_WHERE: 
               LP_TABLE: N
           LP_CRITERIA: 
             LP_KEYS: 

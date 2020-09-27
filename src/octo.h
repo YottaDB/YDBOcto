@@ -369,6 +369,8 @@ typedef enum RegexType {
 		input_buffer_combined[cur_input_index + QUERY_LENGTH + NEWLINE_NEEDED] = '\0';                     \
 	}
 
+#define IS_STMT_BOOLEAN_AND(STMT) ((binary_STATEMENT == STMT->type) && (BOOLEAN_AND == STMT->v.binary->operation))
+
 // Convenience type definition for run_query callback function
 typedef int (*callback_fnptr_t)(SqlStatement *, int, void *, char *, boolean_t);
 
@@ -402,8 +404,12 @@ SqlFunction * find_function(const char *function_name, const char *function_hash
 int	   drop_schema_from_local_cache(ydb_buffer_t *name_buffer, SqlSchemaType schema_type, ydb_buffer_t *function_hash_buffer);
 SqlColumn *find_column(char *column_name, SqlTable *table);
 SqlStatement *find_column_alias_name(SqlStatement *stmt);
-int	      qualify_query(SqlStatement *table_alias_stmt, SqlJoin *parent_join, SqlTableAlias *parent_table_alias);
-int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_alias_stmt, int depth, SqlColumnListAlias **ret_cla);
+void	      parse_tree_optimize(SqlSelectStatement *select);
+void	      move_where_clause_to_on_clause(SqlStatement **stmt_ptr, SqlJoin *start_join);
+SqlStatement *traverse_where_clause(SqlStatement *binary_stmt, SqlJoin *start_join);
+int	      qualify_query(SqlStatement *table_alias_stmt, SqlJoin *parent_join, SqlTableAlias *parent_table_alias,
+			    QualifyStatementParms *ret);
+int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_alias_stmt, int depth, QualifyStatementParms *ret);
 SqlColumnAlias *    qualify_column_name(SqlValue *column_value, SqlJoin *tables, SqlStatement *table_alias_stmt, int depth,
 					SqlColumnListAlias **ret_cla);
 SqlColumnListAlias *match_column_in_table(SqlTableAlias *table, char *column_name, int column_name_len, boolean_t *ambiguous,

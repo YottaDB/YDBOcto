@@ -170,6 +170,7 @@ query_specification
       MALLOC_STATEMENT(join_statement, join, SqlJoin);
       UNPACK_SQL_STATEMENT(join, join_statement, join);
       dqinit(join);
+      join->max_unique_id = config->plan_id;
       table = find_table("OCTOONEROWTABLE");
       if (NULL == table) {
         ERROR(ERR_UNKNOWN_TABLE, "octoOneRowTable: did you load the octo-seed.sql data?");

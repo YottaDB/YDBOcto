@@ -22,7 +22,8 @@
  *	0 if query is successfully qualified.
  *	1 if query had errors during qualification.
  */
-int qualify_query(SqlStatement *table_alias_stmt, SqlJoin *parent_join, SqlTableAlias *parent_table_alias) {
+int qualify_query(SqlStatement *table_alias_stmt, SqlJoin *parent_join, SqlTableAlias *parent_table_alias,
+		  QualifyStatementParms *ret) {
 	SqlColumnListAlias *ret_cla;
 	SqlJoin *	    join;
 	SqlJoin *	    prev_start, *prev_end;
@@ -36,8 +37,8 @@ int qualify_query(SqlStatement *table_alias_stmt, SqlJoin *parent_join, SqlTable
 		SqlSetOperation *set_opr;
 
 		UNPACK_SQL_STATEMENT(set_opr, table_alias_stmt, set_operation);
-		result |= qualify_query(set_opr->operand[0], parent_join, parent_table_alias);
-		result |= qualify_query(set_opr->operand[1], parent_join, parent_table_alias);
+		result |= qualify_query(set_opr->operand[0], parent_join, parent_table_alias, ret);
+		result |= qualify_query(set_opr->operand[1], parent_join, parent_table_alias, ret);
 		return result;
 	}
 	assert(table_alias_STATEMENT == table_alias_stmt->type);
@@ -65,7 +66,7 @@ int qualify_query(SqlStatement *table_alias_stmt, SqlJoin *parent_join, SqlTable
 		/* Qualify sub-queries involved in the join. Note that it is possible a `table` is involved in the join instead
 		 * of a `sub-query` in which case the below `qualify_query` call will return right away.
 		 */
-		result |= qualify_query(cur_join->value, parent_join, table_alias);
+		result |= qualify_query(cur_join->value, parent_join, table_alias, ret);
 		cur_join = cur_join->next;
 	} while (cur_join != start_join);
 	/* Now that FROM clause has been qualified, qualify the JOIN conditions etc. in the FROM clause.
@@ -103,7 +104,11 @@ int qualify_query(SqlStatement *table_alias_stmt, SqlJoin *parent_join, SqlTable
 	} while ((cur_join != start_join) && (cur_join != parent_join));
 	// Qualify WHERE clause next
 	table_alias->aggregate_depth = AGGREGATE_DEPTH_WHERE_CLAUSE;
-	result |= qualify_statement(select->where_expression, start_join, table_alias_stmt, 0, NULL);
+	if (NULL != ret) {
+		ret->ret_cla = NULL;
+		/* Note: Inherit ret.max_unique_id from caller (could be parent/outer query in case this is a sub-query) as is */
+	}
+	result |= qualify_statement(select->where_expression, start_join, table_alias_stmt, 0, ret);
 	// Qualify GROUP BY clause next
 	group_by_expression = select->group_by_expression;
 	/* Note that while table_alias->aggregate_function_or_group_by_specified will mostly be FALSE at this point, it is
@@ -184,6 +189,8 @@ int qualify_query(SqlStatement *table_alias_stmt, SqlJoin *parent_join, SqlTable
 	ret_cla = NULL;
 	table_alias->aggregate_depth = 0;
 	for (;;) {
+		QualifyStatementParms lcl_ret;
+
 		assert(0 == table_alias->aggregate_depth);
 		// Qualify HAVING clause
 		result |= qualify_statement(select->having_expression, start_join, table_alias_stmt, 0, NULL);
@@ -192,9 +199,11 @@ int qualify_query(SqlStatement *table_alias_stmt, SqlJoin *parent_join, SqlTable
 		// Qualify ORDER BY clause next
 		/* Now that all column names used in the query have been qualified, allow columns specified in
 		 * ORDER BY to be qualified against any column names specified till now without any strict checking.
-		 * Hence the use of a non-NULL value (`&ret_cla`) as the last parameter to `qualify_statement()` below.
+		 * Hence the use of a non-NULL value ("&ret_cla") for "lcl_ret->ret_cla".
 		 */
-		result |= qualify_statement(select->order_by_expression, start_join, table_alias_stmt, 0, &ret_cla);
+		lcl_ret.ret_cla = &ret_cla;
+		lcl_ret.max_unique_id = ((NULL != ret) ? ret->max_unique_id : NULL);
+		result |= qualify_statement(select->order_by_expression, start_join, table_alias_stmt, 0, &lcl_ret);
 		if (!table_alias->aggregate_function_or_group_by_specified) {
 			/* GROUP BY or AGGREGATE function was never used in the query. No need to do GROUP BY validation checks. */
 			break;

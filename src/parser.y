@@ -235,20 +235,27 @@ sql_statement
     }
   | sql_data_statement semicolon_or_eof { *out = $sql_data_statement; YYACCEPT; }
   | query_expression semicolon_or_eof {
-      SqlValueType	type;
+      SqlValueType		type;
+      SqlStatement		*ret;
+      QualifyStatementParms	ret_parms;
+      int			max_unique_id;
 
       parse_context->command_tag = select_STATEMENT;
       parse_context->is_select = TRUE;
       if (parse_context->abort) {
         YYABORT;
       }
-      if (qualify_query($query_expression, NULL, NULL)) {
+      ret = $query_expression;
+      ret_parms.ret_cla = NULL;
+      ret_parms.max_unique_id = &max_unique_id;
+      max_unique_id = 0;	/* Need to initialize this to avoid garbage values from being read in "qualify_statement" */
+      if (qualify_query(ret, NULL, NULL, &ret_parms)) {
           YYABORT;
       }
-      if (populate_data_type($query_expression, &type, parse_context)) {
+      if (populate_data_type(ret, &type, parse_context)) {
           YYABORT;
       }
-      *out = $query_expression; YYACCEPT;
+      *out = ret; YYACCEPT;
     }
   | BEG semicolon_or_eof {
       parse_context->command_tag = begin_STATEMENT;

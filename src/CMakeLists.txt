@@ -186,6 +186,7 @@ add_library(libocto OBJECT
   match_column_list_alias_in_select_column_list.c
   match_sql_statement.c
   memory_chunk.c
+  move_where_clause_to_on_clause.c
   octo_init.c
   optimization_transforms/generate_logical_plan.c
   optimization_transforms/get_new_plan_unique_id.c
@@ -226,6 +227,7 @@ add_library(libocto OBJECT
   optimization_transforms/optimize_logical_plan.c
   parse_line.c
   parse_startup_flags.c
+  parse_tree_optimize.c
   parser/sql_set_statement.c
   parser/aggregate_function.c
   parser/as_name.c
@@ -260,6 +262,7 @@ add_library(libocto OBJECT
   store_table_in_pg_class.c
   store_function_in_pg_proc.c
   tables_equal.c
+  traverse_where_clause.c
   values_equal.c
   ydb_error_check.c
   ydb_hash_to_string.c

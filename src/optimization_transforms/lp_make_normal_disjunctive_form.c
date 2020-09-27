@@ -157,19 +157,19 @@ LogicalPlan *lp_make_normal_disjunctive_form(LogicalPlan *root) {
 	LogicalPlan *left = lp_make_normal_disjunctive_form(root->v.lp_default.operand[0]);
 	LogicalPlan *right = lp_make_normal_disjunctive_form(root->v.lp_default.operand[1]);
 
+	// If this case is an OR, we don't need to combine things, so return early
+	if (LP_BOOLEAN_OR == root->type) {
+		root->v.lp_default.operand[0] = left;
+		root->v.lp_default.operand[1] = right;
+		return root;
+	}
+	assert(LP_BOOLEAN_AND == root->type);
 	// Algorithm:
 	// 1. Process left and right children into normal form
 	// 2. For each each clause on the left:
 	//  2.1 For each clause on the right:
 	//   2.1.1 If clause on left is OR, and clause on right is OR, construct new AND of left and right
 	//   2.1.2 If clause of left is AND, and clause on right is OR, join with
-
-	// If this case is not an AND, we don't need to combine things, so return early
-	if (LP_BOOLEAN_AND != root->type) {
-		root->v.lp_default.operand[0] = left;
-		root->v.lp_default.operand[1] = right;
-		return root;
-	}
 
 	// Else, walk through the left list, right list, and form a new series
 	LogicalPlan *ret = NULL, *cur = NULL;

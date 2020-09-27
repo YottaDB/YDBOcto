@@ -454,8 +454,18 @@ typedef struct SqlJoin {
 	struct SqlStatement *value;
 	// SqlValue
 	struct SqlStatement *condition;
+	enum SqlJoinType     type;
+	/* The below field stores the value of "config->plan_id" at the time this join was parsed in the query.
+	 * That gives us a picture of the maximum number of tables (and in turn table_alias->unique_id) that
+	 * were processed till now. To elaborate, since "config->plan_id" is a constantly increasing id that we
+	 * assign to tables encountered in the query as we parse it, this one number is a good idea of all table
+	 * ids that are valid as of the current JOIN. Any id that is greater than this is guaranteed to have been
+	 * encountered AFTER this JOIN and so any column reference corresponding to a table with that id cannot be
+	 * safely moved from the WHERE clause (where all column references are valid) to this JOIN ON clause (where
+	 * this column reference is not valid).
+	 */
+	int max_unique_id;
 	dqcreate(SqlJoin);
-	enum SqlJoinType type;
 } SqlJoin;
 
 /**
@@ -739,8 +749,22 @@ typedef struct SqlStatement {
 		 *	invalid_STATEMENT
 		 */
 	} v;
-	uint64_t hash_canonical_query_cycle; // used during "hash_canonical_query" to avoid
-					     // multiple traversals of same node.
+	/* The below is used during "hash_canonical_query" to avoid multiple traversals of same node.
+	 * Before "hash_canonical_query()" is reached, this field is used to store a 4-byte "max_unique_id"
+	 * if this SqlStatement structure falls inside the subtree of a WHERE or ON clause. In that case, it
+	 * represents the MAXIMUM value of "table_alias->unique_id" where "table_alias" is the table alias corresponding
+	 * to any/all column references inside that subtree. For example if the WHERE clause had "(n1.id = 3)" then
+	 * this field will represent the "unique_id" corresponding to the table_alias for "n1". This is used to compare
+	 * against "SqlJoin.max_unique_id" field to see if a subtree of the WHERE clause can be moved over to the
+	 * ON clause of the JOIN.
+	 */
+	uint64_t hash_canonical_query_cycle;
 } SqlStatement;
+
+/* The below is used by qualify_statement.c */
+typedef struct {
+	SqlColumnListAlias **ret_cla;
+	int *		     max_unique_id;
+} QualifyStatementParms;
 
 #endif

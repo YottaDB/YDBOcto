@@ -22,8 +22,7 @@
  *	0 if query is successfully qualified.
  *	1 if query had errors during qualification.
  */
-int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_alias_stmt, int depth,
-		      SqlColumnListAlias **ret_cla) {
+int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_alias_stmt, int depth, QualifyStatementParms *ret) {
 	SqlAggregateFunction *	af;
 	SqlBinaryOperation *	binary;
 	SqlCaseBranchStatement *cas_branch, *cur_branch;
@@ -40,6 +39,9 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 	SqlValue *		value;
 	int			result;
 	SqlTableAlias *		column_table_alias, *parent_table_alias, *table_alias;
+	SqlColumnListAlias **	ret_cla;
+	int *			max_unique_id;
+	int			i;
 
 	result = 0;
 	if (NULL == stmt)
@@ -80,6 +82,7 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 				/* This is the second pass. Any appropriate error has already been issued so skip this. */
 				break;
 			}
+			ret_cla = ((NULL == ret) ? NULL : ret->ret_cla);
 			new_column_alias = qualify_column_name(value, tables, table_alias_stmt, depth + 1, ret_cla);
 			result = ((NULL == new_column_alias) && ((NULL == ret_cla) || (NULL == *ret_cla)));
 			if (result) {
@@ -91,6 +94,12 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 					stmt->type = column_alias_STATEMENT;
 					stmt->v.column_alias = new_column_alias;
 					UNPACK_SQL_STATEMENT(column_table_alias, new_column_alias->table_alias_stmt, table_alias);
+					if ((NULL != ret) && (NULL != ret->max_unique_id)) {
+						max_unique_id = ret->max_unique_id;
+						if (*max_unique_id <= column_table_alias->unique_id) {
+							*max_unique_id = column_table_alias->unique_id + 1;
+						}
+					}
 					parent_table_alias = column_table_alias->parent_table_alias;
 					if (parent_table_alias == table_alias) {
 						if (0 < parent_table_alias->aggregate_depth) {
@@ -121,7 +130,7 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 			}
 			break;
 		case CALCULATED_VALUE:
-			result |= qualify_statement(value->v.calculated, tables, table_alias_stmt, depth + 1, ret_cla);
+			result |= qualify_statement(value->v.calculated, tables, table_alias_stmt, depth + 1, ret);
 			break;
 		case FUNCTION_NAME:
 			/* The function name lookup is done in populate_data_type by a call to find_function,
@@ -130,7 +139,7 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 			 */
 			break;
 		case COERCE_TYPE:
-			result |= qualify_statement(value->v.coerce_target, tables, table_alias_stmt, depth + 1, ret_cla);
+			result |= qualify_statement(value->v.coerce_target, tables, table_alias_stmt, depth + 1, ret);
 			if (result) {
 				yyerror(NULL, NULL, &stmt, NULL, NULL, NULL);
 			}
@@ -141,34 +150,49 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 		break;
 	case binary_STATEMENT:
 		UNPACK_SQL_STATEMENT(binary, stmt, binary);
-		result |= qualify_statement(binary->operands[0], tables, table_alias_stmt, depth + 1, ret_cla);
-		result |= qualify_statement(binary->operands[1], tables, table_alias_stmt, depth + 1, ret_cla);
+		max_unique_id = (((BOOLEAN_AND == binary->operation) && (NULL != ret)) ? ret->max_unique_id : NULL);
+		for (i = 0; i < 2; i++) {
+			int save_max_unique_id;
+
+			if (NULL != max_unique_id) {
+				/* Compute max_unique_id for the AND subtree afresh */
+				save_max_unique_id = *max_unique_id;
+				*max_unique_id = 0;
+				depth = -1; /* So next call too uses a depth of 0 for left and right operand of AND */
+			}
+			result |= qualify_statement(binary->operands[i], tables, table_alias_stmt, depth + 1, ret);
+			if (NULL != max_unique_id) {
+				assert(0 <= *max_unique_id);
+				binary->operands[i]->hash_canonical_query_cycle = (uint64_t)(*max_unique_id);
+				*max_unique_id = MAX(*max_unique_id, save_max_unique_id);
+			}
+		}
 		break;
 	case unary_STATEMENT:
 		UNPACK_SQL_STATEMENT(unary, stmt, unary);
-		result |= qualify_statement(unary->operand, tables, table_alias_stmt, depth + 1, ret_cla);
+		result |= qualify_statement(unary->operand, tables, table_alias_stmt, depth + 1, ret);
 		break;
 	case function_call_STATEMENT:
 		UNPACK_SQL_STATEMENT(fc, stmt, function_call);
-		result |= qualify_statement(fc->function_name, tables, table_alias_stmt, depth + 1, ret_cla);
-		result |= qualify_statement(fc->parameters, tables, table_alias_stmt, depth + 1, ret_cla);
+		result |= qualify_statement(fc->function_name, tables, table_alias_stmt, depth + 1, ret);
+		result |= qualify_statement(fc->parameters, tables, table_alias_stmt, depth + 1, ret);
 		break;
 	case coalesce_STATEMENT:
 		UNPACK_SQL_STATEMENT(coalesce_call, stmt, coalesce);
-		result |= qualify_statement(coalesce_call->arguments, tables, table_alias_stmt, depth + 1, ret_cla);
+		result |= qualify_statement(coalesce_call->arguments, tables, table_alias_stmt, depth + 1, ret);
 		break;
 	case greatest_STATEMENT:
 		UNPACK_SQL_STATEMENT(greatest_call, stmt, greatest);
-		result |= qualify_statement(greatest_call->arguments, tables, table_alias_stmt, depth + 1, ret_cla);
+		result |= qualify_statement(greatest_call->arguments, tables, table_alias_stmt, depth + 1, ret);
 		break;
 	case least_STATEMENT:
 		UNPACK_SQL_STATEMENT(least_call, stmt, least);
-		result |= qualify_statement(least_call->arguments, tables, table_alias_stmt, depth + 1, ret_cla);
+		result |= qualify_statement(least_call->arguments, tables, table_alias_stmt, depth + 1, ret);
 		break;
 	case null_if_STATEMENT:
 		UNPACK_SQL_STATEMENT(null_if, stmt, null_if);
-		result |= qualify_statement(null_if->left, tables, table_alias_stmt, depth + 1, ret_cla);
-		result |= qualify_statement(null_if->right, tables, table_alias_stmt, depth + 1, ret_cla);
+		result |= qualify_statement(null_if->left, tables, table_alias_stmt, depth + 1, ret);
+		result |= qualify_statement(null_if->right, tables, table_alias_stmt, depth + 1, ret);
 		break;
 	case aggregate_function_STATEMENT:
 		UNPACK_SQL_STATEMENT(af, stmt, aggregate_function);
@@ -206,22 +230,22 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 			assert(!table_alias->do_group_by_checks || table_alias->aggregate_function_or_group_by_specified);
 			table_alias->aggregate_function_or_group_by_specified = TRUE;
 			table_alias->aggregate_depth++;
-			result |= qualify_statement(af->parameter, tables, table_alias_stmt, depth + 1, ret_cla);
+			result |= qualify_statement(af->parameter, tables, table_alias_stmt, depth + 1, ret);
 			table_alias->aggregate_depth--;
 		}
 		break;
 	case cas_STATEMENT:
 		UNPACK_SQL_STATEMENT(cas, stmt, cas);
-		result |= qualify_statement(cas->value, tables, table_alias_stmt, depth + 1, ret_cla);
-		result |= qualify_statement(cas->branches, tables, table_alias_stmt, depth + 1, ret_cla);
-		result |= qualify_statement(cas->optional_else, tables, table_alias_stmt, depth + 1, ret_cla);
+		result |= qualify_statement(cas->value, tables, table_alias_stmt, depth + 1, ret);
+		result |= qualify_statement(cas->branches, tables, table_alias_stmt, depth + 1, ret);
+		result |= qualify_statement(cas->optional_else, tables, table_alias_stmt, depth + 1, ret);
 		break;
 	case cas_branch_STATEMENT:
 		UNPACK_SQL_STATEMENT(cas_branch, stmt, cas_branch);
 		cur_branch = cas_branch;
 		do {
-			result |= qualify_statement(cur_branch->condition, tables, table_alias_stmt, depth + 1, ret_cla);
-			result |= qualify_statement(cur_branch->value, tables, table_alias_stmt, depth + 1, ret_cla);
+			result |= qualify_statement(cur_branch->condition, tables, table_alias_stmt, depth + 1, ret);
+			result |= qualify_statement(cur_branch->value, tables, table_alias_stmt, depth + 1, ret);
 			cur_branch = cur_branch->next;
 		} while (cur_branch != cas_branch);
 		break;
@@ -230,23 +254,24 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 		UNPACK_SQL_STATEMENT(start_cl, stmt, column_list);
 		cur_cl = start_cl;
 		do {
-			result |= qualify_statement(cur_cl->value, tables, table_alias_stmt, depth + 1, ret_cla);
+			result |= qualify_statement(cur_cl->value, tables, table_alias_stmt, depth + 1, ret);
 			cur_cl = cur_cl->next;
 		} while (cur_cl != start_cl);
 		break;
 	case table_alias_STATEMENT:
 	case set_operation_STATEMENT:
 		UNPACK_SQL_STATEMENT(table_alias, table_alias_stmt, table_alias);
-		result |= qualify_query(stmt, tables, table_alias);
+		result |= qualify_query(stmt, tables, table_alias, ret);
 		break;
 	case column_list_alias_STATEMENT:
 		UNPACK_SQL_STATEMENT(start_cla, stmt, column_list_alias);
 		UNPACK_SQL_STATEMENT(table_alias, table_alias_stmt, table_alias);
 		cur_cla = start_cla;
 		do {
+			ret_cla = ((NULL == ret) ? NULL : ret->ret_cla);
 			assert(depth || (NULL == ret_cla)
 			       || (NULL == *ret_cla)); /* assert that caller has initialized "*ret_cla" */
-			result |= qualify_statement(cur_cla->column_list, tables, table_alias_stmt, depth + 1, ret_cla);
+			result |= qualify_statement(cur_cla->column_list, tables, table_alias_stmt, depth + 1, ret);
 			if ((NULL != ret_cla) && (0 == depth)) {
 				SqlColumnListAlias *qualified_cla;
 				int		    column_number;
@@ -308,7 +333,7 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 						 * as decimal column numbers are disallowed in ORDER BY.
 						 */
 						char *	 ptr, *ptr_top;
-						long int ret;
+						long int retval;
 
 						for (ptr = str, ptr_top = str + strlen(str); ptr < ptr_top; ptr++) {
 							if ('.' == *ptr) {
@@ -324,8 +349,8 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 							 * check if it is a valid number that can be represented in an integer.
 							 * If not issue error.
 							 */
-							ret = strtol(str, NULL, 10);
-							if ((LONG_MIN == ret) || (LONG_MAX == ret)) {
+							retval = strtol(str, NULL, 10);
+							if ((LONG_MIN == retval) || (LONG_MAX == retval)) {
 								ERROR(ERR_ORDER_BY_POSITION_NOT_INTEGER,
 								      is_negative_numeric_literal ? "-" : "", str);
 								yyerror(NULL, NULL, &cur_cla->column_list, NULL, NULL, NULL);
@@ -341,7 +366,7 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 							 * checks above to mirror the error messages that Postgres does.
 							 */
 							if (!is_negative_numeric_literal) {
-								column_number = (int)ret;
+								column_number = (int)retval;
 								qualified_cla = get_column_list_alias_n_from_table_alias(
 								    table_alias, column_number);
 							} else {
@@ -419,6 +444,10 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 		assert(FALSE);
 		result = 1;
 		break;
+	}
+	if ((NULL != ret) && (NULL != ret->max_unique_id)) {
+		/* Caller has requested us to store the maximum unique_id seen under this subtree. So do that. */
+		stmt->hash_canonical_query_cycle = (uint64_t)(*ret->max_unique_id);
 	}
 	return result;
 }

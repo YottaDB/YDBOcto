@@ -237,8 +237,8 @@ LogicalPlan *optimize_logical_plan(LogicalPlan *plan) {
 		}
 		table_join = table_join->v.lp_default.operand[1];
 	} while (NULL != table_join);
-	/* Pass 3rd parameter as FALSE below to indicate this is not an OUTER JOIN ON CLAUSE */
 	assert(where == lp_get_select_where(plan));
+	/* Pass 3rd parameter as NULL below to indicate this is not an OUTER JOIN ON CLAUSE */
 	lp_optimize_where_multi_equals_ands(plan, where, NULL, where->extra_detail.lp_where.num_outer_joins);
 	return plan;
 }

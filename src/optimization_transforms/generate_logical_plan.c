@@ -107,13 +107,7 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt) {
 		if (cur_join->condition) {
 			MALLOC_LP_2ARGS(t_join_condition, LP_WHERE);
 			LP_GENERATE_WHERE(cur_join->condition, stmt, t_join_condition->v.lp_default.operand[0], error_encountered);
-			if (num_outer_joins) {
-				join_right->extra_detail.lp_table_join.join_on_condition = t_join_condition;
-			} else { /* No OUTER JOINs. We can safely add the ON clause in the join condition to the
-				  * WHERE clause without risk of correctness issues.
-				  */
-				start_join_condition = lp_join_where(start_join_condition, t_join_condition);
-			}
+			join_right->extra_detail.lp_table_join.join_on_condition = t_join_condition;
 		}
 		cur_join = cur_join->next;
 	} while (cur_join != start_join);

@@ -369,19 +369,19 @@ LogicalPlan *lp_optimize_where_multi_equals_ands_helper(LogicalPlan *plan, Logic
 		key->fixed_to_value = right;
 		key->type = LP_KEY_FIX;
 		/* Now that a key has been fixed to a constant (or another key), see if we can eliminate this LP_BOOLEAN_EQUALS
-		 * from the WHERE expression as it will otherwise result in a redundant IF check in the generated M code.
-		 * We cannot do this removal in case this is the WHERE clause and OUTER JOINs exist (it is okay to do this if it
-		 * is the ON condition and OUTER JOINs exist) as we need == check for this WHERE clause to be generated in the
-		 * M code for correctness of query results. If we can remove it safely, there is still a subtlety involved
-		 * with keys from parent queries which is handled below.
+		 * from the WHERE or ON clause expression as it will otherwise result in a redundant IF check in the generated
+		 * M code. We cannot do this removal in case this is the WHERE clause and OUTER JOINs exist (it is okay to do
+		 * this if it is the ON clause and OUTER JOINs exist) as we need == check for this WHERE clause to be generated
+		 * in the M code for correctness of query results. If we can remove it safely, there is still a subtlety involved
+		 * with keys from parent queries which is handled further below.
 		 */
 		remove_lp_boolean_equals = ((NULL != right_table_alias) || (0 == num_outer_joins));
 		if (remove_lp_boolean_equals) {
 			if (left_id && right_id && ((0 == key_unique_id_array[left_id]) || (0 == key_unique_id_array[right_id]))) {
 				/* Both are columns and one of them belongs to a parent query. In that case, do not eliminate this
-				 * altogether from the WHERE clause as that is relied upon in "generate_physical_plan()". Keep it
-				 * in an alternate list (where->v.lp_default.operand[1]), use it in "generate_physical_plan()" (in
-				 * order to ensure deferred plans get identified properly) and then switch back to
+				 * altogether from the WHERE/ON clause as that is relied upon in "generate_physical_plan()". Keep
+				 * it in an alternate list (where->v.lp_default.operand[1]), use it in "generate_physical_plan()"
+				 * (in order to ensure deferred plans get identified properly) and then switch back to
 				 * "where->v.lp_default.operand[0]" for generating the plan M code which has this redundant check
 				 * of a fixed key eliminated from the IF condition. This way the generated M code is optimized
 				 * (in terms of not having a redundant equality check) even for plans with references to parent

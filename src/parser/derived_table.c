@@ -34,5 +34,6 @@ SqlStatement *derived_table(SqlStatement *table_subquery, SqlStatement *correlat
 		table_alias->alias = correlation_specification;
 	}
 	dqinit(join);
+	join->max_unique_id = config->plan_id;
 	return ret;
 }

@@ -295,6 +295,10 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_
 				ISSUE_TYPE_COMPATIBILITY_ERROR(child_type1, "boolean operations", &select->where_expression,
 							       result);
 			}
+			/* While we are descending down the query and subqueries (if any), take this opportunity to do
+			 * some parse tree optimization if possible.
+			 */
+			parse_tree_optimize(select);
 		}
 		// SqlColumnListAlias that is a linked list
 		result |= populate_data_type_column_list_alias(select->group_by_expression, &child_type1, TRUE, parse_context);

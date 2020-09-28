@@ -73,7 +73,7 @@ The Octo plugin can be installed by using the `--octo` option when installing Yo
 
    ```sh
    # Ubuntu Linux OR Raspbian Linux OR Beagleboard Debian
-   sudo apt-get install build-essential cmake bison flex xxd libreadline-dev libconfig-dev libssl-dev
+   sudo apt-get install --no-install-recommends build-essential cmake bison flex xxd libreadline-dev libconfig-dev libssl-dev
 
    # CentOS Linux OR RedHat Linux
    # Note: epel-release has to be installed before cmake3 is installed
@@ -102,7 +102,7 @@ The Octo plugin can be installed by using the `--octo` option when installing Yo
 
 	 ```sh
 	 # Ubuntu Linux OR Raspbian Linux OR Beagleboard Debian
-	 sudo apt-get install default-jdk expect golang-go
+	 sudo apt-get install --no-install-recommends default-jdk expect golang-go
 
 	 # CentOS Linux OR RedHat Linux
 	 sudo yum install java-latest-openjdk expect golang
@@ -121,7 +121,7 @@ The Octo plugin can be installed by using the `--octo` option when installing Yo
 
 	 ```sh
 	 # Ubuntu Linux OR Raspbian Linux OR Beagleboard Debian
-	 sudo apt-get install libcmocka-dev
+	 sudo apt-get install --no-install-recommends libcmocka-dev
 
 	 # CentOS Linux OR RedHat Linux
 	 sudo yum install libcmocka-devel
@@ -133,7 +133,7 @@ The Octo plugin can be installed by using the `--octo` option when installing Yo
 
 	 ```sh
 	 # Ubuntu Linux OR Raspbian Linux OR Beagleboard Debian
-	 sudo apt-get install postgresql-client
+	 sudo apt-get install --no-install-recommends postgresql-client
 
 	 # CentOS Linux OR RedHat Linux
 	 sudo yum install postgresql
@@ -145,7 +145,7 @@ The Octo plugin can be installed by using the `--octo` option when installing Yo
 
 	 ```sh
 	 # Ubuntu Linux OR Raspbian Linux OR Beagleboard Debian
-	 sudo apt-get install postgresql
+	 sudo apt-get install --no-install-recommends postgresql
 
 	 # CentOS Linux OR RedHat Linux
 	 sudo yum install postgresql
@@ -473,7 +473,7 @@ Note that this script will require `tcsh` and `clang-format-9` or a later releas
 
 ```sh
 # Ubuntu 20.04
-sudo apt install clang-format-9
+sudo apt install --no-install-recommends clang-format-9
 # Any Debian-like distro; see also https://apt.llvm.org/
 bash -c "$(wget -O - https://apt.llvm.org/llvm.sh)"
 # CentOS 8

@@ -113,7 +113,7 @@ Install Octo
      .. code-block:: bash
 
         # Ubuntu Linux OR Raspbian Linux OR Beagleboard Debian
-        sudo apt-get install build-essential cmake bison flex xxd libreadline-dev libssl-dev
+        sudo apt-get install --no-install-recommends build-essential cmake bison flex xxd libreadline-dev libssl-dev
 
         # CentOS Linux OR RedHat Linux
         # Note: epel-release has to be installed before cmake3 is installed
@@ -126,7 +126,7 @@ Install Octo
      .. note::
 
 	As we run the automated regression tests on every Octo source code update, install and run BATS only if you are an advanced user who wants to contribute to Octo or run on a Linux distribution on which YottaDB is Supportable but not Supported.
-	
+
      1. Octo uses BATS for automated integration and regression testing. To use BATS to run tests on Octo, BATS version 1.1+ must be installed:
 
         .. code-block:: bash
@@ -145,7 +145,7 @@ Install Octo
         .. code-block:: bash
 
 	   # Ubuntu Linux OR Raspbian Linux OR Beagleboard Debian
-	   sudo apt-get install default-jdk expect golang-go
+	   sudo apt-get install --no-install-recommends default-jdk expect golang-go
 
 	   #CentOS Linux or RedHat Linux
 	   sudo yum install java-latest-openjdk expect golang
@@ -156,7 +156,7 @@ Install Octo
 
 	   export JDBC_VERSION=42.2.12
 	   wget https://jdbc.postgresql.org/download/postgresql-$JDBC_VERSION.jar
-	
+
      2. *(Optional)* Install cmocka unit testing framework
 
         Octo uses cmocka for automated unit testing. To build and run Octo's unit tests, cmocka must be installed:
@@ -164,7 +164,7 @@ Install Octo
         .. code-block:: bash
 
 	   # Ubuntu Linux OR Raspbian Linux OR Beagleboard Debian
-	   sudo apt-get install libcmocka-dev
+	   sudo apt-get install --no-install-recommends libcmocka-dev
 
 	   # CentOS Linux OR RedHat Linux
 	   sudo yum install libcmocka-devel
@@ -176,7 +176,7 @@ Install Octo
         .. code-block:: bash
 
 	   # Ubuntu Linux OR Raspbian Linux OR Beagleboard Debian
-	   sudo apt-get install postgresql-client
+	   sudo apt-get install --no-install-recommends postgresql-client
 
 	   # CentOS Linux OR RedHat Linux
 	   sudo yum install postgresql
@@ -189,7 +189,7 @@ Install Octo
         .. code-block:: bash
 
 	   # Ubuntu Linux OR Raspbian Linux OR Beagleboard Debian
-	   sudo apt-get install postgresql
+	   sudo apt-get install --no-install-recommends postgresql
 
 	   # CentOS Linux OR RedHat Linux
 	   sudo yum install postgresql
@@ -213,7 +213,7 @@ Install Octo
 
 	   # CentOS Linux or RedHat Linux
 	   sudo yum install perl
-	   
+
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
      Clone the Octo source code repository
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -236,7 +236,7 @@ Install Octo
          make -j `grep -c ^processor /proc/cpuinfo`
 
       Most users proceed to the *Install Octo* step below. The instructions here are for those wishing to contribute to Octo, or building it on Supportable but not Supported platforms.
-      
+
       To generate a Debug build instead of a Release build (the default), add :code:`-DCMAKE_BUILD_TYPE=Debug` to the CMake line above.
 
       To additionally disable the generation of installation rules for the :code:`make install`, add :code:`-DDISABLE_INSTALL=ON`. This can be useful when doing testing in a temporary build directory only.
@@ -245,7 +245,7 @@ Install Octo
       To build the full test suite rather than a subset of it, the :code:`FULL_TEST_SUITE` option needs to be set to :code:`ON`, e.g. :code:`cmake -D FULL_TEST_SUITE=ON ..`.
 
       To show the output of failed tests, export the environment variable :code:`CTEST_OUTPUT_ON_FAILURE=TRUE`. Alternatively, you can show output for only a single run by passing the argument to make: :code:`make CTEST_OUTPUT_ON_FAILURE=TRUE test`.
-      
+
       .. note::
 
 	 Octo uses some CMake parameters to control generation of fixed-size buffer allocations.
@@ -359,14 +359,14 @@ Configure Octo
      exit
      mupip create -region=OCTO
      mupip set -journal=before,enable,on -region OCTO
-      
+
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   Install Octo seed data
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   .. note::
 
      This step is mandatory for full Octo functionality, as it loads internal system tables and functions required both by clients and Octo's own test system.
-     
+
   .. code-block:: bash
 
      $ydb_dist/mupip load $ydb_dist/plugin/octo/octo-seed.zwr
@@ -384,7 +384,7 @@ Configure Octo
 
       $ydb_dist/mupip load /tmp/YDBOcto-master/build/tests/fixtures/northwind.zwr
       $ydb_dist/plugin/bin/octo -f /tmp/YDBOcto-master/build/tests/fixtures/northwind.sql
-      
+
   Once loaded, you can use `SELECT <https://docs.yottadb.com/Octo/grammar.html#select>`_ queries to access the data.
 
 """"""""""""""""""
@@ -544,7 +544,7 @@ Sample Queries
      Zaanse koeken|Confections|Zaanse Snoepfabriek
      Chocolade|Confections|Zaanse Snoepfabriek
 
-     
+
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 Use a Docker Container
 ~~~~~~~~~~~~~~~~~~~~~~~~~

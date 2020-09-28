@@ -19,13 +19,15 @@ RUN ln -fs /usr/share/zoneinfo/US/Eastern /etc/localtime
 RUN apt-get update -qq && \
     apt-get install -y tzdata
 RUN dpkg-reconfigure --frontend noninteractive tzdata
-RUN apt-get install -y -qq \
+RUN apt-get install -y -qq --no-install-recommends \
         build-essential \
         cmake \
         bison \
         flex \
         libcmocka-dev \
         python-pip \
+        python-setuptools \
+        python-wheel \
         libreadline-dev \
         git \
         libconfig-dev \

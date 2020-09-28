@@ -17,7 +17,7 @@ RUN export DEBIAN_FRONTEND=noninteractive
 # goes out of sync with the upstream Ubuntu repositories. When this happens, `apt-get install`
 # fails, causing `docker build` to fail in turn.
 RUN apt-get update && \
-	apt-get install -y -qq \
+	apt-get install -y -qq --no-install-recommends \
         git \
         libreadline-dev \
         libconfig-dev \

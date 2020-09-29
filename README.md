@@ -404,6 +404,8 @@ Before running Octo/Rocto make sure that the required YottaDB variables are set 
 To use the command-line SQL interpreter run: `$ydb_dist/plugin/bin/octo`.
 To use rocto, the PostgreSQL protocol compatible server, run: `$ydb_dist/plugin/bin/rocto -p XXXX` where `-p XXXX` optionally specifies a TCP port at which rocto is to listen for connections. The default port number is 1337.
 
+To exit either an Octo or Rocto instance running in a terminal, you may use `CTRL+C`. Note that in the case of Rocto, the rocto instance may not exit immediately if there are still active client connections. In that case, rocto will gracefully exit once all client connections are closed.
+
 ### Docker container
 
 A Docker image is available on [docker hub](https://hub.docker.com/r/yottadb/octo). This image is built with the following assumptions about the host environment and automatically starts `rocto` when run by Docker using the commands below.

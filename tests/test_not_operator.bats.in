@@ -1,0 +1,29 @@
+#################################################################
+#								#
+# Copyright (c) 2020 YottaDB LLC and/or its subsidiaries.	#
+# All rights reserved.						#
+#								#
+#	This source code contains the intellectual property	#
+#	of its copyright holder(s), and is made available	#
+#	under a license.  If you do not know the terms of	#
+#	the license, please stop and do not read further.	#
+#								#
+#################################################################
+
+load test_helpers
+
+setup() {
+  init_test
+  createdb
+  load_fixture names.sql
+  load_fixture names.zwr
+}
+
+@test "TNO01 : OCTO603 : names schema : Assert failure when NOT is used on functions like LEAST, GREATEST, NULLIF etc." {
+	# Load needed CREATE FUNCTION statement
+	octo -f @PROJECT_SOURCE_DIR@/tests/fixtures/TNO01_ddl.sql
+	grep -v '^#' @PROJECT_SOURCE_DIR@/tests/fixtures/TNO01.sql > TNO01.sql
+	octo < TNO01.sql > output.txt
+	verify_output TNO01 output.txt
+}
+

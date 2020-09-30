@@ -570,6 +570,7 @@ else
 FILE
 			# TEST1 and TEST2 below together test that Octo automatically recreates any
 			# binary-definitions/plans/xrefs/triggers as needed thereby testing YDBOcto#90.
+			errors_found=0
 			for sqlfile in *.sql
 			do
 				# TEST1
@@ -589,6 +590,7 @@ FILE
 					echo " ERROR : [newsrc/octo -f $tstdir/$sqlfile] > autoupgrade.$sqlfile.out : Exit status = $ret_status" | tee -a ../errors.log
 					echo " ERROR :   --> It is likely that bumping up FMT_BINARY_DEFINITION would fix such failures" | tee -a ../errors.log
 					exit_status=1
+					errors_found=1
 				fi
 				# If this is a test output directory for the "test_query_generator" test, then do additional
 				# testing of actual output. We expect the output to be identical between the older commit and
@@ -619,10 +621,16 @@ FILE
 						echo "ERROR : [diff $reffile $logfile] returned non-zero diff. See $difffile for details" | tee -a ../errors.log
 						echo "ERROR :   --> It is likely that bumping up FMT_PLAN_DEFINITION would fix such failures" | tee -a ../errors.log
 						exit_status=1
+						errors_found=1
 					fi
 				fi
 			done
 			cd ..
+			if [[ 0 == $errors_found ]]; then
+				# No auto-upgrade related errors found in this bats test directory.
+				# Delete this directory before moving on (reduces size of pipeline artifacts in case of failure).
+				rm -rf $tstdir
+			fi
 		done
 	else
 		# Find out all "CREATE TABLE" queries in tests/fixtures/*.sql. Generate one query file for each.

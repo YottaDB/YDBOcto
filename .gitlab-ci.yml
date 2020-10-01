@@ -62,16 +62,23 @@ before_script:
     - rm go.tgz
     - go version
 
+gpgkey-verify:
+  image: ubuntu:18.04
+  stage: build
+  before_script:
+    - apt-get update -qq && apt-get install -y -qq git wget gnupg
+  script:
+    # Copy commit gpg key verify script to build directory and execute
+    - wget https://gitlab.com/YottaDB/DB/YDB/-/raw/master/ci/commit_gpgkey_verify.sh
+    - chmod +x commit_gpgkey_verify.sh
+    - ./commit_gpgkey_verify.sh https://gitlab.com/YottaDB/DBMS/YDBOcto
+
 make-ubuntu:
   image: yottadb/yottadb-base:latest-master
   extends:
     - .make
     - .ubuntu
   script:
-    # Copy commit gpgkey verify script to build directory and execute
-    - wget https://gitlab.com/YottaDB/DB/YDB/-/raw/master/ci/commit_gpgkey_verify.sh
-    - chmod +x commit_gpgkey_verify.sh
-    - ./commit_gpgkey_verify.sh
     - ./tools/ci/build.sh "make-ubuntu"
 
 make-centos:

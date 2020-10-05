@@ -11,11 +11,6 @@
 # Start octo process OCTO2
 # Wait for OCTO> prompt to appear in OCTO2
 # Run <CREATE TABLE names with only id column> in OCTO2
-# Run empty query multiple times in OCTO1 to let the CREATE TABLE in OCTO2 proceed
-# Doing this step just once (instead of multiple times) sometimes causes test failures because the CREATE TABLE
-#   does not get the exclusive lock in a timely fashion (failure particularly seen in the make-tls-centos and
-#   make-tls-ubuntu pipelines).
-# Wait for OCTO> prompt to appear in OCTO1
 # Wait for OCTO> prompt to appear in OCTO2. This signals that the CREATE TABLE query in OCTO2 ran to completion
 # Run <SELECT * FROM names;> in OCTO1. Should display only 1 column now that the CREATE TABLE in OCTO2 has finished
 # Wait for OCTO> prompt to appear in OCTO1
@@ -26,15 +21,7 @@
 4
 5
 # Run <DROP TABLE names> in OCTO2
-# Run <SELECT * FROM names;> in OCTO1 to let the DROP TABLE in OCTO2 proceed. Should still display 1 column
 # Wait for OCTO> prompt to appear in OCTO2
-# Wait for OCTO> prompt to appear in OCTO1
-0
-1
-2
-3
-4
-5
 # Run <SELECT * FROM names;> in OCTO1. Should display table does not exist error since DROP TABLE has finished
 # Wait for OCTO> prompt to appear in OCTO1
 [ERROR] PATH:LINENUM DATE TIME : ERR_UNKNOWN_TABLE : Unknown table: NAMES

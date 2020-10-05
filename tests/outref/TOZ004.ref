@@ -1,6 +1,6 @@
 OCTO> select * from names limit 1;
 0|Zero|Cool
-
+OCTO> 
 Listing of dirA should see generated files
 _ydboctoP*.m
 _ydboctoP*.o

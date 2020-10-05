@@ -39,19 +39,20 @@ send -- "octo\r"
 puts "# Wait for OCTO> prompt to appear"
 expect "OCTO>"
 
-puts "# Set expect timeout to a high value (60 seconds) as CREATE/DROP TABLE will take 10 seconds or more to return"
-set timeout 60
-puts "# Try CREATE TABLE or DROP TABLE (randomly) in process OCTO2. Should error/time out due to process OCTO1 in OCTO> prompt"
-set choice [expr {int(rand()*2)}]
-if {$choice == 0} {
-	# Choose CREATE TABLE
-	send -- "CREATE TABLE dummy (id INTEGER PRIMARY KEY);\r"
-} else {
-	# Choose DROP TABLE
-	send -- "DROP TABLE dummy;\r"
-}
-puts "# Verify the command timed out"
-expect "ydb_lock_s()/ydb_lock_incr_s() call timed out"
+puts "# Try CREATE/DROP TABLE/FUNCTION in process OCTO2. Should work fine in spite of process OCTO1 in OCTO> prompt"
+send -- "\r"
+expect "OCTO>"
+send -- "CREATE TABLE dummyTABLE (id INTEGER PRIMARY KEY);\r"
+expect "OCTO>"
+send -- "CREATE FUNCTION dummyFUNCTION() RETURNS VARCHAR AS $$^%ydboctoversion;\r"
+expect "OCTO>"
+send -- "DROP TABLE dummyTABLE;\r"
+expect "OCTO>"
+send -- "DROP FUNCTION dummyFUNCTION();\r"
+expect "OCTO>"
+send -- "SELECT 123456;\r"
+puts "# Verify the call succeeded"
+expect "123456"
 expect "OCTO>"
 puts "# Exit from process OCTO2"
 send -- "exit\r"

@@ -11,5 +11,4 @@ limit 1;]
 [ INFO] PATH:LINENUM DATE TIME : INFO_M_PLAN : Generating M file [$PWD/_ydboctoP*.m] (to execute SQL query)
 [ INFO] PATH:LINENUM DATE TIME : INFO_ENTERING_FUNCTION : Entering print_temporary_table
 Zero
-OCTO> [ INFO] PATH:LINENUM DATE TIME : INFO_PARSING_DONE : Parsing done for SQL command []
-
+OCTO> 

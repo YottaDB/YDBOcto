@@ -18,5 +18,4 @@ OCTO> select * from names limit 1;
 0|Zero|Cool
 OCTO> ;
 [ INFO] PATH:LINENUM DATE TIME : INFO_PARSING_DONE : Parsing done for SQL command [;]
-OCTO> [ INFO] PATH:LINENUM DATE TIME : INFO_PARSING_DONE : Parsing done for SQL command []
-
+OCTO> 

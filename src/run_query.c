@@ -18,7 +18,6 @@
 #include <assert.h>
 #include <string.h>
 #include <stdbool.h>
-#include <readline/history.h>
 
 #include <libyottadb.h>
 #include <gtmxc_types.h>
@@ -120,7 +119,6 @@ int run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_descrip
 	SqlValue *	value;
 	bool		free_memory_chunks;
 	char *		buffer, filename[OCTO_PATH_MAX], routine_name[MAX_ROUTINE_LEN], function_hash[MAX_ROUTINE_LEN];
-	char		placeholder;
 	ydb_long_t	cursorId;
 	hash128_state_t state;
 	int		done, routine_len = MAX_ROUTINE_LEN, function_hash_len = MAX_ROUTINE_LEN;
@@ -128,7 +126,6 @@ int run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_descrip
 	size_t		buffer_size = 0;
 	ydb_buffer_t *	filename_lock, query_lock[3], *null_query_lock;
 	ydb_string_t	ci_param1, ci_param2;
-	HIST_ENTRY *	cur_hist;
 	ydb_buffer_t	cursor_local;
 	ydb_buffer_t	cursor_ydb_buff;
 	ydb_buffer_t	schema_global;
@@ -152,14 +149,12 @@ int run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_descrip
 	char		pid_buffer[INT64_TO_STRING_MAX]; /* assume max pid is 64 bits even though it is a 4-byte quantity */
 	boolean_t	release_query_lock;
 
-	memory_chunks = alloc_chunk(MEMORY_CHUNK_SIZE);
 	// Assign cursor prior to parsing to allow tracking and storage of literal parameters under the cursor local variable
 	YDB_STRING_TO_BUFFER(config->global_names.schema, &schema_global);
 	cursor_ydb_buff.buf_addr = cursor_buffer;
 	cursor_ydb_buff.len_alloc = sizeof(cursor_buffer);
 	cursorId = create_cursor(&schema_global, &cursor_ydb_buff);
 	if (0 > cursorId) {
-		OCTO_CFREE(memory_chunks);
 		return 1;
 	}
 	parse_context->cursorId = cursorId;
@@ -193,41 +188,14 @@ int run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_descrip
 	status = ydb_lock_incr_s(TIMEOUT_DDL_EXCLUSIVELOCK, &query_lock[0], 2, &query_lock[1]);
 	YDB_ERROR_CHECK(status);
 	if (YDB_OK != status) {
-		OCTO_CFREE(memory_chunks);
 		return 1;
 	}
-	release_query_lock = TRUE;
 	/* To print only the current query store the index for the last one
 	 * then print the difference between the cur_input_index - old_input_index
 	 */
 	old_input_index = cur_input_index;
+	memory_chunks = alloc_chunk(MEMORY_CHUNK_SIZE); /* needed by "parse_line()" call below */
 	result = parse_line(parse_context);
-
-	/* add the current query to the readlines history */
-	if (config->is_tty) {
-		if (EOF_CTRLD == eof_hit) {
-			/* If Octo was started without an input file (i.e. sitting at the "OCTO>" prompt) and
-			 * Ctrl-D was pressed by the user, then print a newline to cleanly terminate the current line
-			 * before exiting. No need to do this in case EXIT or QUIT commands were used as we will not
-			 * be sitting at the "OCTO>" prompt in that case.
-			 */
-			printf("\n");
-		}
-		placeholder = input_buffer_combined[cur_input_index];
-		input_buffer_combined[cur_input_index] = '\0';
-		/* get the last item added to the history
-		 * if it is the same as the current query don't add it to thhe history again
-		 */
-		cur_hist = history_get(history_length);
-		if (NULL != cur_hist) {
-			if (0 != strcmp(cur_hist->line, input_buffer_combined + old_input_index))
-				add_history(input_buffer_combined + old_input_index);
-		} else {
-			add_history(input_buffer_combined + old_input_index);
-		}
-		input_buffer_combined[cur_input_index] = placeholder;
-	}
-
 	INFO(INFO_PARSING_DONE, cur_input_index - old_input_index, input_buffer_combined + old_input_index);
 	if (NULL == result) {
 		INFO(INFO_RETURNING_FAILURE, "run_query");
@@ -246,6 +214,7 @@ int run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_descrip
 	free_memory_chunks = true; // By default run "octo_cfree(memory_chunks)" at the end
 
 	cursor_used = TRUE; /* By default, assume a cursor was used to execute the query */
+	release_query_lock = TRUE;
 	switch (result->type) {
 	// This effectively means select_STATEMENT, but we have to assign ID's inside this function
 	// and so need to propagate them out

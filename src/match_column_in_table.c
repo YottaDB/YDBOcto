@@ -38,13 +38,11 @@ SqlColumnListAlias *match_column_in_table(SqlTableAlias *table_alias, char *colu
 		if (NULL != cur_column_list->alias) {
 			int	  value_len;
 			SqlValue *value;
-#ifndef NDEBUG
-			SqlColumnList *column_list;
+			DEBUG_ONLY(SqlColumnList * column_list);
 
-			UNPACK_SQL_STATEMENT(column_list, cur_column_list->column_list, column_list);
-			assert(column_list == column_list->next);
-			assert(column_list == column_list->prev);
-#endif
+			DEBUG_ONLY(UNPACK_SQL_STATEMENT(column_list, cur_column_list->column_list, column_list));
+			DEBUG_ONLY(assert(column_list == column_list->next));
+			DEBUG_ONLY(assert(column_list == column_list->prev));
 			UNPACK_SQL_STATEMENT(value, cur_column_list->alias, value);
 			value_len = strlen(value->v.string_literal);
 			if ((value_len == column_name_len) && memcmp(value->v.string_literal, column_name, column_name_len) == 0) {

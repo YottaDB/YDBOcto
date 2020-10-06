@@ -153,7 +153,7 @@ int emit_plan_helper(char *buffer, size_t buffer_len, int depth, LogicalPlan *pl
 void lp_emit_plan(LogicalPlan *plan, char *stage) {
 	char * buffer, *buff_ptr;
 	size_t buffer_len, written;
-	size_t actual_len;
+	DEBUG_ONLY(size_t actual_len);
 
 	if (DEBUG < config->verbosity_level) {
 		return;
@@ -165,12 +165,8 @@ void lp_emit_plan(LogicalPlan *plan, char *stage) {
 	buffer = malloc(buffer_len + 2); /* 1 byte for EMIT_SNPRINTF("\n") below, 1 byte for trailing null terminator */
 	buff_ptr = buffer;
 	EMIT_SNPRINTF(written, buff_ptr, buffer, buffer_len, "\n");
-	actual_len = emit_plan_helper(buff_ptr, buffer_len - (buff_ptr - buffer), 0, plan);
-#ifndef NDEBUG
-	assert(actual_len == buffer_len);
-#else
-	UNUSED(actual_len); /* in Release builds, this avoids a [-Wunused-but-set-variable] warning */
-#endif
+	DEBUG_ONLY(actual_len =) emit_plan_helper(buff_ptr, buffer_len - (buff_ptr - buffer), 0, plan);
+	DEBUG_ONLY(assert(actual_len == buffer_len));
 	DEBUG(INFO_CURPLAN, stage, buffer);
 	free(buffer);
 	return;

@@ -23,6 +23,9 @@ int emit_column_specification(char *buffer, int buffer_size, SqlColumn *cur_colu
 	char		    ch, *delim;
 	char *		    buff_ptr = buffer;
 	char		    buffer2[MAX_STR_CONST];
+	DEBUG_ONLY(boolean_t piece_seen = FALSE);
+	DEBUG_ONLY(boolean_t empty_delim_seen = FALSE);
+
 	UNPACK_SQL_STATEMENT(value, cur_column->columnName, value);
 	buff_ptr += snprintf(buff_ptr, buffer_size - (buff_ptr - buffer), "`%s`", value->v.reference);
 	switch (cur_column->data_type_struct.data_type) {
@@ -100,6 +103,8 @@ int emit_column_specification(char *buffer, int buffer_size, SqlColumn *cur_colu
 			buff_ptr += snprintf(buff_ptr, buffer_size - (buff_ptr - buffer), " EXTRACT \"%s\"", buffer2);
 			break;
 		case OPTIONAL_PIECE:
+			DEBUG_ONLY(assert(!empty_delim_seen));
+			DEBUG_ONLY(piece_seen = TRUE);
 			UNPACK_SQL_STATEMENT(value, cur_keyword->v, value);
 			m_escape_string2(buffer2, MAX_STR_CONST, value->v.reference);
 			buff_ptr += snprintf(buff_ptr, buffer_size - (buff_ptr - buffer), " PIECE %s", buffer2);
@@ -116,6 +121,8 @@ int emit_column_specification(char *buffer, int buffer_size, SqlColumn *cur_colu
 			delim++; /* Skip first byte to get actual delimiter */
 			assert((DELIM_IS_DOLLAR_CHAR == ch) || (DELIM_IS_LITERAL == ch));
 			if (DELIM_IS_LITERAL == ch) {
+				DEBUG_ONLY(empty_delim_seen = ('\0' == *delim));
+				DEBUG_ONLY(assert(!empty_delim_seen || !piece_seen));
 				m_escape_string2(buffer2, MAX_STR_CONST, delim);
 				buff_ptr += snprintf(buff_ptr, buffer_size - (buff_ptr - buffer), " DELIM \"%s\"", buffer2);
 			} else {

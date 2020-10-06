@@ -371,6 +371,14 @@ typedef enum RegexType {
 
 #define IS_STMT_BOOLEAN_AND(STMT) ((binary_STATEMENT == STMT->type) && (BOOLEAN_AND == STMT->v.binary->operation))
 
+#ifndef NDEBUG
+#define NDEBUG_ONLY(X)
+#define DEBUG_ONLY(X) X
+#else
+#define NDEBUG_ONLY(X) X
+#define DEBUG_ONLY(X)
+#endif
+
 // Convenience type definition for run_query callback function
 typedef int (*callback_fnptr_t)(SqlStatement *, int, void *, char *, boolean_t);
 

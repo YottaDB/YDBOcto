@@ -1,0 +1,40 @@
+# Test DELIM "" without and with PIECE specified
+
+-- TC037 : OCTO589 : DELIM "" at the column level invalidates any PIECE specified and fetches entire node
+
+-- Test DELIM "" without PIECE specified at the column level
+CREATE TABLE names1 (
+	id INTEGER PRIMARY KEY,
+	firstName VARCHAR(30) DELIM "",
+	lastName TEXT(30)
+) GLOBAL "^names(keys(""id""))";
+
+SELECT * FROM names1;
+
+-- Test DELIM "" with PIECE specified at the column level
+CREATE TABLE names2 (
+	id INTEGER PRIMARY KEY,
+	firstName VARCHAR(30) DELIM "" PIECE 2,
+	lastName TEXT(30)
+) GLOBAL "^names(keys(""id""))";
+
+SELECT * FROM names2;
+
+0|Zero|Cool|Zero
+1|Acid|Burn|Acid
+2|Cereal|Killer|Cereal
+3|Lord|Nikon|Lord
+4|Joey||Joey
+5|Zero|Cool|Zero
+0|Zero|Cool|Zero
+1|Acid|Burn|Acid
+2|Cereal|Killer|Cereal
+3|Lord|Nikon|Lord
+4|Joey||Joey
+5|Zero|Cool|Zero
+# Verify generated plans do not have $PIECE for FIRSTNAME column
+_ydboctoP*.m:    . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=$$str2mval^%ydboctoplanhelpers(%ydboctocursor(cursorId,"keys",1,"NAMES2","ID"))_$$str2mval^%ydboctoplanhelpers($$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",^names(%ydboctocursor(cursorId,"keys",1,"NAMES2","ID"))))_$$str2mval^%ydboctoplanhelpers($$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^names(%ydboctocursor(cursorId,"keys",1,"NAMES2","ID"))),"|",1)))
+_ydboctoP*.m:    . . SET %ydboctocursor(cursorId,"keys",3,"","",%ydboctocursor(cursorId,"keys",3,"",""))=$$str2mval^%ydboctoplanhelpers(%ydboctocursor(cursorId,"keys",1,"NAMES1","ID"))_$$str2mval^%ydboctoplanhelpers($$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",^names(%ydboctocursor(cursorId,"keys",1,"NAMES1","ID"))))_$$str2mval^%ydboctoplanhelpers($$empty2null^%ydboctoplanhelpers(0,-1,"VARCHAR",$PIECE($GET(^names(%ydboctocursor(cursorId,"keys",1,"NAMES1","ID"))),"|",1)))
+# Verify text table definition does not have PIECE specified for FIRSTNAME column
+^%ydboctoschema("NAMES1","text")="CREATE TABLE `NAMES1` (`ID` INTEGER PRIMARY KEY, `FIRSTNAME` VARCHAR(30) DELIM """", `LASTNAME` VARCHAR(30) PIECE 1) GLOBAL ""^names(keys(""""id""""))"" DELIM ""|"";"
+^%ydboctoschema("NAMES2","text")="CREATE TABLE `NAMES2` (`ID` INTEGER PRIMARY KEY, `FIRSTNAME` VARCHAR(30) DELIM """", `LASTNAME` VARCHAR(30) PIECE 1) GLOBAL ""^names(keys(""""id""""))"" DELIM ""|"";"

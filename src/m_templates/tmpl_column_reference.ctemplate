@@ -34,7 +34,6 @@ TEMPLATE(tmpl_column_reference, PhysicalPlan *pplan, SqlColumnAlias *column_alia
 	unsigned int			i;
 	boolean_t			skip_dollar_piece, is_dollar_char, is_xref, not_null;
 	PhysicalPlan			*cur_plan;
-	SqlValueType			column_type;
 
 	// First check for EXTRACT, then GLOBAL & PIECE, and lastly assemble it ourselves based on table_alias->source
 	if (column_list_alias_STATEMENT == column_alias->column->type) {
@@ -122,17 +121,21 @@ TEMPLATE(tmpl_column_reference, PhysicalPlan *pplan, SqlColumnAlias *column_alia
 		}
 		cur_plan = next_plan;
 	} while (NULL != cur_plan);
+	/* It is possible for PIECE keyword to be missing in non-key columns that have DELIM of "" */
 	keyword = get_keyword(column, OPTIONAL_PIECE);
-	assert(NULL != keyword);
-	UNPACK_SQL_STATEMENT(value, keyword->v, value);
-	piece = value->v.string_literal;
+	if (NULL != keyword) {
+		UNPACK_SQL_STATEMENT(value, keyword->v, value);
+		piece = value->v.string_literal;
+	} else {
+		piece = NULL;
+	}
 	keyword = get_keyword(column, OPTIONAL_EXTRACT);
 	if (NULL == keyword) {
 		keyword = get_keyword(column, OPTIONAL_SOURCE);
 		if (NULL == keyword) {
 			UNPACK_SQL_STATEMENT(keyword, table->source, keyword);
 		}
-		skip_dollar_piece = is_trigger;
+		skip_dollar_piece = (is_trigger || (NULL == piece));
 	} else {
 		skip_dollar_piece = TRUE;
 	}
@@ -149,11 +152,13 @@ TEMPLATE(tmpl_column_reference, PhysicalPlan *pplan, SqlColumnAlias *column_alia
 		nullchar = NULL;
 	}
 
-	column_type = get_sqlvaluetype_from_sqldatatype(column->data_type_struct.data_type);
-	if ((!skip_dollar_piece && (FALSE == is_xref)) || (skip_dollar_piece && !is_trigger)) {
+	if ((!skip_dollar_piece && !is_xref) || (skip_dollar_piece && !is_trigger)) {
+		SqlValueType			column_type;
+
 		// This function is also called in tmpl_tablejoin_body.ctemplate: changes there must also be reflected here
 		%{}$$empty2null^%%ydboctoplanhelpers({{ not_null|%d }},{}%
 		%{}{{ ((NULL != nullchar) ? nullchar : not_nullchar) }},{}%
+		column_type = get_sqlvaluetype_from_sqldatatype(column->data_type_struct.data_type);
 		%{}"{{ get_user_visible_type_string(column_type) }}",{}%
 	}
 
@@ -170,7 +175,7 @@ TEMPLATE(tmpl_column_reference, PhysicalPlan *pplan, SqlColumnAlias *column_alia
 				%{}),"{{ delim }}",{{ piece }}){}%
 			}
 		}
-		if ((skip_dollar_piece) || (FALSE == is_xref)) {
+		if (skip_dollar_piece || !is_xref) {
 			%{}){}%
 		}
 	} else {

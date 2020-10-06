@@ -108,9 +108,7 @@ LogicalPlan *join_tables(LogicalPlan *root, LogicalPlan *plan) {
 LogicalPlan *optimize_logical_plan(LogicalPlan *plan) {
 	LogicalPlan *select, *table_join, *where;
 	LogicalPlan *cur;
-#ifndef NDEBUG
-	LogicalPlan *keys;
-#endif
+	DEBUG_ONLY(LogicalPlan * keys);
 
 	if (NULL == plan)
 		return NULL;
@@ -194,10 +192,8 @@ LogicalPlan *optimize_logical_plan(LogicalPlan *plan) {
 	/* Now that optimal join order has been determined, "join" all the tables to generate keys for the physical plan.
 	 * This will be needed by the key fixing optimization which is invoked next.
 	 */
-#ifndef NDEBUG
-	keys = lp_get_keys(plan);
-	assert(NULL == keys->v.lp_default.operand[0]);
-#endif
+	DEBUG_ONLY(keys = lp_get_keys(plan));
+	DEBUG_ONLY(assert(NULL == keys->v.lp_default.operand[0]));
 	if (NULL == join_tables(plan, table_join)) {
 		return NULL;
 	}

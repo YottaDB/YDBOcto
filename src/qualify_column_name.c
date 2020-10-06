@@ -97,13 +97,11 @@ SqlColumnAlias *qualify_column_name(SqlValue *column_value, SqlJoin *tables, Sql
 		cur_cla = start_cla;
 		do {
 			if ((NULL != cur_cla->alias) && cur_cla->user_specified_alias) {
-#ifndef NDEBUG
-				SqlColumnList *column_list;
+				DEBUG_ONLY(SqlColumnList * column_list);
 
-				UNPACK_SQL_STATEMENT(column_list, cur_cla->column_list, column_list);
-				assert(column_list == column_list->next);
-				assert(column_list == column_list->prev);
-#endif
+				DEBUG_ONLY(UNPACK_SQL_STATEMENT(column_list, cur_cla->column_list, column_list));
+				DEBUG_ONLY(assert(column_list == column_list->next));
+				DEBUG_ONLY(assert(column_list == column_list->prev));
 				UNPACK_SQL_STATEMENT(value, cur_cla->alias, value);
 				if (((int)strlen(value->v.reference) == column_name_len)
 				    && (0 == memcmp(value->v.reference, column_name, column_name_len))) {

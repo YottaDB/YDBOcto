@@ -282,3 +282,13 @@ OCTO
   verify_output TERR028 output.txt
 }
 
+@test "TERR029 : OCTO502 : Error scenarios in INSERT INTO" {
+  load_fixture TERR029.sql subtest novv
+  verify_output TERR029 output.txt
+}
+
+@test "TERR030 : OCTO502 : Error scenarios in VALUES" {
+  load_fixture TERR030.sql subtest novv
+  verify_output TERR030 output.txt
+}
+

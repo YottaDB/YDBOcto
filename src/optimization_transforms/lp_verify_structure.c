@@ -25,7 +25,7 @@ static boolean_t lp_verify_value(LogicalPlan *plan, PhysicalPlanOptions *options
 
 /* Verifies the given LP has a good structure; return TRUE if it is all good and FALSE otherwise */
 int lp_verify_structure(LogicalPlan *plan, PhysicalPlanOptions *options) {
-	if ((LP_INSERT != plan->type) && (LP_SET_OPERATION != plan->type)) {
+	if ((LP_INSERT != plan->type) && (LP_SET_OPERATION != plan->type) && (LP_TABLE_VALUE != plan->type)) {
 		assert(FALSE);
 		return FALSE;
 	}
@@ -100,6 +100,15 @@ int lp_verify_structure_helper(LogicalPlan *plan, PhysicalPlanOptions *options, 
 			*options->table = plan;
 		}
 		break;
+	case LP_TABLE_VALUE:
+		ret &= lp_verify_structure_helper(plan->v.lp_default.operand[0], options, LP_TABLE_DATA);
+		ret &= lp_verify_structure_helper(plan->v.lp_default.operand[1], options, LP_OUTPUT);
+		break;
+	case LP_TABLE_DATA:
+	case LP_ROW_VALUE:
+		ret &= lp_verify_structure_helper(plan->v.lp_default.operand[0], options, LP_COLUMN_LIST);
+		ret &= lp_verify_structure_helper(plan->v.lp_default.operand[1], options, LP_ROW_VALUE);
+		break;
 	case LP_PROJECT:
 		ret &= lp_verify_structure_helper(plan->v.lp_default.operand[0], options, LP_COLUMN_LIST);
 		ret &= lp_verify_structure_helper(plan->v.lp_default.operand[1], options, LP_SELECT);
@@ -115,6 +124,7 @@ int lp_verify_structure_helper(LogicalPlan *plan, PhysicalPlanOptions *options, 
 	case LP_TABLE_JOIN:
 		if (NULL != plan->v.lp_default.operand[0]) {
 			ret &= lp_verify_structure_helper(plan->v.lp_default.operand[0], options, LP_TABLE)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[0], options, LP_TABLE_VALUE)
 			       | lp_verify_structure_helper(plan->v.lp_default.operand[0], options, LP_INSERT)
 			       | lp_verify_structure_helper(plan->v.lp_default.operand[0], options, LP_SET_OPERATION);
 			ret &= lp_verify_structure_helper(plan->v.lp_default.operand[1], options, LP_TABLE_JOIN);
@@ -282,7 +292,6 @@ int lp_verify_structure_helper(LogicalPlan *plan, PhysicalPlanOptions *options, 
 			}
 			is_where = ((1 == i) && (LP_WHERE == expected));
 			is_bool_in = ((1 == i) && ((LP_BOOLEAN_IN == expected) || (LP_BOOLEAN_NOT_IN == expected)));
-			// TODO: almost all of this code is duplicated for `case LP_COLUMN_LIST`
 			ret &= lp_verify_structure_helper(plan->v.lp_default.operand[i], options, LP_ADDITION)
 			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], options, LP_SUBTRACTION)
 			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], options, LP_DIVISION)

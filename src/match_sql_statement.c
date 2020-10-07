@@ -53,6 +53,7 @@ boolean_t match_sql_statement(SqlStatement *stmt, SqlStatement *match_stmt) {
 	}
 	switch (stmt->type) {
 	case create_table_STATEMENT:
+	case table_value_STATEMENT:
 		/* This structure never gets copied in "copy_sql_statement.c" so just check if the pointers are identical */
 		ret = (stmt == match_stmt);
 		break;

@@ -17,7 +17,6 @@
 
 // Function invoked by the rule named "grouping_column_reference" in src/parser/select.y
 SqlStatement *grouping_column_reference(SqlStatement *derived_column_expression, SqlStatement *collate_clause) {
-	SqlColumnList *	    column_list;
 	SqlColumnListAlias *alias;
 	SqlStatement *	    ret;
 	SqlValue *	    value;
@@ -37,17 +36,8 @@ SqlStatement *grouping_column_reference(SqlStatement *derived_column_expression,
 	if (invalid_syntax)
 		return NULL;
 
-	SQL_STATEMENT(ret, column_list_alias_STATEMENT);
-	MALLOC_STATEMENT(ret, column_list_alias, SqlColumnListAlias);
+	SQL_COLUMN_LIST_ALIAS_STATEMENT(ret);
 	UNPACK_SQL_STATEMENT(alias, ret, column_list_alias);
-	SQL_STATEMENT(alias->column_list, column_list_STATEMENT);
-	dqinit(alias);
-	MALLOC_STATEMENT(alias->column_list, column_list, SqlColumnList);
-	UNPACK_SQL_STATEMENT(column_list, alias->column_list, column_list);
-	dqinit(column_list);
-	column_list->value = derived_column_expression;
-	alias->column_list->loc = derived_column_expression->loc; /* Cannot use "yyloc" here so passing it from parser
-								   * through derived_column_expression->loc.
-								   */
+	alias->column_list = create_sql_column_list(derived_column_expression, NULL, &derived_column_expression->loc);
 	return ret;
 }

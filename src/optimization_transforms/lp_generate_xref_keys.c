@@ -37,6 +37,7 @@ LogicalPlan *lp_generate_xref_keys(LogicalPlan *plan, SqlTable *table, SqlColumn
 	// Scan through and replace the table
 	table_join = lp_get_table_join(plan);
 	do {
+		assert(LP_TABLE_VALUE != table_join->v.lp_default.operand[0]->type); /* Caller should have ensured this */
 		if (table_join->v.lp_default.operand[0]->type == LP_TABLE) {
 			GET_LP(lp_table_alias, table_join, 0, LP_TABLE);
 			if (lp_table_alias->v.lp_table.table_alias->unique_id == table_alias->unique_id)
@@ -47,7 +48,7 @@ LogicalPlan *lp_generate_xref_keys(LogicalPlan *plan, SqlTable *table, SqlColumn
 		} else {
 			table_join = NULL;
 		}
-	} while (table_join != NULL);
+	} while (NULL != table_join);
 	if (NULL == table_join)
 		return NULL;
 	table_join->v.lp_default.operand[0] = lp_generate_xref_plan(table, column, unique_id);

@@ -29,8 +29,7 @@ SqlStatement *data_type(SqlDataType data_type, SqlStatement *size_or_precision, 
 		/* Even though "atoi()" does not do error checking like "strtol()", it is fine here as most error
 		 * checking is already done by the "ddl_int_literal_value" rule in "src/parser.y" (asserted below).
 		 */
-		assert((value_STATEMENT == size_or_precision->type) && (NUMERIC_LITERAL == size_or_precision->v.value->type)
-		       && size_or_precision->v.value->is_int);
+		assert((value_STATEMENT == size_or_precision->type) && (INTEGER_LITERAL == size_or_precision->v.value->type));
 		ret->v.data_type_struct.size_or_precision = atoi(size_or_precision->v.value->v.string_literal);
 	}
 	if (NULL == scale) {
@@ -41,7 +40,7 @@ SqlStatement *data_type(SqlDataType data_type, SqlStatement *size_or_precision, 
 		/* Even though "atoi()" does not do error checking like "strtol()", it is fine here as most error
 		 * checking is already done by the "ddl_literal_value" rule in "src/parser.y" (asserted below).
 		 */
-		assert((value_STATEMENT == scale->type) && (NUMERIC_LITERAL == scale->v.value->type) && scale->v.value->is_int);
+		assert((value_STATEMENT == scale->type) && (INTEGER_LITERAL == scale->v.value->type));
 		ret->v.data_type_struct.scale = atoi(scale->v.value->v.string_literal);
 	}
 	return ret;

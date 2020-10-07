@@ -36,11 +36,10 @@ PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlanOptions *opt
 	PhysicalPlan *	    out, *prev = NULL, *out_from_lp;
 	LPActionType	    set_oper_type, type;
 	PhysicalPlanOptions plan_options;
-	boolean_t	    is_set_dnf;
+	boolean_t	    is_lp_table_value, is_set_dnf;
 	SqlTableAlias *	    root_table_alias;
 
 	plan_options = *options;
-	assert((LP_INSERT == plan->type) || (LP_SET_OPERATION == plan->type));
 	// If this is a union plan, construct physical plans for the two children
 	if (LP_SET_OPERATION == plan->type) {
 		GET_LP(set_option, plan, 0, LP_SET_OPTION);
@@ -102,6 +101,8 @@ PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlanOptions *opt
 		}
 		return out;
 	}
+	assert((LP_INSERT == plan->type) || (LP_TABLE_VALUE == plan->type));
+	is_lp_table_value = (LP_TABLE_VALUE == plan->type);
 	/* Note that it is possible a physical plan has already been generated for this logical plan.
 	 *
 	 * For example "select * from names where EXISTS (select * from names) and (id < 3 or id > 4);" would get expanded as
@@ -116,16 +117,20 @@ PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlanOptions *opt
 	 * skip code generation for duplicate plans and ensure the M code that gets emitted does not have duplicate code.
 	 */
 	out_from_lp = plan->extra_detail.lp_insert.physical_plan;
-	assert(LP_INSERT == plan->type);
 	if (NULL == out_from_lp) {
-		// Make sure the plan is in good shape. Overload this plan verify phase to also fix aggregate function counts.
-		assert(NULL == plan->extra_detail.lp_insert.first_aggregate);
-		plan_options.aggregate = &plan->extra_detail.lp_insert.first_aggregate;
-		if (FALSE == lp_verify_structure(plan, &plan_options)) {
-			assert(FALSE);
-			ERROR(ERR_PLAN_NOT_WELL_FORMED, "");
-			return NULL;
+		if (!is_lp_table_value) {
+			/* Make sure LP_INSERT plan is in good shape.
+			 * Overload this plan verify phase to also fix aggregate function counts.
+			 */
+			assert(NULL == plan->extra_detail.lp_insert.first_aggregate);
+			plan_options.aggregate = &plan->extra_detail.lp_insert.first_aggregate;
+			if (FALSE == lp_verify_structure(plan, &plan_options)) {
+				assert(FALSE);
+				ERROR(ERR_PLAN_NOT_WELL_FORMED, "");
+				return NULL;
+			}
 		}
+		/* else: LP_TABLE_VALUE should not have aggregate function usages so no need to handle it. */
 	} else {
 		/* "lp_verify_structure()" would have been already called in a prior call to "generate_physical_plan" for a
 		 * different physical plan that points to the same logical plan. This logical plan already has had any GROUP BY
@@ -175,126 +180,146 @@ PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlanOptions *opt
 
 	// If there is an ORDER BY, note it down
 	if (output->v.lp_default.operand[1]) {
+		assert(!is_lp_table_value);
 		GET_LP(out->order_by, output, 1, LP_ORDER_BY);
 	}
 
-	// See if there are any tables we rely on in the SELECT tablejoin list. If so, add them as prev records in physical plan.
-	select = lp_get_select(plan);
-	GET_LP(table_joins, select, 0, LP_TABLE_JOIN);
-	out->tablejoin = table_joins;
-	do {
-		assert(LP_TABLE_JOIN == table_joins->type);
-		// If this is a plan that doesn't have a source table,
-		//  this will be null and we need to skip this step
-		if (NULL == table_joins->v.lp_default.operand[0]) {
-			break;
-		}
-		type = table_joins->v.lp_default.operand[0]->type;
-		if ((LP_INSERT == type) || (LP_SET_OPERATION == type)) {
-			PhysicalPlan *	    ret;
-			PhysicalPlanOptions tmp_options;
-
-			/* This is a fresh sub-query start so do not inherit any DNF context from parent query. */
-			tmp_options = plan_options;
-			tmp_options.dnf_plan_next = NULL;
-			/* By the same token, do not inherit any "stash_columns_in_keys" context from parent query */
-			tmp_options.stash_columns_in_keys = FALSE;
-			// This is a sub plan, and should be inserted as prev
-			GET_LP(insert_or_set_operation, table_joins, 0, type);
-			ret = generate_physical_plan(insert_or_set_operation, &tmp_options);
-			if (NULL == ret) {
-				return NULL;
+	/* Some things are applicable only for a LP_INSERT (not for a LP_TABLE_VALUE) hence the if check below */
+	if (!is_lp_table_value) {
+		// See if there are any tables we rely on in the SELECT tablejoin list. If so, add them as prev records in physical
+		// plan.
+		select = lp_get_select(plan);
+		GET_LP(table_joins, select, 0, LP_TABLE_JOIN);
+		out->tablejoin = table_joins;
+		do {
+			assert(LP_TABLE_JOIN == table_joins->type);
+			// If this is a plan that doesn't have a source table,
+			//  this will be null and we need to skip this step
+			if (NULL == table_joins->v.lp_default.operand[0]) {
+				break;
 			}
-		}
-		table_joins = table_joins->v.lp_default.operand[1];
-	} while (NULL != table_joins);
-	// Check GROUP BY and HAVING
-	GET_LP(criteria, select, 1, LP_CRITERIA);
-	GET_LP(select_options, criteria, 1, LP_SELECT_OPTIONS);
-	GET_LP(select_more_options, select_options, 1, LP_SELECT_MORE_OPTIONS);
-	if (NULL != select_more_options->v.lp_default.operand[0]) {
-		GET_LP(out->aggregate_options, select_more_options, 0, LP_AGGREGATE_OPTIONS);
-	}
-	// Iterate through the key substructures and fill out the source keys
-	keys = lp_get_keys(plan);
-	// Either we have some keys already, or we have a list of keys
-	assert((0 < out->total_iter_keys) || (NULL != keys->v.lp_default.operand[0]));
-	if (keys->v.lp_default.operand[0]) {
-		iterate_keys(out, keys);
-	}
-	// Note: The below do/while loop can be done only after we have initialized "iterKeys[]" for this table_join.
-	//       That is why this is not done as part of the previous do/while loop as "iterate_keys()" gets called only after
-	//       the previous do/while loop.
-	table_joins = out->tablejoin;
-	do {
-		LogicalPlan *join_on_condition;
+			type = table_joins->v.lp_default.operand[0]->type;
+			if ((LP_INSERT == type) || (LP_SET_OPERATION == type) || (LP_TABLE_VALUE == type)) {
+				PhysicalPlan *	    ret;
+				PhysicalPlanOptions tmp_options;
 
-		/* See if there are any sub-queries in the ON clause of any JOINs. If so, generate separate physical plans
+				/* This is a fresh sub-query start so do not inherit any DNF context from parent query. */
+				tmp_options = plan_options;
+				tmp_options.dnf_plan_next = NULL;
+				/* By the same token, do not inherit any "stash_columns_in_keys" context from parent query */
+				tmp_options.stash_columns_in_keys = FALSE;
+				// This is a sub plan, and should be inserted as prev
+				GET_LP(insert_or_set_operation, table_joins, 0, type);
+				ret = generate_physical_plan(insert_or_set_operation, &tmp_options);
+				if (NULL == ret) {
+					return NULL;
+				}
+			}
+			table_joins = table_joins->v.lp_default.operand[1];
+		} while (NULL != table_joins);
+		// Check GROUP BY and HAVING
+		GET_LP(criteria, select, 1, LP_CRITERIA);
+		GET_LP(select_options, criteria, 1, LP_SELECT_OPTIONS);
+		GET_LP(select_more_options, select_options, 1, LP_SELECT_MORE_OPTIONS);
+		if (NULL != select_more_options->v.lp_default.operand[0]) {
+			GET_LP(out->aggregate_options, select_more_options, 0, LP_AGGREGATE_OPTIONS);
+		}
+		// Iterate through the key substructures and fill out the source keys
+		keys = lp_get_keys(plan);
+		// Either we have some keys already, or we have a list of keys
+		assert((0 < out->total_iter_keys) || (NULL != keys->v.lp_default.operand[0]));
+		if (keys->v.lp_default.operand[0]) {
+			iterate_keys(out, keys);
+		}
+		// Note: The below do/while loop can be done only after we have initialized "iterKeys[]" for this table_join.
+		//       That is why this is not done as part of the previous do/while loop as "iterate_keys()" gets called only
+		//       after the previous do/while loop.
+		table_joins = out->tablejoin;
+		do {
+			LogicalPlan *join_on_condition;
+
+			/* See if there are any sub-queries in the ON clause of any JOINs. If so, generate separate physical plans
+			 * (deferred and/or non-deferred) for them and add them as prev records in physical plan.
+			 */
+			join_on_condition = table_joins->extra_detail.lp_table_join.join_on_condition;
+			if (NULL != join_on_condition) {
+				sub_query_check_and_generate_physical_plan(&plan_options, join_on_condition, NULL);
+			}
+			table_joins = table_joins->v.lp_default.operand[1];
+		} while (NULL != table_joins);
+		/* See if there are any sub-queries in the WHERE clause. If so, generate separate physical plans
 		 * (deferred and/or non-deferred) for them and add them as prev records in physical plan.
 		 */
-		join_on_condition = table_joins->extra_detail.lp_table_join.join_on_condition;
-		if (NULL != join_on_condition) {
-			sub_query_check_and_generate_physical_plan(&plan_options, join_on_condition, NULL);
-		}
-		table_joins = table_joins->v.lp_default.operand[1];
-	} while (NULL != table_joins);
-	/* See if there are any sub-queries in the WHERE clause. If so, generate separate physical plans
-	 * (deferred and/or non-deferred) for them and add them as prev records in physical plan.
-	 */
-	where = lp_get_select_where(plan);
-	out->where = sub_query_check_and_generate_physical_plan(&plan_options, where, NULL);
-	/* Note: If where->v.lp_default.operand[1] is non-NULL, this is the alternate list that
-	 * "lp_optimize_where_multi_equals_ands_helper()" built that needs to be checked too for deferred plans which
-	 * would have been missed out in case the keys for those had been fixed to keys from parent queries (see
-	 * comment above "lp_get_select_where()" function call in "lp_optimize_where_multi_equals_ands_helper()").
-	 * One would be tempted to discard that alternate list now that its purpose is served above. But it is possible
-	 * the same logical plan is pointed to by multiple physical plans in which case it is still needed. As we have
-	 * no easy way of knowing that here, we continue to keep "where->v.lp_default.opreand[1]" set to a non-NULL value.
-	 */
-	/* See if there are any sub-queries in the SELECT column list. If so, generate separate physical plans
-	 * (deferred and/or non-deferred) for them and add them as prev records in physical plan.
-	 */
-	project = lp_get_project(plan);
-	GET_LP(select_column_list, project, 0, LP_COLUMN_LIST);
-	sub_query_check_and_generate_physical_plan(&plan_options, select_column_list, NULL);
-	out->keywords = lp_get_select_keywords(plan)->v.lp_keywords.keywords;
-	out->projection = lp_get_projection_columns(plan);
-	/* See if there are any sub-queries in the HAVING clause. If so, generate separate physical plans
-	 * (deferred and/or non-deferred) for them and add them as prev records in physical plan.
-	 */
-	if (NULL != out->aggregate_options) {
-		LogicalPlan *having;
+		where = lp_get_select_where(plan);
+		out->where = sub_query_check_and_generate_physical_plan(&plan_options, where, NULL);
+		/* Note: If where->v.lp_default.operand[1] is non-NULL, this is the alternate list that
+		 * "lp_optimize_where_multi_equals_ands_helper()" built that needs to be checked too for deferred plans which
+		 * would have been missed out in case the keys for those had been fixed to keys from parent queries (see
+		 * comment above "lp_get_select_where()" function call in "lp_optimize_where_multi_equals_ands_helper()").
+		 * One would be tempted to discard that alternate list now that its purpose is served above. But it is possible
+		 * the same logical plan is pointed to by multiple physical plans in which case it is still needed. As we have
+		 * no easy way of knowing that here, we continue to keep "where->v.lp_default.opreand[1]" set to a non-NULL value.
+		 */
+		/* See if there are any sub-queries in the SELECT column list. If so, generate separate physical plans
+		 * (deferred and/or non-deferred) for them and add them as prev records in physical plan.
+		 */
+		project = lp_get_project(plan);
+		GET_LP(select_column_list, project, 0, LP_COLUMN_LIST);
+		sub_query_check_and_generate_physical_plan(&plan_options, select_column_list, NULL);
+		out->keywords = lp_get_select_keywords(plan)->v.lp_keywords.keywords;
+		out->projection = lp_get_projection_columns(plan);
+		/* See if there are any sub-queries in the HAVING clause. If so, generate separate physical plans
+		 * (deferred and/or non-deferred) for them and add them as prev records in physical plan.
+		 */
+		if (NULL != out->aggregate_options) {
+			LogicalPlan *having;
 
-		having = out->aggregate_options->v.lp_default.operand[1]; /* cannot use GET_LP as having can be NULL */
-		if (NULL != having) {
-			out->aggregate_options->v.lp_default.operand[1]
-			    = sub_query_check_and_generate_physical_plan(&plan_options, having, NULL);
+			having = out->aggregate_options->v.lp_default.operand[1]; /* cannot use GET_LP as having can be NULL */
+			if (NULL != having) {
+				out->aggregate_options->v.lp_default.operand[1]
+				    = sub_query_check_and_generate_physical_plan(&plan_options, having, NULL);
+			}
 		}
-	}
-	/* See if there are any sub-queries in the ORDER BY clause. If so, generate separate physical plans
-	 * (deferred and/or non-deferred) for them and add them as prev records in physical plan.
-	 */
-	if (NULL != out->order_by) {
-		sub_query_check_and_generate_physical_plan(&plan_options, out->order_by, NULL);
-	}
-	// Check the optional words for distinct
-	keywords = lp_get_select_keywords(plan)->v.lp_keywords.keywords;
-	keyword = get_keyword_from_keywords(keywords, OPTIONAL_DISTINCT);
-	if (NULL != keyword) {
-		out->distinct_values = TRUE;
-		out->maintain_columnwise_index = TRUE;
-	}
-	keyword = get_keyword_from_keywords(keywords, OPTIONAL_BOOLEAN_EXPANSION);
-	if (NULL != keyword) {
-		out->emit_duplication_check = TRUE;
-		out->maintain_columnwise_index = TRUE; /* needs to be set in all DNF siblings */
-		if (NULL != plan_options.dnf_plan_next) {
-			/* Caller indicates this plan is part of a set of DNF plans. Maintain linked list of DNF siblings. */
-			out->dnf_next = plan_options.dnf_plan_next;
-			assert(NULL == plan_options.dnf_plan_next->dnf_prev);
-			plan_options.dnf_plan_next->dnf_prev = out;
-			assert(NULL == out->dnf_prev);
+		/* See if there are any sub-queries in the ORDER BY clause. If so, generate separate physical plans
+		 * (deferred and/or non-deferred) for them and add them as prev records in physical plan.
+		 */
+		if (NULL != out->order_by) {
+			sub_query_check_and_generate_physical_plan(&plan_options, out->order_by, NULL);
 		}
+		// Check the optional words for distinct
+		keywords = lp_get_select_keywords(plan)->v.lp_keywords.keywords;
+		keyword = get_keyword_from_keywords(keywords, OPTIONAL_DISTINCT);
+		if (NULL != keyword) {
+			out->distinct_values = TRUE;
+			out->maintain_columnwise_index = TRUE;
+		}
+		keyword = get_keyword_from_keywords(keywords, OPTIONAL_BOOLEAN_EXPANSION);
+		if (NULL != keyword) {
+			out->emit_duplication_check = TRUE;
+			out->maintain_columnwise_index = TRUE; /* needs to be set in all DNF siblings */
+			if (NULL != plan_options.dnf_plan_next) {
+				/* Caller indicates this plan is part of a set of DNF plans. Maintain linked list of DNF siblings.
+				 */
+				out->dnf_next = plan_options.dnf_plan_next;
+				assert(NULL == plan_options.dnf_plan_next->dnf_prev);
+				plan_options.dnf_plan_next->dnf_prev = out;
+				assert(NULL == out->dnf_prev);
+			}
+		}
+	} else {
+		/* VALUES clause. Check for any sub-queries in the data specified across multiple rows/columns */
+		LogicalPlan *lp_table_data, *lp_row_value;
+
+		GET_LP(lp_table_data, plan, 0, LP_TABLE_DATA);
+		GET_LP(lp_row_value, lp_table_data, 1, LP_ROW_VALUE);
+		do {
+			LogicalPlan *lp_column_list;
+
+			assert(LP_ROW_VALUE == lp_row_value->type);
+			GET_LP(lp_column_list, lp_row_value, 0, LP_COLUMN_LIST);
+			sub_query_check_and_generate_physical_plan(&plan_options, lp_column_list, NULL);
+			lp_row_value = lp_row_value->v.lp_default.operand[1];
+		} while (NULL != lp_row_value);
 	}
 	out->stash_columns_in_keys = options->stash_columns_in_keys;
 	return out;
@@ -434,6 +459,7 @@ LogicalPlan *sub_query_check_and_generate_physical_plan(PhysicalPlanOptions *opt
 			break;
 		case LP_INSERT:
 		case LP_SET_OPERATION:
+		case LP_TABLE_VALUE:
 			/* Generate a separate physical plan for this sub-query.
 			 * This is a fresh sub-query start so do not inherit any DNF context from parent query.
 			 */

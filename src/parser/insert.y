@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -11,7 +11,13 @@
  ****************************************************************/
 
 insert_statement
-  : INSERT INTO column_name subquery { WARNING(ERR_FEATURE_NOT_IMPLEMENTED, "insert_statement: INSERT INTO column_name subquery"); YYABORT; }
-  | INSERT INTO column_name LEFT_PAREN column_name_list RIGHT_PAREN query_expression { WARNING(ERR_FEATURE_NOT_IMPLEMENTED, "insert_statement: INSERT INTO column_name LEFT_PAREN column_name_list RIGHT_PAREN query_expression"); YYABORT; }
-  | INSERT INTO column_name DEFAULT VALUES { WARNING(ERR_FEATURE_NOT_IMPLEMENTED, "insert_statement: INSERT INTO column_name DEFAULT VALUES"); YYABORT; }
+  : INSERT INTO column_name query_expression {
+	$$ = insert_statement($column_name, NULL, $query_expression);
+    }
+  | INSERT INTO column_name LEFT_PAREN column_name_list RIGHT_PAREN query_expression {
+	$$ = insert_statement($column_name, $column_name_list, $query_expression);
+    }
+  | INSERT INTO column_name DEFAULT VALUES {
+	$$ = insert_statement($column_name, NULL, NULL);
+    }
   ;

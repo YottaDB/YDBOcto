@@ -138,10 +138,11 @@ PSQL_TypeOid get_psql_type_from_sqlvaluetype(SqlValueType type) {
 int populate_data_type_column_list_alias(SqlStatement *v, SqlValueType *type, boolean_t do_loop, ParseContext *parse_context) {
 	SqlColumnListAlias *column_list_alias, *cur_column_list_alias;
 	SqlValueType	    child_type1;
-	int		    result = 0;
+	int		    result;
 
+	result = 0;
 	*type = UNKNOWN_SqlValueType;
-	if ((NULL != v) && (NULL != v->v.select)) {
+	if (NULL != v) {
 		// SqlColumnListAlias
 		UNPACK_SQL_STATEMENT(column_list_alias, v, column_list_alias);
 		cur_column_list_alias = column_list_alias;
@@ -174,10 +175,11 @@ int populate_data_type_column_list(SqlStatement *v, SqlValueType *type, boolean_
 				   ParseContext *parse_context) {
 	SqlColumnList *column_list, *cur_column_list;
 	SqlValueType   current_type;
-	int	       result = 0;
+	int	       result;
 
+	result = 0;
 	*type = UNKNOWN_SqlValueType;
-	if ((NULL != v) && (NULL != v->v.select)) {
+	if (NULL != v) {
 		// SqlColumnList
 		UNPACK_SQL_STATEMENT(column_list, v, column_list);
 		cur_column_list = column_list;
@@ -196,7 +198,9 @@ int populate_data_type_column_list(SqlStatement *v, SqlValueType *type, boolean_
 
 // NOTE: might also perform type promotion on both types inside the CAST_AMBIGUOUS_TYPES macro.
 int ensure_same_type(SqlValueType *existing, SqlValueType *new, SqlStatement *stmt, ParseContext *parse_context) {
-	int result = 0;
+	int result;
+
+	result = 0;
 	CAST_AMBIGUOUS_TYPES(*existing, *new);
 	if (*existing != *new) {
 		ERROR(ERR_TYPE_MISMATCH, get_user_visible_type_string(*existing), get_user_visible_type_string(*new));
@@ -210,7 +214,7 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_
 	SqlBinaryOperation *	binary = NULL;
 	SqlCaseBranchStatement *cas_branch, *cur_branch;
 	SqlCaseStatement *	cas;
-	SqlColumn *		column;
+	SqlColumn *		column, *start_column;
 	SqlColumnList *		cur_column_list, *start_column_list;
 	SqlFunctionCall *	function_call;
 	SqlFunction *		function;
@@ -227,11 +231,17 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_
 	SqlValueType		child_type1, child_type2;
 	YYLTYPE			location;
 	SqlSelectStatement *	select;
-	int			written, result = 0, function_parm_types_len = 0, status = 0, function_hash_len = MAX_ROUTINE_LEN;
+	int			written, result, function_parm_types_len = 0, status = 0, function_hash_len = MAX_ROUTINE_LEN;
 	char *			c, function_hash[MAX_ROUTINE_LEN], function_parm_types[MAX_FUNC_TYPES_LEN];
 	hash128_state_t		state;
 	SqlDataType		data_type;
+	SqlTableValue *		table_value;
+	SqlRowValue *		row_value, *start_row_value;
+	int			num_columns;
+	SqlValueType *		type_array;
+	int			colno;
 
+	result = 0;
 	*type = UNKNOWN_SqlValueType;
 	if (v == NULL || v->v.select == NULL)
 		return 0;
@@ -283,11 +293,11 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_
 		break;
 	case select_STATEMENT:
 		UNPACK_SQL_STATEMENT(select, v, select);
+		// SqlJoin
+		result |= populate_data_type(select->table_list, &child_type1, parse_context);
 		// SqlColumnListAlias that is a linked list
 		result |= populate_data_type_column_list_alias(select->select_list, &child_type1, TRUE, parse_context);
 		*type = child_type1;
-		// SqlJoin
-		result |= populate_data_type(select->table_list, &child_type1, parse_context);
 		// SqlValue (?)
 		if (NULL != select->where_expression) {
 			result |= populate_data_type(select->where_expression, &child_type1, parse_context);
@@ -340,8 +350,7 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_
 			do {
 				result |= populate_data_type(cur_column_list->value, &child_type1, parse_context);
 				if (value_STATEMENT == cur_column_list->value->type) {
-					value = cur_column_list->value->v.value;
-					*type = ((TRUE == value->is_int) ? INTEGER_LITERAL : child_type1);
+					*type = child_type1;
 				} else if (column_alias_STATEMENT == cur_column_list->value->type) {
 					SqlStatement *column_stmt;
 
@@ -355,8 +364,7 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_
 						*type = column_stmt->v.column_list_alias->type;
 					}
 				} else {
-					value = cur_column_list->value->v.unary->operand->v.value;
-					*type = ((TRUE == value->is_int) ? INTEGER_LITERAL : child_type1);
+					*type = child_type1;
 				}
 				ADD_INT_HASH(&state, *type);
 				written = snprintf(c, MAX_FUNC_TYPES_LEN - function_parm_types_len, "%s",
@@ -508,6 +516,9 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_
 		case FUNCTION_NAME:
 		case PARAMETER_VALUE:	   // Note: This is a possibility in "populate_data_type" but not in "hash_canonical_query"
 		case UNKNOWN_SqlValueType: // Note: This is a possibility in "populate_data_type" but not in "hash_canonical_query"
+			/* If lexer determined that the value is an integer literal, use that more specific INTEGER_LITERAL type
+			 * instead of a more generic NUMERIC_LITERAL type.
+			 */
 			*type = value->type;
 			break;
 		case COLUMN_REFERENCE:
@@ -542,61 +553,7 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_
 			result |= populate_data_type(v->v.column_alias->column, type, parse_context);
 		} else {
 			UNPACK_SQL_STATEMENT(column, v->v.column_alias->column, column);
-			switch (column->data_type_struct.data_type) {
-			case BOOLEAN_TYPE:
-				*type = BOOLEAN_VALUE;
-				break;
-			case INTEGER_TYPE:
-				*type = INTEGER_LITERAL;
-				break;
-			case NUMERIC_TYPE:
-				*type = NUMERIC_LITERAL;
-				break;
-			case STRING_TYPE:
-				*type = STRING_LITERAL;
-				break;
-			case UNKNOWN_SqlDataType:
-				// This could be a column that came in from a sub-query before when the sub-query column
-				// was qualified (in "qualify_statement.c"). But by now we would have finished qualifying
-				// all columns so we should be able to find out the column type at this point. Fix it now.
-				assert(NULL != column->pre_qualified_cla);
-				result |= populate_data_type(column->pre_qualified_cla->column_list, type, parse_context);
-				/* This is a column that is formed in the middle of the query.
-				 * So consider size/precision/scale as unspecified in this case.
-				 */
-				column->data_type_struct.size_or_precision = SIZE_OR_PRECISION_UNSPECIFIED;
-				column->data_type_struct.scale = SCALE_UNSPECIFIED;
-				switch (*type) {
-				case BOOLEAN_VALUE:
-					column->data_type_struct.data_type = BOOLEAN_TYPE;
-					break;
-				case INTEGER_LITERAL:
-					column->data_type_struct.data_type = INTEGER_TYPE;
-					break;
-				case NUMERIC_LITERAL:
-					column->data_type_struct.data_type = NUMERIC_TYPE;
-					break;
-				case STRING_LITERAL:
-					column->data_type_struct.data_type = STRING_TYPE;
-					break;
-				case NUL_VALUE:
-					/* NULL values need to be treated as some known type. We choose STRING_TYPE
-					 * as this corresponds to the TEXT type of postgres to be compatible with it.
-					 * See https://doxygen.postgresql.org/parse__coerce_8c.html#l01373 for more details.
-					 */
-					column->data_type_struct.data_type = STRING_TYPE;
-					break;
-				default:
-					assert(FALSE);
-					break;
-				}
-				break;
-			default:
-				assert(FALSE);
-				ERROR(ERR_UNKNOWN_KEYWORD_STATE, "");
-				result = 1;
-				break;
-			}
+			*type = get_sqlvaluetype_from_sqldatatype(column->data_type_struct.data_type);
 		}
 		break;
 	case column_list_STATEMENT:
@@ -610,13 +567,76 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_
 	case create_table_STATEMENT:
 		// Do nothing; we got here through a table_alias
 		break;
+	case table_value_STATEMENT:
+		/* For a table constructed using the VALUES clause, go through each value specified and determine
+		 * its type. Verify all rows have same type for each column.
+		 */
+		UNPACK_SQL_STATEMENT(table_value, v, table_value);
+		UNPACK_SQL_STATEMENT(row_value, table_value->row_value_stmt, row_value);
+		start_row_value = row_value;
+		num_columns = row_value->num_columns;
+		assert(num_columns);
+		type_array = (SqlValueType *)calloc(num_columns, sizeof(SqlValueType));
+		do {
+			SqlColumnList *start_column_list, *cur_column_list;
+
+			UNPACK_SQL_STATEMENT(start_column_list, row_value->value_list, column_list);
+			cur_column_list = start_column_list;
+			colno = 0;
+			do {
+				SqlValueType current_type;
+
+				// SqlValue or SqlColumnAlias
+				result |= populate_data_type(cur_column_list->value, &current_type, parse_context);
+				if (start_row_value == row_value) {
+					/* This is the first row. We don't have any type to compare against.
+					 * Just record this type for now.
+					 */
+					assert(UNKNOWN_SqlValueType == type_array[colno]);
+					assert(UNKNOWN_SqlValueType != current_type);
+					type_array[colno] = current_type;
+				} else {
+					/* Compare type determined for this row against noted down type from previous row */
+					assert(UNKNOWN_SqlValueType != type_array[colno]);
+					result |= ensure_same_type(&type_array[colno], &current_type, cur_column_list->value,
+								   parse_context);
+				}
+				colno++;
+				cur_column_list = cur_column_list->next;
+			} while ((cur_column_list != start_column_list));
+			assert(colno == num_columns); /* every row should have same number of columns as first row */
+			row_value = row_value->next;
+		} while (row_value != start_row_value);
+		/* Now that we have scanned all rows of the VALUES table, store the final determined column type.
+		 * Note that if one row had a column type of NUL_VALUE and the next row had a type of NUMERIC_LITERAL,
+		 * the final column type would end up being NUMERIC_LITERAL.
+		 */
+		start_column = table_value->column;
+		column = start_column;
+		colno = 0;
+		do {
+			assert(UNKNOWN_SqlDataType == column->data_type_struct.data_type);
+			column->data_type_struct.data_type = get_sqldatatype_from_sqlvaluetype(type_array[colno]);
+			column = column->next;
+			colno++;
+		} while (column != start_column);
+		assert(colno == num_columns);
+		*type = type_array[0]; /* Return the type of the first column in the VALUES clause */
+		free(type_array);
+		break;
 	case table_alias_STATEMENT:
 		UNPACK_SQL_STATEMENT(table_alias, v, table_alias);
 		result |= populate_data_type(table_alias->table, type, parse_context);
 		assert((select_STATEMENT != table_alias->table->type)
 		       || (table_alias->table->v.select->select_list == table_alias->column_list));
-		if (select_STATEMENT != table_alias->table->type)
-			result |= populate_data_type(table_alias->column_list, &child_type1, parse_context);
+		if (select_STATEMENT != table_alias->table->type) {
+			/* Note: In case "table_alias->table" is of type "table_value_STATEMENT", the above call would have
+			 * determined the type of the "SqlColumn" structures making up that table based on the actual values
+			 * data supplied. That will then need to be propagated to the associated "SqlColumnListAlias" structures
+			 * in the below call.
+			 */
+			result |= populate_data_type_column_list_alias(table_alias->column_list, &child_type1, TRUE, parse_context);
+		}
 		break;
 	case binary_STATEMENT:
 		UNPACK_SQL_STATEMENT(binary, v, binary);

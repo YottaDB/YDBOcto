@@ -388,17 +388,11 @@ boolean_test
 
 boolean_primary
   : TRUE_TOKEN {
-      SQL_STATEMENT($$, value_STATEMENT);
-      MALLOC_STATEMENT($$, value, SqlValue);
-      ($$)->v.value->type = BOOLEAN_VALUE;
-      ($$)->v.value->v.string_literal = "1";
+      SQL_VALUE_STATEMENT($$, BOOLEAN_VALUE, "1");
       INVOKE_PARSE_LITERAL_TO_PARAMETER(parse_context, ($$)->v.value, FALSE);
     }
   | FALSE_TOKEN {
-      SQL_STATEMENT($$, value_STATEMENT);
-      MALLOC_STATEMENT($$, value, SqlValue);
-      ($$)->v.value->type = BOOLEAN_VALUE;
-      ($$)->v.value->v.string_literal = "0";
+      SQL_VALUE_STATEMENT($$, BOOLEAN_VALUE, "0");
       INVOKE_PARSE_LITERAL_TO_PARAMETER(parse_context, ($$)->v.value, FALSE);
     }
   | UNKNOWN { WARNING(ERR_FEATURE_NOT_IMPLEMENTED, "boolean_primary: UNKNOWN"); YYABORT; }
@@ -567,11 +561,7 @@ table_subquery
 
 in_value_list_allow_empty
   : /* Empty */ {
-      SQL_STATEMENT($$, column_list_STATEMENT);
-      MALLOC_STATEMENT($$, column_list, SqlColumnList);
-      SqlColumnList *column_list;
-      UNPACK_SQL_STATEMENT(column_list, $$, column_list);
-      dqinit(column_list);
+      $$ = create_sql_column_list(NULL, NULL, &yyloc);
     }
   | in_value_list_nonempty {
       $$ = $in_value_list_nonempty;
@@ -580,19 +570,7 @@ in_value_list_allow_empty
 
 in_value_list_nonempty
   : value_expression in_value_list_tail {
-      SqlColumnList *column_list, *cl_tail;
-
-      SQL_STATEMENT($$, column_list_STATEMENT);
-      MALLOC_STATEMENT($$, column_list, SqlColumnList);
-      UNPACK_SQL_STATEMENT(column_list, $$, column_list);
-      ($$)->loc = yyloc;
-
-      column_list->value = $value_expression;
-      dqinit(column_list);
-      if (NULL != $in_value_list_tail) {
-        UNPACK_SQL_STATEMENT(cl_tail, $in_value_list_tail, column_list);
-        dqappend(column_list, cl_tail);
-      }
+      $$ = create_sql_column_list($value_expression, $in_value_list_tail, &yyloc);
     }
   ;
 
@@ -652,28 +630,51 @@ exists_predicate
   ;
 
 row_value_constructor
-  // Remove previous line and uncomment below line when `row_value_constructor_list` rule is uncommented.
-  // : LEFT_PAREN row_value_constructor_list RIGHT_PAREN { $$ = $row_value_constructor_list; }
+  : scalar_row_value_constructor { $$ = $scalar_row_value_constructor; }
+  // The below introduces 1 reduce/reduce and 1 shift/reduce conflict.
+  // Enable the below when the need for a vector row_value_constructor arises.
+  // | vector_row_value_constructor { $$ = $vector_row_value_constructor; }
+  ;
+
+scalar_row_value_constructor
   : row_value_constructor_element { $$ = $row_value_constructor_element; }
   ;
 
-// ----------------------------------------------------------------------------------------------
-// Uncomment below block of code when `row_value_constructor_list` rule needs to be implemented.
-// ----------------------------------------------------------------------------------------------
-// row_value_constructor_subquery
-//   : query_expression { $$ = $query_expression; }
-//   ;
-//
-// row_value_constructor_list
-//   : row_value_constructor_element row_value_constructor_list_tail { WARNING(ERR_FEATURE_NOT_IMPLEMENTED, "row_value_constructor_list: element/list_tail"); YYABORT; }
-//   | row_value_constructor_subquery { $$ = $row_value_constructor_subquery; }
-//   ;
-//
-// row_value_constructor_list_tail
-//   : /* Empty */ { $$ = NULL; }
-//   | COMMA row_value_constructor_list { $$ = $row_value_constructor_list; }
-//   ;
-// ----------------------------------------------------------------------------------------------
+vector_row_value_constructor
+  : LEFT_PAREN row_value_constructor_list RIGHT_PAREN {
+	SqlRowValue	*row_value;
+	SqlStatement	*row_value_stmt, *row_list_stmt;
+	SqlColumnList   *column_list, *start;
+	int             num_columns;
+
+	SQL_STATEMENT(row_value_stmt, row_value_STATEMENT);
+	MALLOC_STATEMENT(row_value_stmt, row_value, SqlRowValue);
+	UNPACK_SQL_STATEMENT(row_value, row_value_stmt, row_value);
+	row_list_stmt = $row_value_constructor_list;
+	row_value->value_list = row_list_stmt;
+	UNPACK_SQL_STATEMENT(column_list, row_list_stmt, column_list);
+	start = column_list;
+	num_columns = 0;
+	do {
+		num_columns++;
+		column_list = column_list->next;
+	} while (column_list != start);
+	row_value->num_columns = num_columns;
+	dqinit(row_value);
+	$$ = row_value_stmt;
+    }
+  ;
+
+row_value_constructor_list
+  : row_value_constructor_element row_value_constructor_list_tail {
+      $$ = create_sql_column_list($row_value_constructor_element, $row_value_constructor_list_tail, &yyloc);
+    }
+  ;
+
+row_value_constructor_list_tail
+  : /* Empty */ { $$ = NULL; }
+  | COMMA row_value_constructor_list { $$ = $row_value_constructor_list; }
+  ;
 
 row_value_constructor_element
   : numeric_value_expression { $$ = $numeric_value_expression; }
@@ -704,13 +705,7 @@ value_expression
 
 null_specification
   : NULL_TOKEN {
-      SqlStatement	*ret;
-
-      SQL_STATEMENT(ret, value_STATEMENT);
-      MALLOC_STATEMENT(ret, value, SqlValue);
-      ret->v.value->type = NUL_VALUE;
-      ret->v.value->v.string_literal = "";
-      $$ = ret;
+	SQL_VALUE_STATEMENT($$, NUL_VALUE, "");
     }
   ;
 
@@ -1066,7 +1061,10 @@ corresponding_column_list
   ;
 
 column_name_list
-  : column_name column_name_list_tail { WARNING(ERR_FEATURE_NOT_IMPLEMENTED, "column_name_list: column_name column_name_list_tail"); YYABORT; }
+  : column_name column_name_list_tail {
+  	/* TODO: This rule needs to be implemented to get AS with multiple column aliases working. */
+	$$ = NULL;
+    }
   ;
 
 column_name_list_tail
@@ -1099,22 +1097,75 @@ corresponding_spec_tail
   ;
 
 non_join_query_primary
-  : simple_table {$$ = $simple_table; }
+  : simple_table { $$ = $simple_table; }
   | LEFT_PAREN non_join_query_expression RIGHT_PAREN { $$ = $non_join_query_expression; }
   ;
 
 simple_table
-  : table_value_constructor { WARNING(ERR_FEATURE_NOT_IMPLEMENTED, "table_value_constructor"); YYABORT; }
+  : table_value_constructor {
+	SqlStatement	*join_stmt, *select_stmt, *table_alias_stmt, *select_column_list_stmt;
+	SqlJoin		*join;
+
+	SQL_STATEMENT(join_stmt, join_STATEMENT);
+	MALLOC_STATEMENT(join_stmt, join, SqlJoin);
+	join = join_stmt->v.join;
+	join->value = $table_value_constructor;
+	dqinit(join);
+	join->max_unique_id = *plan_id;
+	select_stmt = table_expression(join_stmt, NULL, NULL, NULL);
+	SQL_COLUMN_LIST_ALIAS_STATEMENT(select_column_list_stmt);
+	table_alias_stmt = query_specification(NO_KEYWORD, select_column_list_stmt, select_stmt, NULL, plan_id);
+	$$ = table_alias_stmt;
+    }
   | explicit_table { WARNING(ERR_FEATURE_NOT_IMPLEMENTED, "explicit_table"); YYABORT; }
   | sql_select_statement { $$ = $sql_select_statement; }
   ;
 
 table_value_constructor
-  : VALUES table_value_constructor_list { $$ = $table_value_constructor_list; }
+  : VALUES table_value_constructor_list {
+	SqlStatement	*join_stmt, *table_alias_stmt, *table_value_stmt, *row_value_stmt;
+	SqlJoin		*join;
+	SqlTableAlias	*table_alias;
+	SqlTableValue	*table_value;
+
+        SQL_STATEMENT(table_value_stmt, table_value_STATEMENT);
+        MALLOC_STATEMENT(table_value_stmt, table_value, SqlTableValue);
+	UNPACK_SQL_STATEMENT(table_value, table_value_stmt, table_value);
+	row_value_stmt = $table_value_constructor_list;
+	table_value->row_value_stmt = row_value_stmt;
+	join_stmt = table_reference(table_value_stmt, NULL, plan_id);
+	UNPACK_SQL_STATEMENT(join, join_stmt, join);
+	/* Reuse the table_alias_STATEMENT that was already allocated in "table_reference" */
+	table_alias_stmt = join->value;
+	UNPACK_SQL_STATEMENT(table_alias, table_alias_stmt, table_alias);
+	SQL_VALUE_STATEMENT(table_alias->alias, NUL_VALUE, "");
+	assert(NULL != table_alias->column_list);
+	assert(NULL != table_alias->table);
+	assert(table_alias->unique_id);
+	$$ = table_alias_stmt;
+    }
   ;
 
 table_value_constructor_list
-  : row_value_constructor table_value_constructor_list_tail { WARNING(ERR_FEATURE_NOT_IMPLEMENTED, "column_name_list: column_name column_name_list_tail"); YYABORT; }
+  : vector_row_value_constructor table_value_constructor_list_tail {
+	SqlStatement	*row_value_stmt1, *row_value_stmt2;
+
+	row_value_stmt1 = $vector_row_value_constructor;
+	row_value_stmt2 = $table_value_constructor_list_tail;
+	if (NULL != row_value_stmt2) {
+		SqlRowValue	*row_value1, *row_value2;
+
+		UNPACK_SQL_STATEMENT(row_value1, row_value_stmt1, row_value);
+		UNPACK_SQL_STATEMENT(row_value2, row_value_stmt2, row_value);
+		if (row_value1->num_columns != row_value2->num_columns) {
+			ERROR(ERR_VALUES_LENGTH, NULL);
+			yyerror(&yyloc, NULL, NULL, NULL, NULL, NULL);
+			YYERROR;
+		}
+		dqappend(row_value1, row_value2);
+	}
+	$$ = row_value_stmt1;
+    }
   ;
 
 table_value_constructor_list_tail
@@ -1154,7 +1205,6 @@ table_definition
   : CREATE TABLE column_name LEFT_PAREN table_element_list RIGHT_PAREN table_definition_tail {
         SQL_STATEMENT($$, create_table_STATEMENT);
         MALLOC_STATEMENT($$, create_table, SqlTable);
-        memset(($$)->v.create_table, 0, sizeof(SqlTable));
         assert($column_name->type == value_STATEMENT
           && $column_name->v.value->type == COLUMN_REFERENCE);
         ($$)->v.create_table->tableName = $column_name;
@@ -1204,12 +1254,11 @@ optional_keyword_element
 	literal = $literal_value;
 	type = literal->v.value->type;
 	str_lit = literal->v.value->v.string_literal;
-	/* We should only accept integer arguments for subsequent call to $CHAR, however
-	 * the lexer returns NUMERICs even if an integer is passed. To account for this,
-	 * we confirm NUMERIC here, then check the result of strtol below to confirm that
-	 * the value was in fact an integer.
+	/* We should only accept integer arguments for subsequent call to $CHAR. To account for this,
+	 * we confirm INTEGER literal first, then check the result of strtol below to confirm that
+	 * the value was in fact an integer in the allowed range.
 	 */
-	if (NUMERIC_LITERAL != type) {
+	if (INTEGER_LITERAL != type) {
 		ERROR(ERR_TYPE_NOT_COMPATIBLE, get_user_visible_type_string(type), "column DELIM specification");
 		yyerror(&yyloc, NULL, NULL, NULL, NULL, NULL);
 		YYERROR;
@@ -1263,14 +1312,11 @@ delim_specification
         MALLOC_STATEMENT($$, keyword, SqlOptionalKeyword);
 	($$)->v.keyword->keyword = OPTIONAL_DELIM;
 
-	SQL_STATEMENT(char_list_literal, value_STATEMENT);
-	MALLOC_STATEMENT(char_list_literal, value, SqlValue);
-	char_list_literal->v.value->type = DELIM_VALUE;
 	len_alloc = INT8_TO_STRING_MAX * 8;
 	str_lit = octo_cmalloc(memory_chunks, len_alloc);
 	str_lit[0] = DELIM_IS_DOLLAR_CHAR;	// Use first byte as a flag to indicate that DELIM is a $CHAR list
 	len_used = 1;
-	char_list_literal->v.value->v.string_literal = str_lit;
+	SQL_VALUE_STATEMENT(char_list_literal, DELIM_VALUE, str_lit);
 	c = &str_lit[1];
 
 	// Need to allocate space to store string for full $CHAR call
@@ -1327,14 +1373,13 @@ delim_char_list
 	literal = $literal_value;
 	type = literal->v.value->type;
 	str_lit = literal->v.value->v.string_literal;
-	/* We should only accept integer arguments for subsequent call to $CHAR, however
-	 * the lexer returns NUMERICs even if an integer is passed. To account for this,
-	 * we confirm NUMERIC here, then check the result of strtol below to confirm that
-	 * the value was in fact an integer.
+	/* We should only accept integer arguments for subsequent call to $CHAR. To account for this,
+	 * we confirm INTEGER here, then check the result of strtol below to confirm that
+	 * the value was in fact an integer in the allowed range.
 	 *
 	 * TODO: Add support for hexadecimal arguments.
 	 */
-	if (NUMERIC_LITERAL != type) {
+	if (INTEGER_LITERAL != type) {
 		ERROR(ERR_TYPE_NOT_COMPATIBLE, get_user_visible_type_string(type), "column DELIM specification");
 		yyerror(&yyloc, NULL, NULL, NULL, NULL, NULL);
 		YYERROR;
@@ -1423,21 +1468,19 @@ column_definition
 column_name
   : identifier { $$ = $identifier; }
   | LITERAL PERIOD LITERAL {
-      SQL_STATEMENT($$, value_STATEMENT);
-      MALLOC_STATEMENT($$, value, SqlValue);
-      SqlValue *value;
-      UNPACK_SQL_STATEMENT(value, $$, value);
-      SqlValue *table_name, *column_name;
+      char	*c, *d;
+      SqlValue	*table_name, *column_name;
+      int	table_name_len, column_name_len, len;
+
       UNPACK_SQL_STATEMENT(table_name, $1, value);
       UNPACK_SQL_STATEMENT(column_name, $3, value);
-      int table_name_len = strlen(table_name->v.string_literal);
-      int column_name_len = strlen(column_name->v.string_literal);
+      table_name_len = strlen(table_name->v.string_literal);
+      column_name_len = strlen(column_name->v.string_literal);
       // table + column + period + null
-      int len = table_name_len + column_name_len + 2;
-      value->type = COLUMN_REFERENCE;
-      value->v.string_literal = octo_cmalloc(memory_chunks, len);
-      char *c = value->v.string_literal;
-      char *d = table_name->v.string_literal;
+      len = table_name_len + column_name_len + 2;
+      c = octo_cmalloc(memory_chunks, len);
+      SQL_VALUE_STATEMENT($$, COLUMN_REFERENCE, c);
+      d = table_name->v.string_literal;
       // Convert to caps as we copy
       while(*d != '\0') {
         *c++ = toupper(*d++);
@@ -1610,7 +1653,6 @@ index_definition
 		WARNING(ERR_FEATURE_NOT_IMPLEMENTED, "INDEX statements");
 		SQL_STATEMENT($$, index_STATEMENT);
 		MALLOC_STATEMENT($$, index, SqlIndex);
-		memset(($$)->v.index, 0, sizeof(SqlIndex));
 		}
 	;
 
@@ -1816,14 +1858,14 @@ literal_value
  * INVOKE_PARSE_LITERAL_TO_PARAMETER call. This is because the actual value of the literal matters in DDL statements
  * (unlike in SELECT queries where they don't). For example, a column with a type of VARCHAR(30) should be treated
  * differently than a column of type VARCHAR(20).
- * AND we expect the literal to be of type NUMERIC_LITERAL.
+ * AND we expect the literal to be of type INTEGER_LITERAL.
  */
 ddl_int_literal_value
   : LITERAL {
 	SqlStatement *ret = $LITERAL;
 	ret->loc = yyloc;
 	/* Currently ALL DDL literal values are expected to be integers so check that and issue error otherwise. */
-	if ((value_STATEMENT != ret->type) || (NUMERIC_LITERAL != ret->v.value->type) || !ret->v.value->is_int) {
+	if ((value_STATEMENT != ret->type) || (INTEGER_LITERAL != ret->v.value->type)) {
 		ERROR(ERR_DDL_LITERAL, "integer");
 		yyerror(&yyloc, NULL, NULL, NULL, NULL, NULL);
 		YYERROR;
@@ -1842,9 +1884,9 @@ ddl_str_literal_value
 		yyerror(&yyloc, NULL, NULL, NULL, NULL, NULL);
 		YYERROR;
 	}
-	if (NUMERIC_LITERAL == ret->v.value->type) {
-		/* Convert NUMERIC_LITERAL into STRING_LITERAL type as that is what is expected here */
-	      ret->v.value->type = STRING_LITERAL;
+	if ((NUMERIC_LITERAL == ret->v.value->type) || (INTEGER_LITERAL == ret->v.value->type)) {
+		/* Convert numeric inputs into string type as that is what is expected here */
+		ret->v.value->type = STRING_LITERAL;
 	} else if (STRING_LITERAL != ret->v.value->type) {
 		ERROR(ERR_DDL_LITERAL, "string");
 		yyerror(&yyloc, NULL, NULL, NULL, NULL, NULL);
@@ -1870,7 +1912,6 @@ function_definition
 
 	SQL_STATEMENT(ret, create_function_STATEMENT);
 	MALLOC_STATEMENT(ret, create_function, SqlFunction);
-	memset(ret->v.create_function, 0, sizeof(SqlFunction));
 
 	ret->v.create_function->function_name = $IDENTIFIER_START;
 	ret->v.create_function->function_name->v.value->type = FUNCTION_NAME;

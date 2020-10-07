@@ -66,7 +66,6 @@ LogicalPlan *lp_optimize_where_multi_equals_ands_helper(LogicalPlan *plan, Logic
 	SqlColumnList *	    column_list;
 	SqlColumnListAlias *column_list_alias;
 	SqlColumnAlias *    column_alias;
-	SqlTable *	    table;
 	SqlTableAlias *	    table_alias;
 	SqlKey *	    key;
 	int		    left_id, right_id;
@@ -288,11 +287,15 @@ LogicalPlan *lp_optimize_where_multi_equals_ands_helper(LogicalPlan *plan, Logic
 	}
 	// If the left isn't a key, generate a cross reference
 	if (NULL == key) {
+		SqlTable *table;
+
 		// Get the table alias and column for left
 		column_alias = left->v.lp_column_alias.column_alias;
 		UNPACK_SQL_STATEMENT(table_alias, column_alias->table_alias_stmt, table_alias);
 		// TODO: how do we handle triggers on generated tables?
 		if (create_table_STATEMENT != table_alias->table->type) {
+			/* There is no cross reference possible for an on-the-fly table constructued using the VALUES clause */
+			assert(table_value_STATEMENT == table_alias->table->type);
 			return where;
 		}
 		UNPACK_SQL_STATEMENT(table, table_alias->table, create_table);

@@ -20,18 +20,10 @@
 SqlStatement *sort_specification(SqlStatement *sort_key, SqlStatement *ordering_specification) {
 	SqlStatement *	    ret, *order_spec;
 	SqlColumnListAlias *alias;
-	SqlColumnList *	    column_list;
 
-	SQL_STATEMENT(ret, column_list_alias_STATEMENT);
-	MALLOC_STATEMENT(ret, column_list_alias, SqlColumnListAlias);
+	SQL_COLUMN_LIST_ALIAS_STATEMENT(ret);
 	UNPACK_SQL_STATEMENT(alias, ret, column_list_alias);
-	SQL_STATEMENT(alias->column_list, column_list_STATEMENT);
-	MALLOC_STATEMENT(alias->column_list, column_list, SqlColumnList);
-	dqinit(alias);
-	UNPACK_SQL_STATEMENT(column_list, alias->column_list, column_list);
-	dqinit(column_list);
-	column_list->value = sort_key;
-	alias->column_list->loc = sort_key->loc; // Cannot use "yyloc" here so passing it from parser through sort_key->loc
+	alias->column_list = create_sql_column_list(sort_key, NULL, &sort_key->loc);
 	// Add a keyword for ASC or DESC. Default to ASC if not explicitly specified.
 	SQL_STATEMENT(order_spec, keyword_STATEMENT);
 	OCTO_CMALLOC_STRUCT(order_spec->v.keyword, SqlOptionalKeyword);

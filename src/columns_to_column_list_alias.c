@@ -17,25 +17,24 @@
 
 SqlColumnListAlias *columns_to_column_list_alias(SqlColumn *column, SqlStatement *table_alias_stmt) {
 	SqlColumn *	    cur_column, *start_column;
-	SqlColumnAlias *    alias;
-	SqlColumnList *	    cur;
-	SqlColumnListAlias *ret = NULL, *cur_column_list_alias;
-	SqlStatement *	    stmt;
+	SqlColumnListAlias *ret;
 
 	if (NULL == column)
 		return NULL;
 	cur_column = start_column = column;
+	ret = NULL;
 	do {
-		OCTO_CMALLOC_STRUCT(cur, SqlColumnList);
-		dqinit(cur);
+		SqlColumnList *	    cur;
+		SqlColumnAlias *    column_alias;
+		SqlColumnListAlias *cur_column_list_alias;
+		SqlStatement *	    stmt;
+
 		SQL_STATEMENT(stmt, column_alias_STATEMENT);
 		MALLOC_STATEMENT(stmt, column_alias, SqlColumnAlias);
-		cur->value = stmt;
-
-		alias = stmt->v.column_alias;
-		PACK_SQL_STATEMENT(alias->column, cur_column, column);
+		column_alias = stmt->v.column_alias;
+		PACK_SQL_STATEMENT(column_alias->column, cur_column, column);
 		assert(table_alias_STATEMENT == table_alias_stmt->type);
-		alias->table_alias_stmt = table_alias_stmt;
+		column_alias->table_alias_stmt = table_alias_stmt;
 
 		OCTO_CMALLOC_STRUCT(cur_column_list_alias, SqlColumnListAlias);
 		cur_column_list_alias->alias = cur_column->columnName;
@@ -60,6 +59,9 @@ SqlColumnListAlias *columns_to_column_list_alias(SqlColumn *column, SqlStatement
 			ERROR(ERR_UNKNOWN_KEYWORD_STATE, "");
 			break;
 		}
+		OCTO_CMALLOC_STRUCT(cur, SqlColumnList);
+		dqinit(cur);
+		cur->value = stmt;
 		PACK_SQL_STATEMENT(cur_column_list_alias->column_list, cur, column_list);
 		dqinit(cur_column_list_alias);
 		if (NULL == ret) {

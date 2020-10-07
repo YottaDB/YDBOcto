@@ -55,13 +55,13 @@ optional_query_words
 optional_query_word_element
   : LIMIT literal_value {
       assert(value_STATEMENT == ($literal_value)->type);
-      assert(INTEGER_LITERAL != ($literal_value)->v.value->type);
-      if (NUMERIC_LITERAL == ($literal_value)->v.value->type) {
+      if ((NUMERIC_LITERAL == ($literal_value)->v.value->type) || (INTEGER_LITERAL == ($literal_value)->v.value->type)) {
         SqlStatement    *ret;
         char            *c, *new_string;
         int             lit_int_val;
         float           lit_fl_val;
 
+	$literal_value->v.value->type = INTEGER_LITERAL;	/* we will convert any fractions to integers so cast type */
         SQL_STATEMENT(ret, keyword_STATEMENT);
         OCTO_CMALLOC_STRUCT(ret->v.keyword, SqlOptionalKeyword);
         ret->v.keyword->keyword = OPTIONAL_LIMIT;
@@ -180,8 +180,7 @@ query_specification
       SQL_STATEMENT(join->value, table_alias_STATEMENT);
       MALLOC_STATEMENT(join->value, table_alias, SqlTableAlias);
       UNPACK_SQL_STATEMENT(alias, join->value, table_alias);
-      SQL_STATEMENT_FROM_TABLE_STATEMENT(alias->table, table);
-      alias->table->v.create_table = table;
+      SQL_STATEMENT_FROM_SQLTABLE(alias, table);
       alias->alias = table->tableName;
       // We can probably put a variable in the bison local for this
       alias->unique_id = *plan_id;
@@ -209,11 +208,7 @@ select_list
 
 select_sublist
   : ASTERISK {
-      SqlStatement * ret;
-      SQL_STATEMENT(ret, column_list_alias_STATEMENT);
-      MALLOC_STATEMENT(ret, column_list_alias, SqlColumnListAlias);
-      dqinit(ret->v.column_list_alias);
-      $$ = ret;
+      SQL_COLUMN_LIST_ALIAS_STATEMENT($$);
       $$->loc = yyloc; /* note down the location of the ASTERISK for later use in populate_data_type (for error reporting) */
     }
   | derived_column { $$ = $derived_column; }
@@ -226,15 +221,7 @@ select_sublist_tail
 
 table_expression
   : from_clause where_clause group_by_clause having_clause {
-	SqlStatement	*ret;
-
-	SQL_STATEMENT(ret, select_STATEMENT);
-	MALLOC_STATEMENT(ret, select, SqlSelectStatement);
-	ret->v.select->table_list = $from_clause;
-	ret->v.select->where_expression = $where_clause;
-	ret->v.select->group_by_expression = $group_by_clause;
-	ret->v.select->having_expression = $having_clause;
-	$$ = ret;
+	$$ = table_expression($from_clause, $where_clause, $group_by_clause, $having_clause);
     }
   ;
 
@@ -395,7 +382,7 @@ as_name
 	SqlStatement *ret;
 
 	ret = $LITERAL;
-	if ((NUMERIC_LITERAL == ret->v.value->type) || (PARAMETER_VALUE == ret->v.value->type)) {
+	if ((NUMERIC_LITERAL == ret->v.value->type) || (INTEGER_LITERAL == ret->v.value->type) || (PARAMETER_VALUE == ret->v.value->type)) {
 		ERROR(ERR_INVALID_AS_SYNTAX, get_user_visible_type_string(ret->v.value->type));
 		yyerror(&yyloc, NULL, NULL, NULL, NULL, NULL);
 		YYERROR;

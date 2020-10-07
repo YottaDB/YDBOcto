@@ -58,7 +58,7 @@ LogicalPlan *join_tables(LogicalPlan *root, LogicalPlan *plan) {
 		lp_insert_key(root, cur_lp_key);
 		break;
 	default:
-		assert(LP_TABLE == oper0->type);
+		assert((LP_TABLE == oper0->type) || (LP_TABLE_VALUE == oper0->type));
 		select = lp_get_select(root);
 		GET_LP(criteria, select, 1, LP_CRITERIA);
 		GET_LP(keys, criteria, 0, LP_KEYS);
@@ -71,15 +71,25 @@ LogicalPlan *join_tables(LogicalPlan *root, LogicalPlan *plan) {
 			MALLOC_LP_2ARGS(keys->v.lp_default.operand[1], LP_KEYS);
 			keys = keys->v.lp_default.operand[1];
 		}
-		table_alias = oper0->v.lp_table.table_alias;
-		UNPACK_SQL_STATEMENT(table, table_alias->table, create_table);
+		table_alias
+		    = ((LP_TABLE == oper0->type) ? oper0->v.lp_table.table_alias : oper0->extra_detail.lp_insert.root_table_alias);
 		unique_id = table_alias->unique_id;
-		memset(key_columns, 0, MAX_KEY_COUNT * sizeof(SqlColumn *));
-		max_key = get_key_columns(table, key_columns);
+		if (create_table_STATEMENT == table_alias->table->type) {
+			UNPACK_SQL_STATEMENT(table, table_alias->table, create_table);
+			memset(key_columns, 0, MAX_KEY_COUNT * sizeof(SqlColumn *));
+			max_key = get_key_columns(table, key_columns);
+		} else {
+			assert(table_value_STATEMENT == table_alias->table->type);
+			/* In the case of a table constructed with the VALUES clause, there is just one primary key
+			 * column. That is an internally maintained rowId.
+			 */
+			max_key = 0;
+			key_columns[0] = NULL;
+			table = NULL;
+		}
 		for (cur_key = 0; cur_key <= max_key; cur_key++) {
 			MALLOC_LP(cur_lp_key, keys->v.lp_default.operand[0], LP_KEY);
 			OCTO_CMALLOC_STRUCT(cur_lp_key->v.lp_key.key, SqlKey);
-			memset(cur_lp_key->v.lp_key.key, 0, sizeof(SqlKey));
 			cur_lp_key->v.lp_key.key->column = key_columns[cur_key];
 			cur_lp_key->v.lp_key.key->key_num = cur_key;
 			cur_lp_key->v.lp_key.key->unique_id = unique_id;
@@ -126,6 +136,7 @@ LogicalPlan *optimize_logical_plan(LogicalPlan *plan) {
 		}
 		return plan;
 	}
+	assert(LP_INSERT == plan->type);
 	/* First focus on the WHERE clause. Before any key fixing can be done, expand the WHERE clause into disjunctive normal form
 	 * (DNF expansion) as that is what enables key fixing.
 	 */
@@ -224,8 +235,10 @@ LogicalPlan *optimize_logical_plan(LogicalPlan *plan) {
 				right_table_alias = insert->extra_detail.lp_insert.root_table_alias;
 				break;
 			default:
-				assert(LP_TABLE == operand0->type);
-				right_table_alias = operand0->v.lp_table.table_alias;
+				assert((LP_TABLE == operand0->type) || (LP_TABLE_VALUE == operand0->type));
+				right_table_alias
+				    = ((LP_TABLE == operand0->type) ? operand0->v.lp_table.table_alias
+								    : operand0->extra_detail.lp_insert.root_table_alias);
 				break;
 			}
 			lp_optimize_where_multi_equals_ands(plan, table_join->extra_detail.lp_table_join.join_on_condition,

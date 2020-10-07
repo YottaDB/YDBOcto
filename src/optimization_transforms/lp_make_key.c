@@ -30,7 +30,6 @@ LogicalPlan *lp_make_key(SqlColumnAlias *column_alias) {
 
 	MALLOC_LP_2ARGS(ret, LP_KEY);
 	OCTO_CMALLOC_STRUCT(ret->v.lp_key.key, SqlKey);
-	memset(ret->v.lp_key.key, 0, sizeof(SqlKey));
 	ret->v.lp_key.key->column = column;
 	ret->v.lp_key.key->key_num = -1;
 	ret->v.lp_key.key->unique_id = table_alias->unique_id;

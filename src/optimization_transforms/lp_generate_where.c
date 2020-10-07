@@ -254,8 +254,9 @@ LogicalPlan *lp_generate_where(SqlStatement *stmt, SqlStatement *parent) {
 	case select_STATEMENT:
 		// This should never happen, as all select statements are now wrapped in a table_alias
 	case create_table_STATEMENT:
+	case table_value_STATEMENT:
 		// In most other cases, we expect that this can be, but not here because a table can't exist
-		// in a WHERE statement
+		// in a WHERE/HAVING/ON clause. Only a column reference that links to a table can exist.
 	default:
 		ERROR(ERR_UNKNOWN_KEYWORD_STATE, "");
 		assert(FALSE);

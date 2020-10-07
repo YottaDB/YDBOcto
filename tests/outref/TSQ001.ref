@@ -26,12 +26,12 @@ LP_INSERT:
         LP_COLUMN_LIST_ALIAS: 
         - type: STRING_LITERAL
         - alias: TYPNAME
-      LP_COLUMN_LIST: 
-        LP_WHERE: 
-          LP_COLUMN_ALIAS: T(1).OID
-          LP_COLUMN_LIST_ALIAS: 
-          - type: INTEGER_LITERAL
-          - alias: OID
+    LP_COLUMN_LIST: 
+      LP_WHERE: 
+        LP_COLUMN_ALIAS: T(1).OID
+        LP_COLUMN_LIST_ALIAS: 
+        - type: INTEGER_LITERAL
+        - alias: OID
     LP_SELECT: 
       LP_TABLE_JOIN: 
         LP_TABLE: T
@@ -116,12 +116,12 @@ LP_SET_OPERATION:
             LP_COLUMN_LIST_ALIAS: 
             - type: STRING_LITERAL
             - alias: TYPNAME
-          LP_COLUMN_LIST: 
-            LP_WHERE: 
-              LP_COLUMN_ALIAS: T(1).OID
-              LP_COLUMN_LIST_ALIAS: 
-              - type: INTEGER_LITERAL
-              - alias: OID
+        LP_COLUMN_LIST: 
+          LP_WHERE: 
+            LP_COLUMN_ALIAS: T(1).OID
+            LP_COLUMN_LIST_ALIAS: 
+            - type: INTEGER_LITERAL
+            - alias: OID
         LP_SELECT: 
           LP_TABLE_JOIN: 
             LP_INSERT: 
@@ -129,9 +129,9 @@ LP_SET_OPERATION:
                 LP_COLUMN_LIST: 
                   LP_WHERE: 
                     LP_COLUMN_ALIAS: PG_CATALOG.PG_TYPE(8).TYPRELID
-                  LP_COLUMN_LIST: 
-                    LP_WHERE: 
-                      LP_COLUMN_ALIAS: PG_CATALOG.PG_TYPE(8).TYPNAME
+                LP_COLUMN_LIST: 
+                  LP_WHERE: 
+                    LP_COLUMN_ALIAS: PG_CATALOG.PG_TYPE(8).TYPNAME
                 LP_SELECT: 
                   LP_TABLE_JOIN: 
                     LP_TABLE: PG_CATALOG.PG_TYPE
@@ -211,12 +211,12 @@ LP_SET_OPERATION:
             LP_COLUMN_LIST_ALIAS: 
             - type: STRING_LITERAL
             - alias: TYPNAME
-          LP_COLUMN_LIST: 
-            LP_WHERE: 
-              LP_COLUMN_ALIAS: T(1).OID
-              LP_COLUMN_LIST_ALIAS: 
-              - type: INTEGER_LITERAL
-              - alias: OID
+        LP_COLUMN_LIST: 
+          LP_WHERE: 
+            LP_COLUMN_ALIAS: T(1).OID
+            LP_COLUMN_LIST_ALIAS: 
+            - type: INTEGER_LITERAL
+            - alias: OID
         LP_SELECT: 
           LP_TABLE_JOIN: 
             LP_TABLE: T

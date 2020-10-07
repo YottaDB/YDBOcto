@@ -28,6 +28,9 @@ SqlValueType get_sqlvaluetype_from_sqldatatype(SqlDataType type) {
 	case STRING_TYPE:
 		return STRING_LITERAL;
 		break;
+	case NUL_TYPE:
+		return NUL_VALUE;
+		break;
 	default:
 		assert(FALSE);
 		ERROR(ERR_UNKNOWN_KEYWORD_STATE, "");

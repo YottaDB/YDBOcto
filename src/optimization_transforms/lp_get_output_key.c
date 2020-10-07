@@ -21,7 +21,7 @@
 LogicalPlan *lp_get_output_key(LogicalPlan *plan) {
 	LogicalPlan *t;
 
-	assert((LP_INSERT == plan->type) || (LP_SET_OPERATION == plan->type));
+	assert((LP_INSERT == plan->type) || (LP_SET_OPERATION == plan->type) || (LP_TABLE_VALUE == plan->type));
 	if (LP_SET_OPERATION == plan->type) {
 		LogicalPlan *set_option;
 		LPActionType set_oper_type;

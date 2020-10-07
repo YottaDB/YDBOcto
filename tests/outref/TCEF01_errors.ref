@@ -36,7 +36,7 @@ Error with syntax near (line 1, column 22):
 SELECT COALESCE('a', 1.2, 1);
                      ^^^
 [ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT COALESCE('a', 1.2, 1);
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left NUMERIC, right VARCHAR
+[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left INTEGER, right VARCHAR
 Error with syntax near (line 1, column 28):
 
 SELECT COALESCE(NULL, 1, 'a');

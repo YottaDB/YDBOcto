@@ -70,7 +70,6 @@ LogicalPlan *lp_generate_set_logical_plan(SqlStatement *stmt) {
 	MALLOC_LP(dst, options->v.lp_default.operand[1], LP_OUTPUT);
 	MALLOC_LP(dst_key, dst->v.lp_default.operand[0], LP_KEY);
 	OCTO_CMALLOC_STRUCT(dst_key->v.lp_key.key, SqlKey);
-	memset(dst_key->v.lp_key.key, 0, sizeof(SqlKey));
 	dst_key->v.lp_key.key->unique_id = get_new_plan_unique_id();
 	dst_key->v.lp_key.key->type = LP_KEY_ADVANCE;
 	// Restore set_operation for cleanup

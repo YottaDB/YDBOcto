@@ -22,6 +22,9 @@ LogicalPlan *lp_copy_plan(LogicalPlan *plan) {
 	switch (plan->type) {
 	case LP_VALUE:
 	case LP_TABLE:
+	case LP_TABLE_VALUE:
+	case LP_TABLE_DATA:
+	case LP_ROW_VALUE:
 	case LP_COLUMN_ALIAS:
 	case LP_COLUMN_LIST_ALIAS:
 	case LP_KEYWORDS:

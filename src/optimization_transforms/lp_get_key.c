@@ -33,6 +33,11 @@ SqlKey *lp_get_key(LogicalPlan *plan, LogicalPlan *lp_column_alias) {
 	column_alias = lp_column_alias->v.lp_column_alias.column_alias;
 	UNPACK_SQL_STATEMENT(table_alias, column_alias->table_alias_stmt, table_alias);
 	search_id = table_alias->unique_id;
+	if (create_table_STATEMENT != table_alias->table->type) {
+		/* There is no key for an on-the-fly table constructued using the VALUES clause */
+		assert(table_value_STATEMENT == table_alias->table->type);
+		return NULL;
+	}
 	UNPACK_SQL_STATEMENT(table, table_alias->table, create_table);
 	UNPACK_SQL_STATEMENT(search_table_name, table->tableName, value);
 

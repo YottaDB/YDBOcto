@@ -27,13 +27,17 @@ TEMPLATE(tmpl_column_list_combine, LogicalPlan *plan, PhysicalPlan *pplan, char 
 	TEMPLATE_INIT();
 
 	char		c;
-	boolean_t	is_order_by;
+	boolean_t	is_order_by, is_lp_table_value;
 
 	assert((',' == *delim) || ('_' == *delim));
 	assert(NULL != plan);
 	is_order_by = (plan == pplan->order_by);
+	is_lp_table_value = (LP_TABLE_VALUE == pplan->lp_insert->type);
 	while (NULL != plan) {
-		assert(((LP_COLUMN_LIST == plan->type) && (LP_WHERE == plan->v.lp_default.operand[0]->type))
+		LogicalPlan	*expr_plan;
+
+		assert(((LP_COLUMN_LIST == plan->type)
+				&& ((LP_WHERE == plan->v.lp_default.operand[0]->type) || is_lp_table_value))
 			|| (((LP_ORDER_BY == plan->type) || (LP_GROUP_BY == plan->type) || IS_TYPE_LP_AGGREGATE(plan->type))
 						&& (LP_COLUMN_LIST == plan->v.lp_default.operand[0]->type)));
 		assert(is_order_by == (LP_ORDER_BY == plan->type));
@@ -47,6 +51,7 @@ TEMPLATE(tmpl_column_list_combine, LogicalPlan *plan, PhysicalPlan *pplan, char 
 			SqlValueType	order_by_expr_type;
 			LogicalPlan	*tmpPlan;
 
+			assert(!is_lp_table_value);
 			tmpPlan = plan->v.lp_default.operand[0];
 			assert(LP_COLUMN_LIST == tmpPlan->type);
 			tmpPlan = tmpPlan->v.lp_default.operand[0];
@@ -66,11 +71,14 @@ TEMPLATE(tmpl_column_list_combine, LogicalPlan *plan, PhysicalPlan *pplan, char 
 		if (str2mval) {
 			%{}$$str2mval^%%ydboctoplanhelpers({}%
 		}
-		TMPL(tmpl_print_expression, plan->v.lp_default.operand[0]->v.lp_default.operand[0], pplan, 0, 0);
+		expr_plan = (!is_lp_table_value ? plan->v.lp_default.operand[0]->v.lp_default.operand[0]
+						: plan->v.lp_default.operand[0]);
+		TMPL(tmpl_print_expression, expr_plan, pplan, 0, 0);
 		if (str2mval) {
 			%{}){}%
 		}
-		if (plan->v.lp_default.operand[1]) {
+		plan = plan->v.lp_default.operand[1];
+		if (NULL != plan) {
 			if ((0 != start_output_key) && (MAX_M_LINE_LENGTH < (*buffer_index - start_output_key))) {
 				/* The generated M line became close to exceeding the max M line length so split it.
 				 * Reuse the passed in output key to regenerate the first part of the new M line.
@@ -88,7 +96,6 @@ TEMPLATE(tmpl_column_list_combine, LogicalPlan *plan, PhysicalPlan *pplan, char 
 			}
 			%{}{{ delim }}{}%
 		}
-		plan = plan->v.lp_default.operand[1];
 	}
 	TEMPLATE_END();
 }

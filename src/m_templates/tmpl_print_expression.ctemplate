@@ -307,6 +307,7 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 		break;
 	case LP_BOOLEAN_IN:
 	case LP_BOOLEAN_NOT_IN:
+		assert(LP_TABLE_VALUE != second_operand->type);
 		if ((LP_INSERT == second_operand->type) || (LP_SET_OPERATION == second_operand->type)) {
 			/* This is IN or NOT IN used with a sub-query on the right hand side.
 			 *
@@ -517,6 +518,7 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 		break;
 	case LP_BOOLEAN_EXISTS:
 	case LP_BOOLEAN_NOT_EXISTS:
+		assert(LP_TABLE_VALUE != first_operand->type);
 		assert((LP_INSERT == first_operand->type) || (LP_SET_OPERATION == first_operand->type));
 		// Fetch the first value from the output key of this query/table
 		key = lp_get_output_key(first_operand);

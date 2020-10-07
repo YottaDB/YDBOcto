@@ -46,12 +46,12 @@ Error with syntax near (line 1, column 29):
 select (firstname = 'd' AND id) from names;
                             ^^
 [ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select (firstname = 'd' AND id) from names;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type NUMERIC not compatible for boolean operations
+[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type INTEGER not compatible for boolean operations
 Error with syntax near (line 1, column 9):
 
 select (1 AND id) from names;
         ^
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type NUMERIC not compatible for boolean operations
+[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type INTEGER not compatible for boolean operations
 Error with syntax near (line 1, column 15):
 
 select (1 AND id) from names;

@@ -22,6 +22,14 @@ int get_column_piece_number(SqlColumnAlias *column_alias, SqlTableAlias *table_a
 	SqlColumnListAlias *cur_cl_alias, *start_cl_alias;
 	int		    piece_number;
 
+	if (table_value_STATEMENT == table_alias->table->type) {
+		SqlColumn *column;
+
+		assert(column_STATEMENT == column_alias->column->type);
+		UNPACK_SQL_STATEMENT(column, column_alias->column, column);
+		assert(0 < column->column_number);
+		return column->column_number;
+	}
 	assert(column_STATEMENT != column_alias->column->type);
 	UNPACK_SQL_STATEMENT(start_cl_alias, table_alias->column_list, column_list_alias);
 	cur_cl_alias = start_cl_alias;

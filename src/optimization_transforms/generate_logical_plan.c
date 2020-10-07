@@ -28,7 +28,7 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt) {
 	LogicalPlan *	    insert, *project, *select, *dst, *dst_key;
 	LogicalPlan *	    criteria, *where, *order_by;
 	LogicalPlan *	    select_options, *select_more_options, *aggregate_options;
-	LogicalPlan *	    join_left, *join_right, *temp;
+	LogicalPlan *	    join_right, *temp;
 	LogicalPlan *	    start_join_condition, *t_join_condition;
 	LogicalPlan *	    keywords, *left;
 	SqlJoin *	    cur_join, *start_join;
@@ -41,8 +41,11 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt) {
 	if (set_operation_STATEMENT == stmt->type) {
 		return lp_generate_set_logical_plan(stmt);
 	}
-
 	UNPACK_SQL_STATEMENT(table_alias, stmt, table_alias);
+	if (table_value_STATEMENT == table_alias->table->type) {
+		insert = lp_generate_table_value(stmt, &error_encountered);
+		return (error_encountered ? NULL : insert);
+	}
 	UNPACK_SQL_STATEMENT(select_stmt, table_alias->table, select);
 	UNPACK_SQL_STATEMENT(start_join, select_stmt->table_list, join);
 
@@ -67,7 +70,6 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt) {
 	MALLOC_LP(dst, insert->v.lp_default.operand[1], LP_OUTPUT);
 	MALLOC_LP(dst_key, dst->v.lp_default.operand[0], LP_KEY);
 	OCTO_CMALLOC_STRUCT(dst_key->v.lp_key.key, SqlKey);
-	memset(dst_key->v.lp_key.key, 0, sizeof(SqlKey));
 	dst_key->v.lp_key.key->unique_id = get_new_plan_unique_id();
 	insert->extra_detail.lp_insert.root_table_alias = table_alias;
 	/// TODO: we should look at the columns to decide which values
@@ -79,6 +81,7 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt) {
 	start_join_condition = NULL;
 	do {
 		SqlStatement *sql_stmt;
+		boolean_t     need_generate_logical_plan;
 
 		assert((NO_JOIN == cur_join->type) || (INNER_JOIN == cur_join->type) || (LEFT_JOIN == cur_join->type)
 		       || (RIGHT_JOIN == cur_join->type) || (FULL_JOIN == cur_join->type) || (CROSS_JOIN == cur_join->type)
@@ -91,10 +94,29 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt) {
 		}
 		assert(set_operation_STATEMENT != stmt->type); /* else would have returned at beginning of this function */
 		sql_stmt = cur_join->value;
-		if ((table_alias_STATEMENT == sql_stmt->type) && (create_table_STATEMENT == sql_stmt->v.table_alias->table->type)) {
-			MALLOC_LP(join_left, join_right->v.lp_default.operand[0], LP_TABLE);
-			join_left->v.lp_table.table_alias = sql_stmt->v.table_alias;
-		} else {
+		need_generate_logical_plan = TRUE;
+		if (table_alias_STATEMENT == sql_stmt->type) {
+			SqlStatementType table_type;
+			SqlTableAlias *	 table_alias;
+
+			table_alias = sql_stmt->v.table_alias;
+			table_type = table_alias->table->type;
+			if (select_STATEMENT != table_type) {
+				if (create_table_STATEMENT == table_type) {
+					LogicalPlan *lp_table;
+
+					MALLOC_LP(lp_table, join_right->v.lp_default.operand[0], LP_TABLE);
+					lp_table->v.lp_table.table_alias = table_alias;
+				} else {
+					assert(table_value_STATEMENT == table_type);
+					join_right->v.lp_default.operand[0] = lp_generate_table_value(sql_stmt, &error_encountered);
+				}
+				need_generate_logical_plan = FALSE;
+			}
+		}
+		if (need_generate_logical_plan) {
+			LogicalPlan *join_left;
+
 			join_left = generate_logical_plan(sql_stmt);
 			if (NULL == join_left) {
 				return NULL;
@@ -209,7 +231,8 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt) {
 		LogicalPlan *new_plan;
 
 		new_plan = left->v.lp_default.operand[0];
-		assert((LP_INSERT == new_plan->type) || (LP_SET_OPERATION == new_plan->type) || (LP_TABLE == new_plan->type));
+		assert((LP_INSERT == new_plan->type) || (LP_SET_OPERATION == new_plan->type) || (LP_TABLE == new_plan->type)
+		       || (LP_TABLE_VALUE == new_plan->type));
 		if (LP_TABLE != new_plan->type) {
 			SqlStatement *sql_stmt;
 			LogicalPlan * cur_lp_key;

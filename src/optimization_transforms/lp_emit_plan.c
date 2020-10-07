@@ -216,9 +216,15 @@ int emit_plan_helper(char *buffer, size_t buffer_len, int depth, LogicalPlan *pl
 		}
 		break;
 	case LP_COLUMN_LIST:
+	case LP_ROW_VALUE:
 		EMIT_SNPRINTF(written, buff_ptr, buffer, buffer_len, "\n");
 		buff_ptr += emit_plan_helper(buff_ptr, buffer_len - (buff_ptr - buffer), depth + 2, plan->v.lp_default.operand[0]);
-		buff_ptr += emit_plan_helper(buff_ptr, buffer_len - (buff_ptr - buffer), depth + 2, plan->v.lp_default.operand[1]);
+		/* For "case LP_COLUMN_LIST", operand[1] is a sibling LP_COLUMN_LIST and should be treated at the same level as
+		 * the parent LP_COLUMN_LIST hence using "depth" instead of "depth + 2" like was done for operand[0].
+		 * For "case LP_ROW_VALUE", operand[1] is a sibling LP_ROW_VALUE and should be treated at the same level as
+		 * the parent LP_ROW_VALUE hence using "depth" instead of "depth + 2" like was done for operand[0].
+		 */
+		buff_ptr += emit_plan_helper(buff_ptr, buffer_len - (buff_ptr - buffer), depth, plan->v.lp_default.operand[1]);
 		break;
 	case LP_VALUE:
 		value = plan->v.lp_value.value;

@@ -17,10 +17,9 @@
 
 // Function invoked by the rule named "set_function_specification" and "general_set_function" in src/parser.y
 SqlStatement *aggregate_function(SqlAggregateType aggregate_type, OptionalKeyword set_quantifier, SqlStatement *value_expression) {
-	SqlStatement *	      ret, *aggregate_stmt, *parameter_stmt;
+	SqlStatement *	      ret, *aggregate_stmt;
 	SqlAggregateFunction *af;
 	SqlValue *	      value;
-	SqlColumnList *	      column_list;
 
 	SQL_STATEMENT(ret, value_STATEMENT);
 	MALLOC_STATEMENT(ret, value, SqlValue);
@@ -30,6 +29,7 @@ SqlStatement *aggregate_function(SqlAggregateType aggregate_type, OptionalKeywor
 	SQL_STATEMENT(aggregate_stmt, aggregate_function_STATEMENT);
 	MALLOC_STATEMENT(aggregate_stmt, aggregate_function, SqlAggregateFunction);
 	UNPACK_SQL_STATEMENT(af, aggregate_stmt, aggregate_function);
+	value->v.calculated = aggregate_stmt;
 	if (OPTIONAL_DISTINCT == set_quantifier) {
 		assert(COUNT_ASTERISK_AGGREGATE != aggregate_type);
 		assert(COUNT_AGGREGATE <= aggregate_type);
@@ -46,17 +46,6 @@ SqlStatement *aggregate_function(SqlAggregateType aggregate_type, OptionalKeywor
 	} else {
 		af->type = aggregate_type;
 	}
-	SQL_STATEMENT(parameter_stmt, column_list_STATEMENT);
-	MALLOC_STATEMENT(parameter_stmt, column_list, SqlColumnList);
-	UNPACK_SQL_STATEMENT(column_list, parameter_stmt, column_list);
-	column_list->value = value_expression;
-	dqinit(column_list);
-	if (NULL != value_expression) {
-		parameter_stmt->loc = value_expression->loc; /* Cannot use "yyloc" here so passing it from parser
-							      * through value_expression->loc.
-							      */
-	}
-	af->parameter = parameter_stmt;
-	value->v.calculated = aggregate_stmt;
+	af->parameter = create_sql_column_list(value_expression, NULL, (NULL != value_expression) ? &value_expression->loc : NULL);
 	return ret;
 }

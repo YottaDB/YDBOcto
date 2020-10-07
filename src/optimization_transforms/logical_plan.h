@@ -121,16 +121,19 @@ typedef struct LpExtraWhere {
 	int num_outer_joins;
 } LpExtraWhere;
 
-/* Extra fields needed by LP_INSERT */
+/* Extra fields needed by LP_INSERT or LP_TABLE_VALUE */
 typedef struct LpExtraInsert {
-	SqlTableAlias *root_table_alias; /* The outer most SqlTableAlias structure corresponding to this
-					  * logical plan. Needed to forward this to the PhysicalPlan structure.
-					  */
-	struct LogicalPlan * first_aggregate;
-	struct PhysicalPlan *physical_plan; /* Pointer to corresponding physical plan. Note that there could be
-					     * multiple physical plans corresponding to the same logical plan
-					     * (i.e. many physical plans to 1 logical plan relationship).
-					     */
+	SqlTableAlias *root_table_alias;      /* If LP_INSERT, this field points to the outer most SqlTableAlias structure
+					       * corresponding to this logical plan. Needed to forward this to the
+					       * PhysicalPlan structure.
+					       * If LP_TABLE_VALUE, this field points to the SqlTableAlias structure
+					       * at this level (not outer level) corresponding to this logical plan.
+					       */
+	struct LogicalPlan * first_aggregate; /* Used only in case of LP_INSERT. Not used if LP_TABLE_VALUE */
+	struct PhysicalPlan *physical_plan;   /* Pointer to corresponding physical plan. Note that there could be
+					       * multiple physical plans corresponding to the same logical plan
+					       * (i.e. many physical plans to 1 logical plan relationship).
+					       */
 } LpExtraInsert;
 
 /* Extra fields needed by LP_COLUMN_ALIAS */
@@ -201,7 +204,7 @@ typedef struct LogicalPlan {
 		LpExtraTableJoin	 lp_table_join;		// To be used if type == LP_TABLE_JOIN
 		LpExtraOrderBy		 lp_order_by;		// To be used if type == LP_ORDER_BY
 		LpExtraWhere		 lp_where;		// To be used if type == LP_WHERE
-		LpExtraInsert		 lp_insert;		// To be used if type == LP_INSERT
+		LpExtraInsert		 lp_insert;		// To be used if type == LP_INSERT or LP_TABLE_VALUE
 		LpExtraColumnAlias	 lp_column_alias;	// To be used if type == LP_COLUMN_ALIAS
 		LpExtraDerivedColumn	 lp_derived_column;	// To be used if type == LP_DERIVED_COLUMN
 		LpExtraAggregateFunction lp_aggregate_function; // To be used if type == LP_AGGREGATE_*
@@ -264,7 +267,7 @@ LogicalPlan *lp_get_select_key(LogicalPlan *plan, SqlKey *key);
 // Returns the TABLE_JOIN statement for the given LP
 LogicalPlan *lp_get_table_join(LogicalPlan *plan);
 
-/* Returns the unique_id corresponding to the LP_TABLE/LP_INSERT/LP_SET_OPERATION plan inside a LP_TABLE_JOIN */
+/* Returns the unique_id corresponding to the LP_TABLE/LP_TABLE_VALUE/LP_INSERT/LP_SET_OPERATION plan inside a LP_TABLE_JOIN */
 int lp_get_tablejoin_unique_id(LogicalPlan *plan);
 
 // Returns the WHERE statement for the given LP
@@ -358,6 +361,9 @@ LogicalPlan *lp_optimize_where_multi_equals_ands_helper(LogicalPlan *plan, Logic
  * This function can only be used for column lists with at least one column.
  */
 boolean_t lp_generate_column_list(LogicalPlan **ret, SqlStatement *stmt, SqlColumnList *start_columns);
+
+/* Generates a LP_TABLE_VALUE table plan corresponding to a VALUES() clause specification and returns it */
+LogicalPlan *lp_generate_table_value(SqlStatement *stmt, boolean_t *caller_error_encountered);
 
 // Creates and returns a new/unique plan id
 int get_new_plan_unique_id();

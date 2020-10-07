@@ -307,7 +307,8 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 					UNPACK_SQL_STATEMENT(col_list, cur_cla->column_list, column_list);
 					/* Check for positive numeric literal */
 					is_positive_numeric_literal = ((value_STATEMENT == col_list->value->type)
-								       && (NUMERIC_LITERAL == col_list->value->v.value->type));
+								       && ((INTEGER_LITERAL == col_list->value->v.value->type)
+									   || (NUMERIC_LITERAL == col_list->value->v.value->type)));
 					/* Check for negative numeric literal next */
 					is_negative_numeric_literal = FALSE;
 					if (!is_positive_numeric_literal) {
@@ -318,7 +319,8 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 							is_negative_numeric_literal
 							    = ((NEGATIVE == unary->operation)
 							       && (value_STATEMENT == unary->operand->type)
-							       && (NUMERIC_LITERAL == unary->operand->v.value->type));
+							       && ((INTEGER_LITERAL == unary->operand->v.value->type)
+								   || (NUMERIC_LITERAL == unary->operand->v.value->type)));
 							if (is_negative_numeric_literal) {
 								str = unary->operand->v.value->v.string_literal;
 							}
@@ -439,6 +441,7 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 		break;
 	case create_table_STATEMENT:
 		break;
+	case table_value_STATEMENT:
 	default:
 		ERROR(ERR_UNKNOWN_KEYWORD_STATE, "");
 		assert(FALSE);

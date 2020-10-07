@@ -586,6 +586,41 @@ The keyword ALL affects the resulting rows such that duplicate results are allow
    SELECT LastName FROM Employee EXCEPT SELECT LastName FROM AddressBook;
 
 --------------
+VALUES
+--------------
+
+:code:`VALUES` provides a way to generate an "on-the-fly" table that can be used in a query without having to actually create and populate a table on-disk. The syntax is
+
+:code:`VALUES` ( expression [, ...] ) [, ...]
+
+Each parenthesized list of expressions generates one row in the table. Each specified row must have the same number of comma-separated entries (could be constants, expressions, subqueries etc.). This becomes the number of columns in the generated table. Corresponding entries in each row must have compatible data types. The data type assigned to each column of the generated table is determined based on the data type of the entries in the row lists.
+
+The columns of the generated table are assigned the names :code:`column1`, :code:`column2`, etc.
+
+For example, the below generates a table of two columns and three rows.
+
+.. code-block:: SQL
+
+   VALUES (1, 'one'), (2, 'two'), (3, 'three');
+
+will return a table containing two columns (named :code:`column1` with type INTEGER and :code:`column2` with type VARCHAR) and three rows.
+
+:code:`VALUES` followed by expression lists can appear anywhere a :code:`SELECT` can.  So, the below two queries are equivalent.
+
+.. code-block:: SQL
+   VALUES (1, 'one'), (2, 'two'), (3, 'three');
+   SELECT 1, 'one' UNION SELECT 2, 'two' UNION SELECT 3, 'three';
+
+There is an exception to this currently in that :code:`ORDER BY` and :code:`LIMIT` cannot be specified at the end of :code:`VALUES` like they can be for :code:`SELECT`.
+
+Below are examples of using :code:`VALUES` with entries containing expressions and subqueries:
+
+.. code-block:: SQL
+   SELECT 5 + (VALUES (3));
+   SELECT * FROM (VALUES ((SELECT 1), 2));
+   VALUES((SELECT id FROM names WHERE id > 5));
+
+--------------
 CASE
 --------------
 

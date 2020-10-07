@@ -33,10 +33,7 @@ SqlOptionalKeyword *add_optional_piece_keyword_to_sql_column(int column_number) 
 	len = strlen(buffer);
 	malloc_space = octo_cmalloc(memory_chunks, len + 1);
 	strncpy(malloc_space, buffer, len + 1);
-	SQL_STATEMENT(keyword->v, value_STATEMENT);
-	MALLOC_STATEMENT(keyword->v, value, SqlValue);
-	keyword->v->v.value->type = NUMERIC_LITERAL;
-	keyword->v->v.value->v.string_literal = malloc_space;
+	SQL_VALUE_STATEMENT(keyword->v, INTEGER_LITERAL, malloc_space);
 	dqinit(keyword);
 	return keyword;
 }

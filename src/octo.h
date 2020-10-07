@@ -74,6 +74,8 @@
 // Specify character for delimiting column values in Octo
 #define COLUMN_DELIMITER "|"
 
+#define VALUES_COLUMN_NAME_PREFIX "COLUMN"
+
 /* Define various string literals used as gvn subscripts and/or in physical plans (generated M code).
  * Each macro is prefixed with a OCTOLIT_.
  * A similar piece of code exists in template_helpers.h where PP_* macros are defined.
@@ -134,7 +136,7 @@
  * The "test-auto-upgrade" pipeline job (that automatically runs) will alert us if it detects the need for the bump.
  * And that is considered good enough for now (i.e. no manual review of code necessary to detect the need for a bump).
  */
-#define FMT_BINARY_DEFINITION 2
+#define FMT_BINARY_DEFINITION 3
 
 /* The below macro needs to be manually bumped if at least one of the following changes.
  *	1) Generated physical plan (_ydboctoP*.m) file name OR contents
@@ -143,7 +145,7 @@
  * The "test-auto-upgrade" pipeline job (that automatically runs) will alert us if it detects the need for the bump.
  * And that is considered good enough for now (i.e. no manual review of code necessary to detect the need for a bump).
  */
-#define FMT_PLAN_DEFINITION 2
+#define FMT_PLAN_DEFINITION 3
 
 // Below are a few utility macros that are similar to those defined in sr_port/gtm_common_defs.h.
 // But we do not use those as that is outside the control of Octo's source code repository
@@ -403,6 +405,7 @@ int	      readline_get_more();
 SqlStatement *parse_line(ParseContext *parse_context);
 
 int	      populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_context);
+SqlDataType   get_sqldatatype_from_sqlvaluetype(SqlValueType type);
 SqlValueType  get_sqlvaluetype_from_sqldatatype(SqlDataType type);
 SqlValueType  get_sqlvaluetype_from_psql_type(PSQL_TypeOid type);
 PSQL_TypeOid  get_psql_type_from_sqlvaluetype(SqlValueType type);
@@ -483,10 +486,12 @@ SqlStatement *sql_set_statement(SqlStatement *variable, SqlStatement *value, Par
 SqlStatement *aggregate_function(SqlAggregateType aggregate_type, OptionalKeyword set_quantifier, SqlStatement *value_expression);
 SqlStatement *between_predicate(SqlStatement *row_value_constructor, SqlStatement *from, SqlStatement *to, boolean_t not_specified);
 SqlStatement *cast_specification(SqlStatement *cast_specification, SqlStatement *source);
+SqlStatement *create_sql_column_list(SqlStatement *elem, SqlStatement *tail, YYLTYPE *llocp);
 SqlStatement *data_type(SqlDataType data_type, SqlStatement *size_or_precision, SqlStatement *scale);
 SqlStatement *derived_column(SqlStatement *derived_column_expression, SqlStatement *column_name, struct YYLTYPE *yloc);
 SqlStatement *derived_table(SqlStatement *table_subquery, SqlStatement *correlation_specification);
 SqlStatement *grouping_column_reference(SqlStatement *derived_column_expression, SqlStatement *collate_clause);
+SqlStatement *insert_statement(SqlStatement *table_name, SqlStatement *column_name_list, SqlStatement *query_expression);
 int	      natural_join_condition(SqlJoin *start, SqlJoin *r_join);
 int	      parse_literal_to_parameter(ParseContext *parse_context, SqlValue *value, boolean_t update_existing);
 SqlStatement *query_specification(OptionalKeyword set_quantifier, SqlStatement *select_list, SqlStatement *table_expression,
@@ -495,6 +500,7 @@ int regex_specification(SqlStatement **stmt, SqlStatement *op0, SqlStatement *op
 			int is_not, ParseContext *parse_context);
 SqlStatement *set_operation(enum SqlSetOperationType setoper_type, SqlStatement *left_operand, SqlStatement *right_operand);
 SqlStatement *sort_specification(SqlStatement *sort_key, SqlStatement *ordering_specification);
+SqlStatement *table_expression(SqlStatement *from, SqlStatement *where, SqlStatement *group_by, SqlStatement *having);
 SqlStatement *table_reference(SqlStatement *column_name, SqlStatement *correlation_specification, int *plan_id);
 
 // Creates a new cursor by assigning a new cursorId

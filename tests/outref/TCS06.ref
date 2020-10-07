@@ -1,6 +1,6 @@
 
 SELECT case when id=1 then 'id_is_1' when id=2 then 1 when id=3 then 'id_is_3' end as caseid FROM names;
-[ERROR] PATH:LINENUM DATE TIME : ERR_CASE_BRANCH_TYPE_MISMATCH : CASE branch type mismatch: left VARCHAR, right NUMERIC
+[ERROR] PATH:LINENUM DATE TIME : ERR_CASE_BRANCH_TYPE_MISMATCH : CASE branch type mismatch: left VARCHAR, right INTEGER
 Error with syntax near (line 1, column 36):
 
 SELECT case when id=1 then 'id_is_1' when id=2 then 1 when id=3 then 'id_is_3' end as caseid FROM names;

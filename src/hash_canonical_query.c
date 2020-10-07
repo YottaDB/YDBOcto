@@ -127,8 +127,9 @@ void hash_canonical_query(hash128_state_t *state, SqlStatement *stmt, int *statu
 	SqlJoin *		cur_join;
 	SqlOptionalKeyword *	cur_keyword;
 	SqlParameterTypeList *	cur_parameter_type_list;
-
-	BinaryOperations binary_operation;
+	BinaryOperations	binary_operation;
+	SqlTableValue *		table_value;
+	SqlRowValue *		row_value, *start_row_value;
 
 	/* Note: 0 OR negative values of "*status" are considered normal. Positive values are considered abnormal. */
 	if ((NULL == stmt) || (0 < *status))
@@ -141,6 +142,13 @@ void hash_canonical_query(hash128_state_t *state, SqlStatement *stmt, int *statu
 			// On a revisit, just hash the table name and return without retraversing.
 			assert(value_STATEMENT == table->tableName->type);
 			hash_canonical_query(state, table->tableName, status);
+			return;
+			break;
+		case table_value_STATEMENT:
+			ADD_INT_HASH(state, table_value_STATEMENT);
+			/* A VALUES clause is not a named object (whereas a user defined table has a name).
+			 * Therefore, nothing more to hash before returning without retraversing.
+			 */
 			return;
 			break;
 		case keyword_STATEMENT:
@@ -276,8 +284,7 @@ void hash_canonical_query(hash128_state_t *state, SqlStatement *stmt, int *statu
 		UNPACK_SQL_STATEMENT(value, stmt, value);
 		ADD_INT_HASH(state, value_STATEMENT);
 		// SqlValueType
-		ADD_INT_HASH(state, ((INTEGER_LITERAL == value->type) ? NUMERIC_LITERAL : value->type));
-		// ADD_INT_HASH(state, value->type);
+		ADD_INT_HASH(state, value->type);
 		switch (value->type) {
 		case CALCULATED_VALUE:
 			hash_canonical_query(state, value->v.calculated, status);
@@ -337,6 +344,23 @@ void hash_canonical_query(hash128_state_t *state, SqlStatement *stmt, int *statu
 		hash_canonical_query(state, table->delim, status);
 		hash_canonical_query(state, table->nullchar, status);
 		break;
+	case table_value_STATEMENT:
+		UNPACK_SQL_STATEMENT(table_value, stmt, table_value);
+		ADD_INT_HASH(state, table_value_STATEMENT);
+		UNPACK_SQL_STATEMENT(row_value, table_value->row_value_stmt, row_value);
+		start_row_value = row_value;
+		do {
+			SqlColumnList *start_column_list, *cur_column_list;
+
+			UNPACK_SQL_STATEMENT(start_column_list, row_value->value_list, column_list);
+			cur_column_list = start_column_list;
+			do {
+				hash_canonical_query(state, cur_column_list->value, status);
+				cur_column_list = cur_column_list->next;
+			} while ((cur_column_list != start_column_list));
+			row_value = row_value->next;
+		} while (row_value != start_row_value);
+		break;
 	case drop_function_STATEMENT:
 		/* DROP FUNCTION statements are only hashed for the purpose of looking up the function version targeted for
 		 * deletion. Accordingly, we use the statement type used at the time of creation, i.e. create_function_STATEMENT.
@@ -379,15 +403,19 @@ void hash_canonical_query(hash128_state_t *state, SqlStatement *stmt, int *statu
 		// Since unique_id is an int, can use treat it as if it were a type enum
 		ADD_INT_HASH(state, table_alias->unique_id);
 		// SqlColumnListAlias
-		// If table_alias->table is of type "select_STATEMENT", we can skip "table_alias->column_list"
-		// as that would have been already traversed as part of "table_alias->table->v.select->select_list" above.
-		// If table_alias->table is of type "create_table_STATEMENT", then the "table_alias->column_list" is derived
-		// from the list of all available columns in the corresponding SqlTable. In this case too, there is no need
-		// to go through all the available columns in the table. We are interested only in the columns that this
-		// query is interested in which would already be part of the SELECT column list or other parts of the query.
-		// And since the only two types possible are "select_STATEMENT" or "create_table_STATEMENT", no need to traverse
-		// "table_alias->column_list" as part of "hash_canonical_query". This is asserted below.
-		assert((select_STATEMENT == table_alias->table->type) || (create_table_STATEMENT == table_alias->table->type));
+		/* If table_alias->table is of type "select_STATEMENT", we can skip "table_alias->column_list"
+		 *	as that would have been already traversed as part of "table_alias->table->v.select->select_list" above.
+		 * If table_alias->table is of type "create_table_STATEMENT", then the "table_alias->column_list" is derived
+		 *	from the list of all available columns in the corresponding SqlTable. In this case too, there is no need
+		 *	to go through all the available columns in the table. We are interested only in the columns that this
+		 *	query is interested in which would already be part of the SELECT column list or other parts of the query.
+		 * If table_alias->table is of type "table_value_STATEMENT", then the "table_alias->column_list" is derived
+		 *	from the list of all available columns in the corresponding "table_alias->table" structure.
+		 * And since these are the only 3 types possible, no need to traverse "table_alias->column_list" as part of
+		 *	"hash_canonical_query". This is asserted below.
+		 */
+		assert((select_STATEMENT == table_alias->table->type) || (create_table_STATEMENT == table_alias->table->type)
+		       || (table_value_STATEMENT == table_alias->table->type));
 		assert((select_STATEMENT != table_alias->table->type)
 		       || (table_alias->table->v.select->select_list == table_alias->column_list));
 		// hash_canonical_query(state, table_alias->column_list, status);

@@ -137,9 +137,6 @@ SqlStatement *find_column_alias_name(SqlStatement *stmt) {
 SqlStatement *string_literal(char *name) {
 	SqlStatement *ret;
 
-	SQL_STATEMENT(ret, value_STATEMENT);
-	OCTO_CMALLOC_STRUCT(ret->v.value, SqlValue);
-	ret->v.value->type = STRING_LITERAL;
-	ret->v.value->v.string_literal = name;
+	SQL_VALUE_STATEMENT(ret, STRING_LITERAL, name);
 	return ret;
 }

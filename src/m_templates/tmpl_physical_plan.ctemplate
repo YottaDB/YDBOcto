@@ -181,8 +181,53 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
 		assert(FALSE);
 	}
 	// Not a cross-reference plan
+	if (LP_TABLE_VALUE == plan->lp_insert->type) {
+		int		start_output_key, end_output_key;
+		LogicalPlan	*lp_table_data, *lp_row_value;
+
+		assert(NULL == plan->dnf_prev);
+		assert(NULL == plan->dnf_next);
+		assert(NULL == plan->order_by);
+		assert(!plan->emit_duplication_check);
+		assert(!plan->distinct_values);
+		assert(!plan->distinct_values);
+		assert(!plan->stash_columns_in_keys);
+		assert(NULL == plan->set_oper_list);
+		%{}KILL {}%
+		TMPL(tmpl_key, plan->outputKey);
+		GET_LP(lp_table_data, plan->lp_insert, 0, LP_TABLE_DATA);
+		GET_LP(lp_row_value, lp_table_data, 1, LP_ROW_VALUE);
+		dot_count = 0;
+		do {
+			LogicalPlan	*lp_column_list;
+
+			assert(LP_ROW_VALUE == lp_row_value->type);
+			%{}`n{{ PLAN_LINE_START }}{}%
+			%{}IF $INCREMENT({}%
+			TMPL(tmpl_key, plan->outputKey);
+			%{}){}%
+			%{}`n{{ PLAN_LINE_START }}{}%
+			%{}SET {}%
+			start_output_key = *buffer_index;
+			TMPL(tmpl_key, plan->outputKey); (*buffer_index)--;
+			%{},{}%
+			TMPL(tmpl_key, plan->outputKey);
+			%{}){}%
+			end_output_key = *buffer_index;
+			%{}={}%
+			GET_LP(lp_column_list, lp_row_value, 0, LP_COLUMN_LIST);
+			TMPL(tmpl_column_list_combine, lp_column_list, plan, "_", TRUE,
+					start_output_key, end_output_key - start_output_key, dot_count);
+			lp_row_value = lp_row_value->v.lp_default.operand[1];
+		} while (NULL != lp_row_value);
+		%{}`n{{ PLAN_LINE_START }}{}%
+		%{}QUIT{}%
+		TEMPLATE_END();
+		assert(FALSE);
+	}
+	assert(LP_INSERT == plan->lp_insert->type);
 	prev_t_key = NULL;
-	for(cur_key = 0; cur_key < plan->total_iter_keys; cur_key++)
+	for (cur_key = 0; cur_key < plan->total_iter_keys; cur_key++)
 	{
 		key = plan->iterKeys[cur_key];
 		t_key = key->cross_reference_output_key;

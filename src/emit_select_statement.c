@@ -98,9 +98,10 @@ PhysicalPlan *emit_select_statement(SqlStatement *stmt, char *plan_filename) {
 				       * will update "function" to point to the start of the linked list of LP_FUNCTION_CALL
 				       * usages (if any) in the the entire query.
 				       */
-	options.table = &table;	      /* Store pointer to "table" in options.function. "generate_physical_plan" call below
+	options.table = &table;	      /* Store pointer to "table" in options.table. "generate_physical_plan()" call below
 				       * will update "table" to point to the start of the linked list of LP_TABLE usages
-				       * (if any) in the the entire query.
+				       * (if any) in the the entire query (actual update happens in "lp_verify_structure()"
+				       * which is called inside "generate_physical_plan()").
 				       */
 	pplan = generate_physical_plan(plan, &options);
 	if (NULL == pplan) {
@@ -186,6 +187,7 @@ PhysicalPlan *emit_select_statement(SqlStatement *stmt, char *plan_filename) {
 			SqlTable *    sql_table;
 
 			/* Store table name in "table_buff[1]" */
+			assert(LP_TABLE == table->type);
 			table_stmt = table->v.lp_table.table_alias->table;
 			UNPACK_SQL_STATEMENT(sql_table, table_stmt, create_table);
 			tableName = sql_table->tableName;

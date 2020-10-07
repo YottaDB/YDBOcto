@@ -70,7 +70,7 @@ select n2.id from names n1;
 select idb from (select 8 "ida");
 select idb from (select 8 'ida');
 select idb from (select 8 ida);
-[ERROR] PATH:LINENUM DATE TIME : ERR_INVALID_AS_SYNTAX : Invalid AS value type: NUMERIC
+[ERROR] PATH:LINENUM DATE TIME : ERR_INVALID_AS_SYNTAX : Invalid AS value type: INTEGER
 Error with syntax near (line 1, column 14):
 
 select id as 123 from names;
@@ -135,7 +135,7 @@ Error with syntax near (line 1, column 8):
 select idb from (select 8 as ida);
        ^^^
 [ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select idb from (select 8 as ida);
-[ERROR] PATH:LINENUM DATE TIME : ERR_INVALID_AS_SYNTAX : Invalid AS value type: NUMERIC
+[ERROR] PATH:LINENUM DATE TIME : ERR_INVALID_AS_SYNTAX : Invalid AS value type: INTEGER
 Error with syntax near (line 1, column 25):
 
 select id from names as 123;
@@ -194,7 +194,7 @@ Error with syntax near (line 1, column 8):
 select n2.id from names as n1;
        ^^^^^
 [ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select n2.id from names as n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_INVALID_AS_SYNTAX : Invalid AS value type: NUMERIC
+[ERROR] PATH:LINENUM DATE TIME : ERR_INVALID_AS_SYNTAX : Invalid AS value type: INTEGER
 Error with syntax near (line 1, column 11):
 
 select id 123 from names;
@@ -259,7 +259,7 @@ Error with syntax near (line 1, column 8):
 select idb from (select 8 ida) n1;
        ^^^
 [ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select idb from (select 8 ida) n1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_INVALID_AS_SYNTAX : Invalid AS value type: NUMERIC
+[ERROR] PATH:LINENUM DATE TIME : ERR_INVALID_AS_SYNTAX : Invalid AS value type: INTEGER
 Error with syntax near (line 1, column 22):
 
 select id from names 123;

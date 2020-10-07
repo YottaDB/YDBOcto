@@ -46,9 +46,6 @@ SqlStatement *copy_sql_statement(SqlStatement *stmt) {
 		return stmt;
 	SQL_STATEMENT(ret, stmt->type);
 	switch (stmt->type) {
-	case create_table_STATEMENT:
-		assert(FALSE);
-		break;
 	case table_alias_STATEMENT:
 		UNPACK_SQL_STATEMENT(table_alias, stmt, table_alias);
 		MALLOC_STATEMENT(ret, table_alias, SqlTableAlias);
@@ -246,6 +243,12 @@ SqlStatement *copy_sql_statement(SqlStatement *stmt) {
 		ret->v.aggregate_function->type = aggregate_function->type;
 		ret->v.aggregate_function->parameter = copy_sql_statement(aggregate_function->parameter);
 		break;
+	case table_value_STATEMENT:
+		/* Note: Fall through. At this time, we don't expect this code path to be reached. So fall through
+		 * below. If this assert fails in the future, we will need to handle it then. At that point, code in
+		 * "match_sql_statement.c" might need to be fixed as it currently does nothing for the
+		 * "case table_value_STATEMENT:" code path.
+		 */
 	default:
 		assert(FALSE);
 		FATAL(ERR_UNKNOWN_KEYWORD_STATE, "");

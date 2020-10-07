@@ -19,17 +19,10 @@
 SqlStatement *derived_column(SqlStatement *derived_column_expression, SqlStatement *column_name, struct YYLTYPE *yloc) {
 	SqlColumnListAlias *alias;
 	SqlStatement *	    ret;
-	SqlColumnList *	    column_list;
 
-	SQL_STATEMENT(ret, column_list_alias_STATEMENT);
-	MALLOC_STATEMENT(ret, column_list_alias, SqlColumnListAlias);
+	SQL_COLUMN_LIST_ALIAS_STATEMENT(ret);
 	UNPACK_SQL_STATEMENT(alias, ret, column_list_alias);
-	SQL_STATEMENT(alias->column_list, column_list_STATEMENT);
-	dqinit(alias);
-	MALLOC_STATEMENT(alias->column_list, column_list, SqlColumnList);
-	UNPACK_SQL_STATEMENT(column_list, alias->column_list, column_list);
-	dqinit(column_list);
-	column_list->value = derived_column_expression;
+	alias->column_list = create_sql_column_list(derived_column_expression, NULL, yloc);
 	if (NULL == column_name) {
 		alias->alias = find_column_alias_name(derived_column_expression);
 		if (NULL == alias->alias) {
@@ -44,6 +37,5 @@ SqlStatement *derived_column(SqlStatement *derived_column_expression, SqlStateme
 		alias->alias = column_name;
 		alias->user_specified_alias = TRUE;
 	}
-	alias->column_list->loc = *yloc;
 	return ret;
 }

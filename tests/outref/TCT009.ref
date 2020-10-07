@@ -27,48 +27,48 @@ select * from names where firstname = 'Zero' or lastname::integer;
 select * from names where firstname = 'Zero' or 'abcd'::integer;
 select * from names where firstname = 'Zero' or ''::integer;
 
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type NUMERIC not compatible for || operator
+[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type INTEGER not compatible for || operator
 Error with syntax near (line 1, column 32):
 
 select * from names where id = 2 || 3;
                                ^
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type NUMERIC not compatible for || operator
+[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type INTEGER not compatible for || operator
 Error with syntax near (line 1, column 37):
 
 select * from names where id = 2 || 3;
                                     ^
 [ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select * from names where id = 2 || 3;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type NUMERIC not compatible for || operator
+[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type INTEGER not compatible for || operator
 Error with syntax near (line 1, column 32):
 
 select * from names where id = 2 || (+3);
                                ^
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type NUMERIC not compatible for || operator
+[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type INTEGER not compatible for || operator
 [ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select * from names where id = 2 || (+3);
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type NUMERIC not compatible for || operator
+[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type INTEGER not compatible for || operator
 Error with syntax near (line 1, column 34):
 
 select * from names where '23' = 2 || 3;
                                  ^
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type NUMERIC not compatible for || operator
+[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type INTEGER not compatible for || operator
 Error with syntax near (line 1, column 39):
 
 select * from names where '23' = 2 || 3;
                                       ^
 [ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select * from names where '23' = 2 || 3;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type NUMERIC not compatible for || operator
+[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type INTEGER not compatible for || operator
 Error with syntax near (line 1, column 35):
 
 select * from names where '2-3' = 2 || -3;
                                   ^
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type NUMERIC not compatible for || operator
+[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type INTEGER not compatible for || operator
 [ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select * from names where '2-3' = 2 || -3;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type NUMERIC not compatible for || operator
+[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type INTEGER not compatible for || operator
 Error with syntax near (line 1, column 34):
 
 select * from names where '23' = 2 || (+3);
                                  ^
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type NUMERIC not compatible for || operator
+[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type INTEGER not compatible for || operator
 [ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select * from names where '23' = 2 || (+3);
 [ERROR] PATH:LINENUM DATE TIME : ERR_INVALID_INPUT_SYNTAX : Invalid input syntax : Expecting type NUMERIC or INTEGER : Actual type VARCHAR
 Error with syntax near (line 1, column 45):

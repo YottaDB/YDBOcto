@@ -67,11 +67,38 @@ typedef void *yyscan_t;
 	} while (0);
 
 /* Determines the corresponding (SqlStatement *) structures that points to a (SqlTable *) structure */
-#define SQL_STATEMENT_FROM_TABLE_STATEMENT(RET, TABLE)                        \
-	{                                                                     \
-		RET = (SqlStatement *)((char *)TABLE - sizeof(SqlStatement)); \
-		assert(create_table_STATEMENT == RET->type);                  \
-		assert(RET->v.create_table == TABLE);                         \
+#define SQL_STATEMENT_FROM_SQLTABLE(ALIAS, TABLE)                                 \
+	{                                                                         \
+		SqlStatement *lcl_ret;                                            \
+                                                                                  \
+		lcl_ret = (SqlStatement *)((char *)TABLE - sizeof(SqlStatement)); \
+		assert(create_table_STATEMENT == lcl_ret->type);                  \
+		assert(lcl_ret->v.create_table == TABLE);                         \
+		ALIAS->table = lcl_ret;                                           \
+		lcl_ret->v.create_table = TABLE;                                  \
+	}
+
+#define SQL_VALUE_STATEMENT(DEST, TYPE, STRING_LITERAL)          \
+	{                                                        \
+		SqlStatement *lcl_ret;                           \
+		SqlValue *    lcl_value;                         \
+                                                                 \
+		SQL_STATEMENT(lcl_ret, value_STATEMENT);         \
+		MALLOC_STATEMENT(lcl_ret, value, SqlValue);      \
+		UNPACK_SQL_STATEMENT(lcl_value, lcl_ret, value); \
+		lcl_value->type = TYPE;                          \
+		lcl_value->v.string_literal = STRING_LITERAL;    \
+		DEST = lcl_ret;                                  \
+	}
+
+#define SQL_COLUMN_LIST_ALIAS_STATEMENT(DEST)                                     \
+	{                                                                         \
+		SqlStatement *lcl_ret;                                            \
+                                                                                  \
+		SQL_STATEMENT(lcl_ret, column_list_alias_STATEMENT);              \
+		MALLOC_STATEMENT(lcl_ret, column_list_alias, SqlColumnListAlias); \
+		dqinit(lcl_ret->v.column_list_alias);                             \
+		DEST = lcl_ret;                                                   \
 	}
 
 /* Shamelessly stolen from mlkdef.h in YottaDB */
@@ -135,6 +162,8 @@ typedef enum SqlStatementType {
 	data_type_struct_STATEMENT,
 	join_type_STATEMENT,
 	discard_all_STATEMENT,
+	row_value_STATEMENT,
+	table_value_STATEMENT,
 	invalid_STATEMENT,
 } SqlStatementType;
 
@@ -212,7 +241,7 @@ typedef enum SqlValueType {
 #define SIZE_OR_PRECISION_UNSPECIFIED -1
 #define SCALE_UNSPECIFIED	      SIZE_OR_PRECISION_UNSPECIFIED
 
-typedef enum SqlDataType { UNKNOWN_SqlDataType, BOOLEAN_TYPE, INTEGER_TYPE, NUMERIC_TYPE, STRING_TYPE } SqlDataType;
+typedef enum SqlDataType { UNKNOWN_SqlDataType, BOOLEAN_TYPE, INTEGER_TYPE, NUMERIC_TYPE, STRING_TYPE, NUL_TYPE } SqlDataType;
 
 /* Note: Additions of keywords in the middle of the table can cause SIG-11s because the actual binary value
  *       of these enums (e.g. PRIMARY_KEY) is stored in the ^%ydboctoschema(<tablename>,OCTOLIT_BINARY,*) global nodes
@@ -364,14 +393,6 @@ typedef struct SqlColumn {
 	struct SqlStatement *	 table;
 	struct SqlStatement *	 delim;
 	struct SqlStatement *	 keywords;
-	/* Below field ("pre_qualified_cla") is initialized/usable only if "type" field above is UNKNOWN_SqlDataType.
-	 * It is needed after parsing starts to handle a column that came in from a sub-query before when the sub-query
-	 * column name was qualified (in "qualify_statement()"). Once the column names have been qualified,
-	 * "populate_data_type()" relies on this field to derive the type of this SqlColumn structure
-	 * (i.e. outer-query column name) based on the type that was determined for "pre_qualified_cla"
-	 * (i.e. the sub-query column) in "qualify_statement()".
-	 */
-	struct SqlColumnListAlias *pre_qualified_cla; /* initialized/usable only if "type" field is UNKNOWN_SqlDataType */
 	dqcreate(SqlColumn);
 } SqlColumn;
 
@@ -401,8 +422,20 @@ typedef struct SqlTable {
 	uint64_t	     oid; /* TABLEOID; compared against ^%ydboctoschema(TABLENAME,OCTOLIT_PG_CLASS) */
 } SqlTable;
 
+/* Below is the table constructed by the VALUES (...) syntax */
+typedef struct SqlTableValue {
+	struct SqlStatement *row_value_stmt; // SqlRowValue
+	SqlColumn *	     column;	     // SqlColumn. Stored in "table_reference.c". Used in "populate_data_type.c".
+} SqlTableValue;
+
+typedef struct SqlRowValue {
+	int		     num_columns; /* number of columns in this row */
+	struct SqlStatement *value_list;  /* list of values of all columns in this row (SqlColumnList) */
+	dqcreate(SqlRowValue);		  /* doubly linked list pointer to next row in this table of values */
+} SqlRowValue;
+
 typedef struct SqlTableAlias {
-	// SqlTable or SqlSelectStatement
+	// SqlTable or SqlTableValue or SqlSelectStatement
 	struct SqlStatement *table;
 	// SqlValue
 	struct SqlStatement *alias;
@@ -582,7 +615,6 @@ typedef struct SqlValue {
 	enum SqlValueType coerced_type;	    /* initialized/usable only if `type` is COERCE_TYPE */
 	enum SqlValueType pre_coerced_type; /* initialized/usable only if `type` is COERCE_TYPE */
 	char *		  parameter_index;
-	boolean_t	  is_int; // Marks NUMERIC_LITERALs as INTEGER types for type inference in SQL function parms
 	union {
 		char *string_literal;
 		char *reference;
@@ -746,6 +778,10 @@ typedef struct SqlStatement {
 		enum SqlJoinType		  join_type;
 		/* Below SqlStatementType types do not have any parameters so they do not have corresponding members here.
 		 *	discard_all_STATEMENT
+		 */
+		struct SqlRowValue *  row_value;   /* corresponding to row_value_STATEMENT */
+		struct SqlTableValue *table_value; /* corresponding to table_value_STATEMENT */
+		/* Below SqlStatementType types do not have any parameters so they do not have corresponding members here.
 		 *	invalid_STATEMENT
 		 */
 	} v;

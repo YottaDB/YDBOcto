@@ -73,10 +73,7 @@ int create_table_defaults(SqlStatement *table_statement, SqlStatement *keywords_
 			len = strlen(buffer);
 			out_buffer = octo_cmalloc(memory_chunks, len + 1);
 			strncpy(out_buffer, buffer, len + 1);
-			SQL_STATEMENT(keyword->v, value_STATEMENT);
-			MALLOC_STATEMENT(keyword->v, value, SqlValue);
-			keyword->v->v.value->type = NUMERIC_LITERAL;
-			keyword->v->v.value->v.string_literal = out_buffer;
+			SQL_VALUE_STATEMENT(keyword->v, INTEGER_LITERAL, out_buffer);
 			// Insert statement into column keyword list
 			dqinit(keyword);
 			UNPACK_SQL_STATEMENT(t_keyword, cur_column->keywords, keyword);
@@ -153,10 +150,7 @@ int create_table_defaults(SqlStatement *table_statement, SqlStatement *keywords_
 		memcpy(out_buffer, buffer, len);
 		OCTO_CMALLOC_STRUCT((keyword), SqlOptionalKeyword);
 		(keyword)->keyword = OPTIONAL_SOURCE;
-		SQL_STATEMENT(keyword->v, value_STATEMENT);
-		OCTO_CMALLOC_STRUCT(keyword->v->v.value, SqlValue);
-		keyword->v->v.value->type = STRING_LITERAL;
-		keyword->v->v.value->v.reference = out_buffer;
+		SQL_VALUE_STATEMENT(keyword->v, STRING_LITERAL, out_buffer);
 		dqinit(keyword);
 		dqappend(start_keyword, keyword);
 	}
@@ -169,10 +163,7 @@ int create_table_defaults(SqlStatement *table_statement, SqlStatement *keywords_
 		out_buffer[str_len - 1] = '\0';
 		OCTO_CMALLOC_STRUCT((keyword), SqlOptionalKeyword);
 		(keyword)->keyword = OPTIONAL_DELIM;
-		SQL_STATEMENT(keyword->v, value_STATEMENT);
-		OCTO_CMALLOC_STRUCT(keyword->v->v.value, SqlValue);
-		keyword->v->v.value->type = STRING_LITERAL;
-		keyword->v->v.value->v.reference = out_buffer;
+		SQL_VALUE_STATEMENT(keyword->v, STRING_LITERAL, out_buffer);
 		dqinit(keyword);
 		dqappend(start_keyword, keyword);
 	}

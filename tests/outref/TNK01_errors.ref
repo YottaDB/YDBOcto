@@ -52,37 +52,37 @@ select * from names where lastname = (select lastname from names where id = 4 un
 
 [ERROR] PATH:LINENUM DATE TIME : ERR_SUBQUERY_MULTIPLE_ROWS : More than one row returned by a subquery used as an expression
 [ERROR] PATH:LINENUM DATE TIME : ERR_SUBQUERY_MULTIPLE_ROWS : More than one row returned by a subquery used as an expression
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type NUMERIC not compatible for boolean operations
+[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type INTEGER not compatible for boolean operations
 Error with syntax near (line 1, column 27):
 
 SELECT * FROM names WHERE 2;
                           ^
 [ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT * FROM names WHERE 2;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type NUMERIC not compatible for boolean operations
+[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type INTEGER not compatible for boolean operations
 Error with syntax near (line 1, column 27):
 
 SELECT * FROM names WHERE 2 OR 1=1;
                           ^
 [ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT * FROM names WHERE 2 OR 1=1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type NUMERIC not compatible for boolean operations
+[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type INTEGER not compatible for boolean operations
 Error with syntax near (line 1, column 27):
 
 SELECT * FROM names WHERE 2 AND 1=1;
                           ^
 [ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT * FROM names WHERE 2 AND 1=1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type NUMERIC not compatible for boolean operations
+[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type INTEGER not compatible for boolean operations
 Error with syntax near (line 1, column 27):
 
 SELECT * FROM names WHERE 2 AND NOT 1=1;
                           ^
 [ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT * FROM names WHERE 2 AND NOT 1=1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type NUMERIC not compatible for boolean operations
+[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type INTEGER not compatible for boolean operations
 [ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT * FROM names WHERE NOT 2;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type NUMERIC not compatible for boolean operations
+[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type INTEGER not compatible for boolean operations
 [ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT * FROM names WHERE NOT 2 OR 1=1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type NUMERIC not compatible for boolean operations
+[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type INTEGER not compatible for boolean operations
 [ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT * FROM names WHERE NOT 2 AND 1=1;
-[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type NUMERIC not compatible for boolean operations
+[ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type INTEGER not compatible for boolean operations
 [ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT * FROM names WHERE NOT 2 AND NOT 1=1;
 [ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type VARCHAR not compatible for boolean operations
 Error with syntax near (line 1, column 32):

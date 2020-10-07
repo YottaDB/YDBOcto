@@ -171,7 +171,6 @@ SqlStatement *query_specification(OptionalKeyword set_quantifier, SqlStatement *
 				  SqlStatement *sort_specification_list, int *plan_id) {
 	SqlStatement *	    ret, *quantifier;
 	SqlTableAlias *	    this_table_alias;
-	SqlValue *	    value;
 	SqlSelectStatement *select;
 	SqlColumnListAlias *asterisk_list;
 	SqlColumnListAlias *cla_cur, *cla_head;
@@ -179,11 +178,7 @@ SqlStatement *query_specification(OptionalKeyword set_quantifier, SqlStatement *
 	SQL_STATEMENT(ret, table_alias_STATEMENT);
 	MALLOC_STATEMENT(ret, table_alias, SqlTableAlias);
 	UNPACK_SQL_STATEMENT(this_table_alias, ret, table_alias);
-	SQL_STATEMENT(this_table_alias->alias, value_STATEMENT);
-	MALLOC_STATEMENT(this_table_alias->alias, value, SqlValue);
-	UNPACK_SQL_STATEMENT(value, this_table_alias->alias, value);
-	value->type = NUL_VALUE;
-	value->v.string_literal = "";
+	SQL_VALUE_STATEMENT(this_table_alias->alias, NUL_VALUE, "");
 	assert(select_STATEMENT == table_expression->type);
 	this_table_alias->table = table_expression;
 	this_table_alias->unique_id = (*plan_id)++;

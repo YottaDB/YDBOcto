@@ -89,7 +89,9 @@ typedef struct PhysicalPlan {
 	boolean_t	     aggregate_function_or_group_by_specified;
 	SetOperType *	     set_oper_list;	  /* Linked list of SET OPERATIONS to do on this plan at the end */
 	struct PhysicalPlan *dnf_prev, *dnf_next; /* Linked list of plans that are at the same LP_SET_DNF level */
-	LogicalPlan *	     lp_insert;		  /* The owning LP_INSERT logical plan corresponding to this physical plan */
+	LogicalPlan *	     lp_insert;		  /* The owning LP_INSERT or LP_TABLE_VALUE logical plan corresponding
+						   * to this physical plan.
+						   */
 } PhysicalPlan;
 
 /* Below macro returns TRUE if GROUP BY or HAVING have been specified and/or Aggregate functions have been used in plan */

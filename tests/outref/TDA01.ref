@@ -42,8 +42,8 @@ _ydboctoX*.o
 # Verify db nodes for plans that are reusable (i.e. do not need to be regenerated)
 ^%ydboctoocto("plan_metadata","$PWD/_ydboctoP*.m","output_key")="3"
 ^%ydboctoocto("plan_metadata","$PWD/_ydboctoP*.m","output_key")="3"
-^%ydboctoocto("plan_metadata","$PWD/_ydboctoP*.m","output_key")="3"
 ^%ydboctoocto("plan_metadata","$PWD/_ydboctoP*.m","output_key")="4"
+^%ydboctoocto("plan_metadata","$PWD/_ydboctoP*.m","output_key")="3"
 ^%ydboctoocto("plan_metadata","$PWD/_ydboctoP*.m","output_key")="3"
 ^%ydboctoocto("plan_metadata","$PWD/_ydboctoP*.m","output_key")="3"
 # Verify db nodes correctly represent cross-references

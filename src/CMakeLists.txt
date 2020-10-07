@@ -177,6 +177,7 @@ add_library(libocto OBJECT
   get_mem_usage.c
   get_mval_len.c
   get_set_operation_string.c
+  get_sqldatatype_from_sqlvaluetype.c
   get_sqlvaluetype_from_sqldatatype.c
   get_user_visible_type_string.c
   hash_canonical_query.c
@@ -197,7 +198,9 @@ add_library(libocto OBJECT
   optimization_transforms/lp_copy_plan.c
   optimization_transforms/lp_drill_to_insert.c
   optimization_transforms/lp_emit_plan.c
+  optimization_transforms/lp_generate_column_list.c
   optimization_transforms/lp_generate_set_logical_plan.c
+  optimization_transforms/lp_generate_table_value.c
   optimization_transforms/lp_generate_where.c
   optimization_transforms/lp_generate_xref_keys.c
   optimization_transforms/lp_generate_xref_plan.c
@@ -223,7 +226,6 @@ add_library(libocto OBJECT
   optimization_transforms/lp_optimize_cross_join.c
   optimization_transforms/lp_optimize_where_multi_equals_ands.c
   optimization_transforms/lp_replace_derived_table_references.c
-  optimization_transforms/lp_generate_column_list.c
   optimization_transforms/lp_verify_structure.c
   optimization_transforms/optimize_logical_plan.c
   parse_line.c
@@ -234,16 +236,19 @@ add_library(libocto OBJECT
   parser/as_name.c
   parser/between_predicate.c
   parser/cast_specification.c
+  parser/create_sql_column_list.c
   parser/data_type.c
   parser/derived_column.c
   parser/derived_table.c
   parser/grouping_column_reference.c
+  parser/insert_statement.c
   parser/natural_join_condition.c
   parser/parse_literal_to_parameter.c
   parser/query_specification.c
   parser/regex_specification.c
   parser/set_operation.c
   parser/sort_specification.c
+  parser/table_expression.c
   parser/table_reference.c
   physical/emit_physical_plan.c
   physical/generate_physical_plan.c

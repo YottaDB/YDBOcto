@@ -32,7 +32,6 @@ LogicalPlan *lp_generate_xref_plan(SqlTable *table, SqlColumn *column, int uniqu
 
 	// Setup the output key
 	OCTO_CMALLOC_STRUCT(output_key, SqlKey);
-	memset(output_key, 0, sizeof(SqlKey));
 	output_key->table = table;
 	output_key->column = column;
 	output_key->unique_id = unique_id;
@@ -60,7 +59,6 @@ LogicalPlan *lp_generate_xref_plan(SqlTable *table, SqlColumn *column, int uniqu
 	// to the user; this table should never get there, so leave it out
 	// MALLOC_LP_2ARGS(cur->v.lp_default.operand[1], LP_COLUMN_LIST_ALIAS);
 	OCTO_CMALLOC_STRUCT(lp_cla->v.lp_column_alias.column_alias, SqlColumnAlias);
-	memset(lp_cla->v.lp_column_alias.column_alias, 0, sizeof(SqlColumnAlias));
 	cla = lp_cla->v.lp_column_alias.column_alias;
 	/// TODO: copy column so we can more easily clean things up?
 	PACK_SQL_STATEMENT(cla->column, column, column);
@@ -77,7 +75,6 @@ LogicalPlan *lp_generate_xref_plan(SqlTable *table, SqlColumn *column, int uniqu
 		// to the user; this table should never get there, so leave it out
 		// MALLOC_LP_2ARGS(cur->v.lp_default.operand[1], LP_COLUMN_LIST_ALIAS);
 		OCTO_CMALLOC_STRUCT(lp_cla->v.lp_column_alias.column_alias, SqlColumnAlias);
-		memset(lp_cla->v.lp_column_alias.column_alias, 0, sizeof(SqlColumnAlias));
 		cla = lp_cla->v.lp_column_alias.column_alias;
 		/// TODO: copy column so we can more easily clean things up?
 		PACK_SQL_STATEMENT(cla->column, key_columns[cur_key], column);
@@ -96,7 +93,6 @@ LogicalPlan *lp_generate_xref_plan(SqlTable *table, SqlColumn *column, int uniqu
 	MALLOC_LP(lp_keywords, select_more_options->v.lp_default.operand[1], LP_KEYWORDS);
 	// Insert a keyword indicating that we are building an index
 	OCTO_CMALLOC_STRUCT(lp_keywords->v.lp_keywords.keywords, SqlOptionalKeyword);
-	memset(lp_keywords->v.lp_keywords.keywords, 0, sizeof(SqlOptionalKeyword));
 	keywords = lp_keywords->v.lp_keywords.keywords;
 	dqinit(keywords);
 	keywords->keyword = OPTIONAL_XREF_INDEX;

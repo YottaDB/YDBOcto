@@ -31,8 +31,12 @@ int qualify_query(SqlStatement *table_alias_stmt, SqlJoin *parent_join, SqlTable
 	SqlSelectStatement *select;
 	SqlTableAlias *	    table_alias;
 	SqlStatement *	    group_by_expression;
-	int		    result = 0;
+	int		    result;
+	SqlStatementType    table_type;
+	SqlTableValue *	    table_value;
+	SqlRowValue *	    row_value, *start_row_value;
 
+	result = 0;
 	if (set_operation_STATEMENT == table_alias_stmt->type) {
 		SqlSetOperation *set_opr;
 
@@ -48,8 +52,27 @@ int qualify_query(SqlStatement *table_alias_stmt, SqlJoin *parent_join, SqlTable
 	} else {
 		assert(table_alias->parent_table_alias == parent_table_alias);
 	}
-	if (create_table_STATEMENT == table_alias->table->type) {
+	table_type = table_alias->table->type;
+	switch (table_type) {
+	case create_table_STATEMENT:
 		return result;
+		break;
+	case table_value_STATEMENT:
+		/* For a table constructed using the VALUES clause, go through each value specified and look for
+		 * any sub-queries. If so, qualify those. Literal values can be skipped.
+		 */
+		UNPACK_SQL_STATEMENT(table_value, table_alias->table, table_value);
+		UNPACK_SQL_STATEMENT(row_value, table_value->row_value_stmt, row_value);
+		start_row_value = row_value;
+		do {
+			result |= qualify_statement(row_value->value_list, parent_join, table_alias_stmt, 0, NULL);
+			row_value = row_value->next;
+		} while (row_value != start_row_value);
+		return result;
+		break;
+	default:
+		assert(select_STATEMENT == table_type);
+		break;
 	}
 	UNPACK_SQL_STATEMENT(select, table_alias->table, select);
 	UNPACK_SQL_STATEMENT(join, select->table_list, join);

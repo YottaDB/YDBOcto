@@ -630,13 +630,29 @@ FILE
 					else
 						cp $outfile $logfile
 					fi
-					difffile="autoupgrade.$sqlfile.diff"
-					diff $reffile $logfile > $difffile || true
-					if [[ -s $difffile ]]; then
-						echo "ERROR : [diff $reffile $logfile] returned non-zero diff. See $difffile for details" | tee -a ../errors.log
-						echo "ERROR :   --> It is likely that bumping up FMT_PLAN_DEFINITION would fix such failures" | tee -a ../errors.log
-						exit_status=1
-						errors_found=1
+					# Check if the output required only a rowcount check ("-- rowcount-only-check" in query file)
+					# This is deduced from the presence of *.diff files. If it is present, then a diff was done.
+					# If it is not, a rowcount check was done when the original test ran. Do the same thing below
+					# with the newer build of Octo.
+					if [[ -e $sqlfile.diff ]]; then
+						# .diff file exists. This means an actual diff was done. Do a diff in the new Octo build too.
+						difffile="autoupgrade.$sqlfile.diff"
+						diff $reffile $logfile > $difffile || true
+						if [[ -s $difffile ]]; then
+							echo "ERROR : [diff $reffile $logfile] returned non-zero diff. See $difffile for details" | tee -a ../errors.log
+							echo "ERROR :   --> It is likely that bumping up FMT_PLAN_DEFINITION would fix such failures" | tee -a ../errors.log
+							exit_status=1
+							errors_found=1
+						fi
+					else
+						# .diff file does not exist. This means only a rowcount check was done. Do the same check with the newer Octo build output.
+						oldoctolines=$(wc -l $reffile | awk '{print $1}')
+						newoctolines=$(wc -l $logfile | awk '{print $1}')
+						if [[ $oldoctolines -ne $newoctolines ]]; then
+							echo "ERROR : [$reffile has $oldoctolines lines but $logfile contains $newoctolines lines]" | tee -a ../errors.log
+							exit_status=1
+							errors_found=1
+						fi
 					fi
 				fi
 			done

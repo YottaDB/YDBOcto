@@ -97,11 +97,7 @@ int main(int argc, char **argv) {
 			 */
 			result = parse_line(&parse_context);
 			OCTO_CFREE(memory_chunks);
-			if (NULL == result) {
-				INFO(INFO_PARSING_DONE, cur_input_index - old_input_index, input_buffer_combined + old_input_index);
-				INFO(INFO_RETURNING_FAILURE, "octo()");
-				continue;
-			}
+			/* Before checking result of "parse_line()" call, add the current input line to the readline history */
 			save_eof_hit = eof_hit; /* Save a copy of the global "eof_hit" in a local variable */
 			/* else: INFO_PARSING_DONE message will be invoked inside "run_query()" call later below */
 			/* Add the current query to the readlines history */
@@ -141,6 +137,12 @@ int main(int argc, char **argv) {
 				add_history(input_buffer_combined + old_input_index);
 			}
 			input_buffer_combined[cur_input_index] = placeholder;
+			/* Now that readline history addition is done, get back to checking return value from "parse_line()" */
+			if (NULL == result) {
+				INFO(INFO_PARSING_DONE, cur_input_index - old_input_index, input_buffer_combined + old_input_index);
+				INFO(INFO_RETURNING_FAILURE, "octo()");
+				continue;
+			}
 			cur_input_index = old_input_index; /* This ensures that the already parsed query is presented again
 							    * to "parse_line()" invocation in "run_query()" call below.
 							    */

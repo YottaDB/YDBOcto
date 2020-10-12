@@ -1,4 +1,4 @@
-#!/usr/local/bin/tcsh -f
+#!/usr/bin/env tcsh
 #################################################################
 #								#
 # Copyright (c) 2020 YottaDB LLC and/or its subsidiaries.	#

@@ -16,49 +16,14 @@
 # Pre-commit hook that
 #	1) Enforces YottaDB Copyright in changed modules
 #
-set nocopyright_extensions = "ref rst png zwr html ci"	# List of extensions that cannot have copyrights.
-	# .rst  -> file used to generate documentation. Since final documentation has
-	#		copyrights, this one does not require it.
-	# .png  -> these are images (i.e. binary files) used in the documentation.
-	#		Same reason as .rst for not requiring a copyright.
-	# .ref  -> reference files used by the test cases (e.g. tests/outref/T0001.ref).
-	#		Those have a fixed format and should not go through copyright changes.
-	# .zwr  -> zwrite format extract file (does not currently allow a comment character).
-	# .html -> there are a couple of files currently under doc/templates which don't need copyrights.
-	# .ci   -> e.g. calltab.ci stores the call-in table which does not currently have a provision for comment characters.
-
 cd `git rev-parse --show-toplevel`
 set filelist = `git diff --name-only --cached HEAD`
 set fixlist = ""
 set curyear = `date +%Y`
 @ exitstatus = 0
 foreach file ($filelist)
-	if (! -e $file) then
-		# If file is being deleted as part of this commit, skip copyright check on it
-		continue
-	endif
-	set skip = 0
-	if ("" != "$nocopyright_extensions") then
-		set extension = $file:e
-		foreach ext ($nocopyright_extensions)
-			if ($ext == $extension) then
-				set skip = 1
-				break
-			endif
-		end
-	endif
-	if (0 == $skip) then
-		# Below is a list of specific files that do not have a copyright so ignore them
-		set skiplist = "COPYING README.md LICENSE"
-		set skip = 0
-		foreach skipfile ($skiplist)
-			if ($file == $skipfile) then
-				set skip = 1
-				break
-			endif
-		end
-	endif
-	if ($skip) then
+	tools/ci/needs_copyright.sh $file
+	if ($status != 0) then
 		continue
 	endif
 	grep 'Copyright (c) .*'$curyear' YottaDB LLC' $file >& /dev/null

@@ -71,9 +71,7 @@ commit-verify:
     # Copy commit gpg key verify script to build directory and execute
     - wget https://gitlab.com/YottaDB/DB/YDB/-/raw/master/ci/commit_verify.sh
     - chmod +x commit_verify.sh
-    - ./commit_verify.sh tools/ci/needs_copyright.sh
-  rules:
-    - if: '$CI_PIPELINE_SOURCE == "external_pull_request" || $CI_PIPELINE_SOURCE == "merge_request_event"'
+    - ./commit_verify.sh tools/ci/needs_copyright.sh https://gitlab.com/YottaDB/DBMS/YDBOcto
 
 make-ubuntu:
   image: yottadb/yottadb-base:latest-master

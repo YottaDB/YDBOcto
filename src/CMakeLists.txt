@@ -143,6 +143,7 @@ add_library(libocto OBJECT
   columns_equal.c
   columns_to_column_list_alias.c
   compress_statement.c
+  copy_column_list_alias_list.c
   copy_sql_statement.c
   create_cursor.c
   create_table_defaults.c

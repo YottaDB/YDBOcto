@@ -87,3 +87,7 @@ setup() {
 @test "TSCP07 : OCTO576 : Numeric literals in SELECT column list should be displayed as is" {
 	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TSCP07.sql
 }
+
+@test "TSCP08 : OCTO385 : Verify different asterisk usage in select column list" {
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TSCP08.sql
+}

@@ -460,8 +460,9 @@ int		    get_column_number_from_column_list_alias(SqlColumnListAlias *input_cla,
 SqlColumnListAlias *get_column_list_alias_n_from_table_alias(SqlTableAlias *table_alias, int column_number);
 SqlColumnAlias *    get_column_alias_for_column_list_alias(SqlColumnListAlias *col_cla, SqlStatement *matching_alias_stmt);
 
-SqlStatement *copy_sql_statement(SqlStatement *stmt);
-boolean_t     match_sql_statement(SqlStatement *stmt, SqlStatement *match_stmt);
+SqlColumnListAlias *copy_column_list_alias_list(SqlColumnListAlias *cla);
+SqlStatement *	    copy_sql_statement(SqlStatement *stmt);
+boolean_t	    match_sql_statement(SqlStatement *stmt, SqlStatement *match_stmt);
 
 void	      compress_statement(SqlStatement *stmt, char **out, int *out_length);
 SqlStatement *decompress_statement(char *buffer, int out_length);

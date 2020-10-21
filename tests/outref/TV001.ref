@@ -208,10 +208,21 @@ Shifting token ASTERISK (: )
 Entering state sss
 Reducing stack by rule rrr (line lll):
    $1 = token ASTERISK (: )
--> $$ = nterm select_list (: )
+-> $$ = nterm select_sublist (: )
 Stack now sss ...
 Entering state sss
 Reading a token: Next token is token FROM (: )
+Reducing stack by rule rrr (line lll):
+-> $$ = nterm select_sublist_tail (: )
+Stack now sss ...
+Entering state sss
+Reducing stack by rule rrr (line lll):
+   $1 = nterm select_sublist (: )
+   $2 = nterm select_sublist_tail (: )
+-> $$ = nterm select_list (: )
+Stack now sss ...
+Entering state sss
+Next token is token FROM (: )
 Shifting token FROM (: )
 Entering state sss
 Reading a token: Next token is token IDENTIFIER_ALONE (: )
@@ -380,10 +391,21 @@ Shifting token ASTERISK (: )
 Entering state sss
 Reducing stack by rule rrr (line lll):
    $1 = token ASTERISK (: )
--> $$ = nterm select_list (: )
+-> $$ = nterm select_sublist (: )
 Stack now sss ...
 Entering state sss
 Reading a token: Next token is token FROM (: )
+Reducing stack by rule rrr (line lll):
+-> $$ = nterm select_sublist_tail (: )
+Stack now sss ...
+Entering state sss
+Reducing stack by rule rrr (line lll):
+   $1 = nterm select_sublist (: )
+   $2 = nterm select_sublist_tail (: )
+-> $$ = nterm select_list (: )
+Stack now sss ...
+Entering state sss
+Next token is token FROM (: )
 Shifting token FROM (: )
 Entering state sss
 Reading a token: Next token is token IDENTIFIER_ALONE (: )

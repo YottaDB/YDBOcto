@@ -610,7 +610,6 @@ run_query_in_octo_and_postgres_and_crosscheck_multiple_queries() {
 	jdbcprotocol=usesimple
 	psql_port="5432"
 	local num_clients
-	fname=`echo $queryfile | sed 's/\..*//g'`
 	# psql errors will never have the same output as octo errors, so they cannot be used in crosscheck.
 	# Therefore any error should fail the test.
 	# However, on CentOS 7 there are many spurious failures due to postgres not being able to infer the type of NULL.
@@ -643,6 +642,14 @@ run_query_in_octo_and_postgres_and_crosscheck_multiple_queries() {
 			randclientstr="OCTO"
 		fi
 	done
+	if [[ ! -f $queryfile ]]; then
+		if [[ ! -f @PROJECT_SOURCE_DIR@/tests/fixtures/$queryfile ]]; then
+			echo "Query file: $queryfile doesn't exist"
+			exit 1
+		fi
+		cp @PROJECT_SOURCE_DIR@/tests/fixtures/$queryfile .
+	fi
+	fname=`echo $queryfile | sed 's/\..*//g'`
 	if [[ $randclientstr != "OCTO" && $usejdbc != "usejdbc" ]]; then
 		# Randomly select client
 		randclient=$(( $RANDOM % $num_clients))
@@ -678,11 +685,6 @@ run_query_in_octo_and_postgres_and_crosscheck_multiple_queries() {
 	echo "postgres_version:$postgres_version randclient:$randclientstr usejdbc:$usejdbc jdbcprotocol:$jdbcprotocol" >> env.out
 
 	# Prepare query file/files for execution
-	if [[ ! -f $queryfile ]]; then
-		cp @PROJECT_SOURCE_DIR@/tests/fixtures/$queryfile .
-	fi
-	fname=`echo $queryfile | sed 's/\..*//g'`
-
 	if [[ $randclientstr == "JDBC" || $usejdbc == "usejdbc" ]]; then
 		# Remove commented instructions like -- sort-needed-check or -- rowcount-only-check
 		# and commented queries as they are not handled well by JDBC client

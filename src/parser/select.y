@@ -158,7 +158,7 @@ query_specification
       SqlSelectStatement	*select;
 
       select_list = $select_list;
-      if (NULL == select_list->v.column_list_alias) {
+      if (NULL == select_list->v.column_list_alias->column_list) {
         ERROR(ERR_SELECT_STAR_NO_TABLES, NULL);
         yyerror(NULL, NULL, &select_list, NULL, NULL, NULL);
         YYERROR;
@@ -192,29 +192,36 @@ query_specification
   ;
 
 select_list
-  : ASTERISK {
-      SQL_STATEMENT($$, column_list_alias_STATEMENT);
-      $$->loc = yyloc; /* note down the location of the ASTERISK for later use in populate_data_type (for error reporting) */
-    }
-  | select_sublist { $$ = $select_sublist;  }
-  ;
+  : select_sublist select_sublist_tail {
+	SqlStatement *select_list;
 
-select_sublist
-  : derived_column select_sublist_tail {
-	$$ = $derived_column;
+	select_list = $select_sublist;
 	if (NULL != $select_sublist_tail) {
 		SqlColumnListAlias	*list1, *list2;
 
-		UNPACK_SQL_STATEMENT(list1, $$, column_list_alias);
+		UNPACK_SQL_STATEMENT(list1, select_list, column_list_alias);
 		UNPACK_SQL_STATEMENT(list2, $select_sublist_tail, column_list_alias);
 		dqappend(list1, list2);
 	}
+	$$ = select_list;
     }
+  ;
+
+select_sublist
+  : ASTERISK {
+      SqlStatement * ret;
+      SQL_STATEMENT(ret, column_list_alias_STATEMENT);
+      MALLOC_STATEMENT(ret, column_list_alias, SqlColumnListAlias);
+      dqinit(ret->v.column_list_alias);
+      $$ = ret;
+      $$->loc = yyloc; /* note down the location of the ASTERISK for later use in populate_data_type (for error reporting) */
+    }
+  | derived_column { $$ = $derived_column; }
   ;
 
 select_sublist_tail
   : /* Empty */ { $$ = NULL; }
-  | COMMA select_sublist { $$ = $select_sublist; }
+  | COMMA select_list { $$ = $select_list; }
   ;
 
 table_expression

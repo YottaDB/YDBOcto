@@ -93,7 +93,7 @@
 	. set aliasNum=0
 	. set fromNum=1
 	. ; The following variables need to be reset to their default values for each, seperate query.
-	. set orderByExists=0,limitExists=0
+	. set orderByExists=0,limitExists=0,asteriskExists=0
 	. set existsInHavingExists="FALSE"  set caseFunctionExists="FALSE"
 	. kill columns			; refresh columns array for next query (remove any temporary tables created in prior query)
 	. merge columns=savecolumns
@@ -112,6 +112,7 @@
 	. ; This forces the crosscheck function to only count lines as having a LIMIT clause without an
 	. ; ORDER BY clause can cause different results to be returned by the database
 	. if (limitExists&('orderByExists))  write query," ","-- rowcount-only-check",!
+	. else  if (orderByExists&(asteriskExists))  write query," ","-- sort-needed-check",!
 	. else  write query,!
 	. close file
 	. ; The following LVNs exist for each individual query,
@@ -267,27 +268,32 @@ setQuantifier(curDepth)
 ; It stores every value added into the SELECT LIST into a LVN called selectListLVN.
 selectList(queryDepth,curDepth)
 	new randInt,result,toBeAdded,okToSelectStar
+	set toBeAdded=""
 	;This function serves the same purpose as select sublist in the grammar rules for SQL.
 
 	; Choose "*" in the select column list 12.5% of the time AND if no other columns have been already added to it.
-	; Cannot add other columns to the select column list after a "*" is added because of #385 and #386. Hence the quit below.
-	; Also, until YDBOcto#246 is fixed, cannot use * if SELECT DISTINCT has been chosen already and joinCount is > 1
-	; as the sum of the number of columns of the tables involved in the FROM and JOIN clauses could end up greater than 31
-	; and cause MAXNRSUBSCRIPTS error. Disable "*" selection in that case.
+	; TODO: add tablename."*" values after #386 is implemented.
+	; Also, until YDBOcto#246 is fixed, cannot use * if SELECT DISTINCT has been chosen already and joinCount is > 1, also
+	; cannot use multiple occurence of * if SELECT DISTINCT has been chosen already or joinCount is > 0 as the sum of the number of columns of the tables involved
+	; in the FROM and JOIN clauses could end up greater than 31 and cause MAXNRSUBSCRIPTS error. Disable "*" selection in that case.
 	set okToSelectStar=((quantifierLVN("alias"_queryDepth)'="DISTINCT ")!(2>joinCount))
-	if (okToSelectStar&('$data(selectListLVN(queryDepth)))&('$random(8))) do  quit toBeAdded
+	set okToSelectMultipleStar=((1>joinCount)!(quantifierLVN("alias"_queryDepth)'="DISTINCT "))
+	if ((okToSelectStar&('$random(8)))&((asteriskExists=1)&oktoSelectMultipleStar)) do
 	. set toBeAdded="*"
+	. set asteriskExists=1
 	. set selectListLVN(queryDepth,toBeAdded)="star"
 	. ; Disallow GROUP BY and HAVING if * is in select column list as it gets complicated
 	. set allowGBH("alias"_queryDepth)="FALSE"
 
-	; Choose DerivedColumn or Qualifier
-	set randInt=$random(100)
-	; #FUTURE_TODO: Allow randInt=2 possibility when $$returnCaseFunction infinite-loop/malformed-query issues are resolved
-	; #FUTURE_TODO: Allow randInt=3 possibility when issues #385 and #386 are resolved
-	; For now, choose randInt=0 80% of time, randInt=1 20% of time
-	; If enableSubQuery is FALSE, do not choose randInt=1
-	set randInt=$select(('enableSubQuery!(80>randInt)):0,1:1)
+	if (toBeAdded'="*") do
+	. ; Choose DerivedColumn or Qualifier
+	. set randInt=$random(100)
+	. ; #FUTURE_TODO: Allow randInt=2 possibility when $$returnCaseFunction infinite-loop/malformed-query issues are resolved
+	. ; #FUTURE_TODO: Allow randInt=3 possibility when issues #385 and #386 are resolved
+	. ; For now, choose randInt=0 80% of time, randInt=1 20% of time
+	. ; If enableSubQuery is FALSE, do not choose randInt=1
+	. set randInt=$select(('enableSubQuery!(80>randInt)):0,1:1)
+	else  set randInt=-1
 
 	; To avoid ambiquity warnings, this is commented out
 	; Regular column notation is to be used

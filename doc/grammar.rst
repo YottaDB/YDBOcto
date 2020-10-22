@@ -608,6 +608,7 @@ will return a table containing two columns (named :code:`column1` with type INTE
 :code:`VALUES` followed by expression lists can appear anywhere a :code:`SELECT` can.  So, the below two queries are equivalent.
 
 .. code-block:: SQL
+
    VALUES (1, 'one'), (2, 'two'), (3, 'three');
    SELECT 1, 'one' UNION SELECT 2, 'two' UNION SELECT 3, 'three';
 
@@ -616,6 +617,7 @@ There is an exception to this currently in that :code:`ORDER BY` and :code:`LIMI
 Below are examples of using :code:`VALUES` with entries containing expressions and subqueries:
 
 .. code-block:: SQL
+
    SELECT 5 + (VALUES (3));
    SELECT * FROM (VALUES ((SELECT 1), 2));
    VALUES((SELECT id FROM names WHERE id > 5));
@@ -647,10 +649,25 @@ This form of the CASE statement evaluates the value_expression and sequentially 
 
 The second form of the CASE statement sequentially tests each condition_expression. If a condition_expression evaluates to TRUE, the "result" following THEN is returned. If all conditions evaluate to FALSE the "result" following ELSE is returned, or NULL is returned if ELSE has been omitted.
 
+----------
+Functions
+----------
 
------------------
+Octo supports the following pre-defined functions.
+
++++++
+ABS
++++++
+
+.. code-block:: SQL
+
+   SELECT ABS(NUMERIC) ...
+
+ABS returns the absolute value of a number.
+
+++++++++++
 COALESCE
------------------
+++++++++++
 
 .. code-block:: SQL
 
@@ -667,20 +684,9 @@ For example, the following query is valid and returns the value 1:
 
    SELECT COALESCE(1, 'a', 1.0);
 
--------
-NULLIF
--------
-
-.. code-block:: SQL
-
-   SELECT NULLIF(value_expression, value_expression) ...
-
-The built-in NULLIF function returns NULL if both arguments are equal, or the first argument otherwise.
-The arguments must have the same type.
-
--------------------
+++++++++++++++++++++
 GREATEST and LEAST
--------------------
+++++++++++++++++++++
 
 .. code-block:: SQL
 
@@ -692,25 +698,20 @@ Similarly, LEAST returns the smallest value.
 NULL values are ignored, unless all values are NULL, in which case the return value is NULL.
 All arguments must have the same type.
 
-----------
-Functions
-----------
-
-Octo supports the following pre-defined functions.
-
-----
-ABS
-----
+++++++++
+NULLIF
+++++++++
 
 .. code-block:: SQL
 
-   SELECT ABS(NUMERIC) ...
+   SELECT NULLIF(value_expression, value_expression) ...
 
-ABS returns the absolute value of a number.
+The built-in NULLIF function returns NULL if both arguments are equal, or the first argument otherwise.
+The arguments must have the same type.
 
-------
++++++++
 ROUND
-------
++++++++
 
 .. code-block:: SQL
 
@@ -722,13 +723,13 @@ If the precision is 0, it will be rounded to the nearest integer.
 If the precision is less than 0, all fractional digits will be truncated and the number will be rounded to `10^precision`.
 The precision must be no less than -46.
 
-------
++++++++
 TRUNC
-------
++++++++
 
 .. code-block:: SQL
 
-   SELECT ROUND(NUMERIC, INTEGER) ...
+   SELECT TRUNC(NUMERIC, INTEGER) ...
 
 TRUNC returns the first argument truncated to the precision specified by the second argument.
 If the precision is greater than 0, the number will be truncated to that number of decimal places.

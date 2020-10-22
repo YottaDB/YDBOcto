@@ -1011,9 +1011,9 @@ Text: Inline M function calls are disallowed. Use CREATE FUNCTION instead to map
 
 Description/Action: This error is issued when a user attempts to call an M extrinsic function via Rocto. PSQL Error Code: XX000
 
-++++++++++++++++++++
+++++++++++++++++++++++++
 ERR_ROCTO_MISSING_DATA
-++++++++++++++++++++
+++++++++++++++++++++++++
 
 Text: xxx: missing xxx
 

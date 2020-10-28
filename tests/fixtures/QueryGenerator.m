@@ -270,9 +270,7 @@ selectList(queryDepth,curDepth)
 	new randInt,result,toBeAdded,okToSelectStar
 	set toBeAdded=""
 	;This function serves the same purpose as select sublist in the grammar rules for SQL.
-
 	; Choose "*" in the select column list 12.5% of the time AND if no other columns have been already added to it.
-	; TODO: add tablename."*" values after #386 is implemented.
 	; Also, until YDBOcto#246 is fixed, cannot use * if SELECT DISTINCT has been chosen already and joinCount is > 1, also
 	; cannot use multiple occurence of * if SELECT DISTINCT has been chosen already or joinCount is > 0 as the sum of the number of columns of the tables involved
 	; in the FROM and JOIN clauses could end up greater than 31 and cause MAXNRSUBSCRIPTS error. Disable "*" selection in that case.
@@ -288,11 +286,12 @@ selectList(queryDepth,curDepth)
 	if (toBeAdded'="*") do
 	. ; Choose DerivedColumn or Qualifier
 	. set randInt=$random(100)
-	. ; #FUTURE_TODO: Allow randInt=2 possibility when $$returnCaseFunction infinite-loop/malformed-query issues are resolved
-	. ; #FUTURE_TODO: Allow randInt=3 possibility when issues #385 and #386 are resolved
-	. ; For now, choose randInt=0 80% of time, randInt=1 20% of time
+	. ; #FUTURE_TODO: Allow randInt=3 possibility when $$returnCaseFunction infinite-loop/malformed-query issues are resolved
+	. ; For now, choose randInt=0 80% of time, randInt=1 10% of time, randInt=2 10% of time
 	. ; If enableSubQuery is FALSE, do not choose randInt=1
-	. set randInt=$select(('enableSubQuery!(80>randInt)):0,1:1)
+	. set okToSelectTableStarOrderBy=(quantifierLVN("alias"_queryDepth)'="DISTINCT ")
+	. set:'okToSelectTableStarOrderBy randInt=$select(('enableSubQuery!(80>randInt)):0,1:1)
+	. set:okToSelectTableStarOrderBy randInt=$select(('enableSubQuery!(80>randInt)):0,((90>randInt)&(80<randInt)):2,1:1)
 	else  set randInt=-1
 
 	; To avoid ambiquity warnings, this is commented out
@@ -314,14 +313,18 @@ selectList(queryDepth,curDepth)
 	. set toBeAdded="("_$$generateSubQuery(queryDepth,"limited","")_") AS "_alias
 	. set selectListLVN(queryDepth,alias)="subquery"
 
+	; Qualifier notation (table.*) is to be used
 	if (randInt=2) do
+	. set table=$$chooseTableFromTableColumn()
+	. set toBeAdded=table_".*"
+	. set selectListLVN(queryDepth,toBeAdded)="table.*"
+	. ; Disallow GROUP BY and HAVING if * is in select column list as it gets complicated
+	. set allowGBH("alias"_queryDepth)="FALSE"
+
+	if (randInt=3) do
 	. set toCompare=$random(4)+1
 	. set toBeAdded=$$returnCaseFunction("SELECT LIST","randomNumbers","numbers","FALSE",toCompare)
 	. set selectListLVN(queryDepth,"alias"_aliasNum)="case_statement"
-
-	if (randInt=3)  do
-	. set toBeAdded="*"
-	. set selectListLVN(queryDepth,toBeAdded)="star"
 
 	if (enableGroupByHavingClause&(allowGBH("alias"_queryDepth)="TRUE"))  do
 	. new table,chosenColumn,agg,chosenColumn2,tc
@@ -703,11 +706,13 @@ groupbyClause(queryDepth)
 	for j=queryDepth:-1:0 do
 	. set holder=""
 	. for i=1:1 set holder=$order(selectListLVN(j,holder)) quit:(holder="")  do  do assert(i<16)
-	. . ; Skip columns in select list with "*" OR aggregate function OR subquery usage.
+	. . ; Skip columns in select list with "*" OR aggregate function OR subquery or "table.*" usage.
 	. . write "groupbyClause() : selectListLVN(",j,",",$zwrite(holder),")=",selectListLVN(j,holder),!
 	. . quit:selectListLVN(j,holder)="aggregate_function"
 	. . quit:selectListLVN(j,holder)="subquery"
 	. . quit:selectListLVN(j,holder)="star"
+	. . ; #FUTURE_TODO: Remove the following line once table.* is enabled for GROUP BY in #386
+	. . quit:selectListLVN(j,holder)="table.*"
 	. . set result=result_$select(firstholder:"",1:", ")_holder,firstholder=0
 	write "groupbyClause() : result = ",result,!
 	quit $select(""=result:" ",1:" GROUP BY "_result)

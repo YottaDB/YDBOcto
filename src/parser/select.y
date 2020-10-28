@@ -142,18 +142,18 @@ ordering_specification
   ;
 
 query_specification
-  : SELECT set_quantifier select_list table_expression {
-      $$ = query_specification((OptionalKeyword)$set_quantifier, $select_list, $table_expression, NULL, plan_id);
-    }
-  | SELECT set_quantifier select_list table_expression ORDER BY sort_specification_list {
-      $$ = query_specification((OptionalKeyword)$set_quantifier, $select_list, $table_expression,
-      									$sort_specification_list, plan_id);
+  : SELECT set_quantifier select_list table_expression optional_order_by {
+     SqlStatement *ret;
+
+      INVOKE_QUERY_SPECIFICATION(ret, (OptionalKeyword)$set_quantifier, $select_list, $table_expression,
+      									$optional_order_by, plan_id);
+      $$ = ret;
     }
   | SELECT set_quantifier select_list {
       // We're going to run against a secret table with one row so the list gets found
       SqlJoin			*join;
       SqlTable			*table;
-      SqlStatement		*join_statement, *t_stmt, *select_list;
+      SqlStatement		*join_statement, *t_stmt, *select_list, *ret;
       SqlTableAlias		*alias;
       SqlSelectStatement	*select;
 
@@ -186,7 +186,8 @@ query_specification
       alias->unique_id = *plan_id;
       (*plan_id)++;
       select->table_list = join_statement;
-      $$ = query_specification((OptionalKeyword)$set_quantifier, select_list, t_stmt, NULL, plan_id);
+      INVOKE_QUERY_SPECIFICATION(ret, (OptionalKeyword)$set_quantifier, select_list, t_stmt, NULL, plan_id);
+      $$ = ret;
     }
   ;
 

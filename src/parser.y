@@ -1002,6 +1002,23 @@ column_reference
       qual->v.string_literal = new_string;
       $$ = $qualifier;
     }
+  | qualifier PERIOD ASTERISK {
+      SqlValue *qual;
+      char *new_string, *c;
+      int len_qual;
+      UNPACK_SQL_STATEMENT(qual, $qualifier, value);
+      len_qual = strlen(qual->v.string_literal);
+      // +1 for null, +1 for '.'
+      new_string = octo_cmalloc(memory_chunks, len_qual + 1 + 2);
+      c = new_string;
+      memcpy(c, qual->v.string_literal, len_qual);
+      c += len_qual;
+      *c++ = '.';
+      *c++ = '*';
+      *c++ = '\0';
+      qual->v.string_literal = new_string;
+      $$ = $qualifier;
+    }
   | column_name { $$ = $column_name; }
   ;
 
@@ -1895,8 +1912,10 @@ partition_by_clause
   ;
 
 optional_order_by
-  : /* Empty */
-  | ORDER BY sort_specification_list
+  : /* Empty */ { $$ = NULL; }
+  | ORDER BY sort_specification_list {
+      $$ = $sort_specification_list;
+    }
   ;
 
 function_definition

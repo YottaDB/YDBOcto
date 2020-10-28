@@ -90,4 +90,6 @@ setup() {
 
 @test "TSCP08 : OCTO385 : Verify different asterisk usage in select column list" {
   run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TSCP08.sql
+  load_fixture TSCP08_errors.sql subtest novv
+  verify_output TSCP08_errors output.txt
 }

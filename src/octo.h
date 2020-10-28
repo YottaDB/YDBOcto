@@ -266,6 +266,13 @@ typedef enum RegexType {
 	REGEX_TILDE,
 } RegexType;
 
+#define INVOKE_QUERY_SPECIFICATION(Q_SPEC, SET_QT, SELECT_LIST, TABLE_EXPR, SORT_SPEC_LIST, PLAN_ID)    \
+	{                                                                                               \
+		Q_SPEC = query_specification(SET_QT, SELECT_LIST, TABLE_EXPR, SORT_SPEC_LIST, PLAN_ID); \
+		if (NULL == Q_SPEC)                                                                     \
+			YYABORT;                                                                        \
+	}
+
 #define INVOKE_REGEX_SPECIFICATION(STMT, OP0, OP1, IS_REGEX_LIKE_OR_SIMILAR, IS_SENSITIVE, IS_NOT, PARSE_CONTEXT)            \
 	{                                                                                                                    \
 		int status;                                                                                                  \
@@ -463,7 +470,7 @@ int		    get_column_number_from_column_list_alias(SqlColumnListAlias *input_cla,
 SqlColumnListAlias *get_column_list_alias_n_from_table_alias(SqlTableAlias *table_alias, int column_number);
 SqlColumnAlias *    get_column_alias_for_column_list_alias(SqlColumnListAlias *col_cla, SqlStatement *matching_alias_stmt);
 
-SqlColumnListAlias *copy_column_list_alias_list(SqlColumnListAlias *cla);
+SqlColumnListAlias *copy_column_list_alias_list(SqlColumnListAlias *cla, SqlStatement *sql_stmt, SqlStatement *keywords);
 SqlStatement *	    copy_sql_statement(SqlStatement *stmt);
 boolean_t	    match_sql_statement(SqlStatement *stmt, SqlStatement *match_stmt);
 

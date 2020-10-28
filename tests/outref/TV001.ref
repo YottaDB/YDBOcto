@@ -490,10 +490,15 @@ Stack now sss ...
 Entering state sss
 Next token is token SEMICOLON (: )
 Reducing stack by rule rrr (line lll):
+-> $$ = nterm optional_order_by (: )
+Stack now sss ...
+Entering state sss
+Reducing stack by rule rrr (line lll):
    $1 = token SELECT (: )
    $2 = nterm set_quantifier (: )
    $3 = nterm select_list (: )
    $4 = nterm table_expression (: )
+   $5 = nterm optional_order_by (: )
 -> $$ = nterm query_specification (: )
 Stack now sss ...
 Entering state sss

@@ -138,3 +138,12 @@ teardown() {
 	load_fixture $testname.sql subtest novv
 	verify_output $testname output.txt
 }
+
+@test "TJC014 : OCTO422 : Rocto log should not have empty lines" {
+        run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TJC014a.sql "" usejdbc useextended
+        run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TJC014a.sql "" usejdbc
+        run_java run_query $test_port TJC014a
+        run_java run_query $test_port TJC014b
+        [[ $(grep -c "^$" rocto.log) -eq 0 ]]
+}
+

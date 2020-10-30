@@ -375,3 +375,11 @@ OCTO
 	run_psql $test_port TERR025.sql 2>&1 | tee output.txt
 	verify_output TPC016 output.txt noinfo
 }
+
+@test " TPC017 : OCTO502 : AS keyword supports list of column name aliases (on top of table name alias)" {
+	# We want to test that the column names of the select column list are correct. And there is no easy way
+	# to do that other than to run the queries through psql/rocto. But this means we cannot run the crosscheck.
+	# Since this test cares more about the column names, we skip the crosscheck and maintain a reference file.
+	run_psql $test_port TPC017.sql 2>&1 | tee output.txt
+	verify_output TPC017 output.txt noinfo nodebug
+}

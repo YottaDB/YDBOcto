@@ -337,9 +337,15 @@ table_reference
 derived_table
   : table_subquery {
 	$$ = derived_table($table_subquery, NULL);
+	if (NULL == $$) {
+		YYERROR;
+	}
     }
   | table_subquery correlation_specification {
 	$$ = derived_table($table_subquery, $correlation_specification);
+	if (NULL == $$) {
+		YYERROR;
+	}
     }
   ;
 
@@ -349,16 +355,11 @@ table_reference_list_tail
   ;
 
 correlation_specification
-  : optional_as as_name { $$ = $as_name; }
-  /*
-   * The commented rule appears in table alias context.
-   * Refer alias syntax for from_type usage in:
-   *     https://www.postgresql.org/docs/9.2/sql-select.html
-   * Example query:
-   *     select * from names as n1(ida,fm,lm);
-   * TODO: Uncomment once column_name_list is implemented.
+  : optional_as as_name { $$ = create_sql_column_list($as_name, NULL, &yyloc); }
   | optional_as as_name LEFT_PAREN column_name_list RIGHT_PAREN
-  */
+    {
+	$$ = create_sql_column_list($as_name, $column_name_list, &yyloc);
+    }
   ;
 
 optional_as

@@ -487,6 +487,7 @@ SqlStatement *aggregate_function(SqlAggregateType aggregate_type, OptionalKeywor
 SqlStatement *between_predicate(SqlStatement *row_value_constructor, SqlStatement *from, SqlStatement *to, boolean_t not_specified);
 SqlStatement *cast_specification(SqlStatement *cast_specification, SqlStatement *source);
 SqlStatement *create_sql_column_list(SqlStatement *elem, SqlStatement *tail, YYLTYPE *llocp);
+int	      copy_correlation_specification_aliases(SqlTableAlias *table_alias, SqlStatement *correlation_specification);
 SqlStatement *data_type(SqlDataType data_type, SqlStatement *size_or_precision, SqlStatement *scale);
 SqlStatement *derived_column(SqlStatement *derived_column_expression, SqlStatement *column_name, struct YYLTYPE *yloc);
 SqlStatement *derived_table(SqlStatement *table_subquery, SqlStatement *correlation_specification);

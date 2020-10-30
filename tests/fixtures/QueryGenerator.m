@@ -1560,10 +1560,21 @@ generateQuery(queryDepth,joinCount)
 	set query="SELECT "
 	set query=query_$$setQuantifier
 	set fc=$$fromClause ; fromClause and joinClause needs to run before selectList
+	; If testing with "names" database, then we could later randomly replace "names" table with VALUES clause
+	; In that case, it would be a sub-query. So give it a name in the outer query using the AS keyword.
+	set:(sqlFile="names.sql") fc=fc_" AS names"
 	set joinclause="" for i=1:1:joinCount  set joinclause=joinclause_$$joinClause(queryDepth,joinCount)  if $increment(aliasNum)
 	set query=query_$$selectList(queryDepth,selectListDepth)
 	set query=query_" "_fc_" "_joinclause
 	set query=query_$$tableExpression(queryDepth)
+	; If testing with the "names" database, randomly (1/8 chance) replace occurrences of "names" table with the VALUES clause.
+	; This provides a good test of the VALUES clause.
+	do:$random(2)&("names.sql"=sqlFile)
+	. new wordcount
+	. set wordcount=$length(query," ")
+	. for i=1:1:wordcount do
+	. . set:('$random(8))&(($piece(query," ",i)="names")!($piece(query," ",i)="NAMES")) $piece(query," ",i)=$$valuesClause()
+	. . set:$piece(query," ",i+1)="AS" i=i+2
 	quit query_";"
 
 ; This function generates all of the subqueries for the various other functions throughout this program.
@@ -2028,6 +2039,12 @@ getRandFuncStr(colEntry)
 
 getRandFunc(colEntry,type)
 	quit "samevalue("_colEntry_")"
+
+valuesClause()
+	new valueClause,ret
+	set valueClause="(values (0, 'Zero', 'Cool'), (1, 'Acid', 'Burn'), (2, 'Cereal', 'Killer'), (3, 'Lord', 'Nikon'), (4, 'Joey', NULL), (5, 'Zero', 'Cool'))"
+	set ret="(select * from "_valueClause_" as names(id,firstname,lastname))"
+	quit ret
 
 assert(cond)	;
 	if 'cond zshow "*"  zhalt 1

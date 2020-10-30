@@ -1062,8 +1062,7 @@ corresponding_column_list
 
 column_name_list
   : column_name column_name_list_tail {
-  	/* TODO: This rule needs to be implemented to get AS with multiple column aliases working. */
-	$$ = NULL;
+	$$ = create_sql_column_list($column_name, $column_name_list_tail, &yyloc);
     }
   ;
 
@@ -1134,6 +1133,12 @@ table_value_constructor
 	row_value_stmt = $table_value_constructor_list;
 	table_value->row_value_stmt = row_value_stmt;
 	join_stmt = table_reference(table_value_stmt, NULL, plan_id);
+	if (NULL == join_stmt) {
+		assert(FALSE);	/* currently this is not possible since we pass NULL as the second parameter and
+				 * the only error inside "table_reference" is possible if that parameter is non-NULL.
+				 */
+		YYERROR;
+	}
 	UNPACK_SQL_STATEMENT(join, join_stmt, join);
 	/* Reuse the table_alias_STATEMENT that was already allocated in "table_reference" */
 	table_alias_stmt = join->value;
@@ -1174,7 +1179,7 @@ table_value_constructor_list_tail
   ;
 
 explicit_table
-  : TABLE column_name { WARNING(ERR_FEATURE_NOT_IMPLEMENTED, "corresponding_spec_tail: BY LEFT_PAREN corresponding_column_list RIGHT_PAREN"); YYABORT; }
+  : TABLE column_name { WARNING(ERR_FEATURE_NOT_IMPLEMENTED, "explicit_table: TABLE column_name"); YYABORT; }
   ;
 
 query_primary

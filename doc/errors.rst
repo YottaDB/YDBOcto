@@ -69,6 +69,14 @@ Text: Ambiguous column name 'xxx': qualify name for safe execution
 
 Description/Action: This error is generated when two or more columns from different tables of the same name are given in a single query without qualifying them with their respective table names. PSQL Error Code: 42702
 
+++++++++++++++++++++++++++++++++
+ERR_AS_MORE_COLUMNS
+++++++++++++++++++++++++++++++++
+
+Text: Table name 'xxx' has xxx columns available but xxx columns specified
+
+Description/Action: This error is generated when the :code:`AS` keyword specifies a list of column names that is more than the available number of columns. PSQL Error Code: 42P10
+
 +++++++++++++++++++++
 ERR_AUTO_UPGRADE
 +++++++++++++++++++++

@@ -15,7 +15,12 @@
 #include "octo.h"
 #include "octo_types.h"
 
-// Function invoked by the rule named "derived_table" in src/parser/select.y
+/* Function invoked by the rule named "derived_table" in src/parser/select.y
+ *
+ * Returns:
+ *	non-NULL pointer in case of success.
+ *	NULL     pointer in case of errors so caller can take appropriate action.
+ */
 SqlStatement *derived_table(SqlStatement *table_subquery, SqlStatement *correlation_specification) {
 	SqlStatement *sql_stmt, *ret;
 	SqlJoin *     join;
@@ -31,7 +36,9 @@ SqlStatement *derived_table(SqlStatement *table_subquery, SqlStatement *correlat
 		// Setup the alias
 		sql_stmt = drill_to_table_alias(sql_stmt);
 		UNPACK_SQL_STATEMENT(table_alias, sql_stmt, table_alias);
-		table_alias->alias = correlation_specification;
+		if (copy_correlation_specification_aliases(table_alias, correlation_specification)) {
+			return NULL;
+		}
 	}
 	dqinit(join);
 	join->max_unique_id = config->plan_id;

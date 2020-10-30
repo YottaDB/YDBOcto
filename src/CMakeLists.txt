@@ -237,6 +237,7 @@ add_library(libocto OBJECT
   parser/between_predicate.c
   parser/cast_specification.c
   parser/create_sql_column_list.c
+  parser/copy_correlation_specification_aliases.c
   parser/data_type.c
   parser/derived_column.c
   parser/derived_table.c

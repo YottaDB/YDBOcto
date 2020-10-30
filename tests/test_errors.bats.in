@@ -292,3 +292,8 @@ OCTO
   verify_output TERR030 output.txt
 }
 
+@test "TERR031 : OCTO502 : Error scenarios in AS column name alias list" {
+  load_fixture TERR031.sql subtest novv
+  verify_output TERR031 output.txt
+}
+

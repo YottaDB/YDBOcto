@@ -15,7 +15,13 @@
 #include "octo.h"
 #include "octo_types.h"
 
-// Function invoked by the rule named "table_reference" in src/parser/select.y
+/* Function invoked by the rule named "table_reference" in src/parser/select.y
+ *
+ * Returns:
+ *	non-NULL pointer in case of success.
+ *	NULL     pointer in case of errors so caller can take appropriate action.
+ */
+
 SqlStatement *table_reference(SqlStatement *column_name, SqlStatement *correlation_specification, int *plan_id) {
 	SqlStatement * ret, *tableName;
 	SqlJoin *      join;
@@ -99,7 +105,14 @@ SqlStatement *table_reference(SqlStatement *column_name, SqlStatement *correlati
 		tableName = NULL;
 	}
 	PACK_SQL_STATEMENT(table_alias->column_list, columns_to_column_list_alias(column, join->value), column_list_alias);
-	table_alias->alias = ((NULL != correlation_specification) ? correlation_specification : tableName);
+	if (NULL != correlation_specification) {
+		/* See if a list of column name aliases were also specified. If so copy those over to table_alias. */
+		if (copy_correlation_specification_aliases(table_alias, correlation_specification)) {
+			return NULL;
+		}
+	} else {
+		table_alias->alias = tableName;
+	}
 	// We can probably put a variable in the bison local for this
 	table_alias->unique_id = *plan_id;
 	(*plan_id)++;

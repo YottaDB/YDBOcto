@@ -177,3 +177,5 @@ docs.yottadb.net:
   only:
     refs:
       - master
+    changes:
+      - doc/**/*

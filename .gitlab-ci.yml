@@ -170,3 +170,10 @@ pages:
       - public
     expire_in: 1 month
     when: always
+
+docs.yottadb.net:
+  stage: docs
+  trigger: YottaDB/DB/YDBDoc
+  only:
+    refs:
+      - master

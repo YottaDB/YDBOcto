@@ -342,10 +342,28 @@ This clause specifies the table(s) from which the columns are selected.
 
 **from_item** can be any of the following:
 
-    - A table name
-    - An alias
-    - A SELECT subquery, which must be surrounded by parentheses.
-    - A join
+    - **table_name** : The name of an existing table.
+      
+        .. code-block:: SQL
+			
+	   /* Selects all rows from the table names */
+	   SELECT *
+	   FROM names;
+	   
+    - **alias** : A temporary name given to a table or a column for the purposes of a query. Please refer the :ref:`sql-alias` section below for more information.
+      
+        .. code-block:: SQL
+			
+	   /* Selects all rows from the table names aliased as n */
+	   SELECT *
+	   FROM names AS n;
+	   
+    - **select** : A SELECT subquery, which must be surrounded by parentheses. Examples showcasing the usage of the SELECT subquery can be found in the :ref:`sql-table-alias` section below.
+
+
+    - **join_type** : Any one of the :ref:`sql-joins`. A **join_type** cannot be the first **from_item**. Examples showcasing the usage of **join_type** can be found in the :ref:`sql-joins` section below.
+
+.. _sql-joins:
 
 ~~~~~~~
 JOINS
@@ -356,10 +374,8 @@ Joins can be made by appending a join type and table name to a SELECT statement:
 .. code-block:: SQL
 
    [CROSS | [NATURAL | INNER | [LEFT][RIGHT][FULL] OUTER]] JOIN ON joined_table;
-
+   
 A **CROSS JOIN** between two tables provides the number of rows in the first table multiplied by the number of rows in the second table.
-
-A **QUALIFIED JOIN** is a join between two tables that specifies a join condition.
 
 A **NATURAL JOIN** is a join operation that combines tables based on columns with the same name and type. The resultant table does not contain repeated columns.
 
@@ -377,11 +393,16 @@ For two tables, Table A and Table B,
 Example:
 
 .. code-block:: SQL
-
+		
+   /* Selects the first name, last name and address of an employee that have an address. The employee and address table are joined on the employee ID values. */
    SELECT FirstName, LastName, Address
    FROM Employee INNER JOIN Addresses
    ON Employee.ID = Addresses.EID;
 
+.. note::
+
+   Currently only the INNER and OUTER JOINs support the ON clause.
+   
 ++++++++
 WHERE
 ++++++++
@@ -405,7 +426,8 @@ See :ref:`Technical Notes <technical-notes>` for details on value expressions.
 Example:
 
 .. code-block:: SQL
-
+		
+   /* Selects the Employee ID, first name and last name from the employee table for employees with ID greater than 100. The results are grouped by the last name of the employees. */
    SELECT ID, FirstName, LastName FROM Employee WHERE ID > 100 GROUP BY LastName;
 
 ++++++++++
@@ -434,7 +456,8 @@ The ordering specification lets you further choose whether to order the returned
 Example:
 
 .. code-block:: SQL
-
+		
+   /* Selects the Employee ID, first name and last name from the employee table for employees with ID greater than 100. The results are ordered in descending order of ID. */
    SELECT ID, FirstName, LastName FROM Employee WHERE ID > 100 ORDER BY ID DESC;
 
 +++++++
@@ -446,7 +469,8 @@ This clause allows the user to specify the number of rows they want to retrieve 
 Example:
 
 .. code-block:: SQL
-
+		
+   /* Selects the first five rows from the employee table */
    SELECT * FROM Employee LIMIT 5;
 
 The above example returns no more than 5 rows.
@@ -589,9 +613,13 @@ The keyword ALL affects the resulting rows such that duplicate results are allow
 VALUES
 --------------
 
-:code:`VALUES` provides a way to generate an "on-the-fly" table that can be used in a query without having to actually create and populate a table on-disk. The syntax is
+:code:`VALUES` provides a way to generate an "on-the-fly" table that can be used in a query without having to actually create and populate a table on-disk.
 
-:code:`VALUES` ( expression [, ...] ) [, ...]
+The syntax is:
+
+.. code-block:: SQL
+		
+   VALUES ( expression [, ...] ) [, ...]
 
 Each parenthesized list of expressions generates one row in the table. Each specified row must have the same number of comma-separated entries (could be constants, expressions, subqueries etc.). This becomes the number of columns in the generated table. Corresponding entries in each row must have compatible data types. The data type assigned to each column of the generated table is determined based on the data type of the entries in the row lists.
 
@@ -762,6 +790,8 @@ Other operators in Octo:
 * EXISTS   : The result is TRUE if the evaluated subquery returns at least one row. It is FALSE if the evaluated subquery returns no rows.
 * ANY/SOME : The result is TRUE if any true result is obtained when the expression is evaluated and compared to each row of the subquery result. It is FALSE if no true result is found or if the subquery returns no rows.
 
+.. _sql-alias:
+
 ------------------------
 Alias
 ------------------------
@@ -772,41 +802,63 @@ Double quotes, single quotes and non quoted identifiers can be used to represent
 Column Alias
 ++++++++++++++
 
-.. code-block:: SQL
+A column alias can be used in two different ways:
 
-   column [AS] aliasname
+  #. **As part of SELECT**
+     
+     .. code-block:: SQL
 
-Examples:
+        SELECT column [AS] column_alias
+	FROM from_item;
 
-.. code-block:: SQL
+     Examples:
 
-   OCTO> select firstname as "quoted" from names limit 1;
-   Zero
+     .. code-block:: SQL
 
-   OCTO> select firstname as 'quoted' from names limit 1;
-   Zero
+        OCTO> select firstname as "quoted" from names limit 1;
+        Zero
 
-   OCTO> select firstname as ida from names limit 1;
-   Zero
+        OCTO> select firstname as 'quoted' from names limit 1;
+        Zero
 
-   OCTO> select ida from (select 8 as "ida") n1;
-   8
+        OCTO> select firstname as ida from names limit 1;
+        Zero
 
-   OCTO> select ida from (select 8 as 'ida') n1;
-   8
+        OCTO> select ida from (select 8 as "ida") n1;
+        8
 
-   OCTO> select ida from (select 8 as ida) n1;
-   8
+        OCTO> select ida from (select 8 as 'ida') n1;
+        8
 
-   OCTO> select ida from (select 8 as ida) as n1;
-   8
+        OCTO> select ida from (select 8 as ida) n1;
+        8
 
-Column aliases are supported in short form i.e without AS keyword
+        OCTO> select ida from (select 8 as ida) as n1;
+        8
 
-.. code-block:: SQL
+     Column aliases are supported in short form i.e without AS keyword
 
-   OCTO> select ida from (select 8 ida) n1;
-   8
+     .. code-block:: SQL
+
+        OCTO> select ida from (select 8 ida) n1;
+        8
+
+  #. **As part of FROM**
+
+     .. code-block:: SQL
+
+        SELECT [ALL | DISTINCT]
+	[* | expression]
+	FROM table_name [AS] table_alias(column_alias [, ...]);
+
+     Examples:
+
+     .. code-block:: SQL
+	
+	OCTO> SELECT * FROM names AS tblalias(colalias1, colalias2, colalias3) WHERE tblalias.colalias1 = 1;
+        1|Acid|Burn
+
+.. _sql-table-alias:
 
 +++++++++++++++
 Table Alias
@@ -836,9 +888,13 @@ Examples:
    1
    1
 
+   /* The select subquery uses aliases for the table as well as columns. This query selects one row from the names table aliased as tblalias, where the value of the colalias1 is 1. */
+   OCTO> SELECT * FROM (SELECT * FROM names) as tblalias(colalias1, colalias2, colalias3) WHERE tblalias.colalias1 = 1;
+   1|Acid|Burn
+   
 Table aliases are supported in short form i.e without AS
 
-.. code-block:: bash
+.. code-block:: SQL
 
    OCTO> select n1.firstname from names "n1" limit 1;
    Zero

@@ -431,7 +431,7 @@ Sample Queries
 
     The following query selects all products from the 'Products' table with a ProductName that starts with 'L'.
 
-    .. code-block:: SQL
+    .. code-block:: PSQL
 
      OCTO> SELECT * FROM Products
      OCTO> WHERE ProductName LIKE 'L%';

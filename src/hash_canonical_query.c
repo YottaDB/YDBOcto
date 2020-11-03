@@ -95,6 +95,7 @@ void hash_canonical_query(hash128_state_t *state, SqlStatement *stmt, int *statu
 	SqlCaseStatement *	cas;
 	SqlCaseBranchStatement *cas_branch;
 	SqlSelectStatement *	select;
+	SqlInsertStatement *	insert;
 
 	SqlFunctionCall *function_call;
 	SqlCoalesceCall *coalesce_call;
@@ -107,7 +108,7 @@ void hash_canonical_query(hash128_state_t *state, SqlStatement *stmt, int *statu
 	SqlValue *	      value;
 
 	// Columns and tables
-	SqlColumn *	column; // Note singular versus plural
+	SqlColumn *	column, *start_column, *cur_column;
 	SqlColumnAlias *column_alias;
 	SqlTable *	table;
 	SqlTableAlias * table_alias;
@@ -204,6 +205,16 @@ void hash_canonical_query(hash128_state_t *state, SqlStatement *stmt, int *statu
 			hash_canonical_query(state, cur_cas_branch->value, status);
 			cur_cas_branch = cur_cas_branch->next;
 		} while (cur_cas_branch != cas_branch);
+		break;
+	case insert_STATEMENT:
+		UNPACK_SQL_STATEMENT(insert, stmt, insert);
+		ADD_INT_HASH(state, insert_STATEMENT);
+		/* Note: We care only about the "SqlTable" structure (i.e. "dst_table_alias->table"). No other fields
+		 * inside "dst_table_alias" are used (even in the later logical plan stage). Hence the below invocation.
+		 */
+		hash_canonical_query(state, insert->dst_table_alias->table, status); // SqlTable
+		hash_canonical_query(state, insert->columns, status);		     // SqlColumnList
+		hash_canonical_query(state, insert->src_table_alias_stmt, status);   // SqlTableAlias
 		break;
 	case select_STATEMENT:
 		UNPACK_SQL_STATEMENT(select, stmt, select);
@@ -340,6 +351,22 @@ void hash_canonical_query(hash128_state_t *state, SqlStatement *stmt, int *statu
 		assert(table->tableName->type == value_STATEMENT);
 		ADD_INT_HASH(state, create_table_STATEMENT);
 		hash_canonical_query(state, table->tableName, status);
+		UNPACK_SQL_STATEMENT(start_column, table->columns, column);
+		cur_column = start_column;
+		do {
+			hash_canonical_query(state, cur_column->columnName, status);
+			ADD_INT_HASH(state, cur_column->data_type_struct.data_type);
+			if (SIZE_OR_PRECISION_UNSPECIFIED != cur_column->data_type_struct.size_or_precision) {
+				ADD_INT_HASH(state, cur_column->data_type_struct.size_or_precision);
+			}
+			if (SCALE_UNSPECIFIED != cur_column->data_type_struct.scale) {
+				ADD_INT_HASH(state, cur_column->data_type_struct.scale);
+			}
+			assert(stmt == cur_column->table);
+			hash_canonical_query(state, cur_column->delim, status);
+			hash_canonical_query(state, cur_column->keywords, status);
+			cur_column = cur_column->next;
+		} while ((cur_column != start_column));
 		hash_canonical_query(state, table->source, status);
 		hash_canonical_query(state, table->delim, status);
 		hash_canonical_query(state, table->nullchar, status);

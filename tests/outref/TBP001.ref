@@ -1,8 +1,12 @@
+[ERROR] PATH:LINENUM DATE TIME : ERR_FEATURE_NOT_IMPLEMENTED : Feature not implemented: DELETE FROM WHERE search_condition
 [ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: DELETE FROM myTable WHERE id = 1;
 
+[ERROR] PATH:LINENUM DATE TIME : ERR_FEATURE_NOT_IMPLEMENTED : Feature not implemented: DELETE FROM WHERE search_condition
 [ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: delete from abc where id in (1, 2, 3, 4);
 
+[ERROR] PATH:LINENUM DATE TIME : ERR_FEATURE_NOT_IMPLEMENTED : Feature not implemented: DELETE FROM WHERE search_condition
 [ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: DELETE FROM abc WHERE abc.value = 5+5/5;
 
+[ERROR] PATH:LINENUM DATE TIME : ERR_FEATURE_NOT_IMPLEMENTED : Feature not implemented: DELETE FROM WHERE search_condition
 [ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: DELETE FROM thing where mixedCase = 1;
 

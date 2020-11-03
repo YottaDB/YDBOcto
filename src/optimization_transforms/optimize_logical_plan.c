@@ -37,7 +37,7 @@ LogicalPlan *join_tables(LogicalPlan *root, LogicalPlan *plan) {
 	oper0 = plan->v.lp_default.operand[0];
 	switch (oper0->type) {
 	case LP_SET_OPERATION:
-	case LP_INSERT:
+	case LP_SELECT_QUERY:
 		if (LP_SET_OPERATION == oper0->type) {
 			int i;
 
@@ -71,8 +71,8 @@ LogicalPlan *join_tables(LogicalPlan *root, LogicalPlan *plan) {
 			MALLOC_LP_2ARGS(keys->v.lp_default.operand[1], LP_KEYS);
 			keys = keys->v.lp_default.operand[1];
 		}
-		table_alias
-		    = ((LP_TABLE == oper0->type) ? oper0->v.lp_table.table_alias : oper0->extra_detail.lp_insert.root_table_alias);
+		table_alias = ((LP_TABLE == oper0->type) ? oper0->v.lp_table.table_alias
+							 : oper0->extra_detail.lp_select_query.root_table_alias);
 		unique_id = table_alias->unique_id;
 		if (create_table_STATEMENT == table_alias->table->type) {
 			UNPACK_SQL_STATEMENT(table, table_alias->table, create_table);
@@ -135,8 +135,14 @@ LogicalPlan *optimize_logical_plan(LogicalPlan *plan) {
 			return NULL;
 		}
 		return plan;
+	} else if (LP_INSERT_INTO == plan->type) {
+		plan->v.lp_default.operand[1] = optimize_logical_plan(plan->v.lp_default.operand[1]);
+		if (NULL == plan->v.lp_default.operand[1]) {
+			return NULL;
+		}
+		return plan;
 	}
-	assert(LP_INSERT == plan->type);
+	assert(LP_SELECT_QUERY == plan->type);
 	/* First focus on the WHERE clause. Before any key fixing can be done, expand the WHERE clause into disjunctive normal form
 	 * (DNF expansion) as that is what enables key fixing.
 	 */
@@ -225,20 +231,20 @@ LogicalPlan *optimize_logical_plan(LogicalPlan *plan) {
 			 */
 			operand0 = table_join->v.lp_default.operand[0];
 			switch (operand0->type) {
-			case LP_INSERT:
+			case LP_SELECT_QUERY:
 			case LP_SET_OPERATION:
 				insert = operand0;
 				if (LP_SET_OPERATION == operand0->type) {
 					insert = lp_drill_to_insert(insert);
-					assert(LP_INSERT == insert->type);
+					assert(LP_SELECT_QUERY == insert->type);
 				}
-				right_table_alias = insert->extra_detail.lp_insert.root_table_alias;
+				right_table_alias = insert->extra_detail.lp_select_query.root_table_alias;
 				break;
 			default:
 				assert((LP_TABLE == operand0->type) || (LP_TABLE_VALUE == operand0->type));
 				right_table_alias
 				    = ((LP_TABLE == operand0->type) ? operand0->v.lp_table.table_alias
-								    : operand0->extra_detail.lp_insert.root_table_alias);
+								    : operand0->extra_detail.lp_select_query.root_table_alias);
 				break;
 			}
 			lp_optimize_where_multi_equals_ands(plan, table_join->extra_detail.lp_table_join.join_on_condition,

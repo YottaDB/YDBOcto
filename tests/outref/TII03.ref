@@ -1,0 +1,17 @@
+
+-- TIIT03 : INSERT INTO a 3-key table
+
+CREATE TABLE namesXfer (
+  id INTEGER PRIMARY KEY
+, firstName VARCHAR(30)
+, lastName VARCHAR(30)
+);
+INSERT INTO namesXfer (SELECT * FROM names WHERE lastName <> '');
+SELECT * FROM namesXfer;
+DROP TABLE namesXfer;
+
+0|Zero|Cool
+1|Acid|Burn
+2|Cereal|Killer
+3|Lord|Nikon
+5|Zero|Cool

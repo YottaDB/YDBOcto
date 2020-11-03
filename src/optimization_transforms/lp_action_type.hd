@@ -11,10 +11,9 @@
  ****************************************************************/
 
 LP_ACTION_TYPE(LP_INVALID_ACTION)	// Start with this as it will take the 0 value of enum (default value after octo_cmalloc)
-// Used to insert data into a table; including temporary tables
-LP_ACTION_TYPE(LP_INSERT)
-// Used to perform SET operations on logical plans
-LP_ACTION_TYPE(LP_SET_OPERATION)
+LP_ACTION_TYPE(LP_SELECT_QUERY)		// Used to select data from a table; including temporary tables
+LP_ACTION_TYPE(LP_INSERT_INTO)		// Used to insert data into a table
+LP_ACTION_TYPE(LP_SET_OPERATION)	// Used to perform SET operations on logical plans
 LP_ACTION_TYPE(LP_TABLE)
 LP_ACTION_TYPE(LP_TABLE_JOIN)
 LP_ACTION_TYPE(LP_TABLE_VALUE)

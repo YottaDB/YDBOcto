@@ -25,7 +25,13 @@ static boolean_t lp_verify_value(LogicalPlan *plan, PhysicalPlanOptions *options
 
 /* Verifies the given LP has a good structure; return TRUE if it is all good and FALSE otherwise */
 int lp_verify_structure(LogicalPlan *plan, PhysicalPlanOptions *options) {
-	if ((LP_INSERT != plan->type) && (LP_SET_OPERATION != plan->type) && (LP_TABLE_VALUE != plan->type)) {
+	switch (plan->type) {
+	case LP_SELECT_QUERY:
+	case LP_SET_OPERATION:
+	case LP_TABLE_VALUE:
+	case LP_INSERT_INTO:
+		break;
+	default:
 		assert(FALSE);
 		return FALSE;
 	}
@@ -41,17 +47,22 @@ int lp_verify_structure_helper(LogicalPlan *plan, PhysicalPlanOptions *options, 
 	if (plan->type != expected)
 		return FALSE;
 	switch (expected) {
-	case LP_INSERT:
-		/* If "options->aggregate" is non-NULL, check if the aggregate corresponds to this LP_INSERT.
-		 * If so, descend down this plan. If not, we will come to this LP_INSERT as part of a
+	case LP_SELECT_QUERY:
+		/* If "options->aggregate" is non-NULL, check if the aggregate corresponds to this LP_SELECT_QUERY.
+		 * If so, descend down this plan. If not, we will come to this LP_SELECT_QUERY as part of a
 		 * different `lp_verify_structure` call. Wait until then. This is because we do not want to
 		 * fill in aggregate function information (first_aggregate/next_aggregate linked list and
 		 * aggregate_cnt) across different logical plans.
 		 */
-		if ((NULL == options) || (options->aggregate == &plan->extra_detail.lp_insert.first_aggregate)) {
+		if ((NULL == options) || (options->aggregate == &plan->extra_detail.lp_select_query.first_aggregate)) {
 			ret &= lp_verify_structure_helper(plan->v.lp_default.operand[0], options, LP_PROJECT);
 			ret &= lp_verify_structure_helper(plan->v.lp_default.operand[1], options, LP_OUTPUT);
 		}
+		break;
+	case LP_INSERT_INTO:
+		ret &= lp_verify_structure_helper(plan->v.lp_default.operand[0], options, LP_TABLE);
+		ret &= lp_verify_structure_helper(plan->v.lp_default.operand[1], options, LP_SELECT_QUERY)
+		       | lp_verify_structure_helper(plan->v.lp_default.operand[1], options, LP_SET_OPERATION);
 		break;
 	case LP_OUTPUT:
 		ret &= lp_verify_structure_helper(plan->v.lp_default.operand[0], options, LP_KEY);
@@ -76,9 +87,9 @@ int lp_verify_structure_helper(LogicalPlan *plan, PhysicalPlanOptions *options, 
 		}
 		break;
 	case LP_PLANS:
-		ret &= lp_verify_structure_helper(plan->v.lp_default.operand[0], options, LP_INSERT)
+		ret &= lp_verify_structure_helper(plan->v.lp_default.operand[0], options, LP_SELECT_QUERY)
 		       | lp_verify_structure_helper(plan->v.lp_default.operand[0], options, LP_SET_OPERATION);
-		ret &= lp_verify_structure_helper(plan->v.lp_default.operand[1], options, LP_INSERT)
+		ret &= lp_verify_structure_helper(plan->v.lp_default.operand[1], options, LP_SELECT_QUERY)
 		       | lp_verify_structure_helper(plan->v.lp_default.operand[1], options, LP_SET_OPERATION);
 		break;
 	case LP_TABLE:
@@ -125,7 +136,7 @@ int lp_verify_structure_helper(LogicalPlan *plan, PhysicalPlanOptions *options, 
 		if (NULL != plan->v.lp_default.operand[0]) {
 			ret &= lp_verify_structure_helper(plan->v.lp_default.operand[0], options, LP_TABLE)
 			       | lp_verify_structure_helper(plan->v.lp_default.operand[0], options, LP_TABLE_VALUE)
-			       | lp_verify_structure_helper(plan->v.lp_default.operand[0], options, LP_INSERT)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[0], options, LP_SELECT_QUERY)
 			       | lp_verify_structure_helper(plan->v.lp_default.operand[0], options, LP_SET_OPERATION);
 			ret &= lp_verify_structure_helper(plan->v.lp_default.operand[1], options, LP_TABLE_JOIN);
 			ret &= lp_verify_structure_helper(plan->extra_detail.lp_table_join.join_on_condition, options, LP_WHERE);
@@ -236,10 +247,10 @@ int lp_verify_structure_helper(LogicalPlan *plan, PhysicalPlanOptions *options, 
 			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], options, LP_CONCAT)
 			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], options, LP_NEGATIVE)
 			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], options, LP_FORCE_NUM)
-			       // LP_INSERT/LP_SET_OPERATIONs usually show up as operand[1] only for the IN boolean expression.
-			       // But they can show up wherever a scalar is expected (e.g. string concatenation operations etc.)
-			       // and hence have to be allowed in a lot more cases.
-			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], options, LP_INSERT)
+			       // LP_SELECT_QUERY/LP_SET_OPERATIONs usually show up as operand[1] only for the IN boolean
+			       // expression. But they can show up wherever a scalar is expected (e.g. string concatenation
+			       // operations etc.) and hence have to be allowed in a lot more cases.
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], options, LP_SELECT_QUERY)
 			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], options, LP_SET_OPERATION);
 		}
 		break;
@@ -367,10 +378,10 @@ int lp_verify_structure_helper(LogicalPlan *plan, PhysicalPlanOptions *options, 
 			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], options, LP_BOOLEAN_IS_NOT_NULL)
 			       /* LP_BOOLEAN_IN and LP_BOOLEAN_NOT_IN can have a LP_COLUMN_LIST as operand 1 */
 			       | (is_bool_in && lp_verify_structure_helper(plan->v.lp_default.operand[i], options, LP_COLUMN_LIST))
-			       // LP_INSERT/LP_SET_OPERATIONs usually show up as operand[1] only for the IN boolean expression.
-			       // But they can show up wherever a scalar is expected (e.g. arithmetic operations etc.)
+			       // LP_SELECT_QUERY/LP_SET_OPERATIONs usually show up as operand[1] only for the IN boolean
+			       // expression. But they can show up wherever a scalar is expected (e.g. arithmetic operations etc.)
 			       // and hence have to be allowed in a lot more cases.
-			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], options, LP_INSERT)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], options, LP_SELECT_QUERY)
 			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], options, LP_SET_OPERATION)
 			       // LP_COLUMN_LIST_ALIAS is possible as operand[1] only for LP_WHERE. Check that.
 			       | (is_where
@@ -540,8 +551,9 @@ boolean_t lp_verify_value(LogicalPlan *plan, PhysicalPlanOptions *options) {
 	       | lp_verify_structure_helper(plan, options, LP_BOOLEAN_NOT_EXISTS)
 	       | lp_verify_structure_helper(plan, options, LP_BOOLEAN_IS_NULL)
 	       | lp_verify_structure_helper(plan, options, LP_BOOLEAN_IS_NOT_NULL)
-	       // LP_INSERT/LP_SET_OPERATIONs usually show up as operand[1] only for the IN boolean expression.
+	       // LP_SELECT_QUERY/LP_SET_OPERATIONs usually show up as operand[1] only for the IN boolean expression.
 	       // But they can show up wherever a scalar is expected (e.g. select column list etc.)
 	       // and hence have to be allowed in a lot more cases.
-	       | lp_verify_structure_helper(plan, options, LP_INSERT) | lp_verify_structure_helper(plan, options, LP_SET_OPERATION);
+	       | lp_verify_structure_helper(plan, options, LP_SELECT_QUERY)
+	       | lp_verify_structure_helper(plan, options, LP_SET_OPERATION);
 }

@@ -33,7 +33,7 @@ int match_expression(char *start, char *column, int column_size);
  * Emits the source given, replacing keys("columnName") with
  *  references to this PhysicalPlan's keys
  */
-TEMPLATE(tmpl_emit_source, char *source, char *table_name, int unique_id, int num_vars_to_match, enum EmitSourceForm form) {
+TEMPLATE(tmpl_emit_source, SqlTable *table, char *source, char *table_name, int unique_id, int num_vars_to_match, enum EmitSourceForm form) {
 	TEMPLATE_INIT();
 
 	char	*source_ptr;
@@ -45,17 +45,43 @@ TEMPLATE(tmpl_emit_source, char *source, char *table_name, int unique_id, int nu
 	source_ptr = source;
 	key_count = 0;
 	assert(num_vars_to_match);
-	/// TODO: how does this handle globals that have things like "abc"_keys("id")?
+	// TODO: how does this handle globals that have things like "abc"_keys("id")?
 	while (('\0' != *source_ptr) && (matched_vars < num_vars_to_match)) {
 		t = match_expression(source_ptr, column, MAX_STR_CONST);
 		assert(-1 != t);
 		if (0 < t) {
-			// Note that we don't add quotes to column in case the user users a
+			// Note that we don't add quotes to column in case the user uses an
 			//  extrinsic or something
 			switch(form) {
 			case EmitSourceForm_Value:
-				%{}{{ config->global_names.cursor }}{}%
-				%{}(cursorId,{{ PP_KEYS }},{{ unique_id|%d }},"{{ table_name }}",{{ column }}){}%
+				if (NULL != table_name) {
+					/* If "table_name" is non-NULL (the usual type of call), it is an indication by the
+					 * caller to generate a form of the M global source that is usable in a SELECT query.
+					 */
+					assert(unique_id);
+					%{}{{ config->global_names.cursor }}{}%
+					%{}(cursorId,{{ PP_KEYS }},{{ unique_id|%d }},"{{ table_name }}",{{ column }}){}%
+				} else {
+					/* If "table_name" is NULL, it is a special indication by the caller to generate a
+					 * different form of the M global source that is usable in an INSERT INTO query.
+					 */
+					SqlColumn	*sql_column;
+					int		column_len;
+
+					assert(!unique_id);
+					assert(MAX_KEY_COUNT == num_vars_to_match);
+					/* Find the SqlColumn structure. The column name returned by "match_expression()"
+					 * would surround the name with double quotes so remove it temporarily before
+					 * invoking "find_column()" to find the corresponding SqlColumn structure.
+					 */
+					column_len = strlen(column);
+					assert('"' == column[0]);
+					assert('"' == column[column_len - 1]);
+					column[column_len - 1] = '\0';
+					sql_column = find_column(column + 1, table);
+					assert(NULL != sql_column);
+					%{}{{ PP_COL }}({{ sql_column->column_number|%d }}){}%
+				}
 				break;
 			case EmitSourceForm_Trigger:
 				%{}{{ PP_KEY_COLUMN }}{}%
@@ -120,8 +146,7 @@ int match_expression(char *start, char *column, int column_size) {
 		}
 		c++;
 	}
-
-	if(paren_count == 0) {
+	if (0 == paren_count) {
 		// Go back a few places as c will include the paren
 		c -= 1;
 		if(column_size < c - column_start || c < column_start)

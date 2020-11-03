@@ -29,7 +29,6 @@ TEMPLATE(tmpl_column_reference, PhysicalPlan *pplan, SqlColumnAlias *column_alia
 	SqlOptionalKeyword		*keyword;
 	SqlKey				*key;
 	char				*table_name, *delim, *nullchar;
-	char				*not_nullchar = "-1";
 	char				*piece = NULL, *source;
 	unsigned int			i;
 	boolean_t			skip_dollar_piece, is_dollar_char, is_xref, not_null;
@@ -153,10 +152,12 @@ TEMPLATE(tmpl_column_reference, PhysicalPlan *pplan, SqlColumnAlias *column_alia
 	}
 
 	if ((!skip_dollar_piece && !is_xref) || (skip_dollar_piece && !is_trigger)) {
-		SqlValueType			column_type;
+		SqlValueType	column_type;
+		char		*not_nullchar;
 
 		// This function is also called in tmpl_tablejoin_body.ctemplate: changes there must also be reflected here
 		%{}$$empty2null^%%ydboctoplanhelpers({{ not_null|%d }},{}%
+		not_nullchar = NOT_NULLCHAR;
 		%{}{{ ((NULL != nullchar) ? nullchar : not_nullchar) }},{}%
 		column_type = get_sqlvaluetype_from_sqldatatype(column->data_type_struct.data_type);
 		%{}"{{ get_user_visible_type_string(column_type) }}",{}%
@@ -165,7 +166,7 @@ TEMPLATE(tmpl_column_reference, PhysicalPlan *pplan, SqlColumnAlias *column_alia
 	if (!skip_dollar_piece) {
 		%{}$PIECE($GET({}%
 	}
-	TMPL(tmpl_emit_source, source, table_name, table_alias->unique_id, MAX_KEY_COUNT,	\
+	TMPL(tmpl_emit_source, table, source, table_name, table_alias->unique_id, MAX_KEY_COUNT,	\
 				(is_trigger ? EmitSourceForm_Trigger : EmitSourceForm_Value));
 	if (!is_trigger) {
 		if (!skip_dollar_piece) {

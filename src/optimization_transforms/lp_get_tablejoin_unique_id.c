@@ -23,14 +23,14 @@ int lp_get_tablejoin_unique_id(LogicalPlan *plan) {
 	oper0 = plan->v.lp_default.operand[0];
 	switch (oper0->type) {
 	case LP_SET_OPERATION:
-	case LP_INSERT:
+	case LP_SELECT_QUERY:
 		cur_lp_key = lp_get_output_key(oper0);
 		unique_id = cur_lp_key->v.lp_key.key->unique_id;
 		break;
 	default:
 		assert((LP_TABLE == oper0->type) || (LP_TABLE_VALUE == oper0->type));
 		unique_id = ((LP_TABLE == oper0->type) ? oper0->v.lp_table.table_alias->unique_id
-						       : oper0->extra_detail.lp_insert.root_table_alias->unique_id);
+						       : oper0->extra_detail.lp_select_query.root_table_alias->unique_id);
 		break;
 	}
 	return unique_id;

@@ -678,7 +678,7 @@ get3bytedatalen(byte1,mval,offset)
 empty2null(isnotnull,charnum,type,piece)
 	; Conditionally converts an empty string or NULLCHAR value returned by $PIECE to $ZYSQLNULL if NOT NULL is not specified
 	; First handle case where custom NULLCHAR is specified
-	QUIT:(-1'=charnum) $SELECT(($CHAR(charnum)=piece):$ZYSQLNULL,1:piece)
+	QUIT:(-1'=charnum) $SELECT(($CHAR(charnum)=piece):$ZYSQLNULL,1:piece)	; Note: -1 is actually NOT_NULLCHAR macro in C code
 	; Now that we know no custom NULLCHAR is specified, check if piece value is not empty. If so, return that right away.
 	QUIT:(""'=piece) piece
 	; Now that we know no custom NULLCHAR is specified and "piece" is "", if NOT NULL is not specified, return NULL
@@ -686,6 +686,25 @@ empty2null(isnotnull,charnum,type,piece)
 	; Now that we know NOT NULL is specified for this column, return default value based on the column type
 	; For VARCHAR it is "". For other types it is 0.
 	QUIT $SELECT((("NUMERIC"=type)!("INTEGER"=type)!("BOOLEAN"=type)):0,1:"")
+
+null2empty(colvalue,colisnotnull,nullcharnum)
+	; Inverse of "empty2null()"
+	;
+	; Conditionally converts a $ZYSQLNULL "colvalue" (column value) to an empty string or the table-level NULLCHAR value
+	; (specified by "nullcharnum"). "colisnotnull" is 1 if column has "NOT NULL" specified in table definition and 0 otherwise.
+	;
+	; First handle case where "colvalue" is not $ZYSQLNULL.
+	QUIT:'$ZYISSQLNULL(colvalue) colvalue
+	; Now we know "colvalue" is $ZYSQLNULL.
+	; Next handle case where custom NULLCHAR is specified
+	QUIT:(-1'=nullcharnum) $CHAR(nullcharnum)	; Note: -1 is actually NOT_NULLCHAR macro in C code
+	; Now that we know no custom NULLCHAR is specified and "colvalue" is "$ZYSQLNULL".
+	; If NOT NULL is not specified, return empty string.
+	QUIT:'colisnotnull ""
+	; Now that we know no custom NULLCHAR is specified, "colvalue" is "$ZYSQLNULL" and NOT NULL has been specified.
+	; In this case, we cannot convert the NULL into an empty string. Return it as is (will result in an error
+	; in later stages of query execution).
+	QUIT $ZYSQLNULL
 
 trimdotstar(resstr)
 	; Removes consequent .*'s present in resstr

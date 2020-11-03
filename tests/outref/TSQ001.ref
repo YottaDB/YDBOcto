@@ -18,7 +18,7 @@ WHERE n.nspname  != 'pg_toast'
 [ INFO] PATH:LINENUM DATE TIME : INFO_CURSOR : Generating SQL for CURSOR_NUM
 [ INFO] PATH:LINENUM DATE TIME : INFO_M_PLAN : Generating M file [$PWD/_ydboctoP*.m] (to execute SQL query)
 [DEBUG] PATH:LINENUM DATE TIME : INFO_CURPLAN : LOGICAL_PLAN BEFORE optimize_logical_plan() follows 
-LP_INSERT: 
+LP_SELECT_QUERY: 
   LP_PROJECT: 
     LP_COLUMN_LIST: 
       LP_WHERE: 
@@ -53,7 +53,7 @@ LP_INSERT:
                 LP_BOOLEAN_EQUALS: 
                   LP_COLUMN_ALIAS: T(1).TYPRELID
                   LP_VALUE: '0'
-                LP_INSERT: 
+                LP_SELECT_QUERY: 
                   LP_PROJECT: 
                     LP_COLUMN_LIST: 
                       LP_WHERE: 
@@ -108,7 +108,7 @@ LP_SET_OPERATION:
   LP_SET_OPTION: 
     LP_SET_DNF: 
   LP_PLANS: 
-    LP_INSERT: 
+    LP_SELECT_QUERY: 
       LP_PROJECT: 
         LP_COLUMN_LIST: 
           LP_WHERE: 
@@ -124,7 +124,7 @@ LP_SET_OPERATION:
             - alias: OID
         LP_SELECT: 
           LP_TABLE_JOIN: 
-            LP_INSERT: 
+            LP_SELECT_QUERY: 
               LP_PROJECT: 
                 LP_COLUMN_LIST: 
                   LP_WHERE: 
@@ -203,7 +203,7 @@ LP_SET_OPERATION:
         - method: LP_KEY_ADVANCE
         - xref_key: false
         - uses_xref_key: false
-    LP_INSERT: 
+    LP_SELECT_QUERY: 
       LP_PROJECT: 
         LP_COLUMN_LIST: 
           LP_WHERE: 
@@ -248,7 +248,7 @@ LP_SET_OPERATION:
                   LP_BOOLEAN_NOT_EQUALS: 
                     LP_COLUMN_ALIAS: N(2).NSPNAME
                     LP_VALUE: 'pg_toast'
-                  LP_INSERT: 
+                  LP_SELECT_QUERY: 
                     LP_PROJECT: 
                       LP_COLUMN_LIST: 
                         LP_WHERE: 

@@ -74,7 +74,7 @@ typedef void *yyscan_t;
 		lcl_ret = (SqlStatement *)((char *)TABLE - sizeof(SqlStatement)); \
 		assert(create_table_STATEMENT == lcl_ret->type);                  \
 		assert(lcl_ret->v.create_table == TABLE);                         \
-		ALIAS->table = lcl_ret;                                           \
+		(ALIAS)->table = lcl_ret;                                         \
 		lcl_ret->v.create_table = TABLE;                                  \
 	}
 
@@ -416,7 +416,7 @@ typedef struct SqlColumnAlias {
 typedef struct SqlTable {
 	struct SqlStatement *tableName;
 	struct SqlStatement *source;
-	struct SqlStatement *columns;
+	struct SqlStatement *columns; // SqlColumn
 	struct SqlStatement *delim;
 	struct SqlStatement *nullchar;
 	uint64_t	     oid; /* TABLEOID; compared against ^%ydboctoschema(TABLENAME,OCTOLIT_PG_CLASS) */
@@ -522,9 +522,14 @@ typedef struct SqlSelectStatement {
 } SqlSelectStatement;
 
 typedef struct SqlInsertStatement {
-	SqlTable *	     destination;
-	struct SqlStatement *source;
-	struct SqlStatement *columns;
+	SqlTableAlias *dst_table_alias;		   /* SqlTableAlias. Note that all we need here is the destination "SqlTable"
+						    * but we need a "table_alias" corresponding to that "SqlTable" in order to
+						    * later store this as a LP_TABLE logical plan. Hence storing "dst_table_alias"
+						    * instead of just "dst_table". We don't use any pieces of the "table_alias"
+						    * structure other than "table_alias->table".
+						    */
+	struct SqlStatement *columns;		   /* SqlColumnList */
+	struct SqlStatement *src_table_alias_stmt; /* SqlTableAlias */
 } SqlInsertStatement;
 
 typedef struct SqlDropTableStatement {
@@ -535,7 +540,7 @@ typedef struct SqlDropTableStatement {
 } SqlDropTableStatement;
 
 /*
- * Represents an binary operation
+ * Represents a unary operation
  */
 typedef struct SqlUnaryOperation {
 	enum UnaryOperations operation; // '+', '-'

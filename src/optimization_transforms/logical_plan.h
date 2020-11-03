@@ -121,15 +121,15 @@ typedef struct LpExtraWhere {
 	int num_outer_joins;
 } LpExtraWhere;
 
-/* Extra fields needed by LP_INSERT or LP_TABLE_VALUE */
+/* Extra fields needed by LP_SELECT_QUERY or LP_TABLE_VALUE */
 typedef struct LpExtraInsert {
-	SqlTableAlias *root_table_alias;      /* If LP_INSERT, this field points to the outer most SqlTableAlias structure
+	SqlTableAlias *root_table_alias;      /* If LP_SELECT_QUERY, this field points to the outer most SqlTableAlias structure
 					       * corresponding to this logical plan. Needed to forward this to the
 					       * PhysicalPlan structure.
 					       * If LP_TABLE_VALUE, this field points to the SqlTableAlias structure
 					       * at this level (not outer level) corresponding to this logical plan.
 					       */
-	struct LogicalPlan * first_aggregate; /* Used only in case of LP_INSERT. Not used if LP_TABLE_VALUE */
+	struct LogicalPlan * first_aggregate; /* Used only in case of LP_SELECT_QUERY. Not used if LP_TABLE_VALUE */
 	struct PhysicalPlan *physical_plan;   /* Pointer to corresponding physical plan. Note that there could be
 					       * multiple physical plans corresponding to the same logical plan
 					       * (i.e. many physical plans to 1 logical plan relationship).
@@ -201,10 +201,11 @@ typedef struct LogicalPlan {
 		LpDefault	  lp_default;		// To be used for all other LP_* types
 	} v;
 	union {
-		LpExtraTableJoin	 lp_table_join;		// To be used if type == LP_TABLE_JOIN
-		LpExtraOrderBy		 lp_order_by;		// To be used if type == LP_ORDER_BY
-		LpExtraWhere		 lp_where;		// To be used if type == LP_WHERE
-		LpExtraInsert		 lp_insert;		// To be used if type == LP_INSERT or LP_TABLE_VALUE
+		LpExtraTableJoin lp_table_join;			// To be used if type == LP_TABLE_JOIN
+		LpExtraOrderBy	 lp_order_by;			// To be used if type == LP_ORDER_BY
+		LpExtraWhere	 lp_where;			// To be used if type == LP_WHERE
+		LpExtraInsert	 lp_select_query;		// To be used if type == LP_SELECT_QUERY or LP_TABLE_VALUE
+								//	or LP_INSERT_INTO
 		LpExtraColumnAlias	 lp_column_alias;	// To be used if type == LP_COLUMN_ALIAS
 		LpExtraDerivedColumn	 lp_derived_column;	// To be used if type == LP_DERIVED_COLUMN
 		LpExtraAggregateFunction lp_aggregate_function; // To be used if type == LP_AGGREGATE_*
@@ -223,7 +224,7 @@ typedef struct SqlKey {
 	LogicalPlan *fixed_to_value;
 	// Table that owns this key; used to extract key from plan
 	//  when generating an extract for a given column
-	// If this key is part of a UNION, this is the LP_INSERT
+	// If this key is part of a UNION, this is the LP_SELECT_QUERY
 	//  plan which outputs this key
 	LogicalPlan *owner;
 	// The only relevant types are KEY_FIXED, KEY_ADVANCE
@@ -267,7 +268,8 @@ LogicalPlan *lp_get_select_key(LogicalPlan *plan, SqlKey *key);
 // Returns the TABLE_JOIN statement for the given LP
 LogicalPlan *lp_get_table_join(LogicalPlan *plan);
 
-/* Returns the unique_id corresponding to the LP_TABLE/LP_TABLE_VALUE/LP_INSERT/LP_SET_OPERATION plan inside a LP_TABLE_JOIN */
+/* Returns the unique_id corresponding to the LP_TABLE/LP_TABLE_VALUE/LP_SELECT_QUERY/LP_SET_OPERATION plan inside a LP_TABLE_JOIN
+ */
 int lp_get_tablejoin_unique_id(LogicalPlan *plan);
 
 // Returns the WHERE statement for the given LP
@@ -310,7 +312,7 @@ LogicalPlan *lp_generate_xref_keys(LogicalPlan *plan, SqlTable *table, SqlColumn
 // Returns a logical plan representing the provided ColumnListAlias
 LogicalPlan *lp_column_list_to_lp(SqlColumnListAlias *list, boolean_t *caller_error_encountered);
 LogicalPlan *lp_replace_derived_table_references(LogicalPlan *root, SqlTableAlias *table_alias, SqlKey *key);
-// Given a SET operation, drills down until it encounters the first LP_INSERT statement
+// Given a SET operation, drills down until it encounters the first LP_SELECT_QUERY statement
 LogicalPlan *lp_drill_to_insert(LogicalPlan *plan);
 
 // Given a plan, attempts to calculate a "cost" estimate of that plan

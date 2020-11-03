@@ -1,0 +1,16 @@
+
+-- TIIT02 : INSERT INTO a xfer table
+
+CREATE TABLE namesLastNameXref (
+  lastName VARCHAR(30) PRIMARY KEY,
+  id INTEGER KEY NUM 1
+);
+INSERT INTO namesLastNameXref (SELECT lastName, id FROM NAMES WHERE lastName <> '');
+SELECT * FROM namesLastNameXref;
+DROP TABLE namesLastNameXref;
+
+Burn|1
+Cool|0
+Cool|5
+Killer|2
+Nikon|3

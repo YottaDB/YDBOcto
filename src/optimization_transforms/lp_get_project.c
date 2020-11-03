@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -21,7 +21,7 @@
 LogicalPlan *lp_get_project(LogicalPlan *plan) {
 	LogicalPlan *t;
 
-	assert(plan->type == LP_INSERT);
+	assert(plan->type == LP_SELECT_QUERY);
 	GET_LP(t, plan, 0, LP_PROJECT);
 	return t;
 }

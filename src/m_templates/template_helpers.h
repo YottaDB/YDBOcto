@@ -17,7 +17,7 @@
 #include "physical_plan.h"
 
 // Macros to make life easier
-/// WARNING: this macro assumes the presence of gloabl_buffer, buffer_len, buffer_index
+/// WARNING: this macro assumes the presence of global_buffer, buffer_len, buffer_index
 #define TMPL(fn, ...) fn(global_buffer, buffer_len, buffer_index, ##__VA_ARGS__);
 
 // This does not put a trailing semicolon
@@ -27,7 +27,7 @@
 
 #define TEMPLATE_END() return;
 
-/// WARNING: this macro assumes the presence of gloabl_buffer, buffer_len, buffer_index, written, retry
+/// WARNING: this macro assumes the presence of global_buffer, buffer_len, buffer_index, written, retry
 #define TEMPLATE_SNPRINTF(...)                                                                                  \
 	do {                                                                                                    \
 		retry = FALSE;                                                                                  \
@@ -45,22 +45,29 @@
  * Using the macros avoids duplication of the literal.
  */
 
-/* Note: The below macros contain double-quotes within the string literal (hence the use of \") as they are used
+/* Note: The below PP_* macros contain double-quotes within the string literal (hence the use of \") as they are used
  *       inside the tmpl_*.ctemplate functions. Not having that will cause generated M code to contain just OrderBy
  *       instead of "OrderBy" as the subscript in an lvn.
  */
-#define PP_ORDER_BY	"\"OrderBy\""
-#define PP_GROUP_BY	"\"GroupBy\""
-#define PP_KEYS		"\"keys\""	 /* Note: This has to be maintained in sync with OCTOLIT_KEYS */
-#define PP_PARAMETERS	"\"parameters\"" /* Note: This has to be maintained in sync with OCTOLIT_PARAMETERS */
-#define PP_VARIABLES	"\"variables\""	 /* Note: This has to be maintained in sync with OCTOLIT_VARIABLES */
-#define PP_XREF_COLUMN	"xrefCol"
-#define PP_KEY_COLUMN	"keyCol"
+#define PP_ORDER_BY   "\"OrderBy\""
+#define PP_GROUP_BY   "\"GroupBy\""
+#define PP_KEYS	      "\"keys\""       /* Note: This has to be maintained in sync with OCTOLIT_KEYS */
+#define PP_PARAMETERS "\"parameters\"" /* Note: This has to be maintained in sync with OCTOLIT_PARAMETERS */
+#define PP_VARIABLES  "\"variables\""  /* Note: This has to be maintained in sync with OCTOLIT_VARIABLES */
+
+/* Note: The below PP_* macros do not contain double-quotes within the string literal */
+#define PP_COL	       "col"
+#define PP_KEY_COLUMN  "keyCol"
+#define PP_VAL	       "val"
+#define PP_XREF_COLUMN "xrefCol"
+
 #define PLAN_LINE_START "    " /* 4 spaces start an M line in the generated plan */
 
+#define NOT_NULLCHAR "-1" /* to indicate to generated M code that NULLCHAR is not defined for this table */
+
 #define IS_COLUMN_NOT_NULL(COLUMN)                                                                     \
-	((NULL != get_keyword(column, PRIMARY_KEY)) || (NULL != get_keyword(column, OPTIONAL_KEY_NUM)) \
-	 || (NULL != get_keyword(column, NOT_NULL)))
+	((NULL != get_keyword(COLUMN, PRIMARY_KEY)) || (NULL != get_keyword(COLUMN, OPTIONAL_KEY_NUM)) \
+	 || (NULL != get_keyword(COLUMN, NOT_NULL)))
 
 enum EmitSourceForm { EmitSourceForm_Value, EmitSourceForm_Trigger };
 
@@ -88,7 +95,8 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 TEMPLATE(tmpl_column_reference, PhysicalPlan *pplan, SqlColumnAlias *column_alias, boolean_t is_trigger);
 TEMPLATE(tmpl_column_list_combine, LogicalPlan *plan, PhysicalPlan *pplan, char *delim, boolean_t str2mval, int start_output_key,
 	 int output_key_length, int dot_count);
-TEMPLATE(tmpl_emit_source, char *source, char *table_name, int unique_id, int keys_to_match, enum EmitSourceForm form);
+TEMPLATE(tmpl_emit_source, SqlTable *table, char *source, char *table_name, int unique_id, int keys_to_match,
+	 enum EmitSourceForm form);
 TEMPLATE(tmpl_duplication_check, PhysicalPlan *plan);
 TEMPLATE(tmpl_order_by_key, int num_cols);
 TEMPLATE(tmpl_populate_output_key, PhysicalPlan *plan, int dot_count);

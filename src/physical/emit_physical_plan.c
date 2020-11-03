@@ -109,7 +109,7 @@ int emit_physical_plan(PhysicalPlan *pplan, char *plan_filename) {
 		/* Assert that the logical plan corresponding to the xref physical plan points back to this physical plan.
 		 * This is because duplicate xref plans are avoided in "generate_physical_plan.c".
 		 */
-		assert(cur_plan->lp_insert->extra_detail.lp_insert.physical_plan == cur_plan);
+		assert(cur_plan->lp_select_query->extra_detail.lp_select_query.physical_plan == cur_plan);
 		assert(cur_plan->outputKey && cur_plan->outputKey->is_cross_reference_key);
 		key = cur_plan->outputKey;
 		UNPACK_SQL_STATEMENT(value, key->table->tableName, value);
@@ -269,7 +269,7 @@ int emit_physical_plan(PhysicalPlan *pplan, char *plan_filename) {
 	fprintf(output_file, "    QUIT\n");
 	// Emit Non-Deferred and Deferred plans in that order
 	for (cur_plan = first_plan; NULL != cur_plan; cur_plan = cur_plan->next) {
-		if (cur_plan == cur_plan->lp_insert->extra_detail.lp_insert.physical_plan) {
+		if (cur_plan == cur_plan->lp_select_query->extra_detail.lp_select_query.physical_plan) {
 			cur_plan->filename = NULL; // filename needed only for cross reference plans
 			buffer_index = 0;
 			tmpl_physical_plan(&buffer, &buffer_len, &buffer_index, cur_plan);

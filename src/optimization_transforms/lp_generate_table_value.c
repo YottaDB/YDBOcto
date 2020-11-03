@@ -29,7 +29,7 @@ LogicalPlan *lp_generate_table_value(SqlStatement *stmt, boolean_t *caller_error
 	table_value_stmt = table_alias->table;
 	assert(table_value_STATEMENT == table_value_stmt->type);
 	MALLOC_LP_2ARGS(lp_table_value, LP_TABLE_VALUE);
-	lp_table_value->extra_detail.lp_insert.root_table_alias = table_alias;
+	lp_table_value->extra_detail.lp_select_query.root_table_alias = table_alias;
 	UNPACK_SQL_STATEMENT(cla, table_alias->column_list, column_list_alias);
 	MALLOC_LP(lp_table_data, lp_table_value->v.lp_default.operand[0], LP_TABLE_DATA);
 	lp_table_data->v.lp_default.operand[0] = lp_column_list_to_lp(cla, caller_error_encountered);

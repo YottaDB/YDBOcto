@@ -6,7 +6,7 @@
 [ INFO] PATH:LINENUM DATE TIME : INFO_CURSOR : Generating SQL for CURSOR_NUM
 [ INFO] PATH:LINENUM DATE TIME : INFO_M_PLAN : Generating M file [$PWD/_ydboctoP*.m] (to execute SQL query)
 [DEBUG] PATH:LINENUM DATE TIME : INFO_CURPLAN : LOGICAL_PLAN BEFORE optimize_logical_plan() follows 
-LP_INSERT: 
+LP_SELECT_QUERY: 
   LP_PROJECT: 
     LP_COLUMN_LIST: 
       LP_WHERE: 
@@ -33,7 +33,7 @@ LP_INSERT:
     - uses_xref_key: false
 
 [DEBUG] PATH:LINENUM DATE TIME : INFO_CURPLAN : LOGICAL_PLAN AFTER optimize_logical_plan() follows 
-LP_INSERT: 
+LP_SELECT_QUERY: 
   LP_PROJECT: 
     LP_COLUMN_LIST: 
       LP_WHERE: 

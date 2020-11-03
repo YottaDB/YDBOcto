@@ -32,7 +32,7 @@ TEMPLATE(tmpl_column_list_combine, LogicalPlan *plan, PhysicalPlan *pplan, char 
 	assert((',' == *delim) || ('_' == *delim));
 	assert(NULL != plan);
 	is_order_by = (plan == pplan->order_by);
-	is_lp_table_value = (LP_TABLE_VALUE == pplan->lp_insert->type);
+	is_lp_table_value = (LP_TABLE_VALUE == pplan->lp_select_query->type);
 	while (NULL != plan) {
 		LogicalPlan	*expr_plan;
 

@@ -24,6 +24,11 @@ fi
 
 file="$1"
 
+# Don't require deleted files to have a copyright
+if ! [ -e "$file" ]; then
+       exit 1
+fi
+
 skipextensions="ref rst png zwr html ci"	# List of extensions that cannot have copyrights.
 	# .rst  -> file used to generate documentation. Since final documentation has
 	#		copyrights, this one does not require it.

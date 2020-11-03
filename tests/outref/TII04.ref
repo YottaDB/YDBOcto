@@ -1,0 +1,124 @@
+
+-- TIIT04 : OCTO502 : Simple INSERT INTO queries work
+
+SELECT '';
+SELECT ' -- NAMES table BEFORE INSERT INTO : Has 6 rows';
+SELECT * FROM names;
+SELECT '';
+SELECT ' -- INSERT INTO';
+SELECT ' -- Add every existing row of NAMES table into same table resulting in 2x rows';
+INSERT INTO names SELECT id+6,firstname,lastname FROM names;
+SELECT '';
+SELECT ' -- NAMES table AFTER INSERT INTO : Has 12 rows';
+SELECT * FROM names;
+INSERT INTO names values (12, 'First', 'Last'), (13, 'First2', 'Last2');
+-- Below query can be enabled once YDBOcto#623 is fixed (currently assert fails)
+-- INSERT INTO names values (14, 'First3', 'Last3'), (15, 'First4', 'Last4') UNION SELECT id+16,'First' || (id+16), 'Last' || (id+16) FROM names;
+INSERT INTO names values (14, 'First14', 'Last14'), (15, 'First15', 'Last15') UNION values (16, 'First16', 'Last16'), (17, 'First17', 'Last17');
+
+SELECT '';
+SELECT ' -- CUSTOMERS table BEFORE INSERT INTO : Has 5 rows';
+SELECT * FROM customers;
+SELECT '';
+SELECT ' -- INSERT INTO';
+SELECT ' -- Add every existing row of CUSTOMERS table into same table resulting in 2x rows';
+INSERT INTO customers SELECT customer_id+5,first_name,last_name,email,address,city,state,zipcode FROM customers;
+SELECT '';
+SELECT ' -- CUSTOMERS table AFTER INSERT INTO : Has 10 rows (twice original number)';
+SELECT * FROM customers;
+
+SELECT '';
+SELECT ' -- COMPOSITE table BEFORE INSERT INTO : Has 10 rows';
+SELECT * FROM composite;
+SELECT '';
+SELECT ' -- INSERT INTO';
+SELECT ' -- Add every existing row of COMPOSITE table into same table resulting in 2x rows';
+INSERT INTO composite SELECT id0,id1,id2,id3,id4,id5+2,id6,id7,name FROM composite;
+SELECT '';
+SELECT ' -- COMPOSITE table AFTER INSERT INTO : Has 20 rows (twice original number)';
+SELECT * FROM composite;
+
+
+ -- NAMES table BEFORE INSERT INTO : Has 6 rows
+0|Zero|Cool
+1|Acid|Burn
+2|Cereal|Killer
+3|Lord|Nikon
+4|Joey|
+5|Zero|Cool
+
+ -- INSERT INTO
+ -- Add every existing row of NAMES table into same table resulting in 2x rows
+
+ -- NAMES table AFTER INSERT INTO : Has 12 rows
+0|Zero|Cool
+1|Acid|Burn
+2|Cereal|Killer
+3|Lord|Nikon
+4|Joey|
+5|Zero|Cool
+6|Zero|Cool
+7|Acid|Burn
+8|Cereal|Killer
+9|Lord|Nikon
+10|Joey|
+11|Zero|Cool
+
+ -- CUSTOMERS table BEFORE INSERT INTO : Has 5 rows
+1|George|Washington|gwashington@usa.gov|3200 Mt Vernon Hwy|Mount Vernon|VA|22121
+2|John|Adams|jadams@usa.gov|1250 Hancock St|Quincy|MA|02169
+3|Thomas|Jefferson|tjefferson@usa.gov|931 Thomas Jefferson Pkwy|Charlottesville|VA|22902
+4|James|Madison|jmadison@usa.gov|11350 Constitution Hwy|Orange|VA|22960
+5|James|Monroe|jmonroe@usa.gov|2050 James Monroe Parkway|Charlottesville|VA|22902
+
+ -- INSERT INTO
+ -- Add every existing row of CUSTOMERS table into same table resulting in 2x rows
+
+ -- CUSTOMERS table AFTER INSERT INTO : Has 10 rows (twice original number)
+1|George|Washington|gwashington@usa.gov|3200 Mt Vernon Hwy|Mount Vernon|VA|22121
+2|John|Adams|jadams@usa.gov|1250 Hancock St|Quincy|MA|02169
+3|Thomas|Jefferson|tjefferson@usa.gov|931 Thomas Jefferson Pkwy|Charlottesville|VA|22902
+4|James|Madison|jmadison@usa.gov|11350 Constitution Hwy|Orange|VA|22960
+5|James|Monroe|jmonroe@usa.gov|2050 James Monroe Parkway|Charlottesville|VA|22902
+6|George|Washington|gwashington@usa.gov|3200 Mt Vernon Hwy|Mount Vernon|VA|22121
+7|John|Adams|jadams@usa.gov|1250 Hancock St|Quincy|MA|02169
+8|Thomas|Jefferson|tjefferson@usa.gov|931 Thomas Jefferson Pkwy|Charlottesville|VA|22902
+9|James|Madison|jmadison@usa.gov|11350 Constitution Hwy|Orange|VA|22960
+10|James|Monroe|jmonroe@usa.gov|2050 James Monroe Parkway|Charlottesville|VA|22902
+
+ -- COMPOSITE table BEFORE INSERT INTO : Has 10 rows
+0|1|2|3|4|5|6|7|Name1
+0|1|2|3|4|5|6|8|Name2
+0|1|2|3|4|5|7|7|Name3
+0|1|2|3|4|5|8|7|Name4
+0|1|2|3|4|6|8|7|Name5
+0|1|2|3|5|6|8|7|Name6
+0|1|2|4|5|6|8|7|Name7
+0|1|3|4|5|6|8|7|Name8
+0|2|3|4|5|6|8|7|Name9
+1|2|3|4|5|6|8|7|Name10
+
+ -- INSERT INTO
+ -- Add every existing row of COMPOSITE table into same table resulting in 2x rows
+
+ -- COMPOSITE table AFTER INSERT INTO : Has 20 rows (twice original number)
+0|1|2|3|4|5|6|7|Name1
+0|1|2|3|4|5|6|8|Name2
+0|1|2|3|4|5|7|7|Name3
+0|1|2|3|4|5|8|7|Name4
+0|1|2|3|4|6|8|7|Name5
+0|1|2|3|4|7|6|7|Name1
+0|1|2|3|4|7|6|8|Name2
+0|1|2|3|4|7|7|7|Name3
+0|1|2|3|4|7|8|7|Name4
+0|1|2|3|4|8|8|7|Name5
+0|1|2|3|5|6|8|7|Name6
+0|1|2|3|5|8|8|7|Name6
+0|1|2|4|5|6|8|7|Name7
+0|1|2|4|5|8|8|7|Name7
+0|1|3|4|5|6|8|7|Name8
+0|1|3|4|5|8|8|7|Name8
+0|2|3|4|5|6|8|7|Name9
+0|2|3|4|5|8|8|7|Name9
+1|2|3|4|5|6|8|7|Name10
+1|2|3|4|5|8|8|7|Name10

@@ -35,6 +35,7 @@ int m_escape_string2(char *buffer, int buffer_len, char *string) {
 		}
 		c++;
 	}
+	assert(b < (buffer + buffer_len));
 	*b = '\0';
 	return i;
 }

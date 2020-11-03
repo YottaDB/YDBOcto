@@ -220,6 +220,7 @@ int run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_descrip
 	// and so need to propagate them out
 	case table_alias_STATEMENT:
 	case set_operation_STATEMENT:
+	case insert_STATEMENT:
 		TRACE(INFO_ENTERING_FUNCTION, "hash_canonical_query");
 		INVOKE_HASH_CANONICAL_QUERY(state, result, status); /* "state" holds final hash */
 		if (0 != status) {
@@ -346,15 +347,22 @@ int run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_descrip
 			}
 		}
 		assert(!config->is_rocto || (NULL != parms));
-		status = (*callback)(result, cursorId, parms, filename, send_row_description);
-		if (0 != status) {
-			status = ydb_lock_decr_s(&query_lock[0], 2, &query_lock[1]);
-			YDB_ERROR_CHECK(status);
-			// May be freed in the callback function, must check before freeing
-			if (NULL != memory_chunks) {
-				OCTO_CFREE(memory_chunks);
+		/* If this is an INSERT INTO statement type, then there are no result rows to send. So skip
+		 * invoking the callback function (to print/send the result rows in case of octo/rocto).
+		 * TODO : YDBOcto#502 : We might still need to print something (e.g. 1 row inserted etc.)
+		 *	and so some changes might be needed here hence the todo reference.
+		 */
+		if (insert_STATEMENT != result->type) {
+			status = (*callback)(result, cursorId, parms, filename, send_row_description);
+			if (0 != status) {
+				status = ydb_lock_decr_s(&query_lock[0], 2, &query_lock[1]);
+				YDB_ERROR_CHECK(status);
+				// May be freed in the callback function, must check before freeing
+				if (NULL != memory_chunks) {
+					OCTO_CFREE(memory_chunks);
+				}
+				return 1;
 			}
-			return 1;
 		}
 		// Deciding to free the select_STATEMENT must be done by the caller, as they may want to rerun it or send
 		// row descriptions hence the decision to not free the memory_chunk below.
@@ -662,13 +670,9 @@ int run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_descrip
 		}
 		release_query_lock = FALSE; /* Set variable to FALSE so we do not try releasing same lock later */
 		break;
-	case insert_STATEMENT:
-		WARNING(ERR_FEATURE_NOT_IMPLEMENTED, "table inserts");
-		cursor_used = FALSE; /* Remove this line once this feature gets implemented */
-		break;
 	case begin_STATEMENT:
 	case commit_STATEMENT:
-		WARNING(ERR_FEATURE_NOT_IMPLEMENTED, "transactions");
+		ERROR(ERR_FEATURE_NOT_IMPLEMENTED, "transactions");
 		cursor_used = FALSE; /* Remove this line once this feature gets implemented */
 		break;
 	case set_STATEMENT:
@@ -680,7 +684,7 @@ int run_query(callback_fnptr_t callback, void *parms, boolean_t send_row_descrip
 		cursor_used = FALSE; /* Remove this line once this feature gets implemented */
 		break;
 	default:
-		WARNING(ERR_FEATURE_NOT_IMPLEMENTED, input_buffer_combined);
+		ERROR(ERR_FEATURE_NOT_IMPLEMENTED, input_buffer_combined);
 		cursor_used = FALSE; /* Remove this line once this feature gets implemented */
 		break;
 	}

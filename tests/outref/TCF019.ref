@@ -5,7 +5,7 @@ select current_schema();
 select abs(-2*id) from names;
 select replace("abcd" || "efgh", "efgh", "abcd");
 [DEBUG] PATH:LINENUM DATE TIME : INFO_CURPLAN : LOGICAL_PLAN BEFORE optimize_logical_plan() follows 
-LP_INSERT: 
+LP_SELECT_QUERY: 
   LP_PROJECT: 
     LP_COLUMN_LIST: 
       LP_WHERE: 
@@ -39,7 +39,7 @@ LP_INSERT:
     - uses_xref_key: false
 
 [DEBUG] PATH:LINENUM DATE TIME : INFO_CURPLAN : LOGICAL_PLAN AFTER optimize_logical_plan() follows 
-LP_INSERT: 
+LP_SELECT_QUERY: 
   LP_PROJECT: 
     LP_COLUMN_LIST: 
       LP_WHERE: 
@@ -81,7 +81,7 @@ LP_INSERT:
 
 DEFAULT
 [DEBUG] PATH:LINENUM DATE TIME : INFO_CURPLAN : LOGICAL_PLAN BEFORE optimize_logical_plan() follows 
-LP_INSERT: 
+LP_SELECT_QUERY: 
   LP_PROJECT: 
     LP_COLUMN_LIST: 
       LP_WHERE: 
@@ -120,7 +120,7 @@ LP_INSERT:
     - uses_xref_key: false
 
 [DEBUG] PATH:LINENUM DATE TIME : INFO_CURPLAN : LOGICAL_PLAN AFTER optimize_logical_plan() follows 
-LP_INSERT: 
+LP_SELECT_QUERY: 
   LP_PROJECT: 
     LP_COLUMN_LIST: 
       LP_WHERE: 
@@ -172,7 +172,7 @@ LP_INSERT:
 8
 10
 [DEBUG] PATH:LINENUM DATE TIME : INFO_CURPLAN : LOGICAL_PLAN BEFORE optimize_logical_plan() follows 
-LP_INSERT: 
+LP_SELECT_QUERY: 
   LP_PROJECT: 
     LP_COLUMN_LIST: 
       LP_WHERE: 
@@ -214,7 +214,7 @@ LP_INSERT:
     - uses_xref_key: false
 
 [DEBUG] PATH:LINENUM DATE TIME : INFO_CURPLAN : LOGICAL_PLAN AFTER optimize_logical_plan() follows 
-LP_INSERT: 
+LP_SELECT_QUERY: 
   LP_PROJECT: 
     LP_COLUMN_LIST: 
       LP_WHERE: 

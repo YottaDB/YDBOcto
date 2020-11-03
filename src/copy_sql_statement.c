@@ -199,8 +199,13 @@ SqlStatement *copy_sql_statement(SqlStatement *stmt) {
 	case insert_STATEMENT:
 		UNPACK_SQL_STATEMENT(insert, stmt, insert);
 		MALLOC_STATEMENT(ret, insert, SqlInsertStatement);
-		ret->v.insert->source = copy_sql_statement(insert->source);
+		/* Because "dst_table_alias->table" points to a "create_table_STATEMENT" type, we can just copy the "table_alias".
+		 * No need to invoke "copy_sql_statement" as the underlying "SqlTable" structure stays the same.
+		 */
+		assert(create_table_STATEMENT == insert->dst_table_alias->table->type);
+		ret->v.insert->dst_table_alias = insert->dst_table_alias;
 		ret->v.insert->columns = copy_sql_statement(insert->columns);
+		ret->v.insert->src_table_alias_stmt = copy_sql_statement(insert->src_table_alias_stmt);
 		break;
 	case cas_STATEMENT:
 		UNPACK_SQL_STATEMENT(cas, stmt, cas);

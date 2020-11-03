@@ -251,6 +251,8 @@ add_library(libocto OBJECT
   parser/sort_specification.c
   parser/table_expression.c
   parser/table_reference.c
+  parser/validate_query_expression.c
+  physical/allocate_physical_plan.c
   physical/emit_physical_plan.c
   physical/generate_physical_plan.c
   physical/get_physical_plan_from_unique_id.c

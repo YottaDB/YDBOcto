@@ -1,0 +1,52 @@
+#################################################################
+#								#
+# Copyright (c) 2020 YottaDB LLC and/or its subsidiaries.	#
+# All rights reserved.						#
+#								#
+#	This source code contains the intellectual property	#
+#	of its copyright holder(s), and is made available	#
+#	under a license.  If you do not know the terms of	#
+#	the license, please stop and do not read further.	#
+#								#
+#################################################################
+
+load test_helpers
+
+setup() {
+	init_test
+	createdb
+	load_fixture names.sql
+	load_fixture names.zwr
+	# Start and stop rocto for all tests. This is needed because `stop_rocto` will not run when it is included in a test case
+	# but that test case fails before reaching this call. Automatically doing it with `teardown` avoids this issue.
+	test_port=$(start_rocto 1400 --allowschemachanges)	# Need --allowschemachanges as we run CREATE TABLE commands
+}
+
+teardown() {
+	stop_rocto
+}
+
+@test "TII01 : INSERT INTO with firstName=Zero" {
+	load_fixture TII01.sql subtest novv
+	verify_output TII01 output.txt
+}
+
+@test "TII02 : INSERT INTO a xfer table" {
+	load_fixture TII02.sql subtest novv
+	verify_output TII02 output.txt
+}
+
+@test "TII03 : INSERT INTO a 3-key table" {
+	load_fixture TII03.sql subtest novv
+	verify_output TII03 output.txt
+}
+
+@test "TII04 : OCTO502 : Simple INSERT INTO queries work" {
+	load_fixture customers.sql
+	load_fixture customers.zwr
+	load_fixture compositekey.sql
+	load_fixture compositekey.zwr
+	load_fixture TII04.sql subtest novv
+	verify_output TII04 output.txt
+}
+

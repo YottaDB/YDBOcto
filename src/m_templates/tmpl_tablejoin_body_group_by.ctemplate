@@ -50,8 +50,8 @@ TEMPLATE(tmpl_tablejoin_body_group_by, PhysicalPlan *plan, int dot_count) {
 	TMPL(tmpl_key, plan->outputKey);
 	(*buffer_index)--;
 	%{},{{ PP_GROUP_BY }},%%ydboctog)=""{}%
-	assert(LP_INSERT == plan->lp_insert->type);
-	first_aggregate = plan->lp_insert->extra_detail.lp_insert.first_aggregate;
+	assert(LP_SELECT_QUERY == plan->lp_select_query->type);
+	first_aggregate = plan->lp_select_query->extra_detail.lp_select_query.first_aggregate;
 	for (af = first_aggregate; NULL != af; af = af->extra_detail.lp_aggregate_function.next_aggregate) {
 		char	*m_func;
 		int	aggregate_cnt;

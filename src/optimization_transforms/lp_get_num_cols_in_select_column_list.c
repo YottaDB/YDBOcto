@@ -21,10 +21,10 @@ int lp_get_num_cols_in_select_column_list(LogicalPlan *plan) {
 	int	     num_cols;
 	LogicalPlan *column_list;
 
-	assert((LP_INSERT == plan->type) || (LP_SET_OPERATION == plan->type));
+	assert((LP_SELECT_QUERY == plan->type) || (LP_SET_OPERATION == plan->type));
 	if (LP_SET_OPERATION == plan->type) {
 		plan = lp_drill_to_insert(plan);
-		assert(LP_INSERT == plan->type);
+		assert(LP_SELECT_QUERY == plan->type);
 	}
 	column_list = lp_get_projection_columns(plan);
 	assert(NULL != column_list);

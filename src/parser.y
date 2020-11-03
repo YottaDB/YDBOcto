@@ -235,27 +235,14 @@ sql_statement
     }
   | sql_data_statement semicolon_or_eof { *out = $sql_data_statement; YYACCEPT; }
   | query_expression semicolon_or_eof {
-      SqlValueType		type;
-      SqlStatement		*ret;
-      QualifyStatementParms	ret_parms;
-      int			max_unique_id;
+      SqlStatement	*ret;
 
-      parse_context->command_tag = select_STATEMENT;
-      parse_context->is_select = TRUE;
-      if (parse_context->abort) {
-        YYABORT;
+      ret = validate_query_expression($query_expression, parse_context);
+      if (NULL == ret) {
+           YYABORT;
       }
-      ret = $query_expression;
-      ret_parms.ret_cla = NULL;
-      ret_parms.max_unique_id = &max_unique_id;
-      max_unique_id = 0;	/* Need to initialize this to avoid garbage values from being read in "qualify_statement" */
-      if (qualify_query(ret, NULL, NULL, &ret_parms)) {
-          YYABORT;
-      }
-      if (populate_data_type(ret, &type, parse_context)) {
-          YYABORT;
-      }
-      *out = ret; YYACCEPT;
+      *out = ret;
+      YYACCEPT;
     }
   | BEG semicolon_or_eof {
       parse_context->command_tag = begin_STATEMENT;
@@ -325,12 +312,12 @@ sql_data_change_statement
   ;
 
 delete_statement_searched
-  : DELETE FROM column_name delete_statement_searched_tail { WARNING(ERR_FEATURE_NOT_IMPLEMENTED, "DELETE FROM"); YYABORT; }
+  : DELETE FROM column_name delete_statement_searched_tail { ERROR(ERR_FEATURE_NOT_IMPLEMENTED, "DELETE FROM"); YYABORT; }
   ;
 
 delete_statement_searched_tail
   : /* Empty */ { $$ = NULL; }
-  | WHERE search_condition { WARNING(ERR_FEATURE_NOT_IMPLEMENTED, "WHERE search_condition"); YYABORT; }
+  | WHERE search_condition { ERROR(ERR_FEATURE_NOT_IMPLEMENTED, "DELETE FROM WHERE search_condition"); YYABORT; }
   ;
 
 search_condition
@@ -381,8 +368,8 @@ boolean_test
       ($$)->v.unary->operation = BOOLEAN_IS_NOT_NULL;
       ($$)->v.unary->operand = ($predicate);
     }
-  | predicate IS boolean_primary { WARNING(ERR_FEATURE_NOT_IMPLEMENTED, "boolean_test_tail: IS boolean_primary"); YYABORT; }
-  | predicate IS NOT boolean_primary { WARNING(ERR_FEATURE_NOT_IMPLEMENTED, "boolean_test_tail: IS NOT boolean_primary"); YYABORT; }
+  | predicate IS boolean_primary { ERROR(ERR_FEATURE_NOT_IMPLEMENTED, "boolean_test_tail: IS boolean_primary"); YYABORT; }
+  | predicate IS NOT boolean_primary { ERROR(ERR_FEATURE_NOT_IMPLEMENTED, "boolean_test_tail: IS NOT boolean_primary"); YYABORT; }
   // TODO: IS DISTINCT FROM(#557)
   ;
 
@@ -395,7 +382,7 @@ boolean_primary
       SQL_VALUE_STATEMENT($$, BOOLEAN_VALUE, "0");
       INVOKE_PARSE_LITERAL_TO_PARAMETER(parse_context, ($$)->v.value, FALSE);
     }
-  | UNKNOWN { WARNING(ERR_FEATURE_NOT_IMPLEMENTED, "boolean_primary: UNKNOWN"); YYABORT; }
+  | UNKNOWN { ERROR(ERR_FEATURE_NOT_IMPLEMENTED, "boolean_primary: UNKNOWN"); YYABORT; }
   ;
 
 predicate
@@ -710,7 +697,7 @@ null_specification
   ;
 
 default_specification
-  : DEFAULT { WARNING(ERR_FEATURE_NOT_IMPLEMENTED, "default_specification: DEFAULT"); YYABORT; }
+  : DEFAULT { ERROR(ERR_FEATURE_NOT_IMPLEMENTED, "default_specification: DEFAULT"); YYABORT; }
   ;
 
 numeric_value_expression
@@ -730,6 +717,7 @@ numeric_value_expression
       ($$)->v.binary->operands[1] = ($term);
     }
   | numeric_value_expression OVER partition_by_clause {
+      // We use WARNING and not ERROR below because some SquirrelSQL queries fail otherwise
       WARNING(ERR_FEATURE_NOT_IMPLEMENTED, "OVER not implemented, just returning columns");
       $$ = $1;
     }
@@ -795,7 +783,7 @@ factor_tail
   ;
 
 collate_clause
-  : COLLATE collation_name { WARNING(ERR_FEATURE_NOT_IMPLEMENTED, "COLLATE clause"); $$ = $collation_name; }
+  : COLLATE collation_name { ERROR(ERR_FEATURE_NOT_IMPLEMENTED, "COLLATE clause"); $$ = $collation_name; }
   ;
 
 collation_name
@@ -806,8 +794,8 @@ numeric_primary
   : value_expression_primary {
     $$ = $value_expression_primary;
   }
-  // We don't abort below because we want this to pass for fetching schema information
   | numeric_primary LEFT_BRACKET literal_value RIGHT_BRACKET {
+      // We use WARNING and not ERROR below because we want this to pass for fetching schema information
       WARNING(ERR_FEATURE_NOT_IMPLEMENTED, "arrays");
       $$ = $1;
     }
@@ -1048,12 +1036,12 @@ non_join_query_expression
 
 non_join_query_expression_tail_tail
   : /* Empty */ { $$ = NULL; }
-  | CORRESPONDING non_join_query_expression_tail_tail_tail { WARNING(ERR_FEATURE_NOT_IMPLEMENTED, "non_join_query_expression_tail_tail : CORRESPONDING non_join_query_expression_tail_tail_tail: BY LEFT_PAREN corresponding_column_list RIGHT_PAREN"); YYABORT; }
+  | CORRESPONDING non_join_query_expression_tail_tail_tail { ERROR(ERR_FEATURE_NOT_IMPLEMENTED, "non_join_query_expression_tail_tail : CORRESPONDING non_join_query_expression_tail_tail_tail: BY LEFT_PAREN corresponding_column_list RIGHT_PAREN"); YYABORT; }
   ;
 
 non_join_query_expression_tail_tail_tail
   : /* Empty */ { $$ = NULL; }
-  | BY LEFT_PAREN corresponding_column_list RIGHT_PAREN { WARNING(ERR_FEATURE_NOT_IMPLEMENTED, "non_join_query_expression_tail_tail_tail: BY LEFT_PAREN corresponding_column_list RIGHT_PAREN"); YYABORT; }
+  | BY LEFT_PAREN corresponding_column_list RIGHT_PAREN { ERROR(ERR_FEATURE_NOT_IMPLEMENTED, "non_join_query_expression_tail_tail_tail: BY LEFT_PAREN corresponding_column_list RIGHT_PAREN"); YYABORT; }
   ;
 
 corresponding_column_list
@@ -1087,12 +1075,12 @@ non_join_query_term
   ;
 
 corresponding_spec
-  : CORRESPONDING corresponding_spec_tail { WARNING(ERR_FEATURE_NOT_IMPLEMENTED, "corresponding_spec: CORRESPONDING corresponding_spec_tail"); YYABORT; }
+  : CORRESPONDING corresponding_spec_tail { ERROR(ERR_FEATURE_NOT_IMPLEMENTED, "corresponding_spec: CORRESPONDING corresponding_spec_tail"); YYABORT; }
   | /* Empty */
   ;
 
 corresponding_spec_tail
-  : BY LEFT_PAREN corresponding_column_list RIGHT_PAREN { WARNING(ERR_FEATURE_NOT_IMPLEMENTED, "corresponding_spec_tail: BY LEFT_PAREN corresponding_column_list RIGHT_PAREN"); YYABORT; }
+  : BY LEFT_PAREN corresponding_column_list RIGHT_PAREN { ERROR(ERR_FEATURE_NOT_IMPLEMENTED, "corresponding_spec_tail: BY LEFT_PAREN corresponding_column_list RIGHT_PAREN"); YYABORT; }
   ;
 
 non_join_query_primary
@@ -1116,7 +1104,7 @@ simple_table
 	table_alias_stmt = query_specification(NO_KEYWORD, select_column_list_stmt, select_stmt, NULL, plan_id);
 	$$ = table_alias_stmt;
     }
-  | explicit_table { WARNING(ERR_FEATURE_NOT_IMPLEMENTED, "explicit_table"); YYABORT; }
+  | explicit_table { ERROR(ERR_FEATURE_NOT_IMPLEMENTED, "explicit_table"); YYABORT; }
   | sql_select_statement { $$ = $sql_select_statement; }
   ;
 
@@ -1179,7 +1167,7 @@ table_value_constructor_list_tail
   ;
 
 explicit_table
-  : TABLE column_name { WARNING(ERR_FEATURE_NOT_IMPLEMENTED, "explicit_table: TABLE column_name"); YYABORT; }
+  : TABLE column_name { ERROR(ERR_FEATURE_NOT_IMPLEMENTED, "explicit_table: TABLE column_name"); YYABORT; }
   ;
 
 query_primary

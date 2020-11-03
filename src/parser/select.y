@@ -449,7 +449,7 @@ qualified_join
       dqappend(left, right);
     }
   | table_reference NATURAL join_type JOIN table_reference join_specification {
-	WARNING(ERR_FEATURE_NOT_IMPLEMENTED, "NATURAL INNER|LEFT|RIGHT|FULL JOIN"); YYABORT;
+	ERROR(ERR_FEATURE_NOT_IMPLEMENTED, "NATURAL INNER|LEFT|RIGHT|FULL JOIN"); YYABORT;
     }
   ;
 

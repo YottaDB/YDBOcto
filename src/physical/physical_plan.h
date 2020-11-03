@@ -89,8 +89,8 @@ typedef struct PhysicalPlan {
 	boolean_t	     aggregate_function_or_group_by_specified;
 	SetOperType *	     set_oper_list;	  /* Linked list of SET OPERATIONS to do on this plan at the end */
 	struct PhysicalPlan *dnf_prev, *dnf_next; /* Linked list of plans that are at the same LP_SET_DNF level */
-	LogicalPlan *	     lp_insert;		  /* The owning LP_INSERT or LP_TABLE_VALUE logical plan corresponding
-						   * to this physical plan.
+	LogicalPlan *	     lp_select_query;	  /* The owning LP_SELECT_QUERY or LP_TABLE_VALUE or LP_INSERT_INTO
+						   * logical plan corresponding to this physical plan.
 						   */
 } PhysicalPlan;
 
@@ -101,7 +101,7 @@ typedef struct PhysicalPlan {
  * the physical plan name would have only been filled in one of those duplicates (the one whose logical plan points
  * back to this physical plan).
  */
-#define PRIMARY_PHYSICAL_PLAN(PLAN) PLAN->lp_insert->extra_detail.lp_insert.physical_plan
+#define PRIMARY_PHYSICAL_PLAN(PLAN) PLAN->lp_select_query->extra_detail.lp_select_query.physical_plan
 #define PHYSICAL_PLAN_NAME(PLAN)    PRIMARY_PHYSICAL_PLAN(PLAN)->plan_name
 
 // This provides a convenient way to pass options to subplans
@@ -119,6 +119,11 @@ typedef struct PhysicalPlanOptions {
 } PhysicalPlanOptions;
 
 PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlanOptions *options);
+
+/* Allocate and initialize (a few fields) a physical plan. Returns the allocated physical plan. */
+PhysicalPlan *allocate_physical_plan(LogicalPlan *plan, PhysicalPlan *pplan_from_lp, PhysicalPlanOptions *plan_options,
+				     PhysicalPlanOptions *orig_plan_options);
+
 // Outputs physical plans to temporary files located in config.plan_src_dir
 //  Names are like ppplanXXXX, where XXXX is a unique number
 // Returns TRUE on success

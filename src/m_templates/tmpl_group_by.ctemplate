@@ -36,7 +36,7 @@ TEMPLATE(tmpl_group_by, PhysicalPlan *plan, int dot_count) {
 		group_by = NULL;
 	}
 	if (NULL == group_by) {
-		first_aggregate = plan->lp_insert->extra_detail.lp_insert.first_aggregate;
+		first_aggregate = plan->lp_select_query->extra_detail.lp_select_query.first_aggregate;
 		for (af = first_aggregate; NULL != af; af = af->extra_detail.lp_aggregate_function.next_aggregate) {
 			boolean_t	is_avg;
 			int		aggregate_cnt;

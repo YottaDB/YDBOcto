@@ -73,7 +73,9 @@ PhysicalPlan *emit_select_statement(SqlStatement *stmt, char *plan_filename) {
 	TRACE(INFO_ENTERING_FUNCTION, "emit_select_statement");
 	memset(output_key, 0, INT32_TO_STRING_MAX);
 
-	assert(stmt && ((table_alias_STATEMENT == stmt->type) || (set_operation_STATEMENT == stmt->type)));
+	assert(stmt
+	       && ((table_alias_STATEMENT == stmt->type) || (set_operation_STATEMENT == stmt->type)
+		   || (insert_STATEMENT == stmt->type)));
 	plan = generate_logical_plan(stmt);
 	if (NULL == plan) {
 		return NULL;
@@ -112,31 +114,8 @@ PhysicalPlan *emit_select_statement(SqlStatement *stmt, char *plan_filename) {
 	status = emit_physical_plan(pplan, plan_filename);
 	if (YDB_OK != status)
 		return NULL;
-
-	set_oper = pplan->set_oper_list;
-	set_oper_type = ((NULL == set_oper) ? LP_INVALID_ACTION : set_oper->set_oper_type);
-	assert(((LP_INVALID_ACTION == set_oper_type) && !set_oper_type) || (LP_SET_UNION == set_oper_type)
-	       || (LP_SET_UNION_ALL == set_oper_type) || (LP_SET_DNF == set_oper_type) || (LP_SET_EXCEPT == set_oper_type)
-	       || (LP_SET_EXCEPT_ALL == set_oper_type) || (LP_SET_INTERSECT == set_oper_type)
-	       || (LP_SET_INTERSECT_ALL == set_oper_type));
-	output_key_id = (set_oper_type ? set_oper->output_id : pplan->outputKey->unique_id);
 	// Prepare metadata buffers
 	plan_meta = make_buffers(config->global_names.octo, 5, OCTOLIT_PLAN_METADATA, plan_filename, OCTOLIT_OUTPUT_KEY, "", "");
-	YDB_MALLOC_BUFFER(&value_buffer, INT32_TO_STRING_MAX);
-	OCTO_INT32_TO_BUFFER(output_key_id, &value_buffer);
-	/* Kill any prior data for this given plan (in the rare case it exists).
-	 * This will fix any out-of-sync situation between the plan and corresponding db nodes.
-	 */
-	status = ydb_delete_s(&plan_meta[0], 2, &plan_meta[1], YDB_DEL_TREE);
-	/* Ignore any non-zero return value from "ydb_delete_s". Just proceed with "ydb_set_s". */
-	UNUSED(status); /* UNUSED macro needed to avoid unused-variable warning from clang-analyzer */
-	// Store output key for the given plan
-	status = ydb_set_s(&plan_meta[0], 3, &plan_meta[1], &value_buffer);
-	YDB_FREE_BUFFER(&value_buffer);
-	if (YDB_OK != status) {
-		free(plan_meta);
-		return NULL;
-	}
 	if (NULL != function) {
 		/* "function" points to the start of the linked list of LP_FUNCTION_CALL usages in entire query.
 		 * Store link between plan and all function calls that plan uses so a later CREATE/DROP FUNCTION
@@ -206,6 +185,34 @@ PhysicalPlan *emit_select_statement(SqlStatement *stmt, char *plan_filename) {
 			free(plan_meta);
 			return NULL;
 		}
+	}
+	/* Note: Physical plan corresponding to LP_INSERT_INTO has no output key so skip block of code below in that case */
+	if (NULL == pplan->outputKey) {
+		assert(LP_INSERT_INTO == pplan->lp_select_query->type);
+		free(plan_meta);
+		return pplan;
+	}
+	set_oper = pplan->set_oper_list;
+	set_oper_type = ((NULL == set_oper) ? LP_INVALID_ACTION : set_oper->set_oper_type);
+	assert(((LP_INVALID_ACTION == set_oper_type) && !set_oper_type) || (LP_SET_UNION == set_oper_type)
+	       || (LP_SET_UNION_ALL == set_oper_type) || (LP_SET_DNF == set_oper_type) || (LP_SET_EXCEPT == set_oper_type)
+	       || (LP_SET_EXCEPT_ALL == set_oper_type) || (LP_SET_INTERSECT == set_oper_type)
+	       || (LP_SET_INTERSECT_ALL == set_oper_type));
+	output_key_id = (set_oper_type ? set_oper->output_id : pplan->outputKey->unique_id);
+	YDB_MALLOC_BUFFER(&value_buffer, INT32_TO_STRING_MAX);
+	OCTO_INT32_TO_BUFFER(output_key_id, &value_buffer);
+	/* Kill any prior data for this given plan (in the rare case it exists).
+	 * This will fix any out-of-sync situation between the plan and corresponding db nodes.
+	 */
+	status = ydb_delete_s(&plan_meta[0], 2, &plan_meta[1], YDB_DEL_TREE);
+	/* Ignore any non-zero return value from "ydb_delete_s". Just proceed with "ydb_set_s". */
+	UNUSED(status); /* UNUSED macro needed to avoid unused-variable warning from clang-analyzer */
+	// Store output key for the given plan
+	status = ydb_set_s(&plan_meta[0], 3, &plan_meta[1], &value_buffer);
+	YDB_FREE_BUFFER(&value_buffer);
+	if (YDB_OK != status) {
+		free(plan_meta);
+		return NULL;
 	}
 	YDB_LITERAL_TO_BUFFER(OCTOLIT_OUTPUT_COLUMNS, &plan_meta[3]);
 	YDB_MALLOC_BUFFER(&plan_meta[4], INT16_TO_STRING_MAX); // Column ID

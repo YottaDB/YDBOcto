@@ -29,7 +29,7 @@ LogicalPlan *lp_replace_derived_table_references(LogicalPlan *root, SqlTableAlia
 	LogicalPlan *table_join;
 	LogicalPlan *select, *criteria, *select_options, *select_more_options, *aggregate_options;
 
-	assert(LP_INSERT == root->type);
+	assert(LP_SELECT_QUERY == root->type);
 	select = lp_get_select(root);
 	GET_LP(criteria, select, 1, LP_CRITERIA);
 	GET_LP(select_options, criteria, 1, LP_SELECT_OPTIONS);
@@ -118,7 +118,7 @@ LogicalPlan *lp_replace_helper(LogicalPlan *plan, SqlTableAlias *table_alias, Sq
 			ret->v.lp_default.operand[1] = lp_replace_helper(plan->v.lp_default.operand[1], table_alias, key);
 		}
 		break;
-	case LP_INSERT:
+	case LP_SELECT_QUERY:
 		lp_replace_derived_table_references(plan, table_alias, key);
 		break;
 	case LP_SET_OPERATION:

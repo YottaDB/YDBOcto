@@ -25,7 +25,7 @@
 LogicalPlan *generate_logical_plan(SqlStatement *stmt) {
 	SqlSelectStatement *select_stmt;
 	SqlTableAlias *	    table_alias;
-	LogicalPlan *	    insert, *project, *select, *dst, *dst_key;
+	LogicalPlan *	    select_query, *project, *select, *dst, *dst_key;
 	LogicalPlan *	    criteria, *where, *order_by;
 	LogicalPlan *	    select_options, *select_more_options, *aggregate_options;
 	LogicalPlan *	    join_right, *temp;
@@ -40,11 +40,27 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt) {
 	// Set operations should be handled in a different function
 	if (set_operation_STATEMENT == stmt->type) {
 		return lp_generate_set_logical_plan(stmt);
+	} else if (insert_STATEMENT == stmt->type) {
+		SqlInsertStatement *insert;
+		LogicalPlan *	    lp_insert_into;
+		LogicalPlan *	    lp_table;
+		LogicalPlan *	    lp_select_query;
+
+		UNPACK_SQL_STATEMENT(insert, stmt, insert);
+		MALLOC_LP_2ARGS(lp_insert_into, LP_INSERT_INTO);
+		MALLOC_LP(lp_table, lp_insert_into->v.lp_default.operand[0], LP_TABLE);
+		lp_table->v.lp_table.table_alias = insert->dst_table_alias;
+		lp_select_query = generate_logical_plan(insert->src_table_alias_stmt);
+		if (NULL == lp_select_query) {
+			return NULL;
+		}
+		lp_insert_into->v.lp_default.operand[1] = lp_select_query;
+		return lp_insert_into;
 	}
 	UNPACK_SQL_STATEMENT(table_alias, stmt, table_alias);
 	if (table_value_STATEMENT == table_alias->table->type) {
-		insert = lp_generate_table_value(stmt, &error_encountered);
-		return (error_encountered ? NULL : insert);
+		select_query = lp_generate_table_value(stmt, &error_encountered);
+		return (error_encountered ? NULL : select_query);
 	}
 	UNPACK_SQL_STATEMENT(select_stmt, table_alias->table, select);
 	UNPACK_SQL_STATEMENT(start_join, select_stmt->table_list, join);
@@ -59,19 +75,19 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt) {
 		}
 		cur_join = cur_join->next;
 	} while (cur_join != start_join);
-	MALLOC_LP_2ARGS(insert, LP_INSERT);
-	MALLOC_LP(project, insert->v.lp_default.operand[0], LP_PROJECT);
+	MALLOC_LP_2ARGS(select_query, LP_SELECT_QUERY);
+	MALLOC_LP(project, select_query->v.lp_default.operand[0], LP_PROJECT);
 	MALLOC_LP(select, project->v.lp_default.operand[1], LP_SELECT);
 	MALLOC_LP(criteria, select->v.lp_default.operand[1], LP_CRITERIA);
 	MALLOC_LP_2ARGS(criteria->v.lp_default.operand[0], LP_KEYS);
 	MALLOC_LP(select_options, criteria->v.lp_default.operand[1], LP_SELECT_OPTIONS);
 	MALLOC_LP(where, select_options->v.lp_default.operand[0], LP_WHERE);
 	LP_GENERATE_WHERE(select_stmt->where_expression, stmt, where->v.lp_default.operand[0], error_encountered);
-	MALLOC_LP(dst, insert->v.lp_default.operand[1], LP_OUTPUT);
+	MALLOC_LP(dst, select_query->v.lp_default.operand[1], LP_OUTPUT);
 	MALLOC_LP(dst_key, dst->v.lp_default.operand[0], LP_KEY);
 	OCTO_CMALLOC_STRUCT(dst_key->v.lp_key.key, SqlKey);
 	dst_key->v.lp_key.key->unique_id = get_new_plan_unique_id();
-	insert->extra_detail.lp_insert.root_table_alias = table_alias;
+	select_query->extra_detail.lp_select_query.root_table_alias = table_alias;
 	/// TODO: we should look at the columns to decide which values
 	//   are keys, and if none, create a rowId as part of the advance
 	dst_key->v.lp_key.key->type = LP_KEY_ADVANCE;
@@ -231,7 +247,7 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt) {
 		LogicalPlan *new_plan;
 
 		new_plan = left->v.lp_default.operand[0];
-		assert((LP_INSERT == new_plan->type) || (LP_SET_OPERATION == new_plan->type) || (LP_TABLE == new_plan->type)
+		assert((LP_SELECT_QUERY == new_plan->type) || (LP_SET_OPERATION == new_plan->type) || (LP_TABLE == new_plan->type)
 		       || (LP_TABLE_VALUE == new_plan->type));
 		if (LP_TABLE != new_plan->type) {
 			SqlStatement *sql_stmt;
@@ -241,7 +257,7 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt) {
 			sql_stmt = drill_to_table_alias(sql_stmt);
 			UNPACK_SQL_STATEMENT(table_alias, sql_stmt, table_alias);
 			cur_lp_key = lp_get_output_key(new_plan);
-			lp_replace_derived_table_references(insert, table_alias, cur_lp_key->v.lp_key.key);
+			lp_replace_derived_table_references(select_query, table_alias, cur_lp_key->v.lp_key.key);
 		}
 		left = left->v.lp_default.operand[1];
 		cur_join = cur_join->next;
@@ -258,5 +274,5 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt) {
 	/* Examine "error_encountered" variable to see if any errors were encountered inside LP_GENERATE_WHERE.
 	 * If so, propagate this error back to caller so it can stop logical plan stage (i.e. not proceed to physical plan).
 	 */
-	return (error_encountered ? NULL : insert);
+	return (error_encountered ? NULL : select_query);
 }

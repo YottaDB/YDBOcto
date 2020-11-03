@@ -37,7 +37,7 @@ LogicalPlan *lp_generate_xref_plan(SqlTable *table, SqlColumn *column, int uniqu
 	output_key->unique_id = unique_id;
 	output_key->is_cross_reference_key = TRUE;
 
-	MALLOC_LP_2ARGS(root, LP_INSERT);
+	MALLOC_LP_2ARGS(root, LP_SELECT_QUERY);
 	MALLOC_LP(project, root->v.lp_default.operand[0], LP_PROJECT);
 	MALLOC_LP(output, root->v.lp_default.operand[1], LP_OUTPUT);
 	MALLOC_LP(column_list, project->v.lp_default.operand[0], LP_COLUMN_LIST);

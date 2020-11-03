@@ -492,11 +492,13 @@ SqlStatement *data_type(SqlDataType data_type, SqlStatement *size_or_precision, 
 SqlStatement *derived_column(SqlStatement *derived_column_expression, SqlStatement *column_name, struct YYLTYPE *yloc);
 SqlStatement *derived_table(SqlStatement *table_subquery, SqlStatement *correlation_specification);
 SqlStatement *grouping_column_reference(SqlStatement *derived_column_expression, SqlStatement *collate_clause);
-SqlStatement *insert_statement(SqlStatement *table_name, SqlStatement *column_name_list, SqlStatement *query_expression);
+SqlStatement *insert_statement(SqlStatement *table_name, SqlStatement *column_name_list, SqlStatement *query_expression,
+			       int *plan_id, ParseContext *parse_context);
 int	      natural_join_condition(SqlJoin *start, SqlJoin *r_join);
 int	      parse_literal_to_parameter(ParseContext *parse_context, SqlValue *value, boolean_t update_existing);
 SqlStatement *query_specification(OptionalKeyword set_quantifier, SqlStatement *select_list, SqlStatement *table_expression,
 				  SqlStatement *sort_specification_list, int *plan_id);
+SqlStatement *validate_query_expression(SqlStatement *query_expression, ParseContext *parse_context);
 int regex_specification(SqlStatement **stmt, SqlStatement *op0, SqlStatement *op1, enum RegexType regex_type, int is_sensitive,
 			int is_not, ParseContext *parse_context);
 SqlStatement *set_operation(enum SqlSetOperationType setoper_type, SqlStatement *left_operand, SqlStatement *right_operand);

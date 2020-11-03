@@ -33,7 +33,7 @@ PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlanOptions *opt
 	LogicalPlan *	    criteria, *select_options, *select_more_options;
 	LogicalPlan *	    where;
 	LogicalPlan *	    set_option, *set_plans, *set_output, *set_key;
-	PhysicalPlan *	    out, *prev = NULL, *out_from_lp;
+	PhysicalPlan *	    out, *prev = NULL, *pp_from_lp;
 	LPActionType	    set_oper_type, type;
 	PhysicalPlanOptions plan_options;
 	boolean_t	    is_lp_table_value, is_set_dnf;
@@ -48,7 +48,7 @@ PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlanOptions *opt
 		if (NULL == out) {
 			return NULL;
 		}
-		assert(NULL != out->lp_insert);
+		assert(NULL != out->lp_select_query);
 		set_oper_type = set_option->v.lp_default.operand[0]->type;
 		assert((LP_SET_UNION == set_oper_type) || (LP_SET_UNION_ALL == set_oper_type) || (LP_SET_DNF == set_oper_type)
 		       || (LP_SET_EXCEPT == set_oper_type) || (LP_SET_EXCEPT_ALL == set_oper_type)
@@ -74,7 +74,7 @@ PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlanOptions *opt
 		if (NULL == prev) {
 			return NULL;
 		}
-		assert(NULL != prev->lp_insert);
+		assert(NULL != prev->lp_select_query);
 		if (!is_set_dnf) {
 			int	     input_id1, input_id2;
 			SetOperType *set_oper, *prev_oper, *out_oper, *next_oper;
@@ -100,8 +100,19 @@ PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlanOptions *opt
 			out->set_oper_list = set_oper;
 		}
 		return out;
+	} else if (LP_INSERT_INTO == plan->type) {
+		PhysicalPlan *src, *dst;
+
+		/* Generate a separate physical plan for destination table of the INSERT INTO */
+		dst = allocate_physical_plan(plan, NULL, &plan_options, options);
+		/* And then generate a separate physical plan for source table/query of the INSERT INTO */
+		src = generate_physical_plan(plan->v.lp_default.operand[1], &plan_options);
+		if (NULL == src) {
+			return NULL;
+		}
+		return dst;
 	}
-	assert((LP_INSERT == plan->type) || (LP_TABLE_VALUE == plan->type));
+	assert((LP_SELECT_QUERY == plan->type) || (LP_TABLE_VALUE == plan->type));
 	is_lp_table_value = (LP_TABLE_VALUE == plan->type);
 	/* Note that it is possible a physical plan has already been generated for this logical plan.
 	 *
@@ -116,14 +127,14 @@ PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlanOptions *opt
 	 * So we cannot easily avoid the physical plan duplication. But we note the fact that this is a duplicate that way we
 	 * skip code generation for duplicate plans and ensure the M code that gets emitted does not have duplicate code.
 	 */
-	out_from_lp = plan->extra_detail.lp_insert.physical_plan;
-	if (NULL == out_from_lp) {
+	pp_from_lp = plan->extra_detail.lp_select_query.physical_plan;
+	if (NULL == pp_from_lp) {
 		if (!is_lp_table_value) {
-			/* Make sure LP_INSERT plan is in good shape.
+			/* Make sure LP_SELECT_QUERY plan is in good shape.
 			 * Overload this plan verify phase to also fix aggregate function counts.
 			 */
-			assert(NULL == plan->extra_detail.lp_insert.first_aggregate);
-			plan_options.aggregate = &plan->extra_detail.lp_insert.first_aggregate;
+			assert(NULL == plan->extra_detail.lp_select_query.first_aggregate);
+			plan_options.aggregate = &plan->extra_detail.lp_select_query.first_aggregate;
 			if (FALSE == lp_verify_structure(plan, &plan_options)) {
 				assert(FALSE);
 				ERROR(ERR_PLAN_NOT_WELL_FORMED, "");
@@ -139,32 +150,17 @@ PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlanOptions *opt
 		 *
 		 * But check if this is a cross-reference plan. If so we do not want to create a duplicate (one enough per query).
 		 */
-		if (out_from_lp->is_cross_reference_key) {
-			return out_from_lp;
+		if (pp_from_lp->is_cross_reference_key) {
+			return pp_from_lp;
 		}
 	}
-	OCTO_CMALLOC_STRUCT(out, PhysicalPlan);
-	if (NULL != out_from_lp) {
-		/* This is a duplicate physical plan pointing to the same logical plan. */
-		assert(out_from_lp->lp_insert == plan);
-	} else {
-		plan->extra_detail.lp_insert.physical_plan = out;
-	}
-	assert(NULL == out->prev);
-	out->lp_insert = plan;
-	out->parent_plan = options->parent;
-	plan_options.parent = out;
-	out->next = *plan_options.last_plan;
-	if (NULL != *plan_options.last_plan) {
-		(*plan_options.last_plan)->prev = out;
-	}
-	*(plan_options.last_plan) = out;
+	out = allocate_physical_plan(plan, pp_from_lp, &plan_options, options);
 	/* Note: The below logic is executed multiple times in case multiple physical plans point to the same logical plan.
 	 * One might be tempted to think there is no need to execute it. But it is necessary because the below logic could create
 	 * other physical plans (through calls to "generate_physical_plan" and/or "sub_query_check_and_generate_physical_plan".
 	 * Skipping the logic would mean fewer number of physical plans than needed would be created which is incorrect.
 	 */
-	root_table_alias = plan->extra_detail.lp_insert.root_table_alias;
+	root_table_alias = plan->extra_detail.lp_select_query.root_table_alias;
 	/* Note: root_table_alias can be NULL for xref plans (which do not correspond to any actual user-specified query) */
 	out->aggregate_function_or_group_by_specified
 	    = ((NULL == root_table_alias) ? FALSE : root_table_alias->aggregate_function_or_group_by_specified);
@@ -184,7 +180,7 @@ PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlanOptions *opt
 		GET_LP(out->order_by, output, 1, LP_ORDER_BY);
 	}
 
-	/* Some things are applicable only for a LP_INSERT (not for a LP_TABLE_VALUE) hence the if check below */
+	/* Some things are applicable only for a LP_SELECT_QUERY (not for a LP_TABLE_VALUE) hence the if check below */
 	if (!is_lp_table_value) {
 		// See if there are any tables we rely on in the SELECT tablejoin list. If so, add them as prev records in physical
 		// plan.
@@ -199,7 +195,7 @@ PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlanOptions *opt
 				break;
 			}
 			type = table_joins->v.lp_default.operand[0]->type;
-			if ((LP_INSERT == type) || (LP_SET_OPERATION == type) || (LP_TABLE_VALUE == type)) {
+			if ((LP_SELECT_QUERY == type) || (LP_SET_OPERATION == type) || (LP_TABLE_VALUE == type)) {
 				PhysicalPlan *	    ret;
 				PhysicalPlanOptions tmp_options;
 
@@ -457,7 +453,7 @@ LogicalPlan *sub_query_check_and_generate_physical_plan(PhysicalPlanOptions *opt
 		case LP_VALUE:
 			/* No action */
 			break;
-		case LP_INSERT:
+		case LP_SELECT_QUERY:
 		case LP_SET_OPERATION:
 		case LP_TABLE_VALUE:
 			/* Generate a separate physical plan for this sub-query.

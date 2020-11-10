@@ -27,21 +27,25 @@ teardown() {
 }
 
 @test "TII01 : INSERT INTO with firstName=Zero" {
+	skip	# TODO : YDBOcto#502 : Remove this line once INSERT INTO is fully supported
 	load_fixture TII01.sql subtest novv
 	verify_output TII01 output.txt
 }
 
 @test "TII02 : INSERT INTO a xfer table" {
+	skip	# TODO : YDBOcto#502 : Remove this line once INSERT INTO is fully supported
 	load_fixture TII02.sql subtest novv
 	verify_output TII02 output.txt
 }
 
 @test "TII03 : INSERT INTO a 3-key table" {
+	skip	# TODO : YDBOcto#502 : Remove this line once INSERT INTO is fully supported
 	load_fixture TII03.sql subtest novv
 	verify_output TII03 output.txt
 }
 
 @test "TII04 : OCTO502 : Simple INSERT INTO queries work" {
+	skip	# TODO : YDBOcto#502 : Remove this line once INSERT INTO is fully supported
 	load_fixture customers.sql
 	load_fixture customers.zwr
 	load_fixture compositekey.sql

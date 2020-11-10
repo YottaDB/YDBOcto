@@ -33,6 +33,13 @@ SqlStatement *insert_statement(SqlStatement *table_name, SqlStatement *column_na
 	if (NULL == validated_query_expression) {
 		return NULL;
 	}
+	/* INSERT INTO currently works for simplistic queries but there is still a lot of functionality to be
+	 * implemented before it can be officially called supported. But to avoid one huge MR at the end, we are going
+	 * to merge incremental sets of changes but keep the functionality disabled by returning NULL from this function.
+	 * Once the full functionality of INSERT INTO has been implemented, the following line can be removed.
+	 */
+	return NULL; /* TODO: YDBOcto#502 : Temporary line that can be removed once INSERT INTO is fully implemented */
+
 	assert(validated_query_expression == query_expression);
 	SQL_STATEMENT(ret, insert_STATEMENT);
 	MALLOC_STATEMENT(ret, insert, SqlInsertStatement);

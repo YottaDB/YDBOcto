@@ -210,6 +210,7 @@ int lp_verify_structure_helper(LogicalPlan *plan, PhysicalPlanOptions *options, 
 	case LP_NEGATIVE:
 	case LP_FORCE_NUM:
 	case LP_COERCE_TYPE:
+	case LP_CONCAT:
 		for (i = 0; i < 2; i++) {
 			if ((1 == i) && ((LP_NEGATIVE == expected) || (LP_FORCE_NUM == expected) || (LP_COERCE_TYPE == expected))) {
 				/* Unary operation. So second operand should be NULL. */
@@ -217,41 +218,6 @@ int lp_verify_structure_helper(LogicalPlan *plan, PhysicalPlanOptions *options, 
 				break;
 			}
 			ret &= lp_verify_value(plan->v.lp_default.operand[i], options);
-		}
-		break;
-	case LP_CONCAT:
-		for (i = 0; i < 2; i++) {
-			ret &= lp_verify_structure_helper(plan->v.lp_default.operand[i], options, LP_CASE)
-			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], options, LP_COLUMN_ALIAS)
-			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], options, LP_FUNCTION_CALL)
-			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], options, LP_COALESCE_CALL)
-			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], options, LP_GREATEST)
-			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], options, LP_LEAST)
-			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], options, LP_NULL_IF)
-			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], options,
-							    LP_AGGREGATE_FUNCTION_COUNT_ASTERISK)
-			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], options, LP_AGGREGATE_FUNCTION_COUNT)
-			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], options, LP_AGGREGATE_FUNCTION_AVG)
-			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], options, LP_AGGREGATE_FUNCTION_MIN)
-			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], options, LP_AGGREGATE_FUNCTION_MAX)
-			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], options, LP_AGGREGATE_FUNCTION_SUM)
-			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], options,
-							    LP_AGGREGATE_FUNCTION_COUNT_DISTINCT)
-			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], options,
-							    LP_AGGREGATE_FUNCTION_AVG_DISTINCT)
-			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], options,
-							    LP_AGGREGATE_FUNCTION_SUM_DISTINCT)
-			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], options, LP_DERIVED_COLUMN)
-			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], options, LP_VALUE)
-			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], options, LP_COERCE_TYPE)
-			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], options, LP_CONCAT)
-			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], options, LP_NEGATIVE)
-			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], options, LP_FORCE_NUM)
-			       // LP_SELECT_QUERY/LP_SET_OPERATIONs usually show up as operand[1] only for the IN boolean
-			       // expression. But they can show up wherever a scalar is expected (e.g. string concatenation
-			       // operations etc.) and hence have to be allowed in a lot more cases.
-			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], options, LP_SELECT_QUERY)
-			       | lp_verify_structure_helper(plan->v.lp_default.operand[i], options, LP_SET_OPERATION);
 		}
 		break;
 	case LP_BOOLEAN_OR:

@@ -385,7 +385,7 @@ CAT_EOF
   verify_output TSC18 output.txt
 }
 
-@test "TSC19 : OCTO370 : Test of string concatenation in select column list" {
+@test "TSC19 : OCTO370/OCTO623 : Test of string concatenation in select column list" {
   inputfile="TSC19.sql"
   cp @PROJECT_SOURCE_DIR@/tests/fixtures/$inputfile .
   grep -v '^#' $inputfile > output.txt	# Filter out copyright from output

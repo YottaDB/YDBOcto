@@ -20,12 +20,11 @@ SELECT ' -- INSERT INTO';
 SELECT ' -- Add every existing row of NAMES table into same table resulting in 2x rows';
 INSERT INTO names SELECT id+6,firstname,lastname FROM names;
 SELECT '';
-SELECT ' -- NAMES table AFTER INSERT INTO : Has 12 rows';
+INSERT INTO names VALUES (12, 'First12', 'Last12'), (13, 'First13', 'Last13');
+INSERT INTO names VALUES (14, 'First14', 'Last14'), (15, 'First15', 'Last15') UNION SELECT id+16,'First' || (id+16), 'Last' || (id+16) FROM names LIMIT 1;
+INSERT INTO names VALUES (17, 'First17', 'Last17'), (18, 'First18', 'Last18') UNION VALUES (19, 'First19', 'Last19'), (20, 'First20', 'Last20');
+SELECT ' -- NAMES table AFTER various INSERT INTO operations; Has 21 rows, id=0 thru id=20';
 SELECT * FROM names;
-INSERT INTO names values (12, 'First', 'Last'), (13, 'First2', 'Last2');
--- Below query can be enabled once YDBOcto#623 is fixed (currently assert fails)
--- INSERT INTO names values (14, 'First3', 'Last3'), (15, 'First4', 'Last4') UNION SELECT id+16,'First' || (id+16), 'Last' || (id+16) FROM names;
-INSERT INTO names values (14, 'First14', 'Last14'), (15, 'First15', 'Last15') UNION values (16, 'First16', 'Last16'), (17, 'First17', 'Last17');
 
 SELECT '';
 SELECT ' -- CUSTOMERS table BEFORE INSERT INTO : Has 5 rows';

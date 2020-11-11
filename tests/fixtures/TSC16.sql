@@ -10,7 +10,7 @@
 #								#
 #################################################################
 
--- TSC16 : #282 : Test of ABS() function as well as lp_verify_structure() for LP_COLUMN_LIST"
+-- TSC16 : #282 : Test of ABS() function as well as lp_verify_structure() for LP_COLUMN_LIST
 
 select abs(-2*id) from names;
 select abs(-1.45);

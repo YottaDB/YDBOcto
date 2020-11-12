@@ -359,7 +359,6 @@ typedef struct {
 	int16_t		 num_bind_parms;
 	int16_t		 num_bind_parm_types;
 	int16_t		 total_parms;
-	boolean_t	 is_select;
 	boolean_t	 is_extended_query;
 	boolean_t	 skip_cursor_cleanup;
 	boolean_t *	 is_bind_parm; // Used to track which literal parameters are bind parameters
@@ -369,15 +368,18 @@ typedef struct {
 
 typedef struct SqlDataTypeStruct {
 	enum SqlDataType data_type;
-	int		 size_or_precision;
-	/* Is applicable only in case "data_type" is the following types.
+	/* Below field is usable only in case "data_type" is the following types.
 	 *	INTEGER_TYPE : stores the precision specified (e.g. INT(4))
 	 *	NUMERIC_TYPE : stores the precision specified (e.g. 4 in NUMERIC(4,5))
 	 *	STRING_TYPE  : stores the size specified      (e.g. 30 in VARCHAR(30))
+	 * Is initialized to SIZE_OR_PRECISION_UNSPECIFIED otherwise.
 	 */
-	int scale; /* Is applicable only in case "data_type" is the following type(s).
-		    *	NUMERIC_TYPE : stores the scale specified (e.g. 5 in NUMERIC(4,5))
-		    */
+	int size_or_precision;
+	/* Below field is usable only in case "data_type" is the following type(s).
+	 *	NUMERIC_TYPE : stores the scale specified (e.g. 5 in NUMERIC(4,5))
+	 * Is initialized to SCALE_UNSPECIFIED otherwise.
+	 */
+	int scale;
 } SqlDataTypeStruct;
 
 /**
@@ -425,7 +427,7 @@ typedef struct SqlTable {
 /* Below is the table constructed by the VALUES (...) syntax */
 typedef struct SqlTableValue {
 	struct SqlStatement *row_value_stmt; // SqlRowValue
-	SqlColumn *	     column;	     // SqlColumn. Stored in "table_reference.c". Used in "populate_data_type.c".
+	SqlColumn *column; // SqlColumn. Stored in "table_reference.c". Used in "populate_data_type.c" and "hash_canonical_query.c"
 } SqlTableValue;
 
 typedef struct SqlRowValue {

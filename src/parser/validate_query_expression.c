@@ -28,7 +28,6 @@ SqlStatement *validate_query_expression(SqlStatement *query_expression, ParseCon
 	int		      max_unique_id;
 
 	parse_context->command_tag = select_STATEMENT;
-	parse_context->is_select = TRUE;
 	if (parse_context->abort) {
 		return NULL;
 	}

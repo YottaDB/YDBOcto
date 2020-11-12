@@ -139,6 +139,7 @@ add_library(libocto OBJECT
   auto_upgrade_binary_function_definition.c
   auto_upgrade_binary_table_definition.c
   auto_upgrade_plan_definition_if_needed.c
+  check_column_lists_for_type_match.c
   cleanup_tables.c
   columns_equal.c
   columns_to_column_list_alias.c

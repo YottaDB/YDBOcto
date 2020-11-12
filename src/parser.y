@@ -225,7 +225,6 @@ extern void yyerror(YYLTYPE *llocp, yyscan_t scan, SqlStatement **out, int *plan
 
 sql_statement
   : sql_schema_statement semicolon_or_eof {
-      parse_context->is_select = FALSE;
       if (!config->allow_schema_changes){
            ERROR(ERR_ROCTO_NO_SCHEMA, "");
            YYABORT;
@@ -246,31 +245,26 @@ sql_statement
     }
   | BEG semicolon_or_eof {
       parse_context->command_tag = begin_STATEMENT;
-      parse_context->is_select = FALSE;
       // For now, we don't do transaction, so just say OK to this word
       SQL_STATEMENT(*out, begin_STATEMENT);
       YYACCEPT;
     }
   | COMMIT semicolon_or_eof {
       parse_context->command_tag = commit_STATEMENT;
-      parse_context->is_select = FALSE;
       SQL_STATEMENT(*out, commit_STATEMENT);
       YYACCEPT;
     }
   | error semicolon_or_eof { *out = NULL; YYABORT; }
   | sql_set_statement semicolon_or_eof {
-      parse_context->is_select = FALSE;
       *out = $sql_set_statement;
       // No routine will be generated for SET statements, so indicate that for extended query
       YYACCEPT;
     }
   | semicolon_or_eof {
-      parse_context->is_select = FALSE;
       SQL_STATEMENT(*out, no_data_STATEMENT);
       YYACCEPT;
     }
   | exit_command {
-      parse_context->is_select = FALSE;
       SQL_STATEMENT(*out, no_data_STATEMENT);
       eof_hit = EOF_EXIT;
       YYACCEPT;

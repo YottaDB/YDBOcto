@@ -28,6 +28,17 @@
 #define HASH_LITERAL_VALUES -1
 #define ABNORMAL_STATUS	    1
 
+#define ADD_DATA_TYPE_HASH(STATE, COLUMN)                                                          \
+	{                                                                                          \
+		ADD_INT_HASH(STATE, COLUMN->data_type_struct.data_type);                           \
+		if (SIZE_OR_PRECISION_UNSPECIFIED != COLUMN->data_type_struct.size_or_precision) { \
+			ADD_INT_HASH(STATE, COLUMN->data_type_struct.size_or_precision);           \
+		}                                                                                  \
+		if (SCALE_UNSPECIFIED != COLUMN->data_type_struct.scale) {                         \
+			ADD_INT_HASH(STATE, COLUMN->data_type_struct.scale);                       \
+		}                                                                                  \
+	}
+
 // Helper function that is invoked when we have to traverse a "column_list_alias_STATEMENT".
 // Caller passes "do_loop" variable set to TRUE  if they want us to traverse the linked list.
 //                              and set to FALSE if they want us to traverse only the first element in the linked list.
@@ -212,9 +223,10 @@ void hash_canonical_query(hash128_state_t *state, SqlStatement *stmt, int *statu
 		/* Note: We care only about the "SqlTable" structure (i.e. "dst_table_alias->table"). No other fields
 		 * inside "dst_table_alias" are used (even in the later logical plan stage). Hence the below invocation.
 		 */
-		hash_canonical_query(state, insert->dst_table_alias->table, status); // SqlTable
-		hash_canonical_query(state, insert->columns, status);		     // SqlColumnList
-		hash_canonical_query(state, insert->src_table_alias_stmt, status);   // SqlTableAlias
+		hash_canonical_query(state, insert->dst_table_alias->table, status);	// SqlTable
+		hash_canonical_query_column_list(state, insert->columns, status, TRUE); // SqlColumnList
+		/* TRUE as last parameter above indicates "traverse entire linked list", not just "first element" */
+		hash_canonical_query(state, insert->src_table_alias_stmt, status); // SqlTableAlias
 		break;
 	case select_STATEMENT:
 		UNPACK_SQL_STATEMENT(select, stmt, select);
@@ -355,13 +367,7 @@ void hash_canonical_query(hash128_state_t *state, SqlStatement *stmt, int *statu
 		cur_column = start_column;
 		do {
 			hash_canonical_query(state, cur_column->columnName, status);
-			ADD_INT_HASH(state, cur_column->data_type_struct.data_type);
-			if (SIZE_OR_PRECISION_UNSPECIFIED != cur_column->data_type_struct.size_or_precision) {
-				ADD_INT_HASH(state, cur_column->data_type_struct.size_or_precision);
-			}
-			if (SCALE_UNSPECIFIED != cur_column->data_type_struct.scale) {
-				ADD_INT_HASH(state, cur_column->data_type_struct.scale);
-			}
+			ADD_DATA_TYPE_HASH(state, cur_column);
 			assert(stmt == cur_column->table);
 			hash_canonical_query(state, cur_column->delim, status);
 			hash_canonical_query(state, cur_column->keywords, status);
@@ -374,6 +380,15 @@ void hash_canonical_query(hash128_state_t *state, SqlStatement *stmt, int *statu
 	case table_value_STATEMENT:
 		UNPACK_SQL_STATEMENT(table_value, stmt, table_value);
 		ADD_INT_HASH(state, table_value_STATEMENT);
+		start_column = table_value->column;
+		cur_column = start_column;
+		do {
+			hash_canonical_query(state, cur_column->columnName, status);
+			ADD_DATA_TYPE_HASH(state, cur_column);
+			assert(NULL == cur_column->delim);
+			assert(NULL == cur_column->keywords);
+			cur_column = cur_column->next;
+		} while (cur_column != start_column);
 		UNPACK_SQL_STATEMENT(row_value, table_value->row_value_stmt, row_value);
 		start_row_value = row_value;
 		do {

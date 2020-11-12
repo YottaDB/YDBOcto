@@ -321,6 +321,22 @@ Text: Error initializing the scanner
 
 Description/Action: This message indicates an error in initializing the scanner used to parse provided input. Please contact your YottaDB support channel. PSQL Error Code: XX000
 
++++++++++++++++++++++++++++++++++
+ERR_INSERT_INTO_TOO_MANY_COLUMNS
++++++++++++++++++++++++++++++++++
+
+Text: INSERT has more expressions than target columns
+
+Description/Action: This error is generated when the :code:`INSERT INTO` command specifies more column names from the source table than than the columns in the target table. PSQL Error Code: 42601
+
+++++++++++++++++++++++++++++++
+ERR_INSERT_INTO_TYPE_MISMATCH
+++++++++++++++++++++++++++++++
+
+Text: Column 'xxx' is of type xxx but expression is of type xxx
+
+Description/Action: This error is generated when the :code:`INSERT INTO` command specifies a target column whose type is different from the corresponding source column expression. PSQL Error Code: 42804
+
 +++++++++++++++++++++
 ERR_INVALID_AS_SYNTAX
 +++++++++++++++++++++

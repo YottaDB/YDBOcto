@@ -37,6 +37,19 @@ int qualify_query(SqlStatement *table_alias_stmt, SqlJoin *parent_join, SqlTable
 	SqlRowValue *	    row_value, *start_row_value;
 
 	result = 0;
+	if (insert_STATEMENT == table_alias_stmt->type) {
+		SqlStatement *	    insert_stmt;
+		SqlInsertStatement *insert;
+
+		insert_stmt = table_alias_stmt;
+		UNPACK_SQL_STATEMENT(insert, insert_stmt, insert);
+		assert(NULL == parent_join);
+		assert(NULL == parent_table_alias);
+		assert(NULL == ret->ret_cla);
+		result |= qualify_query(insert->src_table_alias_stmt, NULL, NULL, ret);
+		/* There is nothing to qualify in "insert->dst_table_alias" and "insert->columns" */
+		return result;
+	}
 	if (set_operation_STATEMENT == table_alias_stmt->type) {
 		SqlSetOperation *set_opr;
 

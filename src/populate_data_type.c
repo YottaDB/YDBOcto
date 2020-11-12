@@ -242,7 +242,6 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_
 	SqlUnaryOperation *	unary = NULL;
 	SqlValue *		value = NULL;
 	SqlValueType		child_type1, child_type2;
-	YYLTYPE			location;
 	SqlSelectStatement *	select;
 	int			written, result, function_parm_types_len = 0, status = 0, function_hash_len = MAX_ROUTINE_LEN;
 	char *			c, function_hash[MAX_ROUTINE_LEN], function_parm_types[MAX_FUNC_TYPES_LEN];
@@ -253,6 +252,7 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_
 	int			num_columns;
 	SqlValueType *		type_array;
 	int			colno;
+	SqlInsertStatement *	insert;
 
 	result = 0;
 	if (v == NULL || v->v.select == NULL)
@@ -305,6 +305,16 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_
 			cur_branch = cur_branch->next;
 		} while (cur_branch != cas_branch);
 		*type = child_type1;
+		break;
+	case insert_STATEMENT:
+		UNPACK_SQL_STATEMENT(insert, v, insert);
+		result |= populate_data_type(insert->src_table_alias_stmt, &child_type1, parse_context);
+		if (NULL == insert->columns) {
+			result |= check_column_lists_for_type_match(v);
+		} else {
+			/* Support for "INSERT INTO with specific columns" is not yet added. Until then this code is unreachable. */
+			assert(FALSE);
+		}
 		break;
 	case select_STATEMENT:
 		UNPACK_SQL_STATEMENT(select, v, select);
@@ -632,6 +642,8 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_
 		do {
 			assert(UNKNOWN_SqlDataType == column->data_type_struct.data_type);
 			column->data_type_struct.data_type = get_sqldatatype_from_sqlvaluetype(type_array[colno]);
+			column->data_type_struct.size_or_precision = SIZE_OR_PRECISION_UNSPECIFIED;
+			column->data_type_struct.scale = SCALE_UNSPECIFIED;
 			column = column->next;
 			colno++;
 		} while (column != start_column);
@@ -778,122 +790,7 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_
 		/* Now that the types of operands to the SET operation have been populated, do some more checks of
 		 * whether the # and types of columns on both operands match. If not issue error.
 		 */
-		{
-			SqlTableAlias *	    table_alias[2];
-			SqlColumnListAlias *cur_cla[2], *start_cla[2];
-			SqlStatement *	    sql_stmt;
-			boolean_t	    terminate_loop[2] = {FALSE, FALSE};
-			SqlColumnListAlias *type_mismatch_cla[2] = {NULL, NULL};
-			SqlColumnListAlias *cur_set_cla, *start_set_cla;
-			SqlSetOperation *   set_operand;
-			int		    i;
-
-			for (i = 0; i < 2; i++) {
-				sql_stmt = set_operation->operand[i];
-				if (table_alias_STATEMENT == sql_stmt->type) {
-					UNPACK_SQL_STATEMENT(table_alias[i], sql_stmt, table_alias);
-					assert(NULL != table_alias[i]->column_list);
-					UNPACK_SQL_STATEMENT(start_cla[i], table_alias[i]->column_list, column_list_alias);
-				} else {
-					assert(set_operation_STATEMENT == sql_stmt->type);
-					UNPACK_SQL_STATEMENT(set_operand, sql_stmt, set_operation);
-					start_cla[i] = set_operand->col_type_list;
-				}
-				assert(NULL != start_cla[i]);
-				cur_cla[i] = start_cla[i];
-			}
-			assert(NULL == set_operation->col_type_list);
-			start_set_cla = NULL;
-			do {
-				SqlValueType left_type, right_type;
-				boolean_t    is_type_mismatch;
-
-				left_type = cur_cla[0]->type;
-				right_type = cur_cla[1]->type;
-				/* Assert all possible valid types. This is used to simplify the `if` checks below
-				 * that determine the value of `is_type_mismatch`.
-				 */
-				assert(IS_LITERAL_PARAMETER(left_type) || (NUL_VALUE == left_type));
-				assert(IS_LITERAL_PARAMETER(right_type) || (NUL_VALUE == right_type));
-				/* If not yet found any type mismatch, check for one. If already found one, keep just that.
-				 * In general, all types are compatible with only themselves.
-				 * Exception is that
-				 *	a) NUMERIC and INTEGER are compatible with each other and no other type.
-				 *	b) NULL is compatible with any type.
-				 */
-				if (NULL == type_mismatch_cla[0]) {
-					switch (left_type) {
-					case BOOLEAN_VALUE:
-						is_type_mismatch = ((NUL_VALUE != right_type) && (BOOLEAN_VALUE != right_type));
-						break;
-					case INTEGER_LITERAL:
-					case NUMERIC_LITERAL:
-						is_type_mismatch = ((NUL_VALUE != right_type) && (INTEGER_LITERAL != right_type)
-								    && (NUMERIC_LITERAL != right_type));
-						break;
-					case STRING_LITERAL:
-						is_type_mismatch = ((NUL_VALUE != right_type) && (STRING_LITERAL != right_type));
-						break;
-					case NUL_VALUE:
-						is_type_mismatch = FALSE;
-						break;
-					default:
-						assert(FALSE);
-						FATAL(ERR_UNKNOWN_KEYWORD_STATE, "");
-						// This line exists to prevent a -Wmaybe-uninitialized compiler warning and is
-						// unreachable after the preceding assert (Debug builds) or FATAL (Release builds)
-						is_type_mismatch = TRUE;
-						break;
-					}
-					if (is_type_mismatch) {
-						/* Record the first type mismatch location */
-						type_mismatch_cla[0] = cur_cla[0];
-						type_mismatch_cla[1] = cur_cla[1];
-					}
-				}
-				/* Construct `column_list` for `set_operation` (needed by caller `populate_data_type`) */
-				OCTO_CMALLOC_STRUCT(cur_set_cla, SqlColumnListAlias);
-				if (NUL_VALUE != left_type) {
-					/* Left side column is not NULL, inherit that type for outer SET operation */
-					*cur_set_cla = *cur_cla[0];
-				} else {
-					/* Left side column is NULL, inherit right side column type
-					 * for outer SET operation.
-					 */
-					*cur_set_cla = *cur_cla[1];
-				}
-				dqinit(cur_set_cla);
-				if (NULL != start_set_cla) {
-					dqappend(start_set_cla, cur_set_cla);
-				} else {
-					start_set_cla = cur_set_cla;
-				}
-				for (i = 0; i < 2; i++) {
-					cur_cla[i] = cur_cla[i]->next;
-					if (cur_cla[i] == start_cla[i])
-						terminate_loop[i] = TRUE;
-				}
-			} while (!terminate_loop[0] && !terminate_loop[1]);
-			if (terminate_loop[0] != terminate_loop[1]) {
-				// The # of columns in the two operands (of the SET operation) do not match. Issue error.
-				ERROR(ERR_SETOPER_NUMCOLS_MISMATCH, get_set_operation_string(set_operation->type));
-				location = ((!terminate_loop[0]) ? cur_cla[0]->column_list->loc : cur_cla[1]->column_list->loc);
-				yyerror(&location, NULL, NULL, NULL, NULL, NULL);
-				result = 1;
-			} else if (NULL != type_mismatch_cla[0]) {
-				// The type of one column in the two operands (of the SET operation) do not match. Issue error.
-				ERROR(ERR_SETOPER_TYPE_MISMATCH, get_set_operation_string(set_operation->type),
-				      get_user_visible_type_string(type_mismatch_cla[0]->type),
-				      get_user_visible_type_string(type_mismatch_cla[1]->type));
-				location = type_mismatch_cla[0]->column_list->loc;
-				yyerror(&location, NULL, NULL, NULL, NULL, NULL);
-				location = type_mismatch_cla[1]->column_list->loc;
-				yyerror(&location, NULL, NULL, NULL, NULL, NULL);
-				result = 1;
-			}
-			assert(NULL != start_set_cla);
-			set_operation->col_type_list = start_set_cla;
-		}
+		result |= check_column_lists_for_type_match(v);
 		break;
 	case unary_STATEMENT:
 		UNPACK_SQL_STATEMENT(unary, v, unary);

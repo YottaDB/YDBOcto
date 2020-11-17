@@ -52,6 +52,23 @@ int create_table_defaults(SqlStatement *table_statement, SqlStatement *keywords_
 	UNPACK_SQL_STATEMENT(start_keyword, keywords_statement, keyword);
 	UNPACK_SQL_STATEMENT(table, table_statement, create_table);
 
+	/* Check for duplicate column names. If so issue error. */
+	UNPACK_SQL_STATEMENT(start_column, table->columns, column);
+	for (cur_column = start_column; start_column != cur_column->next; cur_column = cur_column->next) {
+		SqlColumn *cur_column2;
+		SqlValue * columnName1;
+
+		UNPACK_SQL_STATEMENT(columnName1, cur_column->columnName, value);
+		for (cur_column2 = cur_column->next; start_column != cur_column2; cur_column2 = cur_column2->next) {
+			SqlValue *columnName2;
+
+			UNPACK_SQL_STATEMENT(columnName2, cur_column2->columnName, value);
+			if (!strcmp(columnName1->v.string_literal, columnName2->v.string_literal)) {
+				ERROR(ERR_CREATE_TABLE_DUPLICATE_COLUMN, columnName1->v.string_literal);
+				return 1; // non-zero return value is an error (i.e causes YYABORT in caller)
+			}
+		}
+	}
 	memset(key_columns, 0, MAX_KEY_COUNT * sizeof(SqlColumn *));
 	max_key = get_key_columns(table, key_columns);
 	/* max_key >= 0 is the number of key columns found
@@ -59,7 +76,6 @@ int create_table_defaults(SqlStatement *table_statement, SqlStatement *keywords_
 	 * -2 indicates there was some error in the key columns
 	 */
 	if (max_key == -1) {
-		UNPACK_SQL_STATEMENT(start_column, table->columns, column);
 		cur_column = start_column;
 		i = 0;
 		do {

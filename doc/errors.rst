@@ -177,6 +177,14 @@ Text: File I/O error reading config setting 'xxx' in config: xxx
 
 Description/Action: This error indicates that a config file setting is unreadable. This typically occurs when a configuration file is not formatted correctly. PSQL Error Code: 58030
 
++++++++++++++++++++++++++++++++++++
+ERR_CREATE_TABLE_DUPLICATE_COLUMN
++++++++++++++++++++++++++++++++++++
+
+Text: Column 'xxx' specified more than once
+
+Description/Action: This error is generated when the :code:`CREATE TABLE` command specifies more than one column with the same column name. PSQL Error Code: 42701
+
 +++++++++++++++++++++
 INFO_CURPLAN
 +++++++++++++++++++++

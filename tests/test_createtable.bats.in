@@ -485,3 +485,7 @@ OCTO
 	verify_output $testname output.txt
 }
 
+@test "TC038 : OCTO626 : CREATE TABLE should issue error if more than one column with the same name is specified" {
+	load_fixture TC038.sql subtest novv
+	verify_output TC038 output.txt
+}

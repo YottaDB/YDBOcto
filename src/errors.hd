@@ -98,6 +98,7 @@ ERROR_DEF(ERR_DDL_LITERAL, "Invalid literal in DDL specification: only %s litera
 ERROR_DEF(ERR_VALUES_LENGTH, "VALUES lists must all be the same length", PSQL_Code_Syntax_Error)
 ERROR_DEF(ERR_INSERT_INTO_TOO_MANY_COLUMNS, "INSERT has more expressions than target columns", PSQL_Code_Syntax_Error)
 ERROR_DEF(ERR_INSERT_INTO_TYPE_MISMATCH, "Column '%s' is of type %s but expression is of type %s", PSQL_Code_Datatype_Mismatch)
+ERROR_DEF(ERR_CREATE_TABLE_DUPLICATE_COLUMN, "Column '%s' specified more than once", PSQL_Code_Duplicate_Column)
 // ROCTO //
 ERROR_DEF(ERR_ROCTO_UNSUPPORTED_BIND_PARAMETER, "Unsupported bind parameter type received", PSQL_Code_Internal_Error)
 ERROR_DEF(ERR_ROCTO_BIND_PARAMETER_DECODE_FAILURE, "Failed to decode binary bind parameter", PSQL_Code_Internal_Error)

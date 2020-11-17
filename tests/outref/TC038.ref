@@ -1,0 +1,32 @@
+
+-- TC038 : OCTO626 : CREATE TABLE should issue error if more than one column with the same name is specified
+
+CREATE TABLE tmp (id INTEGER, id INTEGER);
+CREATE TABLE tmp (firstname VARCHAR, firstname VARCHAR);
+CREATE TABLE tmp (id INTEGER, firstname VARCHAR, id INTEGER);
+CREATE TABLE tmp (id INTEGER, id INTEGER, firstname VARCHAR);
+CREATE TABLE tmp (firstname VARCHAR, id INTEGER, firstname VARCHAR);
+CREATE TABLE tmp (firstname VARCHAR, firstname VARCHAR, id INTEGER);
+CREATE TABLE tmp (id INTEGER, firstname VARCHAR, lastname VARCHAR, firstname INTEGER, id2 INTEGER);
+
+[ERROR] PATH:LINENUM DATE TIME : ERR_CREATE_TABLE_DUPLICATE_COLUMN : Column 'ID' specified more than once
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: CREATE TABLE tmp (id INTEGER, id INTEGER);
+
+[ERROR] PATH:LINENUM DATE TIME : ERR_CREATE_TABLE_DUPLICATE_COLUMN : Column 'FIRSTNAME' specified more than once
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: CREATE TABLE tmp (firstname VARCHAR, firstname VARCHAR);
+
+[ERROR] PATH:LINENUM DATE TIME : ERR_CREATE_TABLE_DUPLICATE_COLUMN : Column 'ID' specified more than once
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: CREATE TABLE tmp (id INTEGER, firstname VARCHAR, id INTEGER);
+
+[ERROR] PATH:LINENUM DATE TIME : ERR_CREATE_TABLE_DUPLICATE_COLUMN : Column 'ID' specified more than once
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: CREATE TABLE tmp (id INTEGER, id INTEGER, firstname VARCHAR);
+
+[ERROR] PATH:LINENUM DATE TIME : ERR_CREATE_TABLE_DUPLICATE_COLUMN : Column 'FIRSTNAME' specified more than once
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: CREATE TABLE tmp (firstname VARCHAR, id INTEGER, firstname VARCHAR);
+
+[ERROR] PATH:LINENUM DATE TIME : ERR_CREATE_TABLE_DUPLICATE_COLUMN : Column 'FIRSTNAME' specified more than once
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: CREATE TABLE tmp (firstname VARCHAR, firstname VARCHAR, id INTEGER);
+
+[ERROR] PATH:LINENUM DATE TIME : ERR_CREATE_TABLE_DUPLICATE_COLUMN : Column 'FIRSTNAME' specified more than once
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: CREATE TABLE tmp (id INTEGER, firstname VARCHAR, lastname VARCHAR, firstname INTEGER, id2 INTEGER);
+

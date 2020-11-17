@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -35,17 +35,18 @@ ERROR_DEF(PSQL_Code_Invalid_Authorization_Specification, "28000")
 ERROR_DEF(PSQL_Code_Invalid_Password, "28P01")
 // Class 42 - Syntax Error or Access Rule Violation
 ERROR_DEF(PSQL_Code_Syntax_Error, "42601")
+ERROR_DEF(PSQL_Code_Duplicate_Column, "42701")
+ERROR_DEF(PSQL_Code_Ambiguous_Column, "42702")
 ERROR_DEF(PSQL_Code_Undefined_Column, "42703")
+ERROR_DEF(PSQL_Code_Undefined_Object, "42704")
+ERROR_DEF(PSQL_Code_Duplicate_Alias, "42712")
 ERROR_DEF(PSQL_Code_Grouping_Error, "42803")
 ERROR_DEF(PSQL_Code_Datatype_Mismatch, "42804")
 ERROR_DEF(PSQL_Code_Undefined_Function, "42883")
 ERROR_DEF(PSQL_Code_Undefined_Table, "42P01")
-ERROR_DEF(PSQL_Code_Undefined_Object, "42704")
-ERROR_DEF(PSQL_Code_Ambiguous_Column, "42702")
 ERROR_DEF(PSQL_Code_Ambiguous_Parameter, "42P08")
 ERROR_DEF(PSQL_Code_Invalid_Column_Reference, "42P10")
 ERROR_DEF(PSQL_Code_Invalid_Table_Definition, "42P16")
-ERROR_DEF(PSQL_Code_Duplicate_Alias, "42712")
 // Class 57 - Operator Intervention
 ERROR_DEF(PSQL_Code_Query_Canceled, "57014")
 // Class 58 - System Error

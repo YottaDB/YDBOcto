@@ -623,7 +623,11 @@ mval2str(mval)
 	;
 	NEW byte1,hdrlen,datalen
 	SET byte1=$ZASCII($ZEXTRACT(mval,1))
-	QUIT:0=byte1 $ZYSQLNULL
+	; If mval is the empty string, $ZEXTRACT would return the empty string and $ZASCII would return -1 ("byte1" == -1).
+	; In that case, we should treat the mval as the empty string and return $ZYSQLNULL as the corresponding string value.
+	; In the case byte1 is 0, we want to return $ZYSQLNULL.
+	; Hence the below check for whether "byte1" is less than or equal to 0.
+	QUIT:0>=byte1 $ZYSQLNULL
 	IF 128>byte1 DO
 	.	; 1-byte header
 	.	SET hdrlen=1

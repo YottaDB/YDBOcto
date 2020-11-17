@@ -223,7 +223,7 @@ LogicalPlan *optimize_logical_plan(LogicalPlan *plan) {
 	do {
 		assert(LP_TABLE_JOIN == table_join->type);
 		if (NULL != table_join->extra_detail.lp_table_join.join_on_condition) {
-			LogicalPlan *  insert, *operand0;
+			LogicalPlan *  select_query, *operand0;
 			SqlTableAlias *right_table_alias;
 
 			/* Note that even an INNER JOIN will have a non-NULL join_on_condition if it is preceded by
@@ -233,12 +233,12 @@ LogicalPlan *optimize_logical_plan(LogicalPlan *plan) {
 			switch (operand0->type) {
 			case LP_SELECT_QUERY:
 			case LP_SET_OPERATION:
-				insert = operand0;
+				select_query = operand0;
 				if (LP_SET_OPERATION == operand0->type) {
-					insert = lp_drill_to_insert(insert);
-					assert(LP_SELECT_QUERY == insert->type);
+					select_query = lp_drill_to_insert(select_query);
+					assert(LP_SELECT_QUERY == select_query->type);
 				}
-				right_table_alias = insert->extra_detail.lp_select_query.root_table_alias;
+				right_table_alias = select_query->extra_detail.lp_select_query.root_table_alias;
 				break;
 			default:
 				assert((LP_TABLE == operand0->type) || (LP_TABLE_VALUE == operand0->type));

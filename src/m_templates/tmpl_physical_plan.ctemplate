@@ -39,9 +39,11 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
 		SqlColumn	*start_column, *cur_column;
 		SqlOptionalKeyword *keyword;
 		SqlValue	*value;
+		SqlTableAlias	*src_table_alias;
 		int		first_nonkey_column;
 		char		*delim;
 		char		*nullchar, *not_nullchar;
+		SqlColumnListAlias	*src_start_cla, *src_cur_cla;
 
 		lp_insert_into = plan->lp_select_query;
 		lp_select_query = lp_insert_into->v.lp_default.operand[1];
@@ -74,13 +76,36 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
 		UNPACK_SQL_STATEMENT(table, table_stmt, create_table);
 		UNPACK_SQL_STATEMENT(start_column, table->columns, column);
 		cur_column = start_column;
+		lp_select_query = lp_drill_to_insert(lp_select_query);	/* Needed in case of LP_SET_OPERATION */
+		src_table_alias = lp_select_query->extra_detail.lp_select_query.root_table_alias;
+		UNPACK_SQL_STATEMENT(src_start_cla, src_table_alias->column_list, column_list_alias);
+		src_cur_cla = src_start_cla;
 		do {
 			TMPL(tmpl_print_dots, dot_count);
 			%{}SET {{ PP_COL }}({{ cur_column->column_number|%d }})={}%
-			%{}$$mval2str^%%ydboctoplanhelpers($$mvalPiece^%%ydboctoplanhelpers({{ PP_VAL }},{}%
-			%{}{{ cur_column->column_number|%d }})){}%
+			if (NULL != src_cur_cla) {
+				%{}$$mval2str^%%ydboctoplanhelpers($$mvalPiece^%%ydboctoplanhelpers({{ PP_VAL }},{}%
+				%{}{{ cur_column->column_number|%d }})){}%
+			} else {
+				/* This needed target table column is not available in the source query select column list.
+				 * For now, treat it as NULL. Later when support for DEFAULT is added, we should set
+				 * this to that DEFAULT value if one is defined for this column.
+				 * TODO: YDBOcto#555, YDBOcto#502.
+				 */
+				%{}$ZYSQLNULL{}%
+			}
 			%{}`n{{ PLAN_LINE_START }}{}%
 			cur_column = cur_column->next;
+			/* Go to the next column in the source query of the INSERT INTO.
+			 * If we have run out of columns in the source query before we run out of columns in the
+			 * target table, then set "src_cur_cla" to NULL.
+			 */
+			if (NULL != src_cur_cla) {
+				src_cur_cla = src_cur_cla->next;
+				if (src_start_cla == src_cur_cla) {
+					src_cur_cla = NULL;
+				}
+			}
 		} while (cur_column != start_column);
 		/* Generate global reference */
 		TMPL(tmpl_print_dots, dot_count);

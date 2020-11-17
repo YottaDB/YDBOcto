@@ -63,6 +63,8 @@ teardown() {
 @test "TII06 : OCTO502 : Test INSERT INTO with fewer columns than target table works" {
 	skip    # TODO : YDBOcto#502 : Remove this line once INSERT INTO is fully supported
 	load_fixture TII06.sql subtest novv
+	echo "# Verify target table columns that don't have a corresponding source column are set to NULL in generated M plan" >> output.txt
+	grep -E "INSERT INTO|. SET col\(" _ydboctoP*.m >> output.txt
 	verify_output TII06 output.txt
 }
 

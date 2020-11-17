@@ -186,19 +186,19 @@ PhysicalPlan *emit_select_statement(SqlStatement *stmt, char *plan_filename) {
 			return NULL;
 		}
 	}
-	/* Note: Physical plan corresponding to LP_INSERT_INTO has no output key so skip block of code below in that case */
-	if (NULL == pplan->outputKey) {
-		assert(IS_INSERT_INTO_PHYSICAL_PLAN(pplan));
-		free(plan_meta);
-		return pplan;
-	}
+	/* Store output key for the given plan. Note that for a LP_INSERT_INTO, there is no output key but we still
+	 * note down an output key id of 0 that way a pre-existing plan gets reused instead of creating it afresh
+	 * every time (i.e. "GET_PLAN_METADATA_DB_NODE" check in "run_query.c" succeeds and "generate_plan" variable
+	 * in that function does not get set to TRUE).
+	 */
+	assert((NULL != pplan->outputKey) || IS_INSERT_INTO_PHYSICAL_PLAN(pplan));
 	set_oper = pplan->set_oper_list;
 	set_oper_type = ((NULL == set_oper) ? LP_INVALID_ACTION : set_oper->set_oper_type);
 	assert(((LP_INVALID_ACTION == set_oper_type) && !set_oper_type) || (LP_SET_UNION == set_oper_type)
 	       || (LP_SET_UNION_ALL == set_oper_type) || (LP_SET_DNF == set_oper_type) || (LP_SET_EXCEPT == set_oper_type)
 	       || (LP_SET_EXCEPT_ALL == set_oper_type) || (LP_SET_INTERSECT == set_oper_type)
 	       || (LP_SET_INTERSECT_ALL == set_oper_type));
-	output_key_id = (set_oper_type ? set_oper->output_id : pplan->outputKey->unique_id);
+	output_key_id = (set_oper_type ? set_oper->output_id : ((NULL != pplan->outputKey) ? pplan->outputKey->unique_id : 0));
 	YDB_MALLOC_BUFFER(&value_buffer, INT32_TO_STRING_MAX);
 	OCTO_INT32_TO_BUFFER(output_key_id, &value_buffer);
 	/* Kill any prior data for this given plan (in the rare case it exists).
@@ -207,12 +207,17 @@ PhysicalPlan *emit_select_statement(SqlStatement *stmt, char *plan_filename) {
 	status = ydb_delete_s(&plan_meta[0], 2, &plan_meta[1], YDB_DEL_TREE);
 	/* Ignore any non-zero return value from "ydb_delete_s". Just proceed with "ydb_set_s". */
 	UNUSED(status); /* UNUSED macro needed to avoid unused-variable warning from clang-analyzer */
-	// Store output key for the given plan
 	status = ydb_set_s(&plan_meta[0], 3, &plan_meta[1], &value_buffer);
 	YDB_FREE_BUFFER(&value_buffer);
 	if (YDB_OK != status) {
 		free(plan_meta);
 		return NULL;
+	}
+	/* Note: Physical plan corresponding to LP_INSERT_INTO has no output columns so skip block of code below in that case */
+	if (NULL == pplan->outputKey) {
+		assert(IS_INSERT_INTO_PHYSICAL_PLAN(pplan));
+		free(plan_meta);
+		return pplan;
 	}
 	YDB_LITERAL_TO_BUFFER(OCTOLIT_OUTPUT_COLUMNS, &plan_meta[3]);
 	YDB_MALLOC_BUFFER(&plan_meta[4], INT16_TO_STRING_MAX); // Column ID

@@ -65,3 +65,20 @@ teardown() {
 	load_fixture TII06.sql subtest novv
 	verify_output TII06 output.txt
 }
+
+@test "TII07 : OCTO502 : Test that physical plans get reused in case of repeated INSERT INTO queries" {
+	skip    # TODO : YDBOcto#502 : Remove this line once INSERT INTO is fully supported
+	cp @PROJECT_SOURCE_DIR@/tests/fixtures/TII07.sql .
+	echo "# Run an INSERT INTO query and a SELECT query to verify the INSERT INTO worked" > output.txt
+	octo -f TII07.sql >> output.txt
+	echo "# Turn off write permissions in the current directory (thereby preventing physical plans from being deleted/created)" >> output.txt
+	chmod -w .
+	echo "# Rerun the INSERT INTO and SELECT query to verify no new physical plans get created" >> output.txt
+	octo -f TII07.sql >> output.txt
+	echo "# We expect no errors. Previously, we used to see the below error" >> output.txt
+	echo "#	[ERROR] src/physical/emit_physical_plan.c:.* ERR_SYSCALL_WITH_ARG : System call failed: fopen(), return 13 (Permission denied): args: build/_ydboctoPAO7X4yjuUBEKaHTmKfr9E4.t" >> output.txt
+	echo "# Turn write permissions back on in the current directory" >> output.txt
+	chmod +w .
+	verify_output TII07 output.txt
+}
+

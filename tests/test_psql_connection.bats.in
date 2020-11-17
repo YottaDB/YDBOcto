@@ -427,7 +427,6 @@ OCTO
 }
 
 @test "TPC021 : OCTO502 : Test that INSERT INTO displays number of rows inserted when used with psql and rocto" {
-	skip    # TODO : YDBOcto#502 : Remove this line once INSERT INTO is fully supported
 	run_psql $test_port TPC021.sql | tee output.txt
 	verify_output TPC021 output.txt noinfo nodebug
 }

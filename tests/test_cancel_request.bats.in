@@ -85,7 +85,6 @@ YDB
 }
 
 @test "TCR04 : Test cancel request works in rocto when running an INSERT INTO query and partial updates are rolled back" {
-	skip    # TODO : YDBOcto#502 : Remove this line once INSERT INTO is fully supported
 	# Stop rocto as we want to bump global buffers which requires standalone access
 	stop_rocto
 	echo '# Set global buffers to 16384 to avoid TRANS2BIG errors' >> output.txt

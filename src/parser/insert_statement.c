@@ -116,15 +116,5 @@ SqlStatement *insert_statement(SqlStatement *table_name, SqlStatement *column_na
 	insert->columns = column_name_list;
 	insert->src_table_alias_stmt = query_expression;
 	validated_query_expression = validate_query_expression(ret, parse_context, insert_STATEMENT);
-	/* INSERT INTO currently works for simplistic queries but there is still a lot of functionality to be
-	 * implemented before it can be officially called supported. But to avoid one huge MR at the end, we are going
-	 * to merge incremental sets of changes but keep the functionality disabled by returning NULL from this function.
-	 * Once the full functionality of INSERT INTO has been implemented, the following "if" block of code can be removed.
-	 * TODO: YDBOcto#502 : Temporary "if" code block that can be removed once INSERT INTO is fully implemented.
-	 */
-	if (NULL != validated_query_expression) {
-		ERROR(ERR_FEATURE_NOT_IMPLEMENTED, "INSERT INTO");
-		return NULL;
-	}
 	return validated_query_expression;
 }

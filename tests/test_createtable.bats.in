@@ -582,7 +582,6 @@ OCTO
 }
 
 @test "TC046 : OCTO502 : Allow READWRITE table with column-level DELIM of \"\" if there is only 1 non-primary-key column" {
-	skip    # TODO : YDBOcto#502 : Remove this line once INSERT INTO is fully supported
 	load_fixture TC046.sql subtest novv
 	verify_output TC046 output.txt
 }

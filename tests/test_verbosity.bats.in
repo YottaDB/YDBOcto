@@ -219,7 +219,6 @@ OCTO
 }
 
 @test "TV015: OCTO502 : Verify LOGICAL PLAN output of VALUES clause and INSERT INTO using -vv" {
-	skip    # TODO : YDBOcto#502 : Remove this line once INSERT INTO is fully supported
 	cp @PROJECT_SOURCE_DIR@/tests/fixtures/TII06.sql .
 	# TII06.sql has one query that is also used by the TV015 subtest
 	# The query file has that query tagged as TV015 so search for it to find the query

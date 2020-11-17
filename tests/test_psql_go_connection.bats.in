@@ -79,7 +79,6 @@ teardown() {
 }
 
 @test "TPGC007 : Test INSERT INTO using extended query protocol" {
-	skip    # TODO : YDBOcto#502 : Remove this line once INSERT INTO is fully supported
 	run_go insert_into_extended_query_protocol $test_port 2>&1 | tee output.txt
 	verify_output TPGC007 output.txt
 }

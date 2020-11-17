@@ -188,7 +188,7 @@ PhysicalPlan *emit_select_statement(SqlStatement *stmt, char *plan_filename) {
 	}
 	/* Note: Physical plan corresponding to LP_INSERT_INTO has no output key so skip block of code below in that case */
 	if (NULL == pplan->outputKey) {
-		assert(LP_INSERT_INTO == pplan->lp_select_query->type);
+		assert(IS_INSERT_INTO_PHYSICAL_PLAN(pplan));
 		free(plan_meta);
 		return pplan;
 	}

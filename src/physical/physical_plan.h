@@ -104,6 +104,8 @@ typedef struct PhysicalPlan {
 #define PRIMARY_PHYSICAL_PLAN(PLAN) PLAN->lp_select_query->extra_detail.lp_select_query.physical_plan
 #define PHYSICAL_PLAN_NAME(PLAN)    PRIMARY_PHYSICAL_PLAN(PLAN)->plan_name
 
+#define IS_INSERT_INTO_PHYSICAL_PLAN(PPLAN) ((NULL != PPLAN->lp_select_query) && (LP_INSERT_INTO == PPLAN->lp_select_query->type))
+
 // This provides a convenient way to pass options to subplans
 // which need to be aware of a request from a higher level
 typedef struct PhysicalPlanOptions {

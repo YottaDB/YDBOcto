@@ -31,7 +31,7 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
 	%{}`n{{ plan->plan_name }}(cursorId)`n{{ PLAN_LINE_START }}{}% // The whitespace here is needed for proper M formatting
 
 	/* Handle LP_INSERT_INTO plans first as it is the easiest */
-	if ((NULL != plan->lp_select_query) && (LP_INSERT_INTO == plan->lp_select_query->type)) {
+	if (IS_INSERT_INTO_PHYSICAL_PLAN(plan)) {
 		LogicalPlan	*lp_insert_into, *lp_select_query, *lp_key, *lp_table;
 		SqlKey		*outputKey;
 		SqlTable	*table;
@@ -420,7 +420,8 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
 		order_by = plan->order_by;
 		%{}`n{{ PLAN_LINE_START }}{}%
 		%{}NEW %%ydboctoi  SET %%ydboctoi(0)=1`n{{ PLAN_LINE_START }}{}%
-		assert((NULL != plan->outputKey) && ((NULL == plan->next) || (NULL != plan->next->outputKey)));
+		assert((NULL != plan->outputKey)
+			&& ((NULL == plan->next) || (NULL != plan->next->outputKey) || IS_INSERT_INTO_PHYSICAL_PLAN(plan->next)));
 		// Determine how many columns are specified in ORDER BY. Need to generate M code accordingly.
 		// The below code is a simplified version of that in "tmpl_column_list_combine.ctemplate".
 		num_cols = 0;

@@ -46,14 +46,34 @@ select n2.id and EXISTS (select * from names n1) from names n2;
 4|false
 5|false
 [ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type BOOLEAN not compatible for arithmetic operations
+Error with syntax near (line 1, column 12):
+
+select id+(id=2) from names;
+           ^^^^
 [ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select id+(id=2) from names;
 [ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type BOOLEAN not compatible for arithmetic operations
+Error with syntax near (line 1, column 12):
+
+select id-(id=2) from names;
+           ^^^^
 [ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select id-(id=2) from names;
 [ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type BOOLEAN not compatible for arithmetic operations
+Error with syntax near (line 1, column 12):
+
+select id*(id=2) from names;
+           ^^^^
 [ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select id*(id=2) from names;
 [ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type BOOLEAN not compatible for arithmetic operations
+Error with syntax near (line 1, column 12):
+
+select id/(id=2) from names;
+           ^^^^
 [ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select id/(id=2) from names;
 [ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type BOOLEAN not compatible for arithmetic operations
+Error with syntax near (line 1, column 12):
+
+select id%(id=2) from names;
+           ^^^^
 [ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select id%(id=2) from names;
 [ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_NOT_COMPATIBLE : Type INTEGER not compatible for boolean operations
 Error with syntax near (line 1, column 29):

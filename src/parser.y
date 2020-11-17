@@ -403,6 +403,7 @@ comparison_predicate
       ($$)->v.binary->operation = (BinaryOperations)$comp_op;	/* Note: "comp_op" rule returns "BinaryOperations" type */
       ($$)->v.binary->operands[0] = ($1);
       ($$)->v.binary->operands[1] = ($3);
+      ($$)->loc = yyloc; /* note down the location for later use in populate_data_type (for error reporting) */
     }
   | row_value_constructor TILDE row_value_constructor {
       /* generates a regex type statement

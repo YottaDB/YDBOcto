@@ -9,15 +9,22 @@
 SELECT CASE 1 in (1) when 't' then 2 end;
 SELECT CASE 1 in (1) when 1 then 2 end;
 SELECT CASE 1 in (1) when 3 then 2 end;
+[ERROR] PATH:LINENUM DATE TIME : ERR_CASE_VALUE_TYPE_MISMATCH : WHEN argument is of type VARCHAR but is used in a context that expects a BOOLEAN type
+Error with syntax near (line 1, column 29):
 
--- Below queries worked fine even before the OCTO544 code fixes but are included in case these are not already tested
-SELECT CASE 1 = 1 when 0 then 2 end;
-SELECT CASE 1 = 1 when 1 then 2 end;
-SELECT CASE 1 = 1 when 3 then 2 end;
+SELECT CASE 1 in (1) when 't' then 2 end;
+                            ^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT CASE 1 in (1) when 't' then 2 end;
+[ERROR] PATH:LINENUM DATE TIME : ERR_CASE_VALUE_TYPE_MISMATCH : WHEN argument is of type INTEGER but is used in a context that expects a BOOLEAN type
+Error with syntax near (line 1, column 27):
 
+SELECT CASE 1 in (1) when 1 then 2 end;
+                          ^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT CASE 1 in (1) when 1 then 2 end;
+[ERROR] PATH:LINENUM DATE TIME : ERR_CASE_VALUE_TYPE_MISMATCH : WHEN argument is of type INTEGER but is used in a context that expects a BOOLEAN type
+Error with syntax near (line 1, column 27):
 
-2
-
-
-2
+SELECT CASE 1 in (1) when 3 then 2 end;
+                          ^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT CASE 1 in (1) when 3 then 2 end;
 

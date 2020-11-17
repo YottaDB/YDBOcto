@@ -77,8 +77,8 @@ setup() {
 @test "TCS13 : OCTO546 : CASE does not return NULL if ELSE is omitted and no comparison operation evaluates to TRUE" {
   # N.B. the order matters here, if you try and run errors first psql will run those as well.
   run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TCS13.sql
-  load_fixture TCS13-errors.sql subtest novv
-  verify_output TCS13-errors output.txt
+  load_fixture TCS13_errors.sql subtest novv
+  verify_output TCS13_errors output.txt
 }
 
 @test "TCS14 : OCTO544 : Assertion failure and Errors when IN is used in SELECT column list" {
@@ -86,4 +86,9 @@ setup() {
   run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TCS14.sql
   load_fixture TCS14_errors.sql subtest novv
   verify_output TCS14_errors output.txt
+}
+
+@test "TCS15 : OCTO618 : Ensure type missmatch error when CASE value type and WHEN condition result type is different" {
+  load_fixture TCS15_errors.sql subtest novv
+  verify_output TCS15_errors output.txt
 }

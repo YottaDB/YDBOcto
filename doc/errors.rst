@@ -137,6 +137,14 @@ Text: CASE branch type mismatch: left xxx, right xxx
 
 Description/Action: This error is generated when there is a type mismatch between branches in a :code:`CASE` statement. PSQL Error Code: 42804
 
+++++++++++++++++++++++++++++++
+ERR_CASE_VALUE_TYPE_MISMATCH
+++++++++++++++++++++++++++++++
+
+Text: WHEN argument is of type xxx but is used in a context that expects a xxx type
+
+Description/Action: This error is generated when there is a type mismatch between :code:`CASE value` and :code:`WHEN condition` type in :code:`Case` statement. PSQL Error Code: 42804
+
 ++++++++++++++++++++++
 INFO_CLIENT_CONNECTED
 ++++++++++++++++++++++

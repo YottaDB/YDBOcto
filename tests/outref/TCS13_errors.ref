@@ -4,12 +4,6 @@
 -- Octo should give a type error if selecting an integer but comparing to string
 SELECT CASE WHEN id = '' THEN 'true' ELSE 'false' END
 	FROM (SELECT CASE WHEN false THEN 2 END AS id) n1;
-
--- Octo allows `CASE` expressions even when the types do not match exactly
--- (postgres gives 'operator does not exist: boolean = integer')
-SELECT CASE 1 = 1 WHEN 0 THEN 1 END; -- NULL
-SELECT CASE 1 = 1 WHEN 1 THEN 1 END; -- 1
-SELECT CASE 1 = 1 WHEN 2 THEN 1 END; -- NULL
 [ERROR] PATH:LINENUM DATE TIME : ERR_TYPE_MISMATCH : Type mismatch: left INTEGER, right VARCHAR
 Error with syntax near (line 1, column 18):
 
@@ -21,6 +15,4 @@ SELECT CASE WHEN id = '' THEN 'true' ELSE 'false' END
                        ^
 [ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: SELECT CASE WHEN id = '' THEN 'true' ELSE 'false' END
 	FROM (SELECT CASE WHEN false THEN 2 END AS id) n1;
-
-1
 

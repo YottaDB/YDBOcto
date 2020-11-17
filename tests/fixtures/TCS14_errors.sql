@@ -20,9 +20,3 @@
 SELECT CASE 1 in (1) when 't' then 2 end;
 SELECT CASE 1 in (1) when 1 then 2 end;
 SELECT CASE 1 in (1) when 3 then 2 end;
-
--- Below queries worked fine even before the OCTO544 code fixes but are included in case these are not already tested
-SELECT CASE 1 = 1 when 0 then 2 end;
-SELECT CASE 1 = 1 when 1 then 2 end;
-SELECT CASE 1 = 1 when 3 then 2 end;
-

@@ -87,6 +87,19 @@
 		TYPE2 = TYPE1;                                                 \
 	}
 
+// Compare TYPE1 and TYPE2 and throw ERR_TYPE if not equal
+#define CHECK_TYPE_AND_BREAK_ON_MISMATCH(TYPE1, TYPE2, ERR_TYPE, CUR_BRANCH_VALUE, NEXT_BRANCH_VALUE, RESULT)            \
+	{                                                                                                                \
+		if ((TYPE1) != (TYPE2)) {                                                                                \
+			ERROR((ERR_TYPE), get_user_visible_type_string((TYPE1)), get_user_visible_type_string((TYPE2))); \
+			yyerror(NULL, NULL, (CUR_BRANCH_VALUE), NULL, NULL, NULL);                                       \
+			if (NULL != (NEXT_BRANCH_VALUE))                                                                 \
+				yyerror(NULL, NULL, (NEXT_BRANCH_VALUE), NULL, NULL, NULL);                              \
+			RESULT = 1;                                                                                      \
+			break;                                                                                           \
+		}                                                                                                        \
+	}
+
 SqlValueType get_sqlvaluetype_from_psql_type(PSQL_TypeOid type) {
 	switch (type) {
 	case PSQL_TypeOid_int4:
@@ -242,49 +255,51 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_
 	int			colno;
 
 	result = 0;
-	*type = UNKNOWN_SqlValueType;
 	if (v == NULL || v->v.select == NULL)
 		return 0;
 	// Note: The below switch statement and the flow mirrors that in hash_canonical_query.c.
 	//       Any change here or there needs to also be done in the other module.
 	switch (v->type) {
 	case cas_STATEMENT:
+		*type = UNKNOWN_SqlValueType;
 		UNPACK_SQL_STATEMENT(cas, v, cas);
 		// We expect type to get overriden here; only the last type matters
 		result |= populate_data_type(cas->value, type, parse_context);
+		// Pass CASE value type to the next call of populate_data_type to compare
+		// CASE value and WHEN condition result type.
+		child_type1 = *type;
 		result |= populate_data_type(cas->branches, &child_type1, parse_context);
 		if (NULL != cas->optional_else) { // No need to validate types if ELSE not present
 			result |= populate_data_type(cas->optional_else, &child_type2, parse_context);
+			// SQL NULL values are acceptable in CASE branches so CAST them appropriately
 			CAST_AMBIGUOUS_TYPES(child_type1, child_type2);
-			// SQL NULL values are acceptable in CASE branches
-			if (child_type1 != child_type2) {
-				ERROR(ERR_CASE_BRANCH_TYPE_MISMATCH, get_user_visible_type_string(child_type1),
-				      get_user_visible_type_string(child_type2));
-				yyerror(NULL, NULL, &cas->branches->v.cas_branch->value, NULL, NULL, NULL);
-				yyerror(NULL, NULL, &cas->optional_else, NULL, NULL, NULL);
-				result = 1;
-			}
+			CHECK_TYPE_AND_BREAK_ON_MISMATCH(child_type1, child_type2, ERR_CASE_BRANCH_TYPE_MISMATCH,
+							 &cas->branches->v.cas_branch->value, &cas->optional_else, result);
 		}
 		*type = child_type1;
 		break;
 	case cas_branch_STATEMENT:
+		// CASE value type is stored in *type
+		// UNKNOWN_SqlValueType is a possible type for CASE value as it is optional in case_STATEMENTS.
+		// In such a case consider it to be equal to BOOLEAN_VALUE.
+		if (UNKNOWN_SqlValueType == *type)
+			*type = BOOLEAN_VALUE;
 		UNPACK_SQL_STATEMENT(cas_branch, v, cas_branch);
 		cur_branch = cas_branch;
 		result |= populate_data_type(cur_branch->value, &child_type1, parse_context);
 		do {
-			result |= populate_data_type(cur_branch->condition, type, parse_context);
-			if (cur_branch != cur_branch->next) {
+			result |= populate_data_type(cur_branch->condition, &child_type2, parse_context);
+			assert(UNKNOWN_SqlValueType != child_type2);
+			// SQL NULL values are acceptable for CASE value and WHEN condition type so CAST them appropriately
+			CAST_AMBIGUOUS_TYPES(*type, child_type2);
+			CHECK_TYPE_AND_BREAK_ON_MISMATCH(child_type2, *type, ERR_CASE_VALUE_TYPE_MISMATCH, &cur_branch->condition,
+							 NULL, result);
+			if (cas_branch != cur_branch->next) {
 				result |= populate_data_type(cur_branch->next->value, &child_type2, parse_context);
-				// SQL NULL values are acceptable in CASE branches
+				// SQL NULL values are acceptable in CASE branches so CAST them appropriately
 				CAST_AMBIGUOUS_TYPES(child_type1, child_type2);
-				if (child_type1 != child_type2) {
-					ERROR(ERR_CASE_BRANCH_TYPE_MISMATCH, get_user_visible_type_string(child_type1),
-					      get_user_visible_type_string(child_type2));
-					yyerror(NULL, NULL, &cur_branch->value, NULL, NULL, NULL);
-					yyerror(NULL, NULL, &cur_branch->next->value, NULL, NULL, NULL);
-					result = 1;
-					break;
-				}
+				CHECK_TYPE_AND_BREAK_ON_MISMATCH(child_type1, child_type2, ERR_CASE_BRANCH_TYPE_MISMATCH,
+								 &cur_branch->value, &cur_branch->next->value, result);
 				child_type1 = child_type2;
 			}
 			cur_branch = cur_branch->next;

@@ -61,6 +61,10 @@ int lp_verify_structure_helper(LogicalPlan *plan, PhysicalPlanOptions *options, 
 		break;
 	case LP_INSERT_INTO:
 		ret &= lp_verify_structure_helper(plan->v.lp_default.operand[0], options, LP_TABLE);
+		ret &= lp_verify_structure_helper(plan->v.lp_default.operand[1], options, LP_INSERT_INTO_OPTIONS);
+		break;
+	case LP_INSERT_INTO_OPTIONS:
+		ret &= lp_verify_structure_helper(plan->v.lp_default.operand[0], options, LP_COLUMN_LIST);
 		ret &= lp_verify_structure_helper(plan->v.lp_default.operand[1], options, LP_SELECT_QUERY)
 		       | lp_verify_structure_helper(plan->v.lp_default.operand[1], options, LP_SET_OPERATION);
 		break;
@@ -358,7 +362,9 @@ int lp_verify_structure_helper(LogicalPlan *plan, PhysicalPlanOptions *options, 
 		/* To avoid a large recursion stack in case of thousands of columns, walk the column list iteratively */
 		while (NULL != plan) {
 			assert(LP_COLUMN_LIST == plan->type);
-			ret &= lp_verify_value(plan->v.lp_default.operand[0], options);
+			/* LP_COLUMN is only possible inside a LP_COLUMN_LIST. Hence the additional check for it here. */
+			ret &= lp_verify_value(plan->v.lp_default.operand[0], options)
+			       | lp_verify_structure_helper(plan->v.lp_default.operand[0], options, LP_COLUMN);
 			assert(ret);
 			plan = plan->v.lp_default.operand[1];
 		}
@@ -368,6 +374,7 @@ int lp_verify_structure_helper(LogicalPlan *plan, PhysicalPlanOptions *options, 
 	case LP_DERIVED_COLUMN:
 	case LP_PIECE_NUMBER:
 	case LP_COLUMN_LIST_ALIAS:
+	case LP_COLUMN:
 		// This has no children to check
 		break;
 	case LP_FUNCTION_CALL:

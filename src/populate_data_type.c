@@ -309,12 +309,7 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_
 	case insert_STATEMENT:
 		UNPACK_SQL_STATEMENT(insert, v, insert);
 		result |= populate_data_type(insert->src_table_alias_stmt, &child_type1, parse_context);
-		if (NULL == insert->columns) {
-			result |= check_column_lists_for_type_match(v);
-		} else {
-			/* Support for "INSERT INTO with specific columns" is not yet added. Until then this code is unreachable. */
-			assert(FALSE);
-		}
+		result |= check_column_lists_for_type_match(v);
 		break;
 	case select_STATEMENT:
 		UNPACK_SQL_STATEMENT(select, v, select);
@@ -384,7 +379,7 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_
 					       || (column_list_alias_STATEMENT == column_stmt->type));
 					if (column_STATEMENT == column_stmt->type) {
 						data_type = column_stmt->v.column->data_type_struct.data_type;
-						*type = get_sqlvaluetype_from_sqldatatype(data_type);
+						*type = get_sqlvaluetype_from_sqldatatype(data_type, FALSE);
 					} else {
 						*type = column_stmt->v.column_list_alias->type;
 					}
@@ -442,7 +437,7 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_
 			break;
 		}
 		data_type = function->return_type->v.data_type_struct.data_type;
-		*type = get_sqlvaluetype_from_sqldatatype(data_type);
+		*type = get_sqlvaluetype_from_sqldatatype(data_type, FALSE);
 		break;
 	case coalesce_STATEMENT:
 		UNPACK_SQL_STATEMENT(coalesce_call, v, coalesce);
@@ -578,7 +573,7 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_
 			result |= populate_data_type(v->v.column_alias->column, type, parse_context);
 		} else {
 			UNPACK_SQL_STATEMENT(column, v->v.column_alias->column, column);
-			*type = get_sqlvaluetype_from_sqldatatype(column->data_type_struct.data_type);
+			*type = get_sqlvaluetype_from_sqldatatype(column->data_type_struct.data_type, FALSE);
 		}
 		break;
 	case column_list_STATEMENT:

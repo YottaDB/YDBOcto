@@ -64,7 +64,7 @@ int create_table_defaults(SqlStatement *table_statement, SqlStatement *keywords_
 
 			UNPACK_SQL_STATEMENT(columnName2, cur_column2->columnName, value);
 			if (!strcmp(columnName1->v.string_literal, columnName2->v.string_literal)) {
-				ERROR(ERR_CREATE_TABLE_DUPLICATE_COLUMN, columnName1->v.string_literal);
+				ERROR(ERR_DUPLICATE_COLUMN, columnName1->v.string_literal);
 				return 1; // non-zero return value is an error (i.e causes YYABORT in caller)
 			}
 		}

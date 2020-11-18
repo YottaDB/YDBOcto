@@ -63,49 +63,41 @@ LP_SELECT_QUERY:
         LP_COLUMN_LIST_ALIAS: 
         - type: NULL
         - alias: PROCEDURE_CAT
-    LP_COLUMN_LIST: 
       LP_WHERE: 
         LP_COLUMN_ALIAS: N(1).NSPNAME
         LP_COLUMN_LIST_ALIAS: 
         - type: STRING_LITERAL
         - alias: PROCEDURE_SCHEM
-    LP_COLUMN_LIST: 
       LP_WHERE: 
         LP_COLUMN_ALIAS: P(2).PRONAME
         LP_COLUMN_LIST_ALIAS: 
         - type: STRING_LITERAL
         - alias: PROCEDURE_NAME
-    LP_COLUMN_LIST: 
       LP_WHERE: 
         LP_VALUE: ''
         LP_COLUMN_LIST_ALIAS: 
         - type: NULL
         - alias: ???
-    LP_COLUMN_LIST: 
       LP_WHERE: 
         LP_VALUE: ''
         LP_COLUMN_LIST_ALIAS: 
         - type: NULL
         - alias: ???
-    LP_COLUMN_LIST: 
       LP_WHERE: 
         LP_VALUE: ''
         LP_COLUMN_LIST_ALIAS: 
         - type: NULL
         - alias: ???
-    LP_COLUMN_LIST: 
       LP_WHERE: 
         LP_COLUMN_ALIAS: D(3).DESCRIPTION
         LP_COLUMN_LIST_ALIAS: 
         - type: STRING_LITERAL
         - alias: REMARKS
-    LP_COLUMN_LIST: 
       LP_WHERE: 
         LP_VALUE: '2'
         LP_COLUMN_LIST_ALIAS: 
         - type: INTEGER_LITERAL
         - alias: PROCEDURE_TYPE
-    LP_COLUMN_LIST: 
       LP_WHERE: 
         LP_CONCAT: 
           LP_CONCAT: 
@@ -194,49 +186,41 @@ LP_SELECT_QUERY:
         LP_COLUMN_LIST_ALIAS: 
         - type: NULL
         - alias: PROCEDURE_CAT
-    LP_COLUMN_LIST: 
       LP_WHERE: 
         LP_COLUMN_ALIAS: N(1).NSPNAME
         LP_COLUMN_LIST_ALIAS: 
         - type: STRING_LITERAL
         - alias: PROCEDURE_SCHEM
-    LP_COLUMN_LIST: 
       LP_WHERE: 
         LP_COLUMN_ALIAS: P(2).PRONAME
         LP_COLUMN_LIST_ALIAS: 
         - type: STRING_LITERAL
         - alias: PROCEDURE_NAME
-    LP_COLUMN_LIST: 
       LP_WHERE: 
         LP_VALUE: ''
         LP_COLUMN_LIST_ALIAS: 
         - type: NULL
         - alias: ???
-    LP_COLUMN_LIST: 
       LP_WHERE: 
         LP_VALUE: ''
         LP_COLUMN_LIST_ALIAS: 
         - type: NULL
         - alias: ???
-    LP_COLUMN_LIST: 
       LP_WHERE: 
         LP_VALUE: ''
         LP_COLUMN_LIST_ALIAS: 
         - type: NULL
         - alias: ???
-    LP_COLUMN_LIST: 
       LP_WHERE: 
         LP_COLUMN_ALIAS: D(3).DESCRIPTION
         LP_COLUMN_LIST_ALIAS: 
         - type: STRING_LITERAL
         - alias: REMARKS
-    LP_COLUMN_LIST: 
       LP_WHERE: 
         LP_VALUE: '2'
         LP_COLUMN_LIST_ALIAS: 
         - type: INTEGER_LITERAL
         - alias: PROCEDURE_TYPE
-    LP_COLUMN_LIST: 
       LP_WHERE: 
         LP_CONCAT: 
           LP_CONCAT: 
@@ -255,7 +239,6 @@ LP_SELECT_QUERY:
               LP_COLUMN_LIST: 
                 LP_WHERE: 
                   LP_COLUMN_ALIAS: PG_CATALOG.PG_PROC(9).PRONAMESPACE
-              LP_COLUMN_LIST: 
                 LP_WHERE: 
                   LP_COLUMN_ALIAS: PG_CATALOG.PG_PROC(9).OID
               LP_SELECT: 
@@ -289,7 +272,6 @@ LP_SELECT_QUERY:
                 LP_COLUMN_LIST: 
                   LP_WHERE: 
                     LP_COLUMN_ALIAS: PG_CATALOG.PG_DESCRIPTION(8).OBJOID
-                LP_COLUMN_LIST: 
                   LP_WHERE: 
                     LP_COLUMN_ALIAS: PG_CATALOG.PG_DESCRIPTION(8).OID
                 LP_SELECT: 

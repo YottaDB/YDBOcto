@@ -32,7 +32,7 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
 
 	/* Handle LP_INSERT_INTO plans first as it is the easiest */
 	if (IS_INSERT_INTO_PHYSICAL_PLAN(plan)) {
-		LogicalPlan	*lp_insert_into, *lp_select_query, *lp_key, *lp_table;
+		LogicalPlan	*lp_insert_into, *lp_insert_into_options, *lp_select_query, *lp_key, *lp_table, *lp_col_list;
 		SqlKey		*outputKey;
 		SqlTable	*table;
 		SqlStatement	*table_stmt;
@@ -44,9 +44,12 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
 		char		*delim;
 		char		*nullchar, *not_nullchar;
 		SqlColumnListAlias	*src_start_cla, *src_cur_cla;
+		int		src_colnum;
 
 		lp_insert_into = plan->lp_select_query;
-		lp_select_query = lp_insert_into->v.lp_default.operand[1];
+		lp_insert_into_options = lp_insert_into->v.lp_default.operand[1];
+		lp_col_list = lp_insert_into_options->v.lp_default.operand[0];
+		lp_select_query = lp_insert_into_options->v.lp_default.operand[1];
 		lp_key = lp_get_output_key(lp_select_query);
 		outputKey = lp_key->v.lp_key.key;
 		%{}SET {}%
@@ -80,12 +83,50 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
 		src_table_alias = lp_select_query->extra_detail.lp_select_query.root_table_alias;
 		UNPACK_SQL_STATEMENT(src_start_cla, src_table_alias->column_list, column_list_alias);
 		src_cur_cla = src_start_cla;
+		src_colnum = 0;
 		do {
+			boolean_t	col_is_specified;
+
 			TMPL(tmpl_print_dots, dot_count);
 			%{}SET {{ PP_COL }}({{ cur_column->column_number|%d }})={}%
-			if (NULL != src_cur_cla) {
+			if (NULL == lp_col_list) {
+				/* No comma-separated list of target columns was specified */
+				col_is_specified = (NULL != src_cur_cla);
+				/* Go to the next column in the source query of the INSERT INTO for the next iteration.
+				 * If we have run out of columns in the source query before we run out of columns in the
+				 * target table, then set "src_cur_cla" to NULL.
+				 */
+				if (NULL != src_cur_cla) {
+					src_cur_cla = src_cur_cla->next;
+					src_colnum++;
+					if (src_start_cla == src_cur_cla) {
+						src_cur_cla = NULL;
+					}
+				}
+			} else {
+				/* A comma-separated list of target columns was specified. Check if this column is in that list. */
+				LogicalPlan	*cur_lp_col_list;
+
+				col_is_specified = FALSE;
+				cur_lp_col_list = lp_col_list;
+				src_colnum = 1;
+				do {
+					LogicalPlan	*lp_column;
+
+					assert(LP_COLUMN_LIST == cur_lp_col_list->type);
+					GET_LP(lp_column, cur_lp_col_list, 0, LP_COLUMN);
+					if (cur_column == lp_column->v.lp_column.column) {
+						/* Column is specified */
+						col_is_specified = TRUE;
+						break;
+					}
+					cur_lp_col_list = cur_lp_col_list->v.lp_default.operand[1];
+					src_colnum++;
+				} while (NULL != cur_lp_col_list);
+			}
+			if (col_is_specified) {
 				%{}$$mval2str^%%ydboctoplanhelpers($$mvalPiece^%%ydboctoplanhelpers({{ PP_VAL }},{}%
-				%{}{{ cur_column->column_number|%d }})){}%
+				%{}{{ src_colnum|%d }})){}%
 			} else {
 				/* This needed target table column is not available in the source query select column list.
 				 * For now, treat it as NULL. Later when support for DEFAULT is added, we should set
@@ -96,16 +137,6 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
 			}
 			%{}`n{{ PLAN_LINE_START }}{}%
 			cur_column = cur_column->next;
-			/* Go to the next column in the source query of the INSERT INTO.
-			 * If we have run out of columns in the source query before we run out of columns in the
-			 * target table, then set "src_cur_cla" to NULL.
-			 */
-			if (NULL != src_cur_cla) {
-				src_cur_cla = src_cur_cla->next;
-				if (src_start_cla == src_cur_cla) {
-					src_cur_cla = NULL;
-				}
-			}
 		} while (cur_column != start_column);
 		/* Generate global reference */
 		TMPL(tmpl_print_dots, dot_count);

@@ -10,7 +10,7 @@
 #								#
 #################################################################
 
--- TC038 : OCTO626 : CREATE TABLE should issue error if more than one column with the same name is specified
+-- TC038 : OCTO626 : CREATE TABLE should issue ERR_DUPLICATE_COLUMN error if more than one column with the same name is specified
 
 CREATE TABLE tmp (id INTEGER, id INTEGER);
 CREATE TABLE tmp (firstname VARCHAR, firstname VARCHAR);

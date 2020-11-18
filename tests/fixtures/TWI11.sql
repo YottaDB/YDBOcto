@@ -10,7 +10,7 @@
 #								#
 #################################################################
 
--- TWI11 : OCTO515 : 'Unknown state reached' error when IN has a malformed comma separated list of values
+-- TWI11 : OCTO515 : 'Unknown state reached' error when IN has a malformed comma-separated list of values
 
 SELECT * FROM names WHERE id IN ();
 SELECT * FROM names WHERE id IN (1,);

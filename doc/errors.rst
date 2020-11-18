@@ -153,14 +153,6 @@ Text: Client connected
 
 Description/Action: This message lets the user know that a client connected successfully. PSQL Error Code: 00000
 
-++++++++++++++++++++++
-INFO_COLUMN_SEARCH
-++++++++++++++++++++++
-
-Text: Searching for column xxx in table xxx
-
-Description/Action: This message lets the user know that Octo is looking up the given column from the given table. PSQL Error Code: 00000
-
 ++++++++++++++++++
 ERR_COMMON_COLUMN
 ++++++++++++++++++
@@ -176,14 +168,6 @@ ERR_CONFIG_IO_FAILURE
 Text: File I/O error reading config setting 'xxx' in config: xxx
 
 Description/Action: This error indicates that a config file setting is unreadable. This typically occurs when a configuration file is not formatted correctly. PSQL Error Code: 58030
-
-+++++++++++++++++++++++++++++++++++
-ERR_CREATE_TABLE_DUPLICATE_COLUMN
-+++++++++++++++++++++++++++++++++++
-
-Text: Column 'xxx' specified more than once
-
-Description/Action: This error is generated when the :code:`CREATE TABLE` command specifies more than one column with the same column name. PSQL Error Code: 42701
 
 +++++++++++++++++++++
 INFO_CURPLAN
@@ -224,6 +208,14 @@ ERR_DOLLAR_SYNTAX
 Text: Prepared statement dollar syntax (e.g. $1, $2, etc.) only supported in Rocto using the Extended Query Protocol
 
 Description/Action: This error indicates that user has tried to use a dollar symbol ($) in Octo. Prepared statement dollar syntax is only supported in Rocto using the PostgreSQL Extended Query Protocol. PSQL Error Code: 42601
+
+++++++++++++++++++++++
+ERR_DUPLICATE_COLUMN
+++++++++++++++++++++++
+
+Text: Column 'xxx' specified more than once
+
+Description/Action: This error is generated when the :code:`CREATE TABLE` or :code:`INSERT INTO` command specifies more than one column with the same column name. PSQL Error Code: 42701
 
 +++++++++++++++++++++++++
 INFO_ENTERING_FUNCTION
@@ -329,16 +321,24 @@ Text: Error initializing the scanner
 
 Description/Action: This message indicates an error in initializing the scanner used to parse provided input. Please contact your YottaDB support channel. PSQL Error Code: XX000
 
-+++++++++++++++++++++++++++++++++
-ERR_INSERT_INTO_TOO_MANY_COLUMNS
-+++++++++++++++++++++++++++++++++
+++++++++++++++++++++++++++++
+ERR_INSERT_TOO_MANY_COLUMNS
+++++++++++++++++++++++++++++
+
+Text: INSERT has more target columns than expressions
+
+Description/Action: This error is generated when the :code:`INSERT INTO` command specifies more columns in the comma-separated list of columns (corresponding to the target table) than the number of expression columns in the source query. PSQL Error Code: 42601
+
+++++++++++++++++++++++++++++++++
+ERR_INSERT_TOO_MANY_EXPRESSIONS
+++++++++++++++++++++++++++++++++
 
 Text: INSERT has more expressions than target columns
 
-Description/Action: This error is generated when the :code:`INSERT INTO` command specifies more column names from the source table than than the columns in the target table. PSQL Error Code: 42601
+Description/Action: This error is generated when the :code:`INSERT INTO` command specifies more expression columns in the source query than the number of comma-separated columns specified for the target table (if a comma-separated list of target columns is specified) or the number of columns of the target table (if no comma-separated list of target columns is specified). PSQL Error Code: 42601
 
 ++++++++++++++++++++++++++++++
-ERR_INSERT_INTO_TYPE_MISMATCH
+ERR_INSERT_TYPE_MISMATCH
 ++++++++++++++++++++++++++++++
 
 Text: Column 'xxx' is of type xxx but expression is of type xxx
@@ -800,6 +800,14 @@ INFO_TEXT_REPRESENTATION
 Text: xxx
 
 Description/Action: This message prints the text representation of a DDL specification. PSQL Error Code: 00000
+
+++++++++++++++++++++++++++++++
+ERR_TABLE_UNKNOWN_COLUMN_NAME
+++++++++++++++++++++++++++++++
+
+Text: Column 'xxx' of table 'xxx' does not exist
+
+Description/Action: This error is generated when the specified column name is not a valid column in the specified table. PSQL Error Code: 42703
 
 ++++++++++++++++++++++++++++++++
 ERR_TOO_MANY_FUNCTION_ARGUMENTS

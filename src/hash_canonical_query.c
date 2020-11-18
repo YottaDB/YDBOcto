@@ -431,7 +431,7 @@ void hash_canonical_query(hash128_state_t *state, SqlStatement *stmt, int *statu
 			 * overloaded function names.
 			 */
 			data_type = cur_parameter_type_list->data_type_struct->v.data_type_struct.data_type;
-			ADD_INT_HASH(state, get_sqlvaluetype_from_sqldatatype(data_type));
+			ADD_INT_HASH(state, get_sqlvaluetype_from_sqldatatype(data_type, FALSE));
 			cur_parameter_type_list = cur_parameter_type_list->next;
 		} while (cur_parameter_type_list != parameter_type_list);
 		break;

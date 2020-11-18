@@ -136,10 +136,15 @@ LogicalPlan *optimize_logical_plan(LogicalPlan *plan) {
 		}
 		return plan;
 	} else if (LP_INSERT_INTO == plan->type) {
-		plan->v.lp_default.operand[1] = optimize_logical_plan(plan->v.lp_default.operand[1]);
-		if (NULL == plan->v.lp_default.operand[1]) {
+		LogicalPlan *lp_insert_into_options, *lp_ret;
+
+		/* For an INSERT INTO, we only need to optimize the SELECT query (source of the INSERT INTO) */
+		GET_LP(lp_insert_into_options, plan, 1, LP_INSERT_INTO_OPTIONS);
+		lp_ret = optimize_logical_plan(lp_insert_into_options->v.lp_default.operand[1]);
+		if (NULL == lp_ret) {
 			return NULL;
 		}
+		lp_insert_into_options->v.lp_default.operand[1] = lp_ret;
 		return plan;
 	}
 	assert(LP_SELECT_QUERY == plan->type);

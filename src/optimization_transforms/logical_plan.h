@@ -46,15 +46,15 @@
  * and go deep). This is so outermost caller knows to issue an error at logical plan stage and not proceed with physical plan
  * even if one error is seen anywhere in a recursive function call.
  */
-#define LP_GENERATE_WHERE(STMT, PARENT, RET, ERROR_ENCOUNTERED) \
-	{                                                       \
-		if (NULL != STMT) {                             \
-			RET = lp_generate_where(STMT, PARENT);  \
-			if (NULL == RET)                        \
-				ERROR_ENCOUNTERED = TRUE;       \
-		} else {                                        \
-			RET = NULL;                             \
-		}                                               \
+#define LP_GENERATE_WHERE(STMT, PARENT_STMT, RET, ERROR_ENCOUNTERED) \
+	{                                                            \
+		if (NULL != STMT) {                                  \
+			RET = lp_generate_where(STMT, PARENT_STMT);  \
+			if (NULL == RET)                             \
+				ERROR_ENCOUNTERED = TRUE;            \
+		} else {                                             \
+			RET = NULL;                                  \
+		}                                                    \
 	}
 
 // Forward declarations
@@ -72,6 +72,10 @@ typedef enum {
 extern const char *lp_action_type_str[];
 
 /* Fields needed by various LP_* types */
+typedef struct LpColumn {
+	SqlColumn *column;
+} LpColumn;
+
 typedef struct LpColumnAlias {
 	SqlColumnAlias *column_alias;
 } LpColumnAlias;
@@ -191,6 +195,7 @@ typedef struct LogicalPlan {
 		/* If any changes to the below union layout happen (new members are added etc.), then code in
 		 * `lp_is_bool_operand_type_string.c` will need to be adjusted (search for LOGICAL_PLAN_KEEP_IN_SYNC).
 		 */
+		LpColumn	  lp_column;		// To be used if type == LP_COLUMN
 		LpColumnAlias	  lp_column_alias;	// To be used if type == LP_COLUMN_ALIAS
 		LpColumnListAlias lp_column_list_alias; // To be used if type == LP_COLUMN_LIST_ALIAS
 		LpValue		  lp_value;		// To be used if type == LP_VALUE
@@ -300,7 +305,7 @@ boolean_t lp_is_operand_type_string(LogicalPlan *plan);
 // Returns LP_WHERE with an AND of the two wheres
 LogicalPlan *lp_join_where(LogicalPlan *where1, LogicalPlan *where2);
 // Returns a new logical plan representing the boolean structure from stmt
-LogicalPlan *lp_generate_where(SqlStatement *stmt, SqlStatement *parent);
+LogicalPlan *lp_generate_where(SqlStatement *stmt, SqlStatement *parent_stmt);
 // Given a column and a table, generates a cross reference plan and returns it
 LogicalPlan *lp_generate_xref_plan(SqlTable *table, SqlColumn *column, int unique_id);
 /**
@@ -358,11 +363,13 @@ LogicalPlan *lp_optimize_where_multi_equals_ands_helper(LogicalPlan *plan, Logic
 
 /**
  * Walk through the column list, converting each right side value as appropriate.
- * Sets `*ret` to the first column.
- * Returns whether an error was encountered.
+ * "ret" is an output parameter. This function sets `*ret` to the first (in linked list) LP_COLUMN_LIST on return.
+ * "parent_stmt" points to parent SqlStatement structure and is used only in rare cases (EXISTS operator etc.).
+ * "start_columns" points to the start of the column list.
+ * Returns whether an error was encountered. 0 if no error was encountered. 1 if an error was encountered.
  * This function can only be used for column lists with at least one column.
  */
-boolean_t lp_generate_column_list(LogicalPlan **ret, SqlStatement *stmt, SqlColumnList *start_columns);
+boolean_t lp_generate_column_list(LogicalPlan **ret, SqlStatement *parent_stmt, SqlColumnList *start_columns);
 
 /* Generates a LP_TABLE_VALUE table plan corresponding to a VALUES() clause specification and returns it */
 LogicalPlan *lp_generate_table_value(SqlStatement *stmt, boolean_t *caller_error_encountered);

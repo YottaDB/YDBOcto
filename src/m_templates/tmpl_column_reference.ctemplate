@@ -159,7 +159,7 @@ TEMPLATE(tmpl_column_reference, PhysicalPlan *pplan, SqlColumnAlias *column_alia
 		%{}$$empty2null^%%ydboctoplanhelpers({{ not_null|%d }},{}%
 		not_nullchar = NOT_NULLCHAR;
 		%{}{{ ((NULL != nullchar) ? nullchar : not_nullchar) }},{}%
-		column_type = get_sqlvaluetype_from_sqldatatype(column->data_type_struct.data_type);
+		column_type = get_sqlvaluetype_from_sqldatatype(column->data_type_struct.data_type, FALSE);
 		%{}"{{ get_user_visible_type_string(column_type) }}",{}%
 	}
 

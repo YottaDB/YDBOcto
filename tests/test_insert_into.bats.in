@@ -54,7 +54,7 @@ teardown() {
 	verify_output TII04 output.txt
 }
 
-@test "TII05 : OCTO502 : Test ERR_INSERT_INTO_TYPE_MISMATCH and ERR_INSERT_INTO_TOO_MANY_COLUMNS errors" {
+@test "TII05 : OCTO502 : Test various errors in INSERT INTO" {
 	skip    # TODO : YDBOcto#502 : Remove this line once INSERT INTO is fully supported
 	load_fixture TII05.sql subtest novv
 	verify_output TII05 output.txt

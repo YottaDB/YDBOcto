@@ -26,7 +26,6 @@ LP_SELECT_QUERY:
         LP_COLUMN_LIST_ALIAS: 
         - type: STRING_LITERAL
         - alias: TYPNAME
-    LP_COLUMN_LIST: 
       LP_WHERE: 
         LP_COLUMN_ALIAS: T(1).OID
         LP_COLUMN_LIST_ALIAS: 
@@ -116,7 +115,6 @@ LP_SET_OPERATION:
             LP_COLUMN_LIST_ALIAS: 
             - type: STRING_LITERAL
             - alias: TYPNAME
-        LP_COLUMN_LIST: 
           LP_WHERE: 
             LP_COLUMN_ALIAS: T(1).OID
             LP_COLUMN_LIST_ALIAS: 
@@ -129,7 +127,6 @@ LP_SET_OPERATION:
                 LP_COLUMN_LIST: 
                   LP_WHERE: 
                     LP_COLUMN_ALIAS: PG_CATALOG.PG_TYPE(8).TYPRELID
-                LP_COLUMN_LIST: 
                   LP_WHERE: 
                     LP_COLUMN_ALIAS: PG_CATALOG.PG_TYPE(8).TYPNAME
                 LP_SELECT: 
@@ -211,7 +208,6 @@ LP_SET_OPERATION:
             LP_COLUMN_LIST_ALIAS: 
             - type: STRING_LITERAL
             - alias: TYPNAME
-        LP_COLUMN_LIST: 
           LP_WHERE: 
             LP_COLUMN_ALIAS: T(1).OID
             LP_COLUMN_LIST_ALIAS: 

@@ -19,10 +19,8 @@
 #include "octo_types.h"
 
 SqlColumn *find_column(char *column_name, SqlTable *table) {
-	SqlColumn *cur_column = NULL, *start_column = NULL;
-	SqlValue * value = NULL;
-
-	TRACE(INFO_COLUMN_SEARCH, column_name, table->tableName->v.value->v.reference);
+	SqlColumn *cur_column, *start_column;
+	SqlValue * value;
 
 	UNPACK_SQL_STATEMENT(start_column, table->columns, column);
 	cur_column = start_column;

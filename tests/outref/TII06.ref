@@ -2,23 +2,62 @@
 -- TII06 : OCTO502 : Test INSERT INTO with fewer columns than target table works
 
 INSERT INTO names SELECT id+6 FROM names ORDER BY id DESC LIMIT 2;
-INSERT INTO names SELECT id+12,firstname FROM names LIMIT 2;
+INSERT INTO names(firstname,id) SELECT firstname,id+12 FROM names LIMIT 2;
 INSERT INTO names SELECT id+24,NULL,NULL FROM names LIMIT 2;
-SELECT * FROM names where firstname is NULL;
 
+-- Also test INSERT INTO with comma-separated list of columns specified for the target table
+-- Use a fancy query that also has OR usages (to do DNF expansion and create new plans as part of logical plan optimization)
+INSERT INTO names(lastname, id) SELECT firstname, id+10 FROM names WHERE id = 4 OR id = 5 UNION VALUES ('Lastname100', 100), ('', 200); -- Also used in TV015 subtest
+
+SELECT * FROM names;
+SELECT * FROM names where firstname is NULL;
+SELECT * FROM names where lastname is NULL;
+
+0|Zero|Cool
+1|Acid|Burn
+2|Cereal|Killer
+3|Lord|Nikon
+4|Joey|
+5|Zero|Cool
 10||
 11||
+12|Zero|
+13|Acid|
+14||Joey
+15||Zero
 24||
 25||
+100||Lastname100
+200||
+10||
+11||
+14||Joey
+15||Zero
+24||
+25||
+100||Lastname100
+200||
+4|Joey|
+10||
+11||
+12|Zero|
+13|Acid|
+24||
+25||
+200||
 # Verify target table columns that don't have a corresponding source column are set to NULL in generated M plan
-_ydboctoP*.m:;  INSERT INTO names SELECT id+12,firstname FROM names LIMIT 2;
-_ydboctoP*.m:    . SET col(1)=$$mval2str^%ydboctoplanhelpers($$mvalPiece^%ydboctoplanhelpers(val,1))
-_ydboctoP*.m:    . SET col(2)=$$mval2str^%ydboctoplanhelpers($$mvalPiece^%ydboctoplanhelpers(val,2))
-_ydboctoP*.m:    . SET col(3)=$ZYSQLNULL
+_ydboctoP*.m:;  INSERT INTO names(lastname, id) SELECT firstname, id+10 FROM names WHERE id = 4 OR id = 5 UNION VALUES ('Lastname100', 100), ('', 200);
+_ydboctoP*.m:    . SET col(1)=$$mval2str^%ydboctoplanhelpers($$mvalPiece^%ydboctoplanhelpers(val,2))
+_ydboctoP*.m:    . SET col(2)=$ZYSQLNULL
+_ydboctoP*.m:    . SET col(3)=$$mval2str^%ydboctoplanhelpers($$mvalPiece^%ydboctoplanhelpers(val,1))
 _ydboctoP*.m:;  INSERT INTO names SELECT id+24,NULL,NULL FROM names LIMIT 2;
 _ydboctoP*.m:    . SET col(1)=$$mval2str^%ydboctoplanhelpers($$mvalPiece^%ydboctoplanhelpers(val,1))
 _ydboctoP*.m:    . SET col(2)=$$mval2str^%ydboctoplanhelpers($$mvalPiece^%ydboctoplanhelpers(val,2))
 _ydboctoP*.m:    . SET col(3)=$$mval2str^%ydboctoplanhelpers($$mvalPiece^%ydboctoplanhelpers(val,3))
+_ydboctoP*.m:;  INSERT INTO names(firstname,id) SELECT firstname,id+12 FROM names LIMIT 2;
+_ydboctoP*.m:    . SET col(1)=$$mval2str^%ydboctoplanhelpers($$mvalPiece^%ydboctoplanhelpers(val,2))
+_ydboctoP*.m:    . SET col(2)=$$mval2str^%ydboctoplanhelpers($$mvalPiece^%ydboctoplanhelpers(val,1))
+_ydboctoP*.m:    . SET col(3)=$ZYSQLNULL
 _ydboctoP*.m:;  INSERT INTO names SELECT id+6 FROM names ORDER BY id DESC LIMIT 2;
 _ydboctoP*.m:    . SET col(1)=$$mval2str^%ydboctoplanhelpers($$mvalPiece^%ydboctoplanhelpers(val,1))
 _ydboctoP*.m:    . SET col(2)=$ZYSQLNULL

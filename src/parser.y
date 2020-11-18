@@ -852,7 +852,7 @@ cast_specification
 literal_type
   : data_type {
 	/* Get just the data type (no size information needed). Hence the logic below. */
-	$$ = (SqlStatement *)get_sqlvaluetype_from_sqldatatype($data_type->v.data_type_struct.data_type);
+	$$ = (SqlStatement *)get_sqlvaluetype_from_sqldatatype($data_type->v.data_type_struct.data_type, FALSE);
     }
   ;
 

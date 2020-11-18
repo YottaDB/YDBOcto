@@ -18,6 +18,8 @@
 #include "octo_types.h"
 #include "logical_plan.h"
 
+#define IS_PLAN_TYPE_A_LIST(TYPE) ((TYPE == LP_COLUMN_LIST) || (TYPE == LP_ROW_VALUE))
+
 #define EMIT_SNPRINTF(WRITTEN, BUFF_PTR, BUFFER, BUFFER_SIZE, ...)                                \
 	{                                                                                         \
 		size_t bufSize;                                                                   \
@@ -148,7 +150,7 @@
 			EMIT_SNPRINTF(WRITTEN, BUFF_PTR, BUFFER, BUFFER_LEN, " %s;", str);             \
 	}
 
-int emit_plan_helper(char *buffer, size_t buffer_len, int depth, LogicalPlan *plan);
+int emit_plan_helper(char *buffer, size_t buffer_len, int depth, LogicalPlan *plan, LogicalPlan *parent_plan);
 
 void lp_emit_plan(LogicalPlan *plan, char *stage) {
 	char * buffer, *buff_ptr;
@@ -159,31 +161,44 @@ void lp_emit_plan(LogicalPlan *plan, char *stage) {
 		return;
 	}
 	/* Find out how much space is needed by the below first invocation. Hence the 2nd parameter of 0 */
-	buffer_len = emit_plan_helper(NULL, 0, 0, plan);
+	buffer_len = emit_plan_helper(NULL, 0, 0, plan, NULL);
 	// We use malloc here since it is a large temporary buffer
 	// No need to force it to stay around until compilation ends
 	buffer = malloc(buffer_len + 2); /* 1 byte for EMIT_SNPRINTF("\n") below, 1 byte for trailing null terminator */
 	buff_ptr = buffer;
 	EMIT_SNPRINTF(written, buff_ptr, buffer, buffer_len, "\n");
-	DEBUG_ONLY(actual_len =) emit_plan_helper(buff_ptr, buffer_len - (buff_ptr - buffer), 0, plan);
+	DEBUG_ONLY(actual_len =) emit_plan_helper(buff_ptr, buffer_len - (buff_ptr - buffer), 0, plan, NULL);
 	DEBUG_ONLY(assert(actual_len == buffer_len));
 	DEBUG(INFO_CURPLAN, stage, buffer);
 	free(buffer);
 	return;
 }
 
-int emit_plan_helper(char *buffer, size_t buffer_len, int depth, LogicalPlan *plan) {
+int emit_plan_helper(char *buffer, size_t buffer_len, int depth, LogicalPlan *plan, LogicalPlan *parent_plan) {
 	char *		    buff_ptr, *table_name, *column_name, *data_type_ptr;
 	size_t		    written;
 	int		    table_id;
 	SqlValue *	    value;
 	SqlKey *	    key;
 	SqlOptionalKeyword *start_keyword, *cur_keyword;
+	boolean_t	    skip_emit;
 
 	if (NULL == plan)
 		return 0;
 	buff_ptr = buffer;
-	EMIT_SNPRINTF(written, buff_ptr, buffer, buffer_len, "%*s%s: ", depth, "", lp_action_type_str[plan->type]);
+	/* If both parent and child plans are of type LP_COLUMN_LIST, then skip printing the line containing
+	 * LP_COLUMN_LIST of the child plan. This eliminates redundant output and lets the emitted plan contain
+	 * just the actual list (minus the LP_COLUMN_LIST plans at each level which are an implementation overhead
+	 * and is best not seen by the user). The variable "skip_emit" helps track this.
+	 * The same reasoning applies to an LP_ROW_VALUE too.
+	 */
+	if ((NULL == parent_plan) || !IS_PLAN_TYPE_A_LIST(parent_plan->type) || !IS_PLAN_TYPE_A_LIST(plan->type)
+	    || (parent_plan->type != plan->type)) {
+		EMIT_SNPRINTF(written, buff_ptr, buffer, buffer_len, "%*s%s: ", depth, "", lp_action_type_str[plan->type]);
+		skip_emit = FALSE;
+	} else {
+		skip_emit = TRUE;
+	}
 	switch (plan->type) {
 	case LP_PIECE_NUMBER:
 		EMIT_SNPRINTF(written, buff_ptr, buffer, buffer_len, "%d\n", plan->v.lp_piece_number.piece_number);
@@ -212,19 +227,23 @@ int emit_plan_helper(char *buffer, size_t buffer_len, int depth, LogicalPlan *pl
 			      key->cross_reference_output_key ? "true" : "false");
 		if (LP_KEY_FIX == key->type) {
 			EMIT_SNPRINTF(written, buff_ptr, buffer, buffer_len, "%*s- value:\n", depth, "");
-			buff_ptr += emit_plan_helper(buff_ptr, buffer_len - (buff_ptr - buffer), depth + 4, key->fixed_to_value);
+			buff_ptr
+			    += emit_plan_helper(buff_ptr, buffer_len - (buff_ptr - buffer), depth + 4, key->fixed_to_value, plan);
 		}
 		break;
 	case LP_COLUMN_LIST:
 	case LP_ROW_VALUE:
-		EMIT_SNPRINTF(written, buff_ptr, buffer, buffer_len, "\n");
-		buff_ptr += emit_plan_helper(buff_ptr, buffer_len - (buff_ptr - buffer), depth + 2, plan->v.lp_default.operand[0]);
+		if (!skip_emit) {
+			EMIT_SNPRINTF(written, buff_ptr, buffer, buffer_len, "\n");
+		}
+		buff_ptr
+		    += emit_plan_helper(buff_ptr, buffer_len - (buff_ptr - buffer), depth + 2, plan->v.lp_default.operand[0], plan);
 		/* For "case LP_COLUMN_LIST", operand[1] is a sibling LP_COLUMN_LIST and should be treated at the same level as
 		 * the parent LP_COLUMN_LIST hence using "depth" instead of "depth + 2" like was done for operand[0].
-		 * For "case LP_ROW_VALUE", operand[1] is a sibling LP_ROW_VALUE and should be treated at the same level as
-		 * the parent LP_ROW_VALUE hence using "depth" instead of "depth + 2" like was done for operand[0].
+		 * The same reasoning as above applies to "LP_ROW_VALUE" too.
 		 */
-		buff_ptr += emit_plan_helper(buff_ptr, buffer_len - (buff_ptr - buffer), depth, plan->v.lp_default.operand[1]);
+		buff_ptr
+		    += emit_plan_helper(buff_ptr, buffer_len - (buff_ptr - buffer), depth, plan->v.lp_default.operand[1], plan);
 		break;
 	case LP_VALUE:
 		value = plan->v.lp_value.value;
@@ -232,6 +251,10 @@ int emit_plan_helper(char *buffer, size_t buffer_len, int depth, LogicalPlan *pl
 		break;
 	case LP_TABLE:
 		UNPACK_SQL_STATEMENT(value, plan->v.lp_table.table_alias->alias, value);
+		EMIT_SNPRINTF(written, buff_ptr, buffer, buffer_len, "%s\n", value->v.string_literal);
+		break;
+	case LP_COLUMN:
+		UNPACK_SQL_STATEMENT(value, plan->v.lp_column.column->columnName, value);
 		EMIT_SNPRINTF(written, buff_ptr, buffer, buffer_len, "%s\n", value->v.string_literal);
 		break;
 	case LP_COLUMN_ALIAS:
@@ -312,8 +335,8 @@ int emit_plan_helper(char *buffer, size_t buffer_len, int depth, LogicalPlan *pl
 			join_on_condition = plan->extra_detail.lp_table_join.join_on_condition;
 			if (NULL != join_on_condition) {
 				EMIT_SNPRINTF(written, buff_ptr, buffer, buffer_len, "\n");
-				buff_ptr
-				    += emit_plan_helper(buff_ptr, buffer_len - (buff_ptr - buffer), depth + 2, join_on_condition);
+				buff_ptr += emit_plan_helper(buff_ptr, buffer_len - (buff_ptr - buffer), depth + 2,
+							     join_on_condition, plan);
 			} else {
 				EMIT_SNPRINTF(written, buff_ptr, buffer, buffer_len, "\n");
 			}
@@ -335,8 +358,10 @@ int emit_plan_helper(char *buffer, size_t buffer_len, int depth, LogicalPlan *pl
 			}
 			EMIT_SNPRINTF(written, buff_ptr, buffer, buffer_len, "\n");
 		}
-		buff_ptr += emit_plan_helper(buff_ptr, buffer_len - (buff_ptr - buffer), depth + 2, plan->v.lp_default.operand[0]);
-		buff_ptr += emit_plan_helper(buff_ptr, buffer_len - (buff_ptr - buffer), depth + 2, plan->v.lp_default.operand[1]);
+		buff_ptr
+		    += emit_plan_helper(buff_ptr, buffer_len - (buff_ptr - buffer), depth + 2, plan->v.lp_default.operand[0], plan);
+		buff_ptr
+		    += emit_plan_helper(buff_ptr, buffer_len - (buff_ptr - buffer), depth + 2, plan->v.lp_default.operand[1], plan);
 		break;
 	}
 	return buff_ptr - buffer;

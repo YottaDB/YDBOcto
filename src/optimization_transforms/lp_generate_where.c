@@ -18,7 +18,7 @@
 #include "octo_types.h"
 #include "logical_plan.h"
 
-LogicalPlan *lp_generate_where(SqlStatement *stmt, SqlStatement *parent) {
+LogicalPlan *lp_generate_where(SqlStatement *stmt, SqlStatement *parent_stmt) {
 	LogicalPlan *		ret = NULL, *next, *cur_lp;
 	LPActionType		type;
 	SqlValue *		value;
@@ -150,7 +150,7 @@ LogicalPlan *lp_generate_where(SqlStatement *stmt, SqlStatement *parent) {
 		SQL_STATEMENT(ret_type, value_STATEMENT);
 		MALLOC_STATEMENT(ret_type, value, SqlValue);
 		data_type = function_call->function_schema->v.create_function->return_type->v.data_type_struct.data_type;
-		ret_type->v.value->type = get_sqlvaluetype_from_sqldatatype(data_type);
+		ret_type->v.value->type = get_sqlvaluetype_from_sqldatatype(data_type, FALSE);
 		ret_type->v.value->v.string_literal = get_user_visible_type_string(ret_type->v.value->type);
 		LP_GENERATE_WHERE(ret_type, stmt, cur_lp->v.lp_default.operand[0], error_encountered);
 
@@ -197,6 +197,15 @@ LogicalPlan *lp_generate_where(SqlStatement *stmt, SqlStatement *parent) {
 			cur_lp->v.lp_default.operand[0] = next;
 		}
 		break;
+	case column_STATEMENT:
+		/* Currently this is reachable only if called for the target columns of an INSERT INTO.
+		 * In that case, "generate_logical_plan()" would have passed in "NULL" as the "parent_stmt" parameter.
+		 * Assert that.
+		 */
+		assert(NULL == parent_stmt);
+		MALLOC_LP_2ARGS(ret, LP_COLUMN);
+		UNPACK_SQL_STATEMENT(ret->v.lp_column.column, stmt, column);
+		break;
 	case column_alias_STATEMENT:
 		MALLOC_LP_2ARGS(ret, LP_COLUMN_ALIAS);
 		UNPACK_SQL_STATEMENT(ret->v.lp_column_alias.column_alias, stmt, column_alias);
@@ -230,12 +239,13 @@ LogicalPlan *lp_generate_where(SqlStatement *stmt, SqlStatement *parent) {
 	case table_alias_STATEMENT:
 		ret = generate_logical_plan(stmt);
 		if (NULL != ret) { /* A sub-query inside of a WHERE expression can return only one column in most cases.
-				    * The only exception to it is if the parent is an EXISTS operator. Check accordingly.
+				    * The only exception to it is if the "parent_stmt" is an EXISTS operator. Check accordingly.
 				    */
 			boolean_t do_num_cols_check;
 			int	  num_cols;
 
-			do_num_cols_check = ((unary_STATEMENT != parent->type) || (BOOLEAN_EXISTS != parent->v.unary->operation));
+			do_num_cols_check
+			    = ((unary_STATEMENT != parent_stmt->type) || (BOOLEAN_EXISTS != parent_stmt->v.unary->operation));
 			if (do_num_cols_check) {
 				num_cols = lp_get_num_cols_in_select_column_list(ret);
 				assert(0 < num_cols);

@@ -102,11 +102,13 @@ PhysicalPlan *generate_physical_plan(LogicalPlan *plan, PhysicalPlanOptions *opt
 		return out;
 	} else if (LP_INSERT_INTO == plan->type) {
 		PhysicalPlan *src, *dst;
+		LogicalPlan * lp_insert_into_options;
 
 		/* Generate a separate physical plan for destination table of the INSERT INTO */
 		dst = allocate_physical_plan(plan, NULL, &plan_options, options);
 		/* And then generate a separate physical plan for source table/query of the INSERT INTO */
-		src = generate_physical_plan(plan->v.lp_default.operand[1], &plan_options);
+		GET_LP(lp_insert_into_options, plan, 1, LP_INSERT_INTO_OPTIONS);
+		src = generate_physical_plan(lp_insert_into_options->v.lp_default.operand[1], &plan_options);
 		if (NULL == src) {
 			return NULL;
 		}

@@ -48,7 +48,7 @@ TEMPLATE(tmpl_tablejoin_body, PhysicalPlan *plan, int dot_count, char *tableName
 		col1->v.lp_default.operand[1] = NULL;
 		column = plan->outputKey->column;
 		not_null = IS_COLUMN_NOT_NULL(column);
-		column_type = get_sqlvaluetype_from_sqldatatype(column->data_type_struct.data_type);
+		column_type = get_sqlvaluetype_from_sqldatatype(column->data_type_struct.data_type, FALSE);
 		UNPACK_SQL_STATEMENT(table, column->table, create_table);
 		if (table->nullchar) {
 			UNPACK_SQL_STATEMENT(keyword, table->nullchar, keyword);

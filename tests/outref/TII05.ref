@@ -1,69 +1,184 @@
 
--- TII05 : OCTO502 : Test ERR_INSERT_INTO_TYPE_MISMATCH and ERR_INSERT_INTO_TOO_MANY_COLUMNS errors
+-- TII05 : OCTO502 : Test various errors in INSERT INTO
 
--- Test ERR_INSERT_INTO_TYPE_MISMATCH error
+-- Test ERR_INSERT_TYPE_MISMATCH error
 INSERT INTO names SELECT firstname FROM names;
 INSERT INTO names SELECT lastname FROM names;
 INSERT INTO names SELECT firstname,id+6 FROM names;
 INSERT INTO names SELECT firstname,firstname,lastname FROM names;
 INSERT INTO names SELECT id+6,id,lastname FROM names;
-INSERT INTO names SELECT id+6, firstname, TRUE from names;
-INSERT INTO names SELECT (id+6)::BOOLEAN, firstname, lastname from names;
-INSERT INTO names SELECT id::BOOLEAN, firstname, lastname from names;
+INSERT INTO names SELECT id+6,firstname,TRUE from names;
+INSERT INTO names SELECT (id+6)::BOOLEAN,firstname,lastname from names;
+INSERT INTO names SELECT id::BOOLEAN,firstname,lastname from names;
+INSERT INTO names(firstname,id) SELECT id,firstname FROM names;
+INSERT INTO names(firstname,id,lastname) SELECT * FROM names;
 
--- Test error ERR_INSERT_INTO_TOO_MANY_COLUMNS error
+-- Test ERR_INSERT_TOO_MANY_EXPRESSIONS error
 INSERT INTO names SELECT id,firstname,lastname,id FROM names;
 INSERT INTO names SELECT NULL,NULL,NULL,NULL FROM names;
+INSERT INTO names(id) SELECT id,firstname FROM names;
+INSERT INTO names(id) SELECT id,firstname FROM names;
+INSERT INTO names(id,firstname) SELECT id,firstname,id FROM names;
 
-[ERROR] PATH:LINENUM DATE TIME : ERR_INSERT_INTO_TYPE_MISMATCH : Column 'ID' is of type INTEGER but expression is of type VARCHAR
+-- Test ERR_INSERT_TOO_MANY_COLUMNS error
+INSERT INTO names(id,firstname) SELECT id FROM names;
+
+-- Test ERR_TABLE_UNKNOWN_COLUMN_NAME error
+INSERT INTO names(invalid) SELECT * FROM names;
+INSERT INTO names(firstname,invalid) SELECT * FROM names;
+INSERT INTO names(id,lastname,invalid) SELECT * FROM names;
+
+-- Test that only ERR_TABLE_UNKNOWN_COLUMN_NAME error is issued if ERR_DUPLICATE_COLUMN error also exists
+INSERT INTO names(invalid,invalid) SELECT * FROM names;
+
+-- Test ERR_DUPLICATE_COLUMN error
+INSERT INTO names(id,invalid,id) SELECT * FROM names;
+INSERT INTO names(id,firstname,firstname,lastname) SELECT * FROM names;
+INSERT INTO names(id,firstname,firstname,firstname,lastname) SELECT * FROM names;
+
+[ERROR] PATH:LINENUM DATE TIME : ERR_INSERT_TYPE_MISMATCH : Column 'ID' is of type INTEGER but expression is of type VARCHAR
 Error with syntax near (line 1, column 26):
 
 INSERT INTO names SELECT firstname FROM names;
                          ^^^^^^^^^
 [ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: INSERT INTO names SELECT firstname FROM names;
-[ERROR] PATH:LINENUM DATE TIME : ERR_INSERT_INTO_TYPE_MISMATCH : Column 'ID' is of type INTEGER but expression is of type VARCHAR
+[ERROR] PATH:LINENUM DATE TIME : ERR_INSERT_TYPE_MISMATCH : Column 'ID' is of type INTEGER but expression is of type VARCHAR
 Error with syntax near (line 1, column 26):
 
 INSERT INTO names SELECT lastname FROM names;
                          ^^^^^^^^
 [ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: INSERT INTO names SELECT lastname FROM names;
-[ERROR] PATH:LINENUM DATE TIME : ERR_INSERT_INTO_TYPE_MISMATCH : Column 'ID' is of type INTEGER but expression is of type VARCHAR
+[ERROR] PATH:LINENUM DATE TIME : ERR_INSERT_TYPE_MISMATCH : Column 'ID' is of type INTEGER but expression is of type VARCHAR
 Error with syntax near (line 1, column 26):
 
 INSERT INTO names SELECT firstname,id+6 FROM names;
                          ^^^^^^^^^
 [ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: INSERT INTO names SELECT firstname,id+6 FROM names;
-[ERROR] PATH:LINENUM DATE TIME : ERR_INSERT_INTO_TYPE_MISMATCH : Column 'ID' is of type INTEGER but expression is of type VARCHAR
+[ERROR] PATH:LINENUM DATE TIME : ERR_INSERT_TYPE_MISMATCH : Column 'ID' is of type INTEGER but expression is of type VARCHAR
 Error with syntax near (line 1, column 26):
 
 INSERT INTO names SELECT firstname,firstname,lastname FROM names;
                          ^^^^^^^^^
 [ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: INSERT INTO names SELECT firstname,firstname,lastname FROM names;
-[ERROR] PATH:LINENUM DATE TIME : ERR_INSERT_INTO_TYPE_MISMATCH : Column 'FIRSTNAME' is of type VARCHAR but expression is of type INTEGER
+[ERROR] PATH:LINENUM DATE TIME : ERR_INSERT_TYPE_MISMATCH : Column 'FIRSTNAME' is of type VARCHAR but expression is of type INTEGER
 Error with syntax near (line 1, column 31):
 
 INSERT INTO names SELECT id+6,id,lastname FROM names;
                               ^^
 [ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: INSERT INTO names SELECT id+6,id,lastname FROM names;
-[ERROR] PATH:LINENUM DATE TIME : ERR_INSERT_INTO_TYPE_MISMATCH : Column 'LASTNAME' is of type VARCHAR but expression is of type BOOLEAN
-Error with syntax near (line 1, column 43):
+[ERROR] PATH:LINENUM DATE TIME : ERR_INSERT_TYPE_MISMATCH : Column 'LASTNAME' is of type VARCHAR but expression is of type BOOLEAN
+Error with syntax near (line 1, column 41):
 
-INSERT INTO names SELECT id+6, firstname, TRUE from names;
-                                          ^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: INSERT INTO names SELECT id+6, firstname, TRUE from names;
-[ERROR] PATH:LINENUM DATE TIME : ERR_INSERT_INTO_TYPE_MISMATCH : Column 'ID' is of type INTEGER but expression is of type BOOLEAN
+INSERT INTO names SELECT id+6,firstname,TRUE from names;
+                                        ^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: INSERT INTO names SELECT id+6,firstname,TRUE from names;
+[ERROR] PATH:LINENUM DATE TIME : ERR_INSERT_TYPE_MISMATCH : Column 'ID' is of type INTEGER but expression is of type BOOLEAN
 Error with syntax near (line 1, column 26):
 
-INSERT INTO names SELECT (id+6)::BOOLEAN, firstname, lastname from names;
+INSERT INTO names SELECT (id+6)::BOOLEAN,firstname,lastname from names;
                          ^^^^^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: INSERT INTO names SELECT (id+6)::BOOLEAN, firstname, lastname from names;
-[ERROR] PATH:LINENUM DATE TIME : ERR_INSERT_INTO_TYPE_MISMATCH : Column 'ID' is of type INTEGER but expression is of type BOOLEAN
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: INSERT INTO names SELECT (id+6)::BOOLEAN,firstname,lastname from names;
+[ERROR] PATH:LINENUM DATE TIME : ERR_INSERT_TYPE_MISMATCH : Column 'ID' is of type INTEGER but expression is of type BOOLEAN
 Error with syntax near (line 1, column 26):
 
-INSERT INTO names SELECT id::BOOLEAN, firstname, lastname from names;
+INSERT INTO names SELECT id::BOOLEAN,firstname,lastname from names;
                          ^^^^^^^^^^^
-[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: INSERT INTO names SELECT id::BOOLEAN, firstname, lastname from names;
-[ERROR] PATH:LINENUM DATE TIME : ERR_INSERT_INTO_TOO_MANY_COLUMNS : INSERT has more expressions than target columns
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: INSERT INTO names SELECT id::BOOLEAN,firstname,lastname from names;
+[ERROR] PATH:LINENUM DATE TIME : ERR_INSERT_TYPE_MISMATCH : Column 'FIRSTNAME' is of type VARCHAR but expression is of type INTEGER
+Error with syntax near (line 1, column 19):
+
+INSERT INTO names(firstname,id) SELECT id,firstname FROM names;
+                  ^^^^^^^^^
+Error with syntax near (line 1, column 40):
+
+INSERT INTO names(firstname,id) SELECT id,firstname FROM names;
+                                       ^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: INSERT INTO names(firstname,id) SELECT id,firstname FROM names;
+[ERROR] PATH:LINENUM DATE TIME : ERR_INSERT_TYPE_MISMATCH : Column 'FIRSTNAME' is of type VARCHAR but expression is of type INTEGER
+Error with syntax near (line 1, column 19):
+
+INSERT INTO names(firstname,id,lastname) SELECT * FROM names;
+                  ^^^^^^^^^
+Error with syntax near (line 1, column 49):
+
+INSERT INTO names(firstname,id,lastname) SELECT * FROM names;
+                                                ^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: INSERT INTO names(firstname,id,lastname) SELECT * FROM names;
+[ERROR] PATH:LINENUM DATE TIME : ERR_INSERT_TOO_MANY_EXPRESSIONS : INSERT has more expressions than target columns
+Error with syntax near (line 1, column 48):
+
+INSERT INTO names SELECT id,firstname,lastname,id FROM names;
+                                               ^^
 [ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: INSERT INTO names SELECT id,firstname,lastname,id FROM names;
-[ERROR] PATH:LINENUM DATE TIME : ERR_INSERT_INTO_TOO_MANY_COLUMNS : INSERT has more expressions than target columns
+[ERROR] PATH:LINENUM DATE TIME : ERR_INSERT_TOO_MANY_EXPRESSIONS : INSERT has more expressions than target columns
+Error with syntax near (line 1, column 41):
+
+INSERT INTO names SELECT NULL,NULL,NULL,NULL FROM names;
+                                        ^^^^
 [ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: INSERT INTO names SELECT NULL,NULL,NULL,NULL FROM names;
+[ERROR] PATH:LINENUM DATE TIME : ERR_INSERT_TOO_MANY_EXPRESSIONS : INSERT has more expressions than target columns
+Error with syntax near (line 1, column 33):
+
+INSERT INTO names(id) SELECT id,firstname FROM names;
+                                ^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: INSERT INTO names(id) SELECT id,firstname FROM names;
+[ERROR] PATH:LINENUM DATE TIME : ERR_INSERT_TOO_MANY_EXPRESSIONS : INSERT has more expressions than target columns
+Error with syntax near (line 1, column 33):
+
+INSERT INTO names(id) SELECT id,firstname FROM names;
+                                ^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: INSERT INTO names(id) SELECT id,firstname FROM names;
+[ERROR] PATH:LINENUM DATE TIME : ERR_INSERT_TOO_MANY_EXPRESSIONS : INSERT has more expressions than target columns
+Error with syntax near (line 1, column 53):
+
+INSERT INTO names(id,firstname) SELECT id,firstname,id FROM names;
+                                                    ^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: INSERT INTO names(id,firstname) SELECT id,firstname,id FROM names;
+[ERROR] PATH:LINENUM DATE TIME : ERR_INSERT_TOO_MANY_COLUMNS : INSERT has more target columns than expressions
+Error with syntax near (line 1, column 22):
+
+INSERT INTO names(id,firstname) SELECT id FROM names;
+                     ^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: INSERT INTO names(id,firstname) SELECT id FROM names;
+[ERROR] PATH:LINENUM DATE TIME : ERR_TABLE_UNKNOWN_COLUMN_NAME : Column 'INVALID' of table 'NAMES' does not exist
+Error with syntax near (line 1, column 19):
+
+INSERT INTO names(invalid) SELECT * FROM names;
+                  ^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: INSERT INTO names(invalid) SELECT * FROM names;
+[ERROR] PATH:LINENUM DATE TIME : ERR_TABLE_UNKNOWN_COLUMN_NAME : Column 'INVALID' of table 'NAMES' does not exist
+Error with syntax near (line 1, column 29):
+
+INSERT INTO names(firstname,invalid) SELECT * FROM names;
+                            ^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: INSERT INTO names(firstname,invalid) SELECT * FROM names;
+[ERROR] PATH:LINENUM DATE TIME : ERR_TABLE_UNKNOWN_COLUMN_NAME : Column 'INVALID' of table 'NAMES' does not exist
+Error with syntax near (line 1, column 31):
+
+INSERT INTO names(id,lastname,invalid) SELECT * FROM names;
+                              ^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: INSERT INTO names(id,lastname,invalid) SELECT * FROM names;
+[ERROR] PATH:LINENUM DATE TIME : ERR_TABLE_UNKNOWN_COLUMN_NAME : Column 'INVALID' of table 'NAMES' does not exist
+Error with syntax near (line 1, column 19):
+
+INSERT INTO names(invalid,invalid) SELECT * FROM names;
+                  ^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: INSERT INTO names(invalid,invalid) SELECT * FROM names;
+[ERROR] PATH:LINENUM DATE TIME : ERR_DUPLICATE_COLUMN : Column 'ID' specified more than once
+Error with syntax near (line 1, column 30):
+
+INSERT INTO names(id,invalid,id) SELECT * FROM names;
+                             ^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: INSERT INTO names(id,invalid,id) SELECT * FROM names;
+[ERROR] PATH:LINENUM DATE TIME : ERR_DUPLICATE_COLUMN : Column 'FIRSTNAME' specified more than once
+Error with syntax near (line 1, column 32):
+
+INSERT INTO names(id,firstname,firstname,lastname) SELECT * FROM names;
+                               ^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: INSERT INTO names(id,firstname,firstname,lastname) SELECT * FROM names;
+[ERROR] PATH:LINENUM DATE TIME : ERR_DUPLICATE_COLUMN : Column 'FIRSTNAME' specified more than once
+Error with syntax near (line 1, column 32):
+
+INSERT INTO names(id,firstname,firstname,firstname,lastname) SELECT * FROM names;
+                               ^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: INSERT INTO names(id,firstname,firstname,firstname,lastname) SELECT * FROM names;

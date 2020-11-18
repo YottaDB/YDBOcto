@@ -29,13 +29,11 @@ LP_SELECT_QUERY:
         LP_COLUMN_LIST_ALIAS: 
         - type: INTEGER_LITERAL
         - alias: ID
-    LP_COLUMN_LIST: 
       LP_WHERE: 
         LP_COLUMN_ALIAS: NAMES(1).FIRSTNAME
         LP_COLUMN_LIST_ALIAS: 
         - type: STRING_LITERAL
         - alias: FIRSTNAME
-    LP_COLUMN_LIST: 
       LP_WHERE: 
         LP_COLUMN_ALIAS: NAMES(1).LASTNAME
         LP_COLUMN_LIST_ALIAS: 
@@ -68,13 +66,11 @@ LP_SELECT_QUERY:
         LP_COLUMN_LIST_ALIAS: 
         - type: INTEGER_LITERAL
         - alias: ID
-    LP_COLUMN_LIST: 
       LP_WHERE: 
         LP_COLUMN_ALIAS: NAMES(1).FIRSTNAME
         LP_COLUMN_LIST_ALIAS: 
         - type: STRING_LITERAL
         - alias: FIRSTNAME
-    LP_COLUMN_LIST: 
       LP_WHERE: 
         LP_COLUMN_ALIAS: NAMES(1).LASTNAME
         LP_COLUMN_LIST_ALIAS: 

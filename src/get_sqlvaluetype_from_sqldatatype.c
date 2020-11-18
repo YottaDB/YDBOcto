@@ -14,7 +14,7 @@
 #include "octo.h"
 #include "octo_types.h"
 
-SqlValueType get_sqlvaluetype_from_sqldatatype(SqlDataType type) {
+SqlValueType get_sqlvaluetype_from_sqldatatype(SqlDataType type, boolean_t is_unknown_type_okay) {
 	switch (type) {
 	case BOOLEAN_TYPE:
 		return BOOLEAN_VALUE;
@@ -31,6 +31,12 @@ SqlValueType get_sqlvaluetype_from_sqldatatype(SqlDataType type) {
 	case NUL_TYPE:
 		return NUL_VALUE;
 		break;
+	case UNKNOWN_SqlDataType:
+		if (is_unknown_type_okay) {
+			return UNKNOWN_SqlValueType;
+			break;
+		}
+		// fall through
 	default:
 		assert(FALSE);
 		ERROR(ERR_UNKNOWN_KEYWORD_STATE, "");

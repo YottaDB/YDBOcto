@@ -35,14 +35,15 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt) {
 	SqlColumnListAlias *list;
 	int		    num_outer_joins;
 	enum SqlJoinType    cur_join_type;
-	boolean_t	    error_encountered = FALSE;
+	boolean_t	    error_encountered;
 
+	error_encountered = FALSE;
 	// Set operations should be handled in a different function
 	if (set_operation_STATEMENT == stmt->type) {
 		return lp_generate_set_logical_plan(stmt);
 	} else if (insert_STATEMENT == stmt->type) {
 		SqlInsertStatement *insert;
-		LogicalPlan *	    lp_insert_into;
+		LogicalPlan *	    lp_insert_into, *lp_insert_into_options;
 		LogicalPlan *	    lp_table;
 		LogicalPlan *	    lp_select_query;
 
@@ -50,12 +51,22 @@ LogicalPlan *generate_logical_plan(SqlStatement *stmt) {
 		MALLOC_LP_2ARGS(lp_insert_into, LP_INSERT_INTO);
 		MALLOC_LP(lp_table, lp_insert_into->v.lp_default.operand[0], LP_TABLE);
 		lp_table->v.lp_table.table_alias = insert->dst_table_alias;
+		MALLOC_LP(lp_insert_into_options, lp_insert_into->v.lp_default.operand[1], LP_INSERT_INTO_OPTIONS);
 		lp_select_query = generate_logical_plan(insert->src_table_alias_stmt);
 		if (NULL == lp_select_query) {
 			return NULL;
 		}
-		lp_insert_into->v.lp_default.operand[1] = lp_select_query;
-		return lp_insert_into;
+		lp_insert_into_options->v.lp_default.operand[1] = lp_select_query;
+		if (NULL != insert->columns) {
+			SqlColumnList *start_cl;
+
+			UNPACK_SQL_STATEMENT(start_cl, insert->columns, column_list);
+			error_encountered
+			    |= lp_generate_column_list(&lp_insert_into_options->v.lp_default.operand[0], NULL, start_cl);
+		} else {
+			lp_insert_into_options->v.lp_default.operand[0] = NULL;
+		}
+		return (error_encountered ? NULL : lp_insert_into);
 	}
 	UNPACK_SQL_STATEMENT(table_alias, stmt, table_alias);
 	if (table_value_STATEMENT == table_alias->table->type) {

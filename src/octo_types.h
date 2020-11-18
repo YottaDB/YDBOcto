@@ -640,8 +640,7 @@ typedef struct SqlValue {
  * `function_call_STATEMENT` branch of `populate_data_type`.
  */
 typedef struct SqlColumnList {
-	// SqlValue, SqlColumnAlias, or SqlUnaryOperation
-	struct SqlStatement *value;
+	struct SqlStatement *value; /* SqlValue, SqlColumnAlias, SqlUnaryOperation or SqlColumn */
 	dqcreate(SqlColumnList);
 } SqlColumnList;
 

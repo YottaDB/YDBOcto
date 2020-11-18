@@ -15,7 +15,6 @@ LP_SELECT_QUERY:
         LP_COLUMN_LIST_ALIAS: 
         - type: INTEGER_LITERAL
         - alias: RELNAMESPACE
-    LP_COLUMN_LIST: 
       LP_WHERE: 
         LP_COLUMN_ALIAS: N(1).OID
         LP_COLUMN_LIST_ALIAS: 
@@ -53,7 +52,6 @@ LP_SELECT_QUERY:
         LP_COLUMN_LIST_ALIAS: 
         - type: INTEGER_LITERAL
         - alias: RELNAMESPACE
-    LP_COLUMN_LIST: 
       LP_WHERE: 
         LP_COLUMN_ALIAS: N(1).OID
         LP_COLUMN_LIST_ALIAS: 
@@ -68,7 +66,6 @@ LP_SELECT_QUERY:
               LP_COLUMN_LIST: 
                 LP_WHERE: 
                   LP_COLUMN_ALIAS: PG_CATALOG.PG_CLASS(5).RELNAMESPACE
-              LP_COLUMN_LIST: 
                 LP_WHERE: 
                   LP_COLUMN_ALIAS: PG_CATALOG.PG_CLASS(5).OID
               LP_SELECT: 

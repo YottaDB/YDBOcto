@@ -414,7 +414,7 @@ SqlStatement *parse_line(ParseContext *parse_context);
 int	      check_column_lists_for_type_match(SqlStatement *v); /* v->type is set_operation_STATEMENT or insert_STATEMENT */
 int	      populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_context);
 SqlDataType   get_sqldatatype_from_sqlvaluetype(SqlValueType type);
-SqlValueType  get_sqlvaluetype_from_sqldatatype(SqlDataType type);
+SqlValueType  get_sqlvaluetype_from_sqldatatype(SqlDataType type, boolean_t is_unknown_type_okay);
 SqlValueType  get_sqlvaluetype_from_psql_type(PSQL_TypeOid type);
 PSQL_TypeOid  get_psql_type_from_sqlvaluetype(SqlValueType type);
 PSQL_TypeSize get_type_size_from_psql_type(PSQL_TypeOid type);

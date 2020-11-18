@@ -35,7 +35,7 @@ int check_column_lists_for_type_match(SqlStatement *stmt) {
 	int		    i;
 	SqlInsertStatement *insert;
 	SqlSetOperation *   set_operation;
-	boolean_t	    is_set_operation;
+	boolean_t	    is_set_operation, cla1_is_of_type_cl;
 	int		    result;
 
 	if (set_operation_STATEMENT == stmt->type) {
@@ -54,9 +54,10 @@ int check_column_lists_for_type_match(SqlStatement *stmt) {
 			}
 		}
 		start_set_cla = NULL;
+		cla1_is_of_type_cl = FALSE;
 	} else {
-		SqlStatement * src_table_alias_stmt, *src_table_alias_stmt2;
 		SqlTableAlias *src_table_alias;
+		SqlStatement * src_table_alias_stmt, *src_table_alias_stmt2;
 
 		is_set_operation = FALSE;
 		set_operation = NULL; /* Not needed but there to prevent [-Wmaybe-uninitialized] warning from C compiler */
@@ -66,7 +67,22 @@ int check_column_lists_for_type_match(SqlStatement *stmt) {
 		src_table_alias_stmt2 = drill_to_table_alias(src_table_alias_stmt);
 		UNPACK_SQL_STATEMENT(src_table_alias, src_table_alias_stmt2, table_alias);
 		UNPACK_SQL_STATEMENT(start_cla[0], src_table_alias->column_list, column_list_alias);
-		UNPACK_SQL_STATEMENT(start_cla[1], insert->dst_table_alias->column_list, column_list_alias);
+		if (NULL == insert->columns) {
+			UNPACK_SQL_STATEMENT(start_cla[1], insert->dst_table_alias->column_list, column_list_alias);
+			cla1_is_of_type_cl = FALSE;
+		} else {
+			SqlStatement * cl1_stmt;
+			SqlColumnList *cl1;
+
+			/* We only have a "SqlColumnList *" pointer in "insert->columns" but the variable
+			 * "start_cla[1]" is of type "SqlColumnListAlias *". Therefore assign this with appropriate
+			 * type cast. Whenever we are about to access it, we will dereference with the right type below.
+			 */
+			cl1_stmt = insert->columns;
+			UNPACK_SQL_STATEMENT(cl1, cl1_stmt, column_list);
+			start_cla[1] = (SqlColumnListAlias *)cl1;
+			cla1_is_of_type_cl = TRUE;
+		}
 	}
 	for (i = 0; i < 2; i++) {
 		assert(NULL != start_cla[i]);
@@ -77,7 +93,19 @@ int check_column_lists_for_type_match(SqlStatement *stmt) {
 		boolean_t    is_type_mismatch;
 
 		left_type = cur_cla[0]->type;
-		right_type = cur_cla[1]->type;
+		if (!cla1_is_of_type_cl) {
+			right_type = cur_cla[1]->type;
+		} else {
+			SqlColumnList *cl1;
+			SqlColumn *    col1;
+
+			/* Note: "cl1->value->type" was changed from "value_STATEMENT" to "column_STATEMENT"
+			 * in "insert_statement.c". Hence it is safe to do the below.
+			 */
+			cl1 = (SqlColumnList *)cur_cla[1];
+			UNPACK_SQL_STATEMENT(col1, cl1->value, column);
+			right_type = get_sqlvaluetype_from_sqldatatype(col1->data_type_struct.data_type, FALSE);
+		}
 		/* Assert all possible valid types. This is used to simplify the `if` checks below
 		 * that determine the value of `is_type_mismatch`.
 		 */
@@ -141,7 +169,14 @@ int check_column_lists_for_type_match(SqlStatement *stmt) {
 			}
 		}
 		for (i = 0; i < 2; i++) {
-			cur_cla[i] = cur_cla[i]->next;
+			if ((0 == i) || !cla1_is_of_type_cl) {
+				cur_cla[i] = cur_cla[i]->next;
+			} else {
+				SqlColumnList *cl1;
+
+				cl1 = (SqlColumnList *)cur_cla[i];
+				cur_cla[i] = (SqlColumnListAlias *)(cl1->next);
+			}
 			if (cur_cla[i] == start_cla[i])
 				terminate_loop[i] = TRUE;
 		}
@@ -156,15 +191,20 @@ int check_column_lists_for_type_match(SqlStatement *stmt) {
 			location = ((!terminate_loop[0]) ? cur_cla[0]->column_list->loc : cur_cla[1]->column_list->loc);
 			yyerror(&location, NULL, NULL, NULL, NULL, NULL);
 			result = 1;
-		} else {
+		} else if (!cla1_is_of_type_cl) {
 			/* Check if the number of source columns is LESS THAN OR EQUAL TO the number of target table columns.
 			 * If so, it is okay. Otherwise issue an error.
 			 */
 			if (terminate_loop[1]) {
-				ERROR(ERR_INSERT_INTO_TOO_MANY_COLUMNS, NULL);
+				ERROR(ERR_INSERT_TOO_MANY_EXPRESSIONS, NULL);
+				yyerror(NULL, NULL, &cur_cla[0]->column_list, NULL, NULL, NULL);
 				result = 1;
 			}
 		}
+		/* else: In the "(NULL != insert_columns)" case, any appropriate error ("ERR_INSERT_TOO_MANY_COLUMNS" or
+		 *	"ERR_INSERT_TOO_MANY_EXPRESSIONS" would have been already issued in "src_parser/insert_statement.c"
+		 *	so no need to do any checks for that here.
+		 */
 	}
 	if (!result && (NULL != type_mismatch_cla[0])) {
 		YYLTYPE location;
@@ -174,24 +214,36 @@ int check_column_lists_for_type_match(SqlStatement *stmt) {
 			ERROR(ERR_SETOPER_TYPE_MISMATCH, get_set_operation_string(set_operation->type),
 			      get_user_visible_type_string(type_mismatch_cla[0]->type),
 			      get_user_visible_type_string(type_mismatch_cla[1]->type));
+			location = type_mismatch_cla[0]->column_list->loc;
+			yyerror(&location, NULL, NULL, NULL, NULL, NULL);
+			location = type_mismatch_cla[1]->column_list->loc;
+			yyerror(&location, NULL, NULL, NULL, NULL, NULL);
 		} else {
 			SqlColumnList * column_list;
 			SqlColumnAlias *column_alias;
 			SqlColumn *	column;
 			SqlValue *	value;
+			SqlValueType	cla1_type;
+			SqlColumnList * cl1;
 
-			UNPACK_SQL_STATEMENT(column_list, type_mismatch_cla[1]->column_list, column_list);
-			UNPACK_SQL_STATEMENT(column_alias, column_list->value, column_alias);
-			UNPACK_SQL_STATEMENT(column, column_alias->column, column);
+			if (!cla1_is_of_type_cl) {
+				UNPACK_SQL_STATEMENT(column_list, type_mismatch_cla[1]->column_list, column_list);
+				UNPACK_SQL_STATEMENT(column_alias, column_list->value, column_alias);
+				UNPACK_SQL_STATEMENT(column, column_alias->column, column);
+				cla1_type = type_mismatch_cla[1]->type;
+			} else {
+
+				cl1 = (SqlColumnList *)cur_cla[1];
+				UNPACK_SQL_STATEMENT(column, cl1->value, column);
+				cla1_type = get_sqlvaluetype_from_sqldatatype(column->data_type_struct.data_type, FALSE);
+			}
 			UNPACK_SQL_STATEMENT(value, column->columnName, value);
-			ERROR(ERR_INSERT_INTO_TYPE_MISMATCH, value->v.string_literal,
-			      get_user_visible_type_string(type_mismatch_cla[1]->type),
+			ERROR(ERR_INSERT_TYPE_MISMATCH, value->v.string_literal, get_user_visible_type_string(cla1_type),
 			      get_user_visible_type_string(type_mismatch_cla[0]->type));
-		}
-		location = type_mismatch_cla[0]->column_list->loc;
-		yyerror(&location, NULL, NULL, NULL, NULL, NULL);
-		if (is_set_operation) {
-			location = type_mismatch_cla[1]->column_list->loc;
+			if (cla1_is_of_type_cl) {
+				yyerror(NULL, NULL, &cl1->value, NULL, NULL, NULL);
+			}
+			location = type_mismatch_cla[0]->column_list->loc;
 			yyerror(&location, NULL, NULL, NULL, NULL, NULL);
 		}
 		result = 1;

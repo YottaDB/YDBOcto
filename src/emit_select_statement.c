@@ -81,7 +81,7 @@ PhysicalPlan *emit_select_statement(SqlStatement *stmt, char *plan_filename) {
 		return NULL;
 	}
 	lp_emit_plan(plan, "BEFORE optimize_logical_plan()");
-	if (lp_verify_structure(plan, NULL) == FALSE) {
+	if (!lp_verify_structure(plan, NULL)) {
 		ERROR(ERR_PLAN_NOT_WELL_FORMED, "");
 		return NULL;
 	}

@@ -1,0 +1,40 @@
+{}%
+/****************************************************************
+ *								*
+ * Copyright (c) 2020 YottaDB LLC and/or its subsidiaries.	*
+ * All rights reserved.						*
+ *								*
+ *	This source code contains the intellectual property	*
+ *	of its copyright holder(s), and is made available	*
+ *	under a license.  If you do not know the terms of	*
+ *	the license, please stop and do not read further.	*
+ *								*
+ ****************************************************************/
+
+#include "physical_plan.h"
+#include "template_helpers.h"
+
+/* This function is like "tmpl_print_expression()" but is guaranteed to generate M code that finally stores the
+ * result of the expression in the M variable "PP_YDB_OCTO_EXPR". In order to do so, it ensures "dot_count" variable
+ * is greater than 0 (if not already the case) before invoking "tmpl_print_expression()".
+ */
+TEMPLATE(tmpl_print_expression_assignment, LogicalPlan *plan, PhysicalPlan *pplan, int dot_count, int depth) {
+	TEMPLATE_INIT();
+
+	boolean_t	adjust_dot_count;
+
+	adjust_dot_count = !dot_count;
+	if (adjust_dot_count) {
+		%{}DO{}%
+		dot_count++;	/* needed to ensure dot_count is > 0 (so "tmpl_print_expression" generates
+				 * M code with result of expression stored in "PP_YDB_OCTO_EXPR".
+				 */
+		%{}`n{{ PLAN_LINE_START }}{}%
+	}
+	TMPL(tmpl_print_expression, plan, pplan, dot_count, depth);
+	if (adjust_dot_count) {
+		dot_count--;
+	}
+	TEMPLATE_END();
+}
+%{}

@@ -62,7 +62,7 @@ TEMPLATE(tmpl_tablejoin_body, PhysicalPlan *plan, int dot_count, char *tableName
 		not_nullchar = NOT_NULLCHAR;
 		%{}{{ ((NULL != nullchar) ? nullchar : not_nullchar) }},{}%
 		%{}"{{ get_user_visible_type_string(column_type) }}",{}%
-		TMPL(tmpl_column_list_combine, col1, plan, ",", FALSE, 0, 0, 0);
+		TMPL(tmpl_column_list_combine, col1, plan, ",", FALSE, 0);
 		%{}){}%
 		%{}`n{{ PLAN_LINE_START }}{}%
 		TMPL(tmpl_print_dots, dot_count);
@@ -80,7 +80,7 @@ TEMPLATE(tmpl_tablejoin_body, PhysicalPlan *plan, int dot_count, char *tableName
 		TMPL(tmpl_print_dots, dot_count);
 		%{}SET{}%
 		%{} ^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}",{{ PP_XREF_COLUMN }},{}%
-		TMPL(tmpl_column_list_combine, col2_onwards, plan, ",", FALSE, 0, 0, 0);
+		TMPL(tmpl_column_list_combine, col2_onwards, plan, ",", FALSE, 0);
 		%{})=""`n{{ PLAN_LINE_START }}{}%
 		TMPL(tmpl_print_dots, dot_count);
 		%{}IF $INCREMENT(^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}",{{ PP_XREF_COLUMN }})){}%
@@ -96,7 +96,7 @@ TEMPLATE(tmpl_tablejoin_body, PhysicalPlan *plan, int dot_count, char *tableName
 		TMPL(tmpl_print_dots, dot_count);
 		%{}SET{}%
 		%{} ^{{ config->global_names.raw_xref }}("{{ tableName }}","","{{ columnName }}",{}%
-		TMPL(tmpl_column_list_combine, col2_onwards, plan, ",", FALSE, 0, 0, 0);
+		TMPL(tmpl_column_list_combine, col2_onwards, plan, ",", FALSE, 0);
 		%{})=""`n{{ PLAN_LINE_START }}{}%
 		TMPL(tmpl_print_dots, dot_count);
 		%{}IF $INCREMENT(^{{ config->global_names.raw_xref }}("{{ tableName }}","","{{ columnName }}")){}%
@@ -109,21 +109,23 @@ TEMPLATE(tmpl_tablejoin_body, PhysicalPlan *plan, int dot_count, char *tableName
 	}
 	// Apply the conditions for this statement
 	TMPL(tmpl_print_dots, dot_count);
-	%{}NEW %%ydboctobool SET %%ydboctobool=1{}%
+	%{}NEW {{ PP_YDB_OCTO_EXPR }} SET {{ PP_YDB_OCTO_EXPR }}=1{}%
 	if (plan->where && plan->where->v.lp_default.operand[0]) {
 		TMPL(tmpl_where_or_having_or_on, plan->where->v.lp_default.operand[0], plan, dot_count);
+	} else {
+		%{}`n{{ PLAN_LINE_START }}{}%
 	}
 	// DISTINCT value processing (if needed)
 	distinct_processed = FALSE;
 	if (plan->distinct_values) {
 		/* If this plan has a GROUP BY, then we will do DISTINCT processing in `tmpl_group_by` so skip that here */
 		if (!IS_GROUP_BY_PLAN(plan)) {
-			%{}`n{{ PLAN_LINE_START }}{}%
 			TMPL(tmpl_print_dots, dot_count);
-			%{}SET %%ydboctobool=%%ydboctobool&{}%
+			%{}SET {{ PP_YDB_OCTO_EXPR }}={{ PP_YDB_OCTO_EXPR }}&{}%
 			%{}('$DATA(%%ydboctozdistinct({{ plan->outputKey->unique_id|%d }},{}%
-			TMPL(tmpl_column_list_combine, plan->projection, plan, ",", FALSE, 0, 0, 0);
+			TMPL(tmpl_column_list_combine, plan->projection, plan, ",", FALSE, 0);
 			%{}))){}%
+			%{}`n{{ PLAN_LINE_START }}{}%
 			distinct_processed = TRUE;
 		}
 	}
@@ -134,16 +136,15 @@ TEMPLATE(tmpl_tablejoin_body, PhysicalPlan *plan, int dot_count, char *tableName
 	 */
 	if (!distinct_processed && plan->emit_duplication_check) {
 		// Ensure we don't emit duplicates
-		%{}`n{{ PLAN_LINE_START }}{}%
 		TMPL(tmpl_print_dots, dot_count);
-		%{}SET %%ydboctobool=%%ydboctobool&{}%
+		%{}SET {{ PP_YDB_OCTO_EXPR }}={{ PP_YDB_OCTO_EXPR }}&{}%
 		%{}('$DATA({}%
 		TMPL(tmpl_duplication_check, plan);
 		%{})){}%
+		%{}`n{{ PLAN_LINE_START }}{}%
 	}
-	%{}`n{{ PLAN_LINE_START }}{}%
 	TMPL(tmpl_print_dots, dot_count);
-	%{}IF %%ydboctobool DO{}%
+	%{}IF {{ PP_YDB_OCTO_EXPR }} DO{}%
 	/* If GROUP BY or HAVING have been specified and/or Aggregate functions have been used, invoke another function
 	 * to do the M code generation as the flow is very different (more complicated).
 	 */

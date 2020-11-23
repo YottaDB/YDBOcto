@@ -75,10 +75,9 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *plan, LogicalPlan *tablejoin, unsigned in
 				 */
 				value = list->v.lp_default.operand[0];
 				assert(LP_VALUE == value->type);
+				TMPL(tmpl_print_expression_assignment, value, plan, dot_count, 0);
 				TMPL(tmpl_print_dots, dot_count);
-				%{}SET %%ydboctoin{{ in_value_list_id|%d }}({}%
-				TMPL(tmpl_print_expression, value, plan, 0, 0);
-				%{})=""{}%
+				%{}SET %%ydboctoin{{ in_value_list_id|%d }}({{ PP_YDB_OCTO_EXPR }})=""{}%
 				%{}`n{{ PLAN_LINE_START }}{}%
 				list = list->v.lp_default.operand[1];
 			} while (NULL != list);
@@ -130,15 +129,17 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *plan, LogicalPlan *tablejoin, unsigned in
 					%{}`n{{ PLAN_LINE_START }}{}%
 					dot_count++;
 				}
+				if (0 == in_value_list_id) {
+					TMPL(tmpl_print_expression_assignment, fixed_to_value, plan, dot_count, 0);
+				} else {
+					TMPL(tmpl_print_dots, dot_count);
+					%{}SET {{ PP_YDB_OCTO_EXPR }}=%%ydboctoin{{ in_value_list_id|%d }}{}%
+					%{}`n{{ PLAN_LINE_START }}{}%
+				}
 				TMPL(tmpl_print_dots, dot_count);
 				%{}SET {}%
 				TMPL(tmpl_key, key);
-				%{}={}%
-				if (0 == in_value_list_id) {
-					TMPL(tmpl_print_expression, fixed_to_value, plan, 0, 0);
-				} else {
-					%{}%%ydboctoin{{ in_value_list_id|%d }}{}%
-				}
+				%{}={{ PP_YDB_OCTO_EXPR }}{}%
 				/* The "tmpl_key_source" function call below would result in an M gvn. If the `fixed_to_value`
 				 * is `$ZYSQLNULL`, we have to skip doing the gvn reference with `$ZYSQLNULL` as a subscript
 				 * (as it causes a ZYSQLNULLNOTVALID error currently). Hence the need for a `$ZYISSQLNULL` check.

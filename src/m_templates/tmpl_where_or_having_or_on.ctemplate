@@ -25,9 +25,7 @@ TEMPLATE(tmpl_where_or_having_or_on, LogicalPlan *plan, PhysicalPlan *pplan, int
 				 * across multiple lines so we do not exceed M maximum source line limit.
 				 */
 	%{}`n{{ PLAN_LINE_START }}{}%
-	TMPL(tmpl_print_dots, dot_count);
-	%{}SET %%ydboctobool={}%
-	TMPL(tmpl_print_expression, plan, pplan, dot_count, 0);
+	TMPL(tmpl_print_expression, plan, pplan, dot_count, 0);	/* variable PP_YDB_OCTO_EXPR holds the result */
 	TEMPLATE_END();
 }
 %{}

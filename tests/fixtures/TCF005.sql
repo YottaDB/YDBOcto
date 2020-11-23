@@ -10,7 +10,7 @@
 #								#
 #################################################################
 
--- TCF005 : OCTO345 : M extrinsic functions created by CREATE FUNCTION are case sensitive" {
+-- TCF005 : OCTO345 : M extrinsic functions created by CREATE FUNCTION are case sensitive
 
 -- Map function to existing extrinsic function (all caps)
 CREATE FUNCTION MODULO(INTEGER, INTEGER) RETURNS INTEGER AS $$^MODULO;

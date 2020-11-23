@@ -114,7 +114,7 @@ TEMPLATE(tmpl_group_by, PhysicalPlan *plan, int dot_count) {
 	%{}`n{{ PLAN_LINE_START }}{}%
 	dot_count++;
 	TMPL(tmpl_print_dots, dot_count);
-	%{}NEW %%ydboctobool SET %%ydboctobool=1{}%
+	%{}NEW {{ PP_YDB_OCTO_EXPR }} SET {{ PP_YDB_OCTO_EXPR }}=1{}%
 	if (NULL != plan->aggregate_options) {
 		LogicalPlan	*having;
 
@@ -122,19 +122,22 @@ TEMPLATE(tmpl_group_by, PhysicalPlan *plan, int dot_count) {
 		having = plan->aggregate_options->v.lp_default.operand[1];
 		if (NULL != having) {
 			TMPL(tmpl_where_or_having_or_on, having->v.lp_default.operand[0], plan, dot_count);
+		} else {
+			%{}`n{{ PLAN_LINE_START }}{}%
 		}
+	} else {
+		%{}`n{{ PLAN_LINE_START }}{}%
 	}
 	if (plan->distinct_values) {
-		%{}`n{{ PLAN_LINE_START }}{}%
 		TMPL(tmpl_print_dots, dot_count);
-		%{}SET %%ydboctobool=%%ydboctobool&{}%
+		%{}SET {{ PP_YDB_OCTO_EXPR }}={{ PP_YDB_OCTO_EXPR }}&{}%
 		%{}('$DATA(%%ydboctozdistinct({{ plan->outputKey->unique_id|%d }},{}%
-		TMPL(tmpl_column_list_combine, plan->projection, plan, ",", FALSE, 0, 0, 0);
+		TMPL(tmpl_column_list_combine, plan->projection, plan, ",", FALSE, 0);
 		%{}))){}%
+		%{}`n{{ PLAN_LINE_START }}{}%
 	}
-	%{}`n{{ PLAN_LINE_START }}{}%
 	TMPL(tmpl_print_dots, dot_count);
-	%{}IF %%ydboctobool DO{}%
+	%{}IF {{ PP_YDB_OCTO_EXPR }} DO{}%
 	// Populate records in the output key (i.e. SELECT column list)
 	TMPL(tmpl_populate_output_key, plan, dot_count);
 	TEMPLATE_END();

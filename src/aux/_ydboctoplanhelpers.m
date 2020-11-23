@@ -792,7 +792,7 @@ pattransform(patt,type)
 	. SET resstr=resstr_res
 	quit resstr
 
-regexmatch(str,regexstr,plantype,intval)
+regexmatch(str,regexstr,regextype,regexflags)
 	; By default, regex engine ($$regmatch^ydbposix) treats some metacharacters as off.
 	; Where as SIMILAR TO and LIKE by default are expected to have these metacharacters to be on.
 	; In order to use regex engine to process all regex pattern operations, regexstr is processed
@@ -807,10 +807,15 @@ regexmatch(str,regexstr,plantype,intval)
 	; This operation is done here as column values are not available in earlier stages and we
 	; need pattern strings passed as column reference also to be processed.
 	; Parameter:
-	;	intval -  if defined acts as the third argument for regex engine
-	; 	plantype -  represents operation : 1->REGEX_LIKE (LIKE) ,2->REGEX_SIMILARTO (SIMILAR TO) & 3->REGEX_TILDE (~)
 	; 	str - left operand of regex operation
-	;	regexstr - right operand of regex operation (pattern string)
+	;	regexstr   - right operand of regex operation (pattern string)
+	; 	regextype   -  represents operation : 1->REGEX_LIKE (LIKE) ,2->REGEX_SIMILARTO (SIMILAR TO) & 3->REGEX_TILDE (~)
+	;	regexflags -  if defined acts as the third argument for regex engine (see "man regcomp" for details on the below)
+	;		1 => REG_EXTENDED	; use extended regular expression syntax (default is basic regex syntax)
+	;		2 => REG_ICASE		; ignore case when matching (default is to not ignore case)
+	;		3 => REG_EXTENDED and REG_ICASE are both enabled
+	;		etc.
+	;
 	; regexstr is processed using the following rules:
 	; Like			Similar TO			~
 	; Input	Output		Input	Output		Input	Output
@@ -846,35 +851,35 @@ regexmatch(str,regexstr,plantype,intval)
 	QUIT:$ZYISSQLNULL(regexstr) $ZYSQLNULL
 	QUIT:$ZYISSQLNULL(str) $ZYSQLNULL
 	; optimization:
-	; 	fetch previous regexstr, plantype and transformed regexstr("result")
-	; 	avoid performing transformation again when current and previous regexstr and plantype are same
+	; 	fetch previous regexstr, regextype and transformed regexstr("result")
+	; 	avoid performing transformation again when current and previous regexstr and regextype are same
 	NEW pvstr,pvrs,pvpln,ret
 	SET pvstr=$GET(%ydboctoregex("regexstr"))
 	SET pvrs=$GET(%ydboctoregex("result"))
 	SET pvpln=$GET(%ydboctoregex("plan"))
-	IF ((regexstr=pvstr)&(plantype=pvpln)) DO  QUIT ret
+	IF ((regexstr=pvstr)&(regextype=pvpln)) DO  QUIT ret
 	. IF ("error"=pvrs) DO throwregexerr(regexstr)
 	. ELSE  IF (".*"=pvrs) SET ret=1
-	. ELSE  IF (0=$DATA(intval)) SET ret=$$regmatch^%ydbposix(str,pvrs)
-	. ELSE  SET ret=$$regmatch^%ydbposix(str,pvrs,intval)
+	. ELSE  IF (0=$DATA(regexflags)) SET ret=$$regmatch^%ydbposix(str,pvrs)
+	. ELSE  SET ret=$$regmatch^%ydbposix(str,pvrs,regexflags)
 	SET %ydboctoregex("regexstr")=regexstr
-	SET %ydboctoregex("plan")=plantype
+	SET %ydboctoregex("plan")=regextype
 	DO regexinit
 	NEW resstr,result	; result will hold transformed regexstr
 	SET resstr=""
 	; anchor incase of SIMILAR TO and LIKE operation
-	SET:plantype'=3 resstr="^"
-	SET resstr=resstr_$$pattransform(regexstr,plantype)
+	SET:regextype'=3 resstr="^"
+	SET resstr=resstr_$$pattransform(regexstr,regextype)
 	; anchor in case of LIKE and SIMILAR TO
-	SET:3'=plantype resstr=resstr_"$"
+	SET:3'=regextype resstr=resstr_"$"
 	SET ret=0,result=resstr
-	IF 3=plantype DO
+	IF 3=regextype DO
 	. ; .*.* type of regexstr can only occur in ~ operation
 	. ; trim .* as its processing is faster here than in regex engine
 	. SET result=$$trimdotstar(resstr)
 	. IF (".*"=result) SET %ydboctoregex("result")=result,ret=1
 	QUIT:1=ret 1
 	SET %ydboctoregex("result")=result
-	IF (0=$DATA(intval)) SET ret=$$regmatch^%ydbposix(str,result)
-	ELSE  SET ret=$$regmatch^%ydbposix(str,result,intval)
+	IF (0=$DATA(regexflags)) SET ret=$$regmatch^%ydbposix(str,result)
+	ELSE  SET ret=$$regmatch^%ydbposix(str,result,regexflags)
 	QUIT ret

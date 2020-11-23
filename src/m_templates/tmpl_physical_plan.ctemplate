@@ -372,7 +372,6 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
 	}
 	// Not a cross-reference plan
 	if (LP_TABLE_VALUE == plan->lp_select_query->type) {
-		int		start_output_key, end_output_key;
 		LogicalPlan	*lp_table_data, *lp_row_value;
 
 		assert(NULL == plan->dnf_prev);
@@ -387,7 +386,7 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
 		TMPL(tmpl_key, plan->outputKey);
 		GET_LP(lp_table_data, plan->lp_select_query, 0, LP_TABLE_DATA);
 		GET_LP(lp_row_value, lp_table_data, 1, LP_ROW_VALUE);
-		dot_count = 0;
+		dot_count = 1;
 		do {
 			LogicalPlan	*lp_column_list;
 
@@ -395,19 +394,16 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
 			%{}`n{{ PLAN_LINE_START }}{}%
 			%{}IF $INCREMENT({}%
 			TMPL(tmpl_key, plan->outputKey);
-			%{}){}%
+			%{}) DO{}%
 			%{}`n{{ PLAN_LINE_START }}{}%
+			GET_LP(lp_column_list, lp_row_value, 0, LP_COLUMN_LIST);
+			TMPL(tmpl_column_list_combine, lp_column_list, plan, "_", TRUE, dot_count);
 			%{}SET {}%
-			start_output_key = *buffer_index;
 			TMPL(tmpl_key, plan->outputKey); (*buffer_index)--;
 			%{},{}%
 			TMPL(tmpl_key, plan->outputKey);
 			%{}){}%
-			end_output_key = *buffer_index;
-			%{}={}%
-			GET_LP(lp_column_list, lp_row_value, 0, LP_COLUMN_LIST);
-			TMPL(tmpl_column_list_combine, lp_column_list, plan, "_", TRUE,
-					start_output_key, end_output_key - start_output_key, dot_count);
+			%{}={{ PP_YDB_OCTO_EXPR }}{}%
 			lp_row_value = lp_row_value->v.lp_default.operand[1];
 		} while (NULL != lp_row_value);
 		%{}`n{{ PLAN_LINE_START }}{}%

@@ -56,10 +56,11 @@
 #define PP_VARIABLES  "\"variables\""  /* Note: This has to be maintained in sync with OCTOLIT_VARIABLES */
 
 /* Note: The below PP_* macros do not contain double-quotes within the string literal */
-#define PP_COL	       "col"
-#define PP_KEY_COLUMN  "keyCol"
-#define PP_VAL	       "val"
-#define PP_XREF_COLUMN "xrefCol"
+#define PP_COL		 "col"
+#define PP_KEY_COLUMN	 "keyCol"
+#define PP_VAL		 "val"
+#define PP_XREF_COLUMN	 "xrefCol"
+#define PP_YDB_OCTO_EXPR "%ydboctoexpr"
 
 #define PLAN_LINE_START "    " /* 4 spaces start an M line in the generated plan */
 
@@ -92,9 +93,9 @@ TEMPLATE(tmpl_key_advance, PhysicalPlan *pplan, SqlKey *key);
 TEMPLATE(tmpl_key_source, PhysicalPlan *pplan, SqlKey *key);
 TEMPLATE(tmpl_temp_key_advance, SqlKey *key);
 TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_count, int depth);
+TEMPLATE(tmpl_print_expression_assignment, LogicalPlan *plan, PhysicalPlan *pplan, int dot_count, int depth);
 TEMPLATE(tmpl_column_reference, PhysicalPlan *pplan, SqlColumnAlias *column_alias, boolean_t is_trigger);
-TEMPLATE(tmpl_column_list_combine, LogicalPlan *plan, PhysicalPlan *pplan, char *delim, boolean_t str2mval, int start_output_key,
-	 int output_key_length, int dot_count);
+TEMPLATE(tmpl_column_list_combine, LogicalPlan *plan, PhysicalPlan *pplan, char *delim, boolean_t str2mval, int dot_count);
 TEMPLATE(tmpl_emit_source, SqlTable *table, char *source, char *table_name, int unique_id, int keys_to_match,
 	 enum EmitSourceForm form);
 TEMPLATE(tmpl_duplication_check, PhysicalPlan *plan);

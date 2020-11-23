@@ -1,4 +1,4 @@
-ERROR:  YottaDB error: 150373210,octoPlan1+7^%ydboctoP*,%YDB-E-DIVZERO, Attempt to divide by zero
+ERROR:  YottaDB error: 150373210,octoPlan1+10^%ydboctoP*,%YDB-E-DIVZERO, Attempt to divide by zero
  ID | FIRSTNAME | LASTNAME 
 ----+-----------+----------
   0 | Zero      | Cool

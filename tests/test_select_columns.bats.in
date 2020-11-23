@@ -385,14 +385,6 @@ CAT_EOF
   verify_output TSC18 output.txt
 }
 
-@test "TSC19 : OCTO370/OCTO623 : Test of string concatenation in select column list" {
-  inputfile="TSC19.sql"
-  cp @PROJECT_SOURCE_DIR@/tests/fixtures/$inputfile .
-  grep -v '^#' $inputfile > output.txt	# Filter out copyright from output
-  octo -f $inputfile >> output.txt 2>&1
-  verify_output TSC19 output.txt
-}
-
 # Note: Any subtest that wishes to use `run_query_in_octo_and_postgres_and_crosscheck_multiple_queries` needs to be
 # added in the `test_select_columns_psql` test and not this (i.e. `test_select_columns`) test as the latter is a core
 # test and is run even before `hello_psql` test runs in some configurations in which case we cannot assume Postgres

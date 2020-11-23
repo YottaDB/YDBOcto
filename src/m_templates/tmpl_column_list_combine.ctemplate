@@ -17,24 +17,20 @@
 #include "template_helpers.h"
 
 
-/* This roughly corresponds to half the length of the max M line, which gives us room
- * for the "last" item in on the line before we split it
- */
-#define MAX_M_LINE_LENGTH 4096
-
-TEMPLATE(tmpl_column_list_combine, LogicalPlan *plan, PhysicalPlan *pplan, char *delim,
-			boolean_t str2mval, int start_output_key, int output_key_length, int dot_count) {
+TEMPLATE(tmpl_column_list_combine, LogicalPlan *plan, PhysicalPlan *pplan, char *delim, boolean_t str2mval, int dot_count) {
 	TEMPLATE_INIT();
 
-	char		c;
-	boolean_t	is_order_by, is_lp_table_value;
+	boolean_t	is_order_by, is_lp_table_value, left_concat_needed;
 
 	assert((',' == *delim) || ('_' == *delim));
+	assert(('_' == *delim) || !dot_count);
 	assert(NULL != plan);
 	is_order_by = (plan == pplan->order_by);
 	is_lp_table_value = (LP_TABLE_VALUE == pplan->lp_select_query->type);
+	left_concat_needed = FALSE;
 	while (NULL != plan) {
 		LogicalPlan	*expr_plan;
+		int		depth;
 
 		assert(((LP_COLUMN_LIST == plan->type)
 				&& ((LP_WHERE == plan->v.lp_default.operand[0]->type) || is_lp_table_value))
@@ -51,6 +47,7 @@ TEMPLATE(tmpl_column_list_combine, LogicalPlan *plan, PhysicalPlan *pplan, char 
 			SqlValueType	order_by_expr_type;
 			LogicalPlan	*tmpPlan;
 
+			assert(!dot_count);
 			assert(!is_lp_table_value);
 			tmpPlan = plan->v.lp_default.operand[0];
 			assert(LP_COLUMN_LIST == tmpPlan->type);
@@ -68,33 +65,33 @@ TEMPLATE(tmpl_column_list_combine, LogicalPlan *plan, PhysicalPlan *pplan, char 
 			 */
 			assert(!str2mval);
 		}
-		if (str2mval) {
-			%{}$$str2mval^%%ydboctoplanhelpers({}%
-		}
 		expr_plan = (!is_lp_table_value ? plan->v.lp_default.operand[0]->v.lp_default.operand[0]
 						: plan->v.lp_default.operand[0]);
-		TMPL(tmpl_print_expression, expr_plan, pplan, 0, 0);
-		if (str2mval) {
-			%{}){}%
+		if (str2mval && !dot_count) {
+			%{}$$str2mval^%%ydboctoplanhelpers({}%
+		}
+		depth = 0;
+		TMPL(tmpl_print_expression, expr_plan, pplan, dot_count, depth);
+		if (str2mval && dot_count) {
+			TMPL(tmpl_print_dots, dot_count);
+			%{}SET {{ PP_YDB_OCTO_EXPR }}=$$str2mval^%%ydboctoplanhelpers({{ PP_YDB_OCTO_EXPR }}){}%
+			%{}`n{{ PLAN_LINE_START }}{}%
+		}
+		if (left_concat_needed) {
+			TMPL(tmpl_print_dots, dot_count);
+			%{}SET {{ PP_YDB_OCTO_EXPR }}={{ PP_YDB_OCTO_EXPR }}({{ depth|%d }})_{{ PP_YDB_OCTO_EXPR }}{}%
+			%{}`n{{ PLAN_LINE_START }}{}%
 		}
 		plan = plan->v.lp_default.operand[1];
 		if (NULL != plan) {
-			if ((0 != start_output_key) && (MAX_M_LINE_LENGTH < (*buffer_index - start_output_key))) {
-				/* The generated M line became close to exceeding the max M line length so split it.
-				 * Reuse the passed in output key to regenerate the first part of the new M line.
-				 */
-				c = (*global_buffer)[start_output_key + output_key_length];
-				(*global_buffer)[start_output_key + output_key_length] = '\0';
-				%{}`n{{ PLAN_LINE_START }}{}%
+			if (dot_count) {
 				TMPL(tmpl_print_dots, dot_count);
-				%{}SET {}%
-				%{}{{*global_buffer + start_output_key}}{}%
-				%{}={{*global_buffer + start_output_key}}_{}%
-				(*buffer_index)--;
-				(*global_buffer)[start_output_key + output_key_length] = c;
-				start_output_key = *buffer_index - output_key_length;
+				%{}SET {{ PP_YDB_OCTO_EXPR }}({{ depth|%d }})={{ PP_YDB_OCTO_EXPR }}{}%
+				%{}`n{{ PLAN_LINE_START }}{}%
+				left_concat_needed = TRUE;
+			} else {
+				%{}{{ delim }}{}%
 			}
-			%{}{{ delim }}{}%
 		}
 	}
 	TEMPLATE_END();

@@ -93,3 +93,12 @@ setup() {
   load_fixture TSCP08_errors.sql subtest novv
   verify_output TSCP08_errors output.txt
 }
+
+@test "TSCP09 : OCTO370/OCTO623/OCTO629 : Test of string concatenation in select column list" {
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TSCP09.sql "trim_trailing_zeroes"
+}
+
+@test "TSCP10 : OCTO628 : RPARENMISSING error when trying to use || operator with hundreds of operands" {
+	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TSCP10.sql
+}
+

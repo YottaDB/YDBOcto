@@ -20,7 +20,10 @@
 /* Note on input parameters:
  * a) If the input parameter `dot_count` is non-zero, it implies the caller wants the M code generation to split each
  *    leaf level expression into a separate M line (to avoid generating all of them in one M line and exceeding the
- *    M max source line length limit (currently 32Kb).
+ *    M max source line length limit (currently 32KiB). In that case, the caller function relies on "PP_YDB_OCTO_EXPR"
+ *    as the M variable that holds the result.
+ *    Note: Even if `dot_count` is zero, it is possible the generated M code could go greater than 32KiB. Those are
+ *    currently tracked as an open issue (YDBOcto#634) and are considered unlikely in practice.
  * b) The input parameter `depth` is a recursion depth indicator which is used only if `dot_count` is non-zero.
  */
 TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_count, int depth) {
@@ -34,7 +37,6 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 	LogicalPlan	*cur_branch, *default_value;
 	LogicalPlan	*first_operand, *second_operand, *t_operand;
 	LogicalPlan	*cur_lp_key, *derived_column;
-	boolean_t	split_m_line;
 	SqlValueType	coerce_type, pre_coerce_type, return_type;
 	LPActionType	plan_type;
 	boolean_t	is_avg;
@@ -45,22 +47,20 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 	assert(NULL != plan);
 	first_operand = plan->v.lp_default.operand[0];
 	second_operand = plan->v.lp_default.operand[1];
-	/* By default, do not split the M line. But do it only for AND or OR boolean operations as they can result in very
-	 * long M lines (see #416 for example using NOT IN which translates to a sequence of AND operations). Do this only
-	 * if caller has set "dot_count" to a non-zero value as that indicates the caller is okay generating split M lines.
-	 * The caller in that case relies on "%ydboctobool" as the M variable that holds the boolean result.
-	 */
-	split_m_line = FALSE;
 	depth++;
-	plan_type = plan->type;
 	m_operator = NULL;
 	coerce_to_numeric = FALSE;
+	plan_type = plan->type;
 	switch (plan_type) {
 	case LP_WHERE:
 		TMPL(tmpl_print_expression, first_operand, pplan, dot_count, depth);
 		TEMPLATE_END();
 		break;
 	case LP_VALUE:
+		if (dot_count) {
+			TMPL(tmpl_print_dots, dot_count);
+			%{}SET {{ PP_YDB_OCTO_EXPR }}={}%
+		}
 		value = plan->v.lp_value.value;
 		switch(value->type) {
 		case PARAMETER_VALUE:
@@ -83,8 +83,16 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 			FATAL(ERR_UNKNOWN_KEYWORD_STATE, "");
 			break;
 		}
+		if (dot_count) {
+			%{}`n{{ PLAN_LINE_START }}{}%
+		}
 		break;
 	case LP_COERCE_TYPE:
+		if (dot_count) {
+			TMPL(tmpl_print_expression, plan->v.lp_default.operand[0], pplan, dot_count, depth);
+			TMPL(tmpl_print_dots, dot_count);
+			%{}SET {{ PP_YDB_OCTO_EXPR }}={}%
+		}
 		coerce_type = plan->extra_detail.lp_coerce_type.coerce_type;
 		pre_coerce_type = plan->extra_detail.lp_coerce_type.pre_coerce_type;
 		switch(coerce_type) {
@@ -125,7 +133,11 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 			break;
 		}
 		%{}({}%
-		TMPL(tmpl_print_expression, plan->v.lp_default.operand[0], pplan, dot_count, depth);
+		if (!dot_count) {
+			TMPL(tmpl_print_expression, plan->v.lp_default.operand[0], pplan, dot_count, depth);
+		} else {
+			%{}{{ PP_YDB_OCTO_EXPR }}{}%
+		}
 		%{}){}%
 		switch(plan->extra_detail.lp_coerce_type.coerce_type) {
 		case BOOLEAN_VALUE:
@@ -154,12 +166,22 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 		default:
 			break;
 		}
+		if (dot_count) {
+			%{}`n{{ PLAN_LINE_START }}{}%
+		}
 		break;
 	case LP_DERIVED_COLUMN:
+		if (dot_count) {
+			TMPL(tmpl_print_dots, dot_count);
+			%{}SET {{ PP_YDB_OCTO_EXPR }}={}%
+		}
 		GET_LP(key, plan, 0, LP_KEY);
 		if (pplan->treat_key_as_null[key->v.lp_key.key->unique_id])
 		{	/* Treat all columns in the table as NULL (used for OUTER JOINs) */
 			%{}$ZYSQLNULL{}%
+			if (dot_count) {
+				%{}`n{{ PLAN_LINE_START }}{}%
+			}
 			break;
 		}
 		subquery_column_alias = plan->extra_detail.lp_derived_column.subquery_column_alias;
@@ -172,6 +194,9 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 			%{}($$mvalPiece^%%ydboctoplanhelpers{}%
 			%{}(%%ydboctog,{{ subquery_column_alias->group_by_column_number|%d }}){}%
 			%{}){}%
+			if (dot_count) {
+				%{}`n{{ PLAN_LINE_START }}{}%
+			}
 			break;
 		}
 		output_pplan = get_physical_plan_from_unique_id(pplan, key->v.lp_key.key->unique_id);
@@ -190,6 +215,9 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 			%{}),{{ piece_num->v.lp_piece_number.piece_number|%d }}{}%
 			%{})){}%
 		}
+		if (dot_count) {
+			%{}`n{{ PLAN_LINE_START }}{}%
+		}
 		break;
 	case LP_COLUMN_ALIAS:
 		/* Check if this LP_COLUMN_ALIAS was later replaced by a LP_DERIVED_COLUMN.
@@ -199,11 +227,15 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 		if (NULL != derived_column) {
 			TMPL(tmpl_print_expression, derived_column, pplan, dot_count, depth);
 		} else {
+			if (dot_count) {
+				TMPL(tmpl_print_dots, dot_count);
+				%{}SET {{ PP_YDB_OCTO_EXPR }}={}%
+			}
 			TMPL(tmpl_column_reference, pplan, plan->v.lp_column_alias.column_alias, FALSE);
+			if (dot_count) {
+				%{}`n{{ PLAN_LINE_START }}{}%
+			}
 		}
-		break;
-	case LP_KEY:
-		TMPL(tmpl_key, plan->v.lp_key.key);
 		break;
 	case LP_ADDITION:
 		m_operator = "+";
@@ -225,11 +257,9 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 		break;
 	case LP_BOOLEAN_OR:
 		m_operator = "!";
-		split_m_line = (0 != dot_count);
 		break;
 	case LP_BOOLEAN_AND:
 		m_operator = "&";
-		split_m_line = (0 != dot_count);
 		break;
 	case LP_BOOLEAN_EQUALS:
 		/* Since M "=" and "!=" operators have issues dealing with numeric equality comparisons
@@ -284,27 +314,53 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 	case LP_BOOLEAN_REGEX_SENSITIVE_LIKE:
 	case LP_BOOLEAN_REGEX_SENSITIVE_SIMILARTO:
 	case LP_BOOLEAN_REGEX_INSENSITIVE_LIKE:
-	case LP_BOOLEAN_REGEX_INSENSITIVE_SIMILARTO:
-		%{}$$regexmatch^%%ydboctoplanhelpers({}%
-		TMPL(tmpl_print_expression, first_operand, pplan, 0, 0);
-		%{},{}%
-		TMPL(tmpl_print_expression, second_operand, pplan, 0, 0);
+	case LP_BOOLEAN_REGEX_INSENSITIVE_SIMILARTO: {
+		int	regex_type, regex_flags;
+
 		if ((LP_BOOLEAN_REGEX_SENSITIVE_LIKE == plan_type) || (LP_BOOLEAN_REGEX_INSENSITIVE_LIKE == plan_type)) {
-			%{},{{ REGEX_LIKE|%d }}{}%
+			regex_type = REGEX_LIKE;
 		} else if ((LP_BOOLEAN_REGEX_SENSITIVE_SIMILARTO == plan_type)
 				|| (LP_BOOLEAN_REGEX_INSENSITIVE_SIMILARTO == plan_type)) {
-			%{},{{ REGEX_SIMILARTO|%d }}{}%
+			regex_type = REGEX_SIMILARTO;
 		} else {
-			%{},{{ REGEX_TILDE|%d }}{}%
+			regex_type = REGEX_TILDE;
 		}
 		if ((LP_BOOLEAN_REGEX_INSENSITIVE == plan_type)
 				|| (LP_BOOLEAN_REGEX_INSENSITIVE_LIKE == plan_type)
 				|| (LP_BOOLEAN_REGEX_INSENSITIVE_SIMILARTO == plan_type)) {
-			// The extra ',3' below marks this as case insensitive
-			%{},3{}%
+			regex_flags = 2;	/* 2 == REG_ICASE (see "man regcomp" for details) */
+		} else {
+			regex_flags = 0;
 		}
+		if (dot_count) {
+			TMPL(tmpl_print_expression, first_operand, pplan, dot_count, depth);
+			TMPL(tmpl_print_dots, dot_count);
+			%{}SET {{ PP_YDB_OCTO_EXPR }}({{ depth|%d }})={{ PP_YDB_OCTO_EXPR }}{}%
+			%{}`n{{ PLAN_LINE_START }}{}%
+			TMPL(tmpl_print_expression, second_operand, pplan, dot_count, depth);
+			TMPL(tmpl_print_dots, dot_count);
+			%{}SET {{ PP_YDB_OCTO_EXPR }}={}%
+		}
+		%{}$$regexmatch^%%ydboctoplanhelpers({}%
+		if (dot_count) {
+			%{}{{ PP_YDB_OCTO_EXPR }}({{ depth|%d }}){}%
+		} else {
+			TMPL(tmpl_print_expression, first_operand, pplan, dot_count, depth);
+		}
+		%{},{}%
+		if (dot_count) {
+			%{}{{ PP_YDB_OCTO_EXPR }}{}%
+		} else {
+			TMPL(tmpl_print_expression, second_operand, pplan, dot_count, depth);
+		}
+		%{},{{ regex_type|%d }}{}%
+		%{},{{ regex_flags|%d }}{}%
 		%{}){}%
+		if (dot_count) {
+			%{}`n{{ PLAN_LINE_START }}{}%
+		}
 		break;
+	}
 	case LP_BOOLEAN_IN:
 	case LP_BOOLEAN_NOT_IN:
 		assert(LP_TABLE_VALUE != second_operand->type);
@@ -313,7 +369,7 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 			 *
 			 * Note that there is a NULL related subtlety that needs to be handled here.
 			 *
-			 * For LP_BOOLEAN_IN, if the left-hand expression yields null, or if there are no equal right-hand values
+			  For LP_BOOLEAN_IN, if the left-hand expression yields null, or if there are no equal right-hand values
 			 * and at least one right-hand expression yields null, the result of the IN construct will be null, not
 			 * false.
 			 *
@@ -321,6 +377,14 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 			 * values and at least one right-hand expression yields null, the result of the NOT IN construct will be
 			 * null, not true.
 			 */
+			if (dot_count) {
+				TMPL(tmpl_print_expression, first_operand, pplan, dot_count, depth);
+				TMPL(tmpl_print_dots, dot_count);
+				%{}SET {{ PP_YDB_OCTO_EXPR }}({{ depth|%d }})={{ PP_YDB_OCTO_EXPR }}{}%
+				%{}`n{{ PLAN_LINE_START }}{}%
+				TMPL(tmpl_print_dots, dot_count);
+				%{}SET {{ PP_YDB_OCTO_EXPR }}={}%
+			}
 			cur_lp_key = lp_get_output_key(second_operand);
 			%{}$SELECT({}%
 			/* If RHS did not return any row, then result of NOT IN is TRUE */
@@ -332,14 +396,22 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 			}
 			/* If LHS is NULL, the result is NULL */
 			%{}$ZYISSQLNULL({}%
-			TMPL(tmpl_print_expression, first_operand, pplan, 0, 0);
+			if (dot_count) {
+				%{}{{ PP_YDB_OCTO_EXPR }}({{ depth |%d }}){}%
+			} else {
+				TMPL(tmpl_print_expression, first_operand, pplan, dot_count, depth);
+			}
 			%{}):$ZYSQLNULL,{}%
 			/* Check if RHS has at least one equal value. If so use that. */
 			%{}$DATA({}%
 			TMPL(tmpl_key, cur_lp_key->v.lp_key.key);
 			(*buffer_index)--;
 			%{},{}%
-			TMPL(tmpl_print_expression, first_operand, pplan, 0, 0);
+			if (dot_count) {
+				%{}{{ PP_YDB_OCTO_EXPR }}({{ depth |%d }}){}%
+			} else {
+				TMPL(tmpl_print_expression, first_operand, pplan, dot_count, depth);
+			}
 			%{})){}%
 			if (LP_BOOLEAN_IN == plan_type) {
 				%{}:1,{}%
@@ -367,29 +439,40 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 			/* x IN (1,2) can be written equivalently as (x == 1) OR (x == 2)
 			 * x NOT IN (1,2) can be written equivalently as (x != 1) AND (x != 2)
 			 * Therefore treat LP_BOOLEAN_IN and LP_BOOLEAN_NOT_IN the same way we treat
-			 * LP_BOOLEAN_AND/LP_BOOLEAN_OR in terms of "split_m_line" handling.
+			 * LP_BOOLEAN_AND/LP_BOOLEAN_OR in terms of "dot_count" handling.
 			 */
-			split_m_line = (0 != dot_count);
 			assert(LP_COLUMN_LIST == second_operand->type);
 			coerce_to_numeric = !lp_is_operand_type_string(plan);
 			plan2 = second_operand;
-			if (!split_m_line) {
-				/* Note: "split_m_line" could be FALSE in case IN usage is in the SELECT column list */
-				%{}({}%
-			} else {
-				/* Initialize the M line that would have already been generated by caller ("set %ydboctobool=") */
+			if (dot_count) {
+				TMPL(tmpl_print_dots, dot_count);
+				 %{}SET {{ PP_YDB_OCTO_EXPR }}({{ depth|%d }})={}%
 				if (LP_BOOLEAN_IN == plan_type) {
 					%{}0{}%
 				} else {
 					%{}1{}%
 				}
+			} else {
+				/* Note: "dot_count" could be 0 in case IN usage is in the SELECT column list */
+				%{}({}%
 			}
 			first_iteration = TRUE;
+			if (dot_count) {
+				%{}`n{{ PLAN_LINE_START }}{}%
+				TMPL(tmpl_print_expression, first_operand, pplan, dot_count, depth);
+				TMPL(tmpl_print_dots, dot_count);
+				%{}SET {{ PP_YDB_OCTO_EXPR }}({{ depth|%d }},0)={{ PP_YDB_OCTO_EXPR }}{}%
+			}
 			do {
-				if (split_m_line) {
+				value = plan2->v.lp_default.operand[0];
+				if (dot_count) {
+					%{}`n{{ PLAN_LINE_START }}{}%
+					TMPL(tmpl_print_expression, value, pplan, dot_count, depth);
+					TMPL(tmpl_print_dots, dot_count);
+					%{}SET {{ PP_YDB_OCTO_EXPR }}({{ depth|%d }},1)={{ PP_YDB_OCTO_EXPR }}{}%
 					%{}`n{{ PLAN_LINE_START }}{}%
 					TMPL(tmpl_print_dots, dot_count);
-					%{}SET %%ydboctobool=%%ydboctobool{}%
+					%{}SET {{ PP_YDB_OCTO_EXPR }}({{ depth|%d }})={{ PP_YDB_OCTO_EXPR }}({{ depth|%d }}){}%
 					if (LP_BOOLEAN_IN == plan_type) {
 						%{}!{}%
 					} else {
@@ -406,7 +489,11 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 				if (coerce_to_numeric) {
 					%{}$$ForceNumeric^%%ydboctoplanhelpers({}%
 				}
-				TMPL(tmpl_print_expression, first_operand, pplan, dot_count, depth);
+				if (dot_count) {
+					%{}{{ PP_YDB_OCTO_EXPR }}({{ depth|%d }},0){}%
+				} else {
+					TMPL(tmpl_print_expression, first_operand, pplan, dot_count, depth);
+				}
 				if (coerce_to_numeric) {
 					%{}){}%
 				}
@@ -415,12 +502,15 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 				} else {
 					%{}'={}%
 				}
-				value = plan2->v.lp_default.operand[0];
 				assert(LP_COLUMN_LIST != value->type);
 				if (coerce_to_numeric) {
 					%{}$$ForceNumeric^%%ydboctoplanhelpers({}%
 				}
-				TMPL(tmpl_print_expression, value, pplan, dot_count, depth);
+				if (dot_count) {
+					%{}{{ PP_YDB_OCTO_EXPR }}({{ depth|%d }},1){}%
+				} else {
+					TMPL(tmpl_print_expression, value, pplan, dot_count, depth);
+				}
 				if (coerce_to_numeric) {
 					%{}){}%
 				}
@@ -428,9 +518,16 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 				plan2 = plan2->v.lp_default.operand[1];
 				first_iteration = FALSE;
 			} while (NULL != plan2);
-			if (!split_m_line) {
+			if (!dot_count) {
 				%{}){}%
+			} else {
+				%{}`n{{ PLAN_LINE_START }}{}%
+				TMPL(tmpl_print_dots, dot_count);
+				%{}SET {{ PP_YDB_OCTO_EXPR }}={{ PP_YDB_OCTO_EXPR }}({{ depth|%d }}){}%
 			}
+		}
+		if (dot_count) {
+			%{}`n{{ PLAN_LINE_START }}{}%
 		}
 		break;
 	case LP_BOOLEAN_ANY_EQUALS:
@@ -445,6 +542,11 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 	case LP_BOOLEAN_ALL_GREATER_THAN:
 	case LP_BOOLEAN_ALL_LESS_THAN_OR_EQUALS:
 	case LP_BOOLEAN_ALL_GREATER_THAN_OR_EQUALS:
+		if (dot_count) {
+			TMPL(tmpl_print_expression, first_operand, pplan, dot_count, depth);
+			TMPL(tmpl_print_dots, dot_count);
+			%{}SET {{ PP_YDB_OCTO_EXPR }}={}%
+		}
 		assert((LP_SELECT_QUERY == second_operand->type) || (LP_SET_OPERATION == second_operand->type));
 		// Fetch the second value from the output key of this query/table
 		key = lp_get_output_key(second_operand);
@@ -501,23 +603,55 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 		}
 		use_string_comparison = lp_is_operand_type_string(plan);
 		%{}$${{ sql_operator }}^%%ydboctoplanhelpers({}%
-		TMPL(tmpl_print_expression, first_operand, pplan, 0, 0);
+		if (dot_count) {
+			%{}{{ PP_YDB_OCTO_EXPR }}{}%
+		} else {
+			TMPL(tmpl_print_expression, first_operand, pplan, dot_count, depth);
+		}
 		%{},{{ key->v.lp_key.key->unique_id|%d }},"{{ compare_operator }}",{{ use_string_comparison|%d }}){}%
+		if (dot_count) {
+			%{}`n{{ PLAN_LINE_START }}{}%
+		}
 		break;
 	case LP_FORCE_NUM:
-		%{}+{}%
-		TMPL(tmpl_print_expression, first_operand, pplan, 0, 0);
+		if (dot_count) {
+			TMPL(tmpl_print_expression, first_operand, pplan, dot_count, depth);
+			TMPL(tmpl_print_dots, dot_count);
+			%{}SET {{ PP_YDB_OCTO_EXPR }}=+{{ PP_YDB_OCTO_EXPR }}{}%
+			%{}`n{{ PLAN_LINE_START }}{}%
+		} else {
+			%{}+{}%
+			TMPL(tmpl_print_expression, first_operand, pplan, dot_count, depth);
+		}
 		break;
 	case LP_NEGATIVE:
-		%{}-{}%
-		TMPL(tmpl_print_expression, first_operand, pplan, 0, 0);
+		if (dot_count) {
+			TMPL(tmpl_print_expression, first_operand, pplan, dot_count, depth);
+			TMPL(tmpl_print_dots, dot_count);
+			%{}SET {{ PP_YDB_OCTO_EXPR }}=-{{ PP_YDB_OCTO_EXPR }}{}%
+			%{}`n{{ PLAN_LINE_START }}{}%
+		} else {
+			%{}-{}%
+			TMPL(tmpl_print_expression, first_operand, pplan, dot_count, depth);
+		}
 		break;
 	case LP_BOOLEAN_NOT:
-		%{}'{}%
-		TMPL(tmpl_print_expression, first_operand, pplan, 0, 0);
+		if (dot_count) {
+			TMPL(tmpl_print_expression, first_operand, pplan, dot_count, depth);
+			TMPL(tmpl_print_dots, dot_count);
+			%{}SET {{ PP_YDB_OCTO_EXPR }}='{{ PP_YDB_OCTO_EXPR }}{}%
+			%{}`n{{ PLAN_LINE_START }}{}%
+		} else {
+			%{}'{}%
+			TMPL(tmpl_print_expression, first_operand, pplan, dot_count, depth);
+		}
 		break;
 	case LP_BOOLEAN_EXISTS:
 	case LP_BOOLEAN_NOT_EXISTS:
+		if (dot_count) {
+			TMPL(tmpl_print_dots, dot_count);
+			%{}SET {{ PP_YDB_OCTO_EXPR }}={}%
+		}
 		assert(LP_TABLE_VALUE != first_operand->type);
 		assert((LP_SELECT_QUERY == first_operand->type) || (LP_SET_OPERATION == first_operand->type));
 		// Fetch the first value from the output key of this query/table
@@ -526,83 +660,164 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 			%{}'{}%
 		}
 		%{}$$EXISTS^%%ydboctoplanhelpers({{ key->v.lp_key.key->unique_id|%d }}){}%
+		if (dot_count) {
+			%{}`n{{ PLAN_LINE_START }}{}%
+		}
 		break;
 	case LP_BOOLEAN_IS_NULL:
 	case LP_BOOLEAN_IS_NOT_NULL:
+		if (dot_count) {
+			TMPL(tmpl_print_expression, first_operand, pplan, dot_count, depth);
+			TMPL(tmpl_print_dots, dot_count);
+			%{}SET {{ PP_YDB_OCTO_EXPR }}={}%
+		}
 		if (LP_BOOLEAN_IS_NOT_NULL == plan_type) {
 			%{}'{}%
 		}
 		%{}$ZYISSQLNULL({}%
-		TMPL(tmpl_print_expression, first_operand, pplan, 0, 0);
+		if (!dot_count) {
+			TMPL(tmpl_print_expression, first_operand, pplan, dot_count, depth);
+		} else {
+			%{}{{ PP_YDB_OCTO_EXPR }}{}%
+		}
 		%{}){}%
+		if (dot_count) {
+			%{}`n{{ PLAN_LINE_START }}{}%
+		}
 		break;
 	case LP_COALESCE_CALL:
 		/* COALESCE(a, b, ...) -> $SELECT('$ZYISSQLNULL(a):a,'$ZYISSQLNULL(b):b,...,1:$ZYSQLNULL) */
 		/* first_operand is a LP_COLUMN_LIST, but we want to get the first LP_COLUMN_VALUE */
-		cur_plan = first_operand->v.lp_default.operand[1];
-		/* TODO: this might break the `if` after the switch, we should use a new variable instead */
-		first_operand = first_operand->v.lp_default.operand[0];
-		%{}$SELECT('$ZYISSQLNULL({}%
-		TMPL(tmpl_print_expression, first_operand, pplan, 0, 0);
-		%{}):{}%
-		TMPL(tmpl_print_expression, first_operand, pplan, 0, 0);
-		%{},{}%
-		while (NULL != cur_plan) {
-			%{}'$ZYISSQLNULL({}%
-			TMPL(tmpl_print_expression, cur_plan->v.lp_default.operand[0], pplan, 0, 0);
+		cur_plan = first_operand->v.lp_default.operand[0];
+		if (!dot_count) {
+			%{}$SELECT('$ZYISSQLNULL({}%
+			TMPL(tmpl_print_expression, cur_plan, pplan, dot_count, depth);
 			%{}):{}%
-			TMPL(tmpl_print_expression, cur_plan->v.lp_default.operand[0], pplan, 0, 0);
+			TMPL(tmpl_print_expression, cur_plan, pplan, dot_count, depth);
 			%{},{}%
-			cur_plan = cur_plan->v.lp_default.operand[1];
+			cur_plan = first_operand->v.lp_default.operand[1];
+			while (NULL != cur_plan) {
+				%{}'$ZYISSQLNULL({}%
+				TMPL(tmpl_print_expression, cur_plan->v.lp_default.operand[0], pplan, dot_count, depth);
+				%{}):{}%
+				TMPL(tmpl_print_expression, cur_plan->v.lp_default.operand[0], pplan, dot_count, depth);
+				%{},{}%
+				cur_plan = cur_plan->v.lp_default.operand[1];
+			}
+		} else {
+			int	numargs, numargs2;	/* Number of arguments in the COALESCE function */
+
+			numargs = 0;	/* PP_YDB_OCTO_EXPR(0) reserved to store intermediate results */
+			TMPL(tmpl_print_expression, cur_plan, pplan, dot_count, depth);
+			TMPL(tmpl_print_dots, dot_count);
+			%{}SET {{ PP_YDB_OCTO_EXPR }}({{ depth|%d }},{{ numargs|%d }})={{ PP_YDB_OCTO_EXPR }}{}%
+			%{}`n{{ PLAN_LINE_START }}{}%
+			numargs++;	/* PP_YDB_OCTO_EXPR(1) stores value of first argument to COALESCE function.
+					 * PP_YDB_OCTO_EXPR(2) stores value of second argument to COALESCE function and so on.
+					 */
+			cur_plan = first_operand->v.lp_default.operand[1];
+			while (NULL != cur_plan) {
+				TMPL(tmpl_print_expression, cur_plan->v.lp_default.operand[0], pplan, dot_count, depth);
+				TMPL(tmpl_print_dots, dot_count);
+				%{}SET {{ PP_YDB_OCTO_EXPR }}({{ depth|%d }},{{ numargs|%d }})={{ PP_YDB_OCTO_EXPR }}{}%
+				%{}`n{{ PLAN_LINE_START }}{}%
+				cur_plan = cur_plan->v.lp_default.operand[1];
+				numargs++;
+			}
+			TMPL(tmpl_print_dots, dot_count);
+			%{}SET {{ PP_YDB_OCTO_EXPR }}=$SELECT({}%
+			cur_plan = first_operand->v.lp_default.operand[1];
+			for (numargs2 = 0; numargs2 < numargs; numargs2++) {
+				%{}'$ZYISSQLNULL({{ PP_YDB_OCTO_EXPR }}({{ depth|%d }},{{ numargs2|%d }})){}%
+				%{}:{{ PP_YDB_OCTO_EXPR }}({{ depth|%d }},{{ numargs2|%d }}),{}%
+			}
 		}
 		%{}1:$ZYSQLNULL){}%
+		if (dot_count) {
+			%{}`n{{ PLAN_LINE_START }}{}%
+		}
 		break;
 	case LP_GREATEST:
 	case LP_LEAST: {
-		/* GREATEST(a) or LEAST(a) -> a
-		 * GREATEST(a, b, c) -> max(a,max(b,c))
-		 * LEAST(a, b, c)    -> min(a,min(b,c)) */
-		/* keep track of how many values were in the argument list
-		 * NOTE: does not include the first value, since we don't emit MAX/MIN for the last one */
-		int		depth;
 		boolean_t	use_string_comparison;
+		LogicalPlan	*next_plan;
+		char		*min_or_max;
 
-		cur_plan = first_operand;
-		depth = 0;
-		assert((NULL != cur_plan) && "fatal error: GREATEST/LEAST should have at least one value");
-		// If the arguments are strings, we need to use the M follows operator ']' as appropriate.
+		assert((NULL != first_operand) && "fatal error: GREATEST/LEAST should have at least one value");
+		min_or_max = ((LP_GREATEST == plan_type) ? "$$max" : "$$min");
+		/* If the arguments are strings, we need to use the M follows operator ']' as appropriate */
 		use_string_comparison = lp_is_operand_type_string(plan);
 
-		/* If there is more than one argument, emit a $$max/$$min() call */
-		while (NULL != cur_plan->v.lp_default.operand[1]) {
-			if (LP_GREATEST == plan_type) {
-				%{}$$max{}%
-			} else {
-				%{}$$min{}%
+		/* GREATEST(a) or LEAST(a) -> a
+		 * GREATEST(a, b, c) -> max(a,max(b,c))
+		 * LEAST(a, b, c)    -> min(a,min(b,c))
+		 */
+		if (dot_count) {
+			int	numargs;	/* Number of arguments in the GREATEST/LEAST function */
+
+			for (numargs = 1, cur_plan = first_operand; NULL != cur_plan; cur_plan = next_plan, numargs++) {
+				next_plan = cur_plan->v.lp_default.operand[1];
+				TMPL(tmpl_print_expression, cur_plan->v.lp_default.operand[0], pplan, dot_count, depth);
+				TMPL(tmpl_print_dots, dot_count);
+				%{}SET {{ PP_YDB_OCTO_EXPR }}({{ depth|%d }},{{ numargs|%d }})={{ PP_YDB_OCTO_EXPR }}{}%
+				%{}`n{{ PLAN_LINE_START }}{}%
+				if (first_operand != cur_plan) {
+					TMPL(tmpl_print_dots, dot_count);
+					%{}SET {{ PP_YDB_OCTO_EXPR }}({{ depth|%d }},0)={{ min_or_max }}^%%ydboctoplanhelpers{}%
+					%{}({{ use_string_comparison|%d }},{}%
+					%{}{{ PP_YDB_OCTO_EXPR }}({{ depth|%d }},0),{}%
+					%{}{{ PP_YDB_OCTO_EXPR }}({{ depth|%d }},{{ numargs|%d }})){}%
+					%{}`n{{ PLAN_LINE_START }}{}%
+				} else {
+					TMPL(tmpl_print_dots, dot_count);
+					%{}SET {{ PP_YDB_OCTO_EXPR }}({{ depth|%d }},0)={{ PP_YDB_OCTO_EXPR }}{}%
+					%{}`n{{ PLAN_LINE_START }}{}%
+				}
 			}
-			%{}^%%ydboctoplanhelpers({{ use_string_comparison|%d }},{}%
-			TMPL(tmpl_print_expression, cur_plan->v.lp_default.operand[0], pplan, 0, 0);
-			%{},{}%
-			cur_plan = cur_plan->v.lp_default.operand[1];
-			depth += 1;
-		}
-		/* This is the last value, emit it on its own */
-		TMPL(tmpl_print_expression, cur_plan->v.lp_default.operand[0], pplan, 0, 0);
-		/* close all the parentheses */
-		while (0 != depth) {
-			%{}){}%
-			depth -= 1;
+			TMPL(tmpl_print_dots, dot_count);
+			%{}SET {{ PP_YDB_OCTO_EXPR }}={{ PP_YDB_OCTO_EXPR }}({{ depth|%d }},0){}%
+			%{}`n{{ PLAN_LINE_START }}{}%
+		} else {
+			int	lcl_depth;
+
+			for (lcl_depth = 0, cur_plan = first_operand; NULL != cur_plan; cur_plan = next_plan, lcl_depth++) {
+				next_plan = cur_plan->v.lp_default.operand[1];
+				if (NULL != next_plan) {
+					%{}{{ min_or_max }}^%%ydboctoplanhelpers({{ use_string_comparison|%d }},{}%
+				}
+				TMPL(tmpl_print_expression, cur_plan->v.lp_default.operand[0], pplan, dot_count, depth);
+				if (NULL != next_plan) {
+					%{},{}%
+				}
+			}
+			/* Close all the parentheses */
+			while (0 != --lcl_depth) {
+				%{}){}%
+			}
 		}
 		break;
 	}
 	case LP_NULL_IF:
 		/* NULLIF(a,b) -> $select(a=b:$ZYSQLNULL,1:a) */
 		coerce_to_numeric = !lp_is_operand_type_string(plan);
+		if (dot_count) {
+			TMPL(tmpl_print_expression, first_operand, pplan, dot_count, depth);
+			TMPL(tmpl_print_dots, dot_count);
+			%{}SET {{ PP_YDB_OCTO_EXPR }}({{ depth|%d }},0)={{ PP_YDB_OCTO_EXPR }}{}%
+			%{}`n{{ PLAN_LINE_START }}{}%
+			TMPL(tmpl_print_expression, second_operand, pplan, dot_count, depth);
+			TMPL(tmpl_print_dots, dot_count);
+			%{}SET {{ PP_YDB_OCTO_EXPR }}={}%
+		}
 		%{}$SELECT({}%
 		if (coerce_to_numeric) {
 			%{}$$ForceNumeric^%%ydboctoplanhelpers({}%
 		}
-		TMPL(tmpl_print_expression, first_operand, pplan, 0, 0);
+		if (dot_count) {
+			%{}{{ PP_YDB_OCTO_EXPR }}({{ depth|%d }},0){}%
+		} else {
+			TMPL(tmpl_print_expression, first_operand, pplan, dot_count, depth);
+		}
 		if (coerce_to_numeric) {
 			%{}){}%
 		}
@@ -610,15 +825,28 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 		if (coerce_to_numeric) {
 			%{}$$ForceNumeric^%%ydboctoplanhelpers({}%
 		}
-		TMPL(tmpl_print_expression, second_operand, pplan, 0, 0);
+		if (dot_count) {
+			%{}{{ PP_YDB_OCTO_EXPR }}{}%
+		} else {
+			TMPL(tmpl_print_expression, second_operand, pplan, dot_count, depth);
+		}
 		if (coerce_to_numeric) {
 			%{}){}%
 		}
 		%{}:$ZYSQLNULL,1:{}%
-		TMPL(tmpl_print_expression, first_operand, pplan, 0, 0);
+		if (dot_count) {
+			%{}{{ PP_YDB_OCTO_EXPR }}({{ depth|%d }},0){}%
+		} else {
+			TMPL(tmpl_print_expression, first_operand, pplan, dot_count, depth);
+		}
 		%{}){}%
+		if (dot_count) {
+			%{}`n{{ PLAN_LINE_START }}{}%
+		}
 		break;
-	case LP_FUNCTION_CALL:
+	case LP_FUNCTION_CALL: {
+		int	numargs;	/* Number of arguments in the function call */
+
 		/* As noted in lp_generate_where.c, the first_operand here is the SQL function name and the second is the function
 		 * hash used to determine which function interface should be used for the call, neither of which is not needed during
 		 * physical planning. Hence, we skip both of these nodes in the tree and use the node after second_operand,
@@ -634,24 +862,51 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 		cur_plan = t_operand;
 		// Check for a BOOLEAN return type. If so, convert any string values to 0/1 in the generated plan.
 		return_type = t_operand->v.lp_default.operand[0]->v.lp_value.value->type;
+		if (dot_count) {
+			numargs = 0;
+			while (NULL != cur_plan->v.lp_default.operand[1]) {
+				cur_plan = cur_plan->v.lp_default.operand[1];
+				TMPL(tmpl_print_expression, cur_plan->v.lp_default.operand[0], pplan, dot_count, depth);
+				TMPL(tmpl_print_dots, dot_count);
+				%{}SET {{ PP_YDB_OCTO_EXPR }}({{ depth|%d }},{{ numargs|%d }})={{ PP_YDB_OCTO_EXPR }}{}%
+				%{}`n{{ PLAN_LINE_START }}{}%
+				numargs++;
+			}
+			cur_plan = t_operand;
+			TMPL(tmpl_print_dots, dot_count);
+			%{}SET {{ PP_YDB_OCTO_EXPR }}={}%
+		}
 		if (BOOLEAN_VALUE == return_type) {
 			%{}$$String2Boolean^%%ydboctoplanhelpers({}%
 		}
-		%{}{}%
-		TMPL(tmpl_print_expression, second_operand->v.lp_default.operand[0], pplan, 0, 0);
+		/* Below is function name which should not be a leaf level expression so okay to pass "0" as "dot_count"
+		 * (last but one parameter) even if "dot_count" is non-zero. Passing a non-zero "dot_count" would cause
+		 * generated M code to be incorrect as we don't want to assign this value to an M variable in a separate line.
+		 */
+		TMPL(tmpl_print_expression, second_operand->v.lp_default.operand[0], pplan, 0, depth);
 		%{}({}%
+		numargs = 0;
 		while (NULL != cur_plan->v.lp_default.operand[1]) {
 			if (cur_plan != t_operand) {
 				%{},{}%
 			}
 			cur_plan = cur_plan->v.lp_default.operand[1];
-			TMPL(tmpl_print_expression, cur_plan->v.lp_default.operand[0], pplan, 0, 0);
+			if (dot_count) {
+				%{}{{ PP_YDB_OCTO_EXPR }}({{ depth|%d}},{{ numargs|%d }}){}%
+				numargs++;
+			} else {
+				TMPL(tmpl_print_expression, cur_plan->v.lp_default.operand[0], pplan, dot_count, depth);
+			}
 		}
 		%{}){}%
 		if (BOOLEAN_VALUE == return_type) {
 			%{}){}%
 		}
+		if (dot_count) {
+			%{}`n{{ PLAN_LINE_START }}{}%
+		}
 		break;
+	}
 	case LP_AGGREGATE_FUNCTION_COUNT_ASTERISK:
 	case LP_AGGREGATE_FUNCTION_COUNT:
 	case LP_AGGREGATE_FUNCTION_MIN:
@@ -661,6 +916,10 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 	case LP_AGGREGATE_FUNCTION_SUM_DISTINCT:
 	case LP_AGGREGATE_FUNCTION_AVG:
 	case LP_AGGREGATE_FUNCTION_AVG_DISTINCT:
+		if (dot_count) {
+			TMPL(tmpl_print_dots, dot_count);
+			%{}SET {{ PP_YDB_OCTO_EXPR }}={}%
+		}
 		/* Note that the PP_GROUP_BY node might not exist in case all values aggregated were NULL.
 		 * Hence the need for $GET.
 		 */
@@ -713,42 +972,114 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 			%{},{{ PP_GROUP_BY }},%%ydboctog,{{ aggregate_cnt|%d }},"COUNT"){}%
 			%{},1){}%
 		}
+		if (dot_count) {
+			%{}`n{{ PLAN_LINE_START }}{}%
+		}
 		break;
 	case LP_SELECT_QUERY:
 	case LP_SET_OPERATION:
+		if (dot_count) {
+			TMPL(tmpl_print_dots, dot_count);
+			%{}SET {{ PP_YDB_OCTO_EXPR }}={}%
+		}
 		// Fetch the first value from the output key of this query/table
 		key = lp_get_output_key(plan);
 		%{}$$GetScalar^%%ydboctoplanhelpers({{ key->v.lp_key.key->unique_id|%d }}){}%
+		if (dot_count) {
+			%{}`n{{ PLAN_LINE_START }}{}%
+		}
 		break;
 	case LP_CASE:
-		%{}$SELECT({}%
 		GET_LP(cur_plan, plan, 0, LP_CASE_STATEMENT);
+		assert(cur_plan == first_operand);
 		cas_value = cur_plan->v.lp_default.operand[0];
 		default_value = cur_plan->v.lp_default.operand[1];
 		GET_LP(cur_plan, plan, 1, LP_CASE_BRANCH);
-		while (NULL != cur_plan) {
-			GET_LP(cur_branch, cur_plan, 0, LP_CASE_BRANCH_STATEMENT);
-			condition = cur_branch->v.lp_default.operand[0];
-			branch_value = cur_branch->v.lp_default.operand[1];
-			%{}({}%
-			TMPL(tmpl_print_expression, condition, pplan, 0, 0);
-			%{})=({}%
+		assert(cur_plan == second_operand);
+		if (dot_count) {
+			int	num_case_paths;	/* Number of WHEN/ELSE code paths in the CASE statement */
+
 			if (NULL != cas_value) {
-				TMPL(tmpl_print_expression, cas_value, pplan, 0, 0);
-			} else {
-				%{}1{}%
+				TMPL(tmpl_print_expression, cas_value, pplan, dot_count, depth);
+				TMPL(tmpl_print_dots, dot_count);
+				%{}SET {{ PP_YDB_OCTO_EXPR }}({{ depth|%d }},0,0)={{ PP_YDB_OCTO_EXPR }}{}%
+				%{}`n{{ PLAN_LINE_START }}{}%
 			}
-			%{}):({}%
-			TMPL(tmpl_print_expression, branch_value, pplan, 0, 0);
-			%{}),{}%
-			cur_plan = cur_plan->v.lp_default.operand[1];
-		}
-		if (NULL != default_value) {
-			%{}1:{}%
-			TMPL(tmpl_print_expression, default_value, pplan, 0, 0);
-			%{}){}%
+			if (NULL != default_value) {
+				TMPL(tmpl_print_expression, default_value, pplan, dot_count, depth);
+				TMPL(tmpl_print_dots, dot_count);
+				%{}SET {{ PP_YDB_OCTO_EXPR }}({{ depth|%d }},0,1)={{ PP_YDB_OCTO_EXPR }}{}%
+				%{}`n{{ PLAN_LINE_START }}{}%
+			}
+			num_case_paths = 1;
+			while (NULL != cur_plan) {
+				GET_LP(cur_branch, cur_plan, 0, LP_CASE_BRANCH_STATEMENT);
+				condition = cur_branch->v.lp_default.operand[0];
+				TMPL(tmpl_print_expression, condition, pplan, dot_count, depth);
+				TMPL(tmpl_print_dots, dot_count);
+				%{}SET {{ PP_YDB_OCTO_EXPR }}({{ depth|%d }},{{ num_case_paths|%d }},0)={{ PP_YDB_OCTO_EXPR }}{}%
+				%{}`n{{ PLAN_LINE_START }}{}%
+				branch_value = cur_branch->v.lp_default.operand[1];
+				TMPL(tmpl_print_expression, branch_value, pplan, dot_count, depth);
+				TMPL(tmpl_print_dots, dot_count);
+				%{}SET {{ PP_YDB_OCTO_EXPR }}({{ depth|%d }},{{ num_case_paths|%d }},1)={{ PP_YDB_OCTO_EXPR }}{}%
+				%{}`n{{ PLAN_LINE_START }}{}%
+				cur_plan = cur_plan->v.lp_default.operand[1];
+				num_case_paths++;
+			}
+			cur_plan = second_operand;
+			num_case_paths = 1;
+			TMPL(tmpl_print_dots, dot_count);
+			%{}SET {{ PP_YDB_OCTO_EXPR }}=$SELECT({}%
+			while (NULL != cur_plan) {
+				%{}({}%
+				%{}{{ PP_YDB_OCTO_EXPR }}({{ depth|%d }},{{ num_case_paths|%d }},0){}%
+				%{})=({}%
+				if (NULL != cas_value) {
+					%{}{{ PP_YDB_OCTO_EXPR }}({{ depth|%d }},0,0){}%
+				} else {
+					%{}1{}%
+				}
+				%{}):({}%
+				%{}{{ PP_YDB_OCTO_EXPR }}({{ depth|%d }},{{ num_case_paths|%d }},1){}%
+				%{}),{}%
+				cur_plan = cur_plan->v.lp_default.operand[1];
+				num_case_paths++;
+			}
+			if (NULL != default_value) {
+				%{}1:{}%
+				%{}{{ PP_YDB_OCTO_EXPR }}({{ depth|%d }},0,1){}%
+				%{}){}%
+			} else {
+				%{}1:$ZYSQLNULL){}%
+			}
+			%{}`n{{ PLAN_LINE_START }}{}%
 		} else {
-			%{}1:$ZYSQLNULL){}%
+			%{}$SELECT({}%
+			while (NULL != cur_plan) {
+				GET_LP(cur_branch, cur_plan, 0, LP_CASE_BRANCH_STATEMENT);
+				condition = cur_branch->v.lp_default.operand[0];
+				branch_value = cur_branch->v.lp_default.operand[1];
+				%{}({}%
+				TMPL(tmpl_print_expression, condition, pplan, dot_count, depth);
+				%{})=({}%
+				if (NULL != cas_value) {
+					TMPL(tmpl_print_expression, cas_value, pplan, dot_count, depth);
+				} else {
+					%{}1{}%
+				}
+				%{}):({}%
+				TMPL(tmpl_print_expression, branch_value, pplan, dot_count, depth);
+				%{}),{}%
+				cur_plan = cur_plan->v.lp_default.operand[1];
+			}
+			if (NULL != default_value) {
+				%{}1:{}%
+				TMPL(tmpl_print_expression, default_value, pplan, dot_count, depth);
+				%{}){}%
+			} else {
+				%{}1:$ZYSQLNULL){}%
+			}
 		}
 		break;
 	default:
@@ -756,31 +1087,39 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 		FATAL(ERR_UNKNOWN_KEYWORD_STATE, "");
 	}
 	if (m_operator) {
-		if (split_m_line) {
-			assert(!coerce_to_numeric);
-			/* Evaluate left hand side of boolean AND or OR */
+		if (dot_count) {
+			/* Evaluate left hand side of binary/boolean operator */
 			TMPL(tmpl_print_expression, first_operand, pplan, dot_count, depth);
-			%{}`n{{ PLAN_LINE_START }}{}%
 			TMPL(tmpl_print_dots, dot_count);
 			/* Move result into temporary variable (using recursion "depth" to avoid interference from M code generated
-			 * by next "tmpl_print_expression" call which evaluates right side of boolean AND or OR).
+			 * by next "tmpl_print_expression" call which evaluates right side of binary/boolean operator.
 			 */
-			%{}SET %%ydboctobool({{ depth|%d }})=%%ydboctobool{}%
+			%{}SET {{ PP_YDB_OCTO_EXPR }}({{ depth|%d }})={}%
+			if (coerce_to_numeric) {
+				%{}$$ForceNumeric^%%ydboctoplanhelpers({}%
+			}
+			%{}{{ PP_YDB_OCTO_EXPR }}{}%
+			if (coerce_to_numeric) {
+				%{}){}%
+			}
 			/* Evaluate right hand side of boolean AND or OR */
 			%{}`n{{ PLAN_LINE_START }}{}%
-			TMPL(tmpl_print_dots, dot_count);
-			%{}SET %%ydboctobool={}%
 			TMPL(tmpl_print_expression, second_operand, pplan, dot_count, depth);
-			/* Evaluate result of boolean AND or OR */
-			%{}`n{{ PLAN_LINE_START }}{}%
+			if (coerce_to_numeric) {
+				TMPL(tmpl_print_dots, dot_count);
+				%{}SET {{ PP_YDB_OCTO_EXPR }}=$$ForceNumeric^%%ydboctoplanhelpers({{ PP_YDB_OCTO_EXPR }}){}%
+				%{}`n{{ PLAN_LINE_START }}{}%
+			}
+			/* Evaluate result of binary/boolean operator */
 			TMPL(tmpl_print_dots, dot_count);
-			%{}SET %%ydboctobool=%%ydboctobool({{ depth|%d }}){{ m_operator }}%%ydboctobool{}%
+			%{}SET {{ PP_YDB_OCTO_EXPR }}={{ PP_YDB_OCTO_EXPR }}({{ depth|%d }}){{ m_operator }}{{ PP_YDB_OCTO_EXPR }}{}%
+			%{}`n{{ PLAN_LINE_START }}{}%
 		} else {
 			%{}({}%
 			if (coerce_to_numeric) {
 				%{}$$ForceNumeric^%%ydboctoplanhelpers({}%
 			}
-			TMPL(tmpl_print_expression, first_operand, pplan, 0, 0);
+			TMPL(tmpl_print_expression, first_operand, pplan, dot_count, depth);
 			if (coerce_to_numeric) {
 				%{}){}%
 			}
@@ -788,7 +1127,7 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 			if (coerce_to_numeric) {
 				%{}$$ForceNumeric^%%ydboctoplanhelpers({}%
 			}
-			TMPL(tmpl_print_expression, second_operand, pplan, 0, 0);
+			TMPL(tmpl_print_expression, second_operand, pplan, dot_count, depth);
 			if (coerce_to_numeric) {
 				%{}){}%
 			}

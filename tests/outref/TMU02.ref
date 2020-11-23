@@ -13,6 +13,9 @@
 %ydboctoerror("SUBQUERYMULTIPLEROWS")=1073741825
 %ydboctoerror("SUBQUERYMULTIPLEROWS")=1073741825
 %ydboctoerror("SUBQUERYMULTIPLEROWS")=1073741825
+%ydboctoexpr=101
+%ydboctoexpr=3
+%ydboctoexpr=3
 %ydboctosession=1
 %ydboctosession=1
 %ydboctosession=1

@@ -25,6 +25,8 @@ char *get_user_visible_type_string(SqlValueType type) {
 		return "INTEGER";
 	case STRING_LITERAL:
 		return "VARCHAR"; /* VARCHAR (not STRING) is the externally visible type name in SQL */
+	case TABLE_ASTERISK:
+		return "TABLENAME.*";
 	case PARAMETER_VALUE:
 		return "PARAMETER";
 	case NUL_VALUE:

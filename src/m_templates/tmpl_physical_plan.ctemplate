@@ -209,7 +209,7 @@ TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan) {
 			%{}`n{{ PLAN_LINE_START }}{}%
 			GET_LP(lp_column_list, lp_row_value, 0, LP_COLUMN_LIST);
 			stash_columns_in_keys = plan->stash_columns_in_keys;
-			TMPL(tmpl_column_list_combine, lp_column_list, plan, "_", !stash_columns_in_keys, dot_count);
+			TMPL(tmpl_column_list_combine, lp_column_list, plan, "_", !stash_columns_in_keys, dot_count, FALSE);
 			if (!stash_columns_in_keys) {
 				%{}SET {}%
 				TMPL(tmpl_key, plan->outputKey); (*buffer_index)--;

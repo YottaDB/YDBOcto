@@ -1060,6 +1060,7 @@ column_reference
       *c++ = '*';
       *c++ = '\0';
       qual->v.string_literal = new_string;
+      qual->type = TABLE_ASTERISK;
       $$ = $qualifier;
     }
   | column_name { $$ = $column_name; }

@@ -185,6 +185,7 @@ add_library(libocto OBJECT
   history.c
   hash_canonical_query.c
   is_query_canceled.c
+  is_stmt_table_asterisk.c
   load_pg_defaults.c
   m_escape_string2.c
   m_templates/resize_tmpl_buffer.c
@@ -266,6 +267,9 @@ add_library(libocto OBJECT
   populate_data_type.c
   print_result_row.c
   print_temporary_table.c
+  process_asterisk.c
+  process_table_asterisk_cl.c
+  process_table_asterisk_cla.c
   qualify_column_name.c
   qualify_query.c
   qualify_statement.c

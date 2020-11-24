@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2020-2021 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -32,13 +32,15 @@ SqlStatement *derived_table(SqlStatement *table_subquery, SqlStatement *correlat
 	join->value = sql_stmt;
 	if (NULL != correlation_specification) {
 		SqlTableAlias *table_alias;
+		SqlColumnList *column_list;
 
 		// Setup the alias
 		sql_stmt = drill_to_table_alias(sql_stmt);
 		UNPACK_SQL_STATEMENT(table_alias, sql_stmt, table_alias);
-		if (copy_correlation_specification_aliases(table_alias, correlation_specification)) {
-			return NULL;
-		}
+		UNPACK_SQL_STATEMENT(column_list, correlation_specification, column_list);
+		table_alias->alias = column_list->value;
+		table_alias->correlation_specification = correlation_specification;
+		/* Defer processing column name aliases till all asterisk or table.* usage is expanded in qualify_query() */
 	}
 	dqinit(join);
 	join->max_unique_id = config->plan_id;

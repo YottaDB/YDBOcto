@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -29,7 +29,7 @@ SqlStatement *grouping_column_reference(SqlStatement *derived_column_expression,
 	 */
 	if (value_STATEMENT == derived_column_expression->type) {
 		UNPACK_SQL_STATEMENT(value, derived_column_expression, value);
-		invalid_syntax = (COLUMN_REFERENCE != value->type);
+		invalid_syntax = ((COLUMN_REFERENCE != value->type) && (TABLE_ASTERISK != value->type));
 	} else {
 		invalid_syntax = TRUE;
 	}

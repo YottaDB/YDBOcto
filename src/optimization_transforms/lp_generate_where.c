@@ -19,7 +19,7 @@
 #include "logical_plan.h"
 
 LogicalPlan *lp_generate_where(SqlStatement *stmt, SqlStatement *parent_stmt) {
-	LogicalPlan *		ret = NULL, *next, *cur_lp;
+	LogicalPlan *		ret = NULL, *cur_lp;
 	LPActionType		type;
 	SqlArray *		array;
 	SqlValue *		value;
@@ -205,12 +205,7 @@ LogicalPlan *lp_generate_where(SqlStatement *stmt, SqlStatement *parent_stmt) {
 		assert((NULL != cur_cl->value) || (LP_AGGREGATE_FUNCTION_COUNT_ASTERISK == type));
 		assert((NULL == cur_cl->value) || (LP_AGGREGATE_FUNCTION_COUNT_ASTERISK != type));
 		if (NULL != cur_cl->value) {
-			LP_GENERATE_WHERE(cur_cl->value, stmt, next, error_encountered);
-			assert(NULL != next);
-			cur_lp = ret;
-			MALLOC_LP_2ARGS(cur_lp->v.lp_default.operand[0], LP_COLUMN_LIST);
-			cur_lp = cur_lp->v.lp_default.operand[0];
-			cur_lp->v.lp_default.operand[0] = next;
+			error_encountered |= lp_generate_column_list(&ret->v.lp_default.operand[0], stmt, cur_cl);
 		}
 		break;
 	case column_STATEMENT:

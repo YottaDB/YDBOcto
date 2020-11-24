@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -47,6 +47,43 @@ int qualify_query(SqlStatement *table_alias_stmt, SqlJoin *parent_join, SqlTable
 		assert(NULL == parent_table_alias);
 		assert(NULL == ret->ret_cla);
 		result |= qualify_query(insert->src_table_alias_stmt, NULL, NULL, ret);
+		/* Check if insert->columns to src_table_alias_stmt columns mapping is valid. If not issue error.
+		 * Deferred till this point as we need the expanded column list in case of * or table.* usage.
+		 * TODO: avoid deferring the following processing in cases where its not required. Refer:
+		 * https://gitlab.com/YottaDB/DBMS/YDBOcto/-/merge_requests/816#note_583771101
+		 */
+		if (NULL != insert->columns) {
+			SqlColumnList *	    start_cl, *cur_cl;
+			SqlTableAlias *	    src_table_alias;
+			SqlColumnListAlias *start_cla, *cur_cla;
+			SqlStatement *	    table_alias_stmt;
+
+			table_alias_stmt = drill_to_table_alias(insert->src_table_alias_stmt);
+			UNPACK_SQL_STATEMENT(src_table_alias, table_alias_stmt, table_alias);
+			UNPACK_SQL_STATEMENT(start_cla, src_table_alias->column_list, column_list_alias);
+			cur_cla = start_cla;
+			UNPACK_SQL_STATEMENT(start_cl, insert->columns, column_list);
+			cur_cl = start_cl;
+			do {
+				if (NULL == cur_cla) {
+					ERROR(ERR_INSERT_TOO_MANY_COLUMNS, NULL);
+					yyerror(NULL, NULL, &cur_cl->value, NULL, NULL, NULL);
+					return 1;
+				}
+				cur_cl = cur_cl->next;
+				if (NULL != cur_cla) {
+					cur_cla = cur_cla->next;
+					if (start_cla == cur_cla) {
+						cur_cla = NULL;
+					}
+				}
+			} while (cur_cl != start_cl);
+			if (NULL != cur_cla) {
+				ERROR(ERR_INSERT_TOO_MANY_EXPRESSIONS, NULL);
+				yyerror(NULL, NULL, &cur_cla->column_list, NULL, NULL, NULL);
+				return 1;
+			}
+		}
 		/* There is nothing to qualify in "insert->dst_table_alias" and "insert->columns" */
 		return result;
 	}
@@ -99,10 +136,44 @@ int qualify_query(SqlStatement *table_alias_stmt, SqlJoin *parent_join, SqlTable
 	 * Do not use any tables from the current query level FROM list for this qualification.
 	 */
 	do {
+		SqlStatement *stmt = join->value;
+
 		/* Qualify sub-queries involved in the join. Note that it is possible a `table` is involved in the join instead
 		 * of a `sub-query` in which case the below `qualify_query` call will return right away.
 		 */
 		result |= qualify_query(cur_join->value, parent_join, table_alias, ret);
+		/* The following code block needs to be after above call to qualify_query() because we need
+		 * any asterisk usage in cur_join->value to be expanded and qualified for the later natural_join_condition() to work
+		 * correctly.
+		 * TODO: avoid deferring the following processing in cases where its not required. Refer:
+		 * https://gitlab.com/YottaDB/DBMS/YDBOcto/-/merge_requests/816#note_583771101
+		 */
+		if (NATURAL_JOIN == cur_join->type) {
+			/* cur_join->condition would not yet have been filled in (deferred in parser). Do that here and
+			 * at the same time do some qualification checks too (errors will be returned as a non-zero value).
+			 * Its possible to defer this logic till this point because asterisk and table.* are processed in
+			 * qualify_query() itself. The asterisk processing logic requires the below call to set duplicates columns
+			 * correctly.
+			 */
+			if (natural_join_condition(start_join, cur_join)) {
+				return 1;
+			}
+		}
+		/* Copy correlation specification i.e. aliases. We defer it till this point as asterisk and table.* expansion has to
+		 * be complete before we can determine if the correlation specification is valid or not.
+		 * TODO: avoid deferring the following processing in cases where its not required. Refer:
+		 * https://gitlab.com/YottaDB/DBMS/YDBOcto/-/merge_requests/816#note_583771101
+		 */
+		stmt = drill_to_table_alias(stmt);
+		if (table_alias_STATEMENT == stmt->type) {
+			SqlTableAlias *join_table_alias;
+
+			UNPACK_SQL_STATEMENT(join_table_alias, stmt, table_alias);
+			if (join_table_alias->correlation_specification != NULL) {
+				if (copy_correlation_specification_aliases(join_table_alias))
+					return 1;
+			}
+		}
 		cur_join = cur_join->next;
 	} while (cur_join != start_join);
 	/* Now that FROM clause has been qualified, qualify the JOIN conditions etc. in the FROM clause.
@@ -204,7 +275,8 @@ int qualify_query(SqlStatement *table_alias_stmt, SqlJoin *parent_join, SqlTable
 				 */
 				assert(result);
 				assert((value_STATEMENT == col_list->value->type)
-				       && (COLUMN_REFERENCE == col_list->value->v.value->type));
+				       && ((COLUMN_REFERENCE == col_list->value->v.value->type)
+					   || (TABLE_ASTERISK == col_list->value->v.value->type)));
 			}
 			cur_cla = cur_cla->next;
 			if (cur_cla == start_cla) {
@@ -229,6 +301,62 @@ int qualify_query(SqlStatement *table_alias_stmt, SqlJoin *parent_join, SqlTable
 		// Qualify HAVING clause
 		result |= qualify_statement(select->having_expression, start_join, table_alias_stmt, 0, NULL);
 		// Qualify SELECT column list next
+		/* Expand ASTERISK here using prev_start and prev_end
+		 * Deferred till this point as we might come across a table.* usage in the join and that might be referring to a
+		 * parent query table.
+		 * TODO: avoid deferring the following processing in cases where its not required. Refer:
+		 * https://gitlab.com/YottaDB/DBMS/YDBOcto/-/merge_requests/816#note_583771101
+		 */
+		if ((!table_alias->do_group_by_checks) && (NULL != select->select_list)
+		    && (column_list_alias_STATEMENT == select->select_list->type)) {
+			SqlStatement *	    select_list;
+			SqlColumnListAlias *cla_cur, *cla_head, *asterisk_list;
+
+			select_list = select->select_list;
+			cla_cur = cla_head = select->select_list->v.column_list_alias;
+			asterisk_list = NULL;
+			/* Go through the select column list (`select n1.id,*,n2.id ...`) to find/process ASTERISK */
+			do {
+				if (NULL == cla_cur->column_list) {
+					/* Came across an ASTERISK in the select column list */
+					if (NULL == asterisk_list) {
+						SqlJoin *next_join = NULL;
+
+						if (prev_end != start_join->prev) {
+							/* Parent join exists. Remove them temporarily so process_asterisk() expands
+							 * * to only all current query level columns and not parent query columns */
+							next_join = prev_end->next;
+							start_join->prev->next = next_join;
+							next_join->prev = start_join->prev;
+							start_join->prev = prev_end;
+							prev_end->next = start_join;
+						}
+						asterisk_list = process_asterisk(start_join, select_list->loc);
+						if (NULL != next_join) {
+							/* Add back the parent join nodes */
+							prev_end->next = next_join;
+							start_join->prev = next_join->prev;
+							next_join->prev->next = start_join;
+							next_join->prev = prev_end;
+						}
+					}
+					if (cla_cur->next == cla_cur) {
+						/* cla_cur is the only member of select column list (`select * from ..`) */
+						select_list->v.column_list_alias = asterisk_list;
+					} else {
+						SqlColumnListAlias *cla_alias;
+
+						cla_alias = copy_column_list_alias_list(asterisk_list, NULL, NULL, NULL);
+						/* ASTERISK is present among other columns `select n1.id,*,n2.id from ..`
+						 * Replace dummy node (current cla_cur) with column alias list corresponding
+						 * to ASTERISK in the position where it was seen in select column list.
+						 */
+						REPLACE_COLUMNLISTALIAS(cla_cur, cla_alias, cla_head, select_list);
+					}
+				}
+				cla_cur = cla_cur->next;
+			} while (cla_cur != cla_head);
+		}
 		result |= qualify_statement(select->select_list, start_join, table_alias_stmt, 0, NULL);
 		// Qualify ORDER BY clause next
 		/* Now that all column names used in the query have been qualified, allow columns specified in

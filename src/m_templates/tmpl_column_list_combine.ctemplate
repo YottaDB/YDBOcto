@@ -17,7 +17,8 @@
 #include "template_helpers.h"
 
 
-TEMPLATE(tmpl_column_list_combine, LogicalPlan *plan, PhysicalPlan *pplan, char *delim, boolean_t str2mval, int dot_count) {
+TEMPLATE(tmpl_column_list_combine, LogicalPlan *plan, PhysicalPlan *pplan, char *delim, boolean_t str2mval, int dot_count,
+	 boolean_t is_asterisk) {
 	boolean_t	is_order_by, is_lp_table_value, left_concat_needed;
 
 	assert((',' == *delim) || ('_' == *delim));
@@ -37,10 +38,15 @@ TEMPLATE(tmpl_column_list_combine, LogicalPlan *plan, PhysicalPlan *pplan, char 
 		int		depth;
 		boolean_t	need_closing_paren;
 
-		assert(((LP_COLUMN_LIST == plan->type)
+		assert((is_asterisk
+			&& ((LP_COLUMN_LIST == plan->type)
+			    && ((LP_DERIVED_COLUMN == plan->v.lp_default.operand[0]->type)
+				|| (LP_COLUMN_ALIAS == plan->v.lp_default.operand[0]->type))))
+		       || (!is_asterisk
+			   && (((LP_COLUMN_LIST == plan->type)
 				&& ((LP_WHERE == plan->v.lp_default.operand[0]->type) || is_lp_table_value))
-			|| (((LP_ORDER_BY == plan->type) || (LP_GROUP_BY == plan->type) || IS_TYPE_LP_AGGREGATE(plan->type))
-						&& (LP_COLUMN_LIST == plan->v.lp_default.operand[0]->type)));
+			       || (((LP_ORDER_BY == plan->type) || (LP_GROUP_BY == plan->type) || IS_TYPE_LP_AGGREGATE(plan->type))
+				   && (LP_COLUMN_LIST == plan->v.lp_default.operand[0]->type)))));
 		assert(is_order_by == (LP_ORDER_BY == plan->type));
 		need_closing_paren = FALSE;
 		if (is_order_by) {
@@ -83,7 +89,8 @@ TEMPLATE(tmpl_column_list_combine, LogicalPlan *plan, PhysicalPlan *pplan, char 
 			 */
 			assert(!str2mval);
 		}
-		expr_plan = (!is_lp_table_value ? plan->v.lp_default.operand[0]->v.lp_default.operand[0]
+			expr_plan = (((!is_lp_table_value) && (!is_asterisk))
+						? plan->v.lp_default.operand[0]->v.lp_default.operand[0]
 						: plan->v.lp_default.operand[0]);
 		assert(!str2mval || dot_count);
 		depth = 0;

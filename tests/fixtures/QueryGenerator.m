@@ -93,7 +93,7 @@
 	. set aliasNum=0
 	. set fromNum=1
 	. ; The following variables need to be reset to their default values for each, seperate query.
-	. set orderByExists=0,limitExists=0,asteriskExists=0
+	. set orderByExists=0,limitExists=0,asteriskExists=0,tableAsteriskExists=0
 	. set existsInHavingExists="FALSE"  set caseFunctionExists="FALSE"
 	. kill columns			; refresh columns array for next query (remove any temporary tables created in prior query)
 	. merge columns=savecolumns
@@ -269,11 +269,12 @@ setQuantifier(curDepth)
 selectList(queryDepth,curDepth)
 	new randInt,result,toBeAdded,okToSelectStar
 	set toBeAdded=""
-	;This function serves the same purpose as select sublist in the grammar rules for SQL.
+	; This function serves the same purpose as select sublist in the grammar rules for SQL.
 	; Choose "*" in the select column list 12.5% of the time AND if no other columns have been already added to it.
 	; Also, until YDBOcto#246 is fixed, cannot use * if SELECT DISTINCT has been chosen already and joinCount is > 1, also
 	; cannot use multiple occurence of * if SELECT DISTINCT has been chosen already or joinCount is > 0 as the sum of the number of columns of the tables involved
 	; in the FROM and JOIN clauses could end up greater than 31 and cause MAXNRSUBSCRIPTS error. Disable "*" selection in that case.
+	write "selectList(): queryDepth:",queryDepth," curDepth:",curDepth,!
 	set okToSelectStar=((quantifierLVN("alias"_queryDepth)'="DISTINCT ")!(2>joinCount))
 	set okToSelectMultipleStar=((1>joinCount)!(quantifierLVN("alias"_queryDepth)'="DISTINCT "))
 	if ((okToSelectStar&('$random(8)))&((asteriskExists=1)&oktoSelectMultipleStar)) do
@@ -301,6 +302,7 @@ selectList(queryDepth,curDepth)
 	; Below check is to ensure that if there is only 1 table, that there can be no subquerying
 	if (GLOBALtotalTables=1) set randInt=0
 
+	write "selectList(): randInt=",randInt,!
 	; Qualifier notation (table.column) is to be used
 	if (randInt=0) do
 	. set table=$$chooseTableFromTableColumn()
@@ -313,12 +315,15 @@ selectList(queryDepth,curDepth)
 	. set toBeAdded="("_$$generateSubQuery(queryDepth,"limited","")_") AS "_alias
 	. set selectListLVN(queryDepth,alias)="subquery"
 
-	; Qualifier notation (table.*) is to be used
+	; Qualifier notation (table.*) or (count(table.*)) is to be used
 	if (randInt=2) do
 	. set table=$$chooseTableFromTableColumn()
 	. set toBeAdded=table_".*"
 	. set selectListLVN(queryDepth,toBeAdded)="table.*"
-	. ; Disallow GROUP BY and HAVING if * is in select column list as it gets complicated
+	. ; Disallow GROUP BY when table.* is selected
+	. ; Postgres generates error when table.* is present in both group by and select column list.
+	. ; Because of this reason we will not be able to enable this case as we compare the result with postgres.
+	. ; More details -> https://gitlab.com/YottaDB/DBMS/YDBOcto/-/merge_requests/816#note_550782933
 	. set allowGBH("alias"_queryDepth)="FALSE"
 
 	if (randInt=3) do
@@ -331,21 +336,27 @@ selectList(queryDepth,curDepth)
 	. ; #FUTURE_TODO: Remove following line when issues (both in Octo and in test_helpers)
 	. ;               pertaining to aggregate functions are resolved
 	. set curDepth=0
-	.
 	. set table=$$chooseTableFromTableColumn()
-	. set chosenColumn=$$chooseColumn(table)
-	. ; #FUTURE_TODO: Add more than one column in SELECT column list that uses aggregate functions
-	. set agg=$$returnAggregateFunction(queryDepth,table,chosenColumn)
-	. ; Fix rare query failure where having `AVG()` results in numeric precision differences between Octo and Postgres
-	. ; Refer description of https://gitlab.com/YottaDB/DBMS/YDBOcto/-/merge_requests/829
-	. set:(enableOrderByClause&(agg["AVG")) agg="ROUND("_agg_",10)"
-	. set selectListLVN(queryDepth,agg)="aggregate_function"
-	.
-	. new i
-	. for i=1:1:8 set chosenColumn2=$$chooseColumn(table) quit:(chosenColumn'=chosenColumn2)
-	. set tc=$select((8'=i):table_"."_chosenColumn2,1:"")
-	. set toBeAdded=toBeAdded_", "_agg_$select(""'=tc:", "_tc,1:"")
-	. set:(""'=tc) selectListLVN(queryDepth,tc)="table.column"
+	. if (1=$random(2))  do
+	. . ; choose count(table.*) for select list
+	. . ; Note: When count(table.*) is present other columns either have to be in group by or be also used in aggregate function
+	. . set agg="COUNT("_table_".*)"
+	. . set selectListLVN(queryDepth,agg)="aggregate_function_t_asterisk"
+	. . set toBeAdded=toBeAdded_","_agg
+	. . set tableAsteriskExists=1
+	. else  do
+	. . set chosenColumn=$$chooseColumn(table)
+	. . ; #FUTURE_TODO: Add more than one column in SELECT column list that uses aggregate functions
+	. . set agg=$$returnAggregateFunction(queryDepth,table,chosenColumn)
+	. . ; Fix rare query failure where having `AVG()` results in numeric precision differences between Octo and Postgres
+	. . ; Refer description of https://gitlab.com/YottaDB/DBMS/YDBOcto/-/merge_requests/829
+	. . set:(enableOrderByClause&(agg["AVG")) agg="ROUND("_agg_",10)"
+	. . set selectListLVN(queryDepth,agg)="aggregate_function"
+	. . new i
+	. . for i=1:1:8 set chosenColumn2=$$chooseColumn(table) quit:(chosenColumn'=chosenColumn2)
+	. . set tc=$select((8'=i):table_"."_chosenColumn2,1:"")
+	. . set toBeAdded=toBeAdded_", "_agg_$select(""'=tc:", "_tc,1:"")
+	. . set:(""'=tc) selectListLVN(queryDepth,tc)="table.column"
 
 	set result=toBeAdded
 
@@ -353,6 +364,7 @@ selectList(queryDepth,curDepth)
 	. if $increment(curDepth,-1) ; to drop down a "level" in depth
 	. if (curDepth'=0) set result=result_", "_$$selectList(queryDepth,curDepth)
 
+	write "selectList() : result=",result,!
 	quit result
 
 ; https://ronsavage.github.io/SQL/sql-92.bnf.html#table%20expression
@@ -364,6 +376,7 @@ tableExpression(queryDepth)
 	; allow for proper column(s) to be chosen
 	set result=""
 
+	write "tableExpression(): queryDepth=",queryDepth,!
 	set:enableWhereClause result=result_$$whereClause(queryDepth)
 	if (enableGroupByHavingClause&(allowGBH("alias"_queryDepth)="TRUE"))  do
 	. set result=result_$$groupbyClause(queryDepth)
@@ -469,6 +482,7 @@ whereClause(queryDepth)
 	; So in those cases, set randInt=0 instead.
 	set:('enableSubQuery)&((randInt=5)!(randInt=9)) randInt=0
 
+	write "whereClause(): queryDepth=",queryDepth," randInt=",randInt,!
 	if (randInt=0) do
 	. new loopCount,i,leftSide,rightSide,notString,chosenColumn,opened
 	. set loopCount=$random(3)+1 ; 1-3
@@ -694,13 +708,14 @@ whereClause(queryDepth)
 	. . set result=result_toCompare_" = "_$$returnCaseFunction("WHERE","lrComparison","columns","FALSE",toCompare)
 	. else  set result=""
 
+	write "whereClause(): result=",result,!
 	quit result
 
 ; https://ronsavage.github.io/SQL/sql-92.bnf.html#group%20by%20clause
 ; This function returns the GROUP BY clause. It pulls the necessary values from the selectListLVN.
 groupbyClause(queryDepth)
 	do assert(enableGroupByHavingClause)
-	new result,randInt,i,holder,firstholder
+	new result,randInt,i,holder,firstholder,anotherholder
 	set result=""
 	zwrite tableAlias,tableColumn,selectListLVN
 
@@ -709,14 +724,27 @@ groupbyClause(queryDepth)
 	for j=queryDepth:-1:0 do
 	. set holder=""
 	. for i=1:1 set holder=$order(selectListLVN(j,holder)) quit:(holder="")  do  do assert(i<16)
-	. . ; Skip columns in select list with "*" OR aggregate function OR subquery or "table.*" usage.
+	. . set anotherholder=""
+	. . ; Skip columns in select list with "*" OR aggregate function OR subquery.
 	. . write "groupbyClause() : selectListLVN(",j,",",$zwrite(holder),")=",selectListLVN(j,holder),!
+	. . if (selectListLVN(j,holder)="aggregate_function_t_asterisk")  do
+	. . . ; Using anotherholder here because replacing holder itself will cause error
+	. . . ; as selectListLVN(j,holder) will not be defined.
+	. . . ; This can only occur if selectList() call chooses to include count(tablename.*) with GROUPBY
+	. . . set anotherholder=$piece($piece(holder,"(",2),")",1)
+	. . . write "groupbyClause() : holder without aggregate function:",$zwrite(anotherholder),!
+	. . . ; # FUTURE_TODO: We want to randomize selection of table.* for group by
+	. . . ; Because this will lead to the testing of 2 cases
+	. . . ; 1. COUNT(table.*) with group by having table.* and 2. COUNT(table.*) with group by not having table.*
+	. . . ; Both are valid usages
+	. . . ;quit:(1=$random(2))
 	. . quit:selectListLVN(j,holder)="aggregate_function"
 	. . quit:selectListLVN(j,holder)="subquery"
 	. . quit:selectListLVN(j,holder)="star"
-	. . ; #FUTURE_TODO: Remove the following line once table.* is enabled for GROUP BY in #386
+	. . ; table.* must be skipped as adding this to group by when select list hasn't enclosed table.* with COUNT is an invalid case
 	. . quit:selectListLVN(j,holder)="table.*"
-	. . set result=result_$select(firstholder:"",1:", ")_holder,firstholder=0
+	. . set:anotherholder'="" result=result_$select(firstholder:"",1:", ")_anotherholder,firstholder=0
+	. . set:anotherholder="" result=result_$select(firstholder:"",1:", ")_holder,firstholder=0
 	write "groupbyClause() : result = ",result,!
 	quit $select(""=result:" ",1:" GROUP BY "_result)
 
@@ -747,6 +775,11 @@ havingClause(queryDepth,clauseType)
 	; If enableSubQuery is FALSE, randInt=1 and randInt=5 cannot be allowed as they invoke "generateSubQuery"
 	; So in those cases, set randInt=0 instead.
 	set:('enableSubQuery)&((randInt=1)!(randInt=5)) randInt=0
+
+	; If table.asterisk is present allow randInt=2 and randInt=3 case as others are complicated
+	; #FUTURE_TODO: Enhance othercases to use table.asterisk
+	set randIntTA=$random(2)
+	set:((tableAsteriskExists)&((randInt'=2)!(randInt'=3))) randInt=(2+randIntTA)
 
 	write "havingClause() : randInt = ",randInt,!
 
@@ -936,6 +969,7 @@ orderbyClause(queryDepth,aNum,location)
 	. . set firstholder=1
 	. . ; Only choose select column list columns at query depth "queryDepth" for ORDER BY due to SELECT DISTINCT usage.
 	. . set holder="" for  set holder=$order(selectListLVN(queryDepth,holder))  quit:holder=""  do
+	. . . write "orderbyClause() : holder = ",holder,!
 	. . . if (holder'="*")  set result=result_$select(firstholder:"",1:", ")_holder,firstholder=0
 	. else  do
 	. . ; #FUTURE_TODO: There is no basis for determining whether an ORDER BY occurs within a subquery
@@ -1243,12 +1277,12 @@ havingChooseColumn(queryDepth,table,isAggrFuncColumn,count)
 	; (i.e. COUNT(x.y) should yield x.y; COUNT(ALL x.y) should yield x.y; ROUND(AVG(x.y)) should yield x.y;)
 	if $find(holder,"ROUND(AVG(") do
 	. new tmpHolder
-	. ; returnAggregateFunction would have generated only AVG(table.column) or AVG(ALL table.column) or AVG(DISTINCT table.column)
+	. ; returnAggregateFunction would have generated AVG(table.column) or AVG(ALL table.column) or AVG(DISTINCT table.column)
 	. ; So fetch the 3rd piece this should give us the complete value within AVG()
 	. set holderMinusAggrFunc=$piece($piece(holder,"(",3),")")
 	. ; Remove ALL or DISTINCT and if they are not present retain just table.column value
 	. set tmpHolder=$piece(holderMinusAggrFunc," ",2)
-	. ; if tmpHolder is not empty - ALL or DISTICT was used and tmpHolder now has table.column. Copy it to holderMinusAggrFunc.
+	. ; if tmpHolder is not empty - ALL or DISTINCT was used and tmpHolder now has table.column. Copy it to holderMinusAggrFunc.
 	. set:(tmpHolder'="") holderMinusAggrFunc=tmpHolder
 	. ; else holderMinusAggrFunc has table.column nothing else to be done
 	. set isAggrFuncColumn="AVG"
@@ -1643,6 +1677,7 @@ generateSubQuery(queryDepth,subQueryType,joinType)
 	merge selectListLVN=selectListLVNSave
 	merge tableAlias=tableAliasSave
 
+	w "generateSubQuery() innerQuery=",innerQuery,!
 	quit innerQuery
 
 ; #FUTURE_TODO: Try to make as many of these the same as their non-subquery counterparts
@@ -1657,6 +1692,7 @@ generateSubQuery(queryDepth,subQueryType,joinType)
 innerSelectList(queryDepth,subQueryType,curDepth,alias)
 	new result,toBeAdded,aliastable,i
 	;This function serves the same purpose as select sublist in the grammar rules for SQL.
+	write "innerSelectList() :queryDepth=",queryDepth," subQueryType=",subQueryType," curDepth=",curDepth," alias=",alias,!
 
 	do assert(0'=+queryDepth)
 	set result=""

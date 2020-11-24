@@ -41,7 +41,7 @@ TEMPLATE(tmpl_populate_output_key, PhysicalPlan *plan, int dot_count) {
 		 */
 		column_list = plan->projection;
 		assert(NULL == column_list->v.lp_default.operand[1]);
-		TMPL(tmpl_column_list_combine, column_list, plan, ",", FALSE, dot_count);
+		TMPL(tmpl_column_list_combine, column_list, plan, ",", FALSE, dot_count, FALSE);
 		TMPL(tmpl_print_dots, dot_count);
 		%{}IF $INCREMENT({}%
 		TMPL(tmpl_key, plan->outputKey);
@@ -117,14 +117,14 @@ TEMPLATE(tmpl_populate_output_key, PhysicalPlan *plan, int dot_count) {
 		 *	`str2mval` transformation.
 		 * Hence `!plan->stash_columns_in_keys` passed below as the 4th parameter (`str2mval`).
 		 */
-		TMPL(tmpl_column_list_combine, plan->projection, plan, "_", !plan->stash_columns_in_keys, dot_count);
+		TMPL(tmpl_column_list_combine, plan->projection, plan, "_", !plan->stash_columns_in_keys, dot_count, FALSE);
 		TMPL(tmpl_print_dots, dot_count);
 		%{}SET {}%
 		TMPL(tmpl_key, plan->outputKey);
 		(*buffer_index)--;
 		if (NULL != plan->order_by) {
 			%{},{{ PP_ORDER_BY }},{}%
-			TMPL(tmpl_column_list_combine, plan->order_by, plan, ",", FALSE, 0);
+			TMPL(tmpl_column_list_combine, plan->order_by, plan, ",", FALSE, 0, FALSE);
 			%{},{}%
 			TMPL(tmpl_key, plan->outputKey);
 			%{}){}%
@@ -154,7 +154,7 @@ TEMPLATE(tmpl_populate_output_key, PhysicalPlan *plan, int dot_count) {
 		TMPL(tmpl_print_dots, dot_count);
 		%{}SET:1{}%
 		%{} {{ PP_YDB_OCTO_ZDISTINCT }}({{ plan->outputKey->unique_id|%d }},{}%
-		TMPL(tmpl_column_list_combine, plan->projection, plan, ",", FALSE, 0);
+		TMPL(tmpl_column_list_combine, plan->projection, plan, ",", FALSE, 0, FALSE);
 		%{})=""{}%
 	}
 	return;

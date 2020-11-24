@@ -87,6 +87,7 @@ ERROR_DEF(ERR_M_CALL, "Inline M function calls are disallowed. Use CREATE FUNCTI
 ERROR_DEF(ERR_MISSING_FROM_ENTRY, "Missing FROM-clause entry for table : %.*s", PSQL_Code_Undefined_Table)
 ERROR_DEF(ERR_MISSING_KEY, "Missing key %d in table %s; max key was %d", PSQL_Code_Undefined_Object)
 ERROR_DEF(ERR_MISTYPED_FUNCTION, "Function %s cannot be invoked with a parameter of type %s", PSQL_Code_Undefined_Function)
+ERROR_DEF(ERR_MISTYPED_FUNCTION_TABLE_ASTERISK, "Function %s cannot be invoked with a parameter of type %s when table has more than one column", PSQL_Code_Undefined_Function)
 ERROR_DEF(ERR_MULTIPLE_VALUES_PROVIDED, "Multiple values provided for %s; undefined behavior", PSQL_Code_Ambiguous_Parameter)
 ERROR_DEF(ERR_MULTIPLE_ZERO_KEYS, "Multiple %d keys found for table %s", PSQL_Code_Ambiguous_Parameter)
 ERROR_DEF(ERR_ORDER_BY_POSITION_INVALID, "ORDER BY position %s%s is not in select list", PSQL_Code_Invalid_Column_Reference)

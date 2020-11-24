@@ -1,0 +1,58 @@
+
+-- Following query verifies that similar tablenames are not mistaken to be same
+select count(DISTINCT n1.*) from names1col n11;
+
+-- Type mismatch
+select n1.* = n1.firstname from names1col n1;
+
+-- Missing FROM-clause entry
+select id from names1col n1 group by names1col.*;
+
+-- Wrong aggregate function usage
+select avg(n2.*) from (select n1.firstname from names n1) n2;
+select sum(n2.*) from (select n1.firstname from names n1) n2;
+select avg(DISTINCT n2.*) from (select n1.firstname from names n1) n2;
+select sum(DISTINCT n2.*) from (select n1.firstname from names n1) n2;
+[ERROR] PATH:LINENUM DATE TIME : ERR_MISSING_FROM_ENTRY : Missing FROM-clause entry for table : N1
+Error with syntax near (line 1, column 23):
+
+select count(DISTINCT n1.*) from names1col n11;
+                      ^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select count(DISTINCT n1.*) from names1col n11;
+[ERROR] PATH:LINENUM DATE TIME : ERR_MISSING_FROM_ENTRY : Missing FROM-clause entry for table : N1
+Error with syntax near (line 1, column 15):
+
+select n1.* = n1.firstname from names1col n1;
+              ^^^^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select n1.* = n1.firstname from names1col n1;
+[ERROR] PATH:LINENUM DATE TIME : ERR_MISSING_FROM_ENTRY : Missing FROM-clause entry for table : NAMES1COL
+Error with syntax near (line 1, column 38):
+
+select id from names1col n1 group by names1col.*;
+                                     ^^^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select id from names1col n1 group by names1col.*;
+[ERROR] PATH:LINENUM DATE TIME : ERR_MISTYPED_FUNCTION : Function AVG cannot be invoked with a parameter of type VARCHAR
+Error with syntax near (line 1, column 8):
+
+select avg(n2.*) from (select n1.firstname from names n1) n2;
+       ^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select avg(n2.*) from (select n1.firstname from names n1) n2;
+[ERROR] PATH:LINENUM DATE TIME : ERR_MISTYPED_FUNCTION : Function SUM cannot be invoked with a parameter of type VARCHAR
+Error with syntax near (line 1, column 8):
+
+select sum(n2.*) from (select n1.firstname from names n1) n2;
+       ^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select sum(n2.*) from (select n1.firstname from names n1) n2;
+[ERROR] PATH:LINENUM DATE TIME : ERR_MISTYPED_FUNCTION : Function AVG cannot be invoked with a parameter of type VARCHAR
+Error with syntax near (line 1, column 8):
+
+select avg(DISTINCT n2.*) from (select n1.firstname from names n1) n2;
+       ^^^^^^^^^^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select avg(DISTINCT n2.*) from (select n1.firstname from names n1) n2;
+[ERROR] PATH:LINENUM DATE TIME : ERR_MISTYPED_FUNCTION : Function SUM cannot be invoked with a parameter of type VARCHAR
+Error with syntax near (line 1, column 8):
+
+select sum(DISTINCT n2.*) from (select n1.firstname from names n1) n2;
+       ^^^^^^^^^^^^^^^^^^
+[ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select sum(DISTINCT n2.*) from (select n1.firstname from names n1) n2;
+

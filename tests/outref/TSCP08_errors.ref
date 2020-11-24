@@ -1,11 +1,13 @@
--- Below queries should not result in any seg faults
+-- Error cases
 select *;
 select n1.*;
 select n1.* from names n2;
 select * from (select n1.* from names n2);
 select * as alias from names;
 select * alias from names;
--- order by TABLENAME.ASTERISK usage with wrong TABLENAME
+select (select names.*) from names;
+
+-- ORDER BY TABLENAME.ASTERISK usage with wrong TABLENAME
 select * from (select firstname,lastname,id from names)n1 order by n2.*,n1.id;
 select id from names n1 order by n2.*;
 select n1.* from names n1 order by *,n1.id;
@@ -19,21 +21,19 @@ select *;
 Error with syntax near (line 1, column 8):
 
 select n1.*;
-       ^^^^
+       ^^
 [ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select n1.*;
-
 [ERROR] PATH:LINENUM DATE TIME : ERR_MISSING_FROM_ENTRY : Missing FROM-clause entry for table : N1
 Error with syntax near (line 1, column 8):
 
 select n1.* from names n2;
-       ^^^^
+       ^^
 [ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select n1.* from names n2;
-
 [ERROR] PATH:LINENUM DATE TIME : ERR_MISSING_FROM_ENTRY : Missing FROM-clause entry for table : N1
 Error with syntax near (line 1, column 23):
 
 select * from (select n1.* from names n2);
-                      ^^^^
+                      ^^
 [ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select * from (select n1.* from names n2);
 [ERROR] PATH:LINENUM DATE TIME : ERR_SELECT_STAR_NO_TABLES : SELECT * with no tables specified is not valid
 Error with syntax near (line 1, column 8):
@@ -47,20 +47,19 @@ Error with syntax near (line 1, column 8):
 select * alias from names;
        ^
 [ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select * alias from names;
+[ERROR] PATH:LINENUM DATE TIME : ERR_SUBQUERY_ONE_COLUMN : Subquery must return only one column
 [ERROR] PATH:LINENUM DATE TIME : ERR_MISSING_FROM_ENTRY : Missing FROM-clause entry for table : N2
 Error with syntax near (line 1, column 68):
 
 select * from (select firstname,lastname,id from names)n1 order by n2.*,n1.id;
                                                                    ^^^^
 [ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select * from (select firstname,lastname,id from names)n1 order by n2.*,n1.id;
-
 [ERROR] PATH:LINENUM DATE TIME : ERR_MISSING_FROM_ENTRY : Missing FROM-clause entry for table : N2
 Error with syntax near (line 1, column 34):
 
 select id from names n1 order by n2.*;
                                  ^^^^
 [ERROR] PATH:LINENUM DATE TIME : ERR_PARSING_COMMAND : Error parsing statement: select id from names n1 order by n2.*;
-
 Error with syntax near (line 1, column 36):
 
 select n1.* from names n1 order by *,n1.id;

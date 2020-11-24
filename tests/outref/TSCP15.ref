@@ -1,0 +1,97 @@
+
+-- TABLENAME.ASTERISK in Group By
+select firstname from names group by names.*;
+select count(n1.*),n1.customer_id from customers as n1 group by n1.*;
+select n1.customer_id from customers as n1 group by n1.*;
+select count(n1.customer_id),n1.customer_id from customers as n1 group by n1.*;
+select count(n1.*),* from customers as n1 group by n1.*;
+select count(n1.*),n1.* from customers as n1 group by n1.*;
+select n1.* from customers as n1 group by n1.*;
+select count(n1.*),n1.name from ((select 1 as id, 'test' as name) union (select 2 as id, 'test' as name)) as n1 group by n1.*;
+select n1.* from names n1 group by n1.*;
+select count(n1.*),n1.id from names1col as n1 group by n1.*;
+select count(n1.*),* from names1col as n1 group by n1.*;
+select n1.* from names1col as n1 group by n1.*;
+FIRSTNAME
+Zero
+Acid
+Cereal
+Lord
+Joey
+Zero
+(6 rows)
+COUNT|CUSTOMER_ID
+1|1
+1|2
+1|3
+1|4
+1|5
+(5 rows)
+CUSTOMER_ID
+1
+2
+3
+4
+5
+(5 rows)
+COUNT|CUSTOMER_ID
+1|1
+1|2
+1|3
+1|4
+1|5
+(5 rows)
+COUNT|CUSTOMER_ID|FIRST_NAME|LAST_NAME|EMAIL|ADDRESS|CITY|STATE|ZIPCODE
+1|1|George|Washington|gwashington@usa.gov|3200 Mt Vernon Hwy|Mount Vernon|VA|22121
+1|2|John|Adams|jadams@usa.gov|1250 Hancock St|Quincy|MA|02169
+1|3|Thomas|Jefferson|tjefferson@usa.gov|931 Thomas Jefferson Pkwy|Charlottesville|VA|22902
+1|4|James|Madison|jmadison@usa.gov|11350 Constitution Hwy|Orange|VA|22960
+1|5|James|Monroe|jmonroe@usa.gov|2050 James Monroe Parkway|Charlottesville|VA|22902
+(5 rows)
+COUNT|CUSTOMER_ID|FIRST_NAME|LAST_NAME|EMAIL|ADDRESS|CITY|STATE|ZIPCODE
+1|1|George|Washington|gwashington@usa.gov|3200 Mt Vernon Hwy|Mount Vernon|VA|22121
+1|2|John|Adams|jadams@usa.gov|1250 Hancock St|Quincy|MA|02169
+1|3|Thomas|Jefferson|tjefferson@usa.gov|931 Thomas Jefferson Pkwy|Charlottesville|VA|22902
+1|4|James|Madison|jmadison@usa.gov|11350 Constitution Hwy|Orange|VA|22960
+1|5|James|Monroe|jmonroe@usa.gov|2050 James Monroe Parkway|Charlottesville|VA|22902
+(5 rows)
+CUSTOMER_ID|FIRST_NAME|LAST_NAME|EMAIL|ADDRESS|CITY|STATE|ZIPCODE
+1|George|Washington|gwashington@usa.gov|3200 Mt Vernon Hwy|Mount Vernon|VA|22121
+2|John|Adams|jadams@usa.gov|1250 Hancock St|Quincy|MA|02169
+3|Thomas|Jefferson|tjefferson@usa.gov|931 Thomas Jefferson Pkwy|Charlottesville|VA|22902
+4|James|Madison|jmadison@usa.gov|11350 Constitution Hwy|Orange|VA|22960
+5|James|Monroe|jmonroe@usa.gov|2050 James Monroe Parkway|Charlottesville|VA|22902
+(5 rows)
+COUNT|NAME
+1|test
+1|test
+(2 rows)
+ID|FIRSTNAME|LASTNAME
+0|Zero|Cool
+1|Acid|Burn
+2|Cereal|Killer
+3|Lord|Nikon
+4|Joey|
+5|Zero|Cool
+(6 rows)
+COUNT|ID
+1|0
+1|1
+1|2
+1|3
+1|4
+(5 rows)
+COUNT|ID
+1|0
+1|1
+1|2
+1|3
+1|4
+(5 rows)
+ID
+0
+1
+2
+3
+4
+(5 rows)

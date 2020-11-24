@@ -512,7 +512,7 @@ This clause represents a condition under which columns are selected. If the **se
 GROUP BY
 +++++++++++
 
-The GROUP BY clause ensures that the resulting rows are grouped together based on the specified **grouping_column**.
+The GROUP BY clause provides for result rows to be grouped together based on the specified **grouping_column**. **grouping_column** can be :code:`table_name.*` as well in which case all columns of the table are considered for processing.
 
 ++++++++++
 HAVING
@@ -1525,7 +1525,15 @@ A primary value expression is denoted as follows:
 
    value_expression: unsigned_value_specification | column_reference | COUNT (\*|[set_quantifier] value_expression) | general_set_function | scalar_subquery | (value_expression);
 
-The value expression can contain an unsigned value, a column reference, a set function or a subquery.
+The value expression can contain an unsigned value, a column reference, a set function, a subquery or :code:`table_name.*`
+
+:code:`table_name.*` usage:
+* When :code:`table_name.*` is used, all columns of the table specified are included
+* It can be used in SELECT, GROUP BY, and ORDER BY column list
+* It can also be used with set functions in SELECT, HAVING and ORDER BY expressions
+* Apart from COUNT other set functions can have :code:`table_name.*` only when the table has a single column and if its type is compatible with the function.
+* When :code:`COUNT( [set_quantifier] table_name.* )` is used as a column in SELECT, other columns have to either be present in GROUP BY or should be part of a :code:`set_function` otherwise error is raised for the column not following this condition
+* When :code:`table_name.*` is used with COUNT, all columns of the table are considered for processing. In case a row exists where all columns have artificial NULL values, :code:`COUNT(tablename.*)` or :code:`COUNT(DISTINCT tablename.*)` will not include the row in its result. We can end up with such a row when an outer join is used and there is no match for the right table, in this case the rows of the right table in the join will have only artificial NULL values.
 
 general_set_function refers to functions on sets like AVG, SUM, MIN, MAX etc. A set function can also contain the keyword COUNT, to count the number of resulting columns or rows that result from the query.
 

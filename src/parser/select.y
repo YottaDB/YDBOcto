@@ -259,9 +259,7 @@ from_clause
 
 	$$ = $table_reference_list;
 
-	/* Traverse the all tables in the join list and ensure that each table has a unique alias. Else issue an error.
-	 * Also use this opportunity to finish setting up the NATURAL JOIN condition (deferred in a "qualified_join" rule).
-	 */
+	/* Traverse the all tables in the join list and ensure that each table has a unique alias. Else issue an error. */
 	UNPACK_SQL_STATEMENT(start_join, $$, join);
 	cmp_join = start_join;
 	do {
@@ -271,14 +269,6 @@ from_clause
 		SqlStatement	*stmt;
 		char		*cmp_name, *cur_name;
 
-		if (NATURAL_JOIN == cmp_join->type) {
-			/* cur_join->condition would not yet have been filled in (deferred in parser). Do that here and
-			 * at the same time do some qualification checks too (errors will be returned as a non-zero value).
-			 */
-			if (natural_join_condition(start_join, cmp_join)) {
-				YYERROR;
-			}
-		}
 		stmt = drill_to_table_alias(cmp_join->value);
 		UNPACK_SQL_STATEMENT(alias, stmt, table_alias);
 		UNPACK_SQL_STATEMENT(value, alias->alias, value);

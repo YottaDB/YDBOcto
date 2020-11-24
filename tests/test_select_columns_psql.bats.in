@@ -90,8 +90,11 @@ setup() {
 	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TSCP07.sql
 }
 
-@test "TSCP08 : OCTO385 : Verify different asterisk usage in select column list" {
+@test "TSCP08 : OCTO385/OCTO386 : Verify different asterisk and TABLENAME.ASTERISK usage in select column list and ORDER BY" {
   run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TSCP08.sql
+  load_fixture customers.sql
+  load_fixture customers.zwr
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries customers TSCP08_customers.sql
   load_fixture TSCP08_errors.sql subtest novv
   verify_output TSCP08_errors output.txt
 }
@@ -102,5 +105,50 @@ setup() {
 
 @test "TSCP10 : OCTO628 : RPARENMISSING error when trying to use || operator with hundreds of operands" {
 	run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TSCP10.sql
+}
+
+@test "TSCP11 : OCTO386 : Verify different TABLENAME.ASTERISK usage with GROUP BY and aggregate functions" {
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TSCP11.sql
+  load_fixture customers.sql
+  load_fixture customers.zwr
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries customers TSCP11_customers.sql
+  load_fixture TSCP11_errors.sql subtest novv
+  verify_output TSCP11_errors output.txt
+}
+
+@test "TSCP12 : OCTO386 : Verify count(DISTINCT n1.id) and count(DISTINCT n1.*) creates two different physical plans" {
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TSCP12_column.sql
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names TSCP12_table_asterisk.sql
+  [[ $(ls -l _ydboctoP*.m | wc -l) -eq 2 ]]
+}
+
+@test "TSCP13 : OCTO386 : Verify count(DISTINCT n1.*) and count(n1.*) behavior with single column table created through DDL" {
+  load_fixture names1col.sql
+  load_fixture names1col.zwr
+  run_query_in_octo_and_postgres_and_crosscheck_multiple_queries names1col TSCP13.sql
+  load_fixture TSCP13_errors.sql subtest novv
+  verify_output TSCP13_errors output.txt
+}
+
+@test "TSCP14 : OCTO386 : Verify AVG, SUM, MIN & MAX work with table.* when table has only one column" {
+  # Aggregate functions other than COUNT also work with table.*. But, table must have only one column.
+  # MIN and MAX work with tables having single column of VARCHAR or INTEGER
+  # AVG and SUM work with tables having single column of INT
+  # Postgres doesn't allow table.* syntax for all aggregate functions so we can't cross check here with postgres.
+  load_fixture names1col.sql
+  load_fixture names1col.zwr
+  load_fixture TSCP14_table_asterisk.sql subtest novv
+  mv output.txt table_asterisk_output.txt
+  load_fixture TSCP14_single_column.sql subtest novv
+  diff -I "^select " output.txt table_asterisk_output.txt
+}
+
+@test "TSCP15 : OCTO386 : Verify queries with TABLENAME.ASTERISK as a column in GROUP BY and select column list" {
+  load_fixture names1col.sql
+  load_fixture names1col.zwr
+  load_fixture customers.sql
+  load_fixture customers.zwr
+  load_fixture TSCP15.sql subtest novv
+  verify_output TSCP15 output.txt
 }
 

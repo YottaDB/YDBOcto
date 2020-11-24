@@ -487,7 +487,8 @@ int lp_verify_structure_helper(LogicalPlan *plan, PhysicalPlanOptions *options, 
 			*options->aggregate = plan;
 		}
 		ret &= lp_verify_structure_helper(plan->v.lp_default.operand[0], options, LP_COLUMN_LIST);
-		ret &= (NULL == plan->v.lp_default.operand[1]);
+		/* In case count(DISTINCT table.*) usage we can expect operand[1] to have another LP_COLUMN_LIST */
+		ret &= lp_verify_structure_helper(plan->v.lp_default.operand[1], options, LP_COLUMN_LIST);
 		break;
 	case LP_CASE:
 		ret &= lp_verify_structure_helper(plan->v.lp_default.operand[0], options, LP_CASE_STATEMENT);

@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -21,8 +21,7 @@
 #include "logical_plan.h"
 
 /**
- * Tries to find the column in the list of tables
- * If the name is already qualified, verifies the table exists.
+ * Tries to find the column in the list of tables. If the name is already qualified, verifies the table exists.
  *
  * For the case of join tables, searches using the <tableName>.<columnName>
  *  followed by searching without separating the two parts
@@ -45,8 +44,8 @@ SqlColumnAlias *qualify_column_name(SqlValue *column_value, SqlJoin *tables, Sql
 	int		    table_name_len, column_name_len;
 
 	matching_alias_stmt = NULL;
-	// If the value is not a column_reference, we should not be here
-	assert(COLUMN_REFERENCE == column_value->type);
+	// If the value is not a column_reference or TABLE_ASTERISK, we should not be here
+	assert((COLUMN_REFERENCE == column_value->type) || (TABLE_ASTERISK == column_value->type));
 
 	// Find the first period; if it is missing, we need to match against
 	//  all columns in all tables
@@ -164,16 +163,36 @@ SqlColumnAlias *qualify_column_name(SqlValue *column_value, SqlJoin *tables, Sql
 					if ((table_name_len == table_name_len2)
 					    && (0 == memcmp(value->v.reference, table_name, table_name_len))) {
 						matching_alias_stmt = sql_stmt;
-						col_cla = match_column_in_table(cur_alias, column_name, column_name_len, &ambiguous,
-										TRUE);
-						if ((NULL != col_cla) && ambiguous) {
-							/* There are multiple column matches within one table in the FROM list.
-							 * An error has already been issued inside "match_column_in_table".
-							 * Record error context here.
-							 * Signal an error return from this function by returning NULL.
+						if (TABLE_ASTERISK == column_value->type) {
+							SqlColumnAlias *ret;
+
+							/* As this is a table.asterisk value and exists only as an indication to
+							 * later stages to consider the entire row value we do not need additional
+							 * processing here. Return a SqlColumnAlias with TABLE_ASTERISK value and
+							 * matching_alias_stmt value. A consequence of `not doing additional
+							 * processing` and instead `returning right away` in this case is that if
+							 * `n1.*` is specified multiple times, we will be creating a different
+							 * column alias for each of those occurrences whereas that is not the case
+							 * if say `n1.firstname` is specified multiple times in the select column
+							 * list.
 							 */
-							yyerror(NULL, NULL, &cur_alias->alias, NULL, NULL, NULL);
-							return NULL;
+							OCTO_CMALLOC_STRUCT(ret, SqlColumnAlias);
+							SQL_VALUE_STATEMENT(ret->column, TABLE_ASTERISK,
+									    column_value->v.string_literal);
+							ret->table_alias_stmt = matching_alias_stmt;
+							return ret;
+						} else {
+							col_cla = match_column_in_table(cur_alias, column_name, column_name_len,
+											&ambiguous, TRUE);
+							if ((NULL != col_cla) && ambiguous) {
+								/* There are multiple column matches within one table in the FROM
+								 * list. An error has already been issued inside
+								 * "match_column_in_table". Record error context here. Signal an
+								 * error return from this function by returning NULL.
+								 */
+								yyerror(NULL, NULL, &cur_alias->alias, NULL, NULL, NULL);
+								return NULL;
+							}
 						}
 						break;
 					}
@@ -182,19 +201,18 @@ SqlColumnAlias *qualify_column_name(SqlValue *column_value, SqlJoin *tables, Sql
 				t_col_cla = match_column_in_table(cur_alias, column_name, column_name_len, &ambiguous, TRUE);
 				if (NULL != t_col_cla) {
 					if (ambiguous) {
-						/* There are multiple column matches within one table in the FROM list.
-						 * An error has already been issued inside "match_column_in_table".
-						 * Record error context here.
+						/* There are multiple column matches within one table in the FROM list. An error has
+						 * already been issued inside "match_column_in_table". Record error context here.
 						 * Signal an error return from this function by returning NULL.
 						 */
 						yyerror(NULL, NULL, &sql_stmt, NULL, NULL, NULL);
 						return NULL;
 					}
 					if (NULL != col_cla) {
-						/* There are multiple column matches.
-						 * Check if the matches came across multiple tables in the FROM list at the
-						 * same level or a different level. Issue an error in the former case. Do not
-						 * issue an error in the latter case (consider closest level table as matching).
+						/* There are multiple column matches. Check if the matches came across multiple
+						 * tables in the FROM list at the same level or a different level. Issue an error in
+						 * the former case. Do not issue an error in the latter case (consider closest level
+						 * table as matching).
 						 */
 						SqlTableAlias *matching_table_alias;
 
@@ -221,8 +239,8 @@ SqlColumnAlias *qualify_column_name(SqlValue *column_value, SqlJoin *tables, Sql
 			if (NULL == table_name) {
 				ERROR(ERR_UNKNOWN_COLUMN_NAME, column_name);
 			} else {
-				/* If table_name is non-NULL, it points to a string of the form "tablename.columnname" but
-				 * we want to only print the tablename hence the use of "table_name_len" below to stop there.
+				/* If table_name is non-NULL, it points to a string of the form "tablename.columnname" but we want
+				 * to only print the tablename hence the use of "table_name_len" below to stop there.
 				 */
 				ERROR(ERR_MISSING_FROM_ENTRY, table_name_len, table_name);
 			}

@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2020-2021 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -110,14 +110,16 @@ SqlStatement *table_reference(SqlStatement *column_name, SqlStatement *correlati
 	}
 	PACK_SQL_STATEMENT(table_alias->column_list, columns_to_column_list_alias(column, join->value), column_list_alias);
 	if (NULL != correlation_specification) {
-		/* See if a list of column name aliases were also specified. If so copy those over to table_alias. */
-		if (copy_correlation_specification_aliases(table_alias, correlation_specification)) {
-			return NULL;
-		}
+		SqlColumnList *column_list;
+
+		UNPACK_SQL_STATEMENT(column_list, correlation_specification, column_list);
+		table_alias->alias = column_list->value;
+		table_alias->correlation_specification = correlation_specification;
+		/* Defer processing column name aliases till all asterisk or table.* usage is expanded in qualify_query() */
 	} else {
 		table_alias->alias = tableName;
 	}
-	// We can probably put a variable in the bison local for this
+	/* We can probably put a variable in the bison local for this */
 	table_alias->unique_id = *plan_id;
 	(*plan_id)++;
 	dqinit(join);

@@ -113,7 +113,8 @@ TEMPLATE(tmpl_key_source, PhysicalPlan *pplan, SqlKey *key);
 TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_count, int depth);
 TEMPLATE(tmpl_print_expression_assignment, LogicalPlan *plan, PhysicalPlan *pplan, int dot_count, int depth);
 TEMPLATE(tmpl_column_reference, PhysicalPlan *pplan, SqlColumnAlias *column_alias, boolean_t is_trigger, int dot_count);
-TEMPLATE(tmpl_column_list_combine, LogicalPlan *plan, PhysicalPlan *pplan, char *delim, boolean_t str2mval, int dot_count);
+TEMPLATE(tmpl_column_list_combine, LogicalPlan *plan, PhysicalPlan *pplan, char *delim, boolean_t str2mval, int dot_count,
+	 boolean_t is_asterisk);
 TEMPLATE(tmpl_emit_source, SqlTable *table, char *source, char *table_name, int unique_id, int keys_to_match,
 	 enum EmitSourceForm form);
 TEMPLATE(tmpl_duplication_check, PhysicalPlan *plan);

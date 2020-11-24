@@ -485,7 +485,7 @@ typedef enum RegexType {
 /* Below macro assumes VALUE_STMT->type is value_STATEMENT */
 #define IS_LITERAL_PARAMETER(VALUE_TYPE)                                                                     \
 	((NUMERIC_LITERAL == VALUE_TYPE) || (INTEGER_LITERAL == VALUE_TYPE) || (BOOLEAN_VALUE == VALUE_TYPE) \
-	 || (STRING_LITERAL == VALUE_TYPE))
+	 || (STRING_LITERAL == VALUE_TYPE) || (TABLE_ASTERISK == VALUE_TYPE))
 
 #define IS_NULL_FIXED_VALUE(FIX_VALUE) \
 	((NULL != FIX_VALUE) && (LP_VALUE == FIX_VALUE->type) && (IS_NULL_LITERAL == FIX_VALUE->v.lp_value.value->type))
@@ -627,6 +627,43 @@ typedef enum RegexType {
 
 #define IS_STMT_BOOLEAN_AND(STMT) ((binary_STATEMENT == STMT->type) && (BOOLEAN_AND == STMT->v.binary->operation))
 
+/* Used by `query_specification()` and `process_table_asterisk_cla()` during expansion of ASTERISK or TABLENAME.ASTERISK.
+ * In case where ASTERISK or TABLENAME.ASTERISK is the first element in `column_list_alias` list (select *,n1.id ..)
+ * re-initialize the head. Update `cla_cur` to point to newly inserted asterisk list.
+ */
+#define REPLACE_COLUMNLISTALIAS(CLA_CUR, CLA_ALIAS, CLA_HEAD, LIST)        \
+	{                                                                  \
+		if ((CLA_CUR) == (CLA_CUR)->next) {                        \
+			(LIST)->v.column_list_alias = (CLA_ALIAS);         \
+			(CLA_HEAD) = (CLA_ALIAS);                          \
+		} else {                                                   \
+			SqlColumnListAlias *rm_cla = (CLA_CUR);            \
+                                                                           \
+			(CLA_CUR) = (CLA_CUR)->next;                       \
+			dqdel(rm_cla);                                     \
+			dqappend(CLA_CUR, CLA_ALIAS);                      \
+			if ((CLA_HEAD) == rm_cla) {                        \
+				(LIST)->v.column_list_alias = (CLA_ALIAS); \
+				(CLA_HEAD) = (CLA_ALIAS);                  \
+			}                                                  \
+		}                                                          \
+		(CLA_CUR) = (CLA_ALIAS);                                   \
+	}
+
+/* Below returns the column_alias having TABLE_ASTERISK value as its column */
+#define GET_TABLE_ASTERISK_COLUMN_ALIAS_FROM_COLUMN_LIST(RET, CL_STMT)            \
+	{                                                                         \
+		SqlColumnAlias *ca;                                               \
+		SqlColumnList * inner_column_list;                                \
+		DEBUG_ONLY(SqlValue *value);                                      \
+                                                                                  \
+		UNPACK_SQL_STATEMENT(inner_column_list, CL_STMT, column_list);    \
+		UNPACK_SQL_STATEMENT(ca, inner_column_list->value, column_alias); \
+		DEBUG_ONLY(UNPACK_SQL_STATEMENT(value, ca->column, value));       \
+		assert(TABLE_ASTERISK == value->type);                            \
+		(RET) = ca;                                                       \
+	}
+
 #ifndef NDEBUG
 #define NDEBUG_ONLY(X)
 #define DEBUG_ONLY(X) X
@@ -711,7 +748,8 @@ int		    get_column_number_from_column_list_alias(SqlColumnListAlias *input_cla,
 SqlColumnListAlias *get_column_list_alias_n_from_table_alias(SqlTableAlias *table_alias, int column_number);
 SqlColumnAlias *    get_column_alias_for_column_list_alias(SqlColumnListAlias *col_cla, SqlStatement *matching_alias_stmt);
 
-SqlColumnListAlias *copy_column_list_alias_list(SqlColumnListAlias *cla, SqlStatement *sql_stmt, SqlStatement *keywords);
+SqlColumnListAlias *copy_column_list_alias_list(SqlColumnListAlias *cla, SqlStatement *sql_stmt, SqlStatement *keywords,
+						SqlTableAlias *table_alias);
 SqlStatement *	    copy_sql_statement(SqlStatement *stmt);
 boolean_t	    match_sql_statement(SqlStatement *stmt, SqlStatement *match_stmt);
 
@@ -736,7 +774,7 @@ SqlStatement *aggregate_function(SqlAggregateType aggregate_type, OptionalKeywor
 SqlStatement *between_predicate(SqlStatement *row_value_constructor, SqlStatement *from, SqlStatement *to, boolean_t not_specified);
 SqlStatement *cast_specification(SqlStatement *cast_specification, SqlStatement *source);
 SqlStatement *create_sql_column_list(SqlStatement *elem, SqlStatement *tail, YYLTYPE *llocp);
-int	      copy_correlation_specification_aliases(SqlTableAlias *table_alias, SqlStatement *correlation_specification);
+int	      copy_correlation_specification_aliases(SqlTableAlias *table_alias);
 SqlStatement *data_type(SqlDataType data_type, SqlStatement *size_or_precision, SqlStatement *scale);
 SqlStatement *derived_column(SqlStatement *derived_column_expression, SqlStatement *column_name, struct YYLTYPE *yloc);
 SqlStatement *derived_table(SqlStatement *table_subquery, SqlStatement *correlation_specification);
@@ -748,6 +786,11 @@ int	      parse_literal_to_parameter(ParseContext *parse_context, SqlValue *valu
 SqlStatement *query_specification(OptionalKeyword set_quantifier, SqlStatement *select_list, SqlStatement *table_expression,
 				  SqlStatement *sort_specification_list, int *plan_id);
 SqlStatement *validate_query_expression(SqlStatement *query_expression, ParseContext *parse_context, SqlStatementType cmd_type);
+SqlColumnListAlias *process_asterisk(SqlJoin *select_table_list, struct YYLTYPE loc);
+void process_table_asterisk_cla(SqlStatement *specification_list, SqlColumnListAlias **cla_cur, SqlTableAlias *table_alias_stmt,
+				SqlColumnListAlias **cla_head);
+void process_table_asterisk_cl(SqlStatement *sort_specification_list, SqlAggregateType type);
+boolean_t is_stmt_table_asterisk(SqlStatement *stmt);
 int regex_specification(SqlStatement **stmt, SqlStatement *op0, SqlStatement *op1, enum RegexType regex_type, int is_sensitive,
 			int is_not, ParseContext *parse_context);
 SqlStatement *set_operation(enum SqlSetOperationType setoper_type, SqlStatement *left_operand, SqlStatement *right_operand);

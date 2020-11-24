@@ -612,6 +612,14 @@ Text: Function xxx cannot be invoked with a parameter of type xxx
 
 Description/Action: This error indicates that a function was passed an argument whose type does not match that defined for the given parameter. PSQL Error Code: 42883
 
+++++++++++++++++++++++++++++++++++++
+ERR_MISTYPED_FUNCTION_TABLE_ASTERISK
+++++++++++++++++++++++++++++++++++++
+
+Text: Function xxx cannot be invoked with a parameter of type xxx when table has more than one column
+
+Description/Action: This error indicates that a function was passed an argument whose type does not match that defined for the given parameter. Which in this case is a :code:`table.*` with the table having more than one column. PSQL Error Code: 42883
+
 ++++++++++++++++++++++++++++
 ERR_MULTIPLE_VALUES_PROVIDED
 ++++++++++++++++++++++++++++

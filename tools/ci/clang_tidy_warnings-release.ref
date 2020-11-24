@@ -9,5 +9,5 @@ make_error_response.c:warning: va_arg() is called on an uninitialized va_list [c
 make_error_response.c:warning: va_arg() is called on an uninitialized va_list [clang-analyzer-valist.Uninitialized]
 octo_init.c:warning: Attempt to free released memory [clang-analyzer-unix.Malloc]
 parse_startup_flags.c:warning: Null pointer passed to 1st parameter expecting 'nonnull' [clang-analyzer-core.NonNullParamChecker]
-query_specification.c:warning: Access to field 'prev' results in a dereference of a null pointer (loaded from variable 'cla_alias') [clang-analyzer-core.NullDereference]
-query_specification.c:warning: Access to field 'prev' results in a dereference of a null pointer (loaded from variable 'cla_common') [clang-analyzer-core.NullDereference]
+process_asterisk.c:warning: Access to field 'prev' results in a dereference of a null pointer (loaded from variable 'cla_alias') [clang-analyzer-core.NullDereference]
+process_asterisk.c:warning: Access to field 'prev' results in a dereference of a null pointer (loaded from variable 'cla_common') [clang-analyzer-core.NullDereference]

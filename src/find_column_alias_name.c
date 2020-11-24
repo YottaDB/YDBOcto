@@ -85,7 +85,10 @@ SqlStatement *find_column_alias_name(SqlStatement *stmt) {
 		break;
 	case column_alias_STATEMENT:
 		UNPACK_SQL_STATEMENT(column_alias, stmt, column_alias);
-		if (column_alias->column->type == column_STATEMENT) {
+		if (is_stmt_table_asterisk(column_alias->column)) {
+			// Required for processing table.asterisk usage errors by qualify_statement() column_alias_STATEMENT case
+			ret = column_alias->column;
+		} else if (column_alias->column->type == column_STATEMENT) {
 			UNPACK_SQL_STATEMENT(column, column_alias->column, column);
 			ret = column->columnName;
 		} else {

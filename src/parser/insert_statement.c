@@ -42,16 +42,32 @@ SqlStatement *insert_statement(SqlStatement *table_name, SqlStatement *column_na
 		return NULL;
 	}
 	if (NULL != column_name_list) {
-		SqlColumnList *	    start_cl, *cur_cl;
-		SqlTableAlias *	    src_table_alias;
-		SqlColumnListAlias *start_cla, *cur_cla;
-		SqlStatement *	    table_alias_stmt;
+		SqlColumnList *start_cl, *cur_cl;
 
-		table_alias_stmt = drill_to_table_alias(query_expression);
-		UNPACK_SQL_STATEMENT(src_table_alias, table_alias_stmt, table_alias);
-		UNPACK_SQL_STATEMENT(start_cla, src_table_alias->column_list, column_list_alias);
-		cur_cla = start_cla;
-		/* Check if column names specified are valid columns in the source table. If not issue error. */
+		/* The validation of query_expression columns with column_name_list colums is deferred to qualify_query() to account
+		 * for asterisk expansion. Reasoning explained below.
+		 *
+		 * Consider the following example query:
+		 * 	`INSERT INTO names(id,firstname,lastname) SELECT * FROM names;`
+		 * Here the column validation (comparison between insert into table columns given by column_name_list parameter and
+		 * query_expression select column list) would fail as asterisk is not yet expanded before the call to
+		 * insert_statement().
+		 *
+		 * Before the asterisk deferral change it would have been in query_specification() call, so when the execution
+		 * reaches insert_statement() the query would have been logically similar to the following:
+		 * 	`INSERT INTO names(id,firstname,lastname) SELECT (id),(firstname),(lastname) FROM names;`
+		 * but since asterisk processing is deferred we will need to defer this check as well.
+		 *
+		 * Validate ERR_TABLE_UNKNOWN_COLUMN_NAME and ERR_DUPLICATE_COLUMN here itself because:
+		 * ERR_TABLE_UNKNOWN_COLUMN_NAME -
+		 * Relies on table_name (first parameter) which is obtained by column_name grammar as a result it
+		 * can only be a simple value_STATEMENT representing the table name. So the table corresponding to this table_name
+		 * will already be qualified. Hence no need to worry about asterisk here. Also the column_name_list (second
+		 * parameter) which is being validate here will not have any asterisk usage. So no need to defer for now.
+		 * ERR_DUPLICATE_COLUMN -
+		 * Just validates that duplicate column name is not used in the column_name_list. Since asterisk cannot be
+		 * used in column_name_list and here its just a comparison within the list itself no need to defer.
+		 */
 		UNPACK_SQL_STATEMENT(start_cl, column_name_list, column_list);
 		cur_cl = start_cl;
 		do {
@@ -59,11 +75,6 @@ SqlStatement *insert_statement(SqlStatement *table_name, SqlStatement *column_na
 			SqlValue *     col_name;
 			SqlColumnList *cur_cl2;
 
-			if (NULL == cur_cla) {
-				ERROR(ERR_INSERT_TOO_MANY_COLUMNS, NULL);
-				yyerror(NULL, NULL, &cur_cl->value, NULL, NULL, NULL);
-				return NULL;
-			}
 			UNPACK_SQL_STATEMENT(col_name, cur_cl->value, value);
 			tbl_col = find_column(col_name->v.string_literal, table);
 			/* If user specified a hidden key column name, treat it as if the column name was not found.
@@ -92,18 +103,7 @@ SqlStatement *insert_statement(SqlStatement *table_name, SqlStatement *column_na
 					return NULL;
 				}
 			}
-			if (NULL != cur_cla) {
-				cur_cla = cur_cla->next;
-				if (start_cla == cur_cla) {
-					cur_cla = NULL;
-				}
-			}
 		} while (cur_cl != start_cl);
-		if (NULL != cur_cla) {
-			ERROR(ERR_INSERT_TOO_MANY_EXPRESSIONS, NULL);
-			yyerror(NULL, NULL, &cur_cla->column_list, NULL, NULL, NULL);
-			return NULL;
-		}
 	}
 	/* else: An "ERR_INSERT_TOO_MANY_EXPRESSIONS" error is issued (if needed) later in "check_column_lists_for_type_match.c" */
 	SQL_STATEMENT(ret, insert_STATEMENT);

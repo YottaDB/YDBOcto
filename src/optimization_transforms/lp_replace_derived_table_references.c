@@ -1,6 +1,6 @@
 /****************************************************************
  *								*
- * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2021 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -96,9 +96,13 @@ LogicalPlan *lp_replace_helper(LogicalPlan *plan, SqlTableAlias *table_alias, Sq
 			MALLOC_LP_2ARGS(ret, LP_DERIVED_COLUMN);
 			MALLOC_LP_2ARGS(ret->v.lp_default.operand[0], LP_KEY);
 			ret->v.lp_default.operand[0]->v.lp_key.key = key;
-			part = get_column_piece_number(alias, table_alias);
-			MALLOC_LP_2ARGS(ret->v.lp_default.operand[1], LP_PIECE_NUMBER);
-			ret->v.lp_default.operand[1]->v.lp_piece_number.piece_number = part;
+
+			if (!is_stmt_table_asterisk(alias->column)) {
+				/* Avoid piece information when COUNT with TABLE_ASTERISK is used as we do not need it */
+				part = get_column_piece_number(alias, table_alias);
+				MALLOC_LP_2ARGS(ret->v.lp_default.operand[1], LP_PIECE_NUMBER);
+				ret->v.lp_default.operand[1]->v.lp_piece_number.piece_number = part;
+			}
 			/* Note down sub-query SqlColumnAlias to later retrieve type information of this column */
 			ret->extra_detail.lp_derived_column.subquery_column_alias = alias;
 			/* Note down pointer to LP_DERIVED_COLUMN in the LP_COLUMN_ALIAS (needed later by template files

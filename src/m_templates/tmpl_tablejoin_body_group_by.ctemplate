@@ -32,7 +32,7 @@ TEMPLATE(tmpl_tablejoin_body_group_by, PhysicalPlan *plan, int dot_count) {
 
 		/* GROUP BY was specified. Emit the specified columns as the GROUP BY subscript */
 		GET_LP(group_by, plan->aggregate_options, 0, LP_GROUP_BY);
-		TMPL(tmpl_column_list_combine, group_by->v.lp_default.operand[0], plan, "_", TRUE, dot_count);
+		TMPL(tmpl_column_list_combine, group_by->v.lp_default.operand[0], plan, "_", TRUE, dot_count, FALSE);
 	} else {
 		/* GROUP BY was NOT specified. Emit "" as the GROUP BY subscript */
 		TMPL(tmpl_print_dots, dot_count);
@@ -62,9 +62,55 @@ TEMPLATE(tmpl_tablejoin_body_group_by, PhysicalPlan *plan, int dot_count) {
 			%{}SET {{ PP_YDB_OCTO_EXPR }}=""{}%
 			%{}`n{{ PLAN_LINE_START }}{}%
 		} else {
+			SqlColumnAlias *column_alias;
+			int		is_table_asterisk;
+			LogicalPlan *	l_plan;
+
 			lp_column_list = af->v.lp_default.operand[0];
 			assert(LP_COLUMN_LIST == lp_column_list->type);
-			TMPL(tmpl_print_expression, lp_column_list->v.lp_default.operand[0], plan, dot_count, 0);
+			l_plan = lp_column_list->v.lp_default.operand[0];
+			if (LP_COLUMN_ALIAS == l_plan->type) {
+				column_alias = l_plan->v.lp_column_alias.column_alias;
+			} else if (LP_DERIVED_COLUMN == l_plan->type) {
+				column_alias = l_plan->extra_detail.lp_derived_column.subquery_column_alias;
+			} else {
+				column_alias = NULL;
+			}
+			is_table_asterisk = (NULL != column_alias) && (is_stmt_table_asterisk(column_alias->column)
+							|| (NULL != lp_column_list->v.lp_default.operand[1]));
+			if (is_table_asterisk) {
+				int unique_id;
+
+				assert((LP_AGGREGATE_FUNCTION_COUNT == af->type) ||
+				       (LP_AGGREGATE_FUNCTION_COUNT_DISTINCT == af->type));
+				if (LP_DERIVED_COLUMN == l_plan->type) {
+					LogicalPlan *lp_key;
+
+					GET_LP(lp_key, l_plan, 0, LP_KEY);
+					unique_id = lp_key->v.lp_key.key->unique_id;
+				} else {
+					SqlTableAlias * table_alias;
+
+					UNPACK_SQL_STATEMENT(table_alias, column_alias->table_alias_stmt, table_alias);
+					unique_id = table_alias->unique_id;
+				}
+				if (plan->treat_key_as_null[unique_id]) {
+					TMPL(tmpl_print_dots, dot_count);
+					%{}SET {{ PP_YDB_OCTO_EXPR }}=$ZYSQLNULL{}%
+					%{}`n{{ PLAN_LINE_START }}{}%
+				} else {
+					if (LP_AGGREGATE_FUNCTION_COUNT == af->type) {
+						TMPL(tmpl_print_dots, dot_count);
+						%{}SET {{ PP_YDB_OCTO_EXPR }}=""{}%
+						%{}`n{{ PLAN_LINE_START }}{}%
+					} else {
+						// COUNT(DISTINCT table.*) usage
+						TMPL(tmpl_column_list_combine, lp_column_list, plan, "_", TRUE, dot_count, TRUE);
+					}
+				}
+			} else {
+				TMPL(tmpl_print_expression, l_plan, plan, dot_count, 0);
+			}
 		}
 		TMPL(tmpl_print_dots, dot_count);
 		%{}SET {{ PP_YDB_OCTO_P }}={{ PP_YDB_OCTO_EXPR }}{}%

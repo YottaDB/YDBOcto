@@ -297,8 +297,8 @@ void hash_canonical_query(hash128_state_t *state, SqlStatement *stmt, int *statu
 		ADD_INT_HASH(state, aggregate_function_STATEMENT);
 		// SqlAggregateType
 		ADD_INT_HASH(state, aggregate_function->type);
-		// SqlColumnList : We have only one parameter to aggregate functions so no loop needed hence FALSE used below.
-		hash_canonical_query_column_list(state, aggregate_function->parameter, status, FALSE);
+		// SqlColumnList : table.* case will have multiple nodes so loop through it
+		hash_canonical_query_column_list(state, aggregate_function->parameter, status, TRUE);
 		break;
 	case join_STATEMENT:
 		UNPACK_SQL_STATEMENT(join, stmt, join);
@@ -340,6 +340,7 @@ void hash_canonical_query(hash128_state_t *state, SqlStatement *stmt, int *statu
 			/* Note: Below comment is needed to avoid gcc [-Wimplicit-fallthrough=] warning */
 			/* fall through */
 		case FUNCTION_NAME:
+		case TABLE_ASTERISK:
 		case COLUMN_REFERENCE:
 			ydb_mmrhash_128_ingest(state, (void *)value->v.reference, strlen(value->v.reference));
 			break;
@@ -375,7 +376,7 @@ void hash_canonical_query(hash128_state_t *state, SqlStatement *stmt, int *statu
 	case column_alias_STATEMENT:
 		UNPACK_SQL_STATEMENT(column_alias, stmt, column_alias);
 		ADD_INT_HASH(state, column_alias_STATEMENT);
-		// SqlColumn or SqlColumnListAlias
+		// SqlValue (TABLE_ASTERISK) or SqlColumn or SqlColumnListAlias
 		hash_canonical_query(state, column_alias->column, status);
 		// SqlTableAlias
 		hash_canonical_query(state, column_alias->table_alias_stmt, status);

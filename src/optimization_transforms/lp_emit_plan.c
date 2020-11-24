@@ -188,6 +188,8 @@ int emit_plan_helper(char *buffer, size_t buffer_len, int depth, LogicalPlan *pl
 	SqlKey *	    key;
 	SqlOptionalKeyword *start_keyword, *cur_keyword;
 	boolean_t	    skip_emit;
+	SqlColumnAlias *    column_alias;
+	SqlStatement *	    column;
 
 	if (NULL == plan)
 		return 0;
@@ -264,17 +266,23 @@ int emit_plan_helper(char *buffer, size_t buffer_len, int depth, LogicalPlan *pl
 		EMIT_SNPRINTF(written, buff_ptr, buffer, buffer_len, "%s\n", value->v.string_literal);
 		break;
 	case LP_COLUMN_ALIAS:
-		if (column_STATEMENT == plan->v.lp_column_alias.column_alias->column->type) {
-			UNPACK_SQL_STATEMENT(value, plan->v.lp_column_alias.column_alias->column->v.column->columnName, value);
+		column_alias = plan->v.lp_column_alias.column_alias;
+		column = column_alias->column;
+		if (column_STATEMENT == column->type) {
+			UNPACK_SQL_STATEMENT(value, column->v.column->columnName, value);
 			column_name = value->v.string_literal;
 		} else {
-			UNPACK_SQL_STATEMENT(value, plan->v.lp_column_alias.column_alias->column->v.column_list_alias->alias,
-					     value);
+			if (value_STATEMENT == column->type) {
+				assert(TABLE_ASTERISK == column->v.value->type);
+				UNPACK_SQL_STATEMENT(value, column, value);
+			} else {
+				UNPACK_SQL_STATEMENT(value, column->v.column_list_alias->alias, value);
+			}
 			column_name = value->v.string_literal;
 		}
-		UNPACK_SQL_STATEMENT(value, plan->v.lp_column_alias.column_alias->table_alias_stmt->v.table_alias->alias, value);
+		UNPACK_SQL_STATEMENT(value, column_alias->table_alias_stmt->v.table_alias->alias, value);
 		table_name = value->v.string_literal;
-		table_id = plan->v.lp_column_alias.column_alias->table_alias_stmt->v.table_alias->unique_id;
+		table_id = column_alias->table_alias_stmt->v.table_alias->unique_id;
 		EMIT_SNPRINTF(written, buff_ptr, buffer, buffer_len, "%s(%d).%s\n", table_name, table_id, column_name);
 		break;
 	case LP_COLUMN_LIST_ALIAS:

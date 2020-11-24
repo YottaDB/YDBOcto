@@ -472,34 +472,47 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_
 	}
 	case aggregate_function_STATEMENT:
 		UNPACK_SQL_STATEMENT(aggregate_function, v, aggregate_function);
-		// SqlColumnList : We have only one parameter to aggregate functions so no loop needed hence FALSE used below.
-		result |= populate_data_type_column_list(aggregate_function->parameter, type, FALSE, NULL, parse_context);
+		// SqlColumnList : table.* usage will have more than one node so loop through
+		result |= populate_data_type_column_list(aggregate_function->parameter, type, TRUE, NULL, parse_context);
 		// Note that COUNT(...) is always an INTEGER type even though ... might be a string type column.
 		// Hence the if check below.
 		switch (aggregate_function->type) {
 		case COUNT_ASTERISK_AGGREGATE:
-		case COUNT_AGGREGATE:
 		case COUNT_AGGREGATE_DISTINCT:
+			assert(TABLE_ASTERISK != (*type));
+			/* The above assert is valid as count(DISTINCT table.*) value would have been expanded at
+			 * qualify_statement() aggregate_function_STATEMENT case to column_list of column_alias values.
+			 */
+			*type = INTEGER_LITERAL;
+			break;
+		case COUNT_AGGREGATE:
 			*type = INTEGER_LITERAL;
 			break;
 		case AVG_AGGREGATE:
 		case AVG_AGGREGATE_DISTINCT:
 		case SUM_AGGREGATE:
 		case SUM_AGGREGATE_DISTINCT:
-			if ((STRING_LITERAL == *type) || (BOOLEAN_VALUE == *type)) {
-				/* STRING or BOOLEAN type cannot be input for the AVG or SUM function so signal
+			if ((TABLE_ASTERISK == *type) || (STRING_LITERAL == *type) || (BOOLEAN_VALUE == *type)) {
+				/* TABLE_ASTERISK or STRING or BOOLEAN type cannot be input for the AVG or SUM function so signal
 				 * an error in that case.
 				 */
-				ERROR(ERR_MISTYPED_FUNCTION, get_aggregate_func_name(aggregate_function->type),
-				      get_user_visible_type_string(*type));
+				if (TABLE_ASTERISK == *type) {
+					ERROR(ERR_MISTYPED_FUNCTION_TABLE_ASTERISK,
+					      get_aggregate_func_name(aggregate_function->type),
+					      get_user_visible_type_string(*type));
+				} else {
+					ERROR(ERR_MISTYPED_FUNCTION, get_aggregate_func_name(aggregate_function->type),
+					      get_user_visible_type_string(*type));
+				}
 				yyerror(NULL, NULL, &aggregate_function->parameter, NULL, NULL, NULL);
 				result = 1;
 			}
 			break;
 		case MIN_AGGREGATE:
 		case MAX_AGGREGATE:
-			if (BOOLEAN_VALUE == *type) {
-				/* BOOLEAN type cannot be input for the MIN or MAX function so signal an error in that case. */
+			if ((TABLE_ASTERISK == *type) || (BOOLEAN_VALUE == *type)) {
+				/* TABLE_ASTERISK or BOOLEAN type cannot be input for the MIN or MAX function so signal an error in
+				 * that case. */
 				ERROR(ERR_MISTYPED_FUNCTION, get_aggregate_func_name(aggregate_function->type),
 				      get_user_visible_type_string(*type));
 				yyerror(NULL, NULL, &aggregate_function->parameter, NULL, NULL, NULL);
@@ -570,6 +583,14 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_
 			}
 			break;
 		}
+		case TABLE_ASTERISK:
+			/* We should not reach this case as TABLE_ASTERISK can only occur in aggregate function count usage
+			 * and aggregate function has TABLE_ASTERISK enclosed in COLUMN_ALIAS, and COLUMN_ALIAS case itself
+			 * takes care of returning the type.
+			 */
+			assert(FALSE);
+			result = 1;
+			break;
 		case COLUMN_REFERENCE:
 			/* If this happens it probably means it wasn't an extended reference
 			 * which is not something we want to happen, the parser should expand
@@ -598,7 +619,13 @@ int populate_data_type(SqlStatement *v, SqlValueType *type, ParseContext *parse_
 		}
 		break;
 	case column_alias_STATEMENT:
-		if (column_list_alias_STATEMENT == v->v.column_alias->column->type) {
+		if (is_stmt_table_asterisk(v->v.column_alias->column)) {
+			/* When table.* is used with aggregate function other than COUNT
+			 * we can come across this case. Retain type for aggregate_function_STATEMENT case
+			 * to throw appropriate error.
+			 */
+			*type = TABLE_ASTERISK;
+		} else if (column_list_alias_STATEMENT == v->v.column_alias->column->type) {
 			result |= populate_data_type(v->v.column_alias->column, type, parse_context);
 		} else {
 			UNPACK_SQL_STATEMENT(column, v->v.column_alias->column, column);

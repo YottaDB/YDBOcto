@@ -54,15 +54,18 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 	case column_alias_STATEMENT:
 		/* We can get here if the select list was empty and we took all columns from the table.
 		 * OR if we are doing GROUP BY validation. Do some checks in the latter case.
-		 * The column name is being used outside of an aggregate function. Check if the outer query
+		 * 1. The column name is being used outside of an aggregate function. Check if the outer query
 		 * has found at least one aggregate function or GROUP BY usage. In that case, we expect this
 		 * column name to have a GROUP BY specified. If not, issue error.
+		 * 2. We do not expect TABLE_ASTERISK node here but if we find one let populate_data_type() handle error generation
+		 * as its a case of incorrect type. For example `HAVING (table.*) will result in this case.
 		 */
 		UNPACK_SQL_STATEMENT(new_column_alias, stmt, column_alias);
 		UNPACK_SQL_STATEMENT(column_table_alias, new_column_alias->table_alias_stmt, table_alias);
 		parent_table_alias = column_table_alias->parent_table_alias;
 		if (parent_table_alias->do_group_by_checks && (0 == parent_table_alias->aggregate_depth)
-		    && parent_table_alias->aggregate_function_or_group_by_specified && !new_column_alias->group_by_column_number) {
+		    && parent_table_alias->aggregate_function_or_group_by_specified && !new_column_alias->group_by_column_number
+		    && !is_stmt_table_asterisk(stmt)) {
 			SqlStatement *column_name;
 			SqlValue *    value;
 
@@ -77,6 +80,11 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 	case value_STATEMENT:
 		UNPACK_SQL_STATEMENT(value, stmt, value);
 		switch (value->type) {
+		case TABLE_ASTERISK:
+			/* Any usage of table.* in a query leads to this case. It needs to be qualified similar to COLUMN_REFERENCE
+			 * because later stages will assume this type is placed in a COLUMN_ALIAS and has the necessary
+			 * table_alias_STATEMENT.
+			 */
 		case COLUMN_REFERENCE:
 			UNPACK_SQL_STATEMENT(table_alias, table_alias_stmt, table_alias);
 			if (table_alias->do_group_by_checks) {
@@ -106,8 +114,22 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 						if (0 < parent_table_alias->aggregate_depth) {
 							parent_table_alias->aggregate_function_or_group_by_specified = TRUE;
 						} else if (AGGREGATE_DEPTH_GROUP_BY_CLAUSE == parent_table_alias->aggregate_depth) {
-							new_column_alias->group_by_column_number
-							    = ++parent_table_alias->group_by_column_count;
+							SqlValue *value;
+							if ((NULL != new_column_alias->column)
+							    && (value_STATEMENT == new_column_alias->column->type)) {
+								UNPACK_SQL_STATEMENT(value, new_column_alias->column, value);
+							} else {
+								value = NULL;
+							}
+							/* `group_by_column_count` and `group_by_column_number` in case of
+							 * TABLE_ASTERISK is updated by `process_table_asterisk_cla()` invocation so
+							 * no need to do it here.
+							 */
+							if ((NULL == value) || (TABLE_ASTERISK != value->type)) {
+
+								new_column_alias->group_by_column_number
+								    = ++parent_table_alias->group_by_column_count;
+							}
 						} else if (0 != parent_table_alias->aggregate_depth) {
 							assert((AGGREGATE_DEPTH_WHERE_CLAUSE == parent_table_alias->aggregate_depth)
 							       || (AGGREGATE_DEPTH_FROM_CLAUSE
@@ -236,6 +258,17 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 			table_alias->aggregate_function_or_group_by_specified = TRUE;
 			table_alias->aggregate_depth++;
 			result |= qualify_statement(af->parameter, tables, table_alias_stmt, depth + 1, ret);
+			if (0 == result) {
+				UNPACK_SQL_STATEMENT(cur_cl, af->parameter, column_list);
+				assert((COUNT_ASTERISK_AGGREGATE == af->type) || (NULL != cur_cl->value));
+				assert((COUNT_ASTERISK_AGGREGATE != af->type) || (NULL == cur_cl->value));
+				if ((NULL != cur_cl->value) && (column_alias_STATEMENT == cur_cl->value->type)) {
+					UNPACK_SQL_STATEMENT(new_column_alias, cur_cl->value, column_alias);
+					if (is_stmt_table_asterisk(new_column_alias->column)) {
+						process_table_asterisk_cl(af->parameter, af->type);
+					}
+				}
+			}
 			table_alias->aggregate_depth--;
 		}
 		break;
@@ -277,6 +310,18 @@ int qualify_statement(SqlStatement *stmt, SqlJoin *tables, SqlStatement *table_a
 			assert(depth || (NULL == ret_cla)
 			       || (NULL == *ret_cla)); /* assert that caller has initialized "*ret_cla" */
 			result |= qualify_statement(cur_cla->column_list, tables, table_alias_stmt, depth + 1, ret);
+			if (0 == result) {
+				UNPACK_SQL_STATEMENT(cur_cl, cur_cla->column_list, column_list);
+				if (column_alias_STATEMENT == cur_cl->value->type) {
+					UNPACK_SQL_STATEMENT(new_column_alias, cur_cl->value, column_alias);
+					if (is_stmt_table_asterisk(new_column_alias->column)) {
+						/* Processing table.asterisk here is necessary to update group_by_column_count
+						 * correctly in relation to other columns
+						 */
+						process_table_asterisk_cla(stmt, &cur_cla, table_alias, &start_cla);
+					}
+				}
+			}
 			if ((NULL != ret_cla) && (0 == depth)) {
 				SqlColumnListAlias *qualified_cla;
 				int		    column_number;

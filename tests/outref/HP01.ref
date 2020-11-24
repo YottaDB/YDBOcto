@@ -12,6 +12,19 @@ id|firstname|lastname
 5|Zero|Cool
 (6 rows)
 #######################################################################
+# Listing first 3 lines and last 3 lines of [SCHEMA : names1col] [TABLE : names1col]
+#######################################################################
+id
+0
+1
+2
+...
+...
+2
+3
+4
+(5 rows)
+#######################################################################
 # Listing first 3 lines and last 3 lines of [SCHEMA : customers] [TABLE : customers]
 #######################################################################
 customer_id|first_name|last_name|email|address|city|state|zipcode

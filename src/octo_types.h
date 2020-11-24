@@ -233,6 +233,7 @@ typedef enum SqlValueType {
 			  * This is treated as an empty string `""` or `$ZYSQLNULL` based on
 			  * the context. This duality is why it is different from a NUL_VALUE type.
 			  */
+	TABLE_ASTERISK,
 	INVALID_SqlValueType
 } SqlValueType;
 
@@ -514,6 +515,11 @@ typedef struct SqlTableAlias {
 	struct SqlTableAlias *parent_table_alias;
 	// SqlColumnListAlias list of available columns
 	struct SqlStatement *column_list;
+	/* `correlation_specification` is a pointer to a table name alias and an optional list of column name aliases.
+	 * For example the following usage `AS tablealias(columnalias1, columnalias2)` in a query will lead to this field being
+	 * set to a SQLColumnList with nodes corresponding to tablealias, columnalias1 and columnalias2 in the same order.
+	 */
+	struct SqlStatement *correlation_specification;
 } SqlTableAlias;
 
 /**

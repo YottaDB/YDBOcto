@@ -37,12 +37,12 @@ TEMPLATE(tmpl_tablejoin_body, PhysicalPlan *plan, int dot_count, char *tableName
 		col1 = plan->projection;
 		col2_onwards = col1->v.lp_default.operand[1];
 		col1->v.lp_default.operand[1] = NULL;
-		TMPL(tmpl_column_list_combine, col1, plan, ",", FALSE, 0);
+		TMPL(tmpl_column_list_combine, col1, plan, ",", FALSE, 0, FALSE);
 		%{}`n{{ PLAN_LINE_START }}{}%
 		TMPL(tmpl_print_dots, dot_count);
 		%{}SET{}%
 		%{} {{ plan->outputKey->xref_prefix }}{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}",{{ PP_XREF_COLUMN }},{}%
-		TMPL(tmpl_column_list_combine, col2_onwards, plan, ",", FALSE, 0);
+		TMPL(tmpl_column_list_combine, col2_onwards, plan, ",", FALSE, 0, FALSE);
 		%{})=""`n{{ PLAN_LINE_START }}{}%
 		TMPL(tmpl_print_dots, dot_count);
 		%{}IF $INCREMENT({{ plan->outputKey->xref_prefix }}{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}",{{ PP_XREF_COLUMN }})){}%
@@ -68,7 +68,7 @@ TEMPLATE(tmpl_tablejoin_body, PhysicalPlan *plan, int dot_count, char *tableName
 			TMPL(tmpl_print_dots, dot_count);
 			%{}SET {{ PP_YDB_OCTO_EXPR }}={{ PP_YDB_OCTO_EXPR }}&{}%
 			%{}('$DATA({{ PP_YDB_OCTO_ZDISTINCT }}({{ plan->outputKey->unique_id|%d }},{}%
-			TMPL(tmpl_column_list_combine, plan->projection, plan, ",", FALSE, 0);
+			TMPL(tmpl_column_list_combine, plan->projection, plan, ",", FALSE, 0, FALSE);
 			%{}))){}%
 			%{}`n{{ PLAN_LINE_START }}{}%
 			distinct_processed = TRUE;

@@ -1,6 +1,6 @@
 #################################################################
 #								#
-# Copyright (c) 2020 YottaDB LLC and/or its subsidiaries.	#
+# Copyright (c) 2020-2021 YottaDB LLC and/or its subsidiaries.	#
 # All rights reserved.						#
 #								#
 #	This source code contains the intellectual property	#
@@ -40,6 +40,11 @@ select n2.* from names n1, names n2;
 select n1.id,n1.*,n1.id,n1.* from names n1;
 select n1.id,n2.*,n2.id,n2.* from names n1, names n2;
 select * from (select n1.* from names n1) n2;
+select count(n1.*) from names n1;
+select count(names.*) from names;
+select (select count(names.*) from names) from names;
+select tbl1.* from (values (1,1,1), (1,1,2), (1,2,2), (2,1,1), (1,2,1), (2,1,2), (2,2,2), (2,2,1)) as tbl1;
+select count(tbl1.*) from (values (1,1,1), (1,1,2), (1,2,2), (2,1,1), (1,2,1), (2,1,2), (2,2,2), (2,2,1)) as tbl1;
 
 -- ORDER BY tablename.* usage
 select n1.* from names n1 order by n1.*;
@@ -55,6 +60,7 @@ select * from (values (1,4,1), (2,5,2), (3,3,1), (4,2,2),(5,1,1)) as tbl1 order 
 select * from (values (1,4,1), (2,5,2), (3,3,1), (4,2,2),(5,1,1)) as tbl1 order by tbl1.* desc;
 select * from (values (1,1,1), (1,1,2), (1,2,2), (2,1,1), (1,2,1), (2,1,2), (2,2,2), (2,2,1)) as tbl1 order by tbl1.*;
 select * from (values (1,1,1), (1,1,2), (1,2,2), (2,1,1), (1,2,1), (2,1,2), (2,2,2), (2,2,1)) as tbl1 order by tbl1.* desc;
+select * from (values (1,5), (2,4), (3,3), (4,2),(5,1)) as tbl1 order by tbl1.*;
 select * from (select firstname,lastname,id from names)n1 order by n1.*,n1.*;
 select * from (select firstname,lastname,id from names)n1 order by n1.id,n1.*;
 select * from (select firstname,lastname,id from names)n1 order by n1.*,n1.id;
@@ -93,4 +99,17 @@ select n2.* from (
 (select 19 as cmp_id,'sipnbite' as cmp_name,'newyork' as cmp_city)
 ) n2;
 
--- TABLENAME.ASTERISK in order by
+-- TABLENAME.ASTERISK in ORDER BY referring to parent table
+select * from names n1 where exists (select id from names where id=n1.id order by n1.*);
+
+-- TABLENAME.ASTERISK in Select column list where TABLENAME refers to different joins
+select n2.* from ((select 18 as id)union(select 19 as id)) n1 right join ((select 18 as id,'first' as first_name)union(select 19 as id,'last' as first_name)union(select 20 as id,'lastbutone'as firstname)) n2 on n2.id=n1.id;
+select n1.* from ((select 18 as id)union(select 19 as id)) n1 right join ((select 18 as id,'first' as first_name)union(select 19 as id,'last' as first_name)union(select 20 as id,'lastbutone'as firstname)) n2 on n2.id=n1.id;
+-- TABLENAME.ASTERISK in Select column list where TABLENAME refers to parent table
+select id from names n1 where exists (select n1.*);
+select id from names where exists (select names.*);
+
+-- misc
+select n1.firstname,n1.lastname,count(n1.*) from names n1 group by n1.firstname,n1.lastname;
+select n1.* from ((select 1 as id, 'test' as fn) union all (select 2 as id, 'one' as fn)) n1, ((select 1 as id, 'hello' as fn) union all (select 2 as id, 'bello' as fn)) n2;
+select n2.* from ((select 1 as id, 'test' as fn) union all (select 2 as id, 'one' as fn)) n1, ((select 1 as id, 'hello' as fn) union all (select 2 as id, 'bello' as fn)) n2;

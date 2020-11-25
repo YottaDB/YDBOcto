@@ -340,6 +340,12 @@ DISTINCT
 
 The use of this clause returns only non-duplicate rows (keeping one each from the set of duplicates).
 
++++++++++++++++++
+SELECT *
++++++++++++++++++
+
+:code:`SELECT *` is used as a shorthand for all the columns of the selected rows to be part of the output list. :code:`SELECT table_name.*` is used as a shorthand for the columns coming from just the table **table_name**. All the columns in the table **table_name** are considered for processing in the order they appear.
+
 ++++++
 FROM
 ++++++
@@ -448,7 +454,7 @@ To sort rows or columns in the database, you need to have one of the following *
 
    sort_key [COLLATE collation_name] [ASC | DESC];
 
-The **sort_key** is either a column reference or a literal.
+The **sort_key** can be a :code:`column reference`, :code:`literal` or the shorthand :code:`table_name.*`.
 
 The sort key can be followed by a collate clause, ordering specification or both.
 

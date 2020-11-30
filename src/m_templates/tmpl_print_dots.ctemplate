@@ -1,7 +1,7 @@
 {}%
 /****************************************************************
  *								*
- * Copyright (c) 2019 YottaDB LLC and/or its subsidiaries.	*
+ * Copyright (c) 2019-2020 YottaDB LLC and/or its subsidiaries.	*
  * All rights reserved.						*
  *								*
  *	This source code contains the intellectual property	*
@@ -17,13 +17,11 @@
 #include "template_helpers.h"
 
 TEMPLATE(tmpl_print_dots, int dots) {
-	TEMPLATE_INIT();
-
 	int	i;
 
 	for (i = 0; i < dots; i++) {
 		%{}. {}%
 	}
-	TEMPLATE_END();
+	return;
 }
 %{}

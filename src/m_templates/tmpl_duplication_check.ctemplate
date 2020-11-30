@@ -15,8 +15,6 @@
 #include "template_helpers.h"
 
 TEMPLATE(tmpl_duplication_check, PhysicalPlan *plan) {
-	TEMPLATE_INIT();
-
 	unsigned int	i;
 	SqlKey		*key;
 
@@ -39,6 +37,6 @@ TEMPLATE(tmpl_duplication_check, PhysicalPlan *plan) {
 		}
 	}
 	%{}){}%
-	TEMPLATE_END();
+	return;
 }
 %{}

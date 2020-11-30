@@ -15,8 +15,6 @@
 #include "template_helpers.h"
 
 TEMPLATE(tmpl_populate_output_key, PhysicalPlan *plan, int dot_count) {
-	TEMPLATE_INIT();
-
 	boolean_t	stash_columns_in_keys;
 
 	assert(NULL != plan->outputKey);
@@ -155,6 +153,6 @@ TEMPLATE(tmpl_populate_output_key, PhysicalPlan *plan, int dot_count) {
 		TMPL(tmpl_column_list_combine, plan->projection, plan, ",", FALSE, 0);
 		%{})=""{}%
 	}
-	TEMPLATE_END();
+	return;
 }
 %{}

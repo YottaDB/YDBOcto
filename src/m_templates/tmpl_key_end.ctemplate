@@ -17,14 +17,12 @@
 #include "template_helpers.h"
 
 TEMPLATE(tmpl_key_end, SqlKey *key) {
-	TEMPLATE_INIT();
-
-	char			*end = NULL, *table_name;
+	char			*end, *table_name;
 	SqlOptionalKeyword	*keyword;
 	SqlValue		*value;
 	SqlTable		*table;
 
-	if(key->column) {
+	if (key->column) {
 		keyword = get_keyword(key->column, OPTIONAL_END);
 		if (NULL != keyword) {
 			UNPACK_SQL_STATEMENT(value, keyword->v, value);
@@ -33,11 +31,11 @@ TEMPLATE(tmpl_key_end, SqlKey *key) {
 			UNPACK_SQL_STATEMENT(value, table->tableName, value);
 			table_name = value->v.string_literal;
 			TMPL(tmpl_emit_source, table, end, table_name, key->unique_id, MAX_KEY_COUNT, EmitSourceForm_Value);
-			TEMPLATE_END();
+			return;
 		}
 	}
 	TMPL(tmpl_key, key);
 	%{}=""{}%
-	TEMPLATE_END();
+	return;
 }
 %{}

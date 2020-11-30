@@ -17,14 +17,12 @@
 #include "template_helpers.h"
 
 TEMPLATE(tmpl_order_by_key, int num_cols) {
-	TEMPLATE_INIT();
-
 	int	i;
 
 	%{},{{ PP_ORDER_BY }}{}%
 	for (i = 1; i <= num_cols; i++) {
 		%{},%%ydboctoi({{ i|%d }}){}%
 	}
-	TEMPLATE_END();
+	return;
 }
 %{}

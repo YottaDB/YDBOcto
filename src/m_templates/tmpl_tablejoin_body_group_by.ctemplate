@@ -15,8 +15,6 @@
 #include "template_helpers.h"
 
 TEMPLATE(tmpl_tablejoin_body_group_by, PhysicalPlan *plan, int dot_count) {
-	TEMPLATE_INIT();
-
 	LogicalPlan	*af, *lp_column_list, *first_aggregate;
 
 	assert(NULL != plan->outputKey);
@@ -97,6 +95,6 @@ TEMPLATE(tmpl_tablejoin_body_group_by, PhysicalPlan *plan, int dot_count) {
 		TMPL(tmpl_duplication_check, plan);
 		%{}=1{}%
 	}
-	TEMPLATE_END();
+	return;
 }
 %{}

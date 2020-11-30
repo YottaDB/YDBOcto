@@ -34,8 +34,6 @@ int match_expression(char *start, char *column, int column_size);
  *  references to this PhysicalPlan's keys
  */
 TEMPLATE(tmpl_emit_source, SqlTable *table, char *source, char *table_name, int unique_id, int num_vars_to_match, enum EmitSourceForm form) {
-	TEMPLATE_INIT();
-
 	char	*source_ptr;
 	char	column[MAX_STR_CONST];
 	int	t, matched_vars = 0;
@@ -114,7 +112,7 @@ TEMPLATE(tmpl_emit_source, SqlTable *table, char *source, char *table_name, int 
 		paren_count--;
 		%{}){}%
 	}
-	TEMPLATE_END();
+	return;
 }
 
 int match_expression(char *start, char *column, int column_size) {

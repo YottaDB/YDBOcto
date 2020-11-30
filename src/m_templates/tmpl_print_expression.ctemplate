@@ -27,8 +27,6 @@
  * b) The input parameter `depth` is a recursion depth indicator which is used only if `dot_count` is non-zero.
  */
 TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_count, int depth) {
-	TEMPLATE_INIT();
-
 	char		*m_operator, *sql_operator, *compare_operator;
 	boolean_t	use_string_comparison, coerce_to_numeric;
 	SqlValue	*value;
@@ -54,7 +52,7 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 	switch (plan_type) {
 	case LP_WHERE:
 		TMPL(tmpl_print_expression, first_operand, pplan, dot_count, depth);
-		TEMPLATE_END();
+		return;
 		break;
 	case LP_VALUE:
 		if (dot_count) {
@@ -1134,6 +1132,6 @@ TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_
 			%{}){}%
 		}
 	}
-	TEMPLATE_END();
+	return;
 }
 %{}

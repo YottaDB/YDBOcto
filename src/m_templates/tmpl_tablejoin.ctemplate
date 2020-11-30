@@ -16,8 +16,6 @@
 
 TEMPLATE(tmpl_tablejoin, PhysicalPlan *plan, LogicalPlan *tablejoin, unsigned int cur_key, boolean_t right_join_second_half,
 								int dot_count, char *tableName, char *columnName) {
-	TEMPLATE_INIT();
-
 	SqlKey			*key, *save_key;
 	unsigned int		total_keys, key_start;
 	int			left_table_id, right_table_id, this_table_id;
@@ -368,6 +366,6 @@ TEMPLATE(tmpl_tablejoin, PhysicalPlan *plan, LogicalPlan *tablejoin, unsigned in
 			}
 		}
 	}
-	TEMPLATE_END();
+	return;
 }
 %{}

@@ -19,8 +19,6 @@
  * is greater than 0 (if not already the case) before invoking "tmpl_print_expression()".
  */
 TEMPLATE(tmpl_print_expression_assignment, LogicalPlan *plan, PhysicalPlan *pplan, int dot_count, int depth) {
-	TEMPLATE_INIT();
-
 	boolean_t	adjust_dot_count;
 
 	adjust_dot_count = !dot_count;
@@ -35,6 +33,6 @@ TEMPLATE(tmpl_print_expression_assignment, LogicalPlan *plan, PhysicalPlan *ppla
 	if (adjust_dot_count) {
 		dot_count--;
 	}
-	TEMPLATE_END();
+	return;
 }
 %{}

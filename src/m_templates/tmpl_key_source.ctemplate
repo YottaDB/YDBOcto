@@ -18,8 +18,6 @@
  *  a cross reference, or the value of user-specified global mapping
  */
 TEMPLATE(tmpl_key_source, PhysicalPlan *pplan, SqlKey *key) {
-	TEMPLATE_INIT();
-
 	char			*tableName;
 	SqlValue		*value;
 	SqlTable		*table;
@@ -72,6 +70,6 @@ TEMPLATE(tmpl_key_source, PhysicalPlan *pplan, SqlKey *key) {
 		UNPACK_SQL_STATEMENT(value, keyword->v, value);
 		TMPL(tmpl_emit_source, table, value->v.string_literal, tableName, key->unique_id, keys_to_match, EmitSourceForm_Value);
 	}
-	TEMPLATE_END();
+	return;
 }
 %{}

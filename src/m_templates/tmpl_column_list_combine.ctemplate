@@ -18,8 +18,6 @@
 
 
 TEMPLATE(tmpl_column_list_combine, LogicalPlan *plan, PhysicalPlan *pplan, char *delim, boolean_t str2mval, int dot_count) {
-	TEMPLATE_INIT();
-
 	boolean_t	is_order_by, is_lp_table_value, left_concat_needed;
 
 	assert((',' == *delim) || ('_' == *delim));
@@ -94,6 +92,6 @@ TEMPLATE(tmpl_column_list_combine, LogicalPlan *plan, PhysicalPlan *pplan, char 
 			}
 		}
 	}
-	TEMPLATE_END();
+	return;
 }
 %{}

@@ -15,8 +15,6 @@
 #include "template_helpers.h"
 
 TEMPLATE(tmpl_tablejoin_deferred_plans, PhysicalPlan *plan, int dot_count) {
-	TEMPLATE_INIT();
-
 	PhysicalPlan	*temp_plan;
 	char		*plan_name;
 
@@ -40,6 +38,6 @@ TEMPLATE(tmpl_tablejoin_deferred_plans, PhysicalPlan *plan, int dot_count) {
 		}
 		temp_plan = temp_plan->next;
 	}
-	TEMPLATE_END();
+	return;
 }
 %{}

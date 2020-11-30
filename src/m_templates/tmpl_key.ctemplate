@@ -20,8 +20,6 @@
 #include "template_helpers.h"
 
 TEMPLATE(tmpl_key, SqlKey *key) {
-	TEMPLATE_INIT();
-
 	char		*tableName = "";
 	char		*columnName = "";
 	SqlValue	*value;
@@ -35,6 +33,6 @@ TEMPLATE(tmpl_key, SqlKey *key) {
 		columnName = value->v.reference;
 	}
 	%{}{{ config->global_names.cursor }}(cursorId,{{ PP_KEYS }},{{ key->unique_id|%d }},"{{ tableName }}","{{ columnName }}"){}%
-	TEMPLATE_END();
+	return;
 }
 %{}

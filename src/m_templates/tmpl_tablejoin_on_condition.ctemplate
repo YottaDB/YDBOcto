@@ -16,8 +16,6 @@
 
 TEMPLATE(tmpl_tablejoin_on_condition, LogicalPlan *tablejoin, PhysicalPlan *plan, int *dot_count,
 									boolean_t *deferred_plans_emitted) {
-	TEMPLATE_INIT();
-
 	LogicalPlan		*join_condition;
 
 	join_condition = tablejoin->extra_detail.lp_table_join.join_on_condition;
@@ -34,6 +32,6 @@ TEMPLATE(tmpl_tablejoin_on_condition, LogicalPlan *tablejoin, PhysicalPlan *plan
 		%{}`n{{ PLAN_LINE_START }}{}%
 		(*dot_count)++;
 	}
-	TEMPLATE_END();
+	return;
 }
 %{}

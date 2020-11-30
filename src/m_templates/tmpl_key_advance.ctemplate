@@ -15,8 +15,6 @@
 #include "template_helpers.h"
 
 TEMPLATE(tmpl_key_advance, PhysicalPlan *pplan, SqlKey *key) {
-	TEMPLATE_INIT();
-
 	char			*tableName;
 	SqlValue		*value;
 	SqlTable		*table;
@@ -28,8 +26,10 @@ TEMPLATE(tmpl_key_advance, PhysicalPlan *pplan, SqlKey *key) {
 	// If there is no table, this is a temporary key;
 	//  use cursor to store the value
 	if ((NULL == key->fixed_to_value) && (NULL == key->table)) {
-		TMPL(tmpl_temp_key_advance, key);
-		TEMPLATE_END();
+		%{}{{ config->global_names.cursor }}(cursorId,{{ PP_KEYS }},{{ key->unique_id|%d }},"","",{}%
+		TMPL(tmpl_key, key);
+		%{}){}%
+		return;
 	}
 
 	table = key->table;
@@ -72,6 +72,6 @@ TEMPLATE(tmpl_key_advance, PhysicalPlan *pplan, SqlKey *key) {
 		UNPACK_SQL_STATEMENT(value, keyword->v, value);
 		TMPL(tmpl_emit_source, table, value->v.string_literal, tableName, key->unique_id, keys_to_match, EmitSourceForm_Value);
 	}
-	TEMPLATE_END();
+	return;
 }
 %{}

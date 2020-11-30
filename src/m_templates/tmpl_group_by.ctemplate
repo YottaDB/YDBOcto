@@ -15,8 +15,6 @@
 #include "template_helpers.h"
 
 TEMPLATE(tmpl_group_by, PhysicalPlan *plan, int dot_count) {
-	TEMPLATE_INIT();
-
 	LogicalPlan	*af, *first_aggregate, *group_by;
 
 	assert(NULL != plan->outputKey);
@@ -140,6 +138,6 @@ TEMPLATE(tmpl_group_by, PhysicalPlan *plan, int dot_count) {
 	%{}IF {{ PP_YDB_OCTO_EXPR }} DO{}%
 	// Populate records in the output key (i.e. SELECT column list)
 	TMPL(tmpl_populate_output_key, plan, dot_count);
-	TEMPLATE_END();
+	return;
 }
 %{}

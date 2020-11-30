@@ -17,8 +17,6 @@
 TEMPLATE(tmpl_tablejoin_body, PhysicalPlan *plan, int dot_count, char *tableName, char *columnName) {
 	boolean_t	distinct_processed;
 
-	TEMPLATE_INIT();
-
 	assert(NULL != plan->outputKey);
 	if (plan->outputKey->is_cross_reference_key) {
 		/* Simplest case. Finish it first */
@@ -105,7 +103,7 @@ TEMPLATE(tmpl_tablejoin_body, PhysicalPlan *plan, int dot_count, char *tableName
 		TMPL(tmpl_print_dots, dot_count);
 		%{}IF $INCREMENT(^{{ config->global_names.raw_xref }}("{{ tableName }}","{{ columnName }}")){}%
 		col1->v.lp_default.operand[1] = col2_onwards;	/* Make the 2nd column visible again */
-		TEMPLATE_END();
+		return;
 	}
 	// Apply the conditions for this statement
 	TMPL(tmpl_print_dots, dot_count);
@@ -150,10 +148,10 @@ TEMPLATE(tmpl_tablejoin_body, PhysicalPlan *plan, int dot_count, char *tableName
 	 */
 	if (IS_GROUP_BY_PLAN(plan)) {
 		TMPL(tmpl_tablejoin_body_group_by, plan, dot_count);
-		TEMPLATE_END();
+		return;
 	}
 	// Populate records in the output key (i.e. SELECT column list)
 	TMPL(tmpl_populate_output_key, plan, dot_count);
-	TEMPLATE_END();
+	return;
 }
 %{}

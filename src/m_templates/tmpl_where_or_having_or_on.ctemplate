@@ -19,13 +19,11 @@
 
 /* Function invoked to generate M code for WHERE clause or HAVING clause or ON condition in a JOIN */
 TEMPLATE(tmpl_where_or_having_or_on, LogicalPlan *plan, PhysicalPlan *pplan, int dot_count) {
-	TEMPLATE_INIT();
-
 	assert(dot_count);	/* Ensure "tmpl_print_expression" knows to split boolean expression
 				 * across multiple lines so we do not exceed M maximum source line limit.
 				 */
 	%{}`n{{ PLAN_LINE_START }}{}%
 	TMPL(tmpl_print_expression, plan, pplan, dot_count, 0);	/* variable PP_YDB_OCTO_EXPR holds the result */
-	TEMPLATE_END();
+	return;
 }
 %{}

@@ -18,21 +18,19 @@
 #include "template_helpers.h"
 
 TEMPLATE(tmpl_column_reference, PhysicalPlan *pplan, SqlColumnAlias *column_alias, boolean_t is_trigger) {
-	TEMPLATE_INIT();
-
-	SqlColumn			*column = NULL, *key_column;
-	SqlTable			*table;
-	SqlValue			*value;
-	SqlTableAlias			*table_alias;
-	SqlColumnListAlias		*cl_alias;
-	SqlColumnList			*column_list;
-	SqlOptionalKeyword		*keyword;
-	SqlKey				*key;
-	char				*table_name, *delim, *nullchar;
-	char				*piece = NULL, *source;
-	unsigned int			i;
-	boolean_t			skip_dollar_piece, is_dollar_char, is_xref, not_null;
-	PhysicalPlan			*cur_plan;
+	SqlColumn		*column = NULL, *key_column;
+	SqlTable		*table;
+	SqlValue		*value;
+	SqlTableAlias		*table_alias;
+	SqlColumnListAlias	*cl_alias;
+	SqlColumnList		*column_list;
+	SqlOptionalKeyword	*keyword;
+	SqlKey			*key;
+	char			*table_name, *delim, *nullchar;
+	char			*piece = NULL, *source;
+	unsigned int		i;
+	boolean_t		skip_dollar_piece, is_dollar_char, is_xref, not_null;
+	PhysicalPlan		*cur_plan;
 
 	// First check for EXTRACT, then GLOBAL & PIECE, and lastly assemble it ourselves based on table_alias->source
 	if (column_list_alias_STATEMENT == column_alias->column->type) {
@@ -45,11 +43,11 @@ TEMPLATE(tmpl_column_reference, PhysicalPlan *pplan, SqlColumnAlias *column_alia
 			UNPACK_SQL_STATEMENT(value, column_list->value, value);
 			UNPACK_SQL_STATEMENT(column_alias, value->v.calculated, column_alias);
 			TMPL(tmpl_column_reference, pplan, column_alias, is_trigger);
-			TEMPLATE_END();
+			return;
 		}
 		if (column_alias_STATEMENT == column_list->value->type) {
 			TMPL(tmpl_column_reference, pplan, column_list->value->v.column_alias, is_trigger);
-			TEMPLATE_END();
+			return;
 		}
 	}
 	if (pplan->tablejoin_body_group_by_done && column_alias->group_by_column_number) {
@@ -60,13 +58,13 @@ TEMPLATE(tmpl_column_reference, PhysicalPlan *pplan, SqlColumnAlias *column_alia
 		%{}$$mval2str^%%ydboctoplanhelpers({}%
 		%{}$$mvalPiece^%%ydboctoplanhelpers(%%ydboctog,{{ column_alias->group_by_column_number|%d }}){}%
 		%{}){}%
-		TEMPLATE_END();
+		return;
 	}
 	UNPACK_SQL_STATEMENT(table_alias, column_alias->table_alias_stmt, table_alias);
 	assert(create_table_STATEMENT == table_alias->table->type);
 	if (pplan->treat_key_as_null[table_alias->unique_id]) {	/* Treat all columns in the table as NULL (used for OUTER JOINs) */
 		%{}$ZYSQLNULL{}%
-		TEMPLATE_END();
+		return;
 	}
 	// If this is a traditional value, fetch it from the database
 	UNPACK_SQL_STATEMENT(table, table_alias->table, create_table);
@@ -114,7 +112,7 @@ TEMPLATE(tmpl_column_reference, PhysicalPlan *pplan, SqlColumnAlias *column_alia
 						break;
 					}
 					TMPL(tmpl_key, key);
-					TEMPLATE_END();
+					return;
 				}
 			}
 		}
@@ -188,6 +186,6 @@ TEMPLATE(tmpl_column_reference, PhysicalPlan *pplan, SqlColumnAlias *column_alia
 			}
 		}
 	}
-	TEMPLATE_END();
+	return;
 }
 %{}

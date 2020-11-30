@@ -23,13 +23,12 @@
 // This does not put a trailing semicolon
 #define TEMPLATE(name, ...) void name(char **global_buffer, int *buffer_len, int *buffer_index, ##__VA_ARGS__)
 
-#define TEMPLATE_INIT() int written, retry = FALSE;
-
-#define TEMPLATE_END() return;
-
 /// WARNING: this macro assumes the presence of global_buffer, buffer_len, buffer_index, written, retry
 #define TEMPLATE_SNPRINTF(...)                                                                                  \
 	do {                                                                                                    \
+		boolean_t retry;                                                                                \
+		int	  written;                                                                              \
+                                                                                                                \
 		retry = FALSE;                                                                                  \
 		written = snprintf(*global_buffer + *buffer_index, *buffer_len - *buffer_index, ##__VA_ARGS__); \
 		if (written >= *buffer_len - *buffer_index) {                                                   \
@@ -38,7 +37,9 @@
 			continue;                                                                               \
 		}                                                                                               \
 		*buffer_index += written;                                                                       \
-	} while (retry);
+		if (!retry)                                                                                     \
+			break;                                                                                  \
+	} while (TRUE);
 
 /* Define PP_* (stands for Physical Plan) macros which correspond to literals (numerics/strings) that are used in
  * various parts of the "*.ctemplate" files in Octo code (all deal with physical plans).
@@ -76,6 +77,7 @@ void resize_tmpl_buffer(char **global_buffer, int *buffer_len, int *buffer_index
 
 TEMPLATE(tmpl_print_dots, int dots);
 TEMPLATE(tmpl_physical_plan, PhysicalPlan *plan);
+TEMPLATE(tmpl_insert_into, PhysicalPlan *plan);
 TEMPLATE(tmpl_tablejoin, PhysicalPlan *plan, LogicalPlan *tablejoin, unsigned int cur_key, boolean_t right_join_second_half,
 	 int dot_count, char *tableName, char *columnName);
 TEMPLATE(tmpl_rightjoin_key, PhysicalPlan *plan, unsigned int key_start, unsigned int key_end);
@@ -91,7 +93,6 @@ TEMPLATE(tmpl_key_end, SqlKey *key);
 TEMPLATE(tmpl_key, SqlKey *key);
 TEMPLATE(tmpl_key_advance, PhysicalPlan *pplan, SqlKey *key);
 TEMPLATE(tmpl_key_source, PhysicalPlan *pplan, SqlKey *key);
-TEMPLATE(tmpl_temp_key_advance, SqlKey *key);
 TEMPLATE(tmpl_print_expression, LogicalPlan *plan, PhysicalPlan *pplan, int dot_count, int depth);
 TEMPLATE(tmpl_print_expression_assignment, LogicalPlan *plan, PhysicalPlan *pplan, int dot_count, int depth);
 TEMPLATE(tmpl_column_reference, PhysicalPlan *pplan, SqlColumnAlias *column_alias, boolean_t is_trigger);

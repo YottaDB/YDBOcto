@@ -421,6 +421,10 @@ PSQL
 	echo " -> exit_status from ${ctestCommand} = $exit_status"
 	# Re-enable "set -e" now that ctest is done.
 	set -e
+	# Unset verbose mode as the below for loop and bats-test.* usages can print thousands of lines
+	# and/or very long lines that can pollute the pipeline console output
+	set +v
+	set +x
 	# Find out list of passed bats dirs. Need to sort for later use by "join"
 	ls -1d bats-test.*// | sed 's,/.*,,g' | sort > all_bats_dirs.txt
 	# Find out list of failed bats dirs. Need to sort for later use by "join"
@@ -456,12 +460,22 @@ PSQL
 		fi
 		cd ..
 	done
+	# Restore verbose output now that for loop and bats-test.* usages (long/lots-of lines) are done
+	set -v
+	set -x
 fi
 
 if [[ "test-auto-upgrade" != $jobname ]]; then
 	if [[ -s passed_bats_dirs.txt ]]; then
 		echo '# Remove "bats-test*" directories corresponding to passed subtests (reduces pipeline artifact size)'
+		# Unset verbose mode as the below can print a very long line of output
+		# and pollute the pipeline console output
+		set +v
+		set +x
 		rm -rf `cat passed_bats_dirs.txt`
+		# Restore verbose output now that for long line of output is done
+		set -v
+		set -x
 	fi
 	if [[ 0 == $exit_status ]]; then
 		if [[ $build_type != "RelWithDebInfo" || $disable_install != "OFF" ]]; then
